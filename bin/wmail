@@ -1,0 +1,11 @@
+#!/bin/sh
+
+case "x-$MAILER" in
+x-|x-browser)
+	# start mail in a new window
+	web 'mailto://'$1
+	;;
+*)
+	9term $MAILER
+	;;
+esac
