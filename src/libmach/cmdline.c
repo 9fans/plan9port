@@ -11,7 +11,7 @@ Regs *correg;
 Map *symmap;
 Map *cormap;
 
-int
+static int
 alldigs(char *s)
 {
 	while(*s){
@@ -181,6 +181,7 @@ attachcore(Fhdr *hdr)
 int
 attachdynamic(void)
 {
+extern void elfdl386mapdl(void);
 	elfdl386mapdl();
 	return 0;
 }
