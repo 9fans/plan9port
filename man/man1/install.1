@@ -36,6 +36,11 @@ builds an HTML version of the manual and installs it in
 .PP
 .I INSTALL
 can safely be repeated to rebuild the system from scratch.
+.PP
+The system uses different threading implementations on Linux 2.6 and
+later kernels than on 2.4 and earlier;
+and on FreeBSD 5 and later kernels than on FreeBSD 4 and earlier.
+Running binaries from one class on another may not work.
 .SH FILES
 .TP
 .B \*9/lib/moveplan9.files
