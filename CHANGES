@@ -4,6 +4,12 @@ August 10, 2004
 
 	change plumbing rule for html to send to editor
 
+July 3, 2004
+	Add missing parameter to smprint in libdraw/x11-init.c.  From rob.
+	Add missing parameter type in samterm/main.c.  Also from rob.
+	Teach web about vanilla Mozilla.
+	Make 9term more clever about terminal echo. From Axel Belinfante.
+
 June 20, 2004
 
 	x11 geometry fixes, from Peter Canning
@@ -229,7 +235,9 @@ March 25, 2004
 
 	Add Indent command to acme listing.  Reported by Rob Pike.
 
-	Define clock to plumbclock in plumber/fsys.c to avoid name clash on SunOS.
+	Define clock to plumbclock in plumber/fsys.c to avoid
+	name clash on SunOS.
+
 	Reported by Axel Belinfante and Markus Friedl.
 
 	Expanded NOTES to discuss CVS some more.
