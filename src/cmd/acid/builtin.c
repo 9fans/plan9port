@@ -43,6 +43,7 @@ void	includepipe(Node*, Node*);
 void	regexp(Node*, Node*);
 void textfile(Node*, Node*);
 void deltextfile(Node*, Node*);
+void stringn(Node*, Node*);
 
 typedef struct Btab Btab;
 struct Btab
@@ -83,6 +84,7 @@ struct Btab
 	"status",	status,
 	"stop",		stop,
 	"strace",	strace,
+	"stringn",	stringn,
 	"sysstop",		sysstop,
 	"textfile",	textfile,
 	"waitstop",	waitstop,
@@ -1474,3 +1476,45 @@ deltextfile(Node *r, Node *args)
 		error("symbol file %s not open", file);
 }
 
+int xget1(Map *m, ulong addr, u8int *a, int n);
+
+void
+stringn(Node *r, Node *args)
+{
+	uint addr;
+	int i, n, ret;
+	Node res, *av[Maxarg];
+	char *buf;
+
+	na = 0;
+	flatten(av, args);
+	if(na != 2)
+		error("stringn(addr, n): arg count");
+
+	expr(av[0], &res);
+	if(res.type != TINT)
+		error("stringn(addr, n): arg type");
+	addr = res.store.u.ival;
+
+	expr(av[1], &res);
+	if(res.type != TINT)
+		error("stringn(addr,n): arg type");
+	n = res.store.u.ival;
+
+	buf = malloc(n+1);
+	if(buf == nil)
+		error("out of memory");
+
+	r->type = TSTRING;
+	for(i=0; i<n; i++){
+		ret = xget1(cormap, addr, (uchar*)&buf[i], 1);
+		if(ret < 0){
+			free(buf);
+			error("indir: %r");
+		}
+		addr++;
+	}
+	buf[n] = 0;
+	r->store.u.string = strnode(buf);
+	free(buf);
+}
