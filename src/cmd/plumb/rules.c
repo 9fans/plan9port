@@ -531,6 +531,11 @@ readruleset(void)
 	Ruleset *rs;
 	Rule *r;
 	int eof, inrule, i, ncmd;
+	char *plan9root;
+
+	plan9root = get9root();
+	if(plan9root)
+		setvariable("plan9", 5, plan9root, plan9root);
 
    Again:
 	eof = 0;

@@ -58,7 +58,7 @@ data matches '[a-zA-Z¡-￿0-9_\-./]+'
 data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
 arg isfile	$0
 plumb to image
-plumb start qiv -t $file
+plumb start page $file
 
 # postscript/pdf/dvi go to page but not over the a plumb port
 # the port is here for reference but is unused
@@ -67,8 +67,7 @@ data matches '[a-zA-Z¡-￿0-9_\-./]+'
 data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(ps|PS|eps|EPS|pdf|PDF|dvi|DVI)'
 arg isfile	$0
 plumb to postscript
-plumb start psv $file
-# plumb start page -w $file
+plumb start page $file
 
 # open office - s[xt][cdigmw], doc, xls, ppt
 data matches '[a-zA-Z¡-￿0-9_\-./]+'
@@ -104,10 +103,10 @@ attr add	addr=$3
 plumb to edit
 plumb client $editor
 
-# .h files are looked up in /usr/local/plan9/include and passed to edit
+# .h files are looked up in $plan9/include and passed to edit
 type is text
 data matches '([a-zA-Z¡-￿0-9]+\.h)('$addr')?'
-arg isfile	/usr/local/plan9/include/$1
+arg isfile	$plan9/include/$1
 data set	$file
 attr add	addr=$3
 plumb to edit
@@ -138,9 +137,9 @@ plumb start rc -c 'man '$2' '$1' >[2=1] | nobs | plumb -i -d edit -a ''action=sh
 dst is image
 arg isfile $data
 plumb to image
-plumb start qiv -t $data
+plumb start page $data
 
 # start rule for postscript without known suffixes
 dst is postscript
 arg isfile $data
-plumb start gv $data
+plumb start page $data
