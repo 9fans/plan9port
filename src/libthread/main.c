@@ -15,6 +15,13 @@ static void mainlauncher(void*);
 extern void (*_sysfatal)(char*, va_list);
 
 void
+_threadstatus(int x)
+{
+	USED(x);
+	threadstatus();
+}
+
+void
 _threaddie(int x)
 {
 	extern char *_threadexitsallstatus;
@@ -38,6 +45,7 @@ main(int argc, char **argv)
 
 	signal(SIGTERM, _threaddie);
 	signal(SIGCHLD, _nop);
+	signal(SIGINFO, _threadstatus);
 //	rfork(RFREND);
 
 //_threaddebuglevel = (DBGSCHED|DBGCHAN|DBGREND)^~0;

@@ -96,6 +96,7 @@ struct Thread
 
 	Chanstate	chan;		/* which channel operation is current */
 	Alt		*alt;			/* pointer to current alt structure (debugging) */
+	ulong		userpc;
 
 	void*	udata[NPRIV];	/* User per-thread data pointer */
 };

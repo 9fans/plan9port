@@ -9,6 +9,16 @@ static int altexec(Alt*, int);
 int _threadhighnentry;
 int _threadnalt;
 
+static void
+setuserpc(ulong pc)
+{
+	Thread *t;
+
+	t = _threadgetproc()->thread;
+	if(t)
+		t->userpc = pc;
+}
+
 static int
 canexec(Alt *a)
 {
@@ -86,8 +96,8 @@ chancreate(int elemsize, int elemcnt)
 	return c;
 }
 
-int
-alt(Alt *alts)
+static int
+_alt(Alt *alts)
 {
 	Alt *a, *xa;
 	Channel *volatile c;
@@ -197,6 +207,13 @@ _threadnalt++;
 	return a - alts;
 }
 
+int
+alt(Alt *alts)
+{
+	setuserpc(getcallerpc(&alts));
+	return _alt(alts);
+}
+
 static int
 runop(int op, Channel *c, void *v, int nb)
 {
@@ -214,7 +231,7 @@ runop(int op, Channel *c, void *v, int nb)
 	a[1].op = CHANEND;
 	if(nb)
 		a[1].op = CHANNOBLK;
-	switch(r=alt(a)){
+	switch(r=_alt(a)){
 	case -1:	/* interrupted */
 		return -1;
 	case 1:	/* nonblocking, didn't accomplish anything */
@@ -232,24 +249,28 @@ runop(int op, Channel *c, void *v, int nb)
 int
 recv(Channel *c, void *v)
 {
+	setuserpc(getcallerpc(&c));
 	return runop(CHANRCV, c, v, 0);
 }
 
 int
 nbrecv(Channel *c, void *v)
 {
+	setuserpc(getcallerpc(&c));
 	return runop(CHANRCV, c, v, 1);
 }
 
 int
 send(Channel *c, void *v)
 {
+	setuserpc(getcallerpc(&c));
 	return runop(CHANSND, c, v, 0);
 }
 
 int
 nbsend(Channel *c, void *v)
 {
+	setuserpc(getcallerpc(&c));
 	return runop(CHANSND, c, v, 1);
 }
 
@@ -266,6 +287,7 @@ channelsize(Channel *c, int sz)
 int
 sendul(Channel *c, ulong v)
 {
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(ulong));
 	return send(c, &v);
 }
@@ -275,8 +297,9 @@ recvul(Channel *c)
 {
 	ulong v;
 
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(ulong));
-	if(recv(c, &v) < 0)
+	if(runop(CHANRCV, c, &v, 0) < 0)
 		return ~0;
 	return v;
 }
@@ -284,8 +307,9 @@ recvul(Channel *c)
 int
 sendp(Channel *c, void *v)
 {
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(void*));
-	return send(c, &v);
+	return runop(CHANSND, c, &v, 0);
 }
 
 void*
@@ -293,8 +317,9 @@ recvp(Channel *c)
 {
 	void *v;
 
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(void*));
-	if(recv(c, &v) < 0)
+	if(runop(CHANRCV, c, &v, 0) < 0)
 		return nil;
 	return v;
 }
@@ -302,8 +327,9 @@ recvp(Channel *c)
 int
 nbsendul(Channel *c, ulong v)
 {
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(ulong));
-	return nbsend(c, &v);
+	return runop(CHANSND, c, &v, 1);
 }
 
 ulong
@@ -311,8 +337,9 @@ nbrecvul(Channel *c)
 {
 	ulong v;
 
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(ulong));
-	if(nbrecv(c, &v) == 0)
+	if(runop(CHANRCV, c, &v, 1) == 0)
 		return 0;
 	return v;
 }
@@ -320,8 +347,9 @@ nbrecvul(Channel *c)
 int
 nbsendp(Channel *c, void *v)
 {
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(void*));
-	return nbsend(c, &v);
+	return runop(CHANSND, c, &v, 1);
 }
 
 void*
@@ -329,8 +357,9 @@ nbrecvp(Channel *c)
 {
 	void *v;
 
+	setuserpc(getcallerpc(&c));
 	channelsize(c, sizeof(void*));
-	if(nbrecv(c, &v) == 0)
+	if(runop(CHANRCV, c, &v, 1) == 0)
 		return nil;
 	return v;
 }

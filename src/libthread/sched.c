@@ -4,7 +4,6 @@
 
 //static Thread	*runthread(Proc*);
 
-#if 0
 static char *_psstate[] = {
 	"Dead",
 	"Running",
@@ -19,7 +18,6 @@ psstate(int s)
 		return "unknown";
 	return _psstate[s];
 }
-#endif
 
 void
 _schedinit(void *arg)
@@ -271,3 +269,15 @@ yield(void)
 	_sched();
 }
 
+void
+threadstatus(void)
+{
+	Proc *p;
+	Thread *t;
+
+	p = _threadgetproc();
+	for(t=p->threads.head; t; t=t->nextt)
+		fprint(2, "[%3d] %s userpc=%lux\n",
+			t->id, psstate(t->state), t->userpc);
+}
+	
