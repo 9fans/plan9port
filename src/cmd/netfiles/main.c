@@ -256,7 +256,7 @@ parsename(char *name, char **server, char **path)
 char*
 filestat(char *server, char *path)
 {
-	return sysrun(2, "9 netstat %q %q", server, path);
+	return sysrun(2, "9 netfilestat %q %q", server, path);
 }
 
 /*
@@ -304,9 +304,9 @@ filethread(void *v)
 					winprint(w, "data", "[reading...]");
 					winaddr(w, ",");
 					if(strcmp(type, "file")==0)
-						twait(pipetowin(w, "data", 2, "9 netget %q %q", server, path));
+						twait(pipetowin(w, "data", 2, "9 netfileget %q %q", server, path));
 					else
-						twait(pipetowin(w, "data", 2, "9 netget -d %q %q | winid=%d mc", server, path, w->id));
+						twait(pipetowin(w, "data", 2, "9 netfileget -d %q %q | winid=%d mc", server, path, w->id));
 					cleanname(name);
 					if(strcmp(type, "directory")==0){
 						p = name+strlen(name);
@@ -346,7 +346,7 @@ filethread(void *v)
 					fprint(2, "Netfiles: bad name %s\n", name);
 					goto out;
 				}
-				if(twait(pipewinto(w, "body", 2, "9 netput %q %q", server, path)) >= 0){
+				if(twait(pipewinto(w, "body", 2, "9 netfileput %q %q", server, path)) >= 0){
 					cleanname(name);
 					winname(w, name);
 					winctl(w, "clean");
