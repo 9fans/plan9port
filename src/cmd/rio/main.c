@@ -143,12 +143,12 @@ main(int argc, char *argv[])
 
 	curtime = -1;		/* don't care */
 	if (do_exit) {
-		sendcmessage(DefaultRootWindow(dpy), exit_rio, 0L, 1);
+		sendcmessage(DefaultRootWindow(dpy), exit_rio, 0L, 1, 1);
 		XSync(dpy, False);
 		exit(0);
 	}
 	if (do_restart) {
-		sendcmessage(DefaultRootWindow(dpy), restart_rio, 0L, 1);
+		sendcmessage(DefaultRootWindow(dpy), restart_rio, 0L, 1, 1);
 		XSync(dpy, False);
 		exit(0);
 	}
@@ -398,7 +398,7 @@ timestamp(void)
 }
 
 void
-sendcmessage(Window w, Atom a, long x, int isroot)
+sendcmessage(Window w, Atom a, long x, int isroot, int usemask)
 {
 	XEvent ev;
 	int status;
@@ -411,8 +411,9 @@ sendcmessage(Window w, Atom a, long x, int isroot)
 	ev.xclient.format = 32;
 	ev.xclient.data.l[0] = x;
 	ev.xclient.data.l[1] = timestamp();
-	mask = 0L;
-	if (isroot)
+	if (usemask == 0)
+		mask = 0;
+	else if (isroot)
 		mask = SubstructureRedirectMask;		/* magic! */
 	else
 		mask = ExposureMask;	/* not really correct but so be it */
