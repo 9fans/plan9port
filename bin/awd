@@ -1,3 +1,30 @@
 #!/bin/sh
 
-label `pwd`
+usage() {
+	echo 'usage: awd [label]' 1>&2
+	exit 1
+}
+case $# in
+1)
+	case "$1" in
+	-*)
+		usage
+		;;
+	esac
+	sys=$1
+	;;
+0)
+	sys=`hostname`
+	;;
+*)
+	usage
+esac
+
+p="`pwd`"
+case "$p" in
+*/)
+	label $p-$sys
+	;;
+*)
+	label $p/-$sys
+esac
