@@ -38,9 +38,9 @@ rcv(void)
 	static int i = 0;
 	static int errs = 0;
 
-if(0) print("rcv in\n");
+	if(protodebug) print("rcv in\n");
 	while((c=rcvchar()) != -1){
-if(0) print(".");
+		if(protodebug) print(".");
 		switch(state){
 		case 0:
 			h.type = c;
@@ -81,10 +81,10 @@ if(0) print(".");
 			}
 			break;
 		}
-if(0) print(":");
+		if(protodebug) print(":");
 	}
 
-if(0) print("rcv out\n");
+	if(protodebug) print("rcv out\n");
 }
 
 Text *

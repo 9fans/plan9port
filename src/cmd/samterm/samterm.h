@@ -56,6 +56,8 @@ enum Resource
 	NRes,
 };
 
+extern int	protodebug;
+
 extern Text	**text;
 extern uchar	**name;
 extern ushort	*tag;

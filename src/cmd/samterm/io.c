@@ -9,6 +9,7 @@
 #include "flayer.h"
 #include "samterm.h"
 
+int	protodebug;
 int	cursorfd;
 int	plumbfd = -1;
 int	input;
@@ -126,12 +127,12 @@ again:
 	if(block & (1<<RResize))
 		alts[RResize].op = CHANNOP;
 
-if(0) print("waitforio %c%c%c%c%c\n",
-	"h-"[alts[RHost].op == CHANNOP],
-	"k-"[alts[RKeyboard].op == CHANNOP],
-	"m-"[alts[RMouse].op == CHANNOP],
-	"p-"[alts[RPlumb].op == CHANNOP],
-	"R-"[alts[RResize].op == CHANNOP]);
+	if(protodebug) print("waitforio %c%c%c%c%c\n",
+		"h-"[alts[RHost].op == CHANNOP],
+		"k-"[alts[RKeyboard].op == CHANNOP],
+		"m-"[alts[RMouse].op == CHANNOP],
+		"p-"[alts[RPlumb].op == CHANNOP],
+		"R-"[alts[RResize].op == CHANNOP]);
 
 	alts[NRes].op = CHANEND;
 
