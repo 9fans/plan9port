@@ -26,13 +26,3 @@ estrdup(char *s)
 		sysfatal("estrdup");
 	return s;
 }
-
-char *
-getpassm(char *prompt)
-{
-	char *p = getpass(prompt);
-
-	if(p == nil || (p = strdup(p)) == nil)
-		sysfatal("getpassm");
-	return p;
-}

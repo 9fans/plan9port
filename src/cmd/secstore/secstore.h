@@ -17,7 +17,6 @@ typedef struct PW {
 PW *getPW(char *, int);
 int putPW(PW *);
 void freePW(PW *);
-char* getpassm(const char*);
 
 // *client: SConn, client name, passphrase
 // *server: SConn, (partial) 1st msg, PW entry
@@ -27,4 +26,6 @@ int PAKserver(SConn *, char *, char *, PW **);
 char *PAK_Hi(char *, char *, mpint *, mpint *);
 
 #define LOG "secstore"
-#define SECSTORE_DIR	"/adm/secstore"
+
+extern	char	*SECSTORE_DIR;
+

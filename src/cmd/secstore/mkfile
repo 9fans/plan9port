@@ -13,10 +13,15 @@ OFILES =\
 	util.$O\
 
 
-TARG=aescbc secstore
+TARG=aescbc secstore secstored secuser
 
 <$PLAN9/src/mkmany
 
-$O.aescbc:	aescbc.$O util.$O  $LIB ${SHORTLIB:%=$LIBDIR/lib%.a}
+$O.aescbc:	aescbc.$O util.$O
 	$LD -o $target $prereq $LDFLAGS
 
+$O.secstored: secstored.$O dirls.$O secureidcheck.$O $OFILES
+	$LD -o $target $prereq
+
+$O.secuser: secuser.$O $OFILES
+	$LD -o $target $prereq

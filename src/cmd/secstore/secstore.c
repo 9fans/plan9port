@@ -16,6 +16,7 @@ typedef struct AuthConn{
 
 int verbose;
 Nvrsafe nvr;
+char *SECSTORE_DIR;
 
 void
 usage(void)
@@ -311,7 +312,7 @@ chpasswd(AuthConn *c, char *id)
 	// changing our password is vulnerable to connection failure
 	for(;;){
 		snprint(prompt, sizeof(prompt), "new password for %s: ", id);
-		newpass = getpassm(prompt);
+		newpass = readcons(prompt, nil, 1);
 		if(newpass == nil)
 			goto Out;
 		if(strlen(newpass) >= 7)
@@ -324,9 +325,9 @@ chpasswd(AuthConn *c, char *id)
 	}
 	newpasslen = strlen(newpass);
 	snprint(prompt, sizeof(prompt), "retype password: ");
-	passck = getpassm(prompt);
+	passck = readcons(prompt, nil, 1);
 	if(passck == nil){
-		fprint(2, "getpassmwd failed\n");
+		fprint(2, "readcons failed\n");
 		goto Out;
 	}
 	if(strcmp(passck, newpass) != 0){
@@ -419,7 +420,9 @@ login(char *id, char *dest, int pass_stdin, int pass_nvram)
 		}
 		ntry++;
 		if(!pass_stdin && !pass_nvram){
-			pass = getpassm("secstore password: ");
+			pass = readcons("secstore password", nil, 1);
+			if(pass == nil)
+				pass = estrdup("");
 			if(strlen(pass) >= sizeof c->pass){
 				fprint(2, "password too long, skipping secstore login\n");
 				exits("password too long");
@@ -444,7 +447,7 @@ login(char *id, char *dest, int pass_stdin, int pass_nvram)
 			fprint(2, "Enter an empty password to quit.\n");
 	}
 	c->passlen = strlen(c->pass);
-	fprint(2, "%s\n", S);
+	fprint(2, "server: %s\n", S);
 	free(S);
 	if(readstr(c->conn, s) < 0){
 		c->conn->free(c->conn);
@@ -460,7 +463,9 @@ login(char *id, char *dest, int pass_stdin, int pass_nvram)
 				exits("missing PIN+SecureID on standard input");
 			free(PINSTA);
 		}else{
-			pass = getpassm("STA PIN+SecureID: ");
+			pass = readcons("STA PIN+SecureID", nil, 1);
+			if(pass == nil)
+				pass = estrdup("");
 			strncpy(s+3, pass, (sizeof s)-4);
 			memset(pass, 0, strlen(pass));
 			free(pass);

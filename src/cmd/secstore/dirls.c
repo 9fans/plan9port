@@ -64,7 +64,7 @@ dirls(char *path)
 	if(path==nil || (ndir = ls(path, &dirbuf)) < 0)
 		return nil;
 
-	qsort(dirbuf, ndir, sizeof dirbuf[0], (int (*)(void *, void *))compare);
+	qsort(dirbuf, ndir, sizeof dirbuf[0], (int (*)(const void *, const void *))compare);
 	for(nmwid=lenwid=i=0; i<ndir; i++){
 		if((m = strlen(dirbuf[i].name)) > nmwid)
 			nmwid = m;
