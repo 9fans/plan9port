@@ -120,7 +120,7 @@
 \Xhtml </B>
 ..
 .de HR
-.ie '\\$2'' \X'html href \\$1'\fL\\$1\fP\X'html /href'
+.ie '\\$2'' \\$4\X'html href \\$1'\fL\\$1\fP\X'html /href'\\$3
 .el \\$4\X'html href \\$1'\\$2\X'html /href'\\$3
 ..
 .deSH
