@@ -139,3 +139,6 @@ iconv
 import
 sed
 troff2html
+vacfs
+tcolors
+lex
