@@ -742,6 +742,7 @@ extern	void	abort(void);
 extern	int	p9access(char*, int);
 extern	long	p9alarm(ulong);
 extern	int	await(char*, int);
+extern	int	awaitnohang(char*, int);
 /* extern	int	bind(char*, char*, int); give up */
 /* extern	int	brk(void*); <unistd.h> */
 extern	int	p9chdir(char*);
@@ -790,6 +791,7 @@ extern	int	segfree(void*, ulong);
 extern	int	p9sleep(long);
 /* extern	int	stat(char*, uchar*, int); give up */
 extern	Waitmsg*	p9wait(void);
+extern	Waitmsg*	waitnohang(void);
 extern	int	p9waitpid(void);
 /* <unistd.h>
 extern	long	write(int, void*, long);

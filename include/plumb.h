@@ -42,6 +42,7 @@ struct Plumbattr
 
 int			plumbsend(int, Plumbmsg*);
 Plumbmsg*	plumbrecv(int);
+Plumbmsg*	threadplumbrecv(int);
 char*		plumbpack(Plumbmsg*, int*);
 Plumbmsg*	plumbunpack(char*, int);
 Plumbmsg*	plumbunpackpartial(char*, int, int*);

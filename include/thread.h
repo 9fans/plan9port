@@ -80,8 +80,8 @@ int		nbsendul(Channel *c, unsigned long v);
 int		proccreate(void (*f)(void *arg), void *arg, unsigned int stacksize);
 int		procrfork(void (*f)(void *arg), void *arg, unsigned int stacksize, int flag);
 void**		procdata(void);
-void		procexec(Channel *, int[3], char *, char *[]);
-void		procexecl(Channel *, int[3], char *, ...);
+void		threadexec(Channel *, int[3], char *, char *[]);
+void		threadexecl(Channel *, int[3], char *, ...);
 int		recv(Channel *c, void *v);
 void*		recvp(Channel *c);
 unsigned long		recvul(Channel *c);
@@ -93,6 +93,8 @@ int		threadcreateidle(void (*f)(void*), void*, unsigned int);
 void**		threaddata(void);
 void		threadexits(char *);
 void		threadexitsall(char *);
+void		threadfdwait(int, int);
+void		threadfdwaitsetup(void);
 int		threadgetgrp(void);	/* return thread group of current thread */
 char*		threadgetname(void);
 void		threadint(int);	/* interrupt thread */
@@ -100,12 +102,20 @@ void		threadintgrp(int);	/* interrupt threads in grp */
 void		threadkill(int);	/* kill thread */
 void		threadkillgrp(int);	/* kill threads in group */
 void		threadmain(int argc, char *argv[]);
+void		threadfdnoblock(int);
 void		threadnonotes(void);
 int		threadnotify(int (*f)(void*, char*), int in);
 int		threadid(void);
 int		threadpid(int);
+long		threadread(int, void*, long);
+long		threadreadn(int, void*, long);
+int		threadread9pmsg(int, void*, uint);
+int		threadrecvfd(int);
+long		threadwrite(int, const void*, long);
+int		threadsendfd(int, int);
 int		threadsetgrp(int);	/* set thread group, return old */
 void		threadsetname(char *name);
+void		threadsleep(int);
 Channel*	threadwaitchan(void);
 int	tprivalloc(void);
 void	tprivfree(int);

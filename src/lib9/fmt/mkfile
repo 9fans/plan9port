@@ -1,0 +1,57 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libfmt.a
+
+NUM=\
+	charstod.$O\
+	pow10.$O\
+
+# Could add errfmt, but we want to pick it up from lib9 instead.
+OFILES=\
+	dofmt.$O\
+	errfmt.$O\
+	fltfmt.$O\
+	fmt.$O\
+	fmtfd.$O\
+	fmtfdflush.$O\
+	fmtlock.$O\
+	fmtprint.$O\
+	fmtquote.$O\
+	fmtrune.$O\
+	fmtstr.$O\
+	fmtvprint.$O\
+	fprint.$O\
+	nan64.$O\
+	print.$O\
+	runefmtstr.$O\
+	runeseprint.$O\
+	runesmprint.$O\
+	runesnprint.$O\
+	runesprint.$O\
+	runevseprint.$O\
+	runevsmprint.$O\
+	runevsnprint.$O\
+	seprint.$O\
+	smprint.$O\
+	snprint.$O\
+	sprint.$O\
+	strtod.$O\
+	vfprint.$O\
+	vseprint.$O\
+	vsmprint.$O\
+	vsnprint.$O\
+	$NUM\
+
+HFILES=\
+	fmtdef.h\
+	$PLAN9/include/fmt.h\
+
+<$PLAN9/src/mksyslib
+
+$NAN.$O: nan.h
+strtod.$O: nan.h
+
+test: $LIB test.$O
+	$CC -o test test.$O $LIB -L$PLAN9/lib -lutf
+
