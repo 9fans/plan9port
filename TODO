@@ -20,3 +20,6 @@
 	  needs cleanup and release.  should be easy to add ext2,
 	  fat.  ntfs harder but possible.
 
+* win
+	need to make a real pty so that ^D etc. work.
+

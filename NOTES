@@ -27,6 +27,25 @@ There are a few shell scripts already included in bin -- B, Bwait,
 and samsave.  Arguably these directories should be broken up by
 architecture so that
 
+During the initial build of mk, you will likely see a message like
+
+	Assembler messages:
+	Error: can't open getcallerpc-386.s for reading
+	getcallerpc-386.s: No error
+
+This is not a problem.  The script tries to build getcallerpc
+from assembly and then C.  As long as one of them succeeds, great.
+
+There are various directories that are not built by default.
+They are listed in the BUGGERED definitions in src/mkfile and src/cmd/mkfile.
+These aren't built because they're not quite ready for prime time.
+Either they don't actually build or they haven't been very well tested.
+
+As of this writing, factotum is buggered because it's not done yet,
+and Venti and vac are buggered because they've hardly been tested
+and are in a state of flux (they were both quite rewritten for the port).
+	
+
 * Writing programs
 
 The bin/ directory contains shell scripts 9a, 9c, 9l, and 9ar that mimic
@@ -155,6 +174,13 @@ To check out from the anonymous CVS repository, use
 
 When prompted for a password, just hit enter.
 
+If there is already a /usr/local/plan9 directory (from a previous
+unpacking), remove it or move it out of the way.  You need write
+access to /usr/local in order to run the checkout, but after that
+you'll only need write access to the plan9 subtree.  I typically run
+the initial checkout as root and then chown -R rsc plan9 so that
+I can do things as rsc afterward.
+
 From then on, when you want to update, you can do
 
   cd /usr/local/plan9
@@ -172,6 +198,11 @@ you can run
 
 to generate the diff in a format that will be easy to apply.
 (You can also use this to see what you've changed.)
+
+  cvs diff -D20040101 -u
+
+shows you differences txixt your tree and the repository
+as of January 1, 2004.
 
 Running the cvs commands in /usr/local/plan9 makes them
 apply to the whole tree.  Running them in a subdirectory applies

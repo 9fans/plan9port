@@ -15,6 +15,7 @@ BEGIN{
 	state["I"] = "Idle";
 	state["J"] = "Jail";
 	state["R"] = "Ready";
+	state["O"] = "Running";
 	state["S"] = "Sleep";
 	state["T"] = "Stopped";
 	state["Z"] = "Zombie";
@@ -65,8 +66,16 @@ function statestr(s)
 }
 !
 
-/bin/ps -axww -o 'user,pid,start,time,vsz,stat,command' | sed 1d |
-	awk -f /tmp/awk.xxx$$ | sort -n +1
+case "${SYSNAME:-`uname`}" in 
+SunOS)
+	/bin/ps -aA -o 'user,pid,stime,time,vsz,s,args' | sed 1d |
+		nawk -f /tmp/awk.xxx$$ | sort -n +1
+	;;
+*)
+	/bin/ps -axww -o 'user,pid,start,time,vsz,stat,command' | sed 1d |
+		awk -f /tmp/awk.xxx$$ | sort -n +1
+	;;
+esac
 
 rm -f /tmp/awk.xxx$$
 

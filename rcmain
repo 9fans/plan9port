@@ -10,15 +10,18 @@ case 1
 	prompt=($prompt '	')
 }
 if(~ $rcname ?.out) prompt=('broken! ' '	')
-if(flag p) path=/bin
+if(flag p) path=(/bin)
 if not{
 	finit
-	if(~ $#path 0) . <{/bin/sh -c 'echo $PATH |
+	if(~ $#path 0) {
+		path=(/bin /usr/bin)
+		. <{sh -c 'echo $PATH |
 				sed "s/^/path=(''/; s/$/'')/; s/:/'' ''/g"'}
+	}
 }
 fn sigexit
 if(! ~ $#cflag 0){
-	if(flag l && /bin/test -r $home/lib/profile) . $home/lib/profile
+	if(flag l && test -r $home/lib/profile) . $home/lib/profile
 	status=''
 	eval $cflag
 }

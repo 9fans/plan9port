@@ -10,6 +10,7 @@ plumb1()
 		;;
 	*firebird*)
 		$BROWSER -remote 'openURL('$i', new-window)'
+		;;
 	*firefox*)
 		$BROWSER -remote 'openURL('$i', new-window)'
 		;;

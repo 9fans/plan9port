@@ -1,0 +1,19 @@
+#!/usr/local/plan9/bin/rc
+
+flags=()
+while(! ~ $#* 1 && ~ $1 -*){
+	flags=($flags $1)
+	shift
+}
+
+switch($#*){
+case 0
+	echo 'usage: g [flags] pattern [files]' >[1=2]
+	exit 1
+case 1
+	9grep -n $flags -- $1 *.[Cbchm] *.cc *.py *.tex *.ms *.java /dev/null \
+	  |[2] {9grep -v '^(grep: can''t open \*|grep: \*\.)' >[1=2]; status=0}
+case *
+	9grep -n $flags -- $* /dev/null
+}
+
