@@ -68,7 +68,7 @@ struct	Reljunk
 	Rune*	reol;
 };
 
-extern Relist*	_renewthread(Relist*, Reinst*, Resublist*);
+extern Relist*	_renewthread(Relist*, Reinst*, int, Resublist*);
 extern void	_renewmatch(Resub*, int, Resublist*);
-extern Relist*	_renewemptythread(Relist*, Reinst*, char*);
-extern Relist*	_rrenewemptythread(Relist*, Reinst*, Rune*);
+extern Relist*	_renewemptythread(Relist*, Reinst*, int, char*);
+extern Relist*	_rrenewemptythread(Relist*, Reinst*, int, Rune*);

@@ -48,7 +48,7 @@ regexec1(Reprog *progp,	/* program to run */
 			switch(j->starttype) {
 			case RUNE:
 				p = utfrune(s, j->startchar);
-				if(p == 0)
+				if(p == 0 || s == j->eol)
 					return match;
 				s = p;
 				break;
@@ -56,14 +56,14 @@ regexec1(Reprog *progp,	/* program to run */
 				if(s == bol)
 					break;
 				p = utfrune(s, '\n');
-				if(p == 0)
+				if(p == 0 || s == j->eol)
 					return match;
 				s = p;
 				break;
 			}
 		}
 		r = *(uchar*)s;
-		if(r < (Rune)Runeself)
+		if(r < Runeself)
 			n = 1;
 		else
 			n = chartorune(&r, s);
@@ -77,7 +77,7 @@ regexec1(Reprog *progp,	/* program to run */
 
 		/* Add first instruction to current list */
 		if(match == 0)
-			_renewemptythread(tl, progp->startinst, s);
+			_renewemptythread(tl, progp->startinst, ms, s);
 
 		/* Execute machine until current list is empty */
 		for(tlp=tl; tlp->inst; tlp++){	/* assignment = */
@@ -85,7 +85,7 @@ regexec1(Reprog *progp,	/* program to run */
 				switch(inst->type){
 				case RUNE:	/* regular character */
 					if(inst->u1.r == r){
-						if(_renewthread(nl, inst->u2.next, &tlp->se)==nle)
+						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					}
 					break;
@@ -97,11 +97,11 @@ regexec1(Reprog *progp,	/* program to run */
 					continue;
 				case ANY:
 					if(r != '\n')
-						if(_renewthread(nl, inst->u2.next, &tlp->se)==nle)
+						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					break;
 				case ANYNL:
-					if(_renewthread(nl, inst->u2.next, &tlp->se)==nle)
+					if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					break;
 				case BOL:
@@ -116,7 +116,7 @@ regexec1(Reprog *progp,	/* program to run */
 					ep = inst->u1.cp->end;
 					for(rp = inst->u1.cp->spans; rp < ep; rp += 2)
 						if(r >= rp[0] && r <= rp[1]){
-							if(_renewthread(nl, inst->u2.next, &tlp->se)==nle)
+							if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 								return -1;
 							break;
 						}
@@ -127,12 +127,12 @@ regexec1(Reprog *progp,	/* program to run */
 						if(r >= rp[0] && r <= rp[1])
 							break;
 					if(rp == ep)
-						if(_renewthread(nl, inst->u2.next, &tlp->se)==nle)
+						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					break;
 				case OR:
 					/* evaluate right choice later */
-					if(_renewthread(tlp, inst->u1.right, &tlp->se) == tle)
+					if(_renewthread(tlp, inst->u1.right, ms, &tlp->se) == tle)
 						return -1;
 					/* efficiency: advance and re-evaluate */
 					continue;
@@ -162,15 +162,27 @@ regexec2(Reprog *progp,	/* program to run */
 	Reljunk *j
 )
 {
-	Relist relist0[BIGLISTSIZE], relist1[BIGLISTSIZE];
+	int rv;
+	Relist *relist0, *relist1;
 
 	/* mark space */
+	relist0 = malloc(BIGLISTSIZE*sizeof(Relist));
+	if(relist0 == nil)
+		return -1;
+	relist1 = malloc(BIGLISTSIZE*sizeof(Relist));
+	if(relist1 == nil){
+		free(relist1);
+		return -1;
+	}
 	j->relist[0] = relist0;
 	j->relist[1] = relist1;
-	j->reliste[0] = relist0 + nelem(relist0) - 2;
-	j->reliste[1] = relist1 + nelem(relist1) - 2;
+	j->reliste[0] = relist0 + BIGLISTSIZE - 2;
+	j->reliste[1] = relist1 + BIGLISTSIZE - 2;
 
-	return regexec1(progp, bol, mp, ms, j);
+	rv = regexec1(progp, bol, mp, ms, j);
+	free(relist0);
+	free(relist1);
+	return rv;
 }
 
 extern int
@@ -196,7 +208,7 @@ regexec(Reprog *progp,	/* program to run */
 	}
 	j.starttype = 0;
 	j.startchar = 0;
-	if(progp->startinst->type == RUNE && progp->startinst->u1.r < (Rune)Runeself) {
+	if(progp->startinst->type == RUNE && progp->startinst->u1.r < Runeself) {
 		j.starttype = RUNE;
 		j.startchar = progp->startinst->u1.r;
 	}

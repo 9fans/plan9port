@@ -9,7 +9,6 @@ OFILES=\
 	regexec.$O\
 	regsub.$O\
 	regaux.$O\
-	rregaux.$O\
 	rregexec.$O\
 	rregsub.$O\
 

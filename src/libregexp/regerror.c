@@ -10,5 +10,5 @@ regerror(char *s)
 	strcat(buf, s);
 	strcat(buf, "\n");
 	write(2, buf, strlen(buf));
-	exit(1);
+	exits("regerr");
 }

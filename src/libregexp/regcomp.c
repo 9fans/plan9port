@@ -15,8 +15,6 @@ struct Node
 	Reinst*	last;
 }Node;
 
-Reprog	RePrOg;
-
 #define	NSTACK	20
 static	Node	andstack[NSTACK];
 static	Node	*andp;
@@ -252,7 +250,7 @@ optimize(Reprog *pp)
 	 *  and then relocate the code.
 	 */
 	size = sizeof(Reprog) + (freep - pp->firstinst)*sizeof(Reinst);
-	npp = (Reprog *)realloc(pp, size);
+	npp = realloc(pp, size);
 	if(npp==0 || npp==pp)
 		return pp;
 	diff = (char *)npp - (char *)pp;
@@ -303,12 +301,12 @@ dump(Reprog *pp)
 		print("%d:\t0%o\t%d\t%d", l-pp->firstinst, l->type,
 			l->u2.left-pp->firstinst, l->u1.right-pp->firstinst);
 		if(l->type == RUNE)
-			print("\t%C\n", l->r);
+			print("\t%C\n", l->u1.r);
 		else if(l->type == CCLASS || l->type == NCCLASS){
 			print("\t[");
 			if(l->type == NCCLASS)
 				print("^");
-			for(p = l->cp->spans; p < l->cp->end; p += 2)
+			for(p = l->u1.cp->spans; p < l->u1.cp->end; p += 2)
 				if(p[0] == p[1])
 					print("%C", p[0]);
 				else
@@ -477,7 +475,7 @@ regcomp1(char *s, int literal, int dot_type)
 	Reprog *pp;
 
 	/* get memory for the program */
-	pp = (Reprog *)malloc(sizeof(Reprog) + 6*sizeof(Reinst)*strlen(s));
+	pp = malloc(sizeof(Reprog) + 6*sizeof(Reinst)*strlen(s));
 	if(pp == 0){
 		regerror("out of memory");
 		return 0;

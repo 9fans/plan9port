@@ -53,9 +53,10 @@ regsub(char *sp,	/* source string */
 				     ssp < mp[0].e.ep; ssp++)
 					if(dp < ep)
 						*dp++ = *ssp;
-		}else
+		}else{
 			if(dp < ep)
 				*dp++ = *sp;
+		}
 		sp++;
 	}
 	*dp = '\0';
