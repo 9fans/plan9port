@@ -39,11 +39,14 @@ HFILES=\
 
 include $(9SRC)/Makesyslib
 
-tprimes: tprimes.$O
-	$(CC) -o tprimes tprimes.$O -L$(9SRC)/lib -lthread -l9 -lfmt -lutf
+tprimes: tprimes.$O $(9SRC)/lib/$(LIB)
+	$(LD) -o tprimes tprimes.$O $(LDFLAGS) -lthread -l9 -lfmt -lutf
 
-texec: $(LIB) texec.$O
-	$(CC) -o texec texec.$O -L$(9SRC)/lib -lthread -l9 -lfmt -lutf
+texec: texec.$O $(9SRC)/lib/$(LIB)
+	$(LD) -o texec texec.$O $(LDFLAGS) -lthread -l9 -lfmt -lutf
+
+trend: trend.$O $(9SRC)/lib/$(LIB)
+	$(LD) -o trend trend.$O $(LDFLAGS) -lthread -l9 -lfmt -lutf
 
 CLEANFILES+=tprimes texec
 
