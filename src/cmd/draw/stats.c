@@ -857,7 +857,7 @@ initmach(Machine *m, char *name)
 		sysfatal("pipe: %r");
 
 	memset(args, 0, sizeof args);
-	args[0] = "sysstat";
+	args[0] = "auxstats";
 	if(name){
 		args[1] = name;
 		if((q = strchr(name, ':')) != nil){
@@ -868,7 +868,7 @@ initmach(Machine *m, char *name)
 	kfd[0] = open("/dev/null", OREAD);
 	kfd[1] = p[1];
 	kfd[2] = dup(2, -1);
-	if((pid = threadspawn(kfd, "sysstat", args)) < 0){
+	if((pid = threadspawn(kfd, "auxstats", args)) < 0){
 		fprint(2, "spawn: %r\n");
 		close(kfd[0]);
 		close(p[0]);
