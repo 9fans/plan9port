@@ -42,7 +42,11 @@ struct _Procrendez
 {
 	Lock		*l;
 	int		asleep;
+#ifdef PLAN9PORT_USING_PTHREADS
 	pthread_cond_t	cond;
+#else
+	int		pid;
+#endif
 };
 
 extern	void	_procsleep(_Procrendez*);
@@ -50,7 +54,14 @@ extern	void	_procwakeup(_Procrendez*);
 
 struct Proc
 {
-	pthread_t	tid;
+	Proc		*next;
+	Proc		*prev;
+	char		msg[128];
+#ifdef PLAN9PORT_USING_PTHREADS
+	pthread_t	osprocid;
+#else
+	uint		osprocid;
+#endif
 	Lock		lock;
 	_Thread		*thread;
 	_Threadlist	runqueue;
@@ -63,9 +74,11 @@ struct Proc
 	Jmp		sigjmp;
 };
 
-extern Proc *xxx;
 #define proc() _threadproc()
 #define setproc(p) _threadsetproc(p)
+
+extern Proc *_threadprocs;
+extern Lock _threadprocslock;
 
 extern void _procstart(Proc*, void (*fn)(Proc*));
 extern _Thread *_threadcreate(Proc*, void(*fn)(void*), void*, uint);

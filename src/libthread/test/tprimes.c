@@ -77,4 +77,5 @@ threadmain(int argc, char **argv)
 	c = chancreate(sizeof(ulong), nbuf);
 	mk(countthread, c, STACK);
 	mk(filterthread, c, STACK);
+	recvp(chancreate(sizeof(void*), 0));
 }

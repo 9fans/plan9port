@@ -82,8 +82,8 @@ startprocfn(void *v)
 	fn = a[0];
 	p = a[1];
 	free(a);
-	p->tid = pthread_self();
-	pthread_detach(p->tid);
+	p->osprocid = pthread_self();
+	pthread_detach(p->osprocid);
 
 	(*fn)(p);
 
@@ -101,7 +101,7 @@ _procstart(Proc *p, void (*fn)(Proc*))
 	a[0] = fn;
 	a[1] = p;
 
-	if(pthread_create(&p->tid, nil, (void*(*)(void*))startprocfn, (void*)a) < 0){
+	if(pthread_create(&p->osprocid, nil, (void*(*)(void*))startprocfn, (void*)a) < 0){
 		fprint(2, "pthread_create: %r\n");
 		abort();
 	}

@@ -1,10 +1,7 @@
 #include "u.h"
-#include <linux/unistd.h>
 #include "libc.h"
 #include "thread.h"
 #include "threadimpl.h"
-
-       _syscall0(pid_t,gettid)
 
 int	_threaddebuglevel;
 
@@ -12,7 +9,10 @@ static	uint		threadnproc;
 static	uint		threadnsysproc;
 static	Lock		threadnproclock;
 static	Ref		threadidref;
+static	Proc		*threadmainproc;
 
+static	void		addproc(Proc*);
+static	void		delproc(Proc*);
 static	void		addthread(_Threadlist*, _Thread*);
 static	void		delthread(_Threadlist*, _Thread*);
 static	void		addthreadinproc(Proc*, _Thread*);
@@ -36,6 +36,7 @@ procalloc(void)
 	if(p == nil)
 		sysfatal("procalloc malloc: %r");
 	memset(p, 0, sizeof *p);
+	addproc(p);
 	lock(&threadnproclock);
 	threadnproc++;
 	unlock(&threadnproclock);
@@ -49,7 +50,7 @@ threadstart(void *v)
 
 	t = v;
 	t->startfn(t->startarg);
-	_threadexit();
+	threadexits(nil);
 }
 
 static _Thread*
@@ -115,9 +116,7 @@ proccreate(void (*fn)(void*), void *arg, uint stack)
 	Proc *p;
 
 	p = procalloc();
-//print("pa %p\n", p);
 	t = _threadcreate(p, fn, arg, stack);
-//print("ps %p\n", p);
 	_procstart(p, scheduler);
 	return t->id;
 }
@@ -151,30 +150,16 @@ threadyield(void)
 }
 
 void
-_threadexit(void)
-{
-	proc()->thread->exiting = 1;
-	_threadswitch();
-}
-
-void
 threadexits(char *msg)
 {
-/*
 	Proc *p;
 
 	p = proc();
+	if(msg == nil)
+		msg = "";
 	utfecpy(p->msg, p->msg+sizeof p->msg, msg);
-*/
-	_threadexit();
-}
-
-void
-threadexitsall(char *msg)
-{
-	if(msg && msg[0])
-		exit(1);
-	exit(0);
+	proc()->thread->exiting = 1;
+	_threadswitch();
 }
 
 static void
@@ -216,11 +201,12 @@ scheduler(Proc *p)
 	}
 
 Out:
+	delproc(p);
 	lock(&threadnproclock);
 	if(p->sysproc)
 		--threadnsysproc;
 	if(--threadnproc == threadnsysproc)
-		exit(0);
+		threadexitsall(p->msg);
 	unlock(&threadnproclock);
 	unlock(&p->lock);
 	free(p);
@@ -235,6 +221,19 @@ _threadsetsysproc(void)
 		exit(0);
 	unlock(&threadnproclock);
 	proc()->sysproc = 1;
+}
+
+void**
+procdata(void)
+{
+	return &proc()->udata;
+}
+
+extern Jmp *(*_notejmpbuf)(void);
+static Jmp*
+threadnotejmp(void)
+{
+	return &proc()->sigjmp;
 }
 
 /*
@@ -422,6 +421,55 @@ threadrwakeup(Rendez *r, int all, ulong pc)
 }
 
 /*
+ * startup
+ */
+
+static int threadargc;
+static char **threadargv;
+int mainstacksize;
+
+static void
+threadmainstart(void *v)
+{
+	USED(v);
+	threadmainproc = proc();
+	threadmain(threadargc, threadargv);
+}
+
+int
+main(int argc, char **argv)
+{
+	Proc *p;
+
+	threadargc = argc;
+	threadargv = argv;
+
+	/*
+	 * Install locking routines into C library.
+	 */
+	_lock = _threadlock;
+	_unlock = _threadunlock;
+	_qlock = threadqlock;
+	_qunlock = threadqunlock;
+	_rlock = threadrlock;
+	_runlock = threadrunlock;
+	_wlock = threadwlock;
+	_wunlock = threadwunlock;
+	_rsleep = threadrsleep;
+	_rwakeup = threadrwakeup;
+	_notejmpbuf = threadnotejmp;
+
+	_pthreadinit();
+	p = procalloc();
+	_threadsetproc(p);
+	if(mainstacksize == 0)
+		mainstacksize = 65536;
+	_threadcreate(p, threadmainstart, nil, mainstacksize);
+	scheduler(p);
+	return 0;	/* not reached */
+}
+
+/*
  * hooray for linked lists
  */
 static void
@@ -484,58 +532,37 @@ delthreadinproc(Proc *p, _Thread *t)
 		l->tail = t->allprev;
 }
 
-void**
-procdata(void)
-{
-	return &proc()->udata;
-}
-
-static int threadargc;
-static char **threadargv;
-int mainstacksize;
+Proc *_threadprocs;
+Lock _threadprocslock;
+static Proc *_threadprocstail;
 
 static void
-threadmainstart(void *v)
+addproc(Proc *p)
 {
-	USED(v);
-	threadmain(threadargc, threadargv);
+	lock(&_threadprocslock);
+	if(_threadprocstail){
+		_threadprocstail->next = p;
+		p->prev = _threadprocstail;
+	}else{
+		_threadprocs = p;
+		p->prev = nil;
+	}
+	_threadprocstail = p;
+	p->next = nil;
+	unlock(&_threadprocslock);
 }
 
-extern Jmp *(*_notejmpbuf)(void);
-static Jmp*
-threadnotejmp(void)
+static void
+delproc(Proc *p)
 {
-	return &proc()->sigjmp;
-}
-
-int
-main(int argc, char **argv)
-{
-	Proc *p;
-
-	threadargc = argc;
-	threadargv = argv;
-
-	/*
-	 * Install locking routines into C library.
-	 */
-	_lock = _threadlock;
-	_unlock = _threadunlock;
-	_qlock = threadqlock;
-	_qunlock = threadqunlock;
-	_rlock = threadrlock;
-	_runlock = threadrunlock;
-	_wlock = threadwlock;
-	_wunlock = threadwunlock;
-	_rsleep = threadrsleep;
-	_rwakeup = threadrwakeup;
-	_notejmpbuf = threadnotejmp;
-
-	_pthreadinit();
-	p = procalloc();
-	if(mainstacksize == 0)
-		mainstacksize = 65536;
-	_threadcreate(p, threadmainstart, nil, mainstacksize);
-	scheduler(p);
-	return 0;	/* not reached */
+	lock(&_threadprocslock);
+	if(p->prev)
+		p->prev->next = p->next;
+	else
+		_threadprocs = p->next;
+	if(p->next)
+		p->next->prev = p->prev;
+	else
+		_threadprocstail = p->prev;
+	unlock(&_threadprocslock);
 }
