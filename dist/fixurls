@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-open(OMIT, "9 sed -n 's/.*Omitman\\[\"(.*)\\((.)\\)\".*/\\1 \\2/p' /usr/local/plan9/dist/checkman.awk |") || die "omit: $!";
+open(OMIT, "9 sed -n 's/.*Omitman\\[\"(.*)\\((.)\\)\".*/\\1 \\2/p' $ENV{'PLAN9'}/dist/checkman.awk |") || die "omit: $!";
 @omit = <OMIT>;
 close OMIT;
 chomp @omit;
