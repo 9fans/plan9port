@@ -4,10 +4,15 @@
 char*
 get9root(void)
 {
-	char *s;
+	static char *s;
+
+	if(s)
+		return s;
 
 	if((s = getenv("PLAN9")) != 0)
 		return s;
-	return "/usr/local/plan9";
+	/* could do better - search $PATH */
+	s = "/usr/local/plan9";
+	return s;
 }
 
