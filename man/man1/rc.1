@@ -954,14 +954,41 @@ Tom Duff,
 .SH BUGS
 There should be a way to match patterns against whole lists rather than
 just single strings.
-.br
+.PP
 Using
 .B ~
 to check the value of
 .B $status
 changes
 .BR $status .
-.br
+.PP
 Functions that use here documents don't work.
-.br
+.PP
 Free carets don't get inserted next to keywords.
+.PP
+The
+.BI <{ command }
+syntax depends on the underlying operating system
+providing a file descriptor device tree at
+.BR /dev/fd .
+.PP
+By default, FreeBSD 5
+does not provide file descriptors greater than 2
+in
+.BR /dev/fd .
+To fix this, add
+.IP
+.EX
+/fdescfs    /dev/fd    fdescfs    rw    0    0
+.EE
+.LP
+to
+.BR /etc/fstab ,
+and then
+.B mount
+.BR /dev/fd .
+(Adding the line to
+.B fstab
+ensures causes FreeBSD to mount the file system
+automatically at boot time.)
+
