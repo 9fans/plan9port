@@ -1,0 +1,61 @@
+.TH SEARCHPATH 3
+.SH NAME
+search \- search for named executable
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+char*	searchpath(char *name)
+.SH DESCRIPTION
+.I Searchpath
+searches for the executable
+.I name
+in the same way that
+.IR sh (1)
+and
+.IR rc (1)
+do.
+.PP
+The environment variable
+.B $PATH
+is treated as a colon-separated list of directories in which to look for 
+.IR name .
+An empty string in the list is treated as the current directory.
+If an executable named
+.I name
+is found in one of the directories,
+.I searchpath
+returns a pointer to a malloced string containing a path
+.IB \fR( dir / name \fR,
+or simply
+.IR name )
+suitable for use in 
+.IR open (3)
+or 
+.IR exec (3).
+.PP
+If
+.I name
+begins with
+.B ./ ,
+.B ../ ,
+or
+.B / ,
+then the search path is ignored.
+If 
+.I name
+exists and is an executable, then
+.I searchpath
+returns a malloced string containing name.
+.PP
+The returned buffer should be freed when no longer needed.
+If
+.I name
+is not found,
+.I searchpath
+returns nil.
+.PP
+.SH SOURCE
+.B \*9/src/lib9/searchpath.c
