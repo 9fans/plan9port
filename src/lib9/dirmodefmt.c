@@ -33,6 +33,14 @@ dirmodefmt(Fmt *f)
 		buf[0]='a';
 	else if(m & DMAUTH)
 		buf[0]='A';
+	else if(m & DMDEVICE)
+		buf[0] = 'D';
+	else if(m & DMSYMLINK)
+		buf[0] = 'L';
+	else if(m & DMSOCKET)
+		buf[0] = 'S';
+	else if(m & DMNAMEDPIPE)
+		buf[0] = 'P';
 	else
 		buf[0]='-';
 	if(m & DMEXCL)

@@ -111,12 +111,23 @@ interpreted
 as follows:
 the first character is
 .TP
-.B  d
+.B d
 if the entry is a directory;
-.PD 0
 .TP
-.B  a
+.B a
 if the entry is an append-only file;
+.TP
+.B D
+if the entry is a Unix device;
+.TP
+.B L
+if the entry is a symbolic link;
+.TP
+.B P
+if the entry is a named pipe;
+.TP
+.B S
+if the entry is a socket;
 .TP
 .B  -
 if the entry is a plain file.
