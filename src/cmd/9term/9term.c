@@ -1515,7 +1515,7 @@ void
 plumbstart(void)
 {
 	if((plumbfd = plumbopen("send", OWRITE)) < 0)
-		fatal("plumbopen");
+		fprint(2, "9term: plumbopen: %r\n");
 }
 
 void
