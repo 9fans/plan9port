@@ -235,3 +235,4 @@ int	coreregslinux386(Elf*, ElfNote*, uchar**);
 int	coreregsfreebsd386(Elf*, ElfNote*, uchar**);
 int	corecmdlinux386(Elf*, ElfNote*, char**);
 int	corecmdfreebsd386(Elf*, ElfNote*, char**);
+void	elfdl386mapdl(void);
