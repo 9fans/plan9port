@@ -1,0 +1,13 @@
+bo.c		2004/1225
+classmask.c		2004/1225
+eipfmt.c		2004/1225
+equivip.c		2004/1225
+ipaux.c		2004/1225
+myetheraddr.c		2004/1225
+myipaddr.c		2004/1225
+parseether.c		2004/1225
+parseip.c		2004/1225
+ptclbsum.c		2004/1225
+readipifc.c		2004/1225
+testreadipifc.c		2004/1225
+udp.c		2004/1225
