@@ -25,6 +25,7 @@ if not if(flag i){
 	if(~ $TERM 9term){
 		if(~ $#'fn#cd' 0)
 			fn cd { builtin cd $1 && flag i && awd }
+		awd
 	}
 	if(flag l && test -r $home/lib/profile) . $home/lib/profile
 	status=''
