@@ -1,0 +1,6 @@
+#!/bin/sh
+
+for i
+do
+	psu | awk '$NF ~ /^('$i')$/ {printf("/bin/kill %d # %s\n", $2, $0);}'
+done

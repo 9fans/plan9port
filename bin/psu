@@ -1,0 +1,23 @@
+#!/bin/sh
+
+flag=''
+if [ "x$1" = "x-a" ]
+then
+	flag=-a
+	shift
+fi
+
+user=`whoami`
+case $# in
+0)
+	user=`whoami`
+	;;
+1)
+	user=$1
+	;;
+*)
+	echo 'usage: psu [-a] [user]' 1>&2
+	exit 1
+esac
+
+ps $flag | grep "^$user "

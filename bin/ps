@@ -1,0 +1,72 @@
+#!/bin/sh
+
+I_WANT_A_BROKEN_PS=yes
+export I_WANT_A_BROKEN_PS
+all=no
+if [ "x$1" = "x-a" ]
+then
+	all=yes
+fi
+export all
+
+cat >/tmp/awk.xxx$$ <<'!'
+BEGIN{
+	state["D"] = "Spinwait";
+	state["I"] = "Idle";
+	state["J"] = "Jail";
+	state["R"] = "Ready";
+	state["S"] = "Sleep";
+	state["T"] = "Stopped";
+	state["Z"] = "Zombie";
+	state["W"] = "Fault";
+	state["X"] = "Moribund";
+}
+
+function statestr(s)
+{
+	t = state[substr(s, 1, 1)];
+	if(t == "")
+		return s;
+	return t;
+}
+
+# rsc  36706   starttime 0:00.17  1076 Is+  -bash (bash)
+{
+	i=1
+	user=$i; i++
+	pid=$i; i++
+	start=$i; i++
+	if(start ~ /^[A-Z][a-z][a-z]$/){
+		start = start "-" $i; i++
+	}
+	cputime=$i; i++
+	mem=$i; i++
+	stat=$i; i++
+	cmd=$i; i++	
+	if(ENVIRON["all"] == "yes"){
+		for(; i<=NF; i++)
+			cmd = cmd " " $i;
+	}else{
+		sub(/.*\//, "", cmd);
+		sub(/:$/, "", cmd);
+		sub(/^-/, "", cmd);
+		s = " " cmd;
+	}
+	sub(/\.[0-9][0-9]$/, "", cputime);	# drop .hundredths of second
+	if(cputime ~ /..:..:../){	# convert hh:mm:ss into mm:ss
+		split(cputime, a, ":");
+		cputime = sprintf("%d:%02d", a[1]*60+a[2], a[3]);
+	}
+	if(start ~ /..:..:../){	# drop :ss
+		sub(/:..$/, "", start);
+	}
+	printf("%-8s  %11d %8s %8s %8dK %-8s %s\n",
+		user, pid, start, cputime, mem, statestr(stat), cmd);
+}
+!
+
+/bin/ps -axww -o 'user,pid,start,time,vsz,stat,command' | sed 1d |
+	awk -f /tmp/awk.xxx$$ | sort +1 -n
+
+rm -f /tmp/awk.xxx$$
+
