@@ -18,7 +18,8 @@
  * keyletters and options.
  */
 #define	TARGBEGIN {\
-	(argv0 || (argv0 = *argv)), argv++, argc--;\
+	__fixargv0(); if(!argv0) argv0=*argv; \
+	argv++, argc--; \
 	if (argv[0]) {\
 		char *_args, *_argt;\
 		Rune _argc;\
