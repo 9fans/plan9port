@@ -94,7 +94,8 @@ _fsdecref(CFsys *fs)
 	--fs->ref;
 	//fprint(2, "fsdecref %p to %d\n", fs, fs->ref);
 	if(fs->ref == 0){
-		close(fs->fd);
+		if(fs->fd >= 0)
+			close(fs->fd);
 		/* trim the list down to just the first in each chunk */
 		for(l=&fs->freefid; *l; ){
 			if((*l)->fid%CFidchunk == 0)
