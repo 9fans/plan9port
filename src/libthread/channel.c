@@ -22,6 +22,8 @@ chancreate(int elemsize, int bufsize)
 	Channel *c;
 
 	c = malloc(sizeof *c+bufsize*elemsize);
+	if(c == nil)
+		sysfatal("chancreate malloc: %r");
 	memset(c, 0, sizeof *c);
 	c->elemsize = elemsize;
 	c->bufsize = bufsize;

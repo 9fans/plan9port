@@ -71,16 +71,40 @@ _procwakeup(_Procrendez *r)
 	}
 }
 
-void
-_procstart(Proc *p, void (*fn)(void*))
+static void
+startprocfn(void *v)
 {
-//print("pc\n");
-	if(pthread_create(&p->tid, nil, (void*(*)(void*))fn, p) < 0){
-//print("pc1\n");
+	void **a;
+	void (*fn)(void*);
+	Proc *p;
+
+	a = (void**)v;
+	fn = a[0];
+	p = a[1];
+	free(a);
+	p->tid = pthread_self();
+	pthread_detach(p->tid);
+
+	(*fn)(p);
+
+	pthread_exit(0);
+}
+
+void
+_procstart(Proc *p, void (*fn)(Proc*))
+{
+	void **a;
+
+	a = malloc(2*sizeof a[0]);
+	if(a == nil)
+		sysfatal("_procstart malloc: %r");
+	a[0] = fn;
+	a[1] = p;
+
+	if(pthread_create(&p->tid, nil, (void*(*)(void*))startprocfn, (void*)a) < 0){
 		fprint(2, "pthread_create: %r\n");
 		abort();
 	}
-//print("pc2\n");
 }
 
 static pthread_key_t prockey;

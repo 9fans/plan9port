@@ -67,7 +67,7 @@ extern Proc *xxx;
 #define proc() _threadproc()
 #define setproc(p) _threadsetproc(p)
 
-extern void _procstart(Proc*, void (*fn)(void*));
+extern void _procstart(Proc*, void (*fn)(Proc*));
 extern _Thread *_threadcreate(Proc*, void(*fn)(void*), void*, uint);
 extern void _threadexit(void);
 extern Proc *_threadproc(void);

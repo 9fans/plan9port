@@ -18,7 +18,7 @@ static	void		delthread(_Threadlist*, _Thread*);
 static	void		addthreadinproc(Proc*, _Thread*);
 static	void		delthreadinproc(Proc*, _Thread*);
 static	void		contextswitch(Context *from, Context *to);
-static	void		scheduler(void*);
+static	void		scheduler(Proc*);
 
 static _Thread*
 getthreadnow(void)
@@ -33,6 +33,8 @@ procalloc(void)
 	Proc *p;
 
 	p = malloc(sizeof *p);
+	if(p == nil)
+		sysfatal("procalloc malloc: %r");
 	memset(p, 0, sizeof *p);
 	lock(&threadnproclock);
 	threadnproc++;
@@ -58,6 +60,8 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 
 	/* allocate the task and stack together */
 	t = malloc(sizeof *t+stack);
+	if(t == nil)
+		sysfatal("threadalloc malloc: %r");
 	memset(t, 0, sizeof *t);
 	t->stk = (uchar*)(t+1);
 	t->stksize = stack;
@@ -183,16 +187,12 @@ contextswitch(Context *from, Context *to)
 }
 
 static void
-scheduler(void *v)
+scheduler(Proc *p)
 {
 	_Thread *t;
-	Proc *p;
 
-	p = v;
 	setproc(p);
 	// print("s %p %d\n", p, gettid());
-	p->tid = pthread_self();
-	pthread_detach(p->tid);
 	lock(&p->lock);
 	for(;;){
 		while((t = p->runqueue.head) == nil){
@@ -225,7 +225,6 @@ Out:
 	unlock(&p->lock);
 	free(p);
 	setproc(0);
-	pthread_exit(nil);
 }
 
 void
