@@ -36,7 +36,7 @@ cvs \- introduction using plan9port CVS repository
 .I revision
 ]
 [
-.B -u
+.B -cu
 ]
 [
 .I path ...
@@ -151,6 +151,15 @@ or
 .B -D
 options are given,
 those two versions are compared, and the local copy is ignored.
+.PP
+.I Cvs
+.I diff
+passes the
+.B -u
+or
+.B -c
+options to the Unix
+.IR diff .
 .PP
 If you download a tar file from the web
 instead of checking out the tree with CVS,
