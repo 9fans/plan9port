@@ -13,3 +13,6 @@ SHORTLIB=bio 9
 
 <$PLAN9/src/mkone
 
+KVM=`{if uname |grep BSD >/dev/null; then echo -lkvm; fi}
+LDFLAGS=$LDFLAGS $KVM
+
