@@ -55,18 +55,9 @@ esac
 
 # N.B. Must use temp file to avoid pipe; pipe loses status.
 xtmp=/tmp/9c.$$.$USER.out
-status=x
-case "$tag" in
-*SunOS*-cc)
-	$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>&1 | 
-		/bin/sed 's/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' 1>&2
-	status=$?
-	;;
-*)
-	$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@"
-	status=$?
-	;;
-esac >$xtmp 2>&1
-grep -v '__p9l_autolib_' $xtmp
-rm -f $xtmp
+$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" >$xtmp 2>&1
+status=$?
+grep -v '__p9l_autolib_' $xtmp |
+sed 's/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g'
+rm -f $xtmp $xtmp.status
 exit $status
