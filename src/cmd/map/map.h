@@ -110,6 +110,10 @@ void	findxy(double, double *, double *);
 void	albscale(double, double, double, double);
 void	invalb(double, double, double *, double *);
 
+#define csqrt map_csqrt	/* conflicts on FreeBSD 5 with gcc builtins */
+#define cpow map_cpow
+#define sincos map_sincos
+
 void	cdiv(double, double, double, double, double *, double *);
 void	cmul(double, double, double, double, double *, double *);
 void	cpow(double, double, double *, double *, double);
