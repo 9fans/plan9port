@@ -232,7 +232,7 @@ listlocals(Map *map, Regs *regs, Symbol *fn, int class)
 	for(i = 0; indexlsym(fn, i, &s)>=0; i++) {
 		if(s.class != class)
 			continue;
-		if(class == CAUTO && s.name[0] == '.')
+		if(class == CAUTO && (s.name==0 || s.name[0] == '.'))
 			continue;
 		if(lget4(map, regs, s.loc, &val) < 0)
 			continue;
