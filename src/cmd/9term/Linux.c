@@ -1,7 +1,7 @@
 #include "9term.h"
 
-void
-pdx(int pid, char *wdir, int bufn)
+int
+getchildwd(int pid, char *wdir, int bufn)
 {
 	char path[256];
 	int n;
@@ -9,8 +9,9 @@ pdx(int pid, char *wdir, int bufn)
 	snprint(path, sizeof path, "/proc/%d/cwd", pid);
 	n = readlink(path, wdir, bufn);
 	if(n < 0)
-		n = 0;
+		return -1;
 	wdir[n] = '\0';
+	return 0;
 }
 
 int

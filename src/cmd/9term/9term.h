@@ -109,7 +109,7 @@ void	scrdraw(void);
 void	scroll(int);
 void	hostproc(void *arg);
 void	hoststart(void);
-void	pdx(int, char*, int);
+void	getchildwd(int, char*, int);
 void	plumbstart(void);
 void	plumb(uint, uint);
 void	plumbclick(uint*, uint*);

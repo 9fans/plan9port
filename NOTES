@@ -19,18 +19,12 @@ See below.
 
 * Building
 
-To build, cd into src and run make install.  This will place binaries
-in "bin".  At time of writing, the commands are sam, samterm, and mk.
+To build, cd into src and run make; mk install.  This will place binaries
+in "bin".  At time of writing, the commands are sam, samterm, rc, and mk.
 There are a few shell scripts already included in bin -- B, Bwait,
 and samsave.
 
-* Make vs. Mk
-
-I'm trying to use make for everything so that it's easier to get
-off the ground, but this might not work out.  Working in the
-intersection of BSD make and GNU make is quite restrictive.
-If I'm going to start requiring a particular build utility,
-it might as well be mk.
+The "make" builds mk.  Mk builds the rest.
 
 * Helping out
 

@@ -18,6 +18,7 @@ int		mainpid;
 int		plumbfd;
 int		label(Rune*, int);
 char		wdir[1024];
+char		childwdir[1024];
 void		hangupnote(void*, char*);
 
 char *menu2str[] = {
@@ -1312,11 +1313,16 @@ plumb(uint q0, uint q1)
 	char *p;
 	int i, p0, n;
 	char cbuf[100];
+	char *w;
 
+	if(getchildwdir(pid, childwdir, sizeof childwdir) == 0)
+		w = childwdir;
+	else
+		w = wdir;
 	pm = malloc(sizeof(Plumbmsg));
 	pm->src = strdup("9term");
 	pm->dst = 0;
-	pm->wdir = strdup(wdir);
+	pm->wdir = strdup(w);
 	pm->type = strdup("text");
 	if(q1 > q0)
 		pm->attr = nil;
