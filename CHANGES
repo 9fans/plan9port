@@ -1,3 +1,101 @@
+February 11, 2005
+	dist: fix regexp license in unix.html
+		add link to license on main page
+	lib9: add list of plan 9 services to _p9dialparse,
+		add OAPPEND for create and open,
+		format \0 as printable in fcallfmt,
+		add netcrypt, readcons, syslog
+	lib9p: fix tpost, call srv->start
+	lib9pclient: add chatty9pclient
+	libauth: add fsamount, nsamount, authdial ndb.
+	libmach: use %#x explicitly
+	libsec: use new auth_allocrpc in tlshand
+	libthread: add threadgetname prototype
+	9l: fix libsec/lib9 cycle thanks to netcrypt
+	9p: use nsamount, fsamount
+	9pserve: quieter, auth bug fix
+	acid: do not set %# implicitly anymore
+		add simple pthread support via acid code
+		set corpid
+	acme: bug fix in Tauth handler
+	dial: send input to net instead of back to 0
+	dict: ahd path
+	factotum: make it run and work, add secstore
+	rc: set p->pid=-1 explicitly to avoid wait problems
+	psv: add print buttons
+
+February 10, 2005
+	libmach: abortive attempt at pthread support via libthread_db
+
+February 8, 2005
+	lib9: don't fiddle with signal masks by default
+		fix typo in notify(3)
+		add DMSYMLINK etc. bits
+		add crypt (lucho)
+	lib9p*: many fixes (lucho)
+	libauth*: many fixes (lucho)
+	libdraw: avoid yet another X11 stack overflow in cursorset
+		(FC3, reported by Abhey Shah)
+	libhttpd: do not assign va_list in hio.c (lucho)
+	libthread: remove debugging >xx in mkfile
+	9l: add FreeBSD 5.2 support w/ -lkse (Sah)
+	9l, 9term: patches to run on SunOS 5.8 from Axel B.
+	9term: try to handle DEL better
+		document bash/readline brokenness in 9term(1) BUGS
+		fix paste bug
+	vac: avoid special files
+
+February 3, 2005
+	libthread: silence gcc warning in pthread.c
+
+February 2, 2005
+	INSTALL: add use of LOCAL.config
+	libdraw: add nowsys implementation
+	mk: silence archive warning if ~ $file *.a.
+
+February 1, 2005
+	lc: use 9 mc not linux mc.
+
+January 31, 2005
+	db(1): add stack to name list
+
+January 30, 2005
+	cmd/mkfile: lex files
+	unix: add ranlib to unix makefiles for mac
+	libmux: fix non-zero mintag handling (thanks to lucho)
+	libthread: osprocid now int not uint (can be -1)
+	9term, awd, win: handle sysnames in labels
+	acme: document -a, Indent
+		add errors file
+	core: do not readdir files (thanks to zoltan jarai)
+	delatex: make it better
+	diff: document -a
+	factotum: silence chap warning
+	sam: chording disabled - causes lockups
+	topng: use simpler graphics format
+
+January 29, 2005
+	diff: add -a
+
+January 28, 2005
+	lib9pclient: zero offset, mode, qid on fid alloc.
+
+January 27, 2005
+	sky: remove here; add here.sample instead, so that
+		local changes to here are not clobbered.
+	acme: remove print, fix addr handling, check fid in use.
+		fix rowdump bug; cope with unix ORCLOSE
+	sam: add -a (autoindent) and chording
+
+January 26, 2005
+	diff: add -c
+
+January 25, 2005
+	libdraw: finally fix winsize @x,y handling
+
+January 23, 2005
+	dist: bug fixes to download.html and unix.html
+
 January 23, 2005
 	suse X bug - need bigger stacks
 	add searchpath(3)
