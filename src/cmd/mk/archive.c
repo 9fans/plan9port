@@ -105,7 +105,7 @@ atimes(char *ar)
 	struct ar_hdr h;
 	long t;
 	int fd, i;
-	char buf[BIGBLOCK];
+	char buf[1024];
 	char name[sizeof(h.name)+1];
 
 	fd = open(ar, OREAD);
@@ -126,7 +126,7 @@ atimes(char *ar)
 		if(name[i] == '/')		/* system V bug */
 			i--;
 		name[i+1]=0;
-		sprint(buf, "%s(%s)", ar, h.size);
+		snprint(buf, sizeof buf, "%s(%s)", ar, name);
 		symlook(strdup(buf), S_TIME, (void *)t)->value = (void *)t;
 		t = atol(h.size);
 		if(t&01) t++;
