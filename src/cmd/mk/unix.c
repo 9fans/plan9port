@@ -329,7 +329,7 @@ rcopy(char **to, Resub *match, int n)
 	}
 }
 
-ulong
+unsigned long
 mkmtime(char *name)
 {
 	struct stat st;

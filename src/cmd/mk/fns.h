@@ -41,7 +41,7 @@ char	*maketmp(int*);
 int	match(char*, char*, char*, Shell*);
 char *membername(char*, int, char*);
 void	mk(char*);
-ulong	mkmtime(char*);
+unsigned long	mkmtime(char*);
 long	mtime(char*);
 Arc	*newarc(Node*, Rule*, char*, Resub*);
 Bufblock *newbuf(void);
