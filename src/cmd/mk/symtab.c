@@ -7,11 +7,13 @@ static Symtab *hash[NHASH];
 void
 syminit(void)
 {
-	Symtab **s, *ss;
+	Symtab **s, *ss, *next;
 
 	for(s = hash; s < &hash[NHASH]; s++){
-		for(ss = *s; ss; ss = ss->next)
+		for(ss = *s; ss; ss = next){
+			next = ss->next;
 			free((char *)ss);
+		}
 		*s = 0;
 	}
 }

@@ -39,7 +39,6 @@ main(int argc, char **argv)
 	 *  instead of sharing them
 	 */
 
-	initshell();
 	Binit(&bout, 1, OWRITE);
 	buf = newbuf();
 	whatif = 0;
@@ -120,6 +119,7 @@ main(int argc, char **argv)
 		iflag = 1;
 	usage();
 	syminit();
+	initshell();
 	initenv();
 	usage();
 
