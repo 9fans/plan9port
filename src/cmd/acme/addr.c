@@ -49,7 +49,7 @@ isregexc(int r)
 }
 
 Range
-number(Mntdir *md, Text *t, Range r, int line, int dir, int size, int *evalp)
+number(uint showerr, Text *t, Range r, int line, int dir, int size, int *evalp)
 {
 	uint q0, q1;
 
@@ -82,7 +82,7 @@ number(Mntdir *md, Text *t, Range r, int line, int dir, int size, int *evalp)
 		break;
 	case Fore:
 		if(q1 > 0)
-			while(textreadc(t, q1-1) != '\n')
+			while(q1<t->file->b.nc && textreadc(t, q1-1) != '\n')
 				q1++;
 		q0 = q1;
 		goto Forward;
@@ -107,7 +107,7 @@ number(Mntdir *md, Text *t, Range r, int line, int dir, int size, int *evalp)
 	return range(q0, q1);
 
     Rescue:
-	if(md != nil)
+	if(showerr)
 		warning(nil, "address out of range\n");
 	*evalp = FALSE;
 	return r;
@@ -115,14 +115,15 @@ number(Mntdir *md, Text *t, Range r, int line, int dir, int size, int *evalp)
 
 
 Range
-regexp(Mntdir *md, Text *t, Range lim, Range r, Rune *pat, int dir, int *foundp)
+regexp(uint showerr, Text *t, Range lim, Range r, Rune *pat, int dir, int *foundp)
 {
 	int found;
 	Rangeset sel;
 	int q;
 
 	if(pat[0] == '\0' && rxnull()){
-		warning(md, "no previous regular expression\n");
+		if(showerr)
+			warning(nil, "no previous regular expression\n");
 		*foundp = FALSE;
 		return r;
 	}
@@ -137,16 +138,17 @@ regexp(Mntdir *md, Text *t, Range lim, Range r, Rune *pat, int dir, int *foundp)
 			q = Infinity;
 		else
 			q = lim.q1;
+warning(nil, "searching %d-%d\n", r.q1, q);
 		found = rxexecute(t, nil, r.q1, q, &sel);
 	}
-	if(!found && md==nil)
+	if(!found && showerr)
 		warning(nil, "no match for regexp\n");
 	*foundp = found;
 	return sel.r[0];
 }
 
 Range
-address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int (*getc)(void*, uint),  int *evalp, uint *qp)
+address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int (*getc)(void*, uint),  int *evalp, uint *qp)
 {
 	int dir, size, npat;
 	int prevc, c, nc, n;
@@ -175,7 +177,7 @@ address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int
 			if(q>=q1 && t!=nil && t->file!=nil)	/* rhs defaults to $ */
 				r.q1 = t->file->b.nc;
 			else{
-				nr = address(md, t, lim, ar, a, q, q1, getc, evalp, &q);
+				nr = address(showerr, t, lim, ar, a, q, q1, getc, evalp, &q);
 				r.q1 = nr.q1;
 			}
 			*qp = q;
@@ -184,7 +186,7 @@ address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int
 		case '-':
 			if(*evalp && (prevc=='+' || prevc=='-'))
 				if((nc=(*getc)(a, q))!='#' && nc!='/' && nc!='?')
-					r = number(md, t, r, 1, prevc, Line, evalp);	/* do previous one */
+					r = number(showerr, t, r, 1, prevc, Line, evalp);	/* do previous one */
 			dir = c;
 			break;
 		case '.':
@@ -222,7 +224,7 @@ address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int
 				n = n*10+(c-'0');
 			}
 			if(*evalp)
-				r = number(md, t, r, n, dir, size, evalp);
+				r = number(showerr, t, r, n, dir, size, evalp);
 			dir = None;
 			size = Line;
 			break;
@@ -255,7 +257,7 @@ address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int
 			pat = runerealloc(pat, npat+1);
 			pat[npat] = 0;
 			if(*evalp)
-				r = regexp(md, t, lim, r, pat, dir, evalp);
+				r = regexp(showerr, t, lim, r, pat, dir, evalp);
 			free(pat);
 			dir = None;
 			size = Line;
@@ -263,7 +265,7 @@ address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int
 		}
 	}
 	if(*evalp && dir != None)
-		r = number(md, t, r, 1, dir, Line, evalp);	/* do previous one */
+		r = number(showerr, t, r, 1, dir, Line, evalp);	/* do previous one */
 	*qp = q;
 	return r;
 }

@@ -19,6 +19,7 @@ enum
 	QWrdsel,
 	QWwrsel,
 	QWtag,
+	QWxdata,
 	QMAX,
 };
 
@@ -30,6 +31,7 @@ enum
 	Infinity = 		0x7FFFFFFF,	/* huge value for regexp address */
 };
 
+#define Buffer AcmeBuffer
 typedef	struct	Block Block;
 typedef	struct	Buffer Buffer;
 typedef	struct	Command Command;

@@ -342,7 +342,7 @@ delcol(Text *et, Text *_0, Text *_1, int _2, int _3, Rune *_4, int _5)
 		return;
 	for(i=0; i<c->nw; i++){
 		w = c->w[i];
-		if(w->nopen[QWevent]+w->nopen[QWaddr]+w->nopen[QWdata] > 0){
+		if(w->nopen[QWevent]+w->nopen[QWaddr]+w->nopen[QWdata]+w->nopen[QWxdata] > 0){
 			warning(nil, "can't delete column; %.*S is running an external command\n", w->body.file->nname, w->body.file->name);
 			return;
 		}
@@ -1528,7 +1528,7 @@ Hard:
 	if(ret >= 0){
 		if(cpid)
 			sendul(cpid, ret);
-		threadexits("");
+		threadexits(nil);
 	}
 	warning(nil, "exec rc: %r\n");
 

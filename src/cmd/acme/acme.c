@@ -67,6 +67,11 @@ threadmain(int argc, char *argv[])
 
 	loadfile = nil;
 	ARGBEGIN{
+	case 'D':
+		{extern int _threaddebuglevel;
+		_threaddebuglevel = ~0;
+		}
+		break;
 	case 'a':
 		globalautoindent = TRUE;
 		break;
@@ -643,6 +648,21 @@ waitthread(void *v)
 	alts[WCmd].op = CHANRCV;
 	alts[NWALT].op = CHANEND;
 
+	/*
+	 * BUG.  Actually there's no bug here but this is the
+	 * first place you'd look.  When a program is run,
+	 * it doesn't disappear from the main tag until the
+	 * mouse is moved or keyboard is hit.  This would
+	 * suggest that the WWait case isn't working right,
+	 * but what's actually going on is that the X11 code
+	 * is running a select-based threading loop that
+	 * doesn't get interrupted until there is data from X11.
+	 * This was done to make acme work on Suns and
+	 * other systems where our threading was sub-par.
+	 * Now that we've gotten pthreads working (sort of),
+	 * we might be able to fix this properly.
+	 * But the bug is in libdraw and libthread, not here.
+	 */
 	command = nil;
 	for(;;){
 		switch(alt(alts)){

@@ -591,7 +591,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	e->u.at = t;
 	e->a0 = amin+1;
 	eval = FALSE;
-	address(nil, nil, range(-1,-1), range(0,0), t, e->a0, amax, tgetc, &eval, (uint*)&e->a1);
+	address(TRUE, nil, range(-1,-1), range(0,0), t, e->a0, amax, tgetc, &eval, (uint*)&e->a1);
 	return TRUE;
 
    Isntfile:
@@ -723,7 +723,7 @@ openfile(Text *t, Expand *e)
 		eval = FALSE;
 	else{
 		eval = TRUE;
-		r = address(nil, t, range(-1,-1), range(t->q0, t->q1), e->u.at, e->a0, e->a1, e->agetc, &eval, &dummy);
+		r = address(TRUE, t, range(-1,-1), range(t->q0, t->q1), e->u.at, e->a0, e->a1, e->agetc, &eval, &dummy);
 		if(eval == FALSE)
 			e->jump = FALSE;	/* don't jump if invalid address */
 	}

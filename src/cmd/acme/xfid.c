@@ -103,13 +103,8 @@ xfidopen(Xfid *x)
 		q = FILE(x->f->qid);
 		switch(q){
 		case QWaddr:
-			if(w->nopen[q]++ == 0){
-				w->addr = range(0,0);
-				w->limit = range(-1,-1);
-			}
-			break;
-		case QWdata:
 			w->nopen[q]++;
+			w->limit = range(-1,-1);
 			break;
 		case QWevent:
 			if(w->nopen[q]++ == 0){
@@ -214,12 +209,13 @@ xfidclose(Xfid *x)
 			}
 			break;
 		case QWdata:
+		case QWxdata:
 			w->nomark = FALSE;
 			/* fall through */
 		case QWaddr:
 		case QWevent:	/* BUG: do we need to shut down Xfid? */
 			if(--w->nopen[q] == 0){
-				if(q == QWdata)
+				if(q == QWdata || q == QWxdata)
 					w->nomark = FALSE;
 				if(q==QWevent && !w->isdir && w->col!=nil){
 					w->filemenu = TRUE;
@@ -327,6 +323,15 @@ xfidread(Xfid *x)
 		w->addr.q1 = w->addr.q0;
 		break;
 
+	case QWxdata:
+		/* BUG: what should happen if q1 > q0? */
+		if(w->addr.q0 > w->body.file->b.nc){
+			respond(x, &fc, Eaddr);
+			break;
+		}
+		w->addr.q0 += xfidruneread(x, &w->body, w->addr.q0, w->addr.q1);
+		break;
+
 	case QWtag:
 		xfidutfread(x, &w->tag, w->tag.file->b.nc, QWtag);
 		break;
@@ -398,7 +403,7 @@ xfidwrite(Xfid *x)
 		t = &w->body;
 		wincommit(w, t);
 		eval = TRUE;
-		a = address(x->f->mntdir, t, w->limit, w->addr, r, 0, nr, rgetc, &eval, (uint*)&nb);
+		a = address(FALSE, t, w->limit, w->addr, r, 0, nr, rgetc, &eval, (uint*)&nb);
 		free(r);
 		if(nb < nr){
 			respond(x, &fc, Ebadaddr);

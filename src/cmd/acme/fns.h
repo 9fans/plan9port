@@ -81,7 +81,7 @@ int		isregexc(int);
 void *emalloc(uint);
 void *erealloc(void*, uint);
 char	*estrdup(char*);
-Range		address(Mntdir*, Text*, Range, Range, void*, uint, uint, int (*)(void*, uint),  int*, uint*);
+Range		address(uint, Text*, Range, Range, void*, uint, uint, int (*)(void*, uint),  int*, uint*);
 int		rxexecute(Text*, Rune*, uint, uint, Rangeset*);
 int		rxbexecute(Text*, uint, Rangeset*);
 Window*	makenewwindow(Text *t);
