@@ -52,6 +52,7 @@ uncrackhdr(Fhdr *hdr)
 {
 	close(hdr->fd);
 	_delhdr(hdr);
+	free(hdr->cmd);
 	free(hdr);
 }
 
