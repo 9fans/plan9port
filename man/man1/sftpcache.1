@@ -1,0 +1,33 @@
+.TH SFTPCACHE 1
+.SH NAME
+sftpcache \- cache sftp connections
+.SH SYNOPSIS
+.B sftpcache
+.I system
+.SH DESCRIPTION
+.I Sftpcache
+multiplexes clients onto persistent 
+.IR sftp (1)
+connections.
+It runs
+.I sftp
+.I system 
+and posts a socket named
+.IB system .sftp
+in the name space directory
+(see
+.IR intro (4)).
+Clients can connect to the socket, one at a time,
+to interact with the
+.I sftp
+session.
+.PP
+.I Sftpcache
+is used by
+.IR netfiles (1).
+.SH SOURCE
+.B \*9/src/cmd/sftpcache.c
+.SH SEE ALSO
+.IR ssh (1),
+.IR sftp (1),
+.IR netfiles (1)
