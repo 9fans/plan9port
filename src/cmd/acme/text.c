@@ -84,7 +84,7 @@ textresize(Text *t, Rectangle r)
 	t->lastsr = nullrect;
 	r.min.x += Scrollwid+Scrollgap;
 	frclear(&t->fr, 0);
-	textredraw(t, r, t->fr.font, t->fr.b, odx);
+	textredraw(t, r, t->fr.font, screen, odx);
 	return r.max.y;
 }
 
