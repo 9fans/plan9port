@@ -19,4 +19,4 @@ case $# in
 	exit 1
 esac
 
-ps $flag | grep "^$user "
+9 ps $flag | grep "^$user "
