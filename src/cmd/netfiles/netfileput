@@ -1,0 +1,27 @@
+#!/usr/local/plan9/bin/rc
+
+if(! ~ $#* 2){
+	echo 'usage: netput system path' >[1=2]
+	exit usage
+}
+
+f=putfile
+ns=`{namespace}
+if(u test -S $ns/$1)
+	f=$f^9p
+
+t=/tmp/netget.$pid.$USER
+fn sigexit { rm -f $t }
+
+fn putfile{
+	cat >$t
+	if(! echo put $t $2 | sftp -b - $1 >/dev/null)
+		exit 1
+}
+fn putfile9p{
+	if(! 9p write $1/$2)
+		exit 1
+}
+
+$f $1 $2
+exit 0
