@@ -148,7 +148,7 @@ _frdraw(Frame *f, Point pt)
 		if(b->nrune > 0){
 			n = _frcanfit(f, pt, b);
 			if(n == 0)
-				drawerror(f->display, "draw: _frcanfit==0");
+				drawerror(f->display, "_frcanfit==0");
 			if(n != b->nrune){
 				_frsplitbox(f, nb, n);
 				b = &f->box[nb];
