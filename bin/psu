@@ -7,10 +7,9 @@ then
 	shift
 fi
 
-user=`whoami`
 case $# in
 0)
-	user=`whoami`
+	user=$USER
 	;;
 1)
 	user=$1
