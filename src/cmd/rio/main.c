@@ -295,7 +295,7 @@ initscreen(ScreenInfo *s, int i, int background)
 */
 		system("xsetroot -solid grey30");
 	}
-	s->menuwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 2, colorpixel(dpy, s->depth, 0xAAFFAA), colorpixel(dpy, s->depth, 0xE9FFE9));
+	s->menuwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 2, colorpixel(dpy, s->depth, 0x88CC88), colorpixel(dpy, s->depth, 0xE9FFE9));
 	s->sweepwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 4, s->red, colorpixel(dpy, s->depth, 0xEEEEEE));
 }
 
