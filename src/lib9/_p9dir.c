@@ -47,13 +47,20 @@ isdisk(struct stat *st)
 #define _HAVESTGEN
 #endif
 
+/*
+ * Caching the last group and passwd looked up is
+ * a significant win (stupidly enough) on most systems.
+ * It's not safe for threaded programs, but neither is using
+ * getpwnam in the first place, so I'm not too worried.
+ */
 int
 _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 {
 	char *s;
 	char tmp[20];
-	struct group *g;
-	struct passwd *p;
+	static struct group *g;
+	static struct passwd *p;
+	static int gid, uid;
 	int sz;
 
 	sz = 0;
@@ -82,7 +89,12 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 	sz += strlen(s)+1;
 
 	/* user */
-	p = getpwuid(st->st_uid);
+	if(p && st->st_uid == uid && p->pw_uid == uid)
+		;
+	else{
+		p = getpwuid(st->st_uid);
+		uid = st->st_uid;
+	}
 	if(p == nil){
 		snprint(tmp, sizeof tmp, "%d", (int)st->st_uid);
 		s = tmp;
@@ -100,7 +112,12 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 	}
 
 	/* group */
-	g = getgrgid(st->st_gid);
+	if(g && st->st_gid == gid && g->gr_gid == gid)
+		;
+	else{
+		g = getgrgid(st->st_gid);
+		gid = st->st_gid;
+	}
 	if(g == nil){
 		snprint(tmp, sizeof tmp, "%d", (int)st->st_gid);
 		s = tmp;
