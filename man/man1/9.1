@@ -2,17 +2,60 @@
 .SH NAME
 9 \- run Plan 9 commands
 .SH SYNOPSIS
-.B .
-.B 9
-.PP
 .B 9
 .I cmd
 [
 .I args
 \&...
 ]
+.PP
+.B .
+.B 9
 .SH DESCRIPTION
-XXX
+Because Plan 9 supplies commands with the same name as but different
+behavior than many basic Unix system commands
+(e.g.,
+.BR grep ,
+.BR sed ,
+.BR mkdir ,
+.BR rm ),
+it is not recommended to run with the Plan 9 bin directory
+ahead of the system directories.
+.PP
+.I 9
+is a shell script that sets up a Plan 9 environment and runs
+.I cmd .
+It sets
+.B $PLAN9
+and adds
+.B $PLAN9/bin
+to the beginning of
+.B $PATH
+before running
+.IR cmd .
+.PP
+If run with no arguments,
+.B 9
+does not do anything.  This is so that it can be invoked from
+.IR sh -style
+shells using
+.B .
+.B 9
+in order to make the current shell start running in the Plan 9 environment.
+.SH EXAMPLES
+Search for greek in the password file:
+.IP
+.EX
+$ 9 grep '[α-ζ]' /etc/passwd
+.EE
+.PP
+Start an
+.IR rc (1)
+with the Plan 9 commands in the path before the system commands.
+.IP
+.EX
+9 rc
+.EE
 .SH SOURCE
 .B \*9/bin/9
 .SH SEE ALSO

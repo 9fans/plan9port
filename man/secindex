@@ -1,6 +1,6 @@
 #!/usr/local/plan9/bin/rc
 builtin cd $1
-for (i in [a-z0-9:]*) {
+for (i in [a-z0-9:]*.[0-9]*) {
 	b=`{echo $i | sed 's/\..*//'}
 	9 sed -n '
 	/SH *NAM/,/SH/{

@@ -169,6 +169,7 @@ tr tr.1
 tr2post tr2post.1
 nroff troff.1
 troff troff.1
+troff2html troff2html.1
 tweak tweak.1
 uniq uniq.1
 units units.1

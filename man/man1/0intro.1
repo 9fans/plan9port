@@ -30,7 +30,7 @@ they expect the
 environment variable 
 to contain the name of the root of the tree.
 See
-.IR install (8)
+.IR install (1)
 for details about installation.
 .PP
 Many of the familiar Unix commands,
@@ -127,6 +127,15 @@ The
 .IR 9p (1)
 client can be used in shell scripts or by hand to carry out
 simple interactions with servers.
+.SS External databases
+Some programs rely on large databases that would be
+cumbersome to include in every release.
+Scripts are provided that download these databases separately.
+These databases can be downloaded separately.  
+See
+.B $PLAN9/dict/README
+and
+.BR $PLAN9/sky/README .
 .SS Programming
 The shell scripts
 .I 9c
@@ -187,15 +196,6 @@ can be relied upon to produce reasonable stack traces
 cannot)
 and dump data structures,
 but that it is the extent to which they have been developed and exercised.
-.SS External databases
-Some programs rely on large databases that would be
-cumbersome to include in every release.
-Scripts are provided that download these databases separately.
-These databases can be downloaded separately.  
-See
-.B $PLAN9/dict/README
-and
-.BR $PLAN9/sky/README .
 .SS Porting programs
 The vast majority of the familiar Plan 9 programs 
 have been ported, including the Unicode-aware
@@ -244,8 +244,8 @@ and the implementation of
 .IR getcallerpc (3),
 but these are usually simple and are not on the critical
 path for getting the system up and running.
-.SS SEE ALSO
-The system's documentation is these manual pages.
+.SH SEE ALSO
+The rest of this manual describes Plan 9 from User Space.
 Many of the man pages have been brought from Plan 9,
 but they have been updated, and others have been written from scratch.
 .PP
@@ -276,19 +276,24 @@ directly, as in
 The manual sections follow the Unix numbering conventions,
 not the Plan 9 ones.
 .PP
-Section (1) describes general publicly accessible commands.
+.HR ../man1 "Section (1)
+describes general publicly accessible commands.
 .PP
-Section (3) describes C library functions.
+.HR ../man3 "Section (3)
+describes C library functions.
 .PP
-Section (4) describes user-level file servers.
+.HR ../man4 "Section (4)
+describes user-level file servers.
 .PP
-Section (7) describes file formats and protocols.
+.HR ../man7 "Section (7)
+describes file formats and protocols.
 (On Unix, section (5) is technically for file formats but
 seems now to be used for describing specific files.)
+.\" .PP
+.\" Section (8) describes commands used for system administration.
 .PP
-Section (8) describes commands used for system administration.
-.PP
-Section (9p) describes the Plan 9 file protocol 9P.
+.HR ../man9 "Section (9p)
+describes the Plan 9 file protocol 9P.
 .SH DIAGNOSTICS
 In Plan 9, a program's exit status is an arbitrary text string,
 while on Unix it is an integer.

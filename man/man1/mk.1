@@ -1,6 +1,6 @@
 .TH MK 1
 .SH NAME
-mk, membername \- maintain (make) related files
+mk \- maintain (make) related files
 .SH SYNOPSIS
 .B mk
 [
@@ -13,10 +13,6 @@ mk, membername \- maintain (make) related files
 [
 .I target ...
 ]
-.PP
-.B membername
-.IR lib ( object )
-\&...
 .SH DESCRIPTION
 .I Mk
 uses the dependency rules specified in
@@ -529,18 +525,6 @@ Currently, the only aggregates supported are
 (see
 .IR 9c (1))
 archives.
-.PP
-.I Membername
-echoes just the member names of a list of aggregate names.
-It is useful in recipes like:
-.IP
-.EX
-OFILES=a.o b.o
-libc.a(%):N: %
-libc.a:	${OFILES:%=libc.a(%)}
-	9ar rvc libc.a `membername $newprereq`
-.EE
-which re-archives only the new object files.
 .SS Attributes
 The colon separating the target from the prerequisites
 may be
@@ -669,6 +653,8 @@ rule:
 x.tab.h:Pcmp -s:	y.tab.h
 	cp y.tab.h x.tab.h
 .EE
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/mk
 .SH SEE ALSO
 .IR sh (1),
 .IR regexp (7)
