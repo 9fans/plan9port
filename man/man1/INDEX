@@ -10,6 +10,8 @@ acidtypes acid.1
 acme acme.1
 awd acme.1
 win acme.1
+acme.rc acmeevent.1
+acmeevent acmeevent.1
 ascii ascii.1
 unicode ascii.1
 astro astro.1
@@ -22,6 +24,8 @@ cat cat.1
 nobs cat.1
 read cat.1
 cleanname cleanname.1
+auxclog clog.1
+clog clog.1
 cmp cmp.1
 colors colors.1
 getmap colors.1
@@ -35,6 +39,8 @@ db db.1
 dc dc.1
 delatex deroff.1
 deroff deroff.1
+dial dial.1
+adict dict.1
 dict dict.1
 diff diff.1
 doctype doctype.1
@@ -88,6 +94,7 @@ ls ls.1
 lookman man.1
 man man.1
 map map.1
+mapd map.1
 mapdemo map.1
 mc mc.1
 membername mk.1
