@@ -60,6 +60,7 @@ struct Alt {
 };
 
 struct Ref {
+	Lock lk;
 	long ref;
 };
 
