@@ -36,7 +36,7 @@ vtrpc(VtConn *z, Packet *p)
 {
 	int i;
 	uchar tag, buf[2], *top;
-	Rwait *r;
+	Rwait *r, *rr;
 
 	/* must malloc because stack could be private */
 	r = vtmallocz(sizeof(Rwait));
@@ -86,16 +86,15 @@ vtrpc(VtConn *z, Packet *p)
 			muxrpc(z, p);
 		}
 		z->muxer = 0;
-		/* if there is anyone else sleeping, wake them to mux */
-		if(z->nsleep){
-			for(i=0; i<256; i++)
-				if(z->wait[i] != nil && ((Rwait*)z->wait[i])->sleeping)
-					break;
-			if(i==256)
-				fprint(2, "libventi: nsleep botch\n");
-			else
-				rwakeup(&((Rwait*)z->wait[i])->r);
-		}	
+		/* if there is anyone else sleeping, wake first unfinished to mux */
+		if(z->nsleep)
+		for(i=0; i<256; i++){
+			rr = z->wait[i];
+			if(rr && rr->sleeping && !rr->done){
+				rwakeup(&rr->r);
+				break;
+			}
+		}
 	}
 
 	p = r->p;

@@ -10,9 +10,8 @@ static int
 _vtsend(VtConn *z, Packet *p)
 {
 	IOchunk ioc;
-	int n;
+	int n, tot;
 	uchar buf[2];
-
 
 	if(z->state != VtStateConnected) {
 		werrstr("session not connected");
@@ -32,18 +31,20 @@ _vtsend(VtConn *z, Packet *p)
 	ventisendbytes += n+2;
 	ventisendpackets++;
 
+	tot = 0;
 	for(;;){
 		n = packetfragments(p, &ioc, 1, 0);
 		if(n == 0)
 			break;
 		if(write(z->outfd, ioc.addr, ioc.len) < ioc.len){
-			vtlog(VtServerLog, "%s: sending packet %p: %r", z->addr, p);
+			vtlog(VtServerLog, "<font size=-1>%T %s:</font> sending packet %p: %r<br>\n", z->addr, p);
 			packetfree(p);
 			return 0;
 		}
 		packetconsume(p, nil, ioc.len);
+		tot += ioc.len;
 	}
-	vtlog(VtServerLog, "%s: sent packet %p", z->addr, p);
+	vtlog(VtServerLog, "<font size=-1>%T %s:</font> sent packet %p (%d bytes)<br>\n", z->addr, p, tot);
 	packetfree(p);
 	return 1;
 }
@@ -108,10 +109,10 @@ _vtrecv(VtConn *z)
 	ventirecvbytes += len;
 	ventirecvpackets++;
 	p = packetsplit(p, len);
-	vtlog(VtServerLog, "%s: read packet %p len %d", z->addr, p, len);
+	vtlog(VtServerLog, "<font size=-1>%T %s:</font> read packet %p len %d<br>\n", z->addr, p, len);
 	return p;
 Err:	
-	vtlog(VtServerLog, "%s: error reading packet: %r", z->addr);
+	vtlog(VtServerLog, "<font size=-1>%T %s:</font> error reading packet: %r<br>\n", z->addr);
 	return nil;	
 }
 

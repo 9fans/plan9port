@@ -142,12 +142,12 @@ if(first && chattyventi){
 	while((p = vtrecv(c)) != nil){
 		r = vtmallocz(sizeof(VtReq));
 		if(vtfcallunpack(&r->tx, p) < 0){
-			vtlog(VtServerLog, "%s: recv bad packet %p: %r", c->addr, p);
+			vtlog(VtServerLog, "<font size=-1>%T %s:</font> recv bad packet %p: %r<br>\n", c->addr, p);
 			fprint(2, "bad packet on %s: %r\n", sc->dir);
 			packetfree(p);
 			continue;
 		}
-		vtlog(VtServerLog, "%s: recv packet %p (%F)", c->addr, p, &r->tx);
+		vtlog(VtServerLog, "<font size=-1>%T %s:</font> recv packet %p (%F)<br>\n", c->addr, p, &r->tx);
 		if(chattyventi)
 			fprint(2, "%s <- %F\n", argv0, &r->tx);
 		packetfree(p);
@@ -182,7 +182,7 @@ vtgetreq(VtSrv *srv)
 	VtReq *r;
 	
 	r = _vtqrecv(srv->q);
-	vtlog(VtServerLog, "%s: vtgetreq %F\n", ((VtSconn*)r->sc)->c->addr, &r->tx);
+	vtlog(VtServerLog, "<font size=-1>%T %s:</font> vtgetreq %F<br>\n", ((VtSconn*)r->sc)->c->addr, &r->tx);
 	return r;
 }
 
@@ -200,13 +200,13 @@ vtrespond(VtReq *r)
 	if(chattyventi)
 		fprint(2, "%s -> %F\n", argv0, &r->rx);
 	if((p = vtfcallpack(&r->rx)) == nil){
-		vtlog(VtServerLog, "%s: vtfcallpack %F: %r", sc->c->addr, &r->rx);
+		vtlog(VtServerLog, "%s: vtfcallpack %F: %r<br>\n", sc->c->addr, &r->rx);
 		fprint(2, "fcallpack on %s: %r\n", sc->dir);
 		packetfree(p);
 		vtfcallclear(&r->rx);
 		return;
 	}
-	vtlog(VtServerLog, "%s: send packet %p (%F)", sc->c->addr, p, &r->rx);
+	vtlog(VtServerLog, "<font size=-1>%T %s:</font> send packet %p (%F)<br>\n", sc->c->addr, p, &r->rx);
 	if(vtsend(sc->c, p) < 0)
 		fprint(2, "vtsend %F: %r\n", &r->rx);
 	scdecref(sc);

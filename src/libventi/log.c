@@ -2,7 +2,10 @@
 #include <libc.h>
 #include <venti.h>
 
+int ventilogging;
 #define log	not_the_log_library_call
+
+static char Eremoved[] = "[removed]";
 
 enum
 {	/* defaults */
@@ -35,6 +38,9 @@ vtlogopen(char *name, uint size)
 	char *p;
 	VtLog *l, *last;
 
+	if(!ventilogging)
+		return nil;
+
 	h = hash(name)%nelem(vl.hash);
 	qlock(&vl.lk);
 	last = nil;
@@ -65,6 +71,7 @@ vtlogopen(char *name, uint size)
 	p = (char*)(l->chunk+nc);
 	for(i=0; i<nc; i++){
 		l->chunk[i].p = p;
+		l->chunk[i].wp = p;
 		p += LogChunkSize;
 		l->chunk[i].ep = p;
 	}
@@ -74,6 +81,7 @@ vtlogopen(char *name, uint size)
 	/* insert */
 	l->next = vl.hash[h];
 	vl.hash[h] = l;
+	l->ref++;
 	
 	l->ref++;
 	qunlock(&vl.lk);
@@ -87,9 +95,11 @@ vtlogclose(VtLog *l)
 		return;
 
 	qlock(&vl.lk);
-	if(--l->ref == 0)
+	if(--l->ref == 0){
+		/* must not be in hash table */
+		assert(l->name == Eremoved);
 		free(l);
-	else
+	}else
 		assert(l->ref > 0);
 	qunlock(&vl.lk);
 }
@@ -109,11 +119,25 @@ vtlogremove(char *name)
 				last->next = l->next;
 			else
 				vl.hash[h] = l->next;
+			l->name = Eremoved;
+			l->next = nil;
 			qunlock(&vl.lk);
 			vtlogclose(l);
 			return;
 		}
 	qunlock(&vl.lk);
+}
+
+static int
+timefmt(Fmt *fmt)
+{
+	static uvlong t0;
+	uvlong t;
+
+	if(t0 == 0)
+		t0 = nsec();
+	t = nsec()-t0;
+	return fmtprint(fmt, "T+%d.%04d", (uint)(t/1000000000), (uint)(t%1000000000)/100000);
 }
 
 void
@@ -122,10 +146,17 @@ vtlogvprint(VtLog *l, char *fmt, va_list arg)
 	int n;
 	char *p;
 	VtLogChunk *c;
+	static int first = 1;
 
 	if(l == nil)
 		return;
 		
+	if(first){
+		fmtinstall('T', timefmt);
+		first = 0;
+	}
+		
+	
 	qlock(&l->lk);
 	c = l->w;
 	n = c->ep - c->wp;
@@ -160,8 +191,10 @@ vtlog(char *name, char *fmt, ...)
 {
 	VtLog *l;
 	va_list arg;
-	
+
 	l = vtlogopen(name, LogSize);
+	if(l == nil)
+		return;
 	va_start(arg, fmt);
 	vtlogvprint(l, fmt, arg);
 	va_end(arg);
@@ -183,6 +216,5 @@ vtlogdump(int fd, VtLog *l)
 			c = l->chunk;
 		write(fd, c->p, c->wp-c->p);
 	}
-	vtlogclose(l);
 }
 
