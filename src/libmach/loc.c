@@ -70,7 +70,7 @@ lget1(Map *map, Regs *regs, Loc loc, uchar *a, uint n)
 int
 lget2(Map *map, Regs *regs, Loc loc, u16int *u)
 {
-	uvlong ul;
+	ulong ul;
 
 	if(locsimplify(map, regs, loc, &loc) < 0)
 		return -1;
@@ -93,7 +93,7 @@ lget2(Map *map, Regs *regs, Loc loc, u16int *u)
 int
 lget4(Map *map, Regs *regs, Loc loc, u32int *u)
 {
-	uvlong ul;
+	ulong ul;
 
 	if(locsimplify(map, regs, loc, &loc) < 0)
 		return -1;
@@ -116,7 +116,7 @@ lget4(Map *map, Regs *regs, Loc loc, u32int *u)
 int
 lget8(Map *map, Regs *regs, Loc loc, u64int *u)
 {
-	uvlong ul;
+	ulong ul;
 
 	if(locsimplify(map, regs, loc, &loc) < 0)
 		return -1;
@@ -188,7 +188,7 @@ lput8(Map *map, Regs *regs, Loc loc, u64int u)
 }
 
 Loc
-locaddr(uvlong addr)
+locaddr(ulong addr)
 {
 	Loc l;
 
@@ -198,7 +198,7 @@ locaddr(uvlong addr)
 }
 
 Loc
-locindir(char *reg, vlong offset)
+locindir(char *reg, long offset)
 {
 	Loc l;
 
@@ -209,7 +209,7 @@ locindir(char *reg, vlong offset)
 }
 
 Loc
-locconst(uvlong con)
+locconst(ulong con)
 {
 	Loc l;
 

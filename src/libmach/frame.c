@@ -13,7 +13,7 @@ struct LocRegs
 };
 
 static int
-locregrw(Regs *regs, char *name, uvlong *val, int isr)
+locregrw(Regs *regs, char *name, ulong *val, int isr)
 {
 	int i;
 	LocRegs *lr;
@@ -36,7 +36,7 @@ stacktrace(Map *map, Regs *regs, Tracer trace)
 {
 	char *rname;
 	int i, ipc, ret;
-	uvlong nextpc, pc, v;
+	ulong nextpc, pc, v;
 	ulong *cur, *next;
 	LocRegs lr;
 	Symbol s, *sp;

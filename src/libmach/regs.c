@@ -3,7 +3,7 @@
 #include <mach.h>
 
 int
-rput(Regs *regs, char *name, uvlong u)
+rput(Regs *regs, char *name, ulong u)
 {
 	if(regs == nil){
 		werrstr("registers not mapped");
@@ -13,7 +13,7 @@ rput(Regs *regs, char *name, uvlong u)
 }
 
 int
-rget(Regs *regs, char *name, uvlong *u)
+rget(Regs *regs, char *name, ulong *u)
 {
 	if(regs == nil){
 		*u = ~(ulong)0;
@@ -24,7 +24,7 @@ rget(Regs *regs, char *name, uvlong *u)
 }
 
 int
-_uregrw(Regs *regs, char *name, uvlong *u, int isr)
+_uregrw(Regs *regs, char *name, ulong *u, int isr)
 {
 	Regdesc *r;
 	uchar *ureg;
@@ -41,7 +41,7 @@ _uregrw(Regs *regs, char *name, uvlong *u, int isr)
 	switch(r->format){
 	default:
 	case 'X':
-		*u = mach->swap4(*(ulong*)ureg);
+		*u = mach->swap4(*(u32int*)ureg);
 		return 0;
 	}
 }
