@@ -16,7 +16,9 @@ HFILES=dat.h fns.h
 TARG=rio
 
 # should only use lib64 on x86-64, but it should not hurt elsewhere
-LDFLAGS=-L$X11/lib64 -L$X11/lib -lXext -lX11
+# stupid Darwin complains about the nonexistant directory
+L64=`[ -d $X11/lib64 ] && echo 64`
+LDFLAGS=-L$X11/lib$L64 -lXext -lX11
 
 <$PLAN9/src/mkone
 
