@@ -2,22 +2,37 @@
 
 #define	MAXE	(.999)	/* cant do hyperbolas */
 
+struct elem
+{
+	double	t;	/* time of perihelion */
+	double	q;	/* perihelion distance */
+	double	e;	/* eccentricity */
+	double	i;	/* inclination */
+	double	w;	/* argument of perihelion */
+	double	o;	/* longitude of ascending node */
+};
+
+struct elem
+mkelem(double t, double q, double e, double i, double w, double o)
+{
+	struct elem el;
+
+	el.t = t;
+	el.q = q;
+	el.e = e;
+	el.i = i;
+	el.w = w;
+	el.o = o;
+	return el;
+}
+
 void
 comet(void)
 {
 	double pturbl, pturbb, pturbr;
 	double lograd;
 	double dele, enom, vnom, nd, sl;
-
-	struct	elem
-	{
-		double	t;	/* time of perihelion */
-		double	q;	/* perihelion distance */
-		double	e;	/* eccentricity */
-		double	i;	/* inclination */
-		double	w;	/* argument of perihelion */
-		double	o;	/* longitude of ascending node */
-	} elem;
+	struct elem elem;
 
 /*	elem = (struct elem)
 	{
@@ -73,15 +88,14 @@ comet(void)
 		151.0510,
 		83.1909,
 	};	/*C/1999 S4 (Linear) */
-	elem=(struct elem)
-	{
+	elem = mkelem(
 		etdate(2002, 3, 18.9784),
 		0.5070601,
 		0.990111,
 		28.12106,
 		34.6666,
-		93.1206,
-	};	/*C/2002 C1 (Ikeya-Zhang) */
+		93.1206
+	);	/*C/2002 C1 (Ikeya-Zhang) */
 
 	ecc = elem.e;
 	if(ecc > MAXE)
