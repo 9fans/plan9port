@@ -1,5 +1,7 @@
+/*
 #pragma	lib	"libplumb.a"
 #pragma	src	"/sys/src/libplumb"
+*/
 
 /*
  * Message format:
