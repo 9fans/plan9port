@@ -1,0 +1,155 @@
+#!/usr/local/plan9/bin/rc
+
+. 9.rc
+name = secstore
+get = secstoreget
+put = secstoreput
+edit = no
+load = no
+flush = no
+
+fn secstoreget{
+	secstore -i -g $1 <_password
+}
+
+fn secstoreput{
+	secstore -i -p $1 <_password
+}
+
+fn aesget{
+	if(! ~ $1 /*){
+		echo >[1=2] ipso: aescbc requires fully qualified pathname
+		exit usage
+	}
+	aescbc -i -d < $1 > `{basename $1} <[3] _password
+}
+
+fn aesput{
+	aescbc -i -e > $1 < `{basename $1} <[3] _password
+}
+
+fn editedfiles{
+	if(~ $get aesget){
+		for(i in $files)
+			if(ls -tr | sed '1,/^_timestamp$/d' | grep -s '^'^`{basename $i}^'$')
+				echo $i
+	}
+	if not
+		ls -tr | sed '1,/^_timestamp$/d'
+}
+
+while(~ $1 -*){
+	switch($1){
+	case -a
+		name = aescbc
+		get = aesget
+		put = aesput
+	case -f
+		flush = yes
+	case -e
+		edit = yes
+	case -l
+		load = yes
+	case *
+		echo >[2=1] 'usage: ipso [-a -f -e -l] [-s] [file ...]'
+		exit usage
+	}
+	shift
+}
+
+if(~ $flush no && ~ $edit no && ~ $load no){
+	load = yes
+	edit = yes
+	flush = yes
+}
+
+if(~ $flush yes && ~ $edit no && ~ $load no){
+	echo flushing old keys
+	echo delkey > /mnt/factotum/ctl
+	exit 0
+}
+
+if(~ $get aesget && ~ $#* 0){
+	echo >[2=1] ipso: must specify a fully qualified file name for aescbc '(-a)'
+	exit usage
+}
+
+user=`{whoami}
+cd /tmp || exit $status
+tmp=`{df | awk '$1=="tmpfs" {print $NF}'}
+if(! ~ $#tmp 0)
+	cd $tmp(1) || exit $status
+mkdir -p ipso.$user
+chmod 700 ipso.$user || exit $status
+cd ipso.$user
+dir=`{pwd}
+dir=$"dir
+
+fn sigexit {
+	rm -rf $dir
+}
+
+if ( ~ $edit yes ) echo '
+	Warning: The editor will display the secret contents of
+	your '$name' files in the clear, and they will
+	be stored temporarily in '^$dir^'
+	in the clear, along with your password.
+'
+
+# get password and remember it
+readcons -s $name^' password' >_password
+
+# get list of files
+if(~ $#* 0){
+	if(! secstore -G . -i < _password > _listing){
+		echo 'secstore read failed - bad password?'
+		sleep 2
+		exit password
+	}
+	files=`{sed 's/[ 	]+.*//' _listing}
+}
+if not
+	files = $*
+
+# copy the files to local ramfs
+for(i in $files){
+	if(! $get $i){
+		echo $name ' read failed - bad password?'
+		sleep 2
+		exit password
+	}
+}
+sleep 2; date > _timestamp	# so we can find which files have been edited.
+
+# edit the files
+if(~ $edit yes) E `{for(i in $files) basename $i}
+if(~ $flush yes ){
+	echo flushing old keys
+	echo delkey | 9p write factotum/ctl
+}
+if(~ $load yes){
+	echo loading factotum keys
+	if (~ factotum $files) cat factotum | 9p write -l factotum/ctl
+}
+
+# copy the files back
+for(i in `{editedfiles}){
+	prompt='copy '''^`{basename $i}^''' back? [y/n/x]'
+	switch(`{readcons $prompt}){
+	case [yY]*
+		if(! $put $i){
+			echo $name ' read failed - bad password?'
+			sleep 2
+			exit password
+		}
+		echo ''''$i'''' copied to $name
+		if(~ $i factotum)
+			read -m < $i > /mnt/factotum/ctl
+	case [xXqQ]*
+		exit
+	case [nN]* *
+		echo ''''$i'''' skipped
+	}
+}
+
+exit ''
