@@ -65,7 +65,7 @@ int	noperm;
 Fid *	newfid(int);
 void	error(char*);
 void	io(void);
-void	shutdown(void);
+void	vacshutdown(void);
 void	usage(void);
 int	perm(Fid*, int);
 int	permf(VacFile*, char*, int);
@@ -202,9 +202,11 @@ threadmain(int argc, char *argv[])
 	threadexits(0);
 }
 
-void srv(void* a) {
+void
+srv(void *a)
+{
 	io();
-	shutdown();
+	vacshutdown();
 }
 
 void
@@ -854,7 +856,7 @@ init(char *file, char *host, long ncache, int readOnly)
 }
 
 void
-shutdown(void)
+vacshutdown(void)
 {
 	Fid *f;
 
