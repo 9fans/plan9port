@@ -189,7 +189,7 @@ p9anyclient(Conv *c)
 		if(dom && strcmp(q+1, dom) != 0)
 			continue;
 		*q++ = '\0';
-		if(k = keyfetch(c, "%A proto=%q dom=%q", attr, f[i], q))
+		if(k = keylookup("%A proto=%q dom=%q", attr, f[i], q))
 			goto found;
 		*--q = '@';
 	}

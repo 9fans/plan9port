@@ -1,5 +1,6 @@
 #include "std.h"
 #include "dat.h"
+#include <9pclient.h>
 
 int extrafactotumdir;
 int debug;
@@ -132,15 +133,16 @@ promptforkey(int fd, char *params)
 static int
 sendkey(Attr *attr)
 {
-	int fd, rv;
+	int rv;
 	char buf[1024];
-
-	fd = open("/mnt/factotum/ctl", ORDWR);
-	if(fd < 0)
-		sysfatal("opening /mnt/factotum/ctl: %r");
-	rv = fprint(fd, "key %A\n", attr);
-	read(fd, buf, sizeof buf);
-	close(fd);
+	CFid *fid;
+	
+	fid = nsopen("factotum", nil, "ctl", OWRITE);
+	if(fid == nil)
+		sysfatal("opening factotum/ctl: %r");
+	snprint(buf, sizeof buf, "key %A\n", attr);
+	rv = fswrite(fid, buf, strlen(buf));
+	fsclose(fid);
 	return rv;
 }
 
@@ -163,8 +165,8 @@ gflag(char *s)
 	int nf;
 	int fd;
 
-	if((fd = open("/dev/cons", ORDWR)) < 0)
-		sysfatal("open /dev/cons: %r");
+	if((fd = open("/dev/tty", ORDWR)) < 0)
+		sysfatal("open /dev/tty: %r");
 
 	nf = getfields(s, f, nelem(f), 0, "\n");
 	if(nf == 1){	/* needkey or old badkey */

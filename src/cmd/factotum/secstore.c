@@ -22,7 +22,6 @@ int
 secdial(void)
 {
 	char *p;
-	int fd;
 
 	p = secstore;
 	if(p == nil)	  /* else use the authserver */
@@ -32,10 +31,7 @@ secdial(void)
 	if(p == nil)
 		p = "secstore";
 
-	fd = dial(netmkaddr(p, "net", "secstore"), 0, 0, 0);
-	if(fd < 0)
-		fprint(2, "secdial: %r\n");
-	return fd;
+	return dial(netmkaddr(p, "net", "secstore"), 0, 0, 0);
 }
 
 
