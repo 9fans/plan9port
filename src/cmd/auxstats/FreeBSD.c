@@ -18,6 +18,8 @@
 #include <bio.h>
 #include "dat.h"
 
+/* XXX: #if __FreeBSD_version */
+
 void xapm(int);
 void xloadavg(int);
 void xcpu(int);
@@ -104,9 +106,15 @@ xnet(int first)
 	out = in = outb = inb = err = 0;
 	addr = (ulong)TAILQ_FIRST(&ifnethead);
 	while(addr){
+#if __FreeBSD_version < 500000
 		if(kread(addr, (char*)&ifnet, sizeof ifnet) < 0
 		|| kread((ulong)ifnet.if_name, name, 16) < 0)
 			return;
+#else
+		if(kread(addr, (char*)&ifnet, sizeof ifnet) < 0
+		|| kread((ulong)ifnet.if_dname, name, 16) < 0)
+			return;
+#endif
 		name[15] = 0;
 		addr = (ulong)TAILQ_NEXT(&ifnet, if_link);
 		out += ifnet.if_opackets;
@@ -124,6 +132,28 @@ xnet(int first)
 	Bprint(&bout, "etherb %lud 1000000\n", inb+outb);
 }
 
+#if __FreeBSD_version >= 500000
+int
+xacpi(int first)
+{
+	int rv;
+	int val, len;
+
+	len = sizeof(val);
+	rv = sysctlbyname("hw.acpi.battery.life", &val, &len, nil, 0);
+	if(rv != 0)
+		return -1;
+	Bprint(&bout, "battery =%d 100\n", val);
+	return 0;
+}
+#else
+int
+xacpi(int first)
+{
+	return -1;
+}
+#endif
+
 void
 xapm(int first)
 {
@@ -131,9 +161,13 @@ xapm(int first)
 	struct apm_info ai;
 
 	if(first){
+		xacpi(first);
 		fd = open("/dev/apm", OREAD);
 		return;
 	}
+
+	if(xacpi(0) >= 0)
+		return;
 
 	if(ioctl(fd, APMIO_GETINFO, &ai) < 0)
 		return;
