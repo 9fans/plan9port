@@ -97,6 +97,7 @@ LIB9OFILES=\
 	encodefmt.$O\
 	errstr.$O\
 	exec.$O\
+	execl.$O\
 	fcallfmt.$O\
 	get9root.$O\
 	getcallerpc-$OBJTYPE.$O\
@@ -126,6 +127,7 @@ LIB9OFILES=\
 	postnote.$O\
 	qlock.$O\
 	quote.$O\
+	rand.$O\
 	read9pmsg.$O\
 	readn.$O\
 	rfork.$O\
