@@ -158,6 +158,6 @@ extern void	_freetokens(Token* tarray, int n);
 extern Token*	_gettoks(uchar* data, int datalen, int chset, int mtype, int* plen);
 extern int		_tokaval(Token* t, int attid, Rune** pans, int xfer);
 
-#pragma varargck	type "T"	Token*
+/* #pragma varargck	type "T"	Token* */
 
 #include "runetab.h"

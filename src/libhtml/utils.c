@@ -1,4 +1,5 @@
 #include <u.h>
+#include <limits.h>
 #include <libc.h>
 #include <draw.h>
 #include <html.h>

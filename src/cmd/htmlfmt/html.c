@@ -145,10 +145,10 @@ baseurl(char *url)
 		return nil;
 	base = estrdup(url);
 	slash = strrchr(base, '/');
-	if(slash!=nil && slash>=&base[rs[0].e.p-rs[0].s.p])
+	if(slash!=nil && slash>=&base[rs[0].e.ep-rs[0].s.sp])
 		*slash = '\0';
 	else
-		base[rs[0].e.p-rs[0].s.p] = '\0';
+		base[rs[0].e.ep-rs[0].s.sp] = '\0';
 	return base;
 }
 

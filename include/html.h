@@ -190,7 +190,7 @@ enum {
 
 struct Itext
 {
-	Item _item;				// (with tag ==Itexttag)
+	Item item;				// (with tag ==Itexttag)
 	Rune*	s;			// the characters
 	int		fnt;			// style*NumSize+size (see font stuff, below)
 	int		fg;			// Pixel (color) for text
@@ -200,7 +200,7 @@ struct Itext
 
 struct Irule
 {
-	Item _item;				// (with tag ==Iruletag)
+	Item item;				// (with tag ==Iruletag)
 	uchar	align;		// alignment spec
 	uchar	noshade;		// if true, don't shade
 	int		size;			// size attr (rule height)
@@ -210,7 +210,7 @@ struct Irule
 
 struct Iimage
 {
-	Item _item;				// (with tag ==Iimagetag)
+	Item item;				// (with tag ==Iimagetag)
 	Rune*	imsrc;		// image src url
 	int		imwidth;		// spec width (actual, if no spec)
 	int		imheight;		// spec height (actual, if no spec)
@@ -227,14 +227,14 @@ struct Iimage
 
 struct Iformfield
 {
-	Item _item;				// (with tag ==Iformfieldtag)
+	Item item;				// (with tag ==Iformfieldtag)
 	Formfield*	formfield;
 };
 
 
 struct Itable
 {
-	Item _item;				// (with tag ==Itabletag)
+	Item item;				// (with tag ==Itabletag)
 	Table*	table;
 };
 
@@ -253,7 +253,7 @@ struct Ifloat
 
 struct Ispacer
 {
-	Item _item;				// (with tag ==Ispacertag)
+	Item item;				// (with tag ==Ispacertag)
 	int		spkind;		// ISPnull, etc.
 };
 
@@ -611,7 +611,7 @@ extern int			targetid(Rune* s);
 extern Rune*		targetname(int targid);
 extern int			validitems(Item* i);
 
-#pragma varargck	type "I"	Item*
+/* #pragma varargck	type "I"	Item* */
 
 // Control print output
 extern int			warn;

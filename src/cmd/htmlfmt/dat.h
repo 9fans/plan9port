@@ -47,4 +47,4 @@ extern	void		rendertext(URLwin*, Bytes*);
 extern	void		rerender(URLwin*);
 extern	void		freeurlwin(URLwin*);
 
-#pragma	varargck	argpos	error	1
+/* #pragma	varargck	argpos	error	1 */

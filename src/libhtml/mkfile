@@ -1,6 +1,6 @@
-<$SYS9/$systype/$objtype/mkfile
+<$PLAN9/src/mkhdr
 
-LIB=$LIB9/libhtml.a
+LIB=libhtml.a
 
 OFILES=\
 	build.$O\
@@ -10,13 +10,7 @@ OFILES=\
 	runetab.$O\
 
 HFILES=\
-	$SYS9/sys/include/html.h\
+	$PLAN9/include/html.h\
 	impl.h\
 
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}\
-	${LIB:$SYS9/$systype/$objtype/%=$SYS9/$systype/386/%}\
-
-<$SYS9/sys/src/cmd/mksyslib
+<$PLAN9/src/mksyslib

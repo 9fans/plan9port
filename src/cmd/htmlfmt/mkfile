@@ -1,4 +1,4 @@
-<$SYS9/$systype/$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=htmlfmt
 OFILES=\
@@ -8,23 +8,9 @@ OFILES=\
 
 HFILES=\
 	dat.h\
-	$SYS9/sys/include/html.h\
+	$PLAN9/include/html.h\
 
-LIB=$SYS9/$systype/$objtype/lib/libbio.a\
-	$SYS9/$systype/$objtype/lib/libregexp.a\
-	$SYS9/$systype/$objtype/lib/libhtml.a\
-	$SYS9/$systype/$objtype/lib/lib9c.a
+SHORTLIB=bio regexp9 html 9
 
-BIN=$SYS9/$systype/$objtype/bin
+<$PLAN9/src/mkone
 
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}
-
-<$SYS9/sys/src/cmd/mkone
-
-CFLAGS=$CFLAGS
-
-#$O.out: $OFILES
-#	$LD -o $target  $LDFLAGS $OFILES
