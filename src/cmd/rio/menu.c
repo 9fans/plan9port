@@ -195,7 +195,7 @@ delete(Client *c, int shift)
 	if (c == 0)
 		return;
 	if ((c->proto & Pdelete) && !shift)
-		sendcmessage(c->window, wm_protocols, wm_delete, 0);
+		sendcmessage(c->window, wm_protocols, wm_delete, 0, 0);
 	else
 		XKillClient(dpy, c->window);		/* let event clean up */
 }
