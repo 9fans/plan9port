@@ -13,7 +13,7 @@ fn runsftp {
 		shift
 	}
 	if(! </dev/null dial 'unix!'^$ns/$1.sftp >[2]/dev/null){
-		sftpcache -D $1 >/dev/tty
+		sftpcache -D $1 </dev/null >[1=2]
 	}
 	{
 		if(! </dev/null dial 'unix!'^$ns/$1.sftp >[2]/dev/null){
@@ -23,7 +23,6 @@ fn runsftp {
 			{cat; echo DONE} | dial -e 'unix!'^$ns/$1.sftp
 		}
 	} >$t.sftp1 >[2=1]
-	sed 's/^/1 /' $t.sftp1
 	sed '/^sftp> /d
 		/^Connecting to /d
 		/^Fetching /d

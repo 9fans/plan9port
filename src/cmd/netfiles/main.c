@@ -231,6 +231,7 @@ plumbthread(void *v)
 	CFid *fid;
 	Plumbmsg *m;
 	
+	threadsetname("plumbthread");
 	fid = plumbopenfid("netfileedit", OREAD);
 	if(fid == nil){
 		fprint(2, "cannot open plumb/netfileedit: %r\n");
@@ -521,6 +522,7 @@ loopthread(void *v)
 {
 	QLock lk;
 	
+	threadsetname("loopthread");
 	qlock(&lk);
 	qlock(&lk);
 }
@@ -541,6 +543,8 @@ threadmain(int argc, char **argv)
 	
 	if(argc)
 		usage();
+
+	cprint("netfiles starting\n");
 
 	threadnotify(nil, 0);	/* set up correct default handlers */
 
