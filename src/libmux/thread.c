@@ -16,7 +16,7 @@ muxthreads(Mux *mux)
 {
 	proccreate(_muxrecvproc, mux, STACK);
 	qlock(&mux->lk);
-	while(!mux->writeq)
+	while(!mux->readq)
 		rsleep(&mux->rpcfork);
 	qunlock(&mux->lk);
 	proccreate(_muxsendproc, mux, STACK);
