@@ -8,10 +8,11 @@
  *
  */
 #include	<u.h>
+#include	<sys/ioctl.h>
+#include	<sys/termios.h>
 #include	<libc.h>
 #include	<draw.h>
 #include	<bio.h>
-#include	<sys/ioctl.h>
 
 #define	WIDTH			80
 #define	TAB	4

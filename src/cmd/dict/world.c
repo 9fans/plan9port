@@ -11,6 +11,8 @@
 
 #define	GSHORT(p)	(((p)[0]<<8)|(p)[1])
 
+#define putchar dictputchar
+
 static void	putchar(int, int*);
 
 #define	NONE	0xffff

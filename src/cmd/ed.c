@@ -6,6 +6,8 @@
 #include <bio.h>
 #include <regexp.h>
 
+#undef EOF	/* stdio? */
+
 enum
 {
 	FNSIZE	= 128,		/* file name */
