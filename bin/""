@@ -2,9 +2,18 @@
 
 PROMPT='[^ 	]*[%;$#][ 	]+'
 
-" $* | tail -1 | tee >{wc -l >/tmp/qq.$pid} | tee /dev/stderr | 9sed 's/^	'$PROMPT'//' | rc
+" $* | 
+	grep -v '^'$PROMPT'""' | 
+	tail -1 | 
+	tee >{wc -l >/tmp/qq.$pid} | 
+	tee /dev/stderr | 
+	9sed 's/^	'$PROMPT'//' | 
+	rc
+
 if(~ `{cat /tmp/qq.$pid} 0){
+	rm /tmp/qq.$pid
 	echo no such command found
 	exit notfound
 }
+rm /tmp/qq.$pid
 exit 0
