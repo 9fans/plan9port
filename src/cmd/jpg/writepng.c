@@ -67,7 +67,7 @@ zread(void *va, void *buf, int n)
 	int nrow = z->nrow;
 	int ncol = z->ncol;
 	uchar *b = buf, *e = b+n, *img;
-	int i, pixels;  // number of pixels in row that can be sent now
+	int pixels;  // number of pixels in row that can be sent now
 
 	while(b+3 <= e){ // loop over image rows
 		if(z->row >= nrow)
@@ -79,14 +79,8 @@ zread(void *va, void *buf, int n)
 			pixels = ncol - z->col;
 		img = z->data + z->width * z->row + 3 * z->col;
 
-		// Plan 9 image format is BGR?!!!
-		// memmove(b, img, 3*pixels);
-		// b += 3*pixels;
-		for(i=0; i<pixels; i++, img += 3){
-			*b++ = img[2];
-			*b++ = img[1];
-			*b++ = img[0];
-		}
+		memmove(b, img, 3*pixels);
+		b += 3*pixels;
 
 		z->col += pixels;
 		if(z->col >= ncol){
@@ -129,10 +123,13 @@ memRGB(Memimage *i)
 {
 	Memimage *ni;
 
-	if(i->chan == RGB24)
+	/*
+	 * BGR24 because we want R,G,B in big-endian order.  Sigh.
+	 */
+	if(i->chan == BGR24)
 		return i;
 
-	ni = allocmemimage(i->r, RGB24);
+	ni = allocmemimage(i->r, BGR24);
 	if(ni == nil)
 		return ni;
 	memimagedraw(ni, ni->r, i, i->r.min, nil, i->r.min, S);
