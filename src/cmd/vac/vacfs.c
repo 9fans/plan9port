@@ -104,7 +104,7 @@ initfcalls(void)
 	fcalls[Tremove]=	rremove;
 	fcalls[Tstat]=		rstat;
 	fcalls[Twstat]=	rwstat;
-};
+}
 
 char	Eperm[] =	"permission denied";
 char	Enotdir[] =	"not a directory";

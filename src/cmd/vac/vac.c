@@ -472,7 +472,7 @@ vacstdin(DirSink *dsink, char *name, VacFile *vf)
 static int
 sha1check(u8int *score, uchar *buf, int n)
 {
-	char score2[VtScoreSize];
+	uchar score2[VtScoreSize];
 
 	sha1(buf, n, score2, nil);
 	if(memcmp(score, score2, VtScoreSize) == 0)
