@@ -535,18 +535,6 @@ int		loccmp(Loc*, Loc*);
 int		locsimplify(Map *map, Regs *regs, Loc loc, Loc *newloc);
 Regdesc*	regdesc(char*);
 
-struct ps_prochandle
-{
-	int pid;
-};
-
-int		sys_ps_lgetregs(struct ps_prochandle*, uint, void*);
-int		sys_ps_lgetfpregs(struct ps_prochandle*, uint, void*);
-int		sys_ps_lsetregs(struct ps_prochandle*, uint, void*);
-int		sys_ps_lsetfpregs(struct ps_prochandle*, uint, void*);
-Regs*	threadregs(uint);
-int		pthreaddbinit(void);
-
 extern int machdebug;
 #if defined(__cplusplus)
 }
