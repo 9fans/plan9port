@@ -64,7 +64,6 @@ snarfswap(char *fromsam, int nc, char **tosam)
 {
 	char *s;
 
-fprint(2, "snarfswap\n");
 	s = getsnarf();
 	putsnarf(fromsam);
 	*tosam = s;
