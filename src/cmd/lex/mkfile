@@ -1,7 +1,6 @@
 <$PLAN9/src/mkhdr
 
-#TARG=lex
-TARG=lex.9
+TARG=9lex
 OFILES=lmain.$O\
 	y.tab.$O\
 	sub1.$O\

@@ -1,3 +1,13 @@
+April 21, 2004
+	import assembler routines for libmp and libsec
+		on x86 from william josephson's tree
+
+	add truerand which uses /dev/random to seed PRG
+
+	add aescbc, astro, lex, and tcs
+
+	import man9 from william josephson's version of the port
+
 April 19, 2004
 
 	lots of man page updates.

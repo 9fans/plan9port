@@ -14,7 +14,7 @@ int	peek = '\n';	/* next input character */
 uchar	*pushptr = pushc;
 uchar	*slptr = slist;
 
-char	*cname = SYS9 "/sys/lib/lex/ncform";
+char	*cname;
 
 int nine;
 int ccount = 1;
@@ -94,6 +94,8 @@ void
 main(int argc, char **argv)
 {
 	int i;
+
+	cname = unsharp("#9/lib/lex/ncform");
 
 	ARGBEGIN {
 # ifdef DEBUG
