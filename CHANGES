@@ -1,3 +1,42 @@
+January 23, 2005
+	suse X bug - need bigger stacks
+	add searchpath(3)
+	work on libmach + elf core dumps + threads + registers
+	change db to use libmach cmdline interface
+	add stack (see db(1))
+	s/ulong/unsigned long/ for unix mk; other makefile bugs
+	rename scheduler to procscheduler in libthread so libmach can identify it
+	add isum to install(1)
+	work around searchpath in rc; add to intro(1)
+	volatile int quiet in db
+
+January 22, 2005
+	redirect debugging output of isnptl in INSTALL
+	set SYSVERSION to 2.6.x instead of 2.6 in linux INSTALL
+		to appease other pieces of the build.
+
+January 21, 2005
+	s/mdir/mkdir/ in unix regexp makefile
+	better isnptl
+	arg count in auxclog
+
+January 20, 2005
+	add core(1) man page
+	fix exit race in samterm
+
+January 19, 2005
+	continued x86-64 support
+	bug fix to 9c on sunos - __${s}__ not __$s__
+	avoid c99 extensions in cmapcube and vacfs
+	do not name functions shutdown on mac os x
+	add dist/isum
+	include errno.h in eqn/e.h
+	use 9 yacc to build rc
+
+January 18, 2005
+	avoid closing -1 in lib9pclient
+	continued x86-64 support
+
 January 18, 2005
 	make src/libthread/pthread.c compile
 	add threadspawnl, fsseek.
