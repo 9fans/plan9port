@@ -16,8 +16,6 @@
 #include <sys/un.h>
 #include <netdb.h>
 
-
-extern int _p9dialparse(char*, char**, char**, u32int*, int*);
 #undef unix
 
 int
@@ -41,7 +39,7 @@ p9dial(char *addr, char *dummy1, char *dummy2, int *dummy3)
 	if(buf == nil)
 		return -1;
 
-	if(_p9dialparse(buf, &net, &unix, &host, &port) < 0){
+	if(p9dialparse(buf, &net, &unix, &host, &port) < 0){
 		free(buf);
 		return -1;
 	}

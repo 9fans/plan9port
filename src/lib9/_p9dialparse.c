@@ -55,7 +55,7 @@ parseip(char *host, u32int *pip)
 }
 
 int
-_p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
+p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 {
 	char *net, *host, *port, *e;
 	int i;

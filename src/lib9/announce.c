@@ -10,7 +10,6 @@
 
 #undef sun
 #define sun sockun
-extern int _p9dialparse(char*, char**, char**, u32int*, int*);
 
 int
 _p9netfd(char *dir)
@@ -50,7 +49,7 @@ p9announce(char *addr, char *dir)
 	if(buf == nil)
 		return -1;
 
-	if(_p9dialparse(buf, &net, &unix, &host, &port) < 0){
+	if(p9dialparse(buf, &net, &unix, &host, &port) < 0){
 		free(buf);
 		return -1;
 	}
