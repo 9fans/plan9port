@@ -162,8 +162,8 @@ main(int argc, char *argv[])
 int
 locate(void)
 {
-	long top, bot, mid;
-	long c;
+	vlong top, bot, mid;
+	int c;
 	int n;
 
 	bot = 0;

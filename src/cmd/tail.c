@@ -8,7 +8,7 @@
  * the simple command tail -c, legal in v10, is illegal
  */
 
-long	count;
+vlong	count;
 int	anycount;
 int	follow;
 int	file	= 0;
@@ -41,7 +41,7 @@ extern	void	suffix(char*);
 extern	long	tread(char*, long);
 #define trunc tailtrunc
 extern	void	trunc(Dir*, Dir**);
-extern	long	tseek(long, int);
+extern	vlong	tseek(vlong, int);
 extern	void	twrite(char*, long);
 extern	void	usage(void);
 
@@ -85,7 +85,7 @@ main(int argc, char **argv)
 	if(dir==REV && (units==CHARS || follow || origin==BEG))
 		fatal("incompatible options");
 	if(!anycount)
-		count = dir==REV? ~0UL>>1: 10;
+		count = dir==REV? ~0ULL>>1: 10;
 	if(origin==BEG && units==LINES && count>0)
 		count--;
 	if(argc > 2)
@@ -126,7 +126,7 @@ void
 trunc(Dir *old, Dir **new)
 {
 	Dir *d;
-	ulong olength;
+	vlong olength;
 
 	d = dirfstat(file);
 	if(d == nil)
@@ -268,7 +268,7 @@ reverse(void)
 	long n = 0;
 	long bufsiz = 0;
 	char *buf = 0;
-	long pos = tseek(0L, 2);
+	vlong pos = tseek(0L, 2);
 
 	for(first=1; pos>0 && count>0; first=0) {
 		n = pos>Bsize? Bsize: (int)pos;
@@ -301,8 +301,8 @@ reverse(void)
 		twrite(buf, len);
 }
 
-long
-tseek(long o, int p)
+vlong
+tseek(vlong o, int p)
 {
 	o = seek(file, o, p);
 	if(o == -1)
