@@ -562,7 +562,7 @@ mselect(void)
 					if(t.nsnarf){
 						paste(t.snarf, t.nsnarf, 0);
 					}
-					state = Cancut|Canpaste;
+					state = Cancut;
 				}
 			}
 			readmouse(mc);
