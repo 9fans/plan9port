@@ -116,7 +116,7 @@ defn threadfmt(T){
 	local A, yes, i, P, s;
 
 	P = (Proc)T.proc;
-	s = "t=(Thread)"+itoa(T, "%-10x")+" ";
+	s = "t=(Thread)"+itoa(T, "%-10x")+" // ";
 
 	if T.state == Running then
 		s = s + "Running    ";

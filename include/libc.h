@@ -655,8 +655,6 @@ enum
 /*	RFNOMNT		= (1<<14) */
 };
 
-extern int		ffork(int, void(*)(void*), void*);
-
 typedef
 struct Qid
 {
@@ -714,7 +712,7 @@ extern	int	p9dup(int, int);
 extern	int	errstr(char*, uint);
 extern	int	p9exec(char*, char*[]);
 /* extern	int	execl(char*, ...); <unistd.h> */
-extern	int	p9fork(void);
+/* extern	int	p9fork(void); */
 extern	int	p9rfork(int);
 /* not implemented 
 extern	int	fauth(int, char*);
@@ -770,7 +768,7 @@ extern	ulong	rendezvous(ulong, ulong);
 #define sleep		p9sleep
 #define wait		p9wait
 #define waitpid		p9waitpid
-#define fork		p9fork
+/* #define fork		p9fork */
 #define rfork		p9rfork
 /* #define access		p9access */
 #define create		p9create
