@@ -8,15 +8,13 @@
 #include <frame.h>
 #include <fcall.h>
 #include <regexp.h>
-#define Fid FsFid
-#include <fs.h>
+#include <9pclient.h>
 #include <plumb.h>
-#undef Fid
 #include "dat.h"
 #include "fns.h"
 
-FsFid *plumbsendfid;
-FsFid *plumbeditfid;
+CFid *plumbsendfid;
+CFid *plumbeditfid;
 
 Window*	openfile(Text*, Expand*);
 
