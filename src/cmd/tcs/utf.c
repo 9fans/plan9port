@@ -247,7 +247,7 @@ runetoisoutf(char *str, Rune *rune)
 	 *	000A0-000FF => A0; A0-FF
 	 */
 	if(c < Rune21) {
-		str[0] = Char1;
+		str[0] = (char)Char1;
 		str[1] = c;
 		return 2;
 	}
