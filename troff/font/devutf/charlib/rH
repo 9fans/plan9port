@@ -1,4 +1,4 @@
-/build_rH {
+/build_rh {
 pop
 gsave
 size .0022 mul dup scale
@@ -29,7 +29,7 @@ currentpoint translate
 19 39 lineto
 16 47 lineto
 15 66 lineto
-fill
+stroke
 
 65 60 moveto
 65 111 lineto
@@ -139,7 +139,7 @@ fill
 73 43 lineto
 67 52 lineto
 65 60 lineto
-fill
+stroke
 
 396 180 moveto
 396 188 lineto
@@ -151,7 +151,7 @@ fill
 411 173 lineto
 400 173 lineto
 396 180 lineto
-fill
+stroke
 
 grestore
 } def
