@@ -169,7 +169,7 @@ type defines memory-resident rectangular pictures and the methods to draw upon t
 differ from
 .BR Image s
 (see
-.IR draw (2))
+.IR draw (3))
 in that they are manipulated directly in user memory rather than by
 RPCs to the
 .B /dev/draw
@@ -233,7 +233,7 @@ points back at the
 .B Memdata
 structure, so that the
 memory allocator (see
-.IR pool (2))
+.IR pool (3))
 can compact image memory
 using
 .IR memimagemove .
@@ -273,7 +273,7 @@ images with a given rectangle and channel descriptor
 (see 
 .B strtochan
 in
-.IR graphics (2)),
+.IR graphics (3)),
 creating a fresh
 .B Memdata
 structure and associated storage.
@@ -326,7 +326,7 @@ and \-1 in case of an error.
 .I Memfillcolor
 fills an image with the given color, a 32-bit number as
 described in 
-.IR color (2).
+.IR color (3).
 .PP
 .IR Memarc ,
 .IR mempoly ,
@@ -344,7 +344,7 @@ are identical to the
 and
 .IR gendraw ,
 routines described in
-.IR draw (2),
+.IR draw (3),
 except that they operate on
 .BR Memimage s
 rather than 
@@ -368,9 +368,9 @@ analogues of
 and
 .B string
 (see 
-.IR subfont (2)
+.IR subfont (3)
 and
-.IR graphics (2)),
+.IR graphics (3)),
 except that they operate
 only on 
 .BR Memsubfont s
@@ -435,13 +435,13 @@ prints to a serial line rather than the screen, for obvious reasons.
 .SH SOURCE
 .B /sys/src/libmemdraw
 .SH SEE ALSO
-.IR addpt (2),
-.IR color (2),
-.IR draw (2),
-.IR graphics (2),
-.IR memlayer (2),
-.IR stringsize (2),
-.IR subfont (2),
+.IR addpt (3),
+.IR color (3),
+.IR draw (3),
+.IR graphics (3),
+.IR memlayer (3),
+.IR stringsize (3),
+.IR subfont (3),
 .IR color (6),
 .IR utf (6)
 .SH BUGS

@@ -1,0 +1,137 @@
+.TH MACH-STACK 3
+.SH NAME
+stacktrace,
+localaddr,
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mach.h>
+.PP
+.ft B
+.ta \w'\fBxxxxxx'u +\w'\fBxxxxxx'u
+int	stacktrace(Map *map, Rgetter rget, Tracer trace)
+.PP
+.ft B
+int	localvar(Map *map, char *fn, char *val, Loc *loc)
+.SH DESCRIPTION
+.I Stacktrace
+provides machine-independent
+implementations of process stack traces.
+They must retrieve data and register contents from an executing
+image.  Sometimes the desired registers are not the current
+registers but rather a set of saved registers stored elsewhere
+in memory.
+The caller may specify an initial register set in the form of an
+.I Rgetter
+function, of the form
+.PP
+.RS
+.B "ulong rget(Map *map, char *name)
+.RE
+.PP
+It returns the contents of a register when given a map
+and a register name.
+It is usually sufficient for the register function
+to return meaningful values only for 
+.BR SP
+and
+.BR PC ,
+and for the link register
+(usually
+.BR LR )
+on CISC machines.
+.PP
+Given the map and the rgetter,
+.I stacktrace
+unwinds the stack starting at the innermost function.
+At each level in the trace, it calls the tracer function, which has the form
+.PP
+.RS
+.B "int trace(Map *map, ulong pc, ulong callerpc,
+.br
+.B "	Rgetter rget, Symbol *s)
+.RE
+.PP
+The tracer is passed the map, the current program counter,
+the program counter of the caller (zero if the caller is unknown),
+a new
+.I rget
+function, and a symbol 
+(see
+.IR mach-symbol (3))
+describing the current function
+(nil if no symbol is known).
+The value returned by the tracer
+controls whether the stack trace continues:
+a zero or negative return value stops the trace,
+while a positive return value continues it.
+.PP
+The rgetter passed to the tracer is not the rgetter
+passed to
+.B stacktrace
+itself.
+Instead, it is a function returning the register values
+at the time of the call, to the extent that they can be
+reconstructed.
+The most common use for this rgetter
+is as an argument to
+.IR lget4 ,
+etc., when evaluating the locations of local variables.
+.PP
+.I Localvar
+uses
+.I stacktrace
+to walk up the stack looking for the innermost instance of a function named
+.I fn ;
+once it finds the function,
+it looks for the parameter or local variable
+.IR var ,
+storing the location of the variable in
+.IR loc .
+.SH EXAMPLE
+The following code writes a simple stack trace to standard output,
+stopping after at most 20 stack frames.
+.RS
+.ft B
+.nf
+.ta \w'xxxx'u +\w'xxxx'u +\w'xxxx'u +\w'xxxx'u +\w'xxxx'u
+static int
+trace(Map *map, ulong pc, ulong callerpc,
+	Rgetter rget, Symbol *s, int depth)
+{
+	char buf[512];
+	int i, first;
+	u32int v;
+	Symbol s2;
+
+	if(sym)
+		print("%s+%lx", s->name, pc - loceval(s->loc));
+	else
+		print("%lux", pc);
+	print("(");
+	first = 0;
+	for(i=0; indexlsym(s, &i, &s2)>=0; i++){
+		if(s.class != CPARAM)
+			continue;
+		if(first++)
+			print(", ");
+		if(lget4(map, rget, s->loc, &v) >= 0)
+			print("%s=%#lux", s->name, (ulong)v);
+		else
+			print("%s=???", s->name);
+	}
+	print(") called from ");
+	symoff(buf, sizeof buf, callerpc, CTEXT);
+	print("%s\en", buf);
+	return depth < 20;
+}
+
+	if(stacktrace(map, nil, trace) <= 0)
+		print("no stack frame\n");
+.RE
+.SH SOURCE
+.B /sys/src/libmach
+.SH SEE ALSO
+.IR mach (3)

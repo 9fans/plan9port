@@ -135,7 +135,7 @@ A
 .B Point
 is a location in an Image
 (see below and
-.IR draw (2)),
+.IR draw (3)),
 such as the display, and is defined as:
 .IP
 .EX
@@ -184,7 +184,7 @@ contains the coordinates of the first point beyond the rectangle.
 The
 .B Image
 data structure is defined in
-.IR draw (2).
+.IR draw (3).
 .PP
 A
 .B Font
@@ -195,7 +195,7 @@ The images are organized into
 each containing the images for a small, contiguous set of runes.
 The detailed format of these data structures,
 which are described in detail in
-.IR cachechars (2),
+.IR cachechars (3),
 is immaterial for most applications.
 .B Font
 and
@@ -210,7 +210,7 @@ and
 the distance from the top of the highest character to the bottom of
 the lowest character (and hence, the interline spacing).
 See
-.IR cachechars (2)
+.IR cachechars (3)
 for more details.
 .PP
 .I Buildfont
@@ -221,7 +221,7 @@ returning a
 pointer that can be used by
 .B string
 (see
-.IR draw (2))
+.IR draw (3))
 to draw characters from the font.
 .I Openfont
 does the same, but reads the description
@@ -335,7 +335,7 @@ is nil, the library provides a default, called
 Another effect of
 .I initdraw
 is that it installs
-.IR print (2)
+.IR print (3)
 formats
 .I Pfmt
 and
@@ -375,7 +375,7 @@ files; and
 specifies the refresh function to be used to create the window, if running under
 .IR rio (1)
 (see
-.IR window (2)).
+.IR window (3)).
 .PP
 The function
 .I newwindow
@@ -452,11 +452,11 @@ by looking in
 to find the name of the window and opening it using
 .B namedimage
 (see
-.IR allocimage (2)).
+.IR allocimage (3)).
 The resulting window will be created using the refresh method
 .I ref
 (see
-.IR window (2));
+.IR window (3));
 this should almost always be
 .B Refnone
 because
@@ -473,7 +473,7 @@ defining the window (or the overall display, if no window system is running); an
 a pointer to the
 .B Screen
 representing the root of the window's hierarchy. (See
-.IR window (2).
+.IR window (3).
 The overloading of the
 .B screen
 word is an unfortunate historical accident.)
@@ -517,11 +517,11 @@ the window boundaries; otherwise
 is a no-op.
 .PP
 The graphics functions described in
-.IR draw (2),
-.IR allocimage (2),
-.IR cachechars (2),
+.IR draw (3),
+.IR allocimage (3),
+.IR cachechars (3),
 and
-.IR subfont (2)
+.IR subfont (3)
 are implemented by writing commands to files under
 .B /dev/draw
 (see
@@ -535,7 +535,7 @@ is non-zero, any changes are also copied from the `soft screen' (if any) in the
 driver to the visible frame buffer.
 The various allocation routines in the library flush automatically, as does the event
 package (see
-.IR event (2));
+.IR event (3));
 most programs do not need to call
 .IR flushimage .
 It returns \-1 on error.
@@ -620,22 +620,22 @@ if(gengetwindow(display, "/tmp/winname",
 .B /sys/src/libdraw
 .SH "SEE ALSO"
 .IR rio (1),
-.IR addpt (2),
-.IR allocimage (2),
-.IR cachechars (2),
-.IR subfont (2),
-.IR draw (2),
-.IR event (2),
-.IR frame (2),
-.IR print (2),
-.IR window (2),
+.IR addpt (3),
+.IR allocimage (3),
+.IR cachechars (3),
+.IR subfont (3),
+.IR draw (3),
+.IR event (3),
+.IR frame (3),
+.IR print (3),
+.IR window (3),
 .IR draw (3),
 .IR rio (4),
 .IR image (6),
 .IR font (6)
 .SH DIAGNOSTICS
 An error function may call
-.IR errstr (2)
+.IR errstr (3)
 for further diagnostics.
 .SH BUGS
 The names

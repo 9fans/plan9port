@@ -213,7 +213,7 @@ when finished.
 When internal corruption is detected,
 .B panic
 is called with a 
-.IR print (2)
+.IR print (3)
 style argument that specifies what happened.
 It is assumed that 
 .B panic
@@ -222,7 +222,7 @@ When the pool routines wish to convey a message
 to the caller (usually because logging is turned on; see below),
 .B print
 is called, also with a 
-.IR print (2)
+.IR print (3)
 style argument.
 .PP
 .B Flags
@@ -322,8 +322,8 @@ return it to the free pool.
 .SH SOURCE
 .B /sys/src/libc/port/pool.c
 .SH SEE ALSO
-.IR malloc (2),
-.IR brk (2)
+.IR malloc (3),
+.IR brk (3)
 .PP
 .B /sys/src/libc/port/malloc.c
 is a complete example.

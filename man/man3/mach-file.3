@@ -1,0 +1,152 @@
+.TH MACH-FILE 3
+.SH NAME
+crackhdr, uncrackhdr, mapfile, mapproc, detachproc, ctlproc,
+procnotes \- machine-independent access to exectuable files and running processes
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mach.h>
+.PP
+.ft B
+.ta \w'\fBxxxxxx'u +\w'xxxxxx'u
+int	crackhdr(int fd, Fhdr *hdr)
+.br
+void	uncrackhdr(Fhdr *hdr)
+.PP
+.ft B
+int	mapfile(Map *map, ulong base, Fhdr *hdr)
+.br
+int	mapproc(Map *map, int pid)
+.br
+int	detachproc(int pid)
+.br
+int	ctlproc(int pid, char *msg)
+.br
+int	procnotes(int pid, char ***notes)
+.SH DESCRIPTION
+These functions parse executable files and 
+provide access to those files and to running processes.
+.PP
+.I Crackhdr
+opens and parses the named executable file.
+The returned data structure
+.I hdr
+is initialized with a machine-independent description
+of the header information.  The following fields are the
+most commonly used:
+.TP
+.B mach
+a pointer to the
+.B Mach
+structure for the target architecture
+.TP
+.B mname
+the name of the target architecture
+.TP
+.B fname
+a description of the kind of file
+(e.g., executable, core dump)
+.TP
+.B aname
+a description of the application binary interface
+this file uses; typically it is the name of an operating system
+.PD
+If the global variable
+.I mach
+is nil, 
+.I crackhdr
+points it to the same 
+.B Mach
+structure.
+.PP
+.I Mapfile
+adds the segments found in
+.I hdr
+to
+.IR map .
+If
+.I hdr
+is an executable file, there are typically three segments:
+.IR text ,
+.IR data ,
+and a zero-backed
+.IR bss .
+If
+.I hdr
+is a dynamic shared library, its segments are relocated by
+.I base
+before being mapping.
+.PP
+If
+.I hdr
+is a core file, there is one segment named
+.I core
+for each contiguous section of memory recorded in the core file.
+There are often quite a few of these, as most operating systems
+omit clean memory pages when writing core files
+(Mac OS X is the only exception among the supported systems).
+Because core files have such holes, it is typically necessary to 
+construct the core map by calling
+.I mapfile
+on the executable and then calling it again on the core file.
+Newly-added segments are mapped on top of existing segments,
+so this arrangement will use the core file for the segments it contains
+but fall back to the executable for the rest.
+.PP
+.I Mapproc
+attaches to a running program and adds its segments to the given map.
+It adds one segment for each contiguous section of 
+mapped memory.
+On systems where this information cannot be determined, it adds
+a single segment covering the entire address space.
+Accessing areas of this segment that are actually not mapped
+in the process address space will cause the get/put routines to return errors.
+.I Detachproc
+detaches from a previously-attached program.
+.PP
+.I Ctlproc
+manipulates the process with id
+.I pid
+according to the message
+.IR msg .
+Valid messages include:
+.TP
+.B kill
+terminate the process
+.TP
+.B startstop
+start the process and wait for it to stop
+.TP
+.B sysstop
+arrange for the process to stop at its next system call,
+start the process, and then wait for it to stop
+.TP
+.B waitstop
+wait for the process to stop
+.TP
+.B start
+start the process
+.PD
+.PP
+.I Procnotes
+fills
+.BI * notes
+with a pointer to an array of strings
+representing pending notes waiting
+for the process.
+(On Unix, these notes are textual descriptions
+of any pending signals.)
+.I Procnotes
+returns the number of pending notes.
+The memory at
+.BI * notes
+should be freed via
+.IR free (3)
+when no longer needed.
+.SH SOURCE
+.B /sys/src/libmach
+.SH "SEE ALSO"
+.IR mach (3),
+.IR mach-map (3)

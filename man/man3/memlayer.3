@@ -97,18 +97,18 @@ int	memunload(Memimage *i, Rectangle r,
 .PP
 .SH DESCRIPTION
 These functions build upon the
-.IR memdraw (2)
+.IR memdraw (3)
 interface to maintain overlapping graphical windows on in-memory images.
 They are used by the kernel to implement the windows interface presented by
 .IR draw (3)
 and
-.IR window (2)
+.IR window (3)
 and probably have little use outside of the kernel.
 .PP
 The basic function is to extend the definition of a
 .B Memimage
 (see
-.IR memdraw (2))
+.IR memdraw (3))
 to include overlapping windows defined by the
 .B Memlayer
 type.
@@ -270,7 +270,7 @@ They have the signatures of
 and
 .I memimageline
 (see
-.IR memdraw (2))
+.IR memdraw (3))
 but accept
 .B Memlayer
 or
@@ -298,8 +298,8 @@ are in compressed image format
 .SH SOURCE
 .B /sys/src/libmemlayer
 .SH SEE ALSO
-.IR graphics (2),
-.IR memdraw (2),
-.IR stringsize (2),
-.IR window (2),
+.IR graphics (3),
+.IR memdraw (3),
+.IR stringsize (3),
+.IR window (3),
 .IR draw (3)

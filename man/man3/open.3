@@ -34,7 +34,7 @@ says to truncate the file
 to zero length before opening it;
 .B OCEXEC
 says to close the file when an
-.IR exec (2)
+.IR exec (3)
 or
 .I execl
 system call is made;
@@ -45,7 +45,7 @@ says to remove the file when it is closed (by everyone who has a copy of the fil
 fails if the file does not exist or the user does not have
 permission to open it for the requested purpose
 (see
-.IR stat (2)
+.IR stat (3)
 for a description of permissions).
 The user must have write permission on the
 .I file
@@ -58,7 +58,7 @@ system call
 (unlike the implicit
 .I open
 in
-.IR exec (2)),
+.IR exec (3)),
 .B OEXEC
 is actually identical to
 .BR OREAD .
@@ -108,10 +108,10 @@ In the last case, the file may be created even when
 an error is returned.
 If the file is new and the directory in which it is created is
 a union directory (see
-.IR intro (2))
+.IR intro (3))
 then the constituent directory where the file is created
 depends on the structure of the union: see
-.IR bind (2).
+.IR bind (3).
 .PP
 Since
 .I create
@@ -140,9 +140,9 @@ allows the file descriptor to be reused.
 .SH SOURCE
 .B /sys/src/libc/9syscall
 .SH SEE ALSO
-.IR intro (2),
-.IR bind (2),
-.IR stat (2)
+.IR intro (3),
+.IR bind (3),
+.IR stat (3)
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .

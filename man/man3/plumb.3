@@ -84,7 +84,7 @@ struct Plumbattr
 opens the named plumb
 .IR port ,
 using
-.IR open (2)
+.IR open (3)
 mode
 .IR omode .
 If
@@ -97,7 +97,7 @@ searches for the location of the
 service and opens the port there.
 .PP
 For programs using the
-.IR event (2)
+.IR event (3)
 interface,
 .I eplumb
 registers, using the given
@@ -130,7 +130,7 @@ to
 frees all the data associated with the message
 .IR m ,
 all the components of which must therefore have been allocated with
-.IR malloc (2).
+.IR malloc (3).
 .PP
 .I Plumbrecv
 returns the next message available on the file descriptor
@@ -230,7 +230,7 @@ is a no-op if no such attribute exists.
 .B /sys/src/libplumb
 .SH SEE ALSO
 .IR plumb (1),
-.IR event (2),
+.IR event (3),
 .IR plumber (4),
 .IR plumb (6)
 .SH DIAGNOSTICS

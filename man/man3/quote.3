@@ -58,10 +58,10 @@ The empty string is represented by two quotes,
 The first four functions act as variants of
 .B strdup
 (see
-.IR strcat (2)).
+.IR strcat (3)).
 Each returns a
 freshly allocated copy of the string, created using
-.IR malloc (2).
+.IR malloc (3).
 .I Quotestrdup
 returns a quoted copy of
 .IR s ,
@@ -75,7 +75,7 @@ The
 versions of these functions do the same for
 .CW Rune
 strings (see
-.IR runestrcat (2)).
+.IR runestrcat (3)).
 .PP
 The string returned by
 .I quotestrdup
@@ -130,7 +130,7 @@ function that flags any character special to
 and
 .I quoterunestrfmt
 are
-.IR print (2)
+.IR print (3)
 formatting routines that produce quoted strings as output.
 They may be installed by hand, but
 .I quotefmtinstall
@@ -154,7 +154,7 @@ statements so the compiler can type-check uses of
 and
 .B %Q
 in
-.IR print (2)
+.IR print (3)
 format strings.
 .SH SOURCE
 .B /sys/src/libc/port/quote.c
@@ -162,6 +162,6 @@ format strings.
 .B /sys/src/libc/fmt/fmtquote.c
 .SH "SEE ALSO
 .IR rc (1),
-.IR malloc (2),
-.IR print (2),
-.IR strcat (2)
+.IR malloc (3),
+.IR print (3),
+.IR strcat (3)

@@ -38,7 +38,7 @@ see
 .IR proc (3)),
 the set of rendezvous tags
 (see
-.IR rendezvous (2)); 
+.IR rendezvous (3)); 
 and open files.
 .I Flags
 is the logical OR of some subset of
@@ -53,7 +53,7 @@ If set, the child process will be dissociated from the parent. Upon
 exit the child will leave no
 .B Waitmsg
 (see
-.IR wait (2))
+.IR wait (3))
 for the parent to collect.
 .TP
 .B RFNAMEG
@@ -100,7 +100,7 @@ previous processes.
 .TP
 .B RFFDG
 If set, the invoker's file descriptor table (see
-.IR intro (2))
+.IR intro (3))
 is copied; otherwise the two processes share a
 single table.
 .TP
@@ -111,7 +111,7 @@ Is mutually exclusive with
 .TP
 .B RFREND
 If set, the process will be unable to
-.IR rendezvous (2)
+.IR rendezvous (3)
 with any of its ancestors; its children will, however, be able to
 .B rendezvous
 with it.  In effect,
@@ -159,7 +159,7 @@ is just a call of
 .br
 .B /sys/src/libc/9sys/fork.c
 .SH SEE ALSO
-.IR intro (2),
+.IR intro (3),
 .IR proc (3),
 .SH DIAGNOSTICS
 These functions set

@@ -49,9 +49,9 @@ They use the message-passing
 .B Channel
 interface in the threads library
 (see
-.IR thread (2));
+.IR thread (3));
 programs that wish a more event-driven, single-threaded approach should use
-.IR event (2).
+.IR event (3).
 .PP
 The state of the mouse is recorded in a structure,
 .BR Mouse ,
@@ -107,7 +107,7 @@ are a
 naming the device file connected to the mouse and an
 .I Image
 (see
-.IR draw (2))
+.IR draw (3))
 on which the mouse will be visible.
 Typically the file is
 nil,
@@ -136,7 +136,7 @@ The actual value sent may be discarded; the receipt of the message
 tells the program that it should call
 .B getwindow
 (see
-.IR graphics (2))
+.IR graphics (3))
 to reconnect to the window.
 .PP
 .I Readmouse
@@ -150,7 +150,7 @@ or message sent on the channel.
 It calls
 .B flushimage
 (see
-.IR graphics (2))
+.IR graphics (3))
 before blocking, so any buffered graphics requests are displayed.
 .PP
 .I Closemouse
@@ -172,7 +172,7 @@ is nil, the cursor is set to the default.
 The format of the cursor data is spelled out in
 .B <cursor.h>
 and described in
-.IR graphics (2).
+.IR graphics (3).
 .PP
 .I Getrect
 returns the dimensions of a rectangle swept by the user, using the mouse,
@@ -218,7 +218,7 @@ struct Menu
 behaves the same as its namesake
 .I emenuhit
 described in
-.IR event (2),
+.IR event (3),
 with two exceptions.
 First, it uses a
 .B Mousectl
@@ -228,7 +228,7 @@ it creates the menu as a true window on the
 .B Screen
 .I scr
 (see
-.IR window (2)),
+.IR window (3)),
 permitting the menu to be displayed in parallel with other activities on the display.
 If
 .I scr
@@ -242,8 +242,8 @@ restoring the display when the menu is removed.
 .SH SOURCE
 .B /sys/src/libdraw
 .SH SEE ALSO
-.IR graphics (2),
-.IR draw (2),
-.IR event (2),
-.IR keyboard (2),
-.IR thread (2).
+.IR graphics (3),
+.IR draw (3),
+.IR event (3),
+.IR keyboard (3),
+.IR thread (3).

@@ -181,7 +181,7 @@ returning the id of the created thread.
 creates the new proc by calling
 .B rfork
 (see
-.IR fork (2))
+.IR fork (3))
 with flags
 .BR RFPROC|RFMEM|RFNOWAIT| \fIrforkflag\fR.
 (The thread library depends on all its procs
@@ -243,10 +243,10 @@ in arbitrary ways and should synchronize their
 actions using
 .B qlocks
 (see
-.IR lock (2))
+.IR lock (3))
 or channel communication.
 System calls such as
-.IR read (2)
+.IR read (3)
 block the entire proc;
 all threads in a proc block until the system call finishes.
 .PP
@@ -315,7 +315,7 @@ are threaded analogues of
 and
 .I execl
 (see
-.IR exec (2));
+.IR exec (3));
 on success,
 they replace the calling thread (which must be the only thread in its proc)
 and invoke the external program, never returning.
@@ -345,14 +345,14 @@ response.
 returns a channel of pointers to
 .B Waitmsg
 structures (see
-.IR wait (2)).
+.IR wait (3)).
 When an exec'ed process exits, a pointer to a
 .B Waitmsg
 is sent to this channel.
 These
 .B Waitmsg
 structures have been allocated with
-.IR malloc (2)
+.IR malloc (3)
 and should be freed after use.
 .PP
 A
@@ -508,13 +508,13 @@ calls.
 .PP
 .I Chanprint
 formats its arguments in the manner of
-.IR print (2)
+.IR print (3)
 and sends the result to the channel
 .IR c.
 The string delivered by
 .I chanprint
 is allocated with
-.IR malloc (2)
+.IR malloc (3)
 and should be freed upon receipt.
 .PP
 Thread library functions do not return on failure;
@@ -525,12 +525,12 @@ Threaded programs should use
 in place of
 .I atnotify
 (see
-.IR notify (2)).
+.IR notify (3)).
 .PP
 It is safe to use
 .B sysfatal
 (see
-.IR perror (2))
+.IR perror (3))
 in threaded programs.
 .I Sysfatal
 will print the error string and call
@@ -539,7 +539,7 @@ will print the error string and call
 It is safe to use 
 .IR rfork
 (see
-.IR fork (2))
+.IR fork (3))
 to manage the namespace, file descriptors, note group, and environment of a
 single process.
 That is, it is safe to call
@@ -572,5 +572,5 @@ contains a full example program.
 .SH SOURCE
 .B /sys/src/libthread
 .SH SEE ALSO
-.IR intro (2),
-.IR ioproc (2)
+.IR intro (3),
+.IR ioproc (3)

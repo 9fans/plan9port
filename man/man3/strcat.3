@@ -222,7 +222,7 @@ is returned.
 returns a pointer to a distinct copy of the null-terminated string
 .I s
 in space obtained from
-.IR malloc (2)
+.IR malloc (3)
 or
 .L 0
 if no space can be obtained.
@@ -248,14 +248,14 @@ Many also have machine-dependent assembly language
 implementations in
 .BR /sys/src/libc/$objtype .
 .SH SEE ALSO
-.IR memory (2),
-.IR rune (2),
-.IR runestrcat (2)
+.IR memory (3),
+.IR rune (3),
+.IR runestrcat (3)
 .SH BUGS
 These routines know nothing about
 .SM UTF.
 Use the routines in
-.IR rune (2)
+.IR rune (3)
 as appropriate.
 Note, however, that the definition of
 .SM UTF

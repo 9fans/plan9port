@@ -29,7 +29,7 @@ long writev(int fd, IOchunk *io, int nio)
 long pwritev(int fd, IOchunk *io, int nio, vlong off)
 .SH DESCRIPTION
 These functions supplement the standard read and write operations of
-.IR read (2)
+.IR read (3)
 with facilities for scatter/gather I/O.
 The set of I/O buffers is collected into an array of
 .B IOchunk
@@ -67,14 +67,14 @@ are the analogous write routines.
 .br
 .B /sys/src/libc/9sys/writev.c
 .SH SEE ALSO
-.IR intro (2),
-.IR read (2)
+.IR intro (3),
+.IR read (3)
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .
 .SH BUGS
 The implementations use
-.IR malloc (2)
+.IR malloc (3)
 to build a single buffer for a standard call to
 .B read
 or

@@ -28,7 +28,7 @@ truly random bytes read from
 .PP
 .I Prng
 uses the native
-.IR rand (2)
+.IR rand (3)
 pseudo-random number generator to fill the buffer.  Used with
 .IR srand ,
 this function can produce a reproducible stream of pseudo random
@@ -37,8 +37,8 @@ numbers useful in testing.
 Both functions may be passed to
 .I mprand
 (see
-.IR mp (2)).
+.IR mp (3)).
 .SH SOURCE
 .B /sys/src/libsec
 .SH SEE ALSO
-.IR mp (2)
+.IR mp (3)

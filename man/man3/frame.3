@@ -239,7 +239,7 @@ If a
 .B Frame
 is being moved but not resized, that is, if the shape of its containing
 rectangle is unchanged, it is sufficient to use
-.IR draw (2)
+.IR draw (3)
 to copy the containing rectangle from the old to the new location and then call
 .I frsetrects
 to establish the new geometry.
@@ -357,6 +357,6 @@ and
 .SH SOURCE
 .B /sys/src/libframe
 .SH SEE ALSO
-.IR graphics (2),
-.IR draw (2),
-.IR cachechars (2).
+.IR graphics (3),
+.IR draw (3),
+.IR cachechars (3).

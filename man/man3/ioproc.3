@@ -68,10 +68,10 @@ and
 are execute the
 similarly named library or system calls
 (see
-.IR open (2),
-.IR read (2),
+.IR open (3),
+.IR read (3),
 and
-.IR dial (2))
+.IR dial (3))
 in the slave process associated with
 .IR io .
 It is an error to execute more than one call
@@ -172,8 +172,8 @@ ioread(Ioproc *io, int fd, void *a, long n)
 .SH SOURCE
 .B /sys/src/libthread/io*.c
 .SH SEE ALSO
-.IR dial (2),
-.IR open (2),
-.IR read (2),
-.IR thread (2)
+.IR dial (3),
+.IR open (3),
+.IR read (3),
+.IR thread (3)
 

@@ -1,0 +1,117 @@
+.TH MACH-SWAP 3
+.SH NAME
+beswap2, beswap4, beswap8, beieeeftoa32, beieeeftoa64, beieeeftoa80,
+beload2, beload4, beload8,
+leswap2, leswap4, leswap8, leieeeftoa32, leieeeftoa64, leieeeftoa80,
+leload2, leload4, leload8, ieeeftoa32, ieeeftoa64 \- machine-independent access to byte-ordered data
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mach.h>
+.PP
+.ta \w'\fBu64intxx'u
+.B
+u16int	beswap2(u16int u)
+.br
+u32int	beswap4(u32int u)
+.br
+u64int	beswap8(u64int u)
+.PP
+.B
+int	beieeeftoa32(char *a, uint n, void *f)
+.br
+int	beieeeftoa64(char *a, uint n, void *f)
+.br
+int	beieeeftoa80(char *a, uint n, void *f)
+.PP
+.B
+u16int	beload2(uchar *p)
+.br
+u32int	beload4(uchar *p)
+.br
+u64int	beload8(uchar *p)
+.PP
+.B
+u16int	leswap2(u16int u)
+.br
+u32int	leswap4(u32int u)
+.br
+u64int	leswap8(u64int u)
+.PP
+.B
+int	leieeeftoa32(char *a, uint n, void *f)
+.br
+int	leieeeftoa64(char *a, uint n, void *f)
+.br
+int	leieeeftoa80(char *a, uint n, void *f)
+.PP
+.B
+u16int	leload2(uchar *p)
+.br
+u32int	leload4(uchar *p)
+.br
+u64int	leload8(uchar *p)
+.PP
+.B
+int	ieeeftoa32(char *a, uint n, u32int u)
+.br
+int	ieeeftoa64(char *a, uint n, u32int hi, u32int lo)
+.SH DESCRIPTION
+These functions provide 
+machine-independent access to data in a particular byte order.
+.PP
+.IR Beswap2 ,
+.IR beswap4 ,
+and
+.I beswap8
+return the 2-byte, 4-byte, and 8-byte
+big-endian representation of the bytes in
+.IR val ,
+respectively.
+.PP
+.IR Beload2 ,
+.IR beload4 ,
+and
+.I beload8
+return the 2-byte, 4-byte, and 8-byte 
+big-endian interpretation of the bytes at
+.IR p ,
+respectively.
+.PP
+.IR Beieeeftoa32 ,
+.IR beieeeftoa64 ,
+and
+.I beieeeftoa80
+format the big-endian 4-byte, 8-byte, or 10-byte IEEE floating-point value
+at
+.IR f
+into the 
+.IR n -byte 
+string buffer
+.IR a .
+.PP
+.IR Leswap2 ,
+.IR leswap4 ,
+etc. are the little-endian equivalents of the routines just described.
+.PP
+.I Ieeeftoa32
+and
+.I ieeeftoa64
+format a local machine byte-order floating-point value into the 
+.IR n -byte
+string buffer
+.IR a .
+.I Ieeeftoa32
+expects a 32-bit floating-point value stored in the bits of
+.IR u .
+.I Ieeeftoa64
+expects a 64-bit floating-point value whose high 32-bits are in 
+.I hi
+and low 32-bits are in
+.IR lo .
+.SH SOURCE
+.B /sys/src/libmach
+.SH "SEE ALSO"
+.IR mach (3)

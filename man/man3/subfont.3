@@ -53,13 +53,13 @@ Font*	mkfont(Subfont *f, Rune min)
 .SH DESCRIPTION
 Subfonts are the components of fonts that hold the character images.
 A font comprises an array of subfonts; see
-.IR cachechars (2).
+.IR cachechars (3).
 A new
 .B Subfont
 is allocated and initialized with
 .IR allocsubfont .
 See
-.IR cachechars (2)
+.IR cachechars (3)
 for the meaning of
 .IR n ,
 .IR height ,
@@ -97,7 +97,7 @@ on
 if
 .B f->info
 was not allocated by
-.IR malloc (2)
+.IR malloc (3)
 it should be zeroed before calling
 .IR subffree .
 .PP
@@ -181,13 +181,13 @@ the part of a subfont file that comes after the image.  It should be preceded by
 a call to
 .IR writeimage
 (see
-.IR allocimage (2)).
+.IR allocimage (3)).
 .PP
 .I Stringsubfont
 is analogous to
 .B string
 (see
-.IR draw (2))
+.IR draw (3))
 for subfonts.  Rather than use the underlying font caching primitives,
 it calls
 .B draw
@@ -224,12 +224,12 @@ bitmap font file tree
 .SH SOURCE
 .B /sys/src/libdraw
 .SH SEE ALSO
-.IR graphics (2),
-.IR allocimage (2),
-.IR draw (2),
-.IR cachechars (2),
+.IR graphics (3),
+.IR allocimage (3),
+.IR draw (3),
+.IR cachechars (3),
 .IR image (6),
 .IR font (6)
 .SH DIAGNOSTICS
 All of the functions use the graphics error function (see
-.IR graphics (2)).
+.IR graphics (3)).

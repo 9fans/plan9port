@@ -33,7 +33,7 @@ explanation of the reason for
 exiting, or a null pointer or empty string to indicate normal termination.
 The string is passed to the parent process, prefixed by the name and process
 id of the exiting process, when the parent does a
-.IR wait (2).
+.IR wait (3).
 .PP
 Before calling
 .I _exits
@@ -77,5 +77,5 @@ cancels a previous registration of an exit function.
 .SH SOURCE
 .B /sys/src/libc/port/atexit.c
 .SH "SEE ALSO"
-.IR fork (2),
-.IR wait (2)
+.IR fork (3),
+.IR wait (3)

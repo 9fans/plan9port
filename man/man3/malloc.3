@@ -132,7 +132,7 @@ these tags will be set properly.
 If a custom allocator wrapper is used,
 the allocator wrapper can set the tags
 itself (usually by passing the result of
-.IR getcallerpc (2) 
+.IR getcallerpc (3) 
 to 
 .IR setmalloctag )
 to provide more useful information about
@@ -143,7 +143,7 @@ takes the address of a block returned by
 .I malloc
 and returns the address of the corresponding
 block allocated by the
-.IR pool (2)
+.IR pool (3)
 routines.
 .SH SOURCE
 .B /sys/src/libc/port/malloc.c
@@ -152,9 +152,9 @@ routines.
 .I trump
 (in
 .IR acid (1)),
-.IR brk (2),
-.IR getcallerpc (2),
-.IR pool (2)
+.IR brk (3),
+.IR getcallerpc (3),
+.IR pool (3)
 .SH DIAGNOSTICS
 .I Malloc, realloc
 and
@@ -198,7 +198,7 @@ is bizarre.
 .PP
 User errors can corrupt the storage arena.
 The most common gaffes are (1) freeing an already freed block,
-(2) storing beyond the bounds of an allocated block, and (3)
+(3) storing beyond the bounds of an allocated block, and (3)
 freeing data that was not obtained from the allocator.
 When
 .I malloc

@@ -105,7 +105,7 @@ struct Dir {
 .EE
 .PP
 The returned structure is allocated by
-.IR malloc (2);
+.IR malloc (3);
 freeing it also frees the associated strings.
 .PP
 This structure and
@@ -292,9 +292,9 @@ routines
 for the routines prefixed
 .B dir
 .SH SEE ALSO
-.IR intro (2),
-.IR fcall (2),
-.IR dirread (2),
+.IR intro (3),
+.IR fcall (3),
+.IR dirread (3),
 .IR stat (5)
 .SH DIAGNOSTICS
 The
@@ -314,7 +314,7 @@ or
 is too short for the returned data, the return value will be
 .B BIT16SZ
 (see
-.IR fcall (2))
+.IR fcall (3))
 and the two bytes
 returned will contain the initial count field of the
 returned data;

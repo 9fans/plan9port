@@ -22,7 +22,7 @@ is posted to communicate the exception.
 A note may also be posted by a
 .I write
 (see
-.IR read (2))
+.IR read (3))
 to the process's
 .BI /proc/ n /note
 file or to the
@@ -55,10 +55,10 @@ replaces the previous handler, if any.
 An argument of zero cancels a previous handler,
 restoring the default action.
 A
-.IR fork (2)
+.IR fork (3)
 system call leaves the handler registered in
 both the parent and the child;
-.IR exec (2)
+.IR exec (3)
 restores the default behavior.
 Handlers may not perform floating point operations.
 .PP
@@ -115,7 +115,7 @@ set up with
 using the
 .I notejmp
 function (see
-.IR setjmp (2)),
+.IR setjmp (3)),
 which is implemented by modifying the saved state and calling
 .BR noted(NCONT) .
 .PP
@@ -233,12 +233,12 @@ portions of the notes are machine-dependent.
 .br
 .B /sys/src/libc/port/atnotify.c
 .SH SEE ALSO
-.IR intro (2),
+.IR intro (3),
 .I notejmp
 in
-.IR setjmp (2)
+.IR setjmp (3)
 .SH BUGS
 Since
-.IR exec (2)
+.IR exec (3)
 discards the notification handler, there is a window
 of vulnerability to notes in a new process.

@@ -34,7 +34,7 @@ points to the name of the file
 to be executed; it must not be a directory, and the permissions
 must allow the current user to execute it
 (see
-.IR stat (2)).
+.IR stat (3)).
 It should also be a valid binary image, as defined in the
 .IR a.out (6)
 for the current machine architecture,
@@ -103,7 +103,7 @@ files remain open across
 .B OCEXEC
 OR'd
 into the open mode; see
-.IR open (2));
+.IR open (3));
 and the working directory and environment
 (see
 .IR env (3))
@@ -112,7 +112,7 @@ However, a newly
 .I exec'ed
 process has no notification handler
 (see
-.IR notify (2)).
+.IR notify (3)).
 .PP
 When the new program begins, the global cell
 .B _clock
@@ -147,8 +147,8 @@ on the 68020) contains the address of the clock.
 .B /sys/src/libc/port/execl.c
 .SH SEE ALSO
 .IR prof (1),
-.IR intro (2),
-.IR stat (2)
+.IR intro (3),
+.IR stat (3)
 .SH DIAGNOSTICS
 If these functions fail, they return and set
 .IR errstr .

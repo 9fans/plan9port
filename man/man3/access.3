@@ -31,7 +31,7 @@ Zero is returned if the desired access is permitted,
 .PP
 Only access for open is checked.
 A file may look executable, but
-.IR exec (2)
+.IR exec (3)
 will fail unless it is in proper format.
 .PP
 The include file
@@ -46,7 +46,7 @@ and
 .SH SOURCE
 .B /sys/src/libc/9sys/access.c
 .SH SEE ALSO
-.IR stat (2)
+.IR stat (3)
 .SH DIAGNOSTICS
 Sets
 .IR errstr .
@@ -56,5 +56,5 @@ is not known to the client,
 .I access
 must open the file to check permissions.
 (It calls
-.IR stat (2)
+.IR stat (3)
 to check simple existence.)

@@ -1,0 +1,419 @@
+.TH MACH-MAP 3
+.SH NAME
+allocmap, addseg, addregseg, findseg, addrtoseg,
+addrtosegafter, removeseg, freemap,
+get1, get2, get4, get8,
+put1, put2, put4, put8,
+rget1, rget2, rget4, rget8,
+rput1, rput2, rput4, rput8,
+locaddr, locconst, locreg, locindir,
+loccmp, loceval, locfmt, locredir,
+lget1, lget2, lget4, lget8,
+lput1, lput2, lput4, lput8 \- machine-independent
+access to address spaces and register sets
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mach.h>
+.PP
+.B
+.ta \w'\fBxxxxxx'u +\w'xxxxxxx'u
+.nf
+typedef struct Map Map;
+typedef struct Seg Seg;
+.PP
+.B
+.nf
+struct Seg
+{
+	char	*name;
+	char	*file;
+	int	fd;
+	ulong	base;
+	ulong	size;
+	ulong	offset;
+	int	(*rw)(Map*, Seg*, ulong, void*, uint, int);
+};
+.PP
+.B
+.nf
+struct Map
+{
+	Seg	*seg;
+	int	nseg;
+	\fI...\fR
+};
+.PP
+.B
+Map	*allocmap(void)
+.br
+int	addseg(Map *map, Seg seg)
+.br
+int	findseg(Map *map, char *name, char *file)
+.br
+int	addrtoseg(Map *map, ulong addr, Seg *seg)
+.br
+int	addrtosegafter(Map *map, ulong addr, Seg *seg)
+.br
+void	removeseg(Map *map, int i)
+.br
+void	freemap(Map *map)
+.PP
+.B
+int	get1(Map *map, ulong addr, uchar *a, uint n)
+.br
+int	get2(Map *map, ulong addr, u16int *u)
+.br
+int	get4(Map *map, ulong addr, u32int *u)
+.br
+int	get8(Map *map, ulong addr, u64int *u)
+.PP
+.B
+int	put1(Map *map, ulong addr, uchar *a, uint n)
+.br
+int	put2(Map *map, ulong addr, u16int u)
+.br
+int	put4(Map *map, ulong addr, u32int u)
+.br
+int	put8(Map *map, ulong addr, u64int u)
+.PP
+.B
+int	rget1(Map *map, char *reg, u8int *u)
+.br
+int	rget2(Map *map, char *reg, u16int *u)
+.br
+int	rget4(Map *map, char *reg, u32int *u)
+.br
+int	rget8(Map *map, char *reg, u64int *u)
+.br
+int	fpformat(Map *map, char *reg, char *a, uint n, char code);
+.PP
+.B
+int	rput1(Map *map, char *reg, u8int u)
+.br
+int	rput2(Map *map, char *reg, u16int u)
+.br
+int	rput4(Map *map, char *reg, u32int u)
+.br
+int	rput8(Map *map, char *reg, u64int u)
+.PP
+.B
+Loc	locaddr(ulong addr)
+.br
+Loc	locconst(ulong con)
+.br
+Loc	locreg(char *reg)
+.br
+Loc	locindir(char *reg, long offset)
+.PP
+.B
+int	loccmp(Loc *a, Loc *b)
+.br
+int	loceval(Map *map, Loc loc, ulong *addr)
+.br
+int	locfmt(Fmt *fmt)
+.br
+int	locredir(Map *map, Loc *regs, Loc loc, Loc *newloc)
+.PP
+.B
+int	lget1(Map *map, Loc loc, uchar *a, uint n)
+.br
+int	lget2(Map *map, Loc loc, u16int *u)
+.br
+int	lget4(Map *map, Loc loc, u32int *u)
+.br
+int	lget8(Map *map, Loc loc, u64int *u)
+.PP
+.B
+int	lput1(Map *map, Loc loc, uchar *a, uint n)
+.br
+int	lput2(Map *map, Loc loc, u16int u)
+.br
+int	lput4(Map *map, Loc loc, u32int u)
+.br
+int	lput8(Map *map, Loc loc, u64int u)
+.PP
+.SH DESCRIPTION
+These functions provide
+a processor-independent interface for accessing
+executable files, core files, and running processes
+via
+.IR maps ,
+data structures that provides access to an address space
+and register set.
+The functions described in
+.IR mach-file (3)
+are typically used to construct these maps.
+Related library functions described in 
+.IR mach-symbol (3)
+provide similar access to symbol tables.
+.PP
+Each
+.I map
+comprises an optional register set and one or more
+.BR segments ,
+each associating a non-overlapping range of 
+memory addresses with a logical section of
+an executable file or of a running process's address space.
+Other library functions then use a map
+and the architecture-specific data structures
+to provide a generic interface to the
+processor-dependent data.
+.PP
+Each segment has a name (e.g.,
+.B text
+or
+.BR data )
+and may be associated with a particular file.
+A segment represents a range of accessible address space.
+Segments may be backed an arbitary access function
+(if the
+.B rw
+pointer is non-nil),
+or by the contents of an open file
+(using the
+.B fd
+file descriptor).
+Each range has a starting address in the space
+.RB ( base )
+and
+an extent
+.RB ( size ).
+In segments mapped by files,
+the range begins at byte
+.B offset
+in the file.
+The
+.B rw
+function is most commonly used to provide
+access to executing processes via
+.IR ptrace (2)
+and to zeroed segments.
+.PP
+.I Allocmap
+creates an empty map;
+.IR freemap
+frees a map.
+.PP
+.I Addseg
+adds the given segment to the map, resizing the map's
+.I seg
+array if necessary.
+A negative return value indicates an allocation error.
+.PP
+.I Findseg
+returns the index of the segment with the given name (and, if
+.I file
+is non-nil, the given file),
+or \-1 if no such segment is found.
+.PP
+.I Addrtoseg
+returns the index of the segment containing
+for the given address, or \-1 if that address is not mapped.
+Segments may have overlapping address ranges:
+.I addseg
+appends segments to the end of the
+.I seg
+array in the map, and
+.I addrtoseg
+searches the map backwards from the end,
+so the most recently mapped segment wins.
+.PP
+.I Addrtosegafter
+returns the index of the segment containing the lowest mapped
+address greater than
+.IR addr .
+.PP
+.I Removeseg
+removes the segment at the given index.
+.PP
+.IR Get1 ,
+.IR get2 ,
+.IR get4 ,
+and
+.I get8
+retrieve the data stored at address
+.I addr
+in the address space associated
+with
+.IR map .
+.I Get1
+retrieves
+.I n
+bytes of data beginning at
+.I addr
+into
+.IR buf .
+.IR Get2 ,
+.I get4
+and
+.I get8
+retrieve 16-bit, 32-bit and 64-bit values respectively,
+into the location pointed to by
+.IR u .
+The value is byte-swapped if the source
+byte order differs from that of the current architecture.
+This implies that the value returned by
+.IR get2 ,
+.IR get4 ,
+and
+.I get8
+may not be the same as the byte sequences
+returned by
+.I get1
+when
+.I n
+is two, four or eight; the former may be byte-swapped, the
+latter reflects the byte order of the target architecture.
+These functions return the number
+of bytes read or a \-1 when there is an error.
+.PP
+.IR Put1 ,
+.IR put2 ,
+.IR put4 ,
+and
+.I put8
+write to
+the address space associated with
+.IR map .
+The address is translated using the
+map parameters and multi-byte quantities are
+byte-swapped, if necessary, before they are written.
+.I Put1
+transfers
+.I n
+bytes stored at
+.IR buf ;
+.IR put2 ,
+.IR put4 ,
+and
+.I put8
+write the 16-bit, 32-bit or 64-bit quantity contained in
+.IR val ,
+respectively.  The number of bytes transferred is returned.
+A \-1 return value indicates an error.
+.PP
+When representing core files or running programs,
+maps also provide access to the register set.
+.IR Rget1 ,
+.IR rget2 ,
+.IR rget4 ,
+.IR rget8 ,
+.IR rput1 ,
+.IR rput2 ,
+.IR rput4 ,
+and 
+.IR rput8
+read or write the 1-, 2-, 4-, or 8-byte register
+named by
+.IR reg .
+If the register is not the requested size, the 
+behavior is undefined.
+.PP
+.I Fpformat
+converts the contents of a floating-point register to a string.
+.I Buf
+is the address of a buffer of
+.I n
+bytes to hold the resulting string.
+.I Code
+must be either
+.L F
+or
+.LR f ,
+selecting double or single precision, respectively.
+If
+.I code
+is
+.LR F ,
+the contents of the specified register and the
+following register are interpreted as a double-precision
+floating-point number;
+this is meaningful only for architectures that implement
+double-precision floats by combining adjacent single-precision
+registers.
+.PP
+A
+.I location
+represents a place in an executing image capable of 
+storing a value.
+Note that locations are typically passed by value rather than by reference.
+.PP
+.I Locnone
+returns an unreadable, unwritable location.
+.I Locaddr
+returns a location representing the memory address
+.IR addr .
+.I Locreg
+returns a location representing the register
+.IR reg .
+.I Locindir
+returns an location representing the memory address
+at 
+.I offset
+added to the value of
+.IR reg .
+.I Locconst
+returns an imaginary unwritable location holding the constant 
+.IR con ;
+such locations are useful for passing specific constants to
+functions expect locations, such as
+.I unwind
+(see
+.IR mach-stack (3)).
+.PP
+.I Loccmp
+compares two locations, returning negative, zero, or positive
+values if 
+.B *a
+is less than, equal to, or greater than
+.BR *b ,
+respectively.
+Register locations are ordered before memory addresses,
+which are ordered before indirections.
+.PP
+.I Locfmt
+is a 
+.IR print (3)-verb
+that formats a
+.B Loc
+structure
+.RI ( not
+a pointer to one).
+.PP
+Indirection locations are needed in some contexts (e.g., when
+using
+.I findlsym
+(see
+.IR mach-symbol (3))),
+but bothersome in most.
+.I Locsimplify
+rewrites indirections as absolute memory addresses, by evaluating
+the register using the given map and adding the offset.
+.PP
+The functions
+.IR lget1 ,
+.IR lget2 ,
+.IR lget4 ,
+.IR lget8 ,
+.IR lput1 ,
+.IR lput2 ,
+.IR lput4 ,
+and
+.I lput8
+read and write the given locations, using the
+.IR get ,
+.IR put ,
+.IR rget ,
+and
+.I rput
+function families as necessary.
+.SH SOURCE
+.B /sys/src/libmach
+.SH "SEE ALSO"
+.IR mach(3), mach-file(3)
+.SH DIAGNOSTICS
+These routines set
+.IR errstr .
