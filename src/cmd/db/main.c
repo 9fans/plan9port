@@ -34,7 +34,8 @@ usage(void)
 void
 main(int argc, char **argv)
 {
-	int omode, quiet;
+	int omode;
+	volatile int quiet;
 	char *s;
 	char *name;
 
