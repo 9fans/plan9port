@@ -1,0 +1,14 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=9term
+
+OFILES=\
+	9term.$O\
+	$SYSNAME.$O\
+
+<$PLAN9/src/mkone
+
+LDFLAGS=-lframe -ldraw -lplumb -lthread -l9 -lfmt -lutf -L$X11/lib -lX11 -lutil
+
+
