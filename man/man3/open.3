@@ -159,3 +159,14 @@ The implementation of
 .B ORCLOSE
 is to unlink the file after opening it, causing problems
 in programs that try to access the file by name before it is closed.
+.PP
+To avoid name conflicts with the underlying system,
+.I open
+and
+.I create
+are preprocessor macros defined as
+.IR p9open
+and
+.IR p9create ;
+see
+.IR intro (3).
