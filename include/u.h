@@ -8,6 +8,7 @@ extern "C" {
 #define __EXTENSIONS__ 1 /* SunOS */
 /* NOT USING #define __MAKECONTEXT_V2_SOURCE 1 / * SunOS */
 #define _BSD_SOURCE 1
+#define _NETBSD_SOURCE 1	/* NetBSD */
 #define _SVID_SOURCE 1
 #define _XOPEN_SOURCE 1000
 #define _XOPEN_SOURCE_EXTENDED 1
@@ -74,6 +75,13 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	define _NEEDLL 1
+#elif defined(__NetBSD__)
+#	include <sched.h>
+#	include <sys/types.h>
+#	undef _NEEDUSHORT
+#	undef _NEEDUINT
+#	undef _NEEDULONG
+#	undef PLAN9PORT_USING_PTHREADS
 #else
 	/* No idea what system this is -- try some defaults */
 #	include <pthread.h>

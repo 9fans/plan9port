@@ -59,7 +59,7 @@ Quaternion qadd(Quaternion, Quaternion);
 Quaternion qsub(Quaternion, Quaternion);
 Quaternion qneg(Quaternion);
 Quaternion qmul(Quaternion, Quaternion);
-Quaternion qdiv(Quaternion, Quaternion);
+Quaternion p9qdiv(Quaternion, Quaternion);
 Quaternion qunit(Quaternion);
 Quaternion qinv(Quaternion);
 double qlen(Quaternion);
@@ -94,6 +94,11 @@ Point3 xformpoint(Point3, Space *, Space *);
 Point3 xformpointd(Point3, Space *, Space *);
 Point3 xformplane(Point3, Space *, Space *);
 #define	radians(d)	((d)*.01745329251994329572)
+
+#ifndef NOPLAN9DEFINES
+#define	qdiv	p9qdiv	/* for NetBSD */
+#endif
+
 #if defined(__cplusplus)
 }
 #endif

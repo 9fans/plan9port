@@ -17,6 +17,9 @@ case "$tag" in
 *-FreeBSD-*)
 	echo $SYSNAME.o ${SYSNAME}asm.o
 	;;
+*-NetBSD-*)
+	echo $SYSNAME.o ${SYSNAME}asm.o
+	;;
 *-Darwin-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o pthread.o
 	;;

@@ -24,7 +24,9 @@ tspawnloop: tspawnloop.$O
 	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
 
 %.$O: %.c
-	9c -I. $stem.c
+	$CC -I. $stem.c
+
+NetBSD.$O: Linux.c
 
 test:V: tprimes tspawn
 	primes 1 10007 >p1.txt
