@@ -26,7 +26,6 @@ _schedinit(void *arg)
 	Proc *p;
 	Thread *t;
 	extern void ignusr1(int), _threaddie(int);
-	ignusr1(1);
 	signal(SIGTERM, _threaddie);
   
 	p = arg;

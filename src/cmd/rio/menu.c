@@ -138,6 +138,9 @@ spawn(ScreenInfo *s)
 			close(ConnectionNumber(dpy));
 			if (s->display[0] != '\0')
 				putenv(s->display);
+			signal(SIGINT, SIG_DFL);
+			signal(SIGTERM, SIG_DFL);
+			signal(SIGHUP, SIG_DFL);
 			if (termprog != NULL) {
 				execl(shell, shell, "-c", termprog, 0);
 				fprintf(stderr, "rio: exec %s", shell);

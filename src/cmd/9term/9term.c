@@ -879,6 +879,20 @@ key(Rune r)
 		return;
 	}
 
+	switch(r) {
+	case 0x03:	/* ^C: send interrupt */
+	case 0x7F:	/* DEL: send interrupt */
+		t.qh = t.q0 = t.q1 = t.nr;
+		show(t.q0);
+{int x; x=tcgetpgrp(rcfd);
+print("postnote %d pgrp %d\n", rcpid, x);
+		postnote(PNGROUP, x, "interrupt");
+if(x >= 2) killpg(x, 2);
+}
+	//	write(rcfd, "\x7F", 1);
+		return;
+	}
+
 	if(rawon() && t.q0==t.nr){
 		addraw(&r, 1);
 		consread();
@@ -898,12 +912,6 @@ key(Rune r)
 	snarf();
 
 	switch(r) {
-	case 0x03:	/* ^C: send interrupt */
-	case 0x7F:	/* DEL: send interrupt */
-		t.qh = t.q0 = t.q1 = t.nr;
-		show(t.q0);
-		write(rcfd, "\x7F", 1);
-		break;
 	case 0x06:	/* ^F: file name completion */
 	case Kins:		/* Insert: file name completion */
 		rp = namecomplete();
