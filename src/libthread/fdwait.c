@@ -233,8 +233,9 @@ threadread(int fd, void *a, long n)
 
 	threadfdnoblock(fd);
 again:
+	errno = 0;
 	nn = read(fd, a, n);
-	if(nn < 0){
+	if(nn <= 0){
 		if(errno == EINTR)
 			goto again;
 		if(errno == EAGAIN || errno == EWOULDBLOCK){
