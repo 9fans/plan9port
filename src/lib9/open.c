@@ -1,6 +1,7 @@
 #define _GNU_SOURCE	/* for Linux O_DIRECT */
 #include <u.h>
 #define NOPLAN9DEFINES
+#include <sys/file.h>
 #include <libc.h>
 #ifndef O_DIRECT
 #define O_DIRECT 0
@@ -10,12 +11,13 @@ int
 p9open(char *name, int mode)
 {
 	int cexec, rclose;
-	int fd, umode;
+	int fd, umode, lock;
 
 	umode = mode&3;
 	cexec = mode&OCEXEC;
 	rclose = mode&ORCLOSE;
-	mode &= ~(3|OCEXEC|ORCLOSE);
+	lock = mode&OLOCK;
+	mode &= ~(3|OCEXEC|ORCLOSE|OLOCK);
 	if(mode&OTRUNC){
 		umode |= O_TRUNC;
 		mode ^= OTRUNC;
@@ -30,6 +32,12 @@ p9open(char *name, int mode)
 	}
 	fd = open(name, umode);
 	if(fd >= 0){
+		if(lock){
+			if(flock(fd, (mode==OREAD) ? LOCK_SH : LOCK_EX) < 0){
+				close(fd);
+				return -1;
+			}
+		}
 		if(cexec)
 			fcntl(fd, F_SETFL, FD_CLOEXEC);
 		if(rclose)

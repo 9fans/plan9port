@@ -1,6 +1,7 @@
 #define _GNU_SOURCE	/* for Linux O_DIRECT */
 #include <u.h>
 #define NOPLAN9DEFINES
+#include <sys/file.h>
 #include <libc.h>
 #include <sys/stat.h>
 #ifndef O_DIRECT
@@ -10,11 +11,12 @@
 int
 p9create(char *path, int mode, ulong perm)
 {
-	int fd, cexec, umode, rclose;
+	int fd, cexec, umode, rclose, lock;
 
+	lock = mode&OLOCK;
 	cexec = mode&OCEXEC;
 	rclose = mode&ORCLOSE;
-	mode &= ~(ORCLOSE|OCEXEC);
+	mode &= ~(ORCLOSE|OCEXEC|OLOCK);
 
 	/* XXX should get mode mask right? */
 	fd = -1;
@@ -45,6 +47,12 @@ p9create(char *path, int mode, ulong perm)
 	}
 out:
 	if(fd >= 0){
+		if(lock){
+			if(flock(fd, (mode==OREAD) ? LOCK_SH : LOCK_EX) < 0){
+				close(fd);
+				return -1;
+			}
+		}
 		if(cexec)
 			fcntl(fd, F_SETFL, FD_CLOEXEC);
 		if(rclose)
