@@ -15,6 +15,12 @@ then
 	verbose=true
 fi
 
+target=a.out
+if [ "x$1" = "x-o" ]
+then
+	target=$2
+fi
+
 if $doautolib
 then
 	ofiles=""
@@ -188,4 +194,9 @@ if $verbose
 then
 	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
 fi
-exec $ld -L$PLAN9/lib "$@" $libsl $extralibs
+if ! $ld -L$PLAN9/lib "$@" $libsl $extralibs
+do
+	rm -f $target
+	exit 1
+done
+exit 0
