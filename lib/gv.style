@@ -1,0 +1,16 @@
+!########################################
+!##### Layouts
+!########################################
+
+GV.control.MButton.font:                -*-Helvetica-Medium-R-Normal--*-120-*-*-P-*-ISO8859-1
+GV*orientationButton*forcedWidth:       72
+GV*upsidedown.Label:                    Up-Down
+GV.?.processButton.label:
+
+!##### Main Layout
+
+GV*control.layout:                      \
+|v{                                     \
+     viewFrame<+[2]-100%*+9999-100%>   \
+}
+
