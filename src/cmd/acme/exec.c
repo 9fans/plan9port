@@ -53,7 +53,6 @@ static Rune LCut[] = { 'C', 'u', 't', 0 };
 static Rune LDel[] = { 'D', 'e', 'l', 0 };
 static Rune LDelcol[] = { 'D', 'e', 'l', 'c', 'o', 'l', 0 };
 static Rune LDelete[] = { 'D', 'e', 'l', 'e', 't', 'e', 0 };
-static Rune LDotfiles[] = { 'D', 'o', 't', 'f', 'i', 'l', 'e', 's', 0 };
 static Rune LDump[] = { 'D', 'u', 'm', 'p', 0 };
 static Rune LEdit[] = { 'E', 'd', 'i', 't', 0 };
 static Rune LExit[] = { 'E', 'x', 'i', 't', 0 };
@@ -84,7 +83,6 @@ Exectab exectab[] = {
 	{ LDel,		del,		FALSE,	FALSE,	XXX		},
 	{ LDelcol,	delcol,	FALSE,	XXX,		XXX		},
 	{ LDelete,	del,		FALSE,	TRUE,	XXX		},
-	{ LDotfiles,	dotfiles,	FALSE,	XXX,	XXX	},
 	{ LDump,	dump,	FALSE,	TRUE,	XXX		},
 	{ LEdit,		edit,		FALSE,	XXX,		XXX		},
 	{ LExit,		xexit,		FALSE,	XXX,		XXX		},
@@ -365,21 +363,6 @@ del(Text *et, Text *_0, Text *_1, int flag1, int _2, Rune *_3, int _4)
 		return;
 	if(flag1 || et->w->body.file->ntext>1 || winclean(et->w, FALSE))
 		colclose(et->col, et->w, TRUE);
-}
-
-void
-dotfiles(Text *et, Text *_0, Text *_1, int _2, int _3, Rune *_4, int _5)
-{
-	USED(_0);
-	USED(_1);
-	USED(_2);
-	USED(_3);
-	USED(_4);
-	USED(_5);
-	USED(et);
-
-	nodotfiles = !nodotfiles;
-	warning(nil, "%s dot files\n", nodotfiles ? "omitting" : "showing");
 }
 
 void
