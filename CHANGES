@@ -1,3 +1,63 @@
+October 16, 2004
+	fix bug in latin1 keyboard data for superscript 1,2,3.
+
+	bug in acme handling of arrow keys in Zeroxed windows fix from rob
+
+	add " and ""
+
+	add clumsy way to get at buffer contents in 9term
+
+	add ulimit and umask as rc builtins [sic]
+
+	print out signalled exits in rc.  need to think more about this.
+
+September 28, 2004
+	autoindent fixes from rob for acme
+
+	fix bug in __fmtcpy reported by rob
+
+
+September 22, 2004
+	add stringn builtin to acid
+
+	remove 64-bit constants from nan.c
+
+	keep fighting with pthreads.
+
+	good thing about pthreads: no more 9proc.
+
+September 20, 2004
+	bug fix in download - read right files
+
+	more pthreads futzing
+
+September 17, 2004
+	more changes for pthreads.  note that this means binaries compiled
+	for linux 2.6 will *not* work on linux 2.4.  the 2.4 binaries may well
+	work on 2.6, though.  it also means that at the moment, threaded programs
+	on linux 2.6 cannot be fully inspected with acid (grr).
+
+September 16, 2004
+	change ports to use pthreads, remove ported rendezvous
+	in favor of using the new primitives _procsleep and _procwakeup
+
+August 22, 2004
+	powerpc linux support from ericvh - mostly va_copy and an sprint bug
+
+	add -swap to psv
+
+	call wmail to send mail in plumbing rules
+
+August 17, 2004
+	fix major bug in lex introduced by trying to satisfy gcc.
+
+August 16, 2004
+	handle grap.defines properly
+
+August 13, 2004
+	better handing of top/active in rio
+	better mask handling in rio
+
 August 10, 2004
 
 	try to be more consistent about _exit and _exits in libthread
