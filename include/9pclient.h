@@ -16,7 +16,7 @@ CFsys *fsinit(int);
 CFsys *fsmount(int, char*);
 
 int fsversion(CFsys*, int, char*, int);
-CFid *fsauth(CFsys*, char*);
+CFid *fsauth(CFsys*, char*, char*);
 CFid *fsattach(CFsys*, CFid*, char*, char*);
 CFid *fsopen(CFsys*, char*, int);
 int fsopenfd(CFsys*, char*, int);
@@ -38,6 +38,7 @@ int fsdirfwstat(CFid*, struct Dir*);
 CFid *fsroot(CFsys*);
 void fssetroot(CFsys*, CFid*);
 CFsys *nsmount(char*, char*);
+CFid *nsopen(char*, char*, char*, int);
 
 #ifdef __cplusplus
 }
