@@ -288,6 +288,19 @@ before running
 .SH BUGS
 There should be a program to toggle the current window's hold mode.
 .PP
+Not a
+.IR 9term 
+bug:
+when running
+.IR bash (1)
+in 
+.RB `` "set +o emacs" ''
+mode, its handling of interrupts is broken.
+In response to DEL,
+.I bash
+processes the interrupt but then silently discards the next
+character typed.
+.PP
 Unix makes everything harder.
 .SH SEE ALSO
 .IR wintext (1)
