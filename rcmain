@@ -15,8 +15,8 @@ if not{
 	finit
 	if(~ $#path 0) {
 		path=(/bin /usr/bin)
-		. <{sh -c 'echo $PATH |
-				sed "s/^/path=(''/; s/$/'')/; s/:/'' ''/g"'}
+		eval `{sh -c 'echo $PATH |
+			sed "s/^/path=(''/; s/$/'')/; s/:/'' ''/g"'}
 	}
 }
 fn sigexit
