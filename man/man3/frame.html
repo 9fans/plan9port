@@ -1,0 +1,325 @@
+<head>
+<title>frame(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>FRAME(3)</b><td align=right><b>FRAME(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    frinit, frsetrects, frinittick, frclear, frcharofpt, frptofchar,
+    frinsert, frdelete, frselect, frtick, frselectpaint, frdrawsel,
+    frdrawsel0, frgetmouse &ndash; frames of text<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;draw.h&gt;<br>
+    #include &lt;thread.h&gt;<br>
+    #include &lt;mouse.h&gt;<br>
+    #include &lt;frame.h&gt;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frinit(Frame *f, Rectangle r, Font *ft, Image *b, Image **cols)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frsetrects(Frame *f, Rectangle r, Image *b)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frinittick(Frame *f)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frclear(Frame *f, int resize)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong frcharofpt(Frame *f, Point pt)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point frptofchar(Frame *f, ulong p)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frinsert(Frame *f, Rune *r0, Rune *r1, ulong p)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;frdelete(Frame *f, ulong p0, ulong p1)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frselect(Frame *f, Mousectl *m)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frtick(Frame *f, Point pt, int up)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frselectpaint(Frame *f, Point p0, Point p1, Image *col)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frdrawsel(Frame *f, Point pt0, ulong p0, ulong p1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int highlighted)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;frdrawsel0(Frame *f, Point pt0, ulong p0, ulong p1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *back, Image *text)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>enum{<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        BACK,<br>
+        HIGH,<br>
+        BORD,<br>
+        TEXT,<br>
+        HTEXT,<br>
+        NCOL<br>
+        
+    </table>
+    };<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This library supports <i>frames</i> of editable text in a single font
+    on raster displays, such as in <a href="../man1/sam.html"><i>sam</i>(1)</a> and <a href="../man1/9term.html"><i>9term</i>(1)</a>. Frames may
+    hold any character except NUL (0). Long lines are folded and tabs
+    are at fixed intervals. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The user-visible data structure, a <tt><font size=+1>Frame</font></tt>, is defined in <tt><font size=+1>&lt;frame.h&gt;</font></tt>:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef struct Frame Frame;<br>
+        struct Frame<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*font; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* of chars in the frame */<br>
+            Display &nbsp;&nbsp;&nbsp;&nbsp;*display; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* on which frame appears */<br>
+            Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*b; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* on which frame appears */<br>
+            Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*cols[NCOL]; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* text and background colors */<br>
+            Rectangle r; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* in which text appears */<br>
+            Rectangle entire; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* of full frame */<br>
+            Frbox &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*box;<br>
+            ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p0, p1; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* selection */<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nbox, nalloc;<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxtab; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* max size of tab, in pixels */<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nchars; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* # runes in frame */<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nlines; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* # lines with text */<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maxlines; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* total # lines in frame */<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastlinefull; &nbsp;&nbsp;&nbsp;&nbsp;/* last line fills frame */<br>
+            ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;modified; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* changed since frselect() */<br>
+            Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*tick; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* typing tick */<br>
+            Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*tickback; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* saved image under tick */<br>
+            int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ticked; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* flag: is tick onscreen? */<br>
+            
+        </table>
+        };<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    <tt><font size=+1>Frbox</font></tt> is an internal type and is not used by the interface. <tt><font size=+1>P0</font></tt>
+    and <tt><font size=+1>p1</font></tt> may be changed by the application provided the selection
+    routines are called afterwards to maintain a consistent display.
+    <i>Maxtab</i> determines the size of tab stops. <i>Frinit</i> sets it to 8 times
+    the width of a <tt><font size=+1>0</font></tt> (zero) character in the font; it may be
+    changed before any text is added to the frame. The other elements
+    of the structure are maintained by the library and should not
+    be modified directly. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The text within frames is not directly addressable; instead frames
+    are designed to work alongside another structure that holds the
+    text. The typical application is to display a section of a longer
+    document such as a text file or terminal session. Usually the
+    program will keep its own copy of the text in the window
+    (probably as an array of <tt><font size=+1>Runes</font></tt>) and pass components of this text
+    to the frame routines to display the visible portion. Only the
+    text that is visible is held by the <tt><font size=+1>Frame</font></tt>; the application must
+    check <tt><font size=+1>maxlines</font></tt>, <tt><font size=+1>nlines</font></tt>, and <tt><font size=+1>lastlinefull</font></tt> to determine, for example,
+    whether new text needs to be appended at the
+    end of the <tt><font size=+1>Frame</font></tt> after calling <i>frdelete</i> (q.v.). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There are no routines in the library to allocate <tt><font size=+1>Frames</font></tt>; instead
+    the interface assumes that <tt><font size=+1>Frames</font></tt> will be components of larger
+    structures. <i>Frinit</i> prepares the <tt><font size=+1>Frame</font></tt> <i>f</i> so characters drawn in
+    it will appear in the single <tt><font size=+1>Font</font></tt> <i>ft</i>. It then calls <i>frsetrects</i>
+    and <i>frinittick</i> to initialize the geometry for the <tt><font size=+1>Frame</font></tt>. The <tt><font size=+1>Image
+    </font></tt><i>b</i> is where the <tt><font size=+1>Frame</font></tt> is to be drawn; <tt><font size=+1>Rectangle</font></tt> <i>r</i> defines the limit
+    of the portion of the <tt><font size=+1>Image</font></tt> the text will occupy. The <tt><font size=+1>Image</font></tt> pointer
+    may be null, allowing the other routines to be called to maintain
+    the associated data structure in, for example, an obscured window.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The array of <tt><font size=+1>Images</font></tt> cols sets the colors in which text and borders
+    will be drawn. The background of the frame will be drawn in <tt><font size=+1>cols[BACK]</font></tt>;
+    the background of highlighted text in <tt><font size=+1>cols[HIGH]</font></tt>; borders and
+    scroll bar in <tt><font size=+1>cols[BORD]</font></tt>; regular text in <tt><font size=+1>cols[TEXT]</font></tt>; and highlighted
+    text in <tt><font size=+1>cols[HTEXT]</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Frclear</i> frees the internal structures associated with <i>f</i>, permitting
+    another <i>frinit</i> or <i>frsetrects</i> on the <tt><font size=+1>Frame</font></tt>. It does not clear the
+    associated display. If <i>f</i> is to be deallocated, the associated
+    <tt><font size=+1>Font</font></tt> and <tt><font size=+1>Image</font></tt> must be freed separately. The <tt><font size=+1>resize</font></tt> argument should
+    be non-zero if the frame is to be redrawn with a
+    different font; otherwise the frame will maintain some data structures
+    associated with the font. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To resize a <tt><font size=+1>Frame</font></tt>, use <i>frclear</i> and <i>frinit</i> and then <i>frinsert</i> (q.v.)
+    to recreate the display. If a <tt><font size=+1>Frame</font></tt> is being moved but not resized,
+    that is, if the shape of its containing rectangle is unchanged,
+    it is sufficient to use <a href="../man3/draw.html"><i>draw</i>(3)</a> to copy the containing rectangle
+    from the old to the new location and then call <i>frsetrects</i> to
+    establish the new geometry. (It is unnecessary to call <i>frinittick</i>
+    unless the font size has changed.) No redrawing is necessary.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Frames</font></tt> hold text as runes, not as bytes. <i>Frptofchar</i> returns the
+    location of the upper left corner of the <i>p&#8217;th</i> rune, starting from
+    0, in the <tt><font size=+1>Frame</font></tt> <i>f</i>. If <i>f</i> holds fewer than <i>p</i> runes, <i>frptofchar</i> returns
+    the location of the upper right corner of the last character in
+    <i>f</i>. <i>Frcharofpt</i> is the inverse: it returns the index of the closest
+    rune whose image&#8217;s upper left corner is up and to the left of
+    <i>pt</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Frinsert</i> inserts into <tt><font size=+1>Frame</font></tt> <i>f</i> starting at rune index <i>p</i> the runes
+    between <i>r0</i> and <i>r1</i>. If a NUL (0) character is inserted, chaos will
+    ensue. Tabs and newlines are handled by the library, but all other
+    characters, including control characters, are just displayed.
+    For example, backspaces are printed; to erase a character, use
+    <i>frdelete</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Frdelete</i> deletes from the <tt><font size=+1>Frame</font></tt> the text between <i>p0</i> and <i>p1</i>; <i>p1</i>
+    points at the first rune beyond the deletion. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Frselect</i> tracks the mouse to select a contiguous string of text
+    in the <tt><font size=+1>Frame</font></tt>. When called, a mouse button is typically down. <i>Frselect</i>
+    will return when the button state has changed (some buttons may
+    still be down) and will set <i>f</i><tt><font size=+1>&#8722;&gt;p0</font></tt> and <i>f</i><tt><font size=+1>&#8722;&gt;p1</font></tt> to the selected range
+    of text. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Programs that wish to manage the selection themselves have several
+    routines to help. They involve the maintenance of the &#8216;tick&#8217;,
+    the vertical line indicating a null selection between characters,
+    and the colored region representing a non-null selection. <i>Frtick</i>
+    draws (if <i>up</i> is non-zero) or removes (if <i>up</i> is zero) the tick
+    at
+    the screen position indicated by <i>pt</i>. <i>Frdrawsel</i> repaints a section
+    of the frame, delimited by character positions <i>p0</i> and <i>p1</i>, either
+    with plain background or entirely highlighted, according to the
+    flag <i>highlighted</i>, managing the tick appropriately. The point <i>pt0</i>
+    is the geometrical location of <i>p0</i> on the screen; like all of the
+    selection-helper routines&#8217; <tt><font size=+1>Point</font></tt> arguments, it must be a value
+    generated by <i>frptofchar</i>. <i>Frdrawsel0</i> is a lower-level routine,
+    taking as arguments a background color, <i>back</i>, and text color,
+    <i>text</i>. It assumes that the tick is being handled (removed beforehand,
+    replaced afterwards, as required) by its caller. <i>Frselectpaint
+    </i>uses a solid color, <i>col</i>, to paint a region of the frame defined
+    by the <tt><font size=+1>Points</font></tt> <i>p0</i> and <i>p1</i>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libframe<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/graphics.html"><i>graphics</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a>, <a href="../man3/cachechars.html"><i>cachechars</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

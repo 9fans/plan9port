@@ -1,0 +1,154 @@
+<head>
+<title>open(9P) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>OPEN(9P)</b><td align=right><b>OPEN(9P)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    open, create &ndash; prepare a fid for I/O on an existing or new file<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>size</i>[4] <tt><font size=+1>Topen</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>mode</i>[1]<br>
+    <i>size</i>[4] <tt><font size=+1>Ropen</font></tt> <i>tag</i>[2] <i>qid</i>[13] <i>iounit</i>[4] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>size</i>[4] <tt><font size=+1>Tcreate</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>name</i>[<i>s</i>] <i>perm</i>[4] <i>mode</i>[1]<br>
+    <i>size</i>[4] <tt><font size=+1>Rcreate</font></tt> <i>tag</i>[2] <i>qid</i>[13] <i>iounit</i>[4]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>open</font></tt> request asks the file server to check permissions and
+    prepare a fid for I/O with subsequent <tt><font size=+1>read</font></tt> and <tt><font size=+1>write</font></tt> messages.
+    The <i>mode</i> field determines the type of I/O: 0 (called <tt><font size=+1>OREAD</font></tt> in
+    <tt><font size=+1>&lt;libc.h&gt;</font></tt>), 1 (<tt><font size=+1>OWRITE</font></tt>), 2 (<tt><font size=+1>ORDWR</font></tt>), and 3 (<tt><font size=+1>OEXEC</font></tt>) mean <i>read access,
+    write access, read and write access,</i> and <i>execute
+    access,</i> to be checked against the permissions for the file. In
+    addition, if <i>mode</i> has the <tt><font size=+1>OTRUNC</font></tt> (<tt><font size=+1>0x10</font></tt>) bit set, the file is to
+    be truncated, which requires write permission (if the file is
+    append-only, and permission is granted, the <tt><font size=+1>open</font></tt> succeeds but
+    the file will not be truncated); if the <i>mode</i> has the <tt><font size=+1>ORCLOSE</font></tt> (<tt><font size=+1>0x40</font></tt>)
+    bit set, the file is to be removed when the fid is clunked, which
+    requires permission to remove the file from its directory. All
+    other bits in <i>mode</i> should be zero. It is illegal to write a directory,
+    truncate it, or attempt to remove it on close. If the file is
+    marked for exclusive use (see <i>stat</i>(9P)), only one client can have
+    the
+    file open at any time. That is, after such a file has been opened,
+    further opens will fail until <i>fid</i> has been clunked. All these
+    permissions are checked at the time of the <tt><font size=+1>open</font></tt> request; subsequent
+    changes to the permissions of files do not affect the ability
+    to read, write, or remove an open file. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>create</font></tt> request asks the file server to create a new file with
+    the <i>name</i> supplied, in the directory (<i>dir</i>) represented by <i>fid</i>,
+    and requires write permission in the directory. The owner of the
+    file is the implied user id of the request, the group of the file
+    is the same as <i>dir</i>, and the permissions are the value of
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>perm &amp; (~0666 | (dir.perm &amp; 0666)) <br>
+            </font></tt>
+        </table>
+        
+    </table>
+    if a regular file is being created and<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>perm &amp; (~0777 | (dir.perm &amp; 0777)) <br>
+            </font></tt>
+        </table>
+        
+    </table>
+    if a directory is being created. This means, for example, that
+    if the <tt><font size=+1>create</font></tt> allows read permission to others, but the containing
+    directory does not, then the created file will not allow others
+    to read the file. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Finally, the newly created file is opened according to <i>mode</i>, and
+    <i>fid</i> will represent the newly opened file. <i>Mode</i> is not checked
+    against the permissions in <i>perm</i>. The <i>qid</i> for the new file is returned
+    with the <tt><font size=+1>create</font></tt> reply message. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Directories are created by setting the <tt><font size=+1>DMDIR</font></tt> bit (<tt><font size=+1>0x80000000</font></tt>)
+    in the <i>perm</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The names <tt><font size=+1>.</font></tt> and <tt><font size=+1>..</font></tt> are special; it is illegal to create files
+    with these names. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    It is an error for either of these messages if the fid is already
+    the product of a successful <tt><font size=+1>open</font></tt> or <tt><font size=+1>create</font></tt> message. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An attempt to <tt><font size=+1>create</font></tt> a file in a directory where the given <i>name</i>
+    already exists will be rejected; in this case, the <i>fscreate</i> call
+    (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>) uses <tt><font size=+1>open</font></tt> with truncation. The algorithm used
+    by the <i>create</i> system call is: first walk to the directory to contain
+    the file. If that fails, return an error. Next <tt><font size=+1>walk</font></tt> to the
+    specified file. If the <tt><font size=+1>walk</font></tt> succeeds, send a request to <tt><font size=+1>open</font></tt> and
+    truncate the file and return the result, successful or not. If
+    the <tt><font size=+1>walk</font></tt> fails, send a create message. If that fails, it may be
+    because the file was created by another process after the previous
+    walk failed, so (once) try the <tt><font size=+1>walk</font></tt> and <tt><font size=+1>open</font></tt> again.
+    
+</table>
+<p><font size=+1><b>ENTRY POINTS    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Fsopen</i> and <i>fscreate</i> (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>) both generate <tt><font size=+1>open</font></tt> messages;
+    only <i>fscreate</i> generates a <tt><font size=+1>create</font></tt> message. The <tt><font size=+1>iounit</font></tt> associated
+    with an open file may be discovered by calling <i>fsiounit</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    For programs that need atomic file creation, without the race
+    that exists in the <tt><font size=+1>open&#8722;create</font></tt> sequence described above, <i>fscreate</i>
+    does the following. If the <tt><font size=+1>OEXCL</font></tt> (<tt><font size=+1>0x1000</font></tt>) bit is set in the <i>mode</i>
+    for a <i>fscreate</i> call, the <tt><font size=+1>open</font></tt> message is not sent; the kernel
+    issues only the <tt><font size=+1>create</font></tt>. Thus, if the file exists, <i>fscreate
+    </i>will draw an error, but if it doesn&#8217;t and the <i>fscreate</i> call succeeds,
+    the process issuing the <i>fscreate</i> is guaranteed to be the one that
+    created the file.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

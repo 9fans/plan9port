@@ -1,0 +1,241 @@
+<head>
+<title>window(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>WINDOW(3)</b><td align=right><b>WINDOW(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Screen, allocscreen, publicscreen, freescreen, allocwindow, bottomwindow,
+    bottomnwindows, topwindow, topnwindows, originwindow &ndash; window management<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;draw.h&gt;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>typedef<br>
+    struct Screen<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Display &nbsp;&nbsp;&nbsp;&nbsp;*display; /* display holding data */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* id of system&#8722;held Screen */<br>
+        Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*image; &nbsp;&nbsp;&nbsp;&nbsp;/* unused; for reference only */<br>
+        Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*fill; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* color to paint behind windows */<br>
+        
+    </table>
+    } Screen;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Screen* allocscreen(Image *image, Image *fill, int public) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Screen* publicscreen(Display *d, int id, ulong chan) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;freescreen(Screen *s) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Image* &nbsp;&nbsp;&nbsp;allocwindow(Screen *s, Rectangle r, int ref, int val) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bottomwindow(Image *w) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bottomnwindows(Image **wp, int nw) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;topwindow(Image *w) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;topnwindows(Image **wp, int nw) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;originwindow(Image *w, Point log, Point scr) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>enum<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            /* refresh methods */<br>
+            Refbackup= 0,<br>
+            Refnone= 1,<br>
+            Refmesg= 2<br>
+            
+        </table>
+        
+    </table>
+    };<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Windows are represented as <tt><font size=+1>Images</font></tt> and may be treated as regular
+    images for all drawing operations. The routines discussed here
+    permit the creation, deletion, and shuffling of windows, facilities
+    that do not apply to regular images. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To create windows, it is first necessary to allocate a <tt><font size=+1>Screen</font></tt>
+    data structure to gather them together. A <tt><font size=+1>Screen</font></tt> turns an arbitrary
+    image into something that may have windows upon it. It is created
+    by <tt><font size=+1>allocscreen</font></tt>, which takes an <i>image</i> upon which to place the windows
+    (typically <tt><font size=+1>display&#8722;&gt;image</font></tt>), a <i>fill</i> image
+    to paint the background behind all the windows on the image, and
+    a flag specifying whether the result should be publicly visible.
+    If it is public, an arbitrary other program connected to the same
+    display may acquire a pointer to the same screen by calling <tt><font size=+1>publicscreen</font></tt>
+    with the <tt><font size=+1>Display</font></tt> pointer and the <i>id</i> of the
+    published <tt><font size=+1>Screen</font></tt>, as well as the expected channel descriptor,
+    as a safety check. It will usually require some out-of-band coordination
+    for programs to share a screen profitably. <tt><font size=+1>Freescreen</font></tt> releases
+    a <tt><font size=+1>Screen</font></tt>, although it may not actually disappear from view until
+    all the windows upon it have also been
+    deallocated. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Unlike <tt><font size=+1>allocwindow</font></tt>, <tt><font size=+1>allocscreen</font></tt> does <i>not</i> initialize the appearance
+    of the <tt><font size=+1>Screen</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Windows are created by <tt><font size=+1>allocwindow</font></tt>, which takes a pointer to the
+    <tt><font size=+1>Screen</font></tt> upon which to create the window, a rectangle <i>r</i> defining
+    its geometry, an integer pixel value <i>val</i> to color the window initially,
+    and a refresh method <tt><font size=+1>ref</font></tt>. The refresh methods are <tt><font size=+1>Refbackup</font></tt>, which
+    provides backing store and is the
+    method used by <a href="../man1/rio.html"><i>rio</i>(1)</a> for its clients; <tt><font size=+1>Refnone</font></tt>, which provides
+    no refresh and is designed for temporary uses such as sweeping
+    a display rectangle, for windows that are completely covered by
+    other windows, and for windows that are already protected by backing
+    store; and <tt><font size=+1>Refmesg</font></tt>, which causes messages to be
+    delivered to the owner of the window when it needs to be repainted.
+    <tt><font size=+1>Refmesg</font></tt> is not fully implemented. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The result of <tt><font size=+1>allocwindow</font></tt> is an <tt><font size=+1>Image</font></tt> pointer that may be treated
+    like any other image. In particular, it is freed by calling <tt><font size=+1>freeimage</font></tt>
+    (see <a href="../man3/allocimage.html"><i>allocimage</i>(3)</a>). The following functions, however, apply only
+    to windows, not regular images. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Bottomwindow</font></tt> pushes window <i>w</i> to the bottom of the stack of windows
+    on its <tt><font size=+1>Screen</font></tt>, perhaps obscuring it. <tt><font size=+1>Topwindow</font></tt> pulls window <i>w</i>
+    to the top, making it fully visible on its <tt><font size=+1>Screen</font></tt>. (This <tt><font size=+1>Screen</font></tt>
+    may itself be within a window that is not fully visible; <tt><font size=+1>topwindow</font></tt>
+    will not affect the stacking of this parent
+    window.) <tt><font size=+1>Bottomnwindows</font></tt> and <tt><font size=+1>Topnwindows</font></tt> are analogous, but push
+    or pull a group of <i>nw</i> windows listed in the array <i>wp</i>. The order
+    within <i>wp</i> is unaffected. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each window is created as an <tt><font size=+1>Image</font></tt> whose <tt><font size=+1>Rectangle r</font></tt> corresponds
+    to the rectangle given to <tt><font size=+1>allocwindow</font></tt> when it was created. Thus,
+    a newly created window <i>w</i> resides on its <tt><font size=+1>Screen&#8722;&gt;image</font></tt> at <i>w</i><tt><font size=+1>&#8722;&gt;r</font></tt> and
+    has internal coordinates <i>w</i><tt><font size=+1>&#8722;&gt;r</font></tt><i>.</i> Both these may be changed by a call
+    to <tt><font size=+1>originwindow</font></tt>. The two
+    <tt><font size=+1>Point</font></tt> arguments to <tt><font size=+1>originwindow</font></tt> define the upper left corner of
+    the logical coordinate system (<i>log</i>) and screen position (<i>scr</i>).
+    Their usage is shown in the Examples section. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <a href="../man1/Rio.html"><i>Rio</i>(1)</a> creates its client windows with backing store, <tt><font size=+1>Refbackup</font></tt>.
+    The graphics initialization routine, <tt><font size=+1>initdraw</font></tt> (see <a href="../man3/graphics.html"><i>graphics</i>(3)</a>),
+    builds a <tt><font size=+1>Screen</font></tt> upon this, and then allocates upon that another
+    window indented to protect the border. That window is created
+    <tt><font size=+1>Refnone</font></tt>, since the backing store created by <tt><font size=+1>rio
+    </font></tt>protects its contents. That window is the one known in the library
+    by the global name <tt><font size=+1>screen</font></tt> (a historic but confusing choice).<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    To move a window to the upper left corner of the display,<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>originwindow(w, w&#8722;&gt;r.min, Pt(0, 0));<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    To leave a window where it is on the screen but change its internal
+    coordinate system so (0, 0) is the upper left corner of the window,<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>originwindow(w, Pt(0, 0), w&#8722;&gt;r.min);<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    After this is done, <tt><font size=+1>w&#8722;&gt;r</font></tt> is translated to the origin and there
+    will be no way to discover the actual screen position of the window
+    unless it is recorded separately.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libdraw<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/graphics.html"><i>graphics</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a>, <a href="../man3/cachechars.html"><i>cachechars</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The refresh method <tt><font size=+1>Refmesg</font></tt> should be finished.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

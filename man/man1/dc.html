@@ -1,0 +1,199 @@
+<head>
+<title>dc(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>DC(1)</b><td align=right><b>DC(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    dc &ndash; desk calculator<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>dc</font></tt> [ <i>file</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Dc</i> is an arbitrary precision desk calculator. Ordinarily it operates
+    on decimal integers, but one may specify an input base, output
+    base, and a number of fractional digits to be maintained. The
+    overall structure of <i>dc</i> is a stacking (reverse Polish) calculator.
+    If an argument is given, input is taken from that file until its
+    end, then from the standard input. The following constructions
+    are recognized:<br>
+    number<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The value of the number is pushed on the stack. A number is an
+        unbroken string of the digits <tt><font size=+1>0&#8722;9A&#8722;F</font></tt> or <tt><font size=+1>0&#8722;9a&#8722;f</font></tt>. A hexadecimal
+        number beginning with a lower case letter must be preceded by
+        a zero to distinguish it from the command associated with the
+        letter. It may be preceded by an underscore <tt><font size=+1>_</font></tt> to
+        input a negative number. Numbers may contain decimal points.<br>
+        
+    </table>
+    <tt><font size=+1>+ &nbsp;&nbsp;&nbsp;&#8722; / &nbsp;&nbsp;&nbsp;* &nbsp;&nbsp;&nbsp;% &nbsp;&nbsp;&nbsp;^<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Add <tt><font size=+1>+</font></tt>, subtract <tt><font size=+1>&#8722;</font></tt>, multiply <tt><font size=+1>*</font></tt>, divide <tt><font size=+1>/</font></tt>, remainder <tt><font size=+1>%</font></tt>, or exponentiate
+        <tt><font size=+1>^</font></tt> the top two values on the stack. The two entries are popped
+        off the stack; the result is pushed on the stack in their place.
+        Any fractional part of an exponent is ignored.<br>
+        
+    </table>
+    <tt><font size=+1>s</font></tt><i>x<br>
+    </i><tt><font size=+1>S</font></tt><i>x</i>&nbsp;&nbsp;&nbsp;&nbsp;Pop the top of the stack and store into a register named <i>x</i>,
+    where <i>x</i> may be any character. Under operation <tt><font size=+1>S</font></tt> register <i>x</i> is
+    treated as a stack and the value is pushed on it.<br>
+    <tt><font size=+1>l</font></tt><i>x<br>
+    </i><tt><font size=+1>L</font></tt><i>x</i>&nbsp;&nbsp;&nbsp;&nbsp;Push the value in register <i>x</i> onto the stack. The register <i>x</i>
+    is not altered. All registers start with zero value. Under operation
+    <tt><font size=+1>L</font></tt> register <i>x</i> is treated as a stack and its top value is popped
+    onto the main stack.<br>
+    <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Duplicate the top value on the stack.<br>
+    <tt><font size=+1>p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the top value on the stack. The top value remains unchanged.
+    <tt><font size=+1>P</font></tt> interprets the top of the stack as an text string, removes it,
+    and prints it.<br>
+    <tt><font size=+1>f</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the values on the stack.<br>
+    <tt><font size=+1>q<br>
+    Q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exit the program. If executing a string, the recursion level
+    is popped by two. Under operation <tt><font size=+1>Q</font></tt> the top value on the stack
+    is popped and the string execution level is popped by that value.<br>
+    <tt><font size=+1>x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Treat the top element of the stack as a character string and
+    execute it as a string of <i>dc</i> commands.<br>
+    <tt><font size=+1>X</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replace the number on the top of the stack with its scale factor.<br>
+    <tt><font size=+1>[ ... ]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Put the bracketed text string on the top of the stack.<br>
+        
+    </table>
+    <tt><font size=+1>&lt;</font></tt><i>x<br>
+    </i><tt><font size=+1>&gt;</font></tt><i>x<br>
+    </i><tt><font size=+1>=</font></tt><i>x</i>&nbsp;&nbsp;&nbsp;&nbsp;Pop and compare the top two elements of the stack. Register
+    <i>x</i> is executed if they obey the stated relation.<br>
+    <tt><font size=+1>v</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replace the top element on the stack by its square root. Any
+    existing fractional part of the argument is taken into account,
+    but otherwise the scale factor is ignored.<br>
+    <tt><font size=+1>!</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Interpret the rest of the line as a shell command.<br>
+    <tt><font size=+1>c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear the stack.<br>
+    <tt><font size=+1>i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The top value on the stack is popped and used as the number base
+    for further input.<br>
+    <tt><font size=+1>I</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Push the input base on the top of the stack.<br>
+    <tt><font size=+1>o</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The top value on the stack is popped and used as the number base
+    for further output. In bases larger than 10, each &#8216;digit&#8217; prints
+    as a group of decimal digits.<br>
+    <tt><font size=+1>O</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Push the output base on the top of the stack.<br>
+    <tt><font size=+1>k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pop the top of the stack, and use that value as a non-negative
+    scale factor: the appropriate number of places are printed on
+    output, and maintained during multiplication, division, and exponentiation.
+    The interaction of scale factor, input base, and output base will
+    be reasonable if all are changed together.
+    <tt><font size=+1>z</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Push the stack level onto the stack.<br>
+    <tt><font size=+1>Z</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replace the number on the top of the stack with its length.<br>
+    <tt><font size=+1>?</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A line of input is taken from the input source (usually the terminal)
+    and executed.<br>
+    <tt><font size=+1>; :</font></tt>&nbsp;&nbsp;&nbsp;Used by <i>bc</i> for array operations. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The scale factor set by <tt><font size=+1>k</font></tt> determines how many digits are kept
+    to the right of the decimal point. If <i>s</i> is the current scale factor,
+    <i>sa</i> is the scale of the first operand, <i>sb</i> is the scale of the second,
+    and <i>b</i> is the (integer) second operand, results are truncated to
+    the following scales.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>+</font></tt>,<tt><font size=+1>&#8722; </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;max(<i>sa,sb</i>)<br>
+        <tt><font size=+1>* </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min(<i>sa</i>+<i>sb</i> , max(<i>s,sa,sb</i>))<br>
+        <tt><font size=+1>/ </font></tt><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s<br>
+        </i><tt><font size=+1>% </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;so that dividend = divisor*quotient + remainder; remainder has
+        sign of dividend<br>
+        <tt><font size=+1>^ </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min(<i>sa</i>&#215;|<i>b</i>|, max(<i>s,sa</i>))<br>
+        <tt><font size=+1>v </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max(<i>s,sa</i>)<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Print the first ten values of <i>n</i>!<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>[la1+dsa*pla10&gt;y]sy<br>
+        0sa1<br>
+        lyx<br>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/dc.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/bc.html"><i>bc</i>(1)</a>, <a href="../man1/hoc.html"><i>hoc</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>x</i> <tt><font size=+1>is unimplemented</font></tt>, where <i>x</i> is an octal number: an internal error.<br>
+    &#8216;Out of headers&#8217; for too many numbers being kept around.<br>
+    &#8216;Nesting depth&#8217; for too many levels of nested execution.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    When the input base exceeds 16, there is no notation for digits
+    greater than <tt><font size=+1>F</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Past its time.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

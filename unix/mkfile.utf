@@ -4,7 +4,7 @@ TARG=\
 	NOTICE\
 	README\
 	Makefile\
-	`{ls -p $PLAN9/src/lib9/utf/*.c}\
+	`{9 ls -p $PLAN9/src/lib9/utf/*.c}\
 	plan9.h\
 	utf.h\
 	utfdef.h\
@@ -13,35 +13,13 @@ TARG=\
 	runestrcat.3\
 	utf.7\
 
-all:V: $TARG
+WHAT=utf
 
-%: $PLAN9/include/%
+<../mkfile.what
+
+utf.h: $PLAN9/include/utf.h
 	cp $prereq $target
 
 %: $PLAN9/src/lib9/utf/%
-	cp $prereq $target
-
-%: $PLAN9/man/man1/%
-	cp $prereq $target
-
-%: $PLAN9/man/man3/%
-	cp $prereq $target
-
-%: $PLAN9/man/man7/%
-	cp $prereq $target
-
-%: ../make/%
-	cp $prereq $target
-
-Makefile:D: ../make/Makefile.TOP ../make/Makefile.utf ../make/Makefile.LIB ../make/Makefile.BOT
-	cat $prereq >$target
-
-README: ../README
-	cp $prereq $target
-
-NOTICE: ../NOTICE.utf
-	cp $prereq $target
-
-utf.h: $PLAN9/include/utf.h
 	cp $prereq $target
 

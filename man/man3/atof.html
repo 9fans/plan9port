@@ -1,0 +1,170 @@
+<head>
+<title>atof(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ATOF(3)</b><td align=right><b>ATOF(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    atof, atoi, atol, atoll, charstod, strtod, strtol, strtoll, strtoul,
+    strtoull &ndash; convert text to numbers<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double atof(char *nptr)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atoi(char *nptr)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long &nbsp;&nbsp;&nbsp;&nbsp;atol(char *nptr)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>vlong &nbsp;&nbsp;&nbsp;atoll(char *nptr)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double charstod(int (*f)(void *), void *a)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double strtod(char *nptr, char **rptr)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long &nbsp;&nbsp;&nbsp;&nbsp;strtol(char *nptr, char **rptr, int base)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>vlong &nbsp;&nbsp;&nbsp;strtoll(char *nptr, char **rptr, int base)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;strtoul(char *nptr, char **rptr, int base)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>vlong &nbsp;&nbsp;&nbsp;strtoull(char *nptr, char **rptr, int base)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Atof</i>, <i>atoi</i>, <i>atol</i>, and <i>atoll</i> convert a string pointed to by <i>nptr</i>
+    to floating, integer, long integer, and long long integer (<tt><font size=+1>vlong</font></tt>)
+    representation respectively. The first unrecognized character
+    ends the string. Leading C escapes are understood, as in <i>strtol</i>
+    with <i>base</i> zero (described below). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Atof</i> recognizes an optional string of tabs and spaces, then an
+    optional sign, then a string of digits optionally containing a
+    decimal point, then an optional <tt><font size=+1>e</font></tt> or <tt><font size=+1>E</font></tt> followed by an optionally
+    signed integer. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Atoi</i> and <i>atol</i> recognize an optional string of tabs and spaces,
+    then an optional sign, then a string of decimal digits. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Strtod</i>, <i>strtol</i>, <i>strtoll</i>, <i>strtoul</i>, and <i>strtoull</i> behave similarly
+    to <i>atof</i> and <i>atol</i> and, if <i>rptr</i> is not zero, set <i>*rptr</i> to point
+    to the input character immediately after the string converted.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Strtol</i>, <i>strtoll</i>, <i>strtoul</i>, and <i>strtoull</i> interpret the digit string
+    in the specified <i>base</i>, from 2 to 36, each digit being less than
+    the base. Digits with value over 9 are represented by letters,
+    a-z or A-Z. If <i>base</i> is 0, the input is interpreted as an integral
+    constant in the style of C (with no suffixed type indicators):
+    numbers are
+    octal if they begin with <tt><font size=+1>0</font></tt>, hexadecimal if they begin with <tt><font size=+1>0x</font></tt>
+    or <tt><font size=+1>0X</font></tt>, otherwise decimal. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Charstod</i> interprets floating point numbers in the manner of <i>atof</i>,
+    but gets successive characters by calling <tt><font size=+1>(*</font></tt><i>f</i><tt><font size=+1>)(a)</font></tt>. The last call
+    to <i>f</i> terminates the scan, so it must have returned a character
+    that is not a legal continuation of a number. Therefore, it may
+    be necessary to back up the input stream one character after
+    calling <i>charstod</i>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/fscanf.html"><i>fscanf</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Zero is returned if the beginning of the input string is not interpretable
+    as a number; even in this case, <i>rptr</i> will be updated.<br>
+    These routines set <i>errstr</i>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Atoi</i> and <i>atol</i> accept octal and hexadecimal numbers in the style
+    of C, contrary to the ANSI specification. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Atof</i>, <i>strtod</i>, <i>strtol</i>, <i>strtoul</i>, <i>strtoll</i>, and <i>strtoull</i> are not provided:
+    they are expected to be provided by the underlying system. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Because they are implemented in the fmt library, <i>charstod</i> and
+    <i>strtod</i> are preprocessor macros defined as <i>fmtcharstod</i> and <i>fmtstrtod</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To avoid name conflicts with the underlying system, <i>atoi</i>, <i>atol</i>,
+    and <i>atoll</i> are preprocessor macros defined as <i>p9atoi</i>, <i>p9atol</i>, and
+    <i>p9atoll</i>; see <a href="../man3/intro.html"><i>intro</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

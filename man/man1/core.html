@@ -1,0 +1,83 @@
+<head>
+<title>core(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>CORE(1)</b><td align=right><b>CORE(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    core &ndash; print information about dead processes<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>core</font></tt> [ <i>dir</i> | <i>corefile</i> ]...<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Core</i> prints information about dead processes that have been saved
+    as core dumps. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Core reads its arguments in order. If a directory is encountered,
+    <i>core</i> reads every core file named <tt><font size=+1>core.*</font></tt> or <tt><font size=+1>*.core</font></tt> in that directory.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    For each core file read, <i>core</i> prints the date and time the core
+    was generated, the command that generated it, and a short stack
+    trace at the time of the core dump. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If no arguments are given, <i>core</i> searches the directory <tt><font size=+1>$COREDIR</font></tt>
+    for core files; if <tt><font size=+1>$COREDIR</font></tt> is not set, <i>core</i> searches the current
+    directory.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/core.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/acid.html"><i>acid</i>(1)</a>, <a href="../man1/db.html"><i>db</i>(1)</a>, <a href="../man5/core.html"><i>core</i>(5)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Core</i> has not been written.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,61 @@
+<head>
+<title>muldiv(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MULDIV(3)</b><td align=right><b>MULDIV(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    muldiv, umuldiv &ndash; high-precision multiplication and division<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long &nbsp;&nbsp;&nbsp;muldiv(long a, long b, long c) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong umuldiv(ulong a, ulong b, ulong c)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Muldiv</i> returns <tt><font size=+1>a*b/c</font></tt>, using a <tt><font size=+1>vlong</font></tt> to hold the intermediate result.
+    <i>Umuldiv</i> is the equivalent for unsigned integers. They can be used
+    to scale integer values without worry about overflowing the intermediate
+    result. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    On some architectures, these routines can generate a trap if the
+    final result does not fit in a <tt><font size=+1>long</font></tt> or <tt><font size=+1>ulong</font></tt>; on others they will
+    silently truncate.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

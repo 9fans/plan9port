@@ -1,0 +1,70 @@
+<head>
+<title>remove(9P) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>REMOVE(9P)</b><td align=right><b>REMOVE(9P)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    remove &ndash; remove a file from a server<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>size</i>[4] <tt><font size=+1>Tremove</font></tt> <i>tag</i>[2] <i>fid</i>[4]<br>
+    <i>size</i>[4] <tt><font size=+1>Rremove</font></tt> <i>tag</i>[2]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>remove</font></tt> request asks the file server both to remove the file
+    represented by <i>fid</i> and to <tt><font size=+1>clunk</font></tt> the <i>fid</i>, even if the remove fails.
+    This request will fail if the client does not have write permission
+    in the parent directory. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    It is correct to consider <tt><font size=+1>remove</font></tt> to be a <tt><font size=+1>clunk</font></tt> with the side effect
+    of removing the file if permissions allow. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If a file has been opened as multiple fids, possibly on different
+    connections, and one fid is used to remove the file, whether the
+    other fids continue to provide access to the file is implementation-defined.
+    The Plan 9 file servers remove the file immediately: attempts
+    to use the other fids will yield a &#8220;phase error.&#8221; <i>U9fs</i>
+    follows the semantics of the underlying Unix file system, so other
+    fids typically remain usable.<br>
+    
+</table>
+<p><font size=+1><b>ENTRY POINTS    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Fsremove</i> (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>) generates <tt><font size=+1>remove</font></tt> messages.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,441 @@
+<head>
+<title>mp(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MP(3)</b><td align=right><b>MP(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    mpsetminbits, mpnew, mpfree, mpbits, mpnorm, mpcopy, mpassign,
+    mprand, strtomp, mpfmt,mptoa, betomp, mptobe, letomp, mptole,
+    mptoui, uitomp, mptoi, itomp, uvtomp, mptouv, vtomp, mptov, mpdigdiv,
+    mpadd, mpsub, mpleft, mpright, mpmul, mpexp, mpmod, mpdiv, mpfactorial,
+    mpcmp, mpextendedgcd,
+    mpinvert, mpsignif, mplowbits0, mpvecdigmuladd, mpvecdigmulsub,
+    mpvecadd, mpvecsub, mpveccmp, mpvecmul, mpmagcmp, mpmagadd, mpmagsub,
+    crtpre, crtin, crtout, crtprefree, crtresfree &ndash; extended precision
+    arithmetic<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;mp.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mpnew(int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpfree(mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpsetminbits(int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpbits(mpint *b, int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpnorm(mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mpcopy(mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpassign(mpint *old, mpint *new) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mprand(int bits, void (*gen)(uchar*, int), mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;strtomp(char *buf, char **rptr, int base, mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mptoa(mpint *b, int base, char *buf, int blen) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mpfmt(Fmt*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;betomp(uchar *buf, uint blen, mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mptobe(mpint *b, uchar *buf, uint blen, uchar **bufp) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;letomp(uchar *buf, uint blen, mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mptole(mpint *b, uchar *buf, uint blen, uchar **bufp) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint mptoui(mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uitomp(uint, mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mptoi(mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;itomp(int, mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vtomp(vlong, mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>vlong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mptov(mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;uvtomp(uvlong, mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uvlong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mptouv(mpint*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpadd(mpint *b1, mpint *b2, mpint *sum) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpmagadd(mpint *b1, mpint *b2, mpint *sum) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpsub(mpint *b1, mpint *b2, mpint *diff) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpmagsub(mpint *b1, mpint *b2, mpint *diff) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpleft(mpint *b, int shift, mpint *res) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpright(mpint *b, int shift, mpint *res) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpmul(mpint *b1, mpint *b2, mpint *prod) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpexp(mpint *b, mpint *e, mpint *m, mpint *res) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpmod(mpint *b, mpint *m, mpint *remainder) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpdiv(mpint *dividend, mpint *divisor, &nbsp;&nbsp;&nbsp;mpint *quotient, mpint
+    *remainder) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mpfactorial(ulong n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mpcmp(mpint *b1, mpint *b2) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mpmagcmp(mpint *b1, mpint *b2) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpextendedgcd(mpint *a, mpint *b, mpint *d, mpint *x, mpint
+    *y) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpinvert(mpint *b, mpint *m, mpint *res) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mpsignif(mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mplowbits0(mpint *b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpdigdiv(mpdigit *dividend, mpdigit divisor, mpdigit *quotient)
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpvecadd(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit
+    *sum) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpvecsub(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit
+    *diff) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpvecdigmuladd(mpdigit *b, int n, mpdigit m, mpdigit *p)
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mpvecdigmulsub(mpdigit *b, int n, mpdigit m, mpdigit *p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void mpvecmul(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit
+    *p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;mpveccmp(mpdigit *a, int alen, mpdigit *b, int blen) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>CRTpre* &nbsp;&nbsp;&nbsp;&nbsp;crtpre(int nfactors, mpint **factors) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>CRTres* &nbsp;&nbsp;&nbsp;&nbsp;crtin(CRTpre *crt, mpint *x) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void crtout(CRTpre *crt, CRTres *r, mpint *x) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void crtprefree(CRTpre *cre) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void crtresfree(CRTres *res) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*mpzero, *mpone, *mptwo<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines perform extended precision integer arithmetic.
+    The basic type is <tt><font size=+1>mpint</font></tt>, which points to an array of <tt><font size=+1>mpdigit</font></tt>s,
+    stored in little-endian order:<br>
+    <tt><font size=+1>typedef struct mpint mpint;<br>
+    struct mpint<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        int &nbsp;&nbsp;&nbsp;sign; &nbsp;&nbsp;&nbsp;&nbsp;/* +1 or &#8722;1 */<br>
+        int &nbsp;&nbsp;&nbsp;size; &nbsp;&nbsp;&nbsp;&nbsp;/* allocated digits */<br>
+        int &nbsp;&nbsp;&nbsp;top; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* significant digits */<br>
+        mpdigit &nbsp;&nbsp;&nbsp;&nbsp;*p;<br>
+        char flags;<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    The sign of 0 is +1. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The size of <tt><font size=+1>mpdigit</font></tt> is architecture-dependent and defined in <tt><font size=+1>/$cputype/include/u.h</font></tt>.
+    <tt><font size=+1>Mpint</font></tt>s are dynamically allocated and must be explicitly freed.
+    Operations grow the array of digits as needed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In general, the result parameters are last in the argument list.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Routines that return an <tt><font size=+1>mpint</font></tt> will allocate the <tt><font size=+1>mpint</font></tt> if the result
+    parameter is <tt><font size=+1>nil</font></tt>. This includes <i>strtomp</i>, <i>itomp</i>, <i>uitomp</i>, and <i>btomp</i>.
+    These functions, in addition to <i>mpnew</i> and <i>mpcopy</i>, will return
+    <tt><font size=+1>nil</font></tt> if the allocation fails. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Input and result parameters may point to the same <tt><font size=+1>mpint</font></tt>. The routines
+    check and copy where necessary. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mpnew</i> creates an <tt><font size=+1>mpint</font></tt> with an initial allocation of <i>n</i> bits. If
+    <i>n</i> is zero, the allocation will be whatever was specified in the
+    last call to <i>mpsetminbits</i> or to the initial value, 1056. <i>Mpfree</i>
+    frees an <tt><font size=+1>mpint</font></tt>. <i>Mpbits</i> grows the allocation of <i>b</i> to fit at least
+    <i>n</i> bits. If <tt><font size=+1>b&#8722;&gt;top</font></tt> doesn&#8217;t cover <i>n</i> bits it increases it to do so.
+    Unless
+    you are writing new basic operations, you can restrict yourself
+    to <tt><font size=+1>mpnew(0)</font></tt> and <tt><font size=+1>mpfree(b)</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mpnorm</i> normalizes the representation by trimming any high order
+    zero digits. All routines except <tt><font size=+1>mpbits</font></tt> return normalized results.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mpcopy</i> creates a new <tt><font size=+1>mpint</font></tt> with the same value as <i>b</i> while <i>mpassign</i>
+    sets the value of <i>new</i> to be that of <i>old</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mprand</i> creates an <i>n</i> bit random number using the generator <i>gen</i>.
+    <i>Gen</i> takes a pointer to a string of uchar&#8217;s and the number to fill
+    in. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Strtomp</i> and <i>mptoa</i> convert between ASCII and <tt><font size=+1>mpint</font></tt> representations
+    using the base indicated. Only the bases 10, 16, 32, and 64 are
+    supported. Anything else defaults to 16. <i>Strtomp</i> skips any leading
+    spaces or tabs. <i>Strtomp</i>&#8217;s scan stops when encountering a digit
+    not valid in the base. If <i>rptr</i> is not zero, <i>*rptr</i> is
+    set to point to the character immediately after the string converted.
+    If the parse pterminates before any digits are found, <i>strtomp</i>
+    return <tt><font size=+1>nil</font></tt>. <i>Mptoa</i> returns a pointer to the filled buffer. If the
+    parameter <i>buf</i> is <tt><font size=+1>nil</font></tt>, the buffer is allocated. <i>Mpfmt</i> can be used
+    with <a href="../man3/fmtinstall.html"><i>fmtinstall</i>(3)</a> and <a href="../man3/print.html"><i>print</i>(3)</a> to print hexadecimal
+    representations of <tt><font size=+1>mpint</font></tt>s. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mptobe</i> and <i>mptole</i> convert an <i>mpint</i> to a byte array. The former
+    creates a big endian representation, the latter a little endian
+    one. If the destination <i>buf</i> is not <tt><font size=+1>nil</font></tt>, it specifies the buffer
+    of length <i>blen</i> for the result. If the representation is less than
+    <i>blen</i> bytes, the rest of the buffer is zero filled. If <i>buf</i> is <tt><font size=+1>nil</font></tt>,
+    then a
+    buffer is allocated and a pointer to it is deposited in the location
+    pointed to by <i>bufp</i>. Sign is ignored in these conversions, i.e.,
+    the byte array version is always positive. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Betomp</i>, and <i>letomp</i> convert from a big or little endian byte array
+    at <i>buf</i> of length <i>blen</i> to an <i>mpint</i>. If <i>b</i> is not <i>nil</i>, it refers
+    to a preallocated <i>mpint</i> for the result. If <i>b</i> is <tt><font size=+1>nil</font></tt>, a new integer
+    is allocated and returned as the result. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The integer conversions are:<br>
+    <i>mptoui</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;mpint</font></tt>-&gt;<tt><font size=+1>unsigned int<br>
+    </font></tt><i>uitomp</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;unsigned int</font></tt>-&gt;<tt><font size=+1>mpint<br>
+    </font></tt><i>mptoi</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mpint</font></tt>-&gt;<tt><font size=+1>int<br>
+    </font></tt><i>itomp</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int</font></tt>-&gt;<tt><font size=+1>mpint<br>
+    </font></tt><i>mptouv</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;mpint</font></tt>-&gt;<tt><font size=+1>unsigned vlong<br>
+    </font></tt><i>uvtomp</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;unsigned vlong</font></tt>-&gt;<tt><font size=+1>mpint<br>
+    </font></tt><i>mptov</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mpint</font></tt>-&gt;<tt><font size=+1>vlong<br>
+    </font></tt><i>vtomp</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vlong</font></tt>-&gt;<tt><font size=+1>mpint 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    When converting to the base integer types, if the integer is too
+    large, the largest integer of the appropriate sign and size is
+    returned. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The mathematical functions are:<br>
+    <i>mpadd</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum = b1 + b2</font></tt>.<br>
+    <i>mpmagadd</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;sum = abs(b1) + abs(b2)</font></tt>.<br>
+    <i>mpsub</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;diff = b1 &#8722; b2</font></tt>.<br>
+    <i>mpmagsub</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;diff = abs(b1) &#8722; abs(b2)</font></tt>.<br>
+    <i>mpleft</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res = b&lt;&lt;shift</font></tt>.<br>
+    <i>mpright</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res = b&gt;&gt;shift</font></tt>.<br>
+    <i>mpmul</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prod = b1*b2</font></tt>.<br>
+    <i>mpexp</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if <i>m</i> is nil, <tt><font size=+1>res = b**e</font></tt>. Otherwise, <tt><font size=+1>res = b**e mod m</font></tt>.<br>
+    <i>mpmod</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remainder = b % m</font></tt>.<br>
+    <i>mpdiv</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quotient = dividend/divisor</font></tt>. <tt><font size=+1>remainder = dividend % divisor</font></tt>.<br>
+    <i>mpfactorial</i>&nbsp;&nbsp;&nbsp;returns factorial of <i>n</i>.<br>
+    <i>mpcmp</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returns -1, 0, or +1 as <i>b1</i> is less than, equal to, or greater
+    than <i>b2</i>.<br>
+    <i>mpmagcmp</i>&nbsp;&nbsp;&nbsp;the same as <i>mpcmp</i> but ignores the sign and just compares
+    magnitudes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mpextendedgcd</i> computes the greatest common denominator, <i>d</i>, of
+    <i>a</i> and <i>b</i>. It also computes <i>x</i> and <i>y</i> such that <tt><font size=+1>a*x + b*y = d</font></tt>. Both
+    <i>a</i> and <i>b</i> are required to be positive. If called with negative arguments,
+    it will return a gcd of 0. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mpinverse</i> computes the multiplicative inverse of <i>b</i> <tt><font size=+1>mod</font></tt> <i>m</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mpsignif</i> returns the bit offset of the left most 1 bit in <i>b</i>. <i>Mplowbits0</i>
+    returns the bit offset of the right most 1 bit. For example, for
+    0x14, <i>mpsignif</i> would return 4 and <i>mplowbits0</i> would return 2. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The remaining routines all work on arrays of <tt><font size=+1>mpdigit</font></tt> rather than
+    <tt><font size=+1>mpint</font></tt>&#8217;s. They are the basis of all the other routines. They are
+    separated out to allow them to be rewritten in assembler for each
+    architecture. There is also a portable C version for each one.<br>
+    <i>mpdigdiv</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;quotient = dividend[0:1] / divisor</font></tt>.<br>
+    <i>mpvecadd</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum[0:alen] = a[0:alen&#8722;1] + b[0:blen&#8722;1]</font></tt>. We assume alen
+    &gt;= blen and that sum has room for alen+1 digits.<br>
+    <i>mpvecsub</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;diff[0:alen&#8722;1] = a[0:alen&#8722;1] &#8722; b[0:blen&#8722;1]</font></tt>. We assume
+    that alen &gt;= blen and that diff has room for alen digits.<br>
+    <i>mpvecdigmuladd</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[0:n] += m * b[0:n&#8722;1]</font></tt>. This multiplies a an array
+    of digits times a scalar and adds it to another array. We assume
+    p has room for n+1 digits.<br>
+    <i>mpvecdigmulsub</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[0:n] &#8722;= m * b[0:n&#8722;1]</font></tt>. This multiplies a an array
+    of digits times a scalar and subtracts it fromo another array.
+    We assume p has room for n+1 digits. It returns +1 is the result
+    is positive and -1 if negative.<br>
+    <i>mpvecmul</i><tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;p[0:alen*blen] = a[0:alen&#8722;1] * b[0:blen&#8722;1]</font></tt>. We assume
+    that p has room for alen*blen+1 digits.<br>
+    <i>mpveccmp</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This returns -1, 0, or +1 as a - b is negative, 0, or
+    positive. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>mptwo</i>, <i>mpone</i> and <i>mpzero</i> are the constants 2, 1 and 0. These cannot
+    be freed.<br>
+    <p><font size=+1><b>Chinese remainder theorem     </b></font><br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When computing in a non-prime modulus, <i>n,</i> it is possible to perform
+    the computations on the residues modulo the prime factors of <i>n</i>
+    instead. Since these numbers are smaller, multiplication and exponentiation
+    can be much faster. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Crtin</i> computes the residues of <i>x</i> and returns them in a newly allocated
+    structure:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef struct CRTres &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CRTres; <br>
+        {<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int &nbsp;&nbsp;&nbsp;n; &nbsp;&nbsp;&nbsp;&nbsp;// number of residues<br>
+             mpint &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*r[n]; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// residues<br>
+            
+        </table>
+        };<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    <i>Crtout</i> takes a residue representation of a number and converts
+    it back into the number. It also frees the residue structure.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Crepre</i> saves a copy of the factors and precomputes the constants
+    necessary for converting the residue form back into a number modulo
+    the product of the factors. It returns a newly allocated structure
+    containing values. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Crtprefree</i> and <i>crtresfree</i> free <i>CRTpre</i> and <i>CRTres</i> structures respectively.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libmp<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

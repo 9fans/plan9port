@@ -1,0 +1,119 @@
+<head>
+<title>proof(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>PROOF(1)</b><td align=right><b>PROOF(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    proof &ndash; troff output interpreter<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>proof</font></tt> [ <tt><font size=+1>&#8722;m</font></tt><i>mag</i> ] [ <tt><font size=+1>&#8722;/</font></tt><i>nview</i> ] [ <tt><font size=+1>&#8722;F</font></tt> <i>dir</i> ] [ <tt><font size=+1>&#8722;d</font></tt> ] [ <i>file</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Proof</i> reads <a href="../man1/troff.html"><i>troff</i>(1)</a> intermediate language from <i>file</i> or standard
+    input and simulates the resulting pages on the screen. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    After a page of text is displayed, <i>proof</i> pauses for a command
+    from the keyboard. The typed commands are:<br>
+    newlineGo on to next page of text.<br>
+    <tt><font size=+1>&#8722;</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Go back to the previous page.<br>
+    <tt><font size=+1>q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quit.<br>
+    <tt><font size=+1>p</font></tt><i>n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print page <i>n</i>. An out-of-bounds page number means the end nearer
+    to that number; a missing number means the current page; a signed
+    number means an offset to the current page.<br>
+    <i>n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as <tt><font size=+1>p</font></tt><i>n</i>.<br>
+    <tt><font size=+1>c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Clear the screen, then wait for another command.<br>
+    <tt><font size=+1>m</font></tt><i>mag</i>&nbsp;&nbsp;&nbsp;Change the magnification at which the output is printed. Normally
+    it is printed with magnification .9; <i>mag</i>=.5 shrinks it to half
+    size; <i>mag</i>=2 doubles the size.<br>
+    <tt><font size=+1>x</font></tt><i>val</i>&nbsp;&nbsp;&nbsp;&nbsp;Move everything <i>val</i> screen pixels to the right (left, if <i>val</i>
+    is negative).<br>
+    <tt><font size=+1>y</font></tt><i>val</i>&nbsp;&nbsp;&nbsp;&nbsp;Move everything <i>val</i> screen pixels down (up, if <i>val</i> is negative).<br>
+    <tt><font size=+1>/</font></tt><i>nview</i>&nbsp;&nbsp;&nbsp;Split the window into <i>nview</i> pieces. The current page goes
+    into the rightmost, bottommost piece, and previous pages are shown
+    in the other pieces.<br>
+    <tt><font size=+1>&#8722;F</font></tt> <i>dir</i>Use <i>dir</i> for fonts instead of <tt><font size=+1>/lib/font/bit</font></tt>.<br>
+    <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Toggle the debug flag. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    These commands are also available, under slightly different form,
+    from a menu on button 3. The <tt><font size=+1>pan</font></tt> menu item allows arbitrary positioning
+    of the page: after selecting <tt><font size=+1>pan</font></tt>, press the mouse button again
+    and hold it down while moving the page to the desired location.
+    The page will be redisplayed in its entirety when
+    the button is released. Mouse button 1 also pans, without the
+    need for selecting from a menu. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>m</font></tt>, <tt><font size=+1>x</font></tt>, <tt><font size=+1>y</font></tt>, <tt><font size=+1>F</font></tt>, <tt><font size=+1>/</font></tt>, and <tt><font size=+1>d</font></tt> commands are also available as command
+    line options.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/font/*<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        fonts<br>
+        
+    </table>
+    <tt><font size=+1>/usr/local/plan9/font/MAP<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        how to convert troff output fonts and character names into screen
+        fonts and character numbers<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/proof<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/lp.html"><i>lp</i>(1)</a>, <a href="../man1/gs.html"><i>gs</i>(1)</a>, <a href="../man1/page.html"><i>page</i>(1)</a><br>
+    J. F. Ossanna and B. W. Kernighan, &#8220;Troff User&#8217;s Manual&#8221;<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

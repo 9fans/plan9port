@@ -1,0 +1,548 @@
+<head>
+<title>db(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>DB(1)</b><td align=right><b>DB(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    db &ndash; debugger<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>db</font></tt> [ <i>option ...</i> ] [ <i>textfile</i> ] [ <i>pid</i> | <i>corefile</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Db</i> is a general purpose debugging program. It may be used to examine
+    files and to provide a controlled environment for the execution
+    of programs. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>textfile</i> is a file containing the text and initialized data
+    of an executable program. A <i>pid</i> or <i>corefile</i> specifies the memory
+    image of a process. A <i>pid</i> gives the id of an executing process
+    to be accessed via <a href="../man2/ptrace.html"><i>ptrace</i>(2)</a>. A <i>corefile</i> specifies the name of
+    a core dump (see <a href="../man5/core.html"><i>core</i>(5)</a> on your system of choice) containing
+    the
+    memory image of a terminated process. This manual refers to the
+    memory image specified by <i>pid</i> or <i>corefile</i> as a <i>memfile</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>map</i> associated with each <i>textfile</i> or <i>memfile</i> supports accesses
+    to instructions and data in the file; see &#8216;Addresses&#8217;. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An argument consisting entirely of digits is assumed to be a process
+    id; otherwise, it is the name of a <i>textfile</i> or <i>corefile</i>. When
+    a <i>textfile</i> is given, the textfile map is associated with it. If
+    only a <i>memfile</i> is given, the textfile map is derived from the
+    corresponding <i>textfile</i>, if it can be determined (this varies from
+    system to
+    system). When a <i>memfile</i> is given, the memfile map is associated
+    with it; otherwise the map is undefined and accesses to it are
+    not permitted. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Commands to <i>db</i> are read from the standard input and responses
+    are to the standard output. The options are<br>
+    <tt><font size=+1>&#8722;w</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Open <i>textfile</i> and <i>memfile</i> for writing as well as reading.<br>
+    <tt><font size=+1>&#8722;I</font></tt><i>path<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Directory in which to look for relative path names in <tt><font size=+1>$&lt;</font></tt> and <tt><font size=+1>$&lt;&lt;</font></tt>
+        commands.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;m</font></tt><i>machine<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Assume instructions are for the given CPU type (possible names
+        include <tt><font size=+1>386</font></tt> and <tt><font size=+1>powerpc</font></tt>; adding the suffix <tt><font size=+1>&#8722;co</font></tt> as in <tt><font size=+1>386&#8722;co</font></tt> and
+        <tt><font size=+1>powerpc&#8722;co</font></tt> selects disassembly in the manufacturer&#8217;s syntax, if
+        available, rather than the default Plan 9 syntax). 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    Most <i>db</i> commands have the following form:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        [<i>address</i>] [<tt><font size=+1>,</font></tt> <i>count</i>] [<i>command</i>] 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    If <i>address</i> is present then the current position, called &#8216;dot&#8217;,
+    is set to <i>address</i>. Initially dot is set to 0. Most commands are
+    repeated <i>count</i> times with dot advancing between repetitions. The
+    default <i>count</i> is 1. <i>Address</i> and <i>count</i> are expressions. Multiple
+    commands on one line must be separated by <tt><font size=+1>;</font></tt>.
+    <p><font size=+1><b>Expressions     </b></font><br>
+    Expressions are evaluated as long <i>ints</i>.<br>
+    <tt><font size=+1>.</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The value of dot.<br>
+    <tt><font size=+1>+</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The value of dot incremented by the current increment.<br>
+    <tt><font size=+1>^</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The value of dot decremented by the current increment.<br>
+    <tt><font size=+1>&quot;</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The last <i>address</i> typed.<br>
+    <i>integer<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A number, in decimal radix by default. The prefixes <tt><font size=+1>0</font></tt> and <tt><font size=+1>0o</font></tt> and
+        <tt><font size=+1>0O</font></tt> (zero oh) force interpretation in octal radix; the prefixes
+        <tt><font size=+1>0t</font></tt> and <tt><font size=+1>0T</font></tt> force interpretation in decimal radix; the prefixes
+        <tt><font size=+1>0x</font></tt>, <tt><font size=+1>0X</font></tt>, and <tt><font size=+1>#</font></tt> force interpretation in hexadecimal radix. Thus
+        <tt><font size=+1>020</font></tt>, <tt><font size=+1>0o20</font></tt>, <tt><font size=+1>0t16</font></tt>, and <tt><font size=+1>#10</font></tt> all represent sixteen.
+        
+    </table>
+    <i>integer</i><tt><font size=+1>.</font></tt><i>fraction<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A single-precision floating point number.<br>
+        
+    </table>
+    <tt><font size=+1>'</font></tt><i>c</i><tt><font size=+1>'</font></tt>&nbsp;&nbsp;&nbsp;The 16-bit value of a character. <tt><font size=+1>\</font></tt> may be used to escape a
+    <tt><font size=+1>'</font></tt>.<br>
+    <tt><font size=+1>&lt;</font></tt><i>name<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The value of <i>name</i>, which is a register name. The register names
+        are those printed by the <tt><font size=+1>$r</font></tt> command.<br>
+        
+    </table>
+    <i>symbol<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A <i>symbol</i> is a sequence of upper or lower case letters, underscores
+        or digits, not starting with a digit. <tt><font size=+1>\</font></tt> may be used to escape
+        other characters. The location of the <i>symbol</i> is calculated from
+        the symbol table in <i>textfile</i>.<br>
+        
+    </table>
+    <i>routine</i><tt><font size=+1>.</font></tt><i>name<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The address of the variable <i>name</i> in the specified C routine. Both
+        <i>routine</i> and <i>name</i> are <i>symbols</i>. If <i>name</i> is omitted the value is
+        the address of the most recently activated stack frame corresponding
+        to <i>routine</i>; if <i>routine</i> is omitted, the active procedure is assumed.<br>
+        
+    </table>
+    <i>file</i><tt><font size=+1>:</font></tt><i>integer<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The address of the instruction corresponding to the source statement
+        at the indicated line number of the file. If the source line contains
+        no executable statement, the address of the instruction associated
+        with the nearest executable source line is returned. Files begin
+        at line 1. If multiple files of the same name
+        are loaded, an expression of this form resolves to the first file
+        encountered in the symbol table.<br>
+        
+    </table>
+    <tt><font size=+1>(</font></tt><i>exp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The value of the expression <i>exp</i>. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <i>Monadic operators<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>*</font></tt><i>exp</i>&nbsp;&nbsp;&nbsp;The contents of the location addressed by <i>exp</i> in <i>memfile</i>.<br>
+        <tt><font size=+1>@</font></tt><i>exp</i>&nbsp;&nbsp;&nbsp;The contents of the location addressed by <i>exp</i> in <i>textfile</i>.<br>
+        <tt><font size=+1>&#8722;</font></tt><i>exp</i>&nbsp;&nbsp;&nbsp;Integer negation.<br>
+        <tt><font size=+1>~</font></tt><i>exp</i>&nbsp;&nbsp;&nbsp;Bitwise complement.<br>
+        <tt><font size=+1>%</font></tt><i>exp</i>&nbsp;&nbsp;&nbsp;When used as an <i>address</i>, <i>exp</i> is an offset into the segment
+        named <i>ublock</i>; see &#8216;Addresses&#8217;.<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <i>Dyadic operators</i> are left-associative and are less binding than
+    monadic operators.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>e1</i><tt><font size=+1>+</font></tt><i>e2</i>Integer addition.<br>
+        <i>e1</i><tt><font size=+1>&#8722;</font></tt><i>e2</i>Integer subtraction.<br>
+        <i>e1</i><tt><font size=+1>*</font></tt><i>e2</i>Integer multiplication.<br>
+        <i>e1</i><tt><font size=+1>%</font></tt><i>e2</i>Integer division.<br>
+        <i>e1</i><tt><font size=+1>&amp;</font></tt><i>e2</i>Bitwise conjunction.<br>
+        <i>e1</i><tt><font size=+1>|</font></tt><i>e2</i>Bitwise disjunction.<br>
+        <i>e1</i><tt><font size=+1>#</font></tt><i>e2E1</i> rounded up to the next multiple of <i>e2</i>.<br>
+        
+    </table>
+    <p><font size=+1><b>Commands     </b></font><br>
+    Most commands have the following syntax:<br>
+    <tt><font size=+1>?</font></tt><i>f</i>&nbsp;&nbsp;&nbsp;&nbsp;Locations starting at <i>address</i> in <i>textfile</i> are printed according
+    to the format <i>f</i>.<br>
+    <tt><font size=+1>/</font></tt><i>f</i>&nbsp;&nbsp;&nbsp;&nbsp;Locations starting at <i>address</i> in <i>memfile</i> are printed according
+    to the format <i>f</i>.<br>
+    <tt><font size=+1>=</font></tt><i>f</i>&nbsp;&nbsp;&nbsp;&nbsp;The value of <i>address</i> itself is printed according to the format
+    <i>f</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>format</i> consists of one or more characters that specify a style
+    of printing. Each format character may be preceded by a decimal
+    integer that is a repeat count for the format character. If no
+    format is given then the last format is used. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Most format letters fetch some data, print it, and advance (a
+    local copy of) dot by the number of bytes fetched. The total number
+    of bytes in a format becomes the <i>current</i>increment<i>.<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>o</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print two-byte integer in octal.<br>
+        <tt><font size=+1>O</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print four-byte integer in octal.<br>
+        <tt><font size=+1>q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print two-byte integer in signed octal.<br>
+        <tt><font size=+1>Q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print four-byte integer in signed octal.<br>
+        <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print two-byte integer in decimal.<br>
+        <tt><font size=+1>D</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print four-byte integer in decimal.<br>
+        <tt><font size=+1>V</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print eight-byte integer in decimal.<br>
+        <tt><font size=+1>Z</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print eight-byte integer in unsigned decimal.<br>
+        <tt><font size=+1>x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print two-byte integer in hexadecimal.<br>
+        <tt><font size=+1>X</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print four-byte integer in hexadecimal.<br>
+        <tt><font size=+1>Y</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print eight-byte integer in hexadecimal.<br>
+        <tt><font size=+1>u</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print two-byte integer in unsigned decimal.<br>
+        <tt><font size=+1>U</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print four-byte integer in unsigned decimal.<br>
+        <tt><font size=+1>f</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print as a single-precision floating point number.<br>
+        <tt><font size=+1>F</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print double-precision floating point.<br>
+        <tt><font size=+1>b</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the addressed byte in hexadecimal.<br>
+        <tt><font size=+1>c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the addressed byte as an ASCII character.<br>
+        <tt><font size=+1>C</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the addressed byte as a character. Printable ASCII characters
+        are represented normally; others are printed in the form <tt><font size=+1>\xnn</font></tt>.<br>
+        <tt><font size=+1>s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the addressed characters, as a UTF string, until a zero
+        byte is reached. Advance dot by the length of the string, including
+        the zero terminator.<br>
+        <tt><font size=+1>S</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print a string using the escape convention (see <tt><font size=+1>C</font></tt> above).<br>
+        <tt><font size=+1>r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print as UTF the addressed two-byte integer (rune).<br>
+        <tt><font size=+1>R</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print as UTF the addressed two-byte integers as runes until a
+        zero rune is reached. Advance dot by the length of the string,
+        including the zero terminator.<br>
+        <tt><font size=+1>i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print as machine instructions. Dot is incremented by the size
+        of the instruction.<br>
+        <tt><font size=+1>I</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;As <tt><font size=+1>i</font></tt> above, but print the machine instructions in an alternate
+        form if possible.<br>
+        <tt><font size=+1>M</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the addressed machine instruction in a machine-dependent
+        hexadecimal form.<br>
+        <tt><font size=+1>a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the value of dot in symbolic form. Dot is unaffected.<br>
+        <tt><font size=+1>A</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the value of dot in hexadecimal. Dot is unaffected.<br>
+        <tt><font size=+1>z</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the function name, source file, and line number corresponding
+        to dot (textfile only). Dot is unaffected.<br>
+        <tt><font size=+1>p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the addressed value in symbolic form. Dot is advanced by
+        the size of a machine address.<br>
+        <tt><font size=+1>t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;When preceded by an integer, tabs to the next appropriate tab
+        stop. For example, <tt><font size=+1>8t</font></tt> moves to the next 8-space tab stop. Dot
+        is unaffected.<br>
+        <tt><font size=+1>n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print a newline. Dot is unaffected.<br>
+        <tt><font size=+1>&quot;</font></tt>...<tt><font size=+1>&quot;</font></tt>&nbsp;&nbsp;&nbsp;Print the enclosed string. Dot is unaffected.<br>
+        <tt><font size=+1>^</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dot is decremented by the current increment. Nothing is printed.<br>
+        <tt><font size=+1>+</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dot is incremented by 1. Nothing is printed.<br>
+        <tt><font size=+1>&#8722;</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dot is decremented by 1. Nothing is printed.<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    Other commands include:<br>
+    newline<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Update dot by the current increment. Repeat the previous command
+        with a <i>count</i> of 1.<br>
+        
+    </table>
+    [<tt><font size=+1>?/</font></tt>]<tt><font size=+1>l</font></tt> <i>value mask<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Words starting at dot are masked with <i>mask</i> and compared with <i>value</i>
+        until a match is found. If <tt><font size=+1>l</font></tt> is used, the match is for a two-byte
+        integer; <tt><font size=+1>L</font></tt> matches four bytes. If no match is found then dot is
+        unchanged; otherwise dot is set to the matched location. If <i>mask</i>
+        is omitted then ~0 is used.
+        
+    </table>
+    [<tt><font size=+1>?/</font></tt>]<tt><font size=+1>w</font></tt> <i>value ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Write the two-byte <i>value</i> into the addressed location. If the command
+        is <tt><font size=+1>W</font></tt>, write four bytes.<br>
+        
+    </table>
+    [<tt><font size=+1>?/</font></tt>]<tt><font size=+1>m</font></tt> <i>s b e f</i> [<tt><font size=+1>?</font></tt>]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        New values for (<i>b, e, f</i>) in the segment named <i>s</i> are recorded.
+        Valid segment names are <i>text</i>, <i>data</i>, or <i>ublock</i>. If less than three
+        address expressions are given, the remaining parameters are left
+        unchanged. If the list is terminated by <tt><font size=+1>?</font></tt> or <tt><font size=+1>/</font></tt> then the file (<i>textfile</i>
+        or <i>memfile</i> respectively) is used for subsequent
+        requests. For example, <tt><font size=+1>/m?</font></tt> causes <tt><font size=+1>/</font></tt> to refer to <i>textfile</i>.<br>
+        
+    </table>
+    <tt><font size=+1>&gt;</font></tt><i>name<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Dot is assigned to the variable or register named.<br>
+        
+    </table>
+    <tt><font size=+1>!</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The rest of the line is passed to <a href="../man1/rc.html"><i>rc</i>(1)</a> for execution.<br>
+    <tt><font size=+1>$</font></tt><i>modifier<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Miscellaneous commands. The available <i>modifiers</i> are:<br>
+        <tt><font size=+1>&lt;</font></tt><i>f</i>&nbsp;&nbsp;&nbsp;&nbsp;Read commands from the file <i>f</i>. If this command is executed in
+        a file, further commands in the file are not seen. If <i>f</i> is omitted,
+        the current input stream is terminated. If a <i>count</i> is given, and
+        is zero, the command is ignored.<br>
+        <tt><font size=+1>&lt;&lt;</font></tt><i>f</i>&nbsp;&nbsp;&nbsp;Similar to <tt><font size=+1>&lt;</font></tt> except it can be used in a file of commands without
+        causing the file to be closed. There is a (small) limit to the
+        number of <tt><font size=+1>&lt;&lt;</font></tt> files that can be open at once.<br>
+        <tt><font size=+1>&gt;</font></tt><i>f</i>&nbsp;&nbsp;&nbsp;&nbsp;Append output to the file <i>f</i>, which is created if it does not
+        exist. If <i>f</i> is omitted, output is returned to the terminal.<br>
+        <tt><font size=+1>?</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print process id, the condition which caused stopping or termination,
+        the registers and the instruction addressed by <tt><font size=+1>pc</font></tt>. This is the
+        default if <i>modifier</i> is omitted.<br>
+        <tt><font size=+1>r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the general registers and the instruction addressed by
+        <tt><font size=+1>pc</font></tt>. Dot is set to <tt><font size=+1>pc</font></tt>.<br>
+        <tt><font size=+1>R</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Like <tt><font size=+1>$r</font></tt>, but include miscellaneous processor control registers
+        and floating point registers.<br>
+        <tt><font size=+1>f</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print floating-point register values as single-precision floating
+        point numbers.<br>
+        <tt><font size=+1>F</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print floating-point register values as double-precision floating
+        point numbers.<br>
+        <tt><font size=+1>b</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print all breakpoints and their associated counts and commands.
+        &#8216;B&#8217; produces the same results.<br>
+        <tt><font size=+1>c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Stack backtrace. If <i>address</i> is given, it specifies the address
+        of a pair of 32-bit values containing the <tt><font size=+1>sp</font></tt> and <tt><font size=+1>pc</font></tt> of an active
+        process. This allows selecting among various contexts of a multi-threaded
+        process. If <tt><font size=+1>C</font></tt> is used, the names and (long) values of all parameters,
+        automatic and static variables are
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            printed for each active function. If <i>count</i> is given, only the
+            first <i>count</i> frames are printed.<br>
+            
+        </table>
+        <tt><font size=+1>a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attach to the running process whose pid is contained in <i>address</i>.<br>
+        <tt><font size=+1>e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The names and values of all external variables are printed.<br>
+        <tt><font size=+1>w</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the page width for output to <i>address</i> (default 80).<br>
+        <tt><font size=+1>q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exit from <i>db</i>.<br>
+        <tt><font size=+1>m</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the address maps.<br>
+        <tt><font size=+1>k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Simulate kernel memory management.<br>
+        <tt><font size=+1>M</font></tt><i>machine<br>
+        </i>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Set the <i>machine</i> type used for disassembling instructions.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>:</font></tt><i>modifier<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Manage a subprocess. Available modifiers are:<br>
+        <tt><font size=+1>h</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Halt an asynchronously running process to allow breakpointing.
+        Unnecessary for processes created under <i>db</i>, e.g. by <tt><font size=+1>:r</font></tt>.<br>
+        <tt><font size=+1>b</font></tt><i>c</i>&nbsp;&nbsp;&nbsp;&nbsp;Set breakpoint at <i>address</i>. The breakpoint is executed <i>count</i>&ndash;1
+        times before causing a stop. Also, if a command <i>c</i> is given it
+        is executed at each breakpoint and if it sets dot to zero the
+        breakpoint causes a stop.<br>
+        <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete breakpoint at <i>address</i>.<br>
+        <tt><font size=+1>r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Run <i>textfile</i> as a subprocess. If <i>address</i> is given the program
+        is entered at that point; otherwise the standard entry point is
+        used. <i>Count</i> specifies how many breakpoints are to be ignored before
+        stopping. Arguments to the subprocess may be supplied on the same
+        line as the command. An argument
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            starting with &lt; or &gt; causes the standard input or output to be established
+            for the command.<br>
+            
+        </table>
+        <tt><font size=+1>c</font></tt><i>s</i>&nbsp;&nbsp;&nbsp;&nbsp;The subprocess is continued. If <i>s</i> is omitted or nonzero, the
+        subprocess is sent the note that caused it to stop. If 0 is specified,
+        no note is sent. (If the stop was due to a breakpoint or single-step,
+        the corresponding note is elided before continuing.) Breakpoint
+        skipping is the same as for <tt><font size=+1>r</font></tt>.
+        <tt><font size=+1>s</font></tt><i>s</i>&nbsp;&nbsp;&nbsp;&nbsp;As for <tt><font size=+1>c</font></tt> except that the subprocess is single stepped for <i>count</i>
+        machine instructions. If a note is pending, it is received before
+        the first instruction is executed. If there is no current subprocess
+        then <i>textfile</i> is run as a subprocess as for <tt><font size=+1>r</font></tt>. In this case no
+        note can be sent; the remainder of the line is
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            treated as arguments to the subprocess.<br>
+            
+        </table>
+        <tt><font size=+1>S</font></tt><i>s</i>&nbsp;&nbsp;&nbsp;&nbsp;Identical to <tt><font size=+1>s</font></tt> except the subprocess is single stepped for <i>count</i>
+        lines of C source. In optimized code, the correspondence between
+        C source and the machine instructions is approximate at best.<br>
+        <tt><font size=+1>x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The current subprocess, if any, is released by <i>db</i> and allowed
+        to continue executing normally.<br>
+        <tt><font size=+1>k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The current subprocess, if any, is terminated.<br>
+        <tt><font size=+1>n</font></tt><i>c</i>&nbsp;&nbsp;&nbsp;&nbsp;Display the pending notes for the process. If <i>c</i> is specified,
+        first delete <i>c&#8217;th</i> pending note.<br>
+        
+    </table>
+    <p><font size=+1><b>Addresses     </b></font><br>
+    The location in a file or memory image associated with an address
+    is calculated from a map associated with the file. Each map contains
+    one or more quadruples (<i>t, f, b, e, o</i>), defining a segment named
+    <i>t</i> (usually, <i>text</i>, <i>data</i>, or <i>core</i>) in file <i>f</i> mapping addresses in
+    the range <i>b</i> through <i>e</i> to the part of the file beginning at
+    offset <i>o</i>. If segments overlap, later segments obscure earlier
+    ones. An address <i>a</i> is translated to a file address by finding
+    the last segment in the list for which <i>b</i>&le;<i>a</i>&lt;<i>e</i>; the location in the
+    file is then <i>address</i>+<i>f</i>&ndash;<i>b</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Usually, the text and initialized data of a program are mapped
+    by segments called <i>text</i>, <i>data</i>, and <i>bss</i>. Since a program file does
+    not contain stack data, this data is not mapped. The text segment
+    is mapped similarly in a normal (i.e., non-kernel) <i>memfile</i>. However,
+    one or more segments called <i>data</i> provide access to
+    process memory. This region contains the program&#8217;s static data,
+    the bss, the heap and the stack. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Sometimes it is useful to define a map with a single segment mapping
+    the region from 0 to 0xFFFFFFFF; a map of this type allows an
+    entire file to be examined without address translation. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>$m</font></tt> command dumps the currently active maps. The <tt><font size=+1>?m</font></tt> and <tt><font size=+1>/m</font></tt>
+    commands modify the segment parameters in the <i>textfile</i> and <i>memfile</i>
+    maps, respectively.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    To set a breakpoint at the beginning of <tt><font size=+1>write()</font></tt> in extant process
+    27:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>% db 27<br>
+        :h<br>
+        write:b<br>
+        :c<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    To set a breakpoint at the entry of function <tt><font size=+1>parse</font></tt> when the local
+    variable <tt><font size=+1>argc</font></tt> in <tt><font size=+1>main</font></tt> is equal to 1:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>parse:b *main.argc&#8722;1=X<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    This prints the value of <tt><font size=+1>argc&#8722;1</font></tt> which as a side effect sets dot;
+    when <tt><font size=+1>argc</font></tt> is one the breakpoint will fire. Beware that local variables
+    may be stored in registers; see the BUGS section.<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/acid.html"><i>acid</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/db<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Exit status is 0, unless the last command failed or returned non-zero
+    status.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Examining a local variable with <i>routine.name</i> returns the contents
+    of the memory allocated for the variable, but with optimization,
+    variables often reside in registers. Also, on some architectures,
+    the first argument is always passed in a register. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Variables and parameters that have been optimized away do not
+    appear in the symbol table, returning the error <i>bad local variable</i>
+    when accessed by <i>db</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Breakpoints should not be set on instructions scheduled in delay
+    slots. When a program stops on such a breakpoint, it is usually
+    impossible to continue its execution.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

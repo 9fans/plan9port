@@ -1,0 +1,101 @@
+<head>
+<title>font(7) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>FONT(7)</b><td align=right><b>FONT(7)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    font, subfont &ndash; external format for fonts and subfonts<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;draw.h&gt;<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Fonts and subfonts are described in <a href="../man3/cachechars.html"><i>cachechars</i>(3)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    External fonts are described by a plain text file that can be
+    read using <i>openfont</i>. The format of the file is a header followed
+    by any number of subfont range specifications. The header contains
+    two numbers: the height and the ascent, both in pixels. The height
+    is the inter-line spacing and the ascent is the distance from
+    the top of the line to the baseline. These numbers are chosen
+    to display consistently all the subfonts of the font. A subfont
+    range specification contains two or three numbers and a file name.
+    The numbers are the inclusive range of characters covered by the
+    subfont, with an optional starting position within the subfont,
+    and the file name names an external file suitable for <i>readsubfont</i>
+    (see <a href="../man3/graphics.html"><i>graphics</i>(3)</a>). The minimum number of a covered range is mapped
+    to the specified starting position (default zero) of the corresponding
+    subfont. If the subfont file name does not begin with a slash,
+    it is taken relative to the directory containing the
+    font file. Each field must be followed by some white space. Each
+    numeric field may be C-format decimal, octal, or hexadecimal.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    External subfonts are represented in a more rigid format that
+    can be read and written using <i>readsubfont</i> and <i>writesubfont</i> (see
+    <a href="../man3/subfont.html"><i>subfont</i>(3)</a>). The format for subfont files is: an image containing
+    character glyphs, followed by a subfont header, followed by character
+    information. The image has the format for external image
+    files described in <a href="../man7/image.html"><i>image</i>(7)</a>. The subfont header has 3 decimal
+    strings: <tt><font size=+1>n</font></tt>, <tt><font size=+1>height</font></tt>, and <tt><font size=+1>ascent</font></tt>. Each number is right-justified
+    and blank padded in 11 characters, followed by a blank. The character
+    <tt><font size=+1>info</font></tt> consists of <tt><font size=+1>n</font></tt>+1 6-byte entries, each giving the <tt><font size=+1>Fontchar
+    x</font></tt> (2 bytes, low order byte first), <tt><font size=+1>top</font></tt>, <tt><font size=+1>bottom</font></tt>,
+    <tt><font size=+1>left</font></tt>, and <tt><font size=+1>width</font></tt>. The <tt><font size=+1>x</font></tt> field of the last <tt><font size=+1>Fontchar</font></tt> is used to calculate
+    the image width of the previous character; the other fields in
+    the last <tt><font size=+1>Fontchar</font></tt> are irrelevant. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Note that the convention of using the character with value zero
+    (NUL) to represent characters of zero width (see <a href="../man3/draw.html"><i>draw</i>(3)</a>) means
+    that fonts should have, as their zeroth character, one with non-zero
+    width.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/font/*</font></tt>&nbsp;&nbsp;&nbsp;font directories<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/graphics.html"><i>graphics</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a>, <a href="../man3/cachechars.html"><i>cachechars</i>(3)</a>, <a href="../man3/subfont.html"><i>subfont</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

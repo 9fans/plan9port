@@ -1,0 +1,371 @@
+.TH FMTINSTALL 3
+.SH NAME
+fmtinstall, dofmt, dorfmt, fmtprint, fmtvprint, fmtrune, fmtstrcpy, fmtrunestrcpy, fmtfdinit, fmtfdflush, fmtstrinit, fmtstrflush, runefmtstrinit, runefmtstrflush, errfmt \- support for user-defined print formats and output routines
+.SH SYNOPSIS
+.B #include <utf.h>
+.br
+.B #include <fmt.h>
+.PP
+.ft L
+.nf
+.ta \w'    'u +\w'    'u +\w'    'u +\w'    'u +\w'    'u
+typedef struct Fmt	Fmt;
+struct Fmt{
+	uchar	runes;		/* output buffer is runes or chars? */
+	void	*start;		/* of buffer */
+	void	*to;		/* current place in the buffer */
+	void	*stop;		/* end of the buffer; overwritten if flush fails */
+	int		(*flush)(Fmt*);	/* called when to == stop */
+	void	*farg;		/* to make flush a closure */
+	int		nfmt;		/* num chars formatted so far */
+	va_list	args;		/* args passed to dofmt */
+	int		r;			/* % format Rune */
+	int		width;
+	int		prec;
+	ulong	flags;
+};
+
+enum{
+	FmtWidth	= 1,
+	FmtLeft		= FmtWidth << 1,
+	FmtPrec		= FmtLeft << 1,
+	FmtSharp	= FmtPrec << 1,
+	FmtSpace	= FmtSharp << 1,
+	FmtSign		= FmtSpace << 1,
+	FmtZero		= FmtSign << 1,
+	FmtUnsigned	= FmtZero << 1,
+	FmtShort	= FmtUnsigned << 1,
+	FmtLong		= FmtShort << 1,
+	FmtVLong	= FmtLong << 1,
+	FmtComma	= FmtVLong << 1,
+
+	FmtFlag		= FmtComma << 1
+};
+.fi
+.PP
+.B
+.ta \w'\fLchar* 'u
+
+.PP
+.B
+int	fmtfdinit(Fmt *f, int fd, char *buf, int nbuf);
+.PP
+.B
+int	fmtfdflush(Fmt *f);
+.PP
+.B
+int	fmtstrinit(Fmt *f);
+.PP
+.B
+char*	fmtstrflush(Fmt *f);
+.PP
+.B
+int	runefmtstrinit(Fmt *f);
+.PP
+.B
+Rune*	runefmtstrflush(Fmt *f);
+
+.PP
+.B
+int	fmtinstall(int c, int (*fn)(Fmt*));
+.PP
+.B
+int	dofmt(Fmt *f, char *fmt);
+.PP
+.B
+int	dorfmt(Fmt*, Rune *fmt);
+.PP
+.B
+int	fmtprint(Fmt *f, char *fmt, ...);
+.PP
+.B
+int	fmtvprint(Fmt *f, char *fmt, va_list v);
+.PP
+.B
+int	fmtrune(Fmt *f, int r);
+.PP
+.B
+int	fmtstrcpy(Fmt *f, char *s);
+.PP
+.B
+int	fmtrunestrcpy(Fmt *f, Rune *s);
+.PP
+.B
+int	errfmt(Fmt *f);
+.SH DESCRIPTION
+The interface described here allows the construction of custom
+.IR print (3)
+verbs and output routines.
+In essence, they provide access to the workings of the formatted print code.
+.PP
+The
+.IR print (3)
+suite maintains its state with a data structure called
+.BR Fmt .
+A typical call to
+.IR print (3)
+or its relatives initializes a
+.B Fmt
+structure, passes it to subsidiary routines to process the output,
+and finishes by emitting any saved state recorded in the
+.BR Fmt .
+The details of the
+.B Fmt
+are unimportant to outside users, except insofar as the general
+design influences the interface.
+The
+.B Fmt
+records whether the output is in runes or bytes,
+the verb being processed, its precision and width,
+and buffering parameters.
+Most important, it also records a
+.I flush
+routine that the library will call if a buffer overflows.
+When printing to a file descriptor, the flush routine will
+emit saved characters and reset the buffer; when printing
+to an allocated string, it will resize the string to receive more output.
+The flush routine is nil when printing to fixed-size buffers.
+User code need never provide a flush routine; this is done internally
+by the library.
+.SS Custom output routines
+To write a custom output routine, such as an error handler that
+formats and prints custom error messages, the output sequence can be run
+from outside the library using the routines described here.
+There are two main cases: output to an open file descriptor
+and output to a string.
+.PP
+To write to a file descriptor, call
+.I fmtfdinit
+to initialize the local
+.B Fmt
+structure
+.IR f ,
+giving the file descriptor
+.IR fd ,
+the buffer
+.IR buf ,
+and its size
+.IR nbuf .
+Then call
+.IR fmtprint
+or
+.IR fmtvprint
+to generate the output.
+These behave like
+.B fprint
+(see
+.IR print (3))
+or
+.B vfprint
+except that the characters are buffered until
+.I fmtfdflush
+is called and the return value is either 0 or \-1.
+A typical example of this sequence appears in the Examples section.
+.PP
+The same basic sequence applies when outputting to an allocated string:
+call
+.I fmtstrinit
+to initialize the
+.BR Fmt ,
+then call
+.I fmtprint
+and
+.I fmtvprint
+to generate the output.
+Finally,
+.I fmtstrflush
+will return the allocated string, which should be freed after use.
+To output to a rune string, use
+.I runefmtstrinit
+and
+.IR runefmtstrflush .
+Regardless of the output style or type,
+.I fmtprint
+or
+.I fmtvprint
+generates the characters.
+.SS Custom format verbs
+.I Fmtinstall
+is used to install custom verbs and flags labeled by character
+.IR c ,
+which may be any non-zero Unicode character.
+.I Fn
+should be declared as
+.IP
+.EX
+int	fn(Fmt*)
+.EE
+.PP
+.IB Fp ->r
+is the flag or verb character to cause
+.I fn
+to be called.
+In
+.IR fn ,
+.IB fp ->width ,
+.IB fp ->prec
+are the width and precision, and
+.IB fp ->flags
+the decoded flags for the verb (see
+.IR print (3)
+for a description of these items).
+The standard flag values are:
+.B FmtSign
+.RB ( + ),
+.B FmtLeft
+.RB ( - ),
+.B FmtSpace
+.RB ( '\ ' ),
+.B FmtSharp
+.RB ( # ),
+.B FmtComma
+.RB ( , ),
+.B FmtLong
+.RB ( l ),
+.B FmtShort
+.RB ( h ),
+.B FmtUnsigned
+.RB ( u ),
+and
+.B FmtVLong
+.RB ( ll ).
+The flag bits
+.B FmtWidth
+and
+.B FmtPrec
+identify whether a width and precision were specified.
+.PP
+.I Fn
+is passed a pointer to the
+.B Fmt
+structure recording the state of the output.
+If
+.IB fp ->r
+is a verb (rather than a flag),
+.I fn
+should use 
+.B Fmt->args
+to fetch its argument from the list,
+then format it, and return zero.
+If
+.IB fp ->r
+is a flag,
+.I fn
+should return one.
+All interpretation of
+.IB fp ->width\f1,
+.IB fp ->prec\f1,
+and
+.IB fp-> flags
+is left up to the conversion routine.
+.I Fmtinstall
+returns 0 if the installation succeeds, \-1 if it fails.
+.PP
+.IR Fmtprint
+and
+.IR fmtvprint
+may be called to
+help prepare output in custom conversion routines.
+However, these functions clear the width, precision, and flags.
+Both functions return 0 for success and \-1 for failure.
+.PP
+The functions
+.I dofmt
+and
+.I dorfmt
+are the underlying formatters; they
+use the existing contents of
+.B Fmt
+and should be called only by sophisticated conversion routines.
+These routines return the number of characters (bytes of UTF or runes)
+produced.
+.PP
+Some internal functions may be useful to format primitive types.
+They honor the width, precision and flags as described in
+.IR print (3).
+.I Fmtrune
+formats a single character
+.BR r .
+.I Fmtstrcpy
+formats a string
+.BR s ;
+.I fmtrunestrcpy
+formats a rune string
+.BR s .
+.I Errfmt
+formats the system error string.
+All these routines return zero for successful execution.
+Conversion routines that call these functions will work properly
+regardless of whether the output is bytes or runes.
+.\" .PP
+.\" .IR 2c (1)
+.\" describes the C directive
+.\" .B #pragma
+.\" .B varargck
+.\" that can be used to provide type-checking for custom print verbs and output routines.
+.SH EXAMPLES
+This function prints an error message with a variable
+number of arguments and then quits.
+Compared to the corresponding example in
+.IR print (3),
+this version uses a smaller buffer, will never truncate
+the output message, but might generate multiple
+.B write
+system calls to produce its output.
+.IP
+.EX
+.ta 6n +6n +6n +6n +6n +6n +6n +6n +6n
+#pragma	varargck	argpos	error	1
+
+void fatal(char *fmt, ...)
+{
+	Fmt f;
+	char buf[64];
+	va_list arg;
+
+	fmtfdinit(&f, 1, buf, sizeof buf);
+	fmtprint(&f, "fatal: ");
+	va_start(arg, fmt);
+	fmtvprint(&f, fmt, arg);
+	va_end(arg);
+	fmtprint(&f, "\en");
+	fmtfdflush(&f);
+	exits("fatal error");
+}
+.EE
+.PP
+This example adds a verb to print complex numbers.
+.IP
+.EX
+typedef
+struct {
+	double	r, i;
+} Complex;
+
+#pragma	varargck	type	"X"	Complex
+
+int
+Xfmt(Fmt *f)
+{
+	Complex c;
+
+	c = va_arg(f->args, Complex);
+	return fmtprint(f, "(%g,%g)", c.r, c.i);
+}
+
+main(...)
+{
+	Complex x = (Complex){ 1.5, -2.3 };
+
+	fmtinstall('X', Xfmt);
+	print("x = %X\en", x);
+}
+.EE
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH SEE ALSO
+.IR print (3),
+.IR utf (7)
+.SH DIAGNOSTICS
+These routines return negative numbers or nil for errors and set
+.IR errstr .

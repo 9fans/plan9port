@@ -1,0 +1,169 @@
+<head>
+<title>mux(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MUX(3)</b><td align=right><b>MUX(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Mux, muxinit, muxrpc, muxthreads &ndash; protocol multiplexor<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;mux.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    struct Mux<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        uint mintag;<br>
+        uint maxtag;<br>
+        int (*settag)(Mux *mux, void *msg, uint tag);<br>
+        int (*gettag)(Mux *mux, void *msg);<br>
+        int (*send)(Mux *mux, void *msg);<br>
+        void *(*recv)(Mux *mux);<br>
+        void *aux;<br>
+        ... /* private fields follow */<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;muxinit(Mux *mux);<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void* muxrpc(Mux *mux, void *request);<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;muxprocs(Mux *mux);<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Libmux</i> is a generic protocol multiplexor. A client program initializes
+    a <tt><font size=+1>Mux</font></tt> structure with information about the protocol (mainly in
+    the form of helper functions) and can then use <i>muxrpc</i> to execute
+    individual RPCs without worrying about details of multiplexing
+    requests and demultiplexing responses. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Libmux</i> assumes that the protocol messages contain a <i>tag</i> (or message
+    ID) field that exists for the sole purpose of demultiplexing messages.
+    <i>Libmux</i> chooses the tags and then calls a helper function to put
+    them in the outgoing messages. <i>Libmux</i> calls another helper function
+    to retrieve tags from incoming messages.
+    It also calls helper functions to send and receive packets. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A client should allocate a <tt><font size=+1>Mux</font></tt> structure and then call <i>muxinit</i>
+    to initialize the library&#8217;s private elements. The client must
+    initialize the following elements:<br>
+    <i>mintag</i>, <i>maxtag<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The range of valid tags; <i>maxtag</i> is the maximum valid tag plus
+        one, so that <i>maxtag</i>&ndash;<i>mintag</i> is equal to the number of valid tags.
+        If <i>libmux</i> runs out of tags (all tags are being used for RPCs currently
+        in progress), a new call to <i>muxrpc</i> will block until an executing
+        call finishes.<br>
+        
+    </table>
+    <i>settag</i>, <i>gettag<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set or get the tag value in a message.<br>
+        
+    </table>
+    <i>send</i>, <i>recv<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Send or receive protocol messages on the connection. <i>Recv</i> should
+        block until a message is available and should return nil if the
+        connection is closed. <i>Libmux</i> will arrange that only one call to
+        <i>recv</i> is active at a time.<br>
+        
+    </table>
+    <i>aux</i>&nbsp;&nbsp;&nbsp;An auxiliary pointer for use by the client. Once a client has
+    initialized the <tt><font size=+1>Mux</font></tt> structure, it can call <i>muxrpc</i> to execute RPCs.
+    The <i>request</i> is the message passed to <i>settag</i> and <i>send</i>. The return
+    value is the response packet, as provided by <i>recv</i>, or nil if an
+    error occurred. <i>Muxprocs</i> allocates new procs (see
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <a href="../man3/thread.html"><i>thread</i>(3)</a>) in which to run <i>send</i> and <i>recv</i>. After a call to <i>muxprocs</i>,
+        <i>muxrpc</i> will run <i>send</i> and <i>recv</i> in these procs instead of in the
+        calling proc. This is useful if the implementation of either (particularly
+        <i>recv</i>) blocks an entire proc and there are other threads in the
+        calling proc that need to remain active.
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    See <tt><font size=+1>/usr/local/plan9/src/lib9pclient/fs.c</font></tt> for an example of using
+    <i>libmux</i> with 9P (see <i>intro</i>(9p)).<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libmux<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/thread.html"><i>thread</i>(3)</a>, <i>intro</i>(9p)<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Libmux</i> does not know how to free protocol messages, so message
+    arriving with unexpected or invalid tags are leaked. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Using <i>mintag</i> other than zero is not well tested and probably buggy.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

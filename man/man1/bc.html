@@ -1,0 +1,272 @@
+<head>
+<title>bc(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>BC(1)</b><td align=right><b>BC(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    bc &ndash; arbitrary-precision arithmetic language<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>bc</font></tt> [ <tt><font size=+1>&#8722;c</font></tt> ] [ <tt><font size=+1>&#8722;l</font></tt> ] [ <tt><font size=+1>&#8722;s</font></tt> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Bc</i> is an interactive processor for a language that resembles C
+    but provides arithmetic on numbers of arbitrary length with up
+    to 100 digits right of the decimal point. It takes input from
+    any files given, then reads the standard input. The <tt><font size=+1>&#8722;l</font></tt> argument
+    stands for the name of an arbitrary precision math library. The
+    <tt><font size=+1>&#8722;s
+    </font></tt>argument suppresses the automatic display of calculation results;
+    all output is via the <tt><font size=+1>print</font></tt> command. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The following syntax for <i>bc</i> programs is like that of C; <i>L</i> means
+    letter <tt><font size=+1>a</font></tt>-<tt><font size=+1>z</font></tt>, <i>E</i> means expression, <i>S</i> means statement.<br>
+    Lexical<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            comments are enclosed in <tt><font size=+1>/* */<br>
+            </font></tt>newlines end statements<br>
+            
+        </table>
+        
+    </table>
+    Names<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            simple variables: <i>L<br>
+            </i>array elements: <i>L</i><tt><font size=+1>[</font></tt><i>E</i><tt><font size=+1>]<br>
+            </font></tt>The words <tt><font size=+1>ibase</font></tt>, <tt><font size=+1>obase</font></tt>, and <tt><font size=+1>scale<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    Other operands<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            arbitrarily long numbers with optional sign and decimal point.<br>
+            <tt><font size=+1>(</font></tt><i>E</i><tt><font size=+1>)<br>
+            sqrt(</font></tt><i>E</i><tt><font size=+1>)<br>
+            length(</font></tt><i>E</i><tt><font size=+1>)<br>
+            </font></tt>number of significant decimal digits<br>
+            <tt><font size=+1>scale(</font></tt><i>E</i><tt><font size=+1>)<br>
+            </font></tt>number of digits right of decimal point<br>
+            <i>L</i><tt><font size=+1>(</font></tt><i>E</i><tt><font size=+1>,</font></tt><i>...</i><tt><font size=+1>,</font></tt><i>E</i><tt><font size=+1>)<br>
+            </font></tt>function call<br>
+            
+        </table>
+        
+    </table>
+    Operators<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>+ &nbsp;&nbsp;&nbsp;&#8722; &nbsp;&nbsp;&nbsp;* &nbsp;&nbsp;&nbsp;/ &nbsp;&nbsp;&nbsp;% &nbsp;&nbsp;&nbsp;^ </font></tt> (<tt><font size=+1>%</font></tt> is remainder; <tt><font size=+1>^</font></tt> is power)<br>
+            <tt><font size=+1>++ &nbsp;&nbsp;&nbsp;&#8722;&#8722; <br>
+            == &nbsp;&nbsp;&nbsp;&lt;= &nbsp;&nbsp;&nbsp;&gt;= &nbsp;&nbsp;&nbsp;!= &nbsp;&nbsp;&nbsp;&lt; &nbsp;&nbsp;&nbsp;&gt;<br>
+            = &nbsp;&nbsp;&nbsp;+= &nbsp;&nbsp;&nbsp;&#8722;= &nbsp;&nbsp;&nbsp;*= &nbsp;&nbsp;&nbsp;/= &nbsp;&nbsp;&nbsp;%= &nbsp;&nbsp;&nbsp;^=<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    Statements<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <i>E<br>
+            </i><tt><font size=+1>{</font></tt> <i>S</i> <tt><font size=+1>;</font></tt> ... <tt><font size=+1>;</font></tt> <i>S</i> <tt><font size=+1>}<br>
+            print</font></tt> <i>E<br>
+            </i><tt><font size=+1>if (</font></tt> <i>E</i> <tt><font size=+1>)</font></tt> <i>S<br>
+            </i><tt><font size=+1>while (</font></tt> <i>E</i> <tt><font size=+1>)</font></tt> <i>S<br>
+            </i><tt><font size=+1>for (</font></tt> <i>E</i> <tt><font size=+1>;</font></tt> <i>E</i> <tt><font size=+1>;</font></tt> <i>E</i> <tt><font size=+1>)</font></tt> <i>S<br>
+            </i>null statement<br>
+            <tt><font size=+1>break<br>
+            quit<br>
+            &quot;</font></tt>text<tt><font size=+1>&quot;<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    Function definitions<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>define</font></tt> <i>L</i> <tt><font size=+1>(</font></tt> <i>L</i> <tt><font size=+1>,</font></tt> ... <tt><font size=+1>,</font></tt> <i>L</i> <tt><font size=+1>){<br>
+            auto</font></tt> <i>L</i> <tt><font size=+1>,</font></tt> ... <tt><font size=+1>,</font></tt> <i>L<br>
+            S</i> <tt><font size=+1>;</font></tt> ... <tt><font size=+1>;</font></tt> <i>S<br>
+            </i><tt><font size=+1>return</font></tt> <i>E 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            </i>
+            <tt><font size=+1>}<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    Functions in<tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&#8722;l</font></tt> math library<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>s(</font></tt><i>x</i><tt><font size=+1>)</font></tt>sine<br>
+            <tt><font size=+1>c(</font></tt><i>x</i><tt><font size=+1>)</font></tt>cosine<br>
+            <tt><font size=+1>e(</font></tt><i>x</i><tt><font size=+1>)</font></tt>exponential<br>
+            <tt><font size=+1>l(</font></tt><i>x</i><tt><font size=+1>)</font></tt>log<br>
+            <tt><font size=+1>a(</font></tt><i>x</i><tt><font size=+1>)</font></tt>arctangent<br>
+            <tt><font size=+1>j(</font></tt><i>n, x</i><tt><font size=+1>)<br>
+            </font></tt>Bessel function<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    All function arguments are passed by value. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The value of an expression at the top level is printed unless
+    the main operator is an assignment or the <tt><font size=+1>&#8722;s</font></tt> command line argument
+    is given. Text in quotes, which may include newlines, is always
+    printed. Either semicolons or newlines may separate statements.
+    Assignment to <tt><font size=+1>scale</font></tt> influences the number of digits to
+    be retained on arithmetic operations in the manner of <a href="../man1/dc.html"><i>dc</i>(1)</a>. Assignments
+    to <tt><font size=+1>ibase</font></tt> or <tt><font size=+1>obase</font></tt> set the input and output number radix respectively.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The same letter may be used as an array, a function, and a simple
+    variable simultaneously. All variables are global to the program.
+    Automatic variables are pushed down during function calls. In
+    a declaration of an array as a function argument or automatic
+    variable empty square brackets must follow the array name. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Bc</i> is actually a preprocessor for <a href="../man1/dc.html"><i>dc</i>(1)</a>, which it invokes automatically,
+    unless the <tt><font size=+1>&#8722;c</font></tt> (compile only) option is present. In this case the
+    <i>dc</i> input is sent to the standard output instead.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Define a function to compute an approximate value of the exponential.
+    Use it to print 10 values. (The exponential function in the library
+    gives better answers.) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>scale = 20<br>
+    define e(x) {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        auto a, b, c, i, s<br>
+        a = 1<br>
+        b = 1<br>
+        s = 1<br>
+        for(i=1; 1; i++) {<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            a *= x<br>
+             b *= i<br>
+             c = a/b<br>
+             if(c == 0) return s<br>
+             s += c<br>
+            
+        </table>
+        }<br>
+        
+    </table>
+    }<br>
+    for(i=1; i&lt;=10; i++) print e(i)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/lib/bclib</font></tt> mathematical library<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/bc.y<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/dc.html"><i>dc</i>(1)</a>, <a href="../man1/hoc.html"><i>hoc</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    No <tt><font size=+1>&amp;&amp;</font></tt>, <tt><font size=+1>||</font></tt>, or <tt><font size=+1>!</font></tt> operators. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>for</font></tt> statement must have all three <tt><font size=+1>E</font></tt>s. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>quit</font></tt> is interpreted when read, not when executed.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

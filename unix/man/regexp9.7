@@ -1,0 +1,133 @@
+.TH REGEXP9 7
+.SH NAME
+regexp \- Plan 9 regular expression notation
+.SH DESCRIPTION
+This manual page describes the regular expression
+syntax used by the Plan 9 regular expression library
+.IR regexp9 (3).
+It is the form used by
+.IR egrep (1)
+before
+.I egrep
+got complicated.
+.PP
+A 
+.I "regular expression"
+specifies
+a set of strings of characters.
+A member of this set of strings is said to be
+.I matched
+by the regular expression.  In many applications
+a delimiter character, commonly
+.LR / ,
+bounds a regular expression.
+In the following specification for regular expressions
+the word `character' means any character (rune) but newline.
+.PP
+The syntax for a regular expression
+.B e0
+is
+.IP
+.EX
+e3:  literal | charclass | '.' | '^' | '$' | '(' e0 ')'
+
+e2:  e3
+  |  e2 REP
+
+REP: '*' | '+' | '?'
+
+e1:  e2
+  |  e1 e2
+
+e0:  e1
+  |  e0 '|' e1
+.EE
+.PP
+A
+.B literal
+is any non-metacharacter, or a metacharacter
+(one of
+.BR .*+?[]()|\e^$ ),
+or the delimiter
+preceded by 
+.LR \e .
+.PP
+A
+.B charclass
+is a nonempty string
+.I s
+bracketed
+.BI [ \|s\| ]
+(or
+.BI [^ s\| ]\fR);
+it matches any character in (or not in)
+.IR s .
+A negated character class never
+matches newline.
+A substring 
+.IB a - b\f1,
+with
+.I a
+and
+.I b
+in ascending
+order, stands for the inclusive
+range of
+characters between
+.I a
+and
+.IR b .
+In 
+.IR s ,
+the metacharacters
+.LR - ,
+.LR ] ,
+an initial
+.LR ^ ,
+and the regular expression delimiter
+must be preceded by a
+.LR \e ;
+other metacharacters 
+have no special meaning and
+may appear unescaped.
+.PP
+A 
+.L .
+matches any character.
+.PP
+A
+.L ^
+matches the beginning of a line;
+.L $
+matches the end of the line.
+.PP
+The 
+.B REP
+operators match zero or more
+.RB ( * ),
+one or more
+.RB ( + ),
+zero or one
+.RB ( ? ),
+instances respectively of the preceding regular expression 
+.BR e2 .
+.PP
+A concatenated regular expression,
+.BR "e1\|e2" ,
+matches a match to 
+.B e1
+followed by a match to
+.BR e2 .
+.PP
+An alternative regular expression,
+.BR "e0\||\|e1" ,
+matches either a match to
+.B e0
+or a match to
+.BR e1 .
+.PP
+A match to any part of a regular expression
+extends as far as possible without preventing
+a match to the remainder of the regular expression.
+.SH "SEE ALSO
+.IR regexp9 (3)

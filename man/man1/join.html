@@ -1,0 +1,144 @@
+<head>
+<title>join(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>JOIN(1)</b><td align=right><b>JOIN(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    join &ndash; relational database operator<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>join</font></tt> [ <i>options</i> ] <i>file1 file2<br>
+    </i>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Join</i> forms, on the standard output, a join of the two relations
+    specified by the lines of <i>file1</i> and <i>file2</i>. If one of the file
+    names is <tt><font size=+1>&#8722;</font></tt>, the standard input is used. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>File1</i> and <i>file2</i> must be sorted in increasing ASCII collating sequence
+    on the fields on which they are to be joined, normally the first
+    in each line. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There is one line in the output for each pair of lines in <i>file1</i>
+    and <i>file2</i> that have identical join fields. The output line normally
+    consists of the common field, then the rest of the line from <i>file1</i>,
+    then the rest of the line from <i>file2</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Input fields are normally separated spaces or tabs; output fields
+    by space. In this case, multiple separators count as one, and
+    leading separators are discarded. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The following options are recognized, with POSIX syntax.<br>
+    <tt><font size=+1>&#8722;a</font></tt> <i>n</i>&nbsp;&nbsp;&nbsp;In addition to the normal output, produce a line for each
+    unpairable line in file <i>n</i>, where <i>n</i> is 1 or 2.<br>
+    <tt><font size=+1>&#8722;v</font></tt> <i>n</i>&nbsp;&nbsp;&nbsp;Like <tt><font size=+1>&#8722;a</font></tt>, omitting output for paired lines.<br>
+    <tt><font size=+1>&#8722;e</font></tt> <i>s</i>&nbsp;&nbsp;&nbsp;Replace empty output fields by string <i>s</i>.<br>
+    <tt><font size=+1>&#8722;1</font></tt> <i>m<br>
+    </i><tt><font size=+1>&#8722;2</font></tt> <i>m</i>&nbsp;&nbsp;&nbsp;Join on the <i>m</i>th field of <i>file1</i> or <i>file2</i>.<br>
+    <tt><font size=+1>&#8722;j</font></tt><i>n m<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Archaic equivalent for <tt><font size=+1>&#8722;</font></tt><i>n</i> <tt><font size=+1>m</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;o</font></tt><i>fields<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Each output line comprises the designated fields. The comma-separated
+        field designators are either <tt><font size=+1>0</font></tt>, meaning the join field, or have
+        the form <i>n</i>.<i>m</i>, where <i>n</i> is a file number and <i>m</i> is a field number.
+        Archaic usage allows separate arguments for field designators.
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <tt><font size=+1>&#8722;t</font></tt><i>c</i>&nbsp;&nbsp;&nbsp;Use character <i>c</i> as the only separator (tab character) on input
+    and output. Every appearance of <i>c</i> in a line is significant.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>sort /etc/passwd | join &#8722;t: &#8722;1 1 &#8722;a 1 &#8722;e &quot;&quot; &#8722; bdays<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Add birthdays to the <tt><font size=+1>/etc/passwd</font></tt> file, leaving unknown birthdays
+        empty. The layout of <tt><font size=+1>/adm/users</font></tt> is given in <a href="../man5/passwd.html"><i>passwd</i>(5)</a>; <tt><font size=+1>bdays</font></tt> contains
+        sorted lines like <tt><font size=+1>ken:Feb 4, 1953</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>tr : ' ' &lt;/etc/passwd | sort &#8722;k 3 3 &gt;temp<br>
+    join &#8722;1 3 &#8722;2 3 &#8722;o 1.1,2.1 temp temp | awk '$1 &lt; $2'<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print all pairs of users with identical userids.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/join.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/sort.html"><i>sort</i>(1)</a>, <a href="../man1/comm.html"><i>comm</i>(1)</a>, <a href="../man1/awk.html"><i>awk</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    With default field separation, the collating sequence is that
+    of <tt><font size=+1>sort &#8722;b &#8722;k</font></tt><i>y</i><tt><font size=+1>,</font></tt><i>y</i>; with <tt><font size=+1>&#8722;t</font></tt>, the sequence is that of <tt><font size=+1>sort &#8722;t</font></tt><i>x</i> <tt><font size=+1>&#8722;k</font></tt><i>y</i><tt><font size=+1>,</font></tt><i>y</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    One of the files must be randomly accessible.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

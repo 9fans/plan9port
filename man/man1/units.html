@@ -1,0 +1,156 @@
+<head>
+<title>units(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>UNITS(1)</b><td align=right><b>UNITS(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    units &ndash; conversion program<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>units</font></tt> [ <tt><font size=+1>&#8722;v</font></tt> ] [ <i>file</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Units</i> converts quantities expressed in various standard scales
+    to their equivalents in other scales. It works interactively in
+    this fashion:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>you have: inch<br>
+        you want: cm<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            * 2.54<br>
+             / 0.393701<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    A quantity is specified as a multiplicative combination of units
+    and floating point numbers. Operators have the following precedence:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>+ &#8722; </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add and subtract<br>
+        <tt><font size=+1>* / x &#247; </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multiply and divide<br>
+        catenation &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;multiply<br>
+        <tt><font size=+1>&sup2; &sup3; ^ </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exponentiation<br>
+        <tt><font size=+1>| </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;divide<br>
+        <tt><font size=+1>(</font></tt> ... <tt><font size=+1>) </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grouping<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    Most familiar units, abbreviations, and metric prefixes are recognized,
+    together with a generous leavening of exotica and a few constants
+    of nature including:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>pi,</font></tt>&#960; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ratio of circumference to diameter<br>
+        <tt><font size=+1>c </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;speed of light <br>
+        <tt><font size=+1>e </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;charge on an electron <br>
+        <tt><font size=+1>g </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acceleration of gravity <br>
+        <tt><font size=+1>force </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;same as <tt><font size=+1>g <br>
+        mole </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Avogadro&#8217;s number <br>
+        <tt><font size=+1>water </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;pressure head per unit height of water <br>
+        <tt><font size=+1>au </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;astronomical unit <br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    The <tt><font size=+1>pound</font></tt> is a unit of mass. Compound names are run together,
+    e.g. <tt><font size=+1>lightyear</font></tt>. British units that differ from their US counterparts
+    are prefixed thus: <tt><font size=+1>brgallon</font></tt>. Currency is denoted <tt><font size=+1>belgiumfranc</font></tt>,
+    <tt><font size=+1>britainpound</font></tt>, etc. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The complete list of units can be found in <tt><font size=+1>/usr/local/plan9/lib/units</font></tt>.
+    A <i>file</i> argument to <i>units</i> specifies a file to be used instead of
+    <tt><font size=+1>/usr/local/plan9/lib/units.</font></tt> The <tt><font size=+1>&#8722;v</font></tt> flag causes <i>units</i> to print
+    its entire database.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>you have: 15 pounds force/in&sup2;<br>
+    you want: atm<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        * 1.02069<br>
+         / .97973<br>
+        
+    </table>
+    </font></tt>
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/lib/units<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/units.y<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Since <i>units</i> does only multiplicative scale changes, it can convert
+    Kelvin to Rankine but not Centigrade to Fahrenheit. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Currency conversions are only as accurate as the last time someone
+    updated the database.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

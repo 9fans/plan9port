@@ -1,0 +1,105 @@
+<head>
+<title>udpread(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>UDPREAD(3)</b><td align=right><b>UDPREAD(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    udpread, udpwrite &ndash; read and write UDP packets<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>#include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>#include &lt;ip.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>typedef struct Udphdr Udphdr;<br>
+    </font></tt>struct Udphdr<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        uchar &nbsp;&nbsp;&nbsp;raddr[IPaddrlen];/* remote address and port */<br>
+        uchar &nbsp;&nbsp;&nbsp;laddr[IPaddrlen];/* local address and port */<br>
+        uchar &nbsp;&nbsp;&nbsp;rport[2];<br>
+        uchar &nbsp;&nbsp;&nbsp;lport[2];<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>long &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;udpread(int fd, Udphdr *hdr, void *data, long n)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long udpwrite(int fd, Udphdr *hdr, void *data, long n)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Udpread</i> and <i>udpwrite</i> read and write UDP packets from the UDP network
+    connection established on file descriptor <i>fd</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Udpread</i> reads at most <i>n</i> bytes of packet body into <i>data ,</i> stores
+    the header in <i>hdr</i>, and returns the number of bytes stored in <i>data</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Udpwrite</i> writes the <i>n</i> bytes stored in <i>data</i> in a UDP packet with
+    header <i>hdr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Note that the <tt><font size=+1>Udphdr</font></tt> frames the addresses as local and remote
+    instead of source and destination. Thus the <i>hdr</i> filled in for
+    a packet read by <i>udpread</i> can be used unchanged in <i>udpwrite</i> to
+    send a response back to the sender of the original packet.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/udp.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/ip.html"><i>ip</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

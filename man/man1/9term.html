@@ -1,0 +1,259 @@
+<head>
+<title>9term(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>9TERM(1)</b><td align=right><b>9TERM(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    9term &ndash; terminal windows<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>9term</font></tt> [ <tt><font size=+1>&#8722;as</font></tt> ] [ <tt><font size=+1>&#8722;f</font></tt> <i>font</i> ] [ <i>cmd</i> ... ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>9term</i> is a terminal window program for the X Window System, providing
+    an interface similar to that used on Plan 9.<br>
+    <p><font size=+1><b>Command     </b></font><br>
+    The <i>9term</i> command starts a new window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;a</font></tt> flag causes button 2 to send the selection immediately,
+    like acme. Otherwise button 2 brings up a menu, described below.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;s</font></tt> option initializes windows so that text scrolls; the default
+    is not to scroll. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>font</i> argument to <tt><font size=+1>&#8722;f</font></tt> names a font used to display text, both
+    in <i>9term</i>&#8217;s menus and as a default for any programs running in
+    its windows; it also establishes the environment variable <tt><font size=+1>$font</font></tt>.
+    If <tt><font size=+1>&#8722;f</font></tt> is not given, <i>9term</i> uses the imported value of <tt><font size=+1>$font</font></tt> if
+    set; otherwise it uses the graphics system default. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>9term</i> runs the given command in the window, or <tt><font size=+1>$SHELL</font></tt> if no command
+    is given.<br>
+    <p><font size=+1><b>Text windows    </b></font><br>
+    Characters typed on the keyboard collect in the window to form
+    a long, continuous document. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There is always some <i>selected text</i>, a contiguous string marked
+    on the screen by reversing its color. If the selected text is
+    a null string, it is indicated by a hairline cursor between two
+    characters. The selected text may be edited by mousing and typing.
+    Text is selected by pointing and clicking button 1 to make a null-
+    string selection, or by pointing, then sweeping with button 1
+    pressed. Text may also be selected by double-clicking: just inside
+    a matched delimiter-pair with one of <tt><font size=+1>{[(&lt;`'&quot;</font></tt> on the left and <tt><font size=+1>}])&gt;`'&quot;</font></tt>
+    on the right, it selects all text within the pair; at the beginning
+    or end of a line, it selects the line; within or at the
+    edge of an alphanumeric word, it selects the word. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Characters typed on the keyboard replace the selected text; if
+    this text is not empty, it is placed in a <i>snarf buffer</i> common
+    to all windows but distinct from that of <a href="../man1/sam.html"><i>sam</i>(1)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Programs access the text in the window at a single point maintained
+    automatically by <i>9term</i>. The <i>output point</i> is the location in the
+    text where the next character written by a program to the terminal
+    will appear; afterwards, the output point is the null string beyond
+    the new character. The output point is also the location
+    in the text of the next character that will be read (directly
+    from the text in the window, not from an intervening buffer) by
+    a program. Since Unix does not make it possible to know when a
+    program is reading the terminal, lines are sent as they are completed
+    (when the user types a newline character). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In general there is text in the window after the output point,
+    usually placed there by typing but occasionally by the editing
+    operations described below. A pending read of the terminal will
+    block until the text after the output point contains a newline,
+    whereupon the read may acquire the text, up to and including the
+    newline. After the read, as described above, the output point
+    will be at the beginning of the next line of text. In normal circumstances,
+    therefore, typed text is delivered to programs a line at a time.
+    Changes made by typing or editing before the text is read will
+    not be seen by the program reading it. Because of the
+    Unix issues mentioned above, a line of text is only editable until
+    it is completed with a newline character, or when hold mode (see
+    below) is enabled. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Even when there are newlines in the output text, <i>9term</i> will not
+    honor reads if the window is in <i>hold mode</i>, which is indicated
+    by a white cursor and blue text and border. The ESC character
+    toggles hold mode. Some programs automatically turn on hold mode
+    to simplify the editing of multi-line text; type ESC when done
+    to allow <i>mail</i> to read the text. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An EOT character (control-D) behaves exactly like newline except
+    that it is not delivered to a program when read. Thus on an empty
+    line an EOT serves to deliver an end-of-file indication: the read
+    will return zero characters. The BS character (control-H) erases
+    the character before the selected text. The ETB character
+    (control-W) erases any nonalphanumeric characters, then the alphanumeric
+    word just before the selected text. &#8216;Alphanumeric&#8217; here means
+    non-blanks and non-punctuation. The NAK character (control-U)
+    erases the text after the output point, and not yet read by a
+    program, but not more than one line. All these
+    characters are typed on the keyboard and hence replace the selected
+    text; for example, typing a BS with a word selected places the
+    word in the snarf buffer, removes it from the screen, and erases
+    the character before the word. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An ACK character (control-F) or Insert character triggers file
+    name completion for the preceding string (see <a href="../man3/complete.html"><i>complete</i>(3)</a>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Text may be moved vertically within the window. A scroll bar on
+    the left of the window shows in its clear portion what fragment
+    of the total output text is visible on the screen, and in its
+    gray part what is above or below view; it measures characters,
+    not lines. Mousing inside the scroll bar moves text: clicking
+    button 1
+    with the mouse pointing inside the scroll bar brings the line
+    at the top of the window to the cursor&#8217;s vertical location; button
+    3 takes the line at the cursor to the top of the window; button
+    2, treating the scroll bar as a ruler, jumps to the indicated
+    portion of the stored text. Holding a button pressed in the scroll
+    bar will
+    cause the text to scroll continuously until the button is released.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Typing down-arrow scrolls forward one third of a window, and up-arrow
+    scrolls back. Typing page-down scrolls forward two thirds of a
+    window, and page-up scrolls back. Typing Home scrolls to the top
+    of the window; typing End scrolls to the end. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The DEL character sends an <tt><font size=+1>interrupt</font></tt> note to all processes in
+    the window&#8217;s process group. Unlike the other characters, the DEL
+    and arrow keys do not affect the selected text. The left (right)
+    arrow key moves the selection to one character before (after)
+    the current selection. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>9term</i> relies on the kernel&#8217;s terminal processing to handle EOT
+    and DEL, so the terminal must be set up with EOT as the &#8220;eof&#8221;
+    character and DEL as the &#8220;intr&#8221; character. <i>9term</i> runs <a href="../man1/stty.html"><i>stty</i>(1)</a>
+    to establish this when the terminal is created. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Normally, written output to a window blocks when the text reaches
+    the end of the screen and the terminal buffer fills; a button
+    2 menu item toggles scrolling. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>9term</i> changes behavior according to the terminal settings of the
+    running programs. Most programs run with echo enabled. In this
+    mode, <i>9term</i> displays and allows editing of the input. Some programs,
+    typically those reading passwords, run with echo disabled. In
+    this mode, <i>9term</i> passes keystrokes through directly,
+    without echoing them or buffering until a newline character. These
+    heuristics work well in many cases, but there are a few common
+    ones where they fall short. First, programs using the GNU readline
+    library typically disable terminal echo and perform echoing themselves.
+    The most common example is the shell
+    <a href="../man1/bash.html"><i>bash</i>(1)</a>. Disabling the use of readline with &#8220;<tt><font size=+1>set +o emacs</font></tt>&#8221; [<i>sic</i>]
+    usually restores the desired behavior. Second, remote terminal
+    programs such as <a href="../man1/ssh.html"><i>ssh</i>(1)</a> typically run with echo disabled, relying
+    on the remote system to echo characters as desired. Plan 9&#8217;s <i>ssh</i>
+    has a <tt><font size=+1>&#8722;C</font></tt> flag to disable this, leaving the terminal in
+    &#8220;cooked&#8221; mode. For similar situations on Unix, <i>9term</i>&#8217;s button
+    2 menu has an entry to toggle the forced use of cooked mode, despite
+    the terminal settings. In such cases, it is useful to run &#8220;<tt><font size=+1>stty
+    &#8722;echo</font></tt>&#8221; on the remote system to avoid seeing your input twice.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Editing operations are selected from a menu on button 2. The <tt><font size=+1>cut</font></tt>
+    operation deletes the selected text from the screen and puts it
+    in the snarf buffer; <tt><font size=+1>snarf</font></tt> copies the selected text to the buffer
+    without deleting it; <tt><font size=+1>paste</font></tt> replaces the selected text with the
+    contents of the buffer; and <tt><font size=+1>send</font></tt> copies the snarf buffer to
+    just after the output point, adding a final newline if missing.
+    <tt><font size=+1>Paste</font></tt> will sometimes and <tt><font size=+1>send</font></tt> will always place text after the
+    output point; the text so placed will behave exactly as described
+    above. Therefore when pasting text containing newlines after the
+    output point, it may be prudent to turn on hold mode first. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>plumb</font></tt> menu item sends the contents of the selection (not the
+    snarf buffer) to the <i>plumber</i> (see <a href="../man1/plumb.html"><i>plumb</i>(1)</a>). If the selection
+    is empty, it sends the white-space-delimited text containing the
+    selection (typing cursor). A typical use of this feature is to
+    tell the editor to find the source of an error by plumbing the
+    file and
+    line information in a compiler&#8217;s diagnostic. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each <i>9term</i> listens for connections on a Unix socket. When a client
+    connects, the <i>9term</i> writes the window contents to the client and
+    then hangs up. <i>9term</i> installs the name of this socket in the environment
+    as <tt><font size=+1>$text9term</font></tt> before running <i>cmd</i>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/9term<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    There should be a program to toggle the current window&#8217;s hold
+    mode. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Unix makes everything harder.<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/wintext.html"><i>wintext</i>(1)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

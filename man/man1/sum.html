@@ -1,0 +1,92 @@
+<head>
+<title>sum(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>SUM(1)</b><td align=right><b>SUM(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    sum, md5sum, sha1sum &ndash; sum and count blocks in a file<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>sum</font></tt> [ <tt><font size=+1>&#8722;5r</font></tt> ] [ <i>file ...</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>md5sum</font></tt> [ <i>file ...</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>sha1sum</font></tt> [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    By default, <i>sum</i> calculates and prints a 32-bit hexadecimal checksum,
+    a byte count, and the name of each <i>file</i>. The checksum is also
+    a function of the input length. If no files are given, the standard
+    input is summed. Other summing algorithms are available. The options
+    are<br>
+    <tt><font size=+1>&#8722;r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Sum with the algorithm of System V&#8217;s <tt><font size=+1>sum &#8722;r</font></tt> and print the length
+    (in 1K blocks) of the input.<br>
+    <tt><font size=+1>&#8722;5</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Sum with System V&#8217;s default algorithm and print the length (in
+    512-byte blocks) of the input. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Sum</i> is typically used to look for bad spots, to validate a file
+    communicated over some transmission line or as a quick way to
+    determine if two files on different machines might be the same.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Md5sum</font></tt> computes the 32 hex digit RSA Data Security, Inc. MD5 Message-Digest
+    Algorithm described in RFC1321. If no <i>files</i> are given, the standard
+    input is summed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Sha1sum</font></tt> computes the 40 hex digit National Institute of Standards
+    and Technology SHA1 secure hash algorithm described in FIPS PUB
+    180-1. If no <i>files</i> are given, the standard input is summed.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/sum.c<br>
+    /usr/local/plan9/src/cmd/md5sum.c<br>
+    /usr/local/plan9/src/cmd/sha1sum.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/cmp.html"><i>cmp</i>(1)</a>, <a href="../man1/wc.html"><i>wc</i>(1)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,118 @@
+<head>
+<title>rfork(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>RFORK(3)</b><td align=right><b>RFORK(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    rfork &ndash; manipulate process state<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int rfork(int flags)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Rfork</i> is a partial implementation of the Plan 9 system call. It
+    can be used to manipulate some process state and to create new
+    processes a la <a href="../man2/fork.html"><i>fork</i>(2)</a>. It cannot be used to create shared-memory
+    processes (Plan 9&#8217;s <tt><font size=+1>RFMEM</font></tt> flag); for that functionality use <i>proccreate</i>
+    (see <a href="../man3/thread.html"><i>thread</i>(3)</a>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>flags</i> argument to <i>rfork</i> selects which resources of the invoking
+    process (parent) are shared by the new process (child) or initialized
+    to their default values. <i>Flags</i> is the logical OR of some subset
+    of<br>
+    <tt><font size=+1>RFPROC</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If set a new process is created; otherwise changes affect
+    the current process.<br>
+    <tt><font size=+1>RFNOWAIT</font></tt>&nbsp;&nbsp;&nbsp;If set, the child process will be dissociated from the
+    parent. Upon exit the child will leave no <tt><font size=+1>Waitmsg</font></tt> (see <a href="../man3/wait.html"><i>wait</i>(3)</a>)
+    for the parent to collect.<br>
+    <tt><font size=+1>RFNOTEG</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Each process is a member of a group of processes that all
+    receive notes when a note is sent to the group (see <a href="../man3/postnote.html"><i>postnote</i>(3)</a>
+    and <a href="../man2/signal.html"><i>signal</i>(2)</a>). The group of a new process is by default the same
+    as its parent, but if <tt><font size=+1>RFNOTEG</font></tt> is set (regardless of <tt><font size=+1>RFPROC</font></tt>), the
+    process becomes the first in a new group, isolated
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            from previous processes. In Plan 9, a process can call <tt><font size=+1>rfork(RFNOTEG)</font></tt>
+            and then be sure that it will no longer receive console interrupts
+            or other notes. Unix job-control shells put each command in its
+            own process group and then relay notes to the current foreground
+            command, making the idiom
+            less useful.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>RFFDG</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If set, the invoker&#8217;s file descriptor table (see <i>intro</i>(<i>))</i>
+    is copied; otherwise the two processes share a single table. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    File descriptors in a shared file descriptor table are kept open
+    until either they are explicitly closed or all processes sharing
+    the table exit. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If <tt><font size=+1>RFPROC</font></tt> is set, the value returned in the parent process is
+    the process id of the child process; the value returned in the
+    child is zero. Without <tt><font size=+1>RFPROC</font></tt>, the return value is zero. Process
+    ids range from 1 to the maximum integer (<tt><font size=+1>int</font></tt>) value. <i>Rfork</i> will
+    sleep, if necessary, until required process resources are available.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Calling <tt><font size=+1>rfork(RFFDG|RFPROC)</font></tt> is equivalent to calling <a href="../man2/fork.html"><i>fork</i>(2)</a>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/rfork.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Rfork</i> sets <i>errstr</i>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,107 @@
+<head>
+<title>attach(9P) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ATTACH(9P)</b><td align=right><b>ATTACH(9P)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    attach, auth &ndash; messages to establish a connection<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>size</i>[4] <tt><font size=+1>Tauth</font></tt> <i>tag</i>[2] <i>afid</i>[4] <i>uname</i>[<i>s</i>] <i>aname</i>[<i>s</i>]<br>
+    <i>size</i>[4] <tt><font size=+1>Rauth</font></tt> <i>tag</i>[2] <i>aqid</i>[13] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>size</i>[4] <tt><font size=+1>Tattach</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>afid</i>[4] <i>uname</i>[<i>s</i>] <i>aname</i>[<i>s</i>]<br>
+    <i>size</i>[4] <tt><font size=+1>Rattach</font></tt> <i>tag</i>[2] <i>qid</i>[13]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>attach</font></tt> message serves as a fresh introduction from a user
+    on the client machine to the server. The message identifies the
+    user (<i>uname</i>) and may select the file tree to access (<i>aname</i>). The
+    <i>afid</i> argument specifies a fid previously established by an <tt><font size=+1>auth</font></tt>
+    message, as described below. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    As a result of the <tt><font size=+1>attach</font></tt> transaction, the client will have a
+    connection to the root directory of the desired file tree, represented
+    by <i>fid</i>. An error is returned if <i>fid</i> is already in use. The server&#8217;s
+    idea of the root of the file tree is represented by the returned
+    <i>qid</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the client does not wish to authenticate the connection, or
+    knows that authentication is not required, the <i>afid</i> field in the
+    <tt><font size=+1>attach</font></tt> message should be set to <tt><font size=+1>NOFID</font></tt>, defined as <tt><font size=+1>(u32int)~0</font></tt> in
+    <tt><font size=+1>&lt;fcall.h&gt;</font></tt>. If the client does wish to authenticate, it must acquire
+    and validate an <i>afid</i> using an <tt><font size=+1>auth</font></tt> message before
+    doing the <tt><font size=+1>attach</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>auth</font></tt> message contains <i>afid</i>, a new fid to be established for
+    authentication, and the <i>uname</i> and <i>aname</i> that will be those of
+    the following <tt><font size=+1>attach</font></tt> message. If the server does not require authentication,
+    it returns <tt><font size=+1>Rerror</font></tt> to the <tt><font size=+1>Tauth</font></tt> message. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the server does require authentication, it returns <i>aqid</i> defining
+    a file of type <tt><font size=+1>QTAUTH</font></tt> (see <i>intro</i>(9P)) that may be read and written
+    (using <tt><font size=+1>read</font></tt> and <tt><font size=+1>write</font></tt> messages in the usual way) to execute an
+    authentication protocol. That protocol&#8217;s definition is not part
+    of 9P itself. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Once the protocol is complete, the same <i>afid</i> is presented in the
+    <tt><font size=+1>attach</font></tt> message for the user, granting entry. The same validated
+    <i>afid</i> may be used for multiple <tt><font size=+1>attach</font></tt> messages with the same <i>uname</i>
+    and <i>aname</i>.<br>
+    
+</table>
+<p><font size=+1><b>ENTRY POINTS    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Fsmount</i> and <i>fsauth</i> (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>) generate <tt><font size=+1>attach</font></tt> and <tt><font size=+1>auth</font></tt>
+    transactions.<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>, <i>version</i>(9P), Plan 9&#8217;s <i>authsrv</i>(6)<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

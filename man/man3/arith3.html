@@ -1,0 +1,216 @@
+<head>
+<title>arith3(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ARITH3(3)</b><td align=right><b>ARITH3(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    add3, sub3, neg3, div3, mul3, eqpt3, closept3, dot3, cross3, len3,
+    dist3, unit3, midpt3, lerp3, reflect3, nearseg3, pldist3, vdiv3,
+    vrem3, pn2f3, ppp2f3, fff2p3, pdiv4, add4, sub4 &ndash; operations on
+    3-d points and planes<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;draw.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>#include &lt;geometry.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 add3(Point3 a, Point3 b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 sub3(Point3 a, Point3 b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 neg3(Point3 a) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 div3(Point3 a, double b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 mul3(Point3 a, double b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int eqpt3(Point3 p, Point3 q) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int closept3(Point3 p, Point3 q, double eps) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double dot3(Point3 p, Point3 q) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 cross3(Point3 p, Point3 q) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double len3(Point3 p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double dist3(Point3 p, Point3 q) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 unit3(Point3 p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 midpt3(Point3 p, Point3 q) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 lerp3(Point3 p, Point3 q, double alpha) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 reflect3(Point3 p, Point3 p0, Point3 p1) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 nearseg3(Point3 p0, Point3 p1, Point3 testp) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double pldist3(Point3 p, Point3 p0, Point3 p1) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>double vdiv3(Point3 a, Point3 b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 vrem3(Point3 a, Point3 b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 pn2f3(Point3 p, Point3 n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 ppp2f3(Point3 p0, Point3 p1, Point3 p2) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 fff2p3(Point3 f0, Point3 f1, Point3 f2) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 pdiv4(Point3 a) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 add4(Point3 a, Point3 b) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point3 sub4(Point3 a, Point3 b)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines do arithmetic on points and planes in affine or
+    projective 3-space. Type <tt><font size=+1>Point3</font></tt> is<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef struct Point3 Point3;<br>
+        struct Point3{<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            double x, y, z, w;<br>
+            
+        </table>
+        };<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    Routines whose names end in <tt><font size=+1>3</font></tt> operate on vectors or ordinary points
+    in affine 3-space, represented by their Euclidean <tt><font size=+1>(x,y,z)</font></tt> coordinates.
+    (They assume <tt><font size=+1>w=1</font></tt> in their arguments, and set <tt><font size=+1>w=1</font></tt> in their results.)<br>
+    Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description<br>
+    <tt><font size=+1>add3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add the coordinates of two points.<br>
+    <tt><font size=+1>sub3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subtract coordinates of two points.<br>
+    <tt><font size=+1>neg3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Negate the coordinates of a point.<br>
+    <tt><font size=+1>mul3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Multiply coordinates by a scalar.<br>
+    <tt><font size=+1>div3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Divide coordinates by a scalar.<br>
+    <tt><font size=+1>eqpt3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Test two points for exact equality.<br>
+    <tt><font size=+1>closept3</font></tt>&nbsp;&nbsp;&nbsp;Is the distance between two points smaller than <i>eps</i>?<br>
+    <tt><font size=+1>dot3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dot product.<br>
+    <tt><font size=+1>cross3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cross product.<br>
+    <tt><font size=+1>len3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Distance to the origin.<br>
+    <tt><font size=+1>dist3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Distance between two points.<br>
+    <tt><font size=+1>unit3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A unit vector parallel to <i>p</i>.<br>
+    <tt><font size=+1>midpt3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The midpoint of line segment <i>pq</i>.<br>
+    <tt><font size=+1>lerp3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Linear interpolation between <i>p</i> and <i>q</i>.<br>
+    <tt><font size=+1>reflect3</font></tt>&nbsp;&nbsp;&nbsp;The reflection of point <i>p</i> in the segment joining <i>p0</i> and
+    <i>p1</i>.<br>
+    <tt><font size=+1>nearseg3</font></tt>&nbsp;&nbsp;&nbsp;The closest point to <i>testp</i> on segment <i>p0 p1</i>.<br>
+    <tt><font size=+1>pldist3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;The distance from <i>p</i> to segment <i>p0 p1</i>.<br>
+    <tt><font size=+1>vdiv3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector divide -- the length of the component of <i>a</i> parallel
+    to <i>b</i>, in units of the length of <i>b</i>.<br>
+    <tt><font size=+1>vrem3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector remainder -- the component of <i>a</i> perpendicular to <i>b</i>.
+    Ignoring roundoff, we have <tt><font size=+1>eqpt3(add3(mul3(b, vdiv3(a, b)), vrem3(a,
+    b)), a)</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The following routines convert amongst various representations
+    of points and planes. Planes are represented identically to points,
+    by duality; a point <tt><font size=+1>p</font></tt> is on a plane <tt><font size=+1>q</font></tt> whenever <tt><font size=+1>p.x*q.x+p.y*q.y+p.z*q.z+p.w*q.w=0</font></tt>.
+    Although when dealing with affine points we assume <tt><font size=+1>p.w=1</font></tt>, we can&#8217;t
+    make the same
+    assumption for planes. The names of these routines are extra-cryptic.
+    They contain an <tt><font size=+1>f</font></tt> (for &#8216;face&#8217;) to indicate a plane, <tt><font size=+1>p</font></tt> for a point
+    and <tt><font size=+1>n</font></tt> for a normal vector. The number <tt><font size=+1>2</font></tt> abbreviates the word &#8216;to.&#8217;
+    The number <tt><font size=+1>3</font></tt> reminds us, as before, that we&#8217;re dealing with affine
+    points. Thus <tt><font size=+1>pn2f3</font></tt> takes a point and a normal
+    vector and returns the corresponding plane.<br>
+    Name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Description<br>
+    <tt><font size=+1>pn2f3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute the plane passing through <i>p</i> with normal <i>n</i>.<br>
+    <tt><font size=+1>ppp2f3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute the plane passing through three points.<br>
+    <tt><font size=+1>fff2p3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute the intersection point of three planes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The names of the following routines end in <tt><font size=+1>4</font></tt> because they operate
+    on points in projective 4-space, represented by their homogeneous
+    coordinates.<br>
+    pdiv4Perspective division. Divide <tt><font size=+1>p.w</font></tt> into <i>p</i>&#8217;s coordinates, converting
+    to affine coordinates. If <tt><font size=+1>p.w</font></tt> is zero, the result is the same
+    as the argument.<br>
+    add4&nbsp;&nbsp;&nbsp;Add the coordinates of two points.<br>
+    sub4&nbsp;&nbsp;&nbsp;Subtract the coordinates of two points.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libgeometry<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/matrix.html"><i>matrix</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

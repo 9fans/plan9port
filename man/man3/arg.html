@@ -1,0 +1,152 @@
+<head>
+<title>arg(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ARG(3)</b><td align=right><b>ARG(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    ARGBEGIN, ARGEND, ARGC, ARGF, EARGF, arginit, argopt &ndash; process
+    option letters from argv<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ARGBEGIN { <br>
+    char *ARGF(); <br>
+    char *EARGF(code); <br>
+    Rune ARGC(); <br>
+    } ARGEND <br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>extern char *argv0; <br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These macros assume the names <i>argc</i> and <i>argv</i> are in scope; see
+    <a href="../man3/exec.html"><i>exec</i>(3)</a>. <i>ARGBEGIN</i> and <i>ARGEND</i> surround code for processing program
+    options. The code should be the cases of a C switch on option
+    characters; it is executed once for each option character. Options
+    end after an argument <tt><font size=+1>&#8722;&#8722;</font></tt>, before an argument <tt><font size=+1>&#8722;</font></tt>, or
+    before an argument that doesn&#8217;t begin with <tt><font size=+1>&#8722;</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The function macro <i>ARGC</i> returns the current option character,
+    as an integer. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The function macro <i>ARGF</i> returns the current option argument: a
+    pointer to the rest of the option string if not empty, or the
+    next argument in <i>argv</i> if any, or 0. <i>ARGF</i> must be called just once
+    for each option that takes an argument. The macro <i>EARGF</i> is like
+    <i>ARGF</i> but instead of returning zero runs <i>code</i> and, if that
+    returns, calls <a href="../man3/abort.html"><i>abort</i>(3)</a>. A typical value for <i>code</i> is <tt><font size=+1>usage()</font></tt>,
+    as in <tt><font size=+1>EARGF(usage())</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    After <i>ARGBEGIN</i>, <i>argv0</i> is a copy of <tt><font size=+1>argv[0]</font></tt> (conventionally the
+    name of the program). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    After <i>ARGEND</i>, <i>argv</i> points at a zero-terminated list of the remaining
+    <i>argc</i> arguments.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This C program can take option <tt><font size=+1>b</font></tt> and option <tt><font size=+1>f</font></tt>, which requires
+    an argument.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>#include &lt;u.h&gt;<br>
+        #include &lt;libc.h&gt;<br>
+        void<br>
+        main(int argc, char *argv[])<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            char *f;<br>
+            print(&quot;%s&quot;, argv[0]);<br>
+            ARGBEGIN {<br>
+            case 'b':<br>
+             print(&quot; &#8722;b&quot;);<br>
+             break;<br>
+            case 'f':<br>
+             print(&quot; &#8722;f(%s)&quot;, (f=ARGF())? f: &quot;no arg&quot;);<br>
+             break;<br>
+            default:<br>
+             print(&quot; badflag('%c')&quot;, ARGC());<br>
+            } ARGEND<br>
+            print(&quot; %d args:&quot;, argc);<br>
+            while(*argv)<br>
+             print(&quot; '%s'&quot;, *argv++);<br>
+            print(&quot;\n&quot;);<br>
+            exits(nil);<br>
+            
+        </table>
+        }<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    Here is the output from running the command <tt><font size=+1>prog &#8722;bffile1 &#8722;r &#8722;f
+    file2 arg1 arg2<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        prog &#8722;b &#8722;f(file1) badflag('r') &#8722;f(file2) 2 args: 'arg1' 'arg2'
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/include/libc.h<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,172 @@
+<head>
+<title>rio(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>RIO(1)</b><td align=right><b>RIO(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    rio &ndash; rio-like Window Manager for X<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>rio</font></tt> [ <tt><font size=+1>&ndash;font</font></tt> <i>fontname</i> ] [ <tt><font size=+1>&ndash;grey</font></tt> ] [ <tt><font size=+1>&ndash;s</font></tt> ] [ <tt><font size=+1>&ndash;term</font></tt> <i>termprog</i> ] [ <tt><font size=+1>&ndash;version</font></tt>
+    ] [ <tt><font size=+1>&ndash;virtuals</font></tt> <i>num</i> ] [ <tt><font size=+1>exit</font></tt> | <tt><font size=+1>restart</font></tt> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Rio</i> is a window manager for X which attempts to emulate the window
+    management policies of Plan 9&#8217;s <i>rio</i> window manager. Rio is derived
+    from David Hogan&#8217;s 8&#189;. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&ndash;grey</font></tt> option makes the background stippled grey, the default
+    X11 background, instead of solid grey, the Plan 9 background.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&ndash;font</font></tt> option sets the font in <i>rio</i>&#8217;s menu to <i>fname</i>, overriding
+    the default. Unlike the other programs in the Plan 9 ports, rio
+    expects this font to be an X11 font rather than a Plan 9 font.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&ndash;term</font></tt> option specifies an alternative program to run when the
+    <i>New</i> menu item is selected. The default is to try <a href="../man1/9term.html"><i>9term</i>(1)</a> and
+    then to fall back to <a href="../man1/xterm.html"><i>xterm</i>(1)</a>. The <tt><font size=+1>&ndash;s</font></tt> option causes <i>rio</i> to add
+    <tt><font size=+1>&#8722;s</font></tt> to <i>9term</i>&#8217;s command-line, starting the window in scrolling mode.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&ndash;version</font></tt> option prints the current version on standard error,
+    then exits. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&ndash;virtuals</font></tt> option sets the number of virtual screens (the default
+    is 1, and the maximum is 12). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the argument <tt><font size=+1>exit</font></tt> or <tt><font size=+1>restart</font></tt> is given, it is sent to an already-running
+    <i>rio</i>, causing the extant <i>rio</i> to exit or restart.<br>
+    <p><font size=+1><b>Using rio    </b></font><br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    One window is <i>current</i>, and is indicated with a dark border and
+    text; characters typed on the keyboard are available in the <tt><font size=+1>/dev/cons</font></tt>
+    file of the process in the current window. Characters written
+    on <tt><font size=+1>/dev/cons</font></tt> appear asynchronously in the associated window whether
+    or not the window is current. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Windows are created, deleted and rearranged using the mouse. Clicking
+    (pressing and releasing) mouse button 1 in a non-current window
+    makes that window current and brings it in front of any windows
+    that happen to be overlapping it. When the mouse cursor points
+    to the background area or is in a window that has
+    not claimed the mouse for its own use, pressing mouse button 3
+    activates a menu of window operations provided by <i>rio</i>. Releasing
+    button 3 then selects an operation. At this point, a gunsight
+    or cross cursor indicates that an operation is pending. The button
+    3 menu operations are:<br>
+    <tt><font size=+1>New</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a window. Press button 3 where one corner of the new
+    rectangle should appear (cross cursor), and move the mouse, while
+    holding down button 3, to the diagonally opposite corner. Releasing
+    button 3 creates the window, and makes it current. Very small
+    windows may not be created. The new
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            window is created running <i>termprog</i>, by default <a href="../man1/9term.html"><i>9term</i>(1)</a> or, if
+            <i>9term</i> is not available, <a href="../man1/xterm.html"><i>xterm</i>(1)</a>.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>Resize</font></tt>&nbsp;&nbsp;&nbsp;Change the size and location of a window. First click button
+    3 in the window to be changed (gunsight cursor). Then sweep out
+    a window as for the <tt><font size=+1>New</font></tt> operation. The window is made current.<br>
+    <tt><font size=+1>Move</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Move a window to another location. After pressing and holding
+    button 3 over the window to be moved (gunsight cursor), indicate
+    the new position by dragging the rectangle to the new location.
+    The window is made current. Windows may be moved partially off-screen.<br>
+    <tt><font size=+1>Delete</font></tt>&nbsp;&nbsp;&nbsp;Delete a window. Click in the window to be deleted (gunsight
+    cursor). Deleting a window causes a <tt><font size=+1>hangup</font></tt> note to be sent to
+    all processes in the window&#8217;s process group (see <a href="../man3/notify.html"><i>notify</i>(3)</a>).<br>
+    <tt><font size=+1>Hide</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hide a window. Click in the window to be hidden (gunsight
+    cursor); it will be moved off-screen. Each hidden window is given
+    a menu entry in the button 3 menu according to its current window
+    system label.<br>
+    <i>label</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Restore a hidden window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Windows may also be arranged by dragging their borders. Pressing
+    button 1 or 2 over a window&#8217;s border allows one to move the corresponding
+    edge or corner, while button 3 moves the whole window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When the mouse cursor points to the background area and <i>rio</i> has
+    been started with multiple virtual screens using the <tt><font size=+1>&ndash;virtuals</font></tt>
+    option, clicking button 2 brings up a menu to select a virtual
+    screen to view. Scrolling the mouse wheel while the cursor points
+    at the background will cycle through the virtual screens.
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    In Plan 9&#8217;s <i>rio</i>, clicking button 2 or button 3 to select a window
+    also sends that event to the window itself. This <i>rio</i> does not.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The command-line syntax is non-standard. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In Plan 9&#8217;s <i>rio</i>, newly started applications take over the current
+    window. This <i>rio</i> starts a new window for each program. (In X11,
+    it appears to be impossible to know which window starts a particular
+    program.) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There is a currently a compiled-in limit of 128 hidden windows.<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/9term.html"><i>9term</i>(1)</a>, <a href="../man1/xterm.html"><i>xterm</i>(1)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,186 @@
+.TH RUNE 3
+.SH NAME
+runetochar, chartorune, runelen, runenlen, fullrune, utfecpy, utflen, utfnlen, utfrune, utfrrune, utfutf \- rune/UTF conversion
+.SH SYNOPSIS
+.ta \w'\fLchar*xx'u
+.B #include <utf.h>
+.PP
+.B
+int	runetochar(char *s, Rune *r)
+.PP
+.B
+int	chartorune(Rune *r, char *s)
+.PP
+.B
+int	runelen(long r)
+.PP
+.B
+int	runenlen(Rune *r, int n)
+.PP
+.B
+int	fullrune(char *s, int n)
+.PP
+.B
+char*	utfecpy(char *s1, char *es1, char *s2)
+.PP
+.B
+int	utflen(char *s)
+.PP
+.B
+int	utfnlen(char *s, long n)
+.PP
+.B
+char*	utfrune(char *s, long c)
+.PP
+.B
+char*	utfrrune(char *s, long c)
+.PP
+.B
+char*	utfutf(char *s1, char *s2)
+.SH DESCRIPTION
+These routines convert to and from a
+.SM UTF
+byte stream and runes.
+.PP
+.I Runetochar
+copies one rune at
+.I r
+to at most
+.B UTFmax
+bytes starting at
+.I s
+and returns the number of bytes copied.
+.BR UTFmax ,
+defined as
+.B 3
+in
+.BR <libc.h> ,
+is the maximum number of bytes required to represent a rune.
+.PP
+.I Chartorune
+copies at most
+.B UTFmax
+bytes starting at
+.I s
+to one rune at
+.I r
+and returns the number of bytes copied.
+If the input is not exactly in
+.SM UTF
+format,
+.I chartorune
+will convert to 0x80 and return 1.
+.PP
+.I Runelen
+returns the number of bytes
+required to convert
+.I r
+into
+.SM UTF.
+.PP
+.I Runenlen
+returns the number of bytes
+required to convert the
+.I n
+runes pointed to by
+.I r
+into
+.SM UTF.
+.PP
+.I Fullrune
+returns 1 if the string
+.I s
+of length
+.I n
+is long enough to be decoded by
+.I chartorune
+and 0 otherwise.
+This does not guarantee that the string
+contains a legal
+.SM UTF
+encoding.
+This routine is used by programs that
+obtain input a byte at
+a time and need to know when a full rune
+has arrived.
+.PP
+The following routines are analogous to the
+corresponding string routines with
+.B utf
+substituted for
+.B str
+and
+.B rune
+substituted for
+.BR chr .
+.PP
+.I Utfecpy
+copies UTF sequences until a null sequence has been copied, but writes no 
+sequences beyond
+.IR es1 .
+If any sequences are copied,
+.I s1
+is terminated by a null sequence, and a pointer to that sequence is returned.
+Otherwise, the original
+.I s1
+is returned.
+.PP
+.I Utflen
+returns the number of runes that
+are represented by the
+.SM UTF
+string
+.IR s .
+.PP
+.I Utfnlen
+returns the number of complete runes that
+are represented by the first
+.I n
+bytes of
+.SM UTF
+string
+.IR s .
+If the last few bytes of the string contain an incompletely coded rune,
+.I utfnlen
+will not count them; in this way, it differs from
+.IR utflen ,
+which includes every byte of the string.
+.PP
+.I Utfrune
+.RI ( utfrrune )
+returns a pointer to the first (last)
+occurrence of rune
+.I c
+in the
+.SM UTF
+string
+.IR s ,
+or 0 if
+.I c
+does not occur in the string.
+The NUL byte terminating a string is considered to
+be part of the string
+.IR s .
+.PP
+.I Utfutf
+returns a pointer to the first occurrence of
+the
+.SM UTF
+string
+.I s2
+as a
+.SM UTF
+substring of
+.IR s1 ,
+or 0 if there is none.
+If
+.I s2
+is the null string,
+.I utfutf
+returns
+.IR s1 .
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH SEE ALSO
+.IR utf (7),
+.IR tcs (1)

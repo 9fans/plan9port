@@ -1,0 +1,344 @@
+<head>
+<title>intro(9P) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>INTRO(9P)</b><td align=right><b>INTRO(9P)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    intro &ndash; introduction to the Plan 9 File Protocol, 9P<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;fcall.h&gt;<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    A Plan 9 <i>server</i> is an agent that provides one or more hierarchical
+    file systems -- file trees -- that may be accessed by Plan 9 processes.
+    A server responds to requests by <i>clients</i> to navigate the hierarchy,
+    and to create, remove, read, and write files. The prototypical
+    server is a separate machine that stores large numbers
+    of user files on permanent media; such a machine is called, somewhat
+    confusingly, a <i>file server</i>. Another possibility for a server is
+    to synthesize files on demand, perhaps based on information on
+    data structures maintained in memory; the <a href="../man4/plumber.html"><i>plumber</i>(4)</a> server is
+    an example of such a server. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>connection</i> to a server is a bidirectional communication path
+    from the client to the server. There may be a single client or
+    multiple clients sharing the same connection. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>Plan 9 File Protocol</i>, 9P, is used for messages between <i>clients</i>
+    and <i>servers</i>. A client transmits <i>requests</i> (<i>T-messages</i>) to a server,
+    which subsequently returns <i>replies</i> (<i>R-messages</i>) to the client.
+    The combined acts of transmitting (receiving) a request of a particular
+    type, and receiving (transmitting) its reply is called a
+    <i>transaction</i> of that type. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each message consists of a sequence of bytes. Two-, four-, and
+    eight-byte fields hold unsigned integers represented in little-endian
+    order (least significant byte first). Data items of larger or
+    variable lengths are represented by a two-byte field specifying
+    a count, <i>n</i>, followed by <i>n</i> bytes of data. Text strings are
+    represented this way, with the text itself stored as a UTF-8 encoded
+    sequence of Unicode characters (see <a href="../man7/utf.html"><i>utf</i>(7)</a>). Text strings in 9P
+    messages are not NUL-terminated: <i>n</i> counts the bytes of UTF-8 data,
+    which include no final zero byte. The NUL character is illegal
+    in all text strings in 9P, and is therefore excluded from file
+    names, user names, and so on. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each 9P message begins with a four-byte size field specifying
+    the length in bytes of the complete message including the four
+    bytes of the size field itself. The next byte is the message type,
+    one of the constants in the enumeration in the include file <tt><font size=+1>&lt;fcall.h&gt;</font></tt>.
+    The next two bytes are an identifying <i>tag</i>, described
+    below. The remaining bytes are parameters of different sizes.
+    In the message descriptions, the number of bytes in a field is
+    given in brackets after the field name. The notation <i>parameter</i>[<i>n</i>]
+    where <i>n</i> is not a constant represents a variable-length parameter:
+    <i>n</i>[2] followed by <i>n</i> bytes of data forming the <i>parameter</i>. The
+    notation <i>string</i>[<i>s</i>] (using a literal <i>s</i> character) is shorthand
+    for <i>s</i>[2] followed by <i>s</i> bytes of UTF-8 text. (Systems may choose
+    to reduce the set of legal characters to reduce syntactic problems,
+    for example to remove slashes from name components, but the protocol
+    has no such restriction. Plan 9 names may contain any
+    printable character (that is, any character outside hexadecimal
+    00-1F and 80-9F) except slash.) Messages are transported in byte
+    form to allow for machine independence; <a href="../man3/fcall.html"><i>fcall</i>(3)</a> describes routines
+    that convert to and from this form into a machine-dependent C
+    structure.<br>
+    
+</table>
+<p><font size=+1><b>MESSAGES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>size</i>[4] <tt><font size=+1>Tversion</font></tt> <i>tag</i>[2] <i>msize</i>[4] <i>version</i>[<i>s</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Rversion</font></tt> <i>tag</i>[2] <i>msize</i>[4] <i>version</i>[<i>s</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Tauth</font></tt> <i>tag</i>[2] <i>afid</i>[4] <i>uname</i>[<i>s</i>] <i>aname</i>[<i>s</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Rauth</font></tt> <i>tag</i>[2] <i>aqid</i>[13]<br>
+        <i>size</i>[4] <tt><font size=+1>Rerror</font></tt> <i>tag</i>[2] <i>ename</i>[<i>s</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Tflush</font></tt> <i>tag</i>[2] <i>oldtag</i>[2]<br>
+        <i>size</i>[4] <tt><font size=+1>Rflush</font></tt> <i>tag</i>[2]<br>
+        <i>size</i>[4] <tt><font size=+1>Tattach</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>afid</i>[4] <i>uname</i>[<i>s</i>] <i>aname</i>[<i>s</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Rattach</font></tt> <i>tag</i>[2] <i>qid</i>[13]<br>
+        <i>size</i>[4] <tt><font size=+1>Twalk</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>newfid</i>[4] <i>nwname</i>[2] <i>nwname</i>*(<i>wname</i>[<i>s</i>])<br>
+        <i>size</i>[4] <tt><font size=+1>Rwalk</font></tt> <i>tag</i>[2] <i>nwqid</i>[2] <i>nwqid</i>*(<i>wqid</i>[13])<br>
+        <i>size</i>[4] <tt><font size=+1>Topen</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>mode</i>[1]<br>
+        <i>size</i>[4] <tt><font size=+1>Ropen</font></tt> <i>tag</i>[2] <i>qid</i>[13] <i>iounit</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Topenfd</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>mode</i>[1]<br>
+        <i>size</i>[4] <tt><font size=+1>Ropenfd</font></tt> <i>tag</i>[2] <i>qid</i>[13] <i>iounit</i>[4] <i>unixfd</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Tcreate</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>name</i>[<i>s</i>] <i>perm</i>[4] <i>mode</i>[1]<br>
+        <i>size</i>[4] <tt><font size=+1>Rcreate</font></tt> <i>tag</i>[2] <i>qid</i>[13] <i>iounit</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Tread</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>offset</i>[8] <i>count</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Rread</font></tt> <i>tag</i>[2] <i>count</i>[4] <i>data</i>[<i>count</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Twrite</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>offset</i>[8] <i>count</i>[4] <i>data</i>[<i>count</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Rwrite</font></tt> <i>tag</i>[2] <i>count</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Tclunk</font></tt> <i>tag</i>[2] <i>fid</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Rclunk</font></tt> <i>tag</i>[2]<br>
+        <i>size</i>[4] <tt><font size=+1>Tremove</font></tt> <i>tag</i>[2] <i>fid</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Rremove</font></tt> <i>tag</i>[2]<br>
+        <i>size</i>[4] <tt><font size=+1>Tstat</font></tt> <i>tag</i>[2] <i>fid</i>[4]<br>
+        <i>size</i>[4] <tt><font size=+1>Rstat</font></tt> <i>tag</i>[2] <i>stat</i>[<i>n</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Twstat</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>stat</i>[<i>n</i>]<br>
+        <i>size</i>[4] <tt><font size=+1>Rwstat</font></tt> <i>tag</i>[2] 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    Each T-message has a <i>tag</i> field, chosen and used by the client
+    to identify the message. The reply to the message will have the
+    same tag. Clients must arrange that no two outstanding messages
+    on the same connection have the same tag. An exception is the
+    tag <tt><font size=+1>NOTAG</font></tt>, defined as <tt><font size=+1>(ushort)~0</font></tt> in <tt><font size=+1>&lt;fcall.h&gt;</font></tt>: the
+    client can use it, when establishing a connection, to override
+    tag matching in <tt><font size=+1>version</font></tt> messages. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The type of an R-message will either be one greater than the type
+    of the corresponding T-message or <tt><font size=+1>Rerror</font></tt>, indicating that the
+    request failed. In the latter case, the <i>ename</i> field contains a
+    string describing the reason for failure. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>version</font></tt> message identifies the version of the protocol and
+    indicates the maximum message size the system is prepared to handle.
+    It also initializes the connection and aborts all outstanding
+    I/O on the connection. The set of messages between <tt><font size=+1>version</font></tt> requests
+    is called a <i>session</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Most T-messages contain a <i>fid</i>, a 32-bit unsigned integer that
+    the client uses to identify a &#8220;current file&#8221; on the server. Fids
+    are somewhat like file descriptors in a user process, but they
+    are not restricted to files open for I/O: directories being examined,
+    files being accessed by <a href="../man3/stat.html"><i>stat</i>(3)</a> calls, and so on -- all files being
+    manipulated by the operating system -- are identified by fids. Fids
+    are chosen by the client. All requests on a connection share the
+    same fid space; when several clients share a connection, the agent
+    managing the sharing must arrange that no two clients choose the
+    same fid. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The fid supplied in an <tt><font size=+1>attach</font></tt> message will be taken by the server
+    to refer to the root of the served file tree. The <tt><font size=+1>attach</font></tt> identifies
+    the user to the server and may specify a particular file tree
+    served by the server (for those that supply more than one). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Permission to attach to the service is proven by providing a special
+    fid, called <tt><font size=+1>afid</font></tt>, in the <tt><font size=+1>attach</font></tt> message. This <tt><font size=+1>afid</font></tt> is established
+    by exchanging <tt><font size=+1>auth</font></tt> messages and subsequently manipulated using
+    <tt><font size=+1>read</font></tt> and <tt><font size=+1>write</font></tt> messages to exchange authentication information
+    not defined explicitly by 9P. Once the
+    authentication protocol is complete, the <tt><font size=+1>afid</font></tt> is presented in
+    the <tt><font size=+1>attach</font></tt> to permit the user to access the service. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>walk</font></tt> message causes the server to change the current file associated
+    with a fid to be a file in the directory that is the old current
+    file, or one of its subdirectories. <tt><font size=+1>Walk</font></tt> returns a new fid that
+    refers to the resulting file. Usually, a client maintains a fid
+    for the root, and navigates by <tt><font size=+1>walks</font></tt> from the root fid. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A client can send multiple T-messages without waiting for the
+    corresponding R-messages, but all outstanding T-messages must
+    specify different tags. The server may delay the response to a
+    request and respond to later ones; this is sometimes necessary,
+    for example when the client reads from a file that the server
+    synthesizes from external events such as keyboard characters.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Replies (R-messages) to <tt><font size=+1>auth</font></tt>, <tt><font size=+1>attach</font></tt>, <tt><font size=+1>walk</font></tt>, <tt><font size=+1>open</font></tt>, and <tt><font size=+1>create</font></tt> requests
+    convey a <i>qid</i> field back to the client. The qid represents the
+    server&#8217;s unique identification for the file being accessed: two
+    files on the same server hierarchy are the same if and only if
+    their qids are the same. (The client may have multiple
+    fids pointing to a single file on a server and hence having a
+    single qid.) The thirteen-byte qid fields hold a one-byte type,
+    specifying whether the file is a directory, append-only file,
+    etc., and two unsigned integers: first the four-byte qid <i>version</i>,
+    then the eight-byte qid <i>path</i>. The path is an integer unique among
+    all files
+    in the hierarchy. If a file is deleted and recreated with the
+    same name in the same directory, the old and new path components
+    of the qids should be different. The version is a version number
+    for a file; typically, it is incremented every time the file is
+    modified. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An existing file can be <tt><font size=+1>opened</font></tt>, or a new file may be <tt><font size=+1>created</font></tt> in
+    the current (directory) file. I/O of a given number of bytes at
+    a given offset on an open file is done by <tt><font size=+1>read</font></tt> and <tt><font size=+1>write</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A client should <tt><font size=+1>clunk</font></tt> any fid that is no longer needed. The <tt><font size=+1>remove</font></tt>
+    transaction deletes files. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Openfd</font></tt> is an extension used by Unix utilities to allow traditional
+    Unix programs to have their input or output attached to fids on
+    9P servers. See <i>openfd</i>(9p) and <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a> for details. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>stat</font></tt> transaction retrieves information about the file. The
+    <i>stat</i> field in the reply includes the file&#8217;s name, access permissions
+    (read, write and execute for owner, group and public), access
+    and modification times, and owner and group identifications (see
+    <a href="../man3/stat.html"><i>stat</i>(3)</a>). The owner and group identifications are textual
+    names. The <tt><font size=+1>wstat</font></tt> transaction allows some of a file&#8217;s properties
+    to be changed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A request can be aborted with a flush request. When a server receives
+    a <tt><font size=+1>Tflush</font></tt>, it should not reply to the message with tag <i>oldtag</i> (unless
+    it has already replied), and it should immediately send an <tt><font size=+1>Rflush</font></tt>.
+    The client must wait until it gets the <tt><font size=+1>Rflush</font></tt> (even if the reply
+    to the original message arrives in the interim),
+    at which point <i>oldtag</i> may be reused. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Because the message size is negotiable and some elements of the
+    protocol are variable length, it is possible (although unlikely)
+    to have a situation where a valid message is too large to fit
+    within the negotiated size. For example, a very long file name
+    may cause a <tt><font size=+1>Rstat</font></tt> of the file or <tt><font size=+1>Rread</font></tt> of its directory entry
+    to be
+    too large to send. In most such cases, the server should generate
+    an error rather than modify the data to fit, such as by truncating
+    the file name. The exception is that a long error string in an
+    <tt><font size=+1>Rerror</font></tt> message should be truncated if necessary, since the string
+    is only advisory and in some sense arbitrary. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Most programs do not see the 9P protocol directly; on Plan 9,
+    calls to library routines that access files are translated by
+    the kernel&#8217;s mount driver into 9P messages.<br>
+    <p><font size=+1><b>Unix     </b></font><br>
+    On Unix, 9P services are posted as Unix domain sockets in a well-known
+    directory (see <a href="../man3/getns.html"><i>getns</i>(3)</a> and <a href="../man4/9pserve.html"><i>9pserve</i>(4)</a>). Clients connect to these
+    servers using a 9P client library (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>).<br>
+    
+</table>
+<p><font size=+1><b>DIRECTORIES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Directories are created by <tt><font size=+1>create</font></tt> with <tt><font size=+1>DMDIR</font></tt> set in the permissions
+    argument (see <i>stat</i>(9P)). The members of a directory can be found
+    with <i>read</i>(9P). All directories must support <tt><font size=+1>walks</font></tt> to the directory
+    <tt><font size=+1>..</font></tt> (dot-dot) meaning parent directory, although by convention
+    directories contain no explicit entry for <tt><font size=+1>..</font></tt> or <tt><font size=+1>.
+    </font></tt>(dot). The parent of the root directory of a server&#8217;s tree is
+    itself.<br>
+    
+</table>
+<p><font size=+1><b>ACCESS PERMISSIONS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This section describes the access permission conventions implemented
+    by most Plan 9 file servers. These conventions are not enforced
+    by the protocol and may differ between servers, especially servers
+    built on top of foreign operating systems. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each file server maintains a set of user and group names. Each
+    user can be a member of any number of groups. Each group has a
+    <i>group leader</i> who has special privileges (see <i>stat</i>(9P) and Plan
+    9&#8217;s <i>users</i>(6)). Every file request has an implicit user id (copied
+    from the original <tt><font size=+1>attach</font></tt>) and an implicit set of groups (every
+    group of which the user is a member). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each file has an associated <i>owner</i> and <i>group</i> id and three sets
+    of permissions: those of the owner, those of the group, and those
+    of &#8220;other&#8221; users. When the owner attempts to do something to a
+    file, the owner, group, and other permissions are consulted, and
+    if any of them grant the requested permission, the
+    operation is allowed. For someone who is not the owner, but is
+    a member of the file&#8217;s group, the group and other permissions
+    are consulted. For everyone else, the other permissions are used.
+    Each set of permissions says whether reading is allowed, whether
+    writing is allowed, and whether executing is allowed. A
+    <tt><font size=+1>walk</font></tt> in a directory is regarded as executing the directory, not
+    reading it. Permissions are kept in the low-order bits of the
+    file <i>mode</i>: owner read/write/execute permission represented as
+    1 in bits 8, 7, and 6 respectively (using 0 to number the low
+    order). The group permissions are in bits 5, 4, and 3, and the
+    other
+    permissions are in bits 2, 1, and 0. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The file <i>mode</i> contains some additional attributes besides the
+    permissions. If bit 31 (<tt><font size=+1>DMDIR</font></tt>) is set, the file is a directory;
+    if bit 30 (<tt><font size=+1>DMAPPEND</font></tt>) is set, the file is append-only (offset is
+    ignored in writes); if bit 29 (<tt><font size=+1>DMEXCL</font></tt>) is set, the file is exclusive-use
+    (only one client may have it open at a time); if bit 27 (<tt><font size=+1>DMAUTH</font></tt>)
+    is
+    set, the file is an authentication file established by <tt><font size=+1>auth</font></tt> messages;
+    if bit 26 (<tt><font size=+1>DMTMP</font></tt>) is set, the contents of the file (or directory)
+    are not included in nightly archives. (Bit 28 is skipped for historical
+    reasons.) These bits are reproduced, from the top bit down, in
+    the type byte of the Qid: <tt><font size=+1>QTDIR</font></tt>, <tt><font size=+1>QTAPPEND</font></tt>, <tt><font size=+1>QTEXCL</font></tt>,
+    (skipping one bit) <tt><font size=+1>QTAUTH</font></tt>, and <tt><font size=+1>QTTMP</font></tt>. The name <tt><font size=+1>QTFILE</font></tt>, defined
+    to be zero, identifies the value of the type for a plain file.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,203 @@
+<head>
+<title>eqn(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>EQN(1)</b><td align=right><b>EQN(1)</b>
+<tr><td width=20><td colspan=2>
+     
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        delim $$<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    eqn &ndash; typeset mathematics<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>eqn</font></tt> [ <i>option ...</i> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Eqn</i> is a <a href="../man1/troff.html"><i>troff</i>(1)</a> preprocessor for typesetting mathematics on
+    a typesetter. Usage is almost always<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>eqn file ... | troff 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    If no files are specified, <i>eqn</i> reads from the standard input.
+    <i>Eqn</i> prepares output for the typesetter named in the <tt><font size=+1>&#8722;T</font></tt><i>dest</i> option
+    (default <tt><font size=+1>&#8722;Tutf</font></tt>; see <a href="../man1/troff.html"><i>troff</i>(1)</a>). When run with other preprocessor
+    filters, <i>eqn</i> usually comes last. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A line beginning with <tt><font size=+1>.EQ</font></tt> marks the start of an equation; the
+    end of an equation is marked by a line beginning with <tt><font size=+1>.EN</font></tt>. Neither
+    of these lines is altered, so they may be defined in macro packages
+    to get centering, numbering, etc. It is also possible to set two
+    characters as &#8216;delimiters&#8217;; text between delimiters is also
+    <i>eqn</i> input. Delimiters may be set to characters <i>x</i> and <i>y</i> with the
+    option <tt><font size=+1>&#8722;d</font></tt><i>xy</i> or (more commonly) with <tt><font size=+1>delim</font></tt> <i>xy</i> between <tt><font size=+1>.EQ</font></tt> and <tt><font size=+1>.EN</font></tt>.
+    Left and right delimiters may be identical. (They are customarily
+    taken to be $font L &quot;$$&quot; )$. Delimiters are turned off by <tt><font size=+1>delim
+    off</font></tt>. All text that is neither between delimiters
+    nor between <tt><font size=+1>.EQ</font></tt> and <tt><font size=+1>.EN</font></tt> is passed through untouched. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Tokens within <i>eqn</i> are separated by spaces, tabs, newlines, braces,
+    double quotes, tildes or circumflexes. Braces {} are used for
+    grouping; generally speaking, anywhere a single character like
+    <tt><font size=+1>x</font></tt> could appear, a complicated construction enclosed in braces
+    may be used instead. Tilde <tt><font size=+1>~</font></tt> represents a full space in the
+    output, circumflex <tt><font size=+1>^</font></tt> half as much. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Subscripts and superscripts are produced with the keywords <tt><font size=+1>sub</font></tt>
+    and <tt><font size=+1>sup</font></tt>. Thus <tt><font size=+1>x sub i</font></tt> makes $x sub i$, <tt><font size=+1>a sub i sup 2</font></tt> produces
+    $a sub i sup 2$, and <tt><font size=+1>e sup {x sup 2 + y sup 2}</font></tt> gives $e sup {x
+    sup 2 + y sup 2}$. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Over</font></tt> makes fractions: <tt><font size=+1>a over b</font></tt> yields $a over b$. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Sqrt</font></tt> produces square roots: <tt><font size=+1>1 over sqrt {ax sup 2 +bx+c}</font></tt> results
+    in $1 over sqrt {ax sup 2 +bx+c}$ . 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The keywords <tt><font size=+1>from</font></tt> and <tt><font size=+1>to</font></tt> introduce lower and upper limits on arbitrary
+    things: $lim from {n -&gt; inf} sum from 0 to n x sub i$ is made with
+    <tt><font size=+1>lim from {n &#8722;&gt; inf} sum from 0 to n x sub i</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Left and right brackets, braces, etc., of the right height are
+    made with <tt><font size=+1>left</font></tt> and <tt><font size=+1>right</font></tt>: <tt><font size=+1>left [ x sup 2 + y sup 2 over alpha
+    right ] ~=~1</font></tt> produces $left [ x sup 2 + y sup 2 over alpha right
+    ] ~=~1$. The <tt><font size=+1>right</font></tt> clause is optional. Legal characters after
+    <tt><font size=+1>left</font></tt> and <tt><font size=+1>right</font></tt> are braces, brackets,
+    bars, <tt><font size=+1>c</font></tt> and <tt><font size=+1>f</font></tt> for ceiling and floor, and <tt><font size=+1>&quot;&quot;</font></tt> for nothing at all (useful
+    for a right-side-only bracket). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Vertical piles of things are made with <tt><font size=+1>pile</font></tt>, <tt><font size=+1>lpile</font></tt>, <tt><font size=+1>cpile</font></tt>, and
+    <tt><font size=+1>rpile</font></tt>: <tt><font size=+1>pile {a above b above c}</font></tt> produces $pile {a above b above
+    c}$. There can be an arbitrary number of elements in a pile. <tt><font size=+1>lpile</font></tt>
+    left-justifies, <tt><font size=+1>pile</font></tt> and <tt><font size=+1>cpile</font></tt> center, with different vertical
+    spacing, and <tt><font size=+1>rpile</font></tt> right justifies. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Matrices are made with <tt><font size=+1>matrix</font></tt>: <tt><font size=+1>matrix { lcol { x sub i above y
+    sub 2 } ccol { 1 above 2 } }</font></tt> produces $matrix { lcol { x sub i
+    above y sub 2 } ccol { 1 above 2 } }$. In addition, there is <tt><font size=+1>rcol</font></tt>
+    for a right-justified column. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Diacritical marks are made with <tt><font size=+1>prime</font></tt>, <tt><font size=+1>dot</font></tt>, <tt><font size=+1>dotdot</font></tt>, <tt><font size=+1>hat</font></tt>, <tt><font size=+1>tilde</font></tt>,
+    <tt><font size=+1>bar</font></tt>, <tt><font size=+1>under</font></tt>, <tt><font size=+1>vec</font></tt>, <tt><font size=+1>dyad</font></tt>, and <tt><font size=+1>under</font></tt>: <tt><font size=+1>x sub 0 sup prime = f(t) bar
+    + g(t) under</font></tt> is $x sub 0 sup prime = f(t) bar + g(t) under$, and
+    <tt><font size=+1>x vec = y dyad</font></tt> is $x vec = y dyad$. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Sizes and fonts can be changed with prefix operators <tt><font size=+1>size</font></tt> <i>n</i>, <tt><font size=+1>size
+    &plusmn;</font></tt><i>n</i>, <tt><font size=+1>fat</font></tt>, <tt><font size=+1>roman</font></tt>, <tt><font size=+1>italic</font></tt>, <tt><font size=+1>bold</font></tt>, or <tt><font size=+1>font</font></tt> <i>n</i>. Size and fonts can be
+    changed globally in a document by <tt><font size=+1>gsize</font></tt> <i>n</i> and <tt><font size=+1>gfont</font></tt> <i>n</i>, or by the
+    command-line arguments <tt><font size=+1>&#8722;s</font></tt><i>n</i> and <tt><font size=+1>&#8722;f</font></tt><i>n</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Normally subscripts and superscripts are reduced by 3 point sizes
+    from the previous size; this may be changed by the command-line
+    argument <tt><font size=+1>&#8722;p</font></tt><i>n</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Successive display arguments can be lined up. Place <tt><font size=+1>mark</font></tt> before
+    the desired lineup point in the first equation; place <tt><font size=+1>lineup</font></tt> at
+    the place that is to line up vertically in subsequent equations.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Shorthands may be defined or existing keywords redefined with
+    <tt><font size=+1>define</font></tt>: <tt><font size=+1>define</font></tt> <i>thing</i> <tt><font size=+1>%</font></tt> <i>replacement</i> <tt><font size=+1>%</font></tt> defines a new token called
+    <i>thing</i> which will be replaced by <i>replacement</i> whenever it appears
+    thereafter. The <tt><font size=+1>%</font></tt> may be any character that does not occur in
+    <tt><font size=+1>replacement</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Keywords like <tt><font size=+1>sum</font></tt> ( sum ), <tt><font size=+1>int</font></tt> ( int ), <tt><font size=+1>inf</font></tt> ( inf ), and shorthands
+    like <tt><font size=+1>&gt;=</font></tt> (&gt;=), <tt><font size=+1>&#8722;&gt;</font></tt> (-&gt;), and <tt><font size=+1>!=</font></tt> ( != ) are recognized. Greek letters
+    are spelled out in the desired case, as in <tt><font size=+1>alpha</font></tt> or <tt><font size=+1>GAMMA</font></tt>. Mathematical
+    words like <tt><font size=+1>sin</font></tt>, <tt><font size=+1>cos</font></tt>, <tt><font size=+1>log</font></tt> are made Roman automatically. <a href="../man1/Troff.html"><i>Troff</i>(1)</a>
+    four-character escapes like <tt><font size=+1>\(lh</font></tt> (<=) can
+    be used anywhere. Strings enclosed in double quotes &quot; &quot; are passed
+    through untouched; this permits keywords to be entered as text,
+    and can be used to communicate with <i>troff</i> when all else fails.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/sys/lib/troff/font/devutf</font></tt>&nbsp;&nbsp;&nbsp;font descriptions for PostScript<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/eqn<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/troff.html"><i>troff</i>(1)</a>, <a href="../man1/tbl.html"><i>tbl</i>(1)</a><br>
+    J. F. Ossanna and B. W. Kernighan, &#8220;Troff User&#8217;s Manual&#8221;.<br>
+    B. W. Kernighan and L. L. Cherry, &#8220;Typesetting Mathematics--User&#8217;s
+    Guide&#8221;, <i>Unix Research System Programmer&#8217;s Manual,</i> Tenth Edition,
+    Volume 2.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    To embolden digits, parens, etc., it is necessary to quote them,
+    as in <tt><font size=+1>bold &quot;12.3&quot;</font></tt>. delim off<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

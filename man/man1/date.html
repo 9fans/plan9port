@@ -1,0 +1,75 @@
+<head>
+<title>date(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>DATE(1)</b><td align=right><b>DATE(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    date &ndash; date and time<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>date</font></tt> [ <i>option</i> ] [ <i>seconds</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Print the date, in the format 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>Tue Aug 16 17:03:52 CDT 1977 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    The options are<br>
+    <tt><font size=+1>&#8722;u</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Report Greenwich Mean Time (GMT) rather than local time.<br>
+    <tt><font size=+1>&#8722;n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Report the date as the number of seconds since the epoch, 00:00:00
+    GMT, January 1, 1970. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The conversion from Greenwich Mean Time to local time depends
+    on the <tt><font size=+1>$timezone</font></tt> environment variable; see <a href="../man3/ctime.html"><i>ctime</i>(3)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the optional argument <i>seconds</i> is present, it is used as the
+    time to convert rather than the real time.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/date.c<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

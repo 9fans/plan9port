@@ -1,0 +1,170 @@
+<head>
+<title>wait(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>WAIT(3)</b><td align=right><b>WAIT(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    await, awaitnohang, awaitfor, wait, waitnohang, waitfor, waitpid
+    &ndash; wait for a process to exit<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Waitmsg* &nbsp;&nbsp;&nbsp;wait(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Waitmsg* &nbsp;&nbsp;&nbsp;waitnohang(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Waitmsg* &nbsp;&nbsp;&nbsp;waitfor(int pid) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;waitpid(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;await(char *s, int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;awaitnohang(char *s, int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;awaitfor(int pid, char *s, int n)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Wait</i> causes a process to wait for any child process (see <a href="../man2/fork.html"><i>fork</i>(2)</a>
+    and <a href="../man3/rfork.html"><i>rfork</i>(3)</a>) to exit. It returns a <tt><font size=+1>Waitmsg</font></tt> holding information
+    about the exited child. A <tt><font size=+1>Waitmsg</font></tt> has this structure:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef<br>
+        struct Waitmsg<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int pid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* of loved one */<br>
+            ulong time[3]; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* of loved one &amp; descendants */<br>
+            char *msg;<br>
+            
+        </table>
+        } Waitmsg;<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    <tt><font size=+1>Pid</font></tt> is the child&#8217;s process id. The <tt><font size=+1>time</font></tt> array contains the time
+    the child and its descendants spent in user code, the time spent
+    in system calls, and the child&#8217;s elapsed real time, all in units
+    of milliseconds. <tt><font size=+1>Msg</font></tt> contains the message that the child specified
+    in <a href="../man3/exits.html"><i>exits</i>(3)</a>. For a normal exit, <tt><font size=+1>msg[0]</font></tt> is zero, otherwise <tt><font size=+1>msg
+    </font></tt>is the exit string prefixed by the process name, a blank, the
+    process id, and a colon. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If there are no more children to wait for, <i>wait</i> returns immediately,
+    with return value nil. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>Waitmsg</font></tt> structure is allocated by <a href="../man3/malloc.html"><i>malloc</i>(3)</a> and should be
+    freed after use. For programs that only need the pid of the exiting
+    program, <i>waitpid</i> returns just the pid and discards the rest of
+    the information. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Waitnohang</i> is like <i>wait</i> but does not block if there are no more
+    children to wait for. Instead it returns immediately and sets
+    <i>errstr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Waitfor</i> is like <i>wait</i> but waits for a particular <i>pid</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The underlying calls are <i>await</i>, <i>awaitnohang</i>, and <i>awaitfor</i>, which
+    fill in the <i>n</i>-byte buffer <i>s</i> with a textual representation of the
+    pid, times, and exit string. There is no terminal NUL. The return
+    value is the length, in bytes, of the data. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The filled-in buffer may be parsed (after appending a NUL) using
+    <i>tokenize</i> (see <a href="../man3/getfields.html"><i>getfields</i>(3)</a>); the resulting fields are, in order,
+    pid, the three times, and the exit string, which will be <tt><font size=+1>''</font></tt> for
+    normal exit. If the representation is longer than <i>n</i> bytes, it
+    is truncated but, if possible, properly formatted. The information
+    that
+    does not fit in the buffer is discarded, so a subsequent call
+    to <i>await</i> will return the information about the next exiting child,
+    not the remainder of the truncated message. In other words, each
+    call to <i>await</i> returns the information about one child, blocking
+    if necessary if no child has exited. If the calling process has
+    no
+    living children, <i>await</i> returns <tt><font size=+1>&#8722;1</font></tt>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/wait.c 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>/usr/local/plan9/src/lib9/await.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/rfork.html"><i>rfork</i>(3)</a>, <a href="../man3/exits.html"><i>exits</i>(3)</a>,<br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines set <i>errstr</i>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    To avoid name conflicts with the underlying system, <i>wait</i>, <i>waitpid</i>,
+    and <i>waitfor</i> are preprocessor macros defined as <i>p9wait</i>, <i>p9waitpid</i>,
+    and <i>p9waitfor</i>; see <a href="../man3/intro.html"><i>intro</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

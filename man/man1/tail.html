@@ -1,0 +1,116 @@
+<head>
+<title>tail(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>TAIL(1)</b><td align=right><b>TAIL(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    tail &ndash; deliver the last part of a file<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>tail</font></tt> [ <tt><font size=+1>+&#8722;</font></tt><i>number</i>[<tt><font size=+1>lbc</font></tt>][<tt><font size=+1>rf</font></tt>] ] [ <i>file</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>tail</font></tt> [ <tt><font size=+1>&#8722;fr</font></tt> ] [ <tt><font size=+1>&#8722;n</font></tt> <i>nlines</i> ] [ <tt><font size=+1>&#8722;c</font></tt> <i>nbytes</i> ] [ <i>file</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Tail</i> copies the named file to the standard output beginning at
+    a designated place. If no file is named, the standard input is
+    copied. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Copying begins at position <tt><font size=+1>+</font></tt><i>number</i> measured from the beginning,
+    or <tt><font size=+1>&#8722;</font></tt><i>number</i> from the end of the input. <i>Number</i> is counted in lines,
+    1K blocks or bytes, according to the appended flag <tt><font size=+1>l</font></tt>, <tt><font size=+1>b</font></tt>, or <tt><font size=+1>c</font></tt>.
+    Default is <tt><font size=+1>&#8722;10l</font></tt> (ten ell). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The further flag <tt><font size=+1>r</font></tt> causes tail to print lines from the end of
+    the file in reverse order; <tt><font size=+1>f</font></tt> (follow) causes <i>tail</i>, after printing
+    to the end, to keep watch and print further data as it appears.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The second syntax is that promulgated by POSIX, where the <i>numbers</i>
+    rather than the options are signed.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>tail file<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the last 10 lines of a file.<br>
+        
+    </table>
+    <tt><font size=+1>tail +0f file<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print a file, and continue to watch data accumulate as it grows.<br>
+        
+    </table>
+    <tt><font size=+1>sed 10q file<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the first 10 lines of a file.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/tail.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Tails relative to the end of the file are treasured up in a buffer,
+    and thus are limited in length. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    According to custom, option <tt><font size=+1>+</font></tt><i>number</i> counts lines from 1, and counts
+    blocks and bytes from 0. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Tail</i> is ignorant of UTF.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

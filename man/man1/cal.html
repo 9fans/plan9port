@@ -1,0 +1,81 @@
+<head>
+<title>cal(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>CAL(1)</b><td align=right><b>CAL(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    cal &ndash; print calendar<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>cal</font></tt> [ <i>month</i> ] [ <i>year</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Cal</i> prints a calendar. <i>Month</i> is either a number from 1 to 12,
+    a lower case month name, or a lower case three-letter prefix of
+    a month name. <i>Year</i> can be between 1 and 9999. If either <i>month</i>
+    or <i>year</i> is omitted, the current month or year is used. If only
+    one argument is given, and it is a number larger than 12, a
+    calendar for all twelve months of the given year is produced;
+    otherwise a calendar for just one month is printed. The calendar
+    produced is that for England and her colonies. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Try<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>cal sep 1752<br>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/cal.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The year is always considered to start in January even though
+    this is historically naive. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Beware that <tt><font size=+1>cal 90</font></tt> refers to the early Christian era, not the
+    20th century.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

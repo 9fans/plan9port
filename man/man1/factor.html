@@ -1,0 +1,73 @@
+<head>
+<title>factor(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>FACTOR(1)</b><td align=right><b>FACTOR(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    factor, primes &ndash; factor a number, generate large primes<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>factor</font></tt> [ <i>number</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>primes</font></tt> [ <i>start</i> [ <i>finish</i> ] ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Factor</i> prints <i>number</i> and its prime factors, each repeated the
+    proper number of times. The number must be positive and less than
+    254 (about 1.8&#215;1016). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If no <i>number</i> is given, <i>factor</i> reads a stream of numbers from the
+    standard input and factors them. It exits on any input not a positive
+    integer. Maximum running time is proportional to <i>-/n </i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Primes</i> prints the prime numbers ranging from <i>start</i> to <i>finish</i>,
+    where <i>start</i> and <i>finish</i> are positive numbers less than 256. If
+    <i>finish</i> is missing, <i>primes</i> prints without end; if <i>start</i> is missing,
+    it reads the starting number from the standard input.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/factor.c<br>
+    /usr/local/plan9/src/cmd/primes.c<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

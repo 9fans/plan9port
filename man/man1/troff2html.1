@@ -1,0 +1,96 @@
+.TH TROFF2HTML 1
+.SH NAME
+troff2html \- convert troff output into HTML
+.SH SYNOPSIS
+.B troff2html
+[
+.B -t
+.I title
+] [
+.I file
+\ ...
+]
+.SH DESCRIPTION
+.I Troff2html
+reads the
+.IR troff (1)
+output in the named
+.IR files ,
+default standard input,
+and converts them into HTML.
+.PP
+.I Troff2html
+does a tolerable job with straight
+.B troff
+output, but it is helped by annotations, described below.
+Its main use is for
+.B man2html
+(see Plan 9's \fIhttpd\fR(8)),
+which converts
+.IR man (1)
+pages into HTML
+and depends on a specially annotated set of
+.IR man (6)
+macros, invoked by
+.B troff
+.BR -manhtml .
+.PP
+.B Troff
+output lines beginning
+.IP
+.EX
+x X html \f1...
+.EE
+.LP
+which are introduced by placing
+.B \eX'html\ \f1...\fP'
+in the
+.IR input ,
+cause the rest of the line to be interpolated into the HTML produced.
+Several such lines are recognized specially by
+.IR troff2html .
+The most important are the pair
+.IP
+.EX
+x X html manref start cp 1
+x X html manref end cp 1
+.EE
+.PP
+which are used to create HTML hyperlinks around text of the form
+.IR cp (1)
+pointing to
+.BR /magic/man2html/1/cp .
+.PP
+.I Troff2html
+is new and experimental; in time, it may improve and subsume
+.IR ms2html (1).
+On the one hand, because it uses the input,
+.B ms2html
+can handle
+.IR pic (1),
+.IR eqn (1),
+etc., which
+.I troff2html
+does not handle at all; on the other hand,
+.B ms2html
+understands only
+.IR ms (6)
+documents and is easily confused by complex
+.B troff
+constructions.
+.I Troff2html
+has the reverse properties: it does not handle the preprocessors but its output
+is reliable and (modulo helper annotations) is independent of macro package.
+.SH SEE ALSO
+.IR troff (1),
+.IR ms2html (1),
+.B man2html
+in
+.IR httpd (8).
+.SH BUGS
+.B Troff
+and HTML have different models, and they don't mesh well in all cases.
+.BR Troff 's
+indented paragraphs are not well served in HTML, and the output of
+.I troff2html
+shows this.

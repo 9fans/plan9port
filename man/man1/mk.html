@@ -1,0 +1,621 @@
+<head>
+<title>mk(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MK(1)</b><td align=right><b>MK(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    mk &ndash; maintain (make) related files<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>mk</font></tt> [ <tt><font size=+1>&#8722;f</font></tt> <i>mkfile</i> ] ... [ <i>option ...</i> ] [ <i>target ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Mk</i> uses the dependency rules specified in <i>mkfile</i> to control the
+    update (usually by compilation) of <i>targets</i> (usually files) from
+    the source files upon which they depend. The <i>mkfile</i> (default <tt><font size=+1>mkfile</font></tt>)
+    contains a <i>rule</i> for each target that identifies the files and
+    other targets upon which it depends and an <a href="../man1/sh.html"><i>sh</i>(1)</a> script, a
+    <i>recipe</i>, to update the target. The script is run if the target
+    does not exist or if it is older than any of the files it depends
+    on. <i>Mkfile</i> may also contain <i>meta-rules</i> that define actions for
+    updating implicit targets. If no <i>target</i> is specified, the target
+    of the first rule (not meta-rule) in <i>mkfile</i> is updated. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The environment variable <tt><font size=+1>$NPROC</font></tt> determines how many targets may
+    be updated simultaneously; Some operating systems, e.g., Plan
+    9, set <tt><font size=+1>$NPROC</font></tt> automatically to the number of CPUs on the current
+    machine. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Options are:<br>
+    <tt><font size=+1>&#8722;a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Assume all targets to be out of date. Thus, everything is updated.<br>
+    <tt><font size=+1>&#8722;d</font></tt>[<tt><font size=+1>egp</font></tt>]&nbsp;&nbsp;&nbsp;Produce debugging output (<tt><font size=+1>p</font></tt> is for parsing, <tt><font size=+1>g</font></tt> for graph
+    building, <tt><font size=+1>e</font></tt> for execution).<br>
+    <tt><font size=+1>&#8722;e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Explain why each target is made.<br>
+    <tt><font size=+1>&#8722;i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Force any missing intermediate targets to be made.<br>
+    <tt><font size=+1>&#8722;k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Do as much work as possible in the face of errors.<br>
+    <tt><font size=+1>&#8722;n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print, but do not execute, the commands needed to update the
+    targets.<br>
+    <tt><font size=+1>&#8722;s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Make the command line arguments sequentially rather than in
+    parallel.<br>
+    <tt><font size=+1>&#8722;t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Touch (update the modified date of) file targets, without executing
+    any recipes.<br>
+    <tt><font size=+1>&#8722;w</font></tt><i>target1</i><tt><font size=+1>,</font></tt><i>target2,...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Pretend the modify time for each <i>target</i> is the current time; useful
+            in conjunction with <tt><font size=+1>&#8722;n</font></tt> to learn what updates would be triggered
+            by modifying the <i>targets</i>.<br>
+            
+        </table>
+        
+    </table>
+    <p><font size=+1><b>The <tt><font size=+1>mkfile    </font></tt></b></font><br>
+    A <i>mkfile</i> consists of <i>assignments</i> (described under &#8216;Environment&#8217;)
+    and <i>rules</i>. A rule contains <i>targets</i> and a <i>tail</i>. A target is a literal
+    string and is normally a file name. The tail contains zero or
+    more <i>prerequisites</i> and an optional <i>recipe</i>, which is an <tt><font size=+1>shell</font></tt> script.
+    Each line of the recipe must begin with white space. A rule
+    takes the form<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>target: prereq1 prereq2<br>
+        </font></tt> 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <i>recipe using</i> <tt><font size=+1>prereq1, prereq2</font></tt> <i>to build</i> <tt><font size=+1>target<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            </font></tt>
+            
+        </table>
+        
+    </table>
+    When the recipe is executed, the first character on every line
+    is elided. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    After the colon on the target line, a rule may specify <i>attributes</i>,
+    described below. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>meta-rule</i> has a target of the form <i>A</i><tt><font size=+1>%</font></tt><i>B</i> where <i>A</i> and <i>B</i> are (possibly
+    empty) strings. A meta-rule acts as a rule for any potential target
+    whose name matches <i>A</i><tt><font size=+1>%</font></tt><i>B</i> with <tt><font size=+1>%</font></tt> replaced by an arbitrary string,
+    called the <i>stem</i>. In interpreting a meta-rule, the stem is substituted
+    for all occurrences of <tt><font size=+1>%</font></tt> in the prerequisite
+    names. In the recipe of a meta-rule, the environment variable
+    <tt><font size=+1>$stem</font></tt> contains the string matched by the <tt><font size=+1>%</font></tt>. For example, a meta-rule
+    to compile a C program using <a href="../man1/9c.html"><i>9c</i>(1)</a> might be:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>%: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%.c<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            9c &#8722;c $stem.c<br>
+             9l &#8722;o $stem $stem.o<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    Meta-rules may contain an ampersand <tt><font size=+1>&amp;</font></tt> rather than a percent sign
+    <tt><font size=+1>%</font></tt>. A <tt><font size=+1>%</font></tt> matches a maximal length string of any characters; an <tt><font size=+1>&amp;</font></tt>
+    matches a maximal length string of any characters except period
+    or slash. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The text of the <i>mkfile</i> is processed as follows. Lines beginning
+    with <tt><font size=+1>&lt;</font></tt> followed by a file name are replaced by the contents of
+    the named file. Lines beginning with <tt><font size=+1>&lt;|</font></tt> followed by a file name
+    are replaced by the output of the execution of the named file.
+    Blank lines and comments, which run from unquoted <tt><font size=+1>#</font></tt> characters
+    to the following newline, are deleted. The character sequence
+    backslash-newline is deleted, so long lines in <i>mkfile</i> may be folded.
+    Non-recipe lines are processed by substituting for <tt><font size=+1>`{</font></tt><i>command</i><tt><font size=+1>}</font></tt>
+    the output of the <i>command</i> when run by <i>sh</i>. References to variables
+    are replaced by the variables&#8217; values. Special
+    characters may be quoted using single quotes <tt><font size=+1>''</font></tt> as in <a href="../man1/sh.html"><i>sh</i>(1)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Assignments and rules are distinguished by the first unquoted
+    occurrence of <tt><font size=+1>:</font></tt> (rule) or <tt><font size=+1>=</font></tt> (assignment). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A later rule may modify or override an existing rule under the
+    following conditions:<br>
+    &ndash;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the targets of the rules exactly match and one rule contains
+    only a prerequisite clause and no recipe, the clause is added
+    to the prerequisites of the other rule. If either or both targets
+    are virtual, the recipe is always executed.<br>
+    &ndash;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the targets of the rules match exactly and the prerequisites
+    do not match and both rules contain recipes, <i>mk</i> reports an &#8220;ambiguous
+    recipe&#8221; error.<br>
+    &ndash;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the target and prerequisites of both rules match exactly, the
+    second rule overrides the first.<br>
+    <p><font size=+1><b>Environment     </b></font><br>
+    Rules may make use of shell environment variables. A legal reference
+    of the form <tt><font size=+1>$OBJ</font></tt> or <tt><font size=+1>${name}</font></tt> is expanded as in <a href="../man1/sh.html"><i>sh</i>(1)</a>. A reference
+    of the form <tt><font size=+1>${name:</font></tt><i>A</i><tt><font size=+1>%</font></tt><i>B</i><tt><font size=+1>=</font></tt><i>C</i><tt><font size=+1>%</font></tt><i>D</i><tt><font size=+1>}</font></tt>, where <i>A, B, C, D</i> are (possibly empty)
+    strings, has the value formed by expanding <tt><font size=+1>$name</font></tt> and substituting
+    <i>C</i> for <i>A</i> and <i>D</i> for <i>B</i> in each word in
+    <tt><font size=+1>$name</font></tt> that matches pattern <i>A</i><tt><font size=+1>%</font></tt><i>B</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Variables can be set by assignments of the form<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>var</i><tt><font size=+1>=</font></tt>[<i>attr</i><tt><font size=+1>=</font></tt>]<i>value<br>
+        </i>
+    </table>
+    Blanks in the <i>value</i> break it into words. Such variables are exported
+    to the environment of recipes as they are executed, unless <tt><font size=+1>U</font></tt>,
+    the only legal attribute <i>attr</i>, is present. The initial value of
+    a variable is taken from (in increasing order of precedence) the
+    default values below, <i>mk&#8217;s</i> environment, the <i>mkfiles</i>, and any
+    command line assignment as an argument to <i>mk</i>. A variable assignment
+    argument overrides the first (but not any subsequent) assignment
+    to that variable. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The variable <tt><font size=+1>MKFLAGS</font></tt> contains all the option arguments (arguments
+    starting with <tt><font size=+1>&#8722;</font></tt> or containing <tt><font size=+1>=</font></tt>) and <tt><font size=+1>MKARGS</font></tt> contains all the targets
+    in the call to <i>mk</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The variable <tt><font size=+1>MKSHELL</font></tt> contains the shell command line <i>mk</i> uses to
+    run recipes. If the first word of the command ends in <tt><font size=+1>rc</font></tt> or <tt><font size=+1>rcsh</font></tt>,
+    <i>mk</i> uses <a href="../man1/rc.html"><i>rc</i>(1)</a>&#8217;s quoting rules; otherwise it uses <a href="../man1/sh.html"><i>sh</i>(1)</a>&#8217;s. The
+    <tt><font size=+1>MKSHELL</font></tt> variable is consulted when the mkfile is read, not when
+    it is executed, so that different shells can be used within
+    a single mkfile:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>MKSHELL=$PLAN9/bin/rc<br>
+        use&#8722;rc:V:<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            for(i in a b c) echo $i<br>
+            
+        </table>
+        MKSHELL=sh<br>
+        use&#8722;sh:V:<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            for i in a b c; do echo $i; done<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    Mkfiles included via <tt><font size=+1>&lt;</font></tt> or <tt><font size=+1>&lt;|</font></tt> (<i>q.v.</i>) see their own private copy of
+    <tt><font size=+1>MKSHELL</font></tt>, which always starts set to <tt><font size=+1>sh . 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    Dynamic information may be included in the mkfile by using a line
+    of the form<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        &lt;|<i>command args 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </i>
+        
+    </table>
+    This runs the command <i>command</i> with the given arguments <i>args</i> and
+    pipes its standard output to <i>mk</i> to be included as part of the
+    mkfile. For instance, the Inferno kernels use this technique to
+    run a shell command with an awk script and a configuration file
+    as arguments in order for the <i>awk</i> script to process the file
+    and output a set of variables and their values.<br>
+    <p><font size=+1><b>Execution     </b></font><br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    During execution, <i>mk</i> determines which targets must be updated,
+    and in what order, to build the <i>names</i> specified on the command
+    line. It then runs the associated recipes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A target is considered up to date if it has no prerequisites or
+    if all its prerequisites are up to date and it is newer than all
+    its prerequisites. Once the recipe for a target has executed,
+    the target is considered up to date. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The date stamp used to determine if a target is up to date is
+    computed differently for different types of targets. If a target
+    is <i>virtual</i> (the target of a rule with the <tt><font size=+1>V</font></tt> attribute), its date
+    stamp is initially zero; when the target is updated the date stamp
+    is set to the most recent date stamp of its prerequisites. Otherwise,
+    if a
+    target does not exist as a file, its date stamp is set to the
+    most recent date stamp of its prerequisites, or zero if it has
+    no prerequisites. Otherwise, the target is the name of a file
+    and the target&#8217;s date stamp is always that file&#8217;s modification
+    date. The date stamp is computed when the target is needed in
+    the execution of
+    a rule; it is not a static value. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Nonexistent targets that have prerequisites and are themselves
+    prerequisites are treated specially. Such a target <i>t</i> is given
+    the date stamp of its most recent prerequisite and if this causes
+    all the targets which have <i>t</i> as a prerequisite to be up to date,
+    <i>t</i> is considered up to date. Otherwise, <i>t</i> is made in the normal
+    fashion.
+    The <tt><font size=+1>&#8722;i</font></tt> flag overrides this special treatment. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Files may be made in any order that respects the preceding restrictions.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A recipe is executed by supplying the recipe as standard input
+    to the command <tt><font size=+1>/bin/sh</font></tt>. (Note that unlike <i>make</i>, <i>mk</i> feeds the entire
+    recipe to the shell rather than running each line of the recipe
+    separately.) The environment is augmented by the following variables:<br>
+    <tt><font size=+1>$alltarget<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            all the targets of this rule.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>$newprereq<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            the prerequisites that caused this rule to execute.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>$newmember<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            the prerequisites that are members of an aggregate that caused
+            this rule to execute. When the prerequisites of a rule are members
+            of an aggregate, <tt><font size=+1>$newprereq</font></tt> contains the name of the aggregate
+            and out of date members, while <tt><font size=+1>$newmember</font></tt> contains only the name
+            of the members.
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>$nproc</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the process slot for this recipe. It satisfies 0&le;<tt><font size=+1>$nproc</font></tt>&lt;<tt><font size=+1>$NPROC</font></tt>.<br>
+    <tt><font size=+1>$pid</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the process id for the <i>mk</i> executing the recipe.<br>
+    <tt><font size=+1>$prereq</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;all the prerequisites for this rule.<br>
+    <tt><font size=+1>$stem</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a meta-rule, <tt><font size=+1>$stem</font></tt> is the string that matched
+    <tt><font size=+1>%</font></tt> or <tt><font size=+1>&amp;</font></tt>. Otherwise, it is empty. For regular expression meta-rules
+    (see below), the variables <tt><font size=+1>stem0</font></tt>, ..., <tt><font size=+1>stem9</font></tt> are set to the corresponding
+    subexpressions.<br>
+    <tt><font size=+1>$target</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;the targets for this rule that need to be remade. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    These variables are available only during the execution of a recipe,
+    not while evaluating the <i>mkfile</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Unless the rule has the <tt><font size=+1>Q</font></tt> attribute, the recipe is printed prior
+    to execution with recognizable environment variables expanded.
+    Commands returning error status cause <i>mk</i> to terminate. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Recipes and backquoted <tt><font size=+1>rc</font></tt> commands in places such as assignments
+    execute in a copy of <i>mk&#8217;s</i> environment; changes they make to environment
+    variables are not visible from <i>mk</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Variable substitution in a rule is done when the rule is read;
+    variable substitution in the recipe is done when the recipe is
+    executed. For example:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>bar=a.c<br>
+        foo: $bar<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            $CC &#8722;o foo $bar<br>
+            
+        </table>
+        bar=b.c<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    will compile <tt><font size=+1>b.c</font></tt> into <tt><font size=+1>foo</font></tt>, if <tt><font size=+1>a.c</font></tt> is newer than <tt><font size=+1>foo</font></tt>.<br>
+    <p><font size=+1><b>Aggregates     </b></font><br>
+    Names of the form <i>a</i>(<i>b</i>) refer to member <i>b</i> of the aggregate <i>a</i>. Currently,
+    the only aggregates supported are <i>9ar</i> (see <a href="../man1/9c.html"><i>9c</i>(1)</a>) archives.<br>
+    <p><font size=+1><b>Attributes     </b></font><br>
+    The colon separating the target from the prerequisites may be
+    immediately followed by <i>attributes</i> and another colon. The attributes
+    are:<br>
+    <tt><font size=+1>D</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If the recipe exits with a non-null status, the target is deleted.<br>
+    <tt><font size=+1>E</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Continue execution if the recipe draws errors.<br>
+    <tt><font size=+1>N</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If there is no recipe, the target has its time updated.<br>
+    <tt><font size=+1>n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The rule is a meta-rule that cannot be a target of a virtual
+    rule. Only files match the pattern in the target.<br>
+    <tt><font size=+1>P</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The characters after the <tt><font size=+1>P</font></tt> until the terminating <tt><font size=+1>:</font></tt> are taken
+    as a program name. It will be invoked as <tt><font size=+1>sh &#8722;c prog 'arg1' 'arg2'</font></tt>
+    and should return a zero exit status if and only if arg1 is up
+    to date with respect to arg2. Date stamps are still propagated
+    in the normal way.<br>
+    <tt><font size=+1>Q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The recipe is not printed prior to execution.<br>
+    <tt><font size=+1>R</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The rule is a meta-rule using regular expressions. In the rule,
+    <tt><font size=+1>%</font></tt> has no special meaning. The target is interpreted as a regular
+    expression as defined in <a href="../man7/regexp.html"><i>regexp</i>(7)</a>. The prerequisites may contain
+    references to subexpressions in form <tt><font size=+1>\</font></tt><i>n</i>, as in the substitute
+    command of <a href="../man1/sed.html"><i>sed</i>(1)</a>.<br>
+    <tt><font size=+1>U</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The targets are considered to have been updated even if the recipe
+    did not do so.<br>
+    <tt><font size=+1>V</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The targets of this rule are marked as virtual. They are distinct
+    from files of the same name.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    A simple mkfile to compile a program:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>&lt;/$objtype/mkfile<br>
+        prog: a.$O b.$O c.$O<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            $LD $LDFLAGS &#8722;o $target $prereq<br>
+            
+        </table>
+        %.$O: %.c<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            $CC $CFLAGS $stem.c<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    Override flag settings in the mkfile:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>% mk target 'CFLAGS=&#8722;S &#8722;w'<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    Maintain a library:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>libc.a(%.$O):N: &nbsp;&nbsp;&nbsp;%.$O<br>
+        libc.a: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;libc.a(abs.$O) libc.a(access.$O) libc.a(alarm.$O) ...<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            ar r libc.a $newmember<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    String expression variables to derive names from a master list:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>NAMES=alloc arc bquote builtins expand main match mk var word<br>
+        OBJ=${NAMES:%=%.$O}<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    Regular expression meta-rules:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>([^/]*)/(.*)\.$O:R: &nbsp;&nbsp;&nbsp;\1/\2.c<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            cd $stem1; $CC $CFLAGS $stem2.c<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    A correct way to deal with <a href="../man1/yacc.html"><i>yacc</i>(1)</a> grammars. The file <tt><font size=+1>lex.c</font></tt> includes
+    the file <tt><font size=+1>x.tab.h</font></tt> rather than <tt><font size=+1>y.tab.h</font></tt> in order to reflect changes
+    in content, not just modification time.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>lex.$O: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x.tab.h<br>
+        x.tab.h: &nbsp;&nbsp;&nbsp;&nbsp;y.tab.h<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            cmp &#8722;s x.tab.h y.tab.h || cp y.tab.h x.tab.h<br>
+            
+        </table>
+        y.tab.c y.tab.h: gram.y<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            $YACC &#8722;d gram.y<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    The above example could also use the <tt><font size=+1>P</font></tt> attribute for the <tt><font size=+1>x.tab.h</font></tt>
+    rule:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>x.tab.h:Pcmp &#8722;s: y.tab.h<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            cp y.tab.h x.tab.h<br>
+            
+        </table>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/mk<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/sh.html"><i>sh</i>(1)</a>, <a href="../man7/regexp.html"><i>regexp</i>(7)</a> 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A. Hume, &#8220;Mk: a Successor to Make&#8221; (Tenth Edition Research Unix
+    Manuals). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Andrew G. Hume and Bob Flandrena, &#8220;Maintaining Files on Plan 9
+    with Mk&#8221;. DOCPREFIX/doc/mk.pdf<br>
+    
+</table>
+<p><font size=+1><b>HISTORY     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Andrew Hume wrote <i>mk</i> for Tenth Edition Research Unix. It was later
+    ported to Plan 9. This software is a port of the Plan 9 version
+    back to Unix.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Identical recipes for regular expression meta-rules only have
+    one target. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Seemingly appropriate input like <tt><font size=+1>CFLAGS=&#8722;DHZ=60</font></tt> is parsed as an
+    erroneous attribute; correct it by inserting a space after the
+    first <tt><font size=+1>=</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The recipes printed by <i>mk</i> before being passed to the shell for
+    execution are sometimes erroneously expanded for printing. Don&#8217;t
+    trust what&#8217;s printed; rely on what the shell does.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,108 @@
+<head>
+<title>mousescrollsize(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MOUSESCROLLSIZE(3)</b><td align=right><b>MOUSESCROLLSIZE(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    mousescrollsize &ndash; compute mouse scroll increment<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;draw.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    int &nbsp;&nbsp;&nbsp;&nbsp;mousescrollsize(int maxlines)<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Mousescrollsize</i> computes the number of lines of text that should
+    be scrolled in response to a mouse scroll wheel click. <i>Maxlines</i>
+    is the number of lines visible in the text window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The default scroll increment is one line. This default can be
+    overridden by setting the <tt><font size=+1>$mousescrollsize</font></tt> environment variable
+    to an integer, which specifies a constant number of lines, or
+    to a real number followed by a percent character, indicating that
+    the scroll increment should be a percentage of the total
+    number of lines in the window. For example, setting <tt><font size=+1>$mousescrollsize</font></tt>
+    to <tt><font size=+1>50%</font></tt> causes a half-window scroll increment. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mousescrollsize</i> is used by <a href="../man1/9term.html"><i>9term</i>(1)</a> and <a href="../man1/acme.html"><i>acme</i>(1)</a> to set their scrolling
+    behavior.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libdraw/scroll.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/9term.html"><i>9term</i>(1)</a>, <a href="../man1/acme.html"><i>acme</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Libdraw</i> expects up and down scroll wheel events to be expressed
+    as clicks of mouse buttons 4 and 5, but the XFree86 default is
+    to ignore the scroll wheel. To enable the scroll wheel, change
+    your <tt><font size=+1>InputDevice</font></tt> section of <tt><font size=+1>XF86Config&#8722;4</font></tt> to look like:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>Section &quot;InputDevice&quot;<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Identifier &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Mouse0&quot;<br>
+            Driver &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;mouse&quot;<br>
+            Option &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Device&quot; &quot;/dev/psaux&quot;<br>
+            # next four lines enable scroll wheel as buttons 4 and 5<br>
+            Option &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Buttons&quot; &quot;5&quot;<br>
+            Option &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Emulate3Buttons&quot; &quot;off&quot;<br>
+            Option &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;Protocol&quot; &quot;ImPS/2&quot;<br>
+            Option &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;ZAxisMapping&quot; &quot;4 5&quot;<br>
+            
+        </table>
+        EndSection<br>
+        </font></tt>
+    </table>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

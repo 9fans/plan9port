@@ -1,0 +1,119 @@
+<head>
+<title>walk(9P) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>WALK(9P)</b><td align=right><b>WALK(9P)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    walk &ndash; descend a directory hierarchy<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>size</i>[4] <tt><font size=+1>Twalk</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>newfid</i>[4] <i>nwname</i>[2] <i>nwname</i>*(<i>wname</i>[<i>s</i>])<br>
+    <i>size</i>[4] <tt><font size=+1>Rwalk</font></tt> <i>tag</i>[2] <i>nwqid</i>[2] <i>nwqid</i>*(<i>qid</i>[13])<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>walk</font></tt> request carries as arguments an existing <i>fid</i> and a proposed
+    <i>newfid</i> (which must not be in use unless it is the same as <i>fid</i>)
+    that the client wishes to associate with the result of traversing
+    the directory hierarchy by &#8216;walking&#8217; the hierarchy using the successive
+    path name elements <tt><font size=+1>wname</font></tt>. The <i>fid</i> must represent
+    a directory unless zero path name elements are specified. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>fid</i> must be valid in the current session and must not have
+    been opened for I/O by an <tt><font size=+1>open</font></tt> or <tt><font size=+1>create</font></tt> message. If the full
+    sequence of <tt><font size=+1>nwname</font></tt> elements is walked successfully, <i>newfid</i> will
+    represent the file that results. If not, <i>newfid</i> (and <tt><font size=+1>fid</font></tt>) will
+    be unaffected. However, if <i>newfid</i> is in use or otherwise illegal,
+    an <tt><font size=+1>Rerror</font></tt> is returned. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The name &#8220;<tt><font size=+1>..</font></tt>&#8221; (dot-dot) represents the parent directory. The name
+    &#8220;<tt><font size=+1>.</font></tt>&#8221; (dot), meaning the current directory, is not used in the protocol.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    It is legal for <tt><font size=+1>nwname</font></tt> to be zero, in which case <i>newfid</i> will represent
+    the same file as <i>fid</i> and the <tt><font size=+1>walk</font></tt> will usually succeed; this is
+    equivalent to walking to dot. The rest of this discussion assumes
+    <tt><font size=+1>nwname</font></tt> is greater than zero. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>nwname</font></tt> path name elements <tt><font size=+1>wname</font></tt> are walked in order, &#8220;elementwise&#8221;.
+    For the first elementwise walk to succeed, the file identified
+    by <i>fid</i> must be a directory, and the implied user of the request
+    must have permission to search the directory (see <i>intro</i>(9P)).
+    Subsequent elementwise walks have equivalent
+    restrictions applied to the implicit fid that results from the
+    preceding elementwise walk. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the first element cannot be walked for any reason, <tt><font size=+1>Rerror</font></tt> is
+    returned. Otherwise, the walk will return an <tt><font size=+1>Rwalk</font></tt> message containing
+    <i>nwqid</i> qids corresponding, in order, to the files that are visited
+    by the <i>nwqid</i> successful elementwise walks; <i>nwqid</i> is therefore
+    either <tt><font size=+1>nwname</font></tt> or the index of the first elementwise
+    walk that failed. The value of <i>nwqid</i> cannot be zero unless <tt><font size=+1>nwname</font></tt>
+    is zero. Also, <i>nwqid</i> will always be less than or equal to <tt><font size=+1>nwname</font></tt>.
+    Only if it is equal, however, will <i>newfid</i> be affected, in which
+    case <i>newfid</i> will represent the file reached by the final elementwise
+    walk requested in the message. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>walk</font></tt> of the name &#8220;<tt><font size=+1>..</font></tt>&#8221; in the root directory of a server is equivalent
+    to a walk with no name elements. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If <i>newfid</i> is the same as <i>fid</i>, the above discussion applies, with
+    the obvious difference that if the walk changes the state of <i>newfid</i>,
+    it also changes the state of <i>fid</i>; and if <i>newfid</i> is unaffected,
+    then <i>fid</i> is also unaffected. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To simplify the implementation of the servers, a maximum of sixteen
+    name elements or qids may be packed in a single message. This
+    constant is called <tt><font size=+1>MAXWELEM</font></tt> in <a href="../man3/fcall.html"><i>fcall</i>(3)</a>. Despite this restriction,
+    the system imposes no limit on the number of elements in a file
+    name, only the number that may be transmitted in a
+    single message.<br>
+    
+</table>
+<p><font size=+1><b>ENTRY POINTS    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Fswalk</i> (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>) generates walk messages. One or more
+    walk messages may be generated by any call that evaluates file
+    names: <i>fsopen</i>, <i>fsopenfd</i>, <i>fsdirstat</i>, <i>fsdirwstat</i>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

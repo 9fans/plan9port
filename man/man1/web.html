@@ -1,0 +1,115 @@
+<head>
+<title>web(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>WEB(1)</b><td align=right><b>WEB(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    web, wmail &ndash; handle web page, mail message for plumber<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>web</font></tt> <i>url</i> ...<br>
+    <tt><font size=+1>wmail</font></tt> <i>address<br>
+    </i>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Web</i> opens each of the named <i>urls</i> in a new web browser window.
+    Any of the <i>urls</i> may be relative paths to files in the file system;
+    they will be translated into <tt><font size=+1>file://</font></tt> URLs before being passed
+    to the web browser. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Web</i> uses the web browser&#8217;s <tt><font size=+1>&#8722;remote</font></tt> option command-line option,
+    which requires an instance of the web browser to be already running.
+    The choice of browser is determined by the <tt><font size=+1>$BROWSER</font></tt> environment
+    variable, which should be the name of the executable for your
+    choice of web browser. The default is
+    <tt><font size=+1>firefox</font></tt>. Since the various browsers all use different syntaxes
+    in their <tt><font size=+1>&#8722;remote</font></tt> options, the executable name is inspected to
+    determine the type of browser. The supported browsers are Opera,
+    Mozilla Firefox, Mozilla Firebird, and Mozilla. When possible,
+    <i>web</i> opens each URL in a new tab rather than a new window.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When run under Mac OS X, <tt><font size=+1>$BROWSER</font></tt> should be set to the string
+    <tt><font size=+1>safari</font></tt> or <tt><font size=+1>firefox</font></tt>. <i>Web</i> uses AppleScript to talk to the browser.
+    If <tt><font size=+1>$BROWSER</font></tt> is not set, <i>web</i> looks for Firefox in <tt><font size=+1>/Applications/Firefox.app</font></tt>
+    and uses it if found; otherwise it uses Safari. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Wmail</i> starts the composition of a new mail message to <i>address</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The choice of mailer is determined by the <tt><font size=+1>$MAILER</font></tt> environment
+    variable. The supported mailers are:<br>
+    <tt><font size=+1>browser<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        invoke the mailer via a <tt><font size=+1>mailto://</font></tt> URL passed to <i>web 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </i>
+        
+    </table>
+    <i>Web</i> and <i>wmail</i> are invoked as start commands in the <a href="../man4/plumber.html"><i>plumber</i>(4)</a>&#8217;s
+    rules for opening web pages and writing mail messages.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/plumb/basic<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        plumbing rules using <i>web</i> and <i>wmail<br>
+        </i>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/bin<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man4/plumber.html"><i>plumber</i>(4)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

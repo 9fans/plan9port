@@ -1,0 +1,244 @@
+<head>
+<title>stat(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>STAT(3)</b><td align=right><b>STAT(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    stat, fstat, wstat, fwstat, dirstat, dirfstat, dirwstat, dirfwstat,
+    nulldir &ndash; get and put file status<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int stat(char *name, uchar *edir, int nedir) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int fstat(int fd, uchar *edir, int nedir) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int wstat(char *name, uchar *edir, int nedir) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int fwstat(int fd, uchar *edir, int nedir) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Dir* dirstat(char *name) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Dir* dirfstat(int fd) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int dirwstat(char *name, Dir *dir) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int dirfwstat(int fd, Dir *dir) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void nulldir(Dir *d)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Given a file&#8217;s <i>name</i>, or an open file descriptor <i>fd</i>, these routines
+    retrieve or modify file status information. <i>Stat</i>, <i>fstat</i>, <i>wstat</i>,
+    and <i>fwstat</i> are the system calls; they deal with machine-independent
+    <i>directory entries</i>. Their format is defined by <i>stat</i>(9p). <i>Stat</i> and
+    <i>fstat</i> retrieve information about <i>name</i> or <i>fd</i> into <i>edir</i>, a buffer
+    of length <i>nedir</i>, defined in <tt><font size=+1>&lt;libc.h&gt;</font></tt>. <i>Wstat</i> and <i>fwstat</i> write information
+    back, thus changing file attributes according to the contents
+    of <i>edir</i>. The data returned from the kernel includes its leading
+    16-bit length field as described in <i>intro</i>(9p). For symmetry, this
+    field must also be present when passing data to the
+    kernel in a call to <i>wstat</i> and <i>fwstat</i>, but its value is ignored.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Dirstat</i>, <i>dirfstat</i>, <i>dirwstat</i>, and <i>dirfwstat</i> are similar to their
+    counterparts, except that they operate on <i>Dir</i> structures:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef<br>
+        struct Dir {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            /* system&#8722;modified data */<br>
+            uint &nbsp;&nbsp;&nbsp;type; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* server type */<br>
+            uint &nbsp;&nbsp;&nbsp;dev; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* server subtype */<br>
+            /* file data */<br>
+            Qid &nbsp;&nbsp;&nbsp;&nbsp;qid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* unique id from server */<br>
+            ulong mode; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* permissions */<br>
+            ulong atime; &nbsp;&nbsp;&nbsp;&nbsp;/* last read time */<br>
+            ulong mtime; &nbsp;&nbsp;&nbsp;&nbsp;/* last write time */<br>
+            vlong length; &nbsp;&nbsp;&nbsp;/* file length: see &lt;u.h&gt; */<br>
+            char &nbsp;&nbsp;&nbsp;*name; &nbsp;&nbsp;&nbsp;&nbsp;/* last element of path */<br>
+            char &nbsp;&nbsp;&nbsp;*uid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* owner name */<br>
+            char &nbsp;&nbsp;&nbsp;*gid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* group name */<br>
+            char &nbsp;&nbsp;&nbsp;*muid; &nbsp;&nbsp;&nbsp;&nbsp;/* last modifier name */<br>
+            
+        </table>
+        } Dir;<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    The returned structure is allocated by <a href="../man3/malloc.html"><i>malloc</i>(3)</a>; freeing it also
+    frees the associated strings. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    This structure and the <tt><font size=+1>Qid</font></tt> structure are defined in <tt><font size=+1>&lt;libc.h&gt;</font></tt>. If
+    the file resides on permanent storage and is not a directory,
+    the length returned by <i>stat</i> is the number of bytes in the file.
+    For directories, the length returned is zero. For files that are
+    streams (e.g., pipes and network connections), the length is the
+    number of bytes that can be read without blocking. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each file is the responsibility of some <i>server</i>: it could be a
+    file server, a kernel device, or a user process. <tt><font size=+1>Type</font></tt> identifies
+    the server type, and <tt><font size=+1>dev</font></tt> says which of a group of servers of the
+    same type is the one responsible for this file. <tt><font size=+1>Qid</font></tt> is a structure
+    containing <tt><font size=+1>path</font></tt> and <tt><font size=+1>vers</font></tt> fields: <tt><font size=+1>path</font></tt> is guaranteed to be
+    unique among all path names currently on the file server, and
+    <tt><font size=+1>vers</font></tt> changes each time the file is modified. The <tt><font size=+1>path</font></tt> is a <tt><font size=+1>long
+    long</font></tt> (64 bits, <tt><font size=+1>vlong</font></tt>) and the <tt><font size=+1>vers</font></tt> is an <tt><font size=+1>unsigned long</font></tt> (32 bits,
+    <tt><font size=+1>ulong</font></tt>). Thus, if two files have the same <tt><font size=+1>type</font></tt>, <tt><font size=+1>dev</font></tt>, and <tt><font size=+1>qid</font></tt> they
+    are the same file. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The bits in <tt><font size=+1>mode</font></tt> are defined by 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>0x80000000 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;directory<br>
+        <tt><font size=+1>0x40000000 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;append only<br>
+        <tt><font size=+1>0x20000000 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;exclusive use (locked)<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>0400 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;read permission by owner<br>
+             <tt><font size=+1>0200 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;write permission by owner<br>
+             <tt><font size=+1>0100 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;execute permission (search on directory) by owner<br>
+             <tt><font size=+1>0070 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;read, write, execute (search) by group<br>
+             <tt><font size=+1>0007 </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;read, write, execute (search) by others<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    There are constants defined in <tt><font size=+1>&lt;libc.h&gt;</font></tt> for these bits: <tt><font size=+1>DMDIR</font></tt>, <tt><font size=+1>DMAPPEND</font></tt>,
+    and <tt><font size=+1>DMEXCL</font></tt> for the first three; and <tt><font size=+1>DMREAD</font></tt>, <tt><font size=+1>DMWRITE</font></tt>, and <tt><font size=+1>DMEXEC</font></tt>
+    for the read, write, and execute bits for others. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The two time fields are measured in seconds since the epoch (Jan
+    1 00:00 1970 GMT). <tt><font size=+1>Mtime</font></tt> is the time of the last change of content.
+    Similarly, <tt><font size=+1>atime</font></tt> is set whenever the contents are accessed; also,
+    it is set whenever <tt><font size=+1>mtime</font></tt> is set. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Uid</font></tt> and <tt><font size=+1>gid</font></tt> are the names of the owner and group of the file;
+    <tt><font size=+1>muid</font></tt> is the name of the user that last modified the file (setting
+    <tt><font size=+1>mtime</font></tt>). Groups are also users, but each server is free to associate
+    a list of users with any user name <i>g</i>, and that list is the set
+    of users in the group <i>g</i>. When an initial attachment is made to
+    a
+    server, the user string in the process group is communicated to
+    the server. Thus, the server knows, for any given file access,
+    whether the accessing process is the owner of, or in the group
+    of, the file. This selects which sets of three bits in <tt><font size=+1>mode</font></tt> is
+    used to check permissions. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Only some of the fields may be changed with the <i>wstat</i> calls. The
+    <tt><font size=+1>name</font></tt> can be changed by anyone with write permission in the parent
+    directory. The <tt><font size=+1>mode</font></tt> and <tt><font size=+1>mtime</font></tt> can be changed by the owner or the
+    group leader of the file&#8217;s current group. The <i>gid</i> can be changed:
+    by the owner if also a member of the new
+    group; or by the group leader of the file&#8217;s current group if also
+    leader of the new group (see <i>intro</i>(9p) for more information about
+    permissions, users, and groups). The <tt><font size=+1>length</font></tt> can be changed by
+    anyone with write permission, provided the operation is implemented
+    by the server. (See <i>intro</i>(9p) for permission, user,
+    and group information). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Special values in the fields of the <tt><font size=+1>Dir</font></tt> passed to <i>wstat</i> indicate
+    that the field is not intended to be changed by the call. The
+    values are the maximum unsigned integer of appropriate size for
+    integral values (usually <tt><font size=+1>~0</font></tt>, but beware of conversions and size
+    mismatches when comparing values) and the empty or nil string
+    for string values. The routine <i>nulldir</i> initializes all the elements
+    of <i>d</i> to these &#8220;don&#8217;t care&#8221; values. Thus one may change the mode,
+    for example, by using <i>nulldir</i> to initialize a <tt><font size=+1>Dir</font></tt>, then setting
+    the mode, and then doing <i>wstat</i>; it is not necessary to use <i>stat</i>
+    to retrieve the initial values first.
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/dirstat.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/intro.html"><i>intro</i>(3)</a>, <a href="../man3/fcall.html"><i>fcall</i>(3)</a>, <a href="../man3/dirread.html"><i>dirread</i>(3)</a>, <i>stat</i>(9p)<br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <i>dir</i> functions return a pointer to the data for a successful
+    call, or <tt><font size=+1>nil</font></tt> on error. The others return the number of bytes copied
+    on success, or &ndash;1 on error. All set <i>errstr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the buffer for <i>stat</i> or <i>fstat</i> is too short for the returned
+    data, the return value will be <tt><font size=+1>BIT16SZ</font></tt> (see <a href="../man3/fcall.html"><i>fcall</i>(3)</a>) and the
+    two bytes returned will contain the initial count field of the
+    returned data; retrying with <tt><font size=+1>nedir</font></tt> equal to that value plus <tt><font size=+1>BIT16SZ</font></tt>
+    (for the count itself) should succeed.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

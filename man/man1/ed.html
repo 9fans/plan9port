@@ -1,0 +1,439 @@
+<head>
+<title>ed(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ED(1)</b><td align=right><b>ED(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    ed &ndash; text editor<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>ed</font></tt> [ <tt><font size=+1>&#8722;</font></tt> ] [ <tt><font size=+1>&#8722;o</font></tt> ] [ <i>file</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Ed</i> is a venerable text editor. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If a <i>file</i> argument is given, <i>ed</i> simulates an <tt><font size=+1>e</font></tt> command (see below)
+    on that file: it is read into <i>ed&#8217;s</i> buffer so that it can be edited.
+    The options are<br>
+    <tt><font size=+1>&#8722;</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Suppress the printing of character counts by <tt><font size=+1>e</font></tt>, <tt><font size=+1>r</font></tt>, and <tt><font size=+1>w</font></tt> commands
+    and of the confirming <tt><font size=+1>!</font></tt> by <tt><font size=+1>!</font></tt> commands.<br>
+    <tt><font size=+1>&#8722;o</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;(for output piping) Write all output to the standard error file
+    except writing by <tt><font size=+1>w</font></tt> commands. If no <i>file</i> is given, make <tt><font size=+1>/dev/stdout</font></tt>
+    the remembered file; see the <tt><font size=+1>e</font></tt> command below. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Ed</i> operates on a &#8216;buffer&#8217;, a copy of the file it is editing; changes
+    made in the buffer have no effect on the file until a <tt><font size=+1>w</font></tt> (write)
+    command is given. The copy of the text being edited resides in
+    a temporary file called the <i>buffer</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Commands to <i>ed</i> have a simple and regular structure: zero, one,
+    or two <i>addresses</i> followed by a single character <i>command</i>, possibly
+    followed by parameters to the command. These addresses specify
+    one or more lines in the buffer. Missing addresses are supplied
+    by default. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In general, only one command may appear on a line. Certain commands
+    allow the addition of text to the buffer. While <i>ed</i> is accepting
+    text, it is said to be in <i>input mode.</i> In this mode, no commands
+    are recognized; all input is merely collected. Input mode is left
+    by typing a period <tt><font size=+1>.</font></tt> alone at the beginning of a line. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Ed</i> supports the <i>regular expression</i> notation described in <a href="../man7/regexp.html"><i>regexp</i>(7)</a>.
+    Regular expressions are used in addresses to specify lines and
+    in one command (see <i>s</i> below) to specify a portion of a line which
+    is to be replaced. If it is desired to use one of the regular
+    expression metacharacters as an ordinary character, that
+    character may be preceded by &#8216;<tt><font size=+1>\</font></tt>&#8217;. This also applies to the character
+    bounding the regular expression (often <tt><font size=+1>/</font></tt>) and to <tt><font size=+1>\</font></tt> itself. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To understand addressing in <i>ed</i> it is necessary to know that at
+    any time there is a <i>current line.</i> Generally, the current line
+    is the last line affected by a command; however, the exact effect
+    on the current line is discussed under the description of each
+    command. Addresses are constructed as follows.
+    1.&nbsp;&nbsp;&nbsp;&nbsp;The character <tt><font size=+1>.</font></tt>, customarily called &#8216;dot&#8217;, addresses the current
+    line.<br>
+    2.&nbsp;&nbsp;&nbsp;&nbsp;The character <tt><font size=+1>$</font></tt> addresses the last line of the buffer.<br>
+    3.&nbsp;&nbsp;&nbsp;&nbsp;A decimal number <i>n</i> addresses the <i>n</i>-th line of the buffer.<br>
+    4.<tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;'x</font></tt> addresses the line marked with the name <i>x</i>, which must be
+    a lower-case letter. Lines are marked with the <tt><font size=+1>k</font></tt> command.<br>
+    5.&nbsp;&nbsp;&nbsp;&nbsp;A regular expression enclosed in slashes ( <tt><font size=+1>/</font></tt>) addresses the
+    line found by searching forward from the current line and stopping
+    at the first line containing a string that matches the regular
+    expression. If necessary the search wraps around to the beginning
+    of the buffer.<br>
+    6.&nbsp;&nbsp;&nbsp;&nbsp;A regular expression enclosed in queries <tt><font size=+1>?</font></tt> addresses the line
+    found by searching backward from the current line and stopping
+    at the first line containing a string that matches the regular
+    expression. If necessary the search wraps around to the end of
+    the buffer.<br>
+    7.&nbsp;&nbsp;&nbsp;&nbsp;An address followed by a plus sign <tt><font size=+1>+</font></tt> or a minus sign <tt><font size=+1>&#8722;</font></tt> followed
+    by a decimal number specifies that address plus (resp. minus)
+    the indicated number of lines. The plus sign may be omitted.<br>
+    8.&nbsp;&nbsp;&nbsp;&nbsp;An address followed by <tt><font size=+1>+</font></tt> (or <tt><font size=+1>&#8722;</font></tt>) followed by a regular expression
+    enclosed in slashes specifies the first matching line following
+    (or preceding) that address. The search wraps around if necessary.
+    The <tt><font size=+1>+</font></tt> may be omitted, so <tt><font size=+1>0/x/</font></tt> addresses the <i>first</i> line in the
+    buffer with an <tt><font size=+1>x</font></tt>. Enclosing the regular expression in
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>?</font></tt> reverses the search direction.<br>
+        
+    </table>
+    9.&nbsp;&nbsp;&nbsp;&nbsp;If an address begins with <tt><font size=+1>+</font></tt> or <tt><font size=+1>&#8722;</font></tt> the addition or subtraction
+    is taken with respect to the current line; e.g. <tt><font size=+1>&#8722;5</font></tt> is understood
+    to mean <tt><font size=+1>.&#8722;5</font></tt>.<br>
+    10.&nbsp;&nbsp;&nbsp;If an address ends with <tt><font size=+1>+</font></tt> or <tt><font size=+1>&#8722;</font></tt>, then 1 is added (resp. subtracted).
+    As a consequence of this rule and rule 9, the address <tt><font size=+1>&#8722;</font></tt> refers
+    to the line before the current line. Moreover, trailing <tt><font size=+1>+</font></tt> and
+    <tt><font size=+1>&#8722;</font></tt> characters have cumulative effect, so <tt><font size=+1>&#8722;&#8722;</font></tt> refers to the current
+    line less 2.<br>
+    11.&nbsp;&nbsp;&nbsp;To maintain compatibility with earlier versions of the editor,
+    the character <tt><font size=+1>^</font></tt> in addresses is equivalent to <tt><font size=+1>&#8722;</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Commands may require zero, one, or two addresses. Commands which
+    require no addresses regard the presence of an address as an error.
+    Commands which accept one or two addresses assume default addresses
+    when insufficient are given. If more addresses are given than
+    a command requires, the last one or two
+    (depending on what is accepted) are used. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Addresses are separated from each other typically by a comma <tt><font size=+1>,</font></tt>.
+    They may also be separated by a semicolon <tt><font size=+1>;</font></tt>. In this case the
+    current line is set to the previous address before the next address
+    is interpreted. If no address precedes a comma or semicolon, line
+    1 is assumed; if no address follows, the last line of the
+    buffer is assumed. The second address of any two-address sequence
+    must correspond to a line following the line corresponding to
+    the first address. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In the following list of <i>ed</i> commands, the default addresses are
+    shown in parentheses. The parentheses are not part of the address,
+    but are used to show that the given addresses are the default.
+    &#8216;Dot&#8217; means the current line.<br>
+    (<tt><font size=+1>.</font></tt>)<tt><font size=+1>a<br>
+    </font></tt>&lt;text&gt;<br>
+    <tt><font size=+1>.</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read the given text and append it after the addressed line. Dot
+    is left on the last line input, if there were any, otherwise at
+    the addressed line. Address <tt><font size=+1>0</font></tt> is legal for this command; text
+    is placed at the beginning of the buffer.<br>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>b</font></tt>[<tt><font size=+1>+&#8722;</font></tt>][<i>pagesize</i>][<tt><font size=+1>pln</font></tt>]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Browse. Print a &#8216;page&#8217;, normally 20 lines. The optional <tt><font size=+1>+</font></tt> (default)
+        or <tt><font size=+1>&#8722;</font></tt> specifies whether the next or previous page is to be printed.
+        The optional <i>pagesize</i> is the number of lines in a page. The optional
+        <tt><font size=+1>p</font></tt>, <tt><font size=+1>n</font></tt>, or <tt><font size=+1>l</font></tt> causes printing in the specified format, initially
+        <tt><font size=+1>p</font></tt>. Pagesize and format are remembered between <tt><font size=+1>b
+        </font></tt>commands. Dot is left at the last line displayed.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>c<br>
+    </font></tt>&lt;text&gt;<br>
+    <tt><font size=+1>.</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Change. Delete the addressed lines, then accept input text to
+    replace these lines. Dot is left at the last line input; if there
+    were none, it is left at the line preceding the deleted lines.<br>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>d<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete the addressed lines from the buffer. Dot is set to the
+        line following the last line deleted, or to the last line of the
+        buffer if the deleted lines had no successor.<br>
+        
+    </table>
+    <tt><font size=+1>e</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Edit. Delete the entire contents of the buffer; then read the
+        named file into the buffer. Dot is set to the last line of the
+        buffer. The number of characters read is typed. The file name
+        is remembered for possible use in later <tt><font size=+1>e</font></tt>, <tt><font size=+1>r</font></tt>, or <tt><font size=+1>w</font></tt> commands. If
+        <i>filename</i> is missing, the remembered name is used.
+        
+    </table>
+    <tt><font size=+1>E</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Unconditional <tt><font size=+1>e</font></tt>; see &#8216;<tt><font size=+1>q</font></tt>&#8217; below.<br>
+        
+    </table>
+    <tt><font size=+1>f</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the currently remembered file name. If <i>filename</i> is given,
+        the currently remembered file name is first changed to <i>filename</i>.<br>
+        
+    </table>
+    (<tt><font size=+1>1,$</font></tt>)<tt><font size=+1>g/</font></tt><i>regular expression</i><tt><font size=+1>/</font></tt><i>command list<br>
+    </i>(<tt><font size=+1>1,$</font></tt>)<tt><font size=+1>g/</font></tt><i>regular expression</i><tt><font size=+1>/<br>
+    </font></tt>(<tt><font size=+1>1,$</font></tt>)<tt><font size=+1>g/</font></tt><i>regular expression<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Global. First mark every line which matches the given <i>regular</i>expression<i>.</i>
+        Then for every such line, execute the <i>command list</i> with dot initially
+        set to that line. A single command or the first of multiple commands
+        appears on the same line with the global command. All lines of
+        a multi-line list except the last line
+        must end with <tt><font size=+1>\</font></tt>. The &#8216;<tt><font size=+1>.</font></tt>&#8217; terminating input mode for an <tt><font size=+1>a</font></tt>, <tt><font size=+1>i</font></tt>, <tt><font size=+1>c</font></tt>
+        command may be omitted if it would be on the last line of the
+        command list. The commands <tt><font size=+1>g</font></tt> and <tt><font size=+1>v</font></tt> are not permitted in the command
+        list. Any character other than space or newline may be used instead
+        of <tt><font size=+1>/</font></tt> to delimit the regular expression.
+        The second and third forms mean <tt><font size=+1>g/</font></tt><i>regular expression</i><tt><font size=+1>/p</font></tt>.<br>
+        
+    </table>
+    (<tt><font size=+1>.</font></tt>)<tt><font size=+1>i<br>
+    </font></tt>&lt;text&gt;<br>
+    <tt><font size=+1>.</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Insert the given text before the addressed line. Dot is left
+    at the last line input, or, if there were none, at the line before
+    the addressed line. This command differs from the <i>a</i> command only
+    in the placement of the text.<br>
+    (<tt><font size=+1>.,.+1</font></tt>)<tt><font size=+1>j<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Join the addressed lines into a single line; intermediate newlines
+        are deleted. Dot is left at the resulting line.<br>
+        
+    </table>
+    (<tt><font size=+1>.</font></tt>)<tt><font size=+1>k</font></tt><i>x</i>Mark the addressed line with name <i>x</i>, which must be a lower-case
+    letter. The address form <tt><font size=+1>'</font></tt><i>x</i> then addresses this line.<br>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>l<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        List. Print the addressed lines in an unambiguous way: a tab is
+        printed as <tt><font size=+1>\t</font></tt>, a backspace as <tt><font size=+1>\b</font></tt>, backslashes as <tt><font size=+1>\\</font></tt>, and non-printing
+        characters as a backslash, an <tt><font size=+1>x</font></tt>, and four hexadecimal digits.
+        Long lines are folded, with the second and subsequent sub-lines
+        indented one tab stop. If the last character in
+        the line is a blank, it is followed by <tt><font size=+1>\n</font></tt>. An <tt><font size=+1>l</font></tt> may be appended,
+        like <tt><font size=+1>p</font></tt>, to any non-I/O command.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>m</font></tt><i>a<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Move. Reposition the addressed lines after the line addressed
+        by <i>a</i>. Dot is left at the last moved line.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>n<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Number. Perform <tt><font size=+1>p</font></tt>, prefixing each line with its line number and
+        a tab. An <tt><font size=+1>n</font></tt> may be appended, like <tt><font size=+1>p</font></tt>, to any non-I/O command.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>p<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the addressed lines. Dot is left at the last line printed.
+        A <tt><font size=+1>p</font></tt> appended to any non-I/O command causes the then current line
+        to be printed after the command is executed.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>P<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        This command is a synonym for <tt><font size=+1>p</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quit the editor. No automatic write of a file is done. A <tt><font size=+1>q</font></tt> or
+    <tt><font size=+1>e</font></tt> command is considered to be in error if the buffer has been
+    modified since the last <tt><font size=+1>w</font></tt>, <tt><font size=+1>q</font></tt>, or <tt><font size=+1>e</font></tt> command.<br>
+    <tt><font size=+1>Q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quit unconditionally.<br>
+    (<tt><font size=+1>$</font></tt>)r <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Read in the given file after the addressed line. If no <i>filename</i>
+        is given, the remembered file name is used. The file name is remembered
+        if there were no remembered file name already. If the read is
+        successful, the number of characters read is printed. Dot is left
+        at the last line read from the file.
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>s</font></tt><i>n</i><tt><font size=+1>/</font></tt><i>regular expression</i><tt><font size=+1>/</font></tt><i>replacement</i><tt><font size=+1>/<br>
+    </font></tt>(<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>s</font></tt><i>n</i><tt><font size=+1>/</font></tt><i>regular expression</i><tt><font size=+1>/</font></tt><i>replacement</i><tt><font size=+1>/g<br>
+    </font></tt>(<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>s</font></tt><i>n</i><tt><font size=+1>/</font></tt><i>regular expression</i><tt><font size=+1>/</font></tt><i>replacement<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Substitute. Search each addressed line for an occurrence of the
+        specified regular expression. On each line in which <i>n</i> matches
+        are found (<i>n</i> defaults to 1 if missing), the <i>n</i>th matched string
+        is replaced by the replacement specified. If the global replacement
+        indicator <tt><font size=+1>g</font></tt> appears after the command, all subsequent
+        matches on the line are also replaced. It is an error for the
+        substitution to fail on all addressed lines. Any character other
+        than space or newline may be used instead of <tt><font size=+1>/</font></tt> to delimit the
+        regular expression and the replacement. Dot is left at the last
+        line substituted. The third form means
+        <tt><font size=+1>s</font></tt><i>n</i><tt><font size=+1>/</font></tt><i>regular expression</i><tt><font size=+1>/</font></tt><i>replacement</i><tt><font size=+1>/p</font></tt>. The second <tt><font size=+1>/</font></tt> may be omitted
+        if the replacement is empty.<br>
+        An ampersand <tt><font size=+1>&amp;</font></tt> appearing in the replacement is replaced by the
+        string matching the regular expression. The characters <tt><font size=+1>\</font></tt><i>n</i>, where
+        <i>n</i> is a digit, are replaced by the text matched by the <i>n</i>-th regular
+        subexpression enclosed between <tt><font size=+1>(</font></tt> and <tt><font size=+1>)</font></tt>. When nested parenthesized
+        subexpressions are present, <i>n</i> is
+        determined by counting occurrences of <tt><font size=+1>(</font></tt> starting from the left.<br>
+        A literal <tt><font size=+1>&amp;</font></tt>, <tt><font size=+1>/</font></tt>, <tt><font size=+1>\</font></tt> or newline may be included in a replacement by
+        prefixing it with <tt><font size=+1>\</font></tt>.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>t</font></tt><i>a<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Transfer. Copy the addressed lines after the line addressed by
+        <i>a</i>. Dot is left at the last line of the copy.<br>
+        
+    </table>
+    (<tt><font size=+1>.,.</font></tt>)<tt><font size=+1>u<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Undo. Restore the preceding contents of the first addressed line
+        (sic), which must be the last line in which a substitution was
+        made (double sic).<br>
+        
+    </table>
+    (<tt><font size=+1>1,$</font></tt>)<tt><font size=+1>v/</font></tt><i>regular expression</i><tt><font size=+1>/</font></tt><i>command list<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        This command is the same as the global command <tt><font size=+1>g</font></tt> except that the
+        command list is executed with dot initially set to every line
+        <i>except</i> those matching the regular expression.<br>
+        
+    </table>
+    (<tt><font size=+1>1,$</font></tt>)<tt><font size=+1>w</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Write the addressed lines to the given file. If the file does
+        not exist, it is created with mode 666 (readable and writable
+        by everyone). If no <i>filename</i> is given, the remembered file name,
+        if any, is used. The file name is remembered if there were no
+        remembered file name already. Dot is unchanged. If the write is
+        successful, the number of characters written is printed.<br>
+        
+    </table>
+    (<tt><font size=+1>1,$</font></tt>)<tt><font size=+1>W</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Perform <tt><font size=+1>w</font></tt>, but append to, instead of overwriting, any existing
+        file contents.<br>
+        
+    </table>
+    (<tt><font size=+1>$</font></tt>)<tt><font size=+1>=</font></tt>&nbsp;&nbsp;&nbsp;Print the line number of the addressed line. Dot is unchanged.<br>
+    <tt><font size=+1>!</font></tt><i>shell command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Send the remainder of the line after the <tt><font size=+1>!</font></tt> to <a href="../man1/rc.html"><i>rc</i>(1)</a> to be interpreted
+        as a command. Dot is unchanged.<br>
+        
+    </table>
+    (<tt><font size=+1>.+1</font></tt>)&lt;newline&gt;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        An address without a command is taken as a <tt><font size=+1>p</font></tt> command. A terminal
+        <tt><font size=+1>/</font></tt> may be omitted from the address. A blank line alone is equivalent
+        to <tt><font size=+1>.+1p</font></tt>; it is useful for stepping through text. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    If an interrupt signal (DEL) is sent, <i>ed</i> prints a <tt><font size=+1>?</font></tt> and returns
+    to its command level. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When reading a file, <i>ed</i> discards NUL characters and all characters
+    after the last newline.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/tmp/e*<br>
+    ed.hup</font></tt>   work is saved here if terminal hangs up<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/ed.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/sam.html"><i>sam</i>(1)</a>, <a href="../man1/sed.html"><i>sed</i>(1)</a>, <a href="../man7/regexp.html"><i>regexp</i>(7)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>?</font></tt><i>name</i> for inaccessible file; <tt><font size=+1>?TMP</font></tt> for temporary file overflow;
+    <tt><font size=+1>?</font></tt> for errors in commands or other overflows.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

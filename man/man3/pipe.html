@@ -1,0 +1,111 @@
+<head>
+<title>pipe(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>PIPE(3)</b><td align=right><b>PIPE(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    pipe &ndash; create an interprocess channel<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int pipe(int fd[2])<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Pipe</i> creates a buffered channel for interprocess I/O communication.
+    Two file descriptors are returned in <i>fd</i>. Data written to <tt><font size=+1>fd[1]</font></tt>
+    is available for reading from <tt><font size=+1>fd[0]</font></tt> and data written to <tt><font size=+1>fd[0]</font></tt>
+    is available for reading from <tt><font size=+1>fd[1]</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    After the pipe has been established, cooperating processes created
+    by subsequent <a href="../man2/fork.html"><i>fork</i>(2)</a> calls may pass data through the pipe with
+    <i>read</i> and <i>write</i> calls. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When all the data has been read from a pipe and the writer has
+    closed the pipe or exited, <a href="../man3/read.html"><i>read</i>(3)</a> will return 0 bytes. Writes
+    to a pipe with no reader will generate a note <tt><font size=+1>sys: write on closed
+    pipe</font></tt>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/pipe.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/intro.html"><i>intro</i>(3)</a>, <a href="../man3/read.html"><i>read</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Sets <i>errstr</i>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    If a read or a write of a pipe is interrupted, some unknown number
+    of bytes may have been transferred. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Pipe</i> is a macro defined as <i>p9pipe</i> to avoid name conflicts with
+    Unix&#8217;s <i>pipe</i> system call. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Unix pipes are not guaranteed to be bidirectional. In order to
+    ensure a bidirectional channel, <i>p9pipe</i> creates Unix domain sockets
+    via the <a href="../man2/socketpair.html"><i>socketpair</i>(2)</a> instead of Unix pipes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The implementation of pipes as Unix domain sockets causes problems
+    with some Unix implementations of <tt><font size=+1>/dev/fd</font></tt>, Unix&#8217;s dup device.
+    If a Unix domain socket is open as file descriptor 0, some implementations
+    disallow the opening of <tt><font size=+1>/dev/fd/0</font></tt>; instead one must <a href="../man2/connect.html"><i>connect</i>(2)</a>
+    to it. If this functionality is important
+    (as it is for <a href="../man1/rc.html"><i>rc</i>(1)</a>), one must <tt><font size=+1>#undef pipe</font></tt> and fall back on the
+    (possibly unidirectional) Unix pipes.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

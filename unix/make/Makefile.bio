@@ -7,13 +7,13 @@ OFILES=\
 	bbuffered.$O\
 	bfildes.$O\
 	bflush.$O\
-	bfmt.$O\
 	bgetc.$O\
 	bgetd.$O\
 	bgetrune.$O\
 	binit.$O\
 	boffset.$O\
 	bprint.$O\
+	bvprint.$O\
 	bputc.$O\
 	bputrune.$O\
 	brdline.$O\

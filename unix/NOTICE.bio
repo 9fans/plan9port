@@ -38,3 +38,9 @@ shall be deemed to be acceptance of the following conditions:
     quality or suitability for any purpose and the Authors accept
     no liability whatsoever in relation to any use to which
     it may be put.
+
+----
+
+This software is also made available under the Lucent Public License
+version 1.02; see http://plan9.bell-labs.com/plan9dist/license.html
+

@@ -1,0 +1,66 @@
+.TH RUNESTRCAT 3
+.SH NAME
+runestrcat, 
+runestrncat,
+runestrcmp,
+runestrncmp,
+runestrcpy,
+runestrncpy,
+runestrecpy,
+runestrlen,
+runestrchr,
+runestrrchr,
+runestrdup,
+runestrstr \- rune string operations
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLRune* \fP'u
+.B
+Rune*	runestrcat(Rune *s1, Rune *s2)
+.PP
+.B
+Rune*	runestrncat(Rune *s1, Rune *s2, long n)
+.PP
+.B
+int	runestrcmp(Rune *s1, Rune *s2)
+.PP
+.B
+int	runestrncmp(Rune *s1, Rune *s2, long n)
+.PP
+.B
+Rune*	runestrcpy(Rune *s1, Rune *s2)
+.PP
+.B
+Rune*	runestrncpy(Rune *s1, Rune *s2, long n)
+.PP
+.B
+Rune*	runestrecpy(Rune *s1, Rune *es1, Rune *s2)
+.PP
+.B
+long	runestrlen(Rune *s)
+.PP
+.B
+Rune*	runestrchr(Rune *s, Rune c)
+.PP
+.B
+Rune*	runestrrchr(Rune *s, Rune c)
+.PP
+.B
+Rune*	runestrdup(Rune *s)
+.PP
+.B
+Rune*	runestrstr(Rune *s1, Rune *s2)
+.SH DESCRIPTION
+These functions are rune string analogues of
+the corresponding functions in 
+.IR strcat (3).
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH SEE ALSO
+.IR rune (3),
+.IR strcat (3)
+.SH BUGS
+The outcome of overlapping moves varies among implementations.

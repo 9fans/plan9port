@@ -1,0 +1,363 @@
+.TH BIO 3
+.SH NAME
+Bopen, Bfdopen, Binit, Binits, Brdline, Brdstr, Bgetc, Bgetrune, Bgetd, Bungetc, Bungetrune, Bread, Bseek, Boffset, Bfildes, Blinelen, Bputc, Bputrune, Bprint, Bvprint, Bwrite, Bflush, Bterm, Bbuffered \- buffered input/output
+.SH SYNOPSIS
+.ta \w'\fLBiobuf* 'u
+.B #include <utf.h>
+.br
+.B #include <fmt.h>
+.br
+.B #include <bio.h>
+.PP
+.B
+Biobuf*	Bopen(char *file, int mode)
+.PP
+.B
+Biobuf*	Bfdopen(int fd, int mode)
+.PP
+.B
+int	Binit(Biobuf *bp, int fd, int mode)
+.PP
+.B
+int	Binits(Biobufhdr *bp, int fd, int mode, uchar *buf, int size)
+.PP
+.B
+int	Bterm(Biobufhdr *bp)
+.PP
+.B
+int	Bprint(Biobufhdr *bp, char *format, ...)
+.PP
+.B
+int	Bvprint(Biobufhdr *bp, char *format, va_list arglist);
+.PP
+.B
+void*	Brdline(Biobufhdr *bp, int delim)
+.PP
+.B
+char*	Brdstr(Biobufhdr *bp, int delim, int nulldelim)
+.PP
+.B
+int	Blinelen(Biobufhdr *bp)
+.PP
+.B
+vlong	Boffset(Biobufhdr *bp)
+.PP
+.B
+int	Bfildes(Biobufhdr *bp)
+.PP
+.B
+int	Bgetc(Biobufhdr *bp)
+.PP
+.B
+long	Bgetrune(Biobufhdr *bp)
+.PP
+.B
+int	Bgetd(Biobufhdr *bp, double *d)
+.PP
+.B
+int	Bungetc(Biobufhdr *bp)
+.PP
+.B
+int	Bungetrune(Biobufhdr *bp)
+.PP
+.B
+vlong	Bseek(Biobufhdr *bp, vlong n, int type)
+.PP
+.B
+int	Bputc(Biobufhdr *bp, int c)
+.PP
+.B
+int	Bputrune(Biobufhdr *bp, long c)
+.PP
+.B
+long	Bread(Biobufhdr *bp, void *addr, long nbytes)
+.PP
+.B
+long	Bwrite(Biobufhdr *bp, void *addr, long nbytes)
+.PP
+.B
+int	Bflush(Biobufhdr *bp)
+.PP
+.B
+int	Bbuffered(Biobufhdr *bp)
+.PP
+.SH DESCRIPTION
+These routines implement fast buffered I/O.
+I/O on different file descriptors is independent.
+.PP
+.I Bopen
+opens
+.I file
+for mode
+.B O_RDONLY
+or creates for mode
+.BR O_WRONLY .
+It calls
+.IR malloc (3)
+to allocate a buffer.
+.PP
+.I Bfdopen
+allocates a buffer for the already-open file descriptor
+.I fd
+for mode
+.B O_RDONLY
+or
+.BR O_WRONLY .
+It calls
+.IR malloc (3)
+to allocate a buffer.
+.PP
+.I Binit
+initializes a standard size buffer, type
+.IR Biobuf ,
+with the open file descriptor passed in
+by the user.
+.I Binits
+initializes a non-standard size buffer, type
+.IR Biobufhdr ,
+with the open file descriptor,
+buffer area, and buffer size passed in
+by the user.
+.I Biobuf
+and
+.I Biobufhdr
+are related by the declaration:
+.IP
+.EX
+typedef struct Biobuf Biobuf;
+struct Biobuf
+{
+	Biobufhdr;
+	uchar b[Bungetsize+Bsize];
+};
+.EE
+.PP
+Arguments
+of types pointer to Biobuf and pointer to Biobufhdr
+can be used interchangeably in the following routines.
+.PP
+.IR Bopen ,
+.IR Binit ,
+or
+.I Binits
+should be called before any of the
+other routines on that buffer.
+.I Bfildes
+returns the integer file descriptor of the associated open file.
+.PP
+.I Bterm
+flushes the buffer for
+.IR bp .
+If the buffer was allocated by
+.IR Bopen ,
+the buffer is
+.I freed
+and the file is closed.
+.PP
+.I Brdline
+reads a string from the file associated with
+.I bp
+up to and including the first
+.I delim
+character.
+The delimiter character at the end of the line is
+not altered.
+.I Brdline
+returns a pointer to the start of the line or
+.L 0
+on end-of-file or read error.
+.I Blinelen
+returns the length (including the delimiter)
+of the most recent string returned by
+.IR Brdline .
+.PP
+.I Brdstr
+returns a
+.IR malloc (3)-allocated
+buffer containing the next line of input delimited by
+.IR delim ,
+terminated by a NUL (0) byte.
+Unlike
+.IR Brdline ,
+which returns when its buffer is full even if no delimiter has been found,
+.I Brdstr
+will return an arbitrarily long line in a single call.
+If
+.I nulldelim
+is set, the terminal delimiter will be overwritten with a NUL.
+After a successful call to
+.IR Brdstr ,
+the return value of
+.I Blinelen
+will be the length of the returned buffer, excluding the NUL.
+.PP
+.I Bgetc
+returns the next character from
+.IR bp ,
+or a negative value
+at end of file.
+.I Bungetc
+may be called immediately after
+.I Bgetc
+to allow the same character to be reread.
+.PP
+.I Bgetrune
+calls
+.I Bgetc
+to read the bytes of the next
+.SM UTF
+sequence in the input stream and returns the value of the rune
+represented by the sequence.
+It returns a negative value
+at end of file.
+.I Bungetrune
+may be called immediately after
+.I Bgetrune
+to allow the same
+.SM UTF
+sequence to be reread as either bytes or a rune.
+.I Bungetc
+and
+.I Bungetrune
+may back up a maximum of five bytes.
+.PP
+.I Bgetd
+uses
+.I fmtcharstod
+(see
+.IR fmtstrtod (3))
+and
+.I Bgetc
+to read the formatted
+floating-point number in the input stream,
+skipping initial blanks and tabs.
+The value is stored in
+.BR *d.
+.PP
+.I Bread
+reads
+.I nbytes
+of data from
+.I bp
+into memory starting at
+.IR addr .
+The number of bytes read is returned on success
+and a negative value is returned if a read error occurred.
+.PP
+.I Bseek
+applies
+.IR lseek (2)
+to
+.IR bp .
+It returns the new file offset.
+.I Boffset
+returns the file offset of the next character to be processed.
+.PP
+.I Bputc
+outputs the low order 8 bits of
+.I c
+on
+.IR bp .
+If this causes a
+.IR write
+to occur and there is an error,
+a negative value is returned.
+Otherwise, a zero is returned.
+.PP
+.I Bputrune
+calls
+.I Bputc
+to output the low order
+16 bits of
+.I c
+as a rune
+in
+.SM UTF
+format
+on the output stream.
+.PP
+.I Bprint
+is a buffered interface to
+.IR print (3).
+If this causes a
+.IR write
+to occur and there is an error,
+a negative value
+.RB ( Beof )
+is returned.
+Otherwise, the number of bytes output is returned.
+.I Bvprint
+does the same except it takes as argument a
+.B va_list
+parameter, so it can be called within a variadic function.
+.PP
+.I Bwrite
+outputs
+.I nbytes
+of data starting at
+.I addr
+to
+.IR bp .
+If this causes a
+.IR write
+to occur and there is an error,
+a negative value is returned.
+Otherwise, the number of bytes written is returned.
+.PP
+.I Bflush
+causes any buffered output associated with
+.I bp
+to be written.
+The return is as for
+.IR Bputc .
+.I Bflush
+is called on
+exit for every buffer still open
+for writing.
+.PP
+.I Bbuffered
+returns the number of bytes in the buffer.
+When reading, this is the number of bytes still available from the last
+read on the file; when writing, it is the number of bytes ready to be
+written.
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH SEE ALSO
+.IR open (2),
+.IR print (3),
+.IR atexit (3),
+.IR utf (7),
+.SH DIAGNOSTICS
+.I Bio
+routines that return integers yield
+.B Beof
+if 
+.I bp
+is not the descriptor of an open file.
+.I Bopen
+returns zero if the file cannot be opened in the given mode.
+All routines set
+.I errstr
+on error.
+.SH BUGS
+.I Brdline
+returns an error on strings longer than the buffer associated
+with the file
+and also if the end-of-file is encountered
+before a delimiter.
+.I Blinelen
+will tell how many characters are available
+in these cases.
+In the case of a true end-of-file,
+.I Blinelen
+will return zero.
+At the cost of allocating a buffer,
+.I Brdstr
+sidesteps these issues.
+.PP
+The data returned by
+.I Brdline
+may be overwritten by calls to any other
+.I bio
+routine on the same
+.IR bp.

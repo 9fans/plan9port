@@ -1,0 +1,86 @@
+<head>
+<title>rc4(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>RC4(3)</b><td align=right><b>RC4(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    setupRC4state, rc4, rc4skip, rc4back - alleged rc4 encryption<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;mp.h&gt;<br>
+    #include &lt;libsec.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void setupRC4state(RC4state *s, uchar *seed, int slen) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void rc4(RC4state *s, uchar *data, int dlen) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void rc4skip(RC4state *s, int nbytes) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void rc4back(RC4state *s, int nbytes)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This is an algorithm alleged to be Rivest&#8217;s RC4 encryption function.
+    It is a pseudo-random number generator with a 256 byte state and
+    a long cycle. The input buffer is XOR&#8217;d with the output of the
+    generator both to encrypt and to decrypt. The seed, entered using
+    <i>setupRC4state</i>, can be any length. The generator can
+    be run forward using <i>rc4</i>, skip over bytes using <i>rc4skip</i> to account
+    lost transmissions, or run backwards using <i>rc4back</i> to cover retransmitted
+    data. The <i>RC4state</i> structure keeps track of the algorithm.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libsec<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/mp.html"><i>mp</i>(3)</a>, <a href="../man3/aes.html"><i>aes</i>(3)</a>, <a href="../man3/blowfish.html"><i>blowfish</i>(3)</a>, <a href="../man3/des.html"><i>des</i>(3)</a>, <a href="../man3/dsa.html"><i>dsa</i>(3)</a>, <a href="../man3/elgamal.html"><i>elgamal</i>(3)</a>, <a href="../man3/rsa.html"><i>rsa</i>(3)</a>,
+    <a href="../man3/sechash.html"><i>sechash</i>(3)</a>, <a href="../man3/prime.html"><i>prime</i>(3)</a>, <a href="../man3/rand.html"><i>rand</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

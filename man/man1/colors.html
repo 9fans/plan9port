@@ -1,0 +1,92 @@
+<head>
+<title>colors(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>COLORS(1)</b><td align=right><b>COLORS(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    colors, cmapcube &ndash; display color map<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>colors</font></tt> [ <tt><font size=+1>&#8722;r &#8722;x</font></tt> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>cmapcube</font></tt> [ <tt><font size=+1>&#8722;nbw</font></tt> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Colors</i> presents a grid showing the colors in the RGBV color map
+    (see <a href="../man7/color.html"><i>color</i>(7)</a>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Clicking mouse button 1 over a color in the grid will display
+    the map index for that color, its red, green, and blue components,
+    and the 32-bit hexadecimal color value as defined in <a href="../man3/allocimage.html"><i>allocimage</i>(3)</a>.
+    If the <tt><font size=+1>&#8722;x</font></tt> option is specified, the components will also be listed
+    in hexadecimal. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;r</font></tt> option instead shows, in the same form, a grey-scale ramp.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A menu on mouse button 3 contains a single entry, to exit the
+    program. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Cmapcube</i> presents the same colors but in a 3-dimensional cube.
+    Dragging with button 1 rotates the cube. Clicking on a color with
+    button 2 displays the map index for that color. Clicking button
+    3 exits. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;n</font></tt> option disables drawing of the color squares. The <tt><font size=+1>&#8722;b</font></tt> and
+    <tt><font size=+1>&#8722;w</font></tt> options set the background (default grey) to black or white.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/draw/colors.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man7/color.html"><i>color</i>(7)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

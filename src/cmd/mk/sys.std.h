@@ -13,7 +13,7 @@
 #define OWRITE	O_WRONLY
 #define ORDWR	O_RDWR
 #define nil 0
-#define nelem(x) sizeof((x)/sizeof((x)[0]))
+#define nelem(x) (sizeof(x)/sizeof((x)[0]))
 #define seek lseek
 #define remove unlink
 #define exits(x)	exit(x && *(char*)x ? 1 : 0)

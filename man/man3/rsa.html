@@ -1,0 +1,262 @@
+<head>
+<title>rsa(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>RSA(3)</b><td align=right><b>RSA(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    asn1dump, asn1toRSApriv, decodepem, decodepemchain, rsadecrypt,
+    rsaencrypt, rsafill,, rsagen, rsaprivalloc, rsaprivfree, rsaprivtopub,
+    rsapuballoc, rsapubfree, X509toRSApub, X509dump, X509gen, X509req,
+    X509verify &ndash; RSA encryption algorithm<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;mp.h&gt;<br>
+    #include &lt;libsec.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApriv* &nbsp;&nbsp;&nbsp;rsagen(int nlen, int elen, int nrep) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApriv* &nbsp;&nbsp;&nbsp;rsafill(mpint *n, mpint *ek, mpint *dk, mpint *p, mpint
+    *q) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsaencrypt(RSApub *k, mpint *in, mpint *out) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>mpint* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsadecrypt(RSApriv *k, mpint *in, mpint *out) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApub* &nbsp;&nbsp;&nbsp;&nbsp;rsapuballoc(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsapubfree(RSApub*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApriv* &nbsp;&nbsp;&nbsp;rsaprivalloc(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rsaprivfree(RSApriv*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApub* &nbsp;&nbsp;&nbsp;&nbsp;rsaprivtopub(RSApriv*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApub* &nbsp;&nbsp;&nbsp;&nbsp;X509toRSApub(uchar *cert, int ncert, char *name, int nname)
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>RSApriv* &nbsp;&nbsp;&nbsp;asn1toRSApriv(uchar *priv, int npriv) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;asn1dump(uchar *der, int len) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;decodepem(char *s, char *type, int *len) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>PEMChain* decodepemchain(char *s, char *type) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X509dump(uchar *cert, int ncert) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X509gen(RSApriv *priv, char *subj, ulong valid[2], int
+    *certlen); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X509req(RSApriv *priv, char *subj, int *certlen); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* X509verify(uchar *cert, int ncert, RSApub *pk)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    RSA is a public key encryption algorithm. The owner of a key publishes
+    the public part of the key:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>struct RSApub<br>
+            {<br>
+            mpint*n;// modulus<br>
+            mpint*ek;// exp (encryption key)<br>
+            };<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    This part can be used for encrypting data (with <i>rsaencrypt</i>) to
+    be sent to the owner. The owner decrypts (with <i>rsadecrypt</i>) using
+    his private key:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>struct RSApriv<br>
+            {<br>
+            RSApubpub;<br>
+            mpint*dk;// exp (decryption key)<br>
+            <br>
+            // precomputed crt values<br>
+            mpint*p;<br>
+            mpint*q;<br>
+            mpint*kp;// k mod p&#8722;1<br>
+            mpint*kq;// k mod q&#8722;1<br>
+            mpint*c2;// for converting residues to number<br>
+            };<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            </font></tt>
+            
+        </table>
+        
+    </table>
+    Keys are generated using <i>rsagen</i>. <i>Rsagen</i> takes both bit length
+    of the modulus, the bit length of the public key exponent, and
+    the number of repetitions of the Miller-Rabin primality test to
+    run. If the latter is 0, it does the default number of rounds.
+    <i>Rsagen</i> returns a newly allocated structure containing both public
+    and
+    private keys. <i>Rsaprivtopub</i> returns a newly allocated copy of the
+    public key corresponding to the private key. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Rsafill</i> takes as input the bare minimum pieces of an RSA private
+    key and computes the rest (<tt><font size=+1>kp</font></tt>, <tt><font size=+1>kq</font></tt>, and <tt><font size=+1>c2</font></tt>). It returns a new private
+    key. All the <tt><font size=+1>mpint</font></tt>s in the key, even the ones that correspond
+    directly to <i>rsafill</i>&#8217;s input parameters, are freshly allocated,
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The routines <i>rsaalloc</i>, <i>rsafree</i>, <i>rsapuballoc</i>, <i>rsapubfree</i>, <i>rsaprivalloc</i>,
+    and <i>rsaprivfree</i> are provided to aid in user provided key I/O.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Given a binary X.509 <i>cert</i>, the routine <i>X509toRSApub</i> returns the
+    public key and, if <i>name</i> is not nil, the CN part of the Distinguished
+    Name of the certificate&#8217;s Subject. (This is conventionally a userid
+    or a host DNS name.) No verification is done of the certificate
+    signature; the caller should check the fingerprint,
+    <i>sha1(cert)</i>, against a table or check the certificate by other
+    means. X.509 certificates are often stored in PEM format; use
+    <i>dec64</i> to convert to binary before computing the fingerprint or
+    calling <i>X509toRSApub</i>. For the special case of certificates signed
+    by a known trusted key (in a single step, without certificate
+    chains)
+    <i>X509verify</i> checks the signature on <i>cert</i>. It returns nil if successful,
+    else an error string. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>X509dump</i> prints an X.509 certificate to standard ouptut. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>X509gen</i> creates a self-signed X.509 certificate, given an RSA
+    keypair <i>priv</i>, a issuer/subject string <i>subj</i>, and the starting and
+    ending validity dates, <i>valid</i>. Length of the allocated binary certificate
+    is stored in <i>certlen</i>. The subject line is conventionally of the
+    form<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>&quot;C=US ST=NJ L=07922 O=Lucent OU='Bell Labs' CN=Eric&quot;<br>
+        </font></tt>
+    </table>
+    using the quoting conventions of <i>tokenize</i> (see <a href="../man3/getfields.html"><i>getfields</i>(3)</a>).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>X509req</i> creates an X.509 certification request. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Asn1toRSApriv</i> converts an ASN1 formatted RSA private key into
+    the corresponding <tt><font size=+1>RSApriv</font></tt> structure. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Asn1dump</i> prints an ASN1 object to standard output. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Decodepem</i> takes a zero terminated string, <i>s</i>, and decodes the PEM
+    (privacy-enhanced mail) formatted section for <i>type</i> within it.
+    If successful, it returns the decoded section and sets <tt><font size=+1>*</font></tt><i>len</i> to
+    its decoded length. If not, it returns <tt><font size=+1>nil</font></tt>, and <tt><font size=+1>*</font></tt><i>len</i> is undefined.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Decodepemchain</i> is similar but expects a sequence of PEM-formatted
+    sections and returns a linked list of the decodings:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef struct PEMChain PEMChain<br>
+        struct PEMChain<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            PEMChain *next;<br>
+            uchar *pem;<br>
+            int pemlen;<br>
+            
+        </table>
+        };<br>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libsec<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/mp.html"><i>mp</i>(3)</a>, <a href="../man3/aes.html"><i>aes</i>(3)</a>, <a href="../man3/blowfish.html"><i>blowfish</i>(3)</a>, <a href="../man3/des.html"><i>des</i>(3)</a>, <a href="../man3/dsa.html"><i>dsa</i>(3)</a>, <a href="../man3/elgamal.html"><i>elgamal</i>(3)</a>, <a href="../man3/rc4.html"><i>rc4</i>(3)</a>,
+    <a href="../man3/sechash.html"><i>sechash</i>(3)</a>, <a href="../man3/prime.html"><i>prime</i>(3)</a>, <a href="../man3/rand.html"><i>rand</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

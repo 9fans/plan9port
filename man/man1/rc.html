@@ -1,0 +1,655 @@
+<head>
+<title>rc(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>RC(1)</b><td align=right><b>RC(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    rc, cd, eval, exec, exit, flag, rfork, shift, wait, whatis, .,
+    ~ &ndash; command language<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>rc</font></tt> [ <tt><font size=+1>&#8722;srdiIlxepvV</font></tt> ] [ <tt><font size=+1>&#8722;c command</font></tt> ] [ <i>file</i> [ <i>arg ...</i> ]]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Rc</i> is the Plan 9 shell. It executes command lines read from a
+    terminal or a file or, with the <tt><font size=+1>&#8722;c</font></tt> flag, from <i>rc&#8217;s</i> argument list.<br>
+    <p><font size=+1><b>Command Lines    </b></font><br>
+    A command line is a sequence of commands, separated by ampersands
+    or semicolons (<tt><font size=+1>&amp;</font></tt> or <tt><font size=+1>;</font></tt>), terminated by a newline. The commands are
+    executed in sequence from left to right. <i>Rc</i> does not wait for
+    a command followed by <tt><font size=+1>&amp;</font></tt> to finish executing before starting the
+    following command. Whenever a command
+    followed by <tt><font size=+1>&amp;</font></tt> is executed, its process id is assigned to the <i>rc</i>
+    variable <tt><font size=+1>$apid</font></tt>. Whenever a command <i>not</i> followed by <tt><font size=+1>&amp;</font></tt> exits or is
+    terminated, the <i>rc</i> variable <tt><font size=+1>$status</font></tt> gets the process&#8217;s wait message
+    (see <a href="../man3/wait.html"><i>wait</i>(3)</a>); it will be the null string if the command was successful.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A long command line may be continued on subsequent lines by typing
+    a backslash (<tt><font size=+1>\</font></tt>) followed by a newline. This sequence is treated
+    as though it were a blank. Backslash is not otherwise a special
+    character. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A number-sign (<tt><font size=+1>#</font></tt>) and any following characters up to (but not
+    including) the next newline are ignored, except in quotation marks.<br>
+    <p><font size=+1><b>Simple Commands    </b></font><br>
+    A simple command is a sequence of arguments interspersed with
+    I/O redirections. If the first argument is the name of an <i>rc</i> function
+    or of one of <i>rc&#8217;s</i> built-in commands, it is executed by <i>rc</i>. Otherwise
+    if the name starts with a slash (<tt><font size=+1>/</font></tt>), it must be the path name
+    of the program to be executed. Names containing no
+    initial slash are searched for in a list of directory names stored
+    in <tt><font size=+1>$path</font></tt>. The first executable file of the given name found in
+    a directory in <tt><font size=+1>$path</font></tt> is the program to be executed. To be executable,
+    the user must have execute permission (see <a href="../man3/stat.html"><i>stat</i>(3)</a>) and the file
+    must be either an executable binary for the current
+    machine&#8217;s CPU type, or a shell script. Shell scripts begin with
+    a line containing the full path name of a shell (usually <tt><font size=+1>/bin/rc</font></tt>),
+    prefixed by <tt><font size=+1>#!</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The first word of a simple command cannot be a keyword unless
+    it is quoted or otherwise disguised. The keywords are<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>for in while if not switch fn ~ ! @<br>
+        </font></tt>
+    </table>
+    <p><font size=+1><b>Arguments and Variables   </b></font><br>
+    A number of constructions may be used where <i>rc&#8217;s</i> syntax requires
+    an argument to appear. In many cases a construction&#8217;s value will
+    be a list of arguments rather than a single string. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The simplest kind of argument is the unquoted word: a sequence
+    of one or more characters none of which is a blank, tab, newline,
+    or any of the following:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1># ; &amp; | ^ $ = ` ' { } ( ) &lt; &gt;<br>
+        </font></tt>
+    </table>
+    An unquoted word that contains any of the characters <tt><font size=+1>* ? [</font></tt> is
+    a pattern for matching against file names. The character <tt><font size=+1>*</font></tt> matches
+    any sequence of characters, <tt><font size=+1>?</font></tt> matches any single character, and
+    <tt><font size=+1>[</font></tt><i>class</i><tt><font size=+1>]</font></tt> matches any character in the <i>class</i>. If the first character
+    of <i>class</i> is <tt><font size=+1>~</font></tt>, the class is complemented. The <i>class</i> may
+    also contain pairs of characters separated by <tt><font size=+1>&#8722;</font></tt>, standing for
+    all characters lexically between the two. The character <tt><font size=+1>/</font></tt> must
+    appear explicitly in a pattern, as must the first character of
+    the path name components <tt><font size=+1>.</font></tt> and <tt><font size=+1>..</font></tt>. A pattern is replaced by a
+    list of arguments, one for each path name matched, except that
+    a
+    pattern matching no names is not replaced by the empty list, but
+    rather stands for itself. Pattern matching is done after all other
+    operations. Thus,<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>x=/tmp echo $x^/*.c<br>
+        </font></tt>
+    </table>
+    matches <tt><font size=+1>/tmp/*.c</font></tt>, rather than matching <tt><font size=+1>/*.c</font></tt> and then prefixing
+    <tt><font size=+1>/tmp</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A quoted word is a sequence of characters surrounded by single
+    quotes (<tt><font size=+1>'</font></tt>). A single quote is represented in a quoted word by
+    a pair of quotes (<tt><font size=+1>''</font></tt>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each of the following is an argument.<br>
+    <tt><font size=+1>(</font></tt><i>arguments</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The value of a sequence of arguments enclosed in parentheses is
+        a list comprising the members of each element of the sequence.
+        Argument lists have no recursive structure, although their syntax
+        may suggest it. The following are entirely equivalent:<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>echo hi there everybody<br>
+            ((echo) (hi there) everybody)<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    <tt><font size=+1>$</font></tt><i>argument<br>
+    </i><tt><font size=+1>$</font></tt><i>argument</i><tt><font size=+1>(</font></tt><i>subscript</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>argument</i> after the <tt><font size=+1>$</font></tt> is the name of a variable whose value
+        is substituted. Multiple levels of indirection are possible, but
+        of questionable utility. Variable values are lists of strings.
+        If <i>argument</i> is a number <i>n</i>, the value is the <i>n</i>th element of <tt><font size=+1>$*</font></tt>,
+        unless <tt><font size=+1>$*</font></tt> doesn&#8217;t have <i>n</i> elements, in which case the value is
+        empty. If <i>argument</i> is followed by a parenthesized list of subscripts,
+        the value substituted is a list composed of the requested elements
+        (origin 1). The parenthesis must follow the variable name with
+        no spaces. Assignments to variables are described below.<br>
+        
+    </table>
+    <tt><font size=+1>$#</font></tt><i>argument<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The value is the number of elements in the named variable. A variable
+        never assigned a value has zero elements.<br>
+        
+    </table>
+    $&quot;<i>argument<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The value is a single string containing the components of the
+        named variable separated by spaces. A variable with zero elements
+        yields the empty string.<br>
+        
+    </table>
+    <tt><font size=+1>`{</font></tt><i>command</i><tt><font size=+1>}<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>rc</i> executes the <i>command</i> and reads its standard output, splitting
+        it into a list of arguments, using characters in <tt><font size=+1>$ifs</font></tt> as separators.
+        If <tt><font size=+1>$ifs</font></tt> is not otherwise set, its value is <tt><font size=+1>' \t\n'</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>&lt;{</font></tt><i>command</i><tt><font size=+1>}<br>
+    &gt;{</font></tt><i>command</i><tt><font size=+1>}<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>command</i> is executed asynchronously with its standard output
+        or standard input connected to a pipe. The value of the argument
+        is the name of a file referring to the other end of the pipe.
+        This allows the construction of non-linear pipelines. For example,
+        the following runs two commands <tt><font size=+1>old</font></tt> and <tt><font size=+1>new
+        </font></tt>and uses <tt><font size=+1>cmp</font></tt> to compare their outputs<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>cmp &lt;{old} &lt;{new}<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    <i>argument</i><tt><font size=+1>^</font></tt><i>argument<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <tt><font size=+1>^</font></tt> operator concatenates its two operands. If the two operands
+        have the same number of components, they are concatenated pairwise.
+        If not, then one operand must have one component, and the other
+        must be non-empty, and concatenation is distributive.<br>
+        
+    </table>
+    <p><font size=+1><b>Free Carets    </b></font><br>
+    In most circumstances, <i>rc</i> will insert the <tt><font size=+1>^</font></tt> operator automatically
+    between words that are not separated by white space. Whenever
+    one of <tt><font size=+1>$ ' `</font></tt> follows a quoted or unquoted word or an unquoted
+    word follows a quoted word with no intervening blanks or tabs,
+    a <tt><font size=+1>^</font></tt> is inserted between the two. If an unquoted word
+    immediately follows a <tt><font size=+1>$</font></tt> and contains a character other than an
+    alphanumeric, underscore, or <tt><font size=+1>*</font></tt>, a <tt><font size=+1>^</font></tt> is inserted before the first
+    such character. Thus<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>cc &#8722;$flags $stem.c 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    is equivalent to<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>cc &#8722;^$flags $stem^.c<br>
+        </font></tt>
+    </table>
+    <p><font size=+1><b>I/O Redirections    </b></font><br>
+    The sequence <tt><font size=+1>&gt;</font></tt><i>file</i> redirects the standard output file (file descriptor
+    1, normally the terminal) to the named <i>file</i>; <tt><font size=+1>&gt;&gt;</font></tt><i>file</i> appends standard
+    output to the file. The standard input file (file descriptor 0,
+    also normally the terminal) may be redirected from a file by the
+    sequence <tt><font size=+1>&lt;</font></tt><i>file</i>, or from an inline &#8216;here document&#8217; by the
+    sequence <tt><font size=+1>&lt;&lt;</font></tt><i>eof-marker</i>. The contents of a here document are lines
+    of text taken from the command input stream up to a line containing
+    nothing but the <i>eof-marker</i>, which may be either a quoted or unquoted
+    word. If <i>eof-marker</i> is unquoted, variable names of the form <tt><font size=+1>$</font></tt><i>word</i>
+    have their values substituted from <i>rc&#8217;s
+    </i>environment. If <tt><font size=+1>$</font></tt><i>word</i> is followed by a caret (<tt><font size=+1>^</font></tt>), the caret is
+    deleted. If <i>eof-marker</i> is quoted, no substitution occurs. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Redirections may be applied to a file-descriptor other than standard
+    input or output by qualifying the redirection operator with a
+    number in square brackets. For example, the diagnostic output
+    (file descriptor 2) may be redirected by writing <tt><font size=+1>cc junk.c &gt;[2]junk</font></tt>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A file descriptor may be redirected to an already open descriptor
+    by writing <tt><font size=+1>&gt;[</font></tt><i>fd0</i><tt><font size=+1>=</font></tt><i>fd1</i><tt><font size=+1>]</font></tt> or <tt><font size=+1>&lt;[</font></tt><i>fd0</i><tt><font size=+1>=</font></tt><i>fd1</i><tt><font size=+1>]</font></tt>. <i>Fd1</i> is a previously opened
+    file descriptor and <i>fd0</i> becomes a new copy (in the sense of <a href="../man3/dup.html"><i>dup</i>(3)</a>)
+    of it. A file descriptor may be closed by writing <tt><font size=+1>&gt;[</font></tt><i>fd0</i><tt><font size=+1>=]</font></tt> or <tt><font size=+1>&lt;[</font></tt><i>fd0</i><tt><font size=+1>=]</font></tt>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Redirections are executed from left to right. Therefore, <tt><font size=+1>cc junk.c
+    &gt;/dev/null &gt;[2=1]</font></tt> and <tt><font size=+1>cc junk.c &gt;[2=1] &gt;/dev/null</font></tt> have different effects:
+    the first puts standard output in <tt><font size=+1>/dev/null</font></tt> and then puts diagnostic
+    output in the same place, where the second directs diagnostic
+    output to the
+    terminal and sends standard output to <tt><font size=+1>/dev/null</font></tt>.<br>
+    <p><font size=+1><b>Compound Commands    </b></font><br>
+    A pair of commands separated by a pipe operator (<tt><font size=+1>|</font></tt>) is a command.
+    The standard output of the left command is sent through a pipe
+    to the standard input of the right command. The pipe operator
+    may be decorated to use different file descriptors. <tt><font size=+1>|[</font></tt><i>fd</i><tt><font size=+1>]</font></tt> connects
+    the output end of the pipe to file descriptor <i>fd</i> rather
+    than 1. <tt><font size=+1>|[</font></tt><i>fd0</i><tt><font size=+1>=</font></tt><i>fd1</i><tt><font size=+1>]</font></tt> connects output to <i>fd1</i> of the left command
+    and input to <i>fd0</i> of the right command. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A pair of commands separated by <tt><font size=+1>&amp;&amp;</font></tt> or <tt><font size=+1>||</font></tt> is a command. In either
+    case, the left command is executed and its exit status examined.
+    If the operator is <tt><font size=+1>&amp;&amp;</font></tt> the right command is executed if the left
+    command&#8217;s status is null. <tt><font size=+1>||</font></tt> causes the right command to be executed
+    if the left command&#8217;s status is non-null. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The exit status of a command may be inverted (non-null is changed
+    to null, null is changed to non-null) by preceding it with a <tt><font size=+1>!</font></tt>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>|</font></tt> operator has highest precedence, and is left-associative
+    (i.e. binds tighter to the left than the right). <tt><font size=+1>!</font></tt> has intermediate
+    precedence, and <tt><font size=+1>&amp;&amp;</font></tt> and <tt><font size=+1>||</font></tt> have the lowest precedence. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The unary <tt><font size=+1>@</font></tt> operator, with precedence equal to <tt><font size=+1>!</font></tt>, causes its operand
+    to be executed in a subshell. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each of the following is a command.<br>
+    <tt><font size=+1>if (</font></tt> <i>list</i> <tt><font size=+1>)</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A <i>list</i> is a sequence of commands, separated by <tt><font size=+1>&amp;</font></tt>, <tt><font size=+1>;</font></tt>, or newline.
+        It is executed and if its exit status is null, the <i>command</i> is
+        executed.<br>
+        
+    </table>
+    <tt><font size=+1>if not</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The immediately preceding command must have been <tt><font size=+1>if(</font></tt><i>list</i><tt><font size=+1>)</font></tt> <i>command</i>.
+        If its condition was non-zero, the <i>command</i> is executed.<br>
+        
+    </table>
+    <tt><font size=+1>for(</font></tt><i>name</i> <tt><font size=+1>in</font></tt> <i>arguments</i><tt><font size=+1>)</font></tt> <i>command<br>
+    </i><tt><font size=+1>for(</font></tt><i>name</i><tt><font size=+1>)</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>command</i> is executed once for each <i>argument</i> with that argument
+        assigned to <i>name</i>. If the argument list is omitted, <tt><font size=+1>$*</font></tt> is used.<br>
+        
+    </table>
+    <tt><font size=+1>while(</font></tt><i>list</i><tt><font size=+1>)</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>list</i> is executed repeatedly until its exit status is non-null.
+        Each time it returns null status, the <i>command</i> is executed. An
+        empty <i>list</i> is taken to give null status.<br>
+        
+    </table>
+    <tt><font size=+1>switch(</font></tt><i>argument</i><tt><font size=+1>){</font></tt><i>list</i><tt><font size=+1>}<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>list</i> is searched for simple commands beginning with the word
+        <tt><font size=+1>case</font></tt>. (The search is only at the &#8216;top level&#8217; of the <i>list</i>. That
+        is, <tt><font size=+1>cases</font></tt> in nested constructs are not found.) <i>Argument</i> is matched
+        against each word following <tt><font size=+1>case</font></tt> using the pattern-matching algorithm
+        described above, except that <tt><font size=+1>/</font></tt> and the
+        first characters of <tt><font size=+1>.</font></tt> and <tt><font size=+1>..</font></tt> need not be matched explicitly. When
+        a match is found, commands in the list are executed up to the
+        next following <tt><font size=+1>case</font></tt> command (at the top level) or the closing
+        brace.<br>
+        
+    </table>
+    <tt><font size=+1>{</font></tt><i>list</i><tt><font size=+1>}<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Braces serve to alter the grouping of commands implied by operator
+        priorities. The <i>body</i> is a sequence of commands separated by <tt><font size=+1>&amp;</font></tt>,
+        <tt><font size=+1>;</font></tt>, or newline.<br>
+        
+    </table>
+    <tt><font size=+1>fn</font></tt> <i>name</i><tt><font size=+1>{</font></tt><i>list</i><tt><font size=+1>}<br>
+    fn</font></tt> <i>name<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The first form defines a function with the given <i>name</i>. Subsequently,
+        whenever a command whose first argument is <i>name</i> is encountered,
+        the current value of the remainder of the command&#8217;s argument list
+        will be assigned to <tt><font size=+1>$*</font></tt>, after saving its current value, and <i>rc</i>
+        will execute the <i>list</i>. The second form removes
+        <i>name</i>&#8217;s function definition.<br>
+        
+    </table>
+    <tt><font size=+1>fn</font></tt> <i>note</i><tt><font size=+1>{</font></tt><i>list</i><tt><font size=+1>}<br>
+    fn</font></tt> <i>note<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A function with a special name will be called when <i>rc</i> receives
+        a corresponding note; see <a href="../man3/notify.html"><i>notify</i>(3)</a>. The valid note names (and
+        corresponding notes) are <tt><font size=+1>sighup</font></tt> (<tt><font size=+1>hangup</font></tt>), <tt><font size=+1>sigint</font></tt> (<tt><font size=+1>interrupt</font></tt>),
+        <tt><font size=+1>sigalrm</font></tt> (<tt><font size=+1>alarm</font></tt>), and <tt><font size=+1>sigfpe</font></tt> (floating point trap). By default
+        <i>rc</i> exits on receiving any signal, except when
+        run interactively, in which case interrupts and quits normally
+        cause <i>rc</i> to stop whatever it&#8217;s doing and start reading a new command.
+        The second form causes <i>rc</i> to handle a signal in the default manner.
+        <i>Rc</i> recognizes an artificial note, <tt><font size=+1>sigexit</font></tt>, which occurs when <i>rc</i>
+        is about to finish executing.
+        
+    </table>
+    <i>name</i><tt><font size=+1>=</font></tt><i>argument command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Any command may be preceded by a sequence of assignments interspersed
+        with redirections. The assignments remain in effect until the
+        end of the command, unless the command is empty (i.e. the assignments
+        stand alone), in which case they are effective until rescinded
+        by later assignments.
+        
+    </table>
+    <p><font size=+1><b>Built-in Commands    </b></font><br>
+    These commands are executed internally by <i>rc</i>, usually because
+    their execution changes or depends on <i>rc</i>&#8217;s internal state.<br>
+    <tt><font size=+1>.</font></tt> <i>file ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Execute commands from <i>file</i>. <tt><font size=+1>$*</font></tt> is set for the duration to the
+        remainder of the argument list following <i>file</i>. <i>File</i> is searched
+        for using <tt><font size=+1>$path</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>builtin</font></tt> <i>command ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Execute <i>command</i> as usual except that any function named <i>command</i>
+        is ignored in favor of the built-in meaning.<br>
+        
+    </table>
+    <tt><font size=+1>cd [</font></tt><i>dir</i><tt><font size=+1>]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Change the current directory to <i>dir</i>. The default argument is <tt><font size=+1>$home</font></tt>.
+        <i>dir</i> is searched for in each of the directories mentioned in <tt><font size=+1>$cdpath</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>eval [</font></tt><i>arg ...</i><tt><font size=+1>]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The arguments are concatenated separated by spaces into a single
+        string, read as input to <i>rc</i>, and executed.<br>
+        
+    </table>
+    <tt><font size=+1>exec [</font></tt><i>command ...</i><tt><font size=+1>]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        This instance of <i>rc</i> replaces itself with the given (non-built-in)
+        <i>command</i>.<br>
+        
+    </table>
+    <tt><font size=+1>flag</font></tt> <i>f</i> <tt><font size=+1>[+&#8722;]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Either set (<tt><font size=+1>+</font></tt>), clear (<tt><font size=+1>&#8722;</font></tt>), or test (neither <tt><font size=+1>+</font></tt> nor <tt><font size=+1>&#8722;</font></tt>) the flag
+        <i>f</i>, where <i>f</i> is a single character, one of the command line flags
+        (see Invocation, below).<br>
+        
+    </table>
+    <tt><font size=+1>exit [</font></tt><i>status</i><tt><font size=+1>]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Exit with the given exit status. If none is given, the current
+        value of <tt><font size=+1>$status</font></tt> is used.<br>
+        
+    </table>
+    <tt><font size=+1>rfork</font></tt> [<tt><font size=+1>nNeEsfFm</font></tt>]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Become a new process group using <tt><font size=+1>rfork(</font></tt><i>flags</i><tt><font size=+1>)</font></tt> where <i>flags</i> is composed
+        of the bitwise OR of the <tt><font size=+1>rfork</font></tt> flags specified by the option letters
+        (see <a href="../man2/fork.html"><i>fork</i>(2)</a>). If no <i>flags</i> are given, they default to <tt><font size=+1>ens</font></tt>. The
+        <i>flags</i> and their meanings are: <tt><font size=+1>n</font></tt> is <tt><font size=+1>RFNAMEG</font></tt>; <tt><font size=+1>N</font></tt> is <tt><font size=+1>RFCNAMEG</font></tt>; <tt><font size=+1>e</font></tt> is
+        <tt><font size=+1>RFENVG</font></tt>; <tt><font size=+1>E</font></tt> is <tt><font size=+1>RFCENVG</font></tt>; <tt><font size=+1>s</font></tt> is
+        <tt><font size=+1>RFNOTEG</font></tt>; <tt><font size=+1>f</font></tt> is <tt><font size=+1>RFFDG</font></tt>; <tt><font size=+1>F</font></tt> is <tt><font size=+1>RFCFDG</font></tt>; and <tt><font size=+1>m</font></tt> is <tt><font size=+1>RFNOMNT</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>shift [</font></tt><i>n</i><tt><font size=+1>]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete the first <i>n</i> (default 1) elements of <tt><font size=+1>$*</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>wait [</font></tt><i>pid</i><tt><font size=+1>]<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Wait for the process with the given <i>pid</i> to exit. If no <i>pid</i> is
+        given, all outstanding processes are waited for.<br>
+        
+    </table>
+    <tt><font size=+1>whatis</font></tt> <i>name ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the value of each <i>name</i> in a form suitable for input to <i>rc</i>.
+        The output is an assignment to any variable, the definition of
+        any function, a call to <tt><font size=+1>builtin</font></tt> for any built-in command, or the
+        completed pathname of any executable file.<br>
+        
+    </table>
+    <tt><font size=+1>~</font></tt> <i>subject pattern ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>subject</i> is matched against each <i>pattern</i> in sequence. If it
+        matches any pattern, <tt><font size=+1>$status</font></tt> is set to zero. Otherwise, <tt><font size=+1>$status</font></tt>
+        is set to one. Patterns are the same as for file name matching,
+        except that <tt><font size=+1>/</font></tt> and the first character of <tt><font size=+1>.</font></tt> and <tt><font size=+1>..</font></tt> need not be
+        matched explicitly. The <i>patterns</i> are not subjected to
+        file name matching before the <tt><font size=+1>~</font></tt> command is executed, so they need
+        not be enclosed in quotation marks.<br>
+        
+    </table>
+    <p><font size=+1><b>Environment     </b></font><br>
+    The <i>environment</i> is a list of strings made available to executing
+    binaries by the kernel. <i>Rc</i> creates an environment entry for each
+    variable whose value is non-empty, and for each function. The
+    string for a variable entry has the variable&#8217;s name followed by
+    <tt><font size=+1>=</font></tt> and its value. If the value has more than one component,
+    these are separated by SOH (001) characters. The string for a
+    function is just the <i>rc</i> input that defines the function. The name
+    of a function in the environment is the function name preceded
+    by <tt><font size=+1>fn#</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When <i>rc</i> starts executing it reads variable and function definitions
+    from its environment.<br>
+    <p><font size=+1><b>Special Variables    </b></font><br>
+    The following variables are set or used by <i>rc</i>.<br>
+    <tt><font size=+1>$*</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set to <i>rc</i>&#8217;s argument list during initialization. Whenever a
+    <tt><font size=+1>.</font></tt> command or a function is executed, the current value is saved
+    and <tt><font size=+1>$*</font></tt> receives the new argument list. The saved value is restored
+    on completion of the <tt><font size=+1>.</font></tt> or function.<br>
+    <tt><font size=+1>$apid</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Whenever a process is started asynchronously with <tt><font size=+1>&amp;</font></tt>, <tt><font size=+1>$apid</font></tt>
+    is set to its process id.<br>
+    <tt><font size=+1>$home</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The default directory for <tt><font size=+1>cd</font></tt>.<br>
+    <tt><font size=+1>$ifs</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The input field separators used in backquote substitutions.
+    If <tt><font size=+1>$ifs</font></tt> is not set in <i>rc</i>&#8217;s environment, it is initialized to blank,
+    tab and newline.<br>
+    <tt><font size=+1>$path</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The search path used to find commands and input files for
+    the <tt><font size=+1>.</font></tt> command. If not set in the environment, it is initialized
+    by parsing the <tt><font size=+1>$PATH</font></tt> variable (as in <a href="../man1/sh.html"><i>sh</i>(1)</a>) or by <tt><font size=+1>path=(. /bin)</font></tt>.
+    The variables <tt><font size=+1>$path</font></tt> and <tt><font size=+1>$PATH</font></tt> are maintained together: changes
+    to one will be reflected in the other.
+    <tt><font size=+1>$pid</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set during initialization to <i>rc</i>&#8217;s process id.<br>
+    <tt><font size=+1>$prompt</font></tt>&nbsp;&nbsp;&nbsp;When <i>rc</i> is run interactively, the first component of <tt><font size=+1>$prompt</font></tt>
+    is printed before reading each command. The second component is
+    printed whenever a newline is typed and more lines are required
+    to complete the command. If not set in the environment, it is
+    initialized by <tt><font size=+1>prompt=('% ' ' ')</font></tt>.
+    <tt><font size=+1>$status</font></tt>&nbsp;&nbsp;&nbsp;Set to the wait message of the last-executed program. (unless
+    started with <tt><font size=+1>&amp;). !</font></tt> and <tt><font size=+1>~</font></tt> also change <tt><font size=+1>$status</font></tt>. Its value is used
+    to control execution in <tt><font size=+1>&amp;&amp;</font></tt>, <tt><font size=+1>||</font></tt>, <tt><font size=+1>if</font></tt> and <tt><font size=+1>while</font></tt> commands. When <i>rc</i> exits
+    at end-of-file of its input or on executing an <tt><font size=+1>exit</font></tt> command with
+    no argument, <tt><font size=+1>$status</font></tt> is its
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            exit status.<br>
+            
+        </table>
+        
+    </table>
+    <p><font size=+1><b>Invocation     </b></font><br>
+    If <i>rc</i> is started with no arguments it reads commands from standard
+    input. Otherwise its first non-flag argument is the name of a
+    file from which to read commands (but see <tt><font size=+1>&#8722;c</font></tt> below). Subsequent
+    arguments become the initial value of <tt><font size=+1>$*</font></tt>. <i>Rc</i> accepts the following
+    command-line flags.<br>
+    <tt><font size=+1>&#8722;c</font></tt> <i>string</i>&nbsp;&nbsp;&nbsp;Commands are read from <i>string</i>.<br>
+    <tt><font size=+1>&#8722;s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print out exit status after any command where the status is
+    non-null.<br>
+    <tt><font size=+1>&#8722;e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exit if <tt><font size=+1>$status</font></tt> is non-null after executing a simple command.<br>
+    <tt><font size=+1>&#8722;i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If <tt><font size=+1>&#8722;i</font></tt> is present, or <i>rc</i> is given no arguments and its standard
+    input is a terminal, it runs interactively. Commands are prompted
+    for using <tt><font size=+1>$prompt</font></tt>.<br>
+    <tt><font size=+1>&#8722;I</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Makes sure <i>rc</i> is not run interactively.<br>
+    <tt><font size=+1>&#8722;l</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If <tt><font size=+1>&#8722;l</font></tt> is given or the first character of argument zero is <tt><font size=+1>&#8722;</font></tt>,
+    <i>rc</i> reads commands from <tt><font size=+1>$home/lib/profile</font></tt>, if it exists, before
+    reading its normal input.<br>
+    <tt><font size=+1>&#8722;p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A no-op.<br>
+    <tt><font size=+1>&#8722;d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A no-op.<br>
+    <tt><font size=+1>&#8722;v</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Echo input on file descriptor 2 as it is read.<br>
+    <tt><font size=+1>&#8722;x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print each simple command before executing it.<br>
+    <tt><font size=+1>&#8722;r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print debugging information (internal form of commands as they
+    are executed).<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/rc<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Tom Duff, &#8220;Rc &ndash; The Plan 9 Shell&#8221;.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    There should be a way to match patterns against whole lists rather
+    than just single strings. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Using <tt><font size=+1>~</font></tt> to check the value of <tt><font size=+1>$status</font></tt> changes <tt><font size=+1>$status</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Functions that use here documents don&#8217;t work. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Free carets don&#8217;t get inserted next to keywords. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&lt;{</font></tt><i>command</i><tt><font size=+1>}</font></tt> syntax depends on the underlying operating system
+    providing a file descriptor device tree at <tt><font size=+1>/dev/fd</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    By default, FreeBSD 5 does not provide file descriptors greater
+    than 2 in <tt><font size=+1>/dev/fd</font></tt>. To fix this, add<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>/fdescfs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/dev/fd &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fdescfs &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rw &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    to <tt><font size=+1>/etc/fstab</font></tt>, and then <tt><font size=+1>mount /dev/fd</font></tt>. (Adding the line to <tt><font size=+1>fstab</font></tt>
+    ensures causes FreeBSD to mount the file system automatically
+    at boot time.)<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,309 @@
+<head>
+<title>print(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>PRINT(3)</b><td align=right><b>PRINT(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    print, fprint, sprint, snprint, seprint, smprint, runesprint,
+    runesnprint, runeseprint, runesmprint, vfprint, vsnprint, vseprint,
+    vsmprint, runevsnprint, runevseprint, runevsmprint &ndash; print formatted
+    output<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>#include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;print(char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fprint(int fd, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;sprint(char *s, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;snprint(char *s, int len, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* seprint(char *s, char *e, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* smprint(char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;runesprint(Rune *s, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;runesnprint(Rune *s, int len, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Rune* runeseprint(Rune *s, Rune *e, char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Rune* runesmprint(char *format, ...) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;vfprint(int fd, char *format, va_list v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;vsnprint(char *s, int len, char *format, va_list v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* vseprint(char *s, char *e, char *format, va_list v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* vsmprint(char *format, va_list v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;runevsnprint(Rune *s, int len, char *format, va_list v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Rune* runevseprint(Rune *s, Rune *e, char *format, va_list v)
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Rune* runevsmprint(Rune *format, va_list v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Print</i> writes text to the standard output. <i>Fprint</i> writes to the
+    named output file descriptor: a buffered form is described in
+    <a href="../man3/bio.html"><i>bio</i>(3)</a>. <i>Sprint</i> places text followed by the NUL character (<tt><font size=+1>\0</font></tt>)
+    in consecutive bytes starting at <i>s</i>; it is the user&#8217;s responsibility
+    to ensure that enough storage is available. Each function returns
+    the
+    number of bytes transmitted (not including the NUL in the case
+    of <i>sprint</i>), or a negative value if an output error was encountered.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Snprint</i> is like <i>sprint</i>, but will not place more than <i>len</i> bytes
+    in <i>s</i>. Its result is always NUL-terminated and holds the maximal
+    number of complete UTF-8 characters that can fit. <i>Seprint</i> is like
+    <i>snprint</i>, except that the end is indicated by a pointer <i>e</i> rather
+    than a count and the return value points to the terminating NUL
+    of
+    the resulting string. <i>Smprint</i> is like <i>sprint</i>, except that it prints
+    into and returns a string of the required length, which is allocated
+    by <a href="../man3/malloc.html"><i>malloc</i>(3)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The routines <i>runesprint</i>, <i>runesnprint</i>, <i>runeseprint</i>, and <i>runesmprint</i>
+    are the same as <i>sprint</i>, <i>snprint</i>, <i>seprint</i> and <i>smprint</i> except that
+    their output is rune strings instead of byte strings. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Finally, the routines <i>vfprint</i>, <i>vsnprint</i>, <i>vseprint</i>, <i>vsmprint</i>, <i>runevsnprint</i>,
+    <i>runevseprint</i>, and <i>runevsmprint</i> are like their <tt><font size=+1>v&#8722;less</font></tt> relatives
+    except they take as arguments a <tt><font size=+1>va_list</font></tt> parameter, so they can
+    be called within a variadic function. The Example section shows
+    a representative usage. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each of these functions converts, formats, and prints its trailing
+    arguments under control of a <i>format</i> string. The format contains
+    two types of objects: plain characters, which are simply copied
+    to the output stream, and conversion specifications, each of which
+    results in fetching of zero or more arguments. The results
+    are undefined if there are arguments of the wrong type or too
+    few arguments for the format. If the format is exhausted while
+    arguments remain, the excess is ignored. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each conversion specification has the following format:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>% [flags] verb 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    The verb is a single character and each flag is a single character
+    or a (decimal) numeric string. Up to two numeric strings may be
+    used; the first is called <i>width</i>, the second <i>precision</i>. A period
+    can be used to separate them, and if the period is present then
+    <i>width</i> and <i>precision</i> are taken to be zero if missing, otherwise
+    they are &#8216;omitted&#8217;. Either or both of the numbers may be replaced
+    with the character <tt><font size=+1>*</font></tt>, meaning that the actual number will be obtained
+    from the argument list as an integer. The flags and numbers are
+    arguments to the <i>verb</i> described below. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The numeric verbs <tt><font size=+1>d</font></tt>, <tt><font size=+1>o</font></tt>, <tt><font size=+1>b</font></tt>, <tt><font size=+1>x</font></tt>, and <tt><font size=+1>X</font></tt> format their arguments in
+    decimal, octal, binary, hexadecimal, and upper case hexadecimal.
+    Each interprets the flags <tt><font size=+1>0</font></tt>, <tt><font size=+1>h</font></tt>, <tt><font size=+1>hh</font></tt>, <tt><font size=+1>l</font></tt>, <tt><font size=+1>u</font></tt>, <tt><font size=+1>+</font></tt>, <tt><font size=+1>&#8722;</font></tt>, <tt><font size=+1>,</font></tt>, and <tt><font size=+1>#</font></tt> to mean
+    pad with zeros, short, byte, long, unsigned, always print a sign,
+    left justified, commas every three digits, and alternate format.
+    Also, a space character in the flag position is like <tt><font size=+1>+</font></tt>, but prints
+    a space instead of a plus sign for non-negative values. If neither
+    short nor long is specified, then the argument is an <tt><font size=+1>int</font></tt>. If unsigned
+    is specified, then the argument is interpreted as a positive number
+    and no sign is output. If two <tt><font size=+1>l</font></tt> flags are given, then
+    the argument is interpreted as a <tt><font size=+1>vlong</font></tt> (usually an 8-byte, sometimes
+    a 4-byte integer). If <i>precision</i> is not omitted, the number is
+    padded on the left with zeros until at least <i>precision</i> digits
+    appear. If <i>precision</i> is explicitly 0, and the number is 0, no
+    digits are generated, and alternate formatting does not apply.
+    Then,
+    if alternate format is specified, for <tt><font size=+1>o</font></tt> conversion, the number
+    is preceded by a <tt><font size=+1>0</font></tt> if it doesn&#8217;t already begin with one; for <tt><font size=+1>x</font></tt>
+    conversion, the number is preceded by <tt><font size=+1>0x</font></tt>; for <tt><font size=+1>X</font></tt> conversion, the
+    number is preceded by <tt><font size=+1>0X</font></tt>. Finally, if <i>width</i> is not omitted, the
+    number is padded on the left (or right, if left justification
+    is specified)
+    with enough blanks to make the field at least <i>width</i> characters
+    long. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The floating point verbs <tt><font size=+1>f</font></tt>, <tt><font size=+1>e</font></tt>, <tt><font size=+1>E</font></tt>, <tt><font size=+1>g</font></tt>, and <tt><font size=+1>G</font></tt> take a <tt><font size=+1>double</font></tt> argument.
+    Each interprets the flags <tt><font size=+1>0</font></tt>, <tt><font size=+1>L +</font></tt>, <tt><font size=+1>&#8722;</font></tt>, and <tt><font size=+1>#</font></tt> to mean pad with zeros,
+    long double argument, always print a sign, left justified, and
+    alternate format. <i>Width</i> is the minimum field width and, if the
+    converted value takes up less than <i>width</i> characters, it is
+    padded on the left (or right, if &#8216;left justified&#8217;) with spaces.
+    <i>Precision</i> is the number of digits that are converted after the
+    decimal place for <tt><font size=+1>e</font></tt>, <tt><font size=+1>E</font></tt>, and <tt><font size=+1>f</font></tt> conversions, and <i>precision</i> is the
+    maximum number of significant digits for <tt><font size=+1>g</font></tt> and <tt><font size=+1>G</font></tt> conversions.
+    The <tt><font size=+1>f</font></tt> verb produces output of the form [<tt><font size=+1>&#8722;</font></tt>]<tt><font size=+1>digits</font></tt>[<tt><font size=+1>.digits</font></tt>]. <tt><font size=+1>E
+    </font></tt>conversion appends an exponent <tt><font size=+1>E</font></tt>[<tt><font size=+1>&#8722;</font></tt>]<tt><font size=+1>digits</font></tt>, and <tt><font size=+1>e</font></tt> conversion appends
+    an exponent <tt><font size=+1>e</font></tt>[<tt><font size=+1>&#8722;</font></tt>]<tt><font size=+1>digits</font></tt>. The <tt><font size=+1>g</font></tt> verb will output the argument in
+    either <tt><font size=+1>e</font></tt> or <tt><font size=+1>f</font></tt> with the goal of producing the smallest output.
+    Also, trailing zeros are omitted from the fraction part of the
+    output, and a trailing decimal point appears only if it is
+    followed by a digit. The <tt><font size=+1>G</font></tt> verb is similar, but uses <tt><font size=+1>E</font></tt> format
+    instead of <tt><font size=+1>e</font></tt>. When alternate format is specified, the result will
+    always contain a decimal point, and for <tt><font size=+1>g</font></tt> and <tt><font size=+1>G</font></tt> conversions, trailing
+    zeros are not removed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>s</font></tt> verb copies a NUL-terminated string (pointer to <tt><font size=+1>char</font></tt>) to
+    the output. The number of characters copied (<i>n</i>) is the minimum
+    of the size of the string and <i>precision</i>. These <i>n</i> characters are
+    justified within a field of <i>width</i> characters as described above.
+    If a <i>precision</i> is given, it is safe for the string not to be nul-
+    terminated as long as it is at least <i>precision</i> characters (not
+    bytes!) long. The <tt><font size=+1>S</font></tt> verb is similar, but it interprets its pointer
+    as an array of runes (see <a href="../man7/utf.html"><i>utf</i>(7)</a>); the runes are converted to
+    UTF before output. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>c</font></tt> verb copies a single <tt><font size=+1>char</font></tt> (promoted to <tt><font size=+1>int</font></tt>) justified within
+    a field of <i>width</i> characters as described above. The <tt><font size=+1>C</font></tt> verb is
+    similar, but works on runes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>p</font></tt> verb formats a pointer value. At the moment, it is a synonym
+    for <tt><font size=+1>x</font></tt>, but that will change if pointers and integers are different
+    sizes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>r</font></tt> verb takes no arguments; it copies the error string returned
+    by a call to <a href="../man3/errstr.html"><i>errstr</i>(3)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Custom verbs may be installed using <a href="../man3/fmtinstall.html"><i>fmtinstall</i>(3)</a>.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This function prints an error message with a variable number of
+    arguments and then quits.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>void fatal(char *msg, ...)<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            char buf[1024], *out;<br>
+            va_list arg;<br>
+            out = seprint(buf, buf+sizeof buf, &quot;Fatal error: &quot;);<br>
+            va_start(arg, msg);<br>
+            out = vseprint(out, buf+sizeof buf, msg, arg);<br>
+            va_end(arg);<br>
+            write(2, buf, out&#8722;buf);<br>
+            exits(&quot;fatal error&quot;);<br>
+            
+        </table>
+        }<br>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/libfmt<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/fmtinstall.html"><i>fmtinstall</i>(3)</a>, <a href="../man3/fprintf.html"><i>fprintf</i>(3)</a>, <a href="../man7/utf.html"><i>utf</i>(7)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Routines that write to a file descriptor or call <i>malloc</i> set <i>errstr</i>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The formatting is close to that specified for ANSI <a href="../man3/fprintf.html"><i>fprintf</i>(3)</a>;
+    the main difference is that <tt><font size=+1>b</font></tt> and <tt><font size=+1>r</font></tt> are not in ANSI and <tt><font size=+1>u</font></tt> is a
+    flag here instead of a verb. Also, and distinctly not a bug, <i>print</i>
+    and friends generate UTF rather than ASCII. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There is no <i>runeprint</i>, <i>runefprint</i>, etc. because runes are byte-order
+    dependent and should not be written directly to a file; use the
+    UTF output of <i>print</i> or <i>fprint</i> instead. Also, <i>sprint</i> is deprecated
+    for safety reasons; use <i>snprint</i>, <i>seprint</i>, or <i>smprint</i> instead.
+    Safety also precludes the existence of <i>runesprint</i>.
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

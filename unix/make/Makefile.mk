@@ -17,9 +17,11 @@ OFILES=\
 	mk.$O\
 	parse.$O\
 	recipe.$O\
+	rc.$O\
 	rule.$O\
 	run.$O\
 	sh.$O\
+	shell.$O\
 	shprint.$O\
 	symtab.$O\
 	var.$O\

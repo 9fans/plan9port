@@ -1,0 +1,131 @@
+<head>
+<title>regexp(7) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>REGEXP(7)</b><td align=right><b>REGEXP(7)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    regexp &ndash; Plan 9 regular expression notation<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This manual page describes the regular expression syntax used
+    by the Plan 9 regular expression library <a href="../man3/regexp.html"><i>regexp</i>(3)</a>. It is the
+    form used by <a href="../man1/egrep.html"><i>egrep</i>(1)</a> before <i>egrep</i> got complicated. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>regular expression</i> specifies a set of strings of characters.
+    A member of this set of strings is said to be <i>matched</i> by the regular
+    expression. In many applications a delimiter character, commonly
+    <tt><font size=+1>/</font></tt>, bounds a regular expression. In the following specification
+    for regular expressions the word &#8216;character&#8217; means any
+    character (rune) but newline. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The syntax for a regular expression <tt><font size=+1>e0</font></tt> is<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>e3: &nbsp;&nbsp;&nbsp;literal | charclass | '.' | '^' | '$' | '(' e0 ')'<br>
+        e2: &nbsp;&nbsp;&nbsp;e3<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            | &nbsp;&nbsp;&nbsp;e2 REP<br>
+            
+        </table>
+        REP: '*' | '+' | '?'<br>
+        e1: &nbsp;&nbsp;&nbsp;e2<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            | &nbsp;&nbsp;&nbsp;e1 e2<br>
+            
+        </table>
+        e0: &nbsp;&nbsp;&nbsp;e1<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            | &nbsp;&nbsp;&nbsp;e0 '|' e1<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        </font></tt>
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    A <tt><font size=+1>literal</font></tt> is any non-metacharacter, or a metacharacter (one of
+    <tt><font size=+1>.*+?[]()|\^$</font></tt>), or the delimiter preceded by <tt><font size=+1>\</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>charclass</font></tt> is a nonempty string <i>s</i> bracketed <tt><font size=+1>[</font></tt><i>s</i><tt><font size=+1>]</font></tt> (or <tt><font size=+1>[^</font></tt><i>s</i><tt><font size=+1>]</font></tt>); it
+    matches any character in (or not in) <i>s</i>. A negated character class
+    never matches newline. A substring <i>a</i><tt><font size=+1>&#8722;</font></tt><i>b</i>, with <i>a</i> and <i>b</i> in ascending
+    order, stands for the inclusive range of characters between <i>a</i>
+    and <i>b</i>. In <i>s</i>, the metacharacters <tt><font size=+1>&#8722;</font></tt>, <tt><font size=+1>]</font></tt>, an initial <tt><font size=+1>^</font></tt>, and the
+    regular expression delimiter must be preceded by a <tt><font size=+1>\</font></tt>; other metacharacters
+    have no special meaning and may appear unescaped. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>.</font></tt> matches any character. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>^</font></tt> matches the beginning of a line; <tt><font size=+1>$</font></tt> matches the end of the
+    line. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>REP</font></tt> operators match zero or more (<tt><font size=+1>*</font></tt>), one or more (<tt><font size=+1>+</font></tt>), zero
+    or one (<tt><font size=+1>?</font></tt>), instances respectively of the preceding regular expression
+    <tt><font size=+1>e2</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A concatenated regular expression, <tt><font size=+1>e1e2</font></tt>, matches a match to <tt><font size=+1>e1</font></tt>
+    followed by a match to <tt><font size=+1>e2</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An alternative regular expression, <tt><font size=+1>e0|e1</font></tt>, matches either a match
+    to <tt><font size=+1>e0</font></tt> or a match to <tt><font size=+1>e1</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A match to any part of a regular expression extends as far as
+    possible without preventing a match to the remainder of the regular
+    expression.<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/regexp.html"><i>regexp</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,232 @@
+<head>
+<title>grap(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>GRAP(1)</b><td align=right><b>GRAP(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    grap &ndash; pic preprocessor for drawing graphs<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>grap</font></tt> [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Grap</i> is a <a href="../man1/pic.html"><i>pic</i>(1)</a> preprocessor for drawing graphs on a typesetter.
+    Graphs are surrounded by the <i>troff</i> &#8216;commands&#8217; <tt><font size=+1>.G1</font></tt> and <tt><font size=+1>.G2</font></tt>. Data
+    are scaled and plotted, with tick marks supplied automatically.
+    Commands exist to modify the frame, add labels, override the default
+    ticks, change the plotting style, define coordinate
+    ranges and transformations, and include data from files. In addition,
+    <i>grap</i> provides the same loops, conditionals, and macro processing
+    that <i>pic</i> does. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>frame ht</font></tt> <i>e</i> <tt><font size=+1>wid</font></tt> <i>e</i> <tt><font size=+1>top dotted</font></tt> <i>...</i>: Set the frame around the graph
+    to specified <tt><font size=+1>ht</font></tt> and <tt><font size=+1>wid</font></tt>; default is 2 by 3 (inches). The line
+    <i>styles</i> (<tt><font size=+1>dotted</font></tt>, <tt><font size=+1>dashed</font></tt>, <tt><font size=+1>invis</font></tt>, <tt><font size=+1>solid</font></tt> (default)) of the <i>sides</i> (<tt><font size=+1>top</font></tt>,
+    <tt><font size=+1>bot</font></tt>, <tt><font size=+1>left</font></tt>, <tt><font size=+1>right</font></tt>) of the frame can be set independently. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>label</font></tt> <i>side </i><tt><font size=+1>&quot;a label&quot; &quot;as a set of strings&quot;</font></tt> <i>adjust</i>: Place label on
+    specified side; default side is bottom. <i>adjust</i> is <tt><font size=+1>up</font></tt> (or <tt><font size=+1>down
+    left right</font></tt>) <i>expr</i> to shift default position; <tt><font size=+1>width</font></tt> <i>expr</i> sets the
+    width explicitly. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>ticks</font></tt> <i>side</i> <tt><font size=+1>in at</font></tt> <i>optname expr, expr, ...</i>: Put ticks on <i>side</i> at
+    <i>expr, ...,</i> and label with <i>&quot;expr&quot;</i>. If any <i>expr</i> is followed by &quot;...&quot;,
+    label tick with &quot;...&quot;, and turn off all automatic labels. If &quot;...&quot;
+    contains <tt><font size=+1>%f</font></tt>&#8217;s, they will be interpreted as <tt><font size=+1>printf</font></tt> formatting instructions
+    for the tick value. Ticks point <tt><font size=+1>in</font></tt> or <tt><font size=+1>out</font></tt> (default out). Tick
+    iterator: instead of <tt><font size=+1>at</font></tt> <i>...</i>, use <tt><font size=+1>from</font></tt> <i>expr</i> <tt><font size=+1>to</font></tt> <i>expr</i> <tt><font size=+1>by</font></tt> <i>op expr</i>
+    where <i>op</i> is optionally <tt><font size=+1>+&#8722;*/</font></tt> for additive or multiplicative steps.
+    <tt><font size=+1>by</font></tt> can be omitted, to give steps of size 1. If no ticks are requested,
+    they are supplied automatically; suppress this with <tt><font size=+1>ticks off</font></tt>.
+    Automatic ticks normally leave a margin of 7% on each
+    side; set this to anything by <tt><font size=+1>margin =</font></tt> <i>expr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>grid</font></tt> <i>side linedesc</i> <tt><font size=+1>at</font></tt> <i>optname expr, expr, ...</i>: Draw grids perpendicular
+    to <i>side</i> in style <i>linedesc</i> at <i>expr, ....</i> Iterators and labels work
+    as with ticks. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>coord</font></tt> <i>optname</i> <tt><font size=+1>x</font></tt> <i>min, max</i> <tt><font size=+1>y</font></tt> <i>min, max</i> <tt><font size=+1>log x  &nbsp;&nbsp;&nbsp;log y</font></tt>: Set range of
+    coords and optional log scaling on either or both. This overrides
+    computation of data range. Default value of <i>optname</i> is current
+    coordinate system (each <tt><font size=+1>coord</font></tt> defines a new coordinate system).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>plot </font></tt><i>&quot;str&quot;</i> <tt><font size=+1>at</font></tt> <i>point</i>; <i>&quot;str&quot;</i> <tt><font size=+1>at</font></tt> <i>point</i>: Put <i>str</i> at <i>point</i>. Text position
+    can be qualified with <tt><font size=+1>rjust</font></tt>, <tt><font size=+1>ljust</font></tt>, <tt><font size=+1>above</font></tt>, <tt><font size=+1>below</font></tt> after &quot;...&quot;. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>line from</font></tt> <i>point</i> <tt><font size=+1>to</font></tt> <i>point linedesc</i>: Draw line from here to there.
+    <tt><font size=+1>arrow</font></tt> works in place of <tt><font size=+1>line</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>next</font></tt> <i>optname</i> <tt><font size=+1>at</font></tt> <i>point linedesc</i>: Continue plot of data in <i>optname
+    to point</i>; default is current. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>draw</font></tt> <i>optname linedesc ...</i>: Set mode for <tt><font size=+1>next</font></tt>: use this style from
+    now on, and plot &quot;...&quot; at each point (if given). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>new</font></tt> <i>optname linedesc ...</i>: Set mode for <tt><font size=+1>next</font></tt>, but disconnect from
+    previous. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A list of numbers <i>x y1 y2 y3 ...</i> is treated as <tt><font size=+1>plot bullet at</font></tt>
+    <i>x,y1</i>; <tt><font size=+1>plot bullet at</font></tt> <i>x,y2</i>; etc., or as <tt><font size=+1>next at</font></tt> <i>x,y1</i> etc., if <tt><font size=+1>draw</font></tt>
+    is specified. Abscissae of 1,2,3,... are provided if there is
+    only one input number per line. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A point <i>optname expr, expr</i> maps the point to the named coordinate
+    system. A <i>linedesc</i> is one of <tt><font size=+1>dot dash invis solid</font></tt> optionally followed
+    by an expression. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>define</font></tt> <i>name</i> <tt><font size=+1>{</font></tt><i>whatever</i><tt><font size=+1>}</font></tt>: Define a macro. There are macros already
+    defined for standard plotting symbols like <tt><font size=+1>bullet</font></tt>, <tt><font size=+1>circle</font></tt>, <tt><font size=+1>star</font></tt>,
+    <tt><font size=+1>plus</font></tt>, etc., in <tt><font size=+1>/usr/local/plan9/lib/grap.defines</font></tt>, which is included
+    if it exists. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>var</i> <tt><font size=+1>=</font></tt> <i>expr</i>: Evaluate an expression. Operators are <tt><font size=+1>+ &#8722; *</font></tt> and <tt><font size=+1>/</font></tt>.
+    Functions are <tt><font size=+1>log</font></tt> and <tt><font size=+1>exp</font></tt> (both base 10), <tt><font size=+1>sin</font></tt>, <tt><font size=+1>cos</font></tt>, <tt><font size=+1>sqrt</font></tt>; <tt><font size=+1>rand</font></tt>
+    returns random number on [0,1); <tt><font size=+1>max(</font></tt><i>e</i><tt><font size=+1>,</font></tt><i>e</i><tt><font size=+1>)</font></tt>, <tt><font size=+1>min(</font></tt><i>e</i><tt><font size=+1>,</font></tt><i>e</i><tt><font size=+1>)</font></tt>, <tt><font size=+1>int(</font></tt><i>e</i><tt><font size=+1>)</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>print</font></tt> <i>expr</i>; <tt><font size=+1>print &quot;</font></tt><i>...</i><tt><font size=+1>&quot;</font></tt>: As a debugging aid, print <i>expr</i> or <i>string</i>
+    on the standard error. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>copy &quot;</font></tt><i>file name</i><tt><font size=+1>&quot;</font></tt>: Include this file right here. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>copy thru</font></tt> <i>macro</i>: Pass rest of input (until <tt><font size=+1>.G2</font></tt>) through <i>macro</i>,
+    treating each field (non-blank, or &quot;...&quot;) as an argument. <i>macro</i>
+    can be the name of a macro previously defined, or the body of
+    one in place, like <tt><font size=+1>/plot $1 at $2,$3/</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>copy thru</font></tt> <i>macro</i> <tt><font size=+1>until &quot;</font></tt><i>string</i><tt><font size=+1>&quot;</font></tt>: Stop copy when input is <i>string</i> (left-justified).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>pic</font></tt> <i>remainder of line</i>: Copy to output with leading blanks removed.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>graph</font></tt> <i>Name pic-position</i>: Start a new frame, place it at specified
+    position, e.g., <tt><font size=+1>graph Thing2 with .sw at Thing1.se + (0.1,0)</font></tt>.
+    <i>Name</i> must be capitalized to keep <i>pic</i> happy. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>.</font></tt><i>anything at beginning of line</i>: Copied verbatim. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>sh %</font></tt><i>anything</i> <tt><font size=+1>%</font></tt>: Pass everything between the <tt><font size=+1>%</font></tt>&#8217;s to the shell;
+    as with macros, <tt><font size=+1>%</font></tt> may be any character and <i>anything</i> may include
+    newlines. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>#</font></tt> <i>anything</i>: A comment, which is discarded. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Order is mostly irrelevant; no category is mandatory. Any arguments
+    on the <tt><font size=+1>.G1</font></tt> line are placed on the generated <tt><font size=+1>.PS</font></tt> line for <i>pic</i>.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>.G1<br>
+    frame ht 1 top invis right invis<br>
+    coord x 0, 10 y 1, 3 log y<br>
+    ticks left in at 1 &quot;bottommost tick&quot;, 2,3 &quot;top tick&quot;<br>
+    ticks bot in from 0 to 10 by 2<br>
+    label bot &quot;silly graph&quot;<br>
+    label left &quot;left side label&quot; &quot;here&quot;<br>
+    grid left dashed at 2.5<br>
+    copy thru / circle at $1,$2 /<br>
+    1 1<br>
+    2 1.5<br>
+    3 2<br>
+    4 1.5<br>
+    10 3<br>
+    .G2<br>
+    frame ht 1 top invis right invis<br>
+    coord x 0, 10 y 1, 3 log y<br>
+    ticks left in at 1 &quot;bottommost tick&quot;, 2,3 &quot;top tick&quot;<br>
+    ticks bot in from 0 to 10 by 2<br>
+    label bot &quot;silly graph&quot;<br>
+    label left &quot;left side label&quot; &quot;here&quot;<br>
+    grid left dashed at 2.5<br>
+    copy thru / circle at $1,$2 /<br>
+    1 1<br>
+    2 1.5<br>
+    3 2<br>
+    4 1.5<br>
+    10 3<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/lib/grap.defines</font></tt>&nbsp;&nbsp;&nbsp;definitions of standard plotting
+    characters, e.g., bullet<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/grap<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/pic.html"><i>pic</i>(1)</a>, <a href="../man1/troff.html"><i>troff</i>(1)</a><br>
+    J. L. Bentley and B. W. Kernighan, &#8220;GRAP--A Language for Typesetting
+    Graphs&#8221;, <i>Unix Research System Programmer&#8217;s Manual,</i> Tenth Edition,
+    Volume 2.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

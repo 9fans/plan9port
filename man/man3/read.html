@@ -1,0 +1,109 @@
+<head>
+<title>read(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>READ(3)</b><td align=right><b>READ(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    read, readn, write, pread, pwrite &ndash; read or write file<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long read(int fd, void *buf, long nbytes) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long readn(int fd, void *buf, long nbytes) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long write(int fd, void *buf, long nbytes) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long pread(int fd, void *buf, long nbytes, vlong offset) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long pwrite(int fd, void *buf, long nbytes, vlong offset)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Read</i> reads <i>nbytes</i> bytes of data from the offset in the file associated
+    with <i>fd</i> into memory at <i>buf</i>. The offset is advanced by the number
+    of bytes read. It is not guaranteed that all <i>nbytes</i> bytes will
+    be read; for example if the file refers to the console, at most
+    one line will be returned. In any event the number of bytes
+    read is returned. A return value of 0 is conventionally interpreted
+    as end of file. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Readn</i> is just like read, but does successive <i>read</i> calls until
+    <i>nbytes</i> have been read, or a read system call returns a non-positive
+    count. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Write</i> writes <i>nbytes</i> bytes of data starting at <i>buf</i> to the file
+    associated with <i>fd</i> at the file offset. The offset is advanced
+    by the number of bytes written. The number of characters actually
+    written is returned. It should be regarded as an error if this
+    is not the same as requested. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Pread</i> and <i>Pwrite</i> equivalent to a <a href="../man3/seek.html"><i>seek</i>(3)</a> to <i>offset</i> followed by
+    a <i>read</i> or <i>write</i>. By combining the operations in a single atomic
+    call, they more closely match the 9P protocol (see <i>intro</i>(9p))
+    and, more important, permit multiprocess programs to execute multiple
+    concurrent read and write operations on the same file
+    descriptor without interference.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/readn.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/intro.html"><i>intro</i>(3)</a>, <a href="../man3/open.html"><i>open</i>(3)</a>, <a href="../man3/dup.html"><i>dup</i>(3)</a>, <a href="../man3/pipe.html"><i>pipe</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These functions set <i>errstr</i>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

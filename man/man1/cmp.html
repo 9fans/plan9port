@@ -1,0 +1,84 @@
+<head>
+<title>cmp(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>CMP(1)</b><td align=right><b>CMP(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    cmp &ndash; compare two files<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>cmp</font></tt> [ <tt><font size=+1>&#8722;lsL</font></tt> ] <i>file1 file2</i> [ <i>offset1</i> [ <i>offset2</i> ] ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The two files are compared. A diagnostic results if the contents
+    differ, otherwise there is no output. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The options are:<br>
+    <tt><font size=+1>l</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the byte number (decimal) and the differing bytes (hexadecimal)
+    for each difference.<br>
+    <tt><font size=+1>s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print nothing for differing files, but set the exit status.<br>
+    <tt><font size=+1>L</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the line number of the first differing byte. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If offsets are given, comparison starts at the designated byte
+    position of the corresponding file. Offsets that begin with <tt><font size=+1>0x</font></tt>
+    are hexadecimal; with <tt><font size=+1>0</font></tt>, octal; with anything else, decimal.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/cmp.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/diff.html"><i>diff</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    If a file is inaccessible or missing, the exit status is <tt><font size=+1>open</font></tt>.
+    If the files are the same, the exit status is empty (true). If
+    they are the same except that one is longer than the other, the
+    exit status is <tt><font size=+1>EOF</font></tt>. Otherwise <i>cmp</i> reports the position of the
+    first disagreeing byte and the exit status is <tt><font size=+1>differ</font></tt>.
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

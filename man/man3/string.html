@@ -1,0 +1,244 @@
+<head>
+<title>string(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>STRING(3)</b><td align=right><b>STRING(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    s_alloc, s_append, s_array, s_copy, s_error, s_free, s_incref,
+    s_memappend, s_nappend, s_new, s_newalloc, s_parse, s_reset, s_restart,
+    s_terminate, s_tolower, s_putc, s_unique, s_grow, s_read, s_read_line,
+    s_getline, s_allocinstack, s_freeinstack, s_rdinstack &ndash; extensible
+    strings<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;String.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>String* &nbsp;&nbsp;&nbsp;&nbsp;s_new(void)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_free(String *s)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_newalloc(int n)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_array(char *p, int n)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_grow(String *s, int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_putc(String *s, int c)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_terminate(String *s)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_reset(String *s)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_restart(String *s)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_append(String *s, char *p)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_nappend(String *s, char *p, int n)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_memappend(String *s, char *p, int n)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_copy(char *p)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_parse(String *s1, String *s2)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_tolower(String *s) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>String* &nbsp;&nbsp;&nbsp;&nbsp;s_incref(String *s)<br>
+    String* &nbsp;&nbsp;&nbsp;&nbsp;s_unique(String *s) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Sinstack* s_allocinstack(char *file)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_freeinstack(Sinstack *stack)<br>
+    char* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_rdinstack(Sinstack *stack, String *s) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>#include &lt;bio.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_read(Biobuf *b, String *s, int n)<br>
+    char* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_read_line(Biobuf *b, String *s)<br>
+    char* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s_getline(Biobuf *b, String *s)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines manipulate extensible strings. The basic type is
+    <tt><font size=+1>String</font></tt>, which points to an array of characters. The string maintains
+    pointers to the beginning and end of the allocated array. In addition
+    a finger pointer keeps track of where parsing will start (for
+    <i>s_parse</i>) or new characters will be added (for <i>s_putc</i>,
+    <i>s_append</i>, and <i>s_nappend</i>). The structure, and a few useful macros
+    are:<br>
+    <tt><font size=+1>typedef struct String {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Lock;<br>
+            char*base;/* base of String */<br>
+            char*end;/* end of allocated space+1 */<br>
+            char*ptr;/* ptr into String */<br>
+            ...<br>
+            
+        </table>
+        
+    </table>
+    } String;<br>
+    #define s_to_c(s) ((s)&#8722;&gt;base)<br>
+    #define s_len(s) ((s)&#8722;&gt;ptr&#8722;(s)&#8722;&gt;base)<br>
+    #define s_clone(s) s_copy((s)&#8722;&gt;base)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <i>S_to_c</i> is used when code needs a reference to the character array.
+    Using <tt><font size=+1>s&#8722;&gt;base</font></tt> directly is frowned upon since it exposes too much
+    of the implementation.<br>
+    <p><font size=+1><b>Allocation and freeing     </b></font><br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A string must be allocated before it can be used. One normally
+    does this using <i>s_new</i>, giving the string an initial allocation
+    of 128 bytes. If you know that the string will need to grow much
+    longer, you can use <i>s_newalloc</i> instead, specifying the number
+    of bytes in the initial allocation. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_free</i> causes both the string and its character array to be freed.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_grow</i> grows a string&#8217;s allocation by a fixed amount. It is useful
+    if you are reading directly into a string&#8217;s character array but
+    should be avoided if possible. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_array</i> is used to create a constant array, that is, one whose
+    contents won&#8217;t change. It points directly to the character array
+    given as an argument. Tread lightly when using this call.<br>
+    <p><font size=+1><b>Filling the string     </b></font><br>
+    After its initial allocation, the string points to the beginning
+    of an allocated array of characters starting with NUL. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_putc</i> writes a character into the string at the pointer and advances
+    the pointer to point after it. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_terminate</i> writes a NUL at the pointer but doesn&#8217;t advance it.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_restart</i> resets the pointer to the begining of the string but
+    doesn&#8217;t change the contents. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_reset</i> is equivalent to <i>s_restart</i> followed by <i>s_terminate</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_append</i> and <i>s_nappend</i> copy characters into the string at the
+    pointer and advance the pointer. They also write a NUL at the
+    pointer without advancing the pointer beyond it. Both routines
+    stop copying on encountering a NUL. <i>S_memappend</i> is like <i>s_nappend</i>
+    but doesn&#8217;t stop at a NUL. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If you know the initial character array to be copied into a string,
+    you can allocate a string and copy in the bytes using <i>s_copy</i>.
+    This is the equivalent of a <i>s_new</i> followed by an <i>s_append</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_parse</i> copies the next white space terminated token from <i>s1</i> to
+    the end of <i>s2</i>. White space is defined as space, tab, and newline.
+    Both single and double quoted strings are treated as a single
+    token. The bounding quotes are not copied. There is no escape
+    mechanism. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_tolower</i> converts all ASCII characters in the string to lower
+    case.<br>
+    <p><font size=+1><b>Multithreading     </b></font><br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_incref</i> is used by multithreaded programs to avoid having the
+    string memory released until the last user of the string performs
+    an <i>s_free</i>. <i>S_unique</i> returns a unique copy of the string: if the
+    reference count it 1 it returns the string, otherwise it returns
+    an <i>s_clone</i> of the string.<br>
+    <p><font size=+1><b>Bio interaction     </b></font><br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_read</i> reads the requested number of characters through a <i>Biobuf</i>
+    into a string. The string is grown as necessary. An eof or error
+    terminates the read. The number of bytes read is returned. The
+    string is null terminated. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_read_line</i> reads up to and including the next newline and returns
+    a pointer to the beginning of the bytes read. An eof or error
+    terminates the read. The string is null terminated. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_getline</i> reads up to the next newline, appends the input to <i>s</i>,
+    and returns a pointer to the beginning of the bytes read. Leading
+    spaces and tabs and the trailing newline are all discarded. <i>S_getline</i>
+    discards blank lines and lines beginning with <tt><font size=+1>#</font></tt>. <i>S_getline</i> ignores
+    newlines escaped by immediately-preceding
+    backslashes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>S_allocinstack</i> allocates an input stack with the single file <i>file</i>
+    open for reading. <i>S_freeinstack</i> frees an input stack. <i>S_rdinstack</i>
+    reads a line from an input stack. It follows the same rules as
+    <i>s_getline</i> except that when it encounters a line of the form <tt><font size=+1>#include</font></tt>
+    <i>newfile</i>, <i>s_getline</i> pushes <i>newfile</i> onto the input stack,
+    postponing further reading of the current file until <i>newfile</i> has
+    been read. The input stack has a maximum depth of 32 nested include
+    files.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libString<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/bio.html"><i>bio</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

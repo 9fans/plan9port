@@ -1,0 +1,483 @@
+<head>
+<title>map(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MAP(1)</b><td align=right><b>MAP(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    map, mapdemo, mapd &ndash; draw maps on various projections<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>map</font></tt> <i>projection</i> [ <i>option ...</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>mapdemo 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Map</i> prepares on the standard output a map suitable for display
+    by any plotting filter described in <a href="../man1/plot.html"><i>plot</i>(1)</a>. A menu of projections
+    is produced in response to an unknown <i>projection</i>. <i>Mapdemo</i> is a
+    short course in mapping. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The default data for <i>map</i> are world shorelines. Option <tt><font size=+1>&#8722;f</font></tt> accesses
+    more detailed data classified by feature.<br>
+    <tt><font size=+1>&#8722;f</font></tt> [ <i>feature</i> ... ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Features are ranked 1 (default) to 4 from major to minor. Higher-numbered
+        ranks include all lower-numbered ones. Features are<br>
+        <tt><font size=+1>shore</font></tt>[<tt><font size=+1>1</font></tt>-<tt><font size=+1>4</font></tt>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;seacoasts, lakes, and islands; option <tt><font size=+1>&#8722;f</font></tt> always shows
+        <tt><font size=+1>shore1<br>
+        ilake</font></tt>[<tt><font size=+1>1</font></tt>-<tt><font size=+1>2</font></tt>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intermittent lakes<br>
+        <tt><font size=+1>river</font></tt>[<tt><font size=+1>1</font></tt>-<tt><font size=+1>4</font></tt>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rivers<br>
+        <tt><font size=+1>iriver</font></tt>[<tt><font size=+1>1</font></tt>-<tt><font size=+1>3</font></tt>]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;intermittent rivers<br>
+        <tt><font size=+1>canal</font></tt>[<tt><font size=+1>1</font></tt>-<tt><font size=+1>3</font></tt>]<tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3</font></tt>=irrigation canals<br>
+        <tt><font size=+1>glacier<br>
+        iceshelf</font></tt>[<tt><font size=+1>12</font></tt>]<br>
+        <tt><font size=+1>reef<br>
+        saltpan</font></tt>[<tt><font size=+1>12</font></tt>]<br>
+        <tt><font size=+1>country</font></tt>[<tt><font size=+1>1</font></tt>-<tt><font size=+1>3</font></tt>]<tt><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;2</font></tt>=disputed boundaries, <tt><font size=+1>3</font></tt>=indefinite boundaries<br>
+        <tt><font size=+1>state</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;states and provinces (US and Canada only)<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    In other options coordinates are in degrees, with north latitude
+    and west longitude counted as positive.<br>
+    <tt><font size=+1>&#8722;l</font></tt> <i>S N E W<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set the southern and northern latitude and the eastern and western
+        longitude limits. Missing arguments are filled out from the list
+        &ndash;90, 90, &ndash;180, 180, or lesser limits suitable to the projection
+        at hand.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;k</font></tt> <i>S N E W<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set the scale as if for a map with limits <tt><font size=+1>&#8722;l</font></tt> <i>S N E W</i> . Do not
+        consider any <tt><font size=+1>&#8722;l</font></tt> or <tt><font size=+1>&#8722;w</font></tt> option in setting scale.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;o</font></tt> <i>lat lon rot<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Orient the map in a nonstandard position. Imagine a transparent
+        gridded sphere around the globe. Turn the overlay about the North
+        Pole so that the Prime Meridian (longitude 0) of the overlay coincides
+        with meridian <i>lon</i> on the globe. Then tilt the North Pole of the
+        overlay along its Prime Meridian to latitude <i>lat
+        </i>on the globe. Finally again turn the overlay about its &#8216;North
+        Pole&#8217; so that its Prime Meridian coincides with the previous position
+        of meridian <i>rot</i>. Project the map in the standard form appropriate
+        to the overlay, but presenting information from the underlying
+        globe. Missing arguments are filled out from the list
+        90, 0, 0. In the absence of <tt><font size=+1>&#8722;</font></tt>o<tt><font size=+1>,</font></tt> the orientation is 90, 0, <i>m</i>, where
+        <i>m</i> is the middle of the longitude range.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;w</font></tt> <i>S N E W<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Window the map by the specified latitudes and longitudes in the
+        tilted, rotated coordinate system. Missing arguments are filled
+        out from the list &ndash;90, 90, &ndash;180, 180. (It is wise to give an encompassing
+        <tt><font size=+1>&#8722;l</font></tt> option with <tt><font size=+1>&#8722;w</font></tt>. Otherwise for small windows computing time
+        varies inversely with area!)
+        
+    </table>
+    <tt><font size=+1>&#8722;d</font></tt> <i>n</i>&nbsp;&nbsp;&nbsp;For speed, plot only every <i>n</i>th point.<br>
+    <tt><font size=+1>&#8722;r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Reverse left and right (good for star charts and inside-out
+    views).<br>
+    <tt><font size=+1>&#8722;v</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Verso. Switch to a normally suppressed sheet of the map, such
+    as the back side of the earth in orthographic projection.<br>
+    <tt><font size=+1>&#8722;s1<br>
+    &#8722;s2</font></tt>&nbsp;&nbsp;&nbsp;Superpose; outputs for a <tt><font size=+1>&#8722;s1</font></tt> map (no closing) and a <tt><font size=+1>&#8722;s2</font></tt> map
+    (no opening) may be concatenated.<br>
+    <tt><font size=+1>&#8722;g</font></tt> <i>dlat dlon res<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Grid spacings are <i>dlat</i>, <i>dlon</i>. Zero spacing means no grid. Missing
+        <i>dlat</i> is taken to be zero. Missing <i>dlon</i> is taken the same as <i>dlat</i>.
+        Grid lines are drawn to a resolution of <i>res</i> (2&deg; or less by default).
+        In the absence of <tt><font size=+1>&#8722;</font></tt>g<tt><font size=+1>,</font></tt> grid spacing is 10&deg;.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;p</font></tt> <i>lat lon extent<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Position the point <i>lat, lon</i> at the center of the plotting area.
+        Scale the map so that the height (and width) of the nominal plotting
+        area is <i>extent</i> times the size of one degree of latitude at the
+        center. By default maps are scaled and positioned to fit within
+        the plotting area. An <i>extent</i> overrides option <tt><font size=+1>&#8722;k</font></tt>.
+        
+    </table>
+    <tt><font size=+1>&#8722;c</font></tt> <i>x y rot<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        After all other positioning and scaling operations have been performed,
+        rotate the image <i>rot</i> degrees counterclockwise about the center
+        and move the center to position <i>x</i>, <i>y</i>, where the nominal plotting
+        area is &ndash;1&le;<i>x</i>&le;1, &ndash;1&le;<i>y</i>&le;1. Missing arguments are taken to be 0. <tt><font size=+1>&#8722;x</font></tt> Allow
+        the map to extend outside the
+        nominal plotting area.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;m</font></tt> [ <i>file</i> ... ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Use map data from named files. If no files are named, omit map
+        data. Names that do not exist as pathnames are looked up in a
+        standard directory, which contains, in addition to the data for
+        <tt><font size=+1>&#8722;f</font></tt>,<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        <tt><font size=+1>world</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;World Data Bank I (default)<br>
+        <tt><font size=+1>states</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;US map from Census Bureau<br>
+        <tt><font size=+1>counties</font></tt>&nbsp;&nbsp;&nbsp;US map from Census Bureau<br>
+        The environment variables <tt><font size=+1>MAP</font></tt> and <tt><font size=+1>MAPDIR</font></tt> change the default map
+        and default directory.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;b</font></tt> [<i>lat0 lon0 lat1 lon1</i>... ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Suppress the drawing of the normal boundary (defined by options
+        <tt><font size=+1>&#8722;l</font></tt> and <tt><font size=+1>&#8722;w</font></tt>). Coordinates, if present, define the vertices of a
+        polygon to which the map is clipped. If only two vertices are
+        given, they are taken to be the diagonal of a rectangle. To draw
+        the polygon, give its vertices as a <tt><font size=+1>&#8722;u</font></tt> track.
+        
+    </table>
+    <tt><font size=+1>&#8722;t</font></tt> <i>file ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>files</i> contain lists of points, given as latitude-longitude
+        pairs in degrees. If the first file is named <tt><font size=+1>&#8722;</font></tt>, the standard input
+        is taken instead. The points of each list are plotted as connected
+        &#8216;tracks&#8217;.<br>
+        Points in a track file may be followed by label strings. A label
+        breaks the track. A label may be prefixed by <tt><font size=+1>&quot;</font></tt>, <tt><font size=+1>:</font></tt>, or <tt><font size=+1>!</font></tt> and is
+        terminated by a newline. An unprefixed string or a string prefixed
+        with <tt><font size=+1>&quot;</font></tt> is displayed at the designated point. The first word of
+        a <tt><font size=+1>:</font></tt> or <tt><font size=+1>!</font></tt> string names a special symbol (see option <tt><font size=+1>&#8722;y</font></tt>).
+        An optional numerical second word is a scale factor for the size
+        of the symbol, 1 by default. A <tt><font size=+1>:</font></tt> symbol is aligned with its top
+        to the north; a <tt><font size=+1>!</font></tt> symbol is aligned vertically on the page.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;u</font></tt> <i>file ...<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Same as <tt><font size=+1>&#8722;t</font></tt>, except the tracks are unbroken lines. (<tt><font size=+1>&#8722;t</font></tt> tracks appear
+        as dot-dashed lines if the plotting filter supports them.)<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;y</font></tt> <i>file<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The <i>file</i> contains <a href="../man7/plot.html"><i>plot</i>(7)</a>-style data for <tt><font size=+1>:</font></tt> or <tt><font size=+1>!</font></tt> labels in <tt><font size=+1>&#8722;t</font></tt> or
+        <tt><font size=+1>&#8722;u</font></tt> files. Each symbol is defined by a comment <tt><font size=+1>:</font></tt><i>name</i> then a sequence
+        of <tt><font size=+1>m</font></tt> and <tt><font size=+1>v</font></tt> commands. Coordinates (0,0) fall on the plotting point.
+        Default scaling is as if the nominal plotting range were <tt><font size=+1>ra &#8722;1
+        &#8722;1 1 1</font></tt>; <tt><font size=+1>ra</font></tt> commands in <i>file</i> change the
+        scaling.<br>
+        
+    </table>
+    <p><font size=+1><b>Projections     </b></font><br>
+    Equatorial projections centered on the Prime Meridian (longitude
+    0). Parallels are straight horizontal lines. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>mercator</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equally spaced straight meridians, conformal, straight
+    compass courses<br>
+    <tt><font size=+1>sinusoidal</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equally spaced parallels, equal-area, same as <tt><font size=+1>bonne
+    0</font></tt>.<br>
+    <tt><font size=+1>cylequalarea</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;equally spaced straight meridians, equal-area,
+    true scale on <i>lat0<br>
+    </i><tt><font size=+1>cylindrical</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;central projection on tangent cylinder<br>
+    <tt><font size=+1>rectangular</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;equally spaced parallels, equally spaced straight
+    meridians, true scale on <i>lat0<br>
+    </i><tt><font size=+1>gall</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parallels spaced stereographically on prime meridian,
+    equally spaced straight meridians, true scale on <i>lat0<br>
+    </i><tt><font size=+1>mollweide</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(homalographic) equal-area, hemisphere is a circle<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>gilbert()</font></tt> sphere conformally mapped on hemisphere and viewed orthographically<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>gilbert</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;globe mapped conformally on hemisphere, viewed orthographically
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Azimuthal projections centered on the North Pole. Parallels are
+    concentric circles. Meridians are equally spaced radial lines.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>azequidistant</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equally spaced parallels, true distances from pole<br>
+    <tt><font size=+1>azequalarea</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equal-area<br>
+    <tt><font size=+1>gnomonic</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;central projection on tangent plane, straight great circles<br>
+    <tt><font size=+1>perspective</font></tt> <i>dist</i>&nbsp;&nbsp;&nbsp;viewed along earth&#8217;s axis <i>dist</i> earth radii from
+    center of earth<br>
+    <tt><font size=+1>orthographic</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;viewed from infinity<br>
+    <tt><font size=+1>stereographic</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conformal, projected from opposite pole<br>
+    <tt><font size=+1>laue</font></tt><i>radius</i> = tan(2&#215;<i>colatitude</i>), used in X-ray crystallography<br>
+    <tt><font size=+1>fisheye</font></tt> <i>n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stereographic seen from just inside medium with refractive
+    index <i>n<br>
+    </i><tt><font size=+1>newyorker</font></tt> <i>rradius</i> = log(<i>colatitude</i>/<i>r</i>): <i>New Yorker</i> map from viewing
+    pedestal of radius <i>r</i> degrees 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Polar conic projections symmetric about the Prime Meridian. Parallels
+    are segments of concentric circles. Except in the Bonne projection,
+    meridians are equally spaced radial lines orthogonal to the parallels.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>conic</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;central projection on cone tangent at <i>lat0<br>
+    </i><tt><font size=+1>simpleconic</font></tt> <i>lat0 lat1<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            equally spaced parallels, true scale on <i>lat0</i> and <i>lat1<br>
+            </i>
+        </table>
+        
+    </table>
+    <tt><font size=+1>lambert</font></tt> <i>lat0 lat1</i>&nbsp;&nbsp;&nbsp;&nbsp;conformal, true scale on <i>lat0</i> and <i>lat1<br>
+    </i><tt><font size=+1>albers</font></tt> <i>lat0 lat1</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equal-area, true scale on <i>lat0</i> and <i>lat1<br>
+    </i><tt><font size=+1>bonne</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equally spaced parallels, equal-area, parallel <i>lat0</i>
+    developed from tangent cone 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Projections with bilateral symmetry about the Prime Meridian and
+    the equator. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>polyconic</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parallels developed from tangent cones, equally spaced
+    along Prime Meridian<br>
+    <tt><font size=+1>aitoff</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equal-area projection of globe onto 2-to-1 ellipse, based
+    on <i>azequalarea<br>
+    </i><tt><font size=+1>lagrange</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conformal, maps whole sphere into a circle<br>
+    <tt><font size=+1>bicentric</font></tt> <i>lon0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;points plotted at true azimuth from two centers
+    on the equator at longitudes <i>&plusmn;lon0</i>, great circles are straight
+    lines (a stretched <i>gnomonic</i> )<br>
+    <tt><font size=+1>elliptic</font></tt> <i>lon0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;points plotted at true distance from two centers
+    on the equator at longitudes <i>&plusmn;lon0<br>
+    </i><tt><font size=+1>globular</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hemisphere is circle, circular arc meridians equally spaced
+    on equator, circular arc parallels equally spaced on 0- and 90-degree
+    meridians<br>
+    <tt><font size=+1>vandergrinten</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sphere is circle, meridians as in <i>globular</i>, circular
+    arc parallels resemble <i>mercator 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    Doubly periodic conformal projections. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>guyou</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;W and E hemispheres are square<br>
+    <tt><font size=+1>square</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;world is square with Poles at diagonally opposite corners<br>
+    <tt><font size=+1>tetra</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;map on tetrahedron with edge tangent to Prime Meridian at
+    S Pole, unfolded into equilateral triangle<br>
+    <tt><font size=+1>hex</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;world is hexagon centered on N Pole, N and S hemispheres are
+    equilateral triangles 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Miscellaneous projections. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>harrison</font></tt> <i>dist angle</i>oblique perspective from above the North Pole,
+    <i>dist</i> earth radii from center of earth, looking along the Date
+    Line <i>angle</i> degrees off vertical<br>
+    <tt><font size=+1>trapezoidal</font></tt> <i>lat0 lat1<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            equally spaced parallels, straight meridians equally spaced along
+            parallels, true scale at <i>lat0</i> and <i>lat1</i> on Prime Meridian<br>
+            <tt><font size=+1>lune(lat,angle)</font></tt> conformal, polar cap above latitude <i>lat</i> maps to
+            convex lune with given <i>angle</i> at 90&#176;E and 90&#176;W 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Retroazimuthal projections. At every point the angle between vertical
+    and a straight line to &#8216;Mecca&#8217;, latitude <i>lat0</i> on the prime meridian,
+    is the true bearing of Mecca. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>mecca</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;equally spaced vertical meridians<br>
+    <tt><font size=+1>homing</font></tt> <i>lat0</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;distances to Mecca are true 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Maps based on the spheroid. Of geodetic quality, these projections
+    do not make sense for tilted orientations. For descriptions, see
+    corresponding maps above. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>sp_mercator<br>
+    sp_albers</font></tt> <i>lat0 lat1<br>
+    </i>
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>map perspective 1.025 &#8722;o 40.75 74<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A view looking down on New York from 100 miles (0.025 of the 4000-mile
+        earth radius) up. The job can be done faster by limiting the map
+        so as not to &#8216;plot&#8217; the invisible part of the world: <tt><font size=+1>map perspective
+        1.025 &#8722;o 40.75 74 &#8722;l 20 60 30 100</font></tt>. A circular border can be forced
+        by adding option
+        <tt><font size=+1>&#8722;w 77.33</font></tt>. (Latitude 77.33&deg; falls just inside a polar cap of opening
+        angle arccos(1/1.025) = 12.6804&deg;.)<br>
+        
+    </table>
+    <tt><font size=+1>map mercator &#8722;o 49.25 &#8722;106 180<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        An &#8216;equatorial&#8217; map of the earth centered on New York. The pole
+        of the map is placed 90&#176; away (40.75+49.25=90) on the other side
+        of the earth. A 180&deg; twist around the pole of the map arranges
+        that the &#8216;Prime Meridian&#8217; of the map runs from the pole of the
+        map over the North Pole to New York instead of
+        down the back side of the earth. The same effect can be had from
+        <tt><font size=+1>&nbsp;&nbsp;&nbsp;map mercator &#8722;o 130.75 74<br>
+        </font></tt>
+    </table>
+    <tt><font size=+1>map albers 28 45 &#8722;l 20 50 60 130 &#8722;m states<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A customary curved-latitude map of the United States.<br>
+        
+    </table>
+    <tt><font size=+1>map harrison 2 30 &#8722;l &#8722;90 90 120 240 &#8722;o 90 0 0<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        A fan view covering 60&deg; on either side of the Date Line, as seen
+        from one earth radius above the North Pole gazing at the earth&#8217;s
+        limb, which is 30&deg; off vertical. The <tt><font size=+1>&#8722;o</font></tt> option overrides the default
+        <tt><font size=+1>&#8722;o 90 0 180</font></tt>, which would rotate the scene to behind the observer.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/lib/map/[1&#8722;4]??</font></tt>&nbsp;&nbsp;&nbsp;World Data Bank II, for <tt><font size=+1>&#8722;f<br>
+    /lib/map/*</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;maps for <tt><font size=+1>&#8722;m<br>
+    /lib/map/*.x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;map indexes<br>
+    <tt><font size=+1>mapd</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map driver program<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/map<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man7/map.html"><i>map</i>(7)</a>, <a href="../man1/plot.html"><i>plot</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    &#8216;Map seems to be empty&#8217;--a coarse survey found zero extent within
+    the <tt><font size=+1>&#8722;l</font></tt> and <tt><font size=+1>&#8722;w</font></tt> bounds; for maps of limited extent the grid resolution,
+    <i>res</i>, or the limits may have to be refined.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Windows (option <tt><font size=+1>&#8722;w</font></tt>) cannot cross the Date Line. No borders appear
+    along edges arising from visibility limits. Segments that cross
+    a border are dropped, not clipped. Excessively large scale or
+    <tt><font size=+1>&#8722;d</font></tt> setting may cause long line segments to be dropped. <i>Map</i> tries
+    to draw grid lines dotted and <tt><font size=+1>&#8722;t</font></tt> tracks dot-dashed. As
+    very few plotting filters properly support curved textured lines,
+    these lines are likely to appear solid. The west-longitude-positive
+    convention betrays Yankee chauvinism. <i>Gilbert</i> should be a map
+    from sphere to sphere, independent of the mapping from sphere
+    to plane.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

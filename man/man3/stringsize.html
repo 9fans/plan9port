@@ -1,0 +1,116 @@
+<head>
+<title>stringsize(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>STRINGSIZE(3)</b><td align=right><b>STRINGSIZE(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    stringsize, stringwidth, stringnwidth, runestringsize, runestringwidth,
+    runestringnwidth &ndash; graphical size of strings<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;draw.h&gt;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point stringsize(Font *f, char *s)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;stringwidth(Font *f, char *s)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;stringnwidth(Font *f, char *s, int n)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Point runestringsize(Font *f, Rune *s)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;runestringwidth(Font *f, Rune *s)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;runestringnwidth(Font *f, Rune *s, int n)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines compute the geometrical extent of character strings
+    when drawn on the display. The most straightforward, <tt><font size=+1>stringsize</font></tt>,
+    returns a <tt><font size=+1>Point</font></tt> representing the vector from upper left to lower
+    right of the NUL-terminated string <i>s</i> drawn in font <i>f</i>. <tt><font size=+1>Stringwidth</font></tt>
+    returns just the <i>x</i> component.
+    <tt><font size=+1>Stringnwidth</font></tt> returns the width of the first <i>n</i> characters of <i>s</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The routines beginning with <tt><font size=+1>rune</font></tt> are analogous, but accept an
+    array of runes rather than UTF-encoded bytes.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/lib/font/bit </font></tt>&nbsp;&nbsp;&nbsp;directory of fonts<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libdraw<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/addpt.html"><i>addpt</i>(3)</a>, <a href="../man3/cachechars.html"><i>cachechars</i>(3)</a>, <a href="../man3/subfont.html"><i>subfont</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a>, <a href="../man7/image.html"><i>image</i>(7)</a>,
+    <a href="../man7/font.html"><i>font</i>(7)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Because strings are loaded dynamically, these routines may generate
+    I/O to the server and produce calls to the graphics error function.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

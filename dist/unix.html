@@ -1,0 +1,234 @@
+
+<html>
+<!--
+Edit ./^$/,s/<table border=0 cellspacing=0 cellpadding=0 width=100%/<Table/g
+Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
+-->
+
+<head>
+<base href="http://swtch.com/plan9port/unix/">
+<title>Unix Software from Plan 9</title>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellspacing=0 cellpadding=0 width=100%>
+  <tr height=10><td width=20><td><td width=20>
+  <tr><td><td>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+    <center>
+      <font size=+1><b>Unix Software from Plan 9</b></font>
+    </center>
+
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+    These are ports of <a href="http://plan9.bell-labs.com/plan9">Plan 9</a>'s
+    UTF-8, formatted print, buffered I/O, and regular expression
+    libraries, along with mk, a simple replacement for make.
+    <p>
+    
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>supported systems</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+        Digital Unix OSF1 <font size=-1>(Alpha)</font>,
+        Linux <font size=-1>(x86 and PowerPC)</font>,
+        FreeBSD <font size=-1>(x86)</font>,
+        NetBSD <font size=-1>(x86)</font>,
+        Mac OS X <font size=-1>(Power PC)</font>,
+        OpenBSD <font size=-1>(x86)</font>,
+        SunOS <font size=-1>(Sparc)</font>
+    </table>
+
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>installation</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+        Links to source tgzs are below.
+        On supported systems, extract and <font size=+1><tt>make install</tt></font>.
+        The default installation target is <font size=+1><tt>/usr/local</tt></font>.  To install elsewhere,
+        <font size=+1><tt>make PREFIX=/usr/elsewhere install</tt></font>.
+
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        On unsupported systems, you will need to create
+        <font size=+1><tt>Make.<i>YourOS</i>-<i>YourArch</i></tt></font>.
+        See the existing ones for examples.
+
+    </table>
+
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>libutf</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+      
+        Libutf is a port of Plan 9's support library for UTF-8 and Unicode.
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>manual:</font> 
+          <!-- [ 9 man -w `{nm /usr/local/lib/libutf.a | awk '$2=="T" {print $3}'} ]-->
+          <a href="man/isalpharune3.html"><i>isalpharune</i>(3)</a>,
+          <a href="man/rune3.html"><i>rune</i>(3)</a>,
+          <a href="man/runestrcat3.html"><i>runestrcat</i>(3)</a>,
+          <a href="man/utf7.html"><i>utf</i>(7)</a>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+          
+        <font size=-1>download:</font> <a href="libutf.tgz">libutf.tgz</a> <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/unix/libutf.tgz">checksums</a>)</font>
+
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>license: original <a href="license-bl.txt">Bell Labs MIT-like</a> 
+        or <a href="http://plan9.bell-labs.com/plan9dist/license.html">Lucent Public License</a></font>
+
+    </table>
+
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>libfmt</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+      
+        Libfmt is a port of Plan 9's formatted print library.
+        As a base it provides all the syntax of ANSI C's printf but adds
+        the ability for client programs to install new print verbs.
+        One such print verb (installed by default) is <font size=+1><tt>%r</tt></font>, which prints
+        the system error string.
+        Instead of <font size=+1><tt>perror("foo")</tt></font>, you can write
+        <font size=+1><tt>fprint(2, "foo: %r\n");</tt></font>.
+        This is especially nice when you write verbs to format the 
+        data structures used by your particular programs.
+        Needs libutf.
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>manual:</font> 
+          <!-- [ 9 man -w `{nm /usr/local/lib/libfmt.a | awk '$2=="T" {print $3}'} ]-->
+          <a href="man/print3.html"><i>print</i>(3)</a>,
+          <a href="man/fmtinstall3.html"><i>fmtinstall</i>(3)</a>,
+          <a href="man/quote3.html"><i>quote</i>(3)</a>,
+          <a href="man/fmtstrtod3.html"><i>fmtstrtod</i>(3)</a>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>download:</font> <a href="libfmt.tgz">libfmt.tgz</a> <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/unix/libfmt.tgz">checksums</a>)</font>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>License: original <a href="license-bl.txt">Bell Labs MIT-like</a> 
+        or <a href="http://plan9.bell-labs.com/plan9dist/license.html">Lucent Public License</a></font>
+
+    </table>
+    
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>libbio</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+      
+        Libbio is a port of Plan 9's buffered I/O library.
+        It provides most of the same functionality as stdio or sfio,
+        but with a simpler interface and smaller footprint.
+        Needs libutf and libfmt.
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>manual:</font> 
+          <a href="man/bio3.html"><i>bio</i>(3)</a>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>download:</font> <a href="libbio.tgz">libbio.tgz</a> <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/unix/libbio.tgz">checksums</a>)</font>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>License: <a href="license-vn.txt">Vita Nuova Free-for-All</a> 
+        or <a href="http://plan9.bell-labs.com/plan9dist/license.html">Lucent Public License</a></font>
+
+    </table>
+    
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>libregexp9</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+      
+        Libregexp9 is a port of Plan 9's Unicode-capable regular expression library.
+        It is small and simple and provides the traditional extended regular
+        expressions (without modern complications like 
+        <font size=+1><tt>{}</tt></font> and various <font size=+1><tt>\x</tt></font> character classes).
+        It supports Unicode via wide character or UTF-8 encoding.
+        Needs libutf and libfmt.
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>manual:</font> 
+          <a href="man/regexp93.html"><i>regexp9</i>(3)</a>,
+          <a href="man/regexp97.html"><i>regexp9</i>(7)</a>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>download:</font> <a href="libregexp9.tgz">libregexp9.tgz</a> <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/unix/libregexp9.tgz">checksums</a>)</font>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>License: <a href="license-vn.txt">Vita Nuova Free-for-All</a> 
+        or <a href="http://plan9.bell-labs.com/plan9dist/license.html">Lucent Public License</a></font>
+
+    </table>
+    
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>mk</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+      
+        Mk is a simple replacement for <i>make</i>.
+        Needs libutf, libfmt, libbio, and libregexp9.
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>manual:</font> 
+          <a href="man/mk1.html"><i>mk</i>(1)</a>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>download:</font> <a href="mk.tgz">mk.tgz</a> <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/unix/mk.tgz">checksums</a>)</font>
+          
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>License: <a href="license-vn.txt">Vita Nuova Free-for-All</a> 
+        or <a href="http://plan9.bell-labs.com/plan9dist/license.html">Lucent Public License</a></font>
+    </table>
+
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>one with everything</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+      
+        Includes mk and all the libraries.
+        
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
+        
+        <font size=-1>download:</font> <a href="mk-with-libs.tgz">mk-with-libs.tgz</a> <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/unix/mk-with-libs.tgz">checksums</a>)</font>
+    </table>
+
+
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
+    <b>contact</b>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
+      <tr height=10><td width=20><td>
+      <tr><td><td>
+        Russ Cox <font size=-1>(<a href="mailto:rsc@swtch.com">rsc@swtch.com</a>)
+    </table>
+  <tr height=10><td>
+   <tr><td><td><center><a href=".."><img src="../dist/spaceglenda100.png" border=1 alt="Space Glenda"></a></center>
+
+  <tr height=10><td>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+<head>
+<title>psfonts(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>PSFONTS(1)</b><td align=right><b>PSFONTS(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    psfonts, psdownload &ndash; add necessary fonts to PostScript document
+    for printing<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>psfonts</font></tt> [ <i>files ...</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>psdownload</font></tt> [ <tt><font size=+1>options</font></tt> ] [ <i>files ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Plan 9&#8217;s <a href="../man1/troff.html"><i>troff</i>(1)</a> and <a href="../man1/tr2post.html"><i>tr2post</i>(1)</a> use non-standard PostScript fonts
+    (found in <tt><font size=+1>/usr/local/plan9/postscript/font</font></tt>). Before sending PostScript
+    output from <i>tr2post</i> to a standard printer, code implementing the
+    non-standard fonts must be added to the PostScript. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Psfonts</i> copies <i>files</i> (or standard input) to standard output, adding
+    necessary PostScript fonts. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Psdownload</i> is the more general program used to implement <i>psfonts</i>.
+    The options are:<br>
+    <tt><font size=+1>&#8722;c</font></tt> <i>comment<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Expect the fonts used in the document to be listed in a comment
+        beginning with this string (default <tt><font size=+1>%%DocumentFonts:</font></tt>).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;f</font></tt> <i>atend<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Expect extra fonts comments at the end of the document, so read
+        the entire input before starting output (by default this only
+        happens if a <tt><font size=+1>%%DocumentFonts: (atend)</font></tt> comment is encountered).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;m</font></tt> <i>mapfile<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Use <i>mapfile</i> to translate from PostScript font names to files.
+        Each line in the map has two white space-separated fields: a font
+        name and the corresponding file. If <i>mapfile</i> is not a rooted path,
+        it is evaluated relative to the <i>fontdir</i> (see <tt><font size=+1>&#8722;H</font></tt> below).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;p</font></tt> <i>printer<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set the name of the printer. This option is deprecated. Its only
+        effect is to override the <tt><font size=+1>&#8722;r</font></tt> option, causing <i>fontdir</i><tt><font size=+1>/printers/</font></tt><i>printer</i>
+        to be used as the resident fonts list.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;r</font></tt> <i>residentfonts<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Read a list of fonts assumed to be on the printer (not necessary
+        to re-download) from the file <i>residentfonts</i>. If <i>residentfonts</i>
+        is not a rooted path, it is evaluated relative to the <i>fontdir</i>
+        (see <tt><font size=+1>&#8722;H</font></tt> below).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;H</font></tt> <i>fontdir<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set the directory that is assumed to contain the PostScript fonts
+        and information about printers (see <tt><font size=+1>&#8722;m</font></tt>, <tt><font size=+1>&#8722;p</font></tt>, and <tt><font size=+1>&#8722;r</font></tt> above; default
+        <tt><font size=+1>/usr/local/plan9/postscript/font</font></tt>).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;T</font></tt> <i>tmpdir<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Use <i>tmpdir</i> for storing temporary files (default <tt><font size=+1>/var/tmp</font></tt>).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;D</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Produce copious amounts of debugging information on standard
+    error.<br>
+    <tt><font size=+1>&#8722;I</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Continue running even after fatal errors occur.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    See <a href="../man1/tr2post.html"><i>tr2post</i>(1)</a> for an example.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/bin/psfonts<br>
+    /usr/local/plan9/src/cmd/postscript/download<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/troff.html"><i>troff</i>(1)</a>, <a href="../man1/tr2post.html"><i>tr2post</i>(1)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

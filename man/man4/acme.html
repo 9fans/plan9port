@@ -1,0 +1,268 @@
+<head>
+<title>acme(4) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ACME(4)</b><td align=right><b>ACME(4)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    acme &ndash; control files for text windows<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>acme</font></tt> [ <tt><font size=+1>&#8722;f</font></tt> <i>varfont</i> ] [ <tt><font size=+1>&#8722;F</font></tt> <i>fixfont</i> ] [ <i>file</i> ... ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The text window system <a href="../man1/acme.html"><i>acme</i>(1)</a> serves a variety of files for reading,
+    writing, and controlling windows. Some of them are virtual versions
+    of system files for dealing with the virtual console; others control
+    operations of <i>acme</i> itself. When a command is run under <i>acme</i>, a
+    directory holding these files is posted as the 9P
+    service <tt><font size=+1>acme</font></tt> (using <a href="../man4/9pserve.html"><i>9pserve</i>(4)</a>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Some of these files supply virtual versions of services available
+    from the underlying environment, in particular the character terminal
+    files in Plan 9&#8217;s <i>cons</i>(3). (Unlike in Plan 9&#8217;s <i>rio</i>(1), each command
+    under <i>acme</i> sees the same set of files; there is not a distinct
+    <tt><font size=+1>/dev/cons</font></tt> for each window.) Other files are unique to
+    <i>acme</i>.<br>
+    <tt><font size=+1>acme</font></tt>is a subdirectory used by <tt><font size=+1>win</font></tt> (see <a href="../man1/acme.html"><i>acme</i>(1)</a>) as a mount point
+    for the <i>acme</i> files associated with the window in which <tt><font size=+1>win</font></tt> is
+    running. It has no specific function under <i>acme</i> itself.<br>
+    <tt><font size=+1>cons</font></tt>is the standard and diagnostic output file for all commands
+    run under <i>acme</i>. (Input for commands is redirected to <tt><font size=+1>/dev/null</font></tt>.)
+    Text written to <tt><font size=+1>cons</font></tt> appears in a window labeled <i>dir</i><tt><font size=+1>/+Errors</font></tt>,
+    where <i>dir</i> is the directory in which the command was run. The window
+    is created if necessary, but not until text is
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        actually written.<br>
+        
+    </table>
+    <tt><font size=+1>consctl<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Is an empty unwritable file present only for compatibility; there
+        is no way to turn off &#8216;echo&#8217;, for example, under <i>acme</i>.<br>
+        
+    </table>
+    <tt><font size=+1>index<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        holds a sequence of lines of text, one per window. Each line has
+        5 decimal numbers, each formatted in 11 characters plus a blank--the
+        window ID; number of characters (runes) in the tag; number of
+        characters in the body; a 1 if the window is a directory, 0 otherwise;
+        and a 1 if the window is modified, 0
+        otherwise--followed by the tag up to a newline if present. Thus
+        at character position 5x12 starts the name of the window. If a
+        file has multiple zeroxed windows open, only the most recently
+        used will appear in the <tt><font size=+1>index</font></tt> file.<br>
+        
+    </table>
+    <tt><font size=+1>label<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        is an empty file, writable without effect, present only for compatibility
+        with <tt><font size=+1>rio</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>new</font></tt>&nbsp;&nbsp;&nbsp;A directory analogous to the numbered directories (<i>q.v.</i>). Accessing
+    any file in <tt><font size=+1>new</font></tt> creates a new window. Thus to cause text to appear
+    in a new window, write it to <tt><font size=+1>/dev/new/body</font></tt>. For more control,
+    open <tt><font size=+1>/dev/new/ctl</font></tt> and use the interface described below. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each <i>acme</i> window has associated a directory numbered by its ID.
+    Window IDs are chosen sequentially and may be discovered by the
+    <tt><font size=+1>ID</font></tt> command, by reading the <tt><font size=+1>ctl</font></tt> file, or indirectly through the
+    <tt><font size=+1>index</font></tt> file. The files in the numbered directories are as follows.<br>
+    <tt><font size=+1>addr</font></tt>may be written with any textual address (line number, regular
+    expression, etc.), in the format understood by button 3 but without
+    the initial colon, including compound addresses, to set the address
+    for text accessed through the <tt><font size=+1>data</font></tt> file. When read, it returns
+    the value of the address that would next be read or
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        written through the <tt><font size=+1>data</font></tt> file, in the format <tt><font size=+1>#</font></tt><i>m</i><tt><font size=+1>,#</font></tt><i>n</i> where <i>m</i> and
+        <i>n</i> are character (not byte) offsets. If <i>m</i> and <i>n</i> are identical,
+        the format is just <tt><font size=+1>#</font></tt><i>m</i>. Thus a regular expression may be evaluated
+        by writing it to <tt><font size=+1>addr</font></tt> and reading it back. The <tt><font size=+1>addr</font></tt> address has
+        no effect on the user&#8217;s selection of text.
+        
+    </table>
+    <tt><font size=+1>body</font></tt>holds contents of the window body. It may be read at any byte
+    offset. Text written to <tt><font size=+1>body</font></tt> is always appended; the file offset
+    is ignored.<br>
+    <tt><font size=+1>ctl</font></tt>&nbsp;&nbsp;&nbsp;may be read to recover the five numbers as held in the <tt><font size=+1>index</font></tt>
+    file, described above, plus two more fields: the width of the
+    window in pixels and the name of the font used in the window.
+    Text messages may be written to <tt><font size=+1>ctl</font></tt> to affect the window. Each
+    message is terminated by a newline and multiple messages
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        may be sent in a single write.<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>addr=dot</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the <tt><font size=+1>addr</font></tt> address to that of the user&#8217;s selected text
+            in the window.<br>
+            <tt><font size=+1>clean</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mark the window clean as though it has just been written.<br>
+            <tt><font size=+1>dirty</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mark the window dirty, the opposite of clean.<br>
+            <tt><font size=+1>cleartag</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Remove all text in the tag after the vertical bar.<br>
+            <tt><font size=+1>del</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to the <tt><font size=+1>Del</font></tt> interactive command.<br>
+            <tt><font size=+1>delete</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to the <tt><font size=+1>Delete</font></tt> interactive command.<br>
+            <tt><font size=+1>dot=addr</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the user&#8217;s selected text in the window to the text
+            addressed by the <tt><font size=+1>addr</font></tt> address.<br>
+            <tt><font size=+1>dump</font></tt> <i>command</i>Set the command string to recreate the window from
+            a dump file.<br>
+            <tt><font size=+1>dumpdir</font></tt> <i>directory<br>
+            </i>Set the directory in which to run the command to recreate the
+            window from a dump file.<br>
+            <tt><font size=+1>get</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to the <tt><font size=+1>Get</font></tt> interactive command with no arguments;
+            accepts no arguments.<br>
+            <tt><font size=+1>limit=addr</font></tt>&nbsp;&nbsp;&nbsp;When the <tt><font size=+1>ctl</font></tt> file is first opened, regular expression
+            context searches in <tt><font size=+1>addr</font></tt> addresses examine the whole file; this
+            message restricts subsequent searches to the current <tt><font size=+1>addr</font></tt> address.<br>
+            <tt><font size=+1>mark</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cancel <tt><font size=+1>nomark</font></tt>, returning the window to the usual state wherein
+            each modification to the body must be undone individually.<br>
+            <tt><font size=+1>name</font></tt> <i>name</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the name of the window to <i>name</i>.<br>
+            <tt><font size=+1>nomark</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Turn off automatic &#8216;marking&#8217; of changes, so a set of related
+            changes may be undone in a single <tt><font size=+1>Undo</font></tt> interactive command.<br>
+            <tt><font size=+1>noscroll</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Turn off automatic &#8216;scrolling&#8217; of the window to show text
+            written to the body.<br>
+            <tt><font size=+1>put</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to the <tt><font size=+1>Put</font></tt> interactive command with no arguments;
+            accepts no arguments.<br>
+            <tt><font size=+1>scroll</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cancel a <tt><font size=+1>noscroll</font></tt> message, returning the window to the default
+            state wherein each write to the <tt><font size=+1>body</font></tt> file causes the window to
+            &#8216;scroll&#8217; to display the new text.<br>
+            <tt><font size=+1>show</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Guarantee at least some of the selected text is visible on
+            the display.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>data</font></tt>is used in conjunction with <tt><font size=+1>addr</font></tt> for random access to the
+    contents of the body. The file offset is ignored when writing
+    the <tt><font size=+1>data</font></tt> file; instead the location of the data to be read or
+    written is determined by the state of the <tt><font size=+1>addr</font></tt> file. Text, which
+    must contain only whole characters (no &#8216;partial runes&#8217;), written
+    to
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>data</font></tt> replaces the characters addressed by the <tt><font size=+1>addr</font></tt> file and sets
+        the address to the null string at the end of the written text.
+        A read from <tt><font size=+1>data</font></tt> returns as many whole characters as the read
+        count will permit starting at the beginning of the <tt><font size=+1>addr</font></tt> address
+        (the end of the address has no effect) and sets the
+        address to the null string at the end of the returned characters.<br>
+        
+    </table>
+    <tt><font size=+1>event<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        When a window&#8217;s <tt><font size=+1>event</font></tt> file is open, changes to the window occur
+        as always but the actions are also reported as messages to the
+        reader of the file. Also, user actions with buttons 2 and 3 (other
+        than chorded <tt><font size=+1>Cut</font></tt> and <tt><font size=+1>Paste</font></tt>, which behave normally) have no immediate
+        effect on the window; it is expected that
+        the program reading the <tt><font size=+1>event</font></tt> file will interpret them. The messages
+        have a fixed format: a character indicating the origin or cause
+        of the action, a character indicating the type of the action,
+        four free-format blank-terminated decimal numbers, optional text,
+        and a newline. The first and second numbers are
+        the character addresses of the action, the third is a flag, and
+        the final is a count of the characters in the optional text, which
+        may itself contain newlines. The origin characters are <tt><font size=+1>E</font></tt> for writes
+        to the <tt><font size=+1>body</font></tt> or <tt><font size=+1>tag</font></tt> file, <tt><font size=+1>F</font></tt> for actions through the window&#8217;s other
+        files, <tt><font size=+1>K</font></tt> for the keyboard, and <tt><font size=+1>M</font></tt> for the mouse. The
+        type characters are <tt><font size=+1>D</font></tt> for text deleted from the body, <tt><font size=+1>d</font></tt> for text
+        deleted from the tag, <tt><font size=+1>I</font></tt> for text inserted to the body, <tt><font size=+1>i</font></tt> for text
+        inserted to the tag, <tt><font size=+1>L</font></tt> for a button 3 action in the body, <tt><font size=+1>l</font></tt> for
+        a button 3 action in the tag, <tt><font size=+1>X</font></tt> for a button 2 action in the body,
+        and <tt><font size=+1>x</font></tt> for a button 2 action in the tag.
+        If the relevant text has less than 256 characters, it is included
+        in the message; otherwise it is elided, the fourth number is 0,
+        and the program must read it from the <tt><font size=+1>data</font></tt> file if needed. No
+        text is sent on a <tt><font size=+1>D</font></tt> or <tt><font size=+1>d</font></tt> message.<br>
+        For <tt><font size=+1>D</font></tt>, <tt><font size=+1>d</font></tt>, <tt><font size=+1>I</font></tt>, and <tt><font size=+1>i</font></tt> the flag is always zero. For <tt><font size=+1>X</font></tt> and <tt><font size=+1>x</font></tt>, the flag
+        is a bitwise OR (reported decimally) of the following: 1 if the
+        text indicated is recognized as an <i>acme</i> built-in command; 2 if
+        the text indicated is a null string that has a non-null expansion;
+        if so, another complete message will follow describing the
+        expansion exactly as if it had been indicated explicitly (its
+        flag will always be 0); 8 if the command has an extra (chorded)
+        argument; if so, two more complete messages will follow reporting
+        the argument (with all numbers 0 except the character count) and
+        where it originated, in the form of a fully-qualified
+        button 3 style address.<br>
+        For <tt><font size=+1>L</font></tt> and <tt><font size=+1>l</font></tt>, the flag is the bitwise OR of the following: 1 if
+        <i>acme</i> can interpret the action without loading a new file; 2 if
+        a second (post-expansion) message follows, analogous to that with
+        <tt><font size=+1>X</font></tt> messages; 4 if the text is a file or window name (perhaps with
+        address) rather than plain literal text.
+        For messages with the 1 bit on in the flag, writing the message
+        back to the <tt><font size=+1>event</font></tt> file, but with the flag, count, and text omitted,
+        will cause the action to be applied to the file exactly as it
+        would have been if the <tt><font size=+1>event</font></tt> file had not been open.<br>
+        
+    </table>
+    <tt><font size=+1>tag</font></tt>&nbsp;&nbsp;&nbsp;holds contents of the window tag. It may be read at any byte
+    offset. Text written to <tt><font size=+1>tag</font></tt> is always appended; the file offset
+    is ignored.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/acme<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/rio.html"><i>rio</i>(1)</a>, <a href="../man1/acme.html"><i>acme</i>(1)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

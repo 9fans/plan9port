@@ -4,7 +4,7 @@ TARG=\
 	NOTICE\
 	README\
 	Makefile\
-	`{ls -p $PLAN9/src/lib9/fmt/*.c}\
+	`{9 ls -p $PLAN9/src/lib9/fmt/*.c}\
 	fmt.h\
 	fmtdef.h\
 	nan.h\
@@ -12,32 +12,10 @@ TARG=\
 	fmtinstall.3\
 	print.3\
 
-all:V: $TARG
+WHAT=fmt
 
-%: $PLAN9/include/%
-	cp $prereq $target
+<../mkfile.what
 
 %: $PLAN9/src/lib9/fmt/%
-	cp $prereq $target
-
-%: $PLAN9/man/man1/%
-	cp $prereq $target
-
-%: $PLAN9/man/man3/%
-	cp $prereq $target
-
-%: $PLAN9/man/man7/%
-	cp $prereq $target
-
-%: ../make/%
-	cp $prereq $target
-
-Makefile:D: ../make/Makefile.TOP ../make/Makefile.fmt ../make/Makefile.LIB ../make/Makefile.BOT
-	cat $prereq >$target
-
-README: ../README
-	cp $prereq $target
-
-NOTICE: ../NOTICE.fmt
 	cp $prereq $target
 

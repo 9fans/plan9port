@@ -1,0 +1,212 @@
+.TH REGEXP9 3
+.SH NAME
+regcomp, regcomplit, regcompnl, regexec, regsub, rregexec, rregsub, regerror \- regular expression
+.SH SYNOPSIS
+.B #include <utf.h>
+.br
+.B #include <fmt.h>
+.br
+.B #include <regexp9.h>
+.PP
+.ta \w'\fLRegprog 'u
+.B
+Reprog	*regcomp(char *exp)
+.PP
+.B
+Reprog	*regcomplit(char *exp)
+.PP
+.B
+Reprog	*regcompnl(char *exp)
+.PP
+.nf
+.B
+int  regexec(Reprog *prog, char *string, Resub *match, int msize)
+.PP
+.nf
+.B
+void regsub(char *source, char *dest, int dlen, Resub *match, int msize)
+.PP
+.nf
+.B
+int  rregexec(Reprog *prog, Rune *string, Resub *match, int msize)
+.PP
+.nf
+.B
+void rregsub(Rune *source, Rune *dest, int dlen, Resub *match, int msize)
+.PP
+.B
+void regerror(char *msg)
+.SH DESCRIPTION
+.I Regcomp
+compiles a
+regular expression and returns
+a pointer to the generated description.
+The space is allocated by
+.IR malloc (3)
+and may be released by
+.IR free .
+Regular expressions are exactly as in
+.IR regexp9 (7).
+.PP
+.I Regcomplit
+is like
+.I regcomp
+except that all characters are treated literally.
+.I Regcompnl
+is like
+.I regcomp
+except that the
+.B .
+metacharacter matches all characters, including newlines.
+.PP
+.I Regexec
+matches a null-terminated
+.I string
+against the compiled regular expression in
+.IR prog .
+If it matches,
+.I regexec
+returns
+.B 1
+and fills in the array
+.I match
+with character pointers to the substrings of
+.I string
+that correspond to the
+parenthesized subexpressions of 
+.IR exp :
+.BI match[ i ].sp
+points to the beginning and
+.BI match[ i ].ep
+points just beyond
+the end of the
+.IR i th
+substring.
+(Subexpression
+.I i
+begins at the
+.IR i th
+left parenthesis, counting from 1.)
+Pointers in
+.B match[0]
+pick out the substring that corresponds to
+the whole regular expression.
+Unused elements of
+.I match
+are filled with zeros.
+Matches involving
+.LR * ,
+.LR + ,
+and 
+.L ?
+are extended as far as possible.
+The number of array elements in 
+.I match
+is given by
+.IR msize .
+The structure of elements of
+.I match 
+is:
+.IP
+.EX
+typedef struct {
+	union {
+	   char *sp;
+	   Rune *rsp;
+	};
+	union {
+	   char *ep;
+	   Rune *rep;
+	};
+} Resub;
+.EE
+.LP
+If
+.B match[0].sp
+is nonzero on entry,
+.I regexec
+starts matching at that point within
+.IR string .
+If
+.B match[0].ep
+is nonzero on entry,
+the last character matched is the one
+preceding that point.
+.PP
+.I Regsub
+places in
+.I dest
+a substitution instance of
+.I source
+in the context of the last
+.I regexec
+performed using
+.IR match .
+Each instance of
+.BI \e n\f1,
+where
+.I n
+is a digit, is replaced by the
+string delimited by
+.BI match[ n ].sp
+and
+.BI match[ n ].ep\f1.
+Each instance of 
+.L &
+is replaced by the string delimited by
+.B match[0].sp
+and
+.BR match[0].ep .
+The substitution will always be null terminated and
+trimmed to fit into dlen bytes.
+.PP
+.IR Regerror ,
+called whenever an error is detected in
+.IR regcomp ,
+writes the string
+.I msg
+on the standard error file and exits.
+.I Regerror
+can be replaced to perform
+special error processing.
+If the user supplied
+.I regerror
+returns rather than exits,
+.I regcomp
+will return 0. 
+.PP
+.I Rregexec
+and
+.I rregsub
+are variants of 
+.I regexec
+and
+.I regsub
+that use strings of
+.B Runes
+instead of strings of
+.BR chars .
+With these routines, the 
+.I rsp
+and
+.I rep
+fields of the
+.I match
+array elements should be used.
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH "SEE ALSO"
+.IR grep (1)
+.SH DIAGNOSTICS
+.I Regcomp
+returns 
+.B 0
+for an illegal expression
+or other failure.
+.I Regexec
+returns 0
+if
+.I string
+is not matched.
+.SH BUGS
+There is no way to specify or match a NUL character; NULs terminate patterns and strings.

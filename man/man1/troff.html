@@ -1,0 +1,126 @@
+<head>
+<title>troff(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>TROFF(1)</b><td align=right><b>TROFF(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    troff, nroff &ndash; text formatting and typesetting<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>troff</font></tt> [ <i>option ...</i> ] [ <i>file ...</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>nroff</font></tt> [ <i>option ...</i> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Troff</i> formats text in the named <i>files</i> for printing on a typesetter.
+    <i>Nroff</i> does the same, but produces output suitable for typewriter-like
+    devices. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If no <i>file</i> argument is present, the standard input is read. An
+    argument consisting of a single minus (<tt><font size=+1>&#8722;</font></tt>) is taken to be a file
+    name corresponding to the standard input. The options are:<br>
+    <tt><font size=+1>&#8722;o</font></tt><i>list</i>&nbsp;&nbsp;&nbsp;Print pages in the comma-separated <i>list</i> of numbers and ranges.
+    A range <i>N</i><tt><font size=+1>&#8722;</font></tt><i>M</i> means <i>N</i> through <i>M</i>; initial <tt><font size=+1>&#8722;</font></tt><i>M</i> means up to <i>M</i>; final
+    <i>N</i><tt><font size=+1>&#8722;</font></tt> means from <i>N</i> to the end.<br>
+    <tt><font size=+1>&#8722;n</font></tt><i>N</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Number first generated page <i>N</i>.<br>
+    <tt><font size=+1>&#8722;m</font></tt><i>name</i>Process the macro file <tt><font size=+1>/sys/lib/tmac/tmac.</font></tt><i>name</i> before the
+    input <i>files</i>.<br>
+    <tt><font size=+1>&#8722;r</font></tt><i>aN</i>&nbsp;&nbsp;&nbsp;&nbsp;Set register <i>a</i> (one character name) to <i>N</i>.<br>
+    <tt><font size=+1>&#8722;i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read standard input after the input files are exhausted.<br>
+    <tt><font size=+1>&#8722;q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Invoke the simultaneous input-output mode of the <tt><font size=+1>rd</font></tt> request.<br>
+    <tt><font size=+1>&#8722;N</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Produce output suitable for typewriter-like devices.<br>
+    <p><font size=+1><b>Typesetter devices (not <tt><font size=+1>&#8722;N</font></tt>) only </b></font><br>
+    <tt><font size=+1>&#8722;a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send a printable textual approximation of the results to the
+    standard output.<br>
+    <tt><font size=+1>&#8722;T</font></tt><i>dest</i>&nbsp;&nbsp;&nbsp;Prepare output for typesetter <i>dest</i>:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>&#8722;Tutf</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(The default.) PostScript printers with preprocessing to
+            handle Unicode characters encoded in UTF<br>
+            <tt><font size=+1>&#8722;Tpost</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Regular PostScript printers<br>
+            <tt><font size=+1>&#8722;T202</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mergenthaler Linotron 202<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>&#8722;F</font></tt><i>dir</i>&nbsp;&nbsp;&nbsp;Take font information from directory <i>dir</i>.<br>
+    <p><font size=+1><b>Typewriter (<tt><font size=+1>&#8722;N</font></tt>) output only  </b></font><br>
+    <tt><font size=+1>&#8722;s</font></tt><i>N</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Halt prior to every <i>N</i> pages (default <i>N</i>=1) to allow paper loading
+    or changing.<br>
+    <tt><font size=+1>&#8722;T</font></tt><i>name</i>Prepare output for specified terminal. Known <i>names</i> include
+    <tt><font size=+1>utf</font></tt> for the normal Plan 9 UTF encoding of the Unicode Standard
+    character set (default), <tt><font size=+1>37</font></tt> for the Teletype model 37, <tt><font size=+1>lp</font></tt> (&#8216;line-printer&#8217;)
+    for any terminal without half-line capability, <tt><font size=+1>450</font></tt> for the DASI-450
+    (Diablo Hyterm), and <tt><font size=+1>think</font></tt> (HP ThinkJet).
+    <tt><font size=+1>&#8722;e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Produce equally-spaced words in adjusted lines, using full terminal
+    resolution.<br>
+    <tt><font size=+1>&#8722;h</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Use output tabs during horizontal spacing to speed output and
+    reduce output character count. Tab settings are assumed to be
+    every 8 nominal character widths.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/tmp/trtmp*</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temporary file<br>
+    <tt><font size=+1>/usr/local/plan9/tmac/tmac.*</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;standard macro files<br>
+    <tt><font size=+1>/usr/local/plan9/troff/term/*</font></tt>&nbsp;&nbsp;&nbsp;terminal driving tables for <i>nroff<br>
+    </i><tt><font size=+1>/usr/local/plan9/troff/font/*</font></tt>&nbsp;&nbsp;&nbsp;font width tables for <i>troff<br>
+    </i>
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/troff<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/lpr.html"><i>lpr</i>(1)</a>, <a href="../man1/proof.html"><i>proof</i>(1)</a>, <a href="../man1/tr2post.html"><i>tr2post</i>(1)</a>, <a href="../man1/eqn.html"><i>eqn</i>(1)</a>, <a href="../man1/tbl.html"><i>tbl</i>(1)</a>, <a href="../man1/pic.html"><i>pic</i>(1)</a>, <a href="../man1/grap.html"><i>grap</i>(1)</a>,
+    <a href="../man1/doctype.html"><i>doctype</i>(1)</a>, <a href="../man7/ms.html"><i>ms</i>(7)</a>, <a href="../man7/image.html"><i>image</i>(7)</a>, <a href="../man1/tex.html"><i>tex</i>(1)</a>, <a href="../man1/deroff.html"><i>deroff</i>(1)</a><br>
+    J. F. Ossanna and B. W. Kernighan, &#8220;Troff User&#8217;s Manual&#8221;<br>
+    B. W. Kernighan, &#8220;A TROFF Tutorial&#8221;, <i>Unix Research System Programmer&#8217;s
+    Manual,</i> Tenth Edition, Volume 2.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

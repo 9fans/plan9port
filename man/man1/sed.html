@@ -1,0 +1,300 @@
+<head>
+<title>sed(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>SED(1)</b><td align=right><b>SED(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    sed &ndash; stream editor<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>sed</font></tt> [ <tt><font size=+1>&#8722;n</font></tt> ] [ <tt><font size=+1>&#8722;g</font></tt> ] [ <tt><font size=+1>&#8722;e</font></tt> <i>script</i> ] [ <tt><font size=+1>&#8722;f</font></tt> <i>sfile</i> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Sed</i> copies the named <i>files</i> (standard input default) to the standard
+    output, edited according to a script of commands. The <tt><font size=+1>&#8722;f</font></tt> option
+    causes the script to be taken from file <i>sfile</i>; these options accumulate.
+    If there is just one <tt><font size=+1>&#8722;e</font></tt> option and no <tt><font size=+1>&#8722;f</font></tt>&#8217;s, the flag <tt><font size=+1>&#8722;e</font></tt> may be
+    omitted. The <tt><font size=+1>&#8722;n</font></tt> option suppresses the default
+    output; <tt><font size=+1>&#8722;g</font></tt> causes all substitutions to be global, as if suffixed
+    <tt><font size=+1>g</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A script consists of editing commands, one per line, of the following
+    form:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        [<i>address</i> [<tt><font size=+1>,</font></tt> <i>address</i>] ] <i>function</i> [<i>argument</i> ...] 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    In normal operation <i>sed</i> cyclically copies a line of input into
+    a <i>pattern space</i> (unless there is something left after a <tt><font size=+1>D</font></tt> command),
+    applies in sequence all commands whose <i>addresses</i> select that pattern
+    space, and at the end of the script copies the pattern space to
+    the standard output (except under <tt><font size=+1>&#8722;n</font></tt>) and deletes the
+    pattern space. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An <i>address</i> is either a decimal number that counts input lines
+    cumulatively across files, a <tt><font size=+1>$</font></tt> that addresses the last line of
+    input, or a context address, <tt><font size=+1>/</font></tt><i>regular-expression</i><tt><font size=+1>/</font></tt>, in the style
+    of <a href="../man7/regexp.html"><i>regexp</i>(7)</a>, with the added convention that <tt><font size=+1>\n</font></tt> matches a newline
+    embedded in the pattern space. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A command line with no addresses selects every pattern space.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A command line with one address selects each pattern space that
+    matches the address. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A command line with two addresses selects the inclusive range
+    from the first pattern space that matches the first address through
+    the next pattern space that matches the second. (If the second
+    address is a number less than or equal to the line number first
+    selected, only one line is selected.) Thereafter the process is
+    repeated, looking again for the first address. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Editing commands can be applied to non-selected pattern spaces
+    by use of the negation function <tt><font size=+1>!</font></tt> (below). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An argument denoted <i>text</i> consists of one or more lines, all but
+    the last of which end with <tt><font size=+1>\</font></tt> to hide the newline. Backslashes
+    in text are treated like backslashes in the replacement string
+    of an <tt><font size=+1>s</font></tt> command, and may be used to protect initial blanks and
+    tabs against the stripping that is done on every script line.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    An argument denoted <i>rfile</i> or <i>wfile</i> must terminate the command
+    line and must be preceded by exactly one blank. Each <i>wfile</i> is
+    created before processing begins. There can be at most 120 distinct
+    <i>wfile</i> arguments.<br>
+    <tt><font size=+1>a\<br>
+    </font></tt><i>text</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Append. Place <i>text</i> on the output before reading the next input
+    line.<br>
+    <tt><font size=+1>b</font></tt> <i>label</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Branch to the <tt><font size=+1>:</font></tt> command bearing the <i>label</i>. If <i>label</i> is
+    empty, branch to the end of the script.<br>
+    <tt><font size=+1>c\<br>
+    </font></tt><i>text</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Change. Delete the pattern space. With 0 or 1 address or at
+    the end of a 2-address range, place <i>text</i> on the output. Start
+    the next cycle.<br>
+    <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete the pattern space. Start the next cycle.<br>
+    <tt><font size=+1>D</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete the initial segment of the pattern space through the first
+    newline. Start the next cycle.<br>
+    <tt><font size=+1>g</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replace the contents of the pattern space by the contents of
+    the hold space.<br>
+    <tt><font size=+1>G</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Append the contents of the hold space to the pattern space.<br>
+    <tt><font size=+1>h</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replace the contents of the hold space by the contents of the
+    pattern space.<br>
+    <tt><font size=+1>H</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Append the contents of the pattern space to the hold space.<br>
+    <tt><font size=+1>i\<br>
+    </font></tt><i>text</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Insert. Place <i>text</i> on the standard output.<br>
+    <tt><font size=+1>n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copy the pattern space to the standard output. Replace the pattern
+    space with the next line of input.<br>
+    <tt><font size=+1>N</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Append the next line of input to the pattern space with an embedded
+    newline. (The current line number changes.)<br>
+    <tt><font size=+1>p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print. Copy the pattern space to the standard output.<br>
+    <tt><font size=+1>P</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Copy the initial segment of the pattern space through the first
+    newline to the standard output.<br>
+    <tt><font size=+1>q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quit. Branch to the end of the script. Do not start a new cycle.<br>
+    <tt><font size=+1>r</font></tt> <i>rfile</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read the contents of <i>rfile</i>. Place them on the output before
+    reading the next input line.<br>
+    <tt><font size=+1>s/</font></tt><i>regular-expression</i><tt><font size=+1>/</font></tt><i>replacement</i><tt><font size=+1>/</font></tt><i>flags<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Substitute the <i>replacement</i> string for instances of the <i>regular-expression</i>
+            in the pattern space. Any character may be used instead of <tt><font size=+1>/</font></tt>.
+            For a fuller description see <a href="../man7/regexp.html"><i>regexp</i>(7)</a>. <i>Flags</i> is zero or more
+            of<br>
+            <tt><font size=+1>g</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Global. Substitute for all non-overlapping instances of the <i>regular
+            expression</i> rather than just the first one.<br>
+            <tt><font size=+1>p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the pattern space if a replacement was made.<br>
+            <tt><font size=+1>w</font></tt> <i>wfile<br>
+            </i>Write. Append the pattern space to <i>wfile</i> if a replacement was
+            made.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>t</font></tt> <i>label</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Test. Branch to the <tt><font size=+1>:</font></tt> command bearing the <i>label</i> if any
+    substitutions have been made since the most recent reading of
+    an input line or execution of a <tt><font size=+1>t</font></tt>. If <i>label</i> is empty, branch to
+    the end of the script.<br>
+    <tt><font size=+1>w</font></tt><i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wfile<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Write. Append the pattern space to <i>wfile</i>.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exchange the contents of the pattern and hold spaces.<br>
+    <tt><font size=+1>y/</font></tt><i>string1</i><tt><font size=+1>/</font></tt><i>string2</i><tt><font size=+1>/<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Transform. Replace all occurrences of characters in <i>string1</i> with
+            the corresponding character in <i>string2</i>. The lengths of <i>string1</i>
+            and <i>string2</i> must be equal.<br>
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>!</font></tt><i>function</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Don&#8217;t. Apply the <i>function</i> (or group, if <i>function</i> is <tt><font size=+1>{</font></tt>)
+    only to lines <i>not</i> selected by the address(es).<br>
+    <tt><font size=+1>:</font></tt> <i>label</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This command does nothing; it bears a <i>label</i> for <tt><font size=+1>b</font></tt> and <tt><font size=+1>t</font></tt>
+    commands to branch to.<br>
+    <tt><font size=+1>=</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Place the current line number on the standard output as a line.<br>
+    <tt><font size=+1>{</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Execute the following commands through a matching <tt><font size=+1>}</font></tt> only when
+    the pattern space is selected.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            An empty command is ignored.<br>
+            
+        </table>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>sed 10q file<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the first 10 lines of the file.<br>
+        
+    </table>
+    <tt><font size=+1>sed '/^$/d'<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete empty lines from standard input.<br>
+        
+    </table>
+    <tt><font size=+1>sed 's/UNIX/&amp; system/g'<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Replace every instance of <tt><font size=+1>UNIX</font></tt> by <tt><font size=+1>UNIX system</font></tt>. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <tt><font size=+1>sed 's/ *$// </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;drop trailing blanks<br>
+    <tt><font size=+1>/^$/d   </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drop empty lines<br>
+    <tt><font size=+1>s/ &nbsp;&nbsp;&nbsp;*/\  </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;replace blanks by newlines<br>
+    <tt><font size=+1>/g<br>
+    /^$/d' chapter*<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the files <tt><font size=+1>chapter1</font></tt>, <tt><font size=+1>chapter2</font></tt>, etc. one word to a line. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <tt><font size=+1>nroff &#8722;ms manuscript | sed '<br>
+    ${<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        /^$/p  
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if last line of file is empty, print it<br>
+        
+    </table>
+    <tt><font size=+1>}<br>
+    //N   </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if current line is empty, append next line<br>
+    <tt><font size=+1>/^\n$/D'  </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if two lines are empty, delete the first<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete all but one of each group of empty lines from a formatted
+        manuscript.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/sed.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/ed.html"><i>ed</i>(1)</a>, <a href="../man1/grep.html"><i>grep</i>(1)</a>, <a href="../man1/awk.html"><i>awk</i>(1)</a>, <a href="../man1/lex.html"><i>lex</i>(1)</a>, <a href="../man1/sam.html"><i>sam</i>(1)</a>, <a href="../man7/regexp.html"><i>regexp</i>(7)</a><br>
+    L. E. McMahon, &#8216;SED -- A Non-interactive Text Editor&#8217;, Unix Research
+    System Programmer&#8217;s Manual, Volume 2.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    If input is from a pipe, buffering may consume characters beyond
+    a line on which a <tt><font size=+1>q</font></tt> command is executed.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

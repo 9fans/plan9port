@@ -1,0 +1,48 @@
+MAN=\
+	isalpharune.3\
+	rune.3\
+	runestrcat.3\
+	utf.7\
+	print.3\
+	fmtinstall.3\
+	quote.3\
+	fmtstrtod.3\
+	bio.3\
+	regexp9.3\
+	regexp9.7\
+	mk.1\
+
+HTML=\
+	isalpharune3.html\
+	rune3.html\
+	runestrcat3.html\
+	utf7.html\
+	print3.html\
+	fmtinstall3.html\
+	quote3.html\
+	fmtstrtod3.html\
+	bio3.html\
+	regexp93.html\
+	regexp97.html\
+	mk1.html\
+
+all:V: $MAN $HTML
+
+title='Ported from Plan 9'
+MKSHELL=$PLAN9/bin/rc
+
+%1.html:D: %.1
+	whatis title
+	9 troff -manhtml $prereq | troff2html -t $title > $target
+	./fixurls $target
+
+%3.html:D: %.3
+	9 troff -manhtml $prereq | troff2html -t $title > $target
+	./fixurls $target
+
+%7.html:D: %.7
+	9 troff -manhtml $prereq | troff2html -t $title > $target
+	./fixurls $target
+
+push:V:
+	rsync -e ssh *.html swtch:www/swtch.com/plan9port/unix/man

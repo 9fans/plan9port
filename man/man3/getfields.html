@@ -1,0 +1,136 @@
+<head>
+<title>getfields(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>GETFIELDS(3)</b><td align=right><b>GETFIELDS(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    getfields, gettokens, tokenize &ndash; break a string into fields<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;getfields(char *str, char **args, int maxargs, int multiflag,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            char *delims) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;gettokens(char *str, char **args, int maxargs, char *delims)
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;tokenize(char *str, char **args, int maxargs)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Getfields</i> places into the array <i>args</i> pointers to the first <i>maxargs</i>
+    fields of the null terminated UTF string <i>str</i>. Delimiters between
+    these fields are set to null. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Fields are substrings of <i>str</i> whose definition depends on the value
+    of <i>multiflag.</i> If <i>multiflag</i> is zero, adjacent fields are separated
+    by exactly one delimiter. For example<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>getfields(&quot;#alice#bob##charles###&quot;, arg, 3, 0, &quot;#&quot;);<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    yields three substrings: null-string , <tt><font size=+1>alice</font></tt>, and <tt><font size=+1>bob##charles###</font></tt>.
+    If the <i>multiflag</i> argument is not zero, a field is a non-empty
+    string of non-delimiters. For example<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>getfields(&quot;#alice#bob##charles###&quot;, arg, 3, 1, &quot;#&quot;);<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    yields the three substrings: <tt><font size=+1>alice</font></tt>, <tt><font size=+1>bob</font></tt>, and <tt><font size=+1>charles###</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Getfields returns the number of fields pointed to. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Gettokens</i> is the same as <i>getfields</i> with <i>multiflag</i> non-zero, except
+    that fields may be quoted using single quotes, in the manner of
+    <a href="../man1/rc.html"><i>rc</i>(1)</a>. See <a href="../man3/quote.html"><i>quote</i>(3)</a> for related quote-handling software. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Tokenize</i> is <i>gettokens</i> with <i>delims</i> set to <tt><font size=+1>&quot;\t\r\n &quot;</font></tt>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/tokenize.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>strtok</i> in <a href="../man3/strcat.html"><i>strcat</i>(3)</a>, <a href="../man3/quote.html"><i>quote</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -2,11 +2,9 @@
 
 . $PLAN9/man/fonts
 
-cmd=n
-sec=()
-S=$PLAN9/man
-d=0
-
+#
+# formatters
+# 
 fn roff {
 	preproc=()
 	x=`{doctype $2}
@@ -38,6 +36,46 @@ fn roff {
 	}
 }
 
+fn doecho { echo $1 }
+fn dotroff { roff t $1 }
+fn doproof { roff t $1 | proof }
+fn dopage { roff t $1 | page }
+fn donroff {
+	roff n $1 | sed '
+		${
+			/^$/p
+		}
+		//N
+		/^\n$/D
+	'
+}
+seq=0
+fn dohtml {
+	MAN=manhtml
+	b=`{echo $1 | sed 's/\.[0-9].*//'}
+	if(test -f $b.html)
+		web $b.html
+	if not{
+		roff t $1 | troff2html >/tmp/man.$pid.$seq.html
+		web /tmp/man.$pid.$seq.html
+		seq=`{echo 1+$seq | hoc}
+	}
+}
+
+
+#
+# setup 
+# 
+if(! ~ $path(1) $PLAN9/bin)
+	path=($PLAN9/bin $path)
+cmd=donroff
+sec=()
+S=$PLAN9/man
+
+#
+# parse flags and sections
+#
+d=0
 while(~ $d 0) {
 	if(~ $#* 0) {
 		echo 'Usage: man [-ntp] [-s sec] [0-9] [0-9] ... name1 name2 ...' >[1=2]
@@ -48,63 +86,62 @@ while(~ $d 0) {
 		shift
 	}
 	if not switch($1) {
-		case -t ; cmd=t ; shift
-		case -n ; cmd=n ; shift
-		case -p ; cmd=p ; shift
-		case -P ; cmd=P ; shift
+		case -t ; fmt=dotroff ; shift
+		case -n ; cmd=donroff ; shift
+		case -p ; cmd=doproof ; shift
+		case -P ; cmd=dopage ; shift
+		case -w ; cmd=doecho ; shift
+		case -h ; cmd=dohtml ; shift
+		case -- ; d=1 ; shift
 		case * ; d=1
 	}
 }
 if(~ $#sec 0) {
 	sec=`{ls -pd $S/man[0-9]* | sed 's/man//'}
 }
-ix=$S/man$sec/INDEX
-if(~ $#* 1) pat='^'^$1^' '
-if not pat='^('^`{echo $* | 9 sed 's/ /|/g'}^') '
-fils=()
-for(i in $S/man$sec){
-	if(test -f $i/INDEX){
-		try=`{grep $pat $i/INDEX | 9 sed 's/^[^ ]* //'}
-		if(! ~ $#try 0)
-			fils=($fils $i/$try)
-	}
-}
-# bug: should also do following loop if not all pages found
-if(~ $#fils 0) {
-	# nothing in INDEX. try for file of given name
-	for(i) {
-		for(n in $sec) {
-			try=$S/man$n/$i.$n*
-			if (test -f $try)
-				fils=($fils $try)
+
+#
+# search index
+#
+allfiles=()
+missing=no
+for(word){
+	files=()
+	regexp='^'^$word^' '
+	for(i in $S/man$sec){
+		if(test -f $i/INDEX){
+			try=`{grep $regexp $i/INDEX | sed 's/^[^ ]* //'}
+			if(! ~ $#try 0)
+				files=($files $i/$try)
 		}
 	}
-	if(~ $#fils 0) {
-		echo 'man: no manual page' >[1=2]
-		exit 'no man'
+	if(~ $#files 0){
+		for(i in $S/man$sec){
+			if(test -f $i/$word.[0-9]*)
+				files=($files $i/$word.[0-9]*)
+		}
 	}
+	if(~ $#files 0){
+		echo 'man: no manual page' $word >[1=2]
+		missing=yes
+	}
+	allfiles=($allfiles $files)
 }
-for(i in $fils) {
-	if(! test -f $i)
+if(~ $#allfiles 0)
+	exit 'no man'
+allfiles=`{ls $allfiles | sort -u >[2]/dev/null}
+
+files=()
+for(i in $allfiles){
+	if(test -f $i)
+		files=($files $i)
+	if not
 		echo need $i >[1=2]
-	if not {
-		switch($cmd) {
-		case t
-			roff t $i
-
-		case p
-			roff t $i | proof
-
-		case P
-			roff t $i |tr2post |psfonts |page
-
-		case n
-			roff n $i | 9 sed '
-				${
-        			       /^$/p
-				}
-				//N
-				/^\n$/D'
-		}
-	}
 }
+
+#
+# format pages
+# 
+for(i in $files)
+	$cmd $i
+

@@ -1,0 +1,152 @@
+<head>
+<title>tr2post(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>TR2POST(1)</b><td align=right><b>TR2POST(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    tr2post &ndash; convert troff intermediate to PostScript<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>tr2post</font></tt> [ <tt><font size=+1>options</font></tt> ] [ <i>files ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Tr2post</i> converts <i>files</i> (or standard input), which should be the
+    device-independent output of <a href="../man1/troff.html"><i>troff</i>(1)</a>, into the PostScript printer
+    language. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The options are:<br>
+    <tt><font size=+1>&#8722;a</font></tt> <i>aspectratio<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set an aspect ratio (<i>y</i>/<i>x</i>) to stretch the PostScript output (default
+        1.0).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;c</font></tt> <i>copies<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set a comment in the PostScript output marking the number of copies
+        that should be printed. The comment is intended for ancient versions
+        of the Unix <i>lp</i>(1) and is not recognized by any current printer
+        or print spooler.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Emit volumes of debugging output on standard error.<br>
+    <tt><font size=+1>&#8722;m</font></tt> <i>magnification<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Magnify the PostScript output (default 1.0).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;n</font></tt> <i>formsperpage<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the PostScript with <i>formsperpage</i> logical pages per physical
+        page (default 1). Using this option emits PostScript with invalid
+        document structuring comments. It will print fine but will not
+        view correctly in <a href="../man1/gv.html"><i>gv</i>(1)</a> or <i>psv</i> (see <a href="../man1/page.html"><i>page</i>(1)</a>).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;o</font></tt> <i>pagelist<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print only the pages in the <i>pagelist</i>, which is a comma-separated
+        list of ranges. Each range is of the form <i>p</i> (just page <i>p</i>), <i>p</i><tt><font size=+1>&#8722;</font></tt><i>q</i>
+        (pages <i>p</i> through <i>q</i>), <tt><font size=+1>&#8722;</font></tt><i>p</i> (pages 1 through <i>p</i>), or <i>p</i><tt><font size=+1>&#8722;</font></tt> (pages <i>p</i> through
+        the end of the document).<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;p l</font></tt>&nbsp;&nbsp;&nbsp;Print the document in landscape mode. An argument that does
+    not begin with <tt><font size=+1>l</font></tt> will print the document in portrait mode.<br>
+    <tt><font size=+1>&#8722;x</font></tt> <i>xoffset<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Translate the page output by <i>xoffset</i> inches to the right. (Negative
+        offsets translate to the left.)<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;y</font></tt> <i>yoffset<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Translate the page output by <i>yoffset</i> inches down. (Negative offsets
+        translate up.)<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;P</font></tt> <i>pscode<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Emit the text <i>pscode</i> at the end of the usual PostScript header.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Preview this manual page:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>troff &#8722;man /usr/local/plan9/man/man1/tr2post.1 |<br>
+        tr2post |<br>
+        psfonts &gt;/tmp/a.ps<br>
+        psv /tmp/a.ps<br>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/postscript/tr2post<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/troff.html"><i>troff</i>(1)</a>, <a href="../man1/psfonts.html"><i>psfonts</i>(1)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,121 @@
+<head>
+<title>errstr(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ERRSTR(3)</b><td align=right><b>ERRSTR(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    errstr, rerrstr, werrstr &ndash; description of last system call error<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int errstr(char *err, uint nerr) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void rerrstr(char *err, uint nerr) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void werrstr(char *fmt, ...)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    When a system call fails it returns &ndash;1 and records a null terminated
+    string describing the error in a per-process buffer. <i>Errstr</i> swaps
+    the contents of that buffer with the contents of the array <i>err</i>.
+    <i>Errstr</i> will write at most <i>nerr</i> bytes into <i>err</i>; if the per-process
+    error string does not fit, it is silently truncated at a UTF
+    character boundary. The returned string is NUL-terminated. Usually
+    <i>errstr</i> will be called with an empty string, but the exchange property
+    provides a mechanism for libraries to set the return value for
+    the next call to <i>errstr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The per-process buffer is <tt><font size=+1>ERRMAX</font></tt> bytes long. Any error string
+    provided by the user will be truncated at <tt><font size=+1>ERRMAX&#8722;1</font></tt> bytes. <tt><font size=+1>ERRMAX</font></tt>
+    is defined in <tt><font size=+1>&lt;libc.h&gt;</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If no system call has generated an error since the last call to
+    <i>errstr</i> with an empty string, the result is an empty string. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The verb <tt><font size=+1>r</font></tt> in <a href="../man3/print.html"><i>print</i>(3)</a> calls <i>errstr</i> and outputs the error string.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Rerrstr</i> reads the error string but does not modify the per-process
+    buffer, so a subsequent <i>errstr</i> will recover the same string. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Werrstr</i> takes a <i>print</i> style format as its argument and uses it
+    to format a string to pass to <i>errstr</i>. The string returned from
+    <i>errstr</i> is discarded. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The error string is maintained in parallel with the Unix error
+    number <i>errno</i>. Changing <i>errno</i> will reset the error string, and
+    changing the error string via <i>errstr</i> or <i>werrstr</i> will reset <i>errno</i>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/errstr.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Errstr</i> always returns 0.<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/intro.html"><i>intro</i>(3)</a>, <a href="../man3/perror.html"><i>perror</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The implementation sets <i>errno</i> to the (somewhat arbitrary) constant
+    0x19283745 when the error string is valid. When <i>errno</i> is set to
+    other values, the error string is synthesized using <a href="../man3/strerror.html"><i>strerror</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

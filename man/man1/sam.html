@@ -1,0 +1,577 @@
+<head>
+<title>sam(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>SAM(1)</b><td align=right><b>SAM(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    sam, B, E, sam.save, samterm, samsave &ndash; screen editor with structural
+    regular expressions<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>sam</font></tt> [ <i>option ...</i> ] [ <i>files</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>sam &#8722;r</font></tt> <i>machine 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>sam.save 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>B</font></tt> <i>file</i>[<tt><font size=+1>:</font></tt><i>line</i>] ... 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>E</font></tt> <i>file<br>
+    </i>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Sam</i> is a multi-file editor. It modifies a local copy of an external
+    file. The copy is here called a <i>file</i>. The files are listed in
+    a menu available through mouse button 3 or the <tt><font size=+1>n</font></tt> command. Each
+    file has an associated name, usually the name of the external
+    file from which it was read, and a &#8216;modified&#8217; bit that indicates
+    whether the editor&#8217;s file agrees with the external file. The external
+    file is not read into the editor&#8217;s file until it first becomes
+    the current file--that to which editing commands apply--whereupon
+    its menu entry is printed. The options are<br>
+    <tt><font size=+1>&#8722;d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Do not &#8216;download&#8217; the terminal part of <i>sam</i>. Editing will be
+    done with the command language only, as in <a href="../man1/ed.html"><i>ed</i>(1)</a>.<br>
+    <tt><font size=+1>&#8722;r</font></tt> <i>machine</i>&nbsp;&nbsp;&nbsp;&nbsp;Run the host part remotely on the specified machine,
+    the terminal part locally.<br>
+    <tt><font size=+1>&#8722;s</font></tt> <i>path</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start the host part from the specified file on the remote
+    host. Only meaningful with the <tt><font size=+1>&#8722;r</font></tt> option.<br>
+    <tt><font size=+1>&#8722;t</font></tt> <i>path</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start the terminal part from the specified file. Useful
+    for debugging.<br>
+    <p><font size=+1><b>Regular expressions    </b></font><br>
+    Regular expressions are as in <a href="../man7/regexp.html"><i>regexp</i>(7)</a> with the addition of <tt><font size=+1>\n</font></tt>
+    to represent newlines. A regular expression may never contain
+    a literal newline character. The empty regular expression stands
+    for the last complete expression encountered. A regular expression
+    in <i>sam</i> matches the longest leftmost substring formally
+    matched by the expression. Searching in the reverse direction
+    is equivalent to searching backwards with the catenation operations
+    reversed in the expression.<br>
+    <p><font size=+1><b>Addresses     </b></font><br>
+    An address identifies a substring in a file. In the following,
+    &#8216;character <i>n</i>&#8217; means the null string after the <i>n</i>-th character in
+    the file, with 1 the first character in the file. &#8216;Line <i>n</i>&#8217; means
+    the <i>n</i>-th match, starting at the beginning of the file, of the
+    regular expression <tt><font size=+1>.*\n?</font></tt>. All files always have a current substring,
+    called
+    dot, that is the default address.<br>
+    <p><font size=+1><b>Simple Addresses    </b></font><br>
+    <tt><font size=+1>#</font></tt><i>n</i>&nbsp;&nbsp;&nbsp;&nbsp;The empty string after character <i>n</i>; <tt><font size=+1>#0</font></tt> is the beginning of the
+    file.<br>
+    <i>n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Line <i>n</i>; <tt><font size=+1>0</font></tt> is the beginning of the file.<br>
+    <tt><font size=+1>/</font></tt><i>regexp</i><tt><font size=+1>/<br>
+    ?</font></tt><i>regexp</i><tt><font size=+1>?<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The substring that matches the regular expression, found by looking
+        toward the end (<tt><font size=+1>/</font></tt>) or beginning (<tt><font size=+1>?</font></tt>) of the file, and if necessary
+        continuing the search from the other end to the starting point
+        of the search. The matched substring may straddle the starting
+        point. When entering a pattern containing a literal
+        question mark for a backward search, the question mark should
+        be specified as a member of a class.<br>
+        
+    </table>
+    <tt><font size=+1>0</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The string before the first full line. This is not necessarily
+    the null string; see <tt><font size=+1>+</font></tt> and <tt><font size=+1>&#8722;</font></tt> below.<br>
+    <tt><font size=+1>$</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The null string at the end of the file.<br>
+    <tt><font size=+1>.</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Dot.<br>
+    <tt><font size=+1>'</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The mark in the file (see the <tt><font size=+1>k</font></tt> command below).<br>
+    &quot;<i>regexp</i>&quot;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Preceding a simple address (default <tt><font size=+1>.</font></tt>), refers to the address
+        evaluated in the unique file whose menu line matches the regular
+        expression.<br>
+        
+    </table>
+    <p><font size=+1><b>Compound Addresses    </b></font><br>
+    In the following, <i>a1</i> and <i>a2</i> are addresses.<br>
+    <i>a1</i><tt><font size=+1>+</font></tt><i>a2</i>&nbsp;&nbsp;&nbsp;The address <i>a2</i> evaluated starting at the end of <i>a1</i>.<br>
+    <i>a1</i><tt><font size=+1>&#8722;</font></tt><i>a2</i>&nbsp;&nbsp;&nbsp;The address <i>a2</i> evaluated looking in the reverse direction
+    starting at the beginning of <i>a1</i>.<br>
+    <i>a1</i><tt><font size=+1>,</font></tt><i>a2</i>&nbsp;&nbsp;&nbsp;The substring from the beginning of <i>a1</i> to the end of <i>a2</i>.
+    If <i>a1</i> is missing, <tt><font size=+1>0</font></tt> is substituted. If <i>a2</i> is missing, <tt><font size=+1>$</font></tt> is substituted.<br>
+    <i>a1</i><tt><font size=+1>;</font></tt><i>a2</i>&nbsp;&nbsp;&nbsp;Like <i>a1</i><tt><font size=+1>,</font></tt><i>a2</i>, but with <i>a2</i> evaluated at the end of, and dot
+    set to, <i>a1</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The operators <tt><font size=+1>+</font></tt> and <tt><font size=+1>&#8722;</font></tt> are high precedence, while <tt><font size=+1>,</font></tt> and <tt><font size=+1>;</font></tt> are low
+    precedence. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In both <tt><font size=+1>+</font></tt> and <tt><font size=+1>&#8722;</font></tt> forms, if <i>a2</i> is a line or character address with
+    a missing number, the number defaults to 1. If <i>a1</i> is missing,
+    <tt><font size=+1>.</font></tt> is substituted. If both <i>a1</i> and <i>a2</i> are present and distinguishable,
+    <tt><font size=+1>+</font></tt> may be elided. <i>a2</i> may be a regular expression; if it is delimited
+    by <tt><font size=+1>?</font></tt>&#8217;s, the effect of the <tt><font size=+1>+</font></tt> or <tt><font size=+1>&#8722;</font></tt> is reversed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    It is an error for a compound address to represent a malformed
+    substring. Some useful idioms: <i>a1</i><tt><font size=+1>+&#8722;</font></tt> (<i>a1</i>-+) selects the line containing
+    the end (beginning) of a1. <tt><font size=+1>0/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> locates the first match of
+    the expression in the file. (The form <tt><font size=+1>0;//</font></tt> sets dot unnecessarily.)
+    <tt><font size=+1>./</font></tt><i>regexp</i><tt><font size=+1>///</font></tt> finds the second following
+    occurrence of the expression, and <tt><font size=+1>.,/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> extends dot.<br>
+    <p><font size=+1><b>Commands     </b></font><br>
+    In the following, text demarcated by slashes represents text delimited
+    by any printable character except alphanumerics. Any number of
+    trailing delimiters may be elided, with multiple elisions then
+    representing null strings, but the first delimiter must always
+    be present. In any delimited text, newline may not appear
+    literally; <tt><font size=+1>\n</font></tt> may be typed for newline; and <tt><font size=+1>\/</font></tt> quotes the delimiter,
+    here <tt><font size=+1>/</font></tt>. Backslash is otherwise interpreted literally, except in
+    <tt><font size=+1>s</font></tt> commands. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Most commands may be prefixed by an address to indicate their
+    range of operation. Those that may not are marked with a <tt><font size=+1>*</font></tt> below.
+    If a command takes an address and none is supplied, dot is used.
+    The sole exception is the <tt><font size=+1>w</font></tt> command, which defaults to <tt><font size=+1>0,$</font></tt>. In
+    the description, &#8216;range&#8217; is used to represent whatever
+    address is supplied. Many commands set the value of dot as a side
+    effect. If so, it is always set to the &#8216;result&#8217; of the change:
+    the empty string for a deletion, the new text for an insertion,
+    etc. (but see the <tt><font size=+1>s</font></tt> and <tt><font size=+1>e</font></tt> commands).<br>
+    <p><font size=+1><b>Text commands    </b></font><br>
+    <tt><font size=+1>a/</font></tt><i>text</i><tt><font size=+1>/<br>
+    </font></tt>or<br>
+    <tt><font size=+1>a<br>
+    </font></tt><i>lines of text<br>
+    </i><tt><font size=+1>.</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Insert the text into the file after the range. Set dot.<br>
+    <tt><font size=+1>c<br>
+    i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as <tt><font size=+1>a</font></tt>, but <tt><font size=+1>c</font></tt> replaces the text, while <tt><font size=+1>i</font></tt> inserts <i>before</i> the
+    range.<br>
+    <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete the text in the range. Set dot.<br>
+    <tt><font size=+1>s/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt><i>text</i><tt><font size=+1>/<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Substitute <i>text</i> for the first match to the regular expression
+        in the range. Set dot to the modified range. In <i>text</i> the character
+        <tt><font size=+1>&amp;</font></tt> stands for the string that matched the expression. Backslash
+        behaves as usual unless followed by a digit: <tt><font size=+1>\</font></tt><i>d</i> stands for the
+        string that matched the subexpression begun by the <i>d</i>-th left
+        parenthesis. If <i>s</i> is followed immediately by a number <i>n</i>, as in
+        <tt><font size=+1>s2/x/y/</font></tt>, the <i>n</i>-th match in the range is substituted. If the command
+        is followed by a <tt><font size=+1>g</font></tt>, as in <tt><font size=+1>s/x/y/g</font></tt>, all matches in the range are
+        substituted.<br>
+        
+    </table>
+    <tt><font size=+1>m</font></tt> <i>a1<br>
+    </i><tt><font size=+1>t</font></tt> <i>a1</i>&nbsp;&nbsp;&nbsp;Move (<tt><font size=+1>m</font></tt>) or copy (<tt><font size=+1>t</font></tt>) the range to after <i>a1</i>. Set dot.<br>
+    <p><font size=+1><b>Display commands    </b></font><br>
+    <tt><font size=+1>p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the text in the range. Set dot.<br>
+    <tt><font size=+1>=</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the line address and character address of the range.<br>
+    <tt><font size=+1>=#</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Print just the character address of the range.<br>
+    <p><font size=+1><b>File commands    </b></font><br>
+    * <tt><font size=+1>b</font></tt> <i>file-list<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set the current file to the first file named in the list that
+        <i>sam</i> also has in its menu. The list may be expressed <tt><font size=+1>&lt;</font></tt><i>Plan 9 command</i>
+        in which case the file names are taken as words (in the shell
+        sense) generated by the Plan 9 command.<br>
+        
+    </table>
+    * <tt><font size=+1>B</font></tt> <i>file-list<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Same as <tt><font size=+1>b</font></tt>, except that file names not in the menu are entered
+        there, and all file names in the list are examined.<br>
+        
+    </table>
+    * <tt><font size=+1>n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Print a menu of files. The format is:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>'</font></tt> or blankindicating the file is modified or clean,<br>
+        <tt><font size=+1>&#8722;</font></tt> or <tt><font size=+1>+</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;indicating the file is unread or has been read (in the terminal,
+        <tt><font size=+1>*</font></tt> means more than one window is open),<br>
+        <tt><font size=+1>.</font></tt> or blankindicating the current file,<br>
+        a blank,<br>
+        and the file name.<br>
+        
+    </table>
+    * <tt><font size=+1>D</font></tt> <i>file-list<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete the named files from the menu. If no files are named, the
+        current file is deleted. It is an error to <tt><font size=+1>D</font></tt> a modified file,
+        but a subsequent <tt><font size=+1>D</font></tt> will delete such a file.<br>
+        
+    </table>
+    <p><font size=+1><b>I/O Commands    </b></font><br>
+    * <tt><font size=+1>e</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Replace the file by the contents of the named external file. Set
+        dot to the beginning of the file.<br>
+        
+    </table>
+    <tt><font size=+1>r</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Replace the text in the range by the contents of the named external
+        file. Set dot.<br>
+        
+    </table>
+    <tt><font size=+1>w</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Write the range (default <tt><font size=+1>0,$</font></tt>) to the named external file.<br>
+        
+    </table>
+    * <tt><font size=+1>f</font></tt> <i>filename<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Set the file name and print the resulting menu entry. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    If the file name is absent from any of these, the current file
+    name is used. <tt><font size=+1>e</font></tt> always sets the file name; <tt><font size=+1>r</font></tt> and <tt><font size=+1>w</font></tt> do so if the
+    file has no name.<br>
+    <tt><font size=+1>&lt;</font></tt> <i>Plan 9-command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Replace the range by the standard output of the Plan 9 command.<br>
+        
+    </table>
+    <tt><font size=+1>&gt;</font></tt> <i>Plan 9-command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Send the range to the standard input of the Plan 9 command.<br>
+        
+    </table>
+    <tt><font size=+1>|</font></tt> <i>Plan 9-command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Send the range to the standard input, and replace it by the standard
+        output, of the Plan 9 command.<br>
+        
+    </table>
+    * <tt><font size=+1>!</font></tt> <i>Plan 9-command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Run the Plan 9 command.<br>
+        
+    </table>
+    * <tt><font size=+1>cd</font></tt> <i>directory<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Change working directory. If no directory is specified, <tt><font size=+1>$home</font></tt>
+        is used. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    In any of <tt><font size=+1>&lt;</font></tt>, <tt><font size=+1>&gt;</font></tt>, <tt><font size=+1>|</font></tt> or <tt><font size=+1>!</font></tt>, if the <i>Plan 9 command</i> is omitted the last
+    <i>Plan 9 command</i> (of any type) is substituted. If <i>sam</i> is <i>downloaded</i>
+    (using the mouse and raster display, i.e. not using option <tt><font size=+1>&#8722;d</font></tt>),
+    <tt><font size=+1>!</font></tt> sets standard input to <tt><font size=+1>/dev/null</font></tt>, and otherwise unassigned output
+    (<tt><font size=+1>stdout</font></tt> for <tt><font size=+1>!</font></tt> and <tt><font size=+1>&gt;</font></tt>, <tt><font size=+1>stderr</font></tt> for all) is placed in
+    <tt><font size=+1>/tmp/sam.err</font></tt> and the first few lines are printed.<br>
+    <p><font size=+1><b>Loops and Conditionals   </b></font><br>
+    <tt><font size=+1>x/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        For each match of the regular expression in the range, run the
+        command with dot set to the match. Set dot to the last match.
+        If the regular expression and its slashes are omitted, <tt><font size=+1>/.*\n/</font></tt>
+        is assumed. Null string matches potentially occur before every
+        character of the range and at the end of the range.
+        
+    </table>
+    <tt><font size=+1>y/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Like <tt><font size=+1>x</font></tt>, but run the command for each substring that lies before,
+        between, or after the matches that would be generated by <tt><font size=+1>x</font></tt>. There
+        is no default regular expression. Null substrings potentially
+        occur before every character in the range.<br>
+        
+    </table>
+    * <tt><font size=+1>X/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        For each file whose menu entry matches the regular expression,
+        make that the current file and run the command. If the expression
+        is omitted, the command is run in every file.<br>
+        
+    </table>
+    * <tt><font size=+1>Y/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Same as <tt><font size=+1>X</font></tt>, but for files that do not match the regular expression,
+        and the expression is required.<br>
+        
+    </table>
+    <tt><font size=+1>g/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> <i>command<br>
+    </i><tt><font size=+1>v/</font></tt><i>regexp</i><tt><font size=+1>/</font></tt> <i>command<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        If the range contains (<tt><font size=+1>g</font></tt>) or does not contain (<tt><font size=+1>v</font></tt>) a match for
+        the expression, set dot to the range and run the command. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    These may be nested arbitrarily deeply, but only one instance
+    of either <tt><font size=+1>X</font></tt> or <tt><font size=+1>Y</font></tt> may appear in a single command. An empty command
+    in an <tt><font size=+1>x</font></tt> or <tt><font size=+1>y</font></tt> defaults to <tt><font size=+1>p</font></tt>; an empty command in <tt><font size=+1>X</font></tt> or <tt><font size=+1>Y</font></tt> defaults
+    to <tt><font size=+1>f</font></tt>. <tt><font size=+1>g</font></tt> and <tt><font size=+1>v</font></tt> do not have defaults.<br>
+    <p><font size=+1><b>Miscellany     </b></font><br>
+    <tt><font size=+1>k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the current file&#8217;s mark to the range. Does not set dot.<br>
+    * <tt><font size=+1>q</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quit. It is an error to quit with modified files, but a second
+    <tt><font size=+1>q</font></tt> will succeed.<br>
+    * <tt><font size=+1>u</font></tt> <i>n</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Undo the last <i>n</i> (default 1) top-level commands that changed
+    the contents or name of the current file, and any other file whose
+    most recent change was simultaneous with the current file&#8217;s change.
+    Successive <tt><font size=+1>u</font></tt>&#8217;s move further back in time. The only commands for
+    which u is ineffective are <tt><font size=+1>cd</font></tt>, <tt><font size=+1>u</font></tt>, <tt><font size=+1>q</font></tt>, <tt><font size=+1>w</font></tt> and
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>D</font></tt>. If <i>n</i> is negative, <tt><font size=+1>u</font></tt> &#8216;redoes,&#8217; undoing the undo, going forwards
+            in time again.<br>
+            
+        </table>
+        
+    </table>
+    (empty)&nbsp;&nbsp;&nbsp;&nbsp;If the range is explicit, set dot to the range. If <i>sam</i>
+    is downloaded, the resulting dot is selected on the screen; otherwise
+    it is printed. If no address is specified (the command is a newline)
+    dot is extended in either direction to line boundaries and printed.
+    If dot is thereby unchanged, it is set to <tt><font size=+1>.+1</font></tt> and
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            printed.<br>
+            
+        </table>
+        
+    </table>
+    <p><font size=+1><b>Grouping and multiple changes  </b></font><br>
+    Commands may be grouped by enclosing them in braces <tt><font size=+1>{}</font></tt>. Commands
+    within the braces must appear on separate lines (no backslashes
+    are required between commands). Semantically, an opening brace
+    is like a command: it takes an (optional) address and sets dot
+    for each sub-command. Commands within the
+    braces are executed sequentially, but changes made by one command
+    are not visible to other commands (see the next paragraph). Braces
+    may be nested arbitrarily. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When a command makes a number of changes to a file, as in <tt><font size=+1>x/re/c/text/</font></tt>,
+    the addresses of all changes to the file are computed in the original
+    file. If the changes are in sequence, they are applied to the
+    file. Successive insertions at the same address are catenated
+    into a single insertion composed of the several
+    insertions in the order applied.<br>
+    <p><font size=+1><b>The terminal    </b></font><br>
+    What follows refers to behavior of <i>sam</i> when downloaded, that is,
+    when operating as a display editor on a raster display. This is
+    the default behavior; invoking <i>sam</i> with the <tt><font size=+1>&#8722;d</font></tt> (no download) option
+    provides access to the command language only. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each file may have zero or more windows open. Each window is equivalent
+    and is updated simultaneously with changes in other windows on
+    the same file. Each window has an independent value of dot, indicated
+    by a highlighted substring on the display. Dot may be in a region
+    not within the window. There is usually
+    a &#8216;current window&#8217;, marked with a dark border, to which typed
+    text and editing commands apply. Text may be typed and edited
+    as in <a href="../man1/rio.html"><i>rio</i>(1)</a>; also the escape key (ESC) selects (sets dot to)
+    text typed since the last mouse button hit. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The button 3 menu controls window operations. The top of the menu
+    provides the following operators, each of which uses one or more
+    <i>rio</i>-like cursors to prompt for selection of a window or sweeping
+    of a rectangle. &#8216;Sweeping&#8217; a null rectangle gets a large window,
+    disjoint from the command window or the whole
+    screen, depending on where the null rectangle is.<br>
+    <tt><font size=+1>new</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create a new, empty file.<br>
+    <tt><font size=+1>zerox</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Create a copy of an existing window.<br>
+    <tt><font size=+1>resize</font></tt>&nbsp;&nbsp;&nbsp;As in <i>rio</i>.<br>
+    <tt><font size=+1>close</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Delete the window. In the last window of a file, <tt><font size=+1>close</font></tt> is
+    equivalent to a <tt><font size=+1>D</font></tt> for the file.<br>
+    <tt><font size=+1>write</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Equivalent to a <tt><font size=+1>w</font></tt> for the file. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Below these operators is a list of available files, starting with
+    <tt><font size=+1>~~sam~~</font></tt>, the command window. Selecting a file from the list makes
+    the most recently used window on that file current, unless it
+    is already current, in which case selections cycle through the
+    open windows. If no windows are open on the file, the user is
+    prompted to open one. Files other than <tt><font size=+1>~~sam~~</font></tt> are marked with
+    one of the characters <tt><font size=+1>&#8722;+*</font></tt> according as zero, one, or more windows
+    are open on the file. A further mark <tt><font size=+1>.</font></tt> appears on the file in
+    the current window and a single quote, <tt><font size=+1>'</font></tt>, on a file modified since
+    last write. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The command window, created automatically when <tt><font size=+1>sam</font></tt> starts, is
+    an ordinary window except that text typed to it is interpreted
+    as commands for the editor rather than passive text, and text
+    printed by editor commands appears in it. The behavior is like
+    <i>rio</i>, with an &#8216;output point&#8217; that separates commands being typed
+    from previous output. Commands typed in the command window apply
+    to the current open file--the file in the most recently current
+    window.<br>
+    <p><font size=+1><b>Manipulating text    </b></font><br>
+    Button 1 changes selection, much like <i>rio</i>. Pointing to a non-current
+    window with button 1 makes it current; within the current window,
+    button 1 selects text, thus setting dot. Double-clicking selects
+    text to the boundaries of words, lines, quoted strings or bracketed
+    strings, depending on the text at the click. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Button 2 provides a menu of editing commands:<br>
+    <tt><font size=+1>cut</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Delete dot and save the deleted text in the snarf buffer.<br>
+    <tt><font size=+1>paste</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replace the text in dot by the contents of the snarf buffer.<br>
+    <tt><font size=+1>snarf</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Save the text in dot in the snarf buffer.<br>
+    <tt><font size=+1>plumb</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send the text in the selection as a plumb message. If the
+    selection is empty, the white-space-delimited block of text is
+    sent as a plumb message with a <tt><font size=+1>click</font></tt> attribute defining where
+    the selection lies (see <a href="../man7/plumb.html"><i>plumb</i>(7)</a>).<br>
+    <tt><font size=+1>look</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search forward for the next occurrence of the literal text
+    in dot. If dot is the null string, the text in the snarf buffer
+    is used. The snarf buffer is unaffected.<br>
+    <tt><font size=+1>&lt;rio&gt;</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Exchange snarf buffers with <i>rio</i>.<br>
+    <tt><font size=+1>/</font></tt><i>regexp</i>&nbsp;&nbsp;&nbsp;&nbsp;Search forward for the next match of the last regular expression
+    typed in a command. (Not in command window.)<br>
+    <tt><font size=+1>send</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Send the text in dot, or the snarf buffer if dot is the null
+    string, as if it were typed to the command window. Saves the sent
+    text in the snarf buffer. (Command window only.)<br>
+    <p><font size=+1><b>External communication    </b></font><br>
+    <i>Sam</i> listens to the <tt><font size=+1>edit</font></tt> plumb port. If plumbing is not active,
+    on invocation <i>sam</i> creates a named pipe <tt><font size=+1>/srv/sam.</font></tt><i>user</i> which acts
+    as an additional source of commands. Characters written to the
+    named pipe are treated as if they had been typed in the command
+    window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>B</i> is a shell-level command that causes an instance of <i>sam</i> running
+    on the same terminal to load the named <i>files</i>. <i>B</i> uses either plumbing
+    or the named pipe, whichever service is available. If plumbing
+    is not enabled, the option allows a line number to be specified
+    for the initial position to display in the last named file
+    (plumbing provides a more general mechanism for this ability).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>E</i> is a shell-level command that can be used as <tt><font size=+1>$EDITOR</font></tt> in a Unix
+    environment. It runs <i>B</i> on <i>file</i> and then does not exit until <i>file</i>
+    is changed, which is taken as a signal that <i>file</i> is done being
+    edited.<br>
+    <p><font size=+1><b>Abnormal termination    </b></font><br>
+    If <i>sam</i> terminates other than by a <tt><font size=+1>q</font></tt> command (by hangup, deleting
+    its window, etc.), modified files are saved in an executable file,
+    <tt><font size=+1>$HOME/sam.save</font></tt>. This program, when executed, asks whether to write
+    each file back to a external file. The answer <tt><font size=+1>y</font></tt> causes writing;
+    anything else skips the file.
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>$HOME/sam.save<br>
+    $HOME/sam.err<br>
+    /usr/local/plan9/bin/samsave<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            the program called to unpack <tt><font size=+1>$HOME/sam.save</font></tt>.<br>
+            
+        </table>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/sam</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source for <i>sam</i> itself<br>
+    <tt><font size=+1>/usr/local/plan9/src/cmd/samterm</font></tt>&nbsp;&nbsp;&nbsp;source for the separate terminal
+    part<br>
+    <tt><font size=+1>/usr/local/plan9/bin/B<br>
+    /usr/local/plan9/bin/E<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/ed.html"><i>ed</i>(1)</a>, <a href="../man1/sed.html"><i>sed</i>(1)</a>, <a href="../man1/grep.html"><i>grep</i>(1)</a>, <a href="../man1/rio.html"><i>rio</i>(1)</a>, <a href="../man7/regexp.html"><i>regexp</i>(7)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Rob Pike, &#8220;The text editor sam&#8221;.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

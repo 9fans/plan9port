@@ -1,0 +1,82 @@
+<head>
+<title>calendar(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>CALENDAR(1)</b><td align=right><b>CALENDAR(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    calendar &ndash; print upcoming events<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>calendar</font></tt> [ <tt><font size=+1>&ndash;y</font></tt> ] [ <tt><font size=+1>&ndash;p days</font></tt> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Calendar</i> reads the named files, default <tt><font size=+1>$HOME/lib/calendar</font></tt>, and
+    writes to standard output any lines containing today&#8217;s or tomorrow&#8217;s
+    date. Examples of recognized date formats are &quot;4/11&quot;, &quot;April 11&quot;,
+    &quot;Apr 11&quot;, &quot;11 April&quot;, and &quot;11 Apr&quot;. All comparisons are case insensitive.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the <tt><font size=+1>&ndash;y</font></tt> flag is given, an attempt is made to match on year too.
+    In this case, dates of the forms listed above will be accepted
+    if they are followed by the current year (or last two digits thereof)
+    or not a year &#8212; digits not followed by white space or non-digits.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the <tt><font size=+1>&ndash;p</font></tt> flag is given, its argument is the number of days ahead
+    to match dates. This flag is not repeatable, and it performs no
+    special processing at the end of the week. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    On Friday and Saturday, events through Monday are printed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To have your calendar mailed to you every day, use <a href="../man8/cron.html"><i>cron</i>(8)</a>.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>$HOME/lib/calendar</font></tt>&nbsp;&nbsp;&nbsp;personal calendar<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/calendar.c<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

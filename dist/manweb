@@ -1,0 +1,64 @@
+#!/usr/local/plan9/bin/rc
+
+path=($PLAN9/bin $path)
+cd $PLAN9/man
+# rm -f */*.html
+
+for(i in */INDEX) @{
+	n=`{echo $i | sed 's/man//;s!/INDEX!!'}
+	cat $PLAN9/dist/manindextop.html | sed 's/NNN/'$n'/g'
+	cd `{basename -d $i}
+	# complicated sort order: want 9p.3, 9p-cmdbuf.3, 9pclient.3
+	for (j in `{ls [a-z0-9:]*.[0-9]* | sed 's/[.\-]/ &/g;s/\./ &/g' | sort | tr -d ' '}){
+		n=`{grep '^\.TH' $j | sed 1q | awk '{print $3}'}
+		name=`{echo $j | sed 's/\..*//'}
+		if(~ $name 0intro)
+			name=intro
+		if not{
+			echo '<tr height=1><td>'
+			echo '<tr height=1><td colspan=2 bgcolor=#cccccc>'
+			echo '<tr height=1><td>'
+		}
+		echo -n '<tr><td valign=top><a href="'$name'.html">'$name'('$n')</a><td>'
+		sed -n '
+		/SH *NAM/,/SH/{
+			/SH/d
+			s/, *$//
+			ty
+			:y
+			s/ *\\*-.*/&/
+			tx
+			s/ *\\\(mi.*/&/
+			tx
+			s/\n\\n/\
+/g
+			p
+		}
+		/SH *DES/q
+		d
+		:x
+		/^$/d
+		s/\n\n/\
+/g
+		s/\\-/\&ndash;/
+		p
+		q' $j
+	}
+	cat $PLAN9/dist/manindexbottom.html
+} >$i.html && mv $i.html `{echo $i.html | tr A-Z a-z}
+
+for (i in */[~.]*.[0-9]*){
+	j=`{echo $i | 9 sed 's/\..*//'}
+	p=`{basename $j}
+	d=`{basename -d $j}
+	if(~ $p 0intro)
+		p=intro
+	echo $d/$p
+	troff -manhtml $i | troff2html -t 'Plan 9 from User Space'>/tmp/manweb.html
+	{
+		sed '/<!-- TRAILER -->/q' /tmp/manweb.html
+		cat $PLAN9/dist/mantrailer.html
+		sed -n '/<!-- TRAILER -->/,$p' /tmp/manweb.html
+	} >$d/$p.html
+}
+rm /tmp/manweb.html

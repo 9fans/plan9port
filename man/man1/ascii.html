@@ -1,0 +1,159 @@
+<head>
+<title>ascii(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ASCII(1)</b><td align=right><b>ASCII(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    ascii, unicode &ndash; interpret ASCII, Unicode characters<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>ascii</font></tt> [ <tt><font size=+1>&#8722;8</font></tt> ] [ <tt><font size=+1>&#8722;oxdb</font></tt><i>n</i> ] [ <tt><font size=+1>&#8722;nct</font></tt> ] [ <i>text</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>unicode</font></tt> [ <tt><font size=+1>&#8722;nt</font></tt> ] <i>hexmin</i><tt><font size=+1>&#8722;</font></tt><i>hexmax 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>unicode</font></tt> [ <tt><font size=+1>&#8722;t</font></tt> ] <i>hex</i> [ ... ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>unicode</font></tt> [ <tt><font size=+1>&#8722;n</font></tt> ] <i>characters 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>look</font></tt> <i>hex</i> <tt><font size=+1>/usr/local/plan9/lib/unicode<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Ascii</i> prints the ASCII values corresponding to characters and
+    <i>vice versa</i>; under the <tt><font size=+1>&#8722;8</font></tt> option, the ISO Latin-1 extensions (codes
+    0200-0377) are included. The values are interpreted in a settable
+    numeric base; <tt><font size=+1>&#8722;o</font></tt> specifies octal, <tt><font size=+1>&#8722;d</font></tt> decimal, <tt><font size=+1>&#8722;x</font></tt> hexadecimal (the
+    default), and <tt><font size=+1>&#8722;b</font></tt><i>n</i> base <i>n</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    With no arguments, <i>ascii</i> prints a table of the character set in
+    the specified base. Characters of <i>text</i> are converted to their
+    ASCII values, one per line. If, however, the first <i>text</i> argument
+    is a valid number in the specified base, conversion goes the opposite
+    way. Control characters are printed as two- or three-character
+    mnemonics. Other options are:<br>
+    <tt><font size=+1>&#8722;n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Force numeric output.<br>
+    <tt><font size=+1>&#8722;c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Force character output.<br>
+    <tt><font size=+1>&#8722;t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Convert from numbers to running text; do not interpret control
+    characters or insert newlines. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Unicode</i> is similar; it converts between UTF and character values
+    from the Unicode Standard (see <a href="../man7/utf.html"><i>utf</i>(7)</a>). If given a range of hexadecimal
+    numbers, <i>unicode</i> prints a table of the specified Unicode characters
+    -- their values and UTF representations. Otherwise it translates
+    from UTF to numeric value or vice versa, depending
+    on the appearance of the supplied text; the <tt><font size=+1>&#8722;n</font></tt> option forces numeric
+    output to avoid ambiguity with numeric characters. If converting
+    to UTF , the characters are printed one per line unless the <tt><font size=+1>&#8722;t</font></tt>
+    flag is set, in which case the output is a single string containing
+    only the specified characters. Unlike <i>ascii</i>, <i>unicode</i> treats
+    no characters specially. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The output of <i>ascii</i> and <i>unicode</i> may be unhelpful if the characters
+    printed are not available in the current font. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The file <tt><font size=+1>/usr/local/plan9/lib/unicode</font></tt> contains a table of characters
+    and descriptions, sorted in hexadecimal order, suitable for <a href="../man1/look.html"><i>look</i>(1)</a>
+    on the lower case <i>hex</i> values of characters.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>ascii &#8722;d<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the ASCII table base 10.<br>
+        
+    </table>
+    <tt><font size=+1>unicode p<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print the hex value of &#8216;p&#8217;.<br>
+        
+    </table>
+    <tt><font size=+1>unicode 2200&#8722;22f1<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print a table of miscellaneous mathematical symbols.<br>
+        
+    </table>
+    <tt><font size=+1>look 039 /usr/local/plan9/lib/unicode<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        See the start of the Greek alphabet&#8217;s encoding in the Unicode
+        Standard.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/lib/unicode<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        table of characters and descriptions.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/ascii.c<br>
+    /usr/local/plan9/src/cmd/unicode.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/look.html"><i>look</i>(1)</a>, <a href="../man1/tcs.html"><i>tcs</i>(1)</a>, <a href="../man7/utf.html"><i>utf</i>(7)</a>, <a href="../man7/font.html"><i>font</i>(7)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

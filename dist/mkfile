@@ -1,5 +1,16 @@
+MKSHELL=rc
+
 check.out:V:
 	cd ../man; mk indices
 	cd ..
-	awk -f dist/checkman.awk man/man*/*.* >dist/check.out
+	9 awk -f dist/checkman.awk man/man*/*.[0-9]* >dist/check.out
 
+man:V:
+	rc ./manweb
+
+push:V:
+	rsync -e ssh -avz --delete $PLAN9/man/ swtch:www/swtch.com/plan9port/man
+	rsync -e ssh unix.html swtch:www/swtch.com/plan9port/unix/index.html
+	rsync -e ssh main.html swtch:www/swtch.com/plan9port/nindex.html
+	@{cd ../unix/man && mk push}
+	@{cd ../unix && mk push}

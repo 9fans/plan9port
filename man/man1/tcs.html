@@ -1,0 +1,131 @@
+<head>
+<title>tcs(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>TCS(1)</b><td align=right><b>TCS(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    tcs &ndash; translate character sets<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>tcs</font></tt> [ <tt><font size=+1>&#8722;slcv</font></tt> ] [ <tt><font size=+1>&#8722;f</font></tt> <i>ics</i> ] [ <tt><font size=+1>&#8722;t</font></tt> <i>ocs</i> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Tcs</i> interprets the named <i>file(s)</i> (standard input default) as a
+    stream of characters from the <i>ics</i> character set or format, converts
+    them to runes, and then converts them into a stream of characters
+    from the <i>ocs</i> character set or format on the standard output. The
+    default value for <i>ics</i> and <i>ocs</i> is <tt><font size=+1>utf</font></tt>, the UTF encoding
+    described in <a href="../man7/utf.html"><i>utf</i>(7)</a>. The <tt><font size=+1>&#8722;l</font></tt> option lists the character sets known
+    to <i>tcs</i>. Processing continues in the face of conversion errors
+    (the <tt><font size=+1>&#8722;s</font></tt> option prevents reporting of these errors). The <tt><font size=+1>&#8722;c</font></tt> option
+    forces the output to contain only correctly converted characters;
+    otherwise, <tt><font size=+1>0x80</font></tt> characters will be substituted for UTF
+    encoding errors and <tt><font size=+1>0xFFFD</font></tt> characters will substituted for unknown
+    characters. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;v</font></tt> option generates various diagnostic and summary information
+    on standard error, or makes the <tt><font size=+1>&#8722;l</font></tt> output more verbose. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Tcs</i> recognizes an ever changing list of character sets. In particular,
+    it supports a variety of Russian and Japanese encodings. Some
+    of the supported encodings are<br>
+    <tt><font size=+1>utf</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The Plan 9 UTF encoding, known by ISO as UTF-8<br>
+    <tt><font size=+1>utf1</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The deprecated original UTF encoding from ISO 10646<br>
+    <tt><font size=+1>ascii</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7-bit ASCII<br>
+    <tt><font size=+1>8859&#8722;1</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Latin-1 (Central European)<br>
+    <tt><font size=+1>8859&#8722;2</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Latin-2 (Czech .. Slovak)<br>
+    <tt><font size=+1>8859&#8722;3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Latin-3 (Dutch .. Turkish)<br>
+    <tt><font size=+1>8859&#8722;4</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Latin-4 (Scandinavian)<br>
+    <tt><font size=+1>8859&#8722;5</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Part 5 (Cyrillic)<br>
+    <tt><font size=+1>8859&#8722;6</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Part 6 (Arabic)<br>
+    <tt><font size=+1>8859&#8722;7</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Part 7 (Greek)<br>
+    <tt><font size=+1>8859&#8722;8</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Part 8 (Hebrew)<br>
+    <tt><font size=+1>8859&#8722;9</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Latin-5 (Finnish .. Portuguese)<br>
+    <tt><font size=+1>koi8</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;KOI-8 (GOST 19769-74)<br>
+    <tt><font size=+1>jis&#8722;kanji</font></tt>&nbsp;&nbsp;&nbsp;ISO 2022-JP<br>
+    <tt><font size=+1>ujis</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EUC-JX: JIS 0208<br>
+    <tt><font size=+1>ms&#8722;kanji</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Microsoft, or Shift-JIS<br>
+    <tt><font size=+1>jis</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(from only) guesses between ISO 2022-JP, EUC or Shift-Jis<br>
+    <tt><font size=+1>gb</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Chinese national standard (GB2312-80)<br>
+    <tt><font size=+1>big5</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Big 5 (HKU version)<br>
+    <tt><font size=+1>unicode</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Unicode Standard 1.0<br>
+    <tt><font size=+1>tis</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thai character set plus ASCII (TIS 620-1986)<br>
+    <tt><font size=+1>msdos</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IBM PC: CP 437<br>
+    <tt><font size=+1>atari</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Atari-ST character set<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>tcs &#8722;f 8859&#8722;1<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Convert 8859-1 (Latin-1) characters into UTF format.<br>
+        
+    </table>
+    <tt><font size=+1>tcs &#8722;s &#8722;f jis<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Convert characters encoded in one of several shift JIS encodings
+        into UTF format. Unknown Kanji will be converted into <tt><font size=+1>0xFFFD</font></tt> characters.<br>
+        
+    </table>
+    <tt><font size=+1>tcs &#8722;lv<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Print an up to date list of the supported character sets.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/tcs<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/ascii.html"><i>ascii</i>(1)</a>, <a href="../man3/rune.html"><i>rune</i>(3)</a>, <a href="../man7/utf.html"><i>utf</i>(7)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

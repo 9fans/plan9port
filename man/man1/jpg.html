@@ -1,0 +1,175 @@
+<head>
+<title>jpg(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>JPG(1)</b><td align=right><b>JPG(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    jpg, gif, png, ppm, bmp, yuv, ico, togif, toppm, topng, toico
+    &ndash; view and convert pictures<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>jpg</font></tt> [ <tt><font size=+1>&#8722;39cdefFkJrtv</font></tt> ] [ <i>file ...</i> ]<br>
+    <tt><font size=+1>gif</font></tt> [ <tt><font size=+1>&#8722;39cdektv</font></tt> ] [ <i>file ...</i> ]<br>
+    <tt><font size=+1>png</font></tt> [ <tt><font size=+1>&#8722;39cdektv</font></tt> ] [ <i>file ...</i> ]<br>
+    <tt><font size=+1>ppm</font></tt> [ <tt><font size=+1>&#8722;39cdektv</font></tt> ] [ <i>file ...</i> ]<br>
+    <tt><font size=+1>bmp</font></tt> [ <i>file</i> ]<br>
+    <tt><font size=+1>yuv</font></tt> [ <i>file</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>togif</font></tt> [ <tt><font size=+1>&#8722;c</font></tt> <i>comment</i> ] [ <tt><font size=+1>&#8722;l</font></tt> <i>loopcount</i> ] [ <tt><font size=+1>&#8722;d</font></tt> <i>msec</i> ] [ <tt><font size=+1>&#8722;t</font></tt> <i>transindex</i>
+    ] [ <i>file ...</i> [ <tt><font size=+1>&#8722;d</font></tt> <i>msec</i> ] <i>file ...</i> ]<br>
+    <tt><font size=+1>toppm</font></tt> [ <tt><font size=+1>&#8722;c</font></tt> <i>comment</i> ] [ <i>file</i> ]<br>
+    <tt><font size=+1>topng</font></tt> [ <tt><font size=+1>&#8722;c</font></tt> <i>comment</i> ] [ [ <tt><font size=+1>&#8722;g</font></tt> <i>gamma</i> ] [ <i>file</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>ico</font></tt> [ <i>file</i> ]<br>
+    <tt><font size=+1>toico</font></tt> [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These programs read, display, and write image files in public
+    formats. <i>Jpg</i>, <i>gif</i>, <i>png</i>, <i>ppm</i>, <i>bmp</i>, and <i>yuv</i>. read files in the corresponding
+    formats and, by default, display them in the current window; options
+    cause them instead to convert the images to Plan 9 image format
+    and write them to standard output. <i>Togif</i>,
+    <i>Toppm</i>, and <i>topng</i> read Plan 9 images files, convert them to GIF,
+    PPM, or PNG, and write them to standard output. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The default behavior of <i>jpg</i>, <i>gif</i>, and <i>ppm</i> is to display the <i>file</i>,
+    or standard input if no file is named. Once a file is displayed,
+    typing a character causes the program to display the next image.
+    Typing a <tt><font size=+1>q</font></tt>, DEL, or control-D exits the program. For a more user-friendly
+    interface, use <a href="../man1/page.html"><i>page</i>(1)</a>, which invokes these
+    programs to convert the images to standard format, displays them,
+    and offers scrolling, panning, and menu-driven navigation among
+    the files. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    These programs share many options:<br>
+    <tt><font size=+1>&#8722;e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Disable Floyd-Steinberg error diffusion, which is used to improve
+    the appearance of images on color-mapped displays, typically with
+    8 bits per pixel. Primarily useful for debugging; if the display
+    has true RGB color, the image will be displayed in full glory.<br>
+    <tt><font size=+1>&#8722;k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Convert and display the image as a black and white (really grey-scale)
+    image.<br>
+    <tt><font size=+1>&#8722;v</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Convert the image to an RGBV color-mapped image, even if the
+    display has true RGB color.<br>
+    <tt><font size=+1>&#8722;d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Suppress display of the image; this is set automatically by
+    any of the following options:<br>
+    <tt><font size=+1>&#8722;c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Convert the image to a Plan 9 representation, as defined by
+    <a href="../man7/image.html"><i>image</i>(7)</a>, and write it to standard output.<br>
+    <tt><font size=+1>&#8722;9</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Like <tt><font size=+1>&#8722;c</font></tt>, but produce an uncompressed image. This saves processing
+    time, particularly when the output is being piped to another program
+    such as <a href="../man1/page.html"><i>page</i>(1)</a>, since it avoids compression and decompression.<br>
+    <tt><font size=+1>&#8722;t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Convert the image, if it is in color, to a true color RGB image.<br>
+    <tt><font size=+1>&#8722;3</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Like <tt><font size=+1>&#8722;t</font></tt>, but force the image to RGB even if it is originally
+    grey-scale. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Jpg</i> has two extra options used to process the output of the LML
+    video card:<br>
+    <tt><font size=+1>&#8722;f</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Merge two adjacent images, which represent the two fields of
+    a video picture, into a single image.<br>
+    <tt><font size=+1>&#8722;F</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;The input is a motion JPEG file, with multiple images representing
+    frames of the movie. Sets <tt><font size=+1>&#8722;f</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>togif</i> and <i>toppm</i> programs go the other way: they convert from
+    Plan 9 images to GIF and PPM, and have no display capability.
+    Both accept an option <tt><font size=+1>&#8722;c</font></tt> to set the comment field of the resulting
+    file. If there is only one input picture, <i>togif</i> converts the image
+    to GIF format. If there are many <i>files</i>, though, it will
+    assemble them into an animated GIF file. The options control this
+    process:<br>
+    <tt><font size=+1>&#8722;l</font></tt><i>loopcount<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        By default, the animation will loop forever; <i>loopcount</i> specifies
+        how many times to loop. A value of zero means loop forever and
+        a negative value means to stop after playing the sequence once.<br>
+        
+    </table>
+    <tt><font size=+1>&#8722;d</font></tt><i>msec<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        By default, the images are displayed as fast as they can be rendered.
+        This option specifies the time, in milliseconds, to pause while
+        displaying the next named <i>file</i>. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <i>Gif</i> translates files that contain a &#8216;transparency&#8217; index by attaching
+    an alpha channel to the converted image. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Ico</i> displays a Windows icon (.ico) file. If no file is specified,
+    <i>ico</i> reads from standard input. Icon files contain sets of icons
+    represeted by an image and a mask. Clicking the right button pops
+    up a menu that lets you write any icon&#8217;s image as a Plan 9 image
+    (<i>width</i>x<i>height</i>.image), write any icon&#8217;s mask as a Plan 9
+    image (<i>width</i>x<i>height</i>.mask), or exit. Selecting one of the write
+    menu items yields a sight cursor. Move the sight over the icon
+    and right click again to write. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Toico</i> takes a list of Plan 9 image files (or standard input) and
+    creates a single icon file. The masks in the icon file will be
+    the white space in the image. The icon file is written to standard
+    output.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/jpg<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/page.html"><i>page</i>(1)</a>, <a href="../man7/image.html"><i>image</i>(7)</a>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Writing an animated GIF using <i>togif</i> is a clumsy undertaking.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

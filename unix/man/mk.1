@@ -1,21 +1,4 @@
 .TH MK 1
-.de EX
-.nf
-.ft B
-..
-.de EE
-.fi
-.ft R
-..
-.de LR
-.if t .BR \\$1 \\$2
-.if n .RB ` \\$1 '\\$2
-..
-.de L
-.nh
-.if t .B \\$1
-.if n .RB ` \\$1 '
-..
 .SH NAME
 mk \- maintain (make) related files
 .SH SYNOPSIS
@@ -173,14 +156,13 @@ In the recipe of a meta-rule, the environment variable
 .B $stem
 contains the string matched by the
 .BR % .
-For example, a meta-rule to compile a C program using
-.IR cc (1)
+For example, a meta-rule to compile a C program
 might be:
 .IP
 .EX
 %:    %.c
         cc -c $stem.c
-        cc -o $stem $stem.o
+        ld -o $stem $stem.o
 .EE
 .PP
 Meta-rules may contain an ampersand
@@ -309,6 +291,7 @@ and any command line assignment as an argument to
 .IR mk .
 A variable assignment argument overrides the first (but not any subsequent)
 assignment to that variable.
+.PP
 The variable
 .B MKFLAGS
 contains all the option arguments (arguments starting with
@@ -319,6 +302,45 @@ and
 .B MKARGS
 contains all the targets in the call to
 .IR mk .
+.PP
+The variable
+.B MKSHELL
+contains the shell command line
+.I mk
+uses to run recipes.
+If the first word of the command ends in
+.B rc
+or
+.BR rcsh ,
+.I mk
+uses
+.IR rc (1)'s
+quoting rules; otherwise it uses
+.IR sh (1)'s.
+The
+.B MKSHELL
+variable is consulted when the mkfile is read, not when it is executed,
+so that different shells can be used within a single mkfile:
+.IP
+.EX
+MKSHELL=$PLAN9/bin/rc
+use-rc:V:
+	for(i in a b c) echo $i
+
+MKSHELL=sh
+use-sh:V:
+	for i in a b c; do echo $i; done
+.EE
+.LP
+Mkfiles included via
+.B <
+or
+.B <|
+.RI ( q.v. )
+see their own private copy of
+.BR MKSHELL ,
+which always starts set to
+.B sh .
 .PP
 Dynamic information may be included in the mkfile by using a line of the form
 .IP
@@ -497,9 +519,6 @@ refer to member
 .I b
 of the aggregate
 .IR a .
-Currently, the only aggregates supported are
-.IR ar (1)
-archives.
 .SS Attributes
 The colon separating the target from the prerequisites
 may be
@@ -542,7 +561,7 @@ In the rule,
 .B %
 has no special meaning.
 The target is interpreted as a regular expression as defined in
-.IR regexp (6).
+.IR regexp9 (7).
 The prerequisites may contain references
 to subexpressions in form
 .BI \e n\f1,
@@ -628,6 +647,8 @@ rule:
 x.tab.h:Pcmp -s:	y.tab.h
 	cp y.tab.h x.tab.h
 .EE
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
 .SH SEE ALSO
 .IR sh (1),
 .IR regexp9 (7)
@@ -638,7 +659,6 @@ A. Hume,
 .PP
 Andrew G. Hume and Bob Flandrena,
 ``Maintaining Files on Plan 9 with Mk''.
-DOCPREFIX/doc/mk.pdf
 .SH HISTORY
 Andrew Hume wrote
 .I mk
@@ -647,19 +667,18 @@ It was later ported to Plan 9.
 This software is a port of the Plan 9 version back to Unix.
 .SH BUGS
 Identical recipes for regular expression meta-rules only have one target.
-.br
+.PP
 Seemingly appropriate input like
 .B CFLAGS=-DHZ=60
 is parsed as an erroneous attribute; correct it by inserting
 a space after the first 
 .LR = .
-.br
+.PP
 The recipes printed by
 .I mk
 before being passed to
-.I sh
+the shell
 for execution are sometimes erroneously expanded
 for printing.  Don't trust what's printed; rely
-on what
-.I sh
+on what the shell
 does.

@@ -1,0 +1,150 @@
+<head>
+<title>ctime(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>CTIME(3)</b><td align=right><b>CTIME(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    ctime, localtime, gmtime, asctime, tm2sec, timezone &ndash; convert date
+    and time<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* ctime(long clock) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Tm* &nbsp;&nbsp;&nbsp;&nbsp;localtime(long clock) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Tm* &nbsp;&nbsp;&nbsp;&nbsp;gmtime(long clock) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* asctime(Tm *tm) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>long &nbsp;&nbsp;&nbsp;tm2sec(Tm *tm)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Ctime</i> converts a time <i>clock</i> such as returned by <a href="../man3/time.html"><i>time</i>(3)</a> into ASCII
+    (sic) and returns a pointer to a 30-byte string in the following
+    form. All the fields have constant width. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>Wed Aug &nbsp;&nbsp;&nbsp;5 01:07:47 EST 1973\n\0 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            </font></tt>
+            
+        </table>
+        
+    </table>
+    <i>Localtime</i> and <i>gmtime</i> return pointers to structures containing
+    the broken-down time. <i>Localtime</i> corrects for the time zone and
+    possible daylight savings time; <i>gmtime</i> converts directly to GMT.
+    <i>Asctime</i> converts a broken-down time to ASCII and returns a pointer
+    to a 30-byte string.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef<br>
+        struct {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int &nbsp;&nbsp;&nbsp;sec; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* seconds (range 0..59) */<br>
+            int &nbsp;&nbsp;&nbsp;min; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* minutes (0..59) */<br>
+            int &nbsp;&nbsp;&nbsp;hour; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* hours (0..23) */<br>
+            int &nbsp;&nbsp;&nbsp;mday; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* day of the month (1..31) */<br>
+            int &nbsp;&nbsp;&nbsp;mon; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* month of the year (0..11) */<br>
+            int &nbsp;&nbsp;&nbsp;year; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* year A.D. &ndash; 1900 */<br>
+            int &nbsp;&nbsp;&nbsp;wday; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* day of week (0..6, Sunday = 0) */<br>
+            int &nbsp;&nbsp;&nbsp;yday; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* day of year (0..365) */<br>
+            char zone[4]; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* time zone name */<br>
+            int &nbsp;&nbsp;&nbsp;tzoff; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* time zone delta from GMT */<br>
+            
+        </table>
+        } Tm;<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    <i>Tm2sec</i> converts a broken-down time to seconds since the start
+    of the epoch. It ignores <tt><font size=+1>wday</font></tt>, and assumes the local time zone
+    if <tt><font size=+1>zone</font></tt> is not <tt><font size=+1>GMT</font></tt>.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/date.c<br>
+    /usr/local/plan9/src/lib9/ctime.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/date.html"><i>date</i>(1)</a>, <a href="../man3/time.html"><i>time</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The return values point to static data whose content is overwritten
+    by each call. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Daylight Savings Time is &#8220;normal&#8221; in the Southern hemisphere.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    These routines are not equipped to handle non-ASCII text, and
+    are provincial anyway. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To avoid name conflicts with the underlying system, <i>ctime</i>, <i>localtime</i>,
+    <i>gmtime</i>, <i>asctime</i>, and <i>tm2sec</i> are preprocessor macros defined as
+    <i>p9ctime</i>, <i>p9localtime</i>, <i>p9gmtime</i>, <i>p9asctime</i>, and <i>p9tm2sec</i>; see <a href="../man3/intro.html"><i>intro</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

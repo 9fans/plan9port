@@ -1,0 +1,481 @@
+<head>
+<title>acme(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ACME(1)</b><td align=right><b>ACME(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    acme, win, awd &ndash; interactive text windows<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>acme</font></tt> [ <tt><font size=+1>&#8722;f</font></tt> <i>varfont</i> ] [ <tt><font size=+1>&#8722;F</font></tt> <i>fixfont</i> ] [ <tt><font size=+1>&#8722;c</font></tt> <i>ncol</i> ] [ <tt><font size=+1>&#8722;br</font></tt> ] [ <tt><font size=+1>&#8722;l</font></tt> <i>file</i>
+    | <i>file</i> ... ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>win</font></tt> [ <i>command</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>awd</font></tt> [ <i>label</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Acme</i> manages windows of text that may be edited interactively
+    or by external programs. The interactive interface uses the keyboard
+    and mouse; external programs use a set of files served by <i>acme</i>;
+    these are discussed in <a href="../man4/acme.html"><i>acme</i>(4)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Any named <i>files</i> are read into <i>acme</i> windows before <i>acme</i> accepts
+    input. With the <tt><font size=+1>&#8722;l</font></tt> option, the state of the entire system is loaded
+    from <i>file</i>, which should have been created by a <tt><font size=+1>Dump</font></tt> command (q.v.),
+    and subsequent <i>file</i> names are ignored. Plain files display as
+    text; directories display as columnated lists of the
+    names of their components, as in <tt><font size=+1>ls &#8722;p directory|mc</font></tt> except that
+    the names of subdirectories have a slash appended. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;f</font></tt> (<tt><font size=+1>&#8722;F</font></tt>) option sets the main font, usually variable-pitch
+    (alternate, usually fixed-pitch); the default is <tt><font size=+1>/usr/local/plan9/font/lucidasans/euro.8.font</font></tt>
+    (<tt><font size=+1>.../lucm/unicode.9.font</font></tt>). Tab intervals are set to the width
+    of 4 (or the value of <tt><font size=+1>$tabstop</font></tt>) numeral zeros in the appropriate
+    font. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <p><font size=+1><b>Windows     </b></font><br>
+    <i>Acme</i> windows are in two parts: a one-line <i>tag</i> above a multi-line
+    <i>body</i>. The body typically contains an image of a file, as in <a href="../man1/sam.html"><i>sam</i>(1)</a>,
+    or the output of a program, as in an <a href="../man1/rio.html"><i>rio</i>(1)</a> window. The tag contains
+    a number of blank-separated words, followed by a vertical bar
+    character, followed by anything. The first word is the
+    name of the window, typically the name of the associated file
+    or directory, and the other words are commands available in that
+    window. Any text may be added after the bar; examples are strings
+    to search for or commands to execute in that window. Changes to
+    the text left of the bar will be ignored, unless the result is
+    to change the name of the window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If a window holds a directory, the name (first word of the tag)
+    will end with a slash.<br>
+    <p><font size=+1><b>Scrolling     </b></font><br>
+    Each window has a scroll bar to the left of the body. The scroll
+    bar behaves much as in <a href="../man1/sam.html"><i>sam</i>(1)</a> or <a href="../man1/rio.html"><i>rio</i>(1)</a> except that scrolling
+    occurs when the button is pressed, rather than released, and continues
+    as long as the mouse button is held down in the scroll bar. For
+    example, to scroll slowly through a file, hold button 3
+    down near the top of the scroll bar. Moving the mouse down the
+    scroll bar speeds up the rate of scrolling. (The experimental
+    option <tt><font size=+1>&#8722;r</font></tt> reverses the scrolling behavior of buttons 1 and 3,
+    to behave more like <a href="../man1/xterm.html"><i>xterm</i>(1)</a>.)<br>
+    <p><font size=+1><b>Layout     </b></font><br>
+    <i>Acme</i> windows are arranged in columns. By default, it creates two
+    columns when starting; this can be overridden with the <tt><font size=+1>&#8722;c</font></tt> option.
+    Placement is automatic but may be adjusted using the <i>layout box</i>
+    in the upper left corner of each window and column. Pressing and
+    holding any mouse button in the box drags the
+    associated window or column. For windows, just clicking in the
+    layout box grows the window in place: button 1 grows it a little,
+    button 2 grows it as much as it can, still leaving all other tags
+    in that column visible, and button 3 takes over the column completely,
+    temporarily hiding other windows in the column. (They
+    will return <i>en masse</i> if any of them needs attention.) The layout
+    box in a window is normally white; when it is black in the center,
+    it records that the file is &#8216;dirty&#8217;: <i>acme</i> believes it is modified
+    from its original contents. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Tags exist at the top of each column and across the whole display.
+    <i>Acme</i> pre-loads them with useful commands. Also, the tag across
+    the top maintains a list of executing long-running commands.<br>
+    <p><font size=+1><b>Typing     </b></font><br>
+    The behavior of typed text is similar to that in <a href="../man1/rio.html"><i>rio</i>(1)</a> except
+    that the characters are delivered to the tag or body under the
+    mouse; there is no &#8216;click to type&#8217;. (The experimental option <tt><font size=+1>&#8722;b</font></tt>
+    causes typing to go to the most recently clicked-at or made window.)
+    The usual backspacing conventions apply. As in <a href="../man1/sam.html"><i>sam</i>(1)</a> but not
+    <i>rio</i>, the ESC key selects the text typed since the last mouse action,
+    a feature particularly useful when executing commands. A side
+    effect is that typing ESC with text already selected is identical
+    to a <tt><font size=+1>Cut</font></tt> command (<i>q.v.</i>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Most text, including the names of windows, may be edited uniformly.
+    The only exception is that the command names to the left of the
+    bar in a tag are maintained automatically; changes to them are
+    repaired by <i>acme</i>.<br>
+    <p><font size=+1><b>Directory context     </b></font><br>
+    Each window&#8217;s tag names a directory: explicitly if the window
+    holds a directory; implicitly if it holds a regular file (e.g.
+    the directory <tt><font size=+1>/adm</font></tt> if the window holds <tt><font size=+1>/adm/users</font></tt>). This directory
+    provides a <i>context</i> for interpreting file names in that window.
+    For example, the string <tt><font size=+1>users</font></tt> in a window labeled <tt><font size=+1>/adm/</font></tt> or
+    <tt><font size=+1>/adm/keys</font></tt> will be interpreted as the file name <tt><font size=+1>/adm/users</font></tt>. The
+    directory is defined purely textually, so it can be a non-existent
+    directory or a real directory associated with a non-existent file
+    (e.g. <tt><font size=+1>/adm/not&#8722;a&#8722;file</font></tt>). File names beginning with a slash are
+    assumed to be absolute file names.
+    <p><font size=+1><b>Errors     </b></font><br>
+    Windows whose names begin with <tt><font size=+1>&#8722;</font></tt> or <tt><font size=+1>+</font></tt> conventionally hold diagnostics
+    and other data not directly associated with files. A window labeled
+    <tt><font size=+1>+Errors</font></tt> receives all diagnostics produced by <i>acme</i> itself. Diagnostics
+    from commands run by <i>acme</i> appear in a window named <i>directory</i><tt><font size=+1>/+Errors</font></tt>
+    where <i>directory</i> is
+    identified by the context of the command. These error windows
+    are created when needed.<br>
+    <p><font size=+1><b>Mouse button 1     </b></font><br>
+    Mouse button 1 selects text just as in <a href="../man1/sam.html"><i>sam</i>(1)</a> or <a href="../man1/rio.html"><i>rio</i>(1)</a><i>,</i> including
+    the usual double-clicking conventions.<br>
+    <p><font size=+1><b>Mouse button 2     </b></font><br>
+    By an action similar to selecting text with button 1, button 2
+    indicates text to execute as a command. If the indicated text
+    has multiple white-space-separated words, the first is the command
+    name and the second and subsequent are its arguments. If button
+    2 is &#8216;clicked&#8217;--indicates a null string--<i>acme expands</i> the
+    indicated text to find a command to run: if the click is within
+    button-1-selected text, <i>acme</i> takes that selection as the command;
+    otherwise it takes the largest string of valid file name characters
+    containing the click. Valid file name characters are alphanumerics
+    and <tt><font size=+1>_ . &#8722; + /</font></tt>. This behavior is similar to double-clicking
+    with button 1 but, because a null command is meaningless, only
+    a single click is required. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Some commands, all by convention starting with a capital letter,
+    are <i>built-ins</i> that are executed directly by <i>acme</i>:<br>
+    <tt><font size=+1>Cut</font></tt>&nbsp;&nbsp;&nbsp;Delete most recently selected text and place in snarf buffer.<br>
+    <tt><font size=+1>Del</font></tt>&nbsp;&nbsp;&nbsp;Delete window. If window is dirty, instead print a warning;
+    a second <tt><font size=+1>Del</font></tt> will succeed.<br>
+    <tt><font size=+1>Delcol<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete column and all its windows, after checking that windows
+        are not dirty.<br>
+        
+    </table>
+    <tt><font size=+1>Delete<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Delete window without checking for dirtiness.<br>
+        
+    </table>
+    <tt><font size=+1>Dump</font></tt>Write the state of <i>acme</i> to the file name, if specified, or
+    <tt><font size=+1>$home/acme.dump</font></tt> by default.<br>
+    <tt><font size=+1>Edit</font></tt>Treat the argument as a text editing command in the style
+    of <a href="../man1/sam.html"><i>sam</i>(1)</a>. The full <tt><font size=+1>Sam</font></tt> language is implemented except for the
+    commands <tt><font size=+1>k</font></tt>, <tt><font size=+1>n</font></tt>, <tt><font size=+1>q</font></tt>, and <tt><font size=+1>!</font></tt>. The <tt><font size=+1>=</font></tt> command is slightly different:
+    it includes the file name and gives only the line address unless
+    the command is explicitly <tt><font size=+1>=#</font></tt>. The &#8216;current window&#8217; for the
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        command is the body of the window in which the <tt><font size=+1>Edit</font></tt> command is
+        executed. Usually the <tt><font size=+1>Edit</font></tt> command would be typed in a tag; longer
+        commands may be prepared in a scratch window and executed, with
+        <tt><font size=+1>Edit</font></tt> itself in the current window, using the 2-1 chord described
+        below.
+        
+    </table>
+    <tt><font size=+1>Exit</font></tt>Exit <i>acme</i> after checking that windows are not dirty.<br>
+    <tt><font size=+1>Font</font></tt>With no arguments, change the font of the associated window
+    from fixed-spaced to proportional-spaced or <i>vice versa</i>. Given
+    a file name argument, change the font of the window to that stored
+    in the named file. If the file name argument is prefixed by <tt><font size=+1>var</font></tt>
+    (<tt><font size=+1>fix</font></tt>), also set the default proportional-spaced
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        (fixed-spaced) font for future use to that font. Other existing
+        windows are unaffected.<br>
+        
+    </table>
+    <tt><font size=+1>Get</font></tt>&nbsp;&nbsp;&nbsp;Load file into window, replacing previous contents (after checking
+    for dirtiness as in <tt><font size=+1>Del</font></tt>). With no argument, use the existing file
+    name of the window. Given an argument, use that file but do not
+    change the window&#8217;s file name.<br>
+    <tt><font size=+1>ID</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Print window ID number (<i>q.v.</i>).<br>
+    <tt><font size=+1>Incl</font></tt>When opening &#8216;include&#8217; files (those enclosed in <tt><font size=+1>&lt;&gt;</font></tt>) with button
+    3, <i>acme</i> searches in directories <tt><font size=+1>/$objtype/include</font></tt> and <tt><font size=+1>/sys/include</font></tt>.
+    <tt><font size=+1>Incl</font></tt> adds its arguments to a supplementary list of include directories,
+    analogous to the <tt><font size=+1>&#8722;I</font></tt> option to the compilers. This list is per-window
+    and is inherited when
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        windows are created by actions in that window, so <i>Incl</i> is most
+        usefully applied to a directory containing relevant source. With
+        no arguments, <i>Incl</i> prints the supplementary list. This command
+        is largely superseded by plumbing (see <a href="../man7/plumb.html"><i>plumb</i>(7)</a>).<br>
+        
+    </table>
+    <tt><font size=+1>Kill</font></tt>Send a <tt><font size=+1>kill</font></tt> note to <i>acme</i>-initiated commands named as arguments.<br>
+    <tt><font size=+1>Local<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        In the Plan 9 <i>acme</i>, this prefix causes a command to be run in
+        <i>acme</i>&#8217;s<i>own</i> file name space and environment variable group. On Unix
+        this is impossible. <tt><font size=+1>Local</font></tt> is recognized as a prefix, but has no
+        effect on the command being executed.<br>
+        
+    </table>
+    <tt><font size=+1>Load</font></tt>Restore the state of <i>acme</i> from a file (default <tt><font size=+1>$home/acme.dump</font></tt>)
+    created by the <tt><font size=+1>Dump</font></tt> command.<br>
+    <tt><font size=+1>Look</font></tt>Search in body for occurrence of literal text indicated by
+    the argument or, if none is given, by the selected text in the
+    body.<br>
+    <tt><font size=+1>New</font></tt>&nbsp;&nbsp;&nbsp;Make new window. With arguments, load the named files into
+    windows.<br>
+    <tt><font size=+1>Newcol<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Make new column.<br>
+        
+    </table>
+    <tt><font size=+1>Paste<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Replace most recently selected text with contents of snarf buffer.<br>
+        
+    </table>
+    <tt><font size=+1>Put</font></tt>&nbsp;&nbsp;&nbsp;Write window to the named file. With no argument, write to
+    the file named in the tag of the window.<br>
+    <tt><font size=+1>Putall<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Write all dirty windows whose names indicate existing regular
+        files.<br>
+        
+    </table>
+    <tt><font size=+1>Redo</font></tt>Complement of <tt><font size=+1>Undo</font></tt>.<br>
+    <tt><font size=+1>Send</font></tt>Append selected text or snarf buffer to end of body; used
+    mainly with <i>win</i>.<br>
+    <tt><font size=+1>Snarf<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Place selected text in snarf buffer.<br>
+        
+    </table>
+    <tt><font size=+1>Sort</font></tt>Arrange the windows in the column from top to bottom in lexicographical
+    order based on their names.<br>
+    <tt><font size=+1>Tab</font></tt>&nbsp;&nbsp;&nbsp;Set the width of tab stops for this window to the value of
+    the argument, in units of widths of the zero character. With no
+    arguments, it prints the current value.<br>
+    <tt><font size=+1>Undo</font></tt>Undo last textual change or set of changes.<br>
+    <tt><font size=+1>Zerox<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Create a copy of the window containing most recently selected
+        text. 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    A common place to store text for commands is in the tag; in fact
+    <i>acme</i> maintains a set of commands appropriate to the state of the
+    window to the left of the bar in the tag. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the text indicated with button 2 is not a recognized built-in,
+    it is executed as a shell command. For example, indicating <tt><font size=+1>date</font></tt>
+    with button 2 runs <a href="../man1/date.html"><i>date</i>(1)</a>. The standard and error outputs of
+    commands are sent to the error window associated with the directory
+    from which the command was run, which will be created if
+    necessary. For example, in a window <tt><font size=+1>/etc/passwd</font></tt> executing <tt><font size=+1>pwd</font></tt>
+    will produce the output <tt><font size=+1>/etc</font></tt> in a (possibly newly-created) window
+    labeled <tt><font size=+1>/etc/+Errors</font></tt>; in a window containing <tt><font size=+1>/home/rob/sam/sam.c</font></tt>
+    executing <tt><font size=+1>mk</font></tt> will run <a href="../man1/mk.html"><i>mk</i>(1)</a> in <tt><font size=+1>/home/rob/sam</font></tt>, producing output
+    in a window labeled
+    <tt><font size=+1>/home/rob/sam/+Errors</font></tt>. The environment of such commands contains
+    the variable <tt><font size=+1>$%</font></tt> with value set to the filename of the window in
+    which the command is run, and <tt><font size=+1>$winid</font></tt> set to the window&#8217;s id number
+    (see <a href="../man4/acme.html"><i>acme</i>(4)</a>).<br>
+    <p><font size=+1><b>Mouse button 3     </b></font><br>
+    Pointing at text with button 3 instructs <i>acme</i> to locate or acquire
+    the file, string, etc. described by the indicated text and its
+    context. This description follows the actions taken when button
+    3 is released after sweeping out some text. In the description,
+    <i>text</i> refers to the text of the original sweep or, if it was null,
+    the
+    result of applying the same expansion rules that apply to button
+    2 actions. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the text names an existing window, <i>acme</i> moves the mouse cursor
+    to the selected text in the body of that window. If the text names
+    an existing file with no associated window, <i>acme</i> loads the file
+    into a new window and moves the mouse there. If the text is a
+    file name contained in angle brackets, <i>acme</i> loads the
+    indicated include file from the directory appropriate to the suffix
+    of the file name of the window holding the text. (The <tt><font size=+1>Incl</font></tt> command
+    adds directories to the standard list.) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the text begins with a colon, it is taken to be an address,
+    in the style of <a href="../man1/sam.html"><i>sam</i>(1)</a>, within the body of the window containing
+    the text. The address is evaluated, the resulting text highlighted,
+    and the mouse moved to it. Thus, in <i>acme</i>, one must type <tt><font size=+1>:/regexp</font></tt>
+    or <tt><font size=+1>:127</font></tt> not just <tt><font size=+1>/regexp</font></tt> or <tt><font size=+1>127</font></tt>. (There is an easier
+    way to locate literal text; see below.) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the text is a file name followed by a colon and an address,
+    <i>acme</i> loads the file and evaluates the address. For example, clicking
+    button 3 anywhere in the text <tt><font size=+1>file.c:27</font></tt> will open <tt><font size=+1>file.c</font></tt>, select
+    line 27, and put the mouse at the beginning of the line. The rules
+    about Error files, directories, and so on all combine
+    to make this an efficient way to investigate errors from compilers,
+    etc. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the text is not an address or file, it is taken to be literal
+    text, which is then searched for in the body of the window in
+    which button 3 was clicked. If a match is found, it is selected
+    and the mouse is moved there. Thus, to search for occurrences
+    of a word in a file, just click button 3 on the word. Because
+    of the rule of
+    using the selection as the button 3 action, subsequent clicks
+    will find subsequent occurrences without moving the mouse. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    In all these actions, the mouse motion is not done if the text
+    is a null string within a non-null selected string in the tag,
+    so that (for example) complex regular expressions may be selected
+    and applied repeatedly to the body by just clicking button 3 over
+    them.<br>
+    <p><font size=+1><b>Chords of mouse buttons     </b></font><br>
+    Several operations are bound to multiple-button actions. After
+    selecting text, with button 1 still down, pressing button 2 executes
+    <tt><font size=+1>Cut</font></tt> and button 3 executes <tt><font size=+1>Paste</font></tt>. After clicking one button, the
+    other undoes the first; thus (while holding down button 1) 2 followed
+    by 3 is a <tt><font size=+1>Snarf</font></tt> that leaves the file undirtied; 3
+    followed by 2 is a no-op. These actions also apply to text selected
+    by double-clicking because the double-click expansion is made
+    when the second click starts, not when it ends. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Commands may be given extra arguments by a mouse chord with buttons
+    2 and 1. While holding down button 2 on text to be executed as
+    a command, clicking button 1 appends the text last pointed to
+    by button 1 as a distinct final argument. For example, to search
+    for literal <tt><font size=+1>text</font></tt> one may execute <tt><font size=+1>Look text</font></tt> with
+    button 2 or instead point at <tt><font size=+1>text</font></tt> with button 1 in any window,
+    release button 1, then execute <tt><font size=+1>Look</font></tt>, clicking button 1 while 2
+    is held down. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When an external command (e.g. <a href="../man1/echo.html"><i>echo</i>(1)</a>) is executed this way,
+    the extra argument is passed as expected and an environment variable
+    <tt><font size=+1>$acmeaddr</font></tt> is created that holds, in the form interpreted by button
+    3, the fully-qualified address of the extra argument.<br>
+    <p><font size=+1><b>Support programs     </b></font><br>
+    <i>Win</i> creates a new <i>acme</i> window and runs a <i>command</i> (default <tt><font size=+1>$SHELL</font></tt>)
+    in it, turning the window into something analogous to an <a href="../man1/rio.html"><i>rio</i>(1)</a>
+    window. Executing text in a <i>win</i> window with button 2 is similar
+    to using <tt><font size=+1>Send</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Awd</i> loads the tag line of its window with the directory in which
+    it&#8217;s running, suffixed <tt><font size=+1>&#8722;</font></tt><i>label</i> (default <tt><font size=+1>rc</font></tt>); it is intended to
+    be executed by a <tt><font size=+1>cd</font></tt> function for use in <i>win</i> windows. An example
+    definition is<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>fn cd { builtin cd $1 &amp;&amp; awd $sysname }<br>
+        </font></tt>
+    </table>
+    <p><font size=+1><b>Applications and guide files     </b></font><br>
+    In the directory <tt><font size=+1>/acme</font></tt> live several subdirectories, each corresponding
+    to a program or set of related programs that employ <i>acme&#8217;s</i> user
+    interface. Each subdirectory includes source, binaries, and a
+    <tt><font size=+1>readme</font></tt> file for further information. It also includes a <tt><font size=+1>guide</font></tt>,
+    a text file holding sample commands to invoke the
+    programs. The idea is to find an example in the guide that best
+    matches the job at hand, edit it to suit, and execute it. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Whenever a command is executed by <i>acme</i>, the default search path
+    includes the directory of the window containing the command and
+    its subdirectory <tt><font size=+1>$cputype</font></tt>. The program directories in <tt><font size=+1>/acme</font></tt> contain
+    appropriately labeled subdirectories of binaries, so commands
+    named in the guide files will be found
+    automatically when run. Also, <i>acme</i> binds the directories <tt><font size=+1>/acme/bin</font></tt>
+    and <tt><font size=+1>/acme/bin/$cputype</font></tt> to the end of <tt><font size=+1>/bin</font></tt> when it starts; this
+    is where <i>acme</i>-specific programs such as <i>win</i> and <i>awd</i> reside.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>$home/acme.dump</font></tt>&nbsp;&nbsp;&nbsp;default file for <tt><font size=+1>Dump</font></tt> and <tt><font size=+1>Load</font></tt>; also where state
+    is written if <i>acme</i> dies or is killed unexpectedly, e.g. by deleting
+    its window.<br>
+    <tt><font size=+1>/acme/*/guide</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;template files for applications<br>
+    <tt><font size=+1>/acme/*/readme</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;informal documentation for applications<br>
+    <tt><font size=+1>/acme/*/src</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source for applications<br>
+    <tt><font size=+1>/acme/*/mips</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MIPS-specific binaries for applications<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/acme<br>
+    /usr/local/plan9/src/cmd/9term/win.c<br>
+    /usr/local/plan9/bin/awd<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man4/acme.html"><i>acme</i>(4)</a><br>
+    Rob Pike, <i>Acme: A User Interface for Programmers.<br>
+    </i>
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    With the <tt><font size=+1>&#8722;l</font></tt> option or <tt><font size=+1>Load</font></tt> command, the recreation of windows
+    under control of external programs such as <i>win</i> is just to rerun
+    the command; information may be lost.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

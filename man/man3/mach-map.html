@@ -1,0 +1,312 @@
+<head>
+<title>mach-map(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MACH-MAP(3)</b><td align=right><b>MACH-MAP(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    allocmap, addseg, findseg, addrtoseg, addrtosegafter, removeseg,
+    freemap, get1, get2, get4, get8, put1, put2, put4, put8, rget,
+    rput, fpformat, locnone, locaddr, locconst, locreg, locindir,
+    loccmp, loceval, locfmt, locsimplify, lget1, lget2, lget4, lget8,
+    lput1, lput2, lput4, lput8 &ndash; machine-independent access to address
+    spaces and register sets<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;mach.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    typedef struct Map Map;<br>
+    typedef struct Seg Seg;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    struct Seg<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        char &nbsp;&nbsp;&nbsp;*name;<br>
+        char &nbsp;&nbsp;&nbsp;*file;<br>
+        int &nbsp;&nbsp;&nbsp;&nbsp;fd;<br>
+        ulong &nbsp;&nbsp;&nbsp;base;<br>
+        ulong &nbsp;&nbsp;&nbsp;size;<br>
+        ulong &nbsp;&nbsp;&nbsp;offset;<br>
+        int &nbsp;&nbsp;&nbsp;&nbsp;(*rw)(Map*, Seg*, ulong, void*, uint, int);<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    struct Map<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Seg &nbsp;&nbsp;&nbsp;&nbsp;*seg;<br>
+        int &nbsp;&nbsp;&nbsp;&nbsp;nseg;<br>
+        <i>...<br>
+        </i>
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Map &nbsp;&nbsp;&nbsp;*allocmap(void)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;addseg(Map *map, Seg seg)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;findseg(Map *map, char *name, char *file)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;addrtoseg(Map *map, ulong addr, Seg *seg)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;addrtosegafter(Map *map, ulong addr, Seg *seg)<br>
+    void &nbsp;&nbsp;&nbsp;removeseg(Map *map, int i)<br>
+    void &nbsp;&nbsp;&nbsp;freemap(Map *map)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;get1(Map *map, ulong addr, uchar *a, uint n)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;get2(Map *map, ulong addr, u16int *u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;get4(Map *map, ulong addr, u32int *u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;get8(Map *map, ulong addr, u64int *u)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;put1(Map *map, ulong addr, uchar *a, uint n)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;put2(Map *map, ulong addr, u16int u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;put4(Map *map, ulong addr, u32int u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;put8(Map *map, ulong addr, u64int u)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;rget(Regs *regs, char *reg, ulong *u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;fpformat(Map *map, char *reg, char *a, uint n, char code);<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;rput(Regs *regs, char *name, ulong u)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Loc &nbsp;&nbsp;&nbsp;locnone(void)<br>
+    Loc &nbsp;&nbsp;&nbsp;locaddr(ulong addr)<br>
+    Loc &nbsp;&nbsp;&nbsp;locconst(ulong con)<br>
+    Loc &nbsp;&nbsp;&nbsp;locreg(char *reg)<br>
+    Loc &nbsp;&nbsp;&nbsp;locindir(char *reg, long offset)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;loccmp(Loc *a, Loc *b)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;loceval(Map *map, Loc loc, ulong *addr)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;locfmt(Fmt *fmt)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;locsimplify(Map *map, Loc *regs, Loc loc, Loc *newloc)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;lget1(Map *map, Loc loc, uchar *a, uint n)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;lget2(Map *map, Loc loc, u16int *u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;lget4(Map *map, Loc loc, u32int *u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;lget8(Map *map, Loc loc, u64int *u)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;lput1(Map *map, Loc loc, uchar *a, uint n)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;lput2(Map *map, Loc loc, u16int u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;lput4(Map *map, Loc loc, u32int u)<br>
+    int &nbsp;&nbsp;&nbsp;&nbsp;lput8(Map *map, Loc loc, u64int u)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These functions provide a processor-independent interface for
+    accessing executable files, core files, and running processes
+    via <i>maps</i>, data structures that provides access to an address space
+    and register set. The functions described in <a href="../man3/mach-file.html"><i>mach-file</i>(3)</a> are
+    typically used to construct these maps. Related library functions
+    described in <a href="../man3/mach-symbol.html"><i>mach-symbol</i>(3)</a> provide similar access to symbol tables.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each <i>map</i> comprises an optional register set and one or more <tt><font size=+1>segments</font></tt>,
+    each associating a non-overlapping range of memory addresses with
+    a logical section of an executable file or of a running process&#8217;s
+    address space. Other library functions then use a map and the
+    architecture-specific data structures to provide
+    a generic interface to the processor-dependent data. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Each segment has a name (e.g., <tt><font size=+1>text</font></tt> or <tt><font size=+1>data</font></tt>) and may be associated
+    with a particular file. A segment represents a range of accessible
+    address space. Segments may be backed an arbitary access function
+    (if the <tt><font size=+1>rw</font></tt> pointer is non-nil), or by the contents of an open
+    file (using the <tt><font size=+1>fd</font></tt> file descriptor). Each range has a
+    starting address in the space (<tt><font size=+1>base</font></tt>) and an extent (<tt><font size=+1>size</font></tt>). In
+    segments mapped by files, the range begins at byte <tt><font size=+1>offset</font></tt> in the
+    file. The <tt><font size=+1>rw</font></tt> function is most commonly used to provide access
+    to executing processes via <a href="../man2/ptrace.html"><i>ptrace</i>(2)</a> and to zeroed segments. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Allocmap</i> creates an empty map; <i>freemap</i> frees a map. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Addseg</i> adds the given segment to the map, resizing the map&#8217;s <i>seg</i>
+    array if necessary. A negative return value indicates an allocation
+    error. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Findseg</i> returns the index of the segment with the given name (and,
+    if <i>file</i> is non-nil, the given file), or &ndash;1 if no such segment is
+    found. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Addrtoseg</i> returns the index of the segment containing for the
+    given address, or &ndash;1 if that address is not mapped. Segments may
+    have overlapping address ranges: <i>addseg</i> appends segments to the
+    end of the <i>seg</i> array in the map, and <i>addrtoseg</i> searches the map
+    backwards from the end, so the most recently mapped
+    segment wins. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Addrtosegafter</i> returns the index of the segment containing the
+    lowest mapped address greater than <i>addr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Removeseg</i> removes the segment at the given index. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Get1</i>, <i>get2</i>, <i>get4</i>, and <i>get8</i> retrieve the data stored at address
+    <i>addr</i> in the address space associated with <i>map</i>. <i>Get1</i> retrieves
+    <i>n</i> bytes of data beginning at <i>addr</i> into <i>buf</i>. <i>Get2</i>, <i>get4</i> and <i>get8</i>
+    retrieve 16-bit, 32-bit and 64-bit values respectively, into the
+    location pointed to by <i>u</i>. The value is byte-swapped if the source
+    byte order differs from that of the current architecture. This
+    implies that the value returned by <i>get2</i>, <i>get4</i>, and <i>get8</i> may not
+    be the same as the byte sequences returned by <i>get1</i> when <i>n</i> is two,
+    four or eight; the former may be byte-swapped, the latter reflects
+    the byte order of the target architecture. These functions
+    return the number of bytes read or a &ndash;1 when there is an error.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Put1</i>, <i>put2</i>, <i>put4</i>, and <i>put8</i> write to the address space associated
+    with <i>map</i>. The address is translated using the map parameters and
+    multi-byte quantities are byte-swapped, if necessary, before they
+    are written. <i>Put1</i> transfers <i>n</i> bytes stored at <i>buf</i>; <i>put2</i>, <i>put4</i>,
+    and <i>put8</i> write the 16-bit, 32-bit or 64-bit quantity
+    contained in <i>val</i>, respectively. The number of bytes transferred
+    is returned. A &ndash;1 return value indicates an error. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    When representing core files or running programs, maps also provide
+    access to the register set. <i>Rget</i> and <i>rput</i> read or write the register
+    named by <i>reg</i>. If the register is smaller than a <tt><font size=+1>ulong</font></tt>, the high
+    bits are ignored. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Fpformat</i> converts the contents of a floating-point register to
+    a string. <i>Buf</i> is the address of a buffer of <i>n</i> bytes to hold the
+    resulting string. <i>Code</i> must be either <tt><font size=+1>F</font></tt> or <tt><font size=+1>f</font></tt>, selecting double
+    or single precision, respectively. If <i>code</i> is <tt><font size=+1>F</font></tt>, the contents
+    of the specified register and the following register are interpreted
+    as a
+    double-precision floating-point number; this is meaningful only
+    for architectures that implement double-precision floats by combining
+    adjacent single-precision registers. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>location</i> represents a place in an executing image capable of
+    storing a value. Note that locations are typically passed by value
+    rather than by reference. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Locnone</i> returns an unreadable, unwritable location. <i>Locaddr</i> returns
+    a location representing the memory address <i>addr</i>. <i>Locreg</i> returns
+    a location representing the register <i>reg</i>. <i>Locindir</i> returns an
+    location representing the memory address at <i>offset</i> added to the
+    value of <i>reg</i>. <i>Locconst</i> returns an imaginary unwritable
+    location holding the constant <i>con</i>; such locations are useful for
+    passing specific constants to functions expect locations, such
+    as <i>unwind</i> (see <a href="../man3/mach-stack.html"><i>mach-stack</i>(3)</a>). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Loccmp</i> compares two locations, returning negative, zero, or positive
+    values if <tt><font size=+1>*a</font></tt> is less than, equal to, or greater than <tt><font size=+1>*b</font></tt>, respectively.
+    Register locations are ordered before memory addresses, which
+    are ordered before indirections. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Locfmt</i> is a <a href="../man3/print.html"><i>print</i>(3)</a>-verb that formats a <tt><font size=+1>Loc</font></tt> structure (<i>not</i> a
+    pointer to one). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Indirection locations are needed in some contexts (e.g., when
+    using <i>findlsym</i> (see <a href="../man3/mach-symbol.html"><i>mach-symbol</i>(3)</a>)), but bothersome in most.
+    <i>Locsimplify</i> rewrites indirections as absolute memory addresses,
+    by evaluating the register using the given map and adding the
+    offset. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The functions <i>lget1</i>, <i>lget2</i>, <i>lget4</i>, <i>lget8</i>, <i>lput1</i>, <i>lput2</i>, <i>lput4</i>,
+    and <i>lput8</i> read and write the given locations, using the <i>get</i>, <i>put</i>,
+    <i>rget</i>, and <i>rput</i> function families as necessary.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libmach<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/mach.html"><i>mach</i>(3)</a>, <a href="../man3/mach-file.html"><i>mach-file</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines set <i>errstr</i>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This man page needs to describe <tt><font size=+1>Regs</font></tt> and <tt><font size=+1>Regdesc<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

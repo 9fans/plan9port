@@ -1,0 +1,333 @@
+<head>
+<title>flate(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>FLATE(3)</b><td align=right><b>FLATE(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    deflateinit, deflate, deflatezlib, deflateblock, deflatezlibblock,
+    inflateinit, inflate, inflatezlib, inflateblock, inflatezlibblock,
+    flateerr, mkcrctab, blockcrc, adler32 &ndash; deflate compression<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;flate.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deflateinit(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deflate(void *wr, int (*w)(void*,void*,int),<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            void *rr, int (*r)(void*,void*,int),<br>
+             int level, int debug) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deflatezlib(void *wr, int (*w)(void*,void*,int),<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            void *rr, int (*r)(void*,void*,int),<br>
+             int level, int debug) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deflateblock(uchar *dst, int dsize,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            uchar *src, int ssize,<br>
+             int level, int debug) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deflatezlibblock(uchar *dst, int dsize,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            uchar *src, int ssize,<br>
+             int level, int debug) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inflateinit(void) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inflate(void *wr, int (*w)(void*, void*, int),<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            void *getr, int (*get)(void*)) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inflatezlib(void *wr, int (*w)(void*, void*, int),<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            void *getr, int (*get)(void*)) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inflateblock(uchar *dst, int dsize,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            uchar *src, int ssize) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inflatezlibblock(uchar *dst, int dsize,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            uchar *src, int ssize) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>char &nbsp;&nbsp;&nbsp;&nbsp;*flateerr(int error) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;*mkcrctab(ulong poly) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;blockcrc(ulong *tab, ulong crc, void *buf, int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;adler32(ulong adler, void *buf, int n)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines compress and decompress data using the deflate
+    compression algorithm, which is used for most gzip, zip, and zlib
+    files. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Deflate</i> compresses input data retrieved by calls to <i>r</i> with arguments
+    <i>rr</i>, an input buffer, and a count of bytes to read. <i>R</i> should return
+    the number of bytes read; end of input is signaled by returning
+    zero, an input error by returning a negative number. The compressed
+    output is written to <i>w</i> with arguments <i>wr</i>, the
+    output data, and the number of bytes to write. <i>W</i> should return
+    the number of bytes written; writing fewer than the requested
+    number of bytes is an error. <i>Level</i> indicates the amount of computation
+    deflate should do while compressing the data. Higher <i>levels</i> usually
+    take more time and produce smaller outputs. Valid
+    values are 1 to 9, inclusive; 6 is a good compromise. If <i>debug</i>
+    is non-zero, cryptic debugging information is produced on standard
+    error. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Inflate</i> reverses the process, converting compressed data into
+    uncompressed output. Input is retrieved one byte at a time by
+    calling <i>get</i> with the argument <i>getr</i>. End of input of signaled by
+    returning a negative value. The uncompressed output is written
+    to <i>w</i>, which has the same interface as for <i>deflate</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Deflateblock</i> and <i>inflateblock</i> operate on blocks of memory but
+    are otherwise similar to <i>deflate</i> and <i>inflate</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The zlib functions are similar, but operate on files with a zlib
+    header and trailer. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Deflateinit</i> or <i>inflateinit</i> must be called once before any call
+    to the corresponding routines. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If the above routines fail, they return a negative number indicating
+    the problem. The possible values are <i>FlateNoMem</i>, <i>FlateInputFail</i>,
+    <i>FlateOutputFail</i>, <i>FlateCorrupted</i>, and <i>FlateInternal</i>. <i>Flateerr</i> converts
+    the number into a printable message. <i>FlateOk</i> is defined to be
+    zero, the successful return value for <i>deflateinit</i>,
+    <i>deflate</i>, <i>deflatezlib</i>, <i>inflateinit</i>, <i>inflate</i>, and <i>inflatezlib</i>. The
+    block functions return the number of bytes produced when they
+    succeed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Mkcrctab</i> allocates (using <a href="../man3/malloc.html"><i>malloc</i>(3)</a>), initializes, and returns
+    a table for rapid computation of 32 bit CRC values using the polynomial
+    <i>poly</i>. <i>Blockcrc</i> uses <i>tab</i>, a table returned by <i>mkcrctab</i>, to update
+    <i>crc</i> for the <i>n</i> bytes of data in <i>buf</i>, and returns the new value.
+    <i>Crc</i> should initially be zero. <i>Blockcrc</i> pre-conditions and
+    post-conditions <i>crc</i> by ones complementation. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Adler32</i> updates the Adler 32-bit checksum of the <i>n</i> butes of data
+    in <i>buf.</i> The initial value of <i>adler</i> (that is, its value after seeing
+    zero bytes) should be 1.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libflate<br>
+    </font></tt>
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

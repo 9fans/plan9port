@@ -1,0 +1,125 @@
+<head>
+<title>spell(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>SPELL(1)</b><td align=right><b>SPELL(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    spell, sprog &ndash; find spelling errors<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>spell</font></tt> [ <i>options</i> ] ... [ <i>file</i> ] ... 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>sprog</font></tt> [ <i>options</i> ] [ <tt><font size=+1>&#8722;f</font></tt> <i>file</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Spell</i> looks up words from the named <i>files</i> (standard input default)
+    in a spelling list and places possible misspellings--words not sanctioned
+    there--on the standard output. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Spell</i> ignores constructs of <a href="../man1/troff.html"><i>troff</i>(1)</a> and its standard preprocessors.
+    It understands these options:<br>
+    <tt><font size=+1>&#8722;b</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Check British spelling.<br>
+    <tt><font size=+1>&#8722;v</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Print all words not literally in the spelling list, with derivations.<br>
+    <tt><font size=+1>&#8722;x</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Print, marked with <tt><font size=+1>=</font></tt>, every stem as it is looked up in the spelling
+    list, along with its affix classes. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    As a matter of policy, <i>spell</i> does not admit multiple spellings
+    of the same word. Variants that follow general rules are preferred
+    over those that don&#8217;t, even when the unruly spelling is more common.
+    Thus, in American usage, &#8216;modelled&#8217;, &#8216;sizeable&#8217;, and &#8216;judgment&#8217;
+    are rejected in favor of &#8216;modeled&#8217;, &#8216;sizable&#8217;, and
+    &#8216;judgement&#8217;. Agglutinated variants are shunned: &#8216;crewmember&#8217; and
+    &#8216;backyard&#8217; cede to &#8216;crew member&#8217; and &#8216;back yard&#8217; (noun) or &#8216;back-yard&#8217;
+    (adjective).<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/lib/amspell<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        American spelling list<br>
+        
+    </table>
+    <tt><font size=+1>/usr/local/plan9/lib/brspell<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        British spelling list<br>
+        
+    </table>
+    <tt><font size=+1>/usr/local/plan9/bin/sprog<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The actual spelling checker. It expects one word per line on standard
+        input, and takes the same arguments as <i>spell</i>.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/bin/spell</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the script<br>
+    <tt><font size=+1>/usr/local/plan9/src/cmd/spell</font></tt>&nbsp;&nbsp;&nbsp;source for <i>sprog<br>
+    </i>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/deroff.html"><i>deroff</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The heuristics of <a href="../man1/deroff.html"><i>deroff</i>(1)</a> used to excise formatting information
+    are imperfect. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The spelling list&#8217;s coverage is uneven; in particular biology,
+    medicine, and chemistry, and perforce proper names, not to mention
+    languages other than English, are covered very lightly.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

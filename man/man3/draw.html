@@ -1,0 +1,1174 @@
+<head>
+<title>draw(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>DRAW(3)</b><td align=right><b>DRAW(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Image, draw, drawop, gendraw, gendrawop, drawreplxy, drawrepl,
+    replclipr, line, lineop, poly, polyop, fillpoly, fillpolyop, bezier,
+    bezierop, bezspline, bezsplineop, bezsplinepts, fillbezier, fillbezierop,
+    fillbezspline, fillbezsplineop, ellipse, ellipseop, fillellipse,
+    fillellipseop, arc, arcop, fillarc, fillarcop, icossin, icossin2,
+    border, string, stringop, stringn, stringnop, runestring, runestringop,
+    runestringn, runestringnop, stringbg, stringbgop, stringnbg, stringnbgop,
+    runestringbg, runestringbgop, runestringnbg, runestringnbgop,
+    _string, ARROW, drawsetdebug &ndash; graphics functions<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;draw.h&gt;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    typedef<br>
+    struct Image<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Display &nbsp;&nbsp;&nbsp;&nbsp;*display; /* display holding data */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* id of system&#8722;held Image */<br>
+        Rectangle r;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* rectangle in data area, local coords */<br>
+        Rectangle clipr; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* clipping region */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chan; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* pixel channel format descriptor */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;depth; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* number of bits per pixel */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repl; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* flag: data replicates to tile clipr */<br>
+        Screen &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*screen; &nbsp;&nbsp;&nbsp;/* 0 if not a window */<br>
+        Image &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*next; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* next in list of windows */<br>
+        
+    </table>
+    } Image;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    typedef enum<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        /* Porter&#8722;Duff compositing operators */<br>
+        Clear &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0,<br>
+        SinD = 8,<br>
+        DinS = 4,<br>
+        SoutD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2,<br>
+        DoutS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1,<br>
+        S  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= SinD|SoutD,<br>
+        SoverD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= SinD|SoutD|DoutS,<br>
+        SatopD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= SinD|DoutS,<br>
+        SxorD &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= SoutD|DoutS,<br>
+        D  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= DinS|DoutS,<br>
+        DoverS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= DinS|DoutS|SoutD,<br>
+        DatopS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= DinS|SoutD,<br>
+        DxorS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= DoutS|SoutD, /* == SxorD */<br>
+        Ncomp = 12,<br>
+        
+    </table>
+    } Drawop;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    void &nbsp;&nbsp;&nbsp;draw(Image *dst, Rectangle r, Image *src,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *mask, Point p)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;drawop(Image *dst, Rectangle r, Image *src,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *mask, Point p, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;gendraw(Image *dst, Rectangle r, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *mask, Point mp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;gendrawop(Image *dst, Rectangle r, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *mask, Point mp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;drawreplxy(int min, int max, int x)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Point drawrepl(Rectangle r, Point p)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    void &nbsp;&nbsp;&nbsp;replclipr(Image *i, int repl, Rectangle clipr)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    void &nbsp;&nbsp;&nbsp;line(Image *dst, Point p0, Point p1, int end0, int end1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int radius, Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;lineop(Image *dst, Point p0, Point p1, int end0, int end1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int radius, Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;poly(Image *dst, Point *p, int np, int end0, int end1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int radius, Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;polyop(Image *dst, Point *p, int np, int end0, int end1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int radius, Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;fillpoly(Image *dst, Point *p, int np, int wind,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;fillpolyop(Image *dst, Point *p, int np, int wind,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;bezier(Image *dst, Point p0, Point p1, Point p2, Point p3,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int end0, int end1, int radius, Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;bezierop(Image *dst, Point p0, Point p1, Point p2, Point p3,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int end0, int end1, int radius, Image *src, Point sp,<br>
+             Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;bezspline(Image *dst, Point *pt, int npt, int end0, int end1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int radius, Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;bezsplineop(Image *dst, Point *pt, int npt, int end0, int
+    end1,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int radius, Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;bezsplinepts(Point *pt, int npt, Point **pp)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;fillbezier(Image *dst, Point p0, Point p1, Point p2, Point
+    p3,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int w, Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;fillbezierop(Image *dst, Point p0, Point p1, Point p2, Point
+    p3,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            int w, Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;fillbezspline(Image *dst, Point *pt, int npt, int w,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;fillbezsplineop(Image *dst, Point *pt, int npt, int w,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;ellipse(Image *dst, Point c, int a, int b, int thick,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;ellipseop(Image *dst, Point c, int a, int b, int thick,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;fillellipse(Image *dst, Point c, int a, int b,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;fillellipseop(Image *dst, Point c, int a, int b,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;arc(Image *dst, Point c, int a, int b, int thick,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, int alpha, int phi)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;arcop(Image *dst, Point c, int a, int b, int thick,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, int alpha, int phi, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;fillarc(Image *dst, Point c, int a, int b, Image *src,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Point sp, int alpha, int phi)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;fillarcop(Image *dst, Point c, int a, int b, Image *src,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Point sp, int alpha, int phi, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;icossin(int deg, int *cosp, int *sinp)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;icossin2(int x, int y, int *cosp, int *sinp)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    void &nbsp;&nbsp;&nbsp;border(Image *dst, Rectangle r, int i, Image *color, Point
+    sp)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Point string(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringn(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, int len)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringnop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, int len, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestring(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringn(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, int len)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringnop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, int len, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringbg(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, Image *bg, Point bgp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringbgop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, Image *bg, Point bgp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringnbg(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, int len, Image *bg, Point bgp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point stringnbgop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, char *s, int len, Image *bg, Point bgp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringbg(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, Image *bg, Point bgp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringbgop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, Image *bg, Point bgp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringnbg(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, int len, Image *bg, Point bgp)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point runestringnbgop(Image *dst, Point p, Image *src, Point sp,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Font *f, Rune *r, int len, Image *bg, Point bgp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Point _string(Image *dst, Point p, Image *src,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Point sp, Font *f, char *s, Rune *r, int len,<br>
+             Rectangle clipr, Image *bg, Point bgp, Drawop op)<br>
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    void &nbsp;&nbsp;&nbsp;drawsetdebug(int on)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    enum<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            /* line ends */<br>
+            Endsquare &nbsp;&nbsp;&nbsp;= 0,<br>
+            Enddisc  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1,<br>
+            Endarrow = 2,<br>
+            Endmask  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 0x1F<br>
+            
+        </table>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    #define ARROW(a, b, c) (Endarrow|((a)&lt;&lt;5)|((b)&lt;&lt;14)|((c)&lt;&lt;23))<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>Image</font></tt> type defines rectangular pictures and the methods to
+    draw upon them; it is also the building block for higher level
+    objects such as windows and fonts. In particular, a window is
+    represented as an <tt><font size=+1>Image</font></tt>; no special operators are needed to draw
+    on a window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The coordinates of the rectangle in the plane for which the <tt><font size=+1>Image</font></tt>
+    has defined pixel values. It should not be modified after the
+    image is created.<br>
+    <tt><font size=+1>clipr</font></tt>&nbsp;&nbsp;&nbsp;The clipping rectangle: operations that read or write the
+    image will not access pixels outside <tt><font size=+1>clipr</font></tt>. Frequently, <tt><font size=+1>clipr</font></tt>
+    is the same as <tt><font size=+1>r</font></tt>, but it may differ; see in particular the discussion
+    of <tt><font size=+1>repl</font></tt>. The clipping region may be modified dynamically using
+    <i>replclipr</i> (<i>q.v.</i>).<br>
+    <tt><font size=+1>chan</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;The pixel channel format descriptor, as described in <a href="../man7/image.html"><i>image</i>(7)</a>.
+    The value should not be modified after the image is created.<br>
+    <tt><font size=+1>depth</font></tt>&nbsp;&nbsp;&nbsp;The number of bits per pixel in the picture; it is identically
+    <tt><font size=+1>chantodepth(chan)</font></tt> (see <a href="../man3/graphics.html"><i>graphics</i>(3)</a>) and is provided as a convenience.
+    The value should not be modified after the image is created.<br>
+    <tt><font size=+1>repl</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;A boolean value specifying whether the image is tiled to cover
+    the plane when used as a source for a drawing operation. If <tt><font size=+1>repl</font></tt>
+    is zero, operations are restricted to the intersection of <tt><font size=+1>r</font></tt> and
+    <tt><font size=+1>clipr</font></tt>. If <tt><font size=+1>repl</font></tt> is set, <tt><font size=+1>r</font></tt> defines the tile to be replicated and
+    <tt><font size=+1>clipr</font></tt> defines the portion of the plane covered by the
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            tiling, in other words, <tt><font size=+1>r</font></tt> is replicated to cover <tt><font size=+1>clipr</font></tt>; in such
+            cases <tt><font size=+1>r</font></tt> and <tt><font size=+1>clipr</font></tt> are independent.<br>
+            For example, a replicated image with <tt><font size=+1>r</font></tt> set to ((0, 0), (1, 1))
+            and <tt><font size=+1>clipr</font></tt> set to ((0, 0), (100, 100)), with the single pixel of
+            <tt><font size=+1>r</font></tt> set to blue, behaves identically to an image with <tt><font size=+1>r</font></tt> and <tt><font size=+1>clipr</font></tt>
+            both set to ((0, 0), (100, 100)) and all pixels set to blue. However,
+            the first image requires far less memory. The
+            replication flag may be modified dynamically using <i>replclipr</i> (<i>q.v.</i>).
+            
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+            
+        </table>
+        
+    </table>
+    Most of the drawing functions come in two forms: a basic form,
+    and an extended form that takes an extra <tt><font size=+1>Drawop</font></tt> to specify a Porter-Duff
+    compositing operator to use. The basic forms assume the operator
+    is <tt><font size=+1>SoverD</font></tt>, which suffices for the vast majority of applications.
+    The extended forms are named by adding an
+    -<tt><font size=+1>op</font></tt> suffix to the basic form. Only the basic forms are listed
+    below.<br>
+    <tt><font size=+1>draw(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>r</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>mask</i><tt><font size=+1>,</font></tt> <i>p</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Draw</i> is the standard drawing function. Only those pixels within
+        the intersection of <i>dst</i><tt><font size=+1>&#8722;&gt;r</font></tt> and <i>dst</i><tt><font size=+1>&#8722;&gt;clipr</font></tt> will be affected; <i>draw</i>
+        ignores <i>dst</i><tt><font size=+1>&#8722;&gt;repl</font></tt>. The operation proceeds as follows (this is a
+        description of the behavior, not the implementation):<br>
+        1.&nbsp;&nbsp;&nbsp;&nbsp;If <tt><font size=+1>repl</font></tt> is set in <i>src</i> or <i>mask</i>, replicate their contents to fill
+        their clip rectangles.<br>
+        2.&nbsp;&nbsp;&nbsp;&nbsp;Translate <i>src</i> and <i>mask</i> so <i>p</i> is aligned with <i>r</i><tt><font size=+1>.min</font></tt>.<br>
+        3.&nbsp;&nbsp;&nbsp;&nbsp;Set <i>r</i> to the intersection of <i>r</i> and <i>dst</i><tt><font size=+1>&#8722;&gt;r</font></tt>.<br>
+        4.&nbsp;&nbsp;&nbsp;&nbsp;Intersect <i>r</i> with <i>src</i><tt><font size=+1>&#8722;&gt;clipr</font></tt>. If <i>src</i><tt><font size=+1>&#8722;&gt;repl</font></tt> is false, also intersect
+        <i>r</i> with <i>src</i><tt><font size=+1>&#8722;&gt;r</font></tt>.<br>
+        5.&nbsp;&nbsp;&nbsp;&nbsp;Intersect <i>r</i> with <i>mask</i><tt><font size=+1>&#8722;&gt;clipr</font></tt>. If <i>mask</i><tt><font size=+1>&#8722;&gt;repl</font></tt> is false, also intersect
+        <i>r</i> with <i>mask</i><tt><font size=+1>&#8722;&gt;r</font></tt>.<br>
+        6.&nbsp;&nbsp;&nbsp;&nbsp;For each location in <i>r</i>, combine the <i>dst</i> pixel with the <i>src</i> pixel
+        using the alpha value corresponding to the <i>mask</i> pixel. If the
+        <i>mask</i> has an explicit alpha channel, the alpha value corresponding
+        to the <i>mask</i> pixel is simply that pixel&#8217;s alpha channel. Otherwise,
+        the alpha value is the NTSC greyscale
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            equivalent of the color value, with white meaning opaque and black
+            transparent. In terms of the Porter-Duff compositing algebra,
+            <i>draw</i> replaces the <i>dst</i> pixels with (<i>src</i> in <i>mask</i>) over <i>dst</i>. (In
+            the extended form, &#8220;over&#8221; is replaced by <i>op</i>).<br>
+            
+        </table>
+        The various pixel channel formats involved need not be identical.
+        If the channels involved are smaller than 8-bits, they will be
+        promoted before the calculation by replicating the extant bits;
+        after the calculation, they will be truncated to their proper
+        sizes.<br>
+        
+    </table>
+    <tt><font size=+1>gendraw(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>r</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>p0</i><tt><font size=+1>,</font></tt> <i>mask</i><tt><font size=+1>,</font></tt> <i>p1</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Similar to <i>draw</i> except that <i>gendraw</i> aligns the source and mask
+        differently: <i>src</i> is aligned so <i>p0</i> corresponds to <i>r</i><tt><font size=+1>.min</font></tt> and <i>mask</i>
+        is aligned so <i>p1</i> corresponds to <i>r</i><tt><font size=+1>.min</font></tt><i>.</i> For most purposes with
+        simple masks and source images, <tt><font size=+1>draw</font></tt> is sufficient, but <tt><font size=+1>gendraw</font></tt>
+        is the general operator and the one all other
+        drawing primitives are built upon.<br>
+        
+    </table>
+    <tt><font size=+1>drawreplxy(</font></tt><i>min</i><tt><font size=+1>,</font></tt><i>max</i><tt><font size=+1>,</font></tt><i>x</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Clips <i>x</i> to be in the half-open interval [<i>min</i>, <i>max</i>) by adding or
+        subtracting a multiple of <i>max-min</i>.<br>
+        
+    </table>
+    <tt><font size=+1>drawrepl(</font></tt><i>r</i><tt><font size=+1>,</font></tt><i>p</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Clips the point <i>p</i> to be within the rectangle <i>r</i> by translating
+        the point horizontally by an integer multiple of rectangle width
+        and vertically by the height.<br>
+        
+    </table>
+    <tt><font size=+1>replclipr(</font></tt><i>i</i><tt><font size=+1>,</font></tt><i>repl</i><tt><font size=+1>,</font></tt><i>clipr</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Because the image data is stored on the server, local modifications
+        to the <tt><font size=+1>Image</font></tt> data structure itself will have no effect. <i>Repclipr</i>
+        modifies the local <tt><font size=+1>Image</font></tt> data structure&#8217;s <tt><font size=+1>repl</font></tt> and <tt><font size=+1>clipr</font></tt> fields,
+        and notifies the server of their modification.<br>
+        
+    </table>
+    <tt><font size=+1>line(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>p0</i><tt><font size=+1>,</font></tt> <i>p1</i><tt><font size=+1>,</font></tt> <i>end0</i><tt><font size=+1>,</font></tt> <i>end1</i><tt><font size=+1>,</font></tt> <i>thick</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Line draws in <i>dst</i> a line of width 1+2*<i>thick</i> pixels joining points
+        <i>p0</i> and <i>p1</i>. The line is drawn using pixels from the <i>src</i> image aligned
+        so <i>sp</i> in the source corresponds to <i>p0</i> in the destination. The
+        line touches both <i>p0</i> and <i>p1</i>, and <i>end0</i> and <i>end1</i> specify how the
+        ends of the line are drawn. <tt><font size=+1>Endsquare
+        </font></tt>terminates the line perpendicularly to the direction of the line;
+        a thick line with <tt><font size=+1>Endsquare</font></tt> on both ends will be a rectangle.
+        <tt><font size=+1>Enddisc</font></tt> terminates the line by drawing a disc of diameter 1+2*<i>thick</i>
+        centered on the end point. <tt><font size=+1>Endarrow</font></tt> terminates the line with an
+        arrowhead whose tip touches the endpoint.
+        The macro <tt><font size=+1>ARROW</font></tt> permits explicit control of the shape of the arrow.
+        If all three parameters are zero, it produces the default arrowhead,
+        otherwise, <i>a</i> sets the distance along line from end of the regular
+        line to tip, <i>b</i> sets the distance along line from the barb to the
+        tip, and <i>c</i> sets the distance perpendicular to the
+        line from edge of line to the tip of the barb, all in pixels.<br>
+        <i>Line</i> and the other geometrical operators are equivalent to calls
+        to <i>gendraw</i> using a mask produced by the geometric procedure.<br>
+        
+    </table>
+    <tt><font size=+1>poly(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>p</i><tt><font size=+1>,</font></tt> <i>np</i><tt><font size=+1>,</font></tt> <i>end0</i><tt><font size=+1>,</font></tt> <i>end1</i><tt><font size=+1>,</font></tt> <i>thick</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Poly</i> draws a general polygon; it is conceptually equivalent to
+        a series of calls to <i>line</i> joining adjacent points in the array
+        of <tt><font size=+1>Points</font></tt> <i>p</i>, which has <i>np</i> elements. The ends of the polygon are
+        specified as in <i>line</i>; interior lines are terminated with <tt><font size=+1>Enddisc</font></tt>
+        to make smooth joins. The source is aligned so <i>sp
+        </i>corresponds to <i>p</i><tt><font size=+1>[0]</font></tt>.<br>
+        
+    </table>
+    <tt><font size=+1>fillpoly(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>p</i><tt><font size=+1>,</font></tt> <i>np</i><tt><font size=+1>,</font></tt> <i>wind</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Fillpoly</i> is like <i>poly</i> but fills in the resulting polygon rather
+        than outlining it. The source is aligned so <i>sp</i> corresponds to
+        <i>p</i><tt><font size=+1>[0]</font></tt>. The winding rule parameter <i>wind</i> resolves ambiguities about
+        what to fill if the polygon is self-intersecting. If <i>wind</i> is <tt><font size=+1>~0</font></tt>,
+        a pixel is inside the polygon if the polygon&#8217;s winding number
+        about the point is non-zero. If <i>wind</i> is <tt><font size=+1>1</font></tt>, a pixel is inside if
+        the winding number is odd. Complementary values (0 or ~1) cause
+        outside pixels to be filled. The meaning of other values is undefined.
+        The polygon is closed with a line if necessary.<br>
+        
+    </table>
+    <tt><font size=+1>bezier(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>a</i><tt><font size=+1>,</font></tt> <i>b</i><tt><font size=+1>,</font></tt> <i>c</i><tt><font size=+1>,</font></tt> <i>d</i><tt><font size=+1>,</font></tt> <i>end0</i><tt><font size=+1>,</font></tt> <i>end1</i><tt><font size=+1>,</font></tt> <i>thick</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Bezier</i> draws the cubic Bezier curve defined by <tt><font size=+1>Points</font></tt> <i>a</i>, <i>b</i>, <i>c</i>,
+        and <i>d</i>. The end styles are determined by <i>end0</i> and <i>end1</i>; the thickness
+        of the curve is 1+2*<i>thick</i>. The source is aligned so <i>sp</i> in <i>src</i>
+        corresponds to <i>a</i> in <i>dst</i>.<br>
+        
+    </table>
+    <tt><font size=+1>bezspline(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>p</i><tt><font size=+1>,</font></tt> <i>end0</i><tt><font size=+1>,</font></tt> <i>end1</i><tt><font size=+1>,</font></tt> <i>thick</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Bezspline</i> takes the same arguments as <i>poly</i> but draws a quadratic
+        B-spline (despite its name) rather than a polygon. If the first
+        and last points in <i>p</i> are equal, the spline has periodic end conditions.<br>
+        
+    </table>
+    <tt><font size=+1>bezsplinepts(</font></tt><i>pt</i><tt><font size=+1>,</font></tt> <i>npt</i><tt><font size=+1>,</font></tt> <i>pp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Bezsplinepts</i> returns in <i>pp</i> a list of points making up the open
+        polygon that <i>bezspline</i> would draw. The caller is responsible for
+        freeing <i>*pp</i>.<br>
+        
+    </table>
+    <tt><font size=+1>fillbezier(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>a</i><tt><font size=+1>,</font></tt> <i>b</i><tt><font size=+1>,</font></tt> <i>c</i><tt><font size=+1>,</font></tt> <i>d</i><tt><font size=+1>,</font></tt> <i>wind</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Fillbezier</i> is to <i>bezier</i> as <i>fillpoly</i> is to <i>poly</i>.<br>
+        
+    </table>
+    <tt><font size=+1>fillbezspline(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>p</i><tt><font size=+1>,</font></tt> <i>wind</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Fillbezspline</i> is like <i>fillpoly</i> but fills the quadratic B-spline
+        rather than the polygon outlined by <i>p</i>. The spline is closed with
+        a line if necessary.<br>
+        
+    </table>
+    <tt><font size=+1>ellipse(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>c</i><tt><font size=+1>,</font></tt> <i>a</i><tt><font size=+1>,</font></tt> <i>b</i><tt><font size=+1>,</font></tt> <i>thick</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Ellipse</i> draws in <i>dst</i> an ellipse centered on <i>c</i> with horizontal
+        and vertical semiaxes <i>a</i> and <i>b</i>. The source is aligned so <i>sp</i> in
+        <i>src</i> corresponds to <i>c</i> in <i>dst</i>. The ellipse is drawn with thickness
+        1+2*<i>thick</i>.<br>
+        
+    </table>
+    <tt><font size=+1>fillellipse(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>c</i><tt><font size=+1>,</font></tt> <i>a</i><tt><font size=+1>,</font></tt> <i>b</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Fillellipse</i> is like <i>ellipse</i> but fills the ellipse rather than
+        outlining it.<br>
+        
+    </table>
+    <tt><font size=+1>arc(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>c</i><tt><font size=+1>,</font></tt> <i>a</i><tt><font size=+1>,</font></tt> <i>b</i><tt><font size=+1>,</font></tt> <i>thick</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>,</font></tt> <i>alpha</i><tt><font size=+1>,</font></tt> <i>phi</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Arc</i> is like <i>ellipse</i>, but draws only that portion of the ellipse
+        starting at angle <i>alpha</i> and extending through an angle of <i>phi</i>.
+        The angles are measured in degrees counterclockwise from the positive
+        <i>x</i> axis.<br>
+        
+    </table>
+    <tt><font size=+1>fillarc(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>c</i><tt><font size=+1>,</font></tt> <i>a</i><tt><font size=+1>,</font></tt> <i>b</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>,</font></tt> <i>alpha</i><tt><font size=+1>,</font></tt> <i>phi</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Fillarc</i> is like <i>arc</i>, but fills the sector with the source color.<br>
+        
+    </table>
+    <tt><font size=+1>icossin(</font></tt><i>deg</i><tt><font size=+1>,</font></tt> <i>cosp</i><tt><font size=+1>,</font></tt> <i>sinp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Icossin</i> stores in <tt><font size=+1>*</font></tt><i>cosp</i> and <tt><font size=+1>*</font></tt><i>sinp</i> scaled integers representing
+        the cosine and sine of the angle <i>deg</i>, measured in integer degrees.
+        The values are scaled so cos(0) is 1024.<br>
+        
+    </table>
+    <tt><font size=+1>icossin2(</font></tt><i>x</i><tt><font size=+1>,</font></tt> <i>y</i><tt><font size=+1>,</font></tt> <i>cosp</i><tt><font size=+1>,</font></tt> <i>sinp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Icossin2</i> is analogous to <i>icossin,</i> with the angle represented not
+        in degrees but implicitly by the point (<i>x</i>,<i>y</i>). It is to <i>icossin</i>
+        what <tt><font size=+1>atan2</font></tt> is to <tt><font size=+1>atan</font></tt> (see <a href="../man3/sin.html"><i>sin</i>(3)</a>).<br>
+        
+    </table>
+    <tt><font size=+1>border(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>r</i><tt><font size=+1>,</font></tt> <i>i</i><tt><font size=+1>,</font></tt> <i>color</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>Border</i> draws an outline of rectangle <i>r</i> in the specified <i>color</i>.
+        The outline has width <i>i</i>; if positive, the border goes inside the
+        rectangle; negative, outside. The source is aligned so <i>sp</i> corresponds
+        to <i>r</i><tt><font size=+1>.min</font></tt><i>.<br>
+        </i>
+    </table>
+    <tt><font size=+1>string(</font></tt><i>dst</i><tt><font size=+1>,</font></tt> <i>p</i><tt><font size=+1>,</font></tt> <i>src</i><tt><font size=+1>,</font></tt> <i>sp</i><tt><font size=+1>,</font></tt> <i>font</i><tt><font size=+1>,</font></tt> <i>s</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>String</i> draws in <i>dst</i> characters specified by the string <i>s</i> and <i>font</i>;
+        it is equivalent to a series of calls to <i>gendraw</i> using source
+        <i>src</i> and masks determined by the character shapes. The text is
+        positioned with the left of the first character at <i>p</i><tt><font size=+1>.x</font></tt> and the
+        top of the line of text at <i>p</i><tt><font size=+1>.y</font></tt>. The source is positioned so <i>sp</i>
+        in
+        <i>src</i> corresponds to <i>p</i> in <i>dst</i>. <i>String</i> returns a <tt><font size=+1>Point</font></tt> that is the
+        position of the next character that would be drawn if the string
+        were longer.<br>
+        For characters with undefined or zero-width images in the font,
+        the character at font position 0 (NUL) is drawn.<br>
+        The other string routines are variants of this basic form, and
+        have names that encode their variant behavior. Routines whose
+        names contain <tt><font size=+1>rune</font></tt> accept a string of Runes rather than UTF-encoded
+        bytes. Routines ending in <tt><font size=+1>n</font></tt> accept an argument, <i>n</i>, that defines
+        the number of characters to draw rather than
+        accepting a NUL-terminated string. Routines containing <tt><font size=+1>bg</font></tt> draw
+        the background behind the characters in the specified color (<i>bg</i>)
+        and alignment (<i>bgp</i>); normally the text is drawn leaving the background
+        intact.<br>
+        The routine <i>_string</i> captures all this behavior into a single operator.
+        Whether it draws a UTF string or Rune string depends on whether
+        <i>s</i> or <i>r</i> is null (the string length is always determined by <i>len</i>).
+        If <i>bg</i> is non-null, it is used as a background color. The <i>clipr</i>
+        argument allows further management of clipping when
+        drawing the string; it is intersected with the usual clipping
+        rectangles to further limit the extent of the text.<br>
+        
+    </table>
+    <tt><font size=+1>drawsetdebug(</font></tt><i>on</i><tt><font size=+1>)<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Turns on or off debugging output (usually to a serial line) according
+        to whether <i>on</i> is non-zero.<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libdraw<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/graphics.html"><i>graphics</i>(3)</a>, <a href="../man3/stringsize.html"><i>stringsize</i>(3)</a>, <a href="../man7/color.html"><i>color</i>(7)</a>, <a href="../man7/utf.html"><i>utf</i>(7)</a>, <a href="../man3/addpt.html"><i>addpt</i>(3)</a> 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    T. Porter, T. Duff. &#8220;Compositing Digital Images&#8221;, <i>Computer Graphics</i>
+    (Proc. SIGGRAPH), 18:3, pp. 253-259, 1984.<br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines call the graphics error function on fatal errors.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Anti-aliased characters can be drawn by defining a font with multiple
+    bits per pixel, but there are no anti-aliasing geometric primitives.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,258 @@
+<head>
+<title>stat(9P) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>STAT(9P)</b><td align=right><b>STAT(9P)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    stat, wstat &ndash; inquire or change file attributes<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>size</i>[4] <tt><font size=+1>Tstat</font></tt> <i>tag</i>[2] <i>fid</i>[4]<br>
+    <i>size</i>[4] <tt><font size=+1>Rstat</font></tt> <i>tag</i>[2] <i>stat</i>[<i>n</i>] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>size</i>[4] <tt><font size=+1>Twstat</font></tt> <i>tag</i>[2] <i>fid</i>[4] <i>stat</i>[<i>n</i>]<br>
+    <i>size</i>[4] <tt><font size=+1>Rwstat</font></tt> <i>tag</i>[2]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>stat</font></tt> transaction inquires about the file identified by <i>fid</i>.
+    The reply will contain a machine-independent <i>directory entry</i>,
+    <i>stat</i>, laid out as follows:<br>
+    <i>size</i>[2]total byte count of the following data<br>
+    <i>type</i>[2]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        for kernel use<br>
+        
+    </table>
+    <i>dev</i>[4]for kernel use<br>
+    <i>qid.type</i>[1]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the type of the file (directory, etc.), represented as a bit vector
+        corresponding to the high 8 bits of the file&#8217;s mode word.<br>
+        
+    </table>
+    <i>qid.vers</i>[4]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        version number for given path<br>
+        
+    </table>
+    <i>qid.path</i>[8]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the file server&#8217;s unique identification for the file<br>
+        
+    </table>
+    <i>mode</i>[4]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        permissions and flags<br>
+        
+    </table>
+    <i>atime</i>[4]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        last access time<br>
+        
+    </table>
+    <i>mtime</i>[4]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        last modification time<br>
+        
+    </table>
+    <i>length</i>[8]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        length of file in bytes<br>
+        
+    </table>
+    <i>name</i>[ s ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        file name; must be <tt><font size=+1>/</font></tt> if the file is the root directory of the
+        server<br>
+        
+    </table>
+    <i>uid</i>[ s ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        owner name<br>
+        
+    </table>
+    <i>gid</i>[ s ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        group name<br>
+        
+    </table>
+    <i>muid</i>[ s ]<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        name of the user who last modified the file 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    Integers in this encoding are in little-endian order (least significant
+    byte first). The <i>convM2D</i> and <i>convD2M</i> routines (see <a href="../man3/fcall.html"><i>fcall</i>(3)</a>) convert
+    between directory entries and a C structure called a <tt><font size=+1>Dir</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>mode</i> contains permission bits as described in <i>intro</i>(9P) and
+    the following: <tt><font size=+1>0x80000000</font></tt> (<tt><font size=+1>DMDIR</font></tt>, this file is a directory), <tt><font size=+1>0x40000000</font></tt>
+    (<tt><font size=+1>DMAPPEND</font></tt>, append only), <tt><font size=+1>0x20000000</font></tt> (<tt><font size=+1>DMEXCL</font></tt>, exclusive use), <tt><font size=+1>0x04000000</font></tt>
+    (<tt><font size=+1>DMTMP</font></tt>, temporary); these are echoed in <tt><font size=+1>Qid.type</font></tt>. Writes to append-only
+    files always
+    place their data at the end of the file; the <i>offset</i> in the <tt><font size=+1>write</font></tt>
+    message is ignored, as is the <tt><font size=+1>OTRUNC</font></tt> bit in an open. Exclusive
+    use files may be open for I/O by only one fid at a time across
+    all clients of the server. If a second open is attempted, it draws
+    an error. Servers may implement a timeout on the lock on an
+    exclusive use file: if the fid holding the file open has been
+    unused for an extended period (of order at least minutes), it
+    is reasonable to break the lock and deny the initial fid further
+    I/O. Temporary files are not included in nightly archives (see
+    Plan 9&#8217;s <i>fossil</i>(4)). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The two time fields are measured in seconds since the epoch (Jan
+    1 00:00 1970 GMT). The <i>mtime</i> field reflects the time of the last
+    change of content (except when later changed by <tt><font size=+1>wstat</font></tt>). For a
+    plain file, <i>mtime</i> is the time of the most recent <tt><font size=+1>create</font></tt>, <tt><font size=+1>open</font></tt>
+    with truncation, or <tt><font size=+1>write</font></tt>; for a directory it is the time of
+    the most recent <tt><font size=+1>remove</font></tt>, <tt><font size=+1>create</font></tt>, or <tt><font size=+1>wstat</font></tt> of a file in the directory.
+    Similarly, the <i>atime</i> field records the last <tt><font size=+1>read</font></tt> of the contents;
+    also it is set whenever <i>mtime</i> is set. In addition, for a directory,
+    it is set by an <tt><font size=+1>attach</font></tt>, <tt><font size=+1>walk</font></tt>, or <tt><font size=+1>create</font></tt>, all whether successful
+    or not. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>muid</i> field names the user whose actions most recently changed
+    the <i>mtime</i> of the file. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <i>length</i> records the number of bytes in the file. Directories
+    and most files representing devices have a conventional length
+    of 0. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>stat</font></tt> request requires no special permissions. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>wstat</font></tt> request can change some of the file status information.
+    The <i>name</i> can be changed by anyone with write permission in the
+    parent directory; it is an error to change the name to that of
+    an existing file. The <i>length</i> can be changed (affecting the actual
+    length of the file) by anyone with write permission on the
+    file. It is an error to attempt to set the length of a directory
+    to a non-zero value, and servers may decide to reject length changes
+    for other reasons. The <i>mode</i> and <i>mtime</i> can be changed by the owner
+    of the file or the group leader of the file&#8217;s current group. The
+    directory bit cannot be changed by a <tt><font size=+1>wstat</font></tt>; the other
+    defined permission and mode bits can. The <i>gid</i> can be changed:
+    by the owner if also a member of the new group; or by the group
+    leader of the file&#8217;s current group if also leader of the new group
+    (see <i>intro</i>(9P) for more information about permissions, users,
+    and groups). None of the other data can be altered by a
+    <tt><font size=+1>wstat</font></tt> and attempts to change them will trigger an error. In particular,
+    it is illegal to attempt to change the owner of a file. (These
+    conditions may be relaxed when establishing the initial state
+    of a file server; see Plan 9&#8217;s <i>fsconfig</i>(8).) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Either all the changes in <tt><font size=+1>wstat</font></tt> request happen, or none of them
+    does: if the request succeeds, all changes were made; if it fails,
+    none were. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <tt><font size=+1>wstat</font></tt> request can avoid modifying some properties of the file
+    by providing explicit &#8220;don&#8217;t touch&#8221; values in the <tt><font size=+1>stat</font></tt> data that
+    is sent: zero-length strings for text values and the maximum unsigned
+    value of appropriate size for integral values. As a special case,
+    if <i>all</i> the elements of the directory entry in a <tt><font size=+1>Twstat
+    </font></tt>message are &#8220;don&#8217;t touch&#8221; values, the server may interpret it
+    as a request to guarantee that the contents of the associated
+    file are committed to stable storage before the <tt><font size=+1>Rwstat</font></tt> message
+    is returned. (Consider the message to mean, &#8220;make the state of
+    the file exactly what it claims to be.&#8221;) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A <i>read</i> of a directory yields an integral number of directory entries
+    in the machine independent encoding given above (see <i>read</i>(9P)).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Note that since the <tt><font size=+1>stat</font></tt> information is sent as a 9P variable-length
+    datum, it is limited to a maximum of 65535 bytes.<br>
+    
+</table>
+<p><font size=+1><b>ENTRY POINTS    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>Stat</font></tt> messages are generated by <i>fsdirfstat</i> and <i>fsdirstat</i> (see <a href="../man3/9pclient.html"><i>9pclient</i>(3)</a>).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Wstat</font></tt> messages are generated by <i>fsdirfwstat</i> and <i>fsdirwstat</i>.<br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    To make the contents of a directory, such as returned by <i>read</i>(9P),
+    easy to parse, each directory entry begins with a size field.
+    For consistency, the entries in <tt><font size=+1>Twstat</font></tt> and <tt><font size=+1>Rstat</font></tt> messages also
+    contain their size, which means the size appears twice. For example,
+    the <tt><font size=+1>Rstat</font></tt> message is formatted as &#8220;(4+1+2+2+<i>n</i>)[4]
+    <tt><font size=+1>Rstat</font></tt> <i>tag</i>[2] <i>n</i>[2] (<i>n</i>-2)[2] <i>type</i>[2] <i>dev</i>[4]...,&#8221; where <i>n</i> is the
+    value returned by <tt><font size=+1>convD2M</font></tt>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

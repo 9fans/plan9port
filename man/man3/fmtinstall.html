@@ -1,0 +1,339 @@
+<head>
+<title>fmtinstall(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>FMTINSTALL(3)</b><td align=right><b>FMTINSTALL(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    fmtinstall, dofmt, dorfmt, fmtprint, fmtvprint, fmtrune, fmtstrcpy,
+    fmtrunestrcpy, fmtfdinit, fmtfdflush, fmtstrinit, fmtstrflush,
+    runefmtstrinit, runefmtstrflush, errfmt &ndash; support for user-defined
+    print formats and output routines<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>typedef struct Fmt &nbsp;&nbsp;&nbsp;Fmt;<br>
+    struct Fmt{<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        uchar &nbsp;&nbsp;&nbsp;&nbsp;runes; &nbsp;&nbsp;&nbsp;/* output buffer is runes or chars? */<br>
+        void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*start; /* of buffer */<br>
+        void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*to; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* current place in the buffer */<br>
+        void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*stop; &nbsp;&nbsp;&nbsp;/* end of the buffer; overwritten if flush fails */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(*flush)(Fmt*);/* called when to == stop */<br>
+        void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*farg; &nbsp;&nbsp;&nbsp;/* to make flush a closure */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nfmt; &nbsp;&nbsp;&nbsp;&nbsp;/* num chars formatted so far */<br>
+        va_list args; &nbsp;&nbsp;&nbsp;&nbsp;/* args passed to dofmt */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;r;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* % format Rune */<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width;<br>
+        int  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;prec;<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;flags;<br>
+        
+    </table>
+    };<br>
+    enum{<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        FmtWidth &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1,<br>
+        FmtLeft  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtWidth &lt;&lt; 1,<br>
+        FmtPrec  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtLeft &lt;&lt; 1,<br>
+        FmtSharp &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtPrec &lt;&lt; 1,<br>
+        FmtSpace &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtSharp &lt;&lt; 1,<br>
+        FmtSign  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtSpace &lt;&lt; 1,<br>
+        FmtZero  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtSign &lt;&lt; 1,<br>
+        FmtUnsigned = FmtZero &lt;&lt; 1,<br>
+        FmtShort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtUnsigned &lt;&lt; 1,<br>
+        FmtLong  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtShort &lt;&lt; 1,<br>
+        FmtVLong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtLong &lt;&lt; 1,<br>
+        FmtComma &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtVLong &lt;&lt; 1,<br>
+        FmtFlag  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= FmtComma &lt;&lt; 1<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    int &nbsp;&nbsp;&nbsp;&nbsp;fmtfdinit(Fmt *f, int fd, char *buf, int nbuf); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtfdflush(Fmt *f); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtstrinit(Fmt *f); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* fmtstrflush(Fmt *f); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;runefmtstrinit(Fmt *f); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Rune* runefmtstrflush(Fmt *f);<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtinstall(int c, int (*fn)(Fmt*)); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;dofmt(Fmt *f, char *fmt); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;dorfmt(Fmt*, Rune *fmt); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtprint(Fmt *f, char *fmt, ...); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtvprint(Fmt *f, char *fmt, va_list v); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtrune(Fmt *f, int r); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtstrcpy(Fmt *f, char *s); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fmtrunestrcpy(Fmt *f, Rune *s); 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;errfmt(Fmt *f);<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The interface described here allows the construction of custom
+    <a href="../man3/print.html"><i>print</i>(3)</a> verbs and output routines. In essence, they provide access
+    to the workings of the formatted print code. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <a href="../man3/print.html"><i>print</i>(3)</a> suite maintains its state with a data structure called
+    <tt><font size=+1>Fmt</font></tt>. A typical call to <a href="../man3/print.html"><i>print</i>(3)</a> or its relatives initializes a
+    <tt><font size=+1>Fmt</font></tt> structure, passes it to subsidiary routines to process the
+    output, and finishes by emitting any saved state recorded in the
+    <tt><font size=+1>Fmt</font></tt>. The details of the <tt><font size=+1>Fmt</font></tt> are unimportant to outside users,
+    except
+    insofar as the general design influences the interface. The <tt><font size=+1>Fmt</font></tt>
+    records whether the output is in runes or bytes, the verb being
+    processed, its precision and width, and buffering parameters.
+    Most important, it also records a <i>flush</i> routine that the library
+    will call if a buffer overflows. When printing to a file descriptor,
+    the
+    flush routine will emit saved characters and reset the buffer;
+    when printing to an allocated string, it will resize the string
+    to receive more output. The flush routine is nil when printing
+    to fixed-size buffers. User code need never provide a flush routine;
+    this is done internally by the library.<br>
+    <p><font size=+1><b>Custom output routines   </b></font><br>
+    To write a custom output routine, such as an error handler that
+    formats and prints custom error messages, the output sequence
+    can be run from outside the library using the routines described
+    here. There are two main cases: output to an open file descriptor
+    and output to a string. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To write to a file descriptor, call <i>fmtfdinit</i> to initialize the
+    local <tt><font size=+1>Fmt</font></tt> structure <i>f</i>, giving the file descriptor <i>fd</i>, the buffer
+    <i>buf</i>, and its size <i>nbuf</i>. Then call <i>fmtprint</i> or <i>fmtvprint</i> to generate
+    the output. These behave like <tt><font size=+1>fprint</font></tt> (see <a href="../man3/print.html"><i>print</i>(3)</a>) or <tt><font size=+1>vfprint</font></tt>
+    except that the characters are buffered until <i>fmtfdflush</i> is called
+    and the return value is either 0 or &ndash;1. A typical example of this
+    sequence appears in the Examples section. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The same basic sequence applies when outputting to an allocated
+    string: call <i>fmtstrinit</i> to initialize the <tt><font size=+1>Fmt</font></tt>, then call <i>fmtprint</i>
+    and <i>fmtvprint</i> to generate the output. Finally, <i>fmtstrflush</i> will
+    return the allocated string, which should be freed after use.
+    To output to a rune string, use <i>runefmtstrinit</i> and <i>runefmtstrflush</i>.
+    Regardless of the output style or type, <i>fmtprint</i> or <i>fmtvprint</i>
+    generates the characters.<br>
+    <p><font size=+1><b>Custom format verbs   </b></font><br>
+    <i>Fmtinstall</i> is used to install custom verbs and flags labeled by
+    character <i>c</i>, which may be any non-zero Unicode character. <i>Fn</i> should
+    be declared as<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;fn(Fmt*)<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    <i>Fp</i><tt><font size=+1>&#8722;&gt;r</font></tt> is the flag or verb character to cause <i>fn</i> to be called. In
+    <i>fn</i>, <i>fp</i><tt><font size=+1>&#8722;&gt;width</font></tt><i>, fp</i><tt><font size=+1>&#8722;&gt;prec</font></tt> are the width and precision, and <i>fp</i><tt><font size=+1>&#8722;&gt;flags</font></tt>
+    the decoded flags for the verb (see <a href="../man3/print.html"><i>print</i>(3)</a> for a description
+    of these items). The standard flag values are: <tt><font size=+1>FmtSign</font></tt> (<tt><font size=+1>+</font></tt>), <tt><font size=+1>FmtLeft</font></tt>
+    (<tt><font size=+1>&#8722;</font></tt>), <tt><font size=+1>FmtSpace</font></tt> (<tt><font size=+1>' '</font></tt>), <tt><font size=+1>FmtSharp</font></tt> (<tt><font size=+1>#</font></tt>),
+    <tt><font size=+1>FmtComma</font></tt> (<tt><font size=+1>,</font></tt>), <tt><font size=+1>FmtLong</font></tt> (<tt><font size=+1>l</font></tt>), <tt><font size=+1>FmtShort</font></tt> (<tt><font size=+1>h</font></tt>), <tt><font size=+1>FmtUnsigned</font></tt> (<tt><font size=+1>u</font></tt>), and
+    <tt><font size=+1>FmtVLong</font></tt> (<tt><font size=+1>ll</font></tt>). The flag bits <tt><font size=+1>FmtWidth</font></tt> and <tt><font size=+1>FmtPrec</font></tt> identify whether
+    a width and precision were specified. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Fn</i> is passed a pointer to the <tt><font size=+1>Fmt</font></tt> structure recording the state
+    of the output. If <i>fp</i><tt><font size=+1>&#8722;&gt;r</font></tt> is a verb (rather than a flag), <i>fn</i> should
+    use <tt><font size=+1>Fmt&#8722;&gt;args</font></tt> to fetch its argument from the list, then format
+    it, and return zero. If <i>fp</i><tt><font size=+1>&#8722;&gt;r</font></tt> is a flag, <i>fn</i> should return one.
+    All interpretation of <i>fp</i><tt><font size=+1>&#8722;&gt;width</font></tt>, <i>fp</i><tt><font size=+1>&#8722;&gt;prec</font></tt>, and <i>fp-&gt;</i><tt><font size=+1>flags</font></tt> is
+    left up to the conversion routine. <i>Fmtinstall</i> returns 0 if the
+    installation succeeds, &ndash;1 if it fails. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Fmtprint</i> and <i>fmtvprint</i> may be called to help prepare output in
+    custom conversion routines. However, these functions clear the
+    width, precision, and flags. Both functions return 0 for success
+    and &ndash;1 for failure. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The functions <i>dofmt</i> and <i>dorfmt</i> are the underlying formatters;
+    they use the existing contents of <tt><font size=+1>Fmt</font></tt> and should be called only
+    by sophisticated conversion routines. These routines return the
+    number of characters (bytes of UTF or runes) produced. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Some internal functions may be useful to format primitive types.
+    They honor the width, precision and flags as described in <a href="../man3/print.html"><i>print</i>(3)</a>.
+    <i>Fmtrune</i> formats a single character <tt><font size=+1>r</font></tt>. <i>Fmtstrcpy</i> formats a string
+    <tt><font size=+1>s</font></tt>; <i>fmtrunestrcpy</i> formats a rune string <tt><font size=+1>s</font></tt>. <i>Errfmt</i> formats the system
+    error string. All these routines return zero for
+    successful execution. Conversion routines that call these functions
+    will work properly regardless of whether the output is bytes or
+    runes.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This function prints an error message with a variable number of
+    arguments and then quits. Compared to the corresponding example
+    in <a href="../man3/print.html"><i>print</i>(3)</a>, this version uses a smaller buffer, will never truncate
+    the output message, but might generate multiple <tt><font size=+1>write</font></tt> system calls
+    to produce its output.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>#pragma &nbsp;&nbsp;&nbsp;varargck argpos &nbsp;&nbsp;&nbsp;error &nbsp;&nbsp;&nbsp;&nbsp;1<br>
+        void fatal(char *fmt, ...)<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Fmt f;<br>
+            char buf[64];<br>
+            va_list arg;<br>
+            fmtfdinit(&amp;f, 1, buf, sizeof buf);<br>
+            fmtprint(&amp;f, &quot;fatal: &quot;);<br>
+            va_start(arg, fmt);<br>
+            fmtvprint(&amp;f, fmt, arg);<br>
+            va_end(arg);<br>
+            fmtprint(&amp;f, &quot;\n&quot;);<br>
+            fmtfdflush(&amp;f);<br>
+            exits(&quot;fatal error&quot;);<br>
+            
+        </table>
+        }<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    This example adds a verb to print complex numbers.<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>typedef<br>
+        struct {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            double &nbsp;&nbsp;&nbsp;r, i;<br>
+            
+        </table>
+        } Complex;<br>
+        #pragma &nbsp;&nbsp;&nbsp;varargck type &quot;X&quot; Complex<br>
+        int<br>
+        Xfmt(Fmt *f)<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Complex c;<br>
+            c = va_arg(f&#8722;&gt;args, Complex);<br>
+            return fmtprint(f, &quot;(%g,%g)&quot;, c.r, c.i);<br>
+            
+        </table>
+        }<br>
+        main(...)<br>
+        {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Complex x = (Complex){ 1.5, &#8722;2.3 };<br>
+            fmtinstall('X', Xfmt);<br>
+            print(&quot;x = %X\n&quot;, x);<br>
+            
+        </table>
+        }<br>
+        </font></tt>
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/fmt<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/print.html"><i>print</i>(3)</a>, <a href="../man7/utf.html"><i>utf</i>(7)</a>, <a href="../man3/errstr.html"><i>errstr</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>DIAGNOSTICS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines return negative numbers or nil for errors and set
+    <i>errstr</i>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

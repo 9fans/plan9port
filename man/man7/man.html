@@ -1,0 +1,292 @@
+<head>
+<title>man(7) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MAN(7)</b><td align=right><b>MAN(7)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    man &ndash; macros to typeset manual<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>nroff &#8722;man</font></tt> <i>file ... 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>troff &#8722;man</font></tt> <i>file ...<br>
+    </i>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These macros are used to format pages of this manual. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Except in <tt><font size=+1>.LR</font></tt> and <tt><font size=+1>.RL</font></tt> requests, any text argument denoted <i>t</i> in
+    the request summary may be zero to six words. Quotes <tt><font size=+1>&quot;</font></tt> ... <tt><font size=+1>&quot;</font></tt> may
+    be used to include blanks in a &#8216;word&#8217;. If <i>t</i> is empty, the special
+    treatment is applied to the next text input line (the next line
+    that doesn&#8217;t begin with dot). In this way, for example, <tt><font size=+1>.I
+    </font></tt>may be used to italicize a line of more than 6 words, or <tt><font size=+1>.SM</font></tt> followed
+    by <tt><font size=+1>.B</font></tt> to make small letters in &#8216;bold&#8217; font. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A prevailing indent distance is remembered between successive
+    indented paragraphs, and is reset to default value upon reaching
+    a non-indented paragraph. Default units for indents <i>i</i> are ens.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The fonts are<br>
+    <tt><font size=+1>R</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roman, the main font, preferred for diagnostics<br>
+    <tt><font size=+1>I</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;italic, preferred for parameters, short names of commands, names
+    of manual pages, and naked function names<br>
+    <tt><font size=+1>B</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8216;bold&#8217;, actually the constant width font, preferred for examples,
+    file names, declarations, keywords, names of <tt><font size=+1>struct</font></tt> members, and
+    literals (numbers are rarely literals)<br>
+    <tt><font size=+1>L</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;also the constant width font. In <i>troff</i> <tt><font size=+1>L</font></tt>=<tt><font size=+1>B</font></tt>; in <i>nroff</i> arguments
+    of the macros <tt><font size=+1>.L</font></tt>, <tt><font size=+1>.LR</font></tt>, and <tt><font size=+1>.RL</font></tt> are printed in quotes; preferred
+    only where quotes really help (e.g. lower-case literals and punctuation).
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Type font and size are reset to default values before each paragraph,
+    and after processing font- or size-setting macros. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;man</font></tt> macros admit equations and tables in the style of <a href="../man1/eqn.html"><i>eqn</i>(1)</a>
+    and <a href="../man1/tbl.html"><i>tbl</i>(1)</a>, but do not support arguments on <tt><font size=+1>.EQ</font></tt> and <tt><font size=+1>.TS</font></tt> macros.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    These strings are predefined by <tt><font size=+1>&#8722;man</font></tt>:<br>
+    <tt><font size=+1>\*R</font></tt>&nbsp;&nbsp;&nbsp;&#8216;&reg;&#8217;, &#8216;(Reg)&#8217; in <i>nroff</i>.<br>
+    <tt><font size=+1>\*S</font></tt>&nbsp;&nbsp;&nbsp;Change to default type size. <tt><font size=+1>\*9</font></tt> The root directory of the
+    Plan 9 installation.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/tmac/tmac.an 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>/usr/local/plan9/tmac/tmac.antimes<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/troff.html"><i>troff</i>(1)</a>, <a href="../man1/man.html"><i>man</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>REQUESTS     </b></font><br>
+Request Cause If no &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Explanation<br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Break Argument<br>
+        
+    </table>
+    
+</table>
+<tt><font size=+1>.B</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l.* &nbsp;&nbsp;&nbsp;Text <i>t</i> is &#8216;bold&#8217;.<br>
+<tt><font size=+1>.BI</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Join words of <i>t</i> alternating bold and italic.<br>
+<tt><font size=+1>.BR</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Join words of <i>t</i> alternating bold and Roman.<br>
+<tt><font size=+1>.DT </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Restore default tabs.<br>
+<tt><font size=+1>.EE </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End displayed example<br>
+<tt><font size=+1>.EX </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Begin displayed example<br>
+<tt><font size=+1>.HP</font></tt> <i>i </i>&nbsp;&nbsp;&nbsp;yes 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>i</i>=p.i.* &nbsp;&nbsp;&nbsp;&nbsp;Set prevailing indent to <i>i</i>. Begin paragraph with hanging
+indent.<br>
+<tt><font size=+1>.I</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Text <i>t</i> is italic.<br>
+<tt><font size=+1>.IB</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Join words of <i>t</i> alternating italic and bold.<br>
+<tt><font size=+1>.IP</font></tt> <i>x i</i> yes 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>x</i>=&quot;&quot; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as <tt><font size=+1>.TP</font></tt> with tag <i>x</i>.<br>
+<tt><font size=+1>.IR</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Join words of <i>t</i> alternating italic and Roman.<br>
+<tt><font size=+1>.L</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Text <i>t</i> is literal.<br>
+<tt><font size=+1>.LP </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Same as <tt><font size=+1>.PP</font></tt>.<br>
+<tt><font size=+1>.LR</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join 2 words of <i>t</i> alternating literal and Roman.<br>
+<tt><font size=+1>.PD</font></tt> <i>d </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>d</i>=<tt><font size=+1>.4v </font></tt>&nbsp;&nbsp;&nbsp;Interparagraph distance is <i>d</i>.<br>
+<tt><font size=+1>.PP </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Begin paragraph. Set prevailing indent to default.<br>
+<tt><font size=+1>.RE </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End of relative indent. Set prevailing indent to amount
+of starting <tt><font size=+1>.RS</font></tt>.<br>
+<tt><font size=+1>.RI</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Join words of <i>t</i> alternating Roman and italic.<br>
+<tt><font size=+1>.RL</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Join 2 or 3 words of <i>t</i> alternating Roman and literal.<br>
+<tt><font size=+1>.RS</font></tt> <i>i </i>&nbsp;&nbsp;&nbsp;yes 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>i</i>=p.i. &nbsp;&nbsp;&nbsp;&nbsp;Start relative indent, move left margin in distance <i>i</i>.
+Set prevailing indent to default for nested indents.<br>
+<tt><font size=+1>.SH</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;yes 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=&quot;&quot; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subhead; reset paragraph distance.<br>
+<tt><font size=+1>.SM</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=n.t.l. &nbsp;&nbsp;&nbsp;Text <i>t</i> is small.<br>
+<tt><font size=+1>.SS</font></tt> <i>t </i>&nbsp;&nbsp;&nbsp;no 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>t</i>=&quot;&quot; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Secondary subhead.<br>
+<tt><font size=+1>.TF</font></tt> <i>s </i>&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Prevailing indent is wide as string <i>s</i> in font <tt><font size=+1>L</font></tt>; paragraph
+distance is 0.<br>
+<tt><font size=+1>.TH</font></tt> <i>n c x </i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Begin page named <i>n</i> of chapter <i>c;</i> <i>x</i> is extra commentary,
+e.g. &#8216;local&#8217;, for page head. Set prevailing indent and tabs to
+default.<br>
+<tt><font size=+1>.TP</font></tt> <i>i </i>&nbsp;&nbsp;&nbsp;yes 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+<tt><font size=+1>&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+&#60094;</font></tt><i>i</i>=p.i. &nbsp;&nbsp;&nbsp;&nbsp;Set prevailing indent to <i>i</i>. Restore default indent if
+<i>i</i>=0. Begin indented paragraph with hanging tag given by next text
+line. If tag doesn&#8217;t fit, place it on separate line.<br>
+<tt><font size=+1>.1C </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Equalize columns and return to 1-column output<br>
+<tt><font size=+1>.2C </font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;yes  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Start 2-column nofill output 
+<table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+
+* n.t.l. = next text line; p.i. = prevailing indent<br>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    There&#8217;s no way to fool <i>troff</i> into handling literal double quote
+    marks <tt><font size=+1>&quot;</font></tt> in font-alternation macros, such as <tt><font size=+1>.BI</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There is no direct way to suppress column widows in 2-column output;
+    the column lengths may be adjusted by inserting <tt><font size=+1>.sp</font></tt> requests before
+    the closing <tt><font size=+1>.1C</font></tt>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

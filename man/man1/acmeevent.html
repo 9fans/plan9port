@@ -1,0 +1,332 @@
+<head>
+<title>acmeevent(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ACMEEVENT(1)</b><td align=right><b>ACMEEVENT(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    acmeevent, acme.rc &ndash; shell script support for acme clients<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>9p read acme/acme/$winid/event | acmeevent 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>. /usr/local/plan9/lib/acme.rc 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>newwindow 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>winread</font></tt> <i>file 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>winwrite</font></tt> <i>file 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>winctl</font></tt> <i>cmd 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>windump</font></tt> [ <i>dumpdir</i> | <tt><font size=+1>&#8722;</font></tt> ] [ <i>dumpcmd</i> | <tt><font size=+1>&#8722;</font></tt> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>winname</font></tt> <i>name 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </i>
+    <tt><font size=+1>windel</font></tt> [ <tt><font size=+1>sure</font></tt> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>winwriteevent</font></tt> <i>c1 c2 q0 q1</i> [ <i>eq0 eq1 flag textlen text chordarg
+    chordaddr</i> ] 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>wineventloop<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Acmeevent</i> and <i>acme.rc</i> make it easy to write simple <a href="../man1/acme.html"><i>acme</i>(1)</a> client
+    programs as shell scripts. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Acme</i> clients read the <tt><font size=+1>event</font></tt> files (see <a href="../man4/acme.html"><i>acme</i>(4)</a>) for the windows
+    they control, reacting to the events. The events are presented
+    in a format that is easy to read with C programs but hard to read
+    with shell scripts. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Acmeevent</i> reads an <a href="../man4/acme.html"><i>acme</i>(4)</a> event stream from standard input, printing
+    a shell-friendly version of the events, one per line, on standard
+    output. Each output line from <i>acmeevent</i> has the form:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>event</font></tt> <i>c1 c2 q0 q1 eq0 eq1 flag textlen text chordarg chordaddr
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </i>
+        
+    </table>
+    The fields are:<br>
+    <i>c1</i>&nbsp;&nbsp;&nbsp;&nbsp;A character indicating the origin or cause of the action. The
+    possible causes are: a write to the body or tag file (<tt><font size=+1>E</font></tt>), a write
+    to the window&#8217;s other files (<tt><font size=+1>F</font></tt>), input via the keyboard (<tt><font size=+1>K</font></tt>), and
+    input via the mouse (<tt><font size=+1>M</font></tt>).<br>
+    <i>c2</i>&nbsp;&nbsp;&nbsp;&nbsp;A character indicating the type of action. The possible types
+    are: text deleted from the body (<tt><font size=+1>D</font></tt>), text deleted from the tag
+    (<tt><font size=+1>d</font></tt>), text inserted in the body (<tt><font size=+1>I</font></tt>), text inserted in the tag (<tt><font size=+1>i</font></tt>),
+    a button 3 action in the body (<tt><font size=+1>L</font></tt>), a button 3 action in the tag
+    (<tt><font size=+1>l</font></tt>), a button 2 action in the body (<tt><font size=+1>X</font></tt>), and a button 2 action
+    in the
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        tag (<tt><font size=+1>x</font></tt>).<br>
+        
+    </table>
+    <i>q0</i>, <i>q1</i>The character addresses of the action.<br>
+    <i>eq0</i>, <i>q1<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The expanded character addresses of the action. If the text indicated
+        by <i>q0</i>, <i>q1</i> is a null string that has a non-null expansion, <i>eq0</i>,
+        <i>eq1</i> are the addresses of the expansion. Otherwise they are the
+        same as <i>q0</i>, <i>q1</i>.<br>
+        
+    </table>
+    <i>flag&nbsp;&nbsp;&nbsp;Flag</i> is a bitwise OR (reported decimally) of the following:
+    1 if the text indicated is recognized as an <i>acme</i> built-in command;
+    2 if the text indicated is a null string that has a non-null expansion
+    (see <i>eq0</i>, <i>eq1</i> above); 8 if the command has an extra (chorded)
+    argument (see <i>chordarg</i> below). <i>Flag</i> remains from the
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <a href="../man4/acme.html"><i>acme</i>(4)</a> event format. Because <i>eq0</i>, <i>eq1</i>, and <i>chordarg</i> are explicit
+        in each event (unlike in <a href="../man4/acme.html"><i>acme</i>(4)</a> events), <i>flag</i> can usually be
+        ignored.<br>
+        
+    </table>
+    <i>textlen<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The length of the action text (or its expansion) for button 2
+        and button 3 events in characters.<br>
+        
+    </table>
+    <i>text</i>&nbsp;&nbsp;&nbsp;If <i>textlen</i> is less than 256 chracters, <i>text</i> is the action
+    text itself. Otherwise it is an empty string and must be read
+    from the <tt><font size=+1>data</font></tt> file.<br>
+    <i>chordarg<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        The chorded argument for an action.<br>
+        
+    </table>
+    <i>chordorigin<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        If the chord argument is in the body of a named window, <i>chordorigin</i>
+        specifies the full address of the argument, as in <tt><font size=+1>/etc/group:#123,#234</font></tt>.
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    To experiment with <i>acmeevent</i>, create an empty window in <i>acme</i> (using
+    <i>New</i>),<i>type<br>
+    </i>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>9p read acme/$winid/event | acmeevent<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    inside it, and execute it. Actions performed on the window will
+    be printed as events in the <tt><font size=+1>+Errors</font></tt> window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Acme.rc</i> is a library of <a href="../man1/rc.html"><i>rc</i>(1)</a> shell functions useful for writing
+    acme clients. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Newwindow</i> creates a new acme window and sets <tt><font size=+1>$winid</font></tt> to the new
+    window&#8217;s id. The other commands all use <tt><font size=+1>$winid</font></tt> to determine which
+    window to operate on. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Winread</i> prints the current window&#8217;s <i>file</i> to standard output. It
+    is equivalent to <tt><font size=+1>cat /mnt/acme/acme/$winid/</font></tt><i>file</i> on Plan 9. Similarly,
+    <i>winwrite</i> writes standard input to the current window&#8217;s <i>file</i>. <i>Winread</i>
+    and <i>winwrite</i> are useful mainly in building more complex functions.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Winctl</i> writes <i>cmd</i> to the window&#8217;s <tt><font size=+1>ctl</font></tt> file. The most commonly-used
+    command is <tt><font size=+1>clean</font></tt>, which marks the window as clean. See <a href="../man4/acme.html"><i>acme</i>(4)</a>
+    for a full list of commands. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Windump</i> sets the window&#8217;s dump directory and dump command (see
+    <a href="../man4/acme.html"><i>acme</i>(4)</a>). If either argument is omitted or is <tt><font size=+1>&#8722;</font></tt>, that argument
+    is not set. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Winname</i> sets the name displayed in the window&#8217;s tag. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Windel</i> simulates the <tt><font size=+1>Del</font></tt> command. If the argument <tt><font size=+1>sure</font></tt> is given,
+    it simulates the <tt><font size=+1>Delete</font></tt> command. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Winwriteevent</i> writes an event to the window&#8217;s event file. The
+    event is in the format produced by <i>acmeevent</i>. Only the first four
+    arguments are necessary: the rest are ignored. Event handlers
+    should call <i>winwriteevent</i> to pass unhandled button 2 or button
+    3 events back to <i>acme</i> for processing. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Wineventloop</i> executes the current window&#8217;s event file, as output
+    by <i>acmeevent</i>. It returns when the window has been deleted. Before
+    running <i>wineventloop ,</i> clients must define a shell function named
+    <tt><font size=+1>event</font></tt>, which will be run for each incoming event, as <i>rc</i> executes
+    the output of <i>acmeevent</i>. A typical event function
+    need only worry about button 2 and button 3 events. Those events
+    not handled should be sent back to <i>acme</i> with <i>winwriteevent</i>.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Adict</i>, a dictionary browser, is implemented using <i>acmeevent</i> and
+    <i>acme.rc</i>. The <i>event</i> handler is:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>fn event {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            switch($1$2){<br>
+            case Mx MX &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# button 2 &#8722; pass back to acme<br>
+             winwriteevent $*<br>
+            case Ml ML &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# button 3 &#8722; open new window on dictionary or entry<br>
+             {<br>
+              if(~ $dict NONE)<br>
+               dictwin /adict/$7/ $7<br>
+              if not<br>
+               dictwin /adict/$dict/$7 $dict $7<br>
+             } &amp;<br>
+            }<br>
+            
+        </table>
+        }<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    Note that the button 3 handler starts a subshell in which to run
+    <i>dictwin</i>. That subshell will create a new window, set its name,
+    possibly fill the window with a dictionary list or dictionary
+    entry, mark the window as clean, and run the event loop:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>fn dictwin {<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            newwindow<br>
+            winname $1<br>
+            dict=$2<br>
+            if(~ $dict NONE)<br>
+             dict &#8722;d '?' &gt;[2=1] | sed 1d | winwrite body<br>
+            if(~ $#* 3)<br>
+             dict &#8722;d $dict $3 &gt;[2=1] | winwrite body<br>
+            winctl clean<br>
+            wineventloop<br>
+            
+        </table>
+        }<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    The script starts with an initial window:<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <tt><font size=+1>dictwin /adict/ NONE<br>
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        </font></tt>
+        
+    </table>
+    Button 3 clicking on a dictionary name in the initial window will
+    create a new empty window for that dictionary. Typing and button
+    3 clicking on a word in that window will create a new window with
+    the dictionary&#8217;s entry for that word. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    See <tt><font size=+1>/usr/local/plan9/bin/adict</font></tt> for the full implementation.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/acmeevent.c<br>
+    /usr/local/plan9/lib/acme.rc<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/acme.html"><i>acme</i>(1)</a>, <a href="../man4/acme.html"><i>acme</i>(4)</a>, <a href="../man1/rc.html"><i>rc</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    There is more that could be done to ease the writing of complicated
+    clients.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

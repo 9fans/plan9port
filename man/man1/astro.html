@@ -1,0 +1,125 @@
+<head>
+<title>astro(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>ASTRO(1)</b><td align=right><b>ASTRO(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    astro &ndash; print astronomical information<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>astro</font></tt> [ <tt><font size=+1>&#8722;dlpsatokm</font></tt> ] [ <tt><font size=+1>&#8722;c</font></tt> n ] [ <tt><font size=+1>&#8722;C</font></tt> d ] [ <tt><font size=+1>&#8722;e</font></tt> <i>obj1 obj2</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Astro</i> reports upcoming celestial events, by default for 24 hours
+    starting now. The options are:<br>
+    <tt><font size=+1>d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read the starting date. A prompt gives the input format.<br>
+    <tt><font size=+1>l</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read the north latitude, west longitude, and elevation of the
+    observation point. A prompt gives the input format. If <tt><font size=+1>l</font></tt> is missing,
+    the initial position is read from the file <tt><font size=+1>/usr/local/plan9/sky/here</font></tt>.<br>
+    <tt><font size=+1>c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Report for <i>n</i> (default 1) successive days.<br>
+    <tt><font size=+1>C</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Used with <tt><font size=+1>&#8722;c</font></tt>, set the interval to <tt><font size=+1>d</font></tt> days (or fractions of days).<br>
+    <tt><font size=+1>e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Report distance between the centers of objects, in arc seconds,
+    during eclipses or occultations involving <i>obj1</i> and <i>obj2</i>.<br>
+    <tt><font size=+1>p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print the positions of objects at the given time rather than
+    searching for interesting conjunctions. For each, the name is
+    followed by the right ascension (hours, minutes, seconds), declination
+    (degrees, minutes, seconds), azimuth (degrees), elevation (degrees),
+    and semidiameter (arc seconds). For the sun and
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        moon, the magnitude is also printed. The first line of output
+        presents the date and time, sidereal time, and the latitude, longitude,
+        and elevation.<br>
+        
+    </table>
+    <tt><font size=+1>s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print output in English words suitable for speech synthesizers.<br>
+    <tt><font size=+1>a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Include a list of artificial earth satellites for interesting
+    events. (There are no orbital elements for the satellites, so
+    this option is not usable.)<br>
+    <tt><font size=+1>t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Read &#916;T from standard input. &#916;T is the difference between ephemeris
+    and universal time (seconds) due to the slowing of the earth&#8217;s
+    rotation. &#916;T is normally calculated from an empirical formula.
+    This option is needed only for very accurate timing of occultations,
+    eclipses, etc.<br>
+    <tt><font size=+1>o</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Search for stellar occultations.<br>
+    <tt><font size=+1>k</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Print times in local time (&#8216;kitchen clock&#8217;) as described in the
+    <tt><font size=+1>timezone</font></tt> environment variable.<br>
+    <tt><font size=+1>m</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Includes a single comet in the list of objects. This is modified
+    (in the source) to refer to an approaching comet but in steady
+    state usually refers to the last interesting comet (currently
+    Hale-Bopp, C/1995 O1).<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/sky/estartab<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        ecliptic star data<br>
+        
+    </table>
+    <tt><font size=+1>/usr/local/plan9/sky/here<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        default latitude (N), longitude (W), and elevation (meters)<br>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/astro<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/scat.html"><i>scat</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <tt><font size=+1>k</font></tt> option reverts to GMT outside of 1970-2036.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

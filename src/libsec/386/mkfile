@@ -16,6 +16,11 @@ UPDATE=mkfile\
 <$PLAN9/src/mksyslib
 
 %.s: %.spp
-	cpp $stem.spp >$stem.s
+	if [ `uname` = OpenBSD ]
+	then
+		gcc -xc -E $stem.spp >$stem.s
+	else
+		cpp $stem.spp >$stem.s
+	fi
 
 CLEANFILES=md5block.s sha1block.s

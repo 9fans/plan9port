@@ -1,0 +1,117 @@
+<head>
+<title>graph(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>GRAPH(1)</b><td align=right><b>GRAPH(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    graph &ndash; draw a graph<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>graph</font></tt> [ <i>option ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Graph</i> with no options takes pairs of numbers from the standard
+    input as abscissas (<i>x</i>-values) and ordinates (<i>y</i>-values) of a graph.
+    Successive points are connected by straight lines. The graph is
+    encoded on the standard output for display by <a href="../man1/plot.html"><i>plot</i>(1)</a> filters.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If an ordinate is followed by a nonnumeric string, that string
+    is printed as a label beginning on the point. Labels may be surrounded
+    with quotes <tt><font size=+1>&quot; &quot;</font></tt> in which case they may be empty or contain blanks
+    and numbers; labels never contain newlines. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The following options are recognized, each as a separate argument.<br>
+    <tt><font size=+1>&#8722;a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Supply abscissas automatically; no <i>x</i>-values appear in the input.
+    Spacing is given by the next argument (default 1). A second optional
+    argument is the starting point for automatic abscissas (default
+    0, or 1 with a log scale in <i>x</i>, or the lower limit given by <tt><font size=+1>&#8722;x</font></tt>).<br>
+    <tt><font size=+1>&#8722;b</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Break (disconnect) the graph after each label in the input.<br>
+    <tt><font size=+1>&#8722;c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Character string given by next argument is default label for
+    each point.<br>
+    <tt><font size=+1>&#8722;g</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Next argument is grid style, 0 no grid, 1 frame with ticks,
+    2 full grid (default).<br>
+    <tt><font size=+1>&#8722;l</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Next argument is a legend to title the graph. Grid ranges are
+    automatically printed as part of the title unless a <tt><font size=+1>&#8722;s</font></tt> option
+    is present.<br>
+    <tt><font size=+1>&#8722;m</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Next argument is mode (style) of connecting lines: 0 disconnected,
+    1 connected. Some devices give distinguishable line styles for
+    other small integers. Mode &ndash;1 (default) begins with style 1 and
+    rotates styles for successive curves under option <tt><font size=+1>&#8722;o</font></tt>.<br>
+    <tt><font size=+1>&#8722;o</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;(Overlay.) The ordinates for <i>n</i> superposed curves appear in the
+    input with each abscissa value. The next argument is <i>n</i>.<br>
+    <tt><font size=+1>&#8722;s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Save screen; no new page for this graph.<br>
+    <tt><font size=+1>&#8722;x l</font></tt>If <tt><font size=+1>l</font></tt> is present, <i>x</i>-axis is logarithmic. Next 1 (or 2) arguments
+    are lower (and upper) <i>x</i> limits. Third argument, if present, is
+    grid spacing on <i>x</i> axis. Normally these quantities are determined
+    automatically.<br>
+    <tt><font size=+1>&#8722;y l</font></tt>Similarly for <i>y</i>.<br>
+    <tt><font size=+1>&#8722;e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Make automatically determined <i>x</i> and <i>y</i> scales equal.<br>
+    <tt><font size=+1>&#8722;h</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Next argument is fraction of space for height.<br>
+    <tt><font size=+1>&#8722;w</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Similarly for width.<br>
+    <tt><font size=+1>&#8722;r</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Next argument is fraction of space to move right before plotting.<br>
+    <tt><font size=+1>&#8722;u</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Similarly to move up before plotting.<br>
+    <tt><font size=+1>&#8722;t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Transpose horizontal and vertical axes. (Option <tt><font size=+1>&#8722;a</font></tt> now applies
+    to the vertical axis.) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If a specified lower limit exceeds the upper limit, the axis is
+    reversed.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/graph<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/plot.html"><i>plot</i>(1)</a>, <a href="../man1/grap.html"><i>grap</i>(1)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Segments that run out of bounds are dropped, not windowed. Logarithmic
+    axes may not be reversed. Option <tt><font size=+1>&#8722;e</font></tt> actually makes automatic limits,
+    rather than automatic scaling, equal.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

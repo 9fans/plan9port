@@ -1,0 +1,88 @@
+<head>
+<title>plot(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>PLOT(1)</b><td align=right><b>PLOT(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    plot &ndash; graphics filter<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>plot</font></tt> [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Plot</i> interprets plotting instructions (see <a href="../man7/plot.html"><i>plot</i>(7)</a>) from the <i>files</i>
+    or standard input, drawing the results in a newly created <a href="../man1/rio.html"><i>rio</i>(1)</a>
+    window. Plot persists until a newline is typed in the window.
+    Various options may be interspersed with the <i>file</i> arguments; they
+    take effect at the given point in processing. Options are:
+    <tt><font size=+1>&#8722;d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Double buffer: accumulate the plot off-screen and write to the
+    screen all at once when an erase command is encountered or at
+    end of file.<br>
+    <tt><font size=+1>&#8722;e</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Erase the screen.<br>
+    <tt><font size=+1>&#8722;c</font></tt> <i>col</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the foreground color (see <a href="../man7/plot.html"><i>plot</i>(7)</a> for color names).<br>
+    <tt><font size=+1>&#8722;f</font></tt> <i>fill</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the background color.<br>
+    <tt><font size=+1>&#8722;g</font></tt> <i>grade</i>&nbsp;&nbsp;&nbsp;Set the quality factor for arcs. Higher grades give better
+    quality.<br>
+    <tt><font size=+1>&#8722;p</font></tt> <i>col</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set the pen color.<br>
+    <tt><font size=+1>&#8722;w</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pause until a newline is typed on standard input.<br>
+    <tt><font size=+1>&#8722;C</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Close the current plot.<br>
+    <tt><font size=+1>&#8722;W &nbsp;&nbsp;&nbsp;x0,y0,x1,y1<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Specify the bounding rectangle of plot&#8217;s window. By default it
+            uses a 512x512 window in the middle of the screen.<br>
+            
+        </table>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/plot<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/rio.html"><i>rio</i>(1)</a>, <a href="../man7/plot.html"><i>plot</i>(7)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

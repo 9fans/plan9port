@@ -1,0 +1,78 @@
+<head>
+<title>opentemp(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>OPENTEMP(3)</b><td align=right><b>OPENTEMP(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    opentemp &ndash; create a uniquely-named file<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int opentemp(char *template)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Opentemp</i> replaces <i>template</i> by a unique file name, and returns
+    the address of the template. The template should look like a file
+    name with eleven trailing <tt><font size=+1>X</font></tt>s. The <tt><font size=+1>X</font></tt>s are replaced by a letter
+    followed by the current process id. Letters from <tt><font size=+1>a</font></tt> to <tt><font size=+1>z</font></tt> are tried
+    until the name of a file that does not yet exist (see <a href="../man2/access.html"><i>access</i>(2)</a>)
+    is
+    generated. <i>Opentemp</i> then creates the file for reading and writing
+    and returns the file descriptor. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    If no such name can be generated, <i>opentemp</i> returns &ndash;1. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Opentemp</i> avoids races. Two simultaneous calls to <i>opentemp</i> will
+    never return the same name.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/opentemp.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>create</i> in <a href="../man3/open.html"><i>open</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,110 @@
+<head>
+<title>lex(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>LEX(1)</b><td align=right><b>LEX(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    lex &ndash; generator of lexical analysis programs<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>lex</font></tt> [ <tt><font size=+1>&#8722;tvn9</font></tt> ] [ <i>file ...</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Lex</i> generates programs to be used in simple lexical analysis of
+    text. The input <i>files</i> (standard input default) contain regular
+    expressions to be searched for and actions written in C to be
+    executed when expressions are found. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    A C source program, <tt><font size=+1>lex.yy.c</font></tt> is generated. This program, when
+    run, copies unrecognized portions of the input to the output,
+    and executes the associated C action for each regular expression
+    that is recognized. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The options have the following meanings.<br>
+    <tt><font size=+1>&#8722;t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Place the result on the standard output instead of in file <tt><font size=+1>lex.yy.c</font></tt>.<br>
+    <tt><font size=+1>&#8722;v</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Print a one-line summary of statistics of the generated analyzer.<br>
+    <tt><font size=+1>&#8722;n</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Opposite of <tt><font size=+1>&#8722;v</font></tt>; <tt><font size=+1>&#8722;n</font></tt> is default.<br>
+    <tt><font size=+1>&#8722;9</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;Adds code to be able to compile through the native C compilers.<br>
+    
+</table>
+<p><font size=+1><b>EXAMPLES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    This program converts upper case to lower, removes blanks at the
+    end of lines, and replaces multiple blanks by single blanks. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>%%<br>
+    [A&#8722;Z] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;putchar(yytext[0]+'a'&#8722;'A');<br>
+    [ ]+$<br>
+    [ ]+ putchar(' ');<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>lex.yy.c</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output<br>
+    <tt><font size=+1>/sys/lib/lex/ncform</font></tt>&nbsp;&nbsp;&nbsp;template<br>
+    
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man1/yacc.html"><i>yacc</i>(1)</a>, <a href="../man1/sed.html"><i>sed</i>(1)</a><br>
+    M. E. Lesk and E. Schmidt, &#8216;LEX--Lexical Analyzer Generator&#8217;, <i>Unix
+    Research System Programmer&#8217;s Manual,</i> Tenth Edition, Volume 2.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/lex<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Cannot handle UTF. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The asteroid to kill this dinosaur is still in orbit.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

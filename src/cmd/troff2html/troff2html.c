@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <bio.h>
+#include <ctype.h>
 
 enum{
 	Nfont = 11,
@@ -430,19 +431,28 @@ flush(void)
 void
 header(char *s)
 {
+	char *p;
+
 	Bprint(&bout, "<head>\n");
-	Bprint(&bout, "<title>%s</title>\n", s);
+	if(pagename && section){
+		char buf[512];
+		strecpy(buf, buf+sizeof buf, pagename);
+		for(p=buf; *p; p++)
+			*p = tolower(*p);
+		Bprint(&bout, "<title>%s(%s) - %s</title>\n", buf, section, s);
+	}else
+		Bprint(&bout, "<title>%s</title>\n", s);
 	Bprint(&bout, "<meta content=\"text/html; charset=utf-8\" http-equiv=Content-Type>\n");
 	Bprint(&bout, "</head>\n");
 	Bprint(&bout, "<body bgcolor=#ffffff>\n");
-	Bprint(&bout, "<table>\n");
+	Bprint(&bout, "<table border=0 cellpadding=0 cellspacing=0 width=100%%>\n");
 	Bprint(&bout, "<tr height=10><td>\n");
-	Bprint(&bout, "<tr><td width=10><td>\n");
+	Bprint(&bout, "<tr><td width=20><td>\n");
 	if(pagename && section){
 		Bprint(&bout, "<tr><td width=20><td><b>%s(%s)</b><td align=right><b>%s(%s)</b>\n",
 			pagename, section, pagename, section);
 	}
-	Bprint(&bout, "<tr><td width=10><td colspan=2>\n");
+	Bprint(&bout, "<tr><td width=20><td colspan=2>\n");
 }
 
 void
@@ -605,15 +615,27 @@ xcmd(Biobuf *b)
 				if(strcmp(fld[3], "start") == 0){
 					/* set anchor attribute and remember string */
 					attr |= (1<<Anchor);
+#if 0
 					snprint(buf, sizeof buf,
-						"<a href=\"/magic/man2html/%c/%s\">",
+						"<a href=\"/magic/man2html/man%c/%s\">",
 						fld[5][1], fld[4]);
+#else
+					snprint(buf, sizeof buf,
+						"<a href=\"../man%c/%s.html\">", fld[5][1], fld[4]);
+#endif
 					nanchors++;
 					anchors = erealloc(anchors, nanchors*sizeof(char*));
 					anchors[nanchors-1] = estrdup(buf);
 				}else if(strcmp(fld[3], "end") == 0)
 					attr &= ~(1<<Anchor);
 			}
+		}else if(nfld >= 4 && strcmp(fld[2], "href") == 0){
+			attr |= 1<<Anchor;
+			nanchors++;
+			anchors = erealloc(anchors, nanchors*sizeof(char*));
+			anchors[nanchors-1] = smprint("<a href=\"%s\">", fld[3]);
+		}else if(strcmp(fld[2], "/href") == 0){
+			attr &= ~(1<<Anchor);
 		}else if(strcmp(fld[2], "manPP") == 0){
 			didP = 1;
 			emitul(Epp, 1);

@@ -4,7 +4,9 @@
 extern "C" { 
 #endif
 
+#ifdef AUTOLIB
 AUTOLIB(regexp9)
+#endif
 
 #include <utf.h>
 

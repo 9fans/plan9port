@@ -1,0 +1,49 @@
+.TH ISALPHARUNE 3
+.SH NAME
+isalpharune, islowerrune, isspacerune, istitlerune, isupperrune, tolowerrune, totitlerune, toupperrune \- Unicode character classes and cases
+.SH SYNOPSIS
+.B #include <utf.h>
+.PP
+.B
+int isalpharune(Rune c)
+.PP
+.B
+int islowerrune(Rune c)
+.PP
+.B
+int isspacerune(Rune c)
+.PP
+.B
+int istitlerune(Rune c)
+.PP
+.B
+int isupperrune(Rune c)
+.PP
+.B
+Rune tolowerrune(Rune c)
+.PP
+.B
+Rune totitlerune(Rune c)
+.PP
+.B
+Rune toupperrune(Rune c)
+.SH DESCRIPTION
+These routines examine and operate on Unicode characters,
+in particular a subset of their properties as defined in the Unicode standard.
+Unicode defines some characters as alphabetic and specifies three cases:
+upper, lower, and title.
+Analogously to
+.IR isalpha (3)
+for
+.SM ASCII\c
+,
+these routines
+test types and modify cases for Unicode characters.
+The names are self-explanatory.
+.PP
+The case-conversion routines return the character unchanged if it has no case.
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH "SEE ALSO
+.IR isalpha (3) ,
+.IR "The Unicode Standard" .

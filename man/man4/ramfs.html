@@ -1,0 +1,81 @@
+<head>
+<title>ramfs(4) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>RAMFS(4)</b><td align=right><b>RAMFS(4)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    ramfs &ndash; memory file system<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>ramfs</font></tt> [ <tt><font size=+1>&#8722;i</font></tt> ] [ <tt><font size=+1>&#8722;S</font></tt> <i>service</i> ]<br>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Ramfs</i> starts a 9P file server keeping all files in memory. Initially
+    the file tree is empty. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    By default <i>ramfs</i> posts its service as <tt><font size=+1>ramfs</font></tt> using <a href="../man4/9pserve.html"><i>9pserve</i>(4)</a>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;S</font></tt> flag specifies an alternate service name for ramfs to use.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The <tt><font size=+1>&#8722;i</font></tt> flag tells <i>ramfs</i> to use file descriptors 0 and 1 for its
+    communication channel rather than create a pipe. This makes it
+    possible to use <i>ramfs</i> as a file server on a remote machine: the
+    file descriptors 0 and 1 will be the network channel from <i>ramfs</i>
+    to the client machine. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    This program is useful mainly as an example of how to write a
+    user-level file server. It can also be used to provide high-performance
+    temporary files.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/ramfs.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/9p.html"><i>9p</i>(3)</a>, <a href="../man4/9pserve.html"><i>9pserve</i>(4)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,22 @@
+all:V: $TARG
+
+%: $PLAN9/include/%
+	cp $prereq $target
+
+%: $PLAN9/unix/man/%
+	cat ../man/ex.man $prereq >$target
+
+%: $PLAN9/unix/make/%
+	cp $prereq $target
+
+Makefile:D: $PLAN9/unix/make/Makefile.TOP $PLAN9/unix/make/Makefile.$WHAT $PLAN9/unix/make/Makefile.LIB $PLAN9/unix/make/Makefile.BOT
+	cat $prereq >$target
+	[ $WHAT = mk ] && cat $PLAN9/unix/make/Makefile.CMD >>$target
+	exit 0
+
+README: $PLAN9/unix/README
+	cp $prereq $target
+
+NOTICE: $PLAN9/unix/NOTICE.$WHAT
+	cp $prereq $target
+

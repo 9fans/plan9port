@@ -1,0 +1,274 @@
+<head>
+<title>fcall(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>FCALL(3)</b><td align=right><b>FCALL(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Fcall, convS2M, convD2M, convM2S, convM2D, fcallfmt, dirfmt, dirmodefmt,
+    read9pmsg, statcheck, sizeS2M, sizeD2M &ndash; interface to Plan 9 File
+    protocol<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;fcall.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint convS2M(Fcall *f, uchar *ap, uint nap) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint convD2M(Dir *d, uchar *ap, uint nap) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint convM2S(uchar *ap, uint nap, Fcall *f) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint convM2D(uchar *ap, uint nap, Dir *d, char *strs) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int dirfmt(Fmt*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int fcallfmt(Fmt*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int dirmodefmt(Fmt*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int read9pmsg(int fd, uchar *buf, uint nbuf) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int statcheck(uchar *buf, uint nbuf) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint sizeS2M(Fcall *f) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint sizeD2M(Dir *d)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines convert messages in the machine-independent format
+    of the Plan 9 file protocol, 9P, to and from a more convenient
+    form, an <tt><font size=+1>Fcall</font></tt> structure: 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>#define MAXWELEM 16<br>
+    typedef<br>
+    struct Fcall<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        uchar type;<br>
+        u32int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fid;<br>
+        ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tag;<br>
+        union {<br>
+         
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            struct {<br>
+              u32int msize; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tversion, Rversion */<br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*version; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tversion, Rversion */<br>
+             };<br>
+             struct {<br>
+              ushort oldtag; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tflush */<br>
+             };<br>
+             struct {<br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*ename; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Rerror */<br>
+             };<br>
+             struct {<br>
+              Qid &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;qid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Rattach, Ropen, Rcreate */<br>
+              u32int iounit; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Ropen, Rcreate */<br>
+             };<br>
+             struct {<br>
+              Qid &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;aqid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Rauth */<br>
+             };<br>
+             struct {<br>
+              u32int afid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tauth, Tattach */<br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*uname; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tauth, Tattach */<br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*aname; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tauth, Tattach */<br>
+             };<br>
+             struct {<br>
+              u32int perm; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tcreate */ <br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*name; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tcreate */<br>
+              uchar &nbsp;&nbsp;&nbsp;mode; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tcreate, Topen */<br>
+             };<br>
+             struct {<br>
+              u32int newfid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Twalk */<br>
+              ushort nwname; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Twalk */<br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*wname[MAXWELEM]; &nbsp;&nbsp;&nbsp;/* Twalk */<br>
+             };<br>
+             struct {<br>
+              ushort nwqid; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Rwalk */<br>
+              Qid &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wqid[MAXWELEM]; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Rwalk */<br>
+             };<br>
+             struct {<br>
+              vlong &nbsp;&nbsp;&nbsp;offset; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tread, Twrite */<br>
+              u32int count; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Tread, Twrite, Rread */<br>
+              char &nbsp;&nbsp;&nbsp;&nbsp;*data; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Twrite, Rread */<br>
+             };<br>
+             struct {<br>
+              ushort nstat; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Twstat, Rstat */<br>
+              uchar &nbsp;&nbsp;&nbsp;*stat; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* Twstat, Rstat */<br>
+             };<br>
+            
+        </table>
+        };<br>
+        
+    </table>
+    } Fcall;<br>
+    /* these are implemented as macros */<br>
+    uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GBIT8(uchar*)<br>
+    ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GBIT16(uchar*)<br>
+    ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GBIT32(uchar*)<br>
+    vlong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GBIT64(uchar*)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PBIT8(uchar*, uchar)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PBIT16(uchar*, ushort)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PBIT32(uchar*, ulong)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PBIT64(uchar*, vlong)<br>
+    #define &nbsp;&nbsp;&nbsp;&nbsp;BIT8SZ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1<br>
+    #define &nbsp;&nbsp;&nbsp;&nbsp;BIT16SZ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2<br>
+    #define &nbsp;&nbsp;&nbsp;&nbsp;BIT32SZ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4<br>
+    #define &nbsp;&nbsp;&nbsp;&nbsp;BIT64SZ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    This structure is defined in <tt><font size=+1>&lt;fcall.h&gt;</font></tt>. See section 5 for a full
+    description of 9P messages and their encoding. For all message
+    types, the <tt><font size=+1>type</font></tt> field of an <tt><font size=+1>Fcall</font></tt> holds one of <tt><font size=+1>Tversion</font></tt>, <tt><font size=+1>Rversion</font></tt>,
+    <tt><font size=+1>Tattach</font></tt>, <tt><font size=+1>Rattach</font></tt>, etc. (defined in an enumerated type in <tt><font size=+1>&lt;fcall.h&gt;</font></tt>).
+    <tt><font size=+1>Fid</font></tt> is used by most messages, and
+    <tt><font size=+1>tag</font></tt> is used by all messages. The other fields are used selectively
+    by the message types given in comments. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>ConvM2S</i> takes a 9P message at <i>ap</i> of length <i>nap</i>, and uses it to
+    fill in <tt><font size=+1>Fcall</font></tt> structure <i>f</i>. If the passed message including any
+    data for <tt><font size=+1>Twrite</font></tt> and <tt><font size=+1>Rread</font></tt> messages is formatted properly, the
+    return value is the number of bytes the message occupied in the
+    buffer <i>ap</i>, which will always be less than or equal to <i>nap</i>;
+    otherwise it is 0. For <tt><font size=+1>Twrite</font></tt> and <tt><font size=+1>Tread</font></tt> messages, <tt><font size=+1>data</font></tt> is set
+    to a pointer into the argument message, not a copy. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>ConvS2M</i> does the reverse conversion, turning <i>f</i> into a message
+    starting at <i>ap</i>. The length of the resulting message is returned.
+    For <tt><font size=+1>Twrite</font></tt> and <tt><font size=+1>Rread</font></tt> messages, <tt><font size=+1>count</font></tt> bytes starting at <tt><font size=+1>data</font></tt> are
+    copied into the message. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The constant <tt><font size=+1>IOHDRSZ</font></tt> is a suitable amount of buffer to reserve
+    for storing the 9P header; the data portion of a <tt><font size=+1>Twrite</font></tt> or <tt><font size=+1>Rread</font></tt>
+    will be no more than the buffer size negotiated in the <tt><font size=+1>Tversion/Rversion</font></tt>
+    exchange, minus <tt><font size=+1>IOHDRSZ</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The routine <i>sizeS2M</i> returns the number of bytes required to store
+    the machine-independent representation of the <tt><font size=+1>Fcall</font></tt> structure
+    <i>f</i>, including its initial 32-bit size field. In other words, it
+    reports the number of bytes produced by a successful call to <i>convS2M</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Another structure is <tt><font size=+1>Dir</font></tt>, used by the routines described in <a href="../man3/stat.html"><i>stat</i>(3)</a>.
+    <i>ConvM2D</i> converts the machine-independent form starting at <i>ap</i> into
+    <i>d</i> and returns the length of the machine-independent encoding.
+    The strings in the returned <tt><font size=+1>Dir</font></tt> structure are stored at successive
+    locations starting at <tt><font size=+1>strs</font></tt>. Usually <tt><font size=+1>strs</font></tt> will
+    point to storage immediately after the <tt><font size=+1>Dir</font></tt> itself. It can also
+    be a <tt><font size=+1>nil</font></tt> pointer, in which case the string pointers in the returned
+    <tt><font size=+1>Dir</font></tt> are all <tt><font size=+1>nil</font></tt>; however, the return value still includes their
+    length. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>ConvD2M</i> does the reverse translation, also returning the length
+    of the encoding. If the buffer is too short, the return value
+    will be <tt><font size=+1>BIT16SZ</font></tt> and the correct size will be returned in the first
+    <tt><font size=+1>BIT16SZ</font></tt> bytes. (If the buffer is less that <tt><font size=+1>BIT16SZ</font></tt>, the return
+    value is zero; therefore a correct test for complete packing of
+    the
+    message is that the return value is greater than <tt><font size=+1>BIT16SZ</font></tt>). The
+    macro <tt><font size=+1>GBIT16</font></tt> can be used to extract the correct value. The related
+    macros with different sizes retrieve the corresponding-sized quantities.
+    <tt><font size=+1>PBIT16</font></tt> and its brethren place values in messages. With the exception
+    of handling short buffers in <i>convD2M</i>,
+    these macros are not usually needed except by internal routines.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Analogous to <i>sizeS2M</i>, <i>sizeD2M</i> returns the number of bytes required
+    to store the machine-independent representation of the <tt><font size=+1>Dir</font></tt> structure
+    <i>d</i>, including its initial 16-bit size field. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The routine <tt><font size=+1>statcheck</font></tt> checks whether the <i>nbuf</i> bytes of <i>buf</i> contain
+    a validly formatted machine-independent <tt><font size=+1>Dir</font></tt> entry suitable as
+    an argument, for example, for the <tt><font size=+1>wstat</font></tt> (see <a href="../man3/stat.html"><i>stat</i>(3)</a>) system call.
+    It checks that the sizes of all the elements of the the entry
+    sum to exactly <i>nbuf</i>, which is a simple but effective test
+    of validity. <i>Nbuf</i> and <i>buf</i> should include the second two-byte (16-bit)
+    length field that precedes the entry when formatted in a 9P message
+    (see <i>stat</i>(9p)); in other words, <i>nbuf</i> is 2 plus the sum of the
+    sizes of the entry itself. <i>Statcheck</i> also verifies that the length
+    field has the correct value (that is, <i>nbuf</i><tt><font size=+1>&#8722;2</font></tt>). It returns <tt><font size=+1>0
+    </font></tt>for a valid entry and <tt><font size=+1>&#8722;1</font></tt> for an incorrectly formatted entry. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Dirfmt</i>, <i>fcallfmt</i>, and <i>dirmodefmt</i> are formatting routines, suitable
+    for <a href="../man3/fmtinstall.html"><i>fmtinstall</i>(3)</a>. They convert <tt><font size=+1>Dir*</font></tt>, <tt><font size=+1>Fcall*</font></tt>, and <tt><font size=+1>long</font></tt> values
+    into string representations of the directory buffer, <tt><font size=+1>Fcall</font></tt> buffer,
+    or file mode value. <i>Fcallfmt</i> assumes that <i>dirfmt</i> has been installed
+    with format letter <tt><font size=+1>D</font></tt> and <i>dirmodefmt</i> with format
+    letter <tt><font size=+1>M</font></tt>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Read9pmsg</i> calls <a href="../man3/read.html"><i>read</i>(3)</a> multiple times, if necessary, to read
+    an entire 9P message into <tt><font size=+1>buf</font></tt>. The return value is 0 for end of
+    file, or -1 for error; it does not return partial messages.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/intro.html"><i>intro</i>(3)</a>, <a href="../man3/9p.html"><i>9p</i>(3)</a>, <a href="../man3/stat.html"><i>stat</i>(3)</a>, <i>intro</i>(9p)<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

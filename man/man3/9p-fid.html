@@ -1,0 +1,170 @@
+<head>
+<title>9p-fid(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>9P-FID(3)</b><td align=right><b>9P-FID(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Fid, Fidpool, allocfidpool, freefidpool, allocfid, closefid, lookupfid,
+    removefid, Req, Reqpool, allocreqpool, freereqpool, allocreq,
+    closereq, lookupreq, removereq &ndash; 9P fid, request tracking<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;fcall.h&gt;<br>
+    #include &lt;thread.h&gt;<br>
+    #include &lt;9p.h&gt;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    typedef struct Fid<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        ulong fid;<br>
+        char &nbsp;&nbsp;&nbsp;omode; &nbsp;&nbsp;&nbsp;/* &#8722;1 if not open */<br>
+        char &nbsp;&nbsp;&nbsp;*uid;<br>
+        Qid &nbsp;&nbsp;&nbsp;&nbsp;qid;<br>
+        File &nbsp;&nbsp;&nbsp;*file;<br>
+        void &nbsp;&nbsp;&nbsp;*aux;<br>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>...<br>
+        </i>
+    </table>
+    <tt><font size=+1>} Fid;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    typedef struct Req<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        ulong tag;<br>
+        Fcall ifcall;<br>
+        Fcall ofcall;<br>
+        Req &nbsp;&nbsp;&nbsp;&nbsp;*oldreq;<br>
+        void &nbsp;&nbsp;&nbsp;*aux;<br>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        <i>...<br>
+        </i>
+    </table>
+    <tt><font size=+1>} Req;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Fidpool* allocfidpool(void (*destroy)(Fid*))<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;freefidpool(Fidpool *p)<br>
+    Fid* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allocfid(Fidpool *p, ulong fid)<br>
+    Fid* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lookupfid(Fidpool *p, ulong fid)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closefid(Fid *f)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;removefid(Fid *f)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Reqpool* allocreqpool(void (*destroy)(Req*))<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;freereqpool(Reqpool *p)<br>
+    Req* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allocreq(Reqpool *p, ulong tag)<br>
+    Req* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lookupreq(Reqpool *p, ulong tag)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closereq(Req *f)<br>
+    void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;removereq(Req *r)<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines provide management of <tt><font size=+1>Fid</font></tt> and <tt><font size=+1>Req</font></tt> structures from
+    <tt><font size=+1>Fidpool</font></tt>s and <tt><font size=+1>Reqpool</font></tt>s. They are primarily used by the 9P server
+    loop described in <a href="../man3/9p.html"><i>9p</i>(3)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Fid</font></tt> structures are intended to represent active fids in a 9P connection,
+    as <tt><font size=+1>Chan</font></tt> structures do in the Plan 9 kernel. The <tt><font size=+1>fid</font></tt> element is
+    the integer fid used in the 9P connection. <tt><font size=+1>Omode</font></tt> is the mode under
+    which the fid was opened, or <tt><font size=+1>&#8722;1</font></tt> if this fid has not been opened
+    yet. Note that in addition to the values <tt><font size=+1>OREAD</font></tt>,
+    <tt><font size=+1>OWRITE</font></tt>, and <tt><font size=+1>ORDWR</font></tt>, <tt><font size=+1>omode</font></tt> can contain the various flags permissible
+    in an open call. To ignore the flags, use <tt><font size=+1>omode&amp;OMASK</font></tt>. <tt><font size=+1>Omode</font></tt> should
+    not be changed by the client. The fid derives from a successful
+    authentication by <tt><font size=+1>uid</font></tt>. <tt><font size=+1>Qid</font></tt> contains the qid returned in the last
+    successful <tt><font size=+1>walk</font></tt> or <tt><font size=+1>create</font></tt> transaction
+    involving the fid. In a file tree-based server, the <tt><font size=+1>Fid</font></tt>&#8217;s <tt><font size=+1>file</font></tt>
+    element points at a <tt><font size=+1>File</font></tt> structure (see <a href="../man3/9p-file.html"><i>9p-file</i>(3)</a>) corresponding
+    to the fid. The <tt><font size=+1>aux</font></tt> member is intended for use by the client to
+    hold information specific to a particular <tt><font size=+1>Fid</font></tt>. With the exception
+    of <tt><font size=+1>aux</font></tt>, these elements should be treated as read-only by
+    the client. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Allocfidpool</i> creates a new <tt><font size=+1>Fidpool</font></tt>. <i>Freefidpool</i> destroys such
+    a pool. <i>Allocfid</i> returns a new <tt><font size=+1>Fid</font></tt> whose fid number is <i>fid</i>. There
+    must not already be an extant <tt><font size=+1>Fid</font></tt> with that number in the pool.
+    Once a <tt><font size=+1>Fid</font></tt> has been allocated, it can be looked up by fid number
+    using <i>lookupfid</i>. <tt><font size=+1>Fid</font></tt>s are reference counted: both
+    <i>allocfid</i> and <i>lookupfid</i> increment the reference count on the <tt><font size=+1>Fid</font></tt>
+    structure before returning. When a reference to a <tt><font size=+1>Fid</font></tt> is no longer
+    needed, <i>closefid</i> should be called to note the destruction of the
+    reference. When the last reference to a <tt><font size=+1>Fid</font></tt> is removed, if <i>destroy</i>
+    (supplied when creating the fid pool) is not zero, it is
+    called with the <tt><font size=+1>Fid</font></tt> as a parameter. It should perform whatever
+    cleanup is necessary regarding the <tt><font size=+1>aux</font></tt> element. <i>Removefid</i> is equivalent
+    to <i>closefid</i> but also removes the <tt><font size=+1>Fid</font></tt> from the pool. Note that
+    due to lingering references, the return of <i>removefid</i> may not mean
+    that <i>destroy</i> has been called. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Allocreqpool</i>, <i>freereqpool</i>, <i>allocreq</i>, <i>lookupreq</i>, <i>closereq</i>, and
+    <i>removereq</i> are analogous but operate on <tt><font size=+1>Reqpool</font></tt>s and <tt><font size=+1>Req</font></tt> structures.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9p<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/9p.html"><i>9p</i>(3)</a>, <a href="../man3/9p-file.html"><i>9p-file</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

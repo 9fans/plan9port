@@ -119,6 +119,9 @@
 \Xhtml [<A HREF="/sys/man/\\$2/INDEX.html">section index</A>]
 \Xhtml </B>
 ..
+.de HR
+\X'html href \\$1'\\$2\X'html /href'
+..
 .deSH
 .PD
 .}X 0 "\\$1"

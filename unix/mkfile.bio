@@ -7,36 +7,14 @@ TARG=\
 	bio.3\
 	bio.h\
 	lib9.h\
-	`{ls -p $PLAN9/src/libbio/*.c}\
+	`{9 ls -p $PLAN9/src/libbio/*.c}\
 
-all:V: $TARG
-
-%: $PLAN9/include/%
-	cp $prereq $target
+WHAT=bio
+<../mkfile.what
 
 %: $PLAN9/src/libbio/%
-	cp $prereq $target
-
-%: $PLAN9/man/man1/%
-	cp $prereq $target
-
-%: $PLAN9/man/man3/%
-	cp $prereq $target
-
-%: $PLAN9/man/man7/%
 	cp $prereq $target
 
 lib9.h: $PLAN9/src/libbio/lib9.std.h
 	cp $prereq $target
 
-%: ../make/%
-	cp $prereq $target
-
-Makefile:D: ../make/Makefile.TOP ../make/Makefile.bio ../make/Makefile.LIB ../make/Makefile.BOT
-	cat $prereq >$target
-
-README: ../README
-	cp $prereq $target
-
-NOTICE: ../NOTICE.bio
-	cp $prereq $target

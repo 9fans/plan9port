@@ -1,0 +1,325 @@
+<head>
+<title>memlayer(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>MEMLAYER(3)</b><td align=right><b>MEMLAYER(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    memdraw, memlalloc, memldelete, memlexpose, memlfree, memlhide,
+    memline, memlnorefresh, memload, memunload, memlorigin, memlsetrefresh,
+    memltofront, memltofrontn, memltorear, memltorearn &ndash; windows of
+    memory-resident images<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt; <br>
+    #include &lt;libc.h&gt; <br>
+    #include &lt;draw.h&gt; <br>
+    #include &lt;memdraw.h&gt; <br>
+    #include &lt;memlayer.h&gt; <br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>typedef struct Memscreen Memscreen;<br>
+    typedef struct Memlayer Memlayer;<br>
+    typedef void (*Refreshfn)(Memimage*, Rectangle, void*);<br>
+    struct Memscreen<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Memimage &nbsp;&nbsp;&nbsp;*frontmost; /* frontmost layer on screen */<br>
+        Memimage &nbsp;&nbsp;&nbsp;*rearmost; &nbsp;&nbsp;&nbsp;/* rearmost layer on screen */<br>
+        Memimage &nbsp;&nbsp;&nbsp;*image; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* upon which all layers are drawn */<br>
+        Memimage &nbsp;&nbsp;&nbsp;*fill; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* if non&#8722;zero, picture to use when repainting
+        */<br>
+        
+    </table>
+    };<br>
+    struct Memlayer<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Rectangle screenr; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* true position of layer on screen */<br>
+        Point &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delta; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* add delta to go from image coords to screen */<br>
+        Memscreen *screen; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* screen this layer belongs to */<br>
+        Memimage &nbsp;&nbsp;&nbsp;*front; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* window in front of this one */<br>
+        Memimage &nbsp;&nbsp;&nbsp;*rear; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* window behind this one*/<br>
+        int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;clear; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* layer is fully visible */<br>
+        Memimage &nbsp;&nbsp;&nbsp;*save; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* save area for obscured parts */<br>
+        Refreshfn refreshfn; &nbsp;&nbsp;&nbsp;/* fn to refresh obscured parts if save==nil
+        */<br>
+        void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*refreshptr;/* argument to refreshfn */<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Memimage* memlalloc(Memscreen *s, Rectangle r, Refreshfn fn, void
+    *arg, ulong col)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memlnorefresh(Memimage *i, Rectangle r, void *arg)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memlsetrefresh(Memimage *i, Refreshfn fn, void *arg)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memldelete(Memimage *i)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memlfree(Memimage *i)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memlexpose(Memimage *i, Rectangle r)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memlhide(Memimage *i, Rectangle r)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memltofront(Memimage *i)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memltofrontn(Memimage**ia, int n)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memltorear(Memimage *i)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memltorearn(Memimage **ia , int n)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memlorigin(Memimage *i, Point log, Point phys)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memdraw(Image *dst, Rectangle r,<br>
+     
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            Image *src, Point sp, Image *mask, Point mp, Drawop op)<br>
+            
+        </table>
+        
+    </table>
+    int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memload(Memimage *i, Rectangle r,<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            uchar *buf, int n, int iscompressed) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;memunload(Memimage *i, Rectangle r,<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            uchar *buf, int n) 
+            <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+            
+        </table>
+        
+    </table>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            
+            
+        </table>
+        
+    </table>
+    
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These functions build upon the <a href="../man3/memdraw.html"><i>memdraw</i>(3)</a> interface to maintain
+    overlapping graphical windows on in-memory images. They are used
+    by the kernel to implement the windows interface presented by
+    <a href="../man3/draw.html"><i>draw</i>(3)</a> and <a href="../man3/window.html"><i>window</i>(3)</a> and probably have little use outside of
+    the kernel. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The basic function is to extend the definition of a <tt><font size=+1>Memimage</font></tt> (see
+    <a href="../man3/memdraw.html"><i>memdraw</i>(3)</a>) to include overlapping windows defined by the <tt><font size=+1>Memlayer</font></tt>
+    type. The first fields of the <tt><font size=+1>Memlayer</font></tt> structure are identical
+    to those in <tt><font size=+1>Memimage</font></tt>, permitting a function that expects a <tt><font size=+1>Memimage</font></tt>
+    to be passed a <tt><font size=+1>Memlayer</font></tt>, and vice versa.
+    Both structures have a <tt><font size=+1>save</font></tt> field, which is nil in a <tt><font size=+1>Memimage</font></tt>
+    and points to &#8216;backing store&#8217; in a <tt><font size=+1>Memlayer</font></tt>. The layer routines
+    accept <tt><font size=+1>Memimages</font></tt> or <tt><font size=+1>Memlayers</font></tt>; if the image is a <tt><font size=+1>Memimage</font></tt> the
+    underlying <tt><font size=+1>Memimage</font></tt> routine is called; otherwise the layer routines
+    recursively subdivide the geometry, reducing the
+    operation into a smaller component that ultimately can be performed
+    on a <tt><font size=+1>Memimage</font></tt>, either the display on which the window appears,
+    or the backing store. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>Memlayers</font></tt> are associated with a <tt><font size=+1>Memscreen</font></tt> that holds the data
+    structures to maintain the windows and connects them to the associated
+    <tt><font size=+1>image</font></tt>. The <tt><font size=+1>fill</font></tt> color is used to paint the background when a window
+    is deleted. There is no function to establish a <tt><font size=+1>Memscreen</font></tt>; to
+    create one, allocate the memory, zero
+    <tt><font size=+1>frontmost</font></tt> and <tt><font size=+1>rearmost</font></tt>, set <tt><font size=+1>fill</font></tt> to a valid fill color or image,
+    and set <tt><font size=+1>image</font></tt> to the <tt><font size=+1>Memimage</font></tt> (or <tt><font size=+1>Memlayer</font></tt>) on which the windows
+    will be displayed. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memlalloc</i> allocates a <tt><font size=+1>Memlayer</font></tt> of size <i>r</i> on <tt><font size=+1>Memscreen</font></tt> <i>s</i>. If <i>col</i>
+    is not <tt><font size=+1>DNofill</font></tt>, the new window will be initialized by painting
+    it that color. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    The refresh function <i>fn</i> and associated argument <i>arg</i> will be called
+    by routines in the library to restore portions of the window uncovered
+    due to another window being deleted or this window being pulled
+    to the front of the stack. The function, when called, receives
+    a pointer to the image (window) being refreshed, the
+    rectangle that has been uncovered, and the <i>arg</i> recorded when the
+    window was created. A couple of predefined functions provide built-in
+    management methods: <i>memlnorefresh</i> does no backup at all, useful
+    for making efficient temporary windows; while a <i>nil</i> function specifies
+    that the backing store
+    (<tt><font size=+1>Memlayer.save</font></tt>) will be used to keep the obscured data. Other
+    functions may be provided by the client. <i>Memlsetrefresh</i> allows
+    one to change the function associated with the window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memldelete</i> deletes the window <i>i</i>, restoring the underlying display.
+    <i>Memlfree</i> frees the data structures without unlinking the window
+    from the associated <tt><font size=+1>Memscreen</font></tt> or doing any graphics. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memlexpose</i> restores rectangle <i>r</i> within the window, using the backing
+    store or appropriate refresh method. <i>Memlhide</i> goes the other way,
+    backing up <i>r</i> so that that portion of the screen may be modified
+    without losing the data in this window. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memltofront</i> pulls <i>i</i> to the front of the stack of windows, making
+    it fully visible. <i>Memltofrontn</i> pulls the <i>n</i> windows in the array
+    <i>ia</i> to the front as a group, leaving their internal order unaffected.
+    <i>Memltorear</i> and <i>memltorearn</i> push the windows to the rear. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memlorigin</i> changes the coordinate systems associated with the
+    window <i>i</i>. The points <i>log</i> and <i>phys</i> represent the upper left corner
+    (<tt><font size=+1>min</font></tt>) of the window&#8217;s internal coordinate system and its physical
+    location on the screen. Changing <i>log</i> changes the interpretation
+    of coordinates within the window; for example, setting it
+    to (0, 0) makes the upper left corner of the window appear to
+    be the origin of the coordinate system, regardless of its position
+    on the screen. Changing <i>phys</i> changes the physical location of
+    the window on the screen. When a window is created, its logical
+    and physical coordinates are the same, so
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        
+        <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+            <tt><font size=+1>memlorigin(i, i&#8722;&gt;r.min, i&#8722;&gt;r.min)<br>
+            </font></tt>
+        </table>
+        
+    </table>
+    would be a no-op. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memdraw</i> and <i>memline</i> are implemented in the layer library but provide
+    the main entry points for drawing on memory-resident windows.
+    They have the signatures of <i>memimagedraw</i> and <i>memimageline</i> (see
+    <a href="../man3/memdraw.html"><i>memdraw</i>(3)</a>) but accept <tt><font size=+1>Memlayer</font></tt> or <tt><font size=+1>Memimage</font></tt> arguments both. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Memload</i> and <i>memunload</i> are similarly layer-savvy versions of <i>loadmemimage</i>
+    and <i>unloadmemimage</i>. The <i>iscompressed</i> flag to <i>memload</i> specifies
+    whether the <i>n</i> bytes of data in <i>buf</i> are in compressed image format
+    (see <a href="../man7/image.html"><i>image</i>(7)</a>).<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libdraw<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/graphics.html"><i>graphics</i>(3)</a>, <a href="../man3/memdraw.html"><i>memdraw</i>(3)</a>, <a href="../man3/stringsize.html"><i>stringsize</i>(3)</a>, <a href="../man3/window.html"><i>window</i>(3)</a>, <a href="../man3/draw.html"><i>draw</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These functions are archived into <i>libdraw</i>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

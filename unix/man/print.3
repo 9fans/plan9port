@@ -1,0 +1,474 @@
+.\" diffs from /usr/local/plan9/man/man3/print.3:
+.\"
+.\" - include different headers
+.\" - drop reference to bio(3)
+.\" - change exits to exit
+.\" - text about unsigned verbs
+.\" - source pointer
+.\"
+.TH PRINT 3
+.SH NAME
+print, fprint, sprint, snprint, seprint, smprint, runesprint, runesnprint, runeseprint, runesmprint, vfprint, vsnprint, vseprint, vsmprint, runevsnprint, runevseprint, runevsmprint \- print formatted output
+.SH SYNOPSIS
+.B #include <utf.h>
+.PP
+.B #include <fmt.h>
+.PP
+.ta \w'\fLchar* 'u
+.B
+int	print(char *format, ...)
+.PP
+.B
+int	fprint(int fd, char *format, ...)
+.PP
+.B
+int	sprint(char *s, char *format, ...)
+.PP
+.B
+int	snprint(char *s, int len, char *format, ...)
+.PP
+.B
+char*	seprint(char *s, char *e, char *format, ...)
+.PP
+.B
+char*	smprint(char *format, ...)
+.PP
+.B
+int	runesprint(Rune *s, char *format, ...)
+.PP
+.B
+int	runesnprint(Rune *s, int len, char *format, ...)
+.PP
+.B
+Rune*	runeseprint(Rune *s, Rune *e, char *format, ...)
+.PP
+.B
+Rune*	runesmprint(char *format, ...)
+.PP
+.B
+int	vfprint(int fd, char *format, va_list v)
+.PP
+.B
+int	vsnprint(char *s, int len, char *format, va_list v)
+.PP
+.B
+char*	vseprint(char *s, char *e, char *format, va_list v)
+.PP
+.B
+char*	vsmprint(char *format, va_list v)
+.PP
+.B
+int	runevsnprint(Rune *s, int len, char *format, va_list v)
+.PP
+.B
+Rune*	runevseprint(Rune *s, Rune *e, char *format, va_list v)
+.PP
+.B
+Rune*	runevsmprint(Rune *format, va_list v)
+.PP
+.B
+.SH DESCRIPTION
+.I Print
+writes text to the standard output.
+.I Fprint
+writes to the named output
+file descriptor:
+a buffered form
+is described in
+.IR bio (3).
+.I Sprint
+places text
+followed by the NUL character
+.RB ( \e0 )
+in consecutive bytes starting at
+.IR s ;
+it is the user's responsibility to ensure that
+enough storage is available.
+Each function returns the number of bytes
+transmitted (not including the NUL
+in the case of
+.IR sprint ),
+or
+a negative value if an output error was encountered.
+.PP
+.I Snprint
+is like
+.IR sprint ,
+but will not place more than
+.I len
+bytes in
+.IR s .
+Its result is always NUL-terminated and holds the maximal
+number of complete UTF-8 characters that can fit.
+.I Seprint
+is like
+.IR snprint ,
+except that the end is indicated by a pointer
+.I e
+rather than a count and the return value points to the terminating NUL of the
+resulting string.
+.I Smprint
+is like
+.IR sprint ,
+except that it prints into and returns a string of the required length, which is
+allocated by
+.IR malloc (3).
+.PP
+The routines
+.IR runesprint ,
+.IR runesnprint ,
+.IR runeseprint ,
+and
+.I runesmprint
+are the same as
+.IR sprint ,
+.IR snprint ,
+.IR seprint
+and
+.I smprint
+except that their output is rune strings instead of byte strings.
+.PP
+Finally, the routines
+.IR vfprint ,
+.IR vsnprint ,
+.IR vseprint ,
+.IR vsmprint ,
+.IR runevsnprint ,
+.IR runevseprint ,
+and
+.I runevsmprint
+are like their
+.BR v-less
+relatives except they take as arguments a
+.B va_list
+parameter, so they can be called within a variadic function.
+The Example section shows a representative usage.
+.PP
+Each of these functions
+converts, formats, and prints its
+trailing arguments
+under control of a
+.IR format 
+string.
+The
+format
+contains two types of objects:
+plain characters, which are simply copied to the
+output stream,
+and conversion specifications,
+each of which results in fetching of
+zero or more
+arguments.
+The results are undefined if there are arguments of the
+wrong type or too few
+arguments for the format.
+If the format is exhausted while
+arguments remain, the excess
+is ignored.
+.PP
+Each conversion specification has the following format:
+.IP
+.B "% [flags] verb
+.PP
+The verb is a single character and each flag is a single character or a
+(decimal) numeric string.
+Up to two numeric strings may be used;
+the first is called
+.IR width ,
+the second
+.IR precision .
+A period can be used to separate them, and if the period is
+present then
+.I width
+and
+.I precision
+are taken to be zero if missing, otherwise they are `omitted'.
+Either or both of the numbers may be replaced with the character
+.BR * ,
+meaning that the actual number will be obtained from the argument list
+as an integer.
+The flags and numbers are arguments to
+the
+.I verb
+described below.
+.PP
+The numeric verbs
+.BR d ,
+.BR i ,
+.BR u ,
+.BR o ,
+.BR b ,
+.BR x ,
+and
+.B X
+format their arguments in decimal, decimal,
+unsigned decimal, octal, binary, hexadecimal, and upper case hexadecimal.
+Each interprets the flags
+.BR 0 ,
+.BR h ,
+.BR hh ,
+.BR l ,
+.BR + ,
+.BR - ,
+.BR , ,
+and
+.B #
+to mean pad with zeros,
+short, byte, long, always print a sign, left justified, commas every three digits,
+and alternate format.
+Also, a space character in the flag
+position is like
+.BR + ,
+but prints a space instead of a plus sign for non-negative values.
+If neither
+short nor long is specified,
+then the argument is an
+.BR int .
+If an unsigned verb is specified,
+then the argument is interpreted as a
+positive number and no sign is output;
+space and
+.B +
+flags are ignored for unsigned verbs.
+If two
+.B l
+flags are given,
+then the argument is interpreted as a
+.B vlong
+(usually an 8-byte, sometimes a 4-byte integer).
+If
+.I precision
+is not omitted, the number is padded on the left with zeros
+until at least
+.I precision
+digits appear.
+If
+.I precision
+is explicitly 0, and the number is 0,
+no digits are generated, and alternate formatting
+does not apply.
+Then, if alternate format is specified,
+for
+.B o
+conversion, the number is preceded by a
+.B 0
+if it doesn't already begin with one.
+For non-zero numbers and
+.B x
+conversion, the number is preceded by
+.BR 0x ;
+for
+.B X
+conversion, the number is preceded by
+.BR 0X .
+Finally, if
+.I width
+is not omitted, the number is padded on the left (or right, if
+left justification is specified) with enough blanks to
+make the field at least
+.I width
+characters long.
+.PP
+The floating point verbs
+.BR f ,
+.BR e ,
+.BR E ,
+.BR g ,
+and
+.B G
+take a
+.B double
+argument.
+Each interprets the flags
+.BR 0 ,
+.BR L
+.BR + ,
+.BR - ,
+and
+.B #
+to mean pad with zeros,
+long double argument,
+always print a sign,
+left justified,
+and
+alternate format.
+.I Width
+is the minimum field width and,
+if the converted value takes up less than
+.I width
+characters, it is padded on the left (or right, if `left justified')
+with spaces.
+.I Precision
+is the number of digits that are converted after the decimal place for
+.BR e ,
+.BR E ,
+and
+.B f
+conversions,
+and
+.I precision
+is the maximum number of significant digits for
+.B g
+and
+.B G
+conversions.
+The 
+.B f
+verb produces output of the form
+.RB [ - ] digits [ .digits\fR].
+.B E
+conversion appends an exponent
+.BR E [ - ] digits ,
+and
+.B e
+conversion appends an exponent
+.BR e [ - ] digits .
+The
+.B g
+verb will output the argument in either
+.B e
+or
+.B f
+with the goal of producing the smallest output.
+Also, trailing zeros are omitted from the fraction part of
+the output, and a trailing decimal point appears only if it is followed
+by a digit.
+The
+.B G
+verb is similar, but uses
+.B E
+format instead of
+.BR e .
+When alternate format is specified, the result will always contain a decimal point,
+and for
+.B g
+and
+.B G
+conversions, trailing zeros are not removed.
+.PP
+The
+.B s
+verb copies a string
+(pointer to
+.BR char )
+to the output.
+The number of characters copied
+.RI ( n )
+is the minimum
+of the size of the string and
+.IR precision .
+These
+.I n
+characters are justified within a field of
+.I width
+characters as described above.
+If a
+.I precision
+is given, it is safe for the string not to be nul-terminated
+as long as it is at least
+.I precision
+characters (not bytes!) long.
+The
+.B S
+verb is similar, but it interprets its pointer as an array
+of runes (see
+.IR utf (7));
+the runes are converted to
+.SM UTF
+before output.
+.PP
+The
+.B c
+verb copies a single
+.B char
+(promoted to
+.BR int )
+justified within a field of
+.I width
+characters as described above.
+The
+.B C
+verb is similar, but works on runes.
+.PP
+The
+.B p
+verb formats a pointer value.
+At the moment, it is a synonym for
+.BR x ,
+but that will change if pointers and integers are different sizes.
+.PP
+The
+.B r
+verb takes no arguments; it copies the error string returned by a call to
+.IR strerror (3)
+with an argument of
+.IR errno.
+.PP
+Custom verbs may be installed using
+.IR fmtinstall (3).
+.SH EXAMPLE
+This function prints an error message with a variable
+number of arguments and then quits.
+.IP
+.EX
+.ta 6n +6n +6n
+void fatal(char *msg, ...)
+{
+	char buf[1024], *out;
+	va_list arg;
+
+	out = seprint(buf, buf+sizeof buf, "Fatal error: ");
+	va_start(arg, msg);
+	out = vseprint(out, buf+sizeof buf, msg, arg);
+	va_end(arg);
+	write(2, buf, out-buf);
+	exit(1);
+}
+.EE
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH SEE ALSO
+.IR fmtinstall (3),
+.IR fprintf (3),
+.IR utf (7)
+.SH DIAGNOSTICS
+Routines that write to a file descriptor or call
+.IR malloc
+set
+.IR errstr .
+.SH BUGS
+The formatting is close to that specified for ANSI
+.IR fprintf (3);
+the main difference is that
+.B b
+and
+.B r
+are not in ANSI and some
+.B C9X
+verbs and syntax are missing.
+Also, and distinctly not a bug,
+.I print
+and friends generate
+.SM UTF
+rather than
+.SM ASCII.
+.PP
+There is no
+.IR runeprint ,
+.IR runefprint ,
+etc. because runes are byte-order dependent and should not be written directly to a file; use the
+UTF output of
+.I print
+or
+.I fprint
+instead.
+Also,
+.I sprint
+is deprecated for safety reasons; use
+.IR snprint ,
+.IR seprint ,
+or
+.I smprint
+instead.
+Safety also precludes the existence of
+.IR runesprint .

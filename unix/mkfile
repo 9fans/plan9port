@@ -1,64 +1,69 @@
-bio fmt mk regexp utf:V:
-	case $target in
-	mk) t=mk ;;
-	regexp) t=libregexp ;;
-	*) t=lib$target ;;
-	esac
-	# 
+MKSHELL=rc
+new-%:V:
+	t=$stem
+	if(! ~ $t utf fmt bio regexp mk){
+		echo bad target
+		exit oops
+	}
+	if(! ~ $t mk)
+		t=lib$t
 	mkdir -p $t
-	rm -f $t/* || true
+	rm -f $t/*
 	cd $t
-	mk -f ../mkfile.$target
-	# 
-	case $target in
-	bio) d=$PLAN9/src/$t;;
-	regexp) d=$PLAN9/src/$t;;
-	fmt) d=$PLAN9/src/lib9/$target ;;
-	utf) d=$PLAN9/src/lib9/$target ;;
-	mk) d=$PLAN9/src/cmd/mk ;;
-	esac
-	# 
-	for i in `ls -p $d/*.c`
-	do
-		if [ ! -f $i ]
-		then
-			echo missing $i
-		fi
-	done
-	make
-	for i in `ls *.c`
-	do
-		if [ ! -f `echo $i | sed 's/.c$/.o/'` ]
-		then
-			echo not building $i
-		fi
-	done
+	mk -f ../mkfile.$stem
 	cd ..
-	rm $t/* || true
+
+test-%:V:
+	t=$stem
+	path=($PLAN9/bin $path)
+	mk new-$t
 	cd $t
-	mk -f ../mkfile.$target
+	switch($t){
+	case bio;	d=libbio
+	case regexp;	d=libregexp
+	case fmt;	d=lib9/fmt
+	case utf:	d=lib9/utf
+	case mk;	d=cmd/mk
+	}
+	d=$PLAN9/src/$d
+	for(i in `{ls -p $d/*.c})
+		if(! test -f $i)
+			echo XXX missing $i
+	make
+	for(i in `{ls *.c})
+		if(! test -f `{echo $i | sed 's/.c$/.o/'})
+			echo XXX not building $i
+	cd ..
+	rm -r $t
 
-%.install:V:
-	mk $stem
-	case $stem in
-	mk) t=mk ;;
-	regexp) t=libregexp ;;
-	*) t=lib$stem ;;
-	esac
-	(cd $t; make install)
-
-lib%.tgz:
-	mk $stem
+lib%.tgz:V:
+	mk new-$stem
 	tar cf - lib$stem |gzip >lib$stem.tgz
 
-libregexp9.tgz:
-	mk regexp
+libregexp9.tgz:V:
+	mk new-regexp
 	tar cf - libregexp | gzip >libregexp9.tgz
 
-mk.tgz:
-	mk mk
+mk.tgz:V:
+	mk new-mk
 	tar cf - mk | gzip >mk.tgz
 
-mk-all.tgz:
-	tar cf - Makefile libutf libfmt libbio libregexp mk | gzip >mk-all.tgz
+mk-with-libs.tgz:V:
+	mk new-utf 
+	mk new-fmt
+	mk new-bio
+	mk new-regexp
+	mk new-mk
+	rm -rf zot
+	mkdir zot
+	mv libutf libfmt libbio libregexp mk zot
+	mv zot mk
+	cp Makefile mk/Makefile
+	tar cf - mk | gzip >$target
+	rm -r mk
+
+tgz:V: libutf.tgz libfmt.tgz libregexp9.tgz libbio.tgz mk.tgz mk-with-libs.tgz
+
+push:
+	rsync -e ssh *.tgz swtch:www/swtch.com/plan9port/unix
 

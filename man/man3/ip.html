@@ -1,0 +1,345 @@
+<head>
+<title>ip(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>IP(3)</b><td align=right><b>IP(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    eipfmt, parseip, parseipmask, v4parseip, v4parsecidr, parseether,
+    myipaddr, myetheraddr, maskip, equivip, defmask, isv4, v4tov6,
+    v6tov4, nhgetl, nhgets, nhgetv, hnputl, hnputs, hnputv, ptclbsum,
+    readipifc &ndash; Internet protocol<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt;<br>
+    #include &lt;ip.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;eipfmt(Fmt*) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parseip(uchar *ipaddr, char *str) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;parseipmask(uchar *ipaddr, char *str) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>char* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v4parseip(uchar *ipaddr, char *str) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v4parsecidr(uchar *addr, uchar *mask, char *str) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;parseether(uchar *eaddr, char *str) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;myetheraddr(uchar *eaddr, char *dev) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;myipaddr(uchar *ipaddr, char *net) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void maskip(uchar *from, uchar *mask, uchar *to) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;equivip(uchar *ipaddr1, uchar *ipaddr2) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;defmask(uchar *ipaddr) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;isv4(uchar *ipaddr) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void v4tov6(uchar *ipv6, uchar *ipv4) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void v6tov4(uchar *ipv4, uchar *ipv6) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nhgets(void *p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uint nhgetl(void *p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uvlong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nhgetv(void *p) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void hnputs(void *p, ushort v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void hnputl(void *p, uint v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void hnputv(void *p, uvlong v) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>ushort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ptclbsum(uchar *a, int n) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>Ipifc* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;readipifc(char *net, Ipifc *ifc, int index) 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IPv4bcast[IPaddrlen]; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IPv4allsys[IPaddrlen]; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IPv4allrouter[IPaddrlen]; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IPallbits[IPaddrlen]; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IPnoaddr[IPaddrlen]; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v4prefix[IPaddrlen];<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    These routines are used by Internet Protocol (IP) programs to
+    manipulate IP and Ethernet addresses. Plan 9, by default, uses
+    V6 format IP addresses. Since V4 addresses fit into the V6 space,
+    all IP addresses can be represented. IP addresses are stored as
+    a string of 16 <tt><font size=+1>unsigned chars</font></tt>, Ethernet addresses as 6
+    <tt><font size=+1>unsigned chars</font></tt>. Either V4 or V6 string representation can be used
+    for IP addresses. For V4 addresses, the representation can be
+    (up to) 4 decimal integers from 0 to 255 separated by periods.
+    For V6 addresses, the representation is (up to) 8 hex integers
+    from 0x0 to 0xFFFF separated by colons. Strings of 0
+    integers can be elided using two colons. For example, <tt><font size=+1>FFFF::1111</font></tt>
+    is equivalent to <tt><font size=+1>FFFF:0:0:0:0:0:0:1111</font></tt>. The string representation
+    for IP masks is a superset of the address representation. It includes
+    slash notation that indicates the number of leading 1 bits in
+    the mask. Thus, a V4 class C mask can be
+    represented as <tt><font size=+1>FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FF00</font></tt>, <tt><font size=+1>255.255.255.0</font></tt>,
+    or <tt><font size=+1>/120.</font></tt> The string representation of Ethernet addresses is exactly
+    12 hexadecimal digits. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Eipfmt</i> is a <a href="../man3/print.html"><i>print</i>(3)</a> formatter for Ethernet (verb <tt><font size=+1>E</font></tt>) addresses,
+    IP V6 (verb <tt><font size=+1>I</font></tt>) addresses, IP V4 (verb <tt><font size=+1>V</font></tt>) addresses, and IP V6
+    (verb <tt><font size=+1>M</font></tt>) masks. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Parseip</i> converts a string pointed to by <i>str</i> to a 16-byte IP address
+    starting at <i>ipaddr</i>. As a concession to backwards compatibility,
+    if the string is a V4 address, the return value is an unsigned
+    long integer containing the big-endian V4 address. If not, the
+    return value is 6. <i>Parseipmask</i> converts a string pointed to by
+    <i>str
+    </i>to a 6-byte IP mask starting at <i>ipaddr</i>. It too returns an unsigned
+    long big-endian V4 address or 6. Both routines return -1 on errors.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>V4parseip</i> converts a string pointed to by <i>str</i> to a 4-byte V4 IP
+    address starting at <i>ipaddr</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>V4parsecidr</i> converts a string of the form addr/mask, pointed to
+    by <i>str</i>, to a 4-byte V4 IP address starting at <i>ipaddr</i> and a 4-byte
+    V4 IP mask starting at <i>mask</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Myipaddr</i> returns the first valid IP address in the IP stack rooted
+    at <i>net</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Parseether</i> converts a string pointed to by <i>str</i> to a 6-byte Ethernet
+    address starting at <i>eaddr</i>. <i>Myetheraddr</i> reads the Ethernet address
+    string from file <i>dev</i><tt><font size=+1>/1/stats</font></tt> and parses it into <i>eaddr</i>. Both routines
+    return a negative number on errors. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Maskip</i> places the bit-wise AND of the IP addresses pointed to
+    by its first two arguments into the buffer pointed to by the third.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Equivip</i> returns non-zero if the IP addresses pointed to by its
+    two arguments are equal. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Defmask</i> returns the standard class A, B, or C mask for <i>ipaddr</i>.
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Isv4</i> returns non-zero if the V6 address is in the V4 space, that
+    is, if it starts with <tt><font size=+1>0:0:0:0:0:0:FFFF</font></tt>. <i>V4tov6</i> converts the V4
+    address, <i>v4ip</i>, to a V6 address and puts the result in <i>v6ip</i>. <i>V6tov4</i>
+    converts the V6 address, <i>v6ip</i>, to a V4 address and puts the result
+    in <i>v4ip</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Hnputs</i>, <i>hnputl</i>, and <i>hnputv</i> are used to store 16-, 32-, and 64-bit
+    integers into IP big-endian form. <i>Nhgets</i>, <i>nhgetl</i>, and <i>nhgetv</i> convert
+    big-endian 2-, 4-, and 8-byte quantities into integers. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Pctlbsum</i> returns the one&#8217;s complement checksum used in IP protocols,
+    typically invoked as<br>
+    <tt><font size=+1>hnputs(hdr&#8722;&gt;cksum, ~ptclbsum(data, len) &amp; 0xffff);<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    A number of standard IP addresses in V6 format are also defined.
+    They are:<br>
+    <tt><font size=+1>IPv4bcast<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the V4 broadcast address<br>
+        
+    </table>
+    <tt><font size=+1>IPv4allsys<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the V4 all systems multicast address<br>
+        
+    </table>
+    <tt><font size=+1>IPv4allrouter<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the V4 all routers multicast address<br>
+        
+    </table>
+    <tt><font size=+1>IPallbits<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the V6 all bits on address<br>
+        
+    </table>
+    <tt><font size=+1>IPnoaddr<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the V6 null address, all zeros<br>
+        
+    </table>
+    <tt><font size=+1>v4prefix<br>
+    </font></tt>
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        the IP V6 prefix to all embedded V4 addresses 
+        <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+        
+        
+    </table>
+    <i>Readipifc</i> returns information about a particular interface (<i>index
+    </i>&gt;= 0) or all IP interfaces (<i>index </i>&lt; 0) configured under a mount
+    point <i>net</i>, default <tt><font size=+1>/net</font></tt>. Each interface is described by one <i>Ipifc</i>
+    structure which in turn points to a linked list of <i>Iplifc</i> structures
+    describing the addresses assigned to this interface. If the list
+    <i>ifc</i> is supplied, that list is freed. Thus, subsequent calls can
+    be used to free the list returned by the previous call. <i>Ipifc</i>
+    is: 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>typedef struct Ipifc<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Ipifc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*next;<br>
+        Iplifc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*lifc;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* local addressses */<br>
+        /* per ip interface */<br>
+        int &nbsp;&nbsp;&nbsp;index;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* number of interface in ipifc dir */<br>
+        char dev[64]; &nbsp;&nbsp;&nbsp;/* associated physical device */<br>
+          int &nbsp;&nbsp;&nbsp;mtu;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* max transfer unit */<br>
+        long validlt; &nbsp;&nbsp;&nbsp;/* valid life time */<br>
+          long preflt;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* preferred life time */<br>
+        uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sendra6; &nbsp;&nbsp;&nbsp;/* on == send router adv */<br>
+        uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recvra6; &nbsp;&nbsp;&nbsp;/* on == rcv router adv */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pktin;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* packets read */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pktout;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* packets written */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;errin;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* read errors */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;errout;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* write errors */<br>
+        Ipv6rp &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rp;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* route advertisement params */<br>
+        
+    </table>
+    } Ipifc;<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <i>Iplifc</i> is: 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <tt><font size=+1>struct Iplifc<br>
+    {<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+        Iplifc &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*next;<br>
+        uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ip[IPaddrlen];<br>
+        uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mask[IPaddrlen];<br>
+        uchar &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;net[IPaddrlen];  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* ip &amp; mask */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;preflt;   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* preferred lifetime */<br>
+        ulong &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;validlt;  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/* valid lifetime */<br>
+        
+    </table>
+    };<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <i>Ipv6rp</i> is: struct Ipv6rp { &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;mflag; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;oflag; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int  &nbsp;&nbsp;&nbsp;&nbsp;maxraint;
+    &nbsp;&nbsp;&nbsp;&nbsp;/* max route adv interval */ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;minraint; &nbsp;&nbsp;&nbsp;&nbsp;/* min route adv interval
+    */ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;linkmtu; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;reachtime; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;rxmitra; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;ttl; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int &nbsp;&nbsp;&nbsp;&nbsp;routerlt;
+     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Dev</i> contains the first 64 bytes of the device configured with
+    this interface. <i>Net</i> is <i>ip</i><tt><font size=+1>&amp;</font></tt><i>mask</i> if the network is multipoint or
+    the remote address if the network is point to point.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/libip<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO    </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/print.html"><i>print</i>(3)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,54 @@
+.TH FMTSTRTOD 3
+.SH NAME
+fmtstrtod, fmtcharstod \ - convert text to numbers
+.SH SYNOPSIS
+.B #include <utf.h>
+.br
+.B #include <fmt.h>
+.PP
+.PP
+.B
+double	fmtstrtod(char *nptr, char **rptr)
+.PP
+.B
+double	fmtcharstod(int (*f)(void *), void *a)
+.SH DESCRIPTION
+.I Fmtstrtod
+converts a string pointed to by
+.I nptr
+to floating point representation and, if
+.I rptr
+is not zero, sets
+.I *rptr
+to point to the input character immediately after the string converted.
+.I Fmtstrtod
+recognizes an optional string of tabs and spaces,
+then an optional sign, then a string of digits optionally
+containing a decimal point, then an optional 
+.L e
+or
+.L E
+followed by an optionally signed integer.
+.PP
+.PP
+.I Fmtcharstod
+interprets floating point numbers in the manner of
+.IR atof ,
+but gets successive characters by calling
+.BR (*\fIf\fP)(a) .
+The last call to
+.I f
+terminates the scan, so it must have returned a character that
+is not a legal continuation of a number.
+Therefore, it may be necessary to back up the input stream one character
+after calling
+.IR fmtcharstod .
+.SH SOURCE
+.B http://swtch.com/plan9port/unix
+.SH SEE ALSO
+.IR fscanf (3)
+.SH DIAGNOSTICS
+Zero is returned if the beginning of the input string is not interpretable
+as a number; even in this case,
+.I rptr
+will be updated.

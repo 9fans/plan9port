@@ -1,0 +1,126 @@
+<head>
+<title>exits(3) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>EXITS(3)</b><td align=right><b>EXITS(3)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    exits, _exits, atexit, atexitdont, terminate &ndash; terminate process,
+    process cleanup<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>#include &lt;u.h&gt;<br>
+    #include &lt;libc.h&gt; 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void _exits(char *msg)<br>
+    void exits(char *msg)<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>int &nbsp;&nbsp;&nbsp;atexit(void(*)(void))<br>
+    
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    </font></tt>
+    <tt><font size=+1>void atexitdont(void(*)(void))<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <i>Exits</i> is the conventional way to terminate a process. <i>_Exits</i> also
+    terminates a process but does not call the registered <i>atexit</i> handlers
+    (<i>q.v.</i>). They can never return. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Msg</i> conventionally includes a brief (maximum length <tt><font size=+1>ERRLEN</font></tt>) explanation
+    of the reason for exiting, or a null pointer or empty string to
+    indicate normal termination. The string is passed to the parent
+    process, prefixed by the name and process id of the exiting process,
+    when the parent does a <a href="../man3/wait.html"><i>wait</i>(3)</a>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Before calling <i>_exits</i> with <i>msg</i> as an argument, <i>exits</i> calls in
+    reverse order all the functions recorded by <i>atexit</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Atexit</i> records <i>fn</i> as a function to be called by <i>exits</i>. It returns
+    zero if it failed, nonzero otherwise. A typical use is to register
+    a cleanup routine for an I/O package. To simplify programs that
+    fork or share memory, <i>exits</i> only calls those <i>atexit</i>-registered
+    functions that were registered by the same process as that calling
+    <i>exits</i>. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Calling <i>atexit</i> twice (or more) with the same function argument
+    causes <i>exits</i> to invoke the function twice (or more). 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    There is a limit to the number of exit functions that will be
+    recorded; <i>atexit</i> returns 0 if that limit has been reached. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    <i>Atexitdont</i> cancels a previous registration of an exit function.<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/lib9/atexit.c<br>
+    /usr/local/plan9/src/lib9/_exits.c<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man2/fork.html"><i>fork</i>(2)</a>, <a href="../man3/wait.html"><i>wait</i>(3)</a><br>
+    
+</table>
+<p><font size=+1><b>BUGS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    Because of limitations of Unix, the exit status of a process can
+    only be an 8-bit integer. Exit status 0 is used for empty exit
+    messages, and 1 for non-empty messages. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    Exit codes 97 through 99 are used by the thread library to signal
+    internal synchronization errors between the main program and a
+    proxy process that implements backgrounding. 
+    <table border=0 cellpadding=0 cellspacing=0><tr height=5><td></table>
+    
+    To avoid name conflicts with the underlying system, <i>atexit</i> and
+    <i>atexitdont</i> are preprocessor macros defined as <i>p9atexit</i> and <i>p9atexitdont</i>;
+    see <a href="../man3/intro.html"><i>intro</i>(3)</a>.<br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>

@@ -1,0 +1,80 @@
+<head>
+<title>plumb(1) - Plan 9 from User Space</title>
+<meta content="text/html; charset=utf-8" http-equiv=Content-Type>
+</head>
+<body bgcolor=#ffffff>
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=10><td>
+<tr><td width=20><td>
+<tr><td width=20><td><b>PLUMB(1)</b><td align=right><b>PLUMB(1)</b>
+<tr><td width=20><td colspan=2>
+    <br>
+<p><font size=+1><b>NAME     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    plumb &ndash; send message to plumber<br>
+    
+</table>
+<p><font size=+1><b>SYNOPSIS     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>plumb</font></tt> [ <tt><font size=+1>&#8722;p</font></tt> <i>plumbfile</i> ] [ <tt><font size=+1>&#8722;a</font></tt> <i>attributes</i> ] [ <tt><font size=+1>&#8722;s</font></tt> <i>source</i> ] [ <tt><font size=+1>&#8722;d</font></tt> <i>destination</i>
+    ] [ <tt><font size=+1>&#8722;t</font></tt> <i>type</i> ] [ <tt><font size=+1>&#8722;w</font></tt> <i>directory</i> ] <tt><font size=+1>&#8722;i</font></tt> | <i>data...<br>
+    </i>
+</table>
+<p><font size=+1><b>DESCRIPTION     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    The <i>plumb</i> command formats and sends a plumbing message whose data
+    is, by default, the concatenation of the argument strings separated
+    by blanks. The options are:<br>
+    <tt><font size=+1>&#8722;p</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;write the message to <i>plumbfile</i> (default <tt><font size=+1>/mnt/plumb/send</font></tt>).<br>
+    <tt><font size=+1>&#8722;a</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;set the <tt><font size=+1>attr</font></tt> field of the message (default is empty).<br>
+    <tt><font size=+1>&#8722;s</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;set the <tt><font size=+1>src</font></tt> field of the message (default is <tt><font size=+1>plumb</font></tt>).<br>
+    <tt><font size=+1>&#8722;d</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;set the <tt><font size=+1>dst</font></tt> field of the message (default is empty).<br>
+    <tt><font size=+1>&#8722;t</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;set the <tt><font size=+1>type</font></tt> field of the message (default is <tt><font size=+1>text</font></tt>).<br>
+    <tt><font size=+1>&#8722;w</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;set the <tt><font size=+1>wdir</font></tt> field of the message (default is the current working
+    directory of <i>plumb</i>).<br>
+    <tt><font size=+1>&#8722;i</font></tt>&nbsp;&nbsp;&nbsp;&nbsp;take the data from standard input rather than the argument strings.
+    If an <tt><font size=+1>action=</font></tt> attribute is not otherwise specified, <i>plumb</i> will
+    add an <tt><font size=+1>action=showdata</font></tt> attribute to the message.<br>
+    
+</table>
+<p><font size=+1><b>FILES     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>$HOME/lib/plumbing</font></tt>&nbsp;&nbsp;&nbsp;default rules file<br>
+    
+</table>
+<p><font size=+1><b>SOURCE     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <tt><font size=+1>/usr/local/plan9/src/cmd/plumb<br>
+    </font></tt>
+</table>
+<p><font size=+1><b>SEE ALSO     </b></font><br>
+
+<table border=0 cellpadding=0 cellspacing=0><tr height=2><td><tr><td width=20><td>
+
+    <a href="../man3/plumb.html"><i>plumb</i>(3)</a>, <a href="../man4/plumber.html"><i>plumber</i>(4)</a>, <a href="../man7/plumb.html"><i>plumb</i>(7)</a><br>
+    
+</table>
+
+<td width=20>
+<tr height=20><td>
+</table>
+<!-- TRAILER -->
+<table border=0 cellpadding=0 cellspacing=0 width=100%>
+<tr height=15><td width=10><td><td width=10>
+<tr><td><td>
+<center>
+<a href="../../"><img src="../../dist/spaceglenda100.png" alt="Space Glenda" border=1></a>
+</center>
+</table>
+<!-- TRAILER -->
+</body></html>
