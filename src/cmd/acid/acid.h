@@ -56,6 +56,7 @@ Extern int	gotint;
 Extern long	flen;
 Extern Gc*	gcl;
 Extern int	stacked;
+#define err aciderrjmp
 Extern jmp_buf	err;
 Extern Node*	prnt;
 Extern Node*	fomt;

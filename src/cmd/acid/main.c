@@ -97,13 +97,13 @@ main(int argc, char *argv[])
 	l->v->type = TLIST;
 	l->v->store.u.l = nil;
 
-	loadmodule("/usr/local/plan9/acid/port");
+	loadmodule(unsharp("#9/acid/port"));
 	for(i = 0; i < nlm; i++) {
 		if(access(lm[i], AREAD) >= 0)
 			loadmodule(lm[i]);
 		else {
-			sprint(buf, "/usr/local/plan9/acid/%s", lm[i]);
-			loadmodule(buf);
+			sprint(buf, "#9/acid/%s", lm[i]);
+			loadmodule(unsharp(buf));
 		}
 	}
 
@@ -320,8 +320,8 @@ userinit(void)
 	Node *n;
 	char buf[128], *p;
 
-	sprint(buf, "/usr/local/plan9/acid/%s", mach->name);
-	loadmodule(buf);
+	sprint(buf, "#9/acid/%s", mach->name);
+	loadmodule(unsharp(buf));
 	p = getenv("home");
 	if(p != 0) {
 		sprint(buf, "%s/lib/acid", p);
