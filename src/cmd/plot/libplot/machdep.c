@@ -68,7 +68,8 @@ void m_initialize(char *s){
 	int dx, dy;
 	USED(s);
 	if(first){
-		initdraw(0,0,"plot");
+		if(initdraw(0,0,"plot") < 0)
+			sysfatal("plot: can't open display: %r");
 		einit(Emouse);
 		clipminx=mapminx=screen->r.min.x+4;
 		clipminy=mapminy=screen->r.min.y+4;

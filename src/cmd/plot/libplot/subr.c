@@ -18,16 +18,10 @@ bcolor(char *s){
 		switch (*s) {
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
-			c=0;
-			while('0'<=*s && *s<='9')
-				c=c*10+*s++-'0';
-			if(c < 0)
-				return DBlack;
-			return cmap2rgba(c);
+			return strtoul(s, 0, 0);
 		case 'k':  case 'z':	/* zero was old name for kblack */
 			return(DBlack);
 		case 'r':
-print("RED");
 			return(DRed);
 		case 'g': 
 			return(DGreen);
