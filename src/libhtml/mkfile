@@ -1,0 +1,22 @@
+<$SYS9/$systype/$objtype/mkfile
+
+LIB=$LIB9/libhtml.a
+
+OFILES=\
+	build.$O\
+	lex.$O\
+	strinttab.$O\
+	utils.$O\
+	runetab.$O\
+
+HFILES=\
+	$SYS9/sys/include/html.h\
+	impl.h\
+
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}\
+	${LIB:$SYS9/$systype/$objtype/%=$SYS9/$systype/386/%}\
+
+<$SYS9/sys/src/cmd/mksyslib

@@ -1,0 +1,30 @@
+<$SYS9/$systype/$objtype/mkfile
+
+TARG=htmlfmt
+OFILES=\
+	main.$O\
+	html.$O\
+	util.$O\
+
+HFILES=\
+	dat.h\
+	$SYS9/sys/include/html.h\
+
+LIB=$SYS9/$systype/$objtype/lib/libbio.a\
+	$SYS9/$systype/$objtype/lib/libregexp.a\
+	$SYS9/$systype/$objtype/lib/libhtml.a\
+	$SYS9/$systype/$objtype/lib/lib9c.a
+
+BIN=$SYS9/$systype/$objtype/bin
+
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}
+
+<$SYS9/sys/src/cmd/mkone
+
+CFLAGS=$CFLAGS
+
+#$O.out: $OFILES
+#	$LD -o $target  $LDFLAGS $OFILES
