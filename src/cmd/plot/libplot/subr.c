@@ -14,7 +14,7 @@ struct penvir *e0 = E, *e1 = &E[1], *esave;
 int
 bcolor(char *s){
 	int c;
-	while (*s != NULL) {
+	while (*s != 0) {
 		switch (*s) {
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
@@ -50,7 +50,7 @@ print("RED");
 			e1->pslant = (180. - atof(s + 1)) / RADIAN; 
 			return(-1);
 		}
-		while (*++s != NULL) 
+		while (*++s != 0) 
 			if (*s == '/') {
 				s++;
 				break;
