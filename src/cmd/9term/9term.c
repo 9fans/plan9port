@@ -1315,7 +1315,7 @@ plumb(uint q0, uint q1)
 	char cbuf[100];
 	char *w;
 
-	if(getchildwdir(pid, childwdir, sizeof childwdir) == 0)
+	if(getchildwd(rcpid, childwdir, sizeof childwdir) == 0)
 		w = childwdir;
 	else
 		w = wdir;

@@ -11,4 +11,3 @@ OFILES=\
 
 LDFLAGS=-lframe -ldraw -lplumb -lthread -l9 -lfmt -lutf -L$X11/lib -lX11 -lutil
 
-

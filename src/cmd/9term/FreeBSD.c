@@ -1,4 +1,5 @@
 #include "9term.h"
+#include <libutil.h>
 
 int
 getchildwd(int pid, char *wdir, int bufn)
