@@ -98,8 +98,7 @@ _await(char *str, int n, int opt)
 		}
 		if(WIFSIGNALED(status)){
 			cd = WCOREDUMP(status);
-			USED(cd);
-			snprint(buf, sizeof buf, "%d %lud %lud %lud '%s'", pid, u, s, u+s, _p9sigstr(WTERMSIG(status), tmp));
+			snprint(buf, sizeof buf, "%d %lud %lud %lud 'signal: %s%s'", pid, u, s, u+s, _p9sigstr(WTERMSIG(status), tmp), cd ? " (core dumped)" : "");
 			strecpy(str, str+n, buf);
 			return strlen(str);
 		}
