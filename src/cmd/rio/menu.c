@@ -14,6 +14,35 @@ Client	*hiddenc[MAXHIDDEN];
 
 int	numhidden;
 
+int virt;
+
+Client * currents[NUMVIRTUALS] =
+{
+	NULL, NULL, NULL, NULL, 
+};
+
+char	*b2items[NUMVIRTUALS+1] =
+{
+	"One",
+	"Two",
+	"Three",
+	"Four",
+	"Five",
+	"Six",
+	"Seven",
+	"Eight",
+	"Nine",
+	"Ten",
+	"Eleven",
+	"Twelve",
+	0,
+};
+
+Menu b2menu = 
+{
+	b2items,
+};
+
 char	*b3items[B3FIXED+MAXHIDDEN+1] =
 {
 	"New",
@@ -80,8 +109,14 @@ button(XButtonEvent *e)
 		}
 		return;
 	case Button2:
-		if ((e->state&(ShiftMask|ControlMask))==(ShiftMask|ControlMask))
+		if (c) {
+			XMapRaised(dpy, c->parent);
+			active(c);
+			XAllowEvents (dpy, ReplayPointer, curtime);
+		} else if ((e->state&(ShiftMask|ControlMask))==(ShiftMask|ControlMask)) {
 			menuhit(e, &egg);
+		} else if(numvirtuals > 1 && (n = menuhit(e, &b2menu)) > -1) 
+				button2(n);
 		return;
 	default:
 		return;
@@ -130,7 +165,7 @@ spawn(ScreenInfo *s)
 	 */
 	isNew = 1;
 	/*
-	 * ugly dance to avoid leaving zombies.  Could use SIGCHLD,
+	 * ugly dance to avoid leaving zombies. Could use SIGCHLD,
 	 * but it's not very portable.
 	 */
 	if (fork() == 0) {
@@ -285,4 +320,61 @@ renamec(Client *c, char *name)
 			b3items[B3FIXED+i] = name;
 			return;
 		}
+}
+
+void
+button2(int n)
+{
+	switch_to(n);
+	if (current)
+		cmapfocus(current);
+}
+
+void
+switch_to_c(int n, Client *c)
+{
+	if (c && c->next)
+		switch_to_c(n,c->next);
+
+	if (c->parent == DefaultRootWindow(dpy))
+		return;
+
+	if (c->virt != virt && c->state == NormalState) {
+		XUnmapWindow(dpy, c->parent);
+		XUnmapWindow(dpy, c->window);
+		setstate(c, IconicState);
+		if (c == current)
+			nofocus();
+	} else if (c->virt == virt && c->state == IconicState) {
+		int i;
+
+		for (i = 0; i < numhidden; i++)
+		if (c == hiddenc[i]) 
+			break;
+
+		if (i == numhidden) {
+			XMapWindow(dpy, c->window);
+			XMapWindow(dpy, c->parent);
+			setstate(c, NormalState);
+			if (currents[virt] == c)
+				active(c); 
+		}
+	}
+}
+
+void
+switch_to(int n)
+{
+	if (n == virt)
+		return;
+	currents[virt] = current;
+	virt = n;
+	switch_to_c(n, clients);
+	current = currents[virt];
+}
+
+void
+initb2menu(int n)
+{ 
+	b2items[n] = 0;
 }

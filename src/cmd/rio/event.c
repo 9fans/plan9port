@@ -514,7 +514,7 @@ borderorient(Client *c, int x, int y)
 			return BorderWSW;
 		}
 		if (y > CORNER &&
-	        y < (c->dy + 2*BORDER) - CORNER) {
+			y < (c->dy + 2*BORDER) - CORNER) {
 			if (debug) fprintf(stderr, "left\n");
 			return BorderW;
 		}
@@ -551,7 +551,7 @@ borderorient(Client *c, int x, int y)
 			return BorderSSE;
 		}
 	} else if (x > CORNER &&
-		       x < (c->dx + 2*BORDER) - CORNER) {
+			x < (c->dx + 2*BORDER) - CORNER) {
 		if (y <= BORDER) {
 			if (debug) fprintf(stderr, "top\n");
 			return BorderN;

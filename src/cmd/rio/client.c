@@ -166,6 +166,7 @@ getclient(Window w, int create)
 	c->cmapwins = 0;
 	c->wmcmaps = 0;
 	c->next = clients;
+	c->virt = virt;
 	clients = c;
 	return c;
 }

@@ -38,6 +38,7 @@ int 			debug;
 int 			signalled;
 int 			num_screens;
 int			solidsweep = 0;
+int			numvirtuals = 0;
 
 Atom		exit_rio;
 Atom		restart_rio;
@@ -65,7 +66,7 @@ char	*fontlist[] = {
 void
 usage(void)
 {
-	fprintf(stderr, "usage: rio [-grey] [-version] [-font fname] [-term prog] [exit|restart]\n");
+	fprintf(stderr, "usage: rio [-grey] [-version] [-font fname] [-term prog] [-virtuals num] [exit|restart]\n");
 	exit(1);
 }
 
@@ -99,7 +100,13 @@ main(int argc, char *argv[])
 		}
 		else if (strcmp(argv[i], "-term") == 0 && i+1<argc)
 			termprog = argv[++i];
-		else if (strcmp(argv[i], "-version") == 0) {
+		else if (strcmp(argv[i], "-virtuals") == 0 && i+1<argc) {
+			numvirtuals = atoi(argv[++i]);
+			if(numvirtuals < 0 || numvirtuals > 12) {
+				fprintf(stderr, "rio: wrong number of virtual displays, defaulting to 4\n");
+				numvirtuals = 4;
+			}
+		} else if (strcmp(argv[i], "-version") == 0) {
 			fprintf(stderr, "%s", version[0]);
 			if (PATCHLEVEL > 0)
 				fprintf(stderr, "; patch level %d", PATCHLEVEL);
@@ -196,6 +203,8 @@ main(int argc, char *argv[])
 
 	for (i = 0; i < num_screens; i++)
 		initscreen(&screens[i], i, background);
+
+	initb2menu(numvirtuals);
 
 	/* set selection so that 9term knows we're running */
 	curtime = CurrentTime;

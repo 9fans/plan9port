@@ -71,6 +71,12 @@ void	hide();
 void	unhide();
 void	unhidec();
 void	renamec();
+void	button2();
+void	initb2menu();
+void	switch_to();
+void	switch_to_c();
+
+
 
 /* client.c */
 void	setactive();

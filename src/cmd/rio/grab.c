@@ -366,8 +366,8 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 		break;
 	}
 	if (!init
-	    || xoff < 0 || (xcorn && xoff > CORNER) || (!xcorn && xoff > BORDER)
-	    || yoff < 0 || (ycorn && yoff > CORNER) || (!ycorn && yoff > BORDER)) {
+		|| xoff < 0 || (xcorn && xoff > CORNER) || (!xcorn && xoff > BORDER)
+		|| yoff < 0 || (ycorn && yoff > CORNER) || (!ycorn && yoff > BORDER)) {
 		xoff = 0;
 		yoff = 0;
 		init = 0;
@@ -385,8 +385,8 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 	}
 
 	/* remember requested size;
-           * after applying size hints we may have to correct position
-	  */
+	 * after applying size hints we may have to correct position
+	 */
 	rdx = sx*dx;
 	rdy = sy*dy;
 

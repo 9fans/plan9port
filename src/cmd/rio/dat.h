@@ -5,6 +5,7 @@
 #define	INSET		_inset
 #define MAXHIDDEN	128
 #define B3FIXED 	5
+#define NUMVIRTUALS	12
 
 #define AllButtonMask	(Button1Mask|Button2Mask|Button3Mask \
 			|Button4Mask|Button5Mask)
@@ -46,6 +47,7 @@ struct Client {
 	int 		is9term;
 	int 		hold;
 	int 		proto;
+	int			virt;
 
 	char		*label;
 	char		*instance;
@@ -146,6 +148,7 @@ extern int			_inset;
 extern int			curtime;
 extern int			debug;
 extern int			solidsweep;
+extern int			numvirtuals;
 
 extern Atom		exit_rio;
 extern Atom		restart_rio;
@@ -161,12 +164,16 @@ extern Atom 		wm_colormaps;
 /* client.c */
 extern Client		*clients;
 extern Client		*current;
+extern Client		*currents[];
 
 /* menu.c */
 extern Client		*hiddenc[];
 extern int 			numhidden;
+extern char 		*b2items[];
+extern Menu 		b2menu;
 extern char 		*b3items[];
 extern Menu 		b3menu;
+extern int			virt;
 
 /* manage.c */
 extern int			isNew;
