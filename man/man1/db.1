@@ -14,6 +14,16 @@ db \- debugger
 |
 .I corefile
 ]
+.PP
+.B stack
+[
+.I textfile
+]
+[
+.I pid
+|
+.I corefile
+]
 .SH DESCRIPTION
 .I Db
 is a general purpose debugging program.
@@ -77,6 +87,13 @@ When a
 is given, the memfile map is associated with it;
 otherwise the map is undefined and accesses to it
 are not permitted.
+.PP
+.I Stack
+takes the same arguments as
+.IR db .
+It prints a stack trace (see the
+.B $c
+command below) and then exits.
 .PP
 Commands to
 .I db
@@ -939,7 +956,8 @@ is one the breakpoint will fire.
 Beware that local variables may be stored in registers; see the
 BUGS section.
 .SH "SEE ALSO"
-.IR acid (1)
+.IR acid (1),
+.IR core (1)
 .SH SOURCE
 .B \*9/src/cmd/db
 .SH DIAGNOSTICS

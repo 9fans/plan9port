@@ -4,9 +4,6 @@ core \- print information about dead processes
 .SH SYNOPSIS
 .B core
 [
-.B -s
-]
-[
 .I dir
 |
 .I corefile
@@ -27,11 +24,18 @@ in that directory.
 .PP
 For each core file read,
 .I core
-prints the date and time the core was generated,
-the command that generated it, and, if the
-.B -s
-option is given, a short stack trace
-at the time of the core dump.
+prints the command
+.B stack
+.IR file ,
+the date and time the core was generated,
+and
+the command that generated it.
+The
+.B stack
+command, if run, prints a stack trace of the 
+executing thread at the time of the core dump;
+see
+.IR db (1).
 .PP
 If no arguments are given,
 .I core
@@ -49,7 +53,3 @@ searches the current directory.
 .IR acid (1),
 .IR db (1),
 .IR core (5)
-.SH BUGS
-The
-.B -s
-option is not implemented.
