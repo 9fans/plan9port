@@ -1,8 +1,58 @@
 #!/bin/sh
 
-plumb1()
+plumbfirefox()
 {
-	case x-$BROWSER in
+	echo '
+		tell application "Firefox"
+		activate
+		tell application "System Events"
+		tell process "firefox"
+		keystroke "t" using {command down}
+		end tell
+		end tell
+		Get URL "'$1'"
+		end tell
+	' | osascript
+}
+
+plumbsafari()
+{
+	echo '
+		tell application "Safari"
+		activate
+		tell application "System Events"
+		tell process "safari"
+		keystroke "t" using {command down}
+		end tell
+		end tell
+		open location "'$1'"
+		end tell
+	' | osascript
+}
+
+plumbapple()
+{
+	case ${BROWSER:-none} in
+	firefox)
+		plumbfirefox "$@"
+		;;
+	safari)
+		plumbsafari "$@"
+		;;
+	none)
+		if [ -d /Applications/Firefox.app ]
+		then
+			plumbfirefox "$@"
+		else
+			plumbsafari "$@"
+		fi
+		;;
+	esac
+}
+
+plumbunix()
+{
+	case ${BROWSER:-firefox} in
 	# Other browsers here
 	# ...
 	*opera*)
@@ -15,8 +65,8 @@ plumb1()
 		$BROWSER -remote 'openURL('$i',new-tab)'
 		;;
 	x-)
-		# run firefox as default!
-		firefox -remote 'openURL('$i',new-tab)'
+		BROWSER=firefox
+		$BROWSER -remote 'openURL('$i',new-tab)'
 		;;
 	*mozilla*)
 		$BROWSER -remote 'openURL('$i',new-tab)'
@@ -26,6 +76,19 @@ plumb1()
 		;;
 	esac
 }
+
+plumb1()
+{
+	case `uname` in
+	Darwin)
+		plumbapple "$@"
+		;;
+	*)
+		plumbunix "$@"
+		;;
+	esac
+}
+
 
 if [ $# = 0 ]
 then

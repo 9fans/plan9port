@@ -1,0 +1,120 @@
+#!/usr/bin/env rc
+
+. $PLAN9/man/fonts
+
+cmd=n
+sec=()
+S=$PLAN9/man
+d=0
+
+fn roff {
+	preproc=()
+	x=`{doctype $2}
+	if (~ $1 t) {
+		if(~ $x *grap*)
+			preproc=($preproc grap)
+		if(~ $x *pic*)
+			preproc=($preproc pic)
+		Nflag=-Tutf
+	}
+	if not {
+		Nflag=-N
+	}
+	if(~ $x *eqn*)
+		preproc=($preproc eqn)
+	if(~ $x *tbl*)
+		preproc=($preproc tbl)
+	switch($#preproc) {
+		case 0
+			{echo -n $FONTS; cat $2< /dev/null} | troff $Nflag -$MAN 
+		case 1
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc | troff $Nflag -$MAN
+		case 2
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | troff $Nflag -$MAN
+		case 3
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | $preproc(3) | | troff $Nflag -$MAN
+		case *
+			{echo -n $FONTS; cat $2< /dev/null} | $preproc(1) | $preproc(2) | $preproc(3) | | $preproc(4) | troff $Nflag -$MAN
+	}
+}
+
+fn page {
+	if(test -d /mnt/wsys/acme)
+		/bin/page -w
+	if not
+		/bin/page
+}
+
+
+while(~ $d 0) {
+	if(~ $#* 0) {
+		echo 'Usage: man [-ntp] [-s sec] [0-9] [0-9] ... name1 name2 ...' >[1=2]
+		exit
+	}
+	if(test -d $S/man$1){
+		sec=($sec $1)
+		shift
+	}
+	if not switch($1) {
+		case -t ; cmd=t ; shift
+		case -n ; cmd=n ; shift
+		case -p ; cmd=p ; shift
+		case -P ; cmd=P ; shift
+		case * ; d=1
+	}
+}
+if(~ $#sec 0) {
+	sec=`{ls -pd $S/man[0-9]* | sed 's/man//'}
+}
+ix=$S/man$sec/INDEX
+if(~ $#* 1) pat='^'^$1^' '
+if not pat='^('^`{echo $* | 9sed 's/ /|/g'}^') '
+fils=()
+for(i in $S/man$sec){
+	if(/bin/test -f $i/INDEX){
+		try=`{grep $pat $i/INDEX | 9sed 's/^[^ ]* //'}
+		if(! ~ $#try 0)
+			fils=($fils $i/$try)
+	}
+}
+# bug: should also do following loop if not all pages found
+if(~ $#fils 0) {
+	# nothing in INDEX. try for file of given name
+	for(i) {
+		for(n in $sec) {
+			try=$S/man$n/$i.$n*
+			if (/bin/test -f $try)
+				fils=($fils $try)
+		}
+	}
+	if(~ $#fils 0) {
+		echo 'man: no manual page' >[1=2]
+		exit 'no man'
+	}
+}
+for(i in $fils) {
+	if(! /bin/test -f $i)
+		echo need $i >[1=2]
+	if not {
+		switch($cmd) {
+		case t
+			roff t $i
+
+		case p
+			roff t $i | proof
+
+		case P
+			roff t $i |tr2post |psfonts >/tmp/man.$pid.ps
+			psv /tmp/man.$pid.ps
+			rm -f /tmp/man.$pid.ps
+
+		case n
+			roff n $i | 9sed '
+				${
+        			       /^$/p
+				}
+				//N
+				/^\n$/D'
+		}
+	}
+}

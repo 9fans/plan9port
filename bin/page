@@ -1,0 +1,53 @@
+#!/bin/sh
+
+preview()
+{
+	list=""
+	pwd=`pwd`
+	for i in "$@"
+	do
+		if [ -n "$list" ]
+		then
+			list="$list, "
+		fi
+		n=`cleanname -d $pwd $i | sed 's!/!:!g'`
+		list="$list\"$n\""
+	done
+	# echo run $list
+	echo 'tell application "Preview"
+		activate
+		open {'"$list"'}
+	end tell' | osascript
+}
+
+case $# in
+0)
+	cat >/var/tmp/page.$$.tmp
+	*="/var/tmp/page.$$.tmp"
+	;;
+*)
+	;;
+esac
+
+case `uname` in
+Darwin)
+	preview "$@"
+	;;
+*)
+	case "`file $1`" in
+	*PDF*)
+		psv $1
+		;;
+	*PS*)
+		psv $1
+		;;
+	*PostScript*)
+		psv $1
+		;;
+	*)
+		qiv "$@"
+		;;
+	esac
+	;;
+esac
+
