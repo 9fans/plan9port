@@ -448,15 +448,15 @@ will produce the output
 in a (possibly newly-created) window labeled
 .BR /adm/+Errors ;
 in a window containing
-.B /sys/src/cmd/sam/sam.c
+.B /usr/local/plan9/src/cmd/sam/sam.c
 executing
 .B mk
 will run
 .IR mk (1)
 in
-.BR /sys/src/cmd/sam ,
+.BR /usr/local/plan9/src/cmd/sam ,
 producing output in a window labeled
-.BR /sys/src/cmd/sam/+Errors .
+.BR /usr/local/plan9/src/cmd/sam/+Errors .
 The environment of such commands contains the variable
 .B $%
 with value set to the filename of the window in which the command is run.
@@ -660,11 +660,11 @@ source for applications
 .B /acme/*/mips
 MIPS-specific binaries for applications
 .SH SOURCE
-.B /sys/src/cmd/acme
+.B /usr/local/plan9/src/cmd/acme
 .br
 .B /acme/bin/source/win
 .br
-.B /sys/src/cmd/awd.c
+.B /usr/local/plan9/src/cmd/awd.c
 .SH SEE ALSO
 .IR acme (4)
 .br

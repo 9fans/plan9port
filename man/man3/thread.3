@@ -43,6 +43,14 @@ threadwaitchan,
 yield \- thread and proc management
 .SH SYNOPSIS
 .PP
+.de EX
+.nf
+.ft B
+..
+.de EE
+.fi
+.ft R
+..
 .EX
 .ta 4n +4n +4n +4n +4n +4n +4n
 #include <u.h>
@@ -66,8 +74,8 @@ struct Alt {
 };
 .fi
 .de XX
-.ift .sp 0.5
-.ifn .sp
+.if t .sp 0.5
+.if n .sp
 ..
 .PP
 .nf
@@ -562,15 +570,15 @@ same rendezvous group; do not change the rendezvous
 group with
 .IR rfork .
 .SH FILES
-.B /sys/lib/acid/thread
+.B /usr/local/plan9/acid/thread
 contains useful
 .IR acid (1)
 functions for debugging threaded programs.
 .PP
-.B /sys/src/libthread/example.c
+.B /usr/local/plan9/src/libthread/example.c
 contains a full example program.
 .SH SOURCE
-.B /sys/src/libthread
+.B /usr/local/plan9/src/libthread
 .SH SEE ALSO
 .IR intro (3),
 .IR ioproc (3)
