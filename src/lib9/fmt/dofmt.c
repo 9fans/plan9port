@@ -443,7 +443,6 @@ __ifmt(Fmt *f)
 			*p-- = '0';
 			n = 1;
 		}
-		fl &= ~FmtSharp;
 	}
 	for(w = f->prec; n < w && p > buf+3; n++)
 		*p-- = '0';
