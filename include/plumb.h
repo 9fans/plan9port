@@ -3,6 +3,8 @@
 #if defined(__cplusplus)
 extern "C" { 
 #endif
+
+AUTOLIB(plumb)
 /*
 #pragma	lib	"libplumb.a"
 #pragma	src	"/sys/src/libplumb"
@@ -42,7 +44,6 @@ struct Plumbattr
 
 int			plumbsend(int, Plumbmsg*);
 Plumbmsg*	plumbrecv(int);
-Plumbmsg*	threadplumbrecv(int);
 char*		plumbpack(Plumbmsg*, int*);
 Plumbmsg*	plumbunpack(char*, int);
 Plumbmsg*	plumbunpackpartial(char*, int, int*);
@@ -55,11 +56,11 @@ char*		plumblookup(Plumbattr*, char*);
 int			plumbopen(char*, int);
 int			eplumb(int, char*);
 
-#ifdef _FS_H_
-Fid*		plumbopenfid(char*, int);
-Plumbmsg*	plumbrecvfid(Fid*);
-Plumbmsg*	threadplumbrecvfid(Fid*);
-int		plumbsendtofid(Fid*, Plumbmsg*);
+#ifdef _9PCLIENT_H_
+CFid*		plumbopenfid(char*, int);
+Plumbmsg*	plumbrecvfid(CFid*);
+Plumbmsg*	threadplumbrecvfid(CFid*);
+int		plumbsendtofid(CFid*, Plumbmsg*);
 #endif
 
 #if defined(__cplusplus)
