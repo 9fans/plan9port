@@ -186,7 +186,7 @@ case "$tag" in
 	ld="${CC9:-cc} -g"
 	extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
 	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH 
-	for i in "$@"
+	for i in "$libsl $@"
 	do
 		case "$i" in
 		-L*)
@@ -199,6 +199,20 @@ case "$tag" in
 *)
 	echo do not know how to link on "$tag" 1>&2
 	exit 1
+esac
+
+case "$ld" in
+gcc)
+	for i in "$libsl $@"
+	do
+		case "$i" in
+		-L*)
+			s=`echo $i | sed 's/-L/-Wl,-rpath,/'`
+			extralibs="$extralibs $s"
+			;;
+		esac
+	done
+	;;
 esac
 
 if $verbose
