@@ -521,6 +521,7 @@ label(char *sr, int n)
 		p = wdir+strlen(wdir);
 		if(*(p-1) != '/')
 			*p++ = '/';
+		*p++ = '-';
 		strcpy(p, name);
 	}
 	strcat(wdir, "\n0\n");
