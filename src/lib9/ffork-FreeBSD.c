@@ -1,4 +1,5 @@
 #include <lib9.h>
+#include "9proc.h"
 
 extern int __isthreaded;
 int

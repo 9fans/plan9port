@@ -84,6 +84,8 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 	static int gid, uid;
 	int sz, fd;
 
+	fd = -1;
+	USED(fd);
 	sz = 0;
 	if(d)
 		memset(d, 0, sizeof *d);
