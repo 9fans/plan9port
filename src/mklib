@@ -1,7 +1,8 @@
 default:V:	$LIB
 
-$LIB:	$OFILES
-	$AR rvc $LIB $newprereq
+$LIB(%):N: %
+$LIB:	${OFILES:%=$LIB(%)}
+	$AR rvc $LIB `membername $newprereq`
 
 &:n:	&.$O
 	$AR rvc $LIB $stem.$O
