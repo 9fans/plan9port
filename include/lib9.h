@@ -44,8 +44,6 @@ extern "C" {
 #define _HAVETMTZOFF 1
 #define _HAVEFUTIMESAT 1
 #define _HAVEFUTIMES 1
-#define _HAVEGETDENTS 1
-#define _HAVEGETDIRENTRIES 1
 
 typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
@@ -60,7 +58,6 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _HAVETMZONE
 #	undef _HAVETMTZOFF
 #	undef _HAVEFUTIMESAT
-#	undef _HAVEGETDENTS
 #endif
 #if defined(__sun__)
 #	include <sys/types.h>
@@ -86,6 +83,8 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	include <sys/types.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
+#	define _NEEDLL 1
+#	define _GETDIRENTRIES_TAKES_LONG 1
 #endif
 
 typedef signed char schar;
@@ -432,8 +431,8 @@ enum
 };
 
 /* extern	int	abs(int); <stdlib.h> */
-extern	int	atexit(void(*)(void));
-extern	void	atexitdont(void(*)(void));
+extern	int	p9atexit(void(*)(void));
+extern	void	p9atexitdont(void(*)(void));
 extern	int	atnotify(int(*)(void*, char*), int);
 /* 
  * <stdlib.h>
@@ -475,7 +474,8 @@ extern	int	postnote(int, int, char *);
 extern	double	pow10(int);
 /* extern	int	putenv(char*, char*); <stdlib.h. */
 /* extern	void	qsort(void*, long, long, int (*)(void*, void*)); <stdlib.h> */
-extern	int	p9setjmp(p9jmp_buf);
+/* extern	int	p9setjmp(p9jmp_buf); */
+#define p9setjmp(b)	sigsetjmp((void*)(b), 1)
 /*
  * <stdlib.h>
 extern	double	strtod(char*, char**);
@@ -490,6 +490,8 @@ extern	long	time(long*);
 /* extern	int	tolower(int); <ctype.h> */
 /* extern	int	toupper(int); <ctype.h> */
 #ifndef NOPLAN9DEFINES
+#define atexit		p9atexit
+#define atexitdont	p9atexitdont
 #define getenv		p9getenv
 #define	getwd		p9getwd
 #define	longjmp		p9longjmp

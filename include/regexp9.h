@@ -58,14 +58,29 @@ struct Reprog{
 	Reinst	firstinst[5];	/* .text */
 };
 
-extern Reprog	*regcomp(char*);
-extern Reprog	*regcomplit(char*);
-extern Reprog	*regcompnl(char*);
-extern void	regerror(char*);
-extern int	regexec(Reprog*, char*, Resub*, int);
-extern void	regsub(char*, char*, int, Resub*, int);
+extern Reprog	*regcomp9(char*);
+extern Reprog	*regcomplit9(char*);
+extern Reprog	*regcompnl9(char*);
+extern void	regerror9(char*);
+extern int	regexec9(Reprog*, char*, Resub*, int);
+extern void	regsub9(char*, char*, int, Resub*, int);
 
-extern int	rregexec(Reprog*, Rune*, Resub*, int);
-extern void	rregsub(Rune*, Rune*, Resub*, int);
+extern int	rregexec9(Reprog*, Rune*, Resub*, int);
+extern void	rregsub9(Rune*, Rune*, Resub*, int);
+
+/*
+ * Darwin simply cannot handle having routines that
+ * override other library routines.
+ */
+#ifndef NOPLAN9DEFINES
+#define regcomp regcomp9
+#define regcomplit regcomplit9
+#define regcompnl regcompnl9
+#define regerror regerror9
+#define regexec regexec9
+#define regsub regsub9
+#define rregexec rregexec9
+#define rregsub rregsub9
+#endif
 
 #endif
