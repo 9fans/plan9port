@@ -69,6 +69,15 @@ typedef unsigned int u32int;
 typedef unsigned long long uvlong;
 typedef long long vlong;
 
+#define NAMELEN	28
+#define CHDIR		0x80000000	/* mode bit for directories */
+#define CHAPPEND	0x40000000	/* mode bit for append only files */
+#define CHEXCL		0x20000000	/* mode bit for exclusive use files */
+#define CHMOUNT		0x10000000	/* mode bit for mounted channel */
+#define CHREAD		0x4		/* mode bit for read permission */
+#define CHWRITE		0x2		/* mode bit for write permission */
+#define CHEXEC		0x1		/* mode bit for execute permission */
+
 /* rfork to create new process running fn(arg) */
 
 #if defined(__FreeBSD__)
@@ -174,6 +183,35 @@ extern int		rwakeupall(Rendez*);
 
 extern ulong	rendezvous(ulong, ulong);
 
+typedef	struct	Qid	Qid;
+typedef	struct	Dir	Dir;
+
+struct	Qid
+{
+	ulong	path;
+	ulong	vers;
+};
+
+struct Dir
+{
+	char	name[NAMELEN];
+	char	uid[NAMELEN];
+	char	gid[NAMELEN];
+	Qid	qid;
+	ulong	mode;
+	long	atime;
+	long	mtime;
+	vlong	length;
+	ushort	type;
+	ushort	dev;
+};
+
+extern	int	dirstat(char*, Dir*);
+extern	int	dirfstat(int, Dir*);
+extern	int	dirwstat(char*, Dir*);
+extern	int	dirfwstat(int, Dir*);
+
+
 /* one of a kind */
 extern void	sysfatal(char*, ...);
 extern int	nrand(int);
@@ -185,6 +223,7 @@ extern long	readn(int, void*, long);
 extern void	exits(char*);
 extern void	_exits(char*);
 extern ulong	getcallerpc(void*);
+extern	char*	cleanname(char*);
 
 /* string routines */
 extern char*	strecpy(char*, char*, char*);
@@ -242,6 +281,7 @@ extern void __fixargv0(void);
 
 #define OREAD O_RDONLY
 #define OWRITE O_WRONLY
+#define ORDWR	O_RDWR
 #define AEXIST 0
 #define AREAD 4
 #define AWRITE 2
