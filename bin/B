@@ -2,7 +2,7 @@
 
 if [ $# -eq 0 ]
 then
-	echo 'usage: B cmd...' 2>&1
+	echo 'usage: B file...' 2>&1
 	exit 1
 fi
 
@@ -10,6 +10,10 @@ if [ "x$DISPLAY" = "x" ]
 then
 	sam="/tmp/.sam.$USER"
 else
+	if [ "$DISPLAY" = ":0" ]
+	then
+		DISPLAY=:0.0
+	fi
 	sam="/tmp/.sam.$USER.$DISPLAY"
 fi
 

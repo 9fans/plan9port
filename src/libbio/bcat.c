@@ -22,8 +22,12 @@ main(int argc, char **argv)
 {
 	int i;
 	Biobuf b, *bp;
+	Fmt fmt;
 
 	Binit(&bout, 1, O_WRONLY);
+	Bfmtinit(&fmt, &bout);
+	fmtprint(&fmt, "hello, world\n");
+	Bfmtflush(&fmt);
 
 	if(argc == 1){
 		Binit(&b, 0, O_RDONLY);

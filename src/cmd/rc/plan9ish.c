@@ -392,10 +392,12 @@ void
 notifyf(void *unused0, char *s)
 {
 	int i;
-	for(i=0;syssigname[i];i++) if(strncmp(s, syssigname[i], strlen(syssigname[i]))==0){
-		if(strncmp(s, "sys: ", 5)!=0) interrupted=1;
-		goto Out;
-	}
+	for(i=0;syssigname[i];i++)
+		if(strncmp(s, syssigname[i], strlen(syssigname[i]))==0){
+			if(strncmp(s, "sys: ", 5)!=0) interrupted=1;
+			goto Out;
+		}
+
 	pfmt(err, "rc: note: %s\n", s);
 	noted(NDFLT);
 	return;
@@ -423,7 +425,11 @@ long Write(int fd, char *buf, long cnt)
 }
 long Read(int fd, char *buf, long cnt)
 {
-	return read(fd, buf, cnt);
+	int i;
+
+	i = read(fd, buf, cnt);
+	if(ntrap) dotrap();
+	return i;
 }
 long Seek(int fd, long cnt, long whence)
 {

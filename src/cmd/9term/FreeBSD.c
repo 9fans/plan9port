@@ -13,6 +13,5 @@ getchildwd(int pid, char *wdir, int bufn)
 int
 getpts(int fd[], char *slave)
 {
-	openpty(&fd[1], &fd[0], slave, 0, 0);
-	return 0;
+	return openpty(&fd[1], &fd[0], slave, 0, 0);
 }

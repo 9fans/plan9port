@@ -7,6 +7,7 @@ OFILES=\
 	bbuffered.$O\
 	bfildes.$O\
 	bflush.$O\
+	bfmt.$O\
 	bgetc.$O\
 	bgetd.$O\
 	binit.$O\
@@ -26,6 +27,6 @@ HFILES=\
 
 <$PLAN9/src/mksyslib
 
-bcat: bcat.$O $LIB
-	$CC -o bcat bcat.$O -L$PLAN9/lib -lbio -lfmt -lutf
+bcat: bcat.$O $PLAN9/lib/$LIB
+	$LD -o bcat bcat.$O -lbio -lfmt -lutf
 

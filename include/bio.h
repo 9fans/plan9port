@@ -30,7 +30,7 @@ struct	Biobuf
 	int	icount;		/* neg num of bytes at eob */
 	int	ocount;		/* num of bytes at bob */
 	int	rdline;		/* num of bytes after rdline */
-	int	runesize;		/* num of bytes of last getrune */
+	int	runesize;	/* num of bytes of last getrune */
 	int	state;		/* r/w/inactive */
 	int	fid;		/* open file */
 	int	flag;		/* magic if malloc'ed */
@@ -59,6 +59,8 @@ struct	Biobuf
 
 int	Bbuffered(Biobuf*);
 Biobuf*	Bfdopen(int, int);
+int	Bfmtinit(Fmt*, Biobuf*);
+int	Bfmtflush(Fmt*);
 int	Bfildes(Biobuf*);
 int	Bflush(Biobuf*);
 int	Bgetc(Biobuf*);

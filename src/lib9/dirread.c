@@ -10,7 +10,6 @@ extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
-	ssize_t nn;
 	off_t off;
 
 	off = p9seek(fd, 0, 1);
@@ -23,14 +22,8 @@ mygetdents(int fd, struct dirent *buf, int n)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
-	ssize_t nn;
 	long off;
-
-	off = p9seek(fd, 0, 1);
-	nn = getdirentries(fd, (void*)buf, n, &off);
-	if(nn > 0)
-		p9seek(fd, off, 0);
-	return nn;
+	return getdirentries(fd, (void*)buf, n, &off);
 }
 #elif defined(__sun__)
 static int
@@ -38,7 +31,7 @@ mygetdents(int fd, struct dirent *buf, int n)
 {
 	return getdents(fd, (void*)buf, n);
 }
-#endif	
+#endif
 
 static int
 countde(char *p, int n)

@@ -13,7 +13,7 @@ static int sigs[] = {
 	SIGQUIT,
 	SIGILL,
 	SIGTRAP,
-	SIGABRT,
+/*	SIGABRT,	*/
 #ifdef SIGEMT
 	SIGEMT,
 #endif
@@ -63,16 +63,17 @@ int
 notify(void (*f)(void*, char*))
 {
 	int i;
-	void (*sf)(int);
+	struct sigaction sa;
 
+	memset(&sa, 0, sizeof sa);
 	if(f == nil)
-		sf = SIG_DFL;
+		sa.sa_handler = SIG_DFL;
 	else{
 		notifyf = f;
-		sf = notifysigf;
+		sa.sa_handler = notifysigf;
 	}
 	for(i=0; i<nelem(sigs); i++)
-		signal(sigs[i], sf);
+		sigaction(sigs[i], &sa, 0);
 	return 0;
 }
 

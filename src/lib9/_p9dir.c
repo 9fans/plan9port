@@ -10,6 +10,36 @@
 
 #if defined(__FreeBSD__)
 #include <sys/disklabel.h>
+static int diskdev[] = {
+	151,	/* aacd */
+	116,	/* ad */
+	157,	/* ar */
+	118,	/* afd */
+	133,	/* amrd */
+	13,	/* da */
+	102,	/* fla */
+	109,	/* idad */
+	95,	/* md */
+	131,	/* mlxd */
+	168,	/* pst */
+	147,	/* twed */
+	43,	/* vn */
+	3,	/* wd */
+	87,	/* wfd */
+};
+static int
+isdisk(struct stat *st)
+{
+	int i, dev;
+
+	if(!S_ISCHR(st->st_mode))
+		return 0;
+	dev = major(st->st_rdev);
+	for(i=0; i<nelem(diskdev); i++)
+		if(diskdev[i] == dev)
+			return 1;
+	return 0;
+}
 #define _HAVEDISKLABEL
 #endif
 
@@ -108,7 +138,7 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 
 		/* fetch real size for disks */
 #ifdef _HAVEDISKLABEL
-		if(S_ISCHR(st->st_mode)){
+		if(isdisk(st)){
 			int fd, n;
 			struct disklabel lab;
 

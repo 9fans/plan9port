@@ -108,7 +108,6 @@ threadmain(int argc, char *argv[])
 
 	draw(screen, screen->r, cols[BACK], nil, ZP);
 	geom();
-
 	loop();
 }
 
@@ -118,7 +117,7 @@ hangupnote(void *a, char *msg)
 	if(getpid() != mainpid)
 		noted(NDFLT);
 	if(strcmp(msg, "hangup") == 0 && rcpid != 0){
-		postnote(PNPROC, rcpid, "hangup");
+		postnote(PNGROUP, rcpid, "hangup");
 		noted(NDFLT);
 	}
 	noted(NDFLT);
@@ -206,9 +205,13 @@ doreshape(void)
 	scrdraw();
 }
 
+struct winsize ows;
+
 void
 geom(void)
 {
+	struct winsize ws;
+	Point p;
 	Rectangle r;
 
 	r = screen->r;
@@ -223,6 +226,18 @@ geom(void)
 	t.f->maxtab = maxtab*stringwidth(font, "0");
 	fill();
 	updatesel();
+
+	p = stringsize(font, "0");
+	if(p.x == 0 || p.y == 0)
+		return;
+
+	ws.ws_row = Dy(r)/p.y;
+	ws.ws_col = Dx(r)/p.x;
+	ws.ws_xpixel = Dx(r);
+	ws.ws_ypixel = Dy(r);
+	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
+	if(ioctl(rcfd[0], TIOCSWINSZ, &ws) < 0)
+		fprint(2, "ioctl: %r\n");
 }
 
 void
@@ -422,6 +437,7 @@ void
 key(Rune r)
 {
 	char buf[1];
+	uint sig;
 
 	if(r == 0)
 		return;
@@ -472,12 +488,9 @@ key(Rune r)
 	case 0x7F:	/* DEL: send interrupt */
 		t.qh = t.q0 = t.q1 = t.nr;
 		show(t.q0);
-		buf[0] = 0x7f;
-		if(write(rcfd[1], buf, 1) < 0)
-			exits(0);
-		/* get rc to print prompt */
-//		r = '\n';
-//		paste(&r, 1, 1);
+		sig = 2; /* SIGINT */
+		if(ioctl(rcfd[0], TIOCSIG, &sig) < 0)
+			fprint(2, "sending interrupt: %r\n");
 		break;
 	case 0x08:	/* ^H: erase character */
 	case 0x15:	/* ^U: erase line */
@@ -543,7 +556,10 @@ consready(void)
 	for(i=t.qh; i<t.nr; i++){
 		c = t.r[i];
 		if(c=='\n' || c=='\004')
+{
+fprint(2, "ready %d\n", c);
 			return 1;
+}
 	}
 	return 0;
 }
@@ -561,6 +577,7 @@ consread(void)
 
 		n = sizeof(buf);
 		p = buf;
+		c = 0;
 		while(n >= UTFmax && (t.qh<t.nr || t.nraw > 0)) {
 			if(t.qh == t.nr){
 				width = runetochar(p, &t.raw[0]);
@@ -571,18 +588,17 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
-			if(!rawon && (c == '\n' || c == '\004')) {
-				if(c == '\004')
-					p--;
+			if(!rawon && (c == '\n' || c == '\004'))
 				break;
-			}
 		}
-		if(n < UTFmax && t.qh<t.nr && t.r[t.qh]=='\004')
-			t.qh++;
-		/* put in control-d when doing a zero length write */
-		if(p == buf)
-			*p++ = '\004';
-		if(write(rcfd[1], buf, p-buf) < 0)
+		/* take out control-d when not doing a zero length write */
+		n = p-buf;
+		if(n > 1 && c == '\004')
+{
+fprint(2, "remove 004\n");
+			n--;
+}
+		if(write(rcfd[1], buf, n) < 0)
 			exits(0);
 /*		mallocstats(); */
 	}
@@ -1138,19 +1154,32 @@ rcstart(int fd[2])
 	argv[1] = "-i";
 	argv[2] = 0;
 
-	getpts(fd, slave);
+	/*
+	 * fd0 is slave (tty), fd1 is master (pty)
+	 */
+	fd[0] = fd[1] = -1;
+	if(getpts(fd, slave) < 0)
+		fprint(2, "getpts: %r\n");
+
         switch(pid = fork()) {
 	case 0:
 		putenv("TERM=9term");
 		close(fd[1]);
 		setsid();
+	//	tcsetpgrp(0, pid);
 		sfd = open(slave, ORDWR);
+		fprint(2, "slave %s\n", slave);
+		if(sfd < 0)
+			fprint(2, "open %s: %r\n", slave);
+		if(ioctl(sfd, TIOCSCTTY, 0) < 0)
+			fprint(2, "ioctl TIOCSCTTY: %r\n");
 	//	ioctl(sfd, I_PUSH, "ptem");
 	//	ioctl(sfd, I_PUSH, "ldterm");
 		dup(sfd, 0);
 		dup(sfd, 1);
 		dup(sfd, 2);
 		execvp(argv[0], argv);
+		_exits("oops");
 		break;
 	case -1:
 		fatal("proc failed: %r");
