@@ -52,6 +52,9 @@ main(int argc, char *argv[])
 		exec("gunzip", oargv);
 		sysfatal("exec gunzip failed");
 		break;
+	case 'f':
+		/* force */
+		break;
 	case 'v':
 		verbose++;
 		break;

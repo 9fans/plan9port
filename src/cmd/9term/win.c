@@ -121,18 +121,24 @@ threadmain(int argc, char **argv)
 	case 'd':
 		debug = 1;
 		break;
+	case 'n':
+		name = EARGF(usage());
+		break;
 	default:
 		usage();
 	}ARGEND
 
 	prog = argv;
 
-	if(argc > 0){
-		name = argv[0];
-		argc--;
-		argv++;
-	}else
-		name = "gnot";
+	if(name == nil){
+		if(argc > 0)
+			name = argv[0];
+		else{
+			name = sysname();
+			if(name == nil)
+				name = "gnot";
+		}
+	}
 
 	threadnotify(nopipes, 1);
 	if((fs = nsmount("acme", "")) == 0)

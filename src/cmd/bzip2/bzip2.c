@@ -38,6 +38,9 @@ main(int argc, char **argv)
 	case 'c':
 		stdout++;
 		break;
+	case 'f':
+		/* force */
+		break;
 	case 'd':
 		/*
 		 * gnu tar expects bzip2 -d to decompress

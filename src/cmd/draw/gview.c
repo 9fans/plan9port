@@ -1934,9 +1934,9 @@ void doevent(void)
 			if (mobile) {
 				mvtime = ev.mouse.msec + Mv_delay;
 				prepare_mv(cur_sel.fp);
+				if (!lift_button(1, &ev.mouse, mvtime))
+					save_mv(do_move(1, &ev.mouse));
 			}
-			if (!lift_button(1, &ev.mouse, mvtime) && mobile)
-				save_mv(do_move(1, &ev.mouse));
 		} else if (ev.mouse.buttons & But2)
 			do_emenu(2, &ev.mouse);
 		else if (ev.mouse.buttons & But3)

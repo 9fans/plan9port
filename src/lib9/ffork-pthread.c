@@ -14,8 +14,11 @@ ffork(int flags, void(*fn)(void*), void *arg)
 		return -1;
 	}
 
+	_p9uproc(0);
 	if(pthread_create(&tid, NULL, (void*(*)(void*))fn, arg) < 0)
 		return -1;
+	if((int)tid == 0)
+		_p9uproc(0);
 	return (int)tid;
 }
 

@@ -4,14 +4,19 @@ extern int __isthreaded;
 int
 ffork(int flags, void(*fn)(void*), void *arg)
 {
+	int pid;
 	void *p;
 
+	_p9uproc(0);
 	__isthreaded = 1;
 	p = malloc(16384);
 	if(p == nil)
 		return -1;
 	memset(p, 0xFE, 16384);
-	return rfork_thread(RFPROC|flags, (char*)p+16000, (int(*)(void*))fn, arg);
+	pid = rfork_thread(RFPROC|flags, (char*)p+16000, (int(*)(void*))fn, arg);
+	if(pid == 0)
+		_p9uproc(0);
+	return pid;
 }
 
 /*

@@ -51,6 +51,7 @@ struct thread{
 	int iflag;			/* interactive? */
 	int lineno;			/* linenumber */
 	int pid;			/* process for Xpipewait to wait for */
+	int done;			/* have we seen a wait message for this process? */
 	char status[NSTATUS];		/* status for Xpipewait */
 	tree *treenodes;		/* tree nodes created by this process */
 	thread *ret;		/* who continues when this finishes */
