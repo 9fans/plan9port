@@ -1,5 +1,6 @@
 #include "threadimpl.h"
 
+#undef waitpid
 #undef pipe
 #undef wait
 
@@ -10,13 +11,22 @@ static void
 child(void)
 {
 	int status, pid;
-	pid = wait(&status);
-	if(pid < 0)
-		fprint(2, "wait: %r\n");
-	else if(WIFEXITED(status))
+
+	notedisable("sys: child");
+	pid = waitpid(sigpid, &status, 0);
+	if(pid < 0){
+		fprint(2, "%s: wait: %r\n", argv0);
+		_exit(97);
+	}
+	if(WIFEXITED(status))
 		 _exit(WEXITSTATUS(status));
-print("pid %d if %d %d\n", pid, WIFEXITED(status), WEXITSTATUS(status));
-	_exit(97);
+	if(WIFSIGNALED(status)){
+		signal(WTERMSIG(status), SIG_DFL);
+		raise(WTERMSIG(status));
+		_exit(98);	/* not reached */
+	}
+	fprint(2, "%s: wait pid %d status 0x%ux\n", pid, status);
+	_exit(99);
 }
 
 static void
@@ -54,6 +64,7 @@ _threadsetupdaemonize(void)
 	if(fcntl(p[0], F_SETFD, 1) < 0 || fcntl(p[1], F_SETFD, 1) < 0)
 		sysfatal("passer pipe pipe fcntl: %r");
 
+	noteenable("sys: child");
 	signal(SIGCHLD, sigpass);
 	switch(pid = fork()){
 	case -1:
@@ -62,6 +73,8 @@ _threadsetupdaemonize(void)
 		close(p[1]);
 		break;
 	case 0:
+		for(i=0; i<100; i++) sched_yield();
+		notedisable("sys: child");
 		signal(SIGCHLD, SIG_DFL);
 		rfork(RFNOTEG);
 		close(p[0]);
@@ -81,8 +94,9 @@ _threadsetupdaemonize(void)
 
 	for(;;){
 		n = read(p[0], buf, sizeof buf-1);
-		if(n == 0)	/* program exited */
+		if(n == 0){	/* program exited */
 			child();
+		}
 		if(n > 0)
 			break;
 		print("passer read: %r\n");
@@ -92,7 +106,7 @@ _threadsetupdaemonize(void)
 }
 
 void
-threaddaemonize(void)
+_threaddaemonize(void)
 {
 	if(threadpassfd >= 0){
 		write(threadpassfd, "0", 1);
