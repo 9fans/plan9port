@@ -1,4 +1,5 @@
 #include <u.h>
+#include <signal.h>
 #include <libc.h>
 #include <fcall.h>
 #include <fs.h>
@@ -53,6 +54,8 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
+
+	signal(SIGINT, SIG_DFL);
 
 	if(argc < 1)
 		usage();
@@ -180,7 +183,7 @@ void
 xwrite(int argc, char **argv)
 {
 	char buf[1024];
-	int n;
+	int n, did;
 	Fid *fid;
 
 	ARGBEGIN{
@@ -191,10 +194,17 @@ xwrite(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
+	did = 0;
 	fid = xopen(argv[0], OWRITE|OTRUNC);
-	while((n = read(0, buf, sizeof buf)) > 0)
+	while((n = read(0, buf, sizeof buf)) > 0){
+		did = 1;
 		if(fswrite(fid, buf, n) != n)
 			sysfatal("write error: %r");
+	}
+	if(n == 0 && !did){
+		if(fswrite(fid, buf, 0) != 0)
+			sysfatal("write error: %r");
+	}
 	if(n < 0)
 		sysfatal("read error: %r");
 	exits(0);	
