@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <plumb.h>
 #include <thread.h>
+#include <9pclient.h>
 
 char *plumbfile = nil;
 Plumbmsg m;
@@ -49,6 +50,9 @@ threadmain(int argc, char *argv[])
 	m.type = "text";
 	m.attr = nil;
 	ARGBEGIN{
+	case '9':
+		chatty9pclient = 1;
+		break;
 	case 'a':
 		p = ARGF();
 		if(p == nil)
