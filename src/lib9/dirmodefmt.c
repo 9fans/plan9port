@@ -35,16 +35,23 @@ dirmodefmt(Fmt *f)
 		buf[0]='A';
 	else if(m & DMDEVICE)
 		buf[0] = 'D';
-	else if(m & DMSYMLINK)
-		buf[0] = 'L';
 	else if(m & DMSOCKET)
 		buf[0] = 'S';
 	else if(m & DMNAMEDPIPE)
 		buf[0] = 'P';
 	else
 		buf[0]='-';
+
+	/*
+	 * It's a little weird to have DMSYMLINK conflict with DMEXCL
+	 * here, but since you can have symlinks to any of the above
+	 * things, this is a better display.  Especially since we don't do
+	 * DMEXCL on any of the supported systems.
+	 */
 	if(m & DMEXCL)
 		buf[1]='l';
+	else if(m & DMSYMLINK)
+		buf[1] = 'L';
 	else
 		buf[1]='-';
 	rwx((m>>6)&7, buf+2);

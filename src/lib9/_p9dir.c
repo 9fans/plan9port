@@ -180,8 +180,7 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 			d->mode |= DMDIR;
 			d->qid.type = QTDIR;
 		}
-
-		if(S_ISLNK(st->st_mode))
+		if(S_ISLNK(lst->st_mode))	/* yes, lst not st */
 			d->mode |= DMSYMLINK;
 		if(S_ISFIFO(st->st_mode))
 			d->mode |= DMNAMEDPIPE;
