@@ -36,13 +36,10 @@ errstr(char *err, uint n)
 	char tmp[ERRMAX];
 	char *syserr;
 
+	strecpy(tmp, tmp+ERRMAX, err);
+	rerrstr(err, n);
 	syserr = getsyserr();
-	if(errno != EPLAN9)
-		strcpy(syserr, strerror(errno));
-
-	strecpy(tmp, tmp+ERRMAX, syserr);
-	strecpy(syserr, syserr+ERRMAX, err);
-	strecpy(err, err+n, tmp);
+	strecpy(syserr, syserr+ERRMAX, tmp);
 	errno = EPLAN9;
 	return 0;
 }
@@ -53,7 +50,9 @@ rerrstr(char *err, uint n)
 	char *syserr;
 
 	syserr = getsyserr();
-	if(errno != EPLAN9)
+	if(errno == EINTR)
+		strcpy(syserr, "interrupted");
+	else if(errno != EPLAN9)
 		strcpy(syserr, strerror(errno));
 	strecpy(err, err+n, syserr);
 }
@@ -79,16 +78,4 @@ werrstr(char *fmt, ...)
 	va_end(arg);
 	errstr(buf, ERRMAX);
 }
-
-char*
-gerrstr(void)
-{
-	char *s;
-
-	s = getsyserr();
-	if(errno != EPLAN9)
-		strcpy(s, strerror(errno));
-	return s;
-}
-
 
