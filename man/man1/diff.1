@@ -4,7 +4,7 @@ diff \- differential file comparator
 .SH SYNOPSIS
 .B diff
 [
-.B -efmnbwr
+.B -cefmnbwr
 ] file1 ... file2
 .SH DESCRIPTION
 .I Diff
@@ -122,6 +122,11 @@ not useful with
 .IR ed ,
 in the opposite order. It may, however, be
 useful as input to a stream-oriented post-processor.
+.PP
+The
+.B -c
+option includes three lines of context around each
+change, merging changes whose contexts overlap.
 .PP
 Except in rare circumstances,
 .I diff

@@ -24,4 +24,4 @@ Biobuf *prepare(int, char *);
 void panic(int, char *, ...);
 void check(Biobuf *, Biobuf *);
 void change(int, int, int, int);
-
+void flushchanges(void);

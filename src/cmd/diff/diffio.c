@@ -226,7 +226,18 @@ static void
 fetch(long *f, int a, int b, Biobuf *bp, char *s)
 {
 	char buf[MAXLINELEN];
+	int maxb;
 
+	if(a <= 1)
+		a = 1;
+	if(bp == input[0])
+		maxb = len[0];
+	else
+		maxb = len[1];
+	if(b > maxb)
+		b = maxb;
+	if(a > maxb)
+		return;
 	Bseek(bp, f[a-1], 0);
 	while (a++ <= b) {
 		readline(bp, buf);
@@ -234,11 +245,24 @@ fetch(long *f, int a, int b, Biobuf *bp, char *s)
 	}
 }
 
+typedef struct Change Change;
+struct Change
+{
+	int a;
+	int b;
+	int c;
+	int d;
+};
+
+Change *changes;
+int nchanges;
+
 void
 change(int a, int b, int c, int d)
 {
 	char verb;
 	char buf[4];
+	Change *ch;
 
 	if (a > b && c > d)
 		return;
@@ -277,6 +301,15 @@ change(int a, int b, int c, int d)
 		Bputc(&stdout, verb);
 		range(a, b, " ");
 		break;
+	case 'c':
+		if(nchanges%1024 == 0)
+			changes = erealloc(changes, (nchanges+1024)*sizeof(changes[0]));
+		ch = &changes[nchanges++];
+		ch->a = a;
+		ch->b = b;
+		ch->c = c;
+		ch->d = d;
+		return;
 	}
 	Bputc(&stdout, '\n');
 	if (mode == 0 || mode == 'n') {
@@ -289,3 +322,50 @@ change(int a, int b, int c, int d)
 		Bprint(&stdout, ".\n");
 }
 
+enum
+{
+	Lines = 3,	/* number of lines of context shown */
+};
+
+int
+changeset(int i)
+{
+	while(i<nchanges && changes[i].b+1+2*Lines > changes[i+1].a)
+		i++;
+	if(i<nchanges)
+		return i+1;
+	return nchanges;
+}
+
+void
+flushchanges(void)
+{
+	int a, b, c, d, at;
+	int i, j;
+
+	if(nchanges == 0)
+		return;
+	
+	for(i=0; i<nchanges; ){
+		j = changeset(i);
+		a = changes[i].a;
+		b = changes[j-1].b;
+		c = changes[i].c;
+		d = changes[j-1].d;
+		Bprint(&stdout, "%s:", file1);
+		range(a, b, ",");
+		Bprint(&stdout, " - ");
+		Bprint(&stdout, "%s:", file2);
+		range(c, d, ",");
+		Bputc(&stdout, '\n');
+		at = a-Lines;
+		for(; i<j; i++){
+			fetch(ixold, at, changes[i].a-1, input[0], "  ");
+			fetch(ixold, changes[i].a, changes[i].b, input[0], "< ");
+			fetch(ixnew, changes[i].c, changes[i].d, input[1], "> ");
+			at = changes[i].b+1;
+		}
+		fetch(ixold, at, b+Lines, input[0], "  ");
+	}
+	nchanges = 0;
+}
