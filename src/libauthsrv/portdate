@@ -1,0 +1,15 @@
+_asgetticket.c		2004/1225
+_asrdresp.c		2004/1225
+authdial.c		2004/1225
+convA2M.c		2004/1225
+convM2A.c		2004/1225
+convM2PR.c		2004/1225
+convM2T.c		2004/1225
+convM2TR.c		2004/1225
+convPR2M.c		2004/1225
+convT2M.c		2004/1225
+convTR2M.c		2004/1225
+nvcsum.c		2004/1225
+opasstokey.c		2004/1225
+passtokey.c		2004/1225
+readnvram.c		2004/1225

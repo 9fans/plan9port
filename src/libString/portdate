@@ -1,0 +1,17 @@
+s_alloc.c		2004/1225
+s_append.c		2004/1225
+s_array.c		2004/1225
+s_copy.c		2004/1225
+s_getline.c		2004/1225
+s_grow.c		2004/1225
+s_memappend.c		2004/1225
+s_nappend.c		2004/1225
+s_parse.c		2004/1225
+s_putc.c		2004/1225
+s_rdinstack.c		2004/1225
+s_read.c		2004/1225
+s_read_line.c		2004/1225
+s_reset.c		2004/1225
+s_terminate.c		2004/1225
+s_tolower.c		2004/1225
+s_unique.c		2004/1225
