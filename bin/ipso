@@ -65,7 +65,7 @@ if(~ $flush no && ~ $edit no && ~ $load no){
 
 if(~ $flush yes && ~ $edit no && ~ $load no){
 	echo flushing old keys
-	echo delkey > /mnt/factotum/ctl
+	echo delkey | 9p write factotum/ctl
 	exit 0
 }
 
@@ -146,8 +146,9 @@ for(i in `{editedfiles}){
 			exit password
 		}
 		echo ''''$i'''' copied to $name
-		if(~ $i factotum)
-			read -m < $i > /mnt/factotum/ctl
+		if(~ $i factotum && ! ~ $load yes){	# do not do it twice
+			cat $i | 9p write -l factotum/ctl
+		}
 	case [xXqQ]*
 		exit
 	case [nN]* *
