@@ -1,0 +1,157 @@
+.if t .ds 85 8\(12
+.if n .ds 85 8-1/2
+.TH RIO 1
+.SH NAME
+rio \- rio-like Window Manager for X
+.SH SYNOPSIS
+.B rio
+[
+.B \-grey
+] [
+.B \-version
+] [
+.B \-font
+.I fname
+] [
+.B \-term
+.I termprog
+] [
+.BR exit | restart
+]
+.SH DESCRIPTION
+.I Rio
+is a window manager for X which attempts to emulate the window management
+policies of Plan 9's 
+.I rio
+window manager.
+.PP
+The
+.B \-grey
+option makes the background light grey, as does \*(85.
+Use this option for maximum authenticity.
+.B \-font
+.I fname
+sets the font in
+.IR rio 's
+menu to
+.IR fname ,
+overriding the default.
+.B \-term
+.I termprog
+specifies an alternative program to run when the
+.I New
+menu item is selected.
+.B \-version
+prints the current version on standard error, then exits.
+.PP
+To make 
+.I rio
+exit, you have to run
+.B "rio exit"
+on the command line.  There is no ``exit'' menu item.
+.PP
+One window is
+.IR current ,
+and is indicated with a dark border and text;
+characters typed on the keyboard are available in the
+.B /dev/cons
+file of the process in the current window.
+Characters written on
+.B /dev/cons
+appear asynchronously in the associated window whether or not the window
+is current.
+.PP
+Windows are created, deleted and rearranged using the mouse.
+Clicking (pressing and releasing) mouse button 1 in a non-current
+window makes that window current and brings it in front of
+any windows that happen to be overlapping it.
+When the mouse cursor points to the background area or is in
+a window that has not claimed the mouse for its own use,
+pressing mouse button 3 activates a
+menu of window operations provided by
+.IR rio .
+Releasing button 3 then selects an operation.
+At this point, a gunsight or cross cursor indicates that
+an operation is pending.
+The button 3 menu operations are:
+.TF Resize
+.TP
+.B New
+Create a window.
+Press button 3 where one corner of the new rectangle should
+appear (cross cursor), and move the mouse, while holding down button 3, to the
+diagonally opposite corner.
+Releasing button 3 creates the window, and makes it current.
+Very small windows may not be created.
+The new window is created running
+.IR termprog ,
+by default
+.IR 9term (1)
+or, if 
+.I 9term
+is not available,
+.IR xterm (1).
+.TP
+.B Resize
+Change the size and location of a window.
+First click button 3 in the window to be changed
+(gunsight cursor).
+Then sweep out a window as for the
+.B New
+operation.
+The window is made current.
+.TP
+.B Move
+Move a window to another location.
+After pressing and holding button 3 over the window to be moved (gunsight cursor),
+indicate the new position by dragging the rectangle to the new location.
+The window is made current.
+Windows may be moved partially off-screen.
+.TP
+.B Delete
+Delete a window.  Click in the window to be deleted (gunsight cursor).
+Deleting a window causes a
+.L hangup
+note to be sent to all processes in the window's process group
+(see
+.IR notify (3)).
+.TP
+.B Hide
+Hide a window.  Click in the window to be hidden (gunsight cursor);
+it will be moved off-screen.
+Each hidden window is given a menu entry in the button 3 menu
+according to its current window system label.
+.TP
+.I label
+Restore a hidden window.
+.PD
+.PP
+Windows may also be arranged by dragging their borders.
+Pressing button 1 or 2 over a window's border allows one to
+move the corresponding edge or corner, while button 3
+moves the whole window.
+.PD
+.SH BUGS
+In
+Plan 9's
+.IR rio ,
+clicking button 2 or button 3 to select a window also sends that
+event to the window itself.  This
+.I rio
+does not.
+.PP
+The command-line syntax is non-standard.
+.PP
+In Plan 9's
+.IR rio ,
+newly started applications take over the current window.
+This
+.I rio
+starts a new window for each program.
+(In X11, it appears to be impossible to know which window
+starts a particular program.)
+.PP
+There is a currently a compiled-in limit of 128 hidden windows.
+.SH "SEE ALSO"
+.IR 9term (1),
+.IR xterm (1).
