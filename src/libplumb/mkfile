@@ -5,7 +5,6 @@ OFILES=\
 	event.$O\
 	fid.$O\
 	mesg.$O\
-	thread.$O\
 
 HFILES=$PLAN9/include/plumb.h
 
