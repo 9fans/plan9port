@@ -1,22 +1,29 @@
 <$PLAN9/src/mkhdr
 
 TARG=`ls *.[cy] | grep -v "\.tab\.c$" | sed 's/\.[cy]//'`
-SHORTLIB=sec fs mux regexp9 thread bio 9
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|faces|factotum|mailfs|scat|upas|venti|vncv|postscript|mnihongo|mpm|index'
+BUGGERED='CVS|faces|factotum|mailfs|page|scat|upas|venti|vncv|postscript|mnihongo|mpm|index'
 DIRS=lex `ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"|egrep -v '^lex$'`
 
 <$PLAN9/src/mkdirs
 
-dir-all dir-install: $PLAN9/bin/9yacc
+dir-all dir-install: $PLAN9/bin/9yacc $PLAN9/bin/9lex
+
+bc.tab.c units.tab.c: $PLAN9/bin/9yacc
 
 %.tab.h %.tab.c: %.y
-	$YACC $YFLAGS -s $stem $prereq
+	$YACC $YFLAGS -s $stem $stem.y
 
 %.o: %.tab.c
 	9c -o $target $stem.tab.c
 
-CLEANFILES=$CLEANFILES bc.tab.[ch] units.tab.[ch]
+delatex.c:D: delatex.lx $PLAN9/bin/9lex
+	9lex -t delatex.lx >delatex.c
+
+$PLAN9/bin/9lex: $PLAN9/bin/9yacc
+	cd lex; mk install
+
+CLEANFILES=$CLEANFILES bc.tab.[ch] units.tab.[ch] delatex.c
 
