@@ -23,6 +23,7 @@ extern "C" {
 #include <utf.h>
 #include <fmt.h>
 #include <math.h>
+#include <ctype.h>	/* for tolower */
 
 /*
  * OS-specific crap
