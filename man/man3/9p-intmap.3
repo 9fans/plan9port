@@ -1,0 +1,126 @@
+.TH 9P-INTMAP 3
+.SH NAME
+Intmap, allocmap, freemap, insertkey, caninsertkey, lookupkey,
+deletekey \- integer to data structure maps
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+#include <fcall.h>
+#include <thread.h>
+#include <9p.h>
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fLIntmap* 'u
+Intmap*	allocmap(void (*inc)(void*))
+void	freemap(Intmap *map, void (*dec)(void*))
+void*	lookupkey(Intmap *map, ulong key)
+void*	insertkey(Intmap *map, ulong key, void *val)
+int	caninsertkey(Intmap *map, ulong key, void *val)
+void*	lookupkey(Intmap *map, ulong key)
+void*	deletekey(Intmap *map, ulong key)
+.fi
+.SH DESCRIPTION
+An
+.B Intmap
+is an arbitrary mapping from integers to pointers.
+.I Allocmap
+creates a new map, and
+.I freemap
+destroys it.
+The
+.I inc
+function is called each time a new pointer is added
+to the map; similarly, 
+.I dec
+is called on each pointer left in the map
+when it is being freed.
+Typically these functions maintain reference counts.
+New entries are added to the map by calling
+.IR insertkey ,
+which will return the previous value
+associated with the given
+.IR key ,
+or zero if there was no previous value.
+.I Caninsertkey
+is like
+.I insertkey
+but only inserts 
+.I val
+if there is no current mapping.
+It returns 1 if
+.I val
+was inserted, 0 otherwise.
+.I Lookupkey
+returns the pointer associated with
+.IR key ,
+or zero if there is no such pointer.
+.I Deletekey
+removes the entry for 
+.I id
+from the map, returning the
+associated pointer, if any.
+.PP
+Concurrent access to
+.BR Intmap s
+is safe, 
+moderated via a 
+.B QLock 
+stored in the 
+.B Intmap
+structure.
+.PP
+In anticipation of the storage of reference-counted
+structures, an increment function 
+.I inc
+may be specified
+at map creation time.
+.I Lookupkey
+calls
+.I inc 
+(if non-zero)
+on pointers before returning them.
+If the reference count adjustments were
+left to the caller (and thus not protected by the lock),
+it would be possible to accidentally reclaim a structure
+if, for example, it was deleted from the map and its
+reference count decremented between the return
+of 
+.I insertkey
+and the external increment.
+.IR Insertkey
+and
+.IR caninsertkey
+do
+.I not
+call
+.I inc
+when inserting 
+.I val
+into the map, nor do
+.I insertkey
+or
+.I deletekey
+call
+.I inc
+when returning old map entries.
+The rationale is that calling
+an insertion function transfers responsibility for the reference
+to the map, and responsibility is given back via the return value of
+.I deletekey
+or the next
+.IR insertkey .
+.PP
+.BR Intmap s
+are used by the 9P library to implement
+.BR Fidpool s
+and
+.BR Reqpool s.
+.SH SOURCE
+.B \*9/src/lib9p/intmap.c
+.SH SEE ALSO
+.IR 9p (3),
+.IR 9p-fid (3)

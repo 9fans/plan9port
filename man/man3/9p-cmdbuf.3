@@ -1,0 +1,119 @@
+.TH 9P-CMDBUF 3
+.SH NAME
+Cmdbuf, parsecmd, respondcmderror, lookupcmd \- control message parsing
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+#include <fcall.h>
+#include <thread.h>
+#include <9p.h>
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fL1234'u +\w'\fL12345678'u
+typedef struct Cmdbuf
+{
+	char	*buf;
+	char	**f;
+	int	nf;
+} Cmdbuf;
+
+typedef struct Cmdtab
+{
+	int	index;
+	char	*cmd;
+	int	narg;
+};
+
+Cmdbuf	*parsecmd(char *p, int n)
+Cmdtab	*lookupcmd(Cmdbuf *cb, Cmdtab *tab, int ntab)
+void	respondcmderror(Req *r, Cmdbuf *cb, char *fmt, ...)
+.fi
+.SH DESCRIPTION
+These data structures and functions provide parsing of textual control messages.
+.PP
+.I Parsecmd
+treats the
+.I n
+bytes at
+.I p
+(which need not be NUL-terminated) as a UTF string and splits it
+using
+.I tokenize
+(see
+.IR getfields (3)).
+It returns a
+.B Cmdbuf
+structure holding pointers to each field in the message.
+.PP
+.I Lookupcmd
+walks through the array
+.IR ctab ,
+which has
+.I ntab
+entries,
+looking for the first
+.B Cmdtab
+that matches the parsed command.
+(If the parsed command is empty,
+.I lookupcmd
+returns nil immediately.)
+A
+.B Cmdtab
+matches the command if
+.I cmd
+is equal to
+.IB cb -> f [0]
+or if
+.I cmd
+is 
+.LR * .
+Once a matching
+.B Cmdtab
+has been found, if
+.I narg
+is not zero, then the parsed command
+must have exactly
+.I narg
+fields (including the command string itself).
+If the command has the wrong number of arguments,
+.I lookupcmd
+returns nil.
+Otherwise, it returns a pointer to the
+.B Cmdtab
+entry.
+If
+.I lookupcmd
+does not find a matching command at all,
+it returns nil.
+Whenever
+.I lookupcmd
+returns nil, it sets the system error string.
+.PP
+.I Respondcmderror
+resoponds to request
+.I r
+with an error of the form
+`\fIfmt\fB:\fI cmd\fR,'
+where
+.I fmt
+is the formatted string and
+.I cmd
+is a reconstruction of the parsed command.
+Fmt
+is often simply
+.B "%r" .
+.SH EXAMPLES
+This interface is not used in any distributed 9P servers.
+It was lifted from the Plan 9 kernel.
+Almost any Plan 9 kernel driver
+.RB ( /sys/src/9/*/dev*.c
+on Plan 9)
+is a good example.
+.SH SOURCE
+.B \*9/src/lib9p/parse.c
+.SH SEE ALSO
+.IR 9p (3)

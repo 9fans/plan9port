@@ -1,0 +1,223 @@
+.TH 9P-FILE 3
+.SH NAME
+Tree, alloctree, freetree,
+File, createfile, closefile, removefile, walkfile,
+opendirfile, readdirfile, closedirfile, hasperm \- in-memory file hierarchy
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+#include <fcall.h>
+#include <thread.h>
+#include <9p.h>
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fLFile 'u
+typedef struct File
+{
+	Ref;
+	Dir;
+	void	*aux;
+	\fI...\fP
+} File;
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fLTree 'u
+typedef struct Tree
+{
+	File *root;
+	\fI...\fP
+} Tree;
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fLReaddir* 'u +4n +4n
+Tree*	alloctree(char *uid, char *gid, ulong mode,
+				void (*destroy)(File*))
+void	freetree(Tree *tree)
+File*	createfile(File *dir, char *name, char *uid,
+				ulong mode, void *aux)
+int	removefile(File *file)
+void	closefile(File *file)
+File*	walkfile(File *dir, char *path)
+Readdir*	opendirfile(File *dir)
+long	readdirfile(Readdir *rdir, char *buf, long n)
+void	closedirfile(Readdir *rdir)
+int	hasperm(File *file, char *uid, int p)
+.fi
+.SH DESCRIPTION
+.BR File s
+and
+.BR Tree s
+provide an in-memory file hierarchy 
+intended for use in 9P file servers.
+.PP
+.I Alloctree
+creates a new tree of files, and
+.I freetree
+destroys it.
+The root of the tree
+(also the
+.B root
+element in the structure)
+will have mode
+.I mode
+and be owned by user
+.I uid
+and group
+.IR gid .
+.I Destroy
+is used when freeing 
+.B File 
+structures and is described later.
+.PP
+.BR File s
+(including directories)
+other than the root are created using
+.IR createfile ,
+which attempts to create a file named
+.I name
+in the directory
+.IR dir .
+If created, the file will have owner
+.I uid 
+and have a group inherited from
+the directory.
+.I Mode
+and the permissions of 
+.I dir
+are used to calculate the permission bits for
+the file as described in
+.IR open (9p).
+It is permissible for
+.I name
+to be a slash-separated path rather than a single element.
+.PP
+.I Removefile
+removes a file from the file tree.
+The file will not be freed until the last
+reference to it has been removed.
+Directories may only be removed when empty.
+.I Removefile
+returns zero on success, \-1 on error.
+It is correct to consider
+.I removefile
+to be
+.I closefile
+with the side effect of removing the file
+when possible.
+.PP
+.I Walkfile
+evaluates
+.I path
+relative to the directory
+.IR dir ,
+returning the resulting file,
+or zero if the named file or any intermediate element
+does not exist.
+.PP
+The 
+.B File
+structure's
+.B aux
+pointer may be used by the client
+for
+.RB per- File
+storage.
+.BR File s
+are reference-counted: if not zero,
+.I destroy
+(specified in the call to
+.IR alloctree )
+will be called for each file when its 
+last reference is removed or when the tree is freed.
+.I Destroy
+should take care of any necessary cleanup related to
+.BR aux .
+When creating new file references by copying pointers,
+call 
+.I incref
+(see
+.IR lock (3))
+to update the reference count.
+To note the removal of a reference to a file, call
+.IR closefile .
+.I Createfile
+and
+.I walkfile 
+return new references.
+.IR Removefile ,
+.IR closefile ,
+and
+.I walkfile
+(but not
+.IR createfile )
+consume the passed reference.
+.PP
+Directories may be read, yielding a directory entry structure
+(see
+.IR stat (9p))
+for each file in the directory.
+In order to allow concurrent reading of directories,
+clients must obtain a
+.B Readdir
+structure by calling 
+.I opendirfile
+on a directory.
+Subsequent calls to
+.I readdirfile
+will each yield an integral number of machine-independent
+stat buffers, until end of directory.
+When finished, call
+.I closedirfile
+to free the
+.BR Readdir .
+.PP
+.I Hasperm
+does simplistic permission checking; it assumes only
+one-user groups named by uid and returns non-zero if
+.I uid
+has permission 
+.I p
+(a bitwise-or of
+.BR AREAD ,
+.BR AWRITE
+and
+.BR AEXEC )
+according to
+.IB file ->mode \fR.
+9P servers written using
+.B File
+trees will do standard permission checks automatically;
+.I hasperm
+may be called explicitly to do additional checks.
+A 9P server may link against a different
+.I hasperm
+implementation to provide more complex groups.
+.SH EXAMPLE
+The following code correctly handles references
+when elementwise walking a path and creating a file.
+.IP
+.EX
+f = tree->root;
+incref(f);
+for(i=0; i<n && f!=nil; i++)
+	f = walkfile(f, elem[i]);
+if(f == nil)
+	return nil;
+nf = createfile(f, "foo", "nls", 0666, nil);
+closefile(f);
+return nf;
+.EE
+.SH SOURCE
+.B \*9/src/lib9p/file.c
+.SH SEE ALSO
+.IR 9p (3)
+.SH BUGS
+The reference counting is cumbersome.

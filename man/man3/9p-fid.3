@@ -1,0 +1,204 @@
+.TH 9P-FID 3
+.SH NAME
+Fid, Fidpool, allocfidpool, freefidpool, allocfid, closefid, lookupfid, removefid,
+Req, Reqpool, allocreqpool, freereqpool, allocreq, closereq, lookupreq, removereq \- 9P fid, request tracking
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+#include <fcall.h>
+#include <thread.h>
+#include <9p.h>
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fL    'u +\w'\fLulong 'u
+typedef struct Fid
+{
+	ulong	fid;
+	char	omode;  /* -1 if not open */
+	char	*uid;
+	Qid	qid;
+	File	*file;
+	void	*aux;
+	\fI...\fP
+} Fid;
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fL    'u +\w'\fLulong 'u
+typedef struct Req
+{
+	ulong	tag;
+	Fcall	ifcall;
+	Fcall	ofcall;
+	Req	*oldreq;
+	void	*aux;
+	\fI...\fP
+} Req;
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fLFidpool* 'u
+Fidpool*	allocfidpool(void (*destroy)(Fid*))
+void	freefidpool(Fidpool *p)
+Fid*	allocfid(Fidpool *p, ulong fid)
+Fid*	lookupfid(Fidpool *p, ulong fid)
+void	closefid(Fid *f)
+void	removefid(Fid *f)
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fLReqpool* 'u
+Reqpool*	allocreqpool(void (*destroy)(Req*))
+void	freereqpool(Reqpool *p)
+Req*	allocreq(Reqpool *p, ulong tag)
+Req*	lookupreq(Reqpool *p, ulong tag)
+void	closereq(Req *f)
+void	removereq(Req *r)
+.fi
+.SH DESCRIPTION
+These routines provide management of 
+.B Fid
+and
+.B Req
+structures from 
+.BR Fidpool s
+and
+.BR Reqpool s.
+They are primarily used by the 9P server loop
+described in 
+.IR 9p (3).
+.PP
+.B Fid
+structures are intended to represent
+active fids in a 9P connection, as 
+.B Chan
+structures do in the Plan 9 kernel.
+The
+.B fid
+element is the integer fid used in the 9P 
+connection.
+.B Omode
+is the mode under which the fid was opened, or 
+.B -1 
+if this fid has not been opened yet.
+Note that in addition to the values 
+.BR OREAD ,
+.BR OWRITE ,
+and
+.BR ORDWR ,
+.B omode
+can contain the various flags permissible in
+an open call.
+To ignore the flags, use
+.BR omode&OMASK .
+.B Omode
+should not be changed by the client.
+The fid derives from a successful authentication by
+.BR uid .
+.B Qid
+contains the qid returned in the last successful
+.B walk
+or
+.B create
+transaction involving the fid.
+In a file tree-based server, the 
+.BR Fid 's
+.B file
+element points at a
+.B File
+structure 
+(see
+.IR 9p-file (3))
+corresponding to the fid.
+The
+.B aux
+member is intended for use by the
+client to hold information specific to a particular
+.BR Fid .
+With the exception of 
+.BR aux ,
+these elements should be treated
+as read-only by the client.
+.PP
+.I Allocfidpool
+creates a new 
+.BR Fidpool .
+.I Freefidpool
+destroys such a pool.
+.I Allocfid
+returns a new
+.B Fid
+whose fid number is
+.IR fid .
+There must not already be an extant
+.B Fid
+with that number in the pool.
+Once a 
+.B Fid
+has been allocated, it can be looked up by 
+fid number using
+.IR lookupfid .
+.BR Fid s
+are reference counted: both 
+.I allocfid
+and
+.I lookupfid
+increment the reference count on the 
+.B Fid
+structure before
+returning.
+When a reference to a 
+.B Fid
+is no longer needed, 
+.I closefid
+should be called to note the destruction of the reference.
+When the last reference to a 
+.B Fid
+is removed, if
+.I destroy
+(supplied when creating the fid pool)
+is not zero, it is called with the 
+.B Fid
+as a parameter.
+It should perform whatever cleanup is necessary
+regarding the
+.B aux
+element.
+.I Removefid
+is equivalent to
+.I closefid
+but also removes the
+.B Fid
+from the pool.
+Note that due to lingering references,
+the return of
+.I removefid
+may not mean that
+.I destroy
+has been called.
+.PP
+.IR Allocreqpool ,
+.IR freereqpool ,
+.IR allocreq ,
+.IR lookupreq ,
+.IR closereq ,
+and
+.I removereq
+are analogous but
+operate on 
+.BR Reqpool s
+and
+.B Req
+structures.
+.SH SOURCE
+.B \*9/src/lib9p
+.SH SEE ALSO
+.IR 9p (3),
+.IR 9p-file (3)

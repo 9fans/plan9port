@@ -1,0 +1,29 @@
+#!/usr/local/plan9/bin/rc
+# Usage: sig key ...
+#	prints out function signatures by grepping the manual
+
+
+*=`{echo $*|tr A-Z a-z|tr -dc 'a-z0-9_ \012'}	# fold case, delete funny chars
+if(~ $#* 0){
+	echo Usage: sig function ... >[1=2]
+	exit 1
+}
+
+for (i) {
+	files=`{9 grep -il '[ 	]\*?'$i'\(' $PLAN9/man/man3/*.3*}
+	for(j in $files) {
+		{echo .nr LL 20i; 9 sed -n '/^.SH SYNOPSIS/,/^.SH.*DESCR/p'  $j } |
+			9 nroff -man |
+			9 sed '
+				:a
+				/,$/ {
+					N
+					s/\n//
+				}
+				ta
+				s/[ 	]+/ /g' |
+			9 grep -i -e '[ 	]\*?'$i'\(' | sed 's/^[ +]/	/'
+	}
+}
+
+exit 0
