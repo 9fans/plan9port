@@ -16,7 +16,7 @@ static void	plan9cmap(void);
 static int	setupcmap(XWindow);
 static int	xreplacescreenimage(void);
 static XGC	xgc(XDrawable, int, int);
-static Image	*getimage0(Display*);
+static Image	*getimage0(Display*, Image*);
 
 Xprivate _x;
 
@@ -62,17 +62,27 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 
 	d->error = error;
 	_initdisplaymemimage(d, m);
-	d->screenimage = getimage0(d);
+	d->screenimage = getimage0(d, 0);
 	return d;
 }
 
 static Image*
-getimage0(Display *d)
+getimage0(Display *d, Image *image)
 {
 	char info[12*12+1];
 	uchar *a;
 	int n;
-	Image *image;
+	extern int _freeimage1(Image*);
+
+	/*
+	 * If there's an old screen, it has id 0.  The 'J' request below
+	 * will try to install the new screen as id 0, so the old one 
+	 * must be freed first.
+	 */
+	if(image){
+		_freeimage1(image);
+		memset(image, 0, sizeof(Image));
+	}
 
 	a = bufimage(d, 2);
 	a[0] = 'J';
@@ -88,7 +98,14 @@ getimage0(Display *d)
 		abort();
 	}
 
-	image = mallocz(sizeof(Image), 1);
+	if(image == nil){
+		image = mallocz(sizeof(Image), 1);
+		if(image == nil){
+			fprint(2, "cannot allocate image: %r\n");
+			abort();
+		}
+	}
+
 	image->display = d;
 	image->id = 0;
 	image->chan = strtochan(info+2*12);
@@ -109,14 +126,22 @@ int
 getwindow(Display *d, int ref)
 {
 	Image *i;
+	Image *oi;
 
 	if(_x.destroyed)
 		postnote(PNGROUP, getpgrp(), "hangup");
 	if(xreplacescreenimage() == 0)
 		return 0;
-	freeimage(d->screenimage);
-	i = getimage0(d);
+
+	/*
+	 * Libdraw promises not to change the value of "screen",
+	 * so we have to reuse the image structure
+	 * memory we already have.
+	 */
+	oi = d->screenimage;
+	i = getimage0(d, oi);
 	screen = d->screenimage = d->image = i;
+	// fprint(2, "getwindow %p -> %p\n", oi, i);
 	return 0;
 }
 

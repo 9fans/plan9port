@@ -1054,6 +1054,8 @@ _drawmsgwrite(Display *d, void *v, int n)
 			m = 1;
 			if(n < m)
 				goto Eshortdraw;
+			if(drawlookup(client, 0, 0))
+				goto Eimageexists;
 			drawinstall(client, 0, screenimage, 0);
 			client->infoid = 0;
 			continue;
