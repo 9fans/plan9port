@@ -443,7 +443,7 @@ flushtyping(int clearesc)
 #define RIGHTARROW	Kright
 
 int
-nontypingkey(c)
+nontypingkey(int c)
 {
 	return c==SCROLLKEY || c==BACKSCROLLKEY
 		|| c==LEFTARROW || c==RIGHTARROW
