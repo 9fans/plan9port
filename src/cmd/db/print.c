@@ -380,7 +380,7 @@ printlocals(Symbol *fn, Regs *regs)
 	for (i = 0; indexlsym(fn, i, &s)>=0; i++) {
 		if (s.class != CAUTO)
 			continue;
-		if(lget4(cormap, correg, s.loc, &v) >= 0)
+		if(lget4(cormap, regs, s.loc, &v) >= 0)
 			dprint("%8t%s.%s/%10t%#lux\n", fn->name, s.name, v);
 		else
 			dprint("%8t%s.%s/%10t?\n", fn->name, s.name);
@@ -400,7 +400,7 @@ printparams(Symbol *fn, Regs *regs)
 			continue;
 		if (first++)
 			dprint(", ");
-		if(lget4(cormap, correg, s.loc, &v) >= 0)
+		if(lget4(cormap, regs, s.loc, &v) >= 0)
 			dprint("%s=%#lux", s.name, v);
 		else
 			dprint("%s=?", s.name);
