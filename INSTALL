@@ -28,4 +28,4 @@ echo "Add these to your profile environment."
 echo "	PLAN9=$PLAN9 export PLAN9"
 echo '	PATH=$PATH:'"$PLAN9/bin export PATH"
 
-) 2>&1 | tee mk-install.log
+) 2>&1 | tee install.log
