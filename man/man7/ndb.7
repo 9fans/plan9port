@@ -59,7 +59,7 @@ Within tuples, pairs on the same line bind tighter than
 pairs on different lines.
 .PP
 Programs search the database directly using the routines in
-.IR ndb (2).
+.IR ndb (3).
 .\" or indirectly using
 .\" .B ndb/cs
 .\" and
@@ -214,13 +214,6 @@ less that 1024
 .TP
 .B proto
 a protocol supported by a host.
-The pair
-.B proto=il
-is needed by
-.I cs
-(see
-.IR ndb (8))
-in tuples for hosts that support the IL protocol
 .TP
 .B dnsdomain
 a domain name that

@@ -108,6 +108,13 @@ dump9660 mk9660.1
 mk9660 mk9660.1
 mkdir mkdir.1
 namespace namespace.1
+ndb ndb.1
+ndbipquery ndb.1
+ndbmkdb ndb.1
+ndbmkhash ndb.1
+ndbmkhosts ndb.1
+ndbquery ndb.1
+netkey netkey.1
 news news.1
 p p.1
 img page.1
@@ -147,8 +154,9 @@ samsave sam.1
 samterm sam.1
 scat scat.1
 aescbc secstore.1
-ipso secstore.1
 secstore secstore.1
+secstored secstored.1
+secuser secstored.1
 sed sed.1
 seq seq.1
 sleep sleep.1
@@ -164,6 +172,7 @@ md5sum sum.1
 sha1sum sum.1
 sum sum.1
 tail tail.1
+tar tar.1
 tbl tbl.1
 tcs tcs.1
 tee tee.1

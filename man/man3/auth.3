@@ -1,6 +1,6 @@
 .TH AUTH 3
 .SH NAME
-auth_proxy, fauth_proxy, auth_allocrpc, auth_freerpc, auth_rpc, auth_getkey, amount_getkey, auth_freeAI, auth_chuid, auth_challenge, auth_response, auth_freechal, auth_respond, auth_userpasswd, auth_getuserpasswd, auth_getinfo\- routines for authenticating users
+auth_proxy, fauth_proxy, auth_allocrpc, auth_freerpc, auth_rpc, auth_getkey, amount_getkey, auth_freeAI, auth_chuid, auth_challenge, auth_response, auth_freechal, auth_respond, auth_userpasswd, auth_getuserpasswd, auth_getinfo, fsauth_proxy, fsfauth_proxy, fsamount, nsamount\- routines for authenticating users
 .SH SYNOPSIS
 .nf
 .PP
@@ -78,6 +78,14 @@ AuthInfo*	auth_getinfo(AuthRpc *rpc);
 .PP
 .B
 #include <9pclient.h>
+.PP
+.B
+AuthInfo*	fsauth_proxy(CFid *fid, AuthGetkey *getkey, char *fmt, ...);
+.PP
+.B
+AuthInfo*	fsfauth_proxy(CFid *fid, AuthRpc *rpc, AuthGetkey *getkey,
+.br
+.B			char *params);
 .PP
 .B
 CFsys*	fsamount(int fd, char *aname);
@@ -204,7 +212,7 @@ file, as opened by
 An
 .B sprint
 (see
-.IR print (2))
+.IR print (3))
 of 
 .I fmt
 and the variable arg list yields a key template (see
@@ -399,6 +407,19 @@ structure returned by one of these routines.
 Similary
 .I auth_freechal
 frees a challenge/response state.
+.PP
+.I Fsauth_proxy
+and
+.I fsfauth_proxy
+are like
+.I auth_proxy
+and
+.I fauth_proxy
+but execute the protocol on a
+.B CFid*
+(see
+.IR 9pclient (3))
+instead of a file descriptor.
 .PP
 .I Fsamount
 and

@@ -38,6 +38,7 @@ BEGIN {
 	Omitman["lp(1)"] = 1
 	Omitman["lpr(1)"] = 1
 	Omitman["mail(1)"] = 1
+	Omitman["make(1)"] = 1
 	Omitman["nm(1)"] = 1
 	Omitman["prof(1)"] = 1
 	Omitman["pwd(1)"] = 1
@@ -48,6 +49,7 @@ BEGIN {
 	Omitman["tar(1)"] = 1
 	Omitman["tex(1)"] = 1
 	Omitman["unutf(1)"] = 1
+	Omitman["vnc(1)"] = 1
 	Omitman["xterm(1)"] = 1
 
 	Omitman["access(2)"] = 1
@@ -93,9 +95,25 @@ BEGIN {
 	# don't need documentation for these in bin
 	Omitted[".cvsignore"] = 1
 	Omitted["Getdir"] = 1
+	Omitted["Irc"] = 1
+	Omitted["Juke"] = 1
+	Omitted["ajuke"] = 1
+	Omitted["goodmk"] = 1
+	Omitted["jukefmt"] = 1
+	Omitted["jukeget"] = 1
+	Omitted["jukeindex"] = 1
+	Omitted["jukeinfo"] = 1
+	Omitted["jukeplay"] = 1
+	Omitted["jukeput"] = 1
+	Omitted["jukesearch"] = 1
+	Omitted["jukesongfile"] = 1
+	Omitted["m4ainfo"] = 1
+	Omitted["mp3info"] = 1
+	Omitted["notes"] = 1
 	Omitted["tcolors"] = 1
 	Omitted["tref"] = 1
 	Omitted["unutf"] = 1
+	Omitted["volume"] = 1
 	Omitted["vtdump"] = 1
 
 	# not for users
@@ -103,6 +121,8 @@ BEGIN {
 	Omittedlib["pixelbits"] = 1
 	Omittedlib["bouncemouse"] = 1
 	Omittedlib["main"] = 1	# in libthread
+	
+	Omittedlib["opasstokey"] = 1	# in libauthsrv
 
 	# functions provided for -lthread_db
 	Omittedlib["ps_get_thread_area"] = 1
@@ -174,6 +194,16 @@ BEGIN {
 	Omittedlib["symelf"] = 1
 	Omittedlib["symmacho"] = 1
 	Omittedlib["symstabs"] = 1
+	Omittedlib["elfcorelinux386"] = 1
+	Omittedlib["linux2ureg386"] = 1
+	Omittedlib["ureg2linux386"] = 1
+	Omittedlib["coreregs"] = 1	# haven't documented mach yet
+	Omittedlib["regdesc"] = 1
+
+	Omittedlib["auth_attr"] = 1	# not happy about this
+
+	Omittedlib["ndbnew"] = 1		# private to library
+	Omittedlib["ndbsetval"] = 1
 
 	Renamelib["chanalt"] = "alt"
 	Renamelib["channbrecv"] = "nbrecv"
@@ -333,6 +363,8 @@ $0 ~ /^\.[A-Z].*\([1-9]\)/ {
 			name = $3
 			section = "9"
 		} else {
+			if ($1 == ".HR" && $3 == "\"Section")
+				next;
 			print "Possible bad cross-reference format in", FILENAME ":" FNR
 			print $0
 			next
@@ -391,8 +423,8 @@ END {
 	getnmlist("lib/lib9p.a")
 	getnmlist("lib/lib9pclient.a")
 	getnmlist("lib/libString.a")
-	# getnmlist("lib/libauth.a")
-	# getnmlist("lib/libauthsrv.a")
+	getnmlist("lib/libauth.a")
+	getnmlist("lib/libauthsrv.a")
 	getnmlist("lib/libbin.a")
 	getnmlist("lib/libbio.a")
 	getnmlist("lib/libcomplete.a")
@@ -410,7 +442,7 @@ END {
 	# getnmlist("lib/libmemlayer.a")
 	getnmlist("lib/libmp.a")
 	getnmlist("lib/libmux.a")
-	# getnmlist("lib/libndb.a")
+	getnmlist("lib/libndb.a")
 	getnmlist("lib/libplumb.a")
 	getnmlist("lib/libregexp9.a")
 	getnmlist("lib/libsec.a")
