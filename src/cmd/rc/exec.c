@@ -20,6 +20,7 @@ void start(code *c, int pc, var *local)
 	p->eof=0;
 	p->iflag=0;
 	p->lineno=1;
+	p->pid=-1;
 	p->ret=runq;
 	runq=p;
 }
