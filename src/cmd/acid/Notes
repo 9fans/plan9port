@@ -1,0 +1,49 @@
+Changes from the Plan 9 acid (beyond the 
+obvious changes necessary to compile without
+Ken's compiler and with the new libmach interface).
+========================================
+
+the input-line print verb is %Z, so that %L can be for locations
+
+the register block is explicitly "mapped" at 0 by xget1, xget2, ...
+	for compatibility with old acid, even though libmach
+	doesn't participate in this lie anymore.
+
+main accepts pid, file, and core in any order
+
+the ptab only records pids (no ctl fd anymore).
+
+new builtin sysstop(pid) runs pid until the next syscall
+
+map() returns 5-tuples: (name, filename, base, end, offset)
+	filename is new
+
+map() expects a 5-tuple too
+
+strace expects a list of register names and values like
+	{"PC", *PC, "SP", *SP}
+
+strace returns 5-tuples now:
+	{fn, pc, callerpc, paramlist, locallist}
+
+new builtin includepipe(cmd) includes the standard output
+	of running cmd.
+
+symbols returns 4-tuples now: {name, type, addr, file}
+
+new builtin textfile() returns the current set of open text files
+	as a list of {file, base} pairs.
+
+new builtin textfile({file, base}) adds a new file's symbols and text
+	offset by base for relocatables.
+
+new builtin deltextfile(file) removes a file from the set of open text files.
+
+both textfile and deltextfile update symbols.
+
+====
+
+yet to be done:
+
+elflink has the linking info for elf on linux
+
