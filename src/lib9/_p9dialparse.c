@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <sys/un.h>
+#include <netinet/in.h>
 
 static char *nets[] = { "tcp", "udp", nil };
 #define CLASS(p) ((*(uchar*)(p))>>6)
