@@ -212,7 +212,7 @@ ignorepipe(void *v, char *s)
 	USED(v);
 	if(strcmp(s, "sys: write on closed pipe") == 0)
 		return 1;
-	fprint(2, "%T msg: %s\n", s);
+	fprint(2, "%T note: %s\n", s);
 	return 0;
 }
 
@@ -689,9 +689,9 @@ connoutthread(void *arg)
 			break;
 		case Tauth:
 			if(err && m->afid){
-				fprint(2, "%T auth error\n");
+				if(verbose) fprint(2, "%T auth error\n");
 				if(delhash(m->c->fid, m->afid->cfid, m->afid) == 0)
-					fidput(m->fid);
+					fidput(m->afid);
 			}
 			break;
 		case Tattach:
