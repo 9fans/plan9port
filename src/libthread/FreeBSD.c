@@ -131,6 +131,14 @@ _procwakeup(_Procrendez *r)
 	}
 }
 
+void
+_procwakeupandunlock(_Procrendez *r)
+{
+	_procwakeup(r);
+	unlock(r->l);
+}
+
+
 /*
  * process creation and exit
  */
