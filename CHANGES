@@ -1,3 +1,78 @@
+March 18, 2005
+	cmd/mkfile: explicitly ignore deleted factotum (now in auth)
+	dist/addsrclinks: bug fix
+	dist/isum: ignore cp in netfiles directory
+	dist/main.html: add link to 9pm
+	font: add boldtypunicode.7.font
+	man: update INDEX files
+	tmac/tmac.anhtml: set HT to 1 when generating HTML
+	lib9: better errors for create and open when lock fails
+		notify: ignore TTIN, TTOU
+	libdraw: init with window atop image
+	libplumb: tweaks
+	libthread: add threaddata, fix Alt declaration
+		document NPTL brokenness
+		ignore TSTP, TTIN, TTOU
+	9c, 9l: even quieter
+	9fs: new command
+	9p: add ls command
+	9pserve: ignore tstp; consult $verbose9pserve
+	acid: use %#x in acid/port
+	acme: typing bug fix, ^A, ^E
+	colors: add flushimage
+	cvs: document how to make cvs -q the default
+	E: print file name in case plumb fails
+	g: allow -- to end options
+		search more file extensions
+	hget: new command (no ftp support)
+	Netfiles: new command
+	plumb: add -9 for debugging
+	png: better png reading
+	rand: document what to do if SunOS missing /dev/random
+	rc: lex bug
+		do not print on sigpipe
+		try harder to background async jobs
+		allow rc -l without -i
+	sam: bug fix from plan 9
+	samterm: ^A, ^E
+		small cleanup
+	ssh-agent: change to use fixed name
+	src: bug fix
+	srv: new command
+	tcs: silence gcc warning
+
+March 15, 2005
+	u.h: change nil to unadorned 0 on sunos
+	lib9pclient: fix ptr arith in fswrite
+	libdraw: fix syntax errors in nowsys*.c
+	libauth, libsunrpc: do not set PLAN9 in mkfile
+	9term: add signal.h for sunos
+	factotum: drop .= initializers for sunos
+	vac: tweak for sunos
+
+March 14, 2005
+	acme: add $foo names as -$
+
+March 9, 2005
+	tcs: bring in plan 9 code
+
+March 8, 2005
+	fortunes: more fortunes
+
+March 6, 2005
+	u, u.rc: new script
+	fortunes: more fortunes
+
+March 5, 2005
+	win: don't give up when it gets confused
+
+March 4, 2005
+	lib9p: make chatty9p an extern int (mac)
+
+March 1, 2005
+	9pclient: preserve error in fsopen
+		handle offset correctly in fswrite
+
 February 28, 2005
 	rcmain: extra awd to initialize 9term
 	psv: use new --options when necessary
