@@ -1,5 +1,5 @@
 PLAN9=../..
-include $(PLAN9)/src/Makehdr
+<$PLAN9/src/mkhdr
 
 LIB=libframe.a
 
@@ -15,8 +15,8 @@ OFILES=\
 	frutil.$O\
 
 HFILES=\
-	$(PLAN9)/include/frame.h\
-	$(PLAN9)/include/draw.h\
+	$PLAN9/include/frame.h\
+	$PLAN9/include/draw.h\
 
-include $(PLAN9)/src/Makesyslib
+<$PLAN9/src/mksyslib
 

@@ -1,5 +1,5 @@
 PLAN9=../..
-include $(PLAN9)/src/Makehdr
+<$PLAN9/src/mkhdr
 
 LIB=libutf.a
 
@@ -26,6 +26,6 @@ OFILES=\
 	utfutf.$O\
 
 HFILES=\
-	$(PLAN9)/include/utf.h\
+	$PLAN9/include/utf.h\
 
-include $(PLAN9)/src/Makesyslib
+<$PLAN9/src/mksyslib
