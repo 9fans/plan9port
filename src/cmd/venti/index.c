@@ -1,3 +1,103 @@
+/*
+ * Index, mapping scores to log positions.  The log data mentioned in
+ * the index _always_ goes out to disk before the index blocks themselves.
+ * A counter in the arena tail records which logged blocks have been
+ * successfully indexed.  The ordering of dirtydcache calls along with
+ * the flags passed to dirtydcache ensure the proper write ordering.
+ * 
+ * For historical reasons, there are two indexing schemes. In both,
+ * the index is broken up into some number of fixed-size (say, 8kB)
+ * buckets holding index entries.  An index entry is about 40 bytes.
+ * The index can be spread across many disks, although in small
+ * configurations it is not uncommon for the index and arenas to be
+ * on the same disk.
+ *  *
+ * In the first scheme, the many buckets are treated as a giant on-disk
+ * hash table.  If there are N buckets, then the top 32 bits of the
+ * score are used as an index into the hash table, with each bucket
+ * holding 2^32 / N of the index space.  The index must be sized so
+ * that a bucket can't ever overflow.  Assuming that a typical compressed
+ * data block is about 4000 bytes, the index size is expected to be
+ * about 1% of the total data size.  Since scores are essentially
+ * random, they will be distributed evenly among the buckets, so all
+ * buckets should be about the same fullness.  A factor of 5 gives us
+ * a wide comfort boundary, so the index storage is suggested to be
+ * 5% of the total data storage.
+ * 
+ * Unfortunately, this very sparse index does not make good use of the
+ * disk -- most of it is empty, and disk reads, which are costly because
+ * of the random seek to get to an arbitrary bucket, tend to bring in
+ * only a few entries, making them hardly cost effective.  The second
+ * scheme is a variation on the first scheme that tries to lay out the
+ * index in a denser format on the disk.  In this scheme, the index
+ * buckets are organized in a binary tree, with all data at the leaf
+ * nodes.  Bucket numbers are easiest to treat in binary.  In the
+ * beginning, there is a single bucket with 0-bit number "".  When a
+ * bucket with number x fills, it splits into buckets 0x and 1x.  Since
+ * x and 0x are the same number, this means that half the bucket space
+ * is assigned to a new bucket, 1x.  So "" splits into 0 and 1, 1
+ * splits into 01 and 11, and so on.  The bucket number determines the
+ * placement on disk, and the bucket header includes the number of
+ * bits represented by the bucket.  To find the right bucket for a
+ * given score with top 32-bits x, read bucket "" off disk and check
+ * its depth.  If it is zero, we're done.  If x doesn't match the
+ * number of bits in 0's header, we know that the block has split, so
+ * we use the last 1 bit of x to load a new block (perhaps the same
+ * one) and repeat, using successively more bits of x until we find
+ * the block responsible for x.  Note that we're using bits from the
+ * _right_ not the left.  This gives the "split into 0x and 1x" property
+ * needed by the tree and is easier than using the reversal of the
+ * bits on the left.
+ *  *
+ * At the moment, this second scheme sounds worse than the first --
+ * there are log n disk reads to find a block instead of just 1.  But
+ * we can keep the tree structure in memory, using 1 bit per block to
+ * keep track of whether that block has been allocated.  Want to know
+ * whether block x has been split?  Check whether 1x is allocated.  1
+ * bit per 8kB gives us an in-use bitmap 1/65536 the size of the index.
+ * The index data is 1/100 the size of the arena data, explained above.
+ * In this scheme, after the first block split, the index is always
+ * at least half full (proof by induction), so it is at most 2x the
+ * size of the index data.  This gives a bitmap size of 2/6,553,600
+ * of the data size.  Let's call that one millionth.  So each terabyte
+ * of storage requires one megabyte of free bitmap.  The bitmap is
+ * going to be accessed so much that it will be effectively pinned in
+ * the cache.  So it still only takes one disk read to find the block
+ * -- the tree walking can be done by consulting the in-core bitmap
+ * describing the tree structure.
+ *  *
+ * Now we have to worry about write ordering, though.  What if the
+ * bitmap ends up out of sync with the index blocks?  When block x
+ * splits into 0x and 1x, causing an update to bitmap block b, the
+ * dcache flushing code makes sure that the writes happen in this
+ * order: first 1x, then 0x, then the bitmap.  Writing 1x before 0x
+ * makes sure we write the split-off entries to disk before we discard
+ * them from 0x.  Writing the bitmap after both simplifies the following
+ * case analysis.
+ * 
+ * If Venti is interrupted while flushing blocks to disk, the state
+ * of the disk upon next startup can be one of the following:
+ *  *
+
+ * (a) none of 0x, 1x, and b are written
+ *	Looks like nothing happened - use as is.
+ *
+ * (b) 1x is written
+ *	Since 0x hasn't been rewritten and the bitmap doesn't record 1x
+ * 	as being in use, it's like this never happened.  See (a).
+ *	This does mean that the bitmap trumps actual disk contents:
+ *	no need to zero the index disks anymore.
+ *
+ * (c) 0x and 1x are written, but not the bitmap
+ *	Writing 0x commits the change.  When we next encounter
+ *	0x or 1x on a lookup (we can't get to 1x except through x==0x),
+ *	the bitmap will direct us to x, we'll load the block and find out
+ * 	that its now 0x, so we update the bitmap.
+ *
+ * (d) 0x, 1x, and b are written.
+ *	Great - just use as is.
+ */
+
 #include "stdinc.h"
 #include "dat.h"
 #include "fns.h"
@@ -18,7 +118,7 @@ initindex(char *name, ISect **sects, int n)
 	Index *ix;
 	ISect *is;
 	u32int last, blocksize, tabsize;
-	int i;
+	int i, nbits;
 
 	if(n <= 0){
 		seterr(EOk, "no index sections to initialize index");
@@ -71,9 +171,20 @@ initindex(char *name, ISect **sects, int n)
 	ix->tabsize = tabsize;
 	ix->buckets = last;
 
-	ix->div = (((u64int)1 << 32) + last - 1) / last;
-	last = (((u64int)1 << 32) - 1) / ix->div + 1;
-	if(last != ix->buckets){
+	/* compute number of buckets used for in-use map */
+	nbits = blocksize*8;
+	ix->bitbuckets = (ix->buckets+nbits-1)/nbits;
+
+	last -= ix->bitbuckets;
+	/* 
+	 * compute log of max. power of two not greater than 
+	 * number of remaining buckets.
+	 */
+	for(nbits=0; last>>=1; nbits++)
+		;
+	ix->maxdepth = nbits;
+
+	if((1UL<<ix->maxdepth) > ix->buckets-ix->bitbuckets){
 		seterr(ECorrupt, "inconsistent math for buckets in %s", ix->name);
 		freeindex(ix);
 		return nil;
@@ -491,7 +602,7 @@ writeiclump(Index *ix, Clump *c, u8int *clbuf)
 	}
 
 	seterr(EAdmin, "no space left in arenas");
-	return -1;
+	return TWID64;
 }
 
 /*
@@ -554,37 +665,32 @@ loadientry(Index *ix, u8int *score, int type, IEntry *ie)
 	u32int buck;
 	int h, ok;
 
-fprint(2, "loadientry %V %d\n", score, type);
 	buck = hashbits(score, 32) / ix->div;
 	ok = -1;
-	for(;;){
-		qlock(&stats.lock);
-		stats.indexreads++;
-		qunlock(&stats.lock);
-		is = findisect(ix, buck);
-		if(is == nil){
-			seterr(EAdmin, "bad math in loadientry");
-			return -1;
-		}
-		buck -= is->start;
-		b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
-		if(b == nil)
-			break;
 
-		unpackibucket(&ib, b->data);
-		if(okibucket(&ib, is) < 0)
-			break;
+	qlock(&stats.lock);
+	stats.indexreads++;
+	qunlock(&stats.lock);
+	is = findibucket(ix, buck, &buck);
+	if(is == nil)
+		return -1;
+	b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
+	if(b == nil)
+		return -1;
 
-		h = bucklook(score, type, ib.data, ib.n);
-		if(h & 1){
-			h ^= 1;
-			unpackientry(ie, &ib.data[h]);
-			ok = 0;
-			break;
-		}
+	unpackibucket(&ib, b->data);
+	if(okibucket(&ib, is) < 0)
+		goto out;
 
-		break;
+	h = bucklook(score, type, ib.data, ib.n);
+	if(h & 1){
+		h ^= 1;
+		unpackientry(ie, &ib.data[h]);
+		ok = 0;
+		goto out;
 	}
+
+out:
 	putdblock(b);
 	return ok;
 }
@@ -603,46 +709,40 @@ storeientry(Index *ix, IEntry *ie)
 
 	buck = hashbits(ie->score, 32) / ix->div;
 	ok = 0;
-	for(;;){
-		qlock(&stats.lock);
-		stats.indexwreads++;
-		qunlock(&stats.lock);
-		is = findisect(ix, buck);
-		if(is == nil){
-			seterr(EAdmin, "bad math in storeientry");
-			return -1;
-		}
-		buck -= is->start;
-		b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
-		if(b == nil)
-			break;
 
-		unpackibucket(&ib, b->data);
-		if(okibucket(&ib, is) < 0)
-			break;
+	qlock(&stats.lock);
+	stats.indexwreads++;
+	qunlock(&stats.lock);
 
-		h = bucklook(ie->score, ie->ia.type, ib.data, ib.n);
-		if(h & 1){
-			h ^= 1;
-			dirtydblock(b, DirtyIndex);
-			packientry(ie, &ib.data[h]);
-			ok = writebucket(is, buck, &ib, b);
-			break;
-		}
+	is = findibucket(ix, buck, &buck);
+	b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
+	if(b == nil)
+		return -1;
 
-		if(ib.n < is->buckmax){
-			dirtydblock(b, DirtyIndex);
-			memmove(&ib.data[h + IEntrySize], &ib.data[h], ib.n * IEntrySize - h);
-			ib.n++;
+	unpackibucket(&ib, b->data);
+	if(okibucket(&ib, is) < 0)
+		goto out;
 
-			packientry(ie, &ib.data[h]);
-			ok = writebucket(is, buck, &ib, b);
-			break;
-		}
-
-		break;
+	h = bucklook(ie->score, ie->ia.type, ib.data, ib.n);
+	if(h & 1){
+		h ^= 1;
+		dirtydblock(b, DirtyIndex);
+		packientry(ie, &ib.data[h]);
+		ok = writebucket(is, buck, &ib, b);
+		goto out;
 	}
 
+	if(ib.n < is->buckmax){
+		dirtydblock(b, DirtyIndex);
+		memmove(&ib.data[h + IEntrySize], &ib.data[h], ib.n * IEntrySize - h);
+		ib.n++;
+
+		packientry(ie, &ib.data[h]);
+		ok = writebucket(is, buck, &ib, b);
+		goto out;
+	}
+
+out:
 	putdblock(b);
 	return ok;
 }
@@ -688,10 +788,10 @@ indexsect(Index *ix, u8int *score)
 }
 
 /*
- * find the index section which holds buck
+ * find the index section which holds bucket #buck.
  */
-ISect*
-findisect(Index *ix, u32int buck)
+static ISect*
+findisect(Index *ix, u32int buck, u32int *ibuck)
 {
 	ISect *is;
 	int r, l, m;
@@ -706,9 +806,126 @@ findisect(Index *ix, u32int buck)
 			r = m - 1;
 	}
 	is = ix->sects[l - 1];
-	if(is->start <= buck && is->stop > buck)
+	if(is->start <= buck && is->stop > buck){
+		*ibuck = buck - is->start;
 		return is;
+	}
+	seterr(EAdmin, "index lookup out of range: %ud not found in index\n", buck);
 	return nil;
+}
+
+static DBlock*
+loadisectblock(Index *ix, u32int buck, int read)
+{
+	ISect *is;
+
+	if((is = findisect(ix, buck, &buck)) == nil)
+		return nil;
+	return getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), read);
+}
+
+/*
+ * find the index section which holds the logical bucket #buck
+ */
+static DBlock*
+loadibucket(Index *ix, u32int buck, IBucket *ib)
+{
+	int d, i, times;
+	u32int ino;
+	DBlock *b;
+	u32int bbuck;
+	IBucket eib;
+
+	times = 0;
+
+top:
+	if(times++ > 2*ix->maxdepth){
+		seterr(EAdmin, "bucket bitmap tree never converges with buckets");
+		return nil;
+	}
+
+	bbuck = -1;
+	b = nil;
+
+	/*
+	 * consider the bits of buck, one at a time, to make the bucket number.
+	 */
+
+	/*
+	 * walk down the bucket tree using the bitmap, which is used so
+	 * often it's almost certain to be in cache.
+	 */
+	ino = 0;
+	for(d=0; d<ix->maxdepth; d++){
+		/* fetch the bitmap that says whether ino has been split */
+		if(bbuck != (ino>>ix->bitlog)){
+			if(b)
+				putdblock(b);
+			bbuck = (ino>>ix->bitlog);
+			if((b = loadisectblock(ix, bbuck, 1)) == nil)
+				return nil;
+		}
+		/* has it been split yet? */
+		if((((u32int*)b->data)[(ino&(ix->bitmask))>>5] & (1<<(ino&31))) == 0){
+			/* no.  we're done */
+			break;
+		}
+	}
+	putdblock(b);
+
+	/*
+	 * continue walking down (or up!) the bucket tree, which may not
+	 * be completely in sync with the bitmap.  we could continue the loop
+	 * here, but it's easiest just to start over once we correct the bitmap.
+	 * corrections should only happen when things get out of sync because
+	 * a crash keeps some updates from making it to disk, so it's not too
+	 * frequent.  we should converge after 2x the max depth, at the very worst
+	 * (up and back down the tree).
+	 */
+	if((b = loadisectblock(ix, ix->bitbuckets+bucketno(buck, d), 1)) == nil)
+		return nil;
+	unpackibucket(&eib, b->data);
+	if(eib.depth > d){
+		/* the bitmap thought this block hadn't split */
+		putdblock(b);
+		if(markblocksplit(buck, d) < 0)
+			return nil;
+		goto top;
+	}
+	if(eib.depth < d){
+		/* the bitmap thought this block had split */
+		putdblock(b);
+		if(markblockunsplit(ix, buck, d) < 0)
+			return nil;
+		goto top;
+	}
+	*ib = eib;
+	return b;
+}
+
+static int
+markblocksplit(Index *ix, u32int buck, int d)
+{
+	u32int ino;
+
+	ino = bucketno(buck, d);
+	if((b = loadisectblock(ix, ino>>ix->bitlog, 1)) == nil)
+		return -1;
+	dirtydblock(b, DirtyIndex);
+	(((u32int*)b->data)[(ino&(ix->bitmask))>>5] |= (1<<(ino&31));
+	putdblock(b);
+	return 0;
+}
+
+static int
+markblockunsplit(Index *ix, u32int buck, int d)
+{
+	/*
+	 * Let's 
+	u32int ino;
+
+	ino = bucketno(buck, d);
+	
 }
 
 static int
@@ -733,13 +950,11 @@ bucklook(u8int *score, int otype, u8int *data, int n)
 	int i, r, l, m, h, c, cc, type;
 
 	type = vttodisktype(otype);
-fprint(2, "bucklook %V %d->%d %d\n", score, otype, type, n);
 	l = 0;
 	r = n - 1;
 	while(l <= r){
 		m = (r + l) >> 1;
 		h = m * IEntrySize;
-fprint(2, "perhaps %V %d\n", data+h, data[h+IEntryTypeOff]);
 		for(i = 0; i < VtScoreSize; i++){
 			c = score[i];
 			cc = data[h + i];
