@@ -25,7 +25,7 @@ rcstart(int argc, char **argv, int *pfd)
 	 */
 	fd[0] = fd[1] = -1;
 	if(getpts(fd, slave) < 0)
-		fprint(2, "getpts: %r\n");
+		sysfatal("getpts: %r\n");
 
 
 	switch(pid = fork()) {
