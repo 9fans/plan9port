@@ -303,7 +303,7 @@ hangupnote(void *a, char *msg)
 	}
 	if(strstr(msg, "child")){
 		/* bug: do better */
-		exits(0);
+		threadexitsall(0);
 	}
 	noted(NDFLT);
 }
