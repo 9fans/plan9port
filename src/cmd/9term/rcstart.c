@@ -24,7 +24,6 @@ sys(char *buf, int devnull)
 		_exit(2);
 	default:
 		waitpid();
-fprint(2, "done waiting\n");
 	}
 }
 

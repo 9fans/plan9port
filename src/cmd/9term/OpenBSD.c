@@ -1,59 +1,15 @@
-#include <u.h>
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <sys/termios.h>
-#include <util.h>
-#include <libc.h>
-#include "term.h"
+#define getpts not_using_this_getpts
+#include "bsdpty.c"
+#undef getpts
 
 int
 getpts(int fd[], char *slave)
 {
-	return openpty(&fd[1], &fd[0], slave, 0, 0);
-}
-
-int
-childpty(int fd[], char *slave)
-{
-	int sfd;
-
-	close(fd[1]);
-	setsid();
-	sfd = open(slave, ORDWR);
-	if(sfd < 0)
-		sysfatal("open %s: %r\n", slave);
-	if(ioctl(sfd, TIOCSCTTY, 0) < 0)
-		fprint(2, "ioctl TIOCSCTTY: %r\n");
-	return sfd;
-}
-
-struct winsize ows;
-
-void
-updatewinsize(int row, int col, int dx, int dy)
-{
-	struct winsize ws;
-
-	ws.ws_row = row;
-	ws.ws_col = col;
-	ws.ws_xpixel = dx;
-	ws.ws_ypixel = dy;
-	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
-	if(ioctl(rcfd[0], TIOCSWINSZ, &ws) < 0)
-		fprint(2, "ioctl: %r\n");
-	ows = ws;
-}
-
-int
-israw(int fd)
-{
+	if(openpty(&fd[1], &fd[0], NULL, NULL, NULL) >= 0){
+		fchmod(fd[1], 0620);
+		strcpy(slave, ttyname(fd[0]));
+		return 0;
+	}
+	sysfatal("no ptys");
 	return 0;
 }
-
-int
-setecho(int fd, int on)
-{
-	return 0;
-}
-
