@@ -1,4 +1,33 @@
 April 21, 2004
+
+	add bc, units, mtime, primes, news
+
+	add registers to acid stack traces
+
+	add acid man page (forgotten before)
+
+	add proper support for long names in archives to mk
+	change mksyslib, mklib to use mk's magic archive powers
+
+	add jpg, map, pr, p.
+
+	rename Bwait to E (thanks to rob for the name).
+
+	add -m flag to mkdir
+
+	fix acid's handling of infinite includes
+
+	rename yacc to 9yacc so that we can be sure to find it.
+
+	stop malloc'ing in signal handlers.
+	in fact, stop locking anything.
+
+	add rfork(RFNOWAIT) support.  
+
+	add libsunrpc.
+
+	back out funny graphics in 9term menu.
+
 	import assembler routines for libmp and libsec
 		on x86 from william josephson's tree
 
@@ -7,6 +36,10 @@ April 21, 2004
 	add aescbc, astro, lex, and tcs
 
 	import man9 from william josephson's version of the port
+
+April 20, 2004
+
+	make 9term handle \r kind of.
 
 April 19, 2004
 
