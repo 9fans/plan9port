@@ -99,13 +99,15 @@ again:
 	sigdelset(&mask, SIGUSR1);
 	sigsuspend(&mask);
 
+//print("%d %d awake again\n", time(0), getpid());
+
 	/*
 	 * We're awake.  Make USR1 not interrupt system calls.
 	 */
 	lock(r->l);
 	ignusr1(1);
 	if(r->asleep && r->pid == getpid()){
-print("resleep %d\n", getpid());
+//print("resleep %d\n", getpid());
 		/* Didn't really wake up - signal from something else */
 		goto again;
 	}
@@ -264,35 +266,6 @@ threadexitsall(char *msg)
 	unlock(&_threadprocslock);
 	exits(msg);
 }
-
-/*
- * exec - need to arrange for wait proc to run
- * the execs so it gets the wait messages
- */
-int
-_runthreadspawn(int *fd, char *cmd, char **argv)
-{
-	Execjob e;
-	int pid;
-
-	e.fd = fd;
-	e.cmd = cmd;
-	e.argv = argv;
-	e.c = chancreate(sizeof(ulong), 0);	
-print("%d run\n", time(0));
-	qlock(&_threadexeclock);
-	sendp(_threadexecchan, &e);
-print("%d sent\n", time(0));
-	while(_threadexecproc == nil)
-		yield();
-	kill(_threadexecproc->osprocid, SIGUSR2);
-print("%d killed\n", time(0));
-	pid = recvul(e.c);
-	qunlock(&_threadexeclock);
-print("%d ran\n", time(0));
-	return pid;
-}
-
 
 /*
  * per-process data, indexed by pid

@@ -6,41 +6,42 @@
 
 static Lock thewaitlock;
 static Channel *thewaitchan;
-Channel	*_dowaitchan;
-Channel	*_threadexecchan;
-Proc	*_threadexecproc;
-QLock	_threadexeclock;
 
 static void
-execthread(void *v)
+execproc(void *v)
 {
-	Execjob *e;
-
-	USED(v);
-	while((e = recvp(_threadexecchan)) != nil){
-print("%d doexec pid %d\n", time(0), getpid());
-		sendul(e->c, _threadspawn(e->fd, e->cmd, e->argv));
-	}
-}
-
-static void
-waitproc(void *v)
-{
+	int pid;
 	Channel *c;
+	Execjob *e;
 	Waitmsg *w;
 
-	_threadsetsysproc();
-	_threadexecproc = proc();
-	threadcreate(execthread, nil, 65536);
-	for(;;){
-		while((w = wait()) == nil)
-			if(errno == ECHILD)
-				recvul(_dowaitchan);
+	e = v;
+	pid = _threadspawn(e->fd, e->cmd, e->argv);
+	sendul(e->c, pid);
+	if(pid > 0){
+		w = waitfor(pid);
 		if((c = thewaitchan) != nil)
 			sendp(c, w);
 		else
 			free(w);
 	}
+	threadexits(nil);
+}
+
+int
+_runthreadspawn(int *fd, char *cmd, char **argv)
+{
+	int pid;
+	Execjob e;
+
+	e.fd = fd;
+	e.cmd = cmd;
+	e.argv = argv;
+	e.c = chancreate(sizeof(void*), 0);
+	proccreate(execproc, &e, 65536);
+	pid = recvul(e.c);
+	chanfree(e.c);
+	return pid;
 }
 
 Channel*
@@ -104,27 +105,14 @@ _threadspawn(int fd[3], char *cmd, char *argv[])
 		close(fd[1]);
 	if(fd[2] != fd[1] && fd[2] != fd[0])
 		close(fd[2]);
-	channbsendul(_dowaitchan, 1);
 	return pid;
 }
 
 int
 threadspawn(int fd[3], char *cmd, char *argv[])
 {
-	if(_dowaitchan == nil){
-		lock(&thewaitlock);
-		if(_dowaitchan == nil){
-			_dowaitchan = chancreate(sizeof(ulong), 1);
-			chansetname(_dowaitchan, "dowaitchan");
-			_threadexecchan = chancreate(sizeof(void*), 1);
-			chansetname(_threadexecchan, "execchan");
-			proccreate(waitproc, nil, STACK);
-		}
-		unlock(&thewaitlock);
-	}
 	return _runthreadspawn(fd, cmd, argv);
 }
-
 
 int
 _threadexec(Channel *cpid, int fd[3], char *cmd, char *argv[])

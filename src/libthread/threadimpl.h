@@ -74,6 +74,7 @@ struct Proc
 	uint		osprocid;
 #endif
 	Lock		lock;
+	int			nswitch;
 	_Thread		*thread;
 	_Threadlist	runqueue;
 	_Threadlist	allthreads;

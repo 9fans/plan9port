@@ -138,15 +138,23 @@ _threadready(_Thread *t)
 	p = t->proc;
 	lock(&p->lock);
 	addthread(&p->runqueue, t);
-	_procwakeup(&p->runrend);
+//print("%d wake for job %d->%d\n", time(0), getpid(), p->osprocid);
+	if(p != proc())
+		_procwakeup(&p->runrend);
 	unlock(&p->lock);
 }
 
-void
+int
 threadyield(void)
 {
-	_threadready(proc()->thread);
+	int n;
+	Proc *p;
+
+	p = proc();
+	n = p->nswitch;
+	_threadready(p->thread);
 	_threadswitch();
+	return p->nswitch - n;
 }
 
 void
@@ -184,13 +192,14 @@ scheduler(Proc *p)
 			if(p->nthread == 0)
 				goto Out;
 			p->runrend.l = &p->lock;
-print("sleep for jobs %d\n", getpid());
+//print("%d sleep for jobs %d\n", time(0), getpid());
 			_procsleep(&p->runrend);
-print("wake from jobs %d\n", getpid());
+//print("%d wake from jobs %d\n", time(0), getpid());
 		}
 		delthread(&p->runqueue, t);
 		unlock(&p->lock);
 		p->thread = t;
+		p->nswitch++;
 		// print("run %s %d\n", t->name, t->id);
 		contextswitch(&p->schedcontext, &t->context);
 		p->thread = nil;
