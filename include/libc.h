@@ -343,10 +343,10 @@ extern	int	atnotify(int(*)(void*, char*), int);
 /* 
  * <stdlib.h>
 extern	double	atof(char*); <stdlib.h>
-extern	int	atoi(char*);
-extern	long	atol(char*);
  */
-extern	vlong	atoll(const char*);
+extern	int	p9atoi(char*);
+extern	long	p9atol(char*);
+extern	vlong	p9atoll(char*);
 extern	double	charstod(int(*)(void*), void*);
 extern	char*	cleanname(char*);
 extern	int	p9decrypt(void*, void*, int);
@@ -400,6 +400,9 @@ extern	long	p9time(long*);
 #ifndef NOPLAN9DEFINES
 #define atexit		p9atexit
 #define atexitdont	p9atexitdont
+#define atoi		p9atoi
+#define atol		p9atol
+#define atoll		p9atoll
 #define encrypt		p9encrypt
 #define decrypt		p9decrypt
 #define getenv		p9getenv
