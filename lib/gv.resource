@@ -12,3 +12,5 @@ GV.scales:              Natural size,   1.000,  screen  \n\
                               4.000,          4.000           \n\
                               8.000,          8.000           \n\
                               10.00,          10.00
+
+GV.reverseScrolling: True

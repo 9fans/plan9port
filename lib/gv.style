@@ -2,15 +2,115 @@
 !##### Layouts
 !########################################
 
-GV.control.MButton.font:                -*-Helvetica-Medium-R-Normal--*-120-*-*-P-*-ISO8859-1
+GV.control.MButton.font:                -*-Helvetica-Medium-R-Normal--*-100-*-*-P-*-ISO8859-1
 GV*orientationButton*forcedWidth:       72
 GV*upsidedown.Label:                    Up-Down
-GV.?.processButton.label:
+!# GV.?.processButton.label:
 
-!##### Main Layout
+GV*background:				#ffffe0
+GV*foreground:				black
+GV*Text*background:			#e0e0ff
+GV*SimpleMenu*background:		#e0e0ff
+GV*locator*background:			#e0e0ff
+GV*panner*foreground:			#e0e0ff
+GV*Label.background:			#e0e0ff
+GV*fileSel*Frame*background:		#e0e0ff
+GV*fileSel*Frame*Text*background:	#e0e0ff
+GV*optiongvPopup*Toggle*foreground:	black
+GV*optiongsPopup*Toggle*foreground:	black
+GV*optionsetupPopup*Toggle*foreground:	black
+GV*infoPopup*Scrollbar.background:	#e0e0ff
+GV*notePopup*message.background:	##e0e0ff
+
+GV*confirmPopup*message3.background:	#D3B5B5
+GV*confirmPopup*message1.background:	gray71
+
+GV*Button.background:			#e0e0ff
+GV*Button.highlightedBackground:	#c0c0ff
+GV*Button.setBackground:		#d0d0ff
+GV*Switch.background:			#e0e0ff
+GV*Switch.highlightedBackground:	#c0c0ff
+GV*Switch.setBackground:		#d0d0ff
+GV.?.Button.highlightedBackground:	#c0c0ff
+GV.?.Button.background:			#e0e0ff
+GV.?.Button.setBackground:		#d0d0ff
+
+GV*MButton*setBackground:		#d0d0ff
+GV*MButton*background:			#e0e0ff
+
+GV*Scrollbar.background:		#e0e0ff
+GV*Scrollbar.pointerColor:		black
+GV*Scrollbar.pointerColorBackground:	#e0e0ff
+GV*Scrollbar.scrollbarBackground:	#e0e0ff
+GV*Scrollbar.foreground:		#6060ff
+GV*optionsetupPopup*Text*Scrollbar.background: #e0e0ff
+GV*optionfsPopup*Text*Scrollbar.background: #e0e0ff
+
+GV*optionfsPopup*Label.background:	#e0e0ff
+GV*optiongsPopup*Label.background:	#e0e0ff
+GV*optiongvPopup*Label.background:	#e0e0ff
+GV*optionsetupPopup*Label.background:	#e0e0ff
+
+GV*newtocFrame*background:		#f0f0ff
+GV*newtocScroll.background:		#f0f0ff
+GV*Vlist.markBackground:		#c0c0ff
+GV*Vlist.selectedBackground:		#e0e0ff
+GV*Vlist.highlightedBackground:		#d0d0ff
+
+GV*page.borderWidth:	0
+GV*Scrollbar.thickness:			10
+GV*shadowWidth:				0
+GV*Label.shadowWidth:	0
+
+GV*MButton*unsetFrameStyle:		ledged
+GV*MButton*borderWidth: 0
+GV*MButton*frameWidth: 0
+
+GV.?.Button.unsetFrameStyle:		ledged
+GV.?.Button.highlightedFrameStyle:	ledged
+
+GV*rescan.unsetFrameStyle:		ledged
+GV*filter.unsetFrameStyle:		ledged
+
+GV*page.borderWidth:			0
+GV*SimpleMenu.borderWidth:		0
+GV*infoPopup*Text.borderWidth:		0
+
+GV*viewFrame.hSpace:			0
+GV*viewFrame.vSpace:			0
+GV*page.borderColor:			#e0e0ff
+GV*viewClip.borderWidth:		0
+GV*viewClip.borderColor:		#e0e0ff
+
+GV*stateButton*menu*leftMargin:		10
+GV*orientationButton*menu*leftMargin:	10
+GV*pagemediaButton*menu*leftMargin:	10
+GV*scaleButton*menu*leftMargin:		10
+GV.control.prevPage*internalHeight:	4
+GV.control.nextPage*internalHeight:	4
+GV*locator*internalHeight:		3
+GV.control.Button*internalWidth:	0
+
 
 GV*control.layout:                      \
-|v{                                     \
-     viewFrame<+[2]-100%*+9999-100%>   \
+|h{\
+	|v{\
+		|h{\
+			newtocScroll<*+200[1]-[1]>\
+			newtocFrame<-[2]*+200[1]-[1]>\
+		}\
+	}\
+	|v{ \
+		|h{ \
+			fileButton<-40%*>\
+			stateButton<-90%*>\
+			pageButton<-90%*>\
+			orientationButton<-90%*>\
+			scaleButton<-90%*>\
+			pagemediaButton<-90%*>\
+			processButton<-90%*>\
+		}\
+		viewFrame<+[2]-100%*+9999-100%>   \
+	}\
 }
 
