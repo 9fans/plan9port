@@ -1,0 +1,24 @@
+#!/usr/local/plan9/bin/rc
+
+dir=acme/acme/$winid
+
+fn rd {
+	9p read $dir/$1 || { echo 9p failed >[1=2]; exit 9p }
+}
+fn wr {
+	9p write $dir/$1 || { echo 9p failed >[1=2]; exit 9p }
+}
+
+
+tag=`{rd tag}
+if(! ~ $tag(1) */){
+	echo window $tag(1) is not a directory >[1=2]
+	exit 'not a directory'
+}
+
+echo -n , | wr addr
+ls -pF $tag(1) | sed 's/\*$//' |
+	9grep -v '^\.|\.o$|^o\.' |
+mc | wr data
+echo -n '#0' | wr addr
+echo -n 'dot=addr' | wr ctl
