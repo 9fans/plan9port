@@ -69,6 +69,9 @@ threadmain(int argc, char *argv[])
 
 	loadfile = nil;
 	ARGBEGIN{
+	case '$':
+		dodollarsigns = TRUE;
+		break;
 	case 'D':
 		{extern int _threaddebuglevel;
 		_threaddebuglevel = ~0;
