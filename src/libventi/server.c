@@ -197,7 +197,8 @@ vtrespond(VtReq *r)
 		vtfcallclear(&r->rx);
 		return;
 	}
-	vtsend(sc->c, p);
+	if(vtsend(sc->c, p) < 0)
+		fprint(2, "vtsend %F: %r\n", &r->rx);
 	scdecref(sc);
 	vtfcallclear(&r->tx);
 	vtfcallclear(&r->rx);
