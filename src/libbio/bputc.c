@@ -4,26 +4,17 @@
 int
 Bputc(Biobuf *bp, int c)
 {
-	int i, j;
+	int i;
 
-loop:
-	i = bp->ocount;
-	j = i+1;
-	if(i != 0) {
-		bp->ocount = j;
-		bp->ebuf[i] = c;
-		return 0;
+	for(;;) {
+		i = bp->ocount;
+		if(i) {
+			bp->ebuf[i++] = c;
+			bp->ocount = i;
+			return 0;
+		}
+		if(Bflush(bp) == Beof)
+			break;
 	}
-	if(bp->state != Bwactive)
-		return Beof;
-	j = write(bp->fid, bp->bbuf, bp->bsize);
-	if(j == bp->bsize) {
-		bp->ocount = -bp->bsize;
-		bp->offset += j;
-		goto loop;
-	}
-	fprint(2, "Bputc: write error\n");
-	bp->state = Binactive;
-	bp->ocount = 0;
 	return Beof;
 }

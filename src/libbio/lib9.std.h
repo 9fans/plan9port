@@ -9,6 +9,11 @@
 #define OREAD		O_RDONLY
 #define OWRITE	O_WRONLY
 
+#define	OCEXEC 0
+#define	ORCLOSE	0
+#define	OTRUNC	0
+
+
 #define nil ((void*)0)
 
 typedef long long vlong;

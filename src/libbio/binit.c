@@ -61,7 +61,7 @@ Binits(Biobuf *bp, int f, int mode, unsigned char *p, int size)
 	p += Bungetsize;	/* make room for Bungets */
 	size -= Bungetsize;
 
-	switch(mode) {
+	switch(mode&~(OCEXEC|ORCLOSE|OTRUNC)) {
 	default:
 		fprint(2, "Bopen: unknown mode %d\n", mode);
 		return Beof;
@@ -86,7 +86,7 @@ Binits(Biobuf *bp, int f, int mode, unsigned char *p, int size)
 	bp->flag = 0;
 	bp->rdline = 0;
 	bp->offset = 0;
-/*	bp->runesize = 0; */
+	bp->runesize = 0;
 	return 0;
 }
 
@@ -116,7 +116,7 @@ Bopen(char *name, int mode)
 	Biobuf *bp;
 	int f;
 
-	switch(mode) {
+	switch(mode&~(OCEXEC|ORCLOSE|OTRUNC)) {
 	default:
 		fprint(2, "Bopen: unknown mode %d\n", mode);
 		return 0;

@@ -26,6 +26,7 @@ loop:
 	i = read(bp->fid, bp->bbuf, bp->bsize);
 	bp->gbuf = bp->bbuf;
 	if(i <= 0) {
+		bp->state = Bracteof;
 		if(i < 0)
 			bp->state = Binactive;
 		return Beof;
