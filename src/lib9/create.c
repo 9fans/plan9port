@@ -62,6 +62,7 @@ out:
 			fl.l_len = 0;
 			if(fcntl(fd, F_SETLK, &fl) < 0){
 				close(fd);
+				werrstr("lock: %r");
 				return -1;
 			}
 		}
