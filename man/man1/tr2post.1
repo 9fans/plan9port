@@ -1,0 +1,111 @@
+.TH TR2POST 1
+.SH NAME
+tr2post \- convert troff intermediate to PostScript
+.SH SYNOPSIS
+.B tr2post
+[
+.B options
+]
+[
+.I files ...
+]
+.SH DESCRIPTION
+.I Tr2post
+converts
+.I files
+(or standard input),
+which should be the device-independent output of
+.IR troff (1),
+into the PostScript printer language.
+.PP
+The options are:
+.TP
+.BI -a " aspectratio
+Set an aspect ratio
+.RI ( y / x )
+to stretch the PostScript output (default 1.0).
+.TP
+.BI -c " copies
+Set a comment in the PostScript output
+marking the number of copies that should be printed.
+The comment is intended for ancient versions of the Unix
+\fIlp\fR(1) and is not recognized by any current printer
+or print spooler.
+.TP
+.BI -d
+Emit volumes of debugging output on standard error.
+.TP
+.BI -m " magnification
+Magnify the PostScript output (default 1.0).
+.TP
+.BI -n " formsperpage
+Print the PostScript with
+.I formsperpage
+logical pages per physical page
+(default 1).
+Using this option emits PostScript with invalid document structuring
+comments.
+It will print fine but will not view correctly in
+.IR gv (1)
+or
+.IR psv (1).
+.TP
+.BI -o " pagelist
+Print only the pages in the
+.IR pagelist ,
+which is a comma-separated list of ranges.
+Each range is of the form
+.I p
+(just page
+.IR p ),
+.IB p - q
+(pages
+.I p
+through
+.IR q ),
+.BI - p
+(pages 1 through
+.IR p ),
+or
+.IB p -
+(pages
+.I p
+through the end of the document).
+.TP
+.BI -p " " l
+Print the document in landscape mode.
+An argument that does not begin with
+.L l
+will print the document in portrait mode.
+.TP
+.BI -x " xoffset
+Translate the page output by
+.I xoffset
+inches to the right.
+(Negative offsets translate to the left.)
+.TP
+.BI -y " yoffset
+Translate the page output by
+.I yoffset
+inches down.
+(Negative offsets translate up.)
+.TP
+.BI -P " pscode
+Emit the text
+.I pscode
+at the end of the usual PostScript header.
+.PD
+.SH EXAMPLE
+Preview this manual page:
+.IP
+.EX
+troff -man /usr/local/plan9/man/man1/tr2post.1 |
+tr2post |
+psfonts >/tmp/a.ps
+psv /tmp/a.ps
+.EE
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/postscript/tr2post
+.SH SEE ALSO
+.IR troff (1),
+.IR psfonts (1)

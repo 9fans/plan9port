@@ -75,21 +75,18 @@ or
 By combining the operations in a single atomic call, they more closely
 match the 9P protocol
 (see
-.IR intro (5))
+.IR intro (9p))
 and, more important,
 permit multiprocess programs to execute multiple concurrent
 read and write operations on the same file descriptor
 without interference.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9syscall
-.br
-.B /usr/local/plan9/src/libc/port/readn.c
+.B /usr/local/plan9/src/lib9/readn.c
 .SH SEE ALSO
 .IR intro (3),
 .IR open (3), 
 .IR dup (3),
-.IR pipe (3),
-.IR readv (3)
+.IR pipe (3)
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .

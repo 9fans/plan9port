@@ -26,7 +26,7 @@ acid, acidtypes \- debugger
 .I prefix
 ]
 .I file
-...
+\&...
 .\" .PP
 .\" .B acid
 .\" .B -l
@@ -69,17 +69,9 @@ at startup; see below.
 .TP
 .BI -m " machine
 Assume instructions are for the given CPU type
-(one of
-.BR 3210 ,
-.BR 386 ,
-etc., as listed in
-.IR 2c (1),
-or
-.B sunsparc
-or
-.B mipsco
-for the  manufacturer-defined instruction notation for those processors)
-instead of using the magic number to select
+(see
+.IR mach (3))
+instead of using the executable header to select
 the CPU type.
 .TP
 .BI -k
@@ -100,9 +92,17 @@ Definitions in any file may override previously defined functions.
 If the function
 .IR acidinit ()
 is defined, it will be invoked after all modules have been loaded.
-See
-.IR 2c (1)
-for information about creating
+Then the function
+.IR acidmap ()
+will be invoked if defined.
+.B /usr/local/plan9/acid/port
+provides a definition of
+.I acidmap
+that attaches all the shared libraries being used by the target process
+and then runs
+.I acidtypes
+.RI ( q.v. )
+to create
 .I acid
 functions for examining data structures.
 .SS Language

@@ -1,6 +1,6 @@
 .TH MALLOC 3
 .SH NAME
-malloc, mallocz, free, realloc, calloc, msize, setmalloctag, setrealloctag, getmalloctag, getrealloctag, malloctopoolblock \- memory allocator
+malloc, mallocz, free, realloc, calloc, setmalloctag, setrealloctag, getmalloctag, getrealloctag \- memory allocator
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -23,23 +23,16 @@ void*	realloc(void *ptr, ulong size)
 void*	calloc(ulong nelem, ulong elsize)
 .PP
 .B
-ulong	msize(void *ptr)
-.PP
-.B
 void	setmalloctag(void *ptr, ulong tag)
 .PP
 .B
-ulong	getmalloctag(void *ptr, ulong tag)
+ulong	getmalloctag(void *ptr)
 .PP
 .B
 void	setrealloctag(void *ptr, ulong tag)
 .PP
 .B
-ulong	getrealloctag(void *ptr, ulong tag)
-.PP
-.B
-void*	malloctopoolblock(void*)
-.PP
+ulong	getrealloctag(void *ptr)
 .SH DESCRIPTION
 .I Malloc
 and
@@ -109,12 +102,7 @@ The space is initialized to zeros.
 .I Free
 frees such a block.
 .PP
-When a block is allocated, sometimes there is some extra unused space at the end.
-.I Msize
-grows the block to encompass this unused space and returns the new number
-of bytes that may be used.
-.PP
-The memory allocator maintains two word-sized fields
+The memory allocator on Plan 9 maintains two word-sized fields
 associated with each block, the ``malloc tag'' and the ``realloc tag''.
 By convention, the malloc tag is the PC that allocated the block,
 and the realloc tag the PC that last reallocated the block.
@@ -137,24 +125,15 @@ to
 .IR setmalloctag )
 to provide more useful information about
 the source of allocation.
-.PP
-.I Malloctopoolblock
-takes the address of a block returned by
-.I malloc
-and returns the address of the corresponding
-block allocated by the
-.IR pool (3)
-routines.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/port/malloc.c
+.B /usr/local/plan9/src/lib9/malloc.c
+.br
+.B /usr/local/plan9/src/lib9/malloctag.c
 .SH SEE ALSO
-.IR leak (1),
 .I trump
 (in
 .IR acid (1)),
-.IR brk (3),
-.IR getcallerpc (3),
-.IR pool (3)
+.IR getcallerpc (3)
 .SH DIAGNOSTICS
 .I Malloc, realloc
 and
@@ -169,22 +148,6 @@ and
 return
 .BR ~0 .
 .PP
-After including
-.BR pool.h ,
-the call
-.B poolcheck(mainmem)
-can be used to scan the storage arena for inconsistencies
-such as data written beyond the bounds of allocated blocks.
-It is often useful to combine this with with setting
-.EX
-    mainmem->flags |= POOL_NOREUSE;
-.EE
-at the beginning of your program.
-This will cause malloc not to reallocate blocks even
-once they are freed;
-.B poolcheck(mainmem)
-will then detect writes to freed blocks.
-.PP
 The 
 .I trump
 library for
@@ -198,7 +161,7 @@ is bizarre.
 .PP
 User errors can corrupt the storage arena.
 The most common gaffes are (1) freeing an already freed block,
-(3) storing beyond the bounds of an allocated block, and (3)
+(2) storing beyond the bounds of an allocated block, and (3)
 freeing data that was not obtained from the allocator.
 When
 .I malloc

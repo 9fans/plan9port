@@ -1,0 +1,48 @@
+.TH OPENTEMP 3
+.SH NAME
+opentemp \- create a uniquely-named file
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int opentemp(char *template)
+.SH DESCRIPTION
+.I Opentemp
+replaces
+.I template
+by a unique file name, and returns the
+address of the template.
+The template should look like a file name with eleven trailing
+.LR X s.
+The
+.LR X s
+are replaced by a letter followed by the current process id.
+Letters from
+.L a
+to
+.L z
+are tried until the name of a file that does not yet exist
+(see
+.IR access (2))
+is generated.
+.I Opentemp
+then creates the file for reading and writing
+and returns the file descriptor.
+.PP
+If no such name can be generated,
+.I opentemp
+returns \-1.
+.PP
+.I Opentemp
+avoids races.
+Two simultaneous calls to
+.I opentemp
+will never return the same name.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/opentemp.c
+.SH "SEE ALSO
+.I create
+in
+.IR open (3)

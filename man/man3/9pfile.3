@@ -94,7 +94,7 @@ and the permissions of
 .I dir
 are used to calculate the permission bits for
 the file as described in
-.IR open (5).
+.IR open (9p).
 It is permissible for
 .I name
 to be a slash-separated path rather than a single element.
@@ -162,7 +162,7 @@ consume the passed reference.
 .PP
 Directories may be read, yielding a directory entry structure
 (see
-.IR stat (5))
+.IR stat (9p))
 for each file in the directory.
 In order to allow concurrent reading of directories,
 clients must obtain a

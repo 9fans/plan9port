@@ -1,0 +1,131 @@
+.TH PROTO 3
+.SH NAME
+rdproto \- parse and process a proto file listing
+.SH SYNOPSIS
+.nf
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <disk.h>
+.ft
+.PP
+.B
+typedef void Protoenum(char *new, char *old, Dir *d, void *a)
+.PP
+.B
+typedef void Protowarn(char *msg, void *a)
+.PP
+.B
+int rdproto(char *proto, char *root, Protoenum *enm,
+.br
+.B
+                         Protowarn *warn, void *a)
+.SH DESCRIPTION
+.I Rdproto
+reads and interprets the named
+.I proto
+file relative to the 
+root directory
+.IR root .
+.PP
+Each line of the
+.I proto
+file specifies a file to copy.
+Blank lines and lines beginning with
+.B #
+are ignored.
+Indentation (usually tabs) is significant,
+with each level of indentation corresponding to a level in the file tree.
+Fields within a line are separated by white space.
+The first field is the last path element in the destination file tree.
+The second field specifies the permissions.
+The third field is the owner of the file,
+and the fourth is the group owning the file.
+The fifth field is the name of the file from which to copy;
+this file is read from the current name space,
+not the source file tree.
+All fields except the first are optional.
+Specifying 
+.B -
+for permissions, owner, or group 
+causes
+.I rdproto
+to fetch the corresponding information
+from the file rather than override it.
+(This is the default behavior when the fields
+are not present; explicitly specifying
+.B -
+is useful when one wishes to set, say,
+the file owner without setting the permissions.)
+.PP
+Names beginning with a
+.L $
+are expanded as environment variables.
+If the first file specified in a directory is
+.LR * ,
+all of the files in that directory are considered listed.
+If the first file is
+.LR + ,
+all of the files are copied, and all subdirectories
+are recursively considered listed.
+All files are considered relative to
+.IR root .
+.PP
+For each file named by the
+.IR proto ,
+.I enm
+is called with
+.I new
+pointing at the name of the file (without the root prefix),
+.I old
+pointing at the name of the source file (with the root prefix,
+when applicable),
+and
+.I Dir
+at the desired directory information for the new file.
+Only the
+.BR name ,
+.BR uid ,
+.BR gid ,
+.BR mode ,
+.BR mtime ,
+and
+.B length
+fields are guaranteed to be valid.
+The argument 
+.I a
+is the same argument passed to
+.IR rdproto ;
+typically it points at some extra state
+used by the enumeration function.
+.PP
+When files or directories do not exist or 
+cannot be read by 
+.IR rdproto ,
+it formats a warning message, calls 
+.IR warn ,
+and continues processing; 
+if
+.I warn
+is nil, 
+.I rdproto
+prints the warning message to standard error.
+.PP
+.I Rdproto
+returns zero
+if
+.I proto 
+was processed, \-1 if it could not be opened.
+.SH FILES
+.TF /sys/lib/sysconfig/proto/portproto
+.TP
+.B /sys/lib/sysconfig/proto/
+directory of prototype files.
+.TP
+.B /sys/lib/sysconfig/proto/portproto
+generic prototype file.
+.SH SOURCE
+.B /usr/local/plan9/src/libdisk/proto.c
+.SH SEE ALSO
+.IR mk9660 (8),
+Plan 9's \fImkfs\fR(8)

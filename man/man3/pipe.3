@@ -25,50 +25,76 @@ is available for reading from
 After the pipe has been established,
 cooperating processes
 created by subsequent
-.IR fork (3)
+.IR fork (2)
 calls may pass data through the
 pipe with
 .I read
 and
 .I write
 calls.
-The bytes placed on a pipe
-by one 
-.I write
-are contiguous even if many processes are writing.
-Write boundaries are preserved: each read terminates
-when the read buffer is full or after reading the last byte
-of a write, whichever comes first.
-.PP
-The number of bytes available to a
-.IR read (3)
-is reported
-in the
-.B Length
-field returned by
-.I fstat
-or
-.I dirfstat
-on a pipe (see
-.IR stat (3)).
+.\" The bytes placed on a pipe
+.\" by one 
+.\" .I write
+.\" are contiguous even if many processes are writing.
+.\" Write boundaries are preserved: each read terminates
+.\" when the read buffer is full or after reading the last byte
+.\" of a write, whichever comes first.
+.\" .PP
+.\" The number of bytes available to a
+.\" .IR read (3)
+.\" is reported
+.\" in the
+.\" .B Length
+.\" field returned by
+.\" .I fstat
+.\" or
+.\" .I dirfstat
+.\" on a pipe (see
+.\" .IR stat (3)).
 .PP
 When all the data has been read from a pipe and the writer has closed the pipe or exited,
 .IR read (3)
 will return 0 bytes.  Writes to a pipe with no reader will generate a note
 .BR "sys: write on closed pipe" .
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9syscall
+.B /usr/local/plan9/src/lib9/pipe.c
 .SH SEE ALSO
 .IR intro (3),
-.IR read (3),
-.IR pipe (3)
+.IR read (3)
 .SH DIAGNOSTICS
 Sets
 .IR errstr .
 .SH BUGS
 If a read or a write of a pipe is interrupted, some unknown
 number of bytes may have been transferred.
-.br
-When a read from a pipe returns 0 bytes, it usually means end of file
-but is indistinguishable from reading the result of an explicit
-write of zero bytes.
+.PP
+.I Pipe
+is a macro defined as
+.I p9pipe
+to avoid name conflicts with Unix's
+.I pipe
+system call.
+.PP
+Unix pipes are not guaranteed to be bidirectional.
+In order to ensure a bidirectional channel,
+.I p9pipe
+creates Unix domain sockets via the
+.IR socketpair (2)
+instead of Unix pipes.
+.PP
+The implementation of pipes as Unix domain sockets
+causes problems with some Unix implementations of
+.BR /dev/fd ,
+Unix's dup device.  If a Unix domain socket is open as file
+descriptor 0, some implementations disallow the opening of
+.BR /dev/fd/0 ;
+instead one must
+.IR connect (2)
+to it.
+If this functionality is important
+(as it is for
+.IR rc (1)),
+one must
+.B #undef
+.B pipe
+and fall back on the (possibly unidirectional) Unix pipes.

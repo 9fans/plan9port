@@ -1,0 +1,87 @@
+.TH MAP 7
+.SH NAME
+map \- digitized map formats
+.SH DESCRIPTION
+Files used by
+.IR  map (7)
+are a sequence of structures of the form:
+.PP
+.EX
+struct {
+	signed char patchlatitude;
+	signed char patchlongitude;
+	short n;
+	union {
+		struct {
+			short latitude;
+			short longitude;
+		} point[n];
+		struct {
+			short latitude;
+			short longitude;
+			struct {
+				signed char latdiff;
+				signed char londiff;
+			} point[\-n];
+		} highres;
+	} segment;
+};
+.EE
+where
+.B short
+stands for 16-bit integers and there is no padding within or between
+.BR structs .
+Shorts are stored in little-endian order, low byte first.
+To assure portability,
+.I map
+accesses them bytewise.
+.PP
+Fields
+.L patchlatitude
+and
+.L patchlongitude
+tell to what
+10-degree by 10-degree
+patch of the earth's surface a segment belongs.
+Their values range from \-9 to 8 and from \-18 to 17,
+respectively, and indicate the coordinates of the
+southeast corner of the patch in units of 10 degrees.
+.PP
+Each segment of
+.RB | n |
+points is connected; consecutive segments
+are not necessarily related.
+Latitude and longitude
+are measured in units of 0.0001 radian.
+If
+.B n
+is negative, then
+differences to the first and succeeding points
+are measured in units of 0.00001 radian.
+Latitude is counted positive to the north and
+longitude positive to the west.
+.PP
+The patches are ordered lexicographically by
+.L patchlatitude
+then
+.LR patchlongitude .
+A printable
+index to the first segment of each patch
+in a file named
+.I data
+is kept in an associated file named
+.IB data .x\f1.
+Each line of an index file contains
+.L patchlatitude,
+.L patchlongitude
+and the byte position
+of the patch
+in the map file.
+Both the map file and the index file are ordered by
+patch latitude and longitude.
+.SH "SEE ALSO"
+.IR map (7)
+.br
+The data comes from the World Data Bank I and II and
+U.S. Government sources: the Census Bureau, Geological
+Survey, and CIA.

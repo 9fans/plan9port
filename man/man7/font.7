@@ -1,0 +1,87 @@
+.TH FONT 7
+.SH NAME
+font, subfont \- external format for fonts and subfonts
+.SH SYNOPSIS
+.B #include <draw.h>
+.SH DESCRIPTION
+Fonts and subfonts are described in
+.IR cachechars (3).
+.PP
+External fonts are described by a plain text file that can be read using
+.IR openfont .
+The format of the file is a header followed by any number of
+subfont range specifications.
+The header contains two numbers: the height and the ascent, both in pixels.
+The height is the inter-line spacing and the ascent is the distance
+from the top of the line to the baseline.  These numbers are chosen
+to display consistently all the subfonts of the font.
+A subfont range specification contains two or three numbers and a file name.
+The numbers are the inclusive range of characters covered by the subfont,
+with an optional starting position within the subfont,
+and the file name names an external file suitable for
+.I readsubfont
+(see
+.IR graphics (3)).
+The minimum number of a covered range is mapped to the specified starting position
+(default zero) of the
+corresponding subfont.
+If the subfont file name does not begin with a slash, it is taken relative to the
+directory containing the font file.
+Each field must be followed by some white space.
+Each numeric field may be C-format decimal, octal, or hexadecimal.
+.PP
+External subfonts are represented in a more rigid format
+that can be read and written using
+.I readsubfont
+and
+.I writesubfont
+(see
+.IR subfont (3)).
+The format for subfont files is: an image containing character glyphs,
+followed by a subfont header, followed by character information.
+The image has the format for external image files described in
+.IR image (7).
+The subfont header has 3
+decimal strings:
+.BR n ,
+.BR height ,
+and
+.BR ascent .
+Each number is right-justified and blank padded in 11 characters, followed by a blank.
+The character
+.B info
+consists of
+.BR n +1
+6-byte entries, each giving the
+.B Fontchar
+.B x
+(2 bytes, low order byte first),
+.BR top ,
+.BR bottom ,
+.BR left ,
+and
+.BR width .
+The
+.B x
+field of the last
+.B Fontchar
+is used to calculate the image width
+of the previous character; the other fields in the last
+.B Fontchar
+are irrelevant.
+.PP
+Note that the convention of using the character with value zero (NUL) to represent
+characters of zero width (see
+.IR draw (3))
+means that fonts should have, as their zeroth character,
+one with non-zero width.
+.SH FILES
+.TF /lib/font/bit/*
+.TP
+.B /lib/font/bit/*
+font directories
+.SH "SEE ALSO"
+.IR graphics (3),
+.IR draw (3),
+.IR cachechars (3),
+.IR subfont (3)

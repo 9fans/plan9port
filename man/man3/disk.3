@@ -1,0 +1,177 @@
+.TH DISK 3
+.SH NAME
+opendisk, Disk \- generic disk device interface
+.SH SYNOPSIS
+.nf
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <disk.h>
+.ft
+.PP
+.ft L
+typedef struct Disk {
+	char *prefix;
+	char part[NAMELEN];
+	int fd, wfd, ctlfd, rdonly;
+	int type;
+	vlong secs, secsize, size, offset;
+	int c, h, s;
+} Disk;
+.ft
+.PP
+.B
+Disk* opendisk(char *file, int rdonly, int noctl)
+.SH DESCRIPTION
+These routines provide a simple way to gather
+and use information about 
+disks and disk partitions,
+as well as plain files.
+.PP
+.I Opendisk
+opens
+.I file
+for reading and stores the file descriptor in
+the 
+.B fd
+field of the
+.B Disk
+structure.
+If 
+.I rdonly
+is not set, 
+.I opendisk
+also opens
+.I file
+for writing and stores that file descriptor in
+.BR wfd .
+The two file descriptors are kept separate to
+help prevent accidents.
+.PP
+If
+.I noctl
+is not set, 
+.I opendisk
+looks for a
+.B ctl
+file in the same directory as the
+disk file;
+if it finds one, it declares
+the disk to be
+an
+.I sd
+device,
+setting the
+.B type
+field in the
+.B Disk
+structure
+to
+.BR Tsd .
+If the passed
+.I file
+is named
+.BI fd n disk \fR,
+it looks for a file
+.BI fd n ctl \fR,
+and if it finds that,
+declares the disk to be
+a floppy disk, of type
+.BR Tfloppy .
+If either
+control
+file is found, it is opened for reading
+and writing, and the resulting file descriptor
+is saved as 
+.BR ctlfd .
+Otherwise the returned disk
+has type
+.BR Tfile .
+.PP
+.I Opendisk
+then stats the file and stores its length in
+.BR size .
+If the disk is an
+.I sd
+partition, 
+.I opendisk
+reads the sector size from the
+control
+file and stores it in 
+.BR secsize ;
+otherwise the sector size is assumed to be 512,
+as is the case for floppy disks.
+.I Opendisk
+then stores the disk size measured in sectors in
+.BR secs .
+.PP
+If the disk is an
+.I sd
+partition, 
+.I opendisk 
+parses the
+control
+file to find the partition's offset
+within its disk;
+otherwise it sets
+.B offset
+to zero.
+If the disk is an ATA disk,
+.I opendisk
+reads
+the disk geometry (number of cylinders, heads, and sectors)
+from the 
+.B geometry
+line in the
+.I sd
+control file;
+otherwise it sets these to zero as well.
+.B Name
+is initialized with the base name of
+the disk partition, and is useful for forming messages to the
+.I sd
+control file.
+.B Prefix
+is set to the passed filename without
+the 
+.B name
+suffix.
+.PP
+The IBM PC BIOS interface allocates
+10 bits for the number of cylinders, 8 for 
+the number of heads, and 6 for the number of sectors per track.
+Disk geometries are not quite so simple
+anymore, but to keep the interface useful,
+modern disks and BIOSes present geometries
+that still fit within these constraints.
+These numbers are still used when partitioning
+and formatting disks.
+.I Opendisk
+employs a number of heuristics to discover this
+supposed geometry and store it in the
+.BR c ,
+.BR h ,
+and
+.B s
+fields.
+Disk offsets in partition tables and
+in FAT descriptors are stored in a form
+dependent upon these numbers, so
+.I opendisk
+works hard to report numbers that
+agree with those used by other operating
+systems; the numbers bear little or no resemblance
+to reality.
+.SH SOURCE
+.B /usr/local/plan9/src/libdisk/disk.c
+.SH SEE ALSO
+Plan 9's
+\fIfloppy\fR(3) and \fIsd\fR(3)
+.SH BUGS
+Disks on Unix systems do not present the interface
+that 
+.I opendisk
+expects, so
+.I opendisk
+will give them type
+.BR Tfile .

@@ -1,0 +1,29 @@
+.TH POST9PSERVICE 3
+.SH NAME
+post9pservice \- post 9P service for use by clients
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int post9pservice(int fd, char *name)
+.SH DESCRIPTION
+.I Post9pservice
+invokes
+.IR 9pserve (4)
+to post a new 9P service in the current 
+``name space''
+(see
+.IR intro (4))
+named
+.IR name .
+Clients connecting to the posted service
+are multiplexed onto a single 9P conversation with the server
+on file descriptor
+.IR fd .
+.SH "SEE ALSO
+.IR intro (4),
+.IR 9pserve (4)
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/post9p.c

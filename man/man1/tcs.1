@@ -1,0 +1,167 @@
+.TH TCS 1
+.SH NAME
+tcs \- translate character sets
+.SH SYNOPSIS
+.B tcs
+[
+.B -slcv
+]
+[
+.B -f
+.I ics
+]
+[
+.B -t
+.I ocs
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Tcs
+interprets the named
+.I file(s)
+(standard input default) as a stream of characters from the
+.I ics
+character set or format, converts them to runes,
+and then converts them into a stream of characters from the
+.I ocs
+character set or format on the standard output.
+The default value for
+.I ics
+and
+.I ocs
+is
+.BR utf ,
+the
+.SM UTF
+encoding described in
+.IR utf (7).
+The
+.B -l
+option lists the character sets known to
+.IR tcs .
+Processing continues in the face of conversion errors (the
+.B -s
+option prevents reporting of these errors).
+The
+.B -c
+option forces the output to contain only correctly converted characters;
+otherwise,
+.B 0x80
+characters will be substituted for
+.SM UTF
+encoding errors and
+.B 0xFFFD
+characters will substituted for unknown characters.
+.PP
+The
+.B -v
+option generates various diagnostic and summary information on standard error,
+or makes the
+.B -l
+output more verbose.
+.PP
+.I Tcs
+recognizes an ever changing list of character sets.
+In particular, it supports a variety of Russian and Japanese encodings.
+Some of the supported encodings are
+.TF jis-kanji
+.TP
+.B utf
+The Plan 9
+.SM UTF
+encoding, known by ISO as UTF-8
+.TP
+.B utf1
+The deprecated original
+.SM UTF
+encoding from ISO 10646
+.TP
+.B ascii
+7-bit ASCII
+.TP
+.B 8859-1
+Latin-1 (Central European)
+.TP
+.B 8859-2
+Latin-2 (Czech .. Slovak)
+.TP
+.B 8859-3
+Latin-3 (Dutch .. Turkish)
+.TP
+.B 8859-4
+Latin-4 (Scandinavian)
+.TP
+.B 8859-5
+Part 5 (Cyrillic)
+.TP
+.B 8859-6
+Part 6 (Arabic)
+.TP
+.B 8859-7
+Part 7 (Greek)
+.TP
+.B 8859-8
+Part 8 (Hebrew)
+.TP
+.B 8859-9
+Latin-5 (Finnish .. Portuguese)
+.TP
+.B koi8
+KOI-8 (GOST 19769-74)
+.TP
+.B jis-kanji
+ISO 2022-JP
+.TP
+.B ujis
+EUC-JX: JIS 0208
+.TP
+.B ms-kanji
+Microsoft, or Shift-JIS
+.TP
+.B jis
+(from only) guesses between ISO 2022-JP, EUC or Shift-Jis
+.TP
+.B gb
+Chinese national standard (GB2312-80)
+.TP
+.B big5
+Big 5 (HKU version)
+.TP
+.B unicode
+Unicode Standard 1.0
+.TP
+.B tis
+Thai character set plus
+.SM ASCII
+(TIS 620-1986)
+.TP
+.B msdos
+IBM PC: CP 437
+.TP
+.B atari
+Atari-ST character set
+.SH EXAMPLES
+.TP
+.B tcs -f 8859-1
+Convert 8859-1 (Latin-1) characters into
+.SM UTF
+format.
+.TP
+.B tcs -s -f jis
+Convert characters encoded in one of several shift JIS encodings into
+.SM UTF
+format.
+Unknown Kanji will be converted into
+.B 0xFFFD
+characters.
+.TP
+.B tcs -lv
+Print an up to date list of the supported character sets.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/tcs
+.SH SEE ALSO
+.IR ascii (1), 
+.IR rune (3), 
+.IR utf (7).

@@ -1,0 +1,57 @@
+.TH SENDFD 3
+.SH NAME
+sendfd, recvfd \- pass file descriptors along Unix domain sockets
+.SH SYNOPSIS
+.B
+#include <u.h>
+.PP
+.B
+#include <libc.h>
+.PP
+.B
+int	sendfd(int socket, int fd)
+.PP
+.B
+int	recvfd(int socket)
+.SH DESCRIPTION
+.I Recvfd
+and
+.I sendfd
+can be used to pass an open file descriptor over
+a Unix domain socket from one process to another.
+Since
+.IR pipe (3)
+is implemented with
+.IR socketpair (2)
+instead of
+.IR pipe (2),
+.I socket
+can be a file descriptor obtained from
+.IR pipe (3).
+.PP
+.I Sendfd
+sends the file descriptor
+.I fd
+along the socket to a process calling
+.I recvfd 
+on the other end.
+.PP
+It is assumed that the two sides have coordinated
+and agreed to transfer a file descriptor already, so
+that the
+.I sendfd
+is met with a
+.I recvfd
+instead of an ordinary
+.IR read .
+.PP
+The file descriptor number may change on its way
+between processes, but the kernel structure it represents
+will not.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/sendfd.c
+.SH SEE ALSO
+.IR socketpair (2),
+.I sendmsg
+in
+.IR send (2)

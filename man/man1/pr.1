@@ -1,0 +1,110 @@
+.TH PR 1
+.SH NAME
+pr \- print file
+.SH SYNOPSIS
+.B pr
+[
+.I option ...
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Pr
+produces a printed listing of one or more
+.I files
+on its standard output.
+The output is separated into pages headed by a date,
+the name of the file or a specified header, and the page number.
+With no file arguments,
+.I pr
+prints its standard input.
+.PP
+Options apply to all following files but may be reset
+between files:
+.TP
+.BI - n
+Produce
+.IR n -column
+output.
+.TP
+.BI + n
+Begin printing with page
+.IR  n .
+.TP
+.B -b
+Balance columns on last page, in case of multi-column output.
+.TP
+.B -d
+Double space.
+.TP
+.BI -e n
+Set the tab stops for input text every
+.I n
+spaces.
+.TP
+.B  -h
+Take the next argument as a page header 
+.RI ( file
+by default).
+.TP
+.BI -i n
+Replace sequences of blanks in the output
+by tabs, using tab stops set every
+.I n
+spaces.
+.TP
+.BI -f
+Use form feeds to separate pages.
+.TP
+.BI -l n
+Take the length of the page to be
+.I n
+lines instead of the default 66.
+.TP
+.B  -m
+Print all
+.I files
+simultaneously,
+each in one column.
+.TP
+.BI -n m
+Number the lines of each
+.IR file .
+The numeric argument
+.IR m ,
+default 5,
+sets the width of the line-number field.
+.TP
+.BI -o n
+Offset the left margin
+.I n
+character positions.
+.TP
+.BI -p
+Pad each file printed to an odd number of pages.
+For two-sided printers,
+this will ensure each file will start a new page.
+.TP
+.BI -s c
+Separate columns by the single character
+.I c
+instead of aligning them with white space.
+A missing
+.I c
+is taken to be a tab.
+.TP
+.B  -t
+Do not print the 5-line header or the
+5-line trailer normally supplied for each page.
+.TP
+.BI -w n
+For multi-column output,
+take the width of the page to be
+.I n
+characters instead of the default 72.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/pr.c
+.SH "SEE ALSO"
+.IR cat (1),
+.IR lp (1)

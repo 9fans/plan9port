@@ -1,0 +1,68 @@
+.TH UDPREAD 3
+.SH NAME
+udpread, udpwrite \- read and write UDP packets
+.SH SYNOPSIS
+.B #include <u.h>
+.PP
+.B #include <libc.h>
+.PP
+.B #include <ip.h>
+.PP
+.B 
+.nf
+.ta +4n +8n
+typedef struct Udphdr Udphdr;
+struct Udphdr
+{
+	uchar	raddr[IPaddrlen];	/* remote address and port */
+	uchar	laddr[IPaddrlen];	/* local address and port */
+	uchar	rport[2];
+	uchar	lport[2];
+};
+.PP
+.B
+long	udpread(int fd, Udphdr *hdr, void *data, long n)
+.PP
+.B
+long udpwrite(int fd, Udphdr *hdr, void *data, long n)
+.SH DESCRIPTION
+.I Udpread
+and
+.I udpwrite
+read and write UDP packets from the UDP network connection
+established on file descriptor
+.IR fd .
+.PP
+.I Udpread
+reads at most
+.I n
+bytes of packet body into
+.I data ,
+stores the header in
+.IR hdr ,
+and returns the number of bytes stored in
+.IR data .
+.PP
+.I Udpwrite
+writes the
+.I n
+bytes stored in 
+.I data
+in a UDP packet with header
+.IR hdr .
+.PP
+Note that the
+.B Udphdr
+frames the addresses as local and remote
+instead of source and destination.
+Thus the
+.I hdr
+filled in for a packet read by
+.I udpread
+can be used unchanged in
+.I udpwrite
+to send a response back to the sender of the original packet.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/udp.c
+.SH SEE ALSO
+.IR ip (3)

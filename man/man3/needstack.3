@@ -1,0 +1,69 @@
+.TH NEEDSTACK 3
+.SH NAME
+needstack \- check for execution stack overflow
+.SH SYNOPSIS
+.B
+#include <u.h>
+.PP
+.B
+#include <libc.h>
+.PP
+.B
+int	needstack(int n)
+.SH DESCRIPTION
+Stack overflow in the thread library leads to bugs that are
+difficult to diagnose.
+The Plan 9 libraries are careful about not allocating
+large structures on the stack, so typically four or eight kilobytes is plenty of stack
+for a thread.
+Other libraries are not always as careful.
+Calling
+.I needstack
+indicates to the thread library that an external routine is about
+to be called that will require
+.I n
+bytes of stack space.
+If there is not enough space left on the stack,
+the thread library prints an error and terminates
+the program.
+The call
+.B needstack(0)
+can be used to check whether the stack is
+currently overflowed.
+.PP
+.I Needstack
+is defined in
+.B libc.h
+so that library functions used in threaded and non-threaded contexts
+can call it.
+The implementation of
+.I needstack
+in
+.B lib9
+is a no-op.
+.PP
+.I Needstack
+should be thought of as a comment checked at run time,
+like
+.IR assert (3).
+.SH EXAMPLE
+The X Window library implementation of
+.I XLookupString
+allocates some very large buffers on the stack, so
+.B /usr/local/plan9/src/libdraw/x11-itrans.c
+calls
+.B needstack(20*1024)
+before making calls to
+.IR XLookupString .
+If a thread (in this case, the keyboard-reading thread used
+inside the
+.IR draw (3)
+library)
+does not allocate a large enough stack, the problem is diagnosed
+immediately rather than left to corrupt memory.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/needstack.c
+.br
+.B /usr/local/plan9/src/libthread
+.SH SEE ALSO
+.IR thread (3)

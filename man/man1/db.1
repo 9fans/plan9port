@@ -33,9 +33,7 @@ specifies the memory image of a process.
 A 
 .I pid
 gives the id of an executing process to be accessed via
-.IR ptrace (2)
-or
-.IR proc (5).
+.IR ptrace (2).
 A
 .I corefile
 specifies the name of a core dump (see
@@ -949,7 +947,6 @@ is one the breakpoint will fire.
 Beware that local variables may be stored in registers; see the
 BUGS section.
 .SH "SEE ALSO"
-.IR 9nm (1),
 .IR acid (1)
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/db

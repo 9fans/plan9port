@@ -148,7 +148,7 @@ The
 field will be set to the number of bits per pixel specified
 by the channel descriptor
 (see
-.IR image (6)).
+.IR image (7)).
 .I Allocimage
 returns 0 if the server has run out of image memory.
 .PP
@@ -214,7 +214,7 @@ values between image and user space or external files.
 There is a fixed format for the exchange and storage of
 image data
 (see
-.IR image (6)).
+.IR image (7)).
 .PP
 .I Unloadimage
 reads a rectangle of pixels from image
@@ -271,7 +271,7 @@ but for
 bytes of compressed image
 .I data
 (see
-.IR image (6)).
+.IR image (7)).
 On each call to
 .IR cloadimage,
 the
@@ -289,7 +289,7 @@ return the number of bytes copied.
 .PP
 .I Readimage
 creates an image from data contained in an external file (see
-.IR image (6)
+.IR image (7)
 for the file format);
 .I fd
 is a file descriptor obtained by opening such a file for reading.
@@ -336,7 +336,7 @@ To allocate a single-pixel replicated image that may be used to paint a region r
 .IR graphics (3),
 .IR draw (3),
 .IR draw (3),
-.IR image (6)
+.IR image (7)
 .SH DIAGNOSTICS
 These functions return pointer 0 or integer \-1 on failure, usually due to insufficient
 memory.

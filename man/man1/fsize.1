@@ -1,0 +1,22 @@
+.TH FSIZE 1
+.SH NAME
+fsize, mtime \- print file information
+.SH SYNOPSIS
+.B fsize
+.I file ...
+.PP
+.B mtime
+.I file ...
+.SH DESCRIPTION
+.I Fsize
+prints the name and size of each of the files.
+.PP
+.I Mtime
+prints the name and modification time (in seconds since the epoch)
+of each of the files.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/fsize.c
+.br
+.B /usr/local/plan9/src/cmd/mtime.c
+.SH BUGS
+The output formats of the two programs are different.

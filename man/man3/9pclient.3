@@ -1,0 +1,342 @@
+.TH 9PCLIENT 3
+.SH NAME
+CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fswrite \- 9P client library
+.SH SYNOPSIS
+.B #include <u.h>
+.PP
+.B #include <libc.h>
+.PP
+.B #include <fcall.h>
+.PP
+.B #include <9pclient.h>
+.PP
+.ta +'\fLCFsys* 'u
+.B
+CFsys*	fsmount(int fd, char *aname)
+.PP
+.B
+CFsys*	nsmount(char *name, char *aname)
+.PP
+.B
+CFid*	fsroot(CFsys *fsys)
+.PP
+.B
+void	fsunmount(CFsys *fsys)
+.PP
+.B
+CFsys*	fsinit(int fd)
+.PP
+.B
+int	fsversion(CFsys *fsys, int msize, char *version, int nversion)
+.PP
+.B
+CFid	*fsauth(CFsys *fsys, char *uname, char *aname)
+.PP
+.B
+CFid	*fsattach(CFsys *fsys, CFid *afid, char *uname, char *aname)
+.PP
+.B
+void	fssetroot(CFsys *fsys, CFid *fid)
+.PP
+.B
+void	fsclose(CFid *fid)
+.PP
+.B
+CFid	*fscreate(CFsys *fs, char *path, int mode, ulong perm)
+.PP
+.B
+CFid*	fsopen(CFsys *fs, char *path, int mode)
+.PP
+.B
+long	fspread(CFid *fid, void *buf, long n, vlong offset)
+.PP
+.B
+long	fspwrite(CFid *fid, void *buf, long n, vlong offset)
+.PP
+.B
+long	fsread(CFid *fid, void *buf, long n)
+.PP
+.B
+long	fsreadn(CFid *fid, void *buf, long n)
+.PP
+.B
+long	fswrite(CFid *fid, void *buf, long n)
+.PP
+.B
+long	fsdirread(CFid *fid, Dir **d)
+.PP
+.B
+long	fsdirreadall(CFid *fid, Dir **d)
+.PP
+.B
+Dir*	fsdirstat(CFsys *fs, char *path)
+.PP
+.B
+Dir*	fsdirfstat(CFid *fid)
+.PP
+.B
+int	fsdirwstat(CFsys *fs, char *path, Dir *d)
+.PP
+.B
+int	fsdirfwstat(CFid *fid, Dir *d)
+.PP
+.B
+int	fsopenfd(CFsys *fs, char *path, int mode)
+.SH DESCRIPTION
+The
+.I 9pclient
+library helps client programs interact with 9P servers.
+.PP
+A
+.B CFsys*
+represents a connection to a 9P server.
+A
+.B CFid*
+represents an active fid on some connection;
+see
+.IR intro (9p).
+.PP
+A new connection to a 9P server is typically established by
+.I fsmount
+or
+.IR nsmount .
+.I Fsmount
+initializes a new 9P conversation on the open file descriptor
+.IR fd ;
+.I nsmount
+connects to a service named
+.I name
+in the current name space directory
+(see
+.IR intro (4)).
+Both attach to the root of the file system
+using the attach name
+.IR aname .
+.I Fsroot
+returns the
+.B CFid*
+corresponding to this root.
+.PP
+.IR Fsinit ,
+.IR fsversion ,
+.IR fsauth ,
+.IR fsattach ,
+and
+.I fssetroot
+provide more detailed control over the file system connection
+than
+.I fsmount
+and
+.IR nsmount .
+.I Fsinit
+allocates a new 
+.B CFsys*
+corresponding to a 9P conversation on the file descriptor
+.IR fd .
+.I Fsversion
+executes a 
+.IR version (9p)
+transaction to establish
+maximum message size and 9P version.
+.I Fsauth
+executes an
+.IR auth (9p)
+transaction, returning the new auth fid.
+.RI ( Fsread
+and
+.I fswrite
+can then be used to run the authentication protocol over the fid.)
+.I Fsattach
+executes an
+.IR attach (9p)
+transaction to connect to the root of a file tree served by the server.
+It presents
+.I afid
+(which may be nil)
+to establish identity.
+.I Fssetroot
+sets the root fid used by
+.IR fsopen ,
+.IR fsopenfd ,
+.IR fsdirstat ,
+and
+.IR fsdirwstat ,
+which evaluate rooted path names.
+.PP
+When a fid
+is no longer needed, it should be clunked by calling
+.I fsclose
+and then considered freed.
+Similarly, when the connection to the server is no longer needed,
+it should be closed by calling
+.IR fsunmount ,
+which will take care of calling
+.I fsclose
+on the current root fid.
+Once all fids have been clunked
+.I and
+the connection has been closed
+(the order is not important),
+the allocated structures will be freed and the
+file descriptor corresponding to the connection
+will be closed
+(see
+.IR close (2)).
+Fids are not reference counted: when
+.I fsclose
+is called, the clunk transaction and freeing of storage
+happen immediately.
+.PP
+.I Fscreate
+and
+.I fsopen
+establish new fids using the
+.IR walk ,
+.I create
+and
+.I open
+transactions
+(see
+.IR walk (9p)
+and
+.IR open (9p)).
+The
+.I path
+argument is evaluated relative to the
+.B CFsys
+root
+(see
+.I fsroot
+and
+.I fssetroot
+above).
+The path is parsed as a slash-separated sequence of path elements,
+as on Unix and Plan 9.
+Elements that are empty or
+dot
+.B ( . )
+are ignored.
+.PP
+Once opened, these fids can be read and written using
+.I fspread
+and
+.IR fspwrite ,
+which execute
+.I read
+and
+.I write
+transactions
+(see
+.IR read (9p)).
+The library maintains an offset for each fid,
+analagous to the offset maintained by the kernel for each open file descriptor.
+.I Fsread
+and
+.I fswrite
+read and write from this offset, and update it after successful calls.
+Calling
+.I fspread
+or
+.I fspwrite
+with an
+.I offset
+of \-1
+is identical to calling
+.I fsread
+or
+.IR fswrite .
+.I Fsreadn
+calls
+.I fsread
+repeatedly to obtain exactly
+.I n
+bytes of data, unless it encounters end-of-file or an error.
+.PP
+Reading an open a directory returns directory entries encoded as described in
+.IR stat (9p).
+.I Fsdirread
+calls
+.I fsread
+and then parses the encoded entries into an array of
+.B Dir*
+data structures,
+storing a pointer to the array in
+.BI *d
+and returning the number of entries.
+.I Fsdirreadall
+is similar but reads the entire directory.
+The returned pointer should be freed with
+.I free
+(see
+.IR malloc (3))
+when no longer needed.
+.PP
+.I Fsdirfstat
+and
+.I fsdirfwstat
+execute
+.I stat
+and
+.I wstat
+(see
+.IR stat (9p))
+transactions.
+The
+.B Dir
+structure returned by 
+.I fsdirfstat
+should be freed with
+.I free
+(see
+.IR malloc (3))
+when no longer needed.
+.PP
+.I Fsdirstat
+and
+.I fsdirwstat
+are similar to
+.I fsdirfstat
+and
+.I fsdirfwstat
+but operate on paths relative to the file system root
+(see
+.I fsopen
+and
+.I fscreate
+above).
+.PP
+.I Fsopenfd
+opens a file on the 9P server
+for reading or writing but returns a Unix file descriptor
+instead of a fid structure.
+The file descriptor is actually one end of a
+.IR pipe (2).
+A proxy process on the other end is ferrying data
+between the pipe and the 9P fid.
+Because of the implementation as a pipe,
+the only signal of a read or write error is the closing of the pipe.
+The file descriptor remains valid even after the
+.B CFsys
+is unmounted.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9pclient
+.SH SEE ALSO
+.IR intro (4),
+.IR intro (9p)
+.SH BUGS
+The implementation
+should use a special version string to distinguish between
+servers that support
+.IR openfd (9p)
+and servers that do not.
+.PP
+The interface does not provide access to the
+.IR walk (9p)
+transaction, or to
+.I open
+and
+.I create
+on already-established fids.
+.PP
+There is no
+.IR fsseek .

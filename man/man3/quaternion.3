@@ -1,0 +1,152 @@
+.TH QUATERNION 3
+.SH NAME
+qtom, mtoq, qadd, qsub, qneg, qmul, qdiv, qunit, qinv, qlen, slerp, qmid, qsqrt \- Quaternion arithmetic
+.SH SYNOPSIS
+.PP
+.B
+#include <draw.h>
+.PP
+.B
+#include <geometry.h>
+.PP
+.B
+Quaternion qadd(Quaternion q, Quaternion r)
+.PP
+.B
+Quaternion qsub(Quaternion q, Quaternion r)
+.PP
+.B
+Quaternion qneg(Quaternion q)
+.PP
+.B
+Quaternion qmul(Quaternion q, Quaternion r)
+.PP
+.B
+Quaternion qdiv(Quaternion q, Quaternion r)
+.PP
+.B
+Quaternion qinv(Quaternion q)
+.PP
+.B
+double qlen(Quaternion p)
+.PP
+.B
+Quaternion qunit(Quaternion q)
+.PP
+.B
+void qtom(Matrix m, Quaternion q)
+.PP
+.B
+Quaternion mtoq(Matrix mat)
+.PP
+.B
+Quaternion slerp(Quaternion q, Quaternion r, double a)
+.PP
+.B
+Quaternion qmid(Quaternion q, Quaternion r)
+.PP
+.B
+Quaternion qsqrt(Quaternion q)
+.SH DESCRIPTION
+The Quaternions are a non-commutative extension field of the Real numbers, designed
+to do for rotations in 3-space what the complex numbers do for rotations in 2-space.
+Quaternions have a real component
+.I r
+and an imaginary vector component \fIv\fP=(\fIi\fP,\fIj\fP,\fIk\fP).
+Quaternions add componentwise and multiply according to the rule
+(\fIr\fP,\fIv\fP)(\fIs\fP,\fIw\fP)=(\fIrs\fP-\fIv\fP\v'-.3m'.\v'.3m'\fIw\fP, \fIrw\fP+\fIvs\fP+\fIv\fP×\fIw\fP),
+where \v'-.3m'.\v'.3m' and × are the ordinary vector dot and cross products.
+The multiplicative inverse of a non-zero quaternion (\fIr\fP,\fIv\fP)
+is (\fIr\fP,\fI-v\fP)/(\fIr\^\fP\u\s-22\s+2\d-\fIv\fP\v'-.3m'.\v'.3m'\fIv\fP).
+.PP
+The following routines do arithmetic on quaternions, represented as
+.IP
+.EX
+.ta 6n
+typedef struct Quaternion Quaternion;
+struct Quaternion{
+	double r, i, j, k;
+};
+.EE
+.TF qunit
+.TP
+Name
+Description
+.TP
+.B qadd
+Add two quaternions.
+.TP
+.B qsub
+Subtract two quaternions.
+.TP
+.B qneg
+Negate a quaternion.
+.TP
+.B qmul
+Multiply two quaternions.
+.TP
+.B qdiv
+Divide two quaternions.
+.TP
+.B qinv
+Return the multiplicative inverse of a quaternion.
+.TP
+.B qlen
+Return
+.BR sqrt(q.r*q.r+q.i*q.i+q.j*q.j+q.k*q.k) ,
+the length of a quaternion.
+.TP
+.B qunit
+Return a unit quaternion 
+.RI ( length=1 )
+with components proportional to
+.IR q 's.
+.PD
+.PP
+A rotation by angle \fIθ\fP about axis
+.I A
+(where
+.I A
+is a unit vector) can be represented by
+the unit quaternion \fIq\fP=(cos \fIθ\fP/2, \fIA\fPsin \fIθ\fP/2).
+The same rotation is represented by \(mi\fIq\fP; a rotation by \(mi\fIθ\fP about \(mi\fIA\fP is the same as a rotation by \fIθ\fP about \fIA\fP.
+The quaternion \fIq\fP transforms points by
+(0,\fIx',y',z'\fP) = \%\fIq\fP\u\s-2-1\s+2\d(0,\fIx,y,z\fP)\fIq\fP.
+Quaternion multiplication composes rotations.
+The orientation of an object in 3-space can be represented by a quaternion
+giving its rotation relative to some `standard' orientation.
+.PP
+The following routines operate on rotations or orientations represented as unit quaternions:
+.TF slerp
+.TP
+.B mtoq
+Convert a rotation matrix (see
+.IR matrix (3))
+to a unit quaternion.
+.TP
+.B qtom
+Convert a unit quaternion to a rotation matrix.
+.TP
+.B slerp
+Spherical lerp.  Interpolate between two orientations.
+The rotation that carries
+.I q
+to
+.I r
+is \%\fIq\fP\u\s-2-1\s+2\d\fIr\fP, so
+.B slerp(q, r, t)
+is \fIq\fP(\fIq\fP\u\s-2-1\s+2\d\fIr\fP)\u\s-2\fIt\fP\s+2\d.
+.TP
+.B qmid
+.B slerp(q, r, .5)
+.TP
+.B qsqrt
+The square root of
+.IR q .
+This is just a rotation about the same axis by half the angle.
+.PD
+.SH SOURCE
+.B /usr/local/plan9/src/libgeometry/quaternion.c
+.SH SEE ALSO
+.IR matrix (3),
+.IR qball (3)

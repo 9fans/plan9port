@@ -1,8 +1,16 @@
 .TH GREP 1
 .SH NAME
-grep \- search a file for a pattern
+grep, g \- search a file for a pattern
 .SH SYNOPSIS
 .B grep
+[
+.I option ...
+]
+.I pattern
+[
+.I file ...
+]
+.B g
 [
 .I option ...
 ]
@@ -18,7 +26,7 @@ searches the input
 for lines that match the
 .IR pattern ,
 a regular expression as defined in
-.IR regexp (6)
+.IR regexp (7)
 with the addition of a newline character as an alternative
 (substitute for
 .BR | )
@@ -90,14 +98,26 @@ in single quotes
 An expression starting with '*'
 will treat the rest of the expression
 as literal characters.
+.PP
+.I G
+invokes grep with
+.B -n
+and forces tagging of output lines by file name.
+If no files are listed, it searches all files matching
+.IP
+.EX
+*.C *.b *.c *.h *.m *.cc *.java *.py *.tex *.ms
+.EE
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/grep
+.br
+.B /usr/local/plan9/bin/g
 .SH SEE ALSO
 .IR ed (1),
 .IR awk (1),
 .IR sed (1),
 .IR sam (1),
-.IR regexp (6)
+.IR regexp (7)
 .SH DIAGNOSTICS
 Exit status is null if any lines are selected,
 or non-null when no lines are selected or an error occurs.

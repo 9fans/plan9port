@@ -1,0 +1,16 @@
+0intro 0intro.9p
+intro 0intro.9p
+attach attach.9p
+auth attach.9p
+clunk clunk.9p
+error error.9p
+flush flush.9p
+create open.9p
+open open.9p
+read read.9p
+write read.9p
+remove remove.9p
+stat stat.9p
+wstat stat.9p
+version version.9p
+walk walk.9p

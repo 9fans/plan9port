@@ -4,7 +4,7 @@ cachechars, agefont, loadchar, Subfont, Fontchar, Font  \- font utilities
 .SH SYNOPSIS
 .B #include <u.h>
 .br
-.B #include <draw.h>
+.B #include <libc.h>
 .br
 .B #include <draw.h>
 .PP
@@ -127,7 +127,7 @@ A
 .B Font
 consists of an overall height and ascent
 and a collection of subfonts together with the ranges of runes (see
-.IR utf (6))
+.IR utf (7))
 they represent.
 Fonts are described by the following structures.
 .IP
@@ -306,8 +306,8 @@ for replacement when the cache is full.
 .IR allocimage (3),
 .IR draw (3),
 .IR subfont (3),
-.IR image (6),
-.IR font (6)
+.IR image (7),
+.IR font (7)
 .SH DIAGNOSTICS
 All of the functions use the graphics error function (see
 .IR graphics (3)).

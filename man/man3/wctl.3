@@ -1,0 +1,39 @@
+.TH WCTL 3
+.SH NAME
+drawresizewindow, drawsetlabel, drawtopwindow \- window management
+.SH SYNOPSIS
+.B #include <draw.h>
+.PP
+.B
+void drawresizewindow(Rectangle r)
+.PP
+.B
+int  drawsetlabel(Display *d, char *name)
+.PP
+.B
+void drawtopwindow(void)
+.SH DESCRIPTION
+These routines interact with a window manager
+to set the properties of the window running the current program.
+They substitute for interacting directly with the Plan 9
+.IR rio 's
+.BR /dev/wctl .
+.PP
+.I Drawresizewindow
+requests that the program's window be resized to have the
+width and height of the rectangle
+.IR r .
+Only the width and height
+are important; the offset is ignored.
+.PP
+.I Drawsetlabel
+requests that the program's window title be set to
+.IR name .
+.PP
+.I Drawtopwindow
+requests that the program's window be moved
+above all other windows and given the input focus.
+.SH SOURCE
+.B /usr/local/plan9/src/libdraw/x11-init.c
+.br
+.B /usr/local/plan9/src/libdraw/x11-wsys.c

@@ -303,7 +303,7 @@ and
 .I buf
 should include the second two-byte (16-bit) length field that precedes the entry when
 formatted in a 9P message (see
-.IR stat (5));
+.IR stat (9p));
 in other words,
 .I nbuf
 is 2 plus the sum of the sizes of the entry itself.
@@ -349,9 +349,9 @@ multiple times, if necessary, to read an entire 9P message into
 The return value is 0 for end of file, or -1 for error; it does not return
 partial messages.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9sys
+.B /usr/local/plan9/src/lib9
 .SH SEE ALSO
 .IR intro (3),
 .IR 9p (3),
 .IR stat (3),
-.IR intro (5)
+.IR intro (9p)

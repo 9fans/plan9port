@@ -1,0 +1,417 @@
+.TH PLUMB 7
+.SH NAME
+plumb \- format of plumb messages and rules
+.SH SYNOPSIS
+.B #include <plumb.h>
+.SH DESCRIPTION
+.SS "Message format
+The messages formed by the
+.IR plumb (3)
+library are formatted for transmission between
+processes into textual form, using newlines to separate
+the fields.
+Only the data field may contain embedded newlines.
+The fields occur in a specified order,
+and each has a name, corresponding to the elements
+of the
+.B Plumbmsg
+structure, that is used in the plumbing rules.
+The fields, in order, are:
+.RS
+.TF ndata
+.TP
+.B src
+application/service generating message
+.TP
+.B dst
+destination `port' for message
+.TP
+.B wdir
+working directory (used if data is a file name)
+.TP
+.B type
+form of the data, e.g.
+.B text
+.TP
+.B attr
+attributes of the message, in
+.IB name = value
+pairs separated by white space
+(the value must follow the usual quoting convention if it contains
+white space or quote characters or equal signs; it cannot contain a newline)
+.TP
+.B ndata
+number of bytes of data
+.TP
+.B data
+the data itself
+.RE
+At the moment, only textual data
+.RB ( type=text )
+is supported.
+.PD
+.PP
+All fields are optional, but
+.B type
+should usually be set since it describes the form of the data, and
+.B ndata
+must be an accurate count (possibly zero) of the number of bytes of data.
+A missing field is represented by an empty line.
+.SS "Plumbing rules
+The
+.B plumber
+(see
+.IR plumb (1))
+receives messages on its
+.B send
+port (applications
+.I send
+messages there), interprets and reformats them, and (typically) emits them from a destination port.
+Its behavior is determined by a plumbing rules file, default
+.BR /usr/$user/lib/plumbing ,
+which defines a set of pattern/action rules with which to analyze, rewrite, and dispatch
+received messages.
+.PP
+The file is a sequence of rule sets, each of which is a set of one-line rules
+called patterns and actions.
+There must be at least one pattern and one action in each rule set.
+(The only exception is that a rule set may contain nothing but
+.B plumb
+.B to
+rules; such a rule set declares the named ports but has no other effect.)
+A blank line terminates a rule set.
+Lines beginning with a
+.B #
+character are commentary and are regarded as blank lines.
+.PP
+A line of the form
+.EX
+	include \f2file\fP
+.EE
+substitutes the contents of
+.I file
+for the line, much as in a C
+.B #include
+statement.  Unlike in C, the file name is not quoted.
+If
+.I file
+is not an absolute path name, or one beginning
+.B ./
+or
+.BR ../ ,
+.I file
+is looked for first in the directory in which the plumber is executing,
+and then in
+.BR /sys/lib/plumb .
+.PP
+When a message is received by the
+.BR plumber ,
+the rule sets are examined in order.
+For each rule set, if the message matches all the patterns in the rule set,
+the actions associated with the rule set are triggered to dispose of the message.
+If a rule set is triggered, the rest are ignored for this message.
+If none is triggered, the message is discarded (giving a write error to the sender)
+unless it has a
+.B dst
+field that specifies an existing port, in which case the message is emitted, unchanged, from there.
+.PP
+Patterns and actions all consist of three components: an
+.IR object ,
+a
+.IR verb ,
+and arguments.
+These are separated by white space on the line.
+The arguments may contain quoted strings and variable substitutions,
+described below, and in some cases contain multiple words.
+The object and verb are single words from a pre-defined set.
+.PP
+The object in a pattern is the name of an element of the message, such as
+.B src
+or
+.BR data ,
+or the special case
+.BR arg ,
+which refers to the argument component of the current rule.
+The object in an action is always the word
+.BR plumb .
+.PP
+The verbs in the pattern rules
+describe how the objects and arguments are to be interpreted.
+Within a rule set, the patterns are evaluated in sequence; if one fails,
+the rule set fails.
+Some verbs are predicates that check properties of the message; others rewrite
+components of the message and implicitly always succeed.
+Such rewritings are permanent, so rules that specify them should be placed after
+all pattern-matching rules in the rule set.
+.RS
+.TF delete
+.TP
+.B add
+The object must be
+.BR attr .
+Append the argument, which must be a sequence of
+.IB name = value
+pairs, to the list of attributes of the message.
+.TP
+.B delete
+The object must be
+.BR attr .
+If the message has an attribute whose name is the argument,
+delete it from the list of attributes of the message.
+(Even if the message does not, the rule matches the message.)
+.TP
+.B is
+If the text of the object is identical to the text of the argument,
+the rule matches.
+.TP
+.B isdir
+If the text of the object
+is the name of an existing directory, the rule matches and
+sets the variable
+.B $dir
+to that directory name.
+.TP
+.B isfile
+If the text of the object is the name of an existing file (not a directory),
+the rule matches and sets the variable
+.B $file
+to that file name.
+.TP
+.B matches
+If the entire text of the object matches the regular expression
+specified in the argument, the rule matches.
+This verb is described in more detail below.
+.TP
+.B set
+The value of the object is set to the value of the argument.
+.RE
+.PP
+The
+.B matches
+verb has special properties that enable the rules to select which portion of the
+data is to be sent to the destination.
+By default, a
+.B data
+.B matches
+rule requires that the entire text matches the regular expression.
+If, however, the message has an attribute named
+.BR click ,
+that reports that the message was produced by a mouse click within the
+text and that the regular expressions in the rule set should be used to
+identify what portion of the data the user intended.
+Typically, a program such as an editor will send a white-space delimited
+block of text containing the mouse click, using the value of the
+.B click
+attribute (a number starting from 0) to indicate where in the textual data the user pointed.
+.PP
+When the message has a
+.B click
+attribute, the
+.B data
+.B matches
+rules extract the longest leftmost match to the regular expression that contains or
+abuts the textual location identified by the
+.BR click .
+For a sequence of such rules within a given rule set, each regular expression, evaluated
+by this specification, must match the same subset of the data for the rule set to match
+the message.
+For example, here is a pair of patterns that identify a message whose data contains
+the name of an existing file with a conventional ending for an encoded picture file:
+.EX
+	data matches '[a-zA-Z0-9_\-./]+'
+	data matches '([a-zA-Z0-9_\-./]+)\.(jpe?g|gif|bit|ps|pdf)'
+.EE
+The first expression extracts the largest subset of the data around the click that contains
+file name characters; the second sees if it ends with, for example,
+.BR \&.jpeg .
+If only the second pattern were present, a piece of text
+.B horse.gift
+could be misinterpreted as an image file named
+.BR horse.gif .
+.PP
+If a
+.B click
+attribute is specified in a message, it will be deleted by the
+.B plumber
+before sending the message if the
+.B data
+.B matches
+rules expand the selection.
+.PP
+The action rules all have the object
+.BR plumb .
+There are only three verbs for action rules:
+.RS
+.TF client
+.TP
+.B to
+The argument is the name of the port to which the message will be sent.
+If the message has a destination specified, it must match the
+.B to
+port of the rule set or the entire rule set will be skipped.
+(This is the only rule that is evaluated out of order.)
+.TP
+.B client
+If no application has the port open, the arguments to a
+.B plumb
+.B start
+rule specify a shell program to run in response to the message.
+The message will be held, with the supposition that the program
+will eventually open the port to retrieve it.
+.TP
+.B start
+Like
+.BR client ,
+but the message is discarded.
+Only one
+.B start
+or
+.B client
+rule should be specified in a rule set.
+.RE
+.PP
+The arguments to all rules may contain quoted strings, exactly as in
+.IR rc (1).
+They may also contain simple string variables, identified by a leading dollar sign
+.BR $ .
+Variables may be set, between rule sets, by assignment statements in the style of
+.BR rc .
+Only one variable assignment may appear on a line.
+The
+.B plumber
+also maintains some built-in variables:
+.RS
+.TF $wdir
+.TP
+.B $0
+The text that matched the entire regular expression in a previous
+.B data
+.B matches
+rule.
+.BR $1 ,
+.BR $2 ,
+etc. refer to text matching the first, second, etc. parenthesized subexpression.
+.TP
+.B $attr
+The textual representation of the attributes of the message.
+.TP
+.B $data
+The contents of the data field of the message.
+.TP
+.B $dir
+The directory name resulting from a successful
+.B isdir
+rule.
+If no such rule has been applied, it is the string constructed
+syntactically by interpreting
+.B data
+as a file name in
+.BR wdir .
+.TP
+.B $dst
+The contents of the
+.B dst
+field of the message.
+.TP
+.B $file
+The file name resulting from a successful
+.B isfile
+rule.
+If no such rule has been applied, it is the string constructed
+syntactically by interpreting
+.B data
+as a file name in
+.BR wdir .
+.TP
+.B $type
+The contents of the
+.B type
+field of the message.
+.TP
+.B $src
+The contents of the
+.B src
+field of the message.
+.TP
+.B $wdir
+The contents of the
+.B wdir
+field of the message.
+.RE
+.SH EXAMPLE
+The following is a modest, representative file of plumbing rules.
+.EX
+# these are generally in order from most specific to least,
+# since first rule that fires wins.
+
+addr=':(#?[0-9]+)'
+protocol='(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais)'
+domain='[a-zA-Z0-9_@]+([.:][a-zA-Z0-9_@]+)*/?[a-zA-Z0-9_?,%#~&/\e-]+'
+file='([:.][a-zA-Z0-9_?,%#~&/\e-]+)*'
+
+# image files go to page
+type is text
+data matches '[a-zA-Z0-9_\e-./]+'
+data matches '([a-zA-Z0-9_\e-./]+)\.(jpe?g|gif|bit)'
+arg isfile $0
+plumb to image
+plumb start page -w $file
+
+# URLs go to web browser
+type is text
+data matches $protocol://$domain$file
+plumb to web
+plumb start window webbrowser $0
+
+# existing files, possibly tagged by line number, go to edit/sam
+type is text
+data matches '([.a-zA-Z0-9_/\-]+[a-zA-Z0-9_/\e-])('$addr')?'
+arg isfile $1
+data set $file
+attr add addr=$3
+plumb to edit
+plumb start window sam $file
+
+# .h files are looked up in /sys/include and passed to edit/sam
+type is text
+data matches '([a-zA-Z0-9]+\e.h)('$addr')?'
+arg isfile /sys/include/$1
+data set $file
+attr add addr=$3
+plumb to edit
+plumb start window sam $file
+.EE
+.PP
+The following simple plumbing rules file is a good beginning set of rules.
+.EX
+# to update: cp /usr/$user/lib/plumbing /mnt/plumb/rules
+
+editor = acme
+# or editor = sam
+include basic
+.EE
+.SH FILES
+.TF /usr/$user/lib/plumbing
+.TP
+.B /usr/$user/lib/plumbing
+default rules file.
+.TP
+.B /mnt/plumb
+mount point for
+.IR plumber (4).
+.TP
+.B /sys/lib/plumb
+directory for
+.B include
+files.
+.TP
+.B /sys/lib/plumb/fileaddr
+public macro definitions.
+.TP
+.B /sys/lib/plumb/basic
+basic rule set.
+.SH "SEE ALSO"
+.IR plumb (1),
+.IR plumb (3),
+.IR plumber (4),
+.IR regexp (7)

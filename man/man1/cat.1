@@ -1,6 +1,6 @@
 .TH CAT 1
 .SH NAME
-cat, read \- catenate files
+cat, read, nobs \- catenate files
 .SH SYNOPSIS
 .B cat
 [
@@ -14,6 +14,11 @@ cat, read \- catenate files
 .B -n
 .I nline
 ] [
+.I file ...
+]
+.br
+nobs
+[
 .I file ...
 ]
 .SH DESCRIPTION
@@ -57,15 +62,32 @@ causes it to read no more than
 .I nline
 lines.
 .PP
-Read always executes a single
+.I Read
+always executes a single
 .B write
 for each line of input, which can be helpful when
 preparing input to programs that expect line-at-a-time data.
 It never reads any more data from the input than it prints to the output.
+.PP
+.I Nobs
+copies the named files to
+standard output except that it removes all backspace
+characters and the characters that precede them.
+It is useful to use as
+.B $PAGER
+with the Unix version of
+.IR man (1)
+when run inside a
+.I win
+(see
+.IR acme (1))
+window.
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/cat.c
 .br
 .B /usr/local/plan9/src/cmd/read.c
+.br
+.B /usr/local/plan9/bin/nobs
 .SH SEE ALSO
 .IR cp (1)
 .SH DIAGNOSTICS

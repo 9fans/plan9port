@@ -1,6 +1,6 @@
 .TH EXEC 3
 .SH NAME
-exec, execl, _clock, _privates, _nprivates \- execute a file
+exec, execl \- execute a file
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -12,15 +12,6 @@ int exec(char *name, char* argv[])
 .PP
 .B
 int execl(char *name, ...)
-.PP
-.B
-long	*_clock;
-.PP
-.B
-void	**_privates;
-.PP
-.B
-int	_nprivates;
 .fi
 .SH DESCRIPTION
 .I Exec
@@ -35,10 +26,8 @@ to be executed; it must not be a directory, and the permissions
 must allow the current user to execute it
 (see
 .IR stat (3)).
-It should also be a valid binary image, as defined in the
-.IR a.out (6)
-for the current machine architecture,
-or a shell script
+It should also be a valid binary image, as defined by the local
+operating system, or a shell script
 (see
 .IR rc (1)).
 The first line of a
@@ -106,45 +95,17 @@ into the open mode; see
 .IR open (3));
 and the working directory and environment
 (see
-.IR env (3))
+.IR getenv (3))
 remain the same.
 However, a newly
 .I exec'ed
-process has no notification handler
+process has no notification handlers
 (see
 .IR notify (3)).
-.PP
-When the new program begins, the global cell
-.B _clock
-is set to the address of a cell that keeps approximate time
-expended by the process at user level.
-The time is measured in milliseconds but is updated at
-a system-dependent lower rate.
-This clock is typically used by the profiler but is available
-to all programs.
-.PP
-The global cell
-.B _privates
-points to an array of
-.B _nprivates
-elements of per-process private data.
-This storage is private for each process, even if the processes share data segments.
-.PP
-The above conventions apply to C programs; the raw system
-interface to the new image is as follows:
-the word pointed to by the stack pointer is
-.BR argc ;
-the words beyond that are the zeroth and subsequent elements
-of
-.BR argv ,
-followed by a terminating null pointer; and
-the return register (e.g.
-.B R0
-on the 68020) contains the address of the clock.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9syscall
+.B /usr/local/plan9/src/lib9/exec.c
 .br
-.B /usr/local/plan9/src/libc/port/execl.c
+.B /usr/local/plan9/src/lib9/execl.c
 .SH SEE ALSO
 .IR prof (1),
 .IR intro (3),
@@ -157,3 +118,13 @@ There can be no return from a successful
 or
 .IR execl ;
 the calling image is lost.
+.SH BUGS
+On Unix, unlike on Plan 9,
+.I exec
+and
+.I execl
+use the user's current path to locate
+.IR prog .
+This is a clumsy way to deal with Unix's lack of
+a union directory for
+.BR /bin .

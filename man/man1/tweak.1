@@ -1,0 +1,167 @@
+.TH TWEAK 1
+.CT 1 graphics
+.SH NAME
+tweak \- edit image files, subfont files, face files, etc.
+.SH SYNOPSIS
+.B tweak
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Tweak
+edits existing files holding various forms of images.
+To create original images, start from an existing image, subfont, etc.
+.PP
+.I Tweak
+reads its argument
+.I files
+and displays the resulting images in a vertical column.
+If the image is too wide to fit across the display, it
+is folded much like a long line of text in an
+.IR rio
+window.
+Under each image is displayed one or two lines of text
+presenting its parameters.
+The first line shows the image's
+.BR depth ,
+the number
+of bits per pixel;
+.BR r ,
+the rectangle covered by the image;
+and the name of the
+.B file
+from which it was read.
+If the file is a subfont, a second line presents a hexadecimal 16-bit
+.B offset
+to be applied to character values from the subfont
+(typically as stored in a font file; see
+.IR font (7));
+and the subfont's
+.BR n ,
+.BR height ,
+and
+.B ascent
+as defined in
+.IR cachechars (3).
+.PP
+By means described below, magnified views of portions of the images
+may be displayed.
+The text associated with such a view includes
+.BR mag ,
+the magnification.
+If the view is of a single character from a subfont, the second
+line of text shows the character's value (including the subfont's offset)
+in hexadecimal and as a character in
+.I tweak's
+default font; the character's
+.BR x ,
+.BR top ,
+.BR bottom ,
+.BR left ,
+and
+.BR width
+as defined in
+.IR cachechars (3);
+and
+.BR iwidth ,
+the physical width of the image in the subfont's image.
+.PP
+There are two methods to obtain a magnified view of a character from a
+subfont.
+The first is to click mouse button 1 over the image of the character in
+the subfont.  The second is to select the
+.B char
+entry on the button 3 menu,
+point the resulting gunsight cursor at the desired subfont and click button 3,
+and then type at the text prompt at the bottom of the screen the
+character value, either as a multi-digit hexadecimal number or as a single
+rune representing the character.
+.PP
+To magnify a portion of other types of image files,
+click button 1 over the unmagnified file.
+The cursor will switch to a cross.
+Still with button 1, sweep a rectangle, as in
+.BR rio ,
+that encloses the portion of the image to be magnified.
+(If the file is 16×16 or smaller,
+.I tweak
+will just magnify the entire file; no sweeping is necessary.)
+.PP
+Pressing buttons 1 and 2 within magnified images changes pixel values.
+By default, button 1 sets the pixel to all zeros and button 2 sets the pixel
+to all ones.
+.PP
+Across the top of the screen is a textual display of global parameters.
+These values, as well as many of the textual values associated with
+the images, may be edited by clicking button 1 on the displayed
+value and typing a new value.
+The values along the top of the screen are:
+.TP
+.B mag
+Default magnification.
+.TP
+.B val(hex)
+The value used to modify pixels within magnified images.
+The value must be in hexadecimal, optionally preceded by a
+tilde for bitwise negation.
+.TP
+.B but1
+.TP
+.B but2
+The pixel value written when the corresponding button is pressed over a pixel.
+.TP
+.B invert-on-copy
+Whether the pixel values are inverted when a
+.B copy
+operation is performed.
+.PP
+Under button 3 is a menu holding a variety of functions.
+Many of these functions prompt for the image upon which to act
+by switching to a gunsight cursor; click button 3 over the
+selection, or click a different button to cancel the action.
+.TP
+.B open
+Read and display a file.  The name of the file is typed to the prompt
+on the bottom line.
+.TP
+.B read
+Reread a file.
+.TP
+.B write
+Write a file.
+.TP
+.B copy
+Use the copy function, default
+.BR S ,
+to transfer a rectangle of pixels from one image to another.
+The program prompts with a cross cursor; sweep out a rectangle in
+one image or just click button 3 to select the whole image.
+The program will leave that rectangle in place and
+attach another one to the cursor.  Move that rectangle to the desired
+place in any image and click button 3, or another button to cancel the action.
+.TP
+.B char
+As described above, open a magnified view of a character image in a subfont.
+.TP
+.B pixels
+Report the coordinate and value of individual pixels indicated by pressing button 3.
+This is a mode of operation canceled by pressing button 1 or 2.
+.TP
+.B close
+Close the specified image.
+If the image is the unmagnified file, also close any magnified views of that file.
+.TP
+.B exit
+Quit
+.IR tweak .
+The program will complain once about modified but unwritten files.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/draw/tweak.c
+.SH "SEE ALSO"
+.IR cachechars (3),
+.IR image (7),
+.IR font (7)
+.SH BUGS
+For a program written to adjust width tables in fonts,
+.I tweak
+has been pushed unreasonably far.

@@ -94,7 +94,7 @@ bit is set.
 Exclusive-use files may be open for I/O by only one client at a time,
 but the file descriptor may become invalid if no I/O is done
 for an extended period; see
-.IR open (5).
+.IR open (9p).
 .PP
 .I Create
 fails if the path up to the last element of
@@ -106,12 +106,12 @@ does not permit the access defined by
 of if there there are no free file descriptors.
 In the last case, the file may be created even when
 an error is returned.
-If the file is new and the directory in which it is created is
-a union directory (see
-.IR intro (3))
-then the constituent directory where the file is created
-depends on the structure of the union: see
-.IR bind (3).
+.\" If the file is new and the directory in which it is created is
+.\" a union directory (see
+.\" .IR intro (3))
+.\" then the constituent directory where the file is created
+.\" depends on the structure of the union: see
+.\" .IR bind (3).
 .PP
 Since
 .I create
@@ -126,7 +126,7 @@ for a
 .IR create,
 the call succeeds only if the file does not already exist;
 see
-.IR open (5)
+.IR open (9p)
 for details.
 .PP
 .I Close
@@ -138,10 +138,9 @@ Files are closed automatically upon termination of a process;
 .I close
 allows the file descriptor to be reused.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9syscall
+.B /usr/local/plan9/src/lib9
 .SH SEE ALSO
 .IR intro (3),
-.IR bind (3),
 .IR stat (3)
 .SH DIAGNOSTICS
 These functions set

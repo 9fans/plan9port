@@ -1,0 +1,73 @@
+.TH COLORS 1
+.SH NAME
+getmap, colors \- display color map
+.SH SYNOPSIS
+.PP
+.B colors
+[
+.B -r
+.B -x
+]
+.PP
+.B getmap
+[
+.I colormap
+]
+.SH DESCRIPTION
+.I Colors
+presents a grid showing the colors in the current color map.
+If the display is true color,
+.I colors
+shows a grid of the RGBV color map
+(see
+.IR color (7)).
+.PP
+Clicking mouse button 1 over a color in the grid will display the map index for that color,
+its
+red, green, and blue components,
+and the 32-bit hexadecimal color value as defined in
+.IR allocimage (3).
+If the
+.B -x
+option is specified, the components will also be listed in hexadecimal.
+.PP
+The
+.B -r
+option instead shows, in the same form, a grey-scale ramp.
+.PP
+A menu on mouse button 3 contains a single entry, to exit the program.
+.PP
+On 8-bit color-mapped displays,
+.I getmap
+loads the display's color map (default
+.BR rgbv ).
+The named
+.I colormap
+can be a file in the current directory or in the standard repository
+.BR /lib/cmap .
+It can also be a string of the form
+.B gamma
+or
+.BI gamma N\f1 ,
+where
+.I N
+is a floating point value for the gamma, defining the contrast for a monochrome map.
+Similarly,
+.B rgamma
+and
+.BI rgamma N
+define a reverse-video monochrome map.
+Finally, the names
+.B screen
+or
+.B display
+or
+.B vga
+are taken as synonyms for the current color map stored in the display hardware.
+.SH FILES
+.B /lib/cmap
+directory of color map files
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/draw/colors.c
+.SH SEE ALSO
+.IR color (7)

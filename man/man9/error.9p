@@ -1,0 +1,28 @@
+.TH ERROR 9P 
+.SH NAME
+error \- return an error
+.SH SYNOPSIS
+.ta \w'\fLRerror 'u
+.IR size [4]
+.B Rerror
+.IR tag [2]
+.IR ename [ s ]
+.SH DESCRIPTION
+The
+.B Rerror
+message
+(there is no
+.BR Terror )
+is used to return an error string
+describing the
+failure of a transaction.
+It replaces the corresponding reply message
+that would accompany a successful call; its tag is that
+of the failing request.
+.PP
+By convention, clients may truncate error messages after
+.B ERRMAX-1
+bytes;
+.B ERRMAX
+is defined in
+.BR <libc.h> .

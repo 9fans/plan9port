@@ -54,24 +54,37 @@ the various file parsers deduce the operating system from
 information in the binary files themselves and adjust 
 accordingly.
 .PP
+The supported architectures are
+.B 386
+(Intel 32-bit x86) 
+386 and later)
+and
+.B power
+(IBM PowerPC, typically running
+Mac OS X).
+.PP
 Other manual pages
 describe the library functions in detail.
 .PP
-.I Mach-file (3)
+.IR Mach-cmd (3)
+describes some convenience routines for attaching to
+processes and core files.
+.PP
+.IR Mach-file (3)
 describes the manipulation of binary files.
 .PP
-.I Mach-map (3)
+.IR Mach-map (3)
 describes the interface to address spaces and register sets
 in executable files and executing programs.
 .PP
-.I Mach-stack (3)
+.IR Mach-stack (3)
 describes support for unwinding the stack.
 .PP
-.I Mach-swap (3)
+.IR Mach-swap (3)
 describes helper functions for accessing data
 in a particular byte order.
 .PP
-.I Mach-symbol (3)
+.IR Mach-symbol (3)
 describes the interface to debugging symbol information.
 .SH SOURCE
 .B /usr/local/plan9/src/libmach

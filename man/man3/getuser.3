@@ -18,20 +18,35 @@ null-terminated
 name of the user who
 owns the current process.
 .I Getuser
-reads
-.B /dev/user
-to find the name.
+calls
+.IR getuid (2)
+and then reads
+.B /etc/passwd
+to find the corresponding name.
 .PP
 .I Sysname
-provides the same service for the file
-.BR #c/sysname ,
-which contains the name of the machine.
+returns a pointer to static data which contains the name
+of the machine on which the current process is running.
+.I Sysname
+looks first for an environment variable
+.BR $sysname .
+If there is no such variable,
+.I sysname
+calls
+.IR gethostname (2)
+and truncates the returned name at the first dot.
+If
+.I gethostname 
+fails,
+.I sysname
+returns the default name
+.LR gnot .
+.PP
 Unlike
 .IR getuser ,
 .I sysname
-caches the string, reading the file only once.
+caches the string, deriving the host name only once.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/port/getuser.c
-.SH SEE ALSO
-.IR intro (3),
-.IR cons (3)
+.B /usr/local/plan9/src/lib9/getuser.c
+.br
+.B /usr/local/plan9/src/lib9/sysname.c

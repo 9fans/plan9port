@@ -1,0 +1,33 @@
+.TH P 1
+.SH NAME
+p \- paginate
+.SH SYNOPSIS
+.B p
+[
+.BI - number
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I P
+copies its standard input, or the named files if given,
+to its standard output,
+stopping at the end of every 22nd line, and between files,
+to wait for a newline from the user.
+The option sets the
+.I number
+of lines on a page.
+.PP
+While waiting for a newline,
+.I p
+interprets the commands:
+.TP
+.B !
+Pass the rest of the line to the shell as a command.
+.TP
+.B q
+Quit.
+.PP
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/p.c

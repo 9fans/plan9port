@@ -1,0 +1,147 @@
+.TH CROP 1
+.SH NAME
+crop, iconv \- frame, crop, and convert image
+.SH SYNOPSIS
+.B crop
+[
+.BI -c
+.I red
+.I green
+.I blue
+]
+[
+.B -i
+.I n
+|
+.B -x
+.I dx
+|
+.B -y
+.I dy
+|
+.B -r
+.I minx
+.I miny
+.I maxx
+.I maxy
+]
+[
+.B -t
+.I tx
+.I ty
+]
+[
+.B -b
+.I red
+.I green
+.I blue
+]
+[
+.I file
+]
+.PP
+.B iconv
+[
+.B -u
+] [
+.B -c
+.I chandesc
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Crop
+reads an
+.IR image (7)
+file (default standard input), crops it, and writes it as a compressed
+.IR image (7)
+file to standard output.
+There are two ways to specify a crop, by color value or by geometry.
+They may be combined in a single run of
+.IR crop ,
+in which case the color value crop will be done first.
+.PP
+The
+.B -c
+option takes a red-green-blue triplet as described in
+.IR color (3).
+(For example, white
+is
+.B 255
+.B 255
+.BR 255 .)
+The corresponding color is used as a value to be cut from the outer
+edge of the picture; that is, the image is cropped to remove the maximal
+outside rectangular strip in which every pixel has the specified color.
+.PP
+The
+.B -i
+option insets the image rectangle by a constant amount,
+.IR n ,
+which may be negative to generate extra space around the image.
+The
+.B -x
+and
+.B -y
+options are similar, but apply only to the
+.I x
+or
+.I y
+coordinates of the image.
+.PP
+The
+.B -r
+option specifies an exact rectangle.
+.PP
+The 
+.B -t
+option specifies that the image's coordinate system should
+be translated by
+.IR tx ,
+.IR ty
+as the last step of processing.
+.PP
+The
+.B -b
+option specifies a background color to be used to fill around the image
+if the cropped image is larger than the original, such as if the
+.B -i
+option is given a negative argument.
+This can be used to draw a monochrome frame around the image.
+The default color is black.
+.PP
+.I Iconv
+changes the format of pixels in the image
+.I file
+(default standard input) and writes the resulting image to standard output.
+Pixels in the image are converted according to the channel descriptor
+.IR chandesc ,
+(see
+.IR image (7)).
+For example, to convert a 4-bit-per-pixel grey-scale image to an 8-bit-per-pixel
+color-mapped image,
+.I chandesc
+should be
+.BR m8 .
+If
+.I chandesc
+is not given, the format is unchanged.
+The output image is by default compressed; the
+.B -u
+option turns off the compression.
+.SH EXAMPLE
+To crop white edges off the picture and add a ten-pixel pink border,
+.IP
+.EX
+crop -c 255 255 255 -i -10 -b 255 150 150 imagefile > cropped
+.EE
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/draw/crop.c
+.SH SEE ALSO
+.IR image (7),
+.IR color (3)
+.SH BUGS
+.I Iconv
+should be able to do Floyd-Steinberg error diffusion or dithering
+when converting to small image depths.

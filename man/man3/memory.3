@@ -1,0 +1,126 @@
+.TH MEMORY 3
+.SH NAME
+memccpy, memchr, memcmp, memcpy, memmove, memset \- memory operations
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLvoid* 'u
+.B
+void*	memccpy(void *s1, void *s2, int c, long n)
+.PP
+.B
+void*	memchr(void *s, int c, long n)
+.PP
+.B
+int	memcmp(void *s1, void *s2, long n)
+.PP
+.B
+void*	memcpy(void *s1, void *s2, long n)
+.PP
+.B
+void*	memmove(void *s1, void *s2, long n)
+.PP
+.B
+void*	memset(void *s, int c, long n)
+.SH DESCRIPTION
+These functions operate efficiently on memory areas
+(arrays of bytes bounded by a count, not terminated by a zero byte).
+They do not check for the overflow of any receiving memory area.
+.PP
+.I Memccpy
+copies bytes from memory area
+.I s2
+into
+.IR s1 ,
+stopping after the first occurrence of byte
+.I c
+has been copied, or after
+.I n
+bytes have been copied, whichever comes first.
+It returns a pointer to the byte after
+the copy of
+.I c
+in
+.IR s1 ,
+or zero if
+.I c
+was not found in the first
+.I n
+bytes of
+.IR s2 .
+.PP
+.I Memchr
+returns a pointer to the first
+occurrence of byte
+.I c
+in the first
+.I n
+bytes of memory area
+.IR s,
+or zero if
+.I c
+does not occur.
+.PP
+.I Memcmp
+compares its arguments, looking at the first
+.I n
+bytes only, and returns an integer
+less than, equal to, or greater than 0,
+according as
+.I s1
+is lexicographically less than, equal to, or
+greater than
+.IR s2 .
+The comparison is bytewise unsigned.
+.PP
+.I Memcpy
+copies
+.I n
+bytes from memory area 
+.I s2
+to
+.IR s1 .
+It returns
+.IR s1 .
+.PP
+.I Memmove
+works like
+.IR memcpy ,
+except that it is guaranteed to work if
+.I s1
+and
+.IR s2
+overlap.
+.PP
+.I Memset
+sets the first
+.I n
+bytes in memory area
+.I s
+to the value of byte
+.IR c .
+It returns
+.IR s .
+.SH SOURCE
+All these routines have portable C implementations in
+.BR /usr/local/plan9/src/lib9 .
+.\" Most also have machine-dependent assembly language implementations in
+.\" .BR /usr/local/plan9/lib9/$objtype .
+.SH SEE ALSO
+.IR strcat (3)
+.SH BUGS
+ANSI C does not require
+.I memcpy
+to handle overlapping source and destination; on Plan 9, it does, so
+.I memmove
+and
+.I memcpy
+behave identically.
+.PP
+If
+.I memcpy
+and
+.I memmove
+are handed a negative count, they abort.

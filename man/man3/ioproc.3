@@ -8,7 +8,11 @@ iodial,
 ioopen,
 ioproc,
 ioread,
+ioread9pmsg,
 ioreadn,
+iorecvfd,
+iosendfd,
+iosleep,
 iowrite \- slave I/O processes for threaded programs
 .SH SYNOPSIS
 .PP
@@ -26,12 +30,16 @@ typedef struct Ioproc Ioproc;
 .sp
 Ioproc*	ioproc(void);
 .XX
-int	ioopen(Ioproc *io, char *file, int omode);
 int	ioclose(Ioproc *io, int fd);
-long	ioread(Ioproc *io, int fd, void *a, long n);
-long	ioreadn(Ioproc *io, int fd, void *a, long n);
-long	iowrite(Ioproc *io, int fd, void *a, long n);
 int	iodial(Ioproc *io, char *addr, char *local, char *dir, char *cdfp);
+int	ioopen(Ioproc *io, char *file, int omode);
+long	ioread(Ioproc *io, int fd, void *a, long n);
+int	ioread9pmsg(Ioproc *io, int fd, void *a, uint n);
+long	ioreadn(Ioproc *io, int fd, void *a, long n);
+int	iorecvfd(int socket);
+int	iosendfd(int socket, int fd);
+int	iosleep(int milli);
+long	iowrite(Ioproc *io, int fd, void *a, long n);
 .XX
 void	iointerrupt(Ioproc *io);
 void	closeioproc(Ioproc *io);
@@ -58,20 +66,28 @@ if either fails, it calls
 .I sysfatal
 rather than return an error.
 .PP
-.IR Ioopen ,
-.IR ioclose ,
+.IR Ioclose ,
+.IR iodial ,
+.IR ioopen ,
 .IR ioread ,
+.IR ioread9pmsg ,
 .IR ioreadn ,
-.IR iowrite ,
+.IR iorecvfd ,
+.IR iosendfd ,
+.IR iosleep ,
 and
-.IR iodial
-are execute the
+.I iowrite
+execute the
 similarly named library or system calls
 (see
+.IR close (2),
+.IR dial (3),
 .IR open (3),
 .IR read (3),
+.IR fcall (3),
+.IR sendfd (3),
 and
-.IR dial (3))
+.IR sleep (3))
 in the slave process associated with
 .IR io .
 It is an error to execute more than one call
@@ -144,7 +160,6 @@ instances were running in different procs, the
 common access to
 .I tot
 would be unsafe.
-.EE
 .PP
 Implement
 .IR ioread :
@@ -170,10 +185,12 @@ ioread(Ioproc *io, int fd, void *a, long n)
 }
 .EE
 .SH SOURCE
-.B /usr/local/plan9/src/libthread/io*.c
+.B /usr/local/plan9/src/libthread
 .SH SEE ALSO
 .IR dial (3),
 .IR open (3),
 .IR read (3),
 .IR thread (3)
-
+.SH BUGS
+.I Iointerrupt
+is currently unimplemented.

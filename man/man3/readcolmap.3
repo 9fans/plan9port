@@ -1,0 +1,76 @@
+.TH READCOLMAP 3
+.SH NAME
+RGB, readcolmap, writecolmap \- access display color map
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <draw.h>
+.PP
+.PP
+.ta \w'\fLvoid 'u
+.PP
+.B
+int	readcolmap(Display *d, RGB *map)
+.PP
+.B
+int	writecolmap(Display *d, RGB *map)
+.fi
+.SH DESCRIPTION
+Colors are described by their red, green, and blue
+light intensities, in an
+.B RGB
+datum:
+.IP
+.EX
+.ta 6n
+typedef
+struct RGB {
+	ulong red;
+	ulong green;
+	ulong blue;
+} RGB;
+.EE
+.PP
+Black is represented by zero in all three positions and
+white has the maximum
+.B unsigned
+.B long
+value in all three positions.
+.PP
+A color map is an array of
+.BR RGB s,
+of length
+.if t \x'-.8n'2\u\s-1\fIdepth\fP\s+1\d,
+.if n 2^\fIdepth\fP,
+giving the colors for pixels 0, 1, 2, etc.
+On displays with color mapped pixels
+(typically 8-bit displays),
+one retrieves RGB color information
+by treating the pixel data as an offset
+into the color map.
+.PP
+.I Readcolmap
+reads the color map for the given display into the provided
+.IR map ,
+which must have enough space to hold it.
+.I Writecolmap
+associates the given color map with the given display, if possible.
+(The hardware might not allow this.)
+Both return 0 on success, or \-1 on error, setting
+.IR errstr .
+.PP
+Changing the hardware color map does not change
+the color map used by the
+.IR draw (3)
+operator to convert between
+mapped and true color or greyscale images,
+which is described in 
+.IR color (7).
+.SH SOURCE
+.B /usr/local/plan9/src/libdraw
+.SH "SEE ALSO"
+.IR graphics (3),
+.IR draw (3),
+.IR color (7)

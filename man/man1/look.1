@@ -1,0 +1,86 @@
+.TH LOOK 1
+.SH NAME
+look \- find lines in a sorted list
+.SH SYNOPSIS
+.B look
+[
+.BI -dfnixt c
+]
+[
+.I string
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Look
+consults a sorted
+.I file
+and prints all lines that begin with
+.IR string .
+It uses binary search.
+.PP
+The following options are recognized.
+Options
+.B dfnt
+affect comparisons as in
+.IR  sort (1).
+.TP
+.B -i
+Interactive.
+There is no
+.I string
+argument; instead
+.I look
+takes lines from the standard input as strings to be looked up.
+.TP
+.B -x
+Exact.
+Print only lines of the file whose key matches
+.I string
+exactly.
+.TP
+.B  -d
+`Directory' order:
+only letters, digits,
+tabs and blanks participate in comparisons.
+.TP
+.B  -f
+Fold.
+Upper case letters compare equal to lower case.
+.TP
+.B -n
+Numeric comparison with initial string of digits, optional minus sign,
+and optional decimal point.
+.TP
+.BR -t [ \f2c\f1 ]
+Character
+.I c
+terminates the sort key in the
+.IR file .
+By default, tab terminates the key.  If
+.I c
+is missing the entire line comprises the key.
+.PP
+If no
+.I file
+is specified,
+.B /lib/words
+is assumed, with collating sequence
+.BR df .
+.SH FILES
+.B /lib/words
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/look.c
+.SH "SEE ALSO"
+.IR sort (1), 
+.IR grep (1)
+.SH DIAGNOSTICS
+The exit status is
+.B \&"not found"
+if no match is found, and
+.B \&"no dictionary"
+if
+.I file
+or the default dictionary cannot be opened.
+

@@ -1,54 +1,101 @@
-.if t .ds 85 8\(12
-.if n .ds 85 8-1/2
 .TH RIO 1
 .SH NAME
 rio \- rio-like Window Manager for X
 .SH SYNOPSIS
 .B rio
 [
-.B \-grey
-] [
-.B \-version
-] [
 .B \-font
-.I fname
-] [
+.I fontname
+]
+[
+.B \-grey
+]
+[
+.B \-s
+]
+[
 .B \-term
 .I termprog
-] [
-.BR exit | restart
+]
+[
+.B \-version
+]
+[
+.B \-virtuals
+.I num
+]
+[
+.B exit
+|
+.B restart
 ]
 .SH DESCRIPTION
+.if t .ds 85 8\(12
+.if n .ds 85 8-1/2
 .I Rio
 is a window manager for X which attempts to emulate the window management
 policies of Plan 9's 
 .I rio
 window manager.
+Rio is derived from David Hogan's \*(85.
 .PP
 The
 .B \-grey
-option makes the background light grey, as does \*(85.
-Use this option for maximum authenticity.
+option makes the background stippled grey, the default X11 background,
+instead of solid grey, the Plan 9 background.
+.PP
+The
 .B \-font
-.I fname
+option
 sets the font in
 .IR rio 's
 menu to
 .IR fname ,
 overriding the default.
+Unlike the other programs in the Plan 9 ports, rio expects this
+font to be an X11 font rather than a Plan 9 font.
+.PP
+The
 .B \-term
-.I termprog
+option
 specifies an alternative program to run when the
 .I New
 menu item is selected.
+The default is to try
+.IR 9term (1)
+and then to fall back to
+.IR xterm (1).
+The
+.B \-s
+option causes
+.I rio
+to add
+.B -s
+to
+.IR 9term 's
+command-line, starting the window in scrolling mode.
+.PP
+The
 .B \-version
+option
 prints the current version on standard error, then exits.
 .PP
-To make 
+The
+.B \-virtuals
+option sets the number of virtual screens (the default is 1,
+and the maximum is 12).
+.PP
+If the argument
+.B exit
+or
+.B restart
+is given,
+it is sent to an already-running
+.IR rio ,
+causing the extant
 .I rio
-exit, you have to run
-.B "rio exit"
-on the command line.  There is no ``exit'' menu item.
+to exit or restart.
+.SS Using rio
 .PP
 One window is
 .IR current ,
@@ -130,7 +177,16 @@ Windows may also be arranged by dragging their borders.
 Pressing button 1 or 2 over a window's border allows one to
 move the corresponding edge or corner, while button 3
 moves the whole window.
-.PD
+.PP
+When the mouse cursor points to the background area
+and
+.I rio
+has been started with multiple virtual screens using the
+.B \-virtuals
+option,
+clicking button 2 brings up a menu to select a virtual screen to view.
+Scrolling the mouse wheel while the cursor points at the background
+will cycle through the virtual screens.
 .SH BUGS
 In
 Plan 9's
@@ -154,4 +210,4 @@ starts a particular program.)
 There is a currently a compiled-in limit of 128 hidden windows.
 .SH "SEE ALSO"
 .IR 9term (1),
-.IR xterm (1).
+.IR xterm (1)

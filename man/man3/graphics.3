@@ -189,7 +189,7 @@ data structure is defined in
 A
 .B Font
 is a set of character images, indexed by runes (see
-.IR utf (6)).
+.IR utf (7)).
 The images are organized into
 .BR Subfonts ,
 each containing the images for a small, contiguous set of runes.
@@ -376,24 +376,24 @@ specifies the refresh function to be used to create the window, if running under
 .IR rio (1)
 (see
 .IR window (3)).
-.PP
-The function
-.I newwindow
-may be called before
-.I initdraw
-or
-.IR geninitdraw
-to cause the program to occupy a newly created window rather than take over the one in
-which it is running when it starts.
-The
-.I str
-argument, if non-null, is concatenated to the string \f5\&"new\ "\fP
-that is used to create the window (see
-.IR rio (4)).
-For example,
-.B newwindow("-hide -dy 100")
-will cause the program to run in a newly created, hidden window
-100 pixels high.
+.\" .PP
+.\" The function
+.\" .I newwindow
+.\" may be called before
+.\" .I initdraw
+.\" or
+.\" .IR geninitdraw
+.\" to cause the program to occupy a newly created window rather than take over the one in
+.\" which it is running when it starts.
+.\" The
+.\" .I str
+.\" argument, if non-null, is concatenated to the string \f5\&"new\ "\fP
+.\" that is used to create the window (see
+.\" .IR rio (4)).
+.\" For example,
+.\" .B newwindow("-hide -dy 100")
+.\" will cause the program to run in a newly created, hidden window
+.\" 100 pixels high.
 .PP
 .I Initdisplay
 is part of
@@ -484,15 +484,15 @@ point to the portion of the window inside the border;
 sophisticated clients may use
 .B _screen
 to make further subwindows.
-Programs desiring multiple independent windows
-may use the mechanisms of
-.IR rio (4)
-to create more windows (usually by a fresh mount of the window sytem
-in a directory other than
-.BR /dev ),
-then use
-.I gengetwindow
-to connect to them.
+.\" Programs desiring multiple independent windows
+.\" may use the mechanisms of
+.\" .IR rio (4)
+.\" to create more windows (usually by a fresh mount of the window sytem
+.\" in a directory other than
+.\" .BR /dev ),
+.\" then use
+.\" .I gengetwindow
+.\" to connect to them.
 .IR Gengetwindow 's
 extra arguments are the full path of the window's
 .B winname
@@ -552,7 +552,7 @@ and
 .I chantostr
 convert between the channel descriptor strings
 used by
-.IR image (6)
+.IR image (7)
 and the internal 
 .B ulong
 representation 
@@ -630,9 +630,9 @@ if(gengetwindow(display, "/tmp/winname",
 .IR print (3),
 .IR window (3),
 .IR draw (3),
-.IR rio (4),
-.IR image (6),
-.IR font (6)
+.\" .IR rio (4),
+.IR image (7),
+.IR font (7)
 .SH DIAGNOSTICS
 An error function may call
 .IR errstr (3)

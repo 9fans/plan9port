@@ -1,6 +1,7 @@
 .TH MACH-SYMBOL 3
 .SH NAME
-symopen, symclose, indexsym, lookupsym, findsym,
+symopen, symclose, findhdr, indexsym, lookupsym, findsym,
+findexsym, flookupsym, ffindsym,
 lookuplsym, indexlsym, findlsym,
 symoff, pc2file, file2pc, line2pc, fnbound, fileline,
 pc2line \- symbol table access functions
@@ -11,11 +12,15 @@ pc2line \- symbol table access functions
 .br
 .B #include <mach.h>
 .PP
-.ta \w'\fBxxxxxx'u +\w'\fBxxxxxx'u
+.ta \w'\fBxxxxxxxx'u +\w'\fBxxxxxx'u
 .ft B
 int	symopen(Fhdr *hdr)
 .br
 void	symclose(Fhdr *hdr)
+.br
+Fhdr	*findhdr(char *name)
+.br
+extern	Fhdr*	fhdrlist;
 .PP
 .ft B
 int	indexsym(uint n, Symbol *s)
@@ -23,6 +28,13 @@ int	indexsym(uint n, Symbol *s)
 int	lookupsym(char *fn, char *var, Symbol *s)
 .br
 int	findsym(Loc loc, uint class, Symbol *s)
+.PP
+.ft B
+int	findexsym(Fhdr *hdr, uint n, Symbol *s)
+.br
+Symbol	*flookupsym(Fhdr *hdr, char *name)
+.br
+Symbol	*ffindsym(Fhdr *hdr, Loc loc, uint class)
 .PP
 .ft B
 int	indexlsym(Symbol *s1, uint n, Symbol *s2)
@@ -69,6 +81,25 @@ tables contained in the file.
 frees the structures.
 The rest of the functions described here access a composite
 symbol table made up of all currently open tables.
+.PP
+The set of all currently open 
+.BR Fhdr s
+is maintained as a linked list starting at
+.I fhdrlist 
+(chained via 
+.BR Fhdr.next ).
+.PP
+.I Findhdr
+searches the currently open
+.BR Fhdr s
+for one whose file name ends with the path
+.I name
+(that is,
+.B libc.so
+matches
+.B /usr/lib/libc.so
+but not
+.BR mylibc.so ).
 .PP
 The
 .B Symbol
@@ -190,10 +221,28 @@ Class specification
 .B CANY
 searches the text table first, then the global table.
 .PP
+.IR Findexsym ,
+.IR flookupsym ,
+and
+.I ffindsym
+are similar to
+.IR indexsym ,
+.IR lookupsym ,
+and
+.IR findsym ,
+but operate only on the symbols from
+.IR hdr .
+.I Flookupsym
+and
+.I ffindsym
+return pointers to data stored in the
+.IR hdr ,
+which must not be modified or freed.
+.PP
 .IR Indexlsym ,
 .IR lookuplsym ,
 and
-.IR findlsym
+.I findlsym
 are similar to
 .IR indexsym ,
 .IR lookupsym ,

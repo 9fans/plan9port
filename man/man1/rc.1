@@ -50,7 +50,7 @@ exits or is terminated, the
 variable
 .B $status
 gets the process's wait message (see
-.IR wait (2));
+.IR wait (3));
 it will be the null string if the command was successful.
 .PP
 A long command line may be continued on subsequent lines by typing
@@ -83,7 +83,7 @@ in a directory in
 .B $path
 is the program to be executed.
 To be executable, the user must have execute permission (see
-.IR stat (2))
+.IR stat (3))
 and the file must be either an executable binary
 for the current machine's CPU type, or a shell script.
 Shell scripts begin with a line containing the full path name of a shell
@@ -349,7 +349,7 @@ or
 is a previously opened file descriptor and
 .I fd0
 becomes a new copy (in the sense of 
-.IR dup (2))
+.IR dup (3))
 of it.
 A file descriptor may be closed by writing
 .BI >[ fd0 =]
@@ -542,7 +542,7 @@ function definition.
 A function with a special name will be called when
 .I rc
 receives a corresponding note; see
-.IR notify (2).
+.IR notify (3).
 The valid note names (and corresponding notes) are
 .B sighup
 .RB ( hangup ),
@@ -757,10 +757,7 @@ command is executed, so they need not be enclosed in quotation marks.
 The
 .I environment
 is a list of strings made available to executing binaries by the
-.B env
-device
-(see
-.IR env (3)).
+kernel.
 .I Rc
 creates an environment entry for each variable whose value is non-empty,
 and for each function.
@@ -768,7 +765,7 @@ The string for a variable entry has the variable's name followed by
 .B =
 and its value.
 If the value has more than one component, these
-are separated by ctrl-a
+are separated by SOH
 .RB ( '\e001' )
 characters.
 The string for a function is just the
@@ -824,12 +821,23 @@ for the
 .B .
 command.
 If not set in the environment, it is initialized by
+parsing the
+.B $PATH
+variable
+(as in
+.IR sh (1))
+or by
 .BR "path=(.\ /bin)" .
-Its use is discouraged; instead use
-.IR bind (1)
-to build a
-.B /bin
-containing what's needed.
+The variables
+.B $path
+and
+.B $PATH
+are maintained together: changes to one will be reflected in the other.
+.\" Its use is discouraged; instead use
+.\" .IR bind (1)
+.\" to build a
+.\" .B /bin
+.\" containing what's needed.
 .TP
 .B $pid
 Set during initialization to

@@ -1,6 +1,6 @@
 .TH PLUMB 3
 .SH NAME
-eplumb, plumbfree, plumbopen, plumbsend, plumbsendtext, plumblookup, plumbpack, plumbpackattr, plumbaddattr, plumbdelattr, plumbrecv, plumbunpack, plumbunpackpartial, plumbunpackattr, Plumbmsg  \- plumb messages
+eplumb, plumbfree, plumbopen, plumbopenfid, plumbsend, plumbsendtofid, plumbsendtext, plumblookup, plumbpack, plumbpackattr, plumbaddattr, plumbdelattr, plumbrecv, plumbrecvfid, plumbunpack, plumbunpackpartial, plumbunpackattr, Plumbmsg  \- plumb messages
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -51,9 +51,21 @@ Plumbattr*	plumbdelattr(Plumbattra *a, char *name)
 .PP
 .B
 int	eplumb(int key, char *port)
+.PP
+.B
+#include <9pclient.h>
+.PP
+.B
+CFid	*plumbopenfid(char *port, int omode)
+.PP
+.B
+Plumbmsg*	plumbrecvfid(CFid *fid)
+.PP
+.B
+int	plumbsendtofid(CFid *fid, Plumbmsg *m)
 .SH DESCRIPTION
 These routines manipulate
-.IR plumb (6)
+.IR plumb (7)
 messages, transmitting them, receiving them, and
 converting them between text and these data structures:
 .IP
@@ -141,7 +153,7 @@ or nil for error.
 encodes message
 .I m
 as a character string in the format of
-.IR plumb (6) ,
+.IR plumb (7) ,
 setting
 .BI * np
 to the length in bytes of the string.
@@ -226,15 +238,49 @@ for the first attribute with name
 and deletes it from the list, returning the resulting list.
 .I Plumbdelattr
 is a no-op if no such attribute exists.
+.PP
+The file descriptor returned by
+.I plumbopen
+is created with
+.I fsopenfd
+(see
+.IR 9pclient (3)),
+which masks information about read and write errors.
+This is acceptable for use in
+.I plumbrecv
+but not for
+.IR plumbsend ,
+which depends on seeing details of write errors.
+.IR Plumbopenfid ,
+.IR plumbrecvfid ,
+and
+.IR plumbsendtofid
+provide an explicit interface to
+.I lib9pclient
+that preserves the exact error details.
 .SH SOURCE
 .B /usr/local/plan9/src/libplumb
 .SH SEE ALSO
 .IR plumb (1),
 .IR event (3),
 .IR plumber (4),
-.IR plumb (6)
+.IR plumb (7)
 .SH DIAGNOSTICS
 When appropriate, including when a
 .I plumbsend
 fails, these routine set
 .IR errstr .
+.SH BUGS
+To avoid rewriting clients that use
+.IR plumbsend ,
+the call
+.B plumbopen("send",
+.B OWRITE)
+returns a useless file descriptor
+(it is opened to
+.BR /dev/null ).
+.I Plumbsend
+looks for this particular file descriptor
+and uses a static copy of the
+.B CFid
+instead.

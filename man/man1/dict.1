@@ -1,4 +1,4 @@
-.TH DICT 7
+.TH DICT 1
 .SH NAME
 dict \- dictionary browser
 .SH SYNOPSIS
@@ -46,7 +46,7 @@ Print a pronunciation key.
 .PD
 .PP
 Patterns are regular expressions (see
-.IR regexp (6)),
+.IR regexp (7)),
 with an implicit leading
 .L ^
 and trailing
@@ -146,18 +146,22 @@ Otherwise, the default command is the previous command.
 Other files in
 .BR /lib .
 .SH "SEE ALSO"
-.IR regexp (6)
+.IR regexp (7)
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/dict
 .SH BUGS
 A font with wide coverage of the Unicode Standard
 should be used for best results.
 (Try
-.BR /lib/font/bit/pelm/unicode.9.font .)
-.br
+.BR /usr/local/plan9/font/pelm/unicode.9.font .)
+.PP
 If the
 .I pattern
 doesn't begin with
 a few literal characters, matching takes a long time.
-.br
-The dictionaries are not distributed outside Bell Labs.
+.PP
+The dictionaries are not distributed outside Bell Labs,
+though see
+.B /usr/local/plan9/dict/README
+for information on using free dictionaries prepared
+by Project Gutenberg.

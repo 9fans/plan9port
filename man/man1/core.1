@@ -1,0 +1,46 @@
+.TH CORE 1
+.SH NAME
+core \- print information about dead processes
+.SH SYNOPSIS
+.B core
+[
+.I dir
+|
+.I corefile
+]...
+.SH DESCRIPTION
+.I Core
+prints information about dead processes that have
+been saved as core dumps.
+.PP
+Core reads its arguments in order.
+If a directory is encountered,
+.I core
+reads every core file named
+.B core.*
+or
+.B *.core
+in that directory.
+.PP
+For each core file read,
+.I core
+prints the date and time the core was generated,
+the command that generated it, and a short stack trace
+at the time of the core dump.
+.PP
+If no arguments are given,
+.I core
+searches the directory
+.B $COREDIR
+for core files;
+if
+.B $COREDIR
+is not set, 
+.I core
+searches the current directory.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/core.c
+.SH "SEE ALSO
+.IR acid (1),
+.IR db (1),
+.IR core (5)

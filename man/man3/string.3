@@ -1,6 +1,6 @@
 .TH STRING 3
 .SH NAME
-s_alloc, s_append, s_array, s_copy, s_error, s_free, s_incref, s_memappend, s_nappend, s_new, s_newalloc, s_parse, s_reset, s_restart, s_terminate, s_tolower, s_putc, s_unique, s_grow, s_read, s_read_line, s_getline \- extensible strings
+s_alloc, s_append, s_array, s_copy, s_error, s_free, s_incref, s_memappend, s_nappend, s_new, s_newalloc, s_parse, s_reset, s_restart, s_terminate, s_tolower, s_putc, s_unique, s_grow, s_read, s_read_line, s_getline, s_allocinstack, s_freeinstack, s_rdinstack \- extensible strings
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -8,6 +8,7 @@ s_alloc, s_append, s_array, s_copy, s_error, s_free, s_incref, s_memappend, s_na
 .br
 .B #include <String.h>
 .PP
+.ta +\w'\fLSinstack* 'u
 .B
 String*	s_new(void)
 .br
@@ -59,6 +60,15 @@ String*	s_incref(String *s)
 .br
 .B
 String*	s_unique(String *s)
+.PP
+.B
+Sinstack*	s_allocinstack(char *file)
+.br
+.B
+void	s_freeinstack(Sinstack *stack)
+.br
+.B
+char*	s_rdinstack(Sinstack *stack, String *s)
 .PP
 .B
 #include <bio.h>
@@ -222,14 +232,39 @@ An eof or error terminates the read.
 The string is null terminated.
 .PP
 .I S_getline
-reads up to the next newline and returns
+reads up to the next newline, appends the input to
+.IR s ,
+and returns
 a pointer to the beginning of the bytes read.  Leading
 spaces and tabs and the trailing newline are all discarded.
 .I S_getline
-will recursively read through files included with
+discards blank lines and lines beginning with
+.LR # .
+.I S_getline
+ignores
+newlines escaped by immediately-preceding backslashes.
+.PP
+.I S_allocinstack
+allocates an input stack with the single file
+.I file
+open for reading.
+.I S_freeinstack
+frees an input stack.
+.I S_rdinstack
+reads a line from an input stack.
+It follows the same rules as
+.I s_getline
+except that when it encounters a line of the form
 .B #include
-and discard all other lines beginning with
-.BR # .
+.IR newfile ,
+.I s_getline
+pushes
+.I newfile
+onto the input stack, postponing further reading of the current
+file until
+.I newfile
+has been read.
+The input stack has a maximum depth of 32 nested include files.
 .SH SOURCE
 .B /usr/local/plan9/src/libString
 .SH SEE ALSO

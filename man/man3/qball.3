@@ -1,0 +1,76 @@
+.TH QBALL 3
+.SH NAME
+qball \- 3-d rotation controller
+.SH SYNOPSIS
+.PP
+.B
+#include <draw.h>
+.PP
+.B
+#include <geometry.h>
+.PP
+.B
+void qball(Rectangle r, Mouse *mousep,
+.br
+.B
+	Quaternion *orientation,
+.br
+.B
+	void (*redraw)(void), Quaternion *ap)
+.SH DESCRIPTION
+.I Qball
+is an interactive controller that allows arbitrary 3-space rotations to be specified with
+the mouse.  Imagine a sphere with its center at the midpoint of rectangle
+.IR r ,
+and diameter the smaller of
+.IR r 's
+dimensions.  Dragging from one point on the sphere to another specifies the endpoints of a
+great-circle arc.  (Mouse points outside the sphere are projected to the nearest point
+on the sphere.)  The axis of rotation is normal to the plane of the arc, and the
+angle of rotation is twice the angle of the arc.
+.PP
+Argument
+.I mousep
+is a pointer to the mouse event that triggered the interaction.  It should
+have some button set.
+.I Qball
+will read more events into
+.IR mousep ,
+and return when no buttons are down.
+.PP
+While
+.I qball
+is reading mouse events, it calls out to the caller-supplied routine
+.IR redraw ,
+which is expected to update the screen to reflect the changing orientation.
+Argument
+.I orientation
+is the orientation that
+.I redraw
+should examine, represented as a unit Quaternion (see
+.IR quaternion(9.2)).
+The caller may set it to any orientation.
+It will be updated before each call to
+.I redraw
+(and on return) by multiplying by the rotation specified with the mouse.
+.PP
+It is possible to restrict
+.I qball's
+attention to rotations about a particular axis.
+If
+.I ap
+is null, the rotation is unconstrained.
+Otherwise, the rotation will be about the same axis as
+.IR *ap .
+This is accomplished by projecting points on the sphere to
+the nearest point also on the plane through the sphere's center
+and normal to the axis.
+.SH SOURCE
+.B /usr/local/plan9/src/libgeometry/qball.c
+.SH SEE ALSO
+.IR quaternion (3)
+.br
+Ken Shoemake,
+``Animating Rotation with Quaternion Curves'',
+.I
+SIGGRAPH '85 Conference Proceedings.

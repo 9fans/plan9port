@@ -42,7 +42,9 @@ bytes at
 .I p
 (which need not be NUL-terminated) as a UTF string and splits it
 using
-.IR tokenize (3).
+.I tokenize
+(see
+.IR getfields (3)).
 It returns a
 .B Cmdbuf
 structure holding pointers to each field in the message.

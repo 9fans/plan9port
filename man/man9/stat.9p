@@ -1,0 +1,297 @@
+.TH STAT 9P 
+.SH NAME
+stat, wstat \- inquire or change file attributes
+.SH SYNOPSIS
+.ta \w'\fLTwstat 'u
+.IR size [4]
+.B Tstat
+.IR tag [2]
+.IR fid [4]
+.br
+.IR size [4]
+.B Rstat
+.IR tag [2]
+.IR stat [ n ]
+.PP
+.IR size [4]
+.B Twstat
+.IR tag [2]
+.IR fid [4]
+.IR stat [ n ]
+.br
+.IR size [4]
+.B Rwstat
+.IR tag [2]
+.SH DESCRIPTION
+The
+.B stat
+transaction inquires about the file
+identified by
+.IR fid .
+The reply will contain a
+machine-independent
+.I directory
+.IR entry ,
+.IR stat ,
+laid out as follows:
+.TP
+.I size\f1[2]\fP
+total byte count of the following data
+.TP
+.I type\f1[2]\fP
+for kernel use
+.TP
+.I dev\f1[4]\fP
+for kernel use
+.TP
+.I qid.type\f1[1]\fP
+the type of the file (directory, etc.), represented as a bit vector
+corresponding to the high 8 bits of the file's mode word.
+.TP
+.I qid.vers\f1[4]\fP
+version number for given path
+.TP
+.I qid.path\f1[8]\fP
+the file server's unique identification for the file
+.TP
+.I mode\f1[4]\fP
+permissions and flags
+.TP
+.I atime\f1[4]\fP
+last access time
+.TP
+.I mtime\f1[4]\fP
+last modification time
+.TP
+.I length\f1[8]\fP
+length of file in bytes
+.TP
+.I name\f1[ s ]\fP
+file name; must be
+.B /
+if the file is the root directory of the server
+.TP
+.I uid\f1[ s ]\fP
+owner name
+.TP
+.I gid\f1[ s ]\fP
+group name
+.TP
+.I muid\f1[ s ]\fP
+name of the user who last modified the file
+.PD
+.PP
+Integers in this encoding are in little-endian order (least
+significant byte first).
+The
+.I convM2D
+and
+.I convD2M
+routines (see
+.IR fcall (3))
+convert between directory entries and a C structure called a
+.BR Dir .
+.PP
+The
+.I mode
+contains permission bits as described in
+.IR intro (9P)
+and the following:
+.B 0x80000000
+.RB ( DMDIR ,
+this file is a directory),
+.B 0x40000000
+.RB ( DMAPPEND ,
+append only),
+.B 0x20000000
+.RB ( DMEXCL ,
+exclusive use),
+.B 0x04000000
+.RB ( DMTMP ,
+temporary);
+these are echoed in
+.BR Qid.type .
+Writes to append-only files always place their data at the
+end of the file; the
+.I offset
+in the
+.B write
+message is ignored, as is the
+.B OTRUNC
+bit in an open.
+Exclusive use files may be open for I/O by only one fid at a time
+across all clients of the server.  If a second open is attempted,
+it draws an error.  Servers may implement a timeout on the lock
+on an exclusive use file: if the fid holding the file open has
+been unused for an extended period (of order at least minutes),
+it is reasonable to break the lock and deny the initial fid
+further I/O.
+Temporary files are not included in nightly archives
+(see Plan 9's \fIfossil\fR(4)).
+.PP
+The two time fields are measured in seconds since the epoch
+(Jan 1 00:00 1970 GMT).
+The
+.I mtime
+field reflects the time of the last change of content (except when later changed by
+.BR wstat ).
+For a plain file,
+.I mtime
+is the time of the most recent
+.BR create ,
+.B open
+with truncation,
+or
+.BR write ;
+for a directory it is the time of the most recent
+.BR remove ,
+.BR create ,
+or
+.B wstat
+of a file in the directory.
+Similarly, the
+.I atime
+field records the last
+.B read
+of the contents;
+also it is set whenever
+.I mtime
+is set.
+In addition, for a directory, it is set by
+an
+.BR attach ,
+.BR walk ,
+or
+.BR create ,
+all whether successful or not.
+.PP
+The
+.I muid
+field names the user whose actions most recently changed the
+.I mtime
+of the file.
+.PP
+The
+.I length
+records the number of bytes in the file.
+Directories and most files representing devices have a conventional
+length of 0.
+.PP
+The
+.B stat
+request requires no special permissions.
+.PP
+The
+.B wstat
+request can change some of the file status information.
+The
+.I name
+can be changed by anyone with write permission in the parent directory;
+it is an error to change the name to that of an existing file.
+The
+.I length
+can be changed (affecting the actual length of the file) by anyone with
+write permission on the file.
+It is an error to attempt to set the length of a directory to a non-zero value,
+and servers may decide to reject length changes for other reasons.
+The
+.I mode
+and
+.I mtime
+can be changed by the owner of the file or the group leader of the file's current
+group.
+The directory bit cannot be changed by a
+.BR wstat ;
+the other defined permission and mode bits can.
+The
+.I gid
+can be changed: by the owner if also a member of the new group; or
+by the group leader of the file's current group
+if also leader of the new group
+(see
+.IR intro (9P)
+for more information about permissions, users, and groups).
+None of the other data can be altered by a
+.B wstat
+and attempts to change them will trigger an error.
+In particular,
+it is illegal to attempt to change the owner of a file.
+(These conditions may be
+relaxed when establishing the initial state of a file server; see
+Plan 9's \fIfsconfig\fR(8).)
+.PP
+Either all the changes in
+.B wstat
+request happen, or none of them does: if the request succeeds,
+all changes were made; if it fails, none were.
+.PP
+A
+.B wstat
+request can avoid modifying some properties of the file
+by providing explicit ``don't touch'' values in the
+.B stat
+data that is sent: zero-length strings for text values and
+the maximum unsigned value of appropriate size
+for integral values.
+As a special case, if
+.I all
+the elements of the directory entry in a
+.B Twstat
+message are ``don't touch'' values, the server may interpret it
+as a request to guarantee that the contents of the associated
+file are committed to stable storage before the
+.B Rwstat
+message is returned.
+(Consider the message to mean, ``make the state of the file
+exactly what it claims to be.'')
+.PP
+A
+.I read
+of a directory yields an integral number of directory entries in
+the machine independent encoding given above
+(see
+.IR read (9P)).
+.PP
+Note that since the
+.B stat
+information is sent as a 9P variable-length datum, it is limited to a maximum of
+65535 bytes.
+.SH ENTRY POINTS
+.B Stat
+messages are generated by
+.I fsdirfstat
+and
+.IR fsdirstat
+(see
+.IR 9pclient (3)).
+.PP
+.B Wstat
+messages are generated by
+.I fsdirfwstat
+and
+.IR fsdirwstat .
+.SH BUGS
+To make the contents of a directory, such as returned by
+.IR read (9P),
+easy to parse, each
+directory entry begins with a size field.
+For consistency, the entries in
+.B Twstat
+and
+.B Rstat
+messages also contain
+their size, which means the size appears twice.
+For example, the
+.B Rstat
+message is formatted as
+.RI ``(4+1+2+2+ n )[4]
+.B Rstat
+.IR tag [2]
+.IR n [2]
+.RI ( n -2)[2]
+.IR type [2]
+.IR dev [4]...,''
+where 
+.I n
+is the value returned by
+.BR convD2M .

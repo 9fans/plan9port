@@ -1,6 +1,6 @@
 .TH DIAL 3
 .SH NAME
-dial, hangup, announce, listen, accept, reject, netmkaddr, setnetmtpt, getnetconninfo, freenetconninfo \- make and break network connections
+dial, hangup, announce, listen, accept, reject, netmkaddr, dialparse \- make and break network connections
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -8,9 +8,6 @@ dial, hangup, announce, listen, accept, reject, netmkaddr, setnetmtpt, getnetcon
 .PP
 .B
 int   dial(char *addr, char *local, char *dir, int *cfdp)
-.PP
-.B
-int   hangup(int ctl)
 .PP
 .B
 int   announce(char *addr, char *dir)
@@ -26,15 +23,18 @@ int   reject(int ctl, char *dir, char *cause)
 .PP
 .B
 char* netmkaddr(char *addr, char *defnet, char *defservice)
+.\" .PP
+.\" .B
+.\" void  setnetmtpt(char *to, int tolen, char *from)
+.\" .PP
+.\" .B
+.\" NetConnInfo*  getnetconninfo(char *conndir, int fd)
+.\" .PP
+.\" .B
+.\" void freenetconninfo(NetConnINfo*)
 .PP
 .B
-void  setnetmtpt(char *to, int tolen, char *from)
-.PP
-.B
-NetConnInfo*  getnetconninfo(char *conndir, int fd)
-.PP
-.B
-void freenetconninfo(NetConnINfo*)
+int	dialparse(char *addr, char **net, char **unix, u32int *host, int *port)
 .SH DESCRIPTION
 For these routines,
 .I addr
@@ -44,8 +44,10 @@ is a network address of the form
 or simply
 .IR netaddr .
 .I Network
-is any directory listed in 
-.B /net
+is
+.BR tcp ,
+.BR udp ,
+.BR unix ,
 or the special token,
 .BR net .
 .B Net
@@ -53,45 +55,28 @@ is a free variable that stands for any network in common
 between the source and the host
 .IR netaddr .
 .I Netaddr
-can be a host name, a domain name, a network address,
-or a meta-name of the form
-.BI $ attribute\f1,
-which
-is replaced by
-.I value
-from the value-attribute pair
-.IB attribute = value
-most closely associated with the source host in the
-network data base (see
-.IR ndb (6)).
+can be a host name, a domain name, or a network address.
+.\" or a meta-name of the form
+.\" .BI $ attribute\f1,
+.\" which
+.\" is replaced by
+.\" .I value
+.\" from the value-attribute pair
+.\" .IB attribute = value
+.\" most closely associated with the source host in the
+.\" network data base (see
+.\" .IR ndb (6)).
 .PP
-If a connection attempt is successful and
+On Plan 9, the
 .I dir
-is non-zero,
-the path name of a
+argument is a path name to a
 .I line directory
-that has files for accessing the connection
-is copied into
-.IR dir .
-The path name is guaranteed to be less than 40
-bytes long.
-One line directory exists for each possible connection.
-The
-.B data
-file in the line directory should be used to communicate with the destination.
-The
-.B ctl
-file in the line directory can be used to send commands to the line.
-See
-.IR ip (3)
-for messages that can be written to the
-.B ctl
-file.
-The last close of the
-.B data
-or
-.B ctl
-file will close the connection.
+that has files for accessing the connection.
+To keep the same function signatures,
+the Unix port of these routines uses strings of the form
+.BI /dev/fd/ n
+instead of line directory paths.
+These strings should be treated as opaque data and ignored.
 .PP
 .I Dial
 makes a call to destination
@@ -111,26 +96,19 @@ file in the line directory.
 The
 .B addr
 file in the line directory contains the address called.
-If the network allows the local address to be set,
-as is the case with UDP and TCP port numbers, and
-.IR local
-is non-zero, the local address will be set to
-.IR local .
-If
-.I cfdp
-is non-zero,
-.BI * cfdp
-is set to a file descriptor open for reading and
-writing the control file.
-.PP
-.I Hangup
-is a means of forcing a connection to hang up without
-closing the
-.B ctl
+.\" If the network allows the local address to be set,
+.\" as is the case with UDP and TCP port numbers, and
+.\" .IR local
+.\" is non-zero, the local address will be set to
+.\" .IR local .
+.IR Dial 's
+.IR local ,
+.IR dir ,
 and
-.B data
-files.
-.P
+.I cfdp
+arguments
+are not supported and must be zero.
+.PP
 .I Announce
 and
 .I listen
@@ -181,73 +159,78 @@ It takes an address along with a default network and service to use
 if they are not specified in the address.
 It returns a pointer to static data holding the actual address to use.
 .PP
-.I Getnetconninfo
-returns a structure containing information about a
-network connection.  The structure is:
-.EX
-  typedef struct NetConnInfo NetConnInfo;
-  struct NetConnInfo
-  {
-	char	*dir;		/* connection directory */
-	char	*root;		/* network root */
-	char	*spec;		/* binding spec */
-	char	*lsys;		/* local system */
-	char	*lserv;		/* local service */
-	char	*rsys;		/* remote system */
-	char	*rserv;		/* remote service */
-  };
-.EE
-.PP
-The information is obtained from the connection directory,
-.IR conndir .
-If
-.I conndir
-is nil, the directory is obtained by performing
-.IR fd2path (3)
-on
-.IR fd .
-.I Getnetconninfo
-returns either a completely specified structure, or
-nil if either the structure can't be allocated or the
-network directory can't be determined.
-The structure
-is freed using
-.IR freenetconninfo .
-.PP
-.I Setnetmtpt
-copies the name of the network mount point into
-the buffer
-.IR to ,
-whose length is
-.IR tolen .
-It exists to merge two pre-existing conventions for specifying
-the mount point.
-Commands that take a network mount point as a parameter
-(such as
-.BR dns ,
-.BR cs
-(see
-.IR ndb (8)),
-and
-.IR ipconfig (8))
-should now call
-.IR setnetmtpt .
-If
-.I from
-is
-.BR nil ,
-the mount point is set to the default,
-.BR /net .
-If
-.I from
-points to a string starting with a slash,
-the mount point is that path.
-Otherwise, the mount point is the string pointed to by
-.I from
-appended to the string
-.BR /net .
-The last form is obsolete and is should be avoided.
-It exists only to aid in conversion.
+.I Dialparse
+parses a network address as described above
+into a network name, a Unix domain socket address,
+an IPv4 host address, and an IPv4 port number.
+.\" .PP
+.\" .I Getnetconninfo
+.\" returns a structure containing information about a
+.\" network connection.  The structure is:
+.\" .EX
+.\"   typedef struct NetConnInfo NetConnInfo;
+.\"   struct NetConnInfo
+.\"   {
+.\" 	char	*dir;		/* connection directory */
+.\" 	char	*root;		/* network root */
+.\" 	char	*spec;		/* binding spec */
+.\" 	char	*lsys;		/* local system */
+.\" 	char	*lserv;		/* local service */
+.\" 	char	*rsys;		/* remote system */
+.\" 	char	*rserv;		/* remote service */
+.\"   };
+.\" .EE
+.\" .PP
+.\" The information is obtained from the connection directory,
+.\" .IR conndir .
+.\" If
+.\" .I conndir
+.\" is nil, the directory is obtained by performing
+.\" .IR fd2path (3)
+.\" on
+.\" .IR fd .
+.\" .I Getnetconninfo
+.\" returns either a completely specified structure, or
+.\" nil if either the structure can't be allocated or the
+.\" network directory can't be determined.
+.\" The structure
+.\" is freed using
+.\" .IR freenetconninfo .
+.\" .PP
+.\" .I Setnetmtpt
+.\" copies the name of the network mount point into
+.\" the buffer
+.\" .IR to ,
+.\" whose length is
+.\" .IR tolen .
+.\" It exists to merge two pre-existing conventions for specifying
+.\" the mount point.
+.\" Commands that take a network mount point as a parameter
+.\" (such as
+.\" .BR dns ,
+.\" .BR cs
+.\" (see
+.\" .IR ndb (8)),
+.\" and
+.\" .IR ipconfig (8))
+.\" should now call
+.\" .IR setnetmtpt .
+.\" If
+.\" .I from
+.\" is
+.\" .BR nil ,
+.\" the mount point is set to the default,
+.\" .BR /net .
+.\" If
+.\" .I from
+.\" points to a string starting with a slash,
+.\" the mount point is that path.
+.\" Otherwise, the mount point is the string pointed to by
+.\" .I from
+.\" appended to the string
+.\" .BR /net .
+.\" The last form is obsolete and is should be avoided.
+.\" It exists only to aid in conversion.
 .SH EXAMPLES
 Make a call and return an open file descriptor to
 use for communications:
@@ -259,12 +242,13 @@ int callkremvax(void)
 }
 .EE
 .PP
-Call the local authentication server:
+Connect to a Unix socket served by
+.IR acme (4):
 .IP
 .EX
-int dialauth(char *service)
+int dialacme(void)
 {
-	return dial(netmkaddr("$auth", 0, service), 0, 0, 0);
+	return dial("unix!/tmp/ns.ken.:0/acme", 0, 0, 0);
 }
 .EE
 .PP
@@ -315,17 +299,14 @@ bekremvax(void)
 }
 .EE
 .SH SOURCE
-.BR /usr/local/plan9/src/libc/9sys ,
-.B /usr/local/plan9/src/libc/port
-.SH "SEE ALSO"
-.IR auth (3),
-.IR ip (3),
-.IR ndb (8)
+.B /usr/local/plan9/src/lib9/dial.c
+.br
+.B /usr/local/plan9/src/lib9/announce.c
+.br
+.B /usr/local/plan9/src/lib9/_p9dialparse.c
 .SH DIAGNOSTICS
 .IR Dial ,
 .IR announce ,
 and
 .I listen
 return \-1 if they fail.
-.I Hangup
-returns nonzero if it fails.

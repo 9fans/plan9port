@@ -1,0 +1,109 @@
+.TH FLUSH 9P
+.SH NAME
+flush \- abort a message
+.SH SYNOPSIS
+.ta \w'\fLTflush 'u
+.IR size [4]
+.B Tflush
+.IR tag [2]
+.IR oldtag [2]
+.br
+.IR size [4]
+.B Rflush
+.IR tag [2]
+.SH DESCRIPTION
+When the response to a request is no longer needed, such as when
+a user interrupts a process doing a
+.IR read (9p),
+a
+.B Tflush
+request is sent to the server to purge the pending response.
+The message being flushed is identified by
+.IR oldtag .
+The semantics of
+.B flush
+depends on messages arriving in order.
+.PP
+The server should answer the
+.B flush
+message immediately.
+If it recognizes
+.I oldtag
+as the tag of a pending transaction, it should abort any pending response
+and discard that tag.
+In either case, it should respond with an
+.B Rflush
+echoing the
+.I tag
+(not
+.IR oldtag )
+of the
+.B Tflush
+message.
+A
+.B Tflush
+can never be responded to by an
+.B Rerror
+message.
+.PP
+The server may respond to the pending request before
+responding to the
+.BR Tflush .
+It is possible for a client to send multiple
+.B Tflush
+messages for a particular pending request.  Each
+subsequent
+.B Tflush
+must contain as
+.I oldtag
+the tag of the pending request (not a previous
+.BR Tflush ).
+Should multiple
+.BR Tflush es
+be received for a pending request, they must be answered in
+order.  A
+.B Rflush
+for any of the multiple
+.BR Tflush es
+implies an answer for all previous ones.  Therefore, should
+a server receive a request and then multiple flushes for that
+request, it need respond only to the last flush.
+.PP
+When the client sends a 
+.BR Tflush ,
+it must wait to receive the corresponding
+.B Rflush
+before reusing
+.I oldtag
+for subsequent messages.
+If a response to the flushed request is received before the
+.BR Rflush ,
+the client must honor the response
+as if it had not been flushed,
+since the completed request may signify a state change in the server.
+For instance,
+.B Tcreate
+may have created a file and
+.B Twalk
+may have allocated a fid.
+If no response is received before the
+.BR Rflush ,
+the flushed transaction is considered to have been canceled,
+and should be treated as though it had never been sent.
+.PP
+Several exceptional conditions are handled correctly by the above specification:
+sending multiple flushes for a single tag,
+flushing after a transaction is completed,
+flushing a
+.BR Tflush ,
+and flushing an invalid tag.
+.SH ENTRY POINTS
+The
+.IR 9pclient (3)
+library does not generate
+.B flush
+transactions..
+.IR 9pserve (4)
+generates
+.B flush
+transactions to cancel transactions pending when a client hangs up.

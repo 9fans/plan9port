@@ -1,7 +1,6 @@
 .TH MP 3
 .SH NAME
-
-mpsetminbits, mpnew, mpfree, mpbits, mpnorm, mpcopy, mpassign, mprand, strtomp, mpfmt,mptoa, betomp, mptobe, letomp, mptole, mptoui, uitomp, mptoi, itomp, uvtomp, mptouv, vtomp, mptov, mpdigdiv, mpadd, mpsub, mpleft, mpright, mpmul, mpexp, mpmod, mpdiv, mpcmp, mpextendedgcd, mpinvert, mpsignif, mplowbits0, mpvecdigmuladd, mpvecdigmulsub, mpvecadd, mpvecsub, mpveccmp, mpvecmul, mpmagcmp, mpmagadd, mpmagsub, crtpre, crtin, crtout, crtprefree, crtresfree \- extended precision arithmetic
+mpsetminbits, mpnew, mpfree, mpbits, mpnorm, mpcopy, mpassign, mprand, strtomp, mpfmt,mptoa, betomp, mptobe, letomp, mptole, mptoui, uitomp, mptoi, itomp, uvtomp, mptouv, vtomp, mptov, mpdigdiv, mpadd, mpsub, mpleft, mpright, mpmul, mpexp, mpmod, mpdiv, mpcmp, mpextendedgcd, mpinvert, mpsignif, mplowbits0, mpvecdigmuladd, mpvecdigmulsub, mpvecadd, mpvecsub, mpveccmp, mpvecmul, mpmagcmp, mpmagadd, mpmagsub, crtpre, crtin, crtout, crtprefree, crtresfree, mpfactorial \- extended precision arithmetic
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -161,6 +160,9 @@ void	crtprefree(CRTpre *cre)
 .PP
 .B
 void	crtresfree(CRTres *res)
+.PP
+.B
+mpint*	mpfactorial(ulong n)
 .PP
 .B
 mpint	*mpzero, *mpone, *mptwo
@@ -573,5 +575,9 @@ free
 and
 .I CRTres
 structures respectively.
+.PP
+.I Mpfactorial
+returns the factorial of
+.IR n .
 .SH SOURCE
 .B /usr/local/plan9/src/libmp

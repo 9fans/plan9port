@@ -1,0 +1,56 @@
+.TH DOCTYPE 1 
+.SH NAME
+doctype \- intuit command line for formatting a document
+.SH SYNOPSIS
+.B doctype
+[
+.I option ...
+] [
+.I file
+]
+\&...
+.SH DESCRIPTION
+.I Doctype
+examines a
+.IR troff (1)
+input file to deduce the appropriate text formatting command
+and prints it on standard output.
+.I Doctype
+recognizes input for
+.IR troff (1),
+related preprocessors like
+.IR eqn (1),
+and the 
+.IR ms (7)
+and
+.I mm 
+macro packages.
+.PP
+Option
+.B -n
+invokes
+.I nroff
+instead of
+.IR troff .
+Other options are passed to
+.IR troff .
+.SH EXAMPLES
+.TP
+.L
+eval `{doctype chapter.?} | lp 
+Typeset files named
+.BR chapter.0 ,
+.BR chapter.1 ,
+\&...
+.SH SOURCE
+.B /usr/local/plan9/bin/doctype
+.SH SEE ALSO
+.IR troff (1), 
+.IR eqn (1), 
+.IR tbl (1), 
+.IR pic (1), 
+.IR grap (1),
+.IR ms (7),
+.IR man (7)
+.SH BUGS
+In true A.I. style, its best guesses are inspired rather than accurate.

@@ -1,6 +1,6 @@
 .TH WAIT 3
 .SH NAME
-await, wait, waitpid \- wait for a process to exit
+await, awaitnohang, awaitfor, wait, waitnohang, waitfor, waitpid \- wait for a process to exit
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -10,14 +10,28 @@ await, wait, waitpid \- wait for a process to exit
 Waitmsg*	wait(void)
 .PP
 .B
+Waitmsg*	waitnohang(void)
+.PP
+.B
+Waitmsg*	waitfor(int pid)
+.PP
+.B
 int 		waitpid(void)
 .PP
 .B
 int 		await(char *s, int n)
+.PP
+.B
+int		awaitnohang(char *s, int n)
+.PP
+.B
+int		awaitfor(int pid, char *s, int n)
 .SH DESCRIPTION
 .I Wait
 causes a process to wait for any child process (see
-.IR fork (3))
+.IR fork (2)
+and
+.IR rfork (3))
 to exit.
 It returns a
 .B Waitmsg
@@ -70,16 +84,33 @@ For programs that only need the pid of the exiting program,
 .I waitpid
 returns just the pid and discards the rest of the information.
 .PP
-The underlying system call is
+.I Waitnohang
+is like
+.I wait
+but does not block if there are no more children to wait for.
+Instead it returns immediately and sets
+.IR errstr .
+.PP
+.I Waitfor
+is like
+.I wait
+but waits for a particular
+.IR pid .
+.PP
+The underlying calls are
 .IR await ,
-which fills in the n-byte buffer
+.IR awaitnohang ,
+and
+.IR awaitfor ,
+which fill in the 
+.IR n -byte
+buffer
 .I s
 with a textual representation of the pid, times, and exit string.
 There is no terminal NUL.
 The return value is the length, in bytes, of the data.
 .PP
-The buffer filled in by
-.I await
+The filled-in buffer
 may be parsed (after appending a NUL) using
 .IR tokenize
 (see
@@ -104,14 +135,12 @@ If the calling process has no living children,
 returns
 .BR -1 .
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9syscall
+.B /usr/local/plan9/src/lib9/wait.c
+.PP
+.B /usr/local/plan9/src/lib9/await.c
 .SH "SEE ALSO"
-.IR fork (3),
+.IR rfork (3),
 .IR exits (3),
-the
-.B wait
-file in
-.IR proc (3)
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .

@@ -1,0 +1,205 @@
+.TH IMAGE 7
+.SH NAME
+image \- external format for images
+.SH SYNOPSIS
+.B #include <draw.h>
+.SH DESCRIPTION
+Images are described in
+.IR graphics (3),
+and the definition of pixel values is in
+.IR color (7).
+Fonts and images are stored in external files
+in machine-independent formats.
+.PP
+Image files are read and written using
+.B readimage
+and
+.B writeimage
+(see
+.IR allocimage (3)), or
+.B readmemimage
+and
+.B writememimage
+(see
+.IR memdraw (3)).
+An uncompressed image file starts with 5
+strings:
+.BR chan ,
+.BR r.min.x ,
+.BR r.min.y ,
+.BR r.max.x ,
+and
+.BR r.max.y .
+Each is right-justified and blank padded in 11 characters, followed by a blank.
+The
+.B chan
+value is a textual string describing the pixel format
+(see 
+.B strtochan
+in
+.IR graphics (3)
+and the discussion of channel descriptors below),
+and the rectangle coordinates are decimal strings.
+The rest of the file contains the
+.B r.max.y-r.min.y
+rows of pixel data.
+A
+.I row
+consists of the byte containing pixel
+.B r.min.x
+and all the bytes up to and including the byte containing pixel
+.BR r.max.x -1.
+For images with depth 
+.I d
+less than eight, a pixel with x-coordinate =
+.I x
+will appear as
+.I d
+contiguous bits in a byte, with the pixel's high order bit
+starting at the byte's bit number
+.if t \fIw\fP\(mu(\fIx\fP mod (8/\fIw\fP)),
+.if n w*(x mod (8/w)),
+where bits within a byte are numbered 0 to 7 from the
+high order to the low order bit.
+Rows contain integral number of bytes, so there may be some unused
+pixels at either end of a row.
+If
+.I d
+is greater than 8, the definition of images requires that it will a multiple of 8, so
+pixel values take up an integral number of bytes.
+.PP
+The
+.B loadimage
+and
+.B unloadimage
+functions described in
+.IR allocimage (3)
+also deal with rows in this format, stored in user memory.
+.PP
+The channel format string is a sequence of two-character channel descriptions,
+each comprising a letter 
+.RB ( r
+for red,
+.B g
+for green,
+.B b
+for blue,
+.B a
+for alpha,
+.B m
+for color-mapped,
+.B k
+for greyscale,
+and
+.B x
+for ``don't care'')
+followed by a number of bits per pixel.
+The sum of the channel bits per pixel is the
+depth of the image, which must be either 
+a divisor or a multiple of eight.
+It is an error to have more than
+one of any channel but 
+.BR x .
+An image must have either a greyscale channel; a color mapped channel;
+or red, green, and blue channels.
+If the alpha channel is present, it must be at least as deep as any other channel.
+.PP
+The channel string defines the format of the pixels in the file,
+and should not be confused with ordering of bytes in the file.
+In particular
+.B 'r8g8b8'
+pixels have byte ordering blue, green, and red within the file.
+See
+.IR color (7)
+for more details of the pixel format.
+.PP
+A venerable yet deprecated format replaces the channel string
+with a decimal
+.IR ldepth ,
+which is the base two logarithm of the number 
+of bits per pixel in the image.
+In this case,
+.IR ldepth s
+0, 1, 2, and 3
+correspond to channel descriptors
+.BR k1 ,
+.BR k2 ,
+.BR k4 ,
+and
+.BR m8 ,
+respectively.
+.PP
+Compressed image files start with a line of text containing the word
+.BR compressed ,
+followed by a header as described above, followed by the image data.
+The data, when uncompressed, is laid out in the usual form.
+.PP
+The data is represented by a string of compression blocks, each encoding
+a number of rows of the image's pixel data.  Compression blocks
+are at most 6024 bytes long, so that they fit comfortably in a
+single 9P message.  Since a compression block must encode a
+whole number of rows, there is a limit (about 5825 bytes) to the width of images
+that may be encoded.  Most wide images are in subfonts,
+which, at 1 bit per pixel (the usual case for fonts), can be 46600 pixels wide.
+.PP
+A compression block begins with two decimal strings of twelve bytes each.
+The first number is one more than the
+.B y
+coordinate of the last row in the block.  The second is the number
+of bytes of compressed data in the block, not including the two decimal strings.
+This number must not be larger than 6000.
+.PP
+Pixels are encoded using a version of Lempel & Ziv's sliding window scheme LZ77,
+best described in J A Storer & T G Szymanski
+`Data Compression via Textual Substitution',
+JACM 29#4, pp. 928-951.
+.PP
+The compression block is a string of variable-length
+code words encoding substrings of the pixel data.  A code word either gives the
+substring directly or indicates that it is a copy of data occurring
+previously in the pixel stream.
+.PP
+In a code word whose first byte has the high-order bit set, the rest of the
+byte indicates the length of a substring encoded directly.
+Values from 0 to 127 encode lengths from 1 to 128 bytes.
+Subsequent bytes are the literal pixel data.
+.PP
+If the high-order bit is zero, the next 5 bits encode
+the length of a substring copied from previous pixels.  Values from 0 to 31
+encode lengths from 3 to 34 bytes.  The bottom two bits of the first byte and
+the 8 bits of the next byte encode an offset backward from the current
+position in the pixel data at which the copy is to be found.  Values from
+0 to 1023 encode offsets from 1 to 1024.  The encoding may be `prescient',
+with the length larger than the offset, which works just fine: the new data
+is identical to the data at the given offset, even though the two strings overlap.
+.PP
+Some small images, in particular 48\(mu48 face files
+as used by
+.I seemail
+(see Plan 9's
+\fIfaces\fR(1)
+and
+.IR face (7))
+and 16\(mu16
+cursors, can be stored textually, suitable for inclusion in C source.
+Each line of text represents one scan line as a
+comma-separated sequence of hexadecimal
+bytes, shorts, or words in C format.
+For cursors, each line defines a pair of bytes.
+(It takes two images to define a cursor; each must be stored separately
+to be processed by programs such as
+.IR tweak (1).)
+Face files of one bit per pixel are stored as a sequence of shorts,
+those of larger pixel sizes as a sequence of longs.
+Software that reads these files must deduce the image size from
+the input; there is no header.
+These formats reflect history rather than design.
+.SH "SEE ALSO"
+.IR jpg (1),
+.IR tweak (1),
+.IR graphics (3),
+.IR draw (3),
+.IR allocimage (3),
+.IR color (7),
+.IR face (7),
+.IR font (7)

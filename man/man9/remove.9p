@@ -1,0 +1,51 @@
+.TH REMOVE 9P 
+.SH NAME
+remove \- remove a file from a server
+.SH SYNOPSIS
+.ta \w'\fLTremove 'u
+.IR size [4]
+.B Tremove
+.IR tag [2]
+.IR fid [4]
+.br
+.IR size [4]
+.B Rremove
+.IR tag [2]
+.SH DESCRIPTION
+The
+.B remove
+request asks the file server both to remove the file represented by
+.I fid
+and to
+.B clunk
+the
+.IR fid ,
+even if the remove fails.
+This request will fail if the client does not have write permission
+in the parent directory.
+.PP
+It is correct to consider
+.B remove
+to be a
+.B clunk
+with the side effect of removing the file if permissions allow.
+.PP
+If a file has been opened as multiple fids,
+possibly on different connections,
+and one fid is used to remove the file,
+whether the other fids continue to provide access to the file
+is implementation-defined.
+The Plan 9 file servers
+remove the file immediately: attempts to use the other fids
+will yield a
+``phase error.''
+.IR U9fs
+follows the semantics of the underlying Unix file system,
+so other fids typically remain usable.
+.SH ENTRY POINTS
+.I Fsremove
+(see
+.IR 9pclient (3))
+generates
+.B remove
+messages.

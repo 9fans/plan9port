@@ -1,0 +1,37 @@
+.TH GETSNARF 3
+.SH NAME
+getsnarf, putsnarf \- window system snarf (cut and paste) buffer
+.SH SYNOPSIS
+.B #include <draw.h>
+.PP
+.B
+char	*getsnarf(void)
+.PP
+.B
+void	putsnarf(char *text)
+.SH DESCRIPTION
+.I Getsnarf
+and
+.I putsnarf
+access the window system's snarf (cut and paste) buffer.
+.PP
+.I Getsnarf
+returns a copy of the current buffer;
+the returned pointer should be freed with
+.I free
+(see
+.IR malloc (3))
+when no longer needed.
+.PP
+.I Putsnarf
+sets the buffer to the text string
+.IR text .
+.PP
+Callers should assume that the snarf buffer is UTF.
+If the window system does not keep the buffer in UTF,
+.I getsnarf
+and
+.I putsnarf
+will convert as necessary.
+.SH SOURCE
+.B /usr/local/plan9/src/libdraw/x11-itrans.c

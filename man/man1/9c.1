@@ -1,0 +1,175 @@
+.TH 9C 1
+.SH NAME
+9c, 9a, 9l, 9ar \- C compiler, assembler, linker, archiver
+.SH SYNOPSIS
+.B 9c
+.I file
+\&...
+.PP
+.B 9a
+.I file
+\&...
+.PP
+.B 9l
+[
+.I -o
+.I target
+]
+.I object
+\&...
+[
+.I library
+\&...
+]
+[
+.BI -L path
+\&...
+]
+[
+.BI -l library
+\&...
+]
+.PP
+.B 9ar
+.I key
+[
+.I posname
+]
+.I afile
+[
+.I file
+\&...
+]
+.SH DESCRIPTION
+These programs are shell scripts that invoke the appropriate standard tools
+for the current operating system and architecture.
+One can use them to write portable recipes for mkfiles.
+.PP
+.I 9c
+compiles the named C
+.I files
+into object files for the current system.
+The system C compiler is invoked with warnings enabled,
+with the symbol
+.B PLAN9PORT
+is defined in the C preprocessor, and with
+.B $PLAN9/include
+on the include path.
+.PP
+.I 9c
+also defines
+.B __sun__
+on SunOS systems and
+.B __Linux26__
+on Linux systems with 2.6-series kernels.
+.PP
+.I 9a
+assembles the named files into object files for the current system.
+Unlike some system assemblers, it does
+.I not
+promise to run the C preprocessor on the source files.
+.PP
+.I 9l
+links the named object files and libraries to create the target executable.
+Each
+.B -l
+option specifies that a library named
+.BI lib library .a
+be found and linked.
+The
+.B -L
+option adds directories to the library search path.
+.I 9l
+invokes the system linker with
+.B $PLAN9/lib
+already on the library search path.
+.PP
+.I 9ar
+maintains object file archives called libraries.
+The exact set of valid command keys varies from system to system,
+but
+.I 9ar
+always provides the following key characters:
+.TP
+.B d
+Delete 
+.I files 
+from the archive file.
+.TP
+.B r
+Replace
+.I files 
+in the archive file, or add them if missing.
+.TP
+.B t
+List a table of contents of the archive.
+If names are given, only those files are listed.
+.TP
+.B x
+Extract the named files.
+If no names are given, all files in the archive are
+extracted.
+In neither case does
+.B x
+alter the archive file.
+.TP
+.B v
+Verbose.
+Give a file-by-file
+description of the making of a
+new archive file from the old archive and the constituent files.
+With
+.BR t ,
+give a long listing of all information about the files,
+somewhat like a listing by
+.IR ls (1),
+showing
+.br
+.ns
+.IP
+.B
+	mode uid/gid size date name
+.TP
+.B c
+Create.
+Normally
+.I 9ar
+will create a new archive when
+.I afile
+does not exist, and give a warning.
+Option 
+.B c
+discards any old contents and suppresses the warning.
+.PD
+.PP
+When a
+.BR d ,
+.BR r ,
+or
+.BR m
+.I key
+is specified,
+.I 9ar
+inserts a table of contents, required by the linker, at
+the front of the library.
+The table of contents is
+rebuilt whenever the archive is modified.
+.SH EXAMPLE
+.TP
+.L
+9c file1.c file2.c file3.c
+Compile three C source files.
+.TP
+.L
+9a file4.s
+Assemble one assembler source file.
+.TP
+.L
+9ar rvc lib.a file[12].o
+Archive the first two object files into a library.
+.L
+9l -o prog file3.o file4.o lib.a
+Link the final two object files and any necessary objects from the library
+into an executable.
+.SH SOURCE
+.B /usr/local/plan9/bin

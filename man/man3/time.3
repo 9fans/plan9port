@@ -26,20 +26,8 @@ if
 is not zero then
 .BI * tp
 is also set to the answer.
-.PP
-These functions work by reading
-.BR /dev/bintime ,
-opening that file when
-.I they
-are first called.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9sys/time.c
-.br
-.B /usr/local/plan9/src/libc/9sys/nsec.c
-.SH SEE ALSO
-.IR cons (3)
+.B /usr/local/plan9/src/lib9/time.c
 .SH DIAGNOSTICS
-Sets
+These functions set
 .IR errstr .
-.SH BUGS
-These routines maintain a static file descriptor.

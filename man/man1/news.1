@@ -1,0 +1,63 @@
+.TH NEWS 1
+.SH NAME
+news \- print news items
+.SH SYNOPSIS
+.B news
+[
+.B -a
+]
+[
+.B -n
+]
+[
+.I item ...
+]
+.SH DESCRIPTION
+When invoked without options,
+this simple local news service
+prints files that have appeared in
+.BR /lib/news
+since last reading, most recent first,
+with each preceded by an appropriate header.
+The time of reading is recorded.
+The options are
+.TP
+.B -a
+Print all items, regardless of currency.
+The recorded time is not changed.
+.TP
+.B -n
+Report the names of the current items without
+printing their contents, and without changing
+the recorded time.
+.PP
+Other arguments
+select particular news items.
+.PP
+To post a news item, create a file in
+.BR  /lib/news .
+.PP
+You may arrange to receive news automatically by 
+registering your mail address in
+.BR /sys/lib/subscribers .
+A daemon mails recent news
+to all addresses on the list.
+.PP
+Empty news items, and news items named
+.B core
+or
+.B dead.letter
+are ignored.
+.SH FILES
+.TF /sys/lib/subscribers
+.TP
+.B /lib/news/*
+articles
+.TP
+.B $HOME/lib/newstime
+modify time is time news was last read
+.TP
+.B /sys/lib/subscribers
+who gets news mailed to them
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/news.c

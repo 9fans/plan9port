@@ -22,7 +22,10 @@ void	atexitdont(void(*)(void))
 .I Exits
 is the conventional way to terminate a process.
 .I _Exits
-is the underlying system call.
+also terminates a process but does not call the registered
+.I atexit
+handlers
+.RI ( q.v. ).
 They
 can never return.
 .PP
@@ -75,7 +78,18 @@ returns 0 if that limit has been reached.
 .I Atexitdont
 cancels a previous registration of an exit function.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/port/atexit.c
+.B /usr/local/plan9/src/lib9/atexit.c
+.br
+.B /usr/local/plan9/src/lib9/_exits.c
 .SH "SEE ALSO"
-.IR fork (3),
+.IR fork (2),
 .IR wait (3)
+.SH BUGS
+Because of limitations of Unix, the exit status of a
+process can only be an 8-bit integer.
+Exit status 0 is used for empty exit messages, and 1 for
+non-empty messages.
+.PP
+Exit codes 97 through 99 are used by the thread library to signal
+internal synchronization errors between the main program
+and a proxy process that implements backgrounding.

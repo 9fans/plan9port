@@ -1,0 +1,98 @@
+.TH WINTEXT 1
+.SH NAME
+wintext, ", "" \- access text in current window
+.SH SYNOPSIS
+.B wintext
+.br
+.B \C'"'\ 
+[
+.I prefix
+]
+.br
+.B \C'"'\C'"'\ 
+[
+.I prefix
+]
+.SH DESCRIPTION
+.I Wintext
+prints the text of the current
+.I win
+(see
+.IR acme (1))
+or
+.IR 9term (1)
+window to standard output.
+.PP
+.I \C'"'
+searches the window text for commands typed with a particular prefix
+and prints them, indented, to standard output.
+.I Prefix
+is a regular expression that is matched against the beginning of the command-line.
+If
+.I prefix
+is omitted,
+.I \C'"'
+prints the last command executed.
+.I \C'"'\C'"'
+prints the last command that
+.I \C'"'
+would print and then executes it by piping it into 
+.IR rc (1).
+.PP
+Both
+.I \C'"'
+and
+.I \C'"'\C'"'
+identify commands in the window text by looking for lines
+beginning with a shell prompt.
+Prompts are assumed to be an unindented sequence of
+non-whitespace characters followed by one of the
+characters
+.BR % ,
+.BR ; ,
+.BR $ ,
+or
+.BR # .
+.SH EXAMPLES
+Print the
+.IR ls (1)
+and
+.I lc
+commands executed in this window:
+.IP
+.EX
+.ta +4n
+% \C'"' 'l[sc]'
+	% ls -l /tmp/qq*
+	# ls -lrt /etc
+	% lc r*
+%
+.EE
+.PP
+Execute the most recent
+.I lc
+command again:
+.IP
+.EX
+.ta +4n
+% \C'"'\C'"' lc
+	% lc r*
+ramfs   rc      read    rio     rm
+% 
+.EE
+.SH SEE ALSO
+.IR 9term (1),
+.IR acme (1)
+.SH SOURCE
+.B /usr/local/plan9/bin
+.SH BUGS
+.I \C'"'
+and
+.I \C'"'\C'"'
+are hard to type in shells other than
+.IR rc (1).
+.\" and in troff!
+.PP
+Don't run
+.I \C'"'\C'"'
+twice in a row.

@@ -1,7 +1,7 @@
 .TH SAM 1
 .ds a \fR*\ \fP
 .SH NAME
-sam, B, sam.save \- screen editor with structural regular expressions 
+sam, B, E, sam.save, samterm, samsave \- screen editor with structural regular expressions 
 .SH SYNOPSIS
 .B sam
 [
@@ -17,10 +17,8 @@ sam, B, sam.save \- screen editor with structural regular expressions
 .B sam.save
 .PP
 .B B
-[
-.BI -nnnn
-]
-.I file ...
+.IB file \fR[\fP: line \fR]
+\&...
 .SH DESCRIPTION
 .I Sam
 is a multi-file editor.
@@ -62,7 +60,7 @@ for debugging.
 .PD
 .SS Regular expressions
 Regular expressions are as in
-.IR regexp (6)
+.IR regexp (7)
 with the addition of
 .BR \en
 to represent newlines.
@@ -791,7 +789,7 @@ the white-space-delimited block of text is sent as a plumb message
 with a
 .B click
 attribute defining where the selection lies (see
-.IR plumb (6)).
+.IR plumb (7)).
 .TP
 .B look
 Search forward for the next occurrence of the literal text in dot.
@@ -838,6 +836,20 @@ If plumbing is not enabled,
 the option allows a line number to be specified for
 the initial position to display in the last named file
 (plumbing provides a more general mechanism for this ability).
+.PP
+.I E
+is a shell-level command that can be used as
+.B $EDITOR
+in a Unix environment.
+It runs
+.I B
+on
+.I file
+and then waits to exit until
+.I file
+is changed, which is taken as a signal that
+.I file
+is done being edited.
 .SS Abnormal termination
 If
 .I sam
@@ -879,7 +891,7 @@ source for the separate terminal part
 .IR sed (1),
 .IR grep (1),
 .IR rio (1),
-.IR regexp (6).
+.IR regexp (7).
 .PP
 Rob Pike,
 ``The text editor sam''.

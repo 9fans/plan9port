@@ -1,0 +1,134 @@
+.TH PROOF 1
+.SH NAME
+proof \- troff output interpreter
+.SH SYNOPSIS
+.B proof
+[
+.BI -m mag
+]
+[
+.BI -/ nview
+]
+[
+.B -F
+.I dir
+]
+[
+.B -d
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Proof
+reads
+.IR troff (1)
+intermediate language from
+.I file
+or standard input
+and simulates the resulting pages on the screen.
+.PP
+After a page of text is displayed,
+.I proof
+pauses for a command from the keyboard.
+The typed commands are:
+.TP \w'newline\ \ \ 'u
+newline
+Go on to next page of text.
+.TP
+.B -
+Go back to the previous page.
+.TP
+.B q
+Quit.
+.TP
+.BI p n
+Print page
+.IR n .
+An out-of-bounds page number means the end nearer to that number;
+a missing number means the current page;
+a signed number means an offset to the current page.
+.TP
+.I n
+Same as
+.BI p n\f1.
+.TP
+.B c
+Clear the screen, then wait for another command.
+.TP
+.BI m mag
+Change the magnification at which the output is printed.
+Normally it is printed with magnification .9;
+.IR mag "=.5"
+shrinks it to half size;
+.IR mag "=2"
+doubles the size.
+.TP
+.BI x val
+Move everything
+.I val
+screen pixels to the right (left, if
+.I val
+is negative).
+.TP
+.BI y val
+Move everything
+.I val
+screen pixels down (up, if
+.I val
+is negative).
+.TP
+.BI / nview
+Split the window into
+.I nview
+pieces.  The current page goes into the rightmost, bottommost piece,
+and previous pages are shown in the other pieces.
+.TP
+.BI "-F " dir
+Use
+.I dir
+for fonts instead of
+.BR /lib/font/bit .
+.TP
+.B d
+Toggle the debug flag.
+.PD
+.PP
+These commands are also available, under slightly different form,
+from a menu on button 3.  The
+.B pan
+menu item allows arbitrary positioning of the page:
+after selecting
+.BR pan ,
+press the mouse button again and hold it down while moving
+the page to the desired location.  The page will be redisplayed
+in its entirety when the button is released.
+Mouse button 1 also pans, without the need for selecting from a menu.
+.PP
+The
+.BR m ,
+.BR x ,
+.BR y ,
+.BR F ,
+.BR / ,
+and
+.B d
+commands are also available as command line options.
+.SH FILES
+.TF /lib/font/bit/MAP
+.TP
+.B /lib/font/bit/*
+fonts
+.TP
+.B /lib/font/bit/MAP
+how to convert troff output fonts and character names
+into screen fonts and character numbers
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/proof
+.SH SEE ALSO
+.IR lp (1), 
+.IR gs (1),
+.IR page (1)
+.br
+J. F. Ossanna and B. W. Kernighan,
+``Troff User's Manual''

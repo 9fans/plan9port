@@ -1,0 +1,244 @@
+.TH WINDOW 3
+.SH NAME
+Screen, allocscreen, publicscreen, freescreen, allocwindow, bottomwindow, bottomnwindows, topwindow, topnwindows, originwindow \- window management
+.SH SYNOPSIS
+.nf
+.B
+#include <u.h>
+.B
+#include <libc.h>
+.B
+#include <draw.h>
+.PP
+.ft L
+.nf
+typedef
+struct Screen
+{
+	Display	*display;	/* display holding data */
+	int		id;		/* id of system-held Screen */
+	Image	*image;	/* unused; for reference only */
+	Image	*fill;	/* color to paint behind windows */
+} Screen;
+.fi
+.ta \w'\fLScreen* 'u
+.PP
+.B
+Screen*	allocscreen(Image *image, Image *fill, int public)
+.PP
+.B
+Screen*	publicscreen(Display *d, int id, ulong chan)
+.PP
+.B
+int	freescreen(Screen *s)
+.PP
+.B
+Image*	allocwindow(Screen *s, Rectangle r, int ref, int val)
+.PP
+.B
+void	bottomwindow(Image *w)
+.PP
+.B
+void	bottomnwindows(Image **wp, int nw)
+.PP
+.B
+void	topwindow(Image *w)
+.PP
+.B
+void	topnwindows(Image **wp, int nw)
+.PP
+.B
+int	originwindow(Image *w, Point log, Point scr)
+.PP
+.ft L
+.nf
+enum
+{
+	/* refresh methods */
+	Refbackup	= 0,
+	Refnone		= 1,
+	Refmesg		= 2
+};
+.fi
+.ft P
+.SH DESCRIPTION
+Windows are represented as
+.B Images
+and may be treated as regular images for all drawing operations.
+The routines discussed here permit the creation, deletion, and shuffling
+of windows, facilities that do not apply to regular images.
+.PP
+To create windows, it is first necessary to allocate a
+.B Screen
+data structure to gather them together.
+A
+.B Screen
+turns an arbitrary image into something that may have windows upon it.
+It is created by
+.BR allocscreen ,
+which takes an
+.I image
+upon which to place the windows (typically
+.BR display->image ),
+a
+.I fill
+image to paint the background behind all the windows on the image,
+and a flag specifying whether the result should be publicly visible.
+If it is public, an arbitrary other program connected to the same
+display may acquire a pointer to the same screen by calling
+.B publicscreen
+with the
+.B Display
+pointer and the
+.I id
+of the published
+.BR Screen ,
+as well as the expected channel descriptor, as a safety check.
+It will usually require some out-of-band coordination for programs to share a screen profitably.
+.B Freescreen
+releases a
+.BR Screen ,
+although it may not actually disappear from view until all the windows upon it have also been deallocated.
+.PP
+Unlike
+.BR allocwindow ,
+.B allocscreen
+does
+.I not
+initialize the appearance of the
+.BR Screen .
+.PP
+Windows are created by
+.BR allocwindow ,
+which takes a pointer to the
+.B Screen
+upon which to create the window, a rectangle
+.I r
+defining its geometry, an integer pixel value
+.I val
+to color the window initially, and a refresh method
+.BR ref .
+The refresh methods are
+.BR Refbackup ,
+which provides backing store and is the method used by
+.IR rio (1)
+for its clients;
+.BR Refnone ,
+which provides no refresh and is designed for temporary uses
+such as sweeping a display rectangle, for windows that are
+completely covered by other windows, and for windows that
+are already protected by backing store; and
+.BR Refmesg ,
+which causes messages to be delivered to the owner of the window
+when it needs to be repainted.
+.B Refmesg
+is not fully implemented.
+.PP
+The result of
+.B allocwindow
+is an
+.B Image
+pointer that may be treated like any other image.
+In particular, it is freed by calling
+.B freeimage
+(see
+.IR allocimage (3)).
+The following functions, however, apply only to windows, not regular images.
+.PP
+.B Bottomwindow
+pushes window
+.I w
+to the bottom of the stack of windows on its
+.BR Screen ,
+perhaps obscuring it.
+.B Topwindow
+pulls window
+.I w
+to the top, making it fully visible on its
+.BR Screen .
+(This
+.B Screen
+may itself be within a window that is not fully visible;
+.B topwindow
+will not affect the stacking of this parent window.)
+.B Bottomnwindows
+and
+.B Topnwindows
+are analogous, but push or pull a group of
+.I nw
+windows listed in the array
+.IR wp .
+The order within
+.IR wp
+is unaffected.
+.PP
+Each window is created as an
+.B Image
+whose
+.B Rectangle
+.B r
+corresponds to the rectangle given to
+.B allocwindow
+when it was created.  Thus, a newly created window
+.I w
+resides on its
+.B Screen->image
+at
+.IB w ->r
+and has internal coordinates
+.IB w ->r .
+Both these may be changed by a call to
+.BR originwindow .
+The two
+.B Point
+arguments to
+.B originwindow
+define the upper left corner of the logical coordinate system
+.RI ( log )
+and screen position
+.RI ( scr ).
+Their usage is shown in the Examples section.
+.PP
+.IR Rio (1)
+creates its client windows with backing store,
+.BR Refbackup .
+The graphics initialization routine,
+.B initdraw
+(see
+.IR graphics (3)),
+builds a
+.B Screen
+upon this, and then allocates upon that another window indented
+to protect the border.  That window is created
+.BR Refnone ,
+since the backing store created by
+.B rio
+protects its contents.  That window is the one known in the
+library by the global name
+.B screen
+(a historic but confusing choice).
+.SH EXAMPLES
+To move a window to the upper left corner of the display,
+.EX
+	originwindow(w, w->r.min, Pt(0, 0));
+.EE
+To leave a window where it is on the screen but change its internal
+coordinate system so (0,\ 0) is the upper left corner of the window,
+.EX
+	originwindow(w, Pt(0, 0), w->r.min);
+.EE
+After this is done,
+.B w->r
+is translated to the origin and there will be no way to discover the
+actual screen position of the window unless it is recorded separately.
+.SH SOURCE
+.B /usr/local/plan9/src/libdraw
+.SH SEE ALSO
+.IR graphics (3),
+.IR draw (3),
+.IR cachechars (3),
+.IR draw (3)
+.SH BUGS
+The refresh method
+.B Refmesg
+should be finished.

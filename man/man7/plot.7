@@ -1,0 +1,336 @@
+.TH PLOT 7
+.SH NAME
+plot \- graphics interface
+.SH DESCRIPTION
+Files of this format are interpreted by
+.IR  plot (1)
+to draw graphics on the screen.
+A
+.I plot
+file is a
+.SM UTF
+stream of
+instruction lines.
+Arguments are delimited by spaces, tabs, or commas.
+Numbers may be floating point.
+Punctuation marks (except 
+.LR : )
+,
+spaces, and tabs at the beginning of lines are ignored.
+Comments run from  
+.L :
+to newline.
+Extra letters appended to a valid instruction are ignored.
+Thus
+.LR ...line ,
+.LR line , and 
+.L li
+all mean the same thing.
+Arguments are interpreted as follows:
+.TP
+1.
+If an instruction requires no arguments, the rest of the line is ignored.
+.TP
+2.
+If it requires a string argument, then all the line
+after the first field separator is passed as argument.
+Quote marks may be used to preserve leading blanks.
+Strings may include newlines represented as
+.LR \en .
+.TP
+3.
+Between numeric arguments alphabetic characters and
+punctuation marks are ignored.
+Thus
+.L
+line from 5 6 to 7 8
+draws a line from (5, 6) to (7, 8).
+.TP
+4.
+Instructions with numeric arguments remain in effect until
+a new instruction is read.
+Such commands may spill over many lines. Thus
+the following sequence will draw a polygon
+with vertices
+(4.5, 6.77), (5.8, 5.6), (7.8, 4.55), and (10.0, 3.6).
+.IP
+.EX
+move 4.5 6.77
+vec 5.8, 5.6 7.8
+4.55 10.0, 3.6 4.5, 6.77
+.EE
+.PP
+The instructions are executed in order.
+The last designated point in a
+.BR line ", " move ", " rmove ,
+.BR vec ", " rvec ", " arc ,
+or
+.B point
+command becomes the `current point'
+.RI ( X,Y )
+for the next command.
+.SS "Open & Close"
+.PD0
+.TP 10
+.BI o " string"
+Open plotting device.
+For 
+.IR troff ,
+.I string
+specifies the size of the plot
+(default is
+.LR 6i ).
+.TP 10
+.B cl
+Close plotting device.
+.PD
+.SS "Basic Plotting Commands"
+.PD0
+.TP 10
+.B e
+Start another frame of output.
+.TP 10
+.BI m " x y"
+(move) Current point becomes
+.I "x y."
+.TP 10
+.BI rm " dx dy"
+Current point becomes
+.I "X+dx Y+dy."
+.TP 10
+.BI poi " x y"
+Plot the point
+.I "x y"
+and make it the current point.
+.TP 10
+.BI v " x y"
+Draw a vector from the current point to
+.I "x y."
+.TP 10
+.BI rv " dx dy"
+Draw vector from current point to
+.RI X + dx
+.RI Y + dy
+.TP 10
+.BI li " x1 y1 x2 y2"
+Draw a line from
+.I "x1 y1"
+to
+.I "x2 y2."
+Make the current point
+.I "x2 y2."
+.TP 10
+.BI t " string"
+Place the
+.I string
+so that its
+first character is centered on the current point (default).
+If
+.I string
+begins with
+.L \eC
+.RL ( \eR ),
+it is centered (right-adjusted) on the current point.
+A backslash at the beginning of the string may
+be escaped with another backslash.
+.TP 10
+.BI a " x1 y1 x2 y2 xc yc r"
+Draw a circular arc from
+.I "x1 y1"
+to
+.I "x2 y2"
+with center
+.I "xc yc"
+and radius
+.IR r .
+If the radius is positive, the arc is drawn counterclockwise;
+negative, clockwise.
+The starting point is exact but the ending point is approximate.
+.TP 10
+.BI ci " xc yc r"
+Draw a circle centered at
+.I "xc yc"
+with radius
+.IR r .
+If the range and frame parameters do not specify a square,
+the `circle' will be elliptical.
+.TP 10
+.BI di " xc yc r"
+Draw a disc centered at
+.I "xc yc"
+with radius
+.I r
+using the filling color (see 
+.B cfill
+below).
+.TP 10
+.BI bo " x1 y1 x2 y2"
+Draw a box with lower left corner at
+.I "x1 y1"
+and upper right corner at
+.I "x2 y2."
+.TP 10
+.BI sb " x1 y1 x2 y2"
+Draw a solid box with lower left corner at
+.I "x1 y1"
+and upper right corner at
+.I "x2 y2"
+using the filling color (see 
+.B cfill
+below).
+.TP 10
+.BI par " x1 y1 x2 y2 xg yg"
+Draw a parabola from
+.I "x1 y1"
+to
+.I "x2 y2"
+`guided' by
+.I "xg yg."
+The parabola passes through the midpoint of the line joining
+.I "xg yg"
+with the midpoint of the line
+joining
+.I "x1 y1"
+and
+.I "x2 y2"
+and is tangent to the lines from
+.I "xg yg"
+to the endpoints.
+.TP 10
+.BI "pol { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fP} }\fI"
+Draw polygons with vertices
+.I "x1 y1 ... xn yn"
+and
+.I "X1 Y1 ... Xm Ym."
+If only one polygon is specified, the inner brackets are
+not needed.
+.TP 10
+.BI "fi { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fP} }\fI"
+Fill a polygon.
+The arguments are the same as those for
+.B pol
+except that the first vertex is automatically repeated to
+close each polygon.
+The polygons do not have to be connected.
+Enclosed polygons appear as holes.
+.TP 10
+.BI "sp { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fL} }\fI"
+Draw a parabolic spline guided by
+.I "x1 y1 ... xn yn"
+with simple endpoints.
+.TP 10
+.BI "fsp { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fL} }\fI"
+Draw a parabolic spline guided by
+.I "x1 y1 ... xn yn"
+with double first endpoint.
+.TP 10
+.BI "lsp { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fL} }\fI"
+Draw a parabolic spline guided by
+.I "x1 y1 ... xn yn"
+with double last endpoint.
+.TP 10
+.BI "dsp { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fL} }\fI"
+Draw a parabolic spline guided by
+.I "x1 y1 ... xn yn"
+with double endpoints.
+.TP 10
+.BI "csp { {" "x1 y1 ... xn yn" } " ... " { "X1 Y1 ... Xm Ym\fL} }\fI"
+.TP 10
+.BI in " filename"
+(include) Take commands from
+.IR filename .
+.TP 10
+.BI de " string " { " commands " }
+Define
+.I string
+as
+.IR commands .
+.TP 10
+.BI ca " string scale"
+Invoke commands defined as
+.I string
+applying
+.I scale
+to all coordinates.
+.PD
+.SS "Commands Controlling the Environment"
+.PD0
+.TP 10
+.BI co " string"
+Use color given by first character of
+.IR string ,
+one of
+.BR red ,
+.BR yellow ,
+.BR green ,
+.BR blue ,
+.BR cyan ,
+.BR magenta ,
+.BR white ,
+and
+.BR kblack .
+.TP 10
+.BI pe " string"
+Use
+.I string
+as the style for drawing lines.
+The available pen styles are:
+.BR solid ,
+.BR  dott [ed],
+.BR short ,
+.BR long ,
+.BR dotd [ashed] ,
+.BR cdash ,
+.BR ddash
+.TP 10
+.BI cf " string"
+Color for filling (see
+.BR co ,
+above).
+.TP 10
+.BI ra " x1 y1 x2 y2"
+The data will fall between
+.I "x1 y1"
+and
+.I "x2 y2."
+The plot will be magnified or reduced to fit
+the device as closely as possible.
+.IP
+Range settings that exactly fill the plotting area
+with unity scaling appear below for
+devices supported by the filters of
+.IR  plot (1).
+The upper limit is just outside the plotting area.
+In every case the plotting area is taken to be square;
+points outside may be displayable on
+devices with nonsquare faces.
+.TP 10
+.BI fr " px1 py1 px2 py2"
+Plot the data in the fraction of the display
+specified by
+.I "px1 py1"
+for lower left corner
+and
+.I "px2 py2"
+for upper right corner.
+Thus  
+.L frame .5 0 1. .5
+plots in the lower right
+quadrant of the display;
+.L frame 0. 1. 1. 0.
+uses the whole display but
+inverts the
+.I y
+coordinates.
+.TP 10
+.B sa
+Save the current environment, and move to a new one.
+The new environment inherits the old one.
+There are 7 levels.
+.TP 10
+.B re
+Restore previous environment.
+.PD
+.SH "SEE ALSO"
+.IR plot (1), 
+.IR graph (1)

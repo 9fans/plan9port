@@ -1,0 +1,269 @@
+.TH ARITH3 3
+.SH NAME
+add3, sub3, neg3, div3, mul3, eqpt3, closept3, dot3, cross3, len3, dist3, unit3, midpt3, lerp3, reflect3, nearseg3, pldist3, vdiv3, vrem3, pn2f3, ppp2f3, fff2p3, pdiv4, add4, sub4 \- operations on 3-d points and planes
+.SH SYNOPSIS
+.PP
+.B
+#include <draw.h>
+.PP
+.B
+#include <geometry.h>
+.PP
+.B
+Point3 add3(Point3 a, Point3 b)
+.PP
+.B
+Point3 sub3(Point3 a, Point3 b)
+.PP
+.B
+Point3 neg3(Point3 a)
+.PP
+.B
+Point3 div3(Point3 a, double b)
+.PP
+.B
+Point3 mul3(Point3 a, double b)
+.PP
+.B
+int eqpt3(Point3 p, Point3 q)
+.PP
+.B
+int closept3(Point3 p, Point3 q, double eps)
+.PP
+.B
+double dot3(Point3 p, Point3 q)
+.PP
+.B
+Point3 cross3(Point3 p, Point3 q)
+.PP
+.B
+double len3(Point3 p)
+.PP
+.B
+double dist3(Point3 p, Point3 q)
+.PP
+.B
+Point3 unit3(Point3 p)
+.PP
+.B
+Point3 midpt3(Point3 p, Point3 q)
+.PP
+.B
+Point3 lerp3(Point3 p, Point3 q, double alpha)
+.PP
+.B
+Point3 reflect3(Point3 p, Point3 p0, Point3 p1)
+.PP
+.B
+Point3 nearseg3(Point3 p0, Point3 p1, Point3 testp)
+.PP
+.B
+double pldist3(Point3 p, Point3 p0, Point3 p1)
+.PP
+.B
+double vdiv3(Point3 a, Point3 b)
+.PP
+.B
+Point3 vrem3(Point3 a, Point3 b)
+.PP
+.B
+Point3 pn2f3(Point3 p, Point3 n)
+.PP
+.B
+Point3 ppp2f3(Point3 p0, Point3 p1, Point3 p2)
+.PP
+.B
+Point3 fff2p3(Point3 f0, Point3 f1, Point3 f2)
+.PP
+.B
+Point3 pdiv4(Point3 a)
+.PP
+.B
+Point3 add4(Point3 a, Point3 b)
+.PP
+.B
+Point3 sub4(Point3 a, Point3 b)
+.SH DESCRIPTION
+These routines do arithmetic on points and planes in affine or projective 3-space.
+Type
+.B Point3
+is
+.IP
+.EX
+.ta 6n
+typedef struct Point3 Point3;
+struct Point3{
+	double x, y, z, w;
+};
+.EE
+.PP
+Routines whose names end in
+.B 3
+operate on vectors or ordinary points in affine 3-space, represented by their Euclidean
+.B (x,y,z)
+coordinates.
+(They assume
+.B w=1
+in their arguments, and set
+.B w=1
+in their results.)
+.TF reflect3
+.TP
+Name
+Description
+.TP
+.B add3
+Add the coordinates of two points.
+.TP
+.B sub3
+Subtract coordinates of two points.
+.TP
+.B neg3
+Negate the coordinates of a point.
+.TP
+.B mul3
+Multiply coordinates by a scalar.
+.TP
+.B div3
+Divide coordinates by a scalar.
+.TP
+.B eqpt3
+Test two points for exact equality.
+.TP
+.B closept3
+Is the distance between two points smaller than 
+.IR eps ?
+.TP
+.B dot3
+Dot product.
+.TP
+.B cross3
+Cross product.
+.TP
+.B len3
+Distance to the origin.
+.TP
+.B dist3
+Distance between two points.
+.TP
+.B unit3
+A unit vector parallel to
+.IR p .
+.TP
+.B midpt3
+The midpoint of line segment 
+.IR pq .
+.TP
+.B lerp3
+Linear interpolation between 
+.I p
+and
+.IR q .
+.TP
+.B reflect3
+The reflection of point
+.I p
+in the segment joining 
+.I p0
+and
+.IR p1 .
+.TP
+.B nearseg3
+The closest point to 
+.I testp
+on segment
+.IR "p0 p1" .
+.TP
+.B pldist3
+The distance from 
+.I p
+to segment
+.IR "p0 p1" .
+.TP
+.B vdiv3
+Vector divide \(em the length of the component of 
+.I a
+parallel to
+.IR b ,
+in units of the length of
+.IR b .
+.TP
+.B vrem3
+Vector remainder \(em the component of 
+.I a
+perpendicular to
+.IR b .
+Ignoring roundoff, we have 
+.BR "eqpt3(add3(mul3(b, vdiv3(a, b)), vrem3(a, b)), a)" .
+.PD
+.PP
+The following routines convert amongst various representations of points
+and planes.  Planes are represented identically to points, by duality;
+a point
+.B p
+is on a plane
+.B q
+whenever
+.BR p.x*q.x+p.y*q.y+p.z*q.z+p.w*q.w=0 .
+Although when dealing with affine points we assume
+.BR p.w=1 ,
+we can't make the same assumption for planes.
+The names of these routines are extra-cryptic.  They contain an
+.B f
+(for `face') to indicate a plane,
+.B p
+for a point and
+.B n
+for a normal vector.
+The number
+.B 2
+abbreviates the word `to.'
+The number
+.B 3
+reminds us, as before, that we're dealing with affine points.
+Thus
+.B pn2f3
+takes a point and a normal vector and returns the corresponding plane.
+.TF reflect3
+.TP
+Name
+Description
+.TP
+.B pn2f3
+Compute the plane passing through
+.I p
+with normal
+.IR n .
+.TP
+.B ppp2f3
+Compute the plane passing through three points.
+.TP
+.B fff2p3
+Compute the intersection point of three planes.
+.PD
+.PP
+The names of the following routines end in
+.B 4
+because they operate on points in projective 4-space,
+represented by their homogeneous coordinates.
+.TP
+pdiv4
+Perspective division.  Divide
+.B p.w
+into
+.IR p 's
+coordinates, converting to affine coordinates.
+If
+.B p.w
+is zero, the result is the same as the argument.
+.TP
+add4
+Add the coordinates of two points.
+.PD
+.TP
+sub4
+Subtract the coordinates of two points.
+.SH SOURCE
+.B /usr/local/plan9/src/libgeometry
+.SH "SEE ALSO
+.IR matrix (3)

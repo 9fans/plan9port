@@ -18,7 +18,10 @@ splits the input into as many columns as will fit in
 .I N
 print positions.
 If run in a
-.IR rio (1)
+.IR 9term (1),
+.IR xterm (1),
+or
+.IR acme (1)
 window, the default
 .I N
 is the number of blanks that will fit across the window;
@@ -31,9 +34,12 @@ each input line ending in a colon
 .L :
 is printed separately.
 .SH SOURCE
-.B /usr/local/plan9/src/cmd/mc.c
+.B /usr/local/plan9/src/cmd/draw/mc.c
 .SH "SEE ALSO"
-.IR rio (1),
+.IR 9term (1),
+.IR acme (1),
+.IR acme (4),
+.IR xterm (1),
 .IR pr (1),
 .I lc
 in

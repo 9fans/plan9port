@@ -21,17 +21,10 @@ places no more than
 .I size
 bytes in the buffer provided.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9sys/getwd.c
+.B /usr/local/plan9/src/lib9/getwd.c
 .SH "SEE ALSO"
 .IR pwd (1),
-.IR fd2path (3)
 .SH DIAGNOSTICS
 On error, zero is returned.
 .IR Errstr (3)
 may be consulted for more information.
-.SH BUGS
-Although the name returned by
-.I getwd
-is guaranteed to be the path used to reach the directory,
-if the name space has changed underfoot, the name may be
-incorrect.

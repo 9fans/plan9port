@@ -5,12 +5,10 @@ chancreate,
 chanfree,
 chaninit,
 chanprint,
+chansetname,
 mainstacksize,
 proccreate,
 procdata,
-procexec,
-procexecl,
-procrfork,
 recv,
 recvp,
 recvul,
@@ -25,6 +23,8 @@ nbsendp,
 nbsendul,
 threadcreate,
 threaddata,
+threadexec,
+threadexecl,
 threadexits,
 threadexitsall,
 threadgetgrp,
@@ -33,12 +33,15 @@ threadint,
 threadintgrp,
 threadkill,
 threadkillgrp,
+threadlinklibrary,
 threadmain,
 threadnotify,
 threadid,
 threadpid,
 threadsetgrp,
 threadsetname,
+threadsetstate,
+threadspawn,
 threadwaitchan,
 yield \- thread and proc management
 .SH SYNOPSIS
@@ -71,6 +74,7 @@ struct Alt {
 	int	op;
 	Channel	**tag;
 	int	entryno;
+	char	*name;
 };
 .fi
 .de XX
@@ -126,8 +130,9 @@ int	nbsendp(Channel *c, void *v)
 int	nbsendul(Channel *c, ulong v)
 int	chanprint(Channel *c, char *fmt, ...)
 .XX
-int	procexecl(Channel *cpid, char *file, ...)
-int	procexec(Channel *cpid, char *file, char *args[])
+int	threadspawn(int fd[3], char *file, char *args[])
+int	threadexecl(Channel *cpid, int fd[3], char *file, ...)
+int	threadexec(Channel *cpid, int fd[3], char *file, char *args[])
 Channel*	threadwaitchan(void)
 .XX
 int	threadnotify(int (*f)(void*, char*), int in)
@@ -179,31 +184,31 @@ on a stack of size
 .IR stacksize .
 Thread stacks are allocated in shared memory, making it valid to pass 
 pointers to stack variables between threads and procs.
-.I Procrfork
+.I Proccreate
 creates a new proc, and inside that proc creates
 a single thread as
 .I threadcreate
 would,
 returning the id of the created thread.
-.I Procrfork
-creates the new proc by calling
-.B rfork
-(see
-.IR fork (3))
-with flags
-.BR RFPROC|RFMEM|RFNOWAIT| \fIrforkflag\fR.
-(The thread library depends on all its procs
-running in the same rendezvous group.
-Do not include
-.B RFREND
-in
-.IR rforkflag .)
-.I Proccreate
-is identical to 
-.I procrfork
-with
-.I rforkflag
-set to zero.
+.\" .I Procrfork
+.\" creates the new proc by calling
+.\" .B rfork
+.\" (see
+.\" .IR fork (3))
+.\" with flags
+.\" .BR RFPROC|RFMEM|RFNOWAIT| \fIrforkflag\fR.
+.\" (The thread library depends on all its procs
+.\" running in the same rendezvous group.
+.\" Do not include
+.\" .B RFREND
+.\" in
+.\" .IR rforkflag .)
+.\" .I Proccreate
+.\" is identical to 
+.\" .I procrfork
+.\" with
+.\" .I rforkflag
+.\" set to zero.
 Be aware that the calling thread may continue
 execution before
 the newly created proc and thread
@@ -226,6 +231,11 @@ using
 .I status
 as the exit status.
 .PP
+When the last thread in
+.IR threadmain 's
+proc exits, the program will appear to its parent to have exited.
+The remaining procs will still run together, but as a background program.
+.PP
 The threads in a proc are coroutines, scheduled nonpreemptively
 in a round-robin fashion.
 A thread must explicitly relinquish control of the processor
@@ -233,9 +243,10 @@ before another thread in the same proc is run.
 Calls that do this are
 .IR yield ,
 .IR proccreate ,
-.IR procexec ,
-.IR procexecl ,
+.IR threadexec ,
+.IR threadexecl ,
 .IR threadexits ,
+.IR threadspawn ,
 .IR alt ,
 .IR send ,
 and
@@ -307,6 +318,17 @@ The pointer returned by
 is only valid until the next call to
 .IR threadsetname .
 .PP
+Also for debugging,
+threads have a string state associated with them.
+.I Threadsetstate
+sets the state string.
+There is no 
+.IR threadgetstate ;
+since the thread scheduler resets the state to
+.B Running
+every time it runs the thread, 
+it is only useful for debuggers to inspect the state.
+.PP
 .I Threaddata
 returns a pointer to a per-thread pointer
 that may be modified by threaded programs for
@@ -315,9 +337,9 @@ Similarly,
 .I procdata
 returns a pointer to a per-proc pointer.
 .PP
-.I Procexecl
+.I Threadexecl
 and
-.I procexec
+.I threadexec
 are threaded analogues of
 .I exec
 and
@@ -325,30 +347,67 @@ and
 (see
 .IR exec (3));
 on success,
-they replace the calling thread (which must be the only thread in its proc)
+they replace the calling thread
 and invoke the external program, never returning.
+(Unlike on Plan 9, the calling thread need not be the only thread in its proc\(emthe other
+threads will continue executing.)
 On error, they return \-1.
 If
 .I cpid
 is not null, the pid of the invoked program
 will be sent along
 .I cpid
+(using
+.IR sendul )
 once the program has been started, or \-1 will be sent if an
 error occurs.
-.I Procexec
+.I Threadexec
 and
-.I procexecl
+.I threadexecl
 will not access their arguments after sending a result
 along
 .IR cpid .
 Thus, programs that malloc the
 .I argv
 passed to
-.I procexec
+.I threadexec
 can safely free it once they have
 received the
 .I cpid
 response.
+.PP
+.I Threadexecl
+and
+.I threadexec
+will duplicate 
+(see
+.IR dup (3))
+the three file descriptors in
+.I fd 
+onto standard input, output, and error for the external program
+and then close them in the calling thread.
+Beware of code that sets
+.IP
+.EX
+fd[0] = 0;
+fd[1] = 1;
+fd[2] = 2;
+.EE
+to use the current standard files.  The correct code is
+.IP
+.EX
+fd[0] = dup(0, -1);
+fd[1] = dup(1, -1);
+fd[2] = dup(2, -1);
+.EE
+.PP
+.I Threadspawn
+is like
+.I threadexec
+but does not replace the current thread.
+It returns the pid of the invoked program on success, or
+\-1 on error.
+.PP
 .I Threadwaitchan
 returns a channel of pointers to
 .B Waitmsg
@@ -397,6 +456,14 @@ sent or received.  Freeing the channel will be delayed if there is a thread
 blocked on it until that thread unblocks (but
 .I chanfree
 returns immediately).
+.PP
+The
+.B name
+element in the
+.B Channel
+structure is a description intended for use in debugging.
+.I Chansetname
+sets the name.
 .PP
 .I Send
 sends the element pointed at by
@@ -536,49 +603,97 @@ in place of
 .IR notify (3)).
 .PP
 It is safe to use
-.B sysfatal
-(see
-.IR perror (3))
+.IR sysfatal (3)
 in threaded programs.
 .I Sysfatal
 will print the error string and call
 .IR threadexitsall .
 .PP
-It is safe to use 
+It is not safe to call
 .IR rfork
-(see
-.IR fork (3))
-to manage the namespace, file descriptors, note group, and environment of a
-single process.
-That is, it is safe to call
-.I rfork
-with the flags
-.BR RFNAMEG ,
-.BR RFFDG ,
-.BR RFCFDG ,
-.BR RFNOTEG ,
-.BR RFENVG ,
-and
-.BR RFCENVG.
-(To create new processes, use
-.I proccreate
-and 
-.IR procrfork .)
-As mentioned above,
-the thread library depends on all procs being in the
-same rendezvous group; do not change the rendezvous
-group with
-.IR rfork .
+in a threaded program, except to call
+.B rfork(RFNOTEG)
+from the main proc before any other procs have been created.
+To create new processes, use
+.IR proccreate .
+.\" .PP
+.\" It is safe to use 
+.\" .IR rfork
+.\" (see
+.\" .IR fork (3))
+.\" to manage the namespace, file descriptors, note group, and environment of a
+.\" single process.
+.\" That is, it is safe to call
+.\" .I rfork
+.\" with the flags
+.\" .BR RFNAMEG ,
+.\" .BR RFFDG ,
+.\" .BR RFCFDG ,
+.\" .BR RFNOTEG ,
+.\" .BR RFENVG ,
+.\" and
+.\" .BR RFCENVG.
+.\" (To create new processes, use
+.\" .I proccreate
+.\" and 
+.\" .IR procrfork .)
+.\" As mentioned above,
+.\" the thread library depends on all procs being in the
+.\" same rendezvous group; do not change the rendezvous
+.\" group with
+.\" .IR rfork .
 .SH FILES
 .B /usr/local/plan9/acid/thread
 contains useful
 .IR acid (1)
 functions for debugging threaded programs.
 .PP
-.B /usr/local/plan9/src/libthread/example.c
-contains a full example program.
+.B /usr/local/plan9/src/libthread/test
+contains some example programs.
 .SH SOURCE
 .B /usr/local/plan9/src/libthread
 .SH SEE ALSO
 .IR intro (3),
 .IR ioproc (3)
+.SH BUGS
+A program that intends to use the thread library
+but does not call any of its functions will not cause Unix linkers
+to link the thread library, resulting in the unintelligible error:
+.IP
+.EX
+/usr/local/plan9/lib/lib9.a(main.o)(.text+0x17): In function `main':
+/usr/local/plan9/src/lib9/main.c:10: undefined reference to `p9main'
+.EE
+.LP
+or similar.  To force the thread library to be linked properly in such cases,
+insert a call to the no-op function
+.I threadlinklibrary
+somewhere in your program.
+.PP
+To avoid name conflicts,
+.IR alt ,
+.IR nbrecv ,
+.IR nbrecvp ,
+.IR nbrecvul ,
+.IR nbsend ,
+.IR nbsendp ,
+.IR nbsendul ,
+.IR recv ,
+.IR recvp ,
+.IR recvul ,
+.IR send ,
+.IR sendp ,
+and
+.IR sendul
+are defined as macros that expand to
+.IR chanalt ,
+.IR channbrecv ,
+and so on.
+Similarly,
+.I yield
+is defined as a macro that expands to
+.IR threadyield .
+.PP
+The implementation of
+.I threadnotify
+may not be correct.

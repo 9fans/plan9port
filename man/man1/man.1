@@ -1,0 +1,105 @@
+.TH MAN 1
+.SH NAME
+man, lookman \- print or find pages of this manual
+.SH SYNOPSIS
+.B man
+[
+.I option ...
+]
+[
+.I section ...
+]
+.I title ...
+.PP
+.B lookman
+.I key ...
+.PP
+.B sig
+.I function ...
+.SH DESCRIPTION
+.I Man
+locates and prints pages of this manual named
+.I title
+in the specified
+.IR sections .
+.I Title
+is given in lower case.
+Each
+.I section
+is a number;
+pages marked (2S), for example,
+belong to chapter 2.
+If no
+.I section
+is specified, pages 
+in all sections are printed.
+Any name from the
+.SM NAME
+section at the top of the page will serve as a
+.IR title .
+.PP
+The options are:
+.TP
+.B -p
+Run
+.IR proof (1)
+on the specified man pages.
+.TP
+.B -P
+Run
+.IR page (1)
+on the specified man pages.
+.TP
+.B -t
+Run
+.I troff
+and send its output
+to standard output.
+.TP
+.B -n
+(Default)
+Print the pages on the standard output using
+.IR nroff .
+.PP
+.B Lookman
+prints the names of all manual sections that contain
+all of the
+.I key
+words given on the command line.
+.PP
+.B Sig
+prints the signature (i.e. C definition) of the
+.IR function 's
+given on the command line.
+.SH FILES
+.TF /sys/lib/man/lookman/index
+.TP
+.B /sys/man/?/*
+.I troff
+source for manual; this page is
+.B /sys/man/1/man
+.TP
+.B /sys/man/?/INDEX
+indices searched to find pages corresponding to titles
+.TP
+.B /sys/lib/man/secindex
+command to make an index for a given section
+.TP
+.B /sys/lib/man/lookman/index
+index for
+.I lookman
+.SH SOURCE
+.B /usr/local/plan9/bin/9man
+.br
+.B /usr/local/plan9/bin/lookman
+.SH "SEE ALSO"
+.IR proof (1)
+.SH BUGS
+The manual was intended to be typeset; some detail is sacrificed on text terminals.
+.br
+There is no automatic mechanism to keep the indices up to date.
+.br
+Except for special cases, it doesn't recognize things that should be run through
+.I tbl
+and/or
+.IR eqn .

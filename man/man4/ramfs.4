@@ -1,0 +1,50 @@
+.TH RAMFS 4
+.SH NAME
+ramfs  \- memory file system
+.SH SYNOPSIS
+.B ramfs
+[
+.B -i
+]
+[
+.B -S
+.I service
+]
+.SH DESCRIPTION
+.I Ramfs
+starts a 9P file server 
+keeping all files in memory.
+Initially the file tree is empty.
+.PP
+By default
+.I ramfs
+posts its service as
+.B ramfs
+using
+.IR 9pserve (4).
+.PP
+The
+.B -S
+flag specifies an alternate service name for ramfs to use.
+.PP
+The
+.B -i
+flag tells
+.I ramfs
+to use file descriptors 0 and 1 for its communication channel
+rather than create a pipe.
+This makes it possible to use
+.I ramfs
+as a file server on a remote machine: the file descriptors 0
+and 1 will be the network channel from
+.I ramfs
+to the client machine.
+.PP
+This program is useful mainly as an example of how
+to write a user-level file server.
+It can also be used to provide high-performance temporary files.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/ramfs.c
+.SH "SEE ALSO"
+.IR 9p (3),
+.IR 9pserve (4)

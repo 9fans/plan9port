@@ -1,7 +1,6 @@
 .TH MACH-STACK 3
 .SH NAME
-stacktrace,
-localaddr,
+stacktrace, localaddr, unwindframe, windindex, windreglocs \- stack traces
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -14,7 +13,16 @@ localaddr,
 int	stacktrace(Map *map, Rgetter rget, Tracer trace)
 .PP
 .ft B
-int	localvar(Map *map, char *fn, char *val, Loc *loc)
+int	localaddr(Map *map, Regs *regs, char *fn, char *val, ulong *val)
+.PP
+.ft B
+int	unwindframe(Map *map, Regs *regs, ulong *next, Symbol *sym)
+.PP
+.ft B
+int	windindex(char *regname)
+.PP
+.ft B
+Loc*	windreglocs(void)
 .SH DESCRIPTION
 .I Stacktrace
 provides machine-independent
@@ -80,7 +88,7 @@ is as an argument to
 .IR lget4 ,
 etc., when evaluating the locations of local variables.
 .PP
-.I Localvar
+.I Localaddr
 uses
 .I stacktrace
 to walk up the stack looking for the innermost instance of a function named
@@ -88,8 +96,46 @@ to walk up the stack looking for the innermost instance of a function named
 once it finds the function,
 it looks for the parameter or local variable
 .IR var ,
-storing the location of the variable in
-.IR loc .
+storing the address of the variable in
+.IR val .
+.PP
+.I Unwindframe
+is the low-level function on which
+.I stacktrace
+is built.
+Given the current memory image in
+.I map
+and the current register set in
+.I regs ,
+.I unwindframe
+fills in
+.I next
+with the values of the register set 
+at the time of the call to the function in the current program counter.
+.I Sym
+should be the symbol corresponding to the current function,
+if available.
+.PP
+The
+.I next
+array holds only the
+.IR "winding registers" ,
+typically the caller-save registers and the program counter and stack pointer.
+The order of registers in the array is called the
+.IR "winding order" .
+The winding set can be found in the array
+.IB mach -> windreg \fR,
+which has
+.IB mach -> nwindreg
+entries.
+.I Windindex
+returns the index of the named register
+in the winding order.
+.I Windreglocs
+returns an array of
+.I Loc
+structures corresponding to the winding registers,
+in the winding order.
 .SH EXAMPLE
 The following code writes a simple stack trace to standard output,
 stopping after at most 20 stack frames.
@@ -135,3 +181,5 @@ trace(Map *map, ulong pc, ulong callerpc,
 .B /usr/local/plan9/src/libmach
 .SH SEE ALSO
 .IR mach (3)
+.SH BUGS
+Need to talk about Regs

@@ -138,9 +138,9 @@ event mechanism and put in a queue.
 .I Ekbd
 returns the next rune from the queue, blocking until the
 queue is non-empty.
-The characters are read in raw mode
-(see
-.IR cons (3)),
+The characters are read in raw mode,
+.\" (see
+.\" .IR cons (3)),
 so they are available as soon as a complete rune is typed.
 .PP
 When the mouse moves or a mouse button is pressed or released,
@@ -380,5 +380,5 @@ is nil, it restores the image to the default arrow.
 .IR rio (1),
 .IR graphics (3),
 .IR plumb (3),
-.IR cons (3),
+.\" .IR cons (3),
 .IR draw (3)

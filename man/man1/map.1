@@ -1,0 +1,675 @@
+.TH MAP 1
+.SH NAME
+map, mapdemo \- draw maps on various projections
+.SH SYNOPSIS
+.B map
+.I projection
+[
+.I option ...
+]
+.PP
+.B mapdemo
+.PP
+.SH DESCRIPTION
+.I Map
+prepares on the standard output a
+map suitable for display by any
+plotting filter described in
+.IR  plot (1).
+A menu of projections is produced in response to an unknown
+.IR projection .
+.I Mapdemo
+is a short course in mapping.
+.PP
+The default data for
+.I map
+are world shorelines.
+Option
+.B -f
+accesses more detailed data
+classified by feature.
+.TP
+.BR -f " [ \fIfeature\fR ... ]"
+Features are ranked 1 (default) to 4 from major to minor.
+Higher-numbered ranks include all lower-numbered ones.
+Features are
+.RS
+.TF country[1-3]
+.TP
+.BR shore [ 1 - 4 ] 
+seacoasts, lakes, and islands; option
+.B -f
+always shows
+.B shore1
+.TP
+.BR ilake [ 1 - 2 ] 
+intermittent lakes
+.TP
+.BR river [ 1 - 4 ] 
+rivers
+.TP
+.BR iriver [ 1 - 3 ] 
+intermittent rivers
+.TP
+.BR canal [ 1 - 3 ] 
+.BR 3 =irrigation
+canals
+.TP
+.BR glacier
+.TP
+.BR iceshelf [ 12 ] 
+.TP
+.BR reef
+.TP
+.BR saltpan [ 12 ] 
+.TP
+.BR country [ 1 - 3 ] 
+.BR 2 =disputed
+boundaries,
+.BR 3 =indefinite
+boundaries
+.TP
+.BR state
+states and provinces (US and Canada only)
+.PD
+.RE
+.PP
+In other options
+coordinates are in degrees, with north latitude
+and west longitude counted as positive.
+.TP 0
+.BI -l " S N E W"
+Set the southern and northern latitude
+and the eastern and western longitude limits.
+Missing arguments are filled out from the list
+\-90, 90, \-180, 180,
+or lesser limits suitable to the
+projection at hand.
+.TP
+.BI -k " S N E W
+Set the scale as if for a map with limits
+.B -l
+.I "S N E W"\f1.
+Do not consider any
+.B -l
+or
+.B -w
+option in setting scale.
+.TP
+.BI -o " lat lon rot"
+Orient the map in a nonstandard position.
+Imagine a transparent gridded sphere around the globe.
+Turn the overlay about the North Pole
+so that the Prime Meridian (longitude 0)
+of the overlay coincides with meridian
+.I lon
+on the globe.
+Then tilt the North Pole of the
+overlay along its Prime Meridian to latitude
+.I lat
+on the globe.
+Finally again turn the
+overlay about its `North Pole' so
+that its Prime Meridian coincides with the previous position
+of meridian
+.IR rot .
+Project the map in
+the standard form appropriate to the overlay, but presenting
+information from the underlying globe.
+Missing arguments are filled out from the list
+90, 0, 0.
+In the absence of
+.BR - o ,
+the orientation is 90, 0,
+.IR m ,
+where
+.I m
+is the middle of the longitude range.
+.TP
+.BI -w " S N E W"
+Window the map by the specified latitudes
+and longitudes in the tilted, rotated coordinate system.
+Missing arguments are filled out from the list \-90, 90, \-180, 180.
+(It is wise to give an encompassing
+.B -l
+option with
+.BR -w .
+Otherwise for small windows computing time
+varies inversely with area!)
+.TP
+.BI -d " n"
+For speed, plot only every
+.IR n th
+point.
+.TP
+.B  -r
+Reverse left and right
+(good for star charts and inside-out views).
+.ns
+.TP
+.B -v
+Verso.
+Switch to a normally suppressed sheet of the map, such as the
+back side of the earth in orthographic projection.
+.TP
+.B  -s1
+.br
+.ns
+.TP
+.B -s2
+Superpose; outputs for a
+.B -s1
+map (no closing) and a
+.B -s2
+map (no opening) may be concatenated.
+.TP
+.BI -g " dlat dlon res"
+Grid spacings are
+.IR dlat ,
+.IR dlon .
+Zero spacing means no grid.
+Missing
+.I dlat
+is taken to be zero.
+Missing
+.I dlon
+is taken the same as
+.IR dlat .
+Grid lines are drawn to a resolution of
+.I res
+(2° or less by default).
+In the absence of
+.BR - g ,
+grid spacing is 10°.
+.TP
+.BI -p " lat lon extent"
+Position the point
+.I lat, lon
+at the center of the plotting area.
+Scale the map so that the height (and width) of the
+nominal plotting area is
+.I extent
+times the size of one degree of latitude
+at the center.
+By default maps are scaled and positioned
+to fit within the plotting area.
+An
+.I extent
+overrides option
+.BR -k .
+.TP
+.BI -c " x y rot"
+After all other positioning and scaling operations
+have been performed, rotate the image
+.I rot
+degrees counterclockwise about the center 
+and move the center to position
+.IR x ,
+.IR y ,
+where the nominal plotting area is
+.RI \-1≤ x ≤1,
+.RI \-1≤ y ≤1.
+Missing arguments are taken to be 0.
+.BR -x
+Allow the map to extend outside the nominal plotting area.
+.TP
+.BR -m " [ \fIfile\fP ... ]"
+Use
+map data from named files.
+If no files are named, omit map data.
+Names that do not exist as pathnames are looked up in
+a standard directory, which contains, in addition to the
+data for
+.BR -f ,
+.RS
+.LP
+.TF counties
+.TP
+.B world
+World Data Bank I (default)
+.TP
+.B states
+US map from Census Bureau
+.TP
+.B counties
+US map from Census Bureau
+.PD
+.RE
+.IP
+The environment variables
+.B MAP 
+and
+.B MAPDIR 
+change the default
+map and default directory.
+.TP
+.BI -b " \fR[\fPlat0 lon0 lat1 lon1\fR... ]"
+Suppress the drawing of the normal boundary
+(defined by options
+.BR -l 
+and
+.BR -w ).
+Coordinates, if present, define the vertices of a
+polygon to which the map is clipped.
+If only two vertices are given, they are taken to be the
+diagonal of a rectangle.
+To draw the polygon, give its vertices as a
+.B -u
+track.
+.TP
+.BI -t " file ..."
+The
+.I files
+contain lists of points,
+given as latitude-longitude pairs in degrees.
+If the first file is named 
+.LR - ,
+the standard input is taken instead.
+The points of each list are plotted as connected `tracks'.
+.IP
+Points in a track file may be followed by label strings.
+A label breaks the track.
+A label may be prefixed by
+\fL"\fR,
+.LR : ,
+or 
+.L !
+and is terminated by a newline.
+An unprefixed string or a string prefixed with
+.L
+"
+is displayed at the designated point.
+The first word of a
+.L :
+or
+.L !
+string names a special symbol (see option
+.BR -y ).
+An optional numerical second word is a scale factor
+for the size of the symbol, 1 by default.
+A
+.L :
+symbol is aligned with its top to the north; a
+.L !
+symbol is aligned vertically on the page.
+.TP
+.BI -u " file ..."
+Same as
+.BR -t ,
+except the tracks are
+unbroken lines.
+.RB ( -t
+tracks appear as dot-dashed lines if the plotting filter supports them.)
+.TP
+.BI -y " file
+The
+.I file
+contains 
+.IR plot (7)-style
+data for
+.L :
+or
+.L !
+labels in
+.B -t
+or
+.B -u
+files.
+Each symbol is defined by a comment
+.BI : name
+then a sequence of
+.L m
+and
+.L v
+commands.
+Coordinates (0,0) fall on the plotting point.
+Default scaling is as if the nominal plotting range were
+.LR "ra -1 -1 1 1" ;
+.L ra
+commands in
+.I file
+change the scaling.
+.SS Projections
+Equatorial projections centered on the Prime Meridian
+(longitude 0).
+Parallels are straight horizontal lines.
+.PP
+.PD 0
+.TP 1.5i
+.B mercator
+equally spaced straight meridians, conformal,
+straight compass courses
+.TP
+.B sinusoidal
+equally spaced parallels,
+equal-area, same as
+.LR "bonne 0" .
+.TP
+.BI cylequalarea " lat0"
+equally spaced straight meridians, equal-area,
+true scale on
+.I lat0
+.TP
+.B cylindrical
+central projection on tangent cylinder
+.TP
+.BI rectangular " lat0"
+equally spaced parallels, equally spaced straight meridians, true scale on
+.I lat0
+.TP
+.BI gall " lat0"
+parallels spaced stereographically on prime meridian, equally spaced straight
+meridians, true scale on
+.I lat0
+.TP
+.B mollweide
+(homalographic) equal-area, hemisphere is a circle
+.br
+.B gilbert()
+sphere conformally mapped on hemisphere and viewed orthographically
+.TP
+.B gilbert
+globe mapped conformally on hemisphere, viewed orthographically
+.PD
+.PP
+Azimuthal projections centered on the North Pole.
+Parallels are concentric circles.
+Meridians are equally spaced radial lines.
+.PP
+.PD 0
+.TP 1.5i
+.B azequidistant
+equally spaced parallels,
+true distances from pole
+.TP
+.B azequalarea
+equal-area
+.TP
+.B gnomonic
+central projection on tangent plane,
+straight great circles
+.TP
+.BI perspective " dist"
+viewed along earth's axis
+.I dist
+earth radii from center of earth
+.TP
+.B orthographic
+viewed from infinity
+.TP
+.B stereographic
+conformal, projected from opposite pole
+.TP
+.B laue
+.IR radius " = tan(2\(mu" colatitude ),
+used in X-ray crystallography
+.TP
+.BI fisheye " n"
+stereographic seen from just inside medium with refractive index
+.I n
+.TP
+.BI newyorker " r"
+.IR radius " = log(" colatitude / r ):
+.I New Yorker
+map from viewing pedestal of radius
+.I r
+degrees
+.PD
+.PP
+Polar conic projections symmetric about the Prime Meridian.
+Parallels are segments of concentric circles.
+Except in the Bonne projection,
+meridians are equally spaced radial
+lines orthogonal to the parallels.
+.PP
+.PD 0
+.TP 1.5i
+.BI conic " lat0"
+central projection on cone tangent at
+.I lat0
+.TP
+.BI simpleconic " lat0 lat1"
+equally spaced parallels, true scale on
+.I lat0
+and
+.I lat1
+.TP
+.BI lambert " lat0 lat1"
+conformal, true scale on 
+.I lat0
+and 
+.I lat1
+.TP
+.BI albers " lat0 lat1"
+equal-area, true scale on
+.I lat0
+and 
+.I lat1
+.TP
+.BI bonne " lat0"
+equally spaced parallels, equal-area,
+parallel
+.I lat0
+developed from tangent cone
+.PD
+.PP
+Projections with bilateral symmetry about
+the Prime Meridian
+and the equator.
+.PP
+.PD 0
+.TP 1.5i
+.B polyconic
+parallels developed from tangent cones,
+equally spaced along Prime Meridian
+.TP
+.B aitoff
+equal-area projection of globe onto 2-to-1
+ellipse, based on 
+.I azequalarea
+.TP
+.B lagrange
+conformal, maps whole sphere into a circle
+.TP
+.BI bicentric " lon0"
+points plotted at true azimuth from two
+centers on the equator at longitudes
+.IR ±lon0 ,
+great circles are straight lines
+(a stretched
+.IR gnomonic
+)
+.TP
+.BI elliptic " lon0"
+points plotted at true distance from
+two centers on the equator at longitudes
+.I ±lon0
+.TP
+.B globular
+hemisphere is circle,
+circular arc meridians equally spaced on equator,
+circular arc parallels equally spaced on 0- and 90-degree meridians
+.TP
+.B vandergrinten
+sphere is circle,
+meridians as in
+.IR globular ,
+circular arc parallels resemble 
+.I mercator
+.PD
+.PP
+Doubly periodic conformal projections.
+.PP
+.TP 1.5i
+.B guyou
+W and E hemispheres are square
+.PD 0
+.TP
+.B square
+world is square with Poles
+at diagonally opposite corners
+.TP
+.B tetra
+map on tetrahedron with edge
+tangent to Prime Meridian at S Pole,
+unfolded into equilateral triangle
+.TP
+.B hex
+world is hexagon centered
+on N Pole, N and S hemispheres are equilateral
+triangles
+.PD
+.PP
+Miscellaneous projections.
+.PP
+.PD 0
+.TP 1.5i
+.BI harrison " dist angle"
+oblique perspective from above the North Pole,
+.I dist
+earth radii from center of earth, looking
+along the Date Line
+.I angle
+degrees off vertical
+.TP
+.BI trapezoidal " lat0 lat1"
+equally spaced parallels,
+straight meridians equally spaced along parallels,
+true scale at
+.I lat0
+and
+.I lat1
+on Prime Meridian
+.PD
+.br
+.B lune(lat,angle)
+conformal, polar cap above latitude
+.I lat
+maps to convex lune with given
+.I angle
+at 90\(deE and 90\(deW
+.PP
+Retroazimuthal projections.
+At every point the angle between vertical and a straight line to
+`Mecca', latitude
+.I lat0
+on the prime meridian,
+is the true bearing of Mecca.
+.PP
+.PD 0
+.TP 1.5i
+.BI mecca " lat0"
+equally spaced vertical meridians
+.TP
+.BI homing " lat0"
+distances to Mecca are true
+.PD
+.PP
+Maps based on the spheroid.
+Of geodetic quality, these projections do not make sense
+for tilted orientations.
+For descriptions, see corresponding maps above.
+.PP
+.PD 0
+.TP 1.5i
+.B sp_mercator
+.TP
+.BI sp_albers " lat0 lat1"
+.SH EXAMPLES
+.TP
+.L
+map perspective 1.025 -o 40.75 74
+A view looking down on New York from 100 miles
+(0.025 of the 4000-mile earth radius) up.
+The job can be done faster by limiting the map so as not to `plot'
+the invisible part of the world:
+.LR "map perspective 1.025 -o 40.75 74 -l 20 60 30 100".
+A circular border can be forced by adding option
+.LR "-w 77.33" .
+(Latitude 77.33° falls just inside a polar cap of
+opening angle arccos(1/1.025) = 12.6804°.)
+.TP
+.L
+map mercator -o 49.25 -106 180
+An `equatorial' map of the earth
+centered on New York.
+The pole of the map is placed 90\(de away (40.75+49.25=90)
+on the
+other side of the earth.
+A 180° twist around the pole of the map arranges that the
+`Prime Meridian' of the map runs from the pole of the
+map over the North Pole to New York
+instead of down the back side of the earth.
+The same effect can be had from
+.L
+map mercator -o 130.75 74
+.TP
+.L
+map albers 28 45 -l 20 50 60 130 -m states
+A customary curved-latitude map of the United States.
+.TP
+.L
+map harrison 2 30 -l -90 90 120 240 -o 90 0 0
+A fan view covering 60° on either
+side of the Date Line, as seen from one earth radius
+above the North Pole gazing at the
+earth's limb, which is 30° off vertical.
+The
+.B -o
+option overrides the default
+.BR "-o 90 0 180" , 
+which would rotate
+the scene to behind the observer.
+.SH FILES
+.TF /lib/map/[1-4]??
+.TP
+.B /lib/map/[1-4]??
+World Data Bank II, for
+.B -f
+.TP
+.B /lib/map/*
+maps for
+.B -m
+.TP
+.B /lib/map/*.x
+map indexes
+.TP
+.B /bin/aux/mapd
+Map driver program
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/map
+.SH "SEE ALSO"
+.IR map (7), 
+.IR plot (1)
+.SH DIAGNOSTICS
+`Map seems to be empty'\(ema coarse survey found
+zero extent within the 
+.B -l
+and
+.BR -w 
+bounds; for maps of limited extent
+the grid resolution,
+.IR res ,
+or the limits may have to be refined.
+.SH BUGS
+Windows (option
+.BR -w )
+cannot cross the Date Line.
+No borders appear along edges arising from
+visibility limits.
+Segments that cross a border are dropped, not clipped.
+Excessively large scale or
+.B -d
+setting may cause long line segments to be dropped.
+.I Map
+tries to draw grid lines dotted and
+.B -t
+tracks dot-dashed.
+As very few plotting filters properly support
+curved textured lines, these lines are likely to
+appear solid.
+The west-longitude-positive convention
+betrays Yankee chauvinism.
+.I Gilbert
+should be a map from sphere to sphere, independent of
+the mapping from sphere to plane.

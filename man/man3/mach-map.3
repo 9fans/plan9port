@@ -4,10 +4,9 @@ allocmap, addseg, findseg, addrtoseg,
 addrtosegafter, removeseg, freemap,
 get1, get2, get4, get8,
 put1, put2, put4, put8,
-rget1, rget2, rget4, rget8,
-rput1, rput2, rput4, rput8,
-locaddr, locconst, locreg, locindir,
-loccmp, loceval, locfmt, locredir,
+rget, rput, fpformat,
+locnone, locaddr, locconst, locreg, locindir,
+loccmp, loceval, locfmt, locsimplify,
 lget1, lget2, lget4, lget8,
 lput1, lput2, lput4, lput8 \- machine-independent
 access to address spaces and register sets
@@ -80,26 +79,16 @@ int	put4(Map *map, ulong addr, u32int u)
 int	put8(Map *map, ulong addr, u64int u)
 .PP
 .ft B
-int	rget1(Map *map, char *reg, u8int *u)
-.br
-int	rget2(Map *map, char *reg, u16int *u)
-.br
-int	rget4(Map *map, char *reg, u32int *u)
-.br
-int	rget8(Map *map, char *reg, u64int *u)
+int	rget(Regs *regs, char *reg, ulong *u)
 .br
 int	fpformat(Map *map, char *reg, char *a, uint n, char code);
 .PP
 .ft B
-int	rput1(Map *map, char *reg, u8int u)
-.br
-int	rput2(Map *map, char *reg, u16int u)
-.br
-int	rput4(Map *map, char *reg, u32int u)
-.br
-int	rput8(Map *map, char *reg, u64int u)
+int	rput(Regs *regs, char *name, ulong u)
 .PP
 .ft B
+Loc	locnone(void)
+.br
 Loc	locaddr(ulong addr)
 .br
 Loc	locconst(ulong con)
@@ -115,7 +104,7 @@ int	loceval(Map *map, Loc loc, ulong *addr)
 .br
 int	locfmt(Fmt *fmt)
 .br
-int	locredir(Map *map, Loc *regs, Loc loc, Loc *newloc)
+int	locsimplify(Map *map, Loc *regs, Loc loc, Loc *newloc)
 .PP
 .ft B
 int	lget1(Map *map, Loc loc, uchar *a, uint n)
@@ -297,20 +286,15 @@ A \-1 return value indicates an error.
 .PP
 When representing core files or running programs,
 maps also provide access to the register set.
-.IR Rget1 ,
-.IR rget2 ,
-.IR rget4 ,
-.IR rget8 ,
-.IR rput1 ,
-.IR rput2 ,
-.IR rput4 ,
-and 
-.IR rput8
-read or write the 1-, 2-, 4-, or 8-byte register
+.IR Rget
+and
+.IR rput
+read or write the register
 named by
 .IR reg .
-If the register is not the requested size, the 
-behavior is undefined.
+If the register is smaller than a
+.BR ulong ,
+the high bits are ignored.
 .PP
 .I Fpformat
 converts the contents of a floating-point register to a string.
@@ -418,3 +402,8 @@ function families as necessary.
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .
+.SH BUGS
+This man page needs to describe
+.B Regs
+and
+.B Regdesc

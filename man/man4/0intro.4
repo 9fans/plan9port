@@ -1,0 +1,82 @@
+.TH INTRO 4
+.SH NAME
+intro \- introduction to file servers
+.SH DESCRIPTION
+A Plan 9
+.I "file server"
+provides a file tree to processes.
+This section of the manual describes servers that can be
+mounted in a name space to give a file-like interface to interesting services.
+A file server may be a provider of a conventional file system,
+with files maintained on permanent storage,
+or it may also be a process that synthesizes files in some manner.
+.PP
+In Plan 9, the kernel mount device
+\fImnt\fR(3)
+acts as a client to the 9P servers mounted in the current name space,
+translating system calls such as
+.IR open (2)
+into 9P transactions such as
+.IR open (9p).
+The kernel also multiplexes the potentially many processes onto a single 9P conversation
+with each server.
+Finally, the kernel provides each process with its own private
+.I name space
+which it can customize at will.
+Modern Unix systems do not provide these niceties, so 
+the Unix port of these Plan 9 file servers provides them via other means.
+.PP
+On Unix, 9P clients do not access servers via the traditional
+file system call interface.  Only the Unix name space can be accessed
+that way.
+Instead, 9P clients use the
+.IR 9pclient (3)
+library to connect and interact directly with particular 9P servers.
+The
+.IR 9p (1)
+command-line client is useful for interactive use and in shell scripts.
+.PP
+To preserve the façade of a single 9P conversation with each server,
+9P servers invoke
+.IR 9pserve (4),
+typically via
+.IR post9pservice (3).
+.I 9pserve
+announces a 9P service at a particular
+network address and multiplexes the clients that connect to
+that address onto a single 9P conversation with the server.
+.PP
+Each ported program operates in a pseudo-name space
+that determines which 9P servers it is using.
+The name space of a ported program is represented by a 
+directory containing Unix domain sockets, one for each 9P server.
+The directory defaults to
+.BR /tmp/ns.$USER.$DISPLAY ,
+meaning that all programs in an X Windows login session 
+share a single name space.
+Setting the
+.B $NAMESPACE
+environment variable overrides this default.
+The
+.IR namespace (1)
+command prints the current name space directory.
+.PP
+Occasionally it is useful to be able to connect the input or output
+of a standard Unix program to a file served by a 9P server.
+The new
+.IR openfd (9p)
+9P transaction, which depends on file descriptor passing,
+provides a sufficient workaround in many cases. 
+.IR 9pserve 's
+implementation of
+.I openfd
+(see also
+.I fsopenfd
+in
+.IR 9pclient (3))
+returns the read or write end of a pipe;
+a helper process transfers data between the other end of the pipe
+and the 9P server.
+Note that since the data is being transferred via a pipe,
+9P read and write errors cannot be passed on to the Unix program.
+The Unix program sees only end-of-file or a closed pipe.

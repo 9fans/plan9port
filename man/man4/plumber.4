@@ -1,0 +1,121 @@
+.TH PLUMBER 4
+.SH NAME
+plumber \- file system for interprocess messaging
+.SH SYNOPSIS
+.B plumber
+[
+.B -p
+.I plumbing
+]
+.SH DESCRIPTION
+The
+.I plumber
+is a user-level file server that receives, examines, rewrites, and dispatches
+.IR plumb (7)
+messages between programs.
+Its behavior is programmed by a
+.I plumbing
+file (default
+.BR /usr/$user/lib/plumbing )
+in the format of
+.IR plumb (7).
+.PP
+Its services are posted via
+.IR 9pserve (4)
+as
+.BR plumb .
+and consist of two
+pre-defined files,
+.B plumb/send
+and
+.BR plumb/rules ,
+and a set of output
+.I ports
+for dispatching messages to applications.
+.PP
+Programs use
+.B fswrite
+(see
+.IR 9pclient (3))
+to deliver messages to the
+.B send
+file, and
+.I fsread
+to receive them from the corresponding port.
+For example,
+.IR sam (1)'s
+.B plumb
+menu item or the
+.B B
+command cause a message to be sent to
+.BR plumb/send ;
+.B sam
+in turn reads from, by convention,
+.B plumb/edit
+to receive messages about files to open.
+.PP
+A copy of each message is sent to each client that has the corresponding port open.
+If none has it open, and the rule has a
+.B plumb
+.B client
+or
+.B plumb
+.B start
+rule, that rule is applied.
+A
+.B plumb
+.B client
+rule causes the specified command to be run
+and the message to be held for delivery when the port is opened.
+A
+.B plumb
+.B start
+rule runs the command but discards the message.
+If neither
+.B start
+or
+.B client
+is specified and the port is not open,
+the message is discarded and a write error is returned to the sender.
+.PP
+The set of output ports is determined dynamically by the
+specification in the plumbing rules file: a port is created for each unique
+destination of a
+.B plumb
+.B to
+rule.
+.PP
+The set of rules currently active may be examined by reading the file
+.BR plumb/rules ;
+appending to this file adds new rules to the set, while
+creating it (opening it with
+.BR OTRUNC )
+clears the rule set.
+Thus the rule set may be edited dynamically with a traditional text editor.
+However, ports are never deleted dynamically; if a new set of rules does not
+include a port that was defined in earlier rules, that port will still exist (although
+no new messages will be delivered there).
+.SH FILES
+.TF /usr/$user/lib/plumbing
+.TP
+.B /usr/$user/lib/plumbing
+default rules file
+.TP
+.B /usr/local/plan9/plumb
+directory to search for files in
+.B include
+statements
+.TP
+.B plumb
+mount name for
+.IR plumber (4).
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/plumb
+.SH "SEE ALSO"
+.IR plumb (1),
+.IR plumb (3),
+.IR plumb (7)
+.\" .SH BUGS
+.\" .IR Plumber 's
+.\" file name space is fixed, so it is difficult to plumb
+.\" messages that involve files in newly mounted services.

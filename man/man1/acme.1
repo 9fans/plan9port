@@ -345,7 +345,7 @@ With no arguments,
 prints the supplementary list.
 This command is largely superseded by plumbing
 (see
-.IR plumb (6)).
+.IR plumb (7)).
 .TP
 .B Kill
 Send a
@@ -355,20 +355,30 @@ note to
 commands named as arguments.
 .TP
 .B Local
-When prefixed to a command
-run the
-command in the same file name space and environment variable group as
-.IR acme .
-The environment of the command
-is restricted but is sufficient to run
-.IR bind (1),
-.IR 9fs
-(see
-.IR srv (4)),
-.IR import (4),
-etc.,
-and to set environment variables such as
-.BR $objtype .
+In the Plan 9
+.IR acme ,
+this prefix causes a command to be run in 
+.IR acme 's own
+file name space and environment variable group.
+On Unix this is impossible.
+.B Local
+is recognized as a prefix, but has no effect on the command being executed.
+.\" .TP
+.\" .B Local
+.\" When prefixed to a command
+.\" run the
+.\" command in the same file name space and environment variable group as
+.\" .IR acme .
+.\" The environment of the command
+.\" is restricted but is sufficient to run
+.\" .IR bind (1),
+.\" .IR 9fs
+.\" (see
+.\" .IR srv (4)),
+.\" .IR import (4),
+.\" etc.,
+.\" and to set environment variables such as
+.\" .BR $objtype .
 .TP
 .B Load
 Restore the state of
@@ -662,9 +672,9 @@ MIPS-specific binaries for applications
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/acme
 .br
-.B /acme/bin/source/win
+.B /usr/local/plan9/src/cmd/9term/win.c
 .br
-.B /usr/local/plan9/src/cmd/awd.c
+.B /usr/local/plan9/bin/awd
 .SH SEE ALSO
 .IR acme (4)
 .br

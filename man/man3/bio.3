@@ -1,6 +1,6 @@
 .TH BIO 3
 .SH NAME
-Bopen, Binit, Binits, Brdline, Brdstr, Bgetc, Bgetrune, Bgetd, Bungetc, Bungetrune, Bread, Bseek, Boffset, Bfildes, Blinelen, Bputc, Bputrune, Bprint, Bvprint, Bwrite, Bflush, Bterm, Bbuffered \- buffered input/output
+Bopen, Bfdopen, Binit, Binits, Brdline, Brdstr, Bgetc, Bgetrune, Bgetd, Bungetc, Bungetrune, Bread, Bseek, Boffset, Bfildes, Blinelen, Bputc, Bputrune, Bprint, Bvprint, Bwrite, Bflush, Bterm, Bbuffered \- buffered input/output
 .SH SYNOPSIS
 .ta \w'Biobuf* 'u
 .B #include <u.h>
@@ -10,7 +10,10 @@ Bopen, Binit, Binits, Brdline, Brdstr, Bgetc, Bgetrune, Bgetd, Bungetc, Bungetru
 .B #include <bio.h>
 .PP
 .B
-Biobuf* Bopen(char *file, int mode)
+Biobuf*	Bopen(char *file, int mode)
+.PP
+.B
+Biobuf*	Bfdopen(int fd, int mode)
 .PP
 .B
 int	Binit(Biobuf *bp, int fd, int mode)
@@ -88,6 +91,17 @@ opens
 for mode
 .B OREAD
 or creates for mode
+.BR OWRITE .
+It calls
+.IR malloc (3)
+to allocate a buffer.
+.PP
+.I Bfdopen
+allocates a buffer for the already-open file descriptor
+.I fd
+for mode
+.B OREAD
+or
 .BR OWRITE .
 It calls
 .IR malloc (3)
@@ -312,7 +326,7 @@ written.
 .IR open (3),
 .IR print (3),
 .IR exits (3),
-.IR utf (6),
+.IR utf (7),
 .SH DIAGNOSTICS
 .I Bio
 routines that return integers yield

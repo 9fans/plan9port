@@ -1,0 +1,150 @@
+.TH COLOR 7
+.SH NAME
+color \- representation of pixels and colors
+.SH DESCRIPTION
+To address problems of consistency and portability among applications,
+Plan 9 uses a fixed color map, called
+.BR rgbv ,
+on 8-bit-per-pixel displays.
+Although this avoids problems caused by multiplexing color maps between
+applications, it requires that the color map chosen be suitable for most purposes
+and usable for all.
+Other systems that use fixed color maps tend to sample the color cube
+uniformly, which has advantages\(emmapping from a (red, green, blue) triple
+to the color map and back again is easy\(embut ignores an important property
+of the human visual system: eyes are
+much more sensitive to small changes in intensity than
+to changes in hue.
+Sampling the color cube uniformly gives a color map with many different
+hues, but only a few shades of each.
+Continuous tone images converted into such maps demonstrate conspicuous
+artifacts.
+.PP
+Rather than dice the color cube into subregions of
+size 6\(mu6\(mu6 (as in Netscape Navigator) or 8\(mu8\(mu4
+(as in previous releases of Plan 9), picking 1 color in each,
+the
+.B rgbv
+color map uses a 4\(mu4\(mu4 subdivision, with
+4 shades in each subcube.
+The idea is to reduce the color resolution by dicing
+the color cube into fewer cells, and to use the extra space to increase the intensity
+resolution.
+This results in 16 grey shades (4 grey subcubes with
+4 samples in each), 13 shades of each primary and secondary color (3 subcubes
+with 4 samples plus black) and a reasonable selection of colors covering the
+rest of the color cube.
+The advantage is better representation of
+continuous tones.
+.PP
+The following function computes the 256 3-byte entries in the color map:
+.IP
+.EX
+.ta 6n +6n +6n +6n
+void
+setmaprgbv(uchar cmap[256][3])
+{
+    uchar *c;
+    int r, g, b, v;
+    int num, den;
+    int i, j;
+
+    for(r=0,i=0; r!=4; r++)
+      for(v=0; v!=4; v++,i+=16)
+        for(g=0,j=v-r; g!=4; g++)
+          for(b=0; b!=4; b++,j++){
+            c = cmap[i+(j&15)];
+            den = r;
+            if(g > den)
+                den = g;
+            if(b > den)
+                den = b;
+            if(den == 0) /* would divide check; pick grey shades */
+                c[0] = c[1] = c[2] = 17*v;
+            else{
+                num = 17*(4*den+v);
+                c[0] = r*num/den;
+                c[1] = g*num/den;
+                c[2] = b*num/den;
+            }
+          }
+}
+.EE
+.PP
+There are 4 nested loops to pick the (red,green,blue) coordinates of the subcube,
+and the value (intensity) within the subcube, indexed by
+.BR r ,
+.BR g ,
+.BR b ,
+and
+.BR v ,
+whence
+the name
+.IR rgbv .
+The peculiar order in which the color map is indexed is designed to distribute the
+grey shades uniformly through the map\(emthe
+.IR i 'th
+grey shade,
+.RI 0<= i <=15
+has index
+.IR i ×17,
+with black going to 0 and white to 255.
+Therefore, when a call to
+.B draw
+converts a 1, 2 or 4 bit-per-pixel picture to 8 bits per pixel (which it does
+by replicating the pixels' bits), the converted pixel values are the appropriate
+grey shades.
+.PP
+The
+.B rgbv
+map is not gamma-corrected, for two reasons.  First, photographic
+film and television are both normally under-corrected, the former by an
+accident of physics and the latter by NTSC's design.
+Second, we require extra color resolution at low intensities because of the
+non-linear response and adaptation of the human visual system.
+Properly
+gamma-corrected displays with adequate low-intensity resolution pack the
+high-intensity parts of the color cube with colors whose differences are
+almost imperceptible.
+Either reason suggests concentrating
+the available intensities at the low end of the range.
+.PP
+On `true-color' displays with separate values for the red, green, and blue
+components of a pixel, the values are chosen so 0 represents no intensity (black) and the
+maximum value (255 for an 8-bit-per-color display) represents full intensity (e.g., full red).
+Common display depths are 24 bits per pixel, with 8 bits per color in order
+red, green, blue, and 16 bits per pixel, with 5 bits of red, 6 bits of green, and 5 bits of blue.
+.PP
+Colors may also be created with an opacity factor called
+.BR alpha ,
+which is scaled so 0 represents fully transparent and 255 represents opaque color.
+The alpha is
+.I premultiplied
+into the other channels, as described in the paper by Porter and Duff cited in
+.IR draw (3).
+The function
+.B setalpha
+(see
+.IR allocimage (3))
+aids the initialization of color values with non-trivial alpha.
+.PP
+The packing of pixels into bytes and words is odd.
+For compatibility with VGA frame buffers, the bits within a
+pixel byte are in big-endian order (leftmost pixel is most
+significant bits in byte), while bytes within a pixel are packed in little-endian
+order.  Pixels are stored in contiguous bytes.  This results
+in unintuitive pixel formats. For example, for the RGB24 format,
+the byte ordering is blue, green, red.
+.PP
+To maintain a constant external representation,
+the
+.IR draw (3)
+interface
+as well as the 
+various graphics libraries represent colors 
+by 32-bit numbers, as described in 
+.IR color (3).
+.SH "SEE ALSO"
+.IR color (3),
+.IR graphics (3),
+.IR draw (3)

@@ -1,0 +1,56 @@
+.TH PAGE 1
+.SH NAME
+img, psv \- view 
+FAX, 
+image, graphic, PostScript, PDF, and
+typesetter output
+files
+.SH SYNOPSIS
+.B page
+[
+.B -abirPRvVw
+]
+[
+.B -p
+.I ppi
+]
+[
+.IR file ...
+]
+.PP
+.B img
+.I file.bit
+.PP
+.B psv
+.I file.ps
+.PP
+.B psv
+.I file.pdf
+.SH DESCRIPTION
+Plan 9's
+.IR page (1)
+is not ported.
+.PP
+.I Img
+is a simple image viewer for Plan 9 images
+(see
+.IR image (7)).
+.PP
+.I Psv
+is a PostScript and PDF viewer.
+It is a streamlined interface to
+.IR gv (1).
+.PP
+To view troff output, use
+.IR proof (1).
+.SH "SEE ALSO
+.IR gs (1),
+.IR gv (1)
+.IR jpg (1),
+.IR proof (1),
+.IR tex (1),
+.IR troff (1)
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/draw/img.c
+.br
+.B /usr/local/plan9/bin/psv

@@ -1,0 +1,126 @@
+.TH READ 9P 
+.SH NAME
+read, write \- transfer data from and to a file
+.SH SYNOPSIS
+.ta \w'\fLTwrite 'u
+.IR size [4]
+.B Tread
+.IR tag [2]
+.IR fid [4]
+.IR offset [8]
+.IR count [4]
+.br
+.IR size [4]
+.B Rread
+.IR tag [2]
+.IR count [4]
+.IR data [ count ]
+.PP
+.IR size [4]
+.B Twrite
+.IR tag [2]
+.IR fid [4]
+.IR offset [8]
+.IR count [4]
+.IR data [ count ]
+.br
+.IR size [4]
+.B Rwrite
+.IR tag [2]
+.IR count [4]
+.SH DESCRIPTION
+The
+.B read
+request
+asks for
+.I count
+bytes of data
+from the file identified by 
+.IR fid ,
+which must be opened for reading,
+starting 
+.I offset
+bytes after the beginning of the file.
+The bytes are returned with the
+.B read
+reply message.
+.PP
+The
+.I count
+field in the reply indicates the number of bytes returned.
+This may be less than the requested amount.
+If the
+.I offset
+field is greater than or equal to the number of bytes in the file,
+a count of zero will be returned.
+.PP
+For directories,
+.B read
+returns an integral number of
+directory entries exactly as in
+.B stat
+(see
+.IR stat (9P)),
+one for each member of the directory.
+The
+.B read
+request message must have
+.B offset
+equal to zero or the value of
+.B offset
+in the previous
+.B read
+on the directory, plus the number of bytes
+returned in the previous
+.BR read .
+In other words, seeking other than to the beginning
+is illegal in a directory.
+.PP
+The
+.B write
+request asks that
+.I count
+bytes of data be recorded in the file identified by
+.IR fid ,
+which must be opened for writing, starting
+.I offset
+bytes after the beginning of the file.
+If the file is append-only,
+the data will be placed at the end of the file regardless of
+.IR offset .
+Directories may not be written.
+.PP
+The 
+.B write
+reply records the number of bytes actually written.
+It is usually an error
+if this is not the same as requested.
+.PP
+Because 9P implementations may limit the size of individual
+messages,
+more than one message may be produced by a single
+.I read
+or
+.I write
+call.
+The
+.I iounit
+field returned by
+.IR open (9P),
+if non-zero, reports the maximum size that is guaranteed
+to be transferred atomically.
+.SH ENTRY POINTS
+.I Fsread
+and
+.I fswrite
+(see
+.IR 9pclient (3))
+generate the corresponding messages.
+Because they take an offset parameter, the
+.I fspread
+and
+.I fspwrite
+calls correspond more directly to the 9P messages.
+Although
+.I fsseek
+affects the offset, it does not generate a message.

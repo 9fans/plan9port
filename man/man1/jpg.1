@@ -1,0 +1,243 @@
+.TH JPG 1
+.SH NAME
+jpg, gif, png, ppm, bmp, yuv, ico, togif, toppm, topng, toico \- view and convert pictures
+.SH SYNOPSIS
+.B jpg
+[
+.B -39cdefFkJrtv
+] [
+.I file ...
+]
+.br
+.B gif
+[
+.B -39cdektv
+] [
+.I file ...
+]
+.br
+.B png
+[
+.B -39cdektv
+] [
+.I file ...
+]
+.br
+.B ppm
+[
+.B -39cdektv
+] [
+.I file ...
+]
+.br
+.B bmp
+[
+.I file
+]
+.br
+.B yuv
+[
+.I file
+]
+.PP
+.B togif
+[
+.B -c
+.I comment
+] [
+.B -l
+.I loopcount
+] [
+.B -d
+.I msec
+] [
+.B -t
+.I transindex
+] [
+.I file ...
+[
+.B -d
+.I msec
+]
+.I file ...
+]
+.br
+.B toppm
+[
+.B -c
+.I comment
+] [
+.I file
+]
+.br
+.B topng
+[
+.B -c
+.I comment
+] [
+[
+.B -g
+.I gamma
+] [
+.I file
+]
+.PP
+.B ico
+[
+.I file
+]
+.br
+.B toico
+[
+.I file ...
+]
+.SH DESCRIPTION
+These programs read, display, and write image files in public formats.
+.IR Jpg ,
+.IR gif ,
+.IR png ,
+.IR ppm ,
+.IR bmp ,
+and
+.IR yuv .
+read files in the corresponding formats and, by default, display
+them in the current window; options cause them instead to convert the images
+to Plan 9 image format and write them to standard output.
+.IR Togif ,
+.IR Toppm ,
+and
+.I topng
+read Plan 9 images files, convert them to GIF, PPM, or PNG, and write them to standard output.
+.PP
+The default behavior of
+.IR jpg ,
+.IR gif ,
+and
+.IR ppm
+is to display the
+.IR file ,
+or standard input if no file is named.
+Once a file is displayed, typing a character causes the program to display the next image.
+Typing a
+.BR q ,
+DEL, or control-D exits the program.
+For a more user-friendly interface, use
+.IR page (1),
+which invokes these programs to convert the images to standard format,
+displays them, and offers scrolling, panning, and menu-driven navigation among the files.
+.PP
+These programs share many options:
+.TP
+.B -e
+Disable Floyd-Steinberg error diffusion, which is used to improve the appearance
+of images on color-mapped displays, typically with 8 bits per pixel.
+Primarily useful for debugging; if the display has true RGB color, the image
+will be displayed in full glory.
+.TP
+.B -k
+Convert and display the image as a black and white (really grey-scale) image.
+.TP
+.B -v
+Convert the image to an RGBV color-mapped image, even if the
+display has true RGB color.
+.TP
+.B -d
+Suppress display of the image; this is set automatically by
+any of the following options:
+.TP
+.B -c
+Convert the image to a Plan 9 representation, as defined by
+.IR image (7),
+and write it to standard output.
+.TP
+.B -9
+Like
+.BR -c ,
+but produce an uncompressed image.
+This saves processing time, particularly when the output is
+being piped to another program such as
+.IR page (1),
+since it avoids compression and decompression.
+.TP
+.B -t
+Convert the image, if it is in color, to a true color RGB image.
+.TP
+.B -3
+Like
+.BR -t ,
+but force the image to RGB even if it is originally grey-scale.
+.PD
+.PP
+.I Jpg
+has two extra options used to process the output of the LML
+video card:
+.TP
+.B -f
+Merge two adjacent images, which represent the two fields of a video picture,
+into a single image.
+.TP
+.B -F
+The input is a motion JPEG file, with multiple images representing frames of the movie.  Sets
+.BR -f .
+.PD
+.PP
+The
+.IR togif
+and
+.IR toppm
+programs go the other way: they convert from Plan 9 images to GIF and PPM,
+and have no display capability.
+Both accept an option
+.B -c
+to set the comment field of the resulting file.
+If there is only one input picture,
+.I togif
+converts the image to GIF format.
+If there are many
+.IR files ,
+though, it will assemble them into an animated GIF file.
+The options control this process:
+.TP
+.BI -l loopcount
+By default, the animation will loop forever;
+.I loopcount
+specifies how many times to loop.
+A value of zero means loop forever and a negative value means
+to stop after playing the sequence once.
+.TP
+.BI -d msec
+By default, the images are displayed as fast as they can be rendered.
+This option specifies the time, in milliseconds, to pause while
+displaying the next named
+.IR file .
+.PP
+.I Gif
+translates files that contain a `transparency' index by attaching
+an alpha channel to the converted image.
+.PP
+.I Ico
+displays a Windows icon (.ico) file.  If no file is
+specified,
+.I ico
+reads from standard input.
+Icon files
+contain sets of icons represeted by an image and a mask.
+Clicking the right button pops up a menu that lets you
+write any icon's image as a Plan 9 image (\fIwidth\fBx\fIheight\fB.image),
+write any icon's mask as a Plan 9 image (\fIwidth\fBx\fIheight\fB.mask),
+or exit.  Selecting one of the write menu items yields a sight cursor.
+Move the sight over the icon and right click again to write.
+.PP
+.I Toico
+takes a list of Plan 9 image files (or standard input) and creates
+a single icon file.  The masks in the icon file will be the white
+space in the image.  The icon file is written to standard output.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/jpg
+.SH "SEE ALSO"
+.IR page (1),
+.IR image (7).
+.SH BUGS
+Writing an animated GIF using
+.I togif
+is a clumsy undertaking.

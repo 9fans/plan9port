@@ -1,0 +1,99 @@
+.TH VERSION 9P 
+.SH NAME
+version \- negotiate protocol version
+.SH SYNOPSIS
+.ta \w'\fLTversion 'u
+.IR size [4]
+.B Tversion
+.IR tag [2]
+.IR msize [4]
+.IR version [ s ]
+.br
+.IR size [4]
+.B Rversion
+.IR tag [2]
+.IR msize [4]
+.IR version [ s ]
+.SH DESCRIPTION
+The 
+.B version
+request negotiates the protocol version and message size
+to be used on the connection and initializes the connection for I/O.
+.B Tversion
+must be the first message sent on the 9P connection,
+and the client cannot issue any further requests until it has received the
+.B Rversion
+reply.
+The
+.I tag
+should be
+.B NOTAG
+(value
+.BR (ushort)~0 )
+for a
+.B version
+message.
+.PP
+The client suggests a maximum message size,
+.BR msize ,
+that is the maximum length, in bytes,
+it will ever generate or expect to receive in a single 9P message.
+This count includes all 9P protocol data, starting from the
+.B size
+field and extending through the message,
+but excludes enveloping transport protocols.
+The server responds with its own maximum,
+.BR msize ,
+which must be less than or equal to the client's value.
+Thenceforth, both sides of the connection must honor this limit.
+.PP
+The
+.B version
+string identifies the level of the protocol.
+The string must always begin with the two characters
+.RB `` 9P ''.
+If the server does not understand the client's version string,
+it should respond with an
+.B Rversion
+message (not
+.BR Rerror )
+with the
+.B version
+string the 7 characters
+.RB `` unknown ''.
+.PP
+The server may respond with the client's version string,
+or a version string identifying
+an earlier defined protocol version.
+Currently, the only defined version is the 6 characters
+.RB `` 9P2000 ''.
+Version strings are defined such that, if the client string contains
+one or more period characters, the initial substring up to but not including
+any single period in the version string defines a version of the protocol.
+After stripping any such period-separated suffix, the server is allowed to respond
+with a string of the form
+.BI 9P nnnn\f1,
+where
+.I nnnn
+is less than or equal to the digits sent by the client.
+.PP
+The client and server will use the protocol version defined by the
+server's response for all subsequent communication on the connection.
+.PP
+A successful
+.B version
+request initializes the connection.
+All outstanding I/O on the connection is aborted; all active fids are freed (`clunked') automatically.
+The set of messages between
+.B version
+requests is called a
+.IR session .
+.SH ENTRY POINTS
+.I Fsversion
+(see
+.IR 9pclient (3))
+generates
+.B version
+messages;
+it is called automatically by
+.IR fsmount .

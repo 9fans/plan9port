@@ -1,0 +1,350 @@
+.TH MATRIX 3
+.SH NAME
+ident, matmul, matmulr, determinant, adjoint, invertmat, xformpoint, xformpointd, xformplane, pushmat, popmat, rot, qrot, scale, move, xform, ixform, persp, look, viewport \- Geometric transformations
+.SH SYNOPSIS
+.PP
+.B
+#include <draw.h>
+.PP
+.B
+#include <geometry.h>
+.PP
+.B
+void ident(Matrix m)
+.PP
+.B
+void matmul(Matrix a, Matrix b)
+.PP
+.B
+void matmulr(Matrix a, Matrix b)
+.PP
+.B
+double determinant(Matrix m)
+.PP
+.B
+void adjoint(Matrix m, Matrix madj)
+.PP
+.B
+double invertmat(Matrix m, Matrix inv)
+.PP
+.B
+Point3 xformpoint(Point3 p, Space *to, Space *from)
+.PP
+.B
+Point3 xformpointd(Point3 p, Space *to, Space *from)
+.PP
+.B
+Point3 xformplane(Point3 p, Space *to, Space *from)
+.PP
+.B
+Space *pushmat(Space *t)
+.PP
+.B
+Space *popmat(Space *t)
+.PP
+.B
+void rot(Space *t, double theta, int axis)
+.PP
+.B
+void qrot(Space *t, Quaternion q)
+.PP
+.B
+void scale(Space *t, double x, double y, double z)
+.PP
+.B
+void move(Space *t, double x, double y, double z)
+.PP
+.B
+void xform(Space *t, Matrix m)
+.PP
+.B
+void ixform(Space *t, Matrix m, Matrix inv)
+.PP
+.B
+int persp(Space *t, double fov, double n, double f)
+.PP
+.B
+void look(Space *t, Point3 eye, Point3 look, Point3 up)
+.PP
+.B
+void viewport(Space *t, Rectangle r, double aspect)
+.SH DESCRIPTION
+These routines manipulate 3-space affine and projective transformations,
+represented as 4\(mu4 matrices, thus:
+.IP
+.EX
+.ta 6n
+typedef double Matrix[4][4];
+.EE
+.PP
+.I Ident
+stores an identity matrix in its argument.
+.I Matmul
+stores
+.I a\(mub
+in
+.IR a .
+.I Matmulr
+stores
+.I b\(mua
+in
+.IR b .
+.I Determinant
+returns the determinant of matrix
+.IR m .
+.I Adjoint
+stores the adjoint (matrix of cofactors) of
+.I m
+in
+.IR madj .
+.I Invertmat
+stores the inverse of matrix
+.I m
+in
+.IR minv ,
+returning
+.IR m 's
+determinant.
+Should
+.I m
+be singular (determinant zero),
+.I invertmat
+stores its
+adjoint in
+.IR minv .
+.PP
+The rest of the routines described here
+manipulate
+.I Spaces
+and transform
+.IR Point3s .
+A
+.I Point3
+is a point in three-space, represented by its
+homogeneous coordinates:
+.IP
+.EX
+typedef struct Point3 Point3;
+struct Point3{
+	double x, y, z, w;
+};
+.EE
+.PP
+The homogeneous coordinates
+.RI ( x ,
+.IR y ,
+.IR z ,
+.IR w )
+represent the Euclidean point
+.RI ( x / w ,
+.IR y / w ,
+.IR z / w )
+if
+.IR w ≠0,
+and a ``point at infinity'' if
+.IR w =0.
+.PP
+A
+.I Space
+is just a data structure describing a coordinate system:
+.IP
+.EX
+typedef struct Space Space;
+struct Space{
+	Matrix t;
+	Matrix tinv;
+	Space *next;
+};
+.EE
+.PP
+It contains a pair of transformation matrices and a pointer
+to the
+.IR Space 's
+parent.  The matrices transform points to and from the ``root
+coordinate system,'' which is represented by a null
+.I Space
+pointer.
+.PP
+.I Pushmat
+creates a new
+.IR Space .
+Its argument is a pointer to the parent space.  Its result
+is a newly allocated copy of the parent, but with its
+.B next
+pointer pointing at the parent.
+.I Popmat
+discards the
+.B Space
+that is its argument, returning a pointer to the stack.
+Nominally, these two functions define a stack of transformations,
+but
+.B pushmat
+can be called multiple times
+on the same
+.B Space
+multiple times, creating a transformation tree.
+.PP
+.I Xformpoint
+and
+.I Xformpointd
+both transform points from the
+.B Space
+pointed to by
+.I from
+to the space pointed to by
+.IR to .
+Either pointer may be null, indicating the root coordinate system.
+The difference between the two functions is that
+.B xformpointd
+divides
+.IR x ,
+.IR y ,
+.IR z ,
+and
+.I w
+by
+.IR w ,
+if
+.IR w ≠0,
+making
+.RI ( x ,
+.IR y ,
+.IR z )
+the Euclidean coordinates of the point.
+.PP
+.I Xformplane
+transforms planes or normal vectors.  A plane is specified by the
+coefficients
+.RI ( a ,
+.IR b ,
+.IR c ,
+.IR d )
+of its implicit equation
+.IR ax+by+cz+d =0.
+Since this representation is dual to the homogeneous representation of points,
+.B libgeometry
+represents planes by
+.B Point3
+structures, with
+.RI ( a ,
+.IR b ,
+.IR c ,
+.IR d )
+stored in
+.RI ( x ,
+.IR y ,
+.IR z ,
+.IR w ).
+.PP
+The remaining functions transform the coordinate system represented
+by a
+.BR Space .
+Their
+.B Space *
+argument must be non-null \(em you can't modify the root
+.BR Space .
+.I Rot
+rotates by angle
+.I theta
+(in radians) about the given
+.IR axis ,
+which must be one of
+.BR XAXIS ,
+.B YAXIS
+or
+.BR ZAXIS .
+.I Qrot
+transforms by a rotation about an arbitrary axis, specified by
+.B Quaternion
+.IR q .
+.PP
+.I Scale
+scales the coordinate system by the given scale factors in the directions of the three axes.
+.IB Move
+translates by the given displacement in the three axial directions.
+.PP
+.I Xform
+transforms the coordinate system by the given
+.BR Matrix .
+If the matrix's inverse is known
+.I a
+.IR priori ,
+calling
+.I ixform
+will save the work of recomputing it.
+.PP
+.I Persp
+does a perspective transformation.
+The transformation maps the frustum with apex at the origin,
+central axis down the positive
+.I y
+axis, and apex angle
+.I fov
+and clipping planes
+.IR y = n
+and
+.IR y = f
+into the double-unit cube.
+The plane
+.IR y = n
+maps to
+.IR y '=-1,
+.IR y = f
+maps to
+.IR y '=1.
+.PP
+.I Look
+does a view-pointing transformation.  The
+.B eye
+point is moved to the origin.
+The line through the
+.I eye
+and
+.I look
+points is aligned with the y axis,
+and the plane containing the
+.BR eye ,
+.B look
+and
+.B up
+points is rotated into the
+.IR x - y
+plane.
+.PP
+.I Viewport
+maps the unit-cube window into the given screen viewport.
+The viewport rectangle
+.I r
+has
+.IB r .min
+at the top left-hand corner, and
+.IB r .max
+just outside the lower right-hand corner.
+Argument
+.I aspect
+is the aspect ratio
+.RI ( dx / dy )
+of the viewport's pixels (not of the whole viewport).
+The whole window is transformed to fit centered inside the viewport with equal
+slop on either top and bottom or left and right, depending on the viewport's
+aspect ratio.
+The window is viewed down the
+.I y
+axis, with
+.I x
+to the left and
+.I z
+up.  The viewport
+has
+.I x
+increasing to the right and
+.I y
+increasing down.  The window's
+.I y
+coordinates are mapped, unchanged, into the viewport's
+.I z
+coordinates.
+.SH SOURCE
+.B /usr/local/plan9/src/libgeometry/matrix.c
+.SH "SEE ALSO
+.IR arith3 (3)

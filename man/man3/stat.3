@@ -46,7 +46,7 @@ and
 are the system calls; they deal with machine-independent
 .IR "directory entries" .
 Their format is defined by
-.IR stat (5).
+.IR stat (9p).
 .I Stat
 and
 .I fstat
@@ -67,7 +67,7 @@ write information back, thus changing file attributes according to the contents 
 .IR edir .
 The data returned from the kernel includes its leading 16-bit length field
 as described in
-.IR intro (5).
+.IR intro (9p).
 For symmetry, this field must also be present when passing data to the kernel in a call to
 .I wstat
 and
@@ -242,19 +242,15 @@ can be changed: by the owner if also a member of the new group; or
 by the group leader of the file's current group
 if also leader of the new group
 (see
-.IR intro (5)
-for more information about permissions and
-.IR users (6)
-for users and groups).
+.IR intro (9p)
+for more information about permissions, users, and groups).
 The
 .B length
 can be changed by anyone with write permission, provided the operation
 is implemented by the server.
 (See
-.IR intro (5)
-for permission information, and
-.IR users (6)
-for user and group information).
+.IR intro (9p)
+for permission, user, and group information).
 .PP
 Special values in the fields of the
 .B Dir
@@ -281,21 +277,12 @@ it is not necessary to use
 .I stat
 to retrieve the initial values first.
 .SH SOURCE
-.TF /usr/local/plan9/src/libc/9syscall
-.TP
-.B /usr/local/plan9/src/libc/9syscall
-for the
-.RB non- dir
-routines
-.TP
-.B /usr/local/plan9/src/libc/9sys
-for the routines prefixed
-.B dir
+.B /usr/local/plan9/src/lib9/dirstat.c
 .SH SEE ALSO
 .IR intro (3),
 .IR fcall (3),
 .IR dirread (3),
-.IR stat (5)
+.IR stat (9p)
 .SH DIAGNOSTICS
 The
 .I dir

@@ -1,0 +1,83 @@
+.TH SRC 1 
+.SH NAME
+src  \- find source code for executable
+.SH SYNOPSIS
+.B src
+[
+.B -n
+]
+[
+.B -s
+.I symbol
+]
+.I file
+.B ...
+.SH DESCRIPTION
+.I Src
+examines the named
+.I files
+to find the corresponding source code, which is then sent to the editor using
+.B B
+(see
+.IR sam (1)).
+If
+.I file
+is an
+.IR rc (1)
+script, the source is the file itself.
+If
+.I file
+is an executable, the source is defined to be the single file containing the
+definition of
+.B main
+and
+.I src
+will point the editor at the line that begins the definition.
+.I Src
+uses
+.IR db (1)
+to extract the symbol table information that identifies the source.
+.PP
+.I Src
+looks for each
+.I file
+in the current directory, in
+.BR /bin ,
+and in the subdirectories of
+.BR /bin ,
+in that order.
+.PP
+The
+.B -n
+flag causes
+.B src
+to print the file name but not send it to the editor.
+The
+.B -s
+flag identifies a
+.I symbol
+other than
+.B main
+to locate.
+.SH EXAMPLES
+Find the source to the
+.B main
+routine in
+.BR /bin/ed :
+.IP
+.EX
+src ed
+.EE
+.PP
+Find the source for
+.BR strcmp :
+.IP
+.EX
+src -s strcmp rc
+.EE
+.SH SOURCE
+.B /usr/local/plan9/bin/src
+.SH "SEE ALSO"
+.IR db (1),
+.IR plumb (1),
+.IR sam (1).

@@ -1,6 +1,6 @@
 .TH MACH-FILE 3
 .SH NAME
-crackhdr, uncrackhdr, mapfile, mapproc, detachproc, ctlproc,
+crackhdr, uncrackhdr, mapfile, unmapfile, mapproc, unmapproc, detachproc, ctlproc,
 procnotes \- machine-independent access to exectuable files and running processes
 .SH SYNOPSIS
 .B #include <u.h>
@@ -16,9 +16,13 @@ int	crackhdr(int fd, Fhdr *hdr)
 void	uncrackhdr(Fhdr *hdr)
 .PP
 .ft B
-int	mapfile(Map *map, ulong base, Fhdr *hdr)
+int	mapfile(Fhdr *hdr, ulong base, Map *map, Regs **regs)
 .br
-int	mapproc(Map *map, int pid)
+void	unmapfile(Fhdr *hdr, Map *map)
+.br
+int	mapproc(int pid, Map *map, Regs **regs)
+.br
+void	unmapproc(Map *map)
 .br
 int	detachproc(int pid)
 .br
@@ -95,6 +99,12 @@ Newly-added segments are mapped on top of existing segments,
 so this arrangement will use the core file for the segments it contains
 but fall back to the executable for the rest.
 .PP
+.I Unmapfile
+removes the mappings in
+.I map
+corresponding to
+.IR hdr .
+.PP
 .I Mapproc
 attaches to a running program and adds its segments to the given map.
 It adds one segment for each contiguous section of 
@@ -103,8 +113,14 @@ On systems where this information cannot be determined, it adds
 a single segment covering the entire address space.
 Accessing areas of this segment that are actually not mapped
 in the process address space will cause the get/put routines to return errors.
+.PP
+.I Unmapproc
+removes the mappings in
+.I map
+corresponding to
+.IR pid .
 .I Detachproc
-detaches from a previously-attached program.
+detaches from all previously attached processes.
 .PP
 .I Ctlproc
 manipulates the process with id
@@ -143,7 +159,9 @@ returns the number of pending notes.
 The memory at
 .BI * notes
 should be freed via
-.IR free (3)
+.I free
+(see
+.IR malloc (3))
 when no longer needed.
 .SH SOURCE
 .B /usr/local/plan9/src/libmach

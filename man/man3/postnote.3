@@ -19,17 +19,16 @@ is
 .BR PNPROC ,
 then
 .I note
-is written to
-.BI /proc/ pid /note\f1.
+is sent to the process with id
+.IR pid .
 If
 .I who
 is
 .BI PNGROUP , 
 the note is delivered to the
-process group by writing
-.I note
-to
-.BI /proc/ pid /notepg\f1.
+process group which has the process with id
+.I pid
+as a member.
 For
 .B PNGROUP
 only, if the calling process is in the target group, the note is
@@ -39,11 +38,10 @@ delivered to that process.
 If the write is successful, zero is returned.
 Otherwise \-1 is returned.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9sys/postnote.c
+.B /usr/local/plan9/src/lib9/postnote.c
 .SH "SEE ALSO"
 .IR notify (3),
-.IR intro (3),
-.IR proc (3)
+.IR intro (3)
 .SH DIAGNOSTICS
 Sets
 .IR errstr .

@@ -53,16 +53,8 @@ struct Keyboardctl
 .PP
 The argument to
 .I initkeyboard
-is a
-.I file
-naming the device file from which characters may be read,
-typically
-.BR /dev/cons .
-If
-.I file
-is nil,
-.B /dev/cons
-is assumed.
+is ignored
+(on Plan 9, it is the name of the keyboard device).
 .PP
 Once the
 .B Keyboardctl
@@ -75,9 +67,9 @@ will be sent on the
 to report each character read from the device.
 .PP
 .I Ctlkeyboard
-is used to set the state of the interface, typically to turn raw mode on and off
-(see
-.IR cons (3)).
+is used to set the state of the interface, typically to turn raw mode on and off.
+.\" (see
+.\" .IR cons (3)).
 It writes the string
 .I msg
 to the control file associated with the device, which is assumed to be the regular device file name

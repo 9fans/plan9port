@@ -1,0 +1,141 @@
+.TH MACH-CMD 3
+.SH NAME
+attachargs, attachcore, attachdynamic, attachproc, proctextfile \- debugging processes and core files
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mach.h>
+.PP
+.ta +\w'\fLextern 'u +\w'\fLchar *'u
+.B
+int	attachcore(Fhdr *hdr)
+.PP
+.B
+int	attachproc(int pid)
+.PP
+.B
+int	attachdynamic(void)
+.PP
+.B
+char*	proctextfile(int pid)
+.PP
+.B
+int	attachargs(int argc, char **argv, int omode)
+.PP
+.B
+.nf
+extern	Fhdr*	symhdr;
+extern	char*	symfil;
+extern	Map*	symmap;
+extern	Fhdr*	fhdrlist;
+.ift .sp .5
+.ifn .sp
+extern	Fhdr*	corhdr;
+extern	char*	corfil;
+extern	Map*	cormap;
+.ift .sp .5
+.ifn .sp
+extern	int	corpid;
+extern	Regs*	correg;
+.SH DESCRIPTION
+These routines provide access to the objects
+a typical debugger manipulates: an executable binary,
+some number of shared libraries, a memory image 
+in the form of a core dump or active process,
+and a register set.
+.PP
+The maintained state is:
+.TP
+.I symhdr
+The file header for the main binary.
+.TP
+.I symfil
+The file name of the main binary.
+.TP
+.I symmap
+The memory map of the main binary.
+.TP
+.I fhdrlist
+A linked list (via the
+.B Fhdr.next
+fields) of all currently open headers
+(see
+.I symopen
+in
+.IR mach-symbol (3)).
+When dynamically linked objects have been attached,
+they are present in this linked list,
+and therefore included in searches by
+.IR indexsym ,
+.IR lookupsym ,
+and
+.I findsym
+(see
+.IR mach-symbol (3)).
+.TP
+.I corhdr
+The file header for the core dump, if any.
+.TP
+.I corfil
+The file name of the core dump, if any.
+.TP
+.I cormap
+The memory map of the core dump or attached process.
+.TP
+.I corpid
+The process id of the attached process, if any.
+.TP
+.I correg
+The register set of the core dump or attached process.
+.PD
+If these fields are not valid, they are zeroed.
+.PP
+.I Attachcore
+and
+.I attachproc
+attach to an opened core file or an executing process.
+They set
+.IR corhdr ,
+.IR corfil ,
+.IR cormap ,
+.IR corpid ,
+and
+.IR correg .
+.PP
+.I Proctextfile
+returns the name of the main binary for the process with id
+.IR pid .
+.PP
+.I Attachdynamic
+requires that the memory image already be attached.
+It reads the dynamic linker's internal run-time data structures
+and then opens all the dynamic objects that are currently
+loaded.
+.PP
+.I Attachargs
+uses all of these functions while
+parsing an argument vector as would be passed to
+a debugger like
+.IR db (1)
+or
+.IR acid (1).
+It expects a list of executable files, core dump files, or process ids,
+given in any order.
+If extra arguments are given (for example, more than one executable, or both
+a core dump and a process id), they are ignored and diagnostics are printed to 
+standard error.
+If arguments are missing (for example, the process id is given without an
+executable file),
+.I attachargs
+fills them in as best it can.
+.SH SOURCE
+.B /usr/local/plan9/src/libmach
+.SH "SEE ALSO
+.IR mach (3),
+.IR mach-file (3),
+.IR mach-map (3)
+.SH BUGS
+The interface needs to be changed to support
+multiple threads, each with its own register set.

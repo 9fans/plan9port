@@ -231,9 +231,9 @@ element of
 .B Memdata
 points back at the
 .B Memdata
-structure, so that the
+structure, so that in the Plan 9 kernel, the
 memory allocator (see
-.IR pool (3))
+Plan 9's \fIpool\fR(3))
 can compact image memory
 using
 .IR memimagemove .
@@ -294,7 +294,7 @@ writes a compressed representation of
 to file descriptor
 .IR fd .
 For more on bitmap formats, see
-.IR image (6).
+.IR image (7).
 .I Freememimage
 frees images returned by any of these routines.
 The
@@ -433,7 +433,7 @@ In the kernel,
 .I iprint
 prints to a serial line rather than the screen, for obvious reasons.
 .SH SOURCE
-.B /usr/local/plan9/src/libmemdraw
+.B /usr/local/plan9/src/libdraw
 .SH SEE ALSO
 .IR addpt (3),
 .IR color (3),
@@ -442,9 +442,14 @@ prints to a serial line rather than the screen, for obvious reasons.
 .IR memlayer (3),
 .IR stringsize (3),
 .IR subfont (3),
-.IR color (6),
-.IR utf (6)
+.IR color (7),
+.IR utf (7)
 .SH BUGS
 .I Memimagestring
 is unusual in using a subfont rather than a font,
 and in having no parameter to align the source.
+.PP
+.I Libmemdraw
+is archived into
+.IR libdraw .
+

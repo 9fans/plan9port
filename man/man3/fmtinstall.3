@@ -297,12 +297,12 @@ formats the system error string.
 All these routines return zero for successful execution.
 Conversion routines that call these functions will work properly
 regardless of whether the output is bytes or runes.
-.PP
-.IR 2c (1)
-describes the C directive
-.B #pragma
-.B varargck
-that can be used to provide type-checking for custom print verbs and output routines.
+.\" .PP
+.\" .IR 2c (1)
+.\" describes the C directive
+.\" .B #pragma
+.\" .B varargck
+.\" that can be used to provide type-checking for custom print verbs and output routines.
 .SH EXAMPLES
 This function prints an error message with a variable
 number of arguments and then quits.
@@ -362,10 +362,10 @@ main(...)
 }
 .EE
 .SH SOURCE
-.B /usr/local/plan9/src/libc/fmt
+.B /usr/local/plan9/src/lib9/fmt
 .SH SEE ALSO
 .IR print (3),
-.IR utf (6),
+.IR utf (7),
 .IR errstr (3)
 .SH DIAGNOSTICS
 These routines return negative numbers or nil for errors and set

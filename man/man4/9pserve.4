@@ -1,0 +1,46 @@
+.TH 9PSERVE 4
+.SH NAME
+9pserve \- announce and multiplex 9P service
+.SH SYNOPSIS
+.B 9pserve
+[
+.B -v
+]
+.I addr
+.SH DESCRIPTION
+On Plan 9, when a user-level file server mounts itself into a name space
+or posts itself in 
+.BR /srv ,
+the Plan 9 kernel multiplexes the potentially many processes 
+accessing the server into a single 9P conversation.
+The user-level server need not concern itself with how many
+processes are accessing it or with cleaning up after a process when it
+exits unexpectedly.
+On Unix,
+.I 9pserve
+takes the place of the Plan 9 kernel, multiplexing clients onto
+a single server conversation and cleaning up after clients when
+they hang up unexpectedly.
+.PP
+.I 9pserve
+announces a 9P service on
+.I addr
+and multiplexes any 9P clients connecting to
+.I addr
+into a single conversation with a 9P server on
+.IR 9pserve 's
+standard input and output.
+When a client hangs up, 
+.I 9pserve
+flushes any outstanding 9P transactions 
+and clunks any outstanding fids belonging to the client.
+.PP
+.I 9pserve
+is typically not invoked directly; use
+.IR post9pservice (3)
+instead.
+.SH "SEE ALSO
+.IR intro (4),
+.IR intro (9p)
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/9pserve.c

@@ -1,0 +1,39 @@
+.TH SYSFATAL 3
+.SH NAME
+sysfatal \- system error messages
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+void sysfatal(char *fmt, ...)
+.SH DESCRIPTION
+.I Sysfatal
+prints to standard error the name of the running program,
+a colon and a space, 
+the message described by the
+.IR print (3)
+format string
+.I fmt
+and subsequent arguments, and a newline.
+It then calls
+.IR exits (3)
+with the formatted message as argument.
+The program's name is the value of
+.BR argv0 ,
+which will be set if the program uses the
+.IR arg (3)
+interface to process its arguments.
+If
+.B argv0
+is null, it is ignored and the following colon and space are suppressed.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/sysfatal.c
+.SH "SEE ALSO"
+.IR intro (3),
+.IR errstr (3),
+the
+.B %r
+format in
+.IR print (3)

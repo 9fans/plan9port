@@ -1,0 +1,188 @@
+.TH SCSI 3
+.SH NAME
+openscsi, scsiready, scsi, scsicmd, scsierror \- SCSI device operations
+.SH SYNOPSIS
+.nf
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <disk.h>
+.ft
+.PP
+.ft L
+typedef struct Scsi {
+	char  *inquire;
+	int   rawfd;
+	int   nchange;
+	ulong changetime;
+};
+.ft
+.PP
+.B
+Scsi* openscsi(char *devdir)
+.PP
+.B 
+void  closescsi(Scsi *s)
+.PP
+.B
+int   scsiready(Scsi *s)
+.PP
+.B
+int   scsi(Scsi *s, uchar *cmd, int ncmd,
+.br
+                    void *data, int ndata, int dir)
+.PP
+.B
+int   scsicmd(Scsi *s, uchar *cmd, int ncmd,
+.br
+                    void *data, int ndata, int dir)
+.PP
+.B
+char* scsierror(int asc, int ascq)
+.PP
+.B 
+int   scsiverbose;
+.SH DESCRIPTION
+These routines provide an interface
+to a SCSI or ATAPI device via Plan 9's
+\fIsd\fR(3).
+.PP
+.I Openscsi
+attempts to open the file
+.IB devdir /raw
+and use it to send raw SCSI commands.
+On success, it reads the device's inquiry
+string and stores it in in returned
+.B Scsi
+structure.
+.I Closescsi
+closes the connection and frees the
+.B Scsi
+structure.
+.PP
+.I Scsiready
+sends the ``unit ready'' command up to three times,
+returning zero if the unit responds that it is ready,
+or \-1 on error.
+.PP
+.I Scsierror
+returns a textual description of the SCSI status
+denoted by the ASC and ASCQ sense codes.
+The description is found by consulting
+.BR /sys/lib/scsicodes .
+The returned string will be overwritten by
+the next call to
+.IR scsierror .
+.PP
+.I Scsi
+and
+.I scsicmd
+execute a single SCSI command on the named device.
+There should be 
+.I ncmd
+bytes of
+command data in 
+.IR cmd ;
+if
+.I dir
+is 
+.BR Sread ,
+a successful operation
+will store up to
+.I ndata
+bytes into
+.IR data ,
+returning the number of bytes stored.
+If
+.I dir
+is
+.BR Swrite ,
+the 
+.I ndata
+bytes beginning at
+.I data
+are transmitted as the data argument to
+the command, and the
+number of bytes written is returned.
+If
+.I dir
+is
+.BR Snone ,
+.I data
+and
+.I ndata
+are ignored.
+On error, 
+.I scsi
+and
+.I scsicmd
+return \-1.
+.I Scsicmd
+simply issues the command and
+returns the result;
+.I scsi
+works a bit harder and
+is the more commonly used routine.
+.I Scsi
+attempts to send the command;
+if it is successful, 
+.I scsi
+returns what
+.I scsicmd
+returned.
+Otherwise, 
+.I scsi
+sends a request sense command to
+obtain the reason for the failure,
+sends a unit ready command in
+an attempt to bring the unit out of any
+inconsistent states, and tries again.
+If the second try fails,
+.I scsi 
+sends the request
+sense and unit ready commands
+again
+and then uses
+.I scsierror
+to set
+.I errstr
+with a reason for failure.
+.PP
+The 
+.B nchange
+and
+.B changetime
+fields
+in the
+.B Scsi
+structure
+record the number of times a media
+change has been detected, and the
+time when the current media was
+inserted into the drive (really the
+first time a SCSI command was issued
+after it was inserted).
+They are maintained by 
+.IR scsi .
+.PP
+If
+.I scsiverbose
+is set,
+these commands will produce a fair
+amount of debugging output on file descriptor 2
+when SCSI commands fail.
+.SH FILES
+.TP
+.B /sys/lib/scsicodes
+List of textual messages corresponding to SCSI error codes;
+consulted by
+.BR scsierror .
+.SH SOURCE
+.B /usr/local/plan9/src/libdisk/scsi.c
+.SH SEE ALSO
+Plan 9's
+\fIsd\fR(3) and
+\fIscuzz\fR(8)
+.SH BUGS
+SCSI devices on Unix do not present the interface expected by
+these routines.

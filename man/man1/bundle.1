@@ -1,0 +1,57 @@
+.TH BUNDLE 1
+.SH NAME
+bundle \- collect files for distribution
+.SH SYNOPSIS
+.B bundle
+.I file ...
+.SH DESCRIPTION
+.I Bundle
+writes on its standard output a shell script for
+.IR rc (1)
+or a Bourne shell
+which, when executed,
+will recreate the original
+.IR files .
+Its main use is for distributing small numbers of text files by
+.IR mail (1).
+.PP
+Although less refined than standard archives from
+.I 9ar
+(see
+.IR 9c (1))
+or
+.IR tar (1),
+a
+.IR bundle
+file
+is self-documenting and complete; little preparation is required on
+the receiving machine.
+.SH EXAMPLES
+.TP
+.L
+bundle mkfile *.[ch] | mail kremvax!boris
+Send a makefile to Boris together with related
+.L .c
+and
+.L .h
+files.
+Upon receiving the mail, Boris may save the file sans postmark,
+say in
+.BR gift/horse ,
+then do
+.TP
+.L
+cd gift; rc horse; mk
+.SH SOURCE
+.B /usr/local/plan9/bin/bundle
+.SH SEE ALSO
+.I 9ar
+(in
+.IR 9c (1)), 
+.IR tar (1), 
+.IR mail (1)
+.SH BUGS
+.I Bundle
+will not create directories and is unsatisfactory for non-text files.
+.br
+Beware of gift horses.

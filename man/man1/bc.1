@@ -1,0 +1,292 @@
+.TH BC 1 
+.SH NAME
+bc \- arbitrary-precision arithmetic language
+.SH SYNOPSIS
+.B bc
+[
+.B -c
+]
+[
+.B -l
+]
+[
+.B -s
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Bc
+is an interactive processor for a language that resembles
+C but provides arithmetic on numbers of arbitrary length with up
+to 100 digits right of the decimal point.
+It takes input from any files given, then reads
+the standard input.
+The
+.B -l
+argument stands for the name
+of an arbitrary precision math library.
+The
+.B -s
+argument suppresses the automatic display
+of calculation results; all output is via the
+.B print
+command.
+.PP
+The following syntax for 
+.I bc
+programs is like that of C;
+.I L
+means letter
+.BR a - z ,
+.I E
+means expression,
+.I S
+means statement.
+.TF length(E)
+.TP
+Lexical
+.RS
+.HP
+comments are enclosed in
+.B /* */
+.HP
+newlines end statements
+.RE
+.TP
+Names
+.IP
+simple variables:
+.I L
+.br
+array elements:
+.IB L [ E ]
+.br
+The words
+.BR ibase ,
+.BR obase ,
+and
+.B scale
+.TP
+Other operands
+.IP
+arbitrarily long numbers with optional sign and decimal point.
+.RS
+.TP
+.BI ( E )
+.TP
+.BI sqrt( E )
+.TP
+.BI length( E )
+number of significant decimal digits
+.TP
+.BI scale( E )
+number of digits right of decimal point
+.TP
+.IB L ( E , ... ,\fIE\fP)
+function call
+.RE
+.TP
+Operators
+.RS
+.HP
+.B "+  -  *  /  %  ^\ "
+.RB ( %
+is remainder;
+.B ^
+is power)
+.HP
+.B "++  --\ "
+.TP
+.B "==  <=  >=  !=  <  >"
+.TP
+.B "=  +=  -=  *=  /=  %=  ^="
+.RE
+.TP
+Statements
+.RS
+.br
+.I E
+.br
+.B {
+.I S
+.B ;
+\&...
+.B ;
+.I S
+.B }
+.br
+.B "print"
+.I E
+.br
+.B "if ("
+.I E
+.B )
+.I S
+.br
+.B "while ("
+.I E
+.B )
+.I S
+.br
+.B "for ("
+.I E
+.B ;
+.I E
+.B ;
+.I E
+.B ")"
+.I  S
+.br
+null statement
+.br
+.B break
+.br
+.B quit
+.br
+\fL"\fRtext\fL"\fR
+.RE
+.TP
+Function definitions
+.RS
+.br
+.B define
+.I L
+.B (
+.I L
+.B ,
+\&...
+.B ,
+.I L
+.B ){
+.PD0
+.br
+.B auto
+.I L
+.B ,
+\&...
+.B ,
+.I L
+.br
+.I S
+.B ;
+\&...
+.B ;
+.I  S
+.br
+.B return
+.I E
+.LP
+.B }
+.RE
+.TP
+Functions in 
+.B -l
+math library
+.RS
+.TP
+.BI s( x )
+sine
+.TP
+.BI c( x )
+cosine
+.TP
+.BI e( x )
+exponential
+.TP
+.BI l( x )
+log
+.TP
+.BI a( x )
+arctangent
+.TP
+.BI j( "n, x" )
+Bessel function
+.RE
+.PP
+.DT
+All function arguments are passed by value.
+.PD
+.PP
+The value of an expression at the top level is printed
+unless the main operator is an assignment or the
+.B -s
+command line argument is given.
+Text in quotes, which may include newlines, is always printed.
+Either semicolons or newlines may separate statements.
+Assignment to
+.B scale
+influences the number of digits to be retained on arithmetic
+operations in the manner of
+.IR dc (1).
+Assignments to
+.B ibase
+or
+.B obase
+set the input and output number radix respectively.
+.PP
+The same letter may be used as an array, a function,
+and a simple variable simultaneously.
+All variables are global to the program.
+Automatic variables are pushed down during function calls.
+In a declaration of an array as a function argument
+or automatic variable
+empty square brackets must follow the array name.
+.PP
+.I Bc
+is actually a preprocessor for
+.IR dc (1),
+which it invokes automatically, unless the
+.B -c
+(compile only)
+option is present.
+In this case the
+.I dc
+input is sent to the standard output instead.
+.SH EXAMPLE
+Define a function to compute an approximate value of
+the exponential.
+Use it to print 10 values.
+(The exponential function in the library gives better answers.)
+.PP
+.EX
+scale = 20
+define e(x) {
+	auto a, b, c, i, s
+	a = 1
+	b = 1
+	s = 1
+	for(i=1; 1; i++) {
+		a *= x
+		b *= i
+		c = a/b
+		if(c == 0) return s
+		s += c
+	}
+}
+for(i=1; i<=10; i++) print e(i)
+.EE
+.SH FILES
+.B /sys/lib/bclib
+mathematical library
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/bc.y
+.SH "SEE ALSO"
+.IR dc (1), 
+.IR hoc (1)
+.SH BUGS
+No
+.LR && ,
+.LR || ,
+or
+.L !
+operators.
+.br
+A
+.L for
+statement must have all three
+.LR E s.
+.br
+A
+.L quit
+is interpreted when read, not when executed.

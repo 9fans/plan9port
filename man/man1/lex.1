@@ -1,0 +1,81 @@
+.TH LEX 1
+.SH NAME
+lex \- generator of lexical analysis programs
+.SH SYNOPSIS
+.B lex
+[
+.B -tvn9
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Lex
+generates programs to be used in simple lexical analysis of text.
+The input
+.I files
+(standard input default)
+contain regular expressions
+to be searched for and actions written in C to be executed when
+expressions are found.
+.PP
+A C source program,
+.B lex.yy.c
+is generated.
+This program, when run, copies unrecognized portions of
+the input to the output,
+and executes the associated
+C action for each regular expression that is recognized.
+.PP
+The options have the following meanings.
+.TP
+.B -t
+Place the result on the standard output instead of in file
+.BR lex.yy.c .
+.TP
+.B -v
+Print a one-line summary of statistics of the generated analyzer.
+.TP
+.B -n
+Opposite of
+.BR -v ;
+.B -n
+is default.
+.TP
+.B -9
+Adds code to be able to compile through the native C compilers.
+.SH EXAMPLES
+This program converts upper case to lower,
+removes blanks at the end of lines,
+and replaces multiple blanks by single blanks.
+.PP
+.EX
+%%
+[A-Z]	putchar(yytext[0]+\'a\'-\'A\');
+[ ]+$
+[ ]+	putchar(\' \');
+.EE
+.SH FILES
+.TF /sys/lib/lex/ncform
+.TP
+.B lex.yy.c
+output
+.TP
+.B /sys/lib/lex/ncform
+template
+.SH "SEE ALSO"
+.IR yacc (1), 
+.IR sed (1)
+.br
+M. E. Lesk and E. Schmidt,
+`LEX\(emLexical Analyzer Generator', 
+.I
+Unix Research System Programmer's Manual,
+Tenth Edition, Volume 2.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/lex
+.SH BUGS
+Cannot handle
+.SM UTF.
+.br
+The asteroid to kill this dinosaur is still in orbit.

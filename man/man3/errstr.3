@@ -73,13 +73,35 @@ a string to pass to
 The string returned from
 .I errstr
 is discarded.
+.PP
+The error string is maintained in parallel with the Unix
+error number
+.IR errno .
+Changing
+.I errno
+will reset the error string,
+and changing the error string via
+.I errstr
+or
+.I werrstr
+will reset
+.IR errno .
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9syscall
-.br
-.B /usr/local/plan9/src/libc/9sys/werrstr.c
+.B /usr/local/plan9/src/lib9/errstr.c
 .SH DIAGNOSTICS
 .I Errstr
 always returns 0.
 .SH SEE ALSO
 .IR intro (3),
 .IR perror (3)
+.SH BUGS
+The implementation sets
+.I errno
+to the (somewhat arbitrary) 
+constant 0x19283745 when
+the error string is valid.
+When
+.I errno
+is set to other values, the error string
+is synthesized using
+.IR strerror (3).

@@ -1,10 +1,14 @@
 .TH DRAW 3
 .SH NAME
-Image, draw, gendraw, drawreplxy, drawrepl,
-replclipr, line, poly, fillpoly, bezier, bezspline, fillbezier, fillbezspline, ellipse,
-fillellipse, arc, fillarc, icossin, icossin2, border, string, stringn,
-runestring, runestringn, stringbg, stringnbg, runestringbg,
-runestringnbg, _string, ARROW, drawsetdebug \- graphics functions
+Image, draw, drawop, gendraw, gendrawop, drawreplxy, drawrepl,
+replclipr, line, lineop, poly, polyop, fillpoly, fillpolyop, bezier, bezierop,
+bezspline, bezsplineop, bezsplinepts, fillbezier, fillbezierop, 
+fillbezspline, fillbezsplineop, ellipse, ellipseop, 
+fillellipse, fillellipseop, arc, arcop, fillarc, fillarcop, 
+icossin, icossin2, border, string, stringop, stringn, stringnop,
+runestring, runestringop, runestringn, runestringnop, stringbg, 
+stringbgop, stringnbg, stringnbgop, runestringbg, runestringbgop,
+runestringnbg, runestringnbgop, _string, ARROW, drawsetdebug \- graphics functions
 .de PB
 .PP
 .ft L
@@ -252,7 +256,7 @@ The clipping region may be modified dynamically using
 .TP
 .B chan
 The pixel channel format descriptor, as described in
-.IR image (6).
+.IR image (7).
 The value should not be modified after the image is created.
 .TP
 .B depth
@@ -805,8 +809,8 @@ is non-zero.
 .SH SEE ALSO
 .IR graphics (3),
 .IR stringsize (3),
-.IR color (6),
-.IR utf (6),
+.IR color (7),
+.IR utf (7),
 .IR addpt (3)
 .PP
 T. Porter, T. Duff.

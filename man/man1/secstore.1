@@ -1,0 +1,212 @@
+.TH SECSTORE 1
+.SH NAME
+aescbc, secstore, ipso \- secstore commands
+.SH SYNOPSIS
+.B secstore
+[
+.B -s
+.I server
+]
+[
+.B -(g|G)
+.I getfile
+]
+[
+.B -p
+.I putfile
+]
+[
+.B -r
+.I rmfile
+]
+[
+.B -c
+]
+[
+.B -u
+.I user
+]
+[
+.B -v
+]
+[
+.B -i
+]
+.PP
+.B aescbc
+-e
+.I <cleartext
+.I >ciphertext
+.br
+.B aescbc
+-d
+.I <ciphertext
+.I >cleartext
+.PP
+.B ipso
+[
+.B -a -e -l -f -s
+] [
+.I file
+\&...
+]
+.PP
+.SH DESCRIPTION
+.PP
+.I Secstore
+authenticates to the server
+using a password and optionally a hardware token,
+then saves or retrieves a file.
+This is intended to be a credentials store (public/private keypairs,
+passwords, and other secrets) for a factotum.
+.PP
+Option
+.B -p
+stores a file on the secstore.
+.PP
+Option
+.B -g
+retrieves a file to the local directory;
+option
+.B -G
+writes it to standard output instead.
+Specifying
+.I getfile
+of . will send to standard output
+a list of remote files with dates, lengths and SHA1 hashes.
+.PP
+Option
+.B -r
+removes a file from the secstore.
+.PP
+Option
+.B -c
+prompts for a password change.
+.PP
+Option
+.B -v
+produces more verbose output, in particular providing a few
+bits of feedback to help the user detect mistyping.
+.PP
+Option
+.B -i
+says that the password should be read from standard input
+instead of from
+.BR /dev/cons .
+.PP
+Option
+.B -n
+says that the password should be read from NVRAM
+instead of from
+.BR /dev/cons .
+This option is unsupported.
+.PP
+The server is
+.BR tcp!$auth!5356 ,
+or the server specified by option
+.BR -s .
+.PP
+For example, to add a secret to the file read by
+.IR factotum (4)
+at startup, open a new window, type
+.sp
+.EX
+  % ramfs -p; cd /tmp
+  % auth/secstore -g factotum
+  secstore password:
+  % echo 'key proto=apop dom=x.com user=ehg !password=hi' >> factotum
+  % auth/secstore -p factotum
+  secstore password:
+  % read -m factotum > /mnt/factotum/ctl
+.EE
+.PP
+and delete the window.
+The first line creates an ephemeral memory-resident workspace,
+invisible to others and automatically removed when the window is deleted.
+The next three commands fetch the persistent copy of the secrets,
+append a new secret,
+and save the updated file back to secstore.
+The final command loads the new secret into the running factotum.
+.PP
+The
+.I ipso
+command packages this sequence into a convenient script to simplify editing of
+.I files
+stored on a secure store.
+It copies the named
+.I files
+into a local
+.IR ramfs (4)
+and invokes
+.IR acme (1)
+on them.  When the editor exits,
+.I ipso
+prompts the user to confirm copying modifed or newly created files back to
+.I secstore.
+If no
+.I file
+is mentioned,
+.I ipso
+grabs all the user's files from
+.I secstore
+for editing.
+.PP
+By default, ipso will edit the
+.I secstore
+files and, if
+one of them is named
+.BR factotum ,
+flush your current keys from factotum and load
+the new ones from the file.
+If you supply any of the
+.BR -e ,
+.BR -f ,
+or
+.BR -l
+options,
+.I ipso
+will just perform the operations you requested, i.e.,
+edit, flush, and/or load.
+.PP
+The
+.B -s
+option of
+.I ipso
+invokes
+.IR sam (1)
+as the editor insted of
+.BR acme ;
+the
+.B -a
+option provides a similar service for files encrypted by
+.I aescbc
+.RI ( q.v. ).
+With the
+.B -a
+option, the full rooted pathname of the
+.I file
+must be specified and all
+.I files
+must be encrypted with the same key.
+Also with
+.BR -a ,
+newly created files are ignored.
+.PP
+.I Aescbc
+encrypts and decrypts using AES (Rijndael) in cipher
+block chaining (CBC) mode.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/secstore
+.SH SEE ALSO
+.IR factotum (4),
+Plan 9's \fIsecstore\fR(8)
+.SH BUGS
+There is deliberately no backup of files on the secstore, so
+.B -r
+(or a disk crash) is irrevocable.  You are advised to store
+important secrets in a second location.
+.PP
+When using
+.IR ipso ,
+secrets will appear as plain text in the editor window,
+so use the command in private.

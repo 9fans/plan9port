@@ -106,21 +106,21 @@ in a line is significant.
 .SH EXAMPLES
 .TP
 .L
-sort -t: +1 /adm/users | join -t: -1 2 -a 1 -e "" - bdays
+sort /etc/passwd | join -t: -1 1 -a 1 -e "" - bdays
 Add birthdays to the
-.B /adm/users
+.B /etc/passwd
 file, leaving unknown
 birthdays empty.
 The layout of 
 .B /adm/users
 is given in
-.IR users (6);
+.IR passwd (5);
 .B bdays
 contains sorted lines like
 .LR "ken:Feb\ 4,\ 1953" .
 .TP
 .L
-tr : ' ' </adm/users | sort -k 3 3 >temp
+tr : ' ' </etc/passwd | sort -k 3 3 >temp
 .br
 .ns
 .TP
@@ -145,4 +145,3 @@ the sequence is that of
 .BI -k y , y\f1.
 .br
 One of the files must be randomly accessible.
-

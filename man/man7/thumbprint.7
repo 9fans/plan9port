@@ -1,0 +1,41 @@
+.TH THUMBPRINT 7
+.SH NAME
+thumbprint \- public key thumbprints
+.SH DESCRIPTION
+.PP
+Applications in Plan 9 that use public keys for authentication,
+for example by calling
+.B tlsClient
+and
+.B okThumbprint
+(see
+.IR pushtls (3)),
+check the remote side's public key by comparing against
+thumbprints from a trusted list.
+The list is maintained by people who set local policies
+about which servers can be trusted for which applications,
+thereby playing the role taken by certificate authorities
+in PKI-based systems.
+By convention, these lists are stored as files in
+.B /sys/lib/tls/
+and protected by normal file system permissions.
+.PP
+Such a thumbprint file comprises lines made up of
+attribute/value pairs of the form
+.IB attr = value
+or
+.IR attr .
+The first attribute must be
+.B x509
+and the second must be
+.BI sha1= {hex checksum of binary certificate}.
+All other attributes are treated as comments.
+The file may also contain lines of the form
+.BI #include file
+.PP
+For example, a web server might have thumbprint
+.EX
+x509 sha1=8fe472d31b360a8303cd29f92bd734813cbd923c cn=*.cs.bell-labs.com
+.EE
+.SH "SEE ALSO"
+.IR pushtls (3)

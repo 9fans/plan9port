@@ -1,0 +1,196 @@
+.TH PUSHTLS 3
+.SH NAME
+pushtls, tlsClient, tlsServer, initThumbprints, freeThumbprints, okThumbprint, readcert, readcertchain \- attach TLS1 or SSL3 encryption to a communication channel
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int			pushtls(int fd, char *hashalg, char *encalg,
+.br
+.B
+				int isclient, char *secret, char *dir)
+.PP
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+int			tlsClient(int fd, TLSconn *conn)
+.PP
+.B
+int			tlsServer(int fd, TLSconn *conn)
+.PP
+.B
+uchar		*readcert(char *filename, int *pcertlen)
+.PP
+.B
+PEMchain	*readcertchain(char *filename)
+.PP
+.B
+Thumbprint*	initThumbprints(char *ok, char *crl)
+.PP
+.B
+void			freeThumbprints(Thumbprint *table)
+.PP
+.B
+int			okThumbprint(uchar *hash, Thumbprint *table)
+.SH DESCRIPTION
+Transport Layer Security (TLS) comprises a record layer protocol,
+doing message digesting and encrypting in the kernel,
+and a handshake protocol,
+doing initial authentication and secret creation at
+user level and then starting a data channel in the record protocol.
+TLS is nearly the same as SSL 3.0, and the software should interoperate
+with implementations of either standard.
+.PP
+To use just the record layer, as described in Plan 9's
+\fItls\fR(3),
+call
+.I pushtls
+to open the record layer device, connect to the communications channel
+.IR fd ,
+and start up encryption and message authentication as specified
+in
+.IR hashalg ,
+.IR encalg ,
+and
+.IR secret .
+These parameters must have been arranged at the two ends of the
+conversation by other means.
+For example,
+.I hashalg
+could be
+.BR sha1 ,
+.I encalg
+could be
+.BR rc4_128 ,
+and
+.I secret
+could be the base-64 encoding of two (client-to-server and server-to-client)
+20-byte digest keys and two corresponding 16-byte encryption keys.
+.I Pushtls
+returns a file descriptor for the TLS data channel.  Anything written to this
+descriptor will get encrypted and authenticated and then written to the
+file descriptor,
+.IR fd .
+If
+.I dir
+is non-zero, the path name of the connection directory is copied into
+.IR dir .
+This path name is guaranteed to be less than 40 bytes long.
+.PP
+Alternatively, call
+.I tlsClient
+to speak the full handshake protocol,
+negotiate the algorithms and secrets,
+and return a new data file descriptor for the data channel.
+.I Conn
+points to a (caller-allocated) struct
+.EX
+   typedef struct TLSconn{
+      char dir[40];     // OUT    connection directory
+      uchar *cert;      // IN/OUT certificate
+      uchar *sessionID; // IN/OUT sessionID
+      int certlen, sessionIDlen;
+      void (*trace)(char*fmt, ...);
+      PEMChain *chain;
+   } TLSconn;
+.EE
+defined in
+.IR tls.h .
+On input, the caller can provide options such as
+.IR cert ,
+the local certificate, and
+.IR sessionID ,
+used by a client to resume a previously negotiated security association.
+On output, the connection directory is set, as with
+.B listen
+(see
+.IR dial (3)).
+The input
+.I cert
+is freed and a freshly allocated copy of the remote's certificate
+is returned in
+.IR conn ,
+to be checked by the caller
+according to its needs.  One mechanism is supplied by
+.I initThumbprints
+and
+.I freeThumbprints
+which allocate and free, respectively, a table of hashes
+from files of known trusted and revoked certificates.
+.I okThumbprint
+confirms that a particular hash is in the table, as computed by
+.PP
+.EX
+   uchar hash[SHA1dlen];
+   conn = (TLSconn*)mallocz(sizeof *conn, 1);
+   fd = tlsClient(fd, conn);
+   sha1(conn->cert, conn->certlen, hash, nil);
+   if(!okThumbprint(hash,table))
+      exits("suspect server");
+   ...application begins...
+.EE
+.PP
+Call
+.I tlsServer
+to perform the corresponding function on the server side:
+.PP
+.EX
+   fd = accept(lcfd, ldir);
+   conn = (TLSconn*)mallocz(sizeof *conn, 1);
+   conn->cert = readcert("cert.pem", &conn->certlen);
+   fd = tlsServer(fd, conn);
+   ...application begins...
+.EE
+The private key corresponding to
+.I cert.pem
+should have been previously loaded into factotum.
+(See
+.IR rsa (3)
+.\" XXX should be rsa(8)
+for more about key generation.)
+By setting
+.EX
+   conn->chain = readcertchain("intermediate-certs.pem");
+.EE
+the server can present extra certificate evidence
+to establish the chain of trust to a root authority
+known to the client.
+.PP
+.I Conn
+is not required for the ongoing conversation and may
+be freed by the application whenever convenient.
+.SH FILES
+.TP 
+.B /sys/lib/tls
+thumbprints of trusted services
+.TP 
+.B /sys/lib/ssl
+PEM certificate files
+.SH SOURCE
+.\" .B /sys/src/libc/9sys/pushtls.c
+.\" .br
+.B /usr/local/plan9/src/libsec/port
+.SH "SEE ALSO"
+.IR dial (3),
+.IR thumbprint (7);
+Plan 9's
+\fIfactotum\fR(4)
+and
+\fItls\fR(3)
+.SH DIAGNOSTICS
+return \-1 on failure.
+.SH BUGS
+.I Pushtls
+is not implemented.
+.PP
+Client certificates and client sessionIDs are not yet
+implemented.
+.PP
+Note that in the TLS protocol
+.I sessionID
+itself is public;  it is used as a pointer to
+secrets stored in factotum.

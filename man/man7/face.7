@@ -1,0 +1,115 @@
+.TH FACE 7
+.SH NAME
+face \- face files
+.SH DESCRIPTION
+The directories
+.B /usr/$user/lib/face
+and
+.B /lib/face
+contain a hierarchy of images of people.
+In those directories are subdirectories named by the sizes of
+the corresponding image files:
+.B 48x48x1
+(48 by 48 pixels, one bit per pixel);
+.B 48x48x2
+(48 by 48 pixels, two (grey) bits per pixel);
+.B 48x48x4
+(48 by 48 pixels, four (grey) bits per pixel);
+.B 48x48x8
+(48 by 48 pixels, eight (color-mapped) bits per pixel);
+.B 512x512x8
+(512 by 512 pixels, eight (color-mapped) bits per pixel);
+.B 512x512x24
+(512 by 512 pixels, twenty-four bits per pixel (3 times 8 bits
+per color)).
+The large files serve no special purpose; they are stored
+as images
+(see
+.IR image (7)).
+The small files are the `icons'  displayed by
+.B faces
+and
+.B seemail
+(see Plan 9's
+\fIfaces\fR(1));
+for depths less than 4, their format is special.
+.PP
+One- and two-bit deep icons are stored as text, one line of the file to one scan line
+of display.
+Each line is divided into 8-bit, 16-bit, or 32-bit big-endian words,
+stored as a list of comma-separated hexadecimal C constants,
+such as:
+.IP
+.EX
+0x9200, 0x1bb0, 0x003e,
+.EE
+.PP
+This odd format is historical and the programs that read it
+are somewhat forgiving about blanks and the need for commas.
+.PP
+The files
+.BR  lib/face/*/.dict
+hold a correspondence between users at machines
+and face files.
+The format is
+.IP
+.EX
+.I machine\fB/\fPuser directory\fB/\fPfile\fB.\fPver
+.EE
+.PP
+The
+.I machine
+is the domain name of the machine sending the message,
+and
+.I user
+the name of the user sending it.
+The
+.I directory
+is a further subdirectory of (say)
+.BR /lib/face/48x48x1 ,
+named by a single letter corresponding to the first character
+of the user names.  The
+.I file
+is the name of the file, typically but not always the user name,
+and
+.I ver
+is a number to distinguish different images, for example to
+distinguish the image for Bill Gates from the image for Bill Joy,
+both of which might otherwise be called
+.BR b/bill .
+For example, Bill Gates might be represented by the line
+.IP
+.EX
+microsoft.com/bill b/bill.1
+.EE
+.PP
+If multiple entries exist for a user in the various
+.B .dict
+files,
+.I faces
+chooses the highest pixel size less than or equal to that of the
+display on which it is running.
+.PP
+Finally, or rather firstly, the file
+.B /lib/face/.machinelist
+contains a list of machine/domain pairs, one per line,
+to map any of a set of machines to a single domain name to
+be looked up in the
+.B .dict
+files.  The machine name may be a regular expression,
+so for example the entry
+.IP
+.EX
+\&.*research\e.bell-labs\e.com    astro
+.EE
+.PP
+maps any of the machines in Bell Labs Research into the
+shorthand name
+.BR astro ,
+which then appears as a domain name in the
+.B .dict
+files.
+.SH "SEE ALSO"
+.IR mail (1),
+.IR tweak (1),
+.IR image (7)

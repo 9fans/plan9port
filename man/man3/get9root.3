@@ -1,0 +1,75 @@
+.TH GET9ROOT 3
+.SH NAME
+get9root, unsharp \- get path to root of Plan 9 tree
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+char*	get9root(void)
+.PP
+.B
+char*	unsharp(char *path)
+.SH DESCRIPTION
+This tree of Plan 9 software is conventionally installed in
+.B /usr/local/plan9
+but may be installed in other places (for example, users without
+the ability to write to
+.B /usr/local
+may with to install it in their own home directories).
+The environment variable
+.B $PLAN9
+should contain the path to the root.
+.I Get9root
+returns a static pointer to the pathname of root, first checking
+.B $PLAN9
+and defaulting to
+.BR /usr/local/plan9 .
+.PP
+The lack of a fixed location for the Plan 9 tree
+makes it difficult to hard-code paths
+to files. 
+.I Unsharp
+replaces a leading
+.B #9
+in 
+.I path
+with the root of the tree.
+.I Unsharp
+also replaces a leading
+.B #d
+with the path to the underlying system's file descriptor dup device,
+typically
+.BR /dev/fd .
+The string returned from
+.IR unsharp ,
+if different from
+.IR path ,
+should be freed with
+.I free
+(see
+.IR malloc (3))
+when no longer needed.
+.PP
+As a convention, programs should never
+.I unsharp
+paths obtained from user input.
+.SH EXAMPLE
+The
+.IR plumber (4)
+uses this code to find unrooted file names included by plumb rules.
+.IP
+.EX
+snprint(buf, sizeof buf, "#9/plumb/%s", name);
+fd = open(unsharp(buf), OREAD);
+.EE
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/getns.c
+.SH SEE ALSO
+.IR intro (4)
+.SH BUGS
+.I Get9root
+could be smarter about finding the tree when
+.B $PLAN9
+is not set.

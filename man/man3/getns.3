@@ -1,0 +1,22 @@
+.TH GETNS 3
+.SH NAME
+getns \- get path to name space directory
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+char*	getns(void)
+.SH DESCRIPTION
+.I Getns
+returns a pointer to a malloced string that contains the 
+path to the name space directory for the current process.
+The name space directory is a clumsy substitute
+for Plan 9's per-process name spaces; see 
+.IR intro (4)
+for details.
+.SH SOURCE
+.B /usr/local/plan9/src/lib9/getns.c
+.SH SEE ALSO
+.IR intro (4)

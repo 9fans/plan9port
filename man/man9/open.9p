@@ -1,0 +1,249 @@
+.TH OPEN 9P 
+.SH NAME
+open, create \- prepare a fid for I/O on an existing or new file
+.SH SYNOPSIS
+.ta \w'\fLTcreate 'u
+.IR size [4]
+.B Topen
+.IR tag [2]
+.IR fid [4]
+.IR mode [1]
+.br
+.IR size [4]
+.B Ropen
+.IR tag [2]
+.IR qid [13]
+.IR iounit [4]
+.PP
+.IR size [4]
+.B Tcreate
+.IR tag [2]
+.IR fid [4]
+.IR name [ s ]
+.IR perm [4]
+.IR mode [1]
+.br
+.IR size [4]
+.B Rcreate
+.IR tag [2]
+.IR qid [13]
+.IR iounit [4]
+.SH DESCRIPTION
+The
+.B open
+request asks the file server to check permissions and
+prepare a fid for I/O with subsequent
+.B read
+and
+.B write
+messages.
+The
+.I mode
+field determines the type of I/O:
+0
+(called
+.BR OREAD
+in
+.BR <libc.h> ),
+1
+.RB ( OWRITE ),
+2
+.RB ( ORDWR ),
+and 3
+.RB ( OEXEC )
+mean
+.I
+read access, write access, read and write access,
+and
+.I
+execute access,
+to be checked against the permissions for the file.
+In addition, if
+.I mode
+has the
+.B OTRUNC
+.RB ( 0x10 )
+bit set,
+the file is to be truncated, which requires write permission
+(if
+the file is append-only, and permission is granted, the
+.B open
+succeeds but the file will not be truncated);
+if the
+.I mode
+has the
+.B ORCLOSE
+.RB ( 0x40 )
+bit set, the file is to be removed when the fid
+is clunked, which requires permission to remove the file from its directory.
+All other bits in
+.I mode
+should be zero.
+It is illegal to write a directory, truncate it, or attempt to remove it on close.
+If the file is marked for exclusive use (see
+.IR stat (9P)),
+only one client can have the file open at any time.
+That is, after such a file has been opened,
+further opens will fail until
+.I fid
+has been clunked.
+All these permissions are checked at the time of the
+.B open
+request; subsequent changes to the permissions of files do not affect
+the ability to read, write, or remove an open file.
+.PP
+The 
+.B create
+request asks the file server to create a new file
+with the 
+.I name
+supplied, in the directory
+.RI ( dir )
+represented by
+.IR fid ,
+and requires write permission in the directory.
+The owner of the file is the implied user id of the request,
+the group of the file is the same as
+.IR dir ,
+and the permissions are the value of
+.ce
+.B "perm & (~0666 | (dir.perm & 0666))"
+if a regular file is being created and
+.ce
+.B "perm & (~0777 | (dir.perm & 0777))"
+if a directory is being created.
+This means, for example, that if the
+.B create
+allows read permission to others, but the containing directory
+does not, then the created file will not allow others to read the file.
+.PP
+Finally, the newly created file is opened according to
+.IR mode ,
+and
+.I fid
+will represent the newly opened file.
+.I Mode
+is not checked against the permissions in
+.IR perm .
+The
+.I qid
+for the new file is returned with the
+.B create
+reply message.
+.PP
+Directories are created by setting the
+.B DMDIR
+bit
+.RB ( 0x80000000 )
+in the
+.IR perm .
+.PP
+The names
+.B .
+and
+.B ..
+are special; it is illegal to create files with these names.
+.PP
+It is an error for either of these messages if the fid
+is already the product of a successful
+.B open
+or
+.B create
+message.
+.PP
+An attempt to
+.B create
+a file in a directory where the given
+.I name
+already exists will be rejected;
+in this case, the
+.I fscreate
+call
+(see
+.IR 9pclient (3))
+uses
+.B open
+with truncation.
+The algorithm used by the
+.IR create
+system call
+is:
+first walk to the directory to contain the file.
+If that fails, return an error.
+Next
+.B walk
+to the specified file.
+If the
+.B walk
+succeeds, send a request to
+.B open
+and truncate the file and return the result, successful or not.
+If the
+.B walk
+fails, send a create message.
+If that fails, it may be because the file was created by another
+process after the previous walk failed, so (once) try the
+.B walk
+and
+.B open
+again.
+.\" .PP
+.\" For the behavior of
+.\" .I create
+.\" on a union directory, see
+.\" .IR bind (2).
+.\" .PP
+.\" The
+.\" .B iounit
+.\" field returned by
+.\" .B open
+.\" and
+.\" .B create
+.\" may be zero.
+.\" If it is not, it is the maximum number of bytes that are guaranteed to
+.\" be read from or written to the file without breaking the I/O transfer
+.\" into multiple 9P messages; see
+.\" .IR read (9P).
+.SH ENTRY POINTS
+.I Fsopen
+and
+.I fscreate
+(see
+.IR 9pclient (3))
+both generate
+.B open
+messages; only
+.I fscreate
+generates a
+.B create
+message.
+The
+.B iounit
+associated with an open file may be discovered by calling
+.IR fsiounit .
+.PP
+For programs that need atomic file creation, without the race
+that exists in the
+.B open-create
+sequence described above,
+.IR fscreate
+does the following.
+If the
+.B OEXCL
+.RB ( 0x1000 )
+bit is set in the
+.I mode
+for a
+.I fscreate
+call,
+the
+.B open
+message is not sent; the kernel issues only the
+.BR create .
+Thus, if the file exists,
+.I fscreate
+will draw an error, but if it doesn't and the
+.I fscreate
+call succeeds, the process issuing the
+.I fscreate
+is guaranteed to be the one that created the file.

@@ -3,8 +3,10 @@
 asn1dump,
 asn1toRSApriv,
 decodepem,
+decodepemchain,
 rsadecrypt,
 rsaencrypt,
+rsafill,,
 rsagen,
 rsaprivalloc,
 rsaprivfree,
@@ -12,7 +14,9 @@ rsaprivtopub,
 rsapuballoc,
 rsapubfree,
 X509toRSApub,
+X509dump,
 X509gen,
+X509req,
 X509verify \- RSA encryption algorithm
 .SH SYNOPSIS
 .B #include <u.h>
@@ -24,7 +28,11 @@ X509verify \- RSA encryption algorithm
 .B #include <libsec.h>
 .PP
 .B
+.ta +\w'\fLPEMChain* 'u
 RSApriv*	rsagen(int nlen, int elen, int nrep)
+.PP
+.B
+RSApriv*	rsafill(mpint *n, mpint *ek, mpint *dk, mpint *p, mpint *q)
 .PP
 .B
 mpint*	rsaencrypt(RSApub *k, mpint *in, mpint *out)
@@ -58,6 +66,12 @@ void		asn1dump(uchar *der, int len)
 .PP
 .B
 uchar*	decodepem(char *s, char *type, int *len)
+.PP
+.B
+PEMChain*	decodepemchain(char *s, char *type)
+.PP
+.B
+void	X509dump(uchar *cert, int ncert)
 .PP
 .B
 uchar*	X509gen(RSApriv *priv, char *subj, ulong valid[2], int *certlen);
@@ -113,6 +127,22 @@ public and private keys.
 returns a newly allocated copy of the public key
 corresponding to the private key.
 .PP
+.I Rsafill
+takes as input the bare minimum pieces of an RSA private key
+and computes the rest
+.RB ( kp ,
+.BR kq ,
+and
+.BR c2 ).
+It returns a new private key.
+All the
+.BR mpint s
+in the key,
+even the ones that correspond directly to
+.IR rsafill 's
+input parameters,
+are freshly allocated,
+.PP
 The routines
 .IR rsaalloc ,
 .IR rsafree ,
@@ -148,6 +178,9 @@ checks the signature on
 .IR cert .
 It returns nil if successful, else an error string.
 .PP
+.I X509dump
+prints an X.509 certificate to standard ouptut.
+.PP
 .I X509gen
 creates a self-signed X.509 certificate, given an RSA keypair
 .IR priv ,
@@ -162,7 +195,12 @@ The subject line is conventionally of the form
    "C=US ST=NJ L=07922 O=Lucent OU='Bell Labs' CN=Eric"
 .EE
 using the quoting conventions of
-.IR tokenize (3).
+.I tokenize
+(see
+.IR getfields (3)).
+.PP
+.I X509req
+creates an X.509 certification request.
 .PP
 .I Asn1toRSApriv
 converts an ASN1 formatted RSA private key into the corresponding
@@ -186,6 +224,20 @@ If not, it returns
 and
 .BI * len
 is undefined.
+.PP
+.I Decodepemchain
+is similar but expects a sequence of PEM-formatted sections
+and returns a linked list of the decodings:
+.IP
+.EX
+typedef struct PEMChain PEMChain
+struct PEMChain
+{
+	PEMChain *next;
+	uchar *pem;
+	int pemlen;
+};
+.EE
 .SH SOURCE
 .B /usr/local/plan9/src/libsec
 .SH SEE ALSO
@@ -198,5 +250,5 @@ is undefined.
 .IR rc4 (3),
 .IR sechash (3),
 .IR prime (3),
-.IR rand (3),
-.IR x509 (8)
+.IR rand (3)
+.\" .IR pem (8)

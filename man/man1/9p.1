@@ -1,0 +1,125 @@
+.TH 9P 1
+.SH NAME
+9p \- read and write files on a 9P server
+.SH SYNOPSIS
+.B 9p
+[
+.B -a
+.I addr
+]
+.B read
+.I path
+.br
+.B 9p
+[
+.B -a
+.I addr
+]
+.B readfd
+.I path
+.PP
+.B 9p
+[
+.B -a
+.I addr
+]
+.B write
+.I path
+.br
+.B 9p
+[
+.B -a
+.I addr
+]
+.B writefd
+.I path
+.PP
+.B 9p
+[
+.B -a
+.I addr
+]
+.B stat
+.I path
+.SH DESCRIPTION
+.I 9p
+is a trivial 9P client that can access a single file on a 9P server.
+It can be useful for manual interaction with a 9P server or for
+accessing simple 9P services from within shell scripts.
+.PP
+The first argument is a command, one of:
+.TP
+.B read
+print the contents of
+.I path 
+to standard output
+.TP
+.B write
+write data on standard input to
+.I path
+.TP
+.BR readfd ", " writefd
+like
+.B read
+and 
+.B write
+but use
+.IR openfd (9p)
+instead of
+.IR open ;
+this masks errors and is mainly useful for debugging
+the implementation of
+.I openfd
+.TP
+.B stat
+execute
+.I stat (9p)
+on 
+.I path
+and print the result
+.PD
+.PP
+.I 9p
+dials
+.I address
+to connect to the 9P server.
+If the
+.B -a
+option is not given,
+.I 9p
+requires the
+.I path
+to be of the form
+.IB service / subpath \fR;
+it connects to the Unix domain socket
+.I service
+in the name space directory
+(see
+.IR intro (4))
+and then accesses
+.IR subpath .
+.SH EXAMPLE
+To update
+.IR plumber (4)'s
+copy of your plumbing rules after editing
+.BR $HOME/lib/plumbing :
+.IP
+.EX
+cat $HOME/lib/plumbing | 9p write plumb/rules
+.EE
+.PP
+To display the contents of the current
+.IR acme (4)
+window (specified by the environment variable
+.BR $winid )
+on standard output:
+.IP
+.EX
+9p read acme/$winid/body
+.EE
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/9p.c
+.SH SEE ALSO
+.IR intro (4),
+.IR intro (9p),
+.IR 9pclient (3)

@@ -1,0 +1,26 @@
+.TH PWD 1
+.SH NAME
+pwd, pbd \- working directory
+.SH SYNOPSIS
+.B pwd
+.br
+.B pbd
+.SH DESCRIPTION
+.I Pwd
+prints the path name of the working (current) directory.
+.PP
+.I Pbd
+prints the base name of the working (current) directory.
+It prints no final newline and is intended for applications
+such as constructing shell prompts.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/pbd.c
+.SH SEE ALSO
+.I cd
+in
+.IR rc (1),
+.IR getwd (3)
+.SH BUGS
+.I Pwd
+is not provided.
+Unix already provides one.

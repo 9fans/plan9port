@@ -1,0 +1,122 @@
+.TH ASTRO 1
+.SH NAME
+astro \- print astronomical information
+.SH SYNOPSIS
+.B astro
+[
+.B -dlpsatokm
+]
+[
+.B -c
+n
+]
+[
+.B -C
+d
+]
+[
+.B -e
+.I obj1
+.I obj2
+]
+.SH DESCRIPTION
+.I Astro
+reports upcoming celestial events, by default for 24 hours starting now.
+The options are:
+.TP
+.B d
+Read the starting date.
+A prompt gives the input
+format.
+.TP
+.B l
+Read the north latitude, west longitude, and elevation of the observation point.
+A prompt gives the input format.
+If
+.B l
+is missing, the initial position is read from the file
+.BR /lib/sky/here .
+.TP
+.B c
+Report for
+.I n
+(default 1) successive days.
+.TP
+.B C
+Used with
+.BR -c ,
+set the interval to
+.B d
+days (or fractions of days).
+.TP
+.B e
+Report distance between the centers of
+objects, in arc seconds, during eclipses or occultations involving
+.I obj1
+and
+.IR obj2 .
+.TP
+.B p
+Print the positions of objects at the
+given time rather than searching for interesting
+conjunctions.
+For each, the name is followed by
+the right ascension (hours, minutes, seconds),
+declination (degrees, minutes, seconds),
+azimuth (degrees),
+elevation (degrees),
+and semidiameter (arc seconds).
+For the sun and moon, the magnitude is also printed.
+The first line of output presents the date and time,
+sidereal time, and the latitude, longitude, and elevation.
+.TP
+.B s
+Print output in English words suitable for speech synthesizers.
+.TP
+.B a
+Include a list of artificial earth satellites for interesting events.
+(There are no orbital elements for the satellites, so this option
+is not usable.)
+.TP
+.B t
+Read
+ΔT
+from standard input.
+ΔT
+is the difference between ephemeris and
+universal time (seconds) due to the slowing of the earth's rotation.
+ΔT
+is normally calculated from an empirical formula.
+This option is needed only for very accurate timing of
+occultations, eclipses, etc.
+.TP
+.B o
+Search for stellar occultations.
+.TP
+.B k
+Print times in local time (`kitchen clock')
+as described in the
+.B timezone
+environment variable.
+.TP
+.B m
+Includes a single comet in the list of objects.
+This is modified (in the source) to refer to an approaching comet
+but in steady state
+usually refers to the last interesting comet (currently Hale-Bopp, C/1995 O1).
+.SH FILES
+.TF /lib/sky/estartab
+.TP
+.B /lib/sky/estartab
+ecliptic star data
+.TP
+.B /lib/sky/here
+default latitude (N), longitude (W), and elevation (meters)
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/astro
+.SH SEE ALSO
+.IR scat (1)
+.SH BUGS
+The
+.B k
+option reverts to GMT outside of 1970-2036.

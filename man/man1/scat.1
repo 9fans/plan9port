@@ -1,4 +1,4 @@
-.TH SCAT 7
+.TH SCAT 1
 .SH NAME
 scat \- sky catalogue and Digitized Sky Survey
 .SH SYNOPSIS
@@ -10,7 +10,7 @@ outside the solar system
 and implements database-like manipulations
 on sets of such objects.
 It also provides an interface to
-.IR astro (7)
+.IR astro (1)
 to plot the locations of solar system objects.
 Finally, it displays images from the
 Space Telescope Science Institute's
@@ -119,7 +119,7 @@ The names
 and
 .B comet
 refer to the earth's penumbra at lunar distance and the comet installed in the current
-.IR astro (7).
+.IR astro (1).
 The output is the planet's name, right ascension and declination, azimuth and altitude, and phase
 for the moon and sun, as shown by
 .BR astro .
@@ -182,7 +182,7 @@ collects all objects in the patches that cover the current set.
 .TP
 .BI astro " option"
 Run
-.IR astro (7)
+.IR astro (1)
 with the specified
 .I options
 (to which will be appended
@@ -322,9 +322,9 @@ Show a pretty galaxy.
 .SH FILES
 .B /lib/sky/*.scat
 .SH SOURCE
-.B /sys/src/cmd/scat
+.B /usr/local/plan9/src/cmd/scat
 .SH SEE ALSO
-.IR astro (7)
+.IR astro (1)
 .br
 .B /lib/sky/constelnames\ \ 
 the three-letter abbreviations of the constellation names.

@@ -1,0 +1,125 @@
+.TH PSFONTS 1
+.SH NAME
+psfonts, psdownload \- add necessary fonts to PostScript document for printing
+.SH SYNOPSIS
+.B psfonts
+[
+.I files ...
+]
+.PP
+.B psdownload
+[
+.B options
+]
+[
+.I files ...
+]
+.SH DESCRIPTION
+Plan 9's
+.IR troff (1)
+and
+.IR tr2post (1)
+use non-standard PostScript fonts
+(found in
+.BR /usr/local/plan9/postscript/font ).
+Before sending PostScript output from
+.I tr2post
+to a standard printer, code implementing
+the non-standard fonts must be added to the PostScript.
+.PP
+.I Psfonts
+copies 
+.I files
+(or standard input)
+to standard output, adding necessary PostScript fonts.
+.PP
+.I Psdownload
+is the more general program used to implement
+.IR psfonts .
+The options are:
+.TP
+.BI -c " comment
+Expect the fonts used in the document to be listed in
+a comment beginning with this string
+(default
+.BR %%DocumentFonts: ).
+.TP
+.BI -f " atend
+Expect extra fonts comments at the end of the document,
+so read the entire input before starting output
+(by default this only happens if a
+.B %%DocumentFonts:
+.B (atend)
+comment is encountered).
+.TP
+.BI -m " mapfile
+Use
+.I mapfile
+to translate from PostScript font names to files.
+Each line in the map has two white space-separated
+fields: a font name and the corresponding file.
+If
+.I mapfile
+is not a rooted path, it is evaluated relative to the
+.I fontdir
+(see
+.B -H
+below).
+.TP
+.BI -p " printer
+Set the name of the printer.
+This option is deprecated.  Its only effect is to override the
+.B -r
+option, causing
+.IB fontdir /printers/ printer
+to be used as the resident fonts list.
+.TP
+.BI -r " residentfonts
+Read a list of fonts assumed to be on the printer
+(not necessary to re-download) from the file
+.IR residentfonts .
+If
+.I residentfonts
+is not a rooted path, it is evaluated relative to the
+.I fontdir
+(see
+.B -H
+below).
+.TP
+.BI -H " fontdir
+Set the directory that is assumed to contain the PostScript fonts
+and information about printers
+(see
+.BR -m ,
+.BR -p ,
+and
+.B -r
+above;
+default
+.BR /usr/local/plan9/postscript/font ).
+.TP
+.BI -T " tmpdir
+Use
+.I tmpdir
+for storing temporary files
+(default
+.BR /var/tmp ).
+.B 
+.TP
+.BI -D
+Produce copious amounts of debugging information on standard error.
+.TP
+.BI -I
+Continue running even after fatal errors occur.
+.PD
+.SH EXAMPLE
+See
+.IR tr2post (1)
+for an example.
+.SH SOURCE
+.B /usr/local/plan9/bin/psfonts
+.br
+.B /usr/local/plan9/src/cmd/postscript/download
+.SH SEE ALSO
+.IR troff (1),
+.IR tr2post (1)

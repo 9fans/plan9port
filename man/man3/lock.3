@@ -72,22 +72,16 @@ are spin locks,
 .B QLocks
 and
 .B RWLocks
-are different types of queueing rendezvous locks,
+are different types of queueing locks,
 and
 .B Rendezes
 are rendezvous points.
 .PP
-Locks and rendezvous points work in regular programs as
-well as programs that use the thread library
+Locks and rendezvous points have trivial implementations in programs
+not using the thread library
 (see
-.IR thread (3)).
-The thread library replaces the
-.IR rendezvous (3)
-system call
-with its own implementation,
-.IR threadrendezvous ,
-so that threads as well as processes may be synchronized by locking calls
-in threaded programs.
+.IR thread (3)),
+since such programs have no concurrency.
 .PP
 Used carelessly, spin locks can be expensive and can easily generate deadlocks.
 Their use is discouraged, especially in programs that use the
@@ -105,7 +99,7 @@ releases a lock.
 .B QLocks
 have the same interface but are not spin locks; instead if the lock is taken
 .I qlock
-will suspend execution of the calling task until it is released.
+will suspend execution of the calling thread until it is released.
 .PP
 Although
 .B Locks
@@ -199,18 +193,39 @@ atomically decrements the
 .B Ref
 and returns zero if the resulting value is zero, non-zero otherwise.
 .SH SOURCE
-.B /usr/local/plan9/src/libc/port/lock.c
+.B /usr/local/plan9/src/lib9/qlock.c
 .br
-.B /usr/local/plan9/src/libc/9sys/qlock.c
-.br
-.B /usr/local/plan9/src/libthread/ref.c
-.SH SEE ALSO
-.I rfork
-in
-.IR fork (3)
+.B /usr/local/plan9/src/libthread
 .SH BUGS
 .B Locks
-are not strictly spin locks.
+are not always spin locks.
+Instead they are usually implemented using the 
+.I pthreads
+library's
+.BR pthread_mutex_t ,
+whose implementation method is not defined.
+.PP
+On
+.IR pthreads -based
+systems, the implementation of
+.B Lock
+never calls
+.I pthread_mutex_destroy
+to free the
+.BR pthread_mutex_t 's.
+This leads to resource leaks on FreeBSD 5
+(though not on Linux 2.6, where
+.I pthread_mutex_destroy
+is a no-op).
+.BR 
+.PP
+On systems that do not have a usable
+.I pthreads
+implementation, the
+.B Lock
+implementation provided by
+.I libthread
+is still not exactly a spin lock.
 After each unsuccessful attempt,
 .I lock
 calls

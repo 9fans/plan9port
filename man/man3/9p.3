@@ -10,8 +10,9 @@ postmountsrv,
 readbuf,
 readstr,
 respond,
+srv,
 threadpostmountsrv,
-srv \- 9P file service
+walkandclone \- 9P file service
 .SH SYNOPSIS
 .ft L
 .nf
@@ -176,9 +177,7 @@ as
 .BI /srv/ name .
 .IP
 Fork a child process via
-.I rfork
-(see
-.IR fork (3))
+.IR rfork (3)
 or
 .I procrfork
 (see
@@ -214,9 +213,7 @@ The parent returns to the caller.
 .LP
 If any error occurs during
 this process, the entire process is terminated by calling
-.I sysfatal
-(see
-.IR perror (3)).
+.IR sysfatal (3).
 .SS Service functions
 The functions in a 
 .B Srv
@@ -603,12 +600,12 @@ consults
 in changing the metadata for
 .IB r -> fid
 as described in
-.IR stat (5).
+.IR stat (9p).
 When using file trees,
 .I srv
 will take care to check that the request satisfies
 the permissions outlined in
-.IR stat (5).
+.IR stat (9p).
 Otherwise 
 .I wstat
 should take care to enforce permissions
@@ -720,19 +717,16 @@ accept the
 option to increment
 .BR chatty9p .
 .SH EXAMPLES
-.IR Archfs (4),
-.IR cdfs (4),
-.IR nntpfs (4),
-.IR snap (4),
-and
-.B /usr/local/plan9/src/lib9p/ramfs.c
-are good examples of simple single-threaded file servers.
-.IR Webfs (4)
+/usr/local/plan9/src/lib9p/ramfs.c
+is an example of simple single-threaded file servers.
+On Plan 9, see
+.IR archfs ,
+.IR cdfs ,
+.IR nntpfs ,
+.IR webfs ,
 and
 .I sshnet
-(see
-.IR ssh (1))
-are good examples of multithreaded file servers.
+for more examples.
 .PP
 In general, the
 .B File
@@ -752,9 +746,4 @@ or is maintained elsewhere.
 .SH SEE ALSO
 .IR 9pfid (3),
 .IR 9pfile (3),
-.IR srv (3),
-.IR intro (5)
-.SH BUGS
-The switch to 9P2000 was taken as an opportunity to tidy
-much of the interface; we promise to avoid such gratuitous change
-in the future.
+.IR intro (9p)

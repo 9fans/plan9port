@@ -15,10 +15,8 @@ int   putenv(char *name, char *val)
 .fi
 .SH DESCRIPTION
 .I Getenv
-reads the contents of
-.BI /env/ name
-(see
-.IR env (3))
+fetches the environment value associated with
+.I name
 into memory allocated with
 .IR malloc (3),
 0-terminates it,
@@ -27,18 +25,18 @@ If no file exists, 0
 is returned.
 .PP
 .I Putenv
-creates the file
-.BI /env/ name
-and writes the string
-.I val
-to it.  The terminating
-.B 0
-is not written.
-If the file value cannot be written, \-1 is returned.
+sets the environment value associated with
+.I name
+to
+.IR val .
 .SH SOURCE
-.B /usr/local/plan9/src/libc/9sys
-.SH SEE ALSO
-.IR env (3)
+.B /usr/local/plan9/src/lib9/getenv.c
 .SH DIAGNOSTICS
 Sets
 .IR errstr .
+.SH BUGS
+Defined as macros for
+.I p9getenv
+and
+.I p9putenv
+to avoid name conflicts with Unix library calls.

@@ -1,0 +1,75 @@
+.TH WEB 1
+.SH NAME
+web, wmail \- handle web page, mail message for plumber
+.SH SYNOPSIS
+.B web
+.I url
+\&...
+.br
+.B wmail
+.I address
+.SH DESCRIPTION
+.I Web
+opens each of the named
+.I urls
+in a new web browser window.
+Any of the
+.I urls
+may be relative paths to files in the file system;
+they will be translated into
+.B file://
+URLs before being passed to the web browser.
+.PP
+.I Web
+uses the
+web browser's
+.B -remote
+option command-line option,
+which requires an instance of the web browser
+to be already running.
+The choice of browser is determined by the
+.B $BROWSER
+environment variable, which should be the name of
+the executable for your choice of web browser.
+Since the various browsers all use different syntaxes
+in their
+.B -remote
+options, the executable name is inspected to determine
+the type of browser.
+The supported browsers are Opera, Mozilla Firefox, Mozilla Firebird, and Mozilla.
+When possible,
+.I web
+opens each URL in a new tab rather than a new window.
+.PP
+.I Wmail
+starts the composition of a new mail message to
+.IR address .
+.PP
+The choice of mailer is determined by the 
+.B $MAILER
+environment variable.
+The supported mailers are:
+.TP browser
+invoke the mailer via a
+.B mailto://
+URL passed to
+.I web
+.PD
+.PP
+.I Web
+and
+.I wmail
+are invoked as start commands in the
+.IR plumber (4)'s
+rules for opening web pages and writing mail messages.
+.SH FILES
+.TP
+.B /usr/local/plan9/plumb/basic
+plumbing rules using
+.I web
+and
+.I wmail
+.SH SOURCE
+.B /usr/local/plan9/bin
+.SH SEE ALSO
+.IR plumber (4)
