@@ -11,6 +11,10 @@ if(! ~ $#* 2){
 	exit usage
 }
 
+ns=`{namespace}
+if(u test -S $ns/$1)
+	f=$f^9p
+
 t=/tmp/netget.$pid.$USER
 fn sigexit { rm -f $t }
 
@@ -21,10 +25,19 @@ fn getfile {
 	cat $t
 }
 
+fn getfile9p {
+	if(! 9p read $1/$2)
+		exit 1
+}
+
 fn getdir {
 	if(! {echo cd $2; echo ls -l} | sftp -b - $1 | sed '1,2d; s/sftp> //g; /^$/d' >$t)
 		exit 1
 	cat $t | awk '$NF == "." || $NF == ".." { next } {s = $NF; if($0 ~ /^d/) s = s "/"; print s}'
+}
+
+fn getdir9p {
+	9p ls -l $1/$2 | awk '{s=$NF; if($0 ~ /^d/) s=s"/"; print s}'
 }
 
 $f $1 $2
