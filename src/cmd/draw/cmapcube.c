@@ -12,12 +12,24 @@ typedef struct Vert{
 
 int		nocubes;
 int		ncolor;
-Quaternion	q;
+Quaternion	q = {1.,0.,0.,0.};
 Image		*image;
 Image		*bg;
 Image		*color[256];
 Rectangle	viewrect;
 int		prevsel;
+
+Point3
+p3(double x, double y, double z, double w)
+{
+	Point3 p;
+
+	p.x = x;
+	p.y = y;
+	p.z = z;
+	p.w = w;
+	return p;
+}
 
 int
 cmp(Vert *a, Vert *b)
@@ -62,8 +74,8 @@ colorspace(RGB *cmap, Vert *v)
 	view = pushmat(0);
 	viewport(view, viewrect, 1.);
 	persp(view, 30., 3., 7.);
-	look(view, (Point3){0., 0., -5., 1.}, (Point3){0., 0., 0., 1.},
-		(Point3){0., 1., 0., 1.});
+	look(view, p3(0., 0., -5., 1.), p3(0., 0., 0., 1.),
+		p3(0., 1., 0., 1.));
 	qrot(view, q);
 	for(i=0;i!=ncolor;i++)
 		v[i].screen = xformpointd(v[i].world, 0, view);
@@ -184,7 +196,6 @@ void main(int argc, char **argv){
 	}else
 		bg = allocimage(display, Rect(0,0,1,1), screen->chan, 1, bgcol);
 
-	q=(Quaternion){1.,0.,0.,0.};
 	einit(Emouse);
 	eresized(0);
 
