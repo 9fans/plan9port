@@ -146,6 +146,8 @@ configurereq(XConfigureRequestEvent *e)
 			wc.stack_mode = e->detail;
 			XConfigureWindow(dpy, c->parent, e->value_mask, &wc);
 			sendconfig(c);
+			top(c);	
+			active(c);
 		}
 	}
 
