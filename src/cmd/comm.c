@@ -164,7 +164,7 @@ openfil(char *s)
 	Biobuf *b;
 
 	if(s[0]=='-' && s[1]==0)
-		s = "/fd/0";
+		s = unsharp("#d/0");
 	b = Bopen(s, OREAD);
 	if(b)
 		return b;
