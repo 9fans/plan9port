@@ -1,0 +1,15 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=diff
+OFILES=\
+	diffdir.$O\
+	diffio.$O\
+	diffreg.$O\
+	main.$O\
+
+HFILES=diff.h
+
+<$PLAN9/src/mkone
+
+LDFLAGS=$LDFLAGS -lbio -l9 -lfmt -lutf
