@@ -393,11 +393,11 @@ symoff(char *a, uint n, ulong addr, uint class)
 	l.type = LADDR;
 	l.addr = addr;
 	if(findsym(l, class, &s) < 0 || addr-s.loc.addr >= 4096){
-		snprint(a, n, "%lux", addr);
+		snprint(a, n, "%#lux", addr);
 		return -1;
 	}
 	if(addr != s.loc.addr)
-		snprint(a, n, "%s+%ld", s.name, addr-s.loc.addr);
+		snprint(a, n, "%s+%#lx", s.name, addr-s.loc.addr);
 	else
 		snprint(a, n, "%s", s.name);
 	return 0;
