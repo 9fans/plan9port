@@ -252,18 +252,18 @@ __runefmt(Fmt *f)
 int
 fmtstrcpy(Fmt *f, char *s)
 {
-	int p, i;
+	int i, j;
+	Rune r;
+
 	if(!s)
 		return __fmtcpy(f, "<nil>", 5, 5);
 	/* if precision is specified, make sure we don't wander off the end */
 	if(f->flags & FmtPrec){
-		p = f->prec;
-		for(i = 0; i < p; i++)
-			if(s[i] == 0)
-				break;
-		return __fmtcpy(f, s, utfnlen(s, i), i);	/* BUG?: won't print a partial rune at end */
+		i = 0;
+		for(j=0; j<f->prec && s[i]; j++)
+			i += chartorune(&r, s+i);
+		return __fmtcpy(f, s, j, i);
 	}
-
 	return __fmtcpy(f, s, utflen(s), strlen(s));
 }
 
@@ -335,19 +335,21 @@ __ifmt(Fmt *f)
 	isv = 0;
 	vu = 0;
 	u = 0;
+#ifndef PLAN9PORT
 	/*
-	 * Unsigned verbs
+	 * Unsigned verbs for ANSI C
 	 */
 	switch(f->r){
-	/* unsigned by default only on Unix 
 	case 'x':
 	case 'X':
-	*/
 	case 'o':
 	case 'u':
+	case 'p':
 		fl |= FmtUnsigned;
+		fl &= ~(FmtSign|FmtSpace);
 		break;
 	}
+#endif
 	if(f->r == 'p'){
 		u = (ulong)va_arg(f->args, void*);
 		f->r = 'x';
@@ -383,8 +385,6 @@ __ifmt(Fmt *f)
 	switch(f->r){
 	case 'd':
 	case 'i':
-		base = 10;
-		break;
 	case 'u':
 		base = 10;
 		break;
@@ -404,9 +404,7 @@ __ifmt(Fmt *f)
 	default:
 		return -1;
 	}
-	if(fl & FmtUnsigned)
-		fl &= ~(FmtSign|FmtSpace);
-	else{
+	if(!(fl & FmtUnsigned)){
 		if(isv && (vlong)vu < 0){
 			vu = -(vlong)vu;
 			neg = 1;
@@ -441,10 +439,8 @@ __ifmt(Fmt *f)
 		}
 	}
 	if(n == 0){
-		if(!(fl & FmtPrec) || f->prec != 0){
-			*p-- = '0';
-			n = 1;
-		}
+		*p-- = '0';
+		n = 1;
 	}
 	for(w = f->prec; n < w && p > buf+3; n++)
 		*p-- = '0';
@@ -530,9 +526,11 @@ __flagfmt(Fmt *f)
 			f->flags |= FmtByte;
 		f->flags |= FmtShort;
 		break;
+#ifndef PLAN9PORT
 	case 'L':
 		f->flags |= FmtLDouble;
 		break;
+#endif
 	case 'l':
 		if(f->flags & FmtLong)
 			f->flags |= FmtVLong;
