@@ -1,0 +1,22 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libflate.a
+OFILES=\
+	deflate.$O\
+	deflatezlib.$O\
+	deflateblock.$O\
+	deflatezlibblock.$O\
+	inflate.$O\
+	inflatezlib.$O\
+	inflateblock.$O\
+	inflatezlibblock.$O\
+	flateerr.$O\
+	crc.$O\
+	adler.$O\
+
+HFILES=\
+	$PLAN9/include/flate.h\
+	zlib.h\
+
+<$PLAN9/src/mksyslib
