@@ -1,0 +1,60 @@
+.TH INSTALL 1
+.SH NAME
+install \- notes about Plan 9 from User Space installation
+.SH SYNOPSIS
+.B
+cd \*9; ./INSTALL
+.SH DESCRIPTION
+To obtain the Plan 9 tree, use CVS
+(see
+.IR cvs (1))
+or download a tar file from
+.HR http://swtch.com/plan9port "" .
+.PP
+In the root of the tree, run
+.BR ./INSTALL .
+This script first uses
+.IR make (1)
+to build the Plan 9 build program
+.IR mk (1)
+if necessary.
+It cleans all previously built object files and libraries out of the tree,
+rebuilds and installs everything, and then cleans up.
+.PP
+There are a few files in tree which have the root
+hard-coded in them.
+After the build, 
+.I INSTALL
+edits these files to replace the string
+.B /usr/local/plan9
+with the name of the root of the current tree.
+.PP
+Finally,
+.I INSTALL
+builds an HTML version of the manual and installs it in
+.BR \*9/man .
+.PP
+.I INSTALL
+can safely be repeated to rebuild the system from scratch.
+.SH FILES
+.TP
+.B \*9/lib/moveplan9.files
+the list of files that need to have
+.B /usr/local/plan9
+edited out of them
+.TP
+.B \*9/lib/moveplan9.sh
+the script that edits the files
+.TP
+.B \*9/src/mkmk.sh
+the shell script used to build
+.IR mk (1)
+.TP
+.B \*9/dist/manweb
+the shell script that builds the HTML manual
+.TP
+.B \*9/man/index.html
+the top-level page in the HTML version of the manual
+.SH SEE ALSO
+.IR intro (1),
+.IR cvs (1)
