@@ -1172,20 +1172,27 @@ static Rune LON[] = { 'O', 'N', 0 };
 static Rune LOFF[] = { 'O', 'F', 'F', 0 };
 static Rune Lon[] = { 'o', 'n', 0 };
 
+enum {
+	IGlobal = -2,
+	IError = -1,
+	Ion = 0,
+	Ioff = 1,
+};
+
 static int
 indentval(Rune *s, int n)
 {
 	if(n < 2)
-		return -1;
+		return IError;
 	if(runestrncmp(s, LON, n) == 0){
 		globalautoindent = TRUE;
 		warning(nil, "Indent ON\n");
-		return -2;
+		return IGlobal;
 	}
 	if(runestrncmp(s, LOFF, n) == 0){
 		globalautoindent = FALSE;
 		warning(nil, "Indent OFF\n");
-		return -2;
+		return IGlobal;
 	}
 	return runestrncmp(s, Lon, n) == 0;
 }
@@ -1201,10 +1208,10 @@ indent(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 	USED(_1);
 	USED(_2);
 
-	if(et==nil || et->w==nil)
-		return;
-	w = et->w;
-	autoindent = -1;
+	w = nil;
+	if(et!=nil && et->w!=nil)
+		w = et->w;
+	autoindent = IError;
 	getarg(argt, FALSE, TRUE, &r, &len);
 	if(r!=nil && len>0)
 		autoindent = indentval(r, len);
@@ -1213,11 +1220,17 @@ indent(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 		if(a != arg)
 			autoindent = indentval(arg, narg-na);
 	}
-	if(autoindent >= 0)
-		w->autoindent = autoindent;
-	if(autoindent != 2)
-		warning(nil, "%.*S: Indent %s\n", w->body.file->nname, w->body.file->name,
-			w->autoindent ? "on" : "off");
+	if(w != nil){
+		switch(autoindent){
+		case Ion:
+		case Ioff:
+			w->autoindent = autoindent;
+			break;
+		case IGlobal:
+			w->autoindent = globalautoindent;
+			break;
+		}
+	}
 }
 
 void
