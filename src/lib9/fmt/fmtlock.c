@@ -19,11 +19,9 @@
 void
 __fmtlock(void)
 {
-	;
 }
 
 void
 __fmtunlock(void)
 {
-	;
 }

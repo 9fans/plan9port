@@ -11,63 +11,17 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
-/*
- * Plan 9 port version must include libc.h in order to 
- * get Plan 9 debugging malloc, which sometimes returns
- * different pointers than the standard malloc. 
- */
-#ifdef PLAN9PORT
-#include <u.h>
-#include <libc.h>
-#else
+#include <stdarg.h>
 #include <stdlib.h>
 #include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
-#endif
-
-static int
-runeFmtStrFlush(Fmt *f)
-{
-	Rune *s;
-	int n;
-
-	n = (int)f->farg;
-	n += 256;
-	f->farg = (void*)n;
-	s = (Rune*)f->start;
-	f->start = realloc(s, sizeof(Rune)*n);
-	if(f->start == nil){
-		f->start = s;
-		return 0;
-	}
-	f->to = (Rune*)f->start + ((Rune*)f->to - s);
-	f->stop = (Rune*)f->start + n - 1;
-	return 1;
-}
-
-int
-runefmtstrinit(Fmt *f)
-{
-	int n;
-
-	f->runes = 1;
-	n = 32;
-	f->start = malloc(sizeof(Rune)*n);
-	if(f->start == nil)
-		return -1;
-	f->to = f->start;
-	f->stop = (Rune*)f->start + n - 1;
-	f->flush = runeFmtStrFlush;
-	f->farg = (void*)n;
-	f->nfmt = 0;
-	return 0;
-}
 
 Rune*
 runefmtstrflush(Fmt *f)
 {
+	if(f->start == nil)
+		return nil;
 	*(Rune*)f->to = '\0';
-	f->to = f->start;
 	return f->start;
 }

@@ -526,11 +526,9 @@ __flagfmt(Fmt *f)
 			f->flags |= FmtByte;
 		f->flags |= FmtShort;
 		break;
-#ifndef PLAN9PORT
 	case 'L':
 		f->flags |= FmtLDouble;
 		break;
-#endif
 	case 'l':
 		if(f->flags & FmtLong)
 			f->flags |= FmtVLong;

@@ -371,39 +371,6 @@ found:
 }
 
 static int
-fmtzdotpad(Fmt *f, int n, int pt)
-{
-	char *t, *s;
-	int i;
-	Rune *rt, *rs;
-
-	if(f->runes){
-		rt = (Rune*)f->to;
-		rs = (Rune*)f->stop;
-		for(i = 0; i < n; i++){
-			if(i == pt){
-				FMTRCHAR(f, rt, rs, '.');
-			}
-			FMTRCHAR(f, rt, rs, '0');
-		}
-		f->nfmt += rt - (Rune*)f->to;
-		f->to = rt;
-	}else{
-		t = (char*)f->to;
-		s = (char*)f->stop;
-		for(i = 0; i < n; i++){
-			if(i == pt){
-				FMTCHAR(f, t, s, '.');
-			}
-			FMTCHAR(f, t, s, '0');
-		}
-		f->nfmt += t - (char *)f->to;
-		f->to = t;
-	}
-	return 0;
-}
-
-static int
 floatfmt(Fmt *fmt, double f)
 {
 	char s[FDIGIT+10];

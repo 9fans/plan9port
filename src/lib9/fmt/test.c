@@ -11,6 +11,7 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
+#include <stdio.h>
 #include <stdarg.h>
 #include <utf.h>
 #include "plan9.h"
@@ -32,10 +33,12 @@ main(int argc, char *argv[])
 	print("e: %e %e %e\n", 3.14159, 3.14159e10, 3.14159e-10);
 	print("f: %f %f %f\n", 3.14159, 3.14159e10, 3.14159e-10);
 	print("smiley: %C\n", (Rune)0x263a);
-	print("%g %.18\n", 2e25, 2e25);
+	print("%g %.18g\n", 2e25, 2e25);
 	print("%2.18g\n", 1.0);
+	print("%2.18f\n", 1.0);
 	print("%f\n", 3.1415927/4);
 	print("%d\n", 23);
 	print("%i\n", 23);
+	print("%0.10d\n", 12345);
 	return 0;
 }

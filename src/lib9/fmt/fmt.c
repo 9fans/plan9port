@@ -45,9 +45,13 @@ static Convfmt knownfmt[] = {
 	'-',	__flagfmt,
 	'C',	__runefmt,	/* Plan 9 addition */
 	'E',	__efgfmt,
+#ifndef PLAN9PORT
 	'F',	__efgfmt,	/* ANSI only */
+#endif
 	'G',	__efgfmt,
+#ifndef PLAN9PORT
 	'L',	__flagfmt,	/* ANSI only */
+#endif
 	'S',	__runesfmt,	/* Plan 9 addition */
 	'X',	__ifmt,
 	'b',	__ifmt,		/* Plan 9 addition */
@@ -57,7 +61,9 @@ static Convfmt knownfmt[] = {
 	'f',	__efgfmt,
 	'g',	__efgfmt,
 	'h',	__flagfmt,
+#ifndef PLAN9PORT
 	'i',	__ifmt,		/* ANSI only */
+#endif
 	'l',	__flagfmt,
 	'n',	__countfmt,
 	'o',	__ifmt,

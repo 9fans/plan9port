@@ -11,63 +11,17 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
-/*
- * Plan 9 port version must include libc.h in order to 
- * get Plan 9 debugging malloc, which sometimes returns
- * different pointers than the standard malloc. 
- */
-#ifdef PLAN9PORT
-#include <u.h>
-#include <libc.h>
-#else
 #include <stdlib.h>
+#include <stdarg.h>
 #include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
-#endif
-
-static int
-fmtStrFlush(Fmt *f)
-{
-	char *s;
-	int n;
-
-	n = (int)f->farg;
-	n += 256;
-	f->farg = (void*)n;
-	s = (char*)f->start;
-	f->start = realloc(s, n);
-	if(f->start == nil){
-		f->start = s;
-		return 0;
-	}
-	f->to = (char*)f->start + ((char*)f->to - s);
-	f->stop = (char*)f->start + n - 1;
-	return 1;
-}
-
-int
-fmtstrinit(Fmt *f)
-{
-	int n;
-
-	f->runes = 0;
-	n = 32;
-	f->start = malloc(n);
-	if(f->start == nil)
-		return -1;
-	f->to = f->start;
-	f->stop = (char*)f->start + n - 1;
-	f->flush = fmtStrFlush;
-	f->farg = (void*)n;
-	f->nfmt = 0;
-	return 0;
-}
 
 char*
 fmtstrflush(Fmt *f)
 {
+	if(f->start == nil)
+		return nil;
 	*(char*)f->to = '\0';
-	f->to = f->start;
 	return (char*)f->start;
 }
