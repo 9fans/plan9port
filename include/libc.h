@@ -113,12 +113,9 @@ extern	void*	malloc(ulong);
  */
 extern	void*	p9malloc(ulong);
 extern	void*	mallocz(ulong, int);
-/*
-extern	void	free(void*);
-extern	ulong	msize(void*);
-extern	void*	calloc(ulong, ulong);
-extern	void*	realloc(void*, ulong);
- */
+extern	void	p9free(void*);
+extern	void*	p9calloc(ulong, ulong);
+extern	void*	p9realloc(void*, ulong);
 extern	void		setmalloctag(void*, ulong);
 extern	void		setrealloctag(void*, ulong);
 extern	ulong	getmalloctag(void*);
@@ -128,6 +125,9 @@ extern	void*	malloctopoolblock(void*);
 */
 #ifndef NOPLAN9DEFINES
 #define	malloc	p9malloc
+#define	realloc	p9realloc
+#define	calloc	p9calloc
+#define	free	p9free
 #endif
 
 /*
