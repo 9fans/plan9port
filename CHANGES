@@ -1,3 +1,10 @@
+February 28, 2005
+	rcmain: extra awd to initialize 9term
+	psv: use new --options when necessary
+
+February 22, 2005
+	makefiles: set $OBJTYPE to x86_64 on FreeBSD amd64 systems
+
 February 21, 2005
 	unzip: create paths as necessary
 
