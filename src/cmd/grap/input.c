@@ -23,7 +23,7 @@ void pushsrc(int type, char *ptr)	/* new input source */
 		printf("\n%3d ", srcp - src);
 		switch (srcp->type) {
 		case File:
-			printf("push file %s\n", ((Infile *)ptr)->fname);
+			printf("push file %s\n", ptr);
 			break;
 		case Macro:
 			printf("push macro <%s>\n", ptr);
