@@ -11,12 +11,10 @@ struct Mainarg
 	char **argv;
 };
 
-int _threadmainpid;
 int mainstacksize;
-int _callsthreaddaemonize;
-static int passtomainpid;
 
 extern void (*_sysfatal)(char*, va_list);
+extern Jmp *(*_notejmpbuf)(void);
 
 static void
 mainlauncher(void *arg)
@@ -24,58 +22,24 @@ mainlauncher(void *arg)
 	Mainarg *a;
 
 	a = arg;
-	_threadmaininit();
+	_kmaininit();
 	threadmain(a->argc, a->argv);
 	threadexits("threadmain");
-}
-
-static void
-passer(void *x, char *msg)
-{
-	USED(x);
-	Waitmsg *w;
-
-	if(strcmp(msg, "sys: usr2") == 0)
-		_exit(0);	/* daemonize */
-	else if(strcmp(msg, "sys: child") == 0){
-		w = wait();
-		if(w == nil)
-			_exit(1);
-		_exit(atoi(w->msg));
-	}else
-		postnote(PNPROC, passtomainpid, msg);
 }
 
 int
 main(int argc, char **argv)
 {
-	int pid;
 	Mainarg a;
 	Proc *p;
-	sigset_t mask;
 
 	/*
-	 * Do daemonize hack here.
+	 * In pthreads, threadmain is actually run in a subprocess,
+	 * so that the main process can exit (if threaddaemonize is called).
+	 * The main process relays notes to the subprocess.
+	 * _Threadbackgroundsetup will return only in the subprocess.
 	 */
-	if(_callsthreaddaemonize){
-		passtomainpid = getpid();
-		switch(pid = fork()){
-		case -1:
-			sysfatal("fork: %r");
-
-		case 0:
-			/* continue executing */
-			_threadmainpid = getppid();
-			break;
-
-		default:
-			/* wait for signal USR2 */
-			notify(passer);
-			for(;;)
-				pause();
-			_exit(0);
-		}
-	}
+	_threadbackgroundinit();
 
 	/*
 	 * Instruct QLock et al. to use our scheduling functions
@@ -85,16 +49,17 @@ main(int argc, char **argv)
 
 	/*
 	 * Install our own _threadsysfatal which takes down
-	 * the whole conglomeration of procs.
+	 * the whole confederation of procs.
 	 */
 	_sysfatal = _threadsysfatal;
 
 	/*
-	 * XXX Install our own jump handler.
+	 * Install our own jump handler.
 	 */
+	_notejmpbuf = _threadgetjmp;
 
 	/*
-	 * Install our own signal handlers.
+	 * Install our own signal handler.
 	 */
 	notify(_threadnote);
 
@@ -118,4 +83,16 @@ main(int argc, char **argv)
 void
 _threadlinkmain(void)
 {
+}
+
+Jmp*
+_threadgetjmp(void)
+{
+	static Jmp j;
+	Proc *p;
+
+	p = _threadgetproc();
+	if(p == nil)
+		return &j;
+	return &p->sigjmp;
 }

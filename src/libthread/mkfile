@@ -1,15 +1,12 @@
 <$PLAN9/src/mkhdr
 
 LIB=libthread.a
-THREAD=`sh ./thread.sh`
+SYSOFILES=`sh ./sysofiles.sh`
 OFILES=\
-	$OBJTYPE.$O\
-	$THREAD.$O\
-	asm-$SYSNAME-$OBJTYPE.$O\
+	$SYSOFILES\
 	channel.$O\
 	chanprint.$O\
 	create.$O\
-	daemon.$O\
 	debug.$O\
 	exec-unix.$O\
 	exit.$O\
@@ -29,10 +26,10 @@ OFILES=\
 	main.$O\
 	memset.$O\
 	memsetd.$O\
-	note.$O\
 	read9pmsg.$O\
 	ref.$O\
 	sched.$O\
+	setproc.$O\
 	sleep.$O\
 
 HFILES=\
@@ -56,6 +53,9 @@ tspawn: tspawn.$O $PLAN9/lib/$LIB
 
 trend: trend.$O $PLAN9/lib/$LIB
 	$LD -o trend trend.$O $LDFLAGS -lthread -l9
+
+tsignal: tsignal.$O $PLAN9/lib/$LIB
+	$LD -o tsignal tsignal.$O $LDFLAGS -lthread -l9
 
 CLEANFILES=$CLEANFILES tprimes texec
 

@@ -28,6 +28,14 @@ typedef struct Proc		Proc;
 typedef struct Tqueue	Tqueue;
 typedef struct Pqueue	Pqueue;
 typedef struct Execargs	Execargs;
+typedef struct Jmp Jmp;
+
+/* sync with ../lib9/notify.c */
+struct Jmp
+{
+	p9jmp_buf b;
+};
+
 
 typedef enum
 {
@@ -126,6 +134,7 @@ struct Proc
 	Proc		*newproc;	/* fork argument */
 	char		exitstr[ERRMAX];	/* exit status */
 
+	int		internal;
 	int		rforkflag;
 	int		nthreads;
 	Tqueue	threads;		/* All threads of this proc */
@@ -138,6 +147,7 @@ struct Proc
 	uint		nextID;		/* ID of most recently created thread */
 	Proc		*next;		/* linked list of Procs */
 
+	Jmp		sigjmp;		/* for notify implementation */
 
 	void		(*schedfn)(Proc*);	/* function to call in scheduler */
 
@@ -161,8 +171,6 @@ struct Proc
 void		_swaplabel(Label*, Label*);
 Proc*	_newproc(void);
 int		_newthread(Proc*, void(*)(void*), void*, uint, char*, int);
-int		_procsplhi(void);
-void		_procsplx(int);
 int		_sched(void);
 int		_schedexec(Execargs*);
 void		_schedexecwait(void);
@@ -178,14 +186,14 @@ void		_threadexitsall(char*);
 Proc*	_threadgetproc(void);
 extern void	_threadmultiproc(void);
 Proc*	_threaddelproc(void);
-void		_threadinitproc(Proc*);
-void		_threadwaitkids(Proc*);
+void		_kthreadinitproc(Proc*);
 void		_threadsetproc(Proc*);
 void		_threadinitstack(Thread*, void(*)(void*), void*);
 void		_threadlinkmain(void);
 void*	_threadmalloc(long, int);
 void		_threadnote(void*, char*);
 void		_threadready(Thread*);
+void		_threadschednote(void);
 void		_threadsetidle(int);
 void		_threadsleep(_Procrend*);
 void		_threadwakeup(_Procrend*);
@@ -195,12 +203,18 @@ long		_xdec(long*);
 void		_xinc(long*);
 void		_threadremove(Proc*, Thread*);
 void		threadstatus(void);
-void		_threadstartproc(Proc*);
-void		_threadexitproc(char*);
-void		_threadexitallproc(char*);
 void		_threadefork(int[3], int[2], char*, char**);
+Jmp*		_threadgetjmp(void);
+void		_kthreadinit(void);
+void		_kthreadsetproc(Proc*);
+Proc*	_kthreadgetproc(void);
+void		_kthreadstartproc(Proc*);
+void		_kthreadexitproc(char*);
+void		_kthreadexitallproc(char*);
+void		_threadinternalproc(void);
+void		_threadbackgroundinit(void);
+void		_kmaininit(void);
 
-extern int			_threadmainpid;
 extern int			_threadnprocs;
 extern int			_threaddebuglevel;
 extern char*		_threadexitsallstatus;
@@ -222,8 +236,6 @@ extern void _threadstacklimit(void*, void*);
 extern void _procdelthread(Proc*, Thread*);
 extern void _procaddthread(Proc*, Thread*);
 
-extern void _threadafterexec(void);
 extern void _threadmaininit(void);
-extern void _threadfirstexec(void);
 extern int _threadexec(Channel*, int[3], char*, char*[], int);
-extern int _callthreadexec(Channel*, int[3], char*, char*[], int);
+extern int _kthreadexec(Channel*, int[3], char*, char*[], int);

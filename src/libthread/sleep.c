@@ -36,3 +36,4 @@ _threadwakeup(_Procrend *r)
 	_threadready(t);
 	unlock(&t->proc->lock);
 }
+

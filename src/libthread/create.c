@@ -138,7 +138,7 @@ proccreate(void (*f)(void*), void *arg, uint stacksize)
 	p = _threadgetproc();
 	np = _newproc();
 	p->newproc = np;
-	p->schedfn = _threadstartproc;
+	p->schedfn = _kthreadstartproc;
 	id = _newthread(np, f, arg, stacksize, nil, p->thread->grp);
 	_sched();	/* call into scheduler to create proc XXX */
 	return id;

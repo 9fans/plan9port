@@ -18,13 +18,12 @@ _threadscheduler(void *arg)
 	p = arg;
 
 	_threadlinkmain();
-	_threadinitproc(p);
+	_threadsetproc(p);
 
 	for(;;){
 		/* 
 		 * Clean up zombie children.
 		 */
-		_threadwaitkids(p);
 
 		/*
 		 * Find next thread to run.
@@ -154,6 +153,7 @@ runthread(Proc *p)
 	if(p->nthreads==0 || (p->nthreads==1 && p->idle))
 		return nil;
 
+	_threadschednote();
 	lock(&p->readylock);
 	q = &p->ready;
 	if(q->head == nil){
@@ -180,7 +180,10 @@ runthread(Proc *p)
 		 */
 		q->asleep = 1;
 		p->rend.l = &p->readylock;
-		_procsleep(&p->rend);
+		while(q->asleep){
+			_procsleep(&p->rend);
+			_threadschednote();
+		}
 
 		/*
 		 * Maybe we were awakened to exit?
@@ -284,6 +287,25 @@ _threadsetidle(int id)
 	unlock(&p->readylock);
 }
 
+/*
+ * Mark proc as internal so that if all but internal procs exit, we exit.
+ */
+void
+_threadinternalproc(void)
+{
+	Proc *p;
+
+	p = _threadgetproc();
+	if(p->internal)
+		return;
+	lock(&_threadpq.lock);
+	if(p->internal == 0){
+		p->internal = 1;
+		--_threadnprocs;
+	}
+	unlock(&_threadpq.lock);
+}
+
 static void
 schedexit(Proc *p)
 {
@@ -301,7 +323,10 @@ schedexit(Proc *p)
 			break;
 		}
 	}
-	n = --_threadnprocs;
+	if(p->internal)
+		n = _threadnprocs;
+	else
+		n = --_threadnprocs;
 	unlock(&_threadpq.lock);
 
 	strncpy(ex, p->exitstr, sizeof ex);
@@ -309,10 +334,10 @@ schedexit(Proc *p)
 	free(p);
 	if(n == 0){
 		_threaddebug(DBGSCHED, "procexit; no more procs");
-		_threadexitallproc(ex);
+		_kthreadexitallproc(ex);
 	}else{
 		_threaddebug(DBGSCHED, "procexit");
-		_threadexitproc(ex);
+		_kthreadexitproc(ex);
 	}
 }
 

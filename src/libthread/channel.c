@@ -4,7 +4,7 @@ static Lock chanlock;		/* central channel access lock */
 
 static void enqueue(Alt*, Thread*);
 static void dequeue(Alt*);
-static int altexec(Alt*, int);
+static int altexec(Alt*);
 
 int _threadhighnentry;
 int _threadnalt;
@@ -101,7 +101,7 @@ _alt(Alt *alts)
 {
 	Alt *a, *xa;
 	Channel *c;
-	int n, s;
+	int n;
 	Thread *t;
 
 	/*
@@ -119,7 +119,6 @@ _alt(Alt *alts)
 	t = _threadgetproc()->thread;
 	if((t && t->moribund) || _threadexitsallstatus)
 		yield();	/* won't return */
-	s = _procsplhi();
 	lock(&chanlock);
 
 	/* test whether any channels can proceed */
@@ -134,7 +133,6 @@ _alt(Alt *alts)
 		c = xa->c;
 		if(c==nil){
 			unlock(&chanlock);
-			_procsplx(s);
 			return -1;
 		}
 		if(canexec(xa))
@@ -146,8 +144,7 @@ _alt(Alt *alts)
 		/* nothing can proceed */
 		if(xa->op == CHANNOBLK){
 			unlock(&chanlock);
-			_procsplx(s);
-_threadnalt++;
+			_threadnalt++;
 			return xa - alts;
 		}
 
@@ -172,9 +169,7 @@ _threadnalt++;
 		t->alt = alts;
 		t->chan = Chanalt;
 		t->altrend.l = &chanlock;
-		_procsplx(s);
 		_threadsleep(&t->altrend);
-		s = _procsplhi();
 
 		/* dequeue from channels, find selected one */
 		a = nil;
@@ -187,13 +182,12 @@ _threadnalt++;
 			dequeue(xa);
 		}
 		unlock(&chanlock);
-		_procsplx(s);
 		if(a == nil){	/* we were interrupted */
 			assert(c==(Channel*)~0);
 			return -1;
 		}
 	}else{
-		altexec(a, s);	/* unlocks chanlock, does splx */
+		altexec(a);	/* unlocks chanlock, does splx */
 	}
 	if(t)
 		t->chan = Channone;
@@ -445,7 +439,7 @@ altcopy(void *dst, void *src, int sz)
 }
 
 static int
-altexec(Alt *a, int spl)
+altexec(Alt *a)
 {
 	volatile Alt *b;
 	int i, n, otherop;
@@ -492,7 +486,6 @@ altexec(Alt *a, int spl)
 		_threaddebug(DBGCHAN, "chanlock is %lud", *(ulong*)(void*)&chanlock);
 		_threaddebug(DBGCHAN, "unlocking the chanlock");
 		unlock(&chanlock);
-		_procsplx(spl);
 		return 1;
 	}
 
@@ -503,6 +496,5 @@ altexec(Alt *a, int spl)
 		altcopy(buf, me, c->e);
 
 	unlock(&chanlock);
-	_procsplx(spl);
 	return 1;
 }

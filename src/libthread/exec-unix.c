@@ -10,19 +10,8 @@ _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 	int pfd[2];
 	int n, pid;
 	char exitstr[ERRMAX];
-	static int firstexec = 1;
-	static Lock lk;
 
 	_threaddebug(DBGEXEC, "threadexec %s", prog);
-
-	if(firstexec){
-		lock(&lk);
-		if(firstexec){
-			firstexec = 0;
-			_threadfirstexec();
-		}
-		unlock(&lk);
-	}
 
 	/*
 	 * We want threadexec to behave like exec; if exec succeeds,
@@ -53,7 +42,6 @@ _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 		_threaddebug(DBGSCHED, "exit after efork");
 		_exit(0);
 	default:
-		_threadafterexec();
 		if(freeargs)
 			free(args);
 		break;
@@ -88,14 +76,14 @@ Bad:
 void
 threadexec(Channel *pidc, int fd[3], char *prog, char *args[])
 {
-	if(_callthreadexec(pidc, fd, prog, args, 0) >= 0)
+	if(_kthreadexec(pidc, fd, prog, args, 0) >= 0)
 		threadexits(nil);
 }
 
 int
 threadspawn(int fd[3], char *prog, char *args[])
 {
-	return _callthreadexec(nil, fd, prog, args, 0);
+	return _kthreadexec(nil, fd, prog, args, 0);
 }
 
 /*
@@ -128,7 +116,7 @@ threadexecl(Channel *pidc, int fd[3], char *f, ...)
 	args[n] = 0;
 	va_end(arg);
 
-	if(_callthreadexec(pidc, fd, f, args, 1) >= 0)
+	if(_kthreadexec(pidc, fd, f, args, 1) >= 0)
 		threadexits(nil);
 }
 

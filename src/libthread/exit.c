@@ -32,7 +32,7 @@ threadexitsall(char *exitstr)
 	_threadexitsallstatus = exitstr;
 	_threaddebug(DBGSCHED, "_threadexitsallstatus set to %p", _threadexitsallstatus);
 	/* leave */
-	_threadexitallproc(exitstr);
+	_kthreadexitallproc(exitstr);
 }
 
 Channel*
