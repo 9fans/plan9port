@@ -130,6 +130,7 @@ attrnamefmt(Fmt *fmt)
 	return fmtstrcpy(fmt, buf+1);
 }
 
+/*
 static int
 hasqueries(Attr *a)
 {
@@ -138,6 +139,7 @@ hasqueries(Attr *a)
 			return 1;
 	return 0;
 }
+*/
 
 char *ignored[] = {
 	"role",

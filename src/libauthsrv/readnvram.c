@@ -41,79 +41,19 @@ static struct {
 	"debug", "/tmp/nvram", 0, sizeof(Nvrsafe),
 };
 
-static char*
-readcons(char *prompt, char *def, int raw, char *buf, int nbuf)
+char*
+xreadcons(char *prompt, char *def, int secret, char *buf, int nbuf)
 {
-	int fdin, fdout, ctl, n, m;
-	char line[10];
-
-	fdin = open("/dev/cons", OREAD);
-	if(fdin < 0)
-		fdin = 0;
-	fdout = open("/dev/cons", OWRITE);
-	if(fdout < 0)
-		fdout = 1;
-	if(def != nil)
-		fprint(fdout, "%s[%s]: ", prompt, def);
-	else
-		fprint(fdout, "%s: ", prompt);
-	if(raw){
-		ctl = open("/dev/consctl", OWRITE);
-		if(ctl >= 0)
-			write(ctl, "rawon", 5);
-	} else
-		ctl = -1;
-
-	m = 0;
-	for(;;){
-		n = read(fdin, line, 1);
-		if(n == 0){
-			close(ctl);
-			werrstr("readcons: EOF");
-			return nil;
-		}
-		if(n < 0){
-			close(ctl);
-			werrstr("can't read cons");
-			return nil;
-		}
-		if(line[0] == 0x7f)
-			exits(0);
-		if(n == 0 || line[0] == '\n' || line[0] == '\r'){
-			if(raw){
-				write(ctl, "rawoff", 6);
-				write(fdout, "\n", 1);
-				close(ctl);
-			}
-			buf[m] = '\0';
-			if(buf[0]=='\0' && def)
-				strcpy(buf, def);
-			return buf;
-		}
-		if(line[0] == '\b'){
-			if(m > 0)
-				m--;
-		}else if(line[0] == 0x15){	/* ^U: line kill */
-			m = 0;
-			if(def != nil)
-				fprint(fdout, "%s[%s]: ", prompt, def);
-			else
-				fprint(fdout, "%s: ", prompt);
-		}else{
-			if(m >= nbuf-1){
-				fprint(fdout, "line too long\n");
-				m = 0;
-				if(def != nil)
-					fprint(fdout, "%s[%s]: ", prompt, def);
-				else
-					fprint(fdout, "%s: ", prompt);
-			}else
-				buf[m++] = line[0];
-		}
-	}
-	return buf;	/* how does this happen */
+	char *p;
+	
+	p = readcons(prompt, def, secret);
+	if(p == nil)
+		return nil;
+	strecpy(buf, buf+nbuf, p);
+	memset(p, 0, strlen(p));
+	free(p);
+	return buf;
 }
-
 
 /*
  *  get key info out of nvram.  since there isn't room in the PC's nvram use
@@ -210,11 +150,11 @@ readnvram(Nvrsafe *safep, int flag)
 	}
 
 	if((flag&NVwrite) || (err && (flag&NVwriteonerr))){
-		readcons("authid", nil, 0, safe->authid, sizeof(safe->authid));
-		readcons("authdom", nil, 0, safe->authdom, sizeof(safe->authdom));
-		readcons("secstore key", nil, 1, safe->config, sizeof(safe->config));
+		xreadcons("authid", nil, 0, safe->authid, sizeof(safe->authid));
+		xreadcons("authdom", nil, 0, safe->authdom, sizeof(safe->authdom));
+		xreadcons("secstore key", nil, 1, safe->config, sizeof(safe->config));
 		for(;;){
-			if(readcons("password", nil, 1, in, sizeof in) == nil)
+			if(xreadcons("password", nil, 1, in, sizeof in) == nil)
 				goto Out;
 			if(passtokey(safe->machkey, in))
 				break;

@@ -90,7 +90,7 @@ typedef union {
 	};
 } Hdr;
 
-static int debug;
+int debug;
 static int verb;
 static int posix = 1;
 static int creat;

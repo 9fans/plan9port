@@ -4,6 +4,11 @@
 extern "C" { 
 #endif
 
+#ifndef PLAN9PORT
+#pragma lib "libventi.a"
+#pragma src "/sys/src/libventi"
+#endif
+
 AUTOLIB(venti)
 
 /* XXX should be own library? */
@@ -38,12 +43,38 @@ int packetcmp(Packet*, Packet*);
 void packetstats(void);
 void packetsha1(Packet*, uchar sha1[20]);
 
-/* XXX begin actual venti.h */
+/* XXX should be own library? */
+/*
+ * Logging
+ */
+typedef struct VtLog VtLog;
+typedef struct VtLogChunk VtLogChunk;
 
-#ifndef PLAN9PORT
-#pragma lib "libventi.a"
-#pragma src "/sys/src/libventi"
-#endif
+struct VtLog
+{
+	VtLog *next;	/* in hash table */
+	VtLogChunk *chunk;
+	uint nchunk;
+	VtLogChunk *w;
+	QLock lk;
+	int ref;
+};
+
+struct VtLogchunk
+{
+	char *buf;
+	uint nbuf;
+	char *w;
+};
+
+VtLog *vtlogopen(char *name, uint size);
+void	vtlogprint(VtLog *log, char *fmt, ...);
+void	vtlog(char *name, char *fmt, ...);
+void	vtlogclose(char *name);
+void	vtlogremove(char *name);
+int	vtlogdump(int fd, VtLog*);
+
+/* XXX begin actual venti.h */
 
 typedef struct VtFcall VtFcall;
 typedef struct VtConn VtConn;

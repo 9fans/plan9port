@@ -10,7 +10,6 @@ OFILES=\
 	mem.$O\
 	req.$O\
 	parse.$O\
-	post.$O\
 	srv.$O\
 	tpost.$O\
 	uid.$O\

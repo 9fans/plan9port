@@ -400,6 +400,8 @@ vacfile(DirSink *dsink, char *lname, char *sname, VacFile *vf)
 
 	if((dir = dirstat(sname)) == nil){
 		warn("could not stat file %s: %r", lname);
+		return;
+	}
 	if(dir->mode&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET)){
 		free(dir);
 		return;
