@@ -12,7 +12,7 @@ char *addr;
 void
 usage(void)
 {
-	fprint(2, "usage: 9p [-a address] cmd args...\n");
+	fprint(2, "usage: 9p [-a address] [-A aname] cmd args...\n");
 	fprint(2, "possible cmds:\n");
 	fprint(2, "	read name\n");
 	fprint(2, "	readfd name\n");
@@ -25,6 +25,7 @@ usage(void)
 	threadexitsall("usage");
 }
 
+char *aname;
 void xread(int, char**);
 void xwrite(int, char**);
 void xreadfd(int, char**);
@@ -53,6 +54,9 @@ threadmain(int argc, char **argv)
 	int i;
 
 	ARGBEGIN{
+	case 'A':
+		aname = EARGF(usage());
+		break;
 	case 'a':
 		addr = EARGF(usage());
 		if(strchr(addr, '!') == nil)
@@ -94,15 +98,15 @@ xparse(char *name, char **path)
 		else
 			*p++ = 0;
 		*path = p;
-		fs = nsamount(name, "");
+		fs = nsamount(name, aname);
 		if(fs == nil)
 			sysfatal("mount: %r");
 	}else{
 		*path = name;
 		if((fd = dial(addr, nil, nil, nil)) < 0)
 			sysfatal("dial: %r");
-		if((fs = fsamount(fd, "")) == nil)
-			sysfatal("fsmount: %r");
+		if((fs = fsamount(fd, aname)) == nil)
+			sysfatal("fsamount: %r");
 	}
 	return fs;
 }

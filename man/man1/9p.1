@@ -4,24 +4,21 @@
 .SH SYNOPSIS
 .B 9p
 [
-.B -a
-.I addr
+.I options
 ]
 .B read
 .I path
 .br
 .B 9p
 [
-.B -a
-.I addr
+.I options
 ]
 .B readfd
 .I path
 .PP
 .B 9p
 [
-.B -a
-.I addr
+.I options
 ]
 .B write
 [
@@ -31,28 +28,49 @@
 .br
 .B 9p
 [
-.B -a
-.I addr
+.I options
 ]
 .B writefd
 .I path
 .PP
 .B 9p
 [
-.B -a
-.I addr
+.I options
 ]
 .B stat
 .I path
 .PP
 .B 9p
+[
+.I options
+]
 .B rdwr
 .I path
+.PP
+.B 9p
+[
+.I options
+]
+.B ls
+[
+.B -dl
+]
+.I path...
 .SH DESCRIPTION
 .I 9p
 is a trivial 9P client that can access a single file on a 9P server.
 It can be useful for manual interaction with a 9P server or for
 accessing simple 9P services from within shell scripts.
+The common options are:
+.TP
+.B -a\fI addr
+dial
+the server at
+.I addr
+.TP
+.B -A\fI aname
+attach to the file system named
+.I aname
 .PP
 The first argument is a command, one of:
 .TP
@@ -101,6 +119,16 @@ Print errors, but don't give up.
 .B Rdwr
 is useful for interacting with servers like
 .IR factotum (4).
+.TP
+.B ls
+Print a directory listing in the format of
+.IR ls (1).
+The
+.B -d
+and
+.B -l
+flags have the same meaning as in
+.IR ls .
 .PD
 .PP
 .I 9p
