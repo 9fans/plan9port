@@ -26,7 +26,7 @@ int wordsize(Rune*, int);
 int nexttab(int);
 
 int tabwid;
-int mintab;
+int mintab = 1;
 int linewidth=WIDTH;
 int colonflag=0;
 int tabflag=0;	/* -t flag turned off forever, except in acme */
@@ -227,7 +227,7 @@ nexttab(int col)
 		col -= col%tabwid;
 		return col;
 	}
-	return (col|(TAB-1))+1;
+	return col+1;
 }
 
 void
@@ -296,14 +296,23 @@ getwidth(void)
 		return;
 	}
 
+	if((p = getenv("TERM")) != nil && strcmp(p, "9term") == 0)
 	if((p = getenv("font")) != nil)
 		font = openfont(nil, p);
+
 	if(windowrect(&ws) < 0)
 		return;
-	if(ws.ws_ypixel == 0)
+	if(ws.ws_xpixel == 0)
 		font = nil;
-	if(font)
-		linewidth = ws.ws_ypixel;
-	linewidth = ws.ws_col;
+	if(font){
+		mintab = stringwidth(font, "0");
+		if((p = getenv("tabstop")) != nil)
+			tabwid = atoi(p)*mintab;
+		else
+			tabwid = 4*mintab;
+		tabflag = 1;
+		linewidth = ws.ws_xpixel;
+	}else
+		linewidth = ws.ws_col;
 }
 
