@@ -175,6 +175,7 @@ threadmain(int argc, char **argv)
 	sprint(buf, "dump %s\n", onestring(argc, argv));
 	fswrite(ctlfd, buf, strlen(buf));
 	
+	updatewinsize(25, 80, 0, 0);
 	threadcreate(stdoutproc, nil, STACK);
 	stdinproc(nil);
 }
