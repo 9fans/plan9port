@@ -1,7 +1,7 @@
 #!/usr/local/plan9/bin/rc
 
 if(! ~ $#* 2){
-	echo usage: netisdir system path >[1=2]
+	echo usage: netfilestat system path >[1=2]
 	exit usage
 }
 
@@ -18,7 +18,7 @@ fn dostat {
 		echo !echo XXX connected
 		echo cd $2
 		echo !echo XXX directory exists
-	}  | sftp -b - $1 >$t >[2=1]
+	}  | sftp -b /dev/stdin $1 >$t >[2=1]
 	if(9 grep -s XXX.directory.exists $t){
 		echo directory
 		exit 0

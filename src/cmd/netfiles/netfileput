@@ -1,7 +1,7 @@
 #!/usr/local/plan9/bin/rc
 
 if(! ~ $#* 2){
-	echo 'usage: netput system path' >[1=2]
+	echo 'usage: netfileput system path' >[1=2]
 	exit usage
 }
 
@@ -15,7 +15,7 @@ fn sigexit { rm -f $t }
 
 fn putfile{
 	cat >$t
-	if(! echo put $t $2 | sftp -b - $1 >/dev/null)
+	if(! echo put $t $2 | sftp -b /dev/stdin $1 >/dev/null)
 		exit 1
 }
 fn putfile9p{

@@ -7,7 +7,7 @@ if(~ $1 -d){
 }
 
 if(! ~ $#* 2){
-	echo 'usage: netget [-d] system path' >[1=2]
+	echo 'usage: netfileget [-d] system path' >[1=2]
 	exit usage
 }
 
@@ -20,7 +20,7 @@ fn sigexit { rm -f $t }
 
 fn getfile {
 	rm -f $t
-	if(! echo get $2 $t | sftp -b - $1 >/dev/null)
+	if(! echo get $2 $t | sftp -b /dev/stdin $1 >/dev/null)
 		exit 1
 	cat $t
 }
@@ -31,7 +31,7 @@ fn getfile9p {
 }
 
 fn getdir {
-	if(! {echo cd $2; echo ls -l} | sftp -b - $1 | sed '1,2d; s/sftp> //g; /^$/d' >$t)
+	if(! {echo cd $2; echo ls -l} | sftp -b /dev/stdin $1 | sed '1,2d; s/sftp> //g; /^$/d' >$t)
 		exit 1
 	cat $t | awk '$NF == "." || $NF == ".." { next } {s = $NF; if($0 ~ /^d/) s = s "/"; print s}'
 }
