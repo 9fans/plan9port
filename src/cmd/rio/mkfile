@@ -1,0 +1,20 @@
+<$PLAN9/src/mkhdr
+
+OFILES=\
+	client.$O\
+	color.$O\
+	cursor.$O\
+	error.$O\
+	event.$O\
+	grab.$O\
+	main.$O\
+	manage.$O\
+	menu.$O\
+
+HFILES=dat.h fns.h
+
+TARG=rio
+
+LDFLAGS=-L$X11/lib -lXext -lX11
+
+<$PLAN9/src/mkone
