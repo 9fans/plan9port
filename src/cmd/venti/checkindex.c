@@ -11,12 +11,7 @@ checkbucket(Index *ix, u32int buck, IBucket *ib)
 	IEntry ie, eie;
 	int i, ei, ok, c;
 
-	is = findisect(ix, buck);
-	if(is == nil){
-		seterr(EAdmin, "bad math in checkbuckets");
-		return -1;
-	}
-	buck -= is->start;
+	is = findibucket(ix, buck, &buck);
 	eb = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
 	if(eb == nil)
 		return -1;
@@ -87,7 +82,7 @@ u64int found = 0;
 	ib.data = b->data;
 	zib.data = z->data;
 	zib.n = 0;
-	zib.next = 0;
+	zib.depth = 0;
 	for(;;){
 		buck = buildbucket(ix, ies, &ib);
 		found += ib.n;

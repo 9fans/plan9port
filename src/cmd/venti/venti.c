@@ -147,8 +147,8 @@ ventiserver(char *addr)
 
 	while((r = vtgetreq(s)) != nil){
 		r->rx.type = r->tx.type+1;
-		print("req (arenas[0]=%p sects[0]=%p) %F\n",
-			mainindex->arenas[0], mainindex->sects[0], &r->tx);
+	//	print("req (arenas[0]=%p sects[0]=%p) %F\n",
+	//		mainindex->arenas[0], mainindex->sects[0], &r->tx);
 		switch(r->tx.type){
 		default:
 			vtrerror(r, "unknown request");

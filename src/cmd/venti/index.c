@@ -1,101 +1,110 @@
 /*
- * Index, mapping scores to log positions.  The log data mentioned in
- * the index _always_ goes out to disk before the index blocks themselves.
- * A counter in the arena tail records which logged blocks have been
- * successfully indexed.  The ordering of dirtydcache calls along with
- * the flags passed to dirtydcache ensure the proper write ordering.
- * 
- * For historical reasons, there are two indexing schemes. In both,
- * the index is broken up into some number of fixed-size (say, 8kB)
- * buckets holding index entries.  An index entry is about 40 bytes.
- * The index can be spread across many disks, although in small
- * configurations it is not uncommon for the index and arenas to be
- * on the same disk.
- *  *
- * In the first scheme, the many buckets are treated as a giant on-disk
- * hash table.  If there are N buckets, then the top 32 bits of the
- * score are used as an index into the hash table, with each bucket
- * holding 2^32 / N of the index space.  The index must be sized so
- * that a bucket can't ever overflow.  Assuming that a typical compressed
- * data block is about 4000 bytes, the index size is expected to be
- * about 1% of the total data size.  Since scores are essentially
- * random, they will be distributed evenly among the buckets, so all
- * buckets should be about the same fullness.  A factor of 5 gives us
- * a wide comfort boundary, so the index storage is suggested to be
- * 5% of the total data storage.
- * 
- * Unfortunately, this very sparse index does not make good use of the
- * disk -- most of it is empty, and disk reads, which are costly because
- * of the random seek to get to an arbitrary bucket, tend to bring in
- * only a few entries, making them hardly cost effective.  The second
- * scheme is a variation on the first scheme that tries to lay out the
- * index in a denser format on the disk.  In this scheme, the index
- * buckets are organized in a binary tree, with all data at the leaf
- * nodes.  Bucket numbers are easiest to treat in binary.  In the
- * beginning, there is a single bucket with 0-bit number "".  When a
- * bucket with number x fills, it splits into buckets 0x and 1x.  Since
- * x and 0x are the same number, this means that half the bucket space
- * is assigned to a new bucket, 1x.  So "" splits into 0 and 1, 1
- * splits into 01 and 11, and so on.  The bucket number determines the
- * placement on disk, and the bucket header includes the number of
- * bits represented by the bucket.  To find the right bucket for a
- * given score with top 32-bits x, read bucket "" off disk and check
- * its depth.  If it is zero, we're done.  If x doesn't match the
- * number of bits in 0's header, we know that the block has split, so
- * we use the last 1 bit of x to load a new block (perhaps the same
- * one) and repeat, using successively more bits of x until we find
- * the block responsible for x.  Note that we're using bits from the
- * _right_ not the left.  This gives the "split into 0x and 1x" property
- * needed by the tree and is easier than using the reversal of the
- * bits on the left.
- *  *
- * At the moment, this second scheme sounds worse than the first --
- * there are log n disk reads to find a block instead of just 1.  But
- * we can keep the tree structure in memory, using 1 bit per block to
- * keep track of whether that block has been allocated.  Want to know
- * whether block x has been split?  Check whether 1x is allocated.  1
- * bit per 8kB gives us an in-use bitmap 1/65536 the size of the index.
- * The index data is 1/100 the size of the arena data, explained above.
- * In this scheme, after the first block split, the index is always
- * at least half full (proof by induction), so it is at most 2x the
- * size of the index data.  This gives a bitmap size of 2/6,553,600
- * of the data size.  Let's call that one millionth.  So each terabyte
- * of storage requires one megabyte of free bitmap.  The bitmap is
- * going to be accessed so much that it will be effectively pinned in
- * the cache.  So it still only takes one disk read to find the block
- * -- the tree walking can be done by consulting the in-core bitmap
- * describing the tree structure.
- *  *
- * Now we have to worry about write ordering, though.  What if the
- * bitmap ends up out of sync with the index blocks?  When block x
- * splits into 0x and 1x, causing an update to bitmap block b, the
- * dcache flushing code makes sure that the writes happen in this
- * order: first 1x, then 0x, then the bitmap.  Writing 1x before 0x
- * makes sure we write the split-off entries to disk before we discard
- * them from 0x.  Writing the bitmap after both simplifies the following
- * case analysis.
- * 
- * If Venti is interrupted while flushing blocks to disk, the state
- * of the disk upon next startup can be one of the following:
- *  *
-
- * (a) none of 0x, 1x, and b are written
- *	Looks like nothing happened - use as is.
+ * Index, mapping scores to log positions. 
  *
- * (b) 1x is written
- *	Since 0x hasn't been rewritten and the bitmap doesn't record 1x
- * 	as being in use, it's like this never happened.  See (a).
- *	This does mean that the bitmap trumps actual disk contents:
- *	no need to zero the index disks anymore.
+ * The index is made up of some number of index sections, each of
+ * which is typically stored on a different disk.  The blocks in all the 
+ * index sections are logically numbered, with each index section 
+ * responsible for a range of blocks.  Blocks are typically 8kB.
  *
- * (c) 0x and 1x are written, but not the bitmap
- *	Writing 0x commits the change.  When we next encounter
- *	0x or 1x on a lookup (we can't get to 1x except through x==0x),
- *	the bitmap will direct us to x, we'll load the block and find out
- * 	that its now 0x, so we update the bitmap.
+ * Index Version 1:
+ * 
+ * The N index blocks are treated as a giant hash table.  The top 32 bits
+ * of score are used as the key for a lookup.  Each index block holds
+ * one hash bucket, which is responsible for ceil(2^32 / N) of the key space.
+ * 
+ * The index is sized so that a particular bucket is extraordinarily 
+ * unlikely to overflow: assuming compressed data blocks are 4kB 
+ * on disk, and assuming each block has a 40 byte index entry,
+ * the index data will be 1% of the total data.  Since scores are essentially
+ * random, all buckets should be about the same fullness.
+ * A factor of 5 gives us a wide comfort boundary to account for 
+ * random variation.  So the index disk space should be 5% of the arena disk space.
  *
- * (d) 0x, 1x, and b are written.
- *	Great - just use as is.
+ * Problems with Index Version 1:
+ * 
+ * Because the index size is chosen to handle the worst case load,
+ * the index is very sparse, especially when the Venti server is mostly empty.
+ * This has a few bad properties.
+ * 
+ * Loading an index block (which typically requires a random disk seek)
+ * is a very expensive operation, yet it yields only a couple index entries.
+ * We're not making efficient use of the disk arm.
+ *
+ * Writing a block requires first checking to see if the block already
+ * exists on the server, which in turn requires an index lookup.  When
+ * writing fresh data, these lookups will fail.  The index entry cache 
+ * cannot serve these, so they must go to disk, which is expensive.
+ * 
+ * Thus both the reading and the writing of blocks are held back by
+ * the expense of accessing the index.
+ * 
+ * Index Version 2:
+ * 
+ * The index is sized to be exactly 2^M blocks.  The index blocks are 
+ * logically arranged in a (not exactly balanced) binary tree of depth at
+ * most M.  The nodes are named by bit strings describing the path from
+ * the root to the node.  The root is . (dot).  The left child of the root is .0,
+ * the right child .1.  The node you get to by starting at the root and going
+ * left right right left is .0110.  At the beginning, there is only the root block.
+ * When a block with name .xxx fills, it splits into .xxx0 and .xxx1.
+ * All the index data is kept in the leaves of the tree.
+ *
+ * Index leaf blocks are laid out on disk by interpreting the bitstring as a 
+ * binary fraction and multiplying by 2^M -- .0 is the first block, .1 is
+ * the block halfway into the index, .0110 is at position 6/16, and
+ * .xxx and .xxx0 map to the same block (but only one can be a leaf
+ * node at any given time, so this is okay!).  A cheap implementation of
+ * this is to append zeros to the bit string to make it M bits long.  That's
+ * the integer index block number.
+ *
+ * To find the leaf block that should hold a score, use the bits of the 
+ * score one at a time to walk down the tree to a leaf node.  If the tree
+ * has leaf nodes .0, .10, and .11, then score 0110101... ends up in bucket
+ * .0 while score 101110101... ends up in bucket .10.  There is no leaf node
+ * .1 because it has split into .10 and .11.
+ *
+ * If we know which disk blocks are in use, we can reconstruct the interior
+ * of the tree: if .xxx1 is in use, then .xxx has been split.  We keep an in-use
+ * bitmap of all index disk blocks to aid in reconstructing the interior of the
+ * tree.  At one bit per index block, the bitmap is small enough to be kept
+ * in memory even on the largest of Venti servers.
+ *
+ * After the root block splits, the index blocks being used will always be
+ * at least half full (averaged across the entire index).  So unlike Version 1,
+ * Index Version 2 is quite dense, alleviating the two problems above.
+ * Index block reads now return many index entries.  More importantly,
+ * small servers can keep most of the index in the disk cache, making them
+ * more likely to handle negative lookups without going to disk.
+ *
+ * As the index becomes more full, Index Version 2's performance
+ * degrades gracefully into Index Version 1.  V2 is really an optimization
+ * for little servers.
+ *
+ * Write Ordering for Index Version 2:
+ * 
+ * Unlike Index Version 1, Version 2 must worry about write ordering
+ * within the index.  What happens if the in-use bitmap is out of sync
+ * with the actual leaf nodes?  What happens if .xxx splits into .xxx0 and
+ * .xxx1 but only one of the new blocks gets written to disk?
+ *
+ * We arrange that when .xxx splits, the .xxx1 block is written first,
+ * then the .xxx0 block, and finally the in-use bitmap entry for .xxx1.
+ * The split is committed by the writing of .xxx0.  This ordering leaves
+ * two possible partial disk writes:
+ *
+ * (a) If .xxx1 is written but .xxx0 and the bitmap are not, then it's as if
+ * the split never happened -- we won't think .xxx1 is in use, and we
+ * won't go looking for it.
+ *
+ * (b) If .xxx1 and .xxx0 are written but the bitmap is not, then the first
+ * time we try to load .xxx, we'll get .xxx0 instead, realize the bitmap is
+ * out of date, and update the bitmap.
+ *
+ * Backwards Compatibility
+ *
+ * Because there are large Venti servers in use with Index V1, this code
+ * will read either index version, but when asked to create a new index,
+ * will only create V2.
  */
 
 #include "stdinc.h"
@@ -105,6 +114,7 @@
 static int	bucklook(u8int *score, int type, u8int *data, int n);
 static int	writebucket(ISect *is, u32int buck, IBucket *ib, DBlock *b);
 static int	okibucket(IBucket *ib, ISect *is);
+static int	initindex1(Index*);
 static ISect	*initisect1(ISect *is);
 
 //static QLock	indexlock;	//ZZZ
@@ -118,7 +128,7 @@ initindex(char *name, ISect **sects, int n)
 	Index *ix;
 	ISect *is;
 	u32int last, blocksize, tabsize;
-	int i, nbits;
+	int i;
 
 	if(n <= 0){
 		seterr(EOk, "no index sections to initialize index");
@@ -171,21 +181,7 @@ initindex(char *name, ISect **sects, int n)
 	ix->tabsize = tabsize;
 	ix->buckets = last;
 
-	/* compute number of buckets used for in-use map */
-	nbits = blocksize*8;
-	ix->bitbuckets = (ix->buckets+nbits-1)/nbits;
-
-	last -= ix->bitbuckets;
-	/* 
-	 * compute log of max. power of two not greater than 
-	 * number of remaining buckets.
-	 */
-	for(nbits=0; last>>=1; nbits++)
-		;
-	ix->maxdepth = nbits;
-
-	if((1UL<<ix->maxdepth) > ix->buckets-ix->bitbuckets){
-		seterr(ECorrupt, "inconsistent math for buckets in %s", ix->name);
+	if(initindex1(ix) < 0){
 		freeindex(ix);
 		return nil;
 	}
@@ -195,7 +191,35 @@ initindex(char *name, ISect **sects, int n)
 		freeindex(ix);
 		return nil;
 	}
+
 	return ix;
+}
+
+static int
+initindex1(Index *ix)
+{
+	u32int buckets;
+
+	switch(ix->version){
+	case IndexVersion1:
+		ix->div = (((u64int)1 << 32) + ix->buckets - 1) / ix->buckets;
+		buckets = (((u64int)1 << 32) - 1) / ix->div + 1;
+		if(buckets != ix->buckets){
+			seterr(ECorrupt, "inconsistent math for divisor and buckets in %s", ix->name);
+			return -1;
+		}
+		break;
+
+	case IndexVersion2:
+		buckets = ix->buckets - ix->bitblocks;
+		if(ix->buckets < ix->bitblocks || (buckets&(buckets-1)))
+			seterr(ECorrupt, "bucket count not a power of two in %s", ix->name);
+		ix->maxdepth = u64log2(buckets);
+		ix->bitkeylog = u64log2(ix->blocksize*8);
+		ix->bitkeymask = (1<<ix->bitkeylog)-1;
+		break;
+	}
+	return 0;
 }
 
 int
@@ -237,7 +261,7 @@ wbindex(Index *ix)
 }
 
 /*
- * index: IndexMagic '\n' version '\n' name '\n' blocksize '\n' sections arenas
+ * index: IndexMagic '\n' version '\n' name '\n' blocksize '\n' [V2: bitblocks '\n'] sections arenas
  * version, blocksize: u32int
  * name: max. ANameSize string
  * sections, arenas: AMap
@@ -246,6 +270,7 @@ int
 outputindex(Fmt *f, Index *ix)
 {
 	if(fmtprint(f, "%s\n%ud\n%s\n%ud\n", IndexMagic, ix->version, ix->name, ix->blocksize) < 0
+	|| (ix->version==IndexVersion2 && fmtprint(f, "%ud\n", ix->bitblocks) < 0)
 	|| outputamap(f, ix->smap, ix->nsects) < 0
 	|| outputamap(f, ix->amap, ix->narenas) < 0)
 		return -1;
@@ -276,7 +301,7 @@ parseindex(IFile *f, Index *ix)
 		return -1;
 	}
 	ix->version = v;
-	if(ix->version != IndexVersion){
+	if(ix->version != IndexVersion1 && ix->version != IndexVersion2){
 		seterr(ECorrupt, "bad version number in %s", f->name);
 		return -1;
 	}
@@ -293,10 +318,21 @@ parseindex(IFile *f, Index *ix)
 	 * block size
 	 */
 	if(ifileu32int(f, &v) < 0){
-		seterr(ECorrupt, "syntax error: bad version number in %s", f->name);
+		seterr(ECorrupt, "syntax error: bad block size number in %s", f->name);
 		return -1;
 	}
 	ix->blocksize = v;
+
+	if(ix->version == IndexVersion2){
+		/*
+		 * free bitmap size
+		 */
+		if(ifileu32int(f, &v) < 0){
+			seterr(ECorrupt, "syntax error: bad bitmap size in %s", f->name);
+			return -1;
+		}
+		ix->bitblocks = v;
+	}
 
 	if(parseamap(f, &amn) < 0)
 		return -1;
@@ -320,8 +356,10 @@ newindex(char *name, ISect **sects, int n)
 	Index *ix;
 	AMap *smap;
 	u64int nb;
-	u32int div, ub, xb, start, stop, blocksize, tabsize;
-	int i, j;
+	u32int div, ub, xb, fb, start, stop, blocksize, tabsize;
+	int i, j, version;
+
+	version = IndexVersion2;
 
 	if(n < 1){
 		seterr(EOk, "creating index with no index sections");
@@ -368,16 +406,27 @@ newindex(char *name, ISect **sects, int n)
 		seterr(EBug, "index too large");
 		return nil;
 	}
-	div = (((u64int)1 << 32) + nb - 1) / nb;
-	ub = (((u64int)1 << 32) - 1) / div + 1;
-	if(div < 100){
-		seterr(EBug, "index divisor too coarse");
-		return nil;
+
+	div = 0;
+	fb = 0;
+	if(version == IndexVersion1){
+		div = (((u64int)1 << 32) + nb - 1) / nb;
+		ub = (((u64int)1 << 32) - 1) / div + 1;
+		if(div < 100){
+			seterr(EBug, "index divisor too coarse");
+			return nil;
+		}
+	}else{
+		fb = (nb+blocksize*8-1)/(blocksize*8);
+		for(ub=1; ub<=((nb-fb)>>1); ub<<=1)
+			;
+		ub += fb;
 	}
 	if(ub > nb){
 		seterr(EBug, "index initialization math wrong");
 		return nil;
 	}
+	xb = nb - ub;
 
 	/*
 	 * initialize each of the index sections
@@ -388,7 +437,6 @@ newindex(char *name, ISect **sects, int n)
 		seterr(EOk, "can't create new index: out of memory");
 		return nil;
 	}
-	xb = nb - ub;
 	start = 0;
 	for(i = 0; i < n; i++){
 		stop = start + sects[i]->blocks - xb / n;
@@ -413,15 +461,22 @@ newindex(char *name, ISect **sects, int n)
 		free(smap);
 		return nil;
 	}
-	ix->version = IndexVersion;
+	ix->version = version;
 	namecp(ix->name, name);
 	ix->sects = sects;
 	ix->smap = smap;
 	ix->nsects = n;
 	ix->blocksize = blocksize;
-	ix->div = div;
 	ix->buckets = ub;
 	ix->tabsize = tabsize;
+	ix->div = div;
+	ix->bitblocks = fb;
+
+	if(initindex1(ix) < 0){
+		free(smap);
+		return nil;
+	}
+
 	return ix;
 }
 
@@ -489,7 +544,7 @@ newisect(Part *part, char *name, u32int blocksize, u32int tabsize)
 }
 
 /*
- * initialize the computed paramaters for an index
+ * initialize the computed parameters for an index
  */
 static ISect*
 initisect1(ISect *is)
@@ -606,7 +661,7 @@ writeiclump(Index *ix, Clump *c, u8int *clbuf)
 }
 
 /*
- * convert an arena index to an relative address address
+ * convert an arena index to an relative arena address
  */
 Arena*
 amapitoa(Index *ix, u64int a, u64int *aa)
@@ -665,20 +720,15 @@ loadientry(Index *ix, u8int *score, int type, IEntry *ie)
 	u32int buck;
 	int h, ok;
 
-	buck = hashbits(score, 32) / ix->div;
 	ok = -1;
 
 	qlock(&stats.lock);
 	stats.indexreads++;
 	qunlock(&stats.lock);
-	is = findibucket(ix, buck, &buck);
-	if(is == nil)
-		return -1;
-	b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
+	b = loadibucket(ix, score, &is, &buck, &ib);
 	if(b == nil)
 		return -1;
 
-	unpackibucket(&ib, b->data);
 	if(okibucket(&ib, is) < 0)
 		goto out;
 
@@ -707,19 +757,16 @@ storeientry(Index *ix, IEntry *ie)
 	u32int buck;
 	int h, ok;
 
-	buck = hashbits(ie->score, 32) / ix->div;
 	ok = 0;
 
 	qlock(&stats.lock);
 	stats.indexwreads++;
 	qunlock(&stats.lock);
 
-	is = findibucket(ix, buck, &buck);
-	b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1);
+	b = loadibucket(ix, ie->score, &is, &buck, &ib);
 	if(b == nil)
 		return -1;
 
-	unpackibucket(&ib, b->data);
 	if(okibucket(&ib, is) < 0)
 		goto out;
 
@@ -765,177 +812,14 @@ writebucket(ISect *is, u32int buck, IBucket *ib, DBlock *b)
 	return 0;
 }
 
-/*
- * find the number of the index section holding score
- */
-int
-indexsect(Index *ix, u8int *score)
-{
-	u32int buck;
-	int r, l, m;
-
-	buck = hashbits(score, 32) / ix->div;
-	l = 1;
-	r = ix->nsects - 1;
-	while(l <= r){
-		m = (r + l) >> 1;
-		if(ix->sects[m]->start <= buck)
-			l = m + 1;
-		else
-			r = m - 1;
-	}
-	return l - 1;
-}
-
-/*
- * find the index section which holds bucket #buck.
- */
-static ISect*
-findisect(Index *ix, u32int buck, u32int *ibuck)
-{
-	ISect *is;
-	int r, l, m;
-
-	l = 1;
-	r = ix->nsects - 1;
-	while(l <= r){
-		m = (r + l) >> 1;
-		if(ix->sects[m]->start <= buck)
-			l = m + 1;
-		else
-			r = m - 1;
-	}
-	is = ix->sects[l - 1];
-	if(is->start <= buck && is->stop > buck){
-		*ibuck = buck - is->start;
-		return is;
-	}
-	seterr(EAdmin, "index lookup out of range: %ud not found in index\n", buck);
-	return nil;
-}
-
-static DBlock*
-loadisectblock(Index *ix, u32int buck, int read)
-{
-	ISect *is;
-
-	if((is = findisect(ix, buck, &buck)) == nil)
-		return nil;
-	return getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), read);
-}
-
-/*
- * find the index section which holds the logical bucket #buck
- */
-static DBlock*
-loadibucket(Index *ix, u32int buck, IBucket *ib)
-{
-	int d, i, times;
-	u32int ino;
-	DBlock *b;
-	u32int bbuck;
-	IBucket eib;
-
-	times = 0;
-
-top:
-	if(times++ > 2*ix->maxdepth){
-		seterr(EAdmin, "bucket bitmap tree never converges with buckets");
-		return nil;
-	}
-
-	bbuck = -1;
-	b = nil;
-
-	/*
-	 * consider the bits of buck, one at a time, to make the bucket number.
-	 */
-
-	/*
-	 * walk down the bucket tree using the bitmap, which is used so
-	 * often it's almost certain to be in cache.
-	 */
-	ino = 0;
-	for(d=0; d<ix->maxdepth; d++){
-		/* fetch the bitmap that says whether ino has been split */
-		if(bbuck != (ino>>ix->bitlog)){
-			if(b)
-				putdblock(b);
-			bbuck = (ino>>ix->bitlog);
-			if((b = loadisectblock(ix, bbuck, 1)) == nil)
-				return nil;
-		}
-		/* has it been split yet? */
-		if((((u32int*)b->data)[(ino&(ix->bitmask))>>5] & (1<<(ino&31))) == 0){
-			/* no.  we're done */
-			break;
-		}
-	}
-	putdblock(b);
-
-	/*
-	 * continue walking down (or up!) the bucket tree, which may not
-	 * be completely in sync with the bitmap.  we could continue the loop
-	 * here, but it's easiest just to start over once we correct the bitmap.
-	 * corrections should only happen when things get out of sync because
-	 * a crash keeps some updates from making it to disk, so it's not too
-	 * frequent.  we should converge after 2x the max depth, at the very worst
-	 * (up and back down the tree).
-	 */
-	if((b = loadisectblock(ix, ix->bitbuckets+bucketno(buck, d), 1)) == nil)
-		return nil;
-	unpackibucket(&eib, b->data);
-	if(eib.depth > d){
-		/* the bitmap thought this block hadn't split */
-		putdblock(b);
-		if(markblocksplit(buck, d) < 0)
-			return nil;
-		goto top;
-	}
-	if(eib.depth < d){
-		/* the bitmap thought this block had split */
-		putdblock(b);
-		if(markblockunsplit(ix, buck, d) < 0)
-			return nil;
-		goto top;
-	}
-	*ib = eib;
-	return b;
-}
-
-static int
-markblocksplit(Index *ix, u32int buck, int d)
-{
-	u32int ino;
-
-	ino = bucketno(buck, d);
-	if((b = loadisectblock(ix, ino>>ix->bitlog, 1)) == nil)
-		return -1;
-	dirtydblock(b, DirtyIndex);
-	(((u32int*)b->data)[(ino&(ix->bitmask))>>5] |= (1<<(ino&31));
-	putdblock(b);
-	return 0;
-}
-
-static int
-markblockunsplit(Index *ix, u32int buck, int d)
-{
-	/*
-	 * Let's 
-	u32int ino;
-
-	ino = bucketno(buck, d);
-	
-}
-
 static int
 okibucket(IBucket *ib, ISect *is)
 {
-	if(ib->n <= is->buckmax && (ib->next == 0 || ib->next >= is->start && ib->next < is->stop))
+	if(ib->n <= is->buckmax)
 		return 0;
 
-	seterr(EICorrupt, "corrupted disk index bucket: n=%ud max=%ud, next=%lud range=[%lud,%lud)",
-		ib->n, is->buckmax, ib->next, is->start, is->stop);
+	seterr(EICorrupt, "corrupted disk index bucket: n=%ud max=%ud, depth=%lud range=[%lud,%lud)",
+		ib->n, is->buckmax, ib->depth, is->start, is->stop);
 	return -1;
 }
 
@@ -1010,3 +894,223 @@ ientrycmp(const void *vie1, const void *vie2)
 	}
 	return -1;
 }
+
+/*
+ * find the number of the index section holding bucket #buck
+ */
+static int
+indexsect0(Index *ix, u32int buck)
+{
+	int r, l, m;
+
+	l = 1;
+	r = ix->nsects - 1;
+	while(l <= r){
+		m = (r + l) >> 1;
+		if(ix->sects[m]->start <= buck)
+			l = m + 1;
+		else
+			r = m - 1;
+	}
+	return l - 1;
+}
+
+/*
+ * load the index block at bucket #buck
+ */
+static DBlock*
+loadibucket0(Index *ix, u32int buck, ISect **pis, u32int *pbuck, IBucket *ib)
+{
+	ISect *is;
+	DBlock *b;
+
+	is = ix->sects[indexsect0(ix, buck)];
+	if(buck < is->start || is->stop <= buck){
+		seterr(EAdmin, "index lookup out of range: %ud not found in index\n", buck);
+		return nil;
+	}
+
+	buck -= is->start;
+	if((b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1)) == nil)
+		return nil;
+
+	*pis = is;
+	*pbuck = buck;
+	unpackibucket(ib, b->data);
+	return b;
+}
+
+/*
+ * find the number of the index section holding score
+ */
+static int
+indexsect1(Index *ix, u8int *score)
+{
+	return indexsect0(ix, hashbits(score, 32) / ix->div);
+}
+
+/*
+ * load the index block responsible for score.
+ */
+static DBlock*
+loadibucket1(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
+{
+	return loadibucket0(ix, hashbits(score, 32)/ix->div, pis, pbuck, ib);
+}
+
+static u32int
+keytobuck(Index *ix, u32int key, int d)
+{
+	/* clear all but top d bits */
+	if(d != 32)
+		key &= ~((1<<(32-d))-1);
+
+	/* truncate to maxdepth bits */
+	if(ix->maxdepth != 32)
+		key >>= 32 - ix->maxdepth;
+
+	return ix->bitblocks + key;
+}
+
+/*
+ * to check whether .xxx has split, check whether .xxx1 is in use.
+ * it might be worth caching the block for future lookups, but for now
+ * let's assume the dcache is good enough.
+ */
+static int
+bitmapop(Index *ix, u32int key, int d, int set)
+{
+	DBlock *b;
+	ISect *is;
+	IBucket ib;
+	u32int buck;
+	int inuse;
+
+	if(d >= ix->maxdepth)
+		return 0;
+
+	/* construct .xxx1 in bucket number format */
+	key = keytobuck(ix, key, d) | (1<<(ix->maxdepth-d-1));
+
+	/* check whether key (now the bucket number for .xxx1) is in use */
+
+	if((b = loadibucket0(ix, key >> ix->bitkeylog, &is, &buck, &ib)) == nil){
+		seterr(ECorrupt, "cannot load in-use bitmap block");
+		return -1;
+	}
+	inuse = ((u32int*)b->data)[(key & ix->bitkeymask)>>5] & (1<<(key&31));
+	if(set && !inuse){
+		dirtydblock(b, DirtyIndexBitmap);
+		((u32int*)b->data)[(key & ix->bitkeymask)>>5] |= (1<<(key&31));
+	}
+	putdblock(b);
+	return inuse;
+}
+
+static int
+issplit(Index *ix, u32int key, int d)
+{
+	return bitmapop(ix, key, d, 0);
+}
+
+static int
+marksplit(Index *ix, u32int key, int d)
+{
+	return bitmapop(ix, key, d, 1);
+}	
+
+/* 
+ * find the number of the index section holding score.
+ * it's not terrible to be wrong once in a while, so we just
+ * do what the bitmap tells us and don't worry about the 
+ * bitmap being out of date.
+ */
+static int
+indexsect2(Index *ix, u8int *score)
+{
+	u32int key;
+	int d, is;
+
+	key = hashbits(score, 32);
+	for(d=0; d<=ix->maxdepth; d++){
+		is = issplit(ix, key, d);
+		if(is == -1)
+			return 0;	/* must return something valid! */
+		if(!is)
+			break;
+	}
+
+	if(d > ix->maxdepth){
+		seterr(EBug, "index bitmap inconsistent with maxdepth");
+		return 0;	/* must return something valid! */
+	}
+
+	return indexsect0(ix, keytobuck(ix, key, d));
+}
+
+/*
+ * load the index block responsible for score. 
+ * (unlike indexsect2, must be correct always.)
+ */
+static DBlock*
+loadibucket2(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
+{
+	u32int key;
+	int d, try, is;
+	DBlock *b;
+
+	for(try=0; try<32; try++){
+		key = hashbits(score, 32);
+		for(d=0; d<=ix->maxdepth; d++){
+			is = issplit(ix, key, d);
+			if(is == -1)
+				return nil;
+			if(!is)
+				break;
+		}
+		if(d > ix->maxdepth){
+			seterr(EBug, "index bitmap inconsistent with maxdepth");
+			return nil;
+		}
+
+		if((b = loadibucket0(ix, keytobuck(ix, key, d), pis, pbuck, ib)) == nil)
+			return nil;
+
+		if(ib->depth == d)
+			return b;
+
+		if(ib->depth < d){
+			seterr(EBug, "index block has smaller depth than expected -- cannot happen");
+			putdblock(b);
+			return nil;
+		}
+
+		/*
+		 * ib->depth > d, meaning the bitmap was out of date.
+		 * fix the bitmap and try again.
+		 */
+		putdblock(b);
+		if(marksplit(ix, key, d) < 0)
+			return nil;
+	}
+	seterr(EBug, "loadibucket2 failed to sync bitmap with disk!");
+	return nil;
+}
+
+int
+indexsect(Index *ix, u8int *score)
+{
+	if(ix->version == IndexVersion1)
+		return indexsect1(ix, score);
+	return indexsect2(ix, score);
+}
+
+DBlock*
+loadibucket(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
+{
+	if(ix->version == IndexVersion1)
+		return loadibucket1(ix, score, pis, pbuck, ib);
+	return loadibucket2(ix, score, pis, pbuck, ib);
+}
+
+

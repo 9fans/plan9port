@@ -79,7 +79,8 @@ enum
 
 	ArenaPartVersion	= 3,
 	ArenaVersion		= 4,
-	IndexVersion		= 1,
+	IndexVersion1		= 1,
+	IndexVersion2		= 2,
 	ISectVersion		= 1,
 
 	/*
@@ -116,11 +117,14 @@ enum
 	MaxClumpBlocks		=  (VtMaxLumpSize + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog,
 
 	/*
-	 * dirty flags 
+	 * dirty flags - order controls disk write order
 	 */
 	DirtyArena		= 1,
+	DirtyIndexSplit,
 	DirtyIndex,
+	DirtyIndexBitmap,
 	DirtyArenaCib,
+	DirtyMax,
 
 	VentiZZZZZZZZ
 };
@@ -367,6 +371,11 @@ struct Index
 	u32int		buckets;		/* last bucket used in disk hash table */
 	u32int		blocksize;
 	u32int		tabsize;		/* max. bytes in index config */
+	u32int		bitblocks;
+	u32int		maxdepth;
+	u32int		bitkeylog;
+	u32int		bitkeymask;
+
 	int		mapalloc;		/* first arena to check when adding a lump */
 	Arena		**arenas;		/* arenas in the mapping */
 	ISect		**sects;		/* sections which hold the buckets */
@@ -440,7 +449,7 @@ struct IEntry
 struct IBucket
 {
 	u16int		n;			/* number of active indices */
-	u32int		next;			/* overflow bucket */
+	u32int		depth;		/* depth in version 2 (was overflow in v1) */
 	u8int		*data;
 };
 

@@ -80,7 +80,7 @@ buildbucket(Index *ix, IEStream *ies, IBucket *ib)
 
 	buck = TWID32;
 	ib->n = 0;
-	ib->next = 0;
+	ib->depth = 0;
 	while(ies->n){
 		b = peekientry(ies);
 		if(b == nil)

@@ -488,7 +488,7 @@ void
 unpackibucket(IBucket *b, u8int *buf)
 {
 	b->n = U16GET(buf);
-	b->next = U32GET(&buf[U16Size]);
+	b->depth = U32GET(&buf[U16Size]);
 	b->data = buf + IBucketSize;
 }
 
@@ -496,5 +496,5 @@ void
 packibucket(IBucket *b, u8int *buf)
 {
 	U16PUT(buf, b->n);
-	U32PUT(&buf[U16Size], b->next);
+	U32PUT(&buf[U16Size], b->depth);
 }

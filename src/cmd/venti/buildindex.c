@@ -7,15 +7,9 @@ writebucket(Index *ix, u32int buck, IBucket *ib, ZBlock *b)
 {
 	ISect *is;
 
-	is = findisect(ix, buck);
-	if(is == nil){
-		seterr(EAdmin, "bad math in writebucket");
+	is = findibucket(ix, buck, &buck);
+	if(is == nil)
 		return -1;
-	}
-	if(buck < is->start || buck >= is->stop)
-		seterr(EAdmin, "index write out of bounds: %d not in [%d,%d)\n",
-				buck, is->start, is->stop);
-	buck -= is->start;
 	qlock(&stats.lock);
 	stats.indexwrites++;
 	qunlock(&stats.lock);
@@ -47,7 +41,7 @@ buildindex(Index *ix, Part *part, u64int off, u64int clumps, int zero)
 	ib.data = b->data + IBucketSize;
 	zib.data = z->data + IBucketSize;
 	zib.n = 0;
-	zib.next = 0;
+	zib.depth = 0;
 	for(;;){
 		buck = buildbucket(ix, ies, &ib);
 		found += ib.n;

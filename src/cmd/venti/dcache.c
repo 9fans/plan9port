@@ -230,7 +230,6 @@ dirtydblock(DBlock *b, int dirty)
 	int odirty;
 	Part *p;
 
-fprint(2, "dirty %p\n", b);
 	rlock(&dcache.dirtylock);
 	assert(b->ref != 0);
 	assert(b->dirtying == 0);
@@ -242,8 +241,16 @@ fprint(2, "dirty %p\n", b);
 	stats.dirtydblocks++;
 	qunlock(&stats.lock);
 
+	/*
+	 * In general, shouldn't mark any block as more than one
+	 * type, except that split index blocks are a subcase of index
+	 * blocks.  Only clean blocks ever get marked DirtyIndexSplit,
+	 * though, so we don't need the opposite conjunction here.
+	 */
 	if(b->dirty)
-		assert(b->dirty == dirty);
+		assert(b->dirty == dirty
+			|| (b->dirty==DirtyIndexSplit && dirty==DirtyIndex));
+
 	odirty = b->dirty;
 	b->dirty = dirty;
 	p = b->part;
@@ -533,7 +540,7 @@ flushtimerproc(void *v)
 static void
 flushproc(void *v)
 {
-	int i, n;
+	int i, j, n;
 	DBlock *b, **write;
 
 	USED(v);
@@ -575,25 +582,10 @@ flushproc(void *v)
 
 		qsort(write, n, sizeof(write[0]), writeblockcmp);
 
-		/*
-		 * At the beginning of the array are the arena blocks.
-		 */
-		fprint(2, "flushproc: write arena blocks\n");
+		/* Write each stage of blocks out. */
 		i = 0;
-		i += parallelwrites(write+i, write+n, DirtyArena);
-
-		/*
-		 * Next are the index blocks.
-		 */
-		fprint(2, "flushproc: write index blocks\n");
-		i += parallelwrites(write+i, write+n, DirtyIndex);
-
-		/*
-		 * Finally, the arena clump info blocks.
-		 */
-		fprint(2, "flushproc: write cib blocks\n");
-		i += parallelwrites(write+i, write+n, DirtyArenaCib);
-
+		for(j=1; j<DirtyMax; j++)
+			i += parallelwrites(write+i, write+n, j);
 		assert(i == n);
 
 		fprint(2, "flushproc: update dirty bits\n");

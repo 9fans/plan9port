@@ -58,7 +58,6 @@ lookupscore(u8int *score, int type, IAddr *ia, int *rac)
 	IEntry d, *ie, *last;
 	u32int h;
 
-fprint(2, "lookupscore %V %d\n", score, type);
 	qlock(&stats.lock);
 	stats.iclookups++;
 	qunlock(&stats.lock);

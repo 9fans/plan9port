@@ -81,7 +81,6 @@ writelump(Packet *p, u8int *score, int type, u32int creator)
 		return ok;
 	}
 
-print("writelump %08x\n", mainindex->arenas[0]);
 	if(queuewrites)
 		return queuewrite(u, p, creator);
 

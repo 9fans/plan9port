@@ -44,9 +44,9 @@ TARG=\
 	fmtarenas\
 	fmtisect\
 	fmtindex\
-	buildindex\
+#	buildindex\
 	checkarenas\
-	checkindex\
+#	checkindex\
 	clumpstats\
 	findscore\
 	rdarena\

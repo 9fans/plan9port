@@ -60,7 +60,7 @@ if(0)print("whackedblock %08x %p\n", mainindex->arenas[0], &cl);
 	a = writeiclump(ix, &cl, cb->data);
 
 	freezblock(cb);
-	if(a == 0)
+	if(a == TWID64)
 		return -1;
 
 	qlock(&stats.lock);

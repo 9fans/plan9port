@@ -2,6 +2,8 @@
 #include "dat.h"
 #include "fns.h"
 
+#define trace 0
+
 u32int	maxblocksize;
 int	readonly;
 
@@ -75,7 +77,7 @@ writepart(Part *part, u64int addr, u8int *buf, u32int n)
 		seterr(ECorrupt, "out of bounds write to partition='%s'", part->name);
 		return -1;
 	}
-	print("write %s %lud at %llud\n", part->name, n, addr);
+if(trace) print("write %s %lud at %llud\n", part->name, n, addr);
 	for(nn = 0; nn < n; nn += m){
 		mm = n - nn;
 		if(mm > MaxIo)
@@ -107,7 +109,7 @@ readpart(Part *part, u64int addr, u8int *buf, u32int n)
 		seterr(ECorrupt, "out of bounds read from partition='%s': addr=%lld n=%d size=%lld", part->name, addr, n, part->size);
 		return -1;
 	}
-	print("read %s %lud at %llud\n", part->name, n, addr);
+if(trace) print("read %s %lud at %llud\n", part->name, n, addr);
 	for(nn = 0; nn < n; nn += m){
 		mm = n - nn;
 		if(mm > MaxIo)

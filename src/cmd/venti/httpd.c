@@ -137,14 +137,12 @@ httpproc(void *v)
 	c = v;
 
 	for(t = 15*60*1000; ; t = 15*1000){
-fprint(2, "httpd: get headers\n");
 		if(hparsereq(c, t) < 0)
 			break;
 
 		ok = -1;
 		for(i = 0; i < MaxObjs && objs[i].name[0]; i++){
 			if(strcmp(c->req.uri, objs[i].name) == 0){
-fprint(2, "httpd: call function %p\n", objs[i].f);
 				ok = (*objs[i].f)(c);
 				break;
 			}
@@ -158,9 +156,7 @@ fprint(2, "httpd: call function %p\n", objs[i].f);
 		if(ok < 0)
 			break;
 	}
-print("httpd cleanup %d\n", c->hin.fd);
 	hreqcleanup(c);
-print("close %d\n", c->hin.fd);
 	close(c->hin.fd);
 	free(c);
 }
@@ -239,12 +235,9 @@ estats(HConnect *c)
 
 	r = preqtext(c);
 	if(r < 0)
-{
-fprint(2, "preqtext failed\n");
 		return r;
-}
 
-fprint(2, "write stats\n");
+
 	hout = &c->hout;
 	hprint(hout, "lump writes=%,ld\n", stats.lumpwrites);
 	hprint(hout, "lump reads=%,ld\n", stats.lumpreads);
@@ -277,21 +270,21 @@ fprint(2, "write stats\n");
 	hprint(hout, "disk cache misses=%,ld\n", stats.pcmiss);
 	hprint(hout, "disk cache reads=%,ld\n", stats.pcreads);
 	hprint(hout, "disk cache bytes read=%,lld\n", stats.pcbreads);
-fprint(2, "write new stats\n");
+
 	hprint(hout, "disk cache writes=%,ld\n", stats.dirtydblocks);
 	hprint(hout, "disk cache writes absorbed=%,ld %d%%\n", stats.absorbedwrites,
 		percent(stats.absorbedwrites, stats.dirtydblocks));
 
-fprint(2, "back to old stats\n");
+	hprint(hout, "disk cache flushes=%,ld\n", stats.dcacheflushes);
+	hprint(hout, "disk cache flush writes=%,ld (%,ld per flush)\n", 
+		stats.dcacheflushwrites, stats.dcacheflushwrites/stats.dcacheflushes);
 
 	hprint(hout, "disk writes=%,ld\n", stats.diskwrites);
 	hprint(hout, "disk bytes written=%,lld\n", stats.diskbwrites);
 	hprint(hout, "disk reads=%,ld\n", stats.diskreads);
 	hprint(hout, "disk bytes read=%,lld\n", stats.diskbreads);
 
-fprint(2, "hflush stats\n");
 	hflush(hout);
-fprint(2, "done with stats\n");
 	return 0;
 }
 
