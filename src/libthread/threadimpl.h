@@ -95,7 +95,7 @@ struct Proc
 #ifdef PLAN9PORT_USING_PTHREADS
 	pthread_t	osprocid;
 #else
-	uint		osprocid;
+	int		osprocid;
 #endif
 	Lock		lock;
 	int			nswitch;
