@@ -4,13 +4,14 @@
 extern "C" {
 #endif
 
+#define __BSD_VISIBLE 1 /* FreeBSD 5.x */
+#define __EXTENSIONS__ 1 /* SunOS */
 #define _BSD_SOURCE 1
 #define _SVID_SOURCE 1
 #define _XOPEN_SOURCE 1000
 #define _XOPEN_SOURCE_EXTENDED 1
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
-#define __EXTENSIONS__ 1 /* SunOS */
 
 #include <unistd.h>
 #include <string.h>
@@ -43,34 +44,41 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDULONG
 #	endif
 #	if defined(__Linux26__)
-#		include <pthread.h>
-#		define PLAN9_PTHREADS 1
+#		define PLAN9PORT_USING_PTHREADS 1
 #	endif
-#endif
-#if defined(__sun__)
+#elif defined(__sun__)
 #	include <sys/types.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
-#	include <pthread.h>
-#	define PLAN9_PTHREADS
-#endif
-#if defined(__FreeBSD__)
+#	define PLAN9PORT_USING_PTHREADS 1
+#elif defined(__FreeBSD__)
 #	include <sys/types.h>
 #	if !defined(_POSIX_SOURCE)
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #	endif
-#endif
-#if defined(__APPLE__)
+#	if defined(__FreeBSD5__)
+#		define PLAN9PORT_USING_PTHREADS 1
+#	endif
+#elif defined(__APPLE__)
 #	include <sys/types.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	define _NEEDLL 1
-#	include <pthread.h>
-#	define PLAN9_PTHREADS
+#	define PLAN9PORT_USING_PTHREADS 1
+#else
+	/* No idea what system this is -- try some defaults */
+#	define PLAN9PORT_USING_PTHREADS 1
 #endif
 
+#ifndef O_DIRECT
+#define O_DIRECT 0
+#endif
+
+#ifdef PLAN9PORT_USING_PTHREADS
+#include <pthread.h>
+#endif
 
 typedef signed char schar;
 typedef unsigned int u32int;
