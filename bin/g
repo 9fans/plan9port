@@ -30,7 +30,8 @@ case $# in
 	;;
 1)
 	pattern="$1"
-	files=`/bin/ls *.[bcChm] *.cc *.py *.tex *.ms *.java 2>/dev/null`
+	files=`/bin/ls *.[bcChlmy] *.cc *.lx *.py *.tex *.ms *.java *.xy 2>/dev/null |
+		9 grep -v '\.tabx?\.[ch]$'`
 	;;
 *)
 	pattern="$1"
