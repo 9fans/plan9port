@@ -295,7 +295,7 @@ findsym(Loc loc, uint class, Symbol *s)
 			l.addr = loc.addr - p->base;
 		if((t = ffindsym(p, l, CANY)) != nil){
 			d = l.addr - t->loc.addr;
-			if(d < 4096)
+			if(0 <= d && d < 4096)
 			if(best == nil || d < bestd){
 				best = t;
 				bestp = p;
