@@ -21,7 +21,7 @@ void paren(int leftc, int p1, int rightc)
 		n = 1;
 	m = n - 2;
 	if (leftc == '{' || rightc == '}') {
-		n = n%2 ? n : ++n;
+		n = n%2 ? n : n+1;
 		if (n < 3)
 			n = 3;
 		m = n-3;

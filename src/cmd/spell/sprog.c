@@ -978,7 +978,7 @@ trypref(char* ep, char* a, int lev, int flag)
 		deriv[lev+1].mesg = pp;
 		deriv[lev+1].type = 0;
 	}
-	while(tp=lookuppref((uchar**)&bp,ep)) {
+	while(tp=lookuppref((uchar**)(void*)&bp,ep)) {
 		*pp++ = '+';
 		cp = tp->s;
 		while(pp<space+sizeof(space) && (*pp = *cp++))
