@@ -44,7 +44,7 @@ uint todisk[] = {
 };
 
 uint fromdisk[] = {
-	~0,
+	VtCorruptType,
 	VtRootType,
 	VtDirType,
 	VtDirType+1,
@@ -54,9 +54,9 @@ uint fromdisk[] = {
 	VtDirType+5,
 	VtDirType+6,
 	VtDirType+7,
-	~0,
-	~0,
-	~0,
+	VtCorruptType,
+	VtCorruptType,
+	VtCorruptType,
 	VtDataType,
 };
 
@@ -64,7 +64,7 @@ uint
 vttodisktype(uint n)
 {
 	if(n >= nelem(todisk))
-		return ~0;
+		return VtCorruptType;
 	return todisk[n];
 }
 
@@ -72,7 +72,7 @@ uint
 vtfromdisktype(uint n)
 {
 	if(n >= nelem(fromdisk))
-		return ~0;
+		return VtCorruptType;
 	return fromdisk[n];
 }
 
