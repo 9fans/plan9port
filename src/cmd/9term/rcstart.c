@@ -4,19 +4,24 @@
 #include "term.h"
 
 static void
-sys(char *buf)
+sys(char *buf, int devnull)
 {
 	char buf2[100];
 	char *f[20];
 	int nf, pid;
 
+	notedisable("sys: child");
 	strcpy(buf2, buf);
 	nf = tokenize(buf2, f, nelem(f));
 	f[nf] = nil;
 	switch(pid = fork()){
 	case 0:
+		close(1);
+		open("/dev/null", OREAD);
+		close(2);
+		open("/dev/null", OREAD);
 		execvp(f[0], f);
-		_exits("oops");
+		_exit(2);
 	default:
 		waitpid();
 	}
@@ -43,18 +48,23 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	 * fd0 is slave (tty), fd1 is master (pty)
 	 */
 	fd[0] = fd[1] = -1;
-	if(getpts(fd, slave) < 0)
+	if(getpts(fd, slave) < 0){
+		exit(3);
 		sysfatal("getpts: %r\n");
-	switch(pid = fork()) {
+	}
+	notedisable("sys: window size change");
+	pid = fork();
+	switch(pid){
 	case 0:
 		putenv("TERM", "9term");
 		sfd = childpty(fd, slave);
 		dup(sfd, 0);
 		dup(sfd, 1);
 		dup(sfd, 2);
-		sys("stty tabs -onlcr onocr icanon echo erase '^h' intr '^?'");
+		sys("stty tabs -onlcr icanon echo erase '^h' intr '^?'", 0);
+		sys("stty onocr", 1);	/* not available on mac */
 		if(noecho)
-			sys("stty -echo");
+			sys("stty -echo", 0);
 		for(i=3; i<100; i++)
 			close(i);
 		signal(SIGINT, SIG_DFL);
@@ -62,7 +72,7 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		signal(SIGTERM, SIG_DFL);
 		execvp(argv[0], argv);
 		fprint(2, "exec %s failed: %r\n", argv[0]);
-		_exits("oops");
+		_exit(2);
 		break;
 	case -1:
 		sysfatal("proc failed: %r");

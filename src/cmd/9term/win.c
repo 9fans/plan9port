@@ -110,6 +110,20 @@ waitthread(void *v)
 }
 
 void
+hangupnote(void *a, char *msg)
+{
+	if(strcmp(msg, "hangup") == 0 && pid != 0){
+		postnote(PNGROUP, pid, "hangup");
+		noted(NDFLT);
+	}
+	if(strstr(msg, "child")){
+		/* bug: do better */
+		threadexitsall(0);
+	}
+	noted(NDFLT);
+}
+
+void
 threadmain(int argc, char **argv)
 {
 	int fd, id;
@@ -140,7 +154,10 @@ threadmain(int argc, char **argv)
 		}
 	}
 
-	threadnotify(nopipes, 1);
+	notedisable("sys: write on closed pipe");
+	noteenable("sys: child");
+	notify(hangupnote);
+
 	if((fs = nsmount("acme", "")) == 0)
 		sysfatal("nsmount acme: %r");
 	ctlfd = fsopen(fs, "new/ctl", ORDWR|OCEXEC);
@@ -184,7 +201,7 @@ threadmain(int argc, char **argv)
 	fswrite(ctlfd, buf, strlen(buf));
 	
 	updatewinsize(25, 80, 0, 0);
-	threadcreate(stdoutproc, nil, STACK);
+	proccreate(stdoutproc, nil, STACK);
 	stdinproc(nil);
 }
 
@@ -420,13 +437,12 @@ stdoutproc(void *v)
 	char x[16], hold[UTFmax];
 
 	USED(v);
-	threadnotify(nopipes, 1);
 	buf = malloc(8192+UTFmax+1);
 	npart = 0;
 	for(;;){
 		/* Let typing have a go -- maybe there's a rubout waiting. */
 		yield();
-		n = threadread(fd1, buf+npart, 8192);
+		n = read(fd1, buf+npart, 8192);
 		if(n < 0)
 			error(nil);
 		if(n == 0)

@@ -20,7 +20,7 @@ enum
 int noecho = 0;
 
 void servedevtext(void);
-void listenthread(void*);
+void listenproc(void*);
 void textthread(void*);
 
 typedef struct Text	Text;
@@ -249,7 +249,7 @@ threadmain(int argc, char *argv[])
 
 	initdraw(0, nil, "9term");
 	notify(hangupnote);
-	notifyatsig(SIGCHLD, 1);
+	noteenable("sys: child");
 	servedevtext();
 
 	mc = initmouse(nil, screen);
@@ -322,7 +322,7 @@ hostproc(void *arg)
 		yield();
 
 		i = 1-i;	/* toggle */
-		n = threadread(rcfd, rcbuf[i].data, sizeof rcbuf[i].data);
+		n = read(rcfd, rcbuf[i].data, sizeof rcbuf[i].data);
 		if(n <= 0){
 			if(n < 0)
 				fprint(2, "9term: host read error: %r\n");
@@ -338,7 +338,7 @@ void
 hoststart(void)
 {
 	hostc = chancreate(sizeof(int), 0);
-	threadcreate(hostproc, hostc, 32*1024);
+	proccreate(hostproc, hostc, 32*1024);
 }
 
 void
@@ -1868,25 +1868,25 @@ servedevtext(void)
 	}
 
 	putenv("text9term", buf);
-	threadcreate(listenthread, nil, STACK);
+	proccreate(listenproc, nil, STACK);
 	strcpy(thesocket, buf+5);
 	atexit(removethesocket);
 }
 
 void
-listenthread(void *arg)
+listenproc(void *arg)
 {
 	int fd;
 	char dir[100];
 
 	USED(arg);
 	for(;;){
-		fd = threadlisten(adir, dir);
+		fd = listen(adir, dir);
 		if(fd < 0){
 			close(afd);
 			return;
 		}
-		threadcreate(textthread, (void*)fd, STACK);
+		proccreate(textthread, (void*)fd, STACK);
 	}
 }
 
