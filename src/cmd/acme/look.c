@@ -521,7 +521,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 			q1 = colon;
 			if(colon<t->file->b.nc-1 && isaddrc(textreadc(t, colon+1))){
 				q1 = colon+1;
-				while(q1<t->file->b.nc-1 && isaddrc(textreadc(t, q1)))
+				while(q1<t->file->b.nc && isaddrc(textreadc(t, q1)))
 					q1++;
 			}
 		}
@@ -626,7 +626,6 @@ expand(Text *t, uint q0, uint q1, Expand *e)
 
 	if(expandfile(t, q0, q1, e))
 		return TRUE;
-
 	if(q0 == q1){
 		while(q1<t->file->b.nc && isalnum(textreadc(t, q1)))
 			q1++;
