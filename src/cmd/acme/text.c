@@ -637,6 +637,7 @@ texttype(Text *t, Rune r)
 	int nr;
 	Rune *rp;
 	Text *u;
+	int precise;
 
 	if(t->what!=Body && r=='\n')
 		return;
@@ -659,7 +660,7 @@ texttype(Text *t, Rune r)
 		n = t->fr.maxlines/3;
 		goto case_Down;
 	case Kscrollonedown:
-		n = mousescrollsize(t->fr.maxlines)-1;	/* -1 counters a bug somewhere else */
+		n = mousescrollsize(t->fr.maxlines);
 		if(n <= 0)
 			n = 1;
 		goto case_Down;
@@ -667,19 +668,19 @@ texttype(Text *t, Rune r)
 		n = 2*t->fr.maxlines/3;
 	case_Down:
 		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
-		textsetorigin(t, q0, FALSE);
+		textsetorigin(t, q0, TRUE);
 		return;
 	case Kup:
 		n = t->fr.maxlines/3;
 		goto case_Up;
 	case Kscrolloneup:
-		n = mousescrollsize(t->fr.maxlines)+1;	/* +1 counters a bug somewhere else */
+		n = mousescrollsize(t->fr.maxlines);
 		goto case_Up;
 	case Kpgup:
 		n = 2*t->fr.maxlines/3;
 	case_Up:
 		q0 = textbacknl(t, t->org, n);
-		textsetorigin(t, q0, FALSE);
+		textsetorigin(t, q0, TRUE);
 		return;
 	case Khome:
 		textshow(t, 0, 0, FALSE);
