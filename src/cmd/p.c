@@ -17,9 +17,9 @@ main(int argc, char *argv[])
 	int n;
 	int f;
 
-	if((cons = Bopen("/dev/cons", OREAD)) == 0) {
-		fprint(2, "p: can't open /dev/cons\n");
-		exits("missing /dev/cons");
+	if((cons = Bopen("/dev/tty", OREAD)) == 0) {
+		fprint(2, "p: can't open /dev/tty\n");
+		exits("missing /dev/tty");
 	}
 	Binit(&bout, 1, OWRITE);
 	n = 0;
