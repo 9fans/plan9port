@@ -29,6 +29,7 @@ struct Fid
 	int fid;
 	int ref;
 	int cfid;
+	int openfd;
 	Fid *next;
 };
 
@@ -550,6 +551,7 @@ openfdthread(void *v)
 			m = nil;
 		}
 	}
+/* CLUNK NOT HAPPENING */
 	if(verbose) fprint(2, "eof on %d fid %d\n", c->fd, fid->fid);
 	close(c->fd);
 	closeioproc(io);
@@ -557,7 +559,8 @@ openfdthread(void *v)
 		msgput(m);
 		msgput(m);
 	}
-	if(fid->ref == 1){
+	if(verbose) fprint(2, "eof on %d fid %d ref %d\n", c->fd, fid->fid, fid->ref);
+	if(--fid->openfd == 0){
 		m = msgnew();
 		m->internal = 1;
 		m->c = c;
@@ -589,6 +592,7 @@ xopenfd(Msg *m)
 	if(pipe(p) < 0){
 		rerrstr(errs, sizeof errs);
 		err(m, errs);
+		/* XXX return here? */
 	}
 	if(verbose) fprint(2, "xopen pipe %d %d...", p[0], p[1]);
 
@@ -601,6 +605,7 @@ xopenfd(Msg *m)
 	/* a ref for us */
 	nc->fdfid = m->fid;
 	m->fid->ref++;
+	nc->fdfid->openfd++;
 	nc->fdmode = m->tx.mode;
 	nc->fd = p[0];
 
@@ -613,6 +618,7 @@ xopenfd(Msg *m)
 		nc->internal = chancreate(sizeof(void*), 0);
 		nc->fdfid = m->fid;
 		m->fid->ref++;
+		nc->fdfid->openfd++;
 		nc->fdmode = OREAD;
 		nc->fd = dup(p[0], -1);
 		threadcreate(openfdthread, nc, STACK);
@@ -841,6 +847,7 @@ fidput(Fid *f)
 	assert(f->ref > 0);
 	if(--f->ref > 0)
 		return;
+fprint(2, "free %d from %lux\n", f->fid, getcallerpc(&f));
 	f->next = freefid;
 	f->cfid = -1;
 	freefid = f;
