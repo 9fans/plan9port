@@ -16,10 +16,12 @@ OFILES=\
 	lock.$O\
 	malloctag.$O\
 	mallocz.$O\
+	netmkaddr.$O\
 	nrand.$O\
 	qlock.$O\
 	readn.$O\
 	rendez-$(SYSNAME).$O\
+	sleep.$O\
 	strecpy.$O\
 	sysfatal.$O\
 	tas-$(OBJTYPE).$O\
@@ -28,7 +30,6 @@ OFILES=\
 	u32.$O\
 	u64.$O\
 	wait.$O\
-	werrstr.$O\
 
 HFILES=\
 	$(PLAN9)/include/lib9.h\
