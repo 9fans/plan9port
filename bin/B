@@ -25,7 +25,8 @@ then
 	pwd="`pwd`"
 	for i
 	do
-		plumb -s B -d edit $i
+		i=`cleanname -d "$pwd" "$i"`
+		plumb -s B -d edit "$i"
 	done
 else
 	for i
