@@ -6,4 +6,7 @@ cp -R * ../9tmp
 cd ../9tmp
 rm -rf `find . -name CVS`
 make nuke
-tar cf - . | gzip >~/public_html/9src.tar.gz
+tar cf - . | gzip >~/9src.tar.gz
+d=`date +%y%m%d`
+echo http://pdos.lcs.mit.edu/~rsc/9src-$d.tar.gz
+scp ~/9src.tar.gz amsterdam:public_html/software/9src-$d.tar.gz
