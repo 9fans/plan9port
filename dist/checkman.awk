@@ -285,11 +285,15 @@ $1 != ".RE" {
 }
 
 sh == "SOURCE" && $1 ~ /^\// {
-	Sources[$1] = 1
+	s = $1
+	sub("\\\*9", ENVIRON["PLAN9"], s)
+	Sources[s] = 1
 }
 
 sh == "SOURCE" && $2 ~ /^\// {
-	Sources[$2] = 1
+	s = $2
+	sub("\\\*9", ENVIRON["PLAN9"], s)
+	Sources[s] = 1
 }
 
 $0 ~ /^\.[A-Z].*\([1-9]\)/ {
