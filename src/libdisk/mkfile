@@ -1,17 +1,10 @@
 <$PLAN9/src/mkhdr
 
 OFILES=\
-	disk.$O\
 	proto.$O\
-	scsi.$O\
 
 HFILES=$PLAN9/include/disk.h
 LIB=libdisk.a
-
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}\
 
 <$PLAN9/src/mksyslib
 
