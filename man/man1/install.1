@@ -37,7 +37,19 @@ builds an HTML version of the manual and installs it in
 .I INSTALL
 can safely be repeated to rebuild the system from scratch.
 .PP
-The system uses different threading implementations on Linux 2.6 and
+At the end of the build,
+.I INSTALL
+prints suggested settings for the environment variables 
+.B $PLAN9
+and
+.BR $PATH .
+After setting those, the script
+.B $PLAN9/dist/isum
+will print a short summary of the installation output,
+omitting the usual command chatter but preserving
+compiler warnings and errors.
+.PP
+Plan 9 from User Space uses different threading implementations on Linux 2.6 and
 later kernels than on 2.4 and earlier;
 and on FreeBSD 5 and later kernels than on FreeBSD 4 and earlier.
 Running binaries from one class on another will not work.
@@ -70,6 +82,10 @@ the shell script that builds the HTML manual
 .TP
 .B \*9/man/index.html
 the top-level page in the HTML version of the manual
+.TP
+.B \*9/install.log
+logged output from the last run of
+.I INSTALL
 .SH SEE ALSO
 .IR intro (1),
 .IR cvs (1)
