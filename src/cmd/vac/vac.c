@@ -686,9 +686,8 @@ vacmerge(DirSink *dsink, char *lname, char *sname)
 	VacDir dir;
 	uvlong max;
 
-	p = strrchr(sname, '.');
-	if(p == 0 || strcmp(p, ".vac"))
-		return 0;
+	if((p=strrchr(sname, '.') == nil || strcmp(p, ".vac") != 0)
+		return -1;
 
 	d = nil;
 	fs = vacfsopen(dsink->sink->z, sname, VtOREAD, 100);
