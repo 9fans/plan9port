@@ -20,13 +20,6 @@
 	unsigned char.
 */
 
-#ifdef PLAN9
-long getrune(Biobuf *);
-long getisorune(Biobuf *);
-#else
-long getrune(FILE *);
-long getisorune(FILE *);
-#endif
 int our_wctomb(char *s, unsigned long wc);
 int our_mbtowc(unsigned long *p, char *s, unsigned n);
 int runetoisoutf(char *str, Rune *rune);
@@ -36,51 +29,37 @@ int isochartorune(Rune *rune, char *str);
 void
 utf_in(int fd, long *notused, struct convert *out)
 {
-#ifndef PLAN9
-	FILE *fp;
-#else /* PLAN9 */
-	Biobuf b;
-#endif /* PLAN9 */
-	Rune *r;
-	long l;
+	char buf[N];
+	int i, j, c, n, tot;
+	ulong l;
 
 	USED(notused);
-#ifndef PLAN9
-	if((fp = fdopen(fd, "r")) == NULL){
-		EPR "%s: input setup error: %s\n", argv0, strerror(errno));
-#else /* PLAN9 */
-	if(Binit(&b, fd, OREAD) < 0){
-		EPR "%s: input setup error: %r\n", argv0);
-#endif /* PLAN9 */
-		EXIT(1, "input error");
-	}
-	r = runes;
-	for(;;)
-#ifndef PLAN9
-		switch(l = getrune(fp))
-#else /* PLAN9 */
-		switch(l = getrune(&b))
-#endif /* PLAN9 */
-		{
-		case -1:
-			goto done;
-		case -2:
-			if(squawk)
-				EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput);
-			if(clean)
-				continue;
-			nerrors++;
-			l = Runeerror;
-		default:
-			*r++ = l;
-			if(r >= &runes[N]){
-				OUT(out, runes, r-runes);
-				r = runes;
+	tot = 0;
+	while((n = read(fd, buf+tot, N-tot)) >= 0){
+		tot += n;
+		for(i=j=0; i<tot; ){
+			c = our_mbtowc(&l, buf+i, tot-i);
+			if(c == -1)
+				break;
+			if(c == -2){
+				if(squawk)
+					EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput+i);
+				if(clean)
+					continue;
+				nerrors++;
+				l = Runeerror;
 			}
+			runes[j++] = l;
+			i += c;
 		}
-done:
-	if(r > runes)
-		OUT(out, runes, r-runes);
+		OUT(out, runes, j);
+		tot -= i;
+		ninput += i;
+		if(tot)
+			memmove(buf, buf+i, tot);
+		if(n == 0)
+			break;
+	}
 }
 
 void
@@ -101,51 +80,35 @@ utf_out(Rune *base, int n, long *notused)
 void
 isoutf_in(int fd, long *notused, struct convert *out)
 {
-#ifndef PLAN9
-	FILE *fp;
-#else /* PLAN9 */
-	Biobuf b;
-#endif /* PLAN9 */
-	Rune *r;
-	long l;
+	char buf[N];
+	int i, j, c, n, tot;
 
 	USED(notused);
-#ifndef PLAN9
-	if((fp = fdopen(fd, "r")) == 0){
-		EPR "%s: input setup error: %s\n", argv0, strerror(errno));
-#else /* PLAN9 */
-	if(Binit(&b, fd, OREAD) < 0){
-		EPR "%s: input setup error: %r\n", argv0);
-#endif /* PLAN9 */
-		EXIT(1, "input error");
-	}
-	r = runes;
-	for(;;)
-#ifndef PLAN9
-		switch(l = getisorune(fp))
-#else /* PLAN9 */
-		switch(l = getisorune(&b))
-#endif /* PLAN9 */
-		{
-		case -1:
-			goto done;
-		case -2:
-			if(squawk)
-				EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput);
-			if(clean)
-				continue;
-			nerrors++;
-			l = Runeerror;
-		default:
-			*r++ = l;
-			if(r >= &runes[N]){
-				OUT(out, runes, r-runes);
-				r = runes;
+	tot = 0;
+	while((n = read(fd, buf+tot, N-tot)) >= 0){
+		tot += n;
+		for(i=j=0; i<tot; ){
+			if(!fullisorune(buf+i, tot-i))
+				break;
+			c = isochartorune(&runes[j], buf+i);
+			if(runes[j] == Runeerror){
+				if(squawk)
+					EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput+i);
+				if(clean)
+					continue;
+				nerrors++;
 			}
+			j++;
+			i += c;
 		}
-done:
-	if(r > runes)
-		OUT(out, runes, r-runes);
+		OUT(out, runes, j);
+		tot -= i;
+		ninput += i;
+		if(tot)
+			memmove(buf, buf+i, tot);
+		if(n == 0)
+			break;
+	}
 }
 
 void
@@ -162,65 +125,6 @@ isoutf_out(Rune *base, int n, long *notused)
 	write(1, obuf, p-obuf);
 }
 
-long
-#ifndef PLAN9
-getrune(FILE *fp)
-#else /* PLAN9 */
-getrune(Biobuf *bp)
-#endif /* PLAN9 */
-{
-	int c, i;
-	char str[UTFmax];	/* MB_LEN_MAX really */
-	unsigned long l;
-	int n;
-
-	for(i = 0;;){
-#ifndef PLAN9
-		c = getc(fp);
-#else /* PLAN9 */
-		c = Bgetc(bp);
-#endif /* PLAN9 */
-		if(c < 0)
-			return(c);
-		ninput++;
-		str[i++] = c;
-		n = our_mbtowc(&l, str, i);
-		if(n == -1)
-			return(-2);
-		if(n > 0)
-			return(l);
-	}
-}
-
-long
-#ifndef PLAN9
-getisorune(FILE *fp)
-#else /* PLAN9 */
-getisorune(Biobuf *bp)
-#endif /* PLAN9 */
-{
-	int c, i;
-	Rune rune;
-	char str[UTFmax];	/* MB_LEN_MAX really */
-
-	for(i = 0;;){
-#ifndef PLAN9
-		c = getc(fp);
-#else /* PLAN9 */
-		c = Bgetc(bp);
-#endif /* PLAN9 */
-		if(c < 0)
-			return(c);
-		ninput++;
-		str[i++] = c;
-		if(fullisorune(str, i))
-			break;
-	}
-	isochartorune(&rune, str);
-	if(rune == Runeerror)
-		return -2;
-	return(rune);
-}
 
 enum
 {
@@ -343,7 +247,7 @@ runetoisoutf(char *str, Rune *rune)
 	 *	000A0-000FF => A0; A0-FF
 	 */
 	if(c < Rune21) {
-		str[0] = (uchar)Char1;
+		str[0] = Char1;
 		str[1] = c;
 		return 2;
 	}
