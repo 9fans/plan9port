@@ -456,6 +456,7 @@ extern	int	iounit(int);
 /* extern	double	ldexp(double, int); <math.h> */
 extern	void	p9longjmp(p9jmp_buf, int);
 extern	char*	mktemp(char*);
+extern	int		opentemp(char*);
 /* extern	double	modf(double, double*); <math.h> */
 extern	int	netcrypt(void*, void*);
 extern	void	p9notejmp(void*, p9jmp_buf, int);
@@ -475,13 +476,15 @@ extern	vlong	strtoll(char*, char**, int);
 extern	uvlong	strtoull(char*, char**, int);
  */
 extern	void	sysfatal(char*, ...);
-extern	void	syslog(int, char*, char*, ...);
+extern	void	p9syslog(int, char*, char*, ...);
 extern	long	time(long*);
 /* extern	int	tolower(int); <ctype.h> */
 /* extern	int	toupper(int); <ctype.h> */
 #ifndef NOPLAN9DEFINES
 #define atexit		p9atexit
 #define atexitdont	p9atexitdont
+#define encrypt		p9encrypt
+#define decrypt		p9decrypt
 #define getenv		p9getenv
 #define	getwd		p9getwd
 #define	longjmp		p9longjmp
@@ -490,6 +493,7 @@ extern	long	time(long*);
 #define putenv		p9putenv
 #define notejmp		p9notejmp
 #define jmp_buf		p9jmp_buf
+#define syslog		p9syslog
 #endif
 
 /*

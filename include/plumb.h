@@ -55,6 +55,13 @@ char*		plumblookup(Plumbattr*, char*);
 int			plumbopen(char*, int);
 int			eplumb(int, char*);
 
+#ifdef _FS_H_
+Fid*		plumbopenfid(char*, int);
+Plumbmsg*	plumbrecvfid(Fid*);
+Plumbmsg*	threadplumbrecvfid(Fid*);
+int		plumbsendtofid(Fid*, Plumbmsg*);
+#endif
+
 #if defined(__cplusplus)
 }
 #endif

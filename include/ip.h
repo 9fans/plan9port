@@ -101,6 +101,8 @@ int	parseether(uchar*, char*);
 int	myipaddr(uchar*, char*);
 int	myetheraddr(uchar*, char*);
 int	equivip(uchar*, uchar*);
+long	udpread(int, Udphdr*, void*, long);
+long	udpwrite(int, Udphdr*, void*, long);
 
 Ipifc*	readipifc(char*, Ipifc*, int);
 

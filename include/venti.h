@@ -93,6 +93,11 @@ uint vtfromdisktype(uint);
 
 /*
  * VtEntry describes a Venti stream
+ *
+ * The _ enums are only used on the wire.
+ * They are not present in the VtEntry structure
+ * and should not be used by client programs.
+ * (The info is in the type field.)
  */
 enum
 {
