@@ -24,7 +24,7 @@ install: $(LIB)
 	install -m 0644 regexp9.7 $(PREFIX)/man/man7/regexp9.7
 	mkdir -p $(PREFIX)/lib
 	install -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
-	mdir -p $(PREFIX)/include
+	mkdir -p $(PREFIX)/include
 	install -m 0644 regexp9.h $(PREFIX)/include/regexp9.h
 
 test: test.$O $(LIB)
