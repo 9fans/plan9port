@@ -1,0 +1,23 @@
+<$PLAN9/src/mkhdr
+
+TARG=page
+
+HFILES=page.h
+OFILES=\
+	filter.$O\
+	gfx.$O\
+	gs.$O\
+	page.$O\
+	pdf.$O\
+	ps.$O\
+	rotate.$O\
+	util.$O\
+	view.$O\
+
+<$PLAN9/src//mkone
+
+pdfprolog.c: pdfprolog.ps
+	cat pdfprolog.ps | sed 's/.*/"&\\n"/g' >pdfprolog.c
+
+pdf.$O: pdfprolog.c
+
