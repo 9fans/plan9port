@@ -1,0 +1,532 @@
+.TH ACID 1
+.SH NAME
+acid, acidtypes \- debugger
+.SH SYNOPSIS
+.B acid
+[
+.BI -l " libfile
+]
+[
+.B -wq
+] [
+.B -m
+.I machine
+] [
+.I pid
+|
+.I core
+]
+[
+.I textfile
+]
+.PP
+.B acidtypes
+[
+.B -p
+.I prefix
+]
+.I file
+...
+.\" .PP
+.\" .B acid
+.\" .B -l
+.\" .B truss
+.\" .I textfile
+.\" .PP
+.\" .B acid
+.\" .B -l
+.\" .B trump
+.\" [
+.\" .I pid
+.\" ]
+.\" [
+.\" .I textfile
+.\" ]
+.SH DESCRIPTION
+.I Acid
+is a programmable symbolic debugger.
+It can inspect one or more processes that share an address space.
+A program to be debugged may be specified by the process id of
+a running or defunct process,
+or by the name of the program's text file 
+.RB ( 8.out
+by default).
+At the prompt,
+.I acid
+will store function definitions or print the value of expressions.
+Options are
+.TP .9i
+.B -w
+Allow the textfile to be modified.
+.TP
+.B -q
+Print variable renamings at startup.
+.TP
+.BI -l " library
+Load from 
+.I library
+at startup; see below.
+.TP
+.BI -m " machine
+Assume instructions are for the given CPU type
+(one of
+.BR 3210 ,
+.BR 386 ,
+etc., as listed in
+.IR 2c (1),
+or
+.B sunsparc
+or
+.B mipsco
+for the  manufacturer-defined instruction notation for those processors)
+instead of using the magic number to select
+the CPU type.
+.TP
+.BI -k
+Debug the kernel state for the process, rather than the user state.
+.PP
+At startup,
+.I acid
+obtains standard function definitions from the library file
+.BR /usr/local/plan9/acid/port ,
+architecture-dependent functions from
+.BR /usr/local/plan9/acid/$objtype ,
+user-specified functions from
+.BR $home/lib/acid ,
+and further functions from 
+.B -l
+files.
+Definitions in any file may override previously defined functions.
+If the function
+.IR acidinit ()
+is defined, it will be invoked after all modules have been loaded.
+See
+.IR 2c (1)
+for information about creating
+.I acid
+functions for examining data structures.
+.SS Language
+Symbols of the program being debugged become integer 
+variables whose values are addresses.
+Contents of addresses are obtained by indirection.
+Local variables are qualified by
+function name, for example
+.BR main:argv .
+When program symbols conflict with
+.I acid
+words, distinguishing 
+.B $
+signs are prefixed.
+Such renamings are reported at startup; option
+.B -q
+suppresses them.
+.PP
+Variable types
+.RI ( "integer, float, list, string" )
+and formats are inferred from assignments.
+Truth values false/true are attributed to zero/nonzero
+integers or floats and to empty/nonempty lists or strings.
+Lists are sequences of expressions surrounded by
+.BR {\^} 
+and separated by commas.
+.PP
+Expressions are much as in C,
+but yield both a value and a format.
+Casts to complex types are allowed.
+Lists admit the following operators, with
+subscripts counted from 0.
+.IP
+.BI head " list
+.br
+.BI tail " list
+.br
+.BI append " list", " element
+.br
+.BI delete " list", " subscript
+.PP
+Format codes are the same as in
+.IR db (1).
+Formats may be attached to (unary) expressions with
+.BR \e ,
+e.g.
+.BR (32*7)\eD .
+There are two indirection operators,
+.B *
+to address a core image,
+.B @
+to address a text file.
+The type and format of the result are determined by the format of the operand,
+whose type must be integer.
+.PP
+Statements are
+.IP
+.BI if " expr " then " statement " "\fR[ \fPelse\fI statement \fR]
+.br
+.BI while " expr " do " statement
+.br
+.BI loop " expr" , " expr " do " statement
+.br
+.BI defn " name" ( args ") {" " statement \fP}
+.br
+.BI defn " name"
+.br
+.IB name ( args )
+.br
+.BI builtin " name" ( args )
+.br
+.BI local " name
+.br
+.BI return " expr
+.br
+.BR whatis " [ \fI name \fP]
+.PP
+The statement
+.B defn
+.I name
+clears the definition for
+.IR name .
+A
+.B defn
+may override a built-in function;
+prefixing a function call with
+.B builtin
+ignores any overriding
+.BR defn ,
+forcing the use of the built-in function.
+.PP
+Here is a partial list of functions; see the manual for a complete list.
+.TF asm(address)
+.TP
+.B stk()
+Print a stack trace for current process.
+.TP
+.B lstk()
+Print a stack trace with values of local variables.
+.TP
+.B gpr()
+Print general registers.
+Registers can also be accessed by name, for example
+.BR *R0 .
+.TP
+.B spr()
+Print special registers such as program counter and stack pointer.
+.TP
+.B fpr()
+Print floating-point registers.
+.TP
+.B regs()
+Same as
+.BR spr();gpr() .
+.TP
+.BI fmt( expr , format )
+Expression 
+.I expr
+with format given by the character value of expression
+.IR format .
+.TP
+.BI src( address )
+Print 10 lines of source around the program address.
+.TP
+.BI Bsrc( address )
+Get the source line for the program address
+into a window of a running
+.IR sam (1)
+and select it.
+.TP
+.BI line( address )
+Print source line nearest to the program address.
+.TP
+.B source()
+List current source directories.
+.TP
+.BI addsrcdir( string )
+Add a source directory to the list.
+.TP
+.BI filepc( where )
+Convert a string of the form 
+.IB sourcefile : linenumber
+to a machine address.
+.TP
+.BI pcfile( address )
+Convert a machine address to a source file name.
+.TP
+.BI pcline( address )
+Convert a machine address to a source line number.
+.TP
+.BI bptab()
+List breakpoints set in the current process.
+.TP
+.BI bpset( address )
+Set a breakpoint in the current process at the given address.
+(Doesn't work on Unix yet.)
+.TP
+.BI bpdel( address )
+Delete a breakpoint from the current process.
+.TP
+.B cont()
+Continue execution of current process and wait for it to stop.
+.TP
+.B step()
+Execute a single machine instruction in the current process.
+(Doesn't work on Unix yet.)
+.TP
+.B func()
+Step repeatedly until after a function return.
+.TP
+.BI stopped( pid )
+This replaceable function is called automatically when the given process
+stops.
+It normally prints the program counter and returns to the prompt.
+.TP
+.BI asm( address )
+Disassemble 30 machine instructions beginning at the given address.
+.TP
+.BI mem( address , string )
+Print a block of memory
+interpreted according to a string of format codes.
+.TP
+.BI dump( address , n , string\fP)
+Like
+.BR mem (),
+repeated for 
+.I n
+consecutive blocks.
+.TP
+.BI print( expr , ... )
+Print the values of the expressions.
+.TP
+.BI newproc( arguments )
+Start a new process with arguments given as a string
+and halt at the first instruction.
+.TP
+.B new()
+Like 
+.IR newproc (),
+but take arguments (except
+.BR argv[0] )
+from string variable
+.BR progargs .
+.TP
+.B win()
+Like 
+.IR new (),
+but run the process in a separate window.
+.TP
+.BI start( pid )
+Start a stopped process.
+.TP
+.BI kill( pid )
+Kill the given process.
+.TP
+.BI setproc( pid )
+Make the given process current.
+.TP
+.BI rc( string )
+Escape to the shell,
+.IR rc (1),
+to execute the command string.
+.TP
+.BI include( string )
+Read acid commands from the named file.
+.TP
+.BI includepipe( string )
+Run the command string, reading its standard output as acid commands.
+.PD 0
+.SS "Shared library segments
+When a pid or core file is specified on the command line,
+.I acid
+will, as part of its startup, determine the set of shared libraries
+in use by the process image and map those at appropriate locations.
+If 
+.I acid
+is started without a pid or core file
+and is subsequently attached to a process via
+.BR setproc ,
+the shared library maps can be initialized by calling
+.BR dynamicmap() .
+.SS "Type information
+Unix compilers conventionally include detailed type information
+in the debugging symbol section of binaries.
+The external program
+.B acidtypes
+extracts this information and formats it as
+.I acid
+program text.
+Once the shared libraries have been mapped, the default
+.I acid
+startup invokes
+.B acidtypes
+(via
+.BR includepipe )
+on the set of currently mapped text files.
+The function
+.B acidtypes()
+can be called to rerun the command after changing
+the set of mapped text files.
+.SS "Acid Libraries
+There are a number of
+.I acid
+`libraries' that provide higher-level debugging facilities.  One notable
+example is
+.IR trump ,
+which uses
+.I acid
+to trace memory allocation.
+.I Trump
+requires starting
+.I acid
+on the program, either by attaching to a running process or by
+executing
+.B new()
+on a binary (perhaps after setting
+.BR progargs ),
+stopping the process, and then running
+.B trump()
+to execute the program under the scaffolding.
+The output will be a trace of the memory allocation and free calls
+executed by the program.
+When finished tracing, stop the process and execute
+.B untrump()
+followed by
+.B cont()
+to resume execution.
+.SH EXAMPLES
+Start to debug
+.BR /bin/ls ;
+set some breakpoints; run up to the first one
+(this example doesn't work on Unix yet):
+.IP
+.EX
+% acid /bin/ls
+/bin/ls: mips plan 9 executable
+/sys/lib/acid/port
+/sys/lib/acid/mips
+acid: new()
+70094: system call	_main	ADD	$-0x14,R29
+70094: breakpoint	main+0x4	MOVW	R31,0x0(R29)
+acid: pid
+70094
+acid: argv0 = **main:argv\es
+acid: whatis argv0
+integer variable format s
+acid: *argv0
+/bin/ls
+acid: bpset(ls)
+acid: cont()
+70094: breakpoint  ls	ADD	$-0x16c8,R29
+acid: 
+.EE
+.PP
+Display elements of a linked list of structures:
+.IP
+.EX
+complex Str { 'D' 0 val; 'X' 4 next; };
+s = *headstr;
+while s != 0 do{
+	complex Str s;
+	print(s.val, "\en");
+	s = s.next;
+}
+.EE
+.PP
+Note the use of the
+.B .
+operator instead of
+.BR -> .
+.PP
+Display an array of bytes declared in C as
+.BR "char array[]" .
+.IP
+.EX
+*(array\es)
+.EE
+.PP
+This example gives
+.B array
+string format, then prints the string beginning at the address (in
+.I acid
+notation)
+.BR *array .
+.PP
+Trace the system calls executed by
+.IR ls (1)
+(neither does this one):
+.IP
+.EX
+% acid -l truss /bin/ls
+/bin/ls:386 plan 9 executable
+
+/sys/lib/acid/port
+/sys/lib/acid/kernel
+/sys/lib/acid/truss
+/sys/lib/acid/386
+acid: progargs = "-l lib/profile"
+acid: new()
+acid: truss()
+open("#c/pid", 0)
+	return value: 3
+pread(3, 0x7fffeeac, 20, -1)
+	return value: 12
+	data: "        166 "
+\&...
+stat("lib/profile", 0x0000f8cc, 113)
+	return value: 65
+open("/env/timezone", 0)
+	return value: 3
+pread(3, 0x7fffd7c4, 1680, -1)
+	return value: 1518
+	data: "EST -18000 EDT -14400
+   9943200   25664400   41392800   57718800   73447200   89168400
+ 104896800  ..."
+close(3)
+	return value: 0
+pwrite(1, "--rw-rw-r-- M 9 rob rob 2519 Mar 22 10:29 lib/profile
+", 54, -1)
+--rw-rw-r-- M 9 rob rob 2519 Mar 22 10:29 lib/profile
+	return value: 54
+\&...
+166: breakpoint	_exits+0x5	INTB	$0x40
+acid: cont()
+.EE
+.SH FILES
+.B /usr/local/plan9/acid/$objtype
+.br
+.B /usr/local/plan9/acid/port
+.br
+.B /usr/local/plan9/acid/kernel
+.br
+.B /usr/local/plan9/acid/trump
+.br
+.B /usr/local/plan9/acid/truss
+.br
+.B $home/lib/acid
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/acid
+.SH "SEE ALSO"
+.IR mk (1),
+.IR db (1)
+.br
+Phil Winterbottom,
+``Acid Manual''.
+.SH DIAGNOSTICS
+At termination, kill commands are proposed
+for processes that are still active.
+.SH BUGS
+There is no way to redirect the standard input and standard output
+of a new process.
+.br
+Source line selection near the beginning of a file may pick
+an adjacent file.
+.br
+With the extant stepping commands, one cannot step through instructions
+outside the text segment and it is hard to debug across process forks.
+.br
+Breakpoints do not work yet.
+Therefore, commands such as
+.BR step ,
+.BR new ,
+and
+.B truss
+do not work either.
+.B New
+in particular will need some help to cope with dynamic libraries.
