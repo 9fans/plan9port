@@ -34,6 +34,8 @@ char Fdprefix[]="/dev/fd/";
 void execfinit(void);
 void execbind(void);
 void execmount(void);
+void execulimit(void);
+void execumask(void);
 builtin Builtin[]={
 	"cd",		execcd,
 	"whatis",	execwhatis,
@@ -45,6 +47,8 @@ builtin Builtin[]={
 	".",		execdot,
 	"finit",	execfinit,
 	"flag",		execflag,
+	"ulimit",	execulimit,
+	"umask",	execumask,
 	0
 };
 #define	SEP	'\1'

@@ -17,6 +17,7 @@ OFILES=\
 	subr.$O\
 	trap.$O\
 	tree.$O\
+	unixcrap.$O\
 	var.$O\
 	y.tab.$O\
 	plan9ish.$O\
