@@ -7,9 +7,6 @@ HFILES=plot.h\
 
 LIB=libplot.a
 
-SHORTLIB=frame draw bio 9
-LDFLAGS=$LDFLAGS -L$X11/lib -lX11
-
 <$PLAN9/src/mkone
 
 $LIB:

@@ -9,6 +9,5 @@ OFILES=\
 
 HFILES=diff.h
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone
 

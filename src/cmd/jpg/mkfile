@@ -19,9 +19,6 @@ IMFILES=\
 
 HFILES=imagefile.h\
 
-SHORTLIB=draw flate bio 9
-LDFLAGS=$LDFLAGS -L$X11/lib -lX11
-
 <$PLAN9/src/mkmany
 
 $O.jpg:		$IMFILES readjpg.$O jpg.$O

@@ -22,7 +22,6 @@ YFILES=grap.y\
 
 LFILES=grapl.lx\
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone
 YFLAGS = -d -S
 LEX=9lex

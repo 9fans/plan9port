@@ -25,7 +25,6 @@ OFILES=\
 
 HFILES=dat.h
 
-SHORTLIB=auth authsrv sec mp 9p thread 9
 <$PLAN9/src/mkone
 
 $O.test: test.$O

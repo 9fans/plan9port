@@ -14,7 +14,6 @@ OFILES =\
 
 
 TARG=aescbc secstore
-SHORTLIB=sec mp regexp9 thread bio 9
 
 <$PLAN9/src/mkmany
 

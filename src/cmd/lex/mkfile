@@ -11,15 +11,6 @@ HFILES=ldefs.h\
 
 YFILES=parser.y\
 
-SHORTLIB=bio 9
-UPDATE=\
-	mkfile\
-	$HFILES\
-	lmain.c\
-	sub1.c\
-	sub2.c\
-	header.c
-
 <$PLAN9/src/mkone
 
 installall:V:

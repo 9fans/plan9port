@@ -26,6 +26,5 @@ HFILES=sam.h\
 	errors.h\
 	mesg.h\
 
-SHORTLIB=plumb 9
 
 <$PLAN9/src/mkone

@@ -18,7 +18,6 @@ HFILES=\
 	../../libmach/stabs.h\
 
 CFLAGS=-I../../libmach $CFLAGS
-SHORTLIB=mach bio 9
 
 <$PLAN9/src/mkone
 

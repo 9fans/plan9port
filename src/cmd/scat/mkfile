@@ -18,9 +18,7 @@ OFILES=scat.$O\
 
 HFILES=sky.h
 CFLAGS=$CFLAGS -I../map
-LDFLAGS=$LDFLAGS -L$X11/lib -lX11
 
-SHORTLIB=draw bio 9
 LIB=../map/libmap/libmap.a
 <$PLAN9/src/mkone
 

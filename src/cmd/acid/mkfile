@@ -19,7 +19,6 @@ YFILES=dbg.y
 HFILES=acid.h
 
 
-SHORTLIB=mach regexp9 bio 9
 
 <$PLAN9/src/mkone
 

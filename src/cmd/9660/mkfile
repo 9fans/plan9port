@@ -22,7 +22,6 @@ DFILES=\
 
 HFILES=iso9660.h
 
-SHORTLIB=sec disk bio 9
 <$PLAN9/src/mkmany
 
 $O.dump9660: $DFILES

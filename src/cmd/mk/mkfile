@@ -16,9 +16,11 @@ OFILES=\
 	mk.$O\
 	parse.$O\
 	recipe.$O\
+	rc.$O\
 	rule.$O\
 	run.$O\
 	sh.$O\
+	shell.$O\
 	shprint.$O\
 	symtab.$O\
 	var.$O\
@@ -30,7 +32,6 @@ HFILES=\
 	mk.h\
 	fns.h\
 
-SHORTLIB=regexp9 bio 9
 
 <$PLAN9/src/mkone
 

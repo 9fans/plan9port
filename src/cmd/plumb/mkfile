@@ -1,7 +1,6 @@
 <$PLAN9/src/mkhdr
 
 TARG=plumber plumb
-SHORTLIB=plumb fs mux thread regexp9 bio 9
 
 <$PLAN9/src/mkmany
 

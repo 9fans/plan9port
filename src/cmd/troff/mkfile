@@ -26,7 +26,6 @@ HFILES=tdef.h\
 	dwbinit.h\
 
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone
 CFLAGS=-c -DUNICODE
 

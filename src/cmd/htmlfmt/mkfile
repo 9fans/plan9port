@@ -10,7 +10,6 @@ HFILES=\
 	dat.h\
 	$PLAN9/include/html.h\
 
-SHORTLIB=bio regexp9 html 9
 
 <$PLAN9/src/mkone
 

@@ -12,7 +12,6 @@ OFILES=tcs.$O\
 	ksc.$O\
 	big5.$O
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone
 CFLAGS= -DPLAN9 $CFLAGS
 

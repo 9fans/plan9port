@@ -9,7 +9,6 @@ OFILES=\
 HFILES=\
 	dat.h\
 
-SHORTLIB=bio 9
 
 <$PLAN9/src/mkone
 

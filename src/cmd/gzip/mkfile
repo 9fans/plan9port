@@ -10,6 +10,5 @@ TARG=\
 	zip\
 	unzip\
 
-SHORTLIB=flate bio 9
 
 <$PLAN9/src/mkmany

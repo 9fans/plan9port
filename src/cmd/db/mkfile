@@ -18,7 +18,6 @@ OFILES=\
 HFILES=defs.h\
 	fns.h\
 
-SHORTLIB=mach bio 9
 
 <$PLAN9/src/mkone
 

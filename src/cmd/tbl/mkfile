@@ -28,5 +28,4 @@ OFILES=\
 HFILES=\
 	t.h\
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone

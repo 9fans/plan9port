@@ -23,7 +23,6 @@ HFILES=pic.h\
 
 YFILES=picy.y\
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone
 YFLAGS=-S -d
 LEX=9lex

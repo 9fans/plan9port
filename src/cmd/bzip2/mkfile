@@ -13,7 +13,6 @@ HFILES=\
 
 LIB=lib/libbzip2.a
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkmany
 
 CFLAGS=$CFLAGS -DPLAN9 -Ilib

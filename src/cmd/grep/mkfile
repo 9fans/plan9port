@@ -15,5 +15,4 @@ OFILES=\
 
 YFILES=grep.y\
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone

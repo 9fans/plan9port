@@ -6,7 +6,6 @@ LIBFILES=\
 	fs\
 	pack\
 
-SHORTLIB=venti sec mux thread bio 9
 LIB=${LIBFILES:%=%.$O}
 
 HFILES=\
@@ -17,15 +16,7 @@ HFILES=\
 	dat.h\
 	fns.h\
 
-TARG=vac vtdump
-
-CFILES=${TARG:%=%.c} ${LIBFILES:%=%.c} srcload.c vactest.c
-
-UPDATE=\
-	mkfile\
-	$CFILES\
-	$HFILES\
-	${TARG:%=/386/bin/%}
+TARG=vac # vtdump
 
 default:V: all
 

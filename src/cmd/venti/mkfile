@@ -32,7 +32,6 @@ LIBOFILES=\
 SLIB=libvs.a
 
 LIB=$SLIB
-SHORTLIB=venti httpd bin sec thread 9
 
 HFILES=	dat.h\
 	fns.h\

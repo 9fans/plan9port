@@ -30,7 +30,6 @@ YFILES=eqn.y\
 HFILES=e.h\
 	y.tab.h\
 
-SHORTLIB=bio 9
 <$PLAN9/src/mkone
 
 YFLAGS=-d -S

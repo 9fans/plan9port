@@ -1,10 +1,8 @@
 <$PLAN9/src/mkhdr
 
-SHORTLIB=draw bio 9
 
 TARG=mnihongo
 OFILES=mnihongo.$O
 
 <$PLAN9/src/mkone
 
-LDFLAGS=$LDFLAGS -L$X11/lib -lX11
