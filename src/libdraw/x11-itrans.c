@@ -477,7 +477,8 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 		qunlock(&clip.lk);
 	}else{
 		name = XGetAtomName(xd, xe->target);
-		fprint(2, "%s: cannot handle selection request for '%s' (%d)\n", argv0, name, (int)xe->target);
+		if(strcmp(name, "TIMESTAMP") != 0)
+			fprint(2, "%s: cannot handle selection request for '%s' (%d)\n", argv0, name, (int)xe->target);
 		r.xselection.property = None;
 	}
 
