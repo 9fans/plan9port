@@ -149,6 +149,7 @@ main(int arc, char *arv[]){
 	fd = dup(0, -1);		/* because openpl will close 0! */
 	dflag=0;
 	oflag="";
+	winsize = "512x512";
 	for(i=1;i!=arc;i++) if(arv[i][0]=='-') switch(arv[i][1]){
 	case 'd': dflag=1; break;
 	case 'o': oflag=arv[i]+2; break;
@@ -168,7 +169,6 @@ main(int arc, char *arv[]){
 			case 'D': break;
 			case 'd': break;
 			case 'o': break;
-			case 'W': break;
 			case 's': break;
 			case 'e': erase(); break;
 			case 'C': closepl(); break;
@@ -177,6 +177,7 @@ main(int arc, char *arv[]){
 			case 'f': cfill(ap+1); break;
 			case 'p': pen(ap+1); break;
 			case 'g': grade(atof(ap+1)); break;
+			case 'W': winsize = ap+1; break;
 			}
 		}
 		else if ((bp = Bopen(arv[1], OREAD)) == 0) {

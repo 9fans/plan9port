@@ -526,6 +526,8 @@ char *getsnarf(void);
 void putsnarf(char*);
 
 void drawtopwindow(void);
+void drawresizewindow(Rectangle);
+extern char *winsize;
 
 /*
  * Port magic.

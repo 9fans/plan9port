@@ -6,7 +6,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: img [file]\n");
+	fprint(2, "usage: img [-W winsize] [file]\n");
 	exits("usage");
 }
 
@@ -29,6 +29,9 @@ main(int argc, char **argv)
 	Event e;
 
 	ARGBEGIN{
+	case 'W':
+		winsize = EARGF(usage());
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -47,6 +50,8 @@ main(int argc, char **argv)
 
 	if((image=readimage(display, fd, 0)) == nil)
 		sysfatal("readimage: %r");
+
+	drawresizewindow(Rect(0,0,Dx(image->r),Dy(image->r)));
 
 	einit(Emouse|Ekeyboard);
 	eresized(0);

@@ -172,12 +172,26 @@ void	drawall(void);
 void	tclose1(Thing*);
 
 void
+usage(void)
+{
+	fprint(2, "usage: tweak [-W winsize] file...\n");
+	exits("usage");
+}
+
+void
 main(int argc, char *argv[])
 {
 	int i;
 	Event e;
 	Thing *t;
 
+	ARGBEGIN{
+	case 'W':
+		winsize = EARGF(usage());
+		break;
+	default:
+		usage();
+	}ARGEND
 	mag = Mag;
 	if(initdraw(error, 0, "tweak") < 0){
 		fprint(2, "tweak: initdraw failed: %r\n");
@@ -191,7 +205,7 @@ main(int argc, char *argv[])
 	}
 	einit(Emouse|Ekeyboard);
 	eresized(0);
-	i = 1;
+	i = 0;
 	setjmp(err);
 	for(; i<argc; i++){
 		file = argv[i];

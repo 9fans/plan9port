@@ -13,6 +13,8 @@ typedef struct VtSconn VtSconn;
 struct VtSconn
 {
 	int ctl;
+	int ref;
+	QLock lk;
 	char dir[NETPATHLEN];
 	VtSrv *srv;
 	VtConn *c;
@@ -28,6 +30,27 @@ struct VtSrv
 
 static void listenproc(void*);
 static void connproc(void*);
+
+static void
+scincref(VtSconn *sc)
+{
+	qlock(&sc->lk);
+	sc->ref++;
+	qunlock(&sc->lk);
+}
+
+static void
+scdecref(VtSconn *sc)
+{
+	qlock(&sc->lk);
+	if(--sc->ref > 0){
+		qunlock(&sc->lk);
+		return;
+	}
+	if(sc->c)
+		vtfreeconn(sc->c);
+	vtfree(sc);
+}
 
 VtSrv*
 vtlisten(char *addr)
@@ -55,14 +78,13 @@ listenproc(void *v)
 
 	srv = v;
 	for(;;){
-fprint(2, "listen for venti\n");
 		ctl = listen(srv->adir, dir);
 		if(ctl < 0){
 			srv->dead = 1;
 			break;
 		}
-fprint(2, "got one\n");
 		sc = vtmallocz(sizeof(VtSconn));
+		sc->ref = 1;
 		sc->ctl = ctl;
 		sc->srv = srv;
 		strcpy(sc->dir, dir);
@@ -82,8 +104,8 @@ connproc(void *v)
 	int fd;
 
 	r = nil;
-	c = nil;
 	sc = v;
+	sc->c = nil;
 	fprint(2, "new call %s on %d\n", sc->dir, sc->ctl);
 	fd = accept(sc->ctl, sc->dir);
 	close(sc->ctl);
@@ -122,7 +144,9 @@ connproc(void *v)
 			break;
 		r->rx.tag = r->tx.tag;
 		r->sc = sc;
+		scincref(sc);
 		if(_vtqsend(sc->srv->q, r) < 0){
+			scdecref(sc);
 			fprint(2, "hungup queue\n");
 			break;
 		}
@@ -136,10 +160,8 @@ out:
 		vtfcallclear(&r->tx);
 		vtfree(r);
 	}
-	if(c)
-		vtfreeconn(c);
 	fprint(2, "freed %s\n", sc->dir);
-	vtfree(sc);
+	scdecref(sc);
 	return;
 }
 
@@ -167,6 +189,7 @@ vtrespond(VtReq *r)
 		return;
 	}
 	vtsend(sc->c, p);
+	scdecref(sc);
 	vtfcallclear(&r->tx);
 	vtfcallclear(&r->rx);
 	vtfree(r);

@@ -109,21 +109,20 @@ xnet(int first)
 	totinb = 0;
 	totoub = 0;
 	for(i=0; i<nline; i++){
+		if((q = strchr(line[i], ':')) != nil)
+			*q = ' ';
 		tokens(i);
 		if(ntok < 8+8)
 			continue;
 		if(strncmp(tok[0], "eth", 3) != 0)
 			continue;
-		q = strchr(tok[0], ':');
-		*q++ = 0;
-		tok[0] = q;
-		inb = atoll(tok[0]);
-		oub = atoll(tok[8]);
-		in = atoll(tok[1]);
-		ou = atoll(tok[9]);
+		inb = atoll(tok[1]);
+		oub = atoll(tok[9]);
+		in = atoll(tok[2]);
+		ou = atoll(tok[10]);
 		b = inb+oub;
 		p = in+ou;
-		e = atoll(tok[2])+atoll(tok[10]);
+		e = atoll(tok[3])+atoll(tok[11]);
 		totb += b;
 		totp += p;
 		tote += e;

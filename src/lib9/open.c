@@ -1,3 +1,4 @@
+#define _GNU_SOURCE	/* for Linux O_DIRECT */
 #include <u.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
@@ -15,6 +16,10 @@ p9open(char *name, int mode)
 	if(mode&OTRUNC){
 		umode |= O_TRUNC;
 		mode ^= OTRUNC;
+	}
+	if(mode&ODIRECT){
+		umode |= O_DIRECT;
+		mode ^= ODIRECT;
 	}
 	if(mode){
 		werrstr("mode not supported");

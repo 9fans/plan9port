@@ -42,12 +42,22 @@ eresized(int new)
 }
 
 void
+usage(void)
+{
+	fprint(2, "usage: ppm -39cdektv -W winsize [file.ppm ...]\n");
+	exits("usage");
+}
+
+void
 main(int argc, char *argv[])
 {
 	int fd, i;
 	char *err;
 
 	ARGBEGIN{
+	case 'W':
+		winsize = EARGF(usage());
+		break;
 	case '3':		/* produce encoded, compressed, three-color bitmap file; no display by default */
 		threeflag++;
 		/* fall through */
@@ -87,8 +97,7 @@ main(int argc, char *argv[])
 			outchan = CMAP8;
 		break;
 	default:
-		fprint(2, "usage: ppm -39cdektv  [file.ppm ...]\n");
-		exits("usage");
+		usage();
 	}ARGEND;
 
 	err = nil;

@@ -46,6 +46,13 @@ eresized(int new)
 }
 
 void
+usage(void)
+{
+	fprint(2, "usage: jpg -39cdefFkJrtv -W winsize [file.jpg ...]\n");
+	exits("usage");
+}
+
+void
 main(int argc, char *argv[])
 {
 	int fd, i, yflag;
@@ -54,6 +61,9 @@ main(int argc, char *argv[])
 
 	yflag = 0;
 	ARGBEGIN{
+	case 'W':
+		winsize = EARGF(usage());
+		break;
 	case 'c':		/* produce encoded, compressed, bitmap file; no display by default */
 		cflag++;
 		dflag++;
@@ -110,8 +120,7 @@ main(int argc, char *argv[])
 			outchan = CMAP8;
 		break;
 	default:
-		fprint(2, "usage: jpg -39cdefFkJrtv [file.jpg ...]\n");
-		exits("usage");
+		usage();
 	}ARGEND;
 
 	if(yflag==0 && dflag==0 && colorspace==CYCbCr){	/* see if we should convert right to RGB */

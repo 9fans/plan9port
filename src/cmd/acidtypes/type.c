@@ -463,7 +463,7 @@ ttt=ttt->sub;
 					name, nameof(tt, 0));
 				Bprint(b, "\tindent_%s(addr+%lud, indent+\"  \");\n",
 					nameof(tt, 1), t->val[j]);
-				Bprint(b, "\tprint(indent, \"\t}\\n\");\n");
+				Bprint(b, "\tprint(indent, \"}\\n\");\n");
 				break;
 			}
 		}

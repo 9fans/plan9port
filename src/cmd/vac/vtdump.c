@@ -87,10 +87,12 @@ threadmain(int argc, char *argv[])
 		Bprint(bout, "prev: %V\n", root.prev);
 	}
 
+fprint(2, "read...\n");
 	n = vtread(z, root.score, VtDirType, buf, bsize);
 	if(n < 0)
 		sysfatal("could not read root dir");
 
+fprint(2, "...\n");
 	/* fake up top level source */
 	memset(&source, 0, sizeof(source));
 	memmove(source.score, root.score, VtScoreSize);

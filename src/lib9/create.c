@@ -1,3 +1,4 @@
+#define _GNU_SOURCE	/* for Linux O_DIRECT */
 #include <u.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
@@ -25,6 +26,10 @@ p9create(char *path, int mode, ulong perm)
 	}else{
 		umode = (mode&3)|O_CREAT|O_TRUNC;
 		mode &= ~(3|OTRUNC);
+		if(mode&ODIRECT){
+			umode |= O_DIRECT;
+			mode &= ~ODIRECT;
+		}
 		if(mode&OEXCL){
 			umode |= O_EXCL;
 			mode &= ~OEXCL;

@@ -12,7 +12,10 @@ usegcc()
 		-Wno-switch \
 		-Wno-comment \
 		-Wno-sign-compare \
+		-fno-omit-frame-pointer \
 	"
+	# want to put -fno-optimize-sibling-calls here but
+	# that option only works with gcc3+ it seems
 	cflags="$ngflags -ggdb"
 }
 

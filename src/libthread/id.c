@@ -52,20 +52,20 @@ threadgetgrp(void)
 }
 
 void
-threadsetname(char *name)
+threadsetname(char *fmt, ...)
 {
-/*
-	int fd, n;
-	char buf[128], *s;
-*/
 	Proc *p;
 	Thread *t;
+	va_list arg;
 
 	p = _threadgetproc();
 	t = p->thread;
 	if (t->cmdname)
 		free(t->cmdname);
-	t->cmdname = strdup(name);
+	va_start(arg, fmt);
+	t->cmdname = vsmprint(fmt, arg);
+	va_end(fmt);
+
 /* Plan 9 only 
 	if(p->nthreads == 1){
 		snprint(buf, sizeof buf, "#p/%d/args", getpid());

@@ -258,7 +258,7 @@ Bgeticon(Biobuf *b, Icon *icon)
 void
 usage(void)
 {
-	fprint(2, "usage: %s [file]\n", argv0);
+	fprint(2, "usage: %s -W winsize [file]\n", argv0);
 	exits("usage");
 }
 
@@ -444,6 +444,9 @@ main(int argc, char **argv)
 	Event e;
 
 	ARGBEGIN{
+	case 'W':
+		winsize = EARGF(usage());
+		break;
 	case 'd':
 		debug = 1;
 		break;

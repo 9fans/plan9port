@@ -11,6 +11,9 @@
 #include <cursor.h>
 #include "x11-memdraw.h"
 
+char *winsize;
+static int parsewinsize(char*, Rectangle*, int*);
+
 static Memimage	*xattach(char*);
 static void	plan9cmap(void);
 static int	setupcmap(XWindow);
@@ -180,7 +183,7 @@ static Memimage*
 xattach(char *label)
 {
 	char *argv[2], *disp;
-	int i, n, xrootid;
+	int i, n, xrootid, havemin;
 	Rectangle r;
 	XClassHint classhint;
 	XDrawable pmid;
@@ -318,8 +321,14 @@ xattach(char *label)
 	 * This is arbitrary.  In theory we should read the
 	 * command line and allow the traditional X options.
 	 */
-	r = Rect(0, 0, WidthOfScreen(xscreen)*3/4,
+	if(winsize){
+		if(parsewinsize(winsize, &r, &havemin) < 0)
+			sysfatal("%r");
+	}else{
+		r = Rect(0, 0, WidthOfScreen(xscreen)*3/4,
 			HeightOfScreen(xscreen)*3/4);
+		havemin = 0;
+	}
 
 	memset(&attr, 0, sizeof attr);
 	attr.colormap = _x.cmap;
@@ -353,7 +362,14 @@ xattach(char *label)
 	name.nitems = strlen((char*)name.value);
 
 	memset(&normalhint, 0, sizeof normalhint);
-	normalhint.flags = USSize|PMaxSize;
+	normalhint.flags = PSize|PMaxSize;
+	if(winsize){
+		normalhint.flags &= ~PSize;
+		normalhint.flags |= USSize;
+		normalhint.width = Dx(r);
+		normalhint.height = Dy(r);
+	}
+
 	normalhint.max_width = WidthOfScreen(xscreen);
 	normalhint.max_height = HeightOfScreen(xscreen);
 
@@ -382,6 +398,15 @@ xattach(char *label)
 	);
 	XFlush(_x.display);
 
+	if(havemin){
+		XWindowChanges ch;
+
+		memset(&ch, 0, sizeof ch);
+		ch.x = r.min.x;
+		ch.y = r.min.y;
+		XConfigureWindow(_x.display, _x.drawable, CWX|CWY, &ch);
+fprint(2, "havemin %d %d\n", r.min.x, r.min.y);
+	}
 	/*
 	 * Look up clipboard atom.
 	 */
@@ -783,3 +808,73 @@ xreplacescreenimage(void)
 	return 1;
 }
 
+static int
+parsewinsize(char *s, Rectangle *r, int *havemin)
+{
+	char c, *os;
+	int i, j, k, l;
+
+	os = s;
+	*havemin = 0;
+	*r = Rect(0,0,0,0);
+	if(!isdigit(*s))
+		goto oops;
+	i = strtol(s, &s, 0);
+	if(*s == 'x'){
+		s++;
+		if(!isdigit(*s))
+			goto oops;
+		j = strtol(s, &s, 0);
+		r->max.x = i;
+		r->max.y = j;
+		if(*s == 0)
+			return 0;
+		if(*s != '@')
+			goto oops;
+
+		s++;
+		if(!isdigit(*s))
+			goto oops;
+		i = strtol(s, &s, 0);
+		if(*s != ',' && *s != ' ')
+			goto oops;
+		s++;
+		if(!isdigit(*s))
+			goto oops;
+		j = strtol(s, &s, 0);
+		if(*s != 0)
+			goto oops;
+		*r = rectaddpt(*r, Pt(i,j));
+		*havemin = 1;
+		return 0;
+	}
+
+	c = *s;
+	if(c != ' ' && c != ',')
+		goto oops;
+	s++;
+	if(!isdigit(*s))
+		goto oops;
+	j = strtol(s, &s, 0);
+	if(*s != c)
+		goto oops;
+	s++;
+	if(!isdigit(*s))
+		goto oops;
+	k = strtol(s, &s, 0);
+	if(*s != c)
+		goto oops;
+	s++;
+	if(!isdigit(*s))
+		goto oops;
+	l = strtol(s, &s, 0);
+	if(*s != 0)
+		goto oops;
+	*r = Rect(i,j,k,l);
+	*havemin = 1;
+	return 0;
+
+oops:
+	werrstr("bad syntax in window size '%s'", os);
+	return -1;
+}

@@ -29,6 +29,8 @@ File	*lastfile;
 Disk	*disk;
 long	seq;
 
+char *winsize;
+
 Rune	baddir[] = { '<', 'b', 'a', 'd', 'd', 'i', 'r', '>', '\n'};
 
 void	usage(void);
@@ -82,6 +84,10 @@ main(int argc, char *argv[])
                         argc--;
                         break;
 
+		case 'W':
+			--argc, argv++;
+			break;
+
 		default:
 			dprint("sam: unknown flag %c\n", argv[0][1]);
 			exits("usage");
@@ -101,7 +107,7 @@ main(int argc, char *argv[])
 	if(home == 0)
 		home = "/";
 	if(!dflag)
-		startup(machine, Rflag, arg, ap);
+		startup(machine, Rflag, arg, argv);
 	notify(notifyf);
 	getcurwd();
 	if(argc>1){

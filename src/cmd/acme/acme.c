@@ -96,9 +96,14 @@ threadmain(int argc, char *argv[])
 		if(loadfile == nil)
 			goto Usage;
 		break;
+	case 'W':
+		winsize = ARGF();
+		if(winsize == nil)
+			goto Usage;
+		break;
 	default:
 	Usage:
-		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile\n");
+		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile -W winsize\n");
 		exits("usage");
 	}ARGEND
 

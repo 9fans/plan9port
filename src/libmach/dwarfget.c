@@ -156,6 +156,7 @@ dwarfget128(DwarfBuf *b)
 {n1++;
 		return c;
 }
+	c &= ~0x80;
 	d = *b->p++;
 	c |= (d&0x7F)<<7;
 	if(!(d&0x80))

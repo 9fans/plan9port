@@ -167,3 +167,4 @@ HFILES=\
 %.$O: utf/%.c
 	$CC $CFLAGS utf/$stem.c
 
+rendez-Linux.$O: rendez-futex.c rendez-signal.c

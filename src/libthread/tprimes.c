@@ -52,7 +52,7 @@ threadmain(int argc, char **argv)
 		buffer = atoi(ARGF());
 		break;
 	case 'p':
-		fn=proccreate;
+		fn = proccreate;
 		break;
 	}ARGEND
 

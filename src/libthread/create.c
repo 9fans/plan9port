@@ -155,6 +155,7 @@ _newproc(void (*f)(void *arg), void *arg, uint stacksize, char *name, int grp, i
 	else
 		*_threadpq.tail = p;
 	_threadpq.tail = &p->next;
+
 	if(_threadprocs == 1)
 		_threadmultiproc();
 	_threadprocs++;

@@ -115,7 +115,7 @@ int		threadrecvfd(int);
 long		threadwrite(int, const void*, long);
 int		threadsendfd(int, int);
 int		threadsetgrp(int);	/* set thread group, return old */
-void		threadsetname(char *name);
+void		threadsetname(char *fmt, ...);
 void		threadsleep(int);
 Channel*	threadwaitchan(void);
 int	tprivalloc(void);

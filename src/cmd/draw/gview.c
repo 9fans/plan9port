@@ -1956,7 +1956,7 @@ void usage(void)
 	int i;
 	fprintf(stderr,"Usage %s [options] [infile]\n", argv0);
 	fprintf(stderr,
-"option ::= -l logfile | -m\n"
+"option ::= -W winsize | -l logfile | -m\n"
 "\n"
 "Read a polygonal line graph in an ASCII format (one x y pair per line, delimited\n"
 "by spaces with a label after each polyline), and view it interactively.  Use\n"
@@ -1980,6 +1980,9 @@ void main(int argc, char *argv[])
 	case 'm': cantmv=0;
 		break;
 	case 'l': logfil = fopen(ARGF(),"w");
+		break;
+	case 'W':
+		winsize = EARGF(usage());
 		break;
 	default: usage();
 	} ARGEND

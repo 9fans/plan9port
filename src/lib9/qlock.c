@@ -34,8 +34,10 @@ getqlp(void)
 	for(p = op+1; ; p++){
 		if(p == &ql.x[nelem(ql.x)])
 			p = ql.x;
-		if(p == op)
+		if(p == op){
+			fprint(2, "qlock: out of qlp\n");
 			abort();
+		}
 		if(_tas(&(p->inuse)) == 0){
 			ql.p = p;
 			p->next = nil;
@@ -233,8 +235,10 @@ wunlock(RWLock *q)
 	QLp *p;
 
 	lock(&q->lock);
-	if(q->writer == 0)
+	if(q->writer == 0){
+		fprint(2, "wunlock: not holding lock\n");
 		abort();
+	}
 	p = q->head;
 	if(p == nil){
 		q->writer = 0;
@@ -252,8 +256,10 @@ wunlock(RWLock *q)
 		return;
 	}
 
-	if(p->state != QueuingR)
+	if(p->state != QueuingR){
+		fprint(2, "wunlock: bad state\n");
 		abort();
+	}
 
 	/* wake waiting readers */
 	while(q->head != nil && q->head->state == QueuingR){
@@ -274,12 +280,16 @@ rsleep(Rendez *r)
 {
 	QLp *t, *me;
 
-	if(!r->l)
+	if(!r->l){
+		fprint(2, "rsleep: no lock\n");
 		abort();
+	}
 	lock(&r->l->lock);
 	/* we should hold the qlock */
-	if(!r->l->locked)
+	if(!r->l->locked){
+		fprint(2, "rsleep: not locked\n");
 		abort();
+	}
 
 	/* add ourselves to the wait list */
 	me = getqlp();
@@ -309,8 +319,10 @@ rsleep(Rendez *r)
 	while((*_rendezvousp)((ulong)me, 0x23456) == ~0)
 		;
 	me->inuse = 0;
-	if(!r->l->locked)
+	if(!r->l->locked){
+		fprint(2, "rsleep: not locked after wakeup\n");
 		abort();
+	}
 }
 
 int
@@ -323,11 +335,15 @@ rwakeup(Rendez *r)
 	 * put on front so guys that have been waiting will not get starved
 	 */
 	
-	if(!r->l)
+	if(!r->l){
+		fprint(2, "rwakeup: no lock\n");
 		abort();
+	}
 	lock(&r->l->lock);
-	if(!r->l->locked)
+	if(!r->l->locked){
+		fprint(2, "rwakeup: not locked\n");
 		abort();
+	}
 
 	t = r->head;
 	if(t == nil){

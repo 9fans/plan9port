@@ -28,10 +28,15 @@ static char *exname;
 void
 getscreen(int argc, char **argv)
 {
+	int i;
 	char *t;
 
-	USED(argc);
-	USED(argv);
+	/* not exactly right */
+	for(i=0; i<argc-1; i++){
+		if(strcmp(argv[i], "-W") == 0)
+			winsize = argv[i+1];
+	}
+
 	if(initdraw(panic1, nil, "sam") < 0){
 		fprint(2, "samterm: initdraw: %r\n");
 		threadexitsall("init");

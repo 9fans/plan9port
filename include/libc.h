@@ -379,7 +379,7 @@ extern	int	netcrypt(void*, void*);
 extern	void	p9notejmp(void*, p9jmp_buf, int);
 extern	void	perror(const char*);
 extern	int	postnote(int, int, char *);
-extern	double	pow10(int);
+extern	double	p9pow10(int);
 /* extern	int	putenv(char*, char*); <stdlib.h. */
 /* extern	void	qsort(void*, long, long, int (*)(void*, void*)); <stdlib.h> */
 /* extern	int	p9setjmp(p9jmp_buf); */
@@ -417,6 +417,7 @@ extern	void	needstack(int);
 #define jmp_buf		p9jmp_buf
 #define syslog		p9syslog
 #define time		p9time
+#define pow10		p9pow10
 #endif
 
 /*
@@ -556,6 +557,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define	OTRUNC	16	/* or'ed in (except for exec), truncate file first */
 #define	OCEXEC	32	/* or'ed in, close on exec */
 #define	ORCLOSE	64	/* or'ed in, remove on close */
+#define	ODIRECT	128	/* or'ed in, bypass the cache */
 #define	OEXCL	0x1000	/* or'ed in, exclusive use (create only) */
 
 #define	AEXIST	0	/* accessible: exists */

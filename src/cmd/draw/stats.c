@@ -332,7 +332,7 @@ update1(Graph *g, long v, ulong vmax)
 void
 usage(void)
 {
-	fprint(2, "usage: stats [-O] [-S scale] [-LY] [-%s] [machine...]\n", argchars);
+	fprint(2, "usage: stats [-O] [-S scale] [-LY] [-W winsize] [-%s] [machine...]\n", argchars);
 	exits("usage");
 }
 
@@ -709,6 +709,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'O':
 		oldsystem = 1;
+		break;
+	case 'W':
+		winsize = EARGF(usage());
 		break;
 	default:
 		if(nargs>=sizeof args || strchr(argchars, ARGC())==nil)

@@ -186,7 +186,7 @@ Cursor whitearrow = {
 void
 usage(void)
 {
-	fprint(2, "usage: 9term [-ars] [cmd ...]\n");
+	fprint(2, "usage: 9term [-ars] [-W winsize] [cmd ...]\n");
 	threadexitsall("usage");
 }
 
@@ -214,6 +214,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'w':	/* started from "rio" window manager */
 		use9wm = 1;
+		break;
+	case 'W':
+		winsize = EARGF(usage());
 		break;
 	}ARGEND
 
