@@ -68,7 +68,7 @@ auth_allocrpc(void)
 		return nil;
 	rpc->afd = open("/mnt/factotum/rpc", ORDWR);
 	if(rpc->afd < 0){
-		rpc->afid = nsopen("factotum", nil, "factotum/rpc", ORDWR);
+		rpc->afid = nsopen("factotum", nil, "rpc", ORDWR);
 		if(rpc->afid == nil){
 			free(rpc);
 			return nil;
