@@ -735,12 +735,8 @@ texttype(Text *t, Rune r)
 	case 0x1B:
 		if(t->eq0 != ~0)
 			textsetselect(t, t->eq0, t->q0);
-		if(t->ncache > 0){
-			if(t->w != nil)
-				wincommit(t->w, t);
-			else
-				textcommit(t, TRUE);
-		}
+		if(t->ncache > 0)
+			typecommit(t);
 		return;
 	case 0x08:	/* ^H: erase character */
 	case 0x15:	/* ^U: erase line */
@@ -923,7 +919,7 @@ textselect(Text *t)
 		/* horrible botch: while asleep, may have lost selection altogether */
 		if(selectq > t->file->b.nc)
 			selectq = t->org + t->fr.p0;
-		t->fr.scroll = 0;
+		t->fr.scroll = nil;
 		if(selectq < t->org)
 			q0 = selectq;
 		else
