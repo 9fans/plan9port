@@ -308,7 +308,6 @@ Out:
 	unlock(&threadnproclock);
 	unlock(&p->lock);
 	free(p);
-	setproc(0);
 }
 
 void
