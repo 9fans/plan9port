@@ -5,7 +5,7 @@ PROGS=${TARG:%=$O.%}
 
 all:V:	$PROGS
 
-$O.%:	%.$O $OFILES $LIB
+$O.%:	%.$O $OFILES $LIB ${SHORTLIB:%=$LIBDIR/lib%.a}
 	$LD -o $target $prereq $LDFLAGS
 
 %.install:V:	$BIN/%
