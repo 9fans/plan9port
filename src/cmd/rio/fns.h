@@ -10,7 +10,7 @@
 
 
 /* color.c */
-unsigned long colorpixel(Display*, int, unsigned long, unsigned long);
+unsigned long colorpixel(Display*, ScreenInfo*, int, unsigned long, unsigned long);
 
 /* main.c */
 void	usage();

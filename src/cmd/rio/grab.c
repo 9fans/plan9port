@@ -420,8 +420,10 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 	c->y = py;
 	
 	/* compensate position for size changed due to size hints */
-	c->x -= spx*(c->dx - rdx);
-	c->y -= spy*(c->dy - rdy);
+	if(spx)
+		c->x -= c->dx - rdx;
+	if(spy)
+		c->y -= c->dy - rdy;
 
 	return init;
 }
@@ -441,7 +443,7 @@ drawbound(Client *c, int drawing)
 	int x, y, dx, dy;
 	ScreenInfo *s;
 
-	if (debug) fprintf(stderr, "drawbound %dx%d +%d+%d\n", c->dx, c->dy, c->x, c->y);
+	if (debug) fprintf(stderr, "drawbound %d %dx%d+%d+%d\n", drawing, c->dx, c->dy, c->x, c->y);
 	
 	s = c->screen;
 	x = c->x;
@@ -523,12 +525,12 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderOrient bl, int (*recalc)(C
 	c->y -= BORDER;
 	c->dx += 2*BORDER;
 	c->dy += 2*BORDER;
-	if (bl || e0 == 0)
+	if (bl != BorderUnknown || e0 == 0)
 		getmouse(&cx, &cy, c->screen);
 	else
 		getmouse(&c->x, &c->y, c->screen);
 	XGrabServer(dpy);
-	if (bl) {
+	if (bl != BorderUnknown) {
 		notmoved = recalc(c, cx, cy, bl, notmoved);
 	}
 	drawbound(c, 1);
@@ -545,7 +547,7 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderOrient bl, int (*recalc)(C
 					XGrabServer(dpy);
 					idle = 0;
 				}
-				if(e0 || bl)
+				if(e0 || bl != BorderUnknown)
 					notmoved = recalc(c, rx, ry, bl, notmoved);
 				else
 					notmoved = recalc(c, rx-cx, ry-cy, bl, notmoved);
@@ -615,7 +617,7 @@ sweep(Client *c, int but, XButtonEvent *ignored)
 		return 0;
 	}
 	XChangeActivePointerGrab(dpy, ButtonMask, s->boxcurs, e->time);
-	return sweepdrag(c, but, e, 0, sweepcalc);
+	return sweepdrag(c, but, e, BorderUnknown, sweepcalc);
 }
 
 int
@@ -650,7 +652,7 @@ drag(Client *c, int but)
 		graberror("drag", status); /* */
 		return 0;
 	}
-	return sweepdrag(c, but, 0, 0, dragcalc);
+	return sweepdrag(c, but, 0, BorderUnknown, dragcalc);
 }
 
 void

@@ -284,11 +284,11 @@ initscreen(ScreenInfo *s, int i, int background)
 
 	s->black = BlackPixel(dpy, i);
 	s->white = WhitePixel(dpy, i);
-	s->activeholdborder = colorpixel(dpy, s->depth, 0x000099, s->white);
-	s->inactiveholdborder = colorpixel(dpy, s->depth, 0x005DBB, s->black);
-	s->activeborder = colorpixel(dpy, s->depth ,0x55AAAA, s->black);
-	s->inactiveborder = colorpixel(dpy, s->depth, 0x9EEEEE, s->white);
-	s->red = colorpixel(dpy, s->depth, 0xDD0000, s->white);
+	s->activeholdborder = colorpixel(dpy, s, s->depth, 0x000099, s->white);
+	s->inactiveholdborder = colorpixel(dpy, s, s->depth, 0x005DBB, s->black);
+	s->activeborder = colorpixel(dpy, s, s->depth, 0x55AAAA, s->black);
+	s->inactiveborder = colorpixel(dpy, s, s->depth, 0x9EEEEE, s->white);
+	s->red = colorpixel(dpy, s, s->depth, 0xDD0000, s->white);
 	s->width = WidthOfScreen(ScreenOfDisplay(dpy, i));
 	s->height = HeightOfScreen(ScreenOfDisplay(dpy, i));
 	s->bkup[0] = XCreatePixmap(dpy, s->root, 2*s->width, BORDER, DefaultDepth(dpy, i));
@@ -313,22 +313,8 @@ initscreen(ScreenInfo *s, int i, int background)
 	gv.foreground = s->red;
 	s->gcred = XCreateGC(dpy, s->root, gmask, &gv);
 
-	gv.foreground = colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
+	gv.foreground = colorpixel(dpy, s, s->depth, 0xEEEEEE, s->black);
 	s->gcsweep = XCreateGC(dpy, s->root, gmask, &gv);
-
-	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
-	s->gcmenubg = XCreateGC(dpy, s->root, gmask, &gv);
-
-	gv.foreground = colorpixel(dpy, s->depth, 0x448844, s->black);
-	s->gcmenubgs = XCreateGC(dpy, s->root, gmask, &gv);
-
-	gv.foreground = s->black;
-	gv.background = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
-	s->gcmenufg = XCreateGC(dpy, s->root, gmask, &gv);
-
-	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
-	gv.background = colorpixel(dpy, s->depth, 0x448844, s->black);
-	s->gcmenufgs = XCreateGC(dpy, s->root, gmask, &gv);
 
 	initcurs(s);
 
@@ -346,28 +332,41 @@ initscreen(ScreenInfo *s, int i, int background)
 	} else
 		system("xsetroot -solid grey30");
 
-	attrs.border_pixel =  colorpixel(dpy, s->depth, 0x88CC88, s->black);
-	attrs.background_pixel =  colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
-	attrs.save_under = True; /* Does this help us in anyway? */
+	attrs.border_pixel =  colorpixel(dpy, s, s->depth, 0x88CC88, s->black);
+	attrs.background_pixel =  colorpixel(dpy, s, s->depth, 0xE9FFE9, s->white);
 	attrs.colormap = s->def_cmap;
 
 	s->menuwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 2,
 						s->depth,
 						CopyFromParent,
 						s->vis,
-						CWBackPixel | CWBorderPixel | CWSaveUnder|CWColormap,
+						CWBackPixel | CWBorderPixel | CWColormap,
 						&attrs
 						);
 
+
+	gv.foreground = colorpixel(dpy, s, s->depth, 0xE9FFE9, s->white);
+	s->gcmenubg = XCreateGC(dpy, s->menuwin, gmask, &gv);
+
+	gv.foreground = colorpixel(dpy, s, s->depth, 0x448844, s->black);
+	s->gcmenubgs = XCreateGC(dpy, s->menuwin, gmask, &gv);
+
+	gv.foreground = s->black;
+	gv.background = colorpixel(dpy, s, s->depth, 0xE9FFE9, s->white);
+	s->gcmenufg = XCreateGC(dpy, s->menuwin, gmask, &gv);
+
+	gv.foreground = colorpixel(dpy, s, s->depth, 0xE9FFE9, s->white);
+	gv.background = colorpixel(dpy, s, s->depth, 0x448844, s->black);
+	s->gcmenufgs = XCreateGC(dpy, s->menuwin, gmask, &gv);
+
 	attrs.border_pixel =  s->red;
-	attrs.background_pixel =  colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
-	attrs.save_under = True; /* Does this help us in anyway? */
+	attrs.background_pixel =  colorpixel(dpy, s, s->depth, 0xEEEEEE, s->black);
 	attrs.colormap = s->def_cmap;
 	s->sweepwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 4,
 						s->depth,
 						CopyFromParent,
 						s->vis,
-						CWBackPixel | CWBorderPixel | CWSaveUnder|CWColormap,
+						CWBackPixel | CWBorderPixel | CWColormap,
 						&attrs
 						);
 }

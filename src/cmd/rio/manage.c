@@ -32,6 +32,10 @@ manage(Client *c, int mapped)
 		c->is9term = 0;
 		if(isNew){
 			c->is9term = strstr(c->class, "term") || strstr(c->class, "Term");
+			if(c->is9term){
+				c->dx = 0;
+				c->dy = 0;
+			}
 			isNew = 0;
 		}
 	}

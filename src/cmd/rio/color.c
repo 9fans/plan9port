@@ -8,7 +8,7 @@
 #include "fns.h"
 
 unsigned long
-colorpixel(Display *dpy, int depth, unsigned long rgb, unsigned long def)
+colorpixel(Display *dpy, ScreenInfo *s, int depth, unsigned long rgb, unsigned long def)
 {
 	int r, g, b;
 
@@ -36,6 +36,9 @@ colorpixel(Display *dpy, int depth, unsigned long rgb, unsigned long def)
 		return (r<<11) | (g<<5) | b;
 	case 24:
 	case 32:
+		/* try to find byte order */
+		if (s->vis->red_mask & 0xff)
+			return (r) | (g<<8) | (b<<16); /* OK on Sun */
 		return rgb;
 	}
 }
