@@ -1,0 +1,30 @@
+.TH READCONS 1
+.SH NAME
+readcons \- prompt console for input
+.SH SYNOPSIS
+.B readcons 
+[
+.B -d
+.I default
+]
+[
+.B -s
+]
+.I prompt
+.SH DESCRIPTION
+.I Readcons
+prompts at the console for input, copying the typed string
+to standard output.
+If the
+.B -s
+flag is given, the input is not displayed (secret).
+If the user types an empty string (just a newline) and
+the
+.B -d
+option is given, then
+.I default
+is printed instead of an empty string.
+.SH SOURCE
+.B \*9/src/cmd/readcons.c
+.SH SEE ALSO
+.IR readcons (3)

@@ -1,6 +1,6 @@
 .TH DSA 3
 .SH NAME
-dsagen, dsasign, dsaverify, dsapuballoc, dsapubfree, dsaprivalloc, dsaprivfree, dsasigalloc, dsasigfree, dsaprivtopub - digital signature algorithm
+asn1toDSApriv, dsagen, dsasign, dsaverify, dsapuballoc, dsapubfree, dsaprivalloc, dsaprivfree, dsasigalloc, dsasigfree, dsaprivtopub - digital signature algorithm
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -39,6 +39,9 @@ void		dsasigfree(DSAsig*)
 .PP
 .B
 DSApub*	dsaprivtopub(DSApriv*)
+.PP
+.B
+DSApriv*	asn1toDSApriv(uchar *priv, int npriv)
 .SH DESCRIPTION
 .PP
 DSA is the NIST approved digital signature algorithm.  The owner of a key publishes
@@ -120,6 +123,13 @@ The routines
 and
 .I dsasigfree
 are provided to manage signature storage.
+.PP
+.I Asn1toDSApriv
+converts an ASN1 formatted DSA private key into the corresponding
+.B DSApriv
+structure; see 
+.IR rsa (3)
+for other ASN1 routines.
 .SH SOURCE
 .B \*9/src/libsec
 .SH SEE ALSO

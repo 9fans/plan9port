@@ -704,10 +704,10 @@ are intended to be proxied via
 .I auth_proxy
 (see
 .IR auth (3)).
-The protocols follow
-.IR p9any (7)
-and
-.IR p9sk1 (7).
+.\" The protocols follow
+.\" .IR p9any (7)
+.\" and
+.\" .IR p9sk1 (7).
 .\" XXX - write about how server keys are selected and used
 .\" XXX - write about protocol itself
 .\" XXX - write about server ai
@@ -1017,4 +1017,6 @@ parseable with
 .IR tokenize .
 The response is a hexadecimal string of length 32.
 .SH SOURCE
-.B \*9/src/cmd/factotum
+.B \*9/src/cmd/auth/factotum
+.SH SEE ALSO
+.IR ssh-agent (1)

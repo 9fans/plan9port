@@ -1,6 +1,6 @@
 .TH DIAL 3
 .SH NAME
-dial, announce, listen, accept, reject, netmkaddr, dialparse \- make and break network connections
+dial, announce, listen, accept, reject, netmkaddr, getnetconninfo, freenetconninfo, dialparse \- make and break network connections
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -26,12 +26,12 @@ char* netmkaddr(char *addr, char *defnet, char *defservice)
 .\" .PP
 .\" .B
 .\" void  setnetmtpt(char *to, int tolen, char *from)
-.\" .PP
-.\" .B
-.\" NetConnInfo*  getnetconninfo(char *conndir, int fd)
-.\" .PP
-.\" .B
-.\" void freenetconninfo(NetConnINfo*)
+.PP
+.B
+NetConnInfo*  getnetconninfo(char *dir, int fd)
+.PP
+.B
+void freenetconninfo(NetConnINfo*)
 .PP
 .B
 int   dialparse(char *addr, char **net, char **unix,
@@ -94,19 +94,19 @@ will try in succession all
 networks in common between source and destination
 until a call succeeds.
 It returns a file descriptor open for reading and writing the
-.B data
-file in the line directory.
-The
-.B addr
-file in the line directory contains the address called.
-.\" If the network allows the local address to be set,
-.\" as is the case with UDP and TCP port numbers, and
-.\" .IR local
-.\" is non-zero, the local address will be set to
-.\" .IR local .
+call.
+.\" .B data
+.\" file in the line directory.
+.\" The
+.\" .B addr
+.\" file in the line directory contains the address called.
+If the network allows the local address to be set,
+as is the case with UDP and TCP port numbers, and
+.IR local
+is non-zero, the local address will be set to
+.IR local .
 .IR Dial 's
-.IR local ,
-.IR dir ,
+.IR dir 
 and
 .I cfdp
 arguments
@@ -166,39 +166,41 @@ It returns a pointer to static data holding the actual address to use.
 parses a network address as described above
 into a network name, a Unix domain socket address,
 an IPv4 host address, and an IPv4 port number.
-.\" .PP
-.\" .I Getnetconninfo
-.\" returns a structure containing information about a
-.\" network connection.  The structure is:
-.\" .EX
-.\"   typedef struct NetConnInfo NetConnInfo;
-.\"   struct NetConnInfo
-.\"   {
-.\" 	char	*dir;		/* connection directory */
-.\" 	char	*root;		/* network root */
-.\" 	char	*spec;		/* binding spec */
-.\" 	char	*lsys;		/* local system */
-.\" 	char	*lserv;		/* local service */
-.\" 	char	*rsys;		/* remote system */
-.\" 	char	*rserv;		/* remote service */
-.\"   };
-.\" .EE
-.\" .PP
-.\" The information is obtained from the connection directory,
-.\" .IR conndir .
-.\" If
-.\" .I conndir
-.\" is nil, the directory is obtained by performing
-.\" .IR fd2path (3)
-.\" on
-.\" .IR fd .
-.\" .I Getnetconninfo
-.\" returns either a completely specified structure, or
-.\" nil if either the structure can't be allocated or the
-.\" network directory can't be determined.
-.\" The structure
-.\" is freed using
-.\" .IR freenetconninfo .
+.PP
+.I Getnetconninfo
+returns a structure containing information about a
+network connection.  The structure is:
+.PP
+.EX
+  typedef struct NetConnInfo NetConnInfo;
+  struct NetConnInfo
+  {
+	char	*dir;		/* connection directory */
+	char	*root;		/* network root */
+	char	*spec;		/* binding spec */
+	char	*lsys;		/* local system */
+	char	*lserv;		/* local service */
+	char	*rsys;		/* remote system */
+	char	*rserv;		/* remote service */
+	char *laddr;		/* local address */
+	char *raddr;		/* remote address */
+  };
+.EE
+.PP
+The information is obtained from the
+`line directory'
+.IR dir ,
+or if
+.I dir
+is nil, from the connection file descriptor
+.IR fd .
+.I Getnetconninfo
+returns either a completely specified structure, or
+nil if either the structure can't be allocated or the
+network directory can't be determined.
+The structure
+is freed using
+.IR freenetconninfo .
 .\" .PP
 .\" .I Setnetmtpt
 .\" copies the name of the network mount point into
@@ -307,6 +309,8 @@ bekremvax(void)
 .B \*9/src/lib9/announce.c
 .br
 .B \*9/src/lib9/_p9dialparse.c
+.br
+.B \*9/src/lib9/getnetconn.c
 .SH DIAGNOSTICS
 .IR Dial ,
 .IR announce ,

@@ -282,6 +282,8 @@ accept dial.3
 announce dial.3
 dial dial.3
 dialparse dial.3
+freenetconninfo dial.3
+getnetconninfo dial.3
 listen dial.3
 netmkaddr dial.3
 reject dial.3
@@ -340,6 +342,7 @@ stringnbg draw.3
 stringnbgop draw.3
 stringnop draw.3
 stringop draw.3
+asn1toDSApriv dsa.3
 dsa dsa.3
 dsagen dsa.3
 dsaprivalloc dsa.3

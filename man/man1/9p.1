@@ -44,6 +44,10 @@
 ]
 .B stat
 .I path
+.PP
+.B 9p
+.B rdwr
+.I path
 .SH DESCRIPTION
 .I 9p
 is a trivial 9P client that can access a single file on a 9P server.
@@ -85,6 +89,18 @@ execute
 on 
 .I path
 and print the result
+.TP
+.B rdwr
+Open
+.I path
+for reading and writing.
+Then repeat until end-of-file on standard input:
+copy a line from the file to standard output,
+copy a line from standard input to the file.
+Print errors, but don't give up.
+.B Rdwr
+is useful for interacting with servers like
+.IR factotum (4).
 .PD
 .PP
 .I 9p

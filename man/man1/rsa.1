@@ -1,4 +1,4 @@
-.TH RSA 8
+.TH RSA 1
 .SH NAME
 dsagen, rsagen, rsafill, asn12dsa, asn12rsa, dsa2pub, rsa2csr, rsa2pub, dsa2ssh, rsa2ssh, rsa2x509 \- generate and format dsa and rsa keys
 .SH SYNOPSIS
@@ -305,9 +305,9 @@ load them into factotum,
 and configure a remote Unix system to allow those keys for logins:
 .IP
 .EX
-rsagen -t 'service=ssh' >rsa1
-rsagen -t 'service=ssh-rsa' >rsa2
-dsagen -t 'service=ssh-dss' >dsa2
+rsagen -t 'service=ssh role=decrypt' >rsa1
+rsagen -t 'service=ssh-rsa role=sign' >rsa2
+dsagen -t 'service=ssh-dss role=sign' >dsa2
 .EE
 .PP
 Convert existing Unix SSH version 2 keys instead of generating new ones:
