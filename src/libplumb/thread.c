@@ -6,7 +6,7 @@
 #include "plumb.h"
 
 Plumbmsg*
-threadplumbrecv(int fd)
+ioplumbrecv(Ioproc *io, int fd)
 {
 	char *buf;
 	Plumbmsg *m;
@@ -15,7 +15,7 @@ threadplumbrecv(int fd)
 	buf = malloc(8192);
 	if(buf == nil)
 		return nil;
-	n = threadread(fd, buf, 8192);
+	n = ioread(io, fd, buf, 8192);
 	m = nil;
 	if(n > 0){
 		m = plumbunpackpartial(buf, n, &more);
@@ -24,7 +24,7 @@ threadplumbrecv(int fd)
 			buf = realloc(buf, n+more);
 			if(buf == nil)
 				return nil;
-			if(threadreadn(fd, buf+n, more) == more)
+			if(ioreadn(io, fd, buf+n, more) == more)
 				m = plumbunpackpartial(buf, n+more, nil);
 		}
 	}
