@@ -9,11 +9,13 @@ February 11, 2005
 	lib9pclient: add chatty9pclient
 	libauth: add fsamount, nsamount, authdial ndb.
 	libmach: use %#x explicitly
+	libndb: add
 	libsec: use new auth_allocrpc in tlshand
 	libthread: add threadgetname prototype
 	9l: fix libsec/lib9 cycle thanks to netcrypt
-	9p: use nsamount, fsamount
+	9p: use nsamount, fsamount; add write -l
 	9pserve: quieter, auth bug fix
+	9term: treat _ as word character
 	acid: do not set %# implicitly anymore
 		add simple pthread support via acid code
 		set corpid
@@ -21,8 +23,10 @@ February 11, 2005
 	dial: send input to net instead of back to 0
 	dict: ahd path
 	factotum: make it run and work, add secstore
+		remove top-level factotum directory
 	rc: set p->pid=-1 explicitly to avoid wait problems
 	psv: add print buttons
+	secstored: add it
 
 February 10, 2005
 	libmach: abortive attempt at pthread support via libthread_db
