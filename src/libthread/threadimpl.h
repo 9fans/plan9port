@@ -4,6 +4,12 @@ typedef struct Context Context;
 typedef struct Proc Proc;
 typedef struct _Procrendez _Procrendez;
 
+typedef struct Jmp Jmp;
+struct Jmp
+{
+	p9jmp_buf b;
+};
+
 enum
 {
 	STACK = 8192
@@ -54,6 +60,7 @@ struct Proc
 	_Procrendez	runrend;
 	Context	schedcontext;
 	void		*udata;
+	Jmp		sigjmp;
 };
 
 extern Proc *xxx;
@@ -67,4 +74,4 @@ extern Proc *_threadproc(void);
 extern void _threadsetproc(Proc*);
 extern int _threadlock(Lock*, int, ulong);
 extern void _threadunlock(Lock*, ulong);
-
+extern void _pthreadinit(void);

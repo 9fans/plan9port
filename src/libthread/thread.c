@@ -190,7 +190,7 @@ scheduler(void *v)
 
 	p = v;
 	setproc(p);
-	print("s %p %d\n", p, gettid());
+	// print("s %p %d\n", p, gettid());
 	p->tid = pthread_self();
 	pthread_detach(p->tid);
 	lock(&p->lock);
@@ -503,6 +503,13 @@ threadmainstart(void *v)
 	threadmain(threadargc, threadargv);
 }
 
+extern Jmp *(*_notejmpbuf)(void);
+static Jmp*
+threadnotejmp(void)
+{
+	return &proc()->sigjmp;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -524,8 +531,9 @@ main(int argc, char **argv)
 	_wunlock = threadwunlock;
 	_rsleep = threadrsleep;
 	_rwakeup = threadrwakeup;
+	_notejmpbuf = threadnotejmp;
 
-	pthreadinit();
+	_pthreadinit();
 	p = procalloc();
 	if(mainstacksize == 0)
 		mainstacksize = 65536;

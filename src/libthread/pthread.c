@@ -101,7 +101,7 @@ _threadsetproc(Proc *p)
 }
 
 void
-pthreadinit(void)
+_pthreadinit(void)
 {
 	pthread_key_create(&prockey, 0);
 }
