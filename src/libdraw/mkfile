@@ -42,6 +42,7 @@ OFILES=\
 	rectclip.$O\
 	replclipr.$O\
 	rgb.$O\
+	scroll.$O\
 	string.$O\
 	stringbg.$O\
 	stringsubfont.$O\
