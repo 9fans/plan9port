@@ -74,7 +74,7 @@ initkeyboard(char *file)
 	if(kc == nil)
 		return nil;
 	kc->c = chancreate(sizeof(Rune), 20);
-	threadcreate(_ioproc, kc, 16384);
+	threadcreate(_ioproc, kc, 32768);
 	return kc;
 }
 

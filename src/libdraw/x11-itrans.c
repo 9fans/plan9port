@@ -21,6 +21,7 @@ __xtoplan9kbd(XEvent *e)
 
 	if(e->xany.type != KeyPress)
 		return -1;
+	needstack(20*1024);	/* X has some *huge* buffers in openobject */
 	XLookupString((XKeyEvent*)e,NULL,0,&k,NULL);
 	if(k == XK_Multi_key || k == NoSymbol)
 		return -1;
