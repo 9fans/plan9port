@@ -38,7 +38,7 @@ all: $(TARG)
 
 TGZFILES+=mk.pdf
 
-install: $(LIB)
+install: $(TARG)
 	mkdir -p $(PREFIX)/bin
 	install -m 0755 mk $(PREFIX)/bin/mk
 	cat mk.1 | sed 's;DOCPREFIX;$(PREFIX);g' >mk.1a
