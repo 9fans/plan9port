@@ -1,5 +1,6 @@
 #!/bin/sh
 
+test -f $PLAN9/config && . $PLAN9/config
 usegcc()
 {
 	cc=gcc

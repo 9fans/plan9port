@@ -1,5 +1,6 @@
 #!/bin/sh
 
+test -f $PLAN9/config && . $PLAN9/config
 libsl=""
 
 doautolib=true
@@ -173,7 +174,7 @@ case "$tag" in
 *Linux*)
 	ld=gcc
 	extralibs="$extralibs -lutil"
-	case "`uname -r`" in
+	case "${SYSVERSION:-`uname -r`}" in
 	2.6.*)
 		extralibs="$extralibs -lpthread"
 		;;
