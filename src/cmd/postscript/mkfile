@@ -1,0 +1,25 @@
+<$PLAN9/src/mkhdr
+
+<config
+
+DIRS=\
+	common\
+	tr2post\
+	download\
+#	cropmarks\
+#	grabit\
+#	hardcopy\
+#	mpictures\
+#	postgif\
+#	postprint\
+#	postreverse\
+#	posttek\
+#	printfont\
+#	psencoding\
+#	psfiles\
+#	g3p9bit\
+#	p9bitpost\
+#	tcpostio\
+#	text2post\
+
+<$PLAN9/src/mkdirs

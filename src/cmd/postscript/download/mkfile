@@ -1,0 +1,25 @@
+<$PLAN9/src/mkhdr
+
+<../config
+TARG=psdownload
+
+OFILES=download.$O
+
+COMMONDIR=../common
+
+HFILES=download.h\
+	$COMMONDIR/comments.h\
+	$COMMONDIR/gen.h\
+	$COMMONDIR/path.h\
+	$COMMONDIR/ext.h\
+
+LIB=$COMMONDIR/com.a
+BIN=$POSTBIN
+
+<$PLAN9/src/mkone
+CFLAGS=-c -D$SYSTEM -D_POSIX_SOURCE -I$COMMONDIR
+
+$LIB:
+	cd $COMMONDIR
+	mk install
+	mk clean

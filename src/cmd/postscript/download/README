@@ -1,0 +1,11 @@
+
+A simple program that scans PostScript files for %%DocumentFonts:
+comments and prepends requested host resident font files to the
+input. Written for Unix 4.0 lp.
+
+Downloaded fonts are the ones named in the %%DocumentFonts: comment
+and listed in a special map file (which can be selected using the
+-m option). See example.map and comments in download.c for examples
+of map files. By default map files and font files are in *hostfontdir.
+It's initialized using HOSTDIR (file ../common/path.h).
+
