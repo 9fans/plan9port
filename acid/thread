@@ -61,11 +61,6 @@ defn alt(A){
 	print(altfmt(A), "\n");
 }
 
-threadignsrc = {
-	"plan9/src/libc",
-	"plan9/src/libthread",
-};
-
 defn fnname(a){
 	local sym, s;
 
@@ -100,7 +95,7 @@ defn threadstkline(T){
 		pc = frame[2];
 		pc0 = frame[0];
 		file = pcfile(pc);
-		if !regexp("plan9/src/libc/", file)
+		if !regexp("plan9/src/lib9/", file)
 		&& !regexp("plan9/src/libthread/", file) 
 		&& match(file, stkignore)==-1 then
 			stop = 1;
@@ -234,7 +229,8 @@ defn lproc(P){
 
 threadstkignore = {
 	"plan9/src/libthread/",
-	"plan9/src/libc/(386|arm|alpha|sparc|power|mips)/"
+	"plan9/src/lib9/",
+	"plan9/src/lib9/(fmt|utf)/",
 };
 defn threadstks(P){
 	complex Proc P;

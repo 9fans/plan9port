@@ -37,6 +37,9 @@ struct PtraceRegs
 static int ptracerw(Map*, Seg*, ulong, void*, uint, int);
 static int ptraceregrw(Regs*, char*, ulong*, int);
 
+static int attachedpids[1000];
+static int nattached;
+
 void
 unmapproc(Map *map)
 {
@@ -55,21 +58,36 @@ unmapproc(Map *map)
 int
 mapproc(int pid, Map *map, Regs **rp)
 {
+	int i;
 	Seg s;
 	PtraceRegs *r;
 
-	if(ptrace(PTRACE_ATTACH, pid, 0, 0) < 0)
-	if(ptrace(PTRACE_PEEKUSER, pid, 0, 0) < 0)
+	if(nattached==1 && attachedpids[0] == pid)
+		goto already;
+	if(nattached)
+		detachproc(attachedpids[0]);
+
+	for(i=0; i<nattached; i++)
+		if(attachedpids[i]==pid)
+			goto already;
+	if(nattached == nelem(attachedpids)){
+		werrstr("attached to too many processes");
+		return -1;
+	}
+
 	if(ptrace(PTRACE_ATTACH, pid, 0, 0) < 0){
 		werrstr("ptrace attach %d: %r", pid);
 		return -1;
 	}
-
+	
 	if(ctlproc(pid, "waitstop") < 0){
+		fprint(2, "waitstop: %r");
 		ptrace(PTRACE_DETACH, pid, 0, 0);
 		return -1;
 	}
+	attachedpids[nattached++] = pid;
 
+already:
 	memset(&s, 0, sizeof s);
 	s.base = 0;
 	s.size = 0xFFFFFFFF;
@@ -78,11 +96,15 @@ mapproc(int pid, Map *map, Regs **rp)
 	s.file = nil;
 	s.rw = ptracerw;
 	s.pid = pid;
-	if(addseg(map, s) < 0)
+	if(addseg(map, s) < 0){
+		fprint(2, "addseg: %r\n");
 		return -1;
+	}
 
-	if((r = mallocz(sizeof(PtraceRegs), 1)) == nil)
+	if((r = mallocz(sizeof(PtraceRegs), 1)) == nil){
+		fprint(2, "mallocz: %r\n");
 		return -1;
+	}
 	r->r.rw = ptraceregrw;
 	r->pid = pid;
 	*rp = (Regs*)r;
@@ -92,6 +114,14 @@ mapproc(int pid, Map *map, Regs **rp)
 int
 detachproc(int pid)
 {
+	int i;
+
+	for(i=0; i<nattached; i++){
+		if(attachedpids[i] == pid){
+			attachedpids[i] = attachedpids[--nattached];
+			break;
+		}
+	}
 	return ptrace(PTRACE_DETACH, pid, 0, 0);
 }
 
@@ -367,9 +397,14 @@ ctlproc(int pid, char *msg)
 		if(isstopped(pid))
 			return 0;
 		for(;;){
-			p = waitpid(pid, &status, WUNTRACED);
-			if(p <= 0)
+			p = waitpid(pid, &status, WUNTRACED|__WALL);
+			if(p <= 0){
+				if(errno == ECHILD){
+					if(isstopped(pid))
+						return 0;
+				}
 				return -1;
+			}
 			if(WIFEXITED(status) || WIFSTOPPED(status))
 				return 0;
 		}

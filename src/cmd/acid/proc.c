@@ -30,7 +30,7 @@ sproc(int xpid)
 	correg = nil;
 
 	if(mapproc(xpid, cormap, &correg) < 0)
-		error("setproc %d: %r", pid);
+		error("setproc %d: %r", xpid);
 
 	/* XXX check text file here? */
 
@@ -163,6 +163,17 @@ install(int pid)
 	l->next = s->v->store.u.l;
 	s->v->store.u.l = l;
 	s->v->set = 1;
+}
+
+static int
+installed(int pid)
+{
+	int i;
+
+	for(i=0; i<Maxproc; i++)
+		if(ptab[i].pid == pid)
+			return 1;
+	return 0;
 }
 
 void

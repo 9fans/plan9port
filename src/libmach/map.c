@@ -174,7 +174,7 @@ get8(Map *map, ulong addr, u64int *u)
 {
 	u64int v;
 
-	if(mrw(map, addr, &v, 4, 1) < 0)
+	if(mrw(map, addr, &v, 8, 1) < 0)
 		return -1;
 	*u = mach->swap8(v);
 	return 8;

@@ -54,7 +54,7 @@ _p9uproc(int inhandler)
 	while((up = mallocz(sizeof(Uproc), 1)) == nil)
 		sleep(1000);
 
-//fprint(2, "alloc uproc for pid %d\n", pid);
+	/* fprint(2, "alloc uproc for pid %d\n", pid); */
 	up->pid = pid;
 	lock(&uproclock);
 	h = pid%PIDHASH;
@@ -82,7 +82,7 @@ _p9uprocdie(void)
 	int pid, i, h;
 
 	pid = getpid();
-fprint(2, "reap uproc for pid %d\n", pid);
+	/* fprint(2, "reap uproc for pid %d\n", pid); */
 	h = pid%PIDHASH;
 	for(i=0; i<PIDHASH; i++){
 		up = alluproc[h];

@@ -198,7 +198,7 @@ hparseheaders(HConnect *c, int timeout)
 	memset(&h, 0, sizeof(h));
 	h.c = c;
 	alarm(timeout);
-	if(!hgethead(c, 1))
+	if(hgethead(c, 1) < 0)
 		return -1;
 	alarm(0);
 	h.hstart = c->hpos;

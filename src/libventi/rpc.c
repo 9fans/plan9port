@@ -75,6 +75,7 @@ vtrpc(VtConn *z, Packet *p)
 		while(!r->done){
 			qunlock(&z->lk);
 			if((p = vtrecv(z)) == nil){
+				werrstr("unexpected eof on venti connection");
 				z->muxer = 0;
 				return nil;
 			}

@@ -65,6 +65,7 @@ delayednotes(Proc *p, void *v)
 			}
 			if(i==NFN){
 				_threaddebug(DBGNOTE, "Unhandled note %s, proc %p\n", n->s, p);
+				fprint(2, "unhandled note %s, pid %d\n", n->s, p->pid);
 				if(v != nil)
 					noted(NDFLT);
 				else if(strncmp(n->s, "sys:", 4)==0)

@@ -281,7 +281,7 @@ hload(Hio *h, char *buf)
 
 	s = strchr(hstates, buf[0]);
 	if(s == nil)
-		return 0;
+		return -1;
 	h->state = s - hstates;
 
 	s = strchr(hxfers, buf[1]);
@@ -300,13 +300,13 @@ hload(Hio *h, char *buf)
 		}
 		*t++ = c;
 		if(t >= stop)
-			return 0;
+			return -1;
 	}
 	*t = '\0';
 	h->pos = h->start;
 	h->stop = t;
 	h->seek = 0;
-	return 1;
+	return 0;
 }
 
 void

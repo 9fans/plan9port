@@ -41,8 +41,8 @@ hparsereq(HConnect *c, int timeout)
 	 * only works for http/1.1 or later.
 	 */
 	alarm(timeout);
-	if(!hgethead(c, 0))
-		return 0;
+	if(hgethead(c, 0) < 0)
+		return -1;
 	alarm(0);
 	c->reqtime = time(nil);
 	c->req.meth = getword(c);
