@@ -219,7 +219,7 @@ struct Srv {
 void		srv(Srv*);
 void		postmountsrv(Srv*, char*, char*, int);
 int 		postfd(char*, int);
-int		chatty9p;
+extern	int		chatty9p;
 void		respond(Req*, char*);
 void		threadpostmountsrv(Srv*, char*, char*, int);
 

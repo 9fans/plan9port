@@ -5,6 +5,8 @@
 #include <thread.h>
 #include <9p.h>
 
+int chatty9p;
+
 // static char Ebadattach[] = "unknown specifier in attach";
 static char Ebadoffset[] = "bad offset";
 // static char Ebadcount[] = "bad count";
