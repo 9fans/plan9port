@@ -515,6 +515,7 @@ Text			*mousetext;	/* global because Text.close needs to clear it */
 Text			*typetext;		/* global because Text.close needs to clear it */
 Text			*barttext;		/* shared between mousetask and keyboardthread */
 int			bartflag;
+int			swapscrollbuttons;
 Window		*activewin;
 Column		*activecol;
 Buffer		snarfbuf;

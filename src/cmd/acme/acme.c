@@ -27,6 +27,7 @@ char		wdir[512] = ".";
 Reffont	*reffonts[2];
 int		snarffd = -1;
 int		mainpid;
+int		swapscrollbuttons = FALSE;
 
 enum{
 	NSnarf = 1000	/* less than 1024, I/O buffer size */
@@ -101,6 +102,9 @@ threadmain(int argc, char *argv[])
 		loadfile = ARGF();
 		if(loadfile == nil)
 			goto Usage;
+		break;
+	case 'r':
+		swapscrollbuttons = TRUE;
 		break;
 	case 'W':
 		winsize = ARGF();
@@ -562,6 +566,12 @@ mousethread(void *v)
 			barttext = t;
 			if(t->what==Body && ptinrect(m.xy, t->scrollr)){
 				if(but){
+					if(swapscrollbuttons){
+						if(but == 1)
+							but = 3;
+						else if(but == 3)
+							but = 1;
+					}
 					winlock(w, 'M');
 					t->eq0 = ~0;
 					textscroll(t, but);
