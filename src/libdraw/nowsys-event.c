@@ -70,7 +70,7 @@ ecankbd(void)
 void
 emoveto(Point p)
 {
-	USED(p);
+/* 	USED(p); */
 	bad();
 }
 

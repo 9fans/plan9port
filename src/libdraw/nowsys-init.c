@@ -10,7 +10,7 @@ char *winsize;
 static int
 bad(void)
 {
-	sysfatal("compiled with no window system support"):
+	sysfatal("compiled with no window system support");
 	return 0;
 }
 
