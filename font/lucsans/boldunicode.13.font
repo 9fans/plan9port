@@ -1,0 +1,5 @@
+26	21
+0x0000	0x00FF	lsb.24
+0x0100	0x01f0	../lucida/EuroLatin.12.0
+0x2000	0x20aa	../lucida/GenPunct.12.0
+0x2200	0x22f1	../lucida/MathOps1.12.0

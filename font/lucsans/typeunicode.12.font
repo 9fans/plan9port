@@ -1,0 +1,5 @@
+22	18
+0x0000	0x007F	../pelm/ascii.12
+0x0100	0x01f0	../lucida/EuroLatin.10.0
+0x2000	0x20aa	../lucida/GenPunct.10.0
+0x2200	0x22f1	../lucida/MathOps1.10.0
