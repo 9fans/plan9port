@@ -4,6 +4,8 @@
 extern "C" { 
 #endif
 
+AUTOLIB(frame)
+
 typedef struct Frbox Frbox;
 typedef struct Frame Frame;
 

@@ -4,6 +4,8 @@
 extern "C" { 
 #endif
 
+AUTOLIB(regexp9)
+
 #include <utf.h>
 
 typedef struct Resub		Resub;

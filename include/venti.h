@@ -3,6 +3,9 @@
 #ifdef __cplusplus
 extern "C" { 
 #endif
+
+AUTOLIB(venti)
+
 /* XXX should be own library? */
 /*
  * Packets

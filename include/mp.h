@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+AUTOLIB(mp)
+
 /*
 #pragma	src	"/sys/src/libmp"
 #pragma	lib	"libmp.a"

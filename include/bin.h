@@ -4,6 +4,8 @@
 extern "C" { 
 #endif
 
+AUTOLIB(bin)
+
 /*
 #pragma	lib	"libbin.a"
 #pragma	src	"/sys/src/libbin"

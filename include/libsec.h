@@ -8,6 +8,8 @@ extern "C" {
 #pragma	src	"/sys/src/libsec"
 */
 
+AUTOLIB(sec)
+
 #ifndef _MPINT
 typedef struct mpint mpint;
 #endif

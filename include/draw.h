@@ -4,6 +4,8 @@
 extern "C" { 
 #endif
 
+AUTOLIB(draw)
+
 typedef struct	Cachefont Cachefont;
 typedef struct	Cacheinfo Cacheinfo;
 typedef struct	Cachesubf Cachesubf;
@@ -338,7 +340,7 @@ extern int	writeimage(int, Image*, int);
 extern Image*	namedimage(Display*, char*);
 extern int	nameimage(Image*, char*, int);
 extern Image* allocimagemix(Display*, u32int, u32int);
-extern int	drawsetlabel(Display*, char*);
+extern int	drawsetlabel(char*);
 
 /*
  * Colors

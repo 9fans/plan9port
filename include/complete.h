@@ -1,3 +1,10 @@
+#ifndef _COMPLETE_H_
+#define _COMPLETE_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
+AUTOLIB(complete)
 /*
 #pragma	lib	"libcomplete.a"
 #pragma src "/sys/src/libcomplete"
@@ -16,3 +23,8 @@ struct Completion{
 
 Completion* complete(char *dir, char *s);
 void freecompletion(Completion*);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

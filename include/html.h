@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+AUTOLIB(html)
 /*
  #pragma lib "libhtml.a"
  #pragma src "/sys/src/libhtml"

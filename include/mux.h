@@ -1,3 +1,11 @@
+#ifndef _MUX_H_
+#define _MUX_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
+AUTOLIB(mux)
+
 typedef struct Mux Mux;
 typedef struct Muxrpc Muxrpc;
 typedef struct Muxqueue Muxqueue;
@@ -52,3 +60,7 @@ void *_muxqrecv(Muxqueue*);
 void _muxqhangup(Muxqueue*);
 void *_muxnbqrecv(Muxqueue*);
 
+#if defined(__cplusplus)
+}
+#endif
+#endif

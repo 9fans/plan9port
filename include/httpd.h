@@ -3,6 +3,8 @@
 #if defined(__cplusplus)
 extern "C" { 
 #endif
+
+AUTOLIB(httpd)
 /*
 #pragma	lib	"libhttpd.a"
 #pragma	src	"/sys/src/libhttpd"

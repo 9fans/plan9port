@@ -1,6 +1,13 @@
-#pragma src "/sys/src/libdisk"
-#pragma lib "libdisk.a"
+#ifndef _DISK_H_
+#define _DISK_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 
+
+AUTOLIB(disk)
+
+#if 0
 /* SCSI interface */
 typedef struct Scsi Scsi;
 struct Scsi {
@@ -58,8 +65,14 @@ enum {
 	Gdisk,
 	Gguess,
 };
+#endif
 
 /* proto file parsing */
 typedef void Protoenum(char *new, char *old, Dir *d, void *a);
 typedef void Protowarn(char *msg, void *a);
 int rdproto(char*, char*, Protoenum*, Protowarn*, void*);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

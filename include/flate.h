@@ -3,6 +3,8 @@
 #if defined(__cplusplus)
 extern "C" { 
 #endif
+
+AUTOLIB(flate)
 /*
 #pragma	lib	"libflate.a"
 #pragma	src	"/sys/src/libflate"

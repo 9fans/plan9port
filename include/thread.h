@@ -4,6 +4,8 @@
 extern "C" { 
 #endif
 
+AUTOLIB(thread)
+
 /*
  * basic procs and threads
  */
@@ -23,8 +25,9 @@ _Thread	*_threadwakeup(Rendez*);
 
 /*
  * daemonize
- */
+ *
 void	threaddaemonize(void);
+ */
 
 /*
  * clumsy linker hack

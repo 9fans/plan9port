@@ -1,3 +1,11 @@
+#ifndef _MACH_H_
+#define _MACH_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
+AUTOLIB(mach)
+
 /*
  * Architecture-dependent application data.
  * 
@@ -351,8 +359,6 @@ struct Regdesc
 	uint		format;		/* print format: 'x', 'X', 'f', 'z', 'Z' */
 };
 
-Regdesc*	regdesc(char*);
-
 enum
 {
 	/* machine types */
@@ -498,7 +504,7 @@ Fhdr*	findhdr(char*);
 
 Symbol*	flookupsym(Fhdr*, char*);
 Symbol*	ffindsym(Fhdr*, Loc, uint);
-Symbol*	addsym(Fhdr*, Symbol*);
+Symbol*	_addsym(Fhdr*, Symbol*);
 
 /*
  * Stack frame walking.
@@ -525,3 +531,7 @@ struct ps_prochandle
 };
 
 extern int machdebug;
+#if defined(__cplusplus)
+}
+#endif
+#endif

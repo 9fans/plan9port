@@ -1,7 +1,14 @@
+#ifndef _LIBSTRING_H_
+#define _LIBSTRING_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
 /*
 #pragma	src	"/sys/src/libString"
 #pragma	lib	"libString.a"
 */
+AUTOLIB(String)
 
 /* extensible Strings */
 typedef struct String {
@@ -44,3 +51,7 @@ extern char	*s_rdinstack(Sinstack*, String*);
 extern Sinstack	*s_allocinstack(char*);
 extern void	s_freeinstack(Sinstack*);
 #endif /* BGETC */
+#if defined(__cplusplus)
+}
+#endif
+#endif

@@ -4,6 +4,7 @@
 extern "C" { 
 #endif
 
+AUTOLIB(ip)
 /*
 #pragma	src	"/sys/src/libip"
 #pragma	lib	"libip.a"

@@ -4,6 +4,8 @@
 extern "C" { 
 #endif
 
+AUTOLIB(bio)
+
 #include <sys/types.h>	/* for off_t */
 #include <fcntl.h>	/* for O_RDONLY, O_WRONLY */
 

@@ -111,6 +111,11 @@ typedef short s16int;
 #undef _NEEDUINT
 #undef _NEEDULONG
 
+/*
+ * Funny-named symbols to tip off 9l to autolink.
+ */
+#define AUTOLIB(x)	static int __p9l_autolib_ ## x = 1;
+
 #if defined(__cplusplus)
 }
 #endif
