@@ -217,3 +217,12 @@ Unix's
 The CVS server is a read-only public copy of a private tree.
 The dates on versions reflect the date the changes were made in the 
 private tree, not the date the change was made public.
+.PP
+On Mac OS X, 
+.I cvs
+will complain during a checkout that some files in
+.B $PLAN9/troff/font/devutf
+are ``in the way.''
+This is due to the Mac case-insensitive file system
+and the fact that troff has some (not often used)
+files that differ only in case.
