@@ -193,6 +193,6 @@ cd cmd/mk
 9c  varsub.c
 9c  word.c
 9c  unix.c
-9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o /Users/rsc/plan9/lib/libregexp9.a /Users/rsc/plan9/lib/libbio.a /Users/rsc/plan9/lib/lib9.a 
-install -c o.mk /Users/rsc/plan9/bin/mk
+9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o $PLAN9/lib/libregexp9.a $PLAN9/lib/libbio.a $PLAN9/lib/lib9.a 
+install -c o.mk $PLAN9/bin/mk
 cd ..
