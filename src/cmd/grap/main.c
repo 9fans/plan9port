@@ -10,7 +10,7 @@
 int	dbg	= 0;
 
 #ifndef GRAPDEFINES
-#define GRAPDEFINES "#9/sys/lib/grap.defines"
+#define GRAPDEFINES "#9/lib/grap.defines"
 #endif
 char	*lib_defines;
 

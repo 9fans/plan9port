@@ -177,6 +177,7 @@ void do_first(void)	/* done at first .G1:  definitions, etc. */
 {
 	extern int lib;
 	extern char *lib_defines;
+	char *file;
 	static char buf[50], buf1[50];	/* static because pbstr uses them */
 	FILE *fp;
 	extern int getpid(void);
@@ -184,8 +185,9 @@ void do_first(void)	/* done at first .G1:  definitions, etc. */
 	sprintf(buf, "define pid /%d/\n", getpid());
 	pbstr(buf);	
 	if (lib != 0) {
-		if ((fp = fopen(unsharp(lib_defines), "r")) != NULL) {
-			sprintf(buf1, "copy \"%s\"\n", lib_defines);
+		file = unsharp(lib_defines);
+		if ((fp = fopen(file, "r")) != NULL) {
+			sprintf(buf1, "copy \"%s\"\n", file);
 			pbstr(buf1);
 			fclose(fp);
 		} else {
