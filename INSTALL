@@ -13,7 +13,7 @@ if [ `uname` = Linux ]; then
 	# linking with NPTL by default, pretend to be an older kernel.
 	echo "Running on Linux: checking for NPTL..."
 	gcc lib/linux-isnptl.c -lpthread
-	if ./a.out
+	if ./a.out >/dev/null
 	then	
 		echo "	NPTL found."
 		echo "SYSVERSION=2.6.x" >$PLAN9/config
