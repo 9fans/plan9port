@@ -2,7 +2,7 @@
 #include <signal.h>
 #include <libc.h>
 #include <fcall.h>
-#include <fs.h>
+#include <9pclient.h>
 #include <thread.h>
 
 char *addr;
@@ -72,12 +72,12 @@ threadmain(int argc, char **argv)
 	usage();	
 }
 
-Fsys*
+CFsys*
 xparse(char *name, char **path)
 {
 	int fd;
 	char *p;
-	Fsys *fs;
+	CFsys *fs;
 
 	if(addr == nil){
 		p = strchr(name, '/');
@@ -100,24 +100,11 @@ xparse(char *name, char **path)
 	return fs;
 }
 
-Fid*
-xwalk(char *name)
-{
-	Fid *fid;
-	Fsys *fs;
-
-	fs = xparse(name, &name);
-	fid = fswalk(fsroot(fs), name);
-	if(fid == nil)
-		sysfatal("fswalk %s: %r", name);
-	return fid;
-}
-
-Fid*
+CFid*
 xopen(char *name, int mode)
 {
-	Fid *fid;
-	Fsys *fs;
+	CFid *fid;
+	CFsys *fs;
 
 	fs = xparse(name, &name);
 	fid = fsopen(fs, name, mode);
@@ -129,7 +116,7 @@ xopen(char *name, int mode)
 int
 xopenfd(char *name, int mode)
 {
-	Fsys *fs;
+	CFsys *fs;
 
 	fs = xparse(name, &name);
 	return fsopenfd(fs, name, mode);
@@ -140,7 +127,7 @@ xread(int argc, char **argv)
 {
 	char buf[1024];
 	int n;
-	Fid *fid;
+	CFid *fid;
 
 	ARGBEGIN{
 	default:
@@ -186,7 +173,7 @@ xwrite(int argc, char **argv)
 {
 	char buf[1024];
 	int n, did;
-	Fid *fid;
+	CFid *fid;
 
 	ARGBEGIN{
 	default:
@@ -240,7 +227,8 @@ void
 xstat(int argc, char **argv)
 {
 	Dir *d;
-	Fid *fid;
+	CFsys *fs;
+	char *name;
 
 	ARGBEGIN{
 	default:
@@ -250,9 +238,10 @@ xstat(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
-	fid = xwalk(argv[0]);
-	if((d = fsdirfstat(fid)) == 0)
-		sysfatal("dirfstat: %r");
+	name = argv[0];
+	fs = xparse(name, &name);
+	if((d = fsdirstat(fs, name)) == 0)
+		sysfatal("dirstat: %r");
 	fmtinstall('D', dirfmt);
 	fmtinstall('M', dirmodefmt);
 	print("%D\n", d);
