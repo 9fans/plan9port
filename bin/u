@@ -1,0 +1,23 @@
+#!/bin/sh
+
+case "$PLAN9" in
+'')
+	;;
+*)
+	PATH=`
+		echo "$PATH" |
+		sed '
+			s,'$PLAN9/bin:',,g
+			s,':$PLAN9/bin',,g
+		'
+	`
+	PATH="$PATH:$PLAN9/bin"
+	export PATH
+	;;
+esac
+
+case $# in
+[1-9]*)
+       exec "$@"
+       ;;
+esac
