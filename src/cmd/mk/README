@@ -1,0 +1,7 @@
+This is a Unix port of mk,
+originally done for the Inferno operating system.
+
+Russ Cox repackaged this to build as a standalone
+Unix program.  Send comments about packaging to
+Russ Cox <rsc@post.harvard.edu>
+
