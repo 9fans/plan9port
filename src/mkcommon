@@ -3,6 +3,9 @@
 %.$O:	%.c
 	$CC $CFLAGS $stem.c
 
+%.$O:	%.cc
+	$CC $CFLAGS $stem.cc
+
 %.$O:	%.s
 	$AS $AFLAGS $stem.s
 
