@@ -102,6 +102,7 @@ threadmain(int argc, char *argv[])
 		exits("usage");
 	}ARGEND
 
+	quotefmtinstall();
 	cputype = getenv("cputype");
 	objtype = getenv("objtype");
 	home = getenv("home");

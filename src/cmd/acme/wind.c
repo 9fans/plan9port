@@ -549,7 +549,7 @@ winctlprint(Window *w, char *buf, int fonts)
 	n = sprint(buf, "%11d %11d %11d %11d %11d ", w->id, w->tag.file->b.nc,
 		w->body.file->b.nc, w->isdir, w->dirty);
 	if(fonts)
-		sprint(buf+n, "%11d %s" , Dx(w->body.fr.r), w->body.reffont->f->name);
+		sprint(buf+n, "%11d %q %11d" , Dx(w->body.fr.r), w->body.reffont->f->name, w->body.fr.maxtab);
 }
 
 void
