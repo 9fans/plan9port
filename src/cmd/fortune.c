@@ -7,8 +7,6 @@ char choice[2048];
 char *index = "#9/lib/fortunes.index";
 char *fortunes = "#9/lib/fortunes";
 
-#define lrand rand
-
 void
 main(int argc, char *argv[])
 {
