@@ -8,6 +8,7 @@ DIRS=\
 	libframe\
 	libhttpd\
 #	libip\
+	libplumb\
 	libregexp\
 	libsec\
 	libthread\
