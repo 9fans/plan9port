@@ -9,13 +9,11 @@ procexec(Channel *pidc, char *prog, char *args[])
 	Proc *p;
 	Thread *t;
 
-print("procexec\n");
 	_threaddebug(DBGEXEC, "procexec %s", prog);
 	/* must be only thread in proc */
 	p = _threadgetproc();
 	t = p->thread;
 	if(p->threads.head != t || p->threads.head->nextt != nil){
-print("not only thread\n");
 		werrstr("not only thread in proc");
 	Bad:
 		if(pidc)
@@ -36,35 +34,26 @@ print("not only thread\n");
 	 * pipe to us.
 	 */
 	if(pipe(p->exec.fd) < 0)
-{
-print("pipe\n");
 		goto Bad;
-}
 	if(fcntl(p->exec.fd[1], F_SETFD, 1) < 0)
-{
-print("fcntl\n");
 		goto Bad;
-}
 
 	/* exec in parallel via the scheduler */
 	assert(p->needexec==0);
 	p->exec.prog = prog;
 	p->exec.args = args;
 	p->needexec = 1;
-print("sched\n");
 	_sched();
 
 	close(p->exec.fd[1]);
 	if((n = read(p->exec.fd[0], p->exitstr, ERRMAX-1)) > 0){	/* exec failed */
 		p->exitstr[n] = '\0';
-print("read got %s\n", p->exitstr);
 		errstr(p->exitstr, ERRMAX);
 		close(p->exec.fd[0]);
 		goto Bad;
 	}
 	close(p->exec.fd[0]);
 
-print("exec %d\n", pidc);
 	if(pidc)
 		sendul(pidc, t->ret);
 
