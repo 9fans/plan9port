@@ -1,0 +1,39 @@
+<$PLAN9/src/mkhdr
+
+LIB=libthread.a
+OFILES=\
+	channel.$O\
+	exec.$O\
+	ioproc.$O\
+	iorw.$O\
+	pthread.$O\
+	qlock.$O\
+	ref.$O\
+	thread.$O\
+
+<$PLAN9/src/mksyslib
+
+HFILES=thread.h threadimpl.h
+
+tprimes: tprimes.$O
+	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
+tspawn: tspawn.$O
+	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
+tspawnloop: tspawnloop.$O
+	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
+
+%.$O: %.c
+	9c -I. $stem.c
+
+test:V: tprimes tspawn
+	primes 1 10007 >p1.txt
+	$PLAN9/bin/time ./tprimes 10000 >tp1.txt
+	cmp p1.txt tp1.txt
+	primes 1 1009 >p2.txt
+	$PLAN9/bin/time ./tprimes 1000 >tp2.txt
+	cmp p2.txt tp2.txt
+	echo tspawn should take 3 seconds, not 6
+	$PLAN9/bin/time ./tspawn sleep 3 >/dev/null
+
+CLEANFILES=p1.txt p2.txt tp1.txt tp2.txt
+
