@@ -31,3 +31,9 @@ _spinlock(spinlock_t *lk)
 	lock((Lock*)&lk->access_lock);
 }
 
+int
+getfforkid(void)
+{
+	return getpid();
+}
+

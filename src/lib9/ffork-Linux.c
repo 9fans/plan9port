@@ -37,3 +37,9 @@ ffork(int flags, void (*fn)(void*), void *arg)
 	return pid;
 }
 
+int
+getfforkid(void)
+{
+	return getpid();
+}
+

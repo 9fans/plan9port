@@ -1,8 +1,7 @@
 #include "threadimpl.h"
-#include <unistd.h>
-
+extern int getfforkid(void);
 int
 _threadgetpid(void)
 {
-	return getpid();
+	return getfforkid();
 }

@@ -25,7 +25,7 @@ threadmain(int argc, char **argv)
 	c[1] = chancreate(sizeof(ulong), 1);
 	c[2] = c[0];
 
-	threadcreate(pingpong, c, 16384);
+	proccreate(pingpong, c, 16384);
 	threadcreate(pingpong, c+1, 16384);
 	sendul(c[0], atoi(argv[1]));
 }

@@ -8,12 +8,9 @@ _xtas(void *v)
 {
 	int x;
 
-_ntas++;
+	_ntas++;
 	x = _tas(v);
-	if(x == 0 || x == 0xCAFEBABE)
-		return x;
-	fprint(2, "%d: tas %p got %ux\n", getpid(), v, x);
-	abort();
+	return x;
 }
 
 int

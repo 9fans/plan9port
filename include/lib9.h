@@ -46,6 +46,11 @@ extern "C" {
 #		undef _NEEDUINT
 #	endif
 #endif
+#if defined(__APPLE__)
+#	include <sys/types.h>
+#	undef _NEEDUSHORT
+#	undef _NEEDUINT
+#endif
 
 typedef signed char schar;
 typedef unsigned int u32int;
@@ -213,7 +218,8 @@ extern int		errstr(char*, uint);
 
 /* command line */
 extern char	*argv0;
-#define	ARGBEGIN	for((argv0||(argv0=*argv)),argv++,argc--;\
+extern void __fixargv0(void);
+#define	ARGBEGIN	for((argv0||(argv0=(__fixargv0(),*argv))),argv++,argc--;\
 			    argv[0] && argv[0][0]=='-' && argv[0][1];\
 			    argc--, argv++) {\
 				char *_args, *_argt;\

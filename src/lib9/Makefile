@@ -19,7 +19,7 @@ OFILES=\
 	nrand.$O\
 	qlock.$O\
 	readn.$O\
-	rendez.$O\
+	rendez-$(SYSNAME).$O\
 	strecpy.$O\
 	sysfatal.$O\
 	tas-$(OBJTYPE).$O\
@@ -31,7 +31,7 @@ OFILES=\
 	werrstr.$O\
 
 HFILES=\
-	lib9.h\
+	$(9SRC)/include/lib9.h\
 
 include $(9SRC)/Makesyslib
 

@@ -270,3 +270,39 @@ int create(char *name, int omode, int perm)
 
     return fd;                          
 }
+
+/* SHOULD BE ELSEWHERE */
+#ifdef __APPLE__
+#include <lib9.h>
+
+Lock plk;
+
+ulong
+pread(int fd, void *buf, ulong n, ulong off)
+{
+	ulong rv;
+
+	lock(&plk);
+	if (lseek(fd, off, 0) != off)
+		return -1;
+	rv = read(fd, buf, n);
+	unlock(&plk);
+
+	return rv;
+}
+
+ulong
+pwrite(int fd, void *buf, ulong n, ulong off)
+{
+	ulong rv;
+
+	lock(&plk);
+	if (lseek(fd, off, 0) != off)
+		return -1;
+	rv = write(fd, buf, n);
+	unlock(&plk);
+
+	return rv;
+}
+#endif
+
