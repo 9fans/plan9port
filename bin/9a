@@ -1,0 +1,9 @@
+#!/bin/sh
+
+if [ $# != 1 ]; then
+	echo 'usage: 9a file.s' 1>&2
+	exit 1
+fi
+
+out=`echo $1 | sed 's/\.s$//;s/$/.o/'`
+exec as -o $out $1

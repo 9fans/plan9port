@@ -66,7 +66,7 @@ function statestr(s)
 !
 
 /bin/ps -axww -o 'user,pid,start,time,vsz,stat,command' | sed 1d |
-	awk -f /tmp/awk.xxx$$ | sort +1 -n
+	awk -f /tmp/awk.xxx$$ | sort -n +1
 
 rm -f /tmp/awk.xxx$$
 

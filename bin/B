@@ -18,16 +18,10 @@ then
 	echo could not find sam 2>&1
 	exit 2
 else
-	pwd=`pwd`
 	for i
 	do
-		case $i in
-		/*)
-			echo "B $i" >>$sam
-			;;
-		*)
-			echo "B $pwd/$i" >>$sam
-			;;
-		esac
+		pwd=`pwd`
+		file=`cleanname -d $pwd $i`
+		echo "B $file" >>$sam
 	done
 fi

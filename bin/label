@@ -1,0 +1,7 @@
+#!/bin/sh
+
+label() {
+	echo "$@" | awk '{printf("\033];%s\007", $0);}'
+}
+
+label "$@"

@@ -9,7 +9,7 @@ B "$@"
 while true
 do
 	nstat=`ls -l $1`
-	if [ "$stat" eq "$nstat" ]
+	if [ "x$stat" != "x$nstat" ]
 	then
 		exit
 	fi
