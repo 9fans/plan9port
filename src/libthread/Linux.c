@@ -1,5 +1,19 @@
 #include "threadimpl.h"
 
+static int
+timefmt(Fmt *fmt)
+{
+	static char *mon[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	vlong ns;
+	Tm tm;
+	ns = nsec();
+	tm = *localtime(time(0));
+	return fmtprint(fmt, "%s %2d %02d:%02d:%02d.%03d", 
+		mon[tm.mon], tm.mday, tm.hour, tm.min, tm.sec,
+		(int)(ns%1000000000)/1000000);
+}
+
 /*
  * spin locks
  */
@@ -17,6 +31,8 @@ int
 _threadlock(Lock *l, int block, ulong pc)
 {
 	int i;
+static int first=1;
+if(first) {first=0; fmtinstall('T', timefmt);}
 
 	USED(pc);
 
@@ -27,17 +43,48 @@ _threadlock(Lock *l, int block, ulong pc)
 		return 0;
 
 	/* a thousand times pretty fast */
-	for(i=0; i<1000; i++){
+	for(i=0; i<10*1000; i++){
 		if(!_tas(&l->held))
 			return 1;
 		sched_yield();
 	}
 	/* now nice and slow */
+	for(i=0; i<10; i++){
+		if(!_tas(&l->held))
+			return 1;
+		usleep(1);
+	}
+fprint(2, "%T lock loop %p from %lux\n", l, pc);
+	for(i=0; i<10; i++){
+		if(!_tas(&l->held))
+			return 1;
+		usleep(10);
+	}
+fprint(2, "%T lock loop %p from %lux\n", l, pc);
+	for(i=0; i<10; i++){
+		if(!_tas(&l->held))
+			return 1;
+		usleep(100);
+	}
+fprint(2, "%T lock loop %p from %lux\n", l, pc);
+	for(i=0; i<10; i++){
+		if(!_tas(&l->held))
+			return 1;
+		usleep(1000);
+	}
+fprint(2, "%T lock loop %p from %lux\n", l, pc);
+	for(i=0; i<10; i++){
+		if(!_tas(&l->held))
+			return 1;
+		usleep(10*1000);
+	}
+fprint(2, "%T lock loop %p from %lux\n", l, pc);
 	for(i=0; i<1000; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(100*1000);
 	}
+fprint(2, "%T lock loop %p from %lux\n", l, pc);
 	/* take your time */
 	while(_tas(&l->held))
 		usleep(1000*1000);
@@ -120,17 +167,19 @@ struct Stackfree
 {
 	Stackfree	*next;
 	int	pid;
+	int	pid1;
 };
 static Lock stacklock;
 static Stackfree *stackfree;
 
 static void
-delayfreestack(uchar *stk)
+delayfreestack(uchar *stk, int pid, int pid1)
 {
 	Stackfree *sf;
 
 	sf = (Stackfree*)stk;
-	sf->pid = getpid();
+	sf->pid = pid;
+	sf->pid1 = pid1;
 	lock(&stacklock);
 	sf->next = stackfree;
 	stackfree = sf;
@@ -147,7 +196,8 @@ dofreestacks(void)
 
 	for(last=nil,sf=stackfree; sf; last=sf,sf=next){
 		next = sf->next;
-		if(sf->pid >= 1 && kill(sf->pid, 0) < 0 && errno == ESRCH){
+		if(sf->pid >= 1 && kill(sf->pid, 0) < 0 && errno == ESRCH)
+		if(sf->pid1 >= 1 && kill(sf->pid1, 0) < 0 && errno == ESRCH){
 			free(sf);
 			if(last)
 				last->next = next;
@@ -166,17 +216,20 @@ startprocfn(void *v)
 	uchar *stk;
 	void (*fn)(void*);
 	Proc *p;
+	int pid0, pid1;
 
 	a = (void**)v;
 	fn = a[0];
 	p = a[1];
 	stk = a[2];
+	pid0 = (int)a[4];
+	pid1 = getpid();
 	free(a);
-	p->osprocid = getpid();
+	p->osprocid = pid1;
 
 	(*fn)(p);
 
-	delayfreestack(stk);
+	delayfreestack(stk, pid0, pid1);
 	_exit(0);
 	return 0;
 }
@@ -191,9 +244,12 @@ static int
 trampnowait(void *v)
 {
 	void **a;
+	int *kidpid;
 
 	a = (void*)v;
-	*(int*)a[3] = clone(startprocfn, a[2]+65536-512, CLONE_VM|CLONE_FILES, a);
+	kidpid = a[3];
+	a[4] = (void*)getpid();
+	*kidpid = clone(startprocfn, a[2]+65536-512, CLONE_VM|CLONE_FILES, a);
 	_exit(0);
 	return 0;
 }
@@ -206,7 +262,7 @@ _procstart(Proc *p, void (*fn)(Proc*))
 	int pid, kidpid, status;
 
 	dofreestacks();
-	a = malloc(4*sizeof a[0]);
+	a = malloc(5*sizeof a[0]);
 	if(a == nil)
 		sysfatal("_procstart malloc: %r");
 	stk = malloc(65536);
@@ -353,3 +409,4 @@ _threadpexit(void)
 {
 	_exit(0);
 }
+
