@@ -3,6 +3,9 @@
  * could turn this into a generic library routine rather
  * than keep it Venti specific.  A user-level 9P client
  * could use something like this too.
+ * 
+ * (Actually it does - this should be replaced with libmux,
+ * which should be renamed librpcmux.)
  *
  * This is a little more complicated than it might be
  * because we want it to work well within and without libthread.

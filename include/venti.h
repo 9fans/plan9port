@@ -446,6 +446,9 @@ uvlong vtfilegetsize(VtFile*);
 int vtfilesetsize(VtFile*, uvlong);
 int vtfileremove(VtFile*);
 
+extern int chattyventi;
+extern int ventidoublechecksha1;
+
 #if defined(__cplusplus)
 }
 #endif

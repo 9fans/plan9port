@@ -59,7 +59,9 @@ _vtrecv(VtConn *z)
 	while(size < 2) {
 		b = packettrailer(p, MaxFragSize);
 		assert(b != nil);
+		if(0) fprint(2, "%d read hdr\n", getpid());
 		n = read(z->infd, b, MaxFragSize);
+		if(0) fprint(2, "%d got %d (%r)\n", getpid(), n);
 		if(n <= 0)
 			goto Err;
 		size += n;
@@ -72,13 +74,18 @@ _vtrecv(VtConn *z)
 	size -= 2;
 
 	while(size < len) {
-		n = len - size;
-		if(n > MaxFragSize)
+	//	n = len - size;
+	//	if(n > MaxFragSize)
 			n = MaxFragSize;
 		b = packettrailer(p, n);
-		if(readn(z->infd, b, n) != n)
+		if(0) fprint(2, "%d read body %d\n", getpid(), n);
+		n = read(z->infd, b, n);
+		if(0) fprint(2, "%d got %d (%r)\n", getpid(), n);
+		if(n > 0)
+			size += n;
+		packettrim(p, 0, size);
+		if(n <= 0)
 			goto Err;
-		size += n;
 	}
 	p = packetsplit(p, len);
 	return p;

@@ -2,11 +2,15 @@
 #include <libc.h>
 #include <venti.h>
 
+int ventidoublechecksha1 = 1;
+
 static int
 vtfcallrpc(VtConn *z, VtFcall *ou, VtFcall *in)
 {
 	Packet *p;
 
+	if(chattyventi)
+		fprint(2, "%s -> %F\n", argv0, ou);
 	p = vtfcallpack(ou);
 	if(p == nil)
 		return -1;
@@ -16,6 +20,8 @@ vtfcallrpc(VtConn *z, VtFcall *ou, VtFcall *in)
 		packetfree(p);
 		return -1;
 	}
+	if(chattyventi)
+		fprint(2, "%s <- %F\n", argv0, in);
 	if(in->type == VtRerror){
 		werrstr(in->error);
 		vtfcallclear(in);
@@ -70,11 +76,13 @@ vtreadpacket(VtConn *z, uchar score[VtScoreSize], uint type, int n)
 		packetfree(rx.data);
 		return nil;
 	}
-	packetsha1(rx.data, tx.score);
-	if(memcmp(score, tx.score, VtScoreSize) != 0){
-		werrstr("read asked for %V got %V", score, tx.score);
-		packetfree(rx.data);
-		return nil;
+	if(ventidoublechecksha1){
+		packetsha1(rx.data, tx.score);
+		if(memcmp(score, tx.score, VtScoreSize) != 0){
+			werrstr("read asked for %V got %V", score, tx.score);
+			packetfree(rx.data);
+			return nil;
+		}
 	}
 
 	return rx.data;
@@ -102,12 +110,15 @@ vtwritepacket(VtConn *z, uchar score[VtScoreSize], uint type, Packet *p)
 	tx.type = VtTwrite;
 	tx.dtype = type;
 	tx.data = p;
-	packetsha1(p, score);
+	if(ventidoublechecksha1)
+		packetsha1(p, score);
 	if(vtfcallrpc(z, &tx, &rx) < 0)
 		return -1;
-	if(memcmp(score, rx.score, VtScoreSize) != 0){
-		werrstr("sha1 hash mismatch: want %V got %V", score, rx.score);
-		return -1;
+	if(ventidoublechecksha1){
+		if(memcmp(score, rx.score, VtScoreSize) != 0){
+			werrstr("sha1 hash mismatch: want %V got %V", score, rx.score);
+			return -1;
+		}
 	}
 	return 0;
 }

@@ -102,7 +102,12 @@ connproc(void *v)
 	Packet *p;
 	VtReq *r;
 	int fd;
+static int first=1;
 
+if(first){
+	first=0;
+	fmtinstall('F', vtfcallfmt);
+}
 	r = nil;
 	sc = v;
 	sc->c = nil;
@@ -139,6 +144,8 @@ connproc(void *v)
 			fprint(2, "bad packet on %s: %r\n", sc->dir);
 			continue;
 		}
+		if(chattyventi)
+			fprint(2, "%s <- %F\n", argv0, &r->tx);
 		packetfree(p);
 		if(r->tx.type == VtTgoodbye)
 			break;
@@ -182,6 +189,8 @@ vtrespond(VtReq *r)
 		abort();
 	if(r->rx.type != r->tx.type+1 && r->rx.type != VtRerror)
 		abort();
+	if(chattyventi)
+		fprint(2, "%s -> %F\n", argv0, &r->rx);
 	if((p = vtfcallpack(&r->rx)) == nil){
 		fprint(2, "fcallpack on %s: %r\n", sc->dir);
 		packetfree(p);
