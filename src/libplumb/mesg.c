@@ -4,28 +4,36 @@
 
 static char attrbuf[4096];
 
+char *home;
+
 int
 plumbopen(char *name, int omode)
 {
 	int fd, f;
 	char *s;
-	char buf[128];
+	char buf[256];
 
 	if(name[0] == '/')
 		return open(name, omode);
-	snprint(buf, sizeof buf, "/mnt/plumb/%s", name);
-	fd = open(buf, omode);
+	if(home == nil){
+		home = getenv("HOME");
+		if(home == nil)
+			return -1;
+	}
+	snprint(buf, sizeof buf, "%s/mnt/plumb", home);
+/*	fd = open(buf, omode);
 	if(fd >= 0)
 		return fd;
 	snprint(buf, sizeof buf, "/mnt/term/mnt/plumb/%s", name);
 	fd = open(buf, omode);
 	if(fd >= 0)
 		return fd;
-	/* try mounting service */
+	/* try mounting service * /
 	s = getenv("plumbsrv");
 	if(s == nil)
 		return -1;
 	snprint(buf, sizeof buf, "/mnt/plumb/%s", name);
+*/
 	return open(buf, omode);
 }
 
