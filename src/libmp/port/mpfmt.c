@@ -40,10 +40,10 @@ to32(mpint *b, char *buf, int len)
 	return rv;
 }
 
-static char set16[] = "0123456789ABCDEF";
-
+static char upper16[] = "0123456789ABCDEF";
+static char lower16[] = "0123456789abcdef";
 static int
-to16(mpint *b, char *buf, int len)
+to16(mpint *b, char *buf, int len, char *set16)
 {
 	mpdigit *p, x;
 	int i, j;
@@ -123,30 +123,8 @@ to10(mpint *b, char *buf, int len)
 	return 0;
 }
 
-int
-mpfmt(Fmt *fmt)
-{
-	mpint *b;
-	char *p;
-
-	b = va_arg(fmt->args, mpint*);
-	if(b == nil)
-		return fmtstrcpy(fmt, "*");
-	
-	p = mptoa(b, fmt->prec, nil, 0);
-	fmt->flags &= ~FmtPrec;
-
-	if(p == nil)
-		return fmtstrcpy(fmt, "*");
-	else{
-		fmtstrcpy(fmt, p);
-		free(p);
-		return 0;
-	}
-}
-
-char*
-mptoa(mpint *b, int base, char *buf, int len)
+static char*
+_mptoa(mpint *b, int base, char *buf, int len, char *set16)
 {
 	char *out;
 	int rv, alloced;
@@ -177,7 +155,7 @@ mptoa(mpint *b, int base, char *buf, int len)
 		break;
 	default:
 	case 16:
-		rv = to16(b, out, len);
+		rv = to16(b, out, len, set16);
 		break;
 	case 10:
 		rv = to10(b, out, len);
@@ -190,3 +168,36 @@ mptoa(mpint *b, int base, char *buf, int len)
 	}
 	return buf;
 }
+
+char*
+mptoa(mpint *b, int base, char *buf, int len)
+{
+	return _mptoa(b, base, buf, len, upper16);
+}
+
+int
+mpfmt(Fmt *fmt)
+{
+	mpint *b;
+	char *p;
+	char *set16;
+
+	b = va_arg(fmt->args, mpint*);
+	if(b == nil)
+		return fmtstrcpy(fmt, "*");
+
+	set16 = upper16;
+	if(fmt->flags & FmtLong)
+		set16 = lower16;
+	p = _mptoa(b, fmt->prec, nil, 0, set16);
+	fmt->flags &= ~FmtPrec;
+
+	if(p == nil)
+		return fmtstrcpy(fmt, "*");
+	else{
+		fmtstrcpy(fmt, p);
+		free(p);
+		return 0;
+	}
+}
+
