@@ -35,8 +35,7 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 		return -1;
 
 	lockdisplay(display);
-	display->image = display->screenimage;
-	screen = display->screenimage;
+	display->screenimage = display->image;
 
 	/*
 	 * Set up default font
@@ -83,6 +82,13 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 	}
 	display->opaque = display->white;
 	display->transparent = display->black;
+
+	_screen = allocscreen(display->image, display->white, 0);
+	screen = _allocwindow(nil, _screen, display->image->r, Refnone, DWhite);
+	display->screenimage = screen;
+	draw(screen, screen->r, display->black, nil, ZP);
+	flushimage(display, 1);
+
 	atexit(drawshutdown);
 	return 1;
 }

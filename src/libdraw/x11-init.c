@@ -70,7 +70,8 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 
 	d->error = error;
 	_initdisplaymemimage(d, m);
-	d->screenimage = getimage0(d, 0);
+	d->image = getimage0(d, 0);
+	
 	return d;
 }
 
@@ -146,10 +147,15 @@ getwindow(Display *d, int ref)
 	 * so we have to reuse the image structure
 	 * memory we already have.
 	 */
-	oi = d->screenimage;
+	oi = d->image;
 	i = getimage0(d, oi);
-	screen = d->screenimage = d->image = i;
+	d->image = i;
 	// fprint(2, "getwindow %p -> %p\n", oi, i);
+
+	_screen = allocscreen(i, d->white, 0);
+	_freeimage1(screen);
+	screen = _allocwindow(screen, _screen, i->r, ref, DWhite);
+	d->screenimage = screen;
 	return 0;
 }
 

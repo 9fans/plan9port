@@ -149,6 +149,7 @@ _initdisplaymemimage(Display *d, Memimage *m)
 	client0->op = SoverD;
 	sdraw.client[0] = client0;
 	sdraw.nclient = 1;
+	sdraw.softscreen = 1;
 }
 
 void
