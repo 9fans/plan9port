@@ -3,6 +3,18 @@ January 18, 2005
 	add threadspawnl, fsseek.
 	add link to web interface in cvs(1).
 	remove hard-coded path in fixurls
+	preliminary x86-64 support
+	explain nptl in src/libthread/README.Linux
+	libventi bug fixes
+	add threadgetname to libthread
+	bigger chunking in sort(1)
+	bug fix in acid
+	add LOCAL.INSTALL
+	extract command line from elf cores
+	initial core(1) command
+	fix race in libthread proccreate
+	do not use -Wl,-rpath on Darwin
+	do not translate man pages in lib/moveplan9.sh
 
 January 17, 2005
 	thread.c tries to warn about bad pthreads on Linux
