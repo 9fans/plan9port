@@ -86,20 +86,24 @@ char	*rflush(Fid*), *rversion(Fid*),
 	*rread(Fid*), *rwrite(Fid*), *rclunk(Fid*),
 	*rremove(Fid*), *rstat(Fid*), *rwstat(Fid*);
 
-char 	*(*fcalls[])(Fid*) = {
-	[Tflush]	rflush,
-	[Tversion]	rversion,
-	[Tattach]	rattach,
-	[Tauth]		rauth,
-	[Twalk]		rwalk,
-	[Topen]		ropen,
-	[Tcreate]	rcreate,
-	[Tread]		rread,
-	[Twrite]	rwrite,
-	[Tclunk]	rclunk,
-	[Tremove]	rremove,
-	[Tstat]		rstat,
-	[Twstat]	rwstat,
+char 	*(*fcalls[Tmax])(Fid*);
+
+void
+initfcalls(void)
+{
+	fcalls[Tflush]=	rflush;
+	fcalls[Tversion]=	rversion;
+	fcalls[Tattach]=	rattach;
+	fcalls[Tauth]=		rauth;
+	fcalls[Twalk]=		rwalk;
+	fcalls[Topen]=		ropen;
+	fcalls[Tcreate]=	rcreate;
+	fcalls[Tread]=		rread;
+	fcalls[Twrite]=	rwrite;
+	fcalls[Tclunk]=	rclunk;
+	fcalls[Tremove]=	rremove;
+	fcalls[Tstat]=		rstat;
+	fcalls[Twstat]=	rwstat;
 };
 
 char	Eperm[] =	"permission denied";
@@ -167,6 +171,7 @@ threadmain(int argc, char *argv[])
 	if(argc != 1)
 		usage();
 
+	initfcalls();
 	init(argv[0], host, ncache, readOnly);
 
 	if(pipe(p) < 0)
@@ -261,7 +266,9 @@ rattach(Fid *f)
 
 	f->busy = 1;
 	f->file = file;
-	f->qid = (Qid){vacfilegetid(f->file), 0, QTDIR};
+	f->qid.path = vacfilegetid(f->file);
+	f->qid.vers = 0;
+	f->qid.type = QTDIR;
 	thdr.qid = f->qid;
 	if(rhdr.uname[0])
 		f->user = vtstrdup(rhdr.uname);
