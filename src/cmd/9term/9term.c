@@ -151,7 +151,7 @@ void
 hoststart(void)
 {
 	hostc = chancreate(sizeof(int), 0);
-	proccreate(hostproc, hostc, 1024);
+	proccreate(hostproc, hostc, 32*1024);
 }
 
 void
