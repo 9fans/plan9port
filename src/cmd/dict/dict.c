@@ -68,7 +68,7 @@ main(int argc, char **argv)
 	dict = 0;
 
 	for(i=0; dicts[i].name; i++){
-		if(access(dicts[i].path, 0)>=0 && access(dicts[i].indexpath, 0)>=0){
+		if(access(unsharp(dicts[i].path), 0)>=0 && access(unsharp(dicts[i].indexpath), 0)>=0){
 			dict = &dicts[i];
 			break;
 		}
@@ -171,7 +171,7 @@ usage(void)
 	Bprint(bout, "dictionaries (brackets mark dictionaries not present on this system):\n");
 	for(i = 0; dicts[i].name; i++){
 		a = b = "";
-		if(access(dicts[i].path, 0)<0 || access(dicts[i].indexpath, 0)<0){
+		if(access(unsharp(dicts[i].path), 0)<0 || access(unsharp(dicts[i].indexpath), 0)<0){
 			a = "[";
 			b = "]";
 		}
