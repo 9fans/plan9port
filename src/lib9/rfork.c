@@ -4,6 +4,12 @@
 #include <libc.h>
 #undef rfork
 
+static void
+nop(int x)
+{
+	USED(x);
+}
+
 int
 p9rfork(int flags)
 {
@@ -21,6 +27,13 @@ p9rfork(int flags)
 			return -1;
 		}
 		if(flags&RFNOWAIT){
+			/*
+			 * BUG - should put the signal handler back after we
+			 * finish, but I just don't care.  If a program calls with
+			 * NOWAIT once, they're not likely to want child notes
+			 * after that.
+			 */
+			signal(SIGCHLD, nop);
 			if(pipe(p) < 0)
 				return -1;
 		}
@@ -35,20 +48,33 @@ p9rfork(int flags)
 				 * Then read pid from pipe.  Assume pipe buffer can absorb the write.
 				 */
 				close(p[1]);
-				wait4(pid, &status, 0, 0);
+				status = 0;
+				if(wait4(pid, &status, 0, 0) < 0){
+					werrstr("pipe dance - wait4 - %r");
+					close(p[0]);
+					return -1;
+				}
 				n = readn(p[0], buf, sizeof buf-1);
 				close(p[0]);
 				if(!WIFEXITED(status) || WEXITSTATUS(status)!=0 || n <= 0){
-					werrstr("pipe dance failed in rfork");
+					if(!WIFEXITED(status))
+						werrstr("pipe dance - !exited 0x%ux", status);
+					else if(WEXITSTATUS(status) != 0)
+						werrstr("pipe dance - non-zero status 0x%ux", status);
+					else if(n < 0)
+						werrstr("pipe dance - pipe read error - %r");
+					else if(n == 0)
+						werrstr("pipe dance - pipe read eof");
+					else
+						werrstr("pipe dance - unknown failure");
 					return -1;
 				}
 				buf[n] = 0;
-				n = strtol(buf, &q, 0);
-				if(*q != 0){
-					werrstr("%s", q);
+				if(buf[0] == 'x'){
+					werrstr("%s", buf+2);
 					return -1;
 				}
-				pid = n;
+				pid = strtol(buf, &q, 0);
 			}else{
 				/*
 				 * Child - fork a new child whose wait message can't 
@@ -62,7 +88,7 @@ p9rfork(int flags)
 					if(pid > 0)
 						fprint(p[1], "%d", pid);
 					else
-						fprint(p[1], " %r");
+						fprint(p[1], "x %r");
 					close(p[1]);
 					_exit(0);
 				}else{
