@@ -1,0 +1,39 @@
+<$PLAN9/src/mkhdr
+
+TARG=astro
+OFILES=\
+	moon.$O\
+	moont.$O\
+	satel.$O\
+	merct.$O\
+	search.$O\
+	dist.$O\
+	sunt.$O\
+	occ.$O\
+	main.$O\
+	sat.$O\
+	venus.$O\
+	pdate.$O\
+	sun.$O\
+	init.$O\
+	star.$O\
+	merc.$O\
+	stars.$O\
+	comet.$O\
+	nutate.$O\
+	helio.$O\
+	mars.$O\
+	output.$O\
+	jup.$O\
+	geo.$O\
+	venust.$O\
+	cosadd.$O\
+	nutt.$O\
+	uran.$O\
+	nept.$O\
+	plut.$O\
+
+HFILES=astro.h\
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkone
