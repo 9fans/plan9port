@@ -184,6 +184,7 @@ yydefault:
 				printf("%s", yystatname(yystate));
 				printf("saw %s\n", yytokname(yychar));
 			}
+		goto yyerrlab;
 yyerrlab:
 			yynerrs++;
 
