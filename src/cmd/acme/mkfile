@@ -1,0 +1,41 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=acme
+
+OFILES=\
+	acme.$O\
+	addr.$O\
+	buff.$O\
+	cols.$O\
+	disk.$O\
+	ecmd.$O\
+	edit.$O\
+	elog.$O\
+	exec.$O\
+	file.$O\
+	fsys.$O\
+	look.$O\
+	regx.$O\
+	rows.$O\
+	scrl.$O\
+	text.$O\
+	time.$O\
+	util.$O\
+	wind.$O\
+	xfid.$O\
+
+HFILES=dat.h\
+	edit.h\
+	fns.h\
+
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}\
+
+<$PLAN9/src/mkone
+
+LDFLAGS=$LDFLAGS -lfs -lmux -lplumb -lthread -lframe -ldraw -lbio -l9 -lfmt -lutf -L$X11/lib -lX11
+
+edit.$O ecmd.$O elog.$O:	edit.h
