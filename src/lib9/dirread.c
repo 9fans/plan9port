@@ -50,8 +50,7 @@ countde(char *p, int n)
 			de->d_name[0] = 0;
 		else if(de->d_name[0]=='.' && de->d_name[1]=='.' && de->d_name[2]==0)
 			de->d_name[0] = 0;
-		else
-			m++;
+		m++;
 		p += de->d_reclen;
 	}
 	return m;
@@ -78,9 +77,12 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 		
 	p = buf;
 	nstr = 0;
+
 	for(i=0; i<n; i++){
 		de = (struct dirent*)p;
-		if(stat(de->d_name, &st) < 0)
+		if(de->d_name[0] == 0)
+			/* nothing */ {}
+		else if(stat(de->d_name, &st) < 0)
 			de->d_name[0] = 0;
 		else
 			nstr += _p9dir(&st, de->d_name, nil, nil, nil);

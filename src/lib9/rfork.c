@@ -4,6 +4,20 @@
 int
 p9rfork(int flags)
 {
+	int pid;
+
+	if((flags&(RFPROC|RFFDG|RFMEM)) == (RFPROC|RFFDG)){
+		/* check other flags before we commit */
+		flags &= ~(RFPROC|RFFDG);
+		if(flags & ~(RFNOTEG)){
+			werrstr("unknown flags %08ux in rfork", flags);
+			return -1;
+		}
+		pid = fork();
+		if(pid != 0)
+			return pid;
+	}
+
 	if(flags&RFPROC){
 		werrstr("cannot use rfork to fork -- use ffork");
 		return -1;
