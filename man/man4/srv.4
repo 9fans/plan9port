@@ -3,6 +3,13 @@
 srv, 9fs \- start network file esrvice
 .SH SYNOPSIS
 .B srv
+[
+.B -a
+]
+[
+.B -k
+.I keypattern
+]
 .I address
 [
 .I srvname
@@ -20,6 +27,23 @@ as
 .I srvname 
 (default
 .IR address ).
+.PP
+The
+.B -a
+option causes
+.I srv
+to post a pre-authenticated connection to the file system
+.I aname
+(by default, the empty string;
+see
+.IR attach (9p)).
+.I Srv
+authenticates over the 9P connection to establish a valid auth fid.
+.IR Keypattern ,
+if specified, is used to select the key used for authentication.
+Client attach requests are rewritten to use the specified
+.I aname
+and auth fid.
 .PP
 The
 .I 9fs

@@ -4,7 +4,16 @@
 .SH SYNOPSIS
 .B 9pserve
 [
-.B -v
+.B -lv
+]
+[
+.B -A
+.I aname
+.I afid
+]
+[
+.B -M
+.I msize
 ]
 .I addr
 .SH DESCRIPTION
@@ -39,6 +48,33 @@ and clunks any outstanding fids belonging to the client.
 is typically not invoked directly; use
 .IR post9pservice (3)
 instead.
+.PP
+The options are:
+.TP
+.B -l
+logging; write a debugging log to
+.IB addr .log \fR.
+.TP
+.B -v
+verbose; more verbose when repeated
+.TP
+.B -A
+rewrite all attach messages to use
+.I aname
+and
+.IR afid ;
+used to implement
+.IR srv (4)'s
+.B -a
+option
+.TP
+.B -M
+do not initialize the connection with a
+.B Tversion
+message;
+instead assume 9P2000 and a maximum message size of
+.IR msize
+.PD
 .SH "SEE ALSO
 .IR intro (4),
 .IR intro (9p)

@@ -69,6 +69,7 @@ struct Conn
 	Queue *inq;
 };
 
+char *xaname;
 char *addr;
 int afd;
 char adir[40];
@@ -78,6 +79,9 @@ Queue *inq;
 int verbose = 0;
 int logging = 0;
 int msize = 8192;
+int xafid = NOFID;
+int attached;
+int versioned;
 
 void *gethash(Hash**, uint);
 int puthash(Hash**, uint, void*);
@@ -104,6 +108,7 @@ void listenthread(void*);
 void outputthread(void*);
 void inputthread(void*);
 void rewritehdr(Fcall*, uchar*);
+void repack(Fcall*, uchar**);
 int tlisten(char*, char*);
 int taccept(int, char*);
 int iolisten(Ioproc*, char*, char*);
@@ -113,11 +118,12 @@ int iosendfd(Ioproc*, int, int);
 void mainproc(void*);
 int ignorepipe(void*, char*);
 int timefmt(Fmt*);
+void dorootstat(void);
 
 void
 usage(void)
 {
-	fprint(2, "usage: 9pserve [-lv] address\n");
+	fprint(2, "usage: 9pserve [-lv] [-A aname afid] [-M msize] address\n");
 	fprint(2, "\treads/writes 9P messages on stdin/stdout\n");
 	threadexitsall("usage");
 }
@@ -131,21 +137,37 @@ threadmain(int argc, char **argv)
 	int fd;
 
 	x = getenv("verbose9pserve");
-	if(x)
+	if(x){
 		verbose = atoi(x);
+		fprint(2, "verbose9pserve %s => %d\n", x, verbose);
+	}
 	ARGBEGIN{
 	default:
 		usage();
+	case 'A':
+		attached = 1;
+		xaname = EARGF(usage());
+		xafid = atoi(EARGF(usage()));
+		break;
+	case 'M':
+		versioned = 1;
+		msize = atoi(EARGF(usage()));
+		break;
 	case 'v':
 		verbose++;
 		break;
 	case 'u':
-		isunix = 1;
+		isunix++;
 		break;
 	case 'l':
 		logging++;
 		break;
 	}ARGEND
+	
+	if(attached && !versioned){
+		fprint(2, "-A must be used with -M\n");
+		usage();
+	}
 
 	if(argc != 1)
 		usage();
@@ -187,24 +209,30 @@ mainproc(void *v)
 	outq = qalloc();
 	inq = qalloc();
 
-	f.type = Tversion;
-	f.version = "9P2000";
-	f.msize = msize;
-	f.tag = NOTAG;
-	n = convS2M(&f, vbuf, sizeof vbuf);
-	if(verbose > 1) fprint(2, "%T * <- %F\n", &f);
-	nn = write(1, vbuf, n);
-	if(n != nn)
-		sysfatal("error writing Tversion: %r\n");
-	n = read9pmsg(0, vbuf, sizeof vbuf);
-	if(convM2S(vbuf, n, &f) != n)
-		sysfatal("convM2S failure");
-	if(f.msize < msize)
-		msize = f.msize;
-	if(verbose > 1) fprint(2, "%T * -> %F\n", &f);
+	if(!versioned){
+		f.type = Tversion;
+		f.version = "9P2000";
+		f.msize = msize;
+		f.tag = NOTAG;
+		n = convS2M(&f, vbuf, sizeof vbuf);
+		if(verbose > 1) fprint(2, "%T * <- %F\n", &f);
+		nn = write(1, vbuf, n);
+		if(n != nn)
+			sysfatal("error writing Tversion: %r\n");
+		n = read9pmsg(0, vbuf, sizeof vbuf);
+		if(convM2S(vbuf, n, &f) != n)
+			sysfatal("convM2S failure");
+		if(f.msize < msize)
+			msize = f.msize;
+		if(verbose > 1) fprint(2, "%T * -> %F\n", &f);
+	}
 
 	threadcreate(inputthread, nil, STACK);
 	threadcreate(outputthread, nil, STACK);
+
+//	if(rootfid)
+//		dorootstat();
+	
 	threadcreate(listenthread, nil, STACK);
 	threadexits(0);
 }
@@ -283,6 +311,16 @@ err(Msg *m, char *ename)
 	send9pmsg(m);
 }
 
+char*
+estrdup(char *s)
+{
+	char *t;
+	
+	t = emalloc(strlen(s)+1);
+	strcpy(t, s);
+	return t;
+}
+
 void
 connthread(void *arg)
 {
@@ -349,6 +387,18 @@ connthread(void *arg)
 				continue;
 			}
 			m->fid->ref++;
+			if(attached && m->afid==nil){
+				if(m->tx.aname[0] && strcmp(xaname, m->tx.aname) != 0){
+					err(m, "invalid attach name");
+					continue;
+				}
+				m->tx.afid = xafid;
+				m->tx.aname = xaname;
+				m->tx.uname = estrdup(m->tx.uname);
+				repack(&m->tx, &m->tpkt);
+				free(m->tx.uname);
+				m->tx.uname = "XXX";
+			}
 			break;
 		case Twalk:
 			if((m->fid = gethash(c->fid, m->tx.fid)) == nil){
@@ -369,6 +419,10 @@ connthread(void *arg)
 			}
 			break;
 		case Tauth:
+			if(attached){
+				err(m, "authentication not required");
+				continue;
+			}
 			m->afid = fidnew(m->tx.afid);
 			if(puthash(c->fid, m->tx.afid, m->afid) < 0){
 				err(m, "duplicate fid");
@@ -707,7 +761,8 @@ connoutthread(void *arg)
 					fidput(m->fid);
 			break;
 		case Twalk:
-			if(err && m->tx.fid != m->tx.newfid && m->newfid)
+			if(err || m->rx.nwqid < m->tx.nwname)
+			if(m->tx.fid != m->tx.newfid && m->newfid)
 				if(delhash(m->c->fid, m->newfid->cfid, m->newfid) == 0)
 					fidput(m->newfid);
 			break;
@@ -851,6 +906,10 @@ fidnew(int cfid)
 
 	if(freefid == nil){
 		fidtab = erealloc(fidtab, (nfidtab+1)*sizeof(fidtab[0]));
+		if(nfidtab == xafid){
+			fidtab[nfidtab++] = nil;
+			fidtab = erealloc(fidtab, (nfidtab+1)*sizeof(fidtab[0]));
+		}
 		fidtab[nfidtab] = emalloc(sizeof(Fid));
 		freefid = fidtab[nfidtab];
 		freefid->fid = nfidtab++;
@@ -1163,6 +1222,23 @@ restring(uchar *pkt, int pn, char *s)
 	n = strlen(s);
 	memmove(s+1, s, n);
 	PBIT16((uchar*)s-1, n);
+}
+
+void
+repack(Fcall *f, uchar **ppkt)
+{
+	uint n, nn;
+	uchar *pkt;
+	
+	pkt = *ppkt;
+	n = GBIT32(pkt);
+	nn = sizeS2M(f);
+	if(nn > n){
+		free(pkt);
+		pkt = emalloc(nn);
+		*ppkt = pkt;
+	}
+	convS2M(f, pkt, nn);	
 }
 
 void
