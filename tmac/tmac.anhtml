@@ -4,6 +4,7 @@
 .de }F
 ..
 .hy 0
+.nr HT 1
 .de HY
 .hy 0
 ..
