@@ -5,7 +5,7 @@ SHORTLIB=draw bio 9
 
 <$PLAN9/src/mkmany
 
-$O.tweak: tweak.$O
-	$LD -o $target tweak.$O -lthread -ldraw -lbio -l9 $LDFLAGS
+$O.stats: stats.$O
+	$LD -o $target stats.$O -lthread -ldraw -lbio -l9 $LDFLAGS
 
 LDFLAGS=$LDFLAGS -L$X11/lib -lX11
