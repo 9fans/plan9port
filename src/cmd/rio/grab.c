@@ -63,7 +63,6 @@ menuhit(XButtonEvent *e, Menu *m)
 	XEvent ev;
 	int i, n, cur, old, wide, high, status, drawn, warp;
 	int x, y, dx, dy, xmax, ymax;
-	int tx, ty;
 	ScreenInfo *s;
 
 	if (font == 0)
@@ -231,10 +230,12 @@ sweepcalc(Client *c, int x, int y)
 	dx = x - c->x;
 	dy = y - c->y;
 	sx = sy = 1;
+	x += dx;
 	if (dx < 0) {
 		dx = -dx;
 		sx = -1;
 	}
+	y += dy;
 	if (dy < 0) {
 		dy = -dy;
 		sy = -1;
@@ -268,8 +269,8 @@ sweepcalc(Client *c, int x, int y)
 void
 dragcalc(Client *c, int x, int y)
 {
-	c->x = x;
-	c->y = y;
+	c->x += x;
+	c->y += y;
 }
 
 static void
@@ -366,9 +367,12 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 	c->dx += 2*BORDER;
 	c->dy += 2*BORDER;
 	if (e0) {
+		getmouse(&c->x, &c->y, c->screen);
+/*
 		c->x = cx = e0->x;
 		c->y = cy = e0->y;
 		recalc(c, e0->x, e0->y);
+*/
 	}
 	else
 		getmouse(&cx, &cy, c->screen);
@@ -387,7 +391,10 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 					XGrabServer(dpy);
 					idle = 0;
 				}
-				recalc(c, rx, ry);
+				if(e0)
+					recalc(c, rx, ry);
+				else
+					recalc(c, rx-cx, ry-cy);
 				cx = rx;
 				cy = ry;
 				drawbound(c, 1);
@@ -405,7 +412,6 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 			XUngrabServer(dpy);
 			if (e->button != Button3 && c->init)
 				goto bad;
-			recalc(c, ev.xbutton.x, ev.xbutton.y);
 			if (c->dx < 0) {
 				c->x += c->dx;
 				c->dx = -c->dx;
@@ -466,13 +472,6 @@ drag(Client *c)
 	ScreenInfo *s;
 
 	s = c->screen;
-	if (c->init)
-		setmouse(c->x-BORDER, c->y-BORDER, s);
-	else {
-		getmouse(&c->x, &c->y, s);		   /* start at current mouse pos */
-		c->x += BORDER;
-		c->y += BORDER;
-	}
 	status = grab(s->root, s->root, ButtonMask, s->boxcurs, 0);
 	if (status != GrabSuccess) {
 		graberror("drag", status); /* */

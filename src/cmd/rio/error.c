@@ -1,5 +1,6 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #include <stdio.h>
+#include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -35,9 +36,9 @@ handler(Display *d, XErrorEvent *e)
 	sprintf(number, "%d", e->request_code);
 	XGetErrorDatabaseText(d, "XRequest", number, "", req, sizeof(req));
 	if (req[0] == '\0')
-		sprintf(req, "<request-code-%d>", e->request_code);
+		sprintf(req, "<request-code-%d>", (int)e->request_code);
 
-	fprintf(stderr, "9wm: %s(0x%x): %s\n", req, e->resourceid, msg);
+	fprintf(stderr, "9wm: %s(0x%x): %s\n", req, (int)e->resourceid, msg);
 
 	if (initting) {
 		fprintf(stderr, "9wm: failure during initialisation; aborting\n");

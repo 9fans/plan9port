@@ -1,5 +1,6 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #include <stdio.h>
+#include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
@@ -8,6 +9,8 @@
 #include <X11/extensions/shape.h>
 #include "dat.h"
 #include "fns.h"
+
+int isNew;
 
 int
 manage(Client *c, int mapped)
@@ -25,7 +28,11 @@ manage(Client *c, int mapped)
 	if (XGetClassHint(dpy, c->window, &class) != 0) {	/* ``Success'' */
 		c->instance = class.res_name;
 		c->class = class.res_class;
-		c->is9term = (strcmp(c->class, "9term") == 0);
+		c->is9term = 0;
+		if(isNew){
+			c->is9term = strstr(c->class, "term") || strstr(c->class, "Term");
+			isNew = 0;
+		}
 	}
 	else {
 		c->instance = 0;
@@ -257,7 +264,7 @@ gravitate(Client *c, int invert)
 		dy = 2*delta;
 		break;
 	default:
-		fprintf(stderr, "9wm: bad window gravity %d for 0x%x\n", gravity, c->window);
+		fprintf(stderr, "9wm: bad window gravity %d for 0x%x\n", gravity, (int)c->window);
 		return;
 	}
 	dx += BORDER;

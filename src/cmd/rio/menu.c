@@ -1,6 +1,9 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #include <stdio.h>
 #include <signal.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -102,6 +105,13 @@ button(XButtonEvent *e)
 void
 spawn(ScreenInfo *s)
 {
+	/*
+	 * ugly dance to cause sweeping for terminals.
+	 * the very next window created will require sweeping.
+	 * hope it's created by the program we're about to
+	 * exec!
+	 */
+	isNew = 1;
 	/*
 	 * ugly dance to avoid leaving zombies.  Could use SIGCHLD,
 	 * but it's not very portable.
@@ -206,7 +216,7 @@ unhide(int n, int map)
 	c = hiddenc[n];
 	if (!hidden(c)) {
 		fprintf(stderr, "9wm: unhide: not hidden: %s(0x%x)\n",
-			c->label, c->window);
+			c->label, (int)c->window);
 		return;
 	}
 
@@ -237,7 +247,7 @@ unhidec(Client *c, int map)
 			return;
 		}
 	fprintf(stderr, "9wm: unhidec: not hidden: %s(0x%x)\n",
-		c->label, c->window);
+		c->label, (int)c->window);
 }
 
 void

@@ -1,5 +1,8 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -124,7 +127,7 @@ top(Client *c)
 		}
 		l = &cc->next;
 	}
-	fprintf(stderr, "9wm: %x not on client list in top()\n", c);
+	fprintf(stderr, "9wm: %p not on client list in top()\n", c);
 }
 
 Client *

@@ -6,6 +6,9 @@
 #define	trace(s, c, e)
 #endif
 
+#define setstate setstate9wm
+
+
 /* color.c */
 unsigned long colorpixel(Display*, int, unsigned long);
 

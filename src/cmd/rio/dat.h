@@ -144,5 +144,8 @@ extern int 			numhidden;
 extern char 		*b3items[];
 extern Menu 		b3menu;
 
+/* manage.c */
+extern int			isNew;
+
 /* error.c */
 extern int 			ignore_badwindow;

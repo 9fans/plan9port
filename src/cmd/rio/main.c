@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <signal.h>
 #include <errno.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <X11/X.h>
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
@@ -47,7 +49,8 @@ Atom		_9wm_hold_mode;
 char	*fontlist[] = {
 	"lucm.latin1.9",
 	"blit",
-	"lucidasanstypewriter-bold-10",
+	"*-lucidatypewriter-bold-*-14-*-75-*",
+	"*-lucidatypewriter-medium-*-12-*-75-*",
 	"9x15bold",
 	"fixed",
 	"*",
@@ -66,8 +69,9 @@ main(int argc, char *argv[])
 {
 	int i, background, do_exit, do_restart;
 	char *fname;
-	int shape_event, dummy;
+	int shape_event;
 
+	shape_event = 0;
 	myargv = argv;			/* for restart */
 
 	do_exit = do_restart = 0;
@@ -195,6 +199,7 @@ main(int argc, char *argv[])
 		scanwins(&screens[i]);
 
 	mainloop(shape_event);
+	return 0;
 }
 
 void

@@ -1,5 +1,6 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #include <stdio.h>
+#include <stdlib.h>
 #include <X11/X.h>
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
@@ -90,6 +91,7 @@ mainloop(int shape_event)
 		case ConfigureNotify:
 		case MapNotify:
 		case MappingNotify:
+		case GraphicsExpose:
 			/* not interested */
 			trace("ignore", 0, &ev);
 			break;
@@ -173,8 +175,8 @@ mapreq(XMapRequestEvent *e)
 
 	if (c == 0 || c->window != e->window) {
 		/* workaround for stupid NCDware */
-		fprintf(stderr, "9wm: bad mapreq c %x w %x, rescanning\n",
-			c, e->window);
+		fprintf(stderr, "9wm: bad mapreq c %p w %x, rescanning\n",
+			c, (int)e->window);
 		for (i = 0; i < num_screens; i++)
 			scanwins(&screens[i]);
 		c = getclient(e->window, 0);
@@ -305,11 +307,11 @@ clientmesg(XClientMessageEvent *e)
 		}
 		else
 			fprintf(stderr, "9wm: WM_CHANGE_STATE: format %d data %d w 0x%x\n",
-				e->format, e->data.l[0], e->window);
+				(int)e->format, (int)e->data.l[0], (int)e->window);
 		return;
 	}
 	fprintf(stderr, "9wm: strange ClientMessage, type 0x%x window 0x%x\n",
-		e->message_type, e->window);
+		(int)e->message_type, (int)e->window);
 }
 
 void
