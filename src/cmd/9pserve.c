@@ -76,6 +76,7 @@ int isunix;
 Queue *outq;
 Queue *inq;
 int verbose = 0;
+int logging = 0;
 int msize = 8192;
 
 void *gethash(Hash**, uint);
@@ -85,9 +86,11 @@ Msg *mread9p(Ioproc*, int);
 int mwrite9p(Ioproc*, int, uchar*);
 uchar *read9ppkt(Ioproc*, int);
 int write9ppkt(int, uchar*);
-Msg *msgnew(void);
+Msg *msgnew(int);
 void msgput(Msg*);
+void msgclear(Msg*);
 Msg *msgget(int);
+void msgincref(Msg*);
 Fid *fidnew(int);
 void fidput(Fid*);
 void *emalloc(int);
@@ -109,11 +112,12 @@ int iorecvfd(Ioproc*, int);
 int iosendfd(Ioproc*, int, int);
 void mainproc(void*);
 int ignorepipe(void*, char*);
+int timefmt(Fmt*);
 
 void
 usage(void)
 {
-	fprint(2, "usage: 9pserve [-s service] [-u] address\n");
+	fprint(2, "usage: 9pserve [-lv] address\n");
 	fprint(2, "\treads/writes 9P messages on stdin/stdout\n");
 	exits("usage");
 }
@@ -124,6 +128,7 @@ void
 threadmain(int argc, char **argv)
 {
 	char *file;
+	int fd;
 
 	ARGBEGIN{
 	default:
@@ -131,27 +136,36 @@ threadmain(int argc, char **argv)
 	case 'v':
 		verbose++;
 		break;
-	case 's':
-		close(0);
-		if(open(file=EARGF(usage()), ORDWR) != 0)
-			sysfatal("open %s: %r", file);
-		dup(0, 1);
-		break;
 	case 'u':
 		isunix = 1;
 		break;
+	case 'l':
+		logging++;
+		break;
 	}ARGEND
 
-	if(verbose) fprint(2, "9pserve running\n");
 	if(argc != 1)
 		usage();
 	addr = argv[0];
 
+	fmtinstall('T', timefmt);
+
 	if((afd = announce(addr, adir)) < 0)
 		sysfatal("announce %s: %r", addr);
-
-	threaddaemonize();
-	mainproc(nil);
+	if(logging){
+		if(strncmp(addr, "unix!", 5) == 0)
+			addr += 5;
+		file = smprint("%s.log", addr);
+		if(file == nil)
+			sysfatal("smprint log: %r");
+		if((fd = create(file, OWRITE, 0666)) < 0)
+			sysfatal("create %s: %r", file);
+		dup(fd, 2);
+		if(fd > 2)
+			close(fd);
+	}
+	if(verbose) fprint(2, "%T 9pserve running\n");
+	proccreate(mainproc, nil, STACK);
 }
 
 void
@@ -175,7 +189,7 @@ mainproc(void *v)
 	f.msize = msize;
 	f.tag = NOTAG;
 	n = convS2M(&f, vbuf, sizeof vbuf);
-	if(verbose > 1) fprint(2, "* <- %F\n", &f);
+	if(verbose > 1) fprint(2, "%T * <- %F\n", &f);
 	nn = write(1, vbuf, n);
 	if(n != nn)
 		sysfatal("error writing Tversion: %r\n");
@@ -184,7 +198,7 @@ mainproc(void *v)
 		sysfatal("convM2S failure");
 	if(f.msize < msize)
 		msize = f.msize;
-	if(verbose > 1) fprint(2, "* -> %F\n", &f);
+	if(verbose > 1) fprint(2, "%T * -> %F\n", &f);
 
 	threadcreate(inputthread, nil, STACK);
 	threadcreate(outputthread, nil, STACK);
@@ -198,7 +212,7 @@ ignorepipe(void *v, char *s)
 	USED(v);
 	if(strcmp(s, "sys: write on closed pipe") == 0)
 		return 1;
-	fprint(2, "msg: %s\n", s);
+	fprint(2, "%T msg: %s\n", s);
 	return 0;
 }
 
@@ -215,7 +229,7 @@ listenthread(void *arg)
 		c = emalloc(sizeof(Conn));
 		c->fd = iolisten(io, adir, c->dir);
 		if(c->fd < 0){
-			if(verbose) fprint(2, "listen: %r\n");
+			if(verbose) fprint(2, "%T listen: %r\n");
 			close(afd);
 			free(c);
 			return;
@@ -224,7 +238,7 @@ listenthread(void *arg)
 		c->internal = chancreate(sizeof(void*), 0);
 		c->inq = qalloc();
 		c->outq = qalloc();
-		if(verbose) fprint(2, "incoming call on %s\n", c->dir);
+		if(verbose) fprint(2, "%T incoming call on %s\n", c->dir);
 		threadcreate(connthread, c, STACK);
 	}	
 }
@@ -279,22 +293,23 @@ connthread(void *arg)
 	io = ioproc();
 	fd = ioaccept(io, c->fd, c->dir);
 	if(fd < 0){
-		if(verbose) fprint(2, "accept %s: %r\n", c->dir);
+		if(verbose) fprint(2, "%T accept %s: %r\n", c->dir);
 		goto out;
 	}
 	close(c->fd);
 	c->fd = fd;
 	threadcreate(connoutthread, c, STACK);
 	while((m = mread9p(io, c->fd)) != nil){
-		if(verbose > 1) fprint(2, "fd#%d -> %F\n", c->fd, &m->tx);
+		if(verbose > 1) fprint(2, "%T fd#%d -> %F\n", c->fd, &m->tx);
 		m->c = c;
 		m->ctag = m->tx.tag;
 		c->nmsg++;
+		if(verbose > 1) fprint(2, "%T fd#%d: new msg %p\n", c->fd, m);
 		if(puthash(c->tag, m->tx.tag, m) < 0){
 			err(m, "duplicate tag");
 			continue;
 		}
-		m->ref++;
+		msgincref(m);
 		switch(m->tx.type){
 		case Tversion:
 			m->rx.tag = m->tx.tag;
@@ -312,7 +327,7 @@ connthread(void *arg)
 				send9pmsg(m);
 				continue;
 			}
-			m->oldm->ref++;
+			msgincref(m->oldm);
 			break;
 		case Tattach:
 			m->afid = nil;
@@ -399,7 +414,7 @@ connthread(void *arg)
 		}
 	}
 
-	if(verbose) fprint(2, "fd#%d eof; flushing conn\n", c->fd);
+	if(verbose) fprint(2, "%T fd#%d eof; flushing conn\n", c->fd);
 
 	/* flush the output queue */
 	sendq(c->outq, nil);
@@ -410,7 +425,7 @@ connthread(void *arg)
 	for(i=0; i<NHASH; i++){
 		for(h=c->tag[i]; h; h=hnext){
 			om = h->v;
-			m = msgnew();
+			m = msgnew(0);
 			m->internal = 1;
 			m->c = c;
 			c->nmsg++;
@@ -418,8 +433,8 @@ connthread(void *arg)
 			m->tx.tag = m->tag;
 			m->tx.oldtag = om->tag;
 			m->oldm = om;
-			om->ref++;	/* for m->oldm */
-			m->ref++;	/* for outq */
+			msgincref(om);
+			msgincref(m);	/* for outq */
 			sendomsg(m);
 			mm = recvp(c->internal);
 			assert(mm == m);
@@ -435,7 +450,7 @@ connthread(void *arg)
 	for(i=0; i<NHASH; i++){
 		for(h=c->fid[i]; h; h=hnext){
 			f = h->v;
-			m = msgnew();
+			m = msgnew(0);
 			m->internal = 1;
 			m->c = c;
 			c->nmsg++;
@@ -444,10 +459,11 @@ connthread(void *arg)
 			m->tx.fid = f->fid;
 			m->fid = f;
 			f->ref++;
-			m->ref++;
+			msgincref(m);
 			sendomsg(m);
 			mm = recvp(c->internal);
 			assert(mm == m);
+			msgclear(m);
 			msgput(m);	/* got from recvp */
 			msgput(m);	/* got from msgnew */
 			fidput(f);	/* got from hash table */
@@ -457,6 +473,7 @@ connthread(void *arg)
 	}
 
 out:
+	closeioproc(io);
 	assert(c->nmsg == 0);
 	assert(c->nfid == 0);
 	close(c->fd);
@@ -488,8 +505,8 @@ openfdthread(void *v)
 	m = nil;
 	if(c->fdmode == OREAD){
 		for(;;){
-			if(verbose) fprint(2, "tread...");
-			m = msgnew();
+			if(verbose) fprint(2, "%T tread...");
+			m = msgnew(0);
 			m->internal = 1;
 			m->c = c;
 			m->tx.type = Tread;
@@ -499,18 +516,18 @@ openfdthread(void *v)
 			m->tx.offset = tot;
 			m->fid = fid;
 			fid->ref++;
-			m->ref++;
+			msgincref(m);
 			sendomsg(m);
 			recvp(c->internal);
 			if(m->rx.type == Rerror){
-			//	fprint(2, "read error: %s\n", m->rx.ename);
+			//	fprint(2, "%T read error: %s\n", m->rx.ename);
 				break;
 			}
 			if(m->rx.count == 0)
 				break;
 			tot += m->rx.count;
 			if(iowrite(io, c->fd, m->rx.data, m->rx.count) != m->rx.count){
-				// fprint(2, "pipe write error: %r\n");
+				// fprint(2, "%T pipe write error: %r\n");
 				break;
 			}
 			msgput(m);
@@ -519,16 +536,16 @@ openfdthread(void *v)
 		}
 	}else{
 		for(;;){
-			if(verbose) fprint(2, "twrite...");
+			if(verbose) fprint(2, "%T twrite...");
 			n = sizeof buf;
 			if(n > msize)
 				n = msize;
 			if((n=ioread(io, c->fd, buf, n)) <= 0){
 				if(n < 0)
-					fprint(2, "pipe read error: %r\n");
+					fprint(2, "%T pipe read error: %r\n");
 				break;
 			}
-			m = msgnew();
+			m = msgnew(0);
 			m->internal = 1;
 			m->c = c;
 			m->tx.type = Twrite;
@@ -539,11 +556,11 @@ openfdthread(void *v)
 			m->tx.offset = tot;
 			m->fid = fid;
 			fid->ref++;
-			m->ref++;
+			msgincref(m);
 			sendomsg(m);
 			recvp(c->internal);
 			if(m->rx.type == Rerror){
-			//	fprint(2, "write error: %s\n", m->rx.ename);
+			//	fprint(2, "%T write error: %s\n", m->rx.ename);
 			}
 			tot += n;
 			msgput(m);
@@ -551,17 +568,16 @@ openfdthread(void *v)
 			m = nil;
 		}
 	}
-/* CLUNK NOT HAPPENING */
-	if(verbose) fprint(2, "eof on %d fid %d\n", c->fd, fid->fid);
+	if(verbose) fprint(2, "%T eof on %d fid %d\n", c->fd, fid->fid);
 	close(c->fd);
 	closeioproc(io);
 	if(m){
 		msgput(m);
 		msgput(m);
 	}
-	if(verbose) fprint(2, "eof on %d fid %d ref %d\n", c->fd, fid->fid, fid->ref);
+	if(verbose) fprint(2, "%T eof on %d fid %d ref %d\n", c->fd, fid->fid, fid->ref);
 	if(--fid->openfd == 0){
-		m = msgnew();
+		m = msgnew(0);
 		m->internal = 1;
 		m->c = c;
 		m->tx.type = Tclunk;
@@ -569,7 +585,7 @@ openfdthread(void *v)
 		m->tx.fid = fid->fid;
 		m->fid = fid;
 		fid->ref++;
-		m->ref++;
+		msgincref(m);
 		sendomsg(m);
 		recvp(c->internal);
 		msgput(m);
@@ -594,7 +610,7 @@ xopenfd(Msg *m)
 		err(m, errs);
 		/* XXX return here? */
 	}
-	if(verbose) fprint(2, "xopen pipe %d %d...", p[0], p[1]);
+	if(verbose) fprint(2, "%T xopen pipe %d %d...", p[0], p[1]);
 
 	/* now we're committed. */
 
@@ -673,7 +689,7 @@ connoutthread(void *arg)
 			break;
 		case Tauth:
 			if(err && m->afid){
-				fprint(2, "auth error\n");
+				fprint(2, "%T auth error\n");
 				if(delhash(m->c->fid, m->afid->cfid, m->afid) == 0)
 					fidput(m->fid);
 			}
@@ -691,10 +707,10 @@ connoutthread(void *arg)
 		}
 		if(delhash(m->c->tag, m->ctag, m) == 0)
 			msgput(m);
-		if(verbose > 1) fprint(2, "fd#%d <- %F\n", c->fd, &m->rx);
+		if(verbose > 1) fprint(2, "%T fd#%d <- %F\n", c->fd, &m->rx);
 		rewritehdr(&m->rx, m->rpkt);
 		if(mwrite9p(io, c->fd, m->rpkt) < 0)
-			if(verbose) fprint(2, "write error: %r\n");
+			if(verbose) fprint(2, "%T write error: %r\n");
 		msgput(m);
 		if(c->inputstalled && c->nmsg < MAXMSG)
 			nbsendp(c->inc, 0);
@@ -714,14 +730,14 @@ outputthread(void *arg)
 	io = ioproc();
 	threadsetname("output");
 	while((m = recvq(outq)) != nil){
-		if(verbose > 1) fprint(2, "* <- %F\n", &m->tx);
+		if(verbose > 1) fprint(2, "%T * <- %F\n", &m->tx);
 		rewritehdr(&m->tx, m->tpkt);
 		if(mwrite9p(io, 1, m->tpkt) < 0)
 			sysfatal("output error: %r");
 		msgput(m);
 	}
 	closeioproc(io);
-	fprint(2, "output eof\n");
+	fprint(2, "%T output eof\n");
 	threadexitsall(0);
 }	
 
@@ -734,30 +750,30 @@ inputthread(void *arg)
 	Ioproc *io;
 
 	threadsetname("input");
-	if(verbose) fprint(2, "input thread\n");
+	if(verbose) fprint(2, "%T input thread\n");
 	io = ioproc();
 	USED(arg);
 	while((pkt = read9ppkt(io, 0)) != nil){
 		n = GBIT32(pkt);
 		if(n < 7){
-			fprint(2, "short 9P packet from server\n");
+			fprint(2, "%T short 9P packet from server\n");
 			free(pkt);
 			continue;
 		}
-		if(verbose > 2) fprint(2, "read %.*H\n", n, pkt);
+		if(verbose > 2) fprint(2, "%T read %.*H\n", n, pkt);
 		tag = GBIT16(pkt+5);
 		if((m = msgget(tag)) == nil){
-			fprint(2, "unexpected 9P response tag %d\n", tag);
+			fprint(2, "%T unexpected 9P response tag %d\n", tag);
 			free(pkt);
 			continue;
 		}
 		if((nn = convM2S(pkt, n, &m->rx)) != n){
-			fprint(2, "bad packet - convM2S %d but %d\n", nn, n);
+			fprint(2, "%T bad packet - convM2S %d but %d\n", nn, n);
 			free(pkt);
 			msgput(m);
 			continue;
 		}
-		if(verbose > 1) fprint(2, "* -> %F%s\n", &m->rx,
+		if(verbose > 1) fprint(2, "%T * -> %F%s\n", &m->rx,
 			m->internal ? " (internal)" : "");
 		m->rpkt = pkt;
 		m->rx.tag = m->ctag;
@@ -769,7 +785,7 @@ inputthread(void *arg)
 			msgput(m);
 	}
 	closeioproc(io);
-	//fprint(2, "input eof\n");
+	//fprint(2, "%T input eof\n");
 	threadexitsall(0);
 }
 
@@ -792,7 +808,7 @@ delhash(Hash **ht, uint n, void *v)
 	for(l=&ht[n%NHASH]; h=*l; l=&h->next)
 		if(h->n == n){
 			if(h->v != v){
-				if(verbose) fprint(2, "delhash %d got %p want %p\n", n, h->v, v);
+				if(verbose) fprint(2, "%T delhash %d got %p want %p\n", n, h->v, v);
 				return -1;
 			}
 			*l = h->next;
@@ -856,8 +872,16 @@ Msg **msgtab;
 int nmsgtab;
 Msg *freemsg;
 
+void
+msgincref(Msg *m)
+{
+	if(verbose > 1) fprint(2, "%T msgincref @0x%lux %p tag %d/%d ref %d=>%d\n",
+		getcallerpc(&m), m, m->tag, m->ctag, m->ref, m->ref+1);
+	m->ref++;
+}
+
 Msg*
-msgnew(void)
+msgnew(int x)
 {
 	Msg *m;
 
@@ -870,7 +894,46 @@ msgnew(void)
 	m = freemsg;
 	freemsg = m->next;
 	m->ref = 1;
+	if(verbose > 1) fprint(2, "%T msgnew @0x%lux %p tag %d ref %d\n",
+		getcallerpc(&x), m, m->tag, m->ref);
 	return m;
+}
+
+/*
+ * Clear data associated with connections, so that
+ * if all msgs have been msgcleared, the connection
+ * can be freed.  Note that this does *not* free the tpkt
+ * and rpkt; they are freed in msgput with the msg itself. 
+ * The io write thread might still be holding a ref to msg
+ * even once the connection has finished with it.
+ */
+void
+msgclear(Msg *m)
+{
+	if(m->c){
+		m->c->nmsg--;
+		m->c = nil;
+	}
+	if(m->oldm){
+		msgput(m->oldm);
+		m->oldm = nil;
+	}
+	if(m->fid){
+		fidput(m->fid);
+		m->fid = nil;
+	}
+	if(m->afid){
+		fidput(m->afid);
+		m->afid = nil;
+	}
+	if(m->newfid){
+		fidput(m->newfid);
+		m->newfid = nil;
+	}
+	if(m->rx.type == Ropenfd && m->rx.unixfd >= 0){
+		close(m->rx.unixfd);
+		m->rx.unixfd = -1;
+	}
 }
 
 void
@@ -879,27 +942,20 @@ msgput(Msg *m)
 	if(m == nil)
 		return;
 
-	if(verbose > 2) fprint(2, "msgput tag %d/%d ref %d\n", m->tag, m->ctag, m->ref);
+	if(verbose > 1) fprint(2, "%T msgput 0x%lux %p tag %d/%d ref %d\n", 
+		getcallerpc(&m), m, m->tag, m->ctag, m->ref);
 	assert(m->ref > 0);
 	if(--m->ref > 0)
 		return;
-	m->c->nmsg--;
-	m->c = nil;
-	msgput(m->oldm);
-	m->oldm = nil;
-	fidput(m->fid);
-	m->fid = nil;
-	fidput(m->afid);
-	m->afid = nil;
-	fidput(m->newfid);
-	m->newfid = nil;
-	free(m->tpkt);
-	m->tpkt = nil;
-	free(m->rpkt);
-	m->rpkt = nil;
-	if(m->rx.type == Ropenfd)
-		close(m->rx.unixfd);
-	m->rx.unixfd = -1;
+	msgclear(m);
+	if(m->tpkt){
+		free(m->tpkt);
+		m->tpkt = nil;
+	}
+	if(m->rpkt){
+		free(m->rpkt);
+		m->rpkt = nil;
+	}
 	m->isopenfd = 0;
 	m->internal = 0;
 	m->next = freemsg;
@@ -916,8 +972,8 @@ msgget(int n)
 	m = msgtab[n];
 	if(m->ref == 0)
 		return nil;
-	if(verbose) fprint(2, "msgget %d = %p\n", n, m);
-	m->ref++;
+	if(verbose) fprint(2, "%T msgget %d = %p\n", n, m);
+	msgincref(m);
 	return m;
 }
 
@@ -1055,12 +1111,12 @@ mread9p(Ioproc *io, int fd)
 	if((pkt = read9ppkt(io, fd)) == nil)
 		return nil;
 
-	m = msgnew();
+	m = msgnew(0);
 	m->tpkt = pkt;
 	n = GBIT32(pkt);
 	nn = convM2S(pkt, n, &m->tx);
 	if(nn != n){
-		fprint(2, "read bad packet from %d\n", fd);
+		fprint(2, "%T read bad packet from %d\n", fd);
 		return nil;
 	}
 	return m;
@@ -1072,15 +1128,15 @@ mwrite9p(Ioproc *io, int fd, uchar *pkt)
 	int n, nfd;
 
 	n = GBIT32(pkt);
-	if(verbose > 2) fprint(2, "write %d %d %.*H\n", fd, n, n, pkt);
+	if(verbose > 2) fprint(2, "%T write %d %d %.*H\n", fd, n, n, pkt);
 	if(iowrite(io, fd, pkt, n) != n){
-		fprint(2, "write error: %r\n");
+		fprint(2, "%T write error: %r\n");
 		return -1;
 	}
 	if(pkt[4] == Ropenfd){
 		nfd = GBIT32(pkt+n-4);
 		if(iosendfd(io, fd, nfd) < 0){
-			fprint(2, "send fd error: %r\n");
+			fprint(2, "%T send fd error: %r\n");
 			return -1;
 		}
 	}
@@ -1181,4 +1237,15 @@ int
 ioaccept(Ioproc *io, int fd, char *dir)
 {
 	return iocall(io, _ioaccept, fd, dir);
+}
+
+int
+timefmt(Fmt *fmt)
+{
+	static char *mon[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	Tm tm;
+	tm = *localtime(time(0));
+	return fmtprint(fmt, "%s %2d %02d:%02d:%02d", 
+		mon[tm.mon], tm.mday, tm.hour, tm.min, tm.sec);
 }
