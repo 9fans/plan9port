@@ -129,6 +129,7 @@ struct {
 	"ret",			"$ret",
 	"tail",			"$tail",
 	"then",			"$then",
+	"var",		"$var",
 	"whatis",		"$whatis",
 	"while",		"$while",
 
