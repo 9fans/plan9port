@@ -15,6 +15,24 @@ event(Event *e)
 	return eread(~0UL, e);
 }
 
+static void
+eflush(void)
+{
+	/* avoid generating a message if there's nothing to show. */
+	/* this test isn't perfect, though; could do flushimage(display, 0) then call extract */
+	/* also: make sure we don't interfere if we're multiprocessing the display */
+	if(display->locking){
+		/* if locking is being done by program, this means it can't depend on automatic flush in emouse() etc. */
+		if(canqlock(&display->qlock)){
+			if(display->bufp > display->buf)
+				flushimage(display, 1);
+			unlockdisplay(display);
+		}
+	}else
+		if(display->bufp > display->buf)
+			flushimage(display, 1);
+}
+
 ulong
 eread(ulong keys, Event *e)
 {
@@ -22,6 +40,8 @@ eread(ulong keys, Event *e)
 	XEvent xevent;
 
 	xmask = ExposureMask;
+
+	eflush();
 
 	if(keys&Emouse)
 		xmask |= MouseMask|StructureNotifyMask;
@@ -103,6 +123,7 @@ ecanmouse(void)
 	XEvent xe;
 	Mouse m;
 
+	eflush();
 again:
 	if(XCheckWindowEvent(_x.display, _x.drawable, MouseMask, &xe)){
 		if(xtoplan9mouse(&xe, &m) < 0)
@@ -118,6 +139,7 @@ ecankbd(void)
 {
 	XEvent xe;
 
+	eflush();
 again:
 	if(XCheckWindowEvent(_x.display, _x.drawable, KeyPressMask, &xe)){
 		if(xtoplan9kbd(&xe) == -1)
@@ -132,5 +154,11 @@ void
 emoveto(Point p)
 {
 	xmoveto(p);
+}
+
+void
+esetcursor(Cursor *c)
+{
+	xsetcursor(c);
 }
 
