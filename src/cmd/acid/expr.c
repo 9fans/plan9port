@@ -135,7 +135,7 @@ oindm(Node *n, Node *res)
 		res->store.comt = l.store.comt;
 		break;
 	case TREG:
-		indirreg(threadregs(l.store.u.reg.thread), l.store.u.reg.name, l.store.fmt, res);
+		indirreg(correg, l.store.u.reg.name, l.store.fmt, res);
 		res->store.comt = l.store.comt;
 		break;
 	case TCON:
@@ -334,7 +334,7 @@ oasgn(Node *n, Node *res)
 	case OINDM:
 		expr(lp->left, &aes);
 		if(aes.type == TREG)
-			windirreg(threadregs(aes.store.u.reg.thread), aes.store.u.reg.name, n->right, res);
+			windirreg(correg, aes.store.u.reg.name, n->right, res);
 		else
 			windir(cormap, aes, n->right, res);
 		break;
@@ -1097,7 +1097,7 @@ acidregsrw(Regs *r, char *name, ulong *u, int isr)
 			werrstr("*%s: register %s not mapped", name, v->store.u.reg);
 			return -1;
 		}
-		return rget(threadregs(v->store.u.reg.thread), v->store.u.reg.name, u);
+		return rget(correg, v->store.u.reg.name, u);
 	case TCON:
 		n = v->store.u.con;
 		if(n->op != OCONST || n->type != TINT){

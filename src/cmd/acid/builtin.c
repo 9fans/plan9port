@@ -332,12 +332,12 @@ xregister(Node *r, Node *args)
 
 	na = 0;
 	flatten(av, args);
-	if(na != 1 && na != 2)
-		error("register(name[, threadid]): arg count");
+	if(na != 1/* && na != 2 */)
+		error("register(name): arg count");
 
 	expr(av[0], &res);
 	if(res.type != TSTRING)
-		error("register(name[, threadid]): arg type: name should be string");
+		error("register(name): arg type: name should be string");
 	tid = 0;
 	if(na == 2){
 		expr(av[1], &resid);
@@ -1139,7 +1139,7 @@ patom(char type, Store *res)
 	switch(type){
 	case TREG:
 		if(res->u.reg.thread)
-			Bprint(bout, "register(\"%s\", 0x%ux)", res->u.reg.name, res->u.reg.thread);
+			Bprint(bout, "register(\"%s\", %#ux)", res->u.reg.name, res->u.reg.thread);
 		else
 			Bprint(bout, "register(\"%s\")", res->u.reg.name);
 		return;
@@ -1221,16 +1221,16 @@ patom(char type, Store *res)
 		Bprint(bout, "%s", buf);
 		break;
 	case 'b':
-		Bprint(bout, "%.2x", (int)res->u.ival&0xff);
+		Bprint(bout, "%#.2x", (int)res->u.ival&0xff);
 		break;
 	case 'X':
-		Bprint(bout, "%.8lux", (ulong)res->u.ival);
+		Bprint(bout, "%#.8lux", (ulong)res->u.ival);
 		break;
 	case 'x':
-		Bprint(bout, "%.4lux", (ulong)res->u.ival&0xffff);
+		Bprint(bout, "%#.4lux", (ulong)res->u.ival&0xffff);
 		break;
 	case 'W':
-		Bprint(bout, "%.16llux", res->u.ival);
+		Bprint(bout, "%#.16llux", res->u.ival);
 		break;
 	case 'D':
 		Bprint(bout, "%d", (int)res->u.ival);
@@ -1251,19 +1251,19 @@ patom(char type, Store *res)
 		Bprint(bout, "%lld", res->u.ival);
 		break;
 	case 'Y':
-		Bprint(bout, "%.16llux", res->u.ival);
+		Bprint(bout, "%#.16llux", res->u.ival);
 		break;
 	case 'o':
-		Bprint(bout, "0%.11uo", (int)res->u.ival&0xffff);
+		Bprint(bout, "%#.11uo", (int)res->u.ival&0xffff);
 		break;
 	case 'O':
-		Bprint(bout, "0%.6uo", (int)res->u.ival);
+		Bprint(bout, "%#.6uo", (int)res->u.ival);
 		break;
 	case 'q':
-		Bprint(bout, "0%.11o", (short)(res->u.ival&0xffff));
+		Bprint(bout, "%#.11o", (short)(res->u.ival&0xffff));
 		break;
 	case 'Q':
-		Bprint(bout, "0%.6o", (int)res->u.ival);
+		Bprint(bout, "%#.6o", (int)res->u.ival);
 		break;
 	case 'f':
 	case 'F':

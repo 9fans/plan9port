@@ -93,7 +93,6 @@ main(int argc, char *argv[])
 		usage();
 	}ARGEND
 
-	fmtinstall('x', xfmt);
 	fmtinstall('Z', Zfmt);
 	fmtinstall('L', locfmt);
 	Binit(&bioout, 1, OWRITE);
@@ -191,126 +190,17 @@ setstring(char *var, char *s)
 static int
 attachfiles(int argc, char **argv)
 {
-	int fd;
 	volatile int pid;
-	char *s, *t;
-	int i, omode;
-	Fhdr *hdr;
 	Lsym *l;
 
 	pid = 0;
 	interactive = 0;
+
 	if(setjmp(err))
 		return -1;
 
-	/*
-	 * Unix and Plan 9 differ on what the right order of pid, text, and core is.
-	 * I never remember anyway.  Let's just accept them in any order.
-	 */
-	omode = wtflag ? ORDWR : OREAD;
-	for(i=0; i<argc; i++){
-		if(isnumeric(argv[i])){
-			if(pid){
-				fprint(2, "already have pid %d; ignoring pid %d\n", pid, argv[i]);
-				continue;
-			}
-			if(corhdr){
-				fprint(2, "already have core %s; ignoring pid %d\n", corfil, pid);
-				continue;
-			}
-			pid = atoi(argv[i]);
-			continue;
-		}
-		if((hdr = crackhdr(argv[i], omode)) == nil){
-			fprint(2, "crackhdr %s: %r\n", argv[i]);
-			if(argc == 1 && (fd = open(argv[i], omode)) > 0){
-				fprint(2, "loading %s direct mapped\n", argv[i]);
-				symmap = dumbmap(fd);
-				cormap = dumbmap(fd);
-				symfil = argv[i];
-				corfil = argv[i];
-				goto Run;
-			}
-			continue;
-		}
-		fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
-		if(hdr->ftype == FCORE){
-			if(pid){
-				fprint(2, "already have pid %d; ignoring core %s\n", pid, argv[i]);
-				uncrackhdr(hdr);
-				continue;
-			}
-			if(corhdr){
-				fprint(2, "already have core %s; ignoring core %s\n", corfil, argv[i]);
-				uncrackhdr(hdr);
-				continue;
-			}
-			corhdr = hdr;
-			corfil = argv[i];
-		}else{
-			if(symhdr){
-				fprint(2, "already have text %s; ignoring text %s\n", symfil, argv[i]);
-				uncrackhdr(hdr);
-				continue;
-			}
-			symhdr = hdr;
-			symfil = argv[i];
-		}
-	}
+	attachargs(argc, argv, wtflag?ORDWR:OREAD, 1);
 
-	if(symhdr==nil){
-		symfil = "a.out";
-		if(pid){
-			if((s = proctextfile(pid)) != nil){
-				fprint(2, "pid %d: text %s\n", pid, s);
-				symfil = s;
-			}
-		}
-		if(corhdr){
-			/*
-			 * prog gives only the basename of the command,
-			 * so try the command line for a path.
-			 */
-			if((s = strdup(corhdr->cmdline)) != nil){
-				t = strchr(s, ' ');
-				if(t)
-					*t = 0;
-				if((t = searchpath(s)) != nil){
-					fprint(2, "core: text %s\n", t);
-					symfil = t;
-				}
-				free(s);
-			}
-		}
-
-		if((symhdr = crackhdr(symfil, omode)) == nil){
-			fprint(2, "crackhdr %s: %r\n", symfil);
-			symfil = nil;
-		}else
-			fprint(2, "%s: %s %s %s\n", symfil, symhdr->aname, symhdr->mname, symhdr->fname);	
-	}
-
-	if(symhdr)
-		symopen(symhdr);
-
-	if(!mach)
-		mach = machcpu;
-
-	/*
-	 * Set up maps.
-	 */
-	symmap = allocmap();
-	cormap = allocmap();
-	if(symmap == nil || cormap == nil)
-		sysfatal("allocating maps: %r");
-
-	if(symhdr){
-		if(mapfile(symhdr, 0, symmap, nil) < 0)
-			fprint(2, "mapping %s: %r\n", symfil);
-		mapfile(symhdr, 0, cormap, nil);
-	}
-
-Run:
 	setstring("objtype", mach->name);
 	setstring("textfile", symfil);
 	setstring("systype", symhdr ? symhdr->aname : "");
@@ -321,8 +211,8 @@ Run:
 	l->v->type = TLIST;
 	l->v->store.u.l = nil;
 
-	if(pid)
-		sproc(pid);
+	if(corpid)
+		sproc(corpid);
 	if(corhdr)
 		setcore(corhdr);
 	varreg();
@@ -654,7 +544,7 @@ checkqid(int f1, int pid)
 	close(fd);
 
 	if(d1->qid.path != d2->qid.path || d1->qid.vers != d2->qid.vers || d1->qid.type != d2->qid.type){
-		print("path %llux %llux vers %lud %lud type %d %d\n",
+		print("path %#llux %#llux vers %lud %lud type %d %d\n",
 			d1->qid.path, d2->qid.path, d1->qid.vers, d2->qid.vers, d1->qid.type, d2->qid.type);
 		print("warning: image does not match text for pid %d\n", pid);
 	}
@@ -712,11 +602,4 @@ isnumeric(char *s)
 		s++;
 	}
 	return 1;
-}
-
-int
-xfmt(Fmt *f)
-{
-	f->flags ^= FmtSharp;
-	return __ifmt(f);
 }
