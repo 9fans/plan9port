@@ -408,6 +408,29 @@ defn casm()
 	asm(lasmaddr);
 }
 
+defn xasm(addr)
+{
+	local bound;
+
+	bound = fnbound(addr);
+
+	addr = fmt(addr, 'i');
+	loop 1,_asmlines do {
+		print(fmt(addr, 'a'), " ", fmt(addr, 'X'));
+		print("\t", *addr++, "\n");
+		if bound != {} && addr > bound[1] then {
+			lasmaddr = addr;
+			return {};
+		}
+	}
+	lasmaddr = addr;
+}
+
+defn xcasm()
+{
+	xasm(lasmaddr);
+}
+
 defn win()
 {
 	local npid, estr;
@@ -614,5 +637,54 @@ defn acidtypes()
 	}
 }
 
+defn getregs()
+{
+	local regs, l;
+
+	regs = {};
+	l = registers;
+	while l != {} do {
+		regs = append regs, var(l[0]);
+		l = tail l;
+	}
+	return regs;
+}
+
+defn setregs(regs)
+{
+	local l;
+
+	l = registers;
+	while l != {} do {
+		var(l[0]) = regs[0];
+		l = tail l;
+		regs = tail regs;
+	}
+	return regs;
+}
+
+defn resetregs()
+{
+	local l;
+
+	l = registers;
+	while l != {} do {
+		var(l[0]) = register(l[0]);
+		l = tail l;
+	}
+}
+
+defn clearregs()
+{
+	local l;
+
+	l = registers;
+	while l != {} do {
+		var(l[0]) = refconst(~0);
+		l = tail l;
+	}
+}
+
 progargs="";
 print(acidfile);
+
