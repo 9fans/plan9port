@@ -246,6 +246,7 @@ struct Fhdr
 	ulong	sppcoff;		/* offset of sp-pc table in file */
 	ulong	lnpcsz;		/* size of line number-pc table */
 	ulong	lnpcoff;		/* size of line number-pc table */
+	char		*txtfil;		/* text name, for core files */
 	void		*elf;			/* handle to elf image */
 	void		*dwarf;		/* handle to dwarf image */
 	void		*macho;		/* handle to mach-o image */
@@ -276,7 +277,7 @@ struct Fhdr
 	int		(*indexlsym)(Fhdr*, Symbol*, uint, Symbol*);
 	int		(*findlsym)(Fhdr*, Symbol*, Loc, Symbol*);
 
-	int		(*unwind)(Fhdr*, Map*, Regs*, ulong*);
+	int		(*unwind)(Fhdr*, Map*, Regs*, ulong*, Symbol*);
 };
 
 Fhdr*	crackhdr(char *file, int mode);
@@ -302,6 +303,22 @@ int		detachproc(int pid);
 int		ctlproc(int pid, char *msg);
 int		procnotes(int pid, char ***notes);
 char*	proctextfile(int pid);
+
+/*
+ * Command-line debugger help
+ */
+extern Fhdr *symhdr;
+extern Fhdr *corhdr;
+extern char *symfil;
+extern char *corfil;
+extern int corpid;
+extern Regs *correg;
+extern Map *symmap;
+extern Map *cormap;
+
+int		attachproc(int pid);
+int		attachcore(Fhdr *hdr);
+int		attachargs(int argc, char **argv, int omode);
 
 /*
  * Machine descriptions.
@@ -383,7 +400,7 @@ struct Mach
 
 	int		(*foll)(Map*, Regs*, ulong, ulong*);	/* follow set */
 	char*	(*exc)(Map*, Regs*);		/* last exception */
-	int		(*unwind)(Map*, Regs*, ulong*);
+	int		(*unwind)(Map*, Regs*, ulong*, Symbol*);
 
 	/* cvt to local byte order */
 	u16int	(*swap2)(u16int);
@@ -472,11 +489,12 @@ int		lookuplsym(Symbol *s1, char *name, Symbol *s2);
 int		indexlsym(Symbol *s1, uint ndx, Symbol *s2);
 int		findlsym(Symbol *s1, Loc loc, Symbol *s);
 int		symoff(char *a, uint n, ulong addr, uint class);
-int		unwindframe(Map *map, Regs *regs, ulong *next);
+int		unwindframe(Map *map, Regs *regs, ulong *next, Symbol*);
 
 void		_addhdr(Fhdr*);
 void		_delhdr(Fhdr*);
 extern Fhdr*	fhdrlist;
+Fhdr*	findhdr(char*);
 
 Symbol*	flookupsym(Fhdr*, char*);
 Symbol*	ffindsym(Fhdr*, Loc, uint);
@@ -500,5 +518,10 @@ char*	_hexify(char*, ulong, int);
 int		locfmt(Fmt*);
 int		loccmp(Loc*, Loc*);
 int		locsimplify(Map *map, Regs *regs, Loc loc, Loc *newloc);
+
+struct ps_prochandle
+{
+	int pid;
+};
 
 extern int machdebug;
