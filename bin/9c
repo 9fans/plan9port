@@ -55,11 +55,14 @@ case "$tag" in
 esac
 
 # N.B. Must use temp file to avoid pipe; pipe loses status.
+# The uniq at the end is for gcc's strcmp/etc. built-in nonsense,
+# which multiplies single errors as a result of its expansion.
 xtmp=/tmp/9c.$$.$USER.out
 $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" >$xtmp 2>&1
 status=$?
 grep -v '__p9l_autolib_' $xtmp |
 egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|: In function `|: At top level:' |
-sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g'
+sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' |
+uniq
 rm -f $xtmp $xtmp.status
 exit $status
