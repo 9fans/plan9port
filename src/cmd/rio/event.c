@@ -130,12 +130,6 @@ configurereq(XConfigureRequestEvent *e)
 		if (e->value_mask & CWBorderWidth)
 			c->border = e->border_width;
 		gravitate(c, 0);
-		if (e->value_mask & CWStackMode) {
-			if (e->detail == Above)
-				top(c);
-			else
-				e->value_mask &= ~CWStackMode;
-		}
 		if (c->parent != c->screen->root && c->window == e->window) {
 			wc.x = c->x-BORDER;
 			wc.y = c->y-BORDER;
@@ -146,8 +140,13 @@ configurereq(XConfigureRequestEvent *e)
 			wc.stack_mode = e->detail;
 			XConfigureWindow(dpy, c->parent, e->value_mask, &wc);
 			sendconfig(c);
-			top(c);	
-			active(c);
+		}
+		if (e->value_mask & CWStackMode) {
+			if (wc.stack_mode == Above) {
+				top(c);
+				active(c);
+			}else
+				e->value_mask &= ~CWStackMode;
 		}
 	}
 

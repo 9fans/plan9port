@@ -411,13 +411,14 @@ sendcmessage(Window w, Atom a, long x, int isroot, int usemask)
 	ev.xclient.format = 32;
 	ev.xclient.data.l[0] = x;
 	ev.xclient.data.l[1] = timestamp();
-	if (usemask == 0)
-		mask = 0;
-	else if (isroot)
-		mask = SubstructureRedirectMask;		/* magic! */
-	else
-		mask = ExposureMask;	/* not really correct but so be it */
-	mask |= KeyPressMask;	/* seems to be necessary */
+	mask = 0;
+	if(usemask){
+		mask |= KeyPressMask;	/* seems to be necessary */
+		if (isroot)
+			mask |= SubstructureRedirectMask;		/* magic! */
+		else
+			mask |= ExposureMask;	/* not really correct but so be it */
+	}
 	status = XSendEvent(dpy, w, False, mask, &ev);
 	if (status == 0)
 		fprintf(stderr, "rio: sendcmessage failed\n");
