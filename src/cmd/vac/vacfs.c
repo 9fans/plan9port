@@ -144,7 +144,7 @@ threadmain(int argc, char *argv[])
 		dflag = 1;
 		break;
 	case 'c':
-		ncache = atoi(ARGF());
+		ncache = atoi(EARGF(usage()));
 		break;
 	case 'i':
 		stdio = 1;
@@ -152,10 +152,10 @@ threadmain(int argc, char *argv[])
 		mfd[1] = 1;
 		break;
 	case 'h':
-		host = ARGF();
+		host = EARGF(usage());
 		break;
 	case 's':
-		defsrv = ARGF();
+		defsrv = EARGF(usage());
 		break;
 	case 'p':
 		noperm = 1;
