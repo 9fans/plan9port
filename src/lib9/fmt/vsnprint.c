@@ -20,7 +20,6 @@ int
 vsnprint(char *buf, int len, char *fmt, va_list args)
 {
 	Fmt f;
-	int x = 0;
 
 	if(len <= 0)
 		return -1;

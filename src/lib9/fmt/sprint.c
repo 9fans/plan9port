@@ -12,7 +12,8 @@
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
 #include <stdarg.h>
-#include "fmt.h"
+#include <fmt.h>
+#include "fmtdef.h"
 
 int
 sprint(char *buf, char *fmt, ...)
