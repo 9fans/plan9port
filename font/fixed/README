@@ -1,0 +1,9 @@
+These fonts are converted from the BDFs in the XFree86 distribution.
+They were all marked as public domain.
+
+They're ugly, but support more languages than the standard fonts.
+Mainly they're useful for scavenging.  ../lucm/unicode.9.font and
+../pelm/unicode.9.font, for example, have been extended with glyphs
+from here.
+
+Russ Cox
