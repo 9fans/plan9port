@@ -169,18 +169,19 @@ defn pthreads(P){
 
 defn threads(){
 	local P;
-
 	complex Pqueue _threadpq;
+
 	P = (Proc)_threadpq.$head;
 	while P != 0 do{
 		if P != (Proc)_threadpq.$head then print("\n");
 		lproc(P);
-		P = P.next;
+		P = (Proc)P.next;
 	}
 }
 
 defn stacks(){
 	local P, mainpid;
+	complex Pqueue _threadpq;
 
 	stkprefix = "";
 	mainpid = pid;
@@ -202,6 +203,7 @@ defn stacks(){
 
 defn stacksizes(){
 	local P, T, Tq, top, sp, mainpid;
+	complex Pqueue _threadpq;
 
 	mainpid = pid;
 	P = (Proc)_threadpq.$head;
@@ -230,6 +232,10 @@ defn lproc(P){
 	pthreads(P);
 }
 
+threadstkignore = {
+	"plan9/src/libthread/",
+	"plan9/src/libc/(386|arm|alpha|sparc|power|mips)/"
+};
 defn threadstks(P){
 	complex Proc P;
 	local T, Tq, mainpid, pref, ign;
@@ -238,10 +244,7 @@ defn threadstks(P){
 	pref = stkprefix;
 	stkprefix = pref+"\t\t";
 	ign = stkignore;
-	stkignore = {
-		"plan9/src/libthread/",
-		"plan9/src/libc/(386|arm|alpha|sparc|power|mips)/"
-	};
+	stkignore = threadstkignore;
 	setproc(P.pid);
 	Tq = (Tqueue)P.threads;
 	T = (Thread)Tq.$head;
@@ -272,6 +275,7 @@ defn proc(P){
 
 defn procs(){
 	local P;
+	complex Pqueue _threadpq;
 
 	P = (Proc)_threadpq.$head;
 	while P != 0 do{
@@ -358,6 +362,29 @@ defn channel(C) {
 		else
 			print("\t<empty>\n");
 		i=i+1;
+	}
+}
+
+defn polling() {
+	local i, c, t, p, pf;
+
+	p=(Poll)polls; pf=(struct_pollfd)pfd; loop 1,*npoll do {
+		print("\tfd ", pf.fd\D, "   ");
+		if pf.events & 1 then
+			print("r");
+		else if pf.events & 2 then
+ 			print("w");
+		else
+			print(pf.events\D);
+		print(" chan Channel(", p.c\X, ")\n");
+		p = (Poll)(p+sizeofPoll);
+		pf = (struct_pollfd)(pf+sizeofstruct_pollfd);
+	}
+
+	c=sleepchan; t=sleeptime; loop 1,*nsleep do {
+		print("\tsleep ", *t\D, " Channel(", *c\X, ")\n");
+		c++;
+		t++;
 	}
 }
 
