@@ -5,3 +5,4 @@ AR=ar
 ARFLAGS=rvc
 NAN=nan64.$O	# default, can be overriden by Make.$(SYSNAME)
 NAN=nan64.$O
+RANLIB=true
