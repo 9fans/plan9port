@@ -3,6 +3,7 @@
 PLAN9=`pwd` export PLAN9
 PATH=$PLAN9/bin:$PATH export PATH
 
+(
 echo "Building mk..."
 cd src
 make
@@ -11,7 +12,7 @@ mk clean
 mk libs-nuke
 mk all
 echo "Installing everything..."
-mk install | tee -a mk-install.log
+mk install 
 echo "Cleaning up..."
 mk clean
 echo "Renaming hard-coded /usr/local/plan9 paths..."
@@ -27,3 +28,4 @@ echo "Add these to your profile environment."
 echo "	PLAN9=$PLAN9 export PLAN9"
 echo '	PATH=$PATH:'"$PLAN9/bin export PATH"
 
+) 2>&1 | tee mk-install.log
