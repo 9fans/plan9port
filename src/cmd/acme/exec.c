@@ -1280,7 +1280,10 @@ runproc(void *argvp)
 	int sfd[3];
 	int pipechar;
 	char buf[512];
+	int olddir;
+	int ret;
 	//static void *parg[2];
+	char *rcarg[4];
 	void **argv;
 	Fsys *fs;
 
@@ -1317,11 +1320,6 @@ runproc(void *argvp)
 		pipechar = *t++;
 	c->iseditcmd = iseditcmd;
 	c->text = s;
-	if(rdir != nil){
-		dir = runetobyte(rdir, ndir);
-		chdir(dir);	/* ignore error: probably app. window */
-		free(dir);
-	}
 	if(newns){
 		nincl = 0;
 		incl = nil;
@@ -1431,7 +1429,30 @@ runproc(void *argvp)
 	av[ac++] = arg;
 	av[ac] = nil;
 	c->av = av;
-	threadexec(cpid, sfd, av[0], av);
+
+	/*
+	 * clumsy -- we're not running in a separate thread
+	 * so we have to save the current directory and put
+	 * it back when we're done.  if this gets to be a regular
+	 * thing we could change threadexec to take a directory too.
+	 */
+	olddir = -1;
+	if(rdir != nil){
+		olddir = open(".", OREAD);
+		dir = runetobyte(rdir, ndir);
+		chdir(dir);	/* ignore error: probably app. window */
+		free(dir);
+	}
+	ret = threadspawn(sfd, av[0], av);
+	if(olddir >= 0){
+		fchdir(olddir);
+		close(olddir);
+	}
+	if(ret >= 0){
+		if(cpid)
+			sendul(cpid, ret);
+		threadexits("");
+	}
 /* libthread uses execvp so no need to do this */
 #if 0
 	e = av[0];
@@ -1474,7 +1495,27 @@ Hard:
 			c->text = news;
 		}
 	}
-	threadexecl(cpid, sfd, "rc", "rc", "-c", t, nil);
+	olddir = -1;
+	if(rdir != nil){
+		olddir = open(".", OREAD);
+		dir = runetobyte(rdir, ndir);
+		chdir(dir);	/* ignore error: probably app. window */
+		free(dir);
+	}
+	rcarg[0] = "rc";
+	rcarg[1] = "-c";
+	rcarg[2] = t;
+	rcarg[3] = nil;
+	ret = threadspawn(sfd, rcarg[0], rcarg);
+	if(olddir >= 0){
+		fchdir(olddir);
+		close(olddir);
+	}
+	if(ret >= 0){
+		if(cpid)
+			sendul(cpid, ret);
+		threadexits("");
+	}
 	warning(nil, "exec rc: %r\n");
 
    Fail:
