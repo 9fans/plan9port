@@ -233,6 +233,60 @@ BEGIN {
 	lastfile = FILENAME;
 }
 
+func getnmlist(lib,    cmd)
+{
+	cmd = "nm -g " lib
+	while (cmd | getline) {
+		if (($2 == "T" || $2 == "L") && $3 !~ "^_"){
+			sym = $3
+			sub("^p9", "", sym)
+			if(sym in Renamelib)
+				List[Renamelib[sym]] = lib " as " sym
+			else
+				List[sym] = lib
+		}
+	}
+	close(cmd)
+}
+
+
+func getindex(dir,    fname)
+{
+	fname = dir "/INDEX"
+	while ((getline < fname) > 0)
+		Index[$1] = dir
+	close(fname)
+}
+
+func getbinlist(dir,    cmd, subdirs, nsd)
+{
+	cmd = "ls -p -l " dir
+	nsd = 0
+	while (cmd | getline) {
+		if ($1 ~ /^d/) {
+			if (!($10 in Skipdirs))
+				subdirs[++nsd] = $10
+		} else if ($10 !~ "^_")
+			List[$10] = dir
+	}
+	for ( ; nsd > 0 ; nsd--)
+		getbinlist(dir "/" subdirs[nsd])
+	close(cmd)
+}
+
+func clearindex(    i)
+{
+	for (i in Index)
+		delete Index[i]
+}
+
+func clearlist(    i)
+{
+	for (i in List)
+		delete List[i]
+}
+
+
 FNR==1	{
 	if(lastline == ""){
 		# screws up troff headers
@@ -460,54 +514,3 @@ END {
 	close("sort")
 }
 
-func getindex(dir,    fname)
-{
-	fname = dir "/INDEX"
-	while ((getline < fname) > 0)
-		Index[$1] = dir
-	close(fname)
-}
-
-func getbinlist(dir,    cmd, subdirs, nsd)
-{
-	cmd = "ls -p -l " dir
-	nsd = 0
-	while (cmd | getline) {
-		if ($1 ~ /^d/) {
-			if (!($10 in Skipdirs))
-				subdirs[++nsd] = $10
-		} else if ($10 !~ "^_")
-			List[$10] = dir
-	}
-	for ( ; nsd > 0 ; nsd--)
-		getbinlist(dir "/" subdirs[nsd])
-	close(cmd)
-}
-
-func getnmlist(lib,    cmd)
-{
-	cmd = "nm -g " lib
-	while (cmd | getline) {
-		if (($2 == "T" || $2 == "L") && $3 !~ "^_"){
-			sym = $3
-			sub("^p9", "", sym)
-			if(sym in Renamelib)
-				List[Renamelib[sym]] = lib " as " sym
-			else
-				List[sym] = lib
-		}
-	}
-	close(cmd)
-}
-
-func clearindex(    i)
-{
-	for (i in Index)
-		delete Index[i]
-}
-
-func clearlist(    i)
-{
-	for (i in List)
-		delete List[i]
-}
