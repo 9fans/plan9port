@@ -1,0 +1,13 @@
+<$PLAN9/src/mkhdr
+
+TARG=\
+	ndbmkdb\
+	ndbquery\
+	ndbmkhash\
+	ndbmkhosts\
+	ndbipquery\
+
+LIB=$PLAN9/lib/libndb.a
+
+<$PLAN9/src/mkmany
+
