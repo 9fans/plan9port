@@ -22,6 +22,7 @@ OFILES=\
 	fmtstr.$O\
 	fmtvprint.$O\
 	fprint.$O\
+	nan64.$O\
 	print.$O\
 	runefmtstr.$O\
 	runeseprint.$O\
@@ -41,7 +42,6 @@ OFILES=\
 	vsmprint.$O\
 	vsnprint.$O\
 	$NUM\
-	$NAN\
 
 HFILES=\
 	fmtdef.h\

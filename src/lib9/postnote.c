@@ -1,5 +1,5 @@
 #include <u.h>
-#define _NO9DEFINES_
+#define NOPLAN9DEFINES
 #include <libc.h>
 
 #include <signal.h>

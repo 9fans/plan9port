@@ -35,6 +35,7 @@ cd libfmt
 9c  fmtstr.c
 9c  fmtvprint.c
 9c  fprint.c
+9c  nan64.c
 9c  print.c
 9c  runefmtstr.c
 9c  runeseprint.c
@@ -55,8 +56,7 @@ cd libfmt
 9c  vsnprint.c
 9c  charstod.c
 9c  pow10.c
-9c  nan64.c
-ar rvc ../../lib/libfmt.a dofmt.o errfmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlock.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o nan64.o
+ar rvc ../../lib/libfmt.a dofmt.o errfmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlock.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o
 cd ..
 cd libbio
 9c  bbuffered.c

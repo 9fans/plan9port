@@ -123,7 +123,7 @@ dirread(int fd, Dir **dp)
 	if(buf == nil)
 		return -1;
 
-	n = getdents(fd, (struct dirent*)buf, st.st_blksize);
+	n = getdents(fd, (void*)buf, st.st_blksize);
 	if(n < 0){
 		free(buf);
 		return -1;
@@ -156,7 +156,7 @@ dirreadall(int fd, Dir **d)
 			return -1;
 		}
 		buf = nbuf;
-		n = getdents(fd, (struct dirent*)(buf+ts), st.st_blksize);
+		n = getdents(fd, (void*)(buf+ts), st.st_blksize);
 		if(n <= 0)
 			break;
 		ts += n;
