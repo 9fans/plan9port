@@ -168,7 +168,7 @@ void execcd(void){
 		if(cdpath==0) pfmt(err, "Can't cd %s: %r\n", a->next->word);
 		break;
 	case 1:
-		a=vlook("home")->val;
+		a=vlook("HOME")->val;
 		if(count(a)>=1){
 			if(dochdir(a->word)>=0)
 				setstatus("");

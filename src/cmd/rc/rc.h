@@ -84,6 +84,7 @@ struct var{
 	int fnchanged;
 	int pc;			/* pc of start of function */
 	var *next;	/* next on hash or local list */
+	void	(*changefn)(var*);
 };
 var *vlook(char*), *gvlook(char*), *newvar(char*, var*);
 #define	NVAR	521

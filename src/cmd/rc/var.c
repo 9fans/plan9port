@@ -62,10 +62,70 @@ var *vlook(char *name)
 			if(strcmp(v->name, name)==0) return v;
 	return gvlook(name);
 }
-void setvar(char *name, word *val)
+void _setvar(char *name, word *val, int callfn)
 {
 	register struct var *v=vlook(name);
 	freewords(v->val);
 	v->val=val;
 	v->changed=1;
+	if(callfn && v->changefn)
+		v->changefn(v);
+}
+void setvar(char *name, word *val)
+{
+	_setvar(name, val, 1);
+}
+void bigpath(var *v)
+{
+	/* convert $PATH to $path */
+	char *p, *q;
+	word **l, *w;
+
+	if(v->val == nil){
+		_setvar("path", nil, 0);
+		return;
+	}
+	p = v->val->word;
+	w = nil;
+	l = &w;
+	/*
+	 * Doesn't handle escaped colon nonsense.
+	 */
+	if(p[0] == 0)
+		p = nil;
+	while(p){
+		q = strchr(p, ':');
+		if(q)
+			*q = 0;
+		*l = newword(p[0] ? p : ".", nil);
+		l = &(*l)->next;
+		if(q){
+			*q = ':';
+			p = q+1;
+		}else
+			p = nil;
+	}
+	_setvar("path", w, 0);
+}
+void littlepath(var *v)
+{
+	/* convert $path to $PATH */
+	char *p;
+	word *w;
+
+	p = _list2str(v->val, ':');
+	w = new(word);
+	w->word = p;
+	w->next = nil;
+	_setvar("PATH", w, 1);	/* 1: recompute $path to expose colon problems */
+}
+void pathinit(void)
+{
+	var *v;
+
+	v = gvlook("path");
+	v->changefn = littlepath;
+	v = gvlook("PATH");
+	v->changefn = bigpath;
+	bigpath(v);
 }

@@ -117,6 +117,7 @@ main(int argc, char *argv[])
 	Trapinit();
 	Vinit();
 	itoa(num, mypid=getpid());
+	pathinit();
 	setvar("pid", newword(num, (word *)0));
 	setvar("cflag", flag['c']?newword(flag['c'][0], (word *)0)
 				:(word *)0);
@@ -369,7 +370,7 @@ void Xwrite(void){
 	runq->pc++;
 	poplist();
 }
-char *list2str(word *words){
+char *_list2str(word *words, int c){
 	char *value, *s, *t;
 	int len=0;
 	word *ap;
@@ -379,11 +380,14 @@ char *list2str(word *words){
 	s=value;
 	for(ap=words;ap;ap=ap->next){
 		for(t=ap->word;*t;) *s++=*t++;
-		*s++=' ';
+		*s++=c;
 	}
 	if(s==value) *s='\0';
 	else s[-1]='\0';
 	return value;
+}
+char *list2str(word *words){
+	return _list2str(words, ' ');
 }
 void Xmatch(void){
 	word *p;
@@ -464,6 +468,8 @@ void Xassign(void){
 	freewords(v->val);
 	v->val=runq->argv->words;
 	v->changed=1;
+	if(v->changefn)
+		v->changefn(v);
 	runq->argv->words=0;
 	poplist();
 }
