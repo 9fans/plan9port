@@ -7,9 +7,9 @@
  * There is no equivalent note to Unix's SIGKILL, since
  * it's not a deliverable signal anyway.
  *
- * We do not handle SIGABRT or SIGSEGV, mainly so that
- * stack traces show the original source of the signal instead
- * of notifysigf.
+ * We do not handle SIGABRT or SIGSEGV, mainly because
+ * the thread library queues its notes for later, and we want
+ * to dump core with the state at time of delivery.
  *
  * We have to add some extra entry points to provide the
  * ability to tweak which signals are deliverable and which
@@ -112,7 +112,6 @@ static void (*notifyf)(void*, char*);	/* Plan 9 handler */
 static void
 signotify(int sig)
 {
-	int v;
 	char tmp[64];
 	Jmp *j;
 
@@ -150,7 +149,6 @@ noted(int v)
 int
 notify(void (*f)(void*, char*))
 {
-	int i;
 	static int init;
 
 	notifyf = f;
@@ -164,7 +162,8 @@ notify(void (*f)(void*, char*))
 /*
  * Nonsense about enabling and disabling signals.
  */
-static void(*)(int)
+typedef void Sighandler(int);
+static Sighandler*
 handler(int s)
 {
 	struct sigaction sa;
@@ -174,7 +173,7 @@ handler(int s)
 }
 
 static void
-notifysetenable(int sig, int enabled)
+notesetenable(int sig, int enabled)
 {
 	sigset_t mask;
 
@@ -187,15 +186,15 @@ notifysetenable(int sig, int enabled)
 }
 
 void
-notifyenable(char *msg)
+noteenable(char *msg)
 {
-	notifyenablex(_p9strsig(msg), 1);
+	notesetenable(_p9strsig(msg), 1);
 }
 
 void
-notifydisable(char *msg)
+notedisable(char *msg)
 {
-	notifyenablex(_p9strsig(msg), 0);
+	notesetenable(_p9strsig(msg), 0);
 }
 
 static void
@@ -207,7 +206,8 @@ notifyseton(int s, int on)
 	sig = findsig(s);
 	if(sig == nil)
 		return;
-	notifyenable(msg);
+	if(on)
+		notesetenable(s, 1);
 	memset(&sa, 0, sizeof sa);
 	sa.sa_handler = on ? signotify : signonotify;
 	if(sig->restart)
@@ -234,7 +234,7 @@ notifyon(char *msg)
 void
 notifyoff(char *msg)
 {
-	notifysetoff(_p9strsig(msg), 0);
+	notifyseton(_p9strsig(msg), 0);
 }
 
 /*
@@ -252,6 +252,7 @@ noteinit(void)
 		 * If someone has already installed a handler,
 		 * It's probably some ld preload nonsense,
 		 * like pct (a SIGVTALRM-based profiler).
+		 * Or maybe someone has already called notifyon/notifyoff.
 		 * Leave it alone.
 		 */
 		if(handler(sig->sig) != SIG_DFL)
@@ -261,7 +262,7 @@ noteinit(void)
 		 * (I.e. if parent has disabled for us, should we still enable?)
 		 * Right now we always initialize to the state we want.
 		 */
-		notifysetenable(sig->sig, sig->enabled);
+		notesetenable(sig->sig, sig->enabled);
 		notifyseton(sig->sig, sig->notified);
 	}
 }

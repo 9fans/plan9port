@@ -1,379 +1,167 @@
-#include <lib9.h>
+#include <u.h>
+#include <libc.h>
 
-static struct {
-	QLp	*p;
-	QLp	x[1024];
-} ql = {
-	ql.x
-};
+/*
+ * The function pointers are supplied by the thread
+ * library during its initialization.  If there is no thread
+ * library, there is no multithreading.
+ */
 
-enum
-{
-	Queuing,
-	QueuingR,
-	QueuingW,
-	Sleeping,
-	Waking,
-};
-
-static void (*procsleep)(_Procrend*) = _procsleep;
-static void (*procwakeup)(_Procrend*) = _procwakeup;
-#define _procsleep donotcall_procsleep
-#define _procwakeup donotcall_procwakeup
-
-/* this gets called by the thread library ONLY to get us to use its rendezvous */
-void
-_qlockinit(void (*sleep)(_Procrend*), void (*wakeup)(_Procrend*))
-{
-	procsleep = sleep;
-	procwakeup = wakeup;
-}
-
-/* find a free shared memory location to queue ourselves in */
-static QLp*
-getqlp(void)
-{
-	QLp *p, *op;
-
-	op = ql.p;
-	for(p = op+1; ; p++){
-		if(p == &ql.x[nelem(ql.x)])
-			p = ql.x;
-		if(p == op){
-			fprint(2, "qlock: out of qlp\n");
-			abort();
-		}
-		if(canlock(&p->inuse)){
-			ql.p = p;
-			p->next = nil;
-			break;
-		}
-	}
-	return p;
-}
+int	(*_lock)(Lock*, int, ulong);
+void	(*_unlock)(Lock*, ulong);
+int	(*_qlock)(QLock*, int, ulong);	/* do not use */
+void	(*_qunlock)(QLock*, ulong);
+void	(*_rsleep)(Rendez*, ulong);	/* do not use */
+int	(*_rwakeup)(Rendez*, int, ulong);
+int	(*_rlock)(RWLock*, int, ulong);	/* do not use */
+int	(*_wlock)(RWLock*, int, ulong);
+void	(*_runlock)(RWLock*, ulong);
+void	(*_wunlock)(RWLock*, ulong);
 
 void
-qlock(QLock *q)
+lock(Lock *l)
 {
-	QLp *p, *mp;
-
-	lock(&q->lock);
-	if(!q->locked){
-		q->locked = 1;
-		unlock(&q->lock);
-		return;
-	}
-
-
-	/* chain into waiting list */
-	mp = getqlp();
-	p = q->tail;
-	if(p == nil)
-		q->head = mp;
+	if(_lock)
+		(*_lock)(l, 1, getcallerpc(&l));
 	else
-		p->next = mp;
-	q->tail = mp;
-	mp->state = Queuing;
-	mp->rend.l = &q->lock;
-	procsleep(&mp->rend);
-	unlock(&q->lock);
-	assert(mp->state == Waking);
-	unlock(&mp->inuse);
-}
-
-void
-qunlock(QLock *q)
-{
-	QLp *p;
-
-	lock(&q->lock);
-	p = q->head;
-	if(p != nil){
-		/* wakeup head waiting process */
-		q->head = p->next;
-		if(q->head == nil)
-			q->tail = nil;
-		p->state = Waking;
-		procwakeup(&p->rend);
-		unlock(&q->lock);
-		return;
-	}
-	q->locked = 0;
-	unlock(&q->lock);
+		l->held = 1;
 }
 
 int
-canqlock(QLock *q)
+canlock(Lock *l)
 {
-	if(!canlock(&q->lock))
-		return 0;
-	if(!q->locked){
-		q->locked = 1;
-		unlock(&q->lock);
+	if(_lock)
+		return (*_lock)(l, 0, getcallerpc(&l));
+	else{
+		if(l->held)
+			return 0;
+		l->held = 1;
 		return 1;
 	}
-	unlock(&q->lock);
-	return 0;
 }
 
 void
-rlock(RWLock *q)
+unlock(Lock *l)
 {
-	QLp *p, *mp;
-
-	lock(&q->lock);
-	if(q->writer == 0 && q->head == nil){
-		/* no writer, go for it */
-		q->readers++;
-		unlock(&q->lock);
-		return;
-	}
-
-	mp = getqlp();
-	p = q->tail;
-	if(p == 0)
-		q->head = mp;
+	if(_unlock)
+		(*_unlock)(l, getcallerpc(&l));
 	else
-		p->next = mp;
-	q->tail = mp;
-	mp->next = nil;
-	mp->state = QueuingR;
-	mp->rend.l = &q->lock;
-	procsleep(&mp->rend);
-	unlock(&q->lock);
-	assert(mp->state == Waking);
-	unlock(&mp->inuse);
+		l->held = 0;
+}
+
+void
+qlock(QLock *l)
+{
+	if(_qlock)
+		(*_qlock)(l, 1, getcallerpc(&l));
+	else
+		l->l.held = 1;
 }
 
 int
-canrlock(RWLock *q)
+canqlock(QLock *l)
 {
-	lock(&q->lock);
-	if (q->writer == 0 && q->head == nil) {
-		/* no writer; go for it */
-		q->readers++;
-		unlock(&q->lock);
+	if(_qlock)
+		return (*_qlock)(l, 0, getcallerpc(&l));
+	else{
+		if(l->l.held)
+			return 0;
+		l->l.held = 1;
 		return 1;
 	}
-	unlock(&q->lock);
-	return 0;
 }
 
 void
-runlock(RWLock *q)
+qunlock(QLock *l)
 {
-	QLp *p;
-
-	lock(&q->lock);
-	if(q->readers <= 0)
-		abort();
-	p = q->head;
-	if(--(q->readers) > 0 || p == nil){
-		unlock(&q->lock);
-		return;
-	}
-
-	/* start waiting writer */
-	if(p->state != QueuingW)
-		abort();
-	q->head = p->next;
-	if(q->head == 0)
-		q->tail = 0;
-	q->writer = 1;
-
-	/* wakeup waiter */
-	p->state = Waking;
-	procwakeup(&p->rend);
-	unlock(&q->lock);
-}
-
-void
-wlock(RWLock *q)
-{
-	QLp *p, *mp;
-
-	lock(&q->lock);
-	if(q->readers == 0 && q->writer == 0){
-		/* noone waiting, go for it */
-		q->writer = 1;
-		unlock(&q->lock);
-		return;
-	}
-
-	/* wait */
-	p = q->tail;
-	mp = getqlp();
-	if(p == nil)
-		q->head = mp;
+	if(_qunlock)
+		(*_qunlock)(l, getcallerpc(&l));
 	else
-		p->next = mp;
-	q->tail = mp;
-	mp->next = nil;
-	mp->state = QueuingW;
+		l->l.held = 0;
+}
 
-	/* wait in kernel */
-	mp->rend.l = &q->lock;
-	procsleep(&mp->rend);
-	unlock(&q->lock);
-	assert(mp->state == Waking);
-	unlock(&mp->inuse);
+void
+rlock(RWLock *l)
+{
+	if(_rlock)
+		(*_rlock)(l, 1, getcallerpc(&l));
+	else
+		l->readers++;
 }
 
 int
-canwlock(RWLock *q)
+canrlock(RWLock *l)
 {
-	lock(&q->lock);
-	if (q->readers == 0 && q->writer == 0) {
-		/* no one waiting; go for it */
-		q->writer = 1;
-		unlock(&q->lock);
+	if(_rlock)
+		return (*_rlock)(l, 0, getcallerpc(&l));
+	else{
+		if(l->writer)
+			return 0;
+		l->readers++;
 		return 1;
 	}
-	unlock(&q->lock);
-	return 0;
+	return 1;
 }
 
 void
-wunlock(RWLock *q)
+runlock(RWLock *l)
 {
-	QLp *p;
+	if(_runlock)
+		(*_runlock)(l, getcallerpc(&l));
+	else
+		l->readers--;
+}
 
-	lock(&q->lock);
-	if(q->writer == 0){
-		fprint(2, "wunlock: not holding lock\n");
-		abort();
-	}
-	p = q->head;
-	if(p == nil){
-		q->writer = 0;
-		unlock(&q->lock);
-		return;
-	}
-	if(p->state == QueuingW){
-		/* start waiting writer */
-		q->head = p->next;
-		if(q->head == nil)
-			q->tail = nil;
-		p->state = Waking;
-		procwakeup(&p->rend);
-		unlock(&q->lock);
-		return;
-	}
+void
+wlock(RWLock *l)
+{
+	if(_wlock)
+		(*_wlock)(l, 1, getcallerpc(&l));
+	else
+		l->writer = (void*)1;
+}
 
-	if(p->state != QueuingR){
-		fprint(2, "wunlock: bad state\n");
-		abort();
+int
+canwlock(RWLock *l)
+{
+	if(_wlock)
+		return (*_wlock)(l, 0, getcallerpc(&l));
+	else{
+		if(l->writer || l->readers)
+			return 0;
+		l->writer = (void*)1;
+		return 1;
 	}
+}
 
-	/* wake waiting readers */
-	while(q->head != nil && q->head->state == QueuingR){
-		p = q->head;
-		q->head = p->next;
-		q->readers++;
-		p->state = Waking;
-		procwakeup(&p->rend);
-	}
-	if(q->head == nil)
-		q->tail = nil;
-	q->writer = 0;
-	unlock(&q->lock);
+void
+wunlock(RWLock *l)
+{
+	if(_wunlock)
+		(*_wunlock)(l, getcallerpc(&l));
+	else
+		l->writer = nil;
 }
 
 void
 rsleep(Rendez *r)
 {
-	QLp *t, *me;
-
-	if(!r->l){
-		fprint(2, "rsleep: no lock\n");
-		abort();
-	}
-	lock(&r->l->lock);
-	/* we should hold the qlock */
-	if(!r->l->locked){
-		fprint(2, "rsleep: not locked\n");
-		abort();
-	}
-
-	/* add ourselves to the wait list */
-	me = getqlp();
-	me->state = Sleeping;
-	if(r->head == nil)
-		r->head = me;
-	else
-		r->tail->next = me;
-	me->next = nil;
-	r->tail = me;
-
-	/* pass the qlock to the next guy */
-	t = r->l->head;
-	if(t){
-		r->l->head = t->next;
-		if(r->l->head == nil)
-			r->l->tail = nil;
-		t->state = Waking;
-		procwakeup(&t->rend);
-	}else
-		r->l->locked = 0;
-
-	/* wait for a wakeup */
-	me->rend.l = &r->l->lock;
-	procsleep(&me->rend);
-	assert(me->state == Waking);
-	unlock(&me->inuse);
-	if(!r->l->locked){
-		fprint(2, "rsleep: not locked after wakeup\n");
-		abort();
-	}
-	unlock(&r->l->lock);
+	if(_rsleep)
+		(*_rsleep)(r, getcallerpc(&r));
 }
 
 int
 rwakeup(Rendez *r)
 {
-	QLp *t;
-
-	/*
-	 * take off wait and put on front of queue
-	 * put on front so guys that have been waiting will not get starved
-	 */
-	
-	if(!r->l){
-		fprint(2, "rwakeup: no lock\n");
-		abort();
-	}
-	lock(&r->l->lock);
-	if(!r->l->locked){
-		fprint(2, "rwakeup: not locked\n");
-		abort();
-	}
-
-	t = r->head;
-	if(t == nil){
-		unlock(&r->l->lock);
-		return 0;
-	}
-
-	r->head = t->next;
-	if(r->head == nil)
-		r->tail = nil;
-
-	t->next = r->l->head;
-	r->l->head = t;
-	if(r->l->tail == nil)
-		r->l->tail = t;
-
-	t->state = Queuing;
-	unlock(&r->l->lock);
-	return 1;
+	if(_rwakeup)
+		return (*_rwakeup)(r, 0, getcallerpc(&r));
+	return 0;
 }
 
 int
 rwakeupall(Rendez *r)
 {
-	int i;
-
-	for(i=0; rwakeup(r); i++)
-		;
-	return i;
+	if(_rwakeup)
+		return (*_rwakeup)(r, 1, getcallerpc(&r));
+	return 0;
 }
