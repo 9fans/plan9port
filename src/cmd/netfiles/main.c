@@ -157,16 +157,26 @@ wintop(Win *w)
 	winctl(w, "show");
 }
 
+int
+isdot(Win *w, uint xq0, uint xq1)
+{
+	uint q0, q1;
+
+	winctl(w, "addr=dot");
+	q0 = winreadaddr(w, &q1);
+	return xq0==q0 && xq1==q1;
+}
+
 /*
  * Expand the click further than acme usually does -- all non-white space is okay.
  */
 char*
 expandarg(Win *w, Event *e)
 {
-	if(e->c2 == 'l')
+	if(e->c2 == 'l')	/* in tag - no choice but to accept acme's expansion */
 		return estrdup(e->text);
 	dprint("expand %d %d %d %d\n", e->oq0, e->oq1, e->q0, e->q1);
-	if(e->oq0 == e->oq1 && e->q0 != e->q1)
+	if(e->oq0 == e->oq1 && e->q0 != e->q1 && !isdot(w, e->q0, e->q1))
 		winaddr(w, "#%ud+#1-/[^ \t\\n]*/,#%ud-#1+/[^ \t\\n]*/", e->q0, e->q1);
 	else
 		winaddr(w, "#%ud,#%ud", e->q0, e->q1);
