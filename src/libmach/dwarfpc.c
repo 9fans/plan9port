@@ -109,12 +109,12 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 	}
 
 	/* just skip the files and dirs for now; we'll come back */
-	dirs = b.p;
+	dirs = (char*)b.p;
 	while(b.p!=nil && *b.p!=0)
 		dwarfgetstring(&b);
 	dwarfget1(&b);
 
-	files = b.p;
+	files = (char*)b.p;
 	while(b.p!=nil && *b.p!=0){
 		dwarfgetstring(&b);
 		dwarfget128(&b);
@@ -278,7 +278,7 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 		*line = emit.line;
 
 	/* skip over first emit.file-2 guys */
-	b.p = files;
+	b.p = (uchar*)files;
 	for(i=emit.file-1; i > 0 && b.p!=nil && *b.p!=0; i--){
 		dwarfgetstring(&b);
 		dwarfget128(&b);
@@ -315,7 +315,7 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 		if(i == 0)
 			*dir = nil;
 		else{
-			b.p = dirs;
+			b.p = (uchar*)dirs;
 			for(i--; i>0 && b.p!=nil && *b.p!=0; i--)
 				dwarfgetstring(&b);
 			if(b.p==nil || *b.p==0){

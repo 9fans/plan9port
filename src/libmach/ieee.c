@@ -18,9 +18,9 @@ ieeeftoa64(char *buf, uint n, u32int h, u32int l)
 		return 0;
 
 
-	if(h & (1L<<31)){
+	if(h & (1UL<<31)){
 		*buf++ = '-';
-		h &= ~(1L<<31);
+		h &= ~(1UL<<31);
 	}else
 		*buf++ = ' ';
 	n--;
@@ -55,9 +55,9 @@ ieeeftoa32(char *buf, uint n, u32int h)
 	if (n <= 0)
 		return 0;
 
-	if(h & (1L<<31)){
+	if(h & (1UL<<31)){
 		*buf++ = '-';
-		h &= ~(1L<<31);
+		h &= ~(1UL<<31);
 	}else
 		*buf++ = ' ';
 	n--;

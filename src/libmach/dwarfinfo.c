@@ -544,7 +544,7 @@ getstring(DwarfBuf *b, int form, char **s)
 			/* don't return error - maybe can proceed */
 			*s = nil;
 		}else
-			*s = b->d->str.data + u;
+			*s = (char*)b->d->str.data + u;
 		return 0;
 
 	}

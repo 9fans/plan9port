@@ -195,7 +195,7 @@ elfinit(int fd)
 
 	for(i=0; i<e->nsect; i++)
 		if(e->sect[i].name)
-			e->sect[i].name = s->base + (ulong)e->sect[i].name;
+			e->sect[i].name = (char*)s->base + (ulong)e->sect[i].name;
 
 	e->symtab = elfsection(e, ".symtab");
 	if(e->symtab){
@@ -375,7 +375,7 @@ elfsym(Elf *elf, int i, ElfSym *sym)
 		if(elfmap(elf, symtab) < 0 || elfmap(elf, strtab) < 0)
 			return -1;
 		p = symtab->base + i * sizeof(ElfSymBytes);
-		s = strtab->base;
+		s = (char*)strtab->base;
 		x = elf->hdr.e4(p);
 		if(x >= strtab->size){
 			werrstr("bad symbol name offset 0x%lux", x);

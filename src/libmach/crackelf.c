@@ -68,7 +68,7 @@ crackelf(int fd, Fhdr *fp)
 		if(elfmap(elf, s1) >= 0 && elfmap(elf, s2) >= 0){
 			fp->stabs.stabbase = s1->base;
 			fp->stabs.stabsize = s1->size;
-			fp->stabs.strbase = s2->base;
+			fp->stabs.strbase = (char*)s2->base;
 			fp->stabs.strsize = s2->size;
 			fp->stabs.e2 = elf->hdr.e2;
 			fp->stabs.e4 = elf->hdr.e4;
