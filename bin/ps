@@ -25,7 +25,7 @@ BEGIN{
 
 function statestr(s, wchan)
 {
-	if(wchan != s && wchan != "?")
+	if(wchan != s && wchan != "?" && wchan != "-")
 		return wchan;
 	t = state[substr(s, 1, 1)];
 	if(t == "")
@@ -71,11 +71,11 @@ function statestr(s, wchan)
 
 case "${SYSNAME:-`uname`}" in 
 SunOS)
-	/bin/ps -aA -o 'user,pid,stime,time,vsz,s,s,args' | sed 1d |
+	/bin/ps -aA -o 'user,pid,stime,time,rss,s,s,args' | sed 1d |
 		nawk -f /tmp/awk.xxx$$ | sort -n +1
 	;;
 *)
-	/bin/ps -axww -o 'user,pid,start,time,vsz,stat,wchan,command' | sed 1d |
+	/bin/ps -axww -o 'user,pid,start,time,rss,stat,wchan,command' | sed 1d |
 		awk -f /tmp/awk.xxx$$ | sort -n +1
 	;;
 esac
