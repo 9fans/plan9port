@@ -21,7 +21,7 @@ then
 	for i
 	do
 		case "$i" in
-		[^-]*.o)
+		*.o)
 			ofiles="$ofiles $i"
 			;;
 		esac
@@ -34,7 +34,7 @@ then
 		a=`
 			nm $ofiles |
 			grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
-			sed 's/.* __p9l_autolib_//' |
+			sed 's/.*__p9l_autolib_//' |
 			sort -u
 		`
 		for i in $a
