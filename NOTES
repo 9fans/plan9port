@@ -6,7 +6,7 @@ Most are position independent.  The few hard-coded references
 
 * Obtaining the source
 
-Tarballs will be posted occasionally at
+Tarballs will be posted nightly (but only when there are updates!) at
 
   http://pdos.lcs.mit.edu/~rsc/software/plan9
 
