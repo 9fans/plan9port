@@ -1,0 +1,29 @@
+#!/usr/local/plan9/bin/rc
+
+fn text {
+	if(~ $winid [0-9]*)
+		9p read acme/$winid/body
+	if not if(~ $text9term unix!*)
+		dial -e $text9term </dev/null
+	if not
+		status=''
+}
+
+PROMPT='[^ 	]*[%;$#][ 	]+'
+
+fn cmds {
+	text | 9grep '^'$PROMPT'[^"]' | sed 's/^/	/'
+}
+
+switch($#*) {
+case 0
+	cmds | tail -1
+case *
+	cmds | 9grep '^	'$PROMPT^$"* | {echo; cat} |
+		pr -t -n | sort -nr | sort -u +1 | sort -n |
+		9sed 's/^ *[0-9]+	//' | grep .
+}
+
+# the silly {echo; cat} gets around pr printing "empty file" when
+# presented with no input.
+

@@ -1,0 +1,10 @@
+#!/usr/local/plan9/bin/rc
+
+PROMPT='[^ 	]*[%;$#][ 	]+'
+
+" $* | tail -1 | tee >{wc -l >/tmp/qq.$pid} | tee /dev/stderr | 9sed 's/^	'$PROMPT'//' | rc
+if(~ `{cat /tmp/qq.$pid} 0){
+	echo no such command found
+	exit notfound
+}
+exit 0
