@@ -11,10 +11,12 @@ encodefmt(Fmt *f)
 	uchar *b;
 	char obuf[64];	// rsc optimization
 
-	if(!(f->flags&FmtPrec) || f->prec < 0)
+	if(!(f->flags&FmtPrec) || f->prec < 1)
 		goto error;
 
 	b = va_arg(f->args, uchar*);
+	if(b == 0)
+		return fmtstrcpy(f, "<nil>");
 
 	ilen = f->prec;
 	f->prec = 0;
@@ -51,6 +53,9 @@ encodefmt(Fmt *f)
 		break;
 	case 'H':
 		rv = enc16(out, len, b, ilen);
+		if(rv >= 0 && (f->flags & FmtLong))
+			for(p = buf; *p; p++)
+				*p = tolower(*p);
 		break;
 	default:
 		rv = -1;

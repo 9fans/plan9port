@@ -13,7 +13,7 @@ FMTOFILES=\
 	fmt.$O\
 	fmtfd.$O\
 	fmtfdflush.$O\
-	fmtlock.$O\
+	fmtlock2.$O\
 	fmtprint.$O\
 	fmtquote.$O\
 	fmtrune.$O\
