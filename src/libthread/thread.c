@@ -1,6 +1,3 @@
-#include "u.h"
-#include "libc.h"
-#include "thread.h"
 #include "threadimpl.h"
 
 int	_threaddebuglevel;
@@ -95,7 +92,7 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	sigemptyset(&zero);
 	sigprocmask(SIG_BLOCK, &zero, &t->context.uc.uc_sigmask);
 
-	/* on Linux makecontext neglects floating point */
+	/* must initialize with current context */
 	getcontext(&t->context.uc);
 
 	/* call makecontext to do the real work. */

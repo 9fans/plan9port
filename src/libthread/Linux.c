@@ -1,11 +1,3 @@
-#include "u.h"
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sched.h>
-#include <signal.h>
-#include "libc.h"
-#include "thread.h"
 #include "threadimpl.h"
 
 /*

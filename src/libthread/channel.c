@@ -1,6 +1,3 @@
-#include "u.h"
-#include "libc.h"
-#include "thread.h"
 #include "threadimpl.h"
 
 /*

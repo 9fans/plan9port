@@ -1,4 +1,20 @@
+#include "u.h"
+#include <errno.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sched.h>
+#include <signal.h>
 #include <ucontext.h>
+#include "libc.h"
+#include "thread.h"
+
+#if defined(__FreeBSD__) && !defined(__FreeBSD5__)
+extern	int		getcontext(ucontext_t*);
+extern	void		setcontext(ucontext_t*);
+extern	int		swapcontext(ucontext_t*, ucontext_t*);
+extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
+#endif
 
 typedef struct Context Context;
 typedef struct Execjob Execjob;

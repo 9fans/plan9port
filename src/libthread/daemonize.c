@@ -1,8 +1,3 @@
-#include <u.h>
-#include <sys/signal.h>
-#include <sys/wait.h>
-#include <libc.h>
-#include <thread.h>
 #include "threadimpl.h"
 
 #undef pipe
@@ -15,8 +10,10 @@ static void
 child(void)
 {
 	int status;
-	if(wait(&status) == sigpid && WIFEXITED(status))
-		 _exit(WEXITSTATUS(status));
+	if(wait(&status) == sigpid)
+		if(WIFEXITED(status))
+			 _exit(WEXITSTATUS(status));
+	_exit(97);
 }
 
 static void
@@ -83,7 +80,7 @@ _threadsetupdaemonize(void)
 			child();
 		if(n > 0)
 			break;
-		sysfatal("passer pipe read: %r");
+		print("passer read: %r\n");
 	}
 	buf[n] = 0;
 	_exit(atoi(buf));

@@ -1,7 +1,3 @@
-#include "u.h"
-#include <errno.h>
-#include "libc.h"
-#include "thread.h"
 #include "threadimpl.h"
 
 static Lock thewaitlock;
