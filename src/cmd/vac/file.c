@@ -1513,11 +1513,11 @@ static u32int
 filemetaalloc(VacFile *f, VacDir *dir, u32int start)
 {
 	u32int nb, bo;
-	VtBlock *b, *bb;
+	VtBlock *b;
 	MetaBlock mb;
 	int nn;
 	uchar *p;
-	int i, n, epb;
+	int i, n;
 	MetaEntry me;
 	VtFile *s, *ms;
 
