@@ -476,6 +476,8 @@ getname(Text *t, Text *argt, Rune *arg, int narg, int isput)
 			r = runemalloc(dir.nr+n+1);
 			runemove(r, dir.r, dir.nr);
 			free(dir.r);
+			if(dir.nr>0 && r[dir.nr]!='/' && n>0 && arg[0]!='/')
+				r[dir.nr++] = '/';
 			runemove(r+dir.nr, arg, n);
 			n += dir.nr;
 		}else{
