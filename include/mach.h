@@ -259,6 +259,7 @@ struct Fhdr
 	void		*dwarf;		/* handle to dwarf image */
 	void		*macho;		/* handle to mach-o image */
 	struct Stab	stabs;
+	char		*cmd;		/* command-line that produced core */
 
 	/* private */
 	Symbol	*sym;		/* cached list of symbols */

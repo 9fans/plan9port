@@ -221,6 +221,7 @@ struct Elf
 	ulong	dynamic;		/* offset to elf dynamic crap */
 
 	int		(*coreregs)(Elf*, ElfNote*, uchar**);
+	int		(*corecmd)(Elf*, ElfNote*, char**);
 };
 
 Elf*	elfopen(char*);

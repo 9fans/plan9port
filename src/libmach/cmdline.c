@@ -58,6 +58,7 @@ attachargs(int argc, char **argv, int omode)
 		}
 		fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
 		if(hdr->ftype == FCORE){
+			fprint(2, "core cmd: %s\n", hdr->cmd);
 			if(corpid){
 				fprint(2, "already have corpid %d; ignoring core %s\n", corpid, argv[i]);
 				uncrackhdr(hdr);

@@ -6,6 +6,7 @@
 
 static int mapelf(Fhdr *fp, ulong base, Map *map, Regs**);
 static int mapcoreregs(Fhdr *fp, Map *map, Regs**);
+static char *getcorecmd(Fhdr *fp, Map *map);
 
 static struct
 {
@@ -137,6 +138,7 @@ crackelf(int fd, Fhdr *fp)
 			|| ctab[i].mtype != fp->mtype)
 				continue;
 			elf->coreregs = ctab[i].coreregs;
+			elf->corecmd = ctab[i].corecmd;
 			break;
 		}
 		return 0;
@@ -257,6 +259,8 @@ mapelf(Fhdr *fp, ulong base, Map *map, Regs **regs)
 	if(fp->ftype == FCORE){
 		if(mapcoreregs(fp, map, regs) < 0)
 			fprint(2, "warning: reading core regs: %r");
+		if((fp->cmd = getcorecmd(fp, map)) == nil)
+			fprint(2, "warning: reading core command: %r");
 	}
 
 	return 0;	
@@ -345,5 +349,63 @@ mapcoreregs(Fhdr *fp, Map *map, Regs **rp)
 	}
 	fprint(2, "could not find registers in core file\n");
 	return -1;
+}
+
+static char*
+getcorecmd(Fhdr *fp, Map *map)
+{
+	int i;
+	uchar *a, *sa, *ea;
+	char *cmd;
+	uint n;
+	ElfNote note;
+	ElfProg *p;
+	Elf *elf;
+
+	elf = fp->elf;
+	if(elf->corecmd == 0){
+		werrstr("cannot parse %s %s cores", fp->mname, fp->aname);
+		return nil;
+	}
+
+	for(i=0; i<elf->nprog; i++){
+		p = &elf->prog[i];
+		if(p->type != ElfProgNote)
+			continue;
+		n = p->filesz;
+		a = malloc(n);
+		if(a == nil)
+			return nil;
+		if(seek(fp->fd, p->offset, 0) < 0 || readn(fp->fd, a, n) != n){
+			free(a);
+			continue;
+		}
+		sa = a;
+		ea = a+n;
+		while(a < ea){
+			note.offset = (a-sa) + p->offset;
+			if(unpacknote(elf, a, ea, &note, &a) < 0)
+				break;
+			switch(note.type){
+			case ElfNotePrPsinfo:
+				if((n = elf->corecmd(elf, &note, &cmd)) < 0){
+					free(sa);
+					return nil;
+				}
+				free(sa);
+				return cmd;
+			case ElfNotePrStatus:
+			case ElfNotePrFpreg:
+			case ElfNotePrTaskstruct:
+			case ElfNotePrAuxv:
+			case ElfNotePrXfpreg:
+				break;
+			}
+		//	fprint(2, "0x%lux note %s/%lud %p\n", note.offset, note.name, note.type, note.desc);
+		}
+		free(sa);
+	}
+	fprint(2, "could not find registers in core file\n");
+	return nil;
 }
 
