@@ -1,5 +1,9 @@
 #!/usr/local/plan9/bin/rc
 
+verbose=no
+if(~ $1 -v)
+	verbose=yes
+
 path=($PLAN9/bin $path)
 cd $PLAN9/man
 # rm -f */*.html
@@ -53,7 +57,7 @@ for (i in */[~.]*.[0-9]*){
 	d=`{basename -d $j}
 	if(~ $p 0intro)
 		p=intro
-	echo $d/$p
+	if(~ $verbose yes) echo $d/$p
 	troff -manhtml $i | troff2html -t 'Plan 9 from User Space'>/tmp/manweb.html
 	{
 		sed '/<!-- TRAILER -->/q' /tmp/manweb.html
