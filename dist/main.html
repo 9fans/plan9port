@@ -10,17 +10,17 @@ Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
 <title>Plan 9 from User Space</title>
 </head>
 <body bgcolor=#ffffff>
-<Table>
+<table border=0 cellspacing=0 cellpadding=0 width=100%>
   <tr height=10><td width=20><td><td width=20>
   <tr><td><td>
     <center>
       <img src="dist/spaceglenda100.png" alt="Space Glenda">
     </center>
-    <Table><tr height=10><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
     <center>
       <font size=+1><b>Plan 9 from User Space</b></font>
     </center>
-    <Table><tr height=10><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
     <center>
       <a href="man/man1/intro.html">overview</a>
       |
@@ -32,17 +32,19 @@ Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
       |
       <a href="man/man1/cvs.html">cvs</a>
       |
+      <a href="http://cvs.pdos.lcs.mit.edu/cvs/plan9">cvsweb</a>
+      |
       <a href="unix/">unix</a>
     </center>
-    <Table><tr height=10><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
     Plan 9 from User Space (aka plan9port)
     is a port of many Plan 9 programs from their native
     <a href="http://plan9.bell-labs.com/plan9/">Plan 9</a>
     environment to Unix-like operating systems.
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>supported systems</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
         Linux <font size=-1>(x86 and PowerPC)</font>,
@@ -51,9 +53,9 @@ Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
         SunOS <font size=-1>(Sparc)</font>.
     </table>
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>getting started</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
         Start with the overview in
@@ -62,18 +64,20 @@ Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
         <a href="man/man1/install.html"><i>install</i>(1)</a>.
     </table>
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>download</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
         latest tree: <a href="plan9port.tgz">plan9port.tgz</a>
-        <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/plan9port.tgz">date and checksums</a>)</font>
+        <font size=-1>(<a href="/cgi-bin/info.cgi?file=/plan9port/plan9port.tgz">date and checksums</a>;
+          <a href="http://cvs.pdos.lcs.mit.edu/cvs/plan9/CHANGES?rev=HEAD">list of recent changes</a>)</font>
+        <br>
     </table>
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>acknowledgements</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
 
@@ -82,14 +86,14 @@ Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
         and would not exist without the work of the Plan 9 team over the
         past many years.
 
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
 
         Rob Pike suggested the original X11 port of libdraw years ago,
         as part of drawterm, and strongly encouraged the Mac OS X work.
         He has also been a consistent source of good ideas to hide
         the ugliness of modern Unix.
 
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
 
         William Josephson handled
         <a href="man/man1/troff.html"><i>troff</i>(1)</a>
@@ -97,56 +101,56 @@ Edit ./^$/,s/<Table/<table border=0 cellspacing=0 cellpadding=0 width=100%/g
         the supporting programs.  He also inspired the recent thread library
         clean-up and has ported a handful of applications.
 
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
 
         Andrey Mirtchovski and Axel Belinfante have done significant
         work dealing with X11 corner cases and fine-tuning
         <a href="man/man1/rio.html"><i>rio</i>(1)</a>.
         Axel never tires of finding bugs in the SunOS port.
 
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
         
         Latchesar Ionkov has contributed many fixes to tricky bugs.
         
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
 
         Many other people have provided help,
         ported programs, written bug reports,
         sent useful patches, and gotten plan9port running on new
         systems.
         
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
 
         Thanks to all.
 
     </table>
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>contact</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
         Russ Cox <font size=-1>(<a href="mailto:rsc@swtch.com">rsc@swtch.com</a>)
     </table>
 
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>unix extracts</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
         The UTF-8 library, the formatted print library,
         the buffered I/O library, the (Unicode-capable) regular expression
         library, and mk are available in packaging separate from plan9port.
 
-        <Table><tr height=10><td></table>
+        <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=10><td></table>
 
         See <a href="http://swtch.com/plan9port/unix/">http://swtch.com/plan9port/unix/</a>.
     </table>
 
-    <Table><tr height=20><td></table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%><tr height=20><td></table>
     <b>history</b>
-    <Table>
+    <table border=0 cellspacing=0 cellpadding=0 width=100%>
       <tr height=10><td width=20><td>
       <tr><td><td>
         <a href="http://plan9.bell-labs.com/plan9dist/ureg.html">
