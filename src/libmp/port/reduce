@@ -3,14 +3,6 @@ shift
 objtype=$1
 shift
 
-ls -p ../$objtype/*.[cs] >[2]/dev/null | sed 's/..$//' > /tmp/reduce.$pid
-#
-#	if empty directory, just return the input files
-#
-if (! ~ $status '|') {
-	echo $*
-	rm /tmp/reduce.$pid
-	exit 0
-}
-echo $* | tr ' ' \012 | grep -v -f /tmp/reduce.$pid | tr \012 ' '
-rm /tmp/reduce.$pid
+reduce="("`ls -p ../$objtype/*.[cs] 2>/dev/null | sed 's/..$//' | sed 's/^.*\///' | tr '\012' '|' | sed 's/.$//'`")"
+
+echo $* | tr ' ' '\012' | egrep -v $reduce | tr \012 ' ' 

@@ -2,6 +2,6 @@
 
 DIRS=\
 	port\
-#	$systype-$objtype\
+	$objtype\
 
 <$PLAN9/src/mkdirs

@@ -33,10 +33,9 @@ FILES=\
 	mptov\
 	mptouv\
 
-OFILES=${FILES:%=%.$O}
-
+ALLOFILES=${FILES:%=%.$O}
 # cull things in the per-machine directories from this list
-# OFILES=	`{sh ./reduce $O $objtype $ALLOFILES}
+OFILES=	`{sh ./reduce $O $objtype $ALLOFILES}
 
 HFILES=\
 	$PLAN9/include/lib9.h\
@@ -44,3 +43,6 @@ HFILES=\
 	dat.h\
 
 <$PLAN9/src/mksyslib
+
+poot:
+	echo $OFILES
