@@ -193,7 +193,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 
 	if(t->ncache!=0 || t->file->b.nc || t->w==nil || t!=&t->w->body || (t->w->isdir && t->file->nname==0))
 		error("text.load");
-	if(t->w->isdir && t->file.nname==0){
+	if(t->w->isdir && t->file->nname==0){
 		warning(nil, "empty directory name");
 		return 0;
 	}
@@ -652,7 +652,7 @@ texttype(Text *t, Rune r)
 			if(t->w)
 				wincommit(t->w, t);
 			else
-				textcommit(t->w, TRUE);
+				textcommit(t, TRUE);
 			textshow(t, t->q0-1, t->q0-1, TRUE);
 		}
 		return;
