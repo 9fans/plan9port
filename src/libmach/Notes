@@ -1,0 +1,13 @@
+
+TODO ===============
+
+Move 386 crap out of symdwarf.c, symstabs.c.
+Implement line2pc in dwarf.c.
+Parse ELF .dynamic section for a few more symbols.
+
+Add stabs support to acidtypes.
+Handle multiple symbol files better in acid.
+Write acid code to walk dynamic linking tables.
+
+Write lax command-line parsing code for acid, db.
+

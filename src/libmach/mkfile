@@ -1,0 +1,58 @@
+<$PLAN9/src/mkhdr
+
+LIB=libmach.a
+
+OFILES=\
+	$SYSNAME.$O\
+	crack.$O\
+	crackelf.$O\
+	crackmacho.$O\
+	dwarf386.$O\
+	dwarfabbrev.$O\
+	dwarfaranges.$O\
+	dwarfcfa.$O\
+	dwarfget.$O\
+	dwarfinfo.$O\
+	dwarfopen.$O\
+	dwarfpc.$O\
+	dwarfpubnames.$O\
+	elf.$O\
+	elfcorefreebsd386.$O\
+	elfcorelinux386.$O\
+	frame.$O\
+	fpformat.$O\
+	hexify.$O\
+	ieee.$O\
+	loc.$O\
+	localaddr.$O\
+	mach.$O\
+	mach386.$O\
+	macho.$O\
+	machocorepower.$O\
+	machpower.$O\
+	map.$O\
+	regs.$O\
+	stabs.$O\
+	swap.$O\
+	sym.$O\
+	symdwarf.$O\
+	symelf.$O\
+	symmacho.$O\
+	symstabs.$O\
+
+HFILES=mach.h
+
+<$PLAN9/src/mksyslib
+CFLAGS=$CFLAGS -I.
+
+elfdump: elfdump.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9
+
+machodump: machodump.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9
+
+dwarfdump: dwarfdump.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9
+
+nm: nm.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9

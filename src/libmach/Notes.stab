@@ -1,0 +1,166 @@
+stabs
+
+N_MAIN with name "main" to identify entry function
+N_SO source file.  might be preceded by dir ending in /
+	value is code ptr
+	empty string means source done
+N_SOL source include file, value = text addr of where this starts
+N_SLINE start of source line
+	no name
+	desc = line number
+	value = code addr for that line
+
+N_FUN (36) function def
+	'F' global 'f' local
+	value = addr
+	desc = line number of def
+	return type is number after :
+
+	nil name marks end of function
+
+constants
+
+	c= XXX p. 15
+
+N_LSYM (128) local variable
+	:type-number
+	value = offset from fp
+	:ptype means parameter passed in reg but stored as variable
+
+N_GSYM (32) global variable
+	addr not given (use external symbol)
+	:type
+
+N_RSYM register value
+
+N_STSYM(38)/N_FUN/N_LCSYM(40) data/text/bss
+	static varibale 'S' file static 'V' procedure static
+	:Stype :Vtype
+
+N_PSYM (160) parameter 
+	:ptype
+	value=offset from fp
+	desc = line number of decl
+
+	register params followed by an N_RSYM with same name and :rtype.
+
+skip types
+
+type (a,b) means a=file number b=type number
+
+N_BINCL/N_EINCL begin/end include
+N_EXCL - same effect as earlier guy
+
+
+
+=============
+
+type crap
+
+
+
+	name:symbol_opt typeinfo
+
+typeinfo ::= typenum | typenum = attr* typedef
+
+typenum ::= integer | '(' integer ',' integer ')'
+
+attr ::= @ attrtext ;
+
+attrtext ::= 'a' integer 	(alignment)
+	| 'p' integer	(pointer class)
+	| 'P'	(packed type)
+	| 's' integer	(size of type in bits)
+	| 'S' 	(string instead of array of chars)
+
+typedef ::= typeinfo
+	| 'b' ('u' | 's') 'c'? width; offset; nbits; 		(builtin, signed/unsigned, char/not, width in bytes, offset & nbits of type)
+	| 'w'		(aix wide char type, not used)
+	| 'R' fptype; bytes;			(fptype 1=32-bit, 2=64-bit, 3=complex, 4=complex16, 5=complex32, 6=long double)
+	| 'g' typeinfo ';' nbits 		(aix floating, not used)
+	| 'c' typeinfo ';' nbits		(aix complex, not used)
+	| -1		int32
+	| -2		char8
+	| -3		int16
+	| -4		int32 (long)
+	| -5		uchar8
+	| -6		schar8
+	| -7		uint16
+	| -8		uint32
+	| -9		uint32
+	| -10		ulong32
+	| -11		void
+	| -12		float
+	| -13		double
+	| -14		long double
+	| -15		int32
+	| -16		bool32
+	| -17		short real
+	| -18		real
+	| -19		stringptr
+	| -20		character8
+	| -21		logical*1 8
+	| -22		logical*2 16
+	| -23		logical*4 32
+	| -24		logical 32
+	| -25		complex (two single)
+	| -26		complex (two double)
+	| -27		integer*1 8 signed
+	| -28		integer*2 16 signed
+	| -29		integer*4 32 signed
+	| -30		wchar 16 wide char
+	| -31		int64
+	| -32		uint64
+	| -33		logical*8 64
+	| -34		integer*8 64 signed
+	| 'b' typeinfo ';' bytes		(ibm, no idea)
+	| 'B' typeinfo		(volatile typref)
+	| 'd' typeinfo		(file of typeref)
+	| 'k' typeinfo		(const typeref)
+	| 'M' typeinfo ';' length		(multiple instance type, fortran)
+	| 'S' typeinfo		(set, typeref must have small number of values)
+	| '*' typeinfo		(pointer to typeref)
+	| 'x' ('s'|'u'|'e') name ':'	(struct, union, enum reference.  name can have '::' in it)
+	| 'r' typeinfo ';' low ';' high ';'		(subrange.  typeref can be type being defined for base types!)
+			low and high are bounds
+			if bound is octal power of two, it's a big negative number
+	| ('a'|'P') indextypedef arraytypeinfo 	(array, index should be range type)
+				indextype is type definition not typeinfo (need not say typenum=)
+				P means packed array
+	| 'A' arraytypeinfo		(open array (no index bounds))
+	| 'D' dims ';' typeinfo		(dims-dimensional dynamic array)
+	| 'E' dims ';' typeinfo		(subarray of N-dimensional array)
+	| 'n' typeinfo ';' bytes		(max length string)
+	| 'z' typeinfo ';' bytes		(no idea what difference is from 'n')
+	| 'N'					(pascal stringptr)
+	| 'e' (name ':' bigint ',')* ';'	(enum listing)
+	| ('s'|'u') bytes (name ':' type ',' bitoffset ',' bitsize ';')* ';'		(struct/union defn)
+						tag is given as name in stabs entry, with 'T' symbol
+	| 'f' typeinfo ';' 			(function returning type)
+	| 'f' rettypeinfo ',' paramcount ';' (typeinfo ',' (0|1) ';')* ';'
+	| 'p' paramcount ';' (typeinfo ',' (0|1) ';')* ';'
+	| 'F' rettypeinfo ',' paramcount ';' (name ':' typeinfo ',' (0|1) ';')* ';'
+	| 'R' paramcount ';' (name ':' typeinfo ',' (0|1) ';')* ';'
+						(the 0 or 1 is pass-by-reference vs pass-by-value)
+						(the 0 or 1 is pass-by-reference vs pass-by-value)
+
+bound ::= 
+	'A' offset			(bound is on stack by ref at offset offset from arg list)
+	| 'T' offset			(bound is on stack by val at offset offset from arg list)
+	| 'a' regnum		(bound passed by reference in register)
+	| 't' regnum		(bound passed by value in register)
+	| 'J'				(no bound)
+	| bigint
+
+bigint ::= '-'? decimal
+	| 0 octal
+	| -1
+
+C++
+
+symbol 'Tt' means typename + tag in one stab
+
+names can have ::, as in foo::bar::baz::t1
+
+t16 unknown type just like void
+t17 vtable record type
