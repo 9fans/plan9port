@@ -1,0 +1,32 @@
+<$PLAN9/src/mkhdr
+#
+#		programs
+#
+TARG=\
+	asn12dsa\
+	asn12rsa\
+	dsagen\
+	dsa2ssh\
+	passwd\
+	pemdecode\
+	pemencode\
+	rsagen\
+	rsafill\
+	rsa2csr\
+	rsa2pub\
+	rsa2ssh\
+	rsa2x509\
+	ssh-agent\
+
+DIRS=\
+	factotum\
+	secstore\
+
+HFILES=$PLAN9/include/auth.h $PLAN9/include/authsrv.h
+
+<$PLAN9/src/mkmany
+<$PLAN9/src/mkdirs
+
+$O.rsa2ssh $O.rsafill $O.rsa2x509 $O.rsa2pub $O.rsa2csr $O.dsa2ssh: rsa2any.$O
+rsa2ssh.$O rsafill.$O rsa2x509.$O rsa2pub.$O rsa2csr.$O dsa2ssh.$O: rsa2any.h
+
