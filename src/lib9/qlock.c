@@ -100,7 +100,6 @@ canrlock(RWLock *l)
 		l->readers++;
 		return 1;
 	}
-	return 1;
 }
 
 void

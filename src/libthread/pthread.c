@@ -74,7 +74,7 @@ _procwakeupandunlock(_Procrendez *r)
 		r->asleep = 0;
 		pthread_cond_signal(&r->cond);
 	}
-	unlock(&r->l);
+	unlock(r->l);
 }
 
 static void
@@ -85,7 +85,7 @@ startprocfn(void *v)
 	Proc *p;
 
 	a = (void**)v;
-	fn = a[0];
+	fn = (void(*)(void*))a[0];
 	p = a[1];
 	free(a);
 	p->osprocid = pthread_self();
@@ -104,7 +104,7 @@ _procstart(Proc *p, void (*fn)(Proc*))
 	a = malloc(2*sizeof a[0]);
 	if(a == nil)
 		sysfatal("_procstart malloc: %r");
-	a[0] = fn;
+	a[0] = (void*)fn;
 	a[1] = p;
 
 	if(pthread_create(&p->osprocid, nil, (void*(*)(void*))startprocfn, (void*)a) < 0){

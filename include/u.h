@@ -6,6 +6,7 @@ extern "C" {
 
 #define __BSD_VISIBLE 1 /* FreeBSD 5.x */
 #define __EXTENSIONS__ 1 /* SunOS */
+#define __MAKECONTEXT_V2_SOURCE 1 /* SunOS */
 #define _BSD_SOURCE 1
 #define _SVID_SOURCE 1
 #define _XOPEN_SOURCE 1000

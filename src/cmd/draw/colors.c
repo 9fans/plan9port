@@ -106,7 +106,7 @@ main(int argc, char *argv[])
 		exits("usage");
 	}
 
-	if(initdraw(nil, nil, "colors") < 0)
+	if(initdraw(0, 0, "colors") < 0)
 		sysfatal("initdraw failed: %r");
 	einit(Emouse);
 

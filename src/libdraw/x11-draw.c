@@ -115,7 +115,7 @@ xdraw(Memdrawparam *par)
 		}else{
 			/* this doesn't work on rob's mac?  */
 			return 0;
-			gc = _x.gcsimplesrc;
+			/* gc = _x.gcsimplesrc;
 			if(dst->chan == CMAP8 && _x.usetable)
 				sdval = _x.tox11[sdval];
 
@@ -127,6 +127,7 @@ xdraw(Memdrawparam *par)
 				XSetStipple(_x.display, gc, xmask->pixmap);
 				_x.gcsimplesrcpixmap = xmask->pixmap;
 			}
+			*/
 		}
 		XSetTSOrigin(_x.display, gc, mp.x, mp.y);
 		XFillRectangle(_x.display, xdst->pixmap, gc, dp.x, dp.y,

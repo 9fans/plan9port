@@ -108,5 +108,4 @@ Brdstr(Biobuf *bp, int delim, int nulldelim)
 		bp->icount = 0;
 		bp->gbuf = bp->ebuf;
 	}
-	return 0;	/* never happens */
 }
