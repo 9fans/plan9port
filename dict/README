@@ -2,6 +2,6 @@
 # and modifying dict to handle it.
 # This is the Project Gutenberg original Webster's dictionary
 
-wget http://pdos.lcs.mit.edu/~rsc/software/plan9/pgw.tar.bz2|
-	bunzip|
+wget -O- http://pdos.lcs.mit.edu/~rsc/software/plan9/pgw.tar.bz2|
+	bunzip2|
 	tar xf -
