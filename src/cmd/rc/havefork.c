@@ -1,3 +1,5 @@
+#include <u.h>
+#include <signal.h>
 #include "rc.h"
 #include "getflags.h"
 #include "exec.h"
@@ -11,7 +13,9 @@ Xasync(void)
 {
 	int null = open("/dev/null", 0);
 	int pid;
+	int tcpgrp, pgrp;
 	char npid[10];
+
 	if(null<0){
 		Xerror("Can't open /dev/null\n");
 		return;
@@ -22,6 +26,12 @@ Xasync(void)
 		Xerror("try again");
 		break;
 	case 0:
+		/*
+		 * Should make reads of tty fail, writes succeed.
+		 */
+		signal(SIGTTIN, SIG_IGN);
+		signal(SIGTTOU, SIG_IGN);
+
 		pushredir(ROPEN, null, 0);
 		start(runq->code, runq->pc+1, runq->local);
 		runq->ret = 0;

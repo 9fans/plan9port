@@ -403,6 +403,7 @@ notifyf(void *unused0, char *s)
 			}
 			goto Out;
 		}
+	if(strcmp(s, "sys: write on closed pipe") != 0)
 	if(strcmp(s, "sys: child") != 0)
 		pfmt(err, "rc: note: %s\n", s);
 	noted(NDFLT);

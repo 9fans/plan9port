@@ -9,6 +9,9 @@
 #ifdef	Plan9
 #include <u.h>
 #include <libc.h>
+#undef NSIG
+#undef SIGINT
+#undef SIGQUIT
 #define	NSIG	32
 #define	SIGINT	2
 #define	SIGQUIT	3

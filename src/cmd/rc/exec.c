@@ -1,3 +1,6 @@
+#include <u.h>
+#include <signal.h>
+#include <sys/ioctl.h>
 #include "rc.h"
 #include "getflags.h"
 #include "exec.h"
@@ -220,6 +223,7 @@ void Xappend(void){
 }
 void Xasync(void){
 	int null=open("/dev/null", 0);
+	int tty;
 	int pid;
 	char npid[10];
 	if(null<0){
@@ -232,7 +236,33 @@ void Xasync(void){
 		Xerror("try again");
 		break;
 	case 0:
-		pushredir(ROPEN, null, 0);
+		/*
+		 * I don't know what the right thing to do here is,
+		 * so this is all experimentally determined.
+		 * If we just dup /dev/null onto 0, then running
+		 * ssh foo & will reopen /dev/tty, try to read a password,
+		 * get a signal, and repeat, in a tight loop, forever.
+		 * Arguably this is a bug in ssh (it behaves the same
+		 * way under bash as under rc) but I'm fixing it here 
+		 * anyway.  If we dissociate the process from the tty,
+		 * then it won't be able to open /dev/tty ever again.
+		 * The SIG_IGN on SIGTTOU makes writing the tty
+		 * (via fd 1 or 2, for example) succeed even though 
+		 * our pgrp is not the terminal's controlling pgrp.
+		 */
+		if((tty=open("/dev/tty", OREAD)) >= 0){
+			/*
+			 * Should make reads of tty fail, writes succeed.
+			 */
+			signal(SIGTTIN, SIG_IGN);
+			signal(SIGTTOU, SIG_IGN);
+			ioctl(tty, TIOCNOTTY);
+			close(tty);
+		}
+		if(isatty(0))
+			pushredir(ROPEN, null, 0);
+		else
+			close(null);
 		start(runq->code, runq->pc+1, runq->local);
 		runq->ret=0;
 		break;
