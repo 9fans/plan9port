@@ -15,6 +15,7 @@ void		threadexits(char *);
 void		threadexitsall(char *);
 void		threadsetname(char*, ...);
 void		threadsetstate(char*, ...);
+char		*threadgetname(void);
 int			threadyield(void);
 void		_threadready(_Thread*);
 void		_threadswitch(void);
