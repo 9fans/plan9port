@@ -443,10 +443,8 @@ stdoutproc(void *v)
 		/* Let typing have a go -- maybe there's a rubout waiting. */
 		yield();
 		n = read(fd1, buf+npart, 8192);
-		if(n < 0)
+		if(n <= 0)
 			error(nil);
-		if(n == 0)
-			continue;
 
 		/* squash NULs */
 		s = memchr(buf+npart, 0, n);
