@@ -28,6 +28,14 @@ HFILES=$PLAN9/include/auth.h $PLAN9/include/authsrv.h
 <$PLAN9/src/mkmany
 <$PLAN9/src/mkdirs
 
-$O.rsa2ssh $O.rsafill $O.rsa2x509 $O.rsa2pub $O.rsa2csr $O.dsa2ssh: rsa2any.$O
-rsa2ssh.$O rsafill.$O rsa2x509.$O rsa2pub.$O rsa2csr.$O dsa2ssh.$O: rsa2any.h
-
+RSA2=\
+	rsa2ssh\
+	rsafill\
+	rsa2x509\
+	rsa2pub\
+	rsa2csr\
+	dsa2ssh\
+	dsa2pub\
+	
+${RSA2:%=$O.%}: rsa2any.$O
+${RSA2:%=%.$O}: rsa2any.h

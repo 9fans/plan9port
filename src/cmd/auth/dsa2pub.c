@@ -15,7 +15,7 @@ usage(void)
 void
 main(int argc, char **argv)
 {
-	RSApriv *key;
+	DSApriv *key;
 	Attr *a;
 	char *s;
 
