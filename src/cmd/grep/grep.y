@@ -66,14 +66,14 @@ expr3:
 	{
 		$$.beg = ral(Talt);
 		patchnext($1.end, $$.beg);
-		$$.beg->alt = $1.beg;
+		$$.beg->u.alt = $1.beg;
 		$$.end = $$.beg;
 		$$.beg = $1.beg;
 	}
 |	expr3 LQUES
 	{
 		$$.beg = ral(Talt);
-		$$.beg->alt = $1.beg;
+		$$.beg->u.alt = $1.beg;
 		$$.end = $1.end;
 		appendnext($$.end,  $$.beg);
 	}
@@ -82,8 +82,8 @@ expr4:
 	LCHAR
 	{
 		$$.beg = ral(Tclass);
-		$$.beg->lo = $1;
-		$$.beg->hi = $1;
+		$$.beg->u.x.lo = $1;
+		$$.beg->u.x.hi = $1;
 		$$.end = $$.beg;
 	}
 |	LBEGIN

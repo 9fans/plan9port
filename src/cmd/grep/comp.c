@@ -96,7 +96,7 @@ loop:
 
 	case Tcase:
 		if(c >= 0 && c < 256)
-		if(r1 = r->cases[c])
+		if(r1 = r->u.cases[c])
 			follow[nfollow++] = r1;
 		if(r = r->next)
 			goto loop;
@@ -104,7 +104,7 @@ loop:
 
 	case Talt:
 	case Tor:
-		fol1(r->alt, c);
+		fol1(r->u.alt, c);
 		r = r->next;
 		goto loop;
 
@@ -119,7 +119,7 @@ loop:
 		break;
 
 	case Tclass:
-		if(c >= r->lo && c <= r->hi)
+		if(c >= r->u.x.lo && c <= r->u.x.hi)
 			follow[nfollow++] = r->next;
 		break;
 	}

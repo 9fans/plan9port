@@ -63,11 +63,11 @@ countor(Re *r)
 loop:
 	switch(r->type) {
 	case Tor:
-		n += countor(r->alt);
+		n += countor(r->u.alt);
 		r = r->next;
 		goto loop;
 	case Tclass:
-		return n + r->hi - r->lo + 1;
+		return n + r->u.x.hi - r->u.x.lo + 1;
 	}
 	return n;
 }
@@ -80,7 +80,7 @@ oralloc(int t, Re *r, Re *b)
 	if(b == 0)
 		return r;
 	a = ral(t);
-	a->alt = r;
+	a->u.alt = r;
 	a->next = b;
 	return a;
 }
@@ -93,13 +93,13 @@ case1(Re *c, Re *r)
 loop:
 	switch(r->type) {
 	case Tor:
-		case1(c, r->alt);
+		case1(c, r->u.alt);
 		r = r->next;
 		goto loop;
 
 	case Tclass:	/* add to character */
-		for(n=r->lo; n<=r->hi; n++)
-			c->cases[n] = oralloc(Tor, r->next, c->cases[n]);
+		for(n=r->u.x.lo; n<=r->u.x.hi; n++)
+			c->u.cases[n] = oralloc(Tor, r->next, c->u.cases[n]);
 		break;
 
 	default:	/* add everything unknown to next */
@@ -125,13 +125,13 @@ addcase(Re *r)
 		n = countor(r);
 		if(n >= Caselim) {
 			a = ral(Tcase);
-			a->cases = mal(256*sizeof(*a->cases));
+			a->u.cases = mal(256*sizeof(*a->u.cases));
 			case1(a, r);
 			for(i=0; i<256; i++)
-				if(a->cases[i]) {
-					r = a->cases[i];
+				if(a->u.cases[i]) {
+					r = a->u.cases[i];
 					if(countor(r) < n)
-						a->cases[i] = addcase(r);
+						a->u.cases[i] = addcase(r);
 				}
 			return a;
 		}
@@ -139,7 +139,7 @@ addcase(Re *r)
 
 	case Talt:
 		r->next = addcase(r->next);
-		r->alt = addcase(r->alt);
+		r->u.alt = addcase(r->u.alt);
 		return r;
 
 	case Tbegin:
@@ -223,7 +223,7 @@ re2star(Re2 a)
 	Re2 c;
 
 	c.beg = ral(Talt);
-	c.beg->alt = a.beg;
+	c.beg->u.alt = a.beg;
 	patchnext(a.end, c.beg);
 	c.end = c.beg;
 	return c;
@@ -235,7 +235,7 @@ re2or(Re2 a, Re2 b)
 	Re2 c;
 
 	c.beg = ral(Tor);
-	c.beg->alt = b.beg;
+	c.beg->u.alt = b.beg;
 	c.beg->next = a.beg;
 	c.end = b.end;
 	appendnext(c.end,  a.end);
@@ -248,8 +248,8 @@ re2char(int c0, int c1)
 	Re2 c;
 
 	c.beg = ral(Tclass);
-	c.beg->lo = c0 & 0xff;
-	c.beg->hi = c1 & 0xff;
+	c.beg->u.x.lo = c0 & 0xff;
+	c.beg->u.x.hi = c1 & 0xff;
 	c.end = c.beg;
 	return c;
 }
@@ -274,15 +274,15 @@ loop:
 	case Tcase:
 		print("case ->%p\n", a->next);
 		for(i=0; i<256; i++)
-			if(a->cases[i]) {
+			if(a->u.cases[i]) {
 				for(j=i+1; j<256; j++)
-					if(a->cases[i] != a->cases[j])
+					if(a->u.cases[i] != a->u.cases[j])
 						break;
-				print("	[%.2x-%.2x] ->%p\n", i, j-1, a->cases[i]);
+				print("	[%.2x-%.2x] ->%p\n", i, j-1, a->u.cases[i]);
 				i = j-1;
 			}
 		for(i=0; i<256; i++)
-			reprint1(a->cases[i]);
+			reprint1(a->u.cases[i]);
 		break;
 
 	case Tbegin:
@@ -294,13 +294,13 @@ loop:
 		break;
 
 	case Tclass:
-		print("[%.2x-%.2x] ->%p\n", a->lo, a->hi, a->next);
+		print("[%.2x-%.2x] ->%p\n", a->u.x.lo, a->u.x.hi, a->next);
 		break;
 
 	case Tor:
 	case Talt:
-		print("| %p ->%p\n", a->alt, a->next);
-		reprint1(a->alt);
+		print("| %p ->%p\n", a->u.alt, a->next);
+		reprint1(a->u.alt);
 		break;
 	}
 	a = a->next;
