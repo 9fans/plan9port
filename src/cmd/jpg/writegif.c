@@ -52,8 +52,11 @@ startgif0(Biobuf *fd, ulong chan, Rectangle r, int depth, int loopcount)
 {
 	int i;
 
-	for(i=0; i<nelem(tbl); i++)
-		tbl[i] = (Entry){i, -1, i, nil};
+	for(i=0; i<nelem(tbl); i++){
+		tbl[i].index = i;
+		tbl[i].prefix = -1;
+		tbl[i].exten = i;
+	}
 
 	switch(chan){
 	case GREY1:

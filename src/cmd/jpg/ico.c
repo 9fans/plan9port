@@ -273,9 +273,9 @@ enum
 };
 
 char	*menu3str[] = {
-	[Mimage]	"write image",
-	[Mmask]		"write mask",
-	[Mexit]		"exit",
+	"write image",
+	"write mask",
+	"exit",
 	0,
 };
 
@@ -469,7 +469,7 @@ main(int argc, char **argv)
 	if(Bgetheader(&in, &h) < 0)
 		sysfatal("reading header: %r");
 
-	initdraw(nil, nil, "ico");
+	initdraw(0, nil, "ico");
 	background = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, (128<<24)|(128<<16)|(128<<8)|0xFF);
 
 	einit(Emouse|Ekeyboard);

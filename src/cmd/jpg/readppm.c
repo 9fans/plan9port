@@ -151,12 +151,12 @@ struct Pix {
 };
 
 static Pix pix[] = {
-	{ '1', 1, Bgetdecimalbit, 1, CY, 1, nil },	/* portable bitmap */
+	{ '1', 1, Bgetdecimalbit, 1, CY, 1, 0 },	/* portable bitmap */
 	{ '4', 1, Bgetbit, 1, CY, 1, Bflushbit },	/* raw portable bitmap */
-	{ '2', 0, Bgetint, 1, CY, 0, nil },	/* portable greymap */
-	{ '5', 0, Bgetc, 1, CY, 0, nil },	/* raw portable greymap */
-	{ '3', 0, Bgetint, 3, CRGB, 0, nil },	/* portable pixmap */
-	{ '6', 0, Bgetc, 3, CRGB, 0, nil },	/* raw portable pixmap */
+	{ '2', 0, Bgetint, 1, CY, 0, 0 },	/* portable greymap */
+	{ '5', 0, Bgetc, 1, CY, 0, 0 },	/* raw portable greymap */
+	{ '3', 0, Bgetint, 3, CRGB, 0, 0 },	/* portable pixmap */
+	{ '6', 0, Bgetc, 3, CRGB, 0, 0 },	/* raw portable pixmap */
 	{ 0 },
 };
 
