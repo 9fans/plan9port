@@ -5,6 +5,9 @@ mkdir \- make a directory
 .B mkdir
 [
 .B -p
+] [
+.B -m
+. I mode
 ]
 .I dirname ...
 .SH DESCRIPTION
@@ -19,6 +22,11 @@ flag is given,
 .I mkdir
 creates any necessary parent directories
 and does not complain if the target directory already exists.
+.PP
+The
+.B -m
+flag sets the permissions to be used when creating the directory.
+The default is 0777.
 .SH "SEE ALSO"
 .IR rm (1)
 .br
