@@ -1845,7 +1845,7 @@ label(Rune *sr, int n)
 		return n;
 
 	snprint(wdir, sizeof wdir, "%.*S", (el-1)-(sl+3), sl+3);
-	drawsetlabel(display, wdir);
+	drawsetlabel(wdir);
 
 	runemove(sl, el, er-el);
 	n -= (el-sl);
