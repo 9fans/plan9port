@@ -15,6 +15,6 @@ OFILES=\
 
 YFILES=hoc.y\
 
+SHORTLIB=bio 9
 <$PLAN9/src/mkone
 
-LDFLAGS=$LDFLAGS -lbio -l9

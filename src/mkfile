@@ -2,6 +2,7 @@ DIRS=\
 	lib9\
 	libbin\
 	libbio\
+	libcomplete\
 	libdraw\
 	libflate\
 	libframe\

@@ -31,7 +31,7 @@ HFILES=\
 	mk.h\
 	fns.h\
 
-LDFLAGS=$LDFLAGS -lregexp9 -lbio -l9
+SHORTLIB=regexp9 bio 9
 
 <$PLAN9/src/mkone
 

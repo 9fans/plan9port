@@ -11,7 +11,7 @@ OFILES=dict.$O\
 
 HFILES=dict.h kuten.h
 
-LDFLAGS=$LDFLAGS -lbio -lregexp9 -l9
+SHORTLIB=bio regexp9 9
 <$PLAN9/src/mkone
 
 mkindex: mkindex.$O $LFILES utils.$O

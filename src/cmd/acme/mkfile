@@ -36,8 +36,9 @@ UPDATE=\
 	$HFILES\
 	${OFILES:%.$O=%.c}\
 
+SHORTLIB=complete plumb fs mux thread frame draw bio 9
 <$PLAN9/src/mkone
 
-LDFLAGS=$LDFLAGS -lcomplete -lplumb -lfs -lmux -lthread -lframe -ldraw -lbio -l9 -L$X11/lib -lX11
+LDFLAGS=$LDFLAGS -L$X11/lib -lX11
 
 edit.$O ecmd.$O elog.$O:	edit.h

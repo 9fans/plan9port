@@ -2,6 +2,7 @@ PLAN9=../../..
 <$PLAN9/src/mkhdr
 
 TARG=plumber plumb
+SHORTLIB=plumb fs mux thread regexp9 bio 9
 
 <$PLAN9/src/mkmany
 
@@ -14,4 +15,3 @@ $PLUMB:		$HFILES
 $O.plumb:	$PLUMB
 $O.plumber:	$PLUMBER
 
-LDFLAGS=$LDFLAGS -lplumb -lfs -lmux -lthread -lregexp9 -lbio -l9

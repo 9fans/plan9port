@@ -7,7 +7,9 @@ OFILES=\
 	9term.$O\
 	$SYSNAME.$O\
 
+SHORTLIB=frame draw plumb fs mux thread 9
+
 <$PLAN9/src/mkone
 
-LDFLAGS=-lframe -ldraw -lplumb -lfs -lmux -lthread -l9 -L$X11/lib -lX11 -lutil
+LDFLAGS=-L$X11/lib -lX11 -lutil
 

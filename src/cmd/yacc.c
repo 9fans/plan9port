@@ -401,7 +401,7 @@ others(void)
 
 	finput = Bopen(parser, OREAD);
 	if(finput == 0)
-		error("cannot find parser %s", parser);
+		error("cannot open parser %s: %r", parser);
 	warray("yyr1", levprd, nprod);
 	aryfil(temp1, nprod, 0);
 	PLOOP(1, i)

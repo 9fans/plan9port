@@ -31,8 +31,6 @@ HFILES=\
 
 YFILES=syn.y
 
-LDFLAGS=$LDFLAGS -l9
-
 <$PLAN9/src/mkone
 
 x.tab.h: y.tab.h
