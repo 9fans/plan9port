@@ -5,6 +5,10 @@ flags=""
 while [ $# != 0 -a $inflags = yes ]
 do
 	case "$1" in
+	--)
+		inflags=no
+		shift
+		;;
 	-*)
 		flags="$flags $1"
 		shift
