@@ -19,6 +19,7 @@ usage(void)
 	fprint(2, "	write [-l] name\n");
 	fprint(2, "	writefd name\n");
 	fprint(2, "	stat name\n");
+	fprint(2, "	rdwr name\n");
 //	fprint(2, "	ls name\n");
 	fprint(2, "without -a, name elem/path means /path on server unix!$ns/elem\n");
 	threadexitsall("usage");
@@ -30,6 +31,7 @@ void xreadfd(int, char**);
 void xwritefd(int, char**);
 void xstat(int, char**);
 void xls(int, char**);
+void xrdwr(int, char**);
 
 struct {
 	char *s;
@@ -40,6 +42,7 @@ struct {
 	"readfd", xreadfd,
 	"writefd", xwritefd,
 	"stat", xstat,
+	"rdwr", xrdwr,
 //	"ls", xls,
 };
 
@@ -127,7 +130,7 @@ xopenfd(char *name, int mode)
 void
 xread(int argc, char **argv)
 {
-	char buf[1024];
+	char buf[4096];
 	int n;
 	CFid *fid;
 
@@ -150,7 +153,7 @@ xread(int argc, char **argv)
 void
 xreadfd(int argc, char **argv)
 {
-	char buf[1024];
+	char buf[4096];
 	int n;
 	int fd;
 
@@ -173,7 +176,7 @@ xreadfd(int argc, char **argv)
 void
 xwrite(int argc, char **argv)
 {
-	char buf[1024];
+	char buf[4096];
 	int n, did;
 	CFid *fid;
 	Biobuf *b;
@@ -184,6 +187,7 @@ xwrite(int argc, char **argv)
 	ARGBEGIN{
 	case 'l':
 		byline = 1;
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -203,7 +207,7 @@ xwrite(int argc, char **argv)
 			n = strlen(p);
 			did = 1;
 			if(fswrite(fid, p, n) != n)
-				sysfatal("write error: %r");
+				fprint(2, "write: %r\n");
 		}
 		free(b);
 	}else{
@@ -225,7 +229,7 @@ xwrite(int argc, char **argv)
 void
 xwritefd(int argc, char **argv)
 {
-	char buf[1024];
+	char buf[4096];
 	int n;
 	int fd;
 
@@ -269,4 +273,38 @@ xstat(int argc, char **argv)
 	fmtinstall('M', dirmodefmt);
 	print("%D\n", d);
 	threadexitsall(0);
+}
+
+void
+xrdwr(int argc, char **argv)
+{
+	char buf[4096];
+	int n;
+	CFid *fid;
+
+	ARGBEGIN{
+	default:
+		usage();
+	}ARGEND
+
+	if(argc != 1)
+		usage();
+
+	fid = xopen(argv[0], ORDWR);
+	for(;;){
+		if((n = fsread(fid, buf, sizeof buf)) < 0)
+			fprint(2, "read: %r\n");
+		else{
+			write(1, buf, n);
+			write(1, "\n", 1);
+		}
+		n = read(0, buf, sizeof buf);
+		if(n <= 0)
+			break;
+		if(buf[n-1] == '\n')
+			n--;
+		if(fswrite(fid, buf, n) != n)
+			fprint(2, "write: %r\n");
+	}
+	threadexitsall(0);	
 }
