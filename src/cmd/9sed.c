@@ -42,7 +42,7 @@ typedef struct	SEDCOM {
 		Reprog	*re1;		/* compiled R.E. */
 		Rune	*text;		/* added text or file name */
 		struct	SEDCOM	*lb1;	/* destination command of branch */
-	};
+	} u;
 	Rune	*rhs;			/* Right-hand side of substitution */
 	Biobuf*	fcode;			/* File ID for read and write */
 	char	command;		/* command code -see below */
@@ -318,7 +318,7 @@ swit:
 			case '{':
 				rep->command = BCOM;
 				rep->negfl = !(rep->negfl);
-				cmpend[depth++] = &rep->lb1;
+				cmpend[depth++] = &rep->u.lb1;
 				if(++rep >= pend)
 					quit("Too many commands: %S", (char *) linebuf);
 				if(*cp == '\0')	continue;
@@ -375,7 +375,7 @@ swit:
 				if(*cp == '\\')	cp++;
 				if(*cp++ != '\n')
 					quit(CGMES, (char *) linebuf);
-				rep->text = p;
+				rep->u.text = p;
 				p = stext(p, addend);
 				break;
 			case 'c':
@@ -383,7 +383,7 @@ swit:
 				if(*cp == '\\')	cp++;
 				if(*cp++ != '\n')
 					quit(CGMES, (char *) linebuf);
-				rep->text = p;
+				rep->u.text = p;
 				p = stext(p, addend);
 				break;
 			case 'i':
@@ -393,7 +393,7 @@ swit:
 				if(*cp == '\\')	cp++;
 				if(*cp++ != '\n')
 					quit(CGMES, (char *) linebuf);
-				rep->text = p;
+				rep->u.text = p;
 				p = stext(p, addend);
 				break;
 
@@ -423,9 +423,9 @@ jtcommon:
 				while(*cp == ' ')cp++;
 				if(*cp == '\0') {
 					if(pt = ltab[0].chain) {
-						while(pt1 = pt->lb1)
+						while(pt1 = pt->u.lb1)
 							pt = pt1;
-						pt->lb1 = rep;
+						pt->u.lb1 = rep;
 					} else
 						ltab[0].chain = rep;
 					break;
@@ -439,12 +439,12 @@ jtcommon:
 
 				if(lpt = search(lab)) {
 					if(lpt->address) {
-						rep->lb1 = lpt->address;
+						rep->u.lb1 = lpt->address;
 					} else {
 						pt = lpt->chain;
-						while(pt1 = pt->lb1)
+						while(pt1 = pt->u.lb1)
 							pt = pt1;
-						pt->lb1 = rep;
+						pt->u.lb1 = rep;
 					}
 				} else {
 					lab->chain = rep;
@@ -477,7 +477,7 @@ jtcommon:
 					quit(AD1MES, (char *) linebuf);
 				if(*cp++ != ' ')
 					quit(CGMES, (char *) linebuf);
-				rep->text = p;
+				rep->u.text = p;
 				p = stext(p, addend);
 				break;
 
@@ -487,7 +487,7 @@ jtcommon:
 
 			case 'D':
 				rep->command = CDCOM;
-				rep->lb1 = pspace;
+				rep->u.lb1 = pspace;
 				break;
 
 			case 'q':
@@ -503,10 +503,10 @@ jtcommon:
 			case 's':
 				rep->command = SCOM;
 				seof = *cp++;
-				if ((rep->re1 = compile()) == 0) {
+				if ((rep->u.re1 = compile()) == 0) {
 					if(!lastre)
 						quit("First RE may not be null.", 0);
-					rep->re1 = lastre;
+					rep->u.re1 = lastre;
 				}
 				rep->rhs = p;
 				if((p = compsub(p, addend)) == 0)
@@ -842,11 +842,11 @@ dechain(void)
 
 		if(lptr->chain) {
 			rptr = lptr->chain;
-			while(trptr = rptr->lb1) {
-				rptr->lb1 = lptr->address;
+			while(trptr = rptr->u.lb1) {
+				rptr->u.lb1 = lptr->address;
 				rptr = trptr;
 			}
-			rptr->lb1 = lptr->address;
+			rptr->u.lb1 = lptr->address;
 		}
 	}
 }
@@ -868,7 +868,7 @@ ycomp(SedCom *r)
 		if (*tsp > highc) highc = *tsp;
 	}
 	tsp++;
-	if ((rp = r->text = (Rune *) malloc(sizeof(Rune)*(highc+2))) == 0)
+	if ((rp = r->u.text = (Rune *) malloc(sizeof(Rune)*(highc+2))) == 0)
 		quit("Out of memory", 0);
 	*rp++ = highc;				/* save upper bound */
 	for (i = 0; i <= highc; i++)
@@ -884,14 +884,14 @@ ycomp(SedCom *r)
 			tsp++;
 		}
 		if(rp[c] == seof || rp[c] == '\0') {
-			free(r->re1);
-			r->re1 = 0;
+			free(r->u.re1);
+			r->u.re1 = 0;
 			return(0);
 		}
 	}
 	if(*tsp != seof) {
-		free(r->re1);
-		r->re1 = 0;
+		free(r->u.re1);
+		r->u.re1 = 0;
 		return(0);
 	}
 	cp = tsp+1;
@@ -915,7 +915,7 @@ execute(void)
 				break;
 			if(jflag) {
 				jflag = 0;
-				if((ipc = ipc->lb1) == 0)
+				if((ipc = ipc->u.lb1) == 0)
 					break;
 			} else
 				ipc++;
@@ -1004,7 +1004,7 @@ substitute(SedCom *ipc)
 {
 	int len;
 
-	if(!match(ipc->re1, linebuf))
+	if(!match(ipc->u.re1, linebuf))
 		return 0;
 
 	/*
@@ -1025,7 +1025,7 @@ substitute(SedCom *ipc)
 			loc2++;		/* bump over zero-length match */
 		if(*loc2 == 0)		/* end of string */
 			break;
-	} while(match(ipc->re1, loc2));
+	} while(match(ipc->u.re1, loc2));
 	return 1;
 }
 
@@ -1131,7 +1131,7 @@ command(SedCom *ipc)
 		case CCOM:
 			delflag = 1;
 			if(ipc->active == 1) {
-				for(rp = ipc->text; *rp; rp++)
+				for(rp = ipc->u.text; *rp; rp++)
 					Bputrune(&fout, *rp);
 				Bputc(&fout, '\n');
 			}
@@ -1188,7 +1188,7 @@ command(SedCom *ipc)
 			hspend = p1-1;
 			break;
 		case ICOM:
-			for(rp = ipc->text; *rp; rp++)
+			for(rp = ipc->u.text; *rp; rp++)
 				Bputrune(&fout, *rp);
 			Bputc(&fout, '\n');
 			break;
@@ -1300,7 +1300,7 @@ command(SedCom *ipc)
 			break;
 		case YCOM:
 			p1 = linebuf;
-			p2 = ipc->text;
+			p2 = ipc->u.text;
 			for (i = *p2++;	*p1; p1++){
 				if (*p1 <= i) *p1 = p2[*p1];
 			}
@@ -1336,11 +1336,11 @@ arout(void)
 
 	for (aptr = abuf; *aptr; aptr++) {
 		if((*aptr)->command == ACOM) {
-			for(p1 = (*aptr)->text; *p1; p1++ )
+			for(p1 = (*aptr)->u.text; *p1; p1++ )
 				Bputrune(&fout, *p1);
 			Bputc(&fout, '\n');
 		} else {
-			for(s = buf, p1= (*aptr)->text; *p1; p1++)
+			for(s = buf, p1= (*aptr)->u.text; *p1; p1++)
 					s += runetochar(s, p1);
 			*s = '\0';
 			if((fi = Bopen(buf, OREAD)) == 0)
