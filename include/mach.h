@@ -524,6 +524,7 @@ char*	_hexify(char*, ulong, int);
 int		locfmt(Fmt*);
 int		loccmp(Loc*, Loc*);
 int		locsimplify(Map *map, Regs *regs, Loc loc, Loc *newloc);
+Regdesc*	regdesc(char*);
 
 struct ps_prochandle
 {
