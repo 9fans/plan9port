@@ -1,0 +1,10 @@
+
+A simple program that reverses the pages in PostScript files that
+conform to Adobe's Version 1.0 or Version 2.0 file structuring
+conventions.
+
+postrevese also handles a small class of files that violate page
+independence (eg. output from dpost) and can be used with all the
+translators in this package. The output can be conforming even if
+the input file wasn't.
+

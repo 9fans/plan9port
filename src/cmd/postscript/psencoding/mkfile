@@ -1,0 +1,22 @@
+</$objtype/mkfile
+
+<../config
+
+POSTBIN=$ROOT/rc/bin/postscript
+
+all:V:	psencoding
+
+install installall:V:	$POSTBIN/psencoding $POSTLIB/Latin1.enc $POSTLIB/UTF.enc
+
+clean nuke:V:
+	rm -f psencoding
+
+$POSTBIN/psencoding:	psencoding
+	cp $prereq $target
+
+$POSTLIB/%.enc:	%.enc
+	cp $prereq $target
+
+psencoding:	psencoding.rc
+	sed 's?^POSTLIB=.*?POSTLIB='$POSTLIB'?' psencoding.rc >psencoding
+	chmod 775 psencoding

@@ -16,11 +16,11 @@ struct sjt {
 
 /* I won't need this if getfields can replace sscanf
 
-extern void picture(Biobuf *);
+extern void picture(Biobufhdr *);
 extern void notavail(char *);
 
 void
-PSInclude(Biobuf *inp) {
+PSInclude(Biobufhdr *inp) {
 	char buf[256];
 
 	Bgetfield(inp, 's', buf, 256);
@@ -51,7 +51,7 @@ struct sjt specialjumptable[] = {
 */
 
 void
-devcntl(Biobuf *inp) {
+devcntl(Biobufhdr *inp) {
 
 	char cmd[50], buf[256], str[MAXTOKENSIZE], *line;
 	int c, n, linelen;

@@ -50,8 +50,8 @@
 /* #include "ext.h" */
 
 Biobuf	*bfp_pic = NULL;
-Biobuf	*Bfp_pic;
-Biobuf	*picopen(char *);
+Biobufhdr	*Bfp_pic;
+Biobufhdr	*picopen(char *);
 
 #define MAXGETFIELDS	16
 char *fields[MAXGETFIELDS];
@@ -63,7 +63,7 @@ extern int	picflag;
 /*****************************************************************************/
 
 void
-picture(Biobuf *inp, char *buf) {
+picture(Biobufhdr *inp, char *buf) {
 	int	poffset;		/* page offset */
 	int	indent;		/* indent */
 	int	length;		/* line length  */
@@ -80,7 +80,7 @@ picture(Biobuf *inp, char *buf) {
 	double	adjx = 0.5;	/* left-right adjustment */
 	double	adjy = 0.5;	/* top-bottom adjustment */
 	double	rot = 0;	/* rotation in clockwise degrees */
-	Biobuf	*fp_in;	/* for *name */
+	Biobufhdr	*fp_in;	/* for *name */
 	int	i;			/* loop index */
 
 /*
@@ -195,18 +195,18 @@ picture(Biobuf *inp, char *buf) {
  * open file *path and return the resulting file pointer to the caller.
  *
  */
-Biobuf *
+Biobufhdr *
 picopen(char *path) {
 /*	char	name[100];	/* pathnames */
 /*	long	pos;			/* current position */
 /*	long	total;			/* and sizes - from *fp_pic */
 	Biobuf *bfp;
-	Biobuf	*Bfp;		/* and pointer for the new temp file */
+	Biobufhdr	*Bfp;		/* and pointer for the new temp file */
 
 
 	if ((bfp = Bopen(path, OREAD)) == 0)
 		error(FATAL, "can't open %s\n", path);
-	Bfp = bfp;
+	Bfp = bfp; /* &(bfp->Biobufhdr); */
 	return(Bfp);
 #ifdef UNDEF
 	if (Bfp_pic != NULL) {
@@ -219,7 +219,7 @@ picopen(char *path) {
 					error(FATAL, "can't generate temp file name");
 				if ( (bfp = Bopen(pictmpname, ORDWR)) == NULL )
 					error(FATAL, "can't open %s", pictmpname);
-				Bfp = bfp;
+				Bfp = &(bfp->Biobufhdr);
 				piccopy(Bfp_pic, Bfp, total);
 				Bseek(Bfp, 0L, 0);
 				return(Bfp);
@@ -230,7 +230,7 @@ picopen(char *path) {
 	if ((bfp = Bopen(path, OREAD)) == 0)
 		Bfp = 0;
 	else
-		Bfp = bfp;
+		Bfp = &(bfp->Biobufhdr);
 	return(Bfp);
 #endif
 }
@@ -249,7 +249,7 @@ picopen(char *path) {
 
 #ifdef UNDEF
 void
-inlinepic(Biobuf *Bfp, char *buf) {
+inlinepic(Biobufhdr *Bfp, char *buf) {
 	char	name[100];		/* picture file pathname */
 	long	total;			/* and size - both from *buf */
 
@@ -285,7 +285,7 @@ inlinepic(Biobuf *Bfp, char *buf) {
 /*	*fp_out;	and output file pointers */
 /*	total;		number of bytes to be copied */
 void
-piccopy(Biobuf *Bfp_in, Biobuf *Bfp_out, long total) {
+piccopy(Biobufhdr *Bfp_in, Biobufhdr *Bfp_out, long total) {
 	long i;
 
 	for (i = 0; i < total; i++)

@@ -1,0 +1,32 @@
+ Directory dpost is DWB 3.3 version without UTF changes. dpost.utf is
+ stuff for Plan 9. Both build and install dpost, so only pick one. The
+ makefile I sent (postscript.mk) builds dpost.utf.
+
+ Left READING set to ONEBYTE in common/gen.h. Expect dpost errors unless
+ 'x E UTF' is added to troff output or READING set to UTFENCODING. Easy
+ to make 'x E UTF' anything else too.
+
+ Left RUNELIB defined in common/rune.h so rune.c stuff is used when
+ dpost.utf is built.
+
+ UTF.enc is in directory psencoding. Install and link to Default.enc on
+ Plan 9.
+
+ Carmela requested two new characters: \(bs for backslash and \(dq for
+ double quote. Both are in devLatin1 and devpost tables. Carmela also
+ asked for a bunch of her devpost accent characters in devLatin1. Added
+ them to the end of the devLatin1 tables.
+
+ A word of warning about devLatin1. Carmela, Peter and others complained
+ about - and hyphens being too long in the Latin1 fonts. I used Abode's
+ choice but nobody liked it. New devLatin1 tables use a smaller character
+ for hy. Looks better (I guess) but a width change affects line and page
+ breaks!! Not sure what you want to do. Complaints on this one go to
+ npn and carmela!!!
+
+ Didn't take your suggested pathname change in download. Didn't want to
+ risk breaking Unix 4.0 lp. What's there is bogus but was only for Unix
+ 4.0. The -r option accomplishes something similiar but needs a full path.
+
+ postio.mk is very different and not tested on V9.
+

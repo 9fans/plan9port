@@ -1,0 +1,18 @@
+</$objtype/mkfile
+
+<../config
+
+TMACDIR=/sys/lib/tmac
+
+all:V:	tmac.pictures
+
+install installall:V:	$TMACDIR/tmac.pictures
+
+clean nuke:V:
+	rm -f tmac.pictures
+
+$TMACDIR/tmac.pictures:	tmac.pictures
+	cp $prereq $target
+
+tmac.pictures : pictures.sr
+	cp $prereq $target

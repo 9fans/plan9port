@@ -1,0 +1,15 @@
+Miscellaneous programs - all are unsupported.
+
+  ibmfont.c	IBM PC to Unix font conversion program
+  laserbar.[c1]	Barcode filter and man page - Jan Wolitzky
+  lp.model	Sample lp interface (not for Unix 4.0) - Maryann Csaszar
+  macfont.c	Macintosh to Unix font conversion program
+  pscrypt.c	Quick implementation of Adobe's encryption/decryption algorithm
+  setbaud.ps	Example of how to change the printer's baudrate
+
+Use make to compile C programs. For example,
+
+	make macfont
+
+compiles macfont.c.
+

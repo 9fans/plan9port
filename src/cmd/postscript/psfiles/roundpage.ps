@@ -1,0 +1,30 @@
+%
+% Tries to round clipping path dimensions, as stored in array pagebbox, so they
+% match one of the known sizes in the papersizes array. Lower left coordinates
+% are always set to 0.
+%
+
+/roundpagebbox {
+    7 dict begin
+	/papersizes [8.5 inch 11 inch 14 inch 17 inch] def
+
+	/mappapersize {
+		/val exch def
+		/slop .5 inch def
+		/diff slop def
+		/j 0 def
+		0 1 papersizes length 1 sub {
+			/i exch def
+			papersizes i get val sub abs
+			dup diff le {/diff exch def /j i def} {pop} ifelse
+		} for
+		diff slop lt {papersizes j get} {val} ifelse
+	} def
+
+	pagebbox 0 0 put
+	pagebbox 1 0 put
+	pagebbox dup 2 get mappapersize 2 exch put
+	pagebbox dup 3 get mappapersize 3 exch put
+    end
+} bind def
+

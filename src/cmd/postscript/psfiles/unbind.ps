@@ -1,0 +1,28 @@
+%
+% Unbind the operators in an executable array or packedarray. Leaves the
+% unbound array or the original object on the stack.
+%
+
+/unbind {
+	0 index xcheck
+	1 index type /arraytype eq
+	2 index type /packedarraytype eq or and {
+		dup length array copy cvx
+		dup 0 exch {
+			dup type /operatortype eq {
+				(                          ) cvs cvn cvx
+			} if
+
+			0 index xcheck
+			1 index type /arraytype eq
+			2 index type /packedarraytype eq or and {
+				unbind
+			} if
+
+			3 copy put pop
+			1 add
+		} forall
+		pop
+	} if
+} def
+

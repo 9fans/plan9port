@@ -23,7 +23,7 @@ Biobuf binp, *bstdout, bstderr;
 Biobuf *Bstdin, *Bstdout, *Bstderr;
 int debug = 0;
 
-char tmpfilename[MAXTOKENSIZE];
+char tmpfilename[MAXPATHLEN+1];
 char copybuf[BUFSIZ];
 
 
@@ -41,20 +41,20 @@ prologues(void) {
 	Bprint(Bstdout, "%s %s\n", PAGES, ATEND);
 	Bprint(Bstdout, "%s", ENDCOMMENTS);
 
-	if (cat(unsharp(DPOST))) {
+	if (cat(DPOST)) {
 		Bprint(Bstderr, "can't read %s\n", DPOST);
 		exits("dpost prologue");
 	}
 
 	if (drawflag) {
-		if (cat(unsharp(DRAW))) {
+		if (cat(DRAW)) {
 			Bprint(Bstderr, "can't read %s\n", DRAW);
 			exits("draw prologue");
 		}
 	}
 
 	if (DOROUND)
-		cat(unsharp(ROUNDPAGE));
+		cat(ROUNDPAGE);
 
 	Bprint(Bstdout, "%s", ENDPROLOG);
 	Bprint(Bstdout, "%s", BEGINSETUP);
@@ -70,19 +70,19 @@ prologues(void) {
 	if (pointsize != 10) Bprint(Bstdout, "/pointsize %d def\n", pointsize);
 	if (xoffset != .25) Bprint(Bstdout, "/xoffset %g def\n", xoffset);
 	if (yoffset != .25) Bprint(Bstdout, "/yoffset %g def\n", yoffset);
-	cat(unsharp(ENCODINGDIR"/Latin1.enc"));
+	cat(ENCODINGDIR"/Latin1.enc");
 	if (passthrough != 0) Bprint(Bstdout, "%s\n", passthrough);
 
 	Bprint(Bstdout, "setup\n");
 	if (formsperpage > 1) {
-		cat(unsharp(FORMFILE));
+		cat(FORMFILE);
 		Bprint(Bstdout, "%d setupforms \n", formsperpage);
 	}
 /* output Build character info from charlib if necessary. */
 
 	for (i=0; i<build_char_cnt; i++) {
 		sprint(charlibname, "%s/%s", CHARLIB, build_char_list[i]->name);
-		if (cat(unsharp(charlibname)))
+		if (cat(charlibname))
 		Bprint(Bstderr, "cannot open %s\n", charlibname);
 	}
 
@@ -95,24 +95,26 @@ cleanup(void) {
 }
 
 main(int argc, char *argv[]) {
+	Biobuf btmp;
 	Biobuf *binp;
-	Biobuf *Binp;
-	int i, tot, ifd;
+	Biobufhdr *Binp;
+	int i, tot, ifd, fd;
 	char *t;
 
 	programname = argv[0];
 	if (Binit(&bstderr, 2, OWRITE) == Beof) {
 		exits("Binit");
 	}
-	Bstderr = &bstderr;
+	Bstderr = &bstderr;  /* &bstderr.Biobufhdr; */
 
-	tmpnam(tmpfilename);
-	if ((bstdout=Bopen(tmpfilename, OWRITE)) == 0) {
+	bstdout = &btmp;
+	fd = safe_tmpnam(tmpfilename);
+	if ((Binit(bstdout, fd, OWRITE)) == Beof) {
 		Bprint(Bstderr, "cannot open temporary file %s\n", tmpfilename);
 		exits("Bopen");
 	}
 	atexit(cleanup);
-	Bstdout = bstdout;
+	Bstdout = bstdout; /* &bstdout->Biobufhdr; */
 	
 	ARGBEGIN{
 		case 'a':			/* aspect ratio */
@@ -169,7 +171,7 @@ main(int argc, char *argv[]) {
 			Bprint(Bstderr, "Binit of <stdin> failed.\n");
 			exits("Binit");
 		}
-		Binp = binp;
+		Binp = binp; /* &(binp->Biobufhdr); */
 		if (debug) Bprint(Bstderr, "using standard input\n");
 		conv(Binp);
 		Bterm(Binp);
@@ -179,7 +181,7 @@ main(int argc, char *argv[]) {
 			Bprint(Bstderr, "cannot open file %s\n", argv[i]);
 			continue;
 		}
-		Binp = binp;
+		Binp = binp; /* &(binp->Biobufhdr); */
 		inputfilename = argv[i];
 		conv(Binp);
 		Bterm(Binp);
@@ -196,7 +198,7 @@ main(int argc, char *argv[]) {
 		Bprint(Bstderr, "Binit of <stdout> failed.\n");
 		exits("Binit");
 	}
-	Bstdout = bstdout;
+	Bstdout = bstdout; /* &(bstdout->Biobufhdr); */
 	prologues();
 	Bflush(Bstdout);
 	tot = 0; i = 0;

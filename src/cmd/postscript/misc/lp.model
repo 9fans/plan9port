@@ -1,0 +1,66 @@
+
+#       qmsps800        mac 10/22/86
+#
+LPDEST=`basename $0`
+QMS_FILE="$1"
+DATE="`date +%D`"
+TIME="`date +%T`"
+owner="$2"
+site=`uname`
+port="`/usr/bin/lpstat -v$LPDEST | sed -e 's/.*: //'`"
+filter_cmd="/usr/lbin/postscript/postio"
+filter="$filter_cmd -l $port"
+landscape="" formsperpage=""
+path=/usr/lbin/postscript
+printer=postprint
+bannerflag=ON
+prev="| $path/postreverse"
+
+for i in $5
+do
+        case "$i" in
+                L2)
+                        formsperpage="-n2"
+                        ;;
+                land)
+                        landscape="-pland"
+                        ;;
+                dpost|postprint|posttek|postbgi|postdmd|postio)
+                        printer="$i"
+                        ;;
+
+                postreverse)
+                        prev=""
+                        ;;
+                nobanner)
+                        bannerflag=OFF
+                        ;;
+                F*)
+                        QMS_FILE="`expr $i : 'F\(.*\)'`"
+                        ;;
+        esac
+done
+
+if [ -n "$filter_cmd" -a ! -x "$filter_cmd" ]
+then
+        disable -r"can't execute filter: $filter_cmd" $LPDEST
+        exit 1
+fi
+
+shift; shift; shift; shift; shift
+files="$*"
+cp /usr/spool/lp/model/banner.ps /tmp/ban.$$
+echo "($QMS_FILE) ($LPDEST) ($TIME) ($DATE) ($owner) banner" >> /tmp/ban.$$
+if [ "$printer" = "postio" ]
+        then
+        eval $filter $files 2> /dev/null
+else
+        eval $path/$printer $landscape $formsperpage $files $prev | $filter 2> /dev/null
+        fi
+if [ "$bannerflag" = "ON" ]
+        then
+        eval $filter /tmp/ban.$$ 2> /dev/null
+        fi
+rm -f /tmp/ban.$$
+exit 0
+

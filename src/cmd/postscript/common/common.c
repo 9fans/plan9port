@@ -209,14 +209,14 @@ endpage(void) {
 int
 cat(char *filename) {
 	Biobuf *bfile;
-	Biobuf *Bfile;
+	Biobufhdr *Bfile;
 	int n;
 	static char buf[Bsize];
 
-	if ((bfile = Bopen(unsharp(filename), OREAD)) == 0) {
+	if ((bfile = Bopen(filename, OREAD)) == 0) {
 		return(1);
 	}
-	Bfile = bfile;
+	Bfile = bfile; /* &(bfile->Biobufhdr); */
 	while ((n=Bread(Bfile, buf, Bsize)) > 0) {
 		if (Bwrite(Bstdout, buf, n) != n)
 			break;
@@ -240,9 +240,9 @@ galloc(void *ptr, int size, char *perstr) {
 }
 
 static char *errorstrings[] = {
-	{""},	/* NONE */
-	{"WARNING"},
-	{"FATAL"}
+	"",	/* NONE */
+	"WARNING",
+	"FATAL"
 };
 
 char *programname;

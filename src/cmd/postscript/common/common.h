@@ -5,6 +5,8 @@
 #define	RUNEGETGROUP(a)	((a>>8)&0xff)
 #define	RUNEGETCHAR(a)	(a&0xff)
 
+#define tempnam safe_tempnam
+
 typedef	int	BOOLEAN;
 
 #define	TRUE	1
@@ -38,6 +40,6 @@ BOOLEAN isinstring(void);
 void startpage(void);
 void endpage(void);
 int cat(char *);
-int Bgetfield(Biobuf *, int, void *, int);
+int Bgetfield(Biobufhdr *, int, void *, int);
 void *galloc(void *, int, char *);
 void pagelist(char *);

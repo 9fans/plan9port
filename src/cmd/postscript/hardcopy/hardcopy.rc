@@ -1,0 +1,70 @@
+#!/bin/rc
+# Generate paper output from the data that a PostScript program normally
+# sends back to a host computer using file output operators.
+#
+
+POSTLIB=/sys/lib/postscript/prologues
+PROLOGUE=$POSTLIB/hardcopy.ps
+
+OPTIONS=
+MODE=portrait
+
+NONCONFORMING='%!PS'
+ENDPROLOG='%%EndProlog'
+BEGINSETUP='%%BeginSetup'
+ENDSETUP='%%EndSetup'
+TRAILER='%%Trailer'
+
+SETUP=HardcopySetup
+DONE='(%stdout)(w) file -1 write'
+
+while (! ~ $#* 0 && ~ $1 -*) {
+	switch ($1) {
+	case -c;  shift; OPTIONS=$OPTIONS' /#copies '$1' store'
+	case -c*; OPTIONS=$OPTIONS' /#copies `{echo $1 | sed s/-c//}' store'
+
+	case -f;  shift; OPTIONS=$OPTIONS' /font '/$1' def'
+	case -f*; OPTIONS=$OPTIONS' /font '/`{echo $1 | sed s/-f//}' def'
+
+	case -p;  shift; MODE=$1
+	case -p*; MODE=`{echo $1 | sed s/-p//}
+
+	case -m;  shift; OPTIONS=$OPTIONS' /magnification '$1' def'
+	case -m*; OPTIONS=$OPTIONS' /magnification '`{echo $1 | sed s/-m//}' def'
+
+	case -s;  shift; OPTIONS=$OPTIONS' /pointsize '$1' def'
+	case -s*; OPTIONS=$OPTIONS' /pointsize '`{echo $1 | sed s/-s//}' def'
+
+	case -x;  shift; OPTIONS=$OPTIONS' /xoffset '$1' def'
+	case -x*; OPTIONS=$OPTIONS' /xoffset '`{echo $1 | sed s/-x//}' def'
+
+	case -y;  shift; OPTIONS=$OPTIONS' /yoffset '$1' def'
+	case -y*; OPTIONS=$OPTIONS' /yoffset '`{echo $1 | sed s/-y//}' def'
+
+	case -L;  shift; PROLOGUE=$1
+	case -L*; PROLOGUE=`{echo $1 | sed s/-L//}
+
+	case --;
+
+	case -*;  echo '$0: illegal option $1' >&2; exit 1
+	}
+	shift
+}
+
+switch ($MODE) {
+	case l*; OPTIONS=$OPTIONS' /landscape true def'
+	case *;  OPTIONS=$OPTIONS' /landscape false def'
+}
+
+echo $NONCONFORMING
+cat $PROLOGUE
+echo $ENDPROLOG
+echo $BEGINSETUP
+echo $OPTIONS
+echo $SETUP
+echo $ENDSETUP
+
+cat $*
+
+echo $TRAILER
+echo $DONE

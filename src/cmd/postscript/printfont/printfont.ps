@@ -1,0 +1,321 @@
+%
+% Formatted font dump. Assumes all fonts include valid FontBBox arrays.
+%
+
+/#copies 1 store
+/aspectratio 1 def
+/landscape false def
+/magnification 1 def
+/margin 10 def
+/orientation 0 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/axescount 0 def
+/charwidth false def
+/graynotdef 0.85 def
+/hireslinewidth 0.2 def
+/longnames false def
+/maxsize 6.0 def
+/minsize 4.5 def
+/numbercell true def
+/radix 16 def
+/labelfont /Helvetica def
+/labelspace 36 def
+/zerocell 0 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} def
+/min {2 copy gt {exch} if pop} def
+/max {2 copy lt {exch} if pop} def
+
+/LLx {0 get} bind def
+/LLy {1 get} bind def
+/URx {2 get} bind def
+/URy {3 get} bind def
+/BBoxHeight {dup URy exch LLy sub} bind def
+/BBoxWidth {dup URx exch LLx sub} bind def
+
+/setup {
+	/graylevels [1 0 0] def
+	/scratchstring 512 string def
+	/Product statusdict begin /product where {pop product}{(Unknown)} ifelse end def
+	/Resolution 0 72 dtransform dup mul exch dup mul add sqrt cvi def
+	/Version /version where {pop version}{(???)} ifelse def
+
+	landscape {/orientation 90 orientation add def} if
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	margin dup neg translate
+	0 labelspace .75 mul neg translate
+	magnification dup aspectratio mul scale
+	0 0 transform round exch round exch itransform translate
+
+	currentdict /linewidth known not {
+		/linewidth Resolution 400 le {0}{hireslinewidth} ifelse def
+	} if
+} def
+
+/pagedimensions {
+	useclippath {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+} def
+
+/CharSetup {
+	/chcode exch def
+	/chname Encoding chcode get def
+	/chstring ( ) dup 0 chcode put def
+	/chknown true def
+
+	graylevels 0 1 put	% initial cell fill
+	graylevels 1 0 put	% cell text
+	graylevels 2 0 put	% cell border
+
+	FontDict /CharStrings known {
+		FontDict /CharStrings get chname known not {
+			/chknown false def
+			graylevels 0 0 put
+			graylevels 1 1 put
+		} if
+	} if
+
+	chname /.notdef eq {
+		/chknown false def
+		graylevels 0 graynotdef put
+		graylevels 1 graynotdef put
+	} if
+
+	/chwid chknown
+		{FontDict 1 scalefont setfont chstring stringwidth pop}
+		{0}
+	ifelse def
+} bind def
+
+/CellSetup {
+	/gridwidth width margin 2 mul sub def
+	/gridheight height labelspace sub margin 2 mul sub def
+	/cellwidth gridwidth radix div def
+	/cellheight gridheight Entries radix div ceiling div def
+
+	cellwidth cellheight dtransform truncate exch truncate exch idtransform
+	/cellheight exch def
+	/cellwidth exch def
+
+	labelfont findfont 1 scalefont setfont
+	/LabelBBox currentfont /FontBBox get TransformBBox def
+
+	LabelBBox 2 0 Encoding {
+		scratchstring cvs stringwidth pop
+		2 copy lt {exch} if
+		pop
+	} forall put
+
+	/CellLabelSize
+		cellheight .20 mul cellwidth .90 mul LabelBBox BestFit
+		minsize max
+		maxsize min
+	def
+	zerocell CellOrigin cellheight add neg exch neg exch translate
+} bind def
+
+/FontSetup {
+	FontName findfont 1 scalefont setfont
+	/BBox currentfont /FontBBox get TransformBBox def
+	/PointSize cellheight .5 mul cellwidth .8 mul BBox BestFit def
+	BBox {PointSize mul} forall BBox astore pop
+
+	/xorigin cellwidth BBox BBoxWidth sub 2 div BBox LLx sub def
+	/yorigin cellheight BBox BBoxHeight sub 2 div BBox LLy sub def
+} bind def
+
+/BestFit {
+	/bbox exch def
+	bbox BBoxWidth div exch
+	bbox BBoxHeight div min
+} bind def
+
+/TransformBBox {	% font bbox to user space
+	aload pop
+	currentfont /FontMatrix get dtransform 4 2 roll
+	currentfont /FontMatrix get dtransform 4 2 roll
+	4 array astore	% should build user space bbox if all zeros
+} bind def
+
+/CellOrigin {
+	dup
+	exch radix mod cellwidth mul
+	exch radix idiv 1 add neg cellheight mul
+} bind def
+
+/CellOutline {
+	newpath
+	CellOrigin moveto
+	cellwidth 0 rlineto
+	0 cellheight rlineto
+	cellwidth neg 0 rlineto
+	closepath
+} bind def
+
+/LabelCell {
+	gsave
+	chcode CellOrigin translate
+	linewidth .5 mul setlinewidth
+	labelfont findfont CellLabelSize scalefont setfont
+
+	numbercell {
+		cellwidth .025 mul cellheight .05 mul moveto
+		chcode radix scratchstring cvrs show
+	} if
+
+	charwidth chknown and {
+		/wid chwid 0.0005 add scratchstring cvs 0 5 getinterval def
+		cellwidth wid stringwidth pop 1.10 mul sub cellheight .05 mul moveto
+		wid show
+	} if
+
+	longnames chknown not or {
+		cellwidth .025 mul
+		cellheight LabelBBox URy CellLabelSize mul sub .05 sub moveto
+		Encoding chcode get scratchstring cvs show
+	} if
+
+	axescount 1 ge chknown and {	% gsave/grestore if not last
+		newpath
+		xorigin yorigin translate
+
+		BBox LLx 0 moveto	% baseline
+		BBox URx 0 lineto stroke
+
+		axescount 2 ge {	% vertical through current origin
+			0 BBox LLy moveto
+			0 BBox URy lineto stroke
+		} if
+
+		axescount 3 ge {	% vertical through next origin
+			chwid PointSize mul BBox LLy
+			dtransform round exch round exch idtransform moveto
+			0 BBox BBoxHeight rlineto stroke
+			%chwid PointSize mul BBox URy lineto stroke
+		} if
+	} if
+	grestore
+} bind def
+
+/PlaceChar {
+	FontName findfont PointSize scalefont setfont
+	chcode CellOrigin moveto
+	xorigin yorigin rmoveto
+	( ) dup 0 chcode put show
+} bind def
+
+/LabelPage {
+	labelfont findfont labelspace .75 mul .75 mul 18 min scalefont setfont
+	0 labelspace .75 mul .25 mul moveto
+	FontName scratchstring cvs show
+
+	labelfont findfont labelspace .25 mul .75 mul 9 min scalefont setfont
+	0 gridheight neg moveto
+	0 labelspace .25 mul .75 mul neg rmoveto
+	Product show ( Version ) show Version show
+	( \() show Resolution scratchstring cvs show (dpi\)) show
+
+	gridwidth gridheight neg moveto
+        0 labelspace .25 mul .75 mul neg rmoveto
+	(size=, ) stringwidth pop neg 0 rmoveto
+	PointSize cvi scratchstring cvs stringwidth pop neg 0 rmoveto
+	(gray=, ) stringwidth pop neg 0 rmoveto
+	graynotdef scratchstring cvs stringwidth pop neg 0 rmoveto
+	(linewidth=) stringwidth pop neg 0 rmoveto
+	linewidth scratchstring cvs stringwidth pop neg 0 rmoveto
+	(size=) show PointSize cvi scratchstring cvs show (, ) show
+	(gray=) show graynotdef scratchstring cvs show (, ) show
+	(linewidth=) show linewidth scratchstring cvs show
+} bind def
+
+%
+% Formatted dump of the encoded characters in a single font.
+%
+
+/PrintFont {
+	/saveobj save def
+	/FontName exch def
+	/FontDict FontName findfont def
+	/Encoding FontDict /Encoding get def
+	/Entries Encoding length def
+
+	CellSetup
+	FontSetup
+	LabelPage
+	zerocell 1 Entries 1 sub {
+		CharSetup
+		graylevels 0 get setgray
+		chcode CellOutline fill
+		graylevels 1 get setgray
+		LabelCell
+		PlaceChar
+		graylevels 2 get setgray
+		linewidth setlinewidth
+		chcode CellOutline stroke
+	} for
+	showpage
+	saveobj restore
+} bind def
+
+%
+% Dump of all ROM and disk fonts - in alphabetical order.
+%
+
+/AllFonts {
+	/AllFontNames FontDirectory maxlength array def
+	AllFontNames 0 0 put
+
+	FontDirectory {pop AllFontNames Insert} forall
+
+	/filenameforall where {
+		pop
+		(fonts/*)
+		{(fonts/) search pop pop pop AllFontNames Insert}
+		200 string
+		filenameforall
+	} if
+
+	1 1 AllFontNames 0 get {
+		AllFontNames exch get cvn PrintFont
+	} for
+} bind def
+
+/Insert {		% name in a sorted list
+	/List exch def
+	/Name exch 128 string cvs def
+
+	/Slot 1 def
+	List 0 get {
+		Name List Slot get le {exit} if
+		/Slot Slot 1 add def
+	} repeat
+
+	List 0 get -1 Slot {
+		dup List exch get
+		List 3 1 roll exch 1 add exch put
+	} for
+	List Slot Name put
+	List 0 List 0 get 1 add put
+} bind def
+

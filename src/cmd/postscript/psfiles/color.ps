@@ -1,0 +1,65 @@
+%
+% Color and reverse video support for dpost. A call made to setcolor with two
+% arguments implies reverse video printing.
+%
+
+/rgb {setrgbcolor} bind def
+/hsb {sethsbcolor} bind def
+
+/colordict 50 dict dup begin
+	/red			{ 1 0 0 } def
+	/green			{ 0 1 0 } def
+	/blue			{ 0 0 1 } def
+	/cyan			{ 0 1 1 } def
+	/magenta		{ 1 0 1 } def
+	/yellow			{ 1 1 0 } def
+	/white			{ 1 1 1 } def
+	/black			{ 0 0 0 } def
+end def
+
+/setcolor {
+	counttomark 1 eq {
+		dup colordict exch known not {pop /black} if
+		colordict exch get exec setrgbcolor
+	} if
+	counttomark 2 eq {
+		/backcolor exch def
+		/textcolor exch def
+		colordict backcolor known not colordict textcolor known not or {
+			/backcolor colordict /black get def
+			/textcolor colordict /white get def
+		} if
+		/backcolor colordict backcolor get def
+		/textcolor colordict textcolor get def
+		/dY1 0 def
+		/dY2 0 def
+		textcolor exec setrgbcolor
+	} if
+} bind def
+
+/drawrvbox {
+	/x2 exch def
+	/x1 exch def
+
+	currentpoint dup
+	/y1 exch def
+	/y2 exch def pop
+
+	dY1 0 eq dY2 0 eq and {
+		currentfont /FontBBox get aload pop
+		currentfont /FontMatrix get dtransform /dY2 exch def pop
+		currentfont /FontMatrix get dtransform /dY1 exch def pop
+	} if
+
+	/y1 y1 dY1 add def
+	/y2 y2 dY2 add def
+
+	backcolor exec setrgbcolor
+	newpath
+	x1 y1 moveto
+	x2 y1 lineto
+	x2 y2 lineto
+	x1 y2 lineto
+	closepath fill
+	textcolor exec setrgbcolor
+} bind def

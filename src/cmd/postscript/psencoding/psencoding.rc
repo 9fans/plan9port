@@ -1,0 +1,39 @@
+#!/bin/rc
+# Trivial script for checking and setting the default PostScript font
+# encoding. Changing the default assumes you can write in $POSTLIB.
+# Available font encodings are files in $POSTLIB that end in .enc.
+# The default is $POSTLIB/Default.enc.
+#
+
+POSTLIB=/sys/lib/postscript/prologues
+DEFAULT=Default.enc
+CURRENTDEFAULT=Standard
+
+if (~ $#* 0) {
+	cd $POSTLIB
+	for (i in *.enc) {
+		if (test -f $i -a $i '!=' $DEFAULT) {
+			NAME=`{echo $i | sed s/\\.enc//}
+			if (cmp $i $DEFAULT >/dev/null >[2]/dev/null) {
+				CURRENTDEFAULT=$NAME
+			}
+			echo $NAME
+		}
+	}
+	echo Standard
+	echo Default'='$CURRENTDEFAULT
+}
+if not {
+	switch ($1) {
+	case Default
+		;
+	case Standard
+		rm -f $POSTLIB/$DEFAULT
+	case *
+		if (test -f $POSTLIB/$1.enc) {
+			rm -f $POSTLIB/$DEFAULT
+			cp $POSTLIB/$1.enc $POSTLIB/$DEFAULT
+		}
+		if not echo unrecognized encoding name $1 >[1=2]
+	}
+}

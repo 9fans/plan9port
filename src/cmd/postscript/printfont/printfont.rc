@@ -1,0 +1,105 @@
+#!/bin/rc
+# Formatted dump of encoded characters in one or more PostScript fonts.
+# Arguments should be PostScript font names or the word all, which dumps
+# all ROM and disk based fonts.
+#
+
+POSTLIB=/sys/lib/postscript/prologues
+PROLOGUE=$POSTLIB/printfont.ps
+
+OPTIONS=''
+COPYFILE=''
+MODE=portrait
+FONTENCODING=Default
+
+NONCONFORMING='%!PS'
+ENDPROLOG='%%EndProlog'
+BEGINSETUP='%%BeginSetup'
+ENDSETUP='%%EndSetup'
+TRAILER='%%Trailer'
+
+SETUP=setup
+
+while (! ~ $#* 0 && ~ $1 -*) {
+	switch ($1) {
+	case -a;  shift; OPTIONS=$OPTIONS' /axescount $1 def'
+	case -a*; OPTIONS=$OPTIONS' /axescount '`{echo $1 | sed s/-a//}' def'
+
+	case -b;  shift; OPTIONS=$OPTIONS' /radix '$1' def'
+	case -b*; OPTIONS=$OPTIONS' /radix '`{echo $1 | sed s/-b//}' def'
+
+	case -c;  shift; OPTIONS=$OPTIONS' /#copies '$1' store'
+	case -c*; OPTIONS=$OPTIONS' /#copies '`{echo $1 | sed s/-c//}' store'
+
+	case -f;  shift; OPTIONS=$OPTIONS' /labelfont /'$1' def'
+	case -f*; OPTIONS=$OPTIONS' /labelfont /'`{echo $1 | sed s/-f//}' def'
+
+	case -g;  shift; OPTIONS=$OPTIONS' /graynotdef '$1' def'
+	case -g*; OPTIONS=$OPTIONS' /graynotdef '`{echo $1 | sed s/-g//}' def'
+
+	case -p;  shift; MODE=$1
+	case -p*; MODE=`{echo $1 | sed s/-p//}
+
+	case -q;  OPTIONS=$OPTIONS' /longnames false def /charwidth false def'
+
+	case -m;  shift; OPTIONS=$OPTIONS' /magnification '$1' def'
+	case -m*; OPTIONS=$OPTIONS' /magnification '`{echo $1 | sed s/-m//}' def'
+
+	case -v;  OPTIONS=$OPTIONS' /longnames true def /charwidth true def'
+
+	case -w;  shift; OPTIONS=$OPTIONS' /linewidth '$1' def'
+	case -w*; OPTIONS=$OPTIONS' /linewidth '`{echo $1 | sed s/-w//}' def'
+
+	case -x;  shift; OPTIONS=$OPTIONS' /xoffset '$1' def'
+	case -x*; OPTIONS=$OPTIONS' /xoffset '`{echo $1 | sed s/-x//}' def'
+
+	case -y;  shift; OPTIONS=$OPTIONS' /yoffset '$1' def'
+	case -y*; OPTIONS=$OPTIONS' /yoffset '`{echo $1 | sed s/-y//}' def'
+
+	case -z;  shift; OPTIONS=$OPTIONS' /zerocell '$1' def'
+	case -z*; OPTIONS=$OPTIONS' /zerocell '`{echo $1 | sed s/-z//}' def'
+
+	case -C;  shift; COPYFILE=$COPYFILE' '$1
+	case -C*; COPYFILE=$COPYFILE' '`{echo $1 | sed s/-C//}
+
+	case -E;  shift; FONTENCODING=$1
+	case -E*; FONTENCODING=`{echo $1 | sed s/-E//}
+
+	case -L;  shift; PROLOGUE=$1
+	case -L*; PROLOGUE=`{echo $1 | sed s/-L//}
+
+	case -*;  echo $0:' illegal option '$1 >[1=2]; exit 1
+	}
+	shift
+}
+
+switch ($MODE) {
+case l*; OPTIONS=$OPTIONS' /landscape true def'
+case *;	OPTIONS=$OPTIONS' /landscape false def'
+}
+
+echo $NONCONFORMING
+cat $PROLOGUE
+echo $ENDPROLOG
+echo $BEGINSETUP
+if (~ $#COPYFILE 0 || ~ $COPYFILE '') COPYFILE=/dev/null
+cat $COPYFILE
+echo $OPTIONS
+
+switch ($FONTENCODING) {
+case /*; cat $FONTENCODING
+case ?*; cat $POSTLIB^/$FONTENCODING^.enc >[2]/dev/null
+}
+
+echo $SETUP
+echo $ENDSETUP
+
+for (i) {
+	switch ($i) {
+	case all; echo AllFonts
+	case /*;  echo $i' PrintFont'
+	case ?*;  echo /$i' PrintFont'
+	}
+}
+
+echo $TRAILER

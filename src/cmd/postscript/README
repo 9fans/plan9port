@@ -1,0 +1,179 @@
+Stuff appears to work, but it's obviously not well tested. I fully
+expect several iterations before things are correct!! Make sure you
+can back this out quickly.
+
+This code supports UTF encoding. Directory dpost.utf is a version that
+reads UTF encoded files. Directory dpost is DWB 3.3 source and should be
+close to what you're currently using. Main source code changes were in
+dpost.utf (files font.h, font.c, and dpost.c). Select either dpost or
+dpost.utf in TARGETS in postscript.mk. Both build and install a program
+called dpost!!
+
+dpost.utf is more general and includes code that lets it read either
+format. Only catch is troff must tell it (with x E UTF) that the file
+is UTF and troff currently doesn't output encoding info, so you're
+stuck with two post-processors!
+
+Added common/rune.h and common/rune.c so code can be compiled elsewere.
+Both files are only used by dpost. Remove RUNELIB in commmon/rune.h if
+fullrune(), chartorune(), and runetochar() are available on your system.
+You will also need to set READING in common/gen.h. It controls how dpost
+(from dpost.utf) reads troff output. It should be UTFENCODING on Plan 9
+and ONEBYTE elsewhere. If troff includes encoding hint (x E UTF) then
+READING selects the default which sould be ONEBYTE.
+
+Leave WRITING (in common/gen.h) set to ONEBYTE. It only controls dpost
+output and dpost (right now) does not work 100% with UTF.enc. Fix should
+be easy, but I don't have time now.
+
+Other translators passed bytes through so only needed slightly modified
+proglogues and a new encoding scheme (psencoding/UTF.enc). It works for
+Latin1, but still needs a bit more attention. Prologue changes were easy
+and only involved adding lines like,
+
+	/show {show} bind def
+	/stringwidth {stringwidth} bind def
+
+Guarantees text procedures used in prologues aren't operators and can be
+successfully redefined in UTF.enc. Unbinding means a small but probably
+not noticeable speed penalty. You may not want to include those changes
+on other system.
+
+-------------
+Major Changes
+-------------
+
+See the VERSION file.
+
+-------------------
+Tuning The Makefile
+-------------------
+
+Source files, man pages, and low level makefiles can all be updated
+to reflect settings in postscript.mk in one simple step (described
+later). In most cases you only need to edit file postscript.mk.
+
+First save a copy of file postscript.mk. Then adjust the following
+definitions in file postscript.mk:
+
+  SYSTEM    best match for your version of Unix. Current choices for
+	    SYSTEM are:
+
+			SYSV	- System V
+			V9	- Ninth Edition
+			BSD4_2	- Berkeley (eg. Sun)
+
+	    Controls conditional compilation in a few places.
+
+  GROUP	    group assigned to all installed files
+
+  OWNER	    owner of everything that's installed
+
+  BINDIR    dpost and picpack go here. All other programs go in POSTBIN.
+	    BINDIR must already exist - it will not be created during an
+	    install.
+
+  HOSTDIR   hostresident font directory for PostScript printers. Only
+	    used in the font download program.
+
+  FONTDIR   width table directory - for troff and most postprocessors
+
+  MAN1DIR   command manpages. A command and its manpage are installed
+	    together - there's no easy way to avoid it. Setting MAN1DIR
+	    to an existing temporary directory (e.g. /tmp) means an
+	    install will work but manpages won't go anywhere permanent.
+	    MAN1DIR must already exist - it will not be created during
+	    an install.
+
+  POSTBIN   where most PostScript support programs go. dpost and picpack
+	    the exceptions.
+
+  POSTLIB   prologues and miscellaneous PostScript files. Primarily for
+	    the programs that live in POSTBIN.
+
+  CFLGS	    common compiler options - used to build CFLAGS in the low
+	    level makefiles. CLFGS and LDFLGS are best set on the make
+	    command line.
+
+  LDFLGS    common link editor options - used to build LDFLAGS in the
+	    low level makefiles. LDFLGS and CFLGS are best set on the
+	    make command line.
+
+  DKHOST    set it to TRUE to compile the DKHOST Datakit support code
+	    in postio. Temporarily resets SYSTEM to SYSV if DKHOST is
+	    TRUE and SYSTEM is BSD4_2. Ignored if SYSTEM is not SYSV
+	    or BSD4_2.
+
+  DKSTREAMS enables streams based DKHOST support in postio when DKHOST
+	    is TRUE and SYSTEM is SYSV or BSD4_2. Choices are TRUE,
+	    FALSE, or a stream module name (e.g. dknetty or dkty). TRUE
+	    selects dknetty. Newer systems may expect dkty.
+
+  ROUNDPAGE must only be set to TRUE or FALSE. TRUE means PostScript
+	    translators include code that maps clipping path dimensions
+	    into known paper sizes.
+
+  TARGETS   the default list of what's built by make. Each target must
+	    be the name of a source directory. A target that names a
+	    non-existent source directory is ignored. Setting TARGETS
+	    on the make command line overrides the default list.
+
+-------------------
+Updating The Source
+-------------------
+
+Whenever file postscript.mk changes you should update source files,
+man pages, and low level makefiles by typing,
+
+	make -f postscript.mk changes
+
+------------------------
+More System Dependencies
+------------------------
+
+The package has been compiled and tested on System V and Ninth Edition
+Unix Systems and on Sun workstations. Most differences are handled via
+the SYSTEM definition in postscript.mk. Problems that remain are:
+
+  SYSV - System V
+    Use the native compiler if you're on an internal System V UTS
+    machine.
+
+  V9 - Ninth or Tenth Edition
+    chown is in /etc and chgrp no longer exists - it's been folded into
+    the chown command. You may be forced to build a simple chgrp shell
+    script (put it in your bin) that calls chown. If you're not superuser
+    set OWNER to your login name and GROUP to your group id.
+
+  BSD4_2 - Sun Workstations
+    Use the Bourne shell. chown is should be in /usr/etc. Add /usr/etc
+    to your PATH and export PATH. If you're not superuser set OWNER to
+    your login name and GROUP to your group id.
+
+----------------------
+Installing The Package
+----------------------
+
+To build (but not install) the default package (i.e. everything named by
+TARGETS in postscript.mk) type,
+
+	make -f postscript.mk all
+
+To build and install the package type,
+
+	make -f postscript.mk all install
+
+After the package is installed use,
+
+	make -f postscript.mk clobber
+
+to delete binary files and compiled programs from the source directories.
+
+To select part of the package define TARGETS on the command line. For
+example,
+
+	make -f postscript.mk TARGETS="dpost devpost" all install
+
+builds and installs dpost and the PostScript font tables. Quotes hide
+white space from the shell.
+

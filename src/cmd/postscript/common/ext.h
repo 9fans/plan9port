@@ -28,8 +28,12 @@ extern char	*optarg;		/* for getopt() */
 extern int	optind;
 
 extern void	interrupt();
-//extern char	*tempnam(char*,char*);
+extern void	error();
+extern int	cat();
+extern void	concat();
+
 /* 
+ * extern char	*tempnam(char*,char*);
  * extern char	*malloc();
  * extern char	*calloc();
  * extern char	*strtok();

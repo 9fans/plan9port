@@ -7,6 +7,10 @@
 
 #define PROGRAMVERSION	"3.3.2"
 
+/* XXX: replace tempnam with something safer, but leaky */
+extern	char*	safe_tempnam(char*, char*);
+#define	tempnam	safe_tempnam
+
 #define NON_FATAL	0
 #define FATAL		1
 #define USER_FATAL	2

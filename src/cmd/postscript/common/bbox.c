@@ -34,6 +34,7 @@ double	matrix1[6], matrix2[6];
 
 /*****************************************************************************/
 
+void
 cover(x, y)
 
     double	x, y;
@@ -65,7 +66,9 @@ cover(x, y)
 }   /* End of cover */
 
 /*****************************************************************************/
+void	resetbbox();
 
+void
 writebbox(fp, keyword, slop)
 
     FILE	*fp;			/* the comment is written here */
@@ -117,7 +120,7 @@ writebbox(fp, keyword, slop)
 }   /* End of writebbox */
 
 /*****************************************************************************/
-
+void
 resetbbox(output)
 
     int		output;
@@ -146,7 +149,7 @@ resetbbox(output)
 }   /* End of resetbbox */
 
 /*****************************************************************************/
-
+void
 scale(sx, sy)
 
     double	sx, sy;
@@ -171,7 +174,7 @@ scale(sx, sy)
 }   /* End of scale */
 
 /*****************************************************************************/
-
+void
 translate(tx, ty)
 
     double	tx, ty;
@@ -196,7 +199,7 @@ translate(tx, ty)
 }   /* End of translate */
 
 /*****************************************************************************/
-
+void
 rotate(angle)
 
     double	angle;
@@ -223,6 +226,7 @@ rotate(angle)
 
 /*****************************************************************************/
 
+void
 concat(m1)
 
     double	m1[];

@@ -14,7 +14,7 @@ DIRS=\
 #	postprint\
 #	postreverse\
 #	posttek\
-#	printfont\
+	printfont\
 #	psencoding\
 #	psfiles\
 #	g3p9bit\

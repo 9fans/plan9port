@@ -1,0 +1,29 @@
+</$objtype/mkfile
+
+<../config
+
+COMMONDIR=../common
+
+TARG=postreverse
+
+OFILES=postreverse.$O\
+
+HFILES=postreverse.h\
+	$COMMONDIR/comments.h\
+	$COMMONDIR/ext.h\
+	$COMMONDIR/gen.h\
+	$COMMONDIR/path.h\
+
+BIN=$POSTBIN
+LIB=$COMMONDIR/com.a$O
+
+</sys/src/cmd/mkone
+
+CC=pcc
+LD=pcc
+CFLAGS=-c -D$SYSTEM -D_POSIX_SOURCE -I$COMMONDIR -B
+
+$LIB:
+	cd $COMMONDIR
+	mk install
+	mk clean

@@ -1,0 +1,20 @@
+</$objtype/mkfile
+
+<../config
+
+all:V:	hardcopy
+
+installall install:V:	$POSTBIN/hardcopy $POSTLIB/hardcopy.ps
+
+$POSTBIN/hardcopy:	hardcopy
+	cp $prereq $target
+
+$POSTLIB/hardcopy.ps:	hardcopy.ps
+	cp $prereq $target
+
+hardcopy:	hardcopy.rc
+	sed 's?^POSTLIB=.*?POSTLIB='$POSTLIB'?' hardcopy.rc >hardcopy
+	chmod 775 hardcopy
+
+clean nuke:V:
+	rm -f hardcopy

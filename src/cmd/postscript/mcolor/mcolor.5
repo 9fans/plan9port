@@ -1,0 +1,60 @@
+.ds dP /usr/lib/postscript
+.ds dT /usr/lib/tmac
+.TH MCOLOR 5
+.SH NAME
+.B mcolor
+\- color and reverse video macro
+.SH SYNOPSIS
+\*(mBtroff \-mcolor\f1
+.OP "" options []
+.OP "" files []
+.SH DESCRIPTION
+.B mcolor
+is a macro package for color selection and reverse video printing
+on PostScript printers.
+The package is compatible with most existing macro packages
+and includes the following macro:
+.TP 1.25i
+.MI .CL "\0color\0text"
+Prints
+.I text
+in
+.IR color .
+No arguments restores the default color (black).
+If
+.I text
+is omitted the selected
+.I color
+remains in effect until another
+.I color
+is selected.
+If two arguments are given the
+.I text
+is printed in
+.I color
+and then the default color is restored.
+.PP
+Both the text and background color can be selected.
+A
+.I color
+argument of
+.RI `` color1
+.MW on
+.IR color2 ''
+prints text in
+.I color1
+on a background in
+.I color2 .
+.PP
+Named colors must be listed in the
+``colordict''
+dictionary in file
+.MR \*(dP/color.ps .
+.SH FILES
+.MW \*(dT/tmac.color
+.br
+.MW \*(dP/color.ps
+.SH SEE ALSO
+.BR troff (1),
+.BR dpost (1),
+.BR mps (5)

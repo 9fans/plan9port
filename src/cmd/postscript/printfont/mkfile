@@ -1,0 +1,22 @@
+</$objtype/mkfile
+
+<../config
+
+POSTBIN=/rc/bin
+
+all:V:	printfont
+
+install installall:V:	$POSTBIN/printfont $POSTLIB/printfont.ps
+
+clean nuke:V:
+	rm -f printfont
+
+$POSTBIN/printfont:	printfont
+	cp $prereq $target
+
+$POSTLIB/printfont.ps:	printfont.ps
+	cp $prereq $target
+
+printfont:	printfont.rc
+	sed 's?^POSTLIB=.*?POSTLIB='$POSTLIB'?' printfont.rc >printfont
+	chmod 775 printfont

@@ -13,7 +13,7 @@ cover(double x, double y) {
 }
 
 void
-drawspline(Biobuf *Bp, int flag) {	/* flag!=1 connect end points */
+drawspline(Biobufhdr *Bp, int flag) {	/* flag!=1 connect end points */
 	int x[100], y[100];
 	int i, N;
 /*
@@ -96,7 +96,7 @@ drawspline(Biobuf *Bp, int flag) {	/* flag!=1 connect end points */
 }
 
 void
-draw(Biobuf *Bp) {
+draw(Biobufhdr *Bp) {
 
 	int r, x1, y1, x2, y2, i;
 	int d1, d2;

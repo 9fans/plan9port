@@ -11,8 +11,12 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "gen.h"			/* general purpose definitions */
+#include "ext.h"
 #include "request.h"			/* a few special definitions */
 #include "path.h"			/* for the default request file */
 
@@ -22,6 +26,7 @@ char	*requestfile = REQUESTFILE;	/* default lookup file */
 
 /*****************************************************************************/
 
+void
 saverequest(want)
 
     char	*want;			/* grab code for this stuff */
@@ -55,7 +60,9 @@ saverequest(want)
 }   /* End of saverequest */
 
 /*****************************************************************************/
+extern	void	dumprequest();
 
+void
 writerequest(page, fp_out)
 
     int		page;			/* write everything for this page */
@@ -80,6 +87,7 @@ writerequest(page, fp_out)
 
 /*****************************************************************************/
 
+void
 dumprequest(want, file, fp_out)
 
     char	*want;			/* look for this string */

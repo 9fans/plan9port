@@ -5,14 +5,14 @@
 #include "tr2post.h"
 
 void
-conv(Biobuf *Bp) {
+conv(Biobufhdr *Bp) {
 	long c, n;
 	int r;
 	char special[10];
 	int save;
 
 	inputlineno = 1;
-	if (debug) Bprint(Bstderr, "conv(Biobuf *Bp=0x%x)\n", Bp);
+	if (debug) Bprint(Bstderr, "conv(Biobufhdr *Bp=0x%x)\n", Bp);
 	while ((r = Bgetrune(Bp)) >= 0) {
 /* Bprint(Bstderr, "r=<%c>,0x%x\n", r, r); */
 /*		Bflush(Bstderr); */

@@ -250,7 +250,7 @@ specialout(char *stoken) {
 }
 
 void
-graphfunc(Biobuf *bp) {
+graphfunc(Biobufhdr *bp) {
 }
 
 long

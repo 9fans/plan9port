@@ -1,0 +1,41 @@
+.TH LASERBAR 1
+.SH NAME
+laserbar \- produce bar codes on a PostScript laser printer
+.SH SYNOPSIS
+.B laserbar
+[\fB-r\fP rotate] [\fB-x\fP xoffset] [\fB-y\fP yoffset]
+[\fB-X\fP xscale] [\fB-Y\fP yscale] [\fB-lns\fP] string
+.SH DESCRIPTION
+.I Laserbar
+prints on the standard output the PostScript text that will produce
+(on a suitable laser printer) the \s-2CODE-39\s+2 bar code
+corresponding to
+.I string.
+The \fBr\fP option may be used to specify a rotation (in
+degrees) of the bar code.
+The \fBx\fP, \fBy\fP, \fBX\fP, and \fBY\fP options may be used to specify
+an x- or y-axis offset (in inches) or scaling factor, respectively.
+(The offset is measured from the lower left corner of the page
+to the upper left corner of the bar
+code.  By default, the bar code produced is one inch high, and is scaled
+so that the narrowest elements are each 1/72-inch \- i.e., one point \- wide.)
+If the \fBl\fP option is specified, the bar code produced is labeled.
+If the \fBn\fP option is specified, the resulting PostScript text
+includes a leading \f(CWnewpath\fP command, so that the text may stand
+alone or precede any other PostScript commands.
+If the \fBs\fP option is specified, the resulting PostScript text includes 
+a trailing \f(CWshowpage\fP command, so that the text may stand alone
+or follow any other PostScript commands.
+.P
+This manual page (if it appears with a bar code printed on it) was
+produced by something like the following sequence:
+.IP
+.ft CW
+laserbar -x 2.5 -y 3 -l -n ABC123xyz > tempfile
+.br
+troff -man -Tpost laserbar.1 | dpost >> tempfile
+.br
+prt -dprinter -lpostscript tempfile
+.ft P
+.SH SEE ALSO
+laserbar(3), prt(1), dpost(1), postbgi(1), postprint(1), postdmd(1), posttek(1), etc.

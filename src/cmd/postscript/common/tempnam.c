@@ -1,27 +1,62 @@
 #include <stdio.h>
-#include <errno.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-#if defined(V9) || defined(BSD4_2) || defined(plan9)
-char *tempnam(char *dir, char *pfx) {
-	int pid;
-	unsigned int len;
-	char *tnm, *malloc();
-	static int seq = 0;
+#define nil ((void*)0)
 
-	pid = getpid();
-	len = strlen(dir) + strlen(pfx) + 10;
-	if ((tnm = malloc(len)) != NULL) {
-		sprintf(tnm, "%s", dir);
-		if (access(tnm, 7) == -1)
-			return(NULL);
-		do {
-			sprintf(tnm, "%s/%s%d%d", dir, pfx, pid, seq++);
-			errno = 0;
-			if (access(tnm, 7) == -1)
-				if (errno == ENOENT)
-					return(tnm);
-		} while (1);
-	}
-	return(tnm);
+char*
+mkfname(char *tmpdir, char *prefix)
+{
+	int n;
+	char *p, *fname;
+
+	if((p = getenv("TMPDIR")) != nil)
+		goto Mktemp;
+	if((p = tmpdir) != nil)
+		goto Mktemp;
+	p = "/tmp";
+
+ Mktemp:
+	n = strlen(p)+1+strlen(prefix)+1+8+1;
+	if((fname = malloc(n)) == nil)
+		return nil;
+	memset(fname, 0, n);
+	strcat(fname, p);
+	if((n = strlen(p)) > 0 && p[n-1] != '/')
+		strcat(fname, "/");
+	strcat(fname, prefix);
+	strcat(fname, ".XXXXXXXX");
+
+	return fname;
 }
-#endif
+
+extern int mkstemp();
+
+char*
+safe_tempnam(char *tmpdir, char *prefix)
+{
+	int fd;
+	char *fname;
+
+	if((fname = mkfname(tmpdir, prefix)) == nil)
+		return nil;
+
+	if((fd = mkstemp(fname)) < 0){		/* XXX: leak fd, fname */
+		free(fname);
+		return nil;
+	}
+	return fname;
+}
+
+int
+safe_tmpnam(char *fname)
+{
+	char *p;
+
+	if((p = mkfname(nil, "tmpfile")) == nil)
+		return -1;
+	strcpy(fname, p);
+	free(p);
+	return mkstemp(fname);
+}

@@ -8,6 +8,8 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
 #include "gen.h"
 #include "ext.h"
@@ -17,7 +19,9 @@ int	nolist = 0;			/* number of specified ranges */
 int	olist[50];			/* processing range pairs */
 
 /*****************************************************************************/
+extern	int	str_convert();
 
+void
 out_list(str)
 
     char	*str;
@@ -53,7 +57,7 @@ out_list(str)
 }   /* End of out_list */
 
 /*****************************************************************************/
-
+int
 in_olist(num)
 
     int		num;
@@ -80,7 +84,7 @@ in_olist(num)
 }   /* End of in_olist */
 
 /*****************************************************************************/
-
+void
 setencoding(name)
 
     char	*name;
@@ -110,7 +114,7 @@ setencoding(name)
 }   /* End of setencoding */
 
 /*****************************************************************************/
-
+int
 cat(file)
 
     char	*file;
@@ -145,6 +149,7 @@ cat(file)
 
 /*****************************************************************************/
 
+int
 str_convert(str, err)
 
     char	**str;
@@ -173,6 +178,7 @@ str_convert(str, err)
 
 /*****************************************************************************/
 
+void
 error(kind, mesg, a1, a2, a3)
 
     int		kind;
@@ -191,9 +197,9 @@ error(kind, mesg, a1, a2, a3)
 	fprintf(stderr, "%s: ", prog_name);
 	fprintf(stderr, mesg, a1, a2, a3);
 	if ( lineno > 0 )
-	    fprintf(stderr, " (line %d)", lineno);
+	    fprintf(stderr, " (line %ld)", lineno);
 	if ( position > 0 )
-	    fprintf(stderr, " (near byte %d)", position);
+	    fprintf(stderr, " (near byte %ld)", position);
 	putc('\n', stderr);
     }	/* End if */
 

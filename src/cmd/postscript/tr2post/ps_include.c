@@ -11,8 +11,8 @@ extern int curfontsize;
 typedef struct {long start, end;} Section;
 static char *buf;
 
-static void
-copy(Biobuf *fin, Biobuf *fout, Section *s) {
+static
+copy(Biobufhdr *fin, Biobufhdr *fout, Section *s) {
 	int cond;
 	if (s->end <= s->start)
 		return;
@@ -57,7 +57,7 @@ copy(Biobuf *fin, Biobuf *fout, Section *s) {
 /*	rot;			/* rotation - in clockwise degrees */
 
 void
-ps_include(Biobuf *fin, Biobuf *fout, int page_no, int whiteout,
+ps_include(Biobufhdr *fin, Biobufhdr *fout, int page_no, int whiteout,
 	int outline, int scaleboth, double cx, double cy, double sx, double sy,
 	double ax, double ay, double rot) {
 	char		**strp;

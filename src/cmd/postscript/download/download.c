@@ -99,10 +99,10 @@ main(agc, agv)
  *
  */
 
-    fp_in = stdin;
-
     argc = agc;				/* other routines may want them */
     argv = agv;
+    
+    fp_in = stdin;
 
     prog_name = argv[0];		/* just for error messages */
 
@@ -244,7 +244,7 @@ readmap()
 	sprintf(path, "%s/%s%s", hostfontdir, mapname, suffix);
     } else path = mapname;
 
-    if ( (fd = open(unsharp(path), 0)) != -1 ) {
+    if ( (fd = open(path, 0)) != -1 ) {
 	if ( fstat(fd, &sbuf) == -1 )
 	    error(FATAL, "can't fstat %s", path);
 	if ( (stringspace = (char *)malloc(sbuf.st_size + 2)) == NULL )
@@ -303,7 +303,7 @@ readresident()
 	path = buf;
     } else path = residentfonts;
 
-    if ( (fp = fopen(unsharp(path), "r")) != NULL ) {
+    if ( (fp = fopen(path, "r")) != NULL ) {
 	while ( fscanf(fp, "%s", buf) != EOF )
 	    if ( buf[0] == '%' )
 		while ( (ch = getc(fp)) != EOF && ch != '\n' ) ;
@@ -336,7 +336,7 @@ arguments()
 	    fp_temp = NULL;
 	    if ( strcmp(*argv, "-") == 0 )
 		fp_in = stdin;
-	    else if ( (fp_in = fopen(unsharp(*argv), "r")) == NULL )
+	    else if ( (fp_in = fopen(*argv, "r")) == NULL )
 		error(FATAL, "can't open %s", *argv);
 	    download();
 	    if ( fp_in != stdin )
@@ -449,9 +449,9 @@ copyfonts(list)
 		if ( (path = (char *)malloc(strlen(hostfontdir)+strlen(map[n].file)+2)) == NULL )
 		    error(FATAL, "no memory");
 		sprintf(path, "%s/%s", hostfontdir, map[n].file);
-		cat(unsharp(path));
+		cat(path);
 		free(path);
-	    } else cat(unsharp(map[n].file));
+	    } else cat(map[n].file);
 	    map[n].downloaded = TRUE;
 	}   /* End if */
     }	/* End while */

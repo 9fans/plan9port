@@ -44,19 +44,19 @@ readDESC(void) {
 	char *descnameformat = "%s/dev%s/DESC";
 	char *descfilename = 0;
 	Biobuf *bfd;
-	Biobuf *Bfd;
+	Biobufhdr *Bfd;
 	int i, state = -1;
 	int fontindex = 0;
 
 	if (debug) Bprint(Bstderr, "readDESC()\n");
 	descfilename = galloc(descfilename, strlen(descnameformat)+strlen(FONTDIR)
-		+strlen(devname)+1, "readdesc");
+		+strlen(devname), "readdesc");
 	sprint(descfilename, descnameformat, FONTDIR, devname);
-	if ((bfd = Bopen(unsharp(descfilename), OREAD)) == 0) {
+	if ((bfd = Bopen(descfilename, OREAD)) == 0) {
 		error(WARNING, "cannot open file %s\n", descfilename);
 		return(0);
 	}
-	Bfd = bfd;
+	Bfd = bfd; /* &(bfd->Biobufhdr); */
 
 	while (Bgetfield(Bfd, 's', token, MAXTOKENSIZE) > 0) {
 		for (i=0; i<NDESCTOKS; i++) {

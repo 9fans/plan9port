@@ -1,0 +1,11 @@
+%
+% A version of roundpage.ps that assumes a symmetric clipping path. Thanks
+% to Matthijs Melchior for the suggestion.
+%
+
+/roundpagebbox {
+	pagebbox dup 0 get pagebbox 2 get add 2 exch put
+	pagebbox dup 1 get pagebbox 3 get add 3 exch put
+	pagebbox 0 0 put
+	pagebbox 1 0 put
+} bind def

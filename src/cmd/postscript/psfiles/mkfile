@@ -1,0 +1,12 @@
+</$objtype/mkfile
+
+<../config
+
+all:VQ:
+	;
+
+install installall:V:
+	cp *.ps ps.* $POSTLIB
+
+clean nuke:VQ:
+	;

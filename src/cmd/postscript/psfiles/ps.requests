@@ -1,0 +1,16 @@
+%
+% Keywords begin with an @ in the first column. The value follows on the next
+% line and includes everything up to next keyword line, except for comments
+% which are lines that begin with % in the first column.
+%
+
+@manualfeed
+	statusdict begin
+		/manualfeedtimeout 300 def
+		/manualfeed true def
+	end
+
+@ledgertray
+	statusdict begin
+		ledgertray
+	end

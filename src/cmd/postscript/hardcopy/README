@@ -1,0 +1,11 @@
+Redirect output of the print operator to paper. Particularly useful if
+you're trying to extract information from a printer, but you don't have
+access to the data the printer returns to the host.
+
+For example,
+
+	FontDirectory {pop ==} forall
+
+names all the fonts registered in the FontDirectory dictionary. Simple,
+but only if you can read the data returned to the host by the printer.
+

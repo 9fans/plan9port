@@ -1,0 +1,299 @@
+%
+% Encoding vector and redefinition of findfont for the ISO Latin1 standard.
+% The 18 characters missing from ROM based fonts on older printers are noted
+% below.
+%
+
+/ISOLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar		% missing
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree			% missing
+	/plusminus		% missing
+	/twosuperior		% missing
+	/threesuperior		% missing
+	/acute
+	/mu			% missing
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior		% missing
+	/ordmasculine
+	/guillemotright
+	/onequarter		% missing
+	/onehalf		% missing
+	/threequarters		% missing
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth			% missing
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply		% missing
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute			% missing
+	/Thorn			% missing
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth			% missing
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide			% missing
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute			% missing
+	/thorn			% missing
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding ISOLatin1Encoding def
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+

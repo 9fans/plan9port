@@ -1,0 +1,11 @@
+PostScript files that go in $(POSTLIB). Several, like forms.ps, are
+used by most translators supplied in this package. Most PostScript
+files only used by a single translator (e.g. the prologue) have been 
+been moved into the appropriate source directory. Files that end in
+.enc support alternate character sets (e.g. ISO Latin 1 alphabet).
+The implementation is left open, but typically redefines findfont.
+That approach works because findfont is a procedure rather than an
+operator, so it's not affected by bind. Also can't depend on having
+a systemdict definition for findfont. It's in userdict on Version
+48.0 VT600s.
+

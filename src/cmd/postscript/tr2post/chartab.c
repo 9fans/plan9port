@@ -120,30 +120,31 @@ findpfn(char *fontname, int insflg) {
 	return(-1);
 }
 
-char postroffdirname[] = "#9/sys/lib/postscript/troff";		/* "/sys/lib/postscript/troff/"; */
-char troffmetricdirname[] = "#9/sys/lib/troff/font";	/* "/sys/lib/troff/font/devutf/"; */
+char postroffdirname[] = LIBDIR "/postscript/troff";		/* "/sys/lib/postscript/troff/"; */
+char troffmetricdirname[] = LIBDIR "/troff/font";	/* "/sys/lib/troff/font/devutf/"; */
 
 int
 readpsfontdesc(char *fontname, int trindex) {
 	static char *filename = 0;
 	Biobuf *bfd;
-	Biobuf *Bfd;
+	Biobufhdr *Bfd;
 	int warn = 0, errorflg = 0, line =1, rv;
 	int start, end, offset;
 	int startfont, endfont, startchar, endchar, i, pfid;
 	char psfontnam[128];
 	struct troffont *tp;
+/*	struct charent *cp[]; */
 
 	if (debug) Bprint(Bstderr, "readpsfontdesc(%s,%d)\n", fontname, trindex);
 	filename=galloc(filename, strlen(postroffdirname)+1+strlen(fontname)+1, "readpsfontdesc: cannot allocate memory\n");
 	sprint(filename, "%s/%s", postroffdirname, fontname);
 
-	bfd = Bopen(unsharp(filename), OREAD);
+	bfd = Bopen(filename, OREAD);
 	if (bfd == 0) {
 		error(WARNING, "cannot open file %s\n", filename);
 		return(0);
 	}
-	Bfd = bfd;
+	Bfd = bfd; /* &(bfd->Biobufhdr); */
 
 	do {
 		offset = 0;
@@ -211,7 +212,7 @@ int
 readtroffmetric(char *fontname, int trindex) {
 	static char *filename = 0;
 	Biobuf *bfd;
-	Biobuf *Bfd;
+	Biobufhdr *Bfd;
 	int warn = 0, errorflg = 0, line =1, rv;
 	struct troffont *tp;
 	struct charent **cp;
@@ -225,12 +226,12 @@ readtroffmetric(char *fontname, int trindex) {
 	filename=galloc(filename, strlen(troffmetricdirname)+4+strlen(devname)+1+strlen(fontname)+1, "readtroffmetric():filename");
 	sprint(filename, "%s/dev%s/%s", troffmetricdirname, devname, fontname);
 
-	bfd = Bopen(unsharp(filename), OREAD);
+	bfd = Bopen(filename, OREAD);
 	if (bfd == 0) {
 		error(WARNING, "cannot open file %s\n", filename);
 		return(0);
 	}
-	Bfd = bfd;
+	Bfd = bfd; /* &(bfd->Biobufhdr); */
 	do {
 		/* deal with the few lines at the beginning of the
 		 * troff font metric files.
