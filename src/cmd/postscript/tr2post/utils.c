@@ -88,12 +88,13 @@ void
 glyphout(Rune rune, char *stoken, BOOLEAN specialflag) {
 	struct charent **cp;
 	struct troffont *tfp;
-	struct psfent *psfp;
+	struct psfent *psfp = (struct psfent*)0;
 	int i, t;
 	int fontid;	/* this is the troff font table index, not the mounted font table index */
-	int mi, fi, wid;
+	int mi, wid;
 	Rune r;
 
+	mi = 0;
 	settrfont();
 
 	/* check current font for the character, special or not */
@@ -187,8 +188,6 @@ foundit:
 	if (t == 0x0001) {	/* character is in charlib */
 		endstring();
 		if (pageon()) {
-			struct charent *tcp;
-
 			Bprint(Bstdout, "%d %d m ", hpos, vpos);
 			/* if char is unicode character rather than name, clean up for postscript */
 			wid = chartorune(&r, (*cp)->name);
@@ -250,7 +249,7 @@ specialout(char *stoken) {
 }
 
 void
-graphfunc(Biobufhdr *bp) {
+graphfunc(Biobuf *bp) {
 }
 
 long

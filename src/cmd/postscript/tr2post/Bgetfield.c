@@ -4,6 +4,9 @@
 #include "../common/common.h"
 #include "tr2post.h"
 
+#undef isspace
+#define isspace risspace
+
 int
 isspace(Rune r)
 {
@@ -11,9 +14,8 @@ isspace(Rune r)
 }
 
 int
-Bskipws(Biobufhdr *bp) {
+Bskipws(Biobuf *bp) {
 	int r;
-	char c[UTFmax];
 	int sindex = 0;
 
 	/* skip over initial white space */
@@ -54,7 +56,7 @@ asc2dig(char c, int base) {
  */
 
 int
-Bgetfield(Biobufhdr *bp, int type, void *thing, int size) {
+Bgetfield(Biobuf *bp, int type, void *thing, int size) {
 	int r;
 	Rune R;
 	char c[UTFmax];
@@ -64,6 +66,8 @@ Bgetfield(Biobufhdr *bp, int type, void *thing, int size) {
 	BOOLEAN bailout = FALSE;
 	int dig;
 	unsigned int u = 0;
+
+	r = 0;
 
 	/* skip over initial white space */
 	if (Bskipws(bp) < 0)

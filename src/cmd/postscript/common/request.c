@@ -24,6 +24,9 @@ Request	request[MAXREQUEST];		/* next page or global request */
 int	nextreq = 0;			/* goes in request[nextreq] */
 char	*requestfile = REQUESTFILE;	/* default lookup file */
 
+void dumprequest(char *want, char *file, FILE *fp_out);
+extern void error(int errtype, char *fmt, ...);
+
 /*****************************************************************************/
 
 void

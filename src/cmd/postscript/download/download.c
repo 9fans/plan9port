@@ -58,6 +58,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "comments.h"			/* PostScript file structuring comments */
 #include "gen.h"			/* general purpose definitions */
@@ -83,8 +85,22 @@ int	atend = FALSE;			/* TRUE only if a comment says so */
 FILE	*fp_in;				/* next input file */
 FILE	*fp_temp = NULL;		/* for copying stdin */
 
+void init_signals();
+void options();
+void readmap();
+void readresident();
+void arguments();
+void done();
+void download();
+int lookup(char *font);
+void copyfonts(char *list);
+void copyinput();
+extern int cat(char *file);
+extern void error(int errtype, char *fmt, ...);
+
 /*****************************************************************************/
 
+int
 main(agc, agv)
 
     int		agc;
@@ -118,8 +134,8 @@ main(agc, agv)
 
 /*****************************************************************************/
 
-init_signals()
-
+void
+init_signals(void)
 {
 
 /*
@@ -143,8 +159,8 @@ init_signals()
 
 /*****************************************************************************/
 
-options()
-
+void
+options(void)
 {
 
     int		ch;			/* return value from getopt() */
@@ -214,8 +230,8 @@ options()
 
 /*****************************************************************************/
 
-readmap()
-
+void
+readmap(void)
 {
 
     char	*path;
@@ -277,8 +293,8 @@ readmap()
 
 /*****************************************************************************/
 
-readresident()
-
+void
+readresident(void)
 {
 
     FILE	*fp;
@@ -316,8 +332,8 @@ readresident()
 
 /*****************************************************************************/
 
-arguments()
-
+void
+arguments(void)
 {
 
 /*
@@ -352,8 +368,8 @@ arguments()
 
 /*****************************************************************************/
 
-done()
-
+void
+done(void)
 {
 
 /*
@@ -369,8 +385,8 @@ done()
 
 /*****************************************************************************/
 
-download()
-
+void
+download(void)
 {
 
     int		infontlist = FALSE;
@@ -418,6 +434,7 @@ download()
 
 /*****************************************************************************/
 
+void
 copyfonts(list)
 
     char	*list;
@@ -460,8 +477,8 @@ copyfonts(list)
 
 /*****************************************************************************/
 
-copyinput()
-
+void
+copyinput(void)
 {
 
 /*
@@ -488,6 +505,7 @@ copyinput()
 
 /*****************************************************************************/
 
+int
 lookup(font)
 
     char	*font;

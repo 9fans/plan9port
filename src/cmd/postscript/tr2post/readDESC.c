@@ -44,7 +44,7 @@ readDESC(void) {
 	char *descnameformat = "%s/dev%s/DESC";
 	char *descfilename = 0;
 	Biobuf *bfd;
-	Biobufhdr *Bfd;
+	Biobuf *Bfd;
 	int i, state = -1;
 	int fontindex = 0;
 
@@ -52,7 +52,7 @@ readDESC(void) {
 	descfilename = galloc(descfilename, strlen(descnameformat)+strlen(FONTDIR)
 		+strlen(devname), "readdesc");
 	sprint(descfilename, descnameformat, FONTDIR, devname);
-	if ((bfd = Bopen(descfilename, OREAD)) == 0) {
+	if ((bfd = Bopen(unsharp(descfilename), OREAD)) == 0) {
 		error(WARNING, "cannot open file %s\n", descfilename);
 		return(0);
 	}
@@ -136,4 +136,5 @@ readDESC(void) {
 		}
 	}
 	Bterm(Bfd);
+	return 0;
 }

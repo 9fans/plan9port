@@ -18,6 +18,10 @@
 int	nolist = 0;			/* number of specified ranges */
 int	olist[50];			/* processing range pairs */
 
+int str_convert(char **str, int err);
+void error(int kind, char *mesg, unsigned int a1, unsigned int a2, unsigned int a3);
+int cat(char *file);
+
 /*****************************************************************************/
 extern	int	str_convert();
 
@@ -44,7 +48,7 @@ out_list(str)
 	    stop = str_convert(&str, 9999);
 
 	if ( start > stop )
-	    error(FATAL, "illegal range %d-%d", start, stop);
+	    error(FATAL, "illegal range %d-%d", start, stop, 0);
 
 	olist[nolist++] = start;
 	olist[nolist++] = stop;

@@ -120,17 +120,17 @@ findpfn(char *fontname, int insflg) {
 	return(-1);
 }
 
-char postroffdirname[] = LIBDIR "/postscript/troff";		/* "/sys/lib/postscript/troff/"; */
-char troffmetricdirname[] = LIBDIR "/troff/font";	/* "/sys/lib/troff/font/devutf/"; */
+char postroffdirname[] = "#9/postscript/troff";		/* "/sys/lib/postscript/troff/"; */
+char troffmetricdirname[] = "#9/troff/font";	/* "/sys/lib/troff/font/devutf/"; */
 
 int
 readpsfontdesc(char *fontname, int trindex) {
 	static char *filename = 0;
 	Biobuf *bfd;
-	Biobufhdr *Bfd;
-	int warn = 0, errorflg = 0, line =1, rv;
+	Biobuf *Bfd;
+	int errorflg = 0, line =1, rv;
 	int start, end, offset;
-	int startfont, endfont, startchar, endchar, i, pfid;
+	int startfont, endfont, startchar, endchar, pfid;
 	char psfontnam[128];
 	struct troffont *tp;
 /*	struct charent *cp[]; */
@@ -139,7 +139,7 @@ readpsfontdesc(char *fontname, int trindex) {
 	filename=galloc(filename, strlen(postroffdirname)+1+strlen(fontname)+1, "readpsfontdesc: cannot allocate memory\n");
 	sprint(filename, "%s/%s", postroffdirname, fontname);
 
-	bfd = Bopen(filename, OREAD);
+	bfd = Bopen(unsharp(filename), OREAD);
 	if (bfd == 0) {
 		error(WARNING, "cannot open file %s\n", filename);
 		return(0);
@@ -212,9 +212,8 @@ int
 readtroffmetric(char *fontname, int trindex) {
 	static char *filename = 0;
 	Biobuf *bfd;
-	Biobufhdr *Bfd;
-	int warn = 0, errorflg = 0, line =1, rv;
-	struct troffont *tp;
+	Biobuf *Bfd;
+	int errorflg = 0, line =1, rv;
 	struct charent **cp;
 	char stoken[128], *str;
 	int ntoken;
@@ -226,7 +225,7 @@ readtroffmetric(char *fontname, int trindex) {
 	filename=galloc(filename, strlen(troffmetricdirname)+4+strlen(devname)+1+strlen(fontname)+1, "readtroffmetric():filename");
 	sprint(filename, "%s/dev%s/%s", troffmetricdirname, devname, fontname);
 
-	bfd = Bopen(filename, OREAD);
+	bfd = Bopen(unsharp(filename), OREAD);
 	if (bfd == 0) {
 		error(WARNING, "cannot open file %s\n", filename);
 		return(0);

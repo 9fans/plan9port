@@ -31,7 +31,7 @@ mkfname(char *tmpdir, char *prefix)
 	return fname;
 }
 
-extern int mkstemp();
+extern	int	mkstemp(char*);
 
 char*
 safe_tempnam(char *tmpdir, char *prefix)

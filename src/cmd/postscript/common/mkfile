@@ -2,7 +2,7 @@
 
 <../config
 
-LIB=com.a
+LIB=libcom.a
 OFILES=bbox.$O\
 	glob.$O\
 	misc.$O\

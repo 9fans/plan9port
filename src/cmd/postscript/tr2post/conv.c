@@ -5,8 +5,8 @@
 #include "tr2post.h"
 
 void
-conv(Biobufhdr *Bp) {
-	long c, n;
+conv(Biobuf *Bp) {
+	long n;
 	int r;
 	char special[10];
 	int save;

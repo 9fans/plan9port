@@ -51,10 +51,10 @@ struct sjt specialjumptable[] = {
 */
 
 void
-devcntl(Biobufhdr *inp) {
+devcntl(Biobuf *inp) {
 
 	char cmd[50], buf[256], str[MAXTOKENSIZE], *line;
-	int c, n, linelen;
+	int c, n;
 
 /*
  *

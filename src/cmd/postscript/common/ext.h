@@ -27,10 +27,9 @@ extern int	writing;		/* and output encoding */
 extern char	*optarg;		/* for getopt() */
 extern int	optind;
 
-extern void	interrupt();
-extern void	error();
-extern int	cat();
-extern void	concat();
+extern void	interrupt(int);
+extern int	cat(char*);
+extern void	concat(double*);
 
 /* 
  * extern char	*tempnam(char*,char*);

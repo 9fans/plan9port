@@ -209,7 +209,7 @@ endpage(void) {
 int
 cat(char *filename) {
 	Biobuf *bfile;
-	Biobufhdr *Bfile;
+	Biobuf *Bfile;
 	int n;
 	static char buf[Bsize];
 

@@ -1,6 +1,6 @@
 #define MAXSPECHARS 	512
 #define MAXTOKENSIZE	128
-#define CHARLIB	FONTDIR "/devutf/charlib"
+#define CHARLIB	"#9/troff/font/devutf/charlib"
 
 /* devname clashes with libc on *BSD */
 #define devname		troff_devname

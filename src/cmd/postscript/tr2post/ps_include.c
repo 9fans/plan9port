@@ -11,9 +11,8 @@ extern int curfontsize;
 typedef struct {long start, end;} Section;
 static char *buf;
 
-static
-copy(Biobufhdr *fin, Biobufhdr *fout, Section *s) {
-	int cond;
+static void
+copy(Biobuf *fin, Biobuf *fout, Section *s) {
 	if (s->end <= s->start)
 		return;
 	Bseek(fin, s->start, 0);
@@ -57,7 +56,7 @@ copy(Biobufhdr *fin, Biobufhdr *fout, Section *s) {
 /*	rot;			/* rotation - in clockwise degrees */
 
 void
-ps_include(Biobufhdr *fin, Biobufhdr *fout, int page_no, int whiteout,
+ps_include(Biobuf *fin, Biobuf *fout, int page_no, int whiteout,
 	int outline, int scaleboth, double cx, double cy, double sx, double sy,
 	double ax, double ay, double rot) {
 	char		**strp;
@@ -66,7 +65,7 @@ ps_include(Biobufhdr *fin, Biobufhdr *fout, int page_no, int whiteout,
 	int		nglobal = 0;		/* number of global defs so far */
 	int		maxglobal = 0;		/* and the number we've got room for */
 	Section	prolog, page, trailer;	/* prologue, page, and trailer offsets */
-	Section	*global;		/* offsets for all global definitions */
+	Section	*global = 0;		/* offsets for all global definitions */
 	double	llx, lly;		/* lower left and */
 	double	urx, ury;		/* upper right corners - default coords */
 	double	w = whiteout != 0;	/* mostly for the var() macro */

@@ -28,6 +28,8 @@ HFILES=tr2post.h\
 
 BIN=$POSTBIN
 
+LIB=../common/libcom.a
+
 <$PLAN9/src/mkone
 
 CFLAGS=$CFLAGS -c -D'PROGRAMVERSION="0.1"' -D'DOROUND=1' -I$COMMONDIR

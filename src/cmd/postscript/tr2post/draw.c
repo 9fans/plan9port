@@ -13,7 +13,7 @@ cover(double x, double y) {
 }
 
 void
-drawspline(Biobufhdr *Bp, int flag) {	/* flag!=1 connect end points */
+drawspline(Biobuf *Bp, int flag) {	/* flag!=1 connect end points */
 	int x[100], y[100];
 	int i, N;
 /*
@@ -96,7 +96,7 @@ drawspline(Biobufhdr *Bp, int flag) {	/* flag!=1 connect end points */
 }
 
 void
-draw(Biobufhdr *Bp) {
+draw(Biobuf *Bp) {
 
 	int r, x1, y1, x2, y2, i;
 	int d1, d2;
@@ -234,7 +234,7 @@ drawpath(char *buf, int copy) {
 static void
 parsebuf(char *buf)
 {
-	char	*p;			/* usually the next token */
+	char	*p = (char*)0;			/* usually the next token */
 	char *q;
 	int		gsavelevel = 0;		/* non-zero if we've done a gsave */
 

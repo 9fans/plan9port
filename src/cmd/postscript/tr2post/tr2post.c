@@ -23,6 +23,10 @@ Biobuf binp, *bstdout, bstderr;
 Biobuf *Bstdin, *Bstdout, *Bstderr;
 int debug = 0;
 
+#ifndef MAXPATHLEN
+#define MAXPATHLEN 255
+#endif
+
 char tmpfilename[MAXPATHLEN+1];
 char copybuf[BUFSIZ];
 
@@ -41,20 +45,20 @@ prologues(void) {
 	Bprint(Bstdout, "%s %s\n", PAGES, ATEND);
 	Bprint(Bstdout, "%s", ENDCOMMENTS);
 
-	if (cat(DPOST)) {
+	if (cat(unsharp(DPOST))) {
 		Bprint(Bstderr, "can't read %s\n", DPOST);
 		exits("dpost prologue");
 	}
 
 	if (drawflag) {
-		if (cat(DRAW)) {
+		if (cat(unsharp(DRAW))) {
 			Bprint(Bstderr, "can't read %s\n", DRAW);
 			exits("draw prologue");
 		}
 	}
 
 	if (DOROUND)
-		cat(ROUNDPAGE);
+		cat(unsharp(ROUNDPAGE));
 
 	Bprint(Bstdout, "%s", ENDPROLOG);
 	Bprint(Bstdout, "%s", BEGINSETUP);
@@ -70,19 +74,19 @@ prologues(void) {
 	if (pointsize != 10) Bprint(Bstdout, "/pointsize %d def\n", pointsize);
 	if (xoffset != .25) Bprint(Bstdout, "/xoffset %g def\n", xoffset);
 	if (yoffset != .25) Bprint(Bstdout, "/yoffset %g def\n", yoffset);
-	cat(ENCODINGDIR"/Latin1.enc");
+	cat(unsharp(ENCODINGDIR"/Latin1.enc"));
 	if (passthrough != 0) Bprint(Bstdout, "%s\n", passthrough);
 
 	Bprint(Bstdout, "setup\n");
 	if (formsperpage > 1) {
-		cat(FORMFILE);
+		cat(unsharp(FORMFILE));
 		Bprint(Bstdout, "%d setupforms \n", formsperpage);
 	}
 /* output Build character info from charlib if necessary. */
 
 	for (i=0; i<build_char_cnt; i++) {
 		sprint(charlibname, "%s/%s", CHARLIB, build_char_list[i]->name);
-		if (cat(charlibname))
+		if (cat(unsharp(charlibname)))
 		Bprint(Bstderr, "cannot open %s\n", charlibname);
 	}
 
@@ -94,10 +98,11 @@ cleanup(void) {
 	remove(tmpfilename);
 }
 
+int
 main(int argc, char *argv[]) {
 	Biobuf btmp;
 	Biobuf *binp;
-	Biobufhdr *Binp;
+	Biobuf *Binp;
 	int i, tot, ifd, fd;
 	char *t;
 
@@ -217,4 +222,5 @@ main(int argc, char *argv[]) {
 	finish();
 		
 	exits("");
+	return 0;
 }

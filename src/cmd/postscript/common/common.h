@@ -40,6 +40,8 @@ BOOLEAN isinstring(void);
 void startpage(void);
 void endpage(void);
 int cat(char *);
-int Bgetfield(Biobufhdr *, int, void *, int);
+int Bgetfield(Biobuf*, int, void *, int);
 void *galloc(void *, int, char *);
 void pagelist(char *);
+
+int safe_tmpnam(char*);
