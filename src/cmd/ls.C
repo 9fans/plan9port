@@ -282,7 +282,7 @@ compar(NDir *a, NDir *b)
 			i = strcmp(ad->name, bd->name);
 	}
 	if(i == 0)
-		i = (a<b? -1 : 1);
+		i = (ad<bd? -1 : 1);
 	if(rflag)
 		i = -i;
 	return i;
