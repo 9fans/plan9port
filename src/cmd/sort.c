@@ -9,7 +9,7 @@ bugs:
 
 enum
 {
-	Nline	= 100000,		/* default max number of lines saved in memory */
+	Nline	= 500000,		/* default max number of lines saved in memory */
 	Nmerge	= 10,			/* max number of temporary files merged */
 	Nfield	= 20,			/* max number of argument fields */
 
