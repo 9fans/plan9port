@@ -7,11 +7,7 @@ stats \- display graphs of system activity
 .BI - option
 ]
 [
-.I machine
-[
-.B :
-.I path
-]
+.IB machine\fR[ : path\fR]
 \&...
 ]
 .PP
@@ -43,11 +39,11 @@ is named, it executes
 .B ssh
 .I machine
 .IR path ;
-when the
+when
 .I ssh
 finishes, 
 .I auxstats
-sleeps for one minute and redials.
+sleeps for one minute and runs it again.
 The default
 .I path
 is simply
@@ -164,6 +160,10 @@ The markers appear along the right, and the markers
 show values appropriate to the rightmost machine; this only
 matters for graphs such as memory that have machine-specific
 maxima.
+.PP
+Typing `q' or DEL causes
+.I stats
+to exit.
 .PD
 .SH EXAMPLE
 Show the load, memory, interrupts, system calls, context switches,
