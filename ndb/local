@@ -1,0 +1,18 @@
+# ndb - only used for authdial right now
+
+# database - would add extra file= lines here
+# probably need some kind of syntax to avoid hard-coding paths.
+
+database
+
+# authentication domains
+
+authdom=outside.plan9.bell-labs.com
+	auth=sources.cs.bell-labs.com
+
+authdom=plan9.bell-labs.com
+	auth=lookout.cs.bell-labs.com
+
+authdom=tip9ug.jp
+	auth=mordor.tip9ug.jp
+	
