@@ -12,6 +12,7 @@ p9open(char *name, int mode)
 {
 	int cexec, rclose;
 	int fd, umode, lock, rdwr;
+	struct flock fl;
 
 	rdwr = mode&3;
 	umode = rdwr;
@@ -34,7 +35,11 @@ p9open(char *name, int mode)
 	fd = open(name, umode);
 	if(fd >= 0){
 		if(lock){
-			if(flock(fd, (rdwr==OREAD) ? LOCK_SH : LOCK_EX) < 0){
+			fl.l_type = (rdwr==OREAD) ? F_RDLCK : F_WRLCK;
+			fl.l_whence = SEEK_SET;
+			fl.l_start = 0;
+			fl.l_len = 0;
+			if(fcntl(fd, F_SETLK, &fl) < 0){
 				close(fd);
 				return -1;
 			}
