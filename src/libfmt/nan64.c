@@ -10,7 +10,7 @@
 typedef unsigned long long uvlong;
 typedef unsigned long ulong;
 
-#ifdef NEEDLL
+#ifdef _NEEDLL
 static uvlong uvnan    = 0x7FF0000000000001LL;
 static uvlong uvinf    = 0x7FF0000000000000LL;
 static uvlong uvneginf = 0xFFF0000000000000LL;

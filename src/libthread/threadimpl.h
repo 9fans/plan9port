@@ -24,11 +24,6 @@
 #include <thread.h>
 #include "label.h"
 
-enum{
-STKSIZE = 16384,
-STKMAGIC = 0xCAFEBEEF
-};
-
 typedef struct Thread	Thread;
 typedef struct Proc	Proc;
 typedef struct Tqueue	Tqueue;

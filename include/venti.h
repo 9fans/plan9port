@@ -50,10 +50,11 @@ enum
 {
 	VtScoreSize = 20,
 	VtMaxStringSize = 1024,
-	VtMaxFileSize = (1ULL<<48) - 1,
 	VtMaxLumpSize	= 56*1024,
 	VtPointerDepth	= 7,
 };
+#define VtMaxFileSize ((1ULL<<48)-1)
+
 
 /* 
  * Strings in packets.
