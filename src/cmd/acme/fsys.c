@@ -158,7 +158,7 @@ fsysproc(void *v)
 			error("convert error in convM2S");
 		if(DEBUG)
 			fprint(2, "%F\n", &x->fcall);
-		if(fcall[x->fcall.type] == 0)
+		if(fcall[x->fcall.type] == nil)
 			x = respond(x, &t, "bad fcall type");
 		else{
 			switch(x->fcall.type){
