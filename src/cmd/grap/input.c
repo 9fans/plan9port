@@ -540,7 +540,7 @@ void copy(void)	/* begin input from file, etc. */
 	FILE *fin;
 
 	if (newfile) {
-		if ((fin = fopen(unsharp(newfile), "r")) == NULL)
+		if ((fin = fopen(newfile, "r")) == NULL)
 			ERROR "can't open file %s", newfile FATAL;
 		curfile++;
 		curfile->fin = fin;

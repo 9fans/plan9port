@@ -177,17 +177,15 @@ void do_first(void)	/* done at first .G1:  definitions, etc. */
 {
 	extern int lib;
 	extern char *lib_defines;
-	char *file;
-	static char buf[50], buf1[50];	/* static because pbstr uses them */
+	static char buf[100], buf1[100];	/* static because pbstr uses them */
 	FILE *fp;
 	extern int getpid(void);
 
-	sprintf(buf, "define pid /%d/\n", getpid());
+	snprintf(buf, sizeof buf, "define pid /%d/\n", getpid());
 	pbstr(buf);	
 	if (lib != 0) {
-		file = unsharp(lib_defines);
-		if ((fp = fopen(file, "r")) != NULL) {
-			sprintf(buf1, "copy \"%s\"\n", file);
+		if ((fp = fopen(lib_defines, "r")) != NULL) {
+			snprintf(buf1, sizeof buf, "copy \"%s\"\n", lib_defines);
 			pbstr(buf1);
 			fclose(fp);
 		} else {

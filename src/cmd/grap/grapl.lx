@@ -18,7 +18,7 @@ void	shell_init(void), shell_exec(void), shell_text(char *);
 
 #define	CADD	cbuf[clen++] = yytext[0]; \
 		if (clen >= CBUFLEN-1) { \
-			ERROR "string too long", cbuf WARNING; BEGIN A; }
+			ERROR "string too long" WARNING; BEGIN A; }
 #define	CBUFLEN	1500
 char	cbuf[CBUFLEN];
 int	clen, cflag;
