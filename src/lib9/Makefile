@@ -7,6 +7,8 @@ OFILES=\
 	_exits.$O\
 	argv0.$O\
 	await.$O\
+	cleanname.$O\
+	dirstat.$O\
 	encodefmt.$O\
 	errstr.$O\
 	exits.$O\
@@ -16,12 +18,10 @@ OFILES=\
 	lock.$O\
 	malloctag.$O\
 	mallocz.$O\
-	netmkaddr.$O\
 	nrand.$O\
 	qlock.$O\
 	readn.$O\
 	rendez-$(SYSNAME).$O\
-	sleep.$O\
 	strecpy.$O\
 	sysfatal.$O\
 	tas-$(OBJTYPE).$O\
