@@ -343,3 +343,32 @@ threadwrite(int fd, const void *a, long n)
 	return tot;
 }
 
+int
+threadannounce(char *addr, char *dir)
+{
+	return p9announce(addr, dir);
+}
+
+int
+threadlisten(char *dir, char *newdir)
+{
+	int fd, ret;
+	extern int _p9netfd(char*);
+
+	fd = _p9netfd(dir);
+	if(fd < 0){
+		werrstr("bad 'directory' in listen: %s", dir);
+		return -1;
+	}
+	threadfdnoblock(fd);
+	while((ret = p9listen(dir, newdir)) < 0 && errno==EAGAIN)
+		_threadfdwait(fd, 'r', getcallerpc(&dir));
+	return ret;
+}
+
+int
+threadaccept(int cfd, char *dir)
+{
+	return p9accept(cfd, dir);
+}
+
