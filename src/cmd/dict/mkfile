@@ -1,0 +1,18 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=dict
+LFILES=oed.$O ahd.$O pcollins.$O pcollinsg.$O movie.$O slang.$O robert.$O\
+	world.$O jis208.$O gb2312.$O thesaurus.$O simple.$O pgw.$O
+
+OFILES=dict.$O\
+	$LFILES\
+	utils.$O
+
+HFILES=dict.h kuten.h
+
+LDFLAGS=$LDFLAGS -lbio -l9 -lregexp9 -lfmt -lutf
+<$PLAN9/src/mkone
+
+mkindex: mkindex.$O $LFILES utils.$O
+	$LD $LDFLAGS -o $target $prereq

@@ -1,0 +1,8 @@
+#!/bin/rc
+for (x in spec tag aux status) {
+	grep ' '^$x^' ' $1 > junk1
+	sort +4 -5 +3n -4 junk1 > junk2
+	awk '{if ($5 != prev) print $0; prev = $5}' junk2 > junk3
+	sort -n +2 -3 junk3 > need$x
+	rm junk*
+}
