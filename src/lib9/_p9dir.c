@@ -53,6 +53,9 @@ disksize(int fd, int dev)
 	long l;
 	struct hd_geometry geo;
 
+	memset(&geo, 0, sizeof geo);
+	l = 0;
+	u64 = 0;
 #ifdef BLKGETSIZE64
 	if(ioctl(fd, BLKGETSIZE64, &u64) >= 0)
 		return u64;
