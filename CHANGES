@@ -1,3 +1,48 @@
+May 14, 2004
+
+	more small bug fixes
+
+	acme: make arrows work in tags, from rob
+
+	sam: make sam -r machine files work, from presotto
+
+May 11, 2004
+
+	more small bug fixes
+
+May 9, 2004
+
+	don't reference data below stack pointer in sha1, md5
+
+
+May 5, 2004
+
+	various bug fixes
+
+April 29, 2004
+
+	add -W to specify window size
+
+	minor fixes
+
+April 27, 2004
+
+	add threadspawn
+
+April 25, 2004
+
+	add gview, image viewer, scat
+
+	fix note groups in rc
+
+	fix mc, remove Dotfiles from acme in favor of Getdir
+
+	fix extraneous flush in Bprint
+
+	add block device size for linux
+
+	make astro work on suns
+
 April 23, 2004
 
 	fix B to handle non-existent files properly
