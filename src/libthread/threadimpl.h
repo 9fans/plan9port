@@ -9,7 +9,7 @@
 #include "libc.h"
 #include "thread.h"
 
-#if defined(__FreeBSD__) && !defined(__FreeBSD5__)
+#if defined(__FreeBSD__) && __FreeBSD_version < 500000
 extern	int		getcontext(ucontext_t*);
 extern	void		setcontext(ucontext_t*);
 extern	int		swapcontext(ucontext_t*, ucontext_t*);
