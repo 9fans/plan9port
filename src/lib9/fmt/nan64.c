@@ -19,9 +19,9 @@ static uvlong uvnan    = 0x7FF0000000000001LL;
 static uvlong uvinf    = 0x7FF0000000000000LL;
 static uvlong uvneginf = 0xFFF0000000000000LL;
 #else
-static uvlong uvnan    = 0x7FF0000000000001;
-static uvlong uvinf    = 0x7FF0000000000000;
-static uvlong uvneginf = 0xFFF0000000000000;
+static uvlong uvnan    = ((uvlong)0x7FF00000<<32)|0x00000001;
+static uvlong uvinf    = ((uvlong)0x7FF00000<<32)|0x00000000;
+static uvlong uvneginf = ((uvlong)0xFFF00000<<32)|0x00000000;
 #endif
 
 double
