@@ -14,6 +14,7 @@
 
 Buffer	snarfbuf;
 
+void doabort(Text*, Text*, Text*, int, int, Rune*, int);
 void	del(Text*, Text*, Text*, int, int, Rune*, int);
 void	delcol(Text*, Text*, Text*, int, int, Rune*, int);
 void	dotfiles(Text*, Text*, Text*, int, int, Rune*, int);
@@ -47,6 +48,7 @@ struct Exectab
 	int		flag2;
 };
 
+static Rune LAbort[] = { 'A', 'b', 'o', 'r', 't', 0 };
 static Rune LCut[] = { 'C', 'u', 't', 0 };
 static Rune LDel[] = { 'D', 'e', 'l', 0 };
 static Rune LDelcol[] = { 'D', 'e', 'l', 'c', 'o', 'l', 0 };
@@ -77,13 +79,14 @@ static Rune LUndo[] = { 'U', 'n', 'd', 'o', 0 };
 static Rune LZerox[] = { 'Z', 'e', 'r', 'o', 'x', 0 };
 
 Exectab exectab[] = {
+	{ LAbort,		doabort,	FALSE,	XXX,		XXX,		},
 	{ LCut,		cut,		TRUE,	TRUE,	TRUE	},
 	{ LDel,		del,		FALSE,	FALSE,	XXX		},
-	{ LDelcol,	delcol,	FALSE,	XXX,		XXX		},
-	{ LDelete,	del,		FALSE,	TRUE,	XXX		},
-	{ LDump,	dump,	FALSE,	TRUE,	XXX		},
+	{ LDelcol,		delcol,	FALSE,	XXX,		XXX		},
+	{ LDelete,		del,		FALSE,	TRUE,	XXX		},
+	{ LDump,		dump,	FALSE,	TRUE,	XXX		},
 	{ LEdit,		edit,		FALSE,	XXX,		XXX		},
-	{ LExit,		xexit,		FALSE,	XXX,		XXX		},
+	{ LExit,		xexit,	FALSE,	XXX,		XXX		},
 	{ LFont,		fontx,	FALSE,	XXX,		XXX		},
 	{ LGet,		get,		FALSE,	TRUE,	XXX		},
 	{ LID,		id,		FALSE,	XXX,		XXX		},
@@ -104,7 +107,7 @@ Exectab exectab[] = {
 	{ LSort,		sort,		FALSE,	XXX,		XXX		},
 	{ LTab,		tab,		FALSE,	XXX,		XXX		},
 	{ LUndo,		undo,	FALSE,	TRUE,	XXX		},
-	{ LZerox,	zeroxx,	FALSE,	XXX,		XXX		},
+	{ LZerox,		zeroxx,	FALSE,	XXX,		XXX		},
 	{ nil, 			0,		0,		0,		0		},
 };
 
@@ -302,6 +305,25 @@ getbytearg(Text *argt, int doaddr, int dofile, char **bp)
 	*bp = runetobyte(r, n);
 	free(r);
 	return aa;
+}
+
+void
+doabort(Text *__0, Text *_0, Text *_1, int _2, int _3, Rune *_4, int _5)
+{
+	static int n;
+
+	USED(__0);
+	USED(_0);
+	USED(_1);
+	USED(_2);
+	USED(_3);
+	USED(_4);
+	USED(_5);
+
+	if(n++ == 0)
+		warning(nil, "executing Abort again will call abort()\n");
+	else
+		abort();
 }
 
 void
