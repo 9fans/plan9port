@@ -4,9 +4,9 @@
 #include "diff.h"
 
 static int
-itemcmp(void *v1, void *v2)
+itemcmp(const void *v1, const void *v2)
 {
-	char **d1 = v1, **d2 = v2;
+	char *const*d1 = v1, *const*d2 = v2;
 
 	return strcmp(*d1, *d2);
 }

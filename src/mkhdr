@@ -13,7 +13,7 @@ O=o
 BIN=$PLAN9/bin
 LIBDIR=$PLAN9/lib
 
-<$PLAN9/src/mk.$SYSNAME-$OBJTYPE
+<|cat $PLAN9/src/mk.$SYSNAME-$OBJTYPE 2>/dev/null || true
 
 OS=$O
 LD=9l

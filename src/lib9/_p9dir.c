@@ -1,3 +1,8 @@
+#include <u.h>
+#define NOPLAN9DEFINES
+#include <libc.h>
+
+#include <sys/types.h>
 #include <sys/stat.h>
 #ifdef _HAVEDISKLABEL
 #include <sys/disklabel.h>
@@ -5,10 +10,6 @@
 #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
-
-#include <u.h>
-#define NOPLAN9DEFINES
-#include <libc.h>
 
 int
 _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)

@@ -1,8 +1,10 @@
+#include <u.h>
+#define NOPLAN9DEFINES
+#include <libc.h>
+
+#include <sys/types.h>
 #include <netdb.h>
 #include <sys/un.h>
-
-#include <u.h>
-#include <libc.h>
 
 static char *nets[] = { "tcp", "udp", nil };
 #define CLASS(p) ((*(uchar*)(p))>>6)

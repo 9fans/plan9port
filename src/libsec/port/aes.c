@@ -950,6 +950,7 @@ static int rijndaelKeySetupEnc(u32 rk[/*4*(Nr + 1)*/], const u8 cipherKey[], int
 	return 0;
 }
 
+#if 0
 /**
  * Expand the cipher key into the decryption key schedule.
  *
@@ -994,6 +995,7 @@ static int rijndaelKeySetupDec(u32 rk[/*4*(Nr + 1)*/], const u8 cipherKey[], int
 	}
 	return Nr;
 }
+#endif
 
 static void rijndaelEncrypt(const u32 rk[/*4*(Nr + 1)*/], int Nr, const u8 pt[16], u8 ct[16]) {
 	u32 s0, s1, s2, s3, t0, t1, t2, t3;

@@ -13,7 +13,7 @@ DIRS=\
 	libthread\
 	libutf\
 	libventi\
-#	cmd\
+	cmd\
 
 <mkdirs
 
