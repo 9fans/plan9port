@@ -231,9 +231,9 @@ fskickreply(Conv *c)
 	Req *r;
 
 	if(c->hangup){
-		if(c->req){
-			respond(c->req, "hangup");
+		if((r = c->req) != nil){
 			c->req = nil;
+			respond(r, "hangup");
 		}
 		return;
 	}
@@ -246,8 +246,8 @@ fskickreply(Conv *c)
 	r->ofcall.data = c->reply;
 	if(r->ofcall.count > r->ifcall.count)
 		r->ofcall.count = r->ifcall.count;
-	respond(r, nil);
 	c->req = nil;
+	respond(r, nil);
 	c->nreply = 0;
 }
 		
