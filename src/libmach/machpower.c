@@ -96,11 +96,11 @@ typedef struct {
 	uchar	bi;		/* bits 11-15 */
 	uchar	bo;		/* bits 6-10 */
 	uchar	crbd;		/* bits 6-10 */
-	union {
+	/*union {*/
 		short	d;	/* bits 16-31 */
 		short	simm;
 		ushort	uimm;
-	};
+	/*};*/
 	uchar	fm;		/* bits 7-14 */
 	uchar	fra;		/* bits 11-15 */
 	uchar	frb;		/* bits 16-20 */
@@ -118,10 +118,10 @@ typedef struct {
 	uchar	ra;		/* bits 11-15 */
 	uchar	rb;		/* bits 16-20 */
 	uchar	rc;		/* bit 31 */
-	union {
+	/*union {*/
 		uchar	rs;	/* bits 6-10 */
 		uchar	rd;
-	};
+	/*};*/
 	uchar	sh;		/* bits 16-20 */
 	ushort	spr;		/* bits 11-20 */
 	uchar	to;		/* bits 6-10 */
