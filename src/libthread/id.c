@@ -64,7 +64,7 @@ threadsetname(char *fmt, ...)
 		free(t->cmdname);
 	va_start(arg, fmt);
 	t->cmdname = vsmprint(fmt, arg);
-	va_end(fmt);
+	va_end(arg);
 
 /* Plan 9 only 
 	if(p->nthreads == 1){
