@@ -78,3 +78,16 @@ werrstr(char *fmt, ...)
 	va_end(arg);
 	errstr(buf, ERRMAX);
 }
+
+char*
+gerrstr(void)
+{
+	char *s;
+
+	s = getsyserr();
+	if(errno != EPLAN9)
+		strcpy(s, strerror(errno));
+	return s;
+}
+
+

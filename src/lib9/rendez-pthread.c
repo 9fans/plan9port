@@ -33,6 +33,7 @@
  */
 
 #include <pthread.h>
+#include <signal.h>
 #include <lib9.h>
 
 enum

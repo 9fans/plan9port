@@ -1,12 +1,12 @@
+#define NOPLAN9DEFINES
+#include <u.h>
+#include <libc.h>
+
 #include <signal.h>
 #include <sys/types.h>
-#include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <sys/time.h>
-#include <string.h>
-#include <errno.h>
-#include <lib9.h>
 
 static struct {
 	int sig;
@@ -18,9 +18,7 @@ static struct {
 	SIGILL,		"sys: trap: illegal instruction",
 	SIGTRAP,		"sys: trace trap",
 	SIGABRT,		"sys: abort",
-#ifdef SIGEMT
 	SIGEMT,		"sys: emulate instruction executed",
-#endif
 	SIGFPE,		"sys: fp: trap",
 	SIGKILL,		"sys: kill",
 	SIGBUS,		"sys: bus error",
@@ -40,14 +38,12 @@ static struct {
 	SIGVTALRM,	"sys: virtual time alarm",
 	SIGPROF,		"sys: profiling timer alarm",
 	SIGWINCH,	"sys: window size change",
-#ifdef SIGINFO
 	SIGINFO,		"sys: status request",
-#endif
 	SIGUSR1,		"sys: usr1",
 	SIGUSR2,		"sys: usr2",
 };
 	
-static char*
+char*
 _p9sigstr(int sig, char *tmp)
 {
 	int i;
@@ -59,8 +55,7 @@ _p9sigstr(int sig, char *tmp)
 	return tmp;
 }
 
-/*
-static int
+int
 _p9strsig(char *s)
 {
 	int i;
@@ -70,7 +65,6 @@ _p9strsig(char *s)
 			return tab[i].sig;
 	return 0;
 }
-*/
 
 int
 await(char *str, int n)
@@ -89,16 +83,16 @@ await(char *str, int n)
 		if(WIFEXITED(status)){
 			status = WEXITSTATUS(status);
 			if(status)
-				snprint(buf, sizeof buf, "%d %lu %lu %lu %d", pid, u, s, u+s, status);
+				snprint(buf, sizeof buf, "%d %lud %lud %lud %d", pid, u, s, u+s, status);
 			else
-				snprint(buf, sizeof buf, "%d %lu %lu %lu ''", pid, u, s, u+s);
+				snprint(buf, sizeof buf, "%d %lud %lud %lud ''", pid, u, s, u+s, status);
 			strecpy(str, str+n, buf);
 			return strlen(str);
 		}
 		if(WIFSIGNALED(status)){
 			cd = WCOREDUMP(status);
 			USED(cd);
-			snprint(buf, sizeof buf, "%d %lu %lu %lu '%s'", pid, u, s, u+s, _p9sigstr(WTERMSIG(status), tmp));
+			snprint(buf, sizeof buf, "%d %lud %lud %lud '%s'", pid, u, s, u+s, _p9sigstr(WTERMSIG(status), tmp));
 			strecpy(str, str+n, buf);
 			return strlen(str);
 		}

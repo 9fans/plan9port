@@ -7,22 +7,23 @@
 extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
 
 Dir*
-dirstat(char *file)
+dirfstat(int fd)
 {
 	struct stat st;
 	int nstr;
 	Dir *d;
-	char *str;
+	char *str, tmp[100];
 
-	if(stat(file, &st) < 0)
+	if(fstat(fd, &st) < 0)
 		return nil;
 
-	nstr = _p9dir(&st, file, nil, nil, nil);
+	snprint(tmp, sizeof tmp, "/dev/fd/%d", fd);
+	nstr = _p9dir(&st, tmp, nil, nil, nil);
 	d = mallocz(sizeof(Dir)+nstr, 1);
 	if(d == nil)
 		return nil;
 	str = (char*)&d[1];
-	_p9dir(&st, file, d, &str, str+nstr);
+	_p9dir(&st, tmp, d, &str, str+nstr);
 	return d;
 }
 
