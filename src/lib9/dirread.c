@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
+extern int _p9dir(struct stat*, struct stat*, char*, Dir*, char**, char*);
 
 #if defined(__linux__)
 static int
@@ -63,7 +63,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 	char *p, *str, *estr;
 	int i, nstr, m;
 	struct dirent *de;
-	struct stat st;
+	struct stat st, lst;
 	Dir *d;
 
 	n = countde(buf, n);
@@ -86,7 +86,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 			de->d_name[0] = 0;
 		else{
 			st = lst;
-			if((lst.st_mode&S_IFMT) == S_ISLNK)
+			if((lst.st_mode&S_IFMT) == S_IFLNK)
 				stat(de->d_name, &st);
 			nstr += _p9dir(&lst, &st, de->d_name, nil, nil, nil);
 		}
@@ -106,8 +106,12 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 	m = 0;
 	for(i=0; i<n; i++){
 		de = (struct dirent*)p;
-		if(de->d_name[0] != 0 && stat(de->d_name, &st) >= 0)
-			_p9dir(&st, de->d_name, &d[m++], &str, estr);
+		if(de->d_name[0] != 0 && lstat(de->d_name, &st) >= 0){
+			st = lst;
+			if((lst.st_mode&S_IFMT) == S_IFLNK)
+				stat(de->d_name, &st);
+			_p9dir(&lst, &st, de->d_name, &d[m++], &str, estr);
+		}
 		p += de->d_reclen;
 	}
 

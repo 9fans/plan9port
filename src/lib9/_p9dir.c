@@ -181,6 +181,20 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 			d->qid.type = QTDIR;
 		}
 
+		if(S_ISLNK(st->st_mode))
+			d->mode |= DMSYMLINK;
+		if(S_ISFIFO(st->st_mode))
+			d->mode |= DMNAMEDPIPE;
+		if(S_ISSOCK(st->st_mode))
+			d->mode |= DMSOCKET;
+		if(S_ISBLK(st->st_mode)){
+			d->mode |= DMDEVICE;
+			d->qid.path = ('b'<<16)|st->st_rdev;
+		}
+		if(S_ISCHR(st->st_mode)){
+			d->mode |= DMDEVICE;
+			d->qid.path = ('c'<<16)|st->st_rdev;
+		}
 		/* fetch real size for disks */
 #ifdef _HAVEDISKSIZE
 		if(S_ISBLK(st->st_mode) && (fd = open(name, O_RDONLY)) >= 0){

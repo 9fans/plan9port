@@ -4,7 +4,7 @@
 
 #include <sys/stat.h>
 
-extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
+extern int _p9dir(struct stat*, struct stat*, char*, Dir*, char**, char*);
 
 Dir*
 dirfstat(int fd)
@@ -18,7 +18,7 @@ dirfstat(int fd)
 		return nil;
 
 	snprint(tmp, sizeof tmp, "/dev/fd/%d", fd);
-	nstr = _p9dir(&st, tmp, nil, nil, nil);
+	nstr = _p9dir(&st, &st, tmp, nil, nil, nil);
 	d = mallocz(sizeof(Dir)+nstr, 1);
 	if(d == nil)
 		return nil;

@@ -4,12 +4,12 @@
 
 #include <sys/stat.h>
 
-extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
+extern int _p9dir(struct stat*, struct stat*, char*, Dir*, char**, char*);
 
 Dir*
 dirstat(char *file)
 {
-	struct lstat lst;
+	struct stat lst;
 	struct stat st;
 	int nstr;
 	Dir *d;
@@ -18,7 +18,7 @@ dirstat(char *file)
 	if(lstat(file, &lst) < 0)
 		return nil;
 	st = lst;
-	if((lst.mode&S_IFMT) == S_ISLNK)
+	if((lst.st_mode&S_IFMT) == S_IFLNK)
 		stat(file, &st);
 
 	nstr = _p9dir(&lst, &st, file, nil, nil, nil);
