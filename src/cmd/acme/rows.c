@@ -396,7 +396,7 @@ rowdump(Row *row, char *file)
 			}else{
 				dumped = TRUE;
 				t->file->dumpid = w->id;
-				Bprint(b, "F%11d %11d %11d %11d %11d %11.7f %s\n", i, j,
+				Bprint(b, "F%11d %11d %11d %11d %11.7f %11d %s\n", i, j,
 					w->body.q0, w->body.q1,
 					100.0*(w->r.min.y-c->r.min.y)/Dy(c->r),
 					w->body.file->b.nc, fontname);
