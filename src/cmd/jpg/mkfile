@@ -1,0 +1,52 @@
+<$PLAN9/src/mkhdr
+
+TARG=jpg\
+	gif\
+	togif\
+	ppm\
+	toppm\
+	png\
+	topng\
+	yuv\
+	ico\
+	toico\
+	bmp\
+
+IMFILES=\
+	torgbv.$O\
+	totruecolor.$O\
+	writerawimage.$O\
+
+HFILES=imagefile.h\
+
+SHORTLIB=draw flate bio 9
+LDFLAGS=$LDFLAGS -L$X11/lib -lX11
+
+<$PLAN9/src/mkmany
+
+$O.jpg:		$IMFILES readjpg.$O jpg.$O
+$O.gif:		$IMFILES readgif.$O gif.$O
+$O.togif:	writegif.$O onechan.$O togif.$O torgbv.$O multichan.$O
+$O.ppm:		$IMFILES readppm.$O ppm.$O
+$O.toppm:	writeppm.$O multichan.$O toppm.$O
+$O.png:		$IMFILES readpng.$O png.$O multichan.$O
+$O.topng:	writepng.$O topng.$O
+$O.yuv:		$IMFILES readyuv.$O yuv.$O
+$O.bmp:		$IMFILES readbmp.$O bmp.$O
+
+torgbv.$O:	ycbcr.h rgbv.h
+
+ycbcr.h:	rgbycc.c
+	9c rgbycc.c
+	9l -o o.rgbycc rgbycc.c
+	./o.rgbycc >ycbcr.h
+
+rgbv.h:	rgbrgbv.c
+	9c rgbrgbv.c
+	9l -o o.rgbrgbv rgbrgbv.c
+	./o.rgbrgbv >rgbv.h
+
+nuke:V:	nuke-headers
+
+nuke-headers:V:
+	rm -f rgbv.h ycbcr.h

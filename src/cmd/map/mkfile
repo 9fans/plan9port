@@ -1,0 +1,32 @@
+<$PLAN9/src/mkhdr
+
+TARG=mapd 
+LIB=libmap/libmap.a
+OFILES=map.$O\
+	symbol.$O\
+	index.$O\
+	sqrt.$O\
+
+HFILES=map.h\
+	iplot.h\
+
+<$PLAN9/src/mkone
+
+
+$O.out:V:	$OFILES $LIB
+	$LD $LDFLAGS -o $target $prereq
+
+$LIB:V:
+	cd libmap
+	mk install
+
+installall:V:
+	for(objtype in $CPUS)
+		mk install
+	cp map.rc /rc/bin/map
+	cp mapdemo.rc /rc/bin/mapdemo
+
+clean nuke:V:
+	rm -f *.[$OS] [$OS].out y.tab.? y.debug y.output $TARG
+	cd libmap; mk clean
+

@@ -1,0 +1,50 @@
+<$PLAN9/src/mkhdr
+
+LIB=libmap.a
+OFILES=aitoff.$O\
+	albers.$O\
+	azequalarea.$O\
+	azequidist.$O\
+	bicentric.$O\
+	bonne.$O\
+	ccubrt.$O\
+	complex.$O\
+	conic.$O\
+	cubrt.$O\
+	cylequalarea.$O\
+	cylindrical.$O\
+	elco2.$O\
+	elliptic.$O\
+	fisheye.$O\
+	gall.$O\
+	gilbert.$O\
+	guyou.$O\
+	harrison.$O\
+	hex.$O\
+	homing.$O\
+	lagrange.$O\
+	lambert.$O\
+	laue.$O\
+	lune.$O\
+	mercator.$O\
+	mollweide.$O\
+	newyorker.$O\
+	orthographic.$O\
+	perspective.$O\
+	polyconic.$O\
+	rectangular.$O\
+	simpleconic.$O\
+	sinusoidal.$O\
+	tetra.$O\
+	trapezoidal.$O\
+	twocirc.$O\
+	zcoord.$O\
+
+HFILES=../map.h\
+
+<$PLAN9/src/mklib
+CFLAGS=$CFLAGS -I..
+
+nuke:V:
+	mk clean
+	rm -f libmap.a[$OS]

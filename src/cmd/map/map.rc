@@ -1,0 +1,103 @@
+#!/bin/rc
+
+rfork en
+
+# F FEATUREs, M map files, A other arguments
+FEATURE=no
+
+if (~ $MAPPROG '')
+	MAPPROG=/bin/aux/mapd
+
+if (~ $MAPDIR '')
+	MAPDIR=/lib/map
+
+F=(); M=(); A=();
+for (i) {
+	switch ($FEATURE) {
+	case no
+		switch ($i) {
+		case -f
+			FEATURE=yes 
+			F=($F)
+		case *
+			A=($A $i)
+		}
+	case yes
+		switch ($i) {
+		case -f
+		case -*
+			A=($A $i)
+			FEATURE=no
+		case riv*2
+			F=($F 201 202)
+		case riv*3
+			F=($F 201 202 203)
+		case riv*4
+			F=($F 201 202 203 204)
+		case riv*
+			F=($F 201)
+		case iriv*2
+			F=($F 206 207)
+		case iriv*[34]
+			F=($F 206 207 208)
+		case iriv*
+			F=($F 206)
+		case coast*2 shore*2 lake*2
+			F=($F 102)
+		case coast*3 shore*3 lake*3
+			F=($F 102 103)
+		case coast*4 shore*4 lake*4
+			F=($F 102 103 104)
+		case coast* shore* lake*
+		case ilake*[234] ishore*[234]
+			F=($F 106 107)
+		case ilake* ishore*
+			F=($F 106)
+		case reef*
+			F=($F 108)
+		case canal*2
+			F=($F 210 211)
+		case canal*[34]
+			F=($F 210 211 212)
+		case canal*
+			F=($F 210)
+		case glacier*
+			F=($F 115)
+		case state* province*
+			F=($F 401)
+		case countr*2
+			F=($F 301 302)
+		case countr*[34]
+			F=($F 301 302 303)
+		case countr*
+			F=($F 301)
+		case salt*[234]
+			F=($F 109 110)
+		case salt*
+			F=($F 109)
+		case ice*[234] shel*[234]
+			F=($F 113 114)
+		case ice* shel*
+			F=($F 113)
+		case *
+			echo map: unknown feature $i >[1=2]
+			exits "unknown feature"
+		}
+	}
+}
+
+for (j in $F) {
+	if (test -r $MAPDIR/$j)
+		M=($M $MAPDIR/$j)
+}
+
+if (~ $F ?*) {
+	if (test -r $MAPDIR/101)
+		M=(101 $M)
+	M=(-m $M)
+}
+
+if (~ $MAP '')
+	MAP=world
+
+MAP=$MAP MAPDIR=$MAPDIR $MAPPROG $A $M
