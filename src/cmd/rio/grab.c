@@ -604,6 +604,8 @@ sweep(Client *c, int but, XButtonEvent *ignored)
 	ScreenInfo *s;
 
 	s = c->screen;
+	c->dx = 0;
+	c->dy = 0;
 	status = grab(s->root, s->root, ButtonMask, s->sweep0, 0);
 	if (status != GrabSuccess) {
 		graberror("sweep", status); /* */
