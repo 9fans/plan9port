@@ -4,7 +4,7 @@ vacfs \- a Venti-based file system
 .SH SYNOPSIS
 .B vacfs
 [
-.B -dips
+.B -dip
 ]
 [
 .B -c
@@ -19,7 +19,7 @@ vacfs \- a Venti-based file system
 .\" .I mtpt
 .\" ]
 [
-.B -S
+.B -s
 .I srvname
 ]
 .I vacfile
@@ -28,8 +28,7 @@ vacfs \- a Venti-based file system
 interprets the file system created by
 .IR vac (1)
 so that it can be mounted into a Plan 9 file hierarchy.
-The data for the file system is stored on
-.IR venti (8)
+The data for the file system is stored on a Venti server
 with a root fingerprint specified in
 .IR vacfile .
 .I Vacfs
@@ -54,9 +53,9 @@ The default is taken from the environment variable
 .BR venti .
 If this variable does not exist, then the default is the
 metaname 
-.BR $venti ,
-which can be configured via
-.IR ndb (6).
+.BR $venti .
+.\" which can be configured via
+.\" .IR ndb (6).
 .TP
 .B -i
 Use file descriptors 0 and 1 as the 9P communication channel rather than create a pipe.
@@ -85,4 +84,3 @@ extension.
 .SH "SEE ALSO"
 .IR vac (1),
 Plan 9's \fIventi\fR(8)
-
