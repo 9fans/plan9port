@@ -14,7 +14,5 @@ Bprint(Biobuf *bp, char *fmt, ...)
 	f.args = args;
 	n = dofmt(&f, fmt);
 	va_end(args);
-	if(n > 0 && Bfmtflush(&f) < 0)
-		return -1;
 	return n;
 }
