@@ -35,7 +35,7 @@ hasnul(void *v, int n)
 	if(n > 0 && c[n-1] == '\0')
 		return n;
 	else
-		return n+1;
+		return AuthRpcMax;
 }
 
 static int
@@ -220,10 +220,14 @@ found:
 	/* f[i] is the chosen protocol, q the chosen domain */
 	attr = addattr(attr, "proto=%q dom=%q", f[i], q);
 	c->state = "write choice";
+	
 	/* have a key: go for it */
-	if(convprint(c, "%q %q", f[i], q) < 0
-	|| convwrite(c, "\0", 1) < 0)
+	s = estrappend(nil, "%q %q", f[i], q);
+	if(convwrite(c, s, strlen(s)+1) < 0){
+		free(s);
 		goto out;
+	}
+	free(s);
 
 	if(version == 2){
 		c->state = "read ok";
