@@ -13,8 +13,8 @@
 #define SETBIT(a,i)	((a)[(i)>>5] |= (1<<((i)&037)))
 #define NWORDS(n)	(((n)+32)/32)
 
-#define PARSER		"#9/lib/yaccpar"
-#define PARSERS		"#9/lib/yaccpars"
+char *PARSER = "#9/lib/yaccpar";
+char *PARSERS = "#9/lib/yaccpars";
 #define TEMPNAME	"y.tmp.XXXXXX"
 #define ACTNAME		"y.acts.XXXXXX"
 #define OFILE		"tab.c"
@@ -183,7 +183,7 @@ char*	tempname;
 char*	actname;
 char	ttempname[] = TEMPNAME;
 char	tactname[] = ACTNAME;
-char*	parser = PARSER;
+char*	parser;
 char*	yydebug;
 
 	/* storage of types */
@@ -375,6 +375,9 @@ int	gtnm(void);
 void
 main(int argc, char *argv[])
 {
+	PARSER = unsharp(PARSER);
+	PARSERS = unsharp(PARSERS);
+	parser = PARSER;
 
 	setup(argc, argv);	/* initialize and read productions */
 	tbitset = NWORDS(ntokens);
@@ -399,7 +402,7 @@ others(void)
 {
 	int c, i, j;
 
-	finput = Bopen(unsharp(parser), OREAD);
+	finput = Bopen(parser, OREAD);
 	if(finput == 0)
 		error("cannot open parser %s: %r", parser);
 	warray("yyr1", levprd, nprod);
