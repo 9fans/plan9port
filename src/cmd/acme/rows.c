@@ -337,7 +337,7 @@ rowdump(Row *row, char *file)
 	Bprint(b, "%s\n", fontnames[1]);
 	for(i=0; i<row->ncol; i++){
 		c = row->col[i];
-		Bprint(b, "%11.5f", 100.0*(c->r.min.x-row->r.min.x)/Dx(row->r));
+		Bprint(b, "%11.7f", 100.0*(c->r.min.x-row->r.min.x)/Dx(row->r));
 		if(i == row->ncol-1)
 			Bputc(b, '\n');
 		else
@@ -376,27 +376,27 @@ rowdump(Row *row, char *file)
 				a = emalloc(1);
 			if(t->file->dumpid){
 				dumped = FALSE;
-				Bprint(b, "x%11d %11d %11d %11d %11.5f %s\n", i, t->file->dumpid,
+				Bprint(b, "x%11d %11d %11d %11d %11.7f %s\n", i, t->file->dumpid,
 					w->body.q0, w->body.q1,
 					100.0*(w->r.min.y-c->r.min.y)/Dy(c->r),
 					fontname);
 			}else if(w->dumpstr){
 				dumped = FALSE;
-				Bprint(b, "e%11d %11d %11d %11d %11.5f %s\n", i, t->file->dumpid,
+				Bprint(b, "e%11d %11d %11d %11d %11.7f %s\n", i, t->file->dumpid,
 					0, 0,
 					100.0*(w->r.min.y-c->r.min.y)/Dy(c->r),
 					fontname);
 			}else if((w->dirty==FALSE && access(a, 0)==0) || w->isdir){
 				dumped = FALSE;
 				t->file->dumpid = w->id;
-				Bprint(b, "f%11d %11d %11d %11d %11.5f %s\n", i, w->id,
+				Bprint(b, "f%11d %11d %11d %11d %11.7f %s\n", i, w->id,
 					w->body.q0, w->body.q1,
 					100.0*(w->r.min.y-c->r.min.y)/Dy(c->r),
 					fontname);
 			}else{
 				dumped = TRUE;
 				t->file->dumpid = w->id;
-				Bprint(b, "F%11d %11d %11d %11d %11d %11.5f %s\n", i, j,
+				Bprint(b, "F%11d %11d %11d %11d %11d %11.7f %s\n", i, j,
 					w->body.q0, w->body.q1,
 					100.0*(w->r.min.y-c->r.min.y)/Dy(c->r),
 					w->body.file->b.nc, fontname);
@@ -543,7 +543,7 @@ rowload(Row *row, char *file, int initing)
 		percent = atof(l+i*12);
 		if(percent<0 || percent>=100)
 			goto Rescue2;
-		x = row->r.min.x+percent*Dx(row->r)/100;
+		x = row->r.min.x+percent*Dx(row->r)/100+0.5;
 		if(i < row->ncol){
 			if(i == 0)
 				continue;
@@ -637,7 +637,7 @@ rowload(Row *row, char *file, int initing)
 		if(i > row->ncol)
 			i = row->ncol;
 		c = row->col[i];
-		y = c->r.min.y+(percent*Dy(c->r))/100;
+		y = c->r.min.y+(percent*Dy(c->r))/100+0.5;
 		if(y<c->r.min.y || y>=c->r.max.y)
 			y = -1;
 		if(dumpid == 0)
