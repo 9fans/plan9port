@@ -33,8 +33,11 @@ vtparsescore(char *s, char **prefix, uchar score[VtScoreSize])
 	}
 	if(colon){
 		*colon = 0;
-		*prefix = s;
-	}else
-		*prefix = nil;
+		if(prefix)
+			*prefix = s;
+	}else{
+		if(prefix)
+			*prefix = nil;
+	}
 	return 0;
 }

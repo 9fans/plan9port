@@ -8,10 +8,8 @@ vtsrvhello(VtConn *z)
 	VtFcall tx, rx;
 	Packet *p;
 
-	if((p = vtrecv(z)) == nil){
-		werrstr("unexpected eof on venti connection");
+	if((p = vtrecv(z)) == nil)
 		return -1;
-	}
 
 	if(vtfcallunpack(&tx, p) < 0){
 		packetfree(p);

@@ -101,6 +101,7 @@ Okay:
 	return 0;
 
 Err:
+	werrstr("vtversion: %r");
 	if(z->infd >= 0)
 		close(z->infd);
 	if(z->outfd >= 0 && z->outfd != z->infd)
