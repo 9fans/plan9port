@@ -1,5 +1,7 @@
 #!/usr/local/plan9/bin/rc
 
+# Click on an acme directory window and then execute Getdir
+
 dir=acme/acme/$winid
 
 fn rd {
