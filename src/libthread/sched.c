@@ -157,6 +157,21 @@ relock:
 }
 
 void
+needstack(int howmuch)
+{
+	Proc *p;
+	Thread *t;
+
+	p = _threadgetproc();
+	if(p == nil || (t=p->thread) == nil)
+		return;
+	if((ulong)&howmuch < (ulong)t->stk+howmuch){	/* stack overflow waiting to happen */
+		fprint(2, "stack overflow: stack at 0x%lux, limit at 0x%lux, need 0x%lux\n", (ulong)&p, (ulong)t->stk, howmuch);
+		abort();
+	}
+}
+
+void
 _sched(void)
 {
 	Proc *p;
@@ -166,10 +181,7 @@ Resched:
 	p = _threadgetproc();
 //fprint(2, "p %p\n", p);
 	if((t = p->thread) != nil){
-		if((ulong)&p < (ulong)t->stk+512){	/* stack overflow waiting to happen */
-			fprint(2, "stack overflow: stack at %lux, limit at %lux\n", (ulong)&p, (ulong)t->stk);
-			abort();
-		}
+		needstack(512);
 	//	_threaddebug(DBGSCHED, "pausing, state=%s set %p goto %p",
 	//		psstate(t->state), &t->sched, &p->sched);
 		if(_setlabel(&t->sched)==0)
