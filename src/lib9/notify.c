@@ -1,46 +1,91 @@
+/*
+ * Signal handling for Plan 9 programs. 
+ * We stubbornly use the strings from Plan 9 instead 
+ * of the enumerated Unix constants.  
+ * There are some weird translations.  In particular,
+ * a "kill" note is the same as SIGTERM in Unix.
+ * There is no equivalent note to Unix's SIGKILL, since
+ * it's not a deliverable signal anyway.
+ *
+ * We do not handle SIGABRT or SIGSEGV, mainly so that
+ * stack traces show the original source of the signal instead
+ * of notifysigf.
+ *
+ * We have to add some extra entry points to provide the
+ * ability to tweak which signals are deliverable and which
+ * are acted upon.  Notifydisable and notifyenable play with
+ * the process signal mask.  Notifyignore enables the signal
+ * but will not call notifyf when it comes in.  This is occasionally
+ * useful.
+ */
+
 #include <u.h>
 #include <signal.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
 
 extern char *_p9sigstr(int, char*);
+extern int _p9strsig(char*);
 
-static struct {
-	int sig;
-	int restart;
-	int dumb;
-} sigs[] = {
-	SIGHUP, 0, 0,
-	SIGINT, 0, 0,
-	SIGQUIT, 0, 0,
-	SIGILL, 0, 0,
-	SIGTRAP, 0, 0,
-/*	SIGABRT,	*/
+typedef struct Sig Sig;
+struct Sig
+{
+	int sig;			/* signal number */
+	int restart;			/* do we restart the system call after this signal is handled? */
+	int enabled;		/* is this signal enabled (not masked)? */
+	int notified;		/* do we call the notify function for this signal? */
+};
+
+/* initial settings; for current status, ask the kernel */
+static Sig sigs[] = {
+	SIGHUP, 0, 1, 1,
+	SIGINT, 0, 1, 1,
+	SIGQUIT, 0, 1, 1,
+	SIGILL, 0, 1, 1,
+	SIGTRAP, 0, 1, 1,
+/*	SIGABRT, 0, 1, 1,	*/
 #ifdef SIGEMT
-	SIGEMT, 0, 0,
+	SIGEMT, 0, 1, 1,
 #endif
-	SIGFPE, 0, 0,
-	SIGBUS, 0, 0,
-/*	SIGSEGV,	*/
-	SIGCHLD, 1, 1,
-	SIGSYS, 0, 0,
-	SIGPIPE, 0, 1,
-	SIGALRM, 0, 0,
-	SIGTERM, 0, 0,
-	SIGTSTP, 1, 1,
-	SIGTTIN, 1, 1,
-	SIGTTOU, 1, 1,
-	SIGXCPU, 0, 0,
-	SIGXFSZ, 0, 0,
-	SIGVTALRM, 0, 0,
-	SIGUSR1, 0, 0,
-	SIGUSR2, 0, 0,
-	SIGWINCH, 1, 1,
+	SIGFPE, 0, 1, 1,
+	SIGBUS, 0, 1, 1,
+/*	SIGSEGV, 0, 1, 1,	*/
+	SIGCHLD, 1, 0, 1,
+	SIGSYS, 0, 1, 1,
+	SIGPIPE, 0, 0, 1,
+	SIGALRM, 0, 1, 1,
+	SIGTERM, 0, 1, 1,
+	SIGTSTP, 1, 0, 1,
+	SIGTTIN, 1, 0, 1,
+	SIGTTOU, 1, 0, 1,
+	SIGXCPU, 0, 1, 1,
+	SIGXFSZ, 0, 1, 1,
+	SIGVTALRM, 0, 1, 1,
+	SIGUSR1, 0, 1, 1,
+	SIGUSR2, 0, 1, 1,
+	SIGWINCH, 1, 0, 1,
 #ifdef SIGINFO
-	SIGINFO, 0, 0,
+	SIGINFO, 1, 1, 1,
 #endif
 };
 
+static Sig*
+findsig(int s)
+{
+	int i;
+
+	for(i=0; i<nelem(sigs); i++)
+		if(sigs[i].sig == s)
+			return &sigs[i];
+	return nil;
+}
+
+/*
+ * The thread library initializes _notejmpbuf to its own
+ * routine which provides a per-pthread jump buffer.
+ * If we're not using the thread library, we assume we are
+ * single-threaded.
+ */
 typedef struct Jmp Jmp;
 struct Jmp
 {
@@ -56,33 +101,42 @@ getonejmp(void)
 }
 
 Jmp *(*_notejmpbuf)(void) = getonejmp;
-static void (*notifyf)(void*, char*);
-static int alldumb;
+static void noteinit(void);
+
+/*
+ * Actual signal handler. 
+ */
+
+static void (*notifyf)(void*, char*);	/* Plan 9 handler */
 
 static void
-nop(int sig)
-{
-	USED(sig);
-}
-
-static void
-notifysigf(int sig)
+signotify(int sig)
 {
 	int v;
 	char tmp[64];
 	Jmp *j;
 
 	j = (*_notejmpbuf)();
-	v = p9setjmp(j->b);
-	if(v == 0 && notifyf)
-		(*notifyf)(nil, _p9sigstr(sig, tmp));
-	else if(v == 2){
+	switch(p9setjmp(j->b)){
+	case 0:
+		if(notifyf)
+			(*notifyf)(nil, _p9sigstr(sig, tmp));
+		/* fall through */
+	case 1:	/* noted(NDFLT) */
+		if(0)print("DEFAULT %d\n", sig);
+		signal(sig, SIG_DFL);
+		raise(sig);
+		_exit(1);
+	case 2:	/* noted(NCONT) */
 		if(0)print("HANDLED %d\n", sig);
 		return;
 	}
-	if(0)print("DEFAULT %d\n", sig);
-	signal(sig, SIG_DFL);
-	raise(sig);
+}
+
+static void
+signonotify(int sig)
+{
+	USED(sig);
 }
 
 int
@@ -93,71 +147,122 @@ noted(int v)
 	return 0;
 }
 
-static void
-handlesig(int s, int r, int skip)
-{
-	struct sigaction sa, osa;
-
-	/*
-	 * If someone has already installed a handler,
-	 * It's probably some ld preload nonsense,
-	 * like pct (a SIGVTALRM-based profiler).
-	 * Leave it alone.
-	 */
-	sigaction(s, nil, &osa);
-	if(osa.sa_handler != SIG_DFL && osa.sa_handler != notifysigf && osa.sa_handler != nop)
-		return;
-
-	memset(&sa, 0, sizeof sa);
-	if(skip)
-		sa.sa_handler = nop;
-	else if(notifyf == 0)
-		sa.sa_handler = SIG_DFL;
-	else
-		sa.sa_handler = notifysigf;
-
-	/*
-	 * We assume that one jump buffer per thread
-	 * is okay, which means that we can't deal with 
-	 * signal handlers called during signal handlers.
-	 */
-	sigfillset(&sa.sa_mask);
-	if(r)
-		sa.sa_flags |= SA_RESTART;
-	else
-		sa.sa_flags &= ~SA_RESTART;
-	sigaction(s, &sa, nil);
-}
-
 int
 notify(void (*f)(void*, char*))
 {
 	int i;
+	static int init;
 
 	notifyf = f;
-	for(i=0; i<nelem(sigs); i++)
-		handlesig(sigs[i].sig, sigs[i].restart, sigs[i].dumb && !alldumb);
+	if(!init){
+		init = 1;
+		noteinit();
+	}
 	return 0;
 }
 
-void
-notifyall(int all)
+/*
+ * Nonsense about enabling and disabling signals.
+ */
+static void(*)(int)
+handler(int s)
 {
-	int i;
+	struct sigaction sa;
 
-	alldumb = all;
-	for(i=0; i<nelem(sigs); i++)
-		if(sigs[i].dumb)
-			handlesig(sigs[i].sig, sigs[i].restart, !all);
+	sigaction(s, nil, &sa);
+	return sa.sa_handler;
+}
+
+static void
+notifysetenable(int sig, int enabled)
+{
+	sigset_t mask;
+
+	if(sig == 0)
+		return;
+
+	sigemptyset(&mask);
+	sigaddset(&mask, sig);
+	sigprocmask(enabled ? SIG_UNBLOCK : SIG_BLOCK, &mask, nil);
 }
 
 void
-notifyatsig(int sig, int use)
+notifyenable(char *msg)
+{
+	notifyenablex(_p9strsig(msg), 1);
+}
+
+void
+notifydisable(char *msg)
+{
+	notifyenablex(_p9strsig(msg), 0);
+}
+
+static void
+notifyseton(int s, int on)
+{
+	Sig *sig;
+	struct sigaction sa;
+
+	sig = findsig(s);
+	if(sig == nil)
+		return;
+	notifyenable(msg);
+	memset(&sa, 0, sizeof sa);
+	sa.sa_handler = on ? signotify : signonotify;
+	if(sig->restart)
+		sa.sa_flags |= SA_RESTART;
+
+	/*
+	 * We can't allow signals within signals because there's
+	 * only one jump buffer.
+	 */
+	sigfillset(&sa.sa_mask);
+
+	/*
+	 * Install handler.
+	 */
+	sigaction(sig->sig, &sa, nil);
+}
+
+void
+notifyon(char *msg)
+{
+	notifyseton(_p9strsig(msg), 1);
+}
+
+void
+notifyoff(char *msg)
+{
+	notifysetoff(_p9strsig(msg), 0);
+}
+
+/*
+ * Initialization follows sigs table.
+ */
+static void
+noteinit(void)
 {
 	int i;
+	Sig *sig;
 
-	for(i=0; i<nelem(sigs); i++)
-		if(sigs[i].sig == sig)
-			handlesig(sigs[i].sig, sigs[i].restart, 0);
+	for(i=0; i<nelem(sigs); i++){
+		sig = &sigs[i];
+		/*
+		 * If someone has already installed a handler,
+		 * It's probably some ld preload nonsense,
+		 * like pct (a SIGVTALRM-based profiler).
+		 * Leave it alone.
+		 */
+		if(handler(sig->sig) != SIG_DFL)
+			continue;
+		/*
+		 * Should we only disable and not enable signals?
+		 * (I.e. if parent has disabled for us, should we still enable?)
+		 * Right now we always initialize to the state we want.
+		 */
+		notifysetenable(sig->sig, sig->enabled);
+		notifyseton(sig->sig, sig->notified);
+	}
 }
 
