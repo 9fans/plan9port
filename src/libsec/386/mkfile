@@ -1,0 +1,16 @@
+<$PLAN9/src/mkhdr
+
+LIB=libsec.a
+SFILES=\
+	md5block.s\
+	sha1block.s\
+
+HFILES=$PLAN9/include/libsec.h
+
+OFILES=${SFILES:%.s=%.$O}
+
+UPDATE=mkfile\
+	$HFILES\
+	$SFILES\
+
+<$PLAN9/src/mksyslib

@@ -1,9 +1,7 @@
 <$PLAN9/src/mkhdr
 
 DIRS=\
-#	fmt\
 	port\
-#	unix\
 #	$systype-$objtype\
 
 <$PLAN9/src/mkdirs
