@@ -143,6 +143,8 @@ void DWBdebug(dwbinit *ptr, int level)
 
 /*****************************************************************************/
 
+extern	char	*unsharp(char*);
+
 char *DWBhome(void)
 {
 
@@ -186,6 +188,7 @@ char *DWBhome(void)
 	    if ( (home = DWBHOME) == NULL || *home == '\0' || *home == ' ' )
 		home = NULL;
 	}   /* End if */
+	home = unsharp(home);
     }	/* End if */
 
     while (home && *home == '/' && *(home +1) == '/')	/* remove extra slashes */

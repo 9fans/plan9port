@@ -4,9 +4,9 @@
 void
 error(char *s)
 {
-	fprint(2, "\n%s:%d: %s\n", ifile, iline, s);
-	fprint(2, "tbl quits\n");
-	exits(s);
+	fprintf(stderr, "\n%s:%d: %s\n", ifile, iline, s);
+	fprintf(stderr, "tbl quits\n");
+	exit(1);
 }
 
 
@@ -18,13 +18,14 @@ gets1(char *s, int size)
 
 	iline++;
 	ns = s;
-	p = Brdline(tabin, '\n');
+	p = fgetln(tabin, &nbl);
 	while (p == 0) {
 		if (swapin() == 0)
 			return(0);
-		p = Brdline(tabin, '\n');
+		p = fgetln(tabin, &nbl);
 	}
-	nbl = Blinelen(tabin)-1;
+	if(p != 0 && p[nbl-1] == '\n')
+		nbl--;
 	if(nbl >= size)
 		error("input buffer too small");
 	p[nbl] = 0;
@@ -61,11 +62,11 @@ get1char(void)
 	if (backp > backup)
 		c = *--backp;
 	else
-		c = Bgetc(tabin);
+		c = fgetc(tabin);
 	if (c == 0) /* EOF */ {
 		if (swapin() == 0)
 			error("unexpected EOF");
-		c = Bgetc(tabin);
+		c = fgetc(tabin);
 	}
 	if (c == '\n')
 		iline++;

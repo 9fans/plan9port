@@ -159,6 +159,7 @@ int ptout0(Tchar *pi)
 	Tchar i;
 	int outsize;	/* size of object being printed */
 
+	w = 0;
 	outsize = 1;	/* default */
 	i = *pi;
 	k = cbits(i);
@@ -176,11 +177,11 @@ int ptout0(Tchar *pi)
 		xpts = fbits(i);	/* sneaky, font bits as size bits */
 		if (xpts != mpts)
 			ptps();
-		OUT "x H %d\n", sbits(i) PUT;
+		OUT "x H %ld\n", sbits(i) PUT;
 		return(outsize);
 	}
 	if (k == SLANT) {
-		OUT "x S %d\n", sfbits(i)-180 PUT;
+		OUT "x S %ld\n", sfbits(i)-180 PUT;
 		return(outsize);
 	}
 	if (k == WORDSP) {
@@ -300,7 +301,7 @@ int ptout0(Tchar *pi)
 			pi[1] = '~';
 		case DRAWSPLINE:	/* spline */
 		default:	/* something else; copy it like spline */
-			OUT "D%c %d %d", cbits(pi[1]), dx, dy PUT;
+			OUT "D%ld %d %d", cbits(pi[1]), dx, dy PUT;
 			hpos += dx;
 			vpos += dy;
 			if (cbits(pi[3]) == DRAWFCN || cbits(pi[4]) == DRAWFCN) {

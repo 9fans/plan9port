@@ -7,6 +7,7 @@
  * n6.c -- width functions, sizes and fonts
 */
 
+int
 n_width(Tchar j)
 {
 	int i, k;
@@ -294,7 +295,7 @@ void n_casebd(void)
 {
 	int i, j, k;
 
-	k = 0;
+	j = k = 0;
 bd0:
 	if (skip() || !(i = getrq()) || (j = findft(i)) == -1) {
 		if (k)

@@ -1,3 +1,5 @@
+#define	devname	p9_devname
+
 extern	int	TROFF;
 
 extern	int	alphabet;

@@ -78,11 +78,12 @@ void casens(void)
 	dip->nls++;
 }
 
-
+int
 chget(int c)
 {
 	Tchar i;
 
+	i = 0;
 	if (skip() || ismot(i = getch()) || cbits(i) == ' ' || cbits(i) == '\n') {
 		ch = i;
 		return(c);
@@ -142,7 +143,7 @@ void casenh(void)
 	hyf = 0;
 }
 
-
+int
 max(int aa, int bb)
 {
 	if (aa > bb)
@@ -333,7 +334,7 @@ void casech(void)
 	nlist[k] = i;
 }
 
-
+int
 findn(int i)
 {
 	int k;
@@ -408,7 +409,7 @@ void casefm(void)
 		return;
 	}
 	if (fcache[i].fp == NULL) {
-		if( (fcache[i].fp = fopen(unsharp(nextf), "w")) == NULL) {
+		if( (fcache[i].fp = fopen(nextf, "w")) == NULL) {
 			ERROR "fm: cannot open %s", nextf WARN;
 			return;
 		}
@@ -742,7 +743,7 @@ void eatblk(int inblk)
 	}
 }
 
-
+int
 cmpstr(Tchar c)
 {
 	int j, delim;
@@ -830,7 +831,7 @@ void caserd(void)
 	pushi(RD_OFFSET, PAIR('r','d'));
 }
 
-
+int
 rdtty(void)
 {
 	char	onechar;

@@ -72,7 +72,7 @@ void hyphen(Tchar *wp)
 		}
 }
 
-static alpha(Tchar i)	/* non-zero if really alphabetic */
+static int alpha(Tchar i)	/* non-zero if really alphabetic */
 {
 	if (ismot(i))
 		return 0;
@@ -82,7 +82,7 @@ static alpha(Tchar i)	/* non-zero if really alphabetic */
 		return isalpha(cbits(i));
 }
 
-
+int
 punct(Tchar i)
 {
 	if (!i || alpha(i))
@@ -217,7 +217,7 @@ int exword(void)
 	}
 }
 
-
+int
 suffix(void)
 {
 	Tchar *w;
@@ -269,7 +269,7 @@ mark:
 	goto again;
 }
 
-
+int
 maplow(int i)
 {
 	if (isupper(i)) 
@@ -277,7 +277,7 @@ maplow(int i)
 	return(i);
 }
 
-
+int
 vowel(int i)
 {
 	switch (i) {
@@ -310,7 +310,7 @@ void digram(void)
 	Tchar *nhyend, *maxw;
 	int maxval;
 	extern char bxh[26][13], bxxh[26][13], xxh[26][13], xhx[26][13], hxx[26][13];
-
+        maxw = 0;
 again:
 	if (!(w = chkvow(hyend + 1)))
 		return;
@@ -341,7 +341,7 @@ again:
 	goto again;
 }
 
-
+int
 dilook(int a, int b, char t[26][13])
 {
 	int i, j;
@@ -461,13 +461,19 @@ static int texit(Tchar *start, Tchar *end)	/* hyphenate as in tex, return # foun
 	characters.  sigh.
 */
 
+extern	char	*unsharp(char*);
+
+static	char	*texhyphens;
+
 static int readpats(void)
 {
 	FILE *fp;
 	char buf[200], buf1[200];
 
-	if ((fp = fopen(unsharp(TEXHYPHENS), "r")) == NULL
-	 && (fp = fopen(unsharp(DWBalthyphens), "r")) == NULL) {
+	if(texhyphens == 0)
+		texhyphens = unsharp(TEXHYPHENS);
+	if ((fp = fopen(texhyphens, "r")) == NULL
+	 && (fp = fopen(DWBalthyphens, "r")) == NULL) {
 		ERROR "warning: can't find hyphen.tex" WARN;
 		return 0;
 	}

@@ -64,7 +64,7 @@ void blockinit(void)
 
 char *grow(char *ptr, int num, int size)	/* make array bigger */
 {
-	char *p, new;
+	char *p;
 
 	if (ptr == NULL)
 		p = (char *) calloc(num, size);
@@ -307,7 +307,6 @@ void growcontab(void)
 Offset finds(int mn)
 {
 	int i;
-	Tchar j = IMP;
 	Offset savip;
 
 	oldmn = findmn(mn);
@@ -372,6 +371,7 @@ int copyb(void)
 	Offset savoff;
 	Uchar *p;
 
+	savoff = 0;
 	if (skip() || !(j = getrq()))
 		j = '.';
 	req = j;

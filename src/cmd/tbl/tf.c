@@ -5,25 +5,25 @@ void
 savefill(void)
 {
 			/* remembers various things: fill mode, vs, ps in mac 35 (SF) */
-	Bprint(&tabout, ".de %d\n", SF);
-	Bprint(&tabout, ".ps \\n(.s\n");
-	Bprint(&tabout, ".vs \\n(.vu\n");
-	Bprint(&tabout, ".in \\n(.iu\n");
-	Bprint(&tabout, ".if \\n(.u .fi\n");
-	Bprint(&tabout, ".if \\n(.j .ad\n");
-	Bprint(&tabout, ".if \\n(.j=0 .na\n");
-	Bprint(&tabout, "..\n");
-	Bprint(&tabout, ".nf\n");
+	fprintf(tabout, ".de %d\n", SF);
+	fprintf(tabout, ".ps \\n(.s\n");
+	fprintf(tabout, ".vs \\n(.vu\n");
+	fprintf(tabout, ".in \\n(.iu\n");
+	fprintf(tabout, ".if \\n(.u .fi\n");
+	fprintf(tabout, ".if \\n(.j .ad\n");
+	fprintf(tabout, ".if \\n(.j=0 .na\n");
+	fprintf(tabout, "..\n");
+	fprintf(tabout, ".nf\n");
 	/* set obx offset if useful */
-	Bprint(&tabout, ".nr #~ 0\n");
-	Bprint(&tabout, ".if \\n(.T .if n .nr #~ 0.6n\n");
+	fprintf(tabout, ".nr #~ 0\n");
+	fprintf(tabout, ".if \\n(.T .if n .nr #~ 0.6n\n");
 }
 
 
 void
 rstofill(void)
 {
-	Bprint(&tabout, ".%d\n", SF);
+	fprintf(tabout, ".%d\n", SF);
 }
 
 
@@ -34,25 +34,25 @@ endoff(void)
 
 	for (i = 0; i < MAXHEAD; i++)
 		if (linestop[i])
-			Bprint(&tabout, ".nr #%c 0\n", linestop[i] + 'a' - 1);
+			fprintf(tabout, ".nr #%c 0\n", linestop[i] + 'a' - 1);
 	for (i = 0; i < texct; i++)
-		Bprint(&tabout, ".rm %c+\n", texstr[i]);
-	Bprint(&tabout, "%s\n", last);
+		fprintf(tabout, ".rm %c+\n", texstr[i]);
+	fprintf(tabout, "%s\n", last);
 }
 
 
 void
 ifdivert(void)
 {
-	Bprint(&tabout, ".ds #d .d\n");
-	Bprint(&tabout, ".if \\(ts\\n(.z\\(ts\\(ts .ds #d nl\n");
+	fprintf(tabout, ".ds #d .d\n");
+	fprintf(tabout, ".if \\(ts\\n(.z\\(ts\\(ts .ds #d nl\n");
 }
 
 
 void
 saveline(void)
 {
-	Bprint(&tabout, ".if \\n+(b.=1 .nr d. \\n(.c-\\n(c.-1\n");
+	fprintf(tabout, ".if \\n+(b.=1 .nr d. \\n(.c-\\n(c.-1\n");
 	linstart = iline;
 }
 
@@ -60,7 +60,7 @@ saveline(void)
 void
 restline(void)
 {
-	Bprint(&tabout, ".if \\n-(b.=0 .nr c. \\n(.c-\\n(d.-%d\n", iline - linstart);
+	fprintf(tabout, ".if \\n-(b.=0 .nr c. \\n(.c-\\n(d.-%d\n", iline - linstart);
 	linstart = 0;
 }
 
@@ -68,7 +68,7 @@ restline(void)
 void
 cleanfc(void)
 {
-	Bprint(&tabout, ".fc\n");
+	fprintf(tabout, ".fc\n");
 }
 
 

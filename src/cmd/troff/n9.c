@@ -75,7 +75,7 @@ s1:
 	pushback(linebuf);
 }
 
-
+int
 eat(int c)
 {
 	int i;
@@ -341,6 +341,7 @@ Tchar setfield(int x)
 	int savepos;
 	static Tchar wbuf[] = { WORDSP, 0};
 
+	rchar = 0;
 	if (x == tabch) 
 		rchar = tabc | chbits;
 	else if (x ==  ldrch) 

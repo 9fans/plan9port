@@ -17,13 +17,14 @@ Font	fonts[MAXFONTS+1];	/* font info + ptr to width info */
 
 #define	eq(s1, s2)	(strcmp(s1, s2) == 0)
 
+int
 getdesc(char *name)
 {
 	FILE *fin;
 	char cmd[100], s[100];
 	int i, v;
 
-	if ((fin = fopen(unsharp(name), "r")) == NULL)
+	if ((fin = fopen(name, "r")) == NULL)
 		return -1;
 	while (fscanf(fin, "%s", cmd) != EOF) {
 		if (strcmp(cmd, "res") == 0) {
@@ -64,7 +65,7 @@ static int checkfont(char *name)
 	char buf[300], buf2[300];
 	int i, status = -1;
 
-	if ((fp = fopen(unsharp(name), "r")) == NULL)
+	if ((fp = fopen(name, "r")) == NULL)
 		return -1;
 	for (i = 1; i <= 10; i++) {
 		if (fgets(buf, sizeof buf, fp) == NULL)
@@ -85,6 +86,7 @@ static int checkfont(char *name)
 	
 }
 
+int
 getfont(char *name, int pos)	/* create width tab for font */
 {
 	FILE *fin;
@@ -94,10 +96,11 @@ getfont(char *name, int pos)	/* create width tab for font */
 	int i, nw, n, wid, kern, code, type;
 	char buf[100], ch[100], s1[100], s2[100], s3[100], cmd[300];
 
+	nw = code = 0;
 	/* fprintf(stderr, "read font %s onto %d\n", name, pos); */
 	if (checkfont(name) == -1)
 		return -1;
-	if ((fin = fopen(unsharp(name), "r")) == NULL)
+	if ((fin = fopen(name, "r")) == NULL)
 		return -1;
 	for (i = 0; i < ALPHABET; i++)
 		chtemp[i] = chinit;	/* zero out to begin with */
@@ -189,6 +192,7 @@ getfont(char *name, int pos)	/* create width tab for font */
 	return 1;
 }
 
+int
 chadd(char *s, int type, int install)	/* add s to global character name table; */
 {					/* or just look it up */
 
@@ -231,6 +235,7 @@ char *chname(int n)	/* return string for char with index n */
 		return "";
 }
 
+int
 getlig(FILE *fin)	/* pick up ligature list */
 {
 	int lig;

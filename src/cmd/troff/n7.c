@@ -354,6 +354,7 @@ void newline(int a)
 	int i, j, nlss;
 	int opn;
 
+	nlss = 0;
 	if (a)
 		goto nl1;
 	if (dip != d) {
@@ -445,7 +446,7 @@ nl2:
 	}
 }
 
-
+int
 findn1(int a)
 {
 	int i, j;
@@ -477,7 +478,7 @@ void chkpn(void)
 	}
 }
 
-
+int
 findt(int a)
 {
 	int i, j, k;
@@ -504,7 +505,7 @@ findt(int a)
 	return(k);
 }
 
-
+int
 findt1(void)
 {
 	int i;
@@ -539,7 +540,7 @@ e1:
 		goto e1;
 }
 
-
+int
 movword(void)
 {
 	int w;
@@ -648,7 +649,7 @@ void setnel(void)
 	}
 }
 
-
+int
 getword(int x)
 {
 	int j, k;
@@ -656,6 +657,7 @@ getword(int x)
 	int noword;
 	int obits;
 
+	j = 0;
 	noword = 0;
 	if (x)
 		if (pendw) {

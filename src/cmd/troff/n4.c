@@ -141,7 +141,7 @@ void setn(void)
  			for( i = 0; tabtab[i] != 0 && i < NTAB; i++) {
  				if (i > 0)
  					buf[j++] = ' ';
- 				sprintf(&buf[j], "%d", tabtab[i] & TABMASK);
+ 				sprintf(&buf[j], "%ld", tabtab[i] & TABMASK);
  				j = strlen(buf);
  				if ( tabtab[i] & RTAB)
  					sprintf(&buf[j], "uR");

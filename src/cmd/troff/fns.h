@@ -1,6 +1,7 @@
 /*
  * other
  */
+#ifdef NOTDEF
 int	pclose(FILE*);
 long	filesize(int fd);
 int	open(char *, int);
@@ -8,6 +9,7 @@ int	read(int, char *, int);
 int	lseek(int, long, int);
 int	close(int);
 int	getpid(void);
+#endif
 
 /*
  * c1.c

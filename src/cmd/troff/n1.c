@@ -10,9 +10,6 @@
 #include "ext.h"
 #include "dwbinit.h"
 
-#undef MB_CUR_MAX
-#define MB_CUR_MAX 3
-
 #include <setjmp.h>
 #include <time.h>
 
@@ -50,6 +47,7 @@ char	*progname;		/* program name (troff or nroff) */
 int	trace = 0;	/* tracing mode: default off */
 int	trace1 = 0;
 
+int
 main(int argc, char *argv[])
 {
 	char *p;
@@ -57,7 +55,7 @@ main(int argc, char *argv[])
 	Tchar i;
 	char buf[100];
 
-	ifile = stdin;
+	ifile = stdin;		/* gcc */
 	ptid = stdout;
 
 	buf[0] = '\0';		/* make sure it's empty (silly 3b2) */
@@ -279,7 +277,7 @@ void init2(void)
 
 void cvtime(void)
 {
-	long tt;
+	time_t tt;
 	struct tm *ltime;
 
 	time(&tt);
@@ -676,7 +674,6 @@ char	ifilt[32] = { 0, 001, 002, 003, 0, 005, 006, 007, 010, 011, 012 };
 
 Tchar getch0(void)
 {
-	int j;
 	Tchar i;
 
 again:
@@ -719,7 +716,7 @@ g0:
 			if (ip)
 				goto again;
 		}
-g2:
+//g2:
 		if (i >= 040)			/* zapped: && i < 0177 */
 			goto g4;
 		i = ifilt[i];
@@ -754,6 +751,7 @@ Tchar get1ch(FILE *fp)	/* get one "character" from input, figure out what alphab
 		if ((n = mbtowc(&wc, buf, p-buf)) >= 0)
 			break;
 	}
+
 	if (n == 1)	/* real ascii, presumably */
 		return wc;
 	if (n == 0)
@@ -830,7 +828,7 @@ n1:
 	if (p[0] == '-' && p[1] == 0) {
 		ifile = stdin;
 		strcpy(cfname[ifi], "stdin");
-	} else if ((ifile = fopen(unsharp(p), "r")) == NULL) {
+	} else if ((ifile = fopen(p, "r")) == NULL) {
 		ERROR "cannot open file %s", p WARN;
 		nfo -= mflg;
 		done(02);
@@ -840,7 +838,7 @@ n1:
 	return(0);
 }
 
-
+int
 popf(void)
 {
 	--ifi;
@@ -874,6 +872,7 @@ void flushi(void)
  * (internal names), spaces and special cookies (below 040).
  * Leave STX ETX ENQ ACK and BELL in to maintain compatibility with v7 troff.
  */
+int
 getach(void)
 {
 	Tchar i;
@@ -913,11 +912,10 @@ void casenx(void)
 	nxf = frame + 1;
 }
 
-
+int
 getname(void)
 {
 	int j, k;
-	Tchar i;
 
 	lgf++;
 	for (k = 0; k < NS - 1; k++) {
@@ -934,12 +932,11 @@ getname(void)
 
 void caseso(void)
 {
-	FILE *fp;
-	char *p, *q;
+	FILE *fp = 0;
 
 	lgf++;
 	nextf[0] = 0;
-	if (skip() || !getname() || (fp = fopen(unsharp(nextf), "r")) == NULL || ifi >= NSO) {
+	if (skip() || !getname() || (fp = fopen(nextf, "r")) == NULL || ifi >= NSO) {
 		ERROR "can't open file %s", nextf WARN;
 		done(02);
 	}
@@ -1008,7 +1005,7 @@ void casecf(void)
 	nextf[0] = 0;
 	if (!skip() && getname()) {
 		if (strncmp("<<", nextf, 2) != 0) {
-			if ((fd = fopen(unsharp(nextf), "r")) == NULL) {
+			if ((fd = fopen(nextf, "r")) == NULL) {
 				ERROR "can't open file %s", nextf WARN;
 				done(02);
 			}

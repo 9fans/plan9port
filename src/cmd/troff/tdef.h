@@ -3,9 +3,12 @@
 #include <limits.h>
 #include <ctype.h>
 #include <string.h>
+#include <unistd.h>
+
+#undef MB_CUR_MAX
+#define MB_CUR_MAX 3
 
 #define	NROFF	(!TROFF)
-
 
 /* Site dependent definitions */
 

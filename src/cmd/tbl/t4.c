@@ -28,10 +28,10 @@ getspec(void)
 	oncol = 0;
 	left1flg = rightl = 0;
 	readspec();
-	Bprint(&tabout, ".rm");
+	fprintf(tabout, ".rm");
 	for (i = 0; i < ncol; i++)
-		Bprint(&tabout, " %2s", reg(i, CRIGHT));
-	Bprint(&tabout, "\n");
+		fprintf(tabout, " %2s", reg(i, CRIGHT));
+	fprintf(tabout, "\n");
 }
 
 
@@ -42,12 +42,12 @@ readspec(void)
 	char	sn[10], *snp, *temp;
 
 	sawchar = icol = 0;
-	while (c = get1char()) {
+	while ((c = get1char())) {
 		switch (c) {
 		default:
 			if (c != tab) {
 				char buf[64];
-				sprint(buf, "bad table specification character %c", c);
+				sprintf(buf, "bad table specification character %c", c);
 				error(buf);
 			}
 		case ' ': /* note this is also case tab */
@@ -108,11 +108,11 @@ readspec(void)
 			if (c == 's' && icol <= 0)
 				error("first column can not be S-type");
 			if (c == 's' && style[icol-1][nclin] == 'a') {
-				Bprint(&tabout, ".tm warning: can't span a-type cols, changed to l\n");
+				fprintf(tabout, ".tm warning: can't span a-type cols, changed to l\n");
 				style[icol-1][nclin] = 'l';
 			}
 			if (c == 's' && style[icol-1][nclin] == 'n') {
-				Bprint(&tabout, ".tm warning: can't span n-type cols, changed to c\n");
+				fprintf(tabout, ".tm warning: can't span n-type cols, changed to c\n");
 				style[icol-1][nclin] = 'c';
 			}
 			icol++;
@@ -181,7 +181,7 @@ readspec(void)
 			if (icol <= 0) 
 				continue;
 			temp = snp = csize[icol-1][nclin];
-			while (c = get1char()) {
+			while ((c = get1char())) {
 				if (c == ' ' || c == tab || c == '\n') 
 					break;
 				if (c == '-' || c == '+')
@@ -206,7 +206,7 @@ readspec(void)
 			if (icol <= 0) 
 				continue;
 			temp = snp = vsize[icol-1][nclin];
-			while (c = get1char()) {
+			while ((c = get1char())) {
 				if (c == ' ' || c == tab || c == '\n') 
 					break;
 				if (c == '-' || c == '+')
@@ -231,12 +231,12 @@ readspec(void)
 		   of different widths now ....
 			if (*snp)
 				{
-				Bprint(&tabout, "Ignored second width specification");
+				fprintf(tabout, "Ignored second width specification");
 				continue;
 				}
 		/* end commented out code ... */
 			stopc = 0;
-			while (c = get1char()) {
+			while ((c = get1char())) {
 				if (snp == cll[icol-1] && c == '(') {
 					stopc = ')';
 					continue;
@@ -312,7 +312,7 @@ findcol(void)
 		;
 	if (c != '\n')
 		un1getc(c);
-	for (s = line; *s = c = get1char(); s++) {
+	for (s = line; (*s = c = get1char()); s++) {
 		if (c == ')') 
 			inpar = 0;
 		if (inpar) 
@@ -371,7 +371,7 @@ garray(int qcol)
 }
 
 
-char	*
+char*
 getcore(int a, int b)
 {
 	char	*x;

@@ -59,9 +59,9 @@ void
 tohcol(int ic)
 {
 	if (ic == 0)
-		Bprint(&tabout, "\\h'|0'");
+		fprintf(tabout, "\\h'|0'");
 	else
-		Bprint(&tabout, "\\h'(|\\n(%2su+|\\n(%2su)/2u'", reg(ic, CLEFT),
+		fprintf(tabout, "\\h'(|\\n(%2su+|\\n(%2su)/2u'", reg(ic, CLEFT),
 		     reg(ic - 1, CRIGHT));
 }
 
@@ -119,7 +119,7 @@ thish(int i, int c)
 		return(1);
 	if (vspen(s)) 
 		return(1);
-	if (t = barent( s))
+	if ((t = barent( s)))
 		return(t);
 	return(0);
 }

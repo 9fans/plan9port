@@ -31,7 +31,7 @@ gettbl(void)
 		} else 
 			instead[nlin] = 0;
 		if (nodata(nlin)) {
-			if (ch = oneh(nlin))
+			if ((ch = oneh(nlin)))
 				fullbot[nlin] = ch;
 			table[nlin] = (struct colstr *) alocv((ncol + 2) * sizeof(table[0][0]));
 			for (icol = 0; icol < ncol; icol++) {

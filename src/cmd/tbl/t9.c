@@ -1,6 +1,6 @@
 /* t9.c: write lines for tables over 200 lines */
 # include "t.h"
-static useln;
+static int useln;
 
 void
 yetmore(void)
@@ -30,7 +30,7 @@ domore(char *dataln)
 	if (prefix(".TE", dataln))
 		return(0);
 	if (dataln[0] == '.' && !isdigit(dataln[1])) {
-		Bprint(&tabout, "%s\n", dataln);
+		fprintf(tabout, "%s\n", dataln);
 		return(1);
 	}
 	fullbot[0] = 0;
