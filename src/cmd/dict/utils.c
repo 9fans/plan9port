@@ -8,7 +8,7 @@ Dict dicts[] = {
 	 "#9/dict/oed2",	"#9/dict/oed2index",
 	 oednextoff,	oedprintentry,		oedprintkey},
 	{"ahd",		"American Heritage Dictionary, 2nd College Ed.",
-	 "ahd/DICT.DB",	"ahd/index",
+	 "#9/dict/ahd/DICT.DB",	"#9/dict/ahd/index",
 	 ahdnextoff,	ahdprintentry,		ahdprintkey},
 	{"pgw",		"Project Gutenberg Webster Dictionary",
 	 "#9/dict/pgw",	"#9/dict/pgwindex",
