@@ -13,6 +13,8 @@ X11=/usr/X11R6
 LDFLAGS=
 CFLAGS=
 
+BIN=$(PLAN9)/bin
+
 include $(PLAN9)/src/Make.$(SYSNAME)-$(OBJTYPE)
 LDFLAGS+=-L$(PLAN9)/lib
 
