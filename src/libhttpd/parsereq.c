@@ -40,10 +40,12 @@ hparsereq(HConnect *c, int timeout)
 	 * later requests have to come quickly.
 	 * only works for http/1.1 or later.
 	 */
-	alarm(timeout);
+	if(timeout)
+		alarm(timeout);
 	if(hgethead(c, 0) < 0)
 		return -1;
-	alarm(0);
+	if(timeout)
+		alarm(0);
 	c->reqtime = time(nil);
 	c->req.meth = getword(c);
 	if(c->req.meth == nil){
