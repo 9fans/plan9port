@@ -184,7 +184,7 @@ void do_first(void)	/* done at first .G1:  definitions, etc. */
 	sprintf(buf, "define pid /%d/\n", getpid());
 	pbstr(buf);	
 	if (lib != 0) {
-		if ((fp = fopen(lib_defines, "r")) != NULL) {
+		if ((fp = fopen(unsharp(lib_defines), "r")) != NULL) {
 			sprintf(buf1, "copy \"%s\"\n", lib_defines);
 			pbstr(buf1);
 			fclose(fp);

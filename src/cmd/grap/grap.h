@@ -132,6 +132,8 @@ extern	int	pointsize, ps_set;
 #define	min(x,y)	(((x) <= (y)) ? (x) : (y))
 #define	max(x,y)	(((x) >= (y)) ? (x) : (y))
 
+extern	char	*unsharp(char*);
+
 extern	void	yyerror(char *);
 extern void coord_x(Point);
 extern void coord_y(Point);
@@ -202,6 +204,7 @@ extern void plot(Attr *, Point);
 extern void plotnum(double, char *, Point);
 extern void drawdesc(int, Obj *, Attr *, char *);
 extern void next(Obj *, Point, Attr *);
+#define print grapprint
 extern void print(void);
 extern void endstat(void);
 extern void graph(char *);

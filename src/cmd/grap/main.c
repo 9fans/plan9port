@@ -7,10 +7,11 @@
 #include "grap.h"
 #include "y.tab.h"
 
-extern	char	*unsharp(char*);
-
 int	dbg	= 0;
 
+#ifndef GRAPDEFINES
+#define GRAPDEFINES "#9/sys/lib/grap.defines"
+#endif
 char	*lib_defines;
 
 int	lib	= 1;		/* 1 to include lib_defines */
@@ -40,7 +41,7 @@ main(int argc, char *argv[])
 {
 	extern void onintr(int), fpecatch(int);
 
-	lib_defines = unsharp("#9/lib/grap.defines");
+	lib_defines = unsharp(GRAPDEFINES);
 
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		signal(SIGINT, onintr);
@@ -90,8 +91,8 @@ main(int argc, char *argv[])
 
 void onintr(int n)
 {
-	//n;
-	if (!dbg)
+	if(n){}
+	if(!dbg)
 		unlink(tempfile);
 	exit(1);
 }
