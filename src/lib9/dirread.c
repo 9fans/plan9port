@@ -13,10 +13,9 @@ mygetdents(int fd, struct dirent *buf, int n)
 	off_t off;
 	int nn;
 
+	/* This doesn't match the man page, but it works in Debian with a 2.2 kernel */
 	off = p9seek(fd, 0, 1);
 	nn = getdirentries(fd, (void*)buf, n, &off);
-	if(nn > 0)
-		p9seek(fd, off, 0);
 	return nn;
 }
 #elif defined(__APPLE__) || defined(__FreeBSD__)
