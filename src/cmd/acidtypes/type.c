@@ -343,6 +343,13 @@ typecmp(Type *t, Type *u)
 	if(i)
 		return i;
 
+	if(t->ty == Aggr){
+		if(t->n > u->n)
+			return -1;
+		if(t->n < u->n)
+			return 1;
+	}
+
 	if(t->name || t->suename)
 		return 0;
 
@@ -445,7 +452,7 @@ ttt=ttt->sub;
 			case Pointer:
 				ttt = defer(tt->sub);
 				if(ttt && ttt->ty == Aggr)
-					Bprint(b, "\tprint(indent, \"%s\t%s(\", addr.%s, \")\\n\");\n",
+					Bprint(b, "\tprint(indent, \"%s\t(%s)\", addr.%s, \"\\n\");\n",
 						name, nameof(ttt, 1), name);
 				else
 					goto base;
