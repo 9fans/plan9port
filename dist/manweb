@@ -4,7 +4,16 @@ verbose=no
 if(~ $1 -v)
 	verbose=yes
 
-path=($PLAN9/bin $path)
+fn silencer {
+	switch($verbose){
+	case no
+		cat >/dev/null
+	case yes
+		cat
+	}
+}
+
+. 9.rc
 cd $PLAN9/man
 # rm -f */*.html
 
@@ -13,7 +22,7 @@ for(i in */INDEX) @{
 	cat $PLAN9/dist/manindextop.html | sed 's/NNN/'$n'/g'
 	cd `{basename -d $i}
 	# complicated sort order: want 9p.3, 9p-cmdbuf.3, 9pclient.3
-	for (j in `{ls [a-z0-9:]*.[0-9]* | sed 's/[.\-]/ &/g;s/\./ &/g' | sort | tr -d ' '}){
+	for (j in `{ls [a-z0-9:]*.[0-9]* >[2]/dev/null | sed 's/[.\-]/ &/g;s/\./ &/g' | sort | tr -d ' '}){
 		n=`{grep '^\.TH' $j | sed 1q | awk '{print $3}'}
 		name=`{echo $j | sed 's/\..*//'}
 		if(~ $name 0intro)
@@ -58,7 +67,7 @@ for (i in */[~.]*.[0-9]*){
 	if(~ $p 0intro)
 		p=intro
 	if(~ $verbose yes) echo $d/$p
-	troff -manhtml $i | troff2html -t 'Plan 9 from User Space'>/tmp/manweb.html
+	troff -manhtml $i | troff2html -t 'Plan 9 from User Space'>/tmp/manweb.html |[2] silencer
 	{
 		sed '/<!-- TRAILER -->/q' /tmp/manweb.html
 		cat $PLAN9/dist/mantrailer.html
