@@ -5,10 +5,14 @@ SHORTLIB=draw bio 9
 
 <$PLAN9/src/mkmany
 
+$O.tcolors: tcolors.$O
+	$LD -o $target tcolors.$O -ldraw -lthread -l9 $LDFLAGS
+
 $O.mc: mc.$O
-	$LD -o $target mc.$O -lfs -lmux -lthread -ldraw -lbio -l9 $LDFLAGS
+	$LD -o $target mc.$O -lfs -lmux -ldraw -lthread -lbio -l9 $LDFLAGS
 
 $O.stats: stats.$O
-	$LD -o $target stats.$O -lthread -ldraw -lbio -l9 $LDFLAGS
+	$LD -o $target stats.$O -ldraw -lthread -lbio -l9 $LDFLAGS
 
 LDFLAGS=$LDFLAGS -L$X11/lib -lX11
+

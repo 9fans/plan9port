@@ -666,14 +666,15 @@ keyboardthread(void *v)
 			killall("quit");
 }
 
-void machthread(void*);
+void machproc(void*);
+void updateproc(void*);
 
 void
 threadmain(int argc, char *argv[])
 {
 	int i, j;
 	char *s;
-	ulong v, vmax, nargs;
+	ulong nargs;
 	char args[100];
 
 	nmach = 1;
@@ -733,7 +734,7 @@ threadmain(int argc, char *argv[])
 	}
 
 	for(i=0; i<nmach; i++)
-		threadcreate(machthread, &mach[i], STACK);
+		proccreate(machproc, &mach[i], STACK);
 
 	for(i=0; i<nargs; i++)
 	switch(args[i]){
@@ -804,10 +805,18 @@ threadmain(int argc, char *argv[])
 	threadcreate(keyboardthread, nil, XSTACK);
 	threadcreate(mousethread, nil, XSTACK);
 	threadcreate(resizethread, nil, XSTACK);
-
+	proccreate(updateproc, nil, XSTACK);
 	resize();
 	unlockdisplay(display);
+}
 
+void
+updateproc(void *z)
+{
+	int i;
+	ulong v, vmax;
+
+	USED(z);
 	for(;;){
 		parity = 1-parity;
 		lockdisplay(display);
@@ -821,12 +830,12 @@ threadmain(int argc, char *argv[])
 		}
 		flushimage(display, 1);
 		unlockdisplay(display);
-		threadsleep(sleeptime);
+		sleep(sleeptime);
 	}
 }
 
 void
-machthread(void *v)
+machproc(void *v)
 {
 	char buf[256], *f[4], *p;
 	int i, n, t;
@@ -835,7 +844,7 @@ machthread(void *v)
 	m = v;
 	t = 0;
 	for(;;){
-		n = threadread(m->fd, buf+t, sizeof buf-t);
+		n = read(m->fd, buf+t, sizeof buf-t);
 		m->dead = 0;
 		if(n <= 0)
 			break;

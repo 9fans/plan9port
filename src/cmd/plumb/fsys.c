@@ -199,7 +199,7 @@ startfsys(void)
 	if(post9pservice(p[1], "plumb") < 0)
 		sysfatal("post9pservice plumb: %r");
 	close(p[1]);
-	threadcreate(fsysproc, nil, Stack);
+	proccreate(fsysproc, nil, Stack);
 }
 
 static void
@@ -218,14 +218,19 @@ fsysproc(void *v)
 		if(buf == nil)
 			error("malloc failed: %r");
 		qlock(&readlock);
-		n = threadread9pmsg(srvfd, buf, messagesize);
+		n = read9pmsg(srvfd, buf, messagesize);
 		if(n <= 0){
 			if(n < 0)
 				error("i/o error on server channel");
 			threadexitsall("unmounted");
 		}
-		if(readlock.head == nil)	/* no other processes waiting to read; start one */
-			threadcreate(fsysproc, nil, Stack);
+		/*
+		 * can give false positive (create an extra fsysproc) once in a while,
+		 * but no false negatives, so good enough.  once we have one extra
+		 * we'll never have more.
+		 */
+		if(readlock.waiting.head == nil)	/* no other processes waiting to read; start one */
+			proccreate(fsysproc, nil, Stack);
 		qunlock(&readlock);
 		if(t == nil)
 			t = emalloc(sizeof(Fcall));
