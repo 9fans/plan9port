@@ -1,3 +1,28 @@
+February 13, 2005
+	lib9: add readcons(1)
+		add laddr, raddr to Netconninfo (see dial(3))
+		support local address in dial for tcp and udp
+		bug fix in fcallfmt
+	libauth: allow parseattr(nil)
+	libmp: add %lB for lower case
+	libsec: add x509 dsa routines
+	libthread: work around stupid linux 2.6 ps-gdb-/proc bug
+	libventi: new logging, use new nci
+	auth: move secstore, factotum into auth directory
+		add asn1, dsa, rsa pem routines
+	factotum: add rsa signatures, dsa, pass, wep, httpdigest, ...
+		more info in man page
+	rc: bug fix regarding /dev/stdin from Christoph Lohmann
+	secstore: add ipso
+	secstored: avoid zombie army of evil
+	ssh-agent: add
+	9p: bigger buffers, add rdwr verb
+	9c: more silencing of gcc
+	create log, secstore directories in $PLAN9
+
+February 12, 2005
+	9c: silence gcc chatter
+
 February 11, 2005
 	dist: fix regexp license in unix.html
 		add link to license on main page
@@ -26,7 +51,8 @@ February 11, 2005
 		remove top-level factotum directory
 	rc: set p->pid=-1 explicitly to avoid wait problems
 	psv: add print buttons
-	secstored: add it
+	secstored, secuser: add
+	tar: add
 
 February 10, 2005
 	libmach: abortive attempt at pthread support via libthread_db
