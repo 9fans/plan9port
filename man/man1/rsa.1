@@ -1,0 +1,336 @@
+.TH RSA 8
+.SH NAME
+dsagen, rsagen, rsafill, asn12dsa, asn12rsa, dsa2pub, rsa2pub, dsa2ssh, rsa2ssh, rsa2x509 \- generate and format dsa and rsa keys
+.SH SYNOPSIS
+.PP
+.B dsagen
+[
+.B -t
+.I tag
+]
+.PP
+.B rsagen
+[
+.B -b
+.I nbits
+]
+[
+.B -t
+.I tag
+]
+.PP
+.B rsafill
+[
+.I file
+]
+.PP
+.B asn12dsa
+[
+.B -t
+.I tag
+]
+[
+.I file
+]
+.PP
+.B asn12rsa
+[
+.B -t
+.I tag
+]
+[
+.I file
+]
+.PP
+.B dsa2pub
+[
+.I file
+]
+.PP
+.B rsa2pub
+[
+.I file
+]
+.PP
+.B dsa2ssh
+[
+.I file
+]
+.PP
+.B rsa2ssh
+[
+.B -2
+]
+[
+.I file
+]
+.PP
+.B rsa2x509
+[
+.B -e
+.I expiretime
+]
+.I certinfo
+[
+.I file
+]
+.SH DESCRIPTION
+Plan 9 represents DSA and RSA keys as attribute-value pair lists
+prefixed with the string
+.BR key ;
+this is the generic key format used by
+.IR factotum (4).
+A full DSA private key has the following attributes:
+.TP
+.B proto
+must be
+.B dsa
+.TP
+.B p
+prime public modulus
+.TP
+.B q
+prime group order; divides
+.BR p -1
+.TP
+.B alpha
+group generator
+.TP
+.B key
+.BR alpha ^ !secret
+mod
+.B p
+.TP
+.B !secret
+the secret exponent
+.PD
+.PP
+A full RSA private key has the following attributes:
+.TP
+.B proto
+must be
+.B rsa
+.TP
+.B size
+the number of significant bits in
+.B n
+.TP
+.B ek
+the encryption exponent
+.TP
+.B n
+the product of
+.B !p
+and
+.B !q
+.TP
+.B !dk
+the decryption exponent
+.TP
+.B !p
+a large prime
+.TP
+.B !q
+another large prime
+.TP
+.B "!kp\fR, \fL!kq\fR, \fL!c2
+parameters derived from the other attributes, cached to speed decryption
+.PD
+.LP
+All the numbers in both keys are in hexadecimal except RSA's
+.I size ,
+which is decimal.
+A public key omits the attributes beginning with
+.L ! .
+A key may have other attributes as well (for example, a
+.B service
+attribute identifying how this key is typically used),
+but to these utilities such attributes are merely comments.
+.PP
+For example, a very small (and thus insecure) private key and corresponding
+public key might be:
+.IP
+.EX
+key proto=rsa size=8 ek=7 n=8F !dk=67 !p=B !q=D !kp=3 !kq=7 !c2=6
+key proto=rsa size=8 ek=7 n=8F
+.EE
+.LP
+Note that the order of the attributes does not matter.
+.PP
+.I Dsagen
+prints a randomly generated DSA private key using the 
+NIST-recommended algorithm.
+If
+.I tag
+is specified, it is printed between
+.B key
+and
+.BR proto=dsa ;
+typically,
+.I tag
+is a sequence of attribute-value comments describing the key.
+.PP
+.I Rsagen
+prints a randomly generated RSA private key
+whose
+.B n
+has exactly
+.I nbits
+(default 1024)
+significant bits.
+.PP
+.I Rsafill
+reads a private key,
+recomputes the
+.BR !kp ,
+.BR !kq ,
+and
+.BR !c2
+attributes if they are missing,
+and prints a full key.
+.PP
+.I Asn12dsa
+reads an DSA private key stored as ASN.1
+encoded in the binary Distinguished Encoding Rules (DER)
+and prints a Plan 9 DSA key,
+inserting
+.I tag
+exactly as
+.I dsagen
+does.
+ASN.1/DER is a popular key format on Unix and Windows;
+it is often encoded in text form using the Privacy Enhanced Mail (PEM) format
+in a section labeled as an
+.RB `` DSA
+.B PRIVATE
+.BR KEY .''
+The command:
+.IP
+.EX
+pemdecode 'DSA PRIVATE KEY' | asn12dsa
+.EE
+.LP
+extracts the key section from a textual ASN.1/DER/PEM key
+into binary ASN.1/DER format and then
+converts it to a Plan 9 DSA key.
+.PP
+.I Asn12rsa
+is similar but operates on RSA keys.
+.PP
+.I Dsa2pub
+reads a Plan 9 DSA public or private key,
+removes the private attributes, and prints the resulting public key.
+Comment attribtes are preserved.
+.PP
+.I Rsa2pub
+is similar but operates on RSA keys.
+.PP
+.I Dsa2ssh
+reads a Plan 9 DSA public or private key and prints the 
+public portion in the format used by SSH version 2 (version 1 did not support DSA).
+If the key has a 
+.B comment
+attribute, that comment is appended to the key.
+.PP
+.I Rsa2ssh
+is similar but operates on RSA keys.
+It decides whether to print in version 1 or version 2 
+format by inspecting the
+.B service
+attribute.
+.PP
+.I Dsa2ssh
+and
+.I rsa2ssh
+are useful for generating SSH's 
+.B authorized_keys
+file.
+.PP
+.I Rsa2x509
+reads a Plan 9 RSA private key and writes a self-signed X.509 certificate
+encoded in ASN.1/DER format to standard output.
+(Note that ASN.1/DER X.509 certificates are different from ASN.1/DER private keys).
+The certificate uses the current time as its start time and expires
+.I expiretime
+seconds
+(default 3 years)
+later.
+It contains the public half of the key
+and includes
+.I certinfo
+as the issuer/subject string (also known as a ``Distinguished Name'').
+This info is typically in the form:
+.IP
+.EX
+C=US ST=NJ L=07974 O=Lucent OU='Bell Labs' CN=G.R.Emlin
+.EE
+.LP
+The X.509 ASN.1/DER format is often encoded in text using a PEM section
+labeled as a
+.RB `` CERTIFICATE .''
+The command:
+.IP
+.EX
+rsa2x509 'C=US OU=''Bell Labs''' file |
+pemencode CERTIFICATE
+.EE
+.LP
+generates such a textual certificate.
+Applications that serve TLS-encrypted sessions (for example,
+.IR httpd (8),
+.IR pop3 (8),
+and
+.IR tlssrv (8))
+expect certificates in ASN.1/DER/PEM format.
+.SH EXAMPLES
+Generate a fresh key and use it to start a TLS-enabled web server:
+.IP
+.EX
+rsagen -t 'service=tls owner=*' >key
+rsa2x509 'C=US CN=*.cs.bell-labs.com' key |
+	pemencode CERTIFICATE >cert
+cat key >/mnt/factotum/ctl
+ip/httpd/httpd -c cert
+.EE
+.PP
+Generate a fresh set of SSH keys (only one is necessary),
+load them into factotum,
+and configure a remote Unix system to allow those keys for logins:
+.IP
+.EX
+rsagen -t 'service=ssh' >rsa1
+rsagen -t 'service=ssh-rsa' >rsa2
+dsagen -t 'service=ssh-dss' >dsa2
+.EE
+.PP
+Convert existing Unix SSH version 2 keys instead of generating new ones:
+.IP
+.EX
+cd $HOME/.ssh
+pemdecode 'DSA PRIVATE KEY' id_dsa | asn12dsa >dsa2
+pemdecode 'RSA PRIVATE KEY' id_rsa | asn12rsa >rsa2
+.EE
+.PP
+Load those keys into factotum:
+.IP
+.EX
+cat rsa1 rsa2 dsa2 | 9p write -l factotum/ctl
+.EE
+Allow use of those keys for logins on other systems:
+.IP
+.EX
+rsa2ssh rsa1 >auth.keys
+rsa2ssh rsa2 >>auth.keys
+dsa2ssh dsa2 >>auth.keys
+scp auth.keys unix:.ssh/authorized_keys
+.EE
+.SH SOURCE
+.B \*9/src/cmd/auth
+.SH "SEE ALSO
+.IR factotum (4),
+.IR pem (1),
+.IR ssh (1)
+.SH BUGS
+There are too many key formats.
+.PP
+There is no program to convert SSH version 1 RSA private keys.

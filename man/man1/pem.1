@@ -1,0 +1,65 @@
+.TH PEM 8
+.SH NAME
+pemdecode, pemencode \- encode files in Privacy Enhanced Mail (PEM) format
+.SH SYNOPSIS
+.PP
+.B auth/pemdecode
+.I section
+[
+.I file
+]
+.PP
+.B auth/pemencode
+.I section
+[
+.I file
+]
+.SH DESCRIPTION
+PEM is a textual encoding for binary data originally used by the 
+Privacy Enhanced Mail program but now commonly used for
+other applications, notably TLS.
+PEM encodes data in base 64
+(see
+.IR encode (2))
+between lines of the form:
+.IP
+.EX
+-----BEGIN SECTION-----
+-----END SECTION-----
+.EE
+.LP
+where
+.B SECTION
+may be any string describing the encoded data.
+The most common use of PEM format on Plan 9 is for encoding
+X.509 certificates; see
+.IR rsa (8).
+.PP
+.I Pemdecode
+extracts the named
+.I section
+and writes the decoded data to standard output.
+.PP
+.I Pemencode
+encodes its standard input, labels it as a
+.IR section ,
+and writes it to standard output.
+.SH EXAMPLES
+Encode and decode a simple greeting:
+.IP
+.EX
+% echo hello world |
+	auth/pemencode GREETING
+-----BEGIN GREETING-----
+aGVsbG8gd29ybGQK
+-----END GREETING-----
+% echo hello world |
+	auth/pemencode GREETING |
+	auth/pemdecode GREETING
+hello world
+% 
+.EE
+.SH SOURCE
+.B \*9/src/cmd/auth
+.SH "SEE ALSO
+.IR rsa (1)
