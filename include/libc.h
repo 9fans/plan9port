@@ -360,6 +360,8 @@ extern	long	p9atol(char*);
 extern	vlong	p9atoll(char*);
 extern	double	fmtcharstod(int(*)(void*), void*);
 extern	char*	cleanname(char*);
+extern	int	p9decrypt(void*, void*, int);
+extern	int	p9encrypt(void*, void*, int);
 extern	int	dec64(uchar*, int, char*, int);
 extern	int	enc64(char*, int, uchar*, int);
 extern	int	dec32(uchar*, int, char*, int);
