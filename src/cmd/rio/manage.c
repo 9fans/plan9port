@@ -19,6 +19,7 @@ manage(Client *c, int mapped)
 	long msize;
 	XClassHint class;
 	XWMHints *hints;
+	XSetWindowAttributes attrs;
 
 	trace("manage", c, 0);
 	XSelectInput(dpy, c->window, ColormapChangeMask | EnterWindowMask | PropertyChangeMask | FocusChangeMask);
@@ -118,20 +119,38 @@ manage(Client *c, int mapped)
 	else
 		gravitate(c, 0);
 
-	c->parent = XCreateSimpleWindow(dpy, c->screen->root,
+	attrs.border_pixel =  c->screen->black;
+	attrs.background_pixel =  c->screen->white;
+	attrs.colormap = c->screen->def_cmap;
+	c->parent = XCreateWindow(dpy, c->screen->root,
 			c->x - BORDER, c->y - BORDER,
 			c->dx + 2*BORDER, c->dy + 2*BORDER,
 			0,
-			c->screen->black, c->screen->white);
+			c->screen->depth,
+			CopyFromParent,
+			c->screen->vis,
+			CWBackPixel | CWBorderPixel | CWColormap,
+			&attrs);
+
 	XSelectInput(dpy, c->parent, SubstructureRedirectMask | SubstructureNotifyMask|ButtonPressMask| PointerMotionMask|LeaveWindowMask);
 	if (mapped)
 		c->reparenting = 1;
 	if (doreshape && !fixsize)
 		XResizeWindow(dpy, c->window, c->dx, c->dy);
 	XSetWindowBorderWidth(dpy, c->window, 0);
-	if (1 || c->screen->depth <= 8) {
+
+	/*
+	  * To have something more than only a big white or black border
+	  * XXX should replace this by a pattern in the white or black
+	  * such that we can see the border also if all our
+	  * windows are black and/or white
+	  * (black (or white)  border around black (or white) window
+	  *  is not very helpful.
+	  */
+	if (c->screen->depth <= 8) {
 		XSetWindowBorderWidth(dpy, c->parent, 1);
 	}
+
 	XReparentWindow(dpy, c->window, c->parent, BORDER, BORDER);
 #ifdef	SHAPE
 	if (shape) {
@@ -159,6 +178,16 @@ manage(Client *c, int mapped)
 	if (current && (current != c))
 		cmapfocus(current);
 	c->init = 1;
+
+	/*
+	 * If we swept the window, let's send a resize event to the
+	 * guy who just got resized.  It's not clear whether the apps
+	 * should notice their new size via other means.  Try as I might,
+	 * I can't find a way to have them notice during initdraw, so
+	 * I solve the problem this way instead.		-rsc
+	 */
+	if(c->is9term)
+		sendconfig(c);
 	return 1;
 }
 
@@ -488,6 +517,8 @@ getproto(Client *c)
 			c->proto |= Pdelete;
 		else if (p[i] == wm_take_focus)
 			c->proto |= Ptakefocus;
+		else if (p[i] == wm_lose_focus)
+			c->proto |= Plosefocus;
 
 	XFree((char *) p);
 }

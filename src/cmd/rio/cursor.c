@@ -197,16 +197,20 @@ ScreenInfo *s;
 
 	s->root_pixmap = XCreatePixmapFromBitmapData(dpy,
 		s->root, grey_bits, grey_width, grey_height,
-		s->black, s->white, DefaultDepth(dpy, s->num));
+		s->black, s->white, s->depth);
 	
 	s->bordcurs[BorderN] = XCreateFontCursor(dpy, 138);
-	s->bordcurs[BorderS] = XCreateFontCursor(dpy, 16);
-	s->bordcurs[BorderW] = XCreateFontCursor(dpy, 70);
+	s->bordcurs[BorderNNE] = XCreateFontCursor(dpy, 136);
+	s->bordcurs[BorderENE] = s->bordcurs[BorderNNE] ;
 	s->bordcurs[BorderE] = XCreateFontCursor(dpy, 96);
-	s->bordcurs[BorderNW] = XCreateFontCursor(dpy, 134);
-	s->bordcurs[BorderSW] = XCreateFontCursor(dpy, 12);
-	s->bordcurs[BorderNE] = XCreateFontCursor(dpy, 136);
-	s->bordcurs[BorderSE] = XCreateFontCursor(dpy, 14);
+	s->bordcurs[BorderESE] = XCreateFontCursor(dpy, 14);
+	s->bordcurs[BorderSSE] = s->bordcurs[BorderESE];
+	s->bordcurs[BorderS] = XCreateFontCursor(dpy, 16);
+	s->bordcurs[BorderSSW] = XCreateFontCursor(dpy, 12);
+	s->bordcurs[BorderWSW] = s->bordcurs[BorderSSW];
+	s->bordcurs[BorderW] = XCreateFontCursor(dpy, 70);
+	s->bordcurs[BorderWNW] = XCreateFontCursor(dpy, 134);
+	s->bordcurs[BorderNNW] = s->bordcurs[BorderWNW];
 }
 
 

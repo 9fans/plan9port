@@ -460,7 +460,8 @@ leave(XCrossingEvent *e)
 	Client *c;
 
 	c = getclient(e->window, 0);
-	XUndefineCursor(dpy, c->parent);
+	if (c)
+		XUndefineCursor(dpy, c->parent);
 /* 	XDefineCursor(dpy, c->parent, c->screen->arrow); */
 }
 
@@ -481,17 +482,17 @@ focusin(XFocusChangeEvent *e)
 	}
 }
 
-BorderLocation
-borderlocation(Client *c, int x, int y)
+BorderOrient
+borderorient(Client *c, int x, int y)
 {
 	if (x <= BORDER) {
 		if (y <= CORNER) {
 			if (debug) fprintf(stderr, "topleft\n");
-			return BorderNW;
+			return BorderWNW;
 		}
 		if (y >= (c->dy + 2*BORDER) - CORNER) {
 			if (debug) fprintf(stderr, "botleft\n");
-			return BorderSW;
+			return BorderWSW;
 		}
 		if (y > CORNER &&
 	        y < (c->dy + 2*BORDER) - CORNER) {
@@ -501,20 +502,20 @@ borderlocation(Client *c, int x, int y)
 	} else if (x <= CORNER) {
 		if (y <= BORDER) {
 			if (debug) fprintf(stderr, "topleft\n");
-			return BorderNW;
+			return BorderNNW;
 		}
 		if  (y >= (c->dy + BORDER)) {
 			if (debug) fprintf(stderr, "botleft\n");
-			return BorderSW;
+			return BorderSSW;
 		}
 	} else if (x >= (c->dx + BORDER)) {
 		if (y <= CORNER) {
 			if (debug) fprintf(stderr, "topright\n");
-			return BorderNE;
+			return BorderENE;
 		}
 		if (y >= (c->dy + 2*BORDER) - CORNER) {
 			if (debug) fprintf(stderr, "botright\n");
-			return BorderSE;
+			return BorderESE;
 		}
 		if (y > CORNER &&
 			y < (c->dy + 2*BORDER) - CORNER) {
@@ -524,11 +525,11 @@ borderlocation(Client *c, int x, int y)
 	} else if (x >= (c->dx + 2*BORDER) - CORNER) {
 		if (y <= BORDER) {
 			if (debug) fprintf(stderr, "topright\n");
-			return BorderNE;
+			return BorderNNE;
 		}
 		if  (y >= (c->dy + BORDER)) {
 			if (debug) fprintf(stderr, "botright\n");
-			return BorderSE;
+			return BorderSSE;
 		}
 	} else if (x > CORNER &&
 		       x < (c->dx + 2*BORDER) - CORNER) {
@@ -548,11 +549,11 @@ void
 motionnotify(XMotionEvent *e)
 {
 	Client *c;
-	BorderLocation bl;
+	BorderOrient bl;
 
 	c = getclient(e->window, 0);
 	if (c) {
-		bl = borderlocation(c, e->x, e->y);
+		bl = borderorient(c, e->x, e->y);
 		if (bl == BorderUnknown)
 			XUndefineCursor(dpy, c->parent);
 		else

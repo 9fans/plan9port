@@ -25,10 +25,12 @@ setactive(Client *c, int on)
 		if (c->proto & Ptakefocus)
 			sendcmessage(c->window, wm_protocols, wm_take_focus, 0);
 		cmapfocus(c);
-	}
-	else
+	} else {
+		if (c->proto & Plosefocus)
+			sendcmessage(c->window, wm_protocols, wm_lose_focus, 0);
 		XGrabButton(dpy, AnyButton, AnyModifier, c->parent, False,
 			ButtonMask, GrabModeAsync, GrabModeSync, None, None);
+	}
 	draw_border(c, on);
 }
 
@@ -49,7 +51,7 @@ draw_border(Client *c, int active)
 			pixel = c->screen->inactiveborder;
 	}
 
-	if (debug) fprintf(stderr, "draw_border 0x%p pixel %ld active %d hold %d\n", c, pixel, active, c->hold);
+	if (debug) fprintf(stderr, "draw_border %p pixel %ld active %d hold %d\n", c, pixel, active, c->hold);
 	XSetWindowBackground(dpy, c->parent, pixel);
 	XClearWindow(dpy, c->parent);
 }
@@ -104,10 +106,11 @@ nofocus(void)
 	}
 	current = 0;
 	if (w == 0) {
-		mask = CWOverrideRedirect;
+		mask = CWOverrideRedirect/*|CWColormap*/;
 		attr.override_redirect = 1;
+		/* attr.colormap = screens[0].def_cmap;*/
 		w = XCreateWindow(dpy, screens[0].root, 0, 0, 1, 1, 0,
-			CopyFromParent, InputOnly, CopyFromParent, mask, &attr);
+			0 /*screens[0].depth*/, InputOnly, 	screens[0].vis, mask, &attr);
 		XMapWindow(dpy, w);
 	}
 	XSetInputFocus(dpy, w, RevertToPointerRoot, timestamp());

@@ -222,8 +222,8 @@ selectwin(int release, int *shift, ScreenInfo *s)
 	}
 }
 
-void
-sweepcalc(Client *c, int x, int y, BorderLocation bl)
+int
+sweepcalc(Client *c, int x, int y, BorderOrient bl, int ignored)
 {
 	int dx, dy, sx, sy;
 
@@ -264,56 +264,166 @@ sweepcalc(Client *c, int x, int y, BorderLocation bl)
 	}
 	c->dx = sx*(dx + 2*BORDER);
 	c->dy = sy*(dy + 2*BORDER);
+
+	return ignored;
 }
 
-void
-dragcalc(Client *c, int x, int y, BorderLocation bl)
+int
+dragcalc(Client *c, int x, int y, BorderOrient bl, int ignored)
 {
 	c->x += x;
 	c->y += y;
+
+	return ignored;
 }
 
-void
-pullcalc(Client *c, int x, int y, BorderLocation bl)
+int
+pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 {
+	int dx, dy, sx, sy, px, py, spx, spy, rdx, rdy, xoff, yoff, xcorn, ycorn;
+
+	px = c->x;
+	py = c->y;
+	dx = c->dx;
+	dy = c->dy;
+	sx = sy = 1;
+	spx = spy = 0;
+ 	xoff = yoff = 0;
+	xcorn = ycorn = 0;
+
 	switch(bl) {
 	case BorderN:
-		c->y += y;
-		c->dy -= y;
+		py = y;
+		dy = (c->y + c->dy)  - y;
+		spy = 1;
+		yoff = y - c->y;
 		break;
 	case BorderS:
-		c->dy += y;
+		dy = y - c->y;
+		yoff =  (c->y + c->dy) - y;
 		break;
 	case BorderE:
-		c->dx += x;
+		dx = x - c->x;
+		xoff = (c->x + c->dx) - x;
 		break;
 	case BorderW:
-		c->x += x;
-		c->dx -= x;
+		px = x;
+		dx = (c->x + c->dx) - x;
+		spx = 1;
+		xoff = x - c->x;
 		break;
-	case BorderNW:
-		c->x += x;
-		c->dx -= x;
-		c->y += y;
-		c->dy -= y;
+	case BorderNNW:
+	case BorderWNW:
+		px = x;
+		dx = (c->x + c->dx) - x;
+		spx = 1;
+		py = y;
+		dy = (c->y + c->dy)  - y;
+		spy = 1;
+		xoff = x - c->x;
+		yoff = y - c->y;
 		break;
-	case BorderNE:
-		c->dx += x;
-		c->y += y;
-		c->dy -= y;
+	case BorderNNE:
+	case BorderENE:
+		dx = x - c->x;
+		py = y;
+		dy = (c->y + c->dy)  - y;
+		spy = 1;
+		xoff = (c->x + c->dx) - x;
+		yoff = y - c->y;
 		break;
-	case BorderSE:
-		c->dx += x;
-		c->dy += y;
+	case BorderSSE:
+	case BorderESE:
+		dx = x - c->x;
+		dy = y - c->y;
+		xoff = (c->x + c->dx) - x;
+		yoff =  (c->y + c->dy) - y;
 		break;
-	case BorderSW:
-		c->x += x;
-		c->dx -= x;
-		c->dy += y;
+	case BorderSSW:
+	case BorderWSW:
+		px = x;
+		dx = (c->x + c->dx)  - x;
+		spx = 1;
+		dy = y - c->y;
+		xoff = x - c->x;
+		yoff =  (c->y + c->dy) - y;
 		break;
 	default:
 		break;
 	}
+	switch(bl) {
+	case BorderNNW:
+	case BorderNNE:
+	case BorderSSW:
+	case BorderSSE:
+		xcorn = 1;
+		break;
+	case BorderWNW:
+	case BorderENE:
+	case BorderWSW:
+	case BorderESE:
+		ycorn = 1;
+		break;
+	}
+	if (!init
+	    || xoff < 0 || (xcorn && xoff > CORNER) || (!xcorn && xoff > BORDER)
+	    || yoff < 0 || (ycorn && yoff > CORNER) || (!ycorn && yoff > BORDER)) {
+		xoff = 0;
+		yoff = 0;
+		init = 0;
+	}
+
+	if (debug) fprintf(stderr, "c %dx%d+%d+%d m +%d+%d r  %dx%d+%d+%d sp (%d,%d) bl %d\n",
+				c->dx, c->dy, c->x, c->y, x, y, dx, dy, px, py, spx, spy, bl);
+	if (dx < 0) {
+		dx = -dx;
+		sx = -1;
+	}
+	if (dy < 0) {
+		dy = -dy;
+		sy = -1;
+	}
+
+	/* remember requested size;
+           * after applying size hints we may have to correct position
+	  */
+	rdx = sx*dx;
+	rdy = sy*dy;
+
+	/* apply size hints */
+	dx -= (2*BORDER - xoff);
+	dy -= (2*BORDER - yoff);
+
+	if (!c->is9term) {
+		if (dx < c->min_dx)
+			dx = c->min_dx;
+		if (dy < c->min_dy)
+			dy = c->min_dy;
+	}
+
+	if (c->size.flags & PResizeInc) {
+		dx = c->min_dx + (dx-c->min_dx)/c->size.width_inc*c->size.width_inc;
+		dy = c->min_dy + (dy-c->min_dy)/c->size.height_inc*c->size.height_inc;
+	}
+
+	if (c->size.flags & PMaxSize) {
+		if (dx > c->size.max_width)
+			dx = c->size.max_width;
+		if (dy > c->size.max_height)
+			dy = c->size.max_height;
+	}
+
+	/* set size and position */
+	c->dx = sx*(dx + 2*BORDER );
+	c->dy = sy*(dy + 2*BORDER );
+	c->x = px;
+	c->y = py;
+	
+	/* compensate position for size changed due to size hints */
+	c->x -= spx*(c->dx - rdx);
+	c->y -= spy*(c->dy - rdy);
+
+	return init;
 }
 
 static void
@@ -330,6 +440,8 @@ drawbound(Client *c, int drawing)
 {
 	int x, y, dx, dy;
 	ScreenInfo *s;
+
+	if (debug) fprintf(stderr, "drawbound %dx%d +%d+%d\n", c->dx, c->dy, c->x, c->y);
 	
 	s = c->screen;
 	x = c->x;
@@ -393,14 +505,16 @@ misleep(int msec)
 }
 
 int
-sweepdrag(Client *c, int but, XButtonEvent *e0, BorderLocation bl, void (*recalc)(Client*, int, int, BorderLocation))
+sweepdrag(Client *c, int but, XButtonEvent *e0, BorderOrient bl, int (*recalc)(Client*, int, int, BorderOrient, int))
 {
 	XEvent ev;
 	int idle;
 	int cx, cy, rx, ry;
 	int ox, oy, odx, ody;
 	XButtonEvent *e;
+	int notmoved;
 
+	notmoved = 1;
 	ox = c->x;
 	oy = c->y;
 	odx = c->dx;
@@ -409,13 +523,14 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderLocation bl, void (*recalc
 	c->y -= BORDER;
 	c->dx += 2*BORDER;
 	c->dy += 2*BORDER;
-	if (bl)
+	if (bl || e0 == 0)
 		getmouse(&cx, &cy, c->screen);
-	else if (e0)
-		getmouse(&c->x, &c->y, c->screen);
 	else
-		getmouse(&cx, &cy, c->screen);
+		getmouse(&c->x, &c->y, c->screen);
 	XGrabServer(dpy);
+	if (bl) {
+		notmoved = recalc(c, cx, cy, bl, notmoved);
+	}
 	drawbound(c, 1);
 	idle = 0;
 	for (;;) {
@@ -430,10 +545,10 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderLocation bl, void (*recalc
 					XGrabServer(dpy);
 					idle = 0;
 				}
-				if(e0)
-					recalc(c, rx, ry, bl);
+				if(e0 || bl)
+					notmoved = recalc(c, rx, ry, bl, notmoved);
 				else
-					recalc(c, rx-cx, ry-cy, bl);
+					notmoved = recalc(c, rx-cx, ry-cy, bl, notmoved);
 				cx = rx;
 				cy = ry;
 				drawbound(c, 1);
@@ -508,9 +623,11 @@ pull(Client *c, int but, XButtonEvent *e)
 {
 	int status;
 	ScreenInfo *s;
-	BorderLocation bl;
+	BorderOrient bl;
 
-	bl = borderlocation(c, e->x, e->y);
+	bl = borderorient(c, e->x, e->y);
+	/* assert(bl > BorderUnknown && bl < NBorder); */
+
 	s = c->screen;
 	status = grab(s->root, s->root, ButtonMask, s->bordcurs[bl], 0);
 	if (status != GrabSuccess) {
@@ -544,6 +661,7 @@ getmouse(int *x, int *y, ScreenInfo *s)
 	unsigned int t3;
 
 	XQueryPointer(dpy, s->root, &dw1, &dw2, x, y, &t1, &t2, &t3);
+	if (debug) fprintf(stderr, "getmouse: %d %d\n", *x, *y);
 }
 
 void

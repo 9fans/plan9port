@@ -46,6 +46,7 @@ Atom		wm_change_state;
 Atom		wm_protocols;
 Atom		wm_delete;
 Atom		wm_take_focus;
+Atom		wm_lose_focus;
 Atom		wm_colormaps;
 Atom		_9wm_running;
 Atom		_9wm_hold_mode;
@@ -152,11 +153,14 @@ main(int argc, char *argv[])
 		exit(0);
 	}
 
+	if (0) XSynchronize(dpy, True);
+
 	wm_state = XInternAtom(dpy, "WM_STATE", False);
 	wm_change_state = XInternAtom(dpy, "WM_CHANGE_STATE", False);
 	wm_protocols = XInternAtom(dpy, "WM_PROTOCOLS", False);
 	wm_delete = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
 	wm_take_focus = XInternAtom(dpy, "WM_TAKE_FOCUS", False);
+	wm_lose_focus = XInternAtom(dpy, "_9WM_LOSE_FOCUS", False);
 	wm_colormaps = XInternAtom(dpy, "WM_COLORMAP_WINDOWS", False);
 	_9wm_running = XInternAtom(dpy, "_9WM_RUNNING", False);
 	_9wm_hold_mode = XInternAtom(dpy, "_9WM_HOLD_MODE", False);
@@ -214,14 +218,55 @@ initscreen(ScreenInfo *s, int i, int background)
 {
 	char *ds, *colon, *dot1;
 	unsigned long mask;
+	unsigned long gmask;
 	XGCValues gv;
 	XSetWindowAttributes attr;
+	XVisualInfo xvi;
+	XSetWindowAttributes attrs;
 
 	s->num = i;
 	s->root = RootWindow(dpy, i);
 	s->def_cmap = DefaultColormap(dpy, i);
 	s->min_cmaps = MinCmapsOfScreen(ScreenOfDisplay(dpy, i));
 	s->depth = DefaultDepth(dpy, i);
+
+	/* 
+	 * Figure out underlying screen format.
+	 */
+	if(XMatchVisualInfo(dpy, i, 16, TrueColor, &xvi)
+	|| XMatchVisualInfo(dpy, i, 16, DirectColor, &xvi)){
+		s->vis = xvi.visual;
+		s->depth = 16;
+	}
+	else
+	if(XMatchVisualInfo(dpy, i, 15, TrueColor, &xvi)
+	|| XMatchVisualInfo(dpy, i, 15, DirectColor, &xvi)){
+		s->vis = xvi.visual;
+		s->depth = 15;
+	}
+	else
+	if(XMatchVisualInfo(dpy, i, 24, TrueColor, &xvi)
+	|| XMatchVisualInfo(dpy, i, 24, DirectColor, &xvi)){
+		s->vis = xvi.visual;
+		s->depth = 24;
+	}
+	else
+	if(XMatchVisualInfo(dpy, i, 8, PseudoColor, &xvi)
+	|| XMatchVisualInfo(dpy, i, 8, StaticColor, &xvi)){
+		s->vis = xvi.visual;
+		s->depth = 8;
+	}
+	else{
+		s->depth = DefaultDepth(dpy, i);
+		if(s->depth != 8){
+			fprintf(stderr, "can't understand depth %d screen", s->depth);
+			exit(1);
+		}
+		s->vis = DefaultVisual(dpy, i);
+	}
+	if(DefaultDepth(dpy, i) != s->depth) {
+		s->def_cmap = XCreateColormap(dpy, s->root, s->vis, AllocNone); 
+	}
 
 	ds = DisplayString(dpy);
 	colon = rindex(ds, ':');
@@ -254,36 +299,36 @@ initscreen(ScreenInfo *s, int i, int background)
 	gv.function = GXxor;
 	gv.line_width = 0;
 	gv.subwindow_mode = IncludeInferiors;
-	mask = GCForeground | GCBackground | GCFunction | GCLineWidth
+	gmask = GCForeground | GCBackground | GCFunction | GCLineWidth
 		| GCSubwindowMode;
 	if (font != 0) {
 		gv.font = font->fid;
-		mask |= GCFont;
+		gmask |= GCFont;
 	}
-	s->gc = XCreateGC(dpy, s->root, mask, &gv);
+	s->gc = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.function = GXcopy;
-	s->gccopy = XCreateGC(dpy, s->root, mask, &gv);
+	s->gccopy = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.foreground = s->red;
-	s->gcred = XCreateGC(dpy, s->root, mask, &gv);
+	s->gcred = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.foreground = colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
-	s->gcsweep = XCreateGC(dpy, s->root, mask, &gv);
+	s->gcsweep = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
-	s->gcmenubg = XCreateGC(dpy, s->root, mask, &gv);
+	s->gcmenubg = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.foreground = colorpixel(dpy, s->depth, 0x448844, s->black);
-	s->gcmenubgs = XCreateGC(dpy, s->root, mask, &gv);
+	s->gcmenubgs = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.foreground = s->black;
 	gv.background = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
-	s->gcmenufg = XCreateGC(dpy, s->root, mask, &gv);
+	s->gcmenufg = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
 	gv.background = colorpixel(dpy, s->depth, 0x448844, s->black);
-	s->gcmenufgs = XCreateGC(dpy, s->root, mask, &gv);
+	s->gcmenufgs = XCreateGC(dpy, s->root, gmask, &gv);
 
 	initcurs(s);
 
@@ -300,21 +345,31 @@ initscreen(ScreenInfo *s, int i, int background)
 		XClearWindow(dpy, s->root);
 	} else
 		system("xsetroot -solid grey30");
-	s->menuwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 2, colorpixel(dpy, s->depth, 0x88CC88, s->black), colorpixel(dpy, s->depth, 0xE9FFE9, s->white));
-	// s->sweepwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 4, s->red, colorpixel(dpy, s->depth, 0xEEEEEE, s->black));
-	{
-		XSetWindowAttributes attrs;
-		attrs.background_pixel =  colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
-		attrs.border_pixel =  s->red;
-		attrs.save_under = True;
-	s->sweepwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 4,
+
+	attrs.border_pixel =  colorpixel(dpy, s->depth, 0x88CC88, s->black);
+	attrs.background_pixel =  colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
+	attrs.save_under = True; /* Does this help us in anyway? */
+	attrs.colormap = s->def_cmap;
+
+	s->menuwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 2,
+						s->depth,
 						CopyFromParent,
-						CopyFromParent,
-						CopyFromParent,
-						CWBackPixel | CWBorderPixel | CWSaveUnder,
+						s->vis,
+						CWBackPixel | CWBorderPixel | CWSaveUnder|CWColormap,
 						&attrs
 						);
-	}
+
+	attrs.border_pixel =  s->red;
+	attrs.background_pixel =  colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
+	attrs.save_under = True; /* Does this help us in anyway? */
+	attrs.colormap = s->def_cmap;
+	s->sweepwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 4,
+						s->depth,
+						CopyFromParent,
+						s->vis,
+						CWBackPixel | CWBorderPixel | CWSaveUnder|CWColormap,
+						&attrs
+						);
 }
 
 ScreenInfo*
@@ -360,6 +415,8 @@ sendcmessage(Window w, Atom a, long x, int isroot)
 	mask = 0L;
 	if (isroot)
 		mask = SubstructureRedirectMask;		/* magic! */
+	else
+		mask = ExposureMask;	/* not really correct but so be it */
 	status = XSendEvent(dpy, w, False, mask, &ev);
 	if (status == 0)
 		fprintf(stderr, "9wm: sendcmessage failed\n");

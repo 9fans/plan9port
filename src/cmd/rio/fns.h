@@ -40,7 +40,7 @@ void	leave();
 void	focusin();
 void	reparent();
 void 	motionnotify();
-BorderLocation borderlocation();
+BorderOrient borderorient();
 
 /* manage.c */
 int 	manage();

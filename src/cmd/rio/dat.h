@@ -21,7 +21,7 @@
 typedef struct Client Client;
 typedef struct Menu Menu;
 typedef struct ScreenInfo ScreenInfo;
-typedef enum BorderLocation BorderLocation;
+typedef enum BorderOrient BorderOrient;
 
 struct Client {
 	Window		window;
@@ -67,6 +67,7 @@ struct Client {
 /* c->proto */
 #define Pdelete 	1
 #define Ptakefocus	2
+#define Plosefocus	4
 
 struct Menu {
 	char	**item;
@@ -74,22 +75,27 @@ struct Menu {
 	int	lasthit;
 };
 
-enum BorderLocation {
+enum BorderOrient {
+	BorderUnknown = 0, /* we depend on this!*/
 	BorderN,
-	BorderNE,
+	BorderNNE,
+	BorderENE,
 	BorderE,
-	BorderSE,
+	BorderESE,
+	BorderSSE,
 	BorderS,
-	BorderSW,
+	BorderSSW,
+	BorderWSW,
 	BorderW,
-	BorderNW,
-	BorderUnknown,
+	BorderWNW,
+	BorderNNW,
 	NBorder,
 };
 
 struct ScreenInfo {
 	int			num;
 	int			depth;
+	Visual		*vis;
 	int			width;
 	int			height;
 	Window		root;
@@ -149,6 +155,7 @@ extern Atom 		_9wm_hold_mode;
 extern Atom 		wm_protocols;
 extern Atom 		wm_delete;
 extern Atom 		wm_take_focus;
+extern Atom		wm_lose_focus;
 extern Atom 		wm_colormaps;
 
 /* client.c */

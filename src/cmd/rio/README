@@ -4,15 +4,10 @@ and I'd prefer not to resort to patches, I have renamed it "rio".
 
 Current incompatibilities that would be nice to fix:
 
-- Rio uses X11 fonts for the menu, and there aren't any good ones!
-I'm tempted to hard-code the Plan 9 default font bitmap.
-
 - The command-line options should be made more like Plan 9.
 
 - Should work out a protocol between 9term and rio so that:
 	* 9term can tell rio to blue its border during hold mode
-	* rio can tell 9term to fade its text when it loses focus
-	* rio can tell 9term to unfade its text when it regains focus
 
 - Should change window focus on b2/b3 clicks and then
   pass along the click event to the now-focused window.
@@ -20,11 +15,14 @@ I'm tempted to hard-code the Plan 9 default font bitmap.
 - Should change 9term to redirect b3 clicks to rio so that rio
   can put up the usual b3 menu.
 
+Axel Belinfante contributed the code to handle border grabbing
+for resize.
+
 The original README is below.
 
 - russ cox
 rsc@swtch.com
-20 march 2004
+30 march 2004
 
 
                            9wm Version 1.2
