@@ -12,4 +12,4 @@ HFILES=diff.h
 
 <$PLAN9/src/mkone
 
-LDFLAGS=$LDFLAGS -lbio -l9 -lfmt -lutf
+LDFLAGS=$LDFLAGS -lbio -l9

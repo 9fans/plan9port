@@ -26,23 +26,10 @@ makeports(Ruleset *rules[])
 }
 
 void
-mainproc(void *v)
-{
-	Channel *c;
-
-	c = v;
-	printerrors = 0;
-	makeports(rules);
-	startfsys();
-	sendp(c, nil);
-}
-
-void
 threadmain(int argc, char *argv[])
 {
 	char buf[512];
 	int fd;
-	Channel *c;
 
 	progname = "plumber";
 
@@ -79,11 +66,18 @@ threadmain(int argc, char *argv[])
 	 * Start all processes and threads from other proc
 	 * so we (main pid) can return to user.
 	 */
-	c = chancreate(sizeof(void*), 0);
-	proccreate(mainproc, c, 8192);
-	recvp(c);
-	chanfree(c);
-	threadexits(nil);
+	switch(fork()){
+	case -1:
+		sysfatal("fork: %r");
+	case 0:
+		break;
+	default:
+		_exit(0);
+	}
+
+	printerrors = 0;
+	makeports(rules);
+	startfsys();
 }
 
 void

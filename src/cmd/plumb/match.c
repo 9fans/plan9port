@@ -431,7 +431,7 @@ execproc(void *v)
 	av = v;
 	stackargv(av, args, argc);
 	free(av);
-	procexec(nil, fd, args[0], args);
+	threadexec(nil, fd, args[0], args);
 	threadexits("can't exec");
 }
 
@@ -458,6 +458,6 @@ Found:
 	argv = buildargv(rs->act[i]->arg, e);
 	if(argv[0] == nil)
 		return "empty argument list";
-	proccreate(execproc, argv, EXECSTACK);
+	threadcreate(execproc, argv, EXECSTACK);
 	return nil;
 }

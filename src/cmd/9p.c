@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <fs.h>
+#include <thread.h>
 
 char *addr;
 
@@ -40,7 +41,7 @@ struct {
 };
 
 void
-main(int argc, char **argv)
+threadmain(int argc, char **argv)
 {
 	char *cmd;
 	int i;
@@ -60,7 +61,7 @@ main(int argc, char **argv)
 	for(i=0; i<nelem(cmds); i++){
 		if(strcmp(cmds[i].s, cmd) == 0){
 			cmds[i].f(argc, argv);
-			exits(0);
+			threadexitsall(0);
 		}
 	}
 	usage();	

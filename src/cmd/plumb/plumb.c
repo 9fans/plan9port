@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <plumb.h>
+#include <thread.h>
 
 char *plumbfile = nil;
 Plumbmsg m;
@@ -36,7 +37,7 @@ gather(void)
 }
 
 void
-main(int argc, char *argv[])
+threadmain(int argc, char *argv[])
 {
 	char buf[1024], *p;
 	int fd, i, input;
@@ -115,5 +116,5 @@ main(int argc, char *argv[])
 			exits("error");
 		}
 	}
-	exits(nil);
+	threadexitsall(nil);
 }

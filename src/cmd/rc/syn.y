@@ -7,7 +7,7 @@
 %left BANG SUBSHELL
 %left PIPE
 %left '^'
-%right '$' COUNT '\"'
+%right '$' COUNT '"'
 %left SUB
 %{
 #include "rc.h"

@@ -195,7 +195,7 @@ startfsys(void)
 	if(post9pservice(p[1], "plumb") < 0)
 		sysfatal("post9pservice plumb: %r");
 	close(p[1]);
-	proccreate(fsysproc, nil, Stack);
+	threadcreate(fsysproc, nil, Stack);
 }
 
 static void
@@ -213,14 +213,14 @@ fsysproc(void *v)
 		if(buf == nil)
 			error("malloc failed: %r");
 		qlock(&readlock);
-		n = read9pmsg(srvfd, buf, messagesize);
+		n = threadread9pmsg(srvfd, buf, messagesize);
 		if(n <= 0){
 			if(n < 0)
 				error("i/o error on server channel");
 			threadexitsall("unmounted");
 		}
 		if(readlock.head == nil)	/* no other processes waiting to read; start one */
-			proccreate(fsysproc, nil, Stack);
+			threadcreate(fsysproc, nil, Stack);
 		qunlock(&readlock);
 		if(t == nil)
 			t = emalloc(sizeof(Fcall));

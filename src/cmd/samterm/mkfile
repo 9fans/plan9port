@@ -22,8 +22,8 @@ HFILES=\
 	$PLAN9/include/draw.h\
 
 CFLAGS=$CFLAGS -I../sam
-LDFLAGS=$LDFLAGS -lframe -ldraw -lthread -l9 -lregexp9 \
-	-lbio -lfmt -lutf -L$X11/lib -lX11 -lm
+LDFLAGS=$LDFLAGS -lframe -ldraw -lthread -lregexp9 \
+	-lbio -l9 -L$X11/lib -lX11 -lm
 
 o.samterm: $PLAN9/lib/libframe.a $PLAN9/lib/libdraw.a $PLAN9/lib/libthread.a
 

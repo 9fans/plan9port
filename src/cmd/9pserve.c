@@ -750,7 +750,7 @@ inputthread(void *arg)
 			sendq(m->c->outq, m);
 	}
 	closeioproc(io);
-	fprint(2, "input eof\n");
+	//fprint(2, "input eof\n");
 	threadexitsall(0);
 }
 

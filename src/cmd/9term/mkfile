@@ -9,5 +9,5 @@ OFILES=\
 
 <$PLAN9/src/mkone
 
-LDFLAGS=-lframe -ldraw -lplumb -lfs -lmux -lthread -l9 -lfmt -lutf -L$X11/lib -lX11 -lutil
+LDFLAGS=-lframe -ldraw -lplumb -lfs -lmux -lthread -l9 -L$X11/lib -lX11 -lutil
 

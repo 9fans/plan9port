@@ -31,7 +31,7 @@ HFILES=\
 
 YFILES=syn.y
 
-LDFLAGS=$LDFLAGS -l9 -lfmt -lutf
+LDFLAGS=$LDFLAGS -l9
 
 <$PLAN9/src/mkone
 

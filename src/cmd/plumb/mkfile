@@ -14,4 +14,4 @@ $PLUMB:		$HFILES
 $O.plumb:	$PLUMB
 $O.plumber:	$PLUMBER
 
-LDFLAGS=$LDFLAGS -lplumb -lfs -lmux -lthread -lregexp9 -l9 -lbio -lfmt -lutf
+LDFLAGS=$LDFLAGS -lplumb -lfs -lmux -lthread -lregexp9 -lbio -l9
