@@ -43,16 +43,18 @@ _fspwrite(Fid *fid, void *buf, long n, vlong offset)
 long
 fspwrite(Fid *fid, void *buf, long n, vlong offset)
 {
-	long tot, want, got;
+	long tot, want, got, first;
 	uint msize;
 
 	msize = fid->fs->msize - IOHDRSZ;
 	tot = 0;
-	while(tot < n){
+	first = 1;
+	while(tot < n || first){
 		want = n - tot;
 		if(want > msize)
 			want = msize;
 		got = _fspwrite(fid, buf, want, offset);
+		first = 0;
 		if(got < 0){
 			if(tot == 0)
 				return got;
