@@ -155,6 +155,7 @@ xattach(char *label)
 	XTextProperty name;
 	XVisualInfo xvi;
 	XWindow xrootwin;
+	XWindowAttributes wattr;
 	XWMHints hint;
 
 	/*
@@ -302,6 +303,14 @@ xattach(char *label)
 		CWBackPixel|CWBorderPixel|CWColormap,
 		&attr		/* attributes (the above aren't?!) */
 	);
+
+	if(!XGetWindowAttributes(_x.display, _x.drawable, &wattr))
+		fprint(2, "XGetWindowAttributes failed\n");
+	else if(wattr.width && wattr.height){
+		r.max.x = wattr.width;
+		r.max.y = wattr.height;
+		if(0) fprint(2, "new rect %dx%d\n", r.max.x, r.max.y);
+	}
 
 	/*
 	 * Label and other properties required by ICCCCM.
