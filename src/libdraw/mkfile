@@ -96,6 +96,7 @@ OFILES=\
 	x11-init.$O\
 	x11-itrans.$O\
 	x11-keyboard.$O\
+	x11-keysym2ucs.$O\
 	x11-load.$O\
 	x11-mouse.$O\
 	x11-pixelbits.$O\

@@ -9,21 +9,19 @@
 #include <cursor.h>
 #include <keyboard.h>
 #include "x11-memdraw.h"
+#include "x11-keysym2ucs.h"
 
 #undef time
 
 
-static int
+static KeySym
 __xtoplan9kbd(XEvent *e)
 {
-	int ind, k, md;
+	KeySym k;
 
-	md = e->xkey.state;
-	ind = 0;
-	if(md & ShiftMask)
-		ind = 1;
-
-	k = XKeycodeToKeysym(e->xany.display, (KeyCode)e->xkey.keycode, ind);
+	if(e->xany.type != KeyPress)
+		return -1;
+	XLookupString((XKeyEvent*)e,NULL,0,&k,NULL);
 	if(k == XK_Multi_key || k == NoSymbol)
 		return -1;
 
@@ -101,7 +99,10 @@ __xtoplan9kbd(XEvent *e)
 			k = Kalt;
 			break;
 		default:		/* not ISO-1 or tty control */
-			return -1;
+			if(k>0xff) {
+				k = keysym2ucs(k);
+				if(k==-1) return -1;
+			}
 		}
 	}
 
@@ -116,7 +117,7 @@ __xtoplan9kbd(XEvent *e)
 	}
 
 	/* BUG: could/should do Alt translation here! */
-	return k;
+	return k+0;
 }
 
 static Rune*

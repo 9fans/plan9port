@@ -744,31 +744,28 @@ drawcoord(uchar *p, uchar *maxp, int oldx, int *newx)
 int
 _drawmsgread(Display *d, void *a, int n)
 {
-	int inbuf;
+	Client *cl;
 
 	qlock(&sdraw.lk);
-	inbuf = d->obufp - d->obuf; 
-	if(n > inbuf)
-		n = inbuf;
-	memmove(a, d->obuf, n);
-	inbuf -= n;
-	if(inbuf)
-		memmove(d->obuf, d->obufp-inbuf, inbuf);
-	d->obufp = d->obuf+inbuf;
+	cl = client0;
+	if(cl->readdata == nil){
+		werrstr("no draw data");
+		goto err;
+	}
+	if(n < cl->nreaddata){
+		werrstr("short read");
+		goto err;
+	}
+	n = cl->nreaddata;
+	memmove(a, cl->readdata, cl->nreaddata);
+	free(cl->readdata);
+	cl->readdata = nil;
 	qunlock(&sdraw.lk);
 	return n;
-}
 
-static void
-drawmsgsquirrel(Display *d, void *a, int n)
-{
-	uchar *ep;
-
-	ep = d->obuf + d->obufsize;
-	if(d->obufp + n > ep)
-		abort();
-	memmove(d->obufp, a, n);
-	d->obufp += n;
+err:
+	qunlock(&sdraw.lk);
+	return -1;
 }
 
 int
@@ -1086,7 +1083,12 @@ _drawmsgwrite(Display *d, void *v, int n)
 					i->r.min.x, i->r.min.y, i->r.max.x, i->r.max.y,
 					i->clipr.min.x, i->clipr.min.y, 
 					i->clipr.max.x, i->clipr.max.y);
-			drawmsgsquirrel(d, ibuf, ni);
+			free(client->readdata);
+			client->readdata = malloc(ni);
+			if(client->readdata == nil)
+				goto Enomem;
+			memmove(client->readdata, ibuf, ni);
+			client->nreaddata = ni;
 			client->infoid = -1;
 			continue;	
 
