@@ -115,7 +115,7 @@ s_rdinstack(Sinstack *sp, String *to)
 
 			/* sanity (and looping) */
 			if(sp->depth >= nelem(sp->fp))
-				sysfatal("s_recgetline: includes too deep");
+				sysfatal("s_rdinstack: includes too deep");
 
 			/* skip white */
 			while(*p == ' ' || *p == '\t')
