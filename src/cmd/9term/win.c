@@ -572,7 +572,7 @@ sendtype(int fd0)
 	while(ntypebreak){
 		for(i=0; i<ntypeb; i++)
 			if(typing[i]=='\n' || typing[i]==0x04){
-				n = i + (typing[i] == '\n');
+				n = i+1;
 				i++;
 				if(write(fd0, typing, n) != n)
 					error("sending to program");

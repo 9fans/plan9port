@@ -152,6 +152,9 @@ char *menu2str[] = {
 
 Image* cols[NCOL];
 Image* hcols[NCOL];
+Image* palegrey;
+Image* paleblue;
+Image* blue;
 Image *plumbcolor;
 Image *execcolor;
 
@@ -187,6 +190,7 @@ threadmain(int argc, char *argv[])
 	char *p;
 
 	rfork(RFNOTEG);
+	_wantfocuschanges = 1;
 	mainpid = getpid();
 	ARGBEGIN{
 	default:
@@ -236,16 +240,22 @@ threadmain(int argc, char *argv[])
 	}
 	cols[TEXT] = display->black;
 	cols[HTEXT] = display->black;
+	palegrey = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, 0x666666FF);
 
 	hcols[BACK] = cols[BACK];
 	hcols[HIGH] = cols[HIGH];
-	hcols[BORD] = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, DMedblue);
+	blue = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, DMedblue);
+	paleblue = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, DGreyblue);
+
+	hcols[BORD] = blue;
 	hcols[TEXT] = hcols[BORD];
 	hcols[HTEXT] = hcols[TEXT];
 
 	plumbcolor = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x006600FF);
 	execcolor = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0xAA0000FF);
 
+	if(!blue || !palegrey || !paleblue || !plumbcolor || !execcolor)
+		sysfatal("alloc colors: %r");
 	draw(screen, screen->r, cols[BACK], nil, ZP);
 	geom();
 	loop();
@@ -364,6 +374,16 @@ geom(void)
 {
 	Point p;
 	Rectangle r;
+
+	if(!acmecolors){
+		if(_windowhasfocus){
+			cols[TEXT] = cols[HTEXT] = display->black;
+			hcols[TEXT] = hcols[HTEXT] = blue;
+		}else{
+			cols[TEXT] = cols[HTEXT] = palegrey;
+			hcols[TEXT] = hcols[HTEXT] = paleblue;
+		}
+	}
 
 	r = screen->r;
 	r.min.y++;
@@ -1535,7 +1555,7 @@ scrdraw(void)
 {
 	Rectangle r, r1, r2;
 	static Image *scrx;
-	
+
 	r = scrollr;
 	r.min.x += 1;	/* border between margin and bar */
 	r1 = r;

@@ -1,3 +1,11 @@
+March 29, 2004
+
+	Add window resizing by dragging borders to rio.
+	Code from Axel Belinfante.
+
+	Added code to make 9term fade itself when it loses
+	focus running under rio.
+
 March 26, 2004
 
 	Fix 9term chording paste bug reported by Sam.

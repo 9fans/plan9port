@@ -188,6 +188,7 @@ xattach(char *label)
 	XWindow xrootwin;
 	XWindowAttributes wattr;
 	XWMHints hint;
+	Atom atoms[2];
 
 	/*
 	if(XInitThreads() == 0){
@@ -335,14 +336,6 @@ xattach(char *label)
 		&attr		/* attributes (the above aren't?!) */
 	);
 
-	if(!XGetWindowAttributes(_x.display, _x.drawable, &wattr))
-		fprint(2, "XGetWindowAttributes failed\n");
-	else if(wattr.width && wattr.height){
-		r.max.x = wattr.width;
-		r.max.y = wattr.height;
-		if(0) fprint(2, "new rect %dx%d\n", r.max.x, r.max.y);
-	}
-
 	/*
 	 * Label and other properties required by ICCCCM.
 	 */
@@ -385,6 +378,40 @@ xattach(char *label)
 	XFlush(_x.display);
 
 	/*
+	 * Look up clipboard atom.
+	 */
+	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", False);
+	_x.utf8string = XInternAtom(_x.display, "UTF8_STRING", False);
+	_x.targets = XInternAtom(_x.display, "TARGETS", False);
+	_x.text = XInternAtom(_x.display, "TEXT", False);
+	_x.compoundtext = XInternAtom(_x.display, "COMPOUND_TEXT", False);
+	_x.takefocus = XInternAtom(_x.display, "WM_TAKE_FOCUS", False);
+	_x.losefocus = XInternAtom(_x.display, "_9WM_LOSE_FOCUS", False);
+	_x.wmprotos = XInternAtom(_x.display, "WM_PROTOCOLS", False);
+
+	atoms[0] = _x.takefocus;
+	atoms[1] = _x.losefocus;
+	XChangeProperty(_x.display, _x.drawable, _x.wmprotos, XA_ATOM, 32,
+		PropModeReplace, (uchar*)atoms, 2);
+
+	/*
+	 * Put the window on the screen, check to see what size we actually got.
+	 */
+	XMapWindow(_x.display, _x.drawable);
+	XSync(_x.display, False);
+
+	if(!XGetWindowAttributes(_x.display, _x.drawable, &wattr))
+		fprint(2, "XGetWindowAttributes failed\n");
+	else if(wattr.width && wattr.height){
+		if(wattr.width != Dx(r) || wattr.height != Dy(r)){
+			r.max.x = wattr.width;
+			r.max.y = wattr.height;
+		}
+			fprint(2, "new rect %dx%d\n", r.max.x, r.max.y);
+	}else
+		fprint(2, "bad attrs\n");
+
+	/*
 	 * Allocate our local backing store.
 	 */
 	_x.screenr = r;
@@ -408,21 +435,6 @@ xattach(char *label)
 	_x.gczero0	= xgc(pmid, -1, -1);
 	_x.gcreplsrc0	= xgc(pmid, FillTiled, -1);
 	XFreePixmap(_x.display, pmid);
-
-	/*
-	 * Put the window on the screen.
-	 */
-	XMapWindow(_x.display, _x.drawable);
-	XFlush(_x.display);
-
-	/*
-	 * Look up clipboard atom.
-	 */
-	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", False);
-	_x.utf8string = XInternAtom(_x.display, "UTF8_STRING", False);
-	_x.targets = XInternAtom(_x.display, "TARGETS", False);
-	_x.text = XInternAtom(_x.display, "TEXT", False);
-	_x.compoundtext = XInternAtom(_x.display, "COMPOUND_TEXT", False);
 
 	/*
 	 * Lots of display connections for various procs.

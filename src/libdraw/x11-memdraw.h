@@ -69,6 +69,9 @@ struct Xprivate {
 	Atom		targets;
 	Atom		text;
 	Atom		compoundtext;
+	Atom		takefocus;
+	Atom		losefocus;
+	Atom		wmprotos;
 	uint		putsnarf;
 	uint		assertsnarf;
 	int		destroyed;

@@ -8,6 +8,9 @@
 #include <memdraw.h>
 #include "x11-memdraw.h"
 
+int _windowhasfocus = 1;
+int _wantfocuschanges;
+
 void
 moveto(Mousectl *m, Point pt)
 {
@@ -48,6 +51,7 @@ void
 _ioproc(void *arg)
 {
 	int fd, one;
+	Atom a;
 	ulong mask;
 	Mouse m;
 	Mousectl *mc;
@@ -99,6 +103,20 @@ _ioproc(void *arg)
 			 */
 			mc->m = m;
 			break;
+		case ClientMessage:
+			if(xevent.xclient.message_type == _x.wmprotos){
+				a = xevent.xclient.data.l[0];
+				if(_wantfocuschanges && a == _x.takefocus){
+					_windowhasfocus = 1;
+					_x.newscreenr = _x.screenr;
+					nbsend(mc->resizec, &one);
+				}else if(_wantfocuschanges && a == _x.losefocus){
+					_windowhasfocus = 0;
+					_x.newscreenr = _x.screenr;
+					nbsend(mc->resizec, &one);
+				}
+			}
+			break;
 		}
 	}
 }
@@ -124,3 +142,25 @@ setcursor(Mousectl *mc, Cursor *c)
 	_xsetcursor(c);
 }
 
+void
+bouncemouse(Mouse *m)
+{
+	XButtonEvent e;
+
+	e.type = ButtonPress;
+	e.window = DefaultRootWindow(_x.display);
+	e.state = 0;
+	e.button = 0;
+	if(m->buttons&1)
+		e.button = 1;
+	else if(m->buttons&2)
+		e.button = 2;
+	else if(m->buttons&4)
+		e.button = 3;
+	e.x = m->xy.x;
+	e.y = m->xy.y;
+#undef time
+	e.time = CurrentTime;
+	XSendEvent(_x.display, e.window, True, ButtonPressMask, (XEvent*)&e);
+	XFlush(_x.display);
+}

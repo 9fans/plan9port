@@ -48,6 +48,9 @@ extern void		drawgetrect(Rectangle, int);
 extern Rectangle	getrect(int, Mousectl*);
 extern int	 		menuhit(int, Mousectl*, Menu*, Screen*);
 
+extern void		bouncemouse(Mouse*);
+extern int			_windowhasfocus;	/* XXX do better */
+extern int			_wantfocuschanges;
 
 #if defined(__cplusplus)
 }
