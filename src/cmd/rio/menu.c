@@ -48,12 +48,31 @@ button(XButtonEvent *e)
 		return;
 	c = getclient(e->window, 0);
 	if (c) {
+		if (debug) fprintf(stderr, "but: e x=%d y=%d c x=%d y=%d dx=%d dy=%d BORDR %d\n",
+				e->x, e->y, c->x, c->y, c->dx, c->dy, BORDER);
+	    if (e->x <= BORDER || e->x > (c->dx + BORDER) ||
+	        e->y <= BORDER || e->y > (c->dy + BORDER)) {
+			switch (e->button) {
+			case Button1:
+			case Button2:
+				reshape(c, e->button, pull, e);
+				return;
+			case Button3:
+				move(c, Button3);
+				return;
+			default:
+				return;
+			}
+	    }
 		e->x += c->x - BORDER;
 		e->y += c->y - BORDER;
 	}
-	else if (e->window != e->root)
+	else if (e->window != e->root) {
+		if (debug) fprintf(stderr, "but no client: e x=%d y=%d\n",
+				e->x, e->y);
 		XTranslateCoordinates(dpy, e->window, s->root, e->x, e->y,
 				&e->x, &e->y, &dw);
+	}		
 	switch (e->button) {
 	case Button1:
 		if (c) {
@@ -79,10 +98,10 @@ button(XButtonEvent *e)
 		spawn(s);
 		break;
 	case 1: 	/* Reshape */
-		reshape(selectwin(1, 0, s));
+		reshape(selectwin(1, 0, s), Button3, sweep, 0);
 		break;
 	case 2: 	/* Move */
-		move(selectwin(0, 0, s));
+		move(selectwin(0, 0, s), Button3);
 		break;
 	case 3: 	/* Delete */
 		shift = 0;
@@ -137,7 +156,7 @@ spawn(ScreenInfo *s)
 }
 
 void
-reshape(Client *c)
+reshape(Client *c, int but, int (*fn)(Client*, int, XButtonEvent *), XButtonEvent *e)
 {
 	int odx, ody;
 
@@ -145,7 +164,7 @@ reshape(Client *c)
 		return;
 	odx = c->dx;
 	ody = c->dy;
-	if (sweep(c) == 0)
+	if (fn(c, but, e) == 0)
 		return;
 	active(c);
 	top(c);
@@ -159,11 +178,11 @@ reshape(Client *c)
 }
 
 void
-move(Client *c)
+move(Client *c, int but)
 {
 	if (c == 0)
 		return;
-	if (drag(c) == 0)
+	if (drag(c, but) == 0)
 		return;
 	active(c);
 	top(c);

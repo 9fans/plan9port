@@ -1,6 +1,7 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 
 #define BORDER		_border
+#define CORNER		_corner
 #define	INSET		_inset
 #define MAXHIDDEN	32
 #define B3FIXED 	5
@@ -20,6 +21,7 @@
 typedef struct Client Client;
 typedef struct Menu Menu;
 typedef struct ScreenInfo ScreenInfo;
+typedef enum BorderLocation BorderLocation;
 
 struct Client {
 	Window		window;
@@ -72,6 +74,19 @@ struct Menu {
 	int	lasthit;
 };
 
+enum BorderLocation {
+	BorderN,
+	BorderNE,
+	BorderE,
+	BorderSE,
+	BorderS,
+	BorderSW,
+	BorderW,
+	BorderNW,
+	BorderUnknown,
+	NBorder,
+};
+
 struct ScreenInfo {
 	int			num;
 	int			depth;
@@ -102,6 +117,7 @@ struct ScreenInfo {
 	Cursor		sweep0;
 	Cursor		boxcurs;
 	Cursor		arrow;
+	Cursor		bordcurs[NBorder];
 	Pixmap		root_pixmap;
 	char			display[256];	/* arbitrary limit */
 };
@@ -119,6 +135,7 @@ extern char 		*termprog;
 extern char 		*shell;
 extern char 		*version[];
 extern int			_border;
+extern int			_corner;
 extern int			_inset;
 extern int			curtime;
 extern int			debug;

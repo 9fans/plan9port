@@ -107,7 +107,7 @@ manage(Client *c, int mapped)
 			nwin %= 10;
 		}
 
-		if (c->is9term && !(fixsize ? drag(c) : sweep(c))) {
+		if (c->is9term && !(fixsize ? drag(c, Button3) : sweep(c, Button3))) {
 			XKillClient(dpy, c->window);
 			rmclient(c);
 			if (current && current->screen == c->screen)
@@ -121,13 +121,17 @@ manage(Client *c, int mapped)
 	c->parent = XCreateSimpleWindow(dpy, c->screen->root,
 			c->x - BORDER, c->y - BORDER,
 			c->dx + 2*BORDER, c->dy + 2*BORDER,
-			0, c->screen->black, c->screen->white);
-	XSelectInput(dpy, c->parent, SubstructureRedirectMask | SubstructureNotifyMask);
+			0,
+			c->screen->black, c->screen->white);
+	XSelectInput(dpy, c->parent, SubstructureRedirectMask | SubstructureNotifyMask|ButtonPressMask| PointerMotionMask|LeaveWindowMask);
 	if (mapped)
 		c->reparenting = 1;
 	if (doreshape && !fixsize)
 		XResizeWindow(dpy, c->window, c->dx, c->dy);
 	XSetWindowBorderWidth(dpy, c->window, 0);
+	if (1 || c->screen->depth <= 8) {
+		XSetWindowBorderWidth(dpy, c->parent, 1);
+	}
 	XReparentWindow(dpy, c->window, c->parent, BORDER, BORDER);
 #ifdef	SHAPE
 	if (shape) {
@@ -328,7 +332,7 @@ getcmaps(Client *c)
 		c->cmap = attr.colormap;
 	}
 
-	n = _getprop(c->window, wm_colormaps, XA_WINDOW, 100L, (unsigned char **)&cw);
+	n = _getprop(c->window, wm_colormaps, XA_WINDOW, 100L, (void*)&cw);
 	if (c->ncmapwins != 0) {
 		XFree((char *)c->cmapwins);
 		free((char *)c->wmcmaps);
@@ -421,7 +425,7 @@ get1prop(Window w, Atom a, Atom type)
 {
 	char **p, *x;
 
-	if (_getprop(w, a, type, 1L, (unsigned char**)&p) <= 0)
+	if (_getprop(w, a, type, 1L, (void*)&p) <= 0)
 		return 0;
 	x = *p;
 	XFree((void*) p);
@@ -458,7 +462,7 @@ getstate(Window w, int *state)
 {
 	long *p = 0;
 
-	if (_getprop(w, wm_state, wm_state, 2L, (unsigned char**)&p) <= 0)
+	if (_getprop(w, wm_state, wm_state, 2L, (void*)&p) <= 0)
 		return 0;
 
 	*state = (int) *p;
@@ -476,7 +480,7 @@ getproto(Client *c)
 
 	w = c->window;
 	c->proto = 0;
-	if ((n = _getprop(w, wm_protocols, XA_ATOM, 20L, (unsigned char**)&p)) <= 0)
+	if ((n = _getprop(w, wm_protocols, XA_ATOM, 20L, (void*)&p)) <= 0)
 		return;
 
 	for (i = 0; i < n; i++)

@@ -198,6 +198,15 @@ ScreenInfo *s;
 	s->root_pixmap = XCreatePixmapFromBitmapData(dpy,
 		s->root, grey_bits, grey_width, grey_height,
 		s->black, s->white, DefaultDepth(dpy, s->num));
+	
+	s->bordcurs[BorderN] = XCreateFontCursor(dpy, 138);
+	s->bordcurs[BorderS] = XCreateFontCursor(dpy, 16);
+	s->bordcurs[BorderW] = XCreateFontCursor(dpy, 70);
+	s->bordcurs[BorderE] = XCreateFontCursor(dpy, 96);
+	s->bordcurs[BorderNW] = XCreateFontCursor(dpy, 134);
+	s->bordcurs[BorderSW] = XCreateFontCursor(dpy, 12);
+	s->bordcurs[BorderNE] = XCreateFontCursor(dpy, 136);
+	s->bordcurs[BorderSE] = XCreateFontCursor(dpy, 14);
 }
 
 

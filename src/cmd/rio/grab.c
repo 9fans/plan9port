@@ -223,7 +223,7 @@ selectwin(int release, int *shift, ScreenInfo *s)
 }
 
 void
-sweepcalc(Client *c, int x, int y)
+sweepcalc(Client *c, int x, int y, BorderLocation bl)
 {
 	int dx, dy, sx, sy;
 
@@ -267,10 +267,53 @@ sweepcalc(Client *c, int x, int y)
 }
 
 void
-dragcalc(Client *c, int x, int y)
+dragcalc(Client *c, int x, int y, BorderLocation bl)
 {
 	c->x += x;
 	c->y += y;
+}
+
+void
+pullcalc(Client *c, int x, int y, BorderLocation bl)
+{
+	switch(bl) {
+	case BorderN:
+		c->y += y;
+		c->dy -= y;
+		break;
+	case BorderS:
+		c->dy += y;
+		break;
+	case BorderE:
+		c->dx += x;
+		break;
+	case BorderW:
+		c->x += x;
+		c->dx -= x;
+		break;
+	case BorderNW:
+		c->x += x;
+		c->dx -= x;
+		c->y += y;
+		c->dy -= y;
+		break;
+	case BorderNE:
+		c->dx += x;
+		c->y += y;
+		c->dy -= y;
+		break;
+	case BorderSE:
+		c->dx += x;
+		c->dy += y;
+		break;
+	case BorderSW:
+		c->x += x;
+		c->dx -= x;
+		c->dy += y;
+		break;
+	default:
+		break;
+	}
 }
 
 static void
@@ -350,7 +393,7 @@ misleep(int msec)
 }
 
 int
-sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
+sweepdrag(Client *c, int but, XButtonEvent *e0, BorderLocation bl, void (*recalc)(Client*, int, int, BorderLocation))
 {
 	XEvent ev;
 	int idle;
@@ -366,7 +409,9 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 	c->y -= BORDER;
 	c->dx += 2*BORDER;
 	c->dy += 2*BORDER;
-	if (e0)
+	if (bl)
+		getmouse(&cx, &cy, c->screen);
+	else if (e0)
 		getmouse(&c->x, &c->y, c->screen);
 	else
 		getmouse(&cx, &cy, c->screen);
@@ -386,9 +431,9 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 					idle = 0;
 				}
 				if(e0)
-					recalc(c, rx, ry);
+					recalc(c, rx, ry, bl);
 				else
-					recalc(c, rx-cx, ry-cy);
+					recalc(c, rx-cx, ry-cy, bl);
 				cx = rx;
 				cy = ry;
 				drawbound(c, 1);
@@ -404,7 +449,7 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 			drawbound(c, 0);
 			ungrab(e);
 			XUngrabServer(dpy);
-			if (e->button != Button3 && c->init)
+			if (e->button != but && c->init)
 				goto bad;
 			if (c->dx < 0) {
 				c->x += c->dx;
@@ -424,6 +469,7 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 		}
 	}
 bad:
+	if (debug) fprintf(stderr, "sweepdrag bad\n");
 	c->x = ox;
 	c->y = oy;
 	c->dx = odx;
@@ -433,7 +479,7 @@ bad:
 }
 
 int
-sweep(Client *c)
+sweep(Client *c, int but, XButtonEvent *ignored)
 {
 	XEvent ev;
 	int status;
@@ -449,16 +495,34 @@ sweep(Client *c)
 
 	XMaskEvent(dpy, ButtonMask, &ev);
 	e = &ev.xbutton;
-	if (e->button != Button3) {
+	if (e->button != but) {
 		ungrab(e);
 		return 0;
 	}
 	XChangeActivePointerGrab(dpy, ButtonMask, s->boxcurs, e->time);
-	return sweepdrag(c, e, sweepcalc);
+	return sweepdrag(c, but, e, 0, sweepcalc);
 }
 
 int
-drag(Client *c)
+pull(Client *c, int but, XButtonEvent *e)
+{
+	int status;
+	ScreenInfo *s;
+	BorderLocation bl;
+
+	bl = borderlocation(c, e->x, e->y);
+	s = c->screen;
+	status = grab(s->root, s->root, ButtonMask, s->bordcurs[bl], 0);
+	if (status != GrabSuccess) {
+		graberror("pull", status); /* */
+		return 0;
+	}
+
+	return sweepdrag(c, but, 0, bl, pullcalc);
+}
+
+int
+drag(Client *c, int but)
 {
 	int status;
 	ScreenInfo *s;
@@ -469,7 +533,7 @@ drag(Client *c)
 		graberror("drag", status); /* */
 		return 0;
 	}
-	return sweepdrag(c, 0, dragcalc);
+	return sweepdrag(c, but, 0, 0, dragcalc);
 }
 
 void

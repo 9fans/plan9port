@@ -8,7 +8,7 @@
 #include "fns.h"
 
 unsigned long
-colorpixel(Display *dpy, int depth, unsigned long rgb)
+colorpixel(Display *dpy, int depth, unsigned long rgb, unsigned long def)
 {
 	int r, g, b;
 
@@ -23,9 +23,7 @@ colorpixel(Display *dpy, int depth, unsigned long rgb)
 	case 8:
 	default:
 		/* not going to waste color map entries */
-		if(rgb == 0xFFFFFF)
-			return WhitePixel(dpy, DefaultScreen(dpy));
-		return BlackPixel(dpy, DefaultScreen(dpy));
+		return def;
 	case 15:
 		r >>= 3;
 		g >>= 3;

@@ -31,6 +31,7 @@ char			*termprog;
 char			*shell;
 Bool			shape;
 int 			_border = 4;
+int 			_corner = 25;
 int 			_inset = 1;
 int 			curtime;
 int 			debug;
@@ -236,13 +237,13 @@ initscreen(ScreenInfo *s, int i, int background)
 	else
 		s->display[0] = '\0';
 
-	s->activeholdborder = colorpixel(dpy, s->depth, 0x000099);
-	s->inactiveholdborder = colorpixel(dpy, s->depth, 0x005DBB);
-	s->activeborder = colorpixel(dpy, s->depth ,0x55AAAA);
-	s->inactiveborder = colorpixel(dpy, s->depth, 0x9EEEEE);
-	s->red = colorpixel(dpy, s->depth, 0xDD0000);
 	s->black = BlackPixel(dpy, i);
 	s->white = WhitePixel(dpy, i);
+	s->activeholdborder = colorpixel(dpy, s->depth, 0x000099, s->white);
+	s->inactiveholdborder = colorpixel(dpy, s->depth, 0x005DBB, s->black);
+	s->activeborder = colorpixel(dpy, s->depth ,0x55AAAA, s->black);
+	s->inactiveborder = colorpixel(dpy, s->depth, 0x9EEEEE, s->white);
+	s->red = colorpixel(dpy, s->depth, 0xDD0000, s->white);
 	s->width = WidthOfScreen(ScreenOfDisplay(dpy, i));
 	s->height = HeightOfScreen(ScreenOfDisplay(dpy, i));
 	s->bkup[0] = XCreatePixmap(dpy, s->root, 2*s->width, BORDER, DefaultDepth(dpy, i));
@@ -267,21 +268,21 @@ initscreen(ScreenInfo *s, int i, int background)
 	gv.foreground = s->red;
 	s->gcred = XCreateGC(dpy, s->root, mask, &gv);
 
-	gv.foreground = colorpixel(dpy, s->depth, 0xEEEEEE);
+	gv.foreground = colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
 	s->gcsweep = XCreateGC(dpy, s->root, mask, &gv);
 
-	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9);
+	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
 	s->gcmenubg = XCreateGC(dpy, s->root, mask, &gv);
 
-	gv.foreground = colorpixel(dpy, s->depth, 0x448844);
+	gv.foreground = colorpixel(dpy, s->depth, 0x448844, s->black);
 	s->gcmenubgs = XCreateGC(dpy, s->root, mask, &gv);
 
 	gv.foreground = s->black;
-	gv.background = colorpixel(dpy, s->depth, 0xE9FFE9);
+	gv.background = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
 	s->gcmenufg = XCreateGC(dpy, s->root, mask, &gv);
 
-	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9);
-	gv.background = colorpixel(dpy, s->depth, 0x448844);
+	gv.foreground = colorpixel(dpy, s->depth, 0xE9FFE9, s->white);
+	gv.background = colorpixel(dpy, s->depth, 0x448844, s->black);
 	s->gcmenufgs = XCreateGC(dpy, s->root, mask, &gv);
 
 	initcurs(s);
@@ -299,9 +300,21 @@ initscreen(ScreenInfo *s, int i, int background)
 		XClearWindow(dpy, s->root);
 	} else
 		system("xsetroot -solid grey30");
-
-	s->menuwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 2, colorpixel(dpy, s->depth, 0x88CC88), colorpixel(dpy, s->depth, 0xE9FFE9));
-	s->sweepwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 4, s->red, colorpixel(dpy, s->depth, 0xEEEEEE));
+	s->menuwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 2, colorpixel(dpy, s->depth, 0x88CC88, s->black), colorpixel(dpy, s->depth, 0xE9FFE9, s->white));
+	// s->sweepwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 4, s->red, colorpixel(dpy, s->depth, 0xEEEEEE, s->black));
+	{
+		XSetWindowAttributes attrs;
+		attrs.background_pixel =  colorpixel(dpy, s->depth, 0xEEEEEE, s->black);
+		attrs.border_pixel =  s->red;
+		attrs.save_under = True;
+	s->sweepwin = XCreateWindow(dpy, s->root, 0, 0, 1, 1, 4,
+						CopyFromParent,
+						CopyFromParent,
+						CopyFromParent,
+						CWBackPixel | CWBorderPixel | CWSaveUnder,
+						&attrs
+						);
+	}
 }
 
 ScreenInfo*

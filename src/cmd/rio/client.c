@@ -49,6 +49,7 @@ draw_border(Client *c, int active)
 			pixel = c->screen->inactiveborder;
 	}
 
+	if (debug) fprintf(stderr, "draw_border 0x%p pixel %ld active %d hold %d\n", c, pixel, active, c->hold);
 	XSetWindowBackground(dpy, c->parent, pixel);
 	XClearWindow(dpy, c->parent);
 }

@@ -10,7 +10,7 @@
 
 
 /* color.c */
-unsigned long colorpixel(Display*, int, unsigned long);
+unsigned long colorpixel(Display*, int, unsigned long, unsigned long);
 
 /* main.c */
 void	usage();
@@ -36,8 +36,11 @@ void	cmap();
 void	property();
 void	shapenotify();
 void	enter();
+void	leave();
 void	focusin();
 void	reparent();
+void 	motionnotify();
+BorderLocation borderlocation();
 
 /* manage.c */
 int 	manage();
@@ -85,6 +88,7 @@ int 	menuhit();
 Client	*selectwin();
 int 	sweep();
 int 	drag();
+int 	pull();
 void	getmouse();
 void	setmouse();
 

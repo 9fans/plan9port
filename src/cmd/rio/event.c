@@ -78,6 +78,9 @@ mainloop(int shape_event)
 		case EnterNotify:
 			enter(&ev.xcrossing);
 			break;
+		case LeaveNotify:
+			leave(&ev.xcrossing);
+			break;
 		case ReparentNotify:
 			reparent(&ev.xreparent);
 			break;
@@ -85,6 +88,8 @@ mainloop(int shape_event)
 			focusin(&ev.xfocus);
 			break;
 		case MotionNotify:
+			motionnotify(&ev.xmotion);
+			break;
 		case Expose:
 		case NoExpose:
 		case FocusOut:
@@ -450,6 +455,16 @@ enter(XCrossingEvent *e)
 }
 
 void
+leave(XCrossingEvent *e)
+{
+	Client *c;
+
+	c = getclient(e->window, 0);
+	XUndefineCursor(dpy, c->parent);
+/* 	XDefineCursor(dpy, c->parent, c->screen->arrow); */
+}
+
+void
 focusin(XFocusChangeEvent *e)
 {
 	Client *c;
@@ -463,5 +478,84 @@ focusin(XFocusChangeEvent *e)
 		XMapRaised(dpy, c->parent);
 		top(c);
 		active(c);
+	}
+}
+
+BorderLocation
+borderlocation(Client *c, int x, int y)
+{
+	if (x <= BORDER) {
+		if (y <= CORNER) {
+			if (debug) fprintf(stderr, "topleft\n");
+			return BorderNW;
+		}
+		if (y >= (c->dy + 2*BORDER) - CORNER) {
+			if (debug) fprintf(stderr, "botleft\n");
+			return BorderSW;
+		}
+		if (y > CORNER &&
+	        y < (c->dy + 2*BORDER) - CORNER) {
+			if (debug) fprintf(stderr, "left\n");
+			return BorderW;
+		}
+	} else if (x <= CORNER) {
+		if (y <= BORDER) {
+			if (debug) fprintf(stderr, "topleft\n");
+			return BorderNW;
+		}
+		if  (y >= (c->dy + BORDER)) {
+			if (debug) fprintf(stderr, "botleft\n");
+			return BorderSW;
+		}
+	} else if (x >= (c->dx + BORDER)) {
+		if (y <= CORNER) {
+			if (debug) fprintf(stderr, "topright\n");
+			return BorderNE;
+		}
+		if (y >= (c->dy + 2*BORDER) - CORNER) {
+			if (debug) fprintf(stderr, "botright\n");
+			return BorderSE;
+		}
+		if (y > CORNER &&
+			y < (c->dy + 2*BORDER) - CORNER) {
+			if (debug) fprintf(stderr, "right\n");
+			return BorderE;
+		}
+	} else if (x >= (c->dx + 2*BORDER) - CORNER) {
+		if (y <= BORDER) {
+			if (debug) fprintf(stderr, "topright\n");
+			return BorderNE;
+		}
+		if  (y >= (c->dy + BORDER)) {
+			if (debug) fprintf(stderr, "botright\n");
+			return BorderSE;
+		}
+	} else if (x > CORNER &&
+		       x < (c->dx + 2*BORDER) - CORNER) {
+		if (y <= BORDER) {
+			if (debug) fprintf(stderr, "top\n");
+			return BorderN;
+		}
+		if (y >= (c->dy + BORDER)) {
+			if (debug) fprintf(stderr, "bot\n");
+			return BorderS;
+		}
+	}
+	return BorderUnknown;
+}
+
+void
+motionnotify(XMotionEvent *e)
+{
+	Client *c;
+	BorderLocation bl;
+
+	c = getclient(e->window, 0);
+	if (c) {
+		bl = borderlocation(c, e->x, e->y);
+		if (bl == BorderUnknown)
+			XUndefineCursor(dpy, c->parent);
+		else
+			XDefineCursor(dpy, c->parent, c->screen->bordcurs[bl]);
 	}
 }
