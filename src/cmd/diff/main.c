@@ -11,7 +11,7 @@ Biobuf	stdout;
 static char *tmp[] = {"/tmp/diff1XXXXXXXXXXX", "/tmp/diff2XXXXXXXXXXX"};
 static int whichtmp;
 static char *progname;
-static char usage[] = "diff [ -efmnbwr ] file1 ... file2\n";
+static char usage[] = "diff [ -acefmnbwr ] file1 ... file2\n";
 
 static void
 rmtmpfiles(void)
