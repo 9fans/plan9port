@@ -53,6 +53,7 @@ typedef struct VtLogChunk VtLogChunk;
 struct VtLog
 {
 	VtLog *next;	/* in hash table */
+	char *name;
 	VtLogChunk *chunk;
 	uint nchunk;
 	VtLogChunk *w;
@@ -60,19 +61,19 @@ struct VtLog
 	int ref;
 };
 
-struct VtLogchunk
+struct VtLogChunk
 {
-	char *buf;
-	uint nbuf;
-	char *w;
+	char *p;
+	char *ep;
+	char *wp;
 };
 
 VtLog *vtlogopen(char *name, uint size);
 void	vtlogprint(VtLog *log, char *fmt, ...);
 void	vtlog(char *name, char *fmt, ...);
-void	vtlogclose(char *name);
+void	vtlogclose(VtLog*);
 void	vtlogremove(char *name);
-int	vtlogdump(int fd, VtLog*);
+void	vtlogdump(int fd, VtLog*);
 
 /* XXX begin actual venti.h */
 
@@ -335,6 +336,7 @@ struct VtConn
 	char	*version;
 	char	*uid;
 	char *sid;
+	char addr[256];	/* address of other side */
 };
 
 VtConn *vtconn(int infd, int outfd);
@@ -486,6 +488,8 @@ int vtfileremove(VtFile*);
 
 extern int chattyventi;
 extern int ventidoublechecksha1;
+
+extern char *VtServerLog;
 
 #ifdef __cplusplus
 }
