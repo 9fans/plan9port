@@ -169,6 +169,9 @@ case "$tag" in
 	userpath=true
 	extralibs="$extralibs -lutil"
 	case "`uname -r`" in
+	5.2.*)
+		extralibs="$extralibs -lkse"
+		;;
 	[5-9].*)
 		extralibs="$extralibs -lpthread"
 		;;
