@@ -1,0 +1,295 @@
+include("/sys/lib/acid/syscall");
+
+// print various /proc files
+defn fd() {
+	rc("cat /proc/"+itoa(pid)+"/fd");
+}
+
+defn segment() {
+	rc("cat /proc/"+itoa(pid)+"/segment");
+}
+
+defn ns() {
+	rc("cat /proc/"+itoa(pid)+"/ns");
+}
+
+defn qid(qid) {
+	complex Qid qid;
+	return itoa(qid.path\X)+"."+itoa(qid.vers\X);
+}
+
+defn cname(c) {
+	complex Cname c;
+	if c != 0 then {
+		return *(c.s\s);
+	} else
+		return "<null>";
+}
+
+// print Image cache contents
+// requires include("/sys/src/9/xxx/segment.acid")
+IHASHSIZE = 64;
+defn imagecacheline(h) {
+	while h != 0 do {
+		complex Image h;
+		print (h\X, " ", qid(h.qid), " type ", h.type\D, " ref ", h.ref, " next ", h.next\X, " ", cname(h.c.name), "\n");
+		h = h.hash;
+	}
+}
+
+defn imagecache() {
+	local i;
+
+	i=0; loop 1,IHASHSIZE do {
+		imagecacheline(imagealloc.free[i]);
+		i = i+1;
+	}
+}
+
+// dump channels
+defn chan(c) {
+	local d, q;
+
+	c = (Chan)c;
+	d=(Dev)(*(devtab+4*c.type));
+	q=c.qid;
+	print(c\X, " ref=", c.ref\D, " #", d.dc\r, c.dev\D, " (", q.path, " ", q.vers\D, " ", q.type\X, ")");
+	print(" fid=", c.fid\D, " iounit=", c.iounit\D);
+	if c.ref != 0 then {
+		print(" ", cname(c.name), " mchan=", c.mchan\X);
+		if c.mchan != 0 then {
+			print(" ", cname(c.mchan.name));
+		}
+	}
+	print("\n");
+}
+
+defn chans() {
+	local c;
+
+	c = (Chan)chanalloc.list;
+	while c != 0 do {
+		chan(c);
+		c=(Chan)c.link;
+	}
+}
+
+// manipulate processes
+defn proctab(x) {
+	return procalloc.arena+sizeofProc*x;
+}
+
+defn proc(p) {
+	complex Proc p;
+	local s, i;
+
+	if p.state != 0 then {	// 0 is Dead
+		s = p.psstate;
+		if s == 0 then {
+			s = "kproc";
+		} else {
+			s = *(s\s);
+		}
+		print(p\X, " ", p.pid, ": ", *(p.text\s), " ", *(p.user\s), " pc ", p.pc\X, " ", s, " (", *(statename[p.state]\s), ") ut ", p.time[0]\D, " st ", p.time[1]\D, " qpc ", p.qpc\X, "\n");
+	}
+}
+
+defn procenv(p) {
+	complex Proc p;
+	local e, v;
+
+	e = p.egrp;
+	complex Egrp e;
+	v = e.entries;
+	while v != 0 do {
+		complex Evalue v;
+		print(*(v.name\s), "=");
+		printstringn(v.value, v.len);
+		print("\n");
+		v = v.link;
+	}
+}
+
+KSTACK=4096;
+
+defn procstksize(p) {
+	complex Proc p;
+	local top, sp;
+
+	if p.state != 0 then {	// 0 is Dead
+		top = p.kstack+KSTACK;
+		sp = *p.sched;
+		print(top-sp\D, "\n");
+	}
+}
+
+defn procstk(p) {
+	complex Proc p;
+	local l;
+
+	if p.state != 0 then {	// 0 is Dead
+		l = p.sched;
+		if objtype=="386" then
+			_stk(gotolabel, *l, linkreg(0), 0);
+		else
+			_stk(*(l+4), *l, linkreg(0), 0);
+	}
+}
+
+defn procs() {
+	local i;
+
+	i=0; loop 1,conf.nproc do {
+		proc(proctab(i));
+		i = i+1;
+	}
+}
+
+defn stacks() {
+	local i, p;
+
+	i=0; loop 1,conf.nproc do {
+		p = (Proc)proctab(i);
+		if p.state != 0 then {
+			print("=========================================================\n");
+			proc(p);
+			procstk(p);
+		}
+		i = i+1;
+	}
+}
+
+defn stacksizes() {
+	local i;
+
+	i=0; loop 1,conf.nproc do {
+		procstksize(proctab(i));
+		i = i+1;
+	}
+}
+
+// segment-related
+defn procsegs(p) {
+	complex Proc p;
+	local i;
+
+	i=0; loop 1,NSEG do {
+		psegment(p.seg[i]);
+		i = i+1;
+	}
+}
+
+segtypes = { "text", "data", "bss", "stack", "shared", "physical", "shdata", "map" };
+defn psegment(s) {
+	complex Segment s;
+
+	if s != 0 then {
+		print(s\X, " ", segtypes[s.type&SG_TYPE], " ", s.base\X, "-", s.top\X, " image ", s.image\X, "\n");
+	}
+}
+
+// find physical address for an address in a given process
+defn procaddr(p, a) {
+	complex Proc p;
+	local i, s, r;
+
+	r = 0;
+	i=0; loop 1,NSEG do {
+		s = p.seg[i];
+		if s != 0 then {
+			complex Segment s;
+			if s.base <= a && a < s.top then {
+				r = segaddr(s, a);
+			}
+		}
+		i = i+1;
+	}
+	return r;
+}
+
+// find an address in a given segment
+defn segaddr(s, a) {
+	complex Segment s;
+	local pte, pg;
+
+	a = a - s.base;
+	if s.map == 0 || s.mapsize < a/PTEMAPMEM then {
+		return 0;
+	}
+
+	pte = s.map[a/PTEMAPMEM];
+	if pte == 0 then {
+		return 0;
+	}
+
+	complex Pte pte;
+	pg = pte.pages[(a%PTEMAPMEM)/BY2PG];
+	if pg == 0 then {
+		return 0;
+	}
+
+	if pg & 1 then {	// swapped out, return disk address
+		return pg&~1;
+	}
+
+	complex Page pg;
+	return (0x80000000|(pg.pa+(a%BY2PG)))\X;
+}
+
+// PC only
+MACHADDR = 0x80004000;
+PTEMAPMEM = (1024*1024);
+BY2PG = 4096;
+PTEPERTAB = (PTEMAPMEM/BY2PG);
+defn up() {
+	local mach;
+
+	mach = MACHADDR;
+	complex Mach mach;
+	return mach.externup;
+}
+
+defn intrcount() {
+	local p, pp, t, i, j;
+
+	p = intrtimes;
+	i=0;
+	loop 1,256 do {
+		pp = p[i];
+		i=i+1;
+		if pp != 0 then {
+			j=0;
+			t=0;
+			loop 1,1000 do {
+				t = t+pp[j];
+				j=j+1;
+			}
+			print(itoa(i, "%5d"), " ", itoa(t, "%11d"), "\n");
+		}
+	}
+}
+
+print(acidfile);
+
+defn needacid(s){
+	print("\trc(\"cd /sys/src/9/", kdir, "; mk ", s, ".acid\")\n");
+	print("\tinclude(\"/sys/src/9/", kdir, "/", s, ".acid\")\n");
+}
+
+if (map()[2]) != {} then {	// map has more than two elements -> active proc
+	kdir = "unknown";
+
+	if objtype == "386" then {
+		map({"*data", 0x80000000, 0xffffffff, 0x80000000});
+		kdir="pc";
+	}
+	if (objtype == "mips" || objtype == "mips2") then {
+		kdir = "ch";
+	}
+	if objtype == "alpha" then {
+		map({"*data", 0x80000000, 0xffffffff, 0x80000000});
+		kdir = "alpha";
+	}
+	needacid("proc");
+}
+

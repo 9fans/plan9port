@@ -1,0 +1,33 @@
+#!/bin/rc
+switch($#*){
+case 0 1 2
+	echo usage: window '''minx miny maxx maxy''' '''minx miny maxx maxy''' cmd args ...
+	exit usage
+}
+
+rfork ns
+
+if(mount $wsys /mnt/acid N`{{echo $pid $1 }| sed 's/^ //g;s/ +/,/g'}){
+	winid=`{cat /dev/winid}
+	echo transcript > /mnt/acid/label
+	echo transcript > /mnt/acid/cons
+	shift
+}
+if not exit 0
+
+if(mount $wsys /mnt/wsys N`{{echo $pid $1 }| sed 's/^ //g;s/ +/,/g'}){
+	shift
+	bind -b /mnt/wsys /dev
+}
+if not exit 0
+
+echo -n `{basename $1} > /dev/label >[2] /dev/null
+@{
+	echo hang > /proc/^`{cat /dev/ppid}^/ctl
+	$* < /dev/$winid/cons > /dev/$winid/cons >[2] /dev/$winid/cons &
+	exit $apid
+}
+ostatus = `{echo $status | sed 's/.*://'}
+echo waitstop > /proc/$ostatus/ctl
+echo nohang > /proc/$ostatus/ctl
+exit $ostatus

@@ -1,0 +1,306 @@
+include("/sys/src/libc/port/pool.acid");
+
+aggr Byte {
+	'b' 0 byte;
+};
+
+defn
+byteat(addr)
+{
+	local x;
+	complex Byte addr;
+	x = addr.byte;
+	return x\d;
+}
+
+defn
+B2T(addr) {
+	complex Bhdr addr;
+	addr = addr+addr.size-sizeofBtail;
+	complex Btail addr;
+	return addr;
+}
+
+defn
+B2D(addr) {
+	local x;
+	x = addr+sizeofBhdr;
+	return x\X;
+}
+
+defn
+D2B(addr) {
+	local x;
+	x = addr-sizeofBhdr;
+	complex Bhdr x;
+	return x;
+}
+
+defn
+B2NB(addr) {
+	complex Bhdr addr;
+	addr = addr+addr.size;
+	complex Bhdr addr;
+	return addr;
+}
+
+defn
+A2TB(addr) {
+	local b;
+	complex Arena addr;
+	b = addr+addr.asize-sizeofBhdr;
+	complex Bhdr b;
+	return b;
+}
+
+defn
+A2B(addr) {
+	return B2NB(addr);
+}
+
+defn
+B2PT(addr) {
+	complex Bhdr addr;
+	addr = addr-sizeofBtail;
+	complex Btail addr;
+	return addr;
+}
+
+defn
+SHORT(addr) {
+	local hi, lo;
+
+	hi = byteat(addr);
+	lo = byteat(addr+1);
+	return lo+hi*256;
+}
+
+defn
+Btail(addr) {
+	complex Btail addr;
+	print("	magic0	", addr.magic0, "\n");
+	print("	datadiff	", SHORT(addr.datasize), "\n");
+	print("	magic1	", addr.magic1, "\n");
+	print("	size	", addr.size\X, "\n");
+	print("	hdr	", addr+sizeofBtail-addr.size\X, "\n");
+};
+
+defn
+Tail(addr)
+{
+	print("	", B2T(addr)\X, "\n");
+	Btail(B2T(addr));
+}
+
+defn
+Magic(m)
+{
+	if m == FREE_MAGIC then
+		return "free";
+	if m == ARENA_MAGIC then
+		return "arena";
+	if m == UNKEMPT_MAGIC then
+		return "unkempt";
+	if m == KEMPT_MAGIC then
+		return "kempt";
+	if m == ARENATAIL_MAGIC then
+		return "arenatail";
+	if m == DEAD_MAGIC then
+		return "dead";
+	return "unknown magic";
+}
+
+defn
+Block(addr)
+{
+	complex Bhdr addr;
+	print("	", Magic(addr.magic), "\n");
+	print("	data ", B2D(addr), "\n");
+	print("	datasize ", getdsize(addr), "\n");
+	Bhdr(addr);
+	Tail(addr);
+}
+
+defn
+getdsize(addr)
+{
+	complex Bhdr addr;
+	local x;
+
+	x = addr.size\d;
+	x = x-SHORT(B2T(addr).datasize);
+	return x\d;
+}
+
+defn
+datamagic(x)
+{
+	x = x%4;
+	if x == 0 then return 0xFE;
+	if x == 1 then return 0xF1;
+	if x == 2 then return 0xF0;
+	if x == 3 then return 0xFA;
+}
+
+defn
+checkblock(addr)
+{
+	local badmagic, datamagic, a, b, t, q, n, dsize, taddr, checked;
+	complex Bhdr addr;
+	taddr = B2T(addr);
+	complex Btail taddr;
+
+	if addr.magic == FREE_MAGIC || addr.magic == UNKEMPT_MAGIC then {
+		if taddr.magic0 != TAIL_MAGIC0 || taddr.magic1 != TAIL_MAGIC1 then
+			print(addr\X, " corrupt tail magic\n");
+		if taddr.size != addr.size then
+			print(addr\X, " corrupt tail header pointer\n");
+	}
+
+	if addr.magic == ARENA_MAGIC then {
+		taddr = A2TB(addr);
+		if taddr.magic != ARENATAIL_MAGIC then
+			print(addr\X, " arena with bad tail block\n");
+		else
+			addr = taddr;
+	}
+
+	if addr.magic == ARENATAIL_MAGIC then {
+		if addr.size != 0 then
+			print(addr\X, " bad size in arena tail\n");
+	}
+
+	if addr.magic == KEMPT_MAGIC then {
+		a = addr;
+		complex Alloc a;
+		if a.size > 1024*1024*1024 then 
+			print(addr\X, " block ridiculously large\n");
+		t = B2T(addr);
+		if t.magic0 != TAIL_MAGIC0 || t.magic1 != TAIL_MAGIC1 then
+			print(addr\X, " bad tail magic\n");
+		if t.size != addr.size then
+			print(addr\X, " bad tail pointer\n");
+		dsize = getdsize(a);
+		if dsize > a.size then
+			print(addr\X, " too much data in block\n");
+		q = B2D(a)\X+dsize;
+		n = 4;
+		if q+4 > t then
+			n = t-q;
+		badmagic = 0;
+		loop 0,n-1 do {
+			if byteat(q) != datamagic(q) then {
+				badmagic=1;
+			}
+			q = q+1;
+		}
+		if badmagic then
+			print(addr\X, " size ", dsize, " user has overwritten boundary\n");
+	}
+}
+
+defn
+checkarena(arena)
+{
+	local atail, b;
+
+	atail = A2TB(arena);
+	complex Bhdr arena;
+	b = arena;
+	while b.magic != ARENATAIL_MAGIC && b < atail do {
+		checkblock(b);
+		if B2NB(b) == b then {
+			print("B2NB(", b\X, ") = b\n");
+			b = atail;	// end loop
+		}
+		b = B2NB(b);
+	}
+
+	checkblock(b);
+	if b != atail then
+		print("found wrong tail to arena ", arena\X, "\n");
+}
+
+defn
+checkpool(p)
+{
+	complex Pool p;
+	local a;
+	a = p.arenalist;
+
+	while a != 0 do {
+		complex Arena a;
+		checkarena(a);
+		a = a.down;
+	}
+}
+
+defn
+gendumptree(f, in, s)
+{
+	complex Free f;
+
+	loop 1,in do {print(" ");}
+	print(s, " size ", f.size\D, " left ", f.left\X, " right ", f.right\X, "\n");
+	if f.left != 0 && f.left < 0x7FFFFFFF then
+		gendumptree(f.left, in+1, "l");
+	if f.right != 0 && f.right < 0x7FFFFFFF then
+		gendumptree(f.right, in+1, "r");
+}
+
+defn
+dumptree(f)
+{
+	gendumptree(f, 0, "*");
+}
+
+defn
+poolwhopointsat(p, addr)
+{
+	complex Pool p;
+	local a;
+
+	a = p.arenalist;
+	while a != 0 do {
+		complex Arena a;
+		arenawhopointsat(a, addr);
+		a = a.down;
+	}
+}
+
+defn 
+arenawhopointsat(arena, addr)
+{
+	local atail, b;
+
+	atail = A2TB(arena);
+	complex Bhdr arena;
+	b = arena;
+	while b < atail do {
+		if *b == addr then 
+			print(b\X, "\n");
+		b = b+4;
+	}
+}
+
+defn
+whopointsat(addr)
+{
+	poolwhopointsat(*mainmem, addr);
+}
+
+defn
+blockhdr(addr)
+{
+	addr = addr & ~3;
+
+	while *addr != FREE_MAGIC 
+		&& *addr !=  ARENA_MAGIC
+		&& *addr != UNKEMPT_MAGIC
+		&& *addr != KEMPT_MAGIC
+		&& *addr != ARENATAIL_MAGIC
+	do
+		addr = addr-4;
+	return addr;
+}
+

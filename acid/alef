@@ -1,0 +1,147 @@
+// runtime library definitions
+if objtype=="mips2" then objtype="mips";
+
+include("/sys/src/alef/lib/"+objtype+"/acid");
+
+defn
+pchan(addr)
+{
+	local l, n;
+
+	complex Chan addr;
+
+	if addr.sva then
+		print("Sender waiting: buffer ", addr.sva, "\n");
+	else
+		print("No sender\n");
+
+	if addr.rva then
+		print("Receiver waiting: buffer ", addr.rva, "\n");
+	else
+		print("No receiver\n");
+
+	if addr.async then {
+		n = 0;
+		l = addr.qh;
+		while l do {
+			n = n+1;
+			l = l.next;
+		}
+		print("Async channel\n\t", n\D, " messsages queued\n\t");
+		l = addr.free;
+		while l do {
+			n = n+1;
+			l = l.next;
+		}
+		print(n\D, " free buffers\n");
+	}
+		
+	if addr.selt then {
+		l = "send";
+		if addr.selt then
+			l = "receive";
+		print("In select ", l, ": task ", addr.selt\X, "\n");
+		labstk(addr.selt);
+	}
+}
+
+defn
+tdb()
+{
+	local ta, tq;
+
+	// Private proc tdb pointer
+	ta = *{	0x7fffe000,
+		0x0ffdf000,
+		0xbfff5000 }[match(objtype, {"mips", "sparc", "386"})];
+
+	complex Tdb ta;
+
+	print("tdb ", ta.ntask, " tasks:");
+ 	if *ta then
+		print("locked\n");
+	else
+		print("unlocked\n");
+
+	if ta.ctask then {
+		print("current task ", ta.ctask, "\n");
+		Task(ta.ctask);
+	}
+	else
+		print("proc is idle\n");
+
+	tq = (Task)ta.runhd;
+	if tq == 0 then
+		return {};
+
+	print("Tasks ready to run:\n");
+	while tq != 0 do {
+		print("Task(", tq, ")\n");
+		tq = tq.link;		
+	}
+}
+
+defn
+lselect(addr)
+{
+	local c;
+
+	complex Task addr;
+	complex Chan c;
+
+	c = addr.slist;
+	if c == 0 then {
+		print("No select pending\n");
+		return {};
+	}
+	while c do {
+		print("pchan(", c\X, ")\n");
+		c = c.sellink;
+	}
+}
+
+defn
+pqlock(addr)
+{
+	local t;
+
+	complex QLock addr;
+
+	if *addr then
+		print("QLock is under modification\n");
+	if addr.used == 0 then
+		return {};
+
+	print("QLock is held\n");
+	t = addr.queue;
+	complex Task t;
+	if t == 0 then {
+		print("No tasks waiting\n");
+		return {};
+	}
+	print("Tasks waiting:\n");
+	while t do {
+		print("Task(", t, ")\n");
+		tq = tq.qlink;		
+	}
+}
+
+srcpath = {
+	"./",
+	"/sys/src/alef/lib/port/",
+	"/sys/src/alef/lib/p9/",
+	"/sys/src/alef/lib/"+objtype+"/"
+};
+
+defn labstk(l)
+{
+	if objtype == "386" then
+		_stk(ALEF_switch, *l, linkreg(0), 0);
+	else
+		_stk(*(l+4), *l, linkreg(0), 0);
+}
+
+print(acidfile);
+
+include("/sys/src/alef/lib/port/acid."+objtype);
+include("/sys/src/alef/lib/p9/acid."+objtype);

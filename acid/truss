@@ -1,0 +1,283 @@
+// poor emulation of SVR5 truss command - traces system calls
+
+include(acidfile);
+
+_stoprunning = 0;
+
+defn stopped(pid) {
+	local l;
+	local pc;
+	pc = *PC;
+	if notes then {
+		if (notes[0]!="sys: breakpoint") then
+		{
+			print(pid,": ",trapreason(),"\t");
+			print(fmt(pc,97),"\t",fmt(pc,105),"\n");
+			print("Notes pending:\n");
+			l = notes;
+			while l do
+			{
+				print("\t",head l,"\n");
+				l = tail l;
+			}
+			_stoprunning = 1;
+		}
+	}
+}
+
+defn _addressof(pattern) {
+	local s, l;
+	l = symbols;
+	pattern = "^\\$*"+pattern+"$";
+	while l do
+	{
+		s = head l;
+		if regexp(pattern, s[0]) && ((s[1] == 'T') || (s[1] == 'L')) then
+			return s[2];
+		l = tail l;
+	}
+	return 0;
+}
+
+stopPC = {};
+readPC = {};
+fd2pathPC = {};
+errstrPC = {};
+awaitPC = {};
+_waitPC = {};
+_errstrPC = {};
+trusscalls = {
+		"sysr1",
+		"_errstr",
+		"bind",
+		"chdir",
+		"close",
+		"dup",
+		"alarm",
+		"exec",
+		"_exits",
+		"_fsession",
+		"fauth",
+		"_fstat",
+		"segbrk",
+		"_mount",
+		"open",
+		"_read",
+		"oseek",
+		"sleep",
+		"_stat",
+		"rfork",
+		"_write",
+		"pipe",
+		"create",
+		"fd2path",
+		"brk_",
+		"remove",
+		"_wstat",
+		"_fwstat",
+		"notify",
+		"noted",
+		"segattach",
+		"segdetach",
+		"segfree",
+		"segflush",
+		"rendezvous",
+		"unmount",
+		"_wait",
+		"seek",
+		"fversion",
+		"errstr",
+		"stat",
+		"fstat",
+		"wstat",
+		"fwstat",
+		"mount",
+		"await",
+		"pread",
+		"pwrite",
+	};
+
+trussapecalls = {
+		"_SYSR1",
+		"__ERRSTR",
+		"_BIND",
+		"_CHDIR",
+		"_CLOSE",
+		"_DUP",
+		"_ALARM",
+		"_EXEC",
+		"_EXITS",
+		"__FSESSION",
+		"_FAUTH",
+		"__FSTAT",
+		"_SEGBRK",
+		"__MOUNT",
+		"_OPEN",
+		"__READ",
+		"_OSEEK",
+		"_SLEEP",
+		"__STAT",
+		"_RFORK",
+		"__WRITE",
+		"_PIPE",
+		"_CREATE",
+		"_FD2PATH",
+		"_BRK_",
+		"_REMOVE",
+		"__WSTAT",
+		"__FWSTAT",
+		"_NOTIFY",
+		"_NOTED",
+		"_SEGATTACH",
+		"_SEGDETACH",
+		"_SEGFREE",
+		"_SEGFLUSH",
+		"_RENDEZVOUS",
+		"_UNMOUNT",
+		"__WAIT",
+		"_SEEK",
+		"__NFVERSION",
+		"__NERRSTR",
+		"_STAT",
+		"__NFSTAT",
+		"__NWSTAT",
+		"__NFWSTAT",
+		"__NMOUNT",
+		"__NAWAIT",
+		"_PREAD",
+		"_PWRITE",
+	};
+
+defn addressof(pattern) {
+	// translate to ape system calls if we have an ape binary
+	if _addressof("_EXITS") == 0 then
+		return _addressof(pattern);
+	return _addressof(trussapecalls[match(pattern, trusscalls)]);
+}
+
+defn setuptruss() {
+	local lst, offset, name, addr;
+
+	trussbpt = {};
+	offset = trapoffset();
+	lst = trusscalls;
+	while lst do
+	{
+		name = head lst;
+		lst = tail lst;
+		addr = addressof(name);
+		if addr then
+		{
+			bpset(addr+offset);
+			trussbpt = append trussbpt, (addr+offset);
+			// sometimes _exits is renamed $_exits
+			if(regexp("exits|exec", name)) then stopPC = append stopPC, (addr+offset);
+			if(regexp("read", name)) then readPC = append readPC, (addr+offset);
+			if(regexp("fd2path", name)) then fd2pathPC = append fd2pathPC, (addr+offset);
+			if(regexp("^\\$*await", name)) then awaitPC = append awaitPC, (addr+offset);
+			if(regexp("^\\$*errstr", name)) then errstrPC = append errstrPC, (addr+offset);
+			// compatibility hacks for old kernel
+			if(regexp("_wait", name)) then _waitPC = append _waitPC, (addr+offset);
+			if(regexp("_errstr", name)) then _errstrPC = append _errstrPC, (addr+offset);
+		}
+	}
+}
+
+defn trussflush() {
+	stop(pid);		// already stopped, but flushes output
+}
+
+defn new() {
+	bplist = {};
+	newproc(progargs);
+	bpset(follow(main)[0]);
+	cont();
+	bpdel(*PC);
+	// clear the hang bit, which is left set by newproc, so programs we fork/exec don't hang
+	printto("/proc/"+itoa(pid)+"/ctl", "nohang");
+}
+
+defn truss() {
+	local pc, lst, offset, prevpc, pcspret, ret;
+
+	offset = trapoffset();
+
+	stop(pid);
+	_stoprunning = 0;
+	setuptruss();
+	pcspret = UPCSPRET();
+
+	while !_stoprunning do {
+		cont();
+		if notes[0]!="sys: breakpoint" then {
+			cleantruss();
+			return {};
+		}
+		pc = *PC;
+		if match(*PC, stopPC)>=0 then {
+			print(pid,": ",trapreason(),"\t");
+			print(fmt(pc,'a'),"\t",fmt(pc,'i'),"\n");
+			cleantruss();
+			return {};
+		}
+		if match(*PC, trussbpt)>=0 then {
+			usyscall();
+			trussflush();
+			prevpc = *PC;
+			step();
+			ret = eval pcspret[2];
+			print("\treturn value: ", ret\D, "\n");
+			if (ret>=0) && (match(prevpc, readPC)>=0) then {
+				print("\tdata: ");
+				printtextordata(*((eval pcspret[1])+4), ret);
+				print("\n");
+			}
+			if (ret>=0) && (match(prevpc, fd2pathPC)>=0) then {
+				print("\tdata: \"", *(*((eval pcspret[1])+4)\s), "\"\n");
+			}
+			if (ret>=0) && (match(prevpc, errstrPC)>=0) then {
+				print("\tdata: \"", *(*(eval pcspret[1])\s), "\"\n");
+			}
+			if (ret>=0) && (match(prevpc, awaitPC)>=0) then {
+				print("\tdata: ");
+				printtextordata(*(eval pcspret[1]), ret);
+				print("\n");
+			}
+			// compatibility hacks for old kernel:
+			if (ret>=0) && (match(prevpc, _waitPC)>=0) then {
+				print("\tdata: ");
+				printtextordata(*(eval pcspret[1]), 12+3*12+64);
+				print("\n");
+			}
+			if (ret>=0) && (match(prevpc, _errstrPC)>=0) then {
+				print("\tdata: ");
+				printtextordata(*(eval pcspret[1]), 64);
+				print("\n");
+			}
+		}
+		trussflush();
+	}
+}
+
+defn cleantruss() {
+	local lst, offset, addr;
+
+	stop(pid);
+	offset = trapoffset();
+	lst = trussbpt;
+	while lst do
+	{
+		addr = head lst;
+		lst = tail lst;
+		bpdel(addr);
+	}
+	trussbpt = {};
+	**PC = @*PC;	// repair current instruction
+}
+
+defn untruss() {
+	cleantruss();
+	start(pid);
+}
+
+print("/sys/lib/acid/truss");

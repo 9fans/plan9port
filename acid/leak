@@ -1,0 +1,138 @@
+//
+// usage: acid -l pool -l leak
+//
+include("/sys/src/libc/port/pool.acid");
+
+defn
+dumppool(p)
+{
+	complex Pool p;
+	a = p.arenalist;
+
+	while a != 0 && a < 0x60000000 do {
+		complex Arena a;
+		dumparena(a);
+		a = a.down;
+	}
+}
+
+defn
+dumparena(arena)
+{
+	local atail, b, nb;
+
+	atail = A2TB(arena);
+	complex Bhdr arena;
+	b = a;
+	while b < atail && b.magic != ARENATAIL_MAGIC do {
+		dumpblock(b);
+		nb = B2NB(b);
+		if nb == b then {
+			print("B2NB(", b\X, ") = b\n");
+			b = atail;	// end loop
+		}
+		if nb > atail then {
+			b = (Bhdr)(b+4);
+			print("lost at block ", (b-4)\X, ", scanning forward\n");
+			while b < atail && b.magic != KEMPT_MAGIC && b.magic != FREE_MAGIC do
+				b = (Bhdr)(b+4);
+			print("stopped at ", b\X, " ", *b\X, "\n");
+		}else
+			b = nb;
+	}
+	if b != atail then
+		print("found wrong tail to arena ", arena\X, " wanted ", atail\X, "\n");
+}
+
+defn
+isptr(a)
+{
+	if end <= a && a < xbloc then
+		return 1;
+	if 0x7efff000 <= a && a < 0x7ffff000 then
+		return 1;
+	return 0;
+}
+
+defn
+dumpblock(addr)
+{
+	complex Bhdr addr;
+
+	if addr.magic == KEMPT_MAGIC || addr.magic == FREE_MAGIC then {
+		local a, x, s;
+
+		a = addr;
+		complex Alloc a;
+
+		x = addr+8;
+		if addr.magic == KEMPT_MAGIC then
+			s = "block";
+		else
+			s = "free";
+		print(s, " ", addr\X, " ", a.size\X, " ");
+		print(*(addr+8)\X, " ", *(addr+12)\X, "\n");
+	}
+}
+
+defn
+dumprange(s, e, type)
+{
+	local x, y;
+
+	print("range ", type, " ", s\X, " ", e\X, "\n");
+	x = s;
+	while x < e do {
+		y = *x;
+		if isptr(y) then print("data ", x\X, " ", y\X, " ", type, "\n");
+		x = x + 4;
+	}
+}
+
+defn
+dumpmem()
+{
+	local s;
+
+	xbloc = *bloc;
+	// assume map()[1] is "data" 
+	dumprange(map()[1][1], end, "bss");	// bss
+	dumprange(end, xbloc, "alloc");	// allocated
+
+	if 0x7efff000 < *SP && *SP < 0x7ffff000 then 
+		s = *SP;
+	else
+		s = 0x7fff7000;	// 32 k
+
+	dumprange(s, 0x7ffff000, "stack");
+}
+
+defn
+dumpregs()
+{
+	dumprange(0, sizeofUreg, "reg");
+}
+
+
+defn
+leakdump(l)
+{
+	print("==LEAK BEGIN==\n");
+	dumppool(sbrkmem);
+	dumpmem();
+	dumpregs();
+	while l != {} do {
+		setproc(head l);
+		dumpregs();
+		l = tail l;
+	}
+	print("==LEAK END==\n");
+}
+
+defn
+blockdump()
+{
+	print("==BLOCK BEGIN==\n");
+	dumppool(sbrkmem);
+	print("==BLOCK END==\n");
+}

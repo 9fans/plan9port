@@ -1,0 +1,133 @@
+// support for acme; acid must be run with /acme/acid/$cputype/Acid
+
+
+defn w(*code)
+{
+	local dir;
+
+	printto("/tmp/acme.acid", eval code);
+	rc("cat /tmp/acme.acid | wnew -d "+"Acid/-stk'("+itoa(pid)+")'");
+}
+
+defn procstk(pid, name)
+{
+	local dir;
+
+	printto("/tmp/acme.acid", stk());
+	rc("cat /tmp/acme.acid | wnew -d "+"Acid/-'"+name+"("+itoa(pid)+")'");
+}
+
+defn taskstk(tid, name)
+{
+	local dir;
+
+	printto("/tmp/acme.acid", threadstk(tid));
+	rc("cat /tmp/acme.acid | wnew -d "+"Acid/-"+name+"'("+itoa(pid)+")'");
+}
+
+defn _stk(pc, sp, link, dolocals)
+{
+	local stk;
+
+	print("At pc:", pc, ":", fmt(pc, 'a'), " ");
+	pfl(pc);
+
+	stk = strace(pc, sp, link);
+
+	while stk do {
+		frame = head stk;
+		print(fmt(frame[0], 'a'), "(");
+		params(frame[2], frame[0]);
+		print(") ");
+		print("\n\tcalled from ", fmt(frame[1], 'a'), " ");
+		pfl(frame[1]);
+		stk = tail stk;
+		if dolocals then
+			locals(frame[3], frame[0]);
+	}
+}
+
+//defn _stk(pc, sp, dolocals)
+//{
+//	w(__stk(pc, sp, dolocals));
+//}
+
+
+defn params(param, name)
+{
+	while param do {
+		sym = head param;
+		print("*", fmt(name, 'a'), ":", sym[0], "=", sym[1]);
+		param = tail param;
+		if param then
+			print (",");
+	}	
+}
+
+defn locals(l, name)
+{
+	local sym;
+
+	while l do {
+		sym = head l;
+		print("\t*", fmt(name, 'a'), ":", sym[0], "=", sym[1], "\n");
+		l = tail l;
+	}	
+}
+
+defn bptab()					// print a table of breakpoints
+{
+	local lst, addr;
+
+	lst = bplist;
+	while lst do {
+		addr = head lst;
+		print("\tbpdel(", fmt(addr, 'a'), ")\n");
+		lst = tail lst;
+	}
+}
+
+defn procs()			// print status of processes
+{
+	local c, lst, cpid;
+
+	cpid = pid;
+	lst = proclist;
+	while lst do {
+		np = head lst;
+		setproc(np);
+		if np == cpid then
+			print(">");
+		print("\t", "setproc(", np, ")\t", status(np), " at ", fmt(*PC, 'a'), "\n");
+		lst = tail lst;
+	}
+	pid = cpid;
+	if pid != 0 then
+		setproc(pid);
+}
+
+defn allstacks()			// print stacks of processes and threads
+{
+	complex Proc P;
+	local T, Tq;
+	local c, lst, cpid;
+
+	cpid = pid;
+	P = (Proc)pq.$head;
+	while P != 0 do{
+		Tq = (Tqueue)P.threads;
+		T = (Thread)Tq.$head;
+		setproc(P.pid);
+		while T != 0 do{
+			if(T.cmdname == 0) then taskstk(T, "unknown");
+			else taskstk(T, *(T.cmdname\s));
+			T = T.nextt;
+		}
+		P = P.next;
+	}
+	pid = cpid;
+	if pid != 0 then
+		setproc(pid);
+}
+
+print(acidfile);

@@ -1,0 +1,217 @@
+// Mips support
+
+defn acidinit()			// Called after all the init modules are loaded
+{
+	bplist = {};
+	bpfmt = 'X';
+
+	srcpath = {
+		"./",
+		"/sys/src/libc/port/",
+		"/sys/src/libc/9sys/",
+		"/sys/src/libc/mips/"
+	};
+
+	srcfiles = {};		// list of loaded files
+	srctext = {};		// the text of the files
+}
+
+defn stk()			// trace
+{
+	_stk(*PC, *SP, linkreg(0), 0);
+}
+
+defn lstk()			// trace with locals
+{
+	_stk(*PC, *SP, linkreg(0), 1);
+}
+
+defn gpr()			// print general purpose registers
+{
+	print("R1\t", *R1, " R2\t", *R2, " R3\t", *R3, "\n");
+	print("R4\t", *R4, " R5\t", *R5, " R6\t", *R6, "\n");
+	print("R7\t", *R7, " R8\t", *R8, " R9\t", *R9, "\n");
+	print("R10\t", *R10, " R11\t", *R11, " R12\t", *R12, "\n");
+	print("R13\t", *R13, " R14\t", *R14, " R15\t", *R15, "\n");
+	print("R16\t", *R16, " R17\t", *R17, " R18\t", *R18, "\n");
+	print("R19\t", *R19, " R20\t", *R20, " R21\t", *R21, "\n");
+	print("R22\t", *R22, " R23\t", *R23, " R24\t", *R24, "\n");
+	print("R25\t", *R25, " R26\t", *R26, " R27\t", *R27, "\n");
+	print("R28\t", *R28, " R29\t", *SP, " R30\t", *R30, "\n");
+	print("R31\t", *R31, "\n");
+}
+
+defn Fpr()
+{
+	print("F0\t",  *fmt(F0, 'G'),  "\tF2\t",  *fmt(F2, 'G'), "\n");
+	print("F4\t",  *fmt(F4, 'G'),  "\tF6\t",  *fmt(F6, 'G'), "\n");
+	print("F8\t",  *fmt(F8, 'G'),  "\tF10\t", *fmt(F10, 'G'), "\n");
+	print("F12\t", *fmt(F12, 'G'), "\tF14\t", *fmt(F14, 'G'), "\n");
+	print("F16\t", *fmt(F16, 'G'), "\tF18\t", *fmt(F18, 'G'), "\n");
+	print("F20\t", *fmt(F20, 'G'), "\tF22\t", *fmt(F22, 'G'), "\n");
+	print("F24\t", *fmt(F24, 'G'), "\tF26\t", *fmt(F26, 'G'), "\n");
+	print("F28\t", *fmt(F28, 'G'), "\tF30\t", *fmt(F30, 'G'), "\n");
+}
+
+defn fpr()
+{
+	print("F0\t",  *fmt(F0, 'g'),  "\tF1\t",  *fmt(F1, 'g'), "\n");
+	print("F2\t",  *fmt(F2, 'g'),  "\tF3\t",  *fmt(F3, 'g'), "\n");
+	print("F4\t",  *fmt(F4, 'g'),  "\tF5\t",  *fmt(F5, 'g'), "\n");
+	print("F6\t",  *fmt(F6, 'g'),  "\tF7\t",  *fmt(F7, 'g'), "\n");
+	print("F8\t",  *fmt(F8, 'g'),  "\tF9\t",  *fmt(F9, 'g'), "\n");
+	print("F10\t", *fmt(F10, 'g'), "\tF11\t", *fmt(F11, 'g'), "\n");
+	print("F12\t", *fmt(F12, 'g'), "\tF13\t", *fmt(F13, 'g'), "\n");
+	print("F14\t", *fmt(F14, 'g'), "\tF15\t", *fmt(F15, 'g'), "\n");
+	print("F16\t", *fmt(F16, 'g'), "\tF17\t", *fmt(F17, 'g'), "\n");
+	print("F18\t", *fmt(F18, 'g'), "\tF19\t", *fmt(F19, 'g'), "\n");
+	print("F20\t", *fmt(F20, 'g'), "\tF21\t", *fmt(F21, 'g'), "\n");
+	print("F22\t", *fmt(F22, 'g'), "\tF23\t", *fmt(F23, 'g'), "\n");
+	print("F24\t", *fmt(F24, 'g'), "\tF25\t", *fmt(F25, 'g'), "\n");
+	print("F26\t", *fmt(F26, 'g'), "\tF27\t", *fmt(F27, 'g'), "\n");
+	print("F28\t", *fmt(F28, 'g'), "\tF29\t", *fmt(F29, 'g'), "\n");
+	print("F30\t", *fmt(F30, 'g'), "\tF31\t", *fmt(F31, 'g'), "\n");
+}
+
+defn spr()				// print special processor registers
+{
+	local pc, link, cause;
+
+	pc = *PC;
+	print("PC\t", pc, " ", fmt(pc, 'a'), "  ");
+	pfl(pc);
+
+	link = *R31;
+	print("SP\t", *SP, "\tLINK\t", link, " ", fmt(link, 'a'), " ");
+	pfl(link);
+
+	cause = *CAUSE;
+	print("STATUS\t", *STATUS, "\tCAUSE\t", cause, " ", reason(cause), "\n");
+	print("TLBVIR\t", *TLBVIRT, "\tBADVADR\t", *BADVADDR, "\n");
+
+	print("HI\t", *HI, "\tLO\t", *LO, "\n");
+}
+
+defn regs()				// print all registers
+{
+	spr();
+	gpr();
+}
+
+defn pstop(pid)
+{
+	local l, pc;
+
+	pc = *PC;
+
+	print(pid,": ", reason(*CAUSE), "\t");
+	print(fmt(pc, 'a'), "\t", fmt(pc, 'i'), "\n");
+
+	if notes then {
+		if notes[0] != "sys: breakpoint" then {
+			print("Notes pending:\n");
+			l = notes;
+			while l do {
+				print("\t", head l, "\n");
+				l = tail l;
+			}
+		}
+	}
+}
+
+sizeofUreg = 152;
+aggr Ureg
+{
+	'X' 0 status;
+	'X' 4 pc;
+	{
+	'X' 8 sp;
+	'X' 8 usp;
+	};
+	'X' 12 cause;
+	'X' 16 badvaddr;
+	'X' 20 tlbvirt;
+	'X' 24 hi;
+	'X' 28 lo;
+	'X' 32 r31;
+	'X' 36 r30;
+	'X' 40 r28;
+	'X' 44 r27;
+	'X' 48 r26;
+	'X' 52 r25;
+	'X' 56 r24;
+	'X' 60 r23;
+	'X' 64 r22;
+	'X' 68 r21;
+	'X' 72 r20;
+	'X' 76 r19;
+	'X' 80 r18;
+	'X' 84 r17;
+	'X' 88 r16;
+	'X' 92 r15;
+	'X' 96 r14;
+	'X' 100 r13;
+	'X' 104 r12;
+	'X' 108 r11;
+	'X' 112 r10;
+	'X' 116 r9;
+	'X' 120 r8;
+	'X' 124 r7;
+	'X' 128 r6;
+	'X' 132 r5;
+	'X' 136 r4;
+	'X' 140 r3;
+	'X' 144 r2;
+	'X' 148 r1;
+};
+
+defn
+Ureg(addr) {
+	complex Ureg addr;
+	print("	status	", addr.status, "\n");
+	print("	pc	", addr.pc, "\n");
+	print("	sp	", addr.sp, "\n");
+	print("	cause	", addr.cause, "\n");
+	print("	badvaddr	", addr.badvaddr, "\n");
+	print("	tlbvirt	", addr.tlbvirt, "\n");
+	print("	hi	", addr.hi, "\n");
+	print("	lo	", addr.lo, "\n");
+	print("	r31	", addr.r31, "\n");
+	print("	r30	", addr.r30, "\n");
+	print("	r28	", addr.r28, "\n");
+	print("	r27	", addr.r27, "\n");
+	print("	r26	", addr.r26, "\n");
+	print("	r25	", addr.r25, "\n");
+	print("	r24	", addr.r24, "\n");
+	print("	r23	", addr.r23, "\n");
+	print("	r22	", addr.r22, "\n");
+	print("	r21	", addr.r21, "\n");
+	print("	r20	", addr.r20, "\n");
+	print("	r19	", addr.r19, "\n");
+	print("	r18	", addr.r18, "\n");
+	print("	r17	", addr.r17, "\n");
+	print("	r16	", addr.r16, "\n");
+	print("	r15	", addr.r15, "\n");
+	print("	r14	", addr.r14, "\n");
+	print("	r13	", addr.r13, "\n");
+	print("	r12	", addr.r12, "\n");
+	print("	r11	", addr.r11, "\n");
+	print("	r10	", addr.r10, "\n");
+	print("	r9	", addr.r9, "\n");
+	print("	r8	", addr.r8, "\n");
+	print("	r7	", addr.r7, "\n");
+	print("	r6	", addr.r6, "\n");
+	print("	r5	", addr.r5, "\n");
+	print("	r4	", addr.r4, "\n");
+	print("	r3	", addr.r3, "\n");
+	print("	r2	", addr.r2, "\n");
+	print("	r1	", addr.r1, "\n");
+};
+
+defn linkreg(addr)
+{
+	complex Ureg addr;
+	return addr.r31\X;
+}
+
+print(acidfile);

@@ -1,0 +1,196 @@
+// print system calls
+defn printstring(s)
+{
+	print("\"", s, "\"");
+}
+
+defn printtextordata(addr, n)
+{
+	local a, i;
+
+	a = addr\c;
+	i = 0;
+	loop 1, n do {
+		if (a[i]>=127) then {
+			print(fmt(addr, 'X'), ", ", n\D);
+			return {};
+		}
+		i = i+1;
+	}
+
+	print("\"");
+	printstringn(addr, n);
+	print("\"");
+}
+
+defn printstringn(s, n)
+{
+	local m;
+
+	m = n;
+	if (m > 100) then m = 100;
+	loop 1,m do {
+		print(*(s\c)); s=s+1;
+	}
+	if(m != n) then print("...");
+}
+
+defn printsyscall(name, fmt, arg) {
+	local f, i, a, argp, sl;
+
+	print(name, "(");
+	i = 0;
+	a = eval arg;
+	while fmt[i] != 0 do {
+		if fmt[i] == 's' then {
+			if *a == 0 then
+				print("nil");
+			else
+				printstring(*(*a\s));
+		} else if fmt[i] == 'S' then {
+			argp = *a;
+			argl = {};
+			while *argp != 0 do {
+				argl = append argl, *(*argp\s);
+				argp++;
+			}
+			print(argl);
+		} else if (fmt[i] == 'Z') && (~*a == 0) then {
+			print("-1");
+			a++;	// advance extra word for quadword
+		} else if (fmt[i] == 'Y') || (fmt[i] == 'V') then {
+			print(fmt(*a, fmt[i]));
+			a++;	// advance extra word for quadword
+		} else if (fmt[i] == 'T') then {
+			if *a == 0 then
+				print("nil");
+			else
+				printtextordata(*a, a[1]);
+		} else
+			print(fmt(*a, fmt[i]));
+		if fmt[i+1] != 0 then
+			print(", ");
+		i = i+1;
+		a++;
+	}
+	print(")\n");
+}
+
+defn code(*e) { return e; }
+
+syscalls = {
+	{ 0, {"sysr1",		"s",		code(0)}},
+	{ 1, {"_errstr",		"s",		code(*sys_errstr:arg)}},
+	{ 2, {"bind",		"ssX",		code(*sysbind:arg)}},
+	{ 3, {"chdir",		"s",		code(*sysbind:arg)}},
+	{ 4, {"close",		"D",		code(*sysclose:arg)}},
+	{ 5, {"dup",		"DD",		code(*sysdup:arg)}},
+	{ 6, {"alarm",		"D",		code(*sysalarm:arg)}},
+	{ 7, {"exec",		"sS",		code(*sysexec:arg)}},
+	{ 8, {"exits",		"s",		code(*sysexits:arg)}},
+	{ 9, {"_fsession",	"DX",		code(*sys_fsession:arg)}},
+	{10, {"fauth",		"DX",		code(*sysfauth:arg)}},
+	{11, {"_fstat",		"DX",		code(*sys_fstat:arg)}},
+	{12, {"segbrk",		"XX",		code(*syssegbrk:arg)}},
+	{13, {"_mount",		"DsXs",		code(*sys_mount:arg)}},
+	{14, {"open",		"sD",		code(*sysopen:arg)}},
+	{15, {"_read",		"DXD",		code(*sys_read:arg)}},
+	{16, {"oseek",		"DDD",		code(*sysoseek:arg)}},
+	{17, {"sleep",		"D",		code(*syssleep:arg)}},
+	{18, {"_stat",		"sX",		code(*sys_stat:arg)}},
+	{19, {"rfork",		"X",		code(*sysstat:arg)}},
+	{20, {"_write",		"DXD",		code(*sys_write:arg)}},
+	{21, {"pipe",		"X",		code(*syspipe:arg)}},
+	{22, {"create",		"sDO",		code(*syscreate:arg)}},
+	{23, {"fd2path",	"DXD",		code(*sysfd2path:arg)}},
+	{24, {"brk_",		"X",		code(*sysbrk_:arg)}},
+	{25, {"remove",		"s",		code(*sysremove:arg)}},
+	{26, {"_wstat",		"sX",		code(*sys_wstat:arg)}},
+	{27, {"_fwstat",		"DX",		code(*sys_fwstat:arg)}},
+	{28, {"notify",		"X",		code(*sysnotify:arg)}},
+	{29, {"noted",		"D",		code(*sysnoted:arg)}},
+	{30, {"segattach",	"DsXD",		code(*syssegattach:arg)}},
+	{31, {"segdetach",	"X",		code(*syssegdetach:arg)}},
+	{32, {"segfree",	"XD",		code(*syssegfree:arg)}},
+	{33, {"segflush",	"XD",		code(*syssegflush:arg)}},
+	{34, {"rendezvous",	"XX",		code(*sysrendezvous:arg)}},
+	{35, {"unmount",	"ss",		code(*sysunmount:arg)}},
+	{36, {"_wait",		"X",		code(*sys_wait:arg)}},
+	{39, {"seek",		"XDVD",		code(*sysseek:arg)}},
+	{40, {"fversion",	"DDsD",		code(*sysfversion:arg)}},
+	{41, {"errstr",		"TD",		code(*syserrstr:arg)}},
+	{42, {"stat",		"sXD",		code(*sysstat:arg)}},
+	{43, {"fstat",		"DXD",		code(*sysfstat:arg)}},
+	{44, {"wstat",		"sXD",		code(*syswstat:arg)}},
+	{45, {"fwstat",		"DXD",		code(*sysfwstat:arg)}},
+	{46, {"mount",		"DDsXs",		code(*sysmount:arg)}},
+	{47, {"await",		"TD",		code(*sysawait:arg)}},
+	{50, {"pread",		"DXDZ",		code(*syspread:arg)}},
+	{51, {"pwrite",		"DTDZ",		code(*syspwrite:arg)}},
+};
+
+defn syscall() {
+	local n, sl, h, p;
+
+	map({"*data", 0, 0xffffffff, 0});
+	n = *syscall:scallnr;
+	sl = syscalls;
+	while sl != {} do {
+		h = head sl;
+		sl = tail sl;
+
+		if n == h[0] then {
+			p = h[1];
+			printsyscall(p[0], p[1], p[2]);
+		}
+	}
+}
+
+defn UPCSPRET() {
+	// return sys call number, address of first argument, location of syscall return value
+	if objtype == "386" then 
+		return { code(*(*PC-4)), code(*SP+4), code(*AX) };
+	if (objtype == "mips") || (objtype == "mips2") then
+		return { code(*(*PC-4) & 0xffff), code(*SP+4), code(*R1) };
+	if objtype == "arm" then
+		return { code(*(*PC-4) & 0xffff), code(*SP+4), code(*R0) };	// untested
+	if objtype == "alpha" then
+		return { code(*(*PC-4) & 0xffff), code(*SP+4), code(*R0) };	// untested
+}
+
+defn trapoffset() {
+	// return offset from entry point to trap instr
+	if objtype == "386" then return 5;
+	if objtype == "mips" then return 8;
+	if objtype == "mips2" then return 8;
+	if objtype == "arm" then return 8;	// untested
+	if objtype == "alpha" then return 8;	// untested
+}	
+
+defn trapreason() {
+	// return reason for trap
+	if objtype == "386" then return reason(*TRAP);
+	if objtype == "mips" then return reason(*CAUSE);
+	if objtype == "mips2" then return reason(*CAUSE);
+	if objtype == "arm" then return "unknown trap";	// untested
+	if objtype == "alpha" then return reason(cause);	// untested
+}
+
+
+defn usyscall() {	// gives args for system call in user level; not useful with -k
+	local n, sl, h, p;
+
+	// stopped at TRAP instruction in system call library
+	pcsp = UPCSPRET();
+	n = eval pcsp[0];
+	sl = syscalls;
+	while sl != {} do {
+		h = head sl;
+		sl = tail sl;
+
+		if n == h[0] then {
+			p = h[1];
+			printsyscall(p[0], p[1], pcsp[1]);
+		}
+	}
+}

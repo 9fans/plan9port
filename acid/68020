@@ -1,0 +1,137 @@
+// 68020 support
+
+defn acidinit()			// Called after all the init modules are loaded
+{
+	bplist = {};
+	bpfmt = 'x';
+
+	srcpath = {
+		"./",
+		"/sys/src/libc/port/",
+		"/sys/src/libc/9sys/",
+		"/sys/src/libc/68020/"
+	};
+
+	srcfiles = {};			// list of loaded files
+	srctext = {};			// the text of the files
+}
+
+defn linkreg(addr)
+{
+	return 0;
+}
+
+defn stk()				// trace
+{
+	_stk(*PC, *A7, 0, 0);
+}
+
+defn lstk()				// trace with locals
+{
+	_stk(*PC, *A7, 0, 1);
+}
+
+defn gpr()				// print general purpose registers
+{
+	print("R0\t", *R0, "R1\t", *R1, "R2\t", *R2, "R3\t", *R3, "\n");
+	print("R4\t", *R4, "R5\t", *R5, "R6\t", *R6, "R7\t", *R7, "\n");
+	print("A0\t", *A0, "A1\t", *A1, "A2\t", *A2, "A3\t", *A3, "\n");
+	print("A4\t", *A4, "A5\t", *A5, "A6\t", *A6, "A7\t", *A7, "\n");
+}
+
+defn spr()				// print special processor registers
+{
+	local pc;
+	local cause;
+
+	pc = *PC;
+	print("PC\t", pc, " ", fmt(pc, 'a'), "  ");
+	pfl(pc);
+	print("SP\t", *A7, " MAGIC\t", *MAGIC, "\n");
+
+	cause = *VO;
+	print("SR\t", *SR, "VO ", cause, " ", reason(cause), "\n");
+}
+
+defn regs()				// print all registers
+{
+	spr();
+	gpr();
+}
+
+defn pstop(pid)
+{
+	local l;
+	local pc;
+
+	pc = *PC;
+
+	print(pid,": ", reason(*VO), "\t");
+	print(fmt(pc, 'a'), "\t", fmt(pc, 'i'), "\n");
+
+	if notes then {
+		if notes[0] != "sys: breakpoint" then {
+			print("Notes pending:\n");
+			l = notes;
+			while l do {
+				print("\t", head l, "\n");
+				l = tail l;
+			}
+		}
+	}
+}
+
+aggr Ureg
+{
+	'U' 0 r0;
+	'U' 4 r1;
+	'U' 8 r2;
+	'U' 12 r3;
+	'U' 16 r4;
+	'U' 20 r5;
+	'U' 24 r6;
+	'U' 28 r7;
+	'U' 32 a0;
+	'U' 36 a1;
+	'U' 40 a2;
+	'U' 44 a3;
+	'U' 48 a4;
+	'U' 52 a5;
+	'U' 56 a6;
+	'U' 60 sp;
+	'U' 64 usp;
+	'U' 68 magic;
+	'u' 72 sr;
+	'U' 74 pc;
+	'u' 78 vo;
+	'a' 80 microstate;
+};
+
+defn
+Ureg(addr) {
+	complex Ureg addr;
+	print("	r0	", addr.r0, "\n");
+	print("	r1	", addr.r1, "\n");
+	print("	r2	", addr.r2, "\n");
+	print("	r3	", addr.r3, "\n");
+	print("	r4	", addr.r4, "\n");
+	print("	r5	", addr.r5, "\n");
+	print("	r6	", addr.r6, "\n");
+	print("	r7	", addr.r7, "\n");
+	print("	a0	", addr.a0, "\n");
+	print("	a1	", addr.a1, "\n");
+	print("	a2	", addr.a2, "\n");
+	print("	a3	", addr.a3, "\n");
+	print("	a4	", addr.a4, "\n");
+	print("	a5	", addr.a5, "\n");
+	print("	a6	", addr.a6, "\n");
+	print("	sp	", addr.sp, "\n");
+	print("	usp	", addr.usp, "\n");
+	print("	magic	", addr.magic, "\n");
+	print("	sr	", addr.sr, "\n");
+	print("	pc	", addr.pc, "\n");
+	print("	vo	", addr.vo, "\n");
+	print("	microstate	", addr.microstate, "\n");
+};
+
+print(acidfile);

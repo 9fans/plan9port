@@ -1,0 +1,365 @@
+
+defn labpc(l)
+{
+	if objtype == "386" then
+		return longjmp;
+	return *(l+4);
+}
+
+defn labsp(l)
+{
+	return *l;
+}
+
+defn labstk(l)
+{
+	_stk(labpc(l), labsp(l), 0, 0);
+}
+
+defn lablstk(l)
+{
+	_stk(labpc(l), labsp(l), 0, 1);
+}
+
+defn altfmt(A){
+	local i, s, yes;
+	complex Alt A;
+
+	s = "alt(";
+	s = s + "tag(*" + itoa(A.tag, "%x") + "=" + itoa(*A.tag, "%x") + ") ";
+	i = 0;
+	yes = 0;
+	while A.op != CHANEND && A.op != CHANNOBLK do{
+		if A.op != CHANNOP then{
+			if yes then s = s + " ";
+			s = s + itoa(i, "%d");
+			s = s + ":";
+			if A.op == CHANSND then s = s + "send";
+			if A.op == CHANRCV then s = s + "recv";
+			s = s + "(channel(";
+			s = s + itoa(A.c, "%x");
+			s = s + "))";
+			yes = 1;
+		}
+		i = i + 1;
+		A = (Alt)(A + sizeofAlt);
+	}
+	if A.op==CHANNOBLK then{
+		if yes then s = s + " ";
+		s = s + "noblock";
+	}
+	s = s + ")";
+	return s;
+}
+
+defn alt(A){
+	print(altfmt(A), "\n");
+}
+
+threadignsrc = {
+	"^/sys/src/libc",
+	"^/sys/src/libthread",
+};
+
+defn fnname(a){
+	local sym, s;
+
+	s = symbols;
+	while s do {
+		sym = head s;
+		if sym[2] == a then
+			return sym[0];
+		s = tail s;
+	}
+	return itoa(a, "%x");
+}
+
+stkignorelist = {};
+
+defn stkignore(s){
+	append stkignorelist, s;
+}
+
+defn threadstkline(T){
+	local stk, frame, pc, pc0, file, lastpc0, s, sym, i, stop;
+
+	if T.state == Running then{
+		pc = *PC;
+		stk = strace(*PC, *SP, linkreg(0));
+	}else{
+		pc = labpc(T.sched);
+		stk = strace(labpc(T.sched), labsp(T.sched), 0);
+	}
+	lastpc0 = 0;
+	pc0 = 0;
+	stop = 0;
+	while stk && !stop do {
+		file = pcfile(pc);
+		if !regexp("^/sys/src/libc/", file)
+		&& !regexp("^/sys/src/libthread/", file) 
+		&& match(file, stkignore)==-1 then
+			stop = 1;
+		else{
+			lastpc0 = pc0;
+			frame = head stk;
+			stk = tail stk;
+			nextframe = head stk;
+			pc = frame[1];
+			pc0 = nextframe[0];
+		}
+	}
+	file = pcfile(pc);
+	s = file+":"+itoa(pcline(pc), "%d");
+	if pc0 != 0 then 
+		s = s + " "+fnname(pc0);
+	return s;
+}
+
+defn threadfmt(T){
+	complex Thread T;
+	local A, yes, i, P, s;
+
+	P = (Proc)T.proc;
+	s = "t=(Thread)"+itoa(T, "%-10x")+" ";
+
+	if T.state == Running then
+		s = s + "Running    ";
+	else if T.state == Ready then
+		s = s + "Ready      ";
+	else if T.state == Rendezvous then
+		s = s + "Rendez     ";
+	else
+		s = s + "Bad state "+itoa(T.state, "%x")+" ";
+
+	A = (Alt)T.alt;
+	if 1 then
+		s = s + threadstkline(T);
+	else if T.chan == Chanalt then
+		s = s + altfmt(T.alt);
+	else if T.chan == Chansend then
+		s = s + "send(Channel("+itoa(A.c, "%x")+"))";
+	else if T.chan == Chanrecv then
+		s = s + "recv(Channel("+itoa(A.c, "%x")+"))";
+	else
+		s = s + threadstkline(T);
+
+	if T.moribund == 1 then
+		s = s + " Moribund";
+	if T.cmdname != 0 then
+		s = s + " ["+*(T.cmdname\s)+"]";
+	return s;
+}
+
+defn thread(T){
+	print(threadfmt(T), "\n");
+}
+
+defn pthreads(P){
+	complex Proc P;
+	local T, Tq, mainpid;
+
+	mainpid = pid;
+	setproc(P.pid);
+	Tq = (Tqueue)P.threads;
+	T = (Thread)Tq.$head;
+	while T != 0 do{
+		print("\t");
+		thread(T);
+		T = T.nextt;
+	}
+	setproc(mainpid);
+}
+
+defn threads(){
+	local P;
+
+	P = (Proc)_threadpq.$head;
+	while P != 0 do{
+		if P != (Proc)_threadpq.$head then print("\n");
+		lproc(P);
+		P = P.next;
+	}
+}
+
+defn stacks(){
+	local P, mainpid;
+
+	mainpid = pid;
+	P = (Proc)_threadpq.$head;
+	while P != 0 do{
+		proc(P);
+	//	setproc(P.pid);
+	//	if P.thread==0 then{
+	//		print("=== thread scheduler stack\n");
+	//		stk();
+	//	}
+	//	print("threadstks(", P\X, ")\n");
+		threadstks(P);
+		P = P.next;
+		print("\n");
+	}
+	setproc(mainpid);
+}
+
+defn stacksizes(){
+	local P, T, Tq, top, sp, mainpid;
+
+	mainpid = pid;
+	P = (Proc)_threadpq.$head;
+	while P != 0 do{
+		P = (Proc)P;
+		Tq = (Tqueue)P.threads;
+		T = (Thread)Tq.$head;
+		while T != 0 do{
+			top = T.stk+T.stksize;
+			if T.state==Running then {
+				sp = *SP;
+			}else{
+				sp = *(T.sched);
+			}
+			sp = *(T.sched);
+			print(top-sp\D, "\n");
+			T = T.nextt;
+		}
+		P = P.next;
+	}
+	setproc(mainpid);
+}
+
+defn lproc(P){
+	proc(P);
+	pthreads(P);
+}
+
+defn threadstks(P){
+	complex Proc P;
+	local T, Tq, mainpid, pref, ign;
+
+	mainpid = pid;
+	pref = stkprefix;
+	stkprefix = pref+"\t\t";
+	ign = stkignore;
+	stkignore = {
+		"^/sys/src/libthread/",
+		"^/sys/src/libc/(386|arm|alpha|sparc|power|mips)/"
+	};
+	setproc(P.pid);
+	Tq = (Tqueue)P.threads;
+	T = (Thread)Tq.$head;
+	while T != 0 do{
+	//	print("=============================\n");
+	//	print("  thread(", T\X, ")\n");
+		print("\t");
+		thread(T);
+		threadstk(T);
+		T = T.nextt;
+		print("\n");
+	}
+	setproc(mainpid);
+	stkprefix = pref;
+	stkignore = ign;
+}
+
+defn proc(P){
+	complex Proc P;
+
+	print("p=(Proc)", itoa(P, "%-10x"), " pid ", P.pid\D, " ");
+	if P.thread==0 then
+		print(" Sched");
+	else
+		print(" Running");
+	print("\n");
+}
+
+defn procs(){
+	local P;
+
+	P = (Proc)_threadpq.$head;
+	while P != 0 do{
+		proc(P);
+		P = P.next;
+	}
+}
+
+defn threadlstk(T){
+	complex Thread T;
+	local P, mainpid;
+
+	P = (Proc)T.proc;
+	mainpid = pid;
+	setproc(P.pid);
+
+	if T.state == Running then{
+		lstk();
+	} else {
+		lablstk(T.sched);
+	}
+	setproc(mainpid);
+}
+
+defn threadstk(T){
+	complex Thread T;
+	local P, mainpid;
+
+	P = (Proc)T.proc;
+	mainpid = pid;
+	setproc(P.pid);
+
+	if T.state == Running then{
+		stk();
+	} else {
+		labstk(T.sched);
+	}
+	setproc(mainpid);
+}
+
+defn tqueue(Q) {
+	complex Tqueue Q;
+
+	while Q != 0 do {
+		print(Q.$head\X, " ");
+		Q = *(Q.$tail);
+	
+	}
+	print("#\n");
+}
+
+defn channel(C) {
+	complex Channel C;
+	local i, p;
+
+	print("channel ", C\X);
+	if C.freed then {
+		print(" (moribund)");
+	}
+	print("\n");
+	print("\telementsize=", C.e\D, " buffersize=", C.s, "\n");
+	if C.s then {
+		print("\t", C.n\D, " values in channel:\n");
+		print("\t");
+		p = C.v+C.e*(C.f%C.s);
+		loop 1,C.n do {
+			if C.e==4 then {
+				print((*p)\X, " ");
+			}else {
+				print("data(", (*p)\X, ") ");
+			}
+			p = p+C.e;
+			if p == C.v+C.s*C.e then {
+				p = C.v;
+			}
+		}
+	}
+	print("\n");
+	print(C.nentry\D, " queue slots:\n");
+	i=0;
+	loop 1,C.nentry do {
+		if C.qentry[i] then
+			print("\t", altfmt(C.qentry[i]), "\n");
+		else
+			print("\t<empty>\n");
+		i=i+1;
+	}
+}
+
+print(acidfile);

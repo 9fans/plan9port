@@ -1,0 +1,128 @@
+// Coverage library
+
+defn coverage()
+{
+	local lmap, lp, e, pc, n, l;
+
+	new();
+
+	bblock = {};
+
+	// find the first location in the text
+	e = (map()[0][1])\i;
+
+	while e < etext-4 do {
+		l = follow(e);
+		if tail l != {} then {
+			if match(l[0], bblock) < 0 then
+				bblock = append bblock, l[0];
+			if match(l[1], bblock) < 0 then
+				bblock = append bblock, l[1];
+		}
+		e++;
+	}
+
+	l = bblock;
+	while l != {} do {
+		*fmt(head l, bpfmt) = bpinst;
+		l = tail l;
+	}
+
+	while 1 do {
+		cont();
+		pc = *PC;
+		n = match(pc, bblock);
+		if n >= 0 then {
+			pc = fmt(pc, bpfmt);
+			*pc = @pc;
+			bblock = delete bblock, n;
+		}
+		else {
+			pstop(pid);
+			return {};
+		}
+	}
+}
+
+defn eblock(addr)
+{
+	addr = addr\i;
+
+	while addr < etext do {
+		if (tail follow(addr)) != {} then
+			return pcline(addr);
+		addr++;
+	}
+	return 0;
+}
+
+defn basic(stsrc, ensrc, file)
+{
+	local src, text;
+
+	if stsrc >= ensrc then
+		return {};
+
+	print(file, ":", stsrc, ",", ensrc, "\n");
+	src = match(file, srcfiles);
+
+	if src >= 0 then
+		src = srctext[src];
+	else
+		src = findsrc(file);
+
+	if src == {} then
+		print("no source for ", file, "\n");
+	else {
+		while stsrc <= ensrc do {
+			text = src[stsrc];
+			if text != {} then
+				print("\t", stsrc, ":", text, "\n");
+			stsrc = stsrc+1;
+		}
+	}
+}
+
+defn analyse(fnaddr)
+{
+	local addr, l, tfn;
+
+	new();
+
+	tfn = fnbound(fnaddr);
+
+	l = bblock;
+	while l do {
+		addr = head l;
+
+		if addr >= tfn[0] && addr < tfn[1] then
+			basic(pcline(addr), eblock(addr), pcfile(addr));
+		
+		l = tail l;
+	}
+	kill(pid);
+}
+
+defn report()
+{
+	local addr, l;
+
+	new();
+
+	l = bblock;
+	while l do {
+		addr = head l;
+
+		basic(pcline(addr), eblock(addr), pcfile(addr));
+		
+		l = tail l;
+	}
+	kill(pid);
+}
+
+defn stopped(pid)
+{
+	return {};
+}
+
+print(acidfile);

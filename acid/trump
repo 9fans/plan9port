@@ -1,0 +1,171 @@
+// trace user malloc pool - trace malloc, realloc, and free calls
+// if trumpsbrk is set, we trace sbrkalloc and sbrkmerge too.
+
+_stoprunning = 0;
+trumphexaddrs = 0;
+trumpsbrk = 0;
+
+defn stopped(pid) {
+	local l;
+	local pc;
+	pc = *PC;
+	if notes then {
+		if (notes[0]!="sys: breakpoint") then
+		{
+			print(pid,": ",reason(*TRAP),"\t");
+			print(fmt(pc,97),"\t",fmt(pc,105),"\n");
+			print("Notes pending:\n");
+			l = notes;
+			while l do
+			{
+				print("\t",head l,"\n");
+				l = tail l;
+			}
+			_stoprunning = 1;
+		}
+	}
+}
+
+defn printstack() {
+	local frame, stk, pcs, lst, x;
+
+	pcs = {*PC};
+	stk = strace(*PC,*SP,0);
+	while stk do {
+		pcs = append pcs, stk[0][1];
+		stk = tail stk;
+	}
+
+	print(" #");
+	lst = pcs;
+	while lst do {
+		if trumphexaddrs != 0 then
+			x = lst[0]\X;
+		else
+			x = lst[0]\a;
+		print(" src(", x, ");");
+		lst = tail lst;
+	}
+	print("\n");
+}
+
+defn setuptrump() {
+	mallocPC = malloc;
+	malloczPC = mallocz;
+	freePC = free;
+	reallocPC = realloc;
+	sbrkallocPC = sbrkalloc;
+	sbrkmergePC = sbrkmerge;
+
+	// linker might fill delay slot with first instruction
+	if objtype == "mips" then {
+		mallocPC = mallocPC+4;
+		malloczPC = malloczPC+4;
+		freePC = freePC+4;
+		reallocPC = reallocPC+4;
+		sbrkallocPC = sbrkallocPC+4;
+		sbrkmergePC = sbrkmergePC+4;
+	}
+
+	bpset(mallocPC);
+	bpset(malloczPC);
+	bpset(freePC);
+	bpset(reallocPC);
+	if trumpsbrk then {
+		bpset(sbrkallocPC);
+		bpset(sbrkmergePC);
+	}
+}
+
+defn cleantrump() {
+	stop(pid);
+
+	bpdel(mallocPC);
+	bpdel(malloczPC);
+	bpdel(freePC);
+	bpdel(reallocPC);
+	bpdel(sbrkallocPC);
+	bpdel(sbrkmergePC);
+}
+
+defn trumpflush() {
+	stop(pid);		// already stopped, but flushes output
+}
+
+defn new() {
+	bplist = {};
+	newproc(progargs);
+	bpset(follow(main)[0]);
+	cont();
+	bpdel(*PC);
+	// clear the hang bit, which is left set by newproc, so programs we fork/exec don't hang
+	printto("/proc/"+itoa(pid)+"/ctl", "nohang");
+}
+
+defn trumpfninfo() {
+	local arg0, arg1, stk, retpc, params;
+
+	stk = strace(*PC, *SP, 0);
+	retpc = stk[0][1];
+	params = stk[0][2];
+	arg0 = params[0][1];
+	arg1 = 0;
+	if tail params != {} then
+		arg1 = params[1][1];
+	return {arg0, arg1, retpc};
+}
+
+defn trumpretval() {
+	if objtype=="386" then
+		return *AX;
+	if objtype=="mips" then
+		return *R1;
+	if objtype=="power" || objtype=="alpha" then
+		return *R0;
+}
+
+defn trump() {
+	local arg0, arg1, pc, ret, x;
+
+	stop(pid);
+	_stoprunning = 0;
+	setuptrump();
+	while !_stoprunning do {
+		cont();
+		if notes[0]!="sys: breakpoint" then {
+			cleantrump();
+			return {};
+		}
+
+		pc = *PC;
+		x = trumpfninfo();
+		arg0 = x[0];
+		if pc == reallocPC || pc == sbrkmergePC then 
+			arg1 = x[1];
+		bpset(x[2]);
+		cont();
+		bpdel(x[2]);
+		ret = trumpretval();
+		if pc == mallocPC then
+			print(ret\X, " malloc ", arg0\D);
+		if pc == malloczPC then
+			print(ret\X, " mallocz ", arg0\D);
+		if pc == freePC then
+			print(arg0\X, " free");
+		if pc == reallocPC then
+			print(ret\X, " realloc ", arg0\X, " ", arg1\D);
+		if pc == sbrkallocPC then
+			print(ret\X, " sbrkalloc ", arg0\D);
+		if pc == sbrkmergePC then
+			print("sbrkmerge ", arg0\X, " ", arg1\X, " = ", ret\D);
+		printstack();
+		trumpflush();
+	}
+}
+
+defn untrump() {
+	cleantrump();
+	start(pid);
+}
+
+print(acidfile);
