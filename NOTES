@@ -1,0 +1,89 @@
+This is a port of some Plan 9 libraries and programs to Unix.
+
+Some parts expect that the tree is installed in /usr/local/plan9.
+Most are position independent.  The few hard-coded references
+(there's one in sam) should really be fixed.
+
+* Obtaining the source
+
+Tarballs will be posted occasionally at
+
+  http://pdos.lcs.mit.edu/~rsc/software/plan9
+
+/usr/local/plan9 is the suggested location to keep the software.
+All the paths in the tarball begin with plan9/, so it's okay to unpack it
+directly in /usr/local.
+
+You can use CVS to obtain the very latest version and stay up-to-date.
+See below.
+
+* Building
+
+To build, cd into src and run make install.  This will place binaries
+in "bin".  At time of writing, the commands are sam, samterm, and mk.
+There are a few shell scripts already included in bin -- B, Bwait,
+and samsave.
+
+* Make vs. Mk
+
+I'm trying to use make for everything so that it's easier to get
+off the ground, but this might not work out.  Working in the
+intersection of BSD make and GNU make is quite restrictive.
+If I'm going to start requiring a particular build utility,
+it might as well be mk.
+
+* Helping out
+
+If you'd like to help out, great!
+
+The TODO file contains our (somewhat long) to do list.
+
+If you port this code to other architectures, please share your changes
+so others can benefit.  See PORTING for some notes.
+
+Please use diff -u or CVS (see below) to prepare patches.
+
+* CVS
+
+You can use CVS to keep your local copy up-to-date as we make 
+changes and fix bugs.  The idioms explained here are pretty much
+all you need to know about CVS.
+
+To check out from the anonymous CVS repository, use
+
+  cd /usr/local
+  >$HOME/.cvspass
+  cvs -d :pserver:anoncvs@cvs.pdos.lcs.mit.edu:/cvs login
+  cvs -d :pserver:anoncvs@cvs.pdos.lcs.mit.edu:/cvs checkout plan9
+
+When prompted for a password, just hit enter.
+
+From then on, when you want to update, you can do
+
+  cd /usr/local/plan9
+  cvs update -dAP
+
+If there are conflicts between changes you have made locally
+and changes on the server, cvs will warn about them and leave
+them clearly marked in the updated files.
+
+If you change something and want to submit the change (please do!),
+you can run
+
+  cd /usr/local/plan9
+  cvs diff -u
+
+to generate the diff in a format that will be easy to apply.
+(You can also use this to see what you've changed.)
+
+Running the cvs commands in /usr/local/plan9 makes them
+apply to the whole tree.  Running them in a subdirectory applies
+only to the code rooted there in the code.
+
+There's not much magical about /usr/local/plan9.  If you
+check out the tree in some other directory, it should work
+just as well.
+
+Thanks.
+
+Russ Cox <rsc@swtch.com>

@@ -45,7 +45,9 @@
 	  but need to put it together.
 
 * Dump
-	- have a dump file system that sits on the side of ffs.
+	- have a dump file system that sits on the side of ffs,
+	  backing up disk images to venti.  a loopback NFS server
+	  serves the backed-up images.  
 	  needs cleanup and release.  should be easy to add ext2,
 	  fat.  ntfs harder but possible.
 
