@@ -103,8 +103,14 @@ xfidopen(Xfid *x)
 		q = FILE(x->f->qid);
 		switch(q){
 		case QWaddr:
+			if(w->nopen[q]++ == 0){
+				w->addr = range(0, 0);
+				w->limit = range(-1,-1);
+			}
+			break;
+		case QWdata:
+		case QWxdata:
 			w->nopen[q]++;
-			w->limit = range(-1,-1);
 			break;
 		case QWevent:
 			if(w->nopen[q]++ == 0){

@@ -160,10 +160,24 @@ fsysproc(void *v)
 		if(fcall[x->fcall.type] == 0)
 			x = respond(x, &t, "bad fcall type");
 		else{
-			if(x->fcall.type==Tversion || x->fcall.type==Tauth)
+			switch(x->fcall.type){
+			case Tversion:
+			case Tauth:
+			case Tflush:
 				f = nil;
-			else
+				break;
+			case Tattach:
 				f = newfid(x->fcall.fid);
+				break;
+			default:
+				f = newfid(x->fcall.fid);
+				if(!f->busy){
+					x->f = f;
+					x = respond(x, &t, "fid not in use");
+					continue;
+				}
+				break;
+			}
 			x->f = f;
 			x  = (*fcall[x->fcall.type])(x, f);
 		}

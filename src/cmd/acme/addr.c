@@ -138,7 +138,6 @@ regexp(uint showerr, Text *t, Range lim, Range r, Rune *pat, int dir, int *found
 			q = Infinity;
 		else
 			q = lim.q1;
-warning(nil, "searching %d-%d\n", r.q1, q);
 		found = rxexecute(t, nil, r.q1, q, &sel);
 	}
 	if(!found && showerr)
