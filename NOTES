@@ -23,7 +23,7 @@ tree.  Most of them assume /usr/local/plan9 if $PLAN9 is not set.
 To build and install, cd into the plan9/ directory and run "./INSTALL".
 This will first build "mk" and then use mk to build the rest of the
 system, installing libraries in plan9/lib/ and binaries in plan9/bin/.
-There are a few shell scripts already included in bin -- B, Bwait,
+There are a few shell scripts already included in bin -- B, E,
 and samsave.  Arguably these directories should be broken up by
 architecture so that
 
