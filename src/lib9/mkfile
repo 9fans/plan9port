@@ -84,6 +84,7 @@ LIB9OFILES=\
 	convM2S.$O\
 	convS2M.$O\
 	create.$O\
+	crypt.$O\
 	ctime.$O\
 	date.$O\
 	dial.$O\
