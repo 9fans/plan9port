@@ -1,3 +1,3 @@
 #!/bin/sh
 
-gv -swap -style $PLAN9/lib/gv.style -ad $PLAN9/lib/gv.resource "$@"
+gv -nosafer -swap -style $PLAN9/lib/gv.style -ad $PLAN9/lib/gv.resource "$@"
