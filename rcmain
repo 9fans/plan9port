@@ -20,8 +20,9 @@ if(! ~ $#cflag 0){
 	if(flag l && test -r $home/lib/profile) . $home/lib/profile
 	status=''
 	eval $cflag
+	exit $status
 }
-if not if(flag i){
+if(flag i){
 	if(~ $TERM 9term){
 		if(~ $#'fn#cd' 0)
 			fn cd { builtin cd $1 && flag i && awd }
@@ -31,10 +32,13 @@ if not if(flag i){
 	status=''
 	if(! ~ $#* 0) . $*
 	. -i '/dev/stdin'
+	exit $status
 }
-if not if(~ $#* 0) . '/dev/stdin'
-if not{
-	status=''
-	. $*
+if(flag l && test -r $home/lib/profile) . $home/lib/profile
+if(~ $#* 0){
+	. /dev/stdin
+	exit $status
 }
+status=''
+. $*
 exit $status
