@@ -1,3 +1,9 @@
+August 10, 2004
+
+	try to be more consistent about _exit and _exits in libthread
+
+	change plumbing rule for html to send to editor
+
 June 20, 2004
 
 	x11 geometry fixes, from Peter Canning
