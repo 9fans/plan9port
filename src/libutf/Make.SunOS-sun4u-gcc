@@ -1,0 +1,6 @@
+CC=gcc
+CFLAGS+=-Wall -Wno-missing-braces -Wno-parentheses -Wno-switch -O2 -g -c
+O=o
+AR=ar
+ARFLAGS=rvc
+NAN=nan64.$O

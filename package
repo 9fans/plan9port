@@ -1,0 +1,19 @@
+#!/bin/sh
+
+rm -rf ../9tmp
+mkdir ../9tmp
+mkdir ../9pkg
+cp -R * ../9tmp
+cd ../9tmp
+rm -rf `find . -name CVS`
+rm lib/*
+rm */*.o
+rm */*.a
+rm mk/mk
+rm sam/sam
+rm man/*/*
+for i in libfmt libbio lib9 libthread libutf libregexp sam mk 
+do
+	tar cf - $i |gzip >../9pkg/$i.tar.gz
+done
+tar cf - . | gzip > ../9pkg/all.tar.gz

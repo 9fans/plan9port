@@ -1,0 +1,4 @@
+$(LIB): $(OFILES)
+	$(AR) $(ARFLAGS) $(LIB) $(OFILES)
+
+NUKEFILES+=$(LIB)

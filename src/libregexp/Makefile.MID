@@ -1,0 +1,34 @@
+LIB=libregexp9.a
+VERSION=2.0
+PORTPLACE=devel/libregexp9
+NAME=libregexp9
+
+OFILES=\
+	regcomp.$O\
+	regerror.$O\
+	regexec.$O\
+	regsub.$O\
+	regaux.$O\
+	rregsub.$O\
+	rregaux.$O\
+
+HFILES=\
+	regexp9.h\
+	regcomp.h\
+
+all: $(LIB)
+
+install: $(LIB)
+	test -d $(PREFIX)/man/man3 || mkdir $(PREFIX)/man/man3
+	test -d $(PREFIX)/man/man7 || mkdir $(PREFIX)/man/man7
+	install -m 0644 regexp9.3 $(PREFIX)/man/man3/regexp9.3
+	install -m 0644 regexp9.7 $(PREFIX)/man/man7/regexp9.7
+	install -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
+	install -m 0644 regexp9.h $(PREFIX)/include/regexp9.h
+
+test: test.$O $(LIB)
+	$(CC) -o test test.$O $(LIB) -L/usr/local/lib -lfmt -lutf
+
+test2: test2.$O $(LIB)
+	$(CC) -o test2 test2.$O $(LIB) -L/usr/local/lib -lfmt -lutf
+

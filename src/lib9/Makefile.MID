@@ -1,0 +1,49 @@
+LIB=lib9.a
+VERSION=2.0
+PORTPLACE=devel/lib9
+NAME=lib9
+
+OFILES=\
+	_exits.$O\
+	argv0.$O\
+	await.$O\
+	encodefmt.$O\
+	errstr.$O\
+	exits.$O\
+	ffork-$(SYSNAME).$O\
+	getcallerpc-$(OBJTYPE).$O\
+	getfields.$O\
+	lock.$O\
+	malloctag.$O\
+	mallocz.$O\
+	nrand.$O\
+	qlock.$O\
+	readn.$O\
+	rendez.$O\
+	strecpy.$O\
+	sysfatal.$O\
+	tas-$(OBJTYPE).$O\
+	tokenize.$O\
+	u16.$O\
+	u32.$O\
+	u64.$O\
+	wait.$O\
+	werrstr.$O\
+
+HFILES=\
+	lib9.h\
+
+all: $(LIB)
+
+install: $(LIB)
+	test -d $(PREFIX)/man/man3 || mkdir $(PREFIX)/man/man3
+	# install -m 0644 lib9.3 $(PREFIX)/man/man3/lib9.3
+	install -m 0644 lib9.h $(PREFIX)/include/lib9.h
+	install -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
+
+test: $(LIB) test.$O
+	$(CC) -o test test.$O $(LIB) -L$(PREFIX)/lib -lfmt -lutf
+
+testfork: $(LIB) testfork.$O
+	$(CC) -o testfork testfork.$O $(LIB) -L$(PREFIX)/lib -lfmt -lutf
+

@@ -1,0 +1,45 @@
+--- Makefile ---
+# New ports collection makefile for: libbio
+# Date Created:		11 Feb 2003
+# Whom:			rsc
+#
+# THIS LINE NEEDS REPLACING.  IT'S HERE TO GET BY PORTLINT
+# $FreeBSD: ports/devel/libbio/Makefile,v 1.1 2003/02/12 00:51:22 rsc Exp $
+
+PORTNAME=	libbio
+PORTVERSION=	2.0
+CATEGORIES=	devel
+MASTER_SITES=	http://pdos.lcs.mit.edu/~rsc/software/
+EXTRACT_SUFX=	.tgz
+
+MAINTAINER=	rsc@post.harvard.edu
+
+DEPENDS=	${PORTSDIR}/devel/libfmt ${PORTSDIR}/devel/libutf
+
+MAN3=		bio.3
+USE_REINPLACE=	yes
+
+.include <bsd.port.pre.mk>
+
+post-patch:
+	${REINPLACE_CMD} -e 's,$$(PREFIX),${PREFIX},g' ${WRKSRC}/Makefile
+
+.include <bsd.port.post.mk>
+--- pkg-comment ---
+Simple buffered I/O library from Plan 9
+--- pkg-descr ---
+Libbio is a port of Plan 9's formatted I/O library.
+It provides most of the same functionality as stdio or sfio,
+but with a simpler interface and smaller footprint.
+
+WWW: http://pdos.lcs.mit.edu/~rsc/software/#libbio
+http://plan9.bell-labs.com/magic/man2html/2/bio
+
+Russ Cox
+rsc@post.harvard.edu
+--- pkg-plist ---
+lib/libbio.a
+include/bio.h
+--- /dev/null ---
+This is just a way to make sure blank lines don't
+creep into pkg-plist.
