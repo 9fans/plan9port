@@ -109,6 +109,8 @@ GV*control.layout:                      \
 			scaleButton<-90%*>\
 			pagemediaButton<-90%*>\
 			processButton<-90%*>\
+			printAll<-40%*>\
+			printMarked<-40%*>\
 		}\
 		viewFrame<+[2]-100%*+9999-100%>   \
 	}\
