@@ -205,6 +205,19 @@ case "$tag" in
 			;;
 		esac
 	done
+	case "${SYSVERSION:-`uname -r`}" in
+	5.[67])
+		echo do not know how to link right thread library on "$tag" 1>&2
+		;;
+	5.8)
+		# Some trickery is needed to force use of
+		# alternate thread lib from /usr/lib/lwp
+		# Likely, this only works with sun cc,
+		# for other compiler/loader we would need other flags.
+		ld="$ld -i"
+		extralibs="$extralibs /usr/lib/lwp/libthread.so -R/usr/lib/lwp:/usr/lib"
+		;;
+	esac
 	;;
 *)
 	echo do not know how to link on "$tag" 1>&2

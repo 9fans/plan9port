@@ -9,8 +9,14 @@
 int
 getpts(int fd[], char *slave)
 {
+	void (*f)(int);
+	int r;
+
 	fd[1] = open("/dev/ptmx", ORDWR);
-	if ((grantpt(fd[1]) < 0) || (unlockpt(fd[1]) < 0))
+	f = signal(SIGCLD, SIG_DFL);
+	r = grantpt(fd[1]);
+	signal(SIGCLD, f);
+	if(r < 0 || unlockpt(fd[1]) < 0)
 		return -1;
 	fchmod(fd[1], 0622);
 
