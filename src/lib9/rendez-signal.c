@@ -28,11 +28,14 @@
           If a rendezvous is interrupted the return value is ~0, so
           that value should not be used in normal communication.
 
- * This simulates rendezvous with shared memory, pause, and SIGUSR1.
+ * This simulates rendezvous with shared memory, sigsuspend, and SIGUSR1.
  */
 
+#include <u.h>
 #include <signal.h>
-#include <lib9.h>
+#include <libc.h>
+
+#define DBG 0
 
 enum
 {
@@ -43,11 +46,11 @@ typedef struct Vous Vous;
 struct Vous
 {
 	Vous *link;
-	Lock lk;
 	int pid;
-	int wakeup;
-	ulong val;
+	int wokeup;
 	ulong tag;
+	ulong val1;		/* value for the sleeper */
+	ulong val2;		/* value for the waker */
 };
 
 static void
@@ -57,9 +60,17 @@ ign(int x)
 }
 
 void /*__attribute__((constructor))*/
-ignusr1(void)
+ignusr1(int restart)
 {
-	signal(SIGUSR1, ign);
+	struct sigaction sa;
+
+	memset(&sa, 0, sizeof sa);
+	sa.sa_handler = ign;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGUSR1);
+	if(restart)
+		sa.sa_flags = SA_RESTART;
+	sigaction(SIGUSR1, &sa, nil);
 }
 
 static Vous vouspool[2048];
@@ -78,117 +89,112 @@ getvous(void)
 		vousfree = v->link;
 	}else if(nvousused < nelem(vouspool))
 		v = &vouspool[nvousused++];
-	else
+	else{
+		fprint(2, "rendezvous: out of vous!\n");
 		abort();
+	}
 	return v;
 }
 
 static void
 putvous(Vous *v)
 {
-	lock(&vouslock);
 	v->link = vousfree;
 	vousfree = v;
-	unlock(&vouslock);
 }
 
 static Vous*
-findvous(ulong tag, ulong val, int pid)
+findvous(ulong tag)
 {
 	int h;
 	Vous *v, **l;
 
-	lock(&vouslock);
 	h = tag%VOUSHASH;
 	for(l=&voushash[h], v=*l; v; l=&(*l)->link, v=*l){
 		if(v->tag == tag){
 			*l = v->link;
-			unlock(&vouslock);
+			v->link = nil;
 			return v;
 		}
 	}
+	return nil;
+}
+
+static Vous*
+mkvous(ulong tag)
+{
+	Vous *v;
+	int h;
+
+	h = tag%VOUSHASH;
 	v = getvous();
-	v->pid = pid;
 	v->link = voushash[h];
-	v->val = val;
 	v->tag = tag;
-	lock(&v->lk);
 	voushash[h] = v;
-	unlock(&vouslock);
 	return v;
 }
 
-#define DBG 0
 ulong
 rendezvous(ulong tag, ulong val)
 {
-	int me, vpid;
+	int vpid, pid;
 	ulong rval;
 	Vous *v;
 	sigset_t mask;
 
-	me = getpid();
-	v = findvous(tag, val, me);
-	if(v->pid == me){
-		if(DBG)fprint(2, "pid is %d tag %lux, sleeping\n", me, tag);
+	pid = getpid();
+	lock(&vouslock);
+	if((v = findvous(tag)) == nil){
 		/*
-		 * No rendezvous partner was found; the next guy
-		 * through will find v and wake us, so we must go
-		 * to sleep.
+		 * Go to sleep.
 		 *
-		 * To go to sleep:
-		 *	1. disable USR1 signals.
-		 *	2. unlock v->lk (tells waker okay to signal us).
-		 *	3. atomically suspend and enable USR1 signals.
-		 *
-		 * The call to ignusr1() could be done once at 
-		 * process creation instead of every time through rendezvous.
+		 * Block USR1, set the handler to interrupt system calls,
+		 * unlock the vouslock so our waker can wake us,
+		 * and then suspend.
 		 */
-		v->val = val;
-		ignusr1();
-		sigprocmask(SIG_SETMASK, NULL, &mask);
+		v = mkvous(tag);
+		v->pid = pid;
+		v->val2 = val;
+		v->wokeup = 0;
+		sigprocmask(SIG_SETMASK, nil, &mask);
 		sigaddset(&mask, SIGUSR1);
-		sigprocmask(SIG_SETMASK, &mask, NULL);
+		sigprocmask(SIG_SETMASK, &mask, nil);
+		ignusr1(0);
+		if(DBG) fprint(2, "%d rv(%lux, %lux) -> s\n", pid, tag, val);
+		unlock(&vouslock);
 		sigdelset(&mask, SIGUSR1);
-		v->wakeup = 0;
-		unlock(&v->lk);
-		for(;;){
-			/*
-			 * There may well be random signals flying around,
-			 * so we can't be sure why we woke up.  If we weren't
-			 * properly awakened, we need to go back to sleep.
-			 */
-			sigsuspend(&mask);
-			lock(&v->lk);	/* do some memory synchronization */
-			unlock(&v->lk);
-			if(v->wakeup == 1)
-				break;
+		sigsuspend(&mask);
+
+		/*
+		 * We're awake.  Make USR1 not interrupt system calls.
+		 * Were we awakened or interrupted?
+		 */
+		ignusr1(1);
+		lock(&vouslock);
+		if(v->wokeup){
+			rval = v->val1;
+			if(DBG) fprint(2, "%d rv(%lux, %lux) -> g %lux\n", pid, tag, val, rval);
+		}else{
+			if(findvous(tag) != v){
+				fprint(2, "rendezvous: interrupted but not found in hash table\n");
+				abort();
+			}
+			rval = ~(ulong)0;
+			if(DBG) fprint(2, "%d rv(%lux, %lux) -> g i\n", pid, tag, val);
 		}
-		rval = v->val;
-		if(DBG)fprint(2, "pid is %d, awake\n", me);
 		putvous(v);
+		unlock(&vouslock);
 	}else{
 		/*
-		 * Found someone to meet.  Wake him:
-		 *
-		 *	A. lock v->lk (waits for him to get to his step 2)
-		 *	B. send a USR1
-		 *
-		 * He won't get the USR1 until he suspends, which
-		 * means it must wake him up (it can't get delivered
-		 * before he sleeps).
+		 * Wake up sleeper.
 		 */
+		rval = v->val2;
+		v->val1 = val;
 		vpid = v->pid;
-		lock(&v->lk);
-		rval = v->val;
-		v->val = val;
-		v->wakeup = 1;
-		unlock(&v->lk);
-		if(kill(vpid, SIGUSR1) < 0){
-			if(DBG)fprint(2, "pid is %d, kill %d failed: %r\n", me, vpid);
-			abort();
-		}
+		v->wokeup = 1;
+		if(DBG) fprint(2, "%d rv(%lux, %lux) -> g %lux, w %d\n", pid, tag, val, rval, vpid);
+		unlock(&vouslock);
+		kill(vpid, SIGUSR1);
 	}
 	return rval;
 }
-

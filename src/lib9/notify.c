@@ -35,6 +35,7 @@ static struct {
 	SIGVTALRM, 0,
 	SIGUSR1, 0,
 	SIGUSR2, 0,
+	SIGWINCH, 1,
 #ifdef SIGINFO
 	SIGINFO, 0,
 #endif

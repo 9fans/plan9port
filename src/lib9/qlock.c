@@ -13,6 +13,7 @@ enum
 	QueuingR,
 	QueuingW,
 	Sleeping,
+	Waking,
 };
 
 static ulong	(*_rendezvousp)(ulong, ulong) = rendezvous;
@@ -74,6 +75,7 @@ qlock(QLock *q)
 	/* wait */
 	while((*_rendezvousp)((ulong)mp, 1) == ~0)
 		;
+	assert(mp->state == Waking);
 	mp->inuse = 0;
 }
 
@@ -90,6 +92,7 @@ qunlock(QLock *q)
 		if(q->head == nil)
 			q->tail = nil;
 		unlock(&q->lock);
+		p->state = Waking;
 		while((*_rendezvousp)((ulong)p, 0x12345) == ~0)
 			;
 		return;
@@ -139,6 +142,7 @@ rlock(RWLock *q)
 	/* wait in kernel */
 	while((*_rendezvousp)((ulong)mp, 1) == ~0)
 		;
+	assert(mp->state == Waking);
 	mp->inuse = 0;
 }
 
@@ -180,6 +184,7 @@ runlock(RWLock *q)
 	unlock(&q->lock);
 
 	/* wakeup waiter */
+	p->state = Waking;
 	while((*_rendezvousp)((ulong)p, 0) == ~0)
 		;
 }
@@ -212,6 +217,7 @@ wlock(RWLock *q)
 	/* wait in kernel */
 	while((*_rendezvousp)((ulong)mp, 1) == ~0)
 		;
+	assert(mp->state == Waking);
 	mp->inuse = 0;
 }
 
@@ -251,6 +257,7 @@ wunlock(RWLock *q)
 		if(q->head == nil)
 			q->tail = nil;
 		unlock(&q->lock);
+		p->state = Waking;
 		while((*_rendezvousp)((ulong)p, 0) == ~0)
 			;
 		return;
@@ -266,6 +273,7 @@ wunlock(RWLock *q)
 		p = q->head;
 		q->head = p->next;
 		q->readers++;
+		p->state = Waking;
 		while((*_rendezvousp)((ulong)p, 0) == ~0)
 			;
 	}
@@ -308,6 +316,7 @@ rsleep(Rendez *r)
 		if(r->l->head == nil)
 			r->l->tail = nil;
 		unlock(&r->l->lock);
+		t->state = Waking;
 		while((*_rendezvousp)((ulong)t, 0x12345) == ~0)
 			;
 	}else{
@@ -318,6 +327,7 @@ rsleep(Rendez *r)
 	/* wait for a wakeup */
 	while((*_rendezvousp)((ulong)me, 0x23456) == ~0)
 		;
+	assert(me->state == Waking);
 	me->inuse = 0;
 	if(!r->l->locked){
 		fprint(2, "rsleep: not locked after wakeup\n");
