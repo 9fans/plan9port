@@ -40,12 +40,28 @@ readcert(char *filename, int *pcertlen)
 		werrstr("can't read %s", filename);
 		return nil;
 	}
-	binary = decodepem(pem, "CERTIFICATE", pcertlen);
+	binary = decodepem(pem, "CERTIFICATE", pcertlen, nil);
 	free(pem);
 	if(binary == nil){
 		werrstr("can't parse %s", filename);
 		return nil;
 	}
 	return binary;
+}
+
+
+PEMChain *
+readcertchain(char *filename)
+{
+	char *chfile;
+	PEMChain *chp;
+
+	chfile = readfile(filename);
+	if (chfile == nil) {
+		werrstr("can't read %s", filename);
+		return nil;
+	}
+	chp = decodepemchain(chfile, "CERTIFICATE");
+	return chp;
 }
 

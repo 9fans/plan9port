@@ -134,8 +134,10 @@ static int	is_oid(Elem* pe, Ints** poid);
 static int	is_string(Elem* pe, char** pstring);
 static int	is_time(Elem* pe, char** ptime);
 static int	decode(uchar* a, int alen, Elem* pelem);
+/*
 static int	decode_seq(uchar* a, int alen, Elist** pelist);
 static int	decode_value(uchar* a, int alen, int kind, int isconstr, Value* pval);
+*/
 static int	encode(Elem e, Bytes** pbytes);
 static int	oid_lookup(Ints* o, Ints** tab);
 static void	freevalfields(Value* v);
@@ -206,7 +208,7 @@ decode(uchar* a, int alen, Elem* pelem)
 /*
  * Like decode, but continue decoding after first element
  * of array ends.
- */
+ *
 static int
 decode_seq(uchar* a, int alen, Elist** pelist)
 {
@@ -214,6 +216,7 @@ decode_seq(uchar* a, int alen, Elist** pelist)
 
 	return seq_decode(&p, &a[alen], -1, 1, pelist);
 }
+*/
 
 /*
  * Decode the whole array as a BER encoding of an ASN1 value,
@@ -223,7 +226,7 @@ decode_seq(uchar* a, int alen, Elist** pelist)
  * If there's an error, the return string will contain the error.
  * Depending on the error, the returned value may or may not
  * be nil.
- */
+ *
 static int
 decode_value(uchar* a, int alen, int kind, int isconstr, Value* pval)
 {
@@ -231,6 +234,7 @@ decode_value(uchar* a, int alen, int kind, int isconstr, Value* pval)
 
 	return value_decode(&p, &a[alen], alen, kind, isconstr, pval);
 }
+*/
 
 /*
  * All of the following decoding routines take arguments:
@@ -1585,12 +1589,12 @@ static Ints7 oid_md5WithRSAEncryption = {7, 1, 2, 840, 113549, 1, 1, 4 };
 static Ints7 oid_sha1WithRSAEncryption ={7, 1, 2, 840, 113549, 1, 1, 5 };
 static Ints7 oid_md5 ={6, 1, 2, 840, 113549, 2, 5, 0 };
 static Ints *alg_oid_tab[NUMALGS+1] = {
-	(Ints*)&oid_rsaEncryption,
-	(Ints*)&oid_md2WithRSAEncryption,
-	(Ints*)&oid_md4WithRSAEncryption,
-	(Ints*)&oid_md5WithRSAEncryption,
-	(Ints*)&oid_sha1WithRSAEncryption,
-	(Ints*)&oid_md5,
+	(Ints*)(void*)&oid_rsaEncryption,
+	(Ints*)(void*)&oid_md2WithRSAEncryption,
+	(Ints*)(void*)&oid_md4WithRSAEncryption,
+	(Ints*)(void*)&oid_md5WithRSAEncryption,
+	(Ints*)(void*)&oid_sha1WithRSAEncryption,
+	(Ints*)(void*)&oid_md5,
 	nil
 };
 static DigestFun digestalg[NUMALGS+1] = { md5, md5, md5, md5, sha1, md5, 0 };
