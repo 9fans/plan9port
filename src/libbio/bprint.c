@@ -10,11 +10,7 @@ Bprint(Biobuf *bp, char *fmt, ...)
 
 	if(Bfmtinit(&f, bp) < 0)
 		return -1;
-	va_start(args, fmt);
-	va_copy(f.args, args);
-	n = dofmt(&f, fmt);
-	va_end(args);
-	va_end(f.args);
+	n = fmtprint(&f, fmt, args);
 	if(n > 0 && Bfmtflush(&f) < 0)
 		return -1;
 	return n;
