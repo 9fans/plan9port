@@ -196,7 +196,7 @@ stabssyminit(Fhdr *fp)
 			fun = nil;
 			if(stabcvtsym(&sym, &s, dir, file, i) < 0)
 				continue;
-			if((fun = addsym(fp, &s)) == nil)
+			if((fun = _addsym(fp, &s)) == nil)
 				goto err;
 			locals = 0;
 			params = 0;
@@ -249,7 +249,7 @@ stabssyminit(Fhdr *fp)
 			/* create new symbol, add it */
 			if(stabcvtsym(&sym, &s, dir, file, i) < 0)
 				continue;
-			if(addsym(fp, &s) == nil)
+			if(_addsym(fp, &s) == nil)
 				goto err;
 			break;
 		}

@@ -46,7 +46,7 @@ elfsyminit(Fhdr *fp)
 			sym.type = 'U';
 		if(esym.bind==ElfSymBindLocal)
 			sym.type += 'a' - 'A';
-		addsym(fp, &sym);
+		_addsym(fp, &sym);
 	}
 
 	for(i=0; i<elf->nprog; i++){
@@ -60,7 +60,7 @@ elfsyminit(Fhdr *fp)
 		sym.hiloc = locaddr(p->vaddr+p->filesz);
 		sym.type = 'D';
 		sym.class = CDATA;
-		addsym(fp, &sym);
+		_addsym(fp, &sym);
 	}
 	return 0;
 }

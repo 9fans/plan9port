@@ -42,7 +42,7 @@ static int ptraceregrw(Regs*, char*, ulong*, int);
 static int attachedpids[1000];
 static int nattached;
 
-int
+static int
 ptraceattach(int pid)
 {
 	int i;
@@ -90,8 +90,6 @@ unmapproc(Map *map)
 				(map->nseg-i)*sizeof(map->seg[0]));
 		}
 }
-
-
 
 int
 mapproc(int pid, Map *map, Regs **rp)

@@ -439,7 +439,7 @@ bynamecmp(const void *va, const void *vb)
 }
 
 int
-syminit(Fhdr *hdr)
+symopen(Fhdr *hdr)
 {
 	int i;
 	Symbol *r, *w, *es;
@@ -474,8 +474,21 @@ syminit(Fhdr *hdr)
 	return 0;
 }
 
+void
+symclose(Fhdr *hdr)
+{
+	_delhdr(hdr);
+	if(hdr->symclose)
+		hdr->symclose(hdr);
+	free(hdr->byname);
+	hdr->byname = nil;
+	free(hdr->sym);
+	hdr->sym = nil;
+	hdr->nsym = 0;
+}
+
 Symbol*
-addsym(Fhdr *fp, Symbol *sym)
+_addsym(Fhdr *fp, Symbol *sym)
 {
 	Symbol *s;
 

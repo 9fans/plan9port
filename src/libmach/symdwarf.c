@@ -212,7 +212,7 @@ dwarfsyminit(Fhdr *fp)
 		case TagVariable:
 			if(dwarftosym(fp, d, &s, &sym, 0) < 0)
 				continue;
-			addsym(fp, &sym);
+			_addsym(fp, &sym);
 		}
 	}
 }
