@@ -164,29 +164,37 @@ i386unwind(Map *map, Regs *regs, ulong *next)
 static	char	FRAMENAME[] =	".frame";
 static char *excname[] =
 {
-[0]	"divide error",
-[1]	"debug exception",
-[4]	"overflow",
-[5]	"bounds check",
-[6]	"invalid opcode",
-[7]	"math coprocessor emulation",
-[8]	"double fault",
-[9]	"math coprocessor overrun",
-[10]	"invalid TSS",
-[11]	"segment not present",
-[12]	"stack exception",
-[13]	"general protection violation",
-[14]	"page fault",
-[16]	"math coprocessor error",
-[24]	"clock",
-[25]	"keyboard",
-[27]	"modem status",
-[28]	"serial line status",
-[30]	"floppy disk",
-[36]	"mouse",
-[37]	"math coprocessor",
-[38]	"hard disk",
-[64]	"system call",
+	"divide error",			/* 0 */
+	"debug exception",		/* 1 */
+	0,0,				/* 2, 3 */
+	"overflow",			/* 4 */
+	"bounds check",			/* 5 */
+	"invalid opcode",		/* 6 */
+	"math coprocessor emulation",	/* 7 */
+	"double fault",			/* 8 */
+	"math coprocessor overrun",	/* 9 */
+	"invalid TSS",			/* 10 */
+	"segment not present",		/* 11 */
+	"stack exception",		/* 12 */
+	"general protection violation",	/* 13 */
+	"page fault",			/* 14 */
+	0,				/* 15 */
+	"math coprocessor error",	/* 16 */
+	0,0,0,0,0,0,0,			/* 17-23 */
+	"clock",			/* 24 */
+	"keyboard",			/* 25 */
+	0,				/* 26 */
+	"modem status",			/* 27 */
+	"serial line status",		/* 28 */
+	0,				/* 29 */
+	"floppy disk",			/* 30 */
+	0,0,0,0,0,			/* 31-35 */
+	"mouse",			/* 36 */
+	"math coprocessor",		/* 37 */
+	"hard disk",			/* 38 */
+	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,/* 39-54 */
+	0,0,0,0,0,0,0,0,0,		/* 55-63 */
+	"system call",			/* 64 */
 };
 
 static char*
