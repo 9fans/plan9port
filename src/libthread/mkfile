@@ -23,7 +23,6 @@ OFILES=\
 	ioreadn.$O\
 	iosleep.$O\
 	iowrite.$O\
-	kill.$O\
 	lib.$O\
 	main.$O\
 	memset.$O\
@@ -43,13 +42,13 @@ HFILES=\
 <$PLAN9/src/mksyslib
 
 tprimes: tprimes.$O $PLAN9/lib/$LIB
-	$LD -o tprimes tprimes.$O $LDFLAGS -lthread -l9 -lfmt -lutf
+	$LD -o tprimes tprimes.$O $LDFLAGS -lthread -l9
 
 texec: texec.$O $PLAN9/lib/$LIB
-	$LD -o texec texec.$O $LDFLAGS -lthread -l9 -lfmt -lutf
+	$LD -o texec texec.$O $LDFLAGS -lthread -l9
 
 trend: trend.$O $PLAN9/lib/$LIB
-	$LD -o trend trend.$O $LDFLAGS -lthread -l9 -lfmt -lutf
+	$LD -o trend trend.$O $LDFLAGS -lthread -l9
 
 CLEANFILES=$CLEANFILES tprimes texec
 

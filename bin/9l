@@ -10,7 +10,7 @@ case "$tag" in
 		extralibs="$extralibs -lutil"
 		;;
 *Linux*)	ld=gcc
-		extralibs="$extralibs -lutil"
+		extralibs="$extralibs -lutil -lpthread"
 		;;
 *Darwin*)	ld=gcc ;;
 *SunOS*)	ld="${CC9:-cc} -g"

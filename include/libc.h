@@ -425,22 +425,49 @@ extern	void	needstack(int);
 /*
  *  synchronization
  */
-typedef
-struct Lock {
-	int	val;
-} Lock;
-
-extern int	_tas(int*);
+typedef struct Lock Lock;
+struct Lock
+{
+#ifdef PLAN9_PTHREADS
+	int init;
+	pthread_mutex_t mutex;
+#else
+	int val;
+#endif
+};
 
 extern	void	lock(Lock*);
 extern	void	unlock(Lock*);
 extern	int	canlock(Lock*);
 
+/*
+ * Used to implement process sleep and wakeup,
+ * either in terms of pthreads or our own primitives.
+ * This will be more portable than writing our own
+ * per-system implementations, and on some systems
+ * non-pthreads threading implementations break libc
+ * (cough, Linux, cough).
+ */
+typedef struct _Procrend _Procrend;
+struct _Procrend
+{
+	int asleep;
+	Lock *l;
+	void *arg;
+#ifdef PLAN9_PTHREADS
+	pthread_cond_t cond;
+#endif
+};
+
+extern	void	_procsleep(_Procrend*);
+extern	void	_procwakeup(_Procrend*);
+
 typedef struct QLp QLp;
 struct QLp
 {
-	int	inuse;
+	Lock	inuse;
 	QLp	*next;
+	_Procrend rend;
 	char	state;
 };
 
@@ -456,7 +483,7 @@ struct QLock
 extern	void	qlock(QLock*);
 extern	void	qunlock(QLock*);
 extern	int	canqlock(QLock*);
-extern	void	_qlockinit(ulong (*)(ulong, ulong));	/* called only by the thread library */
+extern	void	_qlockinit(void(*)(_Procrend*), void(*)(_Procrend*));	/* called only by the thread library */
 
 typedef
 struct RWLock

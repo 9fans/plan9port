@@ -41,6 +41,8 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #		undef _NEEDULONG
+#	include <pthread.h>
+#	define PLAN9_PTHREADS
 #	endif
 #endif
 #if defined(__sun__)
@@ -48,6 +50,8 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
+#	include <pthread.h>
+#	define PLAN9_PTHREADS
 #endif
 #if defined(__FreeBSD__)
 #	include <sys/types.h>
@@ -61,7 +65,10 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	define _NEEDLL 1
+#	include <pthread.h>
+#	define PLAN9_PTHREADS
 #endif
+
 
 typedef signed char schar;
 typedef unsigned int u32int;

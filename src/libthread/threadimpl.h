@@ -88,11 +88,9 @@ struct Thread
 
 	char		*cmdname;	/* ptr to name of thread */
 
-	int		inrendez;
-	Thread	*rendhash;	/* Trgrp linked list */
-	ulong	rendtag;		/* rendezvous tag */
-	ulong	rendval;		/* rendezvous value */
-	int		rendbreak;	/* rendezvous has been taken */
+	int		inrendez;	
+	Channel	*altc;
+	_Procrend	altrend;
 
 	Chanstate	chan;		/* which channel operation is current */
 	Alt		*alt;			/* pointer to current alt structure (debugging) */
@@ -179,11 +177,9 @@ int		_schedfork(Proc*);
 void		_schedinit(void*);
 void		_systhreadinit(void);
 void		_threadassert(char*);
-void		_threadbreakrendez(void);
 void		__threaddebug(ulong, char*, ...);
 #define _threaddebug if(!_threaddebuglevel){}else __threaddebug
 void		_threadexitsall(char*);
-void		_threadflagrendez(Thread*);
 Proc*	_threadgetproc(void);
 extern void	_threadmultiproc(void);
 Proc*	_threaddelproc(void);
@@ -193,7 +189,8 @@ void*	_threadmalloc(long, int);
 void		_threadnote(void*, char*);
 void		_threadready(Thread*);
 void		_threadidle(void);
-ulong	_threadrendezvous(ulong, ulong);
+void		_threadsleep(_Procrend*);
+void		_threadwakeup(_Procrend*);
 void		_threadsignal(void);
 void		_threadsysfatal(char*, va_list);
 long		_xdec(long*);

@@ -2,7 +2,7 @@
 
 static Lock chanlock;		/* central channel access lock */
 
-static void enqueue(Alt*, Channel**);
+static void enqueue(Alt*, Thread*);
 static void dequeue(Alt*);
 static int altexec(Alt*, int);
 
@@ -29,7 +29,7 @@ canexec(Alt *a)
 	/* are there senders or receivers blocked? */
 	otherop = (CHANSND+CHANRCV) - a->op;
 	for(i=0; i<c->nentry; i++)
-		if(c->qentry[i] && c->qentry[i]->op==otherop && *c->qentry[i]->tag==nil){
+		if(c->qentry[i] && c->qentry[i]->op==otherop && c->qentry[i]->thread==nil){
 			_threaddebug(DBGCHAN, "can rendez alt %p chan %p", a, c);
 			return 1;
 		}
@@ -100,9 +100,8 @@ static int
 _alt(Alt *alts)
 {
 	Alt *a, *xa;
-	Channel *volatile c;
+	Channel *c;
 	int n, s;
-	ulong r;
 	Thread *t;
 
 	/*
@@ -131,7 +130,7 @@ _alt(Alt *alts)
 		xa->entryno = -1;
 		if(xa->op == CHANNOP)
 			continue;
-		
+
 		c = xa->c;
 		if(c==nil){
 			unlock(&chanlock);
@@ -153,11 +152,11 @@ _threadnalt++;
 		}
 
 		/* enqueue on all channels. */
-		c = nil;
+		t->altc = nil;
 		for(xa=alts; xa->op!=CHANEND; xa++){
 			if(xa->op==CHANNOP)
 				continue;
-			enqueue(xa, (Channel**)&c);
+			enqueue(xa, t);
 		}
 
 		/*
@@ -166,25 +165,20 @@ _threadnalt++;
 		 * is interrupted -- someone else might come
 		 * along and try to rendezvous with us, so
 		 * we need to be here.
+		 *
+		 * actually, now we're assuming no interrupts.
 		 */
-	    Again:
+	    /*Again:*/
 		t->alt = alts;
 		t->chan = Chanalt;
-
-		unlock(&chanlock);
+		t->altrend.l = &chanlock;
 		_procsplx(s);
-		r = _threadrendezvous((ulong)&c, 0);
+		_threadsleep(&t->altrend);
 		s = _procsplhi();
-		lock(&chanlock);
-
-		if(r==~0){		/* interrupted */
-			if(c!=nil)		/* someone will meet us; go back */
-				goto Again;
-			c = (Channel*)~0;	/* so no one tries to meet us */
-		}
 
 		/* dequeue from channels, find selected one */
 		a = nil;
+		c = t->altc;
 		for(xa=alts; xa->op!=CHANEND; xa++){
 			if(xa->op==CHANNOP)
 				continue;
@@ -385,12 +379,12 @@ if(c->nentry > _threadhighnentry) _threadhighnentry = c->nentry;
 }
 
 static void
-enqueue(Alt *a, Channel **c)
+enqueue(Alt *a, Thread *t)
 {
 	int i;
 
 	_threaddebug(DBGCHAN, "Queueing alt %p on channel %p", a, a->c);
-	a->tag = c;
+	a->thread = t;
 	i = emptyentry(a->c);
 	a->c->qentry[i] = a;
 }
@@ -466,7 +460,7 @@ altexec(Alt *a, int spl)
 	b = nil;
 	me = a->v;
 	for(i=0; i<c->nentry; i++)
-		if(c->qentry[i] && c->qentry[i]->op==otherop && *c->qentry[i]->tag==nil)
+		if(c->qentry[i] && c->qentry[i]->op==otherop && c->qentry[i]->thread==nil)
 			if(nrand(++n) == 0)
 				b = c->qentry[i];
 	if(b != nil){
@@ -493,13 +487,12 @@ altexec(Alt *a, int spl)
 			else
 				altcopy(waiter, me, c->e);
 		}
-		*b->tag = c;	/* commits us to rendezvous */
+		b->thread->altc = c;
+		_procwakeup(&b->thread->altrend);
+		_threaddebug(DBGCHAN, "chanlock is %lud", *(ulong*)(void*)&chanlock);
 		_threaddebug(DBGCHAN, "unlocking the chanlock");
 		unlock(&chanlock);
 		_procsplx(spl);
-		_threaddebug(DBGCHAN, "chanlock is %lud", *(ulong*)(void*)&chanlock);
-		while(_threadrendezvous((ulong)b->tag, 0) == ~0)
-			;
 		return 1;
 	}
 

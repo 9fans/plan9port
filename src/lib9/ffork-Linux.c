@@ -1,3 +1,6 @@
+#include "ffork-pthread.c"
+
+#ifdef OLD
 /*
  * Is nothing simple?
  *
@@ -191,3 +194,4 @@ getfforkid(void)
 	return getpid();
 }
 
+#endif

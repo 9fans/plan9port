@@ -36,6 +36,7 @@ _schedinit(void *arg)
 	unlock(&p->lock);
 	while(_setlabel(&p->sched))
 		;
+malloc(10);
 	_threaddebug(DBGSCHED, "top of schedinit, _threadexitsallstatus=%p", _threadexitsallstatus);
 	if(_threadexitsallstatus)
 		_exits(_threadexitsallstatus);
@@ -57,8 +58,9 @@ _schedinit(void *arg)
 				p->threads.tail = t->prevt;
 			unlock(&p->lock);
 			if(t->inrendez){
-				_threadflagrendez(t);
-				_threadbreakrendez();
+				abort();
+			//	_threadflagrendez(t);
+			//	_threadbreakrendez();
 			}
 			_stackfree(t->stk);
 			free(t->cmdname);
@@ -183,15 +185,18 @@ _sched(void)
 Resched:
 	p = _threadgetproc();
 //fprint(2, "p %p\n", p);
+malloc(10);
 	if((t = p->thread) != nil){
 		needstack(512);
 	//	_threaddebug(DBGSCHED, "pausing, state=%s set %p goto %p",
 	//		psstate(t->state), &t->sched, &p->sched);
+print("swap\n");
 		if(_setlabel(&t->sched)==0)
 			_gotolabel(&p->sched);
 		_threadstacklimit(t->stk, t->stk+t->stksize);
 		return p->nsched++;
 	}else{
+malloc(10);
 		t = runthread(p);
 		if(t == nil){
 			_threaddebug(DBGSCHED, "all threads gone; exiting");
@@ -206,6 +211,8 @@ Resched:
 		}
 		t->state = Running;
 		t->nextstate = Ready;
+malloc(10);
+print("gotolabel\n");
 		_gotolabel(&t->sched);
 		for(;;);
 	}

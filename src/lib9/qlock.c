@@ -16,13 +16,15 @@ enum
 	Waking,
 };
 
-static ulong	(*_rendezvousp)(ulong, ulong) = rendezvous;
+static void (*procsleep)(_Procrend*) = _procsleep;
+static void (*procwakeup)(_Procrend*) = _procwakeup;
 
 /* this gets called by the thread library ONLY to get us to use its rendezvous */
 void
-_qlockinit(ulong (*r)(ulong, ulong))
+_qlockinit(void (*sleep)(_Procrend*), void (*wakeup)(_Procrend*))
 {
-	_rendezvousp = r;
+	procsleep = sleep;
+	procwakeup = wakeup;
 }
 
 /* find a free shared memory location to queue ourselves in */
@@ -39,7 +41,7 @@ getqlp(void)
 			fprint(2, "qlock: out of qlp\n");
 			abort();
 		}
-		if(_tas(&(p->inuse)) == 0){
+		if(canlock(&p->inuse)){
 			ql.p = p;
 			p->next = nil;
 			break;
@@ -70,13 +72,11 @@ qlock(QLock *q)
 		p->next = mp;
 	q->tail = mp;
 	mp->state = Queuing;
+	mp->rend.l = &q->lock;
+	_procsleep(&mp->rend);
 	unlock(&q->lock);
-
-	/* wait */
-	while((*_rendezvousp)((ulong)mp, 1) == ~0)
-		;
 	assert(mp->state == Waking);
-	mp->inuse = 0;
+	unlock(&mp->inuse);
 }
 
 void
@@ -91,10 +91,9 @@ qunlock(QLock *q)
 		q->head = p->next;
 		if(q->head == nil)
 			q->tail = nil;
-		unlock(&q->lock);
 		p->state = Waking;
-		while((*_rendezvousp)((ulong)p, 0x12345) == ~0)
-			;
+		_procwakeup(&p->rend);
+		unlock(&q->lock);
 		return;
 	}
 	q->locked = 0;
@@ -137,13 +136,11 @@ rlock(RWLock *q)
 	q->tail = mp;
 	mp->next = nil;
 	mp->state = QueuingR;
+	mp->rend.l = &q->lock;
+	_procsleep(&mp->rend);
 	unlock(&q->lock);
-
-	/* wait in kernel */
-	while((*_rendezvousp)((ulong)mp, 1) == ~0)
-		;
 	assert(mp->state == Waking);
-	mp->inuse = 0;
+	unlock(&mp->inuse);
 }
 
 int
@@ -181,12 +178,11 @@ runlock(RWLock *q)
 	if(q->head == 0)
 		q->tail = 0;
 	q->writer = 1;
-	unlock(&q->lock);
 
 	/* wakeup waiter */
 	p->state = Waking;
-	while((*_rendezvousp)((ulong)p, 0) == ~0)
-		;
+	_procwakeup(&p->rend);
+	unlock(&q->lock);
 }
 
 void
@@ -212,13 +208,13 @@ wlock(RWLock *q)
 	q->tail = mp;
 	mp->next = nil;
 	mp->state = QueuingW;
-	unlock(&q->lock);
 
 	/* wait in kernel */
-	while((*_rendezvousp)((ulong)mp, 1) == ~0)
-		;
+	mp->rend.l = &q->lock;
+	_procsleep(&mp->rend);
+	unlock(&q->lock);
 	assert(mp->state == Waking);
-	mp->inuse = 0;
+	unlock(&mp->inuse);
 }
 
 int
@@ -256,10 +252,9 @@ wunlock(RWLock *q)
 		q->head = p->next;
 		if(q->head == nil)
 			q->tail = nil;
-		unlock(&q->lock);
 		p->state = Waking;
-		while((*_rendezvousp)((ulong)p, 0) == ~0)
-			;
+		_procwakeup(&p->rend);
+		unlock(&q->lock);
 		return;
 	}
 
@@ -274,8 +269,7 @@ wunlock(RWLock *q)
 		q->head = p->next;
 		q->readers++;
 		p->state = Waking;
-		while((*_rendezvousp)((ulong)p, 0) == ~0)
-			;
+		_procwakeup(&p->rend);
 	}
 	if(q->head == nil)
 		q->tail = nil;
@@ -315,20 +309,17 @@ rsleep(Rendez *r)
 		r->l->head = t->next;
 		if(r->l->head == nil)
 			r->l->tail = nil;
-		unlock(&r->l->lock);
 		t->state = Waking;
-		while((*_rendezvousp)((ulong)t, 0x12345) == ~0)
-			;
-	}else{
+		_procwakeup(&t->rend);
+	}else
 		r->l->locked = 0;
-		unlock(&r->l->lock);
-	}
 
 	/* wait for a wakeup */
-	while((*_rendezvousp)((ulong)me, 0x23456) == ~0)
-		;
+	me->rend.l = &r->l->lock;
+	_procsleep(&me->rend);
+
 	assert(me->state == Waking);
-	me->inuse = 0;
+	unlock(&me->inuse);
 	if(!r->l->locked){
 		fprint(2, "rsleep: not locked after wakeup\n");
 		abort();
@@ -384,3 +375,23 @@ rwakeupall(Rendez *r)
 		;
 	return i;
 }
+
+void
+_procsleep(_Procrend *rend)
+{
+//print("sleep %p %d\n", rend, getpid());
+	pthread_cond_init(&rend->cond, 0);
+	rend->asleep = 1;
+	while(rend->asleep)
+		pthread_cond_wait(&rend->cond, &rend->l->mutex);
+	pthread_cond_destroy(&rend->cond);
+}
+
+void
+_procwakeup(_Procrend *rend)
+{
+//print("wakeup %p\n", rend);
+	rend->asleep = 0;
+	pthread_cond_signal(&rend->cond);
+}
+

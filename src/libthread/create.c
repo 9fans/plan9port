@@ -2,6 +2,7 @@
 
 Pqueue _threadpq;
 int _threadprocs;
+int __pthread_nonstandard_stacks;
 
 static int nextID(void);
 
@@ -21,6 +22,7 @@ newthread(Proc *p, void (*f)(void *arg), void *arg, uint stacksize, char *name, 
 	Thread *t;
 	char *s;
 
+	__pthread_nonstandard_stacks = 1;
 	if(stacksize < 32)
 		sysfatal("bad stacksize %d", stacksize);
 	t = _threadmalloc(sizeof(Thread), 1);

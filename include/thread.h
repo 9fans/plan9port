@@ -55,7 +55,7 @@ struct Alt {
 	/* the next variables are used internally to alt
 	 * they need not be initialized
 	 */
-	Channel	**tag;	/* pointer to rendez-vous tag */
+	struct Thread	*thread;	/* thread waiting on this alt */
 	int		entryno;	/* entry number */
 };
 

@@ -2,52 +2,54 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sched.h>
+#include <errno.h>
 #include <libc.h>
 
-int _ntas;
-static int
-_xtas(void *v)
-{
-	int x;
+static pthread_mutex_t initmutex = PTHREAD_MUTEX_INITIALIZER;
 
-	_ntas++;
-	x = _tas(v);
-	return x;
-}
-
-int
-canlock(Lock *l)
+static void
+lockinit(Lock *lk)
 {
-	return !_xtas(&l->val);
-}
+	pthread_mutexattr_t attr;
 
-void
-unlock(Lock *l)
-{
-	l->val = 0;
+	pthread_mutex_lock(&initmutex);
+	if(lk->init == 0){
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_NORMAL);
+		pthread_mutex_init(&lk->mutex, &attr);
+		pthread_mutexattr_destroy(&attr);
+		lk->init = 1;
+	}
+	pthread_mutex_unlock(&initmutex);
 }
 
 void
 lock(Lock *lk)
 {
-	int i;
+	if(!lk->init)
+		lockinit(lk);
+	if(pthread_mutex_lock(&lk->mutex) != 0)
+		abort();
+}
 
-	/* once fast */
-	if(!_xtas(&lk->val))
-		return;
-	/* a thousand times pretty fast */
-	for(i=0; i<1000; i++){
-		if(!_xtas(&lk->val))
-			return;
-		sched_yield();
-	}
-	/* now nice and slow */
-	for(i=0; i<1000; i++){
-		if(!_xtas(&lk->val))
-			return;
-		usleep(100*1000);
-	}
-	/* take your time */
-	while(_xtas(&lk->val))
-		usleep(1000*1000);
+int
+canlock(Lock *lk)
+{
+	int r;
+
+	if(!lk->init)
+		lockinit(lk);
+	r = pthread_mutex_trylock(&lk->mutex);
+	if(r == 0)
+		return 1;
+	if(r == EBUSY)
+		return 0;
+	abort();
+}
+
+void
+unlock(Lock *lk)
+{
+	if(pthread_mutex_unlock(&lk->mutex) != 0)
+		abort();
 }
