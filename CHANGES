@@ -6,6 +6,8 @@ April 23, 2004
 
 	various 9term/rio fixes from axel belinfante
 
+	reformat sunos compiler errors to use file:line format
+
 April 21, 2004
 
 	add bc, units, mtime, primes, news
