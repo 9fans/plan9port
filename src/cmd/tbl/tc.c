@@ -6,7 +6,7 @@ choochar(void)
 {
 				/* choose funny characters to delimit fields */
 	int	had[128], ilin, icol, k;
-	unsigned char	*s;
+	char	*s;
 
 	for (icol = 0; icol < 128; icol++)
 		had[icol] = 0;
@@ -23,19 +23,19 @@ choochar(void)
 			s = table[ilin][icol].col;
 			if (point(s))
 				while (*s)
-					had[*s++] = 1;
+					had[(unsigned char)*s++] = 1;
 			s = table[ilin][icol].rcol;
 			if (point(s))
 				while (*s)
-					had[*s++] = 1;
+					had[(unsigned char)*s++] = 1;
 		}
 	}
 				/* choose first funny character */
 	for (
 	    s = "\002\003\005\006\007!%&#/?,:;<=>@`^~_{}+-*ABCDEFGHIJKMNOPQRSTUVWXYZabcdefgjkoqrstwxyz"; 
 	    *s; s++) {
-		if (had[*s] == 0) {
-			F1 = *s;
+		if (had[(unsigned char)*s] == 0) {
+			F1 = (unsigned char)*s;
 			had[F1] = 1;
 			break;
 		}
@@ -44,8 +44,8 @@ choochar(void)
 	for (
 	    s = "\002\003\005\006\007:_~^`@;,<=>#%&!/?{}+-*ABCDEFGHIJKMNOPQRSTUVWXZabcdefgjkoqrstuwxyz"; 
 	    *s; s++) {
-		if (had[*s] == 0) {
-			F2 = *s;
+		if (had[(unsigned char)*s] == 0) {
+			F2 = (unsigned char)*s;
 			break;
 		}
 	}

@@ -1,3 +1,4 @@
+#include <u.h>
 #include <sys/stat.h>
 #include "stdinc.h"
 #include "vac.h"

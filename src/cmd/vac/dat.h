@@ -1,10 +1,7 @@
 typedef struct MetaBlock MetaBlock;
 typedef struct MetaEntry MetaEntry;
 
-enum
-{
-	MaxBlock	= (1UL<<31),
-};
+#define MaxBlock (1UL<<31)
 
 enum {
 	BytesPerEntry = 100,	/* estimate of bytes per dir entries - determines number of index entries in the block */
