@@ -19,18 +19,20 @@
 #undef unix
 
 int
-p9dial(char *addr, char *dummy1, char *dummy2, int *dummy3)
+p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 {
 	char *buf;
 	char *net, *unix;
 	u32int host;
 	int port;
 	int proto;
-	struct sockaddr_in sa;	
+	socklen_t sn;
+	int n;
+	struct sockaddr_in sa, sal;	
 	struct sockaddr_un su;
 	int s;
 
-	if(dummy1 || dummy2 || dummy3){
+	if(dummy2 || dummy3){
 		werrstr("cannot handle extra arguments in dial");
 		return -1;
 	}
@@ -63,6 +65,38 @@ p9dial(char *addr, char *dummy1, char *dummy2, int *dummy3)
 	sa.sin_port = htons(port);
 	if((s = socket(AF_INET, proto, 0)) < 0)
 		return -1;
+		
+	if(local){
+		buf = strdup(local);
+		if(buf == nil){
+			close(s);
+			return -1;
+		}
+		if(p9dialparse(buf, &net, &unix, &host, &port) < 0){
+		badlocal:
+			free(buf);
+			close(s);
+			return -1;
+		}
+		if(unix){
+			werrstr("bad local address %s for dial %s", local, addr);
+			goto badlocal;
+		}
+		memset(&sal, 0, sizeof sal);
+		memmove(&sal.sin_addr, &local, 4);
+		sal.sin_family = AF_INET;
+		sal.sin_port = htons(port);
+		sn = sizeof n;
+		if(port && getsockopt(s, SOL_SOCKET, SO_TYPE, (void*)&n, &sn) >= 0
+		&& n == SOCK_STREAM){
+			n = 1;
+			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof n);
+		}
+		if(bind(s, (struct sockaddr*)&sal, sizeof sal) < 0)
+			goto badlocal;
+		free(buf);
+	}
+
 	if(connect(s, (struct sockaddr*)&sa, sizeof sa) < 0){
 		close(s);
 		return -1;
@@ -74,6 +108,11 @@ p9dial(char *addr, char *dummy1, char *dummy2, int *dummy3)
 	return s;
 
 Unix:
+	if(local){
+		werrstr("local address not supported on unix network");
+		free(buf);
+		return -1;
+	}
 	memset(&su, 0, sizeof su);
 	su.sun_family = AF_UNIX;
 	if(strlen(unix)+1 > sizeof su.sun_path){
