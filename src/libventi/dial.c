@@ -13,7 +13,7 @@ vtdial(char *addr)
 	if(addr == nil)
 		addr = "$venti";
 
-	na = netmkaddr(addr, "net", "venti");
+	na = netmkaddr(addr, "tcp", "venti");
 	if((fd = dial(na, nil, nil, nil)) < 0)
 		return nil;
 
