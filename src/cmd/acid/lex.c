@@ -37,25 +37,30 @@ keywds[] =
 	0,		0
 };
 
-char cmap[256] =
+char cmap[256];
+
+void
+initcmap(void)
 {
-	['0']	'\0'+1,
-	['n']	'\n'+1,
-	['r']	'\r'+1,
-	['t']	'\t'+1,
-	['b']	'\b'+1,
-	['f']	'\f'+1,
-	['a']	'\a'+1,
-	['v']	'\v'+1,
-	['\\']	'\\'+1,
-	['"']	'"'+1,
+	cmap['0']=	'\0'+1;
+	cmap['n']=	'\n'+1;
+	cmap['r']=	'\r'+1;
+	cmap['t']=	'\t'+1;
+	cmap['b']=	'\b'+1;
+	cmap['f']=	'\f'+1;
+	cmap['a']=	'\a'+1;
+	cmap['v']=	'\v'+1;
+	cmap['\\']=	'\\'+1;
+	cmap['"']=	'"'+1;
 };
 
 void
 kinit(void)
 {
 	int i;
-	
+
+	initcmap();
+
 	for(i = 0; keywds[i].name; i++) 
 		enter(keywds[i].name, keywds[i].terminal);
 }

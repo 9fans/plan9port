@@ -76,6 +76,7 @@ main(int argc, char *argv[])
 	Binit(&bioout, 1, OWRITE);
 	bout = &bioout;
 
+	initexpr();
 	kinit();
 	initialising = 1;
 	pushfile(0);

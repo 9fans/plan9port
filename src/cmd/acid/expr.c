@@ -6,36 +6,39 @@
 #define Extern extern
 #include "acid.h"
 
-static int fsize[] =
+static int fsize[256];
+
+static void
+initfsize(void)
 {
-	['A'] 4,
-	['B'] 4,
-	['C'] 1,
-	['D'] 4,
-	['F'] 8,
-	['G'] 8,
-	['O'] 4,
-	['Q'] 4,
-	['R'] 4,
-	['S'] 4,
-	['U'] 4,
-	['V'] 8,
-	['X'] 4,
-	['Y'] 8,
-	['W'] 8,
-	['Z'] 8,
-	['a'] 4,
-	['b'] 1,
-	['c'] 1,
-	['d'] 2,
-	['f'] 4,
-	['g'] 4,
-	['o'] 2,
-	['q'] 2,
-	['r'] 2,
-	['s'] 4,
-	['u'] 2,
-	['x'] 2,
+	fsize['A'] = 4;
+	fsize['B'] = 4;
+	fsize['C'] = 1;
+	fsize['D'] = 4;
+	fsize['F'] = 8;
+	fsize['G'] = 8;
+	fsize['O'] = 4;
+	fsize['Q'] = 4;
+	fsize['R'] = 4;
+	fsize['S'] = 4;
+	fsize['U'] = 4;
+	fsize['V'] = 8;
+	fsize['X'] = 4;
+	fsize['Y'] = 8;
+	fsize['W'] = 8;
+	fsize['Z'] = 8;
+	fsize['a'] = 4;
+	fsize['b'] = 1;
+	fsize['c'] = 1;
+	fsize['d'] = 2;
+	fsize['f'] = 4;
+	fsize['g'] = 4;
+	fsize['o'] = 2;
+	fsize['q'] = 2;
+	fsize['r'] = 2;
+	fsize['s'] = 4;
+	fsize['u'] = 2;
+	fsize['x'] = 2;
 };
 
 int
@@ -964,55 +967,66 @@ owhat(Node *n, Node *res)
 	whatis(n->sym);
 }
 
-void (*expop[])(Node*, Node*) =
+void (*expop[NUMO])(Node*, Node*);
+
+static void
+initexpop(void)
 {
-	[ONAME]		oname,
-	[OCONST]	oconst,
-	[OMUL]		omul,
-	[ODIV]		odiv,
-	[OMOD]		omod,
-	[OADD]		oadd,
-	[OSUB]		osub,
-	[ORSH]		orsh,
-	[OLSH]		olsh,
-	[OLT]		olt,
-	[OGT]		ogt,
-	[OLEQ]		oleq,
-	[OGEQ]		ogeq,
-	[OEQ]		oeq,
-	[ONEQ]		oeq,
-	[OLAND]		oland,
-	[OXOR]		oxor,
-	[OLOR]		olor,
-	[OCAND]		ocand,
-	[OCOR]		ocor,
-	[OASGN]		oasgn,
-	[OINDM]		oindm,
-	[OEDEC]		oeinc,
-	[OEINC]		oeinc,
-	[OPINC]		opinc,
-	[OPDEC]		opinc,
-	[ONOT]		onot,
-	[OIF]		0,
-	[ODO]		0,
-	[OLIST]		olist,
-	[OCALL]		ocall,
-	[OCTRUCT]	octruct,
-	[OWHILE]	0,
-	[OELSE]		0,
-	[OHEAD]		ohead,
-	[OTAIL]		otail,
-	[OAPPEND]	oappend,
-	[ORET]		0,
-	[OINDEX]	oindex,
-	[OINDC]		oindc,
-	[ODOT]		odot,
-	[OLOCAL]	0,
-	[OFRAME]	oframe,
-	[OCOMPLEX]	0,
-	[ODELETE]	odelete,
-	[OCAST]		ocast,
-	[OFMT]		ofmt,
-	[OEVAL]		oeval,
-	[OWHAT]		owhat,
+	expop[ONAME] = oname;
+	expop[OCONST] = oconst;
+	expop[OMUL] = omul;
+	expop[ODIV] = odiv;
+	expop[OMOD] = omod;
+	expop[OADD] = oadd;
+	expop[OSUB] = osub;
+	expop[ORSH] = orsh;
+	expop[OLSH] = olsh;
+	expop[OLT] = olt;
+	expop[OGT] = ogt;
+	expop[OLEQ] = oleq;
+	expop[OGEQ] = ogeq;
+	expop[OEQ] = oeq;
+	expop[ONEQ] = oeq;
+	expop[OLAND] = oland;
+	expop[OXOR] = oxor;
+	expop[OLOR] = olor;
+	expop[OCAND] = ocand;
+	expop[OCOR] = ocor;
+	expop[OASGN] = oasgn;
+	expop[OINDM] = oindm;
+	expop[OEDEC] = oeinc;
+	expop[OEINC] = oeinc;
+	expop[OPINC] = opinc;
+	expop[OPDEC] = opinc;
+	expop[ONOT] = onot;
+	expop[OIF] = 0;
+	expop[ODO] = 0;
+	expop[OLIST] = olist;
+	expop[OCALL] = ocall;
+	expop[OCTRUCT] = octruct;
+	expop[OWHILE] =0;
+	expop[OELSE] = 0;
+	expop[OHEAD] = ohead;
+	expop[OTAIL] = otail;
+	expop[OAPPEND] = oappend;
+	expop[ORET] = 0;
+	expop[OINDEX] =oindex;
+	expop[OINDC] = oindc;
+	expop[ODOT] = odot;
+	expop[OLOCAL] =0;
+	expop[OFRAME] = oframe;
+	expop[OCOMPLEX] =0;
+	expop[ODELETE] = odelete;
+	expop[OCAST] = ocast;
+	expop[OFMT] = ofmt;
+	expop[OEVAL] = oeval;
+	expop[OWHAT] = owhat;
 };
+
+void
+initexpr(void)
+{
+	initfsize();
+	initexpop();
+}
+

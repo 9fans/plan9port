@@ -6,38 +6,46 @@
 #define Extern extern
 #include "acid.h"
 
-static char *binop[] =
+static char *binop[NUMO];
+
+static void
+initbinop(void)
 {
-	[OMUL]	"*",
-	[ODIV]	"/",
-	[OMOD]	"%",
-	[OADD]	"+",
-	[OSUB]	"-",
-	[ORSH]	">>",
-	[OLSH]	"<<",
-	[OLT]	"<",
-	[OGT]	">",
-	[OLEQ]	"<=",
-	[OGEQ]	">=",
-	[OEQ]	"==",
-	[ONEQ]	"!=",
-	[OLAND]	"&",
-	[OXOR]	"^",
-	[OLOR]	"|",
-	[OCAND]	"&&",
-	[OCOR]	"||",
-	[OASGN]	" = ",
+	binop[OMUL]=	"*";
+	binop[ODIV]=	"/";
+	binop[OMOD]=	"%";
+	binop[OADD]=	"+";
+	binop[OSUB]=	"-";
+	binop[ORSH]=	">>";
+	binop[OLSH]=	"<<";
+	binop[OLT]=	"<";
+	binop[OGT]=	">";
+	binop[OLEQ]=	"<=";
+	binop[OGEQ]=	">=";
+	binop[OEQ]=	"==";
+	binop[ONEQ]=	"!=";
+	binop[OLAND]=	"&";
+	binop[OXOR]=	"^";
+	binop[OLOR]=	"|";
+	binop[OCAND]=	"&&";
+	binop[OCOR]=	"||";
+	binop[OASGN]=	" = ";
 };
 
 static char *tabs = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-char *typenames[] =
-{
-	[TINT]		"integer",
-	[TFLOAT]	"float",
-	[TSTRING]	"string",
-	[TLIST]		"list",
-	[TCODE]		"code",
+char *typenames[] = {
+	"integer",
+	"float",
+	"string",
+	"list",
+	"code",
 };
+
+void
+initprint(void)
+{
+	initbinop();
+}
 
 int
 cmp(const void *va, const void *vb)

@@ -76,6 +76,7 @@ enum
 	TSTRING,
 	TLIST,
 	TCODE,
+	NUMT,
 };
 
 struct Type
@@ -211,6 +212,8 @@ void	gc(void);
 char*	getstatus(int);
 void*	gmalloc(long);
 void	indir(Map*, ulong, char, Node*);
+void	initexpr(void);
+void	initprint(void);
 void	installbuiltin(void);
 void	kinit(void);
 int	Zfmt(Fmt*);
@@ -311,4 +314,5 @@ enum
 	OFMT,
 	OEVAL,
 	OWHAT,
+	NUMO,
 };
