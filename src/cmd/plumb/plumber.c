@@ -26,34 +26,16 @@ makeports(Ruleset *rules[])
 }
 
 void
-mainproc(void *v)
-{
-	Channel *c;
-
-	c = v;
-	printerrors = 0;
-	makeports(rules);
-	startfsys();
-	sendp(c, nil);
-}
-
-void
 threadmain(int argc, char *argv[])
 {
 	char buf[512];
 	int fd;
-	int volatile dofork;
-	Channel *c;
 
 	progname = "plumber";
-	dofork = 1;
 
 	ARGBEGIN{
 	case 'd':
 		debug = 1;
-		break;
-	case 'f':
-		dofork = 0;
 		break;
 	case 'p':
 		plumbfile = ARGF();
@@ -83,17 +65,13 @@ threadmain(int argc, char *argv[])
 	rules = readrules(plumbfile, fd);
 	close(fd);
 
-	if(dofork)
-		threaddaemonize();
-
 	/*
 	 * Start all processes and threads from other proc
 	 * so we (main pid) can return to user.
 	 */
-	c = chancreate(sizeof(void*), 0);
-	proccreate(mainproc, c, 8192);
-	recvp(c);
-	chanfree(c);
+	printerrors = 0;
+	makeports(rules);
+	startfsys();
 	threadexits(nil);
 }
 

@@ -199,7 +199,7 @@ startfsys(void)
 	if(post9pservice(p[1], "plumb") < 0)
 		sysfatal("post9pservice plumb: %r");
 	close(p[1]);
-	fsysproc(nil);
+	proccreate(fsysproc, nil, Stack);
 }
 
 static void
