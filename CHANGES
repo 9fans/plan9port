@@ -9,6 +9,8 @@ March 26, 2004
 
 	9term OpenBSD support from Markus Friedl.
 
+	More appeasement of Sun C compiler.
+
 March 25, 2004
 
 	Change putenv not to free the string after calling real putenv.

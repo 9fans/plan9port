@@ -7,7 +7,7 @@ _Bfmtflush(Fmt *f)
 	Biobuf *b;
 
 	b = f->farg;
-	b->ocount = f->to - f->stop;
+	b->ocount = (char*)f->to - (char*)f->stop;
 	if(Bflush(b) < 0)
 		return 0;
 	f->to = b->ebuf+b->ocount;

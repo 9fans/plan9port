@@ -69,7 +69,7 @@ notify(void (*f)(void*, char*))
 	struct sigaction sa;
 
 	memset(&sa, 0, sizeof sa);
-	if(f == nil)
+	if(f == 0)
 		sa.sa_handler = SIG_DFL;
 	else{
 		notifyf = f;
