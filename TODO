@@ -20,3 +20,8 @@
 
 	- need to use MAKECONTEXT_V2_SOURCE for SunOS 5.10 (and can for 5.9),
 	  but must not for 5.8.  (reported by Axel Belinfante)
+
+	- libdraw _x.black and _x.white can go away.
+
+	- don't mess with signal mask unless asked.
+

@@ -1,4 +1,29 @@
-January 12, 2005
+January 16, 2005
+	bring fds from daemonize down to high 20s from high 90s for NetBSD.
+	use -Wl,-rpath in gcc in 9l for NetBSD.
+	make vacfs work (patch from Lucho)
+	make vacfs use EARGF
+	add note about signal masks in TODO
+		(Taj Khattra notes that acme doesn't ^Z well)
+	add note about _x.black and _x.white in TODO
+		(noted by David Leimbach)
+	remove unixisms from dist/fixurls
+	fix bugs in dist/main.html
+	noteenable, notedisable, notifyon, notifyoff return old setting.
+	update manual indices
+	troff2html handles section (9p).
+	add note in libthread/thread.c about stack-based pthreads
+	make tmac.an's .HR better
+	tweaks to unix mkfiles
 
+January 15, 2005
+	tcolors now uses threadexitsall
+	syminit bug in mk.  (why does syminit exist?)
+	
+January 14, 2005
+	man page updates - fixurls, manweb, rio.1, cvs.1, 0intro.1.
+	add note about makecontext to TODO file (noted by Axel)
+
+January 12, 2005
 	First fully-documented release.
 
