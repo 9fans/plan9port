@@ -1,12 +1,11 @@
-# edit ../ps.mk instead
 SYSTEM=plan9
 VERSION=3.3.1
 
 ROOT=
-POSTBIN=$ROOT/$objtype/bin/aux
+POSTBIN=$PLAN9/bin
 DKHOST=FALSE
 DKSTREAMS=FALSE
 ROUNDPAGE=TRUE
 
-FONTDIR=/sys/lib/troff/font
-POSTLIB=/sys/lib/postscript/prologues
+FONTDIR=$PLAN9/troff/font
+POSTLIB=$PLAN9/postscript/prologues
