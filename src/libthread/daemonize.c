@@ -100,12 +100,13 @@ _threadsetupdaemonize(void)
 		sysfatal("passer pipe: %r");
 
 	/* hide these somewhere they won't cause harm */
-	if(dup(p[0], 98) < 0 || dup(p[1], 99) < 0)
+	/* can't go too high: NetBSD max is 64, for example */
+	if(dup(p[0], 28) < 0 || dup(p[1], 29) < 0)
 		sysfatal("passer pipe dup: %r");
 	close(p[0]);
 	close(p[1]);
-	p[0] = 98;
-	p[1] = 99;
+	p[0] = 28;
+	p[1] = 29;
 
 	/* close on exec */
 	if(fcntl(p[0], F_SETFD, 1) < 0 || fcntl(p[1], F_SETFD, 1) < 0)
