@@ -34,4 +34,7 @@ TLS (2.6+) you will be using TLS.
 
 Apparently Gentoo and maybe other distributions do not follow this rule.
 They use non-TLS libraries even on kernels that can support TLS.
+To accomodate them, you can add a line SYSVERSION=2.4 to $PLAN9/config
+to force the build to think you are running an old kernel.
+The INSTALL script sets up this file automatically on Linux systems.
 
