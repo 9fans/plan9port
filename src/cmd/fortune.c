@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 	Biobuf *f, g;
 
 	index = unsharp(index);
-	fortunes = unsharp(index);
+	fortunes = unsharp(fortunes);
 
 	newindex = 0;
 	oldindex = 0;

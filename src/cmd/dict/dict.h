@@ -5,6 +5,8 @@ enum {	NONE=0xe800,	/* Emit nothing */
 	SPCS,		/* Start of special character name */
 	PAR,		/* Newline, indent */
 	LIGS,		/* Start of ligature codes */
+
+/* need to keep in sync with utils.c:/ligtab */
 	LACU=LIGS,	/* Acute (´) ligatures */
 	LGRV,		/* Grave (ˋ) ligatures */
 	LUML,		/* Umlaut (¨) ligatures */
@@ -23,6 +25,8 @@ enum {	NONE=0xe800,	/* Emit nothing */
 	LLEN,		/* Lenis (ʼ) ligatures */
 	LBRB,		/* Breve below (̮) ligatures */
 	LIGE,		/* End of ligature codes */
+
+/* need to keep in sync with utils.c:/multitab */
 	MULTI,		/* Start of multi-rune codes */
 	MAAS=MULTI,	/* ʽα */
 	MALN,		/* ʼα */
