@@ -1218,6 +1218,7 @@ rcstart(int fd[2], int argc, char **argv)
 		dup(sfd, 0);
 		dup(sfd, 1);
 		dup(sfd, 2);
+		system("stty tabs -onlcr -echo");
 		execvp(argv[0], argv);
 		_exits("oops");
 		break;
