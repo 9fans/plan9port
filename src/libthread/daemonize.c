@@ -9,6 +9,7 @@
 
 static int sigpid;
 static int threadpassfd;
+static int gotsigchld;
 
 static void
 child(void)
@@ -44,11 +45,27 @@ child(void)
 static void
 sigpass(int sig)
 {
+	if(sigpid == 1){
+		gotsigchld = 1;
+		return;
+	}
+
 	if(sig == SIGCHLD)
 		child();
 	else
 		kill(sigpid, sig);
 }
+
+static int sigs[] = 
+{
+	SIGHUP, SIGINT, SIGQUIT, SIGILL,
+	SIGTRAP, SIGABRT, SIGBUS, SIGFPE,
+	SIGUSR1, SIGSEGV, SIGUSR2, SIGPIPE,
+	SIGALRM, SIGTERM, SIGCHLD, SIGSTOP,
+	SIGTSTP, SIGTTIN, SIGTTOU, SIGURG, 
+	SIGXCPU, SIGXFSZ, SIGVTALRM, SIGPROF,
+	SIGWINCH, SIGIO, SIGPWR, SIGSYS
+};
 
 void
 _threadsetupdaemonize(void)
@@ -88,20 +105,23 @@ _threadsetupdaemonize(void)
 		for(i=0; i<100; i++) sched_yield();
 		notedisable("sys: child");
 		signal(SIGCHLD, SIG_DFL);
-		rfork(RFNOTEG);
+	/*	rfork(RFNOTEG); */
 		close(p[0]);
 		threadpassfd = p[1];
 		return;
 	}
 
 	sigpid = pid;
-	for(i=0; i<NSIG; i++){
+	if(gotsigchld)
+		sigpass(SIGCHLD);
+
+	for(i=0; i<nelem(sigs); i++){
 		struct sigaction sa;
 
 		memset(&sa, 0, sizeof sa);
 		sa.sa_handler = sigpass;
 		sa.sa_flags |= SA_RESTART;
-		sigaction(i, &sa, nil);
+		sigaction(sigs[i], &sa, nil);
 	}
 
 	for(;;){
