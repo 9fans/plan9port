@@ -111,6 +111,8 @@ threadmain(int argc, char *argv[])
 	cputype = getenv("cputype");
 	objtype = getenv("objtype");
 	home = getenv("home");
+	if(home == nil)
+		home = getenv("HOME");
 	p = getenv("tabstop");
 	if(p != nil){
 		maxtab = strtoul(p, nil, 0);
