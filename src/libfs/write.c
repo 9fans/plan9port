@@ -24,7 +24,8 @@ _fspwrite(Fid *fid, void *buf, long n, vlong offset)
 	tx.count = n;
 	tx.data = buf;
 
-	fsrpc(fid->fs, &tx, &rx, &freep);
+	if(fsrpc(fid->fs, &tx, &rx, &freep) < 0)
+		return -1;
 	if(rx.type == Rerror){
 		werrstr("%s", rx.ename);
 		free(freep);

@@ -29,13 +29,17 @@ void
 threadmain(int argc, char *argv[])
 {
 	char buf[512];
-	int fd;
+	int fd, dofork;
 
 	progname = "plumber";
+	dofork = 1;
 
 	ARGBEGIN{
 	case 'd':
 		debug = 1;
+		break;
+	case 'f':
+		dofork = 0;
 		break;
 	case 'p':
 		plumbfile = ARGF();
@@ -66,6 +70,7 @@ threadmain(int argc, char *argv[])
 	 * Start all processes and threads from other proc
 	 * so we (main pid) can return to user.
 	 */
+	if(dofork)
 	switch(fork()){
 	case -1:
 		sysfatal("fork: %r");

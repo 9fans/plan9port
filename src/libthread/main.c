@@ -45,7 +45,7 @@ main(int argc, char **argv)
 
 	signal(SIGTERM, _threaddie);
 	signal(SIGCHLD, _nop);
-	signal(SIGINFO, _threadstatus);
+//	signal(SIGINFO, _threadstatus);
 //	rfork(RFREND);
 
 //_threaddebuglevel = (DBGSCHED|DBGCHAN|DBGREND)^~0;

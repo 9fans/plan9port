@@ -28,7 +28,8 @@ fprint(2, "n %d msize %d\n", n, msize);
 		tx.offset = offset;
 	tx.count = n;
 
-	fsrpc(fid->fs, &tx, &rx, &freep);
+	if(fsrpc(fid->fs, &tx, &rx, &freep) < 0)
+		return -1;
 	if(rx.type == Rerror){
 		werrstr("%s", rx.ename);
 		free(freep);

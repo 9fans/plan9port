@@ -25,7 +25,7 @@ _stringnwidth(Font *f, char *s, Rune *r, int len)
 	}else
 		rptr = &r;
 	twid = 0;
-	while((*s || *r) && len){
+	while(len && (*s || *r)){
 		max = Max;
 		if(len < max)
 			max = len;

@@ -28,7 +28,7 @@ cachechars(Font *f, char **ss, Rune **rr, ushort *cp, int max, int *wp, char **s
 	}
 	wid = 0;
 	*subfontname = 0;
-	for(i=0; (*sp || *rp) && i<max; sp+=w, rp+=rw){
+	for(i=0; i<max && (*sp || *rp); sp+=w, rp+=rw){
 		if(ss){
 			r = *(uchar*)sp;
 			if(r < Runeself)
