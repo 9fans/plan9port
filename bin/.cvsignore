@@ -16,6 +16,8 @@ adict
 aescbc
 ajuke
 ascii
+asn12dsa
+asn12rsa
 astro
 auxclog
 auxstats
@@ -41,6 +43,8 @@ deroff
 dial
 dict
 diff
+dsa2ssh
+dsagen
 dump9660
 echo
 ed
@@ -92,6 +96,7 @@ mp3info
 mtime
 namespace
 ndbipquery
+ndbmkdb
 ndbmkhash
 ndbmkhosts
 ndbquery
@@ -99,7 +104,10 @@ netkey
 news
 notes
 p
+passwd
 pbd
+pemdecode
+pemencode
 pic
 plot
 plumb
@@ -113,8 +121,15 @@ psdownload
 ramfs
 rc
 read
+readcons
 rio
 rm
+rsa2csr
+rsa2pub
+rsa2ssh
+rsa2x509
+rsafill
+rsagen
 sam
 samterm
 scat
@@ -128,10 +143,12 @@ sleep
 sort
 split
 sprog
+ssh-agent
 stats
 strings
 sum
 tail
+tar
 tbl
 tcolors
 tcs

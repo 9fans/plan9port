@@ -6,7 +6,7 @@
  * Protocol:
  *
  *	S -> C:	random@domain
- *	C -> S:	hex-response
+ *	C -> S:	user hex-response
  *	S -> C:	ok
  *
  * Note that this is the protocol between factotum and the local
@@ -15,7 +15,7 @@
  * programs.
  *
  * If S sends "bad [msg]" instead of "ok", that is a hint that the key is bad.
- * The protocol goes back to "C -> S: user".
+ * The protocol goes back to "C -> S: user hex-response".
  */
 
 #include "std.h"
@@ -240,7 +240,7 @@ out:
 	keyclose(s.k);
 	free(user);
 	free(resp);
-//	xioclose(s.asfd);
+	xioclose(s.asfd);
 	return ret;
 }
 
@@ -336,15 +336,18 @@ apoproles[] =
 };
 
 Proto apop = {
-.name=		"apop",
-.roles=		apoproles,
-.checkkey=	apopcheck,
-.keyprompt=	"user? !password?",
+	"apop",
+	apoproles,
+	"user? !password?",
+	apopcheck,
+	nil
 };
 
 Proto cram = {
-.name=		"cram",
-.roles=		apoproles,
-.checkkey=	apopcheck,
-.keyprompt=	"user? !password?",
+	"cram",
+	apoproles,
+	"user? !password?",
+	apopcheck,
+	nil
 };
+

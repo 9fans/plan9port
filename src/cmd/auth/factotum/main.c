@@ -48,6 +48,9 @@ threadmain(int argc, char *argv[])
 	case 'a':
 		authaddr = EARGF(usage());
 		break;
+	case 'd':
+		debug = 1;
+		break;
 	case 'g':
 		usage();
 	case 'm':

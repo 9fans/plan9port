@@ -45,8 +45,11 @@ havesecstore(void)
 	hnputs(buf, 0x8000+n-2);
 
 	fd = secdial();
-	if(fd < 0)
+	if(fd < 0){
+		if(debug)
+			fprint(2, "secdial: %r\n");
 		return 0;
+	}
 	if(write(fd, buf, n) != n || readn(fd, buf, 2) != 2){
 		close(fd);
 		return 0;

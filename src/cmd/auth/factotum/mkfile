@@ -5,10 +5,12 @@ PROTO=\
 	apop.$O\
 	chap.$O\
 	dsa.$O\
+	httpdigest.$O\
 	p9any.$O\
 	p9sk1.$O\
 	pass.$O\
 	rsa.$O\
+	wep.$O\
 
 OFILES=\
 	$PROTO\
@@ -24,9 +26,9 @@ OFILES=\
 	pkcs1.$O\
 	proto.$O\
 	rpc.$O\
+	secstore.$O\
 	util.$O\
 	xio.$O\
-	secstore.$O\
 
 HFILES=dat.h
 

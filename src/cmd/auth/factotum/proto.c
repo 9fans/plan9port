@@ -5,6 +5,7 @@ extern Proto	apop;		/* apop.c */
 extern Proto	chap;		/* chap.c */
 extern Proto	cram;		/* apop.c */
 extern Proto	dsa;			/* dsa.c */
+extern Proto	httpdigest;	/* httpdigest.c */
 extern Proto	mschap;		/* chap.c */
 extern Proto	p9any;		/* p9any.c */
 extern Proto	p9sk1;		/* p9sk1.c */
@@ -16,6 +17,7 @@ Proto *prototab[] = {
 	&apop,
 	&cram,
 	&dsa,
+	&httpdigest,
 	&p9any,
 	&p9sk1,
 	&p9sk2,

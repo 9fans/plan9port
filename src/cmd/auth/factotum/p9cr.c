@@ -18,16 +18,6 @@
 #include "dat.h"
 
 static int
-p9crcheck(Key *k)
-{
-	if(!strfindattr(k->attr, "user") || !strfindattr(k->privattr, "!password")){
-		werrstr("need user and !password attributes");
-		return -1;
-	}
-	return 0;
-}
-
-static int
 p9crclient(Conv *c)
 {
 	char *chal, *pw, *res, *user;
@@ -113,10 +103,11 @@ out:
 static int
 p9crserver(Conv *c)
 {
-	char chal[APOPCHALLEN], *user, *resp;
-	ServerState s;
-	int astype, ret;
+	char chal[MAXCHAL], *user, *resp;
+	int astype, challen, asfd, fd, ret;
 	Attr *a;
+	Key *k;
+	char *hostid, *dom;
 
 	ret = -1;
 	user = nil;
@@ -124,28 +115,32 @@ p9crserver(Conv *c)
 	memset(&s, 0, sizeof s);
 	s.asfd = -1;
 
-	if(c->proto == &apop)
-		astype = AuthApop;
-	else if(c->proto == &cram)
-		astype = AuthCram;
-	else{
+	if(c->proto == &p9cr){
+		astype = AuthChal;
+		challen = NETCHLEN;
+	}else if(c->proto == &vnc){
+		astype = AuthVnc;
+		challen = MAXCHAL;
+	}else{
 		werrstr("bad proto");
 		goto out;
 	}
 
 	c->state = "find key";
-	if((s.k = plan9authkey(c->attr)) == nil)
+	if((k = plan9authkey(c->attr)) == nil)
 		goto out;
 
-	a = copyattr(s.k->attr);
+/*
+	a = copyattr(k->attr);
 	a = delattr(a, "proto");
 	c->attr = addattrs(c->attr, a);
 	freeattr(a);
+*/
 
 	c->state = "authdial";
-	s.hostid = strfindattr(s.k->attr, "user");
-	s.dom = strfindattr(s.k->attr, "dom");
-	if((s.asfd = xioauthdial(nil, s.dom)) < 0){
+	hostid = strfindattr(s.k->attr, "user");
+	dom = strfindattr(s.k->attr, "dom");
+	if((asfd = xioauthdial(nil, s.dom)) < 0){
 		werrstr("authdial %s: %r", s.dom);
 		goto out;
 	}
@@ -196,7 +191,7 @@ out:
 	keyclose(s.k);
 	free(user);
 	free(resp);
-//	xioclose(s.asfd);
+	xioclose(s.asfd);
 	return ret;
 }
 
