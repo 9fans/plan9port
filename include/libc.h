@@ -722,10 +722,10 @@ extern	int	unmount(char*, char*);
 */
 extern	int	noted(int);
 extern	int	notify(void(*)(void*, char*));
-extern	void	noteenable(char*);
-extern	void	notedisable(char*);
-extern	void	notifyon(char*);
-extern	void	notifyoff(char*);
+extern	int	noteenable(char*);
+extern	int	notedisable(char*);
+extern	int	notifyon(char*);
+extern	int	notifyoff(char*);
 extern	int	p9open(char*, int);
 extern	int	fd2path(int, char*, int);
 extern	int	p9pipe(int*);

@@ -36,6 +36,13 @@ struct Sig
 	int notified;		/* do we call the notify function for this signal? */
 };
 
+/*
+ * Bug.  It is profoundly anti-social to play with the masks like this.
+ * For example, even though we don't want to see SIGTSTP, others do.
+ * Running bash inside a 9term that has disabled SIGTSTP makes ^Z not work.
+ * Instead we need to leave the signals enabled but notifyoff them.
+ */
+
 /* initial settings; for current status, ask the kernel */
 static Sig sigs[] = {
 	SIGHUP, 0, 1, 1,
@@ -172,40 +179,41 @@ handler(int s)
 	return sa.sa_handler;
 }
 
-static void
+static int
 notesetenable(int sig, int enabled)
 {
-	sigset_t mask;
+	sigset_t mask, omask;
 
 	if(sig == 0)
-		return;
+		return -1;
 
 	sigemptyset(&mask);
 	sigaddset(&mask, sig);
-	sigprocmask(enabled ? SIG_UNBLOCK : SIG_BLOCK, &mask, nil);
+	sigprocmask(enabled ? SIG_UNBLOCK : SIG_BLOCK, &mask, &omask);
+	return !sigismember(&omask, sig);	
 }
 
-void
+int
 noteenable(char *msg)
 {
-	notesetenable(_p9strsig(msg), 1);
+	return notesetenable(_p9strsig(msg), 1);
 }
 
-void
+int
 notedisable(char *msg)
 {
-	notesetenable(_p9strsig(msg), 0);
+	return notesetenable(_p9strsig(msg), 0);
 }
 
-static void
+static int
 notifyseton(int s, int on)
 {
 	Sig *sig;
-	struct sigaction sa;
+	struct sigaction sa, osa;
 
 	sig = findsig(s);
 	if(sig == nil)
-		return;
+		return -1;
 	memset(&sa, 0, sizeof sa);
 	sa.sa_handler = on ? signotify : signonotify;
 	if(sig->restart)
@@ -220,19 +228,20 @@ notifyseton(int s, int on)
 	/*
 	 * Install handler.
 	 */
-	sigaction(sig->sig, &sa, nil);
+	sigaction(sig->sig, &sa, &osa);
+	return osa.sa_handler == signotify;
 }
 
-void
+int
 notifyon(char *msg)
 {
-	notifyseton(_p9strsig(msg), 1);
+	return notifyseton(_p9strsig(msg), 1);
 }
 
-void
+int
 notifyoff(char *msg)
 {
-	notifyseton(_p9strsig(msg), 0);
+	return notifyseton(_p9strsig(msg), 0);
 }
 
 /*
