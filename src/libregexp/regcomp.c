@@ -472,7 +472,7 @@ static	Reprog*
 regcomp1(char *s, int literal, int dot_type)
 {
 	int token;
-	Reprog *pp;
+	Reprog *volatile pp;
 
 	/* get memory for the program */
 	pp = malloc(sizeof(Reprog) + 6*sizeof(Reinst)*strlen(s));
