@@ -25,8 +25,8 @@ _schedinit(void *arg)
 {
 	Proc *p;
 	Thread *t;
-	extern void ignusr1(void), _threaddie(int);
-	ignusr1();
+	extern void ignusr1(int), _threaddie(int);
+	ignusr1(1);
 	signal(SIGTERM, _threaddie);
   
 	p = arg;
@@ -103,7 +103,8 @@ runthread(Proc *p)
 	q = &p->ready;
 relock:
 	lock(&p->readylock);
-	if(q->head == nil){
+	if(p->nsched%128 == 0){
+		/* clean up children */
 		e = errno;
 		if((c = _threadwaitchan) != nil){
 			if(c->n <= c->s){
@@ -131,6 +132,8 @@ relock:
 				free(w);
 		}
 		errno = e;
+	}
+	if(q->head == nil){
 		if(p->idle){
 			if(p->idle->state != Ready){
 				fprint(2, "everyone is asleep\n");
@@ -204,6 +207,7 @@ Resched:
 		t->state = Running;
 		t->nextstate = Ready;
 		_gotolabel(&t->sched);
+		for(;;);
 	}
 }
 
