@@ -913,37 +913,36 @@ key(Rune r)
 		paste(t.snarf, t.nsnarf, 0);
 		if(scrolling)
 			show(t.q0);
+		consread();
 		return;
 	}
 
-	switch(r) {
-	/* case 0x03:	can't do this because ^C is COPY */
-	case 0x7F:	/* DEL: send interrupt */
-		paste(&r, 1, 1);
-		t.qh = t.q0 = t.q1 = t.nr;
-		show(t.q0);
-		/* must write the interrupt character in case app is in raw mode (e.g., ssh) */
-		write(rcfd, "\x7F", 1);
-	//	postnote(PNGROUP, rcpid, "interrupt");
-		return;
-	}
-
-	if(rawon() && t.q0==t.nr){
+	if(rawon() && t.q0 == t.nr){
 		addraw(&r, 1);
 		consread();
 		return;
 	}
 
-	if(r==ESC || (holdon && r==0x7F)){	/* toggle hold */
-		holdon = !holdon;
-		drawhold(holdon);
-	//	replaceintegerproperty("_9WM_HOLD_MODE", 1, 32, holdon);
-		if(!holdon)
-			consread();
-		if(r==ESC)
-			return;
+	if(r == 0x7F){	/* DEL: send interrupt; what a mess */
+		if(holdon){
+			holdon = 0;
+			drawhold(holdon);
+		}
+		t.qh = t.q0 = t.q1 = t.nr;
+		show(t.q0);
+		write(rcfd, "\x7F", 1);
+		return;
 	}
 
+	if(r==ESC){	/* toggle hold */
+		holdon = !holdon;
+		drawhold(holdon);
+	/*	replaceintegerproperty("_9WM_HOLD_MODE", 1, 32, holdon); */
+		if(!holdon)
+			consread();
+		return;
+	}
+	
 	snarf();
 
 	switch(r) {
