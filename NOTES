@@ -8,7 +8,7 @@ Most are position independent.  The few hard-coded references
 
 Tarballs will be posted nightly (but only when there are updates!) at
 
-  http://pdos.lcs.mit.edu/~rsc/software/plan9
+  http://swtch.com/plan9port
 
 /usr/local/plan9 is the suggested location to keep the software.
 All the paths in the tarball begin with plan9/, so it's okay to unpack it

@@ -12,6 +12,6 @@ Also, src/libthread/$OBJTYPE.c needs to know how to set up a stack
 frame for the given object type.
 
 If you're only interested in mk and sam, you don't need to
-write any assembly to do a port.  Samterm requires everything
+write any assembly to do a port.  Acme and samterm require everything
 though, since it uses libthread.
 
