@@ -390,6 +390,7 @@ extern	int	postnote(int, int, char *);
 extern	double	p9pow10(int);
 /* extern	int	putenv(char*, char*); <stdlib.h. */
 /* extern	void	qsort(void*, long, long, int (*)(void*, void*)); <stdlib.h> */
+extern	char*	searchpath(char*);
 /* extern	int	p9setjmp(p9jmp_buf); */
 #define p9setjmp(b)	sigsetjmp((void*)(b), 1)
 /*

@@ -131,6 +131,7 @@ LIB9OFILES=\
 	read9pmsg.$O\
 	readn.$O\
 	rfork.$O\
+	searchpath.$O\
 	seek.$O\
 	sendfd.$O\
 	sleep.$O\
