@@ -136,34 +136,49 @@ fi
 extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
-*OpenBSD*)	ld=gcc
-		extralibs="$extralibs -lutil -lpthread"
+*OpenBSD*)
+	ld=gcc
+	extralibs="$extralibs -lutil -lpthread"
+	;;
+*FreeBSD*)
+	ld=gcc
+	extralibs="$extralibs -lutil"
+	case "`uname -r`" in
+	[5-9].*)
+		extralibs="$extralibs -lpthread"
 		;;
-*BSD*)		ld=gcc
-		extralibs="$extralibs -lutil"
+	esac
+	;;
+*BSD*)
+	ld=gcc
+	extralibs="$extralibs -lutil"
+	;;
+*Linux*)
+	ld=gcc
+	extralibs="$extralibs -lutil"
+	case "`uname -r`" in
+	2.6.*)
+		extralibs="$extralibs -lpthread"
 		;;
-*Linux*)	ld=gcc
-		extralibs="$extralibs -lutil"
-		case "`uname -r`" in
-		2.6.*)
-			extralibs="$extralibs -lpthread"
+	esac
+	;;
+*Darwin*)
+	ld=gcc
+	;;
+*SunOS*)
+	ld="${CC9:-cc} -g"
+	extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
+	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH 
+	for i in "$@"
+	do
+		case "$i" in
+		-L*)
+			s=`echo $i | sed 's/-L/-R/'`
+			extralibs="$extralibs $s"
 			;;
 		esac
-		;;
-*Darwin*)	ld=gcc ;;
-*SunOS*)	ld="${CC9:-cc} -g"
-		extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
-		# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH 
-		for i in "$@"
-		do
-			case "$i" in
-			-L*)
-				s=`echo $i | sed 's/-L/-R/'`
-				extralibs="$extralibs $s"
-				;;
-			esac
-		done
-		;;
+	done
+	;;
 *)
 	echo do not know how to link on "$tag" 1>&2
 	exit 1
