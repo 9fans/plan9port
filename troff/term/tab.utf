@@ -1,0 +1,237 @@
+utf
+bset	0
+breset	0
+Hor	24
+Vert	40
+Newline	40
+Char	24
+Em	24
+Halfline	20
+Adj	24
+twinit	""
+twrest	""
+twnl	"\n"
+hlr	""
+hlf	""
+flr	"\0337"
+bdon	""
+bdoff	""
+iton	""
+itoff	""
+ploton	""
+plotoff	""
+up	""
+down	""
+right	""
+left	""
+
+charset
+em 1 -
+hy 1 -
+\- 1 -
+bu 1 ∙
+sq 1 ∎
+ru 1 _
+fi 2 fi
+fl 2 fl
+ff 2 ff
+Fi 3 ffi
+Fl 3 ffl
+dg 1 †
+fm 1 '
+pl 1 +
+mi 1 -
+eq 1 =
+** 1 *
+aa 1 '
+ga 1 `
+ul 1 _
+sl 1 /
+*a 1 α
+*b 1 β
+*g 1 γ
+*d 1 δ
+*e 1 ε
+*z 1 ζ
+*y 1 η
+*h 1 θ
+*i 1 ι
+*k 1 κ
+*l 1 λ
+*n 1 ν
+*c 1 ξ
+*o 1 ο
+*p 1 π
+*r 1 ρ
+*s 1 σ
+*t 1 τ
+*u 1 υ
+*f 1 φ
+*x 1 χ
+*q 1 ψ
+*w 1 ω
+*A 1 Α
+*B 1 Β
+*G 1 Γ
+*D 1 Δ
+*E 1 Ε
+*Z 1 Ζ
+*Y 1 Η
+*H 1 Θ
+*I 1 Ι
+*K 1 Κ
+*L 1 Λ
+*M 1 Μ
+*N 1 Ν
+*C 1 Ξ
+*O 1 Ο
+*P 1 Π
+*R 1 Ρ
+*S 1 Σ
+*T 1 Τ
+*U 1 Υ
+*F 1 Φ
+*X 1 Χ
+*Q 1 Ψ
+*W 1 Ω
+ts 1 s
+sr 1 √
+rn 1 ¯
+>= 1 ≧
+<= 1 ≦
+== 1 ≡
+~= 1 ≃
+ap 1 ≈
+!= 1 ≠
+-> 1 →
+<- 1 ←
+ua 1 ↑
+da 1 ↓
+cu 1 ∪
+ca 1 ∩
+sb 1 ⊂
+sp 1 ⊃
+ib 1 ⊆
+ip 1 ⊇
+if 1 ∞
+pd 1 ∂
+gr 1 ∇
+is 1 ∫
+pt 1 ∝
+es 1 ∅
+mo 1 ∊
+br 1 |
+dd 1 ‡
+rh 1 ☞
+lh 1 ☜
+bs 1 O\b
+L1 1 O\b=
+ci 1 O
+lt 1 (
+lb 1 (
+rt 1 )
+rb 1 )
+lk 1 |
+rk 1 |
+bv 1 |
+lf 1 |
+rf 1 |
+lc 1 |
+rc 1 |
+!! 1 ¡
+c$ 1 ¢
+l$ 1 £
+g$ 1 ¤
+y$ 1 ¥
+|| 1 ¦
+SS 1 §
+"" 1 ¨
+cO 1 ©
+sa 1 ª
+<< 1 «
+no 1 ¬
+-- 1 ­
+rO 1 ®
+__ 1 ¯
+so 1 °
+de 1 °
++- 1 ±
+s2 1 ²
+s3 1 ³
+'' 1 ´
+*m 1 μ
+mu 1 ×
+pg 1 ¶
+.. 1 ·
+,, 1 ¸
+s1 1 ¹
+s0 1 º
+>> 1 »
+14 1 ¼
+12 1 ½
+34 1 ¾
+?? 1 ¿
+A` 1 À
+A' 1 Á
+A^ 1 Â
+A~ 1 Ã
+A" 1 Ä
+Ao 1 Å
+AE 1 Æ
+C, 1 Ç
+E` 1 È
+E' 1 É
+E^ 1 Ê
+E" 1 Ë
+I` 1 Ì
+I' 1 Í
+I^ 1 Î
+I" 1 Ï
+D- 1 Ð
+N~ 1 Ñ
+O` 1 Ò
+O' 1 Ó
+O^ 1 Ô
+O~ 1 Õ
+O" 1 Ö
+xx 1 ×
+O/ 1 Ø
+U` 1 Ù
+U' 1 Ú
+U^ 1 Û
+U" 1 Ü
+Y' 1 Ý
+P| 1 Þ
+ss 1 ß
+a` 1 à
+a' 1 á
+a^ 1 â
+a~ 1 ã
+a" 1 ä
+ao 1 å
+ae 1 æ
+c, 1 ç
+e` 1 è
+e' 1 é
+e^ 1 ê
+e" 1 ë
+i` 1 ì
+i' 1 í
+i^ 1 î
+i" 1 ï
+d- 1 ð
+n~ 1 ñ
+o` 1 ò
+o' 1 ó
+o^ 1 ô
+o~ 1 õ
+o" 1 ö
+-: 1 ÷
+o/ 1 ø
+u` 1 ù
+u' 1 ú
+u^ 1 û
+u" 1 ü
+y' 1 ý
+p| 1 þ
+y" 1 ÿ

@@ -1,0 +1,19 @@
+
+This directory contains Bigelow & Holmes Lucida (R) fonts,
+as licensed by Y&Y Inc. Copyright 1993 Bigelow & Holmes Inc.
+P.O. Box 1432, Santa Monica, CA 90406, USA.
+
+Y&Y LUCIDA FONT SOFTWARE LICENSE AGREEMENT
+
+NOTICE TO USER:
+
+No right is granted to create derivative works of or
+to redistribute (other than with the Plan 9 Operating System)
+the screen imprinter fonts identified in subdirectory
+/lib/font/bit/lucida and printer fonts (Lucida Sans Unicode, Lucida
+Sans Italic, Lucida Sans Demibold, Lucida Typewriter, Lucida Sans
+Typewriter83), identified in subdirectory /sys/lib/postscript/font.
+These directories contain material copyrights by B&H Inc. and Y&Y Inc.
+
+Lucida is a registered trademark of Bigelow & Holmes Incorporated.
+PostScript is a registered trademark of Adobe Systems Incorporated.

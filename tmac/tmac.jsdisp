@@ -1,0 +1,63 @@
+.		\" DS - display.  If .DS C, center; L, left-adjust; I, indent.
+.de DS
+.KS
+.nf
+.\\$1D \\$2 \\$1
+.ft 1
+.ps \\n(PS
+.if \\n(VS>40 .vs \\n(VSu
+.if \\n(VS<=39 .vs \\n(VSp
+..
+.de D
+.ID \\$1
+..
+.de CD
+.XD
+.ce 1000
+..
+.de ID
+.XD
+.if t .in +0.5i
+.if n .in +8
+.if \\n(.$ .if !"\\$1"I" .if !"\\$1"" .in \\n(OIu
+.if \\n(.$ .if !"\\$1"I" .if !"\\$1"" .in +\\$1n
+..
+.de LD
+.XD
+..
+.de XD
+.nf
+.nr OI \\n(.i
+.SP \\n(DVu
+.sp \\n(DVu
+..
+.		\" BD - block display: save everything, then center it.
+.de BD
+.XD
+.nr BD 1
+.nf
+.in \\n(OIu
+.di DD
+..
+.		\"DE - display end
+.de DE
+.ce 0
+.if \\n(BD>0 .DF
+.nr BD 0
+.in \\n(OIu
+.KE
+.SP \\n(DVu
+.sp \\n(DVu
+.fi
+..
+.		\" DF - finish a block display to be recentered.
+.de DF
+.di
+.if \\n(dl>\\n(BD .nr BD \\n(dl
+.if \\n(BD<\\n(.l .in (\\n(.lu-\\n(BDu)/2u
+.nr EI \\n(.l-\\n(.i
+.ta \\n(EIuR
+.nf
+.DD
+.in \\n(OIu
+..

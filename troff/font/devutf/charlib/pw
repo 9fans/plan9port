@@ -1,0 +1,140 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%BoundingBox: 1 -1 199 258
+%%Creator: MetaPost
+%%CreationDate: 1994.06.28:1046
+/pjw1{
+37 211 moveto
+37 206 lineto
+41 206 lineto
+43 212 lineto
+44 212 46 212 46 210 curveto
+41 198 35 186 35 174 curveto
+50 174 66 175 81 173 curveto
+81 171 lineto
+61 171 lineto
+61 170 lineto
+86 170 lineto
+88 168 89 166 90 164 curveto
+101 164 111 169 122 172 curveto
+139 172 lineto
+125 194 115 219 93 233 curveto
+87 234 80 236 74 235 curveto
+64 229 54 224 46 217 curveto
+45 217 44 217 44 218 curveto
+61 242 lineto
+67 248 72 258 82 258 curveto
+94 257 107 256 119 254 curveto
+134 247 147 239 161 231 curveto
+180 231 lineto
+180 226 174 228 171 226 curveto
+178 220 185 214 192 207 curveto
+189 207 187 207 187 205 curveto
+190 205 193 204 196 203 curveto
+198 193 202 181 193 181 curveto
+193 177 198 175 198 171 curveto
+196 171 194 171 194 169 curveto
+195 165 196 161 198 157 curveto
+194 147 193 135 184 130 curveto
+180 130 lineto
+169 107 lineto
+171 103 176 104 180 104 curveto
+180 93 176 81 166 76 curveto
+162 76 157 77 155 80 curveto
+153 80 152 80 151 80 curveto
+151 71 lineto
+155 71 lineto
+155 68 153 65 152 63 curveto
+145 62 lineto
+141 47 144 31 144 15 curveto
+141 0 lineto
+124 0 107 -1 90 1 curveto
+72 36 lineto
+86 48 105 49 122 54 curveto
+122 54 lineto
+110 61 97 65 84 69 curveto
+81 71 78 73 78 76 curveto
+86 77 93 77 101 77 curveto
+106 79 113 79 113 84 curveto
+95 86 77 87 59 89 curveto
+59 92 61 95 64 95 curveto
+69 88 80 92 89 92 curveto
+95 92 104 90 104 96 curveto
+93 97 lineto
+87 103 82 109 77 115 curveto
+89 116 101 117 113 118 curveto
+99 154 lineto
+90 154 87 144 82 138 curveto
+77 132 73 124 66 120 curveto
+63 120 59 119 59 122 curveto
+62 123 66 123 66 126 curveto
+58 126 50 127 42 128 curveto
+34 137 lineto
+34 140 34 144 31 144 curveto
+30 135 31 125 31 116 curveto
+25 116 22 122 19 127 curveto
+16 131 15 136 12 139 curveto
+5 139 15 127 9 127 curveto
+3 133 3 142 1 150 curveto
+1 158 6 166 9 173 curveto
+18 186 25 199 35 211 curveto
+closepath
+} bind def
+/pjw2{
+27 112 moveto
+40 75 lineto
+40 74 38 73 37 73 curveto
+25 87 lineto
+17 112 lineto
+closepath 
+43 154 moveto
+43 167 lineto
+41 167 38 167 39 169 curveto
+57 171 lineto
+74 167 lineto
+74 166 73 165 72 165 curveto
+64 164 56 162 49 158 curveto
+48 154 45 149 49 149 curveto
+51 151 53 152 55 154 curveto
+87 153 lineto
+87 144 80 136 74 129 curveto
+64 128 53 126 43 129 curveto
+37 135 lineto
+37 138 36 141 36 145 curveto
+40 145 lineto
+41 148 42 151 43 154 curveto closepath 
+108 145 moveto
+119 145 130 143 141 140 curveto
+146 134 155 129 149 126 curveto
+138 124 126 123 116 129 curveto
+113 134 108 139 108 145 curveto
+closepath 
+114 96 moveto
+116 103 118 110 121 117 curveto
+128 117 134 112 139 107 curveto
+139 101 137 96 132 93 curveto
+closepath 
+134 162 moveto
+115 162 lineto
+115 162 115 163 115 164 curveto
+134 164 lineto
+closepath 
+117 73 moveto
+115 78 121 81 125 85 curveto
+129 85 lineto
+130 83 131 81 131 79 curveto
+128 74 lineto
+124 74 121 73 117 73 curveto closepath 
+141 119 moveto
+134 119 126 117 126 123 curveto
+131 123 136 122 141 121 curveto
+closepath
+} bind def
+
+/build_pw {
+pop
+gsave
+size .0028 mul dup scale
+currentpoint translate
+pjw1 pjw2 eofill
+grestore
+} bind def

@@ -1,0 +1,131 @@
+%
+% An example logo character. Building the PostScript program that prints
+% your company logo is not addressed here; we assume you already have
+% such a program, that it's relatively simple, and that it prints the
+% logo by itself on a page. What you'll find here are instructions for
+% converting that logo program into a character that can be accessed by
+% troff and dpost.
+%
+% Building a new charlib character involves some PostScript programming.
+% We've tried to isolate parameters that you'll need to change (Xoffset,
+% Yoffset, and Scaling), but we can't guarantee things will work properly
+% with every logo program. PostScript is a complex language and subtle
+% interactions between your logo program and what we've done here can
+% cause problems.
+%
+% Tuning the new character is an iterative process. You may want to adjust
+% the size of the logo (via Scaling), it's position relative to adjacent
+% characters and the baseline (Xoffset and Yoffset), and the distance troff
+% moves after printing the character (width field in file ../S1). The steps
+% to follow are:
+%
+%	1: Create a simple troff test file for the new character. Something
+%	   like,
+%
+%		.sp 1i
+%		.ps 10
+%		size 10: \(LH
+%		.sp 1i
+%		.ps 18
+%		size 18: \(LH
+%		.sp 1i
+%		.ps 36
+%		size 36: \(LH
+%		.sp 1i
+%		.ps 10
+%		four logo characters: \(LH\(LH\(LH\(LH
+%
+%	   is sufficient. The test file can go anywhere.
+% 
+%	2: Change into directory /usr/lib/font/devpost/charlib. All file
+%	   pathnames will be relative to that directory.
+%
+%	3: Save a copy of the working LH logo file. Then replace LH with
+%	   this file (i.e. LH.example). Changes described below should be
+%	   be made in the new LH file (not in LH.example).
+%
+%	4: Your PostScript logo program will eventually replace whatever
+%	   you find between the <<StartLogo>> and <<EndLogo>> comment lines
+%	   in the PostScript build_LH procedure (below). What's there now
+%	   prints an example logo that you can use until you understand the
+%	   remaining steps.
+%
+%	5: Print your troff test file using (assuming your making changes
+%	   in the devpost charlib directory),
+%
+%		troff -Tpost testfile | dpost | lp ...
+%
+%	6: Adjust the logo positioning by changing the numbers assigned to
+%	   Xoffset and Yoffset (below). Both are in units of 72 per inch.
+%	   Positive offsets should move the logo to the right and up the
+%	   page.
+%
+%	7: Adjust the logo size by changing the the number assigned to
+%	   Scaling. Unitsize also controls scaling, but there's no good
+%	   reason to change both Scaling and Unitsize.
+%
+%	8: Control the horizontal distance troff moves after printing the
+%	   new LH character by changing the width (i.e. the number in the
+%	   second column) assigned to LH in file ../S1. Character width
+%	   adjustments should probably wait until you're satisfied with
+%	   the Scaling set in step 7.
+%
+%	9: Back to step 5 until your satisfied with the output.
+%
+% The remaining steps are suggested but not required:
+%
+%      10: Delete PostScript comments in your new LH charlib file - comments
+%	   start with % and go to the end of the line.
+%
+%      11: Update the width field assigned to LH in file ../shell.lib. The
+%	   new width should reflect what's currently in your S1 font file.
+%
+%      12: Make a similiar set of changes in /usr/lib/font/devLatin1/charlib.
+%	   You can use the devpost version of LH to devLatin1/charlib/LH,
+%	   but changes to files devLatin1/S1 and devLatin1/shell.lib must be
+%	   entered by hand.
+%
+
+/Logo_Dict 100 dict dup begin
+	/Xoffset 0 def			% 72 dpi with positive to the right
+	/Yoffset 0 def			% 72 dpi with positive up the page
+	/Scaling 1.0 def		% adjust this number to change the size
+	/Unitsize 36 def		% for point size scaling - leave it be
+	/showpage {} def
+end def
+
+/build_LH {				% don't bind this procedure
+	Logo_Dict begin
+		gsave
+		/charwidth exch def
+		currentpoint translate
+		resolution 72 div dup scale
+		Xoffset Yoffset translate
+		Scaling Scaling scale
+		ptsize Unitsize div dup scale
+
+		%% Replace everything between the <<StartLogo>> and <<EndLogo>>
+		%% comment lines by the PostScript program that prints your
+		%% logo.
+
+		%% <<StartLogo>>
+			newpath
+			.5 .5 scale
+			0 0 moveto
+			100 0 lineto
+			100 100 lineto
+			closepath
+			.5 setgray
+			fill
+			0 setgray
+			10 10 translate
+			45 rotate
+			0 5 moveto
+			/Helvetica findfont 18 scalefont setfont
+			(Example Logo) show
+		%% <<EndLogo>>
+
+		grestore
+	end
+} def
+

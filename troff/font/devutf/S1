@@ -1,0 +1,32 @@
+# Times-Roman special font
+name S1
+fontname Times-Roman
+named in prologue
+special
+charset
+ru	50	0	95
+''	37	0	0x201d
+``	37	0	0x201c
+dg	63	0	0x2020
+dd	63	0	0x2021
+en	50	0	0x2013
+\-	"
+em	100	0	0x2014
+bx	80	2	0x25a0
+ob	56	2	0x25e6
+ci	75	0	0x25cb
+sq	80	2	0x25a1
+Sl	59	2	0x2113
+L1	110	1	1
+☺	70	1	1
+LA	110	1	1
+LV	110	3	1
+LH	210	1	1
+lh	100	0	1
+rh	100	0	1
+lH	100	0	1
+rH	100	0	1
+PC	220	2	1
+DG	185	2	1
+pw	60	0	1
+FA	200	2	1

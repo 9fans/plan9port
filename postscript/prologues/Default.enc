@@ -1,0 +1,343 @@
+%
+% Encoding vector, operator and procedure redefinitions for Plan 9 UTF
+% encoding. Prologues are expected to take steps to ensure operator
+% redefinitions given here are actually used. Current implementation
+% assumes UTF byte streams that represent ASCII or Latin1 text.
+%
+
+/UTFLatin1Encoding [
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/space
+	/exclam
+	/quotedbl
+	/numbersign
+	/dollar
+	/percent
+	/ampersand
+	/quoteright
+	/parenleft
+	/parenright
+	/asterisk
+	/plus
+	/comma
+	/minus
+	/period
+	/slash
+	/zero
+	/one
+	/two
+	/three
+	/four
+	/five
+	/six
+	/seven
+	/eight
+	/nine
+	/colon
+	/semicolon
+	/less
+	/equal
+	/greater
+	/question
+	/at
+	/A
+	/B
+	/C
+	/D
+	/E
+	/F
+	/G
+	/H
+	/I
+	/J
+	/K
+	/L
+	/M
+	/N
+	/O
+	/P
+	/Q
+	/R
+	/S
+	/T
+	/U
+	/V
+	/W
+	/X
+	/Y
+	/Z
+	/bracketleft
+	/backslash
+	/bracketright
+	/asciicircum
+	/underscore
+	/quoteleft
+	/a
+	/b
+	/c
+	/d
+	/e
+	/f
+	/g
+	/h
+	/i
+	/j
+	/k
+	/l
+	/m
+	/n
+	/o
+	/p
+	/q
+	/r
+	/s
+	/t
+	/u
+	/v
+	/w
+	/x
+	/y
+	/z
+	/braceleft
+	/bar
+	/braceright
+	/asciitilde
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/.notdef
+	/dotlessi
+	/grave
+	/acute
+	/circumflex
+	/tilde
+	/macron
+	/breve
+	/dotaccent
+	/dieresis
+	/.notdef
+	/ring
+	/cedilla
+	/.notdef
+	/hungarumlaut
+	/ogonek
+	/caron
+	/space
+	/exclamdown
+	/cent
+	/sterling
+	/currency
+	/yen
+	/brokenbar
+	/section
+	/dieresis
+	/copyright
+	/ordfeminine
+	/guillemotleft
+	/logicalnot
+	/hyphen
+	/registered
+	/macron
+	/degree
+	/plusminus
+	/twosuperior
+	/threesuperior
+	/acute
+	/mu
+	/paragraph
+	/periodcentered
+	/cedilla
+	/onesuperior
+	/ordmasculine
+	/guillemotright
+	/onequarter
+	/onehalf
+	/threequarters
+	/questiondown
+	/Agrave
+	/Aacute
+	/Acircumflex
+	/Atilde
+	/Adieresis
+	/Aring
+	/AE
+	/Ccedilla
+	/Egrave
+	/Eacute
+	/Ecircumflex
+	/Edieresis
+	/Igrave
+	/Iacute
+	/Icircumflex
+	/Idieresis
+	/Eth
+	/Ntilde
+	/Ograve
+	/Oacute
+	/Ocircumflex
+	/Otilde
+	/Odieresis
+	/multiply
+	/Oslash
+	/Ugrave
+	/Uacute
+	/Ucircumflex
+	/Udieresis
+	/Yacute
+	/Thorn
+	/germandbls
+	/agrave
+	/aacute
+	/acircumflex
+	/atilde
+	/adieresis
+	/aring
+	/ae
+	/ccedilla
+	/egrave
+	/eacute
+	/ecircumflex
+	/edieresis
+	/igrave
+	/iacute
+	/icircumflex
+	/idieresis
+	/eth
+	/ntilde
+	/ograve
+	/oacute
+	/ocircumflex
+	/otilde
+	/odieresis
+	/divide
+	/oslash
+	/ugrave
+	/uacute
+	/ucircumflex
+	/udieresis
+	/yacute
+	/thorn
+	/ydieresis
+] def
+
+/NewFontDirectory FontDirectory maxlength dict def
+
+%
+% Apparently no guarantee findfont is defined in systemdict so the obvious
+%
+%	systemdict /findfont get exec
+%
+% can generate an error. So far the only exception is a VT600 (version 48.0).
+%
+
+userdict /@RealFindfont known not {
+	userdict begin
+		/@RealFindfont systemdict begin /findfont load end def
+	end
+} if
+
+/findfont {
+	dup NewFontDirectory exch known not {
+		dup
+		%dup systemdict /findfont get exec	% not always in systemdict
+		dup userdict /@RealFindfont get exec
+		dup /Encoding get StandardEncoding eq {
+			dup length 1 add dict begin
+				{1 index /FID ne {def}{pop pop} ifelse} forall
+				/Encoding UTFLatin1Encoding def
+				/Metrics 1 dict def
+				Metrics /.notdef 0 put
+				currentdict
+			end
+			/DummyFontName exch definefont
+		} if
+		NewFontDirectory 3 1 roll put
+	} if
+	NewFontDirectory exch get
+} bind def
+
+%
+% UTF string decoding for ASCII and Latin1 only:
+%
+%	C2 XX	=> 00 XX
+%	C3 XX	=> XX+40 00
+%
+% Two passes through each string with search is undoubtedly faster than
+% PostScript that examines each byte.
+%
+
+/UTFstring {
+	dup {
+		(\302) search {
+			pop
+			0 0 put
+		}{pop exit} ifelse
+	} loop
+	dup {
+		(\303) search {
+			pop
+			1 index 0 get 16#40 add 0 exch put
+			dup length 0 gt {dup 0 0 put} if
+		}{pop exit} ifelse
+	} loop
+} bind def
+
+/ashow {mark 4 1 roll UTFstring //ashow cvx exec cleartomark} bind def
+/awidthshow {mark 7 1 roll UTFstring //awidthshow cvx exec cleartomark} bind def
+/show {mark exch UTFstring //show cvx exec cleartomark} bind def
+/stringwidth {UTFstring //stringwidth cvx exec} bind def
+/widthshow {mark 5 1 roll UTFstring //widthshow cvx exec cleartomark} bind def
+
+%
+% kshow is harder - stack can't change because of the procedure.
+%
+
+/kshow dup load type /operatortype eq
+	{{UTFstring kshow} bind}
+	{{UTFstring //kshow cvx exec} bind}
+ifelse def
+

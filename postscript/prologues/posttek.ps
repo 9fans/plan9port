@@ -1,0 +1,106 @@
+%
+% Version 3.3.2 prologue for tektronix 4014 files.
+%
+
+/#copies 1 store
+/aspectratio 1 def
+/fixlinewidth true def
+/font /Courier def
+/formsperpage 1 def
+/landscape true def
+/linewidth 0 def
+/magnification 1 def
+/margin 10 def
+/orientation 0 def
+/rotation 1 def
+/screenheight 3120 def
+/screenwidth 4150 def
+/spotsize 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/kshow {kshow} bind def		% so later references don't bind
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+
+	pagedimensions
+	/scaling
+		height margin sub screenheight div
+		width margin sub screenwidth div
+	min def
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	xoffset inch yoffset inch translate
+	magnification dup aspectratio mul scale
+	scaling scaling scale
+	screenwidth 2 div neg screenheight 2 div neg translate
+
+	tietodevicespace
+	linewidth scaling div setlinewidth
+	1 setlinecap
+	newpath
+} def
+
+/pagedimensions {
+	useclippath {
+		/pagebbox [clippath pathbbox newpath] def
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {/page exch def} bind def
+
+/tietodevicespace {
+	fixlinewidth linewidth 0 gt and linewidth 1 lt and {
+		/moveto {
+			2 copy /Y exch def /X exch def
+			transform round exch round exch itransform
+			moveto
+		} bind def
+		/lineto {
+			2 copy /Y exch def /X exch def
+			transform round exch round exch itransform
+			lineto
+		} bind def
+		/rlineto {Y add exch X add exch lineto} bind def
+		/v V 0 get bind def
+	} if
+} def
+
+/V [{moveto counttomark 2 idiv {rlineto} repeat stroke}] def
+/v V 0 get bind def
+/p {newpath spotsize 0 360 arc fill} bind def
+
+/l {{scaling div} forall counttomark array astore 0 setdash} bind def
+/w {linewidth 0 eq {.3} {linewidth} ifelse mul linewidth add scaling div setlinewidth} bind def
+/i {3 mul 4 sub -100 div mul .5 add /spotsize exch def} bind def
+
+/f {/charwidth exch def font findfont charwidth .6 div scalefont setfont} bind def
+
+/t {
+	3 1 roll moveto
+	currentpoint {
+		pop pop
+		exch charwidth add exch
+		moveto currentpoint
+	} 4 -1 roll kshow
+	pop pop
+} bind def
+
+/done {/lastpage where {pop lastpage} if} def

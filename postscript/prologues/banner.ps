@@ -1,0 +1,40 @@
+%
+% Simple program to print a banner page
+%
+
+/banner {
+	/saveobj save def
+	erasepage initgraphics
+
+	/#copies 1 def
+	/inch {72 mul} bind def
+	/pagebbox [clippath pathbbox newpath] def
+
+	/font /Helvetica def
+	/size 20 def
+	/height pagebbox 3 get def
+	/width pagebbox 2 get .09 mul def
+
+	.92 setgray
+	pagebbox 0 get pagebbox 1 get moveto
+	width 0 rlineto 0 height rlineto width neg 0 rlineto closepath eofill
+	pagebbox 2 get pagebbox 1 get moveto
+	width neg 0 rlineto 0 height rlineto width 0 rlineto closepath eofill
+	0 setgray
+
+	font findfont size scalefont setfont
+	/linesp size size .15 mul add neg def
+	/tab (Destination) stringwidth pop 1.5 mul def
+	/nextline {0 0 moveto show tab 0 moveto show 0 linesp translate} def
+
+	pagebbox 0 get 1.5 width mul add pagebbox 3 get 2.0 width mul sub translate
+	(Bin)  nextline
+	(Name) nextline
+	(Owner) nextline
+	(File) nextline
+	(Account) nextline
+	(Destination) nextline
+	(Spooldate) nextline
+	showpage
+	saveobj restore
+} bind def

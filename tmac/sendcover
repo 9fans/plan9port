@@ -1,0 +1,5 @@
+#!/bin/rc
+T=/tmp/cs$pid
+cstrans $T $1
+rc $T
+rm $T

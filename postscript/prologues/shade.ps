@@ -1,0 +1,52 @@
+%
+% Shading support - primarily for ASCII file translators.
+%
+
+/grays [0.98 0.9 0.75 0.6] def
+
+/setshade {
+	/level exch def
+	level 0 le {
+		/textgray 0 def
+		/backgray 1 def
+	}{
+		/backgray level grays length gt
+			{/textgray 1 def 0}
+			{/textgray 0 def grays level 1 sub get}
+		ifelse def
+	} ifelse
+	textgray setgray
+	/dY1 0 def
+	/dY2 0 def
+} bind def
+
+/drawrvbox {
+	/x2 exch charwidth mul def
+	/x1 exch charwidth mul def
+
+	x1 x2 lt {
+		dup		% expects y on top
+		/y1 exch linespace mul def
+		/y2 y1 def
+
+		dY1 0 eq dY2 0 eq and {
+			currentfont /FontBBox get aload pop
+			160 sub
+			currentfont /FontMatrix get dtransform /dY2 exch def pop
+			100 add
+			currentfont /FontMatrix get dtransform /dY1 exch def pop
+		} if
+
+		/y1 y1 dY1 add def
+		/y2 y2 dY2 add def
+
+		backgray setgray
+		newpath
+		x1 y1 moveto
+		x2 y1 lineto
+		x2 y2 lineto
+		x1 y2 lineto
+		closepath fill
+	} if
+	textgray setgray
+} bind def

@@ -1,0 +1,2014 @@
+'''\"	@(#)dcs:csmacros	2.3	5/2/89	
+'''\" registers
+'''\"	a - abstract continuation flag - 0 (no), >0 (yes - number of overflow pages)
+'''\"	b - mercury selections counter
+'''\"	c - distribution continuation flag - 0 (no), 1 (yes)
+'''\"	d - distribution length calculation flag - 0 (no), 1 (yes)
+'''\"	e - complete copy basic distribution length
+'''\"	g - complete copy overflow distribution length
+'''\"	h - cover sheet basic distribution length
+'''\"	i - cover sheet overflow distribution length
+'''\"	j - scratch
+'''\"	k - keyword flag - 0 (none), 1 (some)
+'''\"	l - number of vertical units per line - troff and nroff
+'''\"	m - memorandum type flag - 1 TM, 2 IM, 3 TC
+'''\"	n - document number counter
+'''\"	o - title flag - 0 (no), 1 (yes - vertical size of title diversion)
+'''\"	p - proprietary notice flag - 0 (none), 1 (default notice), 2(BR)
+'''\"	q - scratch
+'''\"	r - security flag - 0 (no), 1 (yes)
+'''\"	s - software flag - 0 (no), 1 (yes)
+'''\"	t - mark title position
+'''\"	u - author count
+'''\"	v - scratch
+'''\"	w - scratch
+'''\"	x - mark scratch position
+'''\"	y - mark scratch position
+'''\"	z - mark scratch position
+'''\"	ra - release to Lucent flag - 0 (no decision), 1 (yes), 2 (no)
+'''\"	an - length abstract footnote diversion
+'''\"	fn - length footnote diversion
+'''\"	as - "in abstract" flag - 0 (no), 1 (yes)
+'''\"	ds - "in display" flag - 0 (no), 1 (yes)
+'''\"	fs - "in footnote" flag - 0 (no), 1 (yes)
+'''\"	bd - block center display flag - 0 (no), 1 (yes)
+'''\"	dv - device flag - 0 (default), 1 (APS-5), 2 (i10), 3 (xerox), 4 (i300), 5 (qms1200), 6 (postscript)
+'''\"	lp - lines per page (nroff - xerox)
+'''\"	tp - total pages (decimal)
+'''\"	tc - total pages (in small roman)
+'''\"	np - page number this page (decimal)
+'''\"	nc - page number this page (in small roman)
+'''\"	lt - vertical size of title diversion (in lines)
+'''\"	lo - vertical size of copy overflow trap (in lines)
+'''\"	la - vertical size of abstract diversion
+'''\"	a1 - vertical size of page 1 portion of abstract
+'''\"	a2 - vertical size of overflow page portion of abstract
+'''\"	ar - vertical size remainder of abstract
+'''\"	fi - save current fill/no-fill (.u)
+'''\"	in - save current indent (.i)
+'''\"	si - standard indent - ens (for paragraphs, displays & equations)
+'''\"	ps - initial point size (.s)
+'''\"	ts - temp point size (only in S macro)
+'''\"	vs - initial vertical spacing (.v)
+'''\"	tv - temp vertical spacing (only in S macro)
+'''\"	b1, b2 - scratch calculations
+'''\"	g1, g2, g3, g4, g5 - complete copy overflow - additional diversion lengths
+'''\"	i1, i2, i3, i4, i5 - cover sheet only overflow - additional diversionlengths
+'''\"	m1 - mark scratch position
+'''\"	:b, :c, :d, :e - scratch (lists only)
+'''\"	:h - SA macro only
+'''\"	ls - nested list level (lists only)
+'''\"	dt - display type (displays & equations)
+'''\"	fc - filing case flag
+'''\"	wp - work project number flag
+'''\"	en - entity flag - 1 (BL), 2 (IS), 3 (TI), 4 (CH)
+'''\"	lg - Lucent logo flag - 0 (not defined), 1 (defined)
+'''\"	oa - organizational approval name counter
+'''\"	aa - ship to itds
+'''\" strings
+'''\"	a) - mercury info
+'''\"	b) - mercury info
+'''\"	c) - mercury info
+'''\"	e) - equation label
+'''\"	k) - keywords
+'''\"	m) - Mailing Label/DRAFT
+'''\"	n) - first document number
+'''\"	o) - proprietary classification heading
+'''\"	p) - proprietary string 1
+'''\"	q) -     "         "    2
+'''\"	r) -     "         "    3
+'''\"	s) - timestamp string
+'''\"	t) - memo type (TM, IM, TC)
+'''\"	u) - trailing s if multiple author
+'''\"	v) - trailing s if multiple document number
+'''\"	w) - trailing s if multiple filing case
+'''\"	x) -  trailing s if multiple work project number
+'''\"	y) - used in lists
+'''\"	z) - used in lists
+'''\"	a( -
+'''\"	e( - earlier document number
+'''\"	m( - authors 1-3 sig
+'''\"	n( - authors 4-6 sig
+'''\"	o( - authors 7-9 sig
+'''\"	p( - authors 10-12 sig
+'''\"	r( - responsible person
+'''\"	s( - S software string
+'''\"	t( - memo type ("for Technical Memorandum", etc.)
+'''\"	u( - organizational approval 1-3 sig
+'''\"	v( - organizational approval 4-6 sig
+'''\"	w( - organizational approval 7-9 sig
+'''\"	x( - organizational approval 10-12 sig
+'''\"	Tm - trademark
+'''\"	lG - Lucent logo
+'''\"	10 - used in equations
+'''\"	ve - csmacros version
+'''\"	e1,e2,e3,e4 - entity info
+'''\" diversions
+'''\"	aS - abstract
+'''\"	aV - author info section
+'''\"	cA - complete copy addressee primary
+'''\"	cO - complete copy addressee overflow
+'''\"	cU, cV, cW, cX, cY, cZ - complete copy addressee overflow (previously lost)
+'''\"	dA - cover sheet addressee primary
+'''\"	dO - cover sheet addressee overflow
+'''\"	dU, dV, dW, dX, dY, dZ - cover sheet only addressee overflow (previously lost)
+'''\"	dM - document number info
+'''\"	dS - display
+'''\"	eQ - equation
+'''\"	fB - filing case info
+'''\"	tI - title
+'''\"	wO - work project number info
+'''\"	aN - abstract footnote
+'''\"	fN - footnote
+'''\"
+'''\" macros to collect information
+'''\"	aC - Lucent company
+'''\"	tS - timestamp
+'''\"	TL - title
+'''\"	AU - author
+'''\"	FS - footnote start
+'''\"	FE - footnote end
+'''\"	AS - abstract start
+'''\"	AE - abstract end
+'''\"	OK - keyword info
+'''\"	MT - document type
+'''\"	dN - document number info
+'''\"	oA - organization approval name
+'''\"	eD - earlier document number
+'''\"	fC - filing case
+'''\"	fD - full date
+'''\"	wP - work project info
+'''\"	mE - mercury selections (7 argument version)
+'''\"	mC - mercury codes (three argument version)
+'''\"	Mc - mercury codes (one argument version)
+'''\"	PM - proprietary marking
+'''\"	gS - government security
+'''\"	rA - release to Lucent employees (superceded by fA)
+'''\"	fA - future Lucent distribution (supercedes rA)
+'''\"	sF - software-related
+'''\"	cC - complete copy addressee list start
+'''\"	cD - complete copy overflow
+'''\"	cS - cover sheet only addressee list start
+'''\"	cT - cover sheet only overflow
+'''\"	zZ - complete copy overflow (previously lost)
+'''\"	fF - complete copy overflow (aux)
+'''\"	wW - cover sheet overflow (previously lost)
+'''\"	gG - cover sheet only overflow (aux)
+'''\"	cE - addressee list end
+'''\"	eE - addressee list end (aux)
+'''\" macros to help format document
+'''\"	B  - change to bold font
+'''\"	I  - change to italic font
+'''\"	R  - change to roman font
+'''\"	S  - set point size and vertical spacing
+'''\"	sP - space 1 vertical space
+'''\"	P  - paragraph
+'''\"	HC - set hyphenation indicator
+'''\"	iN - font and size re-initialization
+'''\"	DS - display start
+'''\"	DE - display end
+'''\"	EQ - equation start
+'''\"	EN - equation end
+'''\"	VL - variable-item list
+'''\"	ML - marked list
+'''\"	LI - list item
+'''\"	LE - list end
+'''\"	hD - header 
+'''\"	fO - footer
+'''\"	yY - abstract overflow
+'''\"	aT - abstract overflow trap
+'''\"	tK - thick lines
+'''\"	bE - empty box
+'''\"	bX - box with X
+'''\"	tH - title heading
+'''\"	cH - continuation header
+'''\"	dH - distribution list headers
+'''\"	oH - overflow distribution list headers
+'''\"	eP - eject distribution continuation page
+'''\"	cP - continuation page
+'''\"	dP - continuation page (aux)
+'''\"	tP - compute pages and diversion lengths
+'''\"	t1 -     "               "
+'''\"	dL - compute basic distribution length
+'''\"	CS - output cover sheet
+'''\" initialization
+'''\"
+'''\"	registers
+.nr a 0 1
+.nr b 0 1
+.nr c 0
+.nr d 0
+.nr e 0
+.nr g 0
+.nr g1 0
+.nr g2 0
+.nr g3 0
+.nr g4 0
+.nr g5 0
+.nr h 6
+.nr i 0
+.nr i1 0
+.nr i2 0
+.nr i3 0
+.nr i4 0
+.nr i5 0
+.nr j 0
+.nr k 0
+.nr m 0
+.nr n 0 1
+.nr o 0
+.nr p 1
+.nr q 0
+.nr r 0
+.nr s 0
+.nr t 0
+.nr u 0 1
+.nr v 0
+.nr w 0
+.nr x 0
+.nr y 0
+.nr z 0
+.nr an 0
+.nr fn 0
+.nr as 0
+.nr ds 0
+.nr fs 0
+.nr bd 0
+.nr tp 0
+.nr tc 0
+.af tc i
+.nr np 2
+.nr nc 2
+.af nc i
+.nr la 0
+.nr a1 0
+.nr a2 0
+.nr ar 0
+.nr fi 0
+.nr in 0
+.nr :b 0
+.nr :c 0
+.nr :d 0
+.nr :e 0
+.nr :h 0
+.nr ls 0 1
+.nr dt 0
+.nr fc 0 1
+.nr wp 0 1
+.nr en 1
+.nr lg 0
+.nr ra 0
+.nr oa 0 1
+'''\"	initialize lines per page
+.nr lp 66
+.if n .nr lp 65
+'''\" initialize device register
+.nr dv 0
+.if '\*(.T'aps' .nr dv 1
+.if '\*(.T'i10' .nr dv 2
+.if '\*(.T'X97.tim10p' .nr dv 3
+.if '\*(.T'X97.tim12p' .nr dv 3
+.if '\*(.T'X97.ti10p' .nr dv 3
+.if '\*(.T'X97.ti12p' .nr dv 3
+.if '\*(.T'i300' .nr dv 4
+.if '\*(.T'qms' .nr dv 5
+.if '\*(.T'post' .nr dv 6
+'''\"	initialize font positions
+.ie \n(dv=3 \{\
+.fp 1 R
+.fp 2 I
+.fp 3 B
+.fp 4 I \}
+.el .ie \n(dv=5 \{\
+.fp 1 R
+.fp 2 I
+.fp 3 B
+.fp 4 S \}
+.el \{\
+.fp 1 H
+.fp 2 HI
+.fp 3 HB
+.fp 4 HX \}
+'''\"	initialize units per vertical space
+.if t .nr l 120
+.if \n(dv=2 .nr l 40
+.if \n(dv=3 .nr l 50
+.if \n(dv=5 .nr l 50
+.if n .nr l 40
+'''\"	initialize standard indent
+.nr si 5
+'''\"	diversions
+.di aV
+.di
+.di dM
+.di
+.di cA
+.di
+.di cO
+.di
+.di cU
+.di
+.di cV
+.di
+.di cW
+.di
+.di cX
+.di
+.di cY
+.di
+.di cZ
+.di
+.di dA
+.di
+.di dO
+.di
+.di dU
+.di
+.di dV
+.di
+.di dW
+.di
+.di dX
+.di
+.di dY
+.di
+.di dZ
+.di
+.di fB
+.di
+.di wO
+.di
+'''\" initialize Lucent logo
+'''\" eventually substitute LH for Lb (DWB 2)
+.ie \n(dv=5 .ds lG \s10\f(ATx\fP\f\\nv\fP\s0
+.el .ds lG \s36\(LH\s0
+'''\" initialize entity strings
+.ds e1 "LUCENT-BL
+.ds e2 "LUCENT
+.ds e3 "LUCENT BELL LABORATORIES
+.ds e4 "Department Head
+'''\" initialize trademark symbol string
+.if t .ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.if n .ds Tm \uTM\d
+'''\" initialize timestamp string
+.ds s) 0
+'''\"	initialize responsible person string
+.ds r( 0
+'''\"	initialize earlier document number string
+.ds e( 0
+'''\"	initialize csmacro version string
+.ds ve MCS (04/30/89)
+'''\"	initialize point size, vertical space & indent
+.nr ps 10
+.ps \\n(ps
+.nr vs 12
+.if t .vs \\n(vsp
+.in 0
+'''\"
+'''\" macros to collect information
+'''\"
+.de aC				\" macro for Lucent company (entity)
+.					\" set en=1 if BL (default)
+.					\" set en=2 if IS
+.					\" set en=3 if TI
+.					\" set en=4 if CH (Corporate Headquarters)
+.if '\\$1'BL' .nr en 1
+.if '\\$1'IS' .nr en 2
+.if '\\$1'TI' .nr en 3
+.if '\\$1'CH' .nr en 4
+.if \\n(en=1 \{\
+.ds e1 "LUCENT-BL
+.ds e2 "LUCENT
+.ds e3 "LUCENT BELL LABORATORIES
+.ds e4 "Department Head
+.br\}
+.if \\n(en=2 \{\
+.ds e1 "LUCENT-IS
+.ds e2 "LUCENT
+.ds e3 "LUCENT INFORMATION SYSTEMS
+.ds e4 "Department Head
+.br\}
+.if \\n(en=3 \{\
+.ds e1 "Lucent Technologies, Inc.
+.ds e2 "Lucent
+.ds e3 "LUCENT TECHNOLOGIES, INC.
+.ds e4 "Manager
+.br\}
+.if \\n(en=4 \{\
+.ds e1 "Lucent
+.ds e2 "Lucent
+.ds e3 "        Lucent
+.ds e4 "Department Head
+.br \}
+.rm aC
+..
+.de tS				\" macro for timestamp
+'''\"				if timestamp string=0, store arg #1 if non-empty.
+.if '\\*(s)'0' \{\
+.if !'\\$1'' \{\
+.ie '\\$2'1' .ds s) "D R A F T
+.el .ds s) "Timestamp: \\$1 \} \}
+..
+.de TL				\" macro for title
+.if \\nu>0 \{\
+.tm ERROR: coversheet file set up incorrectly - document title must be supplied before author
+.ab	\}
+.br
+.fi
+.nr aa 1		\" set default to send cover to ITDS
+.ie !'\\n(.F'stdin' \{\
+.	ie !'\\n(.F'-' \{\
+.		sy /usr/lib/tmac/timestamp \\n(.F>/tmp/tp\\n($$
+.		so /tmp/tp\\n($$
+.		sy /bin/rm /tmp/tp\\n($$
+.		br \}			\" don't remove br - gets around troff bug
+.	el \{\
+.		nr aa 0
+.		tm Coversheet not sent to library. input is '-' \} \}
+.el \{\
+.	nr aa 0
+.	tm Coversheet not sent to library. input is 'stdin' \}
+.ie '\\$1'' \{\
+.	ds m) "Mailing Label \}
+.el \{
+.	nr aa 0
+.	tm Coversheet not sent to library. DRAFT document
+.	ds m) \\s+2DRAFT\\s-2 \} \}
+.ll 6.0i
+'''\"					diversion for title
+.di tI
+.rm TL
+..
+.de AU				\" macro for author info
+'''\"					don't count author unless non-empty
+.if !\\$1 .nr u \\n+u
+.if \\nu=1 \{\
+.br
+'''\"					end title diversion on first author
+.di
+.nr lt (\\n(dn)/(\\nl)
+.nr o \\n(dn
+.ll
+.nf \}
+.ta 0.3i 2.6i 3.0i 4.0i 5.4i
+.br
+'''\"					append to author list
+.da aV
+	\\$1	\\$3	\\$6	\\$5	\\$7
+.br
+.da
+'''\"					end append; info for signature lines
+.if \\nu=1 .ds m(	\\$1
+.if \\nu=2 .as m( 	\\$1
+.if \\nu=3 .as m(	\\$1
+.if \\nu=4 .ds n(	\\$1
+.if \\nu=5 .as n(	\\$1
+.if \\nu=6 .as n(	\\$1
+.if \\nu=7 .ds o(	\\$1
+.if \\nu=8 .as o(	\\$1
+.if \\nu=9 .as o(	\\$1
+.if \\nu=10 .ds p(	\\$1
+.if \\nu=11 .as p(	\\$1
+.if \\nu=12 .as p(	\\$1
+..
+.de rP				\" macro for responsible person
+.if !'\\$1'' .ds r( \\$1
+.rm rP
+..
+.de FS				\" macro for footnote start
+.if \\n(fs>0 \{\
+.tm Footnote within footnote - illegal.
+.FE \}
+.if \\n(ds>0 \{\
+.tm Footnote within display - illegal.
+.FE \}
+.nr fs 1
+.ev 1
+.br
+.ll 6.4i
+.ps 8
+.if t .vs 10p
+.fi
+.ie \\n(as>0 .da aN
+.el \{\
+.da fN
+.if \\n(fn=0 \{\
+.br
+.if n __________
+.if t \l'1i'
+.br \} \}
+.if \\n(.$=1 \\$1
+..
+.de FE				\" macro for footnote end
+.br
+.da
+.ie \\n(as>0 .nr an \\n(dn+\\n(an
+.el .nr fn \\n(dn+\\n(fn
+.ev
+.nr fs 0
+..
+.de AS				\" macro for abstract info
+.nr as 1
+.br
+.fi
+.ll 7.0i
+.ta 0.5i 1.0i 1.5i
+.di aS
+.rm AS
+..
+.de AE 				\" macro for end of abstract info
+.br
+.di
+.nr la \\n(dn
+.iN
+.if \\n(an>0 \{\
+.br
+.da aS
+.br
+.if n __________
+.if t \l'1i'
+.br
+.nf
+.aN
+.rm aN
+.br
+.da
+.nr la \\n(la+\\n(dn \}
+.iN
+.rm iN
+.ll
+.nf
+.nr as 0
+.rm DS DE EQ EN VL ML LI LE
+.rm dS eQ
+.rm B I R S sP P
+.rm FS FE AE
+..
+.de OK				\" macro for keyword info
+.ds k)
+.if !\\$1 .as k) \\$1
+.if !\\$2 .as k); \\$2
+.if !\\$3 .as k); \\$3
+.if !\\$4 .as k); \\$4
+.if !\\$5 .as k); \\$5
+.if !\\$6 .as k); \\$6
+.if !\\$7 .as k); \\$7
+.if !\\$8 .as k); \\$8
+.if !\\$9 .as k); \\$9
+'''\"					set k flag if we have some keywords
+.ie !\\*(k) .nr k 1
+.el .nr k 0
+.rm OK
+..
+.de MT				\" macro for document type
+.if '\\$1'1' \{\
+.nr m 1
+.ds t) TM
+.ds t( "for Technical Memorandum\}
+.if '\\$1'2' \{\
+.nr m 2
+.ds t) IM
+.ds t( "for Internal Memorandum\}
+.if '\\$1'3' \{\
+.nr m 3
+.ds t) TC
+.ds t( "for Technical Correspondence\}
+.rm MT
+..
+.de dN				\" macro for document number info
+.ie \\ns=1 .ds s( S
+.el .ds s(
+.ta 0.8i
+.br
+.da dM
+.if !'\\$1'' \{\
+	\\$1\\*(t)\\*(s(
+.nr n \\n+n
+'''\"					\" save first document number
+.if \\nn=1 .ds n) \\$1\\*(t)\\*(s( \}
+.br
+.da
+..
+.de oA					\" macro for organizational approval names(s)
+.nr oa \\n+(oa
+.if \\n(oa=1 .ds u(	\\$1
+.if \\n(oa=2 .as u(	\\$1
+.if \\n(oa=3 .as u(	\\$1
+.if \\n(oa=4 .ds v(	\\$1
+.if \\n(oa=5 .as v(	\\$1
+.if \\n(oa=6 .as v(	\\$1
+.if \\n(oa=7 .ds w(	\\$1
+.if \\n(oa=8 .as w(	\\$1
+.if \\n(oa=9 .as w(	\\$1
+.if \\n(oa=10 .ds x(	\\$1
+.if \\n(oa=11 .as x(	\\$1
+.if \\n(oa=12 .as x(	\\$1
+..
+.de fC					\" macro for filing case info
+.ta 3.5i
+.br
+.da fB
+.if !'\\$1'' \{\
+.nr fc \\n+(fc
+	\\$1 \}
+.br
+.da
+..
+.de fD					\" macro for full date info
+.if !'\\$1'' .fC \\$1				\" use .fC macro underneath
+..
+.de wP					\" macro for work project info
+.ta 5.5i
+.br
+.da wO
+.if !'\\$1'' \{\
+.nr wp \\n+(wp
+	\\$1 \}
+.br
+.da
+..
+.de mC				\" macro for mercury selections - three argument version
+.if !'\\$1'' .Mc \\$1
+.if !'\\$2'' .Mc \\$2
+.if !'\\$3'' .Mc \\$3
+..
+.de Mc				\" macro for mercury selections - one argument
+.ds c)
+.if \\nb<3 \{\
+.ie '\\$1'CHM' .ds c) "	CHM - Chemistry and Materials
+.el .ie '\\$1'chm' .ds c) "	CHM - Chemistry and Materials
+.el .ie '\\$1'CMM' .ds c) "	CMM - Communications
+.el .ie '\\$1'cmm' .ds c) "	CMM - Communications
+.el .ie '\\$1'CMP' .ds c) "	CMP - Computing
+.el .ie '\\$1'cmp' .ds c) "	CMP - Computing
+.el .ie '\\$1'ELC' .ds c) "	ELC - Electronics
+.el .ie '\\$1'elc' .ds c) "	ELC - Electronics
+.el .ie '\\$1'LFS' .ds c) "	LFS - Life Sciences
+.el .ie '\\$1'lfs' .ds c) "	LFS - Life Sciences
+.el .ie '\\$1'MAN' .ds c) "	MAN - Manufacturing
+.el .ie '\\$1'man' .ds c) "	MAN - Manufacturing
+.el .ie '\\$1'MAS' .ds c) "	MAS - Mathematics and Statistics
+.el .ie '\\$1'mas' .ds c) "	MAS - Mathematics and Statistics
+.el .ie '\\$1'MKT' .ds c) "	MKT - Marketing
+.el .ie '\\$1'mkt' .ds c) "	MKT - Marketing
+.el .ie '\\$1'PHY' .ds c) "	PHY - Physics
+.el .ie '\\$1'phy' .ds c) "	PHY - Physics
+.el .ie '\\$1'STD' .ds c) "	STD - Standards
+.el .ie '\\$1'std' .ds c) "	STD - Standards
+.el .ie '\\$1'PRP' .ds c) "	PRP - Product Realization Process
+.el .ie '\\$1'prp' .ds c) "	PRP - Product Realization Process
+.el .ie '\\$1'QLT' .ds c) "	QLT - Quality
+.el .if '\\$1'qlt' .ds c) "	QLT - Quality
+.ie '\\*(c)'' .tm WARNING: \\$1 - unknown mercury selection
+.el \{\
+.nr b \\n+b
+.if t .as a) \\*(c)
+.if n \{\
+.ie \\nb=3 \{\
+.rn a) b)
+.ds a) \\*(c) \}
+.el .as a) \\*(c)\}\}\}
+..
+.de mE				\" macro for mercury selections
+.ds a)
+.ds b)
+.ds c)
+'''\"					either 'y' or '1' arguments honored
+.nr q 0
+.if '\\$1'y' .nr q 1
+.if '\\$1'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	CHM - Chemistry and Materials
+.nr b \\n+b \}
+.nr q 0
+.if '\\$2'y' .nr q 1
+.if '\\$2'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	CMM - Communications
+.nr b \\n+b
+.if n \{\
+.if \\nb=2 .rn a) b) \} \}
+.nr q 0
+.if '\\$3'y' .nr q 1
+.if '\\$3'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	CMP - Computing
+.nr b \\n+b
+.if t \{\
+.if \\nb=3 .rn a) b) \}
+.if n \{\
+.if \\nb=2 .rn a) b) \} \}
+.nr q 0
+.if '\\$4'y' .nr q 1
+.if '\\$4'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	ELC - Electronics
+.nr b \\n+b
+.if t \{\
+.if \\nb=3 .rn a) b) \}
+.if n \{\
+.if \\nb=4 \{\
+.rn b) c)
+.rn a) b) \}
+.if \\nb=2 .rn a) b) \} \}
+.nr q 0
+.if '\\$5'y' .nr q 1
+.if '\\$5'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	LFS - Life Sciences
+.nr b \\n+b
+.if t \{\
+.if \\nb=3 .rn a) b) \}
+.if n \{\
+.if \\nb=4 \{\
+.rn b) c)
+.rn a) b) \}
+.if \\nb=2 .rn a) b) \} \}
+.nr q 0
+.if '\\$6'y' .nr q 1
+.if '\\$6'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	MAS - Mathematics and Statistics
+.nr b \\n+b
+.if t \{\
+.if \\nb=3 .rn a) b) \}
+.if n \{\
+.if \\nb=4 \{\
+.rn b) c)
+.rn a) b) \}
+.if \\nb=2 .rn a) b) \} \}
+.if \\nb<6 \{\
+.nr q 0
+.if '\\$7'y' .nr q 1
+.if '\\$7'1' .nr q 1
+.if \\nq=1 \{\
+.as a) "	PHY - Physics
+.nr b \\n+b
+.if t \{\
+.if \\nb=3 .rn a) b) \}
+.if n \{\
+.if \\nb=4 \{\
+.rn b) c)
+.rn a) b) \}
+.if \\nb=2 .rn a) b) \} \} \}
+.if t \{\
+.if \\nb=3 .rn b) a) \}
+.if n \{\
+.if \\nb=4 \{\
+.rn b) a)
+.rn c) b) \}
+.if \\nb=2 .rn b) a) \}
+.rm mE
+..
+.de eD				\" macro for earlier document number
+.if !'\\$1'' .ds e( \\$1
+.rm eD
+..
+.de PM				\" macro for proprietary marking
+.					\" arg 1 - RS or BR or IR or TR or R - restricted
+.if '\\$1'RS' .nr p 2
+.if '\\$1'BR' .nr p 2
+.if '\\$1'IR' .nr p 2
+.if '\\$1'TR' .nr p 2
+.if '\\$1'R' .nr p 2
+.rm PM
+..
+.de gS				\" macro for government security classified
+.nr r 1
+.rm gS
+..
+.de rA				\" macros for release to Lucent employees
+.					\" superceded by .fA macro 072087
+.nr ra 1
+.rm rA
+..
+.de fA				\" macro for future Lucent distribution
+.					\" arg 1 = 'y' or 'Y' or 'n' or 'N'
+.if '\\$1'y' .nr ra 1
+.if '\\$1'Y' .nr ra 1
+.if '\\$1'n' .nr ra 2
+.if '\\$1'N' .nr ra 2
+.rm fA
+..
+.de sF				\" macro for software-related document
+.nr s 1
+.rm sF
+..
+.de cI
+.rm cI
+..
+.de dL				\" macro for calculating basic distribution length
+'''\"					call once only - from .cC, .cS, or .CS
+.if \\nd=0 \{\
+.nr d 1
+'''\"					calculate space considerations
+'''\"					basic distribution length - to be tailored - set e and h
+.if \\nr=0 .nr e \\ne+2
+.if \\nu<=3 .nr e \\ne+3
+.if \\nu<=6 .nr e \\ne+3
+.if \\nu<=9 .nr e \\ne+3
+.if (((\\n(oa>0)&(\\n(oa<=3)):((\\nn<=3)&(\\n(oa=0))) .nr e \\ne+3
+.if (((\\n(oa>0)&(\\n(oa<=6)):((\\nn<=6)&(\\n(oa=0))) .nr e \\ne+3
+.if (((\\n(oa>0)&(\\n(oa<=9)):((\\nn<=9)&(\\n(oa=0))) .nr e \\ne+3
+'''\"						nroff: if p=2, 1 extra line under Org Approval
+.if n .if \\np=2 .nr e \\ne-1
+'''\"						Future Lucent Distribution handling
+.if ((\\n(ra<2)&(\\np=2)) \{\
+.nr ra 2
+.tm WARNING: Future Lucent Distribution by ITDS - PROPRIETARY (RESTRICTED) document     MAY NOT BE RELEASED without appropriate approval for each request;                coversheet has been modified accordingly\}
+.if \\n(ra=0 \{\
+.tm WARNING: Future Lucent Distribution by ITDS: missing or invalid .fA macro;          indicate desired action by checking yes or no box on page 2 of coversheet;        next time include .fA macro with y or n argument \}
+'''\"						at least 3 lines for Future Lucent Distribution section (more for nroff negative and ra=0)
+'''\"					\" next 2 lines for yes/no boxes; remove when .fA macro becomes mandatory
+.if t .if \\n(ra=0 .nr e \\ne-4
+.if n .if \\n(ra=0 .nr e \\ne-5
+.if \\n(ra=1 .nr e \\ne-3
+.if t .if \\n(ra=2 .nr e \\ne-3
+.if n .if \\n(ra=2 .nr e \\ne-4
+'''\" increment number on next two lines to drop text lower on page 2
+.if t .nr e \\ne+23
+.if n .nr e \\ne+21 
+.if n \{\
+'''\"					if page 2 text changes, change values in next 3 lines
+.if \\ne<4 \{\
+.tm ERROR: insufficient space to format cover sheet; use "docsend -Taps" \
+          	for APS-5, "docsend -Ti10" for imagen, or "docsend -TX97" -    \
+          	or use stockroom cover sheet
+.ab	\}
+.ie \\ne<8 .nr e 0
+.el .nr e \\ne-7 \}
+.nr h \\ne
+.br \}
+.rm dL
+..
+.de cC				\" macro for handling complete copy addressees
+.dL
+.ta 2.0i
+.nf
+.br
+.ie \\ne>0 \{\
+.da cA
+.dt \\nev cD \}
+.el .da cO
+.rm cC
+..
+.de cD				\" macro for handling complete copy address overflow
+.ta 2.0i
+.br
+.da
+.da cO
+.nr lo 56-\\n(lt
+.dt \\n(lo zZ
+..
+.de zZ			\" macro for handling previously lost complete copy address overflow
+.				\" provide 5 additional continuation pages (6 in all - approx 350 names)
+.ie "\\n(.z"cO" .fF "g" "cU"
+.el .ie "\\n(.z"cU" .fF "g1" "cV"
+.el .ie "\\n(.z"cV" .fF "g2" "cW"
+.el .ie "\\n(.z"cW" .fF "g3" "cX"
+.el .ie "\\n(.z"cX" .fF "g4" "cY"
+.el .if "\\n(.z"cY" .fF "g5" "cZ"
+..
+.de fF			\" aux macro for handling previously lost complete copy address overflow
+.ta 2.0i
+.br
+.da
+.ie \\n(dn>0 \{\
+.nr \\$1 (\\n(dn)/\\nl+4
+.da \\$2
+.nr lo 56-\\n(lt
+.dt \\n(lo zZ \}
+.el \{\
+.nr \\$1 0
+.da cZ \}
+..
+.de cS				\" macro for handling cover sheet only addresses
+.dL
+.ta 2.0i
+.nf
+.br
+.ie \\nh>0 \{\
+.da dA
+.dt \\nhv cT \}
+.el .da dO
+.rm cS
+..
+.de cT				\" macro for handling cover sheet address overflow
+.ta 2.0i
+.br
+.da
+.da dO
+.nr lo 56-\\n(lt
+.dt \\n(lo wW
+..
+.de wW			\" macro for handling previously lost cover sheet only address overflow
+.				\" provide 5 additional continuation pages (6 in all - approx 350 names)
+.ie "\\n(.z"dO" .gG "i" "dU"
+.el .ie "\\n(.z"dU" .gG "i1" "dV"
+.el .ie "\\n(.z"dV" .gG "i2" "dW"
+.el .ie "\\n(.z"dW" .gG "i3" "dX"
+.el .ie "\\n(.z"dX" .gG "i4" "dY"
+.el .if "\\n(.z"dY" .gG "i5" "dZ"
+..
+.de gG			\" aux macro for handling previously lost cover sheet only address overflow
+.ta 2.0i
+.br
+.da
+.ie \\n(dn>0 \{\
+.nr \\$1 (\\n(dn)/\\nl+4
+.da \\$2
+.nr lo 56-\\n(lt
+.dt \\n(lo wW \}
+.el \{\
+.nr \\$1 0
+.da dZ \}
+..
+.de cE				\" macro for ending all distribution diversions
+.br
+.ie "\\n(.z"cA" \{\
+.da
+.rm cD \}
+.el .ie "\\n(.z"cO" .eE "g" "cD"
+.el .ie "\\n(.z"cU" .eE "g1" "cD"
+.el .ie "\\n(.z"cV" .eE "g2" "cD"
+.el .ie "\\n(.z"cW" .eE "g3" "cD"
+.el .ie "\\n(.z"cX" .eE "g4" "cD"
+.el .ie "\\n(.z"cY" .eE "g5" "cD"
+.el .ie "\\n(.z"cZ" \{\
+.da
+.rm cD \}
+.el .ie "\\n(.z"dA" \{\
+.da
+.rm cT \}
+.el .ie "\\n(.z"dO" .eE "i" "cT"
+.el .ie "\\n(.z"dU" .eE "i1" "cT"
+.el .ie "\\n(.z"dV" .eE "i2" "cT"
+.el .ie "\\n(.z"dW" .eE "i3" "cT"
+.el .ie "\\n(.z"dX" .eE "i4" "cT"
+.el .ie "\\n(.z"dY" .eE "i5" "cT"
+.el .if "\\n(.z"dZ" \{\
+.da
+.rm cT \}
+..
+.de eE			\" aux macro for ending all distribution diversions
+.da
+.ie \\n(dn>0 .nr \\$1 (\\n(dn)/\\nl+4
+.el .nr \\$1 0
+.rm \\$2
+..
+'''\"
+'''\" macros to help format document
+'''\"
+.deB
+.ie\\n(.$ .nr ;G \\n(.f
+.el.ft 3
+.if\\n(.$ .if !\\n(.$-2 \&\f3\\$1\fP\\$2
+.if\\n(.$-2 \{.ds }i
+.if\\n(.f2 .ds }i \^
+.ds}I \&\f3\\$1\fP\\$2\\*(}i
+'br\}
+.if\\n(.$-2 .if !\\n(.$-4 \\*(}I\f3\\$3\fP\\$4
+.if\\n(.$-4 .if !\\n(.$-6 \\*(}I\f3\\$3\fP\\$4\\*(}i\f3\\$5\fP\\$6
+.if\\n(.$ .ft \\n(;G
+..
+.deI
+.ie\\n(.$ .nr ;G \\n(.f
+.el.ft 2
+.if\\n(.$ .if !\\n(.$-1 \&\f2\\$1
+.if\\n(.$-1 \{.ds }i \^
+.if\\n(.f2 .ds }i
+.ds}I \&
+.if\w\\$1 .ds }I \&\f2\\$1\fP\\*(}i
+'br\}
+.if\\n(.$-1 .if !\\n(.$-3 \\*(}I\\$2\f2\\$3
+.if\\n(.$-3 .if !\\n(.$-5 \\*(}I\\$2\f2\\$3\fP\\*(}i\\$4\f2\\$5
+.if\\n(.$-5 \\*(}I\\$2\f2\\$3\fP\\*(}i\\$4\f2\\$5\fP\\*(}i\\$6
+.if\\n(.$ .ft \\n(;G
+..
+.deRI
+.nr;G \\n(.f
+.}S 1 2 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+..
+.deRB
+.nr;G \\n(.f
+.}S 1 3 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+..
+.deIR
+.nr;G \\n(.f
+.}S 2 1 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+..
+.deIB
+.nr;G \\n(.f
+.}S 2 3 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+..
+.deBR
+.nr;G \\n(.f
+.}S 3 1 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+..
+.deBI
+.nr;G \\n(.f
+.}S 3 2 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+..
+.de}S
+.ds}i
+.if\\$12 .if !\\$5 .ds }i\^
+.ie!\\$4 .}S \\$2 \\$1 "\\$3\f\\$1\\$4\\*(}i" "\\$5" "\\$6" "\\$7" "\\$8" "\\$9"
+.el\\$3
+.ft\\n(;G
+..
+.deR
+.ft1
+.ul0
+..
+.de S				\" set point size and vertical spacing
+.ie \\n(.$=0 \{\
+.ps
+.if t .vs \}
+.el \{\
+.ie \w\(ts\\$1\(ts \{\
+.ie 0\\$1-99 .nr ts \\n(ps
+.el .nr ts \\$1 \}
+.el .nr ts \\n(.s 
+.ps \\n(ts
+.if \\n(.$=1 .if t \{\
+.nr tv \\n(.s+2
+.vs \\n(tvp \}
+.if \\n(.$>1 .if t \{\
+.ie \w\(ts\\$2\(ts \{\
+.ie 0\\$2-99 .nr tv \\n(.s+2
+.el .nr tv \\$2 \}
+.el .nr tv \\n(.v 
+.vs \\n(tvp \} \}
+..
+.de sP				\" space 1 blank line (vertical space)
+.if n .sp 1
+.if t .sp 0.5
+..
+.de P				\" paragraph - (default - left-adjusted)
+.					\" arg #1=0 - left-adjusted
+.					\" arg #1=1 - indent standard amount
+.ne 1.1
+.sP
+.if (\\n(.$>0)&(0\\$1=1) .ti +\\n(sin
+..
+.de HC				\" set hyphenation indicator
+.ev0
+.hc\\$1
+.ev
+.ev1
+.hc\\$1
+.ev
+.ev2
+.hc\\$1
+.ev
+..
+.de SA				\" macro for right-adjustment
+.if \\n(.$ \{\
+.if \\$1-1 .tm WARNING: SA: bad arg:\\$1
+.nr :h 0\\$1 \}
+'na
+.if \\n(:h 'ad
+..
+.de iN				\" macro for font and size re-initialization
+.ft 1
+.ps \\n(ps
+.if t .vs \\n(vsp
+..
+.de DS				\" macro for display start
+.if \\n(ds>0 \{\
+.tm Display within display - illegal.
+.DE \}
+.if \\n(fs>0 \{\
+.tm Display within footnote - illegal.
+.FE \}
+.nr in \\n(.i
+.nr fi \\n(.u
+.br
+.ev 2
+.br
+.ll 7.0i
+.nf
+.in \\n(inu
+.sP
+.if \\n(.$>1 \{\
+.if '\\$2'F' .nr dt 4
+.if '\\$2'1' .nr dt 4
+.if \\n(dt=4 .fi \}
+.if \\n(.$>2 .ll-0\\$3
+.nr dt 0
+.nr bd 0
+.if '\\$1'I' .nr dt 1
+.if '\\$1'1' .nr dt 1
+.if \\n(dt=1 .in \\n(sin
+.if '\\$1'C' .nr dt 2
+.if '\\$1'2' .nr dt 2
+.if \\n(dt=2 .ce 1000
+.if '\\$1'CB' .nr dt 3
+.if '\\$1'3' .nr dt 3
+.if \\n(dt=3 \{\
+.nr bd 1
+.di dS \}
+.nr ds 1
+..
+.de DE				\" macro for display end
+.br
+.ie \\n(ds=0 .tm DE: no active DS
+.el \{\
+.ce 0
+.if \\n(bd>0 \{\
+.di
+.if \\n(dl>\\n(bd .nr bd \\n(dl
+.if \\n(bd<\\n(.l .in (\\n(.lu-\\n(bdu)/2u
+.nr dt \\n(.l-\\n(.i
+.ta \\n(dtuR
+.dS
+.br \}
+.nr bd 0
+.nr ds 0
+.nr dt 0
+.ev
+.in \\n(inu
+.sP
+.ie \\n(fi=0 .nf
+.el .fi \}
+..
+.de EQ				\" macro for equation start
+.ds e) \\$1
+.di eQ
+..
+.de EN				\" macro for equation end
+\!.br
+.br
+.di
+.lt \\n(.lu
+.pc
+.if \w\(ts\\*(10\\*(e)\(ts \{\
+.ie \\n(bd>0 \{\
+.if \\n(bd<\w\(ts\\*(10\(ts .nr bd \w\(ts\\*(10\(ts
+\!\\*(10\h'\\\\n(.lu-\w\(ts\\*(10\\*(e)u\(ts-\\\\n(.iu'\\*(e)
+.br \}
+.el .ie \\n(dt=2 .tl \(ts\(ts\\*(10\(ts\\*(e)\(ts
+.el .ie \\n(dt=1 .tl \(ts\h'\\n(sin'\\*(10\(ts\(ts\\*(e)\(ts
+.el .if \\n(dt=0 .tl \(ts\\*(10\(ts\(ts\\*(e)\(ts
+'br\}
+.pc%
+.lt
+..
+.de VL				\" macro for variable-item lists
+.if \\n(ls>0 \{\
+.tm VL: lists may not be nested
+.LE \}
+.ie \\n(.$<1 .tm WARNING: VL: text-indent not defined
+.el \{\
+.nr in \\n(.i
+.nr :b \\n(.iu+0\\$1n
+.nr :c \\n(.iu+0\\$2n
+.ds y) \&
+.ie \\n(.$=3 .nr :d 1
+.el .nr :d 0
+.if \\n(:d=1 .sP
+.fi
+.nr ls +1
+.br \}
+..
+.de ML				\" macro for marked list
+.if \\n(ls>0 \{\
+.tm ML: lists may not be nexted
+.LE \}
+.ie \\n(.$<1 .tm ML: mark not defined
+.el \{\
+.nr in \\n(.i
+.ds y) \\$1
+.ie (\\n(.$>1)&(\\$2>0) .nr :b \\n(.iu+0\\$2n
+.el .nr :b \\n(.iu+\w\(ts\\*(y)\(tsu+1n
+.nr :c \\n(:bu-1n-\w\(ts\\*(y)\(tsu
+.ie \\n(.$=3 .nr :d 1
+.el .nr :d 0
+.if \\n(:d=1 .sP
+.fi
+.in \\n(:bu
+.nr ls +1
+.br \}
+..
+.de BL				\" macro for bullet list - using marked list
+.ie \\n(.$=2 .ML \\(bu \\$1 \\$2
+.el .ie \\n(.$=1 .ML \\(bu \\$1
+.el .ML \\(bu
+..
+.de LI				\" macro for list item
+.ie \\n(ls=0 .tm LI: no active lists
+.el \{\
+.ds z) \\*(y)
+.if \\n(.$=1 .ds z) \\$1
+.if \\n(.$=2 .ds z) \\$1\&\\*(z)
+.if \\n(:d=0 .sP
+.in \\n(:bu
+.ti \\n(:cu
+.nr :e \w\(ts\\*(z)\(ts
+\\*(z)\h'\\n(:bu-\\n(:cu-\\n(:eu'\c \}
+..
+.de LE				\" macro for list end
+.ie \\n(ls=0 .tm LE: no active list
+.el \{\
+.br
+.nr ls -1
+'in \\n(inu
+'ti \\n(inu
+.if \\n(.$>0 .sP \}
+..
+.de hD				\" header macro
+'''\" page offset 0.6i for XEROX & DASI; 0.25i for all other devices
+'''\" cut marks for APS only
+.po 0.25i
+.if \\n(dv=3 .po 0.6i
+.if n .po 0.6i
+.if \\n(dv=1 .tl '\(rn''\(rn'
+.if t 'sp|0.2i
+.if n 'sp|1
+..
+.de fO				\" footer macro
+.if t .pl 11.0i
+.if n .pl \\n(lp
+'bp
+..
+.de yY				\" macro for abstract overflow - line -1
+.aT
+.rm yY
+..
+.de aT				\" macro for abstract overflow trap
+.					\" register a counts overflow pages
+.if \\na>0 \{\
+.ft 2
+.ce
+(continued)
+.ft 1 \}
+.if t .pl 11.0i
+.if n .pl \\n(lp
+.nr a \\n+a
+.rn aT xX
+'bp
+.rn xX aT
+.if n .wh -2 aT
+.if t .wh -0.55i aT
+.cH
+.tH
+.if t 'sp 0.05i
+.ce
+.ft 3
+Abstract (continued)
+.ft 1
+.in 0.2i
+'sp 1
+..
+.de tK				\" macro for thick lines
+.ps 24
+\l'7.5i'
+.ps
+..
+.de bE				\" macro for empty box
+.ps 12
+.if t \\(sq
+.if n [ ]
+.ps
+..
+.de bX				\" macro for box with x
+.ps 12
+.if t \\o'\(mu\(sq'
+.if n [x]
+.ps
+..
+.de tH				\" macro for Title heading and text
+.					\" called from aT and eP and CS
+.tK
+.if t 'sp 0.05i
+'''\"					mark t - Title heading
+.mk t
+.ft 3
+Title:
+.ft 1
+'sp|\\ntu
+.in 0.7i
+.tI
+.in 0
+.ta 0.5i
+.nr q \\no/\\nl
+.ie \\nq>2 'sp|\\ntu+\\nq
+.el 'sp|\\ntu+2
+.tK
+.					\" m1 - mark end of title section - save
+.mk m1
+..
+.de cH				\" macro for abstract or distribution list continuation header
+.					\" called from aT and eP
+.					\" calculate this page number
+.nr np \\n(np+1
+.nf
+.in 0
+.ft 3
+.ta 7.5iR
+.nr tc \\n(tp
+.nr nc \\n(np
+	\\*(n)\f2 (page \\n(nc of \\n(tc)
+.ft1
+.if t 'sp 0.1i
+..
+.de dH				\" macro for distribution list headers
+.					\" called from cP and CS
+.ft 3
+.ta 1.0i 4.75i
+	\\$1	\\$2
+.if t .sp 0.05i
+.ft 1
+.ta 0.5i 1.0i
+..
+.de oH			\" macro for final overflow distribution list headers
+.				\" called from cP
+.if \\$1>4 .if \\$2>4 .dH "Complete Copy (continued)" "Cover Sheet Only (continued)"
+.if \\$1>4 .if !\\$2>4 .dH "Complete Copy (continued)" ""
+.if !\\$1>4 .if \\$2>4 .dH "" "Cover Sheet Only (continued)"
+..
+.de eP				\" macro for ejecting distribution continuation page
+.					\" called from cP
+'bp
+.wh 0 hD
+'''\"					put out continuation page header & title section
+.cH
+.tH
+..
+.de cP				\" macro for continuation (distribution list) page
+.					\" called from CS
+.					\" if any distribution overflow will fit before next trap, set v=2
+.ie \\nv<=\\n(.t .nr v 1
+.el .nr v 0
+.if \\nv=1 .if \\nw<=\\n(.t .nr v 2
+.					\" check whether continuation page needs to be ejected
+.in 0
+.if \\nc=1 \{\
+.						\" - if no abstract overflow
+.if \\na=0 .eP
+.if \\na>0 \{\
+.						\" - or if abstract overflow - but not enough room for list overflow
+.ie \\nv<2 .eP
+.						\" just a thick line if abstract overflow AND enough room for list
+.el .tK \}
+.ie \\ne=0 \{\
+.if \\ng>4 .if \\ni>4 .dH "Complete Copy" "Cover Sheet Only"
+.if \\ng>4 .if !\\ni>4 .dH "Complete Copy" ""
+.if !\\ng>4 .if \\ni>4 .dH "" "Cover Sheet Only" \}
+.el .oH \\ng \\ni
+.mk z
+.nr q \\n(.t/\\nl
+'''\"					put out complete copy list overflow
+.in 0.2i
+.cO
+.in 0
+.rm cO
+.if !\\n(g1=0 \{\
+.ft 2
+.ti 1.25i
+(continued)
+.ft 1 \}
+.mk x
+.sp|\\nzu
+.in 4.0i
+'''\"					put out cover sheet list overflow
+.dO
+.rm dO
+.if !\\n(i1=0 \{\
+.ft 2
+.ti 5.00i
+(continued)
+.ft 1 \}
+.mk y
+.if ((\\n(g1>0):(\\n(i1>0)) .dP "\\n(g1" "\\n(i1" "cU" "\\n(g2" "dU" "\\n(i2"
+.if ((\\n(g2>0):(\\n(i2>0)) .dP "\\n(g2" "\\n(i2" "cV" "\\n(g3" "dV" "\\n(i3"
+.if ((\\n(g3>0):(\\n(i3>0)) .dP "\\n(g3" "\\n(i3" "cW" "\\n(g4" "dW" "\\n(i4"
+.if ((\\n(g4>0):(\\n(i4>0)) .dP "\\n(g4" "\\n(i4" "cX" "\\n(g5" "dX" "\\n(i5"
+.if ((\\n(g5>0):(\\n(i5>0)) \{\
+.eP
+.oH \\n(g5 \\n(i5
+.mk z
+.in 0.2i
+.cY
+.in 0
+.rm cY
+.mk x
+.sp|\\nzu
+.in 4.0i
+.dY
+.rm dY
+.mk y \}
+.in 0
+.if \\nx-\\ny .sp|\\nxu
+.tK \}
+..
+.de dP					\" macro to handle one continuation page
+.eP
+.oH \\$1 \\$2
+.mk z
+.in 0.2i
+.\\$3
+.in 0
+.rm \\$3
+.if !\\$4=0 \{\
+.ft 2
+.ti 1.25i
+(continued)
+.ft 1 \}
+.mk x
+.sp|\\nzu
+.in 4.0i
+.\\$5
+.rm \\$5
+.if !\\$6=0 \{\
+.ft 2
+.ti 5.00i
+(continued)
+.ft 1 \}
+.mk y
+..
+.de tP					\" macro to compute total pages and diversion lengths
+'''\"					calculate vert. units needed to handle cc overflow (if any)
+'''\"					called from CS macro
+.ie \\ng>4 .nr v (\\ng)*\\nl
+.el .nr v 0
+'''\"					also for cs overflow (if any)
+.ie \\ni>4 .nr w (\\ni)*\\nl
+.el .nr w 0
+.ie \\nv>\\nw .nr j \\nv
+.el .nr j \\nw
+.					\" set c=1 if either g or i >0
+.if \\ng>4 .nr c 1
+.if \\ni>4 .nr c 1
+.					\" calculate total pages in job (default 2)
+.nr tp 2
+.					\" a1 - page 1 portion abstract (units)
+.nr a1 \\nyu-\\nxu-1v
+.ie \\n(la>\\n(a1 \{\
+.					\" ar - remainder abstract (units)
+.nr ar \\n(la-\\n(a1
+.nr tp \\n(tp+1
+.					\" a2 - available continuation page space
+.						\" m1 is mark after thick line following title/date
+.						\" 2v are lines for Abstract (continued) and one blank line
+.if t .nr a2 11.0i-\\n(m1-3v
+.if n .nr a2 \\n(lpv-\\n(m1-3v
+.t1 \}
+.el .if \\nc>0 .nr tp \\n(tp+1
+.if ((\\n(g1>4):(\\n(i1>4)) .nr tp \\n(tp+1
+.if ((\\n(g2>4):(\\n(i2>4)) .nr tp \\n(tp+1
+.if ((\\n(g3>4):(\\n(i3>4)) .nr tp \\n(tp+1
+.if ((\\n(g4>4):(\\n(i4>4)) .nr tp \\n(tp+1
+.if ((\\n(g5>4):(\\n(i5>4)) .nr tp \\n(tp+1
+..
+.de t1
+.ie \\n(ar>\\n(a2 \{\
+.nr ar \\n(ar-\\n(a2
+.nr tp \\n(tp+1
+.t1 \}
+.el .if \\n(ar+\\nj>\\n(a2 .nr tp \\n(tp+1
+..
+'''\"
+'''\" main macro to handle output of cover sheet
+'''\"
+.de CS
+.if \\nu=0 \{\
+.tm ERROR: author must be supplied
+.ab	\}
+.if \\no=0 \{\
+.tm ERROR: document title must be supplied
+.ab	\}
+.if \\nm=0 \{\
+.tm ERROR: memorandum type undefined or unknown
+.ab	\}
+.if ((\\nm=1)&(\\np=1)) .if \\nb=0 \{\
+.tm ERROR: must have at least one mercury classification with technical memorandum
+.ab \}
+.if \\nn=0 \{\
+.tm ERROR: document number must be supplied
+.ab	\}
+.if \\n(la=0 .if \\nm<3 \{\
+.tm ERROR: abstract must be supplied for technical and internal memoranda
+.ab	\}
+.if \\nb>3 \{\
+.tm ERROR: no more than 3 mercury classifications may be selected
+.ab	\}
+.if \\n(fc=0 \{\
+.if \\n(en<3 \{\
+.tm ERROR: filing case must be supplied
+.ab	\}
+.if \\n(en=3 \{\
+.tm ERROR: full date must be supplied
+.ab	\}\}
+.if \\n(wp=0 \{\
+.tm ERROR: work project number must be supplied
+.ab	\}
+.dL
+.ll 7.5i
+.iN
+.if \\n(nl .bp
+.in 0
+.hD
+'''\"					put out 1 blank line where timestamp used to be
+.sp1
+.if t .sp 0.05i
+.nf
+.ps 16
+.ft 3
+.					\" put out page 1 heading
+'''\"					if Lucent logo not defined, put out Lucent string
+'''\"					   also put out memorandum type
+.ie ((\\n(dv=5)) \{\
+.ie '\f(AT'' .nr lg 0
+.el .nr lg 1 \}
+.el \{\
+.ie '\*(lG'' .nr lg 0
+.el .nr lg 1 \}
+.ie ((\\n(lg=0)) \{\
+.ta 7.5iR
+\\*(e2	Document Cover Sheet
+.wh 0 hD
+.if t .sp 0.1i
+	\\*(t(\}
+.el \{\
+.ta 7.5iR
+	Document Cover Sheet
+.wh 0 hD
+.if t .sp 0.1i
+.if \\n(dv=5 \{\
+.ft P
+.nr v \n(.f
+.ft P \}
+.ta 0.25i 7.5iR
+	\\*(lG	\\*(t(\}
+.ft 1
+.ps 10
+.tH
+.if t .sp 0.05i
+.ft 3
+.ie \\nu>1 .ds u) s
+.el .ds u)
+.if !\\n(en=3 \{\
+.ta 0.5i 2.75i 4.0i 4.7i
+	Author\\*(u)	Location	Ext.	Company (if other than \\*(e1)
+.br \}
+.if \\n(en=3 \{\
+.ta 0.5i 2.75i 4.0i 5.0i
+	Author\\*(u)	Location	Ext.	     Company (if other than
+.if t 				\\*(e3)
+.if n				     \\*(e3)
+.br \}
+.ft 1
+'''\"					output author info
+.aV
+.if !'\\*(r('0' \{\
+.ta 0.3i 2.6i
+	\\*(r(	(Responsible \\*(e1 Person)\}
+.rm aV AU
+.tK
+.if t .sp 0.05i
+.ft 3
+.ie \\nn>1 .ds v) s
+.el .ds v)
+.ie \\n(fc>1 .ds w) s
+.el .ds w)
+.ie \\n(wp>1 .ds x) s
+.el .ds x)
+.ta 1.0i 3.3i 5.55i
+.if \\n(en=1 \{\
+	Document No\\*(v).	Filing Case No\\*(w).	Project No\\*(x).
+.br \}
+.if \\n(en=2 \{\
+	Document No\\*(v).	Filing Case No\\*(w).	Project No\\*(x).
+.br \}
+.if \\n(en=3 \{\
+.if t .ta 1.0i 3.4i 4.7i
+.if n .ta 1.0i 3.4i 4.5i
+	Document No\\*(v).	Full Date	Time Charge (or Project Code) No\\*(x).
+.br \}
+.if \\n(en=4 \{\
+.if t .ta 1.0i 3.4i 5.2i
+.if n .ta 1.0i 3.4i 5.0i
+	Document No\\*(v).	Filing Case No\\*(w).	Time Charge (or Case) No\\*(x).
+.br \}
+.ft 1
+.if t .sp 0.05i
+.mk t
+'''\"					output document number
+.dM
+.rm dN dM
+.mk x
+.sp|\\ntu
+'''\"					output filing case info (or full date)
+.fB
+.rm fB fC
+.mk y
+.sp|\\ntu
+'''\"					output work project number info
+.wO
+.rm wO wP
+.mk z
+.if \\ny>\\nx .nr x \\ny
+.if \\nz>\\nx .nr x \\nz
+.sp|\\nxu
+.tK
+'''\"					output keywords if they exist
+.if \\nk>0 \{\
+.ft 3
+Keywords:
+.ft 1
+.if t .sp 0.05i
+.in 0.2i
+.fi
+\\*(k)
+.nf
+.in 0
+.tK \}
+'''\"					output mercury info if it exists
+.if \\nb>0 \{\
+.ft 3
+MERCURY Announcement Bulletin Sections
+.ft 1
+.if t \{\
+.sp 0.05i
+.ta 0.6i 3.1i 5.6i
+.ps 8
+\\*(a)
+.ps \}
+.if n \{\
+.ta 0.5i 4.1i
+.if \\nb>2 \\*(b)
+\\*(a)
+.ps \}
+.tK \}
+.ps 10
+.ft 3
+Abstract
+.ft 1
+.mk x
+.if t \{\
+.nr b1 \\nx/\\n(.v+1
+.nr b2 (\\n(b1*\\n(.v)-\\nx
+.sp \\n(b2u
+.mk x \}
+'''\" calculate position (19v includes 2v to print version at bottom of page)
+'''\"	followed by timestamp and 1v line
+.nr y \\n(lpv-19v-\\n(fnu
+.sp|\\nyu
+.sp -1
+.tP
+'''\"					handle abstract page 1 continuation
+.ie \\n(la>\\n(a1 \{\
+.ce
+.ft2
+(continued on page iii)
+.ft1
+.br \}
+.el .sp1
+.tK
+.ps 8
+.if t .vs 10p
+.nr z 0
+.if '\\$1'' .nr z 1
+.if !'\\$2'' .nr z 1
+.if !'\\$3'' .nr z 1
+.if !'\\$4'' .nr z 1
+.if !'\\$5'' .nr z 1
+.if !'\\$6'' .nr z 1
+.if \\nz=1 \{\
+.tm WARNING: provide total document page count in first argument of .CS macro;       all other arguments ignored; do NOT include coversheet pages in this count. \}
+.nr z 0
+.if !'\\$1'' .nr z \\nz+\\$1
+.nr z \\nz+\\n(tp
+.tm Total Pages = \\nz
+.ie '\*(.T'X97.tim10p'\{\
+Total Pages (including document cover sheet):  \\s+2\\nz\\s-2
+.if !\\*(e('0' \{\
+Supersedes or amends document number \\*(e(. \}
+.el .sp1 \}
+.el \{\
+\f3Total Pages\f1 (including document cover sheet):  \\s+2\\nz\\s-2
+.if !'\\*(e('0' \{\
+\f3Supersedes\f1 or amends document number \\*(e(. \}
+.el .sp1 \}
+.ps
+.if t .vs
+.if \\n(fn>0 \{\
+.br
+.nf
+.fN
+.rm fN
+.br \}
+.mk z
+.if t .sp 0.67i
+.if n .sp 4
+'''\"					output proprietary notice if it exists
+.if \\np=1 \{\
+.ds o) LUCENT \- PROPRIETARY
+.ds p) "Use pursuant to Company Instructions
+.ds q)
+.ds r)
+.ft 2
+.if n .ti 14
+.if t .ti 1.65i
+\\*(o)
+.ft 1
+.if n .ti 5
+.if t .ti 1.25i
+\\*(p) \}
+.if \\np=2 \{\
+.ds o) LUCENT \- PROPRIETARY (RESTRICTED)
+.ds p) "Solely for authorized persons having a need to know
+.ds q) "pursuant to Company Instructions
+.ft 2
+.if n .ti 10
+.if t .ti 1.25i
+\\*(o)
+.ft 1
+.if n .ti 0
+.if t .ti 0.875i
+\\*(p)
+.if n .ti 10
+.if t .ti 1.375i
+\\*(q) \}
+'''\"					output csmacros version
+.sp |\\nzu+11v
+.ta 7.5iR
+\\s8\\*(ve\\s0
+'''\"					put out timestamp (if non-empty) and company identifier
+.ie !'\\*(s)'0' \{\
+\\s8\\*(s)\\s0	\\*(e3 \}
+.el "	\\*(e3
+.sp|\\nzu
+.sp1
+.ft 3
+.ti 5.25i
+\\*(m)
+.ft 1
+.sp|\\nxu
+.in 0.2i
+.nf
+'''\"					abstract
+.if \\n(la>\\n(a1 \{\
+.if n .wh -1 yY
+.if t .wh -0.25i yY \}
+.pl \\nyu
+.ta 0.5i 1.0i 1.5i 2.0i 2.5i
+'''\"					output the abstract
+.aS
+.rm aS
+.if !\\n(la>\\n(a1 .sp-1
+.rn aT xX
+.if t .wh -0.25i fO
+.if n .wh -1 fO
+'''\"					output continuation pages
+.cP
+'bp
+.ft 1
+.in 0
+.wh 0 hD
+.nf
+.ft 3
+.ta 7.5iR
+.nr tc \\n(tp
+Initial Distribution Specifications	\\*(n)\f2 (page ii of \\n(tc)\f3
+.ft 1
+.tK
+.if \\ne>0 \{\
+.dH "     Complete Copy" "     Cover Sheet Only"
+.mk z
+'''\"					put out complete copy list
+.in 0.2i
+.cA
+.in 0
+.rm cA
+.if !\\ng=0 \{\
+.ft 2
+.ti 1.25i
+(continued)
+.ft 1 \}
+.sp|\\nzu
+.in 4.0i
+'''\"					put out cover sheet list
+.dA
+.rm dA
+.if !\\ni=0 \{\
+.ft 2
+.ti 5.00i
+(continued)
+.ft 1 \}
+.in 0
+'''\"					starter space value - then tailor according to basic distribution length
+.sp|5
+.sp \\ne
+.tK \}
+'''\"					put out security section if selected
+.if \\nr=1 \{\
+\f3Government Security Classified\f1
+.ft 1
+.if t .sp -0.05i
+.tK \}
+\f3Future Lucent Distribution by ITDS\f1
+.if \\n(ra>0 \{\
+.ti 0.5i
+.if t .sp 0.05i
+.ie \\n(ra=2 \{\
+.if t \f3DO NOT RELEASE\f1 to any Lucent employee without appropriate approval for each request.
+.if n \{\
+\f3DO NOT RELEASE\f1 to any Lucent employee without appropriate approval
+.br
+.ti 1.0i
+for each request.\}\}
+.el \{\
+\f3RELEASE\f1 to any Lucent employee (excluding contract employees).
+.br \}\}
+'''\"					next 41 lines for yes/no boxes; remove when .fA macro becomes mandatory
+.if \\n(ra=0 \{\
+.if t \{\
+.mk z
+.ti 0.1i
+.bE
+.sp|\\nzu
+.ti 0.25i
+Yes, \f3RELEASE\f1 to any Lucent employee (excluding
+.sp|\\nzu
+.ti 4.1i
+.bE
+.sp|\\nzu
+.ti 4.25i
+No, \f3DO NOT RELEASE\f1 to any Lucent employee
+.mk z
+.ti 0.35i
+contract employees).
+.sp|\\nzu
+.ti 4.35i
+without obtaining appropriate approval.\}
+.if n \{\
+.mk z
+.ti 0.1i
+.bE
+.sp|\\nzu
+.ti 0.4i
+Yes, \f3RELEASE\f1 to any Lucent employee
+.sp|\\nzu
+.ti 4.1i
+.bE
+.sp|\\nzu
+.ti 4.4i
+No, \f3DO NOT RELEASE\f1 to any Lucent
+.mk z
+.ti 0.5i
+(except contract employees).
+.ti 4.5i
+.sp|\\nzu
+employee without obtaining
+.ti 4.5i
+appropriate approval.\}\}
+.if t .sp -0.05i
+.tK
+.ft 3
+Author Signature\\*(u)
+.ft 1
+.sp1
+.ta 2.625i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(m(
+.if \\nu>3 \{\
+.sp1
+.ta 2.635i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(n( \}
+.if \\nu>6 \{\
+.sp1
+.ta 2.635i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(o( \}
+.if \\nu>9 \{\
+.sp1
+.ta 2.635i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(p( \}
+.if t .sp -0.1i
+.tK
+'''\"					output organizational approval section
+.ie \\np>1 \{\
+.if t \{\
+\f3Organizational Approval\f1  (\\*(e4 approval \f3required\f1 for \f2\\*(o)\f1.) \}
+.if n \{\
+\f3Organizational Approval\f1
+.ti 0.5i
+\\*(e4 approval \f3required\f1 for \f2\\*(o)\f1. \}
+.br \}
+.el \{\
+\f3Organizational Approval\f1  (Optional) \}
+.sp 1
+.ta 2.625i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(u(
+.if ((\\n(oa>3):((\\nn>3)&(\\n(oa=0))) \{\
+.sp1
+.ta 2.625i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(v( \}
+.if ((\\n(oa>6):((\\nn>6)&(\\n(oa=0))) \{\
+.sp 1
+.ta 2.625i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(w( \}
+.if ((\\n(oa>9):((\\nn>9)&(\\n(oa=0))) \{\
+.sp 1
+.ta 2.625i 5.25i
+\l'2.25i'	\l'2.25i'	\l'2.25i'
+.ta 0.25i 2.875i 5.5i
+\\*(x( \}
+.if t .sp -0.1i
+.tK
+'''\"					recipient section always output
+.ft 3
+For Use by Recipient of Cover Sheet:
+.ft 1
+.if t \{\
+.ps-3
+.vs-4
+.sp1
+.mk z
+  Computing network users may order copies via the \f2library -1\f1 command;
+   for information, type \f2man library\f1 after the UNIX\(rg system prompt.
+.sp1
+.rn fo xx
+  Otherwise:
+   Enter PAN if Lucent-BL (or SS# if non-Lucent-BL). \l'1.5i'
+   Return this sheet to any ITDS location. 
+.sp|\\nzu
+.in 4.0i
+Internal Technical Document Service
+.sp1
+.ta 0.9i 1.8i 2.7i
+( ) AK 2H-28	( ) IH 7M-103	( ) DR 2F-19	( ) NW-ITDS
+( ) ALC 1B-102	( ) MV 3L-19	( ) INH 1C-114	( ) PR 5-2120
+( ) CB 1L-220	( ) WH 3E-204	( ) IW 2Z-156
+( ) HO 4F-112		( ) MT 2C-131
+.br \}
+.if n \{\
+  Computing network users may order copies via the \f2library -1\f1 command;
+  for information, type \f2man library\f1 after the UNIX system prompt. 
+  Otherwise:
+.sp1
+.mk z
+.rn fo xx
+1 Enter PAN if Lucent-BL (or SS# if
+  non-Lucent-BL).
+               \l'2.0i'
+2 Return this sheet to any
+  ITDS location. 
+.sp|\\nzu
+.in 4.0i
+Internal Technical Document Service
+.sp1
+.ta 1.75i
+.if \\n(en=1 \{\
+( ) AK 2H-28	( ) IH 7M-103
+( ) ALC 1B-102	( ) MV 3L-19
+( ) CB 1L-220	( ) WH 3E-204
+( ) HO 4F-112 \}
+.if \\n(en=2 \{\
+( ) DR 2F-19
+( ) INH 1C-114
+( ) IW 2Z-156
+( ) MT 2C-131 \}
+.if \\n(en=3 \{\
+( ) NW-ITDS \}
+.if \\n(en=4 \{\
+( ) PR5-2120 \}
+.br \}
+.if \\n(aa \{\
+.	sy pwd >/tmp/sx\\n($$
+.	sy sed "s/^/cd /" /tmp/sx\\n($$ >/tmp/sc\\n($$
+.	sy echo "/usr/lib/tmac/sendcover" \\n(.F \\n(qq >>/tmp/sc\\n($$
+.	sy echo "rm" /tmp/sx\\n($$ /tmp/sc\\n($$>>/tmp/sc\\n($$
+.	sy sh /tmp/sc\\n($$&
+.	br \}
+.rr a b c e g h i j k
+.rr l m n o p q r s t
+.rr u v w x y z
+.rr an fn as ds fs bd dv lp
+.rr tp np la a1 a2 ar fi
+.rr in si ps ts vs tv b1 b2 m1
+.rr :b :c :d :e ls dt fc wp
+.rr g1 g2 g3 g4 g5 i1 i2 i3 i4 i5
+.rm a) b) c) e) k) n) o) p) q)
+.rm r) s) t) u) v) w) x) y) z)
+.rm a( b( m( n( o( p( s( t(
+.rm tc nc Tm 10 ve
+.rm hD fO aT tK bE bX tH cH
+.rm dH eP cP tP t1 CS tI tS cE
+.rm cZ dZ eE fF gG oH dP
+..
+'''\"	end of csmacros

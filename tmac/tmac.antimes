@@ -1,0 +1,509 @@
+'''\"	PWB Manual Entry Macros - 1.36 of 11/11/80
+'''\"	Nroff/Troff Version	@(#)1.36
+'''\"  Option -rs1 short (9") pages
+'''\"  Option -rp# set no. of first page, put no. of pgs. on stderr
+'''\"  Option -rd1 give modified date instead of printed date
+... temporary fixes for neat manual printing...
+.deth
+.tmwrong version of man entry macros - use -man6
+.ab
+..
+.ifn .ds Tm \uTM\d
+.ift .ds Tm \v'-0.5m'\s-4TM\s+4\v'0.5m'
+.de}E
+.}f
+.in\\n()Ru+\\n(INu
+.ll\\n(LLu
+.lt\\n(LLu
+.pl\\n()Lu
+..
+.deDT
+.ift .ta 3.6m 7.2m 10.8m 14.4m 18m 21.6m 25.2m 28.8m 32.4m 36m 39.6m 43.2m 46.8m
+.ifn .ta 5n 10n 15n 20n 25n 30n 35n 40n 45n 50n 55n 60n 65n
+..
+.de HY
+.hy14
+..
+.de}f
+.ift .vs \\n()Vp
+.ps\\n()S
+.ft1
+..
+.de}H
+.ev1
+.}C
+.}E
+.ie\\n()s 'sp |2v
+.el'sp |3v
+.".ps\\n()S-1
+.tl \\*(]H\\*(]L\\*(]H
+.ft1
+.ps\\n()S
+.ie\\n()s 'sp 1.5v
+.el'sp 3v
+.ev
+.ns
+.if \\n(CL .2C
+..
+.de}F
+.ev1
+.}E
+.if\\n()s 'sp |\\n(.pu-1v-1p
+.if\\n()t 'sp |\\n(.pu-3v
+.ifn 'sp |\\n(.pu-4v
+.ifn .tl Page %\\*(]D\\*(]W
+.ift .tl %
+.ev
+'bp
+..
+.ifn .ig
+.de}C
+.if "\\*(.T"aps"\{\
+.	po0i
+.	lt7.5i
+.	if\\n()s .tl \l0.25i\l0.25i\h1i\l0.25i
+.	if\\n()t .tl \l0.25i\l0.25i
+.	lt
+.	po\}
+..
+.de}M
+.}N
+.wh-.5p }C
+.ll\\n(LLu
+.}P
+..
+.de}K
+.}N
+.pl1
+.ll\\n(LLu
+..
+.de}P
+.nr )P \\n%+1-\\np
+.if \\nq .tm \\n(.F \\n()P \\np
+.bp
+.if \\nq .nr p \\n%
+..
+.deTH
+.PD
+.nrIN \\n()Mu
+.ift .ds ]H \\$1\^(\^\\$2\^)
+.ifn .ds ]H \\$1(\\$2)
+.if\\n()s .ds ]D
+.if\\n()t .ds ]D Plan 9
+.ifn .ds ]D Plan 9
+.ds]L
+.if!\\$3 .ds ]L (\^\\$3\^)
+.if!\\$4 .ds ]D \\$4
+.wh0 }H
+.wh-\\n(:mu }F
+.em}M
+.if\\n(nl .}P
+.nr)I \\n()Mu
+.nr)R 0
+.}E
+.DT
+.ifn \{.na
+.nh\}
+.ift \{.bd S 3 3
+.HY \}
+..
+.deSH
+.PD
+.}X 0 "\\$1" smaller
+.nr)E 2
+\&\\$1 \|\\$2 \|\\$3 \|\\$4 \|\\$5 \|\\$6
+..
+.deSS
+.PD
+.}X 3n "" ""
+.nr)E 2
+\&\\$1 \|\\$2 \|\\$3 \|\\$4 \|\\$5 \|\\$6
+..
+.de}X
+.}E
+.ti\\$1
+.sp\\n(PDu
+.ne1.1v
+.nr)R 0
+.fi
+'''ss12
+'''if\\$2SYNOPSIS .ss 18
+.it1 }N
+.if!\\$3 .SM
+.ft 3
+..
+.de}2
+.nr)E 0
+.}E
+.nr)I \\n()Mu
+.ns
+.ft1
+..
+.deSM
+.nh
+.ps\\n()S-1
+.if!\\$1 \&\\$1
+.if!\\$2 \&\\$2
+.if!\\$3 \&\\$3
+.if!\\$4 \&\\$4
+.if!\\$5 \&\\$5
+.if!\\$6 \&\\$6
+.if!\\$1 .ps \\n()S
+.if\\$1 .it 1 }N
+.HY
+..
+.deI
+.nh
+.ft2
+.it1 }N
+.if!\\$1 \&\\$1 \\$2 \\$3 \\$4 \\$5 \\$6
+.HY
+..
+.deB
+.nh
+.it1 }N
+.ie!\\$1 \%\&\f5\\$1 \\$2 \\$3 \\$4 \\$5 \\$6
+.el .ft5
+.HY
+..
+.deL
+.nh
+.it1 }N
+.ift \{.ie!\\$1 \%\&\f5\\$1 \\$2 \\$3 \\$4 \\$5 \\$6
+.el .ft5 \}
+.ifn \{.ft5
+.if!\\$1 \{.ie\\$2 `\\$1'
+.el .ie\\$3 `\\$1 \\$2'
+.el .ie\\$4 `\\$1 \\$2 \\$3'
+.el .ie\\$5 `\\$1 \\$2 \\$3 \\$4'
+.el .ie\\$6 `\\$1 \\$2 \\$3 \\$4 \\$5'
+.el `\\$1 \\$2 \\$3 \\$4 \\$5 \\$6'\}\}
+.HY
+..
+.deRI
+.nh
+.}S 1 2 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.HY
+.}f
+..
+.deIR
+.nh
+.}S 2 1 \& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.HY
+.}f
+..
+.deIB
+.nh
+.ift .}S 2 5 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.ifn .}S 2 1 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.HY
+.}f
+..
+.deRB
+.nh
+.ift .}S 1 5 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.ifn .}S 1 1 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.HY
+.}f
+..
+.deBR
+.nh
+.ift .}S 5 1 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.ifn .}S 1 1 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.HY
+.}f
+..
+.deBI
+.nh
+.ift .}S 5 2 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.ifn .}S 1 2 \%\& "\\$1" "\\$2" "\\$3" "\\$4" "\\$5" "\\$6"
+.HY
+.}f
+..
+.de LR
+.nh
+.ift \%\&\f5\\$1\f1\\$2
+.ifn \%`\\$1'\\$2
+.HY
+..
+.de RL
+.nh
+.ift \%\&\f1\\$1\\f5\\$2\\f1\\$3
+.ifn \%\\$1`\\$2'\\$3
+.HY
+..
+.de}S
+.ds]F
+.if\\$12 .if !\\$5 .ds ]F \^
+.if\\$22 .if !\\$5 .ds ]F \^
+.ie!\\$4 .}S \\$2 \\$1 "\\$3\f\\$1\\$4\\*(]F" "\\$5" "\\$6" "\\$7" "\\$8" "\\$9"
+.el\\$3
+.}f
+..
+.deEX
+.ift .ft5
+.nf
+..
+.deEE
+.ft1
+.fi
+..
+.dePP
+.sp\\n(PDu
+.ne1.1v
+.}E
+.nr)I \\n()Mu
+.ns
+..
+.deP
+.PP
+..
+.deLP
+.PP
+..
+.dePD
+.ift .nr PD .4v
+.ifn .nr PD 1v
+.if!\\$1 .nr PD \\$1v
+..
+.deHP
+.sp\\n(PDu
+.ne1.1v
+.if!\\$1 .nr )I \\$1n
+.ll\\n(LLu
+.in\\n()Ru+\\n(INu+\\n()Iu
+.ti\\n()Ru+\\n(INu
+.}f
+..
+.deIP
+.ie!\\$1 \{.TP "\\$2"
+\&\\$1\}
+.el\{.sp\\n(PDu
+.ne1.1v
+.if!\\$2 .nr )I \\$2n
+.}f
+.ll\\n(LLu
+.in\\n()Ru+\\n(INu+\\n()Iu
+.lg\}
+..
+.deTP
+.if!\\$1 \{.nr )I \\$1n
+.if\\$10 .nr )I \\n()M\}
+.sp\\n(PDu
+.ne1.1v
+.in\\n()Ru
+.lg0
+.ns
+.it1 }N
+.nr)E 1
+.di]B
+..
+.deTF
+.IP "" "\w'\f5\\$1\ \ \fP'u"
+.PD0
+..
+.de}1
+.ds]X \&\\*(]B\\
+.rm]B
+.nr)E 0
+.if!\\$1 .nr )I \\$1n
+.}f
+.ll\\n(LLu
+.in\\n()Ru+\\n(INu+\\n()Iu
+.ti\\n(INu
+.ie!\\n()Iu+\\n()Ru-\w\\*(]Xu-3p \{\\*(]X
+.br\}
+.el\\*(]X\h|\\n()Iu+\\n()Ru\c
+.}f
+.lg
+..
+.de}N
+.if\\n()E .br
+.if\\n()E1 .di
+.if\\n()E0 .}f
+.if\\n()E1 .}1
+.if\\n()E2 .}2
+..
+.deRS
+.nr]\\n+()p \\n()I
+.nr)\\n()p \\n()R
+.ie!\\$1 .nr )R +\\$1n
+.el.nr )R +\\n()I
+.nr)I \\n()Mu
+.}E
+..
+.deRE
+.if!\\$1 \{.ie \\$10 .nr )p 1 1
+.el.nr )p \\$1 1 \}
+.ds]i \\*(]I\\n()p
+.ds]r \\*(]R\\n()p
+.nr)I \\*(]i
+.nr)R \\*(]r
+.if\\n()p .nr )p -1
+.}E
+..
+'''\"	.2C begin 2-column display, by diversion
+'''\"   CC=amount of text that will fit on page
+'''\"	CL=1 multicolumn in effect, else 0
+'''\"	CI saved indent
+'''\"	CB contains diverted text
+.de 2C
+.ne 2
+.nf
+.nr CC \\n(.t/1v*2v
+.nr CI \\n(IN
+.nr IN 0
+.di CB
+.nr CL 1
+.}E
+.dt \\n(CCu C1
+..
+'''\"	.1C return to 1-column
+.de 1C
+.nr CL 0
+.C1
+.fi
+..
+'''\"	end of diversion, at end of page or return to 1-column
+'''\"	CC=pos of nominal column end
+.de C1
+.dt
+\!.C3
+.di
+.if \\n(dn \{.nr CC \\n(dnu/2u+\\n(nlu
+.wh \\n(CCu C2
+.mk
+.nf
+.nr IN \\n(CIu
+.}E
+.CB \}
+..
+'''\"	end of first column retrieved from diversion
+'''\"	CC=pos of actual column end
+.de C2
+.wh \\n(CCu
+.mk CC
+.po +(\\n(LLu/2u)u
+.rt
+.if \\n(dn>1v .ns
+..
+'''\"	end of second column
+.de C3
+.br
+.po -(\\n(LLu/2u)u
+.if \\n(CC>\\n(nl .sp |\\n(CCu
+.ne 2
+..
+.dePM
+.if\\$1 .nr !K 0
+.if\w\\$1 \{\
+.ie\\$1P .nr !K 1
+.el.ie \\$1BP .nr !K 3
+.el.ie \\$1BR .nr !K 4
+.el.nr !K 2 \}
+.if\\n(!K .wh -(\\n(:mu+5v) )G
+..
+.de)G
+.if\\n(!K 'sp 2v
+.ie\\n(!K=1 \{\
+.iet .bd1 3
+.el.bd1 0
+.tlPRIVATE
+.bd1
+.tlThis information should not be disclosed to unauthorized persons.
+.tlIt is meant solely for use by authorized Bell System employees. \}
+.el.ie \\n(!K=3 \{\
+.iet .bd1 3
+.el.bd1 0
+.tlBELL LABORATORIES PROPRIETARY
+.bd1
+.tlNot for use or disclosure outside Bell Laboratories except by
+.tlwritten approval of the director of the distributing organization. \}
+.el.ie \\n(!K=4 \{\
+.iet .bd1 3
+.el.bd1 0
+.tlBELL LABORATORIES RESTRICTED
+.bd1
+.tlThe information herein is meant solely for use by authorized
+.tlBell Laboratories employees and is not to be disclosed to others. \}
+.el.if \\n(!K=2 \{\
+.iet .bd1 3
+.el.bd1 0
+.tlNOTICE
+.bd1
+.tlNot for use or disclosure outside the
+.tlBell System except under written agreement. \}
+..
+.nr)s 0
+.ift .if \ns .nr )s 1
+.nr)t 0
+.ift .if !\ns .nr )t 1
+.if\n()s \{.nr )L 9i
+.nrLL 4.75i
+.nr)O .75i
+.nr)S 9
+.nr)V 10 \}
+.if\n()t \{.nr )L 11i
+.nrLL 6.5i
+.nr)O 1i
+.nr)S 10
+.nr)V 12 \}
+.ift \{.ds R \(rg
+.dsS \s\n()S
+..\}
+.ifn \{.nr )L 11i
+.nrLL 6.5i
+.nr)O .463i
+.if '\*(.T'think' \{.nrLL 80n
+.nr)O 0\}
+.if '\*(.T'thinksmall' \{.nrLL 142n
+.vs 9p
+.nr)O 0\}
+.dsR (Reg.)
+.dsS
+..\}
+.if\nT .nr LL 80n
+.if\nV>1 \{
+.nrLL 82n
+.nr)L 84v
+.rmul \}
+.nr)p 0 1
+.ds]I \\\\n(]
+.ds]R \\\\n()
+.if\nd0 .nr m \n(mo-1
+.if\nm0 .ds ]m January
+.if\nm1 .ds ]m February
+.if\nm2 .ds ]m March
+.if\nm3 .ds ]m April
+.if\nm4 .ds ]m May
+.if\nm5 .ds ]m June
+.if\nm6 .ds ]m July
+.if\nm7 .ds ]m August
+.if\nm8 .ds ]m September
+.if\nm9 .ds ]m October
+.if\nm10 .ds ]m November
+.if\nm11 .ds ]m December
+.ifn \{.nr m \nm+1
+.ie\nd .ds ]W (last mod. \nm/\nd/\ny)
+.el.ds ]W (printed \n(mo/\n(dy/\n(yr)
+..\}
+.if\n()s .ds ]W
+.if\n()t \{.ie \nd .ds ]W \*(]m \nd, 20\ny
+.el.ds ]W \*(]m \n(dy, 20\n(yr
+..\}
+.pl\n()Lu
+.ll\n(LLu
+.lt\n(LLu
+.po\n()Ou
+.fp 5 L CW
+.ift .tr \``\''
+.}f
+.if\n()s .nr :m 3.5v
+.if\n()t .nr :m 6v
+.ifn .nr :m 7v
+.ift .nr )M 3.6m
+.ifn .nr )M 5n
+.em}K
+.nr q \np
+.if!\np .nr p 1
+.pn \np

@@ -1,0 +1,5 @@
+#!/bin/rc
+grep '	' $* | awk '
+$2 != "\"" {last = $4}
+{printf("\t%s\t%s\n", $1, last)}
+'

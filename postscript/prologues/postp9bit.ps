@@ -1,0 +1,86 @@
+%
+% Version 3.3 prologue for plan9 bitmap files.
+%
+
+/#copies 1 store
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/rotation 1 def
+/screenres 100 def
+/xoffset 0 def
+/yoffset 0 def
+
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	xoffset inch yoffset inch translate
+	magnification dup aspectratio mul scale
+
+	/height height margin sub def
+	/width width margin sub def
+} def
+
+/pagedimensions {
+	useclippath {
+		/pagebbox [clippath pathbbox newpath] def
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {/page exch def} bind def
+
+/bitmap {
+	/scanlines exch def
+	/scanlength exch def
+	/bitspersample exch def
+%%	/v8format exch def
+
+	/bytelength scanlength bitspersample mult 7 add 8 idiv def
+	/picstr bytelength string def
+	/lpicstr bytelength string def
+%%	/bytelength bytelength 1 sub def
+
+	gsave
+
+% First the overall scaling.
+
+	height scanlines div width scanlength div min
+	72 screenres div min
+	dup scale
+
+% Followed by the one for the unit square.
+
+	scanlength neg 2 div scanlines neg 2 div translate
+	scanlength scanlines scale
+	getp9bitmap
+	grestore
+} bind def
+
+/getp9bitmap {
+	scanlength scanlines bitspersample [scanlength 0 0 scanlines neg 0 scanlines] {
+			currentfile picstr readhexstring pop} image
+} bind def
+
+/done {/lastpage where {pop lastpage} if} def

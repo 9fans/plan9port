@@ -1,0 +1,14 @@
+.so #9/sys/lib/tmac/tmac.an
+.de }H
+..
+.de }F
+..
+.hy 0
+.de HY
+.hy 0
+..
+.nr LL 20i
+.dePP
+\Xhtml <P>
+.}p
+..

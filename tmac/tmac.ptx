@@ -1,0 +1,17 @@
+'''\"	ptx.src (@(#)ptx.src	1.1)  -  format permuted index macro
+.tr ~
+.nr)y \n(.lu-.65i
+.nr)x \n()yu/2u
+.dss2 ~~~
+.dss4 ~
+.dss5 ~
+.dexx
+.dss1
+.if\w\\$2 .ds s1 ~\|
+.dss3
+.if\w\\$4 .ds s3 ~\|
+.dsy \\*(s4\f3\a\fP\\*(s5
+.ta\\n()yu-\w\\*(s5u
+\h\\n()xu-\w\\$1\\*(s1\\$2\\*(s2u\\$1\\*(s1\\$2\\*(s2\\$3\\*(s3\\$4\\*y\\$5
+..
+.nf

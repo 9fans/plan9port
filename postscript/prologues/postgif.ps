@@ -1,0 +1,104 @@
+%
+% Version 3.3.2 prologue for GIF pixmap files.
+%
+
+/#copies 1 store
+/aspectratio 1 def
+/formsperpage 1 def
+/landscape false def
+/magnification 1 def
+/margin 0 def
+/orientation 0 def
+/rotation 1 def
+/xoffset 0 def
+/yoffset 0 def
+
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} bind def
+/min {2 copy gt {exch} if pop} bind def
+
+/setup {
+	counttomark 2 idiv {def} repeat pop
+
+	landscape {/orientation 90 orientation add def} if
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	xoffset inch yoffset inch translate
+	magnification dup aspectratio mul scale
+
+	/height height margin sub def
+	/width width margin sub def
+} def
+
+/pagedimensions {
+	useclippath {
+		/pagebbox [clippath pathbbox newpath] def
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+	userdict /gotpagebbox true put
+} def
+
+/pagesetup {/page exch def} bind def
+
+/done {/lastpage where {pop lastpage} if} def
+
+/alignment false def
+
+/gifscreen { % scrwidth scrheight $
+    2 copy
+
+    alignment {
+    	100 dup dtransform exch 100 exch div abs exch 100 exch div abs
+	2 copy scale
+	/height exch height exch div def
+	/width exch width exch div def
+    } if
+
+    height exch div exch width exch div
+    2 copy lt { pop } { exch pop } ifelse
+
+    alignment { cvi } if
+
+    dup scale
+
+    neg 2 div exch neg 2 div exch translate
+} def
+
+/gifimage { % gray imagewidth imageheight xorigin yorigin $
+    translate
+    2 copy scale
+    /imageheight exch def
+    /imagewidth exch def
+    /gray exch def
+    imagewidth imageheight 8 [imagewidth 0 0 imageheight neg 0 imageheight]
+    gray {
+	{ currentfile codestr readhexstring pop } image
+    } {
+	/colorimage where {
+	    pop
+	    /picstr imagewidth 3 mul string def
+	    { currentfile codestr readhexstring pop pop
+	    	0 1 imagewidth 1 sub {
+		    picstr exch dup 3 mul exch colortbl exch codestr exch get
+		    3 mul 3 getinterval putinterval
+	    	} for picstr
+	    } false 3 colorimage
+	} {
+	    { currentfile codestr readhexstring pop pop
+	    	0 1 imagewidth 1 sub {
+		    codestr exch dup graytbl exch codestr exch get get put
+	    	} for codestr
+	    } image
+	} ifelse
+    } ifelse
+} def

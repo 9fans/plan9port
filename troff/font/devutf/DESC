@@ -1,0 +1,31 @@
+#Device Description - utf character set
+
+PDL PostScript
+Encoding Latin1
+
+fonts 10 R I B BI CW H HI HB S1 S
+sizes 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22
+23 24 25 26 27 28 29 30 31 32 33 34 35 36 38 40 42 44 46
+48 50 52 54 56 58 60 64 68 72 78 84 90 96 100 105 110 115
+120 125 130 135 140 145 150 155 160 0
+res 720
+hor 1
+vert 1
+unitwidth 10
+
+charset
+dq bs \` ga !! c| ct L- ps xo cr Y- yn || so sc "" :a co a_
+<< -, hy -- ro rg -^ -a 0^ +- 2^ 3^ \' aa /u P! pg .^ ,, ,a
+1^ o_ >> 14 12 34 ?? A` A' A^ A~ A" A* AE C, E` E' E^ E" I`
+I' I^ I" D- N~ O` O' O^ O~ O" xx O/ U` U' U^ U" Y' TH ss a`
+a' a^ a~ a" a* ae c, e` e' e^ e" i` i' i^ i" d- n~ o` o' o^
+o~ o" -: o/ u` u' u^ u" y' th y" ^a ~a Ua .a oa "a Ca va fa
+te st ** pl mi sl eq cg *A *B *X *D *E *F *G *Y *I *K *L *M
+*N *O *P *H *R *S *T *U ts *W *C *Q *Z tf pp ul rn *a *b *x
+*d *e *f *g *y *i *k *l *m *n *o *p *h *r *s *t *u *w *c *q
+*z or ap fm <= fr if fn ab <- ua -> da de >= mu pt pd bu di
+!= == ~~ el av ah CR af If Rf ws Ox O+ O- es ca cu sp ip !b sb
+ib mo !m an gr tm sr c. no l& l| lz b< RG CO TM LT br LX LB
+lc lx lf lt lk lb bv b> is RT RX RB rc rx rf rt rk rb ~= ru
+'' `` dg dd en \- em bx ob ci sq Sl L1 LA LV LH lh rh lH rH
+PC DG tu Tu

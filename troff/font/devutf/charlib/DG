@@ -1,0 +1,27 @@
+%
+% UMDS danger sign - needs to be cleaned up!
+%
+
+/build_DG {
+    /x0 1.5 6 div 72 mul def	% triangle length
+    pop
+    gsave
+	currentpoint translate
+	1 scaling div ptsize 10 div mul dup scale
+	2 setlinewidth
+	0 setlinecap
+	newpath
+	0 0 moveto
+	x0 0 lineto
+	x0 2 div x0 3 sqrt 2 div mul lineto
+	closepath fill
+	1 setgray
+	/Helvetica-Bold findfont 12 scalefont setfont
+	0 0 moveto
+	(!) false charpath pathbbox
+	exch 4 -1 roll add 2 div x0 2 div exch sub 0 moveto
+	exch sub x0 3 sqrt 2 div mul exch sub 3 div 0 exch rmoveto
+	(!) show
+    grestore
+} def
+

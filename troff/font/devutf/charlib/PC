@@ -1,0 +1,25 @@
+%
+% UMDS pencil - needs to be cleaned up.
+%
+
+/build_PC {
+    pop
+    gsave
+	currentpoint translate
+	1 scaling div ptsize 10 div mul dup scale
+	newpath
+	0 setlinecap
+	1 setlinejoin
+	2 setlinewidth
+	0 1 moveto 12 0 rlineto stroke
+	0 5 moveto 12 0 rlineto stroke
+	0 9 moveto 12 0 rlineto stroke
+	1 setlinewidth
+	12 .5 moveto 21.27362 5 lineto 12 9.5 lineto stroke
+	21.27362 5 moveto
+	.4 9.27362 mul neg .4 4 mul rlineto
+	0 .8 4 mul neg rlineto
+	closepath fill
+    grestore
+} def
+

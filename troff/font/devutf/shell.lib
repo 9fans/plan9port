@@ -1,0 +1,1238 @@
+#
+# Shell library - for building devutf tables.
+#
+
+RESOLUTION=720
+UNITWIDTH=10
+
+OCTALESCAPES=${OCTALESCAPES:-160}	# <= code means add \0ddd names
+DOWNLOADVECTOR=FALSE			# TRUE can mean incomplete tables
+
+#
+# BuiltinTables returns command lines that generate PostScript programs
+# for building a typesetter description file and font width tables for
+# a relatively standard collection of fonts. Use awk to select a command
+# line or modify an existing command to build a width table for a new
+# font.
+#
+
+BuiltinTables() {
+	cat <<-'//End of BuiltinTables'
+		Proportional	R	Times-Roman
+		Proportional	I	Times-Italic
+		Proportional	B	Times-Bold
+		Proportional	BI	Times-BoldItalic
+		Proportional	AB	AvantGarde-Demi
+		Proportional	AI	AvantGarde-BookOblique
+		Proportional	AR	AvantGarde-Book
+		Proportional	AX	AvantGarde-DemiOblique
+		Proportional	H	Helvetica
+		Proportional	HB	Helvetica-Bold
+		Proportional	HI	Helvetica-Oblique
+		Proportional	HX	Helvetica-BoldOblique
+		Proportional	Hb	Helvetica-Narrow-Bold
+		Proportional	Hi	Helvetica-Narrow-Oblique
+		Proportional	Hr	Helvetica-Narrow
+		Proportional	Hx	Helvetica-Narrow-BoldOblique
+		Proportional	KB	Bookman-Demi
+		Proportional	KI	Bookman-LightItalic
+		Proportional	KR	Bookman-Light
+		Proportional	KX	Bookman-DemiItalic
+		Proportional	NB	NewCenturySchlbk-Bold
+		Proportional	NI	NewCenturySchlbk-Italic
+		Proportional	NR	NewCenturySchlbk-Roman
+		Proportional	NX	NewCenturySchlbk-BoldItalic
+		Proportional	PA	Palatino-Roman
+		Proportional	PB	Palatino-Bold
+		Proportional	PI	Palatino-Italic
+		Proportional	PX	Palatino-BoldItalic
+		Proportional	ZI	ZapfChancery-MediumItalic
+		FixedWidth	C	Courier
+		FixedWidth	CB	Courier-Bold
+		FixedWidth	CI	Courier-Oblique
+		FixedWidth	CO	Courier
+		FixedWidth	CW	Courier
+		FixedWidth	CX	Courier-BoldOblique
+		Dingbats	ZD	ZapfDingbats
+		Greek		GR	Symbol
+		Symbol		S	Symbol
+		Special		S1	Times-Roman
+		Description	DESC	---
+	//End of BuiltinTables
+}
+
+#
+# AllTables prints the complete list of builtin font names.
+#
+
+AllTables() {
+	BuiltinTables | awk '{print $2}'
+}
+
+#
+# Charset functions generate keyword/value pairs (as PostScript objects)
+# that describe the character set available in a font. The keyword is a
+# PostScript string that represents troff's name for the character. The
+# value is usually the literal name (i.e. begins with a /) assigned to
+# the character in the PostScript font. The value can also be an integer
+# or a PostScript string. An integer value is used as an index in the
+# current font's Encoding array. A string value is returned to the host
+# unchanged when the entry for the character is constructed. Entries that
+# have (") as their value are synonyms for the preceeding character.
+#
+# The 18 characters missing from ROM resident fonts on older printers are
+# flagged with the PostScript comment "% missing".
+#
+
+StandardCharset() {
+	cat <<-'//End of StandardCharset'
+		(!)	/exclam
+		(")	/quotedbl
+		(dq)	(")			% synonym
+		(#)	/numbersign
+		($)	/dollar
+		(%)	/percent
+		(&)	/ampersand
+		(')	/quoteright
+		(\()	/parenleft
+		(\))	/parenright
+		(*)	/asterisk
+		(+)	/plus
+		(,)	/comma
+		(-)	/hyphen			% changed from minus by request
+		(.)	/period
+		(/)	/slash
+		(0)	/zero
+		(1)	/one
+		(2)	/two
+		(3)	/three
+		(4)	/four
+		(5)	/five
+		(6)	/six
+		(7)	/seven
+		(8)	/eight
+		(9)	/nine
+		(:)	/colon
+		(;)	/semicolon
+		(<)	/less
+		(=)	/equal
+		(>)	/greater
+		(?)	/question
+		(@)	/at
+		(A)	/A
+		(B)	/B
+		(C)	/C
+		(D)	/D
+		(E)	/E
+		(F)	/F
+		(G)	/G
+		(H)	/H
+		(I)	/I
+		(J)	/J
+		(K)	/K
+		(L)	/L
+		(M)	/M
+		(N)	/N
+		(O)	/O
+		(P)	/P
+		(Q)	/Q
+		(R)	/R
+		(S)	/S
+		(T)	/T
+		(U)	/U
+		(V)	/V
+		(W)	/W
+		(X)	/X
+		(Y)	/Y
+		(Z)	/Z
+		([)	/bracketleft
+		(\\)	/backslash
+		(bs)	(")			% synonym
+		(])	/bracketright
+		(^)	/asciicircum
+		(_)	/underscore
+		(`)	/quoteleft
+		(a)	/a
+		(b)	/b
+		(c)	/c
+		(d)	/d
+		(e)	/e
+		(f)	/f
+		(g)	/g
+		(h)	/h
+		(i)	/i
+		(j)	/j
+		(k)	/k
+		(l)	/l
+		(m)	/m
+		(n)	/n
+		(o)	/o
+		(p)	/p
+		(q)	/q
+		(r)	/r
+		(s)	/s
+		(t)	/t
+		(u)	/u
+		(v)	/v
+		(w)	/w
+		(x)	/x
+		(y)	/y
+		(z)	/z
+		({)	/braceleft
+		(|)	/bar
+		(})	/braceright
+		(~)	/asciitilde
+		(\\`)	/grave			% devpost character
+		(ga)	(")			% synonym
+		(!!)	/exclamdown
+		(c|)	/cent
+		(ct)	(")			% devpost synonym
+		(L-)	/sterling
+		(ps)	(")			% devpost synonym
+		(xo)	/currency
+		(cr)	(")			% devpost synonym
+		(Y-)	/yen
+		(yn)	(")			% devpost synonym
+		(||)	/brokenbar		% missing
+		(so)	/section
+		(sc)	(")			% devpost synonym
+		("")	/dieresis
+		(:a)	(")			% devpost synonym
+		(co)	/copyright
+		(a_)	/ordfeminine
+		(<<)	/guillemotleft
+		(-,)	/logicalnot
+		(hy)	/hyphen
+		(--)	/minus
+		(ro)	/registered
+		(rg)	(")			% devpost synonym
+		(-^)	/macron
+		(-a)	(")			% devpost synonym
+		(0^)	/degree			% missing
+		(+-)	/plusminus		% missing
+		(2^)	/twosuperior		% missing
+		(3^)	/threesuperior		% missing
+		(\\')	/acute
+		(aa)	(")			% devpost synonym
+		(/u)	/mu			% missing
+		(P!)	/paragraph
+		(pg)	(")			% devpost synonym
+		(.^)	/periodcentered
+		(,,)	/cedilla
+		(,a)	(")			% devpost synonym
+		(1^)	/onesuperior		% missing
+		(o_)	/ordmasculine
+		(>>)	/guillemotright
+		(14)	/onequarter		% missing
+		(12)	/onehalf		% missing
+		(34)	/threequarters		% missing
+		(??)	/questiondown
+		(A`)	/Agrave
+		(A')	/Aacute
+		(A^)	/Acircumflex
+		(A~)	/Atilde
+		(A")	/Adieresis
+		(A*)	/Aring
+		(AE)	/AE
+		(C,)	/Ccedilla
+		(E`)	/Egrave
+		(E')	/Eacute
+		(E^)	/Ecircumflex
+		(E")	/Edieresis
+		(I`)	/Igrave
+		(I')	/Iacute
+		(I^)	/Icircumflex
+		(I")	/Idieresis
+		(D-)	/Eth			% missing
+		(N~)	/Ntilde
+		(O`)	/Ograve
+		(O')	/Oacute
+		(O^)	/Ocircumflex
+		(O~)	/Otilde
+		(O")	/Odieresis
+		(xx)	/multiply		% missing
+		(O/)	/Oslash
+		(U`)	/Ugrave
+		(U')	/Uacute
+		(U^)	/Ucircumflex
+		(U")	/Udieresis
+		(Y')	/Yacute			% missing
+		(TH)	/Thorn			% missing
+		(ss)	/germandbls
+		(a`)	/agrave
+		(a')	/aacute
+		(a^)	/acircumflex
+		(a~)	/atilde
+		(a")	/adieresis
+		(a*)	/aring
+		(ae)	/ae
+		(c,)	/ccedilla
+		(e`)	/egrave
+		(e')	/eacute
+		(e^)	/ecircumflex
+		(e")	/edieresis
+		(i`)	/igrave
+		(i')	/iacute
+		(i^)	/icircumflex
+		(i")	/idieresis
+		(d-)	/eth			% missing
+		(n~)	/ntilde
+		(o`)	/ograve
+		(o')	/oacute
+		(o^)	/ocircumflex
+		(o~)	/otilde
+		(o")	/odieresis
+		(-:)	/divide			% missing
+		(o/)	/oslash
+		(u`)	/ugrave
+		(u')	/uacute
+		(u^)	/ucircumflex
+		(u")	/udieresis
+		(y')	/yacute			% missing
+		(th)	/thorn			% missing
+		(y")	/ydieresis
+		(^a)	/circumflex		% devpost accent
+		(~a)	/tilde			% devpost accent
+		(Ua)	/breve			% devpost accent
+		(.a)	/dotaccent		% devpost accent
+		(oa)	/ring			% devpost accent
+		("a)	/hungarumlaut		% devpost accent
+		(Ca)	/ogonek			% devpost accent
+		(va)	/caron			% devpost accent
+	//End of StandardCharset
+}
+
+#
+# DingbatsCharset guarantees changes in StandardCharset don't show up in ZD.
+#
+
+DingbatsCharset() {
+	cat <<-'//End of DingbatsCharset'
+		(!)	/exclam
+		(")	/quotedbl
+		(#)	/numbersign
+		($)	/dollar
+		(%)	/percent
+		(&)	/ampersand
+		(')	/quoteright
+		(\()	/parenleft
+		(\))	/parenright
+		(*)	/asterisk
+		(+)	/plus
+		(,)	/comma
+		(-)	/minus		% also hyphen in devpost
+		(.)	/period
+		(/)	/slash
+		(0)	/zero
+		(1)	/one
+		(2)	/two
+		(3)	/three
+		(4)	/four
+		(5)	/five
+		(6)	/six
+		(7)	/seven
+		(8)	/eight
+		(9)	/nine
+		(:)	/colon
+		(;)	/semicolon
+		(<)	/less
+		(=)	/equal
+		(>)	/greater
+		(?)	/question
+		(@)	/at
+		(A)	/A
+		(B)	/B
+		(C)	/C
+		(D)	/D
+		(E)	/E
+		(F)	/F
+		(G)	/G
+		(H)	/H
+		(I)	/I
+		(J)	/J
+		(K)	/K
+		(L)	/L
+		(M)	/M
+		(N)	/N
+		(O)	/O
+		(P)	/P
+		(Q)	/Q
+		(R)	/R
+		(S)	/S
+		(T)	/T
+		(U)	/U
+		(V)	/V
+		(W)	/W
+		(X)	/X
+		(Y)	/Y
+		(Z)	/Z
+		([)	/bracketleft
+		(\\)	/backslash
+		(])	/bracketright
+		(^)	/asciicircum
+		(_)	/underscore
+		(`)	/quoteleft
+		(a)	/a
+		(b)	/b
+		(c)	/c
+		(d)	/d
+		(e)	/e
+		(f)	/f
+		(g)	/g
+		(h)	/h
+		(i)	/i
+		(j)	/j
+		(k)	/k
+		(l)	/l
+		(m)	/m
+		(n)	/n
+		(o)	/o
+		(p)	/p
+		(q)	/q
+		(r)	/r
+		(s)	/s
+		(t)	/t
+		(u)	/u
+		(v)	/v
+		(w)	/w
+		(x)	/x
+		(y)	/y
+		(z)	/z
+		({)	/braceleft
+		(|)	/bar
+		(})	/braceright
+		(~)	/asciitilde
+		(\\`)	/grave			% devpost character
+		(!!)	/exclamdown
+		(c|)	/cent
+		(L-)	/sterling
+		(xo)	/currency
+		(Y-)	/yen
+		(||)	/brokenbar		% missing
+		(so)	/section
+		("")	/dieresis
+		(co)	/copyright
+		(a_)	/ordfeminine
+		(<<)	/guillemotleft
+		(-,)	/logicalnot
+		(hy)	/hyphen
+		(ro)	/registered
+		(-^)	/macron
+		(0^)	/degree			% missing
+		(+-)	/plusminus		% missing
+		(2^)	/twosuperior		% missing
+		(3^)	/threesuperior		% missing
+		(\\')	/acute
+		(/u)	/mu			% missing
+		(P!)	/paragraph
+		(.^)	/periodcentered
+		(,,)	/cedilla
+		(1^)	/onesuperior		% missing
+		(o_)	/ordmasculine
+		(>>)	/guillemotright
+		(14)	/onequarter		% missing
+		(12)	/onehalf		% missing
+		(34)	/threequarters		% missing
+		(??)	/questiondown
+		(A`)	/Agrave
+		(A')	/Aacute
+		(A^)	/Acircumflex
+		(A~)	/Atilde
+		(A")	/Adieresis
+		(A*)	/Aring
+		(AE)	/AE
+		(C,)	/Ccedilla
+		(E`)	/Egrave
+		(E')	/Eacute
+		(E^)	/Ecircumflex
+		(E")	/Edieresis
+		(I`)	/Igrave
+		(I')	/Iacute
+		(I^)	/Icircumflex
+		(I")	/Idieresis
+		(D-)	/Eth			% missing
+		(N~)	/Ntilde
+		(O`)	/Ograve
+		(O')	/Oacute
+		(O^)	/Ocircumflex
+		(O~)	/Otilde
+		(O")	/Odieresis
+		(xx)	/multiply		% missing
+		(O/)	/Oslash
+		(U`)	/Ugrave
+		(U')	/Uacute
+		(U^)	/Ucircumflex
+		(U")	/Udieresis
+		(Y')	/Yacute			% missing
+		(TH)	/Thorn			% missing
+		(ss)	/germandbls
+		(a`)	/agrave
+		(a')	/aacute
+		(a^)	/acircumflex
+		(a~)	/atilde
+		(a")	/adieresis
+		(a*)	/aring
+		(ae)	/ae
+		(c,)	/ccedilla
+		(e`)	/egrave
+		(e')	/eacute
+		(e^)	/ecircumflex
+		(e")	/edieresis
+		(i`)	/igrave
+		(i')	/iacute
+		(i^)	/icircumflex
+		(i")	/idieresis
+		(d-)	/eth			% missing
+		(n~)	/ntilde
+		(o`)	/ograve
+		(o')	/oacute
+		(o^)	/ocircumflex
+		(o~)	/otilde
+		(o")	/odieresis
+		(-:)	/divide			% missing
+		(o/)	/oslash
+		(u`)	/ugrave
+		(u')	/uacute
+		(u^)	/ucircumflex
+		(u")	/udieresis
+		(y')	/yacute			% missing
+		(th)	/thorn			% missing
+		(y")	/ydieresis
+	//End of DingbatsCharset
+}
+
+SymbolCharset() {
+	cat <<-'//End of SymbolCharset'
+		(---)		/exclam
+		(fa)		/universal
+		(---)		/numbersign
+		(te)		/existential
+		(---)		/percent
+		(---)		/ampersand
+		(st)		/suchthat
+		(---)		/parenleft
+		(---)		/parenright
+		(**)		/asteriskmath
+		(pl)		/plus
+		(---)		/comma
+		(mi)		/minus
+		(---)		/period
+		(sl)		/slash
+		(---)		/zero
+		(---)		/one
+		(---)		/two
+		(---)		/three
+		(---)		/four
+		(---)		/five
+		(---)		/six
+		(---)		/seven
+		(---)		/eight
+		(---)		/nine
+		(---)		/colon
+		(---)		/semicolon
+		(<)		/less
+		(eq)		/equal
+		(>)		/greater
+		(---)		/question
+		(cg)		/congruent
+		(*A)		/Alpha
+		(\244x)		(")
+		(*B)		/Beta
+		(\244y)		(")
+		(*X)		/Chi
+		(\244\257)	(")
+		(*D)		/Delta
+		(\244{)		(")
+		(*E)		/Epsilon
+		(\244|)		(")
+		(*F)		/Phi
+		(\244\256)	(")
+		(*G)		/Gamma
+		(\244z)		(")
+		(*Y)		/Eta
+		(\244~)		(")
+		(*I)		/Iota
+		(\244\241)	(")
+		(---)		/theta1
+		(\244\331)	(")
+		(*K)		/Kappa
+		(\244\242)	(")
+		(*L)		/Lambda
+		(\244\243)	(")
+		(*M)		/Mu
+		(\244\244)	(")
+		(*N)		/Nu
+		(\244\245)	(")
+		(*O)		/Omicron
+		(\244\247)	(")
+		(*P)		/Pi
+		(\244\250)	(")
+		(*H)		/Theta
+		(\244\240)	(")
+		(*R)		/Rho
+		(\244\251)	(")
+		(*S)		/Sigma
+		(\244\253)	(")
+		(*T)		/Tau
+		(\244\254)	(")
+		(*U)		/Upsilon
+		(\244\255)	(")
+		(ts)		/sigma1
+		(\244\312)	(")
+		(*W)		/Omega
+		(\244\261)	(")
+		(*C)		/Xi
+		(\244\246)	(")
+		(*Q)		/Psi
+		(\244\260)	(")
+		(*Z)		/Zeta
+		(\244})		(")
+		(---)		/bracketleft
+		(tf)		/therefore
+		(---)		/bracketright
+		(pp)		/perpendicular
+		(ul)		/underscore
+		(_)		(")			% synonym
+		(rn)		/radicalex
+		(*a)		/alpha
+		(\244\271)	(")
+		(*b)		/beta
+		(\244\272)	(")
+		(*x)		/chi
+		(\244\317)	(")
+		(*d)		/delta
+		(\244\274)	(")
+		(*e)		/epsilon
+		(\244\275)	(")
+		(*f)		/phi
+		(\244\316)	(")
+		(*g)		/gamma
+		(\244\273)	(")
+		(*y)		/eta
+		(\244\277)	(")
+		(*i)		/iota
+		(\244\301)	(")
+		(---)		/phi1
+		(\244\335)	(")
+		(*k)		/kappa
+		(\244\302)	(")
+		(*l)		/lambda
+		(\244\303)	(")
+		(*m)		/mu
+		(\244\304)	(")
+		(*n)		/nu
+		(\244\305)	(")
+		(*o)		/omicron
+		(\244\307)	(")
+		(*p)		/pi
+		(\244\310)	(")
+		(*h)		/theta
+		(\244\300)	(")
+		(*r)		/rho
+		(\244\311)	(")
+		(*s)		/sigma
+		(\244\313)	(")
+		(*t)		/tau
+		(\244\314)	(")
+		(*u)		/upsilon
+		(\244\315)	(")
+		(---)		/omega1
+		(\244\336)	(")
+		(*w)		/omega
+		(\244\321)	(")
+		(*c)		/xi
+		(\244\306)	(")
+		(*q)		/psi
+		(\244\320)	(")
+		(*z)		/zeta
+		(\244\276)	(")
+		(---)		/braceleft
+		(or)		/bar
+		(---)		/braceright
+		(ap)		/similar
+		(---)		/Upsilon1
+		(fm)		/minute
+		(<=)		/lessequal
+		(fr)		/fraction		% devpost character
+		(if)		/infinity
+		(fn)		/florin			% devpost character
+		(---)		/club
+		(---)		/diamond
+		(---)		/heart
+		(---)		/spade
+		(ab)		/arrowboth
+		(<-)		/arrowleft
+		(ua)		/arrowup
+		(->)		/arrowright
+		(da)		/arrowdown
+		(de)		/degree
+		(+-)		/plusminus
+		(---)		/second
+		(>=)		/greaterequal
+		(mu)		/multiply
+		(pt)		/proportional
+		(pd)		/partialdiff
+		(bu)		/bullet
+		(di)		/divide
+		(!=)		/notequal
+		(==)		/equivalence
+		(~~)		/approxequal
+		(el)		/ellipsis
+		(av)		/arrowvertex
+		(ah)		/arrowhorizex
+		(CR)		/carriagereturn
+		(af)		/aleph
+		(If)		/Ifraktur
+		(Rf)		/Rfraktur
+		(ws)		/weierstrass
+		(Ox)		/circlemultiply
+		(O+)		/circleplus
+		(es)		/emptyset
+		(ca)		/intersection
+		(cu)		/union
+		(sp)		/propersuperset
+		(ip)		/reflexsuperset
+		(!b)		/notsubset
+		(sb)		/propersubset
+		(ib)		/reflexsubset
+		(mo)		/element
+		(!m)		/notelement
+		(an)		/angle
+		(gr)		/gradient
+		(rg)		/registerserif
+		(co)		/copyrightserif
+		(tm)		/trademarkserif
+		(---)		/product
+		(sr)		/radical
+		(c.)		/dotmath
+		(no)		/logicalnot
+		(l&)		/logicaland
+		(l|)		/logicalor
+		(---)		/arrowdblboth
+		(---)		/arrowdblleft
+		(---)		/arrowdblup
+		(---)		/arrowdblright
+		(---)		/arrowdbldown
+		(lz)		/lozenge
+		(b<)		/angleleft
+		(RG)		/registersans
+		(CO)		/copyrightsans
+		(TM)		/trademarksans
+		(---)		/summation
+		(LT)		/parenlefttp
+		(br)		/parenleftex
+		(LX)		(")			% synonym
+		(LB)		/parenleftbt
+		(lc)		/bracketlefttp
+		(lx)		/bracketleftex
+		(lf)		/bracketleftbt
+		(lt)		/bracelefttp
+		(lk)		/braceleftmid
+		(lb)		/braceleftbt
+		(bv)		/braceex
+		(|)		(")			% synonym
+		(b>)		/angleright
+		(is)		/integral
+		(---)		/integraltp
+		(---)		/integralex
+		(---)		/integralbt
+		(RT)		/parenrighttp
+		(RX)		/parenrightex
+		(RB)		/parenrightbt
+		(rc)		/bracketrighttp
+		(rx)		/bracketrightex
+		(rf)		/bracketrightbt
+		(rt)		/bracerighttp
+		(rk)		/bracerightmid
+		(rb)		/bracerightbt
+		(~=)		(55	0	1)	% charlib
+	//End of SymbolCharset
+}
+
+SpecialCharset() {
+	cat <<-'//End of SpecialCharset'
+		(ru)	/underscore
+		('')	/quotedblright		% devpost character
+		(``)	/quotedblleft		% devpost character
+		(dg)	/dagger			% devpost character
+		(dd)	/daggerdbl		% devpost character
+		(en)	/endash			% devpost character
+		(\\-)	(")			% synonym
+		(em)	/emdash
+%		(ff)	(60	2	1)	% charlib
+%		(Fi)	(84	2	1)	% charlib
+%		(Fl)	(84	2	1)	% charlib
+		(14)	(75	2	1)	% charlib
+		(12)	(75	2	1)	% charlib
+		(34)	(75	2	1)	% charlib
+		(bx)	(50	2	1)	% charlib
+		(ob)	(38	2	1)	% charlib
+		(ci)	(75	0	1)	% charlib
+		(sq)	(50	2	1)	% charlib
+		(Sl)	(50	2	1)	% charlib
+		(L1)	(110	1	1)	% charlib
+		(LA)	(110	1	1)	% charlib
+		(LV)	(110	3	1)	% charlib
+		(LH)	(210	1	1)	% charlib
+		(lh)	(100	0	1)	% charlib
+		(rh)	(100	0	1)	% charlib
+		(lH)	(100	0	1)	% charlib
+		(rH)	(100	0	1)	% charlib
+		(PC)	(220	2	1)	% charlib
+		(DG)	(185	2	1)	% charlib
+	//End of SpecialCharset
+}
+
+#
+# Latin1 ensures a font uses the ISOLatin1Encoding vector, although only
+# text fonts should be re-encoded. Downloading the Encoding vector doesn't
+# often make sense. No ISOLatin1Encoding array likely means ROM based fonts
+# on your printer are incomplete. Type 1 fonts with a full Latin1 character
+# set appeared sometime after Version 50.0.
+#
+
+Latin1() {
+	if [ "$DOWNLOADVECTOR" = TRUE ]; then
+		cat <<-'//End of ISOLatin1Encoding'
+			/ISOLatin1Encoding [
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/space
+				/exclam
+				/quotedbl
+				/numbersign
+				/dollar
+				/percent
+				/ampersand
+				/quoteright
+				/parenleft
+				/parenright
+				/asterisk
+				/plus
+				/comma
+				/minus
+				/period
+				/slash
+				/zero
+				/one
+				/two
+				/three
+				/four
+				/five
+				/six
+				/seven
+				/eight
+				/nine
+				/colon
+				/semicolon
+				/less
+				/equal
+				/greater
+				/question
+				/at
+				/A
+				/B
+				/C
+				/D
+				/E
+				/F
+				/G
+				/H
+				/I
+				/J
+				/K
+				/L
+				/M
+				/N
+				/O
+				/P
+				/Q
+				/R
+				/S
+				/T
+				/U
+				/V
+				/W
+				/X
+				/Y
+				/Z
+				/bracketleft
+				/backslash
+				/bracketright
+				/asciicircum
+				/underscore
+				/quoteleft
+				/a
+				/b
+				/c
+				/d
+				/e
+				/f
+				/g
+				/h
+				/i
+				/j
+				/k
+				/l
+				/m
+				/n
+				/o
+				/p
+				/q
+				/r
+				/s
+				/t
+				/u
+				/v
+				/w
+				/x
+				/y
+				/z
+				/braceleft
+				/bar
+				/braceright
+				/asciitilde
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/.notdef
+				/dotlessi
+				/grave
+				/acute
+				/circumflex
+				/tilde
+				/macron
+				/breve
+				/dotaccent
+				/dieresis
+				/.notdef
+				/ring
+				/cedilla
+				/.notdef
+				/hungarumlaut
+				/ogonek
+				/caron
+				/space
+				/exclamdown
+				/cent
+				/sterling
+				/currency
+				/yen
+				/brokenbar
+				/section
+				/dieresis
+				/copyright
+				/ordfeminine
+				/guillemotleft
+				/logicalnot
+				/hyphen
+				/registered
+				/macron
+				/degree
+				/plusminus
+				/twosuperior
+				/threesuperior
+				/acute
+				/mu
+				/paragraph
+				/periodcentered
+				/cedilla
+				/onesuperior
+				/ordmasculine
+				/guillemotright
+				/onequarter
+				/onehalf
+				/threequarters
+				/questiondown
+				/Agrave
+				/Aacute
+				/Acircumflex
+				/Atilde
+				/Adieresis
+				/Aring
+				/AE
+				/Ccedilla
+				/Egrave
+				/Eacute
+				/Ecircumflex
+				/Edieresis
+				/Igrave
+				/Iacute
+				/Icircumflex
+				/Idieresis
+				/Eth
+				/Ntilde
+				/Ograve
+				/Oacute
+				/Ocircumflex
+				/Otilde
+				/Odieresis
+				/multiply
+				/Oslash
+				/Ugrave
+				/Uacute
+				/Ucircumflex
+				/Udieresis
+				/Yacute
+				/Thorn
+				/germandbls
+				/agrave
+				/aacute
+				/acircumflex
+				/atilde
+				/adieresis
+				/aring
+				/ae
+				/ccedilla
+				/egrave
+				/eacute
+				/ecircumflex
+				/edieresis
+				/igrave
+				/iacute
+				/icircumflex
+				/idieresis
+				/eth
+				/ntilde
+				/ograve
+				/oacute
+				/ocircumflex
+				/otilde
+				/odieresis
+				/divide
+				/oslash
+				/ugrave
+				/uacute
+				/ucircumflex
+				/udieresis
+				/yacute
+				/thorn
+				/ydieresis
+			] def
+		//End of ISOLatin1Encoding
+	fi
+
+	echo "ISOLatin1Encoding /$1 ReEncode"
+}
+
+#
+# Generating functions output PostScript programs that build font width
+# tables or a typesetter description file. Send the program to a printer
+# and the complete table will come back on the serial port. All write on
+# stdout and assume the prologue and other required PostScript files are
+# all available.
+#
+
+Proportional() {
+	echo "/unitwidth $UNITWIDTH def"
+	echo "/resolution $RESOLUTION def"
+	echo "/octalescapes $OCTALESCAPES def"
+	echo "/charset ["
+		# Get <>_ and | from S. Use accents for ascii ^ and ~.
+		StandardCharset | awk '
+			$1 == "(<)" && $2 == "/less" {$1 = "(---)"}
+			$1 == "(>)" && $2 == "/greater" {$1 = "(---)"}
+			$1 == "(_)" && $2 == "/underscore" {$1 = "(---)"}
+			$1 == "(|)" && $2 == "/bar" {$1 = "(---)"}
+			$1 == "(^)" && $2 == "/asciicircum" {
+				printf "(^)\t/circumflex\n"
+				$1 = "(---)"
+			}
+			$1 == "(~)" && $2 == "/asciitilde" {
+				printf "(~)\t/tilde\n"
+				$1 = "(---)"
+			}
+			{printf "%s\t%s\n", $1, $2}
+		'
+	echo "] def"
+
+	Latin1 $2
+	echo "/$2 SelectFont"
+	echo "(opO) SetAscender"
+
+	echo "(name $1\\\\n) Print"
+	echo "(fontname $2\\\\n) Print"
+	echo "/$1 NamedInPrologue"
+	echo "(spacewidth ) Print 32 GetWidth Print (\n) Print"
+	echo "(charset\\\\n) Print"
+	echo "BuildFontCharset"
+}
+
+FixedWidth() {
+	echo "/unitwidth $UNITWIDTH def"
+	echo "/resolution $RESOLUTION def"
+	echo "/octalescapes $OCTALESCAPES def"
+	echo "/charset ["
+		StandardCharset
+	echo "] def"
+
+	Latin1 $2
+	echo "/$2 SelectFont"
+	echo "(opO) SetAscender"
+
+	echo "(name $1\\\\n) Print"
+	echo "(fontname $2\\\\n) Print"
+	echo "/$1 NamedInPrologue"
+	echo "(spacewidth ) Print 32 GetWidth Print (\n) Print"
+	echo "(charset\\\\n) Print"
+	echo "BuildFontCharset"
+}
+
+Dingbats() {
+	echo "/unitwidth $UNITWIDTH def"
+	echo "/resolution $RESOLUTION def"
+	echo "/octalescapes $OCTALESCAPES def"
+	echo "/charset ["
+		DingbatsCharset | awk '$1 != "(---)" && $2 ~ /^\/[a-zA-Z]/ {
+			printf "%s\tISOLatin1Encoding %s GetCode\n", $1, $2
+		}'
+	echo "] def"
+
+	echo "/$2 SelectFont"
+	echo "(   ) SetAscender"
+
+	echo "(name $1\\\\n) Print"
+	echo "(fontname $2\\\\n) Print"
+	echo "/$1 NamedInPrologue"
+	echo "(charset\\\\n) Print"
+	echo "BuildFontCharset"
+}
+
+Greek() {
+	echo "/unitwidth $UNITWIDTH def"
+	echo "/resolution $RESOLUTION def"
+	echo "/charset ["
+		SymbolCharset | awk '
+			BEGIN {hit = -1}
+			$1 ~ /\(\*[a-zA-Z]\)/ {print; hit = NR}
+			$2 == "(\")" && hit == NR-1 {print; hit = NR}
+		'
+	echo "] def"
+
+	echo "/$2 SelectFont"
+	echo "(orO) SetAscender"
+
+	echo "(name $1\\\\n) Print"
+	echo "(fontname $2\\\\n) Print"
+	echo "/$1 NamedInPrologue"
+	echo "(spacewidth ) Print 32 GetWidth Print (\n) Print"
+	echo "(charset\\\\n) Print"
+	echo "BuildFontCharset"
+}
+
+Symbol() {
+	echo "/unitwidth $UNITWIDTH def"
+	echo "/resolution $RESOLUTION def"
+	echo "/charset ["
+		SymbolCharset
+	echo "] def"
+
+	echo "ChangeMetrics"
+	echo "/S SelectFont"
+	echo "(orO) SetAscender"
+
+	echo "(name $1\\\\n) Print"
+	echo "(fontname $2\\\\n) Print"
+	echo "/$1 NamedInPrologue"
+	echo "(special\\\\n) Print"
+	echo "(charset\\\\n) Print"
+	echo "BuildFontCharset"
+}
+
+Special() {
+	echo "/unitwidth $UNITWIDTH def"
+	echo "/resolution $RESOLUTION def"
+	echo "/charset ["
+		SpecialCharset
+	echo "] def"
+
+	echo "ChangeMetrics"
+	echo "/S1 SelectFont"
+
+	echo "(# Times-Roman special font\\\\n) Print"
+	echo "(name $1\\\\n) Print"
+	echo "(fontname $2\\\\n) Print"
+	echo "/$1 NamedInPrologue"
+	echo "(special\\\\n) Print"
+	echo "(charset\\\\n) Print"
+	echo "BuildFontCharset"
+}
+
+#
+# The DESC file doesn't have to be built on a printer. It's only here for
+# consistency.
+#
+
+Description() {
+	echo "/charset ["	# awk - so the stack doesn't overflow
+		StandardCharset | awk '$1 !~ /\(\\[0-9]/ {print $1}'
+		SymbolCharset | awk '$1 !~ /\(\\[0-9]/ {print $1}'
+		SpecialCharset | awk '$1 !~ /\(\\[0-9]/ {print $1}'
+	echo "] def"
+
+	cat <<-//DESC
+		(#Device Description - utf character set
+
+		PDL PostScript
+		Encoding Latin1
+
+		fonts 10 R I B BI CW H HI HB S1 S
+		sizes 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22
+		23 24 25 26 27 28 29 30 31 32 33 34 35 36 38 40 42 44 46
+		48 50 52 54 56 58 60 64 68 72 78 84 90 96 100 105 110 115
+		120 125 130 135 140 145 150 155 160 0
+		res $RESOLUTION
+		hor 1
+		vert 1
+		unitwidth $UNITWIDTH
+
+		) Print
+	//DESC
+	echo "(charset\\\\n) Print"
+	echo "BuildDescCharset"
+	echo "(\\\\n) Print"
+}
+

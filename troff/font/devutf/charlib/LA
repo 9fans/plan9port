@@ -1,0 +1,41 @@
+/LOGO-dict-mm dup where not
+{ dup 64 dict def currentdict } if
+exch get
+begin
+/l {  lineto } def
+/rl {  rlineto } def
+/m {  moveto } def
+/rm {  rmoveto } def
+/C { closepath } def
+/c {  curveto } def
+/rc {  rcurveto } def
+/T { m 0 29 rl -9.5 0 rl 0 7 rl 29 0 rl 0 -7 rl -9.5 0 rl 0 -29 rl C } def
+/ATT {
+newpath
+1 36 div dup scale
+0  0 m  12 36 rl  8 0 rl -11 -36 rl C
+25  0 m -11 36 rl  8 0 rl  12 -36 rl C
+10  7 m   0  7 rl 14 0 rl   0  -7 rl C
+36  0 T
+80  6 m -3 0 -5 1.2 -6 2 rc -12 10 rl -2.4 2 -2.7 6 0 6 rc
+1 0 2 -1 2 -2 rc 0 -4 rl 7 0 rl 0 4 rl
+0 5 -3 7 -9 7 rc -6 0 -9 -3 -9 -7 rc
+0 -2 0 -3.6 2 -6 rc 12 -10 rl 6 -5 10 -6 13 -6 rc C
+71 18 m 0 -6 rl 0 -5 -3 -7 -7 -7 rc -3 0 -5 2 -5 4 rc 0 1 0 3 2 4 rc
+-4 5 rl -4 -2 -6 -6 -6 -9 rc 0 -7 6 -10 13 -10 rc
+9 0 14 6 14 11 rc 0 8 rl C
+82  0 T
+36 dup scale
+} def
+end
+/build_LA {
+pop
+LOGO-dict-mm begin
+gsave
+currentpoint translate
+size 2.56 div dup scale		% was size 2.75 div dup scale
+.02 0 translate
+ATT fill
+grestore
+end
+} def

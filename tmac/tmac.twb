@@ -1,0 +1,96 @@
+.de CO				\" Set type color; no value => reset
+.ie '\\$1'' .ds oC \\*(pC
+.el \{\
+.ds pC \\*(oC
+.ds oC \\$1 \\$2 \\$3 \\$4
+...\}
+\\X'color \\*(oC'\c
+..
+.de BC				\" Set background color; no value => reset
+.ie '\\$1'' .ds oB \\*(pB
+.el \{\
+.ds pB \\*(oB
+.ds oB \\$1 \\$2 \\$3 \\$4
+...\}
+\\X'bgcolor \\*(oB'\c
+..
+.de CL
+\\X'clear'\c
+..
+.de IN				\" Include picture $1 with ul corner at ($2,$3)
+.nr xc \\$2i
+.nr yc \\$3i
+\\X'picfile \\$1 \\n(xc \\n(yc'\c
+..
+.de CW				\" clear window ($1,$2) is ul ($3,$4) is lr, uses bg color
+.nr x0 \\$1i
+.nr y0 \\$2i
+.nr x1 \\$3i
+.nr x2 \\$4i
+\\X'clrwin \\n(x0 \\n(y0 \\n(x1 \\n(y1
+..
+.de BW				\" window border ($1,$2) is ul ($3,$4) is lr, uses fg color
+.nr x0 \\$1i
+.nr y0 \\$2i
+.nr x1 \\$3i
+.nr x2 \\$4i
+\\X'border \\n(x0 \\n(y0 \\n(x1 \\n(y1
+..
+.de SL				\" start slide, args are optional title
+.bp
+.ce 0
+.ft B
+.nf
+.if !'\\$1'' \{\
+.ps 36p
+.vs 36p
+\\$1 \\$2 \\$3 \\$4 \\$5 \\$6 \\$7 \\$8 \\$9
+...\}
+.ps 30p
+.vs 30p
+..
+.de PS				\" Start pic picture
+.				\" $1 is height, $2 is width, both in inches
+.sp .3
+.in (\\n(.lu-\\$2)/2u
+.ne \\$1
+..
+.de PE				\" End pic picture
+.in
+.sp .6
+..
+.de IS				\" Start ideal picture
+.				\" $1 is width, $2 is height, both in inches
+.				\" in ideal, however, we see two IS's for each picture,
+.				\" and only the second one has the goods
+.nr ID 0
+.ie !'\\$1'' \{\
+.sp .3
+.nr ID 1
+.in (\\n(.lu-\\$1)/2u
+.ne \\$2
+...\}
+..
+.de IE				\" End ideal picture
+.if \\n(ID .in
+.if \\n(ID .if t .sp .6
+..
+.ds oC 255 255 255 255			\" type color
+.ds oB   0   0   0   0			\" background color
+.pl 4.8i				\" page length
+.po .1i					\" left margin
+.ll 6.2i				\" line length
+.ta 0.5i +0.5i +0.5i +0.5i +0.5i +0.5i +0.5i +0.5i +0.5i +0.5i +0.5i
+.nf
+.ps 30p
+.vs 30p
+.fp 1 R Lucida
+.fp 2 I LucidaI
+.fp 3 B LucidaB
+.fp 4 BI LucidaBI
+.fp 5 S LucidaS
+.fp 6 SB LucidaSB
+.fp 7 SI LucidaSI
+.fp 8 SK LucidaSBI
+.fp 9 CW LucidaCW
+.ft B

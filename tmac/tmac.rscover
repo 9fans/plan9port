@@ -1,0 +1,170 @@
+.de CZ
+.br
+.if !"\\$1"" \\$1
+.br
+.if !"\\$2"" \\$2
+.br
+.if !"\\$3"" \\$3
+.br
+.if !"\\$4"" \\$4
+.br
+.if !"\\$5"" \\$5
+.br
+.if !"\\$6"" \\$6
+.br
+.if !"\\$7"" \\$7
+.br
+.if !"\\$8"" \\$8
+.br
+.if !"\\$9"" \\$9
+..
+.ds AZ \f(HBA\h'-.2m'T\h'-.15m'\s-3&\s0\h'-.15m'T\fP
+.	\"S1 - tm style 
+.de S1
+.br
+.sp |.5i
+.ta 4.75i 5.25i
+.ll 80
+.ps 36
+.br
+.ie !'\*(Lb'' \t\(Lb\h'-.53i'\fH\s10Bell Laboratories
+.el \t\(L1\s16\v'-.8'\\*(AZ\v'.8'\h'-\w'\\*(AZ'u'\fH\s10Bell Laboratories
+.br
+.sp 2
+.ps 12
+.br
+.nr SJ \\n(.j
+.na
+.br
+.ps 8
+.vs 12p
+.sp 2v
+.mk
+.ll
+.ll 4.0i
+Subject:
+.ft 3
+.br
+.rt
+.in +\w'Subject: 'u
+.ps
+'''\".nf
+.fi
+.hy 0
+.WT
+.hy 14
+.ft 1
+.br
+.fi
+.in 0
+.vs 10
+.if \\n(MC>0 \\s8Work Program- \\*(X1\\s10
+.if \\n(MG>0 --\\s8 File- \\*(F1\\s10
+.br
+.if \\n(MC>1 \\s8\\h'\\w'Work Program- 'u'\\*(X2\\s10
+.if \\n(MG>1 \\h'\\w'--\\s8 File- 'u'\\s8\\*(F2\\s10
+.br
+.if \\n(MC>2 \\s8\\h'\\w'Work Program- 'u'\\*(X3\\s10
+.if \\n(MG>2 \\h'\\w'--\\s8 File- 'u'\\s8\\*(F3\\s10
+.br
+.if \\n(MC>3 \\s8\\h'\\w'Work Program- 'u'\\*(X4\\s10
+.if \\n(MG>3 \\h'\\w'--\\s8 File- 'u'\\s8\\*(F4\\s10
+.br
+.if \\n(MC>4 \\s8\\h'\\w'Work Program- 'u'\\*(X5\\s10
+.if \\n(MG>4 \\h'\\w'--\\s8 File- 'u'\\s8\\*(F5\\s10
+.br
+.if \\n(TO>0 \{\
+.ps 8
+.nf
+.sp
+To:
+.in +\w'Subject: 'u
+.sp -1v
+.ps
+.nf
+.1T
+.in \}
+.vs
+.rt
+.ll 6.5i
+.in 5.10i
+.ps 8
+.ti -6n
+.ta 6n
+date:\t\\s\\n(PS\\f3\\*(DY
+.sp
+.ft 1
+.ps 8
+.mk
+.ti -6n
+from:
+.ps
+.br
+.rt
+.nf
+.ft 3
+.A1
+.if \\n(TO>0 \{\
+\\*(D1
+\\*(1L
+.br \}
+.if \\n(NA>1 .A2
+.if \\n(NA>2 .A3
+.if \\n(NA>3 .A4
+.if \\n(NA>4 .A5
+.if \\n(NA>5 .A6
+.if \\n(NA>6 .A7
+.if \\n(NA>7 .A8
+.if \\n(NA>8 .A9
+.ft 1
+.sp
+.mk
+.ps 8
+.ti -6n
+.ft 1
+.if \\n(IM=0 .if \\n(MM .if "\\*(MQ"" \{\
+.if \\n(MN=0 .ds MQ TM:
+.if \\n(MN=1 .ds MQ MF:
+.if \\n(MN=2 .ds MQ MR:
+.if \\n(MN=3 .ds MQ EN:\}
+\\*(MQ
+.br
+.ti \\n(.iu
+.rt
+.ps
+.ft 3
+.hy 0
+.ll 20i
+.ll 7.75i-\\n(.ou
+.fi
+.na
+.if \\n(MM .CZ \\*(MN
+.\" ditched .CZ
+.hy 14
+.nf
+.ft 1
+.ll \\n(LLu
+.in
+.sp |\\n(.hu
+.if \\n(IM=0 .sp
+.ad \\n(SJ
+.ce
+.ft 2
+.if \\n(IM=0 \\*(QF
+.ft 1
+.ce 0
+.if \\n(IM=0 .sp
+.fi
+..
+.de TL
+.br
+.di WT
+..
+.de AB
+.br
+.di
+.rm WT TL AB AU
+..
+.de AU
+..
+.nr YE 1

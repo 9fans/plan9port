@@ -1,0 +1,13 @@
+/build_RC {
+    pop
+    size 4 div /side exch def
+    currentpoint
+    newpath
+    moveto
+    0 side 1.5 mul rmoveto
+    0 side rlineto
+    side 2.5 mul 0 rlineto
+    0 side neg rlineto
+    closepath
+    fill
+} def

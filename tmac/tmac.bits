@@ -1,0 +1,44 @@
+.ds Bf b		\" default format; use i for icons and faces
+.ds Bn /tmp/btroff\n($$	\" temporary file, reused on each macro call
+.ds Bp /usr/lib/btroff	\" bitmap filter
+.de BM
+.if \\n(.$=1 .ds Bf \\$1
+.if \\n(.$=2 \{.	\" copy request, perhaps diverted
+.ie '\\n(.z'' .Bm \\$1 \\$2
+.el \!.BM \\$1 \\$2\}
+.if \\n(.$=4 \{.	\" size request, numerator only
+.nr Bz \\$2
+.sy \\*(Bp -s -\\*(Bf -d\\n(Bz \\$1 | awk '{\
+	print ".nr \\$3 " $1; \
+	print ".nr \\$4 " $2; \
+	exit }' >\\*(Bn
+.so \\*(Bn
+.sy /bin/rm -f \\*(Bn \}
+.if \\n(.$=5 \{.	\" size request, numerator and denominator
+.nr Bz \\$2
+.sy \\*(Bp -s -\\*(Bf -d\\n(Bz \\$1 | awk '{\
+	print ".nr \\$4 " $1 "/\\$3"; \
+	print ".nr \\$5 " $2 "/\\$3"; \
+	exit }' >\\*(Bn
+.so \\*(Bn
+.sy /bin/rm -f \\*(Bn \}
+..
+.de Bm			\" copy request, for real
+.if \\n(.P>0 \{.	\" maybe
+.fl
+.ie '\\$2'0' \{.	\" ask driver to read the bits
+.br
+\\X'Bitmap \\$1'
+.sp -1 \}
+.el \{.			\" use the Bitmap font
+.sy \\*(Bp -\\*(Bf -d\\$2 \\$1 >\\*(Bn
+.fp 9 BM Bitmap
+.ft 9
+.ps \\$2
+.cf \\*(Bn	\" next line is for pm to consume
+\!n0 1
+.ft
+.ps
+.sy /bin/rm -f \\*(Bn \}
+.fl \}
+..

@@ -1,0 +1,26 @@
+%
+% Fat versions of the stroked Courier and Courier-Oblique - from Johnathan Shopiro.
+% Can be selectively pulled in using the -C option that's available with all the
+% PostScript translators or permanently added to any of the prologues. Helps on
+% Linotronic typesetters, where Courier and Courier-Oblique are too light!
+%
+
+/newdict /Courier findfont length 1 add dict def
+/Courier findfont {
+	1 index /FID ne
+		{newdict 3 1 roll put}
+		{pop pop}
+	ifelse
+} forall
+newdict /StrokeWidth 60 put
+/Courier newdict definefont pop
+
+/newdict /Courier-Oblique findfont length 1 add dict def
+/Courier-Oblique findfont {
+	1 index /FID ne
+		{newdict 3 1 roll put}
+		{pop pop}
+	ifelse
+} forall
+newdict /StrokeWidth 60 put
+/Courier-Oblique newdict definefont pop

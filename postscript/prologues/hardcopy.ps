@@ -1,0 +1,196 @@
+%
+% Redefiniton of the PostScript file output operators so results go to paper.
+% Complicated and slow, but the implementation doesn't place many demands on
+% included PostScript. About all that's required is gentle treatment of the
+% graphics state between write calls.
+%
+
+/#copies 1 store
+/aspectratio 1 def
+/font /Courier def
+/formsperpage 1 def
+/landscape false def
+/magnification 1 def
+/orientation 0 def
+/pointsize 10 def
+/rotation 1 def
+/xoffset .1 def
+/yoffset .1 def
+
+/roundpage true def
+/useclippath true def
+/pagebbox [0 0 612 792] def
+
+/inch {72 mul} def
+/min {2 copy gt {exch} if pop} def
+
+/HardcopySetup {
+	landscape {/orientation 90 orientation add def} if
+	font findfont 1 1.1 div scalefont setfont
+
+	pagedimensions
+	xcenter ycenter translate
+	orientation rotation mul rotate
+	width 2 div neg height 2 div translate
+	xoffset inch yoffset inch neg translate
+	pointsize 1.1 mul dup scale
+	magnification dup aspectratio mul scale
+	height width div 1 min dup scale
+	0 -1 translate
+	0 0 moveto
+} def
+
+/pagedimensions {
+	useclippath {
+		/pagebbox [clippath pathbbox newpath] def
+		roundpage currentdict /roundpagebbox known and {roundpagebbox} if
+	} if
+	pagebbox aload pop
+	4 -1 roll exch 4 1 roll 4 copy
+	landscape {4 2 roll} if
+	sub /width exch def
+	sub /height exch def
+	add 2 div /xcenter exch def
+	add 2 div /ycenter exch def
+} def
+
+%
+% Unbind the operators in an executable array or packedarray. Leaves the
+% unbound array or the original object on the stack.
+%
+
+/Unbind {
+	0 index xcheck
+	1 index type /arraytype eq
+	2 index type /packedarraytype eq or and {
+		dup length array copy cvx
+		dup 0 exch {
+			dup type /operatortype eq {
+				(                          ) cvs cvn cvx
+			} if
+
+			dup type /dicttype eq {
+				dup maxlength dict exch {
+					Unbind
+					3 copy put pop pop
+				} forall
+			} if
+
+			0 index xcheck
+			1 index type /arraytype eq
+			2 index type /packedarraytype eq or and {
+				Unbind
+			} if
+
+			3 copy put pop
+			1 add
+		} forall
+		pop
+	} if
+} def
+
+%
+% New write operator - don't bind the definition! Expands tabs and backspaces,
+% wraps long lines, and starts a new page whenever necessary. The code that
+% handles newlines assumes lines are separated by one vertical unit.
+%
+
+/write {
+	true exch
+
+      %%case '\b':
+	dup 8#10 eq {
+		( ) stringwidth pop neg 0 rmoveto
+		currentpoint pop 0 lt {
+			currentpoint exch pop 0 exch moveto
+		} if
+		exch pop false exch
+	} if
+
+      %%case '\t':
+	dup 8#11 eq {
+		currentpoint pop ( ) stringwidth pop div round cvi
+		8 mod 8 exch sub {
+			2 index 8#40 write
+		} repeat
+		exch pop false exch
+	} if
+
+      %%case '\n':
+	dup 8#12 eq {
+		currentpoint 0 exch 1 sub moveto pop
+
+		gsave clippath pathbbox pop pop exch pop grestore
+		currentpoint exch pop 1 sub ge {
+			2 index 8#14 write
+		} if
+		exch pop false exch
+	} if
+
+      %%case '\f':
+	dup 8#14 eq {
+		gsave showpage grestore
+		0 0 moveto
+		exch pop false exch
+	} if
+
+      %%case '\r':
+	dup 8#15 eq {
+		currentpoint 0 exch moveto pop
+		exch pop false exch
+	} if
+
+      %%case EOF:
+	dup -1 eq {
+		currentpoint 0 ne exch 0 ne or {
+			2 index 8#14 write
+		} if
+		exch pop false exch
+	} if
+
+      %%default:
+	exch {
+		dup
+		gsave clippath pathbbox pop 3 1 roll pop pop grestore 
+		( ) stringwidth pop currentpoint pop add le {
+			2 index 8#12 write
+		} if
+		( ) dup 0 4 -1 roll put show
+	} if
+
+	pop		% the character
+	pop		% and file object
+} def
+
+%
+% All the other file output operators call our redefined write operator.
+%
+
+/print {
+	(%stdout) (w) file exch {1 index exch write} forall
+	pop
+} def
+
+/writestring {
+	{1 index exch write} forall
+	pop
+} def
+
+/writehexstring {
+	(0123456789ABCDEF) 3 1 roll {
+		dup
+		3 index exch -4 bitshift 16#F and get 2 index exch write
+		2 index exch 16#F and get 1 index exch write
+	} forall
+	pop pop
+} def
+
+%
+% Unbind and redefine the remaining file output procedures.
+%
+
+/= dup load Unbind def
+/== dup load Unbind def
+/stack dup load Unbind def
+/pstack dup load Unbind def
+

@@ -1,0 +1,16 @@
+Postscript definitions for special troff characters. File names are
+the two character troff names. Each defines a PostScript procedure
+that begins with build_ and ends with the character's name. The
+build_?? procedure is called with the character width as it's only
+argument. The .map files contain extra character data (e.g. image
+data) that dpost downloads immediately after the build_?? call,
+if the character's font table code field is 2 (rather than 1).
+
+The following PostScript variables are available:
+
+	font		current font
+	ptsize		current point size
+	size		actual font size - scaled up from ptsize
+
+Don't overuse this stuff!
+

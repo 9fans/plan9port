@@ -1,0 +1,194 @@
+name LucidaSansI
+fontname LucidaSans-Italic
+spacewidth 32
+charset
+!	32	2	33
+"	36	2	34
+#	63	2	35
+$	63	2	36
+%	74	2	37
+&	70	2	38
+'	32	2	39
+(	33	2	40
+)	33	2	41
+*	47	2	42
++	63	0	43
+,	32	1	44
+-	63	0	45
+.	32	0	46
+/	48	2	47
+0	63	2	48
+1	63	2	49
+2	63	2	50
+3	63	2	51
+4	63	2	52
+5	63	2	53
+6	63	2	54
+7	63	2	55
+8	63	2	56
+9	63	2	57
+:	32	0	58
+;	32	1	59
+<	63	2	60
+=	63	0	61
+>	63	2	62
+?	46	2	63
+@	86	3	64
+A	69	2	65
+B	59	2	66
+C	68	2	67
+D	74	2	68
+E	55	2	69
+F	54	2	70
+G	70	2	71
+H	74	2	72
+I	29	2	73
+J	41	2	74
+K	64	2	75
+L	55	2	76
+M	83	2	77
+N	74	2	78
+O	78	2	79
+P	58	2	80
+Q	78	3	81
+R	63	2	82
+S	55	2	83
+T	62	2	84
+U	69	2	85
+V	69	2	86
+W	89	2	87
+X	62	2	88
+Y	61	2	89
+Z	58	2	90
+[	33	3	91
+\	48	2	92
+]	33	3	93
+^	63	2	94
+_	50	1	95
+`	32	2	96
+a	61	0	97
+b	61	2	98
+c	50	0	99
+d	61	2	100
+e	53	0	101
+f	38	2	102
+g	61	1	103
+h	62	2	104
+i	29	2	105
+j	33	3	106
+k	58	2	107
+l	29	2	108
+m	93	0	109
+n	62	0	110
+o	57	0	111
+p	61	1	112
+q	61	1	113
+r	48	0	114
+s	49	0	115
+t	38	2	116
+u	62	0	117
+v	54	0	118
+w	78	0	119
+x	54	0	120
+y	55	1	121
+z	54	0	122
+{	33	3	123
+|	23	3	124
+}	33	3	125
+~	63	2	126
+¡	32	1	161 exclamdown
+¢	63	3	162 cent
+£	63	2	163 sterling
+¤	63	2	164 currency
+¥	63	2	165 yen
+¦	23	2	166 brokenbar
+§	63	3	167 section
+¨	57	2	168 dieresis
+©	86	2	169 copyright
+ª	39	2	170 ordfeminine
+«	53	0	171 guillemotleft
+¬	63	0	172 logicalnot
+­	31	0	173 hyphen
+hy	"
+®	63	2	174 registered
+¯	57	2	175 macron
+°	27	2	176 degree
+±	63	2	177 plusminus
+²	39	2	178 twosuperior
+³	39	2	179 threesuperior
+´	57	2	180 acute
+µ	63	1	181 mu
+¶	63	3	182 paragraph
+·	63	0	183 periodcentered
+¸	57	1	184 cedilla
+¹	39	2	185 onesuperior
+º	39	2	186 ordmasculine
+»	53	0	187 guillemotright
+¼	86	2	188 onequarter
+½	86	2	189 onehalf
+¾	86	2	190 threequarters
+¿	46	1	191 questiondown
+À	69	2	192 Agrave
+Á	69	2	193 Aacute
+Â	69	2	194 Acircumflex
+Ã	69	2	195 Atilde
+Ä	69	2	196 Adieresis
+Å	69	2	197 Aring
+Æ	89	2	198 AE
+Ç	68	3	199 Ccedilla
+È	55	2	200 Egrave
+É	55	2	201 Eacute
+Ê	55	2	202 Ecircumflex
+Ë	55	2	203 Edieresis
+Ì	29	2	204 Igrave
+Í	29	2	205 Iacute
+Î	29	2	206 Icircumflex
+Ï	29	2	207 Idieresis
+Ð	74	2	208 Eth
+Ñ	74	2	209 Ntilde
+Ò	78	2	210 Ograve
+Ó	78	2	211 Oacute
+Ô	78	2	212 Ocircumflex
+Õ	78	2	213 Otilde
+Ö	78	2	214 Odieresis
+×	63	0	215 multiply
+Ø	78	2	216 Oslash
+Ù	69	2	217 Ugrave
+Ú	69	2	218 Uacute
+Û	69	2	219 Ucircumflex
+Ü	69	2	220 Udieresis
+Ý	61	2	221 Yacute
+Þ	58	2	222 Thorn
+ß	60	2	223 germandbls
+à	61	2	224 agrave
+á	61	2	225 aacute
+â	61	2	226 acircumflex
+ã	61	2	227 atilde
+ä	61	2	228 adieresis
+å	61	2	229 aring
+æ	89	0	230 ae
+ç	50	1	231 ccedilla
+è	53	2	232 egrave
+é	53	2	233 eacute
+ê	53	2	234 ecircumflex
+ë	53	2	235 edieresis
+ì	29	2	236 igrave
+í	29	2	237 iacute
+î	29	2	238 icircumflex
+ï	29	2	239 idieresis
+ð	56	2	240 eth
+ñ	62	2	241 ntilde
+ò	57	2	242 ograve
+ó	57	2	243 oacute
+ô	57	2	244 ocircumflex
+õ	57	2	245 otilde
+ö	57	2	246 odieresis
+÷	63	0	247 divide
+ø	57	2	248 oslash
+ù	62	2	249 ugrave
+ú	62	2	250 uacute
+û	62	2	251 ucircumflex
+ü	62	2	252 udieresis
+ý	55	3	253 yacute
+þ	61	3	254 thorn
+ÿ	55	3	255 ydieresis

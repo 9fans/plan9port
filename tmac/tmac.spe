@@ -1,0 +1,142 @@
+..... July 1, 1991
+.so #9/sys/lib/tmac/tmac.pm
+.
+.ig
+.nr VN 1	\" VN -- volume
+.nr NU 1	\" NU -- number
+.nr P< 1	\" P< -- starting page number
+.nr P> 1	\" P> -- ending page number
+.		\" month of issue, date received, date revised
+.ds MO February
+.ds DY December 31, 1990
+.ds DR January 1, 1991
+.TL "RUNNING TITLE" "RUNNING AUTHOR NAMES" 
+Title
+.AU
+AUTHOR AND AUTHOR
+.AI
+Institution
+.AU
+AND
+.AU
+THIRD AUTHOR
+.AI
+HER INSTITUTION
+.AB
+.LP
+abstract
+.AE
+.OK "Word  Phrase or word  Another word"
+.SH
+LEVEL ONE HEADING
+.PP
+xxx
+.SH 2
+Level 2 heading
+.PP
+zzz
+.Rf
+.IP 1.
+J. Author...
+..
+.
+.nr LL 34P
+.ll \n(LLu
+.lt \n(LLu
+.nr LT \n(LLu
+.nr FO 49P+1i-1P	\" FO -- bottom of last line of text
+.nr HM .6i	\" HM -- header margin
+.nr PD 1u
+.nr PI .15i
+.
+.de TL		\" TL -- title
+.ps 7
+SOFTWARE\(emPRACTICE AND EXPERIENCE, VOL. \\n(VN(\\n(NU), \\n(P<-\\n(P> (\\*(MO 20\\n(yr)
+.sp 6P-2v
+.ps 18
+.vs 21p
+.ce 100
+.		\" $1 is title running head, $2 is author running head
+.ds %o .tl '\s11\\\\n(%#\s0'\s8\\$1\s0''
+.ds %e .tl ''\s8\\$2\s0'\s11\\\\n(%#\s0'
+.nr OL 0	\" undo pm
+.ev 2
+.lt \\n(LLu
+.ev
+..
+.de AU		\" AU -- JOE AUTHOR AND MARY AUTHOR
+.ie \\n(AU=0 .sp 3.25P-.5v
+.el .SP
+.nr AU +1
+.ps 8
+.vs 12p
+.ft R
+..
+.		\" use .AU JOE // AND // .AU MARY if separate institutions.
+.de AI		\" AI -- author institution
+.ps 9
+.vs 10p
+.ft I
+..
+.de MH		\" MH -- us
+Bell Labs, Murray Hill, New Jersey 07974, U.S.A.
+..
+.de AB		\" AB -- abstract/summary
+.sp 3P-0V
+.nr PS 9
+.nr VS 10
+.ft B
+SUMMARY
+.SP .4P
+.ce 0
+.nr AB 1
+..
+.de AE		\" AE -- end of abstract
+.nr AB 0
+.nr PS 11
+.nr VS 12
+.XX		\" do the goo on the bottom of page 1
+..
+.de OK		\" OK -- other keywords
+.ft 1
+.sp .5P
+\s6KEY WORDS\s0   \s8\\$1\s0
+.fl
+..
+.de XX
+.KF bottom
+.SP 1.5P
+.lt \\n(LLu
+.nr x \\n(P>-\\n(P<+1
+.af P< 0000
+.if \\n(BT=0 .tl "0038-0644/\\n(yr/\\n(NU\\n(P<-\\nx$05.00""\f2Received \\*(DY\f1"
+.if \\n(BT=0 .tl '\(CO 20\\n(yr by John Wiley & Sons, Ltd.''\f2Revised \\*(DR\fP'
+.KE
+..
+.am SH		\" SH -- unnumbered sub-heading
+.sp 2.5P-2V
+.if \\n(.$=0 .ce 100
+.if \\$1=1 .ce 100
+.if \\n(.$=0 .ft 1
+.if \\$1=1 .ft 1
+.if \\$1=2 .ft B
+.if \\$1>2 .ft I
+.nr SH 1
+..
+.am PP		\" PP -- fix up to add space, no indent.  doesn't work
+.if \\n(SH .SP .5
+.if \\n(SH .in 0
+.nr SH 0
+..
+.		\" Rf - start references
+.de Rf
+.SH
+\s9REFERENCES\s0
+.nr PS 9
+.nr VS 10
+.LP
+.nr PI .15i
+..
+.
+.nr PS 11
+.nr VS 12

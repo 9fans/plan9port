@@ -1,0 +1,104 @@
+name UnivMath2
+fontname Universal-MathTwo
+charset
+*A	83	2	33	Script A
+*B	83	2	64	Script B
+*C	72	2	35	Script C
+*D	78	2	36	Script D
+*E	67	2	37	Script E
+*F	78	2	94	Script F
+*G	67	2	38	Script G
+*H	83	2	42	Script H
+*I	67	2	40	Script I
+*J	67	3	41	Script J
+*K	78	2	95	Script K
+*L	78	2	43	Script L
+*M	89	2	125	Script M
+*N	78	2	49	Script N
+*O	61	2	50	Script O
+*P	78	2	51	Script P
+*Q	67	2	52	Script Q
+*R	83	2	53	Script R
+*S	72	2	54	Script S
+*T	78	2	55	Script T
+*U	83	2	56	Script U
+*V	78	2	57	Script V
+*W	100	2	48	Script W
+*X	72	2	45	Script X
+*Y	78	2	61	Script Y
+*Z	72	2	93	Script Z
+A	78	2	65	Fraktur A
+B	83	2	66	Fraktur B
+C	72	2	67	Fraktur C
+D	94	2	68	Fraktur D
+E	78	2	69	Fraktur E
+F	72	3	70	Fraktur F
+G	89	2	71	Fraktur G
+H	78	3	72	Fraktur H
+I	72	2	73	Fraktur I
+J	72	3	74	Fraktur J
+K	78	2	75	Fraktur K
+L	67	2	76	Fraktur L
+M	100	2	77	Fraktur M
+N	83	2	78	Fraktur N
+O	89	2	79	Fraktur O
+P	83	3	80	Fraktur P
+Q	94	2	81	Fraktur Q
+R	83	2	82	Fraktur R
+S	89	2	83	Fraktur S
+T	78	2	84	Fraktur T
+U	72	2	85	Fraktur U
+V	83	2	86	Fraktur V
+W	100	2	87	Fraktur W
+X	72	2	88	Fraktur X
+Y	72	3	89	Fraktur Y
+Z	72	3	90	Fraktur Z
+---	61	2	34	bold script h
+sl	50	2	44	script l
+---	50	2	46	script l bar
+---	44	1	47	script z
+---	50	1	58	bold script g
+---	50	1	59	script g
+---	50	2	60	bold script l
+---	50	2	62	bold script l bar
+---	44	1	63	bold script z
+---	100	2	91	ccw-over
+---	100	2	92	ccw-under
+---	100	2	96	ccw-over-plus
+a	56	0	97	Fraktur a
+b	56	2	98	Fraktur b
+c	39	0	99	Fraktur c
+d	56	2	100	Fraktur d
+e	44	0	101	Fraktur e
+f	39	3	102	Fraktur f
+g	56	1	103	Fraktur g
+h	56	3	104	Fraktur h
+i	33	2	105	Fraktur i
+j	33	3	106	Fraktur j
+k	33	2	107	Fraktur k
+l	33	2	108	Fraktur l
+m	89	0	109	Fraktur m
+n	61	0	110	Fraktur n
+o	56	0	111	Fraktur o
+p	56	1	112	Fraktur p
+q	56	1	113	Fraktur q
+r	44	0	114	Fraktur r
+s	56	2	115	Fraktur s
+t	39	2	116	Fraktur t
+u	61	0	117	Fraktur u
+v	56	0	118	Fraktur v
+w	83	0	119	Fraktur w
+x	44	1	120	Fraktur x
+y	56	1	121	Fraktur y
+z	44	1	122	Fraktur z
+---	100	2	123	cw-over
+--- 	100	2	124	cw-under
+---	100	2	126	cw-over-minus
+---	100	3	130	dotted backslash
+---	100	3	131	dotted slash
+---	100	0	138	dotted horiz
+---	56	3	141	big C
+---	100	0	144	|--->
+---	100	3	161	dotted vert
+---	50	2	248	bold script l
+---	50	2	249	bold script l bar
