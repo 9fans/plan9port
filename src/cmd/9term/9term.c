@@ -37,6 +37,7 @@ enum
 	Send,
 	Plumb,
 	Scroll,
+	Cooked,
 };
 
 #define	ESC		0x1B
@@ -119,7 +120,8 @@ uint	insert(Rune*, int, uint, int);
 Rectangle	scrollr;	/* scroll bar rectangle */
 Rectangle	lastsr;		/* used for scroll bar */
 int		holdon;		/* hold mode */
-int		rawon;		/* raw mode */
+int		rawon(void);		/* raw mode */
+int		cooked;		/* force cooked */
 int		scrolling;	/* window scrolls */
 int		clickmsec;	/* time of last click */
 uint		clickq0;	/* point of last click */
@@ -148,6 +150,7 @@ char *menu2str[] = {
 	"send",
 	"plumb",
 	"scroll",
+	"cooked",
 	0
 };
 
@@ -198,10 +201,6 @@ threadmain(int argc, char *argv[])
 		usage();
 	case 'a':	/* acme mode */
 		button2exec++;
-		break;
-	case 'r':
-		/* not clear this is useful */
-		rawon = 1;
 		break;
 	case 's':
 		scrolling++;
@@ -604,9 +603,13 @@ void
 domenu2(int but)
 {
 	if(scrolling)
-		menu2str[Scroll] = "noscroll";
+		menu2str[Scroll] = "☑ scroll";
 	else
-		menu2str[Scroll] = "scroll";
+		menu2str[Scroll] = "☐ scroll";
+	if(cooked)
+		menu2str[Cooked] = "☑ cooked";
+	else
+		menu2str[Cooked] = "☐ cooked";
 
 	switch(menuhit(but, mc, &menu2, nil)){
 	case -1:
@@ -650,6 +653,9 @@ domenu2(int but)
 		break;
 	case Plumb:
 		plumb(t.q0, t.q1);
+		break;
+	case Cooked:
+		cooked = !cooked;
 		break;
 	default:
 		sysfatal("bad menu item");
@@ -835,8 +841,7 @@ key(Rune r)
 		return;
 	}
 
-	rawon = !isecho(sfd);
-	if(rawon && t.q0==t.nr){
+	if(rawon() && t.q0==t.nr){
 		addraw(&r, 1);
 		consread();
 		return;
@@ -927,8 +932,7 @@ consready(void)
 	if(holdon)
 		return 0;
 
-	rawon = !isecho(sfd);
-	if(rawon) 
+	if(rawon()) 
 		return t.nraw != 0;
 
 	/* look to see if there is a complete line */
@@ -946,8 +950,9 @@ consread(void)
 {
 	char buf[8000], *p;
 	int c, width, n;
-	int s;
+	int s, raw;
 
+	raw = rawon();
 	for(;;) {
 		if(!consready())
 			return;
@@ -964,8 +969,7 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
-			rawon = !isecho(sfd);
-			if(!rawon && (c == '\n' || c == '\004' || c == '\x7F'))
+			if(!raw && (c == '\n' || c == '\004' || c == '\x7F'))
 				break;
 		}
 		n = p-buf;
@@ -1260,8 +1264,7 @@ paste(Rune *r, int n, int advance)
 {
 	Rune *rbuf;
 
-	rawon = !isecho(sfd);
-	if(rawon && t.q0==t.nr){
+	if(rawon() && t.q0==t.nr){
 		addraw(r, n);
 		return;
 	}
@@ -1752,5 +1755,11 @@ label(Rune *sr, int n)
 	runemove(sl, el, er-el);
 	n -= (el-sl);
 	return n;
+}
+
+int
+rawon(void)
+{
+	return !cooked && !isecho(sfd);
 }
 
