@@ -1,0 +1,1055 @@
+sizeof_1_ = 8;
+aggr _1_
+{
+	'D' 0 hlength;
+	'D' 4 llength;
+};
+
+defn
+_1_(addr) {
+	complex _1_ addr;
+	print("	hlength	", addr.hlength, "\n");
+	print("	llength	", addr.llength, "\n");
+};
+
+sizeof_2_ = 8;
+aggr _2_
+{
+	'V' 0 length;
+	{
+	'D' 0 hlength;
+	'D' 4 llength;
+	};
+};
+
+defn
+_2_(addr) {
+	complex _2_ addr;
+	print("	length	", addr.length, "\n");
+	print("_1_ {\n");
+		_1_(addr+0);
+	print("}\n");
+};
+
+UTFmax = 3;
+Runesync = 128;
+Runeself = 128;
+Runeerror = 128;
+sizeofFconv = 24;
+aggr Fconv
+{
+	'X' 0 out;
+	'X' 4 eout;
+	'D' 8 f1;
+	'D' 12 f2;
+	'D' 16 f3;
+	'D' 20 chr;
+};
+
+defn
+Fconv(addr) {
+	complex Fconv addr;
+	print("	out	", addr.out\X, "\n");
+	print("	eout	", addr.eout\X, "\n");
+	print("	f1	", addr.f1, "\n");
+	print("	f2	", addr.f2, "\n");
+	print("	f3	", addr.f3, "\n");
+	print("	chr	", addr.chr, "\n");
+};
+
+sizeofTm = 40;
+aggr Tm
+{
+	'D' 0 sec;
+	'D' 4 min;
+	'D' 8 hour;
+	'D' 12 mday;
+	'D' 16 mon;
+	'D' 20 year;
+	'D' 24 wday;
+	'D' 28 yday;
+	'a' 32 zone;
+	'D' 36 tzoff;
+};
+
+defn
+Tm(addr) {
+	complex Tm addr;
+	print("	sec	", addr.sec, "\n");
+	print("	min	", addr.min, "\n");
+	print("	hour	", addr.hour, "\n");
+	print("	mday	", addr.mday, "\n");
+	print("	mon	", addr.mon, "\n");
+	print("	year	", addr.year, "\n");
+	print("	wday	", addr.wday, "\n");
+	print("	yday	", addr.yday, "\n");
+	print("	zone	", addr.zone, "\n");
+	print("	tzoff	", addr.tzoff, "\n");
+};
+
+PNPROC = 1;
+PNGROUP = 2;
+sizeofLock = 4;
+aggr Lock
+{
+	'D' 0 val;
+};
+
+defn
+Lock(addr) {
+	complex Lock addr;
+	print("	val	", addr.val, "\n");
+};
+
+sizeofQLp = 12;
+aggr QLp
+{
+	'D' 0 inuse;
+	'A' QLp 4 next;
+	'C' 8 state;
+};
+
+defn
+QLp(addr) {
+	complex QLp addr;
+	print("	inuse	", addr.inuse, "\n");
+	print("	next	", addr.next\X, "\n");
+	print("	state	", addr.state, "\n");
+};
+
+sizeofQLock = 16;
+aggr QLock
+{
+	Lock 0 lock;
+	'D' 4 locked;
+	'A' QLp 8 $head;
+	'A' QLp 12 $tail;
+};
+
+defn
+QLock(addr) {
+	complex QLock addr;
+	print("Lock lock {\n");
+	Lock(addr.lock);
+	print("}\n");
+	print("	locked	", addr.locked, "\n");
+	print("	$head	", addr.$head\X, "\n");
+	print("	$tail	", addr.$tail\X, "\n");
+};
+
+sizeofRWLock = 20;
+aggr RWLock
+{
+	Lock 0 lock;
+	'D' 4 readers;
+	'D' 8 writer;
+	'A' QLp 12 $head;
+	'A' QLp 16 $tail;
+};
+
+defn
+RWLock(addr) {
+	complex RWLock addr;
+	print("Lock lock {\n");
+	Lock(addr.lock);
+	print("}\n");
+	print("	readers	", addr.readers, "\n");
+	print("	writer	", addr.writer, "\n");
+	print("	$head	", addr.$head\X, "\n");
+	print("	$tail	", addr.$tail\X, "\n");
+};
+
+RFNAMEG = 1;
+RFENVG = 2;
+RFFDG = 4;
+RFNOTEG = 8;
+RFPROC = 16;
+RFMEM = 32;
+RFNOWAIT = 64;
+RFCNAMEG = 1024;
+RFCENVG = 2048;
+RFCFDG = 4096;
+RFREND = 8192;
+sizeofQid = 8;
+aggr Qid
+{
+	'U' 0 path;
+	'U' 4 vers;
+};
+
+defn
+Qid(addr) {
+	complex Qid addr;
+	print("	path	", addr.path, "\n");
+	print("	vers	", addr.vers, "\n");
+};
+
+sizeofDir = 116;
+aggr Dir
+{
+	'a' 0 name;
+	'a' 28 uid;
+	'a' 56 gid;
+	Qid 84 qid;
+	'U' 92 mode;
+	'D' 96 atime;
+	'D' 100 mtime;
+	{
+	'V' 104 length;
+	{
+	'D' 104 hlength;
+	'D' 108 llength;
+	};
+	};
+	'u' 112 type;
+	'u' 114 dev;
+};
+
+defn
+Dir(addr) {
+	complex Dir addr;
+	print("	name	", addr.name, "\n");
+	print("	uid	", addr.uid, "\n");
+	print("	gid	", addr.gid, "\n");
+	print("Qid qid {\n");
+	Qid(addr.qid);
+	print("}\n");
+	print("	mode	", addr.mode, "\n");
+	print("	atime	", addr.atime, "\n");
+	print("	mtime	", addr.mtime, "\n");
+	print("_2_ {\n");
+		_2_(addr+104);
+	print("}\n");
+	print("	type	", addr.type, "\n");
+	print("	dev	", addr.dev, "\n");
+};
+
+sizeofWaitmsg = 112;
+aggr Waitmsg
+{
+	'a' 0 pid;
+	'a' 12 time;
+	'a' 48 msg;
+};
+
+defn
+Waitmsg(addr) {
+	complex Waitmsg addr;
+	print("	pid	", addr.pid, "\n");
+	print("	time	", addr.time, "\n");
+	print("	msg	", addr.msg, "\n");
+};
+
+DBlack = 255;
+DBlue = 201;
+DRed = 15;
+DYellow = 3;
+DGreen = 192;
+DWhite = 0;
+Displaybufsize = 8000;
+ICOSSCALE = 1024;
+Borderwidth = 4;
+Refbackup = 0;
+Refnone = 1;
+Refmesg = 2;
+Endsquare = 0;
+Enddisc = 1;
+Endarrow = 2;
+Endmask = 31;
+sizeofPoint = 8;
+aggr Point
+{
+	'D' 0 x;
+	'D' 4 y;
+};
+
+defn
+Point(addr) {
+	complex Point addr;
+	print("	x	", addr.x, "\n");
+	print("	y	", addr.y, "\n");
+};
+
+sizeofRectangle = 16;
+aggr Rectangle
+{
+	Point 0 min;
+	Point 8 max;
+};
+
+defn
+Rectangle(addr) {
+	complex Rectangle addr;
+	print("Point min {\n");
+	Point(addr.min);
+	print("}\n");
+	print("Point max {\n");
+	Point(addr.max);
+	print("}\n");
+};
+
+sizeofScreen = 16;
+aggr Screen
+{
+	'X' 0 display;
+	'D' 4 id;
+	'X' 8 image;
+	'X' 12 fill;
+};
+
+defn
+Screen(addr) {
+	complex Screen addr;
+	print("	display	", addr.display\X, "\n");
+	print("	id	", addr.id, "\n");
+	print("	image	", addr.image\X, "\n");
+	print("	fill	", addr.fill\X, "\n");
+};
+
+sizeofDisplay = 8156;
+aggr Display
+{
+	QLock 0 qlock;
+	'D' 16 dirno;
+	'D' 20 fd;
+	'D' 24 reffd;
+	'D' 28 ctlfd;
+	'D' 32 imageid;
+	'D' 36 $local;
+	'D' 40 ldepth;
+	'X' 44 error;
+	'X' 48 devdir;
+	'X' 52 windir;
+	'a' 56 oldlabel;
+	'U' 120 dataqid;
+	'X' 124 ones;
+	'X' 128 zeros;
+	'X' 132 image;
+	'a' 136 buf;
+	'X' 8140 bufp;
+	'X' 8144 defaultfont;
+	'X' 8148 defaultsubfont;
+	'X' 8152 windows;
+};
+
+defn
+Display(addr) {
+	complex Display addr;
+	print("QLock qlock {\n");
+	QLock(addr.qlock);
+	print("}\n");
+	print("	dirno	", addr.dirno, "\n");
+	print("	fd	", addr.fd, "\n");
+	print("	reffd	", addr.reffd, "\n");
+	print("	ctlfd	", addr.ctlfd, "\n");
+	print("	imageid	", addr.imageid, "\n");
+	print("	$local	", addr.$local, "\n");
+	print("	ldepth	", addr.ldepth, "\n");
+	print("	error	", addr.error\X, "\n");
+	print("	devdir	", addr.devdir\X, "\n");
+	print("	windir	", addr.windir\X, "\n");
+	print("	oldlabel	", addr.oldlabel, "\n");
+	print("	dataqid	", addr.dataqid, "\n");
+	print("	ones	", addr.ones\X, "\n");
+	print("	zeros	", addr.zeros\X, "\n");
+	print("	image	", addr.image\X, "\n");
+	print("	buf	", addr.buf, "\n");
+	print("	bufp	", addr.bufp\X, "\n");
+	print("	defaultfont	", addr.defaultfont\X, "\n");
+	print("	defaultsubfont	", addr.defaultsubfont\X, "\n");
+	print("	windows	", addr.windows\X, "\n");
+};
+
+sizeofImage = 56;
+aggr Image
+{
+	'A' Display 0 display;
+	'D' 4 id;
+	Rectangle 8 r;
+	Rectangle 24 clipr;
+	'D' 40 ldepth;
+	'D' 44 repl;
+	'A' Screen 48 screen;
+	'A' Image 52 next;
+};
+
+defn
+Image(addr) {
+	complex Image addr;
+	print("	display	", addr.display\X, "\n");
+	print("	id	", addr.id, "\n");
+	print("Rectangle r {\n");
+	Rectangle(addr.r);
+	print("}\n");
+	print("Rectangle clipr {\n");
+	Rectangle(addr.clipr);
+	print("}\n");
+	print("	ldepth	", addr.ldepth, "\n");
+	print("	repl	", addr.repl, "\n");
+	print("	screen	", addr.screen\X, "\n");
+	print("	next	", addr.next\X, "\n");
+};
+
+sizeofRGB = 12;
+aggr RGB
+{
+	'U' 0 red;
+	'U' 4 green;
+	'U' 8 blue;
+};
+
+defn
+RGB(addr) {
+	complex RGB addr;
+	print("	red	", addr.red, "\n");
+	print("	green	", addr.green, "\n");
+	print("	blue	", addr.blue, "\n");
+};
+
+sizeofFontchar = 8;
+aggr Fontchar
+{
+	'D' 0 x;
+	'b' 4 top;
+	'b' 5 bottom;
+	'C' 6 left;
+	'b' 7 width;
+};
+
+defn
+Fontchar(addr) {
+	complex Fontchar addr;
+	print("	x	", addr.x, "\n");
+	print("	top	", addr.top, "\n");
+	print("	bottom	", addr.bottom, "\n");
+	print("	left	", addr.left, "\n");
+	print("	width	", addr.width, "\n");
+};
+
+sizeofSubfont = 16;
+aggr Subfont
+{
+	'X' 0 name;
+	'd' 4 n;
+	'b' 6 height;
+	'C' 7 ascent;
+	'A' Fontchar 8 info;
+	'A' Image 12 bits;
+};
+
+defn
+Subfont(addr) {
+	complex Subfont addr;
+	print("	name	", addr.name\X, "\n");
+	print("	n	", addr.n, "\n");
+	print("	height	", addr.height, "\n");
+	print("	ascent	", addr.ascent, "\n");
+	print("	info	", addr.info\X, "\n");
+	print("	bits	", addr.bits\X, "\n");
+};
+
+LOG2NFCACHE = 6;
+NFCACHE = 64;
+NFLOOK = 5;
+NFSUBF = 2;
+MAXFCACHE = 1029;
+MAXSUBF = 50;
+DSUBF = 4;
+SUBFAGE = 10000;
+CACHEAGE = 10000;
+sizeofCachefont = 16;
+aggr Cachefont
+{
+	'u' 0 min;
+	'u' 2 max;
+	'D' 4 offset;
+	'X' 8 name;
+	'X' 12 subfontname;
+};
+
+defn
+Cachefont(addr) {
+	complex Cachefont addr;
+	print("	min	", addr.min, "\n");
+	print("	max	", addr.max, "\n");
+	print("	offset	", addr.offset, "\n");
+	print("	name	", addr.name\X, "\n");
+	print("	subfontname	", addr.subfontname\X, "\n");
+};
+
+sizeofCacheinfo = 8;
+aggr Cacheinfo
+{
+	'u' 0 x;
+	'b' 2 width;
+	'C' 3 left;
+	'u' 4 value;
+	'u' 6 age;
+};
+
+defn
+Cacheinfo(addr) {
+	complex Cacheinfo addr;
+	print("	x	", addr.x, "\n");
+	print("	width	", addr.width, "\n");
+	print("	left	", addr.left, "\n");
+	print("	value	", addr.value, "\n");
+	print("	age	", addr.age, "\n");
+};
+
+sizeofCachesubf = 12;
+aggr Cachesubf
+{
+	'U' 0 age;
+	'A' Cachefont 4 cf;
+	'A' Subfont 8 f;
+};
+
+defn
+Cachesubf(addr) {
+	complex Cachesubf addr;
+	print("	age	", addr.age, "\n");
+	print("	cf	", addr.cf\X, "\n");
+	print("	f	", addr.f\X, "\n");
+};
+
+sizeofFont = 52;
+aggr Font
+{
+	'X' 0 name;
+	'A' Display 4 display;
+	'd' 8 height;
+	'd' 10 ascent;
+	'D' 12 maxldepth;
+	'd' 16 width;
+	'd' 18 ldepth;
+	'd' 20 nsub;
+	'U' 24 age;
+	'D' 28 ncache;
+	'D' 32 nsubf;
+	'A' Cacheinfo 36 cache;
+	'A' Cachesubf 40 subf;
+	'A' Cachefont 44 sub;
+	'A' Image 48 cacheimage;
+};
+
+defn
+Font(addr) {
+	complex Font addr;
+	print("	name	", addr.name\X, "\n");
+	print("	display	", addr.display\X, "\n");
+	print("	height	", addr.height, "\n");
+	print("	ascent	", addr.ascent, "\n");
+	print("	maxldepth	", addr.maxldepth, "\n");
+	print("	width	", addr.width, "\n");
+	print("	ldepth	", addr.ldepth, "\n");
+	print("	nsub	", addr.nsub, "\n");
+	print("	age	", addr.age, "\n");
+	print("	ncache	", addr.ncache, "\n");
+	print("	nsubf	", addr.nsubf, "\n");
+	print("	cache	", addr.cache\X, "\n");
+	print("	subf	", addr.subf\X, "\n");
+	print("	sub	", addr.sub\X, "\n");
+	print("	cacheimage	", addr.cacheimage\X, "\n");
+};
+
+complex Point ZP;
+complex Rectangle ZR;
+complex Display display;
+complex Font font;
+complex Image screen;
+sizeofAlt = 20;
+aggr Alt
+{
+	'X' 0 c;
+	'X' 4 v;
+	'D' 8 op;
+	'X' 12 tag;
+	'U' 16 q;
+};
+
+defn
+Alt(addr) {
+	complex Alt addr;
+	print("	c	", addr.c\X, "\n");
+	print("	v	", addr.v\X, "\n");
+	print("	op	", addr.op, "\n");
+	print("	tag	", addr.tag\X, "\n");
+	print("	q	", addr.q, "\n");
+};
+
+sizeofRef = 4;
+aggr Ref
+{
+	'D' 0 ref;
+};
+
+defn
+Ref(addr) {
+	complex Ref addr;
+	print("	ref	", addr.ref, "\n");
+};
+
+sizeofCursor = 72;
+aggr Cursor
+{
+	Point 0 offset;
+	'a' 8 clr;
+	'a' 40 set;
+};
+
+defn
+Cursor(addr) {
+	complex Cursor addr;
+	print("Point offset {\n");
+	Point(addr.offset);
+	print("}\n");
+	print("	clr	", addr.clr, "\n");
+	print("	set	", addr.set, "\n");
+};
+
+sizeofMouse = 16;
+aggr Mouse
+{
+	'D' 0 buttons;
+	Point 4 xy;
+	'U' 12 msec;
+};
+
+defn
+Mouse(addr) {
+	complex Mouse addr;
+	print("	buttons	", addr.buttons, "\n");
+	print("Point xy {\n");
+	Point(addr.xy);
+	print("}\n");
+	print("	msec	", addr.msec, "\n");
+};
+
+sizeofMousectl = 44;
+aggr Mousectl
+{
+	{
+	'D' 0 buttons;
+	Point 4 xy;
+	'U' 12 msec;
+	};
+	'X' 16 c;
+	'X' 20 reshapec;
+	'X' 24 file;
+	'D' 28 mfd;
+	'D' 32 cfd;
+	'D' 36 pid;
+	'A' Image 40 image;
+};
+
+defn
+Mousectl(addr) {
+	complex Mousectl addr;
+	print("Mouse {\n");
+		Mouse(addr+0);
+	print("}\n");
+	print("	c	", addr.c\X, "\n");
+	print("	reshapec	", addr.reshapec\X, "\n");
+	print("	file	", addr.file\X, "\n");
+	print("	mfd	", addr.mfd, "\n");
+	print("	cfd	", addr.cfd, "\n");
+	print("	pid	", addr.pid, "\n");
+	print("	image	", addr.image\X, "\n");
+};
+
+sizeofMenu = 12;
+aggr Menu
+{
+	'X' 0 item;
+	'X' 4 gen;
+	'D' 8 lasthit;
+};
+
+defn
+Menu(addr) {
+	complex Menu addr;
+	print("	item	", addr.item\X, "\n");
+	print("	gen	", addr.gen\X, "\n");
+	print("	lasthit	", addr.lasthit, "\n");
+};
+
+sizeofKeyboardctl = 20;
+aggr Keyboardctl
+{
+	'X' 0 c;
+	'X' 4 file;
+	'D' 8 consfd;
+	'D' 12 ctlfd;
+	'D' 16 pid;
+};
+
+defn
+Keyboardctl(addr) {
+	complex Keyboardctl addr;
+	print("	c	", addr.c\X, "\n");
+	print("	file	", addr.file\X, "\n");
+	print("	consfd	", addr.consfd, "\n");
+	print("	ctlfd	", addr.ctlfd, "\n");
+	print("	pid	", addr.pid, "\n");
+};
+
+BACK = 0;
+HIGH = 1;
+BORD = 2;
+TEXT = 3;
+HTEXT = 4;
+NCOL = 5;
+sizeof_3_ = 4;
+aggr _3_
+{
+	'd' 0 bc;
+	'd' 2 minwid;
+};
+
+defn
+_3_(addr) {
+	complex _3_ addr;
+	print("	bc	", addr.bc, "\n");
+	print("	minwid	", addr.minwid, "\n");
+};
+
+sizeof_4_ = 4;
+aggr _4_
+{
+	'X' 0 ptr;
+	{
+	'd' 0 bc;
+	'd' 2 minwid;
+	};
+};
+
+defn
+_4_(addr) {
+	complex _4_ addr;
+	print("	ptr	", addr.ptr\X, "\n");
+	print("_3_ {\n");
+		_3_(addr+0);
+	print("}\n");
+};
+
+sizeofFrbox = 12;
+aggr Frbox
+{
+	'D' 0 wid;
+	'D' 4 nrune;
+	{
+	'X' 8 ptr;
+	{
+	'd' 8 bc;
+	'd' 10 minwid;
+	};
+	};
+};
+
+defn
+Frbox(addr) {
+	complex Frbox addr;
+	print("	wid	", addr.wid, "\n");
+	print("	nrune	", addr.nrune, "\n");
+	print("_4_ {\n");
+		_4_(addr+8);
+	print("}\n");
+};
+
+complex Font font;
+complex Display display;
+sizeofFrame = 108;
+aggr Frame
+{
+	'A' Font 0 font;
+	'A' Display 4 display;
+	'A' Image 8 b;
+	'a' 12 cols;
+	Rectangle 32 r;
+	Rectangle 48 entire;
+	'X' 64 scroll;
+	'A' Frbox 68 box;
+	'U' 72 p0;
+	'U' 76 p1;
+	'u' 80 nbox;
+	'u' 82 nalloc;
+	'u' 84 maxtab;
+	'u' 86 nchars;
+	'u' 88 nlines;
+	'u' 90 maxlines;
+	'u' 92 lastlinefull;
+	'u' 94 modified;
+	'A' Image 96 tick;
+	'A' Image 100 tickback;
+	'D' 104 ticked;
+};
+
+defn
+Frame(addr) {
+	complex Frame addr;
+	print("	font	", addr.font\X, "\n");
+	print("	display	", addr.display\X, "\n");
+	print("	b	", addr.b\X, "\n");
+	print("	cols	", addr.cols, "\n");
+	print("Rectangle r {\n");
+	Rectangle(addr.r);
+	print("}\n");
+	print("Rectangle entire {\n");
+	Rectangle(addr.entire);
+	print("}\n");
+	print("	scroll	", addr.scroll\X, "\n");
+	print("	box	", addr.box\X, "\n");
+	print("	p0	", addr.p0, "\n");
+	print("	p1	", addr.p1, "\n");
+	print("	nbox	", addr.nbox, "\n");
+	print("	nalloc	", addr.nalloc, "\n");
+	print("	maxtab	", addr.maxtab, "\n");
+	print("	nchars	", addr.nchars, "\n");
+	print("	nlines	", addr.nlines, "\n");
+	print("	maxlines	", addr.maxlines, "\n");
+	print("	lastlinefull	", addr.lastlinefull, "\n");
+	print("	modified	", addr.modified, "\n");
+	print("	tick	", addr.tick\X, "\n");
+	print("	tickback	", addr.tickback\X, "\n");
+	print("	ticked	", addr.ticked, "\n");
+};
+
+None = 0;
+Some = 1;
+All = 2;
+Clicktime = 1000;
+sizeofFlayer = 172;
+aggr Flayer
+{
+	Frame 0 f;
+	'D' 108 origin;
+	'D' 112 p0;
+	'D' 116 p1;
+	'D' 120 click;
+	'X' 124 textfn;
+	'D' 128 user0;
+	'X' 132 user1;
+	Rectangle 136 entire;
+	Rectangle 152 scroll;
+	'D' 168 visible;
+};
+
+defn
+Flayer(addr) {
+	complex Flayer addr;
+	print("Frame f {\n");
+	Frame(addr.f);
+	print("}\n");
+	print("	origin	", addr.origin, "\n");
+	print("	p0	", addr.p0, "\n");
+	print("	p1	", addr.p1, "\n");
+	print("	click	", addr.click, "\n");
+	print("	textfn	", addr.textfn\X, "\n");
+	print("	user0	", addr.user0, "\n");
+	print("	user1	", addr.user1\X, "\n");
+	print("Rectangle entire {\n");
+	Rectangle(addr.entire);
+	print("}\n");
+	print("Rectangle scroll {\n");
+	Rectangle(addr.scroll);
+	print("}\n");
+	print("	visible	", addr.visible, "\n");
+};
+
+Up = 0;
+Down = 1;
+sizeofSection = 12;
+aggr Section
+{
+	'D' 0 nrunes;
+	'X' 4 text;
+	'A' Section 8 next;
+};
+
+defn
+Section(addr) {
+	complex Section addr;
+	print("	nrunes	", addr.nrunes, "\n");
+	print("	text	", addr.text\X, "\n");
+	print("	next	", addr.next\X, "\n");
+};
+
+sizeofRasp = 8;
+aggr Rasp
+{
+	'D' 0 nrunes;
+	'A' Section 4 sect;
+};
+
+defn
+Rasp(addr) {
+	complex Rasp addr;
+	print("	nrunes	", addr.nrunes, "\n");
+	print("	sect	", addr.sect\X, "\n");
+};
+
+sizeofText = 876;
+aggr Text
+{
+	Rasp 0 rasp;
+	'd' 8 nwin;
+	'd' 10 front;
+	'u' 12 tag;
+	'C' 14 lock;
+	'a' 16 l;
+};
+
+defn
+Text(addr) {
+	complex Text addr;
+	print("Rasp rasp {\n");
+	Rasp(addr.rasp);
+	print("}\n");
+	print("	nwin	", addr.nwin, "\n");
+	print("	front	", addr.front, "\n");
+	print("	tag	", addr.tag, "\n");
+	print("	lock	", addr.lock, "\n");
+	print("	l	", addr.l, "\n");
+};
+
+sizeofReadbuf = 8196;
+aggr Readbuf
+{
+	'd' 0 n;
+	'a' 2 data;
+};
+
+defn
+Readbuf(addr) {
+	complex Readbuf addr;
+	print("	n	", addr.n, "\n");
+	print("	data	", addr.data, "\n");
+};
+
+RHost = 0;
+RKeyboard = 1;
+RMouse = 2;
+RPlumb = 3;
+RReshape = 4;
+NRes = 5;
+complex Cursor bullseye;
+complex Cursor deadmouse;
+complex Cursor lockarrow;
+complex Cursor cursor;
+complex Flayer which;
+complex Flayer work;
+complex Text cmd;
+complex Mousectl mousectl;
+complex Keyboardctl keyboardctl;
+complex Mouse mousep;
+Tversion = 0;
+Tstartcmdfile = 1;
+Tcheck = 2;
+Trequest = 3;
+Torigin = 4;
+Tstartfile = 5;
+Tworkfile = 6;
+Ttype = 7;
+Tcut = 8;
+Tpaste = 9;
+Tsnarf = 10;
+Tstartnewfile = 11;
+Twrite = 12;
+Tclose = 13;
+Tlook = 14;
+Tsearch = 15;
+Tsend = 16;
+Tdclick = 17;
+Tstartsnarf = 18;
+Tsetsnarf = 19;
+Tack = 20;
+Texit = 21;
+Tplumb = 22;
+TMAX = 23;
+Hversion = 0;
+Hbindname = 1;
+Hcurrent = 2;
+Hnewname = 3;
+Hmovname = 4;
+Hgrow = 5;
+Hcheck0 = 6;
+Hcheck = 7;
+Hunlock = 8;
+Hdata = 9;
+Horigin = 10;
+Hunlockfile = 11;
+Hsetdot = 12;
+Hgrowdata = 13;
+Hmoveto = 14;
+Hclean = 15;
+Hdirty = 16;
+Hcut = 17;
+Hsetpat = 18;
+Hdelname = 19;
+Hclose = 20;
+Hsetsnarf = 21;
+Hsnarflen = 22;
+Hack = 23;
+Hexit = 24;
+Hplumb = 25;
+HMAX = 26;
+sizeofHeader = 4;
+aggr Header
+{
+	'b' 0 type;
+	'b' 1 count0;
+	'b' 2 count1;
+	'a' 3 data;
+};
+
+defn
+Header(addr) {
+	complex Header addr;
+	print("	type	", addr.type, "\n");
+	print("	count0	", addr.count0, "\n");
+	print("	count1	", addr.count1, "\n");
+	print("	data	", addr.data, "\n");
+};
+
+complex Text cmd;
+complex Cursor cursor;
+complex Flayer which;
+complex Flayer work;
+complex Text threadmain:t;
+complex Rectangle threadmain:r;
+complex Flayer threadmain:nwhich;
+complex Flayer current:nw;
+complex Text current:t;
+complex Flayer closeup:l;
+complex Text closeup:t;
+complex Text findl:t;
+complex Flayer duplicate:l;
+complex Rectangle duplicate:r;
+complex Font duplicate:f;
+complex Text duplicate:t;
+complex Flayer duplicate:nl;
+complex Rectangle getr:rp;
+complex Point getr:p;
+complex Rectangle getr:r;
+complex Text snarf:t;
+complex Flayer snarf:l;
+complex Text cut:t;
+complex Flayer cut:l;
+complex Text paste:t;
+complex Flayer scrorigin:l;
+complex Text scrorigin:t;
+complex Rasp raspc:r;
+complex Rasp ctlw:r;
+complex Rasp ctlu:r;
+complex Flayer center:l;
+complex Text center:t;
+complex Flayer onethird:l;
+complex Text onethird:t;
+complex Rectangle onethird:s;
+complex Text flushtyping:t;
+complex Flayer type:l;
+complex Text type:t;
+complex Flayer gettext:l;
+complex Text gettext:t;
+complex Flayer scrtotal:l;

@@ -1,0 +1,6 @@
+include("/sys/src/cmd/drawsamterm/syms");
+
+defn x(){
+	print("font->cacheimage: ", font->cacheimage\X, "\n");
+	print("         display: ", font->cacheimage.display\X, "\n");
+}
