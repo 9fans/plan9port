@@ -118,6 +118,10 @@ int		threadsetgrp(int);	/* set thread group, return old */
 void		threadsetname(char *fmt, ...);
 void		threadsleep(int);
 Channel*	threadwaitchan(void);
+int		threadannounce(char*, char*);
+int		threadlisten(char*, char*);
+int		threadaccept(int, char*);
+
 int	tprivalloc(void);
 void	tprivfree(int);
 void	**tprivaddr(int);
