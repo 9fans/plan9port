@@ -28,6 +28,7 @@ vlong fsseek(CFid*, vlong, int);
 long fswrite(CFid*, void*, long);
 void fsclose(CFid*);
 void fsunmount(CFsys*);
+void _fsunmount(CFsys*);	/* do not close fd */
 struct Dir;	/* in case there's no lib9.h */
 long fsdirread(CFid*, struct Dir**);
 long fsdirreadall(CFid*, struct Dir**);
@@ -37,8 +38,11 @@ int fsdirwstat(CFsys*, char*, struct Dir*);
 int fsdirfwstat(CFid*, struct Dir*);
 CFid *fsroot(CFsys*);
 void fssetroot(CFsys*, CFid*);
+CFsys *nsinit(char*);
 CFsys *nsmount(char*, char*);
 CFid *nsopen(char*, char*, char*, int);
+
+extern int chatty9pclient;
 
 #ifdef __cplusplus
 }

@@ -152,6 +152,11 @@ extern Attr*		auth_attr(AuthRpc *rpc);
 extern void		auth_freerpc(AuthRpc *rpc);
 extern uint		auth_rpc(AuthRpc *rpc, char *verb, void *a, int n);
 extern int		auth_wep(char*, char*, ...);
+
+extern struct CFsys*	fsamount(int fd, char *aname);
+extern struct CFsys* nsamount(char *name, char *aname);
+
+
 /*
 #pragma varargck argpos auth_proxy 3
 #pragma varargck argpos auth_challenge 1

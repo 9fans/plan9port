@@ -362,6 +362,7 @@ extern	double	fmtcharstod(int(*)(void*), void*);
 extern	char*	cleanname(char*);
 extern	int	p9decrypt(void*, void*, int);
 extern	int	p9encrypt(void*, void*, int);
+extern	int	netcrypt(void*, void*);
 extern	int	dec64(uchar*, int, char*, int);
 extern	int	enc64(char*, int, uchar*, int);
 extern	int	dec32(uchar*, int, char*, int);
@@ -403,10 +404,12 @@ extern	vlong	strtoll(char*, char**, int);
 extern	uvlong	strtoull(char*, char**, int);
  */
 extern	void	sysfatal(char*, ...);
+extern	void	p9syslog(int, char*, char*, ...);
 extern	long	p9time(long*);
 /* extern	int	tolower(int); <ctype.h> */
 /* extern	int	toupper(int); <ctype.h> */
 extern	void	needstack(int);
+extern	char*	readcons(char*, char*, int);
 
 #ifndef NOPLAN9DEFINES
 #define atexit		p9atexit
@@ -428,6 +431,7 @@ extern	void	needstack(int);
 #define pow10		p9pow10
 #define strtod		fmtstrtod
 #define charstod	fmtcharstod
+#define syslog		p9syslog
 #endif
 
 /*
@@ -590,6 +594,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define ONONBLOCK 256	/* or'ed in, non-blocking call */
 #define	OEXCL	0x1000	/* or'ed in, exclusive use (create only) */
 #define	OLOCK	0x2000	/* or'ed in, lock after opening */
+#define	OAPPEND	0x4000	/* or'ed in, append only */
 
 #define	AEXIST	0	/* accessible: exists */
 #define	AEXEC	1	/* execute access */
@@ -620,7 +625,11 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define DMEXCL		0x20000000	/* mode bit for exclusive use files */
 #define DMMOUNT		0x10000000	/* mode bit for mounted channel */
 #define DMAUTH		0x08000000	/* mode bit for authentication file */
-#define DMLINK		0x04000000	/* mode bit for symbolic link */
+#define DMDEVICE		0x00800000	/* mode bit for device files (Unix) */
+#define DMSYMLINK	0x00400000	/* mode bit for symbolic links (Unix) */
+#define DMNAMEDPIPE	0x00200000	/* mode bit for named pipes (Unix) */
+#define DMSOCKET		0x00100000	/* mode bit for sockets (Unix) */
+
 #define DMREAD		0x4		/* mode bit for read permission */
 #define DMWRITE		0x2		/* mode bit for write permission */
 #define DMEXEC		0x1		/* mode bit for execute permission */
