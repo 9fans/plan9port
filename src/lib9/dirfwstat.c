@@ -7,7 +7,7 @@
 #if defined(__FreeBSD__) || defined(__APPLE__)
 /* do nothing -- futimes exists and is fine */
 
-#elif defined(__sun__)
+#elif defined(__SunOS5_9__)
 /* use futimesat */
 static int
 futimes(int fd, struct timeval *tv)
