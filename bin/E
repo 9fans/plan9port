@@ -6,6 +6,7 @@
 
 stat=`ls -l $1`
 B "$@"
+echo editing "$@"
 while sleep 1
 do
 	nstat=`ls -l $1`
