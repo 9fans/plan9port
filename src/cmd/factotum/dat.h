@@ -208,8 +208,6 @@ extern int		memrandom(void*, int);
 
 extern Proto*	protolookup(char*);
 
-extern char*	readcons(char *prompt, char *def, int raw);
-
 extern int		rpcwrite(Conv*, void*, int);
 extern void	rpcrespond(Conv*, char*, ...);
 /* #pragma varargck argpos rpcrespond 2 */
@@ -222,3 +220,6 @@ extern int		xiodial(char*, char*, char*, int*);
 extern int		xiowrite(int, void*, int);
 extern int		xioasrdresp(int, void*, int);
 extern int		xioasgetticket(int, char*, char*);
+
+int		havesecstore(void);
+int		secstorefetch(void);
