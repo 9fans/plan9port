@@ -22,5 +22,4 @@ SHORTLIB=mach bio 9
 
 <$PLAN9/src/mkone
 
-CFLAGS=$CFLAGS -I../libmach2
 
