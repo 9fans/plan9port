@@ -82,7 +82,11 @@ _await(int pid4, char *str, int n, int opt)
 	ulong u, s;
 
 	for(;;){
-		pid = wait4(pid4, &status, opt, &ru);
+		/* On Linux, pid==-1 means anyone; on SunOS, it's pid==0. */
+		if(pid4 == -1)
+			pid = wait3(&status, opt, &ru);
+		else
+			pid = wait4(pid4, &status, opt, &ru);
 		if(pid <= 0)
 			return -1;
 		u = ru.ru_utime.tv_sec*1000+((ru.ru_utime.tv_usec+500)/1000);

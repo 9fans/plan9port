@@ -17,13 +17,29 @@ static int rlx[] = {
 	RLIMIT_CORE,
 	RLIMIT_DATA,
 	RLIMIT_FSIZE,
+#ifdef RLIMIT_MEMLOCK
 	RLIMIT_MEMLOCK,
+#else
+	0,
+#endif
+#ifdef RLIMIT_RSS
 	RLIMIT_RSS,
+#else
+	0,
+#endif
 	RLIMIT_NOFILE,
 	RLIMIT_STACK,
 	RLIMIT_CPU,
+#ifdef RLIMIT_NPROC
 	RLIMIT_NPROC,
+#else
+	0,
+#endif
+#ifdef RLIMIT_RSS
 	RLIMIT_RSS,
+#else
+	0,
+#endif
 };
 
 static void

@@ -10,6 +10,7 @@ post9pservice(int fd, char *name)
 
 	if((ns = getns()) == nil)
 		return -1;
+
 	s = smprint("unix!%s/%s", ns, name);
 	free(ns);
 	if(s == nil)
@@ -27,6 +28,8 @@ post9pservice(int fd, char *name)
 		_exits("exec");
 	default:
 		w = wait();
+		if(w == nil)
+			return -1;
 		close(fd);
 		free(s);
 		if(w->msg && w->msg[0]){
