@@ -39,6 +39,7 @@ extern	void	reverse(void);
 extern	void	skip(void);
 extern	void	suffix(char*);
 extern	long	tread(char*, long);
+#define trunc tailtrunc
 extern	void	trunc(Dir*, Dir**);
 extern	long	tseek(long, int);
 extern	void	twrite(char*, long);

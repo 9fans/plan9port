@@ -149,6 +149,7 @@ int	subt(void);
 int	command(void);
 int	cond(char c);
 void	load(void);
+#define log2 dclog2
 int	log2(long n);
 Blk*	salloc(int size);
 Blk*	morehd(void);
