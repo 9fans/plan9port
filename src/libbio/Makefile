@@ -22,7 +22,7 @@ OFILES=\
 	bputrune.$O\
 
 HFILES=\
-	bio.h\
+	$(9SRC)/include/bio.h\
 
 include $(9SRC)/Makesyslib
 
