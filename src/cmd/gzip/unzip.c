@@ -331,6 +331,32 @@ sunzip(Biobuf *bin)
 	}
 }
 
+static int
+makedir(char *s)
+{
+	int f;
+
+	if (access(s, AEXIST) == 0)
+		return -1;
+	f = create(s, OREAD, DMDIR | 0777);
+	if (f >= 0)
+		close(f);
+	return f;
+}
+
+static void
+mkpdirs(char *s)
+{
+	int done = 0;
+	char *p = s;
+
+	while (!done && (p = strchr(p + 1, '/')) != nil) {
+		*p = '\0';
+		done = (access(s, AEXIST) < 0 && makedir(s) < 0);
+		*p = '/';
+	}
+}
+
 /*
  * extracts a single entry from a zip file
  * czh is the optional corresponding central directory entry
@@ -380,6 +406,10 @@ unzipEntry(Biobuf *bin, ZipHead *czh)
 		}else if(isdir){
 			fd = create(zh.file, OREAD, DMDIR | 0775);
 			if(fd < 0){
+				mkpdirs(zh.file);
+				fd = create(zh.file, OREAD, DMDIR | 0775);
+			}
+			if(fd < 0){
 				d = dirstat(zh.file);
 				if(d == nil || (d->mode & DMDIR) != DMDIR){
 					fprint(2, "unzip: can't create directory %s: %r\n", zh.file);
@@ -389,6 +419,10 @@ unzipEntry(Biobuf *bin, ZipHead *czh)
 			}
 		}else if(ok){
 			fd = create(zh.file, OWRITE, 0664);
+			if(fd < 0){
+				mkpdirs(zh.file);
+				fd = create(zh.file, OWRITE, 0664);
+			}
 			if(fd < 0){
 				fprint(2, "unzip: can't create %s: %r\n", zh.file);
 				ok = 0;
