@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# run B but then wait for the file to change.
+# great to set as $EDITOR.
+# the notion of a file changing is a little weak.
+
+stat=`ls -l $1`
+B "$@"
+while true
+do
+	nstat=`ls -l $1`
+	if [ "$stat" eq "$nstat" ]
+	then
+		exit
+	fi
+done
+
