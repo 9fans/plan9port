@@ -1,0 +1,136 @@
+9c -c -DUNICODE -DFONTDIR="sys/lib/troff/font" -DNTERMDIR="sys/lib/troff/term/tab." -DTEXHYPHENS="#9/sys/lib/texmf/tex/generic/hyphen/hyphen.tex" -DALTHYPHENS="sys/lib/texmf/tex/generic/hyphen/hyphen.tex" -DDWBHOME="#9/" n1.c
+n1.c:51: warning: return type defaults to `int'
+n1.c: In function `getch0':
+n1.c:676: warning: unused variable `j'
+n1.c:719: warning: label `g2' defined but not used
+n1.c: In function `get1ch':
+n1.c:745: warning: `n' might be used uninitialized in this function
+n1.c:745: warning: `c' might be used uninitialized in this function
+n1.c: In function `nextfile':
+n1.c:830: warning: implicit declaration of function `unsharp'
+n1.c:830: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+n1.c: At top level:
+n1.c:842: warning: return type defaults to `int'
+n1.c:875: warning: return type defaults to `int'
+n1.c:915: warning: return type defaults to `int'
+n1.c: In function `getname':
+n1.c:917: warning: unused variable `i'
+n1.c: In function `caseso':
+n1.c:939: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+n1.c:935: warning: unused variable `p'
+n1.c:935: warning: unused variable `q'
+n1.c:934: warning: `fp' might be used uninitialized in this function
+n1.c: In function `casecf':
+n1.c:1008: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+9c -c -DUNICODE n2.c
+n2.c: In function `outascii':
+n2.c:140: warning: unused variable `p'
+9c -c -DUNICODE n3.c
+n3.c: In function `grow':
+n3.c:67: warning: unused variable `new'
+n3.c: In function `finds':
+n3.c:310: warning: unused variable `j'
+n3.c: In function `copyb':
+n3.c:372: warning: `savoff' might be used uninitialized in this function
+9c -c -DUNICODE n4.c
+n4.c: In function `setn':
+n4.c:144: warning: int format, long unsigned int arg (arg 3)
+9c -c -DUNICODE n5.c
+n5.c:83: warning: return type defaults to `int'
+n5.c: In function `chget':
+n5.c:84: warning: `i' might be used uninitialized in this function
+n5.c: At top level:
+n5.c:147: warning: return type defaults to `int'
+n5.c:338: warning: return type defaults to `int'
+n5.c: In function `casefm':
+n5.c:411: warning: implicit declaration of function `unsharp'
+n5.c:411: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+n5.c: At top level:
+n5.c:747: warning: return type defaults to `int'
+n5.c:835: warning: return type defaults to `int'
+9c -c -DUNICODE t6.c
+t6.c:18: warning: return type defaults to `int'
+t6.c:79: warning: return type defaults to `int'
+t6.c:112: warning: return type defaults to `int'
+t6.c: In function `t_setch':
+t6.c:217: warning: unused variable `j'
+t6.c: At top level:
+t6.c:288: warning: return type defaults to `int'
+t6.c:367: warning: return type defaults to `int'
+t6.c: In function `t_setps':
+t6.c:397: warning: `j' might be used uninitialized in this function
+t6.c: At top level:
+t6.c:707: warning: return type defaults to `int'
+t6.c: In function `setfp':
+t6.c:708: warning: unused variable `sl'
+t6.c: In function `casebd':
+t6.c:781: warning: `j' might be used uninitialized in this function
+9c -c -DUNICODE n6.c
+n6.c:11: warning: return type defaults to `int'
+n6.c: In function `n_casebd':
+n6.c:295: warning: `j' might be used uninitialized in this function
+9c -c -DUNICODE n7.c
+n7.c: In function `newline':
+n7.c:354: warning: `nlss' might be used uninitialized in this function
+n7.c: At top level:
+n7.c:450: warning: return type defaults to `int'
+n7.c:482: warning: return type defaults to `int'
+n7.c:509: warning: return type defaults to `int'
+n7.c:544: warning: return type defaults to `int'
+n7.c:653: warning: return type defaults to `int'
+n7.c: In function `getword':
+n7.c:654: warning: `j' might be used uninitialized in this function
+9c -c -DUNICODE -DTEXHYPHENS="#9/sys/lib/texmf/tex/generic/hyphen/hyphen.tex" n8.c
+n8.c:76: warning: return type defaults to `int'
+n8.c:87: warning: return type defaults to `int'
+n8.c:222: warning: return type defaults to `int'
+n8.c:274: warning: return type defaults to `int'
+n8.c:282: warning: return type defaults to `int'
+n8.c: In function `digram':
+n8.c:310: warning: `maxw' might be used uninitialized in this function
+n8.c: At top level:
+n8.c:346: warning: return type defaults to `int'
+n8.c: In function `readpats':
+n8.c:469: warning: implicit declaration of function `unsharp'
+n8.c:469: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+n8.c:470: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+9c -c -DUNICODE n9.c
+n9.c:80: warning: return type defaults to `int'
+n9.c: In function `setfield':
+n9.c:340: warning: `rchar' might be used uninitialized in this function
+9c -c -DUNICODE -DTDEVNAME="utf" t10.c
+t10.c: In function `ptout0':
+t10.c:179: warning: int format, long int arg (arg 3)
+t10.c:183: warning: int format, long unsigned int arg (arg 3)
+t10.c:303: warning: int format, long int arg (arg 3)
+t10.c:157: warning: `w' might be used uninitialized in this function
+9c -c -DUNICODE -DTDEVNAME="utf" n10.c
+n10.c: In function `getnrfont':
+n10.c:77: warning: unused variable `fin'
+n10.c:81: warning: unused variable `cmd'
+n10.c:80: warning: `code' might be used uninitialized in this function
+n10.c: In function `n_ptinit':
+n10.c:189: warning: implicit declaration of function `unsharp'
+n10.c:189: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+n10.c:142: warning: unused variable `cp'
+9c -c -DUNICODE t11.c
+t11.c:21: warning: return type defaults to `int'
+t11.c: In function `getdesc':
+t11.c:26: warning: implicit declaration of function `unsharp'
+t11.c:26: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+t11.c: In function `checkfont':
+t11.c:67: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+t11.c: At top level:
+t11.c:89: warning: return type defaults to `int'
+t11.c: In function `getfont':
+t11.c:100: warning: passing arg 1 of `fopen' makes pointer from integer without a cast
+t11.c:94: warning: `nw' might be used uninitialized in this function
+t11.c:94: warning: `code' might be used uninitialized in this function
+t11.c: At top level:
+t11.c:193: warning: return type defaults to `int'
+t11.c:235: warning: return type defaults to `int'
+9c -c -DUNICODE -DTMACDIR="sys/lib/tmac/tmac." ni.c
+9c -c -DUNICODE hytab.c
+9c -c -DUNICODE suftab.c
+9c -c -DUNICODE -DDWBHOME="#9/" dwbinit.c
+9l -o o.troff n1.o n2.o n3.o n4.o n5.o t6.o n6.o n7.o n8.o n9.o t10.o n10.o t11.o ni.o hytab.o suftab.o dwbinit.o /usr/local/plan9/lib/libbio.a /usr/local/plan9/lib/lib9.a 

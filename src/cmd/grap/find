@@ -1,0 +1,1 @@
+exec /usr/bin/egrep -n "$1" *.[chyl]

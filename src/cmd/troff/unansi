@@ -1,0 +1,49 @@
+# The awk program cvt will convert the relatively sterotyped ansi c
+# in this troff distribution into older-style c, by munging function
+# declarations.
+
+# You will also have to edit fns.h, by
+#	sed 's/(.*)/()/g' fns.h >foo; mv foo fns.h
+# check this before doing the move!
+
+# you will also have to make some editing changes in
+# tdef.h in the Contab structure: s/(void)/()/
+# you may have to fix up some function declarations
+# in n4.c, the ones with (*f)(Tchar).
+
+# you will surely also have header files to deal with.
+
+# the most obvious cases are dealt with by the following
+# commands.  make sure you do this stuff on a copy!
+
+# function prototypes in n8.c probably belong in fns.h. readpats(void) must
+# be readpats() before cvt runs.
+
+sed \
+	-e 's/(void)/()/' \
+	-e 's/(Tchar[^)]*);/();/' \
+	-e 's/(char[^)]*);/();/' \
+	-e 's/(int[^)]*);/();/' \
+n8.c >foo
+mv foo n8.c
+
+for i in *.c
+do
+	cvt $i >foo
+	mv foo $i
+done
+
+sed 's/(.*)/()/g' fns.h >foo
+mv foo fns.h
+
+sed -e 's/(void)/()/g' -e '/stdlib/d' tdef.h >foo
+mv foo tdef.h
+
+# Compliers may not approve of void *setbrk() in fns.h and n3.c.
+
+sed 's/^void\*[ 	]setbrk/char*	setbrk/' fns.h >foo
+mv foo fns.h
+
+sed 's/^void \*setbrk/char *setbrk/' n3.c >foo
+mv foo n3.c
+

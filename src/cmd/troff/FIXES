@@ -1,0 +1,821 @@
+March 11, 1994
+
+	If we are just plain old nroff (and not doing UNICODE) we should
+	only Lookup characters, not Install when we don't know them.
+	If we are troff, we Install them anyway
+
+March 8, 1994
+
+	Nroff had problems with parsing quoted white space as options or
+	character code in some terminals tables. Changed by having scanf
+	include white space when necessary as suggested by Rich.
+
+March 1, 1994
+
+	Made sanity check for terminal type depending on the trace level;
+	trace level set with -tn flag at start up
+
+22 Feb, 1994
+
+	More pointer shuffling fixes.
+
+18 Feb, 1994
+
+	More disabling of multibyte stuff. Fixed bug in n5.c: casetm didn'
+	know about the new format in the fontables.
+
+Feb 17, 1994
+
+	Removed extra include <setlocale> from n1.c
+
+	Fixed dubious pointer shuffling in n7.c, t10.c & n8.c. Thanks Rich!
+
+Feb 10, 1994
+
+	Disabled the multybyte stuff; only plan 9 will get it.
+
+Jan 24, 1994
+
+	Fixed nasty bug discovered by td, which caused core dumps on
+	\D'l-0.002775i 0i' and apparently all numbers closer to 0
+	than -.002775. Fixed in storeline() and storeword() (n7.c).
+
+Dec 16, 1993
+
+	nroff & troff -N were looking for the TYPESETTER variable, causing
+
+	troff: cannot open /sys/lib/troff/term/tab.202; line 1, file stdin
+
+	fixed my moving getenv("TYPESETTER") to t10.c in t_ptinit(void).
+
+Dec 3, 1993:
+
+	The sequence \s+2\H'+10' came sometimes out in the wrong order
+	(x H before s), so there wasn't a difference bewteen \s+2\H'+10'
+	and \H'+10'\s+2. Now the fonts bits of the CHARHT are used to
+	register the current pontsize, so we can issue a s10 in t10.c
+	if needed. A bit sneaky.
+
+	Try to prevent double slashes in path names. Especially under
+	plan9 things started to look ugly.
+
+	Exception word list now grows dynamic.
+
+Nov 30, 1993:
+
+	Allow multiple calls to .pi, requested by Rob.
+		.pi cat
+		.pi dogs
+	is now equivalent with
+		.pi cat | dogs
+
+
+	.ab now takes also optional error code:
+		.ab [n] [string]
+	If n and string, n is exit code, string is message
+	If n, n is exit code, ``User Abort, exit code n" is message
+	If !n and string, standard exit code, string is message
+	If !n and ! string, standard exit code, "User Abort" is message
+
+Nov 24, 1993:
+
+	Reordered code to keep the UNASNI scripts happy.
+
+	Nroff dumped core reading terminal tables: apparenty under plan 9,
+	scanf includes the '\n'; added test for '\0' in parse in n10.c.
+
+	Relative tab settings (.ta +1C +2C) didn't work; anding the
+	previous value with TABMASK fixes this (caseta).
+
+Nov 23, 1993:
+
+	Included code, originally done by bwk for plan 9, to handle
+	multi-byte characters.
+
+Nov 3, 1993:
+
+	``pair internal'' two char names by shifting 16 bits. Will allow
+	the use of 16 bit characters sets (Unicode in plan9 etc.) for
+	macro's etc.
+
+Oct 20, 1993:
+
+	Word & line buffers are now dynamic: No more word or line overflow
+	unless when we run out of memory.
+
+Oct 11, 1993:
+
+	lost diversion warning pops up regularly with man macro's. Due
+	to a possible macro coding problem. Triggered by something like
+	troff -man:
+		.TP
+		.TP
+		foo
+		.ex
+    	Minimal code:
+		.di aa
+		throw away this diversion (aa) while being defined.
+		.rm aa
+		.br
+		.di
+
+	Fixed by disallowing .rm to throw away current diversion. The
+	rn request will complain with:
+
+		cannot remove diversion aa during definition; etc.
+
+Sep 29, 1993:
+
+	Some long standing fixes which never went back in the source.
+	Thanks to Janet & Rich.
+
+Sep 28, 1993:
+
+	Changed getach() (n1.c), so it does't consider truncated
+	special characters as (8-bit) ascii.  STX ETX ENQ ACK and BELL
+	are still allowed for the ultimate backwards compatibility.
+
+	Some code changes, so real ANSI compilers like the SGI version
+	(acc from Sun is a poor excuse for an ANSI compiler) don't
+	barf.  Some compromises (static Tchar wbuf in n9.c) allowed so
+	the unansified stuff for non-ansi compilers (cc on Sun's) will
+	work as well.
+
+Sep 9, 1993:
+
+	Be nice to Gerard. Now also word spaces in .tl and after
+	tabs/fleids etc.
+
+Aug 12, 1993:
+
+	Tabs setting can now be humongous. We also allow 99 tabs to
+	accomodate tbl. As a side effect, NTM buffers are now 1K
+
+Aug 11, 1993:
+
+	.R register, now contains maximum number of addessable
+	registers minus the number actually used.
+
+	Small esthetic changes in error messages; removed a statement
+	which wasn't reached anyway.
+
+Aug 10, 1993:
+
+	Some more speed hacks: be smarter doing the linear table
+	lookups in alloc() and finds().
+
+	The real name of the det diversion size macro is now gd.
+
+Aug 9, 1993:
+
+	A much faster way to find the end of a string/macro, by
+	remembering that when defined.
+
+Aug 6, 1993:
+
+	 Slightly more eficient way of skipping to the end of a
+	 string/macro
+
+Aug 5, 1993:
+
+	Prevent character sign extension for 8-bit charnames diversions
+	etc. by unpair
+
+Aug 4, 1993:
+
+	Growing the dynamical macro/strings name space and registers
+	space (See the experiment of 21 July) now with bigger
+	increments. Casts added to satisfy non-ANSI compilers.
+
+Aug 3, 1993:
+
+	Should check return value in alloc (n3.c), to prevent core dump
+	when memory gets tight.
+
+July 28, 1993:
+
+	New request: .sg <div> sets the dn and dl registers to the size
+	of the diversion named in the argument. Doesn't do anything
+	when the named diversion doesn't exist. The name sg is
+	temporary until we find a better one.
+
+July 21, 1993:
+
+	Experiment: Macro space  & registers name allocated
+	dynamically. Note that current reallocation occurs in
+	increments of 1, to force the code to be executed a lot; a kind
+	of stress testing. Also, eight bit characters allowed in
+	macro/string names.
+
+July 21, 1993:
+
+	Turn on the escape mode if the end macro is called.
+
+July 20, 1993:
+
+	Tracing mode now default off
+
+	Don't print s stackdump either when a file specfied on the
+	command line argument cannot be opened
+
+July 15, 1993:
+
+	Don't print useless line & current file informations when a
+	file specfied on the command line argument cannot be opened.
+
+	Sun ansi compiler doesn't default adhere to standards. Undid
+	the kludge in tdef.h
+
+July 14, 1993:
+
+	Coding error made the tab type R not function properly
+
+July 12, 1993:
+
+	Fixed a typo in the version stuff, noticed by Rich
+
+July 9, 1993:
+
+	Added the dwb home configuration stuff, thanks RIch. Also,
+	NCHARS is big enough. Added a fflush to casetm, so .fm <file>
+	will be up to date.
+
+June 25, 1993 (Rich):
+
+    -t option
+
+	reinstated for the sake of compatibility. Some old
+	shells scripts and man(1) from SunOs want this, sigh
+
+    Compiler and system dependencies
+
+	Some systems pull in sys/types.h via #include <time.h> and then
+	the compiler complains about two ushort typedefs. Therefore,
+	ushort is now Ushort (and uchar Uchar).
+
+	The SVID specifies a strdup, POSIX doesn't, anyway, troff
+	provides its own version, slightly different then the standard
+	one. A To prevent name clashes with that definion, renamed to
+	strdupl.
+
+June 24, 1993 (Rich):
+
+	-V option added for DWB3.4 (rich)
+
+May 18, 1993:
+
+    Trivial fix (.cf) request for troff -a 
+
+	issuing
+
+		.cf /dev/null
+
+	with troff -a gives some spurious output:
+
+		H720
+		H720
+		s10
+		f1
+
+	fixed  by checking for ascii mode it ptesc(), ptps() and
+	ptfont() in t10.c
+
+
+    Enhancement
+
+	Added a .tm request to roff. Works just like .tm, but now
+	it will do it to file. The name is coined by Carmela. Great
+	for creating indeces & toc's (we hope).
+
+May 18 1993:
+
+    Compatibilty change
+
+	Somebody complained that his favorite macro didn't work:
+	it had a BELL (^G) in the name.  This was a non-documented
+	feature of earlier versions of troff (although the
+	documentation actually doesn't say that you can. (They can
+	only be used for delimiters or with the tr request), so it
+	isn't that important).
+
+	But the sake of eternal backward compatibilaty I allowed
+	some control characters like, STX, ACK,  etc. also be part
+	of a macro/string name.
+
+	While at it, I made it also possible to have eight bit
+	characters be part of the name. It might be that this screws
+	up the way users think about these things. For UNICODE
+	versions, they probably want to do that as well, and that
+	won't work as easy, (because these characters are 16-bits
+	wide), so it is dubious whether we actually want this.
+
+	BTW. Now
+
+		.de \(ts\ts
+		.tm terminal sigma macro
+		..
+		.\(ts\(ts
+
+	also works, as long the internal cookie for ts isn't more then
+	eight bits.
+
+May 12, 1993:
+
+    Syntax change
+
+	Some requests accept tabs as a separator, some don't and
+	this can be a nuisance.  Now a tab is also recognized as
+	an argument separator for requests, this makes
+
+		.so	/dev/null
+
+	works.
+
+	To be more precise, any motion character is allowed, so
+
+		.so\h'5i'/dev/null
+
+	will work as well, if one really wants that.
+
+	It will be a problem for users who really relied on this as in
+
+		.ds x	string
+	
+	and expect the tab to become part of the string a, but I haven't
+	seen any use of that (obscure trick).
+
+May 6, 1993:
+
+    Eileen count fixed
+
+	Troff sometimes went in a loop, and exited with: ``job
+	looping; check abuse of macros'' (also known as the Eileen's
+	loop). It can be forced with the next trivial programme:
+
+		.de ff
+		.di xx
+		..
+		.wh -1 ff
+		.bp
+
+	Basically what happens is that a page transition now will
+	happen in a diversion, which doesn't make sense. Wat really
+	happens is that eject() (in n7.c) doesn't eject the frame
+	because we are in a diversion.  This cause the loop in n1.c
+	(because now always stack->pname <= ejl). Adding check on
+	whether we are not in a diversion takes care of the problem.
+
+March 30, 1993:
+
+    Need request, .ne
+
+	When there is a begin of page trap set, and the first thing
+	in the file is a .ne request, the trap gets fired, but,
+	the x font R etc. cookies doen't come out, because the
+	troff thinks that the first page pseudo transition already
+	took place.  Fixed by forcing the start of the first page
+	in the casene request with the same code as in casetl (which
+	caused a similar problem quite some time ago).
+
+    Change to .cf request ``Here document''
+
+	If the argument of .cf starts with a <<, the rest of it is taken
+	as an EOF token. It will reat the rest of the input until it hits
+	the EOF token and copies it to the output. This is similar as
+	the shell's ``here document'' mechanisme and put in place to
+	improve the kludgy way picasso, picpack etc. now include
+	postscript.
+
+    Using troff -TLatin1 (DWB version) and \N'...' caused core dump
+
+	In t11, in chadd, it should test on NCHARS - ALPHABET to see
+	whether we run out of table space (and we probably should beaf
+	up NCHARS for the DWB version).
+
+March 16, 1993:
+
+    Diversion rename bug fix
+
+	It is possible to get troff in an infinite loop by renaming a
+	diversion in progress, and calling it later with the
+	new name (as in .di xx, .rn xx yy, .yy). The effect depends on
+	whether troff already put stuff in the diversion or not.
+
+	Fix by having .rn also rename the current diversion (if
+	there is any and when appropriate).  If the diversion calls
+	itself by the new name and given the fix made on 11 nov
+	1992, this will now result in an error.  (BTW, the fix from
+	11 nov is improved: diversions nest, so we have to account
+	for that).
+
+December 18, 1992:
+	Some people have complete novels as comments, so we need
+	to skip comments while checking the legality of font files.
+	thaks Rixh
+
+December 16, 1992
+
+	Some people rely on the order that -r arguments are given,
+	so that troff -rC1 -rC3 ends up setting register C to 3.
+	Because cpushback() pushes things in a LIFO order back, we
+	have to do the same to get -r args in a FIFO order.
+
+Nov 17, 1992:
+
+	Giving a -rL8 option cuased the string .nr L 8 to be printed
+	on the output, using the wonderful 3b2. Some garbage was
+	left in buf[100] in main(). Fixed by setting buf[0] explicitly
+	to 0 (because some C-compilers complain about ``no automatic
+	aggregate initialization'').
+
+Nov 11, 1992:
+
+    Diversion bug fix
+
+	If a diversion was being read and the input is faulty so
+	the diversion was reading in itself, it caused troff to
+	loop undefinitely. This was easily fixed by a test in
+	control(a,b) in n1.c.
+
+	Something similar things might happen with macros causing
+	the ``eileenct problem'', but I didn't look for that. We
+	have to wait until it happens.
+
+Oct 26, 1992:
+
+    Numeric arguments:
+
+	Illegal argments are treated as missing arguments. This
+	changed the semantics of .ll, .ls, .in, .lg,  .ul, .cu .lt
+	(which acted as if the argument was 0) and .ps which was
+	simply ignored with an illegal argument.
+
+	Tidied up number parsing in atoi1(). This prevents arguments
+	like .x or 1.2.3.4 being interpret as a legal number (nonumb = 0)
+
+    Numeric arguments error reporting:
+
+	Controlled by .pt, illegal numbers are now reported (default
+	trace mode is 1).  This is also true for the escapes:
+	\h'..', \v'..' \H'..', \S'..', \N'..', \D'..', \l'.., \L'..
+	and \x'..'.
+
+	\D'c' is the only drawing request which doesn't take a pair
+	of numbers as arguments, so a special case is put here in
+	setdraw() (This code actually could use an overhaul to get
+	better parsing. As long as the \D'..' cookies are machine
+	generated it is low on the priority list).
+
+	Don't generate an error if the illegal argument to a request
+	is a \}. It is too painful to do right (although it can be
+	done, but it would clutter getch() and getcho() even more).
+
+    Input line numbers (.c register) bug fixes:
+
+	In not taken branches of .if or .ie, the input line #
+	(numtab[CD].val) should be raised when necessary (in eatblk()).
+
+	For concealed newlines, we still should count the line for input.
+
+	Setfield (n9.c) sometimes pushes the rest of the line back to
+	the input (including \n), without adjusting numtab[CD].val
+
+	Because .c (and so numtab[CD].val) is the number of lines read
+	and the error might actually happen in the current line
+	(before seeing the '\n), we need to apply correction in
+	errprint when nlflg set. (This correction needs to be undone
+	when inside a macro because the nlflg is set by reading the
+	args to the macro).
+
+    Line number setting (.lf) request bug fixes:
+
+	I interpret that the .c register will contain the number of
+	read lines, not including the current one.
+
+	Also, don't change the input line number when the first
+	argument of .lf is not a number.
+
+	As a net effect, the next input
+
+		.EQ
+		.EN
+		.ab
+
+	will generate the same output whether eqn has been used or not.
+
+    If request bug fix:
+
+	A ``.if page .tm foo'' caused the next line being ignored;
+	This bcause when the 2nd delimiter of a string couldn't be
+	found in cmpstr, the next line was always eaten. Solution:
+	in caseif1, if the condition is false, we should check
+	nlflg before eating a block.  (Note: We might have eaten
+	\{\ as well.  We could disallow the \{\ in a string to be
+	compared to prevent that but that might break other things).
+
+    Enhancement to .pt:
+
+	The .pt now pops the previous values when no argument is
+	specified. Turned out to be handy when chasing for problems.
+	Just ``bracked'' the code with .pt 7 and .pt and you get
+	a trace of only that block. The meaning of the arguments
+	is now:
+		01      trace numeric arguments (default on)
+		02	trace requests
+		04	trace macros
+
+    Abort request (.ab) beautification:
+
+	Don't print the extra carriage return when .ab is called
+	without an argument.
+
+Oct 12, 1992:
+
+	(Comments & spelling errors from this day on by jaap)
+
+	replaced 32767 by INT_MAX in several places to allow for very
+	long pages (on 32-but machines).
+
+	The ``.fp 1 R   \"COMMENT'' complains about ``./troff: Can't
+	open font file /usr/lib/font/devpost/h'' on some systems. It
+	sees the tab as part of the optional font file.  Apparently it
+	is system dependent whether isgraph() includes the tab
+	character.  Fixed by using getach() in getname() in n1.c
+	instead.
+
+Aug 28, 1992:
+	removed call to popi from rdtty();  it was eating up the
+	rest of the macro if it was used from within one.  (thanks, jaap)
+
+
+Jul 21, 1992:
+	added extra test in nextfile() to pop current input file
+	only if not in .nx command.  thanks to jaap.
+
+	added test in getword() to avoid hyphenating after \z character,
+	which prevents any hyphenation inside \X'...'.  thanks to jaap.
+
+	added, then removed, code in getword() to prevent hyphenating
+	anything shorter than 6 characters.  looks like it changed a
+	lot more than i thought.
+
+Jul 12, 1992:
+	added .pt request to trace macros and requests (from jaap).
+	.pt N Print trace of macros (N=1), requests (N=2) or both (N=3)
+
+Jun 5, 1992:
+	added tests to t.twrest and t.twinit to avoid 0 deref in
+	n2 and n10, for nroff -t xxxxx.  thanks to Rich Drechsler.
+
+May 22, 1992:
+	added extern decls to e.g., void Tchar (*hmot)(void) in tdef.h
+	and added definition to ni.c, so pointers are defined explicitly.
+	makes it work on turbo c++ and probably others.
+
+	changed a couple of isdigit's and isgraph(getch()) to avoid
+	multiple evaluation (even though it shouldn't happen).
+
+	Made /usr/bin/nroff a shell script.
+
+May 12, 1992:
+	n1.c: need p++ after strrchr to skip / in program name.
+	thanks to Rich Drechsler.
+
+Apr 17, 1992:
+	casefi(), n5.c: .u register should be 0 or 1, not incremented
+	with each .fi.
+
+Apr 5, 1992:
+	fiddled n7.c and added _nmwid to the environment, to add a
+	5th argument to .nm:  the maximum number of digits in any
+	line number.  default is 3, which was previously hardwired in.
+
+	added jaap's code for yet another register which actually delivers
+	a string, called .S (so it can easily go in the switch in setn()
+	in n4.c); it delivers the current tabstop and alignment modes in
+	a format suitable for a subsequent .ta \n(.S command:
+		.ds T \n(.S
+		...
+		.ta \*T
+
+Mar 30, 1992:
+	added test in getword to avoid hyphenating things with motions
+	(and avoid a core dump sometimes too).
+
+Mar 13, 1992:
+	\n(sb initialized wrong in setwd().
+
+	TYPESETTER=foo troff -Tpost used foo instead of post.
+
+Mar 12, 1992:
+	rearranged tests in popf so that .so is closed properly before
+	moving on to the next macro package.
+
+Mar 1, 1992:
+	input mechanism rearranged to use getc() instead of stack of
+	explicit input buffers.  5-10% slowdown.
+
+Jan 28, 1992:
+	fixed .tm \(mi to print something sensible.  thanks to jaap.
+
+Jan 2, 1992:
+	fiddle setfp so doesn't put out font stuff if -a turned on.
+
+Dec 17, 1991:
+	copy 3rd argument in .fp commands to x font ... lines when it contains
+	a /, for testing fonts locally.
+
+Dec 13, 1991:
+	parameterize the font directories, etc., so can be set in makefiles.
+	added -N argument to run as nroff.
+
+Nov 8, 1991:
+	add a maplow(towlower...) in n8.c to handle brain-damaged libraries.
+
+Nov 2, 1991:
+	merged nroff into troff, based on Ken's plan 9 version.
+	merged nii.c into ni.c, removed tw.h, etc.  more work needed
+	to make this stuff cleaner.
+
+July 27, 1991:
+	added test in setn in n4 to fix bug that permitted things like
+	\n (ab to work "properly".  thanks to jaap for finding and fixing.
+
+	added paranoid testing in t11 to make sure font files look ok.
+
+May 13, 1991:
+	moved evaluation of \(xx from copy mode to non-copy mode, so that
+	weird character names wouldn't get reevaluated in argument parsing.
+	installed july 27.
+
+May 6, 1991:
+	increased size of hyphenation exception buffer to 512 from 128
+
+Apr 14, 1991:
+	added an extra redundant call of ptfont in setfp, since it appears
+	that some versions of adobe transcript assume that an "x font" command
+	means to change the actual font as well.  the fix preserves the current font.
+	thanks to david brailsford and friends for spotting the problem.
+
+	fixed up tests in alpha() in n8 to defend isalpha() against too-big inputs.
+	punct() argument had wrong type too.  thanks to rich drexler and peter nelson.
+
+Mar 19, 1991:
+	fixed bug that prevented .rd from working with new corebuf organization.
+
+	fixed bug that caused .ig inside diversions to give bad storage
+	allocation.  thanks to arthur david olson, whose fix was on netnews
+	3 years earlier.
+
+Mar 5, 1991:
+	huge table sizes for kanji.
+
+Feb ??, 1991:
+	working on dealing with large alphabets, notably kanji.
+	added "defaultwidth" to font descriptions, for characters
+	not given an explicit width.
+
+Jan, 1991:
+	added tex hyphenation, using standard tex data files, but not the
+	elaborate compressed trie, which is a lot of trouble to save maybe
+	40k bytes.  this appears to run at exactly the same speed as before.
+
+	so far this stuff reads into a fixed size array; that should change.
+	it should also be possible to deal with multiple languages.
+
+	the command .ha sets the algorithm.  .ha 1 => tex, with troff rules
+	if tex doesn't hyphenate;  .ha 0 gives troff rules, and .ha resets
+	to the default, which is tex.  the hyphenation algorithm is part of
+	the environment, a nod to a future in which i handle more than one
+	language.
+
+	replaced the fixed size corebuf array for string/macro storage by
+	a dynamic structure that can grow.
+
+	this appears to slow things down by maybe 3%.  the code is about
+	the same complexity.
+
+Dec 27, 1990:
+	converted to ansi c, based on some work by ken thompson, but not
+	as thoroughly as he did.  there is a shell script unansi and an awk
+	program cvt that will help you step back in time if you do not have
+	an ansi c compiler.
+
+	moved the special-name characters up to 256 instead of 128, although
+	done in terms of ALPHABET, so one can pass 8 bit characters through.
+	removed lots of 0177's and similar numbers.  input is now not filtered,
+	and if a character with the 8th bit on comes in, it will go out again.
+
+	fixed t11.c to read character names in hex or octal as well as
+	single-character ascii.
+
+	unknown characters are now carried through with width = spacewidth.
+	needs a way to set widths.
+
+	removed all signal handling from troff.  you signal, you die.
+
+	added -d option to print version number.
+
+Dec 7, 1990:
+	.fp 3 V VERYLONGNAME used to truncate the name to 10 chars; fixed.
+
+	increased the limit on FBUFSZ for tables with very long fields.
+
+	changed atoi1() to use double to avoid intermediate overflow.
+
+	moved filenames like /usr/lib/font into tdef.h for easy change.
+	removed some dreggish definitions.
+
+	cleaned up non-portable error printing stuff;  fixed up some messages.
+
+Dec 12, 1989:
+	Removed the .! command, an undocumented synonym for .sy.
+
+Dec 4, 1989:
+	Another wart to the \X code, to try to preserve blanks in all situations.
+
+Nov 17, 1989:
+	A number of small changes preparatory to getting rid of nroff.
+	The argument -Tnroff or -Tnroff-12 changes some internal values
+	so that the predicate .if n is true and certain arithmetic operations
+	are done as if nroff.  This design is not yet final.
+
+Nov 7, 1989:
+	Fixed hyphenation for nov-ice, ad-vice, de-vice, ser-vice, *-vice.
+
+Oct 11, 1989:
+	It is now permitted to do an explicit change to font S.
+	It is not clear what will break (though nothing seems to have).
+
+Oct 10, 1989:
+	Modified flush code to always put out \nH instead of sometimes h.
+	This makes it easier to parse the output for positioning.
+
+Sep 9, 1989:
+	Fixed internal representation of \D'~...' so that it
+	is immune to .tr ~ and variations.  No external change.
+
+Aug 9, 1989:
+	Changed .tm so it outputs \e, \%, \-, \&, \(blank).
+	This might break indexing code.
+	Only in the new version, as are all subsequent fixes.
+
+July, 1989:
+	A major internal change:  font information is read in ascii
+	instead of the weird binary format of makedev (which is now dead).
+	character names need not all appear in DESC;  new names that
+	appear when a font is used become part of the set of known names.
+
+	There are some flaky bits here (it's conceivable that some \N
+	number will collide with a real name), and it's probably 10-15%
+	slower.  Tant pis.
+
+	As a by-product, nroff no longer compiles.  I'll probably get
+	back to this, but an alternative is to bag it once and for all.
+
+May 25, 1989:
+	Another bug in \l, this time when width is 0.  Not installed,
+	since it's in the new font version.
+
+Apr 23, 1989:
+	Fixed bug in n9 that caused core dump with unterminated
+	\l command, like \l'1.5i
+
+	ptflush no longer called when -a is on.
+
+Apr 12, 1989:
+	fixed bug in n2 that failed to suppress printing of \!
+	output when a -o was in effect.
+
+Apr 5, 1989:
+	.fl and \X now cause output of size, font, hpos and vpos.
+	this is necesary for postprocessors that intend to insert
+	independent material, such as postscript.
+
+Feb 1, 1989:
+	wait for .pi pipe to empty before exiting
+
+Oct 2, 1988:
+	default is now -Tpost
+
+Sep 19, 1988:
+	added abortive code to handle built-up characters by
+	passing something through as \D'b...'.  never used.
+
+Jul 4, 1988:
+	replaced the sbrk nonsense in n3.c by calls to malloc.
+
+	\N now tests against proper font size.
+
+	installed Jaap Akkerhuis's code (mutatis mutandis) for
+	permitting up to 99 fonts, swapping them into font pos 0
+	as needed.  fixes the long-standing problem of having
+	multiple font changes on a single output line.
+
+Jul 2, 1988:
+	\X now preserves spaces even when contents are diverted.
+
+	\N code safer -- NTRTAB and NWIDCACHE enlarged.
+
+Jul 14, 1987:
+	Fixed obscure bug causing incorrect indentation of .mc output.

@@ -1,0 +1,32 @@
+<$PLAN9/src/mkhdr
+
+TARG=tbl
+OFILES=\
+	t8.$O\
+	t4.$O\
+	t6.$O\
+	tu.$O\
+	t5.$O\
+	t7.$O\
+	tv.$O\
+	tg.$O\
+	t3.$O\
+	tb.$O\
+	tt.$O\
+	t9.$O\
+	t1.$O\
+	tf.$O\
+	tc.$O\
+	ti.$O\
+	tm.$O\
+	t0.$O\
+	tr.$O\
+	te.$O\
+	ts.$O\
+	t2.$O\
+
+HFILES=\
+	t.h\
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkone

@@ -1,0 +1,42 @@
+<$PLAN9/src/mkhdr
+
+TARG=eqn
+OFILES=main.$O\
+	tuning.$O\
+	diacrit.$O\
+	eqnbox.$O\
+	font.$O\
+	fromto.$O\
+	funny.$O\
+	glob.$O\
+	integral.$O\
+	input.$O\
+	lex.$O\
+	lookup.$O\
+	mark.$O\
+	matrix.$O\
+	move.$O\
+	over.$O\
+	paren.$O\
+	pile.$O\
+	shift.$O\
+	size.$O\
+	sqrt.$O\
+	text.$O\
+	eqn.$O\
+
+YFILES=eqn.y\
+
+HFILES=e.h\
+	y.tab.h\
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkone
+
+YFLAGS=-d -S
+
+eqn.c:	y.tab.c prevy.tab.h
+	mv y.tab.c $target
+
+prevy.tab.h:	y.tab.h
+	sh -c 'cmp -s y.tab.h prevy.tab.h || cp y.tab.h prevy.tab.h'

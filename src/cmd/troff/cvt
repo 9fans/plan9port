@@ -1,0 +1,45 @@
+
+awk '
+
+/^{/ {
+	if (prev != "") {
+		# comments can be trouble (e.g. ffree())
+		if ( (c = match(prev, /\/\*.*\*\/$/)) != 0 ) {
+			comment = substr(prev, c)
+			sub(/\/\*.*\*\/$/, "", prev)
+		} else comment = ""
+
+		x = prev
+
+		# isolate argument list
+		sub(/^[^(]*\(/, "", x)
+		sub(/\)[^)]*$/, "", x)
+
+		# find the names in it
+		n = split(x, args)
+		arglist = ""
+		for (i = 2; i <= n; i += 2)
+			arglist = arglist args[i]
+		gsub(/\(\*f\)\(Tchar\)/, "f", arglist)	# special case for n4.c
+		gsub(/\[[0-9]+\]/, "", arglist)		#     for n8.c
+		gsub(/[*()\[\]]/, "", arglist)		# discard noise characters *()[]
+		gsub(/,/, ", ", arglist)		# space nicely
+		sub(/\(.*\)/, "(" arglist ")", prev)	# reconstruct
+		print prev comment
+
+		# argument declarations
+		gsub(/,/, ";", x)
+		gsub(/\(\*f\)\(Tchar\)/, "(*f)()", x)	# special case for n4.c
+		if (x != "")
+			print "\t" x ";"
+	}
+	prev = $0
+	next
+}
+
+{	print prev
+	prev = $0
+}
+
+END { print prev }
+' $*

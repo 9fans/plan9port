@@ -1,0 +1,31 @@
+To make troff (actually a.out):
+
+	make
+
+You will also need to write a driver for your favorite output device.
+d202.c provides a model, although it is specialized to a machine no
+one has.  There are also a variety of postscript drivers that are the
+best thing to use if you have a postscript device.
+
+You will also have to make a DESC file for your typesetter and some
+font description files; see dev202 for examples.  These describe the
+named characters, widths, kerning information, and output codes.
+
+Nroff is the same program as troff, so you should
+
+	cp a.out /usr/bin/troff
+	ln /usr/bin/troff /usr/bin/nroff
+
+or the equivalent.
+
+You will also need terminal description files for your terminals; see
+tab.37, tab.450 and tab.lp for examples.
+
+Troff uses files that are normally stored in /usr/lib/font;
+macro packages are in /usr/lib/tmac; and nroff tables are in
+/usr/lib/term.  You can edit tdef.h to change these assumptions.
+
+There have been a few features since the last version, and a number of
+significant internal changes.  Not all are improvements, of course.
+Most of the more recent changes, including bug fixes, are in FIXES,
+which you should read also.
