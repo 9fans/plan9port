@@ -14,7 +14,7 @@
 #include	<draw.h>
 #include	<bio.h>
 #include	<fcall.h>
-#include	<fs.h>
+#include	<9pclient.h>
 #include	<thread.h>
 
 #define	WIDTH			80
@@ -90,13 +90,13 @@ threadmain(int argc, char *argv[])
 	}
 	columnate();
 	Bflush(&bout);
-	exits(0);
+	threadexitsall(0);
 }
 void
 error(char *s)
 {
 	fprint(2, "mc: %s\n", s);
-	exits(s);
+	threadexitsall(s);
 }
 void
 readbuf(int fd)
@@ -267,7 +267,7 @@ windowrect(struct winsize *ws)
 void
 getwidth(void)
 {
-	Fsys *fs;
+	CFsys *fs;
 	char buf[500], *p, *f[10];
 	int fd, n, nf;
 	struct winsize ws;
