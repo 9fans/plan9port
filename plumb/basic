@@ -1,0 +1,105 @@
+# these are generally in order from most specific to least,
+# since first rule that fires wins.
+
+include fileaddr
+
+# declarations of ports without rules
+plumb to seemail
+plumb to showmail
+
+# cheap http/gif,jpeg,ps,pdf renderer
+type is text
+data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+([:.][a-zA-Z0-9_?,%#~&/\-+=]+)*\.(jpe?g|JPE?G|gif|GIF|ps|PS|pdf|PDF)'
+plumb start rc -c 'hget '$0' | page -w'
+
+# doc and rtf files go to wdoc2txt
+type is text
+data matches '[a-zA-Z¡-￿0-9_\-./]+'
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(doc|rtf)'
+arg isfile	$0
+plumb to msword
+plumb start wdoc2txt $file
+
+# start rule for microsoft word documents without .doc suffix
+type is text
+dst is msword
+plumb to msword
+plumb start wdoc2txt $file
+
+# email addresses get a new mail window
+type is text
+data matches '[a-zA-Z0-9_+.\-]+@[a-zA-Z0-9_+.\-]*'
+plumb to sendmail
+plumb start window rc -c '''echo % mail '''$0'; mail '$0
+
+# image files go to page
+type is text
+data matches '[a-zA-Z¡-￿0-9_\-./]+'
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit)'
+arg isfile	$0
+plumb to image
+plumb client page -wi
+
+# postscript/pdf/dvi go to page but not over the a plumb port
+# the port is here for reference but is unused
+type is text
+data matches '[a-zA-Z¡-￿0-9_\-./]+'
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(ps|PS|eps|EPS|pdf|PDF|dvi|DVI)'
+arg isfile	$0
+plumb to postscript
+plumb start page -w $file
+
+# existing files, possibly tagged by line number, go to editor
+type is text
+data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])('$addr')?'
+arg isfile	$1
+data set	$file
+attr add	addr=$3
+plumb to edit
+plumb start /usr/local/plan9/bin/B $file
+#plumb client window $editor
+
+# .h files are looked up in /sys/include and passed to edit
+type is text
+data matches '([a-zA-Z¡-￿0-9]+\.h)('$addr')?'
+arg isfile	/sys/include/$1
+data set	$file
+attr add	addr=$3
+plumb to edit
+plumb client window $editor
+
+# .m files are looked up in /sys/module and passed to edit
+type is text
+data matches '([a-zA-Z¡-￿0-9]+\.m)('$addr')?'
+arg isfile	/sys/module/$1
+data set	$file
+attr add	addr=$3
+plumb to edit
+plumb client window $editor
+
+# faces -> new mail window for message
+type	is	text
+data	matches	'[a-zA-Z¡-￿0-9_\-./]+'
+data	matches	'/mail/fs/[a-zA-Z¡-￿0-9/]+/[0-9]+'
+plumb	to	showmail
+plumb	start	window -r 4 120 750 600 upas/nedmail -s $0
+
+# man index entries are synthesized
+type is text
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\(([1-8])\)'
+plumb start rc -c 'man '$2' '$1' >[2=1] | plumb -i -d edit -a ''action=showdata filename=/man/'$1'('$2')'''
+
+# start rule for images without known suffixes
+dst is image
+plumb to image
+plumb client page -wi
+
+# start rule for postscript without known suffixes
+dst is postscript
+arg isfile $data
+plumb start page -w $data
+
+type	is	text
+data	matches	'Local (.*)'
+plumb	to	none
+plumb	start	rc -c $1
