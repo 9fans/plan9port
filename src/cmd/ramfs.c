@@ -292,7 +292,7 @@ rattach(Fid *f)
 }
 
 char*
-clone(Fid *f, Fid **nf)
+xclone(Fid *f, Fid **nf)
 {
 	if(!f->busy)
 		return Ebadfid;
@@ -326,7 +326,7 @@ rwalk(Fid *f)
 	nf = nil;
 	rhdr.nwqid = 0;
 	if(thdr.newfid != thdr.fid){
-		err = clone(f, &nf);
+		err = xclone(f, &nf);
 		if(err)
 			return err;
 		f = nf;	/* walk the new fid */
