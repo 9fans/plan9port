@@ -240,7 +240,7 @@ yylex(void)
 					case '%':
 						lgate();
 						Bprint(&fout,"#define YYNEWLINE %d\n",'\n');
-						Bprint(&fout,"yylex(void){\nint nstr; extern int yyprevious;\n");
+						Bprint(&fout,"int\nyylex(void){\nint nstr; extern int yyprevious;\nif(yyprevious){}\n");
 						sectbegin = TRUE;
 						i = treesize*(sizeof(*name)+sizeof(*left)+
 							sizeof(*right)+sizeof(*nullstr)+sizeof(*parent))+ALITTLEEXTRA;

@@ -85,7 +85,7 @@ void
 phead2(void)
 {
 	Bprint(&fout,"while((nstr = yylook()) >= 0)\n");
-	Bprint(&fout,"yyfussy: switch(nstr){\n");
+	Bprint(&fout,"goto yyfussy;\nyyfussy: switch(nstr){\n");
 	Bprint(&fout,"case 0:\n");
 	Bprint(&fout,"if(yywrap()) return(0); break;\n");
 }

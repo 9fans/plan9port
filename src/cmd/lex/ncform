@@ -11,6 +11,7 @@ int yyprevious = YYNEWLINE;
 # ifdef LEXDEBUG
 extern void allprint(char);
 # endif
+int
 yylook(void){
 	struct yysvf *yystate, **lsp;
 	struct yywork *yyt;
@@ -158,6 +159,7 @@ yylook(void){
 		}
 	return(0);	/* shut up the compiler; i have no idea what should be returned */
 	}
+int
 yyback(int *p, int m)
 {
 if (p==0) return(0);
@@ -169,6 +171,7 @@ while (*p)
 return(0);
 }
 	/* the following are only used in the lex library */
+int
 yyinput(void){
 	if(yyin == ((void*)0))
 		yyin = stdin;
