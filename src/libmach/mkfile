@@ -41,6 +41,7 @@ OFILES=\
 	symelf.$O\
 	symmacho.$O\
 	symstabs.$O\
+	ureg386.$O\
 
 HFILES=mach.h
 
