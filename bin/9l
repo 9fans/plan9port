@@ -1,5 +1,115 @@
 #!/bin/sh
 
+libsl=""
+
+doautolib=1
+verbose=0
+
+if [ "x$1" = "x-l" ]
+then
+	shift
+	doautolib=0
+elif [ "x$1" = "x-v" ]
+then
+	shift
+	verbose=1
+fi
+
+if [ $doautolib = 1 ]
+then
+	ofiles=""
+	for i
+	do
+		case "$i" in
+		[^-]*.o)
+			ofiles="$ofiles $i"
+			;;
+		esac
+	done
+	
+	# echo "ofiles $ofiles"
+	autolibs=""
+	if [ "x$ofiles" != "x" ]
+	then
+		autolibs=`
+			nm $ofiles |
+			grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
+			sed 's/.* __p9l_autolib_//' |
+			sort -u
+		`
+	fi
+	# echo "autolibs $autolibs"
+	
+	libsl=""
+	special="mp draw 9pclient mux thread bio"	# order matters
+	for i in $special
+	do
+		eval "need$i=0"
+	done
+	
+	for i in $autolibs
+	do
+		case "$i" in
+		9pclient)
+			need9pclient=1
+			needmux=1
+			needthread=1
+			;;
+		bio)
+			needbio=1
+			;;
+		draw)
+			needdraw=1
+			;;
+		mp)
+			needmp=1
+			;;
+		mux)
+			needmux=1
+			needthread=1
+			;;
+		plumb)
+			need9pclient=1
+			needmux=1
+			needthread=1
+			libsl="$libsl -lplumb"
+			;;
+		sec)
+			needmp=1
+			libsl="$libsl -lsec"
+			;;
+		thread)
+			needthread=1
+			;;
+		venti)
+			libsl="$libsl -lventi"
+			needthread=1
+			;;
+		*)
+			libsl="$libsl -l$i"
+			;;
+		esac
+	done
+	
+	for i in $special
+	do
+		if eval "[ \$need$i = 1 ]"
+		then
+			libsl="$libsl -l$i"
+		fi
+	done
+	libsl="$libsl -l9"
+	
+	if [ $needdraw = 1 ]
+	then
+		if [ "x$X11" = "x" ]
+		then
+			X11=/usr/X11R6
+		fi
+		libsl="$libsl -L$X11/lib -lX11"
+	fi
+fi
+
 extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
@@ -36,4 +146,8 @@ case "$tag" in
 	exit 1
 esac
 
-exec $ld -L$PLAN9/lib "$@" $extralibs
+if [ $verbose = 1 ]
+then
+	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
+fi
+exec $ld -L$PLAN9/lib "$@" $libsl $extralibs

@@ -27,7 +27,7 @@ case "$tag" in
 		cflags="$ngflags -g3 -no-cpp-precomp" ;;
 *HP-UX*)	cc=cc; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc 
-		case "`uname -r`" in
+		case "${SYSVERSION:-`uname -r`}" in
 		2.6.*)
 			cflags="$cflags -D__Linux26__"
 			;;
@@ -53,12 +53,20 @@ case "$tag" in
 	exit 1
 esac
 
+# N.B. Must use temp file to avoid pipe; pipe loses status.
+xtmp=/tmp/9c.$$.$USER.out
+status=x
 case "$tag" in
 *SunOS*-cc)
-	exec $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>&1 | 
+	$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>&1 | 
 		/bin/sed 's/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' 1>&2
+	status=$?
 	;;
 *)
-	exec $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@"
+	$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@"
+	status=$?
 	;;
-esac
+esac >$xtmp 2>&1
+grep -v '__p9l_autolib_' $xtmp
+rm -f $xtmp
+exit $status
