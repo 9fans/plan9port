@@ -612,13 +612,13 @@ void
 domenu2(int but)
 {
 	if(scrolling)
-		menu2str[Scroll] = "☑ scroll";
+		menu2str[Scroll] = "+ scroll";
 	else
-		menu2str[Scroll] = "☐ scroll";
+		menu2str[Scroll] = "- scroll";
 	if(cooked)
-		menu2str[Cooked] = "☑ mustecho";
+		menu2str[Cooked] = "+ mustecho";
 	else
-		menu2str[Cooked] = "☐ mustecho";
+		menu2str[Cooked] = "- mustecho";
 
 	switch(menuhit(but, mc, &menu2, nil)){
 	case -1:
