@@ -21,7 +21,7 @@ static Rune r3[] = {'\'', '"', '`', 0};
 Rune *right[]= { r1, r2, r3, 0};
 
 #ifndef SAMTERMNAME
-#define SAMTERMNAME "/usr/local/plan9/bin/samterm"
+#define SAMTERMNAME "samterm"
 #endif
 #ifndef TMPDIRNAME
 #define TMPDIRNAME "/tmp"
@@ -36,7 +36,7 @@ Rune *right[]= { r1, r2, r3, 0};
 #define RXNAME "ssh"
 #endif
 #ifndef RXPATHNAME
-#define RXPATHNAME "/usr/local/bin/ssh"
+#define RXPATHNAME "ssh"
 #endif
 #ifndef SAMSAVECMDNAME
 #define SAMSAVECMDNAME "/bin/sh\n/usr/local/plan9/bin/samsave"
