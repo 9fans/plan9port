@@ -3,6 +3,7 @@
 LIB=libplumb.a
 OFILES=\
 	event.$O\
+	fid.$O\
 	mesg.$O\
 	thread.$O\
 
