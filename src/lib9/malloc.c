@@ -10,8 +10,6 @@
 void*
 p9malloc(ulong n)
 {
-	void *v;
-
 	if(n == 0)
 		n++;
 	return malloc(n);
