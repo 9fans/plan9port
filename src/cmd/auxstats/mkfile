@@ -1,0 +1,15 @@
+<$PLAN9/src/mkhdr
+
+TARG=auxstats
+
+OFILES=\
+	$SYSNAME.$O\
+	main.$O\
+
+HFILES=\
+	dat.h\
+
+SHORTLIB=bio 9
+
+<$PLAN9/src/mkone
+
