@@ -1,0 +1,285 @@
+.TH TBL 1
+.SH NAME
+tbl \- format tables for nroff or troff
+.SH SYNOPSIS
+.B tbl
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Tbl
+is a preprocessor for formatting tables for
+.I nroff
+or
+.IR troff (1).
+The input
+.I files
+are copied to the standard output,
+except for segments of the form
+.IP
+.nf
+.B .TS
+.IB options " ;
+.IB format " .
+.I data
+.B .T&
+.IB format " .
+.I data
+\&. . .
+.B .TE
+.fi
+.LP
+which describe tables
+and are replaced by
+.I troff 
+requests to lay out the tables.
+If no arguments are given,
+.I tbl
+reads the standard input.
+.PP
+The (optional)
+.I options
+line is terminated by a semicolon and contains one or more
+of
+.RS
+.TF linesize(n)
+.TP
+.B center
+center the table; default is left-adjust
+.TP
+.B expand
+make table as wide as current line length
+.TP
+.B box
+.TP
+.B doublebox
+enclose the table in a box or double box
+.TP
+.B allbox
+enclose every item in a box
+.TP
+.BI tab( x )
+use 
+.I x
+to separate input items; default is tab
+.TP
+.BI linesize( n )
+set rules in
+.IR n -point
+type
+.TP
+.BI delim( xy )
+recognize
+.I x
+and
+.I y
+as
+.IR eqn (1)
+delimiters
+.PD
+.RE
+.PP
+Each line, except the last, of the obligatory
+.I format
+describes one row of the table.
+The last line describes all rows until the next
+.BR .T& ,
+where the format changes,
+or the end of the table at
+.BR .TE .
+A format is specified by key letters, one per column, either upper or lower case:
+.RS
+.TP 0
+.B L
+Left justify: the default for
+columns without format keys.
+.PD0
+.TP
+.B R
+Right justify.
+.TP
+.B C
+Center.
+.TP
+.B N
+Numeric: align at decimal point (inferred for integers) or at
+.LR \e& .
+.TP
+.B S
+Span: extend previous column across this one.
+.TP
+.B A
+Alphabetic: left-aligned within column, widest item centered, indented relative to 
+.B L
+rows.
+.TP
+.B ^
+Vertical span: continue item from previous row into this row.
+.TP
+.B -
+Draw a horizontal rule in this column.
+.TP
+.B =
+Draw a double horizontal rule in this column.
+.PD
+.RE
+.PP
+Key letters may be followed by modifiers, also either case:
+.RS
+.TP \w'\fLF\fIfont\fLXX'u
+.B |
+Draw vertical rule between columns.
+.PD0
+.TP
+.B ||
+Draw a double vertical rule between columns.
+.TP
+.I n
+Gap between column is
+.I n
+ens wide.
+Default is 3.
+.TP
+.BI F font
+Use specified
+.IR font .
+.B B
+and
+.B I
+mean
+.B FB
+and
+.BR FI .
+.TP
+.B T
+Begin vertically-spanned item at top row of range; default is 
+vertical centering (with
+.LR ^ ).
+.TP
+.BI P n
+Use point size
+.IR n .
+.TP
+.BI V n
+Use
+.IR n -point
+vertical spacing in text block; signed
+.I n
+means relative change.
+.TP
+.BI W( n )
+Column width as a
+.I troff
+width specification.
+Parens are optional if
+.I n
+is a simple integer.
+.TP
+.B E
+Equalize the widths of all columns marked
+.BR E .
+.PD
+.RE
+.PP
+Each line of
+.I data
+becomes one row of the table; tabs separate items.
+Lines beginning with
+.L .
+are 
+.I troff 
+requests.
+Certain special data items are recognized:
+.RS
+.TP 0
+.B _
+Draw a horizontal rule in this column.
+.PD0
+.TP
+.B =
+Draw a double horizontal rule in this column.
+A data line consisting of a single
+.L _
+or
+.L =
+draws the rule across the whole table.
+.TP
+.B \e_
+Draw a rule only as wide as the contents of the column.
+.TP
+.BI \eR x
+Repeat character
+.I x
+across the column.
+.TP
+.B \e^
+Span the previous item in this column down into this row.
+.TP
+.B T{
+The item is a text block to be separately formatted
+by
+.I troff 
+and placed in the table.
+The block continues to the next line beginning with
+.BR T} .
+The remainder of the data line follows at that point.
+.PD
+.RE
+.PP
+When it is used in a pipeline with
+.IR eqn ,
+the
+.I tbl
+command should be first, to minimize the volume
+of data passed through
+pipes.
+.SH EXAMPLES
+.ds tb \fR<tab>\fP
+Let \*(tb
+represent a tab (which should
+be typed as a genuine tab).
+.if t .2C
+.EX
+\&.TS
+c s s
+c c s
+c c c
+l n n.
+Household Population
+Town\*(tbHouseholds
+\*(tbNumber\*(tbSize
+Bedminster\*(tb789\*(tb3.26
+Bernards Twp.\*(tb3087\*(tb3.74
+Bernardsville\*(tb2018\*(tb3.30
+\&.TE
+.if t \{\0 
+\0 
+\0\}
+.if n .PP
+.TS
+c s s
+c c s
+c c c
+l n n.
+Household Population
+Town	Households
+	Number	Size
+Bedminster	789	3.26
+Bernards Twp.	3087	3.74
+Bernardsville	2018	3.30
+.TE
+.EE
+.if t \{.sp3
+.1C\}
+.SH SOURCE
+.B /sys/src/cmd/tbl
+.SH SEE ALSO
+.IR troff (1), 
+.IR eqn (1),
+.IR doctype (1)
+.br
+M. E. Lesk and L. L. Cherry,
+``TBL\(ema Program to Format Tables'',
+.I
+Unix Research System Programmer's Manual,
+Tenth Edition, Volume 2.

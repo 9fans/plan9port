@@ -1,0 +1,339 @@
+.TH EQN 1
+.EQ
+delim $$
+.EN
+.SH NAME
+eqn  \- typeset mathematics
+.SH SYNOPSIS
+.B eqn
+[
+.I option ...
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Eqn
+is a
+.IR troff (1)
+preprocessor
+for typesetting mathematics
+on a typesetter.
+Usage is almost always
+.IP
+.L
+eqn file ... | troff
+.PP
+If no files are specified, 
+.I eqn
+reads from the standard input.
+.I Eqn
+prepares output for the typesetter 
+named in the
+.BI -T dest
+option (default
+.BR -Tutf ;
+see
+.IR troff (1)).
+When run with other preprocessor filters,
+.I eqn
+usually comes last.
+.PP
+A line beginning with
+.B .EQ
+marks the start of an equation;
+the end of an equation
+is marked by a line beginning with
+.BR .EN .
+Neither of these lines is altered,
+so they may be defined in macro packages
+to get
+centering, numbering, etc.
+It is also possible to set two characters
+as `delimiters';
+text between delimiters is also
+.I eqn
+input.
+Delimiters may be set to characters
+.I x
+and
+.I y
+with the option
+.BI -d xy
+or (more commonly) with
+.B delim
+.I xy
+between
+.B .EQ
+and
+.BR .EN .
+Left and right delimiters may be identical.
+(They are customarily taken to be
+$font L "$$" )$.
+Delimiters are turned off by
+.LR "delim off" .
+All text that is neither between delimiters nor between
+.B .EQ
+and
+.B .EN
+is passed through untouched.
+.PP
+Tokens within
+.I eqn
+are separated by
+spaces, tabs, newlines, braces, double quotes,
+tildes or circumflexes.
+Braces {} are used for grouping;
+generally speaking,
+anywhere a single character like
+.L x
+could appear, a complicated construction
+enclosed in braces may be used instead.
+Tilde
+.L ~
+represents a full space in the output,
+circumflex
+.L ^
+half as much.
+.PP
+.vs 13p
+Subscripts and superscripts are produced with the keywords
+.B sub
+and
+.BR sup .
+Thus
+.L "x sub i" 
+makes
+$x sub i$, 
+.L "a sub i sup 2"
+produces
+$a sub i sup 2$,
+and
+.L "e sup {x sup 2 + y sup 2}"
+gives
+$e sup {x sup 2 + y sup 2}$.
+.PP
+.B Over
+makes fractions:
+.L "a over b"
+yields $a over b$.
+.PP
+.B Sqrt
+produces square roots:
+.L "1 over sqrt {ax sup 2 +bx+c}"
+results in
+$1 over sqrt {ax sup 2 +bx+c}$ .
+.PP
+The keywords
+.B from
+and
+.B to
+introduce lower and upper
+limits on arbitrary things:
+$lim from {n -> inf} sum from 0 to n x sub i$
+is made with
+.LR "lim from {n -> inf} sum from 0 to n x sub i" .
+.PP
+Left and right brackets, braces, etc., of the right height are made with
+.B left
+and
+.BR right :
+.L "left [ x sup 2 + y sup 2 over alpha right ] ~=~1"
+produces
+$left [ x sup 2 + y sup 2 over alpha right ] ~=~1$.
+The
+.B right
+clause is optional.
+Legal characters after 
+.B left
+and
+.B right
+are braces, brackets, bars,
+.B c
+and
+.B f
+for ceiling and floor,
+and
+.B
+""
+for nothing at all (useful for a right-side-only bracket).
+.PP
+Vertical piles of things are made with 
+.BR pile ,
+.BR lpile ,
+.BR cpile ,
+and
+.BR rpile :
+.L "pile {a above b above c}"
+produces
+$pile {a above b above c}$.
+There can be an arbitrary number of elements in a pile.
+.B lpile
+left-justifies,
+.B pile
+and
+.B cpile
+center, with different vertical spacing,
+and 
+.B rpile
+right justifies.
+.PP
+Matrices are made with
+.BR matrix :
+.L "matrix { lcol { x sub i above y sub 2 } ccol { 1 above 2 } }"
+produces
+$matrix { lcol { x sub i above y sub 2 } ccol { 1 above 2 } }$.
+In addition, there is
+.B rcol
+for a right-justified column.
+.PP
+.vs 12p
+Diacritical marks are made with
+.BR prime ,
+.BR dot ,
+.BR dotdot ,
+.BR hat ,
+.BR tilde ,
+.BR bar ,
+.BR under ,
+.BR vec ,
+.BR dyad ,
+and
+.BR under :
+.L "x sub 0 sup prime = f(t) bar + g(t) under"
+is
+$x sub 0 sup prime = f(t) bar + g(t) under$,
+and
+.L "x vec = y dyad"
+is
+$x vec = y dyad$.
+.PP
+Sizes and fonts can be changed with prefix operators
+.B size 
+.IR n ,
+.B size
+.BI ± n \f1,
+.BR fat ,
+.BR roman ,
+.BR italic ,
+.BR bold ,
+or
+.BR font
+.IR n .
+Size and fonts can be changed globally in a document by
+.B gsize
+.I n
+and
+.B gfont
+.IR n ,
+or by the command-line arguments
+.BI -s n
+and
+.BI -f n\f1.
+.PP
+Normally subscripts and superscripts are reduced by
+3 point sizes from the previous size;
+this may be changed by the command-line argument
+.BI -p n\f1.
+.PP
+Successive display arguments can be lined up.
+Place
+.B mark
+before the desired lineup point in the first equation;
+place
+.B lineup
+at the place that is to line up vertically in subsequent equations.
+.PP
+Shorthands may be defined
+or existing keywords redefined with
+.BR define :
+.L define
+.I thing
+.L %
+.I replacement
+.L %
+defines a new token called
+.I thing
+which will be replaced by
+.I replacement
+whenever it appears thereafter.
+The 
+.L %
+may be any character that does not occur in
+.LR replacement .
+.PP
+Keywords like 
+.L sum
+.EQ
+( sum ),
+.EN
+.L int
+.EQ
+( int ),
+.EN
+.L inf
+.EQ
+( inf ),
+.EN
+and shorthands like
+.L >=
+.EQ
+(>=),
+.EN
+.L ->
+.EQ
+(->),
+.EN
+and
+.L !=
+.EQ
+( != )
+.EN
+are recognized.
+Greek letters are spelled out in the desired case, as in
+.L alpha
+or
+.LR GAMMA .
+Mathematical words like
+.LR sin ,
+.LR cos ,
+.L log
+are made Roman automatically.
+.IR Troff (1)
+four-character escapes like
+.L \e(lh
+(\(lh) can be used anywhere.
+Strings enclosed in double quotes " "
+are passed through untouched;
+this permits keywords to be entered as text,
+and can be used to communicate
+with 
+.I troff
+when all else fails.
+.SH FILES
+.TF /sys/lib/troff/font/devutf
+.TP
+.B /sys/lib/troff/font/devutf
+font descriptions for PostScript
+.SH SOURCE
+.B /sys/src/cmd/eqn
+.SH "SEE ALSO"
+.IR troff (1), 
+.IR tbl (1)
+.br
+J. F. Ossanna and B. W. Kernighan,
+``Troff User's Manual''.
+.br
+B. W. Kernighan and L. L. Cherry,
+``Typesetting Mathematics\(emUser's Guide'', 
+.I
+Unix Research System Programmer's Manual,
+Tenth Edition, Volume 2.
+.SH BUGS
+To embolden digits, parens, etc.,
+it is necessary to quote them,
+as in 
+.LR bold\ "12.3" .
+.EQ
+delim off
+.EN
