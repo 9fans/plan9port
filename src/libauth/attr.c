@@ -131,6 +131,9 @@ _parseattr(char *s)
 	int i, ntok, type;
 	Attr *a;
 
+	if(s == nil)
+		return nil;
+
 	s = strdup(s);
 	if(s == nil)
 		sysfatal("_parseattr strdup: %r");
