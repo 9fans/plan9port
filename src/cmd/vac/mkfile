@@ -1,0 +1,36 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+LIBFILES=\
+	cache\
+	error\
+	file\
+	fs\
+	source\
+	pack\
+
+LIB=${LIBFILES:%=%.$O}
+
+HFILES=\
+	$PLAN9/include/venti.h\
+	stdinc.h\
+	error.h\
+	vac.h\
+	dat.h\
+	fns.h\
+
+TARG=vac vtdump
+
+CFILES=${TARG:%=%.c} ${LIBFILES:%=%.c} srcload.c vactest.c
+
+UPDATE=\
+	mkfile\
+	$CFILES\
+	$HFILES\
+	${TARG:%=/386/bin/%}
+
+default:V: all
+
+test:V: $O.srcload $O.wtest $O.rtest $O.vtdump $O.vtread
+
+<$PLAN9/src/mkmany
