@@ -1,6 +1,6 @@
 #include "astro.h"
 
-char*	herefile = SYS9 "/lib/sky/here";
+char*	herefile;
 
 int
 main(int argc, char *argv[])
@@ -13,6 +13,9 @@ main(int argc, char *argv[])
 	radian = pi/180;
 	radsec = radian/3600;
 	converge = 1.0e-14;
+
+	startab = unsharp("#9/lib/sky/estartab");
+	herefile = unsharp("#9/lib/sky/estartab");
 
 	fmtinstall('R', Rconv);
 	fmtinstall('D', Dconv);

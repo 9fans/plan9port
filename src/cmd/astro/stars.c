@@ -1,6 +1,6 @@
 #include "astro.h"
 
-char*	startab = SYS9 "/lib/sky/estartab";
+char*	startab;
 
 void
 stars(void)
