@@ -224,6 +224,8 @@ textload(Text *t, uint q0, char *file, int setqid)
 		dbuf = nil;
 		while((n=dirread(fd, &dbuf)) > 0){
 			for(i=0; i<n; i++){
+				if(nodotfiles && dbuf[i].name[0] == '.')
+					continue;
 				dl = emalloc(sizeof(Dirlist));
 				j = strlen(dbuf[i].name);
 				tmp = emalloc(j+1+1);
