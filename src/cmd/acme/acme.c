@@ -536,6 +536,18 @@ mousethread(void *v)
 				}
 				goto Continue;
 			}
+			/* scroll buttons, wheels, etc. */
+			if(t->what==Body && w != nil && (m.buttons & (8|16))){
+				if(m.buttons & 8)
+					but = Kscrolloneup;
+				else
+					but = Kscrollonedown;
+				winlock(w, 'M');
+				t->eq0 = ~0;
+				texttype(t, but);
+				winunlock(w);
+				goto Continue;
+			}
 			if(ptinrect(m.xy, t->scrollr)){
 				if(but){
 					if(t->what == Columntag)

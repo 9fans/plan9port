@@ -224,8 +224,6 @@ textload(Text *t, uint q0, char *file, int setqid)
 		dbuf = nil;
 		while((n=dirread(fd, &dbuf)) > 0){
 			for(i=0; i<n; i++){
-				if(nodotfiles && dbuf[i].name[0] == '.')
-					continue;
 				dl = emalloc(sizeof(Dirlist));
 				j = strlen(dbuf[i].name);
 				tmp = emalloc(j+1+1);
@@ -660,6 +658,9 @@ texttype(Text *t, Rune r)
 	case Kdown:
 		n = t->fr.maxlines/3;
 		goto case_Down;
+	case Kscrollonedown:
+		n = 1;
+		goto case_Down;
 	case Kpgdown:
 		n = 2*t->fr.maxlines/3;
 	case_Down:
@@ -668,6 +669,9 @@ texttype(Text *t, Rune r)
 		return;
 	case Kup:
 		n = t->fr.maxlines/3;
+		goto case_Up;
+	case Kscrolloneup:
+		n = 2;	/* feels like this should be n=1, but that does nothing */
 		goto case_Up;
 	case Kpgup:
 		n = 2*t->fr.maxlines/3;
