@@ -1,0 +1,17 @@
+<$PLAN9/src/mkhdr
+
+LIB=libgeometry.a
+OFILES=\
+	arith3.$O\
+	matrix.$O\
+	qball.$O\
+	quaternion.$O\
+	transform.$O\
+	tstack.$O\
+
+HFILES=$PLAN9/include/geometry.h
+
+<$PLAN9/src/mksyslib
+
+listing:V:
+	pr mkfile $HFILES $CFILES|lp -du
