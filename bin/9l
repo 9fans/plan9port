@@ -195,8 +195,8 @@ then
 	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
 fi
 if ! $ld -L$PLAN9/lib "$@" $libsl $extralibs
-do
+then
 	rm -f $target
 	exit 1
-done
+fi
 exit 0
