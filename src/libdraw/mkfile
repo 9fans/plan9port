@@ -85,21 +85,6 @@ OFILES=\
 	ml-ltofront.$O\
 	ml-ltorear.$O\
 	ml-unload.$O\
-	x11-alloc.$O\
-	x11-cload.$O\
-	x11-draw.$O\
-	x11-event.$O\
-	x11-fill.$O\
-	x11-get.$O\
-	x11-init.$O\
-	x11-itrans.$O\
-	x11-keyboard.$O\
-	x11-keysym2ucs.$O\
-	x11-load.$O\
-	x11-mouse.$O\
-	x11-pixelbits.$O\
-	x11-unload.$O\
-	x11-wsys.$O\
 	devdraw.$O\
 	unix.$O\
 
@@ -111,10 +96,33 @@ HFILES=\
 	$PLAN9/include/cursor.h\
 	$PLAN9/include/mouse.h\
 	$PLAN9/include/keyboard.h\
+
+# some of these should move to wsysofiles
+
+XHFILES=\
 	x11-inc.h\
 	x11-memdraw.h\
 
-CFLAGS=$CFLAGS -I$X11/include
+<|sh ./mkwsysrules.sh
+
+WSYSOFILES=\
+	$WSYSTYPE-alloc.$O\
+	$WSYSTYPE-cload.$O\
+	$WSYSTYPE-draw.$O\
+	$WSYSTYPE-event.$O\
+	$WSYSTYPE-fill.$O\
+	$WSYSTYPE-get.$O\
+	$WSYSTYPE-init.$O\
+	$WSYSTYPE-itrans.$O\
+	$WSYSTYPE-keyboard.$O\
+	$WSYSTYPE-keysym2ucs.$O\
+	$WSYSTYPE-load.$O\
+	$WSYSTYPE-mouse.$O\
+	$WSYSTYPE-pixelbits.$O\
+	$WSYSTYPE-unload.$O\
+	$WSYSTYPE-wsys.$O\
+
+OFILES=$OFILES $WSYSOFILES
 
 <$PLAN9/src/mksyslib
 
