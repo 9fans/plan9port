@@ -11,13 +11,7 @@ f=putfile
 
 fn putfile{
 	cat >$t
-	if(! 9 echo -put $t $2 | mysftp $1 >$t.e >[2=1])
-		exit 1
-	egrep -v '^Uploading' $t.e >$t.e2
-	if(test -s $t.e2){
-		cat $t.e >[1=2]
-		exit 1
-	}
+	echo put $t $2 | runsftp -e $1
 }
 fn putfile9p{
 	if(! 9p write $1/$2)

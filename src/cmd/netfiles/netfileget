@@ -13,31 +13,32 @@ if(! ~ $#* 2){
 
 . netfilelib.rc $1
 
-fn getfile {
-	rm -f $t
-	if(! 9 echo -get $2 $t | mysftp $1 >$t.e >[2=1])
-		exit 1
-	egrep -v '^Fetching' $t.e >$t.e2
-	if(test -s $t.e2){
-		cat $t.e >[1=2]
-		exit 1
-	}
-	cat $t
-}
-
 fn getfile9p {
 	if(! 9p read $1/$2)
 		exit 1
 }
 
-fn getdir {
-	if(! {echo cd $2; echo ls -l} | mysftp $1 | sed '1,2d; s/sftp> //g; /^$/d' >$t)
-		exit 1
-	cat $t | awk '$NF == "." || $NF == ".." { next } {s = $NF; if($0 ~ /^d/) s = s "/"; print s}'
-}
-
 fn getdir9p {
 	9p ls -l $1/$2 | awk '{s=$NF; if($0 ~ /^d/) s=s"/"; print s}'
+}
+
+fn getfile {
+	rm -f $t
+	echo get $2 $t | runsftp -e $1
+	cat $t
+}
+
+fn getdir {
+	{echo cd $2; echo ls -l} | runsftp $1
+	awk '
+		$NF == "." || $NF == ".." { next } 
+		{
+			s = $NF
+			if($0 ~ /^d/)
+				s = s "/"
+			print s
+		}
+	' $t.sftp
 }
 
 $f $1 $2

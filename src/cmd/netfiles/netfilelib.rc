@@ -3,19 +3,43 @@ ns=`{namespace}
 if(</dev/null dial 'unix!'^$ns/$1 >[2]/dev/null)
 	f=$f^9p
 
-fn mysftp {
-	if(! </dev/null dial 'unix!'^$ns/$1.sftp >[2]/dev/null){
-		echo 'caching sftp' $1 >[1=2]
-		sftpcache -D $1
-	}
-	if(! </dev/null dial 'unix!'^$ns/$1.sftp >[2]/dev/null){
-		sftp -b /dev/stdin $1
-	}
-	if not{
-		{cat; echo DONE} | dial -e 'unix!'^$ns/$1.sftp
-	}
-}
-
 t=/tmp/netfilexxx.$pid.$USER
-fn sigexit { rm -f $t $t.e $t.e2 }
+fn sigexit { rm -f $t $t.* }
+
+fn runsftp {
+	eflag=no
+	if(~ $1 -e){
+		eflag=yes
+		shift
+	}
+	if(! </dev/null dial 'unix!'^$ns/$1.sftp >[2]/dev/null){
+		sftpcache -D $1 >/dev/tty
+	}
+	{
+		if(! </dev/null dial 'unix!'^$ns/$1.sftp >[2]/dev/null){
+			sed 's/^/-/' | sftp -b /dev/stdin $1 && echo DONE
+		}
+		if not{
+			{cat; echo DONE} | dial -e 'unix!'^$ns/$1.sftp
+		}
+	} >$t.sftp1 >[2=1]
+	sed 's/^/1 /' $t.sftp1
+	sed '/^sftp> /d
+		/^Connecting to /d
+		/^Fetching /d
+		/^Uploading /d
+		/^DONE$/d
+	' $t.sftp1 >$t.sftp
+	if(! 9 grep -s '^DONE$' $t.sftp1){
+		echo sftp did not finish: >[1=2]
+		sed 's/^/	/g' $t.sftp1 >[1=2]
+		exit 1
+	}
+	if(~ $eflag yes && test -s $t.sftp){
+		echo sftp error output: >[1=2]
+		sed '/^DONE$/d; s/^/	/g' $t.sftp1 >[1=2]
+		exit 1
+	}
+	status=''
+}
 

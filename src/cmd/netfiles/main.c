@@ -462,7 +462,7 @@ do3(Win *w, char *text)
 	cleanname(name);
 	cprint("b3 \t=> name=%s addr=%s\n", name, addr);
 	if(strcmp(name, lastfail) == 0){
-		cprint("b3 \t=> non-existant (cached)\n");
+		cprint("b3 \t=> nonexistent (cached)\n");
 		free(name);
 		return -1;
 	}
