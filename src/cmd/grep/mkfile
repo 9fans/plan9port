@@ -3,7 +3,7 @@
 # Calling this grep breaks a LOT.  Like egrep on Linux.
 # And probably configure.
 
-TARG=9grep
+TARG=grep
 HFILES=\
 	grep.h\
 

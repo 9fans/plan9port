@@ -9,9 +9,9 @@ DIRS=lex `ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"|egrep -v '^lex$'`
 
 <$PLAN9/src/mkdirs
 
-dir-all dir-install: $PLAN9/bin/9yacc $PLAN9/bin/9lex
+dir-all dir-install: $PLAN9/bin/yacc $PLAN9/bin/lex
 
-bc.tab.c units.tab.c: $PLAN9/bin/9yacc
+bc.tab.c units.tab.c: $PLAN9/bin/yacc
 
 %.tab.h %.tab.c: %.y
 	$YACC $YFLAGS -s $stem $stem.y
@@ -19,10 +19,10 @@ bc.tab.c units.tab.c: $PLAN9/bin/9yacc
 %.o: %.tab.c
 	9c -o $target $stem.tab.c
 
-delatex.c:D: delatex.lx $PLAN9/bin/9lex
-	9lex -t delatex.lx >delatex.c
+delatex.c:D: delatex.lx $PLAN9/bin/lex
+	9 lex -t delatex.lx >delatex.c
 
-$PLAN9/bin/9lex: $PLAN9/bin/9yacc
+$PLAN9/bin/lex: $PLAN9/bin/yacc
 	cd lex; mk install
 
 CLEANFILES=$CLEANFILES bc.tab.[ch] units.tab.[ch] delatex.c
