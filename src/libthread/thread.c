@@ -77,11 +77,16 @@ procalloc(void)
 }
 
 static void
-threadstart(void *v)
+threadstart(uint y, uint x)
 {
 	_Thread *t;
+	ulong z;
 
-	t = v;
+	z = x<<16;	/* hide undefined 32-bit shift from 32-bit compilers */
+	z <<= 16;
+	z |= y;
+	t = (_Thread*)z;
+
 //print("threadstart %p\n", v);
 	t->startfn(t->startarg);
 //print("threadexits %p\n", v);
@@ -94,6 +99,8 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 {
 	_Thread *t;
 	sigset_t zero;
+	uint x, y;
+	ulong z;
 
 	/* allocate the task and stack together */
 	t = malloc(sizeof *t+stack);
@@ -125,7 +132,16 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 		(char*)t->context.uc.uc_stack.ss_sp
 		+t->context.uc.uc_stack.ss_size;
 #endif
-	makecontext(&t->context.uc, (void(*)())threadstart, 1, t);
+	/*
+	 * All this magic is because you have to pass makecontext a
+	 * function that takes some number of word-sized variables,
+	 * and on 64-bit machines pointers are bigger than words.
+	 */
+	z = (ulong)t;
+	y = z;
+	z >>= 16;	/* hide undefined 32-bit shift from 32-bit compilers */
+	x = z>>16;
+	makecontext(&t->context.uc, (void(*)())threadstart, 2, y, x);
 
 	return t;
 }
