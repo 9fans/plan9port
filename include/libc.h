@@ -423,79 +423,74 @@ extern	void	needstack(int);
 #endif
 
 /*
+ *  just enough information so that libc can be
+ *  properly locked without dragging in all of libthread
+ */
+typedef struct _Thread _Thread;
+typedef struct _Threadlist _Threadlist;
+struct _Threadlist
+{
+	_Thread	*head;
+	_Thread	*tail;
+};
+
+extern	_Thread	*(*threadnow)(void);
+
+/*
  *  synchronization
  */
 typedef struct Lock Lock;
 struct Lock
 {
-#ifdef PLAN9_PTHREADS
+#ifdef PLAN9PORT_USING_PTHREADS
 	int init;
 	pthread_mutex_t mutex;
-#else
-	int val;
 #endif
+	int held;
 };
 
-extern	int	_tas(int*);
 extern	void	lock(Lock*);
 extern	void	unlock(Lock*);
 extern	int	canlock(Lock*);
+extern	int	(*_lock)(Lock*, int, ulong);
+extern	void	(*_unlock)(Lock*, ulong);	
 
-/*
- * Used to implement process sleep and wakeup,
- * either in terms of pthreads or our own primitives.
- * This will be more portable than writing our own
- * per-system implementations, and on some systems
- * non-pthreads threading implementations break libc
- * (cough, Linux, cough).
- */
-typedef struct _Procrend _Procrend;
-struct _Procrend
-{
-	int asleep;
-	Lock *l;
-	void *arg;
-	int pid;
-#ifdef PLAN9_PTHREADS
-	pthread_cond_t cond;
-#endif
-};
-
-extern	void	_procsleep(_Procrend*);
-extern	void	_procwakeup(_Procrend*);
-
-typedef struct QLp QLp;
-struct QLp
-{
-	Lock	inuse;
-	QLp	*next;
-	_Procrend rend;
-	char	state;
-};
-
-typedef
+typedef struct QLock QLock;
 struct QLock
 {
-	Lock	lock;
-	int	locked;
-	QLp	*head;
-	QLp 	*tail;
-} QLock;
+	Lock		l;
+	_Thread	*owner;
+	_Threadlist	waiting;
+};
 
 extern	void	qlock(QLock*);
 extern	void	qunlock(QLock*);
 extern	int	canqlock(QLock*);
-extern	void	_qlockinit(void(*)(_Procrend*), void(*)(_Procrend*));	/* called only by the thread library */
+extern	int	(*_qlock)(QLock*, int, ulong);	/* do not use */
+extern	void	(*_qunlock)(QLock*, ulong);
 
-typedef
+typedef struct Rendez Rendez;
+struct Rendez
+{
+	QLock	*l;
+	_Threadlist	waiting;
+};
+
+extern	void	rsleep(Rendez*);	/* unlocks r->l, sleeps, locks r->l again */
+extern	int	rwakeup(Rendez*);
+extern	int	rwakeupall(Rendez*);
+extern	void	(*_rsleep)(Rendez*, ulong);	/* do not use */
+extern	int	(*_rwakeup)(Rendez*, int, ulong);
+
+typedef struct RWLock RWLock;
 struct RWLock
 {
-	Lock	lock;
-	int	readers;	/* number of readers */
-	int	writer;		/* number of writers */
-	QLp	*head;		/* list of waiting processes */
-	QLp	*tail;
-} RWLock;
+	Lock		l;
+	int	readers;
+	_Thread	*writer;
+	_Threadlist	rwaiting;
+	_Threadlist	wwaiting;
+};
 
 extern	void	rlock(RWLock*);
 extern	void	runlock(RWLock*);
@@ -503,18 +498,14 @@ extern	int		canrlock(RWLock*);
 extern	void	wlock(RWLock*);
 extern	void	wunlock(RWLock*);
 extern	int		canwlock(RWLock*);
+extern	int	(*_rlock)(RWLock*, int, ulong);	/* do not use */
+extern	int	(*_wlock)(RWLock*, int, ulong);
+extern	void	(*_runlock)(RWLock*, ulong);
+extern	void	(*_wunlock)(RWLock*, ulong);
 
-typedef
-struct Rendez
-{
-	QLock *l;
-	QLp	*head;
-	QLp	*tail;
-} Rendez;
-
-extern	void	rsleep(Rendez*);	/* unlocks r->l, sleeps, locks r->l again */
-extern	int	rwakeup(Rendez*);
-extern	int	rwakeupall(Rendez*);
+/*
+ * per-process private data
+ */
 extern	void**	privalloc(void);
 extern	void	privfree(void**);
 
@@ -589,7 +580,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define	OTRUNC	16	/* or'ed in (except for exec), truncate file first */
 #define	OCEXEC	32	/* or'ed in, close on exec */
 #define	ORCLOSE	64	/* or'ed in, remove on close */
-#define	ODIRECT	128	/* or'ed in, bypass the cache */
+#define	ODIRECT	128	/* or'ed in, direct access */
 #define	OEXCL	0x1000	/* or'ed in, exclusive use (create only) */
 #define	OLOCK	0x2000	/* or'ed in, lock after opening */
 
@@ -724,6 +715,10 @@ extern	int	unmount(char*, char*);
 */
 extern	int	noted(int);
 extern	int	notify(void(*)(void*, char*));
+extern	void	notifyenable(char*);
+extern	void	notifydisable(char*);
+extern	void	notifyon(char*);
+extern	void	notifyoff(char*);
 extern	int	p9open(char*, int);
 extern	int	fd2path(int, char*, int);
 extern	int	p9pipe(int*);
@@ -772,6 +767,7 @@ extern	ulong	rendezvous(ulong, ulong);
 #define rfork		p9rfork
 /* #define access		p9access */
 #define create		p9create
+#undef open
 #define open		p9open
 #define pipe		p9pipe
 #endif
@@ -801,8 +797,14 @@ extern	int	post9pservice(int, char*);
 #endif
 
 /* compiler directives on plan 9 */
-#define	USED(x)	if(x){}else{}
 #define	SET(x)	((x)=0)
+#define	USED(x)	if(x){}else{}
+#ifdef __GNUC__
+#	if __GNUC__ >= 3
+#		undef USED
+#		define USED(x) { ulong __y __attribute__ ((unused)); __y = (ulong)(x); }
+#	endif
+#endif
 
 /* command line */
 extern char	*argv0;

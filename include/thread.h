@@ -4,150 +4,150 @@
 extern "C" { 
 #endif
 
-/* avoid conflicts with socket library */
-#undef send
-#define send _threadsend
-#undef recv
-#define recv _threadrecv
-
-typedef struct Alt	Alt;
-typedef struct Channel	Channel;
-typedef struct Ref	Ref;
-
-/* Channel structure.  S is the size of the buffer.  For unbuffered channels
- * s is zero.  v is an array of s values.  If s is zero, v is unused.
- * f and n represent the state of the queue pointed to by v.
+/*
+ * basic procs and threads
  */
+int		proccreate(void (*f)(void *arg), void *arg, unsigned int stacksize);
+int		threadcreate(void (*f)(void *arg), void *arg, unsigned int stacksize);
+void		threadexits(char *);
+void		threadexitsall(char *);
+void		threadsetname(char*, ...);
+void		threadsetstate(char*, ...);
+void		_threadready(_Thread*);
+void		_threadswitch(void);
+void		_threadsetsysproc(void);
+void		_threadsleep(Rendez*);
+_Thread	*_threadwakeup(Rendez*);
 
-enum {
-	Nqwds = 2,
-	Nqshift = 5,	// 2log #of bits in long
-	Nqmask =  - 1,
-	Nqbits = (1 << Nqshift) * 2,
-};
+/*
+ * per proc and thread data
+ */
+void		**procdata(void);
 
-struct Channel {
-	int			s;		// Size of the channel (may be zero)
-	unsigned int	f;		// Extraction point (insertion pt: (f + n) % s)
-	unsigned int	n;		// Number of values in the channel
-	int			e;		// Element size
-	int			freed;	// Set when channel is being deleted
-	volatile Alt	**qentry;	// Receivers/senders waiting (malloc)
-	volatile int	nentry;	// # of entries malloc-ed
-	unsigned char		v[1];		// Array of s values in the channel
-};
+/*
+ * supplied by user instead of main.
+ * mainstacksize is size of stack allocated to run threadmain
+ */
+void		threadmain(int argc, char *argv[]);
+extern	int	mainstacksize;
 
+/*
+ * channel communication
+ */
+typedef struct Alt Alt;
+typedef struct _Altarray _Altarray;
+typedef struct Channel Channel;
 
-/* Channel operations for alt: */
-typedef enum {
+enum
+{
 	CHANEND,
 	CHANSND,
 	CHANRCV,
 	CHANNOP,
 	CHANNOBLK,
-} ChanOp;
-
-struct Alt {
-	Channel	*c;		/* channel */
-	void		*v;		/* pointer to value */
-	ChanOp	op;		/* operation */
-
-	/* the next variables are used internally to alt
-	 * they need not be initialized
-	 */
-	struct Thread	*thread;	/* thread waiting on this alt */
-	int		entryno;	/* entry number */
 };
 
+struct Alt
+{
+	void		*v;
+	Channel		*c;
+	uint		op;
+	_Thread		*thread;
+	Alt			*xalt;
+};
+
+struct _Altarray
+{
+	Alt			**a;
+	uint		n;
+	uint		m;
+};
+
+struct Channel
+{
+	uint			bufsize;
+	uint			elemsize;
+	uchar		*buf;
+	uint			nbuf;
+	uint			off;
+	_Altarray	asend;
+	_Altarray	arecv;
+	char			*name;
+};
+
+/* [Edit .+1,./^$/ |cfn -h $PLAN9/src/libthread/channel.c] */
+int		chanalt(Alt *alts);
+Channel*	chancreate(int elemsize, int elemcnt);
+void		chanfree(Channel *c);
+int		chaninit(Channel *c, int elemsize, int elemcnt);
+int		channbrecv(Channel *c, void *v);
+void*		channbrecvp(Channel *c);
+ulong		channbrecvul(Channel *c);
+int		channbsend(Channel *c, void *v);
+int		channbsendp(Channel *c, void *v);
+int		channbsendul(Channel *c, ulong v);
+int		chanrecv(Channel *c, void *v);
+void*		chanrecvp(Channel *c);
+ulong		chanrecvul(Channel *c);
+int		chansend(Channel *c, void *v);
+int		chansendp(Channel *c, void *v);
+int		chansendul(Channel *c, ulong v);
+
+#define	alt		chanalt
+#define	nbrecv	channbrecv
+#define	nbrecvp	channbrecvp
+#define	nvrecvul	channbrecvul
+#define	nbsend	channbsend
+#define	nbsendp	channbsendp
+#define	nbsendul	channbsendul
+#define	recv		chanrecv
+#define	recvp	chanrecvp
+#define	recvul	chanrecvul
+#define	send		chansend
+#define	sendp	chansendp
+#define	sendul	chansendul
+
+/*
+ * reference counts
+ */
+typedef struct Ref	Ref;
+
 struct Ref {
-	Lock lk;
+	Lock lock;
 	long ref;
 };
 
-int		alt(Alt alts[]);
-Channel*	chancreate(int elemsize, int bufsize);
-int		chaninit(Channel *c, int elemsize, int elemcnt);
-void		chanfree(Channel *c);
-int		chanprint(Channel *, char *, ...);
-long		decref(Ref *r);		/* returns 0 iff value is now zero */
-void		incref(Ref *r);
-int		nbrecv(Channel *c, void *v);
-void*		nbrecvp(Channel *c);
-unsigned long		nbrecvul(Channel *c);
-int		nbsend(Channel *c, void *v);
-int		nbsendp(Channel *c, void *v);
-int		nbsendul(Channel *c, unsigned long v);
-int		proccreate(void (*f)(void *arg), void *arg, unsigned int stacksize);
-int		procrfork(void (*f)(void *arg), void *arg, unsigned int stacksize, int flag);
-void**		procdata(void);
-void		threadexec(Channel *, int[3], char *, char *[]);
-void		threadexecl(Channel *, int[3], char *, ...);
-int		threadspawn(int[3], char*, char*[]);
-int		recv(Channel *c, void *v);
-void*		recvp(Channel *c);
-unsigned long		recvul(Channel *c);
-int		send(Channel *c, void *v);
-int		sendp(Channel *c, void *v);
-int		sendul(Channel *c, unsigned long v);
-int		threadcreate(void (*f)(void *arg), void *arg, unsigned int stacksize);
-int		threadcreateidle(void (*f)(void*), void*, unsigned int);
-void**		threaddata(void);
-void		threadexits(char *);
-void		threadexitsall(char *);
-void		threadfdwait(int, int);
-void		threadfdwaitsetup(void);
-int		threadgetgrp(void);	/* return thread group of current thread */
-char*		threadgetname(void);
-void		threadint(int);	/* interrupt thread */
-void		threadintgrp(int);	/* interrupt threads in grp */
-void		threadkill(int);	/* kill thread */
-void		threadkillgrp(int);	/* kill threads in group */
-void		threadmain(int argc, char *argv[]);
-void		threadfdnoblock(int);
-void		threadnonotes(void);
-int		threadnotify(int (*f)(void*, char*), int in);
-int		threadid(void);
-int		threadpid(int);
-long		threadread(int, void*, long);
-long		threadreadn(int, void*, long);
-int		threadread9pmsg(int, void*, uint);
-int		threadrecvfd(int);
-long		threadwrite(int, const void*, long);
-int		threadsendfd(int, int);
-int		threadsetgrp(int);	/* set thread group, return old */
-void		threadsetname(char *fmt, ...);
-void		threadsleep(int);
-Channel*	threadwaitchan(void);
-int		threadannounce(char*, char*);
-int		threadlisten(char*, char*);
-int		threadaccept(int, char*);
+long		decref(Ref *r);
+long		incref(Ref *r);
 
-int	tprivalloc(void);
-void	tprivfree(int);
-void	**tprivaddr(int);
-int	yield(void);
-
-long		threadstack(void);
-
-extern	int		mainstacksize;
-
-/* slave I/O processes */
+/*
+ * slave i/o processes
+ */
 typedef struct Ioproc Ioproc;
 
-Ioproc*	ioproc(void);
-void		closeioproc(Ioproc*);
-void		iointerrupt(Ioproc*);
+/* [Edit .+1,/^$/ |cfn -h $PLAN9/src/libthread/io*.c] */
+void		closeioproc(Ioproc *io);
+long		iocall(Ioproc *io, long (*op)(va_list*), ...);
+int		ioclose(Ioproc *io, int fd);
+int		iodial(Ioproc *io, char *addr, char *local, char *dir, int *cdfp);
+void		iointerrupt(Ioproc *io);
+int		ioopen(Ioproc *io, char *path, int mode);
+Ioproc*		ioproc(void);
+long		ioread(Ioproc *io, int fd, void *a, long n);
+int		ioread9pmsg(Ioproc*, int, void*, int);
+long		ioreadn(Ioproc *io, int fd, void *a, long n);
+int		iorecvfd(Ioproc *, int);
+int		iosendfd(Ioproc*, int, int);
+int		iosleep(Ioproc *io, long n);
+long		iowrite(Ioproc *io, int fd, void *a, long n);
 
-int		ioclose(Ioproc*, int);
-int		iodial(Ioproc*, char*, char*, char*, int*);
-int		ioopen(Ioproc*, char*, int);
-long		ioread(Ioproc*, int, void*, long);
-long		ioreadn(Ioproc*, int, void*, long);
-long		iowrite(Ioproc*, int, void*, long);
-int		iosleep(Ioproc*, long);
-
-long		iocall(Ioproc*, long (*)(va_list*), ...);
-void		ioret(Ioproc*, int);
+/*
+ * exec external programs
+ */
+void		threadexec(Channel*, int[3], char*, char *[]);
+void		threadexecl(Channel*, int[3], char*, ...);
+int		threadspawn(int[3], char*, char*[]);
+Channel*	threadwaitchan(void);
 
 #if defined(__cplusplus)
 }
