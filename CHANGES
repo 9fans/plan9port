@@ -1,3 +1,11 @@
+January 17, 2005
+	thread.c tries to warn about bad pthreads on Linux
+	vacfs posts vacfs.basename
+	fix nil deref in acid
+	change 9c, 9l to detect nptl properly (not relying on running kernel version)
+	change psu to use 9 ps
+	do not call exits in threaded programs
+
 January 16, 2005
 	bring fds from daemonize down to high 20s from high 90s for NetBSD.
 	use -Wl,-rpath in gcc in 9l for NetBSD.
