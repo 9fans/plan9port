@@ -504,6 +504,4 @@ main(int argc, char **argv)
 				mousemoved();
 			break;
 		}
-
-	exits(0);
 }
