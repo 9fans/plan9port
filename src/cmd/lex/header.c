@@ -84,8 +84,8 @@ phead1(void)
 void
 phead2(void)
 {
-	Bprint(&fout,"while((nstr = yylook()) >= 0)\n");
-	Bprint(&fout,"goto yyfussy;\nyyfussy: switch(nstr){\n");
+	Bprint(&fout,"while((nstr = yylook()) >= 0){\n");
+	Bprint(&fout,"goto yyfussy; yyfussy: switch(nstr){\n");
 	Bprint(&fout,"case 0:\n");
 	Bprint(&fout,"if(yywrap()) return(0); break;\n");
 }
@@ -97,7 +97,7 @@ ptail(void)
 		Bprint(&fout,"case -1:\nbreak;\n");		/* for reject */
 		Bprint(&fout,"default:\n");
 		Bprint(&fout,"fprintf(yyout,\"bad switch yylook %%d\",nstr);\n");
-		Bprint(&fout,"} return(0); }\n");
+		Bprint(&fout,"}} return(0); }\n");
 		Bprint(&fout,"/* end of yylex */\n");
 	}
 	pflag = 1;
