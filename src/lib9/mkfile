@@ -139,6 +139,7 @@ LIB9OFILES=\
 	sleep.$O\
 	strecpy.$O\
 	sysfatal.$O\
+	sysname.$O\
 	tas-$OBJTYPE.$O\
 	time.$O\
 	tokenize.$O\
