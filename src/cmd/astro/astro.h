@@ -200,6 +200,7 @@ extern	char*	skip(int);
 extern	double	solstice(int);
 extern	void	star(void);
 extern	void	stars(void);
+#define sun astrosun	/* not the machine! */
 extern	void	sun(void);
 extern	double	sunel(double);
 extern	void	venus(void);
