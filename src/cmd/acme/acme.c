@@ -260,7 +260,7 @@ threadmain(int argc, char *argv[])
 	threadcreate(xfidallocthread, nil, STACK);
 	threadcreate(newwindowthread, nil, STACK);
 /*	threadcreate(shutdownthread, nil, STACK); */
-/*	threadnotify(shutdown, 1); */
+	threadnotify(shutdown, 1);
 	recvul(cexit);
 	killprocs();
 	threadexitsall(nil);
