@@ -686,7 +686,7 @@ vacmerge(DirSink *dsink, char *lname, char *sname)
 	VacDir dir;
 	uvlong max;
 
-	if((p=strrchr(sname, '.') == nil || strcmp(p, ".vac") != 0)
+	if((p=strrchr(sname, '.')) == nil || strcmp(p, ".vac") != 0)
 		return -1;
 
 	d = nil;
