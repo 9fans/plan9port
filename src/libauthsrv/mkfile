@@ -1,11 +1,10 @@
-PLAN9=../..
 <$PLAN9/src/mkhdr
 
 LIB=libauthsrv.a
 OFILES=\
 	_asgetticket.$O\
 	_asrdresp.$O\
-#	authdial.$O\
+	authdial.$O\
 	convA2M.$O\
 	convM2A.$O\
 	convM2PR.$O\
