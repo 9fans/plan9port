@@ -19,6 +19,8 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
 	m = _allocmemimage(r, chan);
 	if(chan != GREY1 && chan != _x.chan)
 		return m;
+	if(_x.display == 0)
+		return m;
 
 	/*
 	 * For bootstrapping, don't bother storing 1x1 images
