@@ -242,7 +242,7 @@ dumpsome(char *ans, char *e, char *buf, long count)
 		for(i=0; i<count; i++){
 			if(i>0 && i%4==0)
 				*p++ = ' ';
-			sprint(p, "%2.2ux", buf[i]);
+			sprint(p, "%2.2ux", (uchar)buf[i]);
 			p += 2;
 		}
 	}
