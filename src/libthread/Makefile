@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../..
+include $(PLAN9)/src/Makehdr
 
 LIB=libthread.a
 
@@ -33,19 +33,19 @@ OFILES=\
 	sched.$O\
 
 HFILES=\
-	$(9SRC)/include/thread.h\
+	$(PLAN9)/include/thread.h\
 	label.h\
 	threadimpl.h\
 
-include $(9SRC)/Makesyslib
+include $(PLAN9)/src/Makesyslib
 
-tprimes: tprimes.$O $(9SRC)/lib/$(LIB)
+tprimes: tprimes.$O $(PLAN9)/lib/$(LIB)
 	$(LD) -o tprimes tprimes.$O $(LDFLAGS) -lthread -l9 -lfmt -lutf
 
-texec: texec.$O $(9SRC)/lib/$(LIB)
+texec: texec.$O $(PLAN9)/lib/$(LIB)
 	$(LD) -o texec texec.$O $(LDFLAGS) -lthread -l9 -lfmt -lutf
 
-trend: trend.$O $(9SRC)/lib/$(LIB)
+trend: trend.$O $(PLAN9)/lib/$(LIB)
 	$(LD) -o trend trend.$O $(LDFLAGS) -lthread -l9 -lfmt -lutf
 
 CLEANFILES+=tprimes texec

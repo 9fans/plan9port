@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../../..
+include $(PLAN9)/src/Makehdr
 
 TARG=sam
 OFILES=sam.$O\
@@ -30,5 +30,5 @@ HFILES=sam.h\
 
 LDFLAGS+=-l9 -lfmt -lutf
 
-include $(9SRC)/Makeone
+include $(PLAN9)/src/Makeone
 

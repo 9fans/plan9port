@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../..
+include $(PLAN9)/src/Makehdr
 
 LIB=libbio.a
 
@@ -22,10 +22,10 @@ OFILES=\
 	bputrune.$O\
 
 HFILES=\
-	$(9SRC)/include/bio.h\
+	$(PLAN9)/include/bio.h\
 
-include $(9SRC)/Makesyslib
+include $(PLAN9)/src/Makesyslib
 
 bcat: bcat.$O $(LIB)
-	$(CC) -o bcat bcat.$O -L$(9SRC)/lib -lbio -lfmt -lutf
+	$(CC) -o bcat bcat.$O -L$(PLAN9)/lib -lbio -lfmt -lutf
 

@@ -1,9 +1,9 @@
-all install: $(9SRC)/lib/$(LIB)
+all install: $(PLAN9)/lib/$(LIB)
 
-$(9SRC)/lib/$(LIB): $(OFILES)
-	$(AR) $(ARFLAGS) $(9SRC)/lib/$(LIB) $(OFILES)
-	$(RANLIB) $(9SRC)/lib/$(LIB)
+$(PLAN9)/lib/$(LIB): $(OFILES)
+	$(AR) $(ARFLAGS) $(PLAN9)/lib/$(LIB) $(OFILES)
+	$(RANLIB) $(PLAN9)/lib/$(LIB)
 
-include $(9SRC)/Makecommon
+include $(PLAN9)/src/Makecommon
 
-NUKEFILES+=$(9SRC)/lib/$(LIB)
+NUKEFILES+=$(PLAN9)/lib/$(LIB)

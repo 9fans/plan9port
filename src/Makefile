@@ -9,9 +9,9 @@ LIBS=\
 	libutf\
 
 CMDS=\
-	mk\
-	sam\
-	samterm\
+	cmd/mk\
+	cmd/sam\
+	cmd/samterm\
 
 all clean install nuke:
 	for i in $(LIBS) $(CMDS); \

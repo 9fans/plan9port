@@ -4,10 +4,10 @@ $(TARG): $(OFILES)
 	$(CC) -o $(TARG) $(OFILES) $(LDFLAGS)
 
 CLEANFILES+=$(TARG)
-NUKEFILES+=$(9SRC)/bin/$(TARG)
+NUKEFILES+=$(PLAN9)/bin/$(TARG)
 
-include $(9SRC)/Makecommon
+include $(PLAN9)/src/Makecommon
 
 install: $(TARG)
-	cp $(TARG) $(9SRC)/bin
+	cp $(TARG) $(PLAN9)/bin
 

@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../../..
+include $(PLAN9)/src/Makehdr
 
 TARG=samterm
 OFILES=\
@@ -18,12 +18,12 @@ HFILES=\
 	flayer.h\
 	../sam/sam.h\
 	../sam/mesg.h\
-	$(9SRC)/include/frame.h\
-	$(9SRC)/include/draw.h\
+	$(PLAN9)/include/frame.h\
+	$(PLAN9)/include/draw.h\
 
 CFLAGS+=-I../sam
 LDFLAGS+=-lframe -ldraw -lthread -l9 -lregexp9 -lbio -lfmt -lutf -L$(X11)/lib -lX11 -lm
 
-samterm: $(9SRC)/lib/libdraw.a
+samterm: $(PLAN9)/lib/libdraw.a
 
-include ../Makeone
+include $(PLAN9)/src/Makeone

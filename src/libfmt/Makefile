@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../..
+include $(PLAN9)/src/Makehdr
 
 LIB=libfmt.a
 
@@ -7,8 +7,10 @@ NUM=\
 	charstod.$O\
 	pow10.$O\
 
+# Could add errfmt, but we want to pick it up from lib9 instead.
 OFILES=\
 	dofmt.$O\
+	errfmt.$O\
 	fltfmt.$O\
 	fmt.$O\
 	fmtfd.$O\
@@ -43,13 +45,13 @@ OFILES=\
 
 HFILES=\
 	fmtdef.h\
-	$(9SRC)/include/fmt.h\
+	$(PLAN9)/include/fmt.h\
 
-include $(9SRC)/Makesyslib
+include $(PLAN9)/src/Makesyslib
 
 $(NAN).$O: nan.h
 strtod.$O: nan.h
 
 test: $(LIB) test.$O
-	$(CC) -o test test.$O $(LIB) -L$(9SRC)/lib -lutf
+	$(CC) -o test test.$O $(LIB) -L$(PLAN9)/lib -lutf
 

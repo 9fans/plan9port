@@ -13,8 +13,8 @@ X11=/usr/X11R6
 LDFLAGS=
 CFLAGS=
 
-include $(9SRC)/Make.$(SYSNAME)-$(OBJTYPE)
-LDFLAGS+=-L$(9SRC)/lib
+include $(PLAN9)/src/Make.$(SYSNAME)-$(OBJTYPE)
+LDFLAGS+=-L$(PLAN9)/lib
 
 CLEANFILES=*.$O
 NUKEFILES=

@@ -1,10 +1,10 @@
 .c.$O:
 	@echo cc $*.c
-	@$(CC) $(CFLAGS) -I$(9SRC)/include $*.c
+	@$(CC) $(CFLAGS) -I$(PLAN9)/include $*.c
 
 %.$O: %.c
 	@echo cc $*.c
-	@$(CC) $(CFLAGS) -I$(9SRC)/include $*.c
+	@$(CC) $(CFLAGS) -I$(PLAN9)/include $*.c
 
 $(OFILES): $(HFILES)
 

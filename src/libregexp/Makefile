@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../..
+include $(PLAN9)/src/Makehdr
 
 LIB=libregexp9.a
 
@@ -14,10 +14,10 @@ OFILES=\
 	rregsub.$O\
 
 HFILES=\
-	$(9SRC)/include/regexp9.h\
+	$(PLAN9)/include/regexp9.h\
 	regcomp.h\
 
-include $(9SRC)/Makesyslib
+include $(PLAN9)/src/Makesyslib
 
 test: test.$O $(LIB)
 	$(CC) -o test test.$O $(LIB) -L/usr/local/lib -lfmt -lutf

@@ -1,5 +1,5 @@
-9SRC=..
-include $(9SRC)/Makehdr
+PLAN9=../..
+include $(PLAN9)/src/Makehdr
 
 LIB=libdraw.a
 
@@ -104,20 +104,20 @@ OFILES=\
 	unix.$O\
 
 HFILES=\
-	$(9SRC)/include/draw.h\
-	$(9SRC)/include/memdraw.h\
-	$(9SRC)/include/memlayer.h\
-	$(9SRC)/include/event.h\
-	$(9SRC)/include/cursor.h\
-	$(9SRC)/include/mouse.h\
-	$(9SRC)/include/keyboard.h\
+	$(PLAN9)/include/draw.h\
+	$(PLAN9)/include/memdraw.h\
+	$(PLAN9)/include/memlayer.h\
+	$(PLAN9)/include/event.h\
+	$(PLAN9)/include/cursor.h\
+	$(PLAN9)/include/mouse.h\
+	$(PLAN9)/include/keyboard.h\
 	x11-inc.h\
 	x11-memdraw.h\
 
 CFLAGS+=-I$(X11)/include
 
-include $(9SRC)/Makesyslib
+include $(PLAN9)/src/Makesyslib
 
 test: test.o $(LIB)
-	gcc -o test test.o -L$(9SRC) -ldraw -l9 -lfmt -lutf -L$(X11)/lib -lX11 -lm
+	gcc -o test test.o -L$(PLAN9) -ldraw -l9 -lfmt -lutf -L$(X11)/lib -lX11 -lm
 
