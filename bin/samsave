@@ -1,0 +1,18 @@
+#!/bin/sh
+# Copyright (c) 1998 Lucent Technologies - All rights reserved.
+
+file=$1
+case "$2" in
+-f)
+	echo "$file"
+	cat >$file
+	;;
+"")
+	echo "$file?"
+	read yn </dev/tty
+	case "$yn" in
+	[Yy]*)
+		cat >$file
+	esac
+esac
+

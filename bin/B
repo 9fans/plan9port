@@ -1,0 +1,33 @@
+#!/bin/sh
+
+if [ $# -eq 0 ]
+then
+	echo 'usage: B cmd...' 2>&1
+	exit 1
+fi
+
+if [ "x$DISPLAY" = "x" ]
+then
+	sam="/tmp/.sam.$USER"
+else
+	sam="/tmp/.sam.$USER.$DISPLAY"
+fi
+
+if [ ! -p $sam ]
+then
+	echo could not find sam 2>&1
+	exit 2
+else
+	pwd=`pwd`
+	for i
+	do
+		case $i in
+		/*)
+			echo "B $i" >>$sam
+			;;
+		*)
+			echo "B $pwd/$i" >>$sam
+			;;
+		esac
+	done
+fi
