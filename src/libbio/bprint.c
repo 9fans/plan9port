@@ -11,7 +11,7 @@ Bprint(Biobuf *bp, char *fmt, ...)
 	if(Bfmtinit(&f, bp) < 0)
 		return -1;
 	va_start(args, fmt);
-	n = fmtprint(&f, fmt, args);
+	n = fmtvprint(&f, fmt, args);
 	va_end(args);
 	if(n > 0 && Bfmtflush(&f) < 0)
 		return -1;
