@@ -12,6 +12,7 @@
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
 #include <stdarg.h>
+#include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
 

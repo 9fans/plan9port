@@ -13,8 +13,8 @@
  */
 #include <stdarg.h>
 #include <string.h>
+#include "plan9.h"
 #include "utf.h"
-#include "utfdef.h"
 
 Rune*
 runestrncpy(Rune *s1, Rune *s2, long n)

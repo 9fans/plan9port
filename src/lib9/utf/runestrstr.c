@@ -13,8 +13,8 @@
  */
 #include <stdarg.h>
 #include <string.h>
+#include "plan9.h"
 #include "utf.h"
-#include "utfdef.h"
 
 /*
  * Return pointer to first occurrence of s2 in s1,

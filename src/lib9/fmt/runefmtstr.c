@@ -11,9 +11,20 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
+/*
+ * Plan 9 port version must include libc.h in order to 
+ * get Plan 9 debugging malloc, which sometimes returns
+ * different pointers than the standard malloc. 
+ */
+#ifdef PLAN9PORT
 #include <u.h>
 #include <libc.h>
+#else
+#include <stdlib.h>
+#include "plan9.h"
+#include "fmt.h"
 #include "fmtdef.h"
+#endif
 
 static int
 runeFmtStrFlush(Fmt *f)

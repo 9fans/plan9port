@@ -11,6 +11,7 @@
  * REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
+
 /*
  * dofmt -- format to a buffer
  * the number of characters formatted is returned,
@@ -18,29 +19,6 @@
  * if the buffer is ever filled, flush is called.
  * it should reset the buffer and return whether formatting should continue.
  */
-#define uchar _fmtuchar
-#define ushort _fmtushort
-#define uint _fmtuint
-#define ulong _fmtulong
-#define vlong _fmtvlong
-#define uvlong _fmtuvlong
-
-#ifndef USED
-#define USED(x) if(x);else
-#endif
-
-typedef unsigned char		uchar;
-typedef unsigned short		ushort;
-typedef unsigned int		uint;
-typedef unsigned long		ulong;
-
-#ifndef NOVLONGS
-typedef unsigned long long	uvlong;
-typedef long long		vlong;
-#endif
-
-#undef nil
-#define nil		0	/* cannot be ((void*)0) because used for function pointers */
 
 typedef int (*Fmts)(Fmt*);
 
@@ -54,31 +32,36 @@ struct Quoteinfo
 	int	nbytesout;	/* number of bytes that will be generated */
 };
 
-void	*__fmtflush(Fmt*, void*, int);
-void	*__fmtdispatch(Fmt*, void*, int);
-int	__floatfmt(Fmt*, double);
-int	__fmtpad(Fmt*, int);
-int	__rfmtpad(Fmt*, int);
-int	__fmtFdFlush(Fmt*);
-
-int	__efgfmt(Fmt*);
-int	__charfmt(Fmt*);
-int	__runefmt(Fmt*);
-int	__runesfmt(Fmt*);
-int	__countfmt(Fmt*);
-int	__flagfmt(Fmt*);
-int	__percentfmt(Fmt*);
-int	__ifmt(Fmt*);
-int	__strfmt(Fmt*);
-int	__badfmt(Fmt*);
-int	__fmtcpy(Fmt*, const void*, int, int);
-int	__fmtrcpy(Fmt*, const void*, int n);
-int	__errfmt(Fmt *f);
-
-double	__fmtpow10(int);
-
-void	__fmtlock(void);
-void	__fmtunlock(void);
+/* Edit .+1,/^$/ |cfn |grep -v static | grep __ */
+double       __Inf(int sign);
+double       __NaN(void);
+int          __badfmt(Fmt *f);
+int          __charfmt(Fmt *f);
+int          __countfmt(Fmt *f);
+int          __efgfmt(Fmt *fmt);
+int          __errfmt(Fmt *f);
+int          __flagfmt(Fmt *f);
+int          __fmtFdFlush(Fmt *f);
+int          __fmtcpy(Fmt *f, const void *vm, int n, int sz);
+void*        __fmtdispatch(Fmt *f, void *fmt, int isrunes);
+void *       __fmtflush(Fmt *f, void *t, int len);
+void         __fmtlock(void);
+int          __fmtpad(Fmt *f, int n);
+double       __fmtpow10(int n);
+int          __fmtrcpy(Fmt *f, const void *vm, int n);
+void         __fmtunlock(void);
+int          __ifmt(Fmt *f);
+int          __isInf(double d, int sign);
+int          __isNaN(double d);
+int          __needsquotes(char *s, int *quotelenp);
+int          __percentfmt(Fmt *f);
+void         __quotesetup(char *s, Rune *r, int nin, int nout, Quoteinfo *q, int sharp, int runesout);
+int          __quotestrfmt(int runesin, Fmt *f);
+int          __rfmtpad(Fmt *f, int n);
+int          __runefmt(Fmt *f);
+int          __runeneedsquotes(Rune *r, int *quotelenp);
+int          __runesfmt(Fmt *f);
+int          __strfmt(Fmt *f);
 
 #define FMTCHAR(f, t, s, c)\
 	do{\

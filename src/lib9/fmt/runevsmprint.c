@@ -13,7 +13,7 @@
  */
 #include <stdarg.h>
 #include <stdlib.h>
-#include "utf.h"
+#include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
 

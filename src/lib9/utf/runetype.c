@@ -13,8 +13,8 @@
  */
 #include <stdarg.h>
 #include <string.h>
+#include "plan9.h"
 #include "utf.h"
-#include "utfdef.h"
 
 /*
  * alpha ranges -
@@ -1030,8 +1030,7 @@ Rune	__totitle1[] =
 	0x01f3, 499,	/* ǳ ǲ */
 };
 
-static
-Rune*
+static Rune*
 bsearch(Rune c, Rune *t, int n, int ne)
 {
 	Rune *p;

@@ -13,7 +13,7 @@
  */
 #include <stdarg.h>
 #include <string.h>
-#include "utf.h"
+#include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
 
@@ -339,10 +339,12 @@ __ifmt(Fmt *f)
 	 * Unsigned verbs
 	 */
 	switch(f->r){
-	case 'o':
-	case 'u':
+	/* unsigned by default only on Unix 
 	case 'x':
 	case 'X':
+	*/
+	case 'o':
+	case 'u':
 		fl |= FmtUnsigned;
 		break;
 	}
@@ -402,7 +404,9 @@ __ifmt(Fmt *f)
 	default:
 		return -1;
 	}
-	if(!(fl & FmtUnsigned)){
+	if(fl & FmtUnsigned)
+		fl &= ~(FmtSign|FmtSpace);
+	else{
 		if(isv && (vlong)vu < 0){
 			vu = -(vlong)vu;
 			neg = 1;
@@ -410,8 +414,6 @@ __ifmt(Fmt *f)
 			u = -(long)u;
 			neg = 1;
 		}
-	}else{
-		fl &= ~(FmtSign|FmtSpace);	/* no + for unsigned conversions */
 	}
 	p = buf + sizeof buf - 1;
 	n = 0;

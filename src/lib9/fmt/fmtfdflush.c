@@ -13,6 +13,7 @@
  */
 #include <stdarg.h>
 #include <unistd.h>
+#include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
 

@@ -13,7 +13,7 @@
  */
 #include <stdarg.h>
 #include <string.h>
-#include "utf.h"
+#include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
 
@@ -53,7 +53,7 @@ dorfmt(Fmt *f, const Rune *fmt)
 			f->stop = s;
 		}
 
-		fmt = __fmtdispatch(f, fmt, 1);
+		fmt = __fmtdispatch(f, (Rune*)fmt, 1);
 		if(fmt == nil)
 			return -1;
 	}

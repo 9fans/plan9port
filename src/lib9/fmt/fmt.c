@@ -13,7 +13,7 @@
  */
 #include <stdarg.h>
 #include <string.h>
-#include "utf.h"
+#include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
 
@@ -64,7 +64,11 @@ static Convfmt knownfmt[] = {
 	'p',	__ifmt,
 	'r',	__errfmt,
 	's',	__strfmt,
-	'u',	__flagfmt,	/* in Unix, __ifmt */
+#ifdef PLAN9PORT
+	'u',	__flagfmt,
+#else
+	'u',	__ifmt,
+#endif
 	'x',	__ifmt,
 	0,	nil,
 };
@@ -103,7 +107,7 @@ __fmtinstall(int c, Fmts f)
 }
 
 int
-fmtinstall(int c, Fmts f)
+fmtinstall(int c, int (*f)(Fmt*))
 {
 	int ret;
 
