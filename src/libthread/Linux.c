@@ -348,3 +348,8 @@ _pthreadinit(void)
 	signal(SIGUSR2, sigusr2handler);
 }
 
+void
+_threadpexit(void)
+{
+	_exit(0);
+}

@@ -9,10 +9,13 @@ static int threadpassfd;
 static void
 child(void)
 {
-	int status;
-	if(wait(&status) == sigpid)
-		if(WIFEXITED(status))
-			 _exit(WEXITSTATUS(status));
+	int status, pid;
+	pid = wait(&status);
+	if(pid < 0)
+		fprint(2, "wait: %r\n");
+	else if(WIFEXITED(status))
+		 _exit(WEXITSTATUS(status));
+print("pid %d if %d %d\n", pid, WIFEXITED(status), WEXITSTATUS(status));
 	_exit(97);
 }
 
@@ -51,6 +54,7 @@ _threadsetupdaemonize(void)
 	if(fcntl(p[0], F_SETFD, 1) < 0 || fcntl(p[1], F_SETFD, 1) < 0)
 		sysfatal("passer pipe pipe fcntl: %r");
 
+	signal(SIGCHLD, sigpass);
 	switch(pid = fork()){
 	case -1:
 		sysfatal("passer fork: %r");
@@ -58,6 +62,7 @@ _threadsetupdaemonize(void)
 		close(p[1]);
 		break;
 	case 0:
+		signal(SIGCHLD, SIG_DFL);
 		rfork(RFNOTEG);
 		close(p[0]);
 		threadpassfd = p[1];
@@ -89,7 +94,9 @@ _threadsetupdaemonize(void)
 void
 threaddaemonize(void)
 {
-	write(threadpassfd, "0", 1);
-	close(threadpassfd);
-	threadpassfd = -1;
+	if(threadpassfd >= 0){
+		write(threadpassfd, "0", 1);
+		close(threadpassfd);
+		threadpassfd = -1;
+	}
 }

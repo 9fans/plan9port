@@ -132,3 +132,8 @@ threadexitsall(char *msg)
 	exits(msg);
 }
 
+void
+_threadpexit(void)
+{
+	pthread_exit(0);
+}

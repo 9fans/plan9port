@@ -476,6 +476,8 @@ main(int argc, char **argv)
 {
 	Proc *p;
 
+	argv0 = argv[0];
+
 	_threadsetupdaemonize();
 
 	threadargc = argc;
@@ -503,7 +505,8 @@ main(int argc, char **argv)
 		mainstacksize = 65536;
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	scheduler(p);
-	return 0;	/* not reached */
+	threaddaemonize();
+	_threadpexit();
 }
 
 /*
