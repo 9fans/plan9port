@@ -1013,10 +1013,11 @@ consread(void)
 		n = p-buf;
 
 		/*
-		 * We've been echoing, so make sure the terminal isn't
+		 * If we've been echoing, make sure the terminal isn't
 		 * while we do the write.  This screws up if someone 
-		 * else tries to turn on echo at the same time (we'll turn it
-		 * off again after the write), but that's not too likely.
+		 * else tries to turn off echo at the same time we do
+		 * (we'll turn it on again after the write), but that's not
+		 * too likely.
 		 */
 		s = setecho(sfd, 0);
 		if(write(rcfd, buf, n) < 0)
