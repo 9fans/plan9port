@@ -1,6 +1,6 @@
 default:V:	$PLAN9/lib/$LIB
 
-$PLAN9/lib/$LIB:V:	$OFILES			# force archive even when not needed
+$PLAN9/lib/$LIB:	$OFILES
 	$AR rvc $PLAN9/lib/$LIB $newprereq
 
 &:n:	&.$O
