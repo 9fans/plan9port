@@ -64,7 +64,7 @@ max(int a, int b)
 void
 tcopy (char *s, char *t)
 {
-	while ((*s++ = *t++))
+	while (*s++ = *t++)
 		;
 }
 

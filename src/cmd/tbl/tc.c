@@ -4,9 +4,9 @@
 void
 choochar(void)
 {
-	/* choose funny characters to delimit fields */
-	int had[128], ilin, icol, k;
-	unsigned char *s;
+				/* choose funny characters to delimit fields */
+	int	had[128], ilin, icol, k;
+	unsigned char	*s;
 
 	for (icol = 0; icol < 128; icol++)
 		had[icol] = 0;

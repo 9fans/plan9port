@@ -28,19 +28,19 @@ putline(int i, int nl)
 					if (!vspen(s = table[ip][c].col)) 
 						break;
 				if ((int)s > 0 && (int)s < 128)
-					fprintf(tabout, ".ne \\n(%c|u+\\n(.Vu\n", (int)s);
+					Bprint(&tabout, ".ne \\n(%c|u+\\n(.Vu\n", (int)s);
 				continue;
 			}
 			if (point(s)) 
 				continue;
-			fprintf(tabout, ".ne \\n(%c|u+\\n(.Vu\n", (int)s);
+			Bprint(&tabout, ".ne \\n(%c|u+\\n(.Vu\n", (int)s);
 			watchout = 1;
 		}
 	if (linestop[nl])
-		fprintf(tabout, ".mk #%c\n", linestop[nl] + 'a' - 1);
+		Bprint(&tabout, ".mk #%c\n", linestop[nl] + 'a' - 1);
 	lf = prev(nl);
 	if (instead[nl]) {
-		fprintf(tabout, "%s\n", instead[nl]);
+		Bprint(&tabout, "%s\n", instead[nl]);
 		return;
 	}
 	if (fullbot[nl]) {
@@ -60,8 +60,8 @@ putline(int i, int nl)
 				vspf = 1;
 	}
 	if (vspf) {
-		fprintf(tabout, ".nr #^ \\n(\\*(#du\n");
-		fprintf(tabout, ".nr #- \\n(#^\n"); /* current line position relative to bottom */
+		Bprint(&tabout, ".nr #^ \\n(\\*(#du\n");
+		Bprint(&tabout, ".nr #- \\n(#^\n"); /* current line position relative to bottom */
 	}
 	vspf = 0;
 	chfont = 0;
@@ -74,11 +74,11 @@ putline(int i, int nl)
 			continue;
 		lf = prev(nl);
 		if (lf >= 0 && vspen(table[lf][c].col))
-			fprintf(tabout,
+			Bprint(&tabout,
 			   ".if (\\n(%c|+\\n(^%c-1v)>\\n(#- .nr #- +(\\n(%c|+\\n(^%c-\\n(#--1v)\n",
 			    (int)s, 'a' + c, (int)s, 'a' + c);
 		else
-			fprintf(tabout,
+			Bprint(&tabout,
 			    ".if (\\n(%c|+\\n(#^-1v)>\\n(#- .nr #- +(\\n(%c|+\\n(#^-\\n(#--1v)\n",
 			    (int)s, (int)s);
 	}
@@ -87,14 +87,14 @@ putline(int i, int nl)
 	once = 1;
 	runtabs(i, nl);
 	if (allh(i) && !pr1403) {
-		fprintf(tabout, ".nr %d \\n(.v\n", SVS);
-		fprintf(tabout, ".vs \\n(.vu-\\n(.sp\n");
-		fprintf(tabout, ".nr 35 \\n(.vu\n");
+		Bprint(&tabout, ".nr %d \\n(.v\n", SVS);
+		Bprint(&tabout, ".vs \\n(.vu-\\n(.sp\n");
+		Bprint(&tabout, ".nr 35 \\n(.vu\n");
 	} else
-		fprintf(tabout, ".nr 35 1m\n");
+		Bprint(&tabout, ".nr 35 1m\n");
 	if (chfont)
-		fprintf(tabout, ".nr %2d \\n(.f\n", S1);
-	fprintf(tabout, "\\&");
+		Bprint(&tabout, ".nr %2d \\n(.f\n", S1);
+	Bprint(&tabout, "\\&");
 	vct = 0;
 	for (c = 0; c < ncol; c++) {
 		uphalf = 0;
@@ -115,7 +115,7 @@ putline(int i, int nl)
 				rct = reg(c, CMID);
 			if (form == 'n' && table[nl][c].rcol && lused[c] == 0) 
 				rct = reg(c, CMID);
-			fprintf(tabout, "\\h'|\\n(%2su'", rct);
+			Bprint(&tabout, "\\h'|\\n(%2su'", rct);
 		}
 		s = table[nl][c].col;
 		fn = font[c][stynum[vforml]];
@@ -133,27 +133,27 @@ putline(int i, int nl)
 					if (ip >= 0)
 						if (vspen(table[ip][c].col)) {
 							if (exvspen == 0) {
-								fprintf(tabout, "\\v'-(\\n(\\*(#du-\\n(^%cu", c + 'a');
+								Bprint(&tabout, "\\v'-(\\n(\\*(#du-\\n(^%cu", c + 'a');
 								if (cmidx)
 /* code folded from here */
-	fprintf(tabout, "-((\\n(#-u-\\n(^%cu)/2u)", c + 'a');
+	Bprint(&tabout, "-((\\n(#-u-\\n(^%cu)/2u)", c + 'a');
 /* unfolding */
 								vct++;
 								if (pr1403) /* must round to whole lines */
 /* code folded from here */
-	fprintf(tabout, "/1v*1v");
+	Bprint(&tabout, "/1v*1v");
 /* unfolding */
-								fprintf(tabout, "'");
+								Bprint(&tabout, "'");
 								exvspen = 1;
 							}
 						}
-					fprintf(tabout, "%c%c", F1, F2);
+					Bprint(&tabout, "%c%c", F1, F2);
 					if (uphalf) 
-						fprintf(tabout, "\\u");
+						Bprint(&tabout, "\\u");
 					puttext(s, fn, size);
 					if (uphalf) 
-						fprintf(tabout, "\\d");
-					fprintf(tabout, "%c", F1);
+						Bprint(&tabout, "\\d");
+					Bprint(&tabout, "%c", F1);
 				}
 				s = table[nl][c].rcol;
 				form = 1;
@@ -171,7 +171,7 @@ putline(int i, int nl)
 		case '-':
 		case '=':
 			if (real(table[nl][c].col))
-				fprintf(stderr, "%s: line %d: Data ignored on table line %d\n", ifile, iline - 1, i + 1);
+				fprint(2, "%s: line %d: Data ignored on table line %d\n", ifile, iline - 1, i + 1);
 			makeline(i, c, ct);
 			continue;
 		default:
@@ -184,7 +184,7 @@ putline(int i, int nl)
 				continue;
 			}
 			if (filler(s)) {
-				fprintf(tabout, "\\l'|\\n(%2su\\&%s'", reg(c, CRIGHT), s + 2);
+				Bprint(&tabout, "\\l'|\\n(%2su\\&%s'", reg(c, CRIGHT), s + 2);
 				continue;
 			}
 			ip = prev(nl);
@@ -192,68 +192,67 @@ putline(int i, int nl)
 			if (ip >= 0)
 				if (vspen(table[ip][c].col)) {
 					if (exvspen == 0) {
-						fprintf(tabout, "\\v'-(\\n(\\*(#du-\\n(^%cu", c + 'a');
+						Bprint(&tabout, "\\v'-(\\n(\\*(#du-\\n(^%cu", c + 'a');
 						if (cmidx)
-							fprintf(tabout, "-((\\n(#-u-\\n(^%cu)/2u)", c + 'a');
+							Bprint(&tabout, "-((\\n(#-u-\\n(^%cu)/2u)", c + 'a');
 						vct++;
 						if (pr1403) /* round to whole lines */
-							fprintf(tabout, "/1v*1v");
-						fprintf(tabout, "'");
+							Bprint(&tabout, "/1v*1v");
+						Bprint(&tabout, "'");
 					}
 				}
-			fprintf(tabout, "%c", F1);
+			Bprint(&tabout, "%c", F1);
 			if (form != 1)
-				fprintf(tabout, "%c", F2);
+				Bprint(&tabout, "%c", F2);
 			if (vspen(s))
 				vspf = 1;
 			else
 			 {
 				if (uphalf) 
-					fprintf(tabout, "\\u");
+					Bprint(&tabout, "\\u");
 				puttext(s, fn, size);
 				if (uphalf) 
-					fprintf(tabout, "\\d");
+					Bprint(&tabout, "\\d");
 			}
 			if (form != 2)
-				fprintf(tabout, "%c", F2);
-			fprintf(tabout, "%c", F1);
+				Bprint(&tabout, "%c", F2);
+			Bprint(&tabout, "%c", F1);
 		}
 		ip = prev(nl);
-		if (ip >= 0) {
+		if (ip >= 0)
 			if (vspen(table[ip][c].col)) {
 				exvspen = (c + 1 < ncol) && vspen(table[ip][c+1].col) && 
 				    (topat[c] == topat[c+1]) && 
-				    (cmidx == ((flags[c+1] [stynum[nl]] & (CTOP | CDOWN)) == 0))
+				    (cmidx == (flags[c+1] [stynum[nl]] & (CTOP | CDOWN) == 0))
 				     && (left(i, c + 1, &lwid) < 0);
 				if (exvspen == 0) {
-					fprintf(tabout, "\\v'(\\n(\\*(#du-\\n(^%cu", c + 'a');
+					Bprint(&tabout, "\\v'(\\n(\\*(#du-\\n(^%cu", c + 'a');
 					if (cmidx)
-						fprintf(tabout, "-((\\n(#-u-\\n(^%cu)/2u)", c + 'a');
+						Bprint(&tabout, "-((\\n(#-u-\\n(^%cu)/2u)", c + 'a');
 					vct++;
 					if (pr1403) /* round to whole lines */
-						fprintf(tabout, "/1v*1v");
-					fprintf(tabout, "'");
+						Bprint(&tabout, "/1v*1v");
+					Bprint(&tabout, "'");
 				}
 			}
 			else
 				exvspen = 0;
-		}
 		/* if lines need to be split for gcos here is the place for a backslash */
 		if (vct > 7 && c < ncol) {
-			fprintf(tabout, "\n.sp-1\n\\&");
+			Bprint(&tabout, "\n.sp-1\n\\&");
 			vct = 0;
 		}
 	}
-	fprintf(tabout, "\n");
+	Bprint(&tabout, "\n");
 	if (allh(i) && !pr1403) 
-		fprintf(tabout, ".vs \\n(%du\n", SVS);
+		Bprint(&tabout, ".vs \\n(%du\n", SVS);
 	if (watchout)
 		funnies(i, nl);
 	if (vspf) {
 		for (c = 0; c < ncol; c++)
 			if (vspen(table[nl][c].col) && (nl == 0 || (lf = prev(nl)) < 0 ||
 			    !vspen(table[lf][c].col))) {
-				fprintf(tabout, ".nr ^%c \\n(#^u\n", 'a' + c);
+				Bprint(&tabout, ".nr ^%c \\n(#^u\n", 'a' + c);
 				topat[c] = nl;
 			}
 	}
@@ -266,9 +265,9 @@ puttext(char *s, char *fn, char *size)
 	if (point(s)) {
 		putfont(fn);
 		putsize(size);
-		fprintf(tabout, "%s", s);
+		Bprint(&tabout, "%s", s);
 		if (*fn > 0) 
-			fprintf(tabout, "\\f\\n(%2d", S1);
+			Bprint(&tabout, "\\f\\n(%2d", S1);
 		if (size != 0) 
 			putsize("0");
 	}
@@ -282,8 +281,8 @@ funnies(int stl, int lin)
 	int	c, s, pl, lwid, dv, lf, ct;
 	char	*fn, *ss;
 
-	fprintf(tabout, ".mk ##\n");	 /* rmember current vertical position */
-	fprintf(tabout, ".nr %d \\n(##\n", S1);		 /* bottom position */
+	Bprint(&tabout, ".mk ##\n");	 /* rmember current vertical position */
+	Bprint(&tabout, ".nr %d \\n(##\n", S1);		 /* bottom position */
 	for (c = 0; c < ncol; c++) {
 		ss = table[lin][c].col;
 		if (point(ss)) 
@@ -291,62 +290,62 @@ funnies(int stl, int lin)
 		if (ss == 0) 
 			continue;
 		s = (int)ss;
-		fprintf(tabout, ".sp |\\n(##u-1v\n");
-		fprintf(tabout, ".nr %d ", SIND);
+		Bprint(&tabout, ".sp |\\n(##u-1v\n");
+		Bprint(&tabout, ".nr %d ", SIND);
 		ct = 0;
 		for (pl = stl; pl >= 0 && !isalpha(ct = ctype(pl, c)); pl = prev(pl))
 			;
 		switch (ct) {
 		case 'n':
 		case 'c':
-			fprintf(tabout, "(\\n(%2su+\\n(%2su-\\n(%c-u)/2u\n", reg(c, CLEFT),
+			Bprint(&tabout, "(\\n(%2su+\\n(%2su-\\n(%c-u)/2u\n", reg(c, CLEFT),
 			     reg(c - 1 + ctspan(lin, c), CRIGHT),
 			     s);
 			break;
 		case 'l':
-			fprintf(tabout, "\\n(%2su\n", reg(c, CLEFT));
+			Bprint(&tabout, "\\n(%2su\n", reg(c, CLEFT));
 			break;
 		case 'a':
-			fprintf(tabout, "\\n(%2su\n", reg(c, CMID));
+			Bprint(&tabout, "\\n(%2su\n", reg(c, CMID));
 			break;
 		case 'r':
-			fprintf(tabout, "\\n(%2su-\\n(%c-u\n", reg(c, CRIGHT), s);
+			Bprint(&tabout, "\\n(%2su-\\n(%c-u\n", reg(c, CRIGHT), s);
 			break;
 		}
-		fprintf(tabout, ".in +\\n(%du\n", SIND);
+		Bprint(&tabout, ".in +\\n(%du\n", SIND);
 		fn = font[c][stynum[stl]];
 		putfont(fn);
 		pl = prev(stl);
 		if (stl > 0 && pl >= 0 && vspen(table[pl][c].col)) {
-			fprintf(tabout, ".sp |\\n(^%cu\n", 'a' + c);
+			Bprint(&tabout, ".sp |\\n(^%cu\n", 'a' + c);
 			if ((flags[c][stynum[stl]] & (CTOP | CDOWN)) == 0) {
-				fprintf(tabout, ".nr %d \\n(#-u-\\n(^%c-\\n(%c|+1v\n",
+				Bprint(&tabout, ".nr %d \\n(#-u-\\n(^%c-\\n(%c|+1v\n",
 				     TMP, 'a' + c, s);
-				fprintf(tabout, ".if \\n(%d>0 .sp \\n(%du/2u", TMP, TMP);
+				Bprint(&tabout, ".if \\n(%d>0 .sp \\n(%du/2u", TMP, TMP);
 				if (pr1403)		 /* round */
-					fprintf(tabout, "/1v*1v");
-				fprintf(tabout, "\n");
+					Bprint(&tabout, "/1v*1v");
+				Bprint(&tabout, "\n");
 			}
 		}
-		fprintf(tabout, ".%c+\n", s);
-		fprintf(tabout, ".in -\\n(%du\n", SIND);
+		Bprint(&tabout, ".%c+\n", s);
+		Bprint(&tabout, ".in -\\n(%du\n", SIND);
 		if (*fn > 0) 
 			putfont("P");
-		fprintf(tabout, ".mk %d\n", S2);
-		fprintf(tabout, ".if \\n(%d>\\n(%d .nr %d \\n(%d\n", S2, S1, S1, S2);
+		Bprint(&tabout, ".mk %d\n", S2);
+		Bprint(&tabout, ".if \\n(%d>\\n(%d .nr %d \\n(%d\n", S2, S1, S1, S2);
 	}
-	fprintf(tabout, ".sp |\\n(%du\n", S1);
+	Bprint(&tabout, ".sp |\\n(%du\n", S1);
 	for (c = dv = 0; c < ncol; c++) {
 		if (stl + 1 < nlin && (lf = left(stl, c, &lwid)) >= 0) {
 			if (dv++ == 0)
-				fprintf(tabout, ".sp -1\n");
+				Bprint(&tabout, ".sp -1\n");
 			tohcol(c);
 			dv++;
 			drawvert(lf, stl, c, lwid);
 		}
 	}
 	if (dv)
-		fprintf(tabout, "\n");
+		Bprint(&tabout, "\n");
 }
 
 
@@ -354,7 +353,7 @@ void
 putfont(char *fn)
 {
 	if (fn && *fn)
-		fprintf(tabout,  fn[1] ? "\\f(%.2s" : "\\f%.2s",  fn);
+		Bprint(&tabout,  fn[1] ? "\\f(%.2s" : "\\f%.2s",  fn);
 }
 
 
@@ -362,7 +361,7 @@ void
 putsize(char *s)
 {
 	if (s && *s)
-		fprintf(tabout, "\\s%s", s);
+		Bprint(&tabout, "\\s%s", s);
 }
 
 

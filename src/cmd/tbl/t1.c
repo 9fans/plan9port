@@ -8,17 +8,10 @@
 
 # define ever (;;)
 
-int
+void
 main(int argc, char *argv[])
 {
-	tabin = stdin;
-	tabout = stdout;
-
-	if(tbl(argc, argv)){
-		fprintf(stderr, "error");
-		return 1;
-	}
-	return 0;
+	exits(tbl(argc, argv)? "error" : 0);
 }
 
 
@@ -28,14 +21,14 @@ tbl(int argc, char *argv[])
 	char	line[5120];
 	/*int x;*/
 	/*x=malloc((char *)0);	uncomment when allocation breaks*/
-	/*Binit(&tabout, 1, OWRITE); /* tabout=stdout */
+	Binit(&tabout, 1, OWRITE);
 	setinp(argc, argv);
 	while (gets1(line, sizeof(line))) {
-		fprintf(tabout, "%s\n", line);
+		Bprint(&tabout, "%s\n", line);
 		if (prefix(".TS", line))
 			tableput();
 	}
-	fclose(tabin);
+	Bterm(tabin);
 	return(0);
 }
 
@@ -52,8 +45,10 @@ setinp(int argc, char **argv)
 	sargv++;
 	if (sargc > 0)
 		swapin();
-	else
-		tabin = stdin;
+	else {
+		tabin = (Biobuf*)getcore(sizeof(Biobuf), 1);
+		Binit(tabin, 0, OREAD);
+	}
 }
 
 
@@ -81,16 +76,17 @@ swapin(void)
 		return(0);
 	/* file closing is done by GCOS troff preprocessor */
 	if(tabin)
-		fclose(tabin);
+		Bterm(tabin);
 	ifile = *sargv;
 	name = ifile;
 	if (match(ifile, "-")) {
-		tabin = stdin;
+		tabin = (Biobuf*)getcore(sizeof(Biobuf), 1);
+		Binit(tabin, 0, OREAD);
 	} else
-		tabin = fopen(ifile, "r");
+		tabin = Bopen(ifile, OREAD);
 	iline = 1;
-	fprintf(tabout, ".ds f. %s\n", ifile);
-	fprintf(tabout, ".lf %d %s\n", iline, name);
+	Bprint(&tabout, ".ds f. %s\n", ifile);
+	Bprint(&tabout, ".lf %d %s\n", iline, name);
 	if (tabin == 0)
 		error("Can't open file");
 	sargc--;

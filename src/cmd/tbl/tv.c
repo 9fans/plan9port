@@ -16,7 +16,7 @@ drawvert(int start, int end, int c, int lwid)
 		epb = ept = 0;
 		pos = 2 * ln - lwid + 1;
 		if (pos != tp) 
-			fprintf(tabout, "\\h'%dp'", pos - tp);
+			Bprint(&tabout, "\\h'%dp'", pos - tp);
 		tp = pos;
 		if (end < nlin) {
 			if (fullbot[end] || (!instead[end] && allh(end)))
@@ -102,33 +102,33 @@ drawvert(int start, int end, int c, int lwid)
 				break;
 			}
 		if (exb)
-			fprintf(tabout, "\\v'%s'", exb);
+			Bprint(&tabout, "\\v'%s'", exb);
 		if (epb)
-			fprintf(tabout, "\\v'%dp'", epb);
-		fprintf(tabout, "\\s\\n(%d", LSIZE);
+			Bprint(&tabout, "\\v'%dp'", epb);
+		Bprint(&tabout, "\\s\\n(%d", LSIZE);
 		if (linsize)
-			fprintf(tabout, "\\v'-\\n(%dp/6u'", LSIZE);
-		fprintf(tabout, "\\h'-\\n(#~u'");	 /* adjustment for T450 nroff boxes */
-		fprintf(tabout, "\\L'|\\n(#%cu-%s", linestop[start] + 'a' - 1,
+			Bprint(&tabout, "\\v'-\\n(%dp/6u'", LSIZE);
+		Bprint(&tabout, "\\h'-\\n(#~u'");	 /* adjustment for T450 nroff boxes */
+		Bprint(&tabout, "\\L'|\\n(#%cu-%s", linestop[start] + 'a' - 1,
 		      vm == 'v' ? "1v" : "\\n(35u");
 		if (ext)
-			fprintf(tabout, "-(%s)", ext);
+			Bprint(&tabout, "-(%s)", ext);
 		if (exb)
-			fprintf(tabout, "-(%s)", exb);
+			Bprint(&tabout, "-(%s)", exb);
 		pos = ept - epb;
 		if (pos)
-			fprintf(tabout, "%s%dp", pos >= 0 ? "+" : "", pos);
+			Bprint(&tabout, "%s%dp", pos >= 0 ? "+" : "", pos);
 		/* the string #d is either "nl" or ".d" depending
 	   on diversions; on GCOS not the same */
-		fprintf(tabout, "'\\s0\\v'\\n(\\*(#du-\\n(#%cu+%s",
+		Bprint(&tabout, "'\\s0\\v'\\n(\\*(#du-\\n(#%cu+%s",
 		     linestop[start] + 'a' - 1, vm == 'v' ? "1v" : "\\n(35u");
 		if (ext)
-			fprintf(tabout, "+%s", ext);
+			Bprint(&tabout, "+%s", ext);
 		if (ept)
-			fprintf(tabout, "%s%dp", (-ept) > 0 ? "+" : "", (-ept));
-		fprintf(tabout, "'");
+			Bprint(&tabout, "%s%dp", (-ept) > 0 ? "+" : "", (-ept));
+		Bprint(&tabout, "'");
 		if (linsize)
-			fprintf(tabout, "\\v'\\n(%dp/6u'", LSIZE);
+			Bprint(&tabout, "\\v'\\n(%dp/6u'", LSIZE);
 	}
 }
 
@@ -154,7 +154,7 @@ midbcol(int i, int c)
 		c--;
 	if (ct == '-' || ct == '=')
 		return(ct);
-	if ((ct = barent(table[i][c].col)))
+	if (ct = barent(table[i][c].col))
 		return(ct);
 	return(0);
 }

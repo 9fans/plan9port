@@ -1,9 +1,9 @@
 /* t..c : external declarations */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <u.h>
+#include <libc.h>
+#include <bio.h>
+# include <ctype.h>
 
 # define MAXLIN 250
 # define MAXHEAD 44
@@ -62,7 +62,7 @@ extern char texstr[];
 extern int linstart;
 
 
-extern FILE *tabin, *tabout;
+extern Biobuf *tabin, tabout;
 # define CRIGHT 2
 # define CLEFT 0
 # define CMID 1

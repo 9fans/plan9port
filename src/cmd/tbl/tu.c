@@ -28,7 +28,7 @@ fullwide(int i, int lintype)
 	int	cr, cl;
 
 	if (!pr1403)
-		fprintf(tabout, ".nr %d \\n(.v\n.vs \\n(.vu-\\n(.sp\n", SVS);
+		Bprint(&tabout, ".nr %d \\n(.v\n.vs \\n(.vu-\\n(.sp\n", SVS);
 	cr = 0;
 	while (cr < ncol) {
 		cl = cr;
@@ -40,9 +40,9 @@ fullwide(int i, int lintype)
 		if (cl < ncol)
 			drawline(i, cl, (cr < ncol ? cr - 1 : cr), lintype, 1, 0);
 	}
-	fprintf(tabout, "\n");
+	Bprint(&tabout, "\n");
 	if (!pr1403)
-		fprintf(tabout, ".vs \\n(%du\n", SVS);
+		Bprint(&tabout, ".vs \\n(%du\n", SVS);
 }
 
 
@@ -69,11 +69,11 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 		return;
 	nodata = cr - cl >= ncol || noheight || allh(i);
 	if (!nodata)
-		fprintf(tabout, "\\v'-.5m'");
+		Bprint(&tabout, "\\v'-.5m'");
 	for (ln = oldpos = 0; ln < lcount; ln++) {
 		linpos = 2 * ln - lcount + 1;
 		if (linpos != oldpos)
-			fprintf(tabout, "\\v'%dp'", linpos - oldpos);
+			Bprint(&tabout, "\\v'%dp'", linpos - oldpos);
 		oldpos = linpos;
 		if (shortl == 0) {
 			tohcol(cl);
@@ -90,7 +90,7 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 					break;
 				}
 				if (exhl[0])
-					fprintf(tabout, "\\h'%s'", exhl);
+					Bprint(&tabout, "\\h'%s'", exhl);
 			} else if (lcount == 1) {
 				switch (interv(i, cl)) {
 				case TOP: 
@@ -102,7 +102,7 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 					break;
 				}
 				if (exhl[0])
-					fprintf(tabout, "\\h'%s'", exhl);
+					Bprint(&tabout, "\\h'%s'", exhl);
 			}
 			if (lcount > 1) {
 				switch (interv(i, cr + 1)) {
@@ -128,31 +128,31 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 				}
 			}
 		} else
-			fprintf(tabout, "\\h'|\\n(%2su'", reg(cl, CLEFT));
-		fprintf(tabout, "\\s\\n(%d", LSIZE);
+			Bprint(&tabout, "\\h'|\\n(%2su'", reg(cl, CLEFT));
+		Bprint(&tabout, "\\s\\n(%d", LSIZE);
 		if (linsize)
-			fprintf(tabout, "\\v'-\\n(%dp/6u'", LSIZE);
+			Bprint(&tabout, "\\v'-\\n(%dp/6u'", LSIZE);
 		if (shortl)
-			fprintf(tabout, "\\l'|\\n(%2su'", reg(cr, CRIGHT));
+			Bprint(&tabout, "\\l'|\\n(%2su'", reg(cr, CRIGHT));
 		else
 		 {
 			lnch = "\\(ul";
 			if (pr1403)
 				lnch = lintype == 2 ? "=" : "\\(ru";
 			if (cr + 1 >= ncol)
-				fprintf(tabout, "\\l'|\\n(TWu%s%s'", exhr, lnch);
+				Bprint(&tabout, "\\l'|\\n(TWu%s%s'", exhr, lnch);
 			else
-				fprintf(tabout, "\\l'(|\\n(%2su+|\\n(%2su)/2u%s%s'", reg(cr, CRIGHT),
+				Bprint(&tabout, "\\l'(|\\n(%2su+|\\n(%2su)/2u%s%s'", reg(cr, CRIGHT),
 				    reg(cr + 1, CLEFT), exhr, lnch);
 		}
 		if (linsize)
-			fprintf(tabout, "\\v'\\n(%dp/6u'", LSIZE);
-		fprintf(tabout, "\\s0");
+			Bprint(&tabout, "\\v'\\n(%dp/6u'", LSIZE);
+		Bprint(&tabout, "\\s0");
 	}
 	if (oldpos != 0)
-		fprintf(tabout, "\\v'%dp'", -oldpos);
+		Bprint(&tabout, "\\v'%dp'", -oldpos);
 	if (!nodata)
-		fprintf(tabout, "\\v'+.5m'");
+		Bprint(&tabout, "\\v'+.5m'");
 }
 
 

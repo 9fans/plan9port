@@ -45,5 +45,5 @@ int texct = 0;
 char texstr[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789";
 int linstart;
 char *exstore, *exlim, *exspace;
-FILE *tabin;
-FILE *tabout;
+Biobuf *tabin  /*= stdin */;
+Biobuf tabout  /* = stdout */;
