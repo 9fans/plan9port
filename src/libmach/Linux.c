@@ -447,6 +447,47 @@ proctextfile(int pid)
 	return nil;
 }
 
+int
+sys_ps_lgetregs(struct ps_prochandle *ph, uint tid, void *regs)
+{
+	int i, oldpid;
+	uint u, *uregs;
+	
+	oldpid = corpid;
+	ptraceattach(tid);
+	uregs = (uint*)regs;
+	for(i=0; i<sizeof(UregLinux386)/sizeof(uint); i++){
+		errno = 0;
+		u = ptrace(PTRACE_PEEKUSER, tid, 4*i, 0);
+		if(errno)
+			return 1;
+		uregs[i] = u;
+	}
+	ptraceattach(oldpid);
+	return 0;
+}
+
+int
+sys_ps_lsetregs(struct ps_prochandle *ph, uint tid, void *regs)
+{
+	return 1;
+}
+
+int
+sys_ps_lgetfpregs(struct ps_prochandle *ph, uint tid, void *regs)
+{
+	return 1;
+}
+
+
+int
+sys_ps_lsetfpregs(struct ps_prochandle *ph, uint tid, void *regs)
+{
+	return 1;
+}
+
+
+
 
 #if 0
 	snprint(buf, sizeof buf, "/proc/%d/maps", pid);

@@ -325,22 +325,33 @@ xkill(Node *r, Node *args)
 void
 xregister(Node *r, Node *args)
 {
+	int tid;
 	Regdesc *rp;
-	Node res;
+	Node res, resid;
+	Node *av[Maxarg];
 
-	if(args == 0)
-		error("register(string): arg count");
-	expr(args, &res);
+	na = 0;
+	flatten(av, args);
+	if(na != 1 && na != 2)
+		error("register(name[, threadid]): arg count");
+
+	expr(av[0], &res);
 	if(res.type != TSTRING)
-		error("register(string): arg type");
-
+		error("register(name[, threadid]): arg type: name should be string");
+	tid = 0;
+	if(na == 2){
+		expr(av[1], &resid);
+		if(resid.type != TINT)
+			error("register(name[, threadid]): arg type: threadid should be int");
+		tid = resid.store.u.ival;
+	}
 	if((rp = regdesc(res.store.u.string->string)) == nil)
 		error("no such register");
-
 	r->op = OCONST;
 	r->type = TREG;
 	r->store.fmt = rp->format;
-	r->store.u.reg = rp->name;
+	r->store.u.reg.name = rp->name;
+	r->store.u.reg.thread = tid;
 }
 
 void
@@ -1127,7 +1138,10 @@ patom(char type, Store *res)
 
 	switch(type){
 	case TREG:
-		Bprint(bout, "register(\"%s\")", res->u.reg);
+		if(res->u.reg.thread)
+			Bprint(bout, "register(\"%s\", 0x%ux)", res->u.reg.name, res->u.reg.thread);
+		else
+			Bprint(bout, "register(\"%s\")", res->u.reg.name);
 		return;
 	case TCON:
 		Bprint(bout, "refconst(");

@@ -216,7 +216,8 @@ varreg(void)
 		l = mkvar(r->name);
 		v = l->v;
 		v->set = 1;
-		v->store.u.reg = r->name;
+		v->store.u.reg.name = r->name;
+		v->store.u.reg.thread = 0;
 		v->store.fmt = r->format;
 		v->type = TREG;
 

@@ -5,103 +5,10 @@
 #include <sys/procfs.h>	/* psaddr_t */
 #include <libc.h>
 #include <mach.h>
+#include "ureg386.h"
+#include "elf.h"
 
-typedef struct Ptprog Ptprog;
-struct Pprog
-{
-	Pthread *t;
-	uint nt;
-};
-
-typedef struct Pthread Pthread;
-struct Pthread
-{
-	td_thrhandle_t handle;
-};
-
-void
-pthreadattach(int pid)
-{
-	
-}
-
-void pthreadattach()
-	set up mapping
-
-Regs *pthreadregs()
-int npthread();
-
-
-
-static int td_get_allthreads(td_thragent_t*, td_thrhandle_t**);
-static int terr(int);
-
-
-Regs*
-threadregs()
-{
-
-}
-
-
-
-typedef struct AllThread AllThread;
-struct AllThread
-{
-	td_thrhandle_t *a;
-	int n;
-	int err;
-};
-
-static int
-thritercb(const td_thrhandle_t *th, void *cb)
-{
-	td_thrhandle_t **p;
-	AllThread *a;
-	int n;
-
-	a = cb;
-	if((a->n&(a->n-1)) == 0){
-		if(a->n == 0)
-			n = 1;
-		else
-			n = a->n<<1;
-		if((p = realloc(a->a, n*sizeof a->a[0])) == 0){
-			a->err = -1;
-			return -1;	/* stop iteration */
-		}
-		a->a = p;
-	}
-	a->a[a->n++] = *th;
-	return 0;
-}
-
-int
-td_get_allthreads(td_thragent_t *ta, td_thrhandle_t **pall)
-{
-	int e;
-	AllThread a;
-
-	a.a = nil;
-	a.n = 0;
-	a.err = 0;
-	if((e = td_ta_thr_iter(ta, thritercb, &a, 
-		TD_THR_ANY_STATE,
-		TD_THR_LOWEST_PRIORITY,
-		TD_SIGNO_MASK,
-		TD_THR_ANY_USER_FLAGS)) != TD_OK){
-		werrstr("%s", terr(e));
-		return -1;
-	}
-
-	if(a.err){
-		free(a.a);
-		return -1;
-	}
-
-	*pall = a.a;
-	return a.n;
-}
+static char *terr(int);
 
 static char *tderrstr[] =
 {
@@ -132,6 +39,8 @@ static char *tderrstr[] =
 [TD_NOTLS]		"there is no TLS segment in the given module",
 };
 
+static td_thragent_t *ta;
+
 static char*
 terr(int e)
 {
@@ -143,6 +52,45 @@ terr(int e)
 	}
 	return tderrstr[e];
 }
+
+int
+pthreaddbinit(void)
+{
+	int e;
+	struct ps_prochandle p;
+	
+	p.pid = 0;
+	if((e = td_ta_new(&p, &ta)) != TD_OK){
+		werrstr("%s", terr(e));
+		return -1;
+	}
+	return 0;
+}
+
+Regs*
+threadregs(uint tid)
+{
+	int e;
+	static UregRegs r;
+	static Ureg u;
+	td_thrhandle_t th;
+	prgregset_t regs;
+
+	if(tid == 0)
+		return correg;
+	if(!ta)
+		pthreaddbinit();
+	if((e = td_ta_map_id2thr(ta, tid, &th)) != TD_OK
+	|| (e = td_thr_getgregs(&th, regs)) != TD_OK){
+		werrstr("reading thread registers: %s", terr(e));
+		return nil;
+	}
+	linux2ureg386((UregLinux386*)regs, &u);
+	r.r.rw = _uregrw;
+	r.ureg = (uchar*)&u;
+	return &r.r;
+}
+
 
 /*
  * bottom-end functions for libthread_db to call
@@ -192,7 +140,7 @@ ps_lcontinue(const struct ps_prochandle *ph)
 int
 ps_pdread(struct ps_prochandle *ph, psaddr_t addr, void *v, size_t sz)
 {
-	if(get1(ph->map, addr, v, sz) < 0)
+	if(get1(cormap, (ulong)addr, v, sz) < 0)
 		return PS_ERR;
 	return PS_OK;
 }
@@ -200,7 +148,7 @@ ps_pdread(struct ps_prochandle *ph, psaddr_t addr, void *v, size_t sz)
 int
 ps_pdwrite(struct ps_prochandle *ph, psaddr_t addr, void *v, size_t sz)
 {
-	if(put1(ph->map, addr, v, sz) < 0)
+	if(put1(cormap, (ulong)addr, v, sz) < 0)
 		return PS_ERR;
 	return PS_OK;
 }
@@ -227,7 +175,7 @@ ps_lgetregs(struct ps_prochandle *ph, lwpid_t lwp, prgregset_t regs)
 		return sys_ps_lgetregs(ph, lwp, regs);
 	for(i=0; i<corhdr->nthread; i++){
 		if(corhdr->thread[i].id == lwp){
-			ureg2prgregset(corhdr->thread[i].ureg, regs);
+			ureg2linux386(corhdr->thread[i].ureg, (UregLinux386*)regs);
 			return PS_OK;
 		}
 	}
@@ -248,7 +196,7 @@ ps_lgetfpregs(struct ps_prochandle *ph, lwpid_t lwp, prfpregset_t *fpregs)
 	if(corhdr == nil)
 		return sys_ps_lgetfpregs(ph, lwp, fpregs);
 	/* BUG - Look in core dump. */
-	return PS_ERR:
+	return PS_ERR;
 }
 
 int
@@ -265,7 +213,8 @@ ps_lsetfpregs(struct ps_prochandle *ph, lwpid_t lwp, prfpregset_t *fpregs)
 int
 ps_get_thread_area(struct ps_prochandle *ph, lwpid_t lwp, int xxx, psaddr_t *addr)
 {
-	return sys_ps_get_thread_area(ph, lwp, xxx, addr);
+	return PS_ERR;
+//	return sys_ps_get_thread_area(ph, lwp, xxx, addr);
 }
 
 int

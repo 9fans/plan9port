@@ -33,6 +33,7 @@ OFILES=\
 	machocorepower.$O\
 	machpower.$O\
 	map.$O\
+	pthread.$O\
 	regs.$O\
 	stabs.$O\
 	swap.$O\

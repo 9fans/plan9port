@@ -132,7 +132,10 @@ struct Store
 		String*	string;
 		List*	l;
 		Node*	cc;
-		char*	reg;
+		struct {
+			char *name;
+			uint	thread;
+		} reg;
 		Node*	con;
 	} u;
 };
@@ -258,6 +261,7 @@ String*	strnode(char*);
 String*	strnodlen(char*, int);
 #define system acidsystem
 char*	system(void);
+Regs*	threadregs(uint);
 int	trlist(Map*, Regs*, ulong, ulong, Symbol*, int);
 void	unwind(void);
 void	userinit(void);
