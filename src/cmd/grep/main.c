@@ -115,27 +115,27 @@ search(char *file, int flag)
 	eof = 0;
 	empty = 1;
 	nl = 0;
-	lp = u.buf;
+	lp = u.u.buf;
 	bol = lp;
 
 loop0:
 	n = lp-bol;
-	if(n > sizeof(u.pre))
-		n = sizeof(u.pre);
-	memmove(u.buf-n, bol, n);
-	bol = u.buf-n;
-	n = read(fid, u.buf, sizeof(u.buf));
+	if(n > sizeof(u.u.pre))
+		n = sizeof(u.u.pre);
+	memmove(u.u.buf-n, bol, n);
+	bol = u.u.buf-n;
+	n = read(fid, u.u.buf, sizeof(u.u.buf));
 	/* if file has no final newline, simulate one to emit matches to last line */
 	if(n > 0) {
 		empty = 0;
-		nl = u.buf[n-1]=='\n';
+		nl = u.u.buf[n-1]=='\n';
 	} else {
 		if(n < 0){
 			fprint(2, "grep: read error on %s: %r\n", file);
 			return count != 0;
 		}
 		if(!eof && !nl && !empty) {
-			u.buf[0] = '\n';
+			u.u.buf[0] = '\n';
 			n = 1;
 			eof = 1;
 		}
@@ -152,7 +152,7 @@ loop0:
 		Bflush(&bout);
 		return count != 0;
 	}
-	lp = u.buf;
+	lp = u.u.buf;
 	elp = lp+n;
 	if(flag & Iflag)
 		goto loopi;
