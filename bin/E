@@ -6,7 +6,7 @@
 
 stat=`ls -l $1`
 B "$@"
-while true
+while sleep 1
 do
 	nstat=`ls -l $1`
 	if [ "x$stat" != "x$nstat" ]
