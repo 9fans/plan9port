@@ -59,6 +59,7 @@ xtmp=/tmp/9c.$$.$USER.out
 $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" >$xtmp 2>&1
 status=$?
 grep -v '__p9l_autolib_' $xtmp |
+egrep -v ': error: .Each undeclared identifier|: error: for each function it appears' |
 sed 's/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g'
 rm -f $xtmp $xtmp.status
 exit $status
