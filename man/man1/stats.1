@@ -1,0 +1,190 @@
+.TH STATS 1
+.SH NAME
+stats \- display graphs of system activity
+.SH SYNOPSIS
+.B stats
+[
+.BI - option
+]
+[
+.I machine
+[
+.B :
+.I path
+]
+\&...
+]
+.PP
+.B auxstats
+[
+.I machine
+[
+.I path
+] ]
+.SH DESCRIPTION
+.I Stats
+displays a rolling graph of various statistics collected by the operating
+system and updated once per second.
+The statistics may be from a remote
+.I machine
+or multiple
+.IR machines ,
+whose graphs will appear in adjacent columns.
+The columns are labeled by the machine names and the number
+of processors on the machine if it is a multiprocessor.
+.PP
+.I Auxstats
+collects the machine statistics for display by
+.IR stats .
+With no arguments, it collects statistics from the local machine.
+If
+.I machine
+is named, it executes
+.B ssh
+.I machine
+.IR path ;
+when the
+.I ssh
+finishes, 
+.I auxstats
+sleeps for one minute and redials.
+The default
+.I path
+is simply
+.BR auxstats ,
+but since some shells do not execute any sort of user profile
+when run as a non-login shell, it is often necessary to specify
+an exact path.
+.PP
+The right mouse button presents a menu to enable and disable the display
+of various statistics; by default,
+.I stats
+begins by showing the load average on the executing machine.
+.PP
+The
+lower-case
+.I options
+choose the initial set to display:
+.TF [t]tlbpurge
+.TP
+.B "b battery
+percentage battery life remaining.
+.TP
+.B "c context
+number of process context switches per second.
+.TP
+.B 
+.B "e ether
+total number of packets sent and received per second.
+.TP
+.B 
+.B "E etherin,out
+number of packets sent and received per second, displayed as separate graphs.
+.TP
+.B "f fault
+number of page faults per second.
+.TP
+.B "i intr
+number of interrupts per second.
+.TP
+.B "l load
+(default) system load average.
+The load is computed as a running average of
+the number of processes ready to run, multiplied by 1000.
+On most systems, it changes only every five seconds and has limited accuracy.
+.TP
+.B "m mem 
+total pages of active memory.
+The graph displays the fraction
+of the machine's total memory in use.
+.TP
+.B 
+.B "n etherin,out,err
+number of packets sent and received per second, and total number of errors, displayed as separate graphs.
+.TP
+.B "s syscall
+number of system calls per second.
+.TP
+.B "w swap
+number of valid pages on the swap device.
+The swap is displayed as a
+fraction of the number of swap pages configured by the machine.
+.PD
+.PP
+The graphs are plotted with time on the horizontal axis.
+The vertical axes range from 0 to 1000*sleepsecs, 
+multiplied by the number of processors on the machine
+when appropriate.
+The only exceptions are
+memory,
+and swap space,
+which display fractions of the total available, 
+system load, which displays a number between 0 and 1000, 
+idle and intr, which display percentages and the Ethernet error count,
+which goes from 0 to 10..
+If the value of the parameter is too large for the visible range, its value is shown
+in decimal in the upper left corner of the graph.
+.PP
+Upper-case options control details of the display.
+All graphs are affected; there is no mechanism to
+affect only one graph.
+.TP
+.BI -T " sleepsecs
+Set the number of seconds between samples to
+.I sleepsecs
+(default one second).
+.TP
+.BI -S " scale
+Sets a scale factor for the displays.  A value of 2, for example,
+means that the highest value plotted will be twice as large as the default.
+.TP
+.B -L
+Plot all graphs with logarithmic
+.I y
+axes.
+The graph is plotted so the maximum value that would be displayed on
+a linear graph is 2/3 of the way up the
+.I y
+axis and the total range of the graph is a factor of 1000; thus the
+.I y
+origin is 1/100 of the default maximum value and the top of the graph is
+10 times the default maximum.
+.TP
+.B -Y
+If the display is large enough to show them,
+place value markers along the
+.I y
+axes of the graphs.
+Since one set of markers serves for all machines across the display,
+the values in the markers disregard scaling factors due to multiple processors
+on the machines. On a graph for a multiprocessor,
+the displayed values will be larger
+than the markers indicate.
+The markers appear along the right, and the markers
+show values appropriate to the rightmost machine; this only
+matters for graphs such as memory that have machine-specific
+maxima.
+.PD
+.SH EXAMPLE
+Show the load, memory, interrupts, system calls, context switches,
+and ethernet packets for the local machine, a remote Linux machine 
+.BR tux ,
+and a remote BSD machine
+.BR daemon .
+.IP
+.B
+stats -lmisce `hostname` tux:/usr/local/plan9/bin/auxstats daemon
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/draw/stats.c
+.SH BUGS
+The
+.I auxstats
+binary needs read access to
+.B /dev/kmem
+in order to collect network statistics on BSD systems.
+Typically this can be arranged by setting the
+.I auxstat
+binary's
+group to
+.B kmem
+and then turning on its set-gid bit.
