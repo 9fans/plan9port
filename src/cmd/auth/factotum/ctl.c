@@ -36,7 +36,7 @@ ctlwrite(char *a)
 {
 	char *p;
 	int i, nmatch, ret;
-	Attr *attr, **l, **lpriv, **lprotos, *pa, *priv, *protos;
+	Attr *attr, *kpa, **l, **lpriv, **lprotos, *pa, *priv, *protos;
 	Key *k;
 	Proto *proto;
 
@@ -107,17 +107,22 @@ ctlwrite(char *a)
 				ret = -1;
 				continue;
 			}
-			if(proto->checkkey == nil){
-				werrstr("proto %s does not accept keys", proto->name);
-				ret = -1;
-				continue;
+			if(proto->keyprompt){
+				kpa = parseattr(proto->keyprompt);
+				if(!matchattr(kpa, attr, priv)){
+					freeattr(kpa);
+					werrstr("missing attributes -- want %s", proto->keyprompt);
+					ret = -1;
+					continue;
+				}
+				freeattr(kpa);
 			}
 			k = emalloc(sizeof(Key));
 			k->attr = mkattr(AttrNameval, "proto", proto->name, copyattr(attr));
 			k->privattr = copyattr(priv);
 			k->ref = 1;
 			k->proto = proto;
-			if((*proto->checkkey)(k) < 0){
+			if(proto->checkkey && (*proto->checkkey)(k) < 0){
 				ret = -1;
 				keyclose(k);
 				continue;

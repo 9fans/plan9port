@@ -4,8 +4,10 @@ TARG=factotum
 PROTO=\
 	apop.$O\
 	chap.$O\
+	dsa.$O\
 	p9any.$O\
 	p9sk1.$O\
+	pass.$O\
 	rsa.$O\
 
 OFILES=\
@@ -14,7 +16,6 @@ OFILES=\
 	confirm.$O\
 	conv.$O\
 	ctl.$O\
-	dsa.$O\
 	fs.$O\
 	key.$O\
 	log.$O\
