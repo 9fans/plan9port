@@ -28,8 +28,9 @@ runevsmprint(char *fmt, va_list args)
 
 	if(runefmtstrinit(&f) < 0)
 		return nil;
-	f.args = args;
+	va_copy(f.args,args);
 	n = dofmt(&f, fmt);
+	va_end(f.args);
 	if(n < 0)
 		return nil;
 	*(Rune*)f.to = '\0';

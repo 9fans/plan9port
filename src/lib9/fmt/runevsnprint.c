@@ -31,8 +31,9 @@ runevsnprint(Rune *buf, int len, char *fmt, va_list args)
 	f.flush = nil;
 	f.farg = nil;
 	f.nfmt = 0;
-	f.args = args;
+	va_copy(f.args,args);
 	dofmt(&f, fmt);
+	va_end(f.args);
 	*(Rune*)f.to = '\0';
 	return (Rune*)f.to - buf;
 }

@@ -7,7 +7,7 @@
 
 #include "nan.h"
 
-#ifdef __APPLE__
+#if defined (__APPLE__) || (__powerpc__)
 #define _NEEDLL
 #endif
 

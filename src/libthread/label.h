@@ -40,6 +40,21 @@ struct Label
 	ulong	sp;		/* %o6 */
 	ulong	link;		/* %o7 */
 };
+#elif defined(__powerpc__)
+struct Label
+{
+	ulong	pc;		/* lr */
+	ulong	cr;		/* mfcr */
+	ulong	ctr;		/* mfcr */
+	ulong	xer;		/* mfcr */
+	ulong	sp;		/* callee saved: r1 */
+	ulong	toc;		/* callee saved: r2 */
+	ulong	gpr[19];	/* callee saved: r13-r31 */
+// XXX: currently do not save vector registers or floating-point state
+//	ulong	pad;
+//	uvlong	fpr[18];	/* callee saved: f14-f31 */
+//	ulong	vr[4*12];	/* callee saved: v20-v31, 256-bits each */
+};
 #else
 #error "Unknown or unsupported architecture"
 #endif
