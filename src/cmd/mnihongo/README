@@ -1,0 +1,13 @@
+mnihongo is a fairly clumsy troff post-processor that 
+catches unicode characters that might be japanese,
+looks them up in a font file (currently
+/lib/font/bit/pelm/unicode.9x24.font) to get the
+bits, converts that to postscript, and dumps that
+in the output.
+
+Widths are taken from troff font Jp, which has at
+best a simple approximation to the truth.
+
+The program itself is normally called implicitly
+by loading the troff macro package -mnihongo, which
+does a .pi command.
