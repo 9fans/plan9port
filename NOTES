@@ -148,6 +148,22 @@ There is a "win" shell.  Of course, since we're on Unix, win can't
 tell when programs are reading from the tty, so proper input point
 management is right out the window.
 
+* Rio, 9term
+
+There is a 9wm-derived window manager called rio.
+Along with the terminal 9term, the emulation feels
+quite like Plan 9.
+
+* Window Placement
+
+All the graphical Plan 9 programs accept a new -W option
+that can be used to specify window size.  The syntax is
+
+acme -W spec
+
+where spec can be WIDTHxHEIGHT, WIDTHxHEIGHT@XMIN,YMIN
+'XMIN YMIN XMAX YMAX' or XMIN,YMIN,XMAX,YMAX.
+
 * Helping out
 
 If you'd like to help out, great!
