@@ -4043,3 +4043,16 @@ usage: tar [-][{ruxXtcC}acdefhlm{o|S}pqvwLUBDRV{O|K}fb] [dir] [tapefile] [blocks
 /opt/exp/lib/firefox/bin/run-mozilla.sh: line 451: 16207 Segmentation fault      "$prog" ${1+"$@"}
 LoadPlugin: failed to initialize shared library /opt/net/exp/lib/mozilla/bin/plugins/j2re1.4.2/plugin/i386/ns610-gcc32/libjavaplugin_oji.so [/opt/net/exp/lib/mozilla/bin/plugins/j2re1.4.2/plugin/i386/ns610-gcc32/libjavaplugin_oji.so: undefined symbol: _ZdlPv]
 This 43 minute video FEATURES the 22 year-old, 6'6" (6'11" in heels) 300+ pound, size 14 shoe size Blythe
+Linux is good if you want to run Apache or compile the kernel.  Every other application is suspect.  - Andrew Hume
+/etc/bash.bashrc:	alias unmount='echo "Error: Try the command: umount" 1>&2; false'
+Book-burning is such an ugly phrase.  I prefer to think of it as "English lit".  - Larry Hollister
+panic: bad rob
+	ulong	when;			/* may underflow in clock(); must be signed */ 
+There is no interest in a WWW browser.  This fad is clearly not going to have any staying power.  - plan.9@research.att.com, Oct 22 1994
+the representation of characters, but not the character set itself, was changed this weekend.  we believe that the representation we are using now will become the one used by unix-like systems everywhere.  - rob's news about utf-8, sep 6 1992
+Linux: the world's best text adventure game.
+MessageSocket::setHostname(): gethostbyname() failed: Success
+/* This variable is here only because of a historical reason.  */
+It's almost as though someone is creating billboards that read, ``If you can#t splel VaigrA, you cn mkae big $M$O$N$E$Y$ wtih b.ul.k adtervising on teh I*N*T*R*E*N*E*T.''  - Rob Kolstad
+And, as you read, please forgive the necessary typos - I'm going for rock-solid facts, rather than spelling.
+mp3riot -  Directory search utility
