@@ -70,7 +70,7 @@ muxrpc(Mux *mux, void *tx)
 			qunlock(&mux->lk);
 			p = _muxrecv(mux);
 			if(p)
-				tag = mux->gettag(mux, p);
+				tag = mux->gettag(mux, p) - mux->mintag;
 			else
 				tag = ~0;
 //print("mux tag %d\n", tag);
@@ -171,7 +171,7 @@ Found:
 	mux->nwait++;
 	mux->wait[i] = r;
 	r->tag = i+mux->mintag;
-	return i;
+	return r->tag;
 }
 
 static void
