@@ -474,7 +474,7 @@ sha1check(u8int *score, uchar *buf, int n)
 {
 	char score2[VtScoreSize];
 
-	sha1(buf, n, score, nil);
+	sha1(buf, n, score2, nil);
 	if(memcmp(score, score2, VtScoreSize) == 0)
 		return 0;
 	return -1;
@@ -567,7 +567,7 @@ if(0) fprint(2, "vacData: %s: %ld\n", lname, block);
 			warn("file truncated due to read error: %s: %r", lname);
 		if(n <= 0)
 			break;
-		if(vf != nil && vacfileblockscore(vf, block, score) && sha1check(score, buf, n)>=0) {
+		if(vf != nil && vacfileblockscore(vf, block, score)>=0 && sha1check(score, buf, n)>=0) {
 			stats.sdata++;
 			sinkwritescore(sink, score, n);
 		} else
