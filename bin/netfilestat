@@ -1,0 +1,30 @@
+#!/usr/local/plan9/bin/rc
+
+if(! ~ $#* 2){
+	echo usage: netisdir system path >[1=2]
+	exit usage
+}
+
+t=/tmp/netisdir.$pid.$USER
+fn sigexit { rm -f $t }
+
+{
+	echo !echo XXX connected
+	echo cd $2
+	echo !echo XXX directory exists
+}  | sftp -b - $1 >$t >[2=1]
+if(9 grep -s XXX.directory.exists $t){
+	echo directory
+	exit 0
+}
+if(9 grep -s 'is not a directory' $t){
+	echo file
+	exit 0
+}
+cat $t | sed 's/sftp> //g; /^$/d; /XXX/d; /^cd /d' >[1=2]
+if(! 9 grep -s XXX.connected $t){
+	echo connect failed
+	exit 0
+}
+echo nonexistent
+exit 0

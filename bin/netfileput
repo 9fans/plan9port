@@ -1,0 +1,15 @@
+#!/usr/local/plan9/bin/rc
+
+whatis '*'
+if(! ~ $#* 2){
+	echo 'usage: netput system path' >[1=2]
+	exit usage
+}
+
+t=/tmp/netget.$pid.$USER
+fn sigexit { rm -f $t }
+
+cat >$t
+if(! echo put $t $2 | sftp -b - $1 >/dev/null)
+	exit 1
+exit 0
