@@ -524,8 +524,6 @@ char			*home;
 char			*fontnames[2];
 Image		*tagcols[NCOL];
 Image		*textcols[NCOL];
-int			plumbsendfd;
-int			plumbeditfd;
 extern char		wdir[]; /* must use extern because no dimension given */
 int			editing;
 int			erroutfd;

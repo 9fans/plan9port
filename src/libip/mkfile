@@ -3,16 +3,17 @@ PLAN9=../..
 
 LIB=libip.a
 OFILES=\
+	bo.$O\
+	classmask.$O\
 	eipfmt.$O\
-	parseip.$O\
-	parseether.$O\
+	ipaux.$O\
 	myetheraddr.$O\
 	myipaddr.$O\
-	classmask.$O\
-	bo.$O\
-	readipifc.$O\
-	ipaux.$O\
+	parseether.$O\
+	parseip.$O\
 	ptclbsum.$O\
+	readipifc.$O\
+	udp.$O\
 
 HFILES=\
 	ip.h

@@ -45,6 +45,7 @@ main(int argc, char **argv)
 
 	signal(SIGTERM, _threaddie);
 	signal(SIGCHLD, _nop);
+	signal(SIGALRM, _nop);
 //	signal(SIGINFO, _threadstatus);
 //	rfork(RFREND);
 

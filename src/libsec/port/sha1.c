@@ -1,5 +1,4 @@
-#include <u.h>
-#include <libc.h>
+#include "os.h"
 #include <libsec.h>
 
 static void encode(uchar*, u32int*, ulong);
@@ -11,8 +10,6 @@ extern void _sha1block(uchar*, ulong, u32int*);
  *  the last call.  There must be room in the input buffer
  *  to pad.
  */
-ulong lastlen;
-
 SHA1state*
 sha1(uchar *p, ulong len, uchar *digest, SHA1state *s)
 {
@@ -21,15 +18,12 @@ sha1(uchar *p, ulong len, uchar *digest, SHA1state *s)
 	int i;
 	uchar *e;
 
-lastlen = len;
 	if(s == nil){
 		s = malloc(sizeof(*s));
 		if(s == nil)
 			return nil;
 		memset(s, 0, sizeof(*s));
 		s->malloced = 1;
-		assert(!s->seeded);
-		assert(!s->blen);
 	}
 
 	if(s->seeded == 0){
@@ -42,11 +36,8 @@ lastlen = len;
 		s->seeded = 1;
 	}
 
-assert(len < 100000);
-
 	/* fill out the partial 64 byte block from previous calls */
 	if(s->blen){
-assert(s);
 		i = 64 - s->blen;
 		if(len < i)
 			i = len;
@@ -61,11 +52,9 @@ assert(s);
 		}
 	}
 
-assert(len < 1000000);
 	/* do 64 byte blocks */
 	i = len & ~0x3f;
 	if(i){
-assert(i < 1000000);
 		_sha1block(p, i, s->state);
 		s->len += i;
 		len -= i;

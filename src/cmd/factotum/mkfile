@@ -1,0 +1,34 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=factotum
+PROTO=\
+	apop.$O\
+	chap.$O\
+	p9any.$O\
+	p9sk1.$O\
+
+OFILES=\
+	$PROTO\
+	attr.$O\
+	confirm.$O\
+	conv.$O\
+	ctl.$O\
+	fs.$O\
+	key.$O\
+	log.$O\
+	main.$O\
+	plan9.$O\
+	proto.$O\
+	rpc.$O\
+	util.$O\
+	xio.$O\
+
+HFILES=dat.h
+
+SHORTLIB=auth authsrv sec mp 9p thread 9
+<$PLAN9/src/mkone
+
+$O.test: test.$O
+	$LD -o $target $prereq
+

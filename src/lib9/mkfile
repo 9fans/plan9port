@@ -107,6 +107,8 @@ LIB9OFILES=\
 	getuser.$O\
 	getwd.$O\
 	jmp.$O\
+	lrand.$O\
+	lnrand.$O\
 	lock.$O\
 	main.$O\
 	malloc.$O\
@@ -119,6 +121,7 @@ LIB9OFILES=\
 	nrand.$O\
 	nulldir.$O\
 	open.$O\
+	opentemp.$O\
 	pipe.$O\
 	post9p.$O\
 	postnote.$O\

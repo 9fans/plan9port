@@ -1472,6 +1472,7 @@ Hard:
 		}
 	}
 	threadexecl(cpid, sfd, "rc", "rc", "-c", t, nil);
+	warning(nil, "exec rc: %r\n");
 
    Fail:
 	/* threadexec hasn't happened, so send a zero */

@@ -13,8 +13,6 @@ static Fid *pfid;
 int
 plumbopen(char *name, int omode)
 {
-	int fd;
-
 	if(fsplumb == nil)
 		fsplumb = nsmount("plumb", "");
 	if(fsplumb == nil)
@@ -47,26 +45,42 @@ plumbopen(char *name, int omode)
 		return pfd;
 	}
 
-	fd = fsopenfd(fsplumb, name, omode);
-	return fd;
+	return fsopenfd(fsplumb, name, omode);
+}
+
+Fid*
+plumbopenfid(char *name, int mode)
+{
+	if(fsplumb == nil)
+		fsplumb = nsmount("plumb", "");
+	if(fsplumb == nil)
+		return nil;
+	return fsopen(fsplumb, name, mode);
+}
+
+int
+plumbsendtofid(Fid *fid, Plumbmsg *m)
+{
+	char *buf;
+	int n;
+
+	buf = plumbpack(m, &n);
+	if(buf == nil)
+		return -1;
+	n = fswrite(fid, buf, n);
+fprint(2, "fswrite %d\n", n);
+	free(buf);
+	return n;
 }
 
 int
 plumbsend(int fd, Plumbmsg *m)
 {
-	char *buf;
-	int n;
-
 	if(fd != pfd){
 		werrstr("fd is not the plumber");
 		return -1;
 	}
-	buf = plumbpack(m, &n);
-	if(buf == nil)
-		return -1;
-	n = fswrite(pfid, buf, n);
-	free(buf);
-	return n;
+	return plumbsendtofid(pfid, m);
 }
 
 static int
@@ -427,3 +441,31 @@ plumbrecv(int fd)
 	free(buf);
 	return m;
 }
+
+Plumbmsg*
+plumbrecvfid(Fid *fid)
+{
+	char *buf;
+	Plumbmsg *m;
+	int n, more;
+
+	buf = malloc(8192);
+	if(buf == nil)
+		return nil;
+	n = fsread(fid, buf, 8192);
+	m = nil;
+	if(n > 0){
+		m = plumbunpackpartial(buf, n, &more);
+		if(m==nil && more>0){
+			/* we now know how many more bytes to read for complete message */
+			buf = realloc(buf, n+more);
+			if(buf == nil)
+				return nil;
+			if(fsreadn(fid, buf+n, more) == more)
+				m = plumbunpackpartial(buf, n+more, nil);
+		}
+	}
+	free(buf);
+	return m;
+}
+

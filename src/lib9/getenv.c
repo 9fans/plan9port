@@ -22,6 +22,5 @@ p9putenv(char *s, char *v)
 	if(t == nil)
 		return -1;
 	putenv(t);
-	free(t);
 	return 0;
 }

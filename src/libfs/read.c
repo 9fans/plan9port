@@ -52,3 +52,21 @@ fsread(Fid *fid, void *buf, long n)
 {
 	return fspread(fid, buf, n, -1);
 }
+
+long
+fsreadn(Fid *fid, void *buf, long n)
+{
+	long tot, nn;
+
+	for(tot=0; tot<n; tot+=nn){
+		nn = fsread(fid, (char*)buf+tot, n-tot);
+		if(nn <= 0){
+			if(tot == 0)
+				return nn;
+			break;
+		}
+	}
+	return tot;
+}
+			
+

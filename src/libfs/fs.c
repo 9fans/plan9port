@@ -259,7 +259,7 @@ _fssend(Mux *mux, void *pkt)
 	Fsys *fs;
 
 	fs = mux->aux;
-	return write(fs->fd, pkt, GBIT32((uchar*)pkt));
+	return threadwrite(fs->fd, pkt, GBIT32((uchar*)pkt));
 }
 
 static void*

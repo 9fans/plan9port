@@ -27,8 +27,6 @@ char		wdir[512] = ".";
 Reffont	*reffonts[2];
 int		snarffd = -1;
 int		mainpid;
-int		plumbsendfd;
-int		plumbeditfd;
 
 enum{
 	NSnarf = 1000	/* less than 1024, I/O buffer size */
@@ -180,6 +178,8 @@ threadmain(int argc, char *argv[])
 		exits("keyboard");
 	}
 	mainpid = getpid();
+	startplumbing();
+/*
 	plumbeditfd = plumbopen("edit", OREAD|OCEXEC);
 	if(plumbeditfd < 0)
 		fprint(2, "acme: can't initialize plumber: %r\n");
@@ -188,6 +188,7 @@ threadmain(int argc, char *argv[])
 		threadcreate(plumbproc, nil, STACK);
 	}
 	plumbsendfd = plumbopen("send", OWRITE|OCEXEC);
+*/
 
 	fsysinit();
 
@@ -355,6 +356,7 @@ acmeerrorinit(void)
 	threadcreate(acmeerrorproc, nil, STACK);
 }
 
+/*
 void
 plumbproc(void *v)
 {
@@ -369,6 +371,7 @@ plumbproc(void *v)
 		sendp(cplumb, m);
 	}
 }
+*/
 
 void
 keyboardthread(void *v)
@@ -674,7 +677,7 @@ waitthread(void *v)
 					textsetselect(t, 0, 0);
 				}
 				if(w->msg[0])
-					warning(c->md, "%s: %s\n", c->name, w->msg);
+					warning(c->md, "%S: %s\n", c->name, w->msg);
 				flushimage(display, 1);
 			}
 			qunlock(&row.lk);

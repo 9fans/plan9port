@@ -5,14 +5,55 @@ LIB=libsec.a
 
 OFILES=\
 	aes.$O\
+	blowfish.$O\
+	decodepem.$O\
 	des.$O\
+	des3CBC.$O\
+	des3ECB.$O\
+	desCBC.$O\
+	desECB.$O\
 	desmodes.$O\
+	dsaalloc.$O\
+	dsagen.$O\
+	dsaprimes.$O\
+	dsaprivtopub.$O\
+	dsasign.$O\
+	dsaverify.$O\
+	egalloc.$O\
+	egdecrypt.$O\
+	egencrypt.$O\
+	eggen.$O\
+	egprivtopub.$O\
+	egsign.$O\
+	egverify.$O\
 	fastrand.$O\
+	genprime.$O\
 	genrandom.$O\
+	gensafeprime.$O\
+	genstrongprime.$O\
+	hmac.$O\
+	md4.$O\
 	md5.$O\
 	md5block.$O\
+	md5pickle.$O\
+	nfastrand.$O\
+	prng.$O\
+	probably_prime.$O\
+	rc4.$O\
+	readcert.$O\
+	rsaalloc.$O\
+	rsadecrypt.$O\
+	rsaencrypt.$O\
+	rsafill.$O\
+	rsagen.$O\
+	rsaprivtopub.$O\
 	sha1.$O\
 	sha1block.$O\
+	sha1pickle.$O\
+	smallprimetest.$O\
+	thumb.$O\
+	tlshand.$O\
+	x509.$O\
 
 HFILES=$PLAN9/include/libsec.h
 

@@ -170,7 +170,7 @@ eloginsert(File *f, int q0, Rune *r, int nr)
 		elogflush(f);
 	}
 	/* try to merge with previous */
-	if(f->elog.type==Insert && q0==f->elog.q0 && (q0+nr)-f->elog.q0<Maxstring){
+	if(f->elog.type==Insert && q0==f->elog.q0 && f->elog.nr+nr<Maxstring){
 		runemove(f->elog.r+f->elog.nr, r, nr);
 		f->elog.nr += nr;
 		return;

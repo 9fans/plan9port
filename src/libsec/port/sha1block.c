@@ -1,10 +1,4 @@
-#include <u.h>
-#include <libc.h>
-
-uchar* lastsbp;
-ulong lastsblen;
-u32int* lastsbs;
-Lock slock;
+#include "os.h"
 
 void
 _sha1block(uchar *p, ulong len, u32int *s)
@@ -13,11 +7,6 @@ _sha1block(uchar *p, ulong len, u32int *s)
 	uchar *end;
 	u32int *wp, *wend;
 	u32int w[80];
-
-lock(&slock);
-lastsbp=p;
-lastsblen=len;
-lastsbs=s;
 
 	/* at this point, we have a multiple of 64 bytes */
 	for(end = p+len; p < end;){
@@ -195,5 +184,4 @@ lastsbs=s;
 		s[3] += d;
 		s[4] += e;
 	}
-unlock(&slock);
 }

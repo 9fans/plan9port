@@ -1,7 +1,10 @@
+#include <sys/stat.h>
 #include "stdinc.h"
 #include "vac.h"
 #include "dat.h"
 #include "fns.h"
+
+int mainstacksize = 128*1024;
 
 typedef struct Sink Sink;
 typedef struct MetaSink MetaSink;
@@ -170,6 +173,9 @@ threadmain(int argc, char *argv[])
 		break;
 	}ARGEND;
 
+	if(argc == 0)
+		usage();
+
 	if(bsize < 512)
 		bsize = 512;
 	if(bsize > VtMaxLumpSize)
@@ -215,8 +221,6 @@ vacwrite(VtConn *z, uchar score[VtScoreSize], int type, uchar *buf, int n)
 		sha1(buf, n, score, nil);
 		return 0;
 	}
-sha1(buf, n, score, nil);
-fprint(2, "write %V %d\n", score, type);
 	return vtwrite(z, score, type, buf, n);
 }
 
@@ -377,6 +381,18 @@ isexcluded(char *name)
 	return 0;
 }
 
+static int
+islink(char *name)
+{
+	struct stat st;
+
+	if(lstat(name, &st) < 0)
+		return 0;
+	if((st.st_mode&S_IFMT) == S_IFLNK)
+		return 1;
+	return 0;
+}
+
 static void
 vacfile(DirSink *dsink, char *lname, char *sname, VacFile *vf)
 {
@@ -391,6 +407,9 @@ vacfile(DirSink *dsink, char *lname, char *sname, VacFile *vf)
 	}
 
 	if(merge && vacmerge(dsink, lname, sname) >= 0)
+		return;
+
+	if(islink(sname))
 		return;
 
 	fd = open(sname, OREAD);
@@ -820,10 +839,8 @@ sinkclose(Sink *k)
 		if(k->pbuf[n] > k->buf + kd->psize*n)
 			break;
 
-fprint(2, "type %d -> ", kd->type);
 	base = kd->type&~VtTypeDepthMask;
 	kd->type = base + sizetodepth(kd->size, kd->psize, kd->dsize);
-fprint(2, "%d ", kd->type);
 
 	/* skip full part of tree */
 	for(i=0; i<n && k->pbuf[i] == k->buf + kd->psize*i; i++)
@@ -831,7 +848,6 @@ fprint(2, "%d ", kd->type);
 
 	/* is the tree completely full */
 	if(i == n && k->pbuf[n] == k->buf + kd->psize*n + VtScoreSize) {
-fprint(2, "full\n");
 		memmove(kd->score, k->pbuf[n] - VtScoreSize, VtScoreSize);
 		return;
 	}
@@ -846,7 +862,6 @@ fprint(2, "full\n");
 		k->pbuf[i+1] += VtScoreSize;
 	}
 	memmove(kd->score, k->pbuf[i] - VtScoreSize, VtScoreSize);
-fprint(2, "%V\n", kd->score);
 }
 
 void
@@ -881,7 +896,6 @@ dirsinkwrite(DirSink *k, VtEntry *dir)
 		sinkwrite(k->sink, k->buf, k->p - k->buf);
 		k->p = k->buf;
 	}
-fprint(2, "write entry %V %d\n", dir->score, dir->type);
 	vtentrypack(dir, k->p, 0);
 	k->nentry++;
 	k->p += VtEntrySize;

@@ -10,6 +10,12 @@
 #include <cursor.h>
 #include <keyboard.h>
 #include <frame.h>
+#define Tversion Tversion9p
+#define Twrite Twrite9p
+#include <fcall.h>
+#undef Tversion
+#undef Twrite
+#include <fs.h>
 #include <plumb.h>
 #include "flayer.h"
 #include "samterm.h"
@@ -212,27 +218,22 @@ plumbformat(Plumbmsg *m, int i)
 }
 
 void
-plumbproc(void *argv)
+plumbproc(void *arg)
 {
-	Channel *c;
-	int i, *fdp;
-	void **arg;
+	Fid *fid;
+	int i;
 	Plumbmsg *m;
 
-	arg = argv;
-	c = arg[0];
-	fdp = arg[1];
-
+	fid = arg;
 	i = 0;
-	threadfdnoblock(*fdp);
 	for(;;){
-		m = threadplumbrecv(*fdp);
+		m = plumbrecvfid(fid);
 		if(m == nil){
 			fprint(2, "samterm: plumb read error: %r\n");
 			threadexits("plumb");	/* not a fatal error */
 		}
 		if(plumbformat(m, i)){
-			send(c, &i);
+			send(plumbc, &i);
 			i = 1-i;	/* toggle */
 		}
 	}
@@ -241,21 +242,18 @@ plumbproc(void *argv)
 int
 plumbstart(void)
 {
-	static int fd;
-	static void *arg[2];
+	Fid *fid;
 
 	plumbfd = plumbopen("send", OWRITE|OCEXEC);	/* not open is ok */
-	fd = plumbopen("edit", OREAD|OCEXEC);
-	if(fd < 0)
+	fid = plumbopenfid("edit", OREAD|OCEXEC);
+	if(fid == nil)
 		return -1;
 	plumbc = chancreate(sizeof(int), 0);
 	if(plumbc == nil){
-		close(fd);
+		fsclose(fid);
 		return -1;
 	}
-	arg[0] = plumbc;
-	arg[1] = &fd;
-	threadcreate(plumbproc, arg, STACK);
+	threadcreate(plumbproc, fid, STACK);
 	return 1;
 }
 

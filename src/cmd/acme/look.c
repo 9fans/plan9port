@@ -8,13 +8,48 @@
 #include <frame.h>
 #include <fcall.h>
 #include <regexp.h>
+#define Fid FsFid
+#include <fs.h>
 #include <plumb.h>
+#undef Fid
 #include "dat.h"
 #include "fns.h"
+
+FsFid *plumbsendfid;
+FsFid *plumbeditfid;
 
 Window*	openfile(Text*, Expand*);
 
 int	nuntitled;
+
+void
+plumbproc(void *v)
+{
+	Plumbmsg *m;
+
+	USED(v);
+	threadsetname("plumbproc");
+	for(;;){
+		m = plumbrecvfid(plumbeditfid);
+		if(m == nil)
+			threadexits(nil);
+		sendp(cplumb, m);
+	}
+}
+
+void
+startplumbing(void)
+{
+	plumbeditfid = plumbopenfid("edit", OREAD|OCEXEC);
+	if(plumbeditfid == nil)
+		fprint(2, "acme: can't initialize plumber: %r\n");
+	else{
+		cplumb = chancreate(sizeof(Plumbmsg*), 0);
+		threadcreate(plumbproc, nil, STACK);
+	}
+	plumbsendfid = plumbopenfid("send", OWRITE|OCEXEC);
+}
+
 
 void
 look3(Text *t, uint q0, uint q1, int external)
@@ -79,7 +114,7 @@ look3(Text *t, uint q0, uint q1, int external)
 		free(r);
 		goto Return;
 	}
-	if(plumbsendfd >= 0){
+	if(plumbsendfid != nil){
 		/* send whitespace-delimited word to plumber */
 		m = emalloc(sizeof(Plumbmsg));
 		m->src = estrdup("acme");
@@ -121,7 +156,7 @@ look3(Text *t, uint q0, uint q1, int external)
 		m->data = runetobyte(r, q1-q0);
 		m->ndata = strlen(m->data);
 		free(r);
-		if(m->ndata<messagesize-1024 && plumbsend(plumbsendfd, m) >= 0){
+		if(m->ndata<messagesize-1024 && plumbsendtofid(plumbsendfid, m) >= 0){
 			plumbfree(m);
 			goto Return;
 		}

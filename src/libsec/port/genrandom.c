@@ -1,4 +1,5 @@
 #include "os.h"
+#include <mp.h>
 #include <libsec.h>
 
 typedef struct State{

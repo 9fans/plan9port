@@ -55,11 +55,13 @@ listenproc(void *v)
 
 	srv = v;
 	for(;;){
+fprint(2, "listen for venti\n");
 		ctl = listen(srv->adir, dir);
 		if(ctl < 0){
 			srv->dead = 1;
 			break;
 		}
+fprint(2, "got one\n");
 		sc = vtmallocz(sizeof(VtSconn));
 		sc->ctl = ctl;
 		sc->srv = srv;

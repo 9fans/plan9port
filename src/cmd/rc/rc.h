@@ -26,6 +26,9 @@
 #include "x.tab.h"
 #endif
 #endif
+
+#undef pipe	/* so that /dev/fd works */
+
 typedef struct tree tree;
 typedef struct word word;
 typedef struct io io;
