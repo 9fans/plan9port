@@ -1,0 +1,109 @@
+#include <u.h>
+#include <errno.h>
+#include <grp.h>
+#include <termios.h>
+#include <sys/termios.h>
+#include <pty.h>
+#include <fcntl.h>
+#include <libc.h>
+#include "term.h"
+
+#define debug 0
+
+static char *abc =
+	"abcdefghijklmnopqrstuvwxyz"
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	"0123456789";
+static char *_123 = 
+	"0123456789"
+	"abcdefghijklmnopqrstuvwxyz"
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+int
+getpts(int fd[], char *slave)
+{
+	char *a, *z;
+	char pty[] = "/dev/ptyXX";
+
+	for(a=abc; *a; a++)
+	for(z=_123; *z; z++){
+		pty[8] = *a;
+		pty[9] = *z;
+		if((fd[1] = open(pty, ORDWR)) < 0){
+fprint(2, "try %s: %r\n", pty);
+			if(errno == ENOENT)
+				break;
+		}else{
+			fchmod(fd[1], 0620);
+			strcpy(slave, pty);
+			slave[5] = 't';
+			if((fd[0] = open(slave, ORDWR)) >= 0)
+				return 0;
+			close(fd[1]);
+		}
+	}
+	sysfatal("no ptys");
+	return 0;
+}
+
+int
+childpty(int fd[], char *slave)
+{
+	int sfd;
+
+	close(fd[1]);	/* drop master */
+	setsid();
+	sfd = open(slave, ORDWR);
+	if(sfd < 0)
+		sysfatal("child open %s: %r\n", slave);
+	if(ioctl(sfd, TIOCSCTTY, 0) < 0)
+		fprint(2, "ioctl TIOCSCTTY: %r\n");
+	return sfd;
+}
+
+struct winsize ows;
+
+void
+updatewinsize(int row, int col, int dx, int dy)
+{
+	struct winsize ws;
+
+	ws.ws_row = row;
+	ws.ws_col = col;
+	ws.ws_xpixel = dx;
+	ws.ws_ypixel = dy;
+	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
+	if(ioctl(rcfd, TIOCSWINSZ, &ws) < 0)
+		fprint(2, "ioctl: %r\n");
+	ows = ws;
+}
+
+static struct termios ttmode;
+
+int
+isecho(int fd)
+{
+	if(tcgetattr(fd, &ttmode) < 0)
+		fprint(2, "tcgetattr: %r\n");
+	if(debug) fprint(2, "israw %c%c\n",
+		ttmode.c_lflag&ICANON ? 'c' : '-',
+		ttmode.c_lflag&ECHO ? 'e' : '-');
+	return ttmode.c_lflag&ECHO;
+}
+
+int
+setecho(int fd, int newe)
+{
+	int old;
+
+	if(tcgetattr(fd, &ttmode) < 0)
+		fprint(2, "tcgetattr: %r\n");
+	old = ttmode.c_lflag & ECHO;
+	if(old != newe){
+		ttmode.c_lflag &= ~ECHO;
+		ttmode.c_lflag |= newe;
+		if(tcsetattr(fd, TCSADRAIN, &ttmode) < 0)
+			fprint(2, "tcsetattr: %r\n");
+	}
+	return old;
+}
