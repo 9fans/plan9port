@@ -304,6 +304,14 @@ threadmain(int argc, char *argv[])
 	loop();
 }
 
+int
+isexpand(Rune r)
+{
+	return r=='_' || ('0' <= r && r <= '9') 
+		|| ('a' <= r && r <= 'z')
+		|| ('A' <= r && r <= 'Z');
+}
+
 void
 hangupnote(void *a, char *msg)
 {
@@ -992,7 +1000,7 @@ bswidth(Rune c, uint start, int eatnl)
 			break; 
 		}
 		if(c == 0x17){
-			eq = isalnum(r);
+			eq = isexpand(r);
 			if(eq && skipping)	/* found one; stop skipping */
 				skipping = 0;
 			else if(!eq && !skipping)
@@ -1600,10 +1608,10 @@ doubleclick(uint *q0, uint *q1)
 		}
 	}
 	/* try filling out word to right */
-	while(*q1<t.nr && isalnum(t.r[*q1]))
+	while(*q1<t.nr && isexpand(t.r[*q1]))
 		(*q1)++;
 	/* try filling out word to left */
-	while(*q0>0 && isalnum(t.r[*q0-1]))
+	while(*q0>0 && isexpand(t.r[*q0-1]))
 		(*q0)--;
 }
 
