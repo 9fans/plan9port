@@ -1,7 +1,7 @@
 #include "e.h"
 
 #undef inline
-#define inline _inline
+#define inline _einline
 
 #define	MAXLINE	3600	/* maximum input line */
 

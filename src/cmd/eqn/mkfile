@@ -40,3 +40,6 @@ eqn.c:	y.tab.c prevy.tab.h
 
 prevy.tab.h:	y.tab.h
 	sh -c 'cmp -s y.tab.h prevy.tab.h || cp y.tab.h prevy.tab.h'
+
+clean:
+	rm -f eqn.c prevy.tab.h
