@@ -1,0 +1,53 @@
+// Linux NPTL 2.3.2
+complex list_head {
+	'X'	0	next;
+	'X'	4	prev;
+};
+complex nptl_pthread {
+	'X'	0	loopback;
+	'X'	0x48	tid;
+};
+
+// cannot be done at load time -- need shared library symbols
+defn guessnptl() {
+	if var("nptl_version") then {
+		pthreadlibrary = "nptl";
+		isnptl = 1;
+	} else {
+		pthreadlibrary = "linuxclone";
+		isnptl = 0;
+	}
+}
+
+defn pthread2tid(p) {
+	guessnptl();
+	if p == 0 then
+		return 0;
+	if isnptl then {
+		complex nptl_pthread p;
+		if p.loopback != p then
+			error("bad pthread "+itoa(p, "%x"));
+		return p.tid;
+	}else {
+		return p\X;
+	}
+}
+
+defn pthreadlist() {
+	local all, p, n, l;
+
+	if isnptl then {
+		all = {};
+		l = (list_head)stack_used;
+		l = (list_head)l.next;
+		while l != stack_used do {
+			p = l - *_thread_db_pthread_list;
+			all = append all, p;
+			l = (list_head)l.next;
+		}
+	} else {
+		all = {};
+	}
+	return all;
+}
+		

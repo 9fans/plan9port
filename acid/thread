@@ -3,62 +3,7 @@
 // avoid complicated libthread_db interface
 //
 
-// Linux NPTL 2.3.2
-complex list_head {
-	'X'	0	next;
-	'X'	4	prev;
-};
-complex nptl_pthread {
-	'X'	0	loopback;
-	'X'	0x48	tid;
-};
-defn isnptl() {
-	return var("nptl_version") != {};
-}
-defn nptl2tid(p) {
-	complex nptl_pthread p;
-	if p.loopback != p then 
-		error("bad pthread "+itoa(p, "%x"));
-	return p.tid;
-}
-defn nptlpthreadlist() {
-	local all, p, n, l;
-
-	all = {};
-	l = (list_head)stack_used;
-	l = (list_head)l.next;
-	while l != stack_used do {
-		p = l - *_thread_db_pthread_list;
-		all = append all, p;
-		l = (list_head)l.next;
-	}
-	return all;
-}
-
-// 
-// Generic dispatch
-// 
-defn pthreadlibrary() {
-	if var("_pthreadlibrary") == {} then {
-		if isnptl() then
-			_pthreadlibrary = "nptl";
-		else
-			_pthreadlibrary = "unknown";
-	}
-	return _pthreadlibrary;
-}
-
-defn id2tid(id) {
-	if pthreadlibrary() == "nptl" then
-		return nptl2tid(id);
-	error("unknown pthread library: "+pthreadlibrary);
-}
-
-defn pthreadlist() {
-	if pthreadlibrary() == "nptl" then
-		return nptlpthreadlist(id);
-	error("unknown pthread library: "+pthreadlibrary);
-}
+include("pthread-"+systype+"-"+objtype);
 
 // pick apart system mcontext_t structures
 defn mcontext(m)
@@ -98,7 +43,7 @@ defn altfmt(A){
 	complex Alt A;
 
 	s = "alt(";
-	s = s + "tag(*" + itoa(A.tag, "%x") + "=" + itoa(*A.tag, "%x") + ") ";
+	s = s + "tag(*" + itoa(A.tag, "%#x") + "=" + itoa(*A.tag, "%#x") + ") ";
 	i = 0;
 	yes = 0;
 	while A.op != CHANEND && A.op != CHANNOBLK do{
@@ -109,7 +54,7 @@ defn altfmt(A){
 			if A.op == CHANSND then s = s + "send";
 			if A.op == CHANRCV then s = s + "recv";
 			s = s + "(channel(";
-			s = s + itoa(A.c, "%x");
+			s = s + itoa(A.c, "%#x");
 			s = s + "))";
 			yes = 1;
 		}
@@ -184,7 +129,7 @@ defn fnname(a){
 			return sym[0];
 		s = tail s;
 	}
-	return itoa(a, "%x");
+	return itoa(a, "%#x");
 }
 
 stkignorelist = {};
@@ -199,7 +144,7 @@ defn threadstkline(T){
 	P = (Proc)T.proc;
 	if P.thread == T then {
 		mainpid = pid;
-		setproc(id2tid(P.osprocid));
+		setproc(pthread2tid(P.osprocid));
 		stk = strace({});
 		setproc(mainpid);
 	} else
@@ -230,7 +175,7 @@ defn threadfmt(T){
 	local P, s, name;
 
 	P = (Proc)T.proc;
-	s = "t=(_Thread)"+itoa(T, "%-10x")+" // ";
+	s = "t=(_Thread)"+itoa(T, "%#-10x")+" // ";
 
 	if P.thread == T then
 		s = s + "Running    ";
@@ -296,12 +241,10 @@ defn threadstks(P){
 	complex Proc P;
 	local T,  mainpid, pref, ign;
 
-	// mainpid = pid;
 	pref = stkprefix;
 	stkprefix = pref+"\t\t";
 	ign = stkignore;
 	stkignore = threadstkignore;
-	// setproc(P.pid);
 	T = (_Thread)P.allthreads.$head;
 	while T != 0 do{
 		print("\t");
@@ -310,7 +253,6 @@ defn threadstks(P){
 		T = (_Thread)T.allnext;
 		print("\n");
 	}
-	// setproc(mainpid);
 	stkprefix = pref;
 	stkignore = ign;
 }
@@ -318,7 +260,7 @@ defn threadstks(P){
 defn proc(P){
 	complex Proc P;
 
-	print("p=(Proc)", itoa(P, "%-10x"), "  // pthread ", P.osprocid\X, " pid ", id2tid(P.osprocid)\D, " ");
+	print("p=(Proc)", itoa(P, "%#-10x"), "  // pthread ", P.osprocid\X, " pid ", pthread2tid(P.osprocid)\D, " ");
 	if P.thread==0 then
 		print(" Sched");
 	else
@@ -332,7 +274,7 @@ defn threadlstk(T){
 
 	P = (Proc)T.proc;
 	mainpid = pid;
-	setproc(id2tid(P.osprocid));
+	setproc(pthread2tid(P.osprocid));
 
 	if P.thread == T then
 		lstk();
@@ -347,7 +289,7 @@ defn threadstk(T){
 
 	P = (Proc)T.proc;
 	mainpid = pid;
-	setproc(id2tid(P.osprocid));
+	setproc(pthread2tid(P.osprocid));
 
 	if P.thread == T then
 		stk();

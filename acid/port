@@ -33,11 +33,6 @@ notelstk(addr)
 	_stk({"PC", pc, "SP", sp, linkreg(addr)}, 1);
 }
 
-// defn labstk(l)				// trace from a label
-// {
-// 	_stk({"PC", *(l+4), "SP", *l, linkreg(0)}, 0);
-// }
-
 defn params(param)
 {
 	while param do {
@@ -119,7 +114,6 @@ defn _stk(regs, dolocals)
 		if callerpc == 0 then
 			done=1;
 	}
-
 	if callerpc && !done then {
 		print(stkprefix, fmt(callerpc, 'a'), " ");
 		pfl(callerpc);
