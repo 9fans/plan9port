@@ -23,8 +23,10 @@ BEGIN{
 	state["X"] = "Moribund";
 }
 
-function statestr(s)
+function statestr(s, wchan)
 {
+	if(wchan != s && wchan != "?")
+		return wchan;
 	t = state[substr(s, 1, 1)];
 	if(t == "")
 		return s;
@@ -43,6 +45,7 @@ function statestr(s)
 	cputime=$i; i++
 	mem=$i; i++
 	stat=$i; i++
+	wchan=$i; i++
 	cmd=$i; i++	
 	if(ENVIRON["all"] == "yes"){
 		for(; i<=NF; i++)
@@ -62,17 +65,17 @@ function statestr(s)
 		sub(/:..$/, "", start);
 	}
 	printf("%-8s  %11d %8s %8s %8dK %-8s %s\n",
-		user, pid, start, cputime, mem, statestr(stat), cmd);
+		user, pid, start, cputime, mem, statestr(stat, wchan), cmd);
 }
 !
 
 case "${SYSNAME:-`uname`}" in 
 SunOS)
-	/bin/ps -aA -o 'user,pid,stime,time,vsz,s,args' | sed 1d |
+	/bin/ps -aA -o 'user,pid,stime,time,vsz,s,s,args' | sed 1d |
 		nawk -f /tmp/awk.xxx$$ | sort -n +1
 	;;
 *)
-	/bin/ps -axww -o 'user,pid,start,time,vsz,stat,command' | sed 1d |
+	/bin/ps -axww -o 'user,pid,start,time,vsz,stat,wchan,command' | sed 1d |
 		awk -f /tmp/awk.xxx$$ | sort -n +1
 	;;
 esac
