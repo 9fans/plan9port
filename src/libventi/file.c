@@ -664,7 +664,7 @@ mkindices(VtEntry *e, u32int bn, int *index)
 {
 	int i, np;
 
-	memset(index, 0, VtPointerDepth*sizeof(int));
+	memset(index, 0, (VtPointerDepth+1)*sizeof(int));
 
 	np = e->psize/VtScoreSize;
 	for(i=0; bn > 0; i++){
@@ -1168,8 +1168,8 @@ vtfileflushbefore(VtFile *r, u64int offset)
 {
 	VtBlock *b, *bb;
 	VtEntry e;
-	int i, base, depth, ppb, epb, ok;
-	int index[VtPointerDepth+1], index1[VtPointerDepth+1], j, ret;
+	int i, base, depth, ppb, epb, doflush;
+	int index[VtPointerDepth+1], j, ret;
 	VtBlock *bi[VtPointerDepth+2];
 	uchar *score;
 
@@ -1181,6 +1181,9 @@ vtfileflushbefore(VtFile *r, u64int offset)
 	if(b == nil)
 		return -1;
 
+	/*
+	 * compute path through tree for the last written byte and the next one.
+	 */
 	ret = -1;
 	memset(bi, 0, sizeof bi);
 	depth = DEPTH(e.type);
@@ -1190,10 +1193,12 @@ vtfileflushbefore(VtFile *r, u64int offset)
 		goto Err;
 	if(i > depth)
 		goto Err;
-	mkindices(&e, offset/e.dsize, index1);
 	ppb = e.psize / VtScoreSize;
 	epb = e.dsize / VtEntrySize;
 
+	/*
+	 * load the blocks along the last written byte
+	 */
 	index[depth] = r->offset % r->epb;
 	for(i=depth; i>=0; i--){
 		bb = blockwalk(b, index[i], r->c, VtORDWR, &e);
@@ -1204,33 +1209,41 @@ vtfileflushbefore(VtFile *r, u64int offset)
 	}
 	ret = 0;
 
+	/*
+	 * walk up the path from leaf to root, flushing anything that
+	 * has been finished.
+	 */
 	base = e.type&~VtTypeDepthMask;
 	for(i=0; i<depth; i++){
+		doflush = 0;
 		if(i == 0){
-			/* bottom: data or dir block */
-			ok = offset%e.dsize == 0;
+			/* leaf: data or dir block */
+			if(offset%e.dsize == 0)
+				doflush = 1;
 		}else{
-			/* middle: pointer blocks */
-			b = bi[i];
 			/*
-			 * flush everything up to the break
+			 * interior node: pointer blocks.
+			 * specifically, b = bi[i] is a block whose index[i-1]'th entry 
+			 * points at bi[i-1].  
+			 */
+			b = bi[i];
+
+			/*
+			 * the index entries up to but not including index[i-1] point at 
+			 * finished blocks, so flush them for sure.
 			 */
 			for(j=0; j<index[i-1]; j++)
 				if(flushblock(r->c, nil, b->data+j*VtScoreSize, ppb, epb, base+i-1) < 0)
 					goto Err;
+
 			/*
-			 * if the rest of the block is already flushed,
-			 * we can flush the whole block.
+			 * if index[i-1] is the last entry in the block and is global
+			 * (i.e. the kid is flushed), then we can flush this block.
 			 */
-			ok = 0;
-			if(index[i] != index1[i]){
-				ok = 1;
-				for(; j<ppb; j++)
-					if(vtglobaltolocal(b->data+j*VtScoreSize) != NilBlock)
-						ok = 0;
-			}
+			if(j==ppb-1 && vtglobaltolocal(b->data+j*VtScoreSize)==NilBlock)
+				doflush = 1;
 		}
-		if(ok){
+		if(doflush){
 			if(i == depth)
 				score = e.score;
 			else
