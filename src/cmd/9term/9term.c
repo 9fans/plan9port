@@ -1,4 +1,5 @@
 #include <u.h>
+#include <signal.h>
 #include <libc.h>
 #include <ctype.h>
 #include <draw.h>
@@ -11,7 +12,16 @@
 #include <complete.h>
 #include "term.h"
 
+enum
+{
+	STACK = 32768
+};
+
 int noecho = 0;
+
+void servedevtext(void);
+void listenthread(void*);
+void textthread(void*);
 
 typedef struct Text	Text;
 typedef struct Readbuf	Readbuf;
@@ -238,6 +248,8 @@ threadmain(int argc, char *argv[])
 
 	initdraw(0, nil, "9term");
 	notify(hangupnote);
+	notifyatsig(SIGCHLD, 1);
+	servedevtext();
 
 	mc = initmouse(nil, screen);
 	kc = initkeyboard(nil);
@@ -860,6 +872,10 @@ key(Rune r)
 	case 0x05:
 		show(t.nr);
 		return;
+
+	/*
+	 * Non-standard extensions.
+	 */
 	case CUT:
 		snarf();
 		cut();
@@ -880,12 +896,12 @@ key(Rune r)
 	}
 
 	switch(r) {
-	case 0x03:	/* ^C: send interrupt */
+	/* case 0x03:	can't do this because ^C is COPY */
 	case 0x7F:	/* DEL: send interrupt */
+		paste(&r, 1, 1);
 		t.qh = t.q0 = t.q1 = t.nr;
 		show(t.q0);
-	//	postnote(PNGROUP, x, "interrupt");
-		write(rcfd, "\x7F", 1);
+		postnote(PNGROUP, rcpid, "interrupt");
 		return;
 	}
 
@@ -1820,3 +1836,76 @@ rawon(void)
 	return !cooked && !isecho(sfd);
 }
 
+/*
+ * Clumsy hack to make " and "" work.
+ * Then again, what's not a clumsy hack here in Unix land?
+ */
+
+char adir[100];
+int afd;
+
+void
+servedevtext(void)
+{
+	char buf[100];
+
+	snprint(buf, sizeof buf, "unix!/tmp/9term-text.%d", getpid());
+
+	if((afd = announce(buf, adir)) < 0){
+		putenv("text9term", "");
+		return;
+	}
+
+	putenv("text9term", buf);
+	threadcreate(listenthread, nil, STACK);
+}
+
+void
+listenthread(void *arg)
+{
+	int fd;
+	char dir[100];
+
+	USED(arg);
+	for(;;){
+		fd = threadlisten(adir, dir);
+		if(fd < 0){
+			close(afd);
+			return;
+		}
+		threadcreate(textthread, (void*)fd, STACK);
+	}
+}
+
+void
+textthread(void *arg)
+{
+	int fd, i, x, n, end;
+	Rune r;
+	char buf[4096], *p, *ep;
+
+	fd = (int)arg;
+	p = buf;
+	ep = buf+sizeof buf;
+	end = t.org+t.nr;	/* avoid possible output loop */
+	for(i=t.org;; i++){
+		if(i >= end || ep-p < UTFmax){
+			for(x=0; x<p-buf; x+=n)
+				if((n = write(fd, buf+x, (p-x)-buf)) <= 0)
+					goto break2;
+			
+			if(i >= end)
+				break;
+			p = buf;
+		}
+		if(i < t.org)
+			i = t.org;
+		r = t.r[i-t.org];
+		if(r < Runeself)
+			*p++ = r;
+		else
+			p += runetochar(p, &r);
+	}
+break2:
+	close(fd);
+}
