@@ -1,3 +1,9 @@
+/*
+ * on Mac OS X, err is something else,
+ * and assigning to it causes a bus error.
+ * what a crappy linker.
+ */
+#define err rc_err
 #define	EOF	(-1)
 #define	NBUF	512
 struct io{

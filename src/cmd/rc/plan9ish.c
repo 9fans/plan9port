@@ -400,8 +400,8 @@ notifyf(void *unused0, char *s)
 			if(strncmp(s, "sys: ", 5)!=0) interrupted=1;
 			goto Out;
 		}
-
-	pfmt(err, "rc: note: %s\n", s);
+	if(strcmp(s, "sys: child") != 0)
+		pfmt(err, "rc: note: %s\n", s);
 	noted(NDFLT);
 	return;
 Out:

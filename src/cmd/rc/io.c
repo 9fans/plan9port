@@ -126,10 +126,13 @@ void flush(io *f)
 	}
 }
 io *openfd(int fd){
-	io *f=new(struct io);
+	io *f;
+fprint(2, "in openfd\n");
+	f=new(struct io);
 	f->fd=fd;
 	f->bufp=f->ebuf=f->buf;
 	f->strp=0;
+fprint(2, "in openfd\n");
 	return f;
 }
 io *openstr(void){
@@ -155,6 +158,7 @@ io *opencore(char *s, int len)
 	Memcpy(buf, s, len);
 	return f;
 }
+/*
 void rewind(io *io)
 {
 	if(io->fd==-1) io->bufp=io->strp;
@@ -163,6 +167,7 @@ void rewind(io *io)
 		Seek(io->fd, 0L, 0);
 	}
 }
+*/
 void closeio(io *io)
 {
 	if(io->fd>=0) close(io->fd);
