@@ -7,10 +7,17 @@ include fileaddr
 plumb to seemail
 plumb to showmail
 
-# cheap http/gif,jpeg,ps,pdf renderer
+# urls go to web browser
 type is text
 data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+([:.][a-zA-Z0-9_?,%#~&/\-+=]+)*\.(jpe?g|JPE?G|gif|GIF|ps|PS|pdf|PDF)'
-plumb start rc -c 'hget '$0' | page -w'
+plumb start web $0
+
+# html goes to web browser
+type is text
+data matches '[a-zA-Z¡-￿0-9_\-./]+'
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(html|htm|HTM|HTML)'
+arg isfile	$0
+plumb start web $file
 
 # doc and rtf files go to wdoc2txt
 type is text
@@ -117,11 +124,3 @@ plumb start qiv -t $data
 dst is postscript
 arg isfile $data
 plumb start gv $data
-
-# urls to internet explorer on another machine
-type is text
-data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=@]+([:.][@a-zA-Z0-9_?,%#~&/\-+=]+)*'
-plumb to web
-plumb start web $0
-# plumb start winstart iexplore -new $0
-
