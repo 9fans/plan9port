@@ -106,7 +106,13 @@ setecho(int fd, int newe)
 	if(old != newe){
 		ttmode.c_lflag &= ~ECHO;
 		ttmode.c_lflag |= newe;
-		if(tcsetattr(fd, TCSADRAIN, &ttmode) < 0)
+		/*
+		 * I tried using TCSADRAIN here, but that causes
+		 * hangs if there is any output waiting for us.
+		 * I guess TCSADRAIN is intended for use by our
+		 * clients, not by us.
+		 */
+		if(tcsetattr(fd, 0, &ttmode) < 0)
 			fprint(2, "tcsetattr: %r\n");
 	}
 	return old;
