@@ -1,0 +1,26 @@
+<$PLAN9/src/mkhdr
+
+TARG=db
+OFILES=\
+	command.$O\
+	expr.$O\
+	format.$O\
+	input.$O\
+	main.$O\
+	output.$O\
+	pcs.$O\
+	runpcs.$O\
+	regs.$O\
+	trcrun.$O\
+	print.$O\
+	setup.$O\
+
+HFILES=defs.h\
+	fns.h\
+
+SHORTLIB=mach bio 9
+
+<$PLAN9/src/mkone
+
+CFLAGS=$CFLAGS -I../libmach2
+
