@@ -73,6 +73,7 @@ void	vtlogprint(VtLog *log, char *fmt, ...);
 void	vtlog(char *name, char *fmt, ...);
 void	vtlogclose(VtLog*);
 void	vtlogremove(char *name);
+int	vtlognames(char***);
 void	vtlogdump(int fd, VtLog*);
 
 /* XXX begin actual venti.h */
@@ -488,6 +489,7 @@ int vtfileremove(VtFile*);
 
 extern int chattyventi;
 extern int ventidoublechecksha1;
+extern int ventilogging;
 
 extern char *VtServerLog;
 
