@@ -1609,14 +1609,14 @@ bprint(Instr *ip, char *fmt, ...)
 #define	ONAME(ip)	""
 
 static char *reg[] =  {
-[AX]	"AX",
-[CX]	"CX",
-[DX]	"DX",
-[BX]	"BX",
-[SP]	"SP",
-[BP]	"BP",
-[SI]	"SI",
-[DI]	"DI",
+	"AX",		/* 0 */
+	"CX",		/* 1 */
+	"DX",		/* 2 */
+	"BX",		/* 3 */
+	"SP",		/* 4 */
+	"BP",		/* 5 */
+	"SI",		/* 6 */
+	"DI",		/* 7 */
 };
 
 static char *breg[] = { "AL", "CL", "DL", "BL", "AH", "CH", "DH", "BH" };
