@@ -1,6 +1,8 @@
+#define NOPLAN9DEFINES
 #include <u.h>
 #include <libc.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 
 #if defined(__FreeBSD__) || defined(__APPLE__)
 /* do nothing -- futimes exists and is fine */
