@@ -216,15 +216,26 @@ dumpsome(char *ans, char *e, char *buf, long count)
 	if(count > DUMPL)
 		count = DUMPL;
 	for(i=0; i<count && printable; i++)
-		if((buf[i]<32 && buf[i] !='\n' && buf[i] !='\t') || (uchar)buf[i]>127)
+		if((buf[i]!=0 && buf[i]<32) || (uchar)buf[i]>127)
 			printable = 0;
 	p = ans;
 	*p++ = '\'';
 	if(printable){
-		if(count > e-p-2)
-			count = e-p-2;
-		memmove(p, buf, count);
-		p += count;
+		if(2*count > e-p-2)
+			count = (e-p-2)/2;
+		for(i=0; i<count; i++){
+			if(buf[i] == 0){
+				*p++ = '\\';
+				*p++ = '0';
+			}else if(buf[i] == '\t'){
+				*p++ = '\\';
+				*p++ = 't';
+			}else if(buf[i] == '\n'){
+				*p++ = '\\';
+				*p++ = 'n';
+			}else
+				*p++ = buf[i];
+		}
 	}else{
 		if(2*count > e-p-2)
 			count = (e-p-2)/2;
@@ -237,5 +248,6 @@ dumpsome(char *ans, char *e, char *buf, long count)
 	}
 	*p++ = '\'';
 	*p = 0;
+	assert(p < e);
 	return p - ans;
 }

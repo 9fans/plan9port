@@ -32,6 +32,10 @@ p9open(char *name, int mode)
 		umode |= O_NONBLOCK;
 		mode ^= ONONBLOCK;
 	}
+	if(mode&OAPPEND){
+		umode |= O_APPEND;
+		mode ^= OAPPEND;
+	}
 	if(mode){
 		werrstr("mode 0x%x not supported", mode);
 		return -1;

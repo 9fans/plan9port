@@ -117,6 +117,7 @@ LIB9OFILES=\
 	nan.$O\
 	needsrcquote.$O\
 	needstack.$O\
+	netcrypt.$O\
 	netmkaddr.$O\
 	notify.$O\
 	nrand.$O\
@@ -130,6 +131,7 @@ LIB9OFILES=\
 	quote.$O\
 	rand.$O\
 	read9pmsg.$O\
+	readcons.$O\
 	readn.$O\
 	rfork.$O\
 	searchpath.$O\
@@ -139,6 +141,7 @@ LIB9OFILES=\
 	strdup.$O\
 	strecpy.$O\
 	sysfatal.$O\
+	syslog.$O\
 	sysname.$O\
 	time.$O\
 	tokenize.$O\

@@ -43,6 +43,10 @@ p9create(char *path, int mode, ulong perm)
 			umode |= O_EXCL;
 			mode &= ~OEXCL;
 		}
+		if(mode&OAPPEND){
+			umode |= O_APPEND;
+			mode &= ~OAPPEND;
+		}
 		if(mode){
 			werrstr("unsupported mode in create");
 			goto out;

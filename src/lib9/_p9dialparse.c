@@ -10,6 +10,24 @@
 static char *nets[] = { "tcp", "udp", nil };
 #define CLASS(p) ((*(uchar*)(p))>>6)
 
+static struct {
+	char *net;
+	char *service;
+	int port;
+} porttbl[] = {
+	"tcp",	"9fs",	564,
+	"tcp",	"whoami",	565,
+	"tcp",	"guard",	566,
+	"tcp",	"ticket",	567,
+	"tcp",	"exportfs",	17007,
+	"tcp",	"rexexec",	17009,
+	"tcp",	"ncpu",	17010,
+	"tcp",	"cpu",	17013,
+	"tcp",	"venti",	17034,
+	"tcp",	"wiki",	17035,
+	"tcp",	"secstore",	5356,
+};
+
 static int
 parseip(char *host, u32int *pip)
 {
@@ -103,7 +121,7 @@ p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 	if(strcmp(net, "unix") == 0)
 		goto Unix;
 
-	if(strcmp(net, "tcp")!=0 && strcmp(net, "udp")!=0){
+	if(strcmp(net, "tcp")!=0 && strcmp(net, "udp")!=0 && strcmp(net, "net") != 0){
 		werrstr("bad network %s!%s!%s", net, host, port);
 		return -1;
 	}
@@ -129,7 +147,19 @@ p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 				return 0;
 			}
 		}
-		werrstr("unknown service %s", port);
+	}
+
+	for(i=0; i<nelem(porttbl); i++){
+		if(strcmp(net, "net") == 0 || strcmp(porttbl[i].net, net) == 0)
+		if(strcmp(porttbl[i].service, port) == 0){
+			*pnet = porttbl[i].net;
+			*pport = porttbl[i].port;
+			return 0;
+		}
+	}
+
+	if(strcmp(net, "net") == 0){
+		werrstr("unknown service net!*!%s", port);
 		return -1;
 	}
 
@@ -149,6 +179,6 @@ p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 		*pport = ntohs(se->s_port);
 		return 0;
 	}
-	werrstr("unknown service %s", port);
+	werrstr("unknown service %s!*!%s", net, port);
 	return -1;
 }
