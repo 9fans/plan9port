@@ -614,6 +614,7 @@ main(int argc, char **argv)
 		mainstacksize = 256*1024;
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	procscheduler(p);
+	sysfatal("procscheduler returned in threadmain!");
 	/* does not return */
 	return 0;
 }
