@@ -8,6 +8,8 @@ cd src
 make
 echo "Building everything..."
 mk clean
+mk libs-nuke
+mk all
 echo "Installing everything..."
 mk install | tee -a mk-install.log
 echo "Cleaning up..."

@@ -45,4 +45,4 @@ MKSHELL=$PLAN9/bin/rc
 	./fixurls $target
 
 push:V:
-	rsync -e ssh *.html swtch:www/swtch.com/plan9port/unix/man
+	rsync -e ssh -t *.html swtch:www/swtch.com/plan9port/unix/man

@@ -1,8 +1,6 @@
 #!/usr/local/plan9/bin/rc
 
 . 9.rc
-whatis path
-whatis troff
 . $PLAN9/man/fonts
 
 #

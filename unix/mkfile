@@ -65,5 +65,6 @@ mk-with-libs.tgz:V:
 tgz:V: libutf.tgz libfmt.tgz libregexp9.tgz libbio.tgz mk.tgz mk-with-libs.tgz
 
 push:
-	rsync -e ssh *.tgz swtch:www/swtch.com/plan9port/unix
-
+	rsync -e ssh -t *.tgz swtch:www/swtch.com/plan9port/unix
+	ssh swtch rm www/swtch.com/plan9port/unix/*.sha1 \
+		www/swtch.com/plan9port/unix/*.md5
