@@ -6,6 +6,9 @@ label, awd \- set window label
 .I string
 .br
 .B awd
+[
+.I sysname
+]
 .SH DESCRIPTION
 .I Label
 sets the label of the current 
@@ -25,6 +28,14 @@ and
 windows assume the label is a directory name.
 When unrooted file names are plumbed in the window,
 they are evaluated relative to the directory named in the label.
+.PP
+The label may have a suffix
+BI /- sysname \fR,
+which is not interpreted as part of the directory during plumbing.
+.I Awd
+sets the window name to the current directory with a
+.BI /- sysname
+suffix, using the name of the current system by default.
 .SH EXAMPLE
 One can use the following
 .IR sh (1)
@@ -64,8 +75,3 @@ fn cd {
 .I Awd
 is also documented in
 .IR acme (1).
-.PP
-.I Awd
-does not append the
-.BI - label
-suffix that it does on Plan 9.

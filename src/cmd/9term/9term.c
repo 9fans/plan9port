@@ -1834,7 +1834,8 @@ int
 label(Rune *sr, int n)
 {
 	Rune *sl, *el, *er, *r;
-
+	char *p;
+	
 	er = sr+n;
 	for(r=er-1; r>=sr; r--)
 		if(*r == '\007')
@@ -1853,6 +1854,14 @@ label(Rune *sr, int n)
 
 	snprint(wdir, sizeof wdir, "%.*S", (el-1)-(sl+3), sl+3);
 	drawsetlabel(wdir);
+
+	/* remove trailing /-sysname if present */
+	p = strrchr(wdir, '/');
+	if(p && *(p+1) == '-'){
+		if(p == wdir)
+			p++;
+		*p = 0;
+	}
 
 	runemove(sl, el, er-el);
 	n -= (el-sl);

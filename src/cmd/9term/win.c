@@ -489,11 +489,11 @@ stdoutproc(void *v)
 	}
 }
 
-char wdir[256];
+char wdir[512];
 int
 label(char *sr, int n)
 {
-	char *sl, *el, *er, *r;
+	char *sl, *el, *er, *r, *p;
 
 	er = sr+n;
 	for(r=er-1; r>=sr; r--)
@@ -503,8 +503,8 @@ label(char *sr, int n)
 		return n;
 
 	el = r+1;
-	if(el-sr > sizeof wdir)
-		sr = el - sizeof wdir;
+	if(el-sr > sizeof wdir - strlen(name) - 20)
+		sr = el - sizeof wdir - strlen(name) - 20;
 	for(sl=el-3; sl>=sr; sl--)
 		if(sl[0]=='\033' && sl[1]==']' && sl[2]==';')
 			break;
@@ -512,7 +512,18 @@ label(char *sr, int n)
 		return n;
 
 	*r = 0;
-	snprint(wdir, sizeof wdir, "name %s/-%s\n0\n", sl+3, name);
+	/*
+	 * add /-sysname if not present
+	 */
+	snprint(wdir, sizeof wdir, "name %s", sl+3);
+	p = strrchr(wdir, '/');
+	if(p==nil || *(p+1) != '-'){
+		p = wdir+strlen(wdir);
+		if(*(p-1) != '/')
+			*p++ = '/';
+		strcpy(p, name);
+	}
+	strcat(wdir, "\n0\n");
 	fswrite(ctlfd, wdir, strlen(wdir));
 
 	memmove(sl, el, er-el);
