@@ -670,6 +670,11 @@ extern	void		freenetconninfo(NetConnInfo*);
 #undef RFMEM
 #undef RFNOWAIT
 #undef RFCFDG
+#undef RFNAMEG
+#undef RFENVG
+#undef RFCENVG
+#undef RFCFDG
+#undef RFCNAMEG
 #endif
 
 enum
