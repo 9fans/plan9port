@@ -1,0 +1,9 @@
+#!/bin/sh
+echo '# To unbundle, run this file'
+for i
+do
+	echo 'echo '$i
+	echo 'sed ''s/.//'' >'$i' <<''//GO.SYSIN DD '$i''''
+	sed 's/^/-/' $i
+	echo '//GO.SYSIN DD '$i
+done
