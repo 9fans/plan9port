@@ -397,6 +397,8 @@ extern	void	p9syslog(int, char*, char*, ...);
 extern	long	p9time(long*);
 /* extern	int	tolower(int); <ctype.h> */
 /* extern	int	toupper(int); <ctype.h> */
+extern	void	needstack(int);
+
 #ifndef NOPLAN9DEFINES
 #define atexit		p9atexit
 #define atexitdont	p9atexitdont
