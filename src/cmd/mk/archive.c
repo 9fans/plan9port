@@ -17,7 +17,7 @@ struct	ar_hdr
 };
 #define	SAR_HDR	(SARNAME+44)
 
-static int dolong;
+static int dolong = 1;
 
 static void atimes(char *);
 static char *split(char*, char**);
@@ -154,7 +154,7 @@ atimes(char *ar)
 			goto skip;
 		}else if(strings && h.name[0]=='/' && isdigit(h.name[1])){
 			i = strtol(h.name+1, &p, 10);
-			if(*p != ' ' || strlen(strings) < i)
+			if(*p != ' ' || i >= strlen(strings))
 				goto skip;
 			p = strings+i;
 			for(; *p && *p != '/'; p++)

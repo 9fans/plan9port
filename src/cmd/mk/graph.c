@@ -180,7 +180,7 @@ dumpn(char *s, Node *n)
 	char buf[1024];
 	Arc *a;
 
-	sprint(buf, "%s   ", (*s == ' ')? s:"");
+	snprint(buf, sizeof buf, "%s   ", (*s == ' ')? s:"");
 	Bprint(&bout, "%s%s@%ld: time=%ld flags=0x%x next=%ld\n",
 		s, n->name, n, n->time, n->flags, n->next);
 	for(a = n->prereqs; a; a = a->next)

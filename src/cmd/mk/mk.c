@@ -198,7 +198,7 @@ pcmp(char *prog, char *p, char *q)
 	int pid;
 
 	Bflush(&bout);
-	sprint(buf, "%s '%s' '%s'\n", prog, p, q);
+	snprint(buf, sizeof buf, "%s '%s' '%s'\n", prog, p, q);
 	pid = pipecmd(buf, 0, 0);
 	while(waitup(-3, &pid) >= 0)
 		;
@@ -214,7 +214,7 @@ outofdate(Node *node, Arc *arc, int eval)
 
 	str = 0;
 	if(arc->prog){
-		sprint(buf, "%s%c%s", node->name, 0377, arc->n->name);
+		snprint(buf, sizeof buf, "%s%c%s", node->name, 0377, arc->n->name);
 		sym = symlook(buf, S_OUTOFDATE, 0);
 		if(sym == 0 || eval){
 			if(sym == 0)

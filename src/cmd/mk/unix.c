@@ -47,15 +47,15 @@ exportenv(Envy *e)
 {
 	int i;
 	char **p;
-	char buf[4096];
+	static char buf[16384];
 
 	p = 0;
 	for(i = 0; e->name; e++, i++) {
 		p = (char**) Realloc(p, (i+2)*sizeof(char*));
 		if(e->values)
-			sprint(buf, "%s=%s", e->name,  wtos(e->values, IWS));
+			snprint(buf, sizeof buf, "%s=%s", e->name,  wtos(e->values, IWS));
 		else
-			sprint(buf, "%s=", e->name);
+			snprint(buf, sizeof buf, "%s=", e->name);
 		p[i] = strdup(buf);
 	}
 	p[i] = 0;
@@ -91,6 +91,8 @@ expunge(int pid, char *msg)
 		kill(pid, SIGHUP);
 }
 
+int mypid;
+
 int
 execsh(char *args, char *cmd, Bufblock *buf, Envy *e)
 {
@@ -102,6 +104,7 @@ execsh(char *args, char *cmd, Bufblock *buf, Envy *e)
 		Exit();
 	}
 	pid = fork();
+	mypid = getpid();
 	if(pid < 0){
 		mkperror("mk fork");
 		Exit();
@@ -225,7 +228,7 @@ static	struct
 	SIGFPE,		"sys: fp: fptrap",
 	SIGPIPE,	"sys: write on closed pipe",
 	SIGILL,		"sys: trap: illegal instruction",
-	SIGSEGV,	"sys: segmentation violation",
+//	SIGSEGV,	"sys: segmentation violation",
 	0,		0
 };
 
