@@ -502,8 +502,8 @@ include(Node *r, Node *args)
 		}
 		free(libfile);
 	}
-	pushfile(file);
 
+	pushfile(file);
 	isave = interactive;
 	interactive = 0;
 	r->store.u.ival = yyparse();
@@ -566,6 +566,7 @@ includepipe(Node *r, Node *args)
 	r->store.u.ival = yyparse();
 	interactive = isave;
 	popio();
+
 	r->op = OCONST;
 	r->type = TINT;
 	r->store.fmt = 'D';
