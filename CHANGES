@@ -1,3 +1,13 @@
+April 5, 2004
+
+	Fixes to rio from Axel.
+
+	Add atoll, etc.
+
+April 2, 2004
+
+	Add missing unsharps to dict.  Reported by Robby (plan9@blueyonder)
+
 March 30, 2004
 
 	Change label to use nawk on SunOS.
@@ -101,4 +111,6 @@ March 25, 2004
 
 	Change 9term, win to handle rubout even when output
 		is streaming in.
+
+	Start recording changes.
 
