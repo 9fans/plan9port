@@ -129,6 +129,49 @@ errorwin(Mntdir *md, int owner)
 	return w;
 }
 
+/*
+ * Incoming window should be locked. 
+ * It will be unlocked and returned window
+ * will be locked in its place.
+ */
+Window*
+errorwinforwin(Window *w)
+{
+	int i, n, nincl, owner;
+	Rune **incl;
+	Runestr dir;
+	Text *t;
+
+	t = &w->body;
+	dir = dirname(t, nil, 0);
+	if(dir.nr==1 && dir.r[0]=='.'){	/* sigh */
+		free(dir.r);
+		dir.r = nil;
+		dir.nr = 0;
+	}
+	incl = nil;
+	nincl = w->nincl;
+	if(nincl > 0){
+		incl = emalloc(nincl*sizeof(Rune*));
+		for(i=0; i<nincl; i++){
+			n = runestrlen(w->incl[i]);
+			incl[i] = runemalloc(n+1);
+			runemove(incl[i], w->incl[i], n);
+		}
+	}
+	owner = w->owner;
+	winunlock(w);
+	for(;;){
+		w = errorwin1(dir.r, dir.nr, incl, nincl);
+		winlock(w, owner);
+		if(w->col != nil)
+			break;
+		/* window deleted too fast */
+		winunlock(w);
+	}
+	return w;
+}
+
 typedef struct Warning Warning;
 
 struct Warning{

@@ -444,6 +444,11 @@ xfidwrite(Xfid *x)
 		respond(x, &fc, nil);
 		break;
 
+	case QWerrors:
+		w = errorwinforwin(w);
+		t = &w->body;
+		goto BodyTag;
+
 	case QWbody:
 	case QWwrsel:
 		t = &w->body;

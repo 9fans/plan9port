@@ -15,6 +15,7 @@ enum
 	QWctl,
 	QWdata,
 	QWeditout,
+	QWerrors,
 	QWevent,
 	QWrdsel,
 	QWwrsel,

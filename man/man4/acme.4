@@ -280,6 +280,17 @@ address (the end of the address has no effect)
 and sets the address to the null string at the end of the returned
 characters.
 .TP
+.B errors
+Writing to the
+.B errors
+file appends to the body of the
+.IB dir /+Errors
+window, where
+.I dir
+is the directory currently named in the tag.
+The window is created if necessary,
+but not until text is actually written.
+.TP
 .B event
 When a window's
 .B event
@@ -395,6 +406,13 @@ holds contents of the window tag.  It may be read at any byte offset.
 Text written to
 .B tag
 is always appended; the file offset is ignored.
+.TP
+.B xdata
+The
+.B xdata
+file like
+.B data
+except that reads stop at the end address.
 .SH SOURCE
 .B \*9/src/cmd/acme
 .SH SEE ALSO
