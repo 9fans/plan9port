@@ -155,12 +155,17 @@ void latest_mouse(int but, Mouse* m)
 
 /*********************************** Colors ***********************************/
 
-enum {	DOrange=0xffaa00FF, Dgray=0xbbbbbbFF, DDkgreen=0x009900FF,
-	DDkred=0xcc0000FF, DViolet=0x990099FF, DDkyellow=0xaaaa00FF,
-	DLtblue=0xaaaaffFF, DPink=0xffaaaaFF,
-	/* ndraw.h sets DBlack, DBlue, DRed, DYellow, DGreen,
+#define DOrange	0xFFAA00FF
+#define Dgray		0xBBBBBBFF
+#define DDkgreen	0x009900FF
+#define DDkred	0xCC0000FF
+#define DViolet		0x990099FF
+#define DDkyellow	0xAAAA00FF
+#define DLtblue	0xAAAAFFFF
+#define DPink		0xFFAAAAFF
+
+	/* draw.h sets DBlack, DBlue, DRed, DYellow, DGreen,
 		DCyan, DMagenta, DWhite */
-};
 
 typedef struct color_ref {
 	ulong c;			/* RGBA pixel color */
