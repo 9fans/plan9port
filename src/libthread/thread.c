@@ -582,6 +582,14 @@ main(int argc, char **argv)
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	procscheduler(p);
 	_threaddaemonize();
+	/*
+	 * On Linux 2.6, if the main thread exits then the others
+	 * keep running but the process shows up as a zombie in ps
+	 * and is not attachable with ptrace.  We'll just sit around
+	 * instead of exiting.
+	 */
+	for(;;)
+		sleep(1000);
 	_threadpexit();
 	return 0;
 }
