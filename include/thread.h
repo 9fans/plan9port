@@ -171,6 +171,7 @@ long		iowrite(Ioproc *io, int fd, void *a, long n);
 void		threadexec(Channel*, int[3], char*, char *[]);
 void		threadexecl(Channel*, int[3], char*, ...);
 int		threadspawn(int[3], char*, char*[]);
+int		threadspawnl(int[3], char*, ...);
 Channel*	threadwaitchan(void);
 
 #if defined(__cplusplus)
