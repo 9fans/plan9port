@@ -171,14 +171,6 @@ flushwarnings(void)
 	int owner, nr, q0, n;
 	Rune *r;
 
-	if(row.ncol == 0){	/* really early error */
-		rowinit(&row, screen->clipr);
-		rowadd(&row, nil, -1);
-		rowadd(&row, nil, -1);
-		if(row.ncol == 0)
-			error("initializing columns in flushwarnings()");
-	}
-
 	for(warn=warnings; warn; warn=next) {
 		w = errorwin(warn->md, 'E');
 		t = &w->body;
