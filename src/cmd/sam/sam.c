@@ -88,7 +88,6 @@ main(int volatile argc, char **volatile argv)
 	disk = diskinit();
 	if(home == 0)
 		home = "/";
-fprint(2, "argc %d argv %s\n", argc, *argv);
 	if(!dflag)
 		startup(machine, Rflag, termargs, argv);
 	notify(notifyf);
