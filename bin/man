@@ -1,4 +1,4 @@
-#!/usr/bin/env rc
+#!/usr/local/plan9/bin/rc
 
 . $PLAN9/man/fonts
 

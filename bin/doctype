@@ -1,4 +1,5 @@
-#!/usr/bin/env rc
+#!/usr/local/plan9/bin/rc
+
 # doctype:  synthesize proper command line for troff
 
 troff=troff

@@ -1,4 +1,4 @@
-#!/usr/bin/env $PLAN9/bin/rc
+#!/usr/local/plan9/bin/rc
 
 spellflags=()
 deroffargs=()

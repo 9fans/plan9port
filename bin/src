@@ -1,11 +1,11 @@
-#!/usr/bin/env $PLAN9/bin/rc
+#!/usr/local/plan9/bin/rc
 
 sym = 'threadmain?z
 	p9main?z
 	main?z'
 
 fn dbsrc{
-	echo $sym | db $1 | 9sed '1d;/symbol not found/d;s/.*\(\) //'
+	echo $sym | db $1 | 9 sed '1d;/symbol not found/d;s/.*\(\) //'
 }
 
 fn go{

@@ -1,4 +1,4 @@
-#!/usr/bin/env $PLAN9/bin/rc
+#!/usr/local/plan9/bin/rc
 
 . $PLAN9/lib/acme.rc
 
@@ -76,7 +76,7 @@ case 0
 		dictwin /adict/$dict/ $dict
 case *
 	if(~ $dict NONE){
-		dict=`{dict -d'?' | 9sed -n 's/^   ([^\[ 	]+).*/\1/p' | sed 1q}
+		dict=`{dict -d'?' | 9 sed -n 's/^   ([^\[ 	]+).*/\1/p' | sed 1q}
 		if(~ $#dict 0){
 			echo 'no dictionaries present on this system' >[1=2]
 			exit nodict
