@@ -578,6 +578,10 @@ plan9cmap(void)
  * Initialize and install the rgbv color map as a private color map
  * for this application.  It gets the best colors when it has the
  * cursor focus.
+ *
+ * We always choose the best depth possible, but that might not
+ * be the default depth.  On such "suboptimal" systems, we have to allocate an
+ * empty color map anyway, according to Axel Belinfante.
  */
 static int 
 setupcmap(XWindow w)
@@ -591,17 +595,8 @@ setupcmap(XWindow w)
 		return 0;
 
 	if(_x.depth >= 24) {
-		/*
-		 * This is needed for SunOS.  Ask Axel Belinfante.
-		 */
-		if(_x.usetable == 0){
-			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocAll); 
-			XStoreColors(_x.display, _x.cmap, _x.map, 256);
-			for(i = 0; i < 256; i++){
-				_x.tox11[i] = i;
-				_x.toplan9[i] = i;
-			}
-		}
+		if(_x.usetable == 0)
+			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocNone); 
 
 		/*
 		 * The pixel value returned from XGetPixel needs to
@@ -647,6 +642,8 @@ setupcmap(XWindow w)
 		 * Do nothing.  We have no way to express a
 		 * mixed-endian 16-bit screen, so pretend they don't exist.
 		 */
+		if(_x.usetable == 0)
+			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocNone);
 	}else if(_x.vis->class == PseudoColor){
 		if(_x.usetable == 0){
 			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocAll); 
