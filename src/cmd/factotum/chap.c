@@ -149,7 +149,7 @@ chapclient(Conv *c)
 	c->attr = addattrs(copyattr(attr), k->attr);
 
 	c->state = "read challenge";
-	if((nchal = convreadm(c, (char**)&chal)) < 0)
+	if((nchal = convreadm(c, (char**)(void*)&chal)) < 0)
 		goto out;
 	if(astype == AuthMSchap && nchal != MSchallen)
 	c->state = "write user";
