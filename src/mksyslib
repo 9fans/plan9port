@@ -1,7 +1,11 @@
 default:V:	$PLAN9/lib/$LIB
 
-$PLAN9/lib/$LIB:	$OFILES
-	$AR rvc $PLAN9/lib/$LIB $newprereq
+# $PLAN9/lib/$LIB:	$OFILES
+# 	$AR rvc $PLAN9/lib/$LIB $newprereq
+
+$PLAN9/lib/$LIB(%):N: %
+$PLAN9/lib/$LIB:	${OFILES:%=$PLAN9/lib/$LIB(%)}
+	ar rvc $PLAN9/lib/$LIB `membername $newprereq`
 
 &:n:	&.$O
 	$AR rvc $PLAN9/lib/$LIB $stem.$O

@@ -5,6 +5,11 @@ shift
 
 nl='
 '
-reduce="("`ls -p ../$objtype/*.[cs] 2>/dev/null | sed 's/..$//' | sed 's/^.*\///' | tr "$nl" '|' | sed 's/.$//'`")"
-
-echo $* | tr ' ' "$nl" | egrep -v $reduce | tr "$nl" ' ' 
+for i in $*
+do
+	j=`echo $i | sed 's/\.o//'`
+	if test ! -f ../$objtype/$j.c -a ! -f ../$objtype/$j.s -a ! -f ../$objtype/$j.spp
+	then
+		echo $i
+	fi
+done

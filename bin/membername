@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for i
+do
+	# This works whether sed uses \(\) or () for grouping.
+	echo $i | sed 's/.*\((.*)\).*/\1/' | tr -d '()'
+done

@@ -55,7 +55,6 @@ ALLOFILES=\
 	x509.$O\
 
 OFILES=`{sh ./reduce $O $OBJTYPE $ALLOFILES}
-
 HFILES=$PLAN9/include/libsec.h
 
 <$PLAN9/src/mksyslib
