@@ -121,6 +121,8 @@
 9term	/usr/local/plan9/man/man3/frame.3
 9term	/usr/local/plan9/man/man3/mousescrollsize.3
 9term	/usr/local/plan9/man/man4/import.4
+9wm	/usr/local/plan9/man/man1/rio.1
+9wm.html	/usr/local/plan9/man/man1/rio.1
 a,a	/usr/local/plan9/man/man1/dict.1
 a.c	/usr/local/plan9/man/man1/mk.1
 a.c	/usr/local/plan9/man/man1/pic.1
@@ -1104,6 +1106,7 @@ applications	/usr/local/plan9/man/man7/thumbprint.7
 applied	/usr/local/plan9/man/man1/acme.1
 applied	/usr/local/plan9/man/man1/mk9660.1
 applied	/usr/local/plan9/man/man1/rc.1
+applied	/usr/local/plan9/man/man1/rio.1
 applied	/usr/local/plan9/man/man1/sam.1
 applied	/usr/local/plan9/man/man1/sed.1
 applied	/usr/local/plan9/man/man1/tweak.1
@@ -2046,6 +2049,7 @@ bin.h	/usr/local/plan9/man/man3/bin.3
 binalloc	/usr/local/plan9/man/man3/bin.3
 binaries	/usr/local/plan9/man/man1/acid.1
 binaries	/usr/local/plan9/man/man1/acme.1
+binaries	/usr/local/plan9/man/man1/install.1
 binaries	/usr/local/plan9/man/man1/rc.1
 binary	/usr/local/plan9/man/man1/acid.1
 binary	/usr/local/plan9/man/man1/look.1
@@ -3560,6 +3564,7 @@ cksum	/usr/local/plan9/man/man3/ip.3
 cl	/usr/local/plan9/man/man7/plot.7
 claimed	/usr/local/plan9/man/man1/rio.1
 claims	/usr/local/plan9/man/man9/stat.9p
+class	/usr/local/plan9/man/man1/install.1
 class	/usr/local/plan9/man/man1/rc.1
 class	/usr/local/plan9/man/man1/sam.1
 class	/usr/local/plan9/man/man1/scat.1
@@ -5353,6 +5358,7 @@ ctlid	/usr/local/plan9/man/man3/html.3
 ctlkeyboard	/usr/local/plan9/man/man3/keyboard.3
 ctlproc	/usr/local/plan9/man/man3/mach-file.3
 cttvd	/usr/local/plan9/man/man1/gzip.1
+cu	/usr/local/plan9/man/man1/cvs.1
 cube	/usr/local/plan9/man/man1/colors.1
 cube	/usr/local/plan9/man/man3/matrix.3
 cube	/usr/local/plan9/man/man7/color.7
@@ -6582,6 +6588,7 @@ dfnt	/usr/local/plan9/man/man1/look.1
 dgreen	/usr/local/plan9/man/man3/allocimage.3
 dgreyblue	/usr/local/plan9/man/man3/allocimage.3
 dgreygreen	/usr/local/plan9/man/man3/allocimage.3
+dhog	/usr/local/plan9/man/man1/rio.1
 dhz	/usr/local/plan9/man/man1/mk.1
 di	/usr/local/plan9/man/man7/plot.7
 diablo	/usr/local/plan9/man/man1/troff.1
@@ -7651,6 +7658,7 @@ eaddr	/usr/local/plan9/man/man3/ip.3
 eargf	/usr/local/plan9/man/man3/arg.3
 earlier	/usr/local/plan9/man/man1/db.1
 earlier	/usr/local/plan9/man/man1/ed.1
+earlier	/usr/local/plan9/man/man1/install.1
 earlier	/usr/local/plan9/man/man1/sort.1
 earlier	/usr/local/plan9/man/man4/plumber.4
 earlier	/usr/local/plan9/man/man9/version.9p
@@ -7899,6 +7907,7 @@ enabled	/usr/local/plan9/man/man1/9term.1
 enabled	/usr/local/plan9/man/man1/gview.1
 enabled	/usr/local/plan9/man/man1/sam.1
 enabled	/usr/local/plan9/man/man3/event.3
+enabled	/usr/local/plan9/man/man3/notify.3
 enables	/usr/local/plan9/man/man3/plumb.3
 ename	/usr/local/plan9/man/man3/fcall.3
 ename	/usr/local/plan9/man/man9/0intro.9p
@@ -10499,6 +10508,7 @@ frdelete	/usr/local/plan9/man/man3/frame.3
 frdrawsel	/usr/local/plan9/man/man3/frame.3
 frdrawsel0	/usr/local/plan9/man/man3/frame.3
 freebsd	/usr/local/plan9/man/man1/0intro.1
+freebsd	/usr/local/plan9/man/man1/install.1
 freebsd	/usr/local/plan9/man/man1/rc.1
 freebsd	/usr/local/plan9/man/man3/lock.3
 freecompletion	/usr/local/plan9/man/man3/complete.3
@@ -11443,6 +11453,7 @@ ho	/usr/local/plan9/man/man7/ms.7
 hoc	/usr/local/plan9/man/man1/bc.1
 hoc	/usr/local/plan9/man/man1/dc.1
 hoc	/usr/local/plan9/man/man1/hoc.1
+hogan	/usr/local/plan9/man/man1/rio.1
 hogan's	/usr/local/plan9/man/man1/rio.1
 hold	/usr/local/plan9/man/man1/9term.1
 hold	/usr/local/plan9/man/man1/acme.1
@@ -11549,6 +11560,7 @@ htmlfmt	/usr/local/plan9/man/man1/fmt.1
 http	/usr/local/plan9/man/man1/0intro.1
 http	/usr/local/plan9/man/man1/cvs.1
 http	/usr/local/plan9/man/man1/install.1
+http	/usr/local/plan9/man/man1/rio.1
 http	/usr/local/plan9/man/man3/html.3
 httpd	/usr/local/plan9/man/man1/troff2html.1
 https	/usr/local/plan9/man/man7/plumb.7
@@ -11866,6 +11878,7 @@ implementation	/usr/local/plan9/man/man4/0intro.4
 implementation	/usr/local/plan9/man/man9/remove.9p
 implementation	/usr/local/plan9/man/man9/walk.9p
 implementations	/usr/local/plan9/man/man1/0intro.1
+implementations	/usr/local/plan9/man/man1/install.1
 implementations	/usr/local/plan9/man/man3/9p.3
 implementations	/usr/local/plan9/man/man3/lock.3
 implementations	/usr/local/plan9/man/man3/mach-stack.3
@@ -13324,6 +13337,7 @@ kernel	/usr/local/plan9/man/man9/stat.9p
 kernel's	/usr/local/plan9/man/man1/9term.1
 kernel's	/usr/local/plan9/man/man9/0intro.9p
 kernels	/usr/local/plan9/man/man1/9c.1
+kernels	/usr/local/plan9/man/man1/install.1
 kernels	/usr/local/plan9/man/man1/mk.1
 kernels	/usr/local/plan9/man/man3/subfont.3
 kernighan	/usr/local/plan9/man/man1/eqn.1
@@ -14249,6 +14263,7 @@ links	/usr/local/plan9/man/man1/9c.1
 linotron	/usr/local/plan9/man/man1/troff.1
 linux	/usr/local/plan9/man/man1/0intro.1
 linux	/usr/local/plan9/man/man1/9c.1
+linux	/usr/local/plan9/man/man1/install.1
 linux	/usr/local/plan9/man/man1/stats.1
 linux	/usr/local/plan9/man/man3/lock.3
 linux	/usr/local/plan9/man/man3/mach.3
@@ -14832,6 +14847,7 @@ main:argv	/usr/local/plan9/man/man1/acid.1
 mainly	/usr/local/plan9/man/man1/9p.1
 mainly	/usr/local/plan9/man/man1/acme.1
 mainly	/usr/local/plan9/man/man1/acmeevent.1
+mainly	/usr/local/plan9/man/man1/rio.1
 mainly	/usr/local/plan9/man/man3/mach.3
 mainly	/usr/local/plan9/man/man3/mux.3
 mainly	/usr/local/plan9/man/man4/ramfs.4
@@ -14873,6 +14889,7 @@ maintains	/usr/local/plan9/man/man3/malloc.3
 maintains	/usr/local/plan9/man/man3/string.3
 maintains	/usr/local/plan9/man/man7/plumb.7
 maintains	/usr/local/plan9/man/man9/0intro.9p
+maintenance	/usr/local/plan9/man/man1/rio.1
 maintenance	/usr/local/plan9/man/man3/frame.3
 majority	/usr/local/plan9/man/man1/0intro.1
 majority	/usr/local/plan9/man/man3/draw.3
@@ -15441,6 +15458,7 @@ mentioned	/usr/local/plan9/man/man1/9term.1
 mentioned	/usr/local/plan9/man/man1/deroff.1
 mentioned	/usr/local/plan9/man/man1/pic.1
 mentioned	/usr/local/plan9/man/man1/rc.1
+mentioned	/usr/local/plan9/man/man1/rio.1
 mentioned	/usr/local/plan9/man/man1/yacc.1
 mentioned	/usr/local/plan9/man/man3/thread.3
 menu	/usr/local/plan9/man/man1/9term.1
@@ -16140,6 +16158,7 @@ names	/usr/local/plan9/man/man1/9term.1
 names	/usr/local/plan9/man/man1/acme.1
 names	/usr/local/plan9/man/man1/bc.1
 names	/usr/local/plan9/man/man1/cleanname.1
+names	/usr/local/plan9/man/man1/cvs.1
 names	/usr/local/plan9/man/man1/db.1
 names	/usr/local/plan9/man/man1/diff.1
 names	/usr/local/plan9/man/man1/grep.1
@@ -16797,6 +16816,7 @@ notify.c	/usr/local/plan9/man/man3/notify.3
 notifyoff	/usr/local/plan9/man/man3/notify.3
 notifyon	/usr/local/plan9/man/man3/notify.3
 notion	/usr/local/plan9/man/man1/diff.1
+notitfyon	/usr/local/plan9/man/man3/notify.3
 noun	/usr/local/plan9/man/man1/spell.1
 nowrap	/usr/local/plan9/man/man3/html.3
 np	/usr/local/plan9/man/man3/draw.3
@@ -17576,6 +17596,7 @@ original	/usr/local/plan9/man/man1/crop.1
 original	/usr/local/plan9/man/man1/deroff.1
 original	/usr/local/plan9/man/man1/grep.1
 original	/usr/local/plan9/man/man1/gzip.1
+original	/usr/local/plan9/man/man1/rio.1
 original	/usr/local/plan9/man/man1/sam.1
 original	/usr/local/plan9/man/man1/sort.1
 original	/usr/local/plan9/man/man1/tcs.1
@@ -18167,6 +18188,7 @@ pass	/usr/local/plan9/man/man3/pipe.3
 pass	/usr/local/plan9/man/man3/sendfd.3
 pass	/usr/local/plan9/man/man3/thread.3
 passes	/usr/local/plan9/man/man1/9term.1
+passes	/usr/local/plan9/man/man1/cvs.1
 passes	/usr/local/plan9/man/man3/fmtinstall.3
 passes	/usr/local/plan9/man/man7/plot.7
 passing	/usr/local/plan9/man/man3/0intro.3
@@ -19319,6 +19341,7 @@ previously	/usr/local/plan9/man/man1/install.1
 previously	/usr/local/plan9/man/man1/rc.1
 previously	/usr/local/plan9/man/man3/mach-file.3
 previously	/usr/local/plan9/man/man3/malloc.3
+previously	/usr/local/plan9/man/man3/notify.3
 previously	/usr/local/plan9/man/man3/pushtls.3
 previously	/usr/local/plan9/man/man3/sleep.3
 previously	/usr/local/plan9/man/man7/image.7
@@ -22644,6 +22667,7 @@ running	/usr/local/plan9/man/man1/cvs.1
 running	/usr/local/plan9/man/man1/db.1
 running	/usr/local/plan9/man/man1/diff.1
 running	/usr/local/plan9/man/man1/factor.1
+running	/usr/local/plan9/man/man1/install.1
 running	/usr/local/plan9/man/man1/kill.1
 running	/usr/local/plan9/man/man1/mk.1
 running	/usr/local/plan9/man/man1/ps.1
@@ -25770,6 +25794,7 @@ success	/usr/local/plan9/man/man3/fmtinstall.3
 success	/usr/local/plan9/man/man3/graphics.3
 success	/usr/local/plan9/man/man3/mach-symbol.3
 success	/usr/local/plan9/man/man3/memdraw.3
+success	/usr/local/plan9/man/man3/notify.3
 success	/usr/local/plan9/man/man3/readcolmap.3
 success	/usr/local/plan9/man/man3/stat.3
 success	/usr/local/plan9/man/man3/thread.3
@@ -25786,6 +25811,7 @@ successful	/usr/local/plan9/man/man3/fcall.3
 successful	/usr/local/plan9/man/man3/flate.3
 successful	/usr/local/plan9/man/man3/fmtinstall.3
 successful	/usr/local/plan9/man/man3/lock.3
+successful	/usr/local/plan9/man/man3/notify.3
 successful	/usr/local/plan9/man/man3/postnote.3
 successful	/usr/local/plan9/man/man3/rsa.3
 successful	/usr/local/plan9/man/man3/stat.3
@@ -26673,6 +26699,7 @@ threadgetname	/usr/local/plan9/man/man3/thread.3
 threadgetstate	/usr/local/plan9/man/man3/thread.3
 threadgrp	/usr/local/plan9/man/man3/thread.3
 threadid	/usr/local/plan9/man/man3/thread.3
+threading	/usr/local/plan9/man/man1/install.1
 threadint	/usr/local/plan9/man/man3/thread.3
 threadintgrp	/usr/local/plan9/man/man3/thread.3
 threadkill	/usr/local/plan9/man/man3/thread.3
@@ -27683,6 +27710,7 @@ unary	/usr/local/plan9/man/man1/acid.1
 unary	/usr/local/plan9/man/man1/rc.1
 unary	/usr/local/plan9/man/man1/test.1
 unassigned	/usr/local/plan9/man/man1/sam.1
+unauthorised.org	/usr/local/plan9/man/man1/rio.1
 unaware	/usr/local/plan9/man/man3/0intro.3
 unblocks	/usr/local/plan9/man/man3/thread.3
 unbroken	/usr/local/plan9/man/man1/dc.1
@@ -27884,6 +27912,7 @@ unix	/usr/local/plan9/man/man1/9term.1
 unix	/usr/local/plan9/man/man1/acid.1
 unix	/usr/local/plan9/man/man1/acme.1
 unix	/usr/local/plan9/man/man1/cat.1
+unix	/usr/local/plan9/man/man1/cvs.1
 unix	/usr/local/plan9/man/man1/eqn.1
 unix	/usr/local/plan9/man/man1/grap.1
 unix	/usr/local/plan9/man/man1/hoc.1
@@ -28090,6 +28119,7 @@ updated	/usr/local/plan9/man/man3/event.3
 updated	/usr/local/plan9/man/man3/qball.3
 updates	/usr/local/plan9/man/man1/mk.1
 updates	/usr/local/plan9/man/man1/mk9660.1
+updates	/usr/local/plan9/man/man1/rio.1
 updates	/usr/local/plan9/man/man3/cachechars.3
 updates	/usr/local/plan9/man/man3/flate.3
 updates	/usr/local/plan9/man/man3/memdraw.3
@@ -28765,6 +28795,7 @@ version	/usr/local/plan9/man/man1/cvs.1
 version	/usr/local/plan9/man/man1/dict.1
 version	/usr/local/plan9/man/man1/install.1
 version	/usr/local/plan9/man/man1/ls.1
+version	/usr/local/plan9/man/man1/man.1
 version	/usr/local/plan9/man/man1/mk.1
 version	/usr/local/plan9/man/man1/rio.1
 version	/usr/local/plan9/man/man1/tcs.1

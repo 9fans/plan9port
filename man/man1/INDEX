@@ -72,6 +72,7 @@ unzip gzip.1
 zip gzip.1
 hoc hoc.1
 idiff idiff.1
+install install.1
 join join.1
 bmp jpg.1
 gif jpg.1

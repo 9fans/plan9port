@@ -7,6 +7,7 @@ error error.9p
 flush flush.9p
 create open.9p
 open open.9p
+openfd openfd.9p
 read read.9p
 write read.9p
 remove remove.9p
