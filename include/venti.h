@@ -1,6 +1,6 @@
 #ifndef _VENTI_H_
 #define _VENTI_H_ 1
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" { 
 #endif
 /* XXX should be own library? */
@@ -37,10 +37,10 @@ void packetsha1(Packet*, uchar sha1[20]);
 
 /* XXX begin actual venti.h */
 
-/*
-#pragma lib "libnventi.a"
-#pragma src "/sys/src/libnventi"
-*/
+#ifndef PLAN9PORT
+#pragma lib "libventi.a"
+#pragma src "/sys/src/libventi"
+#endif
 
 typedef struct VtFcall VtFcall;
 typedef struct VtConn VtConn;
@@ -166,7 +166,10 @@ int vtparsescore(char *s, char **prefix, uchar[VtScoreSize]);
  *
  * V	a venti score
  */
-/* #pragma	varargck	type	"V"		uchar* */
+#ifndef PLAN9PORT
+#pragma	varargck	type	"V"		uchar*
+#pragma varargck	type	"F"		VtFcall*
+#endif
 
 int vtscorefmt(Fmt*);
 
@@ -449,7 +452,7 @@ int vtfileremove(VtFile*);
 extern int chattyventi;
 extern int ventidoublechecksha1;
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 }
 #endif
 #endif

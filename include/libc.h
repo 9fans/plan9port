@@ -496,6 +496,7 @@ extern	void	privfree(void**);
 extern	int	p9accept(int, char*);
 extern	int	p9announce(char*, char*);
 extern	int	p9dial(char*, char*, char*, int*);
+extern	int	p9dialparse(char *ds, char **net, char **unixa, u32int *ip, int *port);
 extern	void	p9setnetmtpt(char*, int, char*);
 extern	int	p9hangup(int);
 extern	int	p9listen(char*, char*);

@@ -186,7 +186,7 @@ typedef enum
 	Nfs3ErrAborted = 10010,
 } Nfs3Status;
 
-void nfs3Errstr(Nfs3Status);
+void nfs3errstr(Nfs3Status);
 
 typedef enum
 {
