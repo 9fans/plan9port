@@ -8,6 +8,7 @@ extern "C" {
 #pragma	src	"/sys/src/libauth"
 #pragma	lib	"libauth.a"
 */
+AUTOLIB(auth)
 
 /*
  * Interface for typical callers.
@@ -19,6 +20,8 @@ typedef struct	Chapreply	Chapreply;
 typedef struct	MSchapreply	MSchapreply;
 typedef struct	UserPasswd	UserPasswd;
 typedef struct	AuthRpc		AuthRpc;
+
+struct CFid;
 
 enum
 {
@@ -43,6 +46,7 @@ enum
 struct AuthRpc
 {
 	int afd;
+	struct CFid *afid;
 	char ibuf[AuthRpcMax];
 	char obuf[AuthRpcMax];
 	char *arg;
@@ -67,7 +71,6 @@ struct Chalstate
 	int	nresp;
 
 /* for implementation only */
-	int	afd;			/* to factotum */
 	AuthRpc	*rpc;			/* to factotum */
 	char	userbuf[MAXNAMELEN];	/* temp space if needed */
 	int	userinchal;		/* user was sent to obtain challenge */
@@ -131,6 +134,8 @@ char	*_strfindattr(Attr*, char*);
 
 extern AuthInfo*	fauth_proxy(int, AuthRpc *rpc, AuthGetkey *getkey, char *params);
 extern AuthInfo*	auth_proxy(int fd, AuthGetkey *getkey, char *fmt, ...);
+extern AuthInfo*	fsfauth_proxy(struct CFid*, AuthRpc *rpc, AuthGetkey *getkey, char *params);
+extern AuthInfo*	fsauth_proxy(struct CFid*, AuthGetkey *getkey, char *fmt, ...);
 extern int		auth_getkey(char*);
 extern int		(*amount_getkey)(char*);
 extern void		auth_freeAI(AuthInfo *ai);
@@ -142,7 +147,7 @@ extern void		auth_freechal(Chalstate*);
 extern AuthInfo*	auth_userpasswd(char *user, char *passwd);
 extern UserPasswd*	auth_getuserpasswd(AuthGetkey *getkey, char*, ...);
 extern AuthInfo*	auth_getinfo(AuthRpc *rpc);
-extern AuthRpc*		auth_allocrpc(int afd);
+extern AuthRpc*		auth_allocrpc(void);
 extern Attr*		auth_attr(AuthRpc *rpc);
 extern void		auth_freerpc(AuthRpc *rpc);
 extern uint		auth_rpc(AuthRpc *rpc, char *verb, void *a, int n);

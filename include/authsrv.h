@@ -7,6 +7,7 @@ extern "C" {
 #pragma	src	"/sys/src/libauthsrv"
 #pragma	lib	"libauthsrv.a"
 */
+AUTOLIB(authsrv)
 
 /*
  * Interface for talking to authentication server.
