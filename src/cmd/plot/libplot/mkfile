@@ -1,0 +1,42 @@
+PLAN9=../../../..
+<$PLAN9/src/mkhdr
+
+LIB=../libplot.a
+OFILES=box.$O\
+	cfill.$O\
+	circ.$O\
+	closepl.$O\
+	color.$O\
+	disk.$O\
+	doublebuffer.$O\
+	dpoint.$O\
+	erase.$O\
+	fill.$O\
+	frame.$O\
+	grade.$O\
+	line.$O\
+	machdep.$O\
+	move.$O\
+	openpl.$O\
+	parabola.$O\
+	pen.$O\
+	poly.$O\
+	ppause.$O\
+	pprompt.$O\
+	range.$O\
+	rarc.$O\
+	restore.$O\
+	rmove.$O\
+	rvec.$O\
+	save.$O\
+	sbox.$O\
+	spline.$O\
+	subr.$O\
+	text.$O\
+	vec.$O\
+	whoami.$O\
+
+HFILES=mplot.h\
+
+<$PLAN9/src/mklib
+

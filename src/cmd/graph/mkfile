@@ -1,0 +1,9 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=graph
+OFILES=graph.$O\
+	subr.$O\
+	whoami.$O\
+
+<$PLAN9/src/mkone
