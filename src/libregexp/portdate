@@ -1,0 +1,9 @@
+regaux.c		2004/1225
+regcomp.c		2004/1225
+regerror.c		2004/1225
+regexec.c		2004/1225
+regsub.c		2004/1225
+rregexec.c		2004/1225
+rregsub.c		2004/1225
+test.c		2004/1225
+test2.c		2004/1225
