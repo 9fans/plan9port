@@ -16,6 +16,7 @@ Channel*	hostc;
 Readbuf		rcbuf[2];
 int		mainpid;
 int		plumbfd;
+int		button2exec;
 int		label(Rune*, int);
 char		wdir[1024];
 char		childwdir[1024];
@@ -34,6 +35,7 @@ char *menu2str[] = {
 Image* cols[NCOL];
 Image* hcols[NCOL];
 Image *plumbcolor;
+Image *execcolor;
 
 Menu menu2 =
 {
@@ -55,6 +57,13 @@ Cursor whitearrow = {
 };
 
 void
+usage(void)
+{
+	fprint(2, "usage: 9term [-a] [-s] [cmd ...]\n");
+	threadexitsall("usage");
+}
+
+void
 threadmain(int argc, char *argv[])
 {
 	char *p;
@@ -62,11 +71,10 @@ threadmain(int argc, char *argv[])
 	rfork(RFNOTEG);
 	mainpid = getpid();
 	ARGBEGIN{
-	case 'T':
-		p = ARGF();
-		if(p == 0)
-			break;
-		maxtab = strtoul(p, 0, 0);
+	default:
+		usage();
+	case 'a':	/* acme mode */
+		button2exec++;
 		break;
 	case 's':
 		scrolling++;
@@ -86,7 +94,7 @@ threadmain(int argc, char *argv[])
 
 	mc = initmouse(nil, screen);
 	kc = initkeyboard(nil);
-	rcstart(rcfd);
+	rcstart(rcfd, argc, argv);
 	hoststart();
 	plumbstart();
 
@@ -105,6 +113,7 @@ threadmain(int argc, char *argv[])
 	hcols[HTEXT] = hcols[TEXT];
 
 	plumbcolor = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x006600FF);
+	execcolor = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0xAA0000FF);
 
 	draw(screen, screen->r, cols[BACK], nil, ZP);
 	geom();
@@ -253,12 +262,78 @@ drawhold(int holdon)
 	scrdraw();
 }
 
+void
+wordclick(uint *q0, uint *q1)
+{
+	while(*q1<t.nr && !isspace(t.r[*q1]))
+		(*q1)++;
+	while(*q0>0 && !isspace(t.r[*q0-1]))
+		(*q0)--;
+}
+
+int
+aselect(uint *q0, uint *q1, Image *color)
+{
+	int cancel;
+	uint oldq0, oldq1, newq0, newq1;
+
+	/* save old selection */
+	oldq0 = t.q0;
+	oldq1 = t.q1;
+
+	/* sweep out area and record it */
+	t.f->cols[HIGH] = color;
+	t.f->cols[HTEXT] = display->white;
+	mselect();
+	newq0 = t.q0;
+	newq1 = t.q1;
+
+	cancel = 0;
+	if(t.m.buttons != 0){
+		while(t.m.buttons){
+			readmouse(mc);
+			t.m = mc->m;
+		}
+		cancel = 1;
+	}
+
+	/* restore old selection */
+	t.f->cols[HIGH] = cols[HIGH];
+	t.f->cols[HTEXT] = cols[HTEXT];
+	t.q0 = oldq0;
+	t.q1 = oldq1;
+	updatesel();
+
+	if(cancel)
+		return -1;
+
+	/* selected a region */
+	if(newq0 < newq1){
+		*q0 = newq0;
+		*q1 = newq1;
+		return 0;
+	}
+
+	/* clicked inside previous selection */
+	if(oldq0 <= newq0 && newq0 < oldq1){
+		*q0 = oldq0;
+		*q1 = oldq1;
+		return 0;
+	}
+
+	/* just a click */
+	*q0 = newq0;
+	*q1 = newq1;
+	return 0;
+}
+
+static Rune Lnl[1] = { '\n' };
 
 void
 mouse(void)
 {
-	int cancel, but;
-	uint oldq0, oldq1, newq0, newq1;
+	int but;
+	uint q0, q1;
 
 	but = t.m.buttons;
 
@@ -277,46 +352,23 @@ mouse(void)
 		mselect();
 		break;
 	case 2:
+		if(button2exec){
+			if(aselect(&q0, &q1, execcolor) >= 0){
+				if(q0 == q1)
+					wordclick(&q0, &q1);
+				if(q0 == q1)
+					break;
+				paste(t.r+q0, q1-q0, 1);
+				if(t.r[q1-1] != '\n')
+					paste(Lnl, 1, 1);
+			}
+			break;
+		}
 		domenu2(2);
 		break;
 	case 4:
-		/* save old selection */
-		oldq0 = t.q0;
-		oldq1 = t.q1;
-
-		/* sweep out plumb area and record it */
-		t.f->cols[HIGH] = plumbcolor;
-		t.f->cols[HTEXT] = display->white;
-		mselect();
-		newq0 = t.q0;
-		newq1 = t.q1;
-
-		cancel = 0;
-		if(t.m.buttons != 0){
-			while(t.m.buttons){
-				readmouse(mc);
-				t.m = mc->m;
-			}
-			cancel = 1;
-		}
-
-		/* restore old selection */
-		t.f->cols[HIGH] = cols[HIGH];
-		t.f->cols[HTEXT] = cols[HTEXT];
-		t.q0 = oldq0;
-		t.q1 = oldq1;
-		updatesel();
-
-		if(cancel)
-			break;
-
-		/* process plumb area */
-		if(newq0 < newq1)
-			plumb(newq0, newq1);
-		else if(oldq0 <= newq0 && newq0 < oldq1)
-			plumb(oldq0, oldq1);
-		else
-			plumb(newq0, newq0);
+		if(aselect(&q0, &q1, plumbcolor) >= 0)
+			plumb(q0, q1);
 		break;
 	}
 }
@@ -436,7 +488,6 @@ domenu2(int but)
 void
 key(Rune r)
 {
-	char buf[1];
 	uint sig;
 
 	if(r == 0)
@@ -556,10 +607,7 @@ consready(void)
 	for(i=t.qh; i<t.nr; i++){
 		c = t.r[i];
 		if(c=='\n' || c=='\004')
-{
-fprint(2, "ready %d\n", c);
 			return 1;
-}
 	}
 	return 0;
 }
@@ -593,11 +641,6 @@ consread(void)
 		}
 		/* take out control-d when not doing a zero length write */
 		n = p-buf;
-		if(n > 1 && c == '\004')
-{
-fprint(2, "remove 004\n");
-			n--;
-}
 		if(write(rcfd[1], buf, n) < 0)
 			exits(0);
 /*		mallocstats(); */
@@ -802,6 +845,8 @@ snarfupdate(void)
 	Rune *p;
 
 	pp = getsnarf();
+	if(pp == nil)
+		return;
 	n = strlen(pp);
 	if(n <= 0) {
 		 /*t.nsnarf = 0;*/
@@ -1026,7 +1071,6 @@ backnl(uint p, uint n)
 	return 0; /* alef bug */
 }
 
-
 void
 addraw(Rune *r, int nr)
 {
@@ -1105,15 +1149,6 @@ doubleclick(uint *q0, uint *q1)
 		(*q0)--;
 }
 
-void
-plumbclick(uint *q0, uint *q1)
-{
-	while(*q1<t.nr && !isspace(t.r[*q1]))
-		(*q1)++;
-	while(*q0>0 && !isspace(t.r[*q0-1]))
-		(*q0)--;
-}
-
 int
 clickmatch(int cl, int cr, int dir, uint *q)
 {
@@ -1143,16 +1178,22 @@ clickmatch(int cl, int cr, int dir, uint *q)
 }
 
 void
-rcstart(int fd[2])
+rcstart(int fd[2], int argc, char **argv)
 {
 	int pid;
-	char *argv[3];
+	char *xargv[3];
 	char slave[256];
 	int sfd;
 
-	argv[0] = "rc";
-	argv[1] = "-i";
-	argv[2] = 0;
+	if(argc == 0){
+		argc = 2;
+		argv = xargv;
+		argv[0] = getenv("SHELL");
+		if(argv[0] == 0)
+			argv[0] = "rc";
+		argv[1] = "-i";
+		argv[2] = 0;
+	}
 
 	/*
 	 * fd0 is slave (tty), fd1 is master (pty)
@@ -1168,7 +1209,6 @@ rcstart(int fd[2])
 		setsid();
 	//	tcsetpgrp(0, pid);
 		sfd = open(slave, ORDWR);
-		fprint(2, "slave %s\n", slave);
 		if(sfd < 0)
 			fprint(2, "open %s: %r\n", slave);
 		if(ioctl(sfd, TIOCSCTTY, 0) < 0)
@@ -1357,7 +1397,7 @@ plumb(uint q0, uint q1)
 		pm->attr = nil;
 	else{
 		p0 = q0;
-		plumbclick(&q0, &q1);
+		wordclick(&q0, &q1);
 		sprint(cbuf, "click=%d", p0-q0);
 		pm->attr = plumbunpackattr(cbuf);
 	}

@@ -82,7 +82,7 @@ void	fill(void);
 void	tcheck(void);
 void	updatesel(void);
 void	doreshape(void);
-void	rcstart(int fd[2]);
+void	rcstart(int fd[2], int, char**);
 void	runewrite(Rune*, int);
 void	consread(void);
 void	conswrite(char*, int);
