@@ -1,4 +1,7 @@
 #define YYFLAG 		-1000
+#define YYERROR		goto yyerrlab
+#define YYACCEPT	return(0)
+#define YYABORT		return(1)
 #define	yyclearin	yychar = -1
 #define	yyerrok		yyerrflag = 0
 
@@ -6,19 +9,25 @@
 #include	"y.debug"
 #else
 #define	yydebug		0
-char*	yytoknames[1];		/* for debugging */
-char*	yystates[1];		/* for debugging */
+static	const	char*	yytoknames[1];		/* for debugging */
+static	const	char*	yystates[1];		/* for debugging */
 #endif
 
 /*	parser for yacc output	*/
-
+#ifdef YYARG
+#define	yynerrs		yyarg->yynerrs
+#define	yyerrflag	yyarg->yyerrflag
+#define yyval		yyarg->yyval
+#define yylval		yyarg->yylval
+#else
 int	yynerrs = 0;		/* number of errors */
 int	yyerrflag = 0;		/* error recovery flag */
+#endif
 
 extern	int	fprint(int, char*, ...);
 extern	int	sprint(char*, char*, ...);
 
-char*
+static const char*
 yytokname(int yyc)
 {
 	static char x[10];
@@ -30,7 +39,7 @@ yytokname(int yyc)
 	return x;
 }
 
-char*
+static const char*
 yystatname(int yys)
 {
 	static char x[10];
@@ -42,14 +51,22 @@ yystatname(int yys)
 	return x;
 }
 
-long
+static long
+#ifdef YYARG
+yylex1(struct Yyarg *yyarg)
+#else
 yylex1(void)
+#endif
 {
 	long yychar;
-	long *t3p;
+	const long *t3p;
 	int c;
 
+#ifdef YYARG	
+	yychar = yylex(yyarg);
+#else
 	yychar = yylex();
+#endif
 	if(yychar <= 0) {
 		c = yytok1[0];
 		goto out;
@@ -83,16 +100,21 @@ out:
 }
 
 int
+#ifdef YYARG
+yyparse(struct Yyarg *yyarg)
+#else
 yyparse(void)
+#endif
 {
 	struct
 	{
 		YYSTYPE	yyv;
 		int	yys;
 	} yys[YYMAXDEPTH], *yyp, *yypt;
-	short *yyxi;
+	const short *yyxi;
 	int yyj, yym, yystate, yyn, yyg;
 	long yychar;
+#ifndef YYARG
 	YYSTYPE save1, save2;
 	int save3, save4;
 
@@ -100,6 +122,7 @@ yyparse(void)
 	save2 = yyval;
 	save3 = yynerrs;
 	save4 = yyerrflag;
+#endif
 
 	yystate = 0;
 	yychar = -1;
@@ -117,10 +140,12 @@ ret1:
 	goto ret;
 
 ret:
+#ifndef YYARG
 	yylval = save1;
 	yyval = save2;
 	yynerrs = save3;
 	yyerrflag = save4;
+#endif
 	return yyn;
 
 yystack:
@@ -141,7 +166,11 @@ yynewstate:
 	if(yyn <= YYFLAG)
 		goto yydefault; /* simple state */
 	if(yychar < 0)
+#ifdef YYARG
+		yychar = yylex1(yyarg);
+#else
 		yychar = yylex1();
+#endif
 	yyn += yychar;
 	if(yyn < 0 || yyn >= YYLAST)
 		goto yydefault;
@@ -160,7 +189,11 @@ yydefault:
 	yyn = yydef[yystate];
 	if(yyn == -2) {
 		if(yychar < 0)
-			yychar = yylex1();
+#ifdef YYARG
+		yychar = yylex1(yyarg);
+#else
+		yychar = yylex1();
+#endif
 
 		/* look through exception table */
 		for(yyxi=yyexca;; yyxi+=2)
@@ -180,11 +213,12 @@ yydefault:
 		switch(yyerrflag) {
 		case 0:   /* brand new error */
 			yyerror("syntax error");
-			yynerrs++;
 			if(yydebug >= 1) {
 				fprint(2, "%s", yystatname(yystate));
 				fprint(2, "saw %s\n", yytokname(yychar));
 			}
+yyerrlab:
+			yynerrs++;
 
 		case 1:
 		case 2: /* incompletely recovered error ... try again */

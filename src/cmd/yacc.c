@@ -15,6 +15,7 @@
 
 char *PARSER = "#9/lib/yaccpar";
 char *PARSERS = "#9/lib/yaccpars";
+
 #define TEMPNAME	"y.tmp.XXXXXX"
 #define ACTNAME		"y.acts.XXXXXX"
 #define OFILE		"tab.c"
@@ -185,6 +186,8 @@ char	ttempname[] = TEMPNAME;
 char	tactname[] = ACTNAME;
 char*	parser;
 char*	yydebug;
+int	yyarg;
+int	yyline = 1;
 
 	/* storage of types */
 int	ntypes;			/* number of types defined */
@@ -459,7 +462,7 @@ others(void)
 	warray("yytok2", temp1, c+1);
 
 	/* table 3 has everything else */
-	Bprint(ftable, "long	yytok3[] =\n{\n");
+	Bprint(ftable, "static\tconst\tlong	yytok3[] =\n{\n");
 	c = 0;
 	TLOOP(i) {
 		j = tokset[i].value;
@@ -1176,6 +1179,7 @@ setup(int argc, char *argv[])
 	int i, j, fd, lev, ty, ytab, *p;
 	int vflag, dflag, stem;
 	char actnm[8], *stemc, *s, dirbuf[128];
+	Biobuf *fout;
 
 	ytab = 0;
 	vflag = 0;
@@ -1193,8 +1197,14 @@ setup(int argc, char *argv[])
 	case 'D':
 		yydebug = ARGF();
 		break;
+	case 'a':
+		yyarg = 1;
+		break;
 	case 'd':
 		dflag++;
+		break;
+	case 'l':
+		yyline = 0;
 		break;
 	case 'o':
 		ytab++;
@@ -1211,7 +1221,10 @@ setup(int argc, char *argv[])
 		error("illegal option: %c", ARGC());
 	}ARGEND
 	openup(stemc, dflag, vflag, ytab, ytabc);
-
+	fout = dflag?fdefine:ftable;
+	if(yyarg){
+		Bprint(fdefine, "#define\tYYARG\t1\n\n");
+	}
 	if((fd = mkstemp(ttempname)) >= 0){
 		tempname = ttempname;
 		ftemp = Bfdopen(fd, OWRITE);
@@ -1369,7 +1382,8 @@ setup(int argc, char *argv[])
 		error("unexpected EOF before %%");
 
 	/* t is MARK */
-	Bprint(ftable, "extern	int	yyerrflag;\n");
+	if(!yyarg)
+		Bprint(ftable, "extern	int	yyerrflag;\n");
 	Bprint(ftable, "#ifndef	YYMAXDEPTH\n");
 	Bprint(ftable, "#define	YYMAXDEPTH	150\n");
 	Bprint(ftable, "#endif\n" );
@@ -1378,9 +1392,20 @@ setup(int argc, char *argv[])
 		Bprint(ftable, "#define	YYSTYPE	int\n");
 		Bprint(ftable, "#endif\n");
 	}
-	Bprint(ftable, "YYSTYPE	yylval;\n");
-	Bprint(ftable, "YYSTYPE	yyval;\n");
-
+	if(!yyarg){
+		Bprint(ftable, "YYSTYPE	yylval;\n");
+		Bprint(ftable, "YYSTYPE	yyval;\n");
+	}else{
+		if(dflag)
+			Bprint(ftable, "#include \"%s.%s\"\n\n", stemc, FILED);
+		Bprint(fout, "struct Yyarg {\n");
+		Bprint(fout, "\tint\tyynerrs;\n");
+		Bprint(fout, "\tint\tyyerrflag;\n");
+		Bprint(fout, "\tvoid*\targ;\n");
+		Bprint(fout, "\tYYSTYPE\tyyval;\n");
+		Bprint(fout, "\tYYSTYPE\tyylval;\n");
+		Bprint(fout, "};\n\n");
+	}
 	prdptr[0] = mem;
 
 	/* added production */
@@ -1508,7 +1533,9 @@ setup(int argc, char *argv[])
 
 	finact();
 	if(t == MARK) {
-		Bprint(ftable, "\n#line\t%d\t\"%s\"\n", lineno, infile);
+		Bprint(ftable, "\n");
+		if(yyline)
+			Bprint(ftable, "#line\t%d\t\"%s\"\n", lineno, infile);
 		while((c=Bgetrune(finput)) != Beof)
 			Bputrune(ftable, c);
 	}
@@ -1625,7 +1652,7 @@ defout(int last)
 	}
 	ndefout = ntokens+1;
 	if(last && fdebug) {
-		Bprint(fdebug, "char*	yytoknames[] =\n{\n");
+		Bprint(fdebug, "static	char*	yytoknames[] =\n{\n");
 		TLOOP(i) {
 			if(tokset[i].name) {
 				chcopy(sar, tokset[i].name);
@@ -1844,7 +1871,9 @@ cpyunion(void)
 	long c;
 	int level;
 
-	Bprint(ftable, "\n#line\t%d\t\"%s\"\n", lineno, infile);
+	Bprint(ftable, "\n");
+	if(yyline)
+		Bprint(ftable, "#line\t%d\t\"%s\"\n", lineno, infile);
 	Bprint(ftable, "typedef union ");
 	if(fdefine != 0)
 		Bprint(fdefine, "\ntypedef union ");
@@ -1869,8 +1898,11 @@ cpyunion(void)
 			/* we are finished copying */
 			if(level == 0) {
 				Bprint(ftable, " YYSTYPE;\n");
-				if(fdefine != 0)
-					Bprint(fdefine, "\tYYSTYPE;\nextern\tYYSTYPE\tyylval;\n");
+				if(fdefine != 0){
+					Bprint(fdefine, "\tYYSTYPE;\n");
+					if(!yyarg)
+						Bprint(fdefine, "extern\tYYSTYPE\tyylval;\n");
+				}
 				return;
 			}
 		}
@@ -1883,7 +1915,6 @@ cpyunion(void)
 void
 cpycode(void)
 {
-
 	long c;
 
 	c = Bgetrune(finput);
@@ -1891,7 +1922,9 @@ cpycode(void)
 		c = Bgetrune(finput);
 		lineno++;
 	}
-	Bprint(ftable, "\n#line\t%d\t\"%s\"\n", lineno, infile);
+	Bprint(ftable, "\n");
+	if(yyline)
+		Bprint(ftable, "#line\t%d\t\"%s\"\n", lineno, infile);
 	while(c != Beof) {
 		if(c == '\\') {
 			if((c=Bgetrune(finput)) == '}')
@@ -1947,7 +1980,9 @@ cpyact(int offset)
 	long c;
 	int brac, match, j, s, fnd, tok;
 
-	Bprint(faction, "\n#line\t%d\t\"%s\"\n", lineno, infile);
+	Bprint(faction, "\n");
+	if(yyline)
+		Bprint(faction, "#line\t%d\t\"%s\"\n", lineno, infile);
 	brac = 0;
 
 loop:
@@ -2157,9 +2192,9 @@ output(void)
 	int i, k, c;
 	Wset *u, *v;
 
-	Bprint(ftable, "short	yyexca[] =\n{");
+	Bprint(ftable, "static\tconst\tshort	yyexca[] =\n{");
 	if(fdebug)
-		Bprint(fdebug, "char*	yystates[] =\n{\n");
+		Bprint(fdebug, "static\tconst\tchar*	yystates[] =\n{\n");
 
 	/* output the stuff for state i */
 	SLOOP(i) {
@@ -2570,7 +2605,7 @@ warray(char *s, int *v, int n)
 {
 	int i;
 
-	Bprint(ftable, "short	%s[] =\n{", s);
+	Bprint(ftable, "static\tconst\tshort	%s[] =\n{", s);
 	for(i=0;;) {
 		if(i%10 == 0)
 			Bprint(ftable, "\n");
@@ -2900,7 +2935,7 @@ arout(char *s, int *v, int n)
 {
 	int i;
 
-	Bprint(ftable, "short	%s[] =\n{", s);
+	Bprint(ftable, "static\tconst\tshort	%s[] =\n{", s);
 	for(i = 0; i < n;) {
 		if(i%10 == 0)
 			Bprint(ftable, "\n");

@@ -86,6 +86,15 @@ Stdio
 instead of the
 .B print
 routines in libc.
+.TP
+.BI -l
+Disable #line directives in the generated parser.
+.TP
+.BI -a
+Generate a parser that takes an argument of type Yyarg
+and passes this argument to each invocation of the lexer
+function, yylex.  Yyarg contains per-instance state
+and a single user-visible member, arg, of type void*.
 .PP
 The specification of
 .I yacc
