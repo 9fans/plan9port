@@ -27,10 +27,10 @@ Rune *right[]= { r1, r2, r3, 0};
 #define TMPDIRNAME "/tmp"
 #endif
 #ifndef SHNAME
-#define SHNAME "rc"
+#define SHNAME "sh"
 #endif
 #ifndef SHPATHNAME
-#define SHPATHNAME "/bin/rc"
+#define SHPATHNAME "/bin/sh"
 #endif
 #ifndef RXNAME
 #define RXNAME "ssh"
@@ -137,7 +137,7 @@ hup(int sig)
 }
 
 int
-notify (void(*f)(void *, char *))
+notify(void(*f)(void *, char *))
 {
         signal(SIGINT, SIG_IGN);
         signal(SIGPIPE, SIG_IGN);  // XXX - bpipeok?
@@ -249,7 +249,8 @@ int errstr(char *buf, int size)
 }                       
 */
                     
-int create(char *name, int omode, int perm)
+int
+create(char *name, int omode, ulong perm)
 {
     int mode;
     int fd; 
@@ -272,7 +273,7 @@ int create(char *name, int omode, int perm)
 }
 
 /* SHOULD BE ELSEWHERE */
-#ifdef __APPLE__
+#if 0	/* needed on old __APPLE__ */
 #include <lib9.h>
 
 Lock plk;

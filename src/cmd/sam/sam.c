@@ -33,7 +33,10 @@ Rune	baddir[] = { '<', 'b', 'a', 'd', 'd', 'i', 'r', '>', '\n'};
 
 void	usage(void);
 
-int main(int argc, char *argv[])
+extern int notify(void(*)(void*,char*));
+
+int
+main(int argc, char *argv[])
 {
 	int i;
 	String *t;
@@ -126,6 +129,7 @@ int main(int argc, char *argv[])
 	cmdloop();
 	trytoquit();	/* if we already q'ed, quitok will be TRUE */
 	exits(0);
+	return 0;
 }
 
 void

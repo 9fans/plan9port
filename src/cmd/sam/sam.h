@@ -404,3 +404,8 @@ void	outlong(long);
 void	outvlong(void*);
 void	outsend(void);
 void	outflush(void);
+
+
+extern int create(char*, int, ulong);
+extern int perror(char*);
+extern int remove(char*);
