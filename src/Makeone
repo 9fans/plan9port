@@ -4,6 +4,7 @@ $(TARG): $(OFILES)
 	$(CC) -o $(TARG) $(OFILES) $(LDFLAGS)
 
 CLEANFILES+=$(TARG)
+NUKEFILES+=$(9SRC)/bin/$(TARG)
 
 include $(9SRC)/Makecommon
 

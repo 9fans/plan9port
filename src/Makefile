@@ -13,8 +13,8 @@ CMDS=\
 	sam\
 	samterm\
 
-clean all install nuke:
-	for i in $(LIBS) $(DIRS); \
+all clean install nuke:
+	for i in $(LIBS) $(CMDS); \
 	do \
 		(echo $$i; cd $$i; $(MAKE) $@); \
 	done

@@ -30,6 +30,8 @@ xgetxdata(Memimage *m, Rectangle r)
 	if(xm->dirty == 0)
 		return xm->xi;
 
+	abort();	/* should never call this now */
+
 	r = xm->dirtyr;
 	if(Dx(r)==0 || Dy(r)==0)
 		return xm->xi;
@@ -102,6 +104,7 @@ xdirtyxdata(Memimage *m, Rectangle r)
 	xm = m->X;
 	if(xm == nil)
 		return;
+
 	xm->dirty = 1;
 	addrect(&xm->dirtyr, r);
 }
