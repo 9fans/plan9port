@@ -1,0 +1,27 @@
+<$PLAN9/src/mkhdr
+
+BIN=$PLAN9/bin
+#CFLAGS=-Fw
+HFILES =\
+	SConn.h\
+	secstore.h\
+
+OFILES =\
+	pak.$O\
+	password.$O\
+	SConn.$O\
+	util.$O\
+
+
+TARG=aescbc secstore secstored secuser
+
+<$PLAN9/src/mkmany
+
+$O.aescbc:	aescbc.$O util.$O
+	$LD -o $target $prereq $LDFLAGS
+
+$O.secstored: secstored.$O dirls.$O secureidcheck.$O $OFILES
+	$LD -o $target $prereq
+
+$O.secuser: secuser.$O $OFILES
+	$LD -o $target $prereq
