@@ -398,8 +398,11 @@ inmesg(Tmesg type)
 		setgenstr(f, p0, p1);
 		for(l = 0; l<genstr.n; l++){
 			i = genstr.s[l];
-			if(utfrune(".*+?(|)\\[]^$", i))
-				Strinsert(&genstr, tmpcstr("\\"), l++);
+			if(utfrune(".*+?(|)\\[]^$", i)){
+				str = tmpcstr("\\");
+				Strinsert(&genstr, str, l++);
+				freetmpstr(str);
+			}
 		}
 		Straddc(&genstr, '\0');
 		nextmatch(f, &genstr, p1, 1);
