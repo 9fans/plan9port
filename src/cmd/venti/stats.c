@@ -57,8 +57,13 @@ printstats(void)
 	fprint(2, "disk cache reads=%,ld\n", stats.pcreads);
 	fprint(2, "disk cache bytes read=%,lld\n", stats.pcbreads);
 
+	fprint(2, "disk cache writes=%,ld\n", stats.dirtydblocks);
+	fprint(2, "disk cache writes absorbed=%,ld %d%%\n", stats.absorbedwrites,
+		percent(stats.absorbedwrites, stats.dirtydblocks));
+
 	fprint(2, "disk writes=%,ld\n", stats.diskwrites);
 	fprint(2, "disk bytes written=%,lld\n", stats.diskbwrites);
 	fprint(2, "disk reads=%,ld\n", stats.diskreads);
 	fprint(2, "disk bytes read=%,lld\n", stats.diskbreads);
+
 }

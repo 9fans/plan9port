@@ -137,12 +137,14 @@ httpproc(void *v)
 	c = v;
 
 	for(t = 15*60*1000; ; t = 15*1000){
-		if(hparsereq(c, t) <= 0)
+fprint(2, "httpd: get headers\n");
+		if(hparsereq(c, t) < 0)
 			break;
 
 		ok = -1;
 		for(i = 0; i < MaxObjs && objs[i].name[0]; i++){
 			if(strcmp(c->req.uri, objs[i].name) == 0){
+fprint(2, "httpd: call function %p\n", objs[i].f);
 				ok = (*objs[i].f)(c);
 				break;
 			}
@@ -180,7 +182,10 @@ static int
 preq(HConnect *c)
 {
 	if(hparseheaders(c, 15*60*1000) < 0)
+{
+fprint(2, "hparseheaders failed\n");
 		return -1;
+}
 	if(strcmp(c->req.meth, "GET") != 0
 	&& strcmp(c->req.meth, "HEAD") != 0)
 		return hunallowed(c, "GET, HEAD");
@@ -196,7 +201,7 @@ preqtext(HConnect *c)
 	int r;
 
 	r = preq(c);
-	if(r <= 0)
+	if(r < 0)
 		return r;
 
 	hout = &c->hout;
@@ -221,7 +226,7 @@ notfound(HConnect *c)
 	int r;
 
 	r = preq(c);
-	if(r <= 0)
+	if(r < 0)
 		return r;
 	return hfail(c, HNotFound, c->req.uri);
 }
@@ -233,9 +238,13 @@ estats(HConnect *c)
 	int r;
 
 	r = preqtext(c);
-	if(r <= 0)
+	if(r < 0)
+{
+fprint(2, "preqtext failed\n");
 		return r;
+}
 
+fprint(2, "write stats\n");
 	hout = &c->hout;
 	hprint(hout, "lump writes=%,ld\n", stats.lumpwrites);
 	hprint(hout, "lump reads=%,ld\n", stats.lumpreads);
@@ -268,13 +277,21 @@ estats(HConnect *c)
 	hprint(hout, "disk cache misses=%,ld\n", stats.pcmiss);
 	hprint(hout, "disk cache reads=%,ld\n", stats.pcreads);
 	hprint(hout, "disk cache bytes read=%,lld\n", stats.pcbreads);
+fprint(2, "write new stats\n");
+	hprint(hout, "disk cache writes=%,ld\n", stats.dirtydblocks);
+	hprint(hout, "disk cache writes absorbed=%,ld %d%%\n", stats.absorbedwrites,
+		percent(stats.absorbedwrites, stats.dirtydblocks));
+
+fprint(2, "back to old stats\n");
 
 	hprint(hout, "disk writes=%,ld\n", stats.diskwrites);
 	hprint(hout, "disk bytes written=%,lld\n", stats.diskbwrites);
 	hprint(hout, "disk reads=%,ld\n", stats.diskreads);
 	hprint(hout, "disk bytes read=%,lld\n", stats.diskbreads);
 
+fprint(2, "hflush stats\n");
 	hflush(hout);
+fprint(2, "done with stats\n");
 	return 0;
 }
 
@@ -288,7 +305,7 @@ sindex(HConnect *c)
 	int i, r, active;
 
 	r = preqtext(c);
-	if(r <= 0)
+	if(r < 0)
 		return r;
 	hout = &c->hout;
 
@@ -348,7 +365,7 @@ dindex(HConnect *c)
 	int i, r;
 
 	r = preqtext(c);
-	if(r <= 0)
+	if(r < 0)
 		return r;
 	hout = &c->hout;
 
@@ -376,7 +393,7 @@ xindex(HConnect *c)
 	int r;
 
 	r = preq(c);
-	if(r <= 0)
+	if(r < 0)
 		return r;
 
 	hout = &c->hout;

@@ -1,3 +1,7 @@
+/*
+ * The locking here is getting a little out of hand.
+ */
+
 #include "stdinc.h"
 #include "dat.h"
 #include "fns.h"
@@ -14,7 +18,12 @@ enum
 struct DCache
 {
 	QLock		lock;
+	RWLock		dirtylock;		/* must be held to inspect or set b->dirty */
+	u32int		flushround;
+	Rendez		anydirty;
 	Rendez		full;
+	Rendez		flush;
+	Rendez		flushdone;
 	DBlock		*free;			/* list of available lumps */
 	u32int		now;			/* ticks for usage timestamps */
 	int		size;			/* max. size of any block; allocated to each block */
@@ -23,7 +32,10 @@ struct DCache
 	DBlock		**heap;			/* heap for locating victims */
 	int		nblocks;		/* number of blocks allocated */
 	DBlock		*blocks;		/* array of block descriptors */
+	DBlock		**write;		/* array of block pointers to be written */
 	u8int		*mem;			/* memory for all block descriptors */
+	int		ndirty;			/* number of dirty blocks */
+	int		maxdirty;		/* max. number of dirty blocks */
 };
 
 static DCache	dcache;
@@ -33,6 +45,10 @@ static int	upheap(int i, DBlock *b);
 static DBlock	*bumpdblock(void);
 static void	delheap(DBlock *db);
 static void	fixheap(int i, DBlock *b);
+static void	_flushdcache(void);
+static void	flushproc(void*);
+static void	flushtimerproc(void*);
+static void	writeproc(void*);
 
 void
 initdcache(u32int mem)
@@ -47,14 +63,20 @@ initdcache(u32int mem)
 		sysfatal("no max. block size given for disk cache");
 	blocksize = maxblocksize;
 	nblocks = mem / blocksize;
-	if(0)
-		fprint(2, "initialize disk cache with %d blocks of %d bytes\n", nblocks, blocksize);
 	dcache.full.l = &dcache.lock;
+	dcache.flush.l = &dcache.lock;
+	dcache.anydirty.l = &dcache.lock;
+	dcache.flushdone.l = &dcache.lock;
 	dcache.nblocks = nblocks;
+	dcache.maxdirty = (nblocks * 3) / 4;
+	if(1)
+		fprint(2, "initialize disk cache with %d blocks of %d bytes, maximum %d dirty blocks\n",
+			nblocks, blocksize, dcache.maxdirty);
 	dcache.size = blocksize;
 	dcache.heads = MKNZ(DBlock*, HashSize);
 	dcache.heap = MKNZ(DBlock*, nblocks);
 	dcache.blocks = MKNZ(DBlock, nblocks);
+	dcache.write = MKNZ(DBlock*, nblocks);
 	dcache.mem = MKNZ(u8int, nblocks * blocksize);
 
 	last = nil;
@@ -62,11 +84,15 @@ initdcache(u32int mem)
 		b = &dcache.blocks[i];
 		b->data = &dcache.mem[i * blocksize];
 		b->heap = TWID32;
+		chaninit(&b->writedonechan, sizeof(void*), 1);
 		b->next = last;
 		last = b;
 	}
 	dcache.free = last;
 	dcache.nheap = 0;
+
+	vtproc(flushproc, nil);
+	vtproc(flushtimerproc, nil);
 }
 
 static u32int
@@ -178,17 +204,61 @@ putdblock(DBlock *b)
 	if(b == nil)
 		return;
 
+	if(b->dirtying){
+		b->dirtying = 0;
+		runlock(&dcache.dirtylock);
+	}
 	qunlock(&b->lock);
+
 //checkdcache();
 	qlock(&dcache.lock);
-	if(--b->ref == 0){
+	if(b->dirty)
+		delheap(b);
+	else if(--b->ref == 0){
 		if(b->heap == TWID32)
 			upheap(dcache.nheap++, b);
-		rwakeup(&dcache.full);
+		rwakeupall(&dcache.full);
 	}
 
 	qunlock(&dcache.lock);
 //checkdcache();
+}
+
+void
+dirtydblock(DBlock *b, int dirty)
+{
+	int odirty;
+	Part *p;
+
+fprint(2, "dirty %p\n", b);
+	rlock(&dcache.dirtylock);
+	assert(b->ref != 0);
+	assert(b->dirtying == 0);
+	b->dirtying = 1;
+
+	qlock(&stats.lock);
+	if(b->dirty)
+		stats.absorbedwrites++;
+	stats.dirtydblocks++;
+	qunlock(&stats.lock);
+
+	if(b->dirty)
+		assert(b->dirty == dirty);
+	odirty = b->dirty;
+	b->dirty = dirty;
+	p = b->part;
+	if(p->writechan == nil){
+fprint(2, "allocate write proc for part %s\n", p->name);
+		/* XXX hope this doesn't fail! */
+		p->writechan = chancreate(sizeof(DBlock*), dcache.nblocks);
+		vtproc(writeproc, p);
+	}
+	qlock(&dcache.lock);
+	if(!odirty){
+		dcache.ndirty++;
+		rwakeupall(&dcache.anydirty);
+	}
+	qunlock(&dcache.lock);
 }
 
 /*
@@ -197,6 +267,7 @@ putdblock(DBlock *b)
 static DBlock*
 bumpdblock(void)
 {
+	int flushed;
 	DBlock *b;
 	ulong h;
 
@@ -206,14 +277,20 @@ bumpdblock(void)
 		return b;
 	}
 
+	if(dcache.ndirty >= dcache.maxdirty)
+		_flushdcache();
+
 	/*
 	 * remove blocks until we find one that is unused
 	 * referenced blocks are left in the heap even though
 	 * they can't be scavenged; this is simple a speed optimization
 	 */
+	flushed = 0;
 	for(;;){
-		if(dcache.nheap == 0)
+		if(dcache.nheap == 0){
+			_flushdcache();
 			return nil;
+		}
 		b = dcache.heap[0];
 		delheap(b);
 		if(!b->ref)
@@ -242,6 +319,8 @@ bumpdblock(void)
 static void
 delheap(DBlock *db)
 {
+	if(db->heap == TWID32)
+		return;
 	fixheap(db->heap, dcache.heap[--dcache.nheap]);
 	db->heap = TWID32;
 }
@@ -369,4 +448,187 @@ checkdcache(void)
 	if(dcache.nheap + nfree + refed != dcache.nblocks)
 		sysfatal("dc: missing blocks: %d %d %d", dcache.nheap, refed, dcache.nblocks);
 	qunlock(&dcache.lock);
+}
+
+void
+flushdcache(void)
+{
+	u32int flushround;
+
+	qlock(&dcache.lock);
+	flushround = dcache.flushround;
+	rwakeupall(&dcache.flush);
+	while(flushround == dcache.flushround)
+		rsleep(&dcache.flushdone);
+	qunlock(&dcache.lock);
+}
+
+static void
+_flushdcache(void)
+{
+	rwakeupall(&dcache.flush);
+}
+
+static int
+parallelwrites(DBlock **b, DBlock **eb, int dirty)
+{
+	DBlock **p;
+
+	for(p=b; p<eb && (*p)->dirty == dirty; p++)
+		sendp((*p)->part->writechan, *p);
+	for(p=b; p<eb && (*p)->dirty == dirty; p++)
+		recvp(&(*p)->writedonechan);
+
+	return p-b;
+}
+
+/*
+ * Sort first by dirty flag, then by partition, then by address in partition.
+ */
+static int
+writeblockcmp(const void *va, const void *vb)
+{
+	DBlock *a, *b;
+
+	a = *(DBlock**)va;
+	b = *(DBlock**)vb;
+
+	if(a->dirty != b->dirty)
+		return a->dirty - b->dirty;
+	if(a->part != b->part){
+		if(a->part < b->part)
+			return -1;
+		if(a->part > b->part)
+			return 1;
+	}
+	if(a->addr < b->addr)
+		return -1;
+	return 1;
+}
+
+static void
+flushtimerproc(void *v)
+{
+	u32int round;
+
+	for(;;){
+		qlock(&dcache.lock);
+		while(dcache.ndirty == 0)
+			rsleep(&dcache.anydirty);
+		round = dcache.flushround;
+		qunlock(&dcache.lock);
+
+		sleep(60*1000);
+
+		qlock(&dcache.lock);
+		if(round == dcache.flushround){
+			rwakeupall(&dcache.flush);
+			while(round == dcache.flushround)
+				rsleep(&dcache.flushdone);
+		}
+		qunlock(&dcache.lock);
+	}
+}
+
+static void
+flushproc(void *v)
+{
+	int i, n;
+	DBlock *b, **write;
+
+	USED(v);
+	for(;;){
+		qlock(&dcache.lock);
+		dcache.flushround++;
+		rwakeupall(&dcache.flushdone);
+		rsleep(&dcache.flush);
+		qunlock(&dcache.lock);
+
+		fprint(2, "flushing dcache\n");
+
+		/*
+		 * Because we don't record any dependencies at all, we must write out
+		 * all blocks currently dirty.  Thus we must lock all the blocks that 
+		 * are currently dirty.
+		 *
+		 * We grab dirtylock to stop the dirtying of new blocks.
+		 * Then we wait until all the current blocks finish being dirtied.
+		 * Now all the dirty blocks in the system are immutable (clean blocks
+		 * might still get recycled), so we can plan our disk writes.
+		 * 
+		 * In a better scheme, dirtiers might lock the block for writing in getdblock,
+		 * so that flushproc could lock all the blocks here and then unlock them as it
+		 * finishes with them.
+		 */ 
+	
+		fprint(2, "flushproc: wlock\n");
+		wlock(&dcache.dirtylock);
+
+		fprint(2, "flushproc: build list\n");
+		write = dcache.write;
+		n = 0;
+		for(i=0; i<dcache.nblocks; i++){
+			b = &dcache.blocks[i];
+			if(b->dirty)
+				write[n++] = b;
+		}
+
+		qsort(write, n, sizeof(write[0]), writeblockcmp);
+
+		/*
+		 * At the beginning of the array are the arena blocks.
+		 */
+		fprint(2, "flushproc: write arena blocks\n");
+		i = 0;
+		i += parallelwrites(write+i, write+n, DirtyArena);
+
+		/*
+		 * Next are the index blocks.
+		 */
+		fprint(2, "flushproc: write index blocks\n");
+		i += parallelwrites(write+i, write+n, DirtyIndex);
+
+		/*
+		 * Finally, the arena clump info blocks.
+		 */
+		fprint(2, "flushproc: write cib blocks\n");
+		i += parallelwrites(write+i, write+n, DirtyArenaCib);
+
+		assert(i == n);
+
+		fprint(2, "flushproc: update dirty bits\n");
+		qlock(&dcache.lock);
+		for(i=0; i<n; i++){
+			b = write[i];
+			b->dirty = 0;
+			--dcache.ndirty;
+			if(b->ref == 0 && b->heap == TWID32){
+				upheap(dcache.nheap++, b);
+				rwakeupall(&dcache.full);
+			}
+		}
+		qunlock(&dcache.lock);
+		wunlock(&dcache.dirtylock);
+
+		qlock(&stats.lock);
+		stats.dcacheflushes++;
+		stats.dcacheflushwrites += n;
+		qunlock(&stats.lock);
+	}
+}
+
+static void
+writeproc(void *v)
+{
+	DBlock *b;
+	Part *p;
+
+	p = v;
+
+	for(;;){
+		b = recvp(p->writechan);
+		if(writepart(p, b->addr, b->data, b->size) < 0)
+			fprint(2, "write error: %r\n"); /* XXX details! */
+		sendp(&b->writedonechan, b);
+	}
 }

@@ -12,7 +12,7 @@ initpart(char *name, int writable)
 	Dir *dir;
 	int how;
 
-	part = MK(Part);
+	part = MKZ(Part);
 	part->name = estrdup(name);
 	if(!writable && readonly)
 		how = OREAD;

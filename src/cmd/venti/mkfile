@@ -32,22 +32,15 @@ LIBOFILES=\
 
 SLIB=libvs.a
 
-LIB=$SLIB\
-	$PLAN9/lib/libventi.a\
-	$PLAN9/lib/libhttpd.a\
-	$PLAN9/lib/libbin.a\
-	$PLAN9/lib/libsec.a\
-	$PLAN9/lib/libthread.a\
-	$PLAN9/lib/lib9.a\
-	$PLAN9/lib/libfmt.a\
-	$PLAN9/lib/libutf.a\
+LIB=$SLIB
+SHORTLIB=venti httpd bin sec thread 9
 
 HFILES=	dat.h\
 	fns.h\
 	stdinc.h\
 
 TARG=\
-#	venti\
+	venti\
 	fmtarenas\
 	fmtisect\
 	fmtindex\
@@ -64,6 +57,7 @@ TARG=\
 	read\
 	write\
 	copy\
+	wb\
 
 BIN=$BIN/venti
 
@@ -82,4 +76,3 @@ ainstall:V: ${TARG:%=%.ainstall}
 %.ainstall:V:	$O.%
 	scp $prereq amsterdam:/usr/local/bin/venti/$stem
 
-LDFLAGS=$LDFLAGS -l9

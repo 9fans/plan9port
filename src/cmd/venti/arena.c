@@ -144,6 +144,7 @@ writeclumpinfo(Arena *arena, int clump, ClumpInfo *ci)
 	cib = getcib(arena, clump, 1, &r);
 	if(cib == nil)
 		return -1;
+	dirtydblock(cib->data, DirtyArenaCib);
 	packclumpinfo(ci, &cib->data->data[cib->offset]);
 	putcib(arena, cib);
 	return 0;
@@ -239,11 +240,13 @@ writearena(Arena *arena, u64int aa, u8int *clbuf, u32int n)
 			qunlock(&arena->lock);
 			return -1;
 		}
+		dirtydblock(b, DirtyArena);
 		m = blocksize - off;
 		if(m > n - nn)
 			m = n - nn;
 		memmove(&b->data[off], &clbuf[nn], m);
-		ok = writepart(arena->part, a, b->data, blocksize);
+		// ok = writepart(arena->part, a, b->data, blocksize);
+		ok = 0;
 		putdblock(b);
 		if(ok < 0){
 			qunlock(&arena->lock);
@@ -302,12 +305,13 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf)
 			qunlock(&arena->lock);
 			return TWID64;
 		}
+		dirtydblock(b, DirtyArena);
 		m = blocksize - off;
 		if(m > n - nn)
 			m = n - nn;
 		memmove(&b->data[off], &clbuf[nn], m);
-print("writing\n");
-		ok = writepart(arena->part, a, b->data, blocksize);
+	//	ok = writepart(arena->part, a, b->data, blocksize);
+		ok = 0;
 		putdblock(b);
 		if(ok < 0){
 			qunlock(&arena->lock);
@@ -352,6 +356,7 @@ static void
 sealarena(Arena *arena)
 {
 	flushciblocks(arena);
+	flushdcache();
 	arena->sealed = 1;
 	wbarena(arena);
 	backsumarena(arena);
@@ -439,6 +444,8 @@ ReadErr:
 
 	/*
 	 * check for no checksum or the same
+	 *
+	 * the writepart is okay because we flushed the dcache in sealarena
 	 */
 	if(scorecmp(score, &b->data[bs - VtScoreSize]) != 0){
 		if(scorecmp(zeroscore, &b->data[bs - VtScoreSize]) != 0)
@@ -585,6 +592,7 @@ getcib(Arena *arena, int clump, int writing, CIBlock *rock)
 	block = clump / arena->clumpmax;
 	off = (clump - block * arena->clumpmax) * ClumpInfoSize;
 
+/*
 	if(arena->cib.block == block
 	&& arena->cib.data != nil){
 		arena->cib.offset = off;
@@ -596,6 +604,8 @@ getcib(Arena *arena, int clump, int writing, CIBlock *rock)
 		cib = &arena->cib;
 	}else
 		cib = rock;
+*/
+	cib = rock;
 
 	qlock(&stats.lock);
 	stats.cireads++;
@@ -620,6 +630,8 @@ putcib(Arena *arena, CIBlock *cib)
 
 /*
  * must be called with arena locked
+ * 
+ * cache turned off now that dcache does write caching too.
  */
 int
 flushciblocks(Arena *arena)
@@ -631,8 +643,8 @@ flushciblocks(Arena *arena)
 	qlock(&stats.lock);
 	stats.ciwrites++;
 	qunlock(&stats.lock);
-	ok = writepart(arena->part, arena->base + arena->size - (arena->cib.block + 1) * arena->blocksize, arena->cib.data->data, arena->blocksize);
-
+//	ok = writepart(arena->part, arena->base + arena->size - (arena->cib.block + 1) * arena->blocksize, arena->cib.data->data, arena->blocksize);
+	ok = 0;
 	if(ok < 0)
 		seterr(EAdmin, "failed writing arena directory block");
 	putdblock(arena->cib.data);

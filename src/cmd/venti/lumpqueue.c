@@ -97,7 +97,7 @@ queuewrite(Lump *u, Packet *p, int creator)
 }
 
 void
-queueflush(void)
+flushqueue(void)
 {
 	int i;
 	LumpQueue *q;

@@ -624,12 +624,14 @@ storeientry(Index *ix, IEntry *ie)
 		h = bucklook(ie->score, ie->ia.type, ib.data, ib.n);
 		if(h & 1){
 			h ^= 1;
+			dirtydblock(b, DirtyIndex);
 			packientry(ie, &ib.data[h]);
 			ok = writebucket(is, buck, &ib, b);
 			break;
 		}
 
 		if(ib.n < is->buckmax){
+			dirtydblock(b, DirtyIndex);
 			memmove(&ib.data[h + IEntrySize], &ib.data[h], ib.n * IEntrySize - h);
 			ib.n++;
 
@@ -648,14 +650,19 @@ storeientry(Index *ix, IEntry *ie)
 static int
 writebucket(ISect *is, u32int buck, IBucket *ib, DBlock *b)
 {
-	if(buck >= is->blocks)
+	assert(b->dirty == DirtyIndex);
+
+	if(buck >= is->blocks){
 		seterr(EAdmin, "index write out of bounds: %d >= %d\n",
 				buck, is->blocks);
+		return -1;
+	}
 	qlock(&stats.lock);
 	stats.indexwrites++;
 	qunlock(&stats.lock);
 	packibucket(ib, b->data);
-	return writepart(is->part, is->blockbase + ((u64int)buck << is->blocklog), b->data, is->blocksize);
+	// return writepart(is->part, is->blockbase + ((u64int)buck << is->blocklog), b->data, is->blocksize);
+	return 0;
 }
 
 /*

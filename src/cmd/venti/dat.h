@@ -115,6 +115,13 @@ enum
 
 	MaxClumpBlocks		=  (VtMaxLumpSize + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog,
 
+	/*
+	 * dirty flags 
+	 */
+	DirtyArena		= 1,
+	DirtyIndex,
+	DirtyArenaCib,
+
 	VentiZZZZZZZZ
 };
 
@@ -142,6 +149,7 @@ struct Part
 	u64int		size;			/* size of the partiton */
 	u32int		blocksize;		/* block size for reads and writes */
 	char		*name;
+	Channel		*writechan;		/* chan[dcache.nblock](DBlock*) */
 };
 
 /*
@@ -156,6 +164,8 @@ struct DBlock
 	Part	*part;			/* partition in which cached */
 	u64int	addr;			/* base address on the partition */
 	u16int	size;			/* amount of data available, not amount allocated; should go away */
+	u32int	dirty;
+	u32int	dirtying;
 	DBlock	*next;			/* doubly linked hash chains */
 	DBlock	*prev;
 	u32int	heap;			/* index in heap table */
@@ -163,6 +173,8 @@ struct DBlock
 	u32int	used2;
 	u32int	ref;			/* reference count */
 	QLock	lock;			/* for access to data only */
+	Channel	writedonechan;	
+	void*	chanbuf[1];		/* buffer for the chan! */
 };
 
 /*
@@ -486,6 +498,10 @@ struct Stats
 	long		iclookups;		/* index cache lookups */
 	long		ichits;			/* hits in the cache */
 	long		icfills;		/* successful fills from index */
+	long		absorbedwrites;		/* disk writes absorbed by dcache */
+	long		dirtydblocks;		/* blocks dirtied */
+	long		dcacheflushes;		/* times dcache has flushed */
+	long		dcacheflushwrites;	/* blocks written by those flushes */
 };
 
 extern	Index		*mainindex;

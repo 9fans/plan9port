@@ -18,16 +18,6 @@ clumpinfoeq(ClumpInfo *c, ClumpInfo *d)
 		&& scorecmp(c->score, d->score)==0;
 }
 
-/*
- * synchronize the clump info directory with
- * with the clumps actually stored in the arena.
- * the directory should be at least as up to date
- * as the arena's trailer.
- *
- * checks/updates at most n clumps.
- *
- * returns 1 if ok, -1 if an error occured, 0 if blocks were updated
- */
 int
 findscore(Arena *arena, uchar *score)
 {

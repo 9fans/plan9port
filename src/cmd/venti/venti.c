@@ -139,6 +139,7 @@ ventiserver(char *addr)
 	Packet *p;
 	VtReq *r;
 	VtSrv *s;
+	char err[ERRMAX];
 
 	s = vtlisten(addr);
 	if(s == nil)
@@ -153,17 +154,22 @@ ventiserver(char *addr)
 			vtrerror(r, "unknown request");
 			break;
 		case VtTread:
-			if((r->rx.data = readlump(r->tx.score, r->tx.dtype, r->tx.count)) == nil)
-				vtrerror(r, gerrstr());
+			if((r->rx.data = readlump(r->tx.score, r->tx.dtype, r->tx.count)) == nil){
+				rerrstr(err, sizeof err);
+				vtrerror(r, err);
+			}
 			break;
 		case VtTwrite:
 			p = r->tx.data;
 			r->tx.data = nil;
-			if(writelump(p, r->rx.score, r->tx.dtype, 0) < 0)	
-				vtrerror(r, gerrstr());
+			if(writelump(p, r->rx.score, r->tx.dtype, 0) < 0){
+				rerrstr(err, sizeof err);
+				vtrerror(r, err);
+			}
 			break;
 		case VtTsync:
-			queueflush();
+			flushqueue();
+			flushdcache();
 			break;
 		}
 		vtrespond(r);
