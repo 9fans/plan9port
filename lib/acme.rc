@@ -1,0 +1,43 @@
+fn newwindow {
+	winctl=`{9p read acme/new/ctl}
+	winid=$winctl(1)
+	winctl noscroll
+}
+
+fn winctl {	
+	echo $* | 9p write acme/acme/$winid/ctl
+}
+
+fn winread {
+	9p read acme/acme/$winid/$1
+}
+
+fn winwrite {
+	9p write acme/acme/$winid/$1
+}
+
+fn windump {
+	if(! ~ $1 - '')
+		winctl dumpdir $1
+	if(! ~ $2 - '')
+		winctl dump $2
+}
+
+fn winname {
+	winctl name $1
+}
+
+fn winwriteevent {
+	echo $1$2$3 $4 | winwrite event
+}
+
+fn windel {
+	if(~ $1 sure)
+		winctl delete
+	if not
+		winctl del
+}
+
+fn wineventloop {
+	. <{winread event >[2]/dev/null | acmeevent}
+}
