@@ -176,7 +176,7 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 
 		/* fetch real size for disks */
 #ifdef _HAVEDISKSIZE
-		if((fd = open(name, O_RDONLY)) >= 0){
+		if(S_ISBLK(st->st_mode) && (fd = open(name, O_RDONLY)) >= 0){
 			d->length = disksize(fd, major(st->st_dev));
 			close(fd);
 		}
