@@ -40,7 +40,7 @@ addseg(Map *map, Seg seg)
 	if(ss == nil)
 		return -1;
 	map->seg = ss;
-	if(seg.rw == nil){
+	if(seg.rw == 0){
 		if(seg.name && strcmp(seg.name, "zero") == 0)
 			seg.rw = zerorw;
 		else if(seg.p)

@@ -146,7 +146,7 @@ main(int argc, char **argv)
 	/*
 	 * Read new files into memory
 	 */
-	if(rdproto(proto, src, addprotofile, nil, &iroot) < 0)
+	if(rdproto(proto, src, addprotofile, 0, &iroot) < 0)
 		sysfatal("rdproto: %r");
 
 	if(mk9660){

@@ -101,7 +101,7 @@ struct Machine
 char	*menu2str[Nvalue+1];
 char xmenu2str[Nvalue+1][40];
 
-Menu	menu2 = {menu2str, nil};
+Menu	menu2 = {menu2str, 0};
 int		present[Nvalue];
 Image	*cols[Ncolor][3];
 Graph	*graph;
@@ -792,7 +792,7 @@ threadmain(int argc, char *argv[])
 		for(j=0; j<ngraph; j++)
 			graph[i*ngraph+j].mach = &mach[i];
 
-	if(initdraw(nil, nil, "stats") < 0)
+	if(initdraw(0, nil, "stats") < 0)
 		sysfatal("initdraw: %r");
 	colinit();
 	if((mc = initmouse(nil, screen)) == nil)

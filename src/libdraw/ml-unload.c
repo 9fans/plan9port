@@ -35,7 +35,7 @@ memunload(Memimage *src, Rectangle r, uchar *data, int n)
 	 * src is an obscured layer or data is unaligned
 	 */
 	if(dl->save && dx==0){
-		if(dl->refreshfn != nil)
+		if(dl->refreshfn != 0)
 			return -1;	/* can't unload window if it's not Refbackup */
 		if(n > 0)
 			memlhide(src, r);

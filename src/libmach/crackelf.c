@@ -287,7 +287,7 @@ mapcoreregs(Fhdr *fp, Map *map, Regs **rp)
 	UregRegs *r;
 
 	elf = fp->elf;
-	if(elf->coreregs == nil){
+	if(elf->coreregs == 0){
 		werrstr("cannot parse %s %s cores", fp->mname, fp->aname);
 		return -1;
 	}

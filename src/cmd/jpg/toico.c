@@ -75,7 +75,7 @@ main(int argc, char **argv)
 	}ARGEND;
 
 	/* read in all the images */
-	initdraw(nil, nil, nil);
+	initdraw(0, nil, nil);
 	if(argc < 1){
 		readicon("/fd/0");
 	} else {

@@ -66,7 +66,7 @@ mapfile(Fhdr *fp, ulong base, Map *map, Regs **regs)
 		werrstr("no map");
 		return -1;
 	}
-	if(fp->map == nil){
+	if(fp->map == 0){
 		werrstr("cannot load map for this file type");
 		return -1;
 	}

@@ -58,7 +58,7 @@ delayednotes(Proc *p, void *v)
 	for(n=notes; n<enotes; n++){
 		if(n->proc == p){
 			for(i=0; i<NFN; i++){
-				if(onnotepid[i]!=p->pid || (fn = onnote[i])==nil)
+				if(onnotepid[i]!=p->pid || (fn = onnote[i])==0)
 					continue;
 				if((*fn)(v, n->s))
 					break;

@@ -427,7 +427,7 @@ syminit(Fhdr *hdr)
 	int i;
 	Symbol *r, *w, *es;
 
-	if(hdr->syminit == nil){
+	if(hdr->syminit == 0){
 		werrstr("no debugging symbols");
 		return -1;
 	}

@@ -233,7 +233,7 @@ fsysproc(void *v)
 			error("convert error in convM2S");
 		if(debug)
 			fprint(2, "<= %F\n", t);
-		if(fcall[t->type] == nil)
+		if(fcall[t->type] == 0)
 			fsysrespond(t, buf, Ebadfcall);
 		else{
 			if(t->type==Tversion || t->type==Tauth)

@@ -10,13 +10,13 @@ memlsetrefresh(Memimage *i, Refreshfn fn, void *ptr)
 	Memlayer *l;
 
 	l = i->layer;
-	if(l->refreshfn!=nil && fn!=nil){	/* just change functions */
+	if(l->refreshfn!=0 && fn!=0){	/* just change functions */
 		l->refreshfn = fn;
 		l->refreshptr = ptr;
 		return 1;
 	}
 
-	if(l->refreshfn == nil){	/* is using backup image; just free it */
+	if(l->refreshfn == 0){	/* is using backup image; just free it */
 		freememimage(l->save);
 		l->save = nil;
 		l->refreshfn = fn;

@@ -17,7 +17,7 @@ stabsym(Stab *stabs, int i, StabSym *sym)
 		werrstr("no stabs");
 		return -1;
 	}
-	if(stabs->e2==nil || stabs->e4==nil){
+	if(stabs->e2==0 || stabs->e4==0){
 		werrstr("no data extractors");
 		return -1;
 	}
