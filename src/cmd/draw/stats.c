@@ -746,6 +746,9 @@ threadmain(int argc, char *argv[])
 	case 'c':
 		addgraph(Vcontext);
 		break;
+	case 'C':
+		addgraph(Vcpu);
+		break;
 	case 'e':
 		addgraph(Vether);
 		break;
