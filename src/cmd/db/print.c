@@ -125,6 +125,11 @@ printdollar(int modif)
 		attachprocess();
 		break;
 
+/* maybe use this for lwpids?
+	case 'A':
+		attachpthread();
+		break;
+*/
 	case 'k':
 		kmsys();
 		break;

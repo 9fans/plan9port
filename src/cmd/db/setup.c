@@ -27,18 +27,29 @@ setsym(void)
 void
 setcor(void)
 {
-	unmapproc(cormap);
-	unmapfile(corhdr, cormap);
-	free(correg);
-	correg = nil;
+	static int mapped;
 
-	if (pid > 0) {
-		if (mapproc(pid, cormap, &correg) < 0)
-			dprint("mapproc %d: %r\n", pid);
-	} else {
-		if (corhdr) {
+	if (corhdr) {
+		if (!mapped) {
 			if (mapfile(corhdr, 0, cormap, &correg) < 0)
 				dprint("mapfile %s: %r\n", corfil);
+			mapped = 1;
+		}
+		free(correg);
+		if (pid == 0 && corhdr->nthread > 0)
+			pid = corhdr->thread[0].id;
+		correg = coreregs(corhdr, pid);
+		if(correg == nil)
+			dprint("no such pid in core dump\n");
+	} else {
+		unmapproc(cormap);
+		unmapfile(corhdr, cormap);
+		free(correg);
+		correg = nil;
+
+		if (pid > 0) {
+			if (mapproc(pid, cormap, &correg) < 0)
+				dprint("mapproc %d: %r\n", pid);
 		} else
 			dprint("no core image\n");
 	}
@@ -137,7 +148,7 @@ void
 attachprocess(void)
 {
 	if (!adrflg) {
-		dprint("used pid$a\n");
+		dprint("usage: pid$a\n");
 		return;
 	}
 	pid = adrval;

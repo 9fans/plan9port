@@ -24,8 +24,6 @@ extern	char	*Ipath;
 jmp_buf env;
 static char *errmsg;
 
-Fhdr *symhdr, *corhdr;
-
 void
 usage(void)
 {
@@ -36,11 +34,11 @@ usage(void)
 void
 main(int argc, char **argv)
 {
-	int i, omode;
+	int omode, quiet;
 	char *s;
 	char *name;
-	Fhdr *hdr;
 
+	quiet = 0;
 	name = 0;
 	outputinit();
 	maxoff = MAXOFF;
@@ -68,86 +66,12 @@ main(int argc, char **argv)
 		if(name == 0)
 			dprint("missing -m argument\n");
 		break;
+	case 'q':
+		quiet = 1;
+		break;
 	}ARGEND
 
-	/*
-	 * Unix and Plan 9 differ on what the right order of pid, text, and core is.
-	 * I never remember anyway.  Let's just accept them in any order.
-	 */
-	for(i=0; i<argc; i++){
-		if(alldigs(argv[i])){
-			if(pid){
-				dprint("already have pid %d; ignoring pid %d\n", pid, argv[i]);
-				continue;
-			}
-			if(corhdr){
-				dprint("already have core %s; ignoring pid %d\n", corfil, pid);
-				continue;
-			}
-			pid = atoi(argv[i]);
-			continue;
-		}
-		if((hdr = crackhdr(argv[i], omode)) == nil){
-			dprint("crackhdr %s: %r\n", argv[i]);
-			continue;
-		}
-		dprint("%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
-		if(hdr->ftype == FCORE){
-			if(pid){
-				dprint("already have pid %d; ignoring core %s\n", pid, argv[i]);
-				uncrackhdr(hdr);
-				continue;
-			}
-			if(corhdr){
-				dprint("already have core %s; ignoring core %s\n", corfil, argv[i]);
-				uncrackhdr(hdr);
-				continue;
-			}
-			corhdr = hdr;
-			corfil = argv[i];
-		}else{
-			if(symhdr){
-				dprint("already have text %s; ignoring text %s\n", symfil, argv[i]);
-				uncrackhdr(hdr);
-				continue;
-			}
-			symhdr = hdr;
-			symfil = argv[i];
-		}
-	}
-
-	if(symhdr==nil){
-		symfil = "a.out";
-		if(pid){
-			if((s = proctextfile(pid)) != nil){
-				dprint("pid %d: text %s\n", pid, s);
-				symfil = s;
-			}
-		}
-		/* XXX pull command from core */
-
-		if((symhdr = crackhdr(symfil, omode)) == nil){
-			dprint("crackhdr %s: %r\n", symfil);
-			symfil = nil;
-		}
-	}
-
-	if(!mach)
-		mach = machcpu;
-
-	/*
-	 * Set up maps.
-	 */
-	symmap = allocmap();
-	cormap = allocmap();
-	if(symmap == nil || cormap == nil)
-		sysfatal("allocating maps: %r");
-
-	if(symhdr){
-		if(mapfile(symhdr, 0, symmap, nil) < 0)
-			dprint("mapping %s: %r\n", symfil);
-		mapfile(symhdr, 0, cormap, nil);
-	}
+	attachargs(argc, argv, omode, !quiet);
 
 	dotmap = dumbmap(-1);
 
@@ -159,7 +83,7 @@ main(int argc, char **argv)
 	if(setjmp(env) == 0){
 		if (pid || corhdr)
 			setcor();	/* could get error */
-		if (correg) {
+		if (correg && !quiet) {
 			dprint("%s\n", mach->exc(cormap, correg));
 			printpc();
 		}

@@ -17,7 +17,7 @@ OFILES=\
 
 HFILES=defs.h\
 	fns.h\
-
+	$PLAN9/include/mach.h\
 
 <$PLAN9/src/mkone
 

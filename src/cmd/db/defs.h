@@ -102,9 +102,7 @@ extern	int	nnote;
 extern	char	note[NNOTE][ERRMAX];
 
 extern	int	ending;
-extern	Fhdr	*corhdr, *symhdr;
-extern	Map	*cormap, *symmap, *dotmap;
-extern	Regs	*correg;
+extern	Map	*dotmap;
 
 extern	BKPT	*bkpthead;
 extern	int	kflag;
