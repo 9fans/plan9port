@@ -33,8 +33,8 @@ _post2(void *v)
 	Srv *s;
 
 	s = v;
-	rfork(RFNOTEG);
 	if(!s->leavefdsopen){
+		rfork(RFNOTEG);
 		rendezvous((ulong)s, 0);
 		close(s->srvfd);
 	}
