@@ -1,9 +1,10 @@
 /* Make this with:  lex delatex.lex;  cc lex.yy.c -ll -o delatex */
 L [A-Za-z]
-%Start Display Math Normal Tag
+%Start Display Math Normal Tag VerbPlus Bracket
 %%
 <Normal>\'	{yyleng--; yymore(); /* ignore apostrophes */}
 <Normal>{L}+\\- {yyleng-=2; yymore(); /* ignore hyphens */}
+<Normal>[a-zA-Z0-9_]+@[a-zA-Z0-9_.]+	;	/* ignore email addresses */
 <Normal>[a-z]/[^A-Za-z] ; /* ignore single letter "words" */
 <Normal>[A-Z]+	; /* ignore words all in uppercase */
 <Normal>{L}+('{L}*)*{L}	{printf("%s\n",yytext); /* any other letter seq is a word */} 
@@ -21,8 +22,19 @@ L [A-Za-z]
 <Normal>"\\label{"	BEGIN Tag;
 <Normal>"\\pageref{"	BEGIN Tag;
 <Normal>"\\ref{"		BEGIN Tag;
+<Normal>"\\verb+"	BEGIN VerbPlus;
+<Normal>"\\documentclass["	BEGIN Bracket;
+<Normal>"\\documentclass{"	BEGIN Tag;
+<Normal>"\\usepackage["	BEGIN Bracket;
+<Normal>"\\usepackage{"	BEGIN Tag;
+<Bracket>[^\]]	;
+<Bracket>"]["	;
+<Bracket>"]{"	BEGIN Tag;
+<Bracket>"]"	BEGIN Normal;
 <Tag>[^}]		; /* ignore things up to next "}" */
 <Tag>"}"		BEGIN Normal;
+<VerbPlus>[^+]	;	/* ignore thing up to next "+" */
+<VerbPlus>"+"	BEGIN Normal;
 <Normal>[0-9]+	; /* ignore numbers */
 <Normal>"\\("		BEGIN Math; /* begin latex math mode */
 <Math>"\\)"		BEGIN Normal; /* end latex math mode */
