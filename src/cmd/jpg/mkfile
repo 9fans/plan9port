@@ -51,4 +51,4 @@ nuke:V:	nuke-headers
 nuke-headers:V:
 	rm -f rgbv.h ycbcr.h
 
-CLEANFILES=$CLEANFILES o.rgbycc o.rgbrgbv
+CLEANFILES=$CLEANFILES o.rgbycc o.rgbrgbv rgbv.h ycbcr.h
