@@ -3,7 +3,6 @@
 #if defined(__cplusplus)
 extern "C" { 
 #endif
-
 /*
  * The authors of this software are Rob Pike and Ken Thompson.
  *              Copyright (c) 2002 by Lucent Technologies.
@@ -56,46 +55,45 @@ enum{
 	FmtFlag		= FmtLDouble << 1
 };
 
-extern	int	print(char*, ...);
-extern	char*	seprint(char*, char*, char*, ...);
-extern	char*	vseprint(char*, char*, char*, va_list);
-extern	int	snprint(char*, int, char*, ...);
-extern	int	vsnprint(char*, int, char*, va_list);
-extern	char*	smprint(char*, ...);
-extern	char*	vsmprint(char*, va_list);
-extern	int	sprint(char*, char*, ...);
-extern	int	fprint(int, char*, ...);
-extern	int	vfprint(int, char*, va_list);
-
-extern	int	runesprint(Rune*, char*, ...);
-extern	int	runesnprint(Rune*, int, char*, ...);
-extern	int	runevsnprint(Rune*, int, char*, va_list);
-extern	Rune*	runeseprint(Rune*, Rune*, char*, ...);
-extern	Rune*	runevseprint(Rune*, Rune*, char*, va_list);
-extern	Rune*	runesmprint(char*, ...);
-extern	Rune*	runevsmprint(char*, va_list);
-
-extern	int	fmtfdinit(Fmt*, int, char*, int);
-extern	int	fmtfdflush(Fmt*);
-extern	int	fmtstrinit(Fmt*);
-extern	char*	fmtstrflush(Fmt*);
-extern	int	runefmtstrinit(Fmt*);
-extern	Rune*	runefmtstrflush(Fmt*);
-
-extern	int	quotestrfmt(Fmt *f);
-extern	void	quotefmtinstall(void);
 extern	int	(*fmtdoquote)(int);
 
-
-extern	int	fmtinstall(int, int (*)(Fmt*));
-extern	int	dofmt(Fmt*, char*);
-extern	int	fmtprint(Fmt*, char*, ...);
-extern	int	fmtvprint(Fmt*, char*, va_list);
-extern	int	fmtrune(Fmt*, int);
-extern	int	fmtstrcpy(Fmt*, char*);
-
-extern	double	fmtstrtod(const char *, char **);
-extern	double	fmtcharstod(int(*)(void*), void*);
+/* Edit .+1,/^$/ | cfn $PLAN9/src/lib9/fmt/?*.c | grep -v static |grep -v __ */
+int		dofmt(Fmt *f, char *fmt);
+int		dorfmt(Fmt *f, const Rune *fmt);
+double		fmtcharstod(int(*f)(void*), void *vp);
+int		fmtfdflush(Fmt *f);
+int		fmtfdinit(Fmt *f, int fd, char *buf, int size);
+int		fmtinstall(int c, int (*f)(Fmt*));
+int		fmtprint(Fmt *f, char *fmt, ...);
+int		fmtrune(Fmt *f, int r);
+int		fmtrunestrcpy(Fmt *f, Rune *s);
+int		fmtstrcpy(Fmt *f, char *s);
+char*		fmtstrflush(Fmt *f);
+int		fmtstrinit(Fmt *f);
+double		fmtstrtod(const char *as, char **aas);
+int		fmtvprint(Fmt *f, char *fmt, va_list args);
+int		fprint(int fd, char *fmt, ...);
+int		print(char *fmt, ...);
+void		quotefmtinstall(void);
+int		quoterunestrfmt(Fmt *f);
+int		quotestrfmt(Fmt *f);
+Rune*		runefmtstrflush(Fmt *f);
+int		runefmtstrinit(Fmt *f);
+Rune*		runeseprint(Rune *buf, Rune *e, char *fmt, ...);
+Rune*		runesmprint(char *fmt, ...);
+int		runesnprint(Rune *buf, int len, char *fmt, ...);
+int		runesprint(Rune *buf, char *fmt, ...);
+Rune*		runevseprint(Rune *buf, Rune *e, char *fmt, va_list args);
+Rune*		runevsmprint(char *fmt, va_list args);
+int		runevsnprint(Rune *buf, int len, char *fmt, va_list args);
+char*		seprint(char *buf, char *e, char *fmt, ...);
+char*		smprint(char *fmt, ...);
+int		snprint(char *buf, int len, char *fmt, ...);
+int		sprint(char *buf, char *fmt, ...);
+int		vfprint(int fd, char *fmt, va_list args);
+char*		vseprint(char *buf, char *e, char *fmt, va_list args);
+char*		vsmprint(char *fmt, va_list args);
+int		vsnprint(char *buf, int len, char *fmt, va_list args);
 
 #if defined(__cplusplus)
 }

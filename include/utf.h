@@ -14,42 +14,38 @@ enum
 	Runeerror	= 0x80,		/* decoding error in UTF */
 };
 
-/*
- * rune routines
- */
-extern	int	runetochar(char*, Rune*);
-extern	int	chartorune(Rune*, char*);
-extern	int	runelen(long);
-extern	int	runenlen(Rune*, int);
-extern	int	fullrune(char*, int);
-extern	int	utflen(char*);
-extern	int	utfnlen(char*, long);
-extern	char*	utfrune(char*, long);
-extern	char*	utfrrune(char*, long);
-extern	char*	utfutf(char*, char*);
-extern	char*	utfecpy(char*, char*, char*);
-
-extern	Rune*	runestrcat(Rune*, Rune*);
-extern	Rune*	runestrchr(Rune*, Rune);
-extern	int	runestrcmp(Rune*, Rune*);
-extern	Rune*	runestrcpy(Rune*, Rune*);
-extern	Rune*	runestrncpy(Rune*, Rune*, long);
-extern	Rune*	runestrecpy(Rune*, Rune*, Rune*);
-extern	Rune*	runestrdup(Rune*);
-extern	Rune*	runestrncat(Rune*, Rune*, long);
-extern	int	runestrncmp(Rune*, Rune*, long);
-extern	Rune*	runestrrchr(Rune*, Rune);
-extern	long	runestrlen(Rune*);
-extern	Rune*	runestrstr(Rune*, Rune*);
-
-extern	Rune	tolowerrune(Rune);
-extern	Rune	totitlerune(Rune);
-extern	Rune	toupperrune(Rune);
-extern	int	isalpharune(Rune);
-extern	int	islowerrune(Rune);
-extern	int	isspacerune(Rune);
-extern	int	istitlerune(Rune);
-extern	int	isupperrune(Rune);
+/* Edit .+1,/^$/ | cfn $PLAN9/src/lib9/utf/?*.c | grep -v static |grep -v __ */
+int		chartorune(Rune *rune, char *str);
+int		fullrune(char *str, int n);
+int		isalpharune(Rune c);
+int		islowerrune(Rune c);
+int		isspacerune(Rune c);
+int		istitlerune(Rune c);
+int		isupperrune(Rune c);
+int		runelen(long c);
+int		runenlen(Rune *r, int nrune);
+Rune*		runestrcat(Rune *s1, Rune *s2);
+Rune*		runestrchr(Rune *s, Rune c);
+int		runestrcmp(Rune *s1, Rune *s2);
+Rune*		runestrcpy(Rune *s1, Rune *s2);
+Rune*		runestrdup(Rune *s) ;
+Rune*		runestrecpy(Rune *s1, Rune *es1, Rune *s2);
+long		runestrlen(Rune *s);
+Rune*		runestrncat(Rune *s1, Rune *s2, long n);
+int		runestrncmp(Rune *s1, Rune *s2, long n);
+Rune*		runestrncpy(Rune *s1, Rune *s2, long n);
+Rune*		runestrrchr(Rune *s, Rune c);
+Rune*		runestrstr(Rune *s1, Rune *s2);
+int		runetochar(char *str, Rune *rune);
+Rune		tolowerrune(Rune c);
+Rune		totitlerune(Rune c);
+Rune		toupperrune(Rune c);
+char*		utfecpy(char *to, char *e, char *from);
+int		utflen(char *s);
+int		utfnlen(char *s, long m);
+char*		utfrrune(char *s, long c);
+char*		utfrune(char *s, long c);
+char*		utfutf(char *s1, char *s2);
 
 #if defined(__cplusplus)
 }
