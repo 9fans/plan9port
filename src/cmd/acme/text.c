@@ -637,7 +637,6 @@ texttype(Text *t, Rune r)
 	int nr;
 	Rune *rp;
 	Text *u;
-	int precise;
 
 	if(t->what!=Body && r=='\n')
 		return;
