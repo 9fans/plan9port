@@ -141,6 +141,7 @@ LIB9OFILES=\
 	tas-$OBJTYPE.$O\
 	time.$O\
 	tokenize.$O\
+	truerand.$O\
 	u16.$O\
 	u32.$O\
 	u64.$O\

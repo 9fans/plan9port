@@ -59,6 +59,7 @@ _p9uproc(int inhandler)
 		if(alluproc[h]==T || alluproc[h]==nil){
 			alluproc[h] = up;
 			allupid[h] = pid;
+			unlock(&uproclock);
 			return up;
 		}
 		if(++h == PIDHASH)
