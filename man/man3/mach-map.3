@@ -1,6 +1,6 @@
 .TH MACH-MAP 3
 .SH NAME
-allocmap, addseg, addregseg, findseg, addrtoseg,
+allocmap, addseg, findseg, addrtoseg,
 addrtosegafter, removeseg, freemap,
 get1, get2, get4, get8,
 put1, put2, put4, put8,
@@ -18,13 +18,13 @@ access to address spaces and register sets
 .br
 .B #include <mach.h>
 .PP
-.B
+.ft B
 .ta \w'\fBxxxxxx'u +\w'xxxxxxx'u
 .nf
 typedef struct Map Map;
 typedef struct Seg Seg;
 .PP
-.B
+.ft B
 .nf
 struct Seg
 {
@@ -37,7 +37,7 @@ struct Seg
 	int	(*rw)(Map*, Seg*, ulong, void*, uint, int);
 };
 .PP
-.B
+.ft B
 .nf
 struct Map
 {
@@ -46,7 +46,7 @@ struct Map
 	\fI...\fR
 };
 .PP
-.B
+.ft B
 Map	*allocmap(void)
 .br
 int	addseg(Map *map, Seg seg)
@@ -61,7 +61,7 @@ void	removeseg(Map *map, int i)
 .br
 void	freemap(Map *map)
 .PP
-.B
+.ft B
 int	get1(Map *map, ulong addr, uchar *a, uint n)
 .br
 int	get2(Map *map, ulong addr, u16int *u)
@@ -70,7 +70,7 @@ int	get4(Map *map, ulong addr, u32int *u)
 .br
 int	get8(Map *map, ulong addr, u64int *u)
 .PP
-.B
+.ft B
 int	put1(Map *map, ulong addr, uchar *a, uint n)
 .br
 int	put2(Map *map, ulong addr, u16int u)
@@ -79,7 +79,7 @@ int	put4(Map *map, ulong addr, u32int u)
 .br
 int	put8(Map *map, ulong addr, u64int u)
 .PP
-.B
+.ft B
 int	rget1(Map *map, char *reg, u8int *u)
 .br
 int	rget2(Map *map, char *reg, u16int *u)
@@ -90,7 +90,7 @@ int	rget8(Map *map, char *reg, u64int *u)
 .br
 int	fpformat(Map *map, char *reg, char *a, uint n, char code);
 .PP
-.B
+.ft B
 int	rput1(Map *map, char *reg, u8int u)
 .br
 int	rput2(Map *map, char *reg, u16int u)
@@ -99,7 +99,7 @@ int	rput4(Map *map, char *reg, u32int u)
 .br
 int	rput8(Map *map, char *reg, u64int u)
 .PP
-.B
+.ft B
 Loc	locaddr(ulong addr)
 .br
 Loc	locconst(ulong con)
@@ -108,7 +108,7 @@ Loc	locreg(char *reg)
 .br
 Loc	locindir(char *reg, long offset)
 .PP
-.B
+.ft B
 int	loccmp(Loc *a, Loc *b)
 .br
 int	loceval(Map *map, Loc loc, ulong *addr)
@@ -117,7 +117,7 @@ int	locfmt(Fmt *fmt)
 .br
 int	locredir(Map *map, Loc *regs, Loc loc, Loc *newloc)
 .PP
-.B
+.ft B
 int	lget1(Map *map, Loc loc, uchar *a, uint n)
 .br
 int	lget2(Map *map, Loc loc, u16int *u)
@@ -126,7 +126,7 @@ int	lget4(Map *map, Loc loc, u32int *u)
 .br
 int	lget8(Map *map, Loc loc, u64int *u)
 .PP
-.B
+.ft B
 int	lput1(Map *map, Loc loc, uchar *a, uint n)
 .br
 int	lput2(Map *map, Loc loc, u16int u)
@@ -413,7 +413,8 @@ function families as necessary.
 .SH SOURCE
 .B /sys/src/libmach
 .SH "SEE ALSO"
-.IR mach(3), mach-file(3)
+.IR mach (3),
+.IR mach-file (3)
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .
