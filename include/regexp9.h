@@ -1,6 +1,9 @@
-#ifndef _REGEXP9H_
+#ifndef _REGEXP9_H_
+#define _REGEXP9_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 
-#define _REGEXP9H_ 1
 #include <utf.h>
 
 typedef struct Resub		Resub;
@@ -83,4 +86,7 @@ extern void	rregsub9(Rune*, Rune*, Resub*, int);
 #define rregsub rregsub9
 #endif
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

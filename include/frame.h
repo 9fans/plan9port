@@ -1,3 +1,9 @@
+#ifndef _FRAME_H_
+#define _FRAME_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
 typedef struct Frbox Frbox;
 typedef struct Frame Frame;
 
@@ -83,3 +89,7 @@ void	frinittick(Frame*);
 
 #define	NRUNE(b)	((b)->nrune<0? 1 : (b)->nrune)
 #define	NBYTE(b)	strlen((char*)(b)->ptr)
+#if defined(__cplusplus)
+}
+#endif
+#endif

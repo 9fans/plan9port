@@ -1,31 +1,22 @@
 #include <u.h>
+#define NOPLAN9DEFINES
 #include <libc.h>
-
-#undef asctime
-#undef ctime
-#undef gmtime
-#undef localtime
-
 #include <sys/stat.h>
 #include <dirent.h>
 
 extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
 
-/* everyone has getdirentries, just use that */
+/* almost everyone has getdirentries, just use that */
 static int
 mygetdents(int fd, char *buf, int n)
 {
 	ssize_t nn;
-#if _GETDIRENTRIES_TAKES_LONG
 	long off;
-#else
-	off_t off;
-#endif
 
-	off = seek(fd, 0, 1);
+	off = p9seek(fd, 0, 1);
 	nn = getdirentries(fd, buf, n, &off);
 	if(nn > 0)
-		seek(fd, off, 0);
+		p9seek(fd, off, 0);
 	return nn;
 }
 

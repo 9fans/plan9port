@@ -82,11 +82,14 @@ int
 opentemp(char *template, int mode, long perm)
 {
 	int fd;
+	Dir d;
 
 	fd = mkstemp(template);
 	if(fd < 0)
 		sysfatal("could not create temporary file");
-	fchmod(fd, perm);
+	nulldir(&d);
+	d.mode = perm;
+	dirfwstat(fd, &d);
 
 	return fd;
 }

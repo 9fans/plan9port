@@ -8,4 +8,6 @@ $PLAN9/lib/$LIB:V:	$OFILES			# force archive even when not needed
 
 all install:V: $PLAN9/lib/$LIB
 
+NUKEFILES=$NUKEFILES $PLAN9/lib/$LIB
+
 <$PLAN9/src/mkcommon

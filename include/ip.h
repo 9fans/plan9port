@@ -1,3 +1,8 @@
+#ifndef _IP_H_
+#define _IP_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 /*
 #pragma	src	"/sys/src/libip"
 #pragma	lib	"libip.a"
@@ -121,3 +126,7 @@ extern uchar IPallbits[IPaddrlen];
 
 #define CLASS(p) ((*(uchar*)(p))>>6)
 
+#if defined(__cplusplus)
+}
+#endif
+#endif

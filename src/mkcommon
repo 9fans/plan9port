@@ -6,16 +6,20 @@
 %.$O:	%.s
 	$AS $AFLAGS $stem.s
 
-clean:V:
+y.tab.h y.tab.c:	$YFILES
+	$YACC $YFLAGS $prereq
+
+nuke:V: nuke-common
+clean:V: clean-common
+%.clean:V: %.clean-common
+
+nuke-common:V:
+	rm -f *.[$OS] [$OS].out $CLEANFILES $NUKEFILES
+
+clean-common:
 	rm -f *.[$OS] [$OS].out $CLEANFILES
 
-%.clean:V:
+%.clean-common:V:
 	rm -f $stem.[$OS] [$OS].$stem $stem.acid $stem
 
-nuke:V:
-	rm -f *.[$OS] [$OS].out $CLEANFILES
 
-Makefile:D: mkfile
-	rm -f Makefile
-	sh $PLAN9/src/mk2make mkfile >Makefile
-	chmod 444 Makefile

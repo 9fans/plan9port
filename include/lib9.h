@@ -3,9 +3,8 @@
  * fit into libutf or into libfmt, but is still missing from traditional
  * Unix C libraries.
  */
-#ifndef _LIB9H_
-#define _LIB9H_ 1
-
+#ifndef _LIB9_H_
+#define _LIB9_H_ 1
 #if defined(__cplusplus)
 extern "C" {
 #endif                                                                          
@@ -861,5 +860,4 @@ extern void __fixargv0(void);
 #if defined(__cplusplus)
 }
 #endif
-
-#endif	/* _LIB9H_ */
+#endif	/* _LIB9_H_ */

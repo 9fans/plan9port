@@ -1,3 +1,8 @@
+#ifndef _FLATE_H_
+#define _FLATE_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 /*
 #pragma	lib	"libflate.a"
 #pragma	src	"/sys/src/libflate"
@@ -39,3 +44,7 @@ ulong	*mkcrctab(ulong);
 ulong	blockcrc(ulong *tab, ulong crc, void *buf, int n);
 
 ulong	adler32(ulong adler, void *buf, int n);
+#if defined(__cplusplus)
+}
+#endif
+#endif

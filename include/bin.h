@@ -1,3 +1,9 @@
+#ifndef _BIN_H_
+#define _BIN_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
 /*
 #pragma	lib	"libbin.a"
 #pragma	src	"/sys/src/libbin"
@@ -11,3 +17,8 @@ typedef struct Bin		Bin;
 void	*binalloc(Bin **, ulong size, int zero);
 void	*bingrow(Bin **, void *op, ulong osize, ulong size, int zero);
 void	binfree(Bin **);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

@@ -1,3 +1,8 @@
+#ifndef _VENTI_H_
+#define _VENTI_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 /* XXX should be own library? */
 /*
  * Packets
@@ -413,3 +418,7 @@ int vtfilelock(VtFile*, int);
 int vtfilelock2(VtFile*, VtFile*, int);
 int vtfileflushbefore(VtFile*, u64int);
 
+#if defined(__cplusplus)
+}
+#endif
+#endif

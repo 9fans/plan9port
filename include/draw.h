@@ -1,3 +1,9 @@
+#ifndef _DRAW_H_
+#define _DRAW_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
 typedef struct	Cachefont Cachefont;
 typedef struct	Cacheinfo Cacheinfo;
 typedef struct	Cachesubf Cachesubf;
@@ -531,3 +537,8 @@ void drawtopwindow(void);
 int	_drawmsgread(Display*, void*, int);
 int	_drawmsgwrite(Display*, void*, int);
 int	_latin1(Rune*, int);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

@@ -1,3 +1,8 @@
+#ifndef _MEMDRAW_H_
+#define _MEMDRAW_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 typedef struct	Memimage Memimage;
 typedef struct	Memdata Memdata;
 typedef struct	Memsubfont Memsubfont;
@@ -208,3 +213,8 @@ extern Memdrawparam*	_memimagedrawsetup(Memimage*,
 				Point, int);
 extern void		_memimagedraw(Memdrawparam*);
 extern void		_drawreplacescreenimage(Memimage*);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

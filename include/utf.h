@@ -1,5 +1,8 @@
-#ifndef _UTFH_
-#define _UTFH_ 1
+#ifndef _UTF_H_
+#define _UTF_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 
 typedef unsigned short Rune;	/* 16 bits */
 
@@ -48,4 +51,7 @@ extern	int	isspacerune(Rune);
 extern	int	istitlerune(Rune);
 extern	int	isupperrune(Rune);
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

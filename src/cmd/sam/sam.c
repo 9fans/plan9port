@@ -141,6 +141,7 @@ rescue(void)
 	File *f;
 	char *c;
 	char buf[256];
+	char *root;
 
 	if(rescuing++)
 		return;
@@ -162,7 +163,10 @@ rescue(void)
 			free(c);
 		}else
 			sprint(buf, "nameless.%d", nblank++);
-		fprint(io, "#!%s '%s' $* <<'---%s'\n", SAMSAVECMD, buf, buf);
+		root = getenv("PLAN9");
+		if(root == nil)
+			root = "/usr/local/plan9";
+		fprint(io, "#!/bin/sh\n%s/bin/samsave '%s' $* <<'---%s'\n", root, buf, buf);
 		addr.r.p1 = 0, addr.r.p2 = f->b.nc;
 		writeio(f);
 		fprint(io, "\n---%s\n", (char *)buf);

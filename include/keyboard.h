@@ -1,3 +1,8 @@
+#ifndef _KEYBOARD_H_
+#define _KEYBOARD_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 typedef struct 	Keyboardctl Keyboardctl;
 
 struct	Keyboardctl
@@ -34,3 +39,8 @@ enum {
 	Kshift=	KF|0x16,
 	Kctl=		KF|0x17,
 };
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

@@ -1,3 +1,8 @@
+#ifndef _MOUSE_H_
+#define _MOUSE_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 typedef struct	Menu Menu;
 typedef struct 	Mousectl Mousectl;
 
@@ -42,3 +47,9 @@ extern void		setcursor(Mousectl*, struct Cursor*);
 extern void		drawgetrect(Rectangle, int);
 extern Rectangle	getrect(int, Mousectl*);
 extern int	 		menuhit(int, Mousectl*, Menu*, Screen*);
+
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

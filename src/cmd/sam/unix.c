@@ -38,9 +38,6 @@ Rune *right[]= { r1, r2, r3, 0};
 #ifndef RXPATHNAME
 #define RXPATHNAME "ssh"
 #endif
-#ifndef SAMSAVECMDNAME
-#define SAMSAVECMDNAME "/bin/sh\n/usr/local/plan9/bin/samsave"
-#endif
 
 char	RSAM[] = "sam";
 char	SAMTERM[] = SAMTERMNAME;
@@ -50,7 +47,6 @@ char	SH[] = SHNAME;
 char	SHPATH[] = SHPATHNAME;
 char	RX[] = RXNAME;
 char	RXPATH[] = RXPATHNAME;
-char	SAMSAVECMD[] = SAMSAVECMDNAME;
 
 
 void

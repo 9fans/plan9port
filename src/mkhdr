@@ -1,26 +1,25 @@
 SYSNAME=`uname`
 OBJTYPE=`uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'`
 
+BIN=$PLAN9/bin
+LIBDIR=$PLAN9/lib
+
+# BUG - figure this out automatically
 X11=/usr/X11R6
+
+O=o
+OS=$O
+
 CC=9c
 LD=9l
 AS=9a
 AR=9ar
+INSTALL=install -c
 CFLAGS=
 LDFLAGS=
 AFLAGS=
-O=o
-
-BIN=$PLAN9/bin
-LIBDIR=$PLAN9/lib
+CLEANFILES=
+NUKEFILES=
 
 <|cat $PLAN9/src/mk.$SYSNAME-$OBJTYPE 2>/dev/null || true
 
-OS=$O
-LD=9l
-LDFLAGS=$LDFLAGS -L$LIBDIR
-
-CLEANFILES=*.$O
-NUKEFILES=
-
-INSTALL=install -c

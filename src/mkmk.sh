@@ -19,7 +19,7 @@ cd libutf
 9c  utfrrune.c
 9c  utfrune.c
 9c  utfutf.c
-ar rvc ../../lib/libutf.a rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
+9ar rvc ../../lib/libutf.a rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
 cd ..
 cd libfmt
 9c  dofmt.c
@@ -56,7 +56,7 @@ cd libfmt
 9c  vsnprint.c
 9c  charstod.c
 9c  pow10.c
-ar rvc ../../lib/libfmt.a dofmt.o errfmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlock.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o
+9ar rvc ../../lib/libfmt.a dofmt.o errfmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlock.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o
 cd ..
 cd libbio
 9c  bbuffered.c
@@ -75,7 +75,7 @@ cd libbio
 9c  bwrite.c
 9c  bgetrune.c
 9c  bputrune.c
-ar rvc ../../lib/libbio.a bbuffered.o bfildes.o bflush.o bgetc.o bgetd.o binit.o boffset.o bprint.o bputc.o brdline.o brdstr.o bread.o bseek.o bwrite.o bgetrune.o bputrune.o
+9ar rvc ../../lib/libbio.a bbuffered.o bfildes.o bflush.o bgetc.o bgetd.o binit.o boffset.o bprint.o bputc.o brdline.o brdstr.o bread.o bseek.o bwrite.o bgetrune.o bputrune.o
 cd ..
 cd libregexp
 9c  regcomp.c
@@ -86,7 +86,7 @@ cd libregexp
 9c  rregaux.c
 9c  rregexec.c
 9c  rregsub.c
-ar rvc ../../lib/libregexp9.a regcomp.o regerror.o regexec.o regsub.o regaux.o rregaux.o rregexec.o rregsub.o
+9ar rvc ../../lib/libregexp9.a regcomp.o regerror.o regexec.o regsub.o regaux.o rregaux.o rregexec.o rregsub.o
 cd ..
 cd cmd/mk
 9c  arc.c
@@ -111,6 +111,6 @@ cd cmd/mk
 9c  varsub.c
 9c  word.c
 9c  unix.c
-9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o -L../../../lib -lregexp9 -lbio -lfmt -lutf
+9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o -lregexp9 -lbio -lfmt -lutf
 install -c o.mk ../../../bin/mk
 cd ..

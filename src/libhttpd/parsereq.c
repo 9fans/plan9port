@@ -15,7 +15,6 @@ static	char*		abspath(HConnect *cc, char *origpath, char *curdir);
 static	int		getc(HConnect*);
 static	char*		getword(HConnect*);
 static	Strings		parseuri(HConnect *c, char*);
-static	Strings		stripmagic(char*);
 static	Strings		stripsearch(char*);
 
 /*

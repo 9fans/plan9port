@@ -1,3 +1,9 @@
+#ifndef _EVENT_H_
+#define _EVENT_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
 typedef struct	Event Event;
 typedef struct	Menu Menu;
 
@@ -61,3 +67,8 @@ extern Rectangle	egetrect(int, Mouse*);
 extern void		edrawgetrect(Rectangle, int);
 extern int		ereadmouse(Mouse*);
 extern int		eatomouse(Mouse*, char*, int);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

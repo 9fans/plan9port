@@ -345,7 +345,6 @@ extern char	SH[];
 extern char	SHPATH[];
 extern char	RX[];
 extern char	RXPATH[];
-extern char	SAMSAVECMD[];
 
 /*
  * acme globals

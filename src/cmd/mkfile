@@ -6,7 +6,7 @@ LDFLAGS=$LDFLAGS -lsec -lregexp9 -l9 -lbio -lfmt -lutf
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|oplumb|plumb|plumb2|mk|vac|9term'
+BUGGERED='CVS|oplumb|plumb|plumb2|mk|vac|9term|venti'
 DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "$BUGGERED"`
 
 <$PLAN9/src/mkdirs

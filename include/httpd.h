@@ -1,3 +1,8 @@
+#ifndef _HTTPD_H_
+#define _HTTPD_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 /*
 #pragma	lib	"libhttpd.a"
 #pragma	src	"/sys/src/libhttpd"
@@ -278,3 +283,8 @@ int			hxferenc(Hio*, int);
 #pragma	varargck	type	"U"	char*
 #pragma	varargck	type	"H"	char*
 */
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

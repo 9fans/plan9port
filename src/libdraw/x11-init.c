@@ -26,6 +26,15 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 	Display *d;
 	Memimage *m;
 
+	/*
+	 * This rfork(RFNOTEG) isn't exactly right,
+	 * but we need some way to signal window 
+	 * closes.  Right now we post a hangup
+	 * note to the note group, which kills a whole
+	 * lot more than just the current program
+	 * if we don't do this.
+	 */
+	rfork(RFNOTEG);
 	memimageinit();
 
 	d = mallocz(sizeof(Display), 1);

@@ -1,5 +1,8 @@
-#ifndef _BIOH_
-#define _BIOH_ 1
+#ifndef _BIO_H_
+#define _BIO_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 
 #include <sys/types.h>	/* for off_t */
 #include <fcntl.h>	/* for O_RDONLY, O_WRONLY */
@@ -78,4 +81,7 @@ char*	Brdstr(Biobuf*, int, int);
 long	Bgetrune(Biobuf*);
 int	Bputrune(Biobuf*, long);
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

@@ -1,5 +1,8 @@
-#ifndef _THREADH_
-#define _THREADH_ 1
+#ifndef _THREAD_H_
+#define _THREAD_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 
 /* avoid conflicts with socket library */
 #undef send
@@ -129,4 +132,7 @@ int		iosleep(Ioproc*, long);
 long		iocall(Ioproc*, long (*)(va_list*), ...);
 void		ioret(Ioproc*, int);
 
+#if defined(__cplusplus)
+}
+#endif
 #endif	/* _THREADH_ */

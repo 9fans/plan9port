@@ -1,3 +1,9 @@
+#ifndef _MEMLAYER_H_
+#define _MEMLAYER_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
+
 typedef struct Memscreen Memscreen;
 typedef void (*Refreshfn)(Memimage*, Rectangle, void*);
 
@@ -46,3 +52,9 @@ void			memlexpose(Memimage*, Rectangle);
 void			_memlsetclear(Memscreen*);
 int			memlorigin(Memimage*, Point, Point);
 void			memlnorefresh(Memimage*, Rectangle, void*);
+
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

@@ -22,16 +22,21 @@ futimes(int fd, struct timeval *tv)
 int
 dirfwstat(int fd, Dir *dir)
 {
+	int ret;
 	struct timeval tv[2];
 
-	/* BUG handle more */
-	if(dir->mtime == ~0ULL)
-		return 0;
-
-	tv[0].tv_sec = dir->mtime;
-	tv[0].tv_usec = 0;
-	tv[1].tv_sec = dir->mtime;
-	tv[1].tv_usec = 0;
-	return futimes(fd, tv);
+	if(~dir->mode != 0){
+		if(fchmod(fd, dir->mode) < 0)
+			ret = -1;
+	}
+	if(~dir->mtime != 0){
+		tv[0].tv_sec = dir->mtime;
+		tv[0].tv_usec = 0;
+		tv[1].tv_sec = dir->mtime;
+		tv[1].tv_usec = 0;
+		if(futimes(fd, tv) < 0)
+			ret = -1;
+	}
+	return ret;
 }
 

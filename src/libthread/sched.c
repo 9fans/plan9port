@@ -3,12 +3,14 @@
 
 //static Thread	*runthread(Proc*);
 
+#if 0
 static char *_psstate[] = {
 	"Dead",
 	"Running",
 	"Ready",
 	"Rendezvous",
 };
+#endif
 
 static char*
 psstate(int s)

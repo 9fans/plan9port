@@ -1,3 +1,8 @@
+#ifndef _LIBPLUMB_H_
+#define _LIBPLUMB_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 /*
 #pragma	lib	"libplumb.a"
 #pragma	src	"/sys/src/libplumb"
@@ -48,3 +53,8 @@ void			plumbfree(Plumbmsg*);
 char*		plumblookup(Plumbattr*, char*);
 int			plumbopen(char*, int);
 int			eplumb(int, char*);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

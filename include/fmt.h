@@ -1,3 +1,8 @@
+#ifndef _FMT_H_
+#define _FMT_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 
 /*
  * The authors of this software are Rob Pike and Ken Thompson.
@@ -13,14 +18,8 @@
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
 
-#ifndef _FMTH_
-#define _FMTH_ 1
-
 #include <stdarg.h>
-
-#ifndef _UTFH_
 #include <utf.h>
-#endif
 
 typedef struct Fmt	Fmt;
 struct Fmt{
@@ -97,4 +96,7 @@ extern	int	fmtstrcpy(Fmt*, char*);
 extern	double	fmtstrtod(const char *, char **);
 extern	double	fmtcharstod(int(*)(void*), void*);
 
+#if defined(__cplusplus)
+}
+#endif
 #endif

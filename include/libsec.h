@@ -1,3 +1,8 @@
+#ifndef _LIBSEC_H_
+#define _LIBSEC_H_ 1
+#if defined(__cplusplus)
+extern "C" { 
+#endif
 /*
 #pragma	lib	"libsec.a"
 #pragma	src	"/sys/src/libsec"
@@ -338,3 +343,8 @@ extern int okThumbprint(uchar *sha1, Thumbprint *ok);
 
 // readcert.c
 extern uchar *readcert(char *filename, int *pcertlen);
+
+#if defined(__cplusplus)
+}
+#endif
+#endif

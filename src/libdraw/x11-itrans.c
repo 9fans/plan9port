@@ -190,8 +190,15 @@ xtoplan9mouse(XDisplay *xd, XEvent *e, Mouse *m)
 	switch(e->type){
 	case ButtonPress:
 		be = (XButtonEvent*)e;
-		/* Fake message, just sent to make us announce snarf. */
-		if(be->send_event && be->state==~0 && be->button==~0)
+		/* 
+		 * Fake message, just sent to make us announce snarf.
+		 * Apparently state and button are 16 and 8 bits on
+		 * the wire, since they are truncated by the time they
+		 * get to us.
+		 */
+		if(be->send_event
+		&& (~be->state&0xFFFF)==0
+		&& (~be->button&0xFF)==0)
 			return -1;
 		/* BUG? on mac need to inherit these from elsewhere? */
 		m->xy.x = be->x;
