@@ -440,10 +440,10 @@ static int lexinited = 0;
 static void
 lexinit(void)
 {
-	chartab = cvtstringinttab(_chartab, nelem(_chartab));
-	tagnames = cvtstringtab(_tagnames, nelem(_tagnames));
+	chartab = _cvtstringinttab(_chartab, nelem(_chartab));
+	tagnames = _cvtstringtab(_tagnames, nelem(_tagnames));
 	tagtable = _makestrinttab(tagnames, Numtags);
-	attrnames = cvtstringtab(_attrnames, nelem(_attrnames));
+	attrnames = _cvtstringtab(_attrnames, nelem(_attrnames));
 	attrtable = _makestrinttab(attrnames, Numattrs);
 	fmtinstall('T', Tconv);
 	lexinited = 1;

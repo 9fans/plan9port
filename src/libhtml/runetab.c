@@ -50,7 +50,7 @@ char *_runeconsttab[] = {
 };
 
 Rune**
-cvtstringtab(char **tab, int n)
+_cvtstringtab(char **tab, int n)
 {
 	int i;
 	Rune **rtab;
@@ -62,7 +62,7 @@ cvtstringtab(char **tab, int n)
 }
 
 StringInt*
-cvtstringinttab(AsciiInt *tab, int n)
+_cvtstringinttab(AsciiInt *tab, int n)
 {
 	int i;
 	StringInt *stab;
@@ -76,8 +76,8 @@ cvtstringinttab(AsciiInt *tab, int n)
 }
 
 void
-runetabinit(void)
+_runetabinit(void)
 {
-	runeconsttab = cvtstringtab(_runeconsttab, nelem(_runeconsttab));
+	runeconsttab = _cvtstringtab(_runeconsttab, nelem(_runeconsttab));
 	return;
 }

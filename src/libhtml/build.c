@@ -648,15 +648,15 @@ static int			Iconv(Fmt *f);
 static void
 buildinit(void)
 {
-	runetabinit();
-	roman = cvtstringtab(_roman, nelem(_roman));
-	color_tab = cvtstringinttab(_color_tab, nelem(_color_tab));
-	method_tab = cvtstringinttab(_method_tab, nelem(_method_tab));
-	shape_tab = cvtstringinttab(_shape_tab, nelem(_shape_tab));
-	fscroll_tab = cvtstringinttab(_fscroll_tab, nelem(_fscroll_tab));
-	clear_tab = cvtstringinttab(_clear_tab, nelem(_clear_tab));
-	input_tab = cvtstringinttab(_input_tab, nelem(_input_tab));
-	align_tab = cvtstringinttab(_align_tab, nelem(_align_tab));
+	_runetabinit();
+	roman = _cvtstringtab(_roman, nelem(_roman));
+	color_tab = _cvtstringinttab(_color_tab, nelem(_color_tab));
+	method_tab = _cvtstringinttab(_method_tab, nelem(_method_tab));
+	shape_tab = _cvtstringinttab(_shape_tab, nelem(_shape_tab));
+	fscroll_tab = _cvtstringinttab(_fscroll_tab, nelem(_fscroll_tab));
+	clear_tab = _cvtstringinttab(_clear_tab, nelem(_clear_tab));
+	input_tab = _cvtstringinttab(_input_tab, nelem(_input_tab));
+	align_tab = _cvtstringinttab(_align_tab, nelem(_align_tab));
 
 	fmtinstall('I', Iconv);
 	targetmapinit();

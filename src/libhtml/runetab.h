@@ -54,6 +54,6 @@ enum {
 extern	Rune	**runeconsttab;
 
 /* XXX: for unix port only */
-Rune		**cvtstringtab(char**, int);
-StringInt	*cvtstringinttab(AsciiInt*, int);
-void		runetabinit(void);
+Rune		**_cvtstringtab(char**, int);
+StringInt	*_cvtstringinttab(AsciiInt*, int);
+void		_runetabinit(void);
