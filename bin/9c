@@ -35,7 +35,7 @@ case "$tag" in
 		;;
 *OSF1*)		cc=cc; cflags="-g -O -c" ;;
 *SunOS*-cc)	cc=cc;
-		cflags="-g -O -c -xCC -D__sun__" 
+		cflags="-mt -g -O -c -xCC -D__sun__" 
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
