@@ -63,6 +63,7 @@ void Xsimple(void){
 				Xerror("try again");
 				return;
 			case 0:
+				rfork(RFNOTEG);
 				pushword("exec");
 				execexec();
 				strcpy(buf, "can't exec: ");
@@ -70,10 +71,12 @@ void Xsimple(void){
 				errstr(buf+n, ERRMAX-n);
 				Exit(buf);
 			default:
+				kidpid = pid;
 				poplist();
 				/* interrupts don't get us out */
 				while(Waitfor(pid, 1) < 0)
 					;
+				kidpid = 0;
 			}
 		}
 	}

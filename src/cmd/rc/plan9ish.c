@@ -386,7 +386,13 @@ notifyf(void *unused0, char *s)
 	int i;
 	for(i=0;syssigname[i];i++)
 		if(strncmp(s, syssigname[i], strlen(syssigname[i]))==0){
-			if(strncmp(s, "sys: ", 5)!=0) interrupted=1;
+			if(strncmp(s, "sys: ", 5)!=0){
+				if(kidpid && !interrupted){
+					interrupted=1;
+					postnote(PNGROUP, kidpid, s);
+				}
+				interrupted = 1;
+			}
 			goto Out;
 		}
 	if(strcmp(s, "sys: child") != 0)
