@@ -3,7 +3,7 @@
 Rectangle	scrollr;	/* scroll bar rectangle */
 Rectangle	lastsr;		/* used for scroll bar */
 int		holdon;		/* hold mode */
-int		rawon;		/* raw mode */
+int		rawon(void);		/* raw mode */
 int		scrolling;	/* window scrolls */
 int		clickmsec;	/* time of last click */
 uint		clickq0;	/* point of last click */
@@ -162,6 +162,16 @@ hoststart(void)
 	proccreate(hostproc, hostc, 32*1024);
 }
 
+int crawon = -1;
+
+int
+rawon(void)
+{
+	if(crawon != -1)
+		return crawon;
+	return 0;
+}
+
 void
 loop(void)
 {
@@ -183,7 +193,7 @@ loop(void)
 		a[2].op = CHANRCV;
 		if(!scrolling && t.qh > t.org+t.f->nchars)
 			a[2].op = CHANNOP;;
-
+		crawon = -1;
 		switch(alt(a)) {
 		default:
 			fatal("impossible");
@@ -519,7 +529,7 @@ key(Rune r)
 		return;
 	}
 
-	if(rawon && t.q0==t.nr){
+	if(rawon() && t.q0==t.nr){
 		addraw(&r, 1);
 		return;
 	}
@@ -600,7 +610,7 @@ consready(void)
 	if(holdon)
 		return 0;
 
-	if(rawon) 
+	if(rawon()) 
 		return t.nraw != 0;
 
 	/* look to see if there is a complete line */
@@ -636,7 +646,7 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
-			if(!rawon && (c == '\n' || c == '\004'))
+			if(!rawon() && (c == '\n' || c == '\004'))
 				break;
 		}
 		/* take out control-d when not doing a zero length write */
@@ -685,7 +695,6 @@ conswrite(char *p, int n)
 			n2--;
 			q++;
 		}
-
 		runewrite(buf2, q-buf2);
 	}
 
@@ -713,7 +722,7 @@ runewrite(Rune *r, int n)
 	if(n == 0)
 		return;
 
-	/* get ride of backspaces */
+	/* get rid of backspaces */
 	initial = 0;
 	p = q = r;
 	for(i=0; i<n; i++) {
@@ -763,7 +772,6 @@ runewrite(Rune *r, int n)
 			fill();
 		}
 		updatesel();
-		return;
 	}
 
 	if(t.nr>HiWater && t.qh>=t.org){
@@ -885,7 +893,7 @@ paste(Rune *r, int n, int advance)
 	uint m;
 	uint q0;
 
-	if(rawon && t.q0==t.nr){
+	if(rawon() && t.q0==t.nr){
 		addraw(r, n);
 		return;
 	}
