@@ -216,7 +216,8 @@ type(char *file)
 	fd = open(file, OREAD);
 	if(fd < 0){
 		if(symlook(file, S_BITCH, 0) == 0){
-			Bprint(&bout, "%s doesn't exist: assuming it will be an archive\n", file);
+			if(strlen(file) < 2 || strcmp(file+strlen(file)-2, ".a") != 0)
+				Bprint(&bout, "%s doesn't exist: assuming it will be an archive\n", file);
 			symlook(file, S_BITCH, (void *)file);
 		}
 		return 1;
