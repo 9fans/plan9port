@@ -11,6 +11,21 @@
 
 extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
 
+#if !defined(_HAVEGETDENTS) && defined(_HAVEGETDIRENTRIES)
+static int
+getdents(int fd, char *buf, int n)
+{
+	ssize_t nn;
+	off_t off;
+
+	off = seek(fd, 0, 1);
+	nn = getdirentries(fd, buf, n, &off);
+	if(nn > 0)
+		seek(fd, off, 0);
+	return nn;
+}
+#endif
+
 static int
 countde(char *p, int n)
 {

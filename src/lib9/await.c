@@ -18,7 +18,9 @@ static struct {
 	SIGILL,		"sys: trap: illegal instruction",
 	SIGTRAP,		"sys: trace trap",
 	SIGABRT,		"sys: abort",
+#ifdef SIGEMT
 	SIGEMT,		"sys: emulate instruction executed",
+#endif
 	SIGFPE,		"sys: fp: trap",
 	SIGKILL,		"sys: kill",
 	SIGBUS,		"sys: bus error",

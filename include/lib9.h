@@ -10,6 +10,13 @@
 extern "C" {
 #endif                                                                          
 
+#define _BSD_SOURCE 1
+#define _SVID_SOURCE 1
+#define _XOPEN_SOURCE 1000
+#define _XOPEN_SOURCE_EXTENDED 1
+#define _LARGEFILE64_SOURCE 1
+#define _FILE_OFFSET_BITS 64
+
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
@@ -35,9 +42,10 @@ extern "C" {
 #define _HAVETIMEGM 1
 #define _HAVETMZONE 1
 #define _HAVETMTZOFF 1
-#define _HAVETIMEZONEINT 1
 #define _HAVEFUTIMESAT 1
 #define _HAVEFUTIMES 1
+#define _HAVEGETDENTS 1
+#define _HAVEGETDIRENTRIES 1
 
 typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
@@ -48,6 +56,11 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDUINT
 #		undef _NEEDULONG
 #	endif
+#	undef _HAVESTGEN
+#	undef _HAVETMZONE
+#	undef _HAVETMTZOFF
+#	undef _HAVEFUTIMESAT
+#	undef _HAVEGETDENTS
 #endif
 #if defined(__sun__)
 #	include <sys/types.h>
@@ -480,6 +493,7 @@ extern	long	time(long*);
 #define getenv		p9getenv
 #define	getwd		p9getwd
 #define	longjmp		p9longjmp
+#undef  setjmp
 #define setjmp		p9setjmp
 #define notejmp		p9notejmp
 #define jmp_buf		p9jmp_buf

@@ -3,19 +3,18 @@
 #include <libc.h>
 
 #include <sys/time.h>
+#include <utime.h>
 
 int
 dirwstat(char *file, Dir *dir)
 {
-	struct timeval tv[2];
+	struct utimbuf ub;
 
 	/* BUG handle more */
 	if(dir->mtime == ~0ULL)
 		return 0;
 
-	tv[0].tv_sec = dir->mtime;
-	tv[0].tv_usec = 0;
-	tv[1].tv_sec = dir->mtime;
-	tv[1].tv_usec = 0;
-	return utimes(file, tv);
+	ub.actime = dir->mtime;
+	ub.modtime = dir->mtime;
+	return utime(file, &ub);
 }

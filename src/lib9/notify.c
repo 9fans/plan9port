@@ -14,7 +14,9 @@ static int sigs[] = {
 	SIGILL,
 	SIGTRAP,
 	SIGABRT,
+#ifdef SIGEMT
 	SIGEMT,
+#endif
 	SIGFPE,
 	SIGBUS,
 	SIGSEGV,
@@ -30,6 +32,9 @@ static int sigs[] = {
 	SIGVTALRM,
 	SIGUSR1,
 	SIGUSR2,
+#ifdef SIGINFO
+	SIGINFO,
+#endif
 };
 
 static void (*notifyf)(void*, char*);

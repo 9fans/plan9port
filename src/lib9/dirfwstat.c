@@ -10,6 +10,13 @@ futimes(int fd, struct timeval *tv)
 {
 	return futimesat(fd, 0, tv);
 }
+#elif !defined(_HAVEFUTIMES)
+static int
+futimes(int fd, struct timeval *tv)
+{
+	werrstr("futimes not available");
+	return -1;
+}
 #endif
 
 int

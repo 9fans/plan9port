@@ -1,3 +1,5 @@
+#include <stdlib.h> /* setenv etc. */
+
 #include <u.h>
 #include <libc.h>
 
@@ -72,11 +74,22 @@ p9localtime(long t)
 	return &bigtm;
 }
 
-#if !defined(_HAVETIMEGM) && defined(_HAVETIMEZONEINT)
-static long
+#if !defined(_HAVETIMEGM)
+static time_t
 timegm(struct tm *tm)
 {
-	return mktime(tm)-timezone;
+	time_t ret;
+	char *tz;
+
+	tz = getenv("TZ");
+	setenv("TZ", "", 1);
+	tzset();
+	ret = mktime(tm);
+	if(tz)
+		setenv("TZ", tz, 1);
+	else
+		unsetenv("TZ");
+	return ret;
 }
 #endif
 

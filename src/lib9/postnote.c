@@ -1,8 +1,8 @@
-#include <signal.h>
-
 #include <u.h>
 #define _NO9DEFINES_
 #include <libc.h>
+
+#include <signal.h>
 
 
 extern int _p9strsig(char*);

@@ -81,23 +81,12 @@ main(int argc, char **argv)
 int
 opentemp(char *template, int mode, long perm)
 {
-	int fd, i;
-	char *p;	
+	int fd;
 
-	p = strdup(template);
-	if(p == nil)
-		sysfatal("strdup out of memory");
-	fd = -1;
-	for(i=0; i<10; i++){
-		mktemp(p);
-		if(access(p, 0) < 0 && (fd=create(p, mode, perm)) >= 0)
-			break;
-		strcpy(p, template);
-	}
+	fd = mkstemp(template);
 	if(fd < 0)
 		sysfatal("could not create temporary file");
-	strcpy(template, p);
-	free(p);
+	fchmod(fd, perm);
 
 	return fd;
 }
