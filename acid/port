@@ -84,7 +84,7 @@ defn _stkign(frame)
 // only print the last one.
 defn _stk(regs, dolocals)
 {
-	local stk, pc, fn, callerpc, paramlist, locallist;
+	local stk, pc, fn, done, callerpc, paramlist, locallist;
 
 	stk = strace(regs);
 	if stkignore then {
@@ -93,7 +93,8 @@ defn _stk(regs, dolocals)
 	}
 
 	callerpc = 0;
-	while stk do {
+	done = 0;
+	while stk && !done do {
 		frame = head stk;
 		stk = tail stk;
 		fn = frame[0];
@@ -111,9 +112,15 @@ defn _stk(regs, dolocals)
 		pfl(pc);
 		if dolocals then
 			locals(locallist);
+		if fn == var("threadmain") || fn == var("p9main") then
+			done=1;
+		if fn == var("threadstart") || fn == var("scheduler") then
+			done=1;
+		if callerpc == 0 then
+			done=1;
 	}
 
-	if callerpc then {
+	if callerpc && !done then {
 		print(stkprefix, fmt(callerpc, 'a'), " ");
 		pfl(callerpc);
 	}

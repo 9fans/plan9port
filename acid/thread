@@ -1,29 +1,96 @@
+//
+// pthread-specific access functions
+// avoid complicated libthread_db interface
+//
 
-defn labpc(l)
-{
-	complex Label l;
+// Linux NPTL 2.3.2
+complex list_head {
+	'X'	0	next;
+	'X'	4	prev;
+};
+complex nptl_pthread {
+	'X'	0	loopback;
+	'X'	0x48	tid;
+};
+defn isnptl() {
+	return var("nptl_version") != {};
+}
+defn nptl2tid(p) {
+	complex nptl_pthread p;
+	if p.loopback != p then 
+		error("bad pthread "+itoa(p, "%x"));
+	return p.tid;
+}
+defn nptlpthreadlist() {
+	local all, p, n, l;
 
-	return l.pc;
+	all = {};
+	l = (list_head)stack_used;
+	l = (list_head)l.next;
+	while l != stack_used do {
+		p = l - *_thread_db_pthread_list;
+		all = append all, p;
+		l = (list_head)l.next;
+	}
+	return all;
 }
 
-defn label(l)
-{
-	complex Label l;
-
-	if objtype == "386" then
-		return {"PC", l.pc, "BX", l.bx, "SP", l.sp, "BP", l.bp, "SI", l.si, "DI", l.di};
-	return {};
+// 
+// Generic dispatch
+// 
+defn pthreadlibrary() {
+	if var("_pthreadlibrary") == {} then {
+		if isnptl() then
+			_pthreadlibrary = "nptl";
+		else
+			_pthreadlibrary = "unknown";
+	}
+	return _pthreadlibrary;
 }
 
-
-defn labstk(l)
-{
-	_stk(label(l), 0);
+defn id2tid(id) {
+	if pthreadlibrary() == "nptl" then
+		return nptl2tid(id);
+	error("unknown pthread library: "+pthreadlibrary);
 }
 
-defn lablstk(l)
+defn pthreadlist() {
+	if pthreadlibrary() == "nptl" then
+		return nptlpthreadlist(id);
+	error("unknown pthread library: "+pthreadlibrary);
+}
+
+// pick apart system mcontext_t structures
+defn mcontext(m)
 {
-	_stk(label(l), 1);
+	complex mcontext_t m;
+
+	if systype == "linux" then {
+		m = m\X;
+		return {"PC", m[14], "SP", m[7], "BP", m[6]};
+	} else if systype == "freebsd" then {
+		return {"PC", m.mc_eip, "SP", m.mc_esp, "BP", m.mc_ebp};
+	} else
+		error("do not know how to read mcontext_t on system "+systype);
+}
+
+//
+// plan 9 thread library support
+// 
+defn context(c)
+{
+	c = (Context)c;
+	return mcontext(c.uc.uc_mcontext);
+}
+
+defn contextstk(c)
+{
+	_stk(context(c), 0);
+}
+
+defn contextlstk(c)
+{
+	_stk(context(c), 1);
 }
 
 defn altfmt(A){
@@ -61,6 +128,52 @@ defn alt(A){
 	print(altfmt(A), "\n");
 }
 
+defn channel(C) {
+	complex Channel C;
+	local i, p;
+
+	print("channel ", C\X, " // ", *(C.name\s));
+	if C.freed then {
+		print(" (moribund)");
+	}
+	print("\n");
+	print("\telemsize=", C.elemsize\D, " bufsize=", C.bufsize, "\n");
+	if C.bufsize then {
+		print("\t", C.nbuf\D, " values in channel:\n");
+		print("\t");
+		p = C.buf+C.off*C.elemsize;
+		loop 1,C.nbuf do {
+			if C.elemsize==4 then {
+				print(*p\X, " ");
+			}else {
+				print("data(", p\X, ") ");
+			}
+			p = p+C.elemsize;
+			if p == C.buf+C.bufsize*C.elemsize then {
+				p = C.buf;
+			}
+		}
+	}
+	print("\n");
+	print(" senders:\n");
+	_altarray(C.asend);
+	print(" recvers:\n");
+	_altarray(C.arecv);
+}
+
+defn _altarray(aa)
+{
+	local i, a, t;
+
+	i = 0;
+	aa = (_Altarray)aa;
+	while i < aa.n do {
+		a = (Alt)aa.a[i];
+		print("\t"+threadstkline(a.thread)+"\n");
+		i++;
+	}
+}
+
 defn fnname(a){
 	local sym, s;
 
@@ -75,7 +188,6 @@ defn fnname(a){
 }
 
 stkignorelist = {};
-
 defn stkignore(s){
 	append stkignorelist, s;
 }
@@ -83,14 +195,15 @@ defn stkignore(s){
 defn threadstkline(T){
 	local stk, frame, pc, pc0, file, s, sym, i, stop, P, mainpid;
 
-	if T.state == Running then {
-		P = (Proc)T.proc;
+	T = (_Thread)T;
+	P = (Proc)T.proc;
+	if P.thread == T then {
 		mainpid = pid;
-		if mainpid != P.pid then setproc(P.pid);
+		setproc(id2tid(P.osprocid));
 		stk = strace({});
-		if mainpid != P.pid then setproc(mainpid);
+		setproc(mainpid);
 	} else
-		stk = strace(label(T.sched));
+		stk = strace(context(T.context));
 
 	stop = 0;
 	while stk && !stop do {
@@ -101,6 +214,7 @@ defn threadstkline(T){
 		file = pcfile(pc);
 		if !regexp("plan9/src/lib9/", file)
 		&& !regexp("plan9/src/libthread/", file) 
+		&& file != "?file?"
 		&& match(file, stkignore)==-1 then
 			stop = 1;
 	}
@@ -112,37 +226,21 @@ defn threadstkline(T){
 }
 
 defn threadfmt(T){
-	complex Thread T;
-	local A, yes, i, P, s;
+	complex _Thread T;
+	local P, s, name;
 
 	P = (Proc)T.proc;
-	s = "t=(Thread)"+itoa(T, "%-10x")+" // ";
+	s = "t=(_Thread)"+itoa(T, "%-10x")+" // ";
 
-	if T.state == Running then
+	if P.thread == T then
 		s = s + "Running    ";
-	else if T.state == Ready then
-		s = s + "Ready      ";
-	else if T.state == Rendezvous then
-		s = s + "Rendez     ";
 	else
-		s = s + "Bad state "+itoa(T.state, "%x")+" ";
+		s = s + "Sleeping   ";
+	s = s + threadstkline(T);
 
-	A = (Alt)T.alt;
-	if 1 then
-		s = s + threadstkline(T);
-	else if T.chan == Chanalt then
-		s = s + altfmt(T.alt);
-	else if T.chan == Chansend then
-		s = s + "send(Channel("+itoa(A.c, "%x")+"))";
-	else if T.chan == Chanrecv then
-		s = s + "recv(Channel("+itoa(A.c, "%x")+"))";
-	else
-		s = s + threadstkline(T);
-
-	if T.moribund == 1 then
-		s = s + " Moribund";
-	if T.cmdname != 0 then
-		s = s + " ["+*(T.cmdname\s)+"]";
+	name = T+392;	// T+offsetof(_Thread, name);
+	if *(name\b) != 0 then
+		s = s + " ["+*(name\s)+"]";
 	return s;
 }
 
@@ -150,86 +248,43 @@ defn thread(T){
 	print(threadfmt(T), "\n");
 }
 
-defn pthreads(P){
+defn procthreads(P){
 	complex Proc P;
-	local T, Tq, mainpid;
+	local T;
 
-	mainpid = pid;
-	Tq = (Tqueue)P.threads;
-	T = (Thread)Tq.$head;
+	T = (_Thread)P.allthreads.$head;
 	while T != 0 do{
 		print("\t");
 		thread(T);
-		T = (Thread)T.nextt;
+		T = (_Thread)T.allnext;
 	}
 }
 
-defn threads(){
+defn prociter(x) {
 	local P;
-	complex Pqueue _threadpq;
 
-	P = (Proc)_threadpq.$head;
+	P = (Proc)*_threadprocs;
 	while P != 0 do{
-		if P != (Proc)_threadpq.$head then print("\n");
-		lproc(P);
-		P = (Proc)P.next;
-	}
-}
-
-defn stacks(){
-	local P, mainpid;
-	complex Pqueue _threadpq;
-
-	stkprefix = "";
-	mainpid = pid;
-	P = (Proc)_threadpq.$head;
-	while P != 0 do{
+		if P != (Proc)*_threadprocs then print("\n");
 		proc(P);
-		if mainpid != P.pid then setproc(P.pid);
-	//	setproc(P.pid);
-	//	if P.thread==0 then{
-	//		print("=== thread scheduler stack\n");
-	//		stk();
-	//	}
-	//	print("threadstks(", P\X, ")\n");
-		threadstks(P);
-		if mainpid != P.pid then setproc(mainpid);
+		if x == 1 then 
+			procthreads(P);
+		if x == 2 then
+			threadstks(P);
 		P = (Proc)P.next;
-		print("\n");
 	}
-	// setproc(mainpid);
 }
 
-defn stacksizes(){
-	local P, T, Tq, top, sp, mainpid;
-	complex Pqueue _threadpq;
-
-	mainpid = pid;
-	P = (Proc)_threadpq.$head;
-	while P != 0 do{
-		P = (Proc)P;
-		if mainpid != P.pid then setproc(P.pid);
-		Tq = (Tqueue)P.threads;
-		T = (Thread)Tq.$head;
-		while T != 0 do{
-			top = T.stk+T.stksize;
-			if T.state==Running then {
-				sp = *SP;
-			}else{
-				sp = T.sched.sp;
-			}
-			print(top-sp\D, " of ", T.stksize\D, " - 0x", top\X, " 0x", sp\X, " ", *T.stk\X, "\n");
-			T = (Thread)T.nextt;
-		}
-		if mainpid != P.pid then setproc(mainpid);
-		P = P.next;
-	}
-	// setproc(mainpid);
+defn procs() {
+	prociter(0);
 }
 
-defn lproc(P){
-	proc(P);
-	pthreads(P);
+defn threads() {
+	prociter(1);
+}
+
+defn stacks() {
+	prociter(2);
 }
 
 threadstkignore = {
@@ -239,23 +294,20 @@ threadstkignore = {
 };
 defn threadstks(P){
 	complex Proc P;
-	local T, Tq, mainpid, pref, ign;
+	local T,  mainpid, pref, ign;
 
-	mainpid = pid;
+	// mainpid = pid;
 	pref = stkprefix;
 	stkprefix = pref+"\t\t";
 	ign = stkignore;
 	stkignore = threadstkignore;
 	// setproc(P.pid);
-	Tq = (Tqueue)P.threads;
-	T = (Thread)Tq.$head;
+	T = (_Thread)P.allthreads.$head;
 	while T != 0 do{
-	//	print("=============================\n");
-	//	print("  thread(", T\X, ")\n");
 		print("\t");
 		thread(T);
 		threadstk(T);
-		T = (Thread)T.nextt;
+		T = (_Thread)T.allnext;
 		print("\n");
 	}
 	// setproc(mainpid);
@@ -266,7 +318,7 @@ defn threadstks(P){
 defn proc(P){
 	complex Proc P;
 
-	print("p=(Proc)", itoa(P, "%-10x"), " pid ", P.pid\D, " ");
+	print("p=(Proc)", itoa(P, "%-10x"), "  // pthread ", P.osprocid\X, " pid ", id2tid(P.osprocid)\D, " ");
 	if P.thread==0 then
 		print(" Sched");
 	else
@@ -274,123 +326,35 @@ defn proc(P){
 	print("\n");
 }
 
-defn procs(){
-	local P;
-	complex Pqueue _threadpq;
-
-	P = (Proc)_threadpq.$head;
-	while P != 0 do{
-		proc(P);
-		P = P.next;
-	}
-}
-
 defn threadlstk(T){
-	complex Thread T;
-	local P, mainpid;
-
-	P = (Proc)T.proc;
-	// mainpid = pid;
-	// setproc(P.pid);
-
-	if T.state == Running then{
-		lstk();
-	} else {
-		lablstk(T.sched);
-	}
-	// setproc(mainpid);
-}
-
-defn threadstk(T){
-	complex Thread T;
+	complex _Thread T;
 	local P, mainpid;
 
 	P = (Proc)T.proc;
 	mainpid = pid;
-	// setproc(P.pid);
+	setproc(id2tid(P.osprocid));
 
-	if T.state == Running then{
-		if P.pid != mainpid then
-			setproc(P.pid);
+	if P.thread == T then
+		lstk();
+	else
+		contextlstk(T.context);
+	setproc(mainpid);
+}
+
+defn threadstk(T){
+	complex _Thread T;
+	local P, mainpid;
+
+	P = (Proc)T.proc;
+	mainpid = pid;
+	setproc(id2tid(P.osprocid));
+
+	if P.thread == T then
 		stk();
-		if P.pid != mainpid then
-			setproc(mainpid);
-	} else {
-		labstk(T.sched);
-	}
-	// setproc(mainpid);
-}
+	else 
+		contextstk(T.context);
 
-defn tqueue(Q) {
-	complex Tqueue Q;
-
-	while Q != 0 do {
-		print(Q.$head\X, " ");
-		Q = *(Q.$tail);
-	
-	}
-	print("#\n");
-}
-
-defn channel(C) {
-	complex Channel C;
-	local i, p;
-
-	print("channel ", C\X);
-	if C.freed then {
-		print(" (moribund)");
-	}
-	print("\n");
-	print("\telementsize=", C.e\D, " buffersize=", C.s, "\n");
-	if C.s then {
-		print("\t", C.n\D, " values in channel:\n");
-		print("\t");
-		p = C.v+C.e*(C.f%C.s);
-		loop 1,C.n do {
-			if C.e==4 then {
-				print((*p)\X, " ");
-			}else {
-				print("data(", (*p)\X, ") ");
-			}
-			p = p+C.e;
-			if p == C.v+C.s*C.e then {
-				p = C.v;
-			}
-		}
-	}
-	print("\n");
-	print(C.nentry\D, " queue slots:\n");
-	i=0;
-	loop 1,C.nentry do {
-		if C.qentry[i] then
-			print("\t", altfmt(C.qentry[i]), "\n");
-		else
-			print("\t<empty>\n");
-		i=i+1;
-	}
-}
-
-defn polling() {
-	local i, c, t, p, pf;
-
-	p=(Poll)polls; pf=(struct_pollfd)pfd; loop 1,*npoll do {
-		print("\tfd ", pf.fd\D, "   ");
-		if pf.events & 1 then
-			print("r");
-		else if pf.events & 2 then
- 			print("w");
-		else
-			print(pf.events\D);
-		print(" chan Channel(", p.c\X, ")\n");
-		p = (Poll)(p+sizeofPoll);
-		pf = (struct_pollfd)(pf+sizeofstruct_pollfd);
-	}
-
-	c=sleepchan; t=sleeptime; loop 1,*nsleep do {
-		print("\tsleep ", *t\D, " Channel(", *c\X, ")\n");
-		c++;
-		t++;
-	}
+	setproc(mainpid);
 }
 
 print(acidfile);
