@@ -1,0 +1,19 @@
+#!/u/rsc/plan9/bin/rc
+
+# cvs update
+cd $home/tmp/plan9cvs/plan9 || exit 1
+cvs up -dAP >[2=1] | grep -v Updating >$home/tmp/cvslog
+
+# exit if no changes and not being forced
+if(! test -s $home/tmp/cvslog && ~ $#* 0)
+	exit 0
+
+# create new tar ball
+cd ..
+tar cf - plan9 | gzip > plan9port.tgz
+
+# install on web
+web=/u/rsc/www/swtch.com/plan9port
+mv $web/plan9port.tgz $web/_plan9port.tgz &&
+mv plan9port.tgz $web/plan9port.tgz
+
