@@ -1,0 +1,31 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+PROTO=\
+	mount3.$O\
+	nfs3.$O\
+	portmap.$O\
+
+OFILES=\
+	authunix.$O\
+	client.$O\
+	emalloc.$O\
+	error.$O\
+	fd.$O\
+	fmt.$O\
+	net.$O\
+	prog.$O\
+	rpc.$O\
+	server.$O\
+	suncall.$O\
+	udp.$O\
+	$PROTO\
+
+HFILES=\
+	$PLAN9/include/sunrpc.h\
+
+LIB=libsunrpc.a
+
+<$PLAN9/src/mksyslib
+
+mount3.$O: $PLAN9/include/nfs3.h
