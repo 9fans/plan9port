@@ -5,3 +5,4 @@ acme acme.4
 import import.4
 plumber plumber.4
 ramfs ramfs.4
+vacfs vacfs.4

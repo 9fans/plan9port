@@ -246,6 +246,7 @@ access	/usr/local/plan9/man/man3/stat.3
 access	/usr/local/plan9/man/man3/thread.3
 access	/usr/local/plan9/man/man4/0intro.4
 access	/usr/local/plan9/man/man4/acme.4
+access	/usr/local/plan9/man/man4/vacfs.4
 access	/usr/local/plan9/man/man9/0intro.9p
 access	/usr/local/plan9/man/man9/attach.9p
 access	/usr/local/plan9/man/man9/open.9p
@@ -520,6 +521,7 @@ address	/usr/local/plan9/man/man3/thread.3
 address	/usr/local/plan9/man/man3/udpread.3
 address	/usr/local/plan9/man/man4/0intro.4
 address	/usr/local/plan9/man/man4/acme.4
+address	/usr/local/plan9/man/man4/vacfs.4
 address	/usr/local/plan9/man/man7/color.7
 addressable	/usr/local/plan9/man/man3/frame.3
 addressed	/usr/local/plan9/man/man1/db.1
@@ -1475,6 +1477,7 @@ assumed	/usr/local/plan9/man/man1/troff.1
 assumed	/usr/local/plan9/man/man1/wintext.1
 assumed	/usr/local/plan9/man/man3/keyboard.3
 assumed	/usr/local/plan9/man/man3/sendfd.3
+assumed	/usr/local/plan9/man/man4/vacfs.4
 assumes	/usr/local/plan9/man/man3/9p-file.3
 assumes	/usr/local/plan9/man/man3/ctime.3
 assumes	/usr/local/plan9/man/man3/fcall.3
@@ -1614,6 +1617,7 @@ auth	/usr/local/plan9/man/man9/attach.9p
 auth.h	/usr/local/plan9/man/man3/0intro.3
 authenticate	/usr/local/plan9/man/man9/attach.9p
 authenticated	/usr/local/plan9/man/man3/pushtls.3
+authenticated	/usr/local/plan9/man/man4/vacfs.4
 authenticates	/usr/local/plan9/man/man1/cvs.1
 authenticates	/usr/local/plan9/man/man1/secstore.1
 authentication	/usr/local/plan9/man/man3/9p-fid.3
@@ -1850,6 +1854,7 @@ based	/usr/local/plan9/man/man1/vac.1
 based	/usr/local/plan9/man/man3/0intro.3
 based	/usr/local/plan9/man/man3/9p-fid.3
 based	/usr/local/plan9/man/man3/lock.3
+based	/usr/local/plan9/man/man4/vacfs.4
 based	/usr/local/plan9/man/man7/thumbprint.7
 based	/usr/local/plan9/man/man7/utf.7
 based	/usr/local/plan9/man/man9/0intro.9p
@@ -2282,6 +2287,7 @@ blocks	/usr/local/plan9/man/man3/lock.3
 blocks	/usr/local/plan9/man/man3/malloc.3
 blocks	/usr/local/plan9/man/man3/mux.3
 blocks	/usr/local/plan9/man/man3/thread.3
+blocks	/usr/local/plan9/man/man4/vacfs.4
 blocks	/usr/local/plan9/man/man7/image.7
 blocksize	/usr/local/plan9/man/man1/vac.1
 blowfish	/usr/local/plan9/man/man3/aes.3
@@ -2875,6 +2881,7 @@ ca	/usr/local/plan9/man/man7/plot.7
 cache	/usr/local/plan9/man/man3/allocimage.3
 cache	/usr/local/plan9/man/man3/cachechars.3
 cache	/usr/local/plan9/man/man3/subfont.3
+cache	/usr/local/plan9/man/man4/vacfs.4
 cachechars	/usr/local/plan9/man/man1/tweak.1
 cachechars	/usr/local/plan9/man/man3/cachechars.3
 cachechars	/usr/local/plan9/man/man3/frame.3
@@ -2891,6 +2898,7 @@ cacheimage	/usr/local/plan9/man/man3/cachechars.3
 cacheinfo	/usr/local/plan9/man/man3/cachechars.3
 caches	/usr/local/plan9/man/man3/cachechars.3
 caches	/usr/local/plan9/man/man3/getuser.3
+cachesize	/usr/local/plan9/man/man4/vacfs.4
 cachesubf	/usr/local/plan9/man/man3/cachechars.3
 caching	/usr/local/plan9/man/man3/cachechars.3
 caching	/usr/local/plan9/man/man3/subfont.3
@@ -3194,6 +3202,7 @@ channel	/usr/local/plan9/man/man3/pushtls.3
 channel	/usr/local/plan9/man/man3/thread.3
 channel	/usr/local/plan9/man/man3/window.3
 channel	/usr/local/plan9/man/man4/ramfs.4
+channel	/usr/local/plan9/man/man4/vacfs.4
 channel	/usr/local/plan9/man/man7/image.7
 channels	/usr/local/plan9/man/man3/0intro.3
 channels	/usr/local/plan9/man/man3/allocimage.3
@@ -3471,6 +3480,7 @@ checking	/usr/local/plan9/man/man1/cvs.1
 checking	/usr/local/plan9/man/man3/9p-file.3
 checking	/usr/local/plan9/man/man3/get9root.3
 checking	/usr/local/plan9/man/man3/html.3
+checking	/usr/local/plan9/man/man4/vacfs.4
 checkout	/usr/local/plan9/man/man1/cvs.1
 checks	/usr/local/plan9/man/man3/9p-file.3
 checks	/usr/local/plan9/man/man3/event.3
@@ -3677,6 +3687,7 @@ clients	/usr/local/plan9/man/man3/post9pservice.3
 clients	/usr/local/plan9/man/man3/window.3
 clients	/usr/local/plan9/man/man4/0intro.4
 clients	/usr/local/plan9/man/man4/9pserve.4
+clients	/usr/local/plan9/man/man4/vacfs.4
 clients	/usr/local/plan9/man/man9/0intro.9p
 clients	/usr/local/plan9/man/man9/error.9p
 clients	/usr/local/plan9/man/man9/stat.9p
@@ -3866,6 +3877,7 @@ cmd	/usr/local/plan9/man/man4/acme.4
 cmd	/usr/local/plan9/man/man4/import.4
 cmd	/usr/local/plan9/man/man4/plumber.4
 cmd	/usr/local/plan9/man/man4/ramfs.4
+cmd	/usr/local/plan9/man/man4/vacfs.4
 cmdbuf	/usr/local/plan9/man/man3/9p-cmdbuf.3
 cmdtab	/usr/local/plan9/man/man3/9p-cmdbuf.3
 cmp	/usr/local/plan9/man/man1/cmp.1
@@ -4092,6 +4104,7 @@ communication	/usr/local/plan9/man/man3/pipe.3
 communication	/usr/local/plan9/man/man3/pushtls.3
 communication	/usr/local/plan9/man/man3/thread.3
 communication	/usr/local/plan9/man/man4/ramfs.4
+communication	/usr/local/plan9/man/man4/vacfs.4
 communication	/usr/local/plan9/man/man9/0intro.9p
 communication	/usr/local/plan9/man/man9/version.9p
 communications	/usr/local/plan9/man/man3/dial.3
@@ -4344,6 +4357,7 @@ conference	/usr/local/plan9/man/man3/qball.3
 configuration	/usr/local/plan9/man/man1/mk.1
 configured	/usr/local/plan9/man/man1/stats.1
 configured	/usr/local/plan9/man/man3/ip.3
+configured	/usr/local/plan9/man/man4/vacfs.4
 confirm	/usr/local/plan9/man/man3/prime.3
 confirming	/usr/local/plan9/man/man1/ed.1
 confirms	/usr/local/plan9/man/man3/pushtls.3
@@ -5218,6 +5232,7 @@ create	/usr/local/plan9/man/man3/thread.3
 create	/usr/local/plan9/man/man3/window.3
 create	/usr/local/plan9/man/man4/import.4
 create	/usr/local/plan9/man/man4/ramfs.4
+create	/usr/local/plan9/man/man4/vacfs.4
 create	/usr/local/plan9/man/man9/0intro.9p
 create	/usr/local/plan9/man/man9/open.9p
 create	/usr/local/plan9/man/man9/stat.9p
@@ -5252,6 +5267,7 @@ created	/usr/local/plan9/man/man3/thread.3
 created	/usr/local/plan9/man/man3/window.3
 created	/usr/local/plan9/man/man4/acme.4
 created	/usr/local/plan9/man/man4/plumber.4
+created	/usr/local/plan9/man/man4/vacfs.4
 created	/usr/local/plan9/man/man7/color.7
 created	/usr/local/plan9/man/man9/0intro.9p
 created	/usr/local/plan9/man/man9/flush.9p
@@ -5595,6 +5611,7 @@ data	/usr/local/plan9/man/man3/wait.3
 data	/usr/local/plan9/man/man3/window.3
 data	/usr/local/plan9/man/man4/0intro.4
 data	/usr/local/plan9/man/man4/acme.4
+data	/usr/local/plan9/man/man4/vacfs.4
 data	/usr/local/plan9/man/man7/image.7
 data	/usr/local/plan9/man/man7/map.7
 data	/usr/local/plan9/man/man7/plot.7
@@ -5715,6 +5732,7 @@ debugging	/usr/local/plan9/man/man3/mach.3
 debugging	/usr/local/plan9/man/man3/memdraw.3
 debugging	/usr/local/plan9/man/man3/thread.3
 debugging	/usr/local/plan9/man/man4/import.4
+debugging	/usr/local/plan9/man/man4/vacfs.4
 dec	/usr/local/plan9/man/man1/scat.1
 dec	/usr/local/plan9/man/man3/9p-intmap.3
 dec16	/usr/local/plan9/man/man3/encode.3
@@ -5886,6 +5904,7 @@ default	/usr/local/plan9/man/man4/acme.4
 default	/usr/local/plan9/man/man4/import.4
 default	/usr/local/plan9/man/man4/plumber.4
 default	/usr/local/plan9/man/man4/ramfs.4
+default	/usr/local/plan9/man/man4/vacfs.4
 default	/usr/local/plan9/man/man7/font.7
 default	/usr/local/plan9/man/man7/man.7
 default	/usr/local/plan9/man/man7/ms.7
@@ -6405,6 +6424,7 @@ descriptors	/usr/local/plan9/man/man3/rfork.3
 descriptors	/usr/local/plan9/man/man3/sendfd.3
 descriptors	/usr/local/plan9/man/man3/thread.3
 descriptors	/usr/local/plan9/man/man4/ramfs.4
+descriptors	/usr/local/plan9/man/man4/vacfs.4
 descriptors	/usr/local/plan9/man/man7/image.7
 descriptors	/usr/local/plan9/man/man9/0intro.9p
 desecbdecrypt	/usr/local/plan9/man/man3/des.3
@@ -6784,6 +6804,7 @@ dimensions	/usr/local/plan9/man/man3/qball.3
 dimenspec	/usr/local/plan9/man/man3/html.3
 dinosaur	/usr/local/plan9/man/man1/lex.1
 dins	/usr/local/plan9/man/man3/draw.3
+dips	/usr/local/plan9/man/man4/vacfs.4
 dir	/usr/local/plan9/man/man1/core.1
 dir	/usr/local/plan9/man/man1/proof.1
 dir	/usr/local/plan9/man/man1/rc.1
@@ -6921,6 +6942,7 @@ directory	/usr/local/plan9/man/man4/0intro.4
 directory	/usr/local/plan9/man/man4/acme.4
 directory	/usr/local/plan9/man/man4/import.4
 directory	/usr/local/plan9/man/man4/plumber.4
+directory	/usr/local/plan9/man/man4/vacfs.4
 directory	/usr/local/plan9/man/man7/face.7
 directory	/usr/local/plan9/man/man7/font.7
 directory	/usr/local/plan9/man/man7/man.7
@@ -6968,6 +6990,7 @@ disabled	/usr/local/plan9/man/man3/notify.3
 disables	/usr/local/plan9/man/man1/9c.1
 disables	/usr/local/plan9/man/man1/colors.1
 disables	/usr/local/plan9/man/man1/ls.1
+disables	/usr/local/plan9/man/man4/vacfs.4
 disabling	/usr/local/plan9/man/man1/9term.1
 disagreeing	/usr/local/plan9/man/man1/cmp.1
 disallow	/usr/local/plan9/man/man3/pipe.3
@@ -8178,6 +8201,7 @@ environment	/usr/local/plan9/man/man3/proto.3
 environment	/usr/local/plan9/man/man3/setjmp.3
 environment	/usr/local/plan9/man/man4/0intro.4
 environment	/usr/local/plan9/man/man4/acme.4
+environment	/usr/local/plan9/man/man4/vacfs.4
 environment	/usr/local/plan9/man/man7/plot.7
 environments	/usr/local/plan9/man/man3/subfont.3
 eof	/usr/local/plan9/man/man1/9term.1
@@ -8382,6 +8406,7 @@ error	/usr/local/plan9/man/man3/subfont.3
 error	/usr/local/plan9/man/man3/sysfatal.3
 error	/usr/local/plan9/man/man3/thread.3
 error	/usr/local/plan9/man/man4/plumber.4
+error	/usr/local/plan9/man/man4/vacfs.4
 error	/usr/local/plan9/man/man7/image.7
 error	/usr/local/plan9/man/man7/plumb.7
 error	/usr/local/plan9/man/man9/0intro.9p
@@ -8591,6 +8616,7 @@ events	/usr/local/plan9/man/man3/mousescrollsize.3
 events	/usr/local/plan9/man/man3/qball.3
 events	/usr/local/plan9/man/man9/0intro.9p
 eventually	/usr/local/plan9/man/man3/thread.3
+eventually	/usr/local/plan9/man/man4/vacfs.4
 eventually	/usr/local/plan9/man/man7/plumb.7
 everybody	/usr/local/plan9/man/man1/rc.1
 everyone	/usr/local/plan9/man/man1/ed.1
@@ -8890,6 +8916,7 @@ exist	/usr/local/plan9/man/man3/open.3
 exist	/usr/local/plan9/man/man3/opentemp.3
 exist	/usr/local/plan9/man/man3/proto.3
 exist	/usr/local/plan9/man/man4/plumber.4
+exist	/usr/local/plan9/man/man4/vacfs.4
 exist	/usr/local/plan9/man/man7/face.7
 existence	/usr/local/plan9/man/man3/print.3
 existent	/usr/local/plan9/man/man1/acme.1
@@ -9155,6 +9182,7 @@ extension	/usr/local/plan9/man/man1/gzip.1
 extension	/usr/local/plan9/man/man3/complete.3
 extension	/usr/local/plan9/man/man3/quaternion.3
 extension	/usr/local/plan9/man/man3/subfont.3
+extension	/usr/local/plan9/man/man4/vacfs.4
 extension	/usr/local/plan9/man/man7/ms.7
 extension	/usr/local/plan9/man/man9/0intro.9p
 extensions	/usr/local/plan9/man/man1/ascii.1
@@ -9651,6 +9679,7 @@ file	/usr/local/plan9/man/man4/acme.4
 file	/usr/local/plan9/man/man4/import.4
 file	/usr/local/plan9/man/man4/plumber.4
 file	/usr/local/plan9/man/man4/ramfs.4
+file	/usr/local/plan9/man/man4/vacfs.4
 file	/usr/local/plan9/man/man7/0intro.7
 file	/usr/local/plan9/man/man7/face.7
 file	/usr/local/plan9/man/man7/font.7
@@ -9953,6 +9982,7 @@ fine	/usr/local/plan9/man/man7/image.7
 finger	/usr/local/plan9/man/man3/string.3
 fingerprint	/usr/local/plan9/man/man1/vac.1
 fingerprint	/usr/local/plan9/man/man3/rsa.3
+fingerprint	/usr/local/plan9/man/man4/vacfs.4
 finish	/usr/local/plan9/man/man1/factor.1
 finish	/usr/local/plan9/man/man1/rc.1
 finish	/usr/local/plan9/man/man3/notify.3
@@ -11142,6 +11172,7 @@ groups	/usr/local/plan9/man/man1/xd.1
 groups	/usr/local/plan9/man/man3/9p-file.3
 groups	/usr/local/plan9/man/man3/allocimage.3
 groups	/usr/local/plan9/man/man3/stat.3
+groups	/usr/local/plan9/man/man4/vacfs.4
 groups	/usr/local/plan9/man/man9/0intro.9p
 groups	/usr/local/plan9/man/man9/stat.9p
 grow	/usr/local/plan9/man/man1/mk9660.1
@@ -11411,6 +11442,7 @@ hierarchy	/usr/local/plan9/man/man3/0intro.3
 hierarchy	/usr/local/plan9/man/man3/9p-file.3
 hierarchy	/usr/local/plan9/man/man3/graphics.3
 hierarchy	/usr/local/plan9/man/man3/memdraw.3
+hierarchy	/usr/local/plan9/man/man4/vacfs.4
 hierarchy	/usr/local/plan9/man/man7/face.7
 hierarchy	/usr/local/plan9/man/man9/0intro.9p
 hierarchy	/usr/local/plan9/man/man9/walk.9p
@@ -11532,6 +11564,7 @@ host	/usr/local/plan9/man/man1/vac.1
 host	/usr/local/plan9/man/man3/dial.3
 host	/usr/local/plan9/man/man3/getuser.3
 host	/usr/local/plan9/man/man3/rsa.3
+host	/usr/local/plan9/man/man4/vacfs.4
 hostname	/usr/local/plan9/man/man1/stats.1
 hostname	/usr/local/plan9/man/man4/import.4
 hour	/usr/local/plan9/man/man3/ctime.3
@@ -12921,6 +12954,7 @@ interprets	/usr/local/plan9/man/man3/atof.3
 interprets	/usr/local/plan9/man/man3/cleanname.3
 interprets	/usr/local/plan9/man/man3/print.3
 interprets	/usr/local/plan9/man/man3/proto.3
+interprets	/usr/local/plan9/man/man4/vacfs.4
 interprets	/usr/local/plan9/man/man7/plumb.7
 interpretted	/usr/local/plan9/man/man3/html.3
 interprocess	/usr/local/plan9/man/man3/pipe.3
@@ -14173,6 +14207,7 @@ limitations	/usr/local/plan9/man/man3/lock.3
 limited	/usr/local/plan9/man/man1/map.1
 limited	/usr/local/plan9/man/man1/stats.1
 limited	/usr/local/plan9/man/man1/tail.1
+limited	/usr/local/plan9/man/man4/vacfs.4
 limited	/usr/local/plan9/man/man9/stat.9p
 limiting	/usr/local/plan9/man/man1/map.1
 limits	/usr/local/plan9/man/man1/eqn.1
@@ -15350,6 +15385,7 @@ member	/usr/local/plan9/man/man3/9p-fid.3
 member	/usr/local/plan9/man/man3/postnote.3
 member	/usr/local/plan9/man/man3/rfork.3
 member	/usr/local/plan9/man/man3/stat.3
+member	/usr/local/plan9/man/man4/vacfs.4
 member	/usr/local/plan9/man/man7/regexp.7
 member	/usr/local/plan9/man/man9/0intro.9p
 member	/usr/local/plan9/man/man9/read.9p
@@ -15442,6 +15478,7 @@ memory	/usr/local/plan9/man/man3/string.3
 memory	/usr/local/plan9/man/man3/subfont.3
 memory	/usr/local/plan9/man/man3/thread.3
 memory	/usr/local/plan9/man/man4/ramfs.4
+memory	/usr/local/plan9/man/man4/vacfs.4
 memory	/usr/local/plan9/man/man7/image.7
 memory	/usr/local/plan9/man/man9/0intro.9p
 mempoly	/usr/local/plan9/man/man3/memdraw.3
@@ -15575,6 +15612,7 @@ metacharacters	/usr/local/plan9/man/man7/regexp.7
 metadata	/usr/local/plan9/man/man1/cvs.1
 metadata	/usr/local/plan9/man/man1/mk9660.1
 metadata	/usr/local/plan9/man/man3/9p.3
+metaname	/usr/local/plan9/man/man4/vacfs.4
 meters	/usr/local/plan9/man/man1/astro.1
 method	/usr/local/plan9/man/man1/diff.1
 method	/usr/local/plan9/man/man3/graphics.3
@@ -15872,6 +15910,7 @@ mount	/usr/local/plan9/man/man4/acme.4
 mount	/usr/local/plan9/man/man4/plumber.4
 mount	/usr/local/plan9/man/man9/0intro.9p
 mounted	/usr/local/plan9/man/man4/0intro.4
+mounted	/usr/local/plan9/man/man4/vacfs.4
 mounts	/usr/local/plan9/man/man4/9pserve.4
 mouse	/usr/local/plan9/man/man1/9term.1
 mouse	/usr/local/plan9/man/man1/acme.1
@@ -16272,6 +16311,7 @@ nd	/usr/local/plan9/man/man7/ms.7
 ndata	/usr/local/plan9/man/man3/allocimage.3
 ndata	/usr/local/plan9/man/man3/plumb.3
 ndata	/usr/local/plan9/man/man7/plumb.7
+ndb	/usr/local/plan9/man/man4/vacfs.4
 ndflt	/usr/local/plan9/man/man3/notify.3
 ne	/usr/local/plan9/man/man1/pic.1
 ne	/usr/local/plan9/man/man1/test.1
@@ -16447,6 +16487,7 @@ network	/usr/local/plan9/man/man3/stat.3
 network	/usr/local/plan9/man/man3/udpread.3
 network	/usr/local/plan9/man/man4/0intro.4
 network	/usr/local/plan9/man/man4/ramfs.4
+network	/usr/local/plan9/man/man4/vacfs.4
 networks	/usr/local/plan9/man/man3/dial.3
 newcol	/usr/local/plan9/man/man1/acme.1
 newdir	/usr/local/plan9/man/man3/dial.3
@@ -17519,6 +17560,7 @@ options	/usr/local/plan9/man/man1/yacc.1
 options	/usr/local/plan9/man/man3/arg.3
 options	/usr/local/plan9/man/man3/html.3
 options	/usr/local/plan9/man/man3/pushtls.3
+options	/usr/local/plan9/man/man4/vacfs.4
 options	/usr/local/plan9/man/man7/ms.7
 optname	/usr/local/plan9/man/man1/grap.1
 opub	/usr/local/plan9/man/man3/dsa.3
@@ -18386,6 +18428,7 @@ permission	/usr/local/plan9/man/man1/test.1
 permission	/usr/local/plan9/man/man3/9p-file.3
 permission	/usr/local/plan9/man/man3/open.3
 permission	/usr/local/plan9/man/man3/stat.3
+permission	/usr/local/plan9/man/man4/vacfs.4
 permission	/usr/local/plan9/man/man9/0intro.9p
 permission	/usr/local/plan9/man/man9/open.9p
 permission	/usr/local/plan9/man/man9/remove.9p
@@ -18531,6 +18574,7 @@ pipe	/usr/local/plan9/man/man3/seek.3
 pipe	/usr/local/plan9/man/man3/sendfd.3
 pipe	/usr/local/plan9/man/man4/0intro.4
 pipe	/usr/local/plan9/man/man4/ramfs.4
+pipe	/usr/local/plan9/man/man4/vacfs.4
 pipe	/usr/local/plan9/man/man9/openfd.9p
 pipe.c	/usr/local/plan9/man/man3/pipe.3
 piped	/usr/local/plan9/man/man1/jpg.1
@@ -18666,6 +18710,7 @@ plan	/usr/local/plan9/man/man3/wctl.3
 plan	/usr/local/plan9/man/man4/0intro.4
 plan	/usr/local/plan9/man/man4/9pserve.4
 plan	/usr/local/plan9/man/man4/acme.4
+plan	/usr/local/plan9/man/man4/vacfs.4
 plan	/usr/local/plan9/man/man7/color.7
 plan	/usr/local/plan9/man/man7/face.7
 plan	/usr/local/plan9/man/man7/image.7
@@ -19093,6 +19138,7 @@ post	/usr/local/plan9/man/man3/9p.3
 post	/usr/local/plan9/man/man3/flate.3
 post	/usr/local/plan9/man/man3/post9pservice.3
 post	/usr/local/plan9/man/man4/acme.4
+post	/usr/local/plan9/man/man4/vacfs.4
 post	/usr/local/plan9/man/man9/openfd.9p
 post9p.c	/usr/local/plan9/man/man3/post9pservice.3
 post9pservice	/usr/local/plan9/man/man1/0intro.1
@@ -19454,6 +19500,7 @@ print	/usr/local/plan9/man/man3/print.3
 print	/usr/local/plan9/man/man3/quote.3
 print	/usr/local/plan9/man/man3/sysfatal.3
 print	/usr/local/plan9/man/man3/thread.3
+print	/usr/local/plan9/man/man4/vacfs.4
 print	/usr/local/plan9/man/man7/ms.7
 printable	/usr/local/plan9/man/man1/db.1
 printable	/usr/local/plan9/man/man1/freq.1
@@ -20618,6 +20665,7 @@ read	/usr/local/plan9/man/man3/thread.3
 read	/usr/local/plan9/man/man3/udpread.3
 read	/usr/local/plan9/man/man4/0intro.4
 read	/usr/local/plan9/man/man4/acme.4
+read	/usr/local/plan9/man/man4/vacfs.4
 read	/usr/local/plan9/man/man7/face.7
 read	/usr/local/plan9/man/man7/font.7
 read	/usr/local/plan9/man/man7/image.7
@@ -21320,6 +21368,7 @@ removed	/usr/local/plan9/man/man3/9p.3
 removed	/usr/local/plan9/man/man3/frame.3
 removed	/usr/local/plan9/man/man3/mouse.3
 removed	/usr/local/plan9/man/man3/print.3
+removed	/usr/local/plan9/man/man4/vacfs.4
 removed	/usr/local/plan9/man/man9/clunk.9p
 removed	/usr/local/plan9/man/man9/open.9p
 removefid	/usr/local/plan9/man/man3/9p-fid.3
@@ -21842,6 +21891,7 @@ restriction	/usr/local/plan9/man/man9/0intro.9p
 restriction	/usr/local/plan9/man/man9/walk.9p
 restrictions	/usr/local/plan9/man/man1/mk.1
 restrictions	/usr/local/plan9/man/man1/mk9660.1
+restrictions	/usr/local/plan9/man/man4/vacfs.4
 restrictions	/usr/local/plan9/man/man9/walk.9p
 restricts	/usr/local/plan9/man/man1/sort.1
 restricts	/usr/local/plan9/man/man4/acme.4
@@ -22318,6 +22368,7 @@ root	/usr/local/plan9/man/man3/matrix.3
 root	/usr/local/plan9/man/man3/proto.3
 root	/usr/local/plan9/man/man3/pushtls.3
 root	/usr/local/plan9/man/man3/quaternion.3
+root	/usr/local/plan9/man/man4/vacfs.4
 root	/usr/local/plan9/man/man7/man.7
 root	/usr/local/plan9/man/man7/plumb.7
 root	/usr/local/plan9/man/man9/0intro.9p
@@ -23394,6 +23445,7 @@ server	/usr/local/plan9/man/man4/9pserve.4
 server	/usr/local/plan9/man/man4/import.4
 server	/usr/local/plan9/man/man4/plumber.4
 server	/usr/local/plan9/man/man4/ramfs.4
+server	/usr/local/plan9/man/man4/vacfs.4
 server	/usr/local/plan9/man/man7/thumbprint.7
 server	/usr/local/plan9/man/man9/0intro.9p
 server	/usr/local/plan9/man/man9/attach.9p
@@ -24303,6 +24355,7 @@ source	/usr/local/plan9/man/man4/acme.4
 source	/usr/local/plan9/man/man4/import.4
 source	/usr/local/plan9/man/man4/plumber.4
 source	/usr/local/plan9/man/man4/ramfs.4
+source	/usr/local/plan9/man/man4/vacfs.4
 source	/usr/local/plan9/man/man7/image.7
 sourcefile	/usr/local/plan9/man/man1/acid.1
 sources	/usr/local/plan9/man/man3/event.3
@@ -24805,6 +24858,7 @@ src	/usr/local/plan9/man/man4/acme.4
 src	/usr/local/plan9/man/man4/import.4
 src	/usr/local/plan9/man/man4/plumber.4
 src	/usr/local/plan9/man/man4/ramfs.4
+src	/usr/local/plan9/man/man4/vacfs.4
 src	/usr/local/plan9/man/man7/plumb.7
 srcproto	/usr/local/plan9/man/man1/mk9660.1
 srdiilxepvv	/usr/local/plan9/man/man1/rc.1
@@ -24813,6 +24867,7 @@ srv	/usr/local/plan9/man/man3/9p.3
 srv	/usr/local/plan9/man/man4/9pserve.4
 srvfd	/usr/local/plan9/man/man3/9p.3
 srvname	/usr/local/plan9/man/man3/9p.3
+srvname	/usr/local/plan9/man/man4/vacfs.4
 srvwsys	/usr/local/plan9/man/man3/graphics.3
 ss	/usr/local/plan9/man/man7/man.7
 ssh	/usr/local/plan9/man/man1/9term.1
@@ -24959,6 +25014,7 @@ standard	/usr/local/plan9/man/man3/thread.3
 standard	/usr/local/plan9/man/man4/0intro.4
 standard	/usr/local/plan9/man/man4/9pserve.4
 standard	/usr/local/plan9/man/man4/acme.4
+standard	/usr/local/plan9/man/man4/vacfs.4
 standard	/usr/local/plan9/man/man7/utf.7
 standards	/usr/local/plan9/man/man1/sum.1
 standing	/usr/local/plan9/man/man1/rc.1
@@ -25207,6 +25263,7 @@ stored	/usr/local/plan9/man/man3/mp.3
 stored	/usr/local/plan9/man/man3/pushtls.3
 stored	/usr/local/plan9/man/man3/rsa.3
 stored	/usr/local/plan9/man/man3/udpread.3
+stored	/usr/local/plan9/man/man4/vacfs.4
 stored	/usr/local/plan9/man/man7/color.7
 stored	/usr/local/plan9/man/man7/face.7
 stored	/usr/local/plan9/man/man7/image.7
@@ -28427,10 +28484,13 @@ va_start	/usr/local/plan9/man/man3/fmtinstall.3
 va_start	/usr/local/plan9/man/man3/print.3
 vac	/usr/local/plan9/man/man1/0intro.1
 vac	/usr/local/plan9/man/man1/vac.1
+vac	/usr/local/plan9/man/man4/vacfs.4
 vac:64daefaecc4df4b5cb48a368b361ef56012a4f46	/usr/local/plan9/man/man1/vac.1
 vacfile	/usr/local/plan9/man/man1/vac.1
+vacfile	/usr/local/plan9/man/man4/vacfs.4
 vacfs	/usr/local/plan9/man/man1/0intro.1
 vacfs	/usr/local/plan9/man/man1/vac.1
+vacfs	/usr/local/plan9/man/man4/vacfs.4
 val	/usr/local/plan9/man/man1/acid.1
 val	/usr/local/plan9/man/man1/proof.1
 val	/usr/local/plan9/man/man1/seq.1
@@ -28674,6 +28734,7 @@ variable	/usr/local/plan9/man/man3/mousescrollsize.3
 variable	/usr/local/plan9/man/man3/print.3
 variable	/usr/local/plan9/man/man3/thread.3
 variable	/usr/local/plan9/man/man4/0intro.4
+variable	/usr/local/plan9/man/man4/vacfs.4
 variable	/usr/local/plan9/man/man7/image.7
 variable	/usr/local/plan9/man/man7/plumb.7
 variable	/usr/local/plan9/man/man9/0intro.9p
@@ -28760,6 +28821,7 @@ venerable	/usr/local/plan9/man/man1/ed.1
 venerable	/usr/local/plan9/man/man7/image.7
 venti	/usr/local/plan9/man/man1/0intro.1
 venti	/usr/local/plan9/man/man1/vac.1
+venti	/usr/local/plan9/man/man4/vacfs.4
 ver	/usr/local/plan9/man/man7/face.7
 verb	/usr/local/plan9/man/man3/errstr.3
 verb	/usr/local/plan9/man/man3/fmtinstall.3
@@ -28872,6 +28934,7 @@ via	/usr/local/plan9/man/man3/pipe.3
 via	/usr/local/plan9/man/man3/thread.3
 via	/usr/local/plan9/man/man4/0intro.4
 via	/usr/local/plan9/man/man4/plumber.4
+via	/usr/local/plan9/man/man4/vacfs.4
 via	/usr/local/plan9/man/man7/image.7
 via	/usr/local/plan9/man/man9/openfd.9p
 vice	/usr/local/plan9/man/man1/acme.1
