@@ -34,7 +34,12 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 	 * lot more than just the current program
 	 * if we don't do this.
 	 */
+	/*
+	 * Actually, I don't know what I changed but
+	 * this appears not to be necessary anymore.
+	 * I'll regret this probably.
 	rfork(RFNOTEG);
+	*/
 	memimageinit();
 
 	d = mallocz(sizeof(Display), 1);
