@@ -11,7 +11,7 @@ extern "C" {
 
 #define _MPINT 1
 
-typedef long mpdigit;
+typedef ulong mpdigit;
 
 // the code assumes mpdigit to be at least an int
 // mpdigit must be an atomic type.  mpdigit is defined
