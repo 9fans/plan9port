@@ -11,9 +11,10 @@ int
 p9open(char *name, int mode)
 {
 	int cexec, rclose;
-	int fd, umode, lock;
+	int fd, umode, lock, rdwr;
 
-	umode = mode&3;
+	rdwr = mode&3;
+	umode = rdwr;
 	cexec = mode&OCEXEC;
 	rclose = mode&ORCLOSE;
 	lock = mode&OLOCK;
@@ -33,7 +34,7 @@ p9open(char *name, int mode)
 	fd = open(name, umode);
 	if(fd >= 0){
 		if(lock){
-			if(flock(fd, (mode==OREAD) ? LOCK_SH : LOCK_EX) < 0){
+			if(flock(fd, (rdwr==OREAD) ? LOCK_SH : LOCK_EX) < 0){
 				close(fd);
 				return -1;
 			}

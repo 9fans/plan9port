@@ -11,8 +11,9 @@
 int
 p9create(char *path, int mode, ulong perm)
 {
-	int fd, cexec, umode, rclose, lock;
+	int fd, cexec, umode, rclose, lock, rdwr;
 
+	rdwr = mode&3;
 	lock = mode&OLOCK;
 	cexec = mode&OCEXEC;
 	rclose = mode&ORCLOSE;
@@ -48,7 +49,7 @@ p9create(char *path, int mode, ulong perm)
 out:
 	if(fd >= 0){
 		if(lock){
-			if(flock(fd, (mode==OREAD) ? LOCK_SH : LOCK_EX) < 0){
+			if(flock(fd, (rdwr==OREAD) ? LOCK_SH : LOCK_EX) < 0){
 				close(fd);
 				return -1;
 			}
