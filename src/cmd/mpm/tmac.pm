@@ -1,5 +1,5 @@
 .\" 10/22/92 activate next line before installing
-.pi /$objtype/bin/aux/pm
+.pi #9/bin/auxpm
 .
 .		\" IZ - initialization
 .de IZ

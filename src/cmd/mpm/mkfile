@@ -1,6 +1,6 @@
 <$PLAN9/src/mkhdr
 
-TARG=aux/pm
+TARG=auxpm
 OFILES=misc.$O\
 	slug.$O\
 	range.$O\
@@ -9,10 +9,7 @@ OFILES=misc.$O\
 
 HFILES=misc.h\
 
-BIN=/$objtype/bin
 <$PLAN9/src/mkone
-CC=c++/$CC
-LD=c++/$LD
 CFLAGS=
 
 slug.$O:	slug.h

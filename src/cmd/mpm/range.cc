@@ -304,7 +304,7 @@ static void markbreak(slug *p)
 {
 	// Mark impermissible breakpoints in BS's.
 	// The parm field of a VBOX is >0 if we shouldn't break after it.
-	int parm;		// how many lines must stay on page
+	int parm = 0;		// how many lines must stay on page
 	int goahead = 1;	// true until we see the next BS
 	int nowmark = 0;	// true when we should be marking
 	int n = 0;
