@@ -314,8 +314,16 @@ hangupnote(void *a, char *msg)
 		noted(NDFLT);
 	}
 	if(strstr(msg, "child")){
-		/* bug: do better */
-		threadexitsall(0);
+		char buf[128];
+		int n;
+
+		n = awaitnohang(buf, sizeof buf-1);
+		if(n > 0){
+			buf[n] = 0;
+			if(atoi(buf) == rcpid)
+				threadexitsall(0);
+		}
+		noted(NCONT);
 	}
 	noted(NDFLT);
 }
@@ -1520,7 +1528,6 @@ backnl(uint p, uint n)
 			return p;
 		p--;
 	}
-	return 0; /* alef bug */
 }
 
 void
