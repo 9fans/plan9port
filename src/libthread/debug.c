@@ -19,9 +19,9 @@ __threaddebug(ulong flag, char *fmt, ...)
 	if(p==nil)
 		fmtprint(&f, "noproc ");
 	else if(p->thread)
-		fmtprint(&f, "%d.%d ", p->pid, p->thread->id);
+		fmtprint(&f, "%d.%d ", p->id, p->thread->id);
 	else
-		fmtprint(&f, "%d._ ", p->pid);
+		fmtprint(&f, "%d._ ", p->id);
 
 	va_start(arg, fmt);
 	fmtvprint(&f, fmt, arg);

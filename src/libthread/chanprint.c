@@ -1,4 +1,6 @@
-#include "threadimpl.h"
+#include <u.h>
+#include <libc.h>
+#include <thread.h>
 
 int
 chanprint(Channel *c, char *fmt, ...)

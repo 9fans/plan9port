@@ -46,7 +46,7 @@ __threadgetproc(int rm)
 	if(!multi)
 		return theproc;
 
-	pid = _threadgetpid();
+	pid = getpid();
 
 	lock(&ptablock);
 	h = ((unsigned)pid)%PTABHASH;

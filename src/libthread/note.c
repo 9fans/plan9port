@@ -65,6 +65,8 @@ delayednotes(Proc *p, void *v)
 			}
 			if(i==NFN){
 				_threaddebug(DBGNOTE, "Unhandled note %s, proc %p\n", n->s, p);
+				if(strcmp(n->s, "sys: child") == 0)
+					noted(NCONT);
 				fprint(2, "unhandled note %s, pid %d\n", n->s, p->pid);
 				if(v != nil)
 					noted(NDFLT);
@@ -85,7 +87,9 @@ _threadnote(void *v, char *s)
 	Note *n;
 
 	_threaddebug(DBGNOTE, "Got note %s", s);
-	if(strncmp(s, "sys:", 4) == 0 && strcmp(s, "sys: write on closed pipe") != 0)
+	if(strncmp(s, "sys:", 4) == 0
+	&& strcmp(s, "sys: write on closed pipe") != 0
+	&& strcmp(s, "sys: child") != 0)
 		noted(NDFLT);
 
 //	if(_threadexitsallstatus){

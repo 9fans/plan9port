@@ -60,10 +60,10 @@ threadsetname(char *fmt, ...)
 
 	p = _threadgetproc();
 	t = p->thread;
-	if (t->cmdname)
-		free(t->cmdname);
+	if(t->name)
+		free(t->name);
 	va_start(arg, fmt);
-	t->cmdname = vsmprint(fmt, arg);
+	t->name = vsmprint(fmt, arg);
 	va_end(arg);
 
 /* Plan 9 only 
@@ -85,7 +85,7 @@ threadsetname(char *fmt, ...)
 char*
 threadgetname(void)
 {
-	return _threadgetproc()->thread->cmdname;
+	return _threadgetproc()->thread->name;
 }
 
 void**

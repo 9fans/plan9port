@@ -1,3 +1,9 @@
+/*
+ * Atomic reference counts - used by applications.
+ *
+ * We use locks to avoid the assembly of the Plan 9 versions.
+ */
+
 #include "threadimpl.h"
 
 void

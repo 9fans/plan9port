@@ -11,10 +11,10 @@ _threadsleep(_Procrend *r)
 	t = _threadgetproc()->thread;
 	r->arg = t;
 	t->nextstate = Rendezvous;
-	t->inrendez = 1;
+	t->asleep = 1;
 	unlock(r->l);
 	_sched();
-	t->inrendez = 0;
+	t->asleep = 0;
 	lock(r->l);
 }
 
@@ -31,7 +31,7 @@ _threadwakeup(_Procrend *r)
 		unlock(&t->proc->lock);
 		return;
 	}
-	assert(t->state == Rendezvous && t->inrendez);
+	assert(t->state == Rendezvous && t->asleep);
 	t->state = Ready;
 	_threadready(t);
 	unlock(&t->proc->lock);

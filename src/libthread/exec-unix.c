@@ -10,9 +10,20 @@ _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 	int pfd[2];
 	int n, pid;
 	char exitstr[ERRMAX];
+	static int firstexec = 1;
+	static Lock lk;
 
 	_threaddebug(DBGEXEC, "threadexec %s", prog);
-	
+
+	if(firstexec){
+		lock(&lk);
+		if(firstexec){
+			firstexec = 0;
+			_threadfirstexec();
+		}
+		unlock(&lk);
+	}
+
 	/*
 	 * We want threadexec to behave like exec; if exec succeeds,
 	 * never return, and if it fails, return with errstr set.
@@ -41,6 +52,7 @@ _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 		efork(fd, pfd, prog, args);
 		_exit(0);
 	default:
+		_threadafterexec();
 		if(freeargs)
 			free(args);
 		break;

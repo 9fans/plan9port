@@ -28,11 +28,11 @@ OFILES=\
 	memset.$O\
 	memsetd.$O\
 	note.$O\
-	proctab.$O\
+	pthread.$O\
 	read9pmsg.$O\
 	ref.$O\
-	rendez.$O\
 	sched.$O\
+	sleep.$O\
 
 HFILES=\
 	$PLAN9/include/thread.h\
