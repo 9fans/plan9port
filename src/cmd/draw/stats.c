@@ -131,7 +131,7 @@ killall(char *s)
 	for(i=0; i<nmach; i++)
 		if(mach[i].pid)
 			postnote(PNPROC, mach[i].pid, "kill");
-	exits(s);
+	threadexitsall(s);
 }
 
 void*
@@ -333,7 +333,7 @@ void
 usage(void)
 {
 	fprint(2, "usage: stats [-O] [-S scale] [-LY] [-W winsize] [-%s] [machine...]\n", argchars);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void
@@ -681,7 +681,7 @@ threadmain(int argc, char *argv[])
 	mysysname = sysname();
 	if(mysysname == nil){
 		fprint(2, "stats: can't find sysname: %r\n");
-		exits("sysname");
+		threadexitsall("sysname");
 	}
 
 	nargs = 0;
