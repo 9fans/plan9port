@@ -27,6 +27,11 @@ _threaddebug(char *fmt, ...)
 	static int fd = -1;
 
 return;
+	va_start(arg, fmt);
+	vfprint(1, fmt, arg);
+	va_end(arg);
+return;
+
 	if(fd < 0){
 		p = strrchr(argv0, '/');
 		if(p)
@@ -77,9 +82,11 @@ threadstart(void *v)
 	_Thread *t;
 
 	t = v;
+//print("threadstart %p\n", v);
 	t->startfn(t->startarg);
-	memset(&v, 0xff, 32);	/* try to cut off stack traces */
+//print("threadexits %p\n", v);
 	threadexits(nil);
+//print("not reacehd\n");
 }
 
 static _Thread*
@@ -156,6 +163,7 @@ _threadswitch(void)
 	Proc *p;
 
 	p = proc();
+//print("threadswtch %p\n", p);
 	contextswitch(&p->thread->context, &p->schedcontext);
 }
 
@@ -217,7 +225,7 @@ scheduler(Proc *p)
 
 	setproc(p);
 	_threaddebug("scheduler enter");
-	// print("s %p %d\n", p, gettid());
+//	print("s %p\n", p);
 	lock(&p->lock);
 	for(;;){
 		while((t = p->runqueue.head) == nil){
@@ -234,11 +242,13 @@ scheduler(Proc *p)
 		p->nswitch++;
 		_threaddebug("run %d (%s)", t->id, t->name);
 		contextswitch(&p->schedcontext, &t->context);
+//print("back in scheduler\n");
 		p->thread = nil;
 		lock(&p->lock);
 		if(t->exiting){
 			delthreadinproc(p, t);
 			p->nthread--;
+//print("ntrhead %d\n", p->nthread);
 			free(t);
 		}
 	}
@@ -313,6 +323,7 @@ threadsetstate(char *fmt, ...)
 static int
 threadqlock(QLock *l, int block, ulong pc)
 {
+//print("threadqlock %p\n", l);
 	lock(&l->l);
 	if(l->owner == nil){
 		l->owner = (*threadnow)();

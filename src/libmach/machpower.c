@@ -570,7 +570,7 @@ sub(Opcode *o, Instr *i)
 		bprint(i, "\tR%d,$%d,R%d", i->ra, i->simm, i->rd);
 }
 
-#define div qdiv
+#define div power_div
 
 static void
 div(Opcode *o, Instr *i)

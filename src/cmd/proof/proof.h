@@ -10,6 +10,8 @@
 #define	ONES	~0
 
 #define devname proof_devname
+#define getc	proof_getc
+#define ungetc	proof_ungetc
 
 extern	char	devname[];
 extern	double	mag;

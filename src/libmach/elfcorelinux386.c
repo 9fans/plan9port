@@ -4,6 +4,9 @@
 #include "elf.h"
 #include "ureg386.h"
 
+#undef errno
+#define errno	uregerrno
+
 typedef struct Lreg Lreg;
 typedef struct Status Status;
 typedef struct Psinfo Psinfo;

@@ -5,7 +5,6 @@ LIB=libmap/libmap.a
 OFILES=map.$O\
 	symbol.$O\
 	index.$O\
-	sqrt.$O\
 
 HFILES=map.h\
 	iplot.h\

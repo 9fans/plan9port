@@ -8,23 +8,24 @@ makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 
 	tos = (ulong*)ucp->uc_stack.ss_sp+ucp->uc_stack.ss_size/sizeof(ulong);
 	sp = tos - 16;	
-	ucp->label.pc = (long)func;
-	ucp->label.sp = (long)sp;
+	ucp->mc.pc = (long)func;
+	ucp->mc.sp = (long)sp;
 	va_start(arg, argc);
-	ucp->label.r3 = va_arg(arg, long);
+	ucp->mc.r3 = va_arg(arg, long);
 	va_end(arg);
 }
 
-void
+int
 getcontext(ucontext_t *uc)
 {
-	return __setlabel(uc);
+	return _getmcontext(&uc->mc);
 }
 
 int
 setcontext(ucontext_t *uc)
 {
-	return __gotolabel(uc);
+	_setmcontext(&uc->mc);
+	return 0;
 }
 
 int

@@ -17,6 +17,10 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
 #if defined(__APPLE__)
+#	define mcontext libthread_mcontext
+#	define mcontext_t libthread_mcontext_t
+#	define ucontext libthread_ucontext
+#	define ucontext_t libthread_ucontext_t
 #	include "Darwin-ucontext.h"
 #endif
 

@@ -43,7 +43,7 @@
 #define S43 15
 #define S44 21
 
-#define PAYME(x) $##x
+#define PAYME(x) $ ## x
 
 /*
  * SI is data

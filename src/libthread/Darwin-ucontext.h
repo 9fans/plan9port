@@ -1,5 +1,6 @@
+typedef struct mcontext mcontext_t;
 typedef struct ucontext ucontext_t;
-struct ucontext
+struct mcontext
 {
 	ulong	pc;		/* lr */
 	ulong	cr;		/* mfcr */
@@ -15,10 +16,20 @@ struct ucontext
 //	ulong	vr[4*12];	/* callee saved: v20-v31, 256-bits each */
 };
 
+struct ucontext
+{
+	struct {
+		void *ss_sp;
+		uint ss_size;
+	} uc_stack;
+	sigset_t uc_sigmask;
+	mcontext_t mc;
+};
+
 void makecontext(ucontext_t*, void(*)(void), int, ...);
-void getcontext(ucontext_t*);
+int getcontext(ucontext_t*);
 int setcontext(ucontext_t*);
 int swapcontext(ucontext_t*, ucontext_t*);
-int __setlabel(ucontext_t*);
-void __gotolabel(ucontext_t*);
+int _getmcontext(mcontext_t*);
+void _setmcontext(mcontext_t*);
 

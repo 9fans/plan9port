@@ -56,7 +56,6 @@ CFsys*
 fsmount(int fd, char *aname)
 {
 	int n;
-	char *user;
 	CFsys *fs;
 	CFid *fid;
 
@@ -72,7 +71,6 @@ fsmount(int fd, char *aname)
 	}
 	fs->msize = n;
 
-	user = getuser();
 	if((fid = fsattach(fs, nil, getuser(), aname)) == nil)
 		goto Error;
 	fssetroot(fs, fid);

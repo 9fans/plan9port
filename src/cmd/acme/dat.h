@@ -465,6 +465,9 @@ enum
 #define	WIN(q)	((((ulong)(q).path)>>8) & 0xFFFFFF)
 #define	FILE(q)	((q).path & 0xFF)
 
+#undef FALSE
+#undef TRUE
+
 enum
 {
 	FALSE,

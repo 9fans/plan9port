@@ -8,6 +8,7 @@
  *	2+head+2+page[56]+5
  */
 
+#define err		pr_err
 #define	ISPRINT(c)	((c) >= ' ')
 #define ESC		'\033'
 #define LENGTH		66

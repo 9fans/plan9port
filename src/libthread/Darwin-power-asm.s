@@ -4,9 +4,9 @@
 .text
 .align 2
 
-.globl	__setlabel
+.globl	__getmcontext
 
-__setlabel:				/* xxx: instruction scheduling */
+__getmcontext:				/* xxx: instruction scheduling */
 	mflr	r0
 	mfcr	r5
 	mfctr	r6
@@ -18,35 +18,35 @@ __setlabel:				/* xxx: instruction scheduling */
 
 	stw	r1, 4*4(r3)
 	stw	r2, 5*4(r3)
-	li	r5, 1				/* return value for gotolabel */
+	li	r5, 1			/* return value for setmcontext */
 	stw	r5, 6*4(r3)
 
-	stw	r13, (0+6)*4(r3)	/* callee-save GPRs */
-	stw	r14, (1+6)*4(r3)	/* xxx: block move */
-	stw	r15, (2+6)*4(r3)
-	stw	r16, (3+6)*4(r3)
-	stw	r17, (4+6)*4(r3)
-	stw	r18, (5+6)*4(r3)
-	stw	r19, (6+6)*4(r3)
-	stw	r20, (7+6)*4(r3)
-	stw	r21, (8+6)*4(r3)
-	stw	r22, (9+6)*4(r3)
-	stw	r23, (10+6)*4(r3)
-	stw	r24, (11+6)*4(r3)
-	stw	r25, (12+6)*4(r3)
-	stw	r26, (13+6)*4(r3)
-	stw	r27, (14+6)*4(r3)
-	stw	r28, (15+6)*4(r3)
-	stw	r29, (16+6)*4(r3)
-	stw	r30, (17+6)*4(r3)
-	stw	r31, (18+6)*4(r3)
+	stw	r13, (0+7)*4(r3)	/* callee-save GPRs */
+	stw	r14, (1+7)*4(r3)	/* xxx: block move */
+	stw	r15, (2+7)*4(r3)
+	stw	r16, (3+7)*4(r3)
+	stw	r17, (4+7)*4(r3)
+	stw	r18, (5+7)*4(r3)
+	stw	r19, (6+7)*4(r3)
+	stw	r20, (7+7)*4(r3)
+	stw	r21, (8+7)*4(r3)
+	stw	r22, (9+7)*4(r3)
+	stw	r23, (10+7)*4(r3)
+	stw	r24, (11+7)*4(r3)
+	stw	r25, (12+7)*4(r3)
+	stw	r26, (13+7)*4(r3)
+	stw	r27, (14+7)*4(r3)
+	stw	r28, (15+7)*4(r3)
+	stw	r29, (16+7)*4(r3)
+	stw	r30, (17+7)*4(r3)
+	stw	r31, (18+7)*4(r3)
 
 	li	r3, 0			/* return */
 	blr
 
-.globl	__gotolabel
+.globl	__setmcontext
 
-__gotolabel:
+__setmcontext:
 	lwz	r13, (0+7)*4(r3)	/* callee-save GPRs */
 	lwz	r14, (1+7)*4(r3)	/* xxx: block move */
 	lwz	r15, (2+7)*4(r3)
@@ -79,5 +79,5 @@ __gotolabel:
 	lwz	r0, 3*4(r3)
 	mtxer	r0
 
-	lwz	r3,	6*4(r4)
+	lwz	r3,	6*4(r3)
 	blr

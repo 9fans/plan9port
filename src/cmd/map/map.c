@@ -105,6 +105,8 @@ double	diddle(struct place *, double, double);
 void	dobounds(double, double, double, double, int);
 void	dogrid(double, double, double, double);
 int	duple(struct place *, double);
+#define fmax map_fmax
+#define fmin map_fmin
 double	fmax(double, double);
 double	fmin(double, double);
 void	getdata(char *);

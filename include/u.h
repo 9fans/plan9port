@@ -120,7 +120,7 @@ typedef short s16int;
 /*
  * Gcc 3 is too smart for its own good.
  */
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__APPLE_CC__)
 #	if __GNUC__ >= 3
 #		undef AUTOLIB
 #		define AUTOLIB(x) int __p9l_autolib_ ## x __attribute__ ((weak));

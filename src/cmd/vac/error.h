@@ -1,3 +1,8 @@
+/*
+ * Somehow <errno.h> has been included on Mac OS X
+ */
+#undef EIO
+
 extern char ENoDir[];
 extern char EBadDir[];
 extern char EBadMeta[];
