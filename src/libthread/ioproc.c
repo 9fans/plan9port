@@ -13,7 +13,7 @@ iointerrupt(Ioproc *io)
 {
 	if(!io->inuse)
 		return;
-	fprint(2, "bug: cannot iointerrupt yet\n");
+	fprint(2, "bug: cannot iointerrupt %p yet\n", io);
 }
 
 static void

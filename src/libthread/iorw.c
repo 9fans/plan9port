@@ -123,7 +123,8 @@ _iowrite(va_list *arg)
 long
 iowrite(Ioproc *io, int fd, void *a, long n)
 {
-	return iocall(io, _iowrite, fd, a, n);
+	n = iocall(io, _iowrite, fd, a, n);
+	return n;
 }
 
 static long

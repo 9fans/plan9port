@@ -23,17 +23,29 @@ _threaddebug(char *fmt, ...)
 	va_list arg;
 	char buf[128];
 	_Thread *t;
+	char *p;
+	static int fd = -1;
 
-	return;
+return;
+	if(fd < 0){
+		p = strrchr(argv0, '/');
+		if(p)
+			p++;
+		else
+			p = argv0;
+		snprint(buf, sizeof buf, "/tmp/%s.tlog", p);
+		if((fd = create(buf, OWRITE, 0666)) < 0)
+			fd = open("/dev/null", OWRITE);
+	}
 
 	va_start(arg, fmt);
 	vsnprint(buf, sizeof buf, fmt, arg);
 	va_end(arg);
 	t = proc()->thread;
 	if(t)
-		fprint(2, "%d.%d: %s\n", getpid(), t->id, buf);
+		fprint(fd, "%d.%d: %s\n", getpid(), t->id, buf);
 	else
-		fprint(2, "%d._: %s\n", getpid(), buf);
+		fprint(fd, "%d._: %s\n", getpid(), buf);
 }
 
 static _Thread*
