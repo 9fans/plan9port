@@ -1214,7 +1214,7 @@ vtfileflushbefore(VtFile *r, u64int offset)
 	 * has been finished.
 	 */
 	base = e.type&~VtTypeDepthMask;
-	for(i=0; i<depth; i++){
+	for(i=0; i<=depth; i++){
 		doflush = 0;
 		if(i == 0){
 			/* leaf: data or dir block */
