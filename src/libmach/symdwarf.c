@@ -119,7 +119,7 @@ dwarflenum(Fhdr *fhdr, Symbol *p, char *name, uint j, Loc l, Symbol *s)
 	depth = 1;
 
 	bpoff = 8;
-	while(dwarfnextsym(fhdr->dwarf, &ds, 1) == 1 && depth < ds.depth){
+	while(dwarfnextsym(fhdr->dwarf, &ds) == 1 && depth < ds.depth){
 		if(ds.attrs.tag != TagVariable){
 			if(ds.attrs.tag != TagFormalParameter
 			&& ds.attrs.tag != TagUnspecifiedParameters)
@@ -200,9 +200,8 @@ dwarfsyminit(Fhdr *fp)
 	if(dwarfenum(d, &s) < 0)
 		return;
 
-	while(dwarfnextsym(d, &s, s.depth!=1) == 1){
-		if(s.depth != 1)
-			continue;
+	dwarfnextsymat(d, &s, 0);
+	while(dwarfnextsymat(d, &s, 1) == 1){
 		if(s.attrs.name == nil)
 			continue;
 		switch(s.attrs.tag){

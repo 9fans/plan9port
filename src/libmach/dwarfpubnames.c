@@ -44,7 +44,7 @@ _dwarfnametounit(Dwarf *d, char *name, DwarfBlock *bl, DwarfSym *s)
 					return -1;
 				}
 				s->b.p = d->info.data + unit + off;
-				if(dwarfnextsym(d, s, 1) < 0)
+				if(dwarfnextsym(d, s) < 0)
 					return -1;
 				if(s->attrs.name==nil || strcmp(s->attrs.name, name)!=0){
 					werrstr("unexpected name %#q in lookup for %#q", s->attrs.name, name);

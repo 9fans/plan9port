@@ -121,13 +121,10 @@ dwarflookupnameinunit(Dwarf *d, ulong unit, char *name, DwarfSym *s)
 	if(dwarfenumunit(d, unit, s) < 0)
 		return -1;
 
-	dwarfnextsym(d, s, 1);	/* s is now the CompileUnit */
-	if(dwarfnextsym(d, s, 1) == 1){	/* s is now the first child of the compile unit */
-		do{
-			if(s->attrs.name && strcmp(s->attrs.name, name) == 0)
-				return 0;
-		}while(dwarfnextsym(d, s, 0) == 1);
-	} 
+	dwarfnextsymat(d, s, 0);	/* s is now the CompileUnit */
+	while(dwarfnextsymat(d, s, 1) == 1)
+		if(s->attrs.name && strcmp(s->attrs.name, name) == 0)
+			return 0;
 	werrstr("symbol '%s' not found", name);
 	return -1;
 }
@@ -137,12 +134,9 @@ int
 dwarflookupsubname(Dwarf *d, DwarfSym *parent, char *name, DwarfSym *s)
 {
 	*s = *parent;
-	dwarfnextsym(d, s, 1);
-	if(s->depth == parent->depth+1)
-		do{
-			if(s->attrs.name && strcmp(s->attrs.name, name) == 0)
-				return 0;
-		}while(dwarfnextsym(d, s, 0) == 1);
+	while(dwarfnextsymat(d, s, parent->depth+1))
+		if(s->attrs.name && strcmp(s->attrs.name, name) == 0)
+			return 0;
 	werrstr("symbol '%s' not found", name);
 	return -1;
 }
@@ -153,16 +147,12 @@ dwarflookuptag(Dwarf *d, ulong unit, ulong tag, DwarfSym *s)
 	if(dwarfenumunit(d, unit, s) < 0)
 		return -1;
 
-	dwarfnextsym(d, s, 1);	/* s is now the CompileUnit */
+	dwarfnextsymat(d, s, 0);	/* s is now the CompileUnit */
 	if(s->attrs.tag == tag)
 		return 0;
-
-	if(dwarfnextsym(d, s, 1) == 1){	/* s is now the first child of the compile unit */
-		do{
-			if(s->attrs.tag == tag)
-				return 0;
-		}while(dwarfnextsym(d, s, 0) == 1);
-	} 
+	while(dwarfnextsymat(d, s, 1) == 1)
+		if(s->attrs.tag == tag)
+			return 0;
 	werrstr("symbol with tag 0x%lux not found", tag);
 	return -1;
 }
@@ -173,7 +163,7 @@ dwarfseeksym(Dwarf *d, ulong unit, ulong off, DwarfSym *s)
 	if(dwarfenumunit(d, unit, s) < 0)
 		return -1;
 	s->b.p = d->info.data + unit + off;
-	if(dwarfnextsym(d, s, 1) != 1)
+	if(dwarfnextsymat(d, s, 0) != 1)
 		return -1;
 	return 0;
 }
@@ -184,17 +174,15 @@ dwarflookupfn(Dwarf *d, ulong unit, ulong pc, DwarfSym *s)
 	if(dwarfenumunit(d, unit, s) < 0)
 		return -1;
 
-	if(dwarfnextsym(d, s, 1) != 1)
+	if(dwarfnextsymat(d, s, 0) != 1)
 		return -1;
 	/* s is now the CompileUnit */
 
-	if(dwarfnextsym(d, s, 1) == 1){	/* s is now the first child of the compile unit */
-		do{
-			if(s->attrs.tag != TagSubprogram)
-				continue;
-			if(s->attrs.lowpc <= pc && pc < s->attrs.highpc)
-				return 0;
-		}while(dwarfnextsym(d, s, 0) == 1);
+	while(dwarfnextsymat(d, s, 1) == 1){
+		if(s->attrs.tag != TagSubprogram)
+			continue;
+		if(s->attrs.lowpc <= pc && pc < s->attrs.highpc)
+			return 0;
 	} 
 	werrstr("fn containing pc 0x%lux not found", pc);
 	return -1;
@@ -248,8 +236,8 @@ dwarfenum(Dwarf *d, DwarfSym *s)
 	return 0;
 }
 
-static int
-_dwarfnextsym(Dwarf *d, DwarfSym *s)
+int
+dwarfnextsym(Dwarf *d, DwarfSym *s)
 {
 	ulong num;
 	DwarfAbbrev *a;
@@ -288,31 +276,39 @@ top:
 }
 
 int
-dwarfnextsym(Dwarf *d, DwarfSym *s, int recurse)
+dwarfnextsymat(Dwarf *d, DwarfSym *s, int depth)
 {
 	int r;
-	int depth;
-	ulong sib;
+	DwarfSym t;
+	uint sib;
 
-	if(recurse)
-		return _dwarfnextsym(d, s);
-
-	depth = s->depth;
-	if(s->attrs.have.sibling){
+	if(s->depth == depth && s->attrs.have.sibling){
 		sib = s->attrs.sibling;
 		if(sib < d->info.len && d->info.data+sib >= s->b.p)
 			s->b.p = d->info.data+sib;
 		s->attrs.haskids = 0;
 	}
 
-	do{
-		r = _dwarfnextsym(d, s);
-		if(r <= 0)
+	/*
+	 * The funny game with t and s make sure that 
+	 * if we get to the end of a run of a particular
+	 * depth, we leave s so that a call to nextsymat with depth-1
+	 * will actually produce the desired guy.  We could change
+	 * the interface to dwarfnextsym instead, but I'm scared 
+	 * to touch it.
+	 */
+	t = *s;
+	for(;;){
+		if((r = dwarfnextsym(d, &t)) != 1)
 			return r;
-	}while(s->depth != depth);
-	if(s->depth < depth)
-		return 0;
-	return 1;
+		if(t.depth < depth){
+			/* went too far - nothing to see */
+			return 0;
+		}
+		*s = t;
+		if(t.depth == depth)
+			return 1;
+	}
 }
 
 typedef struct Parse Parse;

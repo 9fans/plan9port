@@ -43,7 +43,7 @@ main(int argc, char **argv)
 	if(dwarfenum(d, &s) < 0)
 		sysfatal("dwarfenumall: %r");
 
-	while(dwarfnextsym(d, &s, 1) == 1){
+	while(dwarfnextsym(d, &s) == 1){
 		switch(s.attrs.tag){
 		case TagCompileUnit:
 			print("compileunit %s\n", s.attrs.name);
