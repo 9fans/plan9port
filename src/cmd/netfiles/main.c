@@ -81,22 +81,33 @@ arg(char *file, char *addr, Channel *c)
 	return a;
 }
 
+Win*
+winbyid(int id)
+{
+	Win *w;
+	
+	for(w=windows; w; w=w->next)
+		if(w->id == id)
+			return w;
+	return nil;
+}
+
 /*
- * return window id of a window named name or name/
+ * return Win* of a window named name or name/
  * assumes name is cleaned.
  */
-int
-nametowinid(char *name)
+Win*
+nametowin(char *name)
 {
 	char *index, *p, *next;
 	int len, n;
+	Win *w;
 
 	index = winindex();
-	n = -1;
 	len = strlen(name);
 	for(p=index; p && *p; p=next){
 		if((next = strchr(p, '\n')) != nil)
-			*next = 0;
+			*next++ = 0;
 		if(strlen(p) <= 5*12)
 			continue;
 		if(memcmp(p+5*12, name, len)!=0)
@@ -104,29 +115,15 @@ nametowinid(char *name)
 		if(p[5*12+len]!=' ' && (p[5*12+len]!='/' || p[5*12+len+1]!=' '))
 			continue;
 		n = atoi(p);
-		break;
+		if((w = winbyid(n)) != nil){
+			free(index);
+			return w;
+		}
 	}
 	free(index);
-	return n;
-}
-
-/* 
- * look up window by name
- */
-Win*
-nametowin(char *name)
-{
-	int id;
-	Win *w;
-	
-	id = nametowinid(name);
-	if(id == -1)
-		return nil;
-	for(w=windows; w; w=w->next)
-		if(w->id == id)
-			return w;
 	return nil;
 }
+
 
 /*
  * look for s in list
@@ -393,11 +390,14 @@ do3(Win *w, char *text)
 		name = estrdup(text);
 	else{
 		p = wingetname(w);
-		q = strrchr(p, '/');
-		*(q+1) = 0;
+		if(text[0] != ':'){
+			q = strrchr(p, '/');
+			*(q+1) = 0;
+		}
 		name = emalloc(strlen(p)+1+strlen(text)+1);
 		strcpy(name, p);
-		strcat(name, "/");
+		if(text[0] != ':')
+			strcat(name, "/");
 		strcat(name, text);
 	}
 	dprint("do3 %s => %s\n", text, name);
@@ -417,6 +417,7 @@ do3(Win *w, char *text)
 	free(path);
 	if(strcmp(type, "file")==0 || strcmp(type, "directory")==0){
 		w = nametowin(name);
+	fprint(2, "nametowin %s: %p\n", name);
 		if(w == nil)
 			w = mkwin(name);
 		winaddr(w, "%s", addr);

@@ -290,7 +290,7 @@ winindex(void)
 	char *s;
 	
 	mountacme();
-	if((fid = fsopen(acmefs, "index", ORDWR)) == nil)
+	if((fid = fsopen(acmefs, "index", OREAD)) == nil)
 		return nil;
 	s = fsreadm(fid);
 	fsclose(fid);
