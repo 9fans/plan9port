@@ -49,10 +49,13 @@ plumbopen(char *name, int omode)
 CFid*
 plumbopenfid(char *name, int mode)
 {
-	if(fsplumb == nil)
+	if(fsplumb == nil){
 		fsplumb = nsmount("plumb", "");
-	if(fsplumb == nil)
-		return nil;
+		if(fsplumb == nil){
+			werrstr("mount plumb: %r");
+			return nil;
+		}
+	}
 	return fsopen(fsplumb, name, mode);
 }
 
