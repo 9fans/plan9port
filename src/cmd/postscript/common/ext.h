@@ -24,6 +24,8 @@ extern double	pagewidth;
 extern int	reading;		/* input */
 extern int	writing;		/* and output encoding */
 
+#define getopt ps_getopt
+int getopt(int, char**, char*);
 extern char	*optarg;		/* for getopt() */
 extern int	optind;
 

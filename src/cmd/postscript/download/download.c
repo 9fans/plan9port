@@ -63,6 +63,7 @@
 #include <unistd.h>
 #include <libc.h>
 
+#include "../common/ext.h"
 #include "comments.h"			/* PostScript file structuring comments */
 #include "gen.h"			/* general purpose definitions */
 #include "path.h"			/* for temporary directory */

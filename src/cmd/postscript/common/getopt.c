@@ -1,5 +1,6 @@
 #include	<stdio.h>
 #include <string.h>
+#include "ext.h"
 #define ERR(str, chr)       if(opterr){fprintf(stderr, "%s%s%c\n", argv[0], str, chr);}
 int     opterr = 1;
 int     optind = 1;

@@ -45,3 +45,4 @@ void *galloc(void *, int, char *);
 void pagelist(char *);
 
 int safe_tmpnam(char*);
+
