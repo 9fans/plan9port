@@ -64,7 +64,7 @@ static Convfmt knownfmt[] = {
 	'p',	__ifmt,
 	'r',	__errfmt,
 	's',	__strfmt,
-	'u',	__ifmt,		/* in Plan 9, __flagfmt */
+	'u',	__flagfmt,	/* in Unix, __ifmt */
 	'x',	__ifmt,
 	0,	nil,
 };

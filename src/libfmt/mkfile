@@ -1,5 +1,5 @@
 PLAN9=../..
-include $(PLAN9)/src/Makehdr
+<$PLAN9/src/mkhdr
 
 LIB=libfmt.a
 
@@ -40,18 +40,18 @@ OFILES=\
 	vseprint.$O\
 	vsmprint.$O\
 	vsnprint.$O\
-	$(NUM)\
-	$(NAN)\
+	$NUM\
+	$NAN\
 
 HFILES=\
 	fmtdef.h\
-	$(PLAN9)/include/fmt.h\
+	$PLAN9/include/fmt.h\
 
-include $(PLAN9)/src/Makesyslib
+<$PLAN9/src/mksyslib
 
-$(NAN).$O: nan.h
+$NAN.$O: nan.h
 strtod.$O: nan.h
 
-test: $(LIB) test.$O
-	$(CC) -o test test.$O $(LIB) -L$(PLAN9)/lib -lutf
+test: $LIB test.$O
+	$CC -o test test.$O $LIB -L$PLAN9/lib -lutf
 
