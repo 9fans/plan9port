@@ -1,0 +1,44 @@
+.TH PASSWD 1
+.SH NAME
+passwd, netkey \- change user password
+.SH SYNOPSIS
+.B passwd
+[
+.I username\fR[@\fPdomain\fR]\fP
+]
+.PP
+.B netkey
+.SH DESCRIPTION
+.I Passwd
+changes the invoker's Plan 9 password and/or APOP secret.
+The Plan 9 password is used to login to a terminal while
+the APOP secret is used for a number of external services:
+POP3, IMAP, and VPN access.  The optional argument specifies
+the user name and authentication domain to use if different
+than the one associated with the machine
+.I passwd
+is run on.
+.PP
+The program first prompts for the old Plan 9 password in the specified
+domain to establish
+identity.
+It then prompts for changes to the password and the
+secret.
+New passwords and secrets must be typed twice, to forestall mistakes.
+New passwords must be sufficiently hard to guess.
+They may be of any length greater than seven characters.
+.PP
+.I Netkey
+prompts for a password to encrypt network challenges.
+It is a substitute for a SecureNet box.
+.SH SOURCE
+.B \*9/src/cmd/netkey.c
+.br
+.B \*9/src/cmd/auth/passwd.c
+.SH "SEE ALSO"
+.IR encrypt (3)
+.PP
+Robert Morris and Ken Thompson,
+``UNIX Password Security,''
+.I AT&T Bell Laboratories Technical Journal
+Vol 63 (1984), pp. 1649-1672

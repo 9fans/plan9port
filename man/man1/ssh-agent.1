@@ -1,0 +1,137 @@
+.TH SSH-AGENT 1
+.SH NAME
+ssh-agent \- SSH authentication agent
+.SH SYNOPSIS
+.B ssh-agent
+[
+.B -l
+]
+.I factotum-service
+.SH DESCRIPTION
+.I Ssh-agent
+presents
+.IR factotum (4)
+using the interface that
+.IR ssh (1)
+requires.
+.PP
+Once
+.I ssh-agent
+and
+.I factotum
+are running, the standard Unix SSH client
+can use
+.I ssh-agent
+(and, indirectly,
+.IR factotum )
+to authenticate to remote systems using RSA or DSA keys.
+.PP
+.I Ssh
+accesses
+.I ssh-agent
+via a Unix socket posted in a private subdirectory of
+.B /tmp .
+.I Ssh
+expects this socket to be in the environment as
+.BR $SSH_AGENT_SOCK ,
+and expects the agent to be running with process id
+.BR $SSH_AGENT_PID .
+.I Ssh-agent
+prints shell commands to set these two variables
+before forking itself into the background.
+It is typically invoked inside a shell
+.B eval
+construct; see the examples below.
+The 
+.B -e
+option causes
+.I ssh-agent
+to include
+.B export
+commands to put the variables into the environment of future programs.
+.PP
+If the
+.B -l
+option is given, 
+.I ssh-agent
+lists the usable
+.I factotum
+keys in the standard SSH format, suitable for creating an
+.B authorized_keys
+file.
+.PP
+.I Ssh-agent
+connects to
+.I factotum
+by accessing
+.I factotum-service
+(default
+.RB ` factotum ')
+in the current name space.
+.PP
+There is a Unix program called
+.I ssh-agent
+that manages SSH keys itself.
+Invoke this one with
+.B 9
+.BR ssh-agent ;
+see
+.IR 9 (1).
+.SH EXAMPLES
+Assume
+.IR factotum (4)
+is already running and initialized with keys.
+.PP
+Start a new agent, copying the commands by hand:
+.IP
+.EX
+$ 9 ssh-agent -e
+SSH_AUTH_SOCK=/tmp/ssh-405795003d7ee27a/agent.4233;
+export SSH_AUTH_SOCK;
+SSH_AGENT_PID=4233;
+export SSH_AGENT_PID;
+$ SSH_AUTH_SOCK=/tmp/ssh-405795003d7ee27a/agent.4233;
+$ export SSH_AUTH_SOCK;
+$ SSH_AGENT_PID=4233;
+$ export SSH_AGENT_PID;
+$ 
+.EE
+.PP
+Start the agent from
+.IR sh (1):
+.IP
+.EX
+$ eval `9 ssh-agent -e`
+$ 
+.EE
+.PP
+Start the agent from
+.IR rc (1):
+.IP
+.EX
+% eval `{9 ssh-agent}
+% 
+.EE
+.PP
+Use the agent to connect to a remote system:
+.IP
+.EX
+% ssh tux
+tux% ^D
+% 
+.EE
+.SH SOURCE
+.B \*9/src/cmd/auth/ssh-agent.c
+.SH SEE ALSO
+.IR ssh (1),
+.IR rsa (1),
+.IR factotum (4)
+.SH BUGS
+A surprise rather than a bug:
+.I ssh-agent
+connects to factotum on demand, so it can be
+started before
+.I factotum
+is running and need not be restarted just because
+.I factotum
+is.
