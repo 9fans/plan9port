@@ -8,35 +8,36 @@ extern char *_p9sigstr(int, char*);
 static struct {
 	int sig;
 	int restart;
+	int dumb;
 } sigs[] = {
-	SIGHUP, 0,
-	SIGINT, 0,
-	SIGQUIT, 0,
-	SIGILL, 0,
-	SIGTRAP, 0,
+	SIGHUP, 0, 0,
+	SIGINT, 0, 0,
+	SIGQUIT, 0, 0,
+	SIGILL, 0, 0,
+	SIGTRAP, 0, 0,
 /*	SIGABRT,	*/
 #ifdef SIGEMT
-	SIGEMT, 0,
+	SIGEMT, 0, 0,
 #endif
-	SIGFPE, 0,
-	SIGBUS, 0,
+	SIGFPE, 0, 0,
+	SIGBUS, 0, 0,
 /*	SIGSEGV,	*/
-	SIGCHLD, 1,
-	SIGSYS, 0,
-	SIGPIPE, 0,
-	SIGALRM, 0,
-	SIGTERM, 0,
-	SIGTSTP, 1,
-	SIGTTIN, 1,
-	SIGTTOU, 1,
-	SIGXCPU, 0,
-	SIGXFSZ, 0,
-	SIGVTALRM, 0,
-	SIGUSR1, 0,
-	SIGUSR2, 0,
-	SIGWINCH, 1,
+	SIGCHLD, 1, 1,
+	SIGSYS, 0, 0,
+	SIGPIPE, 0, 1,
+	SIGALRM, 0, 0,
+	SIGTERM, 0, 0,
+	SIGTSTP, 1, 1,
+	SIGTTIN, 1, 1,
+	SIGTTOU, 1, 1,
+	SIGXCPU, 0, 0,
+	SIGXFSZ, 0, 0,
+	SIGVTALRM, 0, 0,
+	SIGUSR1, 0, 0,
+	SIGUSR2, 0, 0,
+	SIGWINCH, 1, 1,
 #ifdef SIGINFO
-	SIGINFO, 0,
+	SIGINFO, 0, 0,
 #endif
 };
 
@@ -56,6 +57,13 @@ getonejmp(void)
 
 Jmp *(*_notejmpbuf)(void) = getonejmp;
 static void (*notifyf)(void*, char*);
+static int alldumb;
+
+static void
+nop(int sig)
+{
+	USED(sig);
+}
 
 static void
 notifysigf(int sig)
@@ -85,40 +93,71 @@ noted(int v)
 	return 0;
 }
 
+static void
+handlesig(int s, int r, int skip)
+{
+	struct sigaction sa, osa;
+
+	/*
+	 * If someone has already installed a handler,
+	 * It's probably some ld preload nonsense,
+	 * like pct (a SIGVTALRM-based profiler).
+	 * Leave it alone.
+	 */
+	sigaction(s, nil, &osa);
+	if(osa.sa_handler != SIG_DFL && osa.sa_handler != notifysigf && osa.sa_handler != nop)
+		return;
+
+	memset(&sa, 0, sizeof sa);
+	if(skip)
+		sa.sa_handler = nop;
+	else if(notifyf == 0)
+		sa.sa_handler = SIG_DFL;
+	else
+		sa.sa_handler = notifysigf;
+
+	/*
+	 * We assume that one jump buffer per thread
+	 * is okay, which means that we can't deal with 
+	 * signal handlers called during signal handlers.
+	 */
+	sigfillset(&sa.sa_mask);
+	if(r)
+		sa.sa_flags |= SA_RESTART;
+	else
+		sa.sa_flags &= ~SA_RESTART;
+	sigaction(s, &sa, nil);
+}
+
 int
 notify(void (*f)(void*, char*))
 {
 	int i;
-	struct sigaction sa, osa;
 
-	memset(&sa, 0, sizeof sa);
-	if(f == 0)
-		sa.sa_handler = SIG_DFL;
-	else{
-		notifyf = f;
-		sa.sa_handler = notifysigf;
-	}
-	for(i=0; i<nelem(sigs); i++){
-		/*
-		 * If someone has already installed a handler,
-		 * It's probably some ld preload nonsense,
-		 * like pct (a SIGVTALRM-based profiler).
-		 * Leave it alone.
-		 */
-		sigaction(sigs[i].sig, nil, &osa);
-		if(osa.sa_handler != SIG_DFL)
-			continue;
-		/*
-		 * We assume that one jump buffer per thread
-		 * is okay, which means that we can't deal with 
-		 * signal handlers called during signal handlers.
-		 */
-		sigfillset(&sa.sa_mask);
-		if(sigs[i].restart)
-			sa.sa_flags |= SA_RESTART;
-		else
-			sa.sa_flags &= ~SA_RESTART;
-		sigaction(sigs[i].sig, &sa, nil);
-	}
+	notifyf = f;
+	for(i=0; i<nelem(sigs); i++)
+		handlesig(sigs[i].sig, sigs[i].restart, sigs[i].dumb && !alldumb);
 	return 0;
 }
+
+void
+notifyall(int all)
+{
+	int i;
+
+	alldumb = all;
+	for(i=0; i<nelem(sigs); i++)
+		if(sigs[i].dumb)
+			handlesig(sigs[i].sig, sigs[i].restart, !all);
+}
+
+void
+notifyatsig(int sig, int use)
+{
+	int i;
+
+	for(i=0; i<nelem(sigs); i++)
+		if(sigs[i].sig == sig)
+			handlesig(sigs[i].sig, sigs[i].restart, 0);
+}
+
