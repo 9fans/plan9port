@@ -1,0 +1,9 @@
+#!/bin/sh
+
+ar "$@"
+case "`uname`" in 
+Darwin)
+	ranlib -c $2
+	;;
+esac
+
