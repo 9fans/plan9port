@@ -349,13 +349,26 @@ winsettag1(Window *w)
 	runemove(tagname, w->body.file->name, ntagname);
 	abbrevenv(&tagname, &ntagname);
 
+	/*
+	 * XXX Why is this here instead of letting the code
+	 * down below do the work?
+	 */
 	if(runeeq(old, i, tagname, ntagname) == FALSE){
+		q0 = w->tag.q0;
+		q1 = w->tag.q1;
 		textdelete(&w->tag, 0, i, TRUE);
 		textinsert(&w->tag, 0, tagname, ntagname, TRUE);
 		free(old);
 		old = runemalloc(w->tag.file->b.nc+1);
 		bufread(&w->tag.file->b, 0, old, w->tag.file->b.nc);
 		old[w->tag.file->b.nc] = '\0';
+		if(q0 >= i){
+			/*
+			 * XXX common case - typing at end of name
+			 */
+			w->tag.q0 = q0+ntagname-i;
+			w->tag.q1 = q1+ntagname-i;
+		}
 	}
 	
 	/* compute the text for the whole tag, replacing current only if it differs */
