@@ -46,6 +46,28 @@ readmouse(Mousectl *mc)
 	return 0;
 }
 
+/*
+ * This is necessary because some X libraries (e.g., on FC3)
+ * use an inordinate amount of stack space to do _xsetcursor.
+ * Perhaps instead there should be a generic "run this X routine"
+ * stack that you send a function and argument to.
+ */
+static
+void
+_cursorproc(void *arg)
+{
+	Mousectl *mc;
+	Cursor *c;
+	
+	mc = arg;
+	threadsetname("cursorproc (sigh)");
+	for(;;){
+		c = recvp(mc->ccursor);
+		_xsetcursor(c);
+		sendp(mc->ccursorwait, nil);
+	}
+}
+
 static
 void
 _ioproc(void *arg)
@@ -141,14 +163,22 @@ initmouse(char *file, Image *i)
 	chansetname(mc->c, "mousec");
 	mc->resizec = chancreate(sizeof(int), 2);
 	chansetname(mc->resizec, "resizec");
+	mc->ccursor = chancreate(sizeof(void*), 0);
+	chansetname(mc->ccursor, "ccursor");
+	mc->ccursorwait = chancreate(sizeof(void*), 0);
+	chansetname(mc->ccursor, "ccursorwait");
 	proccreate(_ioproc, mc, 256*1024);
+	proccreate(_cursorproc, mc, 256*1024);	/* sigh */
 	return mc;
 }
 
 void
 setcursor(Mousectl *mc, Cursor *c)
 {
-	_xsetcursor(c);
+	qlock(&mc->cursorlock);
+	sendp(mc->ccursor, c);
+	recvp(mc->ccursorwait);
+	qunlock(&mc->cursorlock);
 }
 
 /*

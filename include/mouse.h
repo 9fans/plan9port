@@ -26,6 +26,11 @@ struct Mousectl
 	int		pid;		/* of slave proc */
 	Display		*display;
 	/*Image*	image;	/ * of associated window/display */
+	
+	/* clumsy hack for X11 */
+	struct Channel *ccursor;
+	struct Channel *ccursorwait;
+	QLock cursorlock;
 };
 
 struct Menu
