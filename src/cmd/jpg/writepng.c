@@ -21,6 +21,7 @@ typedef struct ZlibR{
 	int width;
 	int nrow, ncol;
 	int row, col;	// next pixel to send
+	int pixwid;
 } ZlibR;
 
 typedef struct ZlibW{
@@ -68,19 +69,42 @@ zread(void *va, void *buf, int n)
 	int ncol = z->ncol;
 	uchar *b = buf, *e = b+n, *img;
 	int pixels;  // number of pixels in row that can be sent now
-
-	while(b+3 <= e){ // loop over image rows
+	int i, a, pixwid;
+	
+	pixwid = z->pixwid;
+	while(b+pixwid <= e){ // loop over image rows
 		if(z->row >= nrow)
 			break;
 		if(z->col==0)
 			*b++ = FilterNone;
-		pixels = (e-b)/3;
+		pixels = (e-b)/pixwid;
 		if(pixels > ncol - z->col)
 			pixels = ncol - z->col;
-		img = z->data + z->width * z->row + 3 * z->col;
+		img = z->data + z->width * z->row + pixwid * z->col;
 
-		memmove(b, img, 3*pixels);
-		b += 3*pixels;
+		memmove(b, img, pixwid*pixels);
+		if(pixwid == 4){
+			/*
+			 * Convert to non-premultiplied alpha.
+			 */
+			for(i=0; i<pixels; i++, b+=4){
+				a = b[3];
+				if(a == 255 || a == 0)
+					;
+				else{
+					if(b[0] >= a)
+						b[0] = a;
+					b[0] = (b[0]*255)/a;
+					if(b[1] >= a)
+						b[1] = a;
+					b[1] = (b[1]*255)/a;
+					if(b[2] >= a)
+						b[2] = a;
+					b[2] = (b[2]*255)/a;
+				}
+			}
+		}else	
+			b += pixwid*pixels;
 
 		z->col += pixels;
 		if(z->col >= ncol){
@@ -119,17 +143,25 @@ zwrite(void *va, void *buf, int n)
 }
 
 static Memimage*
-memRGB(Memimage *i)
+memRGBA(Memimage *i)
 {
 	Memimage *ni;
-
+	char buf[32];
+	ulong dst;
+	
 	/*
-	 * BGR24 because we want R,G,B in big-endian order.  Sigh.
+	 * [A]BGR because we want R,G,B,[A] in big-endian order.  Sigh.
 	 */
-	if(i->chan == BGR24)
+	chantostr(buf, i->chan);
+	if(strchr(buf, 'a'))
+		dst = ABGR32;
+	else
+		dst = BGR24;
+		
+	if(i->chan == dst)
 		return i;
 
-	ni = allocmemimage(i->r, BGR24);
+	ni = allocmemimage(i->r, dst);
 	if(ni == nil)
 		return ni;
 	memimagedraw(ni, ni->r, i, i->r.min, nil, i->r.min, S);
@@ -149,7 +181,7 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 	Tm *tm;
 	Memimage *rgb;
 
-	rgb = memRGB(r);
+	rgb = memRGBA(r);
 	if(rgb == nil)
 		return "allocmemimage nil";
 	crctab = mkcrctab(0xedb88320);
@@ -163,7 +195,7 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 	put4(h, ncol); h += 4;
 	put4(h, nrow); h += 4;
 	*h++ = 8; // bit depth = 24 bit per pixel
-	*h++ = 2; // color type = rgb
+	*h++ = rgb->chan==BGR24 ? 2 : 6; // color type = rgb
 	*h++ = 0; // compression method = deflate
 	*h++ = 0; // filter method
 	*h++ = 0; // interlace method = no interlace
@@ -199,6 +231,7 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 	zr.width = rgb->width * sizeof(ulong);
 	zr.data = rgb->data->bdata;
 	zr.row = zr.col = 0;
+	zr.pixwid = chantodepth(rgb->chan)/8;
 	zw.bo = bo;
 	zw.buf = malloc(IDATSIZE);
 	zw.b = zw.buf;
