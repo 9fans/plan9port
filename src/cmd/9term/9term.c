@@ -361,6 +361,8 @@ mouse(void)
 					wordclick(&q0, &q1);
 				if(q0 == q1)
 					break;
+				t.q0 = t.q1 = t.nr;
+				updatesel();
 				paste(t.r+q0, q1-q0, 1);
 				if(t.r[q1-1] != '\n')
 					paste(Lnl, 1, 1);
@@ -384,7 +386,7 @@ mselect(void)
 
 	b = t.m.buttons;
 	q0 = frcharofpt(t.f, t.m.xy) + t.org;
-	if(t.m.msec-clickmsec<500 && clickq0 == q0 && t.q0==t.q1 && b==1){
+	if(t.m.msec-clickmsec<500 && clickq0==q0 && t.q0==t.q1 && b==1){
 		doubleclick(&t.q0, &t.q1);
 		updatesel();
 /*		t.t.i->flush(); */
@@ -408,19 +410,19 @@ mselect(void)
 		clickmsec = t.m.msec;
 		clickq0 = t.q0;
 	}
-	if((t.m.buttons != b) && (b&1)){
-		enum {Cancut = 1, Canpaste = 2} state = Cancut | Canpaste;
+	if((t.m.buttons != b) &&(b&1)){
+		enum{Cancut = 1, Canpaste = 2} state = Cancut | Canpaste;
 		while(t.m.buttons){
-			if(t.m.buttons&2) {
-				if (state&Cancut) {
+			if(t.m.buttons&2){
+				if(state&Cancut){
 					snarf();
 					cut();
 					state = Canpaste;
 				}
-			} else if (t.m.buttons&4) {
-				if (state&Canpaste) {
+			}else if(t.m.buttons&4){
+				if(state&Canpaste){
 					snarfupdate();
-					if (t.nsnarf) {
+					if(t.nsnarf){
 						paste(t.snarf, t.nsnarf, 0);
 					}
 					state = Cancut|Canpaste;
@@ -841,7 +843,6 @@ cut(void)
 void
 snarfupdate(void)
 {
-
 	char *pp;
 	int n, i;
 	Rune *p;
@@ -861,29 +862,31 @@ snarfupdate(void)
 
 }
 
+char sbuf[SnarfSize];
 void
 snarf(void)
 {
-	char buf[SnarfSize], *p;
+	char *p;
 	int i, n;
 	Rune *rp;
 
 	if(t.q1 == t.q0)
 		return;
 	n = t.q1-t.q0;
-	t.snarf =  runerealloc(t.snarf, n);
-	for(i=0,p=buf,rp=t.snarf; i<n && p < buf + SnarfSize-UTFmax; i++){
+	t.snarf = runerealloc(t.snarf, n);
+	for(i=0,p=sbuf,rp=t.snarf; i<n && p < sbuf+SnarfSize-UTFmax; i++){
 		*rp++ = *(t.r+t.q0+i);
 		p += runetochar(p, t.r+t.q0+i);
 	}
 	t.nsnarf = rp-t.snarf;
 	*p = '\0';
-	putsnarf(buf);
+	putsnarf(sbuf);
 }
 
 void
 paste(Rune *r, int n, int advance)
 {
+	Rune *rbuf;
 	uint m;
 	uint q0;
 
@@ -908,6 +911,17 @@ paste(Rune *r, int n, int advance)
 		t.nr -= m;
 		runemove(t.r, t.r+m, t.nr);
 	}
+
+	/*
+	 * if this is a button2 execute then we might have been passed
+	 * runes inside the buffer.  must save them before realloc.
+	 */
+	rbuf = nil;
+	if(t.r <= r && r < t.r+n){
+		rbuf = runemalloc(n);
+		runemove(rbuf, r, n);
+		r = rbuf;
+	}
 	t.r = runerealloc(t.r, t.nr+n);
 	q0 = t.q0;
 	runemove(t.r+q0+n, t.r+q0, t.nr-q0);
@@ -925,6 +939,7 @@ paste(Rune *r, int n, int advance)
 		t.q0 += n;
 	t.q1 += n;
 	updatesel();
+	free(rbuf);
 }
 
 void

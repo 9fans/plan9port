@@ -42,6 +42,7 @@ OFILES=\
 	main.$O\
 	malloctag.$O\
 	mallocz.$O\
+	nan.$O\
 	needsrcquote.$O\
 	netmkaddr.$O\
 	notify.$O\
