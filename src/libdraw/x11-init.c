@@ -349,7 +349,7 @@ xattach(char *label)
 			home = getenv("home");
 			if(home == nil)
 				home = getenv("HOME");
-			if(home!=nil && (file=smprint("%s/.Xdefaults")) != nil){
+			if(home!=nil && (file=smprint("%s/.Xdefaults", home)) != nil){
 				XrmCombineFileDatabase(file, &database, False);
 				free(file);
 			}
