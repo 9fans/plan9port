@@ -310,7 +310,7 @@ Xfid*
 fsysflush(Xfid *x, Fid *f)
 {
 	USED(f);
-	sendp(x->c, xfidflush);
+	sendp(x->c, (void*)xfidflush);
 	return nil;
 }
 
@@ -526,7 +526,7 @@ fsysopen(Xfid *x, Fid *f)
 	if(((f->dir->perm&~(DMDIR|DMAPPEND))&m) != m)
 		goto Deny;
 
-	sendp(x->c, xfidopen);
+	sendp(x->c, (void*)xfidopen);
 	return nil;
 
     Deny:
@@ -624,7 +624,7 @@ fsysread(Xfid *x, Fid *f)
 		free(b);
 		return x;
 	}
-	sendp(x->c, xfidread);
+	sendp(x->c, (void*)xfidread);
 	return nil;
 }
 
@@ -633,7 +633,7 @@ Xfid*
 fsyswrite(Xfid *x, Fid *f)
 {
 	USED(f);
-	sendp(x->c, xfidwrite);
+	sendp(x->c, (void*)xfidwrite);
 	return nil;
 }
 
@@ -642,7 +642,7 @@ Xfid*
 fsysclunk(Xfid *x, Fid *f)
 {
 	fsysdelid(f->mntdir);
-	sendp(x->c, xfidclose);
+	sendp(x->c, (void*)xfidclose);
 	return nil;
 }
 

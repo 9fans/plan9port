@@ -43,7 +43,7 @@ tm2Tm(struct tm *tm, Tm *bigtm)
 	if(bigtm->zone[0] == 0){
 		s = getenv("TIMEZONE");
 		if(s){
-			strecpy(bigtm->zone, bigtm->zone+4, tm->tm_zone);
+			strecpy(bigtm->zone, bigtm->zone+4, s);
 			free(s);
 		}
 	}

@@ -214,7 +214,7 @@ threadmain(int argc, char *argv[])
 	if(maxtab <= 0)
 		maxtab = 8;
 
-	initdraw(nil, nil, "9term");
+	initdraw(0, nil, "9term");
 	notify(hangupnote);
 
 	mc = initmouse(nil, screen);
@@ -299,13 +299,27 @@ loop(void)
 {
 	Rune r;
 	int i;
-	Alt a[] = {
-		{mc->c, &mc->m, CHANRCV},
-		{kc->c, &r, CHANRCV},
-		{hostc, &i, CHANRCV},
-		{mc->resizec, nil, CHANRCV},
-		{nil, nil, CHANEND},
-	};
+	Alt a[5];
+
+	a[0].c = mc->c;
+	a[0].v = &mc->m;
+	a[0].op = CHANRCV;
+
+	a[1].c = kc->c;
+	a[1].v = &r;
+	a[1].op = CHANRCV;
+
+	a[2].c = hostc;
+	a[2].v = &i;
+	a[2].op = CHANRCV;
+
+	a[3].c = mc->resizec;
+	a[3].v = nil;
+	a[3].op = CHANRCV;
+
+	a[4].c = nil;
+	a[4].v = nil;
+	a[4].op = CHANEND;
 
 	for(;;) {
 		tcheck();
@@ -326,7 +340,7 @@ loop(void)
 			key(r);
 			break;
 		case 2:
-			conswrite(rcbuf[i].data, rcbuf[i].n);
+			conswrite((char*)rcbuf[i].data, rcbuf[i].n);
 			break;
 		case 3:
 			doreshape();

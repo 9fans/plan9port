@@ -29,7 +29,7 @@ memlsetrefresh(Memimage *i, Refreshfn fn, void *ptr)
 		return 0;
 	/* easiest way is just to update the entire save area */
 	l->refreshfn(i, i->r, l->refreshptr);
-	l->refreshfn = nil;
+	l->refreshfn = 0;
 	l->refreshptr = nil;
 	return 1;
 }

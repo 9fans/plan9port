@@ -91,6 +91,7 @@ void		flushwarnings(void);
 void		startplumbing(void);
 
 Runestr	runestr(Rune*, uint);
+Range range(int, int);
 
 #define	runemalloc(a)		(Rune*)emalloc((a)*sizeof(Rune))
 #define	runerealloc(a, b)	(Rune*)erealloc((a), (b)*sizeof(Rune))

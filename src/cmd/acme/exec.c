@@ -106,7 +106,7 @@ Exectab exectab[] = {
 	{ LTab,		tab,		FALSE,	XXX,		XXX		},
 	{ LUndo,		undo,	FALSE,	TRUE,	XXX		},
 	{ LZerox,	zeroxx,	FALSE,	XXX,		XXX		},
-	{ nil, 			nil,		0,		0,		0		},
+	{ nil, 			0,		0,		0,		0		},
 };
 
 Exectab*

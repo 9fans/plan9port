@@ -1,8 +1,7 @@
 /* input event and data structure translation */
 
-#include "x11-inc.h"
-
 #include <u.h>
+#include "x11-inc.h"
 #include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
@@ -318,8 +317,8 @@ _xsetcursor(Cursor *c)
 
 	fg = _x.map[0];
 	bg = _x.map[255];
-	xsrc = XCreateBitmapFromData(_x.display, _x.drawable, src, 16, 16);
-	xmask = XCreateBitmapFromData(_x.display, _x.drawable, mask, 16, 16);
+	xsrc = XCreateBitmapFromData(_x.display, _x.drawable, (char*)src, 16, 16);
+	xmask = XCreateBitmapFromData(_x.display, _x.drawable, (char*)mask, 16, 16);
 	xc = XCreatePixmapCursor(_x.display, xsrc, xmask, &fg, &bg, -c->offset.x, -c->offset.y);
 	if(xc != 0) {
 		XDefineCursor(_x.display, _x.drawable, xc);
@@ -412,14 +411,14 @@ _xgetsnarf(XDisplay *xd)
 		data = nil;
 	}else{
 		if(xdata){
-			data = strdup((char*)xdata);
+			data = (uchar*)strdup((char*)xdata);
 			XFree(xdata);
 		}else
 			data = nil;
 	}
 out:
 	qunlock(&clip.lk);
-	return data;
+	return (char*)data;
 }
 
 void

@@ -1,8 +1,8 @@
 /*
  * Some of the stuff in this file is not X-dependent and should be elsewhere.
  */
-#include "x11-inc.h"
 #include <u.h>
+#include "x11-inc.h"
 #include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
@@ -69,7 +69,8 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 static Image*
 getimage0(Display *d)
 {
-	char *a, info[12*12+1];
+	char info[12*12+1];
+	uchar *a;
 	int n;
 	Image *image;
 
@@ -323,7 +324,7 @@ xattach(char *label)
 	name.value = (uchar*)label;
 	name.encoding = XA_STRING;
 	name.format = 8;
-	name.nitems = strlen(name.value);
+	name.nitems = strlen((char*)name.value);
 
 	memset(&normalhint, 0, sizeof normalhint);
 	normalhint.flags = USSize|PMaxSize;
@@ -435,7 +436,7 @@ drawsetlabel(Display *d, char *label)
 	name.value = (uchar*)label;
 	name.encoding = XA_STRING;
 	name.format = 8;
-	name.nitems = strlen(name.value);
+	name.nitems = strlen((char*)name.value);
 
 	memset(&classhint, 0, sizeof classhint);
 	classhint.res_name = label;

@@ -216,10 +216,9 @@ void Updenv(void){
 }
 */
 int
-cmpenv(a, b)
-char **a, **b;
+cmpenv(const void *a, const void *b)
 {
-	return strcmp(*a, *b);
+	return strcmp(*(char**)a, *(char**)b);
 }
 char **mkenv(){
 	register char **env, **ep, *p, *q;
@@ -462,7 +461,7 @@ void Noerror(void){
 	interrupted=0;
 }
 int
-Isatty(fd){
+Isatty(int fd){
 	return isatty(fd);
 }
 void Abort(void){

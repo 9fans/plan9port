@@ -24,7 +24,7 @@ fsdirwstat(Fsys *fs, char *name, Dir *d)
 int
 fsdirfwstat(Fid *fid, Dir *d)
 {
-	char *a;
+	uchar *a;
 	int n, nn;
 	Fcall tx, rx;
 

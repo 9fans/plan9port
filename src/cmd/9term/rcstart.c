@@ -35,7 +35,12 @@ rcstart(int argc, char **argv, int *pfd)
 		dup(sfd, 0);
 		dup(sfd, 1);
 		dup(sfd, 2);
-		system("stty tabs -onlcr -echo erase ^h intr ^?");
+//		system("stty tabs -onlcr -echo erase '^h' intr '^?'");
+		system("echo tabs; stty tabs");
+		system("echo onlcr; stty -onlcr");
+		system("echo echo; stty -echo");
+		system("echo erase; stty erase '^h'");
+		system("echo intr; stty intr '^?'");
 		execvp(argv[0], argv);
 		fprint(2, "exec %s failed: %r\n", argv[0]);
 		_exits("oops");

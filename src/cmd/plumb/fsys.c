@@ -122,22 +122,25 @@ static Fcall* fsysremove(Fcall*, uchar*, Fid*);
 static Fcall* fsysstat(Fcall*, uchar*, Fid*);
 static Fcall* fsyswstat(Fcall*, uchar*, Fid*);
 
-Fcall* 	(*fcall[Tmax])(Fcall*, uchar*, Fid*) =
+Fcall* 	(*fcall[Tmax])(Fcall*, uchar*, Fid*);
+
+static void
+initfcall(void)
 {
-	[Tflush]	= fsysflush,
-	[Tversion]	= fsysversion,
-	[Tauth]	= fsysauth,
-	[Tattach]	= fsysattach,
-	[Twalk]	= fsyswalk,
-	[Topen]	= fsysopen,
-	[Tcreate]	= fsyscreate,
-	[Tread]	= fsysread,
-	[Twrite]	= fsyswrite,
-	[Tclunk]	= fsysclunk,
-	[Tremove]= fsysremove,
-	[Tstat]	= fsysstat,
-	[Twstat]	= fsyswstat,
-};
+	fcall[Tflush]	= fsysflush;
+	fcall[Tversion]	= fsysversion;
+	fcall[Tauth]	= fsysauth;
+	fcall[Tattach]	= fsysattach;
+	fcall[Twalk]	= fsyswalk;
+	fcall[Topen]	= fsysopen;
+	fcall[Tcreate]	= fsyscreate;
+	fcall[Tread]	= fsysread;
+	fcall[Twrite]	= fsyswrite;
+	fcall[Tclunk]	= fsysclunk;
+	fcall[Tremove]= fsysremove;
+	fcall[Tstat]	= fsysstat;
+	fcall[Twstat]	= fsyswstat;
+}
 
 char	Ebadfcall[] =	"bad fcall type";
 char	Eperm[] = 	"permission denied";
@@ -208,6 +211,7 @@ fsysproc(void *v)
 	uchar *buf;
 
 	USED(v);
+	initfcall();
 	t = nil;
 	for(;;){
 		buf = malloc(messagesize);	/* avoid memset of emalloc */

@@ -56,27 +56,27 @@ fillellipseop(Image *dst, Point c, int a, int b, Image *src, Point sp, Drawop op
 void
 arc(Image *dst, Point c, int a, int b, int thick, Image *src, Point sp, int alpha, int phi)
 {
-	alpha |= 1<<31;
+	alpha |= ((ulong)1)<<31;
 	doellipse('e', dst, &c, a, b, thick, src, &sp, alpha, phi, SoverD);
 }
 
 void
 arcop(Image *dst, Point c, int a, int b, int thick, Image *src, Point sp, int alpha, int phi, Drawop op)
 {
-	alpha |= 1<<31;
+	alpha |= (ulong)1<<31;
 	doellipse('e', dst, &c, a, b, thick, src, &sp, alpha, phi, op);
 }
 
 void
 fillarc(Image *dst, Point c, int a, int b, Image *src, Point sp, int alpha, int phi)
 {
-	alpha |= 1<<31;
+	alpha |= (ulong)1<<31;
 	doellipse('E', dst, &c, a, b, 0, src, &sp, alpha, phi, SoverD);
 }
 
 void
 fillarcop(Image *dst, Point c, int a, int b, Image *src, Point sp, int alpha, int phi, Drawop op)
 {
-	alpha |= 1<<31;
+	alpha |= (ulong)1<<31;
 	doellipse('E', dst, &c, a, b, 0, src, &sp, alpha, phi, op);
 }

@@ -67,7 +67,7 @@ inittagtab(void)
 	tagtab[TI]=	"TI";
 	tagtab[TX]=	"TX";
 	tagtab[VD]=	"VD";
-};
+}
 
 static char	*mget(int, char *, char *, char **);
 #if 0

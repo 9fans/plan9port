@@ -7,15 +7,19 @@
  * American Heritage Dictionary (encrypted)
  */
 
-static Rune intab[256] = {
-	[0x82] 0xe9,
-	[0x85] 0xe0,
-	[0x89] 0xeb,
-	[0x8a] 0xe8,
-	[0xa4] 0xf1,
-	[0xf8] 0xb0,
-	[0xf9] 0xb7,
-};
+static Rune intab[256];
+
+static void
+initintab(void)
+{
+	intab[0x82] =  0xe9;
+	intab[0x85] =  0xe0;
+	intab[0x89] =  0xeb;
+	intab[0x8a] =  0xe8;
+	intab[0xa4] =  0xf1;
+	intab[0xf8] =  0xb0;
+	intab[0xf9] =  0xb7;
+}
 
 static char	tag[64];
 
@@ -33,6 +37,7 @@ ahdprintentry(Entry e, int cmd)
 	int c, state = Run;
 
 	if(!inited){
+		initintab();
 		for(c=0; c<256; c++)
 			if(intab[c] == 0)
 				intab[c] = c;

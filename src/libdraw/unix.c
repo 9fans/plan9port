@@ -1,6 +1,5 @@
-#include <sys/stat.h>
-
 #include <u.h>
+#include <sys/stat.h>
 #include <libc.h>
 #include <draw.h>
 

@@ -47,7 +47,7 @@ xfidctl(void *arg)
 	threadsetname("xfidctlthread");
 	x = arg;
 	for(;;){
-		f = recvp(x->c);
+		f = (void(*)(Xfid*))recvp(x->c);
 		(*f)(x);
 		flushimage(display, 1);
 		sendp(cxfidfree, x);
@@ -104,8 +104,8 @@ xfidopen(Xfid *x)
 		switch(q){
 		case QWaddr:
 			if(w->nopen[q]++ == 0){
-				w->addr = (Range){0,0};
-				w->limit = (Range){-1,-1};
+				w->addr = range(0,0);
+				w->limit = range(-1,-1);
 			}
 			break;
 		case QWdata:
@@ -164,7 +164,7 @@ xfidopen(Xfid *x)
 			seq++;
 			filemark(t->file);
 			cut(t, t, nil, FALSE, TRUE, nil, 0);
-			w->wrselrange = (Range){t->q1, t->q1};
+			w->wrselrange = range(t->q1, t->q1);
 			w->nomark = TRUE;
 			break;
 		case QWeditout:
@@ -173,7 +173,7 @@ xfidopen(Xfid *x)
 				respond(x, &fc, Eperm);
 				return;
 			}
-			w->wrselrange = (Range){t->q1, t->q1};
+			w->wrselrange = range(t->q1, t->q1);
 			break;
 		}
 		winunlock(w);

@@ -1,3 +1,4 @@
+#include <u.h>
 #include <signal.h>
 #include "threadimpl.h"
 

@@ -64,7 +64,7 @@ number(Mntdir *md, Text *t, Range r, int line, int dir, int size, int *evalp)
 		if(line<0 || line>t->file->b.nc)
 			goto Rescue;
 		*evalp = TRUE;
-		return (Range){line, line};
+		return range(line, line);
 	}
 	q0 = r.q0;
 	q1 = r.q1;
@@ -104,7 +104,7 @@ number(Mntdir *md, Text *t, Range r, int line, int dir, int size, int *evalp)
 			--q0;
 	}
 	*evalp = TRUE;
-	return (Range){q0, q1};
+	return range(q0, q1);
 
     Rescue:
 	if(md != nil)
@@ -197,7 +197,7 @@ address(Mntdir *md, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, int
 				if(c == '.')
 					r = ar;
 				else
-					r = (Range){t->file->b.nc, t->file->b.nc};
+					r = range(t->file->b.nc, t->file->b.nc);
 			if(q < q1)
 				dir = Fore;
 			else

@@ -14,6 +14,16 @@
 static	Point		prevmouse;
 static	Window	*mousew;
 
+Range
+range(int q0, int q1)
+{
+	Range r;
+
+	r.q0 = q0;
+	r.q1 = q1;
+	return r;
+}
+
 Runestr
 runestr(Rune *r, uint n)
 {

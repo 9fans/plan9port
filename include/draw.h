@@ -21,39 +21,35 @@ typedef struct	Subfont Subfont;
 extern	int	Rfmt(Fmt*);
 extern	int	Pfmt(Fmt*);
 
-enum
-{
-	DOpaque		= 0xFFFFFFFF,
-	DTransparent	= 0x00000000,		/* only useful for allocimage, memfillcolor */
-	DBlack		= 0x000000FF,
-	DWhite		= 0xFFFFFFFF,
-	DRed		= 0xFF0000FF,
-	DGreen		= 0x00FF00FF,
-	DBlue		= 0x0000FFFF,
-	DCyan		= 0x00FFFFFF,
-	DMagenta		= 0xFF00FFFF,
-	DYellow		= 0xFFFF00FF,
-	DPaleyellow	= 0xFFFFAAFF,
-	DDarkyellow	= 0xEEEE9EFF,
-	DDarkgreen	= 0x448844FF,
-	DPalegreen	= 0xAAFFAAFF,
-	DMedgreen	= 0x88CC88FF,
-	DDarkblue	= 0x000055FF,
-	DPalebluegreen= 0xAAFFFFFF,
-	DPaleblue		= 0x0000BBFF,
-	DBluegreen	= 0x008888FF,
-	DGreygreen	= 0x55AAAAFF,
-	DPalegreygreen	= 0x9EEEEEFF,
-	DYellowgreen	= 0x99994CFF,
-	DMedblue		= 0x000099FF,
-	DGreyblue	= 0x005DBBFF,
-	DPalegreyblue	= 0x4993DDFF,
-	DPurpleblue	= 0x8888CCFF,
+#define 	DOpaque		0xFFFFFFFF
+#define 	DTransparent	0x00000000		/* only useful for allocimage memfillcolor */
+#define 	DBlack		0x000000FF
+#define 	DWhite		0xFFFFFFFF
+#define 	DRed		0xFF0000FF
+#define 	DGreen		0x00FF00FF
+#define 	DBlue		0x0000FFFF
+#define 	DCyan		0x00FFFFFF
+#define 	DMagenta		0xFF00FFFF
+#define 	DYellow		0xFFFF00FF
+#define 	DPaleyellow	0xFFFFAAFF
+#define 	DDarkyellow	0xEEEE9EFF
+#define 	DDarkgreen	0x448844FF
+#define 	DPalegreen	0xAAFFAAFF
+#define 	DMedgreen	0x88CC88FF
+#define 	DDarkblue	0x000055FF
+#define 	DPalebluegreen 0xAAFFFFFF
+#define 	DPaleblue		0x0000BBFF
+#define 	DBluegreen	0x008888FF
+#define 	DGreygreen	0x55AAAAFF
+#define 	DPalegreygreen	0x9EEEEEFF
+#define 	DYellowgreen	0x99994CFF
+#define 	DMedblue		0x000099FF
+#define 	DGreyblue	0x005DBBFF
+#define 	DPalegreyblue	0x4993DDFF
+#define 	DPurpleblue	0x8888CCFF
 
-	DNotacolor	= 0xFFFFFF00,
-	DNofill		= DNotacolor,
-	
-};
+#define 	DNotacolor	0xFFFFFF00
+#define 	DNofill		DNotacolor
 
 enum
 {

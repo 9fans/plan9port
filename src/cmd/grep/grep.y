@@ -124,7 +124,7 @@ yyerror(char *e, ...)
 	exits("syntax");
 }
 
-long
+int
 yylex(void)
 {
 	char *q, *eq;

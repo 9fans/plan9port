@@ -25,12 +25,12 @@ threadnotify(int (*f)(void*, char*), int in)
 	int (*from)(void*, char*), (*to)(void*, char*);
 
 	if(in){
-		from = nil;
+		from = 0;
 		to = f;
 		topid = _threadgetproc()->pid;
 	}else{
 		from = f;
-		to = nil;
+		to = 0;
 		topid = 0;
 	}
 	lock(&onnotelock);

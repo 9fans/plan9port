@@ -239,7 +239,7 @@ xstat(int argc, char **argv)
 		usage();
 
 	fid = xwalk(argv[0]);
-	if((d = fsdirfstat(fid)) < 0)
+	if((d = fsdirfstat(fid)) == 0)
 		sysfatal("dirfstat: %r");
 	fmtinstall('D', dirfmt);
 	fmtinstall('M', dirmodefmt);

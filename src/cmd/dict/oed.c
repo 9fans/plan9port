@@ -992,7 +992,7 @@ static int	naux;
 static char	auxname[Maxaux][Buflen];
 static char	auxval[Maxaux][Buflen];
 static char	spec[Buflen];
-static uchar	*auxstate[Naux];	/* vals for most recent tag */
+static char	*auxstate[Naux];	/* vals for most recent tag */
 static Entry	curentry;
 #define cursize (curentry.end-curentry.start)
 
@@ -1154,7 +1154,7 @@ oedprintentry(Entry e, int cmd)
 							outchars(auxstate[Num]);
 							outchars(") ");
 						} else if(t == Sgk) {
-							i = grtab[auxstate[Num][0]];
+							i = grtab[(uchar)auxstate[Num][0]];
 							if(i != NONE)
 								outrune(i);
 							outchars(".  ");

@@ -834,7 +834,7 @@ _drawmsgwrite(Display *d, void *v, int n)
 					err = "image parameters incompatibile with screen";
 					goto error;
 				}
-				reffn = nil;
+				reffn = 0;
 				switch(refresh){
 				case Refbackup:
 					break;
@@ -985,9 +985,9 @@ _drawmsgwrite(Display *d, void *v, int n)
 			oy = BGLONG(a+41);
 			op = drawclientop(client);
 			/* high bit indicates arc angles are present */
-			if(ox & (1<<31)){
-				if((ox & (1<<30)) == 0)
-					ox &= ~(1<<31);
+			if(ox & ((ulong)1<<31)){
+				if((ox & ((ulong)1<<30)) == 0)
+					ox &= ~((ulong)1<<31);
 				memarc(dst, p, e0, e1, c, src, sp, ox, oy, op);
 			}else
 				memellipse(dst, p, e0, e1, c, src, sp, op);

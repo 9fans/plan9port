@@ -1,3 +1,4 @@
+#include <u.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include "threadimpl.h"

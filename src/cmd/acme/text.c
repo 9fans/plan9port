@@ -894,7 +894,7 @@ textselect(Text *t)
 		/* horrible botch: while asleep, may have lost selection altogether */
 		if(selectq > t->file->b.nc)
 			selectq = t->org + t->fr.p0;
-		t->fr.scroll = nil;
+		t->fr.scroll = 0;
 		if(selectq < t->org)
 			q0 = selectq;
 		else
