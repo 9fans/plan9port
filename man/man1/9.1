@@ -41,6 +41,7 @@ is a shell script that sets up a Plan 9 environment and runs
 .I cmd .
 It sets
 .B $PLAN9
+if necessary
 and adds
 .B $PLAN9/bin
 to the beginning of
@@ -50,7 +51,7 @@ before running
 .PP
 If run with no arguments,
 .B 9
-does not do anything.  This is so that it can be invoked from
+does not do anything, so it can be invoked from
 .IR sh -style
 shells using
 .B .
@@ -60,7 +61,7 @@ in order to make the current shell start running in the Plan 9 environment.
 .I 9.rc
 is the same as
 .I 9
-but written for the shell
+but written for use by the shell
 .IR rc (1).
 .SH EXAMPLES
 Search for greek in the password file:

@@ -1,7 +1,13 @@
 #!/bin/sh
 
-export PLAN9=/usr/local/plan9
-export PATH=$PLAN9/bin:$PATH
+export PLAN9=${PLAN9:-/usr/local/plan9}
+case "$PATH" in
+$PLAN9/bin:*)
+	;;
+*)
+	export PATH=$PLAN9/bin:$PATH
+	;;
+esac
 
 case $# in
 [1-9]*)
