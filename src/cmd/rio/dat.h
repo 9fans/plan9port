@@ -149,6 +149,7 @@ extern int			curtime;
 extern int			debug;
 extern int			solidsweep;
 extern int			numvirtuals;
+extern int			scrolling;
 
 extern Atom		exit_rio;
 extern Atom		restart_rio;
