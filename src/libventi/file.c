@@ -1222,10 +1222,13 @@ vtfileflushbefore(VtFile *r, u64int offset)
 			 * if the rest of the block is already flushed,
 			 * we can flush the whole block.
 			 */
-			ok = 1;
-			for(; j<ppb; j++)
-				if(vtglobaltolocal(b->data+j*VtScoreSize) != NilBlock)
-					ok = 0;
+			ok = 0;
+			if(index[i] != index1[i]){
+				ok = 1;
+				for(; j<ppb; j++)
+					if(vtglobaltolocal(b->data+j*VtScoreSize) != NilBlock)
+						ok = 0;
+			}
 		}
 		if(ok){
 			if(i == depth)

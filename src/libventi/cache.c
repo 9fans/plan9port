@@ -39,6 +39,7 @@ struct VtCache
 	int		nblock;
 	uchar	*mem;	/* memory for all blocks and data */
 	int		mode;
+	int		(*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int);
 };
 
 static void cachecheck(VtCache*);
@@ -56,13 +57,13 @@ vtcachealloc(VtConn *z, int blocksize, ulong nblock, int mode)
 	c->z = z;
 	c->blocksize = (blocksize + 127) & ~127;
 	c->nblock = nblock;
-
 	c->nhash = nblock;
 	c->hash = vtmallocz(nblock*sizeof(VtBlock*));
 	c->heap = vtmallocz(nblock*sizeof(VtBlock*));
 	c->block = vtmallocz(nblock*sizeof(VtBlock));
 	c->mem = vtmallocz(nblock*c->blocksize);
 	c->mode = mode;
+	c->write = vtwrite;
 
 	p = c->mem;
 	for(i=0; i<nblock; i++){
@@ -77,6 +78,19 @@ vtcachealloc(VtConn *z, int blocksize, ulong nblock, int mode)
 	c->nheap = nblock;
 	cachecheck(c);
 	return c;
+}
+
+/*
+ * BUG This is here so that vbackup can override it and do some
+ * pipelining of writes.  Arguably vtwrite or vtwritepacket or the
+ * cache itself should be providing this functionality.
+ */
+void
+vtcachesetwrite(VtCache *c, int (*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int))
+{
+	if(write == nil)
+		write = vtwrite;
+	c->write = write;
 }
 
 void
@@ -405,6 +419,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 
 	n = vtread(c->z, score, type, b->data, c->blocksize);
 	if(n < 0){
+		werrstr("vtread %V: %r", score);
+abort();
 		b->iostate = BioVentiError;
 		vtblockput(b);
 		return nil;
@@ -494,7 +510,7 @@ vtblockwrite(VtBlock *b)
 
 	c = b->c;
 	n = vtzerotruncate(b->type, b->data, c->blocksize);
-	if(vtwrite(c->z, score, b->type, b->data, n) < 0)
+	if(c->write(c->z, score, b->type, b->data, n) < 0)
 		return -1;
 
 	memmove(b->score, score, VtScoreSize);
