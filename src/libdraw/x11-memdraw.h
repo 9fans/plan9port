@@ -52,6 +52,7 @@ struct Xprivate {
 	u32int		gczero0pixmap;
 	XDisplay	*kbdcon;
 	XDisplay	*mousecon;
+	Rectangle	newscreenr;
 	Memimage*	screenimage;
 	XDrawable	screenpm;
 	Rectangle	screenr;

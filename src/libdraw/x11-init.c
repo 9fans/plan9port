@@ -14,6 +14,7 @@
 static Memimage	*xattach(char*);
 static void	plan9cmap(void);
 static int	setupcmap(XWindow);
+static int	xreplacescreenimage(void);
 static XGC	xgc(XDrawable, int, int);
 static Image	*getimage0(Display*);
 
@@ -99,6 +100,8 @@ getwindow(Display *d, int ref)
 {
 	Image *i;
 
+	if(xreplacescreenimage() == 0)
+		return 0;
 	freeimage(d->screenimage);
 	i = getimage0(d);
 	screen = d->screenimage = d->image = i;
@@ -142,6 +145,13 @@ xattach(char *label)
 	XVisualInfo xvi;
 	XWindow xrootwin;
 	XWMHints hint;
+
+	/*
+	if(XInitThreads() == 0){
+		fprint(2, "XInitThreads failed\n");
+		abort();
+	}
+	*/
 
 	/*
 	 * Connect to X server.
@@ -567,17 +577,29 @@ xexpose(XEvent *e, XDisplay *xd)
 int
 xconfigure(XEvent *e, XDisplay *xd)
 {
-	Memimage *m;
 	XConfigureEvent *xe = (XConfigureEvent*)e;
-	XDrawable pixmap;
 
 	if(xe->width == Dx(_x.screenr) && xe->height == Dy(_x.screenr))
 		return 0;
-	
-	pixmap = XCreatePixmap(xd, _x.drawable, xe->width, xe->height, _x.depth);
-	m = xallocmemimage(Rect(0, 0, xe->width, xe->height), _x.chan, pixmap);
+	_x.newscreenr = Rect(0, 0, xe->width, xe->height);
+	return 1;
+}
+
+static int
+xreplacescreenimage(void)
+{
+	Memimage *m;
+	XDrawable pixmap;
+	Rectangle r;
+
+	r = _x.newscreenr;
+	if(eqrect(_x.screenr, r))
+		return 0;
+
+	pixmap = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
+	m = xallocmemimage(r, _x.chan, pixmap);
 	_x.screenpm = pixmap;
-	_x.screenr = Rect(0, 0, xe->width, xe->height);
+	_x.screenr = r;
 	_drawreplacescreenimage(m);
 	return 1;
 }
