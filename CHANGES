@@ -1,3 +1,10 @@
+March 30, 2004
+
+	Change label to use nawk on SunOS.
+
+	Change libdraw to elide mouse motion events when they
+		pile up.
+	
 March 29, 2004
 
 	Add window resizing by dragging borders to rio.
