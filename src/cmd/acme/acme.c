@@ -59,7 +59,6 @@ threadmain(int argc, char *argv[])
 {
 	int i;
 	char *p, *loadfile;
-	char buf[256];
 	Column *c;
 	int ncol;
 	Display *d;
@@ -70,6 +69,9 @@ threadmain(int argc, char *argv[])
 
 	loadfile = nil;
 	ARGBEGIN{
+	case 'a':
+		globalautoindent = TRUE;
+		break;
 	case 'b':
 		bartflag = TRUE;
 		break;
@@ -98,7 +100,7 @@ threadmain(int argc, char *argv[])
 		break;
 	default:
 	Usage:
-		fprint(2, "usage: acme -c ncol -f fontname -F fixedwidthfontname -l loadfile\n");
+		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile\n");
 		exits("usage");
 	}ARGEND
 
@@ -183,7 +185,7 @@ threadmain(int argc, char *argv[])
 		fprint(2, "acme: can't initialize plumber: %r\n");
 	else{
 		cplumb = chancreate(sizeof(Plumbmsg*), 0);
-		proccreate(plumbproc, nil, STACK);
+		threadcreate(plumbproc, nil, STACK);
 	}
 	plumbsendfd = plumbopen("send", OWRITE|OCEXEC);
 
@@ -315,7 +317,7 @@ acmeerrorproc(void *v)
 	USED(v);
 	threadsetname("acmeerrorproc");
 	buf = emalloc(8192+1);
-	while((n=read(errorfd, buf, 8192)) >= 0){
+	while((n=threadread(errorfd, buf, 8192)) >= 0){
 		buf[n] = '\0';
 		sendp(cerr, estrdup(buf));
 	}
@@ -324,8 +326,7 @@ acmeerrorproc(void *v)
 void
 acmeerrorinit(void)
 {
-	int fd, pfd[2];
-	char buf[64];
+	int pfd[2];
 
 	if(pipe(pfd) < 0)
 		error("can't create pipe");
@@ -351,7 +352,7 @@ acmeerrorinit(void)
 	errorfd = pfd[1];
 	if(errorfd < 0)
 		error("can't re-open acmeerror file");
-	proccreate(acmeerrorproc, nil, STACK);
+	threadcreate(acmeerrorproc, nil, STACK);
 }
 
 void
@@ -362,7 +363,7 @@ plumbproc(void *v)
 	USED(v);
 	threadsetname("plumbproc");
 	for(;;){
-		m = plumbrecv(plumbeditfd);
+		m = threadplumbrecv(plumbeditfd);
 		if(m == nil)
 			threadexits(nil);
 		sendp(cplumb, m);
@@ -399,6 +400,7 @@ keyboardthread(void *v)
 				winlock(t->w, 'K');
 				wincommit(t->w, t);
 				winunlock(t->w);
+				flushwarnings(1);
 				flushimage(display, 1);
 			}
 			alts[KTimer].c = nil;
@@ -425,6 +427,7 @@ keyboardthread(void *v)
 			}
 			if(nbrecv(keyboardctl->c, &r) > 0)
 				goto casekeyboard;
+			flushwarnings(1);
 			flushimage(display, 1);
 			break;
 		}
@@ -467,6 +470,7 @@ mousethread(void *v)
 			draw(screen, screen->r, display->white, nil, ZP);
 			scrlresize();
 			rowresize(&row, screen->clipr);
+			flushwarnings(1);
 			flushimage(display, 1);
 			break;
 		case MPlumb:
@@ -477,6 +481,7 @@ mousethread(void *v)
 				else if(strcmp(act, "showdata")==0)
 					plumbshow(pm);
 			}
+			flushwarnings(1);
 			flushimage(display, 1);
 			plumbfree(pm);
 			break;
@@ -562,6 +567,7 @@ mousethread(void *v)
 				goto Continue;
 			}
     Continue:
+			flushwarnings(0);
 			flushimage(display, 1);
 			qunlock(&row.lk);
 			break;
@@ -916,36 +922,48 @@ iconinit(void)
 void
 acmeputsnarf(void)
 {
-	int fd, i, n;
+	int i, n;
+	Fmt f;
+	char *s;
 
-	if(snarffd<0 || snarfbuf.nc==0)
+	if(snarfbuf.nc==0)
 		return;
 	if(snarfbuf.nc > MAXSNARF)
 		return;
-	fd = open("/dev/snarf", OWRITE);
-	if(fd < 0)
-		return;
+
+	fmtstrinit(&f);
 	for(i=0; i<snarfbuf.nc; i+=n){
 		n = snarfbuf.nc-i;
 		if(n >= NSnarf)
 			n = NSnarf;
 		bufread(&snarfbuf, i, snarfrune, n);
-		if(fprint(fd, "%.*S", n, snarfrune) < 0)
+		if(fmtprint(&f, "%.*S", n, snarfrune) < 0)
 			break;
 	}
-	close(fd);
+	s = fmtstrflush(&f);
+	if(s && s[0])
+		putsnarf(s);
+	free(s);
 }
 
 void
-acmegetsnarf()
+acmegetsnarf(void)
 {
-	int nulls;
+	char *s;
+	int nb, nr, nulls, len;
+	Rune *r;
 
-	if(snarfbuf.nc > MAXSNARF)
+	s = getsnarf();
+	if(s == nil || s[0]==0){
+		free(s);
 		return;
-	if(snarffd < 0)
-		return;
-	seek(snarffd, 0, 0);
+	}
+
+	len = strlen(s);
+	r = runemalloc(len+1);
+	cvttorunes(s, len, r, &nb, &nr, &nulls);
 	bufreset(&snarfbuf);
-	bufload(&snarfbuf, 0, snarffd, &nulls);
+	bufinsert(&snarfbuf, 0, r, nr);
+	free(r);
+	free(s);
 }

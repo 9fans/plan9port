@@ -111,8 +111,7 @@ void
 fsysinit(void)
 {
 	int p[2];
-	int n, fd;
-	char buf[256], *u;
+	char *u;
 
 	if(pipe(p) < 0)
 		error("can't create pipe");
@@ -122,7 +121,7 @@ fsysinit(void)
 	fmtinstall('F', fcallfmt);
 	if((u = getuser()) != nil)
 		user = estrdup(u);
-	proccreate(fsysproc, nil, STACK);
+	threadcreate(fsysproc, nil, STACK);
 }
 
 void
@@ -138,7 +137,7 @@ fsysproc(void *v)
 	x = nil;
 	for(;;){
 		buf = emalloc(messagesize+UTFmax);	/* overflow for appending partial rune in xfidwrite */
-		n = read9pmsg(sfd, buf, messagesize);
+		n = threadread9pmsg(sfd, buf, messagesize);
 		if(n <= 0){
 			if(closing)
 				break;
@@ -255,7 +254,11 @@ respond(Xfid *x, Fcall *t, char *err)
 		x->buf = emalloc(messagesize);
 	n = convS2M(t, x->buf, messagesize);
 	if(n <= 0)
+{
+fprint(2, "convert error (n=%d, msgsize %d): have %F\n", n, messagesize, &x->fcall);
+fprint(2, "\tresponse: %F\n", t);
 		error("convert error in convS2M");
+}
 	if(write(sfd, x->buf, n) != n)
 		error("write error in respond");
 	free(x->buf);

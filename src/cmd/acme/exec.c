@@ -462,7 +462,7 @@ getname(Text *t, Text *argt, Rune *arg, int narg, int isput)
 		dir.nr = 0;
 		if(n>0 && arg[0]!='/'){
 			dir = dirname(t, nil, 0);
-			if(n==1 && dir.r[0]=='.'){	/* sigh */
+			if(dir.nr==1 && dir.r[0]=='.'){	/* sigh */
 				free(dir.r);
 				dir.r = nil;
 				dir.nr = 0;
@@ -606,15 +606,15 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			f->qidpath = d->qid.path;
 			f->mtime = d->mtime;
 			if(f->unread)
-				warningew(w, nil, "%s not written; file already exists\n", name);
+				warning(nil, "%s not written; file already exists\n", name);
 			else
-				warningew(w, nil, "%s modified%s%s since last read\n", name, d->muid[0]?" by ":"", d->muid);
+				warning(nil, "%s modified%s%s since last read\n", name, d->muid[0]?" by ":"", d->muid);
 			goto Rescue1;
 		}
 	}
 	fd = create(name, OWRITE, 0666);
 	if(fd < 0){
-		warningew(w, nil, "can't create file %s: %r\n", name);
+		warning(nil, "can't create file %s: %r\n", name);
 		goto Rescue1;
 	}
 	r = fbufalloc();
@@ -623,7 +623,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	d = dirfstat(fd);
 	isapp = (d!=nil && d->length>0 && (d->qid.type&QTAPPEND));
 	if(isapp){
-		warningew(w, nil, "%s not written; file is append only\n", name);
+		warning(nil, "%s not written; file is append only\n", name);
 		goto Rescue2;
 	}
 
@@ -634,7 +634,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		bufread(&f->b, q, r, n);
 		m = snprint(s, BUFSIZE+1, "%.*S", n, r);
 		if(write(fd, s, m) != m){
-			warningew(w, nil, "can't write file %s: %r\n", name);
+			warning(nil, "can't write file %s: %r\n", name);
 			goto Rescue2;
 		}
 	}
@@ -701,7 +701,7 @@ put(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 	f = w->body.file;
 	name = getname(&w->body, argt, arg, narg, TRUE);
 	if(name == nil){
-		warningew(w, nil, "no file name\n");
+		warning(nil, "no file name\n");
 		return;
 	}
 	namer = bytetorune(name, &nname);
@@ -1163,6 +1163,58 @@ incl(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 	}
 }
 
+static Rune LON[] = { 'O', 'N', 0 };
+static Rune LOFF[] = { 'O', 'F', 'F', 0 };
+static Rune Lon[] = { 'o', 'n', 0 };
+
+static int
+indentval(Rune *s, int n)
+{
+	if(n < 2)
+		return -1;
+	if(runestrncmp(s, LON, n) == 0){
+		globalautoindent = TRUE;
+		warning(nil, "Indent ON\n");
+		return -2;
+	}
+	if(runestrncmp(s, LOFF, n) == 0){
+		globalautoindent = FALSE;
+		warning(nil, "Indent OFF\n");
+		return -2;
+	}
+	return runestrncmp(s, Lon, n) == 0;
+}
+
+void
+indent(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
+{
+	Rune *a, *r;
+	Window *w;
+	int na, len, autoindent;
+
+	USED(_0);
+	USED(_1);
+	USED(_2);
+
+	if(et==nil || et->w==nil)
+		return;
+	w = et->w;
+	autoindent = -1;
+	getarg(argt, FALSE, TRUE, &r, &len);
+	if(r!=nil && len>0)
+		autoindent = indentval(r, len);
+	else{
+		a = findbl(arg, narg, &na);
+		if(a != arg)
+			autoindent = indentval(arg, narg-na);
+	}
+	if(autoindent >= 0)
+		w->autoindent = autoindent;
+	if(autoindent != 2)
+		warning(nil, "%.*S: Indent %s\n", w->body.file->nname, w->body.file->name,
+			w->autoindent ? "on" : "off");
+}
+
 void
 tab(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 {
@@ -1375,7 +1427,7 @@ runproc(void *argvp)
 	av[ac++] = arg;
 	av[ac] = nil;
 	c->av = av;
-	procexec(cpid, sfd, av[0], av);
+	threadexec(cpid, sfd, av[0], av);
 /* libthread uses execvp so no need to do this */
 #if 0
 	e = av[0];
@@ -1419,10 +1471,10 @@ Hard:
 			c->text = news;
 		}
 	}
-	procexecl(cpid, sfd, "rc", "rc", "-c", t, nil);
+	threadexecl(cpid, sfd, "rc", "rc", "-c", t, nil);
 
    Fail:
-	/* procexec hasn't happened, so send a zero */
+	/* threadexec hasn't happened, so send a zero */
 	close(sfd[0]);
 	close(sfd[1]);
 	if(sfd[2] != sfd[1])
@@ -1482,7 +1534,7 @@ run(Window *win, char *s, Rune *rdir, int ndir, int newns, char *argaddr, char *
 	arg[7] = c;
 	arg[8] = cpid;
 	arg[9] = (void*)iseditcmd;
-	proccreate(runproc, arg, STACK);
+	threadcreate(runproc, arg, STACK);
 	/* mustn't block here because must be ready to answer mount() call in run() */
 	arg = emalloc(2*sizeof(void*));
 	arg[0] = c;

@@ -139,6 +139,7 @@ struct Proc
 	void		*arg;			/* passed between shared and unshared stk */
 	char		str[ERRMAX];	/* used by threadexits to avoid malloc */
 	char		errbuf[ERRMAX];	/* errstr */
+	Waitmsg		*waitmsg;
 
 	void*	udata;		/* User per-proc data pointer */
 };
@@ -181,6 +182,7 @@ void		__threaddebug(ulong, char*, ...);
 void		_threadexitsall(char*);
 void		_threadflagrendez(Thread*);
 Proc*	_threadgetproc(void);
+extern void	_threadmultiproc(void);
 Proc*	_threaddelproc(void);
 void		_threadsetproc(Proc*);
 void		_threadinitstack(Thread*, void(*)(void*), void*);
@@ -195,7 +197,6 @@ long		_xdec(long*);
 void		_xinc(long*);
 void		_threadremove(Proc*, Thread*);
 
-extern int	_threadmultiproc;
 extern int			_threaddebuglevel;
 extern char*		_threadexitsallstatus;
 extern Pqueue		_threadpq;

@@ -47,7 +47,7 @@ static
 void
 _ioproc(void *arg)
 {
-	int one;
+	int fd, one;
 	ulong mask;
 	Mouse m;
 	Mousectl *mc;
@@ -60,7 +60,10 @@ _ioproc(void *arg)
 	mc->pid = getpid();
 	mask = MouseMask|ExposureMask|StructureNotifyMask;
 	XSelectInput(_x.mousecon, _x.drawable, mask);
+	fd = XConnectionNumber(_x.mousecon);
 	for(;;){
+		while(XPending(_x.mousecon) == False)
+			threadfdwait(fd, 'r');
 		XNextEvent(_x.mousecon, &xevent);
 		switch(xevent.type){
 		case Expose:
@@ -105,12 +108,13 @@ initmouse(char *file, Image *i)
 {
 	Mousectl *mc;
 
+	threadfdwaitsetup();
 	mc = mallocz(sizeof(Mousectl), 1);
 	if(i)
 		mc->display = i->display;
 	mc->c = chancreate(sizeof(Mouse), 0);
 	mc->resizec = chancreate(sizeof(int), 2);
-	proccreate(_ioproc, mc, 16384);
+	threadcreate(_ioproc, mc, 16384);
 	return mc;
 }
 

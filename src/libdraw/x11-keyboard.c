@@ -34,6 +34,7 @@ void
 _ioproc(void *arg)
 {
 	int i;
+	int fd;
 	Keyboardctl *kc;
 	Rune r;
 	XEvent xevent;
@@ -41,9 +42,11 @@ _ioproc(void *arg)
 	kc = arg;
 	threadsetname("kbdproc");
 	kc->pid = getpid();
+	fd = XConnectionNumber(_x.kbdcon);
 	XSelectInput(_x.kbdcon, _x.drawable, KeyPressMask);
 	for(;;){
-		XWindowEvent(_x.kbdcon, _x.drawable, KeyPressMask, &xevent);
+		while(XCheckWindowEvent(_x.kbdcon, _x.drawable, KeyPressMask, &xevent) == False)
+			threadfdwait(fd, 'r');
 		switch(xevent.type){
 		case KeyPress:
 			i = _xtoplan9kbd(&xevent);
@@ -65,11 +68,12 @@ initkeyboard(char *file)
 {
 	Keyboardctl *kc;
 
+	threadfdwaitsetup();
 	kc = mallocz(sizeof(Keyboardctl), 1);
 	if(kc == nil)
 		return nil;
 	kc->c = chancreate(sizeof(Rune), 20);
-	proccreate(_ioproc, kc, 4096);
+	threadcreate(_ioproc, kc, 4096);
 	return kc;
 }
 

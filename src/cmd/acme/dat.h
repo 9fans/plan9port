@@ -232,6 +232,7 @@ struct Window
 	uchar	isscratch;
 	uchar	filemenu;
 	uchar	dirty;
+	uchar	autoindent;
 	int		id;
 	Range	addr;
 	Range	limit;
@@ -486,6 +487,7 @@ enum	/* editing */
 	Collecting,
 };
 
+uint		globalincref;
 uint		seq;
 uint		maxtab;	/* size of a tab, in units of the '0' character */
 
@@ -524,10 +526,11 @@ Image		*tagcols[NCOL];
 Image		*textcols[NCOL];
 int			plumbsendfd;
 int			plumbeditfd;
-extern char		wdir[];
+extern char		wdir[]; /* must use extern because no dimension given */
 int			editing;
 int			erroutfd;
 int			messagesize;		/* negotiated in 9P version setup */
+int			globalautoindent;
 
 Channel	*ckeyboard;	/* chan(Rune)[10] */
 Channel	*cplumb;		/* chan(Plumbmsg*) */

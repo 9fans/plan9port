@@ -5,6 +5,7 @@ LIB=libplumb.a
 OFILES=\
 	event.$O\
 	mesg.$O\
+	thread.$O\
 
 HFILES=$PLAN9/include/plumb.h
 

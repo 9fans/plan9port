@@ -537,7 +537,7 @@ textfilewidth(Text *t, uint q0, int oneelement)
 	q = q0;
 	while(q > 0){
 		r = textreadc(t, q-1);
-		if(r<=' ')
+		if(r <= ' ')
 			break;
 		if(oneelement && r=='/')
 			break;
@@ -608,10 +608,11 @@ textcomplete(Text *t)
 	}
 
 	if(!c->advance){
-		warning(nil, "%.*S%s%.*S*\n",
+		warning(nil, "%.*S%s%.*S*%s\n",
 			dir.nr, dir.r,
 			dir.nr>0 && dir.r[dir.nr-1]!='/' ? "/" : "",
-			nstr, str);
+			nstr, str,
+			c->nmatch ? "" : ": no matches in:");
 		for(i=0; i<c->nfile; i++)
 			warning(nil, " %s\n", c->filename[i]);
 	}
@@ -643,24 +644,44 @@ texttype(Text *t, Rune r)
 	rp = &r;
 	switch(r){
 	case Kleft:
-		if(t->q0 > 0)
+		if(t->q0 > 0){
+			textcommit(t, TRUE);
 			textshow(t, t->q0-1, t->q0-1, TRUE);
+		}
 		return;
 	case Kright:
-		if(t->q1 < t->file->b.nc)
+		if(t->q1 < t->file->b.nc){
+			textcommit(t, TRUE);
 			textshow(t, t->q1+1, t->q1+1, TRUE);
+		}
 		return;
 	case Kdown:
+		n = t->fr.maxlines/3;
+		goto case_Down;
 	case Kpgdown:
-		n = t->fr.maxlines/2;
+		n = 2*t->fr.maxlines/3;
+	case_Down:
 		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
 		textsetorigin(t, q0, FALSE);
 		return;
 	case Kup:
+		n = t->fr.maxlines/3;
+		goto case_Up;
 	case Kpgup:
-		n = t->fr.maxlines/2;
+		n = 2*t->fr.maxlines/3;
+	case_Up:
 		q0 = textbacknl(t, t->org, n);
 		textsetorigin(t, q0, FALSE);
+		return;
+	case Khome:
+		textshow(t, 0, 0, FALSE);
+		return;
+	case Kend:
+		if(t->w)
+			wincommit(t->w, t);
+		else
+			textcommit(t, TRUE);
+		textshow(t, t->file->b.nc, t->file->b.nc, FALSE);
 		return;
 	}
 	if(t->what == Body){
@@ -734,6 +755,21 @@ texttype(Text *t, Rune r)
 		for(i=0; i<t->file->ntext; i++)
 			textfill(t->file->text[i]);
 		return;
+	case '\n':
+		if(t->w->autoindent){
+			/* find beginning of previous line using backspace code */
+			nnb = textbswidth(t, 0x15); /* ^U case */
+			rp = runemalloc(nnb + 1);
+			nr = 0;
+			rp[nr++] = r;
+			for(i=0; i<nnb; i++){
+				r = textreadc(t, t->q0-nnb+i);
+				if(r != ' ' && r != '\t')
+					break;
+				rp[nr++] = r;
+			}
+		}
+		break; /* fall through to normal code */
 	}
 	/* otherwise ordinary character; just insert, typically in caches of all texts */
 	for(i=0; i<t->file->ntext; i++){

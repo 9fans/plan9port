@@ -26,6 +26,8 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->body.w = w;
 	w->id = ++winid;
 	incref(&w->ref);
+	if(globalincref)
+		incref(&w->ref);
 	w->ctlfid = ~0;
 	w->utflastqid = -1;
 	r1 = r;
@@ -141,7 +143,7 @@ winlock(Window *w, int owner)
 	int i;
 	File *f;
 
-fprint(2, "winlock %p %d %lux\n", w, owner, getcallerpc(&w));
+//fprint(2, "winlock %p %d %lux\n", w, owner, getcallerpc(&w));
 	f = w->body.file;
 	for(i=0; i<f->ntext; i++)
 		winlock1(f->text[i]->w, owner);
@@ -153,7 +155,7 @@ winunlock(Window *w)
 	int i;
 	File *f;
 
-fprint(2, "winunlock %p %lux\n", w, getcallerpc(&w));
+//fprint(2, "winunlock %p %lux\n", w, getcallerpc(&w));
 	f = w->body.file;
 	for(i=0; i<f->ntext; i++){
 		w = f->text[i]->w;

@@ -1,3 +1,5 @@
+# Acme is up-to-date w.r.t. sources as of 29 February 2004
+
 PLAN9=../../..
 <$PLAN9/src/mkhdr
 
@@ -36,6 +38,6 @@ UPDATE=\
 
 <$PLAN9/src/mkone
 
-LDFLAGS=$LDFLAGS -lcomplete -lplumb -lfs -lmux -lthread -lframe -ldraw -lbio -l9 -lfmt -lutf -L$X11/lib -lX11
+LDFLAGS=$LDFLAGS -lcomplete -lplumb -lfs -lmux -lthread -lframe -ldraw -lbio -l9 -L$X11/lib -lX11
 
 edit.$O ecmd.$O elog.$O:	edit.h

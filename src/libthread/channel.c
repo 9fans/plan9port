@@ -65,9 +65,7 @@ chaninit(Channel *c, int elemsize, int elemcnt)
 {
 	if(elemcnt < 0 || elemsize <= 0 || c == nil)
 		return -1;
-	c->f = 0;
-	c->n = 0;
-	c->freed = 0;
+	memset(c, 0, sizeof *c);
 	c->e = elemsize;
 	c->s = elemcnt;
 	_threaddebug(DBGCHAN, "chaninit %p", c);
@@ -104,13 +102,16 @@ alt(Alt *alts)
 	 * chanlock.  Instead, we delay the note until we've dropped
 	 * the lock.
 	 */
+
+	/*
+	 * T might be nil here -- the scheduler sends on threadwaitchan
+	 * directly (in non-blocking mode, of course!).
+	 */
 	t = _threadgetproc()->thread;
-	if(t->moribund || _threadexitsallstatus)
+	if((t && t->moribund) || _threadexitsallstatus)
 		yield();	/* won't return */
 	s = _procsplhi();
 	lock(&chanlock);
-	t->alt = alts;
-	t->chan = Chanalt;
 
 	/* test whether any channels can proceed */
 	n = 0;
@@ -125,7 +126,6 @@ alt(Alt *alts)
 		if(c==nil){
 			unlock(&chanlock);
 			_procsplx(s);
-			t->chan = Channone;
 			return -1;
 		}
 		if(canexec(xa))
@@ -138,7 +138,6 @@ alt(Alt *alts)
 		if(xa->op == CHANNOBLK){
 			unlock(&chanlock);
 			_procsplx(s);
-			t->chan = Channone;
 _threadnalt++;
 			return xa - alts;
 		}
@@ -159,6 +158,9 @@ _threadnalt++;
 		 * we need to be here.
 		 */
 	    Again:
+		t->alt = alts;
+		t->chan = Chanalt;
+
 		unlock(&chanlock);
 		_procsplx(s);
 		r = _threadrendezvous((ulong)&c, 0);

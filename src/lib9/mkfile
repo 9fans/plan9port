@@ -3,7 +3,71 @@ PLAN9=../..
 
 LIB=lib9.a
 
+NUM=\
+	charstod.$O\
+	pow10.$O\
+
+# Could add errfmt, but we want to pick it up from lib9 instead.
+FMTOFILES=\
+	dofmt.$O\
+	errfmt.$O\
+	fltfmt.$O\
+	fmt.$O\
+	fmtfd.$O\
+	fmtfdflush.$O\
+	fmtlock.$O\
+	fmtprint.$O\
+	fmtquote.$O\
+	fmtrune.$O\
+	fmtstr.$O\
+	fmtvprint.$O\
+	fprint.$O\
+	nan64.$O\
+	print.$O\
+	runefmtstr.$O\
+	runeseprint.$O\
+	runesmprint.$O\
+	runesnprint.$O\
+	runesprint.$O\
+	runevseprint.$O\
+	runevsmprint.$O\
+	runevsnprint.$O\
+	seprint.$O\
+	smprint.$O\
+	snprint.$O\
+	sprint.$O\
+	strtod.$O\
+	vfprint.$O\
+	vseprint.$O\
+	vsmprint.$O\
+	vsnprint.$O\
+	$NUM\
+
+UTFOFILES=\
+	rune.$O\
+	runestrcat.$O\
+	runestrchr.$O\
+	runestrcmp.$O\
+	runestrcpy.$O\
+	runestrdup.$O\
+	runestrlen.$O\
+	runestrecpy.$O\
+	runestrncat.$O\
+	runestrncmp.$O\
+	runestrncpy.$O\
+	runestrrchr.$O\
+	runestrstr.$O\
+	runetype.$O\
+	utfecpy.$O\
+	utflen.$O\
+	utfnlen.$O\
+	utfrrune.$O\
+	utfrune.$O\
+	utfutf.$O\
+
 OFILES=\
+	$FMTOFILES\
+	$UTFOFILES\
 	_exits.$O\
 	_p9dialparse.$O\
 	_p9dir.$O\
@@ -85,3 +149,10 @@ HFILES=\
 	$PLAN9/include/lib9.h\
 
 <$PLAN9/src/mksyslib
+
+%.$O: fmt/%.c
+	$CC $CFLAGS -Ifmt fmt/$stem.c
+
+%.$O: utf/%.c
+	$CC $CFLAGS utf/$stem.c
+

@@ -76,6 +76,7 @@ int isunix;
 Queue *outq;
 Queue *inq;
 int verbose;
+int msize = 8192;
 
 void *gethash(Hash**, uint);
 int puthash(Hash**, uint, void*);
@@ -94,7 +95,6 @@ void *erealloc(void*, int);
 Queue *qalloc(void);
 int sendq(Queue*, void*);
 void *recvq(Queue*);
-void pollthread(void*);
 void connthread(void*);
 void connoutthread(void*);
 void listenthread(void*);
@@ -125,7 +125,6 @@ threadmain(int argc, char **argv)
 {
 	char *file;
 
-	if(verbose) fprint(2, "9pserve running\n");
 	ARGBEGIN{
 	default:
 		usage();
@@ -143,6 +142,7 @@ threadmain(int argc, char **argv)
 		break;
 	}ARGEND
 
+	if(verbose) fprint(2, "9pserve running\n");
 	if(argc != 1)
 		usage();
 	addr = argv[0];
@@ -150,8 +150,19 @@ threadmain(int argc, char **argv)
 	if((afd = announce(addr, adir)) < 0)
 		sysfatal("announce %s: %r", addr);
 
-	proccreate(mainproc, nil, STACK);
-	threadexits(0);
+	if(verbose) fprint(2, "9pserve forking\n");
+	switch(fork()){
+	case -1:
+		sysfatal("fork: %r");
+	case 0:
+		if(verbose) fprint(2, "running mainproc\n");
+		mainproc(nil);
+		if(verbose) fprint(2, "mainproc finished\n");
+		_exits(0);
+	default:
+		if(verbose) fprint(2, "9pserve exiting\n");
+		_exits(0);
+	}
 }
 
 void
@@ -160,8 +171,6 @@ mainproc(void *v)
 	int n;
 	Fcall f;
 	USED(v);
-
-	yield();	/* let threadmain exit */
 
 	atnotify(ignorepipe, 1);
 	fmtinstall('D', dirfmt);
@@ -174,7 +183,7 @@ mainproc(void *v)
 
 	f.type = Tversion;
 	f.version = "9P2000";
-	f.msize = 8192;
+	f.msize = msize;
 	f.tag = NOTAG;
 	n = convS2M(&f, vbuf, sizeof vbuf);
 	if(verbose > 1) fprint(2, "* <- %F\n", &f);
@@ -182,12 +191,13 @@ mainproc(void *v)
 	n = read9pmsg(0, vbuf, sizeof vbuf);
 	if(convM2S(vbuf, n, &f) != n)
 		sysfatal("convM2S failure");
+	if(f.msize < msize)
+		msize = f.msize;
 	if(verbose > 1) fprint(2, "* -> %F\n", &f);
 
 	threadcreate(inputthread, nil, STACK);
 	threadcreate(outputthread, nil, STACK);
 	threadcreate(listenthread, nil, STACK);
-	threadcreateidle(pollthread, nil, STACK);
 	threadexits(0);
 }
 
@@ -296,8 +306,8 @@ connthread(void *arg)
 		case Tversion:
 			m->rx.tag = m->tx.tag;
 			m->rx.msize = m->tx.msize;
-			if(m->rx.msize > 8192)
-				m->rx.msize = 8192;
+			if(m->rx.msize > msize)
+				m->rx.msize = msize;
 			m->rx.version = "9P2000";
 			m->rx.type = Rversion;
 			send9pmsg(m);
@@ -480,7 +490,7 @@ openfdthread(void *v)
 			m->internal = 1;
 			m->c = c;
 			m->tx.type = Tread;
-			m->tx.count = 8192;
+			m->tx.count = msize - IOHDRSZ;
 			m->tx.fid = fid->fid;
 			m->tx.tag = m->tag;
 			m->tx.offset = tot;
@@ -506,7 +516,10 @@ openfdthread(void *v)
 	}else{
 		for(;;){
 			if(verbose) fprint(2, "twrite...");
-			if((n=ioread(io, c->fd, buf, sizeof buf)) <= 0){
+			n = sizeof buf;
+			if(n > msize)
+				n = msize;
+			if((n=ioread(io, c->fd, buf, n)) <= 0){
 				if(n < 0)
 					fprint(2, "pipe read error: %r\n");
 				m = nil;
@@ -1122,106 +1135,23 @@ struct Ioproc
 	int index;
 };
 
-static struct Ioproc **pio;
-static struct pollfd *pfd;
-static int npfd;
-static struct Ioproc *iofree;
-
 Ioproc*
 ioproc(void)
 {
-	Ioproc *io;
-
-	if(iofree == nil){
-		pfd = erealloc(pfd, (npfd+1)*sizeof(pfd[0]));
-		pfd[npfd].events = 0;
-		pfd[npfd].fd = -1;
-		iofree = emalloc(sizeof(Ioproc));
-		iofree->index = npfd;
-		iofree->c = chancreate(sizeof(ulong), 1);
-		pio = erealloc(pio, (npfd+1)*sizeof(pio[0]));
-		pio[npfd] = iofree;
-		npfd++;
-	}
-	io = iofree;
-	iofree = io->next;
-	return io;
+	return (Ioproc*)-1;
 }
 
 void
 closeioproc(Ioproc *io)
 {
-	io->next = iofree;
-	iofree = io;
-}
-
-void
-pollthread(void *v)
-{
-	int i, n;
-
-	for(;;){
-		yield();
-		for(i=0; i<npfd; i++)
-			pfd[i].revents = 0;
-		if(verbose){
-			fprint(2, "poll:");
-			for(i=0; i<npfd; i++)
-				if(pfd[i].events)
-					fprint(2, " %d%c", pfd[i].fd, pfd[i].events==POLLIN ? 'r' : pfd[i].events==POLLOUT ? 'w' : '?');
-			fprint(2, "\n");
-		}
-		n = poll(pfd, npfd, -1);
-		if(n <= 0)
-			continue;
-		for(i=0; i<npfd; i++)
-			if(pfd[i].fd != -1 && pfd[i].revents){
-				pfd[i].fd = -1;
-				pfd[i].events = 0;
-				pfd[i].revents = 0;
-				nbsendul(pio[i]->c, 1);
-			}
-	}	
-}
-
-static void
-noblock(int fd)
-{
-	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0)|O_NONBLOCK);
-}
-
-static void
-xwait(Ioproc *io, int fd, int e)
-{
-	if(verbose) fprint(2, "wait for %d%c\n", fd, e==POLLIN ? 'r' : 'w');
-	pfd[io->index].fd = fd;
-	pfd[io->index].events = e;
-	recvul(io->c);
-	if(verbose) fprint(2, "got %d\n", fd);
-}
-
-static void
-rwait(Ioproc *io, int fd)
-{
-	xwait(io, fd, POLLIN);
-}
-
-static void
-wwait(Ioproc *io, int fd)
-{
-	xwait(io, fd, POLLOUT);
 }
 
 long
 ioread(Ioproc *io, int fd, void *v, long n)
 {
-	long r;
 	USED(io);
 
-	noblock(fd);
-	while((r=read(fd, v, n)) < 0 && errno == EWOULDBLOCK)
-		rwait(io, fd);
-	return r;
+	return threadread(fd, v, n);
 }
 
 long
@@ -1247,9 +1177,16 @@ iorecvfd(Ioproc *io, int fd)
 {
 	int r;
 
-	noblock(fd);
-	while((r=recvfd(fd)) < 0 && errno == EWOULDBLOCK)
-		rwait(io, fd);
+	threadfdnoblock(fd);
+	while((r=recvfd(fd)) < 0){
+		if(errno == EINTR)
+			continue;
+		if(errno == EWOULDBLOCK || errno == EAGAIN){
+			threadfdwait(fd, 'r');
+			continue;
+		}
+		break;
+	}
 	return r;
 }
 
@@ -1258,23 +1195,24 @@ iosendfd(Ioproc *io, int s, int fd)
 {
 	int r;
 
-	noblock(s);
-	while((r=sendfd(s, fd)) < 0 && errno == EWOULDBLOCK)
-		wwait(io, s);
-if(r < 0) fprint(2, "sent %d, %d\n", s, fd);
+	threadfdnoblock(s);
+	while((r=sendfd(s, fd)) < 0){
+		if(errno == EINTR)
+			continue;
+		if(errno == EWOULDBLOCK || errno == EAGAIN){
+			threadfdwait(fd, 'w');
+			continue;
+		}
+		break;
+	}
 	return r;
 }
 
 static long
 _iowrite(Ioproc *io, int fd, void *v, long n)
 {
-	long r;
 	USED(io);
-
-	noblock(fd);
-	while((r=write(fd, v, n)) < 0 && errno == EWOULDBLOCK)
-		wwait(io, fd);
-	return r;
+	return threadwrite(fd, v, n);
 }
 
 long
@@ -1305,9 +1243,16 @@ iolisten(Ioproc *io, char *dir, char *ndir)
 
 	if((fd = _p9netfd(dir)) < 0)
 		return -1;
-	noblock(fd);
-	while((r=listen(dir, ndir)) < 0 && errno == EWOULDBLOCK)
-		rwait(io, fd);
+	threadfdnoblock(fd);
+	while((r=listen(dir, ndir)) < 0){
+		if(errno == EINTR)
+			continue;
+		if(errno == EWOULDBLOCK || errno == EAGAIN){
+			threadfdwait(fd, 'r');
+			continue;
+		}
+		break;
+	}
 	return r;
 }
 
@@ -1317,9 +1262,16 @@ ioaccept(Ioproc *io, int fd, char *dir)
 	int r;
 	USED(io);
 
-	noblock(fd);
-	while((r=accept(fd, dir)) < 0 && errno == EWOULDBLOCK)
-		rwait(io, fd);
+	threadfdnoblock(fd);
+	while((r=accept(fd, dir)) < 0){
+		if(errno == EINTR)
+			continue;
+		if(errno == EWOULDBLOCK || errno == EAGAIN){
+			threadfdwait(fd, 'r');
+			continue;
+		}
+		break;
+	}
 	return r;
 }
 

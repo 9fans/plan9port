@@ -1,4 +1,5 @@
 #include <signal.h>
+#include <errno.h>
 #include "threadimpl.h"
 
 //static Thread	*runthread(Proc*);
@@ -67,10 +68,12 @@ _schedinit(void *arg)
 			t = nil;
 			_sched();
 		}
+/*
 		if(p->needexec){
 			t->ret = _schedexec(&p->exec);
 			p->needexec = 0;
 		}
+*/
 		if(p->newproc){
 			t->ret = _schedfork(p->newproc);
 			if(t->ret < 0){
@@ -90,14 +93,45 @@ _schedinit(void *arg)
 static Thread*
 runthread(Proc *p)
 {
+	Channel *c;
 	Thread *t;
 	Tqueue *q;
+	Waitmsg *w;
+	int e, sent;
 
 	if(p->nthreads==0 || (p->nthreads==1 && p->idle))
 		return nil;
 	q = &p->ready;
+relock:
 	lock(&p->readylock);
 	if(q->head == nil){
+		e = errno;
+		if((c = _threadwaitchan) != nil){
+			if(c->n <= c->s){
+				sent = 0;
+				for(;;){
+					if((w = p->waitmsg) != nil)
+						p->waitmsg = nil;
+					else
+						w = waitnohang();
+					if(w == nil)
+						break;
+					if(sent == 0){
+						unlock(&p->readylock);
+						sent = 1;
+					}
+					if(nbsendp(c, w) != 1)
+						break;
+				}
+				p->waitmsg = w;
+				if(sent)
+					goto relock;
+			}
+		}else{
+			while((w = waitnohang()) != nil)
+				free(w);
+		}
+		errno = e;
 		if(p->idle){
 			if(p->idle->state != Ready){
 				fprint(2, "everyone is asleep\n");

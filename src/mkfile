@@ -4,18 +4,16 @@ DIRS=\
 	libbio\
 	libdraw\
 	libflate\
-	libfmt\
 	libframe\
 	libfs\
-	libhttpd\
+#	libhttpd\
 #	libip\
 	libmux\
 	libplumb\
 	libregexp\
 	libsec\
 	libthread\
-	libutf\
-	libventi\
+#	libventi\
 	cmd\
 
 <mkdirs

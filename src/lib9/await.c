@@ -71,8 +71,8 @@ _p9strsig(char *s)
 	return 0;
 }
 
-int
-await(char *str, int n)
+static int
+_await(char *str, int n, int opt)
 {
 	int pid, status, cd;
 	struct rusage ru;
@@ -80,8 +80,8 @@ await(char *str, int n)
 	ulong u, s;
 
 	for(;;){
-		pid = wait3(&status, 0, &ru);
-		if(pid < 0)
+		pid = wait3(&status, opt, &ru);
+		if(pid <= 0)
 			return -1;
 		u = ru.ru_utime.tv_sec*1000+((ru.ru_utime.tv_usec+500)/1000);
 		s = ru.ru_stime.tv_sec*1000+((ru.ru_stime.tv_usec+500)/1000);
@@ -103,3 +103,16 @@ await(char *str, int n)
 		}
 	}
 }
+
+int
+await(char *str, int n)
+{
+	return _await(str, n, 0);
+}
+
+int
+awaitnohang(char *str, int n)
+{
+	return _await(str, n, WNOHANG);
+}
+

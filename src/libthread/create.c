@@ -86,6 +86,7 @@ proccreate(void (*f)(void*), void *arg, uint stacksize)
 
 	p = _threadgetproc();
 	if(p->idle){
+		fprint(2, "cannot create procs once there is an idle thread\n");
 		werrstr("cannot create procs once there is an idle thread");
 		return -1;
 	}
@@ -124,6 +125,7 @@ threadcreateidle(void (*f)(void *arg), void *arg, uint stacksize)
 	int id;
 
 	if(_threadprocs!=1){
+		fprint(2, "cannot have idle thread in multi-proc program\n");
 		werrstr("cannot have idle thread in multi-proc program");
 		return -1;
 	}
@@ -153,6 +155,8 @@ _newproc(void (*f)(void *arg), void *arg, uint stacksize, char *name, int grp, i
 	else
 		*_threadpq.tail = p;
 	_threadpq.tail = &p->next;
+	if(_threadprocs == 1)
+		_threadmultiproc();
 	_threadprocs++;
 	unlock(&_threadpq.lock);
 	return p;

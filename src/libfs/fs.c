@@ -5,6 +5,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <fs.h>
+#include <thread.h>
 #include "fsimpl.h"
 
 static int _fssend(Mux*, void*);
@@ -270,7 +271,7 @@ _fsrecv(Mux *mux)
 	Fsys *fs;
 
 	fs = mux->aux;
-	n = readn(fs->fd, buf, 4);
+	n = threadreadn(fs->fd, buf, 4);
 	if(n != 4)
 		return nil;
 	n = GBIT32(buf);
@@ -280,12 +281,12 @@ _fsrecv(Mux *mux)
 		return nil;
 	}
 	PBIT32(pkt, n);
-	if(readn(fs->fd, pkt+4, n-4) != n-4){
+	if(threadreadn(fs->fd, pkt+4, n-4) != n-4){
 		free(pkt);
 		return nil;
 	}
 	if(pkt[4] == Ropenfd){
-		if((nfd=recvfd(fs->fd)) < 0){
+		if((nfd=threadrecvfd(fs->fd)) < 0){
 			fprint(2, "recv fd error: %r\n");
 			free(pkt);
 			return nil;

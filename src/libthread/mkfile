@@ -12,6 +12,7 @@ OFILES=\
 	debug.$O\
 	exec-unix.$O\
 	exit.$O\
+	fdwait.$O\
 	getpid.$O\
 	id.$O\
 	iocall.$O\
@@ -30,6 +31,7 @@ OFILES=\
 	memsetd.$O\
 	note.$O\
 	proctab.$O\
+	read9pmsg.$O\
 	ref.$O\
 	rendez.$O\
 	sched.$O\

@@ -383,7 +383,7 @@ xfidwrite(Xfid *x)
 	x->fcall.data[x->fcall.count] = 0;
 	switch(qid){
 	case Qcons:
-		w = errorwin(x->f->mntdir, 'X', nil);
+		w = errorwin(x->f->mntdir, 'X');
 		t=&w->body;
 		goto BodyTag;
 
@@ -543,6 +543,7 @@ xfidwrite(Xfid *x)
 	}
 	if(w)
 		winunlock(w);
+	flushwarnings(1);
 }
 
 void
@@ -813,6 +814,7 @@ xfideventwrite(Xfid *x, Window *w)
 			qunlock(&row.lk);
 			goto Rescue;
 		}
+		flushwarnings(0);
 		qunlock(&row.lk);
 
 	}
@@ -1030,6 +1032,7 @@ xfidindexread(Xfid *x)
 			b[n++] = '\n';
 		}
 	}
+	flushwarnings(0);
 	qunlock(&row.lk);
 	off = x->fcall.offset;
 	cnt = x->fcall.count;

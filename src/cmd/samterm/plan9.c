@@ -99,10 +99,11 @@ extproc(void *argv)
 	c = arg[0];
 	fd = (int)arg[1];
 
+	threadfdnoblock(fd);
 	i = 0;
 	for(;;){
 		i = 1-i;	/* toggle */
-		n = read(fd, plumbbuf[i].data, sizeof plumbbuf[i].data);
+		n = threadread(fd, plumbbuf[i].data, sizeof plumbbuf[i].data);
 		if(n <= 0){
 			fprint(2, "samterm: extern read error: %r\n");
 			threadexits("extern");	/* not a fatal error */
@@ -165,7 +166,7 @@ extstart(void)
 	plumbc = chancreate(sizeof(int), 0);
 	arg[0] = plumbc;
 	arg[1] = (void*)fd;
-	proccreate(extproc, arg, STACK);
+	threadcreate(extproc, arg, STACK);
 	atexit(removeextern);
 }
 
@@ -226,9 +227,10 @@ plumbproc(void *argv)
 	fdp = arg[1];
 
 	i = 0;
+	threadfdnoblock(*fdp);
 	for(;;){
 		i = 1-i;	/* toggle */
-		n = read(*fdp, plumbbuf[i].data, READBUFSIZE);
+		n = threadread(*fdp, plumbbuf[i].data, READBUFSIZE);
 		if(n <= 0){
 			fprint(2, "samterm: plumb read error: %r\n");
 			threadexits("plumb");	/* not a fatal error */
@@ -258,7 +260,7 @@ plumbstart(void)
 	}
 	arg[0] =plumbc;
 	arg[1] = &fd;
-	proccreate(plumbproc, arg, STACK);
+	threadcreate(plumbproc, arg, STACK);
 	return 1;
 }
 #endif
@@ -278,9 +280,10 @@ hostproc(void *arg)
 	c = arg;
 
 	i = 0;
+	threadfdnoblock(hostfd[0]);
 	for(;;){
 		i = 1-i;	/* toggle */
-		n = read(hostfd[0], hostbuf[i].data, sizeof hostbuf[i].data);
+		n = threadread(hostfd[0], hostbuf[i].data, sizeof hostbuf[i].data);
 		if(n <= 0){
 			fprint(2, "samterm: host read error: %r\n");
 			threadexitsall("host");
@@ -295,5 +298,5 @@ void
 hoststart(void)
 {
 	hostc = chancreate(sizeof(int), 0);
-	proccreate(hostproc, hostc, STACK);
+	threadcreate(hostproc, hostc, STACK);
 }

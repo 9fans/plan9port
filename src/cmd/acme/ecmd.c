@@ -596,7 +596,7 @@ runpipe(Text *t, int cmd, Rune *cr, int ncr, int state)
 
 	r = skipbl(cr, ncr, &n);
 	if(n == 0)
-		editerror("no command specified for >");
+		editerror("no command specified for %c", cmd);
 	w = nil;
 	if(state == Inserting){
 		w = t->w;
@@ -949,12 +949,15 @@ filelooper(Cmd *cp, int XY)
 	/*
 	 * add a ref to all windows to keep safe windows accessed by X
 	 * that would not otherwise have a ref to hold them up during
-	 * the shenanigans.
+	 * the shenanigans.  note this with globalincref so that any
+	 * newly created windows start with an extra reference.
 	 */
 	allwindows(alllocker, (void*)1);
+	globalincref = 1;
 	for(i=0; i<loopstruct.nw; i++)
 		cmdexec(&loopstruct.w[i]->body, cp->u.cmd);
 	allwindows(alllocker, (void*)0);
+	globalincref = 0;
 	free(loopstruct.w);
 	loopstruct.w = nil;
 

@@ -6,6 +6,18 @@ enum
 	PTABHASH = 257,
 };
 
+static int multi;
+static Proc *theproc;
+
+void
+_threadmultiproc(void)
+{
+	if(multi == 0){
+		multi = 1;
+		_threadsetproc(theproc);
+	}
+}
+
 static Lock ptablock;
 Proc *ptab[PTABHASH];
 
@@ -14,6 +26,10 @@ _threadsetproc(Proc *p)
 {
 	int h;
 
+	if(!multi){
+		theproc = p;
+		return;
+	}
 	lock(&ptablock);
 	h = ((unsigned)p->pid)%PTABHASH;
 	p->link = ptab[h];
@@ -26,6 +42,9 @@ __threadgetproc(int rm)
 {
 	Proc **l, *p;
 	int h, pid;
+
+	if(!multi)
+		return theproc;
 
 	pid = _threadgetpid();
 

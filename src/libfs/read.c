@@ -12,7 +12,12 @@ fspread(Fid *fid, void *buf, long n, vlong offset)
 {
 	Fcall tx, rx;
 	void *freep;
+	uint msize;
 
+	msize = fid->fs->msize - IOHDRSZ;
+fprint(2, "n %d msize %d\n", n, msize);
+	if(n > msize)
+		n = msize;
 	tx.type = Tread;
 	tx.fid = fid->fid;
 	if(offset == -1){

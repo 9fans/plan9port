@@ -24,6 +24,12 @@ _threaddie(int x)
 		exit(_threadexitsallstatus[0] ? 1 : 0);
 }
 
+static void
+_nop(int x)
+{
+	USED(x);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -31,6 +37,7 @@ main(int argc, char **argv)
 	Proc *p;
 
 	signal(SIGTERM, _threaddie);
+	signal(SIGCHLD, _nop);
 //	rfork(RFREND);
 
 //_threaddebuglevel = (DBGSCHED|DBGCHAN|DBGREND)^~0;

@@ -454,7 +454,7 @@ _xselect(XEvent *e, XDisplay *xd)
 
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
-if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
+if(1) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 	xe->target, xe->requestor, xe->property, xe->selection);
 	r.xselection.property = xe->property;
 	if(xe->target == _x.targets){

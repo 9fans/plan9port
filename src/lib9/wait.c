@@ -1,15 +1,15 @@
 #include <u.h>
 #include <libc.h>
 
-Waitmsg*
-wait(void)
+static Waitmsg*
+_wait(int nohang)
 {
 	int n, l;
 	char buf[512], *fld[5];
 	Waitmsg *w;
 
-	n = await(buf, sizeof buf-1);
-	if(n < 0)
+	n = (nohang ? awaitnohang : await)(buf, sizeof buf-1);
+	if(n <= 0)
 		return nil;
 	buf[n] = '\0';
 	if(tokenize(buf, fld, nelem(fld)) != nelem(fld)){
@@ -27,5 +27,17 @@ wait(void)
 	w->msg = (char*)&w[1];
 	memmove(w->msg, fld[4], l);
 	return w;
+}
+
+Waitmsg*
+wait(void)
+{
+	return _wait(0);
+}
+
+Waitmsg*
+waitnohang(void)
+{
+	return _wait(1);
 }
 
