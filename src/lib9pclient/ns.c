@@ -5,11 +5,10 @@
 #include <ctype.h>
 
 CFsys*
-nsmount(char *name, char *aname)
+nsinit(char *name)
 {
 	char *addr, *ns;
 	int fd;
-	CFsys *fs;
 
 	ns = getns();
 	if(ns == nil)
@@ -29,13 +28,23 @@ nsmount(char *name, char *aname)
 	free(addr);
 
 	fcntl(fd, F_SETFL, FD_CLOEXEC);
+	return fsinit(fd);
+}
 
-	fs = fsmount(fd, aname);
-	if(fs == nil){
-		close(fd);
+CFsys*
+nsmount(char *name, char *aname)
+{
+	CFsys *fs;
+	CFid *fid;
+
+	fs = nsinit(name);
+	if(fs == nil)
+		return nil;
+	if((fid = fsattach(fs, nil, getuser(), aname)) == nil){
+		_fsunmount(fs);
 		return nil;
 	}
-
+	fssetroot(fs, fid);
 	return fs;
 }
 

@@ -13,6 +13,8 @@ static void *_fsrecv(Mux*);
 static int _fsgettag(Mux*, void*);
 static int _fssettag(Mux*, void*, uint);
 
+int chatty9pclient;
+
 enum
 {
 	CFidchunk = 32
@@ -22,7 +24,8 @@ CFsys*
 fsinit(int fd)
 {
 	CFsys *fs;
-
+	int n;
+	
 	fmtinstall('F', fcallfmt);
 	fmtinstall('D', dirfmt);
 	fmtinstall('M', dirmodefmt);
@@ -42,6 +45,13 @@ fsinit(int fd)
 	fs->iorecv = ioproc();
 	fs->iosend = ioproc();
 	muxinit(&fs->mux);
+	
+	strcpy(fs->version, "9P2000");
+	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
+		_fsunmount(fs);
+		return nil;
+	}
+	fs->msize = n;
 	return fs;
 }
 
@@ -55,26 +65,26 @@ fsroot(CFsys *fs)
 CFsys*
 fsmount(int fd, char *aname)
 {
-	int n;
 	CFsys *fs;
 	CFid *fid;
 
 	fs = fsinit(fd);
 	if(fs == nil)
 		return nil;
-	strcpy(fs->version, "9P2000");
-	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
-	Error:
-		fs->fd = -1;
-		fsunmount(fs);
+
+	if((fid = fsattach(fs, nil, getuser(), aname)) == nil){
+		_fsunmount(fs);
 		return nil;
 	}
-	fs->msize = n;
-
-	if((fid = fsattach(fs, nil, getuser(), aname)) == nil)
-		goto Error;
 	fssetroot(fs, fid);
 	return fs;
+}
+
+void
+_fsunmount(CFsys *fs)
+{
+	fs->fd = -1;
+	fsunmount(fs);
 }
 
 void
@@ -196,7 +206,9 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 		*freep = nil;
 	if(tpkt == nil)
 		return -1;
-	//fprint(2, "<- %F\n", tx);
+	tx->tag = 0;
+	if(chatty9pclient)
+		fprint(2, "<- %F\n", tx);
 	nn = convS2M(tx, tpkt, n);
 	if(nn != n){
 		free(tpkt);
@@ -216,7 +228,8 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 		fprint(2, "%r\n");
 		return -1;
 	}
-	//fprint(2, "-> %F\n", rx);
+	if(chatty9pclient)
+		fprint(2, "-> %F\n", rx);
 	if(rx->type == Rerror){
 		werrstr("%s", rx->ename);
 		free(rpkt);
