@@ -20,7 +20,7 @@ usage(void)
 	fprint(2, "	writefd name\n");
 	fprint(2, "	stat name\n");
 	fprint(2, "	rdwr name\n");
-//	fprint(2, "	ls name\n");
+	fprint(2, "	ls [-ld] name\n");
 	fprint(2, "without -a, name elem/path means /path on server unix!$ns/elem\n");
 	threadexitsall("usage");
 }
@@ -43,7 +43,7 @@ struct {
 	"writefd", xwritefd,
 	"stat", xstat,
 	"rdwr", xrdwr,
-//	"ls", xls,
+	"ls", xls,
 };
 
 void
@@ -55,6 +55,8 @@ threadmain(int argc, char **argv)
 	ARGBEGIN{
 	case 'a':
 		addr = EARGF(usage());
+		if(strchr(addr, '!') == nil)
+			addr = netmkaddr(addr, "tcp", "9fs");
 		break;
 	case 'D':
 		chatty9pclient = 1;
@@ -308,3 +310,122 @@ xrdwr(int argc, char **argv)
 	}
 	threadexitsall(0);	
 }
+
+static char *mon[] = 
+{
+	"Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+};
+
+
+int
+timefmt(Fmt *fmt)
+{
+	ulong u;
+	static ulong time0;
+	Tm *tm;
+	
+	if(time0 == 0)
+		time0 = time(0);
+	u = va_arg(fmt->args, ulong);
+	tm = localtime(u);
+	if((long)(time0-u) < 6*30*86400)
+		return fmtprint(fmt, "%s %2d %02d:%02d",
+			mon[tm->mon], tm->mday, tm->hour, tm->min);
+	else
+		return fmtprint(fmt, "%s %2d %5d",
+			mon[tm->mon], tm->mday, tm->year+1900);
+	return 0;
+}
+
+static int
+dircmp(const void *va, const void *vb)
+{
+	Dir *a, *b;
+	
+	a = (Dir*)va;
+	b = (Dir*)vb;
+	return strcmp(a->name, b->name);
+}
+
+void
+xls(int argc, char **argv)
+{
+	char *name, *xname, *f[4], buf[4096];
+	int nf, i, j, l;
+	int lflag, dflag, n, len[4];
+	Dir *d;
+	CFid *fid;
+	CFsys *fs;
+	
+	lflag = dflag = 0;
+	ARGBEGIN{
+	case 'l':
+		lflag = 1;
+		break;
+	case 'd':
+		dflag = 1;
+		break;
+	}ARGEND
+	
+	fmtinstall('D', dirfmt);
+	fmtinstall('M', dirmodefmt);
+	quotefmtinstall();
+	fmtinstall('T', timefmt);
+	
+	for(i=0; i<argc; i++){
+		name = argv[i];
+		fs = xparse(name, &xname);
+		if((d = fsdirstat(fs, xname)) == nil){
+			fprint(2, "dirstat %s: %r\n", name);
+			fsunmount(fs);
+			continue;
+		}
+		if((d->mode&DMDIR) && !dflag){
+			if((fid = fsopen(fs, xname, OREAD)) == nil){
+				fprint(2, "open %s: %r\n", name);
+				fsunmount(fs);
+				free(d);
+				continue;
+			}
+			free(d);
+			n = fsdirreadall(fid, &d);
+			fsclose(fid);
+			if(n < 0){
+				fprint(2, "dirreadall %s: %r\n", name);
+				fsunmount(fs);
+				continue;
+			}
+			qsort(d, n, sizeof d[0], dircmp);
+			for(j=0; j<5; j++)
+				len[j] = 0;
+			for(i=0; i<n; i++){
+				d[i].type = 'M';
+				d[i].dev = 0;
+				snprint(buf, sizeof buf, "%d %s %s %lld",
+					d[i].dev, d[i].uid, d[i].gid, d[i].length);
+				nf = getfields(buf, f, 4, 0, " ");
+				for(j=0; j<4; j++){
+					l = strlen(f[j]);
+					if(l > len[j])
+						len[j] = l;
+				}
+			}
+			for(i=0; i<n; i++)
+				print("%M %C %*d %*s %*s %*lld %T %q\n",
+					d[i].mode, d[i].type, len[0], d[i].dev,
+					-len[1], d[i].uid, -len[2], d[i].gid,
+					len[3], d[i].length, d[i].mtime, d[i].name);
+			
+		}else{
+			d->type = 'M';
+			d->dev = 0;
+			print("%M %C %d %s %s %lld %T %q\n",
+				d->mode, d->type, d->dev,
+				d->uid, d->gid, d->length, d->mtime, d->name);
+		}
+		free(d);
+	}
+	threadexitsall(0);
+}
+
