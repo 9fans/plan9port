@@ -25,7 +25,9 @@ else
 	do
 		if [ -f "$i" ]
 		then
-			i=file://`pwd`/$i
+			p=`pwd`
+			i=`cleanname -d $p $i`
+			i=file://$i
 		fi
 		plumb1 $i
 	done
