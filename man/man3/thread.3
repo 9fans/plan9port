@@ -680,3 +680,12 @@ See
 The implementation of
 .I threadnotify
 may not be correct.
+.PP
+There appears to be a race in the Linux NPTL
+implementation of
+.I pthread_exit .
+Call
+.I threadexitsall
+rather than coordinating a simultaneous
+.I threadexits
+among many threads.
