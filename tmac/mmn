@@ -24,7 +24,7 @@
 .nr!8 0
 .nr!9 0
 .nr!M 0
-.so#9/sys/lib/tmac/strings.mm
+.so #9/tmac/strings.mm
 .if\*(]S .ds ]S \*(}Z
 .dsBU \(bu
 .dsEM \%--

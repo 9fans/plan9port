@@ -1,5 +1,5 @@
 ..... July 1, 1991
-.so #9/sys/lib/tmac/tmac.pm
+.so #9/tmac/tmac.pm
 .
 .ig
 .nr VN 1	\" VN -- volume

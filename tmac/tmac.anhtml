@@ -1,4 +1,4 @@
-.so #9/sys/lib/tmac/tmac.an
+.so #9/tmac/tmac.an
 .de }H
 ..
 .de }F

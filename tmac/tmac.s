@@ -1,5 +1,5 @@
 .lg 0
-.ds sd #9/sys/lib/tmac
+.ds sd #9/tmac
 .\"	RT -  reset everything to normal state
 .de RT
 .if \\n(CS \{\
