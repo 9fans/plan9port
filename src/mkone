@@ -2,7 +2,7 @@ PROG=$O.$TARG
 
 all:V:	$PROG
 
-$PROG:	$OFILES $LIB ${SHORTLIB:%=$LIBDIR/lib%.a}
+$PROG:	$OFILES $LIB # ${SHORTLIB:%=$LIBDIR/lib%.a}
 	$LD -o $target $prereq $LDFLAGS
 
 install:V: $TARG.install
