@@ -134,6 +134,15 @@ xtoplan9latin1(XEvent *e)
 	if(r < 0)
 		return nil;
 	if(alting){
+		/*
+		 * Kludge for Mac's X11 3-button emulation.
+		 * It treats Command+Button as button 3, but also
+		 * ends up sending XK_Meta_L twice.
+		 */
+		if(r == Kalt){
+			alting = 0;
+			return nil;
+		}
 		k[nk++] = r;
 		n = _latin1(k, nk);
 		if(n > 0){
