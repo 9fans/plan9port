@@ -6,5 +6,5 @@ echo "
 	X ,s;/usr/local/plan9($|/|});$p\\1;g
 	X/'/w
 	q
-" | sam -d `cat lib/moveplan9.files` man/man*/*.* >/dev/null 2>&1
+" | sam -d `cat lib/moveplan9.files` >/dev/null 2>&1
 
