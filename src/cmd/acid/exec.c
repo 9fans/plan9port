@@ -219,7 +219,7 @@ regbyoff(ulong addr)
 int
 xget1(Map *m, ulong addr, u8int *a, int n)
 {
-	if(addr < 0x100)
+	if(addr < 0x100 && correg)
 		return lget1(m, correg, locreg(regbyoff(addr)), a, n);
 	else
 		return get1(m, addr, a, n);
@@ -228,7 +228,7 @@ xget1(Map *m, ulong addr, u8int *a, int n)
 int
 xget2(Map *m, ulong addr, u16int *a)
 {
-	if(addr < 0x100)
+	if(addr < 0x100 && correg)
 		return lget2(m, correg, locreg(regbyoff(addr)), a);
 	else
 		return get2(m, addr, a);
@@ -237,7 +237,7 @@ xget2(Map *m, ulong addr, u16int *a)
 int
 xget4(Map *m, ulong addr, u32int *a)
 {
-	if(addr < 0x100)
+	if(addr < 0x100 && correg)
 		return lget4(m, correg, locreg(regbyoff(addr)), a);
 	else
 		return get4(m, addr, a);
@@ -246,7 +246,7 @@ xget4(Map *m, ulong addr, u32int *a)
 int
 xget8(Map *m, ulong addr, u64int *a)
 {
-	if(addr < 0x100)
+	if(addr < 0x100 && correg)
 		return lget8(m, correg, locreg(regbyoff(addr)), a);
 	else
 		return get8(m, addr, a);
