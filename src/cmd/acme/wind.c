@@ -80,9 +80,9 @@ wininit(Window *w, Window *clone, Rectangle r)
 //assert(w->body.w == w);
 	if(clone){
 		w->dirty = clone->dirty;
+		w->autoindent = clone->autoindent;
 		textsetselect(&w->body, clone->body.q0, clone->body.q1);
 		winsettag(w);
-		w->autoindent = clone->autoindent;
 	}
 }
 

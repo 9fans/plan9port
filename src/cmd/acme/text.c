@@ -386,6 +386,14 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 	}
 }
 
+void
+typecommit(Text *t)
+{
+	if(t->w != nil)
+		wincommit(t->w, t);
+	else
+		textcommit(t, TRUE);
+}
 
 void
 textfill(Text *t)
@@ -395,12 +403,8 @@ textfill(Text *t)
 
 	if(t->fr.lastlinefull || t->nofill)
 		return;
-	if(t->ncache > 0){
-		if(t->w != nil)
-			wincommit(t->w, t);
-		else
-			textcommit(t, TRUE);
-	}
+	if(t->ncache > 0)
+		typecommit(t);
 	rp = fbufalloc();
 	do{
 		n = t->file->b.nc-(t->org+t->fr.nchars);
@@ -649,16 +653,13 @@ texttype(Text *t, Rune r)
 	switch(r){
 	case Kleft:
 		if(t->q0 > 0){
-			if(t->w)
-				wincommit(t->w, t);
-			else
-				textcommit(t, TRUE);
+			typecommit(t);
 			textshow(t, t->q0-1, t->q0-1, TRUE);
 		}
 		return;
 	case Kright:
 		if(t->q1 < t->file->b.nc){
-			wincommit(t->w, t);
+			typecommit(t);
 			textshow(t, t->q1+1, t->q1+1, TRUE);
 		}
 		return;
@@ -689,14 +690,27 @@ texttype(Text *t, Rune r)
 		textsetorigin(t, q0, TRUE);
 		return;
 	case Khome:
+		typecommit(t);
 		textshow(t, 0, 0, FALSE);
 		return;
 	case Kend:
-		if(t->w)
-			wincommit(t->w, t);
-		else
-			textcommit(t, TRUE);
+		typecommit(t);
 		textshow(t, t->file->b.nc, t->file->b.nc, FALSE);
+		return;
+	case 0x01:	/* ^A: beginning of line */
+		typecommit(t);
+		/* go to where ^U would erase, if not already at BOL */
+		nnb = 0;
+		if(t->q0>0 && textreadc(t, t->q0-1)!='\n')
+			nnb = textbswidth(t, 0x15);
+		textshow(t, t->q0-nnb, t->q0-nnb, TRUE);
+		return;
+	case 0x05:	/* ^E: end of line */
+		typecommit(t);
+		q0 = t->q0;
+		while(q0<t->file->b.nc && textreadc(t, q0)!='\n')
+			q0++;
+		textshow(t, q0, q0, TRUE);
 		return;
 	}
 	if(t->what == Body){
