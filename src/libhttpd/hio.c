@@ -443,7 +443,7 @@ hlflush(Hio* h)
 int
 hwrite(Hio *h, void *vbuf, int len)
 {
-	uchar *pos, *buf;
+	uchar *buf;
 	int n, m;
 
 	buf = vbuf;
@@ -453,36 +453,30 @@ hwrite(Hio *h, void *vbuf, int len)
 		h->stop = h->pos;
 		return -1;
 	}
-	pos = h->pos;
-	if(pos + n >= h->stop){
-		m = pos - h->start;
-		if(m){
-			m = Hsize - m;
-			if(m){
-				memmove(pos, buf, m);
-				buf += m;
-				n -= m;
-			}
-			if(write(h->fd, h->start, Hsize) != Hsize){
-				h->state = Herr;
-				h->stop = h->pos;
+	if(h->pos + n >= h->stop){
+		if(h->start != h->pos)
+			if(hflush(h) < 0)
 				return -1;
+		while(h->pos + n >= h->stop){
+			m = h->stop - h->pos;
+			if(h->xferenc){
+				memmove(h->pos, buf, m);
+				h->pos += m;
+				if(hflush(h) < 0)
+					return -1;
+			}else{
+				if(write(h->fd, buf, m) != m){
+					h->state = Herr;
+					h->stop = h->pos;
+					return -1;
+				}
+				h->seek += m;
 			}
-			h->seek += Hsize;
+			n -= m;
+			buf += m;
 		}
-		m = n % Hsize;
-		n -= m;
-		if(n != 0 && write(h->fd, buf, n) != n){
-			h->state = Herr;
-			h->stop = h->pos;
-			return -1;
-		}
-		h->seek += n;
-		buf += n;
-		pos = h->pos = h->start;
-		n = m;
 	}
-	memmove(pos, buf, n);
-	h->pos = pos + n;
+	memmove(h->pos, buf, n);
+	h->pos += n;
 	return len;
 }
