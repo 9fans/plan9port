@@ -108,6 +108,7 @@ struct Proc
 	Context	schedcontext;
 	void		*udata;
 	Jmp		sigjmp;
+	int		mainproc;
 };
 
 #define proc() _threadproc()

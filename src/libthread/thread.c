@@ -281,6 +281,24 @@ procscheduler(Proc *p)
 
 Out:
 	_threaddebug("scheduler exit");
+	if(p->mainproc){
+		/*
+		 * Stupid bug - on Linux 2.6 and maybe elsewhere,
+		 * if the main thread exits then the others keep running
+		 * but the process shows up as a zombie in ps and is not
+		 * attachable with ptrace.  We'll just sit around pretending
+		 * to be a system proc instead of exiting.
+		 */
+		_threaddaemonize();
+		lock(&threadnproclock);
+		if(++threadnsysproc == threadnproc)
+			threadexitsall(p->msg);
+		p->sysproc = 1;
+		unlock(&threadnproclock);
+		for(;;)
+		 	sleep(1000);
+	}
+
 	delproc(p);
 	lock(&threadnproclock);
 	if(p->sysproc)
@@ -298,7 +316,7 @@ _threadsetsysproc(void)
 {
 	lock(&threadnproclock);
 	if(++threadnsysproc == threadnproc)
-		exit(0);
+		threadexitsall(nil);
 	unlock(&threadnproclock);
 	proc()->sysproc = 1;
 }
@@ -576,21 +594,13 @@ main(int argc, char **argv)
 
 	_pthreadinit();
 	p = procalloc();
+	p->mainproc = 1;
 	_threadsetproc(p);
 	if(mainstacksize == 0)
 		mainstacksize = 256*1024;
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	procscheduler(p);
-	_threaddaemonize();
-	/*
-	 * On Linux 2.6, if the main thread exits then the others
-	 * keep running but the process shows up as a zombie in ps
-	 * and is not attachable with ptrace.  We'll just sit around
-	 * instead of exiting.
-	 */
-	for(;;)
-		sleep(1000);
-	_threadpexit();
+	/* does not return */
 	return 0;
 }
 

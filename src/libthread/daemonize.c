@@ -121,7 +121,6 @@ _threadsetupdaemonize(void)
 		close(p[1]);
 		break;
 	case 0:
-		for(i=0; i<100; i++) sched_yield();
 		notedisable("sys: child");
 		signal(SIGCHLD, SIG_DFL);
 	/*	rfork(RFNOTEG); */
