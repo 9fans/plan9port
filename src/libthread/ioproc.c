@@ -20,6 +20,8 @@ static void
 xioproc(void *a)
 {
 	Ioproc *io, *x;
+
+	threadsetname("ioproc");
 	io = a;
 	/*
 	 * first recvp acquires the ioproc.

@@ -20,6 +20,25 @@ static	void		delthreadinproc(Proc*, _Thread*);
 static	void		contextswitch(Context *from, Context *to);
 static	void		scheduler(Proc*);
 
+static void
+_threaddebug(char *fmt, ...)
+{
+	va_list arg;
+	char buf[128];
+	_Thread *t;
+
+	return;
+
+	va_start(arg, fmt);
+	vsnprint(buf, sizeof buf, fmt, arg);
+	va_end(arg);
+	t = proc()->thread;
+	if(t)
+		fprint(2, "%d.%d: %s\n", getpid(), t->id, buf);
+	else
+		fprint(2, "%d._: %s\n", getpid(), buf);
+}
+
 static _Thread*
 getthreadnow(void)
 {
@@ -50,6 +69,7 @@ threadstart(void *v)
 
 	t = v;
 	t->startfn(t->startarg);
+	memset(&v, 0xff, 32);	/* try to cut off stack traces */
 	threadexits(nil);
 }
 
@@ -81,7 +101,7 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	/* call makecontext to do the real work. */
 	/* leave a few words open on both ends */
 	t->context.uc.uc_stack.ss_sp = t->stk+8;
-	t->context.uc.uc_stack.ss_size = t->stksize-16;
+	t->context.uc.uc_stack.ss_size = t->stksize-64;
 	makecontext(&t->context.uc, (void(*)())threadstart, 1, t);
 
 	return t;
@@ -185,6 +205,7 @@ scheduler(Proc *p)
 	_Thread *t;
 
 	setproc(p);
+	_threaddebug("scheduler enter");
 	// print("s %p %d\n", p, gettid());
 	lock(&p->lock);
 	for(;;){
@@ -192,15 +213,15 @@ scheduler(Proc *p)
 			if(p->nthread == 0)
 				goto Out;
 			p->runrend.l = &p->lock;
-//print("%d sleep for jobs %d\n", time(0), getpid());
+			_threaddebug("scheduler sleep");
 			_procsleep(&p->runrend);
-//print("%d wake from jobs %d\n", time(0), getpid());
+			_threaddebug("scheduler wake");
 		}
 		delthread(&p->runqueue, t);
 		unlock(&p->lock);
 		p->thread = t;
 		p->nswitch++;
-		// print("run %s %d\n", t->name, t->id);
+		_threaddebug("run %d (%s)", t->id, t->name);
 		contextswitch(&p->schedcontext, &t->context);
 		p->thread = nil;
 		lock(&p->lock);
@@ -212,6 +233,7 @@ scheduler(Proc *p)
 	}
 
 Out:
+	_threaddebug("scheduler exit");
 	delproc(p);
 	lock(&threadnproclock);
 	if(p->sysproc)
@@ -447,10 +469,17 @@ threadmainstart(void *v)
 	threadmain(threadargc, threadargv);
 }
 
+void
+threadlinklibrary(void)
+{
+}
+
 int
 main(int argc, char **argv)
 {
 	Proc *p;
+
+	_threadsetupdaemonize();
 
 	threadargc = argc;
 	threadargv = argv;

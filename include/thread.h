@@ -22,6 +22,11 @@ _Thread	*_threadwakeup(Rendez*);
 #define	yield		threadyield
 
 /*
+ * daemonize
+ */
+void	threaddaemonize(void);
+
+/*
  * per proc and thread data
  */
 void		**procdata(void);

@@ -5,8 +5,6 @@ typedef struct Execjob Execjob;
 typedef struct Proc Proc;
 typedef struct _Procrendez _Procrendez;
 
-
-
 typedef struct Jmp Jmp;
 struct Jmp
 {
@@ -106,3 +104,5 @@ extern void _threadunlock(Lock*, ulong);
 extern void _pthreadinit(void);
 extern int _threadspawn(int*, char*, char**);
 extern int _runthreadspawn(int*, char*, char**);
+extern void _threadsetupdaemonize(void);
+extern void _threaddodaemonize(char*);

@@ -6,6 +6,7 @@ LIB=libthread.a
 OFILES=\
 	$SYSOFILES\
 	channel.$O\
+	daemonize.$O\
 	exec.$O\
 	ioproc.$O\
 	iorw.$O\

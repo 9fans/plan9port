@@ -8,6 +8,9 @@
 #include "thread.h"
 #include "threadimpl.h"
 
+int ngetpid;
+
+
 /*
  * spin locks
  */
@@ -99,15 +102,12 @@ again:
 	sigdelset(&mask, SIGUSR1);
 	sigsuspend(&mask);
 
-//print("%d %d awake again\n", time(0), getpid());
-
 	/*
 	 * We're awake.  Make USR1 not interrupt system calls.
 	 */
 	lock(r->l);
 	ignusr1(1);
 	if(r->asleep && r->pid == getpid()){
-//print("resleep %d\n", getpid());
 		/* Didn't really wake up - signal from something else */
 		goto again;
 	}
@@ -160,11 +160,15 @@ dofreestacks(void)
 		next = sf->next;
 		if(sf->pid >= 1 && kill(sf->pid, 0) < 0 && errno == ESRCH){
 			free(sf);
-			last->next = next;
+			if(last)
+				last->next = next;
+			else
+				stackfree = next;
 			sf = last;
 		}
 	}
-}	
+	unlock(&stacklock);
+}
 
 static int
 startprocfn(void *v)
@@ -240,7 +244,7 @@ static char *threadexitsmsg;
 void
 sigusr2handler(int s)
 {
-	print("%d usr2 %d\n", time(0), getpid());
+/*	fprint(2, "%d usr2 %d\n", time(0), getpid()); */
 	if(threadexitsmsg)
 		_exits(threadexitsmsg);
 }
@@ -341,7 +345,8 @@ _threadsetproc(Proc *p)
 {
 	Perproc *pp;
 
-	p->osprocid = getpid();
+	if(p)
+		p->osprocid = getpid();
 	pp = newperproc();
 	pp->proc = p;
 	if(p == nil)
