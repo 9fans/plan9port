@@ -121,8 +121,9 @@ manage(Client *c, int mapped)
 				cmapfocus(current);
 			return 0;
 		}
-	else
+	} else
 		gravitate(c, 0);
+
 
 	attrs.border_pixel =  c->screen->black;
 	attrs.background_pixel =  c->screen->white;
