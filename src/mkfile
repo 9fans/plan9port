@@ -9,6 +9,14 @@ DIRS=\
 
 <mkdirs
 
+libs:V: libs-all
+
+libs-%:V:
+	for i in $LIBDIRS
+	do
+		(cd $i; mk $stem)
+	done
+
 MKDIRS=\
 	libbio\
 	libregexp\

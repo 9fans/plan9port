@@ -67,7 +67,7 @@ LIB9OFILES=\
 	_exits.$O\
 	_p9dialparse.$O\
 	_p9dir.$O\
-	_p9proc.$O\
+	_p9proc-$SYSNAME.$O\
 	announce.$O\
 	argv0.$O\
 	atexit.$O\
@@ -111,7 +111,7 @@ LIB9OFILES=\
 	jmp.$O\
 	lrand.$O\
 	lnrand.$O\
-	lock.$O\
+	lock-$SYSNAME.$O\
 	main.$O\
 	malloc.$O\
 	malloctag.$O\
@@ -141,6 +141,7 @@ LIB9OFILES=\
 	strecpy.$O\
 	sysfatal.$O\
 	sysname.$O\
+	tas-$OBJTYPE.$O\
 	time.$O\
 	tokenize.$O\
 	truerand.$O\

@@ -50,7 +50,7 @@ main(int argc, char **argv)
 	a->argc = argc;
 	a->argv = argv;
 	p = _newproc(mainlauncher, a, mainstacksize, "threadmain", 0, 0);
-	_schedinit(p);
+	_scheduler(p);
 	abort();	/* not reached */
 	return 0;
 }
@@ -80,7 +80,7 @@ _schedfork(Proc *p)
 {
 	int pid;
 	lock(&p->lock);
-	pid = ffork(RFMEM|RFNOWAIT, _schedinit, p);
+	pid = ffork(RFMEM|RFNOWAIT, _scheduler, p);
 	p->pid = pid;
 	unlock(&p->lock);
 	return pid;

@@ -3,6 +3,25 @@
 #include <libc.h>
 #include "term.h"
 
+static void
+sys(char *buf)
+{
+	char buf2[100];
+	char *f[20];
+	int nf, pid;
+
+	strcpy(buf2, buf);
+	nf = tokenize(buf2, f, nelem(f));
+	f[nf] = nil;
+	switch(pid = fork()){
+	case 0:
+		execvp(f[0], f);
+		_exits("oops");
+	default:
+		waitpid();
+	}
+}
+
 int
 rcstart(int argc, char **argv, int *pfd, int *tfd)
 {
@@ -33,11 +52,14 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		dup(sfd, 0);
 		dup(sfd, 1);
 		dup(sfd, 2);
-		system("stty tabs -onlcr onocr icanon echo erase '^h' intr '^?'");
+		sys("stty tabs -onlcr onocr icanon echo erase '^h' intr '^?'");
 		if(noecho)
-			system("stty -echo");
+			sys("stty -echo");
 		for(i=3; i<100; i++)
 			close(i);
+		signal(SIGINT, SIG_DFL);
+		signal(SIGHUP, SIG_DFL);
+		signal(SIGTERM, SIG_DFL);
 		execvp(argv[0], argv);
 		fprint(2, "exec %s failed: %r\n", argv[0]);
 		_exits("oops");

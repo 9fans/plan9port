@@ -7,7 +7,13 @@
 typedef struct Label Label;
 #define LABELDPC 0
 
-#if defined (__i386__) && (defined(__FreeBSD__) || defined(__linux__) || defined(__OpenBSD__))
+#if defined(__linux__)
+#include <ucontext.h>
+struct Label
+{
+	ucontext_t uc;
+};
+#elif defined (__i386__) && (defined(__FreeBSD__) || defined(__linux__) || defined(__OpenBSD__))
 struct Label
 {
 	ulong pc;

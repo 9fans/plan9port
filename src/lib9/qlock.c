@@ -18,6 +18,8 @@ enum
 
 static void (*procsleep)(_Procrend*) = _procsleep;
 static void (*procwakeup)(_Procrend*) = _procwakeup;
+#define _procsleep donotcall_procsleep
+#define _procwakeup donotcall_procwakeup
 
 /* this gets called by the thread library ONLY to get us to use its rendezvous */
 void
@@ -73,7 +75,7 @@ qlock(QLock *q)
 	q->tail = mp;
 	mp->state = Queuing;
 	mp->rend.l = &q->lock;
-	_procsleep(&mp->rend);
+	procsleep(&mp->rend);
 	unlock(&q->lock);
 	assert(mp->state == Waking);
 	unlock(&mp->inuse);
@@ -92,7 +94,7 @@ qunlock(QLock *q)
 		if(q->head == nil)
 			q->tail = nil;
 		p->state = Waking;
-		_procwakeup(&p->rend);
+		procwakeup(&p->rend);
 		unlock(&q->lock);
 		return;
 	}
@@ -137,7 +139,7 @@ rlock(RWLock *q)
 	mp->next = nil;
 	mp->state = QueuingR;
 	mp->rend.l = &q->lock;
-	_procsleep(&mp->rend);
+	procsleep(&mp->rend);
 	unlock(&q->lock);
 	assert(mp->state == Waking);
 	unlock(&mp->inuse);
@@ -181,7 +183,7 @@ runlock(RWLock *q)
 
 	/* wakeup waiter */
 	p->state = Waking;
-	_procwakeup(&p->rend);
+	procwakeup(&p->rend);
 	unlock(&q->lock);
 }
 
@@ -211,7 +213,7 @@ wlock(RWLock *q)
 
 	/* wait in kernel */
 	mp->rend.l = &q->lock;
-	_procsleep(&mp->rend);
+	procsleep(&mp->rend);
 	unlock(&q->lock);
 	assert(mp->state == Waking);
 	unlock(&mp->inuse);
@@ -253,7 +255,7 @@ wunlock(RWLock *q)
 		if(q->head == nil)
 			q->tail = nil;
 		p->state = Waking;
-		_procwakeup(&p->rend);
+		procwakeup(&p->rend);
 		unlock(&q->lock);
 		return;
 	}
@@ -269,7 +271,7 @@ wunlock(RWLock *q)
 		q->head = p->next;
 		q->readers++;
 		p->state = Waking;
-		_procwakeup(&p->rend);
+		procwakeup(&p->rend);
 	}
 	if(q->head == nil)
 		q->tail = nil;
@@ -310,20 +312,20 @@ rsleep(Rendez *r)
 		if(r->l->head == nil)
 			r->l->tail = nil;
 		t->state = Waking;
-		_procwakeup(&t->rend);
+		procwakeup(&t->rend);
 	}else
 		r->l->locked = 0;
 
 	/* wait for a wakeup */
 	me->rend.l = &r->l->lock;
-	_procsleep(&me->rend);
-
+	procsleep(&me->rend);
 	assert(me->state == Waking);
 	unlock(&me->inuse);
 	if(!r->l->locked){
 		fprint(2, "rsleep: not locked after wakeup\n");
 		abort();
 	}
+	unlock(&r->l->lock);
 }
 
 int

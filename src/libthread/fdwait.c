@@ -241,15 +241,16 @@ threadread(int fd, void *a, long n)
 
 	threadfdnoblock(fd);
 again:
+	/*
+	 * Always call wait (i.e. don't optimistically try the read)
+	 * so that the scheduler gets a chance to run other threads.
+	 */
+	_threadfdwait(fd, 'r', getcallerpc(&fd));
 	errno = 0;
 	nn = read(fd, a, n);
 	if(nn <= 0){
-		if(errno == EINTR)
+		if(errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 			goto again;
-		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			_threadfdwait(fd, 'r', getcallerpc(&fd));
-			goto again;
-		}
 	}
 	return nn;
 }
@@ -261,14 +262,15 @@ threadrecvfd(int fd)
 
 	threadfdnoblock(fd);
 again:
+	/*
+	 * Always call wait (i.e. don't optimistically try the recvfd)
+	 * so that the scheduler gets a chance to run other threads.
+	 */
+	_threadfdwait(fd, 'r', getcallerpc(&fd));
 	nn = recvfd(fd);
 	if(nn < 0){
-		if(errno == EINTR)
+		if(errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 			goto again;
-		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			_threadfdwait(fd, 'r', getcallerpc(&fd));
-			goto again;
-		}
 	}
 	return nn;
 }
@@ -280,14 +282,15 @@ threadsendfd(int fd, int sfd)
 
 	threadfdnoblock(fd);
 again:
+	/*
+	 * Always call wait (i.e. don't optimistically try the sendfd)
+	 * so that the scheduler gets a chance to run other threads.
+	 */
+	_threadfdwait(fd, 'w', getcallerpc(&fd));
 	nn = sendfd(fd, sfd);
 	if(nn < 0){
-		if(errno == EINTR)
+		if(errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 			goto again;
-		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			_threadfdwait(fd, 'w', getcallerpc(&fd));
-			goto again;
-		}
 	}
 	return nn;
 }
@@ -315,14 +318,15 @@ _threadwrite(int fd, const void *a, long n)
 
 	threadfdnoblock(fd);
 again:
+	/*
+	 * Always call wait (i.e. don't optimistically try the write)
+	 * so that the scheduler gets a chance to run other threads.
+	 */
+	_threadfdwait(fd, 'w', getcallerpc(&fd));
 	nn = write(fd, a, n);
 	if(nn < 0){
-		if(errno == EINTR)
+		if(errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK)
 			goto again;
-		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			_threadfdwait(fd, 'w', getcallerpc(&fd));
-			goto again;
-		}
 	}
 	return nn;
 }

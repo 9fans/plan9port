@@ -13,9 +13,6 @@ struct Uproc
 	int pid;
 	int state;
 	void *priv[NPRIV];
-	ulong rendval;
-	ulong rendtag;
-	Uproc *rendhash;
 	p9jmp_buf notejb;
 };
 

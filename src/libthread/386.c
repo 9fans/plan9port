@@ -1,3 +1,7 @@
+#include "ucontext.c"
+
+#ifdef OLD
+
 #include "threadimpl.h"
 /*
  * To use this you need some patches to Valgrind that
@@ -55,3 +59,4 @@ _threadstacklimit(void *bottom, void *top)
 	VALGRIND_SET_STACK_LIMIT(1, bottom, top);
 #endif
 }
+#endif

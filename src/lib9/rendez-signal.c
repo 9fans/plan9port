@@ -52,6 +52,7 @@ _procsleep(_Procrend *r)
 	 */
 	ignusr1(1);
 	assert(r->asleep == 0);
+	lock(r->l);
 }
 
 void

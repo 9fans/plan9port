@@ -55,8 +55,9 @@ muxrpc(Mux *mux, void *tx)
 	enqueue(mux, r);
 
 	/* wait for our packet */
-	while(mux->muxer && !r->p)
+	while(mux->muxer && !r->p){
 		rsleep(&r->r);
+	}
 
 	/* if not done, there's no muxer: start muxing */
 	if(!r->p){

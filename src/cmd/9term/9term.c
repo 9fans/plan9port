@@ -884,12 +884,8 @@ key(Rune r)
 	case 0x7F:	/* DEL: send interrupt */
 		t.qh = t.q0 = t.q1 = t.nr;
 		show(t.q0);
-{int x; x=tcgetpgrp(rcfd);
-print("postnote %d pgrp %d\n", rcpid, x);
-		postnote(PNGROUP, x, "interrupt");
-if(x >= 2) killpg(x, 2);
-}
-	//	write(rcfd, "\x7F", 1);
+	//	postnote(PNGROUP, x, "interrupt");
+		write(rcfd, "\x7F", 1);
 		return;
 	}
 

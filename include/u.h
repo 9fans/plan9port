@@ -24,7 +24,6 @@ extern "C" {
 #include <fmt.h>
 #include <math.h>
 #include <ctype.h>	/* for tolower */
-#include <pthread.h>	/* for Locks */
 
 /*
  * OS-specific crap
@@ -42,8 +41,10 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #		undef _NEEDULONG
-#	include <pthread.h>
-#	define PLAN9_PTHREADS
+#	endif
+#	if defined(__Linux26__)
+#		include <pthread.h>
+#		define PLAN9_PTHREADS 1
 #	endif
 #endif
 #if defined(__sun__)

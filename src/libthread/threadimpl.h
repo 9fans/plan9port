@@ -167,8 +167,7 @@ struct Ioproc
 	Ioproc *next;
 };
 
-void		_gotolabel(Label*);
-int		_setlabel(Label*);
+void		_swaplabel(Label*, Label*);
 void		_freeproc(Proc*);
 Proc*	_newproc(void(*)(void*), void*, uint, char*, int, int);
 int		_procsplhi(void);
@@ -178,7 +177,7 @@ int		_schedexec(Execargs*);
 void		_schedexecwait(void);
 void		_schedexit(Proc*);
 int		_schedfork(Proc*);
-void		_schedinit(void*);
+void		_scheduler(void*);
 void		_systhreadinit(void);
 void		_threadassert(char*);
 void		__threaddebug(ulong, char*, ...);

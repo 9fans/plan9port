@@ -3,7 +3,7 @@
 #include <errno.h>
 #include "threadimpl.h"
 
-//static Thread	*runthread(Proc*);
+static Thread	*runthread(Proc*);
 
 static char *_psstate[] = {
 	"Dead",
@@ -21,27 +21,54 @@ psstate(int s)
 }
 
 void
-_schedinit(void *arg)
+needstack(int howmuch)
 {
 	Proc *p;
 	Thread *t;
-	extern void ignusr1(int), _threaddie(int);
-	signal(SIGTERM, _threaddie);
-  
+
+	p = _threadgetproc();
+	if(p == nil || (t=p->thread) == nil)
+		return;
+	if((ulong)&howmuch < (ulong)t->stk+howmuch){	/* stack overflow waiting to happen */
+		fprint(2, "stack overflow: stack at 0x%lux, limit at 0x%lux, need 0x%lux\n", (ulong)&p, (ulong)t->stk, howmuch);
+		abort();
+	}
+}
+
+void
+_scheduler(void *arg)
+{
+	Proc *p;
+	Thread *t;
+
 	p = arg;
 	lock(&p->lock);
 	p->pid = _threadgetpid();
 	_threadsetproc(p);
-	unlock(&p->lock);
-	while(_setlabel(&p->sched))
-		;
-	_threaddebug(DBGSCHED, "top of schedinit, _threadexitsallstatus=%p", _threadexitsallstatus);
-	if(_threadexitsallstatus)
-		_exits(_threadexitsallstatus);
-	lock(&p->lock);
-	if((t=p->thread) != nil){
+
+	for(;;){
+		t = runthread(p);
+		if(t == nil){
+			_threaddebug(DBGSCHED, "all threads gone; exiting");
+			_threaddelproc();
+			_schedexit(p);
+		}
+		_threaddebug(DBGSCHED, "running %d.%d", t->proc->pid, t->id);
+		p->thread = t;
+		if(t->moribund){
+			_threaddebug(DBGSCHED, "%d.%d marked to die");
+			goto Moribund;
+		}
+		t->state = Running;
+		t->nextstate = Ready;
+		unlock(&p->lock);
+
+		_swaplabel(&p->sched, &t->sched);
+
+		lock(&p->lock);
 		p->thread = nil;
 		if(t->moribund){
+		Moribund:
 			if(t->moribund != 1)
 				fprint(2, "moribund %d\n", t->moribund);
 			assert(t->moribund == 1);
@@ -65,7 +92,8 @@ _schedinit(void *arg)
 			free(t);	/* XXX how do we know there are no references? */
 			p->nthreads--;
 			t = nil;
-			_sched();
+			lock(&p->lock);
+			continue;
 		}
 /*
 		if(p->needexec){
@@ -78,15 +106,27 @@ _schedinit(void *arg)
 			if(t->ret < 0){
 //fprint(2, "_schedfork: %r\n");
 				abort();
-}
+			}
 			p->newproc = nil;
 		}
 		t->state = t->nextstate;
 		if(t->state == Ready)
 			_threadready(t);
+		unlock(&p->lock);
 	}
-	unlock(&p->lock);
-	_sched();
+}
+
+int
+_sched(void)
+{
+	Proc *p;
+	Thread *t;
+
+	p = _threadgetproc();
+	t = p->thread;
+	assert(t != nil);
+	_swaplabel(&t->sched, &p->sched);
+	return p->nsched++;
 }
 
 static Thread*
@@ -155,58 +195,6 @@ relock:
 	q->head = t->next;
 	unlock(&p->readylock);
 	return t;
-}
-
-void
-needstack(int howmuch)
-{
-	Proc *p;
-	Thread *t;
-
-	p = _threadgetproc();
-	if(p == nil || (t=p->thread) == nil)
-		return;
-	if((ulong)&howmuch < (ulong)t->stk+howmuch){	/* stack overflow waiting to happen */
-		fprint(2, "stack overflow: stack at 0x%lux, limit at 0x%lux, need 0x%lux\n", (ulong)&p, (ulong)t->stk, howmuch);
-		abort();
-	}
-}
-
-int
-_sched(void)
-{
-	Proc *p;
-	Thread *t;
-
-Resched:
-	p = _threadgetproc();
-//fprint(2, "p %p\n", p);
-	if((t = p->thread) != nil){
-		needstack(512);
-	//	_threaddebug(DBGSCHED, "pausing, state=%s set %p goto %p",
-	//		psstate(t->state), &t->sched, &p->sched);
-		if(_setlabel(&t->sched)==0)
-			_gotolabel(&p->sched);
-		_threadstacklimit(t->stk, t->stk+t->stksize);
-		return p->nsched++;
-	}else{
-		t = runthread(p);
-		if(t == nil){
-			_threaddebug(DBGSCHED, "all threads gone; exiting");
-			_threaddelproc();
-			_schedexit(p);
-		}
-		_threaddebug(DBGSCHED, "running %d.%d", t->proc->pid, t->id);
-		p->thread = t;
-		if(t->moribund){
-			_threaddebug(DBGSCHED, "%d.%d marked to die");
-			goto Resched;
-		}
-		t->state = Running;
-		t->nextstate = Ready;
-		_gotolabel(&t->sched);
-		for(;;);
-	}
 }
 
 long
