@@ -14,6 +14,7 @@ static struct {
 	Loc l;
 	char *fn;
 	char *var;
+	char *reg;
 } rock;
 
 static int
@@ -28,6 +29,13 @@ ltrace(Map *map, Regs *regs, ulong pc, ulong nextpc, Symbol *sym, int depth)
 
 	if(sym==nil || strcmp(sym->name, rock.fn) != 0)
 		return ++rock.nframe < 40;
+	if(rock.reg){
+		if(rget(regs, rock.reg, &v) < 0)
+			return 0;
+		rock.l = locconst(v);
+		rock.found = 1;
+		return 0;
+	}
 	if(lookuplsym(sym, rock.var, &s1) < 0)
 		return 0;
 	if(locsimplify(map, regs, s1.loc, &rock.l) < 0)
@@ -43,10 +51,18 @@ ltrace(Map *map, Regs *regs, ulong pc, ulong nextpc, Symbol *sym, int depth)
 int
 localaddr(Map *map, Regs *regs, char *fn, char *var, ulong *val)
 {
+	Regdesc *rp;
+
 	rock.found = 0;
 	rock.nframe = 0;
 	rock.fn = fn;
-	rock.var = var;
+	rock.reg = nil;
+	rock.var = nil;
+	for(rp=mach->reglist; rp->name; rp++)
+		if(strcmp(rp->name, var) == 0)
+			rock.reg = rp->name;
+	if(!rock.reg)
+		rock.var = var;
 	stacktrace(map, regs, ltrace);
 	if(rock.found){
 		*val = rock.l.addr;
