@@ -1,10 +1,11 @@
-</$objtype/mkfile
+PLAN9=../..
+<$PLAN9/src/mkhdr
 
-LIB=/$objtype/lib/libplumb.a
+LIB=libplumb.a
 OFILES=\
 	event.$O\
 	mesg.$O\
 
-HFILES=/sys/include/plumb.h
+HFILES=$PLAN9/include/plumb.h
 
-</sys/src/cmd/mksyslib
+<$PLAN9/src/mksyslib

@@ -9,8 +9,10 @@ char *home;
 int
 plumbopen(char *name, int omode)
 {
+#if 0
 	int fd, f;
 	char *s;
+#endif
 	char buf[256];
 
 	if(name[0] == '/')
@@ -21,19 +23,20 @@ plumbopen(char *name, int omode)
 			return -1;
 	}
 	snprint(buf, sizeof buf, "%s/mnt/plumb", home);
-/*	fd = open(buf, omode);
+#if 0
+	fd = open(buf, omode);
 	if(fd >= 0)
 		return fd;
 	snprint(buf, sizeof buf, "/mnt/term/mnt/plumb/%s", name);
 	fd = open(buf, omode);
 	if(fd >= 0)
 		return fd;
-	/* try mounting service * /
+	/* try mounting service */
 	s = getenv("plumbsrv");
 	if(s == nil)
 		return -1;
 	snprint(buf, sizeof buf, "/mnt/plumb/%s", name);
-*/
+#endif
 	return open(buf, omode);
 }
 
