@@ -39,3 +39,15 @@ _threadinitstack(Thread *t, void (*f)(void*), void *arg)
 	if(0) print("tis %x %x at %x\n", f, arg, t->sched.sp);
 }
 
+void
+_threadinswitch(int enter)
+{
+	USED(enter);
+}
+
+void
+_threadstacklimit(void *addr)
+{
+	USED(addr);
+}
+

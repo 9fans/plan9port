@@ -25,3 +25,15 @@ _threadinitstack(Thread *t, void (*f)(void*), void *arg)
 	t->sched.sp = (ulong)tos-80;
 }
 
+void
+_threadinswitch(int enter)
+{
+	USED(enter);
+}
+
+void
+_threadstacklimit(void *addr)
+{
+	USED(addr);
+}
+

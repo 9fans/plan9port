@@ -115,7 +115,8 @@ threadexecl(Channel *pidc, int fd[3], char *f, ...)
 	args[n] = 0;
 	va_end(arg);
 
-	_threadexec(pidc, fd, f, args, 1);
+	if(_threadexec(pidc, fd, f, args, 1) >= 0)
+		threadexits(nil);
 }
 
 static void
