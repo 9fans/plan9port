@@ -80,7 +80,7 @@ disksize(int fd, int dev)
  * getpwnam in the first place, so I'm not too worried.
  */
 int
-_p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
+_p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *estr)
 {
 	char *s;
 	char tmp[20];

@@ -23,7 +23,7 @@ dirfstat(int fd)
 	if(d == nil)
 		return nil;
 	str = (char*)&d[1];
-	_p9dir(&st, tmp, d, &str, str+nstr);
+	_p9dir(&st, &st, tmp, d, &str, str+nstr);
 	return d;
 }
 

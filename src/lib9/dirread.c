@@ -82,10 +82,14 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 		de = (struct dirent*)p;
 		if(de->d_name[0] == 0)
 			/* nothing */ {}
-		else if(stat(de->d_name, &st) < 0)
+		else if(lstat(de->d_name, &lst) < 0)
 			de->d_name[0] = 0;
-		else
-			nstr += _p9dir(&st, de->d_name, nil, nil, nil);
+		else{
+			st = lst;
+			if((lst.st_mode&S_IFMT) == S_ISLNK)
+				stat(de->d_name, &st);
+			nstr += _p9dir(&lst, &st, de->d_name, nil, nil, nil);
+		}
 		p += de->d_reclen;
 	}
 
