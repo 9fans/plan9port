@@ -554,8 +554,6 @@ fprint(2, "%r\n");
 int
 drawsetlabel(char *label)
 {
-	char *argv[2];
-	XClassHint classhint;
 	XTextProperty name;
 
 	/*
@@ -569,23 +567,16 @@ drawsetlabel(char *label)
 	name.format = 8;
 	name.nitems = strlen((char*)name.value);
 
-	memset(&classhint, 0, sizeof classhint);
-	classhint.res_name = label;
-	classhint.res_class = label;
-
-	argv[0] = label;
-	argv[1] = nil;
-
 	XSetWMProperties(
 		_x.display,	/* display */
 		_x.drawable,	/* window */
 		&name,		/* XA_WM_NAME property */
 		&name,		/* XA_WM_ICON_NAME property */
-		argv,		/* XA_WM_COMMAND */
-		1,		/* argc */
+		nil,		/* XA_WM_COMMAND */
+		0,		/* argc */
 		nil,		/* XA_WM_NORMAL_HINTS */
 		nil,		/* XA_WM_HINTS */
-		&classhint	/* XA_WM_CLASSHINTS */
+		nil	/* XA_WM_CLASSHINTS */
 	);
 	XFlush(_x.display);
 	return 0;
