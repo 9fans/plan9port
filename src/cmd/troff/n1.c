@@ -828,7 +828,7 @@ n1:
 	if (p[0] == '-' && p[1] == 0) {
 		ifile = stdin;
 		strcpy(cfname[ifi], "stdin");
-	} else if ((ifile = fopen(p, "r")) == NULL) {
+	} else if ((ifile = fopen(unsharp(p), "r")) == NULL) {
 		ERROR "cannot open file %s", p WARN;
 		nfo -= mflg;
 		done(02);
@@ -936,7 +936,7 @@ void caseso(void)
 
 	lgf++;
 	nextf[0] = 0;
-	if (skip() || !getname() || (fp = fopen(nextf, "r")) == NULL || ifi >= NSO) {
+	if (skip() || !getname() || (fp = fopen(unsharp(nextf), "r")) == NULL || ifi >= NSO) {
 		ERROR "can't open file %s", nextf WARN;
 		done(02);
 	}
@@ -1005,7 +1005,7 @@ void casecf(void)
 	nextf[0] = 0;
 	if (!skip() && getname()) {
 		if (strncmp("<<", nextf, 2) != 0) {
-			if ((fd = fopen(nextf, "r")) == NULL) {
+			if ((fd = fopen(unsharp(nextf), "r")) == NULL) {
 				ERROR "can't open file %s", nextf WARN;
 				done(02);
 			}

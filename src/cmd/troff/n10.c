@@ -185,7 +185,7 @@ void n_ptinit(void)
 	/* hyphalg = 0;	/* for testing */
 
 	strcat(termtab, devname);
-	if ((fp = fopen(termtab, "r")) == NULL) {
+	if ((fp = fopen(unsharp(termtab), "r")) == NULL) {
 		ERROR "cannot open %s", termtab WARN;
 		exit(-1);
 	}

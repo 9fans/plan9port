@@ -130,7 +130,7 @@ mbstowcs(wchar_t *pwcs, const char *s, size_t n)
 size_t
 wcstombs(char *s, const wchar_t *pwcs, size_t n)
 {
-	int /*i,*/ d;
+	int d;
 	long c;
 	char *p, *pe;
 	char buf[3];

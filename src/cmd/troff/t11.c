@@ -24,7 +24,7 @@ getdesc(char *name)
 	char cmd[100], s[100];
 	int i, v;
 
-	if ((fin = fopen(name, "r")) == NULL)
+	if ((fin = fopen(unsharp(name), "r")) == NULL)
 		return -1;
 	while (fscanf(fin, "%s", cmd) != EOF) {
 		if (strcmp(cmd, "res") == 0) {
@@ -65,7 +65,7 @@ static int checkfont(char *name)
 	char buf[300], buf2[300];
 	int i, status = -1;
 
-	if ((fp = fopen(name, "r")) == NULL)
+	if ((fp = fopen(unsharp(name), "r")) == NULL)
 		return -1;
 	for (i = 1; i <= 10; i++) {
 		if (fgets(buf, sizeof buf, fp) == NULL)
@@ -100,7 +100,7 @@ getfont(char *name, int pos)	/* create width tab for font */
 	/* fprintf(stderr, "read font %s onto %d\n", name, pos); */
 	if (checkfont(name) == -1)
 		return -1;
-	if ((fin = fopen(name, "r")) == NULL)
+	if ((fin = fopen(unsharp(name), "r")) == NULL)
 		return -1;
 	for (i = 0; i < ALPHABET; i++)
 		chtemp[i] = chinit;	/* zero out to begin with */

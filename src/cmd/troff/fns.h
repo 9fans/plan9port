@@ -10,6 +10,7 @@ int	lseek(int, long, int);
 int	close(int);
 int	getpid(void);
 #endif
+char	*unsharp(char*);
 
 /*
  * c1.c

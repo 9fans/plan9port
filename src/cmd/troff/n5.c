@@ -409,7 +409,7 @@ void casefm(void)
 		return;
 	}
 	if (fcache[i].fp == NULL) {
-		if( (fcache[i].fp = fopen(nextf, "w")) == NULL) {
+		if( (fcache[i].fp = fopen(unsharp(nextf), "w")) == NULL) {
 			ERROR "fm: cannot open %s", nextf WARN;
 			return;
 		}

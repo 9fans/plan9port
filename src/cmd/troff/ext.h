@@ -99,6 +99,7 @@ extern	int	pnlist[];
 extern	int	po1;
 extern	int	po;
 extern	int	ppts;
+#define	print	troffprint
 extern	int	print;
 extern	FILE	*ptid;
 extern	int	pto;

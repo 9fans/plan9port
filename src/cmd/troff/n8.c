@@ -461,19 +461,13 @@ static int texit(Tchar *start, Tchar *end)	/* hyphenate as in tex, return # foun
 	characters.  sigh.
 */
 
-extern	char	*unsharp(char*);
-
-static	char	*texhyphens;
-
 static int readpats(void)
 {
 	FILE *fp;
 	char buf[200], buf1[200];
 
-	if(texhyphens == 0)
-		texhyphens = unsharp(TEXHYPHENS);
-	if ((fp = fopen(texhyphens, "r")) == NULL
-	 && (fp = fopen(DWBalthyphens, "r")) == NULL) {
+	if ((fp = fopen(unsharp(TEXHYPHENS), "r")) == NULL
+	 && (fp = fopen(unsharp(DWBalthyphens), "r")) == NULL) {
 		ERROR "warning: can't find hyphen.tex" WARN;
 		return 0;
 	}
