@@ -66,3 +66,4 @@ for (i in */[~.]*.[0-9]*){
 	} >$d/$p.html
 }
 rm /tmp/manweb.html
+./fixurls $PLAN9/man/man*/*.html
