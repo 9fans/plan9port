@@ -28,5 +28,5 @@
 #define HOSTDIR		"#9/postscript/font"
 #define FONTDIR		"#9/troff/font"
 #define POSTLIBDIR	"#9/postscript/prologues"
-#define TEMPDIR		"#9/tmp"
+#define TEMPDIR		"/var/tmp"
 
