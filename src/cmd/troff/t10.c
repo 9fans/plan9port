@@ -301,7 +301,7 @@ int ptout0(Tchar *pi)
 			pi[1] = '~';
 		case DRAWSPLINE:	/* spline */
 		default:	/* something else; copy it like spline */
-			OUT "D%ld %d %d", cbits(pi[1]), dx, dy PUT;
+			OUT "D%c %d %d", (char)cbits(pi[1]), dx, dy PUT;
 			hpos += dx;
 			vpos += dy;
 			if (cbits(pi[3]) == DRAWFCN || cbits(pi[4]) == DRAWFCN) {
