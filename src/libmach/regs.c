@@ -2,6 +2,17 @@
 #include <libc.h>
 #include <mach.h>
 
+Regdesc*
+regdesc(char *name)
+{
+	Regdesc *r;
+
+	for(r=mach->reglist; r->name; r++)
+		if(strcmp(r->name, name) == 0)
+			return r;
+	return nil;
+}
+
 int
 rput(Regs *regs, char *name, ulong u)
 {
@@ -44,16 +55,5 @@ _uregrw(Regs *regs, char *name, ulong *u, int isr)
 		*u = mach->swap4(*(u32int*)ureg);
 		return 0;
 	}
-}
-
-Regdesc*
-regdesc(char *name)
-{
-	Regdesc *r;
-
-	for(r=mach->reglist; r->name; r++)
-		if(strcmp(r->name, name) == 0)
-			return r;
-	return nil;
 }
 
