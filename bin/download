@@ -1,3 +1,0 @@
-#! /bin/sh
-
-auxdownload -f -H${PLAN9}/postscript/font/ -mfontmap

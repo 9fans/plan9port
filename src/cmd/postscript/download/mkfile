@@ -1,7 +1,7 @@
 <$PLAN9/src/mkhdr
 
 <../config
-TARG=auxdownload
+TARG=psdownload
 
 OFILES=download.$O
 
