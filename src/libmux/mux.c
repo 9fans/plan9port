@@ -81,6 +81,7 @@ muxrpc(Mux *mux, void *tx)
 			}
 			r2 = mux->wait[tag];
 			r2->p = p;
+			dequeue(mux, r2);
 			rwakeup(&r2->r);
 		}
 		mux->muxer = 0;
@@ -131,6 +132,7 @@ gettag(Mux *mux, Muxrpc *r)
 				w = realloc(mux->wait, mw*sizeof(w[0]));
 				if(w == nil)
 					return -1;
+				memset(w+mux->mwait, 0, (mw-mux->mwait)*sizeof(w[0]));
 				mux->wait = w;
 				mux->freetag = mux->mwait;
 				mux->mwait = mw;

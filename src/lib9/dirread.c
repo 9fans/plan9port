@@ -11,6 +11,7 @@ static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
 	off_t off;
+	int nn;
 
 	off = p9seek(fd, 0, 1);
 	nn = getdirentries(fd, (void*)buf, n, &off);

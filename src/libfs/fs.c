@@ -199,7 +199,7 @@ _fsgetfid(Fsys *fs)
 
 	qlock(&fs->lk);
 	if(fs->freefid == nil){
-		f = malloc(sizeof(Fid)*Fidchunk);
+		f = mallocz(sizeof(Fid)*Fidchunk, 1);
 		if(f == nil){
 			qunlock(&fs->lk);
 			return nil;
