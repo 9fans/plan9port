@@ -185,6 +185,7 @@ defn stacks(){
 	P = (Proc)_threadpq.$head;
 	while P != 0 do{
 		proc(P);
+		if mainpid != P.pid then setproc(P.pid);
 	//	setproc(P.pid);
 	//	if P.thread==0 then{
 	//		print("=== thread scheduler stack\n");
@@ -192,6 +193,7 @@ defn stacks(){
 	//	}
 	//	print("threadstks(", P\X, ")\n");
 		threadstks(P);
+		if mainpid != P.pid then setproc(mainpid);
 		P = (Proc)P.next;
 		print("\n");
 	}
@@ -206,6 +208,7 @@ defn stacksizes(){
 	P = (Proc)_threadpq.$head;
 	while P != 0 do{
 		P = (Proc)P;
+		if mainpid != P.pid then setproc(P.pid);
 		Tq = (Tqueue)P.threads;
 		T = (Thread)Tq.$head;
 		while T != 0 do{
@@ -213,12 +216,12 @@ defn stacksizes(){
 			if T.state==Running then {
 				sp = *SP;
 			}else{
-				sp = *(T.sched);
+				sp = T.sched.sp;
 			}
-			sp = *(T.sched);
-			print(top-sp\D, "\n");
+			print(top-sp\D, " of ", T.stksize\D, " - 0x", top\X, " 0x", sp\X, " ", *T.stk\X, "\n");
 			T = (Thread)T.nextt;
 		}
+		if mainpid != P.pid then setproc(mainpid);
 		P = P.next;
 	}
 	// setproc(mainpid);
