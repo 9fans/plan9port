@@ -417,6 +417,8 @@ threadqlock(QLock *l, int block, ulong pc)
 static void
 threadqunlock(QLock *l, ulong pc)
 {
+	_Thread *ready;
+	
 	lock(&l->l);
 //print("qlock unlock %p @%#x by %p (owner %p)\n", l, pc, (*threadnow)(), l->owner);
 	if(l->owner == 0){
@@ -424,11 +426,18 @@ threadqunlock(QLock *l, ulong pc)
 			argv0, pc, l->owner, (*threadnow)());
 		abort();
 	}
-	if((l->owner = l->waiting.head) != nil){
+	if((l->owner = ready = l->waiting.head) != nil)
 		delthread(&l->waiting, l->owner);
-		_threadready(l->owner);
-	}
+	/*
+	 * N.B. Cannot call _threadready() before unlocking l->l,
+	 * because the thread we are readying might:
+	 *	- be in another proc
+	 *	- start running immediately
+	 *	- and free l before we get a chance to run again
+	 */
 	unlock(&l->l);
+	if(ready)
+		_threadready(l->owner);
 }
 
 static int
@@ -479,14 +488,17 @@ threadrunlock(RWLock *l, ulong pc)
 	_Thread *t;
 
 	USED(pc);
+	t = nil;
 	lock(&l->l);
 	--l->readers;
 	if(l->readers == 0 && (t = l->wwaiting.head) != nil){
 		delthread(&l->wwaiting, t);
 		l->writer = t;
-		_threadready(t);
 	}
 	unlock(&l->l);
+	if(t)
+		_threadready(t);
+
 }
 
 static void
@@ -503,12 +515,14 @@ threadwunlock(RWLock *l, ulong pc)
 		l->readers++;
 		_threadready(t);
 	}
+	t = nil;
 	if(l->readers == 0 && (t = l->wwaiting.head) != nil){
 		delthread(&l->wwaiting, t);
 		l->writer = t;
-		_threadready(t);
 	}
 	unlock(&l->l);
+	if(t)
+		_threadready(t);
 }
 
 /*
