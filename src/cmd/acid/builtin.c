@@ -1408,8 +1408,8 @@ textfile(Node *r, Node *args)
 			free(correg);
 			mapfile(corhdr, 0, cormap, &correg);
 		}
-		if(syminit(fp) < 0)
-			fprint(2, "syminit %s: %r\n", file);
+		if(symopen(fp) < 0)
+			fprint(2, "symopen %s: %r\n", file);
 		else
 			addvarsym(fp);
 		return;

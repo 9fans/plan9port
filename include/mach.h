@@ -293,11 +293,12 @@ void		uncrackhdr(Fhdr *hdr);
 int		crackelf(int fd, Fhdr *hdr);
 int		crackmacho(int fd, Fhdr *hdr);
 
-int		syminit(Fhdr*);
+int		symopen(Fhdr*);
 int		symdwarf(Fhdr*);
 int		symelf(Fhdr*);
 int		symstabs(Fhdr*);
 int		symmacho(Fhdr*);
+void		symclose(Fhdr*);
 
 int		mapfile(Fhdr *fp, ulong base, Map *map, Regs **regs);
 void		unmapfile(Fhdr *fp, Map *map);

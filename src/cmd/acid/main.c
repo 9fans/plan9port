@@ -258,7 +258,7 @@ attachfiles(int argc, char **argv)
 	}
 
 	if(symhdr)
-		syminit(symhdr);
+		symopen(symhdr);
 
 	if(!mach)
 		mach = machcpu;
