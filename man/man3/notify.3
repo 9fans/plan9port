@@ -202,6 +202,24 @@ with argument
 .\" are designed to improve the emulation of signals by the ANSI C/POSIX
 .\" environment; their use elsewhere is discouraged.
 .PP
+.I Notify
+and
+.I atnotify
+return \-1 on error and 0 on success.
+.I Noted
+returns \-1 on error; successful calls to
+.I noted
+do not return.
+.I Noteenable
+and
+
+.I notedisable
+.RI ( notitfyon
+and
+.IR notifyoff )
+return \-1 on error, 0 if the note was previously disabled (not notified),
+and 1 if the note was previously enabled (notified).
+.PP
 The set of notes a process may receive is system-dependent, but there
 is a common set that includes:
 .PP
