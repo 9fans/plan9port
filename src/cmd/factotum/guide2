@@ -1,6 +1,0 @@
-kill 8.out|rc
-unmount /mnt/factotum
-8.out -m /mnt/factotum
-cat /mnt/factotum/log &
-unmount /factotum
-bind 8.out /factotum

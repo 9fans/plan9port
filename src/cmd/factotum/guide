@@ -1,3 +1,0 @@
-kill 8.out|rc
-unmount /srv/factotum /mnt
-8.out
