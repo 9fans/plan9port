@@ -661,7 +661,7 @@ struct IOchunk
 extern	void	_exits(char*);
 
 extern	void	abort(void);
-extern	int	p9access(char*, int);
+/* extern	int	access(char*, int); */
 extern	long	p9alarm(ulong);
 extern	int	await(char*, int);
 extern	int	awaitnohang(char*, int);
@@ -731,7 +731,7 @@ extern	ulong	rendezvous(ulong, ulong);
 #define wait		p9wait
 #define waitpid		p9waitpid
 #define rfork		p9rfork
-#define access		p9access
+/* #define access		p9access */
 #define create		p9create
 #define open		p9open
 #define pipe		p9pipe
