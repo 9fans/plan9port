@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 	int l;
 	char	lb1[LB],lb2[LB];
 
-	l = 2;
+	l = 1;
 	ARGBEGIN{
 	case '1':
 		if(!one) {
