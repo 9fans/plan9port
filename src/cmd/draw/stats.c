@@ -78,7 +78,7 @@ struct Graph
 	int		ndata;
 	char		*label;
 	int		value;
-	void		(*update)(Graph*, ulong, ulong);
+	void		(*update)(Graph*, long, ulong);
 	Machine	*mach;
 	int		overflow;
 	Image	*overtmp;
@@ -94,6 +94,8 @@ struct Machine
 	int		absolute[Nvalue];
 	ulong	last[Nvalue];
 	ulong	val[Nvalue][2];
+	ulong	load;
+	ulong	nload;
 };
 
 char	*menu2str[Nvalue+1];
@@ -297,11 +299,13 @@ redraw(Graph *g, int vmax)
 }
 
 void
-update1(Graph *g, ulong v, ulong vmax)
+update1(Graph *g, long v, ulong vmax)
 {
 	char buf[32];
 	int overflow;
 
+	if(v < 0)
+		v = 0;
 	if(vmax != g->vmax){
 		g->vmax = vmax;
 		changedvmax = 1;
@@ -423,7 +427,23 @@ newvalue(Machine *m, int i, ulong *v, ulong *vmax)
 {
 	ulong now;
 
-	if(m->absolute[i]){
+	if(m->last[i] == 0)
+		m->last[i] = m->val[i][0];
+		
+	if(i == Vload){
+		/*
+		 * Invert the ewma to obtain the 5s load statistics.
+		 * Ewma is load' = (1884/2048)*load + (164/2048)*last5s, so we do
+		 * last5s = (load' - (1884/2048)*load) / (164/2048).
+		 */
+		if(++m->nload%5 == 0){
+			now = m->val[i][0];
+			m->load = (now - (((vlong)m->last[i]*1884)/2048)) * 2048 / 164;
+			m->last[i] = now;
+		}
+		*v = m->load;
+		*vmax = m->val[i][1];
+	}else if(m->absolute[i]){
 		*v = m->val[i][0];
 		*vmax = m->val[i][1];
 	}else{
@@ -769,7 +789,7 @@ threadmain(int argc, char *argv[])
 	if(initdraw(nil, nil, "stats") < 0)
 		sysfatal("initdraw: %r");
 	colinit();
-	if((mc = initmouse(nil, nil)) == nil)
+	if((mc = initmouse(nil, screen)) == nil)
 		sysfatal("initmouse: %r");
 	if((kc = initkeyboard(nil)) == nil)
 		sysfatal("initkeyboard: %r");

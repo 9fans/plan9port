@@ -19,7 +19,7 @@ notifyf(void *v, char *msg)
 {
 	USED(v);
 
-	if(strcmp(msg, "child") == 0)
+	if(strstr(msg, "child"))
 		noted(NCONT);
 	postnote(PNPROC, pid, msg);
 	exits(nil);
@@ -57,14 +57,14 @@ main(int argc, char **argv)
 				sysfatal("fork: %r");
 			case 0:
 				rfork(RFNOTEG);
-				execlp("ssh", "ssh", "-C", sys, exe, nil);
-				_exit(12);
+				execlp("ssh", "ssh", "-nTC", sys, exe, nil);
+				_exit(97);
 			default:
 				if((w = wait()) == nil)
 					sysfatal("wait: %r");
 				if(w->pid != pid)
 					sysfatal("wait got wrong pid");
-				if(atoi(w->msg) == 12)
+				if(atoi(w->msg) == 97)
 					sysfatal("exec ssh failed");
 				free(w);
 				fprint(2, "stats: %s hung up; sleeping 60\n", sys);
