@@ -1,0 +1,27 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libString.a
+
+OFILES=\
+	s_alloc.$O\
+	s_append.$O\
+	s_array.$O\
+	s_copy.$O\
+	s_getline.$O\
+	s_grow.$O\
+	s_memappend.$O\
+	s_nappend.$O\
+	s_parse.$O\
+	s_putc.$O\
+	s_rdinstack.$O\
+	s_read.$O\
+	s_read_line.$O\
+	s_reset.$O\
+	s_terminate.$O\
+	s_tolower.$O\
+	s_unique.$O\
+
+HFILES=/sys/include/String.h
+
+<$PLAN9/src/mksyslib
