@@ -104,7 +104,7 @@ rundiff(char *arg1, char *arg2, int outfd)
 	Waitmsg *w;
 
 	narg = 0;
-	arg[narg++] = "/bin/diff";
+	arg[narg++] = "diff";
 	arg[narg++] = "-n";
 	if(diffbflag)
 		arg[narg++] = "-b";
@@ -121,7 +121,7 @@ rundiff(char *arg1, char *arg2, int outfd)
 	case 0:
 		dup(outfd, 1);
 		close(0);
-		exec("/bin/diff", arg);
+		exec("diff", arg);
 		sysfatal("exec: %r");
 
 	default:
@@ -143,7 +143,7 @@ runcmd(char *cmd)
 	int narg, pid, wpid;
 
 	narg = 0;
-	arg[narg++] = "/bin/rc";
+	arg[narg++] = "rc";
 	arg[narg++] = "-c";
 	arg[narg++] = cmd;
 	arg[narg] = nil;
@@ -153,7 +153,7 @@ runcmd(char *cmd)
 		sysfatal("fork: %r");
 
 	case 0:
-		exec("/bin/rc", arg);
+		exec("rc", arg);
 		sysfatal("exec: %r");
 
 	default:

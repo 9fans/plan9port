@@ -3,6 +3,13 @@
 #include <bio.h>
 	/* Macros for Rune support of ctype.h-like functions */
 
+#undef isupper
+#undef islower
+#undef isalpha
+#undef isdigit
+#undef isalnum
+#undef isspace
+#undef tolower
 #define	isupper(r)	(L'A' <= (r) && (r) <= L'Z')
 #define	islower(r)	(L'a' <= (r) && (r) <= L'z')
 #define	isalpha(r)	(isupper(r) || islower(r))

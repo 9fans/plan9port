@@ -10,6 +10,8 @@ Biobuf	fout;
 #define BUFSIZE		70
 
 void stringit(char *);
+#undef isprint
+#define isprint risprint
 int isprint(Rune);
 
 void

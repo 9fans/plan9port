@@ -5,6 +5,8 @@
 #include <fs.h>
 #include "term.h"
 
+int noecho = 1;
+
 #define	EVENTSIZE	256
 #define	STACK	32768
 

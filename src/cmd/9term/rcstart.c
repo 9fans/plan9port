@@ -1,9 +1,6 @@
 #include <u.h>
-#include <libc.h>
-#if 0
-#include <sys/wait.h>
-#endif
 #include <signal.h>
+#include <libc.h>
 #include "term.h"
 
 int
@@ -37,6 +34,8 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		dup(sfd, 1);
 		dup(sfd, 2);
 		system("stty tabs -onlcr onocr icanon echo erase '^h' intr '^?'");
+		if(noecho)
+			system("stty -echo");
 		for(i=3; i<100; i++)
 			close(i);
 		execvp(argv[0], argv);

@@ -11,6 +11,8 @@
 #include <complete.h>
 #include "term.h"
 
+int noecho = 0;
+
 typedef struct Text	Text;
 typedef struct Readbuf	Readbuf;
 

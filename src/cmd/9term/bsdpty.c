@@ -1,9 +1,13 @@
 #include <u.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <errno.h>
 #include <grp.h>
 #include <termios.h>
 #include <sys/termios.h>
+#ifdef __linux__
 #include <pty.h>
+#endif
 #include <fcntl.h>
 #include <libc.h>
 #include "term.h"
@@ -30,7 +34,6 @@ getpts(int fd[], char *slave)
 		pty[8] = *a;
 		pty[9] = *z;
 		if((fd[1] = open(pty, ORDWR)) < 0){
-fprint(2, "try %s: %r\n", pty);
 			if(errno == ENOENT)
 				break;
 		}else{

@@ -112,10 +112,12 @@ main(int argc, char *argv[])
 
 	l = look("acidmap");
 	if(l && l->proc) {
-		n = an(ONAME, ZN, ZN);
-		n->sym = l;
-		n = an(OCALL, n, ZN);
-		execute(n);
+		if(setjmp(err) == 0){
+			n = an(ONAME, ZN, ZN);
+			n->sym = l;
+			n = an(OCALL, n, ZN);
+			execute(n);
+		}
 	}
 
 	interactive = 1;
@@ -146,12 +148,14 @@ main(int argc, char *argv[])
 static int
 attachfiles(int argc, char **argv)
 {
+	int pid;
 	char *s;
 	int i, omode;
 	Fhdr *hdr;
 	Lsym *l;
 	Value *v;
 
+	pid = 0;
 	interactive = 0;
 	if(setjmp(err))
 		return -1;

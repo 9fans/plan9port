@@ -11,7 +11,7 @@ OFILES=\
 
 HFILES=\
 	dat.h\
-	../../libmach/mach.h\
+	$PLAN9/include/mach.h\
 	../../libmach/elf.h\
 	../../libmach/dwarf.h\
 	../../libmach/stabs.h\

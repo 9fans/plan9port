@@ -51,8 +51,7 @@ sproc(int xpid)
 int
 nproc(char **argv)
 {
-	char buf[128];
-	int pid, i, fd;
+	int pid, i;
 
 	pid = fork();
 	switch(pid) {

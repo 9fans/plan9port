@@ -1,4 +1,3 @@
-PLAN9=../../..
 <$PLAN9/src/mkhdr
 
 TARG=9term win
@@ -13,5 +12,5 @@ SHORTLIB=complete frame draw plumb fs mux thread 9
 
 LDFLAGS=-L$X11/lib -lX11
 
-Linux.$O: bsdpty.c
+Linux.$O FreeBSD.$O: bsdpty.c
 

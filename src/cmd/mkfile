@@ -1,4 +1,3 @@
-PLAN9=../..
 <$PLAN9/src/mkhdr
 
 TARG=`ls *.c | sed 's/\.c//'`
@@ -7,7 +6,7 @@ SHORTLIB=sec fs mux regexp9 draw thread bio 9
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|faces|factotum|htmlfmt|mk|upas|vac|venti'
+BUGGERED='CVS|faces|factotum|mk|upas|vac|venti'
 DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"`
 
 <$PLAN9/src/mkdirs

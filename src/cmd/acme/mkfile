@@ -1,6 +1,5 @@
 # Acme is up-to-date w.r.t. sources as of 29 February 2004
 
-PLAN9=../../..
 <$PLAN9/src/mkhdr
 
 TARG=acme

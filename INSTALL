@@ -7,6 +7,7 @@ cd src
 make
 mk clean
 mk install
+mk clean
 
 echo "Set PLAN9=$PLAN9 in your profile environment."
 echo 'Add $PLAN9/bin to your PATH.'

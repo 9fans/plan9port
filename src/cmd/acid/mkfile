@@ -18,7 +18,6 @@ OFILES=$UOFILES y.tab.$O
 YFILES=dbg.y
 HFILES=acid.h
 
-BIN=/home/rsc/bin
 
 SHORTLIB=mach regexp9 bio 9
 
