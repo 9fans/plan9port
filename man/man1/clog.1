@@ -1,0 +1,18 @@
+.TH CLOG 1
+.SH NAME
+auxclog \- create date-stamped console log
+.SH SYNOPSIS
+.B auxclog
+.I console
+.I logfile
+.SH DESCRIPTION
+.I Auxclog
+opens the file
+.I console
+and writes every line read from it, prefixed by the ASCII time, to the file
+.IR logfile .
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/auxclog.c
+.SH BUGS
+Should be named
+.IR aux/clog .

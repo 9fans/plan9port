@@ -1,6 +1,6 @@
 .TH DICT 1
 .SH NAME
-dict \- dictionary browser
+dict, adict \- dictionary browser
 .SH SYNOPSIS
 .B dict
 [
@@ -13,6 +13,14 @@ dict \- dictionary browser
 [
 .B -c
 .I command
+]
+[
+.I pattern
+]
+.B adict
+[
+.B -d
+.I dictname
 ]
 [
 .I pattern
@@ -31,11 +39,10 @@ The options are
 .TP
 .BI -d " dictname"
 Use the given dictionary.
-The default is
-.BR oed ,
-the second edition of the Oxford English Dictionary.
 A list of available dictionaries is printed by option
 .BR -d? .
+The default is the first dictionary on the list that is
+installed on the system.
 .TP
 .BI -c " command"
 Execute one command and quit.
@@ -138,6 +145,42 @@ After an
 the default command is
 .BR p .
 Otherwise, the default command is the previous command.
+.PP
+.I Adict
+is a dictionary browser for
+.IR acme (1).
+When run with no arguments, it creates a new
+.I acme
+window named
+.B /adict/
+listing the installed dictionaries.
+Clicking with button 3 on a dictionary name will create
+a new empty window named
+.BI /adict/ dict /.
+Typing and then clicking on a pattern in this window will
+create a new lookup window named
+.BI /adict/ dict / pattern
+containing the dictionary's definition of
+.IR pattern .
+Clicking with button 3 on any word in this new window will
+create new lookup windows.
+.PP
+If
+.I adict
+is run with a
+.I pattern ,
+it starts with the
+.BI /adict/ dict / pattern
+window.
+.PP
+If
+.I adict
+is run with no pattern but with a
+.B -d
+option,
+it starts with the
+.BI /adict/ dict /
+window.
 .SH FILES
 .B /lib/dict/oed2
 .br
@@ -149,6 +192,8 @@ Other files in
 .IR regexp (7)
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/dict
+.br
+.B /usr/local/plan9/bin/adict
 .SH BUGS
 A font with wide coverage of the Unicode Standard
 should be used for best results.

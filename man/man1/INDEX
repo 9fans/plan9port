@@ -19,6 +19,7 @@ bundle bundle.1
 cal cal.1
 calendar calendar.1
 cat cat.1
+nobs cat.1
 read cat.1
 cleanname cleanname.1
 cmp cmp.1
@@ -106,6 +107,8 @@ pr pr.1
 proof proof.1
 ps ps.1
 psu ps.1
+psdownload psfonts.1
+psfonts psfonts.1
 pbd pwd.1
 pwd pwd.1
 . rc.1
@@ -141,6 +144,7 @@ spell spell.1
 sprog spell.1
 split split.1
 src src.1
+auxstats stats.1
 stats stats.1
 strings strings.1
 md5sum sum.1
@@ -154,6 +158,7 @@ test test.1
 time time.1
 touch touch.1
 tr tr.1
+tr2post tr2post.1
 nroff troff.1
 troff troff.1
 tweak tweak.1

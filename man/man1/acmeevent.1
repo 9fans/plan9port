@@ -1,0 +1,329 @@
+.TH ACMEEVENT 1
+.SH NAME
+acmeevent, acme.rc \- shell script support for acme clients
+.SH SYNOPSIS
+.B 9p
+.B read
+.B acme/acme/$winid/event | acmeevent
+.PP
+.B
+\&. /usr/local/plan9/lib/acme.rc
+.PP
+.B newwindow
+.PP
+.B winread
+.I file
+.PP
+.B winwrite
+.I file
+.PP
+.B winctl
+.I cmd
+.PP
+.B windump
+[
+.I dumpdir
+|
+.B -
+]
+[
+.I dumpcmd
+|
+.B -
+]
+.PP
+.B winname
+.I name
+.PP
+.B windel
+[
+.B sure
+]
+.PP
+.B winwriteevent
+.I c1
+.I c2
+.I q0
+.I q1
+[
+.I eq0
+.I eq1
+.I flag
+.I textlen
+.I text
+.I chordarg
+.I chordaddr
+]
+.PP
+.B wineventloop
+.SH DESCRIPTION
+.I Acmeevent
+and
+.I acme.rc
+make it easy to write simple
+.IR acme (1)
+client programs as shell scripts.
+.PP
+.I Acme
+clients read the
+.B event
+files 
+(see
+.IR acme (4))
+for the windows they control, reacting to the events.
+The events are presented in a format that is easy to read with C programs
+but hard to read with shell scripts.
+.PP
+.I Acmeevent
+reads an
+.IR acme (4)
+event stream from standard input, printing a shell-friendly
+version of the events, one per line, on standard output.
+Each output line from
+.I acmeevent
+has the form:
+.IP
+.B event
+.I c1
+.I c2
+.I q0
+.I q1
+.I eq0
+.I eq1
+.I flag
+.I textlen
+.I text
+.I chordarg
+.I chordaddr
+.PP
+The fields are:
+.TP
+.I c1
+A character indicating the origin or cause of the action.
+The possible causes are:
+a write to the body or tag file
+.RB ( E ),
+a write to the window's other files
+.RB ( F ),
+input via the keyboard
+.RB ( K ),
+and
+input via the mouse
+.RB ( M ).
+.TP
+.I c2
+A character indicating the type of action.
+The possible types are:
+text deleted from the body
+.RB ( D ),
+text deleted from the tag
+.RB ( d ),
+text inserted in the body
+.RB ( I ),
+text inserted in the tag
+.RB ( i ),
+a button 3 action in the body
+.RB ( L ),
+a button 3 action in the tag
+.RB ( l ),
+a button 2 action in the body
+.RB ( X ),
+and 
+a button 2 action in the tag
+.RB ( x ).
+.TP
+.I q0
+
+.TP
+.I q1
+
+.TP
+.I eq0
+
+.TP
+.I eq1
+
+.TP
+.I flag
+
+.TP
+.I textlen
+
+.TP
+.I text
+
+.TP
+.I chordarg
+
+.TP
+.I chordorigin
+
+.PP
+.I Acme.rc
+is a library of
+.IR rc (1)
+shell functions useful for writing acme clients.
+.PP
+.I Newwindow
+creates a new acme window and sets
+.B $winid
+to the new window's id.
+The other commands all use
+.B $winid
+to determine which window to operate on.
+.PP
+.I Winread
+prints the current window's
+.I file
+to standard output.
+It is equivalent to
+.B cat
+.BI /mnt/acme/acme/$winid/ file
+on Plan 9.
+Similarly,
+.I winwrite
+writes standard input to the current window's
+.IR file .
+.I Winread
+and
+.I winwrite
+are useful mainly in building more complex functions.
+.PP
+.I Winctl
+writes 
+.I cmd
+to the window's
+.B ctl
+file.
+The most commonly-used command is
+.BR clean ,
+which marks the window as clean.
+See
+.IR acme (4)
+for a full list of commands.
+.PP
+.I Windump
+sets the window's dump directory
+and dump command
+(see
+.IR acme (4)).
+If either argument is omitted or is
+.BR - ,
+that argument is not set.
+.PP
+.I Winname
+sets the name displayed in the window's tag.
+.PP
+.I Windel
+simulates the
+.B Del
+command.  If the argument
+.B sure
+is given, it simulates the
+.B Delete
+command.
+.PP
+.I Winwriteevent
+writes an event to the window's event file.
+The event is in the format produced by
+.IR acmeevent .
+Only the first four arguments are necessary:
+the rest are ignored.
+Event handlers should call
+.I winwriteevent
+to pass unhandled button 2 or button 3 events
+back to
+.I acme
+for processing.
+.PP
+.I Wineventloop
+executes the current window's event file, as output by
+.IR acmeevent .
+It returns when the window has been deleted.
+Before running
+.I wineventloop ,
+clients must define a shell function named
+.BR event ,
+which will be run for each incoming event,
+as
+.I rc
+executes the output of
+.IR acmeevent .
+A typical event function need only worry about button 2 and button 3 events.
+Those events not handled should be sent back to 
+.I acme
+with
+.IR winwriteevent .
+.SH EXAMPLE
+.IR Adict ,
+a dictionary browser,
+is implemented using 
+.I acmeevent
+and
+.IR acme.rc .
+The
+.I event
+handler is:
+.IP
+.EX
+.ta +4n +4n +4n +4n +4n +4n
+fn event {
+	switch($1$2){
+	case Mx MX    # button 2 - pass back to acme
+		winwriteevent $*
+	case Ml ML    # button 3 - open new window on dictionary or entry
+		{
+			if(~ $dict NONE)
+				dictwin /adict/$7/ $7
+			if not
+				dictwin /adict/$dict/$7 $dict $7
+		} &
+	}
+}
+.EE
+.LP
+Note that the button 3 handler starts a subshell in which to run
+.IR dictwin .
+That subshell will create a new window, set its name,
+possibly fill the window with a dictionary list or dictionary entry,
+mark the window as clean, and run the event loop:
+.IP
+.EX
+fn dictwin {
+	newwindow
+	winname $1
+	dict=$2
+	if(~ $dict NONE)
+		dict -d '?' >[2=1] | sed 1d | winwrite body
+	if(~ $#* 3)
+		dict -d $dict $3 >[2=1] | winwrite body
+	winctl clean
+	wineventloop
+}
+.EE
+.LP
+The script starts with an initial window:
+.IP
+.EX
+dictwin /adict/ NONE
+.EE
+.LP
+Button 3 clicking on a dictionary name in the initial window
+will create a new empty window for that dictionary.
+Typing and button 3 clicking on a word in that window
+will create a new window with the dictionary's entry for that word.
+.PP
+See
+.B /usr/local/plan9/bin/adict
+for the full implementation.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/acmeevent.c
+.br
+.B /usr/local/plan9/lib/acme.rc
+.SH SEE ALSO
+.IR acme (1),
+.IR acme (4),
+.IR rc (1)
+.SH BUGS
+There is more that could be done to ease the writing
+of complicated clients.

@@ -1,0 +1,30 @@
+.TH DIAL 1
+.SH NAME
+dial \- connect to a remote service
+.SH SYNOPSIS
+.B dial
+[
+.B -e
+]
+.I addr
+.SH DESCRIPTION
+.I Dial
+connects to the network address
+.I addr
+(see
+.IR dial (3))
+and then copies data from the connection to standard output,
+and from standard input to the connection.
+.PP
+By default,
+.I dial
+exits when end of file is reached on standard input or on the network connection.
+The
+.B -e
+flag causes
+.I dial
+to exit only in response to end of file on the network connection.
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/dial.c
+.SH SEE ALSO
+.IR dial (3)
