@@ -217,7 +217,8 @@ yydefault:
 				fprint(2, "%s", yystatname(yystate));
 				fprint(2, "saw %s\n", yytokname(yychar));
 			}
-yyerrlab:
+			goto yyerrlab;
+		yyerrlab:
 			yynerrs++;
 
 		case 1:
