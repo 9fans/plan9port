@@ -13,7 +13,7 @@ usegcc()
 		-Wno-comment \
 		-Wno-sign-compare \
 	"
-	cflags="$cflags -ggdb"
+	cflags="$ngflags -ggdb"
 }
 
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
