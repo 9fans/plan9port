@@ -1,0 +1,89 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+LIBOFILES=\
+	arena.$O\
+	arenas.$O\
+	buildbuck.$O\
+	clump.$O\
+	config.$O\
+	conv.$O\
+	dcache.$O\
+	dump.$O\
+	httpd.$O\
+	icache.$O\
+	ifile.$O\
+	index.$O\
+	lump.$O\
+	lumpcache.$O\
+	lumpqueue.$O\
+	part.$O\
+	score.$O\
+	sortientry.$O\
+	stats.$O\
+	syncarena.$O\
+	syncindex0.$O\
+	unwhack.$O\
+	utils.$O\
+	unittoull.$O\
+	whack.$O\
+	xml.$O\
+	zeropart.$O\
+
+SLIB=libvs.a
+
+LIB=$SLIB\
+	$PLAN9/lib/libventi.a\
+	$PLAN9/lib/libhttpd.a\
+	$PLAN9/lib/libbin.a\
+	$PLAN9/lib/libsec.a\
+	$PLAN9/lib/libthread.a\
+	$PLAN9/lib/lib9.a\
+	$PLAN9/lib/libfmt.a\
+	$PLAN9/lib/libutf.a\
+
+HFILES=	dat.h\
+	fns.h\
+	stdinc.h\
+
+TARG=\
+#	venti\
+	fmtarenas\
+	fmtisect\
+	fmtindex\
+	buildindex\
+	checkarenas\
+	checkindex\
+	clumpstats\
+	findscore\
+	rdarena\
+	wrarena\
+	syncindex\
+	verifyarena\
+	sync\
+	read\
+	write\
+	copy\
+
+BIN=$BIN/venti
+
+it:V: all
+
+<$PLAN9/src/mkmany
+
+# xml.c:D:	mkxml dat.h
+# 	./mkxml dat.h > xml.c
+
+$SLIB(%.$O):N: %.$O
+$SLIB:	${LIBOFILES:%=$SLIB(%)}
+	names=`echo $newprereq | sed -E 's/'$SLIB'\(([^)]+)\)/\1/g'`
+	# names = `{echo $newprereq |sed 's/ /\n/g' |sed -n 's/'$SLIB'\(([^)]+)\)/\1/gp'}
+	ar rvc $SLIB $names
+#	rm $names
+
+ainstall:V: ${TARG:%=%.ainstall}
+
+%.ainstall:V:	$O.%
+	scp $prereq amsterdam:/usr/local/bin/venti/$stem
+
+LDFLAGS=$LDFLAGS -l9
