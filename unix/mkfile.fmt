@@ -1,0 +1,45 @@
+MAKEALL=`{cd ../make; ls Make.*}
+TARG=\
+	$MAKEALL\
+	NOTICE\
+	README\
+	Makefile\
+	`{ls -p $PLAN9/src/lib9/fmt/*.c}\
+	fmt.h\
+	fmtdef.h\
+	nan.h\
+
+all:V: $TARG
+
+%: $PLAN9/include/%
+	cp $prereq $target
+
+%: $PLAN9/src/lib9/fmt/%
+	cp $prereq $target
+
+%: $PLAN9/man/man1/%
+	cp $prereq $target
+
+%: $PLAN9/man/man3/%
+	cp $prereq $target
+
+%: $PLAN9/man/man7/%
+	cp $prereq $target
+
+%: ../make/%
+	cp $prereq $target
+
+Makefile:D: ../make/Makefile.TOP ../make/Makefile.fmt ../make/Makefile.LIB ../make/Makefile.BOT
+	cat $prereq >$target
+
+README: ../README
+	cp $prereq $target
+
+NOTICE: ../NOTICE.fmt
+	cp $prereq $target
+
+fmt.h: ../fmt.h
+	cp $prereq $target
+
+fmt.c: $PLAN9/src/lib9/fmt/fmt.c
+	cat $prereq | sed "/'u',.*__flagfmt/ s/__flagfmt/__ifmt/" >$target

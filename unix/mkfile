@@ -1,0 +1,52 @@
+bio fmt mk regexp utf:V:
+	case $target in
+	mk) t=mk ;;
+	regexp) t=libregexp ;;
+	*) t=lib$target ;;
+	esac
+	mkdir $t || true
+	rm $t/* || true
+	cd $t
+	mk -f ../mkfile.$target
+	case $target in
+	bio) d=$PLAN9/src/$t;;
+	regexp) d=$PLAN9/src/$t;;
+	fmt) d=$PLAN9/src/lib9/$target ;;
+	utf) d=$PLAN9/src/lib9/$target ;;
+	mk) d=$PLAN9/src/cmd/mk ;;
+	esac
+	for i in `ls -p $d/*.c`
+	do
+		if [ ! -f $i ]
+		then
+			echo missing $i
+		fi
+	done
+	make
+	for i in `ls *.c`
+	do
+		if [ ! -f `echo $i | sed 's/.c$/.o/'` ]
+		then
+			echo not building $i
+		fi
+	done
+	cd ..
+	rm $t/* || true
+	cd $t
+	mk -f ../mkfile.$target
+	
+lib%.tgz:
+	mk $stem
+	tar cf - lib$stem |gzip >lib$stem.tgz
+
+libregexp9.tgz:
+	mk regexp
+	tar cf - libregexp | gzip >libregexp9.tgz
+
+mk.tgz:
+	mk mk
+	tar cf - mk | gzip >mk.tgz
+
+mk-all.tgz:
+	tar cf - Makefile libutf libfmt libbio libregexp mk | gzip >mk-all.tgz
+
