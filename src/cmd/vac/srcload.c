@@ -124,7 +124,7 @@ mkroot(Cache *c)
 	r = sourceAlloc(c, u, 0, 0);
 	vtUnlock(u->lk);
 	if(r == nil)
-		sysfatal("could not create root source: %R");
+		sysfatal("could not create root source: %r");
 	return r;
 }
 
@@ -157,7 +157,7 @@ new(Source *s, int trace, int depth)
 	}
 	ss = sourceCreate(s, s->psize, s->dsize, 1+frand()>.5, 0);
 	if(ss == nil)
-		fprint(2, "could not create directory: %R\n");
+		fprint(2, "could not create directory: %r\n");
 	if(trace) {
 		int j;
 		for(j=1; j<trace; j++)
@@ -221,7 +221,7 @@ dumpone(Source *s)
 	for(i=0; i<n; i++) {
 		ss = sourceOpen(s, i, 1);
 		if(ss == nil) {
-fprint(2, "%lud: %R\n", i);
+fprint(2, "%lud: %r\n", i);
 			continue;
 		}
 		Bprint(bout, "\t%lud %d %llud %V\n", i, ss->dir, ss->size, ss->lump->score);

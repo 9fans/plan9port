@@ -196,7 +196,7 @@ threadmain(int argc, char *argv[])
 	vac(z, argv);
 
 	if(vtsync(z) < 0)
-		fprint(2, "warning: could not ask server to flush pending writes: %R\n");
+		fprint(2, "warning: could not ask server to flush pending writes: %r\n");
 
 	if(statsflag)
 		fprint(2, "files %ld:%ld data %ld:%ld:%ld meta %ld\n", stats.file, stats.sfile,
