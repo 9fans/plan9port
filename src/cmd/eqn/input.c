@@ -1,7 +1,6 @@
 #include "e.h"
 #include "y.tab.h"
 #include <ctype.h>
-#include <errno.h>
 
 Infile	infile[10];
 Infile	*curfile = infile;
