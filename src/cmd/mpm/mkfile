@@ -1,4 +1,4 @@
-</$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=aux/pm
 OFILES=misc.$O\
@@ -10,7 +10,7 @@ OFILES=misc.$O\
 HFILES=misc.h\
 
 BIN=/$objtype/bin
-</sys/src/cmd/mkone
+<$PLAN9/src/mkone
 CC=c++/$CC
 LD=c++/$LD
 CFLAGS=
