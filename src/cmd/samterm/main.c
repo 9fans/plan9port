@@ -26,6 +26,8 @@ int	maxtab = 8;
 int	chord;
 int	autoindent;
 
+#define chording 0	/* code here for reference but it causes deadlocks */
+
 void
 threadmain(int argc, char *argv[])
 {
@@ -100,9 +102,9 @@ dup(2, 1);
 			scr = which && ptinrect(mousep->xy, which->scroll);
 			if(mousep->buttons)
 				flushtyping(1);
-			if(chord==1 && !mousep->buttons)
+			if(chording && chord==1 && !mousep->buttons)
 				chord = 0;
-			if(chord)
+			if(chording && chord)
 				chord |= mousep->buttons;
 			else if(mousep->buttons&1){
 				if(nwhich){
@@ -134,7 +136,7 @@ dup(2, 1);
 			}
 			mouseunblock();
 		}
-		if(chord){
+		if(chording && chord){
 			t = (Text*)which->user1;
 			if(!t->lock && !hostlock){
 				w = which-t->l;
