@@ -40,14 +40,14 @@ case "$tag" in
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
-		cflags="$cflags -D__$s__"
+		cflags="$cflags -D__${s}__"
 		;;
 *SunOS*-gcc)	usegcc
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
 		cflags="$ngflags -g"
-		cflags="$cflags -D__$s__"
+		cflags="$cflags -D__${s}__"
 		;;
 *)
 	echo 9c does not know how to compile on "$tag" 1>&2
