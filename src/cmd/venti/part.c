@@ -2,7 +2,7 @@
 #include "dat.h"
 #include "fns.h"
 
-#define trace 0
+#define trace 1
 
 u32int	maxblocksize;
 int	readonly;

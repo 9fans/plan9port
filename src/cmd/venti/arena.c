@@ -468,18 +468,16 @@ ReadErr:
 int
 wbarena(Arena *arena)
 {
-	ZBlock *b;
+	DBlock *b;
 	int bad;
 
-	b = alloczblock(arena->blocksize, 1);
-	if(b == nil){
+	if((b = getdblock(arena->part, arena->base + arena->size, 0)) == nil){
 		logerr(EAdmin, "can't write arena trailer: %r");
-///ZZZ add error message?
 		return -1;
 	}
-	bad = okarena(arena)<0 || packarena(arena, b->data)<0 || 
-		writepart(arena->part, arena->base + arena->size, b->data, arena->blocksize)<0;
-	freezblock(b);
+	dirtydblock(b, DirtyArenaTrailer);
+	bad = okarena(arena)<0 || packarena(arena, b->data)<0;
+	putdblock(b);
 	if(bad)
 		return -1;
 	return 0;
@@ -502,6 +500,10 @@ wbarenahead(Arena *arena)
 ///ZZZ add error message?
 		return -1;
 	}
+	/*
+	 * this writepart is okay because it only happens
+	 * during initialization.
+	 */
 	bad = packarenahead(&head, b->data)<0 ||
 	      writepart(arena->part, arena->base - arena->blocksize, b->data, arena->blocksize)<0;
 	freezblock(b);
@@ -582,6 +584,7 @@ okarena(Arena *arena)
 static CIBlock*
 getcib(Arena *arena, int clump, int writing, CIBlock *rock)
 {
+	int read;
 	CIBlock *cib;
 	u32int block, off;
 
@@ -613,7 +616,12 @@ getcib(Arena *arena, int clump, int writing, CIBlock *rock)
 
 	cib->block = block;
 	cib->offset = off;
-	cib->data = getdblock(arena->part, arena->base + arena->size - (block + 1) * arena->blocksize, arena->blocksize);
+
+	read = 1;
+	if(writing && off == 0 && clump == arena->clumps-1)
+		read = 0;
+
+	cib->data = getdblock(arena->part, arena->base + arena->size - (block + 1) * arena->blocksize, read);
 	if(cib->data == nil)
 		return nil;
 	return cib;

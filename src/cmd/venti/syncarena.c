@@ -128,6 +128,7 @@ syncarena(Arena *arena, u32int n, int zok, int fix)
 			fprint(2, "can't flush arena directory cache: %r");
 			err |= SyncFixErr;
 		}
+		flushdcache();
 	}
 
 	if(used != arena->used

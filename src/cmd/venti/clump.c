@@ -46,7 +46,7 @@ if(0)print("storeclump %08x %p\n", mainindex->arenas[0], &cl);
 	scorecp(cl.info.score, sc);
 
 if(0)print("whackblock %08x %p\n", mainindex->arenas[0], &cl);
-	dsize = whackblock(&cb->data[ClumpSize], zb->data, size);
+	dsize=0; // dsize = whackblock(&cb->data[ClumpSize], zb->data, size);
 if(0)print("whackedblock %08x %p\n", mainindex->arenas[0], &cl);
 	if(dsize > 0 && dsize < size){
 		cl.encoding = ClumpECompress;

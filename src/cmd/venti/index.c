@@ -116,6 +116,9 @@ static int	writebucket(ISect *is, u32int buck, IBucket *ib, DBlock *b);
 static int	okibucket(IBucket *ib, ISect *is);
 static int	initindex1(Index*);
 static ISect	*initisect1(ISect *is);
+static int	splitiblock(Index *ix, DBlock *b, ISect *is, u32int buck, IBucket *ib);
+
+#define KEY(k,d)	((d) ? (k)>>(32-(d)) : 0)
 
 //static QLock	indexlock;	//ZZZ
 
@@ -763,6 +766,7 @@ storeientry(Index *ix, IEntry *ie)
 	stats.indexwreads++;
 	qunlock(&stats.lock);
 
+top:
 	b = loadibucket(ix, ie->score, &is, &buck, &ib);
 	if(b == nil)
 		return -1;
@@ -789,6 +793,18 @@ storeientry(Index *ix, IEntry *ie)
 		goto out;
 	}
 
+	/* block is full -- not supposed to happen in V1 */
+	if(ix->version == IndexVersion1){
+		seterr(EAdmin, "index bucket %ud on %s is full\n", buck, is->part->name);
+		ok = -1;
+		goto out;
+	}
+
+	/* in V2, split the block and try again; splitiblock puts b */
+	if(splitiblock(ix, b, is, buck, &ib) < 0)
+		return -1;
+	goto top;
+
 out:
 	putdblock(b);
 	return ok;
@@ -797,7 +813,7 @@ out:
 static int
 writebucket(ISect *is, u32int buck, IBucket *ib, DBlock *b)
 {
-	assert(b->dirty == DirtyIndex);
+	assert(b->dirty == DirtyIndex || b->dirty == DirtyIndexSplit);
 
 	if(buck >= is->blocks){
 		seterr(EAdmin, "index write out of bounds: %d >= %d\n",
@@ -919,7 +935,7 @@ indexsect0(Index *ix, u32int buck)
  * load the index block at bucket #buck
  */
 static DBlock*
-loadibucket0(Index *ix, u32int buck, ISect **pis, u32int *pbuck, IBucket *ib)
+loadibucket0(Index *ix, u32int buck, ISect **pis, u32int *pbuck, IBucket *ib, int read)
 {
 	ISect *is;
 	DBlock *b;
@@ -931,12 +947,15 @@ loadibucket0(Index *ix, u32int buck, ISect **pis, u32int *pbuck, IBucket *ib)
 	}
 
 	buck -= is->start;
-	if((b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), 1)) == nil)
+	if((b = getdblock(is->part, is->blockbase + ((u64int)buck << is->blocklog), read)) == nil)
 		return nil;
 
-	*pis = is;
-	*pbuck = buck;
-	unpackibucket(ib, b->data);
+	if(pis)
+		*pis = is;
+	if(pbuck)
+		*pbuck = buck;
+	if(ib)
+		unpackibucket(ib, b->data);
 	return b;
 }
 
@@ -955,14 +974,16 @@ indexsect1(Index *ix, u8int *score)
 static DBlock*
 loadibucket1(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
 {
-	return loadibucket0(ix, hashbits(score, 32)/ix->div, pis, pbuck, ib);
+	return loadibucket0(ix, hashbits(score, 32)/ix->div, pis, pbuck, ib, 1);
 }
 
 static u32int
 keytobuck(Index *ix, u32int key, int d)
 {
-	/* clear all but top d bits */
-	if(d != 32)
+	/* clear all but top d bits; can't depend on boundary case shifts */
+	if(d == 0)
+		key = 0;
+	else if(d != 32)
 		key &= ~((1<<(32-d))-1);
 
 	/* truncate to maxdepth bits */
@@ -981,27 +1002,33 @@ static int
 bitmapop(Index *ix, u32int key, int d, int set)
 {
 	DBlock *b;
-	ISect *is;
-	IBucket ib;
-	u32int buck;
 	int inuse;
+	u32int key1, buck1;
 
 	if(d >= ix->maxdepth)
 		return 0;
 
+
 	/* construct .xxx1 in bucket number format */
-	key = keytobuck(ix, key, d) | (1<<(ix->maxdepth-d-1));
+	key1 = key | (1<<(32-d-1));
+	buck1 = keytobuck(ix, key1, d+1);
 
-	/* check whether key (now the bucket number for .xxx1) is in use */
+if(0) fprint(2, "key %d/%0*ub key1 %d/%0*ub buck1 %08ux\n",
+	d, d, KEY(key, d), d+1, d+1, KEY(key1, d+1), buck1);
 
-	if((b = loadibucket0(ix, key >> ix->bitkeylog, &is, &buck, &ib)) == nil){
+	/* check whether buck1 is in use */
+
+	if((b = loadibucket0(ix, buck1 >> ix->bitkeylog, nil, nil, nil, 1)) == nil){
 		seterr(ECorrupt, "cannot load in-use bitmap block");
+fprint(2, "loadibucket: %r\n");
 		return -1;
 	}
-	inuse = ((u32int*)b->data)[(key & ix->bitkeymask)>>5] & (1<<(key&31));
+if(0) fprint(2, "buck1 %08ux bitkeymask %08ux bitkeylog %d\n", buck1, ix->bitkeymask, ix->bitkeylog);
+	buck1 &= ix->bitkeymask;
+	inuse = ((u32int*)b->data)[buck1>>5] & (1<<(buck1&31));
 	if(set && !inuse){
 		dirtydblock(b, DirtyIndexBitmap);
-		((u32int*)b->data)[(key & ix->bitkeymask)>>5] |= (1<<(key&31));
+		((u32int*)b->data)[buck1>>5] |= (1<<(buck1&31));
 	}
 	putdblock(b);
 	return inuse;
@@ -1073,13 +1100,15 @@ loadibucket2(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
 			return nil;
 		}
 
-		if((b = loadibucket0(ix, keytobuck(ix, key, d), pis, pbuck, ib)) == nil)
+		if((b = loadibucket0(ix, keytobuck(ix, key, d), pis, pbuck, ib, 1)) == nil)
 			return nil;
 
 		if(ib->depth == d)
 			return b;
 
 		if(ib->depth < d){
+			fprint(2, "loaded block %ud for %d/%0*ub got %d/%0*ub\n",
+				*pbuck, d, d, KEY(key,d), ib->depth, ib->depth, KEY(key, ib->depth));
 			seterr(EBug, "index block has smaller depth than expected -- cannot happen");
 			putdblock(b);
 			return nil;
@@ -1087,14 +1116,122 @@ loadibucket2(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
 
 		/*
 		 * ib->depth > d, meaning the bitmap was out of date.
-		 * fix the bitmap and try again.
+		 * fix the bitmap and try again.  if we actually updated
+		 * the bitmap in splitiblock, this would only happen if
+		 * venti crashed at an inopportune moment.  but this way
+		 * the code gets tested more.
 		 */
+if(0) fprint(2, "update bitmap: %d/%0*ub is split\n", d, d, KEY(key,d));
 		putdblock(b);
 		if(marksplit(ix, key, d) < 0)
 			return nil;
 	}
 	seterr(EBug, "loadibucket2 failed to sync bitmap with disk!");
 	return nil;
+}
+
+static int
+splitiblock(Index *ix, DBlock *b, ISect *is, u32int buck, IBucket *ib)
+{
+	int i, d;
+	u8int *score;
+	u32int buck0, buck1, key0, key1, key, dmask;
+	DBlock *b0, *b1;
+	IBucket ib0, ib1;
+
+	if(ib->depth == ix->maxdepth){
+if(0) fprint(2, "depth=%d == maxdepth\n", ib->depth);
+		seterr(EAdmin, "index bucket %ud on %s is full\n", buck, is->part->name);
+		putdblock(b);
+		return -1;
+	}
+
+	buck = is->start+buck - ix->bitblocks;
+	d = ib->depth+1;
+	buck0 = buck;
+	buck1 = buck0 | (1<<(ix->maxdepth-d));
+	if(ix->maxdepth == 32){
+		key0 = buck0;
+		key1 = buck1;
+	}else{
+		key0 = buck0 << (32-ix->maxdepth);
+		key1 = buck1 << (32-ix->maxdepth);
+	}
+	buck0 += ix->bitblocks;
+	buck1 += ix->bitblocks;
+	USED(buck0);
+	USED(key1);
+
+	if(d == 32)
+		dmask = TWID32;
+	else
+		dmask = TWID32 ^ ((1<<(32-d))-1);
+
+	/*
+	 * Since we hold the lock for b, the bitmap
+	 * thinks buck1 doesn't exist, and the bit
+	 * for buck1 can't be updated without first
+	 * locking and splitting b, it's safe to try to
+	 * acquire the lock on buck1 without dropping b.
+	 * No one else will go after it too.
+	 *
+	 * Also, none of the rest of the code ever locks
+	 * more than one block at a time, so it's okay if
+	 * we do.
+	 */
+	if((b1 = loadibucket0(ix, buck1, nil, nil, &ib1, 0)) == nil){
+		putdblock(b);
+		return -1;
+	}
+	b0 = b;
+	ib0 = *ib;
+
+	/*
+	 * Funny locking going on here -- see dirtydblock.
+	 * We must putdblock(b1) before putdblock(b0).
+	 */
+	dirtydblock(b0, DirtyIndex);
+	dirtydblock(b1, DirtyIndexSplit);
+
+	/*
+	 * Split the block contents.
+	 * The block is already sorted, so it's pretty easy:
+	 * the first part stays, the second part goes to b1.
+	 */
+	ib0.n = 0;
+	ib0.depth = d;
+	ib1.n = 0;
+	ib1.depth = d;
+	for(i=0; i<ib->n; i++){
+		score = ib->data+i*IEntrySize;
+		key = hashbits(score, 32);
+		if((key&dmask) != key0)
+			break;
+	}
+	ib0.n = i;
+	ib1.n = ib->n - ib0.n;
+	memmove(ib1.data, ib0.data+ib0.n*IEntrySize, ib1.n*IEntrySize);
+if(0) fprint(2, "splitiblock %d in %d/%0*ub => %d in %d/%0*ub + %d in %d/%0*ub\n",
+	ib->n, d-1, d-1, key0>>(32-d+1), 
+	ib0.n, d, d, key0>>(32-d), 
+	ib1.n, d, d, key1>>(32-d));
+
+	packibucket(&ib0, b0->data);
+	packibucket(&ib1, b1->data);
+
+	/* order matters!  see comment above. */
+	putdblock(b1);
+	putdblock(b0);
+
+	/*
+	 * let the recovery code take care of updating the bitmap.
+	 */
+
+	qlock(&stats.lock);
+	stats.indexsplits++;
+	qunlock(&stats.lock);
+
+	return 0;
 }
 
 int

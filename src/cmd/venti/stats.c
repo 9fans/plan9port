@@ -44,6 +44,7 @@ printstats(void)
 	fprint(2, "index disk reads=%,ld\n", stats.indexreads);
 	fprint(2, "index disk reads for modify=%,ld\n", stats.indexwreads);
 	fprint(2, "index disk reads for allocation=%,ld\n", stats.indexareads);
+	fprint(2, "index block splits=%,ld\n", stats.indexsplits);
 
 	fprint(2, "index cache lookups=%,ld\n", stats.iclookups);
 	fprint(2, "index cache hits=%,ld %d%%\n", stats.ichits,

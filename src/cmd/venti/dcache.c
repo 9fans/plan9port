@@ -230,10 +230,38 @@ dirtydblock(DBlock *b, int dirty)
 	int odirty;
 	Part *p;
 
-	rlock(&dcache.dirtylock);
+
 	assert(b->ref != 0);
-	assert(b->dirtying == 0);
-	b->dirtying = 1;
+
+	/*
+ 	 * Because we use an rlock to keep track of how
+	 * many blocks are being dirtied (and a wlock to
+	 * stop dirtying), we cannot try to dirty two blocks
+	 * at the same time in the same thread -- if the 
+	 * wlock happens between them, we get a deadlock.
+	 * 
+	 * The only place in the code where we need to
+	 * dirty multiple blocks at once is in splitiblock, when
+	 * we split an index block.  The new block has a dirty
+	 * flag of DirtyIndexSplit already, because it has to get
+	 * written to disk before the old block (DirtyIndex).
+	 * So when we see the DirtyIndexSplit block, we don't
+	 * acquire the rlock (and we don't set dirtying, so putdblock
+	 * won't drop the rlock).  This kludginess means that
+	 * the caller will have to be sure to putdblock on the 
+	 * new block before putdblock on the old block.
+	 */
+	if(dirty == DirtyIndexSplit){
+		/* caller should have another dirty block */
+		assert(!canwlock(&dcache.dirtylock));
+		/* this block should be clean */
+		assert(b->dirtying == 0);
+		assert(b->dirty == 0);
+	}else{
+		rlock(&dcache.dirtylock);
+		assert(b->dirtying == 0);
+		b->dirtying = 1;
+	}
 
 	qlock(&stats.lock);
 	if(b->dirty)
@@ -247,12 +275,13 @@ dirtydblock(DBlock *b, int dirty)
 	 * blocks.  Only clean blocks ever get marked DirtyIndexSplit,
 	 * though, so we don't need the opposite conjunction here.
 	 */
+	odirty = b->dirty;
 	if(b->dirty)
 		assert(b->dirty == dirty
 			|| (b->dirty==DirtyIndexSplit && dirty==DirtyIndex));
+	else
+		b->dirty = dirty;
 
-	odirty = b->dirty;
-	b->dirty = dirty;
 	p = b->part;
 	if(p->writechan == nil){
 fprint(2, "allocate write proc for part %s\n", p->name);
@@ -303,6 +332,8 @@ bumpdblock(void)
 		if(!b->ref)
 			break;
 	}
+
+	fprint(2, "bump %s at %llud\n", b->part->name, b->addr);
 
 	/*
 	 * unchain the block
@@ -541,6 +572,7 @@ static void
 flushproc(void *v)
 {
 	int i, j, n;
+	ulong t0;
 	DBlock *b, **write;
 
 	USED(v);
@@ -551,7 +583,8 @@ flushproc(void *v)
 		rsleep(&dcache.flush);
 		qunlock(&dcache.lock);
 
-		fprint(2, "flushing dcache\n");
+		fprint(2, "flushing dcache: t=0 ms\n");
+		t0 = nsec()/1000;
 
 		/*
 		 * Because we don't record any dependencies at all, we must write out
@@ -568,10 +601,10 @@ flushproc(void *v)
 		 * finishes with them.
 		 */ 
 	
-		fprint(2, "flushproc: wlock\n");
+		fprint(2, "flushproc: wlock at t=%lud\n", (ulong)(nsec()/1000) - t0);
 		wlock(&dcache.dirtylock);
 
-		fprint(2, "flushproc: build list\n");
+		fprint(2, "flushproc: build list at t=%lud\n", (ulong)(nsec()/1000) - t0);
 		write = dcache.write;
 		n = 0;
 		for(i=0; i<dcache.nblocks; i++){
@@ -583,12 +616,15 @@ flushproc(void *v)
 		qsort(write, n, sizeof(write[0]), writeblockcmp);
 
 		/* Write each stage of blocks out. */
+		fprint(2, "flushproc: write blocks at t=%lud\n", (ulong)(nsec()/1000) - t0);
 		i = 0;
-		for(j=1; j<DirtyMax; j++)
+		for(j=1; j<DirtyMax; j++){
+			fprint(2, "flushproc: flush dirty %d at t=%lud\n", j, (ulong)(nsec()/1000) - t0);
 			i += parallelwrites(write+i, write+n, j);
+		}
 		assert(i == n);
 
-		fprint(2, "flushproc: update dirty bits\n");
+		fprint(2, "flushproc: update dirty bits at t=%lud\n", (ulong)(nsec()/1000) - t0);
 		qlock(&dcache.lock);
 		for(i=0; i<n; i++){
 			b = write[i];
@@ -601,6 +637,8 @@ flushproc(void *v)
 		}
 		qunlock(&dcache.lock);
 		wunlock(&dcache.dirtylock);
+
+		fprint(2, "flushproc: done at t=%lud\n", (ulong)(nsec()/1000) - t0);
 
 		qlock(&stats.lock);
 		stats.dcacheflushes++;

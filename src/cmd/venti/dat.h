@@ -124,6 +124,7 @@ enum
 	DirtyIndex,
 	DirtyIndexBitmap,
 	DirtyArenaCib,
+	DirtyArenaTrailer,
 	DirtyMax,
 
 	VentiZZZZZZZZ
@@ -355,6 +356,10 @@ struct Clump
  *	<field name="tabsize" val="s->tabsize" type="U32int"/>
  *	<field name="buckets" val="s->buckets" type="U32int"/>
  *	<field name="buckdiv" val="s->div" type="U32int"/>
+ *	<field name="bitblocks" val="s->div" type="U32int"/>
+ *	<field name="maxdepth" val="s->div" type="U32int"/>
+ *	<field name="bitkeylog" val="s->div" type="U32int"/>
+ *	<field name="bitkeymask" val="s->div" type="U32int"/>
  *	<array name="sect" val="&s->smap[i]" elems="s->nsects" type="Amap"/>
  *	<array name="amap" val="&s->amap[i]" elems="s->narenas" type="Amap"/>
  *	<array name="arena" val="s->arenas[i]" elems="s->narenas" type="Arena"/>
@@ -495,6 +500,7 @@ struct Stats
 	long		indexreads;		/* index from disk */
 	long		indexwreads;		/* for writing a new entry */
 	long		indexareads;		/* for allocating an overflow block */
+	long		indexsplits;		/* index block splits */
 	long		diskwrites;		/* total disk writes */
 	long		diskreads;		/* total disk reads */
 	vlong		diskbwrites;		/* total disk bytes written */

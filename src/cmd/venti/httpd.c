@@ -258,6 +258,7 @@ estats(HConnect *c)
 	hprint(hout, "index disk reads=%,ld\n", stats.indexreads);
 	hprint(hout, "index disk reads for modify=%,ld\n", stats.indexwreads);
 	hprint(hout, "index disk reads for allocation=%,ld\n", stats.indexareads);
+	hprint(hout, "index block splits=%,ld\n", stats.indexsplits);
 
 	hprint(hout, "index cache lookups=%,ld\n", stats.iclookups);
 	hprint(hout, "index cache hits=%,ld %d%%\n", stats.ichits,
@@ -277,7 +278,8 @@ estats(HConnect *c)
 
 	hprint(hout, "disk cache flushes=%,ld\n", stats.dcacheflushes);
 	hprint(hout, "disk cache flush writes=%,ld (%,ld per flush)\n", 
-		stats.dcacheflushwrites, stats.dcacheflushwrites/stats.dcacheflushes);
+		stats.dcacheflushwrites,
+		stats.dcacheflushwrites/(stats.dcacheflushes ? stats.dcacheflushes : 1));
 
 	hprint(hout, "disk writes=%,ld\n", stats.diskwrites);
 	hprint(hout, "disk bytes written=%,lld\n", stats.diskbwrites);
@@ -368,7 +370,7 @@ dindex(HConnect *c)
 		ix->name, ix->version, ix->blocksize, ix->tabsize);
 	hprint(hout, "\tbuckets=%d div=%d\n", ix->buckets, ix->div);
 	for(i = 0; i < ix->nsects; i++)
-		hprint(hout, "\tsect=%s for buckets [%lld,%lld)\n", ix->smap[i].name, ix->smap[i].start, ix->smap[i].stop);
+		hprint(hout, "\tsect=%s for buckets [%lld,%lld) buckmax=%d\n", ix->smap[i].name, ix->smap[i].start, ix->smap[i].stop, ix->sects[i]->buckmax);
 	for(i = 0; i < ix->narenas; i++){
 		if(ix->arenas[i] != nil && ix->arenas[i]->clumps != 0){
 			hprint(hout, "arena=%s at index [%lld,%lld)\n\t", ix->amap[i].name, ix->amap[i].start, ix->amap[i].stop);

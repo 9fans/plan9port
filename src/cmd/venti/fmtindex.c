@@ -66,9 +66,6 @@ threadmain(int argc, char *argv[])
 		for(i = 0; i < ix->nsects; i++)
 			n += ix->sects[i]->blocks;
 
-		if(ix->div < 100)
-			sysfatal("index divisor too coarse: use bigger block size");
-
 		fprint(2, "using %ud buckets of %ud; div=%d\n", ix->buckets, n, ix->div);
 	}
 	amap = MKNZ(AMap, narenas);
@@ -105,6 +102,8 @@ threadmain(int argc, char *argv[])
 	}
 	fprint(2, "configured index=%s with arenas=%d and storage=%lld\n",
 		ix->name, n, addr - IndexBase);
+	fprint(2, "\tbitblocks=%d maxdepth=%d buckets=%d\n",
+		ix->bitblocks, ix->maxdepth, ix->buckets);
 
 	ix->amap = amap;
 	ix->arenas = arenas;

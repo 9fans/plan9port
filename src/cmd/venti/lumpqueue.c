@@ -102,6 +102,9 @@ flushqueue(void)
 	int i;
 	LumpQueue *q;
 
+	if(!lumpqs)
+		return;
+
 	qlock(&glk);
 	gen++;
 	qunlock(&glk);
