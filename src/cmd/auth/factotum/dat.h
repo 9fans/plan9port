@@ -114,6 +114,8 @@ extern char	*rpcname[];	/* rpc.c */
 
 extern char	Easproto[];	/* err.c */
 
+void fsinit0(void);
+
 /* provided by lib9p */
 #define emalloc	emalloc9p
 #define erealloc	erealloc9p

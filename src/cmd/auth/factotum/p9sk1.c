@@ -339,15 +339,15 @@ p9sk2roles[] =
 };
 
 Proto p9sk1 = {
-.name=		"p9sk1",
-.roles=		p9sk1roles,
-.checkkey=	p9sk1check,
-.closekey=	p9sk1close,
-.keyprompt=	"user? dom? !password?",
+	"p9sk1",
+	p9sk1roles,
+	"user? dom? !password?",
+	p9sk1check,
+	p9sk1close,
 };
 
 Proto p9sk2 = {
-.name=		"p9sk2",
-.roles=		p9sk2roles,
+	"p9sk2",
+	p9sk2roles,
 };
 

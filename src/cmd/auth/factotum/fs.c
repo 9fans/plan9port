@@ -517,15 +517,19 @@ fsstart(Srv *s)
 	proccreate(fsproc, nil, STACK);
 }
 
-Srv fs = {
-.attach=	fsattach,
-.walk1=	fswalk1,
-.open=	fssend,
-.read=	fssend,
-.write=	fssend,
-.stat=	fsstat,
-.flush=	fssend,
-.destroyfid=	fssendclunk,
-.start=	fsstart,
-};
+Srv fs;
+
+void
+fsinit0(void)
+{
+	fs.attach = fsattach;
+	fs.walk1 = fswalk1;
+	fs.open = fssend;
+	fs.read = fssend;
+	fs.write = fssend;
+	fs.stat = fsstat;
+	fs.flush = fssend;
+	fs.destroyfid = fssendclunk;
+	fs.start = fsstart;
+}
 

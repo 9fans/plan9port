@@ -266,7 +266,7 @@ p9anyroles[] =
 };
 
 Proto p9any = {
-.name=		"p9any",
-.roles=		p9anyroles,
+	"p9any",
+	p9anyroles,
 };
 

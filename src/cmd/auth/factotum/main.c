@@ -80,6 +80,7 @@ threadmain(int argc, char *argv[])
 		}
 	}
 	
+	fsinit0();
 	threadpostmountsrv(&fs, service, mtpt, MBEFORE);
 	threadexits(nil);
 }
