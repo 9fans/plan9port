@@ -161,8 +161,6 @@ __fmtcpy(Fmt *f, const void *vm, int n, int sz)
 		}
 		f->nfmt += rt - (Rune *)f->to;
 		f->to = rt;
-		if(m < me)
-			return -1;
 		if(fl & FmtLeft && __rfmtpad(f, w - n) < 0)
 			return -1;
 	}else{
