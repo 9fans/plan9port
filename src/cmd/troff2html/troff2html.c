@@ -610,7 +610,7 @@ xcmd(Biobuf *b)
 		if(nfld==6 && strcmp(fld[2], "manref")==0){
 			/* was the right macro; is it the right form? */
 			if(strlen(fld[5])>=3 &&
-			   fld[5][0]=='(' && fld[5][2]==')' &&
+			   fld[5][0]=='('/*)*/ && (fld[5][2]==/*(*/')' || (isalpha((uchar)fld[5][2]) && fld[5][3]==/*(*/')')) &&
 			   '0'<=fld[5][1] && fld[5][1]<='9'){
 				if(strcmp(fld[3], "start") == 0){
 					/* set anchor attribute and remember string */
@@ -622,6 +622,9 @@ xcmd(Biobuf *b)
 #else
 					snprint(buf, sizeof buf,
 						"<a href=\"../man%c/%s.html\">", fld[5][1], fld[4]);
+					for(p=buf; *p; p++)
+						if('A' <= *p && *p <= 'Z')
+							*p += 'a'-'A';
 #endif
 					nanchors++;
 					anchors = erealloc(anchors, nanchors*sizeof(char*));
