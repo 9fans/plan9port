@@ -101,7 +101,7 @@ journaln(int out, long n)
 int
 rcvchar(void){
 	static uchar buf[64];
-	static i, nleft = 0;
+	static int i, nleft = 0;
 
 	if(nleft <= 0){
 		nleft = read(0, (char *)buf, sizeof buf);
@@ -116,9 +116,9 @@ rcvchar(void){
 int
 rcv(void){
 	int c;
-	static state = 0;
-	static count = 0;
-	static i = 0;
+	static int state = 0;
+	static int count = 0;
+	static int i = 0;
 
 	while((c=rcvchar()) != -1)
 		switch(state){
@@ -235,17 +235,17 @@ inmesg(Tmesg type)
 		journaln(0, p1-p0);
 		if(f->unread)
 			panic("Trequest: unread");
-		if(p1>f->_.nc)
-			p1 = f->_.nc;
-		if(p0>f->_.nc) /* can happen e.g. scrolling during command */
-			p0 = f->_.nc;
+		if(p1>f->b.nc)
+			p1 = f->b.nc;
+		if(p0>f->b.nc) /* can happen e.g. scrolling during command */
+			p0 = f->b.nc;
 		if(p0 == p1){
 			i = 0;
 			r.p1 = r.p2 = p0;
 		}else{
 			r = rdata(f->rasp, p0, p1-p0);
 			i = r.p2-r.p1;
-			bufread(f, r.p1, buf, i);
+			bufread(&f->b, r.p1, buf, i);
 		}
 		buf[i]=0;
 		outTslS(Hdata, f->tag, r.p1, tmprstr(buf, i+1));
@@ -271,9 +271,9 @@ inmesg(Tmesg type)
 		if(f->unread)
 			load(f);
 		else{
-			if(f->_.nc>0){
-				rgrow(f->rasp, 0L, f->_.nc);
-				outTsll(Hgrow, f->tag, 0L, f->_.nc);
+			if(f->b.nc>0){
+				rgrow(f->rasp, 0L, f->b.nc);
+				outTsll(Hgrow, f->tag, 0L, f->b.nc);
 			}
 			outTs(Hcheck0, f->tag);
 			moveto(f, f->dot.r);
@@ -302,7 +302,7 @@ inmesg(Tmesg type)
 		loginsert(f, p0, str->s, str->n);
 		if(fileupdate(f, FALSE, FALSE))
 			seq++;
-		if(f==cmd && p0==f->_.nc-i && i>0 && str->s[i-1]=='\n'){
+		if(f==cmd && p0==f->b.nc-i && i>0 && str->s[i-1]=='\n'){
 			freetmpstr(str);
 			termlocked++;
 			termcommand();
@@ -370,7 +370,7 @@ inmesg(Tmesg type)
 		journaln(0, i);
 		f = whichfile(i);
 		addr.r.p1 = 0;
-		addr.r.p2 = f->_.nc;
+		addr.r.p2 = f->b.nc;
 		if(f->name.s[0] == 0)
 			error(Enoname);
 		Strduplstr(&genstr, &f->name);
@@ -427,9 +427,9 @@ inmesg(Tmesg type)
 		outTl(Hsnarflen, genstr.n);
 		if(genstr.s[genstr.n-1] != '\n')
 			Straddc(&genstr, '\n');
-		loginsert(cmd, cmd->_.nc, genstr.s, genstr.n);
+		loginsert(cmd, cmd->b.nc, genstr.s, genstr.n);
 		fileupdate(cmd, FALSE, TRUE);
-		cmd->dot.r.p1 = cmd->dot.r.p2 = cmd->_.nc;
+		cmd->dot.r.p1 = cmd->dot.r.p2 = cmd->b.nc;
 		telldot(cmd);
 		termcommand();
 		break;
@@ -522,7 +522,7 @@ inmesg(Tmesg type)
 			p = p0;
 			while(p0>0 && (i=filereadc(f, p0 - 1))!=' ' && i!='\t' && i!='\n')
 				p0--;
-			while(p1<f->_.nc && (i=filereadc(f, p1))!=' ' && i!='\t' && i!='\n')
+			while(p1<f->b.nc && (i=filereadc(f, p1))!=' ' && i!='\t' && i!='\n')
 				p1++;
 			sprint(cbuf, "click=%ld", p-p0);
 			pm->attr = plumbunpackattr(cbuf);
@@ -559,13 +559,13 @@ snarf(File *f, Posn p1, Posn p2, Buffer *buf, int emptyok)
 		return;
 	bufreset(buf);
 	/* Stage through genbuf to avoid compaction problems (vestigial) */
-	if(p2 > f->_.nc){
-		fprint(2, "bad snarf addr p1=%ld p2=%ld f->_.nc=%d\n", p1, p2, f->_.nc); /*ZZZ should never happen, can remove */
-		p2 = f->_.nc;
+	if(p2 > f->b.nc){
+		fprint(2, "bad snarf addr p1=%ld p2=%ld f->b.nc=%d\n", p1, p2, f->b.nc); /*ZZZ should never happen, can remove */
+		p2 = f->b.nc;
 	}
 	for(l=p1; l<p2; l+=i){
 		i = p2-l>BLOCKSIZE? BLOCKSIZE : p2-l;
-		bufread(f, l, genbuf, i);
+		bufread(&f->b, l, genbuf, i);
 		bufinsert(buf, buf->nc, tmprstr(genbuf, i)->s, i);
 	}
 }
@@ -609,7 +609,7 @@ setgenstr(File *f, Posn p0, Posn p1)
 		if(p1-p0 >= TBLOCKSIZE)
 			error(Etoolong);
 		Strinsure(&genstr, p1-p0);
-		bufread(f, p0, genbuf, p1-p0);
+		bufread(&f->b, p0, genbuf, p1-p0);
 		memmove(genstr.s, genbuf, RUNESIZE*(p1-p0));
 		genstr.n = p1-p0;
 	}else{

@@ -53,7 +53,7 @@ writef(File *f)
 		error(Eappend);
 	n = writeio(f);
 	if(f->name.s[0]==0 || samename){
-		if(addr.r.p1==0 && addr.r.p2==f->_.nc)
+		if(addr.r.p1==0 && addr.r.p2==f->b.nc)
 			f->cleanseq = f->seq;
 		state(f, f->cleanseq==f->seq? Clean : Dirty);
 	}
@@ -87,7 +87,7 @@ readio(File *f, int *nulls, int setdate, int toterm)
 	*nulls = FALSE;
 	b = 0;
 	if(f->unread){
-		nt = bufload(f, 0, io, nulls);
+		nt = bufload(&f->b, 0, io, nulls);
 		if(toterm)
 			raspload(f);
 	}else
@@ -149,7 +149,7 @@ writeio(File *f)
 			n = BLOCKSIZE;
 		else
 			n = addr.r.p2-p;
-		bufread(f, p, genbuf, n);
+		bufread(&f->b, p, genbuf, n);
 		c = Strtoc(tmprstr(genbuf, n));
 		m = strlen(c);
 		if(Write(io, c, m) != m){
@@ -188,8 +188,7 @@ bootterm(char *machine, char **argv, char **end)
 		argv[0] = "samterm";
 		*end = 0;
 		exec(samterm, argv);
-		fprint(2, "can't exec: ");
-		perror(samterm);
+		fprint(2, "can't exec %s: %r\n", samterm);
 		_exits("damn");
 	}
 	if(pipe(ph2t)==-1 || pipe(pt2h)==-1)

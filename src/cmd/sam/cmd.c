@@ -185,14 +185,14 @@ termcommand(void)
 {
 	Posn p;
 
-	for(p=cmdpt; p<cmd->_.nc; p++){
+	for(p=cmdpt; p<cmd->b.nc; p++){
 		if(terminp >= &termline[BLOCKSIZE]){
-			cmdpt = cmd->_.nc;
+			cmdpt = cmd->b.nc;
 			error(Etoolong);
 		}
 		*terminp++ = filereadc(cmd, p);
 	}
-	cmdpt = cmd->_.nc;
+	cmdpt = cmd->b.nc;
 }
 
 void

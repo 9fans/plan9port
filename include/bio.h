@@ -71,6 +71,7 @@ long	Bread(Biobuf*, void*, long);
 off_t	Bseek(Biobuf*, off_t, int);
 int	Bterm(Biobuf*);
 int	Bungetc(Biobuf*);
+int	Bungetrune(Biobuf*);
 long	Bwrite(Biobuf*, void*, long);
 char*	Brdstr(Biobuf*, int, int);
 long	Bgetrune(Biobuf*);

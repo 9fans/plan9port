@@ -39,8 +39,8 @@ lookorigin(File *f, Posn p0, Posn ls)
 	int nl, nc, c;
 	Posn p, oldp0;
 
-	if(p0 > f->_.nc)
-		p0 = f->_.nc;
+	if(p0 > f->b.nc)
+		p0 = f->b.nc;
 	oldp0 = p0;
 	p = p0;
 	for(nl=nc=c=0; c!=-1 && nl<ls && nc<ls*CHARSHIFT; nc++)
@@ -85,7 +85,7 @@ clickmatch(File *f, int cl, int cr, int dir, Posn *p)
 
 	for(;;){
 		if(dir > 0){
-			if(*p >= f->_.nc)
+			if(*p >= f->b.nc)
 				break;
 			c = filereadc(f, (*p)++);
 		}else{
@@ -126,7 +126,7 @@ doubleclick(File *f, Posn p1)
 	Rune *r, *l;
 	Posn p;
 
-	if(p1 > f->_.nc)
+	if(p1 > f->b.nc)
 		return;
 	f->dot.r.p1 = f->dot.r.p2 = p1;
 	for(i=0; left[i]; i++){
@@ -147,7 +147,7 @@ doubleclick(File *f, Posn p1)
 		}
 		/* try right match */
 		p = p1;
-		if(p1 == f->_.nc)
+		if(p1 == f->b.nc)
 			c = '\n';
 		else
 			c = filereadc(f, p);
@@ -156,14 +156,14 @@ doubleclick(File *f, Posn p1)
 				f->dot.r.p1 = p;
 				if(c!='\n' || p!=0 || filereadc(f, 0)=='\n')
 					f->dot.r.p1++;
-				f->dot.r.p2 = p1+(p1<f->_.nc && c=='\n');
+				f->dot.r.p2 = p1+(p1<f->b.nc && c=='\n');
 			}
 			return;
 		}
 	}
 	/* try filling out word to right */
 	p = p1;
-	while(p < f->_.nc && alnum(filereadc(f, p++)))
+	while(p < f->b.nc && alnum(filereadc(f, p++)))
 		f->dot.r.p2++;
 	/* try filling out word to left */
 	p = p1;

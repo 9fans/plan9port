@@ -231,7 +231,7 @@ s_cmd(File *f, Cmd *cp)
 					j = c-'0';
 					if(sel.p[j].p2-sel.p[j].p1>BLOCKSIZE)
 						error(Elongtag);
-					bufread(f, sel.p[j].p1, genbuf, sel.p[j].p2-sel.p[j].p1);
+					bufread(&f->b, sel.p[j].p1, genbuf, sel.p[j].p2-sel.p[j].p1);
 					Strinsert(&genstr, tmprstr(genbuf, (sel.p[j].p2-sel.p[j].p1)), genstr.n);
 				}else
 				 	Straddc(&genstr, c);
@@ -240,7 +240,7 @@ s_cmd(File *f, Cmd *cp)
 			else{
 				if(sel.p[0].p2-sel.p[0].p1>BLOCKSIZE)
 					error(Elongrhs);
-				bufread(f, sel.p[0].p1, genbuf, sel.p[0].p2-sel.p[0].p1);
+				bufread(&f->b, sel.p[0].p1, genbuf, sel.p[0].p2-sel.p[0].p1);
 				Strinsert(&genstr,
 					tmprstr(genbuf, (int)(sel.p[0].p2-sel.p[0].p1)),
 					genstr.n);
@@ -390,15 +390,15 @@ display(File *f)
 
 	p1 = addr.r.p1;
 	p2 = addr.r.p2;
-	if(p2 > f->_.nc){
-		fprint(2, "bad display addr p1=%ld p2=%ld f->_.nc=%d\n", p1, p2, f->_.nc); /*ZZZ should never happen, can remove */
-		p2 = f->_.nc;
+	if(p2 > f->b.nc){
+		fprint(2, "bad display addr p1=%ld p2=%ld f->b.nc=%d\n", p1, p2, f->b.nc); /*ZZZ should never happen, can remove */
+		p2 = f->b.nc;
 	}
 	while(p1 < p2){
 		np = p2-p1;
 		if(np>BLOCKSIZE-1)
 			np = BLOCKSIZE-1;
-		bufread(f, p1, genbuf, np);
+		bufread(&f->b, p1, genbuf, np);
 		genbuf[np] = 0;
 		c = Strtoc(tmprstr(genbuf, np+1));
 		if(downloaded)

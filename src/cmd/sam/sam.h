@@ -110,11 +110,10 @@ enum
 struct Block
 {
 	uint		addr;	/* disk address in bytes */
-	union
-	{
+	union {
 		uint	n;	/* number of used runes in block */
 		Block	*next;	/* pointer to next in free list */
-	} _;
+	} u;
 };
 
 struct Disk
@@ -151,7 +150,7 @@ void		bufreset(Buffer*);
 
 struct File
 {
-	Buffer _;				/* the data */
+	Buffer 	b;				/* the data */
 	Buffer		delta;		/* transcript of changes */
 	Buffer		epsilon;	/* inversion of delta for redo */
 	String		name;		/* name of associated file */

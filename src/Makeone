@@ -1,0 +1,10 @@
+$(TARG): $(OFILES)
+	$(CC) -o $(TARG) $(OFILES) $(LDFLAGS)
+
+CLEANFILES+=$(TARG)
+
+include $(9SRC)/Makecommon
+
+install: $(TARG)
+	cp $(TARG) $(9SRC)/bin
+

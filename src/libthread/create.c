@@ -1,6 +1,5 @@
 #include "threadimpl.h"
 
-#define free
 Pqueue _threadpq;
 
 static int nextID(void);

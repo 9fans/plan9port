@@ -35,10 +35,10 @@ raspload(File *f)
 {
 	if(f->rasp == nil)
 		return;
-	grown = f->_.nc;
+	grown = f->b.nc;
 	growpos = 0;
-	if(f->_.nc)
-		rgrow(f->rasp, 0, f->_.nc);
+	if(f->b.nc)
+		rgrow(f->rasp, 0, f->b.nc);
 	raspdone(f, 1);
 }
 
@@ -55,14 +55,14 @@ raspstart(File *f)
 void
 raspdone(File *f, int toterm)
 {
-	if(f->dot.r.p1 > f->_.nc)
-		f->dot.r.p1 = f->_.nc;
-	if(f->dot.r.p2 > f->_.nc)
-		f->dot.r.p2 = f->_.nc;
-	if(f->mark.p1 > f->_.nc)
-		f->mark.p1 = f->_.nc;
-	if(f->mark.p2 > f->_.nc)
-		f->mark.p2 = f->_.nc;
+	if(f->dot.r.p1 > f->b.nc)
+		f->dot.r.p1 = f->b.nc;
+	if(f->dot.r.p2 > f->b.nc)
+		f->dot.r.p2 = f->b.nc;
+	if(f->mark.p1 > f->b.nc)
+		f->mark.p1 = f->b.nc;
+	if(f->mark.p2 > f->b.nc)
+		f->mark.p2 = f->b.nc;
 	if(f->rasp == nil)
 		return;
 	if(grown)

@@ -1,18 +1,34 @@
-H=errors.h mesg.h parse.h plumb.h sam.h
-SRC= address.c buff.c cmd.c disk.c error.c file.c io.c\
-     list.c mesg.c moveto.c multi.c unix.c rasp.c regexp.c\
-     sam.c shell.c string.c sys.c util.c xec.c plumb.c
+9SRC=..
+include $(9SRC)/Makehdr
 
-CC=gcc
-PREFIX=$(HOME)
-#PREFIX=/usr/local
-CFLAGS=-I. -I$(PREFIX)/include -O -g
-LDFLAGS=-L$(PREFIX)/lib
-LDLIBS=-l9 -lfmt -lutf
+TARG=sam
+OFILES=sam.$O\
+	address.$O\
+	buff.$O\
+	cmd.$O\
+	disk.$O\
+	error.$O\
+	file.$O\
+	io.$O\
+	list.$O\
+	mesg.$O\
+	moveto.$O\
+	multi.$O\
+	plumb.$O\
+	rasp.$O\
+	regexp.$O\
+	shell.$O\
+	string.$O\
+	sys.$O\
+	unix.$O\
+	util.$O\
+	xec.$O\
 
-all: sam
-sam: $(SRC) $(H)
-	$(CC) -o $@ $(CFLAGS) $(SRC) $(LDFLAGS) $(LDLIBS)
-clean:
-	rm -f *.o *~
-	rm -f sam
+HFILES=sam.h\
+	errors.h\
+	mesg.h\
+
+LDFLAGS+=-l9 -lfmt -lutf
+
+include $(9SRC)/Makeone
+

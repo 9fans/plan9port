@@ -91,8 +91,8 @@ setcache(Buffer *b, uint q0)
 		i = b->cbi;
 	}
 	blp = &b->bl[i];
-	while(q+(*blp)->_.n <= q0 && q+(*blp)->_.n < b->nc){
-		q += (*blp)->_.n;
+	while(q+(*blp)->u.n <= q0 && q+(*blp)->u.n < b->nc){
+		q += (*blp)->u.n;
 		i++;
 		blp++;
 		if(i >= b->nbl)
@@ -102,8 +102,8 @@ setcache(Buffer *b, uint q0)
 	/* remember position */
 	b->cbi = i;
 	b->cq = q;
-	sizecache(b, bl->_.n);
-	b->cnc = bl->_.n;
+	sizecache(b, bl->u.n);
+	b->cnc = bl->u.n;
 	/*read block*/
 	diskread(disk, bl, b->c, b->cnc);
 }

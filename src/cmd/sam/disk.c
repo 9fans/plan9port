@@ -64,20 +64,20 @@ disknewblock(Disk *d, uint n)
 	size = ntosize(n, &i);
 	b = d->free[i];
 	if(b)
-		d->free[i] = b->_.next;
+		d->free[i] = b->u.next;
 	else{
 		/* allocate in chunks to reduce malloc overhead */
 		if(blist == nil){
 			blist = emalloc(100*sizeof(Block));
 			for(j=0; j<100-1; j++)
-				blist[j]._.next = &blist[j+1];
+				blist[j].u.next = &blist[j+1];
 		}
 		b = blist;
-		blist = b->_.next;
+		blist = b->u.next;
 		b->addr = d->addr;
 		d->addr += size;
 	}
-	b->_.n = n;
+	b->u.n = n;
 	return b;
 }
 
@@ -86,8 +86,8 @@ diskrelease(Disk *d, Block *b)
 {
 	uint i;
 
-	ntosize(b->_.n, &i);
-	b->_.next = d->free[i];
+	ntosize(b->u.n, &i);
+	b->u.next = d->free[i];
 	d->free[i] = b;
 }
 
@@ -98,7 +98,7 @@ diskwrite(Disk *d, Block **bp, Rune *r, uint n)
 	Block *b;
 
 	b = *bp;
-	size = ntosize(b->_.n, nil);
+	size = ntosize(b->u.n, nil);
 	nsize = ntosize(n, nil);
 	if(size != nsize){
 		diskrelease(d, b);
@@ -107,16 +107,16 @@ diskwrite(Disk *d, Block **bp, Rune *r, uint n)
 	}
 	if(pwrite(d->fd, r, n*sizeof(Rune), b->addr) != n*sizeof(Rune))
 		panic("write error to temp file");
-	b->_.n = n;
+	b->u.n = n;
 }
 
 void
 diskread(Disk *d, Block *b, Rune *r, uint n)
 {
-	if(n > b->_.n)
+	if(n > b->u.n)
 		panic("internal error: diskread");
 
-	ntosize(b->_.n, nil);	/* called only for sanity check on Maxblock */
+	ntosize(b->u.n, nil);	/* called only for sanity check on Maxblock */
 	if(pread(d->fd, r, n*sizeof(Rune), b->addr) != n*sizeof(Rune))
 		panic("read error from temp file");
 }

@@ -27,7 +27,7 @@ address(Addr *ap, Address a, int sign)
 			break;
 
 		case '$':
-			a.r.p1 = a.r.p2 = f->_.nc;
+			a.r.p1 = a.r.p2 = f->b.nc;
 			break;
 
 		case '\'':
@@ -52,7 +52,7 @@ address(Addr *ap, Address a, int sign)
 			break;
 
 		case '*':
-			a.r.p1 = 0, a.r.p2 = f->_.nc;
+			a.r.p1 = 0, a.r.p2 = f->b.nc;
 			return a;
 
 		case ',':
@@ -69,7 +69,7 @@ address(Addr *ap, Address a, int sign)
 			if(ap->next)
 				a2 = address(ap->next, a, 0);
 			else
-				a2.f = a.f, a2.r.p1 = a2.r.p2 = f->_.nc;
+				a2.f = a.f, a2.r.p1 = a2.r.p2 = f->b.nc;
 			if(a1.f != a2.f)
 				error(Eorder);
 			a.f = a1.f, a.r.p1 = a1.r.p1, a.r.p2 = a2.r.p2;
@@ -101,7 +101,7 @@ nextmatch(File *f, String *r, Posn p, int sign)
 		if(!execute(f, p, INFINITY))
 			error(Esearch);
 		if(sel.p[0].p1==sel.p[0].p2 && sel.p[0].p1==p){
-			if(++p>f->_.nc)
+			if(++p>f->b.nc)
 				p = 0;
 			if(!execute(f, p, INFINITY))
 				panic("address");
@@ -111,7 +111,7 @@ nextmatch(File *f, String *r, Posn p, int sign)
 			error(Esearch);
 		if(sel.p[0].p1==sel.p[0].p2 && sel.p[0].p2==p){
 			if(--p<0)
-				p = f->_.nc;
+				p = f->b.nc;
 			if(!bexecute(f, p))
 				panic("address");
 		}
@@ -156,10 +156,10 @@ filematch(File *f, String *r)
 	/* A little dirty... */
 	if(menu == 0)
 		menu = fileopen();
-	bufreset(menu);
-	bufinsert(menu, 0, genstr.s, genstr.n);
+	bufreset(&menu->b);
+	bufinsert(&menu->b, 0, genstr.s, genstr.n);
 	compile(r);
-	return execute(menu, 0, menu->_.nc);
+	return execute(menu, 0, menu->b.nc);
 }
 
 Address
@@ -171,7 +171,7 @@ charaddr(Posn l, Address addr, int sign)
 		addr.r.p2 = addr.r.p1-=l;
 	else if(sign > 0)
 		addr.r.p1 = addr.r.p2+=l;
-	if(addr.r.p1<0 || addr.r.p2>addr.f->_.nc)
+	if(addr.r.p1<0 || addr.r.p2>addr.f->b.nc)
 		error(Erange);
 	return addr;
 }
@@ -203,14 +203,14 @@ lineaddr(Posn l, Address addr, int sign)
 				n = filereadc(f, p++)=='\n';
 			}
 			while(n < l){
-				if(p >= f->_.nc)
+				if(p >= f->b.nc)
 					error(Erange);
 				if(filereadc(f, p++) == '\n')
 					n++;
 			}
 			a.r.p1 = p;
 		}
-		while(p < f->_.nc && filereadc(f, p++)!='\n')
+		while(p < f->b.nc && filereadc(f, p++)!='\n')
 			;
 		a.r.p2 = p;
 	}else{

@@ -1,4 +1,3 @@
-
 # this works in gnu make
 SYSNAME:=${shell uname}
 OBJTYPE:=${shell uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'}
@@ -10,11 +9,13 @@ OBJTYPE!=uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'
 # the gnu rules will mess up bsd but not vice versa,
 # hence the gnu rules come first.
 
-include Make.$(SYSNAME)-$(OBJTYPE)
+X11=/usr/X11R6
+LDFLAGS=
+CFLAGS=
 
-PREFIX=/usr/local
+include $(9SRC)/Make.$(SYSNAME)-$(OBJTYPE)
+LDFLAGS+=-L$(9SRC)/lib
 
+CLEANFILES=*.$O
 NUKEFILES=
-
-TGZFILES=
 
