@@ -4,6 +4,7 @@ LIB=libmach.a
 
 OFILES=\
 	$SYSNAME.$O\
+	cmdline.$O\
 	crack.$O\
 	crackelf.$O\
 	crackmacho.$O\
@@ -17,6 +18,7 @@ OFILES=\
 	dwarfpc.$O\
 	dwarfpubnames.$O\
 	elf.$O\
+	elfdl386.$O\
 	elfcorefreebsd386.$O\
 	elfcorelinux386.$O\
 	frame.$O\
@@ -56,6 +58,13 @@ dwarfdump: dwarfdump.o $LIBDIR/$LIB
 
 nm: nm.o $LIBDIR/$LIB
 	$LD -o $target $prereq -l9
+
+t: t.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9 -lthread_db
+
+elfnm: elfnm.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9
+
 
 SunOS.$O: nosys.c
 Darwin.$O: nosys.c

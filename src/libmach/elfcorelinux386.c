@@ -6,30 +6,10 @@
 
 typedef struct Lreg Lreg;
 typedef struct Status Status;
-
-struct Lreg
-{
-	u32int	ebx;
-	u32int	ecx;
-	u32int	edx;
-	u32int	esi;
-	u32int	edi;
-	u32int	ebp;
-	u32int	eax;
-	u32int	ds;
-	u32int	es;
-	u32int	fs;
-	u32int	gs;
-	u32int	origeax;
-	u32int	eip;
-	u32int	cs;
-	u32int	eflags;
-	u32int	esp;
-	u32int	ss;
-};
+typedef struct Psinfo Psinfo;
 
 /*
- * Lreg is 64-bit aligned within status, so we shouldn't 
+ * UregLinux386 is 64-bit aligned within status, so we shouldn't 
  * have any packing problems. 
  */
 struct Status
@@ -48,15 +28,32 @@ struct Status
 	u32int	stime[2];
 	u32int	cutime[2];
 	u32int	cstime[2];
-	Lreg	reg;
+	UregLinux386	reg;
 	u32int	fpvalid;
+};
+
+struct Psinfo
+{
+	char state;
+	char sname;
+	char zomb;
+	char nice;
+	u32int flag;
+	u16int uid;
+	u16int gid;
+	u32int pid;
+	u32int ppid;
+	u32int pgrp;
+	u32int sid;
+	char fname[16];
+	char psargs[80];
 };
 
 int
 coreregslinux386(Elf *elf, ElfNote *note, uchar **up)
 {
 	Status *s;
-	Lreg *l;
+	UregLinux386 *l;
 	Ureg *u;
 
 	if(note->descsz < sizeof(Status)){
@@ -65,31 +62,31 @@ coreregslinux386(Elf *elf, ElfNote *note, uchar **up)
 	}
 	s = (Status*)note->desc;
 	l = &s->reg;
-	u = malloc(sizeof(Ureg));
-	if(u == nil)
+	if((u = _linux2ureg386(l)) == nil)
 		return -1;
-
-	/* no byte order problems - just copying and rearranging */
-	u->di = l->edi;
-	u->si = l->esi;
-	u->bp = l->ebp;
-	u->nsp = l->esp;
-	u->bx = l->ebx;
-	u->dx = l->edx;
-	u->cx = l->ecx;
-	u->ax = l->eax;
-	u->gs = l->gs;
-	u->fs = l->fs;
-	u->es = l->es;
-	u->ds = l->ds;
-	u->trap = ~0; // l->trapno;
-	u->ecode = ~0; // l->err;
-	u->pc = l->eip;
-	u->cs = l->cs;
-	u->flags = l->eflags;
-	u->sp = l->esp;
-	u->ss = l->ss;
 	*up = (uchar*)u;
 	return sizeof(Ureg);
+}
+
+int
+corecmdlinux386(Elf *elf, ElfNote *note, char **pp)
+{
+	char *t;
+	Psinfo *p;
+
+	*pp = nil;
+	if(note->descsz < sizeof(Psinfo)){
+		werrstr("elf psinfo note too small");
+		return -1;
+	}
+	p = (Psinfo*)note->desc;
+	print("elf name %s\nelf args %s\n", p->fname, p->psargs);
+	t = malloc(80+1);
+	if(t == nil)
+		return -1;
+	memmove(t, p->psargs, 80);
+	t[80] = 0;
+	*pp = t;
+	return 0;
 }
 

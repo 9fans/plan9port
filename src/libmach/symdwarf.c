@@ -13,7 +13,7 @@ static int	dwarfindexlsym(Fhdr*, Symbol*, uint, Symbol*);
 static int	dwarffindlsym(Fhdr*, Symbol*, Loc, Symbol*);
 static void	dwarfsyminit(Fhdr*);
 static int	dwarftosym(Fhdr*, Dwarf*, DwarfSym*, Symbol*, int);
-static int	_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next);
+static int	_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next, Symbol*);
 
 int
 symdwarf(Fhdr *hdr)
@@ -396,7 +396,7 @@ dwarfexprfmt(Fmt *fmt)
 #endif
 
 static int
-_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next)
+_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next, Symbol *sym)
 {
 	char *name;
 	int i, j;

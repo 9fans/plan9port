@@ -1337,7 +1337,7 @@ static char *powerwindregs[] =
 };
 
 static int
-powerunwind(Map *map, Regs *regs, ulong *next)
+powerunwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 {
 	/*
 	 * This is tremendously hard.  The best we're going to

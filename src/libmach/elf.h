@@ -218,6 +218,7 @@ struct Elf
 	ElfSect	*dynsym;
 	ElfSect	*dynstr;
 	ElfSect	*bss;
+	ulong	dynamic;		/* offset to elf dynamic crap */
 
 	int		(*coreregs)(Elf*, ElfNote*, uchar**);
 };
@@ -227,7 +228,10 @@ Elf*	elfinit(int);
 ElfSect *elfsection(Elf*, char*);
 void	elfclose(Elf*);
 int	elfsym(Elf*, int, ElfSym*);
+int	elfsymlookup(Elf*, char*, ulong*);
 int	elfmap(Elf*, ElfSect*);
 
 int	coreregslinux386(Elf*, ElfNote*, uchar**);
 int	coreregsfreebsd386(Elf*, ElfNote*, uchar**);
+int	corecmdlinux386(Elf*, ElfNote*, char**);
+int	corecmdfreebsd386(Elf*, ElfNote*, char**);

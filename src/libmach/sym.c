@@ -50,6 +50,23 @@ _delhdr(Fhdr *h)
 	h->next = nil;
 }
 
+Fhdr*
+findhdr(char *name)
+{
+	int len, plen;
+	Fhdr *p;
+
+	len = strlen(name);
+	for(p=fhdrlist; p; p=p->next){
+		plen = strlen(p->filename);
+		if(plen >= len)
+		if(strcmp(p->filename+plen-len, name) == 0)
+		if(plen == len || p->filename[plen-len-1] == '/')
+			return p;
+	}
+	return nil;
+}
+
 int
 pc2file(ulong pc, char *file, uint nfile, ulong *line)
 {
@@ -354,14 +371,14 @@ findlsym(Symbol *s1, Loc loc, Symbol *s2)
 }
 
 int
-unwindframe(Map *map, Regs *regs, ulong *next)
+unwindframe(Map *map, Regs *regs, ulong *next, Symbol *sym)
 {
 	Fhdr *p;
 
 	for(p=fhdrlist; p; p=p->next)
-		if(p->unwind && p->unwind(p, map, regs, next) >= 0)
+		if(p->unwind && p->unwind(p, map, regs, next, sym) >= 0)
 			return 0;
-	if(mach->unwind && mach->unwind(map, regs, next) >= 0)
+	if(mach->unwind && mach->unwind(map, regs, next, sym) >= 0)
 		return 0;
 	return -1;
 }

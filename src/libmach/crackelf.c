@@ -40,11 +40,18 @@ static struct
 	uint mtype;
 	uint atype;
 	int (*coreregs)(Elf*, ElfNote*, uchar**);
+	int (*corecmd)(Elf*, ElfNote*, char**);
 } ctab[] = 
 {	/* Font Tab 4 */
-	M386,		ALINUX,		coreregslinux386,
-	M386,		ANONE,		coreregslinux386,	/* [sic] */
-	M386,		AFREEBSD,	coreregsfreebsd386,
+	M386,		ALINUX,
+		coreregslinux386,
+		corecmdlinux386,
+	M386,		ANONE,
+		coreregslinux386,	/* [sic] */
+		corecmdlinux386,	/* [sic] */
+	M386,		AFREEBSD,
+		coreregsfreebsd386,
+		corecmdfreebsd386,
 };
 
 int

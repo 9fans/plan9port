@@ -6,6 +6,7 @@
 
 typedef struct Lreg Lreg;
 typedef struct Status Status;
+typedef struct Psinfo Psinfo;
 
 struct Lreg
 {
@@ -32,14 +33,22 @@ struct Lreg
 
 struct Status
 {
-    u32int		version;	/* Version number of struct (1) */
-    u32int		statussz;	/* sizeof(prstatus_t) (1) */
-    u32int		gregsetsz;	/* sizeof(gregset_t) (1) */
-    u32int		fpregsetsz;	/* sizeof(fpregset_t) (1) */
-    u32int		osreldate;	/* Kernel version (1) */
-    u32int		cursig;	/* Current signal (1) */
-    u32int		pid;		/* Process ID (1) */
-    Lreg		reg;		/* General purpose registers (1) */
+	u32int		version;	/* Version number of struct (1) */
+	u32int		statussz;	/* sizeof(prstatus_t) (1) */
+	u32int		gregsetsz;	/* sizeof(gregset_t) (1) */
+	u32int		fpregsetsz;	/* sizeof(fpregset_t) (1) */
+	u32int		osreldate;	/* Kernel version (1) */
+	u32int		cursig;	/* Current signal (1) */
+	u32int		pid;		/* Process ID (1) */
+	Lreg		reg;		/* General purpose registers (1) */
+};
+
+struct Psinfo
+{
+	u32int	version;
+	u32int	size;
+	char	name[17];
+	char	psargs[81];
 };
 
 int
@@ -85,5 +94,27 @@ coreregsfreebsd386(Elf *elf, ElfNote *note, uchar **up)
 	u->ss = l->ss;
 	*up = (uchar*)u;
 	return sizeof(Ureg);
+}
+
+int
+corecmdfreebsd386(Elf *elf, ElfNote *note, char **pp)
+{
+	char *t;
+	Psinfo *p;
+
+	*pp = nil;
+	if(note->descsz < sizeof(Psinfo)){
+		werrstr("elf psinfo note too small");
+		return -1;
+	}
+	p = (Psinfo*)note->desc;
+	print("elf name %s\nelf args %s\n", p->name, p->psargs);
+	t = malloc(80+1);
+	if(t == nil)
+		return -1;
+	memmove(t, p->psargs, 80);
+	t[80] = 0;
+	*pp = t;
+	return 0;
 }
 

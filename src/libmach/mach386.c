@@ -29,7 +29,7 @@ static	int	i386hexinst(Map*, ulong, char*, int);
 static	int	i386das(Map*, ulong, char, char*, int);
 static	int	i386instlen(Map*, ulong);
 static	char	*i386windregs[];
-static	int	i386unwind(Map*, Regs*, ulong*);
+static	int	i386unwind(Map*, Regs*, ulong*, Symbol*);
 
 static	Regdesc i386reglist[] = {
 	{"DI",		REGOFF(di),	RINT, 'X'},
@@ -128,14 +128,37 @@ static char *i386windregs[] = {
 	0,
 };
 
-static int
-i386unwind(Map *map, Regs *regs, ulong *next)
+/*
+ * The wrapper code around Linux system calls 
+ * saves AX on the stack before calling some calls
+ * (at least, __libc_nanosleep), when running in 
+ * threaded programs. 
+ */
+static void
+syscallhack(Map *map, Regs *regs, int *spoff)
 {
-	int isp, ipc, ibp;
-	ulong bp;
-	u32int v;
+	ulong pc;
+	char buf[60];
 
-	/* No symbol information, use frame pointer and do the best we can. */
+	rget(regs, "PC", &pc);
+	if(i386das(map, pc-2, 0, buf, sizeof buf) != 2 || strncmp(buf, "INTB\t$", 6) != 0)
+		return;
+	if(i386das(map, pc, 0, buf, sizeof buf) != 2 || strcmp(buf, "MOVL\tDX,BX") != 0)
+		return;
+	if(i386das(map, pc+2, 0, buf, sizeof buf) != 3 || strcmp(buf, "XCHGL\tAX,0(SP)") != 0)
+		return;
+	*spoff += 4;	
+}
+
+static int
+i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
+{
+	int i, isp, ipc, ibp, havebp, n, spoff, off[9];
+	ulong pc;
+	u32int v;
+	char buf[60], *p;
+
+//print("i386unwind %s\n", sym ? sym->name : nil);
 	isp = windindex("SP");
 	ipc = windindex("PC");
 	ibp = windindex("BP");
@@ -144,19 +167,85 @@ i386unwind(Map *map, Regs *regs, ulong *next)
 		return -1;
 	}
 
-	bp = next[ibp];
+	/*
+	 * Disassemble entry to figure out
+	 * where values have been saved.
+	 * Perhaps should disassemble exit path
+	 * instead -- a random walk on the code
+	 * should suffice to get us to a RET.
+	 */
+	if(sym){
+		pc = sym->loc.addr;
+//print("startpc %lux\n", pc);
+		memset(off, 0xff, sizeof off);
+		spoff = 0;
+		havebp = 0;
+		for(;;){
+			if((n = i386das(map, pc, 0, buf, sizeof buf)) < 0)
+				break;
+//print("%s\n", buf);
+			pc += n;
+			if(strncmp(buf, "PUSHL\t", 6) == 0){
+				spoff += 4;
+				if((i = windindex(buf+6)) >= 0)
+					off[i] = spoff;
+			}else if(strcmp(buf, "MOVL\tSP,BP") == 0 && spoff == 4 && off[ibp] == 4){
+				havebp = 1;
+			}else if(strncmp(buf, "SUBL\t$", 6) == 0){
+				if((p = strrchr(buf, ',')) && strcmp(p, ",SP") == 0){
+//print("spoff %s\n", buf+6);
+					spoff += strtol(buf+6, 0, 16);
+				}
+				break;
+			}else if(strncmp(buf, "XORL\t", 5) == 0 || strncmp(buf, "MOVL\t", 5) == 0){
+				/*
+				 * Hope these are rescheduled non-prologue instructions
+				 * like XORL AX, AX or MOVL $0x3, AX and thus ignorable.
+				 */
+			}else
+				break;
+		}
 
-	if(get4(map, bp, &v) < 0)
+		syscallhack(map, regs, &spoff);
+
+		if(havebp){
+//print("havebp\n");
+			rget(regs, "BP", &next[isp]);
+			get4(map, next[isp], &v);
+			next[ibp] = v;
+			next[isp] += 4;
+		}else{
+			rget(regs, "SP", &next[isp]);
+//print("old sp %lux + %d\n", next[isp], spoff);
+			next[isp] += spoff;
+		}
+		for(i=0; i<nelem(off); i++)
+			if(off[i] != -1){
+				get4(map, next[isp]-off[i], &v);
+				next[i] = v;
+			}
+
+		if(get4(map, next[isp], &v) < 0)
+			return -1;
+//print("new pc %lux => %lux\n", next[isp], v);
+		next[ipc] = v;
+		next[isp] += 4;
+		return 0;
+	}
+
+	/*
+	 * Rely on bp chaining
+	 */
+	if(rget(regs, "BP", &next[isp]) < 0
+	|| get4(map, next[isp], &v) < 0)
 		return -1;
 	next[ibp] = v;
-
-	next[isp] = bp+4;
-
-	if(get4(map, bp+4, &v) < 0)
+	next[isp] += 4;
+	if(get4(map, next[isp], &v) < 0)
 		return -1;
 	next[ipc] = v;
-
-	return 0;	
+	next[isp] += 4;
+	return 0;
 }
 
 //static	char	STARTSYM[] =	"_main";
@@ -1766,8 +1855,10 @@ pea(Instr *ip)
 	else {
 		if (ip->base < 0)
 			immediate(ip, ip->disp);
-		else
+		else {
+			bprint(ip, "%lux", ip->disp);
 			bprint(ip,"(%s%s)", ANAME(ip), reg[(uchar)ip->base]);
+		}
 	}
 	if (ip->index >= 0)
 		bprint(ip,"(%s%s*%d)", ANAME(ip), reg[(uchar)ip->index], 1<<ip->ss);

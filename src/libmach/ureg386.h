@@ -29,6 +29,7 @@ struct UregLinux386
 	ulong	ecx;
 	ulong	edx;
 	ulong	esi;
+	ulong	edi;
 	ulong	ebp;
 	ulong	eax;
 	ulong	xds;
@@ -42,4 +43,6 @@ struct UregLinux386
 	ulong	esp;
 	ulong	xss;
 };
+
+Ureg *_linux2ureg386(UregLinux386*);
 

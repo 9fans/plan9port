@@ -79,7 +79,7 @@ stacktrace(Map *map, Regs *regs, Tracer trace)
 		lr.oldregs = regs;
 		lr.val = cur;
 		lr.map = map;
-		if((i = unwindframe(map, &lr.r, next)) >= 0)
+		if((i = unwindframe(map, &lr.r, next, sp)) >= 0)
 			nextpc = next[ipc];
 		else
 			nextpc = ~(ulong)0;

@@ -53,6 +53,7 @@ elfsyminit(Fhdr *fp)
 		p = &elf->prog[i];
 		if(p->type != ElfProgDynamic)
 			continue;
+		elf->dynamic = p->vaddr;
 		memset(&sym, 0, sizeof sym);
 		sym.name = "_DYNAMIC";
 		sym.loc = locaddr(p->vaddr);
@@ -62,6 +63,23 @@ elfsyminit(Fhdr *fp)
 		addsym(fp, &sym);
 	}
 	return 0;
+}
+
+int
+elfsymlookup(Elf *elf, char *name, ulong *addr)
+{
+	int i;
+	ElfSym esym;
+
+	for(i=0; elfsym(elf, i, &esym) >= 0; i++){
+		if(esym.name == nil)
+			continue;
+		if(strcmp(esym.name, name) == 0){
+			*addr = esym.value;
+			return 0;
+		}
+	}
+	return -1;
 }
 
 int
