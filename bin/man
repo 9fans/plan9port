@@ -73,7 +73,7 @@ S=$PLAN9/man
 d=0
 while(~ $d 0) {
 	if(~ $#* 0) {
-		echo 'Usage: man [-ntp] [-s sec] [0-9] [0-9] ... name1 name2 ...' >[1=2]
+		echo 'Usage: man [-hnpPtw] [-s sec] [0-9] [0-9] ... [--] name1 name2 ...' >[1=2]
 		exit
 	}
 	if(test -d $S/man$1){

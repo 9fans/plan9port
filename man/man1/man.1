@@ -4,10 +4,13 @@ man, lookman, sig \- print or find pages of this manual
 .SH SYNOPSIS
 .B man
 [
-.I option ...
+.B -hnpPtw
 ]
 [
 .I section ...
+]
+[
+.B --
 ]
 .I title ...
 .PP
@@ -40,6 +43,15 @@ section at the top of the page will serve as a
 .PP
 The options are:
 .TP
+.B -h
+Print the pages to HTML and send to a web browser with
+.IR web (1).
+.TP
+.B -n
+(Default)
+Print the pages on the standard output using
+.IR nroff .
+.TP
 .B -p
 Run
 .IR proof (1)
@@ -56,10 +68,9 @@ Run
 and send its output
 to standard output.
 .TP
-.B -n
-(Default)
-Print the pages on the standard output using
-.IR nroff .
+.B -w
+Print the file names for the pages.
+.PD
 .PP
 .B Lookman
 prints the names of all manual sections that contain
