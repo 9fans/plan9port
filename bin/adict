@@ -7,11 +7,13 @@ fn event {
 	# $2 - c2 type of action
 	# $3 - q0 beginning of selection
 	# $4 - q1 end of selection
-	# $5 - flag
-	# $6 - nr number of runes in $7
-	# $7 - text
-	# $8 - chorded argument
-	# $9 - origin of chorded argument
+	# $5 - eq0 beginning of expanded selection
+	# $6 - eq1 end of expanded selection
+	# $7 - flag
+	# $8 - nr number of runes in $7
+	# $9 - text
+	# $10 - chorded argument
+	# $11 - origin of chorded argument
 
 	switch($1$2){
 	case E*	# write to body or tag
@@ -28,9 +30,9 @@ fn event {
 	case Ml ML	# button 3 in tag or body
 		{
 			if(~ $dict NONE)
-				dictwin /adict/$7/ $7
+				dictwin /adict/$9/ $9
 			if not
-				dictwin /adict/$dict/$7 $dict $7
+				dictwin /adict/$dict/$9 $dict $9
 		} &
 	}
 }
