@@ -218,7 +218,7 @@ elogapply(File *f)
 	Buflog b;
 	Rune *buf;
 	uint i, n, up, mod;
-	uint q0, q1, tq0, tq1;
+	uint tq0, tq1;
 	Buffer *log;
 	Text *t;
 
@@ -230,14 +230,14 @@ elogapply(File *f)
 	mod = FALSE;
 
 	/*
-	 * The edit commands have already updated the selection in t->q0, t->q1.
-	 * (At least, they are supposed to have updated them.
-	 * We still keep finding commands that don't do it right.)
-	 * The textinsert and textdelete calls below will update it again, so save the
-	 * current setting and restore it at the end.
+	 * The edit commands have already updated the selection in t->q0, t->q1,
+	 * but using coordinates relative to the unmodified buffer.  As we apply the log,
+	 * we have to update the coordinates to be relative to the modified buffer.
+	 * Textinsert and textdelete will do this for us; our only work is to apply the
+	 * convention that an insertion at t->q0==t->q1 is intended to select the 
+	 * inserted text.
 	 */
-	q0 = t->q0;
-	q1 = t->q1;
+
 	/*
 	 * We constrain the addresses in here (with textconstrain()) because
 	 * overlapping changes will generate bogus addresses.   We will warn
@@ -256,8 +256,8 @@ elogapply(File *f)
 
 		case Replace:
 			if(tracelog)
-				warning(nil, "elog replace %d %d\n",
-					b.q0, b.q0+b.nd);
+				warning(nil, "elog replace %d %d (%d %d)\n",
+					b.q0, b.q0+b.nd, t->q0, t->q1);
 			if(!mod){
 				mod = TRUE;
 				filemark(f);
@@ -272,12 +272,14 @@ elogapply(File *f)
 				bufread(log, up+i, buf, n);
 				textinsert(t, tq0+i, buf, n, TRUE);
 			}
+			if(t->q0 == b.q0 && t->q1 == b.q0)
+				t->q1 += b.nr;
 			break;
 
 		case Delete:
 			if(tracelog)
-				warning(nil, "elog delete %d %d\n",
-					b.q0, b.q0+b.nd);
+				warning(nil, "elog delete %d %d (%d %d)\n",
+					b.q0, b.q0+b.nd, t->q0, t->q1);
 			if(!mod){
 				mod = TRUE;
 				filemark(f);
@@ -288,8 +290,8 @@ elogapply(File *f)
 
 		case Insert:
 			if(tracelog)
-				warning(nil, "elog insert %d %d\n",
-					b.q0, b.q0+b.nr);
+				warning(nil, "elog insert %d %d (%d %d)\n",
+					b.q0, b.q0+b.nr, t->q0, t->q1);
 			if(!mod){
 				mod = TRUE;
 				filemark(f);
@@ -303,6 +305,8 @@ elogapply(File *f)
 				bufread(log, up+i, buf, n);
 				textinsert(t, tq0+i, buf, n, TRUE);
 			}
+			if(t->q0 == b.q0 && t->q1 == b.q0)
+				t->q1 += b.nr;
 			break;
 
 /*		case Filename:
@@ -323,28 +327,16 @@ elogapply(File *f)
 		bufdelete(log, up, log->nc);
 	}
 	fbuffree(buf);
-	if(warned){
-		/*
-		 * Changes were out of order, so the q0 and q1
-		 * computed while generating those changes are not
-		 * to be trusted.
-		 */
-		q1 = min(q1, f->b.nc);
-		q0 = min(q0, q1);
-	}
 	elogterm(f);
 
 	/*
-	 * The q0 and q1 are supposed to be fine (see comment
-	 * above, where we saved them), but bad addresses
-	 * will cause bufload to crash, so double check.
+	 * Bad addresses will cause bufload to crash, so double check.
+	 * If changes were out of order, we expect problems so don't complain further.
 	 */
-	if(q0 > f->b.nc || q1 > f->b.nc || q0 > q1){
-		warning(nil, "elogapply: can't happen %d %d %d\n", q0, q1, f->b.nc);
-		q1 = min(q1, f->b.nc);
-		q0 = min(q0, q1);
+	if(t->q0 > f->b.nc || t->q1 > f->b.nc || t->q0 > t->q1){
+		if(!warned)
+			warning(nil, "elogapply: can't happen %d %d %d\n", t->q0, t->q1, f->b.nc);
+		t->q1 = min(t->q1, f->b.nc);
+		t->q0 = min(t->q0, t->q1);
 	}
-
-	t->q0 = q0;
-	t->q1 = q1;
 }
