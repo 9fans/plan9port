@@ -94,7 +94,6 @@ xparse(char *name, char **path)
 			sysfatal("mount: %r");
 	}else{
 		*path = name;
-		fprint(2, "dial %s...", addr);
 		if((fd = dial(addr, nil, nil, nil)) < 0)
 			sysfatal("dial: %r");
 		if((fs = fsamount(fd, "")) == nil)
