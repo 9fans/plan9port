@@ -158,7 +158,7 @@ extstart(void)
 		}
 	}
 
-	fd = open(exname, OREAD|O_NONBLOCK);
+	fd = open(exname, OREAD|ONONBLOCK);
 	if(fd == -1){
 		removeextern();
 		return;

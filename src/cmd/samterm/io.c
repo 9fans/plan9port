@@ -33,20 +33,27 @@ void
 initio(void)
 {
 	threadsetname("main");
+	if(protodebug) print("mouse\n");
 	mousectl = initmouse(nil, display->image);
 	if(mousectl == nil){
 		fprint(2, "samterm: mouse init failed: %r\n");
 		threadexitsall("mouse");
 	}
 	mousep = &mousectl->m;
+	if(protodebug) print("kbd\n");
 	keyboardctl = initkeyboard(nil);
 	if(keyboardctl == nil){
 		fprint(2, "samterm: keyboard init failed: %r\n");
 		threadexitsall("kbd");
 	}
+	if(protodebug) print("hoststart\n");
 	hoststart();
-	if(plumbstart() < 0)
+	if(protodebug) print("plumbstart\n");
+	if(plumbstart() < 0){
+		if(protodebug) print("extstart\n");
 		extstart();
+	}
+	if(protodebug) print("initio done\n");
 }
 
 void

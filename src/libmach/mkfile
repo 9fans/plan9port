@@ -67,7 +67,7 @@ elfnm: elfnm.o $LIBDIR/$LIB
 	$LD -o $target $prereq -l9
 
 
-SunOS.$O: nosys.c
+#SunOS.$O: nosys.c
 Darwin.$O: nosys.c
 OpenBSD.$O: nosys.c
 NetBSD.$O: nosys.c

@@ -44,15 +44,22 @@ threadmain(int argc, char *argv[])
 	close(0);
 	close(1);
 	open("/dev/null", OREAD);
-	dup(2, 1);
+	if(open("/dev/tty", OWRITE) < 0)
+		open("/dev/null", OWRITE);
+dup(2, 1);
 
+	if(protodebug) print("getscreen\n");
 	getscreen(argc, argv);
+	if(protodebug) print("iconinit\n");
 	iconinit();
+	if(protodebug) print("initio\n");
 	initio();
+	if(protodebug) print("scratch\n");
 	scratch = alloc(100*RUNESIZE);
 	nscralloc = 100;
 	r = screen->r;
 	r.max.y = r.min.y+Dy(r)/5;
+	if(protodebug) print("flstart\n");
 	flstart(screen->clipr);
 	rinit(&cmd.rasp);
 	flnew(&cmd.l[0], gettext, 1, &cmd);
@@ -64,6 +71,7 @@ threadmain(int argc, char *argv[])
 	startnewfile(Tstartcmdfile, &cmd);
 
 	got = 0;
+	if(protodebug) print("loop\n");
 	for(;;got = waitforio()){
 		if(hasunlocked && RESIZED())
 			resize();
