@@ -49,6 +49,7 @@ muxrpc(Mux *mux, void *tx)
 	/* actually send the packet */
 	if(tag < 0 || mux->settag(mux, tx, tag) < 0 || _muxsend(mux, tx) < 0){
 		qlock(&mux->lk);
+		dequeue(mux, r);
 		puttag(mux, r);
 		qunlock(&mux->lk);
 		return nil;
@@ -85,14 +86,13 @@ muxrpc(Mux *mux, void *tx)
 				continue;
 			}
 			r2 = mux->wait[tag];
-			if(r2 == nil){
+			if(r2 == nil || r2->prev == nil){
 				fprint(2, "%s: bad rpc tag %ux (no one waiting on that tag)\n", argv0, tag);
 				/* must leak packet! don't know how to free it! */
 				continue;
 			}	
 			r2->p = p;
 			dequeue(mux, r2);
-			puttag(mux, r2);
 			rwakeup(&r2->r);
 		}
 		mux->muxer = 0;
@@ -103,6 +103,7 @@ muxrpc(Mux *mux, void *tx)
 	}
 //print("finished %p\n", r);
 	p = r->p;
+	puttag(mux, r);
 	qunlock(&mux->lk);
 	return p;
 }
