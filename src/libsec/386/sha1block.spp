@@ -75,9 +75,10 @@ _sha1block:
  * stack offsets
  * void sha1block(uchar *DATA, int LEN, ulong *STATE)
  */
-#define	DATA	8
-#define	LEN	12
-#define	STATE	16
+#define STACKSIZE (48+80*4)
+#define	DATA	(STACKSIZE+8)
+#define	LEN	(STACKSIZE+12)
+#define	STATE	(STACKSIZE+16)
 
 /*
  * stack offsets for locals
@@ -89,20 +90,22 @@ _sha1block:
  * ulong a = eax, b = ebx, c = ecx, d = edx, e = esi
  * ulong tmp = edi
  */
-#define WARRAY	(-4-(80*4))
-#define TMP1	(-8-(80*4))
-#define TMP2	(-12-(80*4))
-#define W15	(-16-(80*4))
-#define W40	(-20-(80*4))
-#define W60	(-24-(80*4))
-#define W80	(-28-(80*4))
-#define EDATA	(-32-(80*4))
-#define OLDEBX	(-36-(80*4))
-#define OLDESI	(-40-(80*4))
-#define OLDEDI	(-44-(80*4))
+#define WARRAY	(STACKSIZE-4-(80*4))
+#define TMP1	(STACKSIZE-8-(80*4))
+#define TMP2	(STACKSIZE-12-(80*4))
+#define W15	(STACKSIZE-16-(80*4))
+#define W40	(STACKSIZE-20-(80*4))
+#define W60	(STACKSIZE-24-(80*4))
+#define W80	(STACKSIZE-28-(80*4))
+#define EDATA	(STACKSIZE-32-(80*4))
+#define OLDEBX	(STACKSIZE-36-(80*4))
+#define OLDESI	(STACKSIZE-40-(80*4))
+#define OLDEDI	(STACKSIZE-44-(80*4))
 
 	/* Prelude */
 	pushl %ebp
+	subl $(STACKSIZE), %esp
+
 	mov %ebx, OLDEBX(%esp)
 	mov %esi, OLDESI(%esp)
 	mov %edi, OLDEDI(%esp)
@@ -209,6 +212,6 @@ loop4:
 	mov OLDEBX(%esp), %ebx
 	mov OLDESI(%esp), %esi
 	mov OLDEDI(%esp), %edi
-	movl %esp, %ebp
-	leave
+	addl $(STACKSIZE), %esp
+	popl %ebp
 	ret
