@@ -1,0 +1,103 @@
+<$PLAN9/src/mkhdr
+NPROC=3
+
+OBJ=main.$O font.$O \
+	kmap.$O kbits.$O kuten208.$O \
+	bmap.$O bbits.$O big5.$O \
+	gmap.$O gbits.$O qbits.$O gb.$O
+
+$O.out:	$OBJ
+	$LD $prereq -lbio -lg
+
+%.$O:	%.c
+	$CC -w $stem.c
+
+$O:	hdr.h
+
+kuten208.$O:	../kuten208.c
+	$CC -I.. -w ../kuten208.c
+big5.$O:	../big5.c
+	$CC -I.. -w ../big5.c
+gb.$O:	../gb.c
+	$CC -I.. -w ../gb.c
+
+kuten208.$O kmap.$O:	../kuten208.h
+big5.$O bmap.$O:	../big5.h
+gb.$O gmap.$O:		../gb.h
+
+clean:V:
+	rm -f [$OS].out *.[$OS] y.tab.? rc.*
+
+poot:V:	merge
+	merge /lib/font/bit/gb/*.7000.24 > /dev/null
+
+merge:	merge.c
+	$CC -w merge.c && vl -o merge merge.$O && rm merge.$O
+
+fonts:V:	v.out rc.jis rc.big5
+	jis.rc
+	big5.rc
+
+rc.jis:VQD:
+	awk 'BEGIN {
+		fontsize = 512		# set this to chars/subfont
+		dest = "/lib/font/bit/jis"
+		print "#!/bin/rc"
+		printf "v.out -s 0x3000 0x303f > %s/jis3000.16\n", dest
+		printf "v.out -s 0x30a1 0x30fe > %s/katakana.16\n", dest
+		printf "v.out -s 0x3041 0x309e > %s/hiragana.16\n", dest
+		printf "v.out 0x3000 0x303f > %s/jis3000.24\n", dest
+		printf "v.out 0x30a1 0x30fe > %s/katakana.24\n", dest
+		printf "v.out 0x3041 0x309e > %s/hiragana.24\n", dest
+		for(i = 19968; i < 40865; i += fontsize)
+			printf "v.out -s 0x%x 0x%x > %s/jis%x.16\n", i, i+fontsize-1, dest, i
+		for(i = 19968; i < 40865; i += fontsize)
+			printf "v.out 0x%x 0x%x > %s/jis%x.24\n", i, i+fontsize-1, dest, i
+		exit
+	}' > $target
+	chmod 775 $target
+
+rc.big5:VQD:
+	awk 'BEGIN {
+		fontsize = 512		# set this to chars/subfont
+		dest = "/lib/font/bit/big5"
+		print "#!/bin/rc"
+		for(i = 19968; i < 40869; i += fontsize)
+			printf "v.out -5 -s 0x%x 0x%x > %s/%x.16\n", i, i+fontsize-1, dest, i
+		exit
+	}' > $target
+	chmod 775 $target
+
+rc.gb:VQD:
+	fn g{
+	x=$1
+	y=$2
+	z=$3
+	awk 'BEGIN {
+		fontsize = 512		# set this to chars/subfont
+		dest = "/lib/font/bit/gb/'$"x'."
+		opt = "'$"y'"
+		sz = "'$"z'"
+		print "#!/bin/rc"
+		printf "v.out %s 0x3000 0x303f > %s3000.%s\n", opt, dest, sz
+		printf "v.out %s 0x30a1 0x30fe > %skatakana.%s\n", opt, dest, sz
+		printf "v.out %s 0x3041 0x309e > %shiragana.%s\n", opt, dest, sz
+		printf "v.out %s 0x3100 0x312f > %sbopomofo.%s\n", opt, dest, sz
+		printf "v.out %s 0x3200 0x32ff > %s3200.%s\n", opt, dest, sz
+		for(i = 19968; i < 40869; i += fontsize)
+			printf "v.out %s 0x%x 0x%x > %s%x.%s\n", opt, i, i+fontsize-1, dest, i, sz
+		exit
+	}'
+	}
+	{
+		g TradSong '-q -f ../han/cfan24.ccf' 24
+		g FangSong '-q -f ../han/cfang24.ccf' 24
+		g Hei '-q -f ../han/chei24.ccf' 24
+		g Kai '-q -f ../han/ckai24.ccf' 24
+		g Song '-q -f ../han/csong24.ccf' 24
+		g Song '-g -s -f ../han/cclib16st.bdf' 16
+		g FangSong '-g -s -f ../han/cclib16fs.bdf' 16
+	} > $target
+	chmod 775 $target
+
+<$PLAN9/src/mkmany

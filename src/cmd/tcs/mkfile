@@ -1,0 +1,33 @@
+<$PLAN9/src/mkhdr
+
+TARG=tcs
+OFILES=tcs.$O\
+	conv_jis.$O\
+	conv_big5.$O\
+	conv_gb.$O\
+	conv_ksc.$O\
+	utf.$O\
+	kuten208.$O\
+	gb.$O\
+	ksc.$O\
+	big5.$O
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkone
+CFLAGS= -DPLAN9 $CFLAGS
+
+tcs.$O utf.$O:		hdr.h
+tcs.$O:			jis.h
+tcs.$O kuten208.$O:	kuten208.h
+tcs.$O big5.$O:		big5.h
+tcs.$O gb.$O:		gb.h
+tcs.$O:			cyrillic.h
+tcs.$O:			conv.h
+conv%.$O:		conv.h
+conv_ksc.$O:		ksc.h
+
+clean:V:
+	rm -f *.[$OS] [$OS].out y.tab.? y.debug y.output $TARG
+
+nuke:V:
+	rm -f *.[$OS] [$OS].out y.tab.? y.debug y.output $TARG

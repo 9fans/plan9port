@@ -1,0 +1,50 @@
+.tr -\(hy
+.TL
+Hello World
+.br
+or
+.br
+Καλημέρα κόσμε
+.br
+or
+.br
+こんにちは 世界
+.AU
+Rob Pike
+Ken Thompson
+.AI
+.MH
+.AB
+Plan 9 from Bell Labs has recently been converted from ASCII
+to an ASCII-compatible variant of Unicode, a 16-bit character set.
+In this paper we explain the reasons for the change,
+describe the character set and representation we chose,
+and present the programming models and software changes
+that support the new text format.
+Although we stopped short of full internationalization\(emfor
+example, system error messages are in Unixese, not Japanese\(emwe
+believe Plan 9 is the first system to treat the representation
+of all major languages on a uniform, equal footing throughout all its
+software.
+.AE
+.SH
+Introduction
+.PP
+The world is multilingual but most computer systems
+are based on English and ASCII or worse.
+The pending release of Plan 9 [Pike90], a new distributed operating
+system from Bell Laboratories, seemed a good occasion
+to correct this chauvinism.
+It is easier to make such deep changes when building new systems than
+by retrofitting old ones.
+.PP
+The ANSI C standard [ANSIC] contains some guidance on the matter of
+`wide' and `multi-byte' characters but falls far short of
+solving the myriad associated problems.
+We could find no literature on how to convert a
+.I system
+to larger character sets, although some individual
+.I programs
+have been converted.
+This paper reports what we discovered as we
+explored the problem of representing multilingual
