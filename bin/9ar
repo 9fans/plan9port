@@ -6,4 +6,3 @@ Darwin)
 	ranlib -c $2
 	;;
 esac
-

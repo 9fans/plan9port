@@ -1,0 +1,74 @@
+#!/usr/local/plan9/bin/rc
+# doctype:  synthesize proper command line for troff
+
+troff=troff
+eqn=eqn
+prefer=prefer
+opt=''
+dev=''
+while(~ $1 -*){
+	switch($1){
+	case -n;
+		troff=nroff
+		eqn=neqn
+		prefer='prefer -n'
+	case -T
+		dev=$1
+	case -*
+		opt=$opt' $1'
+	}
+	shift
+}
+ifs='
+'{
+	files=`{echo $*}
+}
+9grep -h '\$LIST|\|reference|^\.(EQ|TS|\[|PS|IS|GS|G1|GD|PP|BM|LP|BP|PI|cstart|begin|TH...)|^\.P$' $* |
+sort -u |
+awk '
+BEGIN	{ files = "'$files'" }
+/\$LIST/ { e++ }
+/^\.PP/	{ ms++ }
+/^\.LP/	{ ms++ }
+/^\.EQ/	{ eqn++ }
+/^\.TS/	{ tbl++ }
+/^\.PS/	{ pic++ }
+/^\.IS/	{ ideal++ }
+/^\.GS/ { tped++ }
+/^\.G1/ { grap++; pic++ }
+/^\.GD/ { dag++; pic++ }
+/^\.\[/	{ refer++ }
+/\|reference/ { prefer++ }
+/^\.cstart/ { chem++; pic++ }
+/^\.begin +dformat/ { dformat++; pic++ }
+/^\.TH.../ { man++ }
+/^\.BM/ { lbits++ }
+/^\.P$/	{ mm++ }
+/^\.BP/	{ pictures++ }
+/^\.PI/	{ pictures++ }
+END {
+	x = ""
+	if (refer) {
+		if (e)	x = "refer -e " files " | "
+		else	x =  "refer " files "| "
+		files = ""
+	}
+	else if (prefer) { x = "cat " files "| '$prefer'| "; files = "" }
+	if (tped)  { x = x "tped " files " | "; files = "" }
+	if (dag)  { x = x "dag " files " | "; files = "" }
+	if (ideal) { x = x "ideal -q " files " | "; files = "" }
+	if (grap)  { x = x "grap " files " | "; files = "" }
+	if (chem)  { x = x "chem " files " | "; files = "" }
+	if (dformat)  { x = x "dformat " files " | "; files = "" }
+	if (pic)   { x = x "pic " files " | "; files = "" }
+	if (tbl)   { x = x "tbl " files " | "; files = "" }
+	if (eqn)   { x = x "'$eqn' '$dev' " files " | "; files = "" }
+	x = x "'$troff' "
+	if (man) x = x "-man"
+	else if (ms) x = x "-ms"
+	else if (mm) x = x "-mm"
+	if (lbits) x = x "-mbits"
+	if (pictures) x = x " -mpictures"
+	x = x " '$opt' '$dev' " files
+	print x
+}'

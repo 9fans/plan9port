@@ -1,0 +1,30 @@
+#!/usr/local/plan9/bin/rc
+# Usage: lookman key ...
+#	prints out the names of all manual pages containing all the given keywords
+index=/usr/local/plan9/man/lookman.index
+t1=/tmp/look1.$pid
+t2=/tmp/look2.$pid
+fn sigexit sigint sighup sigterm{
+	rm -f $t1 $t2
+	exit 1
+}
+*=`{echo $*|tr A-Z a-z|tr -dc 'a-z0-9_ \012'}	# fold case, delete funny chars
+if(~ $#* 0){
+	echo Usage: lookman key ... >/fd/2
+	exit 1
+}
+look $1 $index|sed 's/.*	//'|sort -u >$t1
+shift
+for(i in $*){
+	look $i $index|sed 's/.*	//'|sort -u|
+		awk 'BEGIN {
+			while (getline < "'$t1'" > 0) table[$0] = 1;
+			}
+			{ if (table[$0]) print }
+			' > $t2
+	mv $t2 $t1
+}
+sort $t1 | sed 's;/usr/local/plan9/man/man[0-9]*/;;
+	s;(.*)\.(.*);man \2 \1 # \1(\2);'
+rm -f $t1 $t2
+exit 0

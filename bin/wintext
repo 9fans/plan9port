@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case "$winid" in
+[0-9]*)
+	9p read acme/$winid/body
+	exit 0
+esac
+
+case "$text9term" in
+unix!*)
+	dial -e $text9term </dev/null
+	exit 0
+esac
+
+echo 'no running window found' 2>&1
+exit 1
