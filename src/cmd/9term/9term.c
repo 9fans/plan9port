@@ -604,7 +604,6 @@ consready(void)
 	if(holdon)
 		return 0;
 
-fprint(2, "consready? %d %d\n", rawon, t.nraw);
 	if(rawon) 
 		return t.nraw != 0;
 
