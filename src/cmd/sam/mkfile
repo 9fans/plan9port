@@ -1,5 +1,5 @@
 PLAN9=../../..
-include $(PLAN9)/src/Makehdr
+<$PLAN9/src/mkhdr
 
 TARG=sam
 OFILES=sam.$O\
@@ -28,7 +28,6 @@ HFILES=sam.h\
 	errors.h\
 	mesg.h\
 
-LDFLAGS+=-l9 -lfmt -lutf
+LDFLAGS=$LDFLAGS -l9 -lfmt -lutf
 
-include $(PLAN9)/src/Makeone
-
+<$PLAN9/src/mkone
