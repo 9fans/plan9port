@@ -24,7 +24,7 @@ enum
 static char EBadEntry[] = "bad VtEntry";
 static char ENotDir[] = "walk in non-directory";
 static char ETooBig[] = "file too big";
-static char EBadAddr[] = "bad address";
+/* static char EBadAddr[] = "bad address"; */
 static char ELabelMismatch[] = "label mismatch";
 
 static int	sizetodepth(uvlong s, int psize, int dsize);

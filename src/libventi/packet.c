@@ -75,7 +75,9 @@ static char EPacketSize[] = "bad packet size";
 static char EPacketOffset[] = "bad packet offset";
 static char EBadSize[] = "bad size";
 
+#if 0
 static void checkpacket(Packet*);
+#endif
 
 /*
  * the free list is primarily for speed, but it is 
@@ -1006,6 +1008,7 @@ memtail(Mem *m, uchar *wp, int n)
 	return 0;
 }
 
+#if 0
 static void
 checkpacket(Packet *p)
 {
@@ -1026,4 +1029,4 @@ checkpacket(Packet *p)
 	if(p->first)
 		assert(ff==p->last);
 }
-
+#endif
