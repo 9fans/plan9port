@@ -474,23 +474,35 @@ flushtyping(int clearesc)
 	typeend = -1;
 }
 
-#define	SCROLLKEY	Kdown
 #define	BACKSCROLLKEY	Kup
+#define	ENDKEY	Kend
 #define	ESC		0x1B
 #define	HOMEKEY	Khome
-#define	ENDKEY	Kend
-#define	PAGEUP	Kpgup
+#define	LEFTARROW	Kleft
+#define	LINEEND	0x05
+#define	LINESTART	0x01
 #define	PAGEDOWN	Kpgdown
-#define LEFTARROW	Kleft
-#define RIGHTARROW	Kright
+#define	PAGEUP	Kpgup
+#define	RIGHTARROW	Kright
+#define	SCROLLKEY	Kdown
 
 int
 nontypingkey(int c)
 {
-	return c==SCROLLKEY || c==BACKSCROLLKEY
-		|| c==LEFTARROW || c==RIGHTARROW
-		|| c==HOMEKEY || c==ENDKEY
-		|| c==PAGEUP || c==PAGEDOWN;
+	switch(c){
+	case BACKSCROLLKEY:
+	case ENDKEY:
+	case HOMEKEY:
+	case LEFTARROW:
+	case LINEEND:
+	case LINESTART:
+	case PAGEDOWN:
+	case PAGEUP:
+	case RIGHTARROW:
+	case SCROLLKEY:
+		return 1;
+	}
+	return 0;
 }
 
 void
@@ -590,6 +602,18 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 	}else if(c == ENDKEY){
 		flushtyping(0);
 		center(l, t->rasp.nrunes);
+	}else if(c == LINESTART || c == LINEEND){
+		flushtyping(1);
+		if(c == LINESTART)
+			while(a > 0 && raspc(&t->rasp, a-1)!='\n')
+				a--;
+		else
+			while(a < t->rasp.nrunes && raspc(&t->rasp, a)!='\n')
+				a++;
+		l->p0 = l->p1 = a;
+		for(l=t->l; l<&t->l[NL]; l++)
+			if(l->textfn)
+				flsetselect(l, l->p0, l->p1);
 	}else if(backspacing && !hostlock){
 		/* backspacing immediately after outcmd(): sorry */
 		if(l->f.p0>0 && a>0){
