@@ -17,6 +17,10 @@ OFILES=\
 	cistrncmp.$O\
 	cistrstr.$O\
 	cleanname.$O\
+	convD2M.$O\
+	convM2D.$O\
+	convM2S.$O\
+	convS2M.$O\
 	create.$O\
 	ctime.$O\
 	date.$O\
@@ -31,6 +35,7 @@ OFILES=\
 	encodefmt.$O\
 	errstr.$O\
 	exec.$O\
+	fcallfmt.$O\
 	ffork-$SYSNAME.$O\
 	getcallerpc-$OBJTYPE.$O\
 	getenv.$O\

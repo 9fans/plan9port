@@ -12,6 +12,8 @@ threadexits(char *exitstr)
 
 	p = _threadgetproc();
 	t = p->thread;
+	if(t == p->idle)
+		p->idle = nil;
 	t->moribund = 1;
 	_threaddebug(DBGSCHED, "threadexits %s", exitstr);
 	if(exitstr==nil)

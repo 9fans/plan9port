@@ -2,7 +2,7 @@ PLAN9=../..
 <$PLAN9/src/mkhdr
 
 TARG=`ls *.c | sed 's/\.c//'`
-LDFLAGS=$LDFLAGS -lsec -lregexp9 -l9 -lbio -lfmt -lutf
+LDFLAGS=$LDFLAGS -lthread -lsec -lfs -lmux -lregexp9 -l9 -lbio -lfmt -lutf
 
 <$PLAN9/src/mkmany
 

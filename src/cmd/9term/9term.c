@@ -318,7 +318,8 @@ aselect(uint *q0, uint *q1, Image *color)
 	}
 
 	/* clicked inside previous selection */
-	if(oldq0 <= newq0 && newq0 < oldq1){
+	/* the "<=" in newq0 <= oldq1 allows us to click the right edge */
+	if(oldq0 <= newq0 && newq0 <= oldq1){
 		*q0 = oldq0;
 		*q1 = oldq1;
 		return 0;

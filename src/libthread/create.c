@@ -2,6 +2,8 @@
 
 Pqueue _threadpq;
 
+int _threadmultiproc;
+
 static int nextID(void);
 
 /*
@@ -81,6 +83,14 @@ procrfork(void (*f)(void *), void *arg, uint stacksize, int rforkflag)
 int
 proccreate(void (*f)(void*), void *arg, uint stacksize)
 {
+	Proc *p;
+
+	p = _threadgetproc();
+	if(p->idle){
+		werrstr("cannot create procs once there is an idle thread");
+		return -1;
+	}
+	_threadmultiproc = 1;
 	return procrfork(f, arg, stacksize, 0);
 }
 
@@ -108,6 +118,20 @@ int
 threadcreate(void (*f)(void *arg), void *arg, uint stacksize)
 {
 	return newthread(_threadgetproc(), f, arg, stacksize, nil, threadgetgrp());
+}
+
+int
+threadcreateidle(void (*f)(void *arg), void *arg, uint stacksize)
+{
+	int id;
+
+	if(_threadmultiproc){
+		werrstr("cannot have idle thread in multi-proc program");
+		return -1;
+	}
+	id = newthread(_threadgetproc(), f, arg, stacksize, nil, threadgetgrp());
+	_threadidle();
+	return id;
 }
 
 /*

@@ -115,6 +115,7 @@ struct Proc
 	int		pid;			/* process id */
 	int		splhi;		/* delay notes */
 	Thread	*thread;		/* running thread */
+	Thread	*idle;			/* idle thread */
 
 	int		needexec;
 	Execargs	exec;		/* exec argument */
@@ -185,6 +186,7 @@ void		_threadinitstack(Thread*, void(*)(void*), void*);
 void*	_threadmalloc(long, int);
 void		_threadnote(void*, char*);
 void		_threadready(Thread*);
+void		_threadidle(void);
 ulong	_threadrendezvous(ulong, ulong);
 void		_threadsignal(void);
 void		_threadsysfatal(char*, va_list);
@@ -192,6 +194,7 @@ long		_xdec(long*);
 void		_xinc(long*);
 void		_threadremove(Proc*, Thread*);
 
+extern int	_threadmultiproc;
 extern int			_threaddebuglevel;
 extern char*		_threadexitsallstatus;
 extern Pqueue		_threadpq;

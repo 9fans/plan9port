@@ -93,12 +93,21 @@ runthread(Proc *p)
 	Thread *t;
 	Tqueue *q;
 
-	if(p->nthreads==0)
+	if(p->nthreads==0 || (p->nthreads==1 && p->idle))
 		return nil;
 	q = &p->ready;
 	lock(&p->readylock);
 	if(q->head == nil){
 		q->asleep = 1;
+		if(p->idle){
+			if(p->idle->state != Ready){
+				fprint(2, "everyone is asleep\n");
+				exits("everyone is asleep");
+			}
+			unlock(&p->readylock);
+			return p->idle;
+		}
+
 		_threaddebug(DBGSCHED, "sleeping for more work (%d threads)", p->nthreads);
 		unlock(&p->readylock);
 		while(rendezvous((ulong)q, 0) == ~0){
@@ -167,6 +176,9 @@ _threadready(Thread *t)
 {
 	Tqueue *q;
 
+	if(t == t->proc->idle)
+		return;
+
 	assert(t->state == Ready);
 	_threaddebug(DBGSCHED, "readying %d.%d", t->proc->pid, t->id);
 	q = &t->proc->ready;
@@ -188,6 +200,25 @@ _threadready(Thread *t)
 		}
 	}else
 		unlock(&t->proc->readylock);
+}
+
+void
+_threadidle(void)
+{
+	Tqueue *q;
+	Thread *t;
+	Proc *p;
+
+	p = _threadgetproc();
+	q = &p->ready;
+	lock(&p->readylock);
+	assert(q->head);
+	t = q->head;
+	q->head = t->next;
+	if(q->tail == t)
+		q->tail = nil;
+	p->idle = t;
+	unlock(&p->readylock);
 }
 
 void

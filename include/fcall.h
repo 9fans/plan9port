@@ -1,7 +1,7 @@
 #ifndef _FCALL_H_
 #define _FCALL_H_ 1
-#if defined(__cplusplus)
-extern "C" { 
+#ifdef __cplusplus
+extern "C" {
 #endif
 /*
 #pragma	src	"/sys/src/libc/9sys"
@@ -9,7 +9,6 @@ extern "C" {
 */
 
 #define	VERSION9P	"9P2000"
-
 #define	MAXWELEM	16
 
 typedef
@@ -123,7 +122,8 @@ int	read9pmsg(int, void*, uint);
 #pragma	varargck	type	"M"	ulong
 #pragma	varargck	type	"D"	Dir*
 */
-#if defined(__cplusplus)
+
+#ifdef __cplusplus
 }
 #endif
 #endif

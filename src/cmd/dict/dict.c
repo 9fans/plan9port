@@ -230,7 +230,6 @@ execcmd(int cmd)
 	if(debug && doall && cmd == 'a')
 		Bprint(bout, "%d entries, cur=%d\n", dot->n, cur+1);
 	for(;;){
-print("execcmd dot->n %d\n", dot->n);
 		if(cur >= dot->n)
 			break;
 		if(doall) {

@@ -88,6 +88,7 @@ int		send(Channel *c, void *v);
 int		sendp(Channel *c, void *v);
 int		sendul(Channel *c, unsigned long v);
 int		threadcreate(void (*f)(void *arg), void *arg, unsigned int stacksize);
+int		threadcreateidle(void (*f)(void*), void*, unsigned int);
 void**		threaddata(void);
 void		threadexits(char *);
 void		threadexitsall(char *);
