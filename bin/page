@@ -81,7 +81,7 @@ case $# in
 		tmp=$tmp.png
 		;;
 	*)
-		echo 1>&2 unrecognized file format
+		echo 1>&2 page: unrecognized file type on standard input
 		rm -f $tmp
 		exit 1
 	esac

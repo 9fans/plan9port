@@ -1,0 +1,219 @@
+.TH CVS 1
+.SH NAME
+cvs \- introduction using plan9port CVS repository
+.SH SYNOPSIS
+.B cvs 
+.B -d
+.B :pserver:anoncvs@cvs.pdos.lcs.mit.edu:/cvs login
+.PP
+.B cvs
+.B -d
+.B :pserver:anoncvs@cvs.pdos.lcs.mit.edu:/cvs checkout plan9
+.PP
+.B cvs
+.B update
+[
+.B -dP
+]
+[
+.I path ...
+]
+.PP
+.B cvs
+.B status
+[
+.I path ...
+]
+.PP
+.B cvs
+.B diff
+[
+.B -D
+.I date
+]
+[
+.B -r
+.I revision
+]
+[
+.B -u
+]
+[
+.I path ...
+]
+.SH DESCRIPTION
+The master source tree for Plan 9 from User Space is maintained
+using the source control system CVS
+as a poor substitute for Plan 9's
+\fIreplica\fR(8) and dump file system.
+.PP
+The first argument to
+.I cvs
+is a command, which determines the form of the rest of the command line.
+.PP
+The
+.B login
+command authenticates to the remote server and records your password in
+.BR $HOME/.cvspass .
+Use an empty password: when prompted, type a newline.
+.PP
+The
+.B checkout
+command downloads a copy of the tree into the directory
+.BR plan9 ,
+which it will create.
+The argument
+.B plan9
+is both the name of the created directory and the name used to
+tell the server which tree you want.
+If you want to use a different name locally, rename the directory
+after running the command.
+.PP
+From directories within the
+.B plan9
+tree, the awkward
+.B -d
+is no longer necessary.
+.PP
+.I Cvs
+.I update
+incorporates recent changes from the CVS tree
+into the local copy.
+If the changes cannot be merged because of locally-made changes
+that are in the way,
+.I cvs
+will leave a note in the file showing the differences between the local
+and remote file.
+.PP
+The
+.B -d
+flag to 
+.I cvs
+.I update
+causes
+it to update subdirectories as well.
+The
+.B -P
+flag causes
+.I cvs
+.I update
+to remove directories that have been emptied.
+.PP
+.I Cvs
+.I status
+displays the version number (also called a revision number)
+for the local copy of the named files,
+as well as the number of the most recent version on the server.
+Version numbers are of the form
+.RI 1. n \fR,
+where
+.I n
+is a sequence number starting at 1.
+.PP
+.I Cvs
+.I diff
+runs Unix's
+.IR diff (1)
+to compare files in the local tree with the corresponding files in
+the CVS tree.
+By default it compares against the version that was most recently
+incorporated into the local tree.
+The
+.B -r
+flag specifies an alternate version to compare against.
+The special revision
+.B HEAD
+refers to the most recent version on the server.
+The
+.B -D
+flag instructs
+.I cvs
+.I diff
+to use the version as of the given date.
+Almost any imaginable date format is acceptable:
+.BR 20050110 ,
+.BR 1/10/2005 ,
+.B 'Jan
+.BR 10' ,
+.BR yesterday ,
+.B 'last
+.BR week ',
+.B 'two
+.B days
+.BR ago' ,
+.B 'a
+.B fortnight
+.BR ago ',
+and so on.
+If two
+.B -r
+or
+.B -D
+options are given,
+those two versions are compared, and the local copy is ignored.
+.PP
+If you download a tar file from the web
+instead of checking out the tree with CVS,
+you can still use the
+.I update
+and
+.I diff
+commands to stay up-to-date and to see what has changed.
+You will need to run the
+.I cvs
+.I login
+command first to create your
+.B .cvspass
+file.
+.SH EXAMPLES
+Incorporate any changes made to the CVS tree since
+the last check out or update:
+.IP
+.EX
+cd $PLAN9
+cvs up -dP
+.EE
+.PP
+Compare
+.IR libdraw (3)
+against its source from January 1, 2005:
+.IP
+.EX
+cd $PLAN9/src/libdraw
+cvs diff -D20050101
+.EE
+.PP
+Check the entire tree for changes made locally:
+.IP
+.EX
+cd $PLAN9
+cvs diff
+.EE
+.PP
+Check the entire tree for changes between the local version and
+the most recent in the CVS tree.
+This does not indicate which changes are local ones
+and which are changes to the CVS tree that have not yet been
+incorporated into the local tree.
+.IP
+.EX
+cd $PLAN9
+cvs diff -r HEAD
+.EE
+.SH FILES
+.TP
+.B CVS
+directory containing CVS metadata for parent
+.TP
+.B .cvsignore
+list of files and wildcards to exclude from CVS operations in this directory
+.SH SEE ALSO
+Unix's
+\fIcvs\fR(1).
+.br
+.B
+.HR http://www.cvshome.org
+.SH BUGS
+The CVS server is a read-only public copy of a private tree.
+The dates on versions reflect the date the changes were made in the 
+private tree, not the date the change was made public.

@@ -1,6 +1,6 @@
 .TH 9 1
 .SH NAME
-9 \- run Plan 9 commands
+9, 9.rc \- run Plan 9 commands
 .SH SYNOPSIS
 .B 9
 .I cmd
@@ -11,6 +11,20 @@
 .PP
 .B .
 .B 9
+(from
+.IR sh (1))
+.PP
+.B 9.rc
+.I cmd
+[
+.I args
+\&...
+]
+.PP
+.B .
+.B 9.rc
+(from
+.IR rc (1))
 .SH DESCRIPTION
 Because Plan 9 supplies commands with the same name as but different
 behavior than many basic Unix system commands
@@ -42,6 +56,12 @@ shells using
 .B .
 .B 9
 in order to make the current shell start running in the Plan 9 environment.
+.PP
+.I 9.rc
+is the same as
+.I 9
+but written for the shell
+.IR rc (1).
 .SH EXAMPLES
 Search for greek in the password file:
 .IP
@@ -58,5 +78,7 @@ with the Plan 9 commands in the path before the system commands.
 .EE
 .SH SOURCE
 .B \*9/bin/9
+.br
+.B \*9/bin/9.rc
 .SH SEE ALSO
 .IR intro (1)

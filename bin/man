@@ -1,5 +1,8 @@
 #!/usr/local/plan9/bin/rc
 
+. 9.rc
+whatis path
+whatis troff
 . $PLAN9/man/fonts
 
 #
@@ -22,6 +25,7 @@ fn roff {
 		preproc=($preproc eqn)
 	if(~ $x *tbl*)
 		preproc=($preproc tbl)
+
 	switch($#preproc) {
 		case 0
 			{echo -n $FONTS; cat $2< /dev/null} | troff $Nflag -$MAN 
@@ -39,7 +43,7 @@ fn roff {
 fn doecho { echo $1 }
 fn dotroff { roff t $1 }
 fn doproof { roff t $1 | proof }
-fn dopage { roff t $1 | page }
+fn dopage { roff t $1 | tr2post | psfonts | page }
 fn donroff {
 	roff n $1 | sed '
 		${
@@ -62,19 +66,12 @@ fn dohtml {
 	}
 }
 
-
-#
-# setup 
-# 
-if(! ~ $path(1) $PLAN9/bin)
-	path=($PLAN9/bin $path)
-cmd=donroff
-sec=()
-S=$PLAN9/man
-
 #
 # parse flags and sections
 #
+cmd=donroff
+sec=()
+S=$PLAN9/man
 d=0
 while(~ $d 0) {
 	if(~ $#* 0) {
