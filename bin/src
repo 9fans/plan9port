@@ -1,5 +1,6 @@
 #!/usr/local/plan9/bin/rc
 
+. 9.rc
 sym = 'threadmain?z
 	p9main?z
 	main?z'

@@ -2,6 +2,8 @@
 
 # doctype:  synthesize proper command line for troff
 
+. 9.rc
+
 troff=troff
 eqn=eqn
 prefer=prefer
@@ -24,7 +26,7 @@ ifs='
 '{
 	files=`{echo $*}
 }
-9 grep -h '\$LIST|\|reference|^\.(EQ|TS|\[|PS|IS|GS|G1|GD|PP|BM|LP|BP|PI|cstart|begin|TH...)|^\.P$' $* |
+grep -h '\$LIST|\|reference|^\.(EQ|TS|\[|PS|IS|GS|G1|GD|PP|BM|LP|BP|PI|cstart|begin|TH...)|^\.P$' $* |
 sort -u |
 awk '
 BEGIN	{ files = "'$files'" }

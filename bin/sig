@@ -2,7 +2,7 @@
 # Usage: sig key ...
 #	prints out function signatures by grepping the manual
 
-
+. 9.rc
 *=`{echo $*|tr A-Z a-z|tr -dc 'a-z0-9_ \012'}	# fold case, delete funny chars
 if(~ $#* 0){
 	echo Usage: sig function ... >[1=2]
@@ -10,11 +10,11 @@ if(~ $#* 0){
 }
 
 for (i) {
-	files=`{9 grep -il '[ 	]\*?'$i'\(' $PLAN9/man/man3/*.3*}
+	files=`{grep -il '[ 	]\*?'$i'\(' $PLAN9/man/man3/*.3*}
 	for(j in $files) {
 		{echo .nr LL 20i; 9 sed -n '/^.SH SYNOPSIS/,/^.SH.*DESCR/p'  $j } |
-			9 nroff -man |
-			9 sed '
+			nroff -man |
+			sed '
 				:a
 				/,$/ {
 					N
@@ -22,7 +22,7 @@ for (i) {
 				}
 				ta
 				s/[ 	]+/ /g' |
-			9 grep -i -e '[ 	]\*?'$i'\(' | sed 's/^[ +]/	/'
+			grep -i -e '[ 	]\*?'$i'\(' | sed 's/^[ +]/	/'
 	}
 }
 

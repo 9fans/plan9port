@@ -2,6 +2,7 @@
 
 # Click on an acme directory window and then execute Getdir
 
+. 9.rc
 dir=acme/acme/$winid
 
 fn rd {
@@ -20,7 +21,7 @@ if(! ~ $tag(1) */){
 
 echo -n , | wr addr
 ls -pF $tag(1) | sed 's/\*$//' |
-	9grep -v '^''?\.|\.o$|^''?o\.' |
+	grep -v '^''?\.|\.o$|^''?o\.' |
 mc | wr data
 echo -n '#0' | wr addr
 echo -n 'dot=addr' | wr ctl

@@ -1,4 +1,7 @@
 #!/usr/local/plan9/bin/rc
+
+. 9.rc
+
 # Usage: lookman key ...
 #	prints out the names of all manual pages containing all the given keywords
 index=$PLAN9/man/lookman.index
