@@ -25,12 +25,11 @@ YFILES=picy.y\
 
 <$PLAN9/src/mkone
 YFLAGS=-S -d
-LEX=9lex
 
 picy.c:	y.tab.c
 	mv $prereq $target
 
-picl.c:	picl.lx
+picl.c:D: picl.lx
 	$LEX -t $prereq > $target
 
 clean:V:

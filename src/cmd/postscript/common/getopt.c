@@ -1,18 +1,13 @@
-#ifndef _POSIX_SOURCE
-#include <u.h>
-#include <libc.h>
-#endif
 #include	<stdio.h>
+#include <string.h>
 #define ERR(str, chr)       if(opterr){fprintf(stderr, "%s%s%c\n", argv[0], str, chr);}
 int     opterr = 1;
 int     optind = 1;
 int	optopt;
 char    *optarg;
-char    *strchr();
 
 int
-getopt (argc, argv, opts)
-char **argv, *opts;
+getopt (int argc, char **argv, char *opts)
 {
 	static int sp = 1;
 	register int c;
@@ -22,7 +17,7 @@ char **argv, *opts;
 		if (optind >= argc ||
 		   argv[optind][0] != '-' || argv[optind][1] == '\0')
 			return EOF;
-		else if (strcmp(argv[optind], "--") == NULL) {
+		else if (strcmp(argv[optind], "--") == 0) {
 			optind++;
 			return EOF;
 		}

@@ -2,7 +2,7 @@ default:V:	$LIB
 
 $LIB(%):N: %
 $LIB:	${OFILES:%=$LIB(%)}
-	$AR rvc $LIB `membername $newprereq`
+	$AR rvc $LIB $newmember
 
 &:n:	&.$O
 	$AR rvc $LIB $stem.$O

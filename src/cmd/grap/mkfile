@@ -18,18 +18,16 @@ OFILES=\
 HFILES=grap.h\
 	y.tab.h\
 
-YFILES=grap.y\
-
-LFILES=grapl.lx\
+YFILES=grap.y
+LFILES=grapl.lx
 
 <$PLAN9/src/mkone
-YFLAGS = -d -S
-LEX=9lex
+YFLAGS=-d -S
 
 grap.c:	y.tab.c
 	mv $prereq $target
 
-grapl.c:	$LFILES
+grapl.c:D: $LFILES
 	$LEX -t $prereq > $target
 
 clean:V:

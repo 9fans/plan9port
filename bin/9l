@@ -27,7 +27,7 @@ then
 	for i
 	do
 		case "$i" in
-		*.o)
+		*.[ao])
 			ofiles="$ofiles $i"
 			;;
 		esac
@@ -58,11 +58,15 @@ then
 		workq=""
 		for i in $w
 		do
+			# can't trust the libraries about using
+			# libthread - we might not be linking with
+			# those object files.
 			a=`
 				nm $PLAN9/lib/lib$i.a |
 				grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
 				sed 's/.*__p9l_autolib_//' |
-				sort -u
+				sort -u |
+				grep -v thread
 			`
 			okayfn="true"
 			for j in $a
@@ -131,9 +135,9 @@ then
 	libsl="$libsl -l9"
 
 	# cycle: lib9 expects p9main, which is defined in libthread.  oops.
-	if $havethread
+	if havethread
 	then
-		libsl="$libsl -lthread"
+		libsl="$libsl -lthread -l9"
 	fi
 
 	if [ "x$needdraw" = xtrue ]

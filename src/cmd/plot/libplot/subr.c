@@ -13,7 +13,6 @@ struct penvir  E[9] = {
 struct penvir *e0 = E, *e1 = &E[1], *esave;
 int
 bcolor(char *s){
-	int c;
 	while (*s != 0) {
 		switch (*s) {
 		case '0': case '1': case '2': case '3': case '4':

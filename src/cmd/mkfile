@@ -25,5 +25,13 @@ delatex.c:D: delatex.lx $PLAN9/bin/lex
 $PLAN9/bin/lex: $PLAN9/bin/yacc
 	cd lex; mk install
 
+# This should not be necessary.
+$PLAN9/bin/yacc: $O.yacc
+	install -c $O.yacc $PLAN9/bin/yacc
+$O.yacc: yacc.$O
+	$LD -o $target $prereq
+yacc.$O: yacc.c
+	$CC $CFLAGS yacc.c
+
 CLEANFILES=$CLEANFILES bc.tab.[ch] units.tab.[ch] delatex.c
 
