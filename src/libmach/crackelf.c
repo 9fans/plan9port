@@ -6,7 +6,7 @@
 
 static int mapelf(Fhdr *fp, ulong base, Map *map, Regs**);
 static int mapcoreregs(Fhdr *fp, Map *map, Regs**);
-static char *getcorecmd(Fhdr *fp, Map *map);
+static char *getcorecmd(Fhdr *fp);
 
 static struct
 {
@@ -141,6 +141,8 @@ crackelf(int fd, Fhdr *fp)
 			elf->corecmd = ctab[i].corecmd;
 			break;
 		}
+		if((fp->cmd = getcorecmd(fp)) == nil)
+			fprint(2, "warning: reading core command: %r");
 		return 0;
 	}
 
@@ -259,8 +261,6 @@ mapelf(Fhdr *fp, ulong base, Map *map, Regs **regs)
 	if(fp->ftype == FCORE){
 		if(mapcoreregs(fp, map, regs) < 0)
 			fprint(2, "warning: reading core regs: %r");
-		if((fp->cmd = getcorecmd(fp, map)) == nil)
-			fprint(2, "warning: reading core command: %r");
 	}
 
 	return 0;	
@@ -352,7 +352,7 @@ mapcoreregs(Fhdr *fp, Map *map, Regs **rp)
 }
 
 static char*
-getcorecmd(Fhdr *fp, Map *map)
+getcorecmd(Fhdr *fp)
 {
 	int i;
 	uchar *a, *sa, *ea;

@@ -108,7 +108,7 @@ corecmdfreebsd386(Elf *elf, ElfNote *note, char **pp)
 		return -1;
 	}
 	p = (Psinfo*)note->desc;
-	print("elf name %s\nelf args %s\n", p->name, p->psargs);
+	// print("elf name %s\nelf args %s\n", p->name, p->psargs);
 	t = malloc(80+1);
 	if(t == nil)
 		return -1;
