@@ -913,7 +913,6 @@ key(Rune r)
 		paste(t.snarf, t.nsnarf, 0);
 		if(scrolling)
 			show(t.q0);
-		consread();
 		return;
 	}
 
@@ -1361,6 +1360,7 @@ paste(Rune *r, int n, int advance)
 
 	if(rawon() && t.q0==t.nr){
 		addraw(r, n);
+		consread();
 		return;
 	}
 
