@@ -1,0 +1,5 @@
+a: b
+	cp b a
+
+c:V:
+	echo hello world

@@ -1,0 +1,9 @@
+all:V: Makefile Make.FreeBSD-386 Make.Linux-386 Make.HP-UX-9000 Make.OSF1-alpha \
+	Make.SunOS-sun4u Make.SunOS-sun4u-cc Make.SunOS-sun4u-gcc \
+	Make.NetBSD-386 Make.Darwin-PowerMacintosh
+
+Makefile:D: ../libutf/Makefile.TOP Makefile.MID ../libutf/Makefile.CMD ../libutf/Makefile.BOT
+	cat $prereq >$target
+
+Make.%: ../libutf/Make.%
+	cp $prereq $target

@@ -1,0 +1,46 @@
+--- Makefile ---
+# New ports collection makefile for: mk
+# Date Created:		11 Feb 2003
+# Whom:			rsc
+#
+# THIS LINE NEEDS REPLACING.  IT'S HERE TO GET BY PORTLINT
+# $FreeBSD: ports/devel/mk/Makefile,v 1.1 2003/02/12 00:51:22 rsc Exp $
+
+PORTNAME=	mk
+PORTVERSION=	2.0
+CATEGORIES=	devel
+MASTER_SITES=	http://pdos.lcs.mit.edu/~rsc/software/
+EXTRACT_SUFX=	.tgz
+
+MAINTAINER=	rsc@post.harvard.edu
+
+DEPENDS=	${PORTSDIR}/devel/libutf \
+	${PORTSDIR}/devel/libfmt \
+	${PORTSDIR}/devel/libbio \
+	${PORTSDIR}/devel/libregexp9
+
+MAN1=		mk.1
+USE_REINPLACE=	yes
+
+.include <bsd.port.pre.mk>
+
+post-patch:
+	${REINPLACE_CMD} -e 's,$$(PREFIX),${PREFIX},g' ${WRKSRC}/Makefile
+
+.include <bsd.port.post.mk>
+--- pkg-comment ---
+Streamlined replacement for make
+--- pkg-descr ---
+Mk is a streamlined replacement for make, written for 
+Tenth Edition Research Unix by Andrew Hume.
+
+WWW: http://pdos.lcs.mit.edu/~rsc/software/#mk
+
+Russ Cox
+rsc@post.harvard.edu
+--- pkg-plist ---
+bin/mk
+doc/mk.pdf
+--- /dev/null ---
+This is just a way to make sure blank lines don't
+creep into pkg-plist.

@@ -1,0 +1,40 @@
+</$objtype/mkfile
+
+TARG=sam
+OFILES=sam.$O\
+	address.$O\
+	buff.$O\
+	cmd.$O\
+	disk.$O\
+	error.$O\
+	file.$O\
+	io.$O\
+	list.$O\
+	mesg.$O\
+	moveto.$O\
+	multi.$O\
+	plan9.$O\
+	rasp.$O\
+	regexp.$O\
+	shell.$O\
+	string.$O\
+	sys.$O\
+	util.$O\
+	xec.$O\
+
+HFILES=sam.h\
+	errors.h\
+	mesg.h\
+
+BIN=/$objtype/bin
+</sys/src/cmd/mkone
+
+address.$O cmd.$O parse.$O xec.$O unix.$O:	parse.h
+
+safeinstall: $O.out
+	mv $BIN/$TARG $BIN/o$TARG
+	cp $prereq $BIN/$TARG
+
+safeinstallall:V:
+	for (objtype in $CPUS)
+		mk safeinstall

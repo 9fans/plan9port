@@ -1,0 +1,665 @@
+.TH MK 1
+.de EX
+.nf
+.ft B
+..
+.de EE
+.fi
+.ft R
+..
+.de LR
+.if t .BR \\$1 \\$2
+.if n .RB ` \\$1 '\\$2
+..
+.de L
+.nh
+.if t .B \\$1
+.if n .RB ` \\$1 '
+..
+.SH NAME
+mk \- maintain (make) related files
+.SH SYNOPSIS
+.B mk
+[
+.B -f
+.I mkfile
+] ...
+[
+.I option ...
+]
+[
+.I target ...
+]
+.SH DESCRIPTION
+.I Mk
+uses the dependency rules specified in
+.I mkfile
+to control the update (usually by compilation) of
+.I targets
+(usually files)
+from the source files upon which they depend.
+The
+.I mkfile
+(default
+.LR mkfile )
+contains a
+.I rule
+for each target that identifies the files and other
+targets upon which it depends and an
+.IR sh (1)
+script, a
+.IR recipe ,
+to update the target.
+The script is run if the target does not exist
+or if it is older than any of the files it depends on.
+.I Mkfile
+may also contain
+.I meta-rules
+that define actions for updating implicit targets.
+If no
+.I target
+is specified, the target of the first rule (not meta-rule) in
+.I mkfile
+is updated.
+.PP
+The environment variable
+.B $NPROC
+determines how many targets may be updated simultaneously;
+Some operating systems, e.g., Plan 9, set
+.B $NPROC
+automatically to the number of CPUs on the current machine.
+.PP
+Options are:
+.TP \w'\fL-d[egp]\ 'u
+.B -a
+Assume all targets to be out of date.
+Thus, everything is updated.
+.PD 0
+.TP
+.BR -d [ egp ]
+Produce debugging output
+.RB ( p
+is for parsing,
+.B g
+for graph building,
+.B e
+for execution).
+.TP
+.B -e
+Explain why each target is made.
+.TP
+.B -i
+Force any missing intermediate targets to be made.
+.TP
+.B -k
+Do as much work as possible in the face of errors.
+.TP
+.B -n
+Print, but do not execute, the commands
+needed to update the targets.
+.TP
+.B -s
+Make the command line arguments sequentially rather than in parallel.
+.TP
+.B -t
+Touch (update the modified date of) file targets, without
+executing any recipes.
+.TP
+.BI -w target1 , target2,...
+Pretend the modify time for each
+.I target
+is the current time; useful in conjunction with
+.B -n
+to learn what updates would be triggered by
+modifying the
+.IR targets .
+.PD
+.SS The \fLmkfile\fP
+A
+.I mkfile
+consists of
+.I assignments
+(described under `Environment') and
+.IR rules .
+A rule contains
+.I targets
+and a
+.IR tail .
+A target is a literal string
+and is normally a file name.
+The tail contains zero or more 
+.I prerequisites
+and an optional
+.IR recipe ,
+which is an
+.B shell
+script.
+Each line of the recipe must begin with white space.
+A rule takes the form
+.IP
+.EX
+target: prereq1 prereq2
+        \f2recipe using\fP prereq1, prereq2 \f2to build\fP target
+.EE
+.PP
+When the recipe is executed,
+the first character on every line is elided.
+.PP
+After the colon on the target line, a rule may specify
+.IR attributes ,
+described below.
+.PP
+A
+.I meta-rule 
+has a target of the form
+.IB A % B
+where
+.I A
+and
+.I B
+are (possibly empty) strings.
+A meta-rule acts as a rule for any potential target whose
+name matches
+.IB A % B
+with
+.B %
+replaced by an arbitrary string, called the
+.IR stem .
+In interpreting a meta-rule,
+the stem is substituted for all occurrences of
+.B %
+in the prerequisite names.
+In the recipe of a meta-rule, the environment variable
+.B $stem
+contains the string matched by the
+.BR % .
+For example, a meta-rule to compile a C program using
+.IR cc (1)
+might be:
+.IP
+.EX
+%:    %.c
+        cc -c $stem.c
+        cc -o $stem $stem.o
+.EE
+.PP
+Meta-rules may contain an ampersand
+.B &
+rather than a percent sign
+.BR % .
+A
+.B %
+matches a maximal length string of any characters;
+an
+.B &
+matches a maximal length string of any characters except period
+or slash.
+.PP
+The text of the
+.I mkfile
+is processed as follows.
+Lines beginning with
+.B <
+followed by a file name are replaced by the contents of the named
+file.
+Lines beginning with
+.B "<|"
+followed by a file name are replaced by the output
+of the execution of the named
+file.
+Blank lines and comments, which run from unquoted
+.B #
+characters to the following newline, are deleted.
+The character sequence backslash-newline is deleted,
+so long lines in
+.I mkfile
+may be folded.
+Non-recipe lines are processed by substituting for
+.BI `{ command }
+the output of the
+.I command
+when run by
+.IR sh .
+References to variables are replaced by the variables' values.
+Special characters may be quoted using single quotes
+.BR \&''
+as in
+.IR sh (1).
+.PP
+Assignments and rules are distinguished by
+the first unquoted occurrence of
+.B :
+(rule)
+or
+.B =
+(assignment).
+.PP
+A later rule may modify or override an existing rule under the
+following conditions:
+.TP
+\-
+If the targets of the rules exactly match and one rule
+contains only a prerequisite clause and no recipe, the
+clause is added to the prerequisites of the other rule.
+If either or both targets are virtual, the recipe is
+always executed.
+.TP
+\-
+If the targets of the rules match exactly and the
+prerequisites do not match and both rules
+contain recipes,
+.I mk
+reports an ``ambiguous recipe'' error.
+.TP
+\-
+If the target and prerequisites of both rules match exactly,
+the second rule overrides the first.
+.SS Environment
+Rules may make use of
+shell
+environment variables.
+A legal reference of the form
+.B $OBJ
+or
+.B ${name}
+is expanded as in
+.IR sh (1).
+A reference of the form
+.BI ${name: A % B = C\fL%\fID\fL}\fR,
+where
+.I A, B, C, D
+are (possibly empty) strings,
+has the value formed by expanding
+.B $name
+and substituting
+.I C
+for
+.I A
+and
+.I D
+for
+.I B
+in each word in
+.B $name
+that matches pattern
+.IB A % B\f1.
+.PP
+Variables can be set by
+assignments of the form
+.I
+        var\fL=\fR[\fIattr\fL=\fR]\fIvalue\fR
+.br
+Blanks in the
+.I value
+break it into words.
+Such variables are exported
+to the environment of
+recipes as they are executed, unless
+.BR U ,
+the only legal attribute
+.IR attr ,
+is present.
+The initial value of a variable is
+taken from (in increasing order of precedence)
+the default values below,
+.I mk's
+environment, the
+.IR mkfiles ,
+and any command line assignment as an argument to
+.IR mk .
+A variable assignment argument overrides the first (but not any subsequent)
+assignment to that variable.
+The variable
+.B MKFLAGS
+contains all the option arguments (arguments starting with
+.L -
+or containing
+.LR = )
+and
+.B MKARGS
+contains all the targets in the call to
+.IR mk .
+.PP
+Dynamic information may be included in the mkfile by using a line of the form
+.IP
+\fR<|\fIcommand\fR \fIargs\fR
+.LP
+This runs the command 
+.I command
+with the given arguments
+.I args
+and pipes its standard output to
+.I mk
+to be included as part of the mkfile. For instance, the Inferno kernels
+use this technique
+to run a shell command with an awk script and a configuration
+file as arguments in order for
+the
+.I awk
+script to process the file and output a set of variables and their values.
+.SS Execution
+.PP
+During execution,
+.I mk
+determines which targets must be updated, and in what order,
+to build the
+.I names
+specified on the command line.
+It then runs the associated recipes.
+.PP
+A target is considered up to date if it has no prerequisites or
+if all its prerequisites are up to date and it is newer
+than all its prerequisites.
+Once the recipe for a target has executed, the target is
+considered up to date.
+.PP
+The date stamp
+used to determine if a target is up to date is computed
+differently for different types of targets.
+If a target is
+.I virtual
+(the target of a rule with the
+.B V
+attribute),
+its date stamp is initially zero; when the target is
+updated the date stamp is set to
+the most recent date stamp of its prerequisites.
+Otherwise, if a target does not exist as a file,
+its date stamp is set to the most recent date stamp of its prerequisites,
+or zero if it has no prerequisites.
+Otherwise, the target is the name of a file and
+the target's date stamp is always that file's modification date.
+The date stamp is computed when the target is needed in
+the execution of a rule; it is not a static value.
+.PP
+Nonexistent targets that have prerequisites
+and are themselves prerequisites are treated specially.
+Such a target
+.I t
+is given the date stamp of its most recent prerequisite
+and if this causes all the targets which have
+.I t
+as a prerequisite to be up to date,
+.I t
+is considered up to date.
+Otherwise,
+.I t
+is made in the normal fashion.
+The
+.B -i
+flag overrides this special treatment.
+.PP
+Files may be made in any order that respects
+the preceding restrictions.
+.PP
+A recipe is executed by supplying the recipe as standard input to
+the command
+.BR /bin/sh .
+(Note that unlike
+.IR make ,
+.I mk
+feeds the entire recipe to the shell rather than running each line
+of the recipe separately.)
+The environment is augmented by the following variables:
+.TP 14
+.B $alltarget
+all the targets of this rule.
+.TP
+.B $newprereq
+the prerequisites that caused this rule to execute.
+.TP
+.B $newmember
+the prerequisites that are members of an aggregate
+that caused this rule to execute.
+When the prerequisites of a rule are members of an
+aggregate,
+.B $newprereq
+contains the name of the aggregate and out of date
+members, while
+.B $newmember
+contains only the name of the members.
+.TP
+.B $nproc
+the process slot for this recipe.
+It satisfies
+.RB 0≤ $nproc < $NPROC .
+.TP
+.B $pid
+the process id for the
+.I mk
+executing the recipe.
+.TP
+.B $prereq
+all the prerequisites for this rule.
+.TP
+.B $stem
+if this is a meta-rule,
+.B $stem
+is the string that matched
+.B %
+or
+.BR & .
+Otherwise, it is empty.
+For regular expression meta-rules (see below), the variables
+.LR stem0 ", ...,"
+.L stem9
+are set to the corresponding subexpressions.
+.TP
+.B $target
+the targets for this rule that need to be remade.
+.PP
+These variables are available only during the execution of a recipe,
+not while evaluating the
+.IR mkfile .
+.PP
+Unless the rule has the
+.B Q
+attribute,
+the recipe is printed prior to execution
+with recognizable environment variables expanded.
+Commands returning error status
+cause
+.I mk
+to terminate.
+.PP
+Recipes and backquoted
+.B rc
+commands in places such as assignments
+execute in a copy of
+.I mk's
+environment; changes they make to
+environment variables are not visible from
+.IR mk .
+.PP
+Variable substitution in a rule is done when
+the rule is read; variable substitution in the recipe is done
+when the recipe is executed.  For example:
+.IP
+.EX
+bar=a.c
+foo:	$bar
+        $CC -o foo $bar
+bar=b.c
+.EE
+.PP
+will compile
+.B b.c
+into
+.BR foo ,
+if
+.B a.c
+is newer than
+.BR foo .
+.SS Aggregates
+Names of the form
+.IR a ( b )
+refer to member
+.I b
+of the aggregate
+.IR a .
+Currently, the only aggregates supported are
+.IR ar (1)
+archives.
+.SS Attributes
+The colon separating the target from the prerequisites
+may be
+immediately followed by
+.I attributes
+and another colon.
+The attributes are:
+.TP
+.B D
+If the recipe exits with a non-null status, the target is deleted.
+.TP
+.B E
+Continue execution if the recipe draws errors.
+.TP
+.B N
+If there is no recipe, the target has its time updated.
+.TP
+.B n
+The rule is a meta-rule that cannot be a target of a virtual rule.
+Only files match the pattern in the target.
+.TP
+.B P
+The characters after the
+.B P
+until the terminating
+.B :
+are taken as a program name.
+It will be invoked as
+.B "sh -c prog 'arg1' 'arg2'"
+and should return a zero exit status
+if and only if arg1 is up to date with respect to arg2.
+Date stamps are still propagated in the normal way.
+.TP
+.B Q
+The recipe is not printed prior to execution.
+.TP
+.B R
+The rule is a meta-rule using regular expressions.
+In the rule,
+.B %
+has no special meaning.
+The target is interpreted as a regular expression as defined in
+.IR regexp (6).
+The prerequisites may contain references
+to subexpressions in form
+.BI \e n\f1,
+as in the substitute command of
+.IR sed (1).
+.TP
+.B U
+The targets are considered to have been updated
+even if the recipe did not do so.
+.TP
+.B V
+The targets of this rule are marked as virtual.
+They are distinct from files of the same name.
+.PD
+.SH EXAMPLES
+A simple mkfile to compile a program:
+.IP
+.EX
+.ta 8n +8n +8n +8n +8n +8n +8n
+</$objtype/mkfile
+
+prog:	a.$O b.$O c.$O
+	$LD $LDFLAGS -o $target $prereq
+
+%.$O:	%.c
+	$CC $CFLAGS $stem.c
+.EE
+.PP
+Override flag settings in the mkfile:
+.IP
+.EX
+% mk target 'CFLAGS=-S -w'
+.EE
+.PP
+Maintain a library:
+.IP
+.EX
+libc.a(%.$O):N:	%.$O
+libc.a:	libc.a(abs.$O) libc.a(access.$O) libc.a(alarm.$O) ...
+	ar r libc.a $newmember
+.EE
+.PP
+String expression variables to derive names from a master list:
+.IP
+.EX
+NAMES=alloc arc bquote builtins expand main match mk var word
+OBJ=${NAMES:%=%.$O}
+.EE
+.PP
+Regular expression meta-rules:
+.IP
+.EX
+([^/]*)/(.*)\e.$O:R:  \e1/\e2.c
+	cd $stem1; $CC $CFLAGS $stem2.c
+.EE
+.PP
+A correct way to deal with
+.IR yacc (1)
+grammars.
+The file
+.B lex.c
+includes the file
+.B x.tab.h
+rather than
+.B y.tab.h
+in order to reflect changes in content, not just modification time.
+.IP
+.EX
+lex.$O:	x.tab.h
+x.tab.h:	y.tab.h
+	cmp -s x.tab.h y.tab.h || cp y.tab.h x.tab.h
+y.tab.c y.tab.h:	gram.y
+	$YACC -d gram.y
+.EE
+.PP
+The above example could also use the
+.B P
+attribute for the
+.B x.tab.h
+rule:
+.IP
+.EX
+x.tab.h:Pcmp -s:	y.tab.h
+	cp y.tab.h x.tab.h
+.EE
+.SH SEE ALSO
+.IR sh (1),
+.IR regexp9 (7)
+.PP
+A. Hume,
+``Mk: a Successor to Make''
+(Tenth Edition Research Unix Manuals).
+.PP
+Andrew G. Hume and Bob Flandrena,
+``Maintaining Files on Plan 9 with Mk''.
+DOCPREFIX/doc/mk.pdf
+.SH HISTORY
+Andrew Hume wrote
+.I mk
+for Tenth Edition Research Unix.
+It was later ported to Plan 9.
+This software is a port of the Plan 9 version back to Unix.
+.SH BUGS
+Identical recipes for regular expression meta-rules only have one target.
+.br
+Seemingly appropriate input like
+.B CFLAGS=-DHZ=60
+is parsed as an erroneous attribute; correct it by inserting
+a space after the first 
+.LR = .
+.br
+The recipes printed by
+.I mk
+before being passed to
+.I sh
+for execution are sometimes erroneously expanded
+for printing.  Don't trust what's printed; rely
+on what
+.I sh
+does.
