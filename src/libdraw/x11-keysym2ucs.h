@@ -6,4 +6,4 @@
 
 #include <X11/X.h>
 
-long keysym2ucs(KeySym keysym);
+long _p9keysym2ucs(KeySym keysym);

@@ -103,7 +103,7 @@ __xtoplan9kbd(XEvent *e)
 			break;
 		default:		/* not ISO-1 or tty control */
 			if(k>0xff) {
-				k = keysym2ucs(k);
+				k = _p9keysym2ucs(k);
 				if(k==-1) return -1;
 			}
 		}

@@ -53,6 +53,8 @@ eread(ulong keys, Event *e)
 		}
 	}
 
+	xmask |= EnterWindowMask|LeaveWindowMask;
+
 	XSelectInput(_x.display, _x.drawable, xmask);
 again:
 	XWindowEvent(_x.display, _x.drawable, xmask, &xevent);

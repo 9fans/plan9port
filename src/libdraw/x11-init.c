@@ -359,7 +359,7 @@ xattach(char *label)
 
 		geom = smprint("%s.geometry", label);
 		if(geom && XrmGetResource(database, geom, nil, &geomrestype, &geomres))
-			mask = XParseGeometry(geomres.addr, &x, &y, &width, &height);
+			mask = XParseGeometry(geomres.addr, &x, &y, (uint*)&width, (uint*)&height);
 		free(geom);
 
 		if((mask & WidthValue) && (mask & HeightValue)){
@@ -552,7 +552,7 @@ fprint(2, "%r\n");
 }
 
 int
-drawsetlabel(Display *d, char *label)
+drawsetlabel(char *label)
 {
 	char *argv[2];
 	XClassHint classhint;
@@ -775,7 +775,7 @@ setupcmap(XWindow w)
 }
 
 void
-flushmemscreen(Rectangle r)
+_flushmemscreen(Rectangle r)
 {
 	if(_x.nextscreenpm != _x.screenpm){
 		qlock(&_x.screenlock);

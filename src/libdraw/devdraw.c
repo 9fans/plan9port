@@ -13,8 +13,6 @@
 #define NHASH (1<<5)
 #define HASHMASK (NHASH-1)
 
-extern void flushmemscreen(Rectangle);
-
 typedef struct Client Client;
 typedef struct Draw Draw;
 typedef struct DImage DImage;
@@ -257,7 +255,7 @@ addflush(Rectangle r)
 	}
 	/* emit current state */
 	if(flushrect.min.x < flushrect.max.x)
-		flushmemscreen(flushrect);
+		_flushmemscreen(flushrect);
 	flushrect = r;
 	waste = 0;
 }
@@ -294,7 +292,7 @@ void
 drawflush(void)
 {
 	if(flushrect.min.x < flushrect.max.x)
-		flushmemscreen(flushrect);
+		_flushmemscreen(flushrect);
 	flushrect = Rect(10000, 10000, -10000, -10000);
 }
 
