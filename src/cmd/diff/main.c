@@ -138,10 +138,10 @@ diff(char *f, char *t, int level)
 	Dir *fsb, *tsb;
 
 	if ((fp = statfile(f, &fsb)) == 0)
-		return;
+		goto Return;
 	if ((tp = statfile(t, &tsb)) == 0){
 		free(fsb);
-		return;
+		goto Return;
 	}
 	if (DIRECTORY(fsb) && DIRECTORY(tsb)) {
 		if (rflag || level == 0)
@@ -172,6 +172,9 @@ diff(char *f, char *t, int level)
 	}
 	free(fsb);
 	free(tsb);
+
+Return:
+	rmtmpfiles();
 }
 
 void
@@ -186,7 +189,7 @@ main(int argc, char *argv[])
 	while (--argc && (*++argv)[0] == '-' && (*argv)[1]) {
 		for (p = *argv+1; *p; p++) {
 			switch (*p) {
-
+			case 'c':
 			case 'e':
 			case 'f':
 			case 'n':
@@ -233,10 +236,9 @@ main(int argc, char *argv[])
 		free(fsb);
 	}
 	free(tsb);
-	for (i = 0; i < argc-1; i++) {
+	for (i = 0; i < argc-1; i++)
 		diff(argv[i], argv[argc-1], 0);
-		rmtmpfiles();
-	}
+
 	done(anychange);
 	/*NOTREACHED*/
 }
