@@ -20,8 +20,10 @@ if(! ~ $tag(1) */){
 }
 
 echo -n , | wr addr
+
 ls -pF $tag(1) | sed 's/\*$//' |
 	grep -v '^''?\.|\.o$|^''?o\.' |
-mc | wr data
+	mc |
+	wr data
 echo -n '#0' | wr addr
 echo -n 'dot=addr' | wr ctl
