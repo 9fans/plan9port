@@ -148,7 +148,7 @@ _pthreadinit(void)
 		 * thread IDs.
 		 */
 		id = pthread_self();
-		if(*(ulong*)&id < 1024*1024)
+		if(*(ulong*)(void*)&id < 1024*1024)
 			sysfatal("cannot use LinuxThreads as pthread library; see %s/src/libthread/README.Linux", get9root());
 	}
 	pthread_key_create(&prockey, 0);
