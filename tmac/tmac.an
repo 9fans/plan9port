@@ -2,6 +2,7 @@
 .fp 2 I LucidaSansI
 .fp 3 B LucidaSansB
 .fp 5 L LucidaCW
+.ds 9 /usr/local/plan9
 .if n .uf 4
 .if n .bd 3
 .if n .rm bd
