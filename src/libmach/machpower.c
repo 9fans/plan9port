@@ -1348,8 +1348,6 @@ powerunwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 	 * to disassemble the function prologues in order to figure
 	 * this out.
 	 */
-	ulong b[2];
-
 	// evaluate lr
 	// if in this function, no good - go to saved one.
 	// set next[sp] to *cur[sp]
