@@ -6,6 +6,7 @@ TARG=\
 	Makefile\
 	mk.1\
 	mk.h\
+	sys.h\
 	fns.h\
 	`{ls -p $PLAN9/src/cmd/mk/*.c}\
 
@@ -36,4 +37,7 @@ README: ../README
 	cp $prereq $target
 
 NOTICE: ../NOTICE.mk
+	cp $prereq $target
+
+sys.h: $PLAN9/src/cmd/mk/sys.h.std
 	cp $prereq $target

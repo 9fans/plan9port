@@ -3,10 +3,9 @@
 usegcc()
 {
 	cc=gcc
-	cflags=" \
+	ngflags=" \
 		-O2 \
 		-c \
-		-ggdb \
 		-Wall \
 		-Wno-parentheses \
 		-Wno-missing-braces \
@@ -14,14 +13,14 @@ usegcc()
 		-Wno-comment \
 		-Wno-sign-compare \
 	"
+	cflags="$cflags -ggdb"
 }
 
-tag="`uname`-`uname -m`-${CC9:-cc}"
+tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
 *BSD*)		usegcc ;;
 *Darwin*)	usegcc 
-	cflags=`echo $cflags|sed 's/-ggdb/-g3 -no-cpp-precomp/'`
-	;;
+		cflags="$ngflags -g3 -no-cpp-precomp" ;;
 *HP-UX*)	cc=cc; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc ;;
 *OSF1*)		cc=cc; cflags="-g -O -c" ;;

@@ -2,6 +2,8 @@
 
 static char *vexpand(char*, Envy*, Bufblock*);
 
+#define getfields mkgetfields
+
 static int
 getfields(char *str, char **args, int max, int mflag, char *set)
 {

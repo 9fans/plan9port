@@ -1,3 +1,5 @@
+<mkhdr
+
 DIRS=\
 	lib9\
 	libbin\
@@ -27,7 +29,7 @@ MKDIRS=\
 mkmk.sh:VD:
 	(
 		echo cd lib9
-		(cd lib9; mk -n -a 'LIB9OFILES=' install)
+		(cd lib9; mk -n -a install)
 		echo cd ..
 		for i in libbio libregexp cmd/mk
 		do	
@@ -35,7 +37,7 @@ mkmk.sh:VD:
 			(cd $i; mk -n -a install)
 			echo cd ..
 		done
-	) >$target
+	) | sed 's/'$SYSNAME'/$SYSNAME/; s/'$OBJTYPE'/$OBJTYPE/' >$target
 
 testmkmk:V:
 	mk mkmk.sh

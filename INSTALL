@@ -9,5 +9,5 @@ mk clean
 mk install
 
 echo "Set PLAN9=$PLAN9 in your profile environment."
-echo 'Add $PLAN9/bin to your profile PATH.'
+echo 'Add $PLAN9/bin to your PATH.'
 

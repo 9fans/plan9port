@@ -34,7 +34,7 @@ sendfd(int s, int fd)
 	sfd.cmsg.cmsg_type = SCM_RIGHTS;
 	sfd.fd = fd;
 
-	msg.msg_control = &sfd;
+	msg.msg_control = (caddr_t)&sfd;
 	msg.msg_controllen = sizeof sfd;
 
 	if((n=sendmsg(s, &msg, 0)) != iov.iov_len)
@@ -66,7 +66,7 @@ recvfd(int s)
 	sfd.cmsg.cmsg_level = SOL_SOCKET;
 	sfd.cmsg.cmsg_type = SCM_RIGHTS;
 
-	msg.msg_control = &sfd;
+	msg.msg_control = (caddr_t)&sfd;
 	msg.msg_controllen = sizeof sfd;
 
 	if((n=recvmsg(s, &msg, 0)) < 0)

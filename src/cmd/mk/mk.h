@@ -1,38 +1,4 @@
-#include <utf.h>
-#include <fmt.h>
-#include <setjmp.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include	<bio.h>
-#include	<regexp9.h>
-#include <time.h>
-
-#define uchar _mkuchar
-#define ushort _mkushort
-#define uint _mkuint
-#define ulong _mkulong
-#define vlong _mkvlong
-#define uvlong _mkuvlong
-
-#define nil ((void*)0)
-
-typedef unsigned char		uchar;
-typedef unsigned short		ushort;
-typedef unsigned int		uint;
-typedef unsigned long		ulong;
-
-#define nelem(x) (sizeof(x)/sizeof((x)[0]))
-
-#define OREAD O_RDONLY
-#define OWRITE O_WRONLY
-#define ORDWR O_RDWR
-#define USED(x) if(x);else
-#define remove unlink
-#define seek lseek
-#define exits(s) exit((s) && ((char*)s)[0] ? 1 : 0)
-#define create(name, mode, perm) creat(name, perm)
-#define ERRMAX 256
+#include "sys.h"
 
 #undef assert
 #define	assert	mkassert

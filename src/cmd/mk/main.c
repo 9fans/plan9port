@@ -226,6 +226,7 @@ main(int argc, char **argv)
 	if(uflag)
 		prusage();
 	exits(0);
+	return 0;
 }
 
 void

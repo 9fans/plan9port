@@ -1,3 +1,4 @@
+#define NOPLAN9DEFINES
 #include	"mk.h"
 #include	<sys/wait.h>
 #include	<signal.h>
