@@ -2,8 +2,6 @@
 #include <libc.h>
 #include <fcall.h>
 
-int post9pservice(int, char*);
-
 /*
  * Rather than reading /adm/users, which is a lot of work for
  * a toy program, we assume all groups have the form
@@ -147,7 +145,7 @@ main(int argc, char *argv[])
 
 	initfcalls();
 	service = "ramfs";
-	defmnt = "/tmp";
+	defmnt = nil;
 	ARGBEGIN{
 	case 'D':
 		debug = 1;
@@ -159,7 +157,7 @@ main(int argc, char *argv[])
 		mfd[1] = 1;
 		break;
 	case 's':
-		defmnt = 0;
+		defmnt = nil;
 		break;
 	case 'm':
 		defmnt = ARGF();
@@ -174,9 +172,6 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	}ARGEND
-
-	if(defmnt)
-		sysfatal("cannot mount -- not on plan 9");
 
 	if(pipe(p) < 0)
 		error("pipe failed");
