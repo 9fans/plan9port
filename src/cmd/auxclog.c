@@ -34,7 +34,10 @@ main(int argc, char **argv)
 		exits("usage");
 	}
 
-	fd = open(argv[1], OREAD);
+	if(strcmp(argv[1], "-") == 0)
+		fd = 1;
+	else
+		fd = open(argv[1], OREAD);
 	if(fd < 0){
 		fprint(2, "%s: can't open %s: %r\n", argv0, argv[1]);
 		exits("open");
