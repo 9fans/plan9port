@@ -114,11 +114,14 @@ the challenge/response protocol also used by POP3 mail servers.
 .B chap
 the challenge/response protocols used by PPP and PPTP.
 .TP
+.B dsa
+DSA signatures, used by SSH
+.TP
 .B mschap
 a proprietary Microsoft protocol also used by PPP and PPTP.
 .TP
 .B rsa
-RSA public key decryption, used by SSH and TLS.
+RSA encryption and signatures, used by SSH and TLS.
 .TP
 .B pass
 passwords in the clear.
@@ -130,8 +133,11 @@ challenge/response.
 .B wep
 WEP passwords for wireless ethernet cards.
 .PD
+The ``Protocols'' section below describes these protocols in more detail.
 .PP
-The options are:
+The options to
+.I factotum
+are:
 .TP
 .B \-a
 supplies the address of the authentication server to use.
@@ -228,98 +234,14 @@ pairs.  An attribute whose name begins with an exclamation point
 does not appear when reading the
 .B ctl
 file.
-The required attributes depend on the authentication protocol.
-.PP
-.BR P9sk1 ,
-.BR p9sk2 ,
-and
-.BR p9cr
-all require a key with
-.BR proto = p9sk1 ,
-a
-.B dom
-attribute identifying the authentication domain, a
-.B user
-name valid in that domain, and either a
-.B !password
-or
-.B !hex
-attribute specifying the password or hexadecimal secret
-to be used.  Here is an example:
-.PP
+Here are some examples:
 .EX
     proto=p9sk1 dom=avayalabs.com user=presotto !password=lucent
-.EE
-.PP
-.BR Apop ,
-.BR cram ,
-.BR chap ,
-and
-.BR mschap ,
-require a key with a
-.B proto
-attribute whose value matches the protocol,
-in addition to
-.BR server ,
-.BR user ,
-and
-.B !password
-attributes; 
-e.g.
-.PP
-.EX
     proto=apop server=mit.edu user=rsc !password=nerdsRus
+    proto=pass user=tb service=ssh !password=does.it.matter
 .EE
-Vnc is similar but does not require a
-.B user
-attribute.
-.PP
-.B Pass
-requires a key with
-.B proto=pass
-in addition to
-.B user
-and
-.B !password
-attributes; e.g.
-.PP
-.EX
-    proto=pass user=tb !password=does.it.matter
-.EE
-.PP
-.B Rsa
-requires a key with
-.B proto=rsa
-in addition to all the hex attributes defining an RSA key:
-.BR ek ,
-.BR n ,
-.BR !p ,
-.BR !q ,
-.BR !kp ,
-.BR !kq ,
-.BR !c2 ,
-and
-.BR !dk .
-By convention, programs using the RSA protocol also require a
-.B service
-attribute set to
-.BR ssh ,
-.BR sshserve ,
-or
-.BR tls .
-.PP
-.B Wep
-requires a
-.BR key1 ,
-.BR key2 ,
-or
-.BR key3
-set to the password to be used.
-Starting the protocol causes
-.I factotum
-to configure the wireless ethernet card
-.B #l/ether0
-for WEP encryption with the given password.
+The ``Protocols'' section below describes the attributes
+specific to each supported protocol.
 .PP
 All keys can have additional attibutes that act either as comments
 or as selectors to distinguish them in the
@@ -342,7 +264,7 @@ Any key may have a
 .B role
 attribute for restricting how it can be used.
 If this attribute is missing, the key can be used in any role.
-The possible values are:
+Common values are:
 .TP
 .B client
 for authenticating outbound calls
@@ -354,6 +276,18 @@ for authenticating inbound calls
 for authenticating processes whose
 user id does not match
 .IR factotum 's.
+.TP
+.B encrypt
+for encrypting data
+.TP
+.B decrypt
+for decrypting data
+.TP
+.B sign
+for cryptographically signing data
+.TP
+.B verify
+for verifying cryptographic signatures
 .PD
 .PP
 Whenever
@@ -670,6 +604,22 @@ see above
 see above
 .RE
 .TP
+.B readhex\fR, \fPwritehex
+like
+.B read
+and
+.BR write ,
+except that an
+.B ok
+response to
+.B readhex
+returns the data encoded as
+a long hexadecimal string,
+and the argument to
+.B writehex
+is expected to be a long hexadecimal string.
+These are useful for manually debugging of binary protocols.
+.TP
 .B authinfo
 retrieve the AuthInfo structure.  
 The possible replies are:
@@ -701,5 +651,370 @@ where
 is the reason for the error.
 .PD
 .RE
+.SS Protocols
+Factotum supports many authentication types, each
+with its own roles and required key attributes.
+.PP
+.IR P9any ,
+.IR p9sk1 ,
+.IR p9sk2 ,
+and
+.I p9cr
+are used to authenticate to Plan 9 systems;
+valid 
+.BR role s
+are
+.B client
+and
+.BR server .
+All require
+.B proto=p9sk1
+keys with
+.BR user ,
+.B dom
+(authentication domain),
+and
+.B !password
+attributes.
+.PP
+.I P9sk1
+and
+.I p9sk2
+are the Plan 9 shared-key authentication protocols.
+.I P9sk2
+is a deprecated form of
+.I p9sk1
+that neglects to authenticate the server.
+.PP
+.I P9any
+is a meta-protocol that negotiates a protocol
+.RB ( p9sk1
+or
+.BR p9sk2 )
+and an authentication domain and then invokes the 
+given protocol with a
+.B dom=
+attribute.
+.PP
+.IR P9any ,
+.IR p9sk1 ,
+and
+.I p9sk2
+are intended to be proxied via
+.I auth_proxy
+(see
+.IR auth (3)).
+The protocols follow
+.IR p9any (7)
+and
+.IR p9sk1 (7).
+.\" XXX - write about how server keys are selected and used
+.\" XXX - write about protocol itself
+.\" XXX - write about server ai
+.PP
+.I P9cr
+is a textual challenge-response protocol;
+roles are
+.B client
+and
+.BR server .
+It uses
+.I p9sk1
+keys as described above.
+The protocol with
+.I factotum
+is textual:
+client writes a user name,
+server responds with a challenge,
+client writes a response,
+server responds with
+.B ok
+or
+.BR bad .
+Typically this information is wrapped in other protocols
+before being sent over the network.
+.PP
+.I Vnc
+is the challenge-response protocol used by
+.IR vnc (1);
+valid roles are
+.B client
+and
+.BR server .
+The client protocol requires a
+.B proto=vnc
+key with attribute
+.BR !password .
+Conventionally, client keys also have
+.B user 
+and
+.B server
+attributes.
+The server protocol requires a
+.I p9sk1
+key as described above.
+The protocol with
+.I factotum
+is the same as
+.IR p9cr ,
+except that the challenge and response are not textual.
+.PP
+.I Apop
+and
+.I cram
+are challenge-response protocols typically
+used to authenticate 
+to mail servers.
+The client protocols require
+.B proto=apop
+or
+.B proto=cram
+keys with
+.B user
+and
+.B !password
+attributes.
+Conventionally, client keys also have 
+.B server
+attributes.
+The server protocol requires a
+.I p9sk1
+key as described above.
+The protocol with
+.I factotum
+is textual:
+server writes a challenge of the form
+.IB random @ domain \fR,
+client responds with user name
+and then a hexadecimal response
+(two separate writes),
+and then the server responds with
+.B ok
+or
+.BR bad .
+.PP
+.I Chap
+and
+.I mschap
+are challenge-response protocols used in PPP sessions;
+valid roles are
+.B client
+and
+.BR server .
+The client protocols require
+.B proto=chap
+or
+.B proto=mschap
+keys with
+.B user
+and
+.B !password
+attributes.
+Conventionally, client keys also have
+.B server
+attributes.
+The server protocol requires a
+.I p9sk1
+key as described above.
+The protocol with factotum is:
+server writes an 8-byte binary challenge,
+client responds with user name
+and then a
+.B Chapreply
+or
+.B MSchapreply
+structure (defined in
+.B <auth.h> ).
+.PP
+.I Pass
+is a client-only protocol that hands out passwords
+from 
+.B proto=pass
+keys with
+.B user
+and
+.B !password
+attributes.
+The protocol is a single read that returns
+a string: a space-separated quoted user name and password
+that can be parsed with
+.I tokenize
+(see
+.IR getfields (3)).
+Conventionally, client keys have distinguishing attributes
+like
+.B service
+and
+.B server
+that can be specified in the
+.B start
+message to select a key.
+.PP
+.I Wep
+is a client-only pseudo-protocol that initializes the encryption
+key on a wireless ethernet device.
+It uses
+.B proto=wep
+keys with
+.BR !key1 ,
+.BR !key2 ,
+or
+.B !key3
+attributes.  
+The protocol with
+.I factotum
+is:
+the client writes a device name
+that must begin with
+.LR #l .
+In response,
+.I factotum
+opens the device's control file, sets the wireless secret using the key,
+and turns on encryption.
+If the key has an
+.B essid
+attribute, 
+.I factotum
+uses it to set the wireless station ID.
+.PP
+.I Rsa
+is an implementation of the RSA protocol.
+Valid roles are
+.BR decrypt ,
+.BR encrypt ,
+.BR sign ,
+and
+.BR verify .
+.I Rsa
+uses
+.B proto=rsa
+keys with
+.B ek
+and
+.B n 
+attributes, large integers specifying the public half
+of the key.
+If a key is to be used for decryption or signing,
+then it must also have attributes
+.BR !p ,
+.BR !q ,
+.BR !kp ,
+.BR !kq ,
+.BR !c2 ,
+and
+.BR !dk
+specifying the private half of the key;
+see
+.IR rsa (3).
+Conventionally,
+.I rsa
+keys also have
+.B service
+attributes specifying the context in which the key is used:
+.B ssh 
+(SSH version 1),
+.B ssh-rsa
+(SSH version 2),
+or
+.B tls
+(SSL and TLS).
+If an SSH key has a
+.B comment
+attribute, that comment is presented to remote SSH servers
+during key negotiation.
+The protocol for
+encryption (decryption) is:
+write the message, then read back the encrypted (decrypted) form.
+The protocol for signing is:
+write a hash of the actual message,
+then read back the signature.
+The protocol for verifying a signature is:
+write the message hash,
+write the purported signature,
+then read back
+.B ok
+or
+.B bad
+telling whether the signature could be verified.
+The hash defaults to SHA1 but can be specified by a
+.B hash
+attribute on the key.
+Valid hash functions are
+.B md5
+and
+.BR sha1 .
+The hash function must be known to
+.I factotum
+because the signature encodes the type of hash used.
+The 
+.B encrypt
+and
+.B verify
+operations are included as a convenience;
+.I factotum
+is not using any private information to perform them.
+.PP
+.I Dsa
+is an implementation of the NIST digital signature algorithm.
+Valid roles are
+.B sign
+and
+.BR verify .
+It uses
+.B proto=dsa
+keys with
+.BR p ,
+.BR q ,
+.BR alpha ,
+and
+.B key
+attributes.
+If the key is to be used for signing, it must also have a
+.B !secret
+attribute; see
+.IR dsa (3).
+Conventionally,
+.I dsa
+keys
+also have 
+.B service
+attributes specifying the context in which the key is used:
+.B ssh-dss
+(SSH version 2)
+is the only one.
+If an SSH key has a
+.B comment
+attribute, that comment is presented to SSH servers during
+key negotiation.
+The protocol for signing and verifying
+is the same as the RSA protocol.
+Unlike
+.IR rsa ,
+the
+.I dsa
+protocol ignores the 
+.B hash
+attribute; it always uses SHA1.
+.PP
+.I Httpdigest
+is a client-only MD5-based challenge-response protocol used in HTTP; see RFC 2617.
+It uses
+.B proto=httpdigest
+keys with
+.BR user ,
+.BR realm ,
+and
+.BR !password
+attributes.
+The protocol with factotum is textual:
+write the challenge, read the response.
+The challenge is a string with three space-separated fields
+.IR nonce ,
+.IR method ,
+and
+.IR uri ,
+parseable with
+.IR tokenize .
+The response is a hexadecimal string of length 32.
 .SH SOURCE
 .B \*9/src/cmd/factotum
