@@ -107,7 +107,7 @@ main(int argc, char *argv[])
 	if(home == 0)
 		home = "/";
 	if(!dflag)
-		startup(machine, Rflag, arg, argv);
+		startup(machine, Rflag, arg, ap, argv);
 	notify(notifyf);
 	getcurwd();
 	if(argc>1){

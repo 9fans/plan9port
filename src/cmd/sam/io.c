@@ -219,10 +219,28 @@ bootterm(char *machine, char **argv, char **end)
 }
 
 void
-connectto(char *machine)
+connectto(char *machine, char **argv)
 {
 	int p1[2], p2[2];
+	char **av;
+	int ac;
 
+	// count args
+	for(av = argv; *av; av++)
+		;
+	av = malloc(sizeof(char*)*((av-argv) + 5));
+	if(av == nil){
+		dprint("out of memory\n");
+		exits("fork/exec");
+	}
+	ac = 0;
+	av[ac++] = RX;
+	av[ac++] = machine;
+	av[ac++] = rsamname;
+	av[ac++] = "-R";
+	while(*argv)
+		av[ac++] = *argv++;
+	av[ac] = 0;
 	if(pipe(p1)<0 || pipe(p2)<0){
 		dprint("can't pipe\n");
 		exits("pipe");
@@ -237,7 +255,7 @@ connectto(char *machine)
 		close(p1[1]);
 		close(p2[0]);
 		close(p2[1]);
-		execlp(RXPATH, RX, machine, rsamname, "-R", (char*)0);
+		execvp(RXPATH, av);
 		dprint("can't exec %s\n", RXPATH);
 		exits("exec");
 
@@ -245,15 +263,16 @@ connectto(char *machine)
 		dprint("can't fork\n");
 		exits("fork");
 	}
+	free(av);
 	close(p1[1]);
 	close(p2[0]);
 }
 
 void
-startup(char *machine, int Rflag, char **argv, char **end)
+startup(char *machine, int Rflag, char **argv, char **end, char **files)
 {
 	if(machine)
-		connectto(machine);
+		connectto(machine, files);
 	if(!Rflag)
 		bootterm(machine, argv, end);
 	downloaded = 1;
