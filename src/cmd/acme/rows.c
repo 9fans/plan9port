@@ -488,7 +488,8 @@ rowloadfonts(char *file)
 int
 rowload(Row *row, char *file, int initing)
 {
-	int i, j, line, percent, y, nr, nfontr, n, ns, ndumped, dumpid, x, fd;
+	int i, j, line, y, nr, nfontr, n, ns, ndumped, dumpid, x, fd;
+	double percent;
 	Biobuf *b, *bout;
 	char *buf, *l, *t, *fontname;
 	Rune *r, rune, *fontr;
@@ -539,7 +540,7 @@ rowload(Row *row, char *file, int initing)
 	if(j<=0 || j>10)
 		goto Rescue2;
 	for(i=0; i<j; i++){
-		percent = atoi(l+i*12);
+		percent = atof(l+i*12);
 		if(percent<0 || percent>=100)
 			goto Rescue2;
 		x = row->r.min.x+percent*Dx(row->r)/100;
@@ -630,7 +631,7 @@ rowload(Row *row, char *file, int initing)
 		j = atoi(l+1+1*12);
 		q0 = atoi(l+1+2*12);
 		q1 = atoi(l+1+3*12);
-		percent = atoi(l+1+4*12);
+		percent = atof(l+1+4*12);
 		if(i<0 || i>10)
 			goto Rescue2;
 		if(i > row->ncol)
