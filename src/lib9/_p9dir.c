@@ -1,7 +1,6 @@
 #include <u.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -43,6 +42,28 @@ isdisk(struct stat *st)
 #define _HAVEDISKLABEL
 #endif
 
+#if defined(__linux__)
+#include <linux/hdreg.h>
+#include <linux/fs.h>
+#include <sys/ioctl.h>
+static vlong
+disksize(int fd, int dev)
+{
+	u64int u64;
+	long l;
+	struct hd_geometry geo;
+
+	if(ioctl(fd, BLKGETSIZE64, &u64) >= 0)
+		return u64;
+	if(ioctl(fd, BLKGETSIZE, &l) >= 0)
+		return l*512;
+	if(ioctl(fd, HDIO_GETGEO, &geo) >= 0)
+		return (vlong)geo.heads*geo.sectors*geo.cylinders*512;
+	return 0;
+}
+#define _HAVEDISKSIZE
+#endif
+
 #if !defined(__linux__) && !defined(__sun__)
 #define _HAVESTGEN
 #endif
@@ -61,7 +82,7 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 	static struct group *g;
 	static struct passwd *p;
 	static int gid, uid;
-	int sz;
+	int sz, fd;
 
 	sz = 0;
 	if(d)
@@ -154,6 +175,12 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 		}
 
 		/* fetch real size for disks */
+#ifdef _HAVEDISKSIZE
+		if((fd = open(name, O_RDONLY)) >= 0){
+			d->length = disksize(fd, major(st->st_dev));
+			close(fd);
+		}
+#endif
 #ifdef _HAVEDISKLABEL
 		if(isdisk(st)){
 			int fd, n;
