@@ -57,7 +57,7 @@ p9srand(long seed)
 }
 
 long
-lrand(void)
+p9lrand(void)
 {
 	ulong x;
 

@@ -239,6 +239,7 @@ extern	int	needsrcquote(int);
 #ifndef NOPLAN9DEFINES
 #define rand	p9rand
 #define srand	p9srand
+#define lrand	p9lrand
 #endif
 
 extern	void	srand(long);
