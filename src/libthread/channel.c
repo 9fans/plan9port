@@ -29,7 +29,7 @@ canexec(Alt *a)
 	/* are there senders or receivers blocked? */
 	otherop = (CHANSND+CHANRCV) - a->op;
 	for(i=0; i<c->nentry; i++)
-		if(c->qentry[i] && c->qentry[i]->op==otherop && c->qentry[i]->thread==nil){
+		if(c->qentry[i] && c->qentry[i]->op==otherop && c->qentry[i]->thread->altc==nil){
 			_threaddebug(DBGCHAN, "can rendez alt %p chan %p", a, c);
 			return 1;
 		}
@@ -460,7 +460,7 @@ altexec(Alt *a, int spl)
 	b = nil;
 	me = a->v;
 	for(i=0; i<c->nentry; i++)
-		if(c->qentry[i] && c->qentry[i]->op==otherop && c->qentry[i]->thread==nil)
+		if(c->qentry[i] && c->qentry[i]->op==otherop && c->qentry[i]->thread->altc==nil)
 			if(nrand(++n) == 0)
 				b = c->qentry[i];
 	if(b != nil){
@@ -488,7 +488,7 @@ altexec(Alt *a, int spl)
 				altcopy(waiter, me, c->e);
 		}
 		b->thread->altc = c;
-		_procwakeup(&b->thread->altrend);
+		_threadwakeup(&b->thread->altrend);
 		_threaddebug(DBGCHAN, "chanlock is %lud", *(ulong*)(void*)&chanlock);
 		_threaddebug(DBGCHAN, "unlocking the chanlock");
 		unlock(&chanlock);

@@ -24,6 +24,7 @@ extern "C" {
 #include <fmt.h>
 #include <math.h>
 #include <ctype.h>	/* for tolower */
+#include <pthread.h>	/* for Locks */
 
 /*
  * OS-specific crap

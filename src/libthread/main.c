@@ -49,9 +49,7 @@ main(int argc, char **argv)
 	a = _threadmalloc(sizeof *a, 1);
 	a->argc = argc;
 	a->argv = argv;
-malloc(10);
 	p = _newproc(mainlauncher, a, mainstacksize, "threadmain", 0, 0);
-malloc(10);
 	_schedinit(p);
 	abort();	/* not reached */
 	return 0;
@@ -62,9 +60,7 @@ mainlauncher(void *arg)
 {
 	Mainarg *a;
 
-malloc(10);
 	a = arg;
-malloc(10);
 	threadmain(a->argc, a->argv);
 	threadexits("threadmain");
 }

@@ -95,6 +95,8 @@ struct Thread
 	Chanstate	chan;		/* which channel operation is current */
 	Alt		*alt;			/* pointer to current alt structure (debugging) */
 	ulong		userpc;
+	Channel	*c;
+	pthread_cond_t cond;
 
 	void*	udata[NPRIV];	/* User per-thread data pointer */
 	int		lastfd;
@@ -135,6 +137,8 @@ struct Proc
 	int		nonotes;		/*  delay notes */
 	uint		nextID;		/* ID of most recently created thread */
 	Proc		*next;		/* linked list of Procs */
+
+	_Procrend	rend;	/* sleep here for more ready threads */
 
 	void		*arg;			/* passed between shared and unshared stk */
 	char		str[ERRMAX];	/* used by threadexits to avoid malloc */

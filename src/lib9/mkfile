@@ -141,7 +141,6 @@ LIB9OFILES=\
 	strecpy.$O\
 	sysfatal.$O\
 	sysname.$O\
-	tas-$OBJTYPE.$O\
 	time.$O\
 	tokenize.$O\
 	truerand.$O\

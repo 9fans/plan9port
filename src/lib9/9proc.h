@@ -1,3 +1,6 @@
+#ifndef _9PROC_H_
+#define _9PROC_H_ 1
+
 enum
 {
 	NPRIV = 16,
@@ -20,3 +23,4 @@ extern Uproc *_p9uproc(int);
 extern void _p9uprocdie(void);
 extern void _clearuproc(void);
 
+#endif

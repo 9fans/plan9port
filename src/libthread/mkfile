@@ -41,6 +41,9 @@ HFILES=\
 
 <$PLAN9/src/mksyslib
 
+tfork: tfork.$O $PLAN9/lib/$LIB
+	$LD -o tfork tfork.$O $LDFLAGS -lthread -l9
+
 tprimes: tprimes.$O $PLAN9/lib/$LIB
 	$LD -o tprimes tprimes.$O $LDFLAGS -lthread -l9
 

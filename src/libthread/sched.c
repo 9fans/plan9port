@@ -36,7 +36,6 @@ _schedinit(void *arg)
 	unlock(&p->lock);
 	while(_setlabel(&p->sched))
 		;
-malloc(10);
 	_threaddebug(DBGSCHED, "top of schedinit, _threadexitsallstatus=%p", _threadexitsallstatus);
 	if(_threadexitsallstatus)
 		_exits(_threadexitsallstatus);
@@ -148,12 +147,10 @@ relock:
 
 		_threaddebug(DBGSCHED, "sleeping for more work (%d threads)", p->nthreads);
 		q->asleep = 1;
-		unlock(&p->readylock);
-		while(rendezvous((ulong)q, 0) == ~0){
-			if(_threadexitsallstatus)
-				_exits(_threadexitsallstatus);
-		}
-		/* lock picked up from _threadready */
+		p->rend.l = &p->readylock;
+		_procsleep(&p->rend);
+		if(_threadexitsallstatus)
+			_exits(_threadexitsallstatus);
 	}
 	t = q->head;
 	q->head = t->next;
@@ -185,18 +182,15 @@ _sched(void)
 Resched:
 	p = _threadgetproc();
 //fprint(2, "p %p\n", p);
-malloc(10);
 	if((t = p->thread) != nil){
 		needstack(512);
 	//	_threaddebug(DBGSCHED, "pausing, state=%s set %p goto %p",
 	//		psstate(t->state), &t->sched, &p->sched);
-print("swap\n");
 		if(_setlabel(&t->sched)==0)
 			_gotolabel(&p->sched);
 		_threadstacklimit(t->stk, t->stk+t->stksize);
 		return p->nsched++;
 	}else{
-malloc(10);
 		t = runthread(p);
 		if(t == nil){
 			_threaddebug(DBGSCHED, "all threads gone; exiting");
@@ -211,8 +205,6 @@ malloc(10);
 		}
 		t->state = Running;
 		t->nextstate = Ready;
-malloc(10);
-print("gotolabel\n");
 		_gotolabel(&t->sched);
 		for(;;);
 	}
@@ -253,13 +245,11 @@ _threadready(Thread *t)
 		assert(q->asleep == 1);
 		q->asleep = 0;
 		/* lock passes to runthread */
-		_threaddebug(DBGSCHED, "waking process %d", t->proc->pid);
-		while(rendezvous((ulong)q, 0) == ~0){
-			if(_threadexitsallstatus)
-				_exits(_threadexitsallstatus);
-		}
-	}else
-		unlock(&t->proc->readylock);
+		_procwakeup(&t->proc->rend);
+	}
+	unlock(&t->proc->readylock);
+	if(_threadexitsallstatus)
+		_exits(_threadexitsallstatus);
 }
 
 void

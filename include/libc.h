@@ -454,6 +454,7 @@ struct _Procrend
 	int asleep;
 	Lock *l;
 	void *arg;
+	int pid;
 #ifdef PLAN9_PTHREADS
 	pthread_cond_t cond;
 #endif

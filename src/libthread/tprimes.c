@@ -41,7 +41,6 @@ threadmain(int argc, char **argv)
 	int i;
 	Channel *c;
 
-malloc(10);
 	ARGBEGIN{
 	case 'D':
 		_threaddebuglevel = atoi(ARGF());
