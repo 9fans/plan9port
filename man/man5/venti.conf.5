@@ -1,0 +1,87 @@
+.TH VENTI.CONF 6
+.SH NAME
+venti.conf  \- a venti configuration file
+.SH DESCRIPTION
+A venti configuration file enumerates the various index sections and
+arenas that constitute a venti system.
+The components are indicated by the name of the file, typically
+a disk partition, in which they reside.  The configuration
+file is the only location that file names are used.  Internally,
+venti uses the names assigned when the components were formatted
+with 
+.I fmtarenas
+or 
+.I fmtisect
+(see
+.IR ventiaux (8)).
+In particular, by changing the configuration a
+component can be copied to a different file.
+.PP
+The configuration file consists of lines in the form described below.
+Lines starting with
+.B #
+are comments.
+.TP
+.BI index " name
+Names the index for the system.
+.TP
+.BI arenas " file
+.I File
+contains a collection of arenas, formatted using
+.IR fmtarenas .
+.TP
+.BI isect " file
+.I File
+contains an index section, formatted using
+.IR fmtisect .
+.PP
+After formatting a venti system using
+.IR fmtindex ,
+the order of arenas and index sections should not be changed.
+Additional arenas can be appended to the configuration.
+.PP
+The configuration file optionally holds configuration parameters
+for the venti server itself.
+These are:
+.TP
+.BI mem " cachesize
+.TP
+.BI bcmem " blockcachesize
+.TP
+.BI icmem " indexcachesize
+.TP
+.BI addr " ventiaddress
+.TP
+.BI httpaddr " httpaddress
+.TP
+.B queuewrites
+.PD
+See 
+.IR venti (8)
+for descriptions of these variables.
+.SH EXAMPLE
+.EX
+# a sample venti configuration file
+#
+# formatted with
+#	venti/fmtarenas arena. /tmp/disks/arenas
+# 	venti/fmtisect isect0 /tmp/disks/isect0
+# 	venti/fmtisect isect1 /tmp/disks/isect1
+#	venti/fmtindex venti.conf
+#
+# server is started with
+#	venti/venti
+
+# the name of the index
+index main
+
+# the index sections
+isect /tmp/disks/isect0
+isect /tmp/disks/isect1
+
+# the arenas
+arenas /tmp/disks/arenas
+.EE
+.SH "SEE ALSO"
+.IR venti (8),
+.IR ventiaux (8)

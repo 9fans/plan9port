@@ -174,8 +174,8 @@ _threadfdwait(int fd, int rw, ulong pc)
 
 	struct {
 		Channel c;
-		Alt *qentry[2];
 		ulong x;
+		Alt *qentry[2];
 	} s;
 
 	threadfdwaitsetup();
@@ -214,11 +214,15 @@ threadsleep(int ms)
 	struct {
 		Channel c;
 		ulong x;
+		Alt *qentry[2];
 	} s;
 
 	threadfdwaitsetup();
 	chaninit(&s.c, sizeof(ulong), 1);
-
+	s.c.qentry = (volatile Alt**)s.qentry;
+	s.c.nentry = 2;
+	memset(s.qentry, 0, sizeof s.qentry);
+	
 	sleepchan[nsleep] = &s.c;
 	sleeptime[nsleep++] = p9nsec()/1000000+ms;
 	recvul(&s.c);

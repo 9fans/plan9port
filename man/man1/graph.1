@@ -1,0 +1,148 @@
+.TH GRAPH 1
+.CT 1 numbers graphics
+.SH NAME
+graph \- draw a graph
+.SH SYNOPSIS
+.B graph
+[
+.I option ...
+]
+.SH DESCRIPTION
+.I Graph
+with no options takes pairs of numbers from the
+standard input as abscissas
+.RI ( x -values)
+and ordinates
+.RI ( y -values)
+of a graph.
+Successive points are connected by straight lines.
+The graph is encoded on the standard output
+for display by
+.IR  plot (1)
+filters.
+.PP
+If an ordinate is followed by
+a nonnumeric string, that string is printed as a
+label beginning on the point.
+Labels may be surrounded with quotes
+.L
+" "
+in which case they may be empty or contain blanks
+and numbers;
+labels never contain newlines.
+.PP
+The following options are recognized,
+each as a separate argument.
+.TP
+.B  -a
+Supply abscissas automatically; no
+.IR x -values
+appear in the input.
+Spacing is given by the next
+argument (default 1).
+A second optional argument is the starting point for
+automatic abscissas (default 0, or 1
+with a log scale in
+.IR x ,
+or the lower limit given by
+.BR -x ).
+.TP
+.B  -b
+Break (disconnect) the graph after each label in the input.
+.TP
+.B  -c
+Character string given by next argument
+is default label for each point.
+.TP
+.B  -g
+Next argument is grid style,
+0 no grid, 1 frame with ticks, 2 full grid (default).
+.TP
+.B  -l
+Next argument is a legend to title the graph.
+Grid ranges
+are automatically printed as part
+of the title unless a
+.B -s
+option is present.
+.TP
+.B  -m
+Next argument is mode (style)
+of connecting lines:
+0 disconnected, 1 connected.
+Some devices give distinguishable line styles
+for other small integers.
+Mode \-1 (default) begins with style 1 and
+rotates styles for successive curves under option
+.BR -o .
+.TP
+.B -o
+(Overlay.)
+The ordinates for
+.I n
+superposed curves appear in the input
+with each abscissa value.
+The next argument is
+.IR n .
+.TP
+.B  -s
+Save screen; no new page for this graph.
+.TP
+.B -x l
+If
+.B l
+is present,
+.IR x -axis
+is logarithmic.
+Next 1 (or 2) arguments are lower (and upper)
+.I x
+limits.
+Third argument, if present, is grid spacing on
+.I x
+axis.
+Normally these quantities are determined automatically.
+.TP
+.B -y l
+Similarly for
+.IR y .
+.TP
+.B -e
+Make automatically determined
+.I x
+and
+.I y
+scales equal.
+.TP
+.B  -h
+Next argument is fraction of space for height.
+.TP
+.B  -w
+Similarly for width.
+.TP
+.B  -r
+Next argument is fraction of space to move right before plotting.
+.TP
+.B  -u
+Similarly to move up before plotting.
+.TP
+.B  -t
+Transpose horizontal and vertical axes.
+(Option
+.B -a
+now applies to the vertical axis.)
+.PP
+If a specified lower limit exceeds the upper limit,
+the axis
+is reversed.
+.SH SOURCE
+.B /sys/src/cmd/graph
+.SH "SEE ALSO"
+.IR plot (1), 
+.IR grap (1)
+.SH BUGS
+Segments that run out of bounds are dropped, not windowed.
+Logarithmic axes may not be reversed.
+Option
+.B -e
+actually makes automatic limits, rather than automatic scaling,
+equal.

@@ -1308,7 +1308,7 @@ runproc(void *argvp)
 	name[e-t] = 0;
 	e = utfrrune(name, '/');
 	if(e)
-		strcpy(name, e+1);
+		memmove(name, e+1, strlen(e+1)+1);	/* strcpy but overlaps */
 	strcat(name, " ");	/* add blank here for ease in waittask */
 	c->name = bytetorune(name, &c->nname);
 	free(name);

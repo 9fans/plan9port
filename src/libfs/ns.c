@@ -23,8 +23,11 @@ nsmount(char *name, char *aname)
 	fd = dial(addr, 0, 0, 0);
 	if(fd < 0){
 		werrstr("dial %s: %r", addr);
+		free(addr);
 		return nil;
 	}
+	free(addr);
+
 	fcntl(fd, F_SETFL, FD_CLOEXEC);
 
 	fs = fsmount(fd, aname);

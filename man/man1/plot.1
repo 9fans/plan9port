@@ -1,0 +1,61 @@
+.TH PLOT 1
+.SH NAME
+plot \- graphics filter
+.SH SYNOPSIS
+.B plot
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Plot
+interprets plotting instructions (see
+.IR  plot (6))
+from the
+.I files
+or standard input,
+drawing the results in a newly created
+.IR rio (1)
+window.
+Plot persists until a newline is typed in the window.
+Various options may be interspersed with the
+.I file
+arguments; they take effect at the given point in processing.
+Options are:
+.TP "\w'\fL-g \fIgrade\fLXX'u"
+.B -d
+Double buffer: accumulate the plot off-screen and write to the screen all at once
+when an erase command is encountered or at end of file.
+.TP
+.B -e
+Erase the screen.
+.TP
+.BI -c " col"
+Set the foreground color (see
+.IR plot (6)
+for color names).
+.TP
+.BI -f " fill"
+Set the background color.
+.TP
+.BI -g " grade"
+Set the quality factor for arcs.
+Higher grades give better quality.
+.TP
+.BI -p " col"
+Set the pen color.
+.TP
+.BI -w
+Pause until a newline is typed on standard input.
+.TP
+.B -C
+Close the current plot.
+.TP
+.B -W " x0,y0,x1,y1"
+Specify the bounding rectangle of plot's window.
+By default it uses a 512×512 window in the
+middle of the screen.
+.SH SOURCE
+.B /sys/src/cmd/plot
+.SH "SEE ALSO"
+.IR rio (1),
+.IR plot (6)

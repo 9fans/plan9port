@@ -1,0 +1,232 @@
+.TH VENTI 8
+.SH NAME
+venti \- an archival block storage server
+.SH SYNOPSIS
+.B venti/venti
+[
+.B -dsw
+]
+[
+.B -a
+.I ventiaddress
+]
+[
+.B -B
+.I blockcachesize
+]
+[
+.B -c
+.I config
+]
+[
+.B -C
+.I cachesize
+]
+[
+.B -h
+.I httpaddress
+]
+[
+.B -I
+.I icachesize
+]
+.PP
+.B venti/sync
+[
+.B -h
+.I host
+]
+.SH DESCRIPTION
+.I Venti
+is a block storage server intended for archival data.
+In a Venti server,
+the SHA1 hash of a block's contents acts as the block
+identifier for read and write operations.
+This approach enforces a write-once policy, preventing accidental or
+malicious destruction of data.  In addition, duplicate copies of a
+block are coalesced, reducing the consumption of storage and
+simplifying the implementation of clients.
+.PP
+Storage for
+.I venti
+consists of a data log and an index, both of which
+can be spread across multiple files.
+The files containing the data log are themselves divided into self-contained sections called arenas.
+Each arena contains a large number of data blocks and is sized to
+facilitate operations such as copying to removable media.
+The index provides a mapping between the a Sha1 fingerprint and
+the location of the corresponding block in the data log.
+.PP
+The index and data log are typically stored on raw disk partitions.
+To improve the robustness, the data log should be stored on
+a device that provides RAID functionality.  The index does
+not require such protection, since if necessary, it can
+can be regenerated from the data log.
+The performance of
+.I venti
+is typically limited to the random access performance
+of the index.  This performance can be improved by spreading the
+index accross multiple disks.  
+.PP
+The storage for
+.I venti
+is initialized using
+.IR fmtarenas ,
+.IR fmtisect ,
+and
+.I fmtindex
+(see
+.IR ventiaux (8)).
+A configuration file,
+.IR venti.conf (6),
+ties the index sections and data arenas together.
+.PP
+A Venti
+server is accessed via an undocumented network protocol.
+Two client applications are included in this distribution:
+.IR vac (1)
+and
+.IR vacfs (4).
+.I Vac
+copies files from a Plan 9 file system to Venti, creating an
+archive and returning the fingerprint of the root.
+This archive can be mounted in Plan 9 using 
+.IR vacfs .
+These two commands enable a rudimentary backup system.
+A future release will include a Plan 9 file system that uses
+Venti as a replacement for the WORM device of 
+.IR fs (4).
+.PP
+The
+.I venti
+server provides rudimentary status information via
+a built-in http server.  The URL files it serves are:
+.TP
+.B stats
+Various internal statistics.
+.TP
+.B index
+An enumeration of the index sections and all non empty arenas, including various statistics.
+.TP
+.B storage
+A summary of the state of the data log.
+.TP
+.B xindex
+An enumeration of the index sections and all non empty arenas, in XML format.
+.PP
+Several auxiliary utilities (see
+.IR ventiaux (8))
+aid in maintaining the storage for Venti.
+With the exception of
+.I rdarena ,
+these utilities should generally be run after killing the
+.I venti
+server.
+The utilities are:
+.TP
+.I checkarenas
+Check the integrity, and optionally fix, Venti arenas.
+.TP
+.I checkindex
+Check the integrity, and optionally fix, a Venti index.
+.TP
+.I buildindex
+Rebuild a Venti index from scratch.
+.TP
+.I rdarena
+Extract a Venti arena and write to standard output.
+.PD
+.PP
+Options to 
+.I venti
+are:
+.TP
+.BI -a " ventiaddress
+The network address on which the server listens for incoming connections.
+The default is
+.LR tcp!*!venti .
+.TP
+.BI -B " blockcachesize
+The size, in bytes, of memory allocated to caching raw disk blocks.
+.TP
+.BI -c " config
+Specifies the
+Venti
+configuration file.
+Defaults to
+.LR venti.conf .
+.TP
+.BI -C " cachesize
+The size, in bytes, of memory allocated to caching 
+Venti
+blocks.
+.TP
+.BI -d
+Produce various debugging information on standard error.
+.TP
+.BI -h " httpaddress
+The network address of Venti's built-in
+http
+server.
+The default is
+.LR tcp!*!http .
+.TP
+.BI -I " icachesize
+The size, in bytes, of memory allocated to caching the index mapping fingerprints
+to locations in 
+.IR venti 's
+data log.
+.TP
+.B -s
+Do not run in the background.
+Normally,
+the foreground process will exit once the Venti server
+is initialized and ready for connections.
+.TP
+.B -w
+Enable write buffering.  This option increase the performance of writes to
+.I venti
+at the cost of returning success to the client application before the
+data has been written to disk.
+The server implements a
+.I sync
+rpc that waits for completion of all the writes buffered at the time
+the rpc was received.
+Applications such as
+.IR vac (1)
+and the
+.I sync
+command described below
+use this rpc to make sure that the data is correctly written to disk.
+Use of this option is recommended.
+.PD
+.PP
+The units for the various cache sizes above can be specified by appending a
+.LR k ,
+.LR m ,
+or
+.LR g
+to indicate kilobytes, megabytes, or gigabytes respectively.
+The command line options override options found in the
+.IR venti.conf (6)
+file.
+.PP
+.I Sync
+connects to a running Venti server and executes a sync rpc
+(described with the
+.B -w
+option above). 
+If sync exits successfully, it means that all writes buffered at the
+time the command was issued are now on disk.
+.SH SOURCE
+.B /sys/src/cmd/venti
+.SH "SEE ALSO"
+.IR venti.conf (6),
+.IR ventiaux (8),
+.IR vac (1),
+.IR vacfs (4).
+.br
+Sean Quinlan and Sean Dorward,
+``Venti: a new approach to archival storage'',
+.I "Usenix Conference on File and Storage Technologies" ,
+2002.

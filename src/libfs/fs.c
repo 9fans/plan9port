@@ -86,19 +86,27 @@ fsunmount(Fsys *fs)
 void
 _fsdecref(Fsys *fs)
 {
-	Fid *f, *next;
+	Fid *f, **l, *next;
 
 	qlock(&fs->lk);
 	--fs->ref;
 	//fprint(2, "fsdecref %p to %d\n", fs, fs->ref);
 	if(fs->ref == 0){
 		close(fs->fd);
+		/* trim the list down to just the first in each chunk */
+		for(l=&fs->freefid; *l; ){
+			if((*l)->fid%Fidchunk == 0)
+				l = &(*l)->next;
+			else
+				*l = (*l)->next;
+		}
+		/* now free the list */
 		for(f=fs->freefid; f; f=next){
 			next = f->next;
-			if(f->fid%Fidchunk == 0)
-				free(f);
+			free(f);
 		}
 		free(fs);
+		return;
 	}
 	qunlock(&fs->lk);
 }

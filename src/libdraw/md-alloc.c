@@ -86,7 +86,13 @@ _allocmemimage(Rectangle r, u32int chan)
 		return nil;
 
 	md->ref = 1;
-	md->base = poolalloc(imagmem, (2+nw)*sizeof(u32int));
+	/*
+	 * The first two words are the md and the callerpc.
+	 * Then nw words of data.
+	 * The final word lets the drawing routines be a little
+	 * sloppy about reading past the end of the block.
+	 */
+	md->base = poolalloc(imagmem, (2+nw+1)*sizeof(u32int));
 	if(md->base == nil){
 		free(md);
 		return nil;
