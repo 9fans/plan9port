@@ -665,7 +665,7 @@ mbsearch(MetaBlock *mb, char *elem, int *ri, MetaEntry *me)
 	*ri = b;	/* b is the index to insert this entry */
 	memset(me, 0, sizeof(*me));
 
-	return 1;
+	return -1;
 }
 
 void

@@ -106,6 +106,7 @@ int		vacfsgetscore(VacFs *fs, u8int *score);
  * int vfsGraft(VacFs*, char *name, VacFs*);
  */
 
+VacFile *vacfsgetroot(VacFs *fs);
 VacFile	*vacfileopen(VacFs *fs, char *path);
 VacFile	*vacfilecreate(VacFile *file, char *elem, ulong perm, char *muid);
 VacFile	*vacfilewalk(VacFile *file, char *elem);

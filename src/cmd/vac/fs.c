@@ -25,7 +25,7 @@ readscore(int fd, uchar score[VtScoreSize])
 	int n;
 
 	n = readn(fd, buf, sizeof(buf)-1);
-	if(n < sizeof(buf)) {
+	if(n < sizeof(buf)-1) {
 		werrstr("short read");
 		return -1;
 	}
@@ -92,7 +92,7 @@ vacfsopenscore(VtConn *z, u8int *score, int mode, int ncache)
 	memmove(fs->score, score, VtScoreSize);
 	fs->mode = mode;
 
-	memmove(e.score, score, VtScoreSize);
+	memmove(e.score, rt.score, VtScoreSize);
 	e.gen = 0;
 	e.psize = (rt.blocksize/VtEntrySize)*VtEntrySize;
 	e.dsize = rt.blocksize;

@@ -95,7 +95,7 @@ dirlookup(VacFile *f, char *elem)
 			goto Err;
 		if(mbunpack(&mb, b->data, meta->dsize) < 0)
 			goto Err;
-		if(mbsearch(&mb, elem, &i, &me) < 0){
+		if(mbsearch(&mb, elem, &i, &me) >= 0){
 			ff = filealloc(f->fs);
 			if(vdunpack(&ff->dir, &me) < 0){
 				filefree(ff);
@@ -1333,11 +1333,18 @@ vacfiledecref(VacFile *f)
 }
 
 VacFile*
-filegetparent(VacFile *f)
+vacfilegetparent(VacFile *f)
 {
 	if(vacfileisroot(f))
 		return vacfileincref(f);
 	return vacfileincref(f->up);
+}
+
+int
+vacfilewrite(VacFile *file, void *buf, int n, vlong offset, char *muid)
+{
+       werrstr("read only file system");
+       return -1;
 }
 
 VacDirEnum*
