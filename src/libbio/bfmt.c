@@ -31,7 +31,11 @@ Bfmtinit(Fmt *f, Biobuf *b)
 int
 Bfmtflush(Fmt *f)
 {
-	if(_Bfmtflush(f) <= 0)
+	Biobuf *b;
+
+	b = f->farg;
+	if(f->to == nil)
 		return -1;
+	b->ocount = (char*)f->to - (char*)f->stop;
 	return f->nfmt;
 }
