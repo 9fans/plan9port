@@ -4,6 +4,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/un.h>
 #include <errno.h>
 
@@ -119,7 +120,7 @@ Success:
 int
 p9listen(char *dir, char *newdir)
 {
-	int fd;
+	int fd, one;
 
 	if((fd = _p9netfd(dir)) < 0){
 		werrstr("bad 'directory' in listen: %s", dir);
@@ -128,6 +129,9 @@ p9listen(char *dir, char *newdir)
 
 	if((fd = accept(fd, nil, nil)) < 0)
 		return -1;
+
+	one = 1;
+	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof one);
 
 	putfd(newdir, fd);
 	return fd;
