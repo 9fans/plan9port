@@ -24,6 +24,8 @@ June 9, 2004
 
 	fix race in libthread - call _exit not exit
 
+	first try at making delete work in rio for gv, from wkj
+
 May 18, 2004
 
         merge troff and friends from wkj and Taj Khattra
