@@ -97,6 +97,7 @@ then
 		eval "have$i() { false; }"
 	done
 	havethread() { false; }
+	havesec() { false; }
 
 	# now find correct order
 	libsl=""
@@ -139,6 +140,12 @@ then
 	if havethread
 	then
 		libsl="$libsl -lthread -l9"
+	fi
+
+	# cycle: lib9 netcrypt uses libsec
+	if havesec
+	then
+		libsl="$libsl -lsec -l9"
 	fi
 
 	if [ "x$needdraw" = xtrue ]
