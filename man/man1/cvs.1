@@ -215,6 +215,16 @@ incorporated into the local tree.
 cd $PLAN9
 cvs diff -r HEAD
 .EE
+.PP
+Make
+.I cvs
+less chatty by setting the global
+.B -q
+flag implicitly on every CVS command:
+.EX
+cd $HOME
+echo 'cvs -q' > .cvsrc
+.EE
 .SH FILES
 .TP
 .B CVS
