@@ -3,7 +3,7 @@
 Rectangle	scrollr;	/* scroll bar rectangle */
 Rectangle	lastsr;		/* used for scroll bar */
 int		holdon;		/* hold mode */
-int		rawon(void);		/* raw mode */
+int		rawon;		/* raw mode */
 int		scrolling;	/* window scrolls */
 int		clickmsec;	/* time of last click */
 uint		clickq0;	/* point of last click */
@@ -59,7 +59,7 @@ Cursor whitearrow = {
 void
 usage(void)
 {
-	fprint(2, "usage: 9term [-a] [-s] [cmd ...]\n");
+	fprint(2, "usage: 9term [-ars] [cmd ...]\n");
 	threadexitsall("usage");
 }
 
@@ -75,6 +75,10 @@ threadmain(int argc, char *argv[])
 		usage();
 	case 'a':	/* acme mode */
 		button2exec++;
+		break;
+	case 'r':
+		/* not clear this is useful */
+		rawon = 1;
 		break;
 	case 's':
 		scrolling++;
@@ -162,16 +166,6 @@ hoststart(void)
 	proccreate(hostproc, hostc, 32*1024);
 }
 
-int crawon = -1;
-
-int
-rawon(void)
-{
-	if(crawon != -1)
-		return crawon;
-	return 0;
-}
-
 void
 loop(void)
 {
@@ -193,7 +187,6 @@ loop(void)
 		a[2].op = CHANRCV;
 		if(!scrolling && t.qh > t.org+t.f->nchars)
 			a[2].op = CHANNOP;;
-		crawon = -1;
 		switch(alt(a)) {
 		default:
 			fatal("impossible");
@@ -353,7 +346,7 @@ mouse(void)
 	if (ptinrect(t.m.xy, scrollr)) {
 		scroll(but);
 		if(t.qh<=t.org+t.f->nchars)
-			consread();;
+			consread();
 		return;
 	}
 		
@@ -529,8 +522,9 @@ key(Rune r)
 		return;
 	}
 
-	if(rawon() && t.q0==t.nr){
+	if(rawon && t.q0==t.nr){
 		addraw(&r, 1);
+		consread();
 		return;
 	}
 
@@ -610,7 +604,8 @@ consready(void)
 	if(holdon)
 		return 0;
 
-	if(rawon()) 
+fprint(2, "consready? %d %d\n", rawon, t.nraw);
+	if(rawon) 
 		return t.nraw != 0;
 
 	/* look to see if there is a complete line */
@@ -646,7 +641,7 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
-			if(!rawon() && (c == '\n' || c == '\004'))
+			if(!rawon && (c == '\n' || c == '\004'))
 				break;
 		}
 		/* take out control-d when not doing a zero length write */
@@ -893,7 +888,7 @@ paste(Rune *r, int n, int advance)
 	uint m;
 	uint q0;
 
-	if(rawon() && t.q0==t.nr){
+	if(rawon && t.q0==t.nr){
 		addraw(r, n);
 		return;
 	}
