@@ -329,7 +329,7 @@ Text*	rowtype(Row*, Rune, Point);
 void		rowdragcol(Row*, Column*, int but);
 int		rowclean(Row*);
 void		rowdump(Row*, char*);
-void		rowload(Row*, char*, int);
+int		rowload(Row*, char*, int);
 void		rowloadfonts(char*);
 
 struct Timer

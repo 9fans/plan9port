@@ -476,14 +476,16 @@ rowloadfonts(char *file)
 		if(l == nil)
 			goto Return;
 		l[Blinelen(b)-1] = 0;
-		if(*l && strcmp(l, fontnames[i])!=0)
+		if(*l && strcmp(l, fontnames[i])!=0){
+			free(fontnames[i]);
 			fontnames[i] = estrdup(l);
+		}
 	}
     Return:
 	Bterm(b);
 }
 
-void
+int
 rowload(Row *row, char *file, int initing)
 {
 	int i, j, line, percent, y, nr, nfontr, n, ns, ndumped, dumpid, x, fd;
@@ -526,7 +528,7 @@ rowload(Row *row, char *file, int initing)
 			goto Rescue2;
 		l[Blinelen(b)-1] = 0;
 		if(*l && strcmp(l, fontnames[i])!=0)
-			rfget(i, TRUE, i==0 && initing, estrdup(l));
+			rfget(i, TRUE, i==0 && initing, l);
 	}
 	if(initing && row->ncol==0)
 		rowinit(row, screen->clipr);
@@ -697,11 +699,11 @@ rowload(Row *row, char *file, int initing)
 			winsettag(w);
 		}else if(dumpid==0 && r[ns+1]!='+' && r[ns+1]!='-')
 			get(&w->body, nil, nil, FALSE, XXX, nil, 0);
-		free(r);
 		if(fontr){
 			fontx(&w->body, nil, nil, 0, 0, fontr, nfontr);
 			free(fontr);
 		}
+		free(r);
 		if(q0>w->body.file->b.nc || q1>w->body.file->b.nc || q0>q1)
 			q0 = q1 = 0;
 		textshow(&w->body, q0, q1, 1);
@@ -709,14 +711,15 @@ rowload(Row *row, char *file, int initing)
 	}
 	Bterm(b);
 
-Rescue1:
 	fbuffree(buf);
-	return;
+	return TRUE;
 
 Rescue2:
 	warning(nil, "bad load file %s:%d\n", file, line);
 	Bterm(b);
-	goto Rescue1;
+Rescue1:
+	fbuffree(buf);
+	return FALSE;
 }
 
 void

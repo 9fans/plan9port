@@ -83,7 +83,7 @@ errorwin1(Rune *dir, int ndir, Rune **incl, int nincl)
 	static Rune Lpluserrors[] = { '+', 'E', 'r', 'r', 'o', 'r', 's', 0 };
 
 	r = runemalloc(ndir+8);
-	if(n = ndir){	/* assign = */
+	if((n = ndir) != 0){
 		runemove(r, dir, ndir);
 		r[n++] = L'/';
 	}

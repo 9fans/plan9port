@@ -445,6 +445,7 @@ collecttext(void)
 				goto Return;
 		}while(s->r[begline]!='.' || s->r[begline+1]!='\n');
 		s->r[s->n-2] = '\0';
+		s->n -= 2;
 	}else{
 		okdelim(delim = getch());
 		getrhs(s, delim, 'a');

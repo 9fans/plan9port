@@ -113,6 +113,9 @@ threadmain(int argc, char *argv[])
 		exits("usage");
 	}ARGEND
 
+	fontnames[0] = estrdup(fontnames[0]);
+	fontnames[1] = estrdup(fontnames[1]);
+
 	quotefmtinstall();
 	cputype = getenv("cputype");
 	objtype = getenv("objtype");
@@ -218,9 +221,7 @@ threadmain(int argc, char *argv[])
 
 	#define	WPERCOL	8
 	disk = diskinit();
-	if(loadfile)
-		rowload(&row, loadfile, TRUE);
-	else{
+	if(!loadfile || !rowload(&row, loadfile, TRUE)){
 		rowinit(&row, screen->clipr);
 		if(ncol < 0){
 			if(argc == 0)
@@ -859,7 +860,7 @@ rfget(int fix, int save, int setfont, char *name)
 		}
 		r = emalloc(sizeof(Reffont));
 		r->f = f;
-		fontcache = realloc(fontcache, (nfontcache+1)*sizeof(Reffont*));
+		fontcache = erealloc(fontcache, (nfontcache+1)*sizeof(Reffont*));
 		fontcache[nfontcache++] = r;
 	}
     Found:
@@ -868,8 +869,10 @@ rfget(int fix, int save, int setfont, char *name)
 		if(reffonts[fix])
 			rfclose(reffonts[fix]);
 		reffonts[fix] = r;
-		free(fontnames[fix]);
-		fontnames[fix] = name;
+		if(fontnames[fix] != name){
+			free(fontnames[fix]);
+			fontnames[fix] = estrdup(name);
+		}
 	}
 	if(setfont){
 		reffont.f = r->f;

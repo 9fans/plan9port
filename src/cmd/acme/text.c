@@ -45,7 +45,7 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 
 	frinit(&t->fr, r, f, b, t->fr.cols);
 	rr = t->fr.r;
-	rr.min.x -= Scrollwid;	/* back fill to scroll bar */
+	rr.min.x -= Scrollwid+Scrollgap;	/* back fill to scroll bar */
 	draw(t->fr.b, rr, t->fr.cols[BACK], nil, ZP);
 	/* use no wider than 3-space tabs in a directory */
 	maxt = maxtab;
@@ -193,6 +193,10 @@ textload(Text *t, uint q0, char *file, int setqid)
 
 	if(t->ncache!=0 || t->file->b.nc || t->w==nil || t!=&t->w->body || (t->w->isdir && t->file->nname==0))
 		error("text.load");
+	if(t->w->isdir && t->file.nname==0){
+		warning(nil, "empty directory name");
+		return 0;
+	}
 	fd = open(file, OREAD);
 	if(fd < 0){
 		warning(nil, "can't open %s: %r\n", file);
@@ -645,7 +649,10 @@ texttype(Text *t, Rune r)
 	switch(r){
 	case Kleft:
 		if(t->q0 > 0){
-			wincommit(t->w, t);
+			if(t->w)
+				wincommit(t->w, t);
+			else
+				textcommit(t->w, TRUE);
 			textshow(t, t->q0-1, t->q0-1, TRUE);
 		}
 		return;
