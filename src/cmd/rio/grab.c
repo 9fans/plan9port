@@ -366,14 +366,8 @@ sweepdrag(Client *c, XButtonEvent *e0, void (*recalc)(Client*, int, int))
 	c->y -= BORDER;
 	c->dx += 2*BORDER;
 	c->dy += 2*BORDER;
-	if (e0) {
+	if (e0)
 		getmouse(&c->x, &c->y, c->screen);
-/*
-		c->x = cx = e0->x;
-		c->y = cy = e0->y;
-		recalc(c, e0->x, e0->y);
-*/
-	}
 	else
 		getmouse(&cx, &cy, c->screen);
 	XGrabServer(dpy);
@@ -459,8 +453,6 @@ sweep(Client *c)
 		ungrab(e);
 		return 0;
 	}
-	if (c->size.flags & (PMinSize|PBaseSize))
-		 setmouse(e->x+c->min_dx, e->y+c->min_dy, s);
 	XChangeActivePointerGrab(dpy, ButtonMask, s->boxcurs, e->time);
 	return sweepdrag(c, e, sweepcalc);
 }
