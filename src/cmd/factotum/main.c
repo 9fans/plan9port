@@ -2,8 +2,9 @@
 #include "dat.h"
 
 int debug;
+int trysecstore = 1;
 char *factname = "factotum";
-char *service = nil;
+char *service = "factotum";
 char *owner;
 char *authaddr;
 void gflag(char*);
@@ -11,18 +12,20 @@ void gflag(char*);
 void
 usage(void)
 {
-	fprint(2, "usage: factotum [-Dd] [-a authaddr] [-m mtpt]\n");
+	fprint(2, "usage: factotum [-Dd] [-a authaddr] [-m mtpt] [-s service]\n");
 	fprint(2, " or   factotum -g keypattern\n");
-	fprint(2, " or   factotum -g 'badkeyattr\nmsg\nkeypattern'");
-	exits("usage");
+	fprint(2, " or   factotum -g 'badkeyattr\\nmsg\\nkeypattern'\n");
+	threadexitsall("usage");
 }
 
 void
 threadmain(int argc, char *argv[])
 {
 	char *mtpt;
+	char err[ERRMAX];
 
-	mtpt = "/mnt";
+//	mtpt = "/mnt";
+	mtpt = nil;
 	owner = getuser();
 	quotefmtinstall();
 	fmtinstall('A', attrfmt);
@@ -31,7 +34,7 @@ threadmain(int argc, char *argv[])
 
 	if(argc == 3 && strcmp(argv[1], "-g") == 0){
 		gflag(argv[2]);
-		exits(nil);
+		threadexitsall(nil);
 	}
 
 	ARGBEGIN{
@@ -51,11 +54,24 @@ threadmain(int argc, char *argv[])
 	case 's':
 		service = EARGF(usage());
 		break;
+	case 'n':
+		trysecstore = 0;
+		break;
 	}ARGEND
 
 	if(argc != 0)
 		usage();
 
+	if(trysecstore && havesecstore()){
+		while(secstorefetch() < 0){
+			rerrstr(err, sizeof err);
+			if(strcmp(err, "cancel") == 0)
+				break;
+			fprint(2, "secstorefetch: %r\n");
+			fprint(2, "Enter an empty password to quit.\n");
+		}
+	}
+	
 	threadpostmountsrv(&fs, service, mtpt, MBEFORE);
 	threadexits(nil);
 }
@@ -150,14 +166,14 @@ gflag(char *s)
 	if(nf == 1){	/* needkey or old badkey */
 		fprint(fd, "\n");
 		askuser(fd, s);
-		exits(nil);
+		threadexitsall(nil);
 	}
 	if(nf == 3){	/* new badkey */
 		fprint(fd, "\n");
 		fprint(fd, "!replace: %s\n", f[0]);
 		fprint(fd, "!because: %s\n", f[1]);
 		askuser(fd, f[2]);
-		exits(nil);
+		threadexitsall(nil);
 	}
 	usage();
 }

@@ -36,6 +36,7 @@ char*
 estrappend(char *s, char *fmt, ...)
 {
 	char *t;
+	int l;
 	va_list arg;
 
 	va_start(arg, fmt);
@@ -43,8 +44,9 @@ estrappend(char *s, char *fmt, ...)
 	if(t == nil)
 		sysfatal("out of memory");
 	va_end(arg);
-	s = erealloc(s, strlen(s)+strlen(t)+1);
-	strcat(s, t);
+	l = s ? strlen(s) : 0;
+	s = erealloc(s, l+strlen(t)+1);
+	strcpy(s+l, t);
 	free(t);
 	return s;
 }

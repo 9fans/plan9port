@@ -87,7 +87,7 @@ _ioauthdial(va_list *arg)
 	dom = va_arg(*arg, char*);
 	fd = _authdial(net, dom);
 	if(fd < 0)
-		fprint(2, "authdial: %r");
+		fprint(2, "authdial: %r\n");
 	return fd;
 }
 

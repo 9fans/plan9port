@@ -419,7 +419,7 @@ fsflush(Req *r)
 static void
 fsdestroyfid(Fid *fid)
 {
-	if(fid->qid.path == Qrpc){
+	if(fid->qid.path == Qrpc && fid->aux){
 		convhangup(fid->aux);
 		convclose(fid->aux);
 	}
@@ -434,8 +434,6 @@ fsreqthread(void *v)
 	Req *r;
 
 	USED(v);
-
-	creq = chancreate(sizeof(Req*), 0);
 
 	while((r = recvp(creq)) != nil){
 		switch(r->ifcall.type){
@@ -464,8 +462,6 @@ fsclunkthread(void *v)
 	Fid *f;
 
 	USED(v);
-	cfid = chancreate(sizeof(Fid*), 0);
-	cfidr = chancreate(sizeof(Fid*), 0);
 
 	while((f = recvp(cfid)) != nil){
 		fsdestroyfid(f);
@@ -486,13 +482,6 @@ fsproc(void *v)
 static void
 fsattach(Req *r)
 {
-	static int first = 1;
-
-	if(first){
-		proccreate(fsproc, nil, STACK);
-		first = 0;
-	}
-
 	r->fid->qid = mkqid(QTDIR, Qroot);
 	r->ofcall.qid = r->fid->qid;
 	respond(r, nil);
@@ -511,6 +500,17 @@ fssendclunk(Fid *f)
 	recvp(cfidr);
 }
 
+void
+fsstart(Srv *s)
+{
+	USED(s);
+
+	creq = chancreate(sizeof(Req*), 0);
+	cfid = chancreate(sizeof(Fid*), 0);
+	cfidr = chancreate(sizeof(Fid*), 0);
+	proccreate(fsproc, nil, STACK);
+}
+
 Srv fs = {
 .attach=	fsattach,
 .walk1=	fswalk1,
@@ -520,5 +520,6 @@ Srv fs = {
 .stat=	fsstat,
 .flush=	fssend,
 .destroyfid=	fssendclunk,
+.start=	fsstart,
 };
 

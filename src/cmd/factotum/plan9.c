@@ -15,7 +15,7 @@ memrandom(void *p, int n)
 /*
  *  create a change uid capability 
  */
-static int caphashfd;
+static int caphashfd = -1;
 
 static char*
 mkcap(char *from, char *to)
@@ -84,17 +84,7 @@ bindnetcs(void)
 int
 _authdial(char *net, char *authdom)
 {
-	int vanilla;
-
-	vanilla = net==nil || strcmp(net, "/net")==0;
-
-	if(!vanilla || bindnetcs()>=0)
-		return authdial(net, authdom);
-
-	/* use the auth sever passed to us as an arg */
-	if(authaddr == nil)
-		return -1;
-	return dial(netmkaddr(authaddr, "tcp", "567"), 0, 0, 0);
+	return authdial(net, authdom);
 }
 
 Key*
@@ -115,75 +105,4 @@ plan9authkey(Attr *a)
 	if(k == nil)
 		werrstr("could not find plan 9 auth key dom %q", dom);
 	return k;
-}
-
-/*
- *  prompt for a string with a possible default response
- */
-char*
-readcons(char *prompt, char *def, int raw)
-{
-	int fdin, fdout, ctl, n;
-	char line[10];
-	char *s;
-
-	fdin = open("/dev/cons", OREAD);
-	if(fdin < 0)
-		fdin = 0;
-	fdout = open("/dev/cons", OWRITE);
-	if(fdout < 0)
-		fdout = 1;
-	if(def != nil)
-		fprint(fdout, "%s[%s]: ", prompt, def);
-	else
-		fprint(fdout, "%s: ", prompt);
-	if(raw){
-		ctl = open("/dev/consctl", OWRITE);
-		if(ctl >= 0)
-			write(ctl, "rawon", 5);
-	} else
-		ctl = -1;
-	s = estrdup("");
-	for(;;){
-		n = read(fdin, line, 1);
-		if(n == 0){
-		Error:
-			close(fdin);
-			close(fdout);
-			if(ctl >= 0)
-				close(ctl);
-			free(s);
-			return nil;
-		}
-		if(n < 0)
-			goto Error;
-		if(line[0] == 0x7f)
-			goto Error;
-		if(n == 0 || line[0] == '\n' || line[0] == '\r'){
-			if(raw){
-				write(ctl, "rawoff", 6);
-				write(fdout, "\n", 1);
-			}
-			close(ctl);
-			close(fdin);
-			close(fdout);
-			if(*s == 0 && def != nil)
-				s = estrappend(s, "%s", def);
-			return s;
-		}
-		if(line[0] == '\b'){
-			if(strlen(s) > 0)
-				s[strlen(s)-1] = 0;
-		} else if(line[0] == 0x15) {	/* ^U: line kill */
-			if(def != nil)
-				fprint(fdout, "\n%s[%s]: ", prompt, def);
-			else
-				fprint(fdout, "\n%s: ", prompt);
-			
-			s[0] = 0;
-		} else {
-			s = estrappend(s, "%c", line[0]);
-		}
-	}
-	return nil; /* not reached */
 }

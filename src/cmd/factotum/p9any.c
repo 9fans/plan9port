@@ -119,7 +119,7 @@ out:
 static int
 p9anyclient(Conv *c)
 {
-	char *s, **f, *tok[20], ok[3], *q, *user, *dom;
+	char *s, **f, *tok[20], ok[3], *q, *user, *dom, *choice;
 	int i, n, ret, version;
 	Key *k;
 	Attr *attr;
@@ -222,12 +222,12 @@ found:
 	c->state = "write choice";
 	
 	/* have a key: go for it */
-	s = estrappend(nil, "%q %q", f[i], q);
-	if(convwrite(c, s, strlen(s)+1) < 0){
-		free(s);
+	choice = estrappend(nil, "%q %q", f[i], q);
+	if(convwrite(c, choice, strlen(choice)+1) < 0){
+		free(choice);
 		goto out;
 	}
-	free(s);
+	free(choice);
 
 	if(version == 2){
 		c->state = "read ok";
