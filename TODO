@@ -1,0 +1,51 @@
+* Bring over various trivial but useful command-line programs:
+	cal
+	calendar
+	date
+	diff
+	echo
+	ed
+	hoc
+
+* Libdraw
+	- should implement the alt sequences for unicode composition
+	  the code is in drawterm, just needs to be pulled in.
+	- snarf code doesn't work on mac os?
+
+* Plumber
+	- need to redefine how you find and talk to the plumber,
+	  probably using named pipes or unix sockets.
+	- hook samterm up to the plumber
+	- now trivial to plumb to web browser!
+
+* 9term
+	- would be great to have a 9term lookalike that was 
+	  a little more faithful (or, better, like acme win)
+
+* Acme
+	- once have a plumber, might not be too hard to
+	  redo the file system interface as a text rpc
+	  over unix domain sockets.
+	- until then, the x11 "ion" window manager is an
+	  interesting half-way point.  perhaps it makes
+	  more sense to split acme's editing into tightly
+	  coupled separate programs (perhaps communicating
+	  via the plumber?) and then have acme be
+	  a window manager a bit like ion?
+
+* Mail
+	- no ideas here
+
+* Venti
+	- server port is in progress (actually done, but with an 
+	  earlier library set).
+	- vac is easy to port
+	- need way to mount vacs.  have all the code for a /vac file
+	  system (e.g., cd /vac/68b329da9893e34099c7d8ad5cb9c940da9393e3)
+	  but need to put it together.
+
+* Dump
+	- have a dump file system that sits on the side of ffs.
+	  needs cleanup and release.  should be easy to add ext2,
+	  fat.  ntfs harder but possible.
+

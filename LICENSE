@@ -2,7 +2,8 @@ The bulk of this software is derived from Plan 9 and is thus distributed
 under the Lucent Public License, Version 1.02, reproduced below.
 
 There are a few exceptions: libutf, libfmt, and libregexp are distributed
-under simpler BSD-like boilerplates.  See the LICENSE files in those directories.
+under simpler BSD-like boilerplates.  See the LICENSE files in those
+directories.
 
 The bitmap fonts in the font directory are copyright B&H Inc. and Y&Y Inc.
 and distributed under the following exception to the Lucent license:
