@@ -65,7 +65,7 @@ threadmain(int argc, char *argv[])
 	if(argc){
 	Usage:
 		fprint(2, "Usage: %s [-rx]\n", argv0);
-		exits("usage");
+		threadexitsall("usage");
 	}
 
 	if(initdraw(0, nil, "colors") < 0)
@@ -173,7 +173,7 @@ mousethread(void *v)
 		case 4:
 			switch(menuhit(3, mousectl, &menu, nil)){
 			case 0:
-				exits(0);
+				threadexitsall(0);
 			}
 		}
 	}
@@ -187,7 +187,7 @@ eresized(int new)
 
 	if(new && getwindow(display, Refnone) < 0){
 		fprint(2, "colors: can't reattach to window: %r\n");
-		exits("resized");
+		threadexitsall("resized");
 	}
 	if(screen->depth > 8){
 		n = 256;
