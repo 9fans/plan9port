@@ -93,7 +93,7 @@ void
 threadmain(int argc, char **argv)
 {
 	int fd, pid, export, dotextlist;
-	char dir[100];
+	char dir[100], *ns;
 	char sock[200], addr[200];
 	uvlong x;
 
@@ -129,13 +129,17 @@ threadmain(int argc, char **argv)
 	if(dotextlist)
 		listkeystext();
 
-	x = ((uvlong)fastrand()<<32) | fastrand();
-	x ^= ((uvlong)fastrand()<<32) | fastrand();
-	snprint(dir, sizeof dir, "/tmp/ssh-%llux", x);
-	if((fd = create(dir, OREAD, DMDIR|0700)) < 0)
-		sysfatal("mkdir %s: %r", dir);
-	close(fd);
-	snprint(sock, sizeof sock, "%s/agent.%d", dir, pid);
+	ns = getns();
+	snprint(sock, sizeof sock, "%s/ssh-agent.socket", ns);
+	if(0){
+		x = ((uvlong)fastrand()<<32) | fastrand();
+		x ^= ((uvlong)fastrand()<<32) | fastrand();
+		snprint(dir, sizeof dir, "/tmp/ssh-%llux", x);
+		if((fd = create(dir, OREAD, DMDIR|0700)) < 0)
+			sysfatal("mkdir %s: %r", dir);
+		close(fd);
+		snprint(sock, sizeof sock, "%s/agent.%d", dir, pid);
+	}
 	snprint(addr, sizeof addr, "unix!%s", sock);
 
 	if((afd = announce(addr, adir)) < 0)
