@@ -24,4 +24,6 @@ HFILES=\
 CFLAGS+=-I../sam
 LDFLAGS+=-lframe -ldraw -lthread -l9 -lregexp9 -lbio -lfmt -lutf -L$(X11)/lib -lX11 -lm
 
+samterm: $(9SRC)/lib/libdraw.a
+
 include ../Makeone

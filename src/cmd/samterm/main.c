@@ -32,6 +32,20 @@ threadmain(int argc, char *argv[])
 	Rectangle r;
 	Flayer *nwhich;
 
+	/*
+	 * sam is talking to us on fd 0 and 1.
+	 * move these elsewhere so that if we accidentally
+	 * use 0 and 1 in other code, nothing bad happens.
+	 */
+	dup(0, 3);
+	dup(1, 4);
+	hostfd[0] = 3;
+	hostfd[1] = 4;
+	close(0);
+	close(1);
+	open("/dev/null", OREAD);
+	dup(2, 1);
+
 	getscreen(argc, argv);
 	iconinit();
 	initio();

@@ -1,3 +1,7 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
@@ -9,7 +13,7 @@
 #include "flayer.h"
 #include "samterm.h"
 
-static char exname[64];
+static char *exname;
 
 void
 getscreen(int argc, char **argv)
@@ -19,7 +23,7 @@ getscreen(int argc, char **argv)
 	USED(argc);
 	USED(argv);
 	if(initdraw(panic1, nil, "sam") < 0){
-		fprint(2, "samterm: initimage: %r\n");
+		fprint(2, "samterm: initdraw: %r\n");
 		threadexitsall("init");
 	}
 	t = getenv("tabstop");
@@ -58,33 +62,13 @@ screensize(int *w, int *h)
 int
 snarfswap(char *fromsam, int nc, char **tosam)
 {
-	char *s1;
-	int f, n, ss;
+	char *s;
 
-	f = open("/dev/snarf", 0);
-	if(f < 0)
-		return -1;
-	ss = SNARFSIZE;
-	if(hversion < 2)
-		ss = 4096;
-	*tosam = s1 = alloc(ss);
-	n = read(f, s1, ss-1);
-	close(f);
-	if(n < 0)
-		n = 0;
-	if (n == 0) {
-		*tosam = 0;
-		free(s1);
-	} else
-		s1[n] = 0;
-/*
-	f = create("/dev/snarf", 1, 0666);
-	if(f >= 0){
-		write(f, fromsam, nc);
-		close(f);
-	}
-*/
-	return n;
+fprint(2, "snarfswap\n");
+	s = getsnarf();
+	putsnarf(fromsam);
+	*tosam = s;
+	return s ? strlen(s) : 0;
 }
 
 void
@@ -101,68 +85,86 @@ removeextern(void)
 }
 
 Readbuf	hostbuf[2];
-/*
 Readbuf	plumbbuf[2];
 
 void
 extproc(void *argv)
 {
 	Channel *c;
-	int i, n, which, *fdp;
+	int i, n, which, fd;
 	void **arg;
 
 	arg = argv;
 	c = arg[0];
-	fdp = arg[1];
+	fd = (int)arg[1];
 
 	i = 0;
 	for(;;){
-		i = 1-i;	/ * toggle * /
-		n = read(*fdp, plumbbuf[i].data, sizeof plumbbuf[i].data);
+		i = 1-i;	/* toggle */
+		n = read(fd, plumbbuf[i].data, sizeof plumbbuf[i].data);
 		if(n <= 0){
 			fprint(2, "samterm: extern read error: %r\n");
-			threadexits("extern");	/ * not a fatal error * /
+			threadexits("extern");	/* not a fatal error */
 		}
 		plumbbuf[i].n = n;
 		which = i;
 		send(c, &which);
 	}
 }
-*/
 
 void
 extstart(void)
 {
-	char buf[32];
-	int fd;
-	static int p[2];
+	char *user, *disp;
+	int fd, flags;
 	static void *arg[2];
 
-return;
-	if(pipe(p) < 0)
+	user = getenv("USER");
+	if(user == nil)
 		return;
-	sprint(exname, "/srv/sam.%s", "rsc"/*getuser()*/);
-	fd = open(exname, 1, 0600);/* BUG was create */
-	if(fd < 0){	/* assume existing guy is more important */
-    Err:
-		close(p[0]);
-		close(p[1]);
+	disp = getenv("DISPLAY");
+	if(disp)
+		exname = smprint("/tmp/.sam.%s.%s", user, disp);
+	else
+		exname = smprint("/tmp/.sam.%s", user);
+	if(exname == nil){
+		fprint(2, "not posting for B: out of memory\n");
 		return;
 	}
-	sprint(buf, "%d", p[0]);
-	if(write(fd, buf, strlen(buf)) <= 0)
-		goto Err;
-	close(fd);
+
+	if(mkfifo(exname, 0600) < 0){
+		struct stat st;
+		if(errno != EEXIST || stat(exname, &st) < 0)
+			return;
+		if(!S_ISFIFO(st.st_mode)){
+			removeextern();
+			if(mkfifo(exname, 0600) < 0)
+				return;
+		}
+	}
+
+	fd = open(exname, OREAD|O_NONBLOCK);
+	if(fd == -1){
+		removeextern();
+		return;
+	}
+
 	/*
-	 * leave p[0] open so if the file is removed the event
-	 * library won't get an error
+	 * Turn off no-delay and provide ourselves as a lingering
+	 * writer so as not to get end of file on read.
 	 */
-#if 0
+	flags = fcntl(fd, F_GETFL, 0);
+	if(flags<0 || fcntl(fd, F_SETFL, flags&~O_NONBLOCK)<0
+	||open(exname, OWRITE) < 0){
+		close(fd);
+		removeextern();
+		return;
+	}
+
 	plumbc = chancreate(sizeof(int), 0);
 	arg[0] = plumbc;
-	arg[1] = &p[1];
-	proccreate(extproc, arg, 1024);
-#endif
+	arg[1] = (void*)fd;
+	proccreate(extproc, arg, 8192);
 	atexit(removeextern);
 }
 
@@ -277,7 +279,7 @@ hostproc(void *arg)
 	i = 0;
 	for(;;){
 		i = 1-i;	/* toggle */
-		n = read(0, hostbuf[i].data, sizeof hostbuf[i].data);
+		n = read(hostfd[0], hostbuf[i].data, sizeof hostbuf[i].data);
 		if(n <= 0){
 			fprint(2, "samterm: host read error: %r\n");
 			threadexitsall("host");

@@ -16,6 +16,7 @@ uchar	indata[DATASIZE+1];	/* room for NUL */
 uchar	outdata[DATASIZE];
 short	outcount;
 int	hversion;
+int	hostfd[2];
 
 void	inmesg(Hmesg, int);
 int	inshort(int);
@@ -510,7 +511,7 @@ outsend(void)
 		panic("outcount>sizeof outdata");
 	outdata[1]=outcount;
 	outdata[2]=outcount>>8;
-	if(write(1, (char *)outdata, outcount+HSIZE)!=outcount+HSIZE)
+	if(write(hostfd[1], (char *)outdata, outcount+HSIZE)!=outcount+HSIZE)
 		panic("write error");
 }
 
@@ -651,7 +652,7 @@ hsetsnarf(int nc)
 		s1[n] = 0;
 		snarflen = n;
 		outTs(Tsetsnarf, n);
-		if(n>0 && write(1, s1, n)!=n)
+		if(n>0 && write(hostfd[1], s1, n)!=n)
 			panic("snarf write error");
 		free(s1);
 	}else

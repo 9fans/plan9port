@@ -74,10 +74,10 @@ button(int but)
 	return mousep->buttons&(1<<(but-1));
 }
 
-/*
 void
 externload(int i)
 {
+	drawtopwindow();
 	plumbbase = malloc(plumbbuf[i].n);
 	if(plumbbase == 0)
 		return;
@@ -86,7 +86,6 @@ externload(int i)
 	plumbstop = plumbbase + plumbbuf[i].n;
 	got |= 1<<RPlumb;
 }
-*/
 
 int
 waitforio(void)
@@ -140,11 +139,9 @@ again:
 		hoststop = hostbuf[i].data + hostbuf[i].n;
 		block = 0;
 		break;
-/*
 	case RPlumb:
 		externload(i);
 		break;
-*/
 	case RKeyboard:
 		kbdc = r;
 		break;
@@ -250,7 +247,7 @@ ekbd(void)
 int
 kbdchar(void)
 {
-	int c, i;
+	int i, c;
 
 	c = externchar();
 	if(c > 0)
@@ -261,14 +258,12 @@ kbdchar(void)
 		got &= ~(1<<RKeyboard);
 		return c;
 	}
-#if 0
 	while(plumbc!=nil && nbrecv(plumbc, &i)>0){
 		externload(i);
 		c = externchar();
 		if(c > 0)
 			return c;
 	}
-#endif
 	if(!ecankbd())
 		return -1;
 	return ekbd();
