@@ -7,7 +7,6 @@ OFILES=\
 	ioproc.$O\
 	iorw.$O\
 	pthread.$O\
-	qlock.$O\
 	ref.$O\
 	thread.$O\
 
