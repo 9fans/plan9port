@@ -1,5 +1,5 @@
 PLAN9=../../..
-include $(PLAN9)/src/Makehdr
+<$PLAN9/src/mkhdr
 
 TARG=mk
 
@@ -31,7 +31,7 @@ HFILES=\
 	mk.h\
 	fns.h\
 
-LDFLAGS+=-lregexp9 -lbio -l9 -lfmt -lutf
+LDFLAGS=$LDFLAGS -lregexp9 -lbio -lfmt -lutf
 
-include $(PLAN9)/src/Makeone
+<$PLAN9/src/mkone
 
