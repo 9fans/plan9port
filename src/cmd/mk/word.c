@@ -114,7 +114,7 @@ nextword(char **s)
 		case '\\':
 		case '\'':
 		case '"':
-			cp = expandquote(cp, r, b);
+			cp = shellt->expandquote(cp, r, b);
 			if(cp == 0){
 				fprint(2, "missing closing quote: %s\n", *s);
 				Exit();

@@ -84,7 +84,7 @@ applyrules(char *target, char *cnt)
 			if(regexec(r->pat, node->name, rmatch, NREGEXP) == 0)
 				continue;
 		} else {
-			if(!match(node->name, r->target, stem)) continue;
+			if(!match(node->name, r->target, stem, r->shellt)) continue;
 		}
 		if(cnt[r->rule] >= nreps) continue;
 		cnt[r->rule]++;

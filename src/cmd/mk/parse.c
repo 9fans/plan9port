@@ -17,11 +17,13 @@ parse(char *f, int fd, int varoverride)
 	int newfd;
 	Biobuf in;
 	Bufblock *buf;
+	char *err;
 
 	if(fd < 0){
 		fprint(2, "open %s: %r\n", f);
 		Exit();
 	}
+	pushshell();
 	ipush();
 	infile = strdup(f);
 	mkinline = 1;
@@ -52,7 +54,7 @@ parse(char *f, int fd, int varoverride)
 				Exit();
 			}
 			execinit();
-			pid=pipecmd(p, envy, &newfd);
+			pid=pipecmd(p, envy, &newfd, shellt, shellcmd);
 			if(newfd < 0){
 				fprint(2, "warning: skipping missing program file %s: %r\n", p);
 			} else
@@ -93,6 +95,14 @@ cp = wtos(tail, ' '); print("assign %s to %s\n", head->s, cp); free(cp);
 			if(attr)
 				symlook(head->s, S_NOEXPORT, (void *)"");
 			break;
+		case 'S':
+			if((err = setshell(tail)) != nil){
+				SYNERR(hline);
+				fprint(2, "%s\n", err);
+				Exit();
+				break;
+			}
+			break;
 		default:
 			SYNERR(hline);
 			fprint(2, "expected one of :<=\n");
@@ -103,6 +113,7 @@ cp = wtos(tail, ' '); print("assign %s to %s\n", head->s, cp); free(cp);
 	close(fd);
 	freebuf(buf);
 	ipop();
+	popshell();
 }
 
 void
@@ -114,7 +125,7 @@ addrules(Word *head, Word *tail, char *body, int attr, int hline, char *prog)
 		/* tuck away first non-meta rule as default target*/
 	if(target1 == 0 && !(attr&REGEXP)){
 		for(w = head; w; w = w->next)
-			if(charin(w->s, "%&"))
+			if(shellt->charin(w->s, "%&"))
 				break;
 		if(w == 0)
 			target1 = wdup(head);
@@ -133,19 +144,24 @@ rhead(char *line, Word **h, Word **t, int *attr, char **prog)
 	int n;
 	Word *w;
 
-	p = charin(line,":=<");
-	if(p == 0)
-		return('?');
-	sep = *p;
-	*p++ = 0;
-	if(sep == '<' && *p == '|'){
-		sep = '|';
-		p++;
+	if(*line == '|'){
+		sep = 'S';	/* shell */
+		p = line+1;
+	}else{
+		p = shellt->charin(line,":=<");
+		if(p == 0)
+			return('?');
+		sep = *p;
+		*p++ = 0;
+		if(sep == '<' && *p == '|'){
+			sep = '|';
+			p++;
+		}
 	}
 	*attr = 0;
 	*prog = 0;
 	if(sep == '='){
-		pp = charin(p, termchars);	/* termchars is shell-dependent */
+		pp = shellt->charin(p, shellt->termchars);	/* termchars is shell-dependent */
 		if (pp && *pp == '=') {
 			while (p != pp) {
 				n = chartorune(&r, p);
@@ -219,7 +235,7 @@ rhead(char *line, Word **h, Word **t, int *attr, char **prog)
 		}
 	}
 	*h = w = stow(line);
-	if(*w->s == 0 && sep != '<' && sep != '|') {
+	if(*w->s == 0 && sep != '<' && sep != '|' && sep != 'S') {
 		SYNERR(mkinline-1);
 		fprint(2, "no var on left side of assignment/rule\n");
 		Exit();

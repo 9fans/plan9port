@@ -59,7 +59,7 @@ sched(void)
 	events[slot].job = j;
 	buf = newbuf();
 	e = buildenv(j, slot);
-	shprint(j->r->recipe, e, buf);
+	shprint(j->r->recipe, e, buf, j->r->shellt);
 	if(!tflag && (nflag || !(j->r->attr&QUIET)))
 		Bwrite(&bout, buf->start, (long)strlen(buf->start));
 	freebuf(buf);
@@ -82,7 +82,7 @@ sched(void)
 			flags = 0;
 		else
 			flags = "-e";
-		events[slot].pid = execsh(flags, j->r->recipe, 0, e);
+		events[slot].pid = execsh(flags, j->r->recipe, 0, e, j->r->shellt, j->r->shellcmd);
 		usage();
 		nrunning++;
 		if(DEBUG(D_EXEC))
@@ -145,7 +145,7 @@ again:		/* rogue processes */
 	if(buf[0]){
 		e = buildenv(j, slot);
 		bp = newbuf();
-		shprint(j->r->recipe, e, bp);
+		shprint(j->r->recipe, e, bp, j->r->shellt);
 		front(bp->start);
 		fprint(2, "mk: %s: exit status=%s", bp->start, buf);
 		freebuf(bp);

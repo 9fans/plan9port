@@ -23,6 +23,8 @@ addrule(char *head, Word *tail, char *body, Word *ahead, int attr, int hline, ch
 	}
 	if(r == 0)
 		r = (Rule *)Malloc(sizeof(Rule));
+	r->shellt = shellt;
+	r->shellcmd = shellcmd;
 	r->target = head;
 	r->tail = tail;
 	r->recipe = body;
@@ -42,7 +44,7 @@ addrule(char *head, Word *tail, char *body, Word *ahead, int attr, int hline, ch
 	}
 	if(!reuse)
 		r->next = 0;
-	if((attr&REGEXP) || charin(head, "%&")){
+	if((attr&REGEXP) || shellt->charin(head, "%&")){
 		r->attr |= META;
 		if(reuse)
 			return;
@@ -72,7 +74,8 @@ addrule(char *head, Word *tail, char *body, Word *ahead, int attr, int hline, ch
 void
 dumpr(char *s, Rule *r)
 {
-	Bprint(&bout, "%s: start=%ld\n", s, r);
+	Bprint(&bout, "%s: start=%ld shelltype=%s shellcmd=%s\n", 
+		s, r, r->shellt->name, wtos(r->shellcmd, ' '));
 	for(; r; r = r->next){
 		Bprint(&bout, "\tRule %ld: %s[%d] attr=%x next=%ld chain=%ld alltarget='%s'",
 			r, r->file, r->line, r->attr, r->next, r->chain, wtos(r->alltargets, ' '));

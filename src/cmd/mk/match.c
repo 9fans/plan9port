@@ -1,7 +1,7 @@
 #include	"mk.h"
 
 int
-match(char *name, char *template, char *stem)
+match(char *name, char *template, char *stem, Shell *sh)
 {
 	Rune r;
 	int n;
@@ -24,7 +24,7 @@ match(char *name, char *template, char *stem)
 	strncpy(stem, name, n);
 	stem[n] = 0;
 	if(*template == '&')
-		return !charin(stem, "./");
+		return !sh->charin(stem, "./");
 	return 1;
 }
 

@@ -26,6 +26,18 @@ typedef struct Envy
 
 extern Envy *envy;
 
+typedef struct Shell
+{
+	char *name;
+	char	*termchars;	/* used in parse.c to isolate assignment attribute */
+	int	iws;			/* inter-word separator in environment */
+	char	*(*charin)(char*, char*);	/* search for unescaped characters */
+	char	*(*expandquote)(char*, Rune, Bufblock*);	/* extract escaped token */
+	int	(*escapetoken)(Biobuf*, Bufblock*, int, int);	/* input escaped token */
+	char	*(*copyq)(char*, Rune, Bufblock*);	/* check for quoted strings */
+	int	(*matchname)(char*);	/* does name match */
+} Shell;
+
 typedef struct Rule
 {
 	char 		*target;	/* one target */
@@ -40,6 +52,8 @@ typedef struct Rule
 	char		*prog;		/* to use in out of date */
 	struct Rule	*chain;		/* hashed per target */
 	struct Rule	*next;
+	Shell		*shellt;	/* shell to use with this rule */
+	Word	*shellcmd;
 } Rule;
 
 extern Rule *rules, *metarules, *patrule;
@@ -143,11 +157,10 @@ extern	int	mkinline;
 extern	char	*infile;
 extern	int	nreps;
 extern	char	*explain;
-extern	char	*termchars;
-extern	int	IWS;
-extern	char 	*shell;
-extern	char 	*shellname;
-extern	char 	*shflags;
+extern	Shell	*shellt;
+extern	Word	*shellcmd;
+
+extern	Shell	shshell, rcshell;
 
 #define	SYNERR(l)	(fprint(2, "mk: %s:%d: syntax error; ", infile, ((l)>=0)?(l):mkinline))
 #define	RERR(r)		(fprint(2, "mk: %s:%d: rule error; ", (r)->file, (r)->line))

@@ -192,14 +192,14 @@ update(int fake, Node *node)
 }
 
 static int
-pcmp(char *prog, char *p, char *q)
+pcmp(char *prog, char *p, char *q, Shell *sh, Word *shcmd)
 {
 	char buf[3*NAMEBLOCK];
 	int pid;
 
 	Bflush(&bout);
 	snprint(buf, sizeof buf, "%s '%s' '%s'\n", prog, p, q);
-	pid = pipecmd(buf, 0, 0);
+	pid = pipecmd(buf, 0, 0, sh, shcmd);
 	while(waitup(-3, &pid) >= 0)
 		;
 	return(pid? 2:1);
@@ -219,7 +219,7 @@ outofdate(Node *node, Arc *arc, int eval)
 		if(sym == 0 || eval){
 			if(sym == 0)
 				str = strdup(buf);
-			ret = pcmp(arc->prog, node->name, arc->n->name);
+			ret = pcmp(arc->prog, node->name, arc->n->name, arc->r->shellt, arc->r->shellcmd);
 			if(sym)
 				sym->value = (void *)ret;
 			else

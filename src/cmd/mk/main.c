@@ -39,6 +39,7 @@ main(int argc, char **argv)
 	 *  instead of sharing them
 	 */
 
+	initshell();
 	Binit(&bout, 1, OWRITE);
 	buf = newbuf();
 	whatif = 0;

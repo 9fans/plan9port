@@ -40,7 +40,7 @@ getfields(char *str, char **args, int max, int mflag, char *set)
 }
 
 void
-shprint(char *s, Envy *env, Bufblock *buf)
+shprint(char *s, Envy *env, Bufblock *buf, Shell *sh)
 {
 	int n;
 	Rune r;
@@ -52,7 +52,7 @@ shprint(char *s, Envy *env, Bufblock *buf)
 		else {
 			rinsert(buf, r);
 			s += n;
-			s = copyq(s, r, buf);	/*handle quoted strings*/
+			s = sh->copyq(s, r, buf);	/*handle quoted strings*/
 		}
 	}
 	insert(buf, 0);

@@ -28,7 +28,7 @@ assline(Biobuf *bp, Bufblock *buf)
 		case '\'':
 		case '"':
 			rinsert(buf, c);
-			if (escapetoken(bp, buf, 1, c) == 0)
+			if (shellt->escapetoken(bp, buf, 1, c) == 0)
 				Exit();
 			break;
 		case '`':
@@ -87,14 +87,14 @@ bquote(Biobuf *bp, Bufblock *buf)
 			insert(buf,0);
 			buf->current = buf->start+start;
 			execinit();
-			execsh(0, buf->current, buf, envy);
+			execsh(0, buf->current, buf, envy, shellt, shellcmd);
 			return 1;
 		}
 		if(c == '\n')
 			break;
 		if(c == '\'' || c == '"' || c == '\\'){
 			insert(buf, c);
-			if(!escapetoken(bp, buf, 1, c))
+			if(!shellt->escapetoken(bp, buf, 1, c))
 				return 0;
 			continue;
 		}

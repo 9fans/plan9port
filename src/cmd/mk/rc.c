@@ -1,9 +1,5 @@
 #include	"mk.h"
 
-char	*termchars = "'= \t";	/*used in parse.c to isolate assignment attribute*/
-char	*shflags = "-I";	/* rc flag to force non-interactive mode */
-int	IWS = '\1';		/* inter-word separator in env - not used in plan 9 */
-
 /*
  *	This file contains functions that depend on rc's syntax.  Most
  *	of the routines extract strings observing rc's escape conventions
@@ -38,7 +34,7 @@ squote(char *cp)
  *	characters in quotes and variable generators are escaped
  */
 char *
-charin(char *cp, char *pat)
+rccharin(char *cp, char *pat)
 {
 	Rune r;
 	int n, vargen;
@@ -82,7 +78,7 @@ charin(char *cp, char *pat)
  *	others are just inserted into the receiving buffer.
  */
 char*
-expandquote(char *s, Rune r, Bufblock *b)
+rcexpandquote(char *s, Rune r, Bufblock *b)
 {
 	if (r != '\'') {
 		rinsert(b, r);
@@ -108,7 +104,7 @@ expandquote(char *s, Rune r, Bufblock *b)
  *	rc; the others are just inserted into the receiving buffer.
  */
 int
-escapetoken(Biobuf *bp, Bufblock *buf, int preserve, int esc)
+rcescapetoken(Biobuf *bp, Bufblock *buf, int preserve, int esc)
 {
 	int c, line;
 
@@ -155,7 +151,7 @@ copysingle(char *s, Bufblock *buf)
  *	s points to char after opening quote, q.
  */
 char *
-copyq(char *s, Rune q, Bufblock *buf)
+rccopyq(char *s, Rune q, Bufblock *buf)
 {
 	if(q == '\'')				/* copy quoted string */
 		return copysingle(s, buf);
@@ -173,3 +169,26 @@ copyq(char *s, Rune q, Bufblock *buf)
 	}
 	return s;
 }
+
+static int
+rcmatchname(char *name)
+{
+	char *p;
+
+	if((p = strchr(name, '/')) != nil)
+		name = p+1;
+	if(name[0] == 'r' && name[1] == 'c')
+		return 1;
+	return 0;
+}
+
+Shell rcshell = {
+	"rc",
+	"'= \t",
+	'\1',
+	rccharin,
+	rcexpandquote,
+	rcescapetoken,
+	rccopyq,
+	rcmatchname,
+};

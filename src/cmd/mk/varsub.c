@@ -103,7 +103,7 @@ expandvar(char **s)
 		return 0;
 	}
 	cp++;
-	end = charin(cp , "}");
+	end = shellt->charin(cp , "}");
 	if(end == 0){
 		SYNERR(-1);
 		fprint(2, "missing '}': %s\n", begin);
@@ -128,7 +128,7 @@ extractpat(char *s, char **r, char *term, char *end)
 	char *cp;
 	Word *w;
 
-	cp = charin(s, term);
+	cp = shellt->charin(s, term);
 	if(cp){
 		*r = cp;
 		if(cp == s)

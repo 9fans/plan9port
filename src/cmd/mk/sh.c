@@ -1,9 +1,5 @@
 #include	"mk.h"
 
-char	*termchars = "\"'= \t";	/*used in parse.c to isolate assignment attribute*/
-char	*shflags = 0;
-int	IWS = ' ';		/* inter-word separator in env */
-
 /*
  *	This file contains functions that depend on the shell's syntax.  Most
  *	of the routines extract strings observing the shell's escape conventions.
@@ -34,8 +30,8 @@ squote(char *cp, int c)
 /*
  *	search a string for unescaped characters in a pattern set
  */
-char *
-charin(char *cp, char *pat)
+static char *
+shcharin(char *cp, char *pat)
 {
 	Rune r;
 	int n, vargen;
@@ -82,8 +78,8 @@ charin(char *cp, char *pat)
  *	extract an escaped token.  Possible escape chars are single-quote,
  *	double-quote,and backslash.
  */
-char*
-expandquote(char *s, Rune esc, Bufblock *b)
+static char*
+shexpandquote(char *s, Rune esc, Bufblock *b)
 {
 	Rune r;
 
@@ -110,8 +106,8 @@ expandquote(char *s, Rune esc, Bufblock *b)
  *	Input an escaped token.  Possible escape chars are single-quote,
  *	double-quote and backslash.
  */
-int
-escapetoken(Biobuf *bp, Bufblock *buf, int preserve, int esc)
+static int
+shescapetoken(Biobuf *bp, Bufblock *buf, int preserve, int esc)
 {
 	int c, line;
 
@@ -168,8 +164,8 @@ copysingle(char *s, Rune q, Bufblock *buf)
  *	check for quoted strings.  backquotes are handled here; single quotes above.
  *	s points to char after opening quote, q.
  */
-char *
-copyq(char *s, Rune q, Bufblock *buf)
+static char *
+shcopyq(char *s, Rune q, Bufblock *buf)
 {
 	if(q == '\'' || q == '"')		/* copy quoted string */
 		return copysingle(s, q, buf);
@@ -187,3 +183,24 @@ copyq(char *s, Rune q, Bufblock *buf)
 	}
 	return s;
 }
+
+static int
+shmatchname(char *name)
+{
+	USED(name);
+
+	return 1;
+}
+
+
+Shell shshell = {
+	"sh",
+	"\"'= \t",	/*used in parse.c to isolate assignment attribute*/
+	' ',	/* inter-word separator in env */
+	shcharin,
+	shexpandquote,
+	shescapetoken,
+	shcopyq,
+	shmatchname,
+};
+
