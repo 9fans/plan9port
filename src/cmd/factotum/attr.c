@@ -141,6 +141,7 @@ hasqueries(Attr *a)
 
 char *ignored[] = {
 	"role",
+	"disabled",
 };
 
 static int
