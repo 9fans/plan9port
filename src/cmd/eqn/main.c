@@ -1,5 +1,8 @@
 #include "e.h"
 
+#undef inline
+#define inline _inline
+
 #define	MAXLINE	3600	/* maximum input line */
 
 char *version = "version Oct 24, 1991";
@@ -12,18 +15,17 @@ int	yyparse(void);
 void	settype(char *);
 int	getdata(void);
 int	getline(char *);
-#define inline einline
 void	inline(void);
 void	init(void);
 void	init_tbl(void);
 
-void
+int
 main(int argc, char *argv[])
 {
 	char *p, buf[20];
 
 	cmdname = argv[0];
-	if (p = getenv("TYPESETTER"))
+	if ((p = getenv("TYPESETTER")))
 		typesetter = p;
 	while (argc > 1 && argv[1][0] == '-') {
 		switch (argv[1][1]) {
@@ -71,7 +73,7 @@ main(int argc, char *argv[])
 			if (curfile->fin != stdin)
 				fclose(curfile->fin);
 		}
-	exit(0);
+	return 0;
 }
 
 void settype(char *s)	/* initialize data for particular typesetter */
@@ -89,6 +91,7 @@ void settype(char *s)	/* initialize data for particular typesetter */
 		{ minsize = 5; ttype = DEV202; }
 }
 
+int
 getdata(void)
 {
 	int i, type, ln;
@@ -137,9 +140,10 @@ getdata(void)
 	return(0);
 }
 
+int
 getline(char *s)
 {
-	register c;
+	register int c;
 
 	while ((c=input()) != '\n' && c != EOF && c != lefteq) {
 		if (s >= in+MAXLINE) {
@@ -230,6 +234,7 @@ void init(void)
 		printf(".nr 99 \\n(.s\n");
 }
 
+int
 salloc(void)
 {
 	int i;
@@ -306,6 +311,7 @@ char *DPS(int f, int t)	/* delta ps (t-f) in printable form \s+d or \s-d or \s+-
 	return p;
 }
 
+int
 EFFPS(int n)	/* effective value of n */
 {
 	if (n >= minsize)

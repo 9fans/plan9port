@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#undef sqrt
+#define sqrt p9_sqrt
+#define YYSTYPE int  /* DEC v. GNU garbage */
+
 enum charclass {
 	OTHER, OLET, ILET, DIG, LPAR, RPAR, SLASH, PLUS, ILETF, ILETJ, VBAR,
 	NONE, LAST
@@ -53,8 +57,8 @@ extern int	lfont[];
 extern int	rfont[];
 extern int	lclass[];
 extern int	rclass[];
-extern int	yyval;
-extern int	yylval;
+extern YYSTYPE	yyval;   /* DEC cc wants long */
+extern YYSTYPE  yylval;   /* DEC cc wants long */
 extern int	eqnreg;
 extern double	eqnht;
 extern int	lefteq, righteq;
@@ -152,7 +156,6 @@ extern void shift2(int, int, int);
 extern void setsize(char *);
 extern void size(int, int);
 extern void globsize(void);
-#define sqrt esqrt
 extern void sqrt(int);
 extern void text(int, char *);
 extern void boverb(int, int);

@@ -1,1 +1,1 @@
-exec /usr/bin/egrep -n "$1" *.[chyl]
+grep $1 *.[ch]

@@ -104,6 +104,7 @@ void dodef(tbl *stp)	/* collect args and switch input to defn */
 	pushsrc(Macro, stp->cval);
 }
 
+int
 getarg(char *p)	/* pick up single argument, store in p, return length */
 {
 	int n, c, npar;
@@ -139,6 +140,7 @@ char	*pb	= pbuf-1;	/* next pushed back character */
 char	ebuf[200];		/* collect input here for error reporting */
 char	*ep	= ebuf;
 
+int
 input(void)
 {
 	register int c = 0;
@@ -208,7 +210,7 @@ input(void)
 	return c;
 }
 
-
+int
 unput(int c)
 {
 	if (++pb >= pbuf + sizeof pbuf)

@@ -2,20 +2,20 @@
 #include <signal.h>
 #include <math.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include "grap.h"
 #include "y.tab.h"
 
+extern	char	*unsharp(char*);
+
 int	dbg	= 0;
 
-#ifndef GRAPDEFINES
-#define GRAPDEFINES "#9/sys/lib/grap.defines"
-#endif
-char	*lib_defines	= GRAPDEFINES;
+char	*lib_defines;
 
 int	lib	= 1;		/* 1 to include lib_defines */
 FILE	*tfd	= NULL;
-char	tempfile[L_tmpnam];
+char	*tempfile;
 
 int	synerr	= 0;
 int	codegen	= 0;   		/* 1=>output for this picture; 0=>no output */
@@ -32,17 +32,22 @@ char	*version = "version Dec 30, 1995";
 extern int yyparse(void);
 extern void setdefaults(void);
 extern void getdata(void);
-extern	int	unlink(char *);
 
+/* extern	int	unlink(char *); */ /* in unistd.h */
+
+int
 main(int argc, char *argv[])
 {
 	extern void onintr(int), fpecatch(int);
+
+	lib_defines = unsharp("#9/lib/grap.defines");
 
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		signal(SIGINT, onintr);
 	signal(SIGFPE, fpecatch);
 	cmdname = argv[0];
-	tmpnam(tempfile);
+	tempfile = strdup("grap.XXXXXX");
+	mkstemp(tempfile);
 	while (argc > 1 && *argv[1] == '-') {
 		switch (argv[1][1]) {
 		case 'd':
@@ -85,7 +90,7 @@ main(int argc, char *argv[])
 
 void onintr(int n)
 {
-	n;
+	//n;
 	if (!dbg)
 		unlink(tempfile);
 	exit(1);
@@ -114,11 +119,11 @@ static struct {
 	char	*name;
 	double	val;
 } defaults[] ={
-	"frameht", FRAMEHT,
-	"framewid", FRAMEWID,
-	"ticklen", TICKLEN,
-	"slop", SLOP,
-	NULL, 0
+	{ "frameht", FRAMEHT },
+	{ "framewid", FRAMEWID },
+	{ "ticklen", TICKLEN },
+	{ "slop", SLOP },
+	{ NULL, 0 }
 };
 
 void setdefaults(void)	/* set default sizes for variables */

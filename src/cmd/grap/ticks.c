@@ -481,6 +481,7 @@ char *desc_str(Attr *a)	/* convert DOT to "dotted", etc. */
 		return p;
 }
 
+int
 sidelog(int logflag, int side)	/* figure out whether to scale a side */
 {
 	if ((logflag & XFLAG) && ((side & (BOT|TOP)) || side == 0))

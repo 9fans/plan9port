@@ -110,7 +110,7 @@ extern char *grow(char *, char *, int, int);
 extern	int	lineno;
 extern	int	synerr;
 extern	int	codegen;
-extern	char	tempfile[];
+extern	char	*tempfile;
 extern	FILE	*tfd;
 
 extern	Point	ptmin, ptmax;

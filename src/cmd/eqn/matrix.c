@@ -1,5 +1,6 @@
 #include "e.h"
 
+int
 startcol(int type)	/* mark start of column in lp[] array */
 {
 	int oct = ct;

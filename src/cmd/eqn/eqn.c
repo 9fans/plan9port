@@ -56,7 +56,7 @@
 #define	DYAD	57401
 #define	UTILDE	57402
 
-#line	17	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	17	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 #include "e.h"
 
 int	yylex(void);
@@ -72,7 +72,7 @@ YYSTYPE	yyval;
 #define YYEOFCODE 1
 #define YYERRCODE 2
 
-#line	140	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	140	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 
 short	yyexca[] =
 {-1, 0,
@@ -431,6 +431,7 @@ yydefault:
 				printf("%s", yystatname(yystate));
 				printf("saw %s\n", yytokname(yychar));
 			}
+		goto yyerrlab;
 yyerrlab:
 			yynerrs++;
 
@@ -485,256 +486,256 @@ yyerrlab:
 	switch(yym) {
 		
 case 1:
-#line	24	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	24	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { putout(yypt[-0].yyv); } break;
 case 2:
-#line	25	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	25	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { ERROR "syntax error" WARNING; } break;
 case 3:
-#line	26	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	26	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { eqnreg = 0; } break;
 case 5:
-#line	30	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	30	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { eqnbox(yypt[-1].yyv, yypt[-0].yyv, 0); } break;
 case 6:
-#line	31	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	31	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { eqnbox(yypt[-1].yyv, yypt[-0].yyv, 1); } break;
 case 7:
-#line	32	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	32	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { lineup(0); } break;
 case 8:
-#line	35	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	35	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = yypt[-0].yyv; lineup(1); } break;
 case 9:
-#line	38	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	38	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = yypt[-0].yyv; } break;
 case 10:
-#line	39	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	39	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = 0; } break;
 case 11:
-#line	42	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	42	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = yypt[-0].yyv; } break;
 case 12:
-#line	43	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	43	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = 0; } break;
 case 13:
-#line	46	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	46	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = yypt[-1].yyv; } break;
 case 14:
-#line	47	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	47	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { text(QTEXT, (char *) yypt[-0].yyv); } break;
 case 15:
-#line	48	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	48	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { text(CONTIG, (char *) yypt[-0].yyv); } break;
 case 16:
-#line	49	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	49	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { text(SPACE, (char *) 0); } break;
 case 17:
-#line	50	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	50	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { text(THIN, (char *) 0); } break;
 case 18:
-#line	51	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	51	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { text(TAB, (char *) 0); } break;
 case 19:
-#line	52	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	52	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { funny(SUM); } break;
 case 20:
-#line	53	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	53	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { funny(PROD); } break;
 case 21:
-#line	54	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	54	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { funny(UNION); } break;
 case 22:
-#line	55	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	55	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { funny(INTER); } break;
 case 23:
-#line	56	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	56	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { boverb(yypt[-2].yyv, yypt[-0].yyv); } break;
 case 24:
-#line	57	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	57	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { mark(yypt[-0].yyv); } break;
 case 25:
-#line	58	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	58	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { size(yypt[-1].yyv, yypt[-0].yyv); } break;
 case 26:
-#line	59	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	59	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { font(yypt[-1].yyv, yypt[-0].yyv); } break;
 case 27:
-#line	60	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	60	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { fatbox(yypt[-0].yyv); } break;
 case 28:
-#line	61	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	61	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { sqrt(yypt[-0].yyv); } break;
 case 29:
-#line	62	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	62	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {ps -= deltaps;} break;
 case 30:
-#line	62	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	62	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { subsup(yypt[-4].yyv, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 31:
-#line	63	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	63	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {ps -= deltaps;} break;
 case 32:
-#line	63	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	63	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { subsup(yypt[-3].yyv, 0, yypt[-0].yyv); } break;
 case 33:
-#line	64	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	64	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {ps -= deltaps;} break;
 case 34:
-#line	64	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	64	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { integral(yypt[-4].yyv, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 35:
-#line	65	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	65	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {ps -= deltaps;} break;
 case 36:
-#line	65	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	65	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { integral(yypt[-3].yyv, 0, yypt[-0].yyv); } break;
 case 37:
-#line	66	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	66	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { integral(yypt[-0].yyv, 0, 0); } break;
 case 38:
-#line	67	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	67	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {ps -= deltaps;} break;
 case 39:
-#line	67	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	67	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { fromto(yypt[-4].yyv, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 40:
-#line	68	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	68	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {ps -= deltaps;} break;
 case 41:
-#line	68	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	68	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { fromto(yypt[-3].yyv, 0, yypt[-0].yyv); } break;
 case 42:
-#line	69	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	69	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { paren(yypt[-2].yyv, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 43:
-#line	70	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	70	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { paren(yypt[-1].yyv, yypt[-0].yyv, 0); } break;
 case 44:
-#line	71	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	71	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { diacrit(yypt[-1].yyv, yypt[-0].yyv); } break;
 case 45:
-#line	72	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	72	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { move(FWD, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 46:
-#line	73	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	73	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { move(UP, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 47:
-#line	74	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	74	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { move(BACK, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 48:
-#line	75	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	75	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { move(DOWN, yypt[-1].yyv, yypt[-0].yyv); } break;
 case 49:
-#line	76	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	76	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { pile(yypt[-0].yyv); ct = yypt[-0].yyv; } break;
 case 50:
-#line	77	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	77	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {yyval=ct;} break;
 case 51:
-#line	77	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	77	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { matrix(yypt[-3].yyv); ct = yypt[-3].yyv; } break;
 case 52:
-#line	80	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	80	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { setintegral(); } break;
 case 53:
-#line	83	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	83	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = atoi((char *) yypt[-1].yyv); } break;
 case 54:
-#line	84	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	84	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = atoi((char *) yypt[-1].yyv); } break;
 case 55:
-#line	85	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	85	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = atoi((char *) yypt[-1].yyv); } break;
 case 56:
-#line	86	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	86	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = atoi((char *) yypt[-1].yyv); } break;
 case 57:
-#line	88	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	88	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = HAT; } break;
 case 58:
-#line	89	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	89	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = VEC; } break;
 case 59:
-#line	90	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	90	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = DYAD; } break;
 case 60:
-#line	91	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	91	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = BAR; } break;
 case 61:
-#line	92	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	92	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = LOWBAR; } break;
 case 62:
-#line	93	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	93	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = HIGHBAR; } break;
 case 63:
-#line	94	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	94	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = UNDER; } break;
 case 64:
-#line	95	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	95	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = DOT; } break;
 case 65:
-#line	96	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	96	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = TILDE; } break;
 case 66:
-#line	97	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	97	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = UTILDE; } break;
 case 67:
-#line	98	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	98	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = DOTDOT; } break;
 case 68:
-#line	101	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	101	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = ((char *)yypt[-0].yyv)[0]; } break;
 case 69:
-#line	102	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	102	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = '{'; } break;
 case 70:
-#line	105	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	105	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = ((char *)yypt[-0].yyv)[0]; } break;
 case 71:
-#line	106	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	106	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = '}'; } break;
 case 74:
-#line	113	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	113	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { column(yypt[-3].yyv, DEFGAP); } break;
 case 75:
-#line	114	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	114	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 {yyval=atoi((char*)yypt[-0].yyv);} break;
 case 76:
-#line	114	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	114	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { column(yypt[-5].yyv, yypt[-3].yyv); } break;
 case 77:
-#line	117	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	117	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = startcol(LCOL); } break;
 case 78:
-#line	118	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	118	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = startcol(CCOL); } break;
 case 79:
-#line	119	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	119	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = startcol(RCOL); } break;
 case 80:
-#line	120	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	120	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = startcol(COL); } break;
 case 81:
-#line	123	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	123	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { lp[ct++] = yypt[-0].yyv; } break;
 case 82:
-#line	124	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	124	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { lp[ct++] = yypt[-0].yyv; } break;
 case 83:
-#line	127	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	127	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { yyval = ps; setsize((char *) yypt[-0].yyv); } break;
 case 84:
-#line	130	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	130	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { static char R[]="R"; setfont(R); } break;
 case 85:
-#line	131	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	131	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { static char I[]="I"; setfont(I); } break;
 case 86:
-#line	132	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	132	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { static char B[]="B"; setfont(B); } break;
 case 87:
-#line	133	"/usr/local/plan9/src/cmd/eqn/eqn.y"
+#line	133	"/home/wkj/src/plan9/src/cmd/eqn/eqn.y"
 { setfont((char *)yypt[-0].yyv); } break;
 	}
 	goto yystack;  /* stack new state and value */

@@ -87,7 +87,7 @@ int conv(float, struct xy *, int *);
 int symbol(int, int, int);
 void axlab(char, struct xy *, char *);
 
-void main(int argc,char *argv[]){
+int main(int argc,char *argv[]){
 
 	openpl();
 	range(0,0,4096,4096);
@@ -115,6 +115,7 @@ void main(int argc,char *argv[]){
 	plot();
 	closepl();
 	exits(0);
+	return 0;	/* gcc */
 }
 
 void init(struct xy *p){
@@ -242,6 +243,12 @@ void limread(struct xy *p, int *argcp, char ***argvp){
 		return;
 	p->xqf = 1;
 }
+
+#ifdef NOTDEF
+isdigit(char c){
+	return '0'<=c && c<='9';
+}
+#endif
 
 int
 numb(float *np, int *argcp, char ***argvp){
@@ -629,6 +636,7 @@ getfloat(float *p){
 	i = scanf("%f",p);
 	return(i==1);
 }
+
 int
 getstring(void){
 	int i;

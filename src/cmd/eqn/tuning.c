@@ -98,21 +98,21 @@ struct tune {
 	char	*cval;
 } tune[]	={
   /* diacrit.c */
-	"vec_def",	"\\f1\\v'-.5m'\\s-3\\(->\\s0\\v'.5m'\\fP",	/* was \s-2 & .45m */
-	"dyad_def",	"\\f1\\v'-.5m'\\s-3\\z\\(<-\\|\\(->\\s0\\v'.5m'\\fP",
-	"hat_def",	"\\f1\\v'-.05m'\\s+1^\\s0\\v'.05m'\\fP",	/* was .1 */
-	"tilde_def",	"\\f1\\v'-.05m'\\s+1~\\s0\\v'.05m'\\fP",
-	"dot_def",	"\\f1\\v'-.67m'.\\v'.67m'\\fP",
-	"dotdot_def",	"\\f1\\v'-.67m'..\\v'.67m'\\fP",
-	"utilde_def",	"\\f1\\v'1.0m'\\s+2~\\s-2\\v'-1.0m'\\fP",
+	{ "vec_def",	"\\f1\\v'-.5m'\\s-3\\(->\\s0\\v'.5m'\\fP" },      /* was \s-2 & .45m */
+	{ "dyad_def",	"\\f1\\v'-.5m'\\s-3\\z\\(<-\\|\\(->\\s0\\v'.5m'\\fP" },
+	{ "hat_def",	"\\f1\\v'-.05m'\\s+1^\\s0\\v'.05m'\\fP" },	/* was .1 */
+	{ "tilde_def",	"\\f1\\v'-.05m'\\s+1~\\s0\\v'.05m'\\fP" },
+	{ "dot_def",	"\\f1\\v'-.67m'.\\v'.67m'\\fP" },
+	{ "dotdot_def",	"\\f1\\v'-.67m'..\\v'.67m'\\fP" },
+	{ "utilde_def",	"\\f1\\v'1.0m'\\s+2~\\s-2\\v'-1.0m'\\fP" },
   /* funny.c */
-	"sum_def",	"\\|\\v'.3m'\\s+5\\(*S\\s-5\\v'-.3m'\\|",
-	"union_def",	"\\|\\v'.3m'\\s+5\\(cu\\s-5\\v'-.3m'\\|",
-	"inter_def",	"\\|\\v'.3m'\\s+5\\(ca\\s-5\\v'-.3m'\\|",
-	"prod_def",	"\\|\\v'.3m'\\s+5\\(*P\\s-5\\v'-.3m'\\|",
+	{ "sum_def",	"\\|\\v'.3m'\\s+5\\(*S\\s-5\\v'-.3m'\\|" },
+	{ "union_def",	"\\|\\v'.3m'\\s+5\\(cu\\s-5\\v'-.3m'\\|" },
+	{ "inter_def",	"\\|\\v'.3m'\\s+5\\(ca\\s-5\\v'-.3m'\\|" },
+	{ "prod_def",	"\\|\\v'.3m'\\s+5\\(*P\\s-5\\v'-.3m'\\|" },
   /* integral.c */
-	"int_def",	"\\v'.1m'\\s+4\\(is\\s-4\\v'-.1m'",
-	0, 0
+	{ "int_def",	"\\v'.1m'\\s+4\\(is\\s-4\\v'-.1m'" },
+	{ 0, 0 }
 };
 
 tbl	*ftunetbl[TBLSIZE];	/* user-defined names */
@@ -139,6 +139,8 @@ void ftune(char *s, char *t)	/* brute force for now */
 {
 	double f = atof(t);
 	double *target;
+
+	target = (double *) 0; /* gcc */
 
 	while (*t == ' ' || *t == '\t')
 		t++;

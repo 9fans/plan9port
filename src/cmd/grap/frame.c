@@ -53,6 +53,8 @@ void frameside(int type, Attr *desc)	/* create and remember sides */
 	int n;
 	char buf[100];
 
+	n = 0; /* gcc */
+
 	nsides++;
 	switch (type) {
 	case 0:		/* no side specified; kludge up all */

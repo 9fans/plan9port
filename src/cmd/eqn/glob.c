@@ -15,7 +15,7 @@ int	deltaps	= 3;	/* default change in ps */
 int	dps_set = 0;	/* 1 => -p option used */
 int	gsize	= 10;	/* default initial point size */
 int	ft	= '2';
-Font	ftstack[10] = { '2', "2" };	/* bottom is global font */
+Font	ftstack[10] = { { '2', "2" } };	/* bottom is global font */
 Font	*ftp	= ftstack;
 int	szstack[10];	/* non-zero if absolute size set at this level */
 int	nszstack = 0;

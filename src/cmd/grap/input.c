@@ -135,6 +135,7 @@ char *delimstr(char *s)	/* get body of X ... X */
 	return tostring(buf);
 }
 
+int
 baldelim(int c, char *s)	/* replace c by balancing entry in s */
 {
 	for ( ; *s; s += 2)
@@ -175,6 +176,7 @@ void dodef(Obj *stp)	/* collect args and switch input to defn */
 	pushsrc(Macro, stp->val);
 }
 
+int
 getarg(char *p)	/* pick up single argument, store in p, return length */
 {
 	int n, c, npar;
@@ -215,6 +217,7 @@ extern	int	thru;
 extern	Obj	*thrudef;
 extern	char	*untilstr;
 
+int
 input(void)
 {
 	register int c;
@@ -230,9 +233,12 @@ input(void)
 	return *ep++ = c;
 }
 
+int
 nextchar(void)
 {
 	register int c;
+
+	c = 0; /* gcc */
 
   loop:
 	switch (srcp->type) {
@@ -384,6 +390,7 @@ void do_thru(void)	/* read one line, make into a macro expansion */
 	pushsrc(Macro, thrudef->val);
 }
 
+int
 unput(int c)
 {
 	if (++pb >= pbuf + sizeof pbuf)
@@ -533,7 +540,7 @@ void copy(void)	/* begin input from file, etc. */
 	FILE *fin;
 
 	if (newfile) {
-		if ((fin = fopen(unsharp(newfile), "r")) == NULL)
+		if ((fin = fopen(newfile, "r")) == NULL)
 			ERROR "can't open file %s", newfile FATAL;
 		curfile++;
 		curfile->fin = fin;

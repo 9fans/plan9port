@@ -4,7 +4,7 @@ void eqnbox(int p1, int p2, int lu)
 {
 	double b, h;
 	char *sh;
-	extern char *IRspace;
+	/* extern char *IRspace; */ /* not used */
 
 	yyval = p1;
 	b = max(ebase[p1], ebase[p2]);

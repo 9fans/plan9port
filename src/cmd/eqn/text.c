@@ -122,6 +122,7 @@ int isdigitrune(int c)
 	return ('0'<=c && c<='9');
 }
 
+int
 trans(int c, char *p1)
 {
 	int f;
@@ -304,10 +305,10 @@ void cadd(int c)		/* add character c to end of cs */
 			if (ftp->ft == ITAL)	/* usual case */
 				*csp++ = nextft;
 			else		/* gfont set, use it */
-				for (p = ftp->name; *csp = *p++; )
+				for (p = ftp->name; (*csp = *p++); )
 					csp++;
 		} else {	/* inside some kind of font ... */
-			for (p = ftp->name; *csp = *p++; )
+			for (p = ftp->name; (*csp = *p++); )
 				csp++;
 		}
 		lastft = nextft;
