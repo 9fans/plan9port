@@ -69,19 +69,8 @@ threadmain(int argc, char *argv[])
 	rules = readrules(plumbfile, fd);
 	close(fd);
 
-	/*
-	 * Start all processes and threads from other proc
-	 * so we (main pid) can return to user.
-	 */
 	if(dofork)
-	switch(fork()){
-	case -1:
-		sysfatal("fork: %r");
-	case 0:
-		break;
-	default:
-		_exit(0);
-	}
+		threaddaemonize();
 
 	printerrors = 0;
 	makeports(rules);

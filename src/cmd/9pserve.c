@@ -149,19 +149,8 @@ threadmain(int argc, char **argv)
 	if((afd = announce(addr, adir)) < 0)
 		sysfatal("announce %s: %r", addr);
 
-	if(verbose) fprint(2, "9pserve forking\n");
-	switch(fork()){
-	case -1:
-		sysfatal("fork: %r");
-	case 0:
-		if(verbose) fprint(2, "running mainproc\n");
-		mainproc(nil);
-		if(verbose) fprint(2, "mainproc finished\n");
-		_exits(0);
-	default:
-		if(verbose) fprint(2, "9pserve exiting\n");
-		_exits(0);
-	}
+	threaddaemonize();
+	mainproc(nil);
 }
 
 void
@@ -220,6 +209,7 @@ listenthread(void *arg)
 
 	io = ioproc();
 	USED(arg);
+	threadsetname("listen %s", adir);
 	for(;;){
 		c = emalloc(sizeof(Conn));
 		c->fd = iolisten(io, adir, c->dir);
@@ -284,6 +274,7 @@ connthread(void *arg)
 	Ioproc *io;
 
 	c = arg;
+	threadsetname("conn %s", c->dir);
 	io = ioproc();
 	fd = ioaccept(io, c->fd, c->dir);
 	if(fd < 0){
@@ -491,7 +482,7 @@ openfdthread(void *v)
 	c = v;
 	fid = c->fdfid;
 	io = ioproc();
-
+	threadsetname("openfd %s", c->fdfid);
 	tot = 0;
 	m = nil;
 	if(c->fdmode == OREAD){
@@ -655,6 +646,7 @@ connoutthread(void *arg)
 	c = arg;
 	outq = c->outq;
 	io = ioproc();
+	threadsetname("connout %s", c->dir);
 	while((m = recvq(outq)) != nil){
 		err = m->tx.type+1 != m->rx.type;
 		if(!err && m->isopenfd)
@@ -714,6 +706,7 @@ outputthread(void *arg)
 
 	USED(arg);
 	io = ioproc();
+	threadsetname("output");
 	while((m = recvq(outq)) != nil){
 		if(verbose > 1) fprint(2, "* <- %F\n", &m->tx);
 		rewritehdr(&m->tx, m->tpkt);
@@ -734,6 +727,7 @@ inputthread(void *arg)
 	Msg *m;
 	Ioproc *io;
 
+	threadsetname("input");
 	if(verbose) fprint(2, "input thread\n");
 	io = ioproc();
 	USED(arg);
