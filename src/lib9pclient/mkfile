@@ -11,6 +11,7 @@ OFILES=\
 	open.$O\
 	openfd.$O\
 	read.$O\
+	seek.$O\
 	stat.$O\
 	walk.$O\
 	write.$O\
