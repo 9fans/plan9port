@@ -66,6 +66,16 @@ _ioproc(void *arg)
 		case Expose:
 			xexpose(&xevent, _x.mousecon);
 			continue;
+		case DestroyNotify:
+			if(xdestroy(&xevent, _x.mousecon)){
+				/* drain it before sending */
+				/* apps that care can notice we sent a 0 */
+				/* otherwise we'll have getwindow send SIGHUP */
+				nbrecv(mc->resizec, 0);
+				nbrecv(mc->resizec, 0);
+				send(mc->resizec, 0);
+			}
+			continue;
 		case ConfigureNotify:
 			if(xconfigure(&xevent, _x.mousecon))
 				nbsend(mc->resizec, &one);
@@ -76,7 +86,7 @@ _ioproc(void *arg)
 		case ButtonPress:
 		case ButtonRelease:
 		case MotionNotify:
-			if(xtoplan9mouse(&xevent, &m) < 0)
+			if(xtoplan9mouse(_x.mousecon, &xevent, &m) < 0)
 				continue;
 			send(mc->c, &m);
 			/*

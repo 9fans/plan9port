@@ -219,7 +219,7 @@ struct RGB
  *
  * given char c, Subfont *f, Fontchar *i, and Point p, one says
  *	i = f->info+c;
- *	draw(b, Rect(p.x+i->left, p.y+i->top,
+ *	void(b, Rect(p.x+i->left, p.y+i->top,
  *		p.x+i->left+((i+1)->x-i->x), p.y+i->bottom),
  *		color, f->bits, Pt(i->x, i->top));
  *	p.x += i->width;
@@ -336,6 +336,7 @@ extern int	writeimage(int, Image*, int);
 extern Image*	namedimage(Display*, char*);
 extern int	nameimage(Image*, char*, int);
 extern Image* allocimagemix(Display*, u32int, u32int);
+extern int	drawsetlabel(Display*, char*);
 
 /*
  * Colors
@@ -529,3 +530,4 @@ void drawtopwindow(void);
  */
 int	_drawmsgread(Display*, void*, int);
 int	_drawmsgwrite(Display*, void*, int);
+int	_latin1(Rune*, int);

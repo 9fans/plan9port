@@ -64,6 +64,10 @@ struct Xprivate {
 	int		usetable;
 	XVisual		*vis;
 	u32int		white;
+	Atom		clipboard;
+	uint		putsnarf;
+	uint		assertsnarf;
+	int		destroyed;
 };
 
 extern Xprivate _x;
@@ -78,11 +82,12 @@ extern void	xputxdata(Memimage*, Rectangle);
 extern void	_initdisplaymemimage(Display*, Memimage*);
 
 struct Mouse;
-extern int	xtoplan9mouse(XEvent*, struct Mouse*);
+extern int	xtoplan9mouse(XDisplay*, XEvent*, struct Mouse*);
 extern int	xtoplan9kbd(XEvent*);
 extern void	xexpose(XEvent*, XDisplay*);
 extern int	xselect(XEvent*, XDisplay*);
 extern int	xconfigure(XEvent*, XDisplay*);
+extern int	xdestroy(XEvent*, XDisplay*);
 extern void	flushmemscreen(Rectangle);
 extern void	xmoveto(Point);
 struct Cursor;

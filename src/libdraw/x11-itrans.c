@@ -11,8 +11,8 @@
 #include <keyboard.h>
 #include "x11-memdraw.h"
 
-int
-xtoplan9kbd(XEvent *e)
+static int
+_xtoplan9kbd(XEvent *e)
 {
 	int ind, k, md;
 
@@ -117,16 +117,82 @@ xtoplan9kbd(XEvent *e)
 	return k;
 }
 
+static Rune*
+xtoplan9latin1(XEvent *e)
+{
+	static Rune k[10];
+	static int alting, nk;
+	int n;
+	int r;
+
+	r = _xtoplan9kbd(e);
+	if(r < 0)
+		return nil;
+	if(alting){
+		k[nk++] = r;
+		n = _latin1(k, nk);
+		if(n > 0){
+			alting = 0;
+			k[0] = n;
+			k[1] = 0;
+			return k;
+		}
+		if(n == -1){
+			alting = 0;
+			k[nk] = 0;
+			return k;
+		}
+		/* n < -1, need more input */
+		return nil;
+	}else if(r == Kalt){
+		alting = 1;
+		nk = 0;
+		return nil;
+	}else{
+		k[0] = r;
+		k[1] = 0;
+		return k;
+	}
+}
+
 int
-xtoplan9mouse(XEvent *e, Mouse *m)
+xtoplan9kbd(XEvent *e)
+{
+	static Rune *r;
+
+	if(e == (XEvent*)-1){
+		assert(r);
+		r--;
+		return 0;
+	}
+	if(e)
+		r = xtoplan9latin1(e);
+	if(r && *r)
+		return *r++;
+	return -1;
+}
+
+int
+xtoplan9mouse(XDisplay *xd, XEvent *e, Mouse *m)
 {
 	int s;
 	XButtonEvent *be;
 	XMotionEvent *me;
 
+	if(_x.putsnarf != _x.assertsnarf){
+		_x.assertsnarf = _x.putsnarf;
+		XSetSelectionOwner(_x.mousecon, XA_PRIMARY, _x.drawable, CurrentTime);
+		if(_x.clipboard != None)
+			XSetSelectionOwner(_x.mousecon, _x.clipboard, _x.drawable, CurrentTime);
+		XFlush(xd);
+	}
+
 	switch(e->type){
 	case ButtonPress:
 		be = (XButtonEvent*)e;
+		/* Fake message, just sent to make us announce snarf. */
+		if(be->send_event && be->state==~0 && be->button==~0)
+			return -1;
 		/* BUG? on mac need to inherit these from elsewhere? */
 		m->xy.x = be->x;
 		m->xy.y = be->y;
@@ -265,34 +331,55 @@ char*
 xgetsnarf(XDisplay *xd)
 {
 	uchar *data, *xdata;
-	Atom type;
+	Atom clipboard, type, prop;
 	ulong len, lastlen, dummy;
 	int fmt, i;
 	XWindow w;
 
 	qlock(&clip.lk);
+	/*
+	 * Is there a primary selection (highlighted text in an xterm)?
+	 */
+	clipboard = XA_PRIMARY;
 	w = XGetSelectionOwner(xd, XA_PRIMARY);
 	if(w == _x.drawable){
+	mine:
 		data = (uchar*)strdup(clip.buf);
 		goto out;
 	}
+
+	/*
+	 * If not, is there a clipboard selection?
+	 */
+	if(w == None && _x.clipboard != None){
+		clipboard = _x.clipboard;
+		w = XGetSelectionOwner(xd, _x.clipboard);
+		if(w == _x.drawable)
+			goto mine;
+	}
+
+	/*
+	 * If not, give up.
+	 */
 	if(w == None){
 		data = nil;
 		goto out;
 	}
+		
 	/*
 	 * We should be waiting for SelectionNotify here, but it might never
-	 * come, and we have no way to time out.  Instead, we will zero the 
-	 * property, request our buddy to fill it in for us, and wait until
-	 * he's done.
+	 * come, and we have no way to time out.  Instead, we will clear
+	 * local property #1, request our buddy to fill it in for us, and poll
+	 * until he's done or we get tired of waiting.
 	 */
-	XChangeProperty(xd, _x.drawable, XA_PRIMARY, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
-	XConvertSelection(xd, XA_PRIMARY, XA_STRING, None, _x.drawable, CurrentTime);
+	prop = 1;
+	XChangeProperty(xd, _x.drawable, prop, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
+	XConvertSelection(xd, clipboard, XA_STRING, prop, _x.drawable, CurrentTime);
 	XFlush(xd);
 	lastlen = 0;
-	for(i=0; i<30; i++){
+	for(i=0; i<10 || (lastlen!=0 && i<30); i++){
 		usleep(100*1000);
-		XGetWindowProperty(xd, _x.drawable, XA_STRING, 0, 0, 0, AnyPropertyType,
+		XGetWindowProperty(xd, _x.drawable, prop, 0, 0, 0, AnyPropertyType,
 			&type, &fmt, &dummy, &len, &data);
 		if(lastlen == len && len > 0)
 			break;
@@ -304,7 +391,7 @@ xgetsnarf(XDisplay *xd)
 	}
 	/* get the property */
 	data = nil;
-	XGetWindowProperty(xd, _x.drawable, XA_STRING, 0, SnarfSize/4, 0, 
+	XGetWindowProperty(xd, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0, 
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
 	if(type != XA_STRING || len == 0){
 		if(xdata)
@@ -325,16 +412,25 @@ out:
 void
 xputsnarf(XDisplay *xd, char *data)
 {
+	XButtonEvent e;
+
 	if(strlen(data) >= SnarfSize)
 		return;
 	qlock(&clip.lk);
 	strcpy(clip.buf, data);
-	/*
-	 * BUG: This is wrong.  Instead, we should send an event to the
-	 * mouse connection telling it to call XSetSelectionOwner.
-	 */
-	XSetSelectionOwner(_x.mousecon, XA_PRIMARY, _x.drawable, CurrentTime);
+
+	/* leave note for mouse proc to assert selection ownership */
+	_x.putsnarf++;
+
+	/* send mouse a fake event so snarf is announced */
+	memset(&e, 0, sizeof e);
+	e.type = ButtonPress;
+	e.window = _x.drawable;
+	e.state = ~0;
+	e.button = ~0;
+	XSendEvent(xd, _x.drawable, True, ButtonPressMask, (XEvent*)&e);
 	XFlush(xd);
+
 	qunlock(&clip.lk);
 }
 

@@ -100,6 +100,8 @@ getwindow(Display *d, int ref)
 {
 	Image *i;
 
+	if(_x.destroyed)
+		postnote(PNGROUP, getpgrp(), "hangup");
 	if(xreplacescreenimage() == 0)
 		return 0;
 	freeimage(d->screenimage);
@@ -124,7 +126,7 @@ static int
 xioerror(XDisplay *d)
 {
 	print("X I/O error\n");
-	exit(1);
+	abort();
 	return -1;
 }
 
@@ -365,6 +367,11 @@ xattach(char *label)
 	XFlush(_x.display);
 
 	/*
+	 * Look up clipboard atom.
+	 */
+	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", True);
+
+	/*
 	 * Lots of display connections for various procs.
 	 */
 	_x.kbdcon	= XOpenDisplay(NULL);
@@ -386,6 +393,46 @@ fprint(2, "%r\n");
 	 */
 	XCloseDisplay(_x.display);
 	return nil;
+}
+
+int
+drawsetlabel(Display *d, char *label)
+{
+	char *argv[2];
+	XClassHint classhint;
+	XTextProperty name;
+
+	/*
+	 * Label and other properties required by ICCCCM.
+	 */
+	memset(&name, 0, sizeof name);
+	if(label == nil)
+		label = "pjw-face-here";
+	name.value = (uchar*)label;
+	name.encoding = XA_STRING;
+	name.format = 8;
+	name.nitems = strlen(name.value);
+
+	memset(&classhint, 0, sizeof classhint);
+	classhint.res_name = label;
+	classhint.res_class = label;
+
+	argv[0] = label;
+	argv[1] = nil;
+
+	XSetWMProperties(
+		_x.display,	/* display */
+		_x.drawable,	/* window */
+		&name,		/* XA_WM_NAME property */
+		&name,		/* XA_WM_ICON_NAME property */
+		argv,		/* XA_WM_COMMAND */
+		1,		/* argc */
+		nil,		/* XA_WM_NORMAL_HINTS */
+		nil,		/* XA_WM_HINTS */
+		&classhint	/* XA_WM_CLASSHINTS */
+	);
+	XFlush(_x.display);
+	return 0;
 }
 
 /*
@@ -601,6 +648,19 @@ xexpose(XEvent *e, XDisplay *xd)
 		Dx(r), Dy(r), r.min.x, r.min.y);
 	XSync(xd, False);
 	qunlock(&_x.screenlock);
+}
+
+int
+xdestroy(XEvent *e, XDisplay *xd)
+{
+	XDestroyWindowEvent *xe;
+
+	xe = (XDestroyWindowEvent*)e;
+	if(xe->window == _x.drawable){
+		_x.destroyed = 1;
+		return 1;
+	}
+	return 0;
 }
 
 int

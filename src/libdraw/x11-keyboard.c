@@ -51,6 +51,10 @@ _ioproc(void *arg)
 				continue;
 			r = i;
 			send(kc->c, &r);
+			while((i=xtoplan9kbd(nil)) >= 0){
+				r = i;
+				send(kc->c, &r);
+			}
 			break;
 		}
 	}

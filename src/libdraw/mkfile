@@ -1,5 +1,5 @@
 PLAN9=../..
-include $(PLAN9)/src/Makehdr
+<$PLAN9/src/mkhdr
 
 LIB=libdraw.a
 
@@ -31,6 +31,7 @@ OFILES=\
 	icossin2.$O\
 	init.$O\
 	line.$O\
+	latin1.$O\
 	loadimage.$O\
 	menuhit.$O\
 	mkfont.$O\
@@ -104,20 +105,20 @@ OFILES=\
 	unix.$O\
 
 HFILES=\
-	$(PLAN9)/include/draw.h\
-	$(PLAN9)/include/memdraw.h\
-	$(PLAN9)/include/memlayer.h\
-	$(PLAN9)/include/event.h\
-	$(PLAN9)/include/cursor.h\
-	$(PLAN9)/include/mouse.h\
-	$(PLAN9)/include/keyboard.h\
+	$PLAN9/include/draw.h\
+	$PLAN9/include/memdraw.h\
+	$PLAN9/include/memlayer.h\
+	$PLAN9/include/event.h\
+	$PLAN9/include/cursor.h\
+	$PLAN9/include/mouse.h\
+	$PLAN9/include/keyboard.h\
 	x11-inc.h\
 	x11-memdraw.h\
 
-CFLAGS+=-I$(X11)/include
+CFLAGS=$CFLAGS -I$X11/include
 
-include $(PLAN9)/src/Makesyslib
+<$PLAN9/src/mksyslib
 
-test: test.o $(LIB)
-	gcc -o test test.o -L$(PLAN9) -ldraw -l9 -lfmt -lutf -L$(X11)/lib -lX11 -lm
+test: test.o $LIB
+	gcc -o test test.o -L$PLAN9 -ldraw -l9 -lfmt -lutf -L$X11/lib -lX11 -lm
 

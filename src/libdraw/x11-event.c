@@ -36,6 +36,7 @@ eflush(void)
 ulong
 eread(ulong keys, Event *e)
 {
+	int r;
 	ulong xmask;
 	XEvent xevent;
 
@@ -45,8 +46,13 @@ eread(ulong keys, Event *e)
 
 	if(keys&Emouse)
 		xmask |= MouseMask|StructureNotifyMask;
-	if(keys&Ekeyboard)
+	if(keys&Ekeyboard){
 		xmask |= KeyPressMask;
+		if((r = xtoplan9kbd(nil)) >= 0){
+			e->kbdc = r;
+			return Ekeyboard;
+		}
+	}
 
 	XSelectInput(_x.display, _x.drawable, xmask);
 again:
@@ -56,6 +62,10 @@ again:
 	case Expose:
 		xexpose(&xevent, _x.display);
 		goto again;
+	case DestroyNotify:
+		if(xdestroy(&xevent, _x.display))
+			postnote(PNGROUP, getpgrp(), "hangup");
+		goto again;
 	case ConfigureNotify:
 		if(xconfigure(&xevent, _x.display))
 			eresized(1);
@@ -63,7 +73,7 @@ again:
 	case ButtonPress:
 	case ButtonRelease:
 	case MotionNotify:
-		if(xtoplan9mouse(&xevent, &e->mouse) < 0)
+		if(xtoplan9mouse(_x.display, &xevent, &e->mouse) < 0)
 			goto again;
 		return Emouse;
 	case KeyPress:
@@ -126,7 +136,7 @@ ecanmouse(void)
 	eflush();
 again:
 	if(XCheckWindowEvent(_x.display, _x.drawable, MouseMask, &xe)){
-		if(xtoplan9mouse(&xe, &m) < 0)
+		if(xtoplan9mouse(_x.display, &xe, &m) < 0)
 			goto again;
 		XPutBackEvent(_x.display, &xe);
 		return 1;
@@ -138,8 +148,13 @@ int
 ecankbd(void)
 {
 	XEvent xe;
+	int r;
 
 	eflush();
+	if((r = xtoplan9kbd(nil)) >= 0){
+		xtoplan9kbd((XEvent*)-1);
+		return 1;
+	}
 again:
 	if(XCheckWindowEvent(_x.display, _x.drawable, KeyPressMask, &xe)){
 		if(xtoplan9kbd(&xe) == -1)
