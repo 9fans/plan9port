@@ -81,11 +81,15 @@ defn stkignore(s){
 }
 
 defn threadstkline(T){
-	local stk, frame, pc, pc0, file, s, sym, i, stop;
+	local stk, frame, pc, pc0, file, s, sym, i, stop, P, mainpid;
 
-	if T.state == Running then
+	if T.state == Running then {
+		P = (Proc)T.proc;
+		mainpid = pid;
+		if mainpid != P.pid then setproc(P.pid);
 		stk = strace({});
-	else
+		if mainpid != P.pid then setproc(mainpid);
+	} else
 		stk = strace(label(T.sched));
 
 	stop = 0;
@@ -151,7 +155,6 @@ defn pthreads(P){
 	local T, Tq, mainpid;
 
 	mainpid = pid;
-//	setproc(P.pid);
 	Tq = (Tqueue)P.threads;
 	T = (Thread)Tq.$head;
 	while T != 0 do{
@@ -159,7 +162,6 @@ defn pthreads(P){
 		thread(T);
 		T = (Thread)T.nextt;
 	}
-//	setproc(mainpid);
 }
 
 defn threads(){
@@ -305,7 +307,11 @@ defn threadstk(T){
 	// setproc(P.pid);
 
 	if T.state == Running then{
+		if P.pid != mainpid then
+			setproc(P.pid);
 		stk();
+		if P.pid != mainpid then
+			setproc(mainpid);
 	} else {
 		labstk(T.sched);
 	}
