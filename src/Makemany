@@ -1,7 +1,7 @@
 all: $(TARG)
 
-$(TARG): $(OFILES)
-	$(CC) -o $(TARG) $(OFILES) $(LDFLAGS)
+a.%: %.o $(OFILES)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 CLEANFILES+=$(TARG)
 NUKEFILES+=$(BIN)/$(TARG)
@@ -9,5 +9,7 @@ NUKEFILES+=$(BIN)/$(TARG)
 include $(PLAN9)/src/Makecommon
 
 install: $(TARG)
-	cp $(TARG) $(BIN)
+	for i in $(TARG); do cp a.$$i $(BIN); done
+
+
 
