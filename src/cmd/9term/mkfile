@@ -6,11 +6,7 @@ OFILES=\
 	rcstart.$O\
 	$SYSNAME.$O\
 
-SHORTLIB=complete frame draw plumb fs mux thread 9
-
 <$PLAN9/src/mkmany
-
-LDFLAGS=-L$X11/lib -lX11
 
 Darwin.$O Linux.$O FreeBSD.$O: bsdpty.c
 

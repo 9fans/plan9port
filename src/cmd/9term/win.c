@@ -2,7 +2,7 @@
 #include <libc.h>
 #include <thread.h>
 #include <fcall.h>
-#include <fs.h>
+#include <9pclient.h>
 #include "term.h"
 
 int noecho = 1;
@@ -43,10 +43,10 @@ struct Q
 
 Q	q;
 
-Fid *eventfd;
-Fid *addrfd;
-Fid *datafd;
-Fid *ctlfd;
+CFid *eventfd;
+CFid *addrfd;
+CFid *datafd;
+CFid *ctlfd;
 // int bodyfd;
 
 char	*typing;
@@ -66,15 +66,15 @@ int	label(char*, int);
 void	error(char*);
 void	stdinproc(void*);
 void	stdoutproc(void*);
-void	type(Event*, int, Fid*, Fid*);
-void	sende(Event*, int, Fid*, Fid*, Fid*, int);
+void	type(Event*, int, CFid*, CFid*);
+void	sende(Event*, int, CFid*, CFid*, CFid*, int);
 char	*onestring(int, char**);
 int	delete(Event*);
 void	deltype(uint, uint);
 void	runproc(void*);
 
 int
-fsfidprint(Fid *fid, char *fmt, ...)
+fsfidprint(CFid *fid, char *fmt, ...)
 {
 	char buf[256];
 	va_list arg;
@@ -129,7 +129,7 @@ threadmain(int argc, char **argv)
 	int fd, id;
 	char buf[256];
 	char buf1[128];
-	Fsys *fs;
+	CFsys *fs;
 
 	ARGBEGIN{
 	case 'd':
@@ -240,7 +240,7 @@ onestring(int argc, char **argv)
 }
 
 int
-getec(Fid *efd)
+getec(CFid *efd)
 {
 	static char buf[8192];
 	static char *bufp;
@@ -257,7 +257,7 @@ getec(Fid *efd)
 }
 
 int
-geten(Fid *efd)
+geten(CFid *efd)
 {
 	int n, c;
 
@@ -270,7 +270,7 @@ geten(Fid *efd)
 }
 
 int
-geter(Fid *efd, char *buf, int *nb)
+geter(CFid *efd, char *buf, int *nb)
 {
 	Rune r;
 	int n;
@@ -289,7 +289,7 @@ geter(Fid *efd, char *buf, int *nb)
 }
 
 void
-gete(Fid *efd, Event *e)
+gete(CFid *efd, Event *e)
 {
 	int i, nb;
 
@@ -327,10 +327,10 @@ nrunes(char *s, int nb)
 void
 stdinproc(void *v)
 {
-	Fid *cfd = ctlfd;
-	Fid *efd = eventfd;
-	Fid *dfd = datafd;
-	Fid *afd = addrfd;
+	CFid *cfd = ctlfd;
+	CFid *efd = eventfd;
+	CFid *dfd = datafd;
+	CFid *afd = addrfd;
 	int fd0 = rcfd;
 	Event e, e2, e3, e4;
 
@@ -429,8 +429,8 @@ void
 stdoutproc(void *v)
 {
 	int fd1 = rcfd;
-	Fid *afd = addrfd;
-	Fid *dfd = datafd;
+	CFid *afd = addrfd;
+	CFid *dfd = datafd;
 	int n, m, w, npart;
 	char *buf, *s, *t;
 	Rune r;
@@ -648,7 +648,7 @@ deltype(uint p0, uint p1)
 }
 
 void
-type(Event *e, int fd0, Fid *afd, Fid *dfd)
+type(Event *e, int fd0, CFid *afd, CFid *dfd)
 {
 	int m, n, nr;
 	char buf[128];
@@ -676,7 +676,7 @@ type(Event *e, int fd0, Fid *afd, Fid *dfd)
 }
 
 void
-sende(Event *e, int fd0, Fid *cfd, Fid *afd, Fid *dfd, int donl)
+sende(Event *e, int fd0, CFid *cfd, CFid *afd, CFid *dfd, int donl)
 {
 	int l, m, n, nr, lastc, end;
 	char abuf[16], buf[128];
