@@ -259,6 +259,11 @@ _fsgetfid(CFsys *fs)
 	fs->freefid = f->next;
 	fs->ref++;
 	qunlock(&fs->lk);
+	f->offset = 0;
+	f->mode = -1;
+	f->qid.path = 0;
+	f->qid.vers = 0;
+	f->qid.type = 0;
 	return f;
 }
 
