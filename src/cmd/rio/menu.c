@@ -118,10 +118,22 @@ button(XButtonEvent *e)
 		} else if(numvirtuals > 1 && (n = menuhit(e, &b2menu)) > -1) 
 				button2(n);
 		return;
-	default:
-		return;
 	case Button3:
 		break;
+	case Button4:
+		/* scroll down changes to next virtual screen */
+		if(!c)
+			if(numvirtuals > 1 && virt < numvirtuals - 1)
+				switch_to(virt + 1);
+		return;
+	case Button5:
+		/* scroll up changes to previous virtual screen */
+		if(!c)
+			if(numvirtuals > 1 && virt > 0)
+				switch_to(virt - 1);
+		return;
+	default:
+		return;
 	}
 
 	if (current && current->screen == s)
@@ -274,6 +286,7 @@ unhide(int n, int map)
 			c->label, (int)c->window);
 		return;
 	}
+	c->virt = virt;
 
 	if (map) {
 		XMapWindow(dpy, c->window);
