@@ -84,7 +84,6 @@ vtreadpacket(VtConn *z, uchar score[VtScoreSize], uint type, int n)
 			return nil;
 		}
 	}
-
 	return rx.data;
 }
 
@@ -119,7 +118,8 @@ vtwritepacket(VtConn *z, uchar score[VtScoreSize], uint type, Packet *p)
 			werrstr("sha1 hash mismatch: want %V got %V", score, rx.score);
 			return -1;
 		}
-	}
+	}else
+		memmove(score, rx.score, VtScoreSize);
 	return 0;
 }
 
