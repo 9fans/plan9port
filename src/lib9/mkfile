@@ -65,9 +65,7 @@ UTFOFILES=\
 	utfrune.$O\
 	utfutf.$O\
 
-OFILES=\
-	$FMTOFILES\
-	$UTFOFILES\
+LIB9OFILES=\
 	_exits.$O\
 	_p9dialparse.$O\
 	_p9dir.$O\
@@ -144,6 +142,11 @@ OFILES=\
 	u64.$O\
 	wait.$O\
 	waitpid.$O\
+
+OFILES=\
+	$LIB9OFILES\
+	$FMTOFILES\
+	$UTFOFILES\
 
 HFILES=\
 	$PLAN9/include/lib9.h\

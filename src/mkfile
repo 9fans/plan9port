@@ -19,15 +19,16 @@ DIRS=\
 <mkdirs
 
 MKDIRS=\
-	libutf\
-	libfmt\
 	libbio\
 	libregexp\
 	cmd/mk\
 
 mkmk.sh:VD:
 	(
-		for i in $MKDIRS
+		echo cd lib9
+		(cd lib9; mk -n -a 'LIB9OFILES=' install)
+		echo cd ..
+		for i in libbio libregexp cmd/mk
 		do	
 			echo cd $i
 			(cd $i; mk -n -a install)
