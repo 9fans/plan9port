@@ -323,11 +323,11 @@ xattach(char *label)
 	 * command line and allow the traditional X options.
 	 */
 	mask = 0;
+	x = 0;
+	y = 0;
 	if(winsize){
 		if(parsewinsize(winsize, &r, &havemin) < 0)
 			sysfatal("%r");
-		x = 0;
-		y = 0;
 	}else{
 		/*
 		 * Parse the various X resources.  Thanks to Peter Canning.
