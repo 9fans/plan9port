@@ -41,12 +41,12 @@ Brd(Biobuf *bin)
 		buf[tot++] = c;
 		if(c == '\n'){
 			buf[tot] = 0;
-			dprint("%s", buf);
+			dprint("OUT %s", buf);
 			return buf;
 		}
 		if(c == ' ' && tot == 6 && memcmp(buf, "sftp> ", 5) == 0){
 			buf[tot] = 0;
-			dprint("%s\n", buf);
+			dprint("OUT %s\n", buf);
 			return buf;
 		}
 	}
@@ -75,11 +75,17 @@ void
 doerrors(int fd)
 {
 	char buf[100];
-	int n;
+	int n, first;
 	
+	first = 1;
 	while((n = read(sftperr, buf, sizeof buf)) > 0){
-		if(debug)
+		if(debug){
+			if(first){
+				first = 0;
+				fprint(2, "OUT errors:\n");
+			}
 			write(1, buf, n);
+		}
 		write(fd, buf, n);
 	}
 }
@@ -179,14 +185,16 @@ main(int argc, char **argv)
 			if(n <= 0)
 				break;
 			dprint("CMD %s\n", cmd);
-			if(strcmp(cmd, "DONE") == 0)
+			if(strcmp(cmd, "DONE") == 0){
+				fprint(fd, "DONE\n");
 				break;
-			fprint(sftpfd, "%s\n", cmd);
+			}
+			fprint(sftpfd, "-%s\n", cmd);
 			q = Brd(&bin);
 			if(*q==0 || q[strlen(q)-1] != '\n')
 				sysfatal("unexpected response");
 			q[strlen(q)-1] = 0;
-			if(strcmp(q, cmd) != 0)
+			if(q[0] != '-' || strcmp(q+1, cmd) != 0)
 				sysfatal("unexpected response");
 			while((q = Brd(&bin)) != nil){
 				if(strcmp(q, "sftp> ") == 0){
