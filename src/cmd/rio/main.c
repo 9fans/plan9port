@@ -416,6 +416,7 @@ sendcmessage(Window w, Atom a, long x, int isroot)
 		mask = SubstructureRedirectMask;		/* magic! */
 	else
 		mask = ExposureMask;	/* not really correct but so be it */
+	mask |= KeyPressMask;	/* seems to be necessary */
 	status = XSendEvent(dpy, w, False, mask, &ev);
 	if (status == 0)
 		fprintf(stderr, "rio: sendcmessage failed\n");
