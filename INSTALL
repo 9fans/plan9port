@@ -4,7 +4,7 @@ PLAN9=`pwd` export PLAN9
 PATH=$PLAN9/bin:$PATH export PATH
 
 echo "Resetting $PLAN9/config"
-rm -f $PLAN9/config
+rm -f config
 
 (
 if [ `uname` = Linux ]; then
@@ -23,6 +23,13 @@ if [ `uname` = Linux ]; then
 	fi
 	rm -f ./a.out
 fi
+
+if [ -f LOCAL.config ]; then
+	echo Using LOCAL.config options:
+	sed 's/^/	/' LOCAL.config
+	cat LOCAL.config >>config
+fi
+
 echo "Building mk..."
 cd src
 make
