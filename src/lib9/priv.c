@@ -26,7 +26,7 @@ privmem(int i)
 {
 	Uproc *up;
 
-	up = _p9uproc();
+	up = _p9uproc(0);
 	return &up->priv[i];
 }
 

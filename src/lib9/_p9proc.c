@@ -1,73 +1,95 @@
+/*
+ * This needs to be callable from a signal handler, so it has been
+ * written to avoid locks.  The only lock is the one used to acquire
+ * an entry in the table, and we make sure that acquiring is done
+ * when not in a handler.  Lookup and delete do not need locks.
+ * It's a scan-forward hash table.  To avoid breaking chains, 
+ * T ((void*)-1) is used as a non-breaking nil.
+ */
+
 #include <u.h>
 #include <libc.h>
 #include "9proc.h"
 
+enum { PIDHASH = 1021 };
+
+#define T ((void*)-1)
+static Uproc *alluproc[PIDHASH];
+static int allupid[PIDHASH];
 static Lock uproclock;
-static Uproc *phash[PIDHASH];
 
 Uproc*
-_p9uproc(void)
+_p9uproc(int inhandler)
 {
-	/* for now, assume getpid is fast or cached */
-	int pid;
+	int i, h, pid;
 	Uproc *up;
 
+	/* for now, assume getpid is fast or cached */
 	pid = getpid();
-again:
-if(0)print("find %d\n", pid);
-	lock(&uproclock);
-	for(up=phash[pid%PIDHASH]; up; up=up->next){
-		if(up->pid == pid){
-if(0)print("found %d\n", pid);
-			unlock(&uproclock);
+
+	/*
+	 * this part - the lookup - needs to run without locks
+	 * so that it can safely be called from within the notify handler.
+	 * notify calls _p9uproc, and fork and rfork call _p9uproc
+	 * in both parent and child, so if we're in a signal handler,
+	 * we should find something in the table.
+	 */
+	h = pid%PIDHASH;
+	for(i=0; i<PIDHASH; i++){
+		up = alluproc[h];
+		if(up == nil)
+			break;
+		if(allupid[h] == pid)
 			return up;
-		}
+		if(++h == PIDHASH)
+			h = 0;
 	}
+
+	if(inhandler)
+		sysfatal("did not find uproc in signal handler");
+
+	/* need to allocate */
+	while((up = mallocz(sizeof(Uproc), 1)) == nil)
+		sleep(1000);
 
 	up = mallocz(sizeof(Uproc), 1);
-	if(up == nil){
-if(0)print("again %d\n", pid);
-		unlock(&uproclock);
-		sleep(1000);
-		goto again;
+	lock(&uproclock);
+	h = pid%PIDHASH;
+	for(i=0; i<PIDHASH; i++){
+		if(alluproc[h]==T || alluproc[h]==nil){
+			alluproc[h] = up;
+			allupid[h] = pid;
+			return up;
+		}
+		if(++h == PIDHASH)
+			h = 0;
 	}
-
-againpipe:
-	if(pipe(up->pipe) < 0){
-if(0)print("againpipe %d\n", pid);
-		sleep(1000);
-		goto againpipe;
-	}
-
-	up->pid = pid;
-	up->next = phash[pid%PIDHASH];
-	phash[pid%PIDHASH] = up;
-if(0)print("link %d\n", pid);
 	unlock(&uproclock);
-	return up;
+
+	/* out of pids! */
+	sysfatal("too many processes in uproc table");
+	return nil;
 }
 
 void
 _p9uprocdie(void)
 {
-	Uproc **l, *up;
-	int pid;
+	Uproc *up;
+	int pid, i, h;
 
 	pid = getpid();
-if(0)print("die %d\n", pid);
-	lock(&uproclock);
-	for(l=&phash[pid%33]; *l; l=&(*l)->next){
-		if((*l)->pid == pid){
-			up = *l;
-			*l = up->next;
-if(0)print("died %d\n", pid);
-			unlock(&uproclock);
-			close(up->pipe[0]);
-			close(up->pipe[1]);
+	h = pid%PIDHASH;
+	for(i=0; i<PIDHASH; i++){
+		up = alluproc[h];
+		if(up == nil)
+			break;
+		if(up == T)
+			continue;
+		if(allupid[h] == pid){
+			up = alluproc[h];
+			alluproc[h] = T;
 			free(up);
-			return;
+			allupid[h] = 0;
 		}
 	}
-if(0)print("not started %d\n", pid);
-	unlock(&uproclock);
 }

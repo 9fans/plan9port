@@ -49,7 +49,7 @@ notifysigf(int sig)
 	char tmp[64];
 	Uproc *up;
 
-	up = _p9uproc();
+	up = _p9uproc(1);
 	v = p9setjmp(up->notejb);
 	if(v == 0 && notifyf)
 		(*notifyf)(nil, _p9sigstr(sig, tmp));
@@ -68,6 +68,7 @@ notify(void (*f)(void*, char*))
 	int i;
 	struct sigaction sa;
 
+	_p9uproc(0);
 	memset(&sa, 0, sizeof sa);
 	if(f == 0)
 		sa.sa_handler = SIG_DFL;
@@ -90,7 +91,7 @@ noted(int v)
 {
 	Uproc *up;
 
-	up = _p9uproc();
+	up = _p9uproc(1);
 	p9longjmp(up->notejb, v==NCONT ? 2 : 1);
 	abort();
 	return 0;

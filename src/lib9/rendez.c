@@ -12,7 +12,7 @@ rendezvous(ulong tag, ulong val)
 	ulong ret;
 	Uproc *t, *self, **l;
 
-	self = _p9uproc();
+	self = _p9uproc(0);
 	lock(&rendlock);
 	l = &rendhash[tag%RENDHASH];
 	for(t=*l; t; l=&t->rendhash, t=*l){

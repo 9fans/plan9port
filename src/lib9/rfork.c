@@ -1,5 +1,7 @@
-#define NOPLAN9DEFINES
-#include <lib9.h>
+#include <u.h>
+#include <libc.h>
+#include "9proc.h"
+#undef rfork
 
 int
 p9rfork(int flags)
@@ -14,6 +16,7 @@ p9rfork(int flags)
 			return -1;
 		}
 		pid = fork();
+		_p9uproc(0);
 		if(pid != 0)
 			return pid;
 	}
