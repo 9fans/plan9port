@@ -1,0 +1,10 @@
+#!/bin/sh
+
+export PLAN9=/usr/local/plan9
+export PATH=$PLAN9/bin:$PATH
+
+case $# in
+[1-9]*)
+       exec "$@"
+       ;;
+esac
