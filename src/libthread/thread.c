@@ -171,13 +171,15 @@ threadcreate(void (*fn)(void*), void *arg, uint stack)
 int
 proccreate(void (*fn)(void*), void *arg, uint stack)
 {
+	int id;
 	_Thread *t;
 	Proc *p;
 
 	p = procalloc();
 	t = _threadcreate(p, fn, arg, stack);
+	id = t->id;	/* t might be freed after _procstart */
 	_procstart(p, scheduler);
-	return t->id;
+	return id;
 }
 
 void
