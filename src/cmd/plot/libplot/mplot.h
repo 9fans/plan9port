@@ -29,8 +29,8 @@ struct seg {
 /*
  * display parameters
  */
-int clipminx, clipminy, clipmaxx, clipmaxy;	/* clipping rectangle */
-int mapminx, mapminy, mapmaxx, mapmaxy;		/* centered square */
+extern int clipminx, clipminy, clipmaxx, clipmaxy;	/* clipping rectangle */
+extern int mapminx, mapminy, mapmaxx, mapmaxy;		/* centered square */
 /*
  * Prototypes
  */

@@ -6,6 +6,8 @@
 #include <libc.h>
 #include <mach.h>
 
+Mach *machcpu = &mach386;
+
 void
 unmapproc(Map *m)
 {
@@ -46,7 +48,7 @@ ctlproc(int pid, char *msg)
 {
 	USED(pid);
 	USED(msg);
-	werrstr("ctlproc not implemented');
+	werrstr("ctlproc not implemented");
 	return -1;
 }
 
@@ -55,5 +57,5 @@ proctextfile(int pid)
 {
 	USED(pid);
 	werrstr("proctextfile not implemented");
-	return -1;
+	return nil;
 }

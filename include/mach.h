@@ -476,7 +476,7 @@ int		unwindframe(Map *map, Regs *regs, ulong *next);
 
 void		_addhdr(Fhdr*);
 void		_delhdr(Fhdr*);
-Fhdr*	fhdrlist;
+extern Fhdr*	fhdrlist;
 
 Symbol*	flookupsym(Fhdr*, char*);
 Symbol*	ffindsym(Fhdr*, Loc, uint);

@@ -1,5 +1,6 @@
 #include <u.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <grp.h>

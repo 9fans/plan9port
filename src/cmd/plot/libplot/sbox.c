@@ -1,4 +1,5 @@
 #include "mplot.h"
+int clipminx, clipminy, clipmaxx, clipmaxy;
 void sbox(double xx0, double yy0, double xx1, double yy1){
 	int x0=SCX(xx0), y0=SCY(yy0), x1=SCX(xx1), y1=SCY(yy1);
 	int t;

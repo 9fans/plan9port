@@ -1,4 +1,5 @@
 #include "mplot.h"
+int mapminx, mapminy, mapmaxx, mapmaxy;
 Image *offscreen;
 /*
  * Clear the window from x0, y0 to x1, y1 (inclusive) to color c
