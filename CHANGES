@@ -1,3 +1,24 @@
+October 22, 2004
+	work around gas bug in mkmk.sh
+
+	exit 9p on interrupt; do zero-length write when no input to write
+
+	various little acme fixes
+
+	xdata file
+
+	add core dumped info and signal to await status
+
+	change notify to ignore dumb signals like winch by default
+
+	print 0 %ux as 0x0
+
+	bug fixes in libfs about zero-length writes
+
+	more libthread pthreads fixes
+
+	9term interrupt fix
+
 October 16, 2004
 	fix bug in latin1 keyboard data for superscript 1,2,3.
 

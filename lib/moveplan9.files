@@ -4,11 +4,6 @@ bin/9
 bin/Getdir
 bin/adict
 bin/doctype
-bin/g
 bin/lookman
 bin/spell
 bin/src
-bin/start
-bin/stop
-bin/slay
-plumb/basic
