@@ -148,6 +148,7 @@ void ifdivert(void);
 void restline(void);
 void cleanfc(void);
 
+#define gettext tbl_gettext
 int gettext(char *, int, int, char *, char *);		/*tg.c*/
 void untext(void);
 
