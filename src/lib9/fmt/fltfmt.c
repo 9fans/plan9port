@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <ctype.h>
 #include <fmt.h>
 #include "plan9.h"
 #include "fmt.h"
@@ -142,15 +143,15 @@ xdtoa(Fmt *fmt, char *s2, double f)
 		prec = fmt->prec;
 	if(prec > FDIGIT)
 		prec = FDIGIT;
-	if(isNaN(f)) {
+	if(__isNaN(f)) {
 		strcpy(s2, "NaN");
 		return;
 	}
-	if(isInf(f, 1)) {
+	if(__isInf(f, 1)) {
 		strcpy(s2, "+Inf");
 		return;
 	}
-	if(isInf(f, -1)) {
+	if(__isInf(f, -1)) {
 		strcpy(s2, "-Inf");
 		return;
 	}
