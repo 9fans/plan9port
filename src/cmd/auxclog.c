@@ -29,7 +29,7 @@ main(int argc, char **argv)
 	char buf[8192];
 
 	argv0 = argv[0];
-	if(argc < 3){
+	if(argc > 3){
 		fprint(2, "usage: %s console logfile \n", argv0);
 		exits("usage");
 	}

@@ -16,10 +16,10 @@ if [ `uname` = Linux ]; then
 	if ./a.out
 	then	
 		echo "	NPTL found."
-		echo "SYSVERSION=2.6" >$PLAN9/config
+		echo "SYSVERSION=2.6.x" >$PLAN9/config
 	else
 		echo "	NPTL not found."
-		echo "SYSVERSION=2.4" >$PLAN9/config
+		echo "SYSVERSION=2.4.x" >$PLAN9/config
 	fi
 	rm -f ./a.out
 fi
