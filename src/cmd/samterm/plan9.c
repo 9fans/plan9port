@@ -16,7 +16,7 @@
 #include <fcall.h>
 #undef Tversion
 #undef Twrite
-#include <fs.h>
+#include <9pclient.h>
 #include <plumb.h>
 #include "flayer.h"
 #include "samterm.h"
@@ -227,7 +227,7 @@ plumbformat(Plumbmsg *m, int i)
 void
 plumbproc(void *arg)
 {
-	Fid *fid;
+	CFid *fid;
 	int i;
 	Plumbmsg *m;
 
@@ -249,7 +249,7 @@ plumbproc(void *arg)
 int
 plumbstart(void)
 {
-	Fid *fid;
+	CFid *fid;
 
 	plumbfd = plumbopen("send", OWRITE|OCEXEC);	/* not open is ok */
 	fid = plumbopenfid("edit", OREAD|OCEXEC);
