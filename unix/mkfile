@@ -4,10 +4,12 @@ bio fmt mk regexp utf:V:
 	regexp) t=libregexp ;;
 	*) t=lib$target ;;
 	esac
-	mkdir $t || true
-	rm $t/* || true
+	# 
+	mkdir -p $t
+	rm -f $t/* || true
 	cd $t
 	mk -f ../mkfile.$target
+	# 
 	case $target in
 	bio) d=$PLAN9/src/$t;;
 	regexp) d=$PLAN9/src/$t;;
@@ -15,6 +17,7 @@ bio fmt mk regexp utf:V:
 	utf) d=$PLAN9/src/lib9/$target ;;
 	mk) d=$PLAN9/src/cmd/mk ;;
 	esac
+	# 
 	for i in `ls -p $d/*.c`
 	do
 		if [ ! -f $i ]
@@ -34,7 +37,16 @@ bio fmt mk regexp utf:V:
 	rm $t/* || true
 	cd $t
 	mk -f ../mkfile.$target
-	
+
+%.install:V:
+	mk $stem
+	case $stem in
+	mk) t=mk ;;
+	regexp) t=libregexp ;;
+	*) t=lib$stem ;;
+	esac
+	(cd $t; make install)
+
 lib%.tgz:
 	mk $stem
 	tar cf - lib$stem |gzip >lib$stem.tgz

@@ -5,12 +5,13 @@ TARG=\
 	README\
 	Makefile\
 	`{ls -p $PLAN9/src/lib9/utf/*.c}\
+	plan9.h\
 	utf.h\
 	utfdef.h\
 	isalpharune.3\
-	utf.7\
 	rune.3\
 	runestrcat.3\
+	utf.7\
 
 all:V: $TARG
 
@@ -41,6 +42,6 @@ README: ../README
 NOTICE: ../NOTICE.utf
 	cp $prereq $target
 
-utf.h: ../utf.h
+utf.h: $PLAN9/include/utf.h
 	cp $prereq $target
 

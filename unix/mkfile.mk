@@ -39,5 +39,5 @@ README: ../README
 NOTICE: ../NOTICE.mk
 	cp $prereq $target
 
-sys.h: $PLAN9/src/cmd/mk/sys.h.std
+sys.h: $PLAN9/src/cmd/mk/sys.std.h
 	cp $prereq $target

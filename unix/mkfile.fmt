@@ -8,8 +8,9 @@ TARG=\
 	fmt.h\
 	fmtdef.h\
 	nan.h\
-	print.3\
+	plan9.h\
 	fmtinstall.3\
+	print.3\
 
 all:V: $TARG
 
@@ -40,8 +41,3 @@ README: ../README
 NOTICE: ../NOTICE.fmt
 	cp $prereq $target
 
-fmt.h: ../fmt.h
-	cp $prereq $target
-
-fmt.c: $PLAN9/src/lib9/fmt/fmt.c
-	cat $prereq | sed "/'u',.*__flagfmt/ s/__flagfmt/__ifmt/" >$target

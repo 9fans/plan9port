@@ -28,6 +28,12 @@ all:V: $TARG
 %: $PLAN9/man/man7/%
 	cp $prereq $target
 
+regexp9.3: $PLAN9/man/man3/regexp.3
+	cp $prereq $target
+
+regexp9.7: $PLAN9/man/man7/regexp.7
+	cp $prereq $target
+
 %: ../make/%
 	cp $prereq $target
 
@@ -40,5 +46,6 @@ README: ../README
 NOTICE: ../NOTICE.regexp
 	cp $prereq $target
 
-lib9.h: $PLAN9/src/libregexp/lib9.h
+lib9.h: $PLAN9/src/libregexp/lib9.std.h
 	cp $prereq $target
+

@@ -11,7 +11,6 @@ OFILES=\
 	regaux.$O\
 	rregexec.$O\
 	rregsub.$O\
-	rregaux.$O\
 
 HFILES=\
 	regexp9.h\
