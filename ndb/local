@@ -10,7 +10,7 @@ database
 authdom=outside.plan9.bell-labs.com
 	auth=sources.cs.bell-labs.com
 
-authdom=plan9.bell-labs.com
+authdom=cs.bell-labs.com
 	auth=lookout.cs.bell-labs.com
 
 authdom=tip9ug.jp
