@@ -21,25 +21,6 @@ enum
 	MaxBlock = (1UL<<31),
 };
 
-struct VtFile
-{
-	QLock lk;
-	int ref;
-	int local;
-	VtBlock *b;			/* block containing this file */
-	uchar score[VtScoreSize];	/* score of block containing this file */
-
-/* immutable */
-	VtCache *c;
-	int mode;
-	u32int gen;
-	int dsize;
-	int dir;
-	VtFile *parent;
-	int epb;			/* entries per block in parent */
-	u32int offset; 			/* entry offset in parent */
-};
-
 static char EBadEntry[] = "bad VtEntry";
 static char ENotDir[] = "walk in non-directory";
 static char ETooBig[] = "file too big";
@@ -109,7 +90,7 @@ vtfilealloc(VtCache *c, VtBlock *b, VtFile *p, u32int offset, int mode)
 	r->mode = mode;
 	r->dsize = e.dsize;
 	r->gen = e.gen;
-	r->dir = (e.flags & VtEntryDir) != 0;
+	r->dir = (e.type & VtTypeBaseMask) == VtDirType;
 	r->ref = 1;
 	r->parent = p;
 	if(p){
@@ -169,8 +150,7 @@ vtfilecreateroot(VtCache *c, int psize, int dsize, int type)
 	e.flags = VtEntryActive;
 	e.psize = psize;
 	e.dsize = dsize;
-	if(type == VtDirType)
-		e.flags |= VtEntryDir;
+	e.type = type;
 	memmove(e.score, vtzeroscore, VtScoreSize);
 
 	return vtfileopenroot(c, &e);
@@ -679,13 +659,15 @@ static int
 mkindices(VtEntry *e, u32int bn, int *index)
 {
 	int i, np;
+	u32int obn;
 
+	obn = bn;
 	memset(index, 0, VtPointerDepth*sizeof(int));
 
 	np = e->psize/VtScoreSize;
 	for(i=0; bn > 0; i++){
 		if(i >= VtPointerDepth){
-			werrstr(EBadAddr);
+			werrstr("bad address 0x%lux", (ulong)bn);
 			return -1;
 		}
 		index[i] = bn % np;
@@ -715,7 +697,7 @@ vtfileblock(VtFile *r, u32int bn, int mode)
 		return nil;
 	if(i > DEPTH(e.type)){
 		if(mode == VtOREAD){
-			werrstr(EBadAddr);
+			werrstr("bad address 0x%lux", (ulong)bn);
 			goto Err;
 		}
 		index[i] = 0;
@@ -746,7 +728,7 @@ Err:
 }
 
 int
-vtfileblockhash(VtFile *r, u32int bn, uchar score[VtScoreSize])
+vtfileblockscore(VtFile *r, u32int bn, uchar score[VtScoreSize])
 {
 	VtBlock *b, *bb;
 	int index[VtPointerDepth+1];

@@ -113,7 +113,7 @@ packetalloc(void)
 	p->last = nil;
 	p->next = nil;
 
-if(1)fprint(2, "packetalloc %p from %08lux %08lux %08lux\n", p, *((uint*)&p+2), *((uint*)&p+3), *((uint*)&p+4));
+if(0)fprint(2, "packetalloc %p from %08lux %08lux %08lux\n", p, *((uint*)&p+2), *((uint*)&p+3), *((uint*)&p+4));
 
 	return p;
 }
@@ -123,7 +123,7 @@ packetfree(Packet *p)
 {
 	Frag *f, *ff;
 
-if(1)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p));
+if(0)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p));
 
 	if(p == nil)
 		return;
@@ -237,7 +237,7 @@ packetconsume(Packet *p, uchar *buf, int n)
 {
 	NOTFREE(p);
 	if(buf && packetcopy(p, buf, 0, n) < 0)
-		return 0;
+		return -1;
 	return packettrim(p, n, p->size-n);
 }
 
@@ -371,7 +371,7 @@ packettrailer(Packet *p, int n)
 	return f->rp;
 }
 
-int
+void
 packetprefix(Packet *p, uchar *buf, int n)
 {
 	Frag *f;
@@ -380,7 +380,7 @@ packetprefix(Packet *p, uchar *buf, int n)
 
 	NOTFREE(p);
 	if(n <= 0)
-		return 0;
+		return;
 
 	p->size += n;
 
@@ -410,10 +410,9 @@ packetprefix(Packet *p, uchar *buf, int n)
 		n -= nn;
 		memmove(f->rp, buf+n, nn);
 	}
-	return 0;
 }
 
-int
+void
 packetappend(Packet *p, uchar *buf, int n)
 {
 	Frag *f;
@@ -422,7 +421,7 @@ packetappend(Packet *p, uchar *buf, int n)
 
 	NOTFREE(p);
 	if(n <= 0)
-		return 0;
+		return;
 
 	p->size += n;
 	/* try and fix in current frag */
@@ -455,16 +454,16 @@ packetappend(Packet *p, uchar *buf, int n)
 		buf += nn;
 		n -= nn;
 	}
-	return 0;
+	return;
 }
 
-int
+void
 packetconcat(Packet *p, Packet *pp)
 {
 	NOTFREE(p);
 	NOTFREE(pp);
 	if(pp->size == 0)
-		return 0;
+		return;
 	p->size += pp->size;
 	p->asize += pp->asize;
 
@@ -477,7 +476,6 @@ packetconcat(Packet *p, Packet *pp)
 	pp->asize = 0;
 	pp->first = nil;
 	pp->last = nil;
-	return 0;
 }
 
 uchar *

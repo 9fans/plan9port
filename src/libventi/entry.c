@@ -31,10 +31,10 @@ vtentrypack(VtEntry *e, uchar *p, int index)
 	U16PUT(p, e->dsize);
 	p += 2;
 	depth = e->type&VtTypeDepthMask;
-	flags = (e->flags&~(VtEntryDir|VtEntryDepthShift));
-	flags |= depth << VtEntryDepthShift;
-	if(e->type - depth == VtEntryDir)
-		flags |= VtEntryDir;
+	flags = (e->flags&~(_VtEntryDir|_VtEntryDepthMask));
+	flags |= depth << _VtEntryDepthShift;
+	if(e->type - depth == VtDirType)
+		flags |= _VtEntryDir;
 	U8PUT(p, flags);
 	p++;
 	memset(p, 0, 5);
@@ -62,9 +62,9 @@ vtentryunpack(VtEntry *e, uchar *p, int index)
 	e->dsize = U16GET(p);
 	p += 2;
 	e->flags = U8GET(p);
-	e->type = (e->flags&VtEntryDir) ? VtDirType : VtDataType;
-	e->type += (e->flags & VtEntryDepthMask) >> VtEntryDepthShift;
-	e->flags &= ~(VtEntryDir|VtEntryDepthMask);
+	e->type = (e->flags&_VtEntryDir) ? VtDirType : VtDataType;
+	e->type += (e->flags & _VtEntryDepthMask) >> _VtEntryDepthShift;
+	e->flags &= ~(_VtEntryDir|_VtEntryDepthMask);
 	p++;
 	p += 5;
 	e->size = U48GET(p);

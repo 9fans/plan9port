@@ -22,9 +22,9 @@ int packetconsume(Packet*, uchar *buf, int n);
 int packettrim(Packet*, int offset, int n);
 uchar *packetheader(Packet*, int n);
 uchar *packettrailer(Packet*, int n);
-int packetprefix(Packet*, uchar *buf, int n);
-int packetappend(Packet*, uchar *buf, int n);
-int packetconcat(Packet*, Packet*);
+void packetprefix(Packet*, uchar *buf, int n);
+void packetappend(Packet*, uchar *buf, int n);
+void packetconcat(Packet*, Packet*);
 uchar *packetpeek(Packet*, uchar *buf, int offset, int n);
 int packetcopy(Packet*, uchar *buf, int offset, int n);
 int packetfragments(Packet*, IOchunk*, int nio, int offset);
@@ -43,7 +43,6 @@ void packetsha1(Packet*, uchar sha1[20]);
 */
 
 typedef struct VtFcall VtFcall;
-typedef struct VtSha1 VtSha1;
 typedef struct VtConn VtConn;
 typedef struct VtEntry VtEntry;
 typedef struct VtRoot VtRoot;
@@ -85,6 +84,7 @@ enum
 	VtMaxType,
 
 	VtTypeDepthMask = 7,
+	VtTypeBaseMask = ~VtTypeDepthMask,
 };
 
 /* convert to/from on-disk type numbers */
@@ -97,9 +97,9 @@ uint vtfromdisktype(uint);
 enum
 {
 	VtEntryActive = 1<<0,		/* entry is in use */
-	VtEntryDir = 1<<1,		/* a directory */
-	VtEntryDepthShift = 2,		/* shift for pointer depth */
-	VtEntryDepthMask = 7<<2,	/* mask for pointer depth */
+	_VtEntryDir = 1<<1,		/* a directory */
+	_VtEntryDepthShift = 2,		/* shift for pointer depth */
+	_VtEntryDepthMask = 7<<2,	/* mask for pointer depth */
 	VtEntryLocal = 1<<5,		/* for local storage only */
 };
 enum
@@ -152,7 +152,7 @@ uint vtzerotruncate(int type, uchar *buf, uint n);
 /*
  * parse score: mungs s
  */
-int vtparsescore(char *s, uint len, char **prefix, uchar[VtScoreSize]);
+int vtparsescore(char *s, char **prefix, uchar[VtScoreSize]);
 
 /*
  * formatting
@@ -384,11 +384,30 @@ u32int vtcacheblocksize(VtCache*);
 int vtblockwrite(VtBlock*);
 VtBlock *vtblockcopy(VtBlock*);
 void vtblockduplock(VtBlock*);
+int vtblockdirty(VtBlock*);
 
 /*
  * Hash tree file tree.
  */
 typedef struct VtFile VtFile;
+struct VtFile
+{
+	QLock lk;
+	int ref;
+	int local;
+	VtBlock *b;			/* block containing this file */
+	uchar score[VtScoreSize];	/* score of block containing this file */
+
+/* immutable */
+	VtCache *c;
+	int mode;
+	u32int gen;
+	int dsize;
+	int dir;
+	VtFile *parent;
+	int epb;			/* entries per block in parent */
+	u32int offset; 			/* entry offset in parent */
+};
 
 enum
 {
@@ -403,13 +422,13 @@ VtFile *vtfilecreateroot(VtCache*, int psize, int dsize, int type);
 VtFile *vtfileopen(VtFile*, u32int, int);
 VtFile *vtfilecreate(VtFile*, int psize, int dsize, int dir);
 VtBlock *vtfileblock(VtFile*, u32int, int mode);
-int vtfileblockhash(VtFile*, u32int, uchar[VtScoreSize]);
 long vtfileread(VtFile*, void*, long, vlong);
 long vtfilewrite(VtFile*, void*, long, vlong);
 int vtfileflush(VtFile*);
 void vtfileincref(VtFile*);
 void vtfileclose(VtFile*);
 int vtfilegetentry(VtFile*, VtEntry*);
+int vtfilesetentry(VtFile*, VtEntry*);
 int vtfileblockscore(VtFile*, u32int, uchar[VtScoreSize]);
 u32int vtfilegetdirsize(VtFile*);
 int vtfilesetdirsize(VtFile*, u32int);
@@ -417,6 +436,10 @@ void	vtfileunlock(VtFile*);
 int vtfilelock(VtFile*, int);
 int vtfilelock2(VtFile*, VtFile*, int);
 int vtfileflushbefore(VtFile*, u64int);
+int vtfiletruncate(VtFile*);
+uvlong vtfilegetsize(VtFile*);
+int vtfilesetsize(VtFile*, uvlong);
+int vtfileremove(VtFile*);
 
 #if defined(__cplusplus)
 }
