@@ -173,6 +173,5 @@ puttag(Mux *mux, Muxrpc *r)
 	mux->nwait--;
 	mux->freetag = i;
 	rwakeup(&mux->tagrend);
-fprint(2, "free %p\n", r);
 	free(r);
 }

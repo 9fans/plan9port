@@ -138,6 +138,7 @@ convM2S(uchar *ap, uint nap, Fcall *f)
 		break;
 
 	case Topen:
+	case Topenfd:
 		if(p+BIT32SZ+BIT8SZ > ep)
 			return 0;
 		f->fid = GBIT32(p);
@@ -260,6 +261,7 @@ convM2S(uchar *ap, uint nap, Fcall *f)
 		break;
 
 	case Ropen:
+	case Ropenfd:
 	case Rcreate:
 		p = gqid(p, ep, &f->qid);
 		if(p == nil)
@@ -268,6 +270,12 @@ convM2S(uchar *ap, uint nap, Fcall *f)
 			return 0;
 		f->iounit = GBIT32(p);
 		p += BIT32SZ;
+		if(f->type == Ropenfd){
+			if(p+BIT32SZ > ep)
+				return 0;
+			f->unixfd = GBIT32(p);
+			p += BIT32SZ;
+		}
 		break;
 
 	case Rread:

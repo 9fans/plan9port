@@ -359,7 +359,7 @@ xattach(char *label)
 	_x.screenr = r;
 	_x.screenpm = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
 	_x.nextscreenpm = _x.screenpm;
-	_x.screenimage = xallocmemimage(r, _x.chan, _x.screenpm);
+	_x.screenimage = _xallocmemimage(r, _x.chan, _x.screenpm);
 
 	/*
 	 * Allocate some useful graphics contexts for the future.
@@ -651,7 +651,7 @@ flushmemscreen(Rectangle r)
 }
 
 void
-xexpose(XEvent *e, XDisplay *xd)
+_xexpose(XEvent *e, XDisplay *xd)
 {
 	XExposeEvent *xe;
 	Rectangle r;
@@ -673,7 +673,7 @@ xexpose(XEvent *e, XDisplay *xd)
 }
 
 int
-xdestroy(XEvent *e, XDisplay *xd)
+_xdestroy(XEvent *e, XDisplay *xd)
 {
 	XDestroyWindowEvent *xe;
 
@@ -686,7 +686,7 @@ xdestroy(XEvent *e, XDisplay *xd)
 }
 
 int
-xconfigure(XEvent *e, XDisplay *xd)
+_xconfigure(XEvent *e, XDisplay *xd)
 {
 	Rectangle r;
 	XConfigureEvent *xe = (XConfigureEvent*)e;
@@ -719,7 +719,7 @@ xreplacescreenimage(void)
 		return 0;
 
 	pixmap = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
-	m = xallocmemimage(r, _x.chan, pixmap);
+	m = _xallocmemimage(r, _x.chan, pixmap);
 	if(_x.nextscreenpm != _x.screenpm)
 		XFreePixmap(_x.display, _x.nextscreenpm);
 	_x.nextscreenpm = pixmap;

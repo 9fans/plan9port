@@ -3,10 +3,10 @@
 #include <regexp.h>
 #include <thread.h>
 #include <plumb.h>
-#include <auth.h>
 #include <fcall.h>
 #include "plumber.h"
 
+int debug;
 char	*plumbfile;
 char *user;
 char *home;
@@ -47,13 +47,18 @@ threadmain(int argc, char *argv[])
 	progname = "plumber";
 
 	ARGBEGIN{
+	case 'd':
+		debug = 1;
+		break;
 	case 'p':
 		plumbfile = ARGF();
 		break;
 	}ARGEND
 
-	user = getenv("user");
+	user = getuser();
 	home = getenv("home");
+	if(home == nil)
+		home = getenv("HOME");
 	if(user==nil || home==nil)
 		error("can't initialize $user or $home: %r");
 	if(plumbfile == nil){

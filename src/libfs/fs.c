@@ -50,7 +50,7 @@ fsroot(Fsys *fs)
 }
 
 Fsys*
-fsmount(int fd)
+fsmount(int fd, char *aname)
 {
 	int n;
 	char *user;
@@ -62,13 +62,14 @@ fsmount(int fd)
 	strcpy(fs->version, "9P2000");
 	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
 	Error:
+		fs->fd = -1;
 		fsunmount(fs);
 		return nil;
 	}
 	fs->msize = n;
 
 	user = getuser();
-	if((fs->root = fsattach(fs, nil, getuser(), "")) == nil)
+	if((fs->root = fsattach(fs, nil, getuser(), aname)) == nil)
 		goto Error;
 	return fs;
 }
@@ -76,6 +77,8 @@ fsmount(int fd)
 void
 fsunmount(Fsys *fs)
 {
+	fsclose(fs->root);
+	fs->root = nil;
 	_fsdecref(fs);
 }
 
@@ -85,7 +88,9 @@ _fsdecref(Fsys *fs)
 	Fid *f, *next;
 
 	qlock(&fs->lk);
-	if(--fs->ref == 0){
+	--fs->ref;
+	//fprint(2, "fsdecref %p to %d\n", fs, fs->ref);
+	if(fs->ref == 0){
 		close(fs->fd);
 		for(f=fs->freefid; f; f=next){
 			next = f->next;
@@ -103,6 +108,7 @@ fsversion(Fsys *fs, int msize, char *version, int nversion)
 	void *freep;
 	Fcall tx, rx;
 
+	tx.tag = 0;
 	tx.type = Tversion;
 	tx.version = version;
 	tx.msize = msize;
@@ -120,9 +126,13 @@ fsattach(Fsys *fs, Fid *afid, char *user, char *aname)
 	Fcall tx, rx;
 	Fid *fid;
 
+	if(aname == nil)
+		aname = "";
+
 	if((fid = _fsgetfid(fs)) == nil)
 		return nil;
 
+	tx.tag = 0;
 	tx.type = Tattach;
 	tx.afid = afid ? afid->fid : NOFID;
 	tx.fid = fid->fid;
@@ -145,12 +155,11 @@ fsrpc(Fsys *fs, Fcall *tx, Fcall *rx, void **freep)
 
 	n = sizeS2M(tx);
 	tpkt = malloc(n);
-fprint(2, "tpkt %p\n", tpkt);
 	if(freep)
 		*freep = nil;
 	if(tpkt == nil)
 		return -1;
-	fprint(2, "<- %F\n", tx);
+	//fprint(2, "<- %F\n", tx);
 	nn = convS2M(tx, tpkt, n);
 	if(nn != n){
 		free(tpkt);
@@ -159,20 +168,18 @@ fprint(2, "tpkt %p\n", tpkt);
 		return -1;
 	}
 	rpkt = muxrpc(&fs->mux, tpkt);
-fprint(2, "tpkt %p\n", tpkt);
 	free(tpkt);
-fprint(2, "tpkt freed\n");
 	if(rpkt == nil)
 		return -1;
 	n = GBIT32((uchar*)rpkt);
 	nn = convM2S(rpkt, n, rx);
 	if(nn != n){
 		free(rpkt);
-		werrstr("libfs: convM2S packet size mismatch");
+		werrstr("libfs: convM2S packet size mismatch %d %d", n, nn);
 		fprint(2, "%r\n");
 		return -1;
 	}
-	fprint(2, "-> %F\n", rx);
+	//fprint(2, "-> %F\n", rx);
 	if(rx->type == Rerror){
 		werrstr("%s", rx->ename);
 		free(rpkt);
@@ -208,13 +215,13 @@ _fsgetfid(Fsys *fs)
 			f[i].fid = fs->nextfid++;
 			f[i].next = &f[i+1];
 			f[i].fs = fs;
-			fs->ref++;
 		}
 		f[i-1].next = nil;
 		fs->freefid = f;
 	}
 	f = fs->freefid;
 	fs->freefid = f->next;
+	fs->ref++;
 	qunlock(&fs->lk);
 	return f;
 }
@@ -259,7 +266,7 @@ _fsrecv(Mux *mux)
 {
 	uchar *pkt;
 	uchar buf[4];
-	int n;
+	int n, nfd;
 	Fsys *fs;
 
 	fs = mux->aux;
@@ -277,11 +284,13 @@ _fsrecv(Mux *mux)
 		free(pkt);
 		return nil;
 	}
-#if 0
 	if(pkt[4] == Ropenfd){
-		/* do unix socket crap */
-		sysfatal("no socket crap implemented");
+		if((nfd=recvfd(fs->fd)) < 0){
+			fprint(2, "recv fd error: %r\n");
+			free(pkt);
+			return nil;
+		}
+		PBIT32(pkt+n-4, nfd);
 	}
-#endif
 	return pkt;
 }

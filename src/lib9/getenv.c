@@ -13,3 +13,15 @@ p9getenv(char *s)
 	return strdup(t);
 }
 
+int
+p9putenv(char *s, char *v)
+{
+	char *t;
+
+	t = smprint("%s=%s", s, v);
+	if(t == nil)
+		return -1;
+	putenv(t);
+	free(t);
+	return 0;
+}

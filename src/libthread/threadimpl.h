@@ -105,6 +105,7 @@ struct Execargs
 	char		*prog;
 	char		**args;
 	int		fd[2];
+	int		*stdfd;
 };
 
 struct Proc
@@ -214,4 +215,5 @@ extern void _stackfree(void*);
 extern int _threadgetpid(void);
 extern void _threadmemset(void*, int, int);
 extern void _threaddebugmemset(void*, int, int);
+extern int _threadprocs;
 

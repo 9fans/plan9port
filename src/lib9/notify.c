@@ -19,7 +19,7 @@ static int sigs[] = {
 #endif
 	SIGFPE,
 	SIGBUS,
-	SIGSEGV,
+/*	SIGSEGV,	*/
 	SIGSYS,
 	SIGPIPE,
 	SIGALRM,

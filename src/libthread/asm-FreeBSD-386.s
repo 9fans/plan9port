@@ -41,9 +41,9 @@ _xdec:
 	movl 4(%esp), %eax
 	lock decl 0(%eax)
 	jz iszero
-	movl %eax, 1
+	movl $1, %eax
 	ret
 iszero:
-	movl %eax, 0
+	movl $0, %eax
 	ret
 

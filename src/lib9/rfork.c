@@ -9,7 +9,7 @@ p9rfork(int flags)
 	if((flags&(RFPROC|RFFDG|RFMEM)) == (RFPROC|RFFDG)){
 		/* check other flags before we commit */
 		flags &= ~(RFPROC|RFFDG);
-		if(flags & ~(RFNOTEG)){
+		if(flags & ~(RFNOTEG|RFNAMEG)){
 			werrstr("unknown flags %08ux in rfork", flags);
 			return -1;
 		}
@@ -17,10 +17,13 @@ p9rfork(int flags)
 		if(pid != 0)
 			return pid;
 	}
-
 	if(flags&RFPROC){
-		werrstr("cannot use rfork to fork -- use ffork");
+		werrstr("cannot use rfork for shared memory -- use ffork");
 		return -1;
+	}
+	if(flags&RFNAMEG){
+		/* XXX set $NAMESPACE to a new directory */
+		flags &= ~RFNAMEG;
 	}
 	if(flags&RFNOTEG){
 		setpgid(0, getpid());

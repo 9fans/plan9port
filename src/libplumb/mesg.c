@@ -1,5 +1,7 @@
 #include <u.h>
 #include <libc.h>
+#include <fcall.h>
+#include <fs.h>
 #include "plumb.h"
 
 static char attrbuf[4096];
@@ -9,35 +11,15 @@ char *home;
 int
 plumbopen(char *name, int omode)
 {
-#if 0
-	int fd, f;
-	char *s;
-#endif
-	char buf[256];
+	Fsys *fs;
+	int fd;
 
-	if(name[0] == '/')
-		return open(name, omode);
-	if(home == nil){
-		home = getenv("HOME");
-		if(home == nil)
-			return -1;
-	}
-	snprint(buf, sizeof buf, "%s/mnt/plumb", home);
-#if 0
-	fd = open(buf, omode);
-	if(fd >= 0)
-		return fd;
-	snprint(buf, sizeof buf, "/mnt/term/mnt/plumb/%s", name);
-	fd = open(buf, omode);
-	if(fd >= 0)
-		return fd;
-	/* try mounting service */
-	s = getenv("plumbsrv");
-	if(s == nil)
+	fs = nsmount("plumb", "");
+	if(fs == nil)
 		return -1;
-	snprint(buf, sizeof buf, "/mnt/plumb/%s", name);
-#endif
-	return open(buf, omode);
+	fd = fsopenfd(fs, name, omode);
+	fsunmount(fs);
+	return fd;
 }
 
 static int

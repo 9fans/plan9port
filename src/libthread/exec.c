@@ -3,7 +3,7 @@
 #define PIPEMNT	"/mnt/temp"
 
 void
-procexec(Channel *pidc, char *prog, char *args[])
+procexec(Channel *pidc, int fd[3], char *prog, char *args[])
 {
 	int n;
 	Proc *p;
@@ -50,6 +50,7 @@ procexec(Channel *pidc, char *prog, char *args[])
 	assert(p->needexec==0);
 	p->exec.prog = prog;
 	p->exec.args = args;
+	p->exec.stdfd = fd;
 	p->needexec = 1;
 	_sched();
 
@@ -61,7 +62,11 @@ procexec(Channel *pidc, char *prog, char *args[])
 		goto Bad;
 	}
 	close(p->exec.fd[0]);
-
+	close(fd[0]);
+	if(fd[1] != fd[0])
+		close(fd[1]);
+	if(fd[2] != fd[1] && fd[2] != fd[0])
+		close(fd[2]);
 	if(pidc)
 		sendul(pidc, t->ret);
 
@@ -70,8 +75,8 @@ procexec(Channel *pidc, char *prog, char *args[])
 }
 
 void
-procexecl(Channel *pidc, char *f, ...)
+procexecl(Channel *pidc, int fd[3], char *f, ...)
 {
-	procexec(pidc, f, &f+1);
+	procexec(pidc, fd, f, &f+1);
 }
 

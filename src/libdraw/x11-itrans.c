@@ -12,7 +12,7 @@
 #include "x11-memdraw.h"
 
 static int
-_xtoplan9kbd(XEvent *e)
+__xtoplan9kbd(XEvent *e)
 {
 	int ind, k, md;
 
@@ -125,7 +125,7 @@ xtoplan9latin1(XEvent *e)
 	int n;
 	int r;
 
-	r = _xtoplan9kbd(e);
+	r = __xtoplan9kbd(e);
 	if(r < 0)
 		return nil;
 	if(alting){
@@ -156,7 +156,7 @@ xtoplan9latin1(XEvent *e)
 }
 
 int
-xtoplan9kbd(XEvent *e)
+_xtoplan9kbd(XEvent *e)
 {
 	static Rune *r;
 
@@ -173,7 +173,7 @@ xtoplan9kbd(XEvent *e)
 }
 
 int
-xtoplan9mouse(XDisplay *xd, XEvent *e, Mouse *m)
+_xtoplan9mouse(XDisplay *xd, XEvent *e, Mouse *m)
 {
 	int s;
 	XButtonEvent *be;
@@ -260,7 +260,7 @@ xtoplan9mouse(XDisplay *xd, XEvent *e, Mouse *m)
 }
 
 void
-xmoveto(Point p)
+_xmoveto(Point p)
 {
 	XWarpPointer(_x.display, None, _x.drawable, 0, 0, 0, 0, p.x, p.y);
 	XFlush(_x.display);
@@ -296,7 +296,7 @@ xcursorarrow(void)
 
 
 void
-xsetcursor(Cursor *c)
+_xsetcursor(Cursor *c)
 {
 	XColor fg, bg;
 	XCursor xc;
@@ -335,7 +335,7 @@ struct {
 } clip;
 
 char*
-xgetsnarf(XDisplay *xd)
+_xgetsnarf(XDisplay *xd)
 {
 	uchar *data, *xdata;
 	Atom clipboard, type, prop;
@@ -420,7 +420,7 @@ out:
 }
 
 void
-xputsnarf(XDisplay *xd, char *data)
+_xputsnarf(XDisplay *xd, char *data)
 {
 	XButtonEvent e;
 
@@ -445,7 +445,7 @@ xputsnarf(XDisplay *xd, char *data)
 }
 
 int
-xselect(XEvent *e, XDisplay *xd)
+_xselect(XEvent *e, XDisplay *xd)
 {
 	char *name;
 	XEvent r;
@@ -493,12 +493,12 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 void
 putsnarf(char *data)
 {
-	xputsnarf(_x.snarfcon, data);
+	_xputsnarf(_x.snarfcon, data);
 }
 
 char*
 getsnarf(void)
 {
-	return xgetsnarf(_x.snarfcon);
+	return _xgetsnarf(_x.snarfcon);
 }
 

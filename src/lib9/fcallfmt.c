@@ -74,8 +74,15 @@ fcallfmt(Fmt *fmt)
 		seprint(buf, e, "Topen tag %ud fid %ud mode %d", tag, fid, f->mode);
 		break;
 	case Ropen:
-		seprint(buf, e, "Ropen tag %ud qid " QIDFMT " iounit %ud ", tag,
+		seprint(buf, e, "Ropen tag %ud qid " QIDFMT " iounit %ud", tag,
 			f->qid.path, f->qid.vers, qidtype(tmp, f->qid.type), f->iounit);
+		break;
+	case Topenfd:	/* 98 */
+		seprint(buf, e, "Topenfd tag %ud fid %ud mode %d", tag, fid, f->mode);
+		break;
+	case Ropenfd:
+		seprint(buf, e, "Ropenfd tag %ud qid " QIDFMT " iounit %ud unixfd %d", tag,
+			f->qid.path, f->qid.vers, qidtype(tmp, f->qid.type), f->iounit, f->unixfd);
 		break;
 	case Tcreate:	/* 114 */
 		seprint(buf, e, "Tcreate tag %ud fid %ud name %s perm %M mode %d", tag, fid, f->name, (ulong)f->perm, f->mode);

@@ -13,8 +13,8 @@
 #define SETBIT(a,i)	((a)[(i)>>5] |= (1<<((i)&037)))
 #define NWORDS(n)	(((n)+32)/32)
 
-#define PARSER		"lib/yaccpar"
-#define PARSERS		"lib/yaccpars"
+#define PARSER		"#9/lib/yaccpar"
+#define PARSERS		"#9/lib/yaccpars"
 #define TEMPNAME	"y.tmp.XXXXXX"
 #define ACTNAME		"y.acts.XXXXXX"
 #define OFILE		"tab.c"
@@ -398,19 +398,10 @@ void
 others(void)
 {
 	int c, i, j;
-	char *s, *root;
 
-	root = getenv("PLAN9");
-	if(root == nil)
-		root = "/usr/local/plan9";
-	s = malloc(strlen(root)+1+strlen(parser)+1);
-	strcpy(s, root);
-	strcat(s, "/");
-	strcat(s, parser);
-	finput = Bopen(s, OREAD);
+	finput = Bopen(parser, OREAD);
 	if(finput == 0)
-		error("cannot find parser %s", s);
-	free(s);
+		error("cannot find parser %s", parser);
 	warray("yyr1", levprd, nprod);
 	aryfil(temp1, nprod, 0);
 	PLOOP(1, i)

@@ -3,14 +3,13 @@
 #include <bio.h>
 #include <regexp.h>
 #include <thread.h>
-#include <auth.h>
 #include <fcall.h>
 #include <plumb.h>
 #include "plumber.h"
 
 enum
 {
-	Stack = 8*1024
+	Stack = 32*1024
 };
 
 typedef struct Dirtab Dirtab;
@@ -73,13 +72,12 @@ struct Holdq
 
 struct	/* needed because incref() doesn't return value */
 {
-	Lock;
-	int			ref;
+	Lock	lk;
+	int	ref;
 } rulesref;
 
 enum
 {
-	DEBUG	= 0,
 	NDIR	= 50,
 	Nhash	= 16,
 
@@ -99,13 +97,10 @@ static Dirtab dir[NDIR] =
 static int	ndir = NQID;
 
 static int		srvfd;
-static int		srvclosefd;			/* rock for end of pipe to close */
-static int		clockfd;
 static int		clock;
 static Fid		*fids[Nhash];
 static QLock	readlock;
 static QLock	queue;
-static char	srvfile[128];
 static int		messagesize = 8192+IOHDRSZ;	/* good start */
 
 static void	fsysproc(void*);
@@ -183,54 +178,35 @@ addport(char *port)
 static ulong
 getclock(void)
 {
-	char buf[32];
-
-	seek(clockfd, 0, 0);
-	read(clockfd, buf, sizeof buf);
-	return atoi(buf);
+	return time(0);
 }
 
 void
 startfsys(void)
 {
-	int p[2], fd;
+	int p[2];
 
 	fmtinstall('F', fcallfmt);
-	clockfd = open("/dev/time", OREAD|OCEXEC);
 	clock = getclock();
 	if(pipe(p) < 0)
 		error("can't create pipe: %r");
 	/* 0 will be server end, 1 will be client end */
 	srvfd = p[0];
-	srvclosefd = p[1];
-	sprint(srvfile, "/srv/plumb.%s.%d", user, getpid());
-	if(putenv("plumbsrv", srvfile) < 0)
-		error("can't write $plumbsrv: %r");
-	fd = create(srvfile, OWRITE|OCEXEC|ORCLOSE, 0600);
-	if(fd < 0)
-		error("can't create /srv file: %r");
-	if(fprint(fd, "%d", p[1]) <= 0)
-		error("can't write /srv/file: %r");
-	/* leave fd open; ORCLOSE will take care of it */
-
-	procrfork(fsysproc, nil, Stack, RFFDG);
-
-	close(p[0]);
-	if(mount(p[1], -1, "/mnt/plumb", MREPL, "") < 0)
-		error("can't mount /mnt/plumb: %r");
+	if(post9pservice(p[1], "plumb") < 0)
+		sysfatal("post9pservice plumb: %r");
 	close(p[1]);
+	proccreate(fsysproc, nil, Stack);
 }
 
 static void
-fsysproc(void*)
+fsysproc(void *v)
 {
 	int n;
 	Fcall *t;
 	Fid *f;
 	uchar *buf;
 
-	close(srvclosefd);
-	srvclosefd = -1;
+	USED(v);
 	t = nil;
 	for(;;){
 		buf = malloc(messagesize);	/* avoid memset of emalloc */
@@ -250,7 +226,7 @@ fsysproc(void*)
 			t = emalloc(sizeof(Fcall));
 		if(convM2S(buf, n, t) != n)
 			error("convert error in convM2S");
-		if(DEBUG)
+		if(debug)
 			fprint(2, "<= %F\n", t);
 		if(fcall[t->type] == nil)
 			fsysrespond(t, buf, Ebadfcall);
@@ -281,7 +257,7 @@ fsysrespond(Fcall *t, uchar *buf, char *err)
 		error("convert error in convS2M");
 	if(write(srvfd, buf, n) != n)
 		error("write error in respond");
-	if(DEBUG)
+	if(debug)
 		fprint(2, "=> %F\n", t);
 	free(buf);
 }
@@ -555,8 +531,10 @@ dispose(Fcall *t, uchar *buf, Plumbmsg *m, Ruleset *rs, Exec *e)
 }
 
 static Fcall*
-fsysversion(Fcall *t, uchar *buf, Fid*)
+fsysversion(Fcall *t, uchar *buf, Fid *fid)
 {
+	USED(fid);
+
 	if(t->msize < 256){
 		fsysrespond(t, buf, "version: message size too small");
 		return t;
@@ -574,8 +552,9 @@ fsysversion(Fcall *t, uchar *buf, Fid*)
 }
 
 static Fcall*
-fsysauth(Fcall *t, uchar *buf, Fid*)
+fsysauth(Fcall *t, uchar *buf, Fid *fid)
 {
+	USED(fid);
 	fsysrespond(t, buf, "plumber: authentication not required");
 	return t;
 }
@@ -605,10 +584,11 @@ fsysattach(Fcall *t, uchar *buf, Fid *f)
 }
 
 static Fcall*
-fsysflush(Fcall *t, uchar *buf, Fid*)
+fsysflush(Fcall *t, uchar *buf, Fid *fid)
 {
 	int i;
 
+	USED(fid);
 	qlock(&queue);
 	for(i=NQID; i<ndir; i++)
 		flushqueue(&dir[i], t->oldtag);
@@ -729,14 +709,14 @@ fsysopen(Fcall *t, uchar *buf, Fid *f)
 	if(((f->dir->perm&~(DMDIR|DMAPPEND))&m) != m)
 		goto Deny;
 	if(f->qid.path==Qrules && (mode==OWRITE || mode==ORDWR)){
-		lock(&rulesref);
+		lock(&rulesref.lk);
 		if(rulesref.ref++ != 0){
 			rulesref.ref--;
-			unlock(&rulesref);
+			unlock(&rulesref.lk);
 			fsysrespond(t, buf, Einuse);
 			return t;
 		}
-		unlock(&rulesref);
+		unlock(&rulesref.lk);
 	}
 	if(clearrules){
 		writerules(nil, 0);
@@ -761,8 +741,9 @@ fsysopen(Fcall *t, uchar *buf, Fid *f)
 }
 
 static Fcall*
-fsyscreate(Fcall *t, uchar *buf, Fid*)
+fsyscreate(Fcall *t, uchar *buf, Fid *fid)
 {
+	USED(fid);
 	fsysrespond(t, buf, Eperm);
 	return t;
 }
@@ -916,15 +897,17 @@ fsysstat(Fcall *t, uchar *buf, Fid *f)
 }
 
 static Fcall*
-fsyswstat(Fcall *t, uchar *buf, Fid*)
+fsyswstat(Fcall *t, uchar *buf, Fid *fid)
 {
+	USED(fid);
 	fsysrespond(t, buf, Eperm);
 	return t;
 }
 
 static Fcall*
-fsysremove(Fcall *t, uchar *buf, Fid*)
+fsysremove(Fcall *t, uchar *buf, Fid *fid)
 {
+	USED(fid);
 	fsysrespond(t, buf, Eperm);
 	return t;
 }
@@ -945,9 +928,9 @@ fsysclunk(Fcall *t, uchar *buf, Fid *f)
 			 * unless last write ended with a blank line
 			 */
 			writerules(nil, 0);
-			lock(&rulesref);
+			lock(&rulesref.lk);
 			rulesref.ref--;
-			unlock(&rulesref);
+			unlock(&rulesref.lk);
 		}
 		prev = nil;
 		for(p=d->fopen; p; p=p->nextopen){

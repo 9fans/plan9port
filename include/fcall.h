@@ -40,6 +40,7 @@ struct	Fcall
 	char	*data;		/* Twrite, Rread */
 	ushort	nstat;		/* Twstat, Rstat */
 	uchar	*stat;		/* Twstat, Rstat */
+	int	unixfd;		/* Ropenfd */
 } Fcall;
 
 
@@ -100,6 +101,9 @@ enum
 	Twstat =	126,
 	Rwstat,
 	Tmax,
+
+	Topenfd = 	98,
+	Ropenfd,
 };
 
 uint	convM2S(uchar*, uint, Fcall*);

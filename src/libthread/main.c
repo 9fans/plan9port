@@ -37,7 +37,7 @@ main(int argc, char **argv)
 	_systhreadinit();
 	_qlockinit(_threadrendezvous);
 	_sysfatal = _threadsysfatal;
-//	notify(_threadnote);
+	notify(_threadnote);
 	if(mainstacksize == 0)
 		mainstacksize = 32*1024;
 
@@ -98,6 +98,7 @@ _schedexit(Proc *p)
 			break;
 		}
 	}
+	_threadprocs--;
 	unlock(&_threadpq.lock);
 
 	strncpy(ex, p->exitstr, sizeof ex);

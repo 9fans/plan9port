@@ -46,12 +46,12 @@ _ioproc(void *arg)
 		XWindowEvent(_x.kbdcon, _x.drawable, KeyPressMask, &xevent);
 		switch(xevent.type){
 		case KeyPress:
-			i = xtoplan9kbd(&xevent);
+			i = _xtoplan9kbd(&xevent);
 			if(i == -1)
 				continue;
 			r = i;
 			send(kc->c, &r);
-			while((i=xtoplan9kbd(nil)) >= 0){
+			while((i=_xtoplan9kbd(nil)) >= 0){
 				r = i;
 				send(kc->c, &r);
 			}

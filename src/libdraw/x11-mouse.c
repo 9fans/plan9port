@@ -11,7 +11,7 @@
 void
 moveto(Mousectl *m, Point pt)
 {
-	xmoveto(pt);
+	_xmoveto(pt);
 }
 
 void
@@ -64,10 +64,10 @@ _ioproc(void *arg)
 		XNextEvent(_x.mousecon, &xevent);
 		switch(xevent.type){
 		case Expose:
-			xexpose(&xevent, _x.mousecon);
+			_xexpose(&xevent, _x.mousecon);
 			continue;
 		case DestroyNotify:
-			if(xdestroy(&xevent, _x.mousecon)){
+			if(_xdestroy(&xevent, _x.mousecon)){
 				/* drain it before sending */
 				/* apps that care can notice we sent a 0 */
 				/* otherwise we'll have getwindow send SIGHUP */
@@ -77,16 +77,16 @@ _ioproc(void *arg)
 			}
 			continue;
 		case ConfigureNotify:
-			if(xconfigure(&xevent, _x.mousecon))
+			if(_xconfigure(&xevent, _x.mousecon))
 				nbsend(mc->resizec, &one);
 			continue;
 		case SelectionRequest:
-			xselect(&xevent, _x.mousecon);
+			_xselect(&xevent, _x.mousecon);
 			continue;
 		case ButtonPress:
 		case ButtonRelease:
 		case MotionNotify:
-			if(xtoplan9mouse(_x.mousecon, &xevent, &m) < 0)
+			if(_xtoplan9mouse(_x.mousecon, &xevent, &m) < 0)
 				continue;
 			send(mc->c, &m);
 			/*
@@ -117,6 +117,6 @@ initmouse(char *file, Image *i)
 void
 setcursor(Mousectl *mc, Cursor *c)
 {
-	xsetcursor(c);
+	_xsetcursor(c);
 }
 

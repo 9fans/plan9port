@@ -59,18 +59,13 @@ void
 main(int argc, char **argv)
 {
 	int i, cmd, kflag;
-	char *line, *p, *root;
+	char *line, *p;
 
 	Binit(&binbuf, 0, OREAD);
 	Binit(&boutbuf, 1, OWRITE);
 	kflag = 0;
 	line = 0;
 	dict = 0;
-	root = getenv("PLAN9");
-	if(root == nil)
-		root = "/usr/local/plan9";
-	if(chdir(root) < 0)
-		sysfatal("chdir %s: %r", root);
 
 	for(i=0; dicts[i].name; i++){
 		if(access(dicts[i].path, 0)>=0 && access(dicts[i].indexpath, 0)>=0){
@@ -126,12 +121,12 @@ main(int argc, char **argv)
 	}
 	bdict = Bopen(dict->path, OREAD);
 	if(!bdict) {
-		err("can't open dictionary %s/%s", root, dict->path);
+		err("can't open dictionary %s", dict->path);
 		exits("nodict");
 	}
 	bindex = Bopen(dict->indexpath, OREAD);
 	if(!bindex) {
-		err("can't open index %s/%s", root, dict->indexpath);
+		err("can't open index %s", dict->indexpath);
 		exits("noindex");
 	}
 	indextop = Bseek(bindex, 0L, 2);

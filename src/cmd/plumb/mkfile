@@ -1,10 +1,9 @@
-</$objtype/mkfile
+PLAN9=../../..
+<$PLAN9/src/mkhdr
 
 TARG=plumber plumb
 
-
-BIN=/$objtype/bin
-</sys/src/cmd/mkmany
+<$PLAN9/src/mkmany
 
 PLUMBER=plumber.$O fsys.$O match.$O rules.$O
 PLUMB=plumb.$O
@@ -15,6 +14,4 @@ $PLUMB:		$HFILES
 $O.plumb:	$PLUMB
 $O.plumber:	$PLUMBER
 
-syms:V:
-	8c -a plumber.c	>syms
-	8c -aa fsys.c match.c rules.c >>syms
+LDFLAGS=$LDFLAGS -lplumb -lfs -lmux -lthread -lregexp9 -l9 -lbio -lfmt -lutf

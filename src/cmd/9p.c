@@ -11,7 +11,9 @@ usage(void)
 	fprint(2, "usage: 9p [-a address] cmd args...\n");
 	fprint(2, "possible cmds:\n");
 	fprint(2, "	read name\n");
+	fprint(2, "	readfd name\n");
 	fprint(2, "	write name\n");
+	fprint(2, "	writefd name\n");
 	fprint(2, "	stat name\n");
 //	fprint(2, "	ls name\n");
 	fprint(2, "without -a, name elem/path means /path on server unix!$ns/elem\n");
@@ -20,6 +22,8 @@ usage(void)
 
 void xread(int, char**);
 void xwrite(int, char**);
+void xreadfd(int, char**);
+void xwritefd(int, char**);
 void xstat(int, char**);
 void xls(int, char**);
 
@@ -29,6 +33,8 @@ struct {
 } cmds[] = {
 	"read", xread,
 	"write", xwrite,
+	"readfd", xreadfd,
+	"writefd", xwritefd,
 	"stat", xstat,
 //	"ls", xls,
 };
@@ -64,7 +70,6 @@ Fsys*
 xparse(char *name, char **path)
 {
 	int fd;
-	char *ns;
 	char *p;
 	Fsys *fs;
 
@@ -75,22 +80,17 @@ xparse(char *name, char **path)
 		else
 			*p++ = 0;
 		*path = p;
-		if(*name == 0)
-			usage();
-		ns = getenv("ns");
-		if(ns == nil)
-			sysfatal("ns not set");
-		addr = smprint("unix!%s/%s", ns, name);
-		if(addr == nil)
-			sysfatal("out of memory");
-	}else
+		fs = nsmount(name, "");
+		if(fs == nil)
+			sysfatal("mount: %r");
+	}else{
 		*path = name;
-
-	fprint(2, "dial %s...", addr);
-	if((fd = dial(addr, nil, nil, nil)) < 0)
-		sysfatal("dial: %r");
-	if((fs = fsmount(fd)) == nil)
-		sysfatal("fsmount: %r");
+		fprint(2, "dial %s...", addr);
+		if((fd = dial(addr, nil, nil, nil)) < 0)
+			sysfatal("dial: %r");
+		if((fs = fsmount(fd, "")) == nil)
+			sysfatal("fsmount: %r");
+	}
 	return fs;
 }
 
@@ -120,6 +120,15 @@ xopen(char *name, int mode)
 	return fid;
 }
 
+int
+xopenfd(char *name, int mode)
+{
+	Fsys *fs;
+
+	fs = xparse(name, &name);
+	return fsopenfd(fs, name, mode);
+}
+
 void
 xread(int argc, char **argv)
 {
@@ -144,6 +153,29 @@ xread(int argc, char **argv)
 }
 
 void
+xreadfd(int argc, char **argv)
+{
+	char buf[1024];
+	int n;
+	int fd;
+
+	ARGBEGIN{
+	default:
+		usage();
+	}ARGEND
+
+	if(argc != 1)
+		usage();
+
+	fd = xopenfd(argv[0], OREAD);
+	while((n = read(fd, buf, sizeof buf)) > 0)
+		write(1, buf, n);
+	if(n < 0)
+		sysfatal("read error: %r");
+	exits(0);	
+}
+
+void
 xwrite(int argc, char **argv)
 {
 	char buf[1024];
@@ -161,6 +193,30 @@ xwrite(int argc, char **argv)
 	fid = xopen(argv[0], OWRITE|OTRUNC);
 	while((n = read(0, buf, sizeof buf)) > 0)
 		if(fswrite(fid, buf, n) != n)
+			sysfatal("write error: %r");
+	if(n < 0)
+		sysfatal("read error: %r");
+	exits(0);	
+}
+
+void
+xwritefd(int argc, char **argv)
+{
+	char buf[1024];
+	int n;
+	int fd;
+
+	ARGBEGIN{
+	default:
+		usage();
+	}ARGEND
+
+	if(argc != 1)
+		usage();
+
+	fd = xopenfd(argv[0], OWRITE|OTRUNC);
+	while((n = read(0, buf, sizeof buf)) > 0)
+		if(write(fd, buf, n) != n)
 			sysfatal("write error: %r");
 	if(n < 0)
 		sysfatal("read error: %r");

@@ -98,17 +98,18 @@ runthread(Proc *p)
 	q = &p->ready;
 	lock(&p->readylock);
 	if(q->head == nil){
-		q->asleep = 1;
 		if(p->idle){
 			if(p->idle->state != Ready){
 				fprint(2, "everyone is asleep\n");
 				exits("everyone is asleep");
 			}
 			unlock(&p->readylock);
+			_threaddebug(DBGSCHED, "running idle thread", p->nthreads);
 			return p->idle;
 		}
 
 		_threaddebug(DBGSCHED, "sleeping for more work (%d threads)", p->nthreads);
+		q->asleep = 1;
 		unlock(&p->readylock);
 		while(rendezvous((ulong)q, 0) == ~0){
 			if(_threadexitsallstatus)
@@ -148,7 +149,7 @@ Resched:
 			_threaddelproc();
 			_schedexit(p);
 		}
-	//	_threaddebug(DBGSCHED, "running %d.%d", t->proc->pid, t->id);
+		_threaddebug(DBGSCHED, "running %d.%d", t->proc->pid, t->id);
 		p->thread = t;
 		if(t->moribund){
 			_threaddebug(DBGSCHED, "%d.%d marked to die");
@@ -176,8 +177,10 @@ _threadready(Thread *t)
 {
 	Tqueue *q;
 
-	if(t == t->proc->idle)
+	if(t == t->proc->idle){
+		_threaddebug(DBGSCHED, "idle thread is ready");
 		return;
+	}
 
 	assert(t->state == Ready);
 	_threaddebug(DBGSCHED, "readying %d.%d", t->proc->pid, t->id);
@@ -206,18 +209,25 @@ void
 _threadidle(void)
 {
 	Tqueue *q;
-	Thread *t;
+	Thread *t, *idle;
 	Proc *p;
 
 	p = _threadgetproc();
 	q = &p->ready;
 	lock(&p->readylock);
-	assert(q->head);
-	t = q->head;
-	q->head = t->next;
-	if(q->tail == t)
+	assert(q->tail);
+	idle = q->tail;
+	if(q->head == idle){
+		q->head = nil;
 		q->tail = nil;
-	p->idle = t;
+	}else{
+		for(t=q->head; t->next!=q->tail; t=t->next)
+			;
+		t->next = nil;
+		q->tail = t;
+	}
+	p->idle = idle;
+	_threaddebug(DBGSCHED, "p->idle is %d\n", idle->id);
 	unlock(&p->readylock);
 }
 

@@ -27,6 +27,8 @@ char *syssigname[]={
 char*
 Rcmain(void)
 {
+	return "#9/rcmain";
+/*
 	static char buf[256];
 	char *root;
 
@@ -35,9 +37,10 @@ Rcmain(void)
 		root = "/usr/local/plan9";
 	snprint(buf, sizeof buf, "%s/rcmain", root);
 	return buf;
+*/
 }
 
-char Fdprefix[]="/dev/fd/";
+char Fdprefix[]="#d/";
 void execfinit(void);
 void execbind(void);
 void execmount(void);

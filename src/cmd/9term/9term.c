@@ -1212,7 +1212,6 @@ rcstart(int fd[2], int argc, char **argv)
 		argv[1] = "-i";
 		argv[2] = 0;
 	}
-
 	/*
 	 * fd0 is slave (tty), fd1 is master (pty)
 	 */
@@ -1222,7 +1221,7 @@ rcstart(int fd[2], int argc, char **argv)
 
         switch(pid = fork()) {
 	case 0:
-		putenv("TERM=9term");
+		putenv("TERM", "9term");
 		close(fd[1]);
 		setsid();
 	//	tcsetpgrp(0, pid);
@@ -1238,6 +1237,7 @@ rcstart(int fd[2], int argc, char **argv)
 		dup(sfd, 2);
 		system("stty tabs -onlcr -echo");
 		execvp(argv[0], argv);
+		fprint(2, "exec %s failed: %r\n", argv[0]);
 		_exits("oops");
 		break;
 	case -1:
@@ -1388,9 +1388,7 @@ scroll(int but)
 void
 plumbstart(void)
 {
-	char buf[256];
-	snprint(buf, sizeof buf,  "%s/mnt/plumb", getenv("HOME"));
-	if((plumbfd = plumbopen(buf, OWRITE)) < 0)
+	if((plumbfd = plumbopen("send", OWRITE)) < 0)
 		fatal("plumbopen");
 }
 

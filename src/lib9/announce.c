@@ -5,13 +5,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/un.h>
+#include <errno.h>
 
 #undef sun
 #define sun sockun
 extern int _p9dialparse(char*, char**, char**, u32int*, int*);
 
-static int
-getfd(char *dir)
+int
+_p9netfd(char *dir)
 {
 	int fd;
 
@@ -83,7 +84,6 @@ p9announce(char *addr, char *dir)
 	if(proto == SOCK_STREAM){
 		listen(s, 8);
 		putfd(dir, s);
-print("announce dir: %s\n", dir);
 	}
 	return s;
 
@@ -95,9 +95,21 @@ Unix:
 		return -1;
 	sn = sizeof sun;
 	if(bind(s, (struct sockaddr*)&sun, sizeof sun) < 0){
+		if(errno == EADDRINUSE
+		&& connect(s, (struct sockaddr*)&sun, sizeof sun) < 0
+		&& errno == ECONNREFUSED){
+			/* dead socket, so remove it */
+			remove(unix);
+			close(s);
+			if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+				return -1;
+			if(bind(s, (struct sockaddr*)&sun, sizeof sun) >= 0)
+				goto Success;
+		}
 		close(s);
 		return -1;
 	}
+Success:
 	listen(s, 8);
 	putfd(dir, s);
 	return s;
@@ -108,18 +120,15 @@ p9listen(char *dir, char *newdir)
 {
 	int fd;
 
-	if((fd = getfd(dir)) < 0){
+	if((fd = _p9netfd(dir)) < 0){
 		werrstr("bad 'directory' in listen: %s", dir);
 		return -1;
 	}
 
-print("accept %d", fd);
 	if((fd = accept(fd, nil, nil)) < 0)
 		return -1;
-print(" -> %d\n", fd);
 
 	putfd(newdir, fd);
-print("listen dir: %s\n", newdir);
 	return fd;
 }
 
@@ -128,7 +137,7 @@ p9accept(int cfd, char *dir)
 {
 	int fd;
 
-	if((fd = getfd(dir)) < 0){
+	if((fd = _p9netfd(dir)) < 0){
 		werrstr("bad 'directory' in accept");
 		return -1;
 	}

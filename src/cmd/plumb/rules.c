@@ -143,7 +143,7 @@ char*
 getline(void)
 {
 	static int n = 0;
-	static char *s, *incl;
+	static char *s /*, *incl*/;
 	int c, i;
 
 	i = 0;
@@ -414,7 +414,7 @@ include(char *s)
 	t = args[1];
 	fd = open(t, OREAD);
 	if(fd<0 && t[0]!='/' && strncmp(t, "./", 2)!=0 && strncmp(t, "../", 3)!=0){
-		snprint(buf, sizeof buf, "/sys/lib/plumb/%s", t);
+		snprint(buf, sizeof buf, "#9/plumb/%s", t);
 		t = buf;
 		fd = open(t, OREAD);
 	}

@@ -92,6 +92,7 @@ sizeS2M(Fcall *f)
 		break;
 
 	case Topen:
+	case Topenfd:
 		n += BIT32SZ;
 		n += BIT8SZ;
 		break;
@@ -161,6 +162,12 @@ sizeS2M(Fcall *f)
 	case Ropen:
 	case Rcreate:
 		n += QIDSZ;
+		n += BIT32SZ;
+		break;
+
+	case Ropenfd:
+		n += QIDSZ;
+		n += BIT32SZ;
 		n += BIT32SZ;
 		break;
 
@@ -257,6 +264,7 @@ convS2M(Fcall *f, uchar *ap, uint nap)
 		break;
 
 	case Topen:
+	case Topenfd:
 		PBIT32(p, f->fid);
 		p += BIT32SZ;
 		PBIT8(p, f->mode);
@@ -347,9 +355,14 @@ convS2M(Fcall *f, uchar *ap, uint nap)
 
 	case Ropen:
 	case Rcreate:
+	case Ropenfd:
 		p = pqid(p, &f->qid);
 		PBIT32(p, f->iounit);
 		p += BIT32SZ;
+		if(f->type == Ropenfd){
+			PBIT32(p, f->unixfd);
+			p += BIT32SZ;
+		}
 		break;
 
 	case Rread:

@@ -21,6 +21,7 @@ typedef	void*	pointer;
 #define NE 3
 #define length(p)	((p)->wt-(p)->beg)
 #define rewind(p)	(p)->rd=(p)->beg
+#undef create
 #define create(p)	(p)->rd = (p)->wt = (p)->beg
 #define fsfile(p)	(p)->rd = (p)->wt
 #define truncate(p)	(p)->wt = (p)->rd

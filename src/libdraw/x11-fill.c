@@ -13,13 +13,13 @@ memfillcolor(Memimage *m, u32int val)
 	if(m->X == nil)
 		return;
 	if((val & 0xFF) == 0xFF)	/* full alpha */
-		xfillcolor(m, m->r, _rgbatoimg(m, val));
+		_xfillcolor(m, m->r, _rgbatoimg(m, val));
 	else
-		xputxdata(m, m->r);
+		_xputxdata(m, m->r);
 }
 
 void
-xfillcolor(Memimage *m, Rectangle r, u32int v)
+_xfillcolor(Memimage *m, Rectangle r, u32int v)
 {
 	Point p;
 	Xmem *xm;

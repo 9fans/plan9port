@@ -194,6 +194,7 @@ extern	int	isupperrune(Rune);
  *
 extern	void*	malloc(ulong);
  */
+extern	void*	p9malloc(ulong);
 extern	void*	mallocz(ulong, int);
 /*
 extern	void	free(void*);
@@ -208,6 +209,9 @@ extern	ulong	getrealloctag(void*);
 /*
 extern	void*	malloctopoolblock(void*);
 */
+#ifndef NOPLAN9DEFINES
+#define	malloc	p9malloc
+#endif
 
 /*
  * print routines (provided by <fmt.h>)
@@ -442,6 +446,7 @@ extern	void	exits(char*);
 extern	double	frexp(double, int*);
 extern	ulong	getcallerpc(void*);
 extern	char*	p9getenv(char*);
+extern	int	p9putenv(char*, char*);
 extern	int	getfields(char*, char**, int, int, char*);
 extern	int	gettokens(char *, char **, int, char *);
 extern	char*	getuser(void);
@@ -482,6 +487,7 @@ extern	long	time(long*);
 #define	longjmp		p9longjmp
 #undef  setjmp
 #define setjmp		p9setjmp
+#define putenv		p9putenv
 #define notejmp		p9notejmp
 #define jmp_buf		p9jmp_buf
 #endif
@@ -728,14 +734,14 @@ struct IOchunk
 extern	void	_exits(char*);
 
 extern	void	abort(void);
-/* extern	int	access(char*, int); <unistd.h> */
+extern	int	p9access(char*, int);
 extern	long	p9alarm(ulong);
 extern	int	await(char*, int);
 /* extern	int	bind(char*, char*, int); give up */
 /* extern	int	brk(void*); <unistd.h> */
-/* extern	int	chdir(char*); <unistd.h> */
+extern	int	p9chdir(char*);
 extern	int	close(int);
-extern	int	create(char*, int, ulong);
+extern	int	p9create(char*, int, ulong);
 extern	int	p9dup(int, int);
 extern	int	errstr(char*, uint);
 extern	int	p9exec(char*, char*[]);
@@ -752,9 +758,9 @@ extern	int	unmount(char*, char*);
 */
 extern	int	noted(int);
 extern	int	notify(void(*)(void*, char*));
-/* extern	int	open(char*, int); <unistd.h> */
+extern	int	p9open(char*, int);
 extern	int	fd2path(int, char*, int);
-extern	int	pipe(int*);
+extern	int	p9pipe(int*);
 /* 
  * use defs from <unistd.h>
 extern	long	pread(int, void*, long, vlong);
@@ -796,6 +802,10 @@ extern	ulong	rendezvous(ulong, ulong);
 #define wait		p9wait
 #define waitpid		p9waitpid
 #define rfork		p9rfork
+#define access		p9access
+#define create		p9create
+#define open		p9open
+#define pipe		p9pipe
 #endif
 
 extern	Dir*	dirstat(char*);
@@ -810,6 +820,10 @@ extern	long	dirreadall(int, Dir**);
 extern	void	rerrstr(char*, uint);
 extern	char*	sysname(void);
 extern	void	werrstr(char*, ...);
+extern	char*	getns(void);
+extern	int	sendfd(int, int);
+extern	int	recvfd(int);
+extern	int	post9pservice(int, char*);
 
 /* external names that we don't want to step on */
 #ifndef NOPLAN9DEFINES

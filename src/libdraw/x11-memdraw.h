@@ -76,26 +76,26 @@ struct Xprivate {
 
 extern Xprivate _x;
 
-extern Memimage *xallocmemimage(Rectangle, u32int, int);
-extern XImage	*xallocxdata(Memimage*, Rectangle);
-extern void	xdirtyxdata(Memimage*, Rectangle);
-extern void	xfillcolor(Memimage*, Rectangle, u32int);
-extern void	xfreexdata(Memimage*);
-extern XImage	*xgetxdata(Memimage*, Rectangle);
-extern void	xputxdata(Memimage*, Rectangle);
+extern Memimage *_xallocmemimage(Rectangle, u32int, int);
+extern XImage	*_xallocxdata(Memimage*, Rectangle);
+extern void	_xdirtyxdata(Memimage*, Rectangle);
+extern void	_xfillcolor(Memimage*, Rectangle, u32int);
+extern void	_xfreexdata(Memimage*);
+extern XImage	*_xgetxdata(Memimage*, Rectangle);
+extern void	_xputxdata(Memimage*, Rectangle);
 extern void	_initdisplaymemimage(Display*, Memimage*);
 
 struct Mouse;
-extern int	xtoplan9mouse(XDisplay*, XEvent*, struct Mouse*);
-extern int	xtoplan9kbd(XEvent*);
-extern void	xexpose(XEvent*, XDisplay*);
-extern int	xselect(XEvent*, XDisplay*);
-extern int	xconfigure(XEvent*, XDisplay*);
-extern int	xdestroy(XEvent*, XDisplay*);
-extern void	flushmemscreen(Rectangle);
-extern void	xmoveto(Point);
+extern int	_xtoplan9mouse(XDisplay*, XEvent*, struct Mouse*);
+extern int	_xtoplan9kbd(XEvent*);
+extern void	_xexpose(XEvent*, XDisplay*);
+extern int	_xselect(XEvent*, XDisplay*);
+extern int	_xconfigure(XEvent*, XDisplay*);
+extern int	_xdestroy(XEvent*, XDisplay*);
+extern void	_flushmemscreen(Rectangle);
+extern void	_xmoveto(Point);
 struct Cursor;
-extern void	xsetcursor(struct Cursor*);
+extern void	_xsetcursor(struct Cursor*);
 
 #define MouseMask (\
 	ButtonPressMask|\

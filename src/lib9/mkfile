@@ -8,6 +8,8 @@ OFILES=\
 	_p9dialparse.$O\
 	_p9dir.$O\
 	_p9proc.$O\
+	_p9translate.$O\
+	access.$O\
 	announce.$O\
 	argv0.$O\
 	atexit.$O\
@@ -40,11 +42,13 @@ OFILES=\
 	getcallerpc-$OBJTYPE.$O\
 	getenv.$O\
 	getfields.$O\
+	getns.$O\
 	getuser.$O\
 	getwd.$O\
 	jmp.$O\
 	lock.$O\
 	main.$O\
+	malloc.$O\
 	malloctag.$O\
 	mallocz.$O\
 	nan.$O\
@@ -53,13 +57,18 @@ OFILES=\
 	notify.$O\
 	nrand.$O\
 	nulldir.$O\
+	open.$O\
+	pipe.$O\
+	post9p.$O\
 	postnote.$O\
 	qlock.$O\
 	quote.$O\
+	read9pmsg.$O\
 	readn.$O\
 	rendez-$SYSNAME.$O\
 	rfork.$O\
 	seek.$O\
+	sendfd.$O\
 	sleep.$O\
 	strecpy.$O\
 	sysfatal.$O\

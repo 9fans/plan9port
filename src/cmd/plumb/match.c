@@ -6,6 +6,7 @@
 #include <plumb.h>
 #include "plumber.h"
 
+/*
 static char*
 nonnil(char *s)
 {
@@ -13,6 +14,7 @@ nonnil(char *s)
 		return "";
 	return s;
 }
+*/
 
 int
 verbis(int obj, Plumbmsg *m, Rule *r)
@@ -44,10 +46,10 @@ setvar(Resub rs[10], char *match[10])
 		free(match[i]);
 		match[i] = nil;
 	}
-	for(i=0; i<10 && rs[i].sp!=nil; i++){
-		n = rs[i].ep-rs[i].sp;
+	for(i=0; i<10 && rs[i].s.sp!=nil; i++){
+		n = rs[i].e.ep-rs[i].s.sp;
 		match[i] = emalloc(n+1);
-		memmove(match[i], rs[i].sp, n);
+		memmove(match[i], rs[i].s.sp, n);
 		match[i][n] = '\0';
 	}
 }
@@ -66,7 +68,7 @@ clickmatch(Reprog *re, char *text, Resub rs[10], int click)
 	for(i=0; i<=click; i++){
 		memset(rs, 0, 10*sizeof(Resub));
 		if(regexec(re, text+i, rs, 10))
-			if(rs[0].sp<=clickp && clickp<=rs[0].ep)
+			if(rs[0].s.sp<=clickp && clickp<=rs[0].e.ep)
 				return 1;
 	}
 	return 0;
@@ -94,8 +96,8 @@ verbmatches(int obj, Plumbmsg *m, Rule *r, Exec *e)
 		}
 		if(!clickmatch(r->regex, m->data, rs, atoi(clickval)))
 			break;
-		p0 = rs[0].sp - m->data;
-		p1 = rs[0].ep - m->data;
+		p0 = rs[0].s.sp - m->data;
+		p1 = rs[0].e.ep - m->data;
 		if(e->p0 >=0 && !(p0==e->p0 && p1==e->p1))
 			break;
 		e->clearclick = 1;
@@ -120,7 +122,7 @@ verbmatches(int obj, Plumbmsg *m, Rule *r, Exec *e)
 		/* must match full text */
 		if(ntext < 0)
 			ntext = strlen(alltext);
-		if(!regexec(r->regex, alltext, rs, 10) || rs[0].sp!=alltext || rs[0].ep!=alltext+ntext)
+		if(!regexec(r->regex, alltext, rs, 10) || rs[0].s.sp!=alltext || rs[0].e.ep!=alltext+ntext)
 			break;
 		setvar(rs, e->match);
 		return 1;
@@ -389,7 +391,7 @@ enum
 {
 	NARGS		= 100,
 	NARGCHAR	= 8*1024,
-	EXECSTACK 	= 4096+(NARGS+1)*sizeof(char*)+NARGCHAR
+	EXECSTACK 	= 32*1024+(NARGS+1)*sizeof(char*)+NARGCHAR
 };
 
 /* copy argv to stack and free the incoming strings, so we don't leak argument vectors */
@@ -419,19 +421,17 @@ stackargv(char **inargv, char *argv[NARGS+1], char args[NARGCHAR])
 void
 execproc(void *v)
 {
+	int fd[3];
 	char **av;
-	char buf[1024], *args[NARGS+1], argc[NARGCHAR];
+	char *args[NARGS+1], argc[NARGCHAR];
 
-	rfork(RFFDG);
-	close(0);
-	open("/dev/null", OREAD);
+	fd[0] = open("/dev/null", OREAD);
+	fd[1] = dup(1, -1);
+	fd[2] = dup(2, -1);
 	av = v;
 	stackargv(av, args, argc);
 	free(av);
-	procexec(nil, args[0], args);
-	if(args[0][0]!='/' && strncmp(args[0], "./", 2)!=0 && strncmp(args[0], "../", 3)!=0)
-		snprint(buf, sizeof buf, "/bin/%s", args[0]);
-	procexec(nil, buf, args);
+	procexec(nil, fd, args[0], args);
 	threadexits("can't exec");
 }
 

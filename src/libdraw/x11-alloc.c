@@ -10,7 +10,7 @@
  * Allocate a Memimage with an optional pixmap backing on the X server.
  */
 Memimage*
-xallocmemimage(Rectangle r, u32int chan, int pixmap)
+_xallocmemimage(Rectangle r, u32int chan, int pixmap)
 {
 	int d, offset;
 	Memimage *m;
@@ -95,7 +95,7 @@ xallocmemimage(Rectangle r, u32int chan, int pixmap)
 Memimage*
 allocmemimage(Rectangle r, u32int chan)
 {
-	return xallocmemimage(r, chan, PMundef);
+	return _xallocmemimage(r, chan, PMundef);
 }
 
 void

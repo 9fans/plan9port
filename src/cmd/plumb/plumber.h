@@ -91,3 +91,4 @@ jmp_buf	parsejmp;
 char		*lasterror;
 char		**ports;
 int		nports;
+int		debug;

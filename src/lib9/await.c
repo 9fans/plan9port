@@ -45,6 +45,7 @@ static struct {
 #endif
 	SIGUSR1,		"sys: usr1",
 	SIGUSR2,		"sys: usr2",
+	SIGPIPE,		"sys: write on closed pipe",
 };
 	
 char*

@@ -13,7 +13,7 @@ loadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 
 	n = _loadmemimage(i, r, data, ndata);
 	if(n > 0 && i->X)
-		xputxdata(i, r);
+		_xputxdata(i, r);
 	return n;
 }
 

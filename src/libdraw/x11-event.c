@@ -48,7 +48,7 @@ eread(ulong keys, Event *e)
 		xmask |= MouseMask|StructureNotifyMask;
 	if(keys&Ekeyboard){
 		xmask |= KeyPressMask;
-		if((r = xtoplan9kbd(nil)) >= 0){
+		if((r = _xtoplan9kbd(nil)) >= 0){
 			e->kbdc = r;
 			return Ekeyboard;
 		}
@@ -60,24 +60,24 @@ again:
 
 	switch(xevent.type){
 	case Expose:
-		xexpose(&xevent, _x.display);
+		_xexpose(&xevent, _x.display);
 		goto again;
 	case DestroyNotify:
-		if(xdestroy(&xevent, _x.display))
+		if(_xdestroy(&xevent, _x.display))
 			postnote(PNGROUP, getpgrp(), "hangup");
 		goto again;
 	case ConfigureNotify:
-		if(xconfigure(&xevent, _x.display))
+		if(_xconfigure(&xevent, _x.display))
 			eresized(1);
 		goto again;
 	case ButtonPress:
 	case ButtonRelease:
 	case MotionNotify:
-		if(xtoplan9mouse(_x.display, &xevent, &e->mouse) < 0)
+		if(_xtoplan9mouse(_x.display, &xevent, &e->mouse) < 0)
 			goto again;
 		return Emouse;
 	case KeyPress:
-		e->kbdc = xtoplan9kbd(&xevent);
+		e->kbdc = _xtoplan9kbd(&xevent);
 		if(e->kbdc == -1)
 			goto again;
 		return Ekeyboard;
@@ -136,7 +136,7 @@ ecanmouse(void)
 	eflush();
 again:
 	if(XCheckWindowEvent(_x.display, _x.drawable, MouseMask, &xe)){
-		if(xtoplan9mouse(_x.display, &xe, &m) < 0)
+		if(_xtoplan9mouse(_x.display, &xe, &m) < 0)
 			goto again;
 		XPutBackEvent(_x.display, &xe);
 		return 1;
@@ -151,13 +151,13 @@ ecankbd(void)
 	int r;
 
 	eflush();
-	if((r = xtoplan9kbd(nil)) >= 0){
-		xtoplan9kbd((XEvent*)-1);
+	if((r = _xtoplan9kbd(nil)) >= 0){
+		_xtoplan9kbd((XEvent*)-1);
 		return 1;
 	}
 again:
 	if(XCheckWindowEvent(_x.display, _x.drawable, KeyPressMask, &xe)){
-		if(xtoplan9kbd(&xe) == -1)
+		if(_xtoplan9kbd(&xe) == -1)
 			goto again;
 		XPutBackEvent(_x.display, &xe);
 		return 1;
@@ -168,12 +168,12 @@ again:
 void
 emoveto(Point p)
 {
-	xmoveto(p);
+	_xmoveto(p);
 }
 
 void
 esetcursor(Cursor *c)
 {
-	xsetcursor(c);
+	_xsetcursor(c);
 }
 

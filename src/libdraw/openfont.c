@@ -9,21 +9,15 @@ openfont(Display *d, char *name)
 {
 	Font *fnt;
 	int fd, i, n;
-	char *buf, *nambuf, *root;
+	char *buf, *nambuf;
 
 	nambuf = 0;
 	fd = open(name, OREAD);
 
 	if(fd < 0 && strncmp(name, "/lib/font/bit/", 14) == 0){
-		root = getenv("PLAN9");
-		if(root == nil)
-			return 0;
-		nambuf = malloc(strlen(root)+5+strlen(name+13)+1);
+		nambuf = smprint("#9/font/%s", name+14);
 		if(nambuf == nil)
 			return 0;
-		strcpy(nambuf, root);
-		strcat(nambuf, "/font");
-		strcat(nambuf, name+13);
 		if((fd = open(nambuf, OREAD)) < 0){
 			free(nambuf);
 			return 0;

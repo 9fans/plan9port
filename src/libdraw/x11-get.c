@@ -16,7 +16,7 @@ addrect(Rectangle *rp, Rectangle r)
 }
 
 XImage*
-xgetxdata(Memimage *m, Rectangle r)
+_xgetxdata(Memimage *m, Rectangle r)
 {
 	int x, y;
 	uchar *p;
@@ -55,7 +55,7 @@ xgetxdata(Memimage *m, Rectangle r)
 }
 
 void
-xputxdata(Memimage *m, Rectangle r)
+_xputxdata(Memimage *m, Rectangle r)
 {
 	int offset, x, y;
 	uchar *p;
@@ -97,7 +97,7 @@ xputxdata(Memimage *m, Rectangle r)
 }
 
 void
-xdirtyxdata(Memimage *m, Rectangle r)
+_xdirtyxdata(Memimage *m, Rectangle r)
 {
 	Xmem *xm;
 

@@ -12,7 +12,7 @@ typedef struct Fsys Fsys;
 typedef struct Fid Fid;
 
 Fsys *fsinit(int);
-Fsys *fsmount(int);
+Fsys *fsmount(int, char*);
 
 int fsversion(Fsys*, int, char*, int);
 Fid *fsauth(Fsys*, char*);
@@ -34,6 +34,7 @@ struct Dir *fsdirfstat(Fid*);
 int fsdirwstat(Fsys*, char*, struct Dir*);
 int fsdirfwstat(Fid*, struct Dir*);
 Fid *fsroot(Fsys*);
+Fsys *nsmount(char*, char*);
 
 #ifdef __cplusplus
 }

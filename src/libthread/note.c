@@ -2,7 +2,6 @@
 
 int	_threadnopasser;
 
-#ifdef NOTDEF
 #define	NFN		33
 #define	ERRLEN	48
 typedef struct Note Note;
@@ -85,7 +84,7 @@ _threadnote(void *v, char *s)
 	Note *n;
 
 	_threaddebug(DBGNOTE, "Got note %s", s);
-	if(strncmp(s, "sys:", 4) == 0)
+	if(strncmp(s, "sys:", 4) == 0 && strcmp(s, "sys: write on closed pipe") != 0)
 		noted(NDFLT);
 
 //	if(_threadexitsallstatus){
@@ -112,7 +111,6 @@ _threadnote(void *v, char *s)
 		delayednotes(p, v);
 	noted(NCONT);
 }
-#endif
 
 int
 _procsplhi(void)
