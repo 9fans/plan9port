@@ -7,6 +7,7 @@ March 26, 2004
 	Handle interrupts better in rc - don't kill background procs.
 	Reported by Sam.
 
+	9term OpenBSD support from Markus Friedl.
 
 March 25, 2004
 
