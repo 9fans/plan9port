@@ -119,7 +119,10 @@ dst is postscript
 arg isfile $data
 plumb start gv $data
 
-type	is	text
-data	matches	'Local (.*)'
-plumb	to	none
-plumb	start	rc -c $1
+# urls to internet explorer on another machine
+type is text
+data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=@]+([:.][@a-zA-Z0-9_?,%#~&/\-+=]+)*'
+plumb to web
+plumb start /usr/rsc/bin/web $0
+# plumb start winstart iexplore -new $0
+

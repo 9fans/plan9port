@@ -10,6 +10,7 @@
 #include <cursor.h>
 #include <keyboard.h>
 #include <frame.h>
+#include <plumb.h>
 #include "flayer.h"
 #include "samterm.h"
 
@@ -170,20 +171,15 @@ extstart(void)
 	atexit(removeextern);
 }
 
-#if 0
 int
-plumbformat(int i)
+plumbformat(Plumbmsg *m, int i)
 {
-	Plumbmsg *m;
 	char *addr, *data, *act;
 	int n;
 
 	data = (char*)plumbbuf[i].data;
-	m = plumbunpack(data, plumbbuf[i].n);
-	if(m == nil)
-		return 0;
 	n = m->ndata;
-	if(n == 0){
+	if(n == 0 || 2+n+2 >= READBUFSIZE){
 		plumbfree(m);
 		return 0;
 	}
@@ -219,8 +215,9 @@ void
 plumbproc(void *argv)
 {
 	Channel *c;
-	int i, n, which, *fdp;
+	int i, *fdp;
 	void **arg;
+	Plumbmsg *m;
 
 	arg = argv;
 	c = arg[0];
@@ -229,16 +226,14 @@ plumbproc(void *argv)
 	i = 0;
 	threadfdnoblock(*fdp);
 	for(;;){
-		i = 1-i;	/* toggle */
-		n = threadread(*fdp, plumbbuf[i].data, READBUFSIZE);
-		if(n <= 0){
+		m = threadplumbrecv(*fdp);
+		if(m == nil){
 			fprint(2, "samterm: plumb read error: %r\n");
 			threadexits("plumb");	/* not a fatal error */
 		}
-		plumbbuf[i].n = n;
-		if(plumbformat(i)){
-			which = i;
-			send(c, &which);
+		if(plumbformat(m, i)){
+			send(c, &i);
+			i = 1-i;	/* toggle */
 		}
 	}
 }
@@ -258,17 +253,10 @@ plumbstart(void)
 		close(fd);
 		return -1;
 	}
-	arg[0] =plumbc;
+	arg[0] = plumbc;
 	arg[1] = &fd;
 	threadcreate(plumbproc, arg, STACK);
 	return 1;
-}
-#endif
-
-int
-plumbstart(void)
-{
-	return -1;
 }
 
 void

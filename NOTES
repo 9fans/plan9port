@@ -1,9 +1,5 @@
 This is a port of some Plan 9 libraries and programs to Unix.
 
-Some parts expect that the tree is installed in /usr/local/plan9.
-Most are position independent.  The few hard-coded references
-(there's one in sam) should really be fixed.
-
 * Obtaining the source
 
 Tarballs will be posted nightly (but only when there are updates!) at
@@ -19,18 +15,125 @@ See below.
 
 * Building
 
-To build, cd into src and run make; mk install.  This will place binaries
-in "bin".  At time of writing, the commands are sam, samterm, rc, and mk.
-There are a few shell scripts already included in bin -- B, Bwait,
-and samsave.
+First, you need to extract the tarball or check out the CVS tree
+(see below for CVS).  You should be able to install the tree anywhere
+-- tools check the environment variable $PLAN9 for the root of the
+tree.  Most of them assume /usr/local/plan9 if $PLAN9 is not set.
 
-The "make" builds mk.  Mk builds the rest.
+To build and install, cd into the plan9/ directory and run "./INSTALL".
+This will first build "mk" and then use mk to build the rest of the
+system, installing libraries in plan9/lib/ and binaries in plan9/bin/.
+There are a few shell scripts already included in bin -- B, Bwait,
+and samsave.  Arguably these directories should be broken up by
+architecture so that
+
+* Writing programs
+
+The bin/ directory contains shell scripts 9a, 9c, 9l, and 9ar that mimic
+the Plan 9 tools pretty well, except in the object names: "9c x.c" produces
+x.o not x.9, and "9l x.o" produces "a.out" not "9.out" or "o.out".
+
+Mkfiles look substantially the same as in Plan 9, with slightly different
+names for the included rules. The most significant
+difference is that, since there is no autolinker, the Plan 9 libraries
+needed must be named explicitly.  The variable SHORTLIBS can
+be used to list them without giving paths, e.g.:
+
+	SHORTLIBS=thread bio 9
+
+The default is "SHORTLIBS=9".  (Libc is known as lib9; libregexp is
+known as libregexp9; the rest of the libraries retain their usual names.)
+
+Various function names (like open, accept, dup, malloc) are #defined in
+order to provide routines that mimic the Plan 9 interface better
+(for example, open handles the OCEXEC flag).  Lib9.h contains these
+definitions.  Function "foo" is #defined to "p9foo".  These definitions
+can cause problems in the rare case that other Unix headers are needed
+as well.  To avoid this, #define NOPLAN9DEFINES before including lib9.h,
+and then add the p9 prefix yourself for the renamed functions you wish to use.
+
+* 9P servers and "name spaces"
+
+A few Plan 9 programs, notably the plumber and acme, are heavily
+dependent on the use of 9P to interact with other programs.  Rather
+than rewrite them, they have been left alone.  Via the helper program 9pserve,
+they post a Unix domain socket with a well-known name (for example,
+"acme" or "plumb") in the directory /tmp/ns.$USER.$DISPLAY.
+Clients connect to that socket and interact via 9P.  9pserve takes
+care of muxing the various clients of that socket onto a single 9P
+conversation with the actual server, just like the kernel does on Plan 9.
+
+The choice of "namespace" directory is meant to provide a different
+name space for each X11 session a user has.  The environment variable
+$NAMESPACE overrides this.  The command "namespace" prints the
+current name space directory.
+
+In order to run normal Unix commands with their input or output
+connected to a 9P server, there is a new 9P request "openfd" whose
+response contains a real Unix file descriptor.  9pserve handles
+this request by sending a normal open to the real 9P server and
+sending back one side of a pipe.  Then 9pserver forks a thread to
+ferry bytes back and forth between its end of the pipe and the 9P
+conversation.  This works reasonably well, but has the drawback
+that reads are no longer "demand-driven" (the ferry thread issues
+the reads and fills the pipe regardless of whether the other end
+of the pipe is being read) and writes cannot return errors (writes
+to the pipe by the application will always succeed even though the
+write in the ferry thread might actually draw an interesting error).
+This doesn't cause too many problems in practice, but is worth
+keeping in mind.
+
+The command "9p" interacts with a given server to read or write
+a particular file.  Run "9p" for a usage message.
+
+* Plumbing
+
+There is a plumber.  It expects to find a plumbing rule file in
+$HOME/lib/plumbing.  $PLAN9/plumb/initial.plumbing is a
+good start.  
+
+Sam and acme interact with the plumber as they do on Plan 9. 
+(If there is no plumber, sam falls back to a named pipe
+as it always has on Unix.)  Unlike on Plan 9, there is a "web" 
+command whose purpose is to load files or URLs in a running
+web browser.  Right now, only Mozilla Firebird and Opera are
+supported, but it should be easy to add others to the script.
+The plumbing rules in $PLAN9/plumb/basic know to run "web"
+to handle URLs.
+
+Because sam and acme read from the plumber using file descriptors
+(and therefore the openfd hack described above), if the editor exits,
+this fact is not noted until the ferry thread tries to write the next
+plumbing message to the pipe.  At this point the ferry thread closes
+the corresponding plumber fid, but the plumber thinks the message
+has been sent -- the message is lost.  The message did serve a purpose --
+now the plumber knows there are no readers of the "edit" channel,
+so when it gets the next message it will start a new editor.  
+This situation doesn't happen often, but it is worth keeping in mind.
+
+Both acme and sam try to raise themselves when they get plumbing 
+messages.
+
+* Acme
+
+Acme works.  
+
+Programs executed with the middle button interact with acme by the
+"openfd" trick described above.  In a plain execution (as opposed
+to >prog or |prog), because of the delay introduced by the pipes,
+there is no guarantee that the command output will finish being
+displayed before the exit status notice is displayed.  This can be
+annoying.
+
+There is a "win" shell.  Of course, since we're on Unix, win can't
+tell when programs are reading from the tty, so proper input point
+management is right out the window.
 
 * Helping out
 
 If you'd like to help out, great!
 
-The TODO file contains our (somewhat long) to do list.
+The TODO file contains a small list.
 
 If you port this code to other architectures, please share your changes
 so others can benefit.  See PORTING for some notes.

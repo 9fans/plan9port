@@ -196,6 +196,7 @@ plumblook(Plumbmsg *m)
 	openfile(nil, &e);
 	free(e.name);
 	free(e.u.at);
+	drawtopwindow();
 }
 
 void
@@ -234,6 +235,7 @@ plumbshow(Plumbmsg *m)
 	winsettag(w);
 	textscrdraw(&w->body);
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
+	drawtopwindow();
 }
 
 int

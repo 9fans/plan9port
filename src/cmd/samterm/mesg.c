@@ -25,7 +25,7 @@ long	invlong(int);
 void	hsetdot(int, long, long);
 void	hmoveto(int, long);
 void	hsetsnarf(int);
-/* void	hplumb(int); */
+void	hplumb(int);
 void	clrlock(void);
 int	snarfswap(char*, int, char**);
 
@@ -296,11 +296,9 @@ inmesg(Hmesg type, int count)
 		threadexitsall(nil);
 		break;
 
-/*
 	case Hplumb:
 		hplumb(m);
 		break;
-*/
 	}
 }
 
@@ -668,7 +666,6 @@ hsetsnarf(int nc)
 	setcursor(mousectl, cursor);
 }
 
-/*
 void
 hplumb(int nc)
 {
@@ -687,7 +684,6 @@ hplumb(int nc)
 	}
 	free(s);
 }
-*/
 
 void
 hgrow(int m, long a, long new, int req)

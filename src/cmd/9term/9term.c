@@ -147,7 +147,7 @@ hostproc(void *arg)
 	i = 0;
 	for(;;){
 		i = 1-i;	/* toggle */
-		n = read(rcfd[0], rcbuf[i].data, sizeof rcbuf[i].data);
+		n = threadread(rcfd[0], rcbuf[i].data, sizeof rcbuf[i].data);
 		if(n <= 0){
 			if(n < 0)
 				fprint(2, "9term: host read error: %r\n");
@@ -163,7 +163,7 @@ void
 hoststart(void)
 {
 	hostc = chancreate(sizeof(int), 0);
-	proccreate(hostproc, hostc, 32*1024);
+	threadcreate(hostproc, hostc, 32*1024);
 }
 
 void

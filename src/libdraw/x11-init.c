@@ -124,6 +124,8 @@ xerror(XDisplay *d, XErrorEvent *e)
 {
 	char buf[200];
 
+	if(e->request_code == 42) /* XSetInputFocus */
+		return 0;
 	print("X error: error_code=%d, request_code=%d, minor=%d disp=%p\n",
 		e->error_code, e->request_code, e->minor_code, d);
 	XGetErrorText(d, e->error_code, buf, sizeof buf);

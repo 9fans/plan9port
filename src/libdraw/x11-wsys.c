@@ -8,7 +8,10 @@
 void
 drawtopwindow(void)
 {
-	XRaiseWindow(_x.display, _x.drawable);
+	XMapRaised(_x.display, _x.drawable);
+	XFlush(_x.display);
+	XSetInputFocus(_x.display, _x.drawable, RevertToPointerRoot,
+		CurrentTime);
 	XFlush(_x.display);
 }
 

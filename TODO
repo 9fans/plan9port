@@ -2,24 +2,6 @@
 	- bug with discovery of initial window size in certain cases
 	  (reported by Sean Dorward)
 
-* Plumber
-	- have named-pipe-based plumber from Caerwyn Jones
-	- 9term right-click plumbs
-	- plumb rules file runs B
-	- easy to hook up web browser:
-
-# urls to web browser
-type is text
-data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+([:.][a-zA-Z0-9_?,%#~&/\-+=]+)*'
-plumb to web
-plumb start /usr/rsc/bin/web $0
-
-	- want to change back to 9P-based plumber, need to build
-	  infrastructure first
-
-* Acme
-	- with 9P infrastructure, should "just work".
-
 * upas/fs+Mail
 	- with 9P infrastructure, should "just work".
 

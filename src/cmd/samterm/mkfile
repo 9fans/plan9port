@@ -23,6 +23,6 @@ HFILES=\
 
 CFLAGS=$CFLAGS -I../sam
 LDFLAGS=$LDFLAGS -L$X11/lib -lX11 -lm
-SHORTLIB=frame draw thread regexp9 bio 9
+SHORTLIB=frame draw plumb fs mux thread regexp9 bio 9
 
 <$PLAN9/src/mkone
