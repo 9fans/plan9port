@@ -7,54 +7,10 @@ static int nextID(void);
 /*
  * Create and initialize a new Thread structure attached to a given proc.
  */
-
-typedef struct Stack Stack;
-struct Stack {
-	ulong magic;
-	Thread *thr;
-	Stack *next;
-	uchar buf[STKSIZE-12];
-};
-
-static Stack *stkfree;
-static Lock stklock;
-
 void
 _stackfree(void *v)
 {
-	Stack *s;
-
-	s = v;
-	lock(&stklock);
-	s->thr = nil;
-	s->magic = 0;
-	s->next = stkfree;
-	stkfree = s;
-	unlock(&stklock);
-}
-
-static Stack*
-stackalloc(void)
-{
-	char *buf;
-	Stack *s;
-	int i;
-
-	lock(&stklock);
-	while(stkfree == nil){
-		unlock(&stklock);
-		assert(STKSIZE == sizeof(Stack));
-		buf = malloc(STKSIZE+128*STKSIZE);
-		s = (Stack*)(((ulong)buf+STKSIZE)&~(STKSIZE-1));
-		for(i=0; i<128; i++)
-			_stackfree(&s[i]);
-		lock(&stklock);
-	}
-	s = stkfree;
-	stkfree = stkfree->next;
-	unlock(&stklock);
-	s->magic = STKMAGIC;
-	return s;
+	free(v);
 }
 
 static int
@@ -62,16 +18,15 @@ newthread(Proc *p, void (*f)(void *arg), void *arg, uint stacksize, char *name, 
 {
 	int id;
 	Thread *t;
-	Stack *s;
+	char *s;
 
 	if(stacksize < 32)
 		sysfatal("bad stacksize %d", stacksize);
 	t = _threadmalloc(sizeof(Thread), 1);
-	s = stackalloc();
-	s->thr = t;
+	s = _threadmalloc(stacksize, 0);
 	t->stk = (char*)s;
-	t->stksize = STKSIZE;
-	_threaddebugmemset(s->buf, 0xFE, sizeof s->buf);
+	t->stksize = stacksize;
+	_threaddebugmemset(s, 0xFE, stacksize);
 	_threadinitstack(t, f, arg);
 	t->proc = p;
 	t->grp = grp;
@@ -138,7 +93,7 @@ _freeproc(Proc *p)
 		if(t->cmdname)
 			free(t->cmdname);
 		assert(t->stk != nil);
-		_stackfree((Stack*)t->stk);
+		_stackfree(t->stk);
 		nextt = t->nextt;
 		free(t);
 	}

@@ -1,5 +1,5 @@
-#include "threadimpl.h"
 #include <signal.h>
+#include "threadimpl.h"
 
 char *_threadexitsallstatus;
 Channel *_threadwaitchan;
@@ -13,6 +13,7 @@ threadexits(char *exitstr)
 	p = _threadgetproc();
 	t = p->thread;
 	t->moribund = 1;
+	_threaddebug(DBGSCHED, "threadexits %s", exitstr);
 	if(exitstr==nil)
 		exitstr="";
 	utfecpy(p->exitstr, p->exitstr+ERRMAX, exitstr);
@@ -26,6 +27,7 @@ threadexitsall(char *exitstr)
 	int *pid;
 	int i, npid, mypid;
 
+	_threaddebug(DBGSCHED, "threadexitsall %s", exitstr);
 	if(exitstr == nil)
 		exitstr = "";
 	_threadexitsallstatus = exitstr;
@@ -34,7 +36,7 @@ threadexitsall(char *exitstr)
 
 	/*
 	 * signal others.
-	 * copying all the pids first avoids other threads
+	 * copying all the pids first avoids other thread's
 	 * teardown procedures getting in the way.
 	 */
 	lock(&_threadpq.lock);
@@ -46,9 +48,13 @@ threadexitsall(char *exitstr)
 	for(p = _threadpq.head; p; p=p->next)
 		pid[npid++] = p->pid;
 	unlock(&_threadpq.lock);
-	for(i=0; i<npid; i++)
-		if(pid[i] != mypid)
+	for(i=0; i<npid; i++){
+		_threaddebug(DBGSCHED, "threadexitsall kill %d", pid[i]);
+		if(pid[i]==0 || pid[i]==-1)
+			fprint(2, "bad pid in threadexitsall: %d\n", pid[i]);
+		else if(pid[i] != mypid)
 			kill(pid[i], SIGTERM);
+	}
 
 	/* leave */
 	exit(0);

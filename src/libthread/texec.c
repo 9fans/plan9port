@@ -7,6 +7,7 @@ doexec(void *v)
 {
 	char **argv = v;
 
+print("doexec\n");
 	procexec(nil, argv[0], argv);
 	sendp(threadwaitchan(), nil);
 }
@@ -27,8 +28,8 @@ threadmain(int argc, char **argv)
 	proccreate(doexec, argv, 8192);
 	w = recvp(c);
 	if(w == nil)
-		print("exec failed\n");
+		print("exec failed: %r\n");
 	else
-		print("%d %lu %lu %lu %s\n", w->pid, w->time[0], w->time[1], w->time[2], w->msg);
+		print("%d %lud %lud %lud %s\n", w->pid, w->time[0], w->time[1], w->time[2], w->msg);
 	threadexits(nil);
 }

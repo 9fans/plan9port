@@ -1,5 +1,5 @@
-#include "threadimpl.h"
 #include <signal.h>
+#include "threadimpl.h"
 
 static void tinterrupt(Proc*, Thread*);
 

@@ -1,5 +1,5 @@
-#include "threadimpl.h"
 #include <signal.h>
+#include "threadimpl.h"
 
 typedef struct Mainarg Mainarg;
 struct Mainarg
@@ -74,7 +74,13 @@ _threadsignalpasser(void)
 int
 _schedfork(Proc *p)
 {
-	return ffork(RFMEM|RFNOWAIT, _schedinit, p);
+	int pid;
+	lock(&p->lock);
+	pid = ffork(RFMEM|RFNOWAIT, _schedinit, p);
+	p->pid = pid;
+	unlock(&p->lock);
+	return pid;
+	
 }
 
 void

@@ -1,5 +1,5 @@
-#include "threadimpl.h"
 #include <signal.h>
+#include "threadimpl.h"
 
 //static Thread	*runthread(Proc*);
 
@@ -27,11 +27,11 @@ _schedinit(void *arg)
 	ignusr1();
 	signal(SIGTERM, _threaddie);
   
-
-
 	p = arg;
+	lock(&p->lock);
 	p->pid = _threadgetpid();
 	_threadsetproc(p);
+	unlock(&p->lock);
 	while(_setlabel(&p->sched))
 		;
 	_threaddebug(DBGSCHED, "top of schedinit, _threadexitsallstatus=%p", _threadexitsallstatus);
@@ -59,6 +59,7 @@ _schedinit(void *arg)
 			_stackfree(t->stk);
 			free(t->cmdname);
 			free(t);	/* XXX how do we know there are no references? */
+			p->nthreads--;
 			t = nil;
 			_sched();
 		}
@@ -94,7 +95,7 @@ runthread(Proc *p)
 	lock(&p->readylock);
 	if(q->head == nil){
 		q->asleep = 1;
-		_threaddebug(DBGSCHED, "sleeping for more work");
+		_threaddebug(DBGSCHED, "sleeping for more work (%d threads)", p->nthreads);
 		unlock(&p->readylock);
 		while(rendezvous((ulong)q, 0) == ~0){
 			if(_threadexitsallstatus)
@@ -173,6 +174,7 @@ _threadready(Thread *t)
 		q->tail->next = t;
 	q->tail = t;
 	if(q->asleep){
+		assert(q->asleep == 1);
 		q->asleep = 0;
 		/* lock passes to runthread */
 		_threaddebug(DBGSCHED, "waking process %d", t->proc->pid);
