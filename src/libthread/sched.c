@@ -83,7 +83,7 @@ _schedinit(void *arg)
 	_sched();
 }
 
-static inline Thread*
+static Thread*
 runthread(Proc *p)
 {
 	Thread *t;
