@@ -1,0 +1,20 @@
+</$objtype/mkfile
+
+TARG=plumber plumb
+
+
+BIN=/$objtype/bin
+</sys/src/cmd/mkmany
+
+PLUMBER=plumber.$O fsys.$O match.$O rules.$O
+PLUMB=plumb.$O
+
+$PLUMBER:	$HFILES plumber.h
+$PLUMB:		$HFILES
+
+$O.plumb:	$PLUMB
+$O.plumber:	$PLUMBER
+
+syms:V:
+	8c -a plumber.c	>syms
+	8c -aa fsys.c match.c rules.c >>syms
