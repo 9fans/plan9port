@@ -78,7 +78,7 @@ rdproto(char *proto, char *root, Mkfsenum *mkenum, Mkfserr *mkerr, void *a)
 {
 	Mkaux mx, *m;
 	File file;
-	int rv;
+	volatile int rv;
 
 	m = &mx;
 	memset(&mx, 0, sizeof mx);
@@ -101,7 +101,7 @@ rdproto(char *proto, char *root, Mkfsenum *mkenum, Mkfserr *mkerr, void *a)
 	file.new = "";
 	file.old = nil;
 
-	*(&rv) = 0;
+	rv = 0;
 	if(setjmp(m->jmp) == 0)
 		domkfs(m, &file, -1);
 	else
