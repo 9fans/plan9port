@@ -134,6 +134,7 @@ main(int argc, char *argv[])
 	eresized(0);
 	prev = -1;
 	for(;;){
+flushimage(display, 1);
 		m = emouse();
 		switch(m.buttons){
 		case 1:
