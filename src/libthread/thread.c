@@ -15,7 +15,7 @@ static	void		delthread(_Threadlist*, _Thread*);
 static	void		addthreadinproc(Proc*, _Thread*);
 static	void		delthreadinproc(Proc*, _Thread*);
 static	void		contextswitch(Context *from, Context *to);
-static	void		scheduler(Proc*);
+static	void		procscheduler(Proc*);
 
 static void
 _threaddebug(char *fmt, ...)
@@ -178,7 +178,7 @@ proccreate(void (*fn)(void*), void *arg, uint stack)
 	p = procalloc();
 	t = _threadcreate(p, fn, arg, stack);
 	id = t->id;	/* t might be freed after _procstart */
-	_procstart(p, scheduler);
+	_procstart(p, procscheduler);
 	return id;
 }
 
@@ -245,7 +245,7 @@ contextswitch(Context *from, Context *to)
 }
 
 static void
-scheduler(Proc *p)
+procscheduler(Proc *p)
 {
 	_Thread *t;
 
@@ -358,7 +358,7 @@ needstack(int n)
 
 	if((char*)&t <= (char*)t->stk
 	|| (char*)&t - (char*)t->stk < 256+n){
-		fprint(2, "thread stack overflow\n");
+		fprint(2, "thread stack overflow: &t=%p tstk=%p n=%d\n", &t, t->stk, 256+n);
 		abort();
 	}
 }
@@ -580,7 +580,7 @@ main(int argc, char **argv)
 	if(mainstacksize == 0)
 		mainstacksize = 256*1024;
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
-	scheduler(p);
+	procscheduler(p);
 	_threaddaemonize();
 	_threadpexit();
 	return 0;
