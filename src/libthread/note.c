@@ -92,7 +92,7 @@ _threadnote(void *v, char *s)
 //		_exits(_threadexitsallstatus);
 //	}
 
-	if(strcmp(s, "threadint")==0)
+	if(strcmp(s, "threadint")==0 || strcmp(s, "interrupt")==0)
 		noted(NCONT);
 
 	p = _threadgetproc();

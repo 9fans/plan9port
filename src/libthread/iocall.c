@@ -3,6 +3,7 @@
 long
 iocall(Ioproc *io, long (*op)(va_list*), ...)
 {
+	char e[ERRMAX];
 	int ret, inted;
 	Ioproc *msg;
 
@@ -39,11 +40,13 @@ iocall(Ioproc *io, long (*op)(va_list*), ...)
 	va_end(io->arg);
 	ret = io->ret;
 	if(ret < 0)
-		errstr(io->err, sizeof io->err);
+		strecpy(e, e+sizeof e, io->err);
 	io->inuse = 0;
 
 	/* release resources */
 	while(send(io->creply, &io) == -1)
 		;
+	if(ret < 0)
+		errstr(e, sizeof e);
 	return ret;
 }

@@ -12,6 +12,7 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <sys/un.h>
 #include <netdb.h>
 
@@ -67,6 +68,10 @@ p9dial(char *addr, char *dummy1, char *dummy2, int *dummy3)
 	if(connect(s, (struct sockaddr*)&sa, sizeof sa) < 0){
 		close(s);
 		return -1;
+	}
+	if(proto == SOCK_STREAM){
+		int one = 1;
+		setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char*)&one, sizeof one);
 	}
 	return s;
 

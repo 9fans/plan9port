@@ -16,10 +16,12 @@ OFILES=\
 	id.$O\
 	iocall.$O\
 	ioclose.$O\
+	iodial.$O\
 	ioopen.$O\
 	ioproc.$O\
 	ioread.$O\
 	ioreadn.$O\
+	iosleep.$O\
 	iowrite.$O\
 	kill.$O\
 	lib.$O\

@@ -4,14 +4,17 @@ static long
 _iodial(va_list *arg)
 {
 	char *addr, *local, *dir;
-	int *cdfp;
+	int *cdfp, fd;
 
 	addr = va_arg(*arg, char*);
 	local = va_arg(*arg, char*);
 	dir = va_arg(*arg, char*);
 	cdfp = va_arg(*arg, int*);
 
-	return dial(addr, local, dir, cdfp);
+fprint(2, "before dial\n");
+	fd = dial(addr, local, dir, cdfp);
+fprint(2, "after dial\n");
+	return fd;
 }
 
 int

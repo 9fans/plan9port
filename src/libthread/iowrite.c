@@ -5,13 +5,14 @@ _iowrite(va_list *arg)
 {
 	int fd;
 	void *a;
-	long n;
+	long n, nn;
 
 	fd = va_arg(*arg, int);
 	a = va_arg(*arg, void*);
 	n = va_arg(*arg, long);
-	n = write(fd, a, n);
-	return n;
+	nn = write(fd, a, n);
+fprint(2, "_iowrite %d %d %r\n", n, nn);
+	return nn;
 }
 
 long

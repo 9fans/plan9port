@@ -1,0 +1,10 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libcomplete.a
+OFILES=\
+	complete.$O\
+
+HFILES=$PLAN9/include/complete.h
+
+<$PLAN9/src/mksyslib

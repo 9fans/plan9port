@@ -3,7 +3,8 @@ under the Lucent Public License, Version 1.02, reproduced below.
 
 There are a few exceptions: libutf, libfmt, and libregexp are distributed
 under simpler BSD-like boilerplates.  See the LICENSE files in those
-directories.
+directories.  There are other exceptions, also marked with LICENSE files
+in their directories.
 
 The bitmap fonts in the font/lucida directory are copyright B&H Inc. and Y&Y Inc.
 and distributed under the following exception to the Lucent license:

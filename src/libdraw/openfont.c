@@ -19,6 +19,7 @@ openfont(Display *d, char *name)
 		if(nambuf == nil)
 			return 0;
 		if((fd = open(nambuf, OREAD)) < 0){
+fprint(2, "failed at %s\n", nambuf);
 			free(nambuf);
 			return 0;
 		}
