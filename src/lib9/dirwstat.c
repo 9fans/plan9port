@@ -10,7 +10,7 @@ dirwstat(char *file, Dir *dir)
 	struct utimbuf ub;
 
 	/* BUG handle more */
-	if(dir->mtime == ~0ULL)
+	if(~dir->mtime == 0)
 		return 0;
 
 	ub.actime = dir->mtime;

@@ -12,7 +12,6 @@ void
 _threadinitstack(Thread *t, void (*f)(void*), void *arg)
 {
 	ulong *tos, *stk;
-	int n;
 
 	tos = (ulong*)&t->stk[t->stksize&~7];
 	stk = tos;

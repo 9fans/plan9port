@@ -7,7 +7,6 @@ extern int __isthreaded;
 int
 ffork(int flags, void(*fn)(void*), void *arg)
 {
-	void *p;
 	pthread_t tid;
 
 	if(flags != (RFMEM|RFNOWAIT)){

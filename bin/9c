@@ -11,6 +11,7 @@ usegcc()
 		-Wno-parentheses \
 		-Wno-missing-braces \
 		-Wno-switch \
+		-Wno-sign-compare \
 	"
 }
 

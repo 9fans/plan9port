@@ -7,6 +7,10 @@
 
 #include "nan.h"
 
+#ifdef __APPLE__
+#define _NEEDLL
+#endif
+
 typedef unsigned long long uvlong;
 typedef unsigned long ulong;
 
