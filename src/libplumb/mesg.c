@@ -1,7 +1,6 @@
 #include <u.h>
 #include <libc.h>
 #include <fcall.h>
-#include <fs.h>
 #include "plumb.h"
 
 static char attrbuf[4096];

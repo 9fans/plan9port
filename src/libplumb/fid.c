@@ -1,12 +1,12 @@
 #include <u.h>
 #include <libc.h>
 #include <fcall.h>
-#include <fs.h>
+#include <9pclient.h>
 #include "plumb.h"
 
-static Fsys *fsplumb;
+static CFsys *fsplumb;
 static int pfd = -1;
-static Fid *pfid;
+static CFid *pfid;
 
 int
 plumbopen(char *name, int omode)
@@ -46,7 +46,7 @@ plumbopen(char *name, int omode)
 	return fsopenfd(fsplumb, name, omode);
 }
 
-Fid*
+CFid*
 plumbopenfid(char *name, int mode)
 {
 	if(fsplumb == nil)
@@ -57,7 +57,7 @@ plumbopenfid(char *name, int mode)
 }
 
 int
-plumbsendtofid(Fid *fid, Plumbmsg *m)
+plumbsendtofid(CFid *fid, Plumbmsg *m)
 {
 	char *buf;
 	int n;
@@ -116,7 +116,7 @@ plumbrecv(int fd)
 }
 
 Plumbmsg*
-plumbrecvfid(Fid *fid)
+plumbrecvfid(CFid *fid)
 {
 	char *buf;
 	Plumbmsg *m;
