@@ -197,6 +197,7 @@ hdate2sec(char *date)
 
 	strcpy(tm.zone, "GMT");
 	tm.tzoff = 0;
+	tm.yday = 0;
 	return tm2sec(&tm);
 }
 

@@ -283,7 +283,7 @@ hload(Hio *h, char *buf)
 
 	s = strchr(hxfers, buf[1]);
 	if(s == nil)
-		return 0;
+		return -1;
 	h->xferenc = s - hxfers;
 
 	t = h->start;
@@ -393,8 +393,8 @@ hprint(Hio *h, char *fmt, ...)
 	return n;
 }
 
-int
-hflush(Hio *h)
+static int
+_hflush(Hio *h, int dolength)
 {
 	uchar *s;
 	int w;
@@ -417,6 +417,8 @@ hflush(Hio *h)
 		h->pos[1] = '\n';
 		w = &h->pos[2] - s;
 	}
+	if(dolength)
+		fprint(h->fd, "Content-Length: %d\r\n\r\n", w);
 	if(write(h->fd, s, w) != w){
 		h->state = Herr;
 		h->stop = h->pos;
@@ -425,6 +427,18 @@ hflush(Hio *h)
 	h->seek += w;
 	h->pos = h->start;
 	return 0;
+}
+
+int
+hflush(Hio *h)
+{
+	return _hflush(h, 0);
+}
+
+int
+hlflush(Hio* h)
+{
+	return _hflush(h, 1);
 }
 
 int
