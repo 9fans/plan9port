@@ -64,6 +64,9 @@ vtreadpacket(VtConn *z, uchar score[VtScoreSize], uint type, int n)
 {
 	VtFcall tx, rx;
 
+	if(memcmp(score, vtzeroscore, VtScoreSize) == 0)
+		return packetalloc();
+
 	memset(&tx, 0, sizeof tx);
 	tx.type = VtTread;
 	tx.dtype = type;
@@ -107,6 +110,10 @@ vtwritepacket(VtConn *z, uchar score[VtScoreSize], uint type, Packet *p)
 {
 	VtFcall tx, rx;
 
+	if(packetsize(p) == 0){
+		memmove(score, vtzeroscore, VtScoreSize);
+		return 0;
+	}
 	tx.type = VtTwrite;
 	tx.dtype = type;
 	tx.data = p;

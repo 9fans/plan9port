@@ -226,5 +226,5 @@ vtfcallclear(VtFcall *f)
 	vtfree(f->auth);
 	f->auth = nil;
 	packetfree(f->data);
-	f->auth = nil;
+	f->data = nil;
 }

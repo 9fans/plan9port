@@ -98,6 +98,9 @@ vtfilealloc(VtCache *c, VtBlock *b, VtFile *p, u32int offset, int mode)
 		assert(mode == VtOREAD || p->mode == VtORDWR);
 		p->ref++;
 		qunlock(&p->lk);
+	}else{
+		assert(b->addr != NilBlock);
+		r->local = 1;
 	}
 	memmove(r->score, b->score, VtScoreSize);
 	r->offset = offset;
@@ -119,7 +122,6 @@ vtfileroot(VtCache *c, u32int addr, int mode)
 	b = vtcachelocal(c, addr, VtDirType);
 	if(b == nil)
 		return nil;
-
 	r = vtfilealloc(c, b, nil, 0, mode);
 	vtblockput(b);
 	return r;
@@ -1151,7 +1153,7 @@ vtfileflush(VtFile *f)
 
 	ret = flushblock(f->c, nil, e.score, e.psize/VtScoreSize, e.dsize/VtEntrySize,
 		e.type);
-	if(!ret){
+	if(ret < 0){
 		vtblockput(b);
 		return -1;
 	}

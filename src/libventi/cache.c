@@ -262,7 +262,8 @@ vtcachebumpblock(VtCache *c)
 	 */
 	if(c->nheap == 0){
 		vtcachedump(c);
-		sysfatal("vtcachebumpblock: no free blocks in vtCache");
+		fprint(2, "vtcachebumpblock: no free blocks in vtCache");
+		abort();
 	}
 	b = c->heap[0];
 	heapdel(b);
