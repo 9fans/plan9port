@@ -156,6 +156,7 @@ int		label(Rune*, int);
 char		wdir[1024];
 char		childwdir[1024];
 void		hangupnote(void*, char*);
+char		thesocket[100];
 
 char *menu2str[] = {
 	"cut",
@@ -1845,6 +1846,14 @@ char adir[100];
 int afd;
 
 void
+removethesocket(void)
+{
+	if(thesocket[0])
+		if(remove(thesocket) < 0)
+			fprint(2, "remove %s: %r\n", thesocket);
+}
+
+void
 servedevtext(void)
 {
 	char buf[100];
@@ -1858,6 +1867,8 @@ servedevtext(void)
 
 	putenv("text9term", buf);
 	threadcreate(listenthread, nil, STACK);
+	strcpy(thesocket, buf+5);
+	atexit(removethesocket);
 }
 
 void
