@@ -16,9 +16,11 @@ OFILES=\
 	auth_rpc.$O\
 	auth_userpasswd.$O\
 	auth_wep.$O\
+	fsamount.$O\
 	login.$O\
 #	newns.$O\
 #	noworld.$O\
+	nsamount.$O\
 
 HFILES=\
 	$PLAN9/include/auth.h\
