@@ -7,6 +7,7 @@
 CFid*
 fsopen(CFsys *fs, char *name, int mode)
 {
+	char e[ERRMAX];
 	CFid *fid;
 	Fcall tx, rx;
 
@@ -16,7 +17,9 @@ fsopen(CFsys *fs, char *name, int mode)
 	tx.fid = fid->fid;
 	tx.mode = mode;
 	if(_fsrpc(fs, &tx, &rx, 0) < 0){
+		rerrstr(e, sizeof e);
 		fsclose(fid);
+		errstr(e, sizeof e);
 		return nil;
 	}
 	fid->mode = mode;

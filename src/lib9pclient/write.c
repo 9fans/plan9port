@@ -53,7 +53,7 @@ fspwrite(CFid *fid, void *buf, long n, vlong offset)
 		want = n - tot;
 		if(want > msize)
 			want = msize;
-		got = _fspwrite(fid, buf, want, offset);
+		got = _fspwrite(fid, buf+tot, want, offset);
 		first = 0;
 		if(got < 0){
 			if(tot == 0)
