@@ -1,5 +1,3 @@
-# Acme is up-to-date w.r.t. sources as of 29 February 2004
-
 <$PLAN9/src/mkhdr
 
 TARG=acme
@@ -30,14 +28,6 @@ HFILES=dat.h\
 	edit.h\
 	fns.h\
 
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}\
-
-SHORTLIB=complete plumb fs mux thread frame draw bio 9
 <$PLAN9/src/mkone
-
-LDFLAGS=$LDFLAGS -L$X11/lib -lX11
 
 edit.$O ecmd.$O elog.$O:	edit.h
