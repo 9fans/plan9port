@@ -95,7 +95,7 @@ main(int argc, char **argv)
 {
 	int i;
 
-	cname = unsharp("#9/lib/lex/ncform");
+	cname = unsharp("#9/lib/lex.ncform");
 
 	ARGBEGIN {
 # ifdef DEBUG
