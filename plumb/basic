@@ -57,7 +57,7 @@ data set	$file
 attr add	addr=$3
 plumb to edit
 plumb start /usr/local/plan9/bin/B $file
-#plumb client window $editor
+# plumb client window $editor
 
 # .h files are looked up in /sys/include and passed to edit
 type is text
@@ -66,7 +66,8 @@ arg isfile	/sys/include/$1
 data set	$file
 attr add	addr=$3
 plumb to edit
-plumb client window $editor
+plumb start /usr/local/plan9/bin/B $file
+# plumb client window $editor
 
 # .m files are looked up in /sys/module and passed to edit
 type is text
@@ -75,7 +76,8 @@ arg isfile	/sys/module/$1
 data set	$file
 attr add	addr=$3
 plumb to edit
-plumb client window $editor
+plumb start /usr/local/plan9/bin/B $file
+# plumb client window $editor
 
 # faces -> new mail window for message
 type	is	text

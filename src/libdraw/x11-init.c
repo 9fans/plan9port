@@ -379,6 +379,10 @@ xattach(char *label)
 	 * Look up clipboard atom.
 	 */
 	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", False);
+	_x.utf8string = XInternAtom(_x.display, "UTF8_STRING", False);
+	_x.targets = XInternAtom(_x.display, "TARGETS", False);
+	_x.text = XInternAtom(_x.display, "TEXT", False);
+	_x.compoundtext = XInternAtom(_x.display, "COMPOUND_TEXT", False);
 
 	/*
 	 * Lots of display connections for various procs.

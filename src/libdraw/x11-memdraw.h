@@ -65,6 +65,10 @@ struct Xprivate {
 	XVisual		*vis;
 	u32int		white;
 	Atom		clipboard;
+	Atom		utf8string;
+	Atom		targets;
+	Atom		text;
+	Atom		compoundtext;
 	uint		putsnarf;
 	uint		assertsnarf;
 	int		destroyed;

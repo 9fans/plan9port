@@ -378,6 +378,9 @@ xgetsnarf(XDisplay *xd)
 	 * come, and we have no way to time out.  Instead, we will clear
 	 * local property #1, request our buddy to fill it in for us, and poll
 	 * until he's done or we get tired of waiting.
+	 *
+	 * We should try to go for _x.utf8string instead of XA_STRING,
+	 * but that would add to the polling.
 	 */
 	prop = 1;
 	XChangeProperty(xd, _x.drawable, prop, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
@@ -392,7 +395,7 @@ xgetsnarf(XDisplay *xd)
 			break;
 		lastlen = len;
 	}
-	if(i == 30){
+	if(i == 10){
 		data = nil;
 		goto out;
 	}
@@ -400,7 +403,7 @@ xgetsnarf(XDisplay *xd)
 	data = nil;
 	XGetWindowProperty(xd, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0, 
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
-	if(type != XA_STRING || len == 0){
+	if((type != XA_STRING && type != _x.utf8string) || len == 0){
 		if(xdata)
 			XFree(xdata);
 		data = nil;
@@ -444,19 +447,33 @@ xputsnarf(XDisplay *xd, char *data)
 int
 xselect(XEvent *e, XDisplay *xd)
 {
+	char *name;
 	XEvent r;
 	XSelectionRequestEvent *xe;
+	Atom a[4];
 
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
-	if(1 || xe->target == XA_STRING){
+if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
+	xe->target, xe->requestor, xe->property, xe->selection);
+	r.xselection.property = xe->property;
+	if(xe->target == _x.targets){
+		a[0] = XA_STRING;
+		a[1] = _x.utf8string;
+		a[2] = _x.text;
+		a[3] = _x.compoundtext;
+
+		XChangeProperty(xd, xe->requestor, xe->property, xe->target,
+			8, PropModeReplace, (uchar*)a, sizeof a);
+	}else if(xe->target == XA_STRING || xe->target == _x.utf8string || xe->target == _x.text || xe->target == _x.compoundtext){
+		/* if the target is STRING we're supposed to reply with Latin1 XXX */
 		qlock(&clip.lk);
-		XChangeProperty(xd, xe->requestor, xe->property, XA_STRING, 8,
-			PropModeReplace, (uchar*)clip.buf, strlen(clip.buf)+1);
+		XChangeProperty(xd, xe->requestor, xe->property, xe->target,
+			8, PropModeReplace, (uchar*)clip.buf, strlen(clip.buf));
 		qunlock(&clip.lk);
-		r.xselection.property = xe->property;
 	}else{
-		fprint(2, "asked for a %d\n", xe->target);
+		name = XGetAtomName(xd, xe->target);
+		fprint(2, "%s: cannot handle selection request for '%s' (%d)\n", argv0, name, (int)xe->target);
 		r.xselection.property = None;
 	}
 
