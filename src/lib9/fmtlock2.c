@@ -1,16 +1,16 @@
 #include <u.h>
 #include <libc.h>
 
-static QLock fmtlock;
+static Lock fmtlock;
 
 void
 __fmtlock(void)
 {
-	qlock(&fmtlock);
+	lock(&fmtlock);
 }
 
 void
 __fmtunlock(void)
 {
-	qunlock(&fmtlock);
+	unlock(&fmtlock);
 }
