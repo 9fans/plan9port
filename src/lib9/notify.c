@@ -206,8 +206,6 @@ notifyseton(int s, int on)
 	sig = findsig(s);
 	if(sig == nil)
 		return;
-	if(on)
-		notesetenable(s, 1);
 	memset(&sa, 0, sizeof sa);
 	sa.sa_handler = on ? signotify : signonotify;
 	if(sig->restart)
