@@ -99,6 +99,7 @@ LIB9OFILES=\
 	errstr.$O\
 	exec.$O\
 	fcallfmt.$O\
+	fork.$O\
 	ffork-$SYSNAME.$O\
 	get9root.$O\
 	getcallerpc-$OBJTYPE.$O\
