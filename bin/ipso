@@ -122,7 +122,10 @@ for(i in $files){
 sleep 2; date > _timestamp	# so we can find which files have been edited.
 
 # edit the files
-if(~ $edit yes) E `{for(i in $files) basename $i}
+if(~ $edit yes){
+	B `{for(i in $files) basename $i}
+	readcons 'type enter when finished editing' >/dev/null
+}
 if(~ $flush yes ){
 	echo flushing old keys
 	echo delkey | 9p write factotum/ctl
