@@ -138,6 +138,7 @@ threadmain(int argc, char *argv[])
 
 	d = display;
 	font = d->defaultfont;
+//assert(font);
 
 	reffont.f = font;
 	reffonts[0] = &reffont;
@@ -790,6 +791,7 @@ rfget(int fix, int save, int setfont, char *name)
 			}
 		f = openfont(display, name);
 		if(f == nil){
+			fprint(2, "can't open font file %s: %r\n", name);
 			warning(nil, "can't open font file %s: %r\n", name);
 			return nil;
 		}

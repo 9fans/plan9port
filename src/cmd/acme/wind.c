@@ -45,6 +45,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 		filereset(w->tag.file);
 		textsetselect(&w->tag, nc, nc);
 	}
+//assert(w->body.w == w);
 	r1 = r;
 	r1.min.y += font->height + 1;
 	if(r1.max.y < r1.min.y)
@@ -57,6 +58,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 		rf = rfget(FALSE, FALSE, FALSE, clone->body.reffont->f->name);
 	}else
 		rf = rfget(FALSE, FALSE, FALSE, nil);
+//assert(w->body.w == w);
 	f = fileaddtext(f, &w->body);
 	w->body.what = Body;
 	textinit(&w->body, f, r1, rf, textcols);
@@ -72,6 +74,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 	draw(screen, br, button, nil, button->r.min);
 	w->filemenu = TRUE;
 	w->maxlines = w->body.fr.maxlines;
+//assert(w->body.w == w);
 	if(clone){
 		w->dirty = clone->dirty;
 		textsetselect(&w->body, clone->body.q0, clone->body.q1);
@@ -138,6 +141,7 @@ winlock(Window *w, int owner)
 	int i;
 	File *f;
 
+fprint(2, "winlock %p %d %lux\n", w, owner, getcallerpc(&w));
 	f = w->body.file;
 	for(i=0; i<f->ntext; i++)
 		winlock1(f->text[i]->w, owner);
@@ -149,6 +153,7 @@ winunlock(Window *w)
 	int i;
 	File *f;
 
+fprint(2, "winunlock %p %lux\n", w, getcallerpc(&w));
 	f = w->body.file;
 	for(i=0; i<f->ntext; i++){
 		w = f->text[i]->w;

@@ -102,6 +102,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		w->col = c;
 		winresize(w, r, FALSE);
 	}
+//assert(w->body.w == w);
 	w->tag.col = c;
 	w->tag.row = c->row;
 	w->body.col = c;

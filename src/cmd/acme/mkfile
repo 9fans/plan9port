@@ -36,6 +36,6 @@ UPDATE=\
 
 <$PLAN9/src/mkone
 
-LDFLAGS=$LDFLAGS -lplumb -lfs -lmux -lthread -lframe -ldraw -lbio -l9 -lfmt -lutf -L$X11/lib -lX11
+LDFLAGS=$LDFLAGS -lcomplete -lplumb -lfs -lmux -lthread -lframe -ldraw -lbio -l9 -lfmt -lutf -L$X11/lib -lX11
 
 edit.$O ecmd.$O elog.$O:	edit.h
