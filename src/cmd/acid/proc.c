@@ -14,6 +14,7 @@ sproc(int xpid)
 {
 	Lsym *s;
 	int i;
+	Regs *regs;
 
 	if(symmap == 0)
 		error("no map");
@@ -22,11 +23,11 @@ sproc(int xpid)
 		return;
 
 	if(corhdr){
-		free(correg);
-		correg = nil;
-		correg = coreregs(corhdr, xpid);
-		if(correg == nil)
+		regs = coreregs(corhdr, xpid);
+		if(regs == nil)
 			error("no such pid in core dump");
+		free(correg);
+		correg = regs;
 	}else{
 		/* XXX should only change register set here if cormap already mapped */		
 		if(xpid <= 0)
@@ -35,6 +36,8 @@ sproc(int xpid)
 		unmapfile(corhdr, cormap);
 		free(correg);
 		correg = nil;
+		pid = -1;
+		corpid = -1;
 
 		if(mapproc(xpid, cormap, &correg) < 0)
 			error("setproc %d: %r", xpid);
