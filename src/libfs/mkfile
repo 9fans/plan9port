@@ -1,0 +1,22 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libfs.a
+
+OFILES=\
+	close.$O\
+	create.$O\
+	dirread.$O\
+	fs.$O\
+	open.$O\
+	read.$O\
+	stat.$O\
+	walk.$O\
+	write.$O\
+	wstat.$O\
+
+HFILES=\
+	$PLAN9/include/fs.h\
+	$PLAN9/include/mux.h\
+
+<$PLAN9/src/mksyslib
