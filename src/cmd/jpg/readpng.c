@@ -46,7 +46,6 @@ typedef struct ZlibR{
 
 static ulong *crctab;
 static uchar PNGmagic[] = {137,80,78,71,13,10,26,10};
-static char readerr[] = "ReadPNG: read error: %r";
 static char memerr[] = "ReadPNG: malloc failed: %r";
 
 static ulong
