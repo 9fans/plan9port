@@ -2,9 +2,6 @@
 	- bug with discovery of initial window size in certain cases
 	  (reported by Sean Dorward)
 
-* upas/fs+Mail
-	- with 9P infrastructure, should "just work".
-
 * Venti
 	- wrote new venti library; server uses it and runs
 	- need way to mount vacs.  have all the code for a /vac file
@@ -19,3 +16,7 @@
 	  needs cleanup and release.  should be easy to add ext2,
 	  fat.  ntfs harder but possible.
 
+* Bug fixes
+
+	- need to use MAKECONTEXT_V2_SOURCE for SunOS 5.10 (and can for 5.9),
+	  but must not for 5.8.  (reported by Axel Belinfante)
