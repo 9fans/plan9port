@@ -315,6 +315,8 @@ nilstrcmp(char *a, char *b)
 	return strcmp(a, b);
 }
 
+int careaboutaggrcount;
+
 static int
 typecmp(Type *t, Type *u)
 {
@@ -343,7 +345,7 @@ typecmp(Type *t, Type *u)
 	if(i)
 		return i;
 
-	if(t->ty == Aggr){
+	if(careaboutaggrcount && t->ty == Aggr){
 		if(t->n > u->n)
 			return -1;
 		if(t->n < u->n)
@@ -547,7 +549,9 @@ printtypes(Biobuf *b)
 	for(tl=alltypes; tl; tl=tl->tl)
 		all[n++] = tl->hd;
 
+	careaboutaggrcount = 1;
 	qsort(all, n, sizeof(all[0]), qtypecmp);
+	careaboutaggrcount = 0;
 
 	nn = 0;
 	for(i=0; i<n; i++){
