@@ -302,6 +302,7 @@ change(int a, int b, int c, int d)
 		range(a, b, " ");
 		break;
 	case 'c':
+	case 'a':
 		if(nchanges%1024 == 0)
 			changes = erealloc(changes, (nchanges+1024)*sizeof(changes[0]));
 		ch = &changes[nchanges++];
@@ -348,24 +349,39 @@ flushchanges(void)
 	
 	for(i=0; i<nchanges; ){
 		j = changeset(i);
-		a = changes[i].a;
-		b = changes[j-1].b;
-		c = changes[i].c;
-		d = changes[j-1].d;
+		a = changes[i].a-Lines;
+		b = changes[j-1].b+Lines;
+		c = changes[i].c-Lines;
+		d = changes[j-1].d+Lines;
+		if(a < 1)
+			a = 1;
+		if(c < 1)
+			c = 1;
+		if(b > len[0])
+			b = len[0];
+		if(d > len[1])
+			d = len[1];
+		if(mode == 'a'){
+			a = 1;
+			b = len[0];
+			c = 1;
+			d = len[1];
+			j = nchanges;
+		}
 		Bprint(&stdout, "%s:", file1);
 		range(a, b, ",");
 		Bprint(&stdout, " - ");
 		Bprint(&stdout, "%s:", file2);
 		range(c, d, ",");
 		Bputc(&stdout, '\n');
-		at = a-Lines;
+		at = a;
 		for(; i<j; i++){
 			fetch(ixold, at, changes[i].a-1, input[0], "  ");
 			fetch(ixold, changes[i].a, changes[i].b, input[0], "< ");
 			fetch(ixnew, changes[i].c, changes[i].d, input[1], "> ");
 			at = changes[i].b+1;
 		}
-		fetch(ixold, at, b+Lines, input[0], "  ");
+		fetch(ixold, at, b, input[0], "  ");
 	}
 	nchanges = 0;
 }

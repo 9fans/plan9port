@@ -8,7 +8,7 @@
 
 Biobuf	stdout;
 
-static char *tmp[] = {"/tmp/diff1", "/tmp/diff2"};
+static char *tmp[] = {"/tmp/diff1XXXXXXXXXXX", "/tmp/diff2XXXXXXXXXXX"};
 static int whichtmp;
 static char *progname;
 static char usage[] = "diff [ -efmnbwr ] file1 ... file2\n";
@@ -26,8 +26,6 @@ void
 done(int status)
 {
 	rmtmpfiles();
-Bflush(&stdout);
-Bterm(&stdout);
 	switch(status)
 	{
 	case 0:
@@ -83,8 +81,11 @@ mktmpfile(int input, Dir **sb)
 	char buf[8192];
 
 	atnotify(catch, 1);
-	p = tmp[whichtmp++];
+/*
+	p = mktemp(tmp[whichtmp++]);
 	fd = create(p, OWRITE, 0600);
+*/
+	fd = mkstemp(p=tmp[whichtmp++]);
 	if (fd < 0) {
 		panic(mflag ? 0: 2, "cannot create %s: %r\n", p);
 		return 0;
@@ -172,7 +173,6 @@ diff(char *f, char *t, int level)
 	}
 	free(fsb);
 	free(tsb);
-
 Return:
 	rmtmpfiles();
 }
@@ -189,10 +189,12 @@ main(int argc, char *argv[])
 	while (--argc && (*++argv)[0] == '-' && (*argv)[1]) {
 		for (p = *argv+1; *p; p++) {
 			switch (*p) {
-			case 'c':
+
 			case 'e':
 			case 'f':
 			case 'n':
+			case 'c':
+			case 'a':
 				mode = *p;
 				break;
 
@@ -238,7 +240,6 @@ main(int argc, char *argv[])
 	free(tsb);
 	for (i = 0; i < argc-1; i++)
 		diff(argv[i], argv[argc-1], 0);
-
 	done(anychange);
 	/*NOTREACHED*/
 }
