@@ -245,6 +245,8 @@ RSApriv*	asn1toRSApriv(uchar*, int);
 uchar*		decodepem(char *s, char *type, int *len, char**);
 PEMChain*	decodepemchain(char *s, char *type);
 uchar*		X509gen(RSApriv *priv, char *subj, ulong valid[2], int *certlen);
+RSApriv*	rsafill(mpint *n, mpint *ek, mpint *dk, mpint *p, mpint *q);
+uchar*	X509req(RSApriv *priv, char *subj, int *certlen);
 
 /////////////////////////////////////////////////////////
 // elgamal
@@ -326,6 +328,7 @@ void		dsaprivfree(DSApriv*);
 DSAsig*		dsasigalloc(void);
 void		dsasigfree(DSAsig*);
 DSApub*		dsaprivtopub(DSApriv*);
+DSApriv*	asn1toDSApriv(uchar*, int);
 
 /////////////////////////////////////////////////////////
 // TLS
