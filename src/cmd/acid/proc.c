@@ -21,30 +21,39 @@ sproc(int xpid)
 	if(pid == xpid)
 		return;
 
-	if(xpid <= 0)
-		error("bad pid");
+	if(corhdr){
+		free(correg);
+		correg = nil;
+		correg = coreregs(corhdr, xpid);
+		if(correg == nil)
+			error("no such pid in core dump");
+	}else{
+		/* XXX should only change register set here if cormap already mapped */		
+		if(xpid <= 0)
+			error("bad pid");
+		unmapproc(cormap);
+		unmapfile(corhdr, cormap);
+		free(correg);
+		correg = nil;
 
-	unmapproc(cormap);
-	unmapfile(corhdr, cormap);
-	free(correg);
-	correg = nil;
+		if(mapproc(xpid, cormap, &correg) < 0)
+			error("setproc %d: %r", xpid);
 
-	if(mapproc(xpid, cormap, &correg) < 0)
-		error("setproc %d: %r", xpid);
+		/* XXX check text file here? */
 
-	/* XXX check text file here? */
-
+		for(i=0; i<cormap->nseg; i++){
+			if(cormap->seg[i].file == nil){
+				if(strcmp(cormap->seg[i].name, "data") == 0)
+					cormap->seg[i].name = "*data";
+				if(strcmp(cormap->seg[i].name, "text") == 0)
+					cormap->seg[i].name = "*text";
+			}
+		}
+	}
 	pid = xpid;
 	s = look("pid");
 	s->v->store.u.ival = pid;
 
-	for(i=0; i<cormap->nseg; i++)
-		if(cormap->seg[i].file == nil){
-			if(strcmp(cormap->seg[i].name, "data") == 0)
-				cormap->seg[i].name = "*data";
-			if(strcmp(cormap->seg[i].name, "text") == 0)
-				cormap->seg[i].name = "*text";
-		}
 	install(pid);
 }
 
@@ -165,6 +174,7 @@ install(int pid)
 	s->v->set = 1;
 }
 
+/*
 static int
 installed(int pid)
 {
@@ -175,6 +185,7 @@ installed(int pid)
 			return 1;
 	return 0;
 }
+*/
 
 void
 deinstall(int pid)

@@ -202,56 +202,6 @@ convflt(Node *r, char *flt)
 	}
 }
 
-static char*
-regbyoff(ulong addr)
-{
-	Regdesc *r;
-
-	if(mach == nil)
-		error("no mach, no registers");
-	for(r=mach->reglist; r->name; r++)
-		if(r->offset == addr)
-			return r->name;
-	error("no register at %#lux", addr);
-	return nil;
-}
-
-int
-xget1(Map *m, ulong addr, u8int *a, int n)
-{
-	if(addr < 0x100 && correg)
-		return lget1(m, correg, locreg(regbyoff(addr)), a, n);
-	else
-		return get1(m, addr, a, n);
-}
-
-int
-xget2(Map *m, ulong addr, u16int *a)
-{
-	if(addr < 0x100 && correg)
-		return lget2(m, correg, locreg(regbyoff(addr)), a);
-	else
-		return get2(m, addr, a);
-}
-
-int
-xget4(Map *m, ulong addr, u32int *a)
-{
-	if(addr < 0x100 && correg)
-		return lget4(m, correg, locreg(regbyoff(addr)), a);
-	else
-		return get4(m, addr, a);
-}
-
-int
-xget8(Map *m, ulong addr, u64int *a)
-{
-	if(addr < 0x100 && correg)
-		return lget8(m, correg, locreg(regbyoff(addr)), a);
-	else
-		return get8(m, addr, a);
-}
-
 void
 indir(Map *m, ulong addr, char fmt, Node *r)
 {
@@ -272,7 +222,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 	case 'C':
 	case 'b':
 		r->type = TINT;
-		ret = xget1(m, addr, &cval, 1);
+		ret = get1(m, addr, &cval, 1);
 		if (ret < 0)
 			error("indir: %r");
 		r->store.u.ival = cval;
@@ -284,7 +234,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 	case 'q':
 	case 'r':
 		r->type = TINT;
-		ret = xget2(m, addr, &sval);
+		ret = get2(m, addr, &sval);
 		if (ret < 0)
 			error("indir: %r");
 		r->store.u.ival = sval;
@@ -298,7 +248,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 	case 'O':
 	case 'Q':
 		r->type = TINT;
-		ret = xget4(m, addr, &ival);
+		ret = get4(m, addr, &ival);
 		if (ret < 0)
 			error("indir: %r");
 		r->store.u.ival = ival;
@@ -308,7 +258,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 	case 'Y':
 	case 'Z':
 		r->type = TINT;
-		ret = xget8(m, addr, &vval);
+		ret = get8(m, addr, &vval);
 		if (ret < 0)
 			error("indir: %r");
 		r->store.u.ival = vval;
@@ -316,7 +266,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 	case 's':
 		r->type = TSTRING;
 		for(i = 0; i < sizeof(buf)-1; i++) {
-			ret = xget1(m, addr, (uchar*)&buf[i], 1);
+			ret = get1(m, addr, (uchar*)&buf[i], 1);
 			if (ret < 0)
 				error("indir: %r");
 			addr++;
@@ -331,7 +281,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 	case 'R':
 		r->type = TSTRING;
 		for(i = 0; i < sizeof(buf)-2; i += 2) {
-			ret = xget1(m, addr, (uchar*)&buf[i], 2);
+			ret = get1(m, addr, (uchar*)&buf[i], 2);
 			if (ret < 0)
 				error("indir: %r");
 			addr += 2;
@@ -351,14 +301,14 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 		r->store.u.string = strnode(buf);
 		break;
 	case 'f':
-		ret = xget1(m, addr, (uchar*)buf, mach->szfloat);
+		ret = get1(m, addr, (uchar*)buf, mach->szfloat);
 		if (ret < 0)
 			error("indir: %r");
 		mach->ftoa32(buf, sizeof(buf), (void*) buf);
 		convflt(r, buf);
 		break;
 	case 'g':
-		ret = xget1(m, addr, (uchar*)buf, mach->szfloat);
+		ret = get1(m, addr, (uchar*)buf, mach->szfloat);
 		if (ret < 0)
 			error("indir: %r");
 		mach->ftoa32(buf, sizeof(buf), (void*) buf);
@@ -366,14 +316,14 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 		r->store.u.string = strnode(buf);
 		break;
 	case 'F':
-		ret = xget1(m, addr, (uchar*)buf, mach->szdouble);
+		ret = get1(m, addr, (uchar*)buf, mach->szdouble);
 		if (ret < 0)
 			error("indir: %r");
 		mach->ftoa64(buf, sizeof(buf), (void*) buf);
 		convflt(r, buf);
 		break;
 	case '3':	/* little endian ieee 80 with hole in bytes 8&9 */
-		ret = xget1(m, addr, (uchar*)reg, 10);
+		ret = get1(m, addr, (uchar*)reg, 10);
 		if (ret < 0)
 			error("indir: %r");
 		memmove(reg+10, reg+8, 2);	/* open hole */
@@ -382,14 +332,14 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 		convflt(r, buf);
 		break;
 	case '8':	/* big-endian ieee 80 */
-		ret = xget1(m, addr, (uchar*)reg, 10);
+		ret = get1(m, addr, (uchar*)reg, 10);
 		if (ret < 0)
 			error("indir: %r");
 		beieeeftoa80(buf, sizeof(buf), reg);
 		convflt(r, buf);
 		break;
 	case 'G':
-		ret = xget1(m, addr, (uchar*)buf, mach->szdouble);
+		ret = get1(m, addr, (uchar*)buf, mach->szdouble);
 		if (ret < 0)
 			error("indir: %r");
 		mach->ftoa64(buf, sizeof(buf), (void*) buf);
@@ -400,21 +350,70 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 }
 
 void
-windir(Map *m, Node *addr, Node *rval, Node *r)
+indirreg(Regs *regs, char *name, char fmt, Node *r)
+{
+	ulong val;
+
+	if(regs == 0)
+		error("no register set for *%s=", name);
+
+	r->op = OCONST;
+	r->store.fmt = fmt;
+	switch(fmt){
+	default:
+		error("bad pointer format '%c' for *%s", fmt, name);
+	case 'c':
+	case 'C':
+	case 'b':
+	case 'x':
+	case 'd':
+	case 'u':
+	case 'o':
+	case 'q':
+	case 'r':
+	case 'a':
+	case 'A':
+	case 'B':
+	case 'X':
+	case 'D':
+	case 'U':
+	case 'O':
+	case 'Q':
+	case 'V':
+	case 'W':
+	case 'Y':
+	case 'Z':
+		if(rget(regs, name, &val) < 0)
+			error("reading %s: %r", name);
+		r->type = TINT;
+		r->store.u.ival = val;
+		break;
+	case 'f':
+	case 'g':
+	case 'F':
+	case '3':
+	case '8':
+	case 'G':
+		error("floating point registers not supported");
+		break;
+	}
+}
+
+void
+windir(Map *m, Node aes, Node *rval, Node *r)
 {
 	uchar cval;
 	ushort sval;
-	Node res, aes;
+	Node res;
 	int ret;
 
 	if(m == 0)
 		error("no map for */@=");
 
-	expr(rval, &res);
-	expr(addr, &aes);
-
 	if(aes.type != TINT)
-		error("bad type lhs of @/*");
+		error("bad type lhs of */@=");
+
+	expr(rval, &res);
 
 	if(m != cormap && wtflag == 0)
 		error("not in write mode");
@@ -463,6 +462,58 @@ windir(Map *m, Node *addr, Node *rval, Node *r)
 	}
 	if (ret < 0)
 		error("windir: %r");
+}
+
+void
+windirreg(Regs *regs, char *name, Node *rval, Node *r)
+{
+	Node res;
+
+	if(regs == 0)
+		error("no register set for *%s=", name);
+
+	expr(rval, &res);
+
+	r->type = res.type;
+	r->store.fmt = res.store.fmt;
+	r->store = res.store;
+
+	switch(res.store.fmt){
+	default:
+		error("bad format '%c' for *%s=", res.store.fmt, name);
+	case 'c':
+	case 'C':
+	case 'b':
+	case 'x':
+	case 'd':
+	case 'u':
+	case 'o':
+	case 'q':
+	case 'r':
+	case 'a':
+	case 'A':
+	case 'B':
+	case 'X':
+	case 'D':
+	case 'U':
+	case 'O':
+	case 'Q':
+	case 'V':
+	case 'W':
+	case 'Y':
+	case 'Z':
+		if(rput(regs, name, res.store.u.ival) < 0)
+			error("writing %s: %r", name);
+		break;
+	case 'f':
+	case 'g':
+	case 'F':
+	case '3':
+	case '8':
+	case 'G':
+		error("floating point registers not supported");
+		break;
+	}
 }
 
 void

@@ -44,6 +44,7 @@ Extern int	interactive;
 Extern Node*	code;
 Extern int	na;
 Extern int	wtflag;
+Extern Regs*	acidregs;
 Extern Regs*	correg;
 Extern Map*	cormap;
 Extern Map*	symmap;
@@ -76,6 +77,8 @@ enum
 	TSTRING,
 	TLIST,
 	TCODE,
+	TREG,
+	TCON,
 	NUMT,
 };
 
@@ -129,6 +132,8 @@ struct Store
 		String*	string;
 		List*	l;
 		Node*	cc;
+		char*	reg;
+		Node*	con;
 	} u;
 };
 
@@ -182,6 +187,7 @@ struct String
 	int	len;
 };
 
+int	acidregsrw(Regs*, char*, ulong*, int);
 List*	addlist(List*, List*);
 void	addvarsym(Fhdr*);
 List*	al(int);
@@ -212,6 +218,7 @@ void	gc(void);
 char*	getstatus(int);
 void*	gmalloc(long);
 void	indir(Map*, ulong, char, Node*);
+void	indirreg(Regs*, char*, char, Node*);
 void	initexpr(void);
 void	initprint(void);
 void	installbuiltin(void);
@@ -257,7 +264,8 @@ void	userinit(void);
 void	varreg(void);
 void	varsym(void);
 void	whatis(Lsym*);
-void	windir(Map*, Node*, Node*, Node*);
+void	windir(Map*, Node, Node*, Node*);
+void	windirreg(Regs*, char*, Node*, Node*);
 void	yyerror(char*, ...);
 int	yylex(void);
 int	yyparse(void);
@@ -313,5 +321,6 @@ enum
 	OFMT,
 	OEVAL,
 	OWHAT,
+	OUPLUS,
 	NUMO,
 };

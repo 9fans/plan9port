@@ -61,7 +61,6 @@ varsym(void)
 			continue;
 		addvarsym(fp);
 	}
-
 	if(l->v->store.u.l == nil)
 		print("no debugging symbols\n");
 }
@@ -217,9 +216,9 @@ varreg(void)
 		l = mkvar(r->name);
 		v = l->v;
 		v->set = 1;
-		v->store.u.ival = r->offset;
+		v->store.u.reg = r->name;
 		v->store.fmt = r->format;
-		v->type = TINT;
+		v->type = TREG;
 
 		li = al(TSTRING);
 		li->store.u.string = strnode(r->name);

@@ -44,6 +44,9 @@ void	regexp(Node*, Node*);
 void textfile(Node*, Node*);
 void deltextfile(Node*, Node*);
 void stringn(Node*, Node*);
+void xregister(Node*, Node*);
+void refconst(Node*, Node*);
+void dolook(Node*, Node*);
 
 typedef struct Btab Btab;
 struct Btab
@@ -52,13 +55,12 @@ struct Btab
 	void	(*fn)(Node*, Node*);
 } tab[] =
 {
+	"access",	doaccess,
 	"atof",		cvtatof,
 	"atoi",		cvtatoi,
 	"deltextfile",	deltextfile,
 	"error",	doerror,
 	"file",		getfile,
-	"readfile",	readfile,
-	"access",	doaccess,
 	"filepc",	filepc,
 	"fnbound",	funcbound,
 	"fmt",		fmt,
@@ -76,8 +78,11 @@ struct Btab
 	"print",	bprint,
 	"printto",	printto,
 	"rc",		rc,
+	"readfile",	readfile,
 	"reason",	reason,
+	"refconst",	refconst,
 	"regexp",	regexp,
+	"register",	xregister,
 	"setproc",	setproc,
 	"start",	start,
 	"startstop",	startstop,
@@ -87,6 +92,7 @@ struct Btab
 	"stringn",	stringn,
 	"sysstop",		sysstop,
 	"textfile",	textfile,
+	"var",	dolook,
 	"waitstop",	waitstop,
 	0
 };
@@ -317,6 +323,65 @@ xkill(Node *r, Node *args)
 }
 
 void
+xregister(Node *r, Node *args)
+{
+	Regdesc *rp;
+	Node res;
+
+	if(args == 0)
+		error("register(string): arg count");
+	expr(args, &res);
+	if(res.type != TSTRING)
+		error("register(string): arg type");
+
+	if((rp = regdesc(res.store.u.string->string)) == nil)
+		error("no such register");
+
+	r->op = OCONST;
+	r->type = TREG;
+	r->store.fmt = rp->format;
+	r->store.u.reg = rp->name;
+}
+
+void
+refconst(Node *r, Node *args)
+{
+	Node *n;
+
+	if(args == 0)
+		error("refconst(expr): arg count");
+
+	n = an(OCONST, ZN, ZN);
+	expr(args, n);
+
+	r->op = OCONST;
+	r->type = TCON;
+	r->store.u.con = n;
+}
+
+void
+dolook(Node *r, Node *args)
+{
+	Node res;
+	Lsym *l;
+
+	if(args == 0)
+		error("var(string): arg count");
+	expr(args, &res);
+	if(res.type != TSTRING)
+		error("var(string): arg type");
+
+	r->op = OCONST;
+	if((l = look(res.store.u.string->string)) == nil || l->v->set == 0){
+		r->type = TLIST;
+		r->store.u.l = nil;
+	}else{
+		r->type = l->v->type;
+		r->store = l->v->store;
+	}
+}
+
+void
 status(Node *r, Node *args)
 {
 	Node res;
@@ -350,7 +415,7 @@ reason(Node *r, Node *args)
 	r->op = OCONST;
 	r->type = TSTRING;
 	r->store.fmt = 's';
-	r->store.u.string = strnode((*mach->exc)(cormap, correg));
+	r->store.u.string = strnode((*mach->exc)(cormap, acidregs));
 }
 
 void
@@ -367,7 +432,7 @@ follow(Node *r, Node *args)
 	if(res.type != TINT)
 		error("follow(addr): arg type");
 
-	n = (*mach->foll)(cormap, correg, res.store.u.ival, f);
+	n = (*mach->foll)(cormap, acidregs, res.store.u.ival, f);
 	if (n < 0)
 		error("follow(addr): %r");
 	tail = &r->store.u.l;
@@ -953,7 +1018,7 @@ straceregrw(Regs *regs, char *name, ulong *val, int isr)
 			*val = sregs[i].val;
 			return 0;
 		}
-	return rget(correg, name, val);
+	return rget(acidregs, name, val);
 }
 
 void
@@ -1058,6 +1123,65 @@ patom(char type, Store *res)
 	int i;
 	char buf[512];
 	extern char *typenames[];
+	Node *n;
+
+	switch(type){
+	case TREG:
+		Bprint(bout, "register(\"%s\")", res->u.reg);
+		return;
+	case TCON:
+		Bprint(bout, "refconst(");
+		n = res->u.con;
+		patom(n->type, &n->store);
+		Bprint(bout, ")");
+		return;
+	}
+
+	switch(res->fmt){
+	case 'c':
+	case 'C':
+	case 'r':
+	case 'B':
+	case 'b':
+	case 'X':
+	case 'x':
+	case 'W':
+	case 'D':
+	case 'd':
+	case 'u':
+	case 'U':
+	case 'Z':
+	case 'V':
+	case 'Y':
+	case 'o':
+	case 'O':
+	case 'q':
+	case 'Q':
+	case 'a':
+	case 'A':
+	case 'I':
+	case 'i':
+		if(type != TINT){
+		badtype:
+			Bprint(bout, "*%s\\%c*", typenames[(uchar)type], res->fmt);
+			return;
+		}
+		break;
+
+	case 'f':
+	case 'F':
+		if(type != TFLOAT)
+			goto badtype;
+		break;
+
+	case 's':
+	case 'g':
+	case 'G':
+	case 'R':
+		if(type != TSTRING)
+			goto badtype;
+		break;
+	}
 
 	switch(res->fmt) {
 	case 'c':
@@ -1129,24 +1253,15 @@ patom(char type, Store *res)
 		break;
 	case 'f':
 	case 'F':
-		if(type != TFLOAT)
-			Bprint(bout, "*%c<%s>*", res->fmt, typenames[(uchar)type]);
-		else
-			Bprint(bout, "%g", res->u.fval);
+		Bprint(bout, "%g", res->u.fval);
 		break;
 	case 's':
 	case 'g':
 	case 'G':
-		if(type != TSTRING)
-			Bprint(bout, "*%c<%s>*", res->fmt, typenames[(uchar)type]);
-		else
-			Bwrite(bout, res->u.string->string, res->u.string->len);
+		Bwrite(bout, res->u.string->string, res->u.string->len);
 		break;
 	case 'R':
-		if(type != TSTRING)
-			Bprint(bout, "*%c<%s>*", res->fmt, typenames[(uchar)type]);
-		else
-			Bprint(bout, "%S", (Rune*)res->u.string->string);
+		Bprint(bout, "%S", (Rune*)res->u.string->string);
 		break;
 	case 'a':
 	case 'A':
@@ -1155,14 +1270,10 @@ patom(char type, Store *res)
 		break;
 	case 'I':
 	case 'i':
-		if(type != TINT)
-			Bprint(bout, "*%c<%s>*", res->fmt, typenames[(uchar)type]);
-		else {
-			if (symmap == nil || (*mach->das)(symmap, res->u.ival, res->fmt, buf, sizeof(buf)) < 0)
-				Bprint(bout, "no instruction");
-			else
-				Bprint(bout, "%s", buf);
-		}
+		if (symmap == nil || (*mach->das)(symmap, res->u.ival, res->fmt, buf, sizeof(buf)) < 0)
+			Bprint(bout, "no instruction");
+		else
+			Bprint(bout, "%s", buf);
 		break;
 	}
 }
@@ -1406,6 +1517,7 @@ textfile(Node *r, Node *args)
 			unmapfile(corhdr, cormap);
 			mapfile(fp, base, cormap, nil);
 			free(correg);
+			correg = nil;
 			mapfile(corhdr, 0, cormap, &correg);
 		}
 		if(symopen(fp) < 0)
@@ -1476,8 +1588,6 @@ deltextfile(Node *r, Node *args)
 		error("symbol file %s not open", file);
 }
 
-int xget1(Map *m, ulong addr, u8int *a, int n);
-
 void
 stringn(Node *r, Node *args)
 {
@@ -1507,7 +1617,7 @@ stringn(Node *r, Node *args)
 
 	r->type = TSTRING;
 	for(i=0; i<n; i++){
-		ret = xget1(cormap, addr, (uchar*)&buf[i], 1);
+		ret = get1(cormap, addr, (uchar*)&buf[i], 1);
 		if(ret < 0){
 			free(buf);
 			error("indir: %r");

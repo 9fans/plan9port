@@ -63,11 +63,29 @@ fmtsize(Value *v)
 	}
 }
 
-void
+Lsym*
 chklval(Node *lp)
 {
-	if(lp->op != ONAME)
-		error("need l-value");
+	Node res;
+	Lsym *s;
+
+	if(lp->op == ONAME)
+		return lp->sym;
+
+	if(lp->op == OCALL){
+		s = chklval(lp->left);
+		if(strcmp(s->name, "var") == 0	
+		&& (lp->builtin || s->proc == 0)){
+			if(lp->right == 0)
+				error("var(string): arg count");
+			expr(lp->right, &res);
+			if(res.type != TSTRING)
+				error("var(string): arg type");
+			return mkvar(res.store.u.string->string);
+		}
+	}
+	error("need l-value");
+	return nil;	
 }
 
 void
@@ -107,12 +125,24 @@ oindm(Node *n, Node *res)
 	if(m == 0)
 		m = symmap;
 	expr(n->left, &l);
-	if(l.type != TINT)
+	switch(l.type){
+	default:
 		error("bad type for *");
-	if(m == 0)
-		error("no map for *");
-	indir(m, l.store.u.ival, l.store.fmt, res);
-	res->store.comt = l.store.comt;
+	case TINT:
+		if(m == 0)
+			error("no map for *");
+		indir(m, l.store.u.ival, l.store.fmt, res);
+		res->store.comt = l.store.comt;
+		break;
+	case TREG:
+		indirreg(correg, l.store.u.reg, l.store.fmt, res);
+		res->store.comt = l.store.comt;
+		break;
+	case TCON:
+		*res = *l.store.u.con;
+		res->store.comt = l.store.comt;
+		break;
+	}
 }
 
 void
@@ -145,7 +175,7 @@ oframe(Node *n, Node *res)
 	while(*p && *p == '$')
 		p++;
 	lp = n->left;
-	if(localaddr(cormap, correg, p, lp->sym->name, &ival) < 0)
+	if(localaddr(cormap, acidregs, p, lp->sym->name, &ival) < 0)
 		error("colon: %r");
 		
 	res->store.u.ival = ival;
@@ -296,19 +326,24 @@ void
 oasgn(Node *n, Node *res)
 {
 	Node *lp, r;
+	Node aes;
 	Value *v;
 
 	lp = n->left;
 	switch(lp->op) {
 	case OINDM:
-		windir(cormap, lp->left, n->right, res);
+		expr(lp->left, &aes);
+		if(aes.type == TREG)
+			windirreg(correg, aes.store.u.reg, n->right, res);
+		else
+			windir(cormap, aes, n->right, res);
 		break;
 	case OINDC:
-		windir(symmap, lp->left, n->right, res);
+		expr(lp->left, &aes);
+		windir(symmap, aes, n->right, res);
 		break;
 	default:
-		chklval(lp);
-		v = lp->sym->v;
+		v = chklval(lp)->v;
 		expr(n->right, &r);
 		v->set = 1;
 		v->type = r.type;
@@ -871,8 +906,7 @@ oeinc(Node *n, Node *res)
 {
 	Value *v;
 
-	chklval(n->left);
-	v = n->left->sym->v;
+	v = chklval(n->left)->v;
 	res->op = OCONST;
 	res->type = v->type;
 	switch(v->type) {
@@ -899,8 +933,7 @@ opinc(Node *n, Node *res)
 {
 	Value *v;
 
-	chklval(n->left);
-	v = n->left->sym->v;
+	v = chklval(n->left)->v;
 	res->op = OCONST;
 	res->type = v->type;
 	res->store = v->store;
@@ -932,9 +965,7 @@ ocall(Node *n, Node *res)
 	res->type = TLIST;
 	res->store.u.l = 0;
 
-	chklval(n->left);
-	s = n->left->sym;
-
+	s = chklval(n->left);
 	if(n->builtin && !s->builtin){
 		error("no builtin %s", s->name);
 		return;
@@ -956,6 +987,12 @@ ofmt(Node *n, Node *res)
 {
 	expr(n->left, res);
 	res->store.fmt = n->right->store.u.ival;
+}
+
+void
+ouplus(Node *n, Node *res)
+{
+	expr(n->left, res);
 }
 
 void
@@ -1021,6 +1058,7 @@ initexpop(void)
 	expop[OFMT] = ofmt;
 	expop[OEVAL] = oeval;
 	expop[OWHAT] = owhat;
+	expop[OUPLUS] = ouplus;
 }
 
 void
@@ -1030,3 +1068,54 @@ initexpr(void)
 	initexpop();
 }
 
+int
+acidregsrw(Regs *r, char *name, ulong *u, int isr)
+{
+	Lsym *l;
+	Value *v;
+	Node *n;
+	ulong addr;
+	u32int u32;
+
+	if(!isr){
+		werrstr("cannot write registers");
+		return -1;
+	}
+	USED(r);
+	l = look(name);
+	if(l == nil){
+		werrstr("register %s not found", name);
+		return -1;
+	}
+	v = l->v;
+	switch(v->type){
+	default:
+		werrstr("*%s: bad type", name);
+		return -1;
+	case TREG:
+		if(correg == nil){
+			werrstr("*%s: register %s not mapped", name, v->store.u.reg);
+			return -1;
+		}
+		return rget(correg, v->store.u.reg, u);
+	case TCON:
+		n = v->store.u.con;
+		if(n->op != OCONST || n->type != TINT){
+			werrstr("*%s: bad register constant", name);
+			return -1;
+		}
+		*u = n->store.u.ival;
+		return 0;
+	case TINT:
+		if(cormap == nil){
+			werrstr("*%s: core not mapped", name);
+			return -1;
+		}
+		addr = v->store.u.ival;
+		/* XXX should use format to determine size */
+		if(get4(cormap, addr, &u32) < 0)
+			return -1;
+		*u = u32;
+		return 0;
+	}
+}

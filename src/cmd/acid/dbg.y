@@ -282,8 +282,7 @@ monexpr		: term
 		}
 		| '+' monexpr
 		{
-			$$ = con(0);
-			$$ = an(OADD, $2, $$);
+			$$ = an(OUPLUS, $2, ZN);
 		}
 		| '-' monexpr
 		{

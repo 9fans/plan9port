@@ -20,6 +20,8 @@ map() returns 5-tuples: (name, filename, base, end, offset)
 
 map() expects a 5-tuple too
 
+new acid maps() prints maps nicely.
+
 strace expects a list of register names and values like
 	{"PC", *PC, "SP", *SP}
 
@@ -40,6 +42,34 @@ new builtin textfile({file, base}) adds a new file's symbols and text
 new builtin deltextfile(file) removes a file from the set of open text files.
 
 both textfile and deltextfile update symbols.
+
+new types: register is something that when dereferenced gives you
+	the registers.  the Ureg is no longer mapped at 0.
+	refconst is something that gives a constant when dereferenced.
+
+new builtin register("AX") creates register values
+new builtin refconst(0x123) creates refconst values
+
+new builtin var("foo") is equivalent to the variable foo
+	(it returns foo but can also be used as the lhs of an assignment).
+
+new acid function getregs() returns a list of the current values of registers.
+new acid function setregs() sets the current registers to those values.
+	note that getregs and setregs operate on register locations, not the
+		register values themselves.  
+new acid function resetregs() sets registers to register("AX"), etc.
+new acid function clearregs() sets all registers to constant -1.
+
+the default register settings are as in resetregs(), not small numbers.
+the Ureg is not mapped at 0 anymore.
+
+new acid variables coretext, pids, systype, corefile, cmdline.
+
+new behavior: local variable lookup, stk, etc., use the acid values of registers
+	(*PC, *SP, and so on), so the thread support code can change the context
+	completely.
+
+unary + is applicable to more data types and prints more often.
 
 ====
 

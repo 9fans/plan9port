@@ -401,6 +401,10 @@ pexpr(Node *n)
 		if(n->sym)
 			Bprint(bout, " %s", n->sym->name);
 		break;
+	case OUPLUS:
+		Bprint(bout, "+");
+		pexpr(l);
+		break;
 	}
 }
 

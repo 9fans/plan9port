@@ -106,6 +106,8 @@ main(int argc, char *argv[])
 	pushfile(0);
 	loadvars();
 	installbuiltin();
+	acidregs = mallocz(sizeof *acidregs, 1);
+	acidregs->rw = acidregsrw;
 
 	if(mtype && machbyname(mtype) == 0)
 		print("unknown machine %s", mtype);
@@ -172,16 +174,29 @@ main(int argc, char *argv[])
 */
 }
 
+void
+setstring(char *var, char *s)
+{
+	Lsym *l;
+	Value *v;
+
+	l = mkvar(var);
+	v = l->v;
+	v->store.fmt = 's';
+	v->set = 1;
+	v->store.u.string = strnode(s ? s : "");
+	v->type = TSTRING;
+}
+
 static int
 attachfiles(int argc, char **argv)
 {
 	int fd;
 	volatile int pid;
-	char *s;
+	char *s, *t;
 	int i, omode;
 	Fhdr *hdr;
 	Lsym *l;
-	Value *v;
 
 	pid = 0;
 	interactive = 0;
@@ -220,7 +235,6 @@ attachfiles(int argc, char **argv)
 		}
 		fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
 		if(hdr->ftype == FCORE){
-			fprint(2, "cmd: %s\n", hdr->cmd);
 			if(pid){
 				fprint(2, "already have pid %d; ignoring core %s\n", pid, argv[i]);
 				uncrackhdr(hdr);
@@ -252,12 +266,28 @@ attachfiles(int argc, char **argv)
 				symfil = s;
 			}
 		}
-		/* XXX pull command from core */
+		if(corhdr){
+			/*
+			 * prog gives only the basename of the command,
+			 * so try the command line for a path.
+			 */
+			if((s = strdup(corhdr->cmdline)) != nil){
+				t = strchr(s, ' ');
+				if(t)
+					*t = 0;
+				if((t = searchpath(s)) != nil){
+					fprint(2, "core: text %s\n", t);
+					symfil = t;
+				}
+				free(s);
+			}
+		}
 
 		if((symhdr = crackhdr(symfil, omode)) == nil){
 			fprint(2, "crackhdr %s: %r\n", symfil);
 			symfil = nil;
-		}
+		}else
+			fprint(2, "%s: %s %s %s\n", symfil, symhdr->aname, symhdr->mname, symhdr->fname);	
 	}
 
 	if(symhdr)
@@ -281,33 +311,15 @@ attachfiles(int argc, char **argv)
 	}
 
 Run:
-	l = mkvar("objtype");
-	v = l->v;
-	v->store.fmt = 's';
-	v->set = 1;
-	v->store.u.string = strnode(mach->name);
-	v->type = TSTRING;
+	setstring("objtype", mach->name);
+	setstring("textfile", symfil);
+	setstring("systype", symhdr ? symhdr->aname : "");
+	setstring("corefile", corfil);
 
-	l = mkvar("textfile");
-	v = l->v;
-	v->store.fmt = 's';
-	v->set = 1;
-	v->store.u.string = strnode(symfil ? symfil : "");
-	v->type = TSTRING;
-
-	l = mkvar("systype");
-	v = l->v;
-	v->store.fmt = 's';
-	v->set = 1;
-	v->store.u.string = strnode(symhdr ? symhdr->aname : "");
-	v->type = TSTRING;
-
-	l = mkvar("corefile");
-	v = l->v;
-	v->store.fmt = 's';
-	v->set = 1;
-	v->store.u.string = strnode(corfil ? corfil : "");
-	v->type = TSTRING;
+	l = mkvar("pids");
+	l->v->set = 1;
+	l->v->type = TLIST;
+	l->v->store.u.l = nil;
 
 	if(pid)
 		sproc(pid);
@@ -320,6 +332,11 @@ Run:
 void
 setcore(Fhdr *hdr)
 {
+	int i;
+	Lsym *l;
+	Value *v;
+	List **tail, *tl;
+
 	unmapproc(cormap);
 	unmapfile(corhdr, cormap);
 	free(correg);
@@ -331,6 +348,31 @@ setcore(Fhdr *hdr)
 		error("mapfile %s: %r", hdr->filename);
 	corhdr = hdr;
 	corfil = hdr->filename;
+
+	l = mkvar("pid");
+	v = l->v;
+	v->store.fmt = 'D';
+	v->set = 1;
+	v->store.u.ival = hdr->pid;
+
+	setstring("corefile", corfil);
+	setstring("cmdline", hdr->cmdline);
+
+	l = mkvar("pids");
+	l->v->set = 1;
+	l->v->type = TLIST;
+	l->v->store.u.l = nil;
+	tail = &l->v->store.u.l;
+	for(i=0; i<hdr->nthread; i++){
+		tl = al(TINT);
+		tl->store.u.ival = hdr->thread[i].id;
+		tl->store.fmt = 'X';
+		*tail = tl;
+		tail = &tl->next;
+	}
+
+	if(hdr->nthread)
+		sproc(hdr->thread[0].id);
 }
 
 void
@@ -338,16 +380,21 @@ die(void)
 {
 	Lsym *s;
 	List *f;
+	int first;
 
 	Bprint(bout, "\n");
 
+	first = 1;
 	s = look("proclist");
 	if(s && s->v->type == TLIST) {
 		for(f = s->v->store.u.l; f; f = f->next){
 			detachproc((int)f->store.u.ival);
-			Bprint(bout, "/bin/kill -9 %d\n", (int)f->store.u.ival);
+			Bprint(bout, "%s %d", first ? "/bin/kill -9" : "", (int)f->store.u.ival);
+			first = 0;
 		}
 	}
+	if(!first)
+		Bprint(bout, "\n");
 	exits(0);
 }
 
@@ -544,6 +591,9 @@ gc(void)
 					break;
 				case TCODE:
 					marktree(v->store.u.cc);
+					break;
+				case TCON:
+					marktree(v->store.u.con);
 					break;
 				}
 			}
