@@ -1934,6 +1934,68 @@ errret:
 	return nil;
 }
 
+/*
+ * 	DSAPrivateKey ::= SEQUENCE{
+ *		version Version,
+ *		p INTEGER,
+ *		q INTEGER,
+ *		g INTEGER, -- alpha
+ *		pub_key INTEGER, -- key
+ *		priv_key INTEGER, -- secret
+ *	}
+ */
+static DSApriv*
+decode_dsaprivkey(Bytes* a)
+{
+	int version;
+	Elem e;
+	Elist *el;
+	mpint *mp;
+	DSApriv* key;
+
+	key = dsaprivalloc();
+	if(decode(a->data, a->len, &e) != ASN_OK)
+		goto errret;
+	if(!is_seq(&e, &el) || elistlen(el) != 6)
+		goto errret;
+version=-1;
+	if(!is_int(&el->hd, &version) || version != 0)
+{
+fprint(2, "version %d\n", version);
+		goto errret;
+	}
+
+	el = el->tl;
+	key->pub.p = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	el = el->tl;
+	key->pub.q = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	el = el->tl;
+	key->pub.alpha = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	el = el->tl;
+	key->pub.key = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	el = el->tl;
+	key->secret = mp = asn1mpint(&el->hd);
+	if(mp == nil)
+		goto errret;
+
+	return key;
+errret:
+	dsaprivfree(key);
+	return nil;
+}
+
 static mpint*
 asn1mpint(Elem *e)
 {
@@ -1980,6 +2042,18 @@ asn1toRSApriv(uchar *kd, int kn)
 
 	b = makebytes(kd, kn);
 	key = decode_rsaprivkey(b);
+	freebytes(b);
+	return key;
+}
+
+DSApriv*
+asn1toDSApriv(uchar *kd, int kn)
+{
+	Bytes *b;
+	DSApriv *key;
+
+	b = makebytes(kd, kn);
+	key = decode_dsaprivkey(b);
 	freebytes(b);
 	return key;
 }
