@@ -4,7 +4,7 @@
 off_t
 Bseek(Biobuf *bp, off_t offset, int base)
 {
-	off_t n, d;
+	vlong n, d;
 
 	switch(bp->state) {
 	default:
