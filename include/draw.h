@@ -509,9 +509,20 @@ extern	void	_twiddlecompressed(uchar*, int);
 extern	int	_compblocksize(Rectangle, int);
 
 /* XXX backwards helps; should go */
-extern	int		log2[];
 extern	u32int	drawld2chan[];
 extern	void		drawsetdebug(int);
+
+/*
+ * Snarf buffer
+ */
+enum
+{
+	SnarfSize = 64*1024,
+};
+char *getsnarf(void);
+void putsnarf(char*);
+
+void drawtopwindow(void);
 
 /*
  * Port magic.

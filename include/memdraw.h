@@ -46,6 +46,7 @@ struct Memimage
 	Memlayer	*layer;	/* nil if not a layer*/
 	u32int		flags;
 	void		*X;
+	int		screenref;	/* reference count if this is a screen */
 
 	int		shift[NChan];
 	int		mask[NChan];

@@ -176,7 +176,8 @@ extern ulong	rendezvous(ulong, ulong);
 
 /* one of a kind */
 extern void	sysfatal(char*, ...);
-extern int		nrand(int);
+extern int	nrand(int);
+extern long	lrand(void);
 extern void	setmalloctag(void*, ulong);
 extern void	setrealloctag(void*, ulong);
 extern void	*mallocz(ulong, int);
