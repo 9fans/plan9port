@@ -124,7 +124,7 @@ print("elfdl386mapdl\n");
 					unmapfile(corhdr, cormap);
 					mapfile(hdr, addr, cormap, nil);
 				}
-				if(syminit(hdr) < 0)
+				if(symopen(hdr) < 0)
 					fprint(2, "syminit %s: %\r", buf);
 			}
 		}	

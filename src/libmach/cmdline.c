@@ -102,7 +102,7 @@ attachargs(int argc, char **argv, int omode)
 	}
 
 	if(symhdr)
-		syminit(symhdr);
+		symopen(symhdr);
 
 	if(!mach)
 		mach = machcpu;
