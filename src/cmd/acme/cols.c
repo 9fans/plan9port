@@ -541,6 +541,9 @@ colwhich(Column *c, Point p)
 				return &w->tag;
 			return &w->body;
 		}
+		/* scrollr drops below w->r on low windows */
+		if(ptinrect(p, w->body.scrollr))
+			return &w->body;
 	}
 	return nil;
 }
