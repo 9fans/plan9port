@@ -7,7 +7,7 @@
 #define _LIBC_H_ 1
 #if defined(__cplusplus)
 extern "C" {
-#endif                                                                          
+#endif                                                                
 
 /*
  * Begin usual libc.h 
@@ -234,22 +234,26 @@ extern	int	quoterunestrfmt(Fmt*);
 extern	int	needsrcquote(int);
 
 /*
- * random number (also in <stdlib.h>)
+ * random number
  */
-#ifndef NOPLAN9DEFINES
-#define rand	p9rand
-#define srand	p9srand
-#define lrand	p9lrand
-#endif
+extern	void	p9srand(long);
+extern	int	p9rand(void);
 
-extern	void	srand(long);
-extern	int	rand(void);
-extern	int	nrand(int);
-extern	long	lrand(void);
-extern	long	lnrand(long);
-extern	double	frand(void);
+extern	int	p9nrand(int);
+extern	long	p9lrand(void);
+extern	long	p9lnrand(long);
+extern	double	p9frand(void);
 extern	ulong	truerand(void);			/* uses /dev/random */
 extern	ulong	ntruerand(ulong);		/* uses /dev/random */
+
+#ifndef NOPLAN9DEFINES
+#define	srand	p9srand
+#define	rand	p9rand
+#define	nrand	p9nrand
+#define	lrand	p9lrand
+#define	lnrand	p9lnrand
+#define	frand	p9frand
+#endif
 
 /*
  * math
@@ -708,7 +712,7 @@ extern	int	p9create(char*, int, ulong);
 extern	int	p9dup(int, int);
 extern	int	errstr(char*, uint);
 extern	int	p9exec(char*, char*[]);
-/* extern	int	execl(char*, ...); <unistd.h> */
+extern	int	p9execl(char*, ...);
 /* extern	int	p9fork(void); */
 extern	int	p9rfork(int);
 /* not implemented 
@@ -766,6 +770,7 @@ extern	ulong	rendezvous(ulong, ulong);
 #define alarm		p9alarm
 #define	dup		p9dup
 #define	exec		p9exec
+#define	execl	p9execl
 #define	seek		p9seek
 #define sleep		p9sleep
 #define wait		p9wait
