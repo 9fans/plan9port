@@ -27,10 +27,12 @@ readsubfonti(Display*d, char *name, int fd, Image *ai, int dolock)
 	n = atoi(hdr);
 	p = malloc(6*(n+1));
 	if(p == nil)
-		return nil;
+		goto Err;
 	if(read(fd, p, 6*(n+1)) != 6*(n+1)){
 		werrstr("rdsubfonfile: fontchar read error: %r");
     Err:
+		if(ai == nil)
+			freeimage(i);
 		free(p);
 		return nil;
 	}

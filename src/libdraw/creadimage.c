@@ -54,14 +54,20 @@ creadimage(Display *d, int fd, int dolock)
 		return nil;
 	}
 
-	if(dolock)
-		lockdisplay(d);
-	i = allocimage(d, r, chan, 0, 0);
-	if(dolock)
-		unlockdisplay(d);
-	if(i == nil)
-		return nil;
-	ncblock = _compblocksize(r, i->depth);
+	if(d){
+		if(dolock)
+			lockdisplay(d);
+		i = allocimage(d, r, chan, 0, 0);
+		if(dolock)
+			unlockdisplay(d);
+		if(i == nil)
+			return nil;
+	}else{
+		i = mallocz(sizeof(Image), 1);
+		if(i == nil)
+			return nil;
+	}
+	ncblock = _compblocksize(r, chantodepth(chan));
 	buf = malloc(ncblock);
 	if(buf == nil)
 		goto Errout;
@@ -90,22 +96,24 @@ creadimage(Display *d, int fd, int dolock)
 		}
 		if(readn(fd, buf, nb)!=nb)
 			goto Errout;
-		if(dolock)
-			lockdisplay(d);
-		a = bufimage(i->display, 21+nb);
-		if(a == nil)
-			goto Erroutlock;
-		a[0] = 'Y';
-		BPLONG(a+1, i->id);
-		BPLONG(a+5, r.min.x);
-		BPLONG(a+9, miny);
-		BPLONG(a+13, r.max.x);
-		BPLONG(a+17, maxy);
-		if(!new)	/* old image: flip the data bits */
-			_twiddlecompressed(buf, nb);
-		memmove(a+21, buf, nb);
-		if(dolock)
-			unlockdisplay(d);
+		if(d){
+			if(dolock)
+				lockdisplay(d);
+			a = bufimage(i->display, 21+nb);
+			if(a == nil)
+				goto Erroutlock;
+			a[0] = 'Y';
+			BPLONG(a+1, i->id);
+			BPLONG(a+5, r.min.x);
+			BPLONG(a+9, miny);
+			BPLONG(a+13, r.max.x);
+			BPLONG(a+17, maxy);
+			if(!new)	/* old image: flip the data bits */
+				_twiddlecompressed(buf, nb);
+			memmove(a+21, buf, nb);
+			if(dolock)
+				unlockdisplay(d);
+		}
 		miny = maxy;
 	}
 	free(buf);

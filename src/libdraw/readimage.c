@@ -23,7 +23,10 @@ readimage(Display *d, int fd, int dolock)
 		return creadimage(d, fd, dolock);
 	if(readn(fd, hdr+11, 5*12-11) != 5*12-11)
 		return nil;
-	chunk = d->bufsize - 32;	/* a little room for header */
+	if(d)
+		chunk = d->bufsize - 32;	/* a little room for header */
+	else
+		chunk = 8192;
 
 	/*
 	 * distinguish new channel descriptor from old ldepth.
@@ -69,13 +72,20 @@ readimage(Display *d, int fd, int dolock)
 	maxy = r.max.y;
 
 	l = bytesperline(r, chantodepth(chan));
-	if(dolock)
-		lockdisplay(d);
-	i = allocimage(d, r, chan, 0, -1);
-	if(dolock)
-		unlockdisplay(d);
-	if(i == nil)
-		return nil;
+	if(d){
+		if(dolock)
+			lockdisplay(d);
+		i = allocimage(d, r, chan, 0, -1);
+		if(dolock)
+			unlockdisplay(d);
+		if(i == nil)
+			return nil;
+	}else{
+		i = mallocz(sizeof(Image), 1);
+		if(i == nil)
+			return nil;
+	}
+
 	tmp = malloc(chunk);
 	if(tmp == nil)
 		goto Err;
@@ -105,12 +115,14 @@ readimage(Display *d, int fd, int dolock)
 			for(j=0; j<chunk; j++)
 				tmp[j] ^= 0xFF;
 
-		if(dolock)
-			lockdisplay(d);
-		if(loadimage(i, Rect(r.min.x, miny, r.max.x, miny+dy), tmp, chunk) <= 0)
-			goto Err1;
-		if(dolock)
-			unlockdisplay(d);
+		if(d){
+			if(dolock)
+				lockdisplay(d);
+			if(loadimage(i, Rect(r.min.x, miny, r.max.x, miny+dy), tmp, chunk) <= 0)
+				goto Err1;
+			if(dolock)
+				unlockdisplay(d);
+		}
 		miny += dy;
 	}
 	free(tmp);
