@@ -184,7 +184,9 @@ scheduler(Proc *p)
 			if(p->nthread == 0)
 				goto Out;
 			p->runrend.l = &p->lock;
+print("sleep for jobs %d\n", getpid());
 			_procsleep(&p->runrend);
+print("wake from jobs %d\n", getpid());
 		}
 		delthread(&p->runqueue, t);
 		unlock(&p->lock);

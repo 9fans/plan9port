@@ -1,0 +1,8 @@
+<$PLAN9/src/mkhdr
+
+SHORTLIB=thread 9
+OFILES=
+
+TARG=tprimes tspawn tspawnloop
+
+<$PLAN9/src/mkmany

@@ -5,6 +5,8 @@ typedef struct Execjob Execjob;
 typedef struct Proc Proc;
 typedef struct _Procrendez _Procrendez;
 
+
+
 typedef struct Jmp Jmp;
 struct Jmp
 {
@@ -88,6 +90,10 @@ struct Proc
 
 extern Proc *_threadprocs;
 extern Lock _threadprocslock;
+extern Proc *_threadexecproc;
+extern Channel *_threadexecchan;
+extern QLock _threadexeclock;
+extern Channel *_dowaitchan;
 
 extern void _procstart(Proc*, void (*fn)(Proc*));
 extern _Thread *_threadcreate(Proc*, void(*fn)(void*), void*, uint);

@@ -87,6 +87,7 @@ _procsleep(_Procrendez *r)
 	 * unlock the vouslock so our waker can wake us,
 	 * and then suspend.
 	 */
+again:
 	r->asleep = 1;
 	r->pid = getpid();
 
@@ -101,9 +102,13 @@ _procsleep(_Procrendez *r)
 	/*
 	 * We're awake.  Make USR1 not interrupt system calls.
 	 */
-	ignusr1(1);
-	assert(r->asleep == 0);
 	lock(r->l);
+	ignusr1(1);
+	if(r->asleep && r->pid == getpid()){
+print("resleep %d\n", getpid());
+		/* Didn't really wake up - signal from something else */
+		goto again;
+	}
 }
 
 void
@@ -233,6 +238,7 @@ static char *threadexitsmsg;
 void
 sigusr2handler(int s)
 {
+	print("%d usr2 %d\n", time(0), getpid());
 	if(threadexitsmsg)
 		_exits(threadexitsmsg);
 }
@@ -258,6 +264,35 @@ threadexitsall(char *msg)
 	unlock(&_threadprocslock);
 	exits(msg);
 }
+
+/*
+ * exec - need to arrange for wait proc to run
+ * the execs so it gets the wait messages
+ */
+int
+_runthreadspawn(int *fd, char *cmd, char **argv)
+{
+	Execjob e;
+	int pid;
+
+	e.fd = fd;
+	e.cmd = cmd;
+	e.argv = argv;
+	e.c = chancreate(sizeof(ulong), 0);	
+print("%d run\n", time(0));
+	qlock(&_threadexeclock);
+	sendp(_threadexecchan, &e);
+print("%d sent\n", time(0));
+	while(_threadexecproc == nil)
+		yield();
+	kill(_threadexecproc->osprocid, SIGUSR2);
+print("%d killed\n", time(0));
+	pid = recvul(e.c);
+	qunlock(&_threadexeclock);
+print("%d ran\n", time(0));
+	return pid;
+}
+
 
 /*
  * per-process data, indexed by pid
