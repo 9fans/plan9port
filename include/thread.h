@@ -27,6 +27,11 @@ _Thread	*_threadwakeup(Rendez*);
 void	threaddaemonize(void);
 
 /*
+ * clumsy linker hack
+ */
+void	threadlinklibrary(void);
+
+/*
  * per proc and thread data
  */
 void		**procdata(void);
