@@ -1,0 +1,28 @@
+defn logs() {
+	local h, p;
+	p = (vl+sizeofQLock);
+	loop 1, 1024 do
+	{
+		h = (VtLog)*p;
+		while h do
+		{
+			print("log(",h\X,")  // ",*(h.name\s),"\n");
+			h = (VtLog)h.next;
+		}
+		p = p+4;
+	}
+}
+
+defn log(l) {
+	local c, nc;
+
+	l = (VtLog)l;
+	c = l.w;
+	loop 1,l.nchunk do {
+		c = c+sizeofVtLogChunk;
+		if c == l.chunk+l.nchunk*sizeofVtLogChunk then
+			c = l.chunk;
+		c = (VtLogChunk)c;
+		print(stringn(c.p, c.wp-c.p)\s);
+	}
+}
