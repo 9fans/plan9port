@@ -902,7 +902,9 @@ key(Rune r)
 		paste(&r, 1, 1);
 		t.qh = t.q0 = t.q1 = t.nr;
 		show(t.q0);
-		postnote(PNGROUP, rcpid, "interrupt");
+		/* must write the interrupt character in case app is in raw mode (e.g., ssh) */
+		write(rcfd, "\x7F", 1);
+	//	postnote(PNGROUP, rcpid, "interrupt");
 		return;
 	}
 
