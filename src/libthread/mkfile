@@ -1,7 +1,6 @@
 <$PLAN9/src/mkhdr
 
 SYSOFILES=`{sh ./sysofiles.sh}
-x=`{echo $SYSOFILES> xx}
 LIB=libthread.a
 OFILES=\
 	$SYSOFILES\
