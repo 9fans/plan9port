@@ -52,6 +52,7 @@
  *
  */
 
+#include <u.h>
 #include <stdio.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -60,6 +61,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <libc.h>
 
 #include "comments.h"			/* PostScript file structuring comments */
 #include "gen.h"			/* general purpose definitions */
@@ -117,7 +119,9 @@ main(agc, agv)
 
     argc = agc;				/* other routines may want them */
     argv = agv;
-    
+
+    hostfontdir = unsharp(hostfontdir);
+
     fp_in = stdin;
 
     prog_name = argv[0];		/* just for error messages */
@@ -316,7 +320,7 @@ readresident(void)
 
     if ( printer != NULL ) {		/* use Unix 4.0 lp pathnames */
 	sprintf(buf, "%s/printers/%s", HOSTDIR, printer);
-	path = buf;
+	path = unsharp(buf);
     } else path = residentfonts;
 
     if ( (fp = fopen(path, "r")) != NULL ) {
