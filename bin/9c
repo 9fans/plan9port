@@ -28,7 +28,7 @@ case "$tag" in
 *HP-UX*)	cc=cc; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc 
 		case "`uname -r`" in
-		2.6*)
+		2.6.*)
 			cflags="$cflags -D__Linux26__"
 			;;
 		esac
