@@ -7,19 +7,66 @@
 static char attrbuf[4096];
 
 char *home;
-
+static Fsys *fsplumb;
+static int pfd = -1;
+static Fid *pfid;
 int
 plumbopen(char *name, int omode)
 {
-	Fsys *fs;
 	int fd;
 
-	fs = nsmount("plumb", "");
-	if(fs == nil)
+	if(fsplumb == nil)
+		fsplumb = nsmount("plumb", "");
+	if(fsplumb == nil)
 		return -1;
-	fd = fsopenfd(fs, name, omode);
-	fsunmount(fs);
+	/*
+	 * It's important that when we send something,
+	 * we find out whether it was a valid plumb write.
+	 * (If it isn't, the client might fall back to some
+	 * other mechanism or indicate to the user what happened.)
+	 * We can't use a pipe for this, so we have to use the
+	 * fid interface.  But we need to return a fd. 
+	 * Return a fd for /dev/null so that we return a unique
+	 * file descriptor.  In plumbsend we'll look for pfd
+	 * and use the recorded fid instead.
+	 */
+	if((omode&3) == OWRITE){
+		if(pfd != -1){
+			werrstr("already have plumb send open");
+			return -1;
+		}
+		pfd = open("/dev/null", OWRITE);
+		if(pfd < 0)
+			return -1;
+		pfid = fsopen(fsplumb, name, omode);
+		if(pfid == nil){
+			close(pfd);
+			pfd = -1;
+			return -1;
+		}
+		return pfd;
+	}
+
+	fd = fsopenfd(fsplumb, name, omode);
 	return fd;
+}
+
+int
+plumbsend(int fd, Plumbmsg *m)
+{
+	char *buf;
+	int n;
+
+	if(fd != pfd){
+		werrstr("fd is not the plumber");
+		return -1;
+	}
+	buf = plumbpack(m, &n);
+	if(buf == nil)
+		return -1;
+	n = fswrite(pfid, buf, n);
+	free(buf);
+	return n;
 }
 
 static int
@@ -142,20 +189,6 @@ plumbpack(Plumbmsg *m, int *np)
 		abort();
 	free(attr);
 	return buf;
-}
-
-int
-plumbsend(int fd, Plumbmsg *m)
-{
-	char *buf;
-	int n;
-
-	buf = plumbpack(m, &n);
-	if(buf == nil)
-		return -1;
-	n = write(fd, buf, n);
-	free(buf);
-	return n;
 }
 
 static int

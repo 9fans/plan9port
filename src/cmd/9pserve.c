@@ -352,8 +352,8 @@ connthread(void *arg)
 			m->afid->ref++;
 			break;
 		case Topenfd:
-			if(m->tx.mode != OREAD && (m->tx.mode&~OTRUNC) != OWRITE){
-				err(m, "openfd mode must be OREAD or OWRITE");
+			if(m->tx.mode&~(OTRUNC|3)){
+				err(m, "bad openfd mode");
 				continue;
 			}
 			m->isopenfd = 1;
@@ -489,13 +489,17 @@ openfdthread(void *v)
 			m->ref++;
 			sendomsg(m);
 			recvp(c->internal);
-			if(m->rx.type == Rerror)
+			if(m->rx.type == Rerror){
+			//	fprint(2, "read error: %s\n", m->rx.ename);
 				break;
+			}
 			if(m->rx.count == 0)
 				break;
 			tot += m->rx.count;
-			if(iowrite(io, c->fd, m->rx.data, m->rx.count) != m->rx.count)
+			if(iowrite(io, c->fd, m->rx.data, m->rx.count) != m->rx.count){
+				fprint(2, "pipe write error: %r\n");
 				break;
+			}
 			msgput(m);
 			msgput(m);
 		}
@@ -503,6 +507,8 @@ openfdthread(void *v)
 		for(;;){
 			if(verbose) fprint(2, "twrite...");
 			if((n=ioread(io, c->fd, buf, sizeof buf)) <= 0){
+				if(n < 0)
+					fprint(2, "pipe read error: %r\n");
 				m = nil;
 				break;
 			}
@@ -520,8 +526,10 @@ openfdthread(void *v)
 			m->ref++;
 			sendomsg(m);
 			recvp(c->internal);
-			if(m->rx.type == Rerror)
-				break;
+			if(m->rx.type == Rerror){
+			//	fprint(2, "write error: %s\n", m->rx.ename);
+				continue;
+			}
 			tot = n;
 			msgput(m);
 			msgput(m);
@@ -534,18 +542,20 @@ openfdthread(void *v)
 		msgput(m);
 		msgput(m);
 	}
-	m = msgnew();
-	m->internal = 1;
-	m->c = c;
-	m->tx.type = Tclunk;
-	m->tx.fid = fid->fid;
-	m->fid = fid;
-	fid->ref++;
-	m->ref++;
-	sendomsg(m);
-	recvp(c->internal);
-	msgput(m);
-	msgput(m);
+	if(fid->ref == 1){
+		m = msgnew();
+		m->internal = 1;
+		m->c = c;
+		m->tx.type = Tclunk;
+		m->tx.fid = fid->fid;
+		m->fid = fid;
+		fid->ref++;
+		m->ref++;
+		sendomsg(m);
+		recvp(c->internal);
+		msgput(m);
+		msgput(m);
+	}
 	fidput(fid);
 	c->fdfid = nil;
 	chanfree(c->internal);
@@ -578,12 +588,23 @@ xopenfd(Msg *m)
 	nc->fdmode = m->tx.mode;
 	nc->fd = p[0];
 
-	/* clunk fid from other connection */
-	if(delhash(m->c->fid, m->fid->cfid, m->fid) == 0)
-		fidput(m->fid);
-
 	/* a thread to tend the pipe */
 	threadcreate(openfdthread, nc, STACK);
+
+	/* if mode is ORDWR, that openfdthread will write; start a reader */
+	if((m->tx.mode&3) == ORDWR){
+		nc = emalloc(sizeof(Conn));
+		nc->internal = chancreate(sizeof(void*), 0);
+		nc->fdfid = m->fid;
+		m->fid->ref++;
+		nc->fdmode = OREAD;
+		nc->fd = dup(p[0], -1);
+		threadcreate(openfdthread, nc, STACK);
+	}
+
+	/* steal fid from other connection */
+	if(delhash(m->c->fid, m->fid->cfid, m->fid) == 0)
+		fidput(m->fid);
 
 	/* rewrite as Ropenfd */
 	m->rx.type = Ropenfd;
@@ -1265,7 +1286,7 @@ iowrite(Ioproc *io, int fd, void *v, long n)
 	u = v;
 	for(tot=0; tot<n; tot+=m){
 		m = _iowrite(io, fd, u+tot, n-tot);
-		if(m <= 0){
+		if(m < 0){
 			if(tot)
 				break;
 			return m;

@@ -7,33 +7,37 @@
 
 extern char *_p9sigstr(int, char*);
 
-static int sigs[] = {
-	SIGHUP,
-	SIGINT,
-	SIGQUIT,
-	SIGILL,
-	SIGTRAP,
+static struct {
+	int sig;
+	int restart;
+} sigs[] = {
+	SIGHUP, 0,
+	SIGINT, 0,
+	SIGQUIT, 0,
+	SIGILL, 0,
+	SIGTRAP, 0,
 /*	SIGABRT,	*/
 #ifdef SIGEMT
-	SIGEMT,
+	SIGEMT, 0,
 #endif
-	SIGFPE,
-	SIGBUS,
+	SIGFPE, 0,
+	SIGBUS, 0,
 /*	SIGSEGV,	*/
-	SIGSYS,
-	SIGPIPE,
-	SIGALRM,
-	SIGTERM,
-	SIGTSTP,
-	SIGTTIN,
-	SIGTTOU,
-	SIGXCPU,
-	SIGXFSZ,
-	SIGVTALRM,
-	SIGUSR1,
-	SIGUSR2,
+	SIGCHLD, 1,
+	SIGSYS, 0,
+	SIGPIPE, 0,
+	SIGALRM, 0,
+	SIGTERM, 0,
+	SIGTSTP, 1,
+	SIGTTIN, 1,
+	SIGTTOU, 1,
+	SIGXCPU, 0,
+	SIGXFSZ, 0,
+	SIGVTALRM, 0,
+	SIGUSR1, 0,
+	SIGUSR2, 0,
 #ifdef SIGINFO
-	SIGINFO,
+	SIGINFO, 0,
 #endif
 };
 
@@ -72,8 +76,13 @@ notify(void (*f)(void*, char*))
 		notifyf = f;
 		sa.sa_handler = notifysigf;
 	}
-	for(i=0; i<nelem(sigs); i++)
-		sigaction(sigs[i], &sa, 0);
+	for(i=0; i<nelem(sigs); i++){
+		if(sigs[i].restart)
+			sa.sa_flags |= SA_RESTART;
+		else
+			sa.sa_flags &= ~SA_RESTART;
+		sigaction(sigs[i].sig, &sa, 0);
+	}
 	return 0;
 }
 

@@ -194,6 +194,7 @@ xfidclose(Xfid *x)
 
 	w = x->f->w;
 	x->f->busy = FALSE;
+	x->f->w = nil;
 	if(x->f->open == FALSE){
 		if(w != nil)
 			winclose(w);

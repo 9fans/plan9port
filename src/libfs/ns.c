@@ -25,6 +25,7 @@ nsmount(char *name, char *aname)
 		werrstr("dial %s: %r", addr);
 		return nil;
 	}
+	fcntl(fd, F_SETFL, FD_CLOEXEC);
 
 	fs = fsmount(fd, aname);
 	if(fs == nil){

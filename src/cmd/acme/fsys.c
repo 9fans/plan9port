@@ -306,6 +306,7 @@ fsysattach(Xfid *x, Fid *f)
 	Fcall t;
 	int id;
 	Mntdir *m;
+	char buf[128];
 
 	if(strcmp(x->fcall.uname, user) != 0)
 		return respond(x, &t, Eperm);
@@ -327,8 +328,10 @@ fsysattach(Xfid *x, Fid *f)
 			m->ref++;
 			break;
 		}
-	if(m == nil)
-		sendp(cerr, estrdup("unknown id in attach"));
+	if(m == nil){
+		snprint(buf, sizeof buf, "unknown id '%s' in attach", x->fcall.aname);
+		sendp(cerr, estrdup(buf));
+	}
 	qunlock(&mnt.lk);
 	return respond(x, &t, nil);
 }

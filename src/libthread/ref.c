@@ -3,11 +3,18 @@
 void
 incref(Ref *r)
 {
-	_xinc(&r->ref);
+	lock(&r->lk);
+	r->ref++;
+	unlock(&r->lk);
 }
 
 long
 decref(Ref *r)
 {
-	return _xdec(&r->ref);
+	long n;
+
+	lock(&r->lk);
+	n = --r->ref;
+	unlock(&r->lk);
+	return n;
 }

@@ -122,6 +122,7 @@ efork(void *ve)
 	for(i=3; i<40; i++)
 		if(i != e->fd[1])
 			close(i);
+	rfork(RFNOTEG);
 	execvp(e->prog, e->args);
 	_threaddebug(DBGEXEC, "_schedexec failed: %r");
 	rerrstr(buf, sizeof buf);
