@@ -139,6 +139,7 @@ void execfinit(void){
 	envp=environp;
 	start(rdfns, 1, runq->local);
 }
+extern int mapfd(int);
 int Waitfor(int pid, int unused0){
 	thread *p;
 	Waitmsg *w;
@@ -146,10 +147,14 @@ int Waitfor(int pid, int unused0){
 
 	while((w = wait()) != nil){
 		if(w->pid==pid){
+			if(strncmp(w->msg, "signal: ", 8) == 0)
+				fprint(mapfd(2), "%d: %s\n", w->pid, w->msg);
 			setstatus(w->msg);
 			free(w);
 			return 0;
 		}
+		if(strncmp(w->msg, "signal: ", 8) == 0)
+			fprint(2, "%d: %s\n", w->pid, w->msg);
 		for(p=runq->ret;p;p=p->ret)
 			if(p->pid==w->pid){
 				p->pid=-1;
