@@ -36,33 +36,37 @@ enum {
 
 /* Assoc tables must be sorted on first field */
 
-static char *tagtab[] = {
-[BEG]	"$$",
-[AB]	"AB",
-[AN]	"AN",
-[AS]	"AS",
-[AU]	"AU",
-[AW]	"AW",
-[BW]	"BW",
-[CA]	"CA",
-[CN]	"CN",
-[CO]	"CO",
-[CR]	"CR",
-[DE]	"DE",
-[DR]	"DR",
-[ED]	"ED",
-[MP]	"MP",
-[NT]	"NT",
-[PR]	"PR",
-[PS]	"PS",
-[RA]	"RA",
-[RD]	"RD",
-[RT]	"RT",
-[RV]	"RV",
-[ST]	"ST",
-[TI]	"TI",
-[TX]	"TX",
-[VD]	"VD",
+static char *tagtab[NTAG];
+
+static void
+inittagtab(void)
+{
+	tagtab[BEG]=	"$$";
+	tagtab[AB]=	"AB";
+	tagtab[AN]=	"AN";
+	tagtab[AS]=	"AS";
+	tagtab[AU]=	"AU";
+	tagtab[AW]=	"AW";
+	tagtab[BW]=	"BW";
+	tagtab[CA]=	"CA";
+	tagtab[CN]=	"CN";
+	tagtab[CO]=	"CO";
+	tagtab[CR]=	"CR";
+	tagtab[DE]=	"DE";
+	tagtab[DR]=	"DR";
+	tagtab[ED]=	"ED";
+	tagtab[MP]=	"MP";
+	tagtab[NT]=	"NT";
+	tagtab[PR]=	"PR";
+	tagtab[PS]=	"PS";
+	tagtab[RA]=	"RA";
+	tagtab[RD]=	"RD";
+	tagtab[RT]=	"RT";
+	tagtab[RV]=	"RV";
+	tagtab[ST]=	"ST";
+	tagtab[TI]=	"TI";
+	tagtab[TX]=	"TX";
+	tagtab[VD]=	"VD";
 };
 
 static char	*mget(int, char *, char *, char **);
@@ -305,6 +309,8 @@ mget(int tag, char *b, char *e, char **eptr)
 
 	if(tag < 0 || tag >= NTAG)
 		return 0;
+	if(tagtab[BEG] == 0)
+		inittagtab();
 	t = tagtab[tag];
 	ans = 0;
 	for(p = b;;) {

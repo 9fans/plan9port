@@ -58,28 +58,36 @@ static Rune intab[256] = {
 	0xb0,	0x2219,	0xb7,	0x221a,	0x207f,	0xb2,	0x220e,	0xa0,
 };
 
-static Rune suptab[] = {
-	['0'] 0x2070,	['1'] 0x2071,	['2'] 0x2072,	['3'] 0x2073,
-	['4'] 0x2074,	['5'] 0x2075,	['6'] 0x2076,	['7'] 0x2077,
-	['8'] 0x2078,	['9'] 0x2079,	['+'] 0x207a,	['-'] 0x207b,
-	['='] 0x207c,	['('] 0x207d,	[')'] 0x207e,	['a'] 0xaa,
-	['n'] 0x207f,	['o'] 0xba
-};
+static Rune suptab[256];
 
-static Rune subtab[] = {
-	['0'] 0x2080,	['1'] 0x2081,	['2'] 0x2082,	['3'] 0x2083,
-	['4'] 0x2084,	['5'] 0x2085,	['6'] 0x2086,	['7'] 0x2087,
-	['8'] 0x2088,	['9'] 0x2089,	['+'] 0x208a,	['-'] 0x208b,
-	['='] 0x208c,	['('] 0x208d,	[')'] 0x208e
-};
+static void
+initsuptab(void)
+{
+	suptab['0']= 0x2070;	suptab['1']= 0x2071;	suptab['2']= 0x2072;	suptab['3']= 0x2073;
+	suptab['4']= 0x2074;	suptab['5']= 0x2075;	suptab['6']= 0x2076;	suptab['7']= 0x2077;
+	suptab['8']= 0x2078;	suptab['9']= 0x2079;	suptab['+']= 0x207a;	suptab['-']= 0x207b;
+	suptab['=']= 0x207c;	suptab['(']= 0x207d;	suptab[')']= 0x207e;	suptab['a']= 0xaa;
+	suptab['n']= 0x207f;	suptab['o']= 0xba;
+}
+
+static Rune subtab[256];
+
+static void
+initsubtab(void)
+{
+	subtab['0']= 0x2080;	subtab['1']= 0x2081;	subtab['2']= 0x2082;	subtab['3']= 0x2083;
+	subtab['4']= 0x2084;	subtab['5']= 0x2085;	subtab['6']= 0x2086;	subtab['7']= 0x2087;
+	subtab['8']= 0x2088;	subtab['9']= 0x2089;	subtab['+']= 0x208a;	subtab['-']= 0x208b;
+	subtab['=']= 0x208c;	subtab['(']= 0x208d;	subtab[')']= 0x208e;
+}
 
 #define	GSHORT(p)	(((p)[0]<<8) | (p)[1])
 #define	GLONG(p)	(((p)[0]<<24) | ((p)[1]<<16) | ((p)[2]<<8) | (p)[3])
 
-static char	cfile[] = "/lib/dict/robert/cits.rob";
-static char	dfile[] = "/lib/dict/robert/defs.rob";
-static char	efile[] = "/lib/dict/robert/etym.rob";
-static char	kfile[] = "/lib/dict/robert/_phon";
+static char	cfile[] = "#9/dict/robert/cits.rob";
+static char	dfile[] = "#9/dict/robert/defs.rob";
+static char	efile[] = "#9/dict/robert/etym.rob";
+static char	kfile[] = "#9/dict/robert/_phon";
 
 static Biobuf *	cb;
 static Biobuf *	db;
@@ -136,6 +144,11 @@ robertprintentry(Entry *def, Entry *etym, int cmd)
 	int baseline = 0;
 	int lineno = 0;
 	int cit = 0;
+
+	if(suptab['0'] == 0)
+		initsuptab();
+	if(subtab['0'] == 0)
+		initsubtab();
 
 	p = (uchar *)def->start;
 	pe = (uchar *)def->end;
@@ -303,6 +316,7 @@ Bouvrir(char *fichier)
 {
 	Biobuf *db;
 
+	fichier = unsharp(fichier);
 	db = Bopen(fichier, OREAD);
 	if(db == 0){
 		fprint(2, "%s: impossible d'ouvrir %s: %r\n", argv0, fichier);
