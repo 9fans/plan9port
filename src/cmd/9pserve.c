@@ -847,7 +847,6 @@ fidput(Fid *f)
 	assert(f->ref > 0);
 	if(--f->ref > 0)
 		return;
-fprint(2, "free %d from %lux\n", f->fid, getcallerpc(&f));
 	f->next = freefid;
 	f->cfid = -1;
 	freefid = f;
