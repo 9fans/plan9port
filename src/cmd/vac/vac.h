@@ -1,4 +1,4 @@
-typedef struct VacFS VacFS;
+typedef struct VacFs VacFs;
 typedef struct VacDir VacDir;
 typedef struct VacFile VacFile;
 typedef struct VacDirEnum VacDirEnum;
@@ -6,7 +6,8 @@ typedef struct VacDirEnum VacDirEnum;
 /*
  * Mode bits
  */
-enum {
+enum
+{
 	ModeOtherExec = (1<<0),		
 	ModeOtherWrite = (1<<1),
 	ModeOtherRead = (1<<2),
@@ -30,7 +31,8 @@ enum {
 	ModeSnapshot = (1<<20),		/* read only snapshot */
 };
 
-enum {
+enum
+{
 	MetaMagic = 0x5656fc79,
 	MetaHeaderSize = 12,
 	MetaIndexSize = 4,
@@ -38,14 +40,16 @@ enum {
 	DirMagic = 0x1c4d9072,
 };
 
-enum {
+enum
+{
 	DirPlan9Entry = 1,	/* not valid in version >= 9 */
 	DirNTEntry,		/* not valid in version >= 9 */
 	DirQidSpaceEntry,
 	DirGenEntry,		/* not valid in version >= 9 */
 };
 
-struct VacDir {
+struct VacDir
+{
 	char *elem;		/* path element */
 	ulong entry;		/* entry in directory for data */
 	ulong gen;		/* generation of data entry */
@@ -69,58 +73,67 @@ struct VacDir {
 	ulong p9version;
 
 	/* sub space of qid */
-	int qidSpace;
-	uvlong qidOffset;	/* qid offset */
-	uvlong qidMax;		/* qid maximum */
+	int qidspace;
+	uvlong qidoffset;	/* qid offset */
+	uvlong qidmax;		/* qid maximum */
 };
 
-VacFS *vfsOpen(VtSession *z, char *file, int readOnly, long ncache);
-VacFS *vfsCreate(VtSession *z, int bsize, long ncache);
-int vfsGetBlockSize(VacFS*);
-int vfsIsReadOnly(VacFS*);
-VacFile *vfsGetRoot(VacFS*);
 
-long vfsGetCacheSize(VacFS*);
-int vfsSetCacheSize(VacFS*, long);
-int vfsSnapshot(VacFS*, char *src, char *dst);
-int vfsSync(VacFS*);
-int vfsClose(VacFS*);
-int vfsGetScore(VacFS*, uchar score[VtScoreSize]);
+struct VacFs
+{
+	int		ref;
+	uchar	score[VtScoreSize];
+	VacFile	*root;
+	VtConn	*z;
+	int		mode;
+	int		bsize;
+	uvlong	qid;
+	VtCache	*cache;
+};
+
+VacFs	*vacfsopen(VtConn *z, char *file, int mode, int ncache);
+VacFs	*vacfsopenscore(VtConn *z, u8int *score, int mode, int ncache);
+VacFs	*vacfscreate(VtConn *z, int bsize, int ncache);
+void		vacfsclose(VacFs *fs);
+int		vacfssync(VacFs *fs);
+int		vacfssnapshot(VacFs *fs, char *src, char *dst);
+int		vacfsgetscore(VacFs *fs, u8int *score);
 
 /* 
  * other ideas
  *
- * VacFS *vfsSnapshot(VacFS*, char *src);
- * int vfsGraft(VacFS*, char *name, VacFS*);
+ * VacFs *vfsSnapshot(VacFs*, char *src);
+ * int vfsGraft(VacFs*, char *name, VacFs*);
  */
 
-VacFile *vfOpen(VacFS*, char *path);
-VacFile *vfCreate(VacFile*, char *elem, ulong perm, char *user);
-VacFile *vfWalk(VacFile*, char *elem);
-int vfRemove(VacFile*, char*);
-int vfRead(VacFile*, void *, int n, vlong offset);
-int vfWrite(VacFile*, void *, int n, vlong offset, char *user);
-int vfReadPacket(VacFile*, Packet**, vlong offset);
-int vfWritePacket(VacFile*, Packet*, vlong offset, char *user);
-uvlong vfGetId(VacFile*);
-ulong vfGetMcount(VacFile*);
-int vfIsDir(VacFile*);
-int vfGetBlockScore(VacFile*, ulong bn, uchar score[VtScoreSize]);
-int vfGetSize(VacFile*, uvlong *size);
-int vfGetDir(VacFile*, VacDir*);
-int vfSetDir(VacFile*, VacDir*);
-int vfGetVtEntry(VacFile*, VtEntry*);
-VacFile *vfGetParent(VacFile*);
-int vfSync(VacFile*);
-VacFile *vfIncRef(VacFile*);
-void vfDecRef(VacFile*);
-VacDirEnum *vfDirEnum(VacFile*);
-int vfIsRoot(VacFile *vf);
+VacFile	*vacfileopen(VacFs *fs, char *path);
+VacFile	*vacfilecreate(VacFile *file, char *elem, ulong perm, char *muid);
+VacFile	*vacfilewalk(VacFile *file, char *elem);
+int		vacfileremove(VacFile *file, char *muid);
+int		vacfileread(VacFile *file, void *buf, int n, vlong offset);
+int		vacfileblockscore(VacFile *file, u32int, u8int*);
+int		vacfilewrite(VacFile *file, void *buf, int n, vlong offset, char *muid);
+int		vacfilereadpacket(VacFile *file, Packet **pp, vlong offset);
+int		vacfilewritepacket(VacFile *file, Packet *p, vlong offset, char *muid);
+uvlong	vacfilegetid(VacFile *file);
+ulong	vacfilegetmcount(VacFile *file);
+int		vacfileisdir(VacFile *file);
+int		vacfileisroot(VacFile *file);
+int		vacfilegetblocksize(VacFile *file, u32int bn, u8int *score);
+int		vacfilegetsize(VacFile *file, uvlong *size);
+int		vacfilegetdir(VacFile *file, VacDir *dir);
+int		vacfilesetdir(VacFile *file, VacDir *dir, char *muid);
+int		vacfilegetvtentry(VacFile *file, VtEntry *entry);
+VacFile	*vacfilegetparent(VacFile *file);
+int		vacfilesync(VacFile*);
+VacFile	*vacfileincref(VacFile*);
+int		vacfiledecref(VacFile*);
 
-void	vdCleanup(VacDir *dir);
-void	vdCopy(VacDir *dst, VacDir *src);
+void		vdcleanup(VacDir *dir);
+void		vdcopy(VacDir *dst, VacDir *src);
 
-VacDirEnum *vdeOpen(VacFS*, char *path);
-int vdeRead(VacDirEnum*, VacDir *, int n);
-void vdeFree(VacDirEnum*);
+
+VacDirEnum	*vdeopen(VacFile*);
+int			vderead(VacDirEnum*, VacDir *);
+void			vdeclose(VacDirEnum*);
 

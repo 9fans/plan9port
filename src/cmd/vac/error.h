@@ -12,3 +12,5 @@ extern char ERemoved[];
 extern char ENotEmpty[];
 extern char EExists[];
 extern char ERoot[];
+extern char ENoFile[];
+extern char EBadPath[];

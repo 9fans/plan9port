@@ -24,20 +24,19 @@ int cmp;
 int all;
 int find;
 uchar fscore[VtScoreSize];
-VtSession *z;
+VtConn *z;
 
-int vtGetUint16(uchar *p);
-ulong vtGetUint32(uchar *p);
-uvlong vtGetUint48(uchar *p);
+int vtgetuint16(uchar *p);
+ulong vtgetuint32(uchar *p);
+uvlong vtgetuint48(uchar *p);
 void usage(void);
-int parseScore(uchar *score, char *buf, int n);
-void readRoot(VtRoot*, uchar *score, char *file);
-int dumpDir(Source*, int indent);
+void readroot(VtRoot*, uchar *score, char *file);
+int dumpdir(Source*, int indent);
 
 void
-main(int argc, char *argv[])
+threadmain(int argc, char *argv[])
 {
-	char *host = nil;
+	char *host = nil, *pref;
 	uchar score[VtScoreSize];
 	Source source;
 	uchar buf[VtMaxLumpSize];
@@ -54,7 +53,7 @@ main(int argc, char *argv[])
 	case 'f':
 		find++;
 		p = ARGF();
-		if(p == nil || !parseScore(fscore, p, strlen(p)))
+		if(p == nil || vtparsescore(p, &pref, fscore) < 0 || !pref || strcmp(pref, "vac") != 0)
 			usage();
 		break;
 	case 'a':
@@ -62,46 +61,33 @@ main(int argc, char *argv[])
 		break;
 	}ARGEND
 
-	vtAttach();
-
-	bout = vtMemAllocZ(sizeof(Biobuf));
+	bout = vtmallocz(sizeof(Biobuf));
 	Binit(bout, 1, OWRITE);
 
 	if(argc > 1)
 		usage();
 
-	vtAttach();
+	fmtinstall('V', vtscorefmt);
+	fmtinstall('H', encodefmt);
 
-	fmtinstall('V', vtScoreFmt);
-	fmtinstall('R', vtErrFmt);
-
-	z = vtDial(host, 0);
+	z = vtdial(host);
 	if(z == nil)
-		vtFatal("could not connect to server: %s", vtGetError());
+		sysfatal("could not connect to server: %r");
 
-	if(!vtConnect(z, 0))
-		sysfatal("vtConnect: %r");
+	if(vtconnect(z) < 0)
+		sysfatal("vtconnect: %r");
 
-	readRoot(&root, score, argv[0]);
-	ver = root.version;
-	bsize = root.blockSize;
+	readroot(&root, score, argv[0]);
+	bsize = root.blocksize;
 	if(!find) {
 		Bprint(bout, "score: %V\n", score);
-		Bprint(bout, "version: %d\n", ver);
 		Bprint(bout, "name: %s\n", root.name);
 		Bprint(bout, "type: %s\n", root.type);
 		Bprint(bout, "bsize: %d\n", bsize);
 		Bprint(bout, "prev: %V\n", root.prev);
 	}
 
-	switch(ver) {
-	default:
-		sysfatal("unknown version");
-	case VtRootVersion:
-		break;
-	}
-
-	n = vtRead(z, root.score, VtDirType, buf, bsize);
+	n = vtread(z, root.score, VtDirType, buf, bsize);
 	if(n < 0)
 		sysfatal("could not read root dir");
 
@@ -115,17 +101,16 @@ main(int argc, char *argv[])
 	source.depth = 0;
 	source.size = n;
 
-	dumpDir(&source, 0);
+	dumpdir(&source, 0);
 
 	Bterm(bout);
 
-	vtClose(z);
-	vtDetach();
-	exits(0);
+	vthangup(z);
+	threadexitsall(0);
 }
 
 void
-sourcePrint(Source *s, int indent, int entry)
+sourceprint(Source *s, int indent, int entry)
 {
 	int i;
 	uvlong size;
@@ -165,11 +150,11 @@ parse(Source *s, uchar *p)
 	VtEntry dir;
 
 	memset(s, 0, sizeof(*s));
-	if(!vtEntryUnpack(&dir, p, 0))
-		return 0;
+	if(vtentryunpack(&dir, p, 0) < 0)
+		return -1;
 
 	if(!(dir.flags & VtEntryActive))
-		return 1;
+		return 0;
 
 	s->active = 1;
 	s->gen = dir.gen;
@@ -177,20 +162,22 @@ parse(Source *s, uchar *p)
 	s->dsize = dir.size;
 	s->size = dir.size;
 	memmove(s->score, dir.score, VtScoreSize);
-	if(dir.flags & VtEntryDir)
+	if((dir.type&~VtTypeDepthMask) == VtDirType)
 		s->dir = 1;
-	s->depth = dir.depth;
-	return 1;
-
+fprint(2, "sdir %d type %d %.*H\n", s->dir, dir.type, VtEntrySize, p);
+	s->depth = dir.type&VtTypeDepthMask;
+	return 0;
 }
 
 int
-sourceRead(Source *s, ulong block, uchar *p, int n)
+sourceread(Source *s, ulong block, uchar *p, int n)
 {
-	uchar buf[VtMaxLumpSize];
+	uchar *buf;
 	uchar score[VtScoreSize];
 	int i, nn, np, type;
 	int elem[VtPointerDepth];
+
+	buf = vtmalloc(VtMaxLumpSize);
 
 	memmove(score, s->score, VtScoreSize);
 
@@ -202,17 +189,17 @@ sourceRead(Source *s, ulong block, uchar *p, int n)
 	assert(block == 0);
 
 	for(i=s->depth-1; i>=0; i--) {
-		nn = vtRead(z, score, VtPointerType0+i, buf, s->psize);
-		if(nn < 0)
-			return -1;
-
-		if(!vtSha1Check(score, buf, nn)) {
-			vtSetError("vtSha1Check failed on root block");
+		nn = vtread(z, score, (s->dir ? VtDirType : VtDataType)+1+i, buf, s->psize);
+		if(nn < 0){
+fprint(2, "vtread %V %d: %r\n", score, (s->dir ? VtDirType : VtDataType)+1+i);
+			free(buf);
 			return -1;
 		}
 
-		if((elem[i]+1)*VtScoreSize > nn)
+		if((elem[i]+1)*VtScoreSize > nn){
+			free(buf);
 			return 0;
+		}
 		memmove(score, buf + elem[i]*VtScoreSize, VtScoreSize);
 	}
 
@@ -221,20 +208,20 @@ sourceRead(Source *s, ulong block, uchar *p, int n)
 	else
 		type = VtDataType;
 
-	nn = vtRead(z, score, type, p, n);
-	if(nn < 0)
-		return -1;
-
-	if(!vtSha1Check(score, p, nn)) {
-		vtSetError("vtSha1Check failed on root block");
+	nn = vtread(z, score, type, p, n);
+	if(nn < 0){
+fprint(2, "vtread %V %d: %r\n", score, type);
+abort();
+		free(buf);
 		return -1;
 	}
 	
+	free(buf);
 	return nn;
 }
 
 void
-dumpFileContents(Source *s)
+dumpfilecontents(Source *s)
 {
 	int nb, lb, i, n;
 	uchar buf[VtMaxLumpSize];
@@ -243,9 +230,9 @@ dumpFileContents(Source *s)
 	lb = s->size%s->dsize;
 	for(i=0; i<nb; i++) {
 		memset(buf, 0, s->dsize);
-		n = sourceRead(s, i, buf, s->dsize);
+		n = sourceread(s, i, buf, s->dsize);
 		if(n < 0) {	
-			fprint(2, "could not read block: %d: %s\n", i, vtGetError());
+			fprint(2, "could not read block: %d: %r\n", i);
 			continue;
 		}
 		if(i < nb-1)
@@ -256,42 +243,45 @@ dumpFileContents(Source *s)
 }
 
 void
-dumpFile(Source *s, int indent)
+dumpfile(Source *s, int indent)
 {
 	int nb, i, j, n;
-	uchar buf[VtMaxLumpSize];
+	uchar *buf;
 	uchar score[VtScoreSize];
 
+	buf = vtmalloc(VtMaxLumpSize);
 	nb = (s->size + s->dsize - 1)/s->dsize;
 	for(i=0; i<nb; i++) {
 		memset(buf, 0, s->dsize);
-		n = sourceRead(s, i, buf, s->dsize);
+		n = sourceread(s, i, buf, s->dsize);
 		if(n < 0) {	
-			fprint(2, "could not read block: %d: %s\n", i, vtGetError());
+			fprint(2, "could not read block: %d: %r\n", i);
 			continue;
 		}
 		for(j=0; j<indent; j++)
 			Bprint(bout, " ");
-		vtSha1(score, buf, n);		
+		sha1(buf, n, score, nil);		
 		Bprint(bout, "%4d: size: %ud: %V\n", i, n, score);
 	}
+	vtfree(buf);
 }
 
 int
-dumpDir(Source *s, int indent)
+dumpdir(Source *s, int indent)
 {
 	int pb, ne, nb, i, j, n, entry;
-	uchar buf[VtMaxLumpSize];
 	Source ss;
+	uchar *buf;
 
+	buf = vtmalloc(VtMaxLumpSize);
 	pb = s->dsize/VtEntrySize;
 	ne = pb*(s->size/s->dsize) + (s->size%s->dsize)/VtEntrySize;
 	nb = (s->size + s->dsize - 1)/s->dsize;
 	for(i=0; i<nb; i++) {
 		memset(buf, 0, s->dsize);
-		n = sourceRead(s, i, buf, s->dsize);
+		n = sourceread(s, i, buf, s->dsize);
 		if(n < 0) {	
-			fprint(2, "could not read block: %d: %s\n", i, vtGetError());
+			fprint(2, "could not read block: %d: %r\n", i);
 			continue;
 		}
 		for(j=0; j<pb; j++) {
@@ -301,63 +291,40 @@ dumpDir(Source *s, int indent)
 			parse(&ss, buf + j * VtEntrySize);
 
 			if(!find)
-				sourcePrint(&ss, indent, entry);
+				sourceprint(&ss, indent, entry);
 			else if(memcmp(ss.score, fscore, VtScoreSize) == 0) {
-				dumpFileContents(&ss);
-				return 0;
+				dumpfilecontents(&ss);
+				free(buf);
+				return -1;
 			}
 
 			if(ss.dir) {
-				if(!dumpDir(&ss, indent+1))
-					return 0;
+				if(dumpdir(&ss, indent+1) < 0){
+					free(buf);
+					return -1;
+				}
 			} else if(all)
-				dumpFile(&ss, indent+1);
+				dumpfile(&ss, indent+1);
 		}
 	}
-	return 1;
+	free(buf);
+	return 0;
 }
 
 void
 usage(void)
 {
 	fprint(2, "%s: [file]\n", argv0);
-	exits("usage");
-}
-
-int
-parseScore(uchar *score, char *buf, int n)
-{
-	int i, c;
-
-	memset(score, 0, VtScoreSize);
-
-	if(n < VtScoreSize*2)
-		return 0;
-	for(i=0; i<VtScoreSize*2; i++) {
-		if(buf[i] >= '0' && buf[i] <= '9')
-			c = buf[i] - '0';
-		else if(buf[i] >= 'a' && buf[i] <= 'f')
-			c = buf[i] - 'a' + 10;
-		else if(buf[i] >= 'A' && buf[i] <= 'F')
-			c = buf[i] - 'A' + 10;
-		else {
-			return 0;
-		}
-
-		if((i & 1) == 0)
-			c <<= 4;
-	
-		score[i>>1] |= c;
-	}
-	return 1;
+	threadexits("usage");
 }
 
 void
-readRoot(VtRoot *root, uchar *score, char *file)
+readroot(VtRoot *root, uchar *score, char *file)
 {
 	int fd;
-	uchar buf[VtRootSize];
-	int i, n, nn;
+	char *pref;
+	char buf[VtRootSize];
+	int n, nn;
 
 	if(file == 0)
 		fd = 0;
@@ -369,23 +336,17 @@ readRoot(VtRoot *root, uchar *score, char *file)
 	n = readn(fd, buf, sizeof(buf)-1);
 	if(n < 0)
 		sysfatal("read failed: %r\n");
-	buf[n] = 0;
+	if(n==0 || buf[n-1] != '\n')
+		sysfatal("not a root file");
+	buf[n-1] = 0;
 	close(fd);
 
-	for(i=0; i<n; i++) {
-		if(!parseScore(score, (char*)(buf+i), n-i))
-			continue;
-		nn = vtRead(z, score, VtRootType, buf, VtRootSize);
-		if(nn >= 0) {
-			if(nn != VtRootSize)
-				sysfatal("vtRead on root too short");
-			if(!vtSha1Check(score, buf, VtRootSize))
-				sysfatal("vtSha1Check failed on root block");
-			if(!vtRootUnpack(root, buf))
-				sysfatal("could not parse root: %r");
-			return;
-		}
+	if(vtparsescore(buf, &pref, score) < 0){
+		sysfatal("not a root file");
 	}
-
-	sysfatal("could not find root");
+	nn = vtread(z, score, VtRootType, buf, VtRootSize);
+	if(nn < 0)
+		sysfatal("cannot read root %V", score);
+	if(vtrootunpack(root, buf) < 0)
+		sysfatal("cannot parse root: %r");
 }
