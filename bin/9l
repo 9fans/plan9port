@@ -1,26 +1,18 @@
 #!/bin/sh
 
-ld=none
 extralibs=-lm
-tag="`uname`-`uname -m`-${CC:-cc}"
+tag="`uname`-`uname -m`"
 case "$tag" in
 *FreeBSD*)	ld=gcc ;;
 *BSD*)		ld=gcc ;;
 *Linux*)	ld=gcc ;;
 *Darwin*)	ld=gcc ;;
-*SunOS*-cc)	ld=cc; extralibs="$extralibs -lrt -lpthread" ;;
-*SunOS*-gcc)	ld=gcc ;;
+*SunOS*)	ld=${CC9:-cc}
+		extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
+		;;
 *)
 	echo do not know how to link on "$tag" 1>&2
 	exit 1
 esac
 
-case $ld in
-gcc)
-	exec gcc \
-		-ggdb \
-		-L$PLAN9/lib \
-		"$@" \
-		$extralibs
-	;;
-esac
+exec $ld -L$PLAN9/lib "$@" $extralibs

@@ -15,8 +15,7 @@ usegcc()
 	"
 }
 
-cc=none
-tag="`uname`-`uname -m`-${CC:-cc}"
+tag="`uname`-`uname -m`-${CC9:-cc}"
 case "$tag" in
 *BSD*)		usegcc ;;
 *Darwin*)	usegcc ;;
@@ -30,4 +29,4 @@ case "$tag" in
 	exit 1
 esac
 
-exec cc $cflags "$@"
+exec $cc $cflags "$@"

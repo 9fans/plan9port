@@ -4,6 +4,14 @@
 
 #include <sys/time.h>
 
+#if !defined(_HAVEFUTIMES) && defined(_HAVEFUTIMESAT)
+static int
+futimes(int fd, struct timeval *tv)
+{
+	return futimesat(fd, 0, tv);
+}
+#endif
+
 int
 dirfwstat(int fd, Dir *dir)
 {
@@ -19,3 +27,4 @@ dirfwstat(int fd, Dir *dir)
 	tv[1].tv_usec = 0;
 	return futimes(fd, tv);
 }
+

@@ -72,7 +72,6 @@ p9dial(char *addr, char *dummy1, char *dummy2, int *dummy3)
 
 Unix:
 	memset(&su, 0, sizeof su);
-	su.sun_len = sizeof su;
 	su.sun_family = AF_UNIX;
 	if(strlen(unix)+1 > sizeof su.sun_path){
 		werrstr("unix socket name too long");

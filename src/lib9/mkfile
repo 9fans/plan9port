@@ -38,7 +38,7 @@ OFILES=\
 	getuser.$O\
 	getwd.$O\
 	jmp.$O\
-	jmp-FreeBSD.$O\
+	jmp-$SYSNAME.$O\
 	lock.$O\
 	main.$O\
 	malloctag.$O\

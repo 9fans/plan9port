@@ -1,12 +1,14 @@
-#include <u.h>
-#define NOPLAN9DEFINES
-#include <libc.h>
-
 #include <sys/stat.h>
+#ifdef _HAVEDISKLABEL
 #include <sys/disklabel.h>
+#endif
 #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
+
+#include <u.h>
+#define NOPLAN9DEFINES
+#include <libc.h>
 
 int
 _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
@@ -83,7 +85,9 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 
 		d->muid = "";
 		d->qid.path = ((uvlong)st->st_dev<<32) | st->st_ino;
+#ifdef _HAVESTGEN
 		d->qid.vers = st->st_gen;
+#endif
 		d->mode = st->st_mode&0777;
 		d->atime = st->st_atime;
 		d->mtime = st->st_mtime;
@@ -96,6 +100,7 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 		}
 
 		/* fetch real size for disks */
+#ifdef _HAVEDISKLABEL
 		if(S_ISCHR(st->st_mode)){
 			int fd, n;
 			struct disklabel lab;
@@ -114,6 +119,7 @@ _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)
 			if(fd >= 0)
 				close(fd);
 		}
+#endif
 	}
 
 	return sz;

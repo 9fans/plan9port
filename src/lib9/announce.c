@@ -6,6 +6,8 @@
 #include <netinet/in.h>
 #include <sys/un.h>
 
+#undef sun
+#define sun sockun
 extern int _p9dialparse(char*, char**, char**, u32int*, int*);
 
 static int
@@ -88,7 +90,6 @@ print("announce dir: %s\n", dir);
 Unix:
 	memset(&sun, 0, sizeof sun);
 	sun.sun_family = AF_UNIX;
-	sun.sun_len = sizeof sun;
 	strcpy(sun.sun_path, unix);
 	if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
 		return -1;

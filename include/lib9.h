@@ -30,6 +30,15 @@ extern "C" {
 #define _NEEDUINT 1
 #define _NEEDULONG 1
 
+/* better to assume we have these and then be proved wrong */
+#define _HAVESTGEN 1
+#define _HAVETIMEGM 1
+#define _HAVETMZONE 1
+#define _HAVETMTZOFF 1
+#define _HAVETIMEZONEINT 1
+#define _HAVEFUTIMESAT 1
+#define _HAVEFUTIMES 1
+
 typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
 #if defined(__linux__)
@@ -45,6 +54,12 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
+#	undef _HAVESTGEN
+#	undef _HAVETIMEGM
+#	undef _HAVETMZONE
+#	undef _HAVETMTZOFF
+#	undef _HAVEFUTIMES
+#	undef _HAVEUTIMES
 #endif
 #if defined(__FreeBSD__)
 #	include <sys/types.h>
@@ -52,6 +67,7 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #	endif
+#	define _HAVEDISKLABEL 1
 #endif
 #if defined(__APPLE__)
 #	include <sys/types.h>
@@ -412,7 +428,7 @@ extern	double	atof(char*); <stdlib.h>
 extern	int	atoi(char*);
 extern	long	atol(char*);
  */
-extern	vlong	atoll(char*);
+extern	vlong	atoll(const char*);
 extern	double	charstod(int(*)(void*), void*);
 extern	char*	cleanname(char*);
 extern	int	p9decrypt(void*, void*, int);
@@ -723,7 +739,7 @@ extern	int	p9dup(int, int);
 extern	int	errstr(char*, uint);
 extern	int	p9exec(char*, char*[]);
 /* extern	int	execl(char*, ...); <unistd.h> */
-extern	int	fork(void);
+/* extern	int	fork(void); <unistd.h> */
 extern	int	p9rfork(int);
 /* not implemented 
 extern	int	fauth(int, char*);
@@ -788,8 +804,8 @@ extern	int	dirfwstat(int, Dir*);
 extern	long	dirread(int, Dir**);
 extern	void	nulldir(Dir*);
 extern	long	dirreadall(int, Dir**);
-extern	int	getpid(void);
-extern	int	getppid(void);
+/* extern	int	getpid(void); <unistd.h> */
+/* extern	int	getppid(void); */
 extern	void	rerrstr(char*, uint);
 extern	char*	sysname(void);
 extern	void	werrstr(char*, ...);

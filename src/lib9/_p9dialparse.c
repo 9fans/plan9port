@@ -1,8 +1,8 @@
-#include <u.h>
-#include <libc.h>
-
 #include <netdb.h>
 #include <sys/un.h>
+
+#include <u.h>
+#include <libc.h>
 
 static char *nets[] = { "tcp", "udp", nil };
 #define CLASS(p) ((*(uchar*)(p))>>6)
@@ -59,7 +59,7 @@ _p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 	int i;
 	struct servent *se;
 	struct hostent *he;
-	struct sockaddr_un *sun;
+	struct sockaddr_un *sockun;
 
 	if(strncmp(addr, "/net/", 5) == 0)
 		addr += 5;
@@ -73,7 +73,7 @@ _p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 	if((port = strchr(host, '!')) == nil){
 		if(strcmp(net, "unix")==0 || strcmp(net, "net")==0){
 		Unix:
-			if(strlen(host)+1 > sizeof sun->sun_path){
+			if(strlen(host)+1 > sizeof sockun->sun_path){
 				werrstr("unix socket name too long");
 				return -1;
 			}

@@ -24,10 +24,10 @@ countde(char *p, int n)
 		de = (struct dirent*)p;
 		if(de->d_reclen <= 4+2+2+1 || p+de->d_reclen > e)
 			break;
-		if(de->d_namlen == 1 && de->d_name[0]=='.')
-			de->d_namlen = 0;
-		else if(de->d_namlen == 2 && de->d_name[0]=='.' && de->d_name[1]=='.')
-			de->d_namlen = 0;
+		if(de->d_name[0]=='.' && de->d_name[1]==0)
+			de->d_name[0] = 0;
+		else if(de->d_name[0]=='.' && de->d_name[1]=='.' && de->d_name[2]==0)
+			de->d_name[0] = 0;
 		else
 			m++;
 		p += de->d_reclen;
@@ -59,7 +59,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 	for(i=0; i<n; i++){
 		de = (struct dirent*)p;
 		if(stat(de->d_name, &st) < 0)
-			de->d_namlen = 0;
+			de->d_name[0] = 0;
 		else
 			nstr += _p9dir(&st, de->d_name, nil, nil, nil);
 		p += de->d_reclen;
@@ -78,7 +78,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 	m = 0;
 	for(i=0; i<n; i++){
 		de = (struct dirent*)p;
-		if(de->d_namlen != 0 && stat(de->d_name, &st) >= 0)
+		if(de->d_name[0] != 0 && stat(de->d_name, &st) >= 0)
 			_p9dir(&st, de->d_name, &d[m++], &str, estr);
 		p += de->d_reclen;
 	}
@@ -108,7 +108,7 @@ dirread(int fd, Dir **dp)
 	if(buf == nil)
 		return -1;
 
-	n = getdents(fd, buf, st.st_blksize);
+	n = getdents(fd, (struct dirent*)buf, st.st_blksize);
 	if(n < 0){
 		free(buf);
 		return -1;
@@ -141,7 +141,7 @@ dirreadall(int fd, Dir **d)
 			return -1;
 		}
 		buf = nbuf;
-		n = getdents(fd, buf+ts, st.st_blksize);
+		n = getdents(fd, (struct dirent*)(buf+ts), st.st_blksize);
 		if(n <= 0)
 			break;
 		ts += n;

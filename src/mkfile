@@ -42,7 +42,7 @@ testmkmk:V:
 	ls -l ../bin/mk
 
 testcvs:V:
-	cvs up -dAP
+	(cd ..; cvs up -dAP)
 	cp ../bin/_mk ../bin/mk
 	mk clean
 	rm ../lib/*.a

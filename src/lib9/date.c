@@ -25,8 +25,12 @@ tm2Tm(struct tm *tm, Tm *bigtm)
 	bigtm->mon = tm->tm_mon;
 	bigtm->year = tm->tm_year;
 	bigtm->wday = tm->tm_wday;
+#ifdef _HAVETMZONE
 	strecpy(bigtm->zone, bigtm->zone+4, tm->tm_zone);
+#endif
+#ifdef _HAVETZOFF
 	bigtm->tzoff = tm->tm_gmtoff;
+#endif
 }
 
 static void
@@ -40,8 +44,12 @@ Tm2tm(Tm *bigtm, struct tm *tm)
 	tm->tm_mon = bigtm->mon;
 	tm->tm_year = bigtm->year;
 	tm->tm_wday = bigtm->wday;
+#ifdef _HAVETMZONE
 	tm->tm_zone = bigtm->zone;
+#endif
+#ifdef _HAVETZOFF
 	tm->tm_gmtoff = bigtm->tzoff;
+#endif
 }
 
 Tm*
@@ -63,6 +71,14 @@ p9localtime(long t)
 	tm2Tm(&tm, &bigtm);
 	return &bigtm;
 }
+
+#if !defined(_HAVETIMEGM) && defined(_HAVETIMEZONEINT)
+static long
+timegm(struct tm *tm)
+{
+	return mktime(tm)-timezone;
+}
+#endif
 
 long
 p9tm2sec(Tm *bigtm)

@@ -38,7 +38,9 @@ static struct {
 	SIGVTALRM,	"sys: virtual time alarm",
 	SIGPROF,		"sys: profiling timer alarm",
 	SIGWINCH,	"sys: window size change",
+#ifdef SIGINFO
 	SIGINFO,		"sys: status request",
+#endif
 	SIGUSR1,		"sys: usr1",
 	SIGUSR2,		"sys: usr2",
 };

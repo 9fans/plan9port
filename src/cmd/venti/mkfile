@@ -71,15 +71,11 @@ it:V: all
 
 <$PLAN9/src/mkmany
 
+$SLIB: $LIBOFILES
+	ar rvc $SLIB $LIBOFILES
+
 # xml.c:D:	mkxml dat.h
 # 	./mkxml dat.h > xml.c
-
-$SLIB(%.$O):N: %.$O
-$SLIB:	${LIBOFILES:%=$SLIB(%)}
-	names=`echo $newprereq | sed -E 's/'$SLIB'\(([^)]+)\)/\1/g'`
-	# names = `{echo $newprereq |sed 's/ /\n/g' |sed -n 's/'$SLIB'\(([^)]+)\)/\1/gp'}
-	ar rvc $SLIB $names
-#	rm $names
 
 ainstall:V: ${TARG:%=%.ainstall}
 

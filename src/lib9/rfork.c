@@ -9,7 +9,7 @@ p9rfork(int flags)
 		return -1;
 	}
 	if(flags&RFNOTEG){
-		setpgrp(0, 0);
+		setpgid(0, getpid());
 		flags &= ~RFNOTEG;
 	}
 	if(flags){

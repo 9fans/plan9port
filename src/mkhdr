@@ -2,14 +2,18 @@ SYSNAME=`uname`
 OBJTYPE=`uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'`
 
 X11=/usr/X11R6
-LDFLAGS=
+CC=9c
+LD=9l
+AS=9a
 CFLAGS=
+LDFLAGS=
 AFLAGS=
+O=o
 
 BIN=$PLAN9/bin
 LIBDIR=$PLAN9/lib
 
-<|sed -E '"s/(.*)\+=/\1=$\1 /g"' $PLAN9/src/Make.$SYSNAME-$OBJTYPE
+<$PLAN9/src/mk.$SYSNAME-$OBJTYPE
 
 OS=$O
 LD=9l
