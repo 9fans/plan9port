@@ -5,9 +5,7 @@
 # 
 if gv -v 2>/dev/null | grep Usage >/dev/null
 then
-	m=-
+	gv --nosafer --swap --style=$PLAN9/lib/gv.style --ad=$PLAN9/lib/gv.resource "$@"
 else
-	m=''
+	gv -nosafer -swap -style $PLAN9/lib/gv.style -ad $PLAN9/lib/gv.resource "$@"
 fi
-
-gv $m-nosafer $m-swap $m-style $PLAN9/lib/gv.style $m-ad $PLAN9/lib/gv.resource "$@"
