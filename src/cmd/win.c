@@ -40,32 +40,48 @@ struct Q
 
 Q	q;
 
-int eventfd;
-int addrfd;
-int datafd;
-int ctlfd;
-int bodyfd;
+Fid *eventfd;
+Fid *addrfd;
+Fid *datafd;
+Fid *ctlfd;
+// int bodyfd;
 
 char	*typing;
 int	ntypeb;
 int	ntyper;
 int	ntypebreak;
 int	debug;
+char *name;
 
 char **prog;
 int p[2];
 Channel *cpid;
+Channel *cwait;
 int pid = -1;
 
+int	label(char*, int);
 void	error(char*);
 void	stdinproc(void*);
 void	stdoutproc(void*);
-void	type(Event*, int, int, int);
-void	sende(Event*, int, int, int, int, int);
+void	type(Event*, int, Fid*, Fid*);
+void	sende(Event*, int, Fid*, Fid*, Fid*, int);
 char	*onestring(int, char**);
 int	delete(Event*);
 void	deltype(uint, uint);
 void	runproc(void*);
+
+int
+fsfidprint(Fid *fid, char *fmt, ...)
+{
+	char buf[256];
+	va_list arg;
+	int n;
+
+	va_start(arg, fmt);
+	n = vsnprint(buf, sizeof buf, fmt, arg);
+	va_end(arg);
+	return fswrite(fid, buf, n);
+}
 
 void
 usage(void)
@@ -84,12 +100,18 @@ nopipes(void *v, char *msg)
 }
 
 void
+waitthread(void *v)
+{
+	recvp(cwait);
+	threadexitsall(nil);
+}
+
+void
 threadmain(int argc, char **argv)
 {
 	int fd, id;
 	char buf[256];
 	char buf1[128];
-	char *name;
 	Fsys *fs;
 
 	ARGBEGIN{
@@ -110,8 +132,8 @@ threadmain(int argc, char **argv)
 	threadnotify(nopipes, 1);
 	if((fs = nsmount("acme", "")) < 0)
 		sysfatal("nsmount acme: %r");
-	ctlfd = fsopenfd(fs, "new/ctl", ORDWR|OCEXEC);
-	if(ctlfd < 0 || read(ctlfd, buf, 12) != 12)
+	ctlfd = fsopen(fs, "new/ctl", ORDWR|OCEXEC);
+	if(ctlfd < 0 || fsread(ctlfd, buf, 12) != 12)
 		sysfatal("ctl: %r");
 	id = atoi(buf);
 	sprint(buf, "%d/tag", id);
@@ -119,21 +141,27 @@ threadmain(int argc, char **argv)
 	write(fd, " Send Delete", 12);
 	close(fd);
 	sprint(buf, "%d/event", id);
-	eventfd = fsopenfd(fs, buf, ORDWR|OCEXEC);
+	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
 	sprint(buf, "%d/addr", id);
-	addrfd = fsopenfd(fs, buf, ORDWR|OCEXEC);
+	addrfd = fsopen(fs, buf, ORDWR|OCEXEC);
 	sprint(buf, "%d/data", id);
-	datafd = fsopenfd(fs, buf, ORDWR|OCEXEC);
+	datafd = fsopen(fs, buf, ORDWR|OCEXEC);
 	sprint(buf, "%d/body", id);
-	bodyfd = fsopenfd(fs, buf, ORDWR|OCEXEC);
+/*	bodyfd = fsopenfd(fs, buf, ORDWR|OCEXEC); */
+	if(eventfd==nil || addrfd==nil || datafd==nil)
+		sysfatal("data files: %r");
+/*
 	if(eventfd<0 || addrfd<0 || datafd<0 || bodyfd<0)
 		sysfatal("data files: %r");
+*/
 	fsunmount(fs);
 
 	if(pipe(p) < 0)
 		sysfatal("pipe: %r");
 
 	cpid = chancreate(sizeof(ulong), 1);
+	cwait = threadwaitchan();
+	threadcreate(waitthread, nil, STACK);
 	threadcreate(runproc, nil, STACK);
 	pid = recvul(cpid);
 	if(pid == -1)
@@ -141,13 +169,13 @@ threadmain(int argc, char **argv)
 
 	getwd(buf1, sizeof buf1);
 	sprint(buf, "name %s/-%s\n0\n", buf1, name);
-	write(ctlfd, buf, strlen(buf));
+	fswrite(ctlfd, buf, strlen(buf));
 	sprint(buf, "dumpdir %s/\n", buf1);
-	write(ctlfd, buf, strlen(buf));
+	fswrite(ctlfd, buf, strlen(buf));
 	sprint(buf, "dump %s\n", onestring(argc, argv));
-	write(ctlfd, buf, strlen(buf));
+	fswrite(ctlfd, buf, strlen(buf));
 	
-//	proccreate(stdoutproc, nil, STACK);
+	threadcreate(stdoutproc, nil, STACK);
 	stdinproc(nil);
 }
 
@@ -161,10 +189,10 @@ runproc(void *v)
 	USED(v);
 
 	fd[0] = p[1];
-	fd[1] = bodyfd;
-	fd[2] = bodyfd;
-//	fd[1] = p[1];
-//	fd[2] = p[1];
+//	fd[1] = bodyfd;
+//	fd[2] = bodyfd;
+	fd[1] = p[1];
+	fd[2] = p[1];
 
 	if(prog[0] == nil){
 		prog = shell;
@@ -210,14 +238,14 @@ onestring(int argc, char **argv)
 }
 
 int
-getec(int efd)
+getec(Fid *efd)
 {
 	static char buf[8192];
 	static char *bufp;
 	static int nbuf;
 
 	if(nbuf == 0){
-		nbuf = read(efd, buf, sizeof buf);
+		nbuf = fsread(efd, buf, sizeof buf);
 		if(nbuf <= 0)
 			error(nil);
 		bufp = buf;
@@ -227,7 +255,7 @@ getec(int efd)
 }
 
 int
-geten(int efd)
+geten(Fid *efd)
 {
 	int n, c;
 
@@ -240,7 +268,7 @@ geten(int efd)
 }
 
 int
-geter(int efd, char *buf, int *nb)
+geter(Fid *efd, char *buf, int *nb)
 {
 	Rune r;
 	int n;
@@ -259,7 +287,7 @@ geter(int efd, char *buf, int *nb)
 }
 
 void
-gete(int efd, Event *e)
+gete(Fid *efd, Event *e)
 {
 	int i, nb;
 
@@ -297,10 +325,10 @@ nrunes(char *s, int nb)
 void
 stdinproc(void *v)
 {
-	int cfd = ctlfd;
-	int efd = eventfd;
-	int dfd = datafd;
-	int afd = addrfd;
+	Fid *cfd = ctlfd;
+	Fid *efd = eventfd;
+	Fid *dfd = datafd;
+	Fid *afd = addrfd;
 	int fd0 = p[0];
 	Event e, e2, e3, e4;
 
@@ -358,7 +386,7 @@ stdinproc(void *v)
 				}
 				if(e.flag&1 || (e.c2=='x' && e.nr==0 && e2.nr==0)){
 					/* send it straight back */
-					fprint(efd, "%c%c%d %d\n", e.c1, e.c2, e.q0, e.q1);
+					fsfidprint(efd, "%c%c%d %d\n", e.c1, e.c2, e.q0, e.q1);
 					break;
 				}
 				if(e.q0==e.q1 && (e.flag&2)){
@@ -380,7 +408,7 @@ stdinproc(void *v)
 				/* just send it back */
 				if(e.flag & 2)
 					gete(efd, &e2);
-				fprint(efd, "%c%c%d %d\n", e.c1, e.c2, e.q0, e.q1);
+				fsfidprint(efd, "%c%c%d %d\n", e.c1, e.c2, e.q0, e.q1);
 				break;
 
 			case 'd':
@@ -399,8 +427,8 @@ void
 stdoutproc(void *v)
 {
 	int fd1 = p[0];
-	int afd = addrfd;
-	int dfd = datafd;
+	Fid *afd = addrfd;
+	Fid *dfd = datafd;
 	int n, m, w, npart;
 	char *buf, *s, *t;
 	Rune r;
@@ -411,7 +439,7 @@ stdoutproc(void *v)
 	buf = malloc(8192+UTFmax+1);
 	npart = 0;
 	for(;;){
-		n = read(fd1, buf+npart, 8192);
+		n = threadread(fd1, buf+npart, 8192);
 		if(n < 0)
 			error(nil);
 		if(n == 0)
@@ -445,17 +473,50 @@ stdoutproc(void *v)
 		if(n > 0){
 			memmove(hold, buf+n, npart);
 			buf[n] = 0;
+			n = label(buf, n);
+			buf[n] = 0;
 			qlock(&q.lk);
 			m = sprint(x, "#%d", q.p);
-			if(write(afd, x, m) != m)
+			if(fswrite(afd, x, m) != m)
 				error("stdout writing address");
-			if(write(dfd, buf, n) != n)
+			if(fswrite(dfd, buf, n) != n)
 				error("stdout writing body");
 			q.p += nrunes(buf, n);
 			qunlock(&q.lk);
 			memmove(buf, hold, npart);
 		}
 	}
+}
+
+char wdir[256];
+int
+label(char *sr, int n)
+{
+	char *sl, *el, *er, *r;
+
+	er = sr+n;
+	for(r=er-1; r>=sr; r--)
+		if(*r == '\007')
+			break;
+	if(r < sr)
+		return n;
+
+	el = r+1;
+	if(el-sr > sizeof wdir)
+		sr = el - sizeof wdir;
+	for(sl=el-3; sl>=sr; sl--)
+		if(sl[0]=='\033' && sl[1]==']' && sl[2]==';')
+			break;
+	if(sl < sr)
+		return n;
+
+	*r = 0;
+	snprint(wdir, sizeof wdir, "name %s/-%s\n0\n", sl+3, name);
+	fswrite(ctlfd, wdir, strlen(wdir));
+
+	memmove(sl, el, er-el);
+	n -= (el-sl);
+	return n;
 }
 
 int
@@ -584,7 +645,7 @@ deltype(uint p0, uint p1)
 }
 
 void
-type(Event *e, int fd0, int afd, int dfd)
+type(Event *e, int fd0, Fid *afd, Fid *dfd)
 {
 	int m, n, nr;
 	char buf[128];
@@ -595,8 +656,8 @@ type(Event *e, int fd0, int afd, int dfd)
 		m = e->q0;
 		while(m < e->q1){
 			n = sprint(buf, "#%d", m);
-			write(afd, buf, n);
-			n = read(dfd, buf, sizeof buf);
+			fswrite(afd, buf, n);
+			n = fsread(dfd, buf, sizeof buf);
 			nr = nrunes(buf, n);
 			while(m+nr > e->q1){
 				do; while(n>0 && (buf[--n]&0xC0)==0x80);
@@ -612,16 +673,16 @@ type(Event *e, int fd0, int afd, int dfd)
 }
 
 void
-sende(Event *e, int fd0, int cfd, int afd, int dfd, int donl)
+sende(Event *e, int fd0, Fid *cfd, Fid *afd, Fid *dfd, int donl)
 {
 	int l, m, n, nr, lastc, end;
 	char abuf[16], buf[128];
 
 	end = q.p+ntyper;
 	l = sprint(abuf, "#%d", end);
-	write(afd, abuf, l);
+	fswrite(afd, abuf, l);
 	if(e->nr > 0){
-		write(dfd, e->b, e->nb);
+		fswrite(dfd, e->b, e->nb);
 		addtype(e->c1, ntyper, e->b, e->nb, e->nr);
 		lastc = e->r[e->nr-1];
 	}else{
@@ -629,8 +690,8 @@ sende(Event *e, int fd0, int cfd, int afd, int dfd, int donl)
 		lastc = 0;
 		while(m < e->q1){
 			n = sprint(buf, "#%d", m);
-			write(afd, buf, n);
-			n = read(dfd, buf, sizeof buf);
+			fswrite(afd, buf, n);
+			n = fsread(dfd, buf, sizeof buf);
 			nr = nrunes(buf, n);
 			while(m+nr > e->q1){
 				do; while(n>0 && (buf[--n]&0xC0)==0x80);
@@ -639,8 +700,8 @@ sende(Event *e, int fd0, int cfd, int afd, int dfd, int donl)
 			if(n == 0)
 				break;
 			l = sprint(abuf, "#%d", end);
-			write(afd, abuf, l);
-			write(dfd, buf, n);
+			fswrite(afd, abuf, l);
+			fswrite(dfd, buf, n);
 			addtype(e->c1, ntyper, buf, n, nr);
 			lastc = buf[n-1];
 			m += nr;
@@ -648,9 +709,9 @@ sende(Event *e, int fd0, int cfd, int afd, int dfd, int donl)
 		}
 	}
 	if(donl && lastc!='\n'){
-		write(dfd, "\n", 1);
+		fswrite(dfd, "\n", 1);
 		addtype(e->c1, ntyper, "\n", 1, 1);
 	}
-	write(cfd, "dot=addr", 8);
+	fswrite(cfd, "dot=addr", 8);
 	sendtype(fd0);
 }

@@ -74,7 +74,7 @@ char adir[40];
 int isunix;
 Queue *outq;
 Queue *inq;
-int verbose;
+int verbose = 0;
 int msize = 8192;
 
 void *gethash(Hash**, uint);
@@ -276,8 +276,8 @@ connthread(void *arg)
 {
 	int i, fd;
 	Conn *c;
-	Hash *h;
-	Msg *m, *om;
+	Hash *h, *hnext;
+	Msg *m, *om, *mm;
 	Fid *f;
 	Ioproc *io;
 
@@ -405,11 +405,16 @@ connthread(void *arg)
 		}
 	}
 
-	if(verbose) fprint(2, "%s eof\n", c->dir);
+	if(verbose) fprint(2, "fd#%d eof; flushing conn\n", c->fd);
+
+	/* flush the output queue */
+	sendq(c->outq, nil);
+	while(c->outq != nil)
+		yield();
 
 	/* flush all outstanding messages */
 	for(i=0; i<NHASH; i++){
-		for(h=c->tag[i]; h; h=h->next){
+		for(h=c->tag[i]; h; h=hnext){
 			om = h->v;
 			m = msgnew();
 			m->internal = 1;
@@ -419,19 +424,22 @@ connthread(void *arg)
 			m->tx.tag = m->tag;
 			m->tx.oldtag = om->tag;
 			m->oldm = om;
-			om->ref++;
+			om->ref++;	/* for m->oldm */
 			m->ref++;	/* for outq */
 			sendomsg(m);
-			recvp(c->internal);
+			mm = recvp(c->internal);
+			assert(mm == m);
 			msgput(m);	/* got from recvp */
 			msgput(m);	/* got from msgnew */
 			msgput(om);	/* got from hash table */
+			hnext = h->next;
+			free(h);
 		}
 	}
 
 	/* clunk all outstanding fids */
 	for(i=0; i<NHASH; i++){
-		for(h=c->fid[i]; h; h=h->next){
+		for(h=c->fid[i]; h; h=hnext){
 			f = h->v;
 			m = msgnew();
 			m->internal = 1;
@@ -444,10 +452,13 @@ connthread(void *arg)
 			f->ref++;
 			m->ref++;
 			sendomsg(m);
-			recvp(c->internal);
+			mm = recvp(c->internal);
+			assert(mm == m);
 			msgput(m);	/* got from recvp */
 			msgput(m);	/* got from msgnew */
 			fidput(f);	/* got from hash table */
+			hnext = h->next;
+			free(h);
 		}
 	}
 
@@ -461,8 +472,6 @@ out:
 	c->inc = 0;
 	free(c->inq);
 	c->inq = 0;
-	free(c->outq);
-	c->outq = 0;
 	free(c);
 }
 
@@ -482,6 +491,7 @@ openfdthread(void *v)
 	io = ioproc();
 
 	tot = 0;
+	m = nil;
 	if(c->fdmode == OREAD){
 		for(;;){
 			if(verbose) fprint(2, "tread...");
@@ -506,11 +516,12 @@ openfdthread(void *v)
 				break;
 			tot += m->rx.count;
 			if(iowrite(io, c->fd, m->rx.data, m->rx.count) != m->rx.count){
-				fprint(2, "pipe write error: %r\n");
+				// fprint(2, "pipe write error: %r\n");
 				break;
 			}
 			msgput(m);
 			msgput(m);
+			m = nil;
 		}
 	}else{
 		for(;;){
@@ -521,7 +532,6 @@ openfdthread(void *v)
 			if((n=ioread(io, c->fd, buf, n)) <= 0){
 				if(n < 0)
 					fprint(2, "pipe read error: %r\n");
-				m = nil;
 				break;
 			}
 			m = msgnew();
@@ -540,11 +550,11 @@ openfdthread(void *v)
 			recvp(c->internal);
 			if(m->rx.type == Rerror){
 			//	fprint(2, "write error: %s\n", m->rx.ename);
-				continue;
 			}
-			tot = n;
+			tot += n;
 			msgput(m);
 			msgput(m);
+			m = nil;
 		}
 	}
 	if(verbose) fprint(2, "eof on %d fid %d\n", c->fd, fid->fid);
@@ -559,6 +569,7 @@ openfdthread(void *v)
 		m->internal = 1;
 		m->c = c;
 		m->tx.type = Tclunk;
+		m->tx.tag = m->tag;
 		m->tx.fid = fid->fid;
 		m->fid = fid;
 		fid->ref++;
@@ -635,12 +646,14 @@ connoutthread(void *arg)
 {
 	int err;
 	Conn *c;
+	Queue *outq;
 	Msg *m, *om;
 	Ioproc *io;
 
 	c = arg;
+	outq = c->outq;
 	io = ioproc();
-	while((m = recvq(c->outq)) != nil){
+	while((m = recvq(outq)) != nil){
 		err = m->tx.type+1 != m->rx.type;
 		if(!err && m->isopenfd)
 			if(xopenfd(m) < 0)
@@ -687,6 +700,8 @@ connoutthread(void *arg)
 			nbsendp(c->inc, 0);
 	}
 	closeioproc(io);
+	free(outq);
+	c->outq = nil;
 }
 
 void
@@ -740,13 +755,16 @@ inputthread(void *arg)
 			msgput(m);
 			continue;
 		}
-		if(verbose > 1) fprint(2, "* -> %F\n", &m->rx);
+		if(verbose > 1) fprint(2, "* -> %F%s\n", &m->rx,
+			m->internal ? " (internal)" : "");
 		m->rpkt = pkt;
 		m->rx.tag = m->ctag;
 		if(m->internal)
-			sendp(m->c->internal, 0);
-		else
+			sendp(m->c->internal, m);
+		else if(m->c->outq)
 			sendq(m->c->outq, m);
+		else
+			msgput(m);
 	}
 	closeioproc(io);
 	//fprint(2, "input eof\n");
@@ -856,12 +874,17 @@ msgnew(void)
 void
 msgput(Msg *m)
 {
+	if(m == nil)
+		return;
+
 	if(verbose > 2) fprint(2, "msgput tag %d/%d ref %d\n", m->tag, m->ctag, m->ref);
 	assert(m->ref > 0);
 	if(--m->ref > 0)
 		return;
 	m->c->nmsg--;
 	m->c = nil;
+	msgput(m->oldm);
+	m->oldm = nil;
 	fidput(m->fid);
 	m->fid = nil;
 	fidput(m->afid);

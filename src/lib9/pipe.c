@@ -3,6 +3,7 @@
 #include <libc.h>
 #include <sys/socket.h>
 
+/* BUG: would like to preserve delimiters on systems that can */
 int
 p9pipe(int fd[2])
 {
