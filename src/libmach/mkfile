@@ -56,3 +56,11 @@ dwarfdump: dwarfdump.o $LIBDIR/$LIB
 
 nm: nm.o $LIBDIR/$LIB
 	$LD -o $target $prereq -l9
+
+Linux.$O: ptrace.c
+FreeBSD.$O: ptrace.c
+SunOS.$O: nosys.c
+Darwin.$O: nosys.c
+OpenBSD.$O: nosys.c
+NetBSD.$O: nosys.c
+

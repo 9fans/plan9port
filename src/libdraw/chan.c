@@ -29,13 +29,6 @@ chantostr(char *buf, u32int cc)
 	return buf;
 }
 
-/* avoid pulling in ctype when using with drawterm etc. */
-static int
-isspace(char c)
-{
-	return c==' ' || c== '\t' || c=='\r' || c=='\n';
-}
-
 u32int
 strtochan(char *s)
 {

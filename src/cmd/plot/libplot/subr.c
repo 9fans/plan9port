@@ -11,6 +11,7 @@ struct penvir  E[9] = {
 { 0., 1024., 0., 0., 1., -1.,1024., -1024., 0., 0., pSMALL, 1., 1, 0.,1, DBlack, DWhite}
 };
 struct penvir *e0 = E, *e1 = &E[1], *esave;
+int
 bcolor(char *s){
 	int c;
 	while (*s != NULL) {

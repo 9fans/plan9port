@@ -2,6 +2,7 @@
 #include <libc.h>
 #include "libString.h"
 
+#undef isspace
 #define isspace(c) ((c)==' ' || (c)=='\t' || (c)=='\n')
 
 /* Get the next field from a String.  The field is delimited by white space,

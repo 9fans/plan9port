@@ -244,11 +244,6 @@ void limread(struct xy *p, int *argcp, char ***argvp){
 }
 
 int
-isdigit(char c){
-	return '0'<=c && c<='9';
-}
-
-int
 numb(float *np, int *argcp, char ***argvp){
 	char c;
 

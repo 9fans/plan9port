@@ -1,4 +1,3 @@
-PLAN9=../..
 <$PLAN9/src/mkhdr
 
 LIB=libventi.a
