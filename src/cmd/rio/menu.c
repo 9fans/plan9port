@@ -121,16 +121,16 @@ button(XButtonEvent *e)
 	case Button3:
 		break;
 	case Button4:
-		/* scroll down changes to next virtual screen */
-		if(!c)
-			if(numvirtuals > 1 && virt < numvirtuals - 1)
-				switch_to(virt + 1);
-		return;
-	case Button5:
 		/* scroll up changes to previous virtual screen */
-		if(!c)
+		if(!c && e->type == ButtonPress)
 			if(numvirtuals > 1 && virt > 0)
 				switch_to(virt - 1);
+		return;
+	case Button5:
+		/* scroll down changes to next virtual screen */
+		if(!c && e->type == ButtonPress)
+			if(numvirtuals > 1 && virt < numvirtuals - 1)
+				switch_to(virt + 1);
 		return;
 	default:
 		return;
@@ -193,7 +193,7 @@ spawn(ScreenInfo *s)
 				fprintf(stderr, "rio: exec %s", shell);
 				perror(" failed");
 			}
-			execlp("9term", "9term", "-w", 0);
+			execlp("9term", "9term", scrolling ? "-ws" : "-w", 0);
 			execlp("xterm", "xterm", "-ut", 0);
 			perror("rio: exec 9term/xterm failed");
 			exit(1);
@@ -382,6 +382,12 @@ switch_to(int n)
 		return;
 	currents[virt] = current;
 	virt = n;
+
+	/* redundant when called from a menu switch
+	 * but needed for scroll-button switches
+	 */
+	b2menu.lasthit = n;
+
 	switch_to_c(n, clients);
 	current = currents[virt];
 }
