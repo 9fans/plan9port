@@ -4,7 +4,8 @@ March 26, 2004
 
 	Fix libdraw resize bug reported by Axel Belinfante.
 
-
+	Handle interrupts better in rc - don't kill background procs.
+	Reported by Sam.
 
 
 March 25, 2004
