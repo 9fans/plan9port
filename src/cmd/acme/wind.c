@@ -258,7 +258,6 @@ winsetname(Window *w, Rune *name, int n)
 	int i;
 	static Rune Lslashguide[] = { '/', 'g', 'u', 'i', 'd', 'e', 0 };
 	static Rune Lpluserrors[] = { '+', 'E', 'r', 'r', 'o', 'r', 's', 0 };
-
 	t = &w->body;
 	if(runeeq(t->file->name, t->file->nname, name, n) == TRUE)
 		return;
@@ -319,8 +318,8 @@ wincleartag(Window *w)
 void
 winsettag1(Window *w)
 {
-	int i, j, k, n, ntagname, bar, dirty;
-	Rune *new, *old, *tagname, *r;
+	int i, j, k, n, bar, dirty;
+	Rune *new, *old, *r;
 	Image *b;
 	uint q0, q1;
 	Rectangle br;
@@ -332,7 +331,6 @@ winsettag1(Window *w)
 	static Rune Lput[] = { ' ', 'P', 'u', 't', 0 };
 	static Rune Llook[] = { ' ', 'L', 'o', 'o', 'k', ' ', 0 };
 	static Rune Lpipe[] = { ' ', '|', 0 };
-
 	/* there are races that get us here with stuff in the tag cache, so we take extra care to sync it */
 	if(w->tag.ncache!=0 || w->tag.file->mod)
 		wincommit(w, &w->tag);	/* check file name; also guarantees we can modify tag contents */
@@ -342,27 +340,18 @@ winsettag1(Window *w)
 	for(i=0; i<w->tag.file->b.nc; i++)
 		if(old[i]==' ' || old[i]=='\t')
 			break;
-
-	/* make sure the file name is set correctly in the tag */
-	ntagname = w->body.file->nname;
-	tagname = runemalloc(ntagname);
-	runemove(tagname, w->body.file->name, ntagname);
-	abbrevenv(&tagname, &ntagname);
-
-	if(runeeq(old, i, tagname, ntagname) == FALSE){
+	if(runeeq(old, i, w->body.file->name, w->body.file->nname) == FALSE){
 		textdelete(&w->tag, 0, i, TRUE);
-		textinsert(&w->tag, 0, tagname, ntagname, TRUE);
+		textinsert(&w->tag, 0, w->body.file->name, w->body.file->nname, TRUE);
 		free(old);
 		old = runemalloc(w->tag.file->b.nc+1);
 		bufread(&w->tag.file->b, 0, old, w->tag.file->b.nc);
 		old[w->tag.file->b.nc] = '\0';
 	}
-
-	/* compute the text for the whole tag, replacing current only if it differs */
-	new = runemalloc(ntagname+100);
+	new = runemalloc(w->body.file->nname+100);
 	i = 0;
-	runemove(new+i, tagname, ntagname);
-	i += ntagname;
+	runemove(new+i, w->body.file->name, w->body.file->nname);
+	i += w->body.file->nname;
 	runemove(new+i, Ldelsnarf, 10);
 	i += 10;
 	if(w->filemenu){
@@ -400,8 +389,6 @@ winsettag1(Window *w)
 	if(runestrlen(new) != i)
 		fprint(2, "s '%S' len not %d\n", new, i);
 	assert(i==runestrlen(new));
-
-	/* replace tag if the new one is different */
 	if(runeeq(new, i, old, k) == FALSE){
 		n = k;
 		if(n > i)
@@ -424,7 +411,6 @@ winsettag1(Window *w)
 			}
 		}
 	}
-	free(tagname);
 	free(old);
 	free(new);
 	w->tag.file->mod = FALSE;
@@ -477,7 +463,6 @@ wincommit(Window *w, Text *t)
 	for(i=0; i<w->tag.file->b.nc; i++)
 		if(r[i]==' ' || r[i]=='\t')
 			break;
-	expandenv(&r, &i);
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;
 		filemark(w->body.file);
@@ -596,153 +581,3 @@ winevent(Window *w, char *fmt, ...)
 		sendp(x->c, nil);
 	}
 }
-
-int
-expandenv(Rune **rp, uint *np)
-{
-	char *s, *t;
-	Rune *p, *r, *q;
-	uint n, pref;
-	int nb, nr, slash;
-	Runestr rs;
-
-	r = *rp;
-	n = *np;
-	if(n == 0 || r[0] != '$')
-		return FALSE;
-	for(p=r+1; *p && *p != '/'; p++)
-		;
-	pref = p-r;
-	s = runetobyte(r+1, pref-1);
-	if((t = getenv(s)) == nil){
-		free(s);
-		return FALSE;
-	}
-
-	q = runemalloc(utflen(t)+(n-pref));
-	cvttorunes(t, strlen(t), q, &nb, &nr, nil);
-	assert(nr==utflen(t));
-	runemove(q+nr, p, n-pref);
-	free(r);
-	rs = runestr(q, nr+(n-pref));
-	slash = rs.nr>0 && q[rs.nr-1] == '/';
-	rs = cleanrname(rs);
-	if(slash){
-		rs.r = runerealloc(rs.r, rs.nr+1);
-		rs.r[rs.nr++] = '/';
-	}
-	*rp = rs.r;
-	*np = rs.nr;
-	return TRUE;
-}
-
-extern char **environ;
-Rune **runeenv;
-
-/*
- * Weird sort order -- shorter names first, 
- * prefer lowercase over uppercase ($home over $HOME),
- * then do normal string comparison.
- */
-int
-runeenvcmp(const void *va, const void *vb)
-{
-	Rune *a, *b;
-	int na, nb;
-
-	a = *(Rune**)va;
-	b = *(Rune**)vb;
-	na = runestrchr(a, '=') - a;
-	nb = runestrchr(b, '=') -  b;
-	if(na < nb)
-		return -1;
-	if(nb > na)
-		return 1;
-	if(na == 0)
-		return 0;
-	if(islowerrune(a[0]) && !islowerrune(b[0]))
-		return -1;
-	if(islowerrune(b[0]) && !islowerrune(a[0]))
-		return 1;
-	return runestrncmp(a, b, na);
-}
-
-void
-mkruneenv(void)
-{
-	int i, bad, n, nr;
-	char *p;
-	Rune *r, *q;
-
-	n = 0;
-	for(i=0; environ[i]; i++){
-		/*
-		 * Ignore some pollution.
-		 */
-		if(environ[i][0] == '_')
-			continue;
-		if(strncmp(environ[i], "PWD=", 4) == 0)
-			continue;
-		if(strncmp(environ[i], "OLDPWD=", 7) == 0)
-			continue;
-
-		/*
-		 * Must be a rooted path.
-		 */
-		if((p = strchr(environ[i], '=')) == nil || *(p+1) != '/')
-			continue;
-
-		/*
-		 * Only use the ones that we accept in look - all isfilec
-		 */
-		bad = 0;
-		r = bytetorune(environ[i], &nr);
-		for(q=r; *q != '='; q++)
-			if(!isfilec(*q)){
-				free(r);
-				bad = 1;
-				break;
-			}
-		if(!bad){
-			runeenv = erealloc(runeenv, (n+1)*sizeof(runeenv[0]));
-			runeenv[n++] = r;
-		}
-	}
-	runeenv = erealloc(runeenv, (n+1)*sizeof(runeenv[0]));
-	runeenv[n] = nil;
-	qsort(runeenv, n, sizeof(runeenv[0]), runeenvcmp);
-}
-
-int
-abbrevenv(Rune **rp, uint *np)
-{
-	int i, len, alen;
-	Rune *r, *p, *q;
-	uint n;
-
-	r = *rp;
-	n = *np;
-	if(n == 0 || r[0] != '/')
-		return FALSE;
-
-	if(runeenv == nil)
-		mkruneenv();
-
-	for(i=0; runeenv[i]; i++){
-		p = runestrchr(runeenv[i], '=')+1;
-		len = runestrlen(p);
-		if(len <= n && (r[len]==0 || r[len]=='/') && runeeq(r, len, p, len)==TRUE){
-			alen = (p-1) - runeenv[i];
-			q = runemalloc(1+alen+n-len);
-			q[0] = '$';
-			runemove(q+1, runeenv[i], alen);
-			runemove(q+1+alen, r+len, n-len);
-			free(r);
-			*rp = q;
-			*np = 1+alen+n-len;
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-

@@ -145,8 +145,6 @@ fsysproc(void *v)
 		if(n <= 0){
 			if(closing)
 				break;
-			if(n == 0)
-				werrstr("short read");
 			error("i/o error on server channel");
 		}
 		if(x == nil){
