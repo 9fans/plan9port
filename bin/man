@@ -38,14 +38,6 @@ fn roff {
 	}
 }
 
-fn page {
-	if(test -d /mnt/wsys/acme)
-		/bin/page -w
-	if not
-		/bin/page
-}
-
-
 while(~ $d 0) {
 	if(~ $#* 0) {
 		echo 'Usage: man [-ntp] [-s sec] [0-9] [0-9] ... name1 name2 ...' >[1=2]
@@ -104,9 +96,7 @@ for(i in $fils) {
 			roff t $i | proof
 
 		case P
-			roff t $i |tr2post |psfonts >/tmp/man.$pid.ps
-			psv /tmp/man.$pid.ps
-			rm -f /tmp/man.$pid.ps
+			roff t $i |tr2post |psfonts |page
 
 		case n
 			roff n $i | 9sed '
