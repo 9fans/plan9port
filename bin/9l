@@ -1,13 +1,17 @@
 #!/bin/sh
 
-extralibs=-lm
+extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
 *OpenBSD*)	ld=gcc
-		extralibs="$extralibs -lpthread"
+		extralibs="$extralibs -lutil -lpthread"
 		;;
-*BSD*)		ld=gcc ;;
-*Linux*)	ld=gcc ;;
+*BSD*)		ld=gcc
+		extralibs="$extralibs -lutil"
+		;;
+*Linux*)	ld=gcc
+		extralibs="$extralibs -lutil"
+		;;
 *Darwin*)	ld=gcc ;;
 *SunOS*)	ld="${CC9:-cc} -g"
 		extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
