@@ -101,6 +101,8 @@ manage(Client *c, int mapped)
 	/* Now do it!!! */
 
 	if (doreshape) {
+		if(0) fprintf(stderr, "in doreshape is9term=%d fixsize=%d, x=%d, y=%d, min_dx=%d, min_dy=%d, dx=%d, dy=%d\n",
+				c->is9term, fixsize, c->x, c->y, c->min_dx, c->min_dy, c->dx, c->dy);
 		if (current && current->screen == c->screen)
 			cmapnofocus(c->screen);
 		if (!c->is9term && c->x==0 && c->y==0) {
@@ -119,7 +121,6 @@ manage(Client *c, int mapped)
 				cmapfocus(current);
 			return 0;
 		}
-	}
 	else
 		gravitate(c, 0);
 
