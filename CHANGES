@@ -1,3 +1,7 @@
+June 20, 2004
+
+	x11 geometry fixes, from Peter Canning
+
 June 9, 2004
 
 	#define PLAN9PORT when compiling (sorry)
