@@ -68,20 +68,24 @@ Tm2tm(Tm *bigtm, struct tm *tm)
 }
 
 Tm*
-p9gmtime(long t)
+p9gmtime(long x)
 {
+	time_t t;
 	struct tm tm;
 
+	t = (time_t)x;
 	tm = *gmtime(&t);
 	tm2Tm(&tm, &bigtm);
 	return &bigtm;
 }
 
 Tm*
-p9localtime(long t)
+p9localtime(long x)
 {
+	time_t t;
 	struct tm tm;
 
+	t = (time_t)x;
 	tm = *localtime(&t);
 	tm2Tm(&tm, &bigtm);
 	return &bigtm;
