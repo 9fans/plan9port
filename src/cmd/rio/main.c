@@ -36,6 +36,7 @@ int 			_inset = 1;
 int 			curtime;
 int 			debug;
 int 			signalled;
+int 			scrolling;
 int 			num_screens;
 int			solidsweep = 0;
 int			numvirtuals = 0;
@@ -66,7 +67,7 @@ char	*fontlist[] = {
 void
 usage(void)
 {
-	fprintf(stderr, "usage: rio [-grey] [-version] [-font fname] [-term prog] [-virtuals num] [exit|restart]\n");
+	fprintf(stderr, "usage: rio [-grey] [-font fname] [-s] [-term prog] [-version] [-virtuals num] [exit|restart]\n");
 	exit(1);
 }
 
@@ -112,6 +113,9 @@ main(int argc, char *argv[])
 				fprintf(stderr, "; patch level %d", PATCHLEVEL);
 			fprintf(stderr, "\n");
 			exit(0);
+		}
+		else if (strcmp(argv[i], "-s") == 0) {
+			scrolling = 1;
 		}
 		else if (argv[i][0] == '-')
 			usage();
