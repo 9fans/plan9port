@@ -41,7 +41,7 @@ dirtoxdir(XDir *xd, Dir *d)
 		//xd->symlink = atom(d->symlink);
 		xd->symlink = atom("symlink");		// XXX: rsc
 	}
-};
+}
 
 void
 fdtruncate(int fd, ulong size)

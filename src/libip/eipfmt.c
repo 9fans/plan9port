@@ -7,6 +7,9 @@ enum
 	Isprefix= 16,
 };
 
+// XXX: manually initialize once to placate the Sun monster
+uchar prefixvals[256];
+#ifdef NOTDEF
 uchar prefixvals[256] =
 {
 [0x00] 0 | Isprefix,
@@ -19,6 +22,7 @@ uchar prefixvals[256] =
 [0xFE] 7 | Isprefix,
 [0xFF] 8 | Isprefix,
 };
+#endif
 
 int
 eipfmt(Fmt *f)
@@ -30,6 +34,22 @@ eipfmt(Fmt *f)
 	ulong *lp;
 	ushort s;
 	int i, j, n, eln, eli;
+
+	static int once = 0;	// XXX: placate the Sun monster
+
+	if(!once){
+		once = 1;
+		memset(prefixvals, 0, sizeof(prefixvals));
+		prefixvals[0x00] = 0 | Isprefix;
+		prefixvals[0x80] = 1 | Isprefix;
+		prefixvals[0xC0] = 2 | Isprefix;
+		prefixvals[0xE0] = 3 | Isprefix;
+		prefixvals[0xF0] = 4 | Isprefix;
+		prefixvals[0xF8] = 5 | Isprefix;
+		prefixvals[0xFC] = 6 | Isprefix;
+		prefixvals[0xFE] = 7 | Isprefix;
+		prefixvals[0xFF] = 8 | Isprefix;
+	}
 
 	switch(f->r) {
 	case 'E':		/* Ethernet address */

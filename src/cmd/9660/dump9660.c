@@ -201,7 +201,7 @@ main(int argc, char **argv)
 		checknames(&iroot, isbadiso9660);
 		convertnames(&iroot, struprcpy);
 	} else
-		convertnames(&iroot, (void *) strcpy);
+		convertnames(&iroot, (char* (*)(char*, char*))strcpy);
 
 //	isoabstract = findconform(&iroot, abstract);
 //	isobiblio = findconform(&iroot, biblio);
@@ -215,7 +215,7 @@ main(int argc, char **argv)
 	//	jnotice = findconform(&jroot, notice);
 
 		checknames(&jroot, isbadjoliet);
-		convertnames(&jroot, (void *) strcpy);
+		convertnames(&jroot, (char* (*)(char*, char*))strcpy);
 		dsort(&jroot, jolietcmp);
 	}
 
@@ -301,14 +301,14 @@ Dofix:
 		 * Write dump tree at end.  We assume the name characters
 		 * are all conforming, so everything is already sorted properly.
 		 */
-		convertnames(&idumproot, (info.flags & CDconform) ? (void *) struprcpy : (void *) strcpy);
+		convertnames(&idumproot, (info.flags & CDconform) ? struprcpy : (char* (*)(char*, char*)) strcpy);
 		if(cd->nulldump) {
 			r = walkdirec(&idumproot, dumpname);
 			assert(r != nil);
 			copybutname(r, &iroot);
 		}
 		if(cd->flags & CDjoliet) {
-			convertnames(&jdumproot, (void *) strcpy);
+			convertnames(&jdumproot, (char* (*)(char*, char*))strcpy);
 			if(cd->nulldump) {
 				r = walkdirec(&jdumproot, dumpname);
 				assert(r != nil);

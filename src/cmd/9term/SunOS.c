@@ -67,7 +67,7 @@ isecho(int fd)
 	if(debug) fprint(2, "israw %c%c\n",
 		ttmode.c_lflag&ICANON ? 'c' : '-',
 		ttmode.c_lflag&ECHO ? 'e' : '-');
-	return (ttmode.c_lflag&(ICANON|ECHO));
+	return (ttmode.c_lflag&ICANON && ttmode.c_lflags&ECHO);
 }
 
 int
