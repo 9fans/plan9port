@@ -6,8 +6,10 @@ DIRS=\
 	libflate\
 	libfmt\
 	libframe\
+	libfs\
 	libhttpd\
 #	libip\
+	libmux\
 	libplumb\
 	libregexp\
 	libsec\
