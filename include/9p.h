@@ -9,6 +9,7 @@ extern "C" {
 #pragma src "/sys/src/lib9p"
 #pragma lib "lib9p.a"
 */
+AUTOLIB(9p)
 
 /*
  * Maps from ulongs to void*s.
