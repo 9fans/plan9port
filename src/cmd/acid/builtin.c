@@ -633,6 +633,7 @@ doaccess(Node *r, Node *args)
 
 	r->op = OCONST;
 	r->type = TINT;
+	r->store.fmt = 'D';
 	r->store.u.ival = 0;		
 	if(access(res.store.u.string->string, 4) == 0)
 		r->store.u.ival = 1;
