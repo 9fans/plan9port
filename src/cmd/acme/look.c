@@ -45,6 +45,7 @@ startplumbing(void)
 		fprint(2, "acme: can't initialize plumber: %r\n");
 	else{
 		cplumb = chancreate(sizeof(Plumbmsg*), 0);
+		chansetname(cplumb, "cplumb");
 		threadcreate(plumbproc, nil, STACK);
 	}
 	plumbsendfid = plumbopenfid("send", OWRITE|OCEXEC);

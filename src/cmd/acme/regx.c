@@ -128,6 +128,7 @@ void
 rxinit(void)
 {
 	rechan = chancreate(sizeof(Inst*), 0);
+	chansetname(rechan, "rechan");
 	lastregexp = runemalloc(1);
 }
 

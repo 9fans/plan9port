@@ -1585,6 +1585,7 @@ run(Window *win, char *s, Rune *rdir, int ndir, int newns, char *argaddr, char *
 	arg = emalloc(10*sizeof(void*));
 	c = emalloc(sizeof *c);
 	cpid = chancreate(sizeof(ulong), 0);
+	chansetname(cpid, "cpid %s", s);
 	arg[0] = win;
 	arg[1] = s;
 	arg[2] = rdir;

@@ -41,6 +41,7 @@ char		*fontnames[2] =
 
 Command *command;
 
+void	shutdownthread(void*);
 void	acmeerrorinit(void);
 void	readfile(Column*, char*);
 static int	shutdown(void*, char*);
@@ -167,14 +168,23 @@ threadmain(int argc, char *argv[])
 
 	cwait = threadwaitchan();
 	ccommand = chancreate(sizeof(Command**), 0);
+	chansetname(ccommand, "ccommand");
 	ckill = chancreate(sizeof(Rune*), 0);
+	chansetname(ckill, "ckill");
 	cxfidalloc = chancreate(sizeof(Xfid*), 0);
+	chansetname(cxfidalloc, "cxfidalloc");
 	cxfidfree = chancreate(sizeof(Xfid*), 0);
+	chansetname(cxfidfree, "cxfidfree");
 	cnewwindow = chancreate(sizeof(Channel*), 0);
+	chansetname(cnewwindow, "cnewwindow");
 	cerr = chancreate(sizeof(char*), 0);
+	chansetname(cerr, "cerr");
 	cedit = chancreate(sizeof(int), 0);
+	chansetname(cedit, "cedit");
 	cexit = chancreate(sizeof(int), 0);
+	chansetname(cexit, "cexit");
 	cwarn = chancreate(sizeof(void*), 1);
+	chansetname(cwarn, "cwarn");
 	if(cwait==nil || ccommand==nil || ckill==nil || cxfidalloc==nil || cxfidfree==nil || cerr==nil || cexit==nil || cwarn==nil){
 		fprint(2, "acme: can't create initial channels: %r\n");
 		exits("channels");
@@ -248,8 +258,8 @@ threadmain(int argc, char *argv[])
 	threadcreate(waitthread, nil, STACK);
 	threadcreate(xfidallocthread, nil, STACK);
 	threadcreate(newwindowthread, nil, STACK);
-
-	threadnotify(shutdown, 1);
+/*	threadcreate(shutdownthread, nil, STACK); */
+/*	threadnotify(shutdown, 1); */
 	recvul(cexit);
 	killprocs();
 	threadexitsall(nil);
@@ -307,6 +317,21 @@ shutdown(void *v, char *msg)
 	return 0;
 }
 
+/*
+void
+shutdownthread(void *v)
+{
+	char *msg;
+	Channel *c;
+
+	USED(v);
+
+	c = threadnotechan();
+	while((msg = recvp(c)) != nil)
+		shutdown(nil, msg);
+}
+*/
+
 void
 killprocs(void)
 {
@@ -332,7 +357,7 @@ acmeerrorproc(void *v)
 	USED(v);
 	threadsetname("acmeerrorproc");
 	buf = emalloc(8192+1);
-	while((n=threadread(errorfd, buf, 8192)) >= 0){
+	while((n=read(errorfd, buf, 8192)) >= 0){
 		buf[n] = '\0';
 		sendp(cerr, estrdup(buf));
 	}
@@ -367,7 +392,7 @@ acmeerrorinit(void)
 	errorfd = pfd[1];
 	if(errorfd < 0)
 		error("can't re-open acmeerror file");
-	threadcreate(acmeerrorproc, nil, STACK);
+	proccreate(acmeerrorproc, nil, STACK);
 }
 
 /*
@@ -648,21 +673,6 @@ waitthread(void *v)
 	alts[WCmd].op = CHANRCV;
 	alts[NWALT].op = CHANEND;
 
-	/*
-	 * BUG.  Actually there's no bug here but this is the
-	 * first place you'd look.  When a program is run,
-	 * it doesn't disappear from the main tag until the
-	 * mouse is moved or keyboard is hit.  This would
-	 * suggest that the WWait case isn't working right,
-	 * but what's actually going on is that the X11 code
-	 * is running a select-based threading loop that
-	 * doesn't get interrupted until there is data from X11.
-	 * This was done to make acme work on Suns and
-	 * other systems where our threading was sub-par.
-	 * Now that we've gotten pthreads working (sort of),
-	 * we might be able to fix this properly.
-	 * But the bug is in libdraw and libthread, not here.
-	 */
 	command = nil;
 	for(;;){
 		switch(alt(alts)){
@@ -719,7 +729,7 @@ waitthread(void *v)
 					textsetselect(t, 0, 0);
 				}
 				if(w->msg[0])
-					warning(c->md, "%S: %s\n", c->name, w->msg);
+					warning(c->md, "%.*S: exit %s\n", c->nname-1, c->name, w->msg);
 				flushimage(display, 1);
 			}
 			qunlock(&row.lk);
@@ -791,6 +801,7 @@ xfidallocthread(void *v)
 			else{
 				x = emalloc(sizeof(Xfid));
 				x->c = chancreate(sizeof(void(*)(Xfid*)), 0);
+				chansetname(x->c, "xc%p", x->c);
 				x->arg = x;
 				threadcreate(xfidctl, x->arg, STACK);
 			}

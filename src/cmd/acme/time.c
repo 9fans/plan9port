@@ -50,7 +50,7 @@ timerproc(void *v)
 	nt = 0;
 	old = msec();
 	for(;;){
-		threadsleep(1);	/* will sleep minimum incr */
+		sleep(1);	/* will sleep minimum incr */
 		new = msec();
 		dt = new-old;
 		old = new;
@@ -98,7 +98,8 @@ void
 timerinit(void)
 {
 	ctimer = chancreate(sizeof(Timer*), 100);
-	threadcreate(timerproc, nil, STACK);
+	chansetname(ctimer, "ctimer");
+	proccreate(timerproc, nil, STACK);
 }
 
 Timer*
@@ -112,6 +113,7 @@ timerstart(int dt)
 	else{
 		t = emalloc(sizeof(Timer));
 		t->c = chancreate(sizeof(int), 0);
+		chansetname(t->c, "tc%p", t->c);
 	}
 	t->next = nil;
 	t->dt = dt;

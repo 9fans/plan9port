@@ -126,7 +126,7 @@ fsysinit(void)
 	fmtinstall('F', fcallfmt);
 	if((u = getuser()) != nil)
 		user = estrdup(u);
-	threadcreate(fsysproc, nil, STACK);
+	proccreate(fsysproc, nil, STACK);
 }
 
 void
@@ -142,7 +142,7 @@ fsysproc(void *v)
 	x = nil;
 	for(;;){
 		buf = emalloc(messagesize+UTFmax);	/* overflow for appending partial rune in xfidwrite */
-		n = threadread9pmsg(sfd, buf, messagesize);
+		n = read9pmsg(sfd, buf, messagesize);
 		if(n <= 0){
 			if(closing)
 				break;

@@ -178,6 +178,7 @@ editcmd(Text *ct, Rune *r, uint n)
 	resetxec();
 	if(editerrc == nil){
 		editerrc = chancreate(sizeof(char*), 0);
+		chansetname(editerrc, "editerrc");
 		lastpat = allocstring(0);
 	}
 	threadcreate(editthread, nil, STACK);
