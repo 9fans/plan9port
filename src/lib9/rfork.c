@@ -2,7 +2,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <libc.h>
-#include "9proc.h"
 #undef rfork
 
 int
@@ -13,7 +12,6 @@ p9rfork(int flags)
 	int n;
 	char buf[128], *q;
 
-	_p9uproc(0);
 	if((flags&(RFPROC|RFFDG|RFMEM)) == (RFPROC|RFFDG)){
 		/* check other flags before we commit */
 		flags &= ~(RFPROC|RFFDG);
@@ -73,7 +71,6 @@ p9rfork(int flags)
 				}
 			}
 		}
-		_p9uproc(0);
 		if(pid != 0)
 			return pid;
 	}

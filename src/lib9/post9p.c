@@ -14,7 +14,7 @@ post9pservice(int fd, char *name)
 	free(ns);
 	if(s == nil)
 		return -1;
-	switch(rfork(RFPROC|RFFDG)){
+	switch(fork()){
 	case -1:
 		return -1;
 	case 0:

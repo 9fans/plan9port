@@ -2,7 +2,6 @@
 #include <signal.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
-#include "9proc.h"
 
 extern char *_p9sigstr(int, char*);
 
@@ -41,6 +40,21 @@ static struct {
 #endif
 };
 
+typedef struct Jmp Jmp;
+struct Jmp
+{
+	p9jmp_buf b;
+};
+
+static Jmp onejmp;
+
+static Jmp*
+getonejmp(void)
+{
+	return &onejmp;
+}
+
+Jmp *(*_notejmpbuf)(void) = getonejmp;
 static void (*notifyf)(void*, char*);
 
 static void
@@ -48,28 +62,35 @@ notifysigf(int sig)
 {
 	int v;
 	char tmp[64];
-	Uproc *up;
+	Jmp *j;
 
-	up = _p9uproc(1);
-	v = p9setjmp(up->notejb);
+	j = (*_notejmpbuf)();
+	v = p9setjmp(j->b);
 	if(v == 0 && notifyf)
 		(*notifyf)(nil, _p9sigstr(sig, tmp));
 	else if(v == 2){
-if(0)print("HANDLED %d\n", sig);
+		if(0)print("HANDLED %d\n", sig);
 		return;
 	}
-if(0)print("DEFAULT %d\n", sig);
+	if(0)print("DEFAULT %d\n", sig);
 	signal(sig, SIG_DFL);
-	kill(getpid(), sig);
+	raise(sig);
 }
-	
+
+int
+noted(int v)
+{
+	p9longjmp((*_notejmpbuf)()->b, v==NCONT ? 2 : 1);
+	abort();
+	return 0;
+}
+
 int
 notify(void (*f)(void*, char*))
 {
 	int i;
 	struct sigaction sa, osa;
 
-	_p9uproc(0);
 	memset(&sa, 0, sizeof sa);
 	if(f == 0)
 		sa.sa_handler = SIG_DFL;
@@ -87,24 +108,17 @@ notify(void (*f)(void*, char*))
 		sigaction(sigs[i].sig, nil, &osa);
 		if(osa.sa_handler != SIG_DFL)
 			continue;
-		sigemptyset(&sa.sa_mask);
-		sigaddset(&sa.sa_mask, i);
+		/*
+		 * We assume that one jump buffer per thread
+		 * is okay, which means that we can't deal with 
+		 * signal handlers called during signal handlers.
+		 */
+		sigfillset(&sa.sa_mask);
 		if(sigs[i].restart)
 			sa.sa_flags |= SA_RESTART;
 		else
 			sa.sa_flags &= ~SA_RESTART;
 		sigaction(sigs[i].sig, &sa, nil);
 	}
-	return 0;
-}
-
-int
-noted(int v)
-{
-	Uproc *up;
-
-	up = _p9uproc(1);
-	p9longjmp(up->notejb, v==NCONT ? 2 : 1);
-	abort();
 	return 0;
 }

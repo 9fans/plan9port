@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sched.h>
+#include <errno.h>
 #include <libc.h>
 
 static pthread_mutex_t initmutex = PTHREAD_MUTEX_INITIALIZER;
