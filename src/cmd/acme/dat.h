@@ -244,7 +244,6 @@ struct Window
 	uchar	noscroll;
 	Range	wrselrange;
 	int		rdselfd;
-	int		neditwrsel;
 	Column	*col;
 	Xfid		*eventx;
 	char		*events;
