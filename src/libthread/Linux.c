@@ -43,7 +43,7 @@ if(first) {first=0; fmtinstall('T', timefmt);}
 		return 0;
 
 	/* a thousand times pretty fast */
-	for(i=0; i<10*1000; i++){
+	for(i=0; i<1000; i++){
 		if(!_tas(&l->held))
 			return 1;
 		sched_yield();
