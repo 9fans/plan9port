@@ -42,11 +42,6 @@ main(int argc, char *argv[])
 	String *t;
 	char **ap, **arg;
 
-	{ // libfmt-2.0 uses %lu where we need %lud
-	  extern int __flagfmt(Fmt*);
-	  fmtinstall('u', __flagfmt);
-	}
-
 	arg = argv++;
 	ap = argv;
 	while(argc>1 && argv[0] && argv[0][0]=='-'){
