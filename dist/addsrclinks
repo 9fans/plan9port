@@ -3,7 +3,7 @@
 @_ = <>;
 my $root = $ENV{'PLAN9'};
 my $html = join("", @_);
-$html =~ s;$root;XXX$root;g;
+$html =~ s;$root/;XXX$root/;g;
 while($html =~ /((.|\n)*)XXX($root\/([a-zA-Z0-9_.\/]|&#8722;)*[a-zA-Z0-9_\/])((.|\n)*)/){
 	($a, $b, $c) = ($1, $3, $5);
 	$b =~ s/&#8722;/-/g;
