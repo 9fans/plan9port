@@ -29,10 +29,15 @@ to authenticate to remote systems using RSA or DSA keys.
 .I Ssh
 accesses
 .I ssh-agent
-via a Unix socket posted in a private subdirectory of
-.B /tmp .
+via a Unix socket named
+.B ssh-agent.socket
+in the name space directory
+(see
+.IR intro (4)).
+Note that although the socket is posted in the name space
+directory, it is not for 9P conversations.
 .I Ssh
-expects this socket to be in the environment as
+expects the name of this socket to be in the environment as
 .BR $SSH_AGENT_SOCK ,
 and expects the agent to be running with process id
 .BR $SSH_AGENT_PID .
