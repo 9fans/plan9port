@@ -15,9 +15,9 @@ OFILES=\
 	auth_respond.$O\
 	auth_rpc.$O\
 	auth_userpasswd.$O\
-	auth_wep.$O\
+#	auth_wep.$O\
 	fsamount.$O\
-	login.$O\
+#	login.$O\
 #	newns.$O\
 #	noworld.$O\
 	nsamount.$O\
