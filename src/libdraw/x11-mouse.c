@@ -93,6 +93,13 @@ _ioproc(void *arg)
 		case ButtonPress:
 		case ButtonRelease:
 		case MotionNotify:
+			/* If the motion notifications are backing up, skip over some. */
+			if(xevent.type == MotionNotify){
+				while(XCheckWindowEvent(_x.mousecon, _x.drawable, MouseMask, &xevent)){
+					if(xevent.type != MotionNotify)
+						break;
+				}
+			}
 			if(_xtoplan9mouse(_x.mousecon, &xevent, &m) < 0)
 				continue;
 			send(mc->c, &m);
