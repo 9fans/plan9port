@@ -80,13 +80,14 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 
 	for(i=0; i<n; i++){
 		de = (struct dirent*)p;
+		memset(&lst, 0, sizeof lst);
 		if(de->d_name[0] == 0)
 			/* nothing */ {}
 		else if(lstat(de->d_name, &lst) < 0)
 			de->d_name[0] = 0;
 		else{
 			st = lst;
-			if((lst.st_mode&S_IFMT) == S_IFLNK)
+			if(S_ISLNK(lst.st_mode))
 				stat(de->d_name, &st);
 			nstr += _p9dir(&lst, &st, de->d_name, nil, nil, nil);
 		}
@@ -106,7 +107,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 	m = 0;
 	for(i=0; i<n; i++){
 		de = (struct dirent*)p;
-		if(de->d_name[0] != 0 && lstat(de->d_name, &st) >= 0){
+		if(de->d_name[0] != 0 && lstat(de->d_name, &lst) >= 0){
 			st = lst;
 			if((lst.st_mode&S_IFMT) == S_IFLNK)
 				stat(de->d_name, &st);
