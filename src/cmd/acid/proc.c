@@ -51,6 +51,7 @@ sproc(int xpid)
 		}
 	}
 	pid = xpid;
+	corpid = pid;
 	s = look("pid");
 	s->v->store.u.ival = pid;
 
