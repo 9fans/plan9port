@@ -1,0 +1,30 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libhttpd.a
+
+OFILES=\
+	alloc.$O\
+	checkcontent.$O\
+	date.$O\
+	fail.$O\
+	gethead.$O\
+	hio.$O\
+	httpfmt.$O\
+	httpunesc.$O\
+	lower.$O\
+	okheaders.$O\
+	parse.$O\
+	parsereq.$O\
+	query.$O\
+	redirected.$O\
+	unallowed.$O\
+	urlfmt.$O\
+	urlunesc.$O\
+
+HFILES=\
+	$PLAN9/include/httpd.h\
+	escape.h\
+
+<$PLAN9/src/mksyslib
+
