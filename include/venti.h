@@ -80,8 +80,8 @@ enum
 	VtDirType	= 1<<3,
 	/* VtDirType+1, ... */
 	VtRootType	= 2<<3,
-	VtCorruptType,
 	VtMaxType,
+	VtCorruptType = 0xFF,
 
 	VtTypeDepthMask = 7,
 	VtTypeBaseMask = ~VtTypeDepthMask,
