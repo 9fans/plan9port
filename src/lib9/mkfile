@@ -104,6 +104,7 @@ LIB9OFILES=\
 	getcallerpc-$OBJTYPE.$O\
 	getenv.$O\
 	getfields.$O\
+	getnetconn.$O\
 	getns.$O\
 	getuser.$O\
 	getwd.$O\
