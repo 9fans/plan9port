@@ -561,10 +561,10 @@ mouse(void)
 		break;
 	*/
 	case 8:
-		scrollup(3);
+		scrollup(mousescrollsize(t.f->maxlines));
 		break;
 	case 16:
-		scrolldown(3);
+		scrolldown(mousescrollsize(t.f->maxlines));
 		break;
 	}
 }
