@@ -1,5 +1,8 @@
 #include "threadimpl.h"
 
+#undef exits
+#undef _exits
+
 static pthread_mutex_t initmutex = PTHREAD_MUTEX_INITIALIZER;
 
 static void
@@ -136,10 +139,8 @@ _pthreadinit(void)
 	static struct utsname un;
 	pthread_t id;
 
-	if(uname(&un) < 0){
+	if(uname(&un) < 0)
 		fprint(2, "warning: uname failed: %r\n");
-		goto Okay;
-	}
 	if(strcmp(un.sysname, "Linux") == 0){
 		/*
 		 * Want to distinguish between the old LinuxThreads pthreads

@@ -112,6 +112,34 @@ threadspawn(int fd[3], char *cmd, char *argv[])
 }
 
 int
+threadspawnl(int fd[3], char *cmd, ...)
+{
+	char **argv, *s;
+	int n, pid;
+	va_list arg;
+
+	va_start(arg, cmd);
+	for(n=0; va_arg(arg, char*) != nil; n++)
+		;
+	n++;
+	va_end(arg);
+
+	argv = malloc(n*sizeof(argv[0]));
+	if(argv == nil)
+		return -1;
+
+	va_start(arg, cmd);
+	for(n=0; (s=va_arg(arg, char*)) != nil; n++)
+		argv[n] = s;
+	argv[n] = 0;
+	va_end(arg);
+
+	pid = threadspawn(fd, cmd, argv);
+	free(argv);
+	return pid;
+}
+
+int
 _threadexec(Channel *cpid, int fd[3], char *cmd, char *argv[])
 {
 	int pid;
