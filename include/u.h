@@ -64,6 +64,8 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
 typedef signed char schar;
 typedef unsigned int u32int;
+typedef int s32int;
+
 #ifdef _NEEDUCHAR
 	typedef unsigned char uchar;
 #endif
@@ -79,8 +81,11 @@ typedef unsigned int u32int;
 typedef unsigned long long uvlong;
 typedef long long vlong;
 typedef uvlong u64int;
+typedef vlong s64int;
 typedef uchar u8int;
+typedef schar s8int;
 typedef ushort u16int;
+typedef short s16int;
 
 #undef _NEEDUCHAR
 #undef _NEEDUSHORT
