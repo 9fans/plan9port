@@ -41,6 +41,7 @@ threadsetgrp,
 threadsetname,
 threadsetstate,
 threadspawn,
+threadspawnl,
 threadwaitchan,
 yield \- thread and proc management
 .SH SYNOPSIS
@@ -119,6 +120,7 @@ int	nbsendp(Channel *c, void *v)
 int	nbsendul(Channel *c, ulong v)
 int	chanprint(Channel *c, char *fmt, ...)
 .XX
+int	threadspawnl(int fd[3], char *file, ...)
 int	threadspawn(int fd[3], char *file, char *args[])
 int	threadexecl(Channel *cpid, int fd[3], char *file, ...)
 int	threadexec(Channel *cpid, int fd[3], char *file, char *args[])
@@ -391,11 +393,15 @@ fd[1] = dup(1, -1);
 fd[2] = dup(2, -1);
 .EE
 .PP
-.I Threadspawn
-is like
+.I Threadspawnl
+and
+.I threadspawn
+are like
+.I threadexecl
+and
 .I threadexec
-but does not replace the current thread.
-It returns the pid of the invoked program on success, or
+but do not replace the current thread.
+They return the pid of the invoked program on success, or
 \-1 on error.
 .PP
 .I Threadwaitchan

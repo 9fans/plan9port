@@ -30,10 +30,10 @@ CFsys*	fsinit(int fd)
 int	fsversion(CFsys *fsys, int msize, char *version, int nversion)
 .PP
 .B
-CFid	*fsauth(CFsys *fsys, char *uname, char *aname)
+CFid*	fsauth(CFsys *fsys, char *uname, char *aname)
 .PP
 .B
-CFid	*fsattach(CFsys *fsys, CFid *afid, char *uname, char *aname)
+CFid*	fsattach(CFsys *fsys, CFid *afid, char *uname, char *aname)
 .PP
 .B
 void	fssetroot(CFsys *fsys, CFid *fid)
@@ -42,7 +42,7 @@ void	fssetroot(CFsys *fsys, CFid *fid)
 void	fsclose(CFid *fid)
 .PP
 .B
-CFid	*fscreate(CFsys *fs, char *path, int mode, ulong perm)
+CFid*	fscreate(CFsys *fs, char *path, int mode, ulong perm)
 .PP
 .B
 CFid*	fsopen(CFsys *fs, char *path, int mode)
@@ -61,6 +61,9 @@ long	fsreadn(CFid *fid, void *buf, long n)
 .PP
 .B
 long	fswrite(CFid *fid, void *buf, long n)
+.PP
+.B
+vlong	fsseek(CFid *Fid, vlong n, int type)
 .PP
 .B
 long	fsdirread(CFid *fid, Dir **d)
@@ -234,6 +237,13 @@ analagous to the offset maintained by the kernel for each open file descriptor.
 and
 .I fswrite
 read and write from this offset, and update it after successful calls.
+.I Fsseek
+sets the offset; the
+.I n
+and
+.I type
+arguments are used as in
+.IR seek (3).
 Calling
 .I fspread
 or
@@ -337,6 +347,3 @@ transaction, or to
 and
 .I create
 on already-established fids.
-.PP
-There is no
-.IR fsseek .
