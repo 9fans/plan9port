@@ -326,8 +326,12 @@ xattach(char *label)
 		if(parsewinsize(winsize, &r, &havemin) < 0)
 			sysfatal("%r");
 	}else{
-		r = Rect(0, 0, WidthOfScreen(xscreen)*3/4,
-			HeightOfScreen(xscreen)*3/4);
+		r = Rect(0, 0, WidthOfScreen(xscreen)*2/3,
+			HeightOfScreen(xscreen)*2/3);
+		if(Dx(r) > Dy(r)*3/2)
+			r.max.x = r.min.x + Dy(r)*3/2;
+		if(Dy(r) > Dx(r)*3/2)
+			r.max.y = r.min.y + Dx(r)*3/2;
 		havemin = 0;
 	}
 
