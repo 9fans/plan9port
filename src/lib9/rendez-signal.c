@@ -45,6 +45,7 @@ struct Vous
 	Vous *link;
 	Lock lk;
 	int pid;
+	int wakeup;
 	ulong val;
 	ulong tag;
 };
@@ -149,8 +150,20 @@ rendezvous(ulong tag, ulong val)
 		sigaddset(&mask, SIGUSR1);
 		sigprocmask(SIG_SETMASK, &mask, NULL);
 		sigdelset(&mask, SIGUSR1);
+		v->wakeup = 0;
 		unlock(&v->lk);
-		sigsuspend(&mask);
+		for(;;){
+			/*
+			 * There may well be random signals flying around,
+			 * so we can't be sure why we woke up.  If we weren't
+			 * properly awakened, we need to go back to sleep.
+			 */
+			sigsuspend(&mask);
+			lock(&v->lk);	/* do some memory synchronization */
+			unlock(&v->lk);
+			if(v->wakeup == 1)
+				break;
+		}
 		rval = v->val;
 		if(DBG)fprint(2, "pid is %d, awake\n", me);
 		putvous(v);
@@ -169,6 +182,7 @@ rendezvous(ulong tag, ulong val)
 		lock(&v->lk);
 		rval = v->val;
 		v->val = val;
+		v->wakeup = 1;
 		unlock(&v->lk);
 		if(kill(vpid, SIGUSR1) < 0){
 			if(DBG)fprint(2, "pid is %d, kill %d failed: %r\n", me, vpid);
