@@ -13,7 +13,6 @@ OFILES=sam.$O\
 	mesg.$O\
 	moveto.$O\
 	multi.$O\
-	plumb.$O\
 	rasp.$O\
 	regexp.$O\
 	shell.$O\
@@ -26,5 +25,7 @@ OFILES=sam.$O\
 HFILES=sam.h\
 	errors.h\
 	mesg.h\
+
+SHORTLIB=plumb 9
 
 <$PLAN9/src/mkone
