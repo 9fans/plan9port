@@ -288,6 +288,14 @@ readfile(Column *c, char *s)
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
 }
 
+char *ignotes[] = {
+	"sys: write on closed pipe",
+	"sys: ttin",
+	"sys: ttou",
+	"sys: tstp",
+	nil
+};
+
 char *oknotes[] ={
 	"delete",
 	"hangup",
@@ -303,10 +311,12 @@ shutdown(void *v, char *msg)
 {
 	int i;
 
-	if(strcmp(msg, "sys: write on closed pipe") == 0)
-		return 1;
-
 	USED(v);
+
+	for(i=0; ignotes[i]; i++)
+		if(strncmp(ignotes[i], msg, strlen(ignotes[i])) == 0)
+			return 1;
+	
 	killprocs();
 	if(!dumping && strcmp(msg, "kill")!=0 && strcmp(msg, "exit")!=0 && getpid()==mainpid){
 		dumping = TRUE;
@@ -316,7 +326,6 @@ shutdown(void *v, char *msg)
 		if(strncmp(oknotes[i], msg, strlen(oknotes[i])) == 0)
 			threadexitsall(msg);
 	print("acme: %s\n", msg);
-	abort();
 	return 0;
 }
 
