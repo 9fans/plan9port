@@ -212,7 +212,9 @@ ignorepipe(void *v, char *s)
 	USED(v);
 	if(strcmp(s, "sys: write on closed pipe") == 0)
 		return 1;
-	fprint(2, "%T note: %s\n", s);
+	if(strcmp(s, "sys: tstp") == 0)
+		return 1;
+	fprint(2, "9pserve %s: %T note: %s\n", addr, s);
 	return 0;
 }
 
