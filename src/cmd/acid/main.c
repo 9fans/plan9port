@@ -26,6 +26,29 @@ usage(void)
 	exits("usage");
 }
 
+Map*
+dumbmap(int fd)
+{
+	Map *dumb;
+	Seg s;
+
+	dumb = allocmap();
+	memset(&s, 0, sizeof s);
+	s.fd = fd;
+	s.base = 0;
+	s.offset = 0;
+	s.size = 0xFFFFFFFF;
+	s.name = "data";
+	s.file = "<dumb>";
+	if(addseg(dumb, s) < 0){
+		freemap(dumb);
+		return nil;
+	}
+	if(mach == nil)
+		mach = machcpu;
+	return dumb;
+}
+
 void
 main(int argc, char *argv[])
 {
@@ -150,7 +173,7 @@ main(int argc, char *argv[])
 static int
 attachfiles(int argc, char **argv)
 {
-	int pid;
+	int fd, pid;
 	char *s;
 	int i, omode;
 	Fhdr *hdr;
@@ -182,6 +205,14 @@ attachfiles(int argc, char **argv)
 		}
 		if((hdr = crackhdr(argv[i], omode)) == nil){
 			fprint(2, "crackhdr %s: %r\n", argv[i]);
+			if(argc == 1 && (fd = open(argv[i], omode)) > 0){
+				fprint(2, "loading %s direct mapped\n", argv[i]);
+				symmap = dumbmap(fd);
+				cormap = dumbmap(fd);
+				symfil = argv[i];
+				corfil = argv[i];
+				goto Run;
+			}
 			continue;
 		}
 		fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
@@ -245,6 +276,7 @@ attachfiles(int argc, char **argv)
 		mapfile(symhdr, 0, cormap, nil);
 	}
 
+Run:
 	l = mkvar("objtype");
 	v = l->v;
 	v->store.fmt = 's';
