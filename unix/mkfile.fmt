@@ -8,6 +8,8 @@ TARG=\
 	fmt.h\
 	fmtdef.h\
 	nan.h\
+	print.3\
+	fmtinstall.3\
 
 all:V: $TARG
 

@@ -7,6 +7,10 @@ TARG=\
 	`{ls -p $PLAN9/src/lib9/utf/*.c}\
 	utf.h\
 	utfdef.h\
+	isalpharune.3\
+	utf.7\
+	rune.3\
+	runestrcat.3\
 
 all:V: $TARG
 
