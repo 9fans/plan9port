@@ -1,3 +1,6 @@
+#undef waitfor
+#define waitfor mkwaitfor
+
 void	addrule(char*, Word*, char*, Word*, int, int, char*);
 void	addrules(Word*, Word*, char*, int, int, char*);
 void	addw(Word*, char*);

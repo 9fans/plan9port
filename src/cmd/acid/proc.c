@@ -245,17 +245,3 @@ getstatus(int pid)
 	return buf+56;			/* ditto */
 }
 
-Waitmsg*
-waitfor(int pid)
-{
-	Waitmsg *w;
-
-	for(;;) {
-		if((w = wait()) == nil)
-			error("wait %r");
-		if(w->pid == pid)
-			return w;
-		free(w);
-	}
-	return nil;	/* ken */
-}

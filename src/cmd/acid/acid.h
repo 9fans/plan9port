@@ -256,7 +256,6 @@ void	unwind(void);
 void	userinit(void);
 void	varreg(void);
 void	varsym(void);
-Waitmsg*	waitfor(int);
 void	whatis(Lsym*);
 void	windir(Map*, Node*, Node*, Node*);
 void	yyerror(char*, ...);

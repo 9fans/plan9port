@@ -3,6 +3,9 @@
 #include <plumb.h>
 #include "errors.h"
 
+#undef waitfor
+#define waitfor samwaitfor
+
 /*
  * BLOCKSIZE is relatively small to keep memory consumption down.
  */

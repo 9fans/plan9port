@@ -177,16 +177,20 @@ tempdisk(void)
         return fd; 
 }
 
-#undef wait
+#undef waitfor
 int     
-waitfor(int pid)
+samwaitfor(int pid)
 {
-        int wm; 
-        int rpid;
-                
-        do; while((rpid = wait(&wm)) != pid && rpid != -1);
-        return (WEXITSTATUS(wm));
-}       
+	int r;
+	Waitmsg *w;
+
+	w = p9waitfor(pid);
+	if(w == nil)
+		return -1;
+	r = atoi(w->msg);
+	free(w);
+	return r;
+}
 
 void
 samerr(char *buf)
