@@ -11,7 +11,7 @@ man:V:
 push:V:
 	rsync -e ssh -t --delete $PLAN9/man/ swtch:www/swtch.com/plan9port/man
 	rsync -e ssh -t unix.html swtch:www/swtch.com/plan9port/unix/index.html
-	rsync -e ssh -t main.html swtch:www/swtch.com/plan9port/nindex.html
+	rsync -e ssh -t main.html swtch:www/swtch.com/plan9port/index.html
 	rsync -e ssh -t ss.html swtch:www/swtch.com/plan9port/screenshots/index.html
 	# @{cd ../unix/man && mk push}
 	# @{cd ../unix && mk push}
