@@ -578,7 +578,7 @@ main(int argc, char **argv)
 	p = procalloc();
 	_threadsetproc(p);
 	if(mainstacksize == 0)
-		mainstacksize = 65536;
+		mainstacksize = 256*1024;
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	scheduler(p);
 	_threaddaemonize();

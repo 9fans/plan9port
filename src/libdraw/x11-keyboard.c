@@ -72,7 +72,7 @@ initkeyboard(char *file)
 		return nil;
 	kc->c = chancreate(sizeof(Rune), 20);
 	chansetname(kc->c, "kbdc");
-	proccreate(_ioproc, kc, 32768);
+	proccreate(_ioproc, kc, 256*1024);
 	return kc;
 }
 

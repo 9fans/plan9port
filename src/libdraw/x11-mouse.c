@@ -141,7 +141,7 @@ initmouse(char *file, Image *i)
 	chansetname(mc->c, "mousec");
 	mc->resizec = chancreate(sizeof(int), 2);
 	chansetname(mc->resizec, "resizec");
-	proccreate(_ioproc, mc, 32768);
+	proccreate(_ioproc, mc, 256*1024);
 	return mc;
 }
 
