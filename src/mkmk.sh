@@ -2,7 +2,6 @@ cd lib9
 9c  _exits.c
 9c  _p9dialparse.c
 9c  _p9dir.c
-9c  _p9proc.c
 9c  announce.c
 9c  argv0.c
 9c  atexit.c
@@ -34,10 +33,8 @@ cd lib9
 9c  errstr.c
 9c  exec.c
 9c  fcallfmt.c
-9c  fork.c
-9c  ffork-$SYSNAME.c
 9c  get9root.c
-9a getcallerpc-$OBJTYPE.s || 9c getcallerpc-$OBJTYPE.c
+9c getcallerpc-$OBJTYPE.c || 9a getcallerpc-$OBJTYPE.s
 9c  getenv.c
 9c  getfields.c
 9c  getns.c
@@ -46,7 +43,7 @@ cd lib9
 9c  jmp.c
 9c  lrand.c
 9c  lnrand.c
-9c  lock.c
+9c  lock-$SYSNAME.c
 9c  main.c
 9c  malloc.c
 9c  malloctag.c
