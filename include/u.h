@@ -54,11 +54,12 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	define PLAN9PORT_USING_PTHREADS 1
 #elif defined(__FreeBSD__)
 #	include <sys/types.h>
+#	include <osreldate.h>
 #	if !defined(_POSIX_SOURCE)
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #	endif
-#	if defined(__FreeBSD5__)
+#	if __FreeBSD_version >= 500000
 #		define PLAN9PORT_USING_PTHREADS 1
 #	endif
 #elif defined(__APPLE__)
