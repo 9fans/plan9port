@@ -580,9 +580,6 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 	r = bytetorune(name, &n);
 	for(i=0; i<t->file->ntext; i++){
 		u = t->file->text[i];
-		u->oldorg = u->org;
-		u->oldq0 = u->q0;
-		u->oldq1 = u->q1;
 		/* second and subsequent calls with zero an already empty buffer, but OK */
 		textreset(u);
 		windirfree(u->w);
@@ -604,14 +601,6 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 	t->file->unread = FALSE;
 	for(i=0; i<t->file->ntext; i++){
 		u = t->file->text[i];
-		if(u->oldorg > u->file->b.nc)
-			u->oldorg = u->file->b.nc;
-		if(u->oldq0 > u->file->b.nc)
-			u->oldq0 = u->file->b.nc;
-		if(u->oldq1 > u->file->b.nc)
-			u->oldq1 = u->file->b.nc;
-		u->org = u->oldorg;
-		textshow(u, u->oldq0, u->oldq1, 1);
 		textsetselect(&u->w->tag, u->w->tag.file->b.nc, u->w->tag.file->b.nc);
 		textscrdraw(u);
 	}

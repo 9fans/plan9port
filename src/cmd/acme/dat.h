@@ -174,9 +174,6 @@ struct Text
 	uint	org;
 	uint	q0;
 	uint	q1;
-	uint	oldorg;
-	uint	oldq0;
-	uint	oldq1;
 	int	what;
 	int	tabstop;
 	Window	*w;
