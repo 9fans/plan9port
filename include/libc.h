@@ -561,6 +561,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define	ORCLOSE	64	/* or'ed in, remove on close */
 #define	ODIRECT	128	/* or'ed in, bypass the cache */
 #define	OEXCL	0x1000	/* or'ed in, exclusive use (create only) */
+#define	OLOCK	0x2000	/* or'ed in, lock after opening */
 
 #define	AEXIST	0	/* accessible: exists */
 #define	AEXEC	1	/* execute access */

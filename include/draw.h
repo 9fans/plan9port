@@ -536,6 +536,8 @@ int	_drawmsgread(Display*, void*, int);
 int	_drawmsgwrite(Display*, void*, int);
 int	_latin1(Rune*, int);
 
+int	mousescrollsize(int);
+
 #if defined(__cplusplus)
 }
 #endif
