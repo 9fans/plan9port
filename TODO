@@ -1,48 +1,35 @@
-* Bring over various trivial but useful command-line programs:
-	cal
-	calendar
-	date
-	diff
-	echo
-	ed
-	hoc
-
 * Libdraw
-	- should implement the alt sequences for unicode composition
-	  the code is in drawterm, just needs to be pulled in.
-	- snarf code doesn't work on mac os?
+	- bug with discovery of initial window size in certain cases
+	  (reported by Sean Dorward)
 
 * Plumber
-	- need to redefine how you find and talk to the plumber,
-	  probably using named pipes or unix sockets.
-	- hook samterm up to the plumber
-	- now trivial to plumb to web browser!
+	- have named-pipe-based plumber from Caerwyn Jones
+	- 9term right-click plumbs
+	- plumb rules file runs B
+	- easy to hook up web browser:
 
-* 9term
-	- would be great to have a 9term lookalike that was 
-	  a little more faithful (or, better, like acme win)
+# urls to web browser
+type is text
+data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+([:.][a-zA-Z0-9_?,%#~&/\-+=]+)*'
+plumb to web
+plumb start /usr/rsc/bin/web $0
+
+	- want to change back to 9P-based plumber, need to build
+	  infrastructure first
 
 * Acme
-	- once have a plumber, might not be too hard to
-	  redo the file system interface as a text rpc
-	  over unix domain sockets.
-	- until then, the x11 "ion" window manager is an
-	  interesting half-way point.  perhaps it makes
-	  more sense to split acme's editing into tightly
-	  coupled separate programs (perhaps communicating
-	  via the plumber?) and then have acme be
-	  a window manager a bit like ion?
+	- with 9P infrastructure, should "just work".
 
-* Mail
-	- no ideas here
+* upas/fs+Mail
+	- with 9P infrastructure, should "just work".
 
 * Venti
-	- server port is in progress (actually done, but with an 
-	  earlier library set).
-	- vac is easy to port
+	- wrote new venti library; server uses it and runs
+	- vac needs to be changed to use new library
 	- need way to mount vacs.  have all the code for a /vac file
 	  system (e.g., cd /vac/68b329da9893e34099c7d8ad5cb9c940da9393e3)
 	  but need to put it together.
+	- need to buffer writes sensibly in server.  have plan, need to implement.
 
 * Dump
 	- have a dump file system that sits on the side of ffs,

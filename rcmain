@@ -24,7 +24,6 @@ if(! ~ $#cflag 0){
 }
 if not if(flag i){
 	if(~ $TERM 9term){
-		stty tabs -onlcr -echo
 		if(~ $#'fn#cd' 0)
 			fn cd { builtin cd $1 && label `{pwd} }
 	}
