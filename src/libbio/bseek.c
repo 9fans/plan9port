@@ -5,6 +5,7 @@ off_t
 Bseek(Biobuf *bp, off_t offset, int base)
 {
 	vlong n, d;
+	int bufsz;
 
 	switch(bp->state) {
 	default:
@@ -28,13 +29,16 @@ Bseek(Biobuf *bp, off_t offset, int base)
 		 */
 		if(base == 0) {
 			d = n - Boffset(bp);
-			bp->icount += d;
-			if(d >= 0) {
-				if(bp->icount <= 0)
-					return n;
-			} else {
-				if(bp->ebuf - bp->gbuf >= -bp->icount)
-					return n;
+			bufsz = bp->ebuf - bp->gbuf;
+			if(-bufsz <= d && d <= bufsz){
+				bp->icount += d;
+				if(d >= 0) {
+					if(bp->icount <= 0)
+						return n;
+				} else {
+					if(bp->ebuf - bp->gbuf >= -bp->icount)
+						return n;
+				}
 			}
 		}
 
