@@ -6,3 +6,6 @@ indices:V:
 		rc ./secindex $i > $i/INDEX
 	done
 
+lookman.index:V:
+	./mkindex
+
