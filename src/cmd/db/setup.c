@@ -15,8 +15,8 @@ Map	*dotmap;
 void
 setsym(void)
 {
-	if(symhdr && syminit(symhdr) < 0)
-		dprint("syminit: %r\n");
+	if(symhdr && symopen(symhdr) < 0)
+		dprint("symopen: %r\n");
 /*
 	Symbol s;
 	if (mach->sbreg && lookup(0, mach->sbreg, &s) < 0)
