@@ -32,7 +32,7 @@ typedef struct	{
 	union {
 		long line;		/* Line # */
 		Reprog *rp;		/* Compiled R.E. */
-	};
+	} u;
 } Addr;
 
 typedef struct	SEDCOM {
@@ -290,14 +290,14 @@ comploop:
 				if (!lastre)
 					quit("First RE may not be null", 0);
 				rep->ad1.type = A_RE;
-				rep->ad1.rp = lastre;
+				rep->ad1.u.rp = lastre;
 			}
 			if(*cp == ',' || *cp == ';') {
 				cp++;
 				address(&rep->ad2);
 				if (rep->ad2.type == A_LAST) {
 					rep->ad1.type = A_RE;
-					rep->ad2.rp = lastre;
+					rep->ad2.u.rp = lastre;
 				}
 			} else
 				rep->ad2.type = A_NONE;
@@ -738,7 +738,7 @@ address(Addr *ap)
 		ap->type = A_DOL;
 	else if(c == '/') {
 		seof = c;
-		if (ap->rp = compile())
+		if (ap->u.rp = compile())
 			ap->type = A_RE;
 		else
 			ap->type = A_LAST;
@@ -750,7 +750,7 @@ address(Addr *ap)
 		if(!lno)
 			quit("line number 0 is illegal",0);
 		ap->type = A_LINE;
-		ap->line = lno;
+		ap->u.line = lno;
 	}
 	else {
 		cp--;
@@ -943,15 +943,15 @@ executable(SedCom *ipc)
 			case A_DOL:	/* Accept everything */
 				return !ipc->negfl;
 			case A_LINE:	/* Line at end of range? */
-				if (lnum <= ipc->ad2.line) {
-					if (ipc->ad2.line == lnum)
+				if (lnum <= ipc->ad2.u.line) {
+					if (ipc->ad2.u.line == lnum)
 						ipc->active = 0;
 					return !ipc->negfl;
 				}
 				ipc->active = 0;	/* out of range */
 				return ipc->negfl;
 			case A_RE:	/* Check for matching R.E. */
-				if (match(ipc->ad2.rp, linebuf))
+				if (match(ipc->ad2.u.rp, linebuf))
 					ipc->active = 0;
 				return !ipc->negfl;
 			default:		/* internal error */
@@ -966,13 +966,13 @@ executable(SedCom *ipc)
 				return !ipc->negfl;
 			break;
 		case A_LINE:			/* Check line number */
-			if (ipc->ad1.line == lnum) {
+			if (ipc->ad1.u.line == lnum) {
 				ipc->active = 1;	/* In range */
 				return !ipc->negfl;
 			}
 			break;
 		case A_RE:			/* Check R.E. */
-			if (match(ipc->ad1.rp, linebuf)) {
+			if (match(ipc->ad1.u.rp, linebuf)) {
 				ipc->active = 1;	/* In range */
 				return !ipc->negfl;
 			}
