@@ -6,23 +6,13 @@ int
 auth_getkey(char *params)
 {
 	char *name;
-	Dir *d;
 	int pid;
 	Waitmsg *w;
 
 	/* start /factotum to query for a key */
-	name = "/factotum";
-	d = dirstat(name);
-	if(d == nil){
-		name = "/boot/factotum";
-		d = dirstat(name);
-	}
-	if(d == nil){
-		werrstr("auth_getkey: no /factotum or /boot/factotum: didn't get key %s", params);
-		return -1;
-	}
-if(0)	if(d->type != '/'){
-		werrstr("auth_getkey: /factotum may be bad: didn't get key %s", params);
+	name = unsharp("#9/bin/factotum");
+	if(name == nil || access(name, AEXEC) < 0){
+		werrstr("auth_getkey: no $PLAN9/bin/factotum: didn't get key %s", params);
 		return -1;
 	}
 	switch(pid = fork()){
@@ -33,6 +23,7 @@ if(0)	if(d->type != '/'){
 		execl(name, "getkey", "-g", params, nil);
 		exits(0);
 	default:
+		free(name);
 		for(;;){
 			w = wait();
 			if(w == nil)

@@ -24,17 +24,14 @@ auth_challenge(char *fmt, ...)
 		return nil;
 	}
 
-	if((c->afd = open("/mnt/factotum/rpc", ORDWR)) < 0){
+	if((c->rpc=auth_allocrpc()) == nil
+	|| auth_rpc(c->rpc, "start", p, strlen(p)) != ARok
+	|| auth_rpc(c->rpc, "read", nil, 0) != ARok){
 	Error:
 		auth_freechal(c);
 		free(p);
 		return nil;
 	}
-
-	if((c->rpc=auth_allocrpc(c->afd)) == nil
-	|| auth_rpc(c->rpc, "start", p, strlen(p)) != ARok
-	|| auth_rpc(c->rpc, "read", nil, 0) != ARok)
-		goto Error;
 
 	if(c->rpc->narg > sizeof(c->chal)-1){
 		werrstr("buffer too small for challenge");
@@ -53,7 +50,7 @@ auth_response(Chalstate *c)
 	AuthInfo *ai;
 
 	ai = nil;
-	if(c->afd < 0){
+	if(c->rpc == nil){
 		werrstr("auth_response: connection not open");
 		return nil;
 	}
@@ -94,9 +91,7 @@ auth_response(Chalstate *c)
 	}
 
 Out:
-	close(c->afd);
 	auth_freerpc(c->rpc);
-	c->afd = -1;
 	c->rpc = nil;
 	return ai;
 }
@@ -106,12 +101,8 @@ auth_freechal(Chalstate *c)
 {
 	if(c == nil)
 		return;
-
-	if(c->afd >= 0)
-		close(c->afd);
 	if(c->rpc != nil)
 		auth_freerpc(c->rpc);
-
 	memset(c, 0xBB, sizeof(*c));
 	free(c);
 }

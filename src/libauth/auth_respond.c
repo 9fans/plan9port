@@ -28,17 +28,11 @@ auth_respond(void *chal, uint nchal, char *user, uint nuser, void *resp, uint nr
 {
 	char *p, *s;
 	va_list arg;
-	int afd;
 	AuthRpc *rpc;
 	Attr *a;
 
-	if((afd = open("/mnt/factotum/rpc", ORDWR)) < 0)
+	if((rpc = auth_allocrpc()) == nil)
 		return -1;
-	
-	if((rpc = auth_allocrpc(afd)) == nil){
-		close(afd);
-		return -1;
-	}
 
 	quotefmtinstall();	/* just in case */
 	va_start(arg, fmt);
@@ -50,7 +44,6 @@ auth_respond(void *chal, uint nchal, char *user, uint nuser, void *resp, uint nr
 	|| dorpc(rpc, "write", chal, nchal, getkey) != ARok
 	|| dorpc(rpc, "read", nil, 0, getkey) != ARok){
 		free(p);
-		close(afd);
 		auth_freerpc(rpc);
 		return -1;
 	}
@@ -67,7 +60,6 @@ auth_respond(void *chal, uint nchal, char *user, uint nuser, void *resp, uint nr
 		user[0] = '\0';
 
 	_freeattr(a);
-	close(afd);
 	auth_freerpc(rpc);
 	return nresp;	
 }

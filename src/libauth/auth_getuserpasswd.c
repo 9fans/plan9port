@@ -27,7 +27,6 @@ auth_getuserpasswd(AuthGetkey *getkey, char *fmt, ...)
 {
 	AuthRpc *rpc;
 	char *f[3], *p, *params;
-	int fd;
 	va_list arg;
 	UserPasswd *up;
 
@@ -35,10 +34,7 @@ auth_getuserpasswd(AuthGetkey *getkey, char *fmt, ...)
 	rpc = nil;
 	params = nil;
 
-	fd = open("/mnt/factotum/rpc", ORDWR);
-	if(fd < 0)
-		goto out;
-	rpc = auth_allocrpc(fd);
+	rpc = auth_allocrpc();
 	if(rpc == nil)
 		goto out;
 	quotefmtinstall();	/* just in case */
@@ -70,6 +66,5 @@ auth_getuserpasswd(AuthGetkey *getkey, char *fmt, ...)
 out:
 	free(params);
 	auth_freerpc(rpc);
-	close(fd);
 	return up;
 }

@@ -4,19 +4,19 @@ PLAN9=../..
 LIB=libauth.a
 OFILES=\
 #	amount.$O\
-#	amount_getkey.$O\
+	amount_getkey.$O\
 	attr.$O\
-#	auth_attr.$O\
-#	auth_challenge.$O\
+	auth_attr.$O\
+	auth_challenge.$O\
 #	auth_chuid.$O\
-#	auth_getkey.$O\
-#	auth_getuserpasswd.$O\
-#	auth_proxy.$O\
-#	auth_respond.$O\
-#	auth_rpc.$O\
-#	auth_userpasswd.$O\
-#	auth_wep.$O\
-#	login.$O\
+	auth_getkey.$O\
+	auth_getuserpasswd.$O\
+	auth_proxy.$O\
+	auth_respond.$O\
+	auth_rpc.$O\
+	auth_userpasswd.$O\
+	auth_wep.$O\
+	login.$O\
 #	newns.$O\
 #	noworld.$O\
 

@@ -1,7 +1,6 @@
 #include <u.h>
 #include <libc.h>
 #include <auth.h>
-#include <authsrv.h>
 #include "authlocal.h"
 
 Attr*

@@ -11,7 +11,6 @@ auth_wep(char *dev, char *fmt, ...)
 {
 	AuthRpc *rpc;
 	char *params, *p;
-	int fd;
 	va_list arg;
 	int rv;
 
@@ -22,11 +21,7 @@ auth_wep(char *dev, char *fmt, ...)
 		return rv;
 	}
 
-	fd = open("/mnt/factotum/rpc", ORDWR);
-	if(fd < 0)
-		return rv;
-
-	rpc = auth_allocrpc(fd);
+	rpc = auth_allocrpc();
 	if(rpc != nil){
 		quotefmtinstall();	/* just in case */
 		va_start(arg, fmt);
@@ -44,7 +39,5 @@ auth_wep(char *dev, char *fmt, ...)
 		}
 		auth_freerpc(rpc);
 	}
-	close(fd);
-		
 	return rv;
 }

@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <auth.h>
+#include <9pclient.h>
 #include "authlocal.h"
 
 enum { 
@@ -179,7 +180,6 @@ Error:
 AuthInfo*
 auth_proxy(int fd, AuthGetkey *getkey, char *fmt, ...)
 {
-	int afd;
 	char *p;
 	va_list arg;
 	AuthInfo *ai;
@@ -190,14 +190,7 @@ auth_proxy(int fd, AuthGetkey *getkey, char *fmt, ...)
 	p = vsmprint(fmt, arg);
 	va_end(arg);
 
-	afd = open("/mnt/factotum/rpc", ORDWR);
-	if(afd < 0){
-		werrstr("opening /mnt/factotum/rpc: %r");
-		free(p);
-		return nil;
-	}
-
-	rpc = auth_allocrpc(afd);
+	rpc = auth_allocrpc();
 	if(rpc == nil){
 		free(p);
 		return nil;
@@ -206,7 +199,95 @@ auth_proxy(int fd, AuthGetkey *getkey, char *fmt, ...)
 	ai = fauth_proxy(fd, rpc, getkey, p);
 	free(p);
 	auth_freerpc(rpc);
-	close(afd);
+	return ai;
+}
+
+/*
+ *  this just proxies what the factotum tells it to.
+ */
+AuthInfo*
+fsfauth_proxy(CFid *fid, AuthRpc *rpc, AuthGetkey *getkey, char *params)
+{
+	char *buf;
+	int m, n, ret;
+	AuthInfo *a;
+	char oerr[ERRMAX];
+
+	rerrstr(oerr, sizeof oerr);
+	werrstr("UNKNOWN AUTH ERROR");
+
+	if(dorpc(rpc, "start", params, strlen(params), getkey) != ARok){
+		werrstr("fauth_proxy start: %r");
+		return nil;
+	}
+
+	buf = malloc(AuthRpcMax);
+	if(buf == nil)
+		return nil;
+	for(;;){
+		switch(dorpc(rpc, "read", nil, 0, getkey)){
+		case ARdone:
+			free(buf);
+			a = auth_getinfo(rpc);
+			errstr(oerr, sizeof oerr);	/* no error, restore whatever was there */
+			return a;
+		case ARok:
+			if(fswrite(fid, rpc->arg, rpc->narg) != rpc->narg){
+				werrstr("auth_proxy write fid: %r");
+				goto Error;
+			}
+			break;
+		case ARphase:
+			n = 0;
+			memset(buf, 0, AuthRpcMax);
+			while((ret = dorpc(rpc, "write", buf, n, getkey)) == ARtoosmall){
+				if(atoi(rpc->arg) > AuthRpcMax)
+					break;
+				m = fsread(fid, buf+n, atoi(rpc->arg)-n);
+				if(m <= 0){
+					if(m == 0)
+						werrstr("auth_proxy short read: %s", buf);
+					goto Error;
+				}
+				n += m;
+			}
+			if(ret != ARok){
+				werrstr("auth_proxy rpc write: %s: %r", buf);
+				goto Error;
+			}
+			break;
+		default:
+			werrstr("auth_proxy rpc: %r");
+			goto Error;
+		}
+	}
+Error:
+	free(buf);
+	return nil;
+}
+
+AuthInfo*
+fsauth_proxy(CFid *fid, AuthGetkey *getkey, char *fmt, ...)
+{
+	char *p;
+	va_list arg;
+	AuthInfo *ai;
+	AuthRpc *rpc;
+
+	quotefmtinstall();	/* just in case */
+	va_start(arg, fmt);
+	p = vsmprint(fmt, arg);
+	va_end(arg);
+
+	rpc = auth_allocrpc();
+	if(rpc == nil){
+		free(p);
+		return nil;
+	}
+
+	ai = fsfauth_proxy(fid, rpc, getkey, p);
+	free(p);
+	auth_freerpc(rpc);
 	return ai;
 }
 
