@@ -165,7 +165,7 @@ renumber(TypeList *tl, uint n1)
 	}
 }
 
-static Type*
+Type*
 defer(Type *t)
 {
 	Type *u, *oldt;

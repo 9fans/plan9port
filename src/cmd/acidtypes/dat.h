@@ -74,6 +74,7 @@ int dwarf2acid(struct Dwarf*, Biobuf*);
 int stabs2acid(struct Stab*, Biobuf*);
 
 Type *newtype(void);
+Type *defer(Type*);
 char *nameof(Type*, int);
 void freetypes(void);
 

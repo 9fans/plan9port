@@ -113,7 +113,6 @@ ds2acid(Dwarf *d, DwarfSym *s, Biobuf *b, char *fn)
 		t->sub = typebynum(s->attrs.type, 0);
 		break;
 
-
 	case TagConstType:
 	case TagVolatileType:
 		t = xnewtype(Defer, s);
@@ -174,6 +173,14 @@ ds2acid(Dwarf *d, DwarfSym *s, Biobuf *b, char *fn)
 			t->val[t->n] = valof(s->attrs.have.constvalue, &s->attrs.constvalue);
 			t->n++;
 		}
+		break;
+
+	case TagFormalParameter:
+	case TagVariable:
+fprint(2, "var %s %lud\n", s->attrs.name, (ulong)s->attrs.type);
+		if(s->attrs.name==nil || s->attrs.type==0)
+			break;
+		addsymx(fn, s->attrs.name, typebynum(s->attrs.type, 0));
 		break;
 	}
 }
