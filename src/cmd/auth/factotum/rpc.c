@@ -260,7 +260,7 @@ rpcrespondn(Conv *c, char *verb, void *data, int count)
 	p = c->reply + strlen(c->reply);
 	*p++ = ' ';
 	if(hex){
-		enc16(p, 2*count, data, count);
+		enc16(p, 2*count+1, data, count);
 		p += 2*count;
 	}else{
 		memmove(p, data, count);

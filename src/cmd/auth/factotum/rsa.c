@@ -66,12 +66,12 @@ xrsadecrypt(Conv *c)
 	if(m == nil)
 		goto out;
 	if(strcmp(role, "decrypt") == 0)
-		mm = rsadecrypt(key, m, m);
+		mm = rsadecrypt(key, m, nil);
 	else
 		mm = rsaencrypt(&key->pub, m, nil);
 	if(mm == nil)
 		goto out;
-	n = mptobe(m, buf, sizeof buf, nil);
+	n = mptobe(mm, buf, sizeof buf, nil);
 	
 	/* send response */
 	c->state = "write";

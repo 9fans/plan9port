@@ -103,8 +103,11 @@ threadmain(int argc, char **argv)
 	fmtinstall('B', mpfmt);
 	fmtinstall('H', encodefmt);
 	fmtinstall('[', encodefmt);
-	
+
 	ARGBEGIN{
+	case '9':
+		chatty9pclient++;
+		break;
 	case 'D':
 		chatty++;
 		break;
@@ -138,8 +141,6 @@ threadmain(int argc, char **argv)
 	if((afd = announce(addr, adir)) < 0)
 		sysfatal("announce %s: %r", addr);
 	
-	proccreate(listenproc, nil, STACK);
-	
 	print("SSH_AUTH_SOCK=%s;\n", sock);
 	if(export)
 		print("export SSH_AUTH_SOCK;\n");
@@ -147,6 +148,8 @@ threadmain(int argc, char **argv)
 	if(export)
 		print("export SSH_AGENT_PID;\n");
 	close(1);
+	rfork(RFNOTEG);
+	proccreate(listenproc, nil, STACK);
 	threadexits(0);
 }
 
@@ -655,7 +658,7 @@ listkeys(Msg *m, int version)
 	nk = 0;
 	pnk = m->p;
 	put4(m, 0);
-	if((fid = nsopen("factotum", nil, "ctl", OREAD)) == nil){
+	if((fid = nsopen(factotum, nil, "ctl", OREAD)) == nil){
 		fprint(2, "ssh-agent: open factotum: %r\n");
 		return -1;
 	}
@@ -775,7 +778,6 @@ static int
 dorsa(Aconn *a, mpint *mod, mpint *exp, mpint *chal, uchar chalbuf[32])
 {
 	AuthRpc *rpc;
-	mpint *m;
 	char buf[4096], *p;
 	mpint *decr, *unpad;
 
@@ -784,7 +786,7 @@ dorsa(Aconn *a, mpint *mod, mpint *exp, mpint *chal, uchar chalbuf[32])
 		fprint(2, "ssh-agent: auth_allocrpc: %r\n");
 		return -1;
 	}
-	snprint(buf, sizeof buf, "proto=rsa service=ssh role=client n=%lB ek=%lB", mod, exp);
+	snprint(buf, sizeof buf, "proto=rsa service=ssh role=decrypt n=%lB ek=%lB", mod, exp);
 	if(chatty)
 		fprint(2, "ssh-agent: start %s\n", buf);
 	if(auth_rpc(rpc, "start", buf, strlen(buf)) != ARok){
@@ -793,20 +795,6 @@ dorsa(Aconn *a, mpint *mod, mpint *exp, mpint *chal, uchar chalbuf[32])
 		auth_freerpc(rpc);
 		return -1;
 	}
-	m = nil;
-	if(auth_rpc(rpc, "read", nil, 0) != ARok){
-		fprint(2, "ssh-agent: did not find negotiated key\n");
-		goto Die;
-	}
-	if(chatty)
-		fprint(2, "read key %s\n", (char*)rpc->arg);
-	m = strtomp(rpc->arg, nil, 16, nil);
-	if(mpcmp(m, mod) != 0){
-		fprint(2, "ssh-agent: found wrong key\n");
-		mpfree(m);
-		goto Die;
-	}
-	mpfree(m);
 	
 	p = mptoa(chal, 16, nil, 0);
 	if(p == nil){
@@ -815,13 +803,13 @@ dorsa(Aconn *a, mpint *mod, mpint *exp, mpint *chal, uchar chalbuf[32])
 	}
 	if(chatty)
 		fprint(2, "ssh-agent: challenge %B => %s\n", chal, p);
-	if(auth_rpc(rpc, "write", p, strlen(p)) != ARok){
+	if(auth_rpc(rpc, "writehex", p, strlen(p)) != ARok){
 		fprint(2, "ssh-agent: dorsa: auth 'write': %r\n");
 		free(p);
 		goto Die;
 	}
 	free(p);
-	if(auth_rpc(rpc, "read", nil, 0) != ARok){
+	if(auth_rpc(rpc, "readhex", nil, 0) != ARok){
 		fprint(2, "ssh-agent: dorsa: auth 'read': %r\n");
 		goto Die;
 	}
@@ -973,6 +961,7 @@ runmsg(Aconn *a)
 		if(s == nil)
 			goto Failchal;
 		md5(sessid, 16, digest, s);
+		print("md5 %.*H %.*H => %.*H\n", 32, chalbuf, 16, sessid, MD5dlen, digest);
 		
 		newreply(&m, SSH_AGENT_RSA_RESPONSE);
 		putn(&m, digest, 16);
