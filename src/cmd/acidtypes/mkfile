@@ -6,6 +6,7 @@ OFILES=\
 	dwarf.$O\
 	main.$O\
 	stabs.$O\
+	sym.$O\
 	type.$O\
 	util.$O\
 

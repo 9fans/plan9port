@@ -1,6 +1,7 @@
 typedef struct Type Type;
 typedef struct Typeref Typeref;
 typedef struct TypeList TypeList;
+typedef struct Sym Sym;
 
 enum
 {
@@ -47,6 +48,14 @@ struct TypeList
 	TypeList *tl;
 };
 
+struct Sym
+{
+	char *fn;
+	char *name;
+	Type *type;
+	Sym *next;
+};
+
 void *erealloc(void*, uint);
 void *emalloc(uint);
 char *estrdup(char*);
@@ -70,3 +79,9 @@ void freetypes(void);
 
 extern char *prefix;
 char *fixname(char*);
+
+void addsymx(char*, char*, Type*);
+void dumpsyms(Biobuf*);
+
+
+

@@ -17,15 +17,6 @@ static Type *parsedefn(char *p, Type *t, char **pp);
 static int parsebound(char**);
 static vlong parsebigint(char**);
 
-typedef struct Sym Sym;
-struct Sym
-{
-	char *fn;
-	char *name;
-	Type *type;
-	Sym *next;
-};
-
 typedef struct Ftypes Ftypes;
 struct Ftypes
 {
@@ -37,18 +28,6 @@ struct Ftypes
 
 Ftypes *fstack;
 Ftypes *allftypes;
-
-static Sym*
-mksym(char *fn, char *name, Type *type)
-{
-	Sym *s;
-
-	s = emalloc(sizeof *s);
-	s->fn = fn;
-	s->name = name;
-	s->type = type;
-	return s;
-}
 
 static char*
 estrndup(char *s, int n)
@@ -626,15 +605,11 @@ stabs2acid(Stab *stabs, Biobuf *b)
 	Ftypes *f;
 	Type *t, *tt;
 	StabSym sym;
-	Sym *symbols, *s;
-	Sym **lsym;
 
 	dir = nil;
 	file = nil;
 	fno = 0;
 	fn = nil;
-	symbols = nil;
-	lsym = &symbols;
 	for(i=0; stabsym(stabs, i, &sym)>=0; i++){
 		switch(sym.type){
 		case N_SO:
@@ -737,8 +712,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 			if(c != 't' && c != 'T')
 			switch(sym.type){
 			case N_GSYM:
-				*lsym = mksym(nil, name, t);
-				lsym = &(*lsym)->next;
+				addsymx(nil, name, t);
 				break;
 			case N_FUN:
 				fn = name;
@@ -748,8 +722,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 			case N_LCSYM:
 			case N_STSYM:
 			case N_RSYM:
-				*lsym = mksym(fn, name, t);
-				lsym = &(*lsym)->next;
+				addsymx(fn, name, t);
 				break;
 			}
 			break;
@@ -757,19 +730,8 @@ stabs2acid(Stab *stabs, Biobuf *b)
 	}
 
 	printtypes(b);
-
-	for(s=symbols; s; s=s->next){
-		t = s->type;
-		if(t->ty == Pointer){
-			t = t->sub;
-			if(t && t->equiv)
-				t = t->equiv;
-		}
-		if(t == nil || t->ty != Aggr)
-			continue;
-		Bprint(b, "complex %s %s%s%s;\n", nameof(t, 1),
-			s->fn ? fixname(s->fn) : "", s->fn ? ":" : "", fixname(s->name));
-	}
+	dumpsyms(b);
+	freetypes();
 
 	return 0;
 }
