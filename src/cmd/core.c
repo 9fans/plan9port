@@ -68,8 +68,11 @@ coreall(char *name)
 		fprint(2, "%s: %r\n", name);
 		return;
 	}
-	if((d->mode&DMDIR) == 0)
+	if((d->mode&DMDIR) == 0){
+		free(d);
 		corefile(name, 1);
+		return;
+	}
 	free(d);
 	if((fd = open(name, OREAD)) < 0){
 		fprint(2, "open %s: %r\n", name);
