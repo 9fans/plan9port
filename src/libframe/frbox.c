@@ -116,7 +116,7 @@ void
 chopbox(Frame *f, Frbox *b, int n)	/* drop first n chars; no allocation done */
 {
 	char *p;
-	
+
 	if(b->nrune<0 || b->nrune<n)
 		drawerror(f->display, "chopbox");
 	p = (char*)runeindex(b->ptr, n);
