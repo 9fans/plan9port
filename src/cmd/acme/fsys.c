@@ -317,8 +317,10 @@ static
 Xfid*
 fsysauth(Xfid *x, Fid *f)
 {
+	Fcall t;
+
 	USED(f);
-	return respond(x, nil, "acme: authentication not required");
+	return respond(x, &t, "acme: authentication not required");
 }
 
 static
