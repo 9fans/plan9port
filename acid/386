@@ -173,7 +173,7 @@ linkdebug()
 }
 
 defn
-acidmap()
+dynamicmap()
 {
 	if systype == "linux" then {
 		local r, m, n;
@@ -192,19 +192,13 @@ acidmap()
 			}
 		}
 	}
+}
 
-	local syms;
-	local l;
-
-	l = textfile();
-	if l != {} then {
-		syms = "acidtypes";
-		while l != {} do {
-			syms = syms + " " + ((head l)[0]);
-			l = tail l;
-		}
-		includepipe(syms);
-	}
+defn
+acidmap()
+{
+	dynamicmap();
+	acidtypes();
 }
 
 print(acidfile);

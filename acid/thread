@@ -1,24 +1,29 @@
 
 defn labpc(l)
 {
-	if objtype == "386" then
-		return longjmp;
-	return *(l+4);
+	complex Label l;
+
+	return l.pc;
 }
 
-defn labsp(l)
+defn label(l)
 {
-	return *l;
+	complex Label l;
+
+	if objtype == "386" then
+		return {"PC", l.pc, "BX", l.bx, "SP", l.sp, "BP", l.bp, "SI", l.si, "DI", l.di};
+	return {};
 }
+
 
 defn labstk(l)
 {
-	_stk(labpc(l), labsp(l), 0, 0);
+	_stk(label(l), 0);
 }
 
 defn lablstk(l)
 {
-	_stk(labpc(l), labsp(l), 0, 1);
+	_stk(label(l), 1);
 }
 
 defn altfmt(A){
@@ -57,8 +62,8 @@ defn alt(A){
 }
 
 threadignsrc = {
-	"^/sys/src/libc",
-	"^/sys/src/libthread",
+	"plan9/src/libc",
+	"plan9/src/libthread",
 };
 
 defn fnname(a){
@@ -81,32 +86,24 @@ defn stkignore(s){
 }
 
 defn threadstkline(T){
-	local stk, frame, pc, pc0, file, lastpc0, s, sym, i, stop;
+	local stk, frame, pc, pc0, file, s, sym, i, stop;
 
-	if T.state == Running then{
-		pc = *PC;
-		stk = strace(*PC, *SP, linkreg(0));
-	}else{
-		pc = labpc(T.sched);
-		stk = strace(labpc(T.sched), labsp(T.sched), 0);
-	}
-	lastpc0 = 0;
-	pc0 = 0;
+	if T.state == Running then
+		stk = strace({});
+	else
+		stk = strace(label(T.sched));
+
 	stop = 0;
 	while stk && !stop do {
+		frame = head stk;
+		stk = tail stk;
+		pc = frame[2];
+		pc0 = frame[0];
 		file = pcfile(pc);
-		if !regexp("^/sys/src/libc/", file)
-		&& !regexp("^/sys/src/libthread/", file) 
+		if !regexp("plan9/src/libc/", file)
+		&& !regexp("plan9/src/libthread/", file) 
 		&& match(file, stkignore)==-1 then
 			stop = 1;
-		else{
-			lastpc0 = pc0;
-			frame = head stk;
-			stk = tail stk;
-			nextframe = head stk;
-			pc = frame[1];
-			pc0 = nextframe[0];
-		}
 	}
 	file = pcfile(pc);
 	s = file+":"+itoa(pcline(pc), "%d");
@@ -165,7 +162,7 @@ defn pthreads(P){
 	while T != 0 do{
 		print("\t");
 		thread(T);
-		T = T.nextt;
+		T = (Thread)T.nextt;
 	}
 	setproc(mainpid);
 }
@@ -173,6 +170,7 @@ defn pthreads(P){
 defn threads(){
 	local P;
 
+	complex Pqueue _threadpq;
 	P = (Proc)_threadpq.$head;
 	while P != 0 do{
 		if P != (Proc)_threadpq.$head then print("\n");
@@ -184,6 +182,7 @@ defn threads(){
 defn stacks(){
 	local P, mainpid;
 
+	stkprefix = "";
 	mainpid = pid;
 	P = (Proc)_threadpq.$head;
 	while P != 0 do{
@@ -195,7 +194,7 @@ defn stacks(){
 	//	}
 	//	print("threadstks(", P\X, ")\n");
 		threadstks(P);
-		P = P.next;
+		P = (Proc)P.next;
 		print("\n");
 	}
 	setproc(mainpid);
@@ -219,7 +218,7 @@ defn stacksizes(){
 			}
 			sp = *(T.sched);
 			print(top-sp\D, "\n");
-			T = T.nextt;
+			T = (Thread)T.nextt;
 		}
 		P = P.next;
 	}
@@ -240,8 +239,8 @@ defn threadstks(P){
 	stkprefix = pref+"\t\t";
 	ign = stkignore;
 	stkignore = {
-		"^/sys/src/libthread/",
-		"^/sys/src/libc/(386|arm|alpha|sparc|power|mips)/"
+		"plan9/src/libthread/",
+		"plan9/src/libc/(386|arm|alpha|sparc|power|mips)/"
 	};
 	setproc(P.pid);
 	Tq = (Tqueue)P.threads;
@@ -252,7 +251,7 @@ defn threadstks(P){
 		print("\t");
 		thread(T);
 		threadstk(T);
-		T = T.nextt;
+		T = (Thread)T.nextt;
 		print("\n");
 	}
 	setproc(mainpid);

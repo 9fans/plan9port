@@ -33,10 +33,10 @@ notelstk(addr)
 	_stk({"PC", pc, "SP", sp, linkreg(addr)}, 1);
 }
 
-defn labstk(l)				// trace from a label
-{
-	_stk({"PC", *(l+4), "SP", *l, linkreg(0)}, 0);
-}
+// defn labstk(l)				// trace from a label
+// {
+// 	_stk({"PC", *(l+4), "SP", *l, linkreg(0)}, 0);
+// }
 
 defn params(param)
 {
@@ -64,8 +64,11 @@ defn locals(l)
 	}	
 }
 
-defn _stkign(file)
+defn _stkign(frame)
 {
+	local file;
+
+	file = pcfile(frame[0]);
 	s = stkignore;
 	while s do {
 		if regexp(head s, file) then
@@ -85,7 +88,7 @@ defn _stk(regs, dolocals)
 
 	stk = strace(regs);
 	if stkignore then {
-		while stk && tail stk && _stkign((head tail stk)[1]) do
+		while stk && tail stk && _stkign(head tail stk) do
 			stk = tail stk;
 	}
 
@@ -592,6 +595,22 @@ defn spsrch(len)
 			print("src(", a, ")\n");
 			pfl(a);
 		}			
+	}
+}
+
+defn acidtypes()
+{
+	local syms;
+	local l;
+
+	l = textfile();
+	if l != {} then {
+		syms = "acidtypes";
+		while l != {} do {
+			syms = syms + " " + ((head l)[0]);
+			l = tail l;
+		}
+		includepipe(syms);
 	}
 }
 
