@@ -111,6 +111,8 @@ extern	void	putspace(void);
 /*
  * return date file was last modified
  */
+#define getdate prgetdate
+
 char*
 getdate(void)
 {
