@@ -118,6 +118,7 @@ LIB9OFILES=\
 	mallocz.$O\
 	nan.$O\
 	needsrcquote.$O\
+	needstack.$O\
 	netmkaddr.$O\
 	notify.$O\
 	nrand.$O\
