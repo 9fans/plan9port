@@ -53,7 +53,7 @@ getstr(Map *map, ulong addr, char *buf, uint nbuf)
 	int i;
 
 	for(i=0; i<nbuf; i++){
-		if(get1(map, addr+i, buf+i, 1) < 0)
+		if(get1(map, addr+i, (uchar*)buf+i, 1) < 0)
 			return -1;
 		if(buf[i] == 0)
 			return 0;
