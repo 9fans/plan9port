@@ -38,7 +38,7 @@ _schedinit(void *arg)
 		;
 	_threaddebug(DBGSCHED, "top of schedinit, _threadexitsallstatus=%p", _threadexitsallstatus);
 	if(_threadexitsallstatus)
-		exits(_threadexitsallstatus);
+		_exits(_threadexitsallstatus);
 	lock(&p->lock);
 	if((t=p->thread) != nil){
 		p->thread = nil;
@@ -149,7 +149,7 @@ relock:
 		unlock(&p->readylock);
 		while(rendezvous((ulong)q, 0) == ~0){
 			if(_threadexitsallstatus)
-				exits(_threadexitsallstatus);
+				_exits(_threadexitsallstatus);
 		}
 		/* lock picked up from _threadready */
 	}
@@ -249,7 +249,7 @@ _threadready(Thread *t)
 		_threaddebug(DBGSCHED, "waking process %d", t->proc->pid);
 		while(rendezvous((ulong)q, 0) == ~0){
 			if(_threadexitsallstatus)
-				exits(_threadexitsallstatus);
+				_exits(_threadexitsallstatus);
 		}
 	}else
 		unlock(&t->proc->readylock);

@@ -61,7 +61,7 @@ threadexitsall(char *exitstr)
 	}
 
 	/* leave */
-	exit(0);
+	exits(0);
 }
 
 Channel*

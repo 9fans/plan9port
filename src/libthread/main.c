@@ -29,7 +29,7 @@ _threaddie(int x)
 	USED(x);
 
 	if(_threadexitsallstatus)
-		_exit(_threadexitsallstatus[0] ? 1 : 0);
+		_exits(_threadexitsallstatus);
 }
 
 int
@@ -109,7 +109,7 @@ _schedexit(Proc *p)
 	strncpy(ex, p->exitstr, sizeof ex);
 	ex[sizeof ex-1] = '\0';
 	free(p);
-	_exit(ex[0]);
+	_exits(ex);
 }
 
 int
