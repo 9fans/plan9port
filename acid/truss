@@ -1,6 +1,6 @@
 // poor emulation of SVR5 truss command - traces system calls
 
-include(acidfile);
+include("syscall");
 
 _stoprunning = 0;
 
@@ -280,4 +280,4 @@ defn untruss() {
 	start(pid);
 }
 
-print("/sys/lib/acid/truss");
+print(acidfile);
