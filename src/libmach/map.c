@@ -31,7 +31,7 @@ addseg(Map *map, Seg seg)
 {
 	Seg *ss;
 
-	if(map == 0){
+	if(map == nil){
 		werrstr("invalid map");
 		return -1;
 	}
@@ -57,7 +57,7 @@ findseg(Map *map, char *name, char *file)
 {
 	int i;
 
-	if(map == 0)
+	if(map == nil)
 		return -1;
 	for(i=0; i<map->nseg; i++){
 		if(name && (!map->seg[i].name || strcmp(map->seg[i].name, name) != 0))

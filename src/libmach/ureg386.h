@@ -25,24 +25,24 @@ struct Ureg
 typedef struct UregLinux386 UregLinux386;
 struct UregLinux386
 {
-	ulong	ebx;
-	ulong	ecx;
-	ulong	edx;
-	ulong	esi;
-	ulong	edi;
-	ulong	ebp;
-	ulong	eax;
-	ulong	xds;
-	ulong	xes;
-	ulong	xfs;
-	ulong	xgs;
-	ulong	origeax;
-	ulong	eip;
-	ulong	xcs;
-	ulong	eflags;
-	ulong	esp;
-	ulong	xss;
+	u32int	ebx;
+	u32int	ecx;
+	u32int	edx;
+	u32int	esi;
+	u32int	edi;
+	u32int	ebp;
+	u32int	eax;
+	u32int	xds;
+	u32int	xes;
+	u32int	xfs;
+	u32int	xgs;
+	u32int	origeax;
+	u32int	eip;
+	u32int	xcs;
+	u32int	eflags;
+	u32int	esp;
+	u32int	xss;
 };
 
-Ureg *_linux2ureg386(UregLinux386*);
-
+void linux2ureg386(UregLinux386*, Ureg*);
+void ureg2linux386(Ureg*, UregLinux386*);

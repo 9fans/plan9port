@@ -86,14 +86,13 @@ dyninfo(Fhdr *hdr, int x)
 }
 
 void
-elfdl386mapdl(void)
+elfdl386mapdl(int verbose)
 {
 	int i;
 	Fhdr *hdr;
 	u32int linkdebug, linkmap, name, addr;
 	char buf[1024];
 
-print("elfdl386mapdl\n");
 	if((linkdebug = dyninfo(symhdr, DT_DEBUG)) == 0){
 		fprint(2, "no dt_debug section\n");
 		return;
@@ -109,25 +108,27 @@ print("elfdl386mapdl\n");
 		|| get4(cormap, linkmap+12, &linkmap) < 0)
 			break;
 
-		if(name
-		&& getstr(cormap, name, buf, sizeof buf) >= 0
-		&& buf[0]
-		&& access(buf, AEXIST) >= 0){
-			if((hdr = crackhdr(buf, OREAD)) == nil)
-				fprint(2, "crackhdr %s: %r\n", buf);
-			else{
-				fprint(2, "%s: %s %s %s\n", buf, hdr->aname, hdr->mname, hdr->fname);
-				hdr->base = addr;
-				if(mapfile(hdr, addr, symmap, nil) < 0)
-					fprint(2, "mapfile %s: %r\n", buf);
-				if(corhdr){
-					unmapfile(corhdr, cormap);
-					mapfile(hdr, addr, cormap, nil);
-				}
-				if(symopen(hdr) < 0)
-					fprint(2, "syminit %s: %\r", buf);
-			}
-		}	
+		if(name == 0 || getstr(cormap, name, buf, sizeof buf) < 0 || buf[0] == 0)
+			continue;
+		if((hdr = crackhdr(buf, OREAD)) == nil){
+			fprint(2, "crackhdr %s: %r\n", buf);
+			continue;
+		}
+		hdr->base = addr;
+		if(verbose)
+			fprint(2, "%s: %s %s %s\n", buf, hdr->aname, hdr->mname, hdr->fname);
+		if(mapfile(hdr, addr, symmap, nil) < 0)
+			fprint(2, "mapping %s: %r\n", buf);
+		if(corhdr){
+			/*
+			 * Need to map the text file under the core file.
+			 */
+			unmapfile(corhdr, cormap);
+			mapfile(hdr, addr, cormap, nil);
+			mapfile(corhdr, 0, cormap, nil);
+		}
+		if(symopen(hdr) < 0)
+			fprint(2, "syminit %s: %r\n", buf);
 	}
 }
 

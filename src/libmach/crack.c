@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <bio.h>
 #include <mach.h>
+#include "elf.h"
 
 static struct
 {
@@ -50,9 +51,18 @@ crackhdr(char *name, int mode)
 void
 uncrackhdr(Fhdr *hdr)
 {
-	close(hdr->fd);
-	_delhdr(hdr);
-	free(hdr->cmd);
+	int i;
+
+	symclose(hdr);
+	if(hdr->elf)
+		elfclose(hdr->elf);
+	if(hdr->fd >= 0)
+		close(hdr->fd);
+	free(hdr->cmdline);
+	free(hdr->prog);
+	for(i=0; i<hdr->nthread; i++)
+		free(hdr->thread[i].ureg);
+	free(hdr->thread);
 	free(hdr);
 }
 
@@ -71,6 +81,8 @@ mapfile(Fhdr *fp, ulong base, Map *map, Regs **regs)
 		werrstr("cannot load map for this file type");
 		return -1;
 	}
+	if(regs)
+		*regs = nil;
 	return fp->map(fp, base, map, regs);
 }
 
@@ -90,3 +102,23 @@ unmapfile(Fhdr *fp, Map *map)
 		}
 	}
 }
+
+Regs*
+coreregs(Fhdr *fp, uint id)
+{
+	UregRegs *r;
+	int i;
+
+	for(i=0; i<fp->nthread; i++){
+		if(fp->thread[i].id == id){
+			if((r = mallocz(sizeof *r, 1)) == nil)
+				return nil;
+			r->r.rw = _uregrw;
+			r->ureg = fp->thread[i].ureg;
+			return &r->r;
+		}
+	}
+	werrstr("thread not found");
+	return nil;
+}
+

@@ -42,10 +42,11 @@ _delhdr(Fhdr *h)
 	else{
 		for(p=fhdrlist; p && p->next!=h; p=p->next)
 			;
-		if(p)
+		if(p){
 			p->next = h->next;
-		if(p->next == nil)
-			last = p;
+			if(p->next == nil)
+				last = p;
+		}
 	}
 	h->next = nil;
 }

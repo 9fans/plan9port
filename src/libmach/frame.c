@@ -87,8 +87,12 @@ stacktrace(Map *map, Regs *regs, Tracer trace)
 			break;
 		if(i < 0)
 			break;
-		if(sp && strcmp(sp->name, "main") == 0)
-			break;
+		if(sp){
+			if(strcmp(sp->name, "main") == 0
+			|| strcmp(sp->name, "procscheduler") == 0
+			|| strcmp(sp->name, "threadstart") == 0)
+				break;
+		}
 		pc = nextpc;
 		memmove(cur, next, mach->nwindreg*sizeof(cur[0]));
 	}

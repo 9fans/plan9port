@@ -232,8 +232,6 @@ int	elfsym(Elf*, int, ElfSym*);
 int	elfsymlookup(Elf*, char*, ulong*);
 int	elfmap(Elf*, ElfSect*);
 
-int	coreregslinux386(Elf*, ElfNote*, uchar**);
-int	coreregsfreebsd386(Elf*, ElfNote*, uchar**);
-int	corecmdlinux386(Elf*, ElfNote*, char**);
-int	corecmdfreebsd386(Elf*, ElfNote*, char**);
-void	elfdl386mapdl(void);
+struct Fhdr;
+void	elfcorelinux386(struct Fhdr*, Elf*, ElfNote*);
+void	elfdl386mapdl(int);

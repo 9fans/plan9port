@@ -26,11 +26,11 @@ alldigs(char *s)
  * attach to arguments in argc, argv
  */
 int
-attachargs(int argc, char **argv, int omode)
+attachargs(int argc, char **argv, int omode, int verbose)
 {
 	int i;
 	Fhdr *hdr;
-	char *s;
+	char *s, *t;
 
 	symhdr = nil;
 	corhdr = nil;
@@ -56,9 +56,9 @@ attachargs(int argc, char **argv, int omode)
 			fprint(2, "crackhdr %s: %r\n", argv[i]);
 			continue;
 		}
-		fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
+		if(verbose)
+			fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
 		if(hdr->ftype == FCORE){
-			fprint(2, "core cmd: %s\n", hdr->cmd);
 			if(corpid){
 				fprint(2, "already have corpid %d; ignoring core %s\n", corpid, argv[i]);
 				uncrackhdr(hdr);
@@ -90,10 +90,21 @@ attachargs(int argc, char **argv, int omode)
 				symfil = s;
 			}
 		}
-		if(corhdr){	/* try from core */
-			if(corhdr->txtfil != nil){
-				fprint(2, "core %s: text %s\n", corfil, corhdr->txtfil);
-				symfil = corhdr->txtfil;
+		if(corhdr && corhdr->cmdline){	/* try from core */
+			/*
+			 * prog gives only the basename of the command,
+			 * so try the command line for a path.
+			 */
+			if((s = strdup(corhdr->cmdline)) != nil){
+				t = strchr(s, ' ');
+				if(t)
+					*t = 0;
+				if((t = searchpath(s)) != nil){
+					if(verbose)
+						fprint(2, "core: text %s\n", t);
+					symfil = t;
+				}
+				free(s);
 			}
 		}
 		if((symhdr = crackhdr(symfil, omode)) == nil){
@@ -124,10 +135,10 @@ attachargs(int argc, char **argv, int omode)
 
 	if(corpid)	
 		attachproc(corpid);
-
 	if(corhdr)
 		attachcore(corhdr);
 
+	attachdynamic(verbose);
 	return 0;
 }
 
@@ -167,7 +178,7 @@ int
 attachcore(Fhdr *hdr)
 {
 	unattach();
-	if(corhdr == nil)
+	if(hdr == nil)
 		return 0;
 	if(mapfile(hdr, 0, cormap, &correg) < 0){
 		fprint(2, "attachcore %s: %r\n", hdr->filename);
@@ -180,10 +191,12 @@ attachcore(Fhdr *hdr)
 }
 
 int
-attachdynamic(void)
+attachdynamic(int verbose)
 {
-extern void elfdl386mapdl(void);
-	elfdl386mapdl();
+	extern void elfdl386mapdl(int);
+
+	if(mach && mach->type == M386 && symhdr && symhdr->elf)
+		elfdl386mapdl(verbose);
 	return 0;
 }
 
