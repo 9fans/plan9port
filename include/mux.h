@@ -22,7 +22,7 @@ struct Mux
 	void *aux;	/* for private use by client */
 
 /* private */
-	QLock lk;
+	QLock lk;	/* must be first for muxinit */
 	QLock inlk;
 	QLock outlk;
 	Rendez tagrend;

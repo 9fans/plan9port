@@ -19,7 +19,9 @@ static void dequeue(Mux*, Muxrpc*);
 void
 muxinit(Mux *mux)
 {
+	memset(&mux->lk, 0, sizeof(Mux)-offsetof(Mux, lk));
 	mux->tagrend.l = &mux->lk;
+	mux->rpcfork.l = &mux->lk;
 	mux->sleep.next = &mux->sleep;
 	mux->sleep.prev = &mux->sleep;
 }
