@@ -43,7 +43,6 @@ cd lib9
 9c  jmp.c
 9c  lrand.c
 9c  lnrand.c
-9c  lock-$SYSNAME.c
 9c  main.c
 9c  malloc.c
 9c  malloctag.c
@@ -64,7 +63,6 @@ cd lib9
 9c  quote.c
 9c  read9pmsg.c
 9c  readn.c
-9c  rendez-$SYSNAME.c
 9c  rfork.c
 9c  seek.c
 9c  sendfd.c
@@ -73,7 +71,6 @@ cd lib9
 9c  strecpy.c
 9c  sysfatal.c
 9c  sysname.c
-9a tas-$OBJTYPE.s || 9c tas-$OBJTYPE.c
 9c  time.c
 9c  tokenize.c
 9c  truerand.c
@@ -88,7 +85,7 @@ cd lib9
 9c  -Ifmt fmt/fmt.c
 9c  -Ifmt fmt/fmtfd.c
 9c  -Ifmt fmt/fmtfdflush.c
-9c  -Ifmt fmt/fmtlock.c
+9c  fmtlock2.c
 9c  -Ifmt fmt/fmtprint.c
 9c  -Ifmt fmt/fmtquote.c
 9c  -Ifmt fmt/fmtrune.c
@@ -142,20 +139,20 @@ cd libbio
 9c  bbuffered.c
 9c  bfildes.c
 9c  bflush.c
-9c  bfmt.c
 9c  bgetc.c
+9c  bgetrune.c
 9c  bgetd.c
 9c  binit.c
 9c  boffset.c
 9c  bprint.c
 9c  bputc.c
+9c  bputrune.c
 9c  brdline.c
 9c  brdstr.c
 9c  bread.c
 9c  bseek.c
+9c  bvprint.c
 9c  bwrite.c
-9c  bgetrune.c
-9c  bputrune.c
 9ar rvc $PLAN9/lib/libbio.a *.o
 cd ..
 cd libregexp
