@@ -1,5 +1,8 @@
 #include "threadimpl.h"
 
+#undef exits
+#undef _exits
+
 extern int __isthreaded;
 
 /*
