@@ -2,7 +2,7 @@
 
 LIB=libsec.a
 
-OFILES=\
+ALLOFILES=\
 	aes.$O\
 	blowfish.$O\
 	decodepem.$O\
@@ -53,6 +53,8 @@ OFILES=\
 	thumb.$O\
 	tlshand.$O\
 	x509.$O\
+
+OFILES=`{sh ./reduce $O $OBJTYPE $ALLOFILES}
 
 HFILES=$PLAN9/include/libsec.h
 

@@ -3,6 +3,8 @@ shift
 objtype=$1
 shift
 
-reduce="("`ls -p ../$objtype/*.[cs] 2>/dev/null | sed 's/..$//' | sed 's/^.*\///' | tr '\012' '|' | sed 's/.$//'`")"
+nl='
+'
+reduce="("`ls -p ../$objtype/*.[cs] 2>/dev/null | sed 's/..$//' | sed 's/^.*\///' | tr "$nl" '|' | sed 's/.$//'`")"
 
-echo $* | tr ' ' '\012' | egrep -v $reduce | tr \012 ' ' 
+echo $* | tr ' ' "$nl" | egrep -v $reduce | tr "$nl" ' ' 
