@@ -194,6 +194,7 @@ void
 threadmain(int argc, char *argv[])
 {
 	char *p, *font;
+	char buf[32];
 
 	rfork(RFNOTEG);
 	font = nil;
@@ -225,7 +226,10 @@ threadmain(int argc, char *argv[])
 	if(p != 0 && maxtab <= 0)
 		maxtab = strtoul(p, 0, 0);
 	if(maxtab <= 0)
-		maxtab = 8;
+		maxtab = 4;	/* be like rio */
+
+	snprint(buf, sizeof buf, "%d", maxtab);
+	putenv("tabstop", maxtab);
 
 	initdraw(0, nil, "9term");
 	notify(hangupnote);

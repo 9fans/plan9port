@@ -141,6 +141,8 @@ threadmain(int argc, char **argv)
 	if(ctlfd == 0 || fsread(ctlfd, buf, 12) != 12)
 		sysfatal("ctl: %r");
 	id = atoi(buf);
+	snprint(buf, sizeof buf, "%d", id);
+	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
 	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
 	write(fd, " Send Delete", 12);
