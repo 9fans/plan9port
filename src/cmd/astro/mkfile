@@ -36,4 +36,7 @@ OFILES=\
 HFILES=astro.h\
 
 SHORTLIB=bio 9
+
+CFLAGS= -DSYS9=\"$PLAN9\"
+
 <$PLAN9/src/mkone
