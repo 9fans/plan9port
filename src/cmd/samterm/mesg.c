@@ -646,10 +646,17 @@ hsetsnarf(int nc)
 	if(n >= 0){
 		if(!s1)
 			n = 0;
-		s1 = realloc(s1, n+1);
-		if (!s1)
-			panic("realloc");
-		s1[n] = 0;
+		if(n > 65535){
+			s1 = strdup("<snarf too long>");
+			if (!s1)
+				panic("strdup");
+			n = strlen(s1);
+		}else{
+			s1 = realloc(s1, n+1);
+			if (!s1)
+				panic("realloc");
+			s1[n] = 0;
+		}
 		snarflen = n;
 		outTs(Tsetsnarf, n);
 		if(n>0 && write(hostfd[1], s1, n)!=n)
