@@ -382,18 +382,6 @@ isexcluded(char *name)
 	return 0;
 }
 
-static int
-islink(char *name)
-{
-	struct stat st;
-
-	if(lstat(name, &st) < 0)
-		return 0;
-	if((st.st_mode&S_IFMT) == S_IFLNK)
-		return 1;
-	return 0;
-}
-
 static void
 vacfile(DirSink *dsink, char *lname, char *sname, VacFile *vf)
 {
@@ -410,9 +398,14 @@ vacfile(DirSink *dsink, char *lname, char *sname, VacFile *vf)
 	if(merge && vacmerge(dsink, lname, sname) >= 0)
 		return;
 
-	if(islink(sname))
+	if((dir = dirstat(sname)) == nil){
+		warn("could not stat file %s: %r", lname);
+	if(dir->mode&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET)){
+		free(dir);
 		return;
-
+	}
+	free(dir);
+	
 	fd = open(sname, OREAD);
 	if(fd < 0) {
 		warn("could not open file: %s: %r", lname);
