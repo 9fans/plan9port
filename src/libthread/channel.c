@@ -359,7 +359,7 @@ enqueue(Alt *a, Channel **c)
 {
 	int i;
 
-	_threaddebug(DBGCHAN, "Queuing alt %p on channel %p", a, a->c);
+	_threaddebug(DBGCHAN, "Queueing alt %p on channel %p", a, a->c);
 	a->tag = c;
 	i = emptyentry(a->c);
 	a->c->qentry[i] = a;

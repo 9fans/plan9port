@@ -52,12 +52,12 @@ _threadnrendez++;
 	t->rendval = val;
 	t->rendhash = *l;
 	*l = t;
-	t->nextstate = Rendezvous;
 	++nrendez;
 	if(nrendez > _threadhighnrendez)
 		_threadhighnrendez = nrendez;
-	_threaddebug(DBGREND, "Rendezvous for tag %lud", t->rendtag);
+	_threaddebug(DBGREND, "Rendezvous for tag %lud (m=%d)", t->rendtag, t->moribund);
 	unlock(&_threadrgrp.lock);
+	t->nextstate = Rendezvous;
 	_sched();
 	t->inrendez = 0;
 	_threaddebug(DBGREND, "Woke after rendezvous; val is %lud", t->rendval);

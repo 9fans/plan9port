@@ -15,6 +15,8 @@
 
 static char *exname;
 
+#define STACK 8192
+
 void
 getscreen(int argc, char **argv)
 {
@@ -163,7 +165,7 @@ extstart(void)
 	plumbc = chancreate(sizeof(int), 0);
 	arg[0] = plumbc;
 	arg[1] = (void*)fd;
-	proccreate(extproc, arg, 8192);
+	proccreate(extproc, arg, STACK);
 	atexit(removeextern);
 }
 
@@ -256,7 +258,7 @@ plumbstart(void)
 	}
 	arg[0] =plumbc;
 	arg[1] = &fd;
-	proccreate(plumbproc, arg, 4096);
+	proccreate(plumbproc, arg, STACK);
 	return 1;
 }
 #endif
@@ -293,5 +295,5 @@ void
 hoststart(void)
 {
 	hostc = chancreate(sizeof(int), 0);
-	proccreate(hostproc, hostc, 1024);
+	proccreate(hostproc, hostc, STACK);
 }

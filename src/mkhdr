@@ -5,6 +5,7 @@ X11=/usr/X11R6
 CC=9c
 LD=9l
 AS=9a
+AR=9ar
 CFLAGS=
 LDFLAGS=
 AFLAGS=

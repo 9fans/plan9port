@@ -119,6 +119,6 @@ CFLAGS=$CFLAGS -I$X11/include
 
 <$PLAN9/src/mksyslib
 
-test: test.o $LIB
-	gcc -o test test.o -L$PLAN9 -ldraw -l9 -lfmt -lutf -L$X11/lib -lX11 -lm
+test: test.o $PLAN9/lib/$LIB
+	gcc -o test test.o -L$PLAN9/lib -ldraw -l9 -lfmt -lutf -L$X11/lib -lX11 -lm
 

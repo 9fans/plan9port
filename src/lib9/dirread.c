@@ -11,12 +11,16 @@
 
 extern int _p9dir(struct stat*, char*, Dir*, char**, char*);
 
-#if !defined(_HAVEGETDENTS) && defined(_HAVEGETDIRENTRIES)
+/* everyone has getdirentries, just use that */
 static int
-getdents(int fd, char *buf, int n)
+mygetdents(int fd, char *buf, int n)
 {
 	ssize_t nn;
+#if _GETDIRENTRIES_TAKES_LONG
+	long off;
+#else
 	off_t off;
+#endif
 
 	off = seek(fd, 0, 1);
 	nn = getdirentries(fd, buf, n, &off);
@@ -24,7 +28,6 @@ getdents(int fd, char *buf, int n)
 		seek(fd, off, 0);
 	return nn;
 }
-#endif
 
 static int
 countde(char *p, int n)
@@ -123,7 +126,7 @@ dirread(int fd, Dir **dp)
 	if(buf == nil)
 		return -1;
 
-	n = getdents(fd, (void*)buf, st.st_blksize);
+	n = mygetdents(fd, (void*)buf, st.st_blksize);
 	if(n < 0){
 		free(buf);
 		return -1;
@@ -156,7 +159,7 @@ dirreadall(int fd, Dir **d)
 			return -1;
 		}
 		buf = nbuf;
-		n = getdents(fd, (void*)(buf+ts), st.st_blksize);
+		n = mygetdents(fd, (void*)(buf+ts), st.st_blksize);
 		if(n <= 0)
 			break;
 		ts += n;

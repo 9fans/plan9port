@@ -16,6 +16,7 @@ procexec(Channel *pidc, char *prog, char *args[])
 	if(p->threads.head != t || p->threads.head->nextt != nil){
 		werrstr("not only thread in proc");
 	Bad:
+		_threaddebug(DBGEXEC, "procexec bad %r");
 		if(pidc)
 			sendul(pidc, ~0);
 		return;
@@ -34,6 +35,8 @@ procexec(Channel *pidc, char *prog, char *args[])
 	 * pipe to us.
 	 */
 	if(pipe(p->exec.fd) < 0)
+		goto Bad;
+	if(fcntl(p->exec.fd[0], F_SETFD, 1) < 0)
 		goto Bad;
 	if(fcntl(p->exec.fd[1], F_SETFD, 1) < 0)
 		goto Bad;
@@ -57,6 +60,7 @@ procexec(Channel *pidc, char *prog, char *args[])
 	if(pidc)
 		sendul(pidc, t->ret);
 
+	_threaddebug(DBGEXEC, "procexec schedexecwait");
 	/* wait for exec'ed program, then exit */
 	_schedexecwait();
 }
@@ -105,8 +109,7 @@ efork(void *ve)
 	Execargs *e;
 
 	e = ve;
-	_threaddebug(DBGEXEC, "_schedexec %s", e->prog);
-	close(e->fd[0]);
+	_threaddebug(DBGEXEC, "_schedexec %s -- calling execv", e->prog);
 	execv(e->prog, e->args);
 	_threaddebug(DBGEXEC, "_schedexec failed: %r");
 	rerrstr(buf, sizeof buf);
@@ -120,5 +123,12 @@ efork(void *ve)
 int
 _schedexec(Execargs *e)
 {
-	return ffork(RFFDG|RFPROC|RFMEM, efork, e);
+	int pid;
+
+	pid = fork();
+	if(pid == 0){
+		efork(e);
+		_exit(1);
+	}
+	return pid;
 }

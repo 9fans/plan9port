@@ -16,6 +16,7 @@
 #define	TRUE		1
 #define	FALSE		0
 
+#undef INFINITY	/* Darwin declares this as HUGE_VAL */
 #define	INFINITY	0x7FFFFFFFL
 #define	INCR		25
 #define	STRSIZE		(2*BLOCKSIZE)

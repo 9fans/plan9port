@@ -72,7 +72,7 @@ it:V: all
 <$PLAN9/src/mkmany
 
 $SLIB: $LIBOFILES
-	ar rvc $SLIB $LIBOFILES
+	$AR rvc $SLIB $LIBOFILES
 
 # xml.c:D:	mkxml dat.h
 # 	./mkxml dat.h > xml.c

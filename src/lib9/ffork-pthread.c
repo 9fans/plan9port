@@ -1,4 +1,6 @@
-#include <lib9.h>
+#define NOPLAN9DEFINES
+#include <u.h>
+#include <libc.h>
 #include <pthread.h>
 
 extern int __isthreaded;

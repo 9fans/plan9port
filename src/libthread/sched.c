@@ -41,6 +41,8 @@ _schedinit(void *arg)
 	if((t=p->thread) != nil){
 		p->thread = nil;
 		if(t->moribund){
+			if(t->moribund != 1)
+				fprint(2, "moribund %d\n", t->moribund);
 			assert(t->moribund == 1);
 			t->state = Dead;
 			if(t->prevt)

@@ -6,7 +6,7 @@
 char	errbuf[ERRMAX];
 int	ignerr = 0;
 
-void
+static void
 err(char *f)
 {
 	if(!ignerr){

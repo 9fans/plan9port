@@ -6,7 +6,7 @@
  * r3 contains return value upon return.
  */
 int
-_tas(void *x)
+_tas(int *x)
 {
 	int     v;
 	/*
@@ -36,7 +36,7 @@ _tas(void *x)
 	switch(v) {
 	case 0:		return 0;
 	case 0xdeaddead: return 1;
-	default:	print("tas: corrupted 0x%lux\n", v);
+	default:	fprint(2, "tas: corrupted 0x%lux\n", v);
 	}
 	return 0;
 }
