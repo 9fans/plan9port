@@ -23,11 +23,11 @@ memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp,
 
 	/* only fetch dst data if we need it */
 	if((par->state&(Simplemask|Fullmask)) != (Simplemask|Fullmask))
-		_xgetxdata(dst, par->r);
+		_xgetxdata(par->dst, par->r);
 
 	/* always fetch source and mask */
-	_xgetxdata(src, par->sr);
-	_xgetxdata(mask, par->mr);
+	_xgetxdata(par->src, par->sr);
+	_xgetxdata(par->mask, par->mr);
 
 	/* now can run memimagedraw on the in-memory bits */
 	_memimagedraw(par);
@@ -36,7 +36,7 @@ memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp,
 		return;
 
 	/* put bits back on x server */
-	_xputxdata(dst, par->r);
+	_xputxdata(par->dst, par->r);
 }
 
 static int

@@ -45,9 +45,7 @@ _ioproc(void *arg)
 	fd = XConnectionNumber(_x.kbdcon);
 	XSelectInput(_x.kbdcon, _x.drawable, KeyPressMask);
 	for(;;){
-		while(XCheckWindowEvent(_x.kbdcon, _x.drawable, KeyPressMask, &xevent) == False){
-			threadfdwait(fd, 'r');
-		}
+		XWindowEvent(_x.kbdcon, _x.drawable, KeyPressMask, &xevent);
 		switch(xevent.type){
 		case KeyPress:
 			i = _xtoplan9kbd(&xevent);
@@ -69,12 +67,12 @@ initkeyboard(char *file)
 {
 	Keyboardctl *kc;
 
-	threadfdwaitsetup();
 	kc = mallocz(sizeof(Keyboardctl), 1);
 	if(kc == nil)
 		return nil;
 	kc->c = chancreate(sizeof(Rune), 20);
-	threadcreate(_ioproc, kc, 32768);
+	chansetname(kc->c, "kbdc");
+	proccreate(_ioproc, kc, 32768);
 	return kc;
 }
 

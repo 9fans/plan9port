@@ -10,7 +10,7 @@ int	_drawdebug;
 static char deffontname[] = "*default*";
 Screen	*_screen;
 
-int		debuglockdisplay = 0;
+int		debuglockdisplay = 1;
 
 static void
 drawshutdown(void)
@@ -34,6 +34,7 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 	if(display == nil)
 		return -1;
 
+	lockdisplay(display);
 	display->image = display->screenimage;
 	screen = display->screenimage;
 
@@ -113,7 +114,6 @@ closedisplay(Display *disp)
 	free(disp->windir);
 	freeimage(disp->white);
 	freeimage(disp->black);
-	qunlock(&disp->qlock);
 	free(disp);
 }
 

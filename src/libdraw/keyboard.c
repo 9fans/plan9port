@@ -91,6 +91,7 @@ Error2:
 	}
 	free(t);
 	kc->c = chancreate(sizeof(Rune), 20);
+	chansetname(kc->c, "kbdc");
 	proccreate(_ioproc, kc, 4096);
 	return kc;
 }

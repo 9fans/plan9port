@@ -50,7 +50,7 @@ static
 void
 _ioproc(void *arg)
 {
-	int fd, one;
+	int fd, one, buttons;
 	Atom a;
 	ulong mask;
 	Mouse m;
@@ -65,9 +65,8 @@ _ioproc(void *arg)
 	mask = MouseMask|ExposureMask|StructureNotifyMask;
 	XSelectInput(_x.mousecon, _x.drawable, mask);
 	fd = XConnectionNumber(_x.mousecon);
+	buttons = 0;
 	for(;;){
-		while(XPending(_x.mousecon) == False)
-			threadfdwait(fd, 'r');
 		XNextEvent(_x.mousecon, &xevent);
 		switch(xevent.type){
 		case Expose:
@@ -94,14 +93,16 @@ _ioproc(void *arg)
 		case ButtonRelease:
 		case MotionNotify:
 			/* If the motion notifications are backing up, skip over some. */
-			if(xevent.type == MotionNotify){
+			if(0 && xevent.type == MotionNotify){
 				while(XCheckWindowEvent(_x.mousecon, _x.drawable, MouseMask, &xevent)){
 					if(xevent.type != MotionNotify)
 						break;
 				}
 			}
+			m.buttons = buttons;
 			if(_xtoplan9mouse(_x.mousecon, &xevent, &m) < 0)
 				continue;
+			buttons = m.buttons;
 			send(mc->c, &m);
 			/*
 			 * mc->Mouse is updated after send so it doesn't have wrong value if we block during send.
@@ -133,13 +134,14 @@ initmouse(char *file, Image *i)
 {
 	Mousectl *mc;
 
-	threadfdwaitsetup();
 	mc = mallocz(sizeof(Mousectl), 1);
 	if(i)
 		mc->display = i->display;
 	mc->c = chancreate(sizeof(Mouse), 0);
+	chansetname(mc->c, "mousec");
 	mc->resizec = chancreate(sizeof(int), 2);
-	threadcreate(_ioproc, mc, 32768);
+	chansetname(mc->resizec, "resizec");
+	proccreate(_ioproc, mc, 32768);
 	return mc;
 }
 
