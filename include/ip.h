@@ -3,6 +3,7 @@
 #if defined(__cplusplus)
 extern "C" { 
 #endif
+
 /*
 #pragma	src	"/sys/src/libip"
 #pragma	lib	"libip.a"
@@ -106,9 +107,11 @@ long	udpwrite(int, Udphdr*, void*, long);
 
 Ipifc*	readipifc(char*, Ipifc*, int);
 
+void	hnputv(void*, uvlong);
 void	hnputl(void*, uint);
 void	hnputs(void*, ushort);
 uint	nhgetl(void*);
+uvlong	nhgetv(void*);
 ushort	nhgets(void*);
 ushort	ptclbsum(uchar*, int);
 

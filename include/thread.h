@@ -13,11 +13,13 @@ void		threadexits(char *);
 void		threadexitsall(char *);
 void		threadsetname(char*, ...);
 void		threadsetstate(char*, ...);
+void		threadyield(void);
 void		_threadready(_Thread*);
 void		_threadswitch(void);
 void		_threadsetsysproc(void);
 void		_threadsleep(Rendez*);
 _Thread	*_threadwakeup(Rendez*);
+#define	yield		threadyield
 
 /*
  * per proc and thread data

@@ -715,8 +715,8 @@ extern	int	unmount(char*, char*);
 */
 extern	int	noted(int);
 extern	int	notify(void(*)(void*, char*));
-extern	void	notifyenable(char*);
-extern	void	notifydisable(char*);
+extern	void	noteenable(char*);
+extern	void	notedisable(char*);
 extern	void	notifyon(char*);
 extern	void	notifyoff(char*);
 extern	int	p9open(char*, int);

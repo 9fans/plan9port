@@ -235,6 +235,7 @@ ulong			hdate2sec(char*);
 int			hdatefmt(Fmt*);
 int			hfail(HConnect*, int, ...);
 int			hflush(Hio*);
+int			hlflush(Hio*);
 int			hgetc(Hio*);
 int			hgethead(HConnect *c, int many);
 int			hinit(Hio*, int, int);

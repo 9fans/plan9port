@@ -199,6 +199,7 @@ void	rc4back(RC4state*, int);
 /////////////////////////////////////////////////////////
 typedef struct RSApub RSApub;
 typedef struct RSApriv RSApriv;
+typedef struct PEMChain PEMChain;
 
 // public/encryption key
 struct RSApub
@@ -222,6 +223,13 @@ struct RSApriv
 	mpint	*c2;	// (inv p) mod q
 };
 
+struct PEMChain
+{
+	PEMChain *next;
+	uchar *pem;
+	int pemlen;
+};
+
 RSApriv*	rsagen(int nlen, int elen, int rounds);
 mpint*		rsaencrypt(RSApub *k, mpint *in, mpint *out);
 mpint*		rsadecrypt(RSApriv *k, mpint *in, mpint *out);
@@ -232,7 +240,8 @@ void		rsaprivfree(RSApriv*);
 RSApub*		rsaprivtopub(RSApriv*);
 RSApub*		X509toRSApub(uchar*, int, char*, int);
 RSApriv*	asn1toRSApriv(uchar*, int);
-uchar*		decodepem(char *s, char *type, int *len);
+uchar*		decodepem(char *s, char *type, int *len, char**);
+PEMChain*	decodepemchain(char *s, char *type);
 uchar*		X509gen(RSApriv *priv, char *subj, ulong valid[2], int *certlen);
 
 /////////////////////////////////////////////////////////
@@ -330,6 +339,7 @@ typedef struct TLSconn{
 	uchar *sessionID;
 	int certlen, sessionIDlen;
 	int (*trace)(char*fmt, ...);
+	PEMChain *chain;
 } TLSconn;
 
 // tlshand.c
@@ -343,6 +353,7 @@ extern int okThumbprint(uchar *sha1, Thumbprint *ok);
 
 // readcert.c
 extern uchar *readcert(char *filename, int *pcertlen);
+PEMChain *readcertchain(char *filename);
 
 #if defined(__cplusplus)
 }
