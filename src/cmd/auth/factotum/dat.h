@@ -9,6 +9,8 @@ enum
 	RpcRead,
 	RpcStart,
 	RpcWrite,
+	RpcReadHex,
+	RpcWriteHex,
 
 	/* thread stack size - big buffers for printing */
 	STACK = 65536,
@@ -27,6 +29,7 @@ struct Rpc
 	int op;
 	void *data;
 	int count;
+	int hex;	/* should result of read be turned into hex? */
 };
 
 struct Conv
@@ -214,9 +217,10 @@ extern int		xiowrite(int, void*, int);
 extern int		xioasrdresp(int, void*, int);
 extern int		xioasgetticket(int, char*, char*);
 
-/* pkcs1.c */
+/* pkcs1.c - maybe should be in libsec */
 typedef DigestState *DigestAlg(uchar*, ulong, uchar*, DigestState*);
 int	rsasign(RSApriv*, DigestAlg*, uchar*, uint, uchar*, uint);
+int	rsaverify(RSApub*, DigestAlg*, uchar*, uint, uchar*, uint);
 void	mptoberjust(mpint*, uchar*, uint);
 
 

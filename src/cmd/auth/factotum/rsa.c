@@ -4,65 +4,116 @@
 /*
  * RSA authentication.
  * 
- * Client:
+ * Encrypt/Decrypt:
  *	start n=xxx ek=xxx
  *	write msg
- *	read decrypt(msg)
+ *	read encrypt/decrypt(msg)
  *
  * Sign (PKCS #1 using hash=sha1 or hash=md5)
  *	start n=xxx ek=xxx
  *	write hash(msg)
  *	read signature(hash(msg))
  * 
+ * Verify:
+ *	start n=xxx ek=xxx
+ *	write hash(msg)
+ *	write signature(hash(msg))
+ *	read ok or fail
+ *
  * all numbers are hexadecimal biginits parsable with strtomp.
  * must be lower case for attribute matching in start.
  */
 
 static int
-rsaclient(Conv *c)
+xrsadecrypt(Conv *c)
 {
-	char *chal;
-	mpint *m;
+	char *txt, buf[4096], *role;
+	int n, ret;
+	mpint *m, *mm;
 	Key *k;
+	RSApriv *key;
 
+	ret = -1;
+	txt = nil;
+	m = nil;
+	mm = nil;
+
+	/* fetch key */
+	c->state = "keylookup";
 	k = keylookup("%A", c->attr);
 	if(k == nil)
-		return -1;
-	c->state = "read challenge";
-	if(convreadm(c, &chal) < 0){
-		keyclose(k);
-		return -1;
+		goto out;
+	key = k->priv;
+	
+	/* make sure have private half if needed */
+	role = strfindattr(c->attr, "role");
+	if(strcmp(role, "decrypt") == 0 && !key->c2){
+		werrstr("missing private half of key -- cannot decrypt");
+		goto out;
 	}
-	if(strlen(chal) < 32){
-	badchal:
-		free(chal);
-		convprint(c, "bad challenge");
-		keyclose(k);
-		return -1;
+	
+	/* read text */
+	c->state = "read";
+	if((n=convreadm(c, &txt)) < 0)
+		goto out;
+	if(n < 32){
+		convprint(c, "data too short");
+		goto out;
 	}
-	m = strtomp(chal, nil, 16, nil);
+	
+	/* encrypt/decrypt */
+	m = betomp(txt, n, nil);
 	if(m == nil)
-		goto badchal;
-	free(chal);
-	m = rsadecrypt(k->priv, m, m);
-	convprint(c, "%B", m);
+		goto out;
+	if(strcmp(role, "decrypt") == 0)
+		mm = rsadecrypt(key, m, m);
+	else
+		mm = rsaencrypt(&key->pub, m, nil);
+	if(mm == nil)
+		goto out;
+	n = mptobe(m, buf, sizeof buf, nil);
+	
+	/* send response */
+	c->state = "write";
+	convwrite(c, buf, n);
+	ret = 0;
+
+out:
 	mpfree(m);
+	mpfree(mm);
 	keyclose(k);
-	return 0;
+	free(txt);
+	return ret;
 }
 
 static int
 xrsasign(Conv *c)
 {
-	char *hash;
-	int dlen, n;
+	char *hash, *role;
+	int dlen, n, ret;
 	DigestAlg *hashfn;
 	Key *k;
+	RSApriv *key;
 	uchar sig[1024], digest[64];
+	char *sig2;
 
+	ret = -1;
+	
+	/* fetch key */
+	c->state = "keylookup";
 	k = keylookup("%A", c->attr);
 	if(k == nil)
-		return -1;
+		goto out;
+
+	/* make sure have private half if needed */
+	key = k->priv;
+	role = strfindattr(c->attr, "role");
+	if(strcmp(role, "sign") == 0 && !key->c2){
+		werrstr("missing private half of key -- cannot sign");
+		goto out;
+	}
+	
+	/* get hash type from key */
 	hash = strfindattr(k->attr, "hash");
 	if(hash == nil)
 		hash = "sha1";
@@ -74,20 +125,38 @@ xrsasign(Conv *c)
 		dlen = MD5dlen;
 	}else{
 		werrstr("unknown hash function %s", hash);
-		return -1;
+		goto out;
 	}
-	c->state = "read data";
-	if((n=convread(c, digest, dlen)) < 0){
-		keyclose(k);
-		return -1;
+
+	/* read hash */
+	c->state = "read hash";
+	if((n=convread(c, digest, dlen)) < 0)
+		goto out;
+
+	if(strcmp(role, "sign") == 0){
+		/* sign */
+		if((n=rsasign(key, hashfn, digest, dlen, sig, sizeof sig)) < 0)
+			goto out;
+
+		/* write */
+		convwrite(c, sig, n);
+	}else{
+		/* read signature */
+		if((n = convreadm(c, &sig2)) < 0)
+			goto out;
+			
+		/* verify */
+		if(rsaverify(&key->pub, hashfn, digest, dlen, (uchar*)sig2, n) == 0)
+			convprint(c, "ok");
+		else
+			convprint(c, "signature does not verify");
+		free(sig2);
 	}
-	memset(sig, 0xAA, sizeof sig);
-	n = rsasign(k->priv, hashfn, digest, dlen, sig, sizeof sig);
+	ret = 0;
+
+out:
 	keyclose(k);
-	if(n < 0)
-		return -1;	
-	convwrite(c, sig, n);
-	return 0;
+	return ret;
 }
 
 /*
@@ -119,6 +188,9 @@ readrsapriv(Key *k)
 	|| (priv->pub.n=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
+	if(k->privattr == nil)	/* only public half */
+		return priv;
+
 	if((a=strfindattr(k->privattr, "!p"))==nil 
 	|| (priv->p=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
@@ -177,8 +249,10 @@ rsaclose(Key *k)
 static Role
 rsaroles[] = 
 {
-	"client",	rsaclient,
 	"sign",	xrsasign,
+	"verify",	xrsasign,	/* public operation */
+	"decrypt",	xrsadecrypt,
+	"encrypt",	xrsadecrypt,	/* public operation */
 	0
 };
 

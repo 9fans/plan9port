@@ -40,6 +40,8 @@ char *rpcname[] =
 	"read",
 	"start",
 	"write",
+	"readhex",
+	"writehex",
 };
 
 static int
@@ -153,7 +155,20 @@ rpcexec(Conv *c)
 {
 	uchar *p;
 
+	c->rpc.hex = 0;
 	switch(c->rpc.op){
+	case RpcWriteHex:
+		c->rpc.op = RpcWrite;
+		if(dec16(c->rpc.data, c->rpc.count, c->rpc.data, c->rpc.count) != c->rpc.count/2){
+			rpcrespond(c, "bad hex");
+			break;
+		}
+		c->rpc.count /= 2;
+		goto Default;
+	case RpcReadHex:
+		c->rpc.hex = 1;
+		c->rpc.op = RpcRead;
+		/* fall through */
 	case RpcRead:
 		if(c->rpc.count > 0){
 			rpcrespond(c, "error read takes no parameters");
@@ -161,6 +176,7 @@ rpcexec(Conv *c)
 		}
 		/* fall through */
 	default:
+	Default:
 		if(!c->active){
 			if(c->done)
 				rpcrespond(c, "done");
@@ -224,11 +240,18 @@ void
 rpcrespondn(Conv *c, char *verb, void *data, int count)
 {
 	char *p;
+	int need, hex;
 
 	if(c->hangup)
 		return;
 
-	if(strlen(verb)+1+count > sizeof c->reply){
+	need = strlen(verb)+1+count;
+	hex = 0;
+	if(c->rpc.hex && strcmp(verb, "ok") == 0){
+		need += count;
+		hex = 1;
+	}
+	if(need > sizeof c->reply){
 		print("RPC response too large; caller %#lux", getcallerpc(&c));
 		return;
 	}
@@ -236,8 +259,14 @@ rpcrespondn(Conv *c, char *verb, void *data, int count)
 	strcpy(c->reply, verb);
 	p = c->reply + strlen(c->reply);
 	*p++ = ' ';
-	memmove(p, data, count);
-	c->nreply = count + (p - c->reply);
+	if(hex){
+		enc16(p, 2*count, data, count);
+		p += 2*count;
+	}else{
+		memmove(p, data, count);
+		p += count;
+	}
+	c->nreply = p - c->reply;
 	(*c->kickreply)(c);
 	c->rpc.op = RpcUnknown;
 }

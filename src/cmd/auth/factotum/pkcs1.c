@@ -36,7 +36,7 @@ rsasign(RSApriv *key, DigestAlg *hash, uchar *digest, uint dlen,
 	/*
 	 * Create number to sign.
 	 */
-	len = (mpsignif(key->pub.n)+7)/8;
+	len = (mpsignif(key->pub.n)+7)/8 - 1;
 	if(len < n+2){
 		werrstr("rsa key too short");
 		return -1;
@@ -65,9 +65,41 @@ rsasign(RSApriv *key, DigestAlg *hash, uchar *digest, uint dlen,
 	mpfree(m);
 	if(s == nil)
 		return -1;
-	mptoberjust(s, sig, len);
+	mptoberjust(s, sig, len+1);
 	mpfree(s);
-	return len;
+	return len+1;
+}
+
+int
+rsaverify(RSApub *key, DigestAlg *hash, uchar *digest, uint dlen,
+	uchar *sig, uint siglen)
+{
+	uchar asn1[64], xasn1[64];
+	int n, nn;
+	mpint *m, *s;
+
+	/*
+	 * Create ASN.1
+	 */
+	n = mkasn1(asn1, hash, digest, dlen);
+
+	/*
+	 * Extract plaintext of signature.
+	 */
+	s = betomp(sig, siglen, nil);
+	if(s == nil)
+		return -1;
+	m = rsaencrypt(key, s, nil);
+	mpfree(s);
+	if(m == nil)
+		return -1;
+	nn = mptobe(m, xasn1, sizeof xasn1, nil);
+	mpfree(m);
+	if(n != nn || memcmp(asn1, xasn1, n) != 0){
+		werrstr("signature did not verify");
+		return -1;
+	}
+	return 0;
 }
 
 /*
@@ -116,6 +148,15 @@ uchar oidmd5[] = { O0(1, 2), O2(840), O3(113549), 2, 5 };
  *		digestAlgorithm AlgorithmIdentifier,
  *		digest OCTET STRING
  *	}
+ *
+ * except that OpenSSL seems to sign
+ *
+ *	DigestInfo ::= SEQUENCE {
+ *		SEQUENCE{ digestAlgorithm AlgorithmIdentifier, NULL }
+ *		digest OCTET STRING
+ *	}
+ *
+ * instead.  Sigh.
  */
 static int
 mkasn1(uchar *asn1, DigestAlg *alg, uchar *d, uint dlen)
@@ -138,17 +179,25 @@ mkasn1(uchar *asn1, DigestAlg *alg, uchar *d, uint dlen)
 	*p++ = 0x30;	/* sequence */
 	p++;
 	
+	*p++ = 0x30;	/* another sequence */
+	p++;
+
 	*p++ = 0x06;	/* object id */
 	*p++ = olen;
 	memmove(p, obj, olen);
 	p += olen;
+	
+	*p++ = 0x05;	/* null */
+	*p++ = 0;
+	
+	asn1[3] = p - (asn1+4);	/* end of inner sequence */
 	
 	*p++ = 0x04;	/* octet string */
 	*p++ = dlen;
 	memmove(p, d, dlen);
 	p += dlen;
 
-	asn1[1] = p - (asn1+2);
+	asn1[1] = p - (asn1+2);	/* end of outer sequence */
 	return p-asn1;
 }
 

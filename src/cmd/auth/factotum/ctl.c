@@ -40,6 +40,9 @@ ctlwrite(char *a)
 	Key *k;
 	Proto *proto;
 
+	while(*a == ' ' || *a == '\t' || *a == '\n')
+		a++;
+
 	if(a[0] == '#' || a[0] == '\0')
 		return 0;
 
@@ -63,7 +66,7 @@ ctlwrite(char *a)
 		*p++ = '\0';
 	switch(classify(a)){
 	default:
-		werrstr("unknown verb");
+		werrstr("unknown verb %s", a);
 		return -1;
 	case 0:	/* key */
 		attr = parseattr(p);

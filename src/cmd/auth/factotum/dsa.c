@@ -23,7 +23,7 @@ xdsasign(Conv *c)
 {
 	int n;
 	mpint *m;
-	uchar digest[SHA1dlen];
+	uchar digest[SHA1dlen], sigblob[20+20];
 	DSAsig *sig;
 	Key *k;
 
@@ -46,7 +46,13 @@ xdsasign(Conv *c)
 	mpfree(m);
 	if(sig == nil)
 		return -1;
-	convprint(c, "%B %B", sig->r, sig->s);
+	if(mpsignif(sig->r) > 20*8 || mpsignif(sig->s) > 20*8){
+		werrstr("signature too long");
+		return -1;
+	}
+	mptoberjust(sig->r, sigblob, 20);
+	mptoberjust(sig->s, sigblob+20, 20);
+	convwrite(c, sigblob, sizeof sigblob);
 	dsasigfree(sig);
 	return 0;
 }
@@ -80,11 +86,11 @@ readdsapriv(Key *k)
 	|| (priv->pub.q=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "alpha"))==nil 
+	if((a=strfindattr(k->attr, "alpha"))==nil 
 	|| (priv->pub.alpha=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "key"))==nil 
+	if((a=strfindattr(k->attr, "key"))==nil 
 	|| (priv->pub.key=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);

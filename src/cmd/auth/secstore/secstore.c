@@ -494,7 +494,9 @@ main(int argc, char **argv)
 	char *serve, *tcpserve, *user;
 	AuthConn *c;
 
-	serve = "$auth";
+	serve = getenv("secstore");
+	if(serve == nil)
+		serve = "secstore";
 	user = getuser();
 	memset(Gflag, 0, sizeof Gflag);
 	fmtinstall('B', mpfmt);
@@ -559,14 +561,8 @@ main(int argc, char **argv)
 		exits("usage");
 	}
 
-	rc = strlen(serve)+sizeof("tcp!!99990");
-	tcpserve = emalloc(rc);
-	if(strchr(serve,'!'))
-		strcpy(tcpserve, serve);
-	else
-		snprint(tcpserve, rc, "tcp!%s!5356", serve);
+	tcpserve = netmkaddr(serve, "tcp", "secstore");
 	c = login(user, tcpserve, pass_stdin, pass_nvram);
-	free(tcpserve);
 	if(c == nil){
 		fprint(2, "secstore authentication failed\n");
 		exits("secstore authentication failed");
