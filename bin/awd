@@ -14,7 +14,7 @@ case $# in
 	sys=$1
 	;;
 0)
-	sys=`hostname`
+	sys=`hostname -s`
 	;;
 *)
 	usage
