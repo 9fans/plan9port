@@ -23,11 +23,13 @@ long	modified = 0;		/* strange lookahead for menus */
 char	hostlock = 1;
 char	hasunlocked = 0;
 int	maxtab = 8;
+int	chord;
+int	autoindent;
 
 void
 threadmain(int argc, char *argv[])
 {
-	int i, got, scr;
+	int i, got, scr, w;
 	Text *t;
 	Rectangle r;
 	Flayer *nwhich;
@@ -98,7 +100,11 @@ dup(2, 1);
 			scr = which && ptinrect(mousep->xy, which->scroll);
 			if(mousep->buttons)
 				flushtyping(1);
-			if(mousep->buttons&1){
+			if(chord==1 && !mousep->buttons)
+				chord = 0;
+			if(chord)
+				chord |= mousep->buttons;
+			else if(mousep->buttons&1){
 				if(nwhich){
 					if(nwhich!=which)
 						current(nwhich);
@@ -111,6 +117,8 @@ dup(2, 1);
 							t->lock++;
 						}else if(t!=&cmd)
 							outcmd();
+						if(mousep->buttons&1)
+							chord = mousep->buttons;
 					}
 				}
 			}else if((mousep->buttons&2) && which){
@@ -126,9 +134,21 @@ dup(2, 1);
 			}
 			mouseunblock();
 		}
+		if(chord){
+			t = (Text*)which->user1;
+			if(!t->lock && !hostlock){
+				w = which-t->l;
+				if(chord&2){
+					cut(t, w, 1, 1);
+					chord &= ~2;
+				}else if(chord&4){
+					paste(t, w);
+					chord &= ~4;
+				}
+			}
+		}
 	}
 }
-
 
 void
 resize(void)
@@ -394,7 +414,7 @@ center(Flayer *l, long a)
 }
 
 int
-onethird(Flayer *l, long a)
+thirds(Flayer *l, long a, int n)
 {
 	Text *t;
 	Rectangle s;
@@ -405,13 +425,25 @@ onethird(Flayer *l, long a)
 		if(a > t->rasp.nrunes)
 			a = t->rasp.nrunes;
 		s = insetrect(l->scroll, 1);
-		lines = ((s.max.y-s.min.y)/l->f.font->height+1)/3;
+		lines = (n*(s.max.y-s.min.y)/l->f.font->height+1)/3;
 		if (lines < 2)
 			lines = 2;
 		outTsll(Torigin, t->tag, a, lines);
 		return 1;
 	}
 	return 0;
+}
+
+int
+onethird(Flayer *l, long a)
+{
+	return thirds(l, a, 1);
+}
+
+int
+twothirds(Flayer *l, long a)
+{
+	return thirds(l, a, 2);
 }
 
 void
@@ -495,7 +527,20 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 			}
 		}
 		*p++ = c;
-		if(c == '\n' || p >= buf+sizeof(buf)/sizeof(buf[0]))
+		if(autoindent)
+		if(c == '\n'){
+			/* autoindent */
+			int cursor, ch;
+			cursor = ctlu(&t->rasp, 0, a+(p-buf)-1);
+			while(p < buf+nelem(buf)){
+				ch = raspc(&t->rasp, cursor++);
+				if(ch == ' ' || ch == '\t')
+					*p++ = ch;
+				else
+					break;
+			}
+		}
+		if(c == '\n' || p >= buf+nelem(buf))
 			break;
 	}
 	if(p > buf){

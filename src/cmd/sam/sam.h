@@ -295,7 +295,7 @@ void	settempfile(void);
 int	skipbl(void);
 void	snarf(File*, Posn, Posn, Buffer*, int);
 void	sortname(File*);
-void	startup(char*, int, char**, char**, char**);
+void	startup(char*, int, char**, char**);
 void	state(File*, int);
 int	statfd(int, ulong*, uvlong*, long*, long*, long*);
 int	statfile(char*, ulong*, uvlong*, long*, long*, long*);

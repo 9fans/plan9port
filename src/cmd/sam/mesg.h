@@ -66,7 +66,7 @@ typedef enum Hmesg
 	Hsnarflen,	/* report length of implicit snarf */
 	Hack,		/* request acknowledgement */
 	Hexit,
-	Hplumb,		/* return plumb message to terminal */
+	Hplumb,		/* return plumb message to terminal - version 1 */
 	HMAX,
 }Hmesg;
 typedef struct Header{

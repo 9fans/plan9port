@@ -176,7 +176,7 @@ int	remotefd0 = 0;
 int	remotefd1 = 1;
 
 void
-bootterm(char *machine, char **argv, char **end)
+bootterm(char *machine, char **argv)
 {
 	int ph2t[2], pt2h[2];
 
@@ -186,7 +186,6 @@ bootterm(char *machine, char **argv, char **end)
 		close(remotefd0);
 		close(remotefd1);
 		argv[0] = "samterm";
-		*end = 0;
 		execvp(samterm, argv);
 		fprint(2, "can't exec %s: %r\n", samterm);
 		_exits("damn");
@@ -202,7 +201,6 @@ bootterm(char *machine, char **argv, char **end)
 		close(pt2h[0]);
 		close(pt2h[1]);
 		argv[0] = "samterm";
-		*end = 0;
 		execvp(samterm, argv);
 		fprint(2, "can't exec: ");
 		perror(samterm);
@@ -269,12 +267,12 @@ connectto(char *machine, char **argv)
 }
 
 void
-startup(char *machine, int Rflag, char **argv, char **end, char **files)
+startup(char *machine, int Rflag, char **argv, char **files)
 {
 	if(machine)
 		connectto(machine, files);
 	if(!Rflag)
-		bootterm(machine, argv, end);
+		bootterm(machine, argv);
 	downloaded = 1;
 	outTs(Hversion, VERSION);
 }

@@ -26,16 +26,27 @@ static char *exname;
 #define STACK 16384
 
 void
+usage(void)
+{
+	fprint(2, "usage: samterm -a -W winsize\n");
+	threadexitsall("usage");
+}
+
+void
 getscreen(int argc, char **argv)
 {
-	int i;
 	char *t;
 
-	/* not exactly right */
-	for(i=0; i<argc-1; i++){
-		if(strcmp(argv[i], "-W") == 0)
-			winsize = argv[i+1];
-	}
+	ARGBEGIN{
+	case 'a':
+		autoindent = 1;
+		break;
+	case 'W':
+		winsize = EARGF(usage());
+		break;
+	default:
+		usage();
+	}ARGEND
 
 	if(initdraw(panic1, nil, "sam") < 0){
 		fprint(2, "samterm: initdraw: %r\n");
