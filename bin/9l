@@ -161,10 +161,12 @@ tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
 *OpenBSD*)
 	ld=gcc
+	userpath=true
 	extralibs="$extralibs -lutil -lpthread"
 	;;
 *FreeBSD*)
 	ld=gcc
+	userpath=true
 	extralibs="$extralibs -lutil"
 	case "`uname -r`" in
 	[5-9].*)
@@ -174,10 +176,12 @@ case "$tag" in
 	;;
 *BSD*)
 	ld=gcc
+	userpath=true
 	extralibs="$extralibs -lutil"
 	;;
 *Linux*)
 	ld=gcc
+	userpath=true
 	extralibs="$extralibs -lutil"
 	case "${SYSVERSION:-`uname -r`}" in
 	2.6.*)
@@ -207,8 +211,8 @@ case "$tag" in
 	exit 1
 esac
 
-case "$ld" in
-gcc)
+case "$userpath" in
+true)
 	for i in "$libsl $@"
 	do
 		case "$i" in
