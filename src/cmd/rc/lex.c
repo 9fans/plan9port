@@ -233,9 +233,9 @@ int yylex(void){
 		if(nextis('[')){
 			*w++='[';
 			c=advance();
-			*w++=c;
 			if(c<'0' || '9'<c){
 			RedirErr:
+				*w++ = c;
 				*w=0;
 				yyerror(t->type==PIPE?"pipe syntax"
 						:"redirection syntax");
@@ -266,6 +266,7 @@ int yylex(void){
 					t->rtype=CLOSE;
 				}
 			}
+			*w=0;
 			if(c!=']'
 			|| t->type==DUP && (t->rtype==HERE || t->rtype==APPEND))
 				goto RedirErr;
@@ -320,3 +321,4 @@ int yylex(void){
 	yylval.tree=t;
 	return t->type;
 }
+
