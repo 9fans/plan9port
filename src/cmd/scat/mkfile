@@ -1,0 +1,31 @@
+<$PLAN9/src/mkhdr
+
+TARG=scat
+OFILES=scat.$O\
+	bitinput.$O\
+	desc.$O\
+	display.$O\
+	dssread.$O\
+	header.$O\
+	hinv.$O\
+	image.$O\
+	patch.$O\
+	plot.$O\
+	posn.$O\
+	prose.$O\
+	qtree.$O\
+	util.$O\
+
+HFILES=sky.h
+CFLAGS=$CFLAGS -I../map
+LDFLAGS=$LDFLAGS -L$X11/lib -lX11
+
+SHORTLIB=draw bio 9
+LIB=../map/libmap/libmap.a
+<$PLAN9/src/mkone
+
+scat.$O:	strings.c
+
+$LIB:V:
+	cd ../map/libmap; mk
+

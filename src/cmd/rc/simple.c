@@ -63,7 +63,7 @@ void Xsimple(void){
 				Xerror("try again");
 				return;
 			case 0:
-				rfork(RFNOTEG);
+			//	rfork(RFNOTEG);
 				pushword("exec");
 				execexec();
 				strcpy(buf, "can't exec: ");
