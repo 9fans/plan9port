@@ -410,7 +410,6 @@ xattach(char *label)
 		ch.x = r.min.x;
 		ch.y = r.min.y;
 		XConfigureWindow(_x.display, _x.drawable, CWX|CWY, &ch);
-fprint(2, "havemin %d %d\n", r.min.x, r.min.y);
 	}
 	/*
 	 * Look up clipboard atom.
