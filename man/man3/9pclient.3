@@ -1,6 +1,6 @@
 .TH 9PCLIENT 3
 .SH NAME
-CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fswrite \- 9P client library
+CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fsseek, fswrite \- 9P client library
 .SH SYNOPSIS
 .B #include <u.h>
 .PP
@@ -25,6 +25,9 @@ void	fsunmount(CFsys *fsys)
 .PP
 .B
 CFsys*	fsinit(int fd)
+.PP
+.B
+CFsys*	nsinit(char *name)
 .PP
 .B
 int	fsversion(CFsys *fsys, int msize, char *version, int nversion)
@@ -85,6 +88,9 @@ int	fsdirfwstat(CFid *fid, Dir *d)
 .PP
 .B
 int	fsopenfd(CFsys *fs, char *path, int mode)
+.PP
+.B
+CFsys*	nsopen(char *name, char *aname, char *path, int mode)
 .SH DESCRIPTION
 The
 .I 9pclient
@@ -121,6 +127,7 @@ returns the
 corresponding to this root.
 .PP
 .IR Fsinit ,
+.IR nsinit ,
 .IR fsversion ,
 .IR fsauth ,
 .IR fsattach ,
@@ -135,7 +142,12 @@ and
 allocates a new 
 .B CFsys*
 corresponding to a 9P conversation on the file descriptor
-.IR fd .
+.I fd
+and then calls
+.IR fsversion
+to initialize the connection.
+.I Nsinit
+does the same for name space services.
 .I Fsversion
 executes a 
 .IR version (9p)
@@ -328,11 +340,23 @@ the only signal of a read or write error is the closing of the pipe.
 The file descriptor remains valid even after the
 .B CFsys
 is unmounted.
+.PP
+.I Nsopen
+opens a single file on a name space server: it runs
+.IR nsmount ,
+.IR fsopen ,
+and then
+.IR fsunmount .
 .SH SOURCE
 .B \*9/src/lib9pclient
 .SH SEE ALSO
 .IR intro (4),
-.IR intro (9p)
+.IR intro (9p),
+.I fsaopen
+and
+.I nsaopen
+in
+.IR auth (3)
 .SH BUGS
 The implementation
 should use a special version string to distinguish between

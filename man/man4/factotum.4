@@ -1,0 +1,705 @@
+.TH FACTOTUM 4
+.SH NAME
+factotum \- authentication agent
+.SH SYNOPSIS
+.B factotum
+[
+.B -DdkSun
+] [
+.B -a authaddr
+] [
+.B -s
+.I srvname
+] 
+.\" [
+.\" .B -m
+.\" .I mtpt
+.\" ]
+.PP
+.B factotum
+.B -g
+.IB attribute = value
+.B ...
+.IB attribute ?
+.B ...
+.\" .PP
+.\" .B auth/fgui
+.SH DESCRIPTION
+.I Factotum
+is a user-level file system that
+acts as the authentication agent for a user.
+It does so by managing a set of
+.IR keys .
+A key is a collection of information used to authenticate a particular action.
+Stored as a list of
+.IB attribute = value
+pairs, a key typically contains a user, an authentication domain, a protocol, and
+some secret data.
+.PP
+.I Factotum
+presents the following files:
+.TF needkey
+.TP
+.B rpc
+each open represents a new private channel to
+.I factotum
+.TP
+.B proto
+when read lists the protocols available
+.TP
+.B confirm
+for confiming the use of key
+.TP
+.B needkey
+allows external programs to control the addition of new keys
+.TP
+.B log
+a log of actions
+.TP
+.B ctl
+for maintaining keys; when read, it returns a list of keys.
+For secret attributes, only the attribute name follow by a
+.L ?
+is returned.
+.PD
+.PP
+In any authentication, the caller typically acts as a client
+and the callee as a server.  The server determines
+the authentication domain, sometimes after a negotiation with
+the client.  Authentication always requires the client to
+prove its identity to the server.  Under some protocols, the
+authentication is mutual.
+Proof is accomplished using secret information kept by factotum
+in conjunction with a cryptographic protocol.
+.PP
+.I Factotum
+can act in the role of client for any process possessing the
+same user id as it.  For select protocols such as
+.B p9sk1
+it can also act as a client for other processes provided
+its user id may speak for the other process' user id (see
+Plan 9's
+\fIauthsrv\fR(6)).
+.I Factotum
+can act in the role of server for any process.
+.PP
+.IR Factotum 's
+structure is independent of
+any particular authentication protocol.
+.I Factotum
+supports the following protocols:
+.TF mschap
+.TP
+.B p9any
+a metaprotocol used to negotiate which actual protocol to use.
+.TP
+.B p9sk1
+a Plan 9 shared key protocol.
+.TP
+.B p9sk2
+a variant of
+.B p9sk1.
+.TP
+.B p9cr
+a Plan 9 protocol that can use either
+.B p9sk1
+keys or SecureID tokens.
+.TP
+.B apop
+the challenge/response protocol used by POP3 mail servers.
+.TP
+.B cram
+the challenge/response protocol also used by POP3 mail servers.
+.TP
+.B chap
+the challenge/response protocols used by PPP and PPTP.
+.TP
+.B mschap
+a proprietary Microsoft protocol also used by PPP and PPTP.
+.TP
+.B rsa
+RSA public key decryption, used by SSH and TLS.
+.TP
+.B pass
+passwords in the clear.
+.TP
+.B vnc
+.IR vnc (1)'s
+challenge/response.
+.TP
+.B wep
+WEP passwords for wireless ethernet cards.
+.PD
+.PP
+The options are:
+.TP
+.B \-a
+supplies the address of the authentication server to use.
+Without this option, it will attempt to find an authentication server by
+querying the connection server, the file
+.BR <mtpt>/ndb ,
+and finally the network database in
+.BR /lib/ndb .
+.TP
+.B \-m
+specifies the mount point to use, by default
+.BR /mnt .
+.TP
+.B \-s
+specifies the service name to use.
+Without this option,
+.I factotum
+does not create a service file in
+.BR /srv .
+.TP
+.B \-D
+turns on 9P tracing, written to standard error.
+.TP
+.B \-d
+turns on debugging, written to standard error.
+.TP
+.B \-g
+causes the agent to prompt for the key, write it
+to the
+.B ctl
+file, and exit.
+The agent will prompt for values for any of the
+attributes ending with a question mark
+.RB ( ? )
+and will append all the supplied
+.I attribute = value
+pairs.  See the section on key templates below.
+.TP
+.B \-n
+don't look for a secstore.
+.TP
+.B \-S
+indicates that the agent is running on a
+cpu server.  On starting, it will attempt to get a
+.B 9psk1
+key from NVRAM using
+.B readnvram
+(see
+.IR authsrv (3)),
+prompting for anything it needs.
+It will never subsequently prompt for a
+key that it doesn't have.
+This option is typically used by
+the kernel at boot time.
+.TP
+.B \-k
+causes the NVRAM to be written.
+It is only valid with the
+.B \-S
+option.
+This option is typically used by
+the kernel at boot time.
+.TP
+.B \-u
+causes the agent to prompt for user
+id and writes it to
+.BR /dev/hostowner .
+It is mutually exclusive with
+.B \-k
+and
+.BR \-S .
+This option is typically used by
+the kernel at boot time.
+.PD
+.\" .PP
+.\" .I Fgui
+.\" is a graphic user interface for confirming key usage and
+.\" entering new keys.  It hides the window in which it starts
+.\" and waits reading requests from
+.\" .B confirm
+.\" and
+.\" .BR needkey .
+.\" For each requests, it unhides itself and waits for
+.\" user input.
+.\" See the sections on key confirmation and key prompting below.
+.SS "Key Tuples
+.PP
+A
+.I "key tuple
+is a space delimited list of 
+.IB attribute = value
+pairs.  An attribute whose name begins with an exclamation point
+.RB ( ! )
+does not appear when reading the
+.B ctl
+file.
+The required attributes depend on the authentication protocol.
+.PP
+.BR P9sk1 ,
+.BR p9sk2 ,
+and
+.BR p9cr
+all require a key with
+.BR proto = p9sk1 ,
+a
+.B dom
+attribute identifying the authentication domain, a
+.B user
+name valid in that domain, and either a
+.B !password
+or
+.B !hex
+attribute specifying the password or hexadecimal secret
+to be used.  Here is an example:
+.PP
+.EX
+    proto=p9sk1 dom=avayalabs.com user=presotto !password=lucent
+.EE
+.PP
+.BR Apop ,
+.BR cram ,
+.BR chap ,
+and
+.BR mschap ,
+require a key with a
+.B proto
+attribute whose value matches the protocol,
+in addition to
+.BR server ,
+.BR user ,
+and
+.B !password
+attributes; 
+e.g.
+.PP
+.EX
+    proto=apop server=mit.edu user=rsc !password=nerdsRus
+.EE
+Vnc is similar but does not require a
+.B user
+attribute.
+.PP
+.B Pass
+requires a key with
+.B proto=pass
+in addition to
+.B user
+and
+.B !password
+attributes; e.g.
+.PP
+.EX
+    proto=pass user=tb !password=does.it.matter
+.EE
+.PP
+.B Rsa
+requires a key with
+.B proto=rsa
+in addition to all the hex attributes defining an RSA key:
+.BR ek ,
+.BR n ,
+.BR !p ,
+.BR !q ,
+.BR !kp ,
+.BR !kq ,
+.BR !c2 ,
+and
+.BR !dk .
+By convention, programs using the RSA protocol also require a
+.B service
+attribute set to
+.BR ssh ,
+.BR sshserve ,
+or
+.BR tls .
+.PP
+.B Wep
+requires a
+.BR key1 ,
+.BR key2 ,
+or
+.BR key3
+set to the password to be used.
+Starting the protocol causes
+.I factotum
+to configure the wireless ethernet card
+.B #l/ether0
+for WEP encryption with the given password.
+.PP
+All keys can have additional attibutes that act either as comments
+or as selectors to distinguish them in the
+.IR auth (2)
+library calls.
+.PP
+The factotum owner can use any key stored by factotum.
+Any key may have one or more
+.B owner
+attributes listing the users who can use the key
+as though they were the owner.
+For example, the TLS and SSH host keys on a server
+often have an attribute
+.B owner=*
+to allow any user (and in particular,
+.L none )
+to run the TLS or SSH server-side protocol.
+.PP
+Any key may have a
+.B role
+attribute for restricting how it can be used.
+If this attribute is missing, the key can be used in any role.
+The possible values are:
+.TP
+.B client
+for authenticating outbound calls
+.TP
+.B server
+for authenticating inbound calls
+.TP
+.B speaksfor
+for authenticating processes whose
+user id does not match
+.IR factotum 's.
+.PD
+.PP
+Whenever
+.I factotum
+runs as a server, it must have a
+.B p9sk1
+key in order to communicate with the authentication
+server for validating passwords and challenge/responses of
+other users.
+.SS "Key Templates
+Key templates are used by routines that interface to
+.I factotum
+such as
+.B auth_proxy
+and
+.B auth_challenge
+(see
+.IR auth (3))
+to specify which key and protocol to use for an authentication.
+Like a key tuple, a key template is also a list of 
+.IB attribute = value
+pairs.
+It must specify at least the protocol and enough
+other attributes to uniquely identify a key, or set of keys, to use.
+The keys chosen are those that match all the attributes specified
+in the template.  The possible attribute/value formats are:
+.TP 1i
+.IB attr = val
+The attribute
+.I attr
+must exist in the key and its value must exactly
+match
+.I val
+.TP 1i
+.IB attr ?
+The attribute
+.I attr
+must exist in the key but its value doesn't matter.
+.TP 1i
+.I attr
+The attribute
+.I attr
+must exist in the key with a null value
+.PD
+.PP
+Key templates are also used by factotum to request a key either via
+an RPC error or via the
+.B needkey
+interface.
+The possible attribute/value formats are:
+.TP 1i
+.IB attr = val
+This pair must remain unchanged
+.TP 1i
+.IB attr ?
+This attribute needs a value
+.TP 1i
+.I attr
+The pair must remain unchanged
+.PD
+.SS "Control and Key Management
+.PP
+A number of messages can be written to the control file.
+The mesages are:
+.TP
+.B "key \fIattribute-value-list\fP
+add a new key.  This will replace any old key whose
+public, i.e. non ! attributes, match.
+.TP
+.B "delkey \fIattribute-value-list\fP
+delete a key whose attributes match those given.
+.TP
+.B debug
+toggle debugging on and off, i.e., the debugging also
+turned on by the
+.B \-d
+option.
+.PP
+By default when factotum starts it looks for a
+.IR secstore (1)
+account on $auth for the user and, if one exists,
+prompts for a secstore password in order to fetch
+the file
+.IR factotum ,
+which should contain control file commands.
+An example would be
+.EX
+  key dom=x.com proto=p9sk1 user=boyd !hex=26E522ADE2BBB2A229
+  key proto=rsa service=ssh size=1024 ek=3B !dk=...
+.EE
+where the first line sets a password for
+challenge/response authentication, strong against dictionary
+attack by being a long random string, and the second line
+sets a public/private keypair for ssh authentication,
+generated by
+.B ssh_genkey
+(see
+.IR ssh (1)).
+.PD
+.SS "Confirming key use
+.PP
+The 
+.B confirm
+file provides a connection from
+.I factotum
+to a confirmation server, normally the program
+.IR auth/fgui .
+Whenever a key with the
+.B confirm
+attribute is used, 
+.I factotum
+requires confirmation of its use.  If no process has
+.B confirm
+opened, use of the key will be denied.
+However, if the file is opened a request can be read from it
+with the following format:
+.PP
+.B confirm
+.BI tag= tagno
+.I "<key template>
+.PP
+The reply, written back to
+.BR confirm ,
+consists of string:
+.PP
+.BI tag= tagno
+.BI answer= xxx
+.PP
+If
+.I xxx
+is the string
+.B yes
+then the use is confirmed and the authentication will proceed.
+Otherwise, it fails.
+.PP
+.B Confirm
+is exclusive open and can only be opened by a process with
+the same user id as
+.IR factotum .
+.SS "Prompting for keys
+.PP
+The 
+.B needkey
+file provides a connection from
+.I factotum
+to a key server, normally the program
+.IR auth/fgui .
+Whenever
+.I factotum
+needs a new key, it first checks to see if
+.B needkey
+is opened.  If it isn't, it returns a error to its client.
+If the file is opened a request can be read from it
+with the following format:
+.PP
+.B needkey
+.BI tag= tagno
+.I "<key template>
+.PP
+It is up to the reader to then query the user for any missing fields,
+write the key tuple into the
+.B ctl
+file, and then reply by writing into the
+.B needkey
+file the string:
+.PP
+.BI tag= tagno
+.PP
+.B Needkey
+is exclusive open and can only be opened by a process with
+the same user id as
+.IR factotum .
+.SS "The RPC Protocol
+Authentication is performed by
+.IP 1)
+opening
+.BR rpc
+.IP 2)
+setting up the protocol and key to be used (see the
+.B start
+RPC below),
+.IP 3)
+shuttling messages back and forth between
+.IR factotum
+and the other party (see the
+.B read
+and
+.B write
+RPC's) until done
+.IP 4)
+if successful, reading back an
+.I AuthInfo
+structure (see
+.IR authsrv (3)).
+.PP
+The RPC protocol is normally embodied by one of the
+routines in
+.IR auth (3).
+We describe it here should anyone want to extend
+the library.
+.PP
+An RPC consists of writing a request message to
+.B rpc
+followed by reading a reply message back.
+RPC's are strictly ordered; requests and replies of
+different RPC's cannot be interleaved.
+Messages consist of a verb, a single space, and data.
+The data format depends on the verb.  The request verbs are:
+.TP
+.B "start \fIattribute-value-list\fP
+start a new authentication.
+.I Attribute-value-pair-list
+must include a
+.B proto
+attribute, a
+.B role
+attribute with value
+.B client
+or
+.BR server ,
+and enough other attibutes to uniquely identify a key to use.
+A
+.B start
+RPC is required before any others.    The possible replies are:
+.RS
+.TP
+.B ok
+start succeeded.
+.TP
+.B "error \fIstring\fP
+where
+.I string
+is the reason.
+.RE
+.PD
+.TP
+.B read
+get data from
+.I factotum
+to send to the other party.  The possible replies are:
+.RS
+.TP
+.B ok
+read succeeded, this is zero length message.
+.TP
+.B "ok \fIdata\fP
+read succeeded, the data follows the space and is
+unformatted.
+.TP
+.B "done
+authentication has succeeded, no further RPC's are
+necessary
+.TP
+.B "done haveai
+authentication has succeeded, an
+.B AuthInfo
+structure (see
+.IR auth (3))
+can be retrieved with an
+.B authinfo
+RPC
+.TP
+.B "phase \fIstring\fP
+its not your turn to read, get some data from
+the other party and return it with a write RPC.
+.TP
+.B "error \fIstring\fP
+authentication failed,
+.I string
+is the reason.
+.TP
+.B "protocol not started
+a
+.B start
+RPC needs to precede reads and writes
+.TP
+.B "needkey \fIattribute-value-list\fP
+a key matching the argument is needed.  This argument
+may be passed as an argument to
+.I factotum
+.B -g
+in order to prompt for a key.  After that, the
+authentication may proceed, i.e., the read restarted.
+.PD
+.RE
+.TP
+.B "write \fIdata\fP
+send data from the other party to
+.IR factotum .
+The possible replies are:
+.RS
+.TP
+.B "ok
+the write succeeded
+.TP
+.B "needkey \fIattribute-value-list\fP
+see above
+.TP
+.B "toosmall \fIn\fP
+the write is too short, get more data from the
+other party and retry the write.
+.I n
+specifies the maximun total number of bytes.
+.TP
+.B "phase \fIstring\fP
+its not your turn to write, get some data from
+.I factotum
+first.
+.TP
+.B "done
+see above
+.TP
+.B "done haveai
+see above
+.RE
+.TP
+.B authinfo
+retrieve the AuthInfo structure.  
+The possible replies are:
+.RS
+.TP
+.B "ok \fIdata\fP
+.I data
+is a marshaled form of the AuthInfo structure.
+.TP
+.B "error \fIstring\fP
+where
+.I string
+is the reason for the error.
+.PD
+.RE
+.TP
+.B attr
+retrieve the attributes used in the
+.B start
+RPC.
+The possible replies are:
+.RS
+.TP
+.B "ok \fIattribute-value-list\fP
+.TP
+.B "error \fIstring\fP
+where
+.I string
+is the reason for the error.
+.PD
+.RE
+.SH SOURCE
+.B \*9/src/cmd/factotum

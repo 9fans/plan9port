@@ -1,0 +1,476 @@
+.TH NDB 3
+.SH NAME
+ndbopen, ndbcat, ndbchanged, ndbclose, ndbreopen, ndbsearch, ndbsnext, ndbgetvalue, ndbfree, ipattr, ndbgetipaddr, ndbipinfo, ndbhash, ndbparse, ndbfindattr, ndbdiscard, ndbconcatenate, ndbreorder, ndbsubstitute, ndbgetval, ndblookval \- network database
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <bio.h>
+.br
+.B #include <ndb.h>
+.ta \w'\fLNdbtuplexx 'u
+.PP
+.B
+Ndb*	ndbopen(char *file)
+.PP
+.B
+Ndb*	ndbcat(Ndb *db1, Ndb *db2)
+.PP
+.B
+Ndb*	ndbchanged(Ndb *db)
+.PP
+.B
+int	ndbreopen(Ndb *db)
+.PP
+.B
+void	ndbclose(Ndb *db)
+.PP
+.B
+Ndbtuple*	ndbsearch(Ndb *db, Ndbs *s, char *attr, char *val)
+.PP
+.B
+Ndbtuple*	ndbsnext(Ndbs *s, char *attr, char *val)
+.PP
+.B
+char*	ndbgetvalue(Ndb *db, Ndbs *s, char *attr, char *val,
+.br
+.B
+		char *rattr, Ndbtuple **tp)
+.\" .PP
+.\" .B
+.\" char*	csgetvalue(char *netroot, char *attr, char *val, char *rattr,
+.\" 		Ndbtuple **tp)
+.PP
+.B
+char*	ipattr(char *name)
+.PP
+.B
+Ndbtuple*	ndbgetipaddr(Ndb *db, char *sys);
+.PP
+.B
+Ndbtuple*	ndbipinfo(Ndb *db, char *attr, char *val, char **attrs,
+.br
+.B		int nattr)
+.\" .PP
+.\" .B
+.\" Ndbtuple*	csipinfo(char *netroot, char *attr, char *val, char **attrs,
+.\" .br
+.\" .B		int nattr)
+.PP
+.B
+ulong	ndbhash(char *val, int hlen)
+.PP
+.B
+Ndbtuple*	ndbparse(Ndb *db)
+.\" .PP
+.\" .B
+.\" Ndbtuple*	dnsquery(char *netroot, char *domainname, char *type)
+.PP
+.B
+Ndbtuple*	ndbfindattr(Ndbtuple *entry, Ndbtuple *line, char *attr)
+.PP
+.B
+void	ndbfree(Ndbtuple *db)
+.PP
+.B
+Ndbtuple*	ndbdiscard(Ndbtuple  *t, Ndbtuple *a)
+.PP
+.B
+Ndbtuple*	ndbconcatenate(Ndbtuple *a, Ndbtuple *b);
+.PP
+.B
+Ndbtuple*	ndbreorder(Ndbtuple *t, Ndbtuple *a);
+.PP
+.B
+Ndbtuple*	ndbsubstitute(Ndbtuple *t, Ndbtuple *from, Ndbtuple *to);
+.SH DESCRIPTION
+These routines are used by network administrative programs to search
+the network database.
+They operate on the database files described in
+.IR ndb (6).
+.PP
+.I Ndbopen
+opens the database
+.I file
+and calls
+.IR malloc (2)
+to allocate a buffer for it.
+If
+.I file
+is zero, all network database files are opened.
+.PP
+.I Ndbcat
+concatenates two open databases.  Either argument may be
+nil.
+.PP
+.I Ndbreopen
+checks if the database files associated with
+.I db
+have changed and if so throws out any cached information and reopens
+the files.
+.PP
+.I Ndbclose
+closes any database files associated with
+.I db
+and frees all storage associated with them.
+.PP
+.I Ndbsearch
+and
+.I ndbsnext
+search a database for an entry containing the
+attribute/value pair,
+.IR attr = val .
+.I Ndbsearch
+is used to find the first match and
+.I ndbsnext
+is used to find each successive match.
+On a successful search both return a linked list of
+.I Ndbtuple
+structures acquired by
+.IR malloc (2)
+that represent the attribute/value pairs in the
+entry.
+On failure they return zero.
+.IP
+.EX
+typedef struct Ndbtuple Ndbtuple;
+struct Ndbtuple {
+        char      attr[Ndbalen];
+        char      *val;
+        Ndbtuple  *entry;
+        Ndbtuple  *line;
+        ulong     ptr;    /* for the application; starts 0 */
+        char      valbuf[Ndbvlen];  /* initial allocation for val */
+};
+.EE
+.LP
+The
+.I entry
+pointers chain together all pairs in the entry in a null-terminated list.
+The
+.I line
+pointers chain together all pairs on the same line
+in a circular list.
+Thus, a program can implement 2 levels of binding for
+pairs in an entry.
+In general, pairs on the same line are bound tighter
+than pairs on different lines.
+.PP
+The argument
+.I s
+of
+.I ndbsearch
+has type
+.I Ndbs
+and should be pointed to valid storage before calling
+.IR ndbsearch ,
+which will fill it with information used by
+.I ndbsnext
+to link successive searches.
+The structure
+.I Ndbs
+looks like:
+.IP
+.EX
+typedef struct Ndbs Ndbs;
+struct Ndbs {
+        Ndb      *db;   /* data base file being searched */
+        ...
+        Ndbtuple *t;    /* last attribute value pair found */
+};
+.EE
+.LP
+The
+.I t
+field points to the pair within the entry matched by the
+.I ndbsearch
+or
+.IR ndbsnext .
+.PP
+.I Ndbgetvalue
+searches the database for an entry containing not only an
+attribute/value pair,
+.IR attr = val ,
+but also a pair with the attribute
+.IR rattr .
+If successful, it returns a malloced copy of the null terminated value associated with
+.IR  rattr .
+If
+.I tp
+is non nil,
+.I *tp
+will point to the entry.  Otherwise the entry will be freeed.
+.\" .PP
+.\" .I Csgetvalue
+.\" is like
+.\" .I ndbgetvalue
+.\" but queries the connection server
+.\" instead of looking directly at the database.
+.\" Its first argument specifies the network root to use.
+.\" If the argument is 0, it defaults to
+.\" \f5"/net"\f1.
+.PP
+.I Ndbfree
+frees a list of tuples returned by one of the other
+routines.
+.PP
+.I Ipattr
+takes the name of an IP system and returns the attribute
+it corresponds to:
+.RS
+.TP
+.B dom
+domain name
+.TP
+.B ip
+Internet number
+.TP
+.B sys
+system name
+.RE
+.PP
+.I Ndbgetipaddr
+looks in
+.I db
+for an entry matching
+.I sys
+as the value of a
+.B sys=
+or
+.B dom=
+attribute/value pair and returns all IP addresses in the entry.
+If
+.I sys
+is already an IP address, a tuple containing just
+that address is returned.
+.PP
+.I Ndbipinfo
+looks up Internet protocol information about a system.
+This is an IP aware search.  It looks first for information
+in the system's database entry and then in the database entries
+for any IP subnets or networks containing the system.
+The system is identified by the
+attribute/value pair,
+.IR attr = val .
+.I Ndbipinfo
+returns a list of tuples whose attributes match the
+attributes in the 
+.I n
+element array
+.IR attrs .
+For example, consider the following database entries describing a network,
+a subnetwork, and a system.
+.PP
+.EX
+ipnet=big ip=10.0.0.0
+	dns=dns.big.com
+	smtp=smtp.big.com
+ipnet=dept ip=10.1.1.0 ipmask=255.255.255.0
+	smtp=smtp1.big.com
+ip=10.1.1.4 dom=x.big.com
+	bootf=/386/9pc
+.EE
+.PP
+Calling
+.PP
+.EX
+   ndbipinfo(db, "dom", "x.big.com", ["bootf" "smtp" "dns"], 3)
+.EE
+.PP
+will return the tuples
+.BR bootf=/386/9pc ,
+.BR smtp=smtp1.big.com ,
+and
+.BR dns=dns.big.com .
+.\" .PP
+.\" .I Csipinfo
+.\" is to
+.\" .I ndbipinfo
+.\" as
+.\" .I csgetval
+.\" is to
+.\" .IR ndbgetval .
+.PP
+The next three routines are used by programs that create the
+hash tables and database files.
+.I Ndbhash
+computes a hash offset into a table of length
+.I hlen
+for the string
+.IR val .
+.I Ndbparse
+reads and parses the next entry from the database file.
+Multiple calls to
+.IR ndbparse
+parse sequential entries in the database file.
+A zero is returned at end of file.
+.\" .PP
+.\" .I Dnsquery
+.\" submits a query about
+.\" .I domainname
+.\" to the
+.\" .I ndb/dns
+.\" mounted at
+.\" .IB netroot /dns.
+.\" It returns a linked list of
+.\" .I Ndbtuple's
+.\" representing a single database entry.
+.\" The tuples are logicly arranged into lines using the
+.\" .B line
+.\" fieldin the structure.
+.\" The possible
+.\" .IR type 's
+.\" of query are and the attributes on each returned tuple line is:
+.\" .TP
+.\" .B ip
+.\" find the IP addresses.  Returns
+.\" domain name
+.\" .RI ( dom )
+.\" and ip address
+.\" .RI ( ip )
+.\" .TP
+.\" .B mx
+.\" look up the mail exchangers.  Returns preference
+.\" .RI ( pref )
+.\" and exchanger
+.\" .RI ( mx )
+.\" .TP
+.\" .B ptr
+.\" do a reverse query.  Here
+.\" .I domainname
+.\" must be an
+.\" .SM ASCII
+.\" IP address.  Returns reverse name
+.\" .RI ( ptr )
+.\" and domain name 
+.\" .RI ( dom )
+.\" .TP
+.\" .B cname
+.\" get the system that this name is a nickname for.  Returns the nickname
+.\" .RI ( dom )
+.\" and the real name
+.\" .RI ( cname )
+.\" .TP
+.\" .B soa
+.\" return the start of area record for this field.  Returns
+.\" area name
+.\" .RI ( dom ),
+.\" primary name server
+.\" .RI ( ns ),
+.\" serial number
+.\" .RI ( serial ),
+.\" refresh time in seconds
+.\" .RI ( refresh ),
+.\" retry time in seconds
+.\" .RI ( retry ),
+.\" expiration time in seconds
+.\" .RI ( expire ),
+.\" and minimum time to lie
+.\" .RI ( ttl ).
+.\" .TP
+.\" .B ns
+.\" name servers.  Returns domain name
+.\" .RI ( dom )
+.\" and name server
+.\" .RI ( ns )
+.PP
+.I Ndbfindattr
+searches 
+.I entry
+for the tuple
+with attribute
+.I attr
+and returns a pointer to the tuple.
+If
+.I line
+points to a particular line in the entry, the
+search starts there and then wraps around to the beginning
+of the entry.
+.PP
+All of the routines provided to search the database
+provide an always consistent view of the relevant
+files.  However, it may be advantageous for an application
+to read in the whole database using
+.I ndbopen
+and
+.I ndbparse
+and provide its own search routines.  The
+.I ndbchanged
+routine can be used by the application to periodicly
+check for changes.  It returns zero
+if none of the files comprising the database have
+changes and non-zero if they have.
+.PP
+Finally, a number of routines are provided for manipulating
+tuples.
+.PP
+.I Ndbdiscard
+removes attr/val pair
+.I a
+from tuple
+.I t
+and frees it.
+If
+.I a
+isn't in
+.I t
+it is just freed.
+.PP
+.I Ndbconcatenate
+concatenates two tuples and returns the result.  Either
+or both tuples may be nil.
+.PP
+.I Ndbreorder
+reorders a tuple
+.IR t
+to make the line containing attr/val pair
+.I a
+first in the entry and making
+.I a
+first in its line.
+.PP
+.I Ndbsubstitute
+replaces a single att/val pair
+.I from
+in
+.I t
+with the tuple
+.IR to .
+All attr/val pairs in
+.I to
+end up on the same line.
+.I from
+is freed.
+.SH FILES
+.TP
+.B \*9/ndb
+directory of network database files
+.PD
+.SH SOURCE
+.B \*9/src/libndb
+.SH SEE ALSO
+.IR ndb (1)
+.IR ndb (7)
+.SH DIAGNOSTICS
+.IR Ndbgetvalue
+and
+.I ndblookvalue
+set
+.I errstr
+to
+.B "buffer too short"
+if the buffer provided isn't long enough for the
+returned value.
+.SH BUGS
+.IR Ndbgetval
+and
+.I ndblookval
+are deprecated versions of
+.IR ndbgetvalue
+and
+.IR ndblookvalue .
+They expect a fixed 64 byte long result
+buffer and existed when the values of a
+.I Ndbtuple
+structure where fixed length.

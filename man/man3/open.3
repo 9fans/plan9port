@@ -38,9 +38,12 @@ says to close the file when an
 or
 .I execl
 system call is made;
-and
 .B ORCLOSE
-says to remove the file when it is closed (by everyone who has a copy of the file descriptor).
+says to remove the file when it is closed (by everyone who has a copy of the file descriptor);
+and
+.B OAPPEND
+says to open the file in append-only mode, so that writes
+are always appended to the end of the file.
 .I Open
 fails if the file does not exist or the user does not have
 permission to open it for the requested purpose
@@ -145,3 +148,14 @@ allows the file descriptor to be reused.
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .
+.SH BUGS
+Not all functionality is supported on all systems.
+.PP
+The
+.B DMAPPEND
+bit is not supported on any systems.
+.PP
+The implementation of
+.B ORCLOSE
+is to unlink the file after opening it, causing problems
+in programs that try to access the file by name before it is closed.

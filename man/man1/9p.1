@@ -24,6 +24,9 @@
 .I addr
 ]
 .B write
+[
+.B -l
+]
 .I path
 .br
 .B 9p
@@ -56,7 +59,12 @@ to standard output
 .TP
 .B write
 write data on standard input to
-.I path
+.IR path ;
+the 
+.B -l
+option causes
+.I write
+to write one line at a time
 .TP
 .BR readfd ", " writefd
 like

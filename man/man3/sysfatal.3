@@ -1,10 +1,13 @@
 .TH SYSFATAL 3
 .SH NAME
-sysfatal \- system error messages
+syslog, sysfatal \- system error messages
 .SH SYNOPSIS
 .B #include <u.h>
 .br
 .B #include <libc.h>
+.PP
+.B
+void syslog(int cons, char *logname, char *fmt, ...)
 .PP
 .B
 void sysfatal(char *fmt, ...)
@@ -28,6 +31,30 @@ interface to process its arguments.
 If
 .B argv0
 is null, it is ignored and the following colon and space are suppressed.
+.PP
+.I Syslog
+logs messages in the file named by
+.I logname
+in the directory
+.B \*9/log ;
+the file must already exist and is opened append-only.
+.I Logname
+must contain no slashes.
+The message is a line with several fields:
+the name of the machine writing the message;
+the date and time;
+the message specified by the 
+.IR print (2)
+format
+.I fmt
+and any following arguments;
+and a final newline.
+If
+.I cons
+is set or the log file cannot be opened, the message is also printed
+on the system console.
+.I Syslog
+can be used safely in multi-threaded programs.
 .SH SOURCE
 .B \*9/src/lib9/sysfatal.c
 .SH "SEE ALSO"

@@ -1,6 +1,6 @@
 .TH SECSTORE 1
 .SH NAME
-aescbc, secstore, ipso \- secstore commands
+aescbc, secstore \- secstore commands
 .SH SYNOPSIS
 .B secstore
 [
@@ -42,15 +42,14 @@ aescbc, secstore, ipso \- secstore commands
 -d
 .I <ciphertext
 .I >cleartext
-.PP
-.B ipso
-[
-.B -a -e -l -f -s
-] [
-.I file
-\&...
-]
-.PP
+.\" .PP
+.\" .B ipso
+.\" [
+.\" .B -a -e -l -f -s
+.\" ] [
+.\" .I file
+.\" \&...
+.\" ]
 .SH DESCRIPTION
 .PP
 .I Secstore
@@ -91,39 +90,38 @@ bits of feedback to help the user detect mistyping.
 Option
 .B -i
 says that the password should be read from standard input
-instead of from
-.BR /dev/cons .
+instead of from 
+.BR /dev/tty .
 .PP
 Option
 .B -n
 says that the password should be read from NVRAM
+(see
+.IR authsrv (2))
 instead of from
-.BR /dev/cons .
-This option is unsupported.
+.BR /dev/tty .
 .PP
 The server is
-.BR tcp!$auth!5356 ,
+.BR tcp!$auth!secstore ,
 or the server specified by option
 .BR -s .
 .PP
 For example, to add a secret to the file read by
-.IR factotum (4)
-at startup, open a new window, type
+.IR factotum (4),
+run
 .sp
 .EX
-  % ramfs -p; cd /tmp
+  % cd somewhere-private
   % auth/secstore -g factotum
   secstore password:
   % echo 'key proto=apop dom=x.com user=ehg !password=hi' >> factotum
   % auth/secstore -p factotum
   secstore password:
-  % read -m factotum > /mnt/factotum/ctl
+  % cat factotum | 9p write -l factotum/ctl
 .EE
 .PP
 and delete the window.
-The first line creates an ephemeral memory-resident workspace,
-invisible to others and automatically removed when the window is deleted.
-The next three commands fetch the persistent copy of the secrets,
+The middle commands fetch the persistent copy of the secrets,
 append a new secret,
 and save the updated file back to secstore.
 The final command loads the new secret into the running factotum.
@@ -199,7 +197,7 @@ block chaining (CBC) mode.
 .B \*9/src/cmd/secstore
 .SH SEE ALSO
 .IR factotum (4),
-Plan 9's \fIsecstore\fR(8)
+.IR secstored (1)
 .SH BUGS
 There is deliberately no backup of files on the secstore, so
 .B -r

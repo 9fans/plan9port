@@ -1,0 +1,306 @@
+.TH NDB 7
+.SH NAME
+ndb \- Network database
+.SH DESCRIPTION
+.PP
+The network database consists of files
+describing machines known to the local
+installation and machines known publicly.
+The files comprise multi-line tuples made up of
+attribute/value pairs of the form
+.IB attr = value
+or sometimes just
+.IR attr .
+Each line starting without white space starts a new tuple.
+Lines starting with
+.B #
+are comments.
+.PP
+The file
+.B /lib/ndb/local
+is the root of the database.
+Other files are included in the
+database if a tuple with an
+attribute-value pair of attribute
+.B database
+and no value exists in
+.BR /lib/ndb/local .
+Within the
+.B database
+tuple,
+each pair with attribute
+.B file
+identifies a file to be included in the database.  The files are searched
+in the order they appear.
+For example:
+.IP
+.EX
+database=
+	file=/lib/ndb/common
+	file=/lib/ndb/local
+	file=/lib/ndb/global
+.EE
+.PP
+declares the database to be composed of the three files
+.BR /lib/ndb/common ,
+.BR /lib/ndb/local ,
+and 
+.BR /lib/ndb/global .
+By default,
+.B /lib/ndb/local
+is searched before the others.
+However,
+.B /lib/ndb/local
+may be included in the
+.B database
+to redefine its ordering.
+.PP
+Within tuples, pairs on the same line bind tighter than
+pairs on different lines.
+.PP
+Programs search the database directly using the routines in
+.IR ndb (2).
+.\" or indirectly using
+.\" .B ndb/cs
+.\" and
+.\" .B ndb/dns
+.\" (see
+.\" .IR ndb (1)).
+.\" Both
+.\" .B ndb/cs
+The routine
+.I ndbipinfo
+imposes structure on the otherwise flat database by using
+knowledge specific to the network.
+The internet is made up of networks which can be subnetted
+multiple times.  A network must have an
+.B ipnet
+attribute and is uniquely identified by the values of its
+.B ip
+and
+.B ipmask
+attributes.  If the
+.B ipmask
+is missing, the relevant Class A, B or C one is used.
+.LP
+A search for an attribute associated with a network or host starts
+at the lowest level, the entry for the host or network itself,
+and works its way up, bit by bit, looking at entries for nets/subnets
+that include the network or host.  The search ends when the attribute
+is found.
+For example, consider at the following entries:
+.IP
+.EX
+ipnet=murray-hill ip=135.104.0.0 ipmask=255.255.0.0
+	dns=135.104.10.1
+	ntp=ntp.cs.bell-labs.com
+ipnet=plan9 ip=135.104.9.0 ipmask=255.255.255.0
+	ntp=oncore.cs.bell-labs.com
+	smtp=smtp1.cs.bell-labs.com
+ip=135.104.9.6 sys=anna dom=anna.cs.bell-labs.com
+	smtp=smtp2.cs.bell-labs.com
+.EE
+.LP
+Here
+.B anna
+is on the subnet
+.B plan9
+which is in turn on the class B net
+.BR murray-hill .
+Assume that we're searching for
+.BR anna 's
+.B NTP
+and
+.B SMTP
+servers.
+The search starts by looking for an entry with
+.BR sys=anna .
+We find the anna entry.  Since it has an 
+.B smtp=smtp2.cs.bell-labs.com
+pair,
+we're done looking for that attribute.
+To fulfill the NTP request, we continue by looking for networks
+that include anna's IP address.
+We lop off the right most one bit from anna's address and
+look for an
+.B ipnet=
+entry with
+.BR ip=135.104.9.4 .
+Not finding one, we drop another bit and look for an
+.B ipnet=
+entry with
+.BR ip=135.104.9.0 .
+There is
+such an entry and it has the pair,
+.BR ntp=oncore.cs.bell-labs.com ,
+ending our search.
+.\" .PP
+.\" .I Ndb/cs
+.\" can be made to perform such network aware
+.\" searches by using metanames in the dialstring.
+.\" A metaname is a
+.\" .I $
+.\" followed by an attribute name.
+.\" .I Ndb/cs
+.\" looks up the attribute relative to the system it is running
+.\" on.  Thus, with the above example, if a program called
+.\" .IP
+.\" .EX
+.\" 	dial("tcp!$smtp!smtp", 0, 0, 0);
+.\" .EE
+.\" .LP
+.\" the dial would connect to the SMTP port of
+.\" .BR smtp2.cs.bell-labs.com .
+.PP
+A number of attributes are meaningful to programs and thus
+reserved.
+They are:
+.TF restricted
+.TP
+.B sys
+system name
+.TP
+.B dom
+Internet domain name
+.TP
+.B ip
+Internet address
+.TP
+.B ether
+Ethernet address
+.TP
+.B bootf
+file to download for initial bootstrap
+.TP
+.B ipnet
+Internet network name
+.TP
+.B ipmask
+Internet network mask
+.TP
+.B ipgw
+Internet gateway
+.TP
+.B auth
+authentication server to be used
+.TP
+.B authdom
+authentication domain.  Plan 9 supports multiple authentication
+domains.  To specify an authentication server for a particular domain,
+add a tuple containing both
+.B auth
+and
+.B authdom
+attributes and values.
+.TP
+.B fs
+file server to be used
+.TP
+.B tcp
+a TCP service name
+.TP
+.B udp
+a UDP service name
+.TP
+.B il
+an IL service name
+.TP
+.B port
+a TCP, UDP, or IL port number
+.TP
+.B restricted
+a TCP service that can be called only by ports numbered
+less that 1024
+.TP
+.B proto
+a protocol supported by a host.
+The pair
+.B proto=il
+is needed by
+.I cs
+(see
+.IR ndb (8))
+in tuples for hosts that support the IL protocol
+.TP
+.B dnsdomain
+a domain name that
+.I ndb/dns
+adds onto any unrooted names when doing a search
+There may be multiple
+.B dnsdomain
+pairs.
+.TP
+.B dns
+a DNS server to use (for DNS and DHCP)
+.TP
+.B ntp
+an NTP server to use (for DHCP)
+.TP
+.B smtp
+an SMTP server to use (for DHCP)
+.TP
+.B time
+a time server to use (for DHCP)
+.TP
+.B wins
+a Windows name server (for DHCP)
+.TP
+.B mx
+mail exchanger (for DNS and DHCP)
+.TP
+.B soa
+start of area (for DNS)
+.sp
+.PD
+.\" .PP
+.\" The file
+.\" .B \*9/ndb/auth
+.\" is used during authentication to decide who has the power to `speak for' other
+.\" users; see
+.\" .IR authsrv (6).
+.SH EXAMPLES
+.LP
+A tuple for the CPU server, spindle.
+.LP
+.EX
+sys = spindle
+	dom=spindle.research.bell-labs.com
+	bootf=/mips/9powerboot
+	ip=135.104.117.32 ether=080069020677
+	proto=il
+.EE
+.LP
+Entries for the network
+.B mh-astro-net
+and its subnets.
+.LP
+.EX
+ipnet=mh-astro-net ip=135.104.0.0 ipmask=255.255.255.0
+	fs=bootes.research.bell-labs.com
+	ipgw=r70.research.bell-labs.com
+	auth=p9auth.research.bell-labs.com
+ipnet=unix-room ip=135.104.117.0
+	ipgw=135.104.117.1
+ipnet=third-floor ip=135.104.51.0
+	ipgw=135.104.51.1
+.EE
+.LP
+Mappings between TCP service names and port numbers.
+.LP
+.EX
+.ta \w'\fLtcp=sysmonxxxxx'u \w'\fLtcp=sysmonxxxxxport=512xxx'u
+tcp=sysmon	port=401
+tcp=rexec	port=512	restricted
+tcp=9fs	port=564
+.EE
+.SH FILES
+.TP
+.B \*9/ndb/local
+first database file searched
+.SH "SEE ALSO"
+.\" .IR dial (2),
+.IR ndb (1),
+.IR ndb (3)
+.\" .IR dhcpd (8),
+.\" .IR ipconfig (8),
+.\" .IR con (1)

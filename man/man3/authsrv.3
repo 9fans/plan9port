@@ -1,0 +1,222 @@
+.TH AUTHSRV 3
+.SH NAME
+authdial, passtokey, nvcsum, readnvram, convT2M, convM2T, convTR2M, convM2TR, convA2M, convM2A, convPR2M, convM2PR, _asgetticket, _asrdresp \- routines for communicating with authentication servers
+.SH SYNOPSIS
+.nf
+.PP
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <authsrv.h>
+.fi
+.ta 8n +4n +4n +4n +4n +4n +4n
+.PP
+.B
+int	authdial(char *netroot, char *ad);
+.PP
+.B
+int	passtokey(char key[DESKEYLEN], char *password)
+.PP
+.B
+uchar	nvcsum(void *mem, int len)
+.PP
+.B
+int	readnvram(Nvrsafe *nv, int flag);
+.PPP
+.B
+int	convT2M(Ticket *t, char *msg, char *key)
+.PP
+.B
+void	convM2T(char *msg, Ticket *t, char *key)
+.PP
+.B
+int	convA2M(Authenticator *a, char *msg, char *key)
+.PP
+.B
+void	convM2A(char *msg, Authenticator *a, char *key)
+.PP
+.B
+int	convTR2M(Ticketreq *tr, char *msg)
+.PP
+.B
+void	convM2TR(char *msg, Ticketreq *tr)
+.PP
+.B
+int	convPR2M(Passwordreq *pr, char *msg, char *key)
+.PP
+.B
+void	convM2PR(char *msg, Passwordreq *pr, char *key)
+.PP
+.B
+int	_asgetticket(int fd, char *trbuf, char *tbuf);
+.PP
+.B
+int	_asrdresp(int fd, char *buf, int len);
+.SH DESCRIPTION
+.PP
+.I Authdial
+dials an authentication server over the
+network rooted at
+.IR net ,
+default
+.BR /net  .
+The authentication domain,
+.IR ad ,
+specifies which server to call.
+If
+.I ad
+is non-nil,
+the network database
+(see
+.IR ndb (1))
+is queried for an entry which contains
+.B authdom=\fIad\fP
+or
+.BR dom=\fIad\fP ,
+the former having precedence,
+and which also contains an
+.B auth
+attribute.
+The string dialed is then
+.I netroot\fP!\fIserver\fP!ticket
+where
+.I server
+is the value of the
+.B auth
+attribute.
+If no entry is found, the error string is
+set to ``no authentication server found''
+and -1 is returned.
+If
+.I authdom
+is nil, the string
+.IB netroot !$auth! ticket
+is used to make the call.
+.PP
+.I Passtokey
+converts
+.I password
+into a DES key and stores the result in
+.IR key .
+It returns 0 if
+.I password
+could not be converted,
+and 1 otherwise.
+.PP
+.I Readnvram
+reads authentication information into the structure:
+.EX
+.ta 4n +4n +8n +4n +4n +4n +4n
+	struct Nvrsafe
+	{
+		char	machkey[DESKEYLEN];
+		uchar	machsum;
+		char	authkey[DESKEYLEN];
+		uchar	authsum;
+		char	config[CONFIGLEN];
+		uchar	configsum;
+		char	authid[ANAMELEN];
+		uchar	authidsum;
+		char	authdom[DOMLEN];
+		uchar	authdomsum;
+	};
+.EE
+.PP
+On Sparc, MIPS, and SGI machines this information is
+in non-volatile ram, accessible in the file
+.BR #r/nvram .
+On x86s and Alphas
+.I readnvram
+successively opens the following areas stopping with the
+first to succeed:
+.PP
+\- the partition named by the
+.B $nvram
+environment variable
+(commonly set via
+.IR plan9.ini (8))
+.br
+\- the partition
+.B #S/sdC0/nvram
+.br
+\- a file called
+.B plan9.nvr
+in the partition
+.B #S/sdC0/9fat
+.br
+\- the partition
+.B #S/sd00/nvram
+.br
+\- a file called
+.B plan9.nvr
+in the partition
+.B #S/sd00/9fat
+.br
+\- a file called
+.B plan9.nvr
+on a DOS floppy in drive 0
+.br
+\- a file called
+.B plan9.nvr
+on a DOS floppy in drive 1
+.PP
+The
+.IR nvcsum s
+of the fields
+.BR machkey ,
+.BR authid ,
+and
+.B authdom
+must match their respective checksum or that field is zeroed.
+If
+.I flag
+is
+.B NVwrite
+or at least one checksum fails and
+.I flag
+is
+.BR NVwriteonerr ,
+.I readnvram
+will prompt for new values on
+.B #c/cons
+and then write them back to the storage area.
+.PP
+.IR ConvT2M ,
+.IR convA2M ,
+.IR convTR2M ,
+and
+.I convPR2M
+convert tickets, authenticators, ticket requests, and password change request
+structures into transmittable messages.
+.IR ConvM2T ,
+.IR convM2A ,
+.IR convM2TR ,
+and
+.I convM2PR
+are used to convert them back.
+.I Key
+is used for encrypting the message before transmission and decrypting
+after reception.
+.PP
+The routine
+.I _asgetresp
+receives either a character array or an error string.
+On error, it sets errstr and returns -1.  If successful,
+it returns the number of bytes received.
+.PP
+The routine
+.I _asgetticket
+sends a ticket request message and then uses
+.I _asgetresp
+to recieve an answer.
+.SH SOURCE
+.B \*9/src/libauthsrv
+.SH SEE ALSO
+.IR netkey (1),
+.IR dial (3),
+Plan 9's
+\fIauthsrv\fR(6).
+.SH DIAGNOSTICS
+These routines set
+.IR errstr .
+Integer-valued functions return -1 on error.

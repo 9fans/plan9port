@@ -982,6 +982,8 @@ runestrncmp runestrcat.3
 runestrncpy runestrcat.3
 runestrrchr runestrcat.3
 runestrstr runestrcat.3
+search searchpath.3
+searchpath searchpath.3
 hmac_md5 sechash.3
 hmac_sha1 sechash.3
 md4 sechash.3
@@ -1116,6 +1118,7 @@ threadsetgrp thread.3
 threadsetname thread.3
 threadsetstate thread.3
 threadspawn thread.3
+threadspawnl thread.3
 threadwaitchan thread.3
 yield thread.3
 nsec time.3

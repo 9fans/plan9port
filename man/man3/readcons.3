@@ -1,0 +1,48 @@
+.TH READCONS 3
+.SH NAME
+readcons \- prompt console for input
+.SH SYNOPSIS
+.B
+#include <u.h>
+.PP
+.B
+#include <libc.h>
+.PP
+.B
+char *readcons(char *prompt, char *def, int secret)
+.SH DESCRIPTION
+.I Readcons
+prompts at the console for input.
+It returns a NUL-terminated buffer containing the input
+without a final newline.
+The buffer should be freed (and perhaps cleared first) 
+when no longer needed.
+.PP
+If the user types an empty string (just a newline) and
+.I def
+is non-zero, then a copy of 
+.I def
+is returned instead of the empty string.
+.PP
+If
+.I secret
+is non-zero, the input is not echoed to the screen.
+.SH EXAMPLE
+A stripped-down version of
+.IR netkey (1):
+.IP
+.EX
+pass = readcons("password", nil, 1);
+passtokey(key, pass);
+memset(pass, 0, strlen(pass));
+free(pass);
+for(;;){
+	chal = readcons("challenge", nil, 0);
+	sprint(buf, "%d", strtol(chal, 0, 10));
+	free(chal);
+	netcrypt(key, buf);
+	print("response: %s\n", buf);
+}
+.EE
+.SH SOURCE
+.B \*9/src/lib9/readcons.c

@@ -39,6 +39,7 @@ iconv crop.1
 cvs cvs.1
 date date.1
 db db.1
+stack db.1
 dc dc.1
 delatex deroff.1
 deroff deroff.1

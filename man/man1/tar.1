@@ -1,0 +1,166 @@
+.TH TAR 1
+.SH NAME
+tar \- archiver
+.SH SYNOPSIS
+.B tar
+.I key
+[
+.I file ...
+]
+.SH DESCRIPTION
+.PP
+.I Tar
+saves and restores file trees.
+It is most often used to transport a tree of files from one
+system to another.
+The
+.I key
+is a string that contains
+at most one function letter plus optional modifiers.
+Other arguments to the command are names of
+files or directories to be dumped or restored.
+A directory name implies all the contained
+files and subdirectories (recursively).
+.PP
+The function is one of the following letters:
+.TP
+.B  c
+Create a new archive with the given files as contents.
+.TP
+.B  r
+The named files
+are appended to the archive.
+.TP
+.B  t
+List all occurrences of each 
+.I file
+in the archive, or of all files if there are no
+.I file
+arguments.
+.TP
+.B  x
+Extract the named files from the archive.
+If a file is a directory, the directory is extracted recursively.
+Modes are restored if possible.
+If no file argument is given, extract the entire archive.
+If the archive contains multiple entries for a file,
+the latest one wins.
+.PP
+The modifiers are:
+.TP
+.B f
+Use the next argument as the name of the archive instead of
+the default standard input (for keys
+.B x
+and
+.BR t )
+or standard output (for keys
+.B c
+and
+.BR r ).
+.TP
+.B g
+Use the next (numeric) argument as the group id for files in
+the output archive.
+.TP
+.B k
+(keep)
+Modifies the behavior of
+.B x
+not to extract files which already exist.
+.TP
+.B m
+Do not set the modification time on extracted files.
+This is the default behavior; the flag exists only for compatibility with other tars.
+.TP
+.B p
+Create archive in POSIX ustar format,
+which raises the maximum pathname length from 100 to 256 bytes.
+Ustar archives are recognised automatically by
+.I tar
+when reading archives.
+This is the default behavior; the flag exists only for backwards compatibility
+with older versions of tar.
+.TP
+.B P
+Do not generate the POSIX ustar format.
+.TP
+.B R
+When extracting, ignore leading slash on file names,
+i.e., extract all files relative to the current directory.
+.TP
+.B T
+Modifies the behavior of
+.B x
+to set the modified time
+of each file to that specified in the archive.
+.TP
+.B u
+Use the next (numeric) argument as the user id for files in
+the output archive.  This is only useful when moving files to
+a non-Plan 9 system.
+.TP
+.B v
+(verbose)
+Print the name of each file treated
+preceded by the function letter.
+With 
+.BR t ,
+give more details about the
+archive entries.
+.TP
+.B z
+Operate on compressed tar archives.
+The type of compression is inferred from the file name extension:
+.IR gzip (1)
+for
+.B .tar.gz
+and
+.BR .tgz ;
+.I bzip2
+(see
+.IR gzip (1))
+for
+.BR .tar.bz ,
+.BR .tbz ,
+.BR .tar.bz2 ,
+and
+.BR .tbz2 ;
+.I compress
+(not distributed)
+for
+.B .tar.Z
+and
+.BR .tz .
+If no extension matches,
+.I gzip
+is used.
+The
+.B z
+flag is unnecessary (but allowed) when using the
+.B t
+and
+.B x
+verbs on archives with recognized extensions.
+.SH EXAMPLES
+.I Tar
+can be used to copy hierarchies thus:
+.IP
+.EX
+@{cd fromdir && tar cp .} | @{cd todir && tar xT}
+.EE
+.SH SOURCE
+.B \*9/src/cmd/tar.c
+.SH SEE ALSO
+.IR ar (1),
+.IR bundle (1)
+.SH BUGS
+There is no way to ask for any but the last
+occurrence of a file.
+.br
+File path names are limited to
+100 characters
+(256 when using ustar format).
+.br
+The tar format allows specification of links and symbolic links,
+concepts foreign to Plan 9: they are ignored.

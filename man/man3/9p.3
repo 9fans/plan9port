@@ -46,6 +46,7 @@ typedef struct Srv {
 
 	void		(*destroyfid)(Fid *fid);
 	void		(*destroyreq)(Req *r);
+	void		(*start)(Srv *s);
 	void		(*end)(Srv *s);
 	void*	aux;
 
@@ -308,7 +309,7 @@ These constraints are checked while the server executes.
 If a service function fails to do something it ought to have,
 .I srv
 will call
-.I endsrv
+.I end
 and then abort.
 .TP 
 .I Auth
@@ -654,6 +655,7 @@ has been sent.
 .PP
 .IR Destroyfid ,
 .IR destroyreq ,
+.IR start ,
 and
 .I end
 are auxiliary functions, not called in direct response to 9P requests.
@@ -683,6 +685,12 @@ and other outstanding pointers to it have been closed),
 is called to allow the program to dispose of the
 .IB r -> aux
 pointer.
+.TP
+.I Start
+Before the 9P service loop begins, the service proc calls
+.I start
+so that the server can run any initialization that must be
+done from inside the service proc.
 .TP
 .I End
 Once the 9P service loop has finished

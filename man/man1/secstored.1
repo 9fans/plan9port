@@ -1,0 +1,64 @@
+.TH SECSTORED 8
+.SH NAME
+secstored, secuser \- secstore commands
+.SH SYNOPSIS
+.br
+.B secstored
+[-R]
+[-S servername]
+[-s tcp!*!5356]
+[-x mountpoint]
+.br
+.B secuser
+[-v]
+username
+.br
+.PP
+.SH DESCRIPTION
+.PP
+.I Secstored
+serves requests from
+.IR secstore (1).
+The
+.B -R
+option supplements the password check with a
+call to a RADIUS server, for checking hardware
+tokens or other validation.
+The
+.BR -x mountpoint
+option specifies an alternative to the default network
+.BR /net .
+.PP
+.I Secuser
+is an administrative command that runs on the
+secstore machine, normally the authserver,
+to create new accounts and
+to change status on existing accounts.
+It prompts for account information such as
+password and expiration date, writing to
+.BR \*9/secstore/who/$uid .
+The
+.B \*9/secstore
+directory should be created mode 770 for the userid
+or groupid of the secstored process.
+.PP
+By default,
+.I secstored
+warns the client if no account exists.
+If you prefer to obscure this information, use
+.I secuser
+to create an account
+.BR FICTITIOUS .
+.SH FILES
+.B \*9/secstore/who/$uid
+secstore account name, expiration date, verifier
+.br
+.B \*9/secstore/store/$uid/
+users' files
+.br
+.B \*9/ndb/auth
+for mapping local userid to RADIUS userid
+.SH SOURCE
+.B \*9/src/cmd/secstore
+.SH SEE ALSO
+.IR secstore (1)

@@ -63,6 +63,16 @@ checks whether the running system uses NPTL and sets
 in
 .B \*9/config
 accordingly.
+The file
+.B \*9/LOCAL.config
+is appended to
+.B config
+after this auto-detection and can be used to override the choices.
+If 
+.B LOCAL.config
+contains a line
+.B WSYS=nowsys
+then the system is built without using X11.
 .SH FILES
 .TP
 .B \*9/lib/moveplan9.files
