@@ -127,9 +127,12 @@ extern int _threaddebuglevel;
 void
 threadmain(int argc, char **argv)
 {
-	char *file;
+	char *file, *x;
 	int fd;
 
+	x = getenv("verbose9pserve");
+	if(x)
+		verbose = atoi(x);
 	ARGBEGIN{
 	default:
 		usage();
@@ -338,6 +341,8 @@ connthread(void *arg)
 				err(m, "unknown fid");
 				continue;
 			}
+			if(m->afid)
+				m->afid->ref++;
 			m->fid = fidnew(m->tx.fid);
 			if(puthash(c->fid, m->tx.fid, m->fid) < 0){
 				err(m, "duplicate fid");
