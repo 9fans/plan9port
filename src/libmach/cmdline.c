@@ -86,7 +86,8 @@ attachargs(int argc, char **argv, int omode, int verbose)
 		symfil = "a.out";	/* default */
 		if(corpid){	/* try from corpid */
 			if((s = proctextfile(corpid)) != nil){
-				fprint(2, "corpid %d: text %s\n", corpid, s);
+				if(verbose)
+					fprint(2, "corpid %d: text %s\n", corpid, s);
 				symfil = s;
 			}
 		}
