@@ -4,20 +4,27 @@
 char*
 sysname(void)
 {
-	char buf[300], *p, *q;
+	static char buf[512];
+	char *p, *q;
 
-	if((q = getenv("sysname")) == nil){
-		if(gethostname(buf, sizeof buf) < 0)
-			goto err;
-		buf[sizeof buf-1] = 0;
-		q = strdup(buf);
-		if(q == nil)
-			goto err;
+	if(buf[0])
+		return buf;
+
+	if((q = getenv("sysname")) != nil && q[0] != 0){
+		utfecpy(buf, buf+sizeof buf, q);
+		free(q);
+		return buf;
 	}
-	if((p = strchr(q, '.')) != nil)
-		*p = 0;
-	return q;
+	if(q)
+		free(q);
 
-err:
-	return "gnot";
+	if(gethostname(buf, sizeof buf) >= 0){
+		buf[sizeof buf-1] = 0;
+		if((p = strchr(buf, '.')) != nil)
+			*p = 0;
+		return buf;
+	}
+
+	strcpy(buf, "gnot");
+	return buf;
 }
