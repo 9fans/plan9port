@@ -466,6 +466,10 @@ xattach(char *label)
 		ch.x = r.min.x;
 		ch.y = r.min.y;
 		XConfigureWindow(_x.display, _x.drawable, CWX|CWY, &ch);
+		/*
+		 * Must pretend origin is 0,0 for X.
+		 */
+		r = Rect(0,0,Dx(r),Dy(r));
 	}
 	/*
 	 * Look up clipboard atom.
