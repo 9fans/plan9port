@@ -1,6 +1,6 @@
 #include <u.h>
 #include <libc.h>
-#include <auth.h>
+#include <authsrv.h>
 
 uchar
 nvcsum(void *vmem, int n)
