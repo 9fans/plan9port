@@ -99,6 +99,7 @@ struct Thread
 	ulong		userpc;
 
 	void*	udata[NPRIV];	/* User per-thread data pointer */
+	int		lastfd;
 };
 
 struct Execargs
@@ -143,6 +144,7 @@ struct Proc
 	Waitmsg		*waitmsg;
 
 	void*	udata;		/* User per-proc data pointer */
+	int		nsched;
 };
 
 struct Pqueue {		/* Proc queue */
@@ -169,7 +171,7 @@ void		_freeproc(Proc*);
 Proc*	_newproc(void(*)(void*), void*, uint, char*, int, int);
 int		_procsplhi(void);
 void		_procsplx(int);
-void		_sched(void);
+int		_sched(void);
 int		_schedexec(Execargs*);
 void		_schedexecwait(void);
 void		_schedexit(Proc*);
@@ -219,4 +221,4 @@ extern int _threadgetpid(void);
 extern void _threadmemset(void*, int, int);
 extern void _threaddebugmemset(void*, int, int);
 extern int _threadprocs;
-extern void _threadstacklimit(void*);
+extern void _threadstacklimit(void*, void*);

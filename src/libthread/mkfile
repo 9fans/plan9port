@@ -59,6 +59,7 @@ asm-OpenBSD-386.$O: asm-FreeBSD-386.s
 
 # sorry
 VG=`test -d /home/rsc/pub/valgrind-debian && echo -DUSEVALGRIND`
+# VG=
 
 CFLAGS=$CFLAGS $VG
 

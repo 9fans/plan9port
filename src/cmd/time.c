@@ -11,6 +11,7 @@ main(int argc, char *argv[])
 {
 	int i;
 	Waitmsg *w;
+	vlong t0, t1;
 	long l;
 	char *p;
 	char err[ERRMAX];
@@ -20,6 +21,7 @@ main(int argc, char *argv[])
 		exits("usage");
 	}
 
+	t0 = nsec();
 	switch(fork()){
 	case -1:
 		error("fork");
@@ -37,8 +39,9 @@ main(int argc, char *argv[])
 
     loop:
 	w = wait();
+	t1 = nsec();
 	if(w == nil){
-		errstr(err, sizeof err);
+		rerrstr(err, sizeof err);
 		if(strcmp(err, "interrupted") == 0)
 			goto loop;
 		error("wait");
@@ -47,7 +50,7 @@ main(int argc, char *argv[])
 	add("%ld.%.2ldu", l/1000, (l%1000)/10);
 	l = w->time[1];
 	add("%ld.%.2lds", l/1000, (l%1000)/10);
-	l = w->time[2];
+	l = (t1-t0)/1000000;
 	add("%ld.%.2ldr", l/1000, (l%1000)/10);
 	add("\t");
 	for(i=1; i<argc; i++){

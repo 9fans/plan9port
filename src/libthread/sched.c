@@ -171,7 +171,7 @@ needstack(int howmuch)
 	}
 }
 
-void
+int
 _sched(void)
 {
 	Proc *p;
@@ -186,8 +186,8 @@ Resched:
 	//		psstate(t->state), &t->sched, &p->sched);
 		if(_setlabel(&t->sched)==0)
 			_gotolabel(&p->sched);
-		_threadstacklimit(t->stk);
-		return;
+		_threadstacklimit(t->stk, t->stk+t->stksize);
+		return p->nsched++;
 	}else{
 		t = runthread(p);
 		if(t == nil){
@@ -277,10 +277,15 @@ _threadidle(void)
 	unlock(&p->readylock);
 }
 
-void
+int
 yield(void)
 {
-	_sched();
+	Proc *p;
+	int nsched;
+
+	p = _threadgetproc();
+	nsched = p->nsched;
+	return _sched() - nsched;
 }
 
 void

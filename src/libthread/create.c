@@ -24,6 +24,7 @@ newthread(Proc *p, void (*f)(void *arg), void *arg, uint stacksize, char *name, 
 	if(stacksize < 32)
 		sysfatal("bad stacksize %d", stacksize);
 	t = _threadmalloc(sizeof(Thread), 1);
+	t->lastfd = -1;
 	s = _threadmalloc(stacksize, 0);
 	t->stk = (uchar*)s;
 	t->stksize = stacksize;

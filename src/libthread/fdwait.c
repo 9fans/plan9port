@@ -2,12 +2,13 @@
 #include <u.h>
 #include <libc.h>
 #include <thread.h>
-
+#include "threadimpl.h"
 #include <errno.h>
 #include <unistd.h>
 #include <fcntl.h>
 
 #define debugpoll 0
+static int noblocked[4096/32];
 
 #ifdef __APPLE__
 #include <sys/time.h>
@@ -174,11 +175,15 @@ _threadfdwait(int fd, int rw, ulong pc)
 
 	struct {
 		Channel c;
+		Alt *qentry[2];
 		ulong x;
 	} s;
 
 	threadfdwaitsetup();
 	chaninit(&s.c, sizeof(ulong), 1);
+	s.c.qentry = (volatile Alt**)s.qentry;
+	s.c.nentry = 2;
+	memset(s.qentry, 0, sizeof s.qentry);
 	for(i=0; i<npoll; i++)
 		if(pfd[i].fd == -1)
 			break;
@@ -223,7 +228,25 @@ threadsleep(int ms)
 void
 threadfdnoblock(int fd)
 {
+	Thread *t;
+
+	if(fd<0)
+		return;
+	if(fd < 8*sizeof(int)*nelem(noblocked)
+	&& (noblocked[fd/(8*sizeof(int))] & (1<<(fd%(8*sizeof(int))))))
+		return;
+	t = _threadgetproc()->thread;
+	if(t && t->lastfd == fd)
+		return;
 	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0)|O_NONBLOCK);
+	if(t)
+		t->lastfd = fd;
+
+	/* We could lock this but we're probably single-threaded
+	 * and the worst that will happen is we'll run fcntl
+	 * a few more times.
+	 */
+	noblocked[fd/(8*sizeof(int))] |= 1<<(fd%(8*sizeof(int)));
 }
 
 long

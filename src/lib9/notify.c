@@ -66,7 +66,7 @@ int
 notify(void (*f)(void*, char*))
 {
 	int i;
-	struct sigaction sa;
+	struct sigaction sa, osa;
 
 	_p9uproc(0);
 	memset(&sa, 0, sizeof sa);
@@ -77,11 +77,22 @@ notify(void (*f)(void*, char*))
 		sa.sa_handler = notifysigf;
 	}
 	for(i=0; i<nelem(sigs); i++){
+		/*
+		 * If someone has already installed a handler,
+		 * It's probably some ld preload nonsense,
+		 * like pct (a SIGVTALRM-based profiler).
+		 * Leave it alone.
+		 */
+		sigaction(sigs[i].sig, nil, &osa);
+		if(osa.sa_handler != SIG_DFL)
+			continue;
+		sigemptyset(&sa.sa_mask);
+		sigaddset(&sa.sa_mask, i);
 		if(sigs[i].restart)
 			sa.sa_flags |= SA_RESTART;
 		else
 			sa.sa_flags &= ~SA_RESTART;
-		sigaction(sigs[i].sig, &sa, 0);
+		sigaction(sigs[i].sig, &sa, nil);
 	}
 	return 0;
 }

@@ -15,7 +15,7 @@ launcher386(void (*f)(void *arg), void *arg)
 
 	p = _threadgetproc();
 	t = p->thread;
-	_threadstacklimit(t->stk);
+	_threadstacklimit(t->stk, t->stk+t->stksize);
 
 	(*f)(arg);
 	threadexits(nil);
@@ -39,18 +39,19 @@ _threadinswitch(int enter)
 	USED(enter);
 #ifdef USEVALGRIND
 	if(enter)
-		VALGRIND_SET_STACK_LIMIT(0, 0, 1);
-	else
 		VALGRIND_SET_STACK_LIMIT(0, 0, 0);
+	else
+		VALGRIND_SET_STACK_LIMIT(0, 0, 1);
 #endif
 }
 
 void
-_threadstacklimit(void *addr)
+_threadstacklimit(void *bottom, void *top)
 {
-	USED(addr);
+	USED(bottom);
+	USED(top);
 
 #ifdef USEVALGRIND
-	VALGRIND_SET_STACK_LIMIT(1, addr, 0);
+	VALGRIND_SET_STACK_LIMIT(1, bottom, top);
 #endif
 }

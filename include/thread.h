@@ -121,7 +121,7 @@ Channel*	threadwaitchan(void);
 int	tprivalloc(void);
 void	tprivfree(int);
 void	**tprivaddr(int);
-void		yield(void);
+int	yield(void);
 
 long		threadstack(void);
 

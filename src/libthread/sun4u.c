@@ -46,7 +46,7 @@ _threadinswitch(int enter)
 }
 
 void
-_threadstacklimit(void *addr)
+_threadstacklimit(void *addr, void *addr2)
 {
 	USED(addr);
 }
