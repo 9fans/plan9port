@@ -63,8 +63,6 @@ threadmain(int argc, char *argv[])
 	int ncol;
 	Display *d;
 
-extern int _threaddebuglevel;
-_threaddebuglevel = ~0;
 	rfork(RFENVG|RFNAMEG);
 
 	ncol = -1;

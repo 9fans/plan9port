@@ -167,7 +167,7 @@ threadfdwaitsetup(void)
 }
 
 void
-threadfdwait(int fd, int rw)
+_threadfdwait(int fd, int rw, ulong pc)
 {
 	int i;
 
@@ -192,8 +192,15 @@ threadfdwait(int fd, int rw)
 	pfd[i].fd = fd;
 	pfd[i].events = rw=='r' ? POLLIN : POLLOUT;
 	polls[i].c = &s.c;
-	//threadstate("fdwait %d %d", f->fd, e);
+	//fprint(2, "%s [%3d] fdwait %d %c list *0x%lux\n",
+		argv0, threadid(), fd, rw, pc);
 	recvul(&s.c);
+}
+
+void
+threadfdwait(int fd, int rw)
+{
+	_threadfdwait(fd, rw, getcallerpc(&fd));
 }
 
 void
@@ -230,7 +237,7 @@ again:
 		if(errno == EINTR)
 			goto again;
 		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			threadfdwait(fd, 'r');
+			_threadfdwait(fd, 'r', getcallerpc(&fd));
 			goto again;
 		}
 	}
@@ -249,7 +256,7 @@ again:
 		if(errno == EINTR)
 			goto again;
 		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			threadfdwait(fd, 'r');
+			_threadfdwait(fd, 'r', getcallerpc(&fd));
 			goto again;
 		}
 	}
@@ -268,7 +275,7 @@ again:
 		if(errno == EINTR)
 			goto again;
 		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			threadfdwait(fd, 'w');
+			_threadfdwait(fd, 'w', getcallerpc(&fd));
 			goto again;
 		}
 	}
@@ -303,7 +310,7 @@ again:
 		if(errno == EINTR)
 			goto again;
 		if(errno == EAGAIN || errno == EWOULDBLOCK){
-			threadfdwait(fd, 'w');
+			_threadfdwait(fd, 'w', getcallerpc(&fd));
 			goto again;
 		}
 	}

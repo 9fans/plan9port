@@ -167,7 +167,7 @@ threadmain(int argc, char **argv)
 void
 mainproc(void *v)
 {
-	int n;
+	int n, nn;
 	Fcall f;
 	USED(v);
 
@@ -186,8 +186,10 @@ mainproc(void *v)
 	f.tag = NOTAG;
 	n = convS2M(&f, vbuf, sizeof vbuf);
 	if(verbose > 1) fprint(2, "* <- %F\n", &f);
-	write(1, vbuf, n);
-	n = read9pmsg(0, vbuf, sizeof vbuf);
+	nn = write(1, vbuf, n);
+	if(n != nn)
+		sysfatal("error writing Tversion: %r\n");
+	n = threadread9pmsg(0, vbuf, sizeof vbuf);
 	if(convM2S(vbuf, n, &f) != n)
 		sysfatal("convM2S failure");
 	if(f.msize < msize)

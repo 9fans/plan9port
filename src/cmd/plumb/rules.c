@@ -127,7 +127,7 @@ popinput(void)
 	return 1;
 }
 
-int
+static int
 getc(void)
 {
 	if(input == nil)
