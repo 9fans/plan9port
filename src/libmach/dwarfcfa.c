@@ -110,6 +110,10 @@ findfde(Dwarf *d, ulong pc, State *s, DwarfBuf *fde)
 	ulong len, id, base, size;
 	DwarfBuf b;
 
+	if(d->frame.data == nil){
+		werrstr("no frame debugging information");
+		return -1;
+	}
 	b.d = d;
 	b.p = d->frame.data;
 	b.ep = b.p + d->frame.len;

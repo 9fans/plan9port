@@ -58,13 +58,13 @@ dwarfopen(Elf *elf)
 	d->elf = elf;
 	if(loadsection(elf, ".debug_abbrev", &d->abbrev) < 0
 	|| loadsection(elf, ".debug_aranges", &d->aranges) < 0
-	|| loadsection(elf, ".debug_frame", &d->frame) < 0
 	|| loadsection(elf, ".debug_line", &d->line) < 0
 	|| loadsection(elf, ".debug_pubnames", &d->pubnames) < 0
-	|| loadsection(elf, ".debug_ranges", &d->ranges) < 0
-	|| loadsection(elf, ".debug_str", &d->str) < 0
 	|| loadsection(elf, ".debug_info", &d->info) < 0)
 		goto err;
+	loadsection(elf, ".debug_frame", &d->frame);
+	loadsection(elf, ".debug_ranges", &d->ranges);
+	loadsection(elf, ".debug_str", &d->str);
 
 	/* make this a table once there are more */
 	switch(d->elf->hdr.machine){
