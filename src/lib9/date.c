@@ -34,12 +34,11 @@ tm2Tm(struct tm *tm, Tm *bigtm)
 	bigtm->mon = tm->tm_mon;
 	bigtm->year = tm->tm_year;
 	bigtm->wday = tm->tm_wday;
-#ifdef _HAVETMZONE
-	strecpy(bigtm->zone, bigtm->zone+4, tm->tm_zone);
-#endif
+	strftime(bigtm->zone, sizeof bigtm->zone, "%Z", tm);
 #ifdef _HAVETZOFF
 	bigtm->tzoff = tm->tm_gmtoff;
 #endif
+	
 	if(bigtm->zone[0] == 0){
 		s = getenv("TIMEZONE");
 		if(s){
