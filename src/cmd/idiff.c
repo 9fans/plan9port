@@ -7,6 +7,8 @@
 #include <libc.h>
 #include <bio.h>
 
+#define opentemp idiffopentemp
+
 int diffbflag;
 int diffwflag;
 
