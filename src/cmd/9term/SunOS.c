@@ -1,6 +1,7 @@
 #include <u.h>
 #include <termios.h>
 #include <stropts.h>
+#include <signal.h>
 #include <libc.h>
 #include "term.h"
 
