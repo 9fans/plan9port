@@ -4,7 +4,7 @@ int
 encodefmt(Fmt *f)
 {
 	char *out;
-	char *buf;
+	char *buf, *p;
 	int len;
 	int ilen;
 	int rv;
