@@ -29,6 +29,7 @@ sproc(int xpid)
 	free(correg);
 	correg = nil;
 
+fprint(2, "mapproc %d\n", xpid);
 	if(mapproc(xpid, cormap, &correg) < 0)
 		error("setproc %d: %r", pid);
 

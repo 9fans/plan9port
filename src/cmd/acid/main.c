@@ -77,6 +77,7 @@ main(int argc, char *argv[])
 	bout = &bioout;
 
 	initexpr();
+	initprint();
 	kinit();
 	initialising = 1;
 	pushfile(0);
