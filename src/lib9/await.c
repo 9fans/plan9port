@@ -15,8 +15,8 @@ static struct {
 	SIGHUP,		"hangup",
 	SIGINT,		"interrupt",
 	SIGQUIT,		"quit",
-	SIGILL,		"sys: trap: illegal instruction",
-	SIGTRAP,		"sys: trace trap",
+	SIGILL,		"sys: illegal instruction",
+	SIGTRAP,		"sys: breakpoint",
 	SIGABRT,		"sys: abort",
 #ifdef SIGEMT
 	SIGEMT,		"sys: emulate instruction executed",
