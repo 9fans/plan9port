@@ -98,5 +98,11 @@ corefile(char *name, int explicit)
 		return;
 	}
 	print("acid %s # %s %s\n", name, t, hdr->cmd);
+
+	/*
+	 * To do: look at command line to determine binary.
+	 * Print stack.
+	 */
 	uncrackhdr(hdr);
 }
+
