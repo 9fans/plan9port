@@ -1021,7 +1021,8 @@ consread(void)
 		s = setecho(sfd, 0);
 		if(write(rcfd, buf, n) < 0)
 			exits(0);
-		setecho(sfd, s);
+		if(s)
+			setecho(sfd, s);
 	}
 }
 
