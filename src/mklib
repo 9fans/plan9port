@@ -1,0 +1,13 @@
+default:V:	$LIB
+
+$LIB:	$OFILES
+	$AR rvc $LIB $newprereq
+
+&:n:	&.$O
+	$AR rvc $LIB $stem.$O
+
+all install:V: $LIB
+
+NUKEFILES=$NUKEFILES $LIB
+
+<$PLAN9/src/mkcommon
