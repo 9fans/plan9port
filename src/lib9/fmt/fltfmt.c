@@ -25,6 +25,7 @@
 
 enum
 {
+	FDIGIT	= 30,
 	FDEFLT	= 6,
 	NSIGNIF	= 17
 };
@@ -129,67 +130,47 @@ xsub(char *a, int n, int v)
 }
 
 static void
-xaddexp(char *p, int e)
+xdtoa(Fmt *fmt, char *s2, double f)
 {
-	char se[9];
-	int i;
-
-	*p++ = 'e';
-	if(e < 0) {
-		*p++ = '-';
-		e = -e;
-	}
-	i = 0;
-	while(e) {
-		se[i++] = e % 10 + '0';
-		e /= 10;
-	}
-	if(i == 0) {
-		*p++ = '0';
-	} else {
-		while(i > 0)
-			*p++ = se[--i];
-	}
-	*p++ = '\0';
-}
-
-static char*
-xdodtoa(char *s1, double f, int chr, int prec, int *decpt, int *rsign)
-{
-	char s2[NSIGNIF+10];
+	char s1[NSIGNIF+10];
 	double g, h;
-	int e, d, i;
-	int c2, sign, oerr;
+	int e, d, i, n;
+	int c1, c2, c3, c4, ucase, sign, chr, prec;
 
-	if(chr == 'F')
-		chr = 'f';
-	if(prec > NSIGNIF)
-		prec = NSIGNIF;
-	if(prec < 0)
-		prec = 0;
-	if(__isNaN(f)) {
-		*decpt = 9999;
-		*rsign = 0;
-		strcpy(s1, "nan");
-		return &s1[3];
+	prec = FDEFLT;
+	if(fmt->flags & FmtPrec)
+		prec = fmt->prec;
+	if(prec > FDIGIT)
+		prec = FDIGIT;
+	if(isNaN(f)) {
+		strcpy(s2, "NaN");
+		return;
+	}
+	if(isInf(f, 1)) {
+		strcpy(s2, "+Inf");
+		return;
+	}
+	if(isInf(f, -1)) {
+		strcpy(s2, "-Inf");
+		return;
 	}
 	sign = 0;
 	if(f < 0) {
 		f = -f;
 		sign++;
 	}
-	*rsign = sign;
-	if(__isInf(f, 1) || __isInf(f, -1)) {
-		*decpt = 9999;
-		strcpy(s1, "inf");
-		return &s1[3];
+	ucase = 0;
+	chr = fmt->r;
+	if(isupper(chr)) {
+		ucase = 1;
+		chr = tolower(chr);
 	}
 
 	e = 0;
 	g = f;
 	if(g != 0) {
 		frexp(f, &e);
-		e = (int)(e * .301029995664);
+		e = e * .301029995664;
 		if(e >= -150 && e <= +150) {
 			d = 0;
 			h = f;
@@ -213,7 +194,7 @@ xdodtoa(char *s1, double f, int chr, int prec, int *decpt, int *rsign)
 	 * back to get accuracy.
 	 */
 	for(i=0; i<NSIGNIF; i++) {
-		d = (int)g;
+		d = g;
 		s1[i] = d + '0';
 		g = (g - d) * 10;
 	}
@@ -225,21 +206,20 @@ xdodtoa(char *s1, double f, int chr, int prec, int *decpt, int *rsign)
 	c2 = prec + 1;
 	if(chr == 'f')
 		c2 += e;
-	oerr = errno;
 	if(c2 >= NSIGNIF-2) {
 		strcpy(s2, s1);
 		d = e;
 		s1[NSIGNIF-2] = '0';
 		s1[NSIGNIF-1] = '0';
-		xaddexp(s1+NSIGNIF, e-NSIGNIF+1);
-		g = fmtstrtod(s1, nil);
+		sprint(s1+NSIGNIF, "e%d", e-NSIGNIF+1);
+		g = strtod(s1, nil);
 		if(g == f)
 			goto found;
 		if(xadd(s1, NSIGNIF-3, 1)) {
 			e++;
-			xaddexp(s1+NSIGNIF, e-NSIGNIF+1);
+			sprint(s1+NSIGNIF, "e%d", e-NSIGNIF+1);
 		}
-		g = fmtstrtod(s1, nil);
+		g = strtod(s1, nil);
 		if(g == f)
 			goto found;
 		strcpy(s1, s2);
@@ -249,9 +229,9 @@ xdodtoa(char *s1, double f, int chr, int prec, int *decpt, int *rsign)
 	/*
 	 * convert back so s1 gets exact answer
 	 */
-	for(d = 0; d < 10; d++) {
-		xaddexp(s1+NSIGNIF, e-NSIGNIF+1);
-		g = fmtstrtod(s1, nil);
+	for(;;) {
+		sprint(s1+NSIGNIF, "e%d", e-NSIGNIF+1);
+		g = strtod(s1, nil);
 		if(f > g) {
 			if(xadd(s1, NSIGNIF-1, 1))
 				e--;
@@ -266,101 +246,129 @@ xdodtoa(char *s1, double f, int chr, int prec, int *decpt, int *rsign)
 	}
 
 found:
-	errno = oerr;
-
 	/*
 	 * sign
 	 */
 	d = 0;
 	i = 0;
+	if(sign)
+		s2[d++] = '-';
+	else if(fmt->flags & FmtSign)
+		s2[d++] = '+';
+	else if(fmt->flags & FmtSpace)
+		s2[d++] = ' ';
 
 	/*
-	 * round & adjust 'f' digits
+	 * copy into final place
+	 * c1 digits of leading '0'
+	 * c2 digits from conversion
+	 * c3 digits of trailing '0'
+	 * c4 digits after '.'
 	 */
+	c1 = 0;
 	c2 = prec + 1;
-	if(chr == 'f'){
-		if(xadd(s1, c2+e, 5))
-			e++;
-		c2 += e;
-		if(c2 < 0){
-			c2 = 0;
-			e = -prec - 1;
-		}
-	}else{
+	c3 = 0;
+	c4 = prec;
+	switch(chr) {
+	default:
 		if(xadd(s1, c2, 5))
 			e++;
+		break;
+	case 'g':
+		/*
+		 * decide on 'e' of 'f' style convers
+		 */
+		if(xadd(s1, c2, 5))
+			e++;
+		if(e >= -5 && e <= prec) {
+			c1 = -e - 1;
+			c4 = prec - e;
+			chr = 'h';	// flag for 'f' style
+		}
+		break;
+	case 'f':
+		if(xadd(s1, c2+e, 5))
+			e++;
+		c1 = -e;
+		if(c1 > prec)
+			c1 = c2;
+		c2 += e;
+		break;
 	}
-	if(c2 > NSIGNIF){
+
+	/*
+	 * clean up c1 c2 and c3
+	 */
+	if(c1 < 0)
+		c1 = 0;
+	if(c2 < 0)
+		c2 = 0;
+	if(c2 > NSIGNIF) {
+		c3 = c2-NSIGNIF;
 		c2 = NSIGNIF;
 	}
 
-	*decpt = e + 1;
-
 	/*
-	 * terminate the converted digits
+	 * copy digits
 	 */
-	s1[c2] = '\0';
-	return &s1[c2];
-}
-
-/*
- * this function works like the standard dtoa, if you want it.
- */
-#if 0
-static char*
-__dtoa(double f, int mode, int ndigits, int *decpt, int *rsign, char **rve)
-{
-	static char s2[NSIGNIF + 10];
-	char *es;
-	int chr, prec;
-
-	switch(mode) {
-	/* like 'e' */
-	case 2:
-	case 4:
-	case 6:
-	case 8:
-		chr = 'e';
-		break;
-	/* like 'g' */
-	case 0:
-	case 1:
-	default:
-		chr = 'g';
-		break;
-	/* like 'f' */
-	case 3:
-	case 5:
-	case 7:
-	case 9:
-		chr = 'f';
-		break;
+	while(c1 > 0) {
+		if(c1+c2+c3 == c4)
+			s2[d++] = '.';
+		s2[d++] = '0';
+		c1--;
+	}
+	while(c2 > 0) {
+		if(c2+c3 == c4)
+			s2[d++] = '.';
+		s2[d++] = s1[i++];
+		c2--;
+	}
+	while(c3 > 0) {
+		if(c3 == c4)
+			s2[d++] = '.';
+		s2[d++] = '0';
+		c3--;
 	}
 
-	if(chr != 'f' && ndigits){
-		ndigits--;
-	}
-	prec = ndigits;
-	if(prec > NSIGNIF)
-		prec = NSIGNIF;
-	if(ndigits == 0)
-		prec = NSIGNIF;
-	es = xdodtoa(s2, f, chr, prec, decpt, rsign);
-
 	/*
-	 * strip trailing 0
+	 * strip trailing '0' on g conv
 	 */
-	for(; es > s2 + 1; es--){
-		if(es[-1] != '0'){
-			break;
+	if(fmt->flags & FmtSharp) {
+		if(0 == c4)
+			s2[d++] = '.';
+	} else
+	if(chr == 'g' || chr == 'h') {
+		for(n=d-1; n>=0; n--)
+			if(s2[n] != '0')
+				break;
+		for(i=n; i>=0; i--)
+			if(s2[i] == '.') {
+				d = n;
+				if(i != n)
+					d++;
+				break;
+			}
+	}
+	if(chr == 'e' || chr == 'g') {
+		if(ucase)
+			s2[d++] = 'E';
+		else
+			s2[d++] = 'e';
+		c1 = e;
+		if(c1 < 0) {
+			s2[d++] = '-';
+			c1 = -c1;
+		} else
+			s2[d++] = '+';
+		if(c1 >= 100) {
+			s2[d++] = c1/100 + '0';
+			c1 = c1%100;
 		}
+		s2[d++] = c1/10 + '0';
+		s2[d++] = c1%10 + '0';
 	}
-	*es = '\0';
-	if(rve != NULL)
-		*rve = es;
-	return s2;
+	s2[d] = 0;
 }
-#endif
 
 static int
 fmtzdotpad(Fmt *f, int n, int pt)
@@ -395,217 +403,22 @@ fmtzdotpad(Fmt *f, int n, int pt)
 	return 0;
 }
 
-int
-__efgfmt(Fmt *fmt)
+static int
+floatfmt(Fmt *fmt, double f)
 {
-	double f;
-	char s1[NSIGNIF+10];
-	int e, d, n;
-	int c1, c2, c3, c4, ucase, sign, chr, prec, fl;
+	char s[FDIGIT+10];
 
-	f = va_arg(fmt->args, double);
-	prec = FDEFLT;
-	fl = fmt->flags;
-	fmt->flags = 0;
-	if(fl & FmtPrec)
-		prec = fmt->prec;
-	chr = fmt->r;
-	ucase = 0;
-	if(chr == 'E'){
-		chr = 'e';
-		ucase = 1;
-	}else if(chr == 'F'){
-		chr = 'f';
-		ucase = 1;
-	}else if(chr == 'G'){
-		chr = 'g';
-		ucase = 1;
-	}
-	if(prec > 0 && chr == 'g')
-		prec--;
-	if(prec < 0)
-		prec = 0;
-
-	xdodtoa(s1, f, chr, prec, &e, &sign);
-	e--;
-	if(*s1 == 'i' || *s1 == 'n'){
-		if(ucase){
-			if(*s1 == 'i'){
-				strcpy(s1, "INF");
-			}else{
-				strcpy(s1, "NAN");
-			}
-		}
-		fmt->flags = fl & (FmtWidth|FmtLeft);
-		return __fmtcpy(fmt, (const void*)s1, 3, 3);
-	}
-
-	/*
-	 * copy into final place
-	 * c1 digits of leading '0'
-	 * c2 digits from conversion
-	 * c3 digits of trailing '0'
-	 * c4 digits after '.'
-	 */
-	c1 = 0;
-	c2 = prec + 1;
-	c3 = 0;
-	c4 = prec;
-	switch(chr) {
-	default:
-		chr = 'e';
-		break;
-	case 'g':
-		/*
-		 * decide on 'e' of 'f' style convers
-		 */
-		if(e >= -4 && e <= prec) {
-			c1 = -e;
-			c4 = prec - e;
-			chr = 'h';	/* flag for 'f' style */
-		}
-		break;
-	case 'f':
-		c1 = -e;
-		if(c1 > prec)
-			c1 = prec + 1;
-		c2 += e;
-		break;
-	}
-
-	/*
-	 * clean up c1 c2 and c3
-	 */
-	if(c1 < 0)
-		c1 = 0;
-	if(c2 < 0)
-		c2 = 0;
-	if(c2 > NSIGNIF) {
-		c3 = c2-NSIGNIF;
-		c2 = NSIGNIF;
-	}
-
-	/*
-	 * trim trailing zeros for %g
-	 */
-	if(!(fl & FmtSharp)
-	&& (chr == 'g' || chr == 'h')){
-		if(c4 >= c3){
-			c4 -= c3;
-			c3 = 0;
-		}else{
-			c3 -= c4;
-			c4 = 0;
-		}
-		while(c4 && c2 > 1 && s1[c2 - 1] == '0'){
-			c4--;
-			c2--;
-		}
-	}
-
-	/*
-	 * calculate the total length
-	 */
-	n = c1 + c2 + c3;
-	if(sign || (fl & (FmtSign|FmtSpace)))
-		n++;
-	if(c4 || (fl & FmtSharp)){
-		n++;
-	}
-	if(chr == 'e' || chr == 'g'){
-		n += 4;
-		if(e >= 100)
-			n++;
-	}
-
-	/*
-	 * pad to width if right justified
-	 */
-	if((fl & (FmtWidth|FmtLeft)) == FmtWidth && n < fmt->width){
-		if(fl & FmtZero){
-			c1 += fmt->width - n;
-		}else{
-			if(__fmtpad(fmt, fmt->width - n) < 0){
-				return -1;
-			}
-		}
-	}
-
-	/*
-	 * sign
-	 */
-	d = 0;
-	if(sign)
-		d = '-';
-	else if(fl & FmtSign)
-		d = '+';
-	else if(fl & FmtSpace)
-		d = ' ';
-	if(d && fmtrune(fmt, d) < 0){
-		return -1;
-	}
-
-	/*
-	 * copy digits
-	 */
-	c4 = c1 + c2 + c3 - c4;
-	if(c1 > 0){
-		if(fmtzdotpad(fmt, c1, c4) < 0){
-			return -1;
-		}
-		c4 -= c1;
-	}
-	d = 0;
-	if(c4 >= 0 && c4 < c2){
-		if(__fmtcpy(fmt, s1, c4, c4) < 0 || fmtrune(fmt, '.') < 0)
-			return -1;
-		d = c4;
-		c2 -= c4;
-		c4 = -1;
-	}
-	if(__fmtcpy(fmt, (const void*)(s1 + d), c2, c2) < 0){
-		return -1;
-	}
-	c4 -= c2;
-	if(c3 > 0){
-		if(fmtzdotpad(fmt, c3, c4) < 0){
-			return -1;
-		}
-		c4 -= c3;
-	}
-
-	/*
-	 * strip trailing '0' on g conv
-	 */
-	if((fl & FmtSharp) && c4 == 0 && fmtrune(fmt, '.') < 0){
-		return -1;
-	}
-	if(chr == 'e' || chr == 'g') {
-		d = 0;
-		if(ucase)
-			s1[d++] = 'E';
-		else
-			s1[d++] = 'e';
-		c1 = e;
-		if(c1 < 0) {
-			s1[d++] = '-';
-			c1 = -c1;
-		} else
-			s1[d++] = '+';
-		if(c1 >= 100) {
-			s1[d++] = c1/100 + '0';
-			c1 = c1%100;
-		}
-		s1[d++] = c1/10 + '0';
-		s1[d++] = c1%10 + '0';
-		if(__fmtcpy(fmt, s1, d, d) < 0){
-			return -1;
-		}
-	}
-	if((fl & (FmtWidth|FmtLeft)) == (FmtWidth|FmtLeft) && n < fmt->width){
-		if(__fmtpad(fmt, fmt->width - n) < 0){
-			return -1;
-		}
-	}
+	xdtoa(fmt, s, f);
+	fmt->flags &= FmtWidth|FmtLeft;
+	__fmtcpy(fmt, s, strlen(s), strlen(s));
 	return 0;
+}
+
+int
+__efgfmt(Fmt *f)
+{
+	double d;
+
+	d = va_arg(f->args, double);
+	return floatfmt(f, d);
 }
