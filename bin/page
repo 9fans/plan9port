@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# BUG - Should clean up $tmp but how to know when viewer is done?
+
 preview()
 {
 	list=""
@@ -20,34 +22,77 @@ preview()
 	end tell' | osascript
 }
 
-case $# in
-0)
-	cat >/var/tmp/page.$$.tmp
-	*="/var/tmp/page.$$.tmp"
-	;;
-*)
-	;;
-esac
-
-case `uname` in
-Darwin)
-	preview "$@"
-	;;
-*)
-	case "`file $1`" in
-	*PDF*)
-		psv $1
-		;;
-	*PS*)
-		psv $1
-		;;
-	*PostScript*)
-		psv $1
+main()
+{
+	case `uname` in
+	Darwin)
+		preview "$@"
 		;;
 	*)
-		qiv "$@"
+		case "`file $1`" in
+		*PDF*)
+			psv $1
+			;;
+		*PS*)
+			psv $1
+			;;
+		*PostScript*)
+			psv $1
+			;;
+		*)
+			qiv "$@"
+			;;
+		esac
 		;;
 	esac
+}
+	
+case $# in
+0)
+	tmp=/var/tmp/page.$$.tmp
+	cat >$tmp
+	case "`file $tmp`" in
+	*PDF*)
+		mv $tmp $tmp.pdf
+		tmp=$tmp.pdf
+		;;
+	*PS*)
+		mv $tmp $tmp.ps
+		tmp=$tmp.ps
+		;;
+	*PostScript*)
+		mv $tmp $tmp.ps
+		tmp=$tmp.ps
+		;;
+	*GIF*)
+		mv $tmp $tmp.gif
+		tmp=$tmp.gif
+		;;
+	*JPG*)
+		mv $tmp $tmp.jpg
+		tmp=$tmp.jpg
+		;;
+	*JPEG*)
+		mv $tmp $tmp.jpg
+		tmp=$tmp.jpg
+		;;
+	*PNG*)
+		mv $tmp $tmp.png
+		tmp=$tmp.png
+		;;
+	*)
+		echo 1>&2 unrecognized file format
+		rm -f $tmp
+		exit 1
+	esac
+	main $tmp
+	if [ `uname` != Darwin ]
+	then
+		rm -f $tmp
+	fi
+	;;
+*)
+	main "$@"
 	;;
 esac
 
