@@ -72,6 +72,7 @@ cd lib9
 9c  seek.c
 9c  sendfd.c
 9c  sleep.c
+9c  strdup.c
 9c  strecpy.c
 9c  sysfatal.c
 9c  sysname.c
