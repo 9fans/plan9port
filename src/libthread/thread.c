@@ -121,9 +121,9 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	t->context.uc.uc_stack.ss_size = t->stksize-64;
 #ifdef __sun__		/* sigh */
 	/* can avoid this with __MAKECONTEXT_V2_SOURCE but only on SunOS 5.9 */
-	t->context.uc_stack.ss_sp = 
-		(char*)t->context.uc_stack.ss_sp
-		+t->context.uc_stack.ss_size;
+	t->context.uc.uc_stack.ss_sp = 
+		(char*)t->context.uc.uc_stack.ss_sp
+		+t->context.uc.uc_stack.ss_size;
 #endif
 	makecontext(&t->context.uc, (void(*)())threadstart, 1, t);
 
