@@ -1,10 +1,12 @@
 bin/"
 bin/""
 bin/9
+bin/9.rc
 bin/Getdir
 bin/adict
 bin/doctype
 bin/lookman
+bin/man
 bin/sig
 bin/spell
 bin/src
