@@ -35,7 +35,8 @@ usage(void)
 
 extern int chatty9pclient;
 int debug;
-#define dprint if(debug)print
+#define dprint if(debug>1)print
+#define cprint if(debug)print
 Win *mkwin(char*);
 int do3(Win *w, char *arg);
 
@@ -59,6 +60,12 @@ char *cmds[] = {
 	"Delete",
 	"Debug",
 	nil
+};
+
+char *debugstr[] = {
+	"off",
+	"minimal",
+	"chatty",
 };
 
 typedef struct Arg Arg;
@@ -253,7 +260,31 @@ parsename(char *name, char **server, char **path)
 char*
 filestat(char *server, char *path)
 {
-	return sysrun(2, "9 netfilestat %q %q", server, path);
+	char *type;
+	static struct {
+		char *server;
+		char *path;
+		char *type;
+	} cache;
+
+	if(cache.server && strcmp(server, cache.server) == 0)
+	if(cache.path && strcmp(path, cache.path) == 0){
+		type = estrdup(cache.type);
+		cprint("9 netfilestat %q %q => %s (cached)\n", server, path, type);
+		return type;
+	}
+
+	type = sysrun(2, "9 netfilestat %q %q", server, path);
+
+	free(cache.server);
+	free(cache.path);
+	free(cache.type);
+	cache.server = estrdup(server);
+	cache.path = estrdup(path);
+	cache.type = estrdup(type);
+
+	cprint("9 netfilestat %q %q => %s\n", server, path, type);
+	return type;
 }
 
 /*
@@ -300,6 +331,8 @@ filethread(void *v)
 					winaddr(w, ",");
 					winprint(w, "data", "[reading...]");
 					winaddr(w, ",");
+					cprint("9 netfileget %s%q %q\n", 
+						strcmp(type, "file") == 0 ? "" : "-d", server, path);
 					if(strcmp(type, "file")==0)
 						twait(pipetowin(w, "data", 2, "9 netfileget %q %q", server, path));
 					else
@@ -343,6 +376,7 @@ filethread(void *v)
 					fprint(2, "Netfiles: bad name %s\n", name);
 					goto out;
 				}
+				cprint("9 netfileput %q %q\n", server, path);
 				if(twait(pipewinto(w, "body", 2, "9 netfileput %q %q", server, path)) >= 0){
 					cleanname(name);
 					winname(w, name);
@@ -358,7 +392,8 @@ filethread(void *v)
 				winctl(w, "delete");
 				break;
 			case Debug:
-				debug = !debug;
+				debug = (debug+1)%3;
+				print("Netfiles debug %s\n", debugstr[debug]);
 				break;
 			default:
 				winwriteevent(w, e);
@@ -386,9 +421,10 @@ do3(Win *w, char *text)
 	char *addr, *name, *type, *server, *path, *p, *q;
 	static char lastfail[1000];
 
-	if(text[0] == '/')
+	if(text[0] == '/'){
+		p = nil;
 		name = estrdup(text);
-	else{
+	}else{
 		p = wingetname(w);
 		if(text[0] != ':'){
 			q = strrchr(p, '/');
@@ -400,15 +436,18 @@ do3(Win *w, char *text)
 			strcat(name, "/");
 		strcat(name, text);
 	}
-	dprint("do3 %s => %s\n", text, name);
+	cprint("button3 %s %s => %s\n", p, text, name);
 	if((addr = strchr(name, ':')) != nil)
 		*addr++ = 0;
 	cleanname(name);
+	cprint("b3 \t=> name=%s addr=%s\n", name, addr);
 	if(strcmp(name, lastfail) == 0){
+		cprint("b3 \t=> non-existant (cached)\n");
 		free(name);
 		return -1;
 	}
 	if(parsename(name, &server, &path) < 0){
+		cprint("b3 \t=> parsename failed\n");
 		free(name);
 		return -1;
 	}
@@ -417,11 +456,15 @@ do3(Win *w, char *text)
 	free(path);
 	if(strcmp(type, "file")==0 || strcmp(type, "directory")==0){
 		w = nametowin(name);
-	fprint(2, "nametowin %s: %p\n", name);
-		if(w == nil)
+		if(w == nil){
 			w = mkwin(name);
-		winaddr(w, "%s", addr);
-		winctl(w, "dot=addr");
+			cprint("b3 \t=> creating new window %d\n", w->id);
+		}else
+			cprint("b3 \t=> reusing window %d\n", w->id);
+		if(addr){
+			winaddr(w, "%s", addr);
+			winctl(w, "dot=addr");
+		}
 		winctl(w, "show");
 		free(name);
 		free(type);
@@ -431,8 +474,10 @@ do3(Win *w, char *text)
 	 * remember last name that didn't exist so that
 	 * only the first right-click is slow when searching for text.
 	 */
+	cprint("b3 caching %s => type %s\n", name, type);
 	strecpy(lastfail, lastfail+sizeof lastfail, name);
 	free(name);
+	free(type);
 	return -1;
 }
 

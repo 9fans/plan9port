@@ -6,7 +6,7 @@
 
 extern int debug;
 
-#define dprint if(debug)print
+#define dprint if(debug>1)print
 
 typedef struct Waitreq Waitreq;
 struct Waitreq
