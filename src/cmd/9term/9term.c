@@ -88,7 +88,7 @@ void	doreshape(void);
 void	runewrite(Rune*, int);
 void	consread(void);
 void	conswrite(char*, int);
-int	bswidth(Rune c);
+int	bswidth(Rune c, uint start, int eatnl);
 void	cut(void);
 void	paste(Rune*, int, int);
 void	snarfupdate(void);
@@ -888,7 +888,7 @@ key(Rune r)
 	case 0x15:	/* ^U: erase line */
 	case 0x17:	/* ^W: erase word */
 		if (t.q0 != 0 && t.q0 != t.qh)
-			t.q0 -= bswidth(r);
+			t.q0 -= bswidth(r, t.q0, 1);
 		cut();
 		break;
 	default:
@@ -900,7 +900,7 @@ key(Rune r)
 }
 
 int
-bswidth(Rune c)
+bswidth(Rune c, uint start, int eatnl)
 {
 	uint q, eq, stop;
 	Rune r;
@@ -909,7 +909,7 @@ bswidth(Rune c)
 	/* there is known to be at least one character to erase */
 	if(c == 0x08)	/* ^H: erase character */
 		return 1;
-	q = t.q0;
+	q = start;
 	stop = 0;
 	if(q > t.qh)
 		stop = t.qh;
@@ -917,7 +917,7 @@ bswidth(Rune c)
 	while(q > stop){
 		r = t.r[q-1];
 		if(r == '\n'){		/* eat at most one more character */
-			if(q == t.q0)	/* eat the newline */
+			if(q == start && eatnl)	/* eat the newline */
 				--q;
 			break; 
 		}
@@ -930,7 +930,7 @@ bswidth(Rune c)
 		}
 		--q;
 	}
-	return t.q0-q;
+	return start-q;
 }
 
 int
@@ -1069,6 +1069,15 @@ runewrite(Rune *r, int n)
 				initial++;
 			else
 				--q;
+		} else if(*p == '\r') {	/* treat like ^U */
+			/* convert CR without NL into erased line */
+			/* i feel really sleazy about this but it helps */
+			if(i<n-1 && *(p+1) != '\n'){
+				while(q > r && *(q-1) != '\n')
+					q--;
+				if(q==r)
+					initial = bswidth(0x15, t.qh, 0);
+			}
 		} else if(*p)
 			*q++ = *p;
 		p++;
