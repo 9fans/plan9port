@@ -1,6 +1,14 @@
 #!/bin/sh
 
+sig=""
+case "$1" in
+-*)
+	sig=" $1"
+	shift
+	;;
+esac
+
 for i
 do
-	psu | awk '$NF ~ /^('$i')$/ {printf("/bin/kill %d # %s\n", $2, $0);}'
+	psu | awk '$NF == "'"$i"'" || $2 == "'"$i"'" {printf("/bin/kill%s %d # %s\n", "'"$sig"'", $2, $0);}'
 done
