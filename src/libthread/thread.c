@@ -225,7 +225,6 @@ Out:
 	unlock(&p->lock);
 	free(p);
 	setproc(0);
-	print("e %p (tid %d)\n", p, gettid());
 	pthread_exit(nil);
 }
 
