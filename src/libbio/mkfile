@@ -6,20 +6,20 @@ OFILES=\
 	bbuffered.$O\
 	bfildes.$O\
 	bflush.$O\
-	bfmt.$O\
 	bgetc.$O\
+	bgetrune.$O\
 	bgetd.$O\
 	binit.$O\
 	boffset.$O\
 	bprint.$O\
 	bputc.$O\
+	bputrune.$O\
 	brdline.$O\
 	brdstr.$O\
 	bread.$O\
 	bseek.$O\
+	bvprint.$O\
 	bwrite.$O\
-	bgetrune.$O\
-	bputrune.$O\
 
 HFILES=\
 	$PLAN9/include/bio.h\

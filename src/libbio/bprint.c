@@ -4,16 +4,11 @@
 int
 Bprint(Biobuf *bp, char *fmt, ...)
 {
-	va_list args;
-	Fmt f;
 	int n;
+	va_list arg;
 
-	if(Bfmtinit(&f, bp) < 0)
-		return -1;
-	va_start(args, fmt);
-	n = fmtvprint(&f, fmt, args);
-	va_end(args);
-	if(n > 0 && Bfmtflush(&f) < 0)
-		return -1;
+	va_start(arg, fmt);
+	n = Bvprint(bp, fmt, arg);
+	va_end(arg);
 	return n;
 }
