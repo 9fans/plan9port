@@ -151,7 +151,7 @@ defn pthreads(P){
 	local T, Tq, mainpid;
 
 	mainpid = pid;
-	setproc(P.pid);
+//	setproc(P.pid);
 	Tq = (Tqueue)P.threads;
 	T = (Thread)Tq.$head;
 	while T != 0 do{
@@ -159,7 +159,7 @@ defn pthreads(P){
 		thread(T);
 		T = (Thread)T.nextt;
 	}
-	setproc(mainpid);
+//	setproc(mainpid);
 }
 
 defn threads(){
@@ -193,7 +193,7 @@ defn stacks(){
 		P = (Proc)P.next;
 		print("\n");
 	}
-	setproc(mainpid);
+	// setproc(mainpid);
 }
 
 defn stacksizes(){
@@ -219,7 +219,7 @@ defn stacksizes(){
 		}
 		P = P.next;
 	}
-	setproc(mainpid);
+	// setproc(mainpid);
 }
 
 defn lproc(P){
@@ -241,7 +241,7 @@ defn threadstks(P){
 	stkprefix = pref+"\t\t";
 	ign = stkignore;
 	stkignore = threadstkignore;
-	setproc(P.pid);
+	// setproc(P.pid);
 	Tq = (Tqueue)P.threads;
 	T = (Thread)Tq.$head;
 	while T != 0 do{
@@ -253,7 +253,7 @@ defn threadstks(P){
 		T = (Thread)T.nextt;
 		print("\n");
 	}
-	setproc(mainpid);
+	// setproc(mainpid);
 	stkprefix = pref;
 	stkignore = ign;
 }
@@ -285,15 +285,15 @@ defn threadlstk(T){
 	local P, mainpid;
 
 	P = (Proc)T.proc;
-	mainpid = pid;
-	setproc(P.pid);
+	// mainpid = pid;
+	// setproc(P.pid);
 
 	if T.state == Running then{
 		lstk();
 	} else {
 		lablstk(T.sched);
 	}
-	setproc(mainpid);
+	// setproc(mainpid);
 }
 
 defn threadstk(T){
@@ -302,14 +302,14 @@ defn threadstk(T){
 
 	P = (Proc)T.proc;
 	mainpid = pid;
-	setproc(P.pid);
+	// setproc(P.pid);
 
 	if T.state == Running then{
 		stk();
 	} else {
 		labstk(T.sched);
 	}
-	setproc(mainpid);
+	// setproc(mainpid);
 }
 
 defn tqueue(Q) {
