@@ -50,7 +50,6 @@ threadmain(int argc, char *argv[])
 	open("/dev/null", OREAD);
 	if(open("/dev/tty", OWRITE) < 0)
 		open("/dev/null", OWRITE);
-dup(2, 1);
 
 	if(protodebug) print("getscreen\n");
 	getscreen(argc, argv);

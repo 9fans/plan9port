@@ -104,6 +104,12 @@ waitforio(void)
 	ulong type;
 
 again:
+	alts[RPlumb].c = plumbc;
+	alts[RPlumb].v = &i;
+	alts[RPlumb].op = CHANRCV;
+	if((block & (1<<RPlumb)) || plumbc == nil)
+		alts[RPlumb].op = CHANNOP;
+
 	alts[RHost].c = hostc;
 	alts[RHost].v = &i;
 	alts[RHost].op = CHANRCV;
@@ -121,12 +127,6 @@ again:
 	alts[RMouse].op = CHANRCV;
 	if(block & (1<<RMouse))
 		alts[RMouse].op = CHANNOP;
-
-	alts[RPlumb].c = plumbc;
-	alts[RPlumb].v = &i;
-	alts[RPlumb].op = CHANRCV;
-	if((block & (1<<RPlumb)) || plumbc == nil)
-		alts[RPlumb].op = CHANNOP;
 
 	alts[RResize].c = mousectl->resizec;
 	alts[RResize].v = nil;
@@ -262,7 +262,7 @@ ekbd(void)
 int
 kbdchar(void)
 {
-	int i, c;
+	int c, i;
 
 	c = externchar();
 	if(c > 0)
