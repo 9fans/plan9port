@@ -47,11 +47,10 @@ button(XButtonEvent *e)
 	if (s == 0)
 		return;
 	c = getclient(e->window, 0);
-	if (c) {
+	if(c){
 		if (debug) fprintf(stderr, "but: e x=%d y=%d c x=%d y=%d dx=%d dy=%d BORDR %d\n",
 				e->x, e->y, c->x, c->y, c->dx, c->dy, BORDER);
-	    if (e->x <= BORDER || e->x > (c->dx + BORDER) ||
-	        e->y <= BORDER || e->y > (c->dy + BORDER)) {
+		if(borderorient(c, e->x, e->y) != BorderUnknown){
 			switch (e->button) {
 			case Button1:
 			case Button2:
@@ -63,11 +62,10 @@ button(XButtonEvent *e)
 			default:
 				return;
 			}
-	    }
+		}
 		e->x += c->x - BORDER;
 		e->y += c->y - BORDER;
-	}
-	else if (e->window != e->root) {
+	} else if (e->window != e->root) {
 		if (debug) fprintf(stderr, "but no client: e x=%d y=%d\n",
 				e->x, e->y);
 		XTranslateCoordinates(dpy, e->window, s->root, e->x, e->y,

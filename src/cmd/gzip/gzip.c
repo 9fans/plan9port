@@ -29,12 +29,28 @@ void
 main(int argc, char *argv[])
 {
 	int i, ok, stdout;
+	char **oargv;
 
+	oargv = argv;
 	level = 6;
 	stdout = 0;
 	ARGBEGIN{
 	case 'D':
 		debug++;
+		break;
+	case 'd':
+		/*
+		 * gnu tar expects gzip -d to decompress
+		 * humor it.  ugh.
+		 */
+		/* remove -d from command line - magic! */
+		if(strcmp(argv[0], "-d") == 0){
+			while(*argv++)
+				*(argv-1) = *argv;
+		}else
+			memmove(_args-1, _args, strlen(_args)+1);
+		exec("gunzip", oargv);
+		sysfatal("exec gunzip failed");
 		break;
 	case 'v':
 		verbose++;
