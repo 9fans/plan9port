@@ -8,9 +8,7 @@
 #include <frame.h>
 #include <fcall.h>
 #include <plumb.h>
-#define Fid FsFid
-#include <fs.h>
-#undef Fid
+#include <9pclient.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -1301,7 +1299,7 @@ runproc(void *argvp)
 	//static void *parg[2];
 	char *rcarg[4];
 	void **argv;
-	Fsys *fs;
+	CFsys *fs;
 
 	argv = argvp;
 	win = argv[0];
