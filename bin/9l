@@ -252,10 +252,19 @@ if $verbose
 then
 	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
 fi
-if $ld -L$PLAN9/lib "$@" $libsl $extralibs
+
+xtmp=/tmp/9l.$$.$USER.out
+xxout() {
+	egrep -v ': In function `' $xtmp
+	rm -f $xtmp
+}
+
+if $ld -L$PLAN9/lib "$@" $libsl $extralibs >$xtmp 2>&1
 then
+	xxout
 	exit 0
 else
+	xxout
 	rm -f $target
 	exit 1
 fi
