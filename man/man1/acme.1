@@ -16,7 +16,7 @@ acme, win, awd \- interactive text windows
 .I ncol
 ]
 [
-.B -b
+.B -br
 ]
 [
 .B -l
@@ -113,6 +113,11 @@ as long as the mouse button is held down in the scroll bar.
 For example, to scroll slowly through a file,
 hold button 3 down near the top of the scroll bar.  Moving the mouse
 down the scroll bar speeds up the rate of scrolling.
+(The experimental option
+.B -r
+reverses the scrolling behavior of buttons 1 and 3, to behave 
+more like
+.IR xterm (1).)
 .SS Layout
 .I Acme
 windows are arranged in columns.  By default, it creates two columns when starting;
