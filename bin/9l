@@ -2,20 +2,20 @@
 
 libsl=""
 
-doautolib=1
-verbose=0
+doautolib=true
+verbose=false
 
 if [ "x$1" = "x-l" ]
 then
 	shift
-	doautolib=0
+	doautolib=false
 elif [ "x$1" = "x-v" ]
 then
 	shift
-	verbose=1
+	verbose=true
 fi
 
-if [ $doautolib = 1 ]
+if $doautolib
 then
 	ofiles=""
 	for i
@@ -31,76 +31,99 @@ then
 	autolibs=""
 	if [ "x$ofiles" != "x" ]
 	then
-		autolibs=`
+		a=`
 			nm $ofiles |
 			grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
 			sed 's/.* __p9l_autolib_//' |
 			sort -u
 		`
+		for i in $a
+		do
+			autolibs="$autolibs $i"
+			eval "need$i=true"
+		done
 	fi
-	# echo "autolibs $autolibs"
-	
-	libsl=""
-	special="mp draw 9pclient mux thread bio"	# order matters
-	for i in $special
+
+	# fetch dependencies out of libraries
+	workq="$autolibs"
+	while [ "x$workq" != "x" ]
 	do
-		eval "need$i=0"
+		w="$workq"
+		workq=""
+		for i in $w
+		do
+			a=`
+				nm $PLAN9/lib/lib$i.a |
+				grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
+				sed 's/.*__p9l_autolib_//' |
+				sort -u
+			`
+			okayfn="true"
+			for j in $a
+			do
+				if eval "[ x\$need$j = x ]"
+				then
+					autolibs="$autolibs $j"
+					workq="$workq $j"
+					eval "need$j=true"
+				fi
+				if [ $j != $i ]
+				then
+					okayfn="$okayfn && have$j"
+				fi
+			done
+			# echo "can$i: $okayfn"
+			eval "can$i() { $okayfn; }"
+		done
 	done
-	
+	if $verbose
+	then
+		echo "autolibs $autolibs"
+	fi
+
 	for i in $autolibs
 	do
-		case "$i" in
-		9pclient)
-			need9pclient=1
-			needmux=1
-			needthread=1
-			;;
-		bio)
-			needbio=1
-			;;
-		draw)
-			needdraw=1
-			;;
-		mp)
-			needmp=1
-			;;
-		mux)
-			needmux=1
-			needthread=1
-			;;
-		plumb)
-			need9pclient=1
-			needmux=1
-			needthread=1
-			libsl="$libsl -lplumb"
-			;;
-		sec)
-			needmp=1
-			libsl="$libsl -lsec"
-			;;
-		thread)
-			needthread=1
-			;;
-		venti)
-			libsl="$libsl -lventi"
-			needthread=1
-			;;
-		*)
-			libsl="$libsl -l$i"
-			;;
-		esac
+		eval "have$i() { false; }"
 	done
-	
-	for i in $special
+
+	# now find correct order
+	libsl=""
+	while [ "x$autolibs" != x ]
 	do
-		if eval "[ \$need$i = 1 ]"
+		stillneed=""
+		didnothing=true
+		for i in $autolibs
+		do
+			if eval "can$i"
+			then
+				libsl="-l$i $libsl"
+				eval "have$i() { true; }"
+				didnothing=false
+			else
+				stillneed="$stillneed $i"
+			fi
+		done
+		# break cycle by setting the last library on the list
+		# to have no dependencies
+		if $didnothing
 		then
-			libsl="$libsl -l$i"
+			j="xxx"
+			for i in $autolibs
+			do
+				j=$i
+			done
+			echo "dependency cycle: $autolibs; breaking with $j"
+			eval "can$j() { true; }"
 		fi
+		autolibs="$stillneed"
 	done
+	if $verbose
+	then
+		echo "liborder $libsl"
+	fi
 	libsl="$libsl -l9"
-	
-	if [ $needdraw = 1 ]
+
+	if [ "x$needdraw" = xtrue ]
 	then
 		if [ "x$X11" = "x" ]
 		then
@@ -146,7 +169,7 @@ case "$tag" in
 	exit 1
 esac
 
-if [ $verbose = 1 ]
+if $verbose
 then
 	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
 fi
