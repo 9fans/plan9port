@@ -11,7 +11,7 @@ encodefmt(Fmt *f)
 	uchar *b;
 	char obuf[64];	// rsc optimization
 
-	if(!(f->flags&FmtPrec) || f->prec < 1)
+	if(!(f->flags&FmtPrec) || f->prec < 0)
 		goto error;
 
 	b = va_arg(f->args, uchar*);
