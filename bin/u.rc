@@ -1,0 +1,11 @@
+#!/usr/local/plan9/bin/rc
+
+if(~ $#PLAN9 1) opath=$path i=() {
+	path=()
+	for(i in $opath){
+		if(! ~ $i $PLAN9/bin)
+			path=($path $i)
+	}
+	path=($path $PLAN9/bin)
+}
+! ~ $#* 0 && exec $*

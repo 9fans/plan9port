@@ -1,6 +1,6 @@
 .TH 9 1
 .SH NAME
-9, 9.rc \- run Plan 9 commands
+9, 9.rc, u, u.rc \- run Plan 9 or Unix commands
 .SH SYNOPSIS
 .B 9
 .I cmd
@@ -23,6 +23,30 @@
 .PP
 .B .
 .B 9.rc
+(from
+.IR rc (1))
+.PP
+.B u
+.I cmd
+[
+.I args
+\&...
+]
+.PP
+.B .
+.B u
+(from
+.IR sh (1))
+.PP
+.B u.rc
+.I cmd
+[
+.I args
+\&...
+]
+.PP
+.B .
+.B u.rc
 (from
 .IR rc (1))
 .SH DESCRIPTION
@@ -63,6 +87,17 @@ is the same as
 .I 9
 but written for use by the shell
 .IR rc (1).
+.PP
+.I U
+and
+.I u.rc
+are the inverse of
+.I 9
+and
+.IR 9.rc :
+they move
+.B $PLAN9/bin
+to the end of the path.
 .SH EXAMPLES
 Search for greek in the password file:
 .IP
@@ -72,14 +107,21 @@ $ 9 grep '[α-ζ]' /etc/passwd
 .PP
 Start an
 .IR rc (1)
-with the Plan 9 commands in the path before the system commands.
+with the Plan 9 commands in the path before the system commands,
+and then run the Unix
+.IR ls :
 .IP
 .EX
-9 rc
+$ 9 rc
+% u ls
 .EE
 .SH SOURCE
 .B \*9/bin/9
 .br
 .B \*9/bin/9.rc
+.br
+.B \*9/bin/u
+.br
+.B \*9/bin/u.rc
 .SH SEE ALSO
 .IR intro (1)
