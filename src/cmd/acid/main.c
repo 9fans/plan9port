@@ -213,7 +213,7 @@ attachfiles(int argc, char **argv)
 		}
 		/* XXX pull command from core */
 
-		if((hdr = crackhdr(symfil, omode)) == nil){
+		if((symhdr = crackhdr(symfil, omode)) == nil){
 			fprint(2, "crackhdr %s: %r\n", symfil);
 			symfil = nil;
 		}
