@@ -29,12 +29,14 @@ __threadgetproc(int rm)
 	Thread *t;
 	ulong *s;
 
+/* fails on linux, probably because the main stack
+ * has to be grown a page at a time instead of the big jump?
 	s = (ulong*)((ulong)&pid & ~(STKSIZE-1));
 	if(s[0] == STKMAGIC){
 		t = (Thread*)s[1];
 		return t->proc;
 	}
-
+*/
 	pid = _threadgetpid();
 
 	lock(&ptablock);
