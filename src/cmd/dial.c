@@ -45,7 +45,7 @@ main(int argc, char **argv)
 		sysfatal("fork: %r");
 	case 0:
 		while((n = read(0, buf, sizeof buf)) > 0)
-			if(write(0, buf, n) < 0)
+			if(write(fd, buf, n) < 0)
 				break;
 		if(!waitforeof)
 			postnote(PNPROC, getppid(), "kill");
