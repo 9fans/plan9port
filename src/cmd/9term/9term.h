@@ -9,6 +9,10 @@
 #include <frame.h>
 #include <plumb.h>
 #include <termios.h>
+#include <sys/termios.h>
+#ifdef __linux__
+#include <pty.h>
+#endif
 
 #define fatal	sysfatal
 
