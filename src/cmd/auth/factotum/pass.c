@@ -37,5 +37,5 @@ Proto pass =
 	passroles,
 	"user? !password?",
 	nil,
-	nil,
+	nil
 };

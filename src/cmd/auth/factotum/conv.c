@@ -192,12 +192,9 @@ convwrite(Conv *c, void *data, int count)
 {
 	Rpc *r;
 
-	for(;;){
-		r = convgetrpc(c, RpcRead);
-		if(r == nil)
-			return -1;
-		break;
-	}
+	r = convgetrpc(c, RpcRead);
+	if(r == nil)
+		return -1;
 	rpcrespondn(c, "ok", data, count);
 	return 0;
 }

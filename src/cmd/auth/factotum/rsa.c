@@ -62,7 +62,7 @@ xrsadecrypt(Conv *c)
 	}
 	
 	/* encrypt/decrypt */
-	m = betomp(txt, n, nil);
+	m = betomp((uchar*)txt, n, nil);
 	if(m == nil)
 		goto out;
 	if(strcmp(role, "decrypt") == 0)
@@ -71,7 +71,7 @@ xrsadecrypt(Conv *c)
 		mm = rsaencrypt(&key->pub, m, nil);
 	if(mm == nil)
 		goto out;
-	n = mptobe(mm, buf, sizeof buf, nil);
+	n = mptobe(mm, (uchar*)buf, sizeof buf, nil);
 	
 	/* send response */
 	c->state = "write";

@@ -114,6 +114,6 @@ Proto httpdigest =
 	"httpdigest",
 	hdroles,
 	"user? realm? !password?",
-	nil,
-	nil
+	0,
+	0
 };
