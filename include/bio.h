@@ -59,12 +59,11 @@ struct	Biobuf
 
 int	Bbuffered(Biobuf*);
 Biobuf*	Bfdopen(int, int);
-int	Bfmtinit(Fmt*, Biobuf*);
-int	Bfmtflush(Fmt*);
 int	Bfildes(Biobuf*);
 int	Bflush(Biobuf*);
 int	Bgetc(Biobuf*);
 int	Bgetd(Biobuf*, double*);
+long	Bgetrune(Biobuf*);
 int	Binit(Biobuf*, int, int);
 int	Binits(Biobuf*, int, int, unsigned char*, int);
 int	Blinelen(Biobuf*);
@@ -72,16 +71,16 @@ off_t	Boffset(Biobuf*);
 Biobuf*	Bopen(char*, int);
 int	Bprint(Biobuf*, char*, ...);
 int	Bputc(Biobuf*, int);
+int	Bputrune(Biobuf*, long);
 void*	Brdline(Biobuf*, int);
+char*	Brdstr(Biobuf*, int, int);
 long	Bread(Biobuf*, void*, long);
 off_t	Bseek(Biobuf*, off_t, int);
 int	Bterm(Biobuf*);
 int	Bungetc(Biobuf*);
 int	Bungetrune(Biobuf*);
 long	Bwrite(Biobuf*, void*, long);
-char*	Brdstr(Biobuf*, int, int);
-long	Bgetrune(Biobuf*);
-int	Bputrune(Biobuf*, long);
+int	Bvprint(Biobuf*, char*, va_list);
 
 #if defined(__cplusplus)
 }
