@@ -13,11 +13,13 @@ $O.%:	%.$O $OFILES $LIB
 $BIN/%:	$O.%
 	$INSTALL $O.$stem $BIN/$stem
 
-install:V:
+many-install:V:
 	for i in $TARG
 	do
 		mk $MKFLAGS $i.install
 	done
+
+install:V: many-install
 
 CLEANFILES=$CLEANFILES $PROGS
 NUKEFILES=$NUKEFILES ${TARG:%=$BIN/%}
