@@ -1,0 +1,37 @@
+.TH GETWD 3
+.SH NAME
+getwd \- get current directory
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+char* getwd(char *buf, int size)
+.SH DESCRIPTION
+.I Getwd
+fills
+.I buf
+with a null-terminated string representing the current directory
+and returns
+.IR buf .
+.PP
+.I Getwd
+places no more than
+.I size
+bytes in the buffer provided.
+.SH SOURCE
+.B /sys/src/libc/9sys/getwd.c
+.SH "SEE ALSO"
+.IR pwd (1),
+.IR fd2path (2)
+.SH DIAGNOSTICS
+On error, zero is returned.
+.IR Errstr (2)
+may be consulted for more information.
+.SH BUGS
+Although the name returned by
+.I getwd
+is guaranteed to be the path used to reach the directory,
+if the name space has changed underfoot, the name may be
+incorrect.

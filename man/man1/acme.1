@@ -1,0 +1,683 @@
+.TH ACME 1
+.SH NAME
+acme, win, awd \- interactive text windows
+.SH SYNOPSIS
+.B acme
+[
+.B -f
+.I varfont
+]
+[
+.B -F
+.I fixfont
+]
+[
+.B -c
+.I ncol
+]
+[
+.B -b
+]
+[
+.B -l
+.I file
+|
+.I file
+\&... ]
+.LP
+.B win
+[
+.I command
+]
+.LP
+.B awd
+[
+.I label
+]
+.SH DESCRIPTION
+.I Acme
+manages windows of text that may be edited interactively or by external programs.
+The interactive interface uses the keyboard and mouse; external programs
+use a set of files served by
+.IR acme ;
+these are discussed in
+.IR acme (4).
+.PP
+Any named
+.I files
+are read into
+.I acme
+windows before
+.I acme
+accepts input.
+With the
+.B -l
+option, the state of the entire system is loaded
+from
+.IR file ,
+which should have been created by a
+.B Dump
+command (q.v.),
+and subsequent
+.I file
+names are ignored.
+Plain files display as text; directories display as columnated lists of the
+names of their components, as in
+.B "ls -p directory|mc
+except that the names of subdirectories have a slash appended.
+.PP
+The
+.B -f
+.RB ( -F )
+option sets the main font, usually variable-pitch (alternate, usually fixed-pitch);
+the default is
+.B /lib/font/bit/lucidasans/euro.8.font
+.RB ( \&.../lucm/unicode.9.font ).
+Tab intervals are set to the width of 4 (or the value of
+.BR $tabstop )
+numeral zeros in the appropriate font.
+.PP
+.SS Windows
+.I Acme
+windows are in two parts: a one-line
+.I tag
+above a multi-line
+.IR body .
+The body typically contains an image of a file, as in
+.IR sam (1),
+or the output of a
+program, as in an
+.IR rio (1)
+window.
+The tag contains a number of
+blank-separated words, followed by a vertical bar character, followed by anything.
+The first word is the name of the window, typically the name of the associated
+file or directory, and the other words are commands available in that window.
+Any text may be added after the bar; examples are strings to search for or
+commands to execute in that window.
+Changes to the text left of the bar will be ignored,
+unless the result is to change the name of the
+window.
+.PP
+If a window holds a directory, the name (first word of the tag) will end with
+a slash.
+.SS Scrolling
+Each window has a scroll bar to the left of the body.
+The scroll bar behaves much as in
+.IR sam (1)
+or
+.IR rio (1)
+except that scrolling occurs when the button is pressed, rather than released,
+and continues
+as long as the mouse button is held down in the scroll bar.
+For example, to scroll slowly through a file,
+hold button 3 down near the top of the scroll bar.  Moving the mouse
+down the scroll bar speeds up the rate of scrolling.
+.SS Layout
+.I Acme
+windows are arranged in columns.  By default, it creates two columns when starting;
+this can be overridden with the
+.B -c
+option.
+Placement is automatic but may be adjusted
+using the
+.I layout box
+in the upper left corner of each window and column.
+Pressing and holding any mouse button in the box drags
+the associated window or column.
+For windows, just
+clicking in the layout box grows the window in place: button 1
+grows it a little, button 2 grows it as much as it can, still leaving all other
+tags in that column visible, and button 3 takes over the column completely,
+temporarily hiding other windows in the column.
+(They will return
+.I en masse
+if any of them needs attention.)
+The layout box in a window is normally white; when it is black in the center,
+it records that the file is `dirty':
+.I Acme
+believes it is modified from its original
+contents.
+.PP
+Tags exist at the top of each column and across the whole display.
+.I Acme
+pre-loads them with useful commands.
+Also, the tag across the top maintains a list of executing long-running commands.
+.SS Typing
+The behavior of typed text is similar to that in
+.IR rio (1)
+except that the characters are delivered to the tag or body under the mouse; there is no
+`click to type'.
+(The experimental option
+.B -b
+causes typing to go to the most recently clicked-at or made window.)
+The usual backspacing conventions apply.
+As in
+.IR sam (1)
+but not
+.IR rio ,
+the ESC key selects the text typed since the last mouse action,
+a feature particularly useful when executing commands.
+A side effect is that typing ESC with text already selected is identical
+to a
+.B Cut
+command
+.RI ( q.v. ).
+.PP
+Most text, including the names of windows, may be edited uniformly.
+The only exception is that the command names to the
+left of the bar in a tag are maintained automatically; changes to them are repaired
+by
+.IR acme .
+.SS "Directory context
+Each window's tag names a directory: explicitly if the window
+holds a directory; implicitly if it holds a regular file
+(e.g. the directory
+.B /adm
+if the window holds
+.BR /adm/users ).
+This directory provides a
+.I context
+for interpreting file names in that window.
+For example, the string
+.B users
+in a window labeled
+.B /adm/
+or
+.B /adm/keys
+will be interpreted as the file name
+.BR /adm/users .
+The directory is defined purely textually, so it can be a non-existent
+directory or a real directory associated with a non-existent file
+(e.g.
+.BR /adm/not-a-file ).
+File names beginning with a slash
+are assumed to be absolute file names.
+.SS Errors
+Windows whose names begin with
+.B -
+or
+.B +
+conventionally hold diagnostics and other data
+not directly associated with files.
+A window labeled
+.B +Errors
+receives all diagnostics produced by
+.I acme
+itself.
+Diagnostics from commands run by
+.I acme
+appear in a window named
+.IB directory /+Errors
+where
+.I directory
+is identified by the context of the command.
+These error windows are created when needed.
+.SS "Mouse button 1
+Mouse button 1 selects text just as in
+.IR sam (1)
+or
+.IR rio (1) ,
+including the usual double-clicking conventions.
+.SS "Mouse button 2
+By an
+action similar to selecting text with button 1,
+button 2 indicates text to execute as a command.
+If the indicated text has multiple white-space-separated words,
+the first is the command name and the second and subsequent
+are its arguments.
+If button 2 is `clicked'\(emindicates a null string\(em\c
+.I acme
+.I expands
+the indicated text to find a command to run:
+if the click is within button-1-selected text,
+.I acme
+takes that selection as the command;
+otherwise it takes the largest string of valid file name characters containing the click.
+Valid file name characters are alphanumerics and
+.B _
+.B .
+.B -
+.B +
+.BR / .
+This behavior is similar to double-clicking with button 1 but,
+because a null command is meaningless, only a single click is required.
+.PP
+Some commands, all by convention starting with a capital letter, are
+.I built-ins
+that are executed directly by
+.IR acme :
+.TP
+.B Cut
+Delete most recently selected text and place in snarf buffer.
+.TP
+.B Del
+Delete window.  If window is dirty, instead print a warning; a second
+.B Del
+will succeed.
+.TP
+.B Delcol
+Delete column and all its windows, after checking that windows are not dirty.
+.TP
+.B Delete
+Delete window without checking for dirtiness.
+.TP
+.B Dump
+Write the state of
+.I acme
+to the file name, if specified, or
+.B $home/acme.dump
+by default.
+.TP
+.B Edit
+Treat the argument as a text editing command in the style of
+.IR sam (1).
+The full
+.B Sam
+language is implemented except for the commands
+.BR k ,
+.BR n ,
+.BR q ,
+and
+.BR ! .
+The
+.B =
+command is slightly different: it includes the file name and
+gives only the line address unless the command is explicitly
+.BR =# .
+The `current window' for the command is the body of the window in which the
+.B Edit
+command is executed.
+Usually the
+.B Edit
+command would be typed in a tag; longer commands may be prepared in a
+scratch window and executed, with
+.B Edit
+itself in the current window, using the 2-1 chord described below.
+.TP
+.B Exit
+Exit
+.I acme
+after checking that windows are not dirty.
+.TP
+.B Font
+With no arguments, change the font of the associated window from fixed-spaced to
+proportional-spaced or
+.I vice
+.IR versa .
+Given a file name argument, change the font of the window to that stored in the named file.
+If the file name argument is prefixed by
+.B var
+.RB ( fix ),
+also set the default proportional-spaced (fixed-spaced) font for future use to that font.
+Other existing windows are unaffected.
+.TP
+.B Get
+Load file into window, replacing previous contents (after checking for dirtiness as in
+.BR Del ).
+With no argument, use the existing file name of the window.
+Given an argument, use that file but do not change the window's file name.
+.TP
+.B ID
+Print window ID number
+.RI ( q.v. ).
+.TP
+.B Incl
+When opening `include' files
+(those enclosed in
+.BR <> )
+with button 3,
+.I acme
+searches in directories
+.B /$objtype/include
+and
+.BR /sys/include .
+.B Incl
+adds its arguments to a supplementary list of include directories, analogous to
+the
+.B -I
+option to the compilers.
+This list is per-window and is inherited when windows are created by actions in that window, so
+.I Incl
+is most usefully applied to a directory containing relevant source.
+With no arguments,
+.I Incl
+prints the supplementary list.
+This command is largely superseded by plumbing
+(see
+.IR plumb (6)).
+.TP
+.B Kill
+Send a
+.B kill
+note to
+.IR acme -initiated
+commands named as arguments.
+.TP
+.B Local
+When prefixed to a command
+run the
+command in the same file name space and environment variable group as
+.IR acme .
+The environment of the command
+is restricted but is sufficient to run
+.IR bind (1),
+.IR 9fs
+(see
+.IR srv (4)),
+.IR import (4),
+etc.,
+and to set environment variables such as
+.BR $objtype .
+.TP
+.B Load
+Restore the state of
+.I acme
+from a file (default
+.BR $home/acme.dump )
+created by the
+.B Dump
+command.
+.TP
+.B Look
+Search in body for occurrence of literal text indicated by the argument or,
+if none is given, by the selected text in the body.
+.TP
+.B New
+Make new window.  With arguments, load the named files into windows.
+.TP
+.B Newcol
+Make new column.
+.TP
+.B Paste
+Replace most recently selected text with contents of snarf buffer.
+.TP
+.B Put
+Write window to the named file.
+With no argument, write to the file named in the tag of the window.
+.TP
+.B Putall
+Write all dirty windows whose names indicate existing regular files.
+.TP
+.B Redo
+Complement of
+.BR Undo .
+.TP
+.B Send
+Append selected text or snarf buffer to end of body; used mainly with
+.IR win .
+.TP
+.B Snarf
+Place selected text in snarf buffer.
+.TP
+.B Sort
+Arrange the windows in the column from top to bottom in lexicographical
+order based on their names.
+.TP
+.B Tab
+Set the width of tab stops for this window to the value of the argument, in units of widths of the zero
+character.
+With no arguments, it prints the current value.
+.TP
+.B Undo
+Undo last textual change or set of changes.
+.TP
+.B Zerox
+Create a copy of the window containing most recently selected text.
+.PP
+A common place to store text for commands is in the tag; in fact
+.I acme
+maintains a set of commands appropriate to the state of the window
+to the left of the bar in the tag.
+.PP
+If the text indicated with button 2 is not a recognized built-in, it is executed as
+a shell command.  For example, indicating
+.B date
+with button 2 runs
+.IR date (1).
+The standard
+and error outputs of commands are sent to the error window associated with
+the directory from which the command was run, which will be created if
+necessary.
+For example, in a window
+.B /adm/users
+executing
+.B pwd
+will produce the output
+.B /adm
+in a (possibly newly-created) window labeled
+.BR /adm/+Errors ;
+in a window containing
+.B /sys/src/cmd/sam/sam.c
+executing
+.B mk
+will run
+.IR mk (1)
+in
+.BR /sys/src/cmd/sam ,
+producing output in a window labeled
+.BR /sys/src/cmd/sam/+Errors .
+The environment of such commands contains the variable
+.B $%
+with value set to the filename of the window in which the command is run.
+.SS "Mouse button 3
+Pointing at text with button 3 instructs
+.I acme
+to locate or acquire the file, string, etc. described by the indicated text and
+its context.
+This description follows the actions taken when
+button 3 is released after sweeping out some text.
+In the description,
+.I text
+refers to the text of the original sweep or, if it was null, the result of
+applying the same expansion rules that apply to button 2 actions.
+.PP
+If the text names an existing window,
+.I acme
+moves the mouse cursor to the selected text in the body of that window.
+If the text names an existing file with no associated window,
+.I acme
+loads the file into a new window and moves the mouse there.
+If the text is a file name contained in angle brackets,
+.I acme
+loads the indicated include file from the directory appropriate to the
+suffix of the file name of the window holding the text.
+(The
+.B Incl
+command adds directories to the standard list.)
+.PP
+If the text begins with a colon, it is taken to be an address, in
+the style of
+.IR sam (1),
+within the body of the window containing the text.
+The address is evaluated, the resulting text highlighted, and the mouse moved to it.
+Thus, in
+.IR acme ,
+one must type
+.B :/regexp
+or
+.B :127
+not just
+.B /regexp
+or
+.BR 127 .
+(There is an easier way to locate literal text; see below.)
+.PP
+If the text is a file name followed by a colon and an address,
+.I acme
+loads the file and evaluates the address.  For example, clicking button 3 anywhere
+in the text
+.B file.c:27
+will open
+.BR file.c ,
+select line
+27, and put the mouse at the beginning of the line.  The rules about Error
+files, directories, and so on all combine to make this an efficient way to
+investigate errors from compilers, etc.
+.PP
+If the text is not an address or file, it is taken to
+be literal text, which is then searched for in the body of the window
+in which button 3 was clicked.  If a match is found, it is selected and the mouse is
+moved there.  Thus, to search for occurrences of a word in a file,
+just click button 3 on the word.  Because of the rule of using the
+selection as the button 3 action, subsequent clicks will find subsequent
+occurrences without moving the mouse.
+.PP
+In all these actions, the mouse motion is not done if the text is a null string
+within a non-null selected string in the tag, so that (for example) complex regular expressions
+may be selected and applied repeatedly to the
+body by just clicking button 3 over them.
+.SS "Chords of mouse buttons
+Several operations are bound to multiple-button actions.
+After selecting text, with button 1 still down, pressing button 2
+executes
+.B Cut
+and button 3 executes
+.BR Paste .
+After clicking one button, the other undoes
+the first; thus (while holding down button 1) 2 followed by 3 is a
+.B Snarf
+that leaves the file undirtied;
+3 followed by 2 is a no-op.
+These actions also apply to text selected by double-clicking because
+the double-click expansion is made when the second
+click starts, not when it ends.
+.PP
+Commands may be given extra arguments by a mouse chord with buttons 2 and 1.
+While holding down button 2 on text to be executed as a command, clicking button 1
+appends the text last pointed to by button 1 as a distinct final argument.
+For example, to search for literal
+.B text
+one may execute
+.B Look text
+with button 2 or instead point at
+.B text
+with button 1 in any window, release button 1,
+then execute
+.BR Look ,
+clicking button 1 while 2 is held down.
+.PP
+When an external command (e.g.
+.IR echo (1))
+is executed this way, the extra argument is passed as expected and an
+environment variable
+.B $acmeaddr
+is created that holds, in the form interpreted by button 3,
+the fully-qualified address of the extra argument.
+.SS "Support programs
+.I Win
+creates a new
+.I acme
+window and runs a
+.I command
+(default
+.BR /bin/rc )
+in it, turning the window into something analogous to an
+.IR rio (1)
+window.
+Executing text in a
+.I win
+window with button
+2 is similar to using
+.BR Send .
+.PP
+.I Awd
+loads the tag line of its window with the directory in which it's running, suffixed
+.BI - label
+(default
+.BR rc );
+it is
+intended to be executed by a
+.B cd
+function for use in
+.I win
+windows.  An example definition is
+.EX
+	fn cd { builtin cd $1 && awd $sysname }
+.EE
+.SS "Applications and guide files
+In the directory
+.B /acme
+live several subdirectories, each corresponding to a program or
+set of related programs that employ
+.I acme's
+user interface.
+Each subdirectory includes source, binaries, and a
+.B readme
+file for further information.
+It also includes a
+.BR guide ,
+a text file holding sample commands to invoke the programs.
+The idea is to find an example in the guide that best matches
+the job at hand, edit it to suit, and execute it.
+.PP
+Whenever a command is executed by
+.IR acme ,
+the default search path includes the directory of the window containing
+the command and its subdirectory
+.BR $cputype .
+The program directories in
+.B /acme
+contain appropriately labeled subdirectories of binaries,
+so commands named
+in the guide files will be found automatically when run.
+Also,
+.I acme
+binds the directories
+.B /acme/bin
+and
+.B /acme/bin/$cputype
+to the end of
+.B /bin
+when it starts; this is where
+.IR acme -specific
+programs such as
+.I win
+and
+.I awd
+reside.
+.SH FILES
+.TF $home/acme.dump
+.TP
+.B $home/acme.dump
+default file for
+.B Dump
+and
+.BR Load ;
+also where state is written if
+.I acme
+dies or is killed unexpectedly, e.g. by deleting its window.
+.TP
+.B /acme/*/guide
+template files for applications
+.TP
+.B /acme/*/readme
+informal documentation for applications
+.TP
+.B /acme/*/src
+source for applications
+.TP
+.B /acme/*/mips
+MIPS-specific binaries for applications
+.SH SOURCE
+.B /sys/src/cmd/acme
+.br
+.B /acme/bin/source/win
+.br
+.B /sys/src/cmd/awd.c
+.SH SEE ALSO
+.IR acme (4)
+.br
+Rob Pike,
+.I
+Acme: A User Interface for Programmers.
+.SH BUGS
+With the
+.B -l
+option or
+.B Load
+command,
+the recreation of windows under control of external programs
+such as
+.I win
+is just to rerun the command; information may be lost.

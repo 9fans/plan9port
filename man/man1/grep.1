@@ -1,0 +1,103 @@
+.TH GREP 1
+.SH NAME
+grep \- search a file for a pattern
+.SH SYNOPSIS
+.B grep
+[
+.I option ...
+]
+.I pattern
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Grep\^
+searches the input
+.I files\^
+(standard input default)
+for lines that match the
+.IR pattern ,
+a regular expression as defined in
+.IR regexp (6)
+with the addition of a newline character as an alternative
+(substitute for
+.BR | )
+with lowest precedence.
+Normally, each line matching the pattern is `selected',
+and each selected line is copied to the standard output.
+The options are
+.TP
+.B -c
+Print only a count of matching lines.
+.PD 0
+.TP
+.B -h
+Do not print file name tags (headers) with output lines.
+.TP
+.B -e
+The following argument is taken as a
+.IR pattern .
+This option makes it easy to specify patterns that
+might confuse argument parsing, such as
+.BR -n .
+.TP
+.B -i
+Ignore alphabetic case distinctions.  The implementation
+folds into lower case all letters in the pattern and input before
+interpretation.  Matched lines are printed in their original form.
+.TP
+.B -l
+(ell) Print the names of files with selected lines; don't print the lines.
+.TP
+.B -L
+Print the names of files with no selected lines;
+the converse of
+.BR -l .
+.TP
+.B -n
+Mark each printed line with its line number counted in its file.
+.TP
+.B -s
+Produce no output, but return status.
+.TP
+.B -v
+Reverse: print lines that do not match the pattern.
+.TP
+.B -f
+The pattern argument is the name of a file containing regular
+expressions one per line.
+.TP
+.B -b
+Don't buffer the output: write each output line as soon as it is discovered.
+.PD
+.PP
+Output lines are tagged by file name when there is more than one
+input file.
+(To force this tagging, include
+.B /dev/null
+as a file name argument.)
+.PP
+Care should be taken when
+using the shell metacharacters
+.B $*[^|()=\e
+and newline
+in
+.IR pattern ;
+it is safest to enclose the
+entire expression
+in single quotes
+.BR \&\|' \|.\|.\|.\| ' .
+An expression starting with '*'
+will treat the rest of the expression
+as literal characters.
+.SH SOURCE
+.B /sys/src/cmd/grep
+.SH SEE ALSO
+.IR ed (1),
+.IR awk (1),
+.IR sed (1),
+.IR sam (1),
+.IR regexp (6)
+.SH DIAGNOSTICS
+Exit status is null if any lines are selected,
+or non-null when no lines are selected or an error occurs.

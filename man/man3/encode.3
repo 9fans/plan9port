@@ -1,0 +1,85 @@
+.TH ENCODE 3
+.SH NAME
+dec64, enc64, dec32, enc32, dec16, enc16, encodefmt \- encoding byte arrays as strings
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int	dec64(uchar *out, int lim, char *in, int n)
+.PP
+.B
+int	enc64(char *out, int lim, uchar *in, int n)
+.PP
+.B
+int	dec32(uchar *out, int lim, char *in, int n)
+.PP
+.B
+int	enc32(char *out, int lim, uchar *in, int n)
+.PP
+.B
+int	dec16(uchar *out, int lim, char *in, int n)
+.PP
+.B
+int	enc16(char *out, int lim, uchar *in, int n)
+.PP
+.B
+int	encodefmt(Fmt*)
+.SH DESCRIPTION
+.PP
+.IR Enc16 ,
+.I enc32
+and
+.I enc64
+create null terminated strings.  They return the size of the
+encoded string (without the null) or -1 if the encoding fails.
+The encoding fails if
+.IR lim ,
+the length of the output buffer, is too small.
+.PP
+.IR Dec16 ,
+.I dec32
+and
+.I dec64
+return the number of bytes decoded or -1 if the decoding fails.
+The decoding fails if the output buffer is not large enough or,
+for base 32, if the input buffer length is not a multiple
+of 8.
+.PP
+.I Encodefmt
+can be used with
+.IR fmtinstall (2)
+and
+.IR print (2)
+to print encoded representations of byte arrays.
+The verbs are
+.TP
+.B H
+base 16 (i.e. hexadecimal). The default encoding is
+in upper case.  The
+.B l
+flag forces lower case.
+.TP
+.B <
+base 32
+.TP
+.B [
+base 64 (same as MIME)
+.PD
+.PP
+The length of the array is specified as
+.IR f2 .
+For example, to display a 15 byte array as hex:
+.EX
+
+    char x[15];
+
+    fmtinstall('H', encodefmt);
+    print("%.*H\\n", sizeof x, x);
+
+.EE
+.SH SOURCE
+.B /sys/src/libc/port/u32.c
+.br
+.B /sys/src/libc/port/u64.c

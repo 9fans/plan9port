@@ -1,0 +1,104 @@
+.TH KEYBOARD 3
+.SH NAME
+initkeyboard, ctlkeyboard, closekeyboard \- keyboard control
+.SH SYNOPSIS
+.nf
+.B
+#include <u.h>
+.B
+#include <libc.h>
+.B
+#include <thread.h>
+.B
+#include <keyboard.h>
+.PP
+.B
+Keyboardctl	*initkeyboard(char *file)
+.PP
+.B
+int			ctlkeyboard(Keyboardctl *kc, char *msg)
+.PP
+.B
+void			closekeyboard(Keyboard *kc)
+.SH DESCRIPTION
+These functions access and control a keyboard interface
+for character-at-a-time I/O in a multi-threaded environment, usually in combination with
+.IR mouse (2).
+They use the message-passing
+.B Channel
+interface in the threads library
+(see
+.IR thread (2));
+programs that wish a more event-driven, single-threaded approach should use
+.IR event (2).
+.PP
+.I Initkeyboard
+opens a connection to the keyboard and returns a
+.B Keyboardctl
+structure:
+.IP
+.EX
+.ta 6n +\w'Channel 'u +\w'consfd;   'u
+typedef struct Keyboardct Keyboardctl;
+struct Keyboardctl
+{
+	Channel	*c;	/* chan(Rune[20]) */
+
+	char	*file;
+	int	consfd;		/* to cons file */
+	int	ctlfd;		/* to ctl file */
+	int	pid;		/* of slave proc */
+};
+.EE
+.PP
+The argument to
+.I initkeyboard
+is a
+.I file
+naming the device file from which characters may be read,
+typically
+.BR /dev/cons .
+If
+.I file
+is nil,
+.B /dev/cons
+is assumed.
+.PP
+Once the
+.B Keyboardctl
+is set up a
+message containing a
+.BR Rune
+will be sent on the
+.B Channel
+.B Keyboardctl.c
+to report each character read from the device.
+.PP
+.I Ctlkeyboard
+is used to set the state of the interface, typically to turn raw mode on and off
+(see
+.IR cons (3)).
+It writes the string
+.I msg
+to the control file associated with the device, which is assumed to be the regular device file name
+with the string
+.B ctl
+appended.
+.PP
+.I Closekeyboard
+closes the file descriptors associated with the keyboard, kills the slave processes,
+and frees the
+.B Keyboardctl
+structure.
+.PP
+.SH SOURCE
+.B /sys/src/libdraw
+.SH SEE ALSO
+.IR graphics (2),
+.IR draw (2),
+.IR event (2),
+.IR thread (2).
+.SH BUGS
+Because the interface delivers complete runes,
+there is no way to report lesser actions such as
+shift keys or even individual bytes.

@@ -1,0 +1,31 @@
+.TH REMOVE 3
+.SH NAME
+remove \- remove a file
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int remove(char *file)
+.SH DESCRIPTION
+.I Remove
+removes
+.I file
+from the directory containing it and discards the contents of the file.
+The user must have write permission in the containing directory.
+If
+.I file
+is a directory, it must be empty.
+.SH SOURCE
+.B /sys/src/libc/9syscall
+.SH SEE ALSO
+.IR intro (2),
+.IR remove (5),
+the description of
+.B ORCLOSE
+in
+.IR open (2).
+.SH DIAGNOSTICS
+Sets
+.IR errstr .

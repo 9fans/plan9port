@@ -1,0 +1,28 @@
+.TH STRINGS 1
+.SH NAME
+strings \- extract printable strings
+.SH SYNOPSIS
+.B strings
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Strings
+finds and prints strings containing 6 or more
+consecutive printable UTF-encoded characters
+in a (typically) binary file, default
+standard input.
+Printable characters are taken to be
+.SM ASCII
+characters from blank through tilde (hexadecimal 20 through 7E), inclusive,
+and
+all other characters from value 00A0 to FFFF.
+Strings reports
+the decimal offset within the file at which the string starts and the text
+of the string. If the string is longer than 70 runes the line is
+terminated by three dots and the printing is resumed on the next
+line with the offset of the continuation line.
+.SH SOURCE
+.B /sys/src/cmd/strings.c
+.SH SEE ALSO
+.IR nm (1)

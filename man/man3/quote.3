@@ -1,0 +1,167 @@
+.TH QUOTE 3
+.SH NAME
+quotestrdup, quoterunestrdup, unquotestrdup, unquoterunestrdup, quotestrfmt, quoterunestrfmt, quotefmtinstall, doquote, needsrcquote \- quoted character strings
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+char *quotestrdup(char *s)
+.PP
+.B
+Rune *quoterunestrdup(Rune *s)
+.PP
+.B
+char *unquotestrdup(char *s)
+.PP
+.B
+Rune *unquoterunestrdup(Rune *s)
+.PP
+.B
+int quotestrfmt(Fmt*)
+.PP
+.B
+int quoterunestrfmt(Fmt*)
+.PP
+.B
+void quotefmtinstall(void)
+.PP
+.B
+int (*doquote)(int c)
+.PP
+.B
+int needsrcquote(int c)
+.PP
+.SH DESCRIPTION
+These routines manipulate character strings, either adding or removing
+quotes as necessary.
+In the quoted form, the strings are in the style of
+.IR rc (1) ,
+with single quotes surrounding the string.
+Embedded single quotes are indicated by a doubled single quote.
+For instance,
+.IP
+.EX
+Don't worry!
+.EE
+.PP
+when quoted becomes
+.IP
+.EX
+\&'Don''t worry!'
+.EE
+.PP
+The empty string is represented by two quotes,
+.BR '' .
+.PP
+The first four functions act as variants of
+.B strdup
+(see
+.IR strcat (2)).
+Each returns a
+freshly allocated copy of the string, created using
+.IR malloc (2).
+.I Quotestrdup
+returns a quoted copy of
+.IR s ,
+while
+.I unquotestrdup
+returns a copy of
+.IR s
+with the quotes evaluated.
+The
+.I rune
+versions of these functions do the same for
+.CW Rune
+strings (see
+.IR runestrcat (2)).
+.PP
+The string returned by
+.I quotestrdup
+or
+.I quoterunestrdup
+has the following properties:
+.TP
+1.
+If the original string
+.IR s
+is empty, the returned string is
+.BR '' .
+.TP
+2.
+If
+.I s
+contains no quotes, blanks, or control characters,
+the returned string is identical to
+.IR s .
+.TP
+3.
+If
+.I s
+needs quotes to be added, the first character of the returned
+string will be a quote.
+For example,
+.B hello\ world
+becomes
+.B \&'hello\ world'
+not
+.BR hello'\ 'world .
+.PP
+The function pointer
+.I doquote
+is
+.B nil
+by default.
+If it is non-nil, characters are passed to that function to see if they should
+be quoted.
+This mechanism allows programs to specify that
+characters other than blanks, control characters, or quotes be quoted.
+Regardless of the return value of
+.IR *doquote ,
+blanks, control characters, and quotes are always quoted.
+.I Needsrcquote
+is provided as a
+.I doquote
+function that flags any character special to
+.IR rc (1).
+.PP
+.I Quotestrfmt
+and
+.I quoterunestrfmt
+are
+.IR print (2)
+formatting routines that produce quoted strings as output.
+They may be installed by hand, but
+.I quotefmtinstall
+installs them under the standard format characters
+.B q
+and
+.BR Q .
+(They are not installed automatically.)
+If the format string includes the alternate format character
+.BR # ,
+for example
+.BR %#q ,
+the printed string will always be quoted; otherwise quotes will only be provided if necessary
+to avoid ambiguity.
+In
+.B <libc.h>
+there are
+.B #pragma
+statements so the compiler can type-check uses of
+.B %q
+and
+.B %Q
+in
+.IR print (2)
+format strings.
+.SH SOURCE
+.B /sys/src/libc/port/quote.c
+.br
+.B /sys/src/libc/fmt/fmtquote.c
+.SH "SEE ALSO
+.IR rc (1),
+.IR malloc (2),
+.IR print (2),
+.IR strcat (2)

@@ -1,0 +1,55 @@
+.TH RC4 3
+.SH NAME
+setupRC4state, rc4, rc4skip, rc4back  - alleged rc4 encryption
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+void	setupRC4state(RC4state *s, uchar *seed, int slen)
+.PP
+.B
+void	rc4(RC4state *s, uchar *data, int dlen)
+.PP
+.B
+void	rc4skip(RC4state *s, int nbytes)
+.PP
+.B
+void	rc4back(RC4state *s, int nbytes)
+.SH DESCRIPTION
+.PP
+This is an algorithm alleged to be Rivest's RC4 encryption function.  It is
+a pseudo-random number generator with a 256 byte state and a long
+cycle.  The input buffer is XOR'd with the output of the
+generator both to encrypt and to decrypt.  The seed, entered
+using
+.IR setupRC4state ,
+can be any length.  The generator can be run forward using
+.IR rc4 ,
+skip over bytes using
+.I rc4skip 
+to account lost transmissions,
+or run backwards using
+.I rc4back
+to cover retransmitted data.
+The
+.I RC4state
+structure keeps track of the algorithm.
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR mp (2),
+.IR aes (2),
+.IR blowfish (2),
+.IR des (2),
+.IR dsa (2),
+.IR elgamal (2),
+.IR rsa (2),
+.IR sechash (2),
+.IR prime (2),
+.IR rand (2)

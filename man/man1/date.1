@@ -1,0 +1,58 @@
+.TH DATE 1
+.SH NAME
+date, clock \- date and time
+.SH SYNOPSIS
+.B date
+[
+.I option
+] [
+.I seconds
+]
+.br
+.B clock
+.SH DESCRIPTION
+Print the date, in the format
+.PP
+.B
+	Tue Aug 16 17:03:52 CDT 1977
+.PP
+The options are
+.TP
+.B -u
+Report Greenwich Mean Time (GMT) rather than local time.
+.TP
+.B -n
+Report the date as the number of seconds since the
+epoch, 00:00:00 GMT, January 1, 1970.
+.PP
+The conversion from Greenwich Mean Time to local time depends on the
+.B $timezone
+environment variable; see
+.IR ctime (2).
+.PP
+If the optional argument
+.I seconds
+is present, it is used as the time to convert rather than
+the real time.
+.SH FILES
+.TF /adm/timezone/local
+.TP
+.B /env/timezone
+Current timezone name and adjustments.
+.TP
+.B /adm/timezone
+A directory containing timezone tables.
+.TP
+.B /adm/timezone/local
+Default timezone file, copied by
+.IR init (8)
+into
+.BR /env/timezone .
+.PD
+.PP
+.I Clock
+draws a simple analog clock in its window.
+.SH SOURCE
+.B /sys/src/cmd/date.c
+.br
+.B /sys/src/cmd/clock.c

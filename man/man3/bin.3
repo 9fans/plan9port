@@ -1,0 +1,99 @@
+.TH BIN 3
+.SH NAME
+binalloc, bingrow, binfree \- grouped memory allocation
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <bin.h>
+.PP
+.ta \w'\fLvoid* 'u
+.PP
+.B
+typedef struct Bin	Bin;
+.PP
+.B
+void	*binalloc(Bin **bp, ulong size, int clr);
+.PP
+.B
+void	*bingrow(Bin **bp, void *op, ulong osize,
+.br
+.B
+	ulong size, int clr);
+.PP
+.B
+void	binfree(Bin **bp);
+.SH DESCRIPTION
+These routines provide simple grouped memory allocation and deallocation.
+Items allocated with
+.I binalloc
+are added to the
+.I Bin
+pointed to by
+.IR bp .
+All items in a bin may be freed with one call to
+.IR binfree ;
+there is no way to free a single item.
+.PP
+.I Binalloc
+returns a pointer to a new block of at least
+.I size
+bytes.
+The block is suitably aligned for storage of any type of object.
+No two active pointers from
+.I binalloc
+will have the same value.
+The call
+.B binalloc(0)
+returns a valid pointer rather than null.
+If
+.I clr
+is non-zero, the allocated memory is set to 0;
+otherwise, the contents are undefined.
+.PP
+.I Bingrow
+is used to extend the size of a block of memory returned by
+.IR binalloc .
+.I Bp
+must point to the same bin group used to allocate the original block,
+and
+.I osize
+must be the last size used to allocate or grow the block.
+A pointer to a block of at least
+.I size
+bytes is returned, with the same contents in the first
+.I osize
+locations.
+If
+.I clr
+is non-zero, the remaining bytes are set to 0,
+and are undefined otherwise.
+If
+.I op
+is
+.BR nil ,
+it and
+.I osize
+are ignored, and the result is the same as calling
+.IR binalloc .
+.PP
+.I Binalloc
+and
+.I bingrow
+allocate large chunks of memory using
+.IR malloc (2)
+and return pieces of these chunks.
+The chunks are
+.IR free 'd
+upon a call to
+.IR binfree .
+.SH SOURCE
+.B /sys/src/libbin
+.SH SEE ALSO
+.IR malloc (2)
+.SH DIAGNOSTICS
+.I binalloc
+and
+.I bingrow
+return 0 if there is no available memory.

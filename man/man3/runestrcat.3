@@ -13,7 +13,9 @@ runestrrchr,
 runestrdup,
 runestrstr \- rune string operations
 .SH SYNOPSIS
-.B #include <utf.h>
+.B #include <u.h>
+.br
+.B #include <libc.h>
 .PP
 .ta \w'\fLRune* \fP'u
 .B
@@ -54,12 +56,12 @@ Rune*	runestrstr(Rune *s1, Rune *s2)
 .SH DESCRIPTION
 These functions are rune string analogues of
 the corresponding functions in 
-.IR strcat (3).
-.SH HISTORY
-These routines first appeared in Plan 9.
+.IR strcat (2).
+.SH SOURCE
+.B /sys/src/libc/port
 .SH SEE ALSO
-.IR memmove (3),
-.IR rune (3),
+.IR memory (2),
+.IR rune (2),
 .IR strcat (2)
 .SH BUGS
 The outcome of overlapping moves varies among implementations.

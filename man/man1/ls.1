@@ -1,0 +1,162 @@
+.TH LS 1
+.SH NAME
+ls, lc \- list contents of directory
+.SH SYNOPSIS
+.B ls
+[
+.B -dlmnpqrstuFQ
+]
+.I name ...
+.PP
+.B lc
+[
+.B -dlmnqrstuFQ
+]
+.I name ...
+.SH DESCRIPTION
+For each directory argument,
+.I ls
+lists the contents of the directory;
+for each file argument,
+.I ls
+repeats its name and any other information requested.
+When no argument is given, the current directory is listed.
+By default, the output is sorted alphabetically by name.
+.PP
+.I Lc
+is the same as
+.IR ls ,
+but sets the
+.B -p
+option and pipes the output through
+.IR mc (1).
+.PP
+There are a number of options:
+.TP
+.B  -d
+If argument is a directory, list it, not
+its contents.
+.TP
+.B  -l
+List in long format, giving mode (see below), file system type
+(e.g., for devices, the
+.B #
+code letter that names it; see
+.IR intro (3)),
+the instance or subdevice number, owner, group,
+size in bytes, and time of last modification
+for each file.
+.TP
+.B -m
+List the name of the user who most recently modified the file.
+.TP
+.B  -n
+Don't sort the listing.
+.TP
+.B  -p
+Print only the final path element of each file name.
+.TP
+.B  -q
+List the
+.I qid
+(see
+.IR stat (2))
+of each file; the printed fields are in the order
+path, version, and type.
+.TP
+.B  -r
+Reverse the order of sort.
+.TP
+.B  -s
+Give size in Kbytes for each entry.
+.TP
+.B  -t
+Sort by time modified (latest first) instead of
+by name.
+.TP
+.B  -u
+Under
+.B -t
+sort by time of last access;
+under
+.B -l
+print time of last access.
+.TP
+.B  -F
+Add the character
+.B /
+after all directory names
+and the character
+.B *
+after all executable files.
+.TP
+.B -L
+Print the character
+.B t
+before each file if it has the temporary flag set, and
+.B -
+otherwise.
+.TP
+.B -Q
+By default, printed file names are quoted if they contain characters special to
+.IR rc (1).
+The
+.B -Q
+flag disables this behavior.
+.PP
+The mode printed under the
+.B -l
+option contains 11 characters,
+interpreted
+as follows:
+the first character is
+.TP
+.B  d
+if the entry is a directory;
+.PD 0
+.TP
+.B  a
+if the entry is an append-only file;
+.TP
+.B  -
+if the entry is a plain file.
+.PD
+.PP
+The next letter is
+.B l
+if the file is exclusive access (one writer or reader at a time).
+.PP
+The last 9 characters are interpreted
+as three sets of three bits each.
+The first set refers to owner permissions;
+the next to permissions to others in the same user-group;
+and the last to all others.
+Within each set the three characters indicate
+permission respectively to read, to write, or to
+execute the file as a program.
+For a directory, `execute' permission is interpreted
+to mean permission to search the directory
+for a specified file.
+The permissions are indicated as follows:
+.TP 3
+.B  r
+if the file is readable;
+.PD 0
+.TP 3
+.B  w
+if the file is writable;
+.TP 3
+.B  x
+if the file is executable;
+.TP 3
+.B  -
+if none of the above permissions is granted.
+.PD
+.SH SOURCE
+.B /sys/src/cmd/ls.c
+.br
+.B /rc/bin/lc
+.SH SEE ALSO
+.IR stat (2)
+.IR mc (1)
+

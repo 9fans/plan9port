@@ -1,0 +1,175 @@
+.TH RAND 3
+.SH NAME
+rand, lrand, frand, nrand, lnrand, srand, truerand, ntruerand, fastrand, nfastrand \- random number generator
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLdouble 'u
+.B
+int	rand(void)
+.PP
+.B
+long	lrand(void)
+.PP
+.B
+double	frand(void)
+.PP
+.B
+int	nrand(int val)
+.PP
+.B
+long	lnrand(long val)
+.PP
+.B
+void	srand(long seed)
+.PP
+.B
+ulong	truerand(void)
+.PP
+.B
+ulong	ntruerand(ulong val)
+.sp
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+void	genrandom(uchar *buf, int nbytes)
+.PP
+.B
+void	prng(uchar *buf, int nbytes)
+.PP
+.B
+ulong	fastrand(void)
+.PP
+.B
+ulong	nfastrand(ulong val)
+.SH DESCRIPTION
+.I Rand
+returns a uniform pseudo-random
+number
+.IR x ,
+.RI 0≤ x <2\u\s715\s10\d.
+.PP
+.I Lrand
+returns a uniform
+.B long
+.IR x ,
+.RI 0≤ x <2\u\s731\s10\d.
+.PP
+.I Frand
+returns a uniform
+.B double
+.IR x ,
+.RI 0.0≤ x <1.0,
+This function calls
+.I lrand
+twice to generate a number with as many as 62 significant bits of mantissa.
+.PP
+.I Nrand
+returns a uniform integer
+.IR x ,
+.RI 0≤ x < val.
+.I Lnrand
+is the same, but returns a
+.BR long .
+.PP
+The algorithm is additive feedback with:
+.IP
+x[n] = (x[n\(mi273] + x[n\(mi607]) mod
+.if t 2\u\s731\s0\d
+.if n 2^31
+.LP
+giving a period of
+.if t 2\u\s730\s10\d \(mu (2\u\s7607\s10\d \- 1).
+.if n 2^30 × (2^607 - 1).
+.PP
+The generators are initialized by calling
+.I srand
+with whatever you like as argument.
+To get a different starting value each time,
+.IP
+.L
+srand(time(0))
+.LP
+will work as long as it is not called more often
+than once per second.
+Calling
+.IP
+.L
+srand(1)
+.LP
+will initialize the generators to their
+starting state.
+.PP
+.I Truerand
+returns a random unsigned long read from
+.BR /dev/random .
+Due to the nature of
+.BR /dev/random ,
+truerand can only return a few hundred bits a
+second.
+.PP
+.I Ntruerand
+returns a uniform random integer
+.IR x ,
+.RI 0≤ x < val ≤ 2\u\s732\s10\d-1.
+.PP
+.I Genrandom
+fills a buffer with bytes from the X9.17 pseudo-random
+number generator.  The X9.17 generator is seeded by 24
+truly random bytes read from
+.BR /dev/random .
+.PP
+.I Prng
+uses the native
+.IR rand (2)
+pseudo-random number generator to fill the buffer.  Used with
+.IR srand ,
+this function can produce a reproducible stream of pseudo random
+numbers useful in testing.
+.PP
+Both
+.I genrandom
+and
+.I prng
+may be passed to
+.I mprand
+(see
+.IR mp (2)).
+.PP
+.I Fastrand
+uses
+.I genrandom
+to return a uniform
+.B "unsigned long
+.IR x ,
+.RI 0≤ x < 2\u\s732\s10\d-1.
+.PP
+.I Nfastrand
+uses
+.I genrandom
+to return a uniform
+.B "unsigned long
+.IR x ,
+.RI 0≤ x < val ≤ 2\u\s732\s10\d-1.
+.SH SOURCE
+.B /sys/src/libc/port/*rand.c
+.br
+.B /sys/src/libc/9sys/truerand.c
+.br
+.B /sys/src/libsec/port/genrandom.c
+.br
+.B /sys/src/libsec/port/prng.c
+.br
+.B /sys/src/libsec/port/*fastrand.c
+.SH "SEE ALSO
+.IR cons (3),
+.IR mp (2),
+.SH BUGS
+.I Truerand
+and
+.I ntruerand
+maintain a static file descriptor.

@@ -1,0 +1,232 @@
+.TH LOCK 3
+.SH NAME
+lock, canlock, unlock,
+qlock, canqlock, qunlock,
+rlock, canrlock, runlock,
+wlock, canwlock, wunlock,
+rsleep, rwakeup, rwakeupall
+incref, decref
+\- spin locks, queueing rendezvous locks, reader-writer locks, rendezvous points, and reference counts
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+.PP
+.ft L
+.nf
+void	lock(Lock *l)
+int	canlock(Lock *l)
+void	unlock(Lock *l)
+.PP
+.ft L
+.nf
+void	qlock(QLock *l)
+int	canqlock(QLock *l)
+void	qunlock(QLock *l)
+.PP
+.ft L
+.nf
+void	rlock(RWLock *l)
+int	canrlock(RWLock *l)
+void	runlock(RWLock *l)
+.PP
+.ft L
+.nf
+void	wlock(RWLock *l)
+int	canwlock(RWLock *l)
+void	wunlock(RWLock *l)
+.PP
+.ft L
+.nf
+typedef struct Rendez {
+	QLock *l;
+	\fI...\fP
+} Rendez;
+.PP
+.ft L
+.nf
+void	rsleep(Rendez *r)
+int	rwakeup(Rendez *r)
+int	rwakeupall(Rendez *r)
+.PP
+.ft L
+#include <thread.h>
+.PP
+.ft L
+.nf
+typedef struct Ref {
+	long ref;
+} Ref;
+.PP
+.ft L
+.nf
+void incref(Ref*)
+long decref(Ref*)
+.fi
+.SH DESCRIPTION
+These routines are used  to synchronize processes sharing memory.
+.PP
+.B Locks
+are spin locks,
+.B QLocks
+and
+.B RWLocks
+are different types of queueing rendezvous locks,
+and
+.B Rendezes
+are rendezvous points.
+.PP
+Locks and rendezvous points work in regular programs as
+well as programs that use the thread library
+(see
+.IR thread (2)).
+The thread library replaces the
+.IR rendezvous (2)
+system call
+with its own implementation,
+.IR threadrendezvous ,
+so that threads as well as processes may be synchronized by locking calls
+in threaded programs.
+.PP
+Used carelessly, spin locks can be expensive and can easily generate deadlocks.
+Their use is discouraged, especially in programs that use the
+thread library because they prevent context switches between threads.
+.PP
+.I Lock
+blocks until the lock has been obtained.
+.I Canlock
+is non-blocking.
+It tries to obtain a lock and returns a non-zero value if it
+was successful, 0 otherwise.
+.I Unlock
+releases a lock.
+.PP
+.B QLocks
+have the same interface but are not spin locks; instead if the lock is taken
+.I qlock
+will suspend execution of the calling task until it is released.
+.PP
+Although
+.B Locks
+are the more primitive lock, they have limitations; for example,
+they cannot synchronize between tasks in the same
+.IR proc .
+Use
+.B QLocks
+instead.
+.PP
+.B RWLocks
+manage access to a data structure that has distinct readers and writers.
+.I Rlock
+grants read access;
+.I runlock
+releases it.
+.I Wlock
+grants write access;
+.I wunlock
+releases it.
+.I Canrlock
+and
+.I canwlock
+are the non-blocking versions.
+There may be any number of simultaneous readers,
+but only one writer.
+Moreover,
+if write access is granted no one may have
+read access until write access is released.
+.PP
+All types of lock should be initialized to all zeros before use; this
+puts them in the unlocked state.
+.PP
+.B Rendezes
+are rendezvous points.  Each
+.B Rendez
+.I r
+is protected by a
+.B QLock
+.IB r -> l \fR,
+which must be held by the callers of
+.IR rsleep ,
+.IR rwakeup ,
+and
+.IR rwakeupall .
+.I Rsleep
+atomically releases
+.IB r -> l
+and suspends execution of the calling task.
+After resuming execution,
+.I rsleep
+will reacquire
+.IB r -> l
+before returning.
+If any processes are sleeping on
+.IR r ,
+.I rwakeup
+wakes one of them.
+it returns 1 if a process was awakened, 0 if not.
+.I Rwakeupall
+wakes all processes sleeping on
+.IR r ,
+returning the number of processes awakened.
+.I Rwakeup
+and
+.I rwakeupall
+do not release
+.IB r -> l
+and do not suspend execution of the current task.
+.PP
+Before use,
+.B Rendezes
+should be initialized to all zeros except for
+.IB r -> l
+pointer, which should point at the
+.B QLock
+that will guard
+.IR r .
+.PP
+A
+.B Ref
+contains a
+.B long
+that can be incremented and decremented atomically:
+.I Incref
+increments the
+.I Ref
+in one atomic operation.
+.I Decref
+atomically decrements the
+.B Ref
+and returns zero if the resulting value is zero, non-zero otherwise.
+.SH SOURCE
+.B /sys/src/libc/port/lock.c
+.br
+.B /sys/src/libc/9sys/qlock.c
+.br
+.B /sys/src/libthread/ref.c
+.SH SEE ALSO
+.I rfork
+in
+.IR fork (2)
+.SH BUGS
+.B Locks
+are not strictly spin locks.
+After each unsuccessful attempt,
+.I lock
+calls
+.B sleep(0)
+to yield the CPU; this handles the common case
+where some other process holds the lock.
+After a thousand unsuccessful attempts,
+.I lock
+sleeps for 100ms between attempts.
+Another another thousand unsuccessful attempts,
+.I lock
+sleeps for a full second between attempts.
+.B Locks
+are not intended to be held for long periods of time.
+The 100ms and full second sleeps are only heuristics to
+avoid tying up the CPU when a process deadlocks.
+As discussed above,
+if a lock is to be held for much more than a few instructions,
+the queueing lock types should be almost always be used.

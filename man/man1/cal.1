@@ -1,0 +1,46 @@
+.TH CAL 1
+.SH NAME
+cal \- print calendar
+.SH SYNOPSIS
+.B cal
+[
+.I month
+]
+[
+.I year
+]
+.SH DESCRIPTION
+.I Cal
+prints a calendar.
+.I Month
+is either a number from 1 to 12,
+a lower case month name,
+or a lower case three-letter prefix of a month name.
+.I Year
+can be between 1
+and 9999.
+If either
+.I month
+or
+.I year
+is omitted, the current month or year is used.
+If only one argument is given, and it is a number larger than 12,
+a calendar for all twelve months of the given year is produced;
+otherwise a calendar for just one month is printed.
+The calendar
+produced is that for England and her colonies.
+.PP
+Try
+.EX
+	cal sep 1752
+.EE
+.SH SOURCE
+.B /sys/src/cmd/cal.c
+.SH BUGS
+The year is always considered to start in January even though this
+is historically naive.
+.br
+Beware that
+.L "cal 90"
+refers to the early Christian era,
+not the 20th century.

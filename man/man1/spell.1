@@ -1,0 +1,96 @@
+.TH SPELL 1
+.SH NAME
+spell, sprog \- find spelling errors
+.SH SYNOPSIS
+.B spell
+[
+.I options
+]
+\&...
+[
+.I file
+]
+\&...
+.PP
+.B sprog
+[
+.I options
+]
+[
+.B -f
+.I file
+]
+.SH DESCRIPTION
+.I Spell
+looks up words from the named
+.I files
+(standard input default)
+in a spelling list and places
+possible misspellings\(emwords 
+not sanctioned there\(emon the standard output.
+.PP
+.I Spell
+ignores constructs of
+.IR troff (1)
+and its standard preprocessors.
+It understands these options:
+.TP
+.B -b
+Check British spelling.
+.TP
+.B -v
+Print all words not literally in the spelling list, with
+derivations.
+.TP
+.B -x
+Print, marked with
+.LR = ,
+every stem as it is looked up in the spelling list,
+along with its affix classes.
+.PP
+As a matter of policy, 
+.I spell
+does not admit multiple spellings of the same word.
+Variants that follow general rules are preferred
+over those that don't, even when the unruly spelling is
+more common.
+Thus, in American usage, `modelled', `sizeable', and `judgment' are
+rejected in favor of `modeled', `sizable', and `judgement'.
+Agglutinated variants are shunned: `crewmember' and `backyard'
+cede to `crew member' and  `back yard' (noun) or `back-yard' 
+(adjective).
+.SH FILES
+.TF /sys/lib/brspell
+.TP
+.B /sys/lib/amspell
+American spelling list
+.TP
+.B /sys/lib/brspell
+British spelling list
+.TP
+.B /bin/aux/sprog
+The actual spelling checker.
+It expects one word per line on standard input,
+and takes the same arguments as
+.IR spell .
+.SH SOURCE
+.TF /sys/src/cmd/spell
+.TP
+.B /rc/bin/spell
+the script
+.TP
+.B /sys/src/cmd/spell
+source for
+.I sprog
+.SH SEE ALSO
+.IR deroff (1)
+.SH BUGS
+The heuristics of
+.IR deroff (1)
+used to excise formatting information are imperfect.
+.br
+The spelling list's coverage is uneven;
+in particular biology, medicine, and chemistry, and
+perforce proper names,
+not to mention languages other than English,
+are covered very lightly.

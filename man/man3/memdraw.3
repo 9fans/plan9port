@@ -1,0 +1,450 @@
+.TH MEMDRAW 3
+.SH NAME
+Memimage,
+Memdata,
+Memdrawparam,
+memimageinit,
+wordaddr,
+byteaddr,
+memimagemove,
+allocmemimage,
+allocmemimaged,
+readmemimage,
+creadmemimage,
+writememimage,
+freememimage,
+memsetchan,
+loadmemimage,
+cloadmemimage,
+unloadmemimage,
+memfillcolor,
+memarc,
+mempoly,
+memellipse,
+memfillpoly,
+memimageline,
+memimagedraw,
+drawclip,
+memlinebbox,
+memlineendsize,
+allocmemsubfont,
+openmemsubfont,
+freememsubfont,
+memsubfontwidth,
+getmemdefont,
+memimagestring,
+iprint,
+hwdraw \- drawing routines for memory-resident images
+.SH SYNOPSIS
+.nf
+.B #include <u.h>
+.nf
+.B #include <u.h>
+.B #include <libc.h>
+.B #include <draw.h>
+.B #include <memdraw.h>
+.PP
+.ft L
+typedef struct Memdata
+{
+	ulong	*base;	/* allocated data pointer */
+	uchar	*bdata;	/* first byte of actual data; word-aligned */
+	int		ref;		/* number of Memimages using this data */
+	void*	imref;	/* last image that pointed at this */
+	int		allocd;	/* is this malloc'd? */
+} Memdata;
+
+enum {
+	Frepl	= 1<<0,	/* is replicated */
+	Fsimple	= 1<<1,	/* is 1x1 */
+	Fgrey	= 1<<2,	/* is grey */
+	Falpha	= 1<<3,	/* has explicit alpha */
+	Fcmap	= 1<<4,	/* has cmap channel */
+	Fbytes	= 1<<5,	/* has only 8-bit channels */
+};
+
+typedef struct Memimage
+{
+	Rectangle	r;		/* rectangle in data area, local coords */
+	Rectangle	clipr;	/* clipping region */
+	int		depth;	/* number of bits of storage per pixel */
+	int		nchan;	/* number of channels */
+	ulong	chan;	/* channel descriptions */
+
+	Memdata	*data;	/* pointer to data */
+	int		zero;	/* data->bdata+zero==&byte containing (0,0) */
+	ulong	width;	/* width in words of a single scan line */
+	Memlayer	*layer;	/* nil if not a layer*/
+	ulong	flags;
+	\fI...\fP
+} Memimage;
+
+typedef struct Memdrawparam
+{
+	Memimage	*dst;
+	Rectangle	r;
+	Memimage	*src;
+	Rectangle	sr;
+	Memimage	*mask;
+	Rectangle	mr;
+	\fI...\fP
+} Memdrawparam;
+
+.ta \w'\fLMemsubfont* 'u
+int	drawdebug;
+.ft
+.PP
+.ft L
+.nf
+void	memimageinit(void)
+ulong*	wordaddr(Memimage *i, Point p)
+uchar*	byteaddr(Memimage *i, Point p)
+void	memimagemove(void *from, void *to)
+.PP
+.ft L
+.nf
+Memimage*	allocmemimage(Rectangle r, ulong chan)
+Memimage*	allocmemimaged(Rectangle r, ulong chan, Memdata *data)
+Memimage*	readmemimage(int fd)
+Memimage*	creadmemimage(int fd)
+int	writememimage(int fd, Memimage *i)
+void	freememimage(Memimage *i)
+int	memsetchan(Memimage*, ulong)
+.PP
+.ft L
+.nf
+int	loadmemimage(Memimage *i, Rectangle r,
+	   uchar *buf, int nbuf)
+int	cloadmemimage(Memimage *i, Rectangle r,
+	   uchar *buf, int nbuf)
+int	unloadmemimage(Memimage *i, Rectangle r,
+	   uchar *buf, int nbuf)
+void	memfillcolor(Memimage *i, ulong color)
+.PP
+.ft L
+.nf
+void	memarc(Memimage *dst, Point c, int a, int b, int thick,
+	   Memimage *src, Point sp, int alpha, int phi, Drawop op)
+void	mempoly(Memimage *dst, Point *p, int np, int end0,
+	   int end1, int radius, Memimage *src, Point sp, Drawop op)
+void	memellipse(Memimage *dst, Point c, int a, int b,
+	   int thick, Memimage *src, Point sp, Drawop op)
+void	memfillpoly(Memimage *dst, Point *p, int np, int wind,
+		   Memimage *src, Point sp, Drawop op)
+void	memimageline(Memimage *dst, Point p0, Point p1, int end0,
+	   int end1, int radius, Memimage *src, Point sp, Drawop op)
+void	memimagedraw(Memimage *dst, Rectangle r, Memimage *src,
+	   Point sp, Memimage *mask, Point mp, Drawop op)
+.PP
+.ft L
+.nf
+int	drawclip(Memimage *dst, Rectangle *dr, Memimage *src,
+	   Point *sp, Memimage *mask, Point *mp,
+	   Rectangle *sr, Rectangle *mr)
+Rectangle	memlinebbox(Point p0, Point p1, int end0, int end1,
+	   int radius)
+int	memlineendsize(int end)
+.PP
+.ft L
+.nf
+Memsubfont*	allocmemsubfont(char *name, int n, int height,
+	   int ascent, Fontchar *info, Memimage *i)
+Memsubfont*	openmemsubfont(char *name)
+void	freememsubfont(Memsubfont *f)
+Point	memsubfontwidth(Memsubfont *f, char *s)
+Memsubfont*	getmemdefont(void)
+Point	memimagestring(Memimage *dst, Point p, Memimage *color,
+	    Point cp, Memsubfont *f, char *cs, Drawop op)
+.PP
+.ft L
+.nf
+int	iprint(char *fmt, ...)
+int	hwdraw(Memdrawparam *param)
+.ft R
+.SH DESCRIPTION
+The
+.B Memimage
+type defines memory-resident rectangular pictures and the methods to draw upon them;
+.BR Memimage s
+differ from
+.BR Image s
+(see
+.IR draw (2))
+in that they are manipulated directly in user memory rather than by
+RPCs to the
+.B /dev/draw
+hierarchy.
+The
+.Bmemdraw
+library is the basis for the kernel 
+.IR draw (3)
+driver and also used by a number of programs that must manipulate
+images without a display.
+.PP
+The 
+.BR r, 
+.BR clipr ,
+.BR depth ,
+.BR nchan ,
+and
+.BR chan 
+structure elements are identical to
+the ones of the same name
+in the 
+.B Image
+structure.
+.PP
+The
+.B flags
+element of the 
+.B Memimage
+structure holds a number of bits of information about the image.
+In particular, it subsumes the
+purpose of the
+.B repl
+element of 
+.B Image
+structures.
+.PP
+.I Memimageinit
+initializes various static data that the library depends on,
+as well as the replicated solid color images 
+.BR memopaque ,
+.BR memtransparent ,
+.BR memblack ,
+and
+.BR memwhite .
+It should be called before referring to any of these images
+and before calling any of the other library functions.
+.PP
+Each 
+.B Memimage
+points at a 
+.B Memdata
+structure that in turn points at the actual pixel data for the image.
+This allows multiple images to be associated with the same 
+.BR Memdata .
+The first word of the data pointed at by
+the 
+.B base
+element of
+.B Memdata
+points back at the
+.B Memdata
+structure, so that the
+memory allocator (see
+.IR pool (2))
+can compact image memory
+using
+.IR memimagemove .
+.PP
+Because images can have different coordinate systems,
+the 
+.B zero
+element of the 
+.B Memimage
+structure contains the offset that must be added
+to the 
+.B bdata
+element of the corresponding
+.B Memdata
+structure in order to yield a pointer to the data for the pixel (0,0).
+Adding
+.BR width
+machine words
+to this pointer moves it down one scan line.
+The
+.B depth
+element can be used to determine how to move the
+pointer horizontally.
+Note that this method works even for images whose rectangles
+do not include the origin, although one should only dereference
+pointers corresponding to pixels within the image rectangle.
+.I Wordaddr
+and
+.IR byteaddr 
+perform these calculations, 
+returning pointers to the word and byte, respectively,
+that contain the beginning of the data for a given pixel.
+.PP
+.I Allocmemimage
+allocages 
+images with a given rectangle and channel descriptor
+(see 
+.B strtochan
+in
+.IR graphics (2)),
+creating a fresh
+.B Memdata
+structure and associated storage.
+.I Allocmemimaged
+is similar but uses the supplied
+.I Memdata
+structure rather than a new one.
+The
+.I readmemimage
+function reads an uncompressed bitmap 
+from the given file descriptor,
+while
+.I creadmemimage
+reads a compressed bitmap.
+.I Writememimage
+writes a compressed representation of
+.I i
+to file descriptor
+.IR fd .
+For more on bitmap formats, see
+.IR image (6).
+.I Freememimage
+frees images returned by any of these routines.
+The
+.B Memimage
+structure contains some tables that are used
+to store precomputed values depending on the channel descriptor.
+.I Memsetchan
+updates the
+.B chan
+element of the structure as well as these tables,
+returning \-1 if passed a bad channel descriptor.
+.PP
+.I Loadmemimage
+and
+.I cloadmemimage
+replace the pixel data for a given rectangle of an image
+with the given buffer of uncompressed or compressed
+data, respectively.
+When calling
+.IR cloadmemimage ,
+the buffer must contain an
+integral number of 
+compressed chunks of data that exactly cover the rectangle.
+.I Unloadmemimage
+retrieves the uncompressed pixel data for a given rectangle of an image.
+All three return the number of bytes consumed on success,
+and \-1 in case of an error.
+.PP
+.I Memfillcolor
+fills an image with the given color, a 32-bit number as
+described in 
+.IR color (2).
+.PP
+.IR Memarc ,
+.IR mempoly ,
+.IR memellipse ,
+.IR memfillpoly ,
+.IR memimageline ,
+and
+.I memimagedraw
+are identical to the 
+.IR arc ,
+.IR poly ,
+.IR ellipse ,
+.IR fillpoly ,
+.IR line ,
+and
+.IR gendraw ,
+routines described in
+.IR draw (2),
+except that they operate on
+.BR Memimage s
+rather than 
+.BR Image s.
+Similarly, 
+.IR allocmemsubfont ,
+.IR openmemsubfont ,
+.IR freememsubfont ,
+.IR memsubfontwidth ,
+.IR getmemdefont ,
+and
+.I memimagestring
+are the 
+.B Memimage
+analogues of 
+.IR allocsubfont ,
+.IR openfont ,
+.IR freesubfont ,
+.IR strsubfontwidth ,
+.IR getdefont ,
+and
+.B string
+(see 
+.IR subfont (2)
+and
+.IR graphics (2)),
+except that they operate
+only on 
+.BR Memsubfont s
+rather than
+.BR Font s.
+.PP
+.I Drawclip
+takes the images involved in a draw operation,
+together with the destination rectangle 
+.B dr
+and source
+and mask alignment points
+.B sp
+and
+.BR mp ,
+and
+clips them according to the clipping rectangles of the images involved.
+It also fills in the rectangles
+.B sr
+and
+.B mr
+with rectangles congruent to the returned destination rectangle
+but translated so the upper left corners are the returned
+.B sp
+and
+.BR mp .
+.I Drawclip
+returns zero when the clipped rectangle is empty.
+.I Memlinebbox
+returns a conservative bounding box containing a line between
+two points
+with given end styles
+and radius.
+.I Memlineendsize
+calculates the extra length added to a line by attaching
+an end of a given style.
+.PP
+The
+.I hwdraw
+and 
+.I iprint
+functions are no-op stubs that may be overridden by clients
+of the library.
+.I Hwdraw
+is called at each call to
+.I memimagedraw
+with the current request's parameters.
+If it can satisfy the request, it should do so 
+and return 1.
+If it cannot satisfy the request, it should return 0.
+This allows (for instance) the kernel to take advantage
+of hardware acceleration.
+.I Iprint
+should format and print its arguments;
+it is given much debugging output when
+the global integer variable
+.B drawdebug
+is non-zero.
+In the kernel,
+.I iprint
+prints to a serial line rather than the screen, for obvious reasons.
+.SH SOURCE
+.B /sys/src/libmemdraw
+.SH SEE ALSO
+.IR addpt (2),
+.IR color (2),
+.IR draw (2),
+.IR graphics (2),
+.IR memlayer (2),
+.IR stringsize (2),
+.IR subfont (2),
+.IR color (6),
+.IR utf (6)
+.SH BUGS
+.I Memimagestring
+is unusual in using a subfont rather than a font,
+and in having no parameter to align the source.

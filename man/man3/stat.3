@@ -1,0 +1,326 @@
+.TH STAT 3
+.SH NAME
+stat, fstat, wstat, fwstat, dirstat, dirfstat, dirwstat, dirfwstat, nulldir \- get and put file status
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int stat(char *name, uchar *edir, int nedir)
+.PP
+.B
+int fstat(int fd, uchar *edir, int nedir)
+.PP
+.B
+int wstat(char *name, uchar *edir, int nedir)
+.PP
+.B
+int fwstat(int fd, uchar *edir, int nedir)
+.PP
+.B
+Dir* dirstat(char *name)
+.PP
+.B
+Dir* dirfstat(int fd)
+.PP
+.B
+int dirwstat(char *name, Dir *dir)
+.PP
+.B
+int dirfwstat(int fd, Dir *dir)
+.PP
+.B
+void nulldir(Dir *d)
+.SH DESCRIPTION
+Given a file's
+.IR name ,
+or an open file descriptor
+.IR fd ,
+these routines retrieve or modify file status information.
+.IR Stat ,
+.IR fstat ,
+.IR wstat ,
+and
+.I fwstat
+are the system calls; they deal with machine-independent
+.IR "directory entries" .
+Their format is defined by
+.IR stat (5).
+.I Stat
+and
+.I fstat
+retrieve information about
+.I name
+or
+.I fd
+into
+.IR edir ,
+a buffer of length
+.IR nedir ,
+defined in
+.BR <libc.h> .
+.I Wstat
+and
+.I fwstat
+write information back, thus changing file attributes according to the contents of
+.IR edir .
+The data returned from the kernel includes its leading 16-bit length field
+as described in
+.IR intro (5).
+For symmetry, this field must also be present when passing data to the kernel in a call to
+.I wstat
+and
+.IR fwstat ,
+but its value is ignored.
+.PP
+.IR Dirstat ,
+.IR dirfstat ,
+.IR dirwstat ,
+and
+.I dirfwstat
+are similar to their counterparts, except that they
+operate on
+.I Dir
+structures:
+.IP
+.EX
+.ta 6n +\w'ulong 'u +\w'mtime;   'u
+typedef
+struct Dir {
+	/* system-modified data */
+	uint	type;	/* server type */
+	uint	dev;	/* server subtype */
+	/* file data */
+	Qid	qid;	/* unique id from server */
+	ulong	mode;	/* permissions */
+	ulong	atime;	/* last read time */
+	ulong	mtime;	/* last write time */
+	vlong	length;		/* file length: see <u.h> */
+	char	*name;	/* last element of path */
+	char	*uid;	/* owner name */
+	char	*gid;	/* group name */
+	char	*muid;	/* last modifier name */
+} Dir;
+.EE
+.PP
+The returned structure is allocated by
+.IR malloc (2);
+freeing it also frees the associated strings.
+.PP
+This structure and
+the
+.B Qid
+structure
+are defined in
+.BR <libc.h> .
+If the file resides on permanent storage and is not a directory,
+the length returned by
+.I stat
+is the number of bytes in the file.
+For directories, the length returned is zero.
+For files that are streams (e.g., pipes and network connections),
+the length is the number of bytes that can be read without blocking.
+.PP
+Each file is the responsibility of some
+.IR server :
+it could be a file server, a kernel device, or a user process.
+.B Type
+identifies the server type, and
+.B dev
+says which of a group of servers of the same type is the one
+responsible for this file.
+.B Qid
+is a structure containing
+.B path
+and
+.B vers
+fields:
+.B path
+is guaranteed to be
+unique among all path names currently on the file server, and
+.B vers
+changes each time the file is modified.
+The
+.B path
+is a
+.B long
+.B long
+(64 bits,
+.BR vlong )
+and the
+.B vers
+is an
+.B unsigned long
+(32 bits,
+.BR ulong ).
+Thus, if two files have the same
+.BR type ,
+.BR dev ,
+and
+.B qid
+they are the same file.
+.PP
+The bits in
+.B mode
+are defined by
+.PP
+.ta 6n +\w'\fL0x80000000   'u
+.nf
+\fL	0x80000000\fP	directory
+\fL	0x40000000\fP	append only
+\fL	0x20000000\fP	exclusive use (locked)
+
+\fL	      0400\fP	read permission by owner
+\fL	      0200\fP	write permission by owner
+\fL	      0100\fP	execute permission (search on directory) by owner
+\fL	      0070\fP	read, write, execute (search) by group
+\fL	      0007\fP	read, write, execute (search) by others
+.fi
+.PP
+There are constants defined in
+.B <libc.h>
+for these bits:
+.BR DMDIR ,
+.BR DMAPPEND ,
+and
+.B DMEXCL
+for the first three; and
+.BR DMREAD ,
+.BR DMWRITE ,
+and
+.B DMEXEC
+for the read, write, and execute bits for others.
+.PP
+The two time fields are measured in seconds since the epoch
+(Jan 1 00:00 1970 GMT).
+.B Mtime
+is the time of the last change of content.
+Similarly,
+.B atime
+is set whenever the contents are accessed;
+also, it is set whenever
+.B mtime
+is set.
+.PP
+.B Uid
+and
+.B gid
+are the names of the owner and group of the file;
+.B muid
+is the name of the user that last modified the file (setting
+.BR mtime ).
+Groups are also users, but each server is free to associate
+a list of users with any user name
+.IR g ,
+and that list is the
+set of users in the group
+.IR g .
+When an initial attachment is made to a server,
+the user string in the process group is communicated to the server.
+Thus, the server knows, for any given file access, whether the accessing
+process is the owner of, or in the group of, the file.
+This selects which sets of three bits in
+.B mode
+is used to check permissions.
+.PP
+Only some of the fields may be changed with the
+.I wstat
+calls.
+The
+.B name
+can be changed by anyone with write permission in the parent directory.
+The
+.B mode
+and
+.B mtime
+can be changed by the owner or the group leader of the file's current
+group.
+The
+.I gid
+can be changed: by the owner if also a member of the new group; or
+by the group leader of the file's current group
+if also leader of the new group
+(see
+.IR intro (5)
+for more information about permissions and
+.IR users (6)
+for users and groups).
+The
+.B length
+can be changed by anyone with write permission, provided the operation
+is implemented by the server.
+(See
+.IR intro (5)
+for permission information, and
+.IR users (6)
+for user and group information).
+.PP
+Special values in the fields of the
+.B Dir
+passed to
+.I wstat
+indicate that the field is not intended to be changed by the call.
+The values are the maximum unsigned integer of appropriate size
+for integral values (usually
+.BR ~0 ,
+but beware of conversions and size mismatches
+when comparing values) and the empty or nil string for string values.
+The routine
+.I nulldir
+initializes all the elements of
+.I d
+to these ``don't care'' values.
+Thus one may change the mode, for example, by using
+.I nulldir
+to initialize a
+.BR Dir ,
+then setting the mode, and then doing
+.IR wstat ;
+it is not necessary to use
+.I stat
+to retrieve the initial values first.
+.SH SOURCE
+.TF /sys/src/libc/9syscall
+.TP
+.B /sys/src/libc/9syscall
+for the
+.RB non- dir
+routines
+.TP
+.B /sys/src/libc/9sys
+for the routines prefixed
+.B dir
+.SH SEE ALSO
+.IR intro (2),
+.IR fcall (2),
+.IR dirread (2),
+.IR stat (5)
+.SH DIAGNOSTICS
+The
+.I dir
+functions return a pointer to the data for a successful call, or
+.B nil
+on error.
+The others
+return the number of bytes copied on success, or \-1 on error.
+All set
+.IR errstr .
+.PP
+If the buffer for
+.I stat
+or
+.I fstat
+is too short for the returned data, the return value will be
+.B BIT16SZ
+(see
+.IR fcall (2))
+and the two bytes
+returned will contain the initial count field of the
+returned data;
+retrying with
+.B nedir
+equal to
+that value plus
+.B BIT16SZ
+(for the count itself) should succeed.

@@ -1,0 +1,53 @@
+.TH WC 1
+.SH NAME
+wc \- word count
+.SH SYNOPSIS
+.B wc
+[
+.B -lwrbc
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Wc
+counts lines, words, runes, syntactically-invalid
+.SM UTF
+codes and bytes in the named
+.IR files ,
+or in the standard input if no file is named.
+A word is a maximal string of characters
+delimited by spaces, tabs or newlines.
+The count of runes includes invalid codes.
+.PP
+If the optional argument is present,
+just the specified counts (lines, words, runes, broken
+.SM UTF
+codes or bytes)
+are selected by the letters
+.BR l ,
+.BR w ,
+.BR r ,
+.BR b ,
+or
+.BR c .
+Otherwise, lines, words and bytes
+.RB ( -lwc )
+are reported.
+.SH SOURCE
+.B /sys/src/cmd/wc.c
+.SH BUGS
+The Unicode Standard has many blank characters scattered through it,
+but
+.I wc
+looks for only
+.SM ASCII
+space, tab and newline.
+.br
+.I Wc
+should have options to count suboptimal
+.SM UTF
+codes
+and bytes that cannot occur in any
+.SM UTF
+code.

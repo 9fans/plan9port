@@ -1,0 +1,40 @@
+.TH FREQ 1
+.SH NAME
+freq \- print histogram of character frequencies
+.SH SYNOPSIS
+.B freq
+[
+.B -dxocr
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Freq
+reads the given files (default standard input)
+and prints histograms of the character frequencies.
+By default,
+.I freq
+counts each byte as a character;
+under the
+.B -r
+option it instead counts
+.SM UTF
+sequences, that is, runes.
+.PP
+Each non-zero entry of the table is printed preceded by the byte value,
+in decimal, octal, hex, and
+Unicode
+character (if printable).
+If any options are given, the
+.BR -d ,
+.BR -x ,
+.BR -o ,
+.B -c
+flags specify a subset of value formats: decimal, hex, octal, and
+character, respectively.
+.SH SOURCE
+.B /sys/src/cmd/freq.c
+.SH SEE ALSO
+.IR utf (6),
+.IR wc (1)

@@ -1,0 +1,436 @@
+.TH SYMBOL 3
+.SH NAME
+syminit, getsym, symbase, pc2sp, pc2line, textseg, line2addr, lookup, findlocal,
+getauto, findsym, localsym, globalsym, textsym, file2pc, fileelem, filesym,
+fileline, fnbound \- symbol table access functions
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <bio.h>
+.br
+.B #include <mach.h>
+.PP
+.ta \w'\fLmachines 'u
+.B
+int  syminit(int fd, Fhdr *fp)
+.PP
+.B
+Sym  *getsym(int index)
+.PP
+.B
+Sym  *symbase(long *nsyms)
+.PP
+.B
+int  fileelem(Sym **fp, uchar *encname, char *buf, int n)
+.PP
+.B
+int  filesym(int index, char *buf, int n)
+.PP
+.B
+long pc2sp(ulong pc)
+.PP
+.B
+long pc2line(ulong pc)
+.PP
+.B
+void textseg(ulong base, Fhdr *fp)
+.PP
+.B
+long line2addr(ulong line, ulong basepc)
+.PP
+.B
+int  lookup(char *fn, char *var, Symbol *s)
+.PP
+.B
+int  findlocal(Symbol *s1, char *name, Symbol *s2)
+.PP
+.B
+int  getauto(Symbol *s1, int off, int class, Symbol *s2)
+.PP
+.B
+int  findsym(long addr, int class, Symbol *s)
+.PP
+.B
+int  localsym(Symbol *s, int index)
+.PP
+.B
+int  globalsym(Symbol *s, int index)
+.PP
+.B
+int  textsym(Symbol *s, int index)
+.PP
+.B
+long file2pc(char *file, ulong line)
+.PP
+.B
+int  fileline(char *str, int n, ulong addr)
+.PP
+.B
+int  fnbound(long addr, ulong *bounds)
+.SH DESCRIPTION
+These functions provide machine-independent access to the
+symbol table of an executable file or executing process.
+The latter is accessible by opening the device
+.B /proc/\fIpid\fP/text
+as described in
+.IR proc (3).
+.IR Mach (2)
+and
+.IR object (2)
+describe additional library functions
+for processing executable and object files.
+.PP
+.IR Syminit ,
+.IR getsym ,
+.IR symbase ,
+.IR fileelem ,
+.IR pc2sp ,
+.IR pc2line ,
+and
+.I line2addr
+process the symbol table contained in an executable file
+or the
+.B text
+image of an executing program.
+The symbol table is stored internally as an array of
+.B Sym
+data structures as defined in
+.IR a.out (6).
+.PP
+.I Syminit
+uses the data in the
+.B Fhdr
+structure filled by
+.I crackhdr
+(see
+.IR mach (2))
+to read the raw symbol tables from the open file descriptor
+.IR fd .
+It returns the count of the number of symbols
+or \-1 if an error occurs.
+.PP
+.I Getsym
+returns the address of the
+.IR i th
+.B Sym
+structure or zero if 
+.I index
+is out of range.
+.PP
+.I Symbase
+returns the address of the first
+.B Sym
+structure in the symbol table.  The number of
+entries in the symbol table is returned in
+.IR nsyms .
+.PP
+.I Fileelem
+converts a file name, encoded as described in
+.IR a.out (6),
+to a character string.  
+.I Fp
+is the base of
+an array of pointers to file path components ordered by path index.
+.I Encname
+is the address of an array of encoded
+file path components in the form of a
+.B z
+symbol table entry.  
+.I Buf
+and
+.I n
+specify the
+address of a receiving character buffer and its length.
+.I Fileelem
+returns the length of the null-terminated string
+that is at most
+.IR n \-1
+bytes long.
+.PP
+.I Filesym
+is a higher-level interface to 
+.IR fileelem .
+It fills
+.I buf
+with the name of the
+.IR i th
+file and returns the length of the null-terminated string
+that is at most
+.IR n \-1
+bytes long.
+File names are retrieved in no particular order, although
+the order of retrieval does not vary from one pass to the next.
+A zero is returned when
+.I index
+is too large or too small or an error occurs during file name
+conversion.
+.PP
+.I Pc2sp
+returns an offset associated with 
+a given value of the program counter.  Adding this offset
+to the current value of the stack pointer gives the address
+of the current stack frame.  This approach only applies
+to the 68020 architecture; other architectures
+use a fixed stack frame offset by a constant contained
+in a dummy local variable (called
+.BR .frame )
+in the symbol table.
+.PP
+.I Pc2line
+returns the line number of the statement associated
+with the instruction address
+.IR pc .
+The
+line number is the absolute line number in the
+source file as seen by the compiler after pre-processing; the
+original line number in the source file may be derived from this
+value using the history stacks contained in the symbol table.
+.PP
+.I Pc2sp
+and
+.I pc2line
+must know the start and end addresses of the text segment
+for proper operation.  These values are calculated from the
+file header by function
+.IR syminit .
+If the text segment address is changed, the application
+program must invoke
+.I textseg
+to recalculate the boundaries of the segment.
+.I Base
+is the new base address of the text segment and
+.I fp
+points to the
+.I Fhdr
+data structure filled by
+.IR crackhdr .
+.PP
+.I Line2addr
+converts a line number to an instruction address.  The
+first argument is the absolute line number in
+a file.  Since a line number does not uniquely identify
+an instruction location (e.g., every source file has line 1),
+a second argument specifies a text address
+from which the search begins.  Usually this
+is the address of the first function in the file of interest.
+.PP
+.IR Pc2sp ,
+.IR pc2line ,
+and
+.I line2addr
+return \-1 in the case of an error.
+.PP
+.IR Lookup ,
+.IR findlocal ,
+.IR getauto ,
+.IR findsym ,
+.IR localsym ,
+.IR globalsym ,
+.IR textsym ,
+.IR file2pc ,
+and
+.I fileline
+operate on data structures riding above the raw symbol table.
+These data structures occupy memory
+and impose a startup penalty but speed retrievals
+and provide higher-level access to the basic symbol
+table data.
+.I Syminit
+must be called
+prior to using these functions.
+The
+.B Symbol
+data structure:
+.IP
+.EX
+typedef struct {	
+	void *handle;     /* private */
+	struct {
+	    char  *name;
+	    long   value;
+	    char   type;
+	    char   class;
+	};
+} Symbol;
+.EE
+.LP
+describes a symbol table entry.
+The
+.B value
+field contains the offset of the symbol within its
+address space: global variables relative to the beginning
+of the data segment, text beyond the start of the text
+segment, and automatic variables and parameters relative
+to the stack frame.  The
+.B type
+field contains the type of the symbol as defined in
+.IR a.out (6).
+The
+.B class
+field assigns the symbol to a general class;
+.BR CTEXT ,
+.BR CDATA ,
+.BR CAUTO ,
+and
+.B CPARAM
+are the most popular.
+.PP
+.I Lookup
+fills a
+.B Symbol
+structure with symbol table information.  Global variables
+and functions are represented by a single name; local variables
+and parameters are uniquely specified by a function and
+variable name pair.  Arguments
+.I fn
+and
+.I var
+contain the
+name of a function and variable, respectively.
+If both
+are non-zero, the symbol table is searched for a parameter
+or automatic variable.  If only
+.I var
+is
+zero, the text symbol table is searched for function
+.IR fn .
+If only
+.I fn
+is zero, the global variable table
+is searched for
+.IR var .
+.PP
+.I Findlocal
+fills
+.I s2
+with the symbol table data of the automatic variable
+or parameter matching
+.IR name .
+.I S1
+is a
+.B Symbol
+data structure describing a function or a local variable;
+the latter resolves to its owning function.
+.PP
+.I Getauto
+searches the local symbols associated with function
+.I s1
+for an automatic variable or parameter located at stack
+offset
+.IR off .
+.I Class
+selects the class of
+variable:
+.B CAUTO
+or
+.BR CPARAM .
+.I S2
+is the address of a
+.B Symbol
+data structure to receive the symbol table information
+of the desired symbol.
+.PP
+.I Findsym
+returns the symbol table entry of type
+.I class
+stored near
+.IR addr .
+The selected symbol is a global variable or function
+with address nearest to and less than or equal to
+.IR addr .
+Class specification
+.B CDATA
+searches only the global variable symbol table; class
+.B CTEXT
+limits the search to the text symbol table.
+Class specification
+.B CANY
+searches the text table first, then the global table.
+.PP
+.I Localsym
+returns the
+.IR i th
+local variable in the function
+associated with
+.IR s .
+.I S
+may reference a function or a local variable; the latter
+resolves to its owning function.
+If the
+.IR i th
+local symbol exists,
+.I s
+is filled with the data describing it.
+.PP
+.I Globalsym
+loads
+.I s
+with the symbol table information of the
+.IR i th
+global variable.
+.PP
+.I Textsym
+loads
+.I s
+with the symbol table information of the
+.IR i th
+text symbol.  The text symbols are ordered
+by increasing address.
+.PP
+.I File2pc
+returns a text address associated with
+.I line
+in file
+.IR file ,
+or -1 on an error.
+.PP
+.I Fileline
+converts text address
+.I addr
+to its equivalent
+line number in a source file.  The result,
+a null terminated character string of
+the form
+.LR file:line ,
+is placed in buffer
+.I str
+of
+.I n
+bytes.
+.PP
+.I Fnbound
+returns the start and end addresses of the function containing
+the text address supplied as the first argument.  The second
+argument is an array of two unsigned longs;
+.I fnbound
+places the bounding addresses of the function in the first
+and second elements of this array.  The start address is the
+address of the first instruction of the function; the end
+address is the address of the start of the next function
+in memory, so it is beyond the end of the target function.
+.I Fnbound
+returns 1 if the address is within a text function, or zero
+if the address selects no function.
+.PP
+Functions
+.I file2pc
+and
+.I fileline
+may produce inaccurate results when applied to
+optimized code.
+.PP
+Unless otherwise specified, all functions return 1
+on success, or 0 on error.  When an error occurs,
+a message describing it is stored in the system
+error buffer where it is available via
+.IR errstr .
+.SH SOURCE
+.B /sys/src/libmach
+.SH "SEE ALSO"
+.IR mach (2),
+.IR object (2),
+.IR errstr (2),
+.IR proc (3),
+.IR a.out (6)

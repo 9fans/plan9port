@@ -1,9 +1,12 @@
 .TH BIO 3
 .SH NAME
-Bopen, Binit, Binits, Brdline, Brdstr, Bgetc, Bgetd, Bungetc, Bread, Bseek, Boffset, Bfildes, Blinelen, Bputc, Bprint, Bvprint, Bwrite, Bflush, Bterm, Bbuffered \- buffered input/output
+Bopen, Binit, Binits, Brdline, Brdstr, Bgetc, Bgetrune, Bgetd, Bungetc, Bungetrune, Bread, Bseek, Boffset, Bfildes, Blinelen, Bputc, Bputrune, Bprint, Bvprint, Bwrite, Bflush, Bterm, Bbuffered \- buffered input/output
 .SH SYNOPSIS
 .ta \w'Biobuf* 'u
-.B #include <fmt.h>
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
 .B #include <bio.h>
 .PP
 .B
@@ -13,64 +16,67 @@ Biobuf* Bopen(char *file, int mode)
 int	Binit(Biobuf *bp, int fd, int mode)
 .PP
 .B
-int	Bterm(Biobuf *bp)
+int	Binits(Biobufhdr *bp, int fd, int mode, uchar *buf, int size)
 .PP
 .B
-int	Bprint(Biobuf *bp, char *format, ...)
+int	Bterm(Biobufhdr *bp)
 .PP
 .B
-int	Bvprint(Biobuf *bp, char *format, va_list arglist);
+int	Bprint(Biobufhdr *bp, char *format, ...)
 .PP
 .B
-void*	Brdline(Biobuf *bp, int delim)
+int	Bvprint(Biobufhdr *bp, char *format, va_list arglist);
 .PP
 .B
-char*	Brdstr(Biobuf *bp, int delim, int nulldelim)
+void*	Brdline(Biobufhdr *bp, int delim)
 .PP
 .B
-int	Blinelen(Biobuf *bp)
+char*	Brdstr(Biobufhdr *bp, int delim, int nulldelim)
 .PP
 .B
-off_t	Boffset(Biobuf *bp)
+int	Blinelen(Biobufhdr *bp)
 .PP
 .B
-int	Bfildes(Biobuf *bp)
+vlong	Boffset(Biobufhdr *bp)
 .PP
 .B
-int	Bgetc(Biobuf *bp)
+int	Bfildes(Biobufhdr *bp)
+.PP
+.B
+int	Bgetc(Biobufhdr *bp)
 .PP
 .B
 long	Bgetrune(Biobufhdr *bp)
 .PP
 .B
-int	Bgetd(Biobuf *bp, double *d)
+int	Bgetd(Biobufhdr *bp, double *d)
 .PP
 .B
-int	Bungetc(Biobuf *bp)
+int	Bungetc(Biobufhdr *bp)
 .PP
 .B
 int	Bungetrune(Biobufhdr *bp)
 .PP
 .B
-off_t	Bseek(Biobuf *bp, off_t n, int type)
+vlong	Bseek(Biobufhdr *bp, vlong n, int type)
 .PP
 .B
-int	Bputc(Biobuf *bp, int c)
+int	Bputc(Biobufhdr *bp, int c)
 .PP
 .B
 int	Bputrune(Biobufhdr *bp, long c)
 .PP
 .B
-long	Bread(Biobuf *bp, void *addr, long nbytes)
+long	Bread(Biobufhdr *bp, void *addr, long nbytes)
 .PP
 .B
-long	Bwrite(Biobuf *bp, void *addr, long nbytes)
+long	Bwrite(Biobufhdr *bp, void *addr, long nbytes)
 .PP
 .B
-int	Bflush(Biobuf *bp)
+int	Bflush(Biobufhdr *bp)
 .PP
 .B
-int	Bbuffered(Biobuf *bp)
+int	Bbuffered(Biobufhdr *bp)
 .PP
 .SH DESCRIPTION
 These routines implement fast buffered I/O.
@@ -80,20 +86,40 @@ I/O on different file descriptors is independent.
 opens
 .I file
 for mode
-.B O_RDONLY
+.B OREAD
 or creates for mode
-.BR O_WRONLY .
+.BR OWRITE .
 It calls
-.IR malloc (3)
+.IR malloc (2)
 to allocate a buffer.
 .PP
 .I Binit
-initializes a buffer
+initializes a standard size buffer, type
+.IR Biobuf ,
 with the open file descriptor passed in
 by the user.
+.I Binits
+initializes a non-standard size buffer, type
+.IR Biobufhdr ,
+with the open file descriptor,
+buffer area, and buffer size passed in
+by the user.
+.I Biobuf
+and
+.I Biobufhdr
+are related by the declaration:
+.IP
+.EX
+typedef struct Biobuf Biobuf;
+struct Biobuf
+{
+	Biobufhdr;
+	uchar b[Bungetsize+Bsize];
+};
+.EE
 .PP
 Arguments
-of types pointer to Biobuf and pointer to Biobuf
+of types pointer to Biobuf and pointer to Biobufhdr
 can be used interchangeably in the following routines.
 .PP
 .IR Bopen ,
@@ -133,7 +159,7 @@ of the most recent string returned by
 .PP
 .I Brdstr
 returns a
-.IR malloc (3)-allocated
+.IR malloc (2)-allocated
 buffer containing the next line of input delimited by
 .IR delim ,
 terminated by a NUL (0) byte.
@@ -152,14 +178,14 @@ the return value of
 will be the length of the returned buffer, excluding the NUL.
 .PP
 .I Bgetc
-returns the next byte from
+returns the next character from
 .IR bp ,
 or a negative value
 at end of file.
 .I Bungetc
 may be called immediately after
 .I Bgetc
-to allow the same byte to be reread.
+to allow the same character to be reread.
 .PP
 .I Bgetrune
 calls
@@ -183,8 +209,9 @@ may back up a maximum of five bytes.
 .PP
 .I Bgetd
 uses
-.I fmtcharstod
-(undocumented)
+.I charstod
+(see
+.IR atof (2))
 and
 .I Bgetc
 to read the formatted
@@ -205,7 +232,7 @@ and a negative value is returned if a read error occurred.
 .PP
 .I Bseek
 applies
-.IR lseek (2)
+.IR seek (2)
 to
 .IR bp .
 It returns the new file offset.
@@ -279,25 +306,13 @@ returns the number of bytes in the buffer.
 When reading, this is the number of bytes still available from the last
 read on the file; when writing, it is the number of bytes ready to be
 written.
-.PP
-This library uses
-.IR fmt (3)
-for diagnostic messages about internal errors,
-as well as for the implementation of
-.I Bprint
-and
-.IR Bvprint .
-It uses
-.IR utf (3)
-for the implementation of
-.I Bgetrune
-and
-.IR Bputrune .
+.SH SOURCE
+.B /sys/src/libbio
 .SH SEE ALSO
-.IR atexit (3).
 .IR open (2),
-.IR print (3),
-.IR utf (7)
+.IR print (2),
+.IR exits (2),
+.IR utf (6),
 .SH DIAGNOSTICS
 .I Bio
 routines that return integers yield
@@ -307,11 +322,9 @@ if
 is not the descriptor of an open file.
 .I Bopen
 returns zero if the file cannot be opened in the given mode.
-.SH HISTORY
-The
-.IR bio (3)
-library originally appeared in Plan 9.
-This is a port of the Plan 9 bio library.
+All routines set
+.I errstr
+on error.
 .SH BUGS
 .I Brdline
 returns an error on strings longer than the buffer associated

@@ -1,0 +1,125 @@
+.TH GETFCR 3
+.SH NAME
+getfcr, setfcr, getfsr, setfsr \- control floating point
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+ulong getfcr(void)
+.PP
+.B
+void setfcr(ulong fcr)
+.PP
+.B
+ulong getfsr(void)
+.PP
+.B
+void setfsr(ulong fsr)
+.SH DESCRIPTION
+These routines provide a fairly portable interface to control the
+rounding and exception characteristics of IEEE 754 floating point units.
+In effect, they define a pair of pseudo-registers, the floating
+point control register,
+.BR fcr ,
+which affects rounding, precision, and exceptions, and the
+floating point status register,
+.BR fsr ,
+which holds the accrued exception bits.
+Each register has a
+.I get
+routine to retrieve its value, a
+.I set
+routine to modify it,
+and macros that identify its contents.
+.PP
+The
+.B fcr
+contains bits that, when set, halt execution upon exceptions:
+.B FPINEX
+(enable inexact exceptions),
+.B FPOVFL
+(enable overflow exceptions),
+.B FPUNFL
+(enable underflow exceptions),
+.B FPZDIV
+(enable zero divide exceptions), and
+.B FPINVAL
+(enable invalid operation exceptions).
+Rounding is controlled by installing in
+.BR fcr ,
+under mask
+.BR FPRMASK ,
+one of the values
+.B FPRNR
+(round to nearest),
+.B FPRZ
+(round towards zero),
+.B FPRPINF
+(round towards positive infinity), and
+.B FPRNINF
+(round towards negative infinity).
+Precision is controlled by installing in
+.BR fcr ,
+under mask
+.BR FPPMASK ,
+one of the values
+.B FPPEXT
+(extended precision),
+.B FPPSGL
+(single precision), and
+.B FPPDBL
+(double precision).
+.PP
+The
+.B fsr
+holds the accrued exception bits
+.BR FPAINEX ,
+.BR FPAOVFL ,
+.BR FPAUNFL ,
+.BR FPAZDIV ,
+and
+.BR FPAINVAL ,
+corresponding to the
+.B fsr
+bits without the
+.B A
+in the name.
+.PP
+Not all machines support all modes.  If the corresponding mask
+is zero, the machine does not support the rounding or precision modes.
+On some machines it is not possible to clear selective accrued
+exception bits; a
+.I setfsr
+clears them all.
+The exception bits defined here work on all architectures.
+By default, the initial state is equivalent to
+.IP
+.EX
+setfcr(FPPDBL|FPRNR|FPINVAL|FPZDIV|FPOVFL);
+.EE
+.PP
+The default state of the floating point unit is fixed for a given
+architecture but is undefined across Plan 9: the default is
+to provide what the hardware does most efficiently.
+Use these routines
+if you need guaranteed behavior.
+Also, gradual underflow is not available on some machines.
+.SH EXAMPLE
+To enable overflow traps and make sure registers are rounded
+to double precision (for example on the MC68020, where the
+internal registers are 80 bits long):
+.EX
+.IP
+.ft L
+ulong fcr;
+fcr = getfcr();
+fcr |= FPOVFL;
+fcr &= ~FPPMASK;
+fcr |= FPPDBL;
+setfcr(fcr);
+.ft
+.EE
+.SH SOURCE
+.B /sys/src/libc/$objtype/getfcr.s

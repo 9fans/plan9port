@@ -1,0 +1,202 @@
+.TH RSA 3
+.SH NAME
+asn1dump,
+asn1toRSApriv,
+decodepem,
+rsadecrypt,
+rsaencrypt,
+rsagen,
+rsaprivalloc,
+rsaprivfree,
+rsaprivtopub,
+rsapuballoc,
+rsapubfree,
+X509toRSApub,
+X509gen,
+X509verify \- RSA encryption algorithm
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+RSApriv*	rsagen(int nlen, int elen, int nrep)
+.PP
+.B
+mpint*	rsaencrypt(RSApub *k, mpint *in, mpint *out)
+.PP
+.B
+mpint*	rsadecrypt(RSApriv *k, mpint *in, mpint *out)
+.PP
+.B
+RSApub*	rsapuballoc(void)
+.PP
+.B
+void	rsapubfree(RSApub*)
+.PP
+.B
+RSApriv*	rsaprivalloc(void)
+.PP
+.B
+void	rsaprivfree(RSApriv*)
+.PP
+.B
+RSApub*	rsaprivtopub(RSApriv*)
+.PP
+.B
+RSApub*	X509toRSApub(uchar *cert, int ncert, char *name, int nname)
+.PP
+.B
+RSApriv*	asn1toRSApriv(uchar *priv, int npriv)
+.PP
+.B
+void		asn1dump(uchar *der, int len)
+.PP
+.B
+uchar*	decodepem(char *s, char *type, int *len)
+.PP
+.B
+uchar*	X509gen(RSApriv *priv, char *subj, ulong valid[2], int *certlen);
+.PP
+.B
+uchar*	X509req(RSApriv *priv, char *subj, int *certlen);
+.PP
+.B
+char* X509verify(uchar *cert, int ncert, RSApub *pk)
+.SH DESCRIPTION
+.PP
+RSA is a public key encryption algorithm.  The owner of a key publishes
+the public part of the key:
+.EX
+	struct RSApub
+	{
+		mpint	*n;	// modulus
+		mpint	*ek;	// exp (encryption key)
+	};
+.EE
+This part can be used for encrypting data (with
+.IR rsaencrypt )
+to be sent to the owner.
+The owner decrypts (with
+.IR rsadecrypt )
+using his private key:
+.EX
+	struct RSApriv
+	{
+		RSApub	pub;
+		mpint	*dk;	// exp (decryption key)
+	
+		// precomputed crt values
+		mpint	*p;
+		mpint	*q;
+		mpint	*kp;	// k mod p-1
+		mpint	*kq;	// k mod q-1
+		mpint	*c2;	// for converting residues to number
+	};
+.EE
+.PP
+Keys are generated using
+.IR rsagen .
+.I Rsagen
+takes both bit length of the modulus, the bit length of the
+public key exponent, and the number of repetitions of the Miller-Rabin
+primality test to run.  If the latter is 0, it does the default number
+of rounds.
+.I Rsagen
+returns a newly allocated structure containing both
+public and private keys.
+.I Rsaprivtopub
+returns a newly allocated copy of the public key
+corresponding to the private key.
+.PP
+The routines
+.IR rsaalloc ,
+.IR rsafree ,
+.IR rsapuballoc ,
+.IR rsapubfree ,
+.IR rsaprivalloc ,
+and
+.I rsaprivfree
+are provided to aid in user provided key I/O.
+.PP
+Given a binary X.509
+.IR cert ,
+the routine
+.I X509toRSApub
+returns the public key and, if
+.I name
+is not nil, the CN part of the Distinguished Name of the
+certificate's Subject.
+(This is conventionally a userid or a host DNS name.)
+No verification is done of the certificate signature;  the
+caller should check the fingerprint,
+.IR sha1(cert) ,
+against a table or check the certificate by other means.
+X.509 certificates are often stored in PEM format; use
+.I dec64
+to convert to binary before computing the fingerprint or calling
+.IR X509toRSApub .
+For the special case of
+certificates signed by a known trusted key
+(in a single step, without certificate chains)
+.I X509verify
+checks the signature on
+.IR cert .
+It returns nil if successful, else an error string.
+.PP
+.I X509gen
+creates a self-signed X.509 certificate, given an RSA keypair
+.IR priv ,
+a issuer/subject string
+.IR subj ,
+and the starting and ending validity dates,
+.IR valid .
+Length of the allocated binary certificate is stored in
+.IR certlen .
+The subject line is conventionally of the form
+.EX
+   "C=US ST=NJ L=07922 O=Lucent OU='Bell Labs' CN=Eric"
+.EE
+using the quoting conventions of
+.IR tokenize (2).
+.PP
+.I Asn1toRSApriv
+converts an ASN1 formatted RSA private key into the corresponding
+.B RSApriv
+structure.
+.PP
+.I Asn1dump
+prints an ASN1 object to standard output.
+.PP
+.I Decodepem
+takes a zero terminated string,
+.IR s ,
+and decodes the PEM (privacy-enhanced mail) formatted section for
+.I type
+within it.
+If successful, it returns the decoded section and sets
+.BI * len
+to its decoded length.
+If not, it returns
+.BR nil ,
+and
+.BI * len
+is undefined.
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR mp (2),
+.IR aes (2),
+.IR blowfish (2),
+.IR des (2),
+.IR dsa (2),
+.IR elgamal (2),
+.IR rc4 (2),
+.IR sechash (2),
+.IR prime (2),
+.IR rand (2),
+.IR x509 (8)

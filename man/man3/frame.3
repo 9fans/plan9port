@@ -1,0 +1,362 @@
+.TH FRAME 3
+.SH NAME
+frinit, frsetrects, frinittick, frclear, frcharofpt, frptofchar, frinsert, frdelete, frselect, frtick, frselectpaint, frdrawsel, frdrawsel0, frgetmouse \- frames of text
+.SH SYNOPSIS
+.nf
+.B
+#include <u.h>
+.B
+#include <libc.h>
+.B
+#include <draw.h>
+.B
+#include <thread.h>
+.B
+#include <mouse.h>
+.B
+#include <frame.h>
+.PP
+.B
+void  frinit(Frame *f, Rectangle r, Font *ft, Image *b, Image **cols)
+.PP
+.B
+void  frsetrects(Frame *f, Rectangle r, Image *b)
+.PP
+.B
+void  frinittick(Frame *f)
+.PP
+.B
+void  frclear(Frame *f, int resize)
+.PP
+.B
+ulong frcharofpt(Frame *f, Point pt)
+.PP
+.B
+Point frptofchar(Frame *f, ulong p)
+.PP
+.B
+void  frinsert(Frame *f, Rune *r0, Rune *r1, ulong p)
+.PP
+.B
+int   frdelete(Frame *f, ulong p0, ulong p1)
+.PP
+.B
+void  frselect(Frame *f, Mousectl *m)
+.PP
+.B
+void  frtick(Frame *f, Point pt, int up)
+.PP
+.B
+void  frselectpaint(Frame *f, Point p0, Point p1, Image *col)
+.PP
+.B
+void  frdrawsel(Frame *f, Point pt0, ulong p0, ulong p1,
+.B
+		int highlighted)
+.PP
+.B
+void  frdrawsel0(Frame *f, Point pt0, ulong p0, ulong p1,
+.B
+		Image *back, Image *text)
+.PP
+.ft L
+enum{
+	BACK,
+	HIGH,
+	BORD,
+	TEXT,
+	HTEXT,
+	NCOL
+};
+.fi
+.SH DESCRIPTION
+This library supports
+.I frames
+of editable text in a single font on raster displays, such as in
+.IR sam (1)
+and
+.IR rio (1).
+Frames may hold any character except NUL (0).
+Long lines are folded and tabs are at fixed intervals.
+.PP
+The user-visible data structure, a
+.BR Frame ,
+is defined in
+.BR <frame.h> :
+.IP
+.EX
+.ta 6n +\w'Rectangle 'u +\w'lastlinefull;   'u
+typedef struct Frame Frame;
+struct Frame
+{
+	Font	*font;		/* of chars in the frame */
+	Display	*display;	/* on which frame appears */
+	Image	*b;		/* on which frame appears */
+	Image	*cols[NCOL];	/* text and background colors */
+	Rectangle	r;		/* in which text appears */
+	Rectangle	entire;		/* of full frame */
+	Frbox	*box;
+	ulong	p0, p1;		/* selection */
+	ushort	nbox, nalloc;
+	ushort	maxtab;		/* max size of tab, in pixels */
+	ushort	nchars;		/* # runes in frame */
+	ushort	nlines;		/* # lines with text */
+	ushort	maxlines;	/* total # lines in frame */
+	ushort	lastlinefull;	/* last line fills frame */
+	ushort	modified;	/* changed since frselect() */
+	Image	*tick;	/* typing tick */
+	Image	*tickback;	/* saved image under tick */
+	int	ticked;	/* flag: is tick onscreen? */
+};
+.EE
+.PP
+.B Frbox
+is an internal type and is not used by the interface.
+.B P0
+and
+.B p1
+may be changed by the application provided the selection routines are called
+afterwards to maintain a consistent display.
+.I Maxtab
+determines the size of tab stops.
+.I Frinit
+sets it to 8 times the width of a
+.B 0
+(zero)
+character in the font;
+it may be changed before any text is added to the frame.
+The other elements of the structure are maintained by the library and
+should not be modified directly.
+.PP
+The text within frames
+is not directly addressable;
+instead frames are designed to work alongside
+another structure that holds the text.
+The typical application is to display a section of a longer document such
+as a text file or terminal session.
+Usually the program will keep its own copy of the
+text in the window (probably as
+an array of
+.BR Runes )
+and pass components of this text to the frame routines to
+display the visible portion.
+Only the text that is visible is held by the
+.BR Frame ;
+the application must check
+.BR maxlines ,
+.BR nlines ,
+and
+.B lastlinefull
+to determine, for example, whether new text needs to be appended
+at the end of the
+.B Frame
+after calling
+.I frdelete
+(q.v.). 
+.PP
+There are no routines in the library to allocate
+.BR Frames ;
+instead the interface assumes that
+.B Frames
+will be components of larger structures.
+.I Frinit
+prepares the
+.B Frame
+.I f
+so characters drawn in it will appear
+in the single
+.B Font
+.IR ft .
+It then calls
+.I frsetrects
+and
+.I frinittick
+to initialize the geometry for the
+.BR Frame .
+The
+.B Image
+.I b
+is where the
+.B Frame
+is to be drawn;
+.B Rectangle
+.I r
+defines the limit of the portion of the
+.B Image
+the text will occupy.
+The
+.B Image
+pointer
+may be null, allowing the other routines to be called to maintain the
+associated data structure in, for example, an obscured window.
+.PP
+The array of
+.B Images
+cols sets the colors in which text and borders will be drawn.  The background of the frame will be drawn in
+.BR cols[BACK] ;
+the background of highlighted text in
+.BR cols[HIGH] ;
+borders and scroll bar in
+.BR cols[BORD] ;
+regular text in
+.BR cols[TEXT] ;
+and highlighted text in
+.BR cols[HTEXT] .
+.PP
+.I Frclear
+frees the internal structures associated with
+.IR f ,
+permitting another
+.I frinit
+or
+.I frsetrects
+on the
+.BR Frame .
+It does not clear the associated display.
+If
+.I f
+is to be deallocated, the associated
+.B Font
+and
+.B Image
+must be freed separately.
+The
+.B resize
+argument should be non-zero if the frame is to be redrawn with
+a different font; otherwise the frame will maintain some
+data structures associated with the font.
+.PP
+To resize a
+.BR Frame ,
+use
+.I frclear
+and
+.I frinit
+and then
+.I frinsert
+(q.v.) to recreate the display.
+If a
+.B Frame
+is being moved but not resized, that is, if the shape of its containing
+rectangle is unchanged, it is sufficient to use
+.IR draw (2)
+to copy the containing rectangle from the old to the new location and then call
+.I frsetrects
+to establish the new geometry.
+(It is unnecessary to call
+.I frinittick
+unless the font size has changed.)
+No redrawing is necessary.
+.PP
+.B Frames
+hold text as runes,
+not as bytes.
+.I Frptofchar
+returns the location of the upper left corner of the
+.I p'th
+rune, starting from 0, in the
+.B Frame
+.IR f .
+If
+.I f
+holds fewer than
+.I p
+runes,
+.I frptofchar
+returns the location of the upper right corner of the last character in
+.IR f .
+.I Frcharofpt
+is the inverse: it
+returns the index of the closest rune whose image's upper left corner
+is up and to the left of
+.IR pt .
+.PP
+.I Frinsert
+inserts into
+.B Frame
+.I f
+starting at rune index
+.I p
+the runes between
+.I r0
+and
+.IR r1 .
+If a NUL (0) character
+is inserted, chaos will ensue.
+Tabs and newlines
+are handled by the library, but all other characters,
+including control characters, are just displayed.
+For example, backspaces are printed; to erase
+a character, use
+.IR frdelete .
+.PP
+.I Frdelete
+deletes from the
+.B Frame
+the text between
+.I p0
+and
+.IR p1 ;
+.I p1
+points at the first rune beyond the deletion.
+.PP
+.I Frselect
+tracks the mouse to select a contiguous string of text in the
+.BR Frame .
+When called, a mouse button is typically down.
+.I Frselect
+will return when the button state has changed (some buttons may
+still be down) and will set
+.IB f ->p0
+and
+.IB f ->p1
+to the selected range of text.
+.PP
+Programs that wish to manage the selection themselves have several routines to help.
+They involve the maintenance of the `tick', the vertical line indicating a null selection
+between characters, and the colored region representing a non-null selection.
+.I Frtick
+draws (if
+.I up
+is non-zero) or removes (if
+.I up
+is zero) the tick at the screen position indicated by
+.IR pt .
+.I Frdrawsel
+repaints a section of the frame, delimited by character positions
+.I p0
+and
+.IR p1 ,
+either with plain background or
+entirely highlighted, according to the flag
+.IR highlighted ,
+managing the tick appropriately.
+The point
+.I pt0
+is the geometrical location of
+.I p0
+on the screen; like all of the selection-helper routines'
+.B Point
+arguments, it must be a value generated by
+.IR frptofchar .
+.I Frdrawsel0
+is a lower-level routine, taking as arguments a background color,
+.IR back ,
+and text color,
+.IR text .
+It assumes that the tick is being handled (removed beforehand, replaced afterwards, as required)
+by its caller.
+.I Frselectpaint
+uses a solid color,
+.IR col ,
+to paint a region of the frame defined by the
+.B Points
+.I p0
+and
+.IR p1 .
+.SH SOURCE
+.B /sys/src/libframe
+.SH SEE ALSO
+.IR graphics (2),
+.IR draw (2),
+.IR cachechars (2).

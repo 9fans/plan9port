@@ -1,0 +1,97 @@
+.TH TR 1
+.SH NAME
+tr \- translate characters
+.SH SYNOPSIS
+.B tr
+[
+.B -cds
+]
+[
+.I string1
+[
+.I string2
+]
+]
+.SH DESCRIPTION
+.I Tr
+copies the standard input to the standard output with
+substitution or deletion of selected characters (runes).
+Input characters found in
+.I string1
+are mapped into the corresponding characters of
+.IR string2 .
+When
+.I string2
+is short it is padded to the length of
+.I string1
+by duplicating its last character.
+Any combination of the options
+.B -cds
+may be used:
+.TP
+.B -c
+Complement
+.IR string1 :
+replace it with a lexicographically ordered
+list of all other characters.
+.TP
+.B -d
+Delete from input all characters in
+.IR string1 .
+.TP
+.B -s
+Squeeze repeated output characters that occur in
+.I string2
+to single characters.
+.PP
+In either string a noninitial sequence
+.BI - x\f1,
+where 
+.I x
+is any character (possibly quoted), stands for
+a range of characters:
+a possibly empty sequence of codes running from
+the successor of the previous code up through
+the code for
+.IR x .
+The character
+.L \e
+followed by 1, 2 or 3 octal digits stands for the
+character whose
+16-bit
+value is given by those digits.
+The character sequence
+.L \ex
+followed by 1, 2, 3, or 4 hexadecimal digits stands
+for the character whose
+16-bit value is given by those digits.
+A 
+.L \e
+followed by any other character stands
+for that character.
+.SH EXAMPLES
+Replace all upper-case
+.SM ASCII
+letters by lower-case.
+.IP
+.EX
+tr A-Z a-z <mixed >lower
+.EE
+.PP
+Create a list of all
+the words in
+.L file1
+one per line in
+.LR file2 ,
+where a word is taken to be a maximal string of alphabetics.
+.I String2
+is given as a quoted newline.
+.IP
+.EX
+tr -cs A-Za-z '
+\&' <file1 >file2
+.EE
+.SH SOURCE
+.B /sys/src/cmd/tr.c
+.SH "SEE ALSO"
+.IR sed (1)

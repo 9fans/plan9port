@@ -1,0 +1,305 @@
+.TH MEMLAYER 3
+.SH NAME
+memdraw, memlalloc, memldelete, memlexpose, memlfree, memlhide, memline, memlnorefresh, memload, memunload, memlorigin, memlsetrefresh, memltofront, memltofrontn, memltorear, memltorearn \- windows of memory-resident images
+.SH SYNOPSIS
+.nf
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <draw.h>
+.br
+.B #include <memdraw.h>
+.br
+.B #include <memlayer.h>
+.PP
+.ft L
+typedef struct Memscreen Memscreen;
+typedef struct Memlayer Memlayer;
+typedef void (*Refreshfn)(Memimage*, Rectangle, void*);
+.ta 4n +\w'\fLRefreshfn 'u +\w'\fL*frontmost; 'u
+
+struct Memscreen
+{
+	Memimage	*frontmost;	/* frontmost layer on screen */
+	Memimage	*rearmost;	/* rearmost layer on screen */
+	Memimage	*image;	/* upon which all layers are drawn */
+	Memimage	*fill;		/* if non-zero, picture to use when repainting */
+};
+
+struct Memlayer
+{
+	Rectangle	screenr;	/* true position of layer on screen */
+	Point	delta;	/* add delta to go from image coords to screen */
+	Memscreen	*screen;	/* screen this layer belongs to */
+	Memimage	*front;	/* window in front of this one */
+	Memimage	*rear;	/* window behind this one*/
+	int	clear;	/* layer is fully visible */
+	Memimage	*save;	/* save area for obscured parts */
+	Refreshfn	refreshfn;		/* fn to refresh obscured parts if save==nil */
+	void	*refreshptr;	/* argument to refreshfn */
+};
+.ft
+.ta \w'\fLMemimage* 'u
+.PP
+.B
+Memimage*	memlalloc(Memscreen *s, Rectangle r, Refreshfn fn, void *arg, ulong col)
+.PP
+.B void	memlnorefresh(Memimage *i, Rectangle r, void *arg)
+.PP
+.B
+int	memlsetrefresh(Memimage *i, Refreshfn fn, void *arg)
+.PP
+.B
+int	memldelete(Memimage *i)
+.PP
+.B
+int	memlfree(Memimage *i)
+.PP
+.B
+int	memlexpose(Memimage *i, Rectangle r)
+.PP
+.B
+int	memlhide(Memimage *i, Rectangle r)
+.PP
+.B 
+void	memltofront(Memimage *i)
+.PP
+.B
+void	memltofrontn(Memimage**ia, int n)
+.PP
+.B
+void	memltorear(Memimage *i)
+.PP
+.B
+void	memltorearn(Memimage **ia , int n)
+.PP
+.B
+int	memlorigin(Memimage *i, Point log, Point phys)
+.PP
+.B
+void	memdraw(Image *dst, Rectangle r,
+.br
+.B
+		   Image *src, Point sp, Image *mask, Point mp, Drawop op)
+.fi
+.B
+int	memload(Memimage *i, Rectangle r,
+.br
+.B
+		uchar *buf, int n, int iscompressed)
+.PP
+.B
+int	memunload(Memimage *i, Rectangle r,
+.br
+.B
+		uchar *buf, int n)
+.PP
+.SH DESCRIPTION
+These functions build upon the
+.IR memdraw (2)
+interface to maintain overlapping graphical windows on in-memory images.
+They are used by the kernel to implement the windows interface presented by
+.IR draw (3)
+and
+.IR window (2)
+and probably have little use outside of the kernel.
+.PP
+The basic function is to extend the definition of a
+.B Memimage
+(see
+.IR memdraw (2))
+to include overlapping windows defined by the
+.B Memlayer
+type.
+The first fields of the
+.B Memlayer
+structure are identical to those in
+.BR Memimage ,
+permitting a function that expects a
+.B Memimage
+to be passed a
+.BR Memlayer ,
+and vice versa.
+Both structures have a
+.B save
+field, which is nil in a
+.B Memimage
+and points to `backing store' in a
+.BR Memlayer .
+The layer routines accept
+.B Memimages
+or
+.BR Memlayers ;
+if the image is a
+.B Memimage
+the underlying
+.B Memimage
+routine is called; otherwise the layer routines recursively
+subdivide the geometry, reducing the operation into a smaller
+component that ultimately can be performed on a
+.BR Memimage ,
+either the display on which the window appears, or the backing store.
+.PP
+.B Memlayers
+are associated with a
+.B Memscreen
+that holds the data structures to maintain the windows and connects
+them to the associated
+.BR image .
+The
+.B fill
+color is used to paint the background when a window is deleted.
+There is no function to establish a
+.BR Memscreen ;
+to create one, allocate the memory, zero
+.B frontmost
+and
+.BR rearmost ,
+set
+.B fill
+to a valid fill color or image, and set
+.B image
+to the
+.B Memimage
+(or
+.BR Memlayer )
+on which the windows will be displayed.
+.PP
+.I Memlalloc
+allocates a
+.B Memlayer
+of size
+.I r
+on
+.B Memscreen
+.IR s .
+If
+.I col
+is not
+.BR DNofill ,
+the new window will be initialized by painting it that color.
+.PP
+The refresh function
+.I fn
+and associated argument
+.I arg
+will be called by routines in the library to restore portions of the window
+uncovered due to another window being deleted or this window being pulled to the front of the stack.
+The function, when called,
+receives a pointer to the image (window) being refreshed, the rectangle that has been uncovered,
+and the
+.I arg
+recorded when the window was created.
+A couple of predefined functions provide built-in management methods:
+.I memlnorefresh
+does no backup at all, useful for making efficient temporary windows;
+while a
+.I nil
+function specifies that the backing store
+.RB ( Memlayer.save )
+will be used to keep the obscured data.
+Other functions may be provided by the client.
+.I Memlsetrefresh
+allows one to change the function associated with the window.
+.PP
+.I Memldelete
+deletes the window
+.IR i ,
+restoring the underlying display.
+.I Memlfree
+frees the data structures without unlinking the window from the associated
+.B Memscreen
+or doing any graphics.
+.PP
+.I Memlexpose
+restores rectangle
+.I r
+within the window, using the backing store or appropriate refresh method.
+.I Memlhide
+goes the other way, backing up
+.I r
+so that that portion of the screen may be modified without losing the data in this window.
+.PP
+.I Memltofront
+pulls
+.I i
+to the front of the stack of windows, making it fully visible.
+.I Memltofrontn
+pulls the
+.I n
+windows in the array
+.I ia
+to the front as a group, leaving their internal order unaffected.
+.I Memltorear
+and
+.I memltorearn
+push the windows to the rear.
+.PP
+.I Memlorigin
+changes the coordinate systems associated with the window
+.IR i .
+The points
+.I log
+and
+.I phys
+represent the upper left corner
+.RB ( min )
+of the window's internal coordinate system and its physical location on the screen.
+Changing
+.I log
+changes the interpretation of coordinates within the window; for example, setting it to
+(0,\ 0) makes the upper left corner of the window appear to be the origin of the coordinate
+system, regardless of its position on the screen.
+Changing
+.I phys
+changes the physical location of the window on the screen.
+When a window is created, its logical and physical coordinates are the same, so
+.EX
+	memlorigin(i, i->r.min, i->r.min)
+.EE
+would be a no-op.
+.PP
+.I Memdraw
+and
+.I memline
+are implemented in the layer library but provide the main entry points for drawing on
+memory-resident windows.
+They have the signatures of
+.I memimagedraw
+and
+.I memimageline
+(see
+.IR memdraw (2))
+but accept
+.B Memlayer
+or
+.B Memimage
+arguments both.
+.PP
+.I Memload
+and
+.I memunload
+are similarly layer-savvy versions of
+.I loadmemimage
+and
+.IR unloadmemimage .
+The
+.I iscompressed
+flag to
+.I memload
+specifies whether the
+.I n
+bytes of data in
+.I buf
+are in compressed image format
+(see
+.IR image (6)).
+.SH SOURCE
+.B /sys/src/libmemlayer
+.SH SEE ALSO
+.IR graphics (2),
+.IR memdraw (2),
+.IR stringsize (2),
+.IR window (2),
+.IR draw (3)

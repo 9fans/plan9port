@@ -1,0 +1,34 @@
+.TH CLEANNAME 3
+.SH NAME
+cleanname \- clean a path name
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.sp
+.B
+char*	cleanname(char *filename)
+.SH DESCRIPTION
+.I Cleanname
+takes a
+.I filename
+and by lexical processing only returns the shortest string that names the same (possibly
+hypothetical) file.
+It eliminates multiple and trailing slashes, and it lexically interprets
+.B .
+and
+.B ..
+directory components in the name.
+The string is overwritten in place.
+.PP
+The shortest string
+.I cleanname
+can return is two bytes: the null-terminated string
+\f(CW"."\f1.
+Therefore
+.I filename
+must contain room for at least two bytes.
+.SH SOURCE
+.B /sys/src/libc/port/cleanname.c
+.SH SEE ALSO
+.IR cleanname (1)

@@ -1,0 +1,81 @@
+.TH EXITS 3
+.SH NAME
+exits, _exits, atexit, atexitdont, terminate \- terminate process, process cleanup
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.B
+void	_exits(char *msg)
+.B
+void	exits(char *msg)
+.PP
+.B
+int	atexit(void(*)(void))
+.PP
+.B
+void	atexitdont(void(*)(void))
+.fi
+.SH DESCRIPTION
+.I Exits
+is the conventional way to terminate a process.
+.I _Exits
+is the underlying system call.
+They
+can never return.
+.PP
+.I Msg
+conventionally includes a brief (maximum length
+.BR ERRLEN )
+explanation of the reason for
+exiting, or a null pointer or empty string to indicate normal termination.
+The string is passed to the parent process, prefixed by the name and process
+id of the exiting process, when the parent does a
+.IR wait (2).
+.PP
+Before calling
+.I _exits
+with
+.I msg
+as an argument,
+.I exits
+calls in reverse order all the functions
+recorded by
+.IR atexit .
+.PP
+.I Atexit
+records
+.I fn
+as a function to be called by
+.IR exits .
+It returns zero if it failed,
+nonzero otherwise.
+A typical use is to register a cleanup routine for an I/O package.
+To simplify programs that fork or share memory,
+.I exits
+only calls those
+.IR atexit -registered
+functions that were registered by the same
+process as that calling
+.IR exits .
+.PP
+Calling
+.I atexit
+twice (or more) with the same function argument causes
+.I exits
+to invoke the function twice (or more).
+.PP
+There is a limit to the number of exit functions
+that will be recorded;
+.I atexit
+returns 0 if that limit has been reached.
+.PP
+.I Atexitdont
+cancels a previous registration of an exit function.
+.SH SOURCE
+.B /sys/src/libc/port/atexit.c
+.SH "SEE ALSO"
+.IR fork (2),
+.IR wait (2)

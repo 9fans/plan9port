@@ -1,0 +1,313 @@
+.TH CACHECHARS 3
+.SH NAME
+cachechars, agefont, loadchar, Subfont, Fontchar, Font  \- font utilities
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <draw.h>
+.br
+.B #include <draw.h>
+.PP
+.ta \w'\fLCacheinfo 'u
+.PP
+.B
+int  cachechars(Font *f, char **s, Rune **r, ushort *c, int max,
+.PP
+.B
+	   int *widp, char **sfname)
+.PP
+.B
+int  loadchar(Font *f, Rune r, Cacheinfo *c, int h,
+.PP
+.B
+	   int noclr, char **sfname)
+.PP
+.B
+void agefont(Font *f)
+.SH DESCRIPTION
+A
+.I Font
+may contain too many characters to hold in memory
+simultaneously.
+The graphics library and draw device (see
+.IR draw (3))
+cooperate to solve this problem by maintaining a cache of recently used
+character images.
+The details of this cooperation need not be known by most programs:
+.I initdraw
+and its associated
+.I font
+variable,
+.IR openfont ,
+.IR stringwidth ,
+.IR string ,
+and
+.I freefont
+are sufficient for most purposes.
+The routines described below are used internally by the graphics library
+to maintain the font cache.
+.PP
+A
+.B Subfont
+is a set of images for a contiguous range of characters, stored as a single
+image
+with the characters
+placed side-by-side on a common baseline.
+It is described by the following data structures.
+.IP
+.EX
+.ta 6n +\w'Fontchar 'u +\w'bottom;   'u
+typedef
+struct Fontchar {
+	int	x;	/* left edge of bits */
+	uchar	top;	/* first non-zero scan-line */
+	uchar	bottom;	/* last non-zero scan-line */
+	char	left;	/* offset of baseline */
+	uchar	width;	/* width of baseline */
+} Fontchar;
+
+typedef
+struct Subfont {
+	char	*name;
+	short	n;	/* number of chars in subfont */
+	uchar	height;	/* height of image */
+	char	ascent;	/* top of image to baseline */
+	Fontchar	*info;	/* n+1 Fontchars */
+	Image	*bits;	/* of font */
+} Subfont;
+.EE
+.PP
+The image fills the rectangle
+\fL(0, 0, \fIw\fP, height)\fR,
+where
+.I w
+is the sum of the horizontal extents (of non-zero pixels)
+for all characters.
+The pixels to be displayed for character
+.I c
+are in the rectangle
+\fL(\fIi\fP->x, \fIi\fP->top, (\fIi\fP+1)->x, \%\fIi\fP->bottom)\fR
+where
+.I i
+is
+.B
+&subfont->info[\fIc\fP]\fR.
+When a character is displayed at
+.B Point
+.B p
+in an image,
+the character rectangle is placed at
+.BI (p.x+ i ->left,
+.B p.y)
+and the next character of the string is displayed at
+.BI (p.x+ i ->width,
+.BR p.y) .
+The baseline of the characters is
+.L ascent
+rows down from the top of the subfont image.
+The
+.L info
+array has
+.B n+1
+elements, one each for characters 0 to
+.BR n-1
+plus an additional entry so the size of the last character
+can be calculated.
+Thus the width,
+.IR w ,
+of the
+.B Image
+associated with a
+.B Subfont
+.B s
+is
+.BR s->info[s->n].x .
+.PP
+A
+.B Font
+consists of an overall height and ascent
+and a collection of subfonts together with the ranges of runes (see
+.IR utf (6))
+they represent.
+Fonts are described by the following structures.
+.IP
+.EX
+.ta 6n +\w'Cacheinfo 'u +\w'height;   'u
+typedef
+struct Cachefont {
+	Rune	min;	/* value of 0th char in subfont */
+	Rune	max;	/* value+1 of last char in subfont */
+	int	offset;	/* posn in subfont of char at min */
+	char	*name;	/* stored in font */
+	char	*subfontname;	/* to access subfont */
+} Cachefont;
+
+typedef
+struct Cacheinfo {
+	ushort	x;	/* left edge of bits */
+	uchar	width;	/* width of baseline */
+	schar	left;	/* offset of baseline */
+	Rune	value;	/* of char at this slot in cache */
+	ushort	age;
+} Cacheinfo;
+
+typedef
+struct Cachesubf {
+	ulong	age;	/* for replacement */
+	Cachefont	*cf;	/* font info that owns us */
+	Subfont	*f;	/* attached subfont */
+} Cachesubf;
+
+typedef
+struct Font {
+	char	*name;
+	Display	*display;
+	short	height;	/* max ht of image;interline space*/
+	short	ascent;	/* top of image to baseline */
+	short	width;	/* widest so far; used in caching */
+	short	nsub;	/* number of subfonts */
+	ulong	age;	/* increasing counter; for LRU */
+	int	ncache;	/* size of cache */
+	int	nsubf;	/* size of subfont list */
+	Cacheinfo	*cache;
+	Cachesubf	*subf;
+	Cachefont	**sub;	/* as read from file */
+	Image	*cacheimage;
+} Font;
+.EE
+.PP
+The
+.LR height
+and
+.LR ascent
+fields of Font are described in
+.IR graphics (2).
+.L Sub
+contains
+.L nsub
+pointers to
+.BR Cachefonts .
+A
+.B Cachefont
+connects runes
+.L min
+through
+.LR max ,
+inclusive, to the subfont
+with file name
+.LR name ;
+it corresponds to a line of the file describing the font.
+.PP
+The characters
+are taken from the subfont starting at character number
+.L offset
+(usually zero) in the subfont, permitting selection of parts of subfonts.
+Thus
+the image for rune
+.I r
+is found in position
+.IB r -min+offset
+of the subfont.
+.PP
+For each font, the library, with support from the
+graphics server,
+maintains a cache of
+subfonts and a cache of recently used
+character images.
+The
+.B subf
+and
+.B cache
+fields are used by the library to maintain these caches.
+The
+.L width
+of a font is the maximum of the horizontal extents of the characters
+in the cache.
+.I String
+draws a string by loading the cache and emitting a sequence of
+cache indices to draw.
+.I Cachechars
+guarantees the images for the characters pointed to by
+.I *s
+or
+.I *r
+(one of these must be nil in each call)
+are in the cache of
+.IR f .
+It calls
+.I loadchar
+to put missing characters into the cache.
+.I Cachechars
+translates the character string into a set of cache indices
+which it loads into the array
+.IR c ,
+up to a maximum of
+.I n
+indices or the length of the string.
+.I Cachechars
+returns in
+.I c
+the number of cache indices emitted,
+updates
+.I *s
+to point to the next character to be processed, and sets
+.I *widp
+to the total width of the characters processed.
+.I Cachechars
+may return before the end of the string if it cannot
+proceed without destroying active data in the caches.
+If it needs to load a new subfont, it will fill
+.B *sfname
+with the name of the subfont it needs and return \-1.
+It can return zero if it is unable to make progress because
+it cannot resize the caches.
+.PP
+.I Loadchar
+loads a character image into the character cache.
+Then it tells the graphics server to copy the character 
+into position
+.I h
+in the character cache.
+If the current font
+.L width
+is smaller than the horizontal extent of the character being loaded,
+.I loadfont
+clears the cache and resets it to
+accept characters with the bigger width, unless
+.I noclr
+is set, in which case it just returns \-1.
+If the character does not exist in the font at all,
+.I loadfont
+returns 0; if it is unable to load the character
+without destroying cached information, it returns \-1,
+updating
+.B *sfname
+as described above.
+It returns 1 to indicate success.
+.PP
+The
+.L age
+fields record when
+subfonts and characters have been used.
+The font
+.L age
+is increased every time the font is used
+.RI ( agefont
+does this).
+A character or subfont
+.L age
+is set to the font age at each use.
+Thus, characters or subfonts with small ages are the best candidates
+for replacement when the cache is full.
+.SH SOURCE
+.B /sys/src/libdraw
+.SH SEE ALSO
+.IR graphics (2),
+.IR allocimage (2),
+.IR draw (2),
+.IR subfont (2),
+.IR image (6),
+.IR font (6)
+.SH DIAGNOSTICS
+All of the functions use the graphics error function (see
+.IR graphics (2)).

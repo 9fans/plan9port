@@ -1,0 +1,163 @@
+.TH DICT 7
+.SH NAME
+dict \- dictionary browser
+.SH SYNOPSIS
+.B dict
+[
+.B -k
+]
+[
+.B -d
+.I dictname
+]
+[
+.B -c
+.I command
+]
+[
+.I pattern
+]
+.SH DESCRIPTION
+.I Dict
+is a dictionary browser.
+If a
+.I pattern
+is given on the command line,
+.I dict
+prints all matching entries;
+otherwise it repeatedly accepts and executes commands.
+The options are
+.TF -d\ \fIdictname\fP
+.TP
+.BI -d " dictname"
+Use the given dictionary.
+The default is
+.BR oed ,
+the second edition of the Oxford English Dictionary.
+A list of available dictionaries is printed by option
+.BR -d? .
+.TP
+.BI -c " command"
+Execute one command and quit.
+The command syntax is described below.
+.TP
+.B -k
+Print a pronunciation key.
+.PD
+.PP
+Patterns are regular expressions (see
+.IR regexp (6)),
+with an implicit leading
+.L ^
+and trailing
+.LR $ .
+Patterns are matched against an index of headwords and variants,
+to form a `match set'.
+By default, both patterns and the index are folded:
+upper case characters are mapped into their lower case equivalents,
+and Latin accented characters are mapped into their non-accented
+equivalents.
+In interactive mode, there is always a `current match set'
+and a `current entry' within the match set.
+Commands can change either or both, as well as print the entries
+or information about them.
+.PP
+Commands have an address followed by a command letter.
+Addresses have the form:
+.TF /\fIre\fP/.\fIn\fP
+.TP
+.BI / re /
+Set the match set to all entries matching the regular expression
+.IR re ,
+sorted in dictionary order.
+Set the current entry to the first of the match set.
+.TP
+.BI ! re !
+Like
+.BI / re /
+but use exact matching, i.e., without case and accent folding.
+.TP
+.I n
+An integer
+.I n
+means change the current entry to the
+.IR n th
+of the current match set.
+.TP
+.BI # n
+The integer
+.I n
+is an absolute byte offset into the raw dictionary.
+(See the
+.B A
+command, below.)
+.TP
+.IB addr +
+After setting the match set and current entry according to
+.IR addr ,
+change the match set and current entry to be the next entry
+in the dictionary (not necessarily in the match set) after
+the current entry.
+.TP
+.IB addr -
+Like
+.IB addr +
+but go to previous dictionary entry.
+.PD
+.PP
+The command letters come in pairs: a lower case and the
+corresponding upper case letter.
+The lower case version prints something about the current
+entry only, and advances the current entry to the next
+in the match set (wrapping around to the beginning after
+the last).
+The upper case version prints something about all of the
+match set and resets the current entry to the beginning of
+the set.
+.TF \fLa,A\fP
+.TP
+.BR p , P
+Print the whole entry.
+.TP
+.BR h , H
+Print only the headword(s) of the entry.
+.TP
+.BR a , A
+Print the dictionary byte offset of the entry.
+.TP
+.BR r , R
+Print the whole entry in raw format (without translating
+special characters, etc.).
+.PD
+.PP
+If no command letter is given for the first command,
+.B H
+is assumed.
+After an
+.BR H ,
+the default command is
+.BR p .
+Otherwise, the default command is the previous command.
+.SH FILES
+.B /lib/dict/oed2
+.br
+.B /lib/dict/oed2index
+.br
+Other files in
+.BR /lib .
+.SH "SEE ALSO"
+.IR regexp (6)
+.SH SOURCE
+.B /sys/src/cmd/dict
+.SH BUGS
+A font with wide coverage of the Unicode Standard
+should be used for best results.
+(Try
+.BR /lib/font/bit/pelm/unicode.9.font .)
+.br
+If the
+.I pattern
+doesn't begin with
+a few literal characters, matching takes a long time.
+.br
+The dictionaries are not distributed outside Bell Labs.

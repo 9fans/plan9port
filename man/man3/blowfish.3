@@ -1,0 +1,52 @@
+.TH BLOWFISH 3
+.SH NAME
+setupBFstate, bfCBCencrypt, bfCBCdecrypt, bfECBencrypt, bfECBdecrypt  - blowfish encryption
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+void setupBFstate(BFstate *s, uchar key[], int keybytes, 
+.B
+			 uchar *ivec)
+.PP
+.B
+void bfCBCencrypt(uchar *data, int len, BFstate *s)
+.PP
+.B
+void bfCBCdecrypt(uchar *data, int len, BFstate *s)
+.PP
+.B
+void bfECBencrypt(uchar *data, int len, BFstate *s)
+.PP
+.B
+void bfECBdecrypt(uchar *data, int len, BFstate *s)
+.SH DESCRIPTION
+.PP
+Blowfish is Bruce Schneier's symmetric block cipher.  It supports
+variable length keys from 32 to 448 bits and has a block size of 64
+bits.  Both CBC and ECB modes are supported.
+.PP
+setupBFstate takes a BFstate structure, a key of at most 56 bytes, the
+length of the key in bytes, and an initialization vector of 8 bytes
+(set to all zeroes if argument is nil).  The encryption and decryption
+functions take a BFstate structure, a data buffer, and a length, which
+must be a multiple of eight bytes as padding is currently unsupported.
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR mp (2),
+.IR aes (2),
+.IR des (2),
+.IR dsa (2),
+.IR elgamal (2),
+.IR rc4 (2),
+.IR rsa (2),
+.IR sechash (2),
+.IR prime (2),
+.IR rand (2)

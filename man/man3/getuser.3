@@ -1,0 +1,37 @@
+.TH GETUSER 3
+.SH NAME
+getuser, sysname \- get user or system name
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+char*	getuser(void)
+.PP
+.B
+char*	sysname(void)
+.SH DESCRIPTION
+.I Getuser
+returns a pointer to static data which contains the
+null-terminated
+name of the user who
+owns the current process.
+.I Getuser
+reads
+.B /dev/user
+to find the name.
+.PP
+.I Sysname
+provides the same service for the file
+.BR #c/sysname ,
+which contains the name of the machine.
+Unlike
+.IR getuser ,
+.I sysname
+caches the string, reading the file only once.
+.SH SOURCE
+.B /sys/src/libc/port/getuser.c
+.SH SEE ALSO
+.IR intro (2),
+.IR cons (3)

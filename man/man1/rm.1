@@ -1,0 +1,28 @@
+.TH RM 1
+.SH NAME
+rm \- remove files
+.SH SYNOPSIS
+.B rm
+[
+.B -fr
+]
+.I file ...
+.SH DESCRIPTION
+.I Rm
+removes files or directories.
+A directory is removed only if it is empty.
+Removal of a file requires write permission in its directory,
+but neither read nor write permission on the file itself.
+The options are
+.TP
+.B -f
+Don't report files that can't be removed.
+.TP
+.B -r
+Recursively delete the
+entire contents of a directory
+and the directory itself.
+.SH SOURCE
+.B /sys/src/cmd/rm.c
+.SH "SEE ALSO"
+.IR remove (2)

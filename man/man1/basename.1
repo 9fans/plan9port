@@ -1,0 +1,35 @@
+.TH BASENAME 1 
+.SH NAME
+basename \- strip file name affixes
+.SH SYNOPSIS
+.B basename
+[
+.B -d
+]
+.I string
+[
+.I suffix
+]
+.SH DESCRIPTION
+.PP
+.I Basename
+deletes any prefix ending in slash
+.RB ( / )
+and the
+.IR suffix ,
+if present in
+.IR string ,
+from
+.IR string ,
+and prints the result on the standard output.
+.PP
+The
+.B -d
+option instead prints the directory component,
+that is,
+.I string
+up to but not including the final slash.
+If the string contains no slash,
+a period and newline are printed.
+.SH SOURCE
+.B /sys/src/cmd/basename.c

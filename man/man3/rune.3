@@ -3,7 +3,9 @@
 runetochar, chartorune, runelen, runenlen, fullrune, utfecpy, utflen, utfnlen, utfrune, utfrrune, utfutf \- rune/UTF conversion
 .SH SYNOPSIS
 .ta \w'\fLchar*xx'u
-.B #include <utf.h>
+.B #include <u.h>
+.br
+.B #include <libc.h>
 .PP
 .B
 int	runetochar(char *s, Rune *r)
@@ -179,9 +181,10 @@ is the null string,
 .I utfutf
 returns
 .IR s1 .
-.SH HISTORY
-These routines were written by Rob Pike and Ken Thompson
-and first appeared in Plan 9.
+.SH SOURCE
+.B /sys/src/libc/port/rune.c
+.br
+.B /sys/src/libc/port/utfrune.c
 .SH SEE ALSO
-.IR utf (7),
+.IR utf (6),
 .IR tcs (1)

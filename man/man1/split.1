@@ -1,0 +1,82 @@
+.TH SPLIT 1
+.CT 1 files
+.SH NAME
+split \- split a file into pieces
+.SH SYNOPSIS
+.B split
+[
+.I option ...
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Split
+reads
+.I file
+(standard input by default)
+and writes it in pieces of 1000
+lines per output file.
+The names of the
+output files are
+.BR xaa ,
+.BR xab ,
+and so on to
+.BR xzz .
+The options are
+.TP
+.BI -n " n"
+Split into
+.IR n -line
+pieces.
+.TP
+.BI -l " n"
+Synonym for
+.B -n
+.IR n ,
+a nod to Unix's syntax.
+.TP
+.BI -e " expression"
+File divisions occur at each line
+that matches a regular
+.IR expression ;
+see 
+.IR regexp (6).
+Multiple
+.B -e
+options may appear.
+If a subexpression of
+.I expression
+is contained in parentheses
+.BR ( ... ) ,
+the output file name is the portion of the
+line which matches the subexpression.
+.TP
+.BI -f " stem
+Use
+.I stem
+instead of
+.B x
+in output file names.
+.TP
+.BI -s " suffix
+Append
+.I suffix
+to names identified under
+.BR -e .
+.TP
+.B -x
+Exclude the matched input line from the output file.
+.TP
+.B -i
+Ignore case in option
+.BR -e ;
+force output file names (excluding the suffix)
+to lower case.
+.SH SOURCE
+.B /sys/src/cmd/split.c
+.SH SEE ALSO
+.IR sed (1), 
+.IR awk (1),
+.IR grep (1),
+.IR regexp (6)

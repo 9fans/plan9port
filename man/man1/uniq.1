@@ -1,0 +1,59 @@
+.TH UNIQ 1
+.SH NAME
+uniq \- report repeated lines in a file
+.SH SYNOPSIS
+.B uniq
+[
+.B -udc
+[
+.BI +- num
+]
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Uniq
+copies the input
+.IR file ,
+or the standard input, to the
+standard output, comparing adjacent lines.
+In the normal case, the second and succeeding copies
+of repeated lines are
+removed.
+Repeated lines must be adjacent
+in order to be found.
+.TP
+.B -u
+Print unique lines.
+.TP
+.B -d
+Print (one copy of) duplicated lines.
+.TP
+.B -c
+Prefix a repetition count and a tab to each output line.
+Implies
+.B -u
+and
+.BR -d .
+.TP
+.BI - num
+The first
+.IR num
+fields
+together with any blanks before each are ignored.
+A field is defined as a string of non-space, non-tab characters
+separated by tabs and spaces from its neighbors.
+.TP
+.BI + num
+The first
+.IR num
+characters are ignored.
+Fields are skipped before characters.
+.SH SOURCE
+.B /sys/src/cmd/uniq.c
+.SH "SEE ALSO"
+.IR sort (1) 
+.SH BUGS
+Field selection and comparison should be compatible with 
+.IR sort (1).

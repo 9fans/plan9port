@@ -1,0 +1,38 @@
+.TH GETCALLERPC 3
+.SH NAME
+getcallerpc \- fetch return PC of current function
+.SH SYNOPSIS
+.br
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B ulong getcallerpc(void *firstarg)
+.SH DESCRIPTION
+.I Getcallerpc
+is a portable way to discover the PC to which the current function will return.
+.I Firstarg
+should be a pointer to the first argument to the function in question.
+.SH EXAMPLE
+.IP
+.EX
+void
+printpc(ulong arg)
+{
+	print("Called from %.8lux\en", getcallerpc(&arg));
+}
+
+void
+main(int argc, char *argv[])
+{
+	printpc(0);
+	printpc(0);
+	printpc(0);
+}
+.EE
+.SH SOURCE
+.B /sys/src/libc/$objtype/getcallerpc.[cs]
+.SH BUGS
+The 
+.I firstarg
+parameter should not be necessary.

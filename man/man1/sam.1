@@ -1,0 +1,885 @@
+.TH SAM 1
+.ds a \fR*\ \fP
+.SH NAME
+sam, B, sam.save \- screen editor with structural regular expressions 
+.SH SYNOPSIS
+.B sam
+[
+.I option ...
+] [
+.I files
+]
+.PP
+.B sam
+.B -r
+.I machine
+.PP
+.B sam.save
+.PP
+.B B
+[
+.BI -nnnn
+]
+.I file ...
+.SH DESCRIPTION
+.I Sam
+is a multi-file editor.
+It modifies a local copy of an external file.
+The copy is here called a
+.IR file .
+The files are listed in a menu available through mouse button 3
+or the
+.B n
+command.
+Each file has an associated name, usually the name of the
+external file from which it was read, and a `modified' bit that indicates whether
+the editor's file agrees with the external file.
+The external file is not read into
+the editor's file until it first becomes the current file\(emthat to
+which editing commands apply\(emwhereupon its menu entry is printed.
+The options are
+.TF -rmachine
+.TP
+.B -d
+Do not `download' the terminal part of
+.IR sam .
+Editing will be done with the command language only, as in
+.IR ed (1).
+.TP
+.BI -r " machine
+Run the host part remotely
+on the specified machine, the terminal part locally.
+.TP
+.BI -s " path
+Start the host part from the specified file on the remote host.
+Only meaningful with the
+.BI -r
+option.
+.TP
+.BI -t " path
+Start the terminal part from the specified file.  Useful
+for debugging.
+.PD
+.SS Regular expressions
+Regular expressions are as in
+.IR regexp (6)
+with the addition of
+.BR \en
+to represent newlines.
+A regular expression may never contain a literal newline character.
+The empty
+regular expression stands for the last complete expression encountered.
+A regular expression in
+.I sam
+matches the longest leftmost substring formally
+matched by the expression.
+Searching in the reverse direction is equivalent
+to searching backwards with the catenation operations reversed in
+the expression.
+.SS Addresses
+An address identifies a substring in a file.
+In the following, `character
+.IR n '
+means the null string
+after the
+.IR n -th
+character in the file, with 1 the
+first character in the file.
+`Line
+.IR n '
+means the
+.IR n -th
+match,
+starting at the beginning of the file, of the regular expression
+.LR .*\en? .
+All files always have a current substring, called dot,
+that is the default address.
+.SS Simple Addresses
+.PD 0
+.TP
+.BI # n
+The empty string after character
+.IR n ;
+.B #0
+is the beginning of the file.
+.TP
+.I n
+Line
+.IR n ;
+.B 0
+is the beginning of the file.
+.TP
+.BI  / regexp /
+.PD 0
+.TP
+.BI ? regexp ?
+The substring that matches the regular expression,
+found by looking toward the end 
+.RB ( / )
+or beginning
+.RB ( ? )
+of the file,
+and if necessary continuing the search from the other end to the
+starting point of the search.
+The matched substring may straddle
+the starting point.
+When entering a pattern containing a literal question mark
+for a backward search, the question mark should be
+specified as a member of a class.
+.PD
+.TP
+.B 0
+The string before the first full line.
+This is not necessarily
+the null string; see
+.B +
+and
+.B -
+below.
+.TP
+.B $
+The null string at the end of the file.
+.TP
+.B .
+Dot.
+.TP
+.B \&'
+The mark in the file (see the
+.B k
+command below).
+.TP
+\fB"\f2regexp\fB"\f1\f1
+Preceding a simple address (default
+.BR . ),
+refers to the address evaluated in the unique file whose menu line
+matches the regular expression.
+.PD
+.SS Compound Addresses
+In the following,
+.I a1
+and
+.I a2
+are addresses.
+.TF a1+a2
+.TP
+.IB a1 + a2
+The address
+.I a2
+evaluated starting at the end of
+.IR a1 .
+.TP
+.IB a1 - a2
+The address
+.I a2
+evaluated looking in the reverse direction
+starting at the beginning of
+.IR a1 .
+.TP
+.IB a1 , a2
+The substring from the beginning of
+.I a1
+to the end of
+.IR a2 .
+If
+.I a1
+is missing,
+.B 0
+is substituted.
+If
+.I a2
+is missing,
+.B $
+is substituted.
+.TP
+.IB  a1 ; a2
+Like
+.IB a1 , a2\f1,
+but with
+.I a2
+evaluated at the end of, and dot set to,
+.IR a1 .
+.PD
+.PP
+The operators
+.B +
+and
+.B -
+are high precedence, while
+.B ,
+and
+.B ;
+are low precedence.
+.PP
+In both
+.B +
+and
+.B -
+forms, if
+.I a2
+is a line or character address with a missing
+number, the number defaults to 1.
+If
+.I a1
+is missing,
+.L .
+is substituted.
+If both
+.I a1
+and
+.I a2
+are present and distinguishable,
+.B +
+may be elided.
+.I a2
+may be a regular
+expression; if it is delimited by
+.LR ? 's,
+the effect of the
+.B +
+or
+.B -
+is reversed.
+.PP
+It is an error for a compound address to represent a malformed substring.
+Some useful idioms: 
+.IB a1 +-
+\%(\f2a1\fB-+\f1)
+selects the line containing
+the end (beginning) of a1.
+.BI 0/ regexp /
+locates the first match of the expression in the file.
+(The form
+.B 0;//
+sets dot unnecessarily.)
+.BI ./ regexp /// 
+finds the second following occurrence of the expression,
+and
+.BI .,/ regexp /
+extends dot.
+.SS Commands
+In the following, text demarcated by slashes represents text delimited
+by any printable
+character except alphanumerics.
+Any number of
+trailing delimiters may be elided, with multiple elisions then representing
+null strings, but the first delimiter must always
+be present.
+In any delimited text,
+newline may not appear literally;
+.B \en
+may be typed for newline; and
+.B \e/
+quotes the delimiter, here 
+.LR / .
+Backslash is otherwise interpreted literally, except in
+.B s
+commands.
+.PP
+Most commands may be prefixed by an address to indicate their range
+of operation.
+Those that may not are marked with a 
+.L *
+below.
+If a command takes
+an address and none is supplied, dot is used.
+The sole exception is
+the
+.B w
+command, which defaults to
+.BR 0,$ .
+In the description, `range' is used
+to represent whatever address is supplied.
+Many commands set the
+value of dot as a side effect.
+If so, it is always set to the `result'
+of the change: the empty string for a deletion, the new text for an
+insertion, etc. (but see the
+.B s
+and
+.B e
+commands).
+.br
+.ne 1.2i
+.SS Text commands
+.PD 0
+.TP
+.BI a/ text /
+.TP
+or
+.TP
+.B  a
+.TP
+.I lines of text
+.TP
+.B .
+Insert the text into the file after the range.
+Set dot.
+.PD
+.TP
+.B c\fP
+.br
+.ns
+.TP
+.B i\fP
+Same as
+.BR a ,
+but
+.B c
+replaces the text, while
+.B i
+inserts
+.I before
+the range.
+.TP
+.B d
+Delete the text in the range.
+Set dot.
+.TP
+.BI s/ regexp / text /
+Substitute
+.I text
+for the first match to the regular expression in the range.
+Set dot to the modified range.
+In 
+.I text
+the character
+.B &
+stands for the string
+that matched the expression. 
+Backslash behaves as usual unless followed by
+a digit:
+.BI \e d
+stands for the string that matched the
+subexpression begun by the
+.IR d -th
+left parenthesis.
+If
+.I s
+is followed immediately by a
+number
+.IR n ,
+as in
+.BR s2/x/y/ ,
+the
+.IR n -th
+match in the range is substituted.
+If the
+command is followed by a
+.BR g ,
+as in
+.BR s/x/y/g ,
+all matches in the range
+are substituted.
+.TP
+.BI m " a1
+.br
+.ns
+.TP
+.BI t " a1
+Move
+.RB ( m )
+or copy
+.RB ( t )
+the range to after
+.IR a1 .
+Set dot.
+.SS Display commands
+.PD 0
+.TP
+.B p
+Print the text in the range.
+Set dot.
+.TP
+.B =
+Print the line address and character address of the range.
+.TP
+.B =#
+Print just the character address of the range.
+.PD
+.SS File commands
+.PD 0
+.TP
+.BI \*ab " file-list
+Set the current file to the first file named in the list
+that
+.I sam
+also has in its menu.
+The list may be expressed
+.BI < "Plan 9 command"
+in which case the file names are taken as words (in the shell sense)
+generated by the Plan 9 command.
+.TP
+.BI \*aB " file-list
+Same as
+.BR b ,
+except that file names not in the menu are entered there,
+and all file names in the list are examined.
+.TP
+.B \*an
+Print a menu of files.
+The format is:
+.RS
+.TP 11
+.BR ' " or blank
+indicating the file is modified or clean,
+.TP 11
+.BR - " or \&" +
+indicating the file is unread or has been read
+(in the terminal,
+.B *
+means more than one window is open),
+.TP 11
+.BR . " or blank
+indicating the current file,
+.TP 11
+a blank,
+.TP 11
+and the file name.
+.RE
+.TP 0
+.BI \*aD " file-list
+Delete the named files from the menu.
+If no files are named, the current file is deleted.
+It is an error to
+.B D
+a modified file, but a subsequent
+.B D
+will delete such a file.
+.PD
+.SS I/O Commands
+.PD 0
+.TP
+.BI \*ae " filename
+Replace the file by the contents of the named external file.
+Set dot to the beginning of the file.
+.TP
+.BI r " filename
+Replace the text in the range by the contents of the named external file.
+Set dot.
+.TP
+.BI w " filename
+Write the range (default
+.BR 0,$ )
+to the named external file.
+.TP
+.BI \*af " filename
+Set the file name and print the resulting menu entry.
+.PP
+If the file name is absent from any of these, the current file name is used.
+.B e
+always sets the file name;
+.B r
+and
+.B w
+do so if the file has no name.
+.TP
+.BI < " Plan 9-command
+Replace the range by the standard output of the
+Plan 9 command.
+.TP
+.BI > " Plan 9-command
+Send the range to the standard input of the
+Plan 9 command.
+.TP
+.BI | " Plan 9-command
+Send the range to the standard input, and replace it by
+the standard output, of the
+Plan 9 command.
+.TP
+.BI \*a! " Plan 9-command
+Run the
+Plan 9 command.
+.TP
+.BI \*acd " directory
+Change working directory.
+If no directory is specified,
+.B $home
+is used.
+.PD
+.PP
+In any of
+.BR < ,
+.BR > ,
+.B |
+or
+.BR ! ,
+if the
+.I Plan 9 command
+is omitted the last
+.I Plan 9 command
+(of any type) is substituted.
+If
+.I sam
+is
+.I downloaded
+(using the mouse and raster display, i.e. not using option
+.BR -d ),
+.B !
+sets standard input to
+.BR /dev/null ,
+and otherwise
+unassigned output
+.RB ( stdout
+for
+.B !
+and
+.BR > ,
+.B stderr
+for all) is placed in
+.B /tmp/sam.err
+and the first few lines are printed.
+.SS Loops and Conditionals
+.PD 0
+.TP
+.BI x/ regexp / " command
+For each match of the regular expression in the range, run the command
+with dot set to the match.
+Set dot to the last match.
+If the regular
+expression and its slashes are omitted, 
+.L /.*\en/
+is assumed.
+Null string matches potentially occur before every character
+of the range and at the end of the range.
+.TP
+.BI y/ regexp / " command
+Like
+.BR x ,
+but run the command for each substring that lies before, between,
+or after
+the matches that would be generated by
+.BR x .
+There is no default regular expression.
+Null substrings potentially occur before every character
+in the range.
+.TP
+.BI \*aX/ regexp / " command
+For each file whose menu entry matches the regular expression,
+make that the current file and
+run the command.
+If the expression is omitted, the command is run
+in every file.
+.TP
+.BI \*aY/ regexp / " command
+Same as
+.BR X ,
+but for files that do not match the regular expression,
+and the expression is required.
+.TP
+.BI g/ regexp / " command
+.br
+.ns
+.TP
+.BI v/ regexp / " command
+If the range contains
+.RB ( g )
+or does not contain
+.RB ( v )
+a match for the expression,
+set dot to the range and run the command.
+.PP
+These may be nested arbitrarily deeply, but only one instance of either
+.B X
+or
+.B Y
+may appear in a \%single command.
+An empty command in an
+.B x
+or
+.B y
+defaults to
+.BR p ;
+an empty command in
+.B X
+or
+.B Y
+defaults to
+.BR f .
+.B g
+and
+.B v
+do not have defaults.
+.PD
+.SS Miscellany
+.TF (empty)
+.TP
+.B k
+Set the current file's mark to the range.  Does not set dot.
+.TP
+.B \*aq
+Quit.
+It is an error to quit with modified files, but a second
+.B q
+will succeed.
+.TP
+.BI \*au " n
+Undo the last
+.I n
+(default 1)
+top-level commands that changed the contents or name of the
+current file, and any other file whose most recent change was simultaneous
+with the current file's change.
+Successive
+.BR u 's
+move further back in time.
+The only commands for which u is ineffective are
+.BR cd ,
+.BR u ,
+.BR q ,
+.B w
+and
+.BR D .
+If
+.I n
+is negative,
+.B u
+`redoes,' undoing the undo, going forwards in time again.
+.TP
+(empty)
+If the range is explicit, set dot to the range.
+If
+.I sam
+is downloaded, the resulting dot is selected on the screen;
+otherwise it is printed.
+If no address is specified (the
+command is a newline) dot is extended in either direction to
+line boundaries and printed.
+If dot is thereby unchanged, it is set to
+.B .+1 
+and printed.
+.PD
+.SS Grouping and multiple changes
+Commands may be grouped by enclosing them in braces
+.BR {} .
+Commands within the braces must appear on separate lines (no backslashes are
+required between commands).
+Semantically, an opening brace is like a command:
+it takes an (optional) address and sets dot for each sub-command.
+Commands within the braces are executed sequentially, but changes made
+by one command are not visible to other commands (see the next
+paragraph).
+Braces may be nested arbitrarily.
+.PP
+When a command makes a number of changes to a file, as in
+.BR x/re/c/text/ ,
+the addresses of all changes to the file are computed in the original file.
+If the changes are in sequence,
+they are applied to the file.
+Successive insertions at the same address are catenated into a single
+insertion composed of the several insertions in the order applied.
+.SS The terminal
+What follows refers to behavior of
+.I sam
+when downloaded, that is, when
+operating as a display editor on a raster display.
+This is the default
+behavior; invoking
+.I sam
+with the
+.B -d
+(no download) option provides access
+to the command language only.
+.PP
+Each file may have zero or more windows open.
+Each window is equivalent
+and is updated simultaneously with changes in other windows on the same file.
+Each window has an independent value of dot, indicated by a highlighted
+substring on the display.
+Dot may be in a region not within
+the window.
+There is usually a `current window',
+marked with a dark border, to which typed text and editing
+commands apply.
+Text may be typed and edited as in
+.IR rio (1);
+also the escape key (ESC) selects (sets dot to) text typed
+since the last mouse button hit.
+.PP
+The button 3 menu controls window operations.
+The top of the menu
+provides the following operators, each of which uses one or
+more
+.IR rio -like
+cursors to prompt for selection of a window or sweeping
+of a rectangle.
+`Sweeping' a null rectangle gets a large window, disjoint
+from the command window or the whole screen, depending on
+where the null rectangle is.
+.TF resize
+.TP 
+.B new
+Create a new, empty file.
+.TP
+.B zerox
+Create a copy of an existing window.
+.TP
+.B resize
+As in
+.IR rio .
+.TP
+.B close
+Delete the window.
+In the last window of a file,
+.B close
+is equivalent to a
+.B D
+for the file.
+.TP
+.B write
+Equivalent to a
+.B w
+for the file.
+.PD
+.PP
+Below these operators is a list of available files, starting with
+.BR ~~sam~~ ,
+the command window.
+Selecting a file from the list makes the most recently
+used window on that file current, unless it is already current, in which
+case selections cycle through the open windows.
+If no windows are open
+on the file, the user is prompted to open one.
+Files other than
+.B ~~sam~~
+are marked with one of the characters
+.B -+*
+according as zero, one, or more windows
+are open on the file.
+A further mark
+.L .
+appears on the file in the current window and
+a single quote,
+.BR ' ,
+on a file modified since last write.
+.PP
+The command window, created automatically when
+.B sam
+starts, is an ordinary window except that text typed to it
+is interpreted as commands for the editor rather than passive text,
+and text printed by editor commands appears in it.
+The behavior is like
+.IR rio ,
+with an `output point' that separates commands being typed from
+previous output.
+Commands typed in the command window apply to the
+current open file\(emthe file in the most recently
+current window.
+.SS Manipulating text
+Button 1 changes selection, much like
+.IR rio .
+Pointing to a non-current window with button 1 makes it current;
+within the current window, button 1 selects text, thus setting dot.
+Double-clicking selects text to the boundaries of words, lines,
+quoted strings or bracketed strings, depending on the text at the click.
+.PP
+Button 2 provides a menu of editing commands:
+.TF /regexp
+.TP
+.B cut
+Delete dot and save the deleted text in the snarf buffer.
+.TP
+.B paste
+Replace the text in dot by the contents of the snarf buffer.
+.TP
+.B snarf
+Save the text in dot in the snarf buffer.
+.TP
+.B plumb
+Send the text in the selection as a plumb
+message.  If the selection is empty,
+the white-space-delimited block of text is sent as a plumb message
+with a
+.B click
+attribute defining where the selection lies (see
+.IR plumb (6)).
+.TP
+.B look
+Search forward for the next occurrence of the literal text in dot.
+If dot is the null string, the text in the snarf buffer is
+used.
+The snarf buffer is unaffected.
+.TP
+.B <rio>
+Exchange snarf buffers with
+.IR rio .
+.TP
+.BI / regexp
+Search forward for the next match of the last regular expression
+typed in a command.
+(Not in command window.)
+.TP
+.B send
+Send the text in dot, or the snarf buffer if
+dot is the null string, as if it were typed to the command window.
+Saves the sent text in the snarf buffer.
+(Command window only.) 
+.PD
+.SS External communication
+.I Sam
+listens to the
+.B edit
+plumb port.
+If plumbing is not active,
+on invocation
+.I sam
+creates a named pipe
+.BI /srv/sam. user
+which acts as an additional source of commands.  Characters written to
+the named pipe are treated as if they had been typed in the command window.
+.PP
+.I B
+is a shell-level command that causes an instance of
+.I sam
+running on the same terminal to load the named
+.IR files .
+.I B
+uses either plumbing or the named pipe, whichever service is available.
+If plumbing is not enabled,
+the option allows a line number to be specified for
+the initial position to display in the last named file
+(plumbing provides a more general mechanism for this ability).
+.SS Abnormal termination
+If
+.I sam
+terminates other than by a
+.B q
+command (by hangup, deleting its window, etc.), modified
+files are saved in an
+executable file,
+.BR $home/sam.save .
+This program, when executed, asks whether to write
+each file back to a external file.
+The answer
+.L y
+causes writing; anything else skips the file.
+.SH FILES
+.TF /sys/src/cmd/samterm
+.TP
+.B $home/sam.save
+.TP
+.B $home/sam.err
+.TP
+.B /sys/lib/samsave
+the program called to unpack
+.BR $home/sam.save .
+.SH SOURCE
+.TF /sys/src/cmd/samterm
+.TP
+.B /sys/src/cmd/sam
+source for
+.I sam
+itself
+.TP
+.B /sys/src/cmd/samterm
+source for the separate terminal part
+.TP
+.B /rc/bin/B
+.SH SEE ALSO
+.IR ed (1),
+.IR sed (1),
+.IR grep (1),
+.IR rio (1),
+.IR regexp (6).
+.PP
+Rob Pike,
+``The text editor sam''.

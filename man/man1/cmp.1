@@ -1,0 +1,57 @@
+.TH CMP 1 
+.SH NAME
+cmp \- compare two files
+.SH SYNOPSIS
+.B cmp
+[
+.B -lsL
+]
+.I file1 file2
+[
+.I offset1
+[
+.I offset2
+]
+]
+.SH DESCRIPTION
+The two files are
+compared.
+A diagnostic results if the contents differ, otherwise
+there is no output.
+.PP
+The options are:
+.TP
+.B l
+Print the byte number (decimal) and the
+differing bytes (hexadecimal) for each difference.
+.TP
+.B s
+Print nothing for differing files,
+but set the exit status.
+.TP
+.B L
+Print the line number of the first differing byte.
+.PP
+If offsets are given,
+comparison starts at the designated byte position
+of the corresponding file.
+Offsets that begin with
+.B 0x
+are hexadecimal;
+with
+.BR 0 ,
+octal; with anything else, decimal.
+.SH SOURCE
+.B /sys/src/cmd/cmp.c
+.SH "SEE ALSO"
+.IR diff (1) 
+.SH DIAGNOSTICS
+If a file is inaccessible or missing, the exit status is
+.LR open .
+If the files are the same, the exit status is empty (true).
+If they are the same except that one is longer than the other, the exit status is
+.LR EOF .
+Otherwise
+.I cmp
+reports the position of the first disagreeing byte and the exit status is
+.LR differ .

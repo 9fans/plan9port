@@ -1,0 +1,188 @@
+.TH ADDPT 3
+.SH NAME
+addpt, subpt, mulpt, divpt, rectaddpt, rectsubpt, insetrect, canonrect, eqpt, eqrect, ptinrect, rectinrect, rectXrect, rectclip, combinerect, Dx, Dy, Pt, Rect, Rpt \- arithmetic on points and rectangles
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <draw.h>
+.PP
+.B
+Point	addpt(Point p, Point q)
+.PP
+.B
+Point	subpt(Point p, Point q)
+.PP
+.B
+Point	mulpt(Point p, int a)
+.PP
+.B
+Point	divpt(Point p, int a)
+.PP
+.B
+Rectangle	rectaddpt(Rectangle r, Point p)
+.PP
+.B
+Rectangle	rectsubpt(Rectangle r, Point p)
+.PP
+.B
+Rectangle	insetrect(Rectangle r, int n)
+.PP
+.B
+Rectangle	canonrect(Rectangle r)
+.PP
+.B
+int		eqpt(Point p, Point q)
+.PP
+.B
+int		eqrect(Rectangle r, Rectangle s)
+.PP
+.B
+int		ptinrect(Point p, Rectangle r)
+.PP
+.B
+int		rectinrect(Rectangle r, Rectangle s)
+.PP
+.B
+int		rectXrect(Rectangle r, Rectangle s)
+.PP
+.B
+int		rectclip(Rectangle *rp, Rectangle b)
+.PP
+.B
+void		combinerect(Rectangle *rp, Rectangle b)
+.PP
+.B
+int		Dx(Rectangle r)
+.PP
+.B
+int		Dy(Rectangle r)
+.PP
+.B
+Point	Pt(int x, int y)
+.PP
+.B
+Rectangle	Rect(int x0, int y0, int x1, int y1)
+.PP
+.B
+Rectangle	Rpt(Point p, Point q)
+.SH DESCRIPTION
+The functions
+.IR Pt ,
+.I Rect
+and
+.I Rpt
+construct geometrical data types from their components.
+.PP
+.I Addpt
+returns the Point
+sum of its arguments:
+.BI Pt( p .x+ q .x,
+.IB p .y+ q .y) \f1.
+.I Subpt
+returns the Point
+difference of its arguments:
+.BI Pt( p .x- q .x,
+.IB p .y- q .y) \f1.
+.I Mulpt
+returns the Point
+.BI Pt( p .x* a ,
+.IB p .y* a ) \f1.
+.I Divpt
+returns the Point
+.BI Pt( p .x/ a ,
+.IB p .y/ a ) \f1.
+.PP
+.I Rectaddpt
+returns the Rectangle
+.BI Rect(add( r .min,
+.IB p ) \f1,
+.BI add( r .max,
+.IB p )) \f1;
+.I rectsubpt
+returns the Rectangle
+.BI Rpt(sub( r .min,
+.IB p ),
+.BI sub( r .max,
+.IB p ))\fR.
+.PP
+.I Insetrect
+returns the Rectangle
+.BI Rect( r .min.x+ n \f1,
+.IB r .min.y+ n \f1,
+.IB r .max.x- n \f1,
+.IB r .max.y- n ) \f1.
+.PP
+.I Canonrect
+returns a rectangle with the same extent as
+.IR r ,
+canonicalized so that
+.B min.x
+≤
+.BR max.x ,
+and
+.B min.y
+≤
+.BR max.y .
+.PP
+.I Eqpt
+compares its argument Points and returns
+0 if unequal,
+1 if equal.
+.I Eqrect
+does the same for its argument Rectangles.
+.PP
+.I Ptinrect
+returns 1 if
+.I p
+is a point within
+.IR r ,
+and 0 otherwise.
+.PP
+.I Rectinrect
+returns 1 if all the pixels in
+.I r
+are also in
+.IR s ,
+and 0 otherwise.
+.PP
+.I RectXrect
+returns 1 if
+.I r
+and
+.I s
+share any point, and 0 otherwise.
+.PP
+.I Rectclip
+clips in place
+the Rectangle pointed to by
+.I rp
+so that it is completely contained within
+.IR b .
+The return value is 1 if any part of
+.RI * rp
+is within
+.IR b .
+Otherwise, the return value is 0 and
+.RI * rp
+is unchanged.
+.PP
+.I Combinerect
+overwrites
+.B *rp
+with the smallest rectangle sufficient to cover all the pixels of
+.B *rp
+and
+.BR b .
+.PP
+The functions
+.I Dx
+and
+.I Dy
+give the width (Δx) and height (Δy) of a Rectangle.
+They are implemented as macros.
+.SH SOURCE
+.B /sys/src/libdraw
+.SH SEE ALSO
+.IR graphics (2)

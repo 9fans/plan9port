@@ -1,0 +1,357 @@
+.TH FCALL 3
+.SH NAME
+Fcall, convS2M, convD2M, convM2S, convM2D, fcallfmt, dirfmt, dirmodefmt, read9pmsg, statcheck, sizeS2M, sizeD2M \- interface to Plan 9 File protocol
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.br
+.B #include <fcall.h>
+.PP
+.B
+uint convS2M(Fcall *f, uchar *ap, uint nap)
+.PP
+.B
+uint convD2M(Dir *d, uchar *ap, uint nap)
+.PP
+.B
+uint convM2S(uchar *ap, uint nap, Fcall *f)
+.PP
+.B
+uint convM2D(uchar *ap, uint nap, Dir *d, char *strs)
+.PP
+.B
+int dirfmt(Fmt*)
+.PP
+.B
+int fcallfmt(Fmt*)
+.PP
+.B
+int dirmodefmt(Fmt*)
+.PP
+.B
+int read9pmsg(int fd, uchar *buf, uint nbuf)
+.PP
+.B
+int statcheck(uchar *buf, uint nbuf)
+.PP
+.B
+uint sizeS2M(Fcall *f)
+.PP
+.B
+uint sizeD2M(Dir *d)
+.SH DESCRIPTION
+These
+routines convert messages in the machine-independent format of
+the Plan 9 file protocol,
+9P, to and from a more convenient form,
+an
+.B Fcall
+structure:
+.PP
+.EX
+.if n .ta 4n +6n +5n +6n +18n +4n
+.if t .ta \w'xxxx'u +\w'short 'u +\w'xxxx'u +\w'ushort 'u +\w'ticket[TICKETLEN]; 'u +\w'/* 'u
+#define MAXWELEM 16
+
+typedef
+struct Fcall
+{
+	uchar	type;
+	u32int	fid;
+	ushort	tag;
+	union {
+		struct {
+			u32int	msize;	/* Tversion, Rversion */
+			char	*version;	/* Tversion, Rversion */
+		};
+		struct {
+			ushort	oldtag;	/* Tflush */
+		};
+		struct {
+			char	*ename;	/* Rerror */
+		};
+		struct {
+			Qid	qid;	/* Rattach, Ropen, Rcreate */
+			u32int	iounit;	/* Ropen, Rcreate */
+		};
+		struct {
+			Qid	aqid;	/* Rauth */
+		};
+		struct {
+			u32int	afid;	/* Tauth, Tattach */
+			char	*uname;	/* Tauth, Tattach */
+			char	*aname;	/* Tauth, Tattach */
+		};
+		struct {
+			u32int	perm;	/* Tcreate */ 
+			char	*name;	/* Tcreate */
+			uchar	mode;	/* Tcreate, Topen */
+		};
+		struct {
+			u32int	newfid;	/* Twalk */
+			ushort	nwname;	/* Twalk */
+			char	*wname[MAXWELEM];	/* Twalk */
+		};
+		struct {
+			ushort	nwqid;	/* Rwalk */
+			Qid	wqid[MAXWELEM];	/* Rwalk */
+		};
+		struct {
+			vlong	offset;	/* Tread, Twrite */
+			u32int	count;	/* Tread, Twrite, Rread */
+			char	*data;	/* Twrite, Rread */
+		};
+		struct {
+			ushort	nstat;	/* Twstat, Rstat */
+			uchar	*stat;	/* Twstat, Rstat */
+		};
+	};
+} Fcall;
+.EE
+.EX
+
+/* these are implemented as macros */
+
+uchar	GBIT8(uchar*)
+ushort	GBIT16(uchar*)
+ulong	GBIT32(uchar*)
+vlong	GBIT64(uchar*)
+
+void	PBIT8(uchar*, uchar)
+void	PBIT16(uchar*, ushort)
+void	PBIT32(uchar*, ulong)
+void	PBIT64(uchar*, vlong)
+
+#define	BIT8SZ	1
+#define	BIT16SZ	2
+#define	BIT32SZ	4
+#define	BIT64SZ	8
+.EE
+.PP
+This structure is defined in
+.BR <fcall.h> .
+See section 5
+for a full description of 9P messages and their encoding.
+For all message types, the
+.B type
+field of an
+.B Fcall
+holds one of
+.BR Tversion ,
+.BR Rversion ,
+.BR Tattach ,
+.BR Rattach ,
+etc. (defined in an enumerated type in
+.BR <fcall.h> ).
+.B Fid
+is used by most messages, and
+.B tag
+is used by all messages.
+The other fields are used selectively by the message types
+given in comments.
+.PP
+.I ConvM2S
+takes a 9P message at
+.I ap
+of length
+.IR nap ,
+and uses it to fill in
+.B Fcall
+structure
+.IR f .
+If the passed message
+including any data for
+.B Twrite
+and
+.B Rread
+messages
+is formatted properly,
+the return value is the number of bytes the message occupied in the buffer
+.IR ap ,
+which will always be less than or equal to
+.IR nap ;
+otherwise it is 0.
+For
+.B Twrite
+and
+.B Tread
+messages,
+.B data
+is set to a pointer into the argument message,
+not a copy.
+.PP
+.I ConvS2M
+does the reverse conversion, turning
+.I f
+into a message starting at
+.IR ap .
+The length of the resulting message is returned.
+For
+.B Twrite
+and
+.B Rread
+messages,
+.B count
+bytes starting at
+.B data
+are copied into the message.
+.PP
+The constant
+.B IOHDRSZ
+is a suitable amount of buffer to reserve for storing
+the 9P header;
+the data portion of a
+.B Twrite
+or
+.B Rread
+will be no more than the buffer size negotiated in the
+.BR Tversion/Rversion
+exchange, minus
+.BR IOHDRSZ .
+.PP
+The routine
+.I sizeS2M
+returns the number of bytes required to store the machine-independent representation of the
+.B Fcall
+structure
+.IR f ,
+including its initial 32-bit size field.
+In other words, it reports the number of bytes produced
+by a successful call to
+.IR convS2M .
+.PP
+Another structure is
+.BR Dir ,
+used by the routines described in
+.IR stat (2).
+.I ConvM2D
+converts the machine-independent form starting at
+.I ap
+into
+.IR d
+and returns the length of the machine-independent encoding.
+The strings in the returned
+.B Dir
+structure are stored at successive locations starting at
+.BR strs .
+Usually
+.B strs
+will point to storage immediately after the
+.B Dir
+itself.
+It can also be a
+.B nil
+pointer, in which case the string pointers in the returned
+.B Dir
+are all
+.BR nil ;
+however, the return value still includes their length.
+.PP
+.I ConvD2M
+does the reverse translation,
+also returning the length of the encoding.
+If the buffer is too short, the return value will be
+.B BIT16SZ
+and the correct size will be returned in the first
+.B BIT16SZ
+bytes.
+(If the buffer is less that
+.BR BIT16SZ ,
+the return value is zero; therefore a correct test for
+complete packing of the message is that the return value is
+greater than
+.BR BIT16SZ ).
+The macro
+.B GBIT16
+can be used to extract the correct value.
+The related macros with different sizes retrieve the corresponding-sized quantities.
+.B PBIT16
+and its brethren place values in messages.
+With the exception of handling short buffers in
+.IR convD2M ,
+these macros are not usually needed except by internal routines.
+.PP
+Analogous to
+.IR sizeS2M ,
+.I sizeD2M
+returns the number of bytes required to store the machine-independent representation of the
+.B Dir
+structure
+.IR d ,
+including its initial 16-bit size field.
+.PP
+The routine
+.B statcheck
+checks whether the
+.I nbuf
+bytes of
+.I buf
+contain a validly formatted machine-independent
+.B Dir
+entry suitable as an argument, for example, for the
+.B wstat
+(see
+.IR stat (2))
+system call.
+It checks that the sizes of all the elements of the the entry sum to exactly
+.IR nbuf ,
+which is a simple but effective test of validity.
+.I Nbuf
+and
+.I buf
+should include the second two-byte (16-bit) length field that precedes the entry when
+formatted in a 9P message (see
+.IR stat (5));
+in other words,
+.I nbuf
+is 2 plus the sum of the sizes of the entry itself.
+.I Statcheck
+also verifies that the length field has the correct value (that is,
+.IB nbuf -2\f1).
+It returns
+.B 0
+for a valid entry and
+.B -1
+for an incorrectly formatted entry.
+.PP
+.IR Dirfmt ,
+.IR fcallfmt ,
+and
+.I dirmodefmt
+are formatting routines, suitable for
+.IR fmtinstall (2).
+They convert
+.BR Dir* ,
+.BR Fcall* ,
+and
+.BR long
+values into string representations of the directory buffer,
+.B Fcall
+buffer,
+or file mode value.
+.I Fcallfmt
+assumes that
+.I dirfmt
+has been installed with format letter
+.L D
+and
+.I dirmodefmt
+with format letter
+.LR M .
+.PP
+.I Read9pmsg
+calls
+.IR read (2)
+multiple times, if necessary, to read an entire 9P message into
+.BR buf .
+The return value is 0 for end of file, or -1 for error; it does not return
+partial messages.
+.SH SOURCE
+.B /sys/src/libc/9sys
+.SH SEE ALSO
+.IR intro (2),
+.IR 9p (2),
+.IR stat (2),
+.IR intro (5)

@@ -1,0 +1,87 @@
+.TH TAIL 1
+.SH NAME
+tail \- deliver the last part of a file
+.SH SYNOPSIS
+.B tail
+[
+.BR +- \fInumber\fP[ lbc ][ rf ]
+]
+[
+.I file
+]
+.PP
+.B tail
+[
+.B -fr
+]
+[
+.B -n
+.I nlines
+]
+[
+.B -c
+.I nbytes
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Tail
+copies the named file to the standard output beginning
+at a designated place.
+If no file is named, the standard input is copied.
+.PP
+Copying begins at position
+.BI + number
+measured from the beginning, or
+.BI - number
+from the end of the input.
+.I Number
+is counted in lines, 1K blocks or bytes,
+according to the appended flag
+.LR l ,
+.LR b ,
+or
+.LR c .
+Default is
+.B -10l
+(ten ell).
+.PP
+The further flag
+.L r
+causes tail to print lines from the end of the file in reverse order;
+.L f
+(follow) causes
+.IR tail ,
+after printing to the end, to keep watch and
+print further data as it appears.
+.PP
+The second syntax is that promulgated by POSIX, where
+the
+.I numbers
+rather than the options are signed.
+.SH EXAMPLES
+.TP
+.B tail file
+Print the last 10 lines of a file.
+.TP
+.B tail +0f file
+Print a file, and continue to watch
+data accumulate as it grows.
+.TP
+.B sed 10q file
+Print the first 10 lines of a file.
+.SH SOURCE
+.B /sys/src/cmd/tail.c
+.SH BUGS
+Tails relative to the end of the file
+are treasured up in a buffer, and thus
+are limited in length.
+.br
+According to custom, option
+.BI + number
+counts lines from 1, and counts
+blocks and bytes from 0.
+.br
+.I Tail
+is ignorant of UTF.

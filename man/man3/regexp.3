@@ -1,25 +1,12 @@
-.TH REGEXP9 3
-.de EX
-.nf
-.ft B
-..
-.de EE
-.fi
-.ft R
-..
-.de LR
-.if t .BR \\$1 \\$2
-.if n .RB ` \\$1 '\\$2
-..
-.de L
-.nh
-.if t .B \\$1
-.if n .RB ` \\$1 '
-..
+.TH REGEXP 3
 .SH NAME
-regcomp, regcomplit, regcompnl, regexec, regsub, regerror \- Plan 9 regular expression library
+regcomp, regcomplit, regcompnl, regexec, regsub, rregexec, rregsub, regerror \- regular expression
 .SH SYNOPSIS
-.B #include <regexp9.h>
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <regexp.h>
 .PP
 .ta \w'\fLRegprog 'u
 .B
@@ -55,11 +42,11 @@ compiles a
 regular expression and returns
 a pointer to the generated description.
 The space is allocated by
-.IR malloc (3)
+.IR malloc (2)
 and may be released by
 .IR free .
 Regular expressions are exactly as in
-.IR regexp9 (7).
+.IR regexp (6).
 .PP
 .I Regcomplit
 is like
@@ -126,22 +113,22 @@ typedef struct {
 	union {
 	   char *sp;
 	   Rune *rsp;
-	} s;
+	};
 	union {
 	   char *ep;
 	   Rune *rep;
-	} e;
+	};
 } Resub;
 .EE
 .LP
 If
-.B match[0].s.sp
+.B match[0].sp
 is nonzero on entry,
 .I regexec
 starts matching at that point within
 .IR string .
 If
-.B match[0].e.ep
+.B match[0].ep
 is nonzero on entry,
 the last character matched is the one
 preceding that point.
@@ -161,15 +148,15 @@ where
 .I n
 is a digit, is replaced by the
 string delimited by
-.BI match[ n ].s.sp
+.BI match[ n ].sp
 and
-.BI match[ n ].e.ep\f1.
+.BI match[ n ].ep\f1.
 Each instance of 
 .L &
 is replaced by the string delimited by
-.B match[0].s.sp
+.B match[0].sp
 and
-.BR match[0].e.ep .
+.BR match[0].ep .
 The substitution will always be null terminated and
 trimmed to fit into dlen bytes.
 .PP
@@ -206,9 +193,10 @@ and
 fields of the
 .I match
 array elements should be used.
+.SH SOURCE
+.B /sys/src/libregexp
 .SH "SEE ALSO"
-.IR grep (1),
-.IR regexp9 (7)
+.IR grep (1)
 .SH DIAGNOSTICS
 .I Regcomp
 returns 
@@ -220,8 +208,5 @@ returns 0
 if
 .I string
 is not matched.
-.SH HISTORY
-This particular regular expression was first written by Rob Pike for Plan 9.
-It has also appeared as part of the Inferno operating system.
 .SH BUGS
 There is no way to specify or match a NUL character; NULs terminate patterns and strings.

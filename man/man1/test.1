@@ -1,0 +1,211 @@
+.TH TEST 1
+.SH NAME
+test \- set status according to condition
+.SH SYNOPSIS
+.B test
+.I expr
+.SH DESCRIPTION
+.I Test
+evaluates the expression
+.IR expr .
+If the value is true the exit status is null; otherwise the
+exit status is non-null.
+If there are no arguments the exit status is non-null.
+.PP
+The following primitives are used to construct
+.IR expr .
+.TP "\w'\fIn1 \fL-eq \fIn2\fLXX'u"
+.BI -r " file"
+True if the file exists (is accessible) and is readable.
+.PD0
+.TP
+.BI -w " file"
+True if the file exists and is writable.
+.TP
+.BI -x " file"
+True if the file exists and has execute permission.
+.TP
+.BI -e " file
+True if the file exists.
+.TP
+.BI -f " file"
+True if the file exists and is a plain file.
+.TP
+.BI -d " file"
+True if the file exists and is a directory.
+.TP
+.BI -s " file"
+True if the file exists and has a size greater than zero.
+.TP
+.BI -t " fildes
+True if the open file whose file descriptor number is
+.I fildes
+(1 by default)
+is the same file as
+.BR /dev/cons .
+.TP
+.BI -A " file"
+True if the file exists and is append-only.
+.TP
+.BI -L " file"
+True if the file exists and is exclusive-use.
+.TP
+.BI -T "file"
+True if the file exists and is temporary.
+.TP
+.IB s1 " = " s2
+True
+if the strings
+.I s1
+and
+.I s2
+are identical.
+.TP
+.IB s1 " != " s2
+True
+if the strings
+.I s1
+and
+.I s2
+are not identical.
+.TP
+s1
+True if
+.I s1
+is not the null string.
+(Deprecated.)
+.TP
+.BI -n " s1"
+True if the length of string
+.I s1
+is non-zero.
+.TP
+.BI -z " s1"
+True if the length of string
+.I s1
+is zero.
+.TP
+.IB n1 " -eq " n2
+True if the integers
+.I n1
+and
+.I n2
+are arithmetically equal.
+Any of the comparisons
+.BR -ne ,
+.BR -gt ,
+.BR -ge ,
+.BR -lt ,
+or
+.BR -le
+may be used in place of
+.BR -eq .
+The (nonstandard) construct
+.BI -l " string\f1,
+meaning the length of
+.IR string ,
+may be used in place of an integer.
+.TP
+.IB a " -nt " b
+True if file
+.I a
+is newer than (modified after) file
+.IR b .
+.TP
+.IB a " -ot " b
+True if file
+.I a
+is older than (modified before) file
+.IR b .
+.TP
+.IB f " -older " t
+True if file
+.I f
+is older than (modified before) time
+.IR t .
+If
+.I t
+is a integer followed by the letters
+.BR y (years),
+.BR M (months),
+.BR d (days),
+.BR h (hours),
+.BR m (minutes),
+or
+.BR s (seconds),
+it represents current time minus the specified time.
+If there is no letter, it represents seconds since
+epoch.
+You can also concatenate mixed units.  For example,
+.B 3d12h
+means three days and twelve hours ago.
+.PD
+.PP
+These primaries may be combined with the
+following operators:
+.TP "\w'\fL( \fIexpr\fL )XX'u"
+.B  !
+unary negation operator
+.PD0
+.TP
+.B  -o
+binary
+.I or
+operator
+.TP
+.B  -a
+binary
+.I and
+operator; higher precedence than
+.BR -o
+.TP
+.BI "( " expr " )"
+parentheses for grouping.
+.PD
+.PP
+The primitives
+.BR -b ,
+.BR -u ,
+.BR -g ,
+and
+.BR -s
+return false; they are recognized for compatibility with POSIX.
+.PP
+Notice that all the operators and flags are separate
+arguments to
+.IR test .
+Notice also that parentheses and equal signs are meaningful
+to
+.I rc
+and must be enclosed in quotes.
+.SH EXAMPLES
+.I Test
+is a dubious way to check for specific character strings:
+it uses a process to do what an
+.IR rc (1)
+match or switch statement can do.
+The first example is not only inefficient but wrong, because
+.I test
+understands the purported string
+.B  \&"-c"
+as an option.
+.IP
+.EX
+if (test $1 '=' "-c") echo OK	# wrong!
+.EE
+.LP
+A better way is
+.IP
+.EX
+if (~ $1 -c) echo OK
+.EE
+.PP
+Test whether 
+.L abc
+is in the current directory.
+.IP
+.B test -f abc -o -d abc
+.SH SOURCE
+.B /sys/src/cmd/test.c
+.SH "SEE ALSO"
+.IR rc (1) 

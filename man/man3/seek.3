@@ -1,0 +1,46 @@
+.TH SEEK 3
+.SH NAME
+seek \- change file offset
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+vlong seek(int fd, vlong n, int type)
+.SH DESCRIPTION
+.I Seek
+sets the offset for the file
+associated with
+.I fd
+as follows:
+.IP
+If
+.I type
+is 0, the offset is set to
+.I n
+bytes.
+.IP
+If
+.I type
+is 1, the pointer is set to its current location plus
+.IR n .
+.IP
+If
+.I type
+is 2, the pointer is set to the size of the
+file plus
+.IR n .
+.PP
+The new file offset value is returned.
+.PP
+Seeking in a directory is not allowed.
+Seeking in a pipe is a no-op.
+.SH SOURCE
+.B /sys/src/libc/9syscall
+.SH SEE ALSO
+.IR intro (2),
+.IR open (2)
+.SH DIAGNOSTICS
+Sets
+.IR errstr .

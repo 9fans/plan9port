@@ -1,0 +1,144 @@
+.TH DES 3
+.SH NAME
+setupDESstate, des_key_setup, block_cipher, desCBCencrypt, desCBCdecrypt, desECBencrypt, desECBdecrypt, des3CBCencrypt, des3CBCdecrypt, des3ECBencrypt, des3ECBdecrypt, key_setup, des56to64, des64to56, setupDES3state, triple_block_cipher,  - single and triple digital encryption standard
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+void	des_key_setup(uchar key[8], ulong schedule[32])
+.PP
+.B
+void	block_cipher(ulong *schedule, uchar *data,
+.B
+		int decrypting)
+.PP
+.B
+void	setupDESstate(DESstate *s, uchar key[8], uchar *ivec)
+.PP
+.B
+void	desCBCencrypt(uchar*, int, DESstate*)
+.PP
+.B
+void	desCBCdecrypt(uchar*, int, DESstate*)
+.PP
+.B
+void	desECBencrypt(uchar*, int, DESstate*)
+.PP
+.B
+void	desECBdecrypt(uchar*, int, DESstate*)
+.PP
+.B
+void	triple_block_cipher(ulong keys[3][32], uchar*, int)
+.PP
+.B
+void	setupDES3state(DES3state *s, uchar key[3][8],
+.B
+			 uchar *ivec)
+.PP
+.B
+void	des3CBCencrypt(uchar*, int, DES3state*)
+.PP
+.B
+void	des3CBCdecrypt(uchar*, int, DES3state*)
+.PP
+.B
+void	des3ECBencrypt(uchar*, int, DES3state*)
+.PP
+.B
+void	des3ECBdecrypt(uchar*, int, DES3state*)
+.PP
+.B
+void	key_setup(uchar[7], ulong[32])
+.PP
+.B
+void	des56to64(uchar *k56, uchar *k64)
+.PP
+.B
+void	des64to56(uchar *k64, uchar *k56)
+.SH DESCRIPTION
+.PP
+The Digital Encryption Standard (DES)
+is a shared key or symmetric encryption using either
+a 56 bit key for single DES or three 56 bit keys for triple des.
+The keys are encoded into 64 bits where every eight bit
+is parity. 
+.PP
+The basic DES function,
+.IR block_cipher ,
+works on a block of 8 bytes, converting them in place.
+It takes a key schedule, a pointer to the block, and
+a flag indicating encrypting (0) or decrypting (1).
+The key schedule is created from the key using
+.IR des_key_setup .
+.PP
+Since it is a bit awkward,
+.I block_cipher
+is rarely called directly.  Instead, one normally uses
+routines that encrypt larger buffers of data and
+which may chain the encryption state from one buffer
+to the next.
+These routines keep track of the state of the
+encryption using a
+.B DESstate
+structure that contains the key schedule and any chained
+state.
+.I SetupDESstate
+sets up the
+.B DESstate
+structure using the key and an 8 byte initialization vector.
+.PP
+Electronic code book, using
+.I desECBencrypt
+and 
+.IR desECBdecrypt , 
+is the less secure mode.  The encryption of each 8 bytes
+does not depend on the encryption of any other.
+Hence the encryption is a substitution
+cipher using 64 bit characters.
+.PP
+Cipher block chaining mode, using
+.I desCBCencrypt
+and
+.IR desCBCdecrypt ,
+is more secure.  Every block encrypted depends on the initialization
+vector and all blocks encrypted before it.
+.PP
+For both CBC and ECB modes, a stream of data can be encrypted as
+multiple buffers.  However, all buffers except the last must
+be a multiple of 8 bytes to ensure successful decryption of
+the stream.
+.PP
+There are equivalent triple DES functions for each of the
+DES functions.
+.PP
+In the past Plan 9 used a 56 bit or 7 byte
+format for DES keys.  To be compatible with the rest
+of the world, we've abandoned this format.
+There are two functions:
+.I des56to64
+and
+.I des64to56
+to convert back and forth between the two formats.
+Also a key schedule can be set up from the 7 byte format
+using
+.IR key_setup .
+.PP
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR mp (2),
+.IR aes (2),
+.IR blowfish (2),
+.IR dsa (2),
+.IR elgamal (2),
+.IR rc4 (2),
+.IR rsa (2),
+.IR sechash (2),
+.IR prime (2),
+.IR rand (2)

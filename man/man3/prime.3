@@ -1,0 +1,100 @@
+.TH PRIME 3
+.SH NAME
+genprime, gensafeprime, genstrongprime, DSAprimes, probably_prime, smallprimetest  \- prime number generation
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+int	smallprimetest(mpint *p)
+.PP
+.B
+int	probably_prime(mpint *p, int nrep)
+.PP
+.B
+void	genprime(mpint *p, int n, int nrep)
+.PP
+.B
+void	gensafeprime(mpint *p, mpint *alpha, int n, int accuracy)
+.PP
+.B
+void	genstrongprime(mpint *p, int n, int nrep)
+.PP
+.B
+void	DSAprimes(mpint *q, mpint *p, uchar seed[SHA1dlen])
+.SH DESCRIPTION
+.PP
+Public key algorithms abound in prime numbers.  The following routines
+generate primes or test numbers for primality.
+.PP
+.I Smallprimetest
+checks for divisibility by the first 10000 primes.  It returns 0
+if
+.I p
+is not divisible by the primes and \-1 if it is.
+.PP
+.I Probably_prime
+uses the Miller-Rabin test to test
+.IR p .
+It returns non-zero if
+.I P
+is probably prime.  The probability of it not being prime is
+1/4**\fInrep\fR.
+.PP
+.I Genprime
+generates a random
+.I n
+bit prime.  Since it uses the Miller-Rabin test,
+.I nrep
+is the repetition count passed to
+.IR probably_prime .
+.I Gensafegprime
+generates an
+.IR n -bit
+prime
+.I p
+and a generator
+.I alpha
+of the multiplicative group of integers mod \fIp\fR;
+there is a prime \fIq\fR such that \fIp-1=2*q\fR.
+.I Genstrongprime
+generates a prime,
+.IR p ,
+with the following properties:
+.IP \-
+(\fIp\fR-1)/2 is prime.  Therefore
+.IR p -1
+has a large prime factor,
+.IR p '.
+.IP \-
+.IR p '-1
+has a large prime factor
+.IP \-
+.IR p +1
+has a large prime factor
+.PP
+.I DSAprimes
+generates two primes,
+.I q
+and
+.IR p,
+using the NIST recommended algorithm for DSA primes.
+.I q
+divides
+.IR p -1.
+The random seed used is also returned, so that skeptics
+can later confirm the computation.  Be patient; this is a
+slow algorithm.
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR aes (2)
+.IR blowfish (2),
+.IR des (2),
+.IR elgamal (2),
+.IR rsa (2),

@@ -1,0 +1,257 @@
+.TH DC 1
+.SH NAME
+dc \- desk calculator
+.SH SYNOPSIS
+.B dc
+[
+.I file
+]
+.SH DESCRIPTION
+.I Dc
+is an arbitrary precision desk calculator.
+Ordinarily it operates on decimal integers,
+but one may specify an input base, output base,
+and a number of fractional digits to be maintained.
+The overall structure of
+.I dc
+is
+a stacking (reverse Polish) calculator.
+If an argument is given,
+input is taken from that file until its end,
+then from the standard input.
+The following constructions are recognized:
+.TP
+number
+The value of the number is pushed on the stack.
+A number is an unbroken string of the digits 
+.B 0-9A-F 
+or
+.BR 0-9a-f .
+A hexadecimal number beginning with a lower case
+letter must be preceded by a zero to distinguish it
+from the command associated with the letter.
+It may be preceded by an underscore
+.B _
+to input a
+negative number.
+Numbers may contain decimal points.
+.TP
+.L
++  - /  *  %  ^
+Add
+.LR + ,
+subtract
+.LR - ,
+multiply
+.LR * ,
+divide
+.LR / ,
+remainder
+.LR % ,
+or exponentiate
+.L ^
+the top two values on the stack.
+The two entries are popped off the stack;
+the result is pushed on the stack in their place.
+Any fractional part of an exponent is ignored.
+.TP
+.BI s x
+.br
+.ns
+.TP
+.BI S x
+Pop the top of the stack and store into
+a register named
+.IR x ,
+where
+.I x
+may be any character.
+Under operation
+.B S
+register
+.I x
+is treated as a stack and the value is pushed on it.
+.TP
+.BI l x
+.br
+.ns
+.TP
+.BI L x
+Push the value in register
+.I x
+onto the stack.
+The register
+.I x
+is not altered.
+All registers start with zero value.
+Under operation
+.B L
+register
+.I x
+is treated as a stack and its top value is popped onto the main stack.
+.TP
+.B  d
+Duplicate the
+top value on the stack.
+.TP
+.B  p
+Print the top value on the stack.
+The top value remains unchanged.
+.B P
+interprets the top of the stack as an
+text
+string,
+removes it, and prints it.
+.TP
+.B  f
+Print the values on the stack.
+.TP
+.B  q
+.br
+.ns
+.TP
+.B Q
+Exit the program.
+If executing a string, the recursion level is
+popped by two.
+Under operation
+.B Q
+the top value on the stack is popped and the string execution level is popped
+by that value.
+.TP
+.B  x
+Treat the top element of the stack as a character string
+and execute it as a string of
+.I dc
+commands.
+.TP
+.B  X
+Replace the number on the top of the stack with its scale factor.
+.TP
+.B "[ ... ]"
+Put the bracketed
+text
+string on the top of the stack.
+.TP
+.PD0
+.BI < x
+.TP
+.BI > x
+.TP
+.BI = x
+.PD
+Pop and compare the
+top two elements of the stack.
+Register
+.I x
+is executed if they obey the stated
+relation.
+.TP
+.B  v
+Replace the top element on the stack by its square root.
+Any existing fractional part of the argument is taken
+into account, but otherwise the scale factor is ignored.
+.TP
+.B  !
+Interpret the rest of the line as a shell command.
+.TP
+.B  c
+Clear the stack.
+.TP
+.B  i
+The top value on the stack is popped and used as the
+number base for further input.
+.TP
+.B I
+Push the input base on the top of the stack.
+.TP
+.B  o
+The top value on the stack is popped and used as the
+number base for further output.
+In bases larger than 10, each `digit' prints as a group of decimal digits.
+.TP
+.B O
+Push the output base on the top of the stack.
+.TP
+.B  k
+Pop the top of the stack, and use that value as
+a non-negative scale factor:
+the appropriate number of places
+are printed on output,
+and maintained during multiplication, division, and exponentiation.
+The interaction of scale factor,
+input base, and output base will be reasonable if all are changed
+together.
+.TP
+.B  z
+Push the stack level onto the stack.
+.TP
+.B  Z
+Replace the number on the top of the stack with its length.
+.TP
+.B  ?
+A line of input is taken from the input source (usually the terminal)
+and executed.
+.TP
+.B "; :"
+Used by 
+.I bc
+for array operations.
+.PP
+The scale factor set by
+.B k
+determines how many digits are kept to the right of
+the decimal point.
+If
+.I s
+is the current scale factor,
+.I sa
+is the scale of the first operand,
+.I sb
+is the scale of the second,
+and
+.I b
+is the (integer) second operand,
+results are truncated to the following scales.
+.IP
+.nf
+\fL+\fR,\fL-\fR	max(\fIsa,sb\fR)
+\fL*\fR	min(\fIsa\fR+\fIsb \fR, max\fR(\fIs,sa,sb\fR))
+\fL/\fI	s
+\fL%\fR	so that dividend = divisor*quotient + remainder; remainder has sign of dividend
+\fL^\fR	min(\fIsa\fR\(mu|\fIb\fR|, max(\fIs,sa\fR))
+\fLv\fR	max(\fIs,sa\fR)
+.fi
+.SH EXAMPLES
+.EX
+[la1+dsa*pla10>y]sy
+0sa1
+lyx
+.EE
+.ns
+.IP
+Print the first ten values of
+.IR n !
+.SH SOURCE
+.B /sys/src/cmd/dc.c
+.SH "SEE ALSO"
+.IR bc (1),
+.IR hoc (1)
+.SH DIAGNOSTICS
+.I x
+.LR "is unimplemented" ,
+where
+.I x
+is an octal number: an internal error.
+.br
+`Out of headers'
+for too many numbers being kept around.
+.br
+`Nesting depth'
+for too many levels of nested execution.
+.SH BUGS
+When the input base exceeds 16,
+there is no notation for digits greater than
+.BR F .
+.PP
+Past its time.

@@ -1,0 +1,60 @@
+.TH ACCESS 3
+.SH NAME
+access \- determine accessibility of file
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int access(char *name, int mode)
+.SH DESCRIPTION
+.I Access
+evaluates the given
+file
+.I name
+for accessibility.
+If \fImode\fL&4\fR
+is nonzero,
+read permission is expected;
+if \fImode\fL&2\fR,
+write permission;
+if \fImode\fL&1\fR,
+execute permission.
+If \fImode\fL==0\fR,
+the file merely need exist.
+In any case
+all directories leading to the file
+must permit searches.
+Zero is returned if the desired access is permitted,
+\-1 if not.
+.PP
+Only access for open is checked.
+A file may look executable, but
+.IR exec (2)
+will fail unless it is in proper format.
+.PP
+The include file
+.F <libc.h>
+defines
+.BR AEXIST =0,
+.BR AEXEC =1,
+.BR AWRITE =2,
+and
+.BR AREAD =4.
+.PP
+.SH SOURCE
+.B /sys/src/libc/9sys/access.c
+.SH SEE ALSO
+.IR stat (2)
+.SH DIAGNOSTICS
+Sets
+.IR errstr .
+.SH BUGS
+Since file permissions are checked by the server and group information
+is not known to the client,
+.I access
+must open the file to check permissions.
+(It calls
+.IR stat (2)
+to check simple existence.)

@@ -1,0 +1,146 @@
+.TH ATOF 3
+.SH NAME
+atof, atoi, atol, atoll, charstod, strtod, strtol, strtoll, strtoul, strtoull \- convert text to numbers
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.ta \w'\fLdouble 'u
+.B
+double	atof(char *nptr)
+.PP
+.B
+int	atoi(char *nptr)
+.PP
+.B
+long	atol(char *nptr)
+.PP
+.B
+vlong	atoll(char *nptr)
+.PP
+.B
+double	charstod(int (*f)(void *), void *a)
+.PP
+.B
+double	strtod(char *nptr, char **rptr)
+.PP
+.B
+long	strtol(char *nptr, char **rptr, int base)
+.PP
+.B
+vlong	strtoll(char *nptr, char **rptr, int base)
+.PP
+.B
+ulong	strtoul(char *nptr, char **rptr, int base)
+.PP
+.B
+vlong	strtoull(char *nptr, char **rptr, int base)
+.fi
+.SH DESCRIPTION
+.IR Atof ,
+.IR atoi ,
+.IR atol ,
+and
+.I atoll
+convert a string pointed to by
+.I nptr
+to floating, integer, long integer, and long long integer
+.RB ( vlong )
+representation respectively.
+The first unrecognized character ends the string.
+Leading C escapes are understood, as in
+.I strtol
+with
+.I base
+zero (described below).
+.PP
+.I Atof
+recognizes an optional string of tabs and spaces,
+then an optional sign, then
+a string of digits optionally containing a decimal
+point, then an optional 
+.L e
+or 
+.L E
+followed
+by an optionally signed integer.
+.PP
+.I Atoi
+and
+.I atol
+recognize an optional string of tabs and spaces,
+then an optional sign, then a string of
+decimal digits.
+.PP
+.IR Strtod ,
+.IR strtol ,
+.IR strtoll ,
+.IR strtoul ,
+and
+.I strtoull
+behave similarly to 
+.I atof
+and
+.I atol
+and, if
+.I rptr
+is not zero, set
+.I *rptr
+to point to the input character
+immediately after the string converted.
+.PP
+.IR Strtol ,
+.IR strtoll ,
+.IR strtoul ,
+and
+.IR strtoull
+interpret the digit string in the specified
+.IR base ,
+from 2 to 36,
+each digit being less than the base.
+Digits with value over 9 are represented by letters,
+a-z or A-Z.
+If
+.I base
+is 0, the input is interpreted as an integral constant in
+the style of C (with no suffixed type indicators):
+numbers are octal if they begin with
+.LR 0 ,
+hexadecimal if they begin with
+.L 0x
+or
+.LR 0X ,
+otherwise decimal.
+.PP
+.I Charstod
+interprets floating point numbers in the manner of
+.IR atof ,
+but gets successive characters by calling
+.BR (*\fIf\fP)(a) .
+The last call to
+.I f
+terminates the scan, so it must have returned a character that
+is not a legal continuation of a number.
+Therefore, it may be necessary to back up the input stream one character
+after calling
+.IR charstod .
+.SH SOURCE
+.B /sys/src/libc/port
+.SH SEE ALSO
+.IR fscanf (2)
+.SH DIAGNOSTICS
+Zero is returned if the beginning of the input string is not
+interpretable as a number; even in this case,
+.I rptr
+will be updated.
+.br
+These routines set
+.IR errstr .
+.SH BUGS
+.I Atoi
+and
+.I atol
+accept octal and hexadecimal numbers in the style of C,
+contrary to the ANSI specification.

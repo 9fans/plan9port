@@ -1,0 +1,104 @@
+.TH NM 1
+.SH NAME
+nm \- name list (symbol table)
+.SH SYNOPSIS
+.B nm
+[
+.B -aghnsu
+]
+.I file ...
+.SH DESCRIPTION
+.I Nm
+prints the name list of each executable or object
+.I file
+in the argument list.
+If the
+.I file
+is an archive
+(see
+.IR ar (1)),
+the name list of each file in the archive is printed.
+If more than one file is given in the argument list,
+the name of each file is printed at the beginning of each line.
+.PP
+Each symbol name is preceded by its hexadecimal
+value (blanks if undefined)
+and one of the letters
+.TP
+.B T
+text segment symbol
+.PD0
+.TP
+.B t
+static text segment symbol
+.TP
+.B L
+leaf function text segment symbol
+.TP
+.B l
+static leaf function text segment symbol
+.TP
+.B D
+data segment symbol
+.TP
+.B d
+static data segment symbol
+.TP
+.B B
+bss segment symbol
+.TP
+.B b
+static bss segment symbol
+.TP
+.B a
+automatic (local) variable symbol
+.TP
+.B p
+function parameter symbol
+.TP
+.B z
+source file name
+.TP
+.B Z
+source file line offset
+.TP
+.B f
+source file name components
+.PD
+.PP
+The output is sorted alphabetically.
+.PP
+Options are:
+.TP
+.B -a
+Print all symbols; normally only user-defined text, data,
+and bss segment symbols are printed.
+.TP
+.B -g
+Print only global
+.RB ( T ,
+.BR L ,
+.BR D ,
+.BR B )
+symbols.
+.TP
+.B -h
+Do not print file name headers with output lines.
+.TP
+.B -n
+Sort according to the address of the symbols.
+.TP
+.B -s
+Don't sort; print in symbol-table order.
+.TP
+.B -u
+Print only undefined symbols.
+.SH SOURCE
+.B /sys/src/cmd/nm.c
+.SH SEE ALSO
+.IR ar (1),
+.IR 2l (1), 
+.IR db (1),
+.IR acid (1),
+.IR a.out (6)
+

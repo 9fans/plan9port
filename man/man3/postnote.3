@@ -1,0 +1,49 @@
+.TH POSTNOTE 3
+.SH NAME
+postnote \- send a note to a process or process group
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.B
+int	postnote(int who, int pid, char *note)
+.fi
+.SH DESCRIPTION
+.I Postnote
+sends a note to a process or process group.
+If
+.I who
+is
+.BR PNPROC ,
+then
+.I note
+is written to
+.BI /proc/ pid /note\f1.
+If
+.I who
+is
+.BI PNGROUP , 
+the note is delivered to the
+process group by writing
+.I note
+to
+.BI /proc/ pid /notepg\f1.
+For
+.B PNGROUP
+only, if the calling process is in the target group, the note is
+.I not
+delivered to that process.
+.PP
+If the write is successful, zero is returned.
+Otherwise \-1 is returned.
+.SH SOURCE
+.B /sys/src/libc/9sys/postnote.c
+.SH "SEE ALSO"
+.IR notify (2),
+.IR intro (2),
+.IR proc (3)
+.SH DIAGNOSTICS
+Sets
+.IR errstr .

@@ -1,0 +1,125 @@
+.TH ELGAMAL 3
+.SH NAME
+eggen, egencrypt, egdecrypt, egsign, egverify, egpuballoc, egpubfree, egprivalloc, egprivfree, egsigalloc, egsigfree, egprivtopub - elgamal encryption
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+EGpriv*	eggen(int nlen, int nrep)
+.PP
+.B
+mpint*	egencrypt(EGpub *k, mpint *in, mpint *out)
+.PP
+.B
+mpint*	egdecrypt(EGpriv *k, mpint *in, mpint *out)
+.PP
+.B
+EGsig*	egsign(EGpriv *k, mpint *m)
+.PP
+.B
+int		egverify(EGpub *k, EGsig *sig, mpint *m)
+.PP
+.B
+EGpub*	egpuballoc(void)
+.PP
+.B
+void		egpubfree(EGpub*)
+.PP
+.B
+EGpriv*	egprivalloc(void)
+.PP
+.B
+void		egprivfree(EGpriv*)
+.PP
+.B
+EGsig*	egsigalloc(void)
+.PP
+.B
+void		egsigfree(EGsig*)
+.PP
+.B
+EGpub*	egprivtopub(EGpriv*)
+.SH DESCRIPTION
+.PP
+Elgamal is a public key encryption and signature algorithm.  The owner of a key publishes
+the public part of the key:
+.EX
+	struct EGpub
+	{
+		mpint	*p;	// modulus
+		mpint	*alpha;	// generator
+		mpint	*key;	// (encryption key) alpha**secret mod p
+	};
+.EE
+This part can be used for encrypting data (with
+.IR egencrypt )
+to be sent to the owner.
+The owner decrypts (with
+.IR egdecrypt )
+using his private key:
+.EX
+	struct EGpriv
+	{
+		EGpub	pub;
+		mpint	*secret; // (decryption key)
+	};
+.EE
+.PP
+Keys are generated using
+.IR eggen .
+.I Eggen
+takes both bit length of the modulus
+and the number of repetitions of the Miller-Rabin
+primality test to run.  If the latter is 0, it does the default number
+of rounds.
+.I Egprivtopub
+returns a newly allocated copy of the public key
+corresponding to the private key.
+.PP
+The routines
+.IR egpuballoc ,
+.IR egpubfree ,
+.IR egprivalloc ,
+and
+.I egprivfree
+are provided to manage key storage.
+.PP
+.I Egsign
+signs message
+.I m
+using a private key
+.I k
+yielding a
+.EX
+	struct EGsig
+	{
+		mpint	*r, *s;
+	};
+.EE
+.I Egverify
+returns 0 if the signature is valid and \-1 if not.
+.PP
+The routines
+.I egsigalloc
+and
+.I egsigfree
+are provided to manage signature storage.
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR mp (2),
+.IR aes (2),
+.IR blowfish (2),
+.IR des (2),
+.IR dsa (2),
+.IR rc4 (2),
+.IR rsa (2),
+.IR sechash (2),
+.IR prime (2),
+.IR rand (2)

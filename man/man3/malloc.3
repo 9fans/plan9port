@@ -1,0 +1,207 @@
+.TH MALLOC 3
+.SH NAME
+malloc, mallocz, free, realloc, calloc, msize, setmalloctag, setrealloctag, getmalloctag, getrealloctag, malloctopoolblock \- memory allocator
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLvoid* 'u
+.B
+void*	malloc(ulong size)
+.PP
+.B
+void*	mallocz(ulong size, int clr)
+.PP
+.B
+void	free(void *ptr)
+.PP
+.B
+void*	realloc(void *ptr, ulong size)
+.PP
+.B
+void*	calloc(ulong nelem, ulong elsize)
+.PP
+.B
+ulong	msize(void *ptr)
+.PP
+.B
+void	setmalloctag(void *ptr, ulong tag)
+.PP
+.B
+ulong	getmalloctag(void *ptr, ulong tag)
+.PP
+.B
+void	setrealloctag(void *ptr, ulong tag)
+.PP
+.B
+ulong	getrealloctag(void *ptr, ulong tag)
+.PP
+.B
+void*	malloctopoolblock(void*)
+.PP
+.SH DESCRIPTION
+.I Malloc
+and
+.I free
+provide a simple memory allocation package.
+.I Malloc
+returns a pointer to a new block of at least
+.I size
+bytes.
+The block is suitably aligned for storage of any type of object.
+No two active pointers from
+.I malloc
+will have the same value.
+The call
+.B malloc(0)
+returns a valid pointer rather than null.
+.PP
+The argument to
+.I free
+is a pointer to a block previously allocated by
+.IR malloc ;
+this space is made available for further allocation.
+It is legal to free a null pointer; the effect is a no-op.
+The contents of the space returned by
+.I malloc
+are undefined.
+.I Mallocz
+behaves as 
+.IR malloc ,
+except that if 
+.I clr
+is non-zero, the memory returned will be zeroed.
+.PP
+.I Realloc
+changes the size of the block pointed to by
+.I ptr
+to
+.I size
+bytes and returns a pointer to the (possibly moved)
+block.
+The contents will be unchanged up to the
+lesser of the new and old sizes.
+.I Realloc
+takes on special meanings when one or both arguments are zero:
+.TP
+.B "realloc(0,\ size)
+means
+.LR malloc(size) ;
+returns a pointer to the newly-allocated memory
+.TP
+.B "realloc(ptr,\ 0)
+means
+.LR free(ptr) ;
+returns null
+.TP
+.B "realloc(0,\ 0)
+no-op; returns null
+.PD
+.PP
+.I Calloc
+allocates space for
+an array of
+.I nelem
+elements of size
+.IR elsize .
+The space is initialized to zeros.
+.I Free
+frees such a block.
+.PP
+When a block is allocated, sometimes there is some extra unused space at the end.
+.I Msize
+grows the block to encompass this unused space and returns the new number
+of bytes that may be used.
+.PP
+The memory allocator maintains two word-sized fields
+associated with each block, the ``malloc tag'' and the ``realloc tag''.
+By convention, the malloc tag is the PC that allocated the block,
+and the realloc tag the PC that last reallocated the block.
+These may be set or examined with 
+.IR setmalloctag ,
+.IR getmalloctag ,
+.IR setrealloctag ,
+and
+.IR getrealloctag .
+When allocating blocks directly with
+.I malloc
+and
+.IR realloc ,
+these tags will be set properly.
+If a custom allocator wrapper is used,
+the allocator wrapper can set the tags
+itself (usually by passing the result of
+.IR getcallerpc (2) 
+to 
+.IR setmalloctag )
+to provide more useful information about
+the source of allocation.
+.PP
+.I Malloctopoolblock
+takes the address of a block returned by
+.I malloc
+and returns the address of the corresponding
+block allocated by the
+.IR pool (2)
+routines.
+.SH SOURCE
+.B /sys/src/libc/port/malloc.c
+.SH SEE ALSO
+.IR leak (1),
+.I trump
+(in
+.IR acid (1)),
+.IR brk (2),
+.IR getcallerpc (2),
+.IR pool (2)
+.SH DIAGNOSTICS
+.I Malloc, realloc
+and
+.I calloc
+return 0 if there is no available memory.
+.I Errstr
+is likely to be set.
+If the allocated blocks have no malloc or realloc tags,
+.I getmalloctag
+and
+.I getrealloctag
+return
+.BR ~0 .
+.PP
+After including
+.BR pool.h ,
+the call
+.B poolcheck(mainmem)
+can be used to scan the storage arena for inconsistencies
+such as data written beyond the bounds of allocated blocks.
+It is often useful to combine this with with setting
+.EX
+    mainmem->flags |= POOL_NOREUSE;
+.EE
+at the beginning of your program.
+This will cause malloc not to reallocate blocks even
+once they are freed;
+.B poolcheck(mainmem)
+will then detect writes to freed blocks.
+.PP
+The 
+.I trump
+library for
+.I acid
+can be used to obtain traces of malloc execution; see
+.IR acid (1).
+.SH BUGS
+The different specification of
+.I calloc
+is bizarre.
+.PP
+User errors can corrupt the storage arena.
+The most common gaffes are (1) freeing an already freed block,
+(2) storing beyond the bounds of an allocated block, and (3)
+freeing data that was not obtained from the allocator.
+When
+.I malloc
+and
+.I free
+detect such corruption, they abort.

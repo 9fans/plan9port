@@ -1,0 +1,207 @@
+.TH FLATE 3
+.SH NAME
+deflateinit, deflate, deflatezlib, deflateblock, deflatezlibblock, inflateinit, inflate, inflatezlib, inflateblock, inflatezlibblock, flateerr, mkcrctab, blockcrc, adler32 \- deflate compression
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <flate.h>
+.PP
+.ta \w'ulongmm'u
+.PP
+.B
+int	deflateinit(void)
+.PP
+.B
+int	deflate(void *wr, int (*w)(void*,void*,int),
+.br
+.B
+	void *rr, int (*r)(void*,void*,int),
+.br
+.B
+	int level, int debug)
+.PP
+.B
+int	deflatezlib(void *wr, int (*w)(void*,void*,int),
+.br
+.B
+	void *rr, int (*r)(void*,void*,int),
+.br
+.B
+	int level, int debug)
+.PP
+.B
+int	deflateblock(uchar *dst, int dsize,
+.br
+.B
+	uchar *src, int ssize,
+.br
+.B
+	int level, int debug)
+.PP
+.B
+int	deflatezlibblock(uchar *dst, int dsize,
+.br
+.B
+	uchar *src, int ssize,
+.br
+.B
+	int level, int debug)
+.PP
+.B
+int	inflateinit(void)
+.PP
+.B
+int	inflate(void *wr, int (*w)(void*, void*, int),
+.br
+.B
+	void *getr, int (*get)(void*))
+.PP
+.B
+int	inflatezlib(void *wr, int (*w)(void*, void*, int),
+.br
+.B
+	void *getr, int (*get)(void*))
+.PP
+.B
+int	inflateblock(uchar *dst, int dsize,
+.br
+.B
+	uchar *src, int ssize)
+.PP
+.B
+int	inflatezlibblock(uchar *dst, int dsize,
+.br
+.B
+	uchar *src, int ssize)
+.PP
+.B
+char	*flateerr(int error)
+.PP
+.B
+ulong	*mkcrctab(ulong poly)
+.PP
+.B
+ulong	blockcrc(ulong *tab, ulong crc, void *buf, int n)
+.PP
+.B
+ulong	adler32(ulong adler, void *buf, int n)
+.SH DESCRIPTION
+These routines compress and decompress data using the deflate compression algorithm,
+which is used for most gzip, zip, and zlib files.
+.PP
+.I Deflate
+compresses input data retrieved by calls to
+.I r
+with arguments
+.IR rr ,
+an input buffer, and a count of bytes to read.
+.I R
+should return the number of bytes read;
+end of input is signaled by returning zero, an input error by
+returning a negative number.
+The compressed output is written to
+.I w
+with arguments
+.IR wr ,
+the output data, and the number of bytes to write.
+.I W
+should return the number of bytes written;
+writing fewer than the requested number of bytes is an error.
+.I Level
+indicates the amount of computation deflate should do while compressing the data.
+Higher
+.I levels
+usually take more time and produce smaller outputs.
+Valid values are 1 to 9, inclusive; 6 is a good compromise.
+If
+.I debug
+is non-zero, cryptic debugging information is produced on standard error.
+.PP
+.I Inflate
+reverses the process, converting compressed data into uncompressed output.
+Input is retrieved one byte at a time by calling
+.I get
+with the argument
+.IR getr .
+End of input of signaled by returning a negative value.
+The uncompressed output is written to
+.IR w ,
+which has the same interface as for
+.IR deflate .
+.PP
+.I
+Deflateblock
+and
+.I inflateblock
+operate on blocks of memory but are otherwise similar to
+.I deflate
+and
+.IR inflate .
+.PP
+The zlib functions are similar, but operate on files with a zlib header and trailer.
+.PP
+.I Deflateinit
+or
+.I inflateinit
+must be called once before any call to the corresponding routines.
+.PP
+If the above routines fail,
+they return a negative number indicating the problem.
+The possible values are
+.IR FlateNoMem ,
+.IR FlateInputFail ,
+.IR FlateOutputFail ,
+.IR FlateCorrupted ,
+and 
+.IR FlateInternal .
+.I Flateerr
+converts the number into a printable message.
+.I FlateOk
+is defined to be zero,
+the successful return value for
+.IR deflateinit ,
+.IR deflate ,
+.IR deflatezlib ,
+.IR inflateinit ,
+.IR inflate ,
+and 
+.IR inflatezlib .
+The block functions return the number of bytes produced when they succeed.
+.PP
+.I Mkcrctab
+allocates
+(using
+.IR malloc (2)),
+initializes, and returns a table for rapid computation of 32 bit CRC values using the polynomial
+.IR poly .
+.I Blockcrc
+uses
+.IR tab ,
+a table returned by
+.IR mkcrctab ,
+to update
+.I crc
+for the
+.I n
+bytes of data in
+.IR buf ,
+and returns the new value.
+.I Crc
+should initially be zero.
+.I Blockcrc
+pre-conditions and post-conditions
+.I crc
+by ones complementation.
+.PP
+.I Adler32
+updates the Adler 32-bit checksum of the
+.I n
+butes of data in
+.IR buf.
+The initial value of
+.I adler
+(that is, its value after seeing zero bytes) should be 1.
+.SH SOURCE
+.B /sys/src/libflate

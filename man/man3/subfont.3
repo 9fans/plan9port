@@ -1,0 +1,235 @@
+.TH SUBFONT 3
+.SH NAME
+allocsubfont, freesubfont, installsubfont, lookupsubfont, uninstallsubfont, subfontname, readsubfont, readsubfonti, writesubfont, stringsubfont, strsubfontwidth, mkfont \- subfont manipulation
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <draw.h>
+.PP
+.ta \w'\fLSubfont* 'u
+.B
+Subfont*	allocsubfont(char *name, int n, int height, int ascent,
+.br
+.B
+	Fontchar *info, Image *i)
+.PP
+.B
+void	freesubfont(Subfont *f)
+.PP
+.B
+void	installsubfont(char *name, Subfont *f)
+.PP
+.B
+Subfont*	lookupsubfont(Subfont *f)
+.PP
+.B
+void	uninstallsubfont(Subfont *f)
+.PP
+.B
+Subfont*	readsubfont(Display *d, char *name, int fd, int dolock)
+.PP
+.B
+Subfont*	readsubfonti(Display *d, char *name, int fd, Image *im,
+.br
+.B
+	  int dolock)
+.PP
+.B
+int	writesubfont(int fd, Subfont *f)
+.PP
+.B
+Point	stringsubfont(Image *dst, Point p, Image *src,
+.br
+.B
+	Subfont *f, char *str)
+.PP
+.B
+Point	strsubfontwidth(Subfont *f, char *s)
+.PP
+.B
+Font*	mkfont(Subfont *f, Rune min)
+.SH DESCRIPTION
+Subfonts are the components of fonts that hold the character images.
+A font comprises an array of subfonts; see
+.IR cachechars (2).
+A new
+.B Subfont
+is allocated and initialized with
+.IR allocsubfont .
+See
+.IR cachechars (2)
+for the meaning of
+.IR n ,
+.IR height ,
+.IR ascent ,
+and
+.IR info ,
+and the arrangement of characters in
+image
+.IR i .
+The
+.I name
+is used to identify the subfont in the subfont cache; see the descriptions
+.I lookupsubfont
+and
+.IR installsubfont
+.RI ( q.v. ).
+The appropriate fields of the returned
+.B Subfont
+structure are set to
+the passed arguments, and the image is registered as a subfont
+with the graphics device
+.IR draw (3).
+.I Allocsubfont
+returns 0 on failure.
+.PP
+.I Freesubfont
+frees a subfont and all its associated structure including the
+associated image.
+Since
+.I freesbufont
+calls
+.I free
+on
+.BR f->info ,
+if
+.B f->info
+was not allocated by
+.IR malloc (2)
+it should be zeroed before calling
+.IR subffree .
+.PP
+A number of subfonts are kept in external files.
+The convention for naming subfont files is:
+.IP
+.B /lib/font/bit/\fIname\fP/\fIclass\fP.\fIsize\fP.\fIdepth
+.PD
+.PP
+where
+.I size
+is approximately the height in pixels of the lower case letters
+(without ascenders or descenders).
+If there is only one version of the subfont, the
+.BI \&. depth
+extension is elided.
+.I Class
+describes the range of runes encoded in the subfont:
+.BR ascii ,
+.BR latin1 ,
+.BR greek ,
+etc.
+.PP
+Subfonts are cached within the program, so a subfont shared between fonts will be loaded only once.
+.I Installsubfont
+stores subfont
+.I f
+under the given
+.IR name ,
+typically the file name from which it was read.
+.I Uninstallsubfont
+removes the subfont from the cache.
+Finally,
+.I lookupsubfont
+searches for  a subfont with the given
+.I name
+in the cache and returns it, or nil if no such subfont exists.
+.PP
+.I Subfontname
+is used to locate subfonts given their names within the fonts.
+The default version constructs a name given the
+.IR cfname ,
+its name within the font,
+.IR fname ,
+the name of the font, and the maximum depth suitable for this subfont.
+This interface allows a partially specified name within a font to be resolved
+at run-time to the name of a file holding a suitable subfont.
+Although it is principally a routine internal to the library,
+.I subfontname
+may be substituted by the application to provide a less file-oriented subfont naming scheme.
+.PP
+The format of a subfont file is described in
+.IR font (6).
+Briefly, it contains a image with all the characters in it,
+followed by a subfont header, followed by character information.
+.I Readsubfont
+reads a subfont from the file descriptor
+.IR fd .
+The
+.I name
+is used to identify the font in the cache.
+The
+.I dolock
+argument specifies whether the routine should synchronize
+use of the
+.I Display
+with other processes; for single-threaded applications it may
+always be zero.
+.I Readsubfonti
+does the same for a subfont whose associated image is already in memory; it is passed as the
+argument
+.IR im .
+In other words,
+.I readsubfonti
+reads only the header and character information from the file descriptor.
+.PP
+.I Writesubfont
+writes on
+.I fd
+the part of a subfont file that comes after the image.  It should be preceded by
+a call to
+.IR writeimage
+(see
+.IR allocimage (2)).
+.PP
+.I Stringsubfont
+is analogous to
+.B string
+(see
+.IR draw (2))
+for subfonts.  Rather than use the underlying font caching primitives,
+it calls
+.B draw
+for each character.
+It is intended for stand-alone environments such as operating system kernels.
+.I Strsubfontwidth
+returns the width of the string
+.I s
+in
+as it would appear if drawn with
+.I stringsubfont
+in
+.B Subfont
+.BR f .
+.PP
+.I Mkfont
+takes as argument a
+.B Subfont
+.I s
+and returns a pointer to a 
+.B Font
+that maps the character images in
+.I s
+into the
+.B Runes
+.I min
+to
+.IB min + s ->n-1\f1.
+.SH FILES
+.TF /lib/font/bit
+.TP
+.B /lib/font/bit
+bitmap font file tree
+.SH SOURCE
+.B /sys/src/libdraw
+.SH SEE ALSO
+.IR graphics (2),
+.IR allocimage (2),
+.IR draw (2),
+.IR cachechars (2),
+.IR image (6),
+.IR font (6)
+.SH DIAGNOSTICS
+All of the functions use the graphics error function (see
+.IR graphics (2)).

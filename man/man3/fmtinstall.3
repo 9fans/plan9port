@@ -1,22 +1,17 @@
 .TH FMTINSTALL 3
-.de EX
-.nf
-.ft B
-..
-.de EE
-.fi
-.ft R
-..
 .SH NAME
-fmtinstall, dofmt, fmtprint, fmtvprint, fmtstrcpy, fmtfdinit, fmtfdflush, fmtstrinit, fmtstrflush \- support for user-defined print formats and output routines
+fmtinstall, dofmt, dorfmt, fmtprint, fmtvprint, fmtrune, fmtstrcpy, fmtrunestrcpy, fmtfdinit, fmtfdflush, fmtstrinit, fmtstrflush, runefmtstrinit, runefmtstrflush, errfmt \- support for user-defined print formats and output routines
 .SH SYNOPSIS
-.B #include <fmt.h>
+.B #include <u.h>
+.br
+.B #include <libc.h>
 .PP
 .ft L
 .nf
 .ta \w'    'u +\w'    'u +\w'    'u +\w'    'u +\w'    'u
 typedef struct Fmt	Fmt;
 struct Fmt{
+	uchar	runes;		/* output buffer is runes or chars? */
 	void	*start;		/* of buffer */
 	void	*to;		/* current place in the buffer */
 	void	*stop;		/* end of the buffer; overwritten if flush fails */
@@ -24,10 +19,10 @@ struct Fmt{
 	void	*farg;		/* to make flush a closure */
 	int		nfmt;		/* num chars formatted so far */
 	va_list	args;		/* args passed to dofmt */
-	int		r;			/* % format character */
+	int		r;			/* % format Rune */
 	int		width;
 	int		prec;
-	unsigned long	flags;
+	ulong	flags;
 };
 
 enum{
@@ -43,10 +38,8 @@ enum{
 	FmtLong		= FmtShort << 1,
 	FmtVLong	= FmtLong << 1,
 	FmtComma	= FmtVLong << 1,
-	FmtByte		= FmtComma << 1,
-	FmtLDouble	= FmtByte << 1,
 
-	FmtFlag		= FmtLDouble << 1
+	FmtFlag		= FmtComma << 1
 };
 .fi
 .PP
@@ -67,10 +60,20 @@ int	fmtstrinit(Fmt *f);
 char*	fmtstrflush(Fmt *f);
 .PP
 .B
+int	runefmtstrinit(Fmt *f);
+.PP
+.B
+Rune*	runefmtstrflush(Fmt *f);
+
+.PP
+.B
 int	fmtinstall(int c, int (*fn)(Fmt*));
 .PP
 .B
 int	dofmt(Fmt *f, char *fmt);
+.PP
+.B
+int	dorfmt(Fmt*, Rune *fmt);
 .PP
 .B
 int	fmtprint(Fmt *f, char *fmt, ...);
@@ -83,18 +86,24 @@ int	fmtrune(Fmt *f, int r);
 .PP
 .B
 int	fmtstrcpy(Fmt *f, char *s);
+.PP
+.B
+int	fmtrunestrcpy(Fmt *f, Rune *s);
+.PP
+.B
+int	errfmt(Fmt *f);
 .SH DESCRIPTION
 The interface described here allows the construction of custom
-.IR print (3)
+.IR print (2)
 verbs and output routines.
 In essence, they provide access to the workings of the formatted print code.
 .PP
 The
-.IR print (3)
+.IR print (2)
 suite maintains its state with a data structure called
 .BR Fmt .
 A typical call to
-.IR print (3)
+.IR print (2)
 or its relatives initializes a
 .B Fmt
 structure, passes it to subsidiary routines to process the output,
@@ -106,7 +115,7 @@ are unimportant to outside users, except insofar as the general
 design influences the interface.
 The
 .B Fmt
-records
+records whether the output is in runes or bytes,
 the verb being processed, its precision and width,
 and buffering parameters.
 Most important, it also records a
@@ -142,15 +151,15 @@ Then call
 or
 .IR fmtvprint
 to generate the output.
-These behave just like
+These behave like
 .B fprint
 (see
-.IR print (3))
+.IR print (2))
 or
 .B vfprint
 except that the characters are buffered until
 .I fmtfdflush
-is called.
+is called and the return value is either 0 or \-1.
 A typical example of this sequence appears in the Examples section.
 .PP
 The same basic sequence applies when outputting to an allocated string:
@@ -166,6 +175,10 @@ to generate the output.
 Finally,
 .I fmtstrflush
 will return the allocated string, which should be freed after use.
+To output to a rune string, use
+.I runefmtstrinit
+and
+.IR runefmtstrflush .
 Regardless of the output style or type,
 .I fmtprint
 or
@@ -194,7 +207,7 @@ In
 are the width and precision, and
 .IB fp ->flags
 the decoded flags for the verb (see
-.IR print (3)
+.IR print (2)
 for a description of these items).
 The standard flag values are:
 .B FmtSign
@@ -211,12 +224,8 @@ The standard flag values are:
 .RB ( l ),
 .B FmtShort
 .RB ( h ),
-.B FmtByte
-.RB ( hh ),
 .B FmtUnsigned
 .RB ( u ),
-.B FmtLDouble
-.RB ( L ),
 and
 .B FmtVLong
 .RB ( ll ).
@@ -242,8 +251,7 @@ If
 .IB fp ->r
 is a flag,
 .I fn
-should return a negative value:
-the negation of one of the above flag values, or some otherwise unused power of two.
+should return one.
 All interpretation of
 .IB fp ->width\f1,
 .IB fp ->prec\f1,
@@ -259,30 +267,47 @@ and
 may be called to
 help prepare output in custom conversion routines.
 However, these functions clear the width, precision, and flags.
-The function
+Both functions return 0 for success and \-1 for failure.
+.PP
+The functions
 .I dofmt
-is the underlying formatter; it
-uses the existing contents of
+and
+.I dorfmt
+are the underlying formatters; they
+use the existing contents of
 .B Fmt
 and should be called only by sophisticated conversion routines.
-All these routines return the number of characters
+These routines return the number of characters (bytes of UTF or runes)
 produced.
 .PP
 Some internal functions may be useful to format primitive types.
 They honor the width, precision and flags as described in
-.IR print (3).
+.IR print (2).
 .I Fmtrune
 formats a single character
 .BR r .
 .I Fmtstrcpy
 formats a string
+.BR s ;
+.I fmtrunestrcpy
+formats a rune string
 .BR s .
+.I Errfmt
+formats the system error string.
 All these routines return zero for successful execution.
+Conversion routines that call these functions will work properly
+regardless of whether the output is bytes or runes.
+.PP
+.IR 2c (1)
+describes the C directive
+.B #pragma
+.B varargck
+that can be used to provide type-checking for custom print verbs and output routines.
 .SH EXAMPLES
 This function prints an error message with a variable
 number of arguments and then quits.
 Compared to the corresponding example in
-.IR print (3),
+.IR print (2),
 this version uses a smaller buffer, will never truncate
 the output message, but might generate multiple
 .B write
@@ -290,6 +315,7 @@ system calls to produce its output.
 .IP
 .EX
 .ta 6n +6n +6n +6n +6n +6n +6n +6n +6n
+#pragma	varargck	argpos	error	1
 
 void fatal(char *fmt, ...)
 {
@@ -316,6 +342,8 @@ struct {
 	double	r, i;
 } Complex;
 
+#pragma	varargck	type	"X"	Complex
+
 int
 Xfmt(Fmt *f)
 {
@@ -327,20 +355,19 @@ Xfmt(Fmt *f)
 
 main(...)
 {
-	Complex x;
-
-	x.r = 1.5;
-	x.i = -2.3;
+	Complex x = (Complex){ 1.5, -2.3 };
 
 	fmtinstall('X', Xfmt);
 	print("x = %X\en", x);
 }
 .EE
+.SH SOURCE
+.B /sys/src/libc/fmt
 .SH SEE ALSO
-.IR print (3)
-.SH HISTORY
-This formatted print library originally
-appeared as part of the Plan 9 C library.
+.IR print (2),
+.IR utf (6),
+.IR errstr (2)
+.SH DIAGNOSTICS
+These routines return negative numbers or nil for errors and set
+.IR errstr .
 .SH BUGS
-The Plan 9 version supports Unicode strings and produces UTF output.
-This version assumes that characters are always represented by 1-byte values.

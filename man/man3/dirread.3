@@ -1,0 +1,103 @@
+.TH DIRREAD 3
+.SH NAME
+dirread, dirreadall \- read directory
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+long dirread(int fd, Dir **buf)
+.PP
+.B
+long dirreadall(int fd, Dir **buf)
+.PP
+.B
+#define	STATMAX	65535U
+.PP
+.B
+#define	DIRMAX	(sizeof(Dir)+STATMAX)
+.SH DESCRIPTION
+The data returned by a
+.IR read (2)
+on a directory is a set of complete directory entries
+in a machine-independent format, exactly equivalent to
+the result of a
+.IR stat (2)
+on each file or subdirectory in the directory.
+.I Dirread
+decodes the directory entries into a machine-dependent form.
+It reads from
+.IR fd
+and unpacks the data into an array of
+.B Dir
+structures
+whose address is returned in
+.B *buf
+(see
+.IR stat (2)
+for the layout of a
+.BR Dir ).
+The array is allocated with
+.IR malloc (2)
+each time
+.I dirread
+is called.
+.PP
+.I Dirreadall
+is like
+.IR dirread ,
+but reads in the entire directory; by contrast,
+.I dirread
+steps through a directory one
+.IR read (2)
+at a time.
+.PP
+Directory entries have variable length.
+A successful
+.I read
+of a directory always returns an integral number of complete directory entries;
+.I dirread
+always returns complete
+.B Dir
+structures.
+See
+.IR read (5)
+for more information.
+.PP
+The constant
+.B STATMAX
+is the maximum size that a directory entry can occupy.
+The constant
+.B DIRMAX
+is an upper limit on the size necessary to hold a
+.B Dir
+structure and all the associated data.
+.PP
+.I Dirread
+and
+.I dirreadall
+return the number of
+.B Dir
+structures filled in
+.BR buf .
+The file offset is advanced by the number of bytes actually read.
+.SH SOURCE
+.B /sys/src/libc/9sys/dirread.c
+.SH SEE ALSO
+.IR intro (2),
+.IR open (2),
+.IR read (2)
+.SH DIAGNOSTICS
+.I Dirread
+and
+.I Dirreadall
+return zero for end of file and a negative value for error.
+In either case,
+.B *buf
+is set to
+.B nil
+so the pointer can always be freed with impunity.
+.PP
+These functions set
+.IR errstr .

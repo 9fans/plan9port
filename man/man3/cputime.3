@@ -1,0 +1,34 @@
+.TH CPUTIME 3
+.SH NAME
+cputime, times \- cpu time in this process and children
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLdouble 'u
+.B
+int	times(long t[4])
+.PP
+.B
+double	cputime(void)
+.SH DESCRIPTION
+If
+.I t
+is non-null,
+.I times
+fills it in
+with the number of milliseconds spent in user code, system calls,
+child processes in user code, and child processes in system calls.
+.I Cputime
+returns the sum of those same times, converted to seconds.
+.I Times
+returns the elapsed real time, in milliseconds, that the process has been running.
+.PP
+These functions read
+.BR /dev/cputime ,
+opening that file when they are first called.
+.SH SOURCE
+.B /sys/src/libc/9sys
+.SH SEE ALSO
+.IR cons (3)

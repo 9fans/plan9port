@@ -1,0 +1,98 @@
+.TH SETJMP 3
+.SH NAME
+setjmp, longjmp, notejmp \- non-local goto
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLvoid 'u
+.B
+int	setjmp(jmp_buf env)
+.PP
+.B
+void	longjmp(jmp_buf env, int val)
+.PP
+.B
+void	notejmp(void *uregs, jmp_buf env, int val)
+.SH DESCRIPTION
+These routines are useful for dealing with errors
+and interrupts encountered in
+a low-level subroutine of a program.
+.PP
+.I Setjmp
+saves its stack environment in
+.I env
+for later use by
+.IR longjmp .
+It returns value 0.
+.PP
+.I Longjmp
+restores the environment saved by the last call of
+.IR setjmp .
+It then causes execution to
+continue as if the call of
+.I setjmp
+had just returned with value
+.IR val .
+The invoker of
+.I setjmp
+must not itself have returned in the interim.
+All accessible data have values as of the time
+.I longjmp
+was called.
+.PP
+.I Notejmp
+is the same as
+.I longjmp
+except that it is to be called from within a note handler (see
+.IR notify (2)).
+The
+.I uregs
+argument should be the first argument passed to the note handler.
+.PP
+.I Setjmp
+and
+.I longjmp
+can also be used to switch stacks.
+Defined in
+.B </$objtype/u.h>
+are several macros that can be used to build
+.B jmp_bufs
+by hand.  The following code establishes a
+.B jmp_buf
+.i label
+that may be called by
+.I longjmp
+to begin execution in a function
+.BR f
+with 1024 bytes of stack:
+.IP
+.EX
+#include <u.h>
+#include <libc.h>
+
+jmp_buf label;
+#define NSTACK 1024
+char stack[NSTACK];
+
+void
+setlabel(void)
+{
+	label[JMPBUFPC] = ((ulong)f+JMPBUFDPC);
+	/* -2 leaves room for old pc and new pc in frame */
+	label[JMPBUFSP =
+	        (ulong)(&stack[NSTACK-2*sizeof(ulong*)]);
+}
+.EE
+.SH SOURCE
+.B /sys/src/libc/$objtype/setjmp.s
+.br
+.B /sys/src/libc/$objtype/notejmp.c
+.SH SEE ALSO
+.IR notify (2)
+.SH BUGS
+.PP
+.I Notejmp
+cannot recover from an address trap or bus error (page fault) on the 680x0
+architectures.

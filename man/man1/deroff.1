@@ -1,0 +1,117 @@
+.TH DEROFF 1 
+.SH NAME
+deroff, delatex \- remove formatting requests
+.SH SYNOPSIS
+.B deroff
+[
+.I option ...
+]
+.I file ...
+.PP
+.B delatex
+.I file
+.SH DESCRIPTION
+.I Deroff
+reads each file in sequence
+and removes all
+.I nroff
+and
+.IR troff (1)
+requests and non-text arguments, backslash constructions,
+and constructs of preprocessors such as
+.IR eqn (1),
+.IR pic (1),
+and
+.IR tbl (1).
+Remaining text is written on the standard output.
+.I Deroff
+follows files included by
+.L .so
+and
+.L .nx
+commands;
+if a file has already been included, a
+.L .so
+for that file is ignored and a
+.L .nx
+terminates execution.
+If no input file is given,
+.I deroff
+reads from standard input.
+.PP
+The options are
+.TP
+.B -w
+Output a word list, one `word' (string of letters, digits, and
+properly embedded ampersands and apostrophes,
+beginning with a letter) per line.
+Other characters are skipped.
+Otherwise, the output follows the original, with the deletions mentioned above.
+.TP
+.B -_
+Like
+.BR -w ,
+but consider underscores to be alphanumeric rather than punctuation.
+.TP
+.B -i
+Ignore
+.L .so
+and
+.L .nx
+requests.
+.TP
+.BR -ms
+.PD0
+.TP
+.B -mm
+Remove titles, attachments, etc., as well as ordinary 
+.IR troff
+constructs, from
+.IR ms (6)
+or
+.I mm
+documents.
+.PD
+.TP
+.B -ml
+Same as
+.BR -mm ,
+but remove lists as well.
+.PP
+.I Delatex
+does for
+.I tex
+and
+.I latex
+(see
+.IR tex (1))
+files what
+.B deroff -wi
+does for
+.I troff
+files.
+.SH SOURCE
+.B /sys/src/cmd/deroff.c
+.br
+.B /sys/src/cmd/tex/local/delatex.c
+.SH "SEE ALSO"
+.IR troff (1), 
+.IR tex (1),
+.IR spell (1)
+.SH BUGS
+These filters are not complete interpreters of
+.I troff
+or
+.IR tex .
+For example, macro definitions containing
+.L \e$
+cause chaos in
+.IR deroff
+when the popular
+.L $$
+delimiters for
+.I eqn
+are in effect. 
+.br
+Text inside macros is emitted at place of
+definition, not place of call.

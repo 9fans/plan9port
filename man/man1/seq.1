@@ -1,0 +1,75 @@
+.TH SEQ 1
+.SH NAME
+seq \- print sequences of numbers
+.SH SYNOPSIS
+.B seq
+[
+.B -w
+]
+[
+.BI -f format
+]
+[
+.I first
+[
+.I incr
+]
+]
+.I last
+.SH DESCRIPTION
+.I Seq
+prints a sequence of numbers, one per line, from
+.I first
+(default 1) to as near 
+.I last
+as possible, in increments of
+.I incr
+(default 1).
+The loop is:
+.sp
+.EX
+  for(val = min; val <= max; val += incr) print val;
+.EE
+.sp
+The numbers are interpreted as floating point.
+.PP
+Normally integer values are printed as decimal integers.
+The options are
+.TP "\w'\fL-f \fIformat\fLXX'u"
+.BI -f format
+Use the 
+.IR print (2)-style
+.I format
+.IR print
+for printing each (floating point) number.
+The default is 
+.LR %g .
+.TP
+.B -w
+Equalize the widths of all numbers by padding with
+leading zeros as necessary.
+Not effective with option
+.BR -f ,
+nor with numbers in exponential notation.
+.SH EXAMPLES
+.TP
+.L
+seq 0 .05 .1
+Print
+.BR "0 0.05 0.1" 
+(on separate lines).
+.TP
+.L
+seq -w 0 .05 .1
+Print
+.BR "0.00 0.05 0.10" .
+.SH SOURCE
+.B /sys/src/cmd/seq.c
+.SH BUGS
+Option
+.B -w
+always surveys every value in advance.
+Thus
+.L
+seq -w 1000000000
+is a painful way to get an `infinite' sequence.

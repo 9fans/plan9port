@@ -1,0 +1,160 @@
+.TH CTYPE 3
+.SH NAME
+isalpha, isupper, islower, isdigit, isxdigit, isalnum, isspace, ispunct, isprint, isgraph, iscntrl, isascii, toascii, _toupper, _tolower, toupper, tolower \- ASCII character classification
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <ctype.h>
+.PP
+.if t .2C
+.B isalpha(c)
+.PP
+.B isupper(c)
+.PP
+.B islower(c)
+.PP
+.B isdigit(c)
+.PP
+.B isxdigit(c)
+.PP
+.B isalnum(c)
+.PP
+.B isspace(c)
+.PP
+.B ispunct(c)
+.PP
+.B isprint(c)
+.PP
+.B isgraph(c)
+.PP
+.B iscntrl(c)
+.PP
+.B isascii(c)
+.PP
+.B _toupper(c)
+.PP
+.B _tolower(c)
+.PP
+.B toupper(c)
+.PP
+.B tolower(c)
+.PP
+.B toascii(c)
+.if t .1C
+.SH DESCRIPTION
+These macros classify
+.SM ASCII\c
+-coded integer values
+by table lookup.
+Each is a predicate returning nonzero for true,
+zero for false.
+.I Isascii
+is defined on all integer values; the rest
+are defined only where
+.I isascii
+is true and on the single non-\c
+.SM ASCII
+value
+.BR EOF ;
+see
+.IR fopen (2).
+.TP "\w'isalnum  'u"
+.I isalpha
+.I c
+is a letter, a\-z or A\-Z
+.TP
+.I isupper
+.I c
+is an upper case letter, A\-Z
+.TP
+.I islower
+.I c
+is a lower case letter, a\-z
+.TP
+.I isdigit
+.I c
+is a digit, 0\-9
+.TP
+.I isxdigit
+.I c
+is a hexadecimal digit, 0\-9 or a\-f or A\-F
+.TP
+.I isalnum
+.I c
+is an alphanumeric character, a\-z or A\-Z or 0\-9
+.TP
+.I isspace
+.I c
+is a space, horizontal tab, newline, vertical tab, formfeed, or carriage return
+(0x20, 0x9, 0xA, 0xB, 0xC, 0xD)
+.TP
+.I ispunct
+.I c
+is a punctuation character
+(one of
+.L
+!"#$%&'()*+,-./:;<=>?@[\e]^_`{|}~\fR)
+.TP
+.I isprint
+.I c
+is a printing character, 0x20 (space)
+through 0x7E (tilde) 
+.TP
+.I isgraph
+.I c
+is a visible printing character, 0x21 (exclamation) through 0x7E
+(tilde)
+.TP
+.I iscntrl
+.I c
+is a delete character, 0x7F,
+or ordinary control character, 0x0 through 0x1F
+.TP
+.I isascii
+.I c
+is an
+.SM ASCII
+character, 0x0 through 0x7F
+.PP
+.I Toascii
+is not a classification macro;
+it converts its argument to
+.SM ASCII
+range by
+.IR and ing
+with 0x7F.
+.PP
+If
+.I c
+is an upper case letter,
+.I tolower
+returns the lower case version of the character;
+otherwise it returns the original character.
+.I Toupper
+is similar, returning the upper case version of a character
+or the original character.
+.I Tolower
+and
+.I toupper
+are functions;
+.I _tolower
+and
+.I _toupper
+are corresponding macros which should only be used when it
+is known that the argument is upper case or lower case, respectively.
+.SH SOURCE
+.TF /sys/src/libc/port/ctype.c
+.TP
+.B /sys/include/ctype.h
+for the macros.
+.TP
+.B /sys/src/libc/port/ctype.c
+for the tables.
+.SH "SEE ALSO
+.IR isalpharune (2)
+.SH BUGS
+These macros are
+.SM ASCII \c
+-centric.

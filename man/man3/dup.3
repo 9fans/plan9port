@@ -1,0 +1,42 @@
+.TH DUP 3
+.SH NAME
+dup \- duplicate an open file descriptor
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int dup(int oldfd, int newfd)
+.SH DESCRIPTION
+Given a file descriptor,
+.IR oldfd ,
+referring to an open file,
+.I dup
+returns a new file descriptor referring to the same file.
+.PP
+If
+.I newfd
+is \-1 the system chooses the lowest available file descriptor.
+Otherwise,
+.I dup
+will use
+.I newfd
+for the new file descriptor
+(closing any old file associated with
+.IR newfd ).
+File descriptors are allocated dynamically,
+so to prevent unwarranted growth of the file descriptor table,
+.I dup
+requires that
+.I newfd
+be no greater than 20 more than the highest file descriptor ever used by
+the program.
+.SH SOURCE
+.B /sys/src/libc/9syscall
+.SH SEE ALSO
+.IR intro (2),
+.IR dup (3)
+.SH DIAGNOSTICS
+Sets
+.IR errstr .

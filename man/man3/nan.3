@@ -1,0 +1,44 @@
+.TH NAN 3
+.SH NAME
+NaN, Inf, isNaN, isInf \- not-a-number and infinity functions
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLdouble 'u
+.B
+double	NaN(void)
+.PP
+.B
+double	Inf(int)
+.PP
+.B
+int	isNaN(double)
+.PP
+.B
+int	isInf(double, int)
+.SH DESCRIPTION
+The IEEE floating point standard defines values called
+`not-a-number' and positive and negative `infinity'.
+These values can be produced by such things as overflow
+and division by zero.
+Also, the library functions sometimes return them when
+the arguments are not in the domain, or the result is
+out of range.
+.PP
+.I NaN
+returns a double that is not-a-number.
+.I IsNaN
+returns true if its argument is not-a-number.
+.PP
+.IR Inf ( i )
+returns positive infinity if
+.I i
+is greater than or equal to zero,
+else negative infinity.
+.I IsInf
+returns true if its first argument is infinity
+with the same sign as the second argument.
+.SH SOURCE
+.B /sys/src/libc/port/nan.c

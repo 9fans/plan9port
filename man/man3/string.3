@@ -1,0 +1,236 @@
+.TH STRING 3
+.SH NAME
+s_alloc, s_append, s_array, s_copy, s_error, s_free, s_incref, s_memappend, s_nappend, s_new, s_newalloc, s_parse, s_reset, s_restart, s_terminate, s_tolower, s_putc, s_unique, s_grow, s_read, s_read_line, s_getline \- extensible strings
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <String.h>
+.PP
+.B
+String*	s_new(void)
+.br
+.B
+void		s_free(String *s)
+.br
+.B
+String*	s_newalloc(int n)
+.br
+.B
+String*	s_array(char *p, int n)
+.br
+.B
+String*	s_grow(String *s, int n)
+.PP
+.B
+void		s_putc(String *s, int c)
+.br
+.B
+void		s_terminate(String *s)
+.br
+.B
+String*	s_reset(String *s)
+.br
+.B
+String*	s_restart(String *s)
+.br
+.B
+String*	s_append(String *s, char *p)
+.br
+.B
+String*	s_nappend(String *s, char *p, int n)
+.br
+.B
+String*	s_memappend(String *s, char *p, int n)
+.br
+.B
+String*	s_copy(char *p)
+.br
+.B
+String*	s_parse(String *s1, String *s2)
+.br
+.PP
+.B
+void		s_tolower(String *s)
+.PP
+.B
+String*	s_incref(String *s)
+.br
+.B
+String*	s_unique(String *s)
+.PP
+.B
+#include <bio.h>
+.PP
+.B
+int		s_read(Biobuf *b, String *s, int n)
+.br
+.B
+char*	s_read_line(Biobuf *b, String *s)
+.br
+.B
+char*	s_getline(Biobuf *b, String *s)
+.SH DESCRIPTION
+.PP
+These routines manipulate extensible strings.  
+The basic type is
+.BR String ,
+which points to an array of characters.  The string
+maintains pointers to the beginning and end of the allocated
+array.  In addition a finger pointer keeps track of where 
+parsing will start (for
+.IR s_parse )
+or new characters will be added (for
+.IR s_putc ,
+.IR s_append ,
+and
+.IR s_nappend ).
+The structure, and a few useful macros are:
+.sp
+.EX
+typedef struct String {
+	Lock;
+	char	*base;	/* base of String */
+	char	*end;	/* end of allocated space+1 */
+	char	*ptr;	/* ptr into String */
+	...
+} String;
+
+#define s_to_c(s) ((s)->base)
+#define s_len(s) ((s)->ptr-(s)->base)
+#define s_clone(s) s_copy((s)->base)
+.EE
+.PP
+.I S_to_c
+is used when code needs a reference to the character array.
+Using
+.B s->base
+directly is frowned upon since it exposes too much of the implementation.
+.SS "allocation and freeing
+.PP
+A string must be allocated before it can be used.
+One normally does this using
+.IR s_new ,
+giving the string an initial allocation of
+128 bytes.
+If you know that the string will need to grow much
+longer, you can use
+.I s_newalloc
+instead, specifying the number of bytes in the
+initial allocation.
+.PP
+.I S_free
+causes both the string and its character array to be freed.
+.PP
+.I S_grow
+grows a string's allocation by a fixed amount.  It is useful if
+you are reading directly into a string's character array but should
+be avoided if possible.
+.PP
+.I S_array
+is used to create a constant array, that is, one whose contents
+won't change.  It points directly to the character array
+given as an argument.  Tread lightly when using this call.
+.SS "Filling the string
+After its initial allocation, the string points to the beginning
+of an allocated array of characters starting with
+.SM NUL.
+.PP
+.I S_putc
+writes a character into the string at the
+pointer and advances the pointer to point after it.
+.PP
+.I S_terminate
+writes a
+.SM NUL
+at the pointer but doesn't advance it.
+.PP
+.I S_restart
+resets the pointer to the begining of the string but doesn't change the contents.
+.PP
+.I S_reset
+is equivalent to
+.I s_restart
+followed by
+.IR s_terminate .
+.PP
+.I S_append
+and
+.I s_nappend
+copy characters into the string at the pointer and
+advance the pointer.  They also write a
+.SM NUL
+at
+the pointer without advancing the pointer beyond it.
+Both routines stop copying on encountering a
+.SM NUL.
+.I S_memappend
+is like
+.I s_nappend
+but doesn't stop at a
+.SM NUL.
+.PP
+If you know the initial character array to be copied into a string,
+you can allocate a string and copy in the bytes using
+.IR s_copy .
+This is the equivalent of a
+.I s_new
+followed by an
+.IR s_append .
+.PP
+.I S_parse
+copies the next white space terminated token from
+.I s1
+to
+the end of 
+.IR s2 .
+White space is defined as space, tab,
+and newline.  Both single and double quoted strings are treated as
+a single token.  The bounding quotes are not copied.
+There is no escape mechanism. 
+.PP
+.I S_tolower
+converts all
+.SM ASCII
+characters in the string to lower case.
+.SS Multithreading
+.PP
+.I S_incref
+is used by multithreaded programs to avoid having the string memory
+released until the last user of the string performs an
+.IR s_free .
+.I S_unique
+returns a unique copy of the string: if the reference count it
+1 it returns the string, otherwise it returns an
+.I s_clone
+of the string.
+.SS "Bio interaction
+.PP
+.I S_read
+reads the requested number of characters through a
+.I Biobuf
+into a string.  The string is grown as necessary.
+An eof or error terminates the read.
+The number of bytes read is returned.
+The string is null terminated.
+.PP
+.I S_read_line
+reads up to and including the next newline and returns
+a pointer to the beginning of the bytes read.
+An eof or error terminates the read.
+The string is null terminated.
+.PP
+.I S_getline
+reads up to the next newline and returns
+a pointer to the beginning of the bytes read.  Leading
+spaces and tabs and the trailing newline are all discarded.
+.I S_getline
+will recursively read through files included with
+.B #include
+and discard all other lines beginning with
+.BR # .
+.SH SOURCE
+.B /sys/src/libString
+.SH SEE ALSO
+.IR bio (2)

@@ -1,0 +1,821 @@
+.TH DRAW 3
+.SH NAME
+Image, draw, gendraw, drawreplxy, drawrepl,
+replclipr, line, poly, fillpoly, bezier, bezspline, fillbezier, fillbezspline, ellipse,
+fillellipse, arc, fillarc, icossin, icossin2, border, string, stringn,
+runestring, runestringn, stringbg, stringnbg, runestringbg,
+runestringnbg, _string, ARROW, drawsetdebug \- graphics functions
+.de PB
+.PP
+.ft L
+.nf
+..
+.SH SYNOPSIS
+.de PB
+.PP
+.ft L
+.nf
+..
+.PB
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+.PB
+typedef
+struct Image
+{
+	Display	*display;	/* display holding data */
+	int		id;		/* id of system-held Image */
+	Rectangle	r;		/* rectangle in data area, local coords */
+	Rectangle clipr;	/* clipping region */
+	ulong	chan;	/* pixel channel format descriptor */
+	int		depth;	/* number of bits per pixel */
+	int		repl;	/* flag: data replicates to tile clipr */
+	Screen	*screen;	/* 0 if not a window */
+	Image	*next;	/* next in list of windows */
+} Image;
+.PB
+typedef enum
+{
+	/* Porter-Duff compositing operators */
+	Clear	= 0,
+.sp 0.1
+	SinD	= 8,
+	DinS	= 4,
+	SoutD	= 2,
+	DoutS	= 1,
+.sp 0.1
+	S		= SinD|SoutD,
+	SoverD	= SinD|SoutD|DoutS,
+	SatopD	= SinD|DoutS,
+	SxorD	= SoutD|DoutS,
+.sp 0.1
+	D		= DinS|DoutS,
+	DoverS	= DinS|DoutS|SoutD,
+	DatopS	= DinS|SoutD,
+	DxorS	= DoutS|SoutD,	/* == SxorD */
+.sp 0.1
+	Ncomp = 12,
+} Drawop;
+.PB
+.PD 0
+.ta +\w'\fL      'u +\w'\fL    'u +6n +4n
+void	draw(Image *dst, Rectangle r, Image *src,
+		Image *mask, Point p)
+.PB
+void	drawop(Image *dst, Rectangle r, Image *src,
+		Image *mask, Point p, Drawop op)
+.PB
+void	gendraw(Image *dst, Rectangle r, Image *src, Point sp,
+		Image *mask, Point mp)
+.PB
+void	gendrawop(Image *dst, Rectangle r, Image *src, Point sp,
+		Image *mask, Point mp, Drawop op)
+.PB
+int	drawreplxy(int min, int max, int x)
+.PB
+Point	drawrepl(Rectangle r, Point p)
+.PB
+void	replclipr(Image *i, int repl, Rectangle clipr)
+.PB
+void	line(Image *dst, Point p0, Point p1, int end0, int end1,
+		int radius, Image *src, Point sp)
+.PB
+void	lineop(Image *dst, Point p0, Point p1, int end0, int end1,
+		int radius, Image *src, Point sp, Drawop op)
+.PB
+void	poly(Image *dst, Point *p, int np, int end0, int end1,
+		int radius, Image *src, Point sp)
+.PB
+void	polyop(Image *dst, Point *p, int np, int end0, int end1,
+		int radius, Image *src, Point sp, Drawop op)
+.PB
+void	fillpoly(Image *dst, Point *p, int np, int wind,
+		Image *src, Point sp)
+.PB
+void	fillpolyop(Image *dst, Point *p, int np, int wind,
+		Image *src, Point sp, Drawop op)
+.PB
+int	bezier(Image *dst, Point p0, Point p1, Point p2, Point p3,
+		int end0, int end1, int radius, Image *src, Point sp)
+.PB
+int	bezierop(Image *dst, Point p0, Point p1, Point p2, Point p3,
+		int end0, int end1, int radius, Image *src, Point sp,
+		Drawop op)
+.PB
+int	bezspline(Image *dst, Point *pt, int npt, int end0, int end1,
+		int radius, Image *src, Point sp)
+.PB
+int	bezsplineop(Image *dst, Point *pt, int npt, int end0, int end1,
+		int radius, Image *src, Point sp, Drawop op)
+.PB
+int	bezsplinepts(Point *pt, int npt, Point **pp)
+.PB
+int	fillbezier(Image *dst, Point p0, Point p1, Point p2, Point p3,
+		int w, Image *src, Point sp)
+.PB
+int	fillbezierop(Image *dst, Point p0, Point p1, Point p2, Point p3,
+		int w, Image *src, Point sp, Drawop op)
+.PB
+int	fillbezspline(Image *dst, Point *pt, int npt, int w,
+		Image *src, Point sp)
+.PB
+int	fillbezsplineop(Image *dst, Point *pt, int npt, int w,
+		Image *src, Point sp, Drawop op)
+.PB
+void	ellipse(Image *dst, Point c, int a, int b, int thick,
+		Image *src, Point sp)
+.PB
+void	ellipseop(Image *dst, Point c, int a, int b, int thick,
+		Image *src, Point sp, Drawop op)
+.PB
+void	fillellipse(Image *dst, Point c, int a, int b,
+		Image *src, Point sp)
+.PB
+void	fillellipseop(Image *dst, Point c, int a, int b,
+		Image *src, Point sp, Drawop op)
+.PB
+void	arc(Image *dst, Point c, int a, int b, int thick,
+		Image *src, Point sp, int alpha, int phi)
+.PB
+void	arcop(Image *dst, Point c, int a, int b, int thick,
+		Image *src, Point sp, int alpha, int phi, Drawop op)
+.PB
+void	fillarc(Image *dst, Point c, int a, int b, Image *src,
+		Point sp, int alpha, int phi)
+.PB
+void	fillarcop(Image *dst, Point c, int a, int b, Image *src,
+		Point sp, int alpha, int phi, Drawop op)
+.PB
+int	icossin(int deg, int *cosp, int *sinp)
+.PB
+int	icossin2(int x, int y, int *cosp, int *sinp)
+.PB
+void	border(Image *dst, Rectangle r, int i, Image *color, Point sp)
+.br
+.PB
+Point	string(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s)
+.PB
+Point	stringop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, Drawop op)
+.PB
+Point	stringn(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, int len)
+.PB
+Point	stringnop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, int len, Drawop op)
+.PB
+Point	runestring(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r)
+.PB
+Point	runestringop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, Drawop op)
+.PB
+Point	runestringn(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, int len)
+.PB
+Point	runestringnop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, int len, Drawop op)
+.PB
+Point	stringbg(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, Image *bg, Point bgp)
+.PB
+Point	stringbgop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, Image *bg, Point bgp, Drawop op)
+.PB
+Point	stringnbg(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, int len, Image *bg, Point bgp)
+.PB
+Point	stringnbgop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, char *s, int len, Image *bg, Point bgp, Drawop op)
+.PB
+Point	runestringbg(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, Image *bg, Point bgp)
+.PB
+Point	runestringbgop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, Image *bg, Point bgp, Drawop op)
+.PB
+Point	runestringnbg(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, int len, Image *bg, Point bgp)
+.PB
+Point	runestringnbgop(Image *dst, Point p, Image *src, Point sp,
+		Font *f, Rune *r, int len, Image *bg, Point bgp, Drawop op)
+.PB
+Point	_string(Image *dst, Point p, Image *src,
+		Point sp, Font *f, char *s, Rune *r, int len,
+		Rectangle clipr, Image *bg, Point bgp, Drawop op)
+.PB
+void	drawsetdebug(int on)
+.PD
+.PB
+enum
+{
+	/* line ends */
+	Endsquare	= 0,
+	Enddisc		= 1,
+	Endarrow	= 2,
+	Endmask		= 0x1F
+};
+.PB
+#define ARROW(a, b, c) (Endarrow|((a)<<5)|((b)<<14)|((c)<<23))
+.SH DESCRIPTION
+The
+.B Image
+type defines rectangular pictures and the methods to draw upon them;
+it is also the building block for higher level objects such as
+windows and fonts.
+In particular, a window is represented as an
+.BR Image ;
+no special operators are needed to draw on a window.
+.PP
+.TP 10
+.B r
+The coordinates of the rectangle in the plane for which the
+.B Image
+has defined pixel values.
+It should not be modified after the image is created.
+.TP
+.B clipr
+The clipping rectangle: operations that read or write
+the image will not access pixels outside
+.BR clipr .
+Frequently,
+.B clipr
+is the same as
+.BR r ,
+but it may differ; see in particular the discussion of
+.BR repl .
+The clipping region may be modified dynamically using
+.I replclipr
+.RI ( q.v. ).
+.TP
+.B chan
+The pixel channel format descriptor, as described in
+.IR image (6).
+The value should not be modified after the image is created.
+.TP
+.B depth
+The
+number of bits per pixel in the picture;
+it is identically
+.B chantodepth(chan)
+(see
+.IR graphics (2))
+and is provided as a convenience.
+The value should not be modified after the image is created.
+.TP
+.B repl
+A boolean value specifying whether the image is tiled to cover
+the plane when used as a source for a drawing operation.
+If
+.B repl
+is zero, operations are restricted to the intersection of
+.B r
+and
+.BR clipr .
+If
+.B repl
+is set,
+.B r
+defines the tile to be replicated and
+.B clipr
+defines the portion of the plane covered by the tiling, in other words,
+.B r
+is replicated to cover
+.BR clipr ;
+in such cases
+.B r
+and
+.B clipr
+are independent.
+.IP
+For example, a replicated image with
+.B r
+set to ((0,\ 0),\ (1,\ 1)) and
+.B clipr
+set to ((0,\ 0),\ (100,\ 100)),
+with the single pixel of
+.B r
+set to blue,
+behaves identically to an image with
+.B r
+and
+.B clipr
+both set to ((0,\ 0),\ (100,\ 100)) and all pixels set to blue.
+However,
+the first image requires far less memory.
+The replication flag may be modified dynamically using
+.I replclipr
+.RI ( q.v. ).
+.PP
+Most of the drawing functions come in two forms:
+a basic form, and an extended form that takes an extra
+.B Drawop
+to specify a Porter-Duff compositing operator to use.
+The basic forms assume the operator is
+.BR SoverD ,
+which suffices for the vast majority of applications.
+The extended forms are named by adding an
+.RB - op
+suffix to the basic form.
+Only the basic forms are listed below.
+.TP
+.BI draw( dst\fP,\fP\ r\fP,\fP\ src\fP,\fP\ mask\fP,\fP\ p )
+.I Draw
+is the standard drawing function.
+Only those pixels within the intersection of
+.IB dst ->r
+and
+.IB dst ->clipr
+will be affected;
+.I draw
+ignores
+.IB dst ->repl\fR.
+The operation proceeds as follows
+(this is a description of the behavior, not the implementation):
+.RS
+.IP 1.
+If
+.B repl
+is set in
+.I src
+or
+.IR mask ,
+replicate their contents to fill
+their clip rectangles.
+.IP 2.
+Translate
+.I src
+and
+.I mask
+so
+.I p
+is aligned with
+.IB r .min\fR.
+.IP 3.
+Set
+.I r
+to the intersection of
+.I r
+and
+.IB dst ->r\fR.
+.IP 4.
+Intersect
+.I r
+with
+.IB src ->clipr\fR.
+If
+.IB src ->repl
+is false, also intersect
+.I r
+with
+.IB src ->r\fR.
+.IP 5.
+Intersect
+.I r
+with
+.IB mask ->clipr\fR.
+If
+.IB mask ->repl
+is false, also intersect
+.I r
+with
+.IB mask ->r\fR.
+.IP 6.
+For each location in
+.IR r ,
+combine the
+.I dst
+pixel with the
+.I src
+pixel using the alpha value
+corresponding to the
+.I mask
+pixel.
+If the
+.I mask
+has an explicit alpha channel, the alpha value
+corresponding to the
+.I mask
+pixel is simply that pixel's alpha channel.
+Otherwise, the alpha value is the NTSC greyscale equivalent
+of the color value, with white meaning opaque and black transparent.
+In terms of the Porter-Duff compositing algebra,
+.I draw
+replaces the
+.I dst
+pixels with
+.RI ( src
+in
+.IR mask )
+over
+.IR dst .
+(In the extended form,
+``over'' is replaced by
+.IR op ).
+.RE
+.IP
+The various
+pixel channel formats
+involved need not be identical.
+If the channels involved are smaller than 8-bits, they will
+be promoted before the calculation by replicating the extant bits;
+after the calculation, they will be truncated to their proper sizes.
+.TP
+\f5gendraw(\f2dst\fP, \f2r\fP, \f2src\fP, \f2p0\fP, \f2mask\fP, \f2p1\f5)\fP
+Similar to
+.I draw
+except that
+.I gendraw
+aligns the source and mask differently:
+.I src
+is aligned so
+.I p0
+corresponds to
+.IB r .min
+and
+.I mask
+is aligned so
+.I p1
+corresponds to
+.IB r .min .
+For most purposes with simple masks and source images,
+.B draw
+is sufficient, but
+.B gendraw
+is the general operator and the one all other drawing primitives are built upon.
+.TP
+.BI drawreplxy( min ,  max ,  x\f5)
+Clips
+.I x
+to be in the half-open interval [\fImin\fP, \fImax\fP) by adding
+or subtracting a multiple of \fImax-min\fP.
+.TP
+.BI drawrepl( r , p )
+Clips the point \fIp\fP to be within the rectangle \fIr\fP
+by translating the point horizontally by an integer multiple of rectangle width
+and vertically by the height.
+.TP
+.BI replclipr( i ,  repl ,  clipr\f5)
+Because the image data is stored on the server, local modifications to the
+.B Image
+data structure itself will have no effect.
+.I Repclipr
+modifies the local
+.B Image
+data structure's
+.B repl
+and
+.B clipr
+fields, and notifies the server of their modification.
+.TP
+\f5line(\f2dst\fP, \f2p0\fP, \f2p1\fP, \f2end0\fP, \f2end1\fP, \f2thick\fP, \f2src\fP, \f2sp\fP)
+Line
+draws in
+.I dst
+a line of width
+.RI 1+2* thick
+pixels joining points
+.I p0
+and
+.IR p1 .
+The line is drawn using pixels from the
+.I src
+image aligned so
+.I sp
+in the source corresponds to
+.I p0
+in the destination.
+The line touches both
+.I p0
+and
+.IR p1 ,
+and
+.I end0
+and
+.I end1
+specify how the ends of the line are drawn.
+.B Endsquare
+terminates the line perpendicularly to the direction of the line; a thick line with
+.B Endsquare
+on both ends will be a rectangle.
+.B Enddisc
+terminates the line by drawing a disc of diameter
+.RI 1+2* thick
+centered on the end point.
+.B Endarrow
+terminates the line with an arrowhead whose tip touches the endpoint.
+.IP
+The macro
+.B ARROW
+permits explicit control of the shape of the arrow.
+If all three parameters are zero, it produces the default arrowhead,
+otherwise,
+.I a
+sets the distance along line from end of the regular line to tip,
+.I b
+sets the distance along line from the barb to the tip,
+and
+.I c
+sets the distance perpendicular to the line from edge of line to the tip of the barb,
+all in pixels.
+.IP
+.I Line
+and the other geometrical operators are equivalent to calls to
+.I gendraw
+using a mask produced by the geometric procedure.
+.TP
+\f5poly(\f2dst\fP, \f2p\fP, \f2np\fP, \f2end0\fP, \f2end1\fP, \f2thick\fP, \f2src\fP, \f2sp\fP)
+.I Poly
+draws a general polygon; it
+is conceptually equivalent to a series of calls to
+.I line
+joining adjacent points in the
+array of
+.B Points
+.IR p ,
+which has
+.I np
+elements.
+The ends of the polygon are specified as in
+.IR line ;
+interior lines are terminated with
+.B Enddisc
+to make smooth joins.
+The source is aligned so
+.I sp
+corresponds to
+.IB p [0]\f1.
+.TP
+\f5fillpoly(\f2dst\fP, \f2p\fP, \f2np\fP, \f2wind\fP, \f2src\fP, \f2sp\fP)
+.I Fillpoly
+is like
+.I poly
+but fills in the resulting polygon rather than outlining it.
+The source is aligned so
+.I sp
+corresponds to
+.IB p [0]\f1.
+The winding rule parameter
+.I wind
+resolves ambiguities about what to fill if the polygon is self-intersecting.
+If
+.I wind
+is
+.BR ~0 ,
+a pixel is inside the polygon if the polygon's winding number about the point
+is non-zero.
+If
+.I wind
+is
+.BR 1 ,
+a pixel is inside if the winding number is odd.
+Complementary values (0 or ~1) cause outside pixels to be filled.
+The meaning of other values is undefined.
+The polygon is closed with a line if necessary.
+.TP
+\f5bezier(\f2dst\fP, \f2a\fP, \f2b\fP, \f2c\fP, \f2d\fP, \f2end0\fP, \f2end1\fP, \f2thick\fP, \f2src\fP, \f2sp\fP)
+.I Bezier
+draws the
+cubic Bezier curve defined by
+.B Points
+.IR a ,
+.IR b ,
+.IR c ,
+and
+.IR d .
+The end styles are determined by
+.I end0
+and
+.IR end1 ;
+the thickness of the curve is
+.RI 1+2* thick .
+The source is aligned so
+.I sp
+in
+.I src
+corresponds to
+.I a
+in
+.IR dst .
+.TP
+\f5bezspline(\f2dst\fP, \f2p\fP, \f2end0\fP, \f2end1\fP, \f2thick\fP, \f2src\fP, \f2sp\fP)
+.I Bezspline
+takes the same arguments as
+.I poly
+but draws a quadratic B-spline (despite its name) rather than a polygon.
+If the first and last points in
+.I p
+are equal, the spline has periodic end conditions.
+.TP
+\f5bezsplinepts(\f2pt\fP, \f2npt\fP, \f2pp\fP)
+.I Bezsplinepts
+returns in
+.I pp
+a list of points making up the open polygon that
+.I bezspline
+would draw.
+The caller is responsible for freeing
+.IR *pp .
+.TP
+\f5fillbezier(\f2dst\fP, \f2a\fP, \f2b\fP, \f2c\fP, \f2d\fP, \f2wind\fP, \f2src\fP, \f2sp\fP)
+.I Fillbezier
+is to
+.I bezier
+as
+.I fillpoly
+is to
+.IR poly .
+.TP
+\f5fillbezspline(\f2dst\fP, \f2p\fP, \f2wind\fP, \f2src\fP, \f2sp\fP)
+.I Fillbezspline
+is like
+.I fillpoly
+but fills the quadratic B-spline rather than the polygon outlined by
+.IR p .
+The spline is closed with a line if necessary.
+.TP
+\f5ellipse(\f2dst\fP, \f2c\fP, \f2a\fP, \f2b\fP, \f2thick\fP, \f2src\fP, \f2sp\fP)
+.I Ellipse
+draws in
+.I dst
+an ellipse centered on
+.I c
+with horizontal and vertical semiaxes
+.I a
+and
+.IR b .
+The source is aligned so
+.I sp
+in
+.I src
+corresponds to
+.I c
+in
+.IR dst .
+The ellipse is drawn with thickness
+.RI 1+2* thick .
+.TP
+\f5fillellipse(\f2dst\fP, \f2c\fP, \f2a\fP, \f2b\fP, \f2src\fP, \f2sp\fP)
+.I Fillellipse
+is like
+.I ellipse
+but fills the ellipse rather than outlining it.
+.TP
+\f5arc(\f2dst\fP, \f2c\fP, \f2a\fP, \f2b\fP, \f2thick\fP, \f2src\fP, \f2sp\fP, \f2alpha\fP, \f2phi\fP)
+.I Arc
+is like
+.IR ellipse ,
+but draws only that portion of the ellipse starting at angle
+.I alpha
+and extending through an angle of
+.IR phi .
+The angles are measured in degrees counterclockwise from the positive
+.I x
+axis.
+.TP
+\f5fillarc(\f2dst\fP, \f2c\fP, \f2a\fP, \f2b\fP, \f2src\fP, \f2sp\fP, \f2alpha\fP, \f2phi\fP)
+.I Fillarc
+is like
+.IR arc ,
+but fills the sector with the source color.
+.TP
+\f5icossin(\f2deg\fP, \f2cosp\fP, \f2sinp\fP)
+.I Icossin
+stores in
+.BI * cosp
+and
+.BI * sinp
+scaled integers representing the cosine and sine of the angle
+.IR deg ,
+measured in integer degrees.
+The values are scaled so cos(0) is 1024.
+.TP
+\f5icossin2(\f2x\fP, \f2y\fP, \f2cosp\fP, \f2sinp\fP)
+.I Icossin2
+is analogous to
+.IR icossin,
+with the angle represented not in degrees but implicitly by the point
+.RI ( x , y ).
+It is to
+.I icossin
+what
+.B atan2
+is to
+.B atan
+(see
+.IR sin (2)).
+.TP
+.BI border( dst\fP,\fP\ r\fP,\fP\ i\fP,\fP\ color\fP,\fP\ sp\fP)
+.I Border
+draws an outline of rectangle
+.I r
+in the specified
+.IR color .
+The outline has width
+.IR i ;
+if positive, the border goes inside the rectangle; negative, outside.
+The source is aligned so
+.I sp
+corresponds to
+.IB r .min .
+.TP
+.BI string( dst\fP,\fP\ p\fP,\fP\ src\fP,\fP\ sp\fP,\fP\ font\fP,\fP\ s )
+.I String
+draws in
+.I dst
+characters specified by the string
+.I s
+and
+.IR font ;
+it is equivalent to a series of calls to
+.I gendraw
+using source
+.I src
+and masks determined by the character shapes.
+The text is positioned with the left of the first character at
+.IB p .x
+and the top of the line of text at
+.IB p .y\f1.
+The source is positioned so
+.I sp
+in
+.I src
+corresponds to
+.I p
+in
+.IR dst .
+.I String
+returns a
+.B Point
+that is the position of the next character that would be drawn if the string were longer.
+.IP
+For characters with undefined
+or zero-width images in the font, the character at font position 0 (NUL) is drawn.
+.IP
+The other string routines are variants of this basic form, and
+have names that encode their variant behavior.
+Routines whose names contain
+.B rune
+accept a string of Runes rather than
+.SM UTF\c
+-encoded bytes.
+Routines ending in
+.B n
+accept an argument,
+.IR n ,
+that defines the number of characters to draw rather than accepting a NUL-terminated
+string.
+Routines containing
+.B bg
+draw the background behind the characters in the specified color
+.RI ( bg )
+and
+alignment
+.RI ( bgp );
+normally the text is drawn leaving the background intact.
+.IP
+The routine
+.I _string
+captures all this behavior into a single operator.  Whether it draws a
+.SM UTF
+string
+or Rune string depends on whether
+.I s
+or
+.I r
+is null (the string length is always determined by
+.IR len ).
+If
+.I bg
+is non-null, it is used as a background color.
+The
+.I clipr
+argument allows further management of clipping when drawing the string;
+it is intersected with the usual clipping rectangles to further limit the extent of the text.
+.TP
+.BI drawsetdebug( on )
+Turns on or off debugging output (usually
+to a serial line) according to whether
+.I on
+is non-zero.
+.SH SOURCE
+.B /sys/src/libdraw
+.SH SEE ALSO
+.IR graphics (2),
+.IR stringsize (2),
+.IR color (6),
+.IR utf (6),
+.IR addpt (2)
+.PP
+T. Porter, T. Duff.
+``Compositing Digital Images'', 
+.I "Computer Graphics
+(Proc. SIGGRAPH), 18:3, pp. 253-259, 1984.
+.SH DIAGNOSTICS
+These routines call the graphics error function on fatal errors.
+.SH BUGS
+Anti-aliased characters can be drawn by defining a font
+with multiple bits per pixel, but there are
+no anti-aliasing geometric primitives.

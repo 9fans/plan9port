@@ -1,0 +1,53 @@
+.TH CALENDAR 1
+.SH NAME
+calendar \- print upcoming events
+.SH SYNOPSIS
+.B calendar
+[
+.B \-y
+]
+[
+.B \-p days
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Calendar
+reads the named files, default
+.BR /usr/$user/lib/calendar ,
+and writes to standard output any lines
+containing today's or tomorrow's date.
+Examples of recognized date formats are 
+"4/11",
+"April 11",
+"Apr 11",
+"11 April",
+and
+"11 Apr".
+All comparisons are case insensitive.
+.PP
+If the
+.B \-y
+flag is given, an attempt is made to match on year too.  In this case,
+dates of the forms listed above will be accepted if they are followed
+by the current year (or last two digits thereof) or not a year —
+digits not followed by white space or non-digits.
+.PP
+If the
+.B \-p
+flag is given, its argument is the number of days ahead to match
+dates.  This flag is not repeatable, and it performs no special
+processing at the end of the week.
+.PP
+On Friday and Saturday, events through Monday are printed.
+.PP
+To have your calendar mailed to you every day, use
+.IR cron (8).
+.SH FILES
+.TF /usr/$user/lib/calendar
+.TP
+.B /usr/$user/lib/calendar
+personal calendar
+.SH SOURCE
+.B /sys/src/cmd/calendar.c

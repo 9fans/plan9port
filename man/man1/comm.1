@@ -1,0 +1,47 @@
+.TH COMM 1 
+.CT 1 files
+.SH NAME
+comm \- select or reject lines common to two sorted files
+.SH SYNOPSIS
+.B comm
+[
+.B -123
+]
+.I file1 file2
+.SH DESCRIPTION
+.I Comm
+reads
+.I file1
+and
+.IR file2 ,
+which are in lexicographical order,
+and produces a three column output: lines only in
+.IR file1 ;
+lines only in
+.IR file2 ;
+and lines in both files.
+The file name
+.L -
+means the standard input.
+.PP
+Flag
+.LR 1 ,
+.LR 2 ,
+or
+.LR 3
+suppresses printing of the corresponding
+column.
+.SH EXAMPLE
+.TP
+.EX
+comm -12 file1 file2
+.EE
+.IP
+Print lines common to two sorted files.
+.SH SOURCE
+.B /sys/src/cmd/comm.c
+.SH "SEE ALSO"
+.IR sort (1),
+.IR cmp (1), 
+.IR diff (1), 
+.IR uniq (1)

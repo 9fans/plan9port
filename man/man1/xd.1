@@ -1,0 +1,87 @@
+.TH XD 1
+.SH NAME
+xd \- hex, octal, decimal, or ASCII dump
+.SH SYNOPSIS
+.B xd
+[
+.I option ...
+]
+[
+.BI - "format ...
+] [
+.I file ...
+]
+.SH DESCRIPTION
+.I Xd
+concatenates and dumps the
+.I files
+(standard input by default)
+in one or more formats.
+Groups of 16 bytes are printed in each of the named formats, one
+format per line.
+Each line of output is prefixed by its address (byte offset)
+in the input file.
+The first line of output for each group is zero-padded; subsequent are blank-padded.
+.PP
+Formats other than
+.B -c
+are specified by pairs of characters telling size and style,
+.L 4x
+by default.
+The sizes are
+.TP \w'2\ or\ w\ \ \ 'u
+.BR 1 " or " b
+1-byte units.
+.PD0
+.TP
+.BR 2 " or " w
+2-byte big-endian units.
+.TP
+.BR 4 " or " l
+4-byte big-endian units.
+.TP
+.BR 8 " or " v
+8-byte big-endian units.
+.PD
+.PP
+The styles are
+.TP 0
+.B o
+Octal.
+.PD0
+.TP
+.B x
+Hexadecimal.
+.TP
+.B d
+Decimal.
+.PD
+.PP
+Other options are
+.TP \w'\fL-a\fIstyle\fLXX'u
+.B -c
+Format as
+.B 1x
+but print
+.SM ASCII
+representations or C escape sequences where possible.
+.TP
+.BI -a style
+Print file addresses in the given style (and size 4).
+.TP
+.B -u
+(Unbuffered) Flush the output buffer after each 16-byte sequence.
+.TP
+.B -s
+Reverse (swab) the order of bytes in each group of 4 before printing.
+.TP
+.B -r
+Print repeating groups of identical 16-byte sequences as the first group
+followed by an asterisk.
+.SH SOURCE
+.B /sys/src/cmd/xd.c
+.SH "SEE ALSO"
+.IR db (1)
+.SH BUGS
+The various output formats don't line up properly in the output of
+.IR xd .

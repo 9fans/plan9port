@@ -1,0 +1,959 @@
+.TH RC 1
+.SH NAME
+rc, cd, eval, exec, exit, flag, rfork, shift, wait, whatis, ., ~ \- command language
+.SH SYNOPSIS
+.B rc
+[
+.B -srdiIlxepvV
+]
+[
+.B -c command
+]
+[
+.I file
+[
+.I arg ...
+]]
+.SH DESCRIPTION
+.I Rc
+is the Plan 9 shell.
+It executes command lines read from a terminal or a file or, with the
+.B -c
+flag, from
+.I rc's
+argument list.
+.SS Command Lines
+A command line is a sequence of commands, separated by ampersands or semicolons
+.RB ( &
+or
+.BR ; ),
+terminated by a newline.
+The commands are executed in sequence
+from left to right.
+.I Rc
+does not wait for a command followed by
+.B &
+to finish executing before starting
+the following command.
+Whenever a command followed by
+.B &
+is executed, its process id is assigned to the
+.I rc
+variable
+.BR $apid .
+Whenever a command
+.I not
+followed by
+.B &
+exits or is terminated, the
+.I rc
+variable
+.B $status
+gets the process's wait message (see
+.IR wait (2));
+it will be the null string if the command was successful.
+.PP
+A long command line may be continued on subsequent lines by typing
+a backslash
+.RB ( \e )
+followed by a newline.
+This sequence is treated as though it were a blank.
+Backslash is not otherwise a special character.
+.PP
+A number-sign
+.RB ( # )
+and any following characters up to (but not including) the next newline
+are ignored, except in quotation marks.
+.SS Simple Commands
+A simple command is a sequence of arguments interspersed with I/O redirections.
+If the first argument is the name of an
+.I rc
+function or of one of
+.I rc's
+built-in commands, it is executed by
+.IR rc .
+Otherwise if the name starts with a slash
+.RB ( / ),
+it must be the path name of the program to be executed.
+Names containing no initial slash are searched for in
+a list of directory names stored in
+.BR $path .
+The first executable file of the given name found
+in a directory in
+.B $path
+is the program to be executed.
+To be executable, the user must have execute permission (see
+.IR stat (2))
+and the file must be either an executable binary
+for the current machine's CPU type, or a shell script.
+Shell scripts begin with a line containing the full path name of a shell
+(usually
+.BR /bin/rc ),
+prefixed by
+.LR #! .
+.PP
+The first word of a simple command cannot be a keyword unless it is
+quoted or otherwise disguised.
+The keywords are
+.EX
+	for in while if not switch fn ~ ! @
+.EE
+.SS Arguments and Variables
+A number of constructions may be used where
+.I rc's
+syntax requires an argument to appear.
+In many cases a construction's
+value will be a list of arguments rather than a single string.
+.PP
+The simplest kind of argument is the unquoted word:
+a sequence of one or more characters none of which is a blank, tab,
+newline, or any of the following:
+.EX
+	# ; & | ^ $ = ` ' { } ( ) < >
+.EE
+An unquoted word that contains any of the characters
+.B *
+.B ?
+.B [
+is a pattern for matching against file names.
+The character
+.B *
+matches any sequence of characters,
+.B ?
+matches any single character, and
+.BI [ class ]
+matches any character in the
+.IR class .
+If the first character of
+.I class
+is
+.BR ~ ,
+the class is complemented.
+The
+.I class
+may also contain pairs of characters separated by
+.BR - ,
+standing for all characters lexically between the two.
+The character
+.B /
+must appear explicitly in a pattern, as must the
+first character of the path name components
+.B .
+and
+.BR .. .
+A pattern is replaced by a list of arguments, one for each path name matched,
+except that a pattern matching no names is not replaced by the empty list,
+but rather stands for itself.
+Pattern matching is done after all other
+operations.
+Thus,
+.EX
+	x=/tmp echo $x^/*.c
+.EE
+matches
+.BR /tmp/*.c ,
+rather than matching
+.B "/*.c
+and then prefixing
+.BR /tmp .
+.PP
+A quoted word is a sequence of characters surrounded by single quotes
+.RB ( ' ).
+A single quote is represented in a quoted word by a pair of quotes
+.RB ( '' ).
+.PP
+Each of the following is an argument.
+.PD 0
+.HP
+.BI ( arguments )
+.br
+The value of a sequence of arguments enclosed in parentheses is
+a list comprising the members of each element of the sequence.
+Argument lists have no recursive structure, although their syntax may
+suggest it.
+The following are entirely equivalent:
+.EX
+	echo hi there everybody
+	((echo) (hi there) everybody)
+.EE
+.HP
+.BI $ argument
+.HP
+.BI $ argument ( subscript )
+.br
+The
+.I argument
+after the
+.B $
+is the name of a variable whose value is substituted.
+Multiple levels
+of indirection are possible, but of questionable utility.
+Variable values
+are lists of strings.
+If
+.I argument
+is a number
+.IR n ,
+the value is the
+.IR n th
+element of
+.BR $* ,
+unless
+.B $*
+doesn't have
+.I n
+elements, in which case the value is empty.
+If
+.I argument
+is followed by a parenthesized list of subscripts, the
+value substituted is a list composed of the requested elements (origin 1).
+The parenthesis must follow the variable name with no spaces.
+Assignments to variables are described below.
+.HP
+.BI $# argument
+.br
+The value is the number of elements in the named variable.
+A variable
+never assigned a value has zero elements.
+.HP
+$"\c
+.I argument
+.br
+The value is a single string containing the components of the named variable
+separated by spaces.  A variable with zero elements yields the empty string.
+.HP
+.BI `{ command }
+.br
+.I rc
+executes the
+.I command
+and reads its standard output, splitting it into a list of arguments,
+using characters in
+.B $ifs
+as separators.
+If
+.B $ifs
+is not otherwise set, its value is
+.BR "'\ \et\en'" .
+.HP
+.BI <{ command }
+.HP
+.BI >{ command }
+.br
+The
+.I command
+is executed asynchronously with its standard output or standard input
+connected to a pipe.
+The value of the argument is the name of a file
+referring to the other end of the pipe.
+This allows the construction of
+non-linear pipelines.
+For example, the following runs two commands
+.B old
+and
+.B new
+and uses
+.B cmp
+to compare their outputs
+.EX
+	cmp <{old} <{new}
+.EE
+.HP
+.IB argument ^ argument
+.br
+The
+.B ^
+operator concatenates its two operands.
+If the two operands
+have the same number of components, they are concatenated pairwise.
+If not,
+then one operand must have one component, and the other must be non-empty,
+and concatenation is distributive.
+.PD
+.SS Free Carets
+In most circumstances,
+.I rc
+will insert the
+.B ^
+operator automatically between words that are not separated by white space.
+Whenever one of
+.B $
+.B '
+.B `
+follows a quoted or unquoted word or an unquoted word follows a quoted word
+with no intervening blanks or tabs,
+a
+.B ^
+is inserted between the two.
+If an unquoted word immediately follows a
+.BR $ 
+and contains a character other than an alphanumeric, underscore,
+or
+.BR * ,
+a
+.B ^
+is inserted before the first such character.
+Thus
+.IP
+.B cc -$flags $stem.c
+.LP
+is equivalent to
+.IP
+.B cc -^$flags $stem^.c
+.SS I/O Redirections
+The sequence
+.BI > file
+redirects the standard output file (file descriptor 1, normally the
+terminal) to the named
+.IR file ;
+.BI >> file
+appends standard output to the file.
+The standard input file (file descriptor 0, also normally the terminal)
+may be redirected from a file by the sequence
+.BI < file \f1,
+or from an inline `here document'
+by the sequence
+.BI << eof-marker\f1.
+The contents of a here document are lines of text taken from the command
+input stream up to a line containing nothing but the
+.IR eof-marker ,
+which may be either a quoted or unquoted word.
+If
+.I eof-marker
+is unquoted, variable names of the form
+.BI $ word
+have their values substituted from
+.I rc's
+environment.
+If
+.BI $ word
+is followed by a caret
+.RB ( ^ ),
+the caret is deleted.
+If
+.I eof-marker
+is quoted, no substitution occurs.
+.PP
+Redirections may be applied to a file-descriptor other than standard input
+or output by qualifying the redirection operator
+with a number in square brackets.
+For example, the diagnostic output (file descriptor 2)
+may be redirected by writing
+.BR "cc junk.c >[2]junk" .
+.PP
+A file descriptor may be redirected to an already open descriptor by writing
+.BI >[ fd0 = fd1 ]
+or
+.BI <[ fd0 = fd1 ]\f1.
+.I Fd1
+is a previously opened file descriptor and
+.I fd0
+becomes a new copy (in the sense of 
+.IR dup (2))
+of it.
+A file descriptor may be closed by writing
+.BI >[ fd0 =]
+or
+.BI <[ fd0 =]\f1.
+.PP
+Redirections are executed from left to right.
+Therefore,
+.B cc junk.c >/dev/null >[2=1]
+and
+.B cc junk.c >[2=1] >/dev/null
+have different effects: the first puts standard output in
+.BR /dev/null
+and then puts diagnostic output in the same place, where the second
+directs diagnostic output to the terminal and sends standard output to
+.BR /dev/null .
+.SS Compound Commands
+A pair of commands separated by a pipe operator
+.RB ( | )
+is a command.
+The standard output of the left command is sent through a pipe
+to the standard input of the right command.
+The pipe operator may be decorated
+to use different file descriptors.
+.BI |[ fd ]
+connects the output end of the pipe to file descriptor
+.I fd
+rather than 1.
+.BI |[ fd0 = fd1 ]
+connects output to
+.I fd1
+of the left command and input to
+.I fd0
+of the right command.
+.PP
+A pair of commands separated by
+.B &&
+or
+.B ||
+is a command.
+In either case, the left command is executed and its exit status examined.
+If the operator is
+.B &&
+the right command is executed if the left command's status is null.
+.B ||
+causes the right command to be executed if the left command's status is non-null.
+.PP
+The exit status of a command may be inverted (non-null is changed to null, null
+is changed to non-null) by preceding it with a
+.BR ! .
+.PP
+The
+.B |
+operator has highest precedence, and is left-associative (i.e. binds tighter
+to the left than the right).
+.B !
+has intermediate precedence, and
+.B &&
+and
+.B ||
+have the lowest precedence.
+.PP
+The unary
+.B @
+operator, with precedence equal to
+.BR ! ,
+causes its operand to be executed in a subshell.
+.PP
+Each of the following is a command.
+.PD 0
+.HP
+.B if (
+.I list
+.B )
+.I command
+.br
+A
+.I list
+is a sequence of commands, separated by
+.BR & ,
+.BR ; ,
+or newline.
+It is executed and
+if its exit status is null, the
+.I command
+is executed.
+.HP
+.B if not
+.I command
+.br
+The immediately preceding command must have been
+.BI if( list )
+.IR command .
+If its condition was non-zero, the
+.I command
+is executed.
+.HP
+.BI for( name
+.B in
+.IB arguments )
+.I command
+.HP
+.BI for( name )
+.I command
+.br
+The
+.I command
+is executed once for each
+.IR argument 
+with that argument assigned to
+.IR name .
+If the argument list is omitted,
+.B $*
+is used.
+.HP
+.BI while( list )
+.I command
+.br
+The
+.I list
+is executed repeatedly until its exit status is non-null.
+Each time it returns null status, the
+.I command
+is executed.
+An empty
+.I list
+is taken to give null status.
+.HP
+.BI "switch(" argument "){" list }
+.br
+The
+.IR list
+is searched for simple commands beginning with the word
+.BR case .
+(The search is only at the `top level' of the
+.IR list .
+That is,
+.B cases
+in nested constructs are not found.)
+.I Argument
+is matched against each word following
+.B case
+using the pattern-matching algorithm described above, except that
+.B /
+and the first characters of
+.B .
+and
+.B ..
+need not be matched explicitly.
+When a match is found, commands in the list are executed up to the next
+following
+.B case
+command (at the top level) or the closing brace.
+.HP
+.BI { list }
+.br
+Braces serve to alter the grouping of commands implied by operator
+priorities.
+The
+.I body
+is a sequence of commands separated by
+.BR & ,
+.BR ; ,
+or newline.
+.HP
+.BI "fn " name { list }
+.HP
+.BI "fn " name
+.br
+The first form defines a function with the given
+.IR name .
+Subsequently, whenever a command whose first argument is
+.I name
+is encountered, the current value of
+the remainder of the command's argument list will be assigned to
+.BR $* ,
+after saving its current value, and
+.I rc
+will execute the
+.IR list .
+The second form removes
+.IR name 's
+function definition.
+.HP
+.BI "fn " note { list }
+.br
+.HP
+.BI "fn " note
+.br
+A function with a special name will be called when
+.I rc
+receives a corresponding note; see
+.IR notify (2).
+The valid note names (and corresponding notes) are
+.B sighup
+.RB ( hangup ),
+.B sigint
+.RB ( interrupt ),
+.BR sigalrm
+.RB ( alarm ),
+and
+.B sigfpe
+(floating point trap).
+By default
+.I rc
+exits on receiving any signal, except when run interactively,
+in which case interrupts and quits normally cause
+.I rc
+to stop whatever it's doing and start reading a new command.
+The second form causes
+.I rc
+to handle a signal in the default manner.
+.I Rc
+recognizes an artificial note,
+.BR sigexit ,
+which occurs when
+.I rc
+is about to finish executing.
+.HP
+.IB name = "argument command"
+.br
+Any command may be preceded by a sequence of assignments
+interspersed with redirections.
+The assignments remain in effect until the end of the command, unless
+the command is empty (i.e. the assignments stand alone), in which case
+they are effective until rescinded by later assignments.
+.PD
+.SS Built-in Commands
+These commands are executed internally by
+.IR rc ,
+usually because their execution changes or depends on
+.IR rc 's
+internal state.
+.PD 0
+.HP
+.BI . " file ..."
+.br
+Execute commands from
+.IR file .
+.B $*
+is set for the duration to the remainder of the argument list following
+.IR file .
+.I File
+is searched for using
+.BR $path .
+.HP
+.BI builtin " command ..."
+.br
+Execute
+.I command
+as usual except that any function named
+.I command
+is ignored in favor of the built-in meaning.
+.HP
+.BI "cd [" dir "]"
+.br
+Change the current directory to
+.IR dir .
+The default argument is
+.BR $home .
+.I dir
+is searched for in each of the directories mentioned in
+.BR $cdpath .
+.HP
+.BI "eval [" "arg ..." "]"
+.br
+The arguments are concatenated separated by spaces into a single string,
+read as input to
+.IR rc ,
+and executed.
+.HP
+.BI "exec [" "command ..." "]"
+.br
+This instance of
+.I rc
+replaces itself with the given (non-built-in)
+.IR command .
+.HP
+.BI "flag " f " [+-]"
+.br
+Either set
+.RB ( + ),
+clear
+.RB ( - ),
+or test (neither
+.B +
+nor
+.BR - )
+the flag
+.IR f ,
+where
+.I f
+is a single character, one of the command line flags (see Invocation, below).
+.HP
+.BI "exit [" status "]"
+.br
+Exit with the given exit status.
+If none is given, the current value of
+.B $status
+is used.
+.HP
+.BR "rfork " [ nNeEsfFm ]
+.br
+Become a new process group using
+.BI rfork( flags )
+where
+.I flags
+is composed of the bitwise OR of the
+.B rfork
+flags specified by the option letters
+(see
+.IR fork (2)).
+If no
+.I flags
+are given, they default to
+.BR ens .
+The
+.I flags
+and their meanings are:
+.B n
+is
+.BR RFNAMEG ;
+.B N
+is
+.BR RFCNAMEG ;
+.B e
+is
+.BR RFENVG ;
+.B E
+is
+.BR RFCENVG ;
+.B s
+is
+.BR RFNOTEG ;
+.B f
+is
+.BR RFFDG ;
+.B F
+is
+.BR RFCFDG ;
+and
+.B m
+is
+.BR RFNOMNT .
+.HP
+.BI "shift [" n "]"
+.br
+Delete the first
+.IR n
+(default 1)
+elements of
+.BR $* .
+.HP
+.BI "wait [" pid "]"
+.br
+Wait for the process with the given
+.I pid
+to exit.
+If no
+.I pid
+is given, all outstanding processes are waited for.
+.HP
+.BI whatis " name ..."
+.br
+Print the value of each
+.I name
+in a form suitable for input to
+.IR rc .
+The output is
+an assignment to any variable,
+the definition of any function,
+a call to
+.B builtin
+for any built-in command, or
+the completed pathname of any executable file.
+.HP
+.BI ~ " subject pattern ..."
+.br
+The
+.I subject
+is matched against each
+.I pattern
+in sequence.
+If it matches any pattern,
+.B $status
+is set to zero.
+Otherwise,
+.B $status
+is set to one.
+Patterns are the same as for file name matching, except that
+.B /
+and the first character of
+.B .
+and
+.B ..
+need not be matched explicitly.
+The
+.I patterns
+are not subjected to
+file name matching before the
+.B ~
+command is executed, so they need not be enclosed in quotation marks.
+.PD
+.SS Environment
+The
+.I environment
+is a list of strings made available to executing binaries by the
+.B env
+device
+(see
+.IR env (3)).
+.I Rc
+creates an environment entry for each variable whose value is non-empty,
+and for each function.
+The string for a variable entry has the variable's name followed by
+.B =
+and its value.
+If the value has more than one component, these
+are separated by ctrl-a
+.RB ( '\e001' )
+characters.
+The string for a function is just the
+.I rc
+input that defines the function.
+The name of a function in the environment is the function name
+preceded by
+.LR fn# .
+.PP
+When
+.I rc
+starts executing it reads variable and function definitions from its
+environment.
+.SS Special Variables
+The following variables are set or used by
+.IR rc .
+.PD 0
+.TP \w'\fL$promptXX'u
+.B $*
+Set to
+.IR rc 's
+argument list during initialization.
+Whenever a
+.B .
+command or a function is executed, the current value is saved and
+.B $*
+receives the new argument list.
+The saved value is restored on completion of the
+.B .
+or function.
+.TP
+.B $apid
+Whenever a process is started asynchronously with
+.BR & ,
+.B $apid
+is set to its process id.
+.TP
+.B $home
+The default directory for
+.BR cd .
+.TP
+.B $ifs
+The input field separators used in backquote substitutions.
+If
+.B $ifs
+is not set in
+.IR rc 's
+environment, it is initialized to blank, tab and newline.
+.TP
+.B $path
+The search path used to find commands and input files
+for the
+.B .
+command.
+If not set in the environment, it is initialized by
+.BR "path=(.\ /bin)" .
+Its use is discouraged; instead use
+.IR bind (1)
+to build a
+.B /bin
+containing what's needed.
+.TP
+.B $pid
+Set during initialization to
+.IR rc 's
+process id.
+.TP
+.B $prompt
+When
+.I rc
+is run interactively, the first component of
+.B $prompt
+is printed before reading each command.
+The second component is printed whenever a newline is typed and more lines
+are required to complete the command.
+If not set in the environment, it is initialized by
+.BR "prompt=('%\ '\ '\ ')" .
+.TP
+.B $status
+Set to the wait message of the last-executed program.
+(unless started with
+.BR &).
+.B !
+and
+.B ~
+also change
+.BR $status .
+Its value is used to control execution in
+.BR && ,
+.BR || ,
+.B if
+and
+.B while
+commands.
+When
+.I rc
+exits at end-of-file of its input or on executing an
+.B exit
+command with no argument,
+.B $status
+is its exit status.
+.PD
+.SS Invocation
+If
+.I rc
+is started with no arguments it reads commands from standard input.
+Otherwise its first non-flag argument is the name of a file from which
+to read commands (but see
+.B -c
+below).
+Subsequent arguments become the initial value of
+.BR $* .
+.I Rc
+accepts the following command-line flags.
+.PD 0
+.TP \w'\fL-c\ \fIstring\fLXX'u
+.BI -c " string"
+Commands are read from
+.IR string .
+.TP
+.B -s
+Print out exit status after any command where the status is non-null.
+.TP
+.B -e
+Exit if
+.B $status
+is non-null after executing a simple command.
+.TP
+.B -i
+If
+.B -i
+is present, or
+.I rc
+is given no arguments and its standard input is a terminal,
+it runs interactively.
+Commands are prompted for using
+.BR $prompt .
+.TP
+.B -I
+Makes sure
+.I rc
+is not run interactively.
+.TP
+.B -l
+If
+.B -l
+is given or the first character of argument zero is
+.BR - ,
+.I rc
+reads commands from
+.BR $home/lib/profile ,
+if it exists, before reading its normal input.
+.TP
+.B -p
+A no-op.
+.TP
+.B -d
+A no-op.
+.TP
+.B -v
+Echo input on file descriptor 2 as it is read.
+.TP
+.B -x
+Print each simple command before executing it.
+.TP
+.B -r
+Print debugging information (internal form of commands
+as they are executed).
+.PD
+.SH SOURCE
+.B /sys/src/cmd/rc
+.SH "SEE ALSO"
+Tom Duff,
+``Rc \- The Plan 9 Shell''.
+.SH BUGS
+There should be a way to match patterns against whole lists rather than
+just single strings.
+.br
+Using
+.B ~
+to check the value of
+.B $status
+changes
+.BR $status .
+.br
+Functions that use here documents don't work.
+.br
+Free carets don't get inserted next to keywords.

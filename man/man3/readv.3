@@ -1,0 +1,82 @@
+.TH READV 3
+.SH NAME
+readv, writev, preadv, pwritev \- scatter/gather read and write
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.ft L
+typedef
+struct IOchunk
+{
+	void		*addr;
+	ulong	len;
+} IOchunk;
+.fi
+.PP
+.B
+long readv(int fd, IOchunk *io, int nio)
+.PP
+.B
+long preadv(int fd, IOchunk *io, int nio, vlong off)
+.PP
+.B
+long writev(int fd, IOchunk *io, int nio)
+.PP
+.B
+long pwritev(int fd, IOchunk *io, int nio, vlong off)
+.SH DESCRIPTION
+These functions supplement the standard read and write operations of
+.IR read (2)
+with facilities for scatter/gather I/O.
+The set of I/O buffers is collected into an array of
+.B IOchunk
+structures passed as an argument.
+.PP
+.I Readv
+reads data from
+.I fd
+and returns the total number of bytes received.
+The received data is stored in the successive
+.I nio
+elements of the
+.B IOchunk
+array, storing
+.IB io [0].len
+bytes at
+.IB io [0].addr\f1,
+the next
+.IB io [1].len
+at
+.IB io [1].addr\f1,
+and so on.
+.I Preadv
+does the same, but implicitly seeks to I/O offset
+.I off
+by analogy with
+.IR readv .
+.PP
+.I Writev
+and
+.I pwritev
+are the analogous write routines.
+.SH SOURCE
+.B /sys/src/libc/9sys/readv.c
+.br
+.B /sys/src/libc/9sys/writev.c
+.SH SEE ALSO
+.IR intro (2),
+.IR read (2)
+.SH DIAGNOSTICS
+These functions set
+.IR errstr .
+.SH BUGS
+The implementations use
+.IR malloc (2)
+to build a single buffer for a standard call to
+.B read
+or
+.BR write .
+They are placeholders for possible future system calls.

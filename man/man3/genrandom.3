@@ -1,0 +1,44 @@
+.TH GENRANDOM 3
+.SH NAME
+genrandom, prng \- random number generation
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+void	genrandom(uchar *buf, int nbytes)
+.PP
+.B
+void	prng(uchar *buf, int nbytes)
+.SH DESCRIPTION
+.PP
+Most security software requires a source of random or, at the
+very least, unguessable numbers.
+.PP
+.I Genrandom
+fills a buffer with bytes from the X9.17 pseudo-random
+number generator.  The X9.17 generator is seeded by 24
+truly random bytes read from
+.BR /dev/random .
+.PP
+.I Prng
+uses the native
+.IR rand (2)
+pseudo-random number generator to fill the buffer.  Used with
+.IR srand ,
+this function can produce a reproducible stream of pseudo random
+numbers useful in testing.
+.PP
+Both functions may be passed to
+.I mprand
+(see
+.IR mp (2)).
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR mp (2)

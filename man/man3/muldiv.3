@@ -1,0 +1,31 @@
+.TH MULDIV 3
+.SH NAME
+muldiv, umuldiv \- high-precision multiplication and division
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+long muldiv(long a, long b, long c)
+.PP
+.B
+ulong umuldiv(ulong a, ulong b, ulong c)
+.SH DESCRIPTION
+.I Muldiv
+returns
+.BR a*b/c ,
+using a
+.B vlong
+to hold the intermediate result.
+.I Umuldiv
+is the equivalent for unsigned integers.
+They can be used to scale integer values without worry about
+overflowing the intermediate result.
+.PP
+On some architectures, these routines can generate a trap if the
+final result does not fit in a
+.B long
+or
+.BR ulong ;
+on others they will silently truncate.

@@ -1,0 +1,144 @@
+.TH HOC 1
+.SH NAME
+hoc \- interactive floating point language
+.SH SYNOPSIS
+.B hoc
+[
+.I file ...
+]
+[
+.B -e
+.I expression
+]
+.SH DESCRIPTION
+.I Hoc
+interprets a simple language for floating point arithmetic,
+at about the level of BASIC, with C-like syntax and
+functions.
+.PP
+The named
+.I files
+are read and interpreted in order.
+If no
+.I file
+is given or if
+.I file
+is
+.L -
+.I hoc
+interprets the standard input.
+The
+.B -e
+option allows input to
+.I hoc
+to be specified on the command line, to be treated as if it appeared in a file.
+.PP
+.I Hoc
+input consists of
+.I expressions
+and
+.IR statements .
+Expressions are evaluated and their results printed.
+Statements, typically assignments and function or procedure
+definitions, produce no output unless they explicitly call
+.IR print .
+.PP
+Variable names have the usual syntax, including 
+.LR _ ;
+the name 
+.L _
+by itself contains the value of the last expression evaluated.
+The variables
+.BR E ,
+.BR PI ,
+.BR PHI ,
+.BR GAMMA
+and
+.B DEG 
+are predefined; the last is 59.25..., degrees per radian.
+.PP
+Expressions are formed with these C-like operators, listed by
+decreasing precedence.
+.TP
+.B ^
+exponentiation
+.TP
+.B ! - ++ --
+.TP
+.B * / %
+.TP
+.B + -
+.TP
+.B > >= < <= == !=
+.TP
+.B &&
+.TP
+.B ||
+.TP
+.B = += -= *= /= %=
+.PP
+Built in functions are
+.BR abs ,
+.BR acos ,
+.BR asin ,
+.B atan
+(one argument),
+.BR cos ,
+.BR cosh ,
+.BR exp ,
+.BR int ,
+.BR log ,
+.BR log10 ,
+.BR sin ,
+.BR sinh ,
+.BR sqrt ,
+.BR tan ,
+and
+.BR tanh .
+The function
+.B read(x)
+reads a value into the variable
+.B x
+and returns 0 at EOF;
+the statement
+.B print
+prints a list of expressions that may include
+string constants such as
+\fL"hello\en"\f1.\fP
+.PP
+Control flow statements are
+.BR if - else ,
+.BR while ,
+and
+.BR for ,
+with braces for grouping.
+Newline ends a statement.
+Backslash-newline is equivalent to a space.
+.PP
+Functions and procedures are introduced by the words
+.B func
+and
+.BR proc ;
+.B return
+is used to return with a value from a function.
+.SH EXAMPLES
+.EX
+func gcd(a, b) {
+	temp = abs(a) % abs(b)
+	if(temp == 0) return abs(b)
+	return gcd(b, temp)
+}
+for(i=1; i<12; i++) print gcd(i,12)
+.EE
+.SH SOURCE
+.B /sys/src/cmd/hoc
+.SH "SEE ALSO"
+.IR bc (1),
+.IR dc (1)
+.br
+B. W. Kernighan and R. Pike,
+.I
+The Unix Programming Environment,
+Prentice-Hall, 1984
+.SH BUGS
+Error recovery is imperfect within function and procedure definitions.

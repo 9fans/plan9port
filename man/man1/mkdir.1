@@ -1,0 +1,35 @@
+.TH MKDIR 1
+.SH NAME
+mkdir \- make a directory
+.SH SYNOPSIS
+.B mkdir
+[
+.B -p
+]
+.I dirname ...
+.SH DESCRIPTION
+.I Mkdir
+creates the specified directories.
+It
+requires write permission in the parent directory.
+.PP
+If the
+.B -p
+flag is given,
+.I mkdir
+creates any necessary parent directories
+and does not complain if the target directory already exists.
+.SH "SEE ALSO"
+.IR rm (1)
+.br
+.IR cd
+in
+.IR rc (1)
+.SH SOURCE
+.B /sys/src/cmd/mkdir.c
+.SH DIAGNOSTICS
+.I Mkdir
+returns null exit status if all directories were successfully made.
+Otherwise it prints a diagnostic and returns
+.B \&"error"
+status.

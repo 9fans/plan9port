@@ -1,0 +1,683 @@
+.TH ED 1
+.SH NAME
+ed \- text editor
+.SH SYNOPSIS
+.B ed
+[
+.B -
+]
+[
+.B -o
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Ed
+is a venerable text editor.
+.PP
+If a
+.I file
+argument is given,
+.I ed
+simulates an
+.L e
+command (see below) on that file:
+it is read into
+.I ed's
+buffer so that it can be edited.
+The options are
+.TP
+.B -
+Suppress the printing
+of character counts by
+.LR e ,
+.LR r ,
+and
+.L w
+commands and of the confirming 
+.L !
+by
+.L !
+commands.
+.TP
+.B -o
+(for output piping)
+Write all output to the standard error file except writing by
+.L w
+commands.
+If no 
+.I file
+is given, make
+.B /fd/1
+the remembered file; see the
+.L e
+command below.
+.PP
+.I Ed
+operates on a `buffer', a copy of the file it is editing;
+changes made
+in the buffer have no effect on the file until a
+.L w
+(write)
+command is given.
+The copy of the text being edited resides
+in a temporary file called the 
+.IR buffer .
+.PP
+Commands to
+.I ed
+have a simple and regular structure: zero, one, or
+two
+.I addresses
+followed by a single character
+.IR command ,
+possibly
+followed by parameters to the command.
+These addresses specify one or more lines in the buffer.
+Missing addresses are supplied by default.
+.PP
+In general, only one command may appear on a line.
+Certain commands allow the 
+addition of text to the buffer.
+While
+.I ed
+is accepting text, it is said
+to be in
+.I  "input mode."
+In this mode, no commands are recognized;
+all input is merely collected.
+Input mode is left by typing a period 
+.L .
+alone at the
+beginning of a line.
+.PP
+.I Ed
+supports the 
+.I "regular expression"
+notation described in
+.IR regexp (6).
+Regular expressions are used in addresses to specify
+lines and in one command
+(see
+.I s
+below)
+to specify a portion of a line which is to be replaced.
+If it is desired to use one of
+the regular expression metacharacters as an ordinary
+character, that character may be preceded by
+.RB ` \e '.
+This also applies to the character bounding the regular
+expression (often 
+.LR / )
+and to
+.L \e
+itself.
+.PP
+To understand addressing in
+.I ed
+it is necessary to know that at any time there is a
+.I "current line."
+Generally, the current line is
+the last line affected by a command; however,
+the exact effect on the current line
+is discussed under the description of
+each command.
+Addresses are constructed as follows.
+.TP
+1.
+The character
+.LR . ,
+customarily called `dot',
+addresses the current line.
+.TP
+2.
+The character 
+.L $
+addresses the last line of the buffer.
+.TP
+3.
+A decimal number
+.I n
+addresses the
+.IR n -th
+line of the buffer.
+.TP
+4.
+.BI \'x
+addresses the line marked with the name
+.IR x ,
+which must be a lower-case letter.
+Lines are marked with the
+.L k
+command.
+.TP
+5.
+A regular expression enclosed in slashes (
+.LR / )
+addresses
+the line found by searching forward from the current line
+and stopping at the first line containing a
+string that matches the regular expression.
+If necessary the search wraps around to the beginning of the
+buffer.
+.TP
+6.
+A regular expression enclosed in queries 
+.L ?
+addresses
+the line found by searching backward from the current line
+and stopping at the first line containing
+a string that matches the regular expression.
+If necessary
+the search wraps around to the end of the buffer.
+.TP
+7.
+An address followed by a plus sign 
+.L +
+or a minus sign
+.L -
+followed by a decimal number specifies that address plus
+(resp. minus) the indicated number of lines.
+The plus sign may be omitted.
+.TP
+8.
+An address followed by 
+.L +
+(or
+.LR - )
+followed by a
+regular expression enclosed in slashes specifies the first
+matching line following (or preceding) that address.
+The search wraps around if necessary.
+The 
+.L +
+may be omitted, so
+.L 0/x/
+addresses the
+.I first
+line in the buffer with an 
+.LR x .
+Enclosing the regular expression in 
+.L ?
+reverses the search direction.
+.TP
+9.
+If an address begins with 
+.L +
+or
+.L -
+the addition or subtraction is taken with respect to the current line;
+e.g.\&
+.L -5
+is understood to mean
+.LR .-5 .
+.TP
+10.
+If an address ends with 
+.L +
+or
+.LR - ,
+then 1 is added (resp. subtracted).
+As a consequence of this rule and rule 9,
+the address
+.L -
+refers to the line before the current line.
+Moreover,
+trailing
+.L +
+and
+.L -
+characters
+have cumulative effect, so
+.L --
+refers to the current
+line less 2.
+.TP
+11.
+To maintain compatibility with earlier versions of the editor,
+the character 
+.L ^
+in addresses is 
+equivalent to
+.LR - .
+.PP
+Commands may require zero, one, or two addresses.
+Commands which require no addresses regard the presence
+of an address as an error.
+Commands which accept one or two addresses
+assume default addresses when insufficient are given.
+If more addresses are given than a command requires,
+the last one or two (depending on what is accepted) are used.
+.PP
+Addresses are separated from each other typically by a comma
+.LR , .
+They may also be separated by a semicolon
+.LR ; .
+In this case the current line 
+is set to
+the previous address before the next address is interpreted.
+If no address precedes a comma or semicolon, line 1 is assumed;
+if no address follows, the last line of the buffer is assumed.
+The second address of any two-address sequence
+must correspond to a line following the line corresponding to the first address.
+.PP
+In the following list of
+.I ed
+commands, the default addresses
+are shown in parentheses.
+The parentheses are not part of
+the address, but are used to show that the given addresses are
+the default.
+`Dot' means the current line.
+.TP
+.RB (\|\fL.\fP\|) \|a
+.br
+.ns
+.TP
+<text>
+.br
+.ns
+.TP
+.B .
+Read the given text
+and append it after the addressed line.
+Dot is left
+on the last line input, if there
+were any, otherwise at the addressed line.
+Address 
+.L 0
+is legal for this command; text is placed
+at the beginning of the buffer.
+.TP
+.RB (\|\fL.,.\fP\|) \|b [ +- ][\fIpagesize\fP][ pln\fR]
+Browse.
+Print a `page', normally 20 lines.
+The optional 
+.L +
+(default) or
+.L -
+specifies whether the next or previous
+page is to be printed.
+The optional
+.I pagesize
+is the number of lines in a page.
+The optional
+.LR p ,
+.LR n ,
+or 
+.L l
+causes printing in the specified format, initially
+.LR p .
+Pagesize and format are remembered between 
+.L b
+commands.
+Dot is left at the last line displayed.
+.TP
+.RB (\|\fL.,.\fP\|) \|c
+.br
+.ns
+.TP
+<text>
+.br
+.ns
+.TP
+.B .
+Change.
+Delete the addressed lines, then accept input
+text to replace these lines.
+Dot is left at the last line input; if there were none,
+it is left at the line preceding the deleted lines.
+.TP
+.RB (\|\fL.,.\fP\|) \|d
+Delete the addressed lines from the buffer.
+Dot is set to the line following the last line deleted, or to
+the last line of the buffer if the deleted lines had no successor.
+.TP
+.BI e " filename"
+Edit.
+Delete the entire contents of the buffer;
+then read the named file into the buffer.
+Dot is set to the last line of the buffer.
+The number of characters read is typed.
+The file name is remembered for possible use in later
+.LR e ,
+.LR r ,
+or
+.L w
+commands.
+If
+.I filename
+is missing, the remembered name is used.
+.TP
+.BI E " filename"
+Unconditional
+.LR e ;
+see
+.RL ` q '
+below.
+.TP
+.BI f " filename"
+Print the currently remembered file name.
+If
+.I filename
+is given,
+the currently remembered file name is first changed to
+.IR filename .
+.TP
+.RB (\|\fL1,$\fP\|) \|g/\fIregular\ expression\fP/\fIcommand\ list\fP
+.PD 0
+.TP
+.RB (\|\fL1,$\fP\|) \|g/\fIregular\ expression\fP/
+.TP
+.RB (\|\fL1,$\fP\|) \|g/\fIregular\ expression\fP
+.PD
+Global.
+First mark every line which matches
+the given
+.IR regular expression .
+Then for every such line, execute the
+.I command list
+with dot initially set to that line.
+A single command or the first of multiple commands
+appears on the same line with the global command.
+All lines of a multi-line list except the last line must end with
+.LR \e .
+The
+.RB \&` \&. \&'
+terminating input mode for an
+.LR a ,
+.LR i ,
+.L c
+command may be omitted if it would be on the
+last line of the command list.
+The commands
+.L g
+and
+.L v
+are not permitted in the command list.
+Any character other than space or newline may
+be used instead of 
+.L /
+to delimit the regular expression.
+The second and third forms mean
+.BI g/ regular\ expression /p \f1.
+.TP
+.RB (\| .\| ) \|i
+.PD 0
+.TP
+<text>
+.TP
+.B .
+Insert the given text before the addressed line.
+Dot is left at the last line input, or, if there were none,
+at the line before the addressed line.
+This command differs from the
+.I a
+command only in the placement of the
+text.
+.PD
+.TP
+.RB (\| .,.+1 \|) \|j
+Join the addressed lines into a single line;
+intermediate newlines are deleted.
+Dot is left at the resulting line.
+.TP
+.RB (\|\fL.\fP\|) \|k\fIx\fP
+Mark the addressed line with name
+.IR x ,
+which must be a lower-case letter.
+The address form
+.BI \' x
+then addresses this line.
+.ne 2.5
+.TP
+.RB (\|\fL.,.\fP\|) \|l
+List.
+Print the addressed lines in an unambiguous way:
+a tab is printed as
+.LR \et ,
+a backspace as
+.LR \eb ,
+backslashes as
+.LR \e\e ,
+and non-printing characters as
+a backslash, an
+.LR x ,
+and four hexadecimal digits.
+Long lines are folded,
+with the second and subsequent sub-lines indented one tab stop.
+If the last character in the line is a blank,
+it is followed by
+.LR \en .
+An
+.L l
+may be appended, like
+.LR p ,
+to any non-I/O command.
+.TP
+.RB (\|\fL.,.\fP\|) \|m\fIa
+Move.
+Reposition the addressed lines after the line
+addressed by
+.IR a .
+Dot is left at the last moved line.
+.TP
+.RB (\|\fL.,.\fP\|) \|n
+Number.
+Perform
+.LR p ,
+prefixing each line with its line number and a tab.
+An
+.L n
+may be appended, like
+.LR p ,
+to any non-I/O command.
+.TP
+.RB (\|\fL.,.\fP\|) \|p
+Print the addressed lines.
+Dot is left at the last line printed.
+A
+.L p
+appended to any non-I/O command causes the then current line
+to be printed after the command is executed.
+.TP
+.RB (\|\fL.,.\fP\|) \|P
+This command is a synonym for
+.LR p .
+.TP
+.B q
+Quit the editor.
+No automatic write
+of a file is done.
+A
+.L q
+or
+.L e
+command is considered to be in error if the buffer has
+been modified since the last
+.LR w ,
+.LR q ,
+or
+.L e
+command.
+.TP
+.B Q
+Quit unconditionally.
+.TP
+.RB ( $ )\|r\ \fIfilename\fP
+Read in the given file after the addressed line.
+If no
+.I filename
+is given, the remembered file name is used.
+The file name is remembered if there were no
+remembered file name already.
+If the read is successful, the number of characters
+read is printed.
+Dot is left at the last line read from the file.
+.TP
+.RB (\|\fL.,.\fP\|) \|s\fIn\fP/\fIregular\ expression\fP/\fIreplacement\fP/
+.PD 0
+.TP
+.RB (\|\fL.,.\fP\|) \|s\fIn\fP/\fIregular\ expression\fP/\fIreplacement\fP/g
+.TP
+.RB (\|\fL.,.\fP\|) \|s\fIn\fP/\fIregular\ expression\fP/\fIreplacement\fP
+.PD
+Substitute.
+Search each addressed
+line for an occurrence of the specified regular expression.
+On each line in which
+.I n
+matches are found
+.RI ( n
+defaults to 1 if missing),
+the
+.IR n th
+matched string is replaced by the replacement specified.
+If the global replacement indicator 
+.L g
+appears after the command,
+all subsequent matches on the line are also replaced.
+It is an error for the substitution to fail on all addressed lines.
+Any character other than space or newline
+may be used instead of 
+.L /
+to delimit the regular expression
+and the replacement.
+Dot is left at the last line substituted.
+The third form means
+.BI s n / regular\ expression / replacement\fP/p\f1.
+The second
+.L /
+may be omitted if the replacement is
+empty.
+.IP
+An ampersand 
+.L &
+appearing in the replacement
+is replaced by the string matching the regular expression.
+The characters
+.BI \e n\f1,
+where
+.I n
+is a digit,
+are replaced by the text matched by the
+.IR n -th
+regular subexpression
+enclosed between
+.L (
+and
+.LR ) .
+When
+nested parenthesized subexpressions
+are present,
+.I n
+is determined by counting occurrences of
+.L (
+starting from the left.
+.IP
+A literal 
+.LR & ,
+.LR / ,
+.L \e
+or newline may be included in a replacement
+by prefixing it with
+.LR \e .
+.TP
+.RB (\|\fL.,.\fP\|) \|t\|\fIa
+Transfer.
+Copy the addressed lines 
+after the line addressed by
+.IR a .
+Dot is left at the last line of the copy.
+.TP
+.RB (\|\fL.,.\fP\|) \|u
+Undo.
+Restore the preceding contents
+of the first addressed line (sic), which must be the last line
+in which a substitution was made (double sic).
+.TP
+.RB (\|\fL1,$\fP\|) \|v/\fIregular\ expression\fP/\fIcommand\ list\fP
+This command is the same as the global command
+.L g
+except that the command list is executed with
+dot initially set to every line
+.I except
+those
+matching the regular expression.
+.TP
+.RB (\|\fL1,$\fP\|) \|w " \fIfilename\fP"
+Write the addressed lines to
+the given file.
+If the file does not exist,
+it is created with mode 666 (readable and writable by everyone).
+If no
+.I filename
+is given, the remembered file name, if any, is used.
+The file name is remembered if there were no 
+remembered file name already.
+Dot is unchanged.
+If the write is successful, the number of characters written is
+printed.
+.TP
+.RB (\|\fL1,$\fP\|) \|W " \fIfilename\fP"
+Perform
+.LR w ,
+but append to, instead of overwriting, any existing file contents.
+.TP
+.RB ( $ ) \|=
+Print the line number of the addressed line.
+Dot is unchanged.
+.TP
+.BI ! shell\ command
+Send the remainder of the line after the 
+.L !
+to
+.IR rc (1)
+to be interpreted as a command.
+Dot is unchanged.
+.TP
+.RB (\| .+1 )\|<newline>
+An address without a command is taken as a
+.L p 
+command.
+A terminal
+.L /
+may be omitted from the address.
+A blank line alone is equivalent to
+.LR .+1p ;
+it is useful
+for stepping through text.
+.PP
+If an interrupt signal 
+.SM (DEL)
+is sent,
+.I ed
+prints a 
+.L ?
+and returns to its command level.
+.PP
+When reading a file,
+.I ed
+discards
+.SM NUL
+characters
+and all characters after the last newline.
+.SH FILES
+.B /tmp/e*
+.br
+.B ed.hup
+\ \ work is saved here if terminal hangs up
+.SH SOURCE
+.B /sys/src/cmd/ed.c
+.SH "SEE ALSO"
+.IR sam (1), 
+.IR sed (1),
+.IR regexp (6)
+.SH DIAGNOSTICS
+.BI ? name
+for inaccessible file;
+.L ?TMP
+for temporary file overflow;
+.L ?
+for errors in commands or other overflows.

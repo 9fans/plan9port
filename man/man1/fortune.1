@@ -1,0 +1,23 @@
+.TH FORTUNE 1
+.SH NAME
+fortune \- sample lines from a file
+.SH SYNOPSIS
+.B fortune
+[
+.I file
+]
+.SH DESCRIPTION
+.I Fortune
+prints a one-line aphorism chosen at random.
+If a
+.I file
+is specified, the saying is taken from that file;
+otherwise it is selected from
+.BR /sys/games/lib/fortunes .
+.SH FILES
+.B /sys/games/lib/fortunes
+.br
+.B /sys/games/lib/fortunes.index
+\ \ fast lookup table, maintained automatically
+.SH SOURCE
+.B /sys/src/cmd/fortune.c

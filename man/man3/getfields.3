@@ -1,0 +1,95 @@
+.TH GETFIELDS 3
+.SH NAME
+getfields, gettokens, tokenize \- break a string into fields
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLchar* \fP'u
+.B
+int	getfields(char *str, char **args, int maxargs, int multiflag,
+.br
+.B
+	    char *delims)
+.PP
+.B
+int	gettokens(char *str, char **args, int maxargs, char *delims)
+.PP
+.B
+int	tokenize(char *str, char **args, int maxargs)
+.SH DESCRIPTION
+.I Getfields
+places into the array
+.I args
+pointers to the first
+.I maxargs
+fields of the null terminated
+.SM UTF
+string
+.IR str .
+Delimiters between these fields are set to null.
+.PP
+Fields are substrings of
+.I str
+whose definition depends on the value of
+.IR multiflag.
+If
+.I multiflag
+is zero,
+adjacent fields are separated by exactly one delimiter.
+For example
+.EX
+
+	getfields("#alice#bob##charles###", arg, 3, 0, "#");
+
+.EE
+yields three substrings:
+null-string ,
+.BR "alice" ,
+and
+.BR "bob##charles###" .
+If the
+.I multiflag
+argument is not zero,
+a field is a non-empty string of non-delimiters.
+For example
+.EX
+
+	getfields("#alice#bob##charles###", arg, 3, 1, "#");
+
+.EE
+yields the three substrings:
+.BR "alice" ,
+.BR "bob" ,
+and
+.BR "charles###" .
+.PP
+Getfields returns the number of fields pointed to.
+.PP
+.I Gettokens
+is the same as
+.I getfields
+with
+.I multiflag
+non-zero,
+except that fields may be quoted using single quotes, in the manner
+of
+.IR rc (1).
+See
+.IR quote (2)
+for related quote-handling software.
+.PP
+.I Tokenize
+is
+.I gettokens
+with 
+.I delims
+set to \f5"\et\er\en "\fP.
+.SH SOURCE
+.B /sys/src/libc/port/tokenize.c
+.SH SEE ALSO
+.I strtok
+in
+.IR strcat (2),
+.IR quote (2).

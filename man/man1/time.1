@@ -1,0 +1,21 @@
+.TH TIME 1
+.SH NAME
+time \- time a command
+.SH SYNOPSIS
+.B time
+.I command
+[
+.I arg ...
+]
+.SH DESCRIPTION
+The
+.I command
+is executed with the given arguments; after it is complete,
+.I time
+reports on standard error the program's elapsed user time,
+system time, and real time, in seconds,
+followed by the command line.
+.SH SOURCE
+.B /sys/src/cmd/time.c
+.SH "SEE ALSO"
+.IR prof (1)

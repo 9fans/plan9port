@@ -1,0 +1,95 @@
+.TH READ 3
+.SH NAME
+read, readn, write, pread, pwrite \- read or write file
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+long read(int fd, void *buf, long nbytes)
+.PP
+.B
+long readn(int fd, void *buf, long nbytes)
+.PP
+.B
+long write(int fd, void *buf, long nbytes)
+.PP
+.B
+long pread(int fd, void *buf, long nbytes, vlong offset)
+.PP
+.B
+long pwrite(int fd, void *buf, long nbytes, vlong offset)
+.SH DESCRIPTION
+.I Read
+reads
+.I nbytes
+bytes of data
+from the offset in the file associated with
+.I fd
+into memory at
+.IR buf .
+The offset is advanced by the number of bytes read.
+It is not guaranteed
+that all
+.I nbytes
+bytes will be read; for example
+if the file refers to the console, at most one line
+will be returned.
+In any event the number of bytes read is returned.
+A return value of
+0 is conventionally interpreted as end of file.
+.PP
+.I Readn
+is just like read, but does successive
+.I read
+calls until
+.I nbytes
+have been read, or a read system call
+returns a non-positive count.
+.PP
+.I Write
+writes
+.I nbytes
+bytes of data starting at
+.I buf
+to the file associated with
+.I fd
+at the file offset.
+The offset is advanced by the number of bytes written.
+The number of characters actually written is returned.
+It should be regarded as an error
+if this is not the same as requested.
+.PP
+.I Pread
+and
+.I Pwrite
+equivalent to a
+.IR seek (2)
+to
+.I offset
+followed by a
+.I read
+or
+.IR write .
+By combining the operations in a single atomic call, they more closely
+match the 9P protocol
+(see
+.IR intro (5))
+and, more important,
+permit multiprocess programs to execute multiple concurrent
+read and write operations on the same file descriptor
+without interference.
+.SH SOURCE
+.B /sys/src/libc/9syscall
+.br
+.B /sys/src/libc/port/readn.c
+.SH SEE ALSO
+.IR intro (2),
+.IR open (2), 
+.IR dup (2),
+.IR pipe (2),
+.IR readv (2)
+.SH DIAGNOSTICS
+These functions set
+.IR errstr .

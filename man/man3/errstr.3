@@ -1,0 +1,85 @@
+.TH ERRSTR 3
+.SH NAME
+errstr, rerrstr, werrstr \- description of last system call error
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int errstr(char *err, uint nerr)
+.PP
+.B
+void rerrstr(char *err, uint nerr)
+.PP
+.B
+void werrstr(char *fmt, ...)
+.SH DESCRIPTION
+When a system call fails it returns \-1 and
+records a null terminated string describing the error in a per-process buffer.
+.I Errstr
+swaps the contents of that buffer with the contents of the array
+.IR err .
+.I Errstr
+will write at most 
+.I nerr
+bytes into 
+.IR err ;
+if the per-process error string does not fit,
+it is silently truncated at a UTF character boundary.
+The returned string is NUL-terminated.
+Usually
+.I errstr
+will be called with an empty string,
+but the exchange property provides a mechanism for
+libraries to set the return value for the next call to
+.IR errstr .
+.PP
+The per-process buffer is
+.B ERRMAX
+bytes long.  Any error string provided by the user will
+be truncated at 
+.B ERRMAX-1
+bytes.
+.B ERRMAX
+is defined in
+.BR <libc.h> .
+.PP
+If no system call has generated an error since the last call to
+.I errstr
+with an empty string,
+the result is an empty string.
+.PP
+The verb
+.B r
+in
+.IR print (2)
+calls
+.I errstr
+and outputs the error string.
+.PP
+.I Rerrstr
+reads the error string but does not modify the per-process buffer, so
+a subsequent
+.I errstr
+will recover the same string.
+.PP
+.I Werrstr
+takes a
+.I print
+style format as its argument and uses it to format
+a string to pass to
+.IR errstr .
+The string returned from
+.I errstr
+is discarded.
+.SH SOURCE
+.B /sys/src/libc/9syscall
+.br
+.B /sys/src/libc/9sys/werrstr.c
+.SH DIAGNOSTICS
+.I Errstr
+always returns 0.
+.SH SEE ALSO
+.IR intro (2),
+.IR perror (2)

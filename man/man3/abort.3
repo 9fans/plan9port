@@ -1,0 +1,18 @@
+.TH ABORT 3
+.SH NAME
+abort \- generate a fault
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.B
+void	abort(void)
+.fi
+.SH DESCRIPTION
+.I Abort
+causes an access fault, causing the current process to enter the `Broken' state.
+The process can then be inspected by a debugger.
+.SH SOURCE
+.B /sys/src/libc/9sys/abort.c

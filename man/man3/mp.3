@@ -1,0 +1,577 @@
+.TH MP 3
+.SH NAME
+
+mpsetminbits, mpnew, mpfree, mpbits, mpnorm, mpcopy, mpassign, mprand, strtomp, mpfmt,mptoa, betomp, mptobe, letomp, mptole, mptoui, uitomp, mptoi, itomp, uvtomp, mptouv, vtomp, mptov, mpdigdiv, mpadd, mpsub, mpleft, mpright, mpmul, mpexp, mpmod, mpdiv, mpcmp, mpextendedgcd, mpinvert, mpsignif, mplowbits0, mpvecdigmuladd, mpvecdigmulsub, mpvecadd, mpvecsub, mpveccmp, mpvecmul, mpmagcmp, mpmagadd, mpmagsub, crtpre, crtin, crtout, crtprefree, crtresfree \- extended precision arithmetic
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.PP
+.B
+mpint*	mpnew(int n)
+.PP
+.B
+void	mpfree(mpint *b)
+.PP
+.B
+void	mpsetminbits(int n)
+.PP
+.B
+void	mpbits(mpint *b, int n)
+.PP
+.B
+void	mpnorm(mpint *b)
+.PP
+.B
+mpint*	mpcopy(mpint *b)
+.PP
+.B
+void	mpassign(mpint *old, mpint *new)
+.PP
+.B
+mpint*	mprand(int bits, void (*gen)(uchar*, int), mpint *b)
+.PP
+.B
+mpint*	strtomp(char *buf, char **rptr, int base, mpint *b)
+.PP
+.B
+char*	mptoa(mpint *b, int base, char *buf, int blen)
+.PP
+.B
+int	mpfmt(Fmt*)
+.PP
+.B
+mpint*	betomp(uchar *buf, uint blen, mpint *b)
+.PP
+.B
+int	mptobe(mpint *b, uchar *buf, uint blen, uchar **bufp)
+.PP
+.B
+mpint*	letomp(uchar *buf, uint blen, mpint *b)
+.PP
+.B
+int	mptole(mpint *b, uchar *buf, uint blen, uchar **bufp)
+.PP
+.B
+uint	mptoui(mpint*)
+.PP
+.B
+mpint*	uitomp(uint, mpint*)
+.PP
+.B
+int	mptoi(mpint*)
+.PP
+.B
+mpint*	itomp(int, mpint*)
+.PP
+.B
+mpint*	vtomp(vlong, mpint*)
+.PP
+.B
+vlong	mptov(mpint*)
+.PP
+.B
+mpint*	uvtomp(uvlong, mpint*)
+.PP
+.B
+uvlong	mptouv(mpint*)
+.PP
+.B
+void	mpadd(mpint *b1, mpint *b2, mpint *sum)
+.PP
+.B
+void	mpmagadd(mpint *b1, mpint *b2, mpint *sum)
+.PP
+.B
+void	mpsub(mpint *b1, mpint *b2, mpint *diff)
+.PP
+.B
+void	mpmagsub(mpint *b1, mpint *b2, mpint *diff)
+.PP
+.B
+void	mpleft(mpint *b, int shift, mpint *res)
+.PP
+.B
+void	mpright(mpint *b, int shift, mpint *res)
+.PP
+.B
+void	mpmul(mpint *b1, mpint *b2, mpint *prod)
+.PP
+.B
+void	mpexp(mpint *b, mpint *e, mpint *m, mpint *res)
+.PP
+.B
+void	mpmod(mpint *b, mpint *m, mpint *remainder)
+.PP
+.B
+void	mpdiv(mpint *dividend, mpint *divisor,  mpint *quotient, mpint *remainder)
+.PP
+.B
+int	mpcmp(mpint *b1, mpint *b2)
+.PP
+.B
+int	mpmagcmp(mpint *b1, mpint *b2)
+.PP
+.B
+void	mpextendedgcd(mpint *a, mpint *b, mpint *d, mpint *x, mpint *y)
+.PP
+.B
+void	mpinvert(mpint *b, mpint *m, mpint *res)
+.PP
+.B
+int	mpsignif(mpint *b)
+.PP
+.B
+int	mplowbits0(mpint *b)
+.PP
+.B
+void	mpdigdiv(mpdigit *dividend, mpdigit divisor, mpdigit *quotient)
+.PP
+.B
+void	mpvecadd(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *sum)
+.PP
+.B
+void	mpvecsub(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *diff)
+.PP
+.B
+void	mpvecdigmuladd(mpdigit *b, int n, mpdigit m, mpdigit *p)
+.PP
+.B
+int	mpvecdigmulsub(mpdigit *b, int n, mpdigit m, mpdigit *p)
+.PP
+.B
+void	mpvecmul(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *p)
+.PP
+.B
+int	mpveccmp(mpdigit *a, int alen, mpdigit *b, int blen)
+.PP
+.B
+CRTpre*	crtpre(int nfactors, mpint **factors)
+.PP
+.B
+CRTres*	crtin(CRTpre *crt, mpint *x)
+.PP
+.B
+void	crtout(CRTpre *crt, CRTres *r, mpint *x)
+.PP
+.B
+void	crtprefree(CRTpre *cre)
+.PP
+.B
+void	crtresfree(CRTres *res)
+.PP
+.B
+mpint	*mpzero, *mpone, *mptwo
+.SH DESCRIPTION
+.PP
+These routines perform extended precision integer arithmetic.
+The basic type is
+.BR mpint ,
+which points to an array of
+.BR mpdigit s,
+stored in little-endian order:
+.sp
+.EX
+typedef struct mpint mpint;
+struct mpint
+{
+	int	sign;   /* +1 or -1 */
+	int	size;   /* allocated digits */
+	int	top;    /* significant digits */
+	mpdigit	*p;
+	char	flags;
+};
+.EE
+.PP
+The sign of 0 is +1.
+.PP
+The size of
+.B mpdigit
+is architecture-dependent and defined in
+.BR /$cputype/include/u.h .
+.BR Mpint s
+are dynamically allocated and must be explicitly freed.  Operations
+grow the array of digits as needed.
+.PP
+In general, the result parameters are last in the
+argument list.
+.PP
+Routines that return an
+.B mpint
+will allocate the
+.B mpint
+if the result parameter is
+.BR nil .
+This includes
+.IR strtomp ,
+.IR itomp ,
+.IR uitomp ,
+and
+.IR btomp .
+These functions, in addition to
+.I mpnew
+and
+.IR mpcopy ,
+will return
+.B nil
+if the allocation fails.
+.PP
+Input and result parameters may point to the same
+.BR mpint .
+The routines check and copy where necessary.
+.PP
+.I Mpnew
+creates an
+.B mpint
+with an initial allocation of
+.I n
+bits.
+If
+.I n
+is zero, the allocation will be whatever was specified in the
+last call to
+.I mpsetminbits
+or to the initial value, 1056.
+.I Mpfree
+frees an
+.BR mpint .
+.I Mpbits
+grows the allocation of
+.I b
+to fit at least
+.I n
+bits.  If
+.B b->top
+doesn't cover
+.I n
+bits it increases it to do so.
+Unless you are writing new basic operations, you
+can restrict yourself to
+.B mpnew(0)
+and
+.BR mpfree(b) .
+.PP
+.I Mpnorm
+normalizes the representation by trimming any high order zero
+digits.  All routines except
+.B mpbits
+return normalized results.
+.PP
+.I Mpcopy
+creates a new
+.B mpint
+with the same value as
+.I b
+while
+.I mpassign
+sets the value of
+.I new
+to be that of
+.IR old .
+.PP
+.I Mprand
+creates an
+.I n
+bit random number using the generator
+.IR gen .
+.I Gen
+takes a pointer to a string of uchar's and the number
+to fill in.
+.PP
+.I Strtomp
+and
+.I mptoa
+convert between
+.SM ASCII
+and
+.B mpint
+representations using the base indicated.
+Only the bases 10, 16, 32, and 64 are
+supported.  Anything else defaults to 16.
+.IR Strtomp
+skips any leading spaces or tabs.
+.IR Strtomp 's
+scan stops when encountering a digit not valid in the
+base.  If
+.I rptr
+is not zero,
+.I *rptr
+is set to point to the character immediately after the
+string converted.
+If the parse pterminates before any digits are found,
+.I strtomp
+return
+.BR nil .
+.I Mptoa
+returns a pointer to the filled buffer.
+If the parameter
+.I buf
+is
+.BR nil ,
+the buffer is allocated.
+.I Mpfmt
+can be used with
+.IR fmtinstall (2)
+and
+.IR print (2)
+to print hexadecimal representations of
+.BR mpint s.
+.PP
+.I Mptobe
+and
+.I mptole
+convert an
+.I mpint
+to a byte array.  The former creates a big endian representation,
+the latter a little endian one.
+If the destination
+.I buf
+is not
+.BR nil ,
+it specifies the buffer of length
+.I blen
+for the result.  If the representation
+is less than
+.I blen
+bytes, the rest of the buffer is zero filled.
+If
+.I buf
+is
+.BR nil ,
+then a buffer is allocated and a pointer to it is
+deposited in the location pointed to by
+.IR bufp .
+Sign is ignored in these conversions, i.e., the byte
+array version is always positive.
+.PP
+.IR Betomp ,
+and
+.I letomp
+convert from a big or little endian byte array at
+.I buf
+of length
+.I blen
+to an
+.IR mpint .
+If
+.I b
+is not
+.IR nil ,
+it refers to a preallocated
+.I mpint
+for the result.
+If
+.I b
+is
+.BR nil ,
+a new integer is allocated and returned as the result.
+.PP
+The integer conversions are:
+.TF Mptouv
+.TP
+.I mptoui
+.BR mpint -> "unsigned int"
+.TP
+.I uitomp
+.BR "unsigned int" -> mpint
+.TP
+.I mptoi
+.BR mpint -> "int"
+.TP
+.I itomp
+.BR "int" -> mpint
+.TP
+.I mptouv
+.BR mpint -> "unsigned vlong"
+.TP
+.I uvtomp
+.BR "unsigned vlong" -> mpint
+.TP
+.I mptov
+.BR mpint -> "vlong"
+.TP
+.I vtomp
+.BR "vlong" -> mpint
+.PD
+.PP
+When converting to the base integer types, if the integer is too large,
+the largest integer of the appropriate sign
+and size is returned.
+.PP
+The mathematical functions are:
+.TF mpmagadd
+.TP
+.I mpadd
+.BR "sum = b1 + b2" .
+.TP
+.I mpmagadd
+.BR "sum = abs(b1) + abs(b2)" . 
+.TP
+.I mpsub
+.BR "diff = b1 - b2" .
+.TP
+.I mpmagsub
+.BR "diff = abs(b1) - abs(b2)" .
+.TP
+.I mpleft
+.BR "res = b<<shift" .
+.TP
+.I mpright
+.BR "res = b>>shift" .
+.TP
+.I mpmul
+.BR "prod = b1*b2" .
+.TP
+.I mpexp
+if
+.I m
+is nil,
+.BR "res = b**e" .
+Otherwise,
+.BR "res = b**e mod m" .
+.TP
+.I mpmod
+.BR "remainder = b % m" .
+.TP
+.I mpdiv
+.BR "quotient = dividend/divisor" .
+.BR "remainder = dividend % divisor" .
+.TP
+.I mpcmp
+returns -1, 0, or +1 as
+.I b1
+is less than, equal to, or greater than
+.IR b2 .
+.TP
+.I mpmagcmp
+the same as
+.I mpcmp
+but ignores the sign and just compares magnitudes.
+.PD
+.PP
+.I Mpextendedgcd
+computes the greatest common denominator,
+.IR d ,
+of
+.I a
+and
+.IR b .
+It also computes
+.I x
+and
+.I y
+such that
+.BR "a*x + b*y = d" .
+Both
+.I a
+and
+.I b
+are required to be positive.
+If called with negative arguments, it will
+return a gcd of 0.
+.PP
+.I Mpinverse
+computes the multiplicative inverse of
+.I b
+.B mod
+.IR m .
+.PP
+.I Mpsignif
+returns the bit offset of the left most 1 bit in
+.IR b .
+.I Mplowbits0
+returns the bit offset of the right most 1 bit.
+For example, for 0x14,
+.I mpsignif
+would return 4 and
+.I mplowbits0
+would return 2.
+.PP
+The remaining routines all work on arrays of
+.B mpdigit
+rather than
+.BR mpint 's.
+They are the basis of all the other routines.  They are separated out
+to allow them to be rewritten in assembler for each architecture.  There
+is also a portable C version for each one.
+.TF mpvecdigmuladd
+.TP
+.I mpdigdiv
+.BR "quotient = dividend[0:1] / divisor" .
+.TP
+.I mpvecadd
+.BR "sum[0:alen] = a[0:alen-1] + b[0:blen-1]" .
+We assume alen >= blen and that sum has room for alen+1 digits.
+.TP
+.I mpvecsub
+.BR "diff[0:alen-1] = a[0:alen-1] - b[0:blen-1]" .
+We assume that alen >= blen and that diff has room for alen digits.
+.TP
+.I mpvecdigmuladd
+.BR "p[0:n] += m * b[0:n-1]" .
+This multiplies a an array of digits times a scalar and adds it to another array.
+We assume p has room for n+1 digits.
+.TP
+.I mpvecdigmulsub
+.BR "p[0:n] -= m * b[0:n-1]" .
+This multiplies a an array of digits times a scalar and subtracts it fromo another array.
+We assume p has room for n+1 digits.  It returns +1 is the result is positive and
+-1 if negative.
+.TP
+.I mpvecmul
+.BR "p[0:alen*blen] = a[0:alen-1] * b[0:blen-1]" .
+We assume that p has room for alen*blen+1 digits.
+.TP
+.I mpveccmp
+This returns -1, 0, or +1 as a - b is negative, 0, or positive.
+.PD
+.PP
+.IR mptwo ,
+.I mpone
+and
+.I mpzero
+are the constants 2, 1 and 0.  These cannot be freed.
+.SS "Chinese remainder theorem
+.PP
+When computing in a non-prime modulus, 
+.IR n,
+it is possible to perform the computations on the residues modulo the prime
+factors of
+.I n
+instead.  Since these numbers are smaller, multiplication and exponentiation
+can be much faster.
+.PP
+.I Crtin
+computes the residues of
+.I x
+and returns them in a newly allocated structure:
+.EX
+	typedef struct CRTres	CRTres;	
+	{
+		int	n;	// number of residues
+		mpint	*r[n];	// residues
+	};
+.EE
+.PP
+.I Crtout
+takes a residue representation of a number and converts it back into
+the number.  It also frees the residue structure.
+.PP
+.I Crepre
+saves a copy of the factors and precomputes the constants necessary
+for converting the residue form back into a number modulo
+the product of the factors.  It returns a newly allocated structure
+containing values.
+.PP
+.I Crtprefree
+and
+.I crtresfree
+free
+.I CRTpre
+and
+.I CRTres
+structures respectively.
+.SH SOURCE
+.B /sys/src/libmp

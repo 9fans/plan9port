@@ -1,0 +1,335 @@
+.TH IP 3
+.SH NAME
+eipfmt, parseip, parseipmask, v4parseip, v4parsecidr, parseether, myipaddr, myetheraddr, maskip, equivip, defmask, isv4, v4tov6, v6tov4, nhgetl, nhgets, hnputl, hnputs, ptclbsum, readipifc \- Internet protocol
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <ip.h>
+.PP
+.B
+int	eipfmt(Fmt*)
+.PP
+.B
+ulong	parseip(uchar *ipaddr, char *str)
+.PP
+.B
+ulong	parseipmask(uchar *ipaddr, char *str)
+.PP
+.B
+char*	v4parseip(uchar *ipaddr, char *str)
+.PP
+.B
+ulong	v4parsecidr(uchar *addr, uchar *mask, char *str)
+.PP
+.B
+int	parseether(uchar *eaddr, char *str)
+.PP
+.B
+int	myetheraddr(uchar *eaddr, char *dev)
+.PP
+.B
+int	myipaddr(uchar *ipaddr, char *net)
+.PP
+.B
+void	maskip(uchar *from, uchar *mask, uchar *to)
+.PP
+.B
+int	equivip(uchar *ipaddr1, uchar *ipaddr2)
+.PP
+.B
+uchar*	defmask(uchar *ipaddr)
+.PP
+.B
+int	isv4(uchar *ipaddr)
+.PP
+.B
+void	v4tov6(uchar *ipv6, uchar *ipv4)
+.PP
+.B
+void	v6tov4(uchar *ipv4, uchar *ipv6)
+.PP
+.B
+ushort	nhgets(void *p)
+.PP
+.B
+uint	nhgetl(void *p)
+.PP
+.B
+void	hnputs(void *p, ushort v)
+.PP
+.B
+void	hnputl(void *p, uint v)
+.PP
+.B
+ushort	ptclbsum(uchar *a, int n)
+.PP
+.B
+Ipifc*	readipifc(char *net, Ipifc *ifc, int index)
+.PP
+.B
+uchar	IPv4bcast[IPaddrlen];
+.PP
+.B
+uchar	IPv4allsys[IPaddrlen];
+.PP
+.B
+uchar	IPv4allrouter[IPaddrlen];
+.PP
+.B
+uchar	IPallbits[IPaddrlen];
+.PP
+.B
+uchar	IPnoaddr[IPaddrlen];
+.PP
+.B
+uchar	v4prefix[IPaddrlen];
+.SH DESCRIPTION
+These routines are used by Internet Protocol (IP) programs to
+manipulate IP and Ethernet addresses.
+Plan 9, by default, uses V6 format IP addresses.  Since V4
+addresses fit into the V6 space, all IP addresses can be represented.
+IP addresses are stored as a string of 16
+.B unsigned
+.BR chars ,
+Ethernet
+addresses as 6
+.B unsigned
+.BR chars .
+Either V4 or V6 string representation can be used for IP addresses.
+For V4 addresses, the representation can be (up to) 4 decimal
+integers from 0 to 255 separated by periods.
+For V6 addresses, the representation is (up to) 8 hex integers
+from 0x0 to 0xFFFF separated by colons.
+Strings of 0 integers can be elided using two colons.
+For example,
+.B FFFF::1111
+is equivalent to
+.BR FFFF:0:0:0:0:0:0:1111 .
+The string representation for IP masks is a superset of the
+address representation.  It includes slash notation that indicates
+the number of leading 1 bits in the mask.  Thus, a
+V4 class C mask can be represented as
+.BR FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FF00 ,
+.BR 255.255.255.0 ,
+or
+.BR /120.
+The string representation of Ethernet addresses is exactly
+12 hexadecimal digits.
+.PP
+.I Eipfmt
+is a
+.IR print (2)
+formatter for Ethernet (verb
+.BR E )
+addresses,
+IP V6 (verb
+.BR I )
+addresses,
+IP V4 (verb
+.BR V )
+addresses,
+and IP V6 (verb
+.BR M )
+masks.
+.PP
+.I Parseip
+converts a string pointed to by
+.I str
+to a 16-byte IP address starting at
+.IR ipaddr .
+As a concession to backwards compatibility,
+if the string is a V4 address, the return value
+is an unsigned long integer containing the big-endian V4 address.
+If not, the return value is 6.
+.I Parseipmask
+converts a string pointed to by
+.I str
+to a 6-byte IP mask starting at
+.IR ipaddr .
+It too returns an unsigned long big-endian V4 address or 6.
+Both routines return -1 on errors.
+.PP
+.I V4parseip
+converts a string pointed to by
+.I str
+to a 4-byte V4 IP address starting at
+.IR ipaddr .
+.PP
+.I V4parsecidr
+converts a string of the form
+addr/mask, pointed to by
+.IR str ,
+to a 4-byte V4 IP address starting at
+.I ipaddr
+and a 4-byte V4 IP mask starting at
+.IR mask .
+.PP
+.I Myipaddr
+returns the first valid IP address in
+the IP stack rooted at
+.IR net .
+.PP
+.I Parseether
+converts a string pointed to by
+.I str
+to a 6-byte Ethernet address starting at
+.IR eaddr .
+.I Myetheraddr
+reads the Ethernet address string from file
+.IB dev /1/stats
+and parses it into
+.IR eaddr .
+Both routines return a negative number on errors.
+.PP
+.I Maskip
+places the bit-wise AND of the IP addresses pointed
+to by its first two arguments into the buffer pointed
+to by the third.
+.PP
+.I Equivip
+returns non-zero if the IP addresses pointed to by its two
+arguments are equal.
+.PP
+.I Defmask
+returns the standard class A, B, or C mask for
+.IR ipaddr .
+.PP
+.I Isv4
+returns non-zero if the V6 address is in the V4 space, that is,
+if it starts with
+.BR 0:0:0:0:0:0:FFFF .
+.I V4tov6
+converts the V4 address,
+.IR v4ip ,
+to a V6 address and puts the result in
+.IR v6ip .
+.I V6tov4
+converts the V6 address,
+.IR v6ip ,
+to a V4 address and puts the result in
+.IR v4ip .
+.PP
+.I Hnputs
+and
+.I hnputl
+are used to store 16-bit and 32-bit integers into IP big-endian form.
+.I Nhgets
+and
+.I nhgetl
+convert big-endian 2 and 4 byte quantities into integers.
+.PP
+.I Pctlbsum
+returns the one's complement checksum used in IP protocols, typically invoked as
+.EX
+hnputs(hdr->cksum, ~ptclbsum(data, len) & 0xffff);
+.EE
+.PP
+A number of standard IP addresses in V6 format are also defined.  They
+are:
+.IP \f5IPv4bcast
+the V4 broadcast address
+.IP \f5IPv4allsys
+the V4 all systems multicast address
+.IP \f5IPv4allrouter
+the V4 all routers multicast address
+.IP \f5IPallbits
+the V6 all bits on address
+.IP \f5IPnoaddr
+the V6 null address, all zeros
+.IP \f5v4prefix
+the IP V6 prefix to all embedded V4 addresses
+.PP
+.I Readipifc
+returns information about
+a particular interface  (\fIindex\fP >= 0)
+or all IP interfaces (\fIindex\fP < 0)
+configured under a
+mount point
+.IR net ,
+default
+.BR /net .
+Each interface is described by one
+.I Ipifc
+structure which in turn points to a linked list of
+.IR Iplifc
+structures describing the addresses assigned
+to this interface.
+If the list
+.IR ifc
+is supplied,
+that list is freed.
+Thus, subsequent calls can be used
+to free the list returned by the previous call.
+.I Ipifc
+is:
+.PP
+.EX
+typedef struct Ipifc
+{
+	Ipifc	*next;
+	Iplifc	*lifc;		/* local addressses */
+
+	/* per ip interface */
+	int	index;		/* number of interface in ipifc dir */
+	char	dev[64];	/* associated physical device */
+ 	int	mtu;		/* max transfer unit */
+
+	long	validlt;	/* valid life time */
+ 	long	preflt;		/* preferred life time */
+	uchar	sendra6;	/* on == send router adv */
+	uchar	recvra6;	/* on == rcv router adv */
+
+	ulong	pktin;		/* packets read */
+	ulong	pktout;		/* packets written */
+	ulong	errin;		/* read errors */
+	ulong	errout;		/* write errors */
+	Ipv6rp	rp;		/* route advertisement params */
+} Ipifc;
+.EE
+.PP
+.I Iplifc
+is:
+.PP
+.EX
+struct Iplifc
+{
+	Iplifc	*next;
+
+	uchar	ip[IPaddrlen];
+	uchar	mask[IPaddrlen];
+	uchar	net[IPaddrlen];		/* ip & mask */
+	ulong	preflt;			/* preferred lifetime */
+	ulong	validlt;		/* valid lifetime */
+};
+.EE
+.PP
+.I Ipv6rp
+is:
+struct Ipv6rp
+{
+	int	mflag;
+	int	oflag;
+	int 	maxraint;	/* max route adv interval */
+	int	minraint;	/* min route adv interval */
+	int	linkmtu;
+	int	reachtime;
+	int	rxmitra;
+	int	ttl;
+	int	routerlt;	
+};
+.PP
+.I Dev
+contains the first 64 bytes of the device configured with this
+interface.
+.I Net
+is
+.IB ip & mask
+if the network is multipoint or
+the remote address if the network is
+point to point.
+.SH SOURCE
+.B /sys/src/libip
+.SH SEE ALSO
+.IR print (2)

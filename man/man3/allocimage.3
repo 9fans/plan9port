@@ -1,0 +1,348 @@
+.TH ALLOCIMAGE 3
+.SH NAME
+allocimage, allocimagemix, freeimage, nameimage, namedimage, setalpha, loadimage, cloadimage, unloadimage, readimage, writeimage, bytesperline, wordsperline \- allocating, freeing, reading, writing images
+.SH SYNOPSIS
+.nf
+.PP
+.B
+#include <u.h>
+.B
+#include <libc.h>
+.B
+#include <draw.h>
+.PP
+.ta \w'\fLImage 'u
+.B
+Image	*allocimage(Display *d, Rectangle r, 
+.br
+.B
+	ulong chan, int repl, int col)
+.PP
+.B
+Image	*allocimagemix(Display *d, ulong one, ulong three)
+.PP
+.B
+void	freeimage(Image *i)
+.PP
+.B
+int	nameimage(Image *i, char *name, int in)
+.PP
+.B
+Image	*namedimage(Display *d, char *name)
+.PP
+.B
+ulong	setalpha(ulong color, uchar alpha)
+.PP
+.B
+int	loadimage(Image *i, Rectangle r, uchar *data, int ndata)
+.PP
+.B
+int	cloadimage(Image *i, Rectangle r, uchar *data, int ndata)
+.PP
+.B
+int	unloadimage(Image *i, Rectangle r, uchar *data, int ndata)
+.PP
+.B
+Image	*readimage(Display *d, int fd, int dolock)
+.PP
+.B
+int	writeimage(int fd, Image *i, int dolock)
+.PP
+.B
+int	bytesperline(Rectangle r, int d)
+.PP
+.B
+int	wordsperline(Rectangle r, int d)
+.PP
+.nf
+.B
+enum
+.nf
+.ft L
+.ta +4n +20
+{
+	DOpaque		= 0xFFFFFFFF,
+	DTransparent	= 0x00000000,
+	DBlack		= 0x000000FF,
+	DWhite		= 0xFFFFFFFF,
+	DRed		= 0xFF0000FF,
+	DGreen		= 0x00FF00FF,
+	DBlue		= 0x0000FFFF,
+	DCyan		= 0x00FFFFFF,
+	DMagenta		= 0xFF00FFFF,
+	DYellow		= 0xFFFF00FF,
+	DPaleyellow	= 0xFFFFAAFF,
+	DDarkyellow	= 0xEEEE9EFF,
+	DDarkgreen	= 0x448844FF,
+	DPalegreen	= 0xAAFFAAFF,
+	DMedgreen	= 0x88CC88FF,
+	DDarkblue	= 0x000055FF,
+	DPalebluegreen	= 0xAAFFFFFF,
+	DPaleblue		= 0x0000BBFF,
+	DBluegreen	= 0x008888FF,
+	DGreygreen	= 0x55AAAAFF,
+	DPalegreygreen	= 0x9EEEEEFF,
+	DYellowgreen	= 0x99994CFF,
+	DMedblue		= 0x000099FF,
+	DGreyblue	= 0x005DBBFF,
+	DPalegreyblue	= 0x4993DDFF,
+	DPurpleblue	= 0x8888CCFF,
+
+	DNotacolor	= 0xFFFFFF00,
+	DNofill		= DNotacolor,
+	
+};
+.fi
+.SH DESCRIPTION
+A new
+.B Image
+on
+.B Display
+.B d
+is allocated with
+.BR allocimage ;
+it will have the rectangle, pixel channel format,
+and replication flag
+given by its arguments.
+Convenient pixel channels like
+.BR GREY1 ,
+.BR GREY2 ,
+.BR CMAP8 ,
+.BR RGB16 ,
+.BR RGB24 ,
+and
+.BR RGBA32 
+are predefined.
+All the new image's pixels will have initial value
+.IR col .
+If
+.I col
+is 
+.BR DNofill ,
+no initialization is done.
+Representative useful values of color are predefined:
+.BR DBlack ,
+.BR DWhite ,
+.BR DRed ,
+and so on.
+Colors are specified by 32-bit numbers comprising,
+from most to least significant byte,
+8-bit values for red, green, blue, and alpha.
+The values correspond to illumination, so 0 is black and 255 is white.
+Similarly, for alpha 0 is transparent and 255 is opaque.
+The
+.I id
+field will have been set to the identifying number used by
+.B /dev/draw
+(see
+.IR draw (3)),
+and the
+.I cache
+field will be zero.
+If
+.I repl
+is true, the clip rectangle is set to a very large region; if false, it is set to
+.IR r .
+The 
+.I depth
+field will be set to the number of bits per pixel specified
+by the channel descriptor
+(see
+.IR image (6)).
+.I Allocimage
+returns 0 if the server has run out of image memory.
+.PP
+.I Allocimagemix
+is used to allocate background colors.
+On 8-bit color-mapped displays, it
+returns a 2×2 replicated image with one pixel colored 
+the color
+.I one
+and the other three with
+.IR three .
+(This simulates a wider range of tones than can be represented by a single pixel
+value on a color-mapped display.)
+On true color displays, it returns a 1×1 replicated image 
+whose pixel is the result of mixing the two colors in 
+a one to three ratio.
+.PP
+.I Freeimage
+frees the resources used by its argument image.
+.PP
+.I Nameimage
+publishes in the server the image
+.I i
+under the given
+.IR name .
+If
+.I in
+is non-zero, the image is published; otherwise
+.I i
+must be already named
+.I name
+and it is withdrawn from publication.
+.I Namedimage
+returns a reference to the image published under the given
+.I name
+on
+.B Display
+.IR d .
+These routines permit unrelated applications sharing a display to share an image;
+for example they provide the mechanism behind
+.B getwindow
+(see
+.IR graphics (2)).
+.PP
+The RGB values in a color are
+.I premultiplied
+by the alpha value; for example, a 50% red is
+.B 0x7F00007F
+not
+.BR 0xFF00007F .
+The function
+.I setalpha
+performs the alpha computation on a given
+.BR color ,
+ignoring its initial alpha value, multiplying the components by the supplied
+.BR alpha .
+For example, to make a 50% red color value, one could execute
+.B setalpha(DRed,
+.BR 0x7F) .
+.PP
+The remaining functions deal with moving groups of pixel
+values between image and user space or external files.
+There is a fixed format for the exchange and storage of
+image data
+(see
+.IR image (6)).
+.PP
+.I Unloadimage
+reads a rectangle of pixels from image
+.I i
+into
+.IR data ,
+whose length is specified by
+.IR ndata .
+It is an error if
+.I ndata
+is too small to accommodate the pixels.
+.PP
+.I Loadimage
+replaces the specified rectangle in image
+.I i
+with the
+.I ndata
+bytes of
+.IR data .
+.PP
+The pixels are presented one horizontal line at a time,
+starting with the top-left pixel of
+.IR r .
+In the data processed by these routines, each scan line starts with a new byte in the array,
+leaving the last byte of the previous line partially empty, if necessary.
+Pixels are packed as tightly as possible within
+.IR data ,
+regardless of the rectangle being extracted.
+Bytes are filled from most to least significant bit order,
+as the
+.I x
+coordinate increases, aligned so
+.IR x =0
+would appear as the leftmost pixel of its byte.
+Thus, for
+.B depth
+1, the pixel at
+.I x
+offset 165 within the rectangle will be in a
+.I data
+byte at bit-position
+.B 0x04
+regardless of the overall
+rectangle: 165 mod 8 equals 5, and
+.B "0x80\ >>\ 5"
+equals
+.BR 0x04 .
+.PP
+.B Cloadimage
+does the same as
+.IR loadimage ,
+but for
+.I ndata
+bytes of compressed image
+.I data
+(see
+.IR image (6)).
+On each call to
+.IR cloadimage,
+the
+.I data
+must be at the beginning of a compressed data block, in particular,
+it should start with the
+.B y
+coordinate and data length for the block. 
+.PP
+.IR Loadimage ,
+.IR cloadimage ,
+and
+.I unloadimage
+return the number of bytes copied.
+.PP
+.I Readimage
+creates an image from data contained in an external file (see
+.IR image (6)
+for the file format);
+.I fd
+is a file descriptor obtained by opening such a file for reading.
+The returned image is allocated using
+.IR allocimage .
+The
+.I dolock
+flag specifies whether the
+.B Display
+should be synchronized for multithreaded access; single-threaded
+programs can leave it zero.
+.PP
+.I Writeimage
+writes image
+.I i
+onto file descriptor
+.IR fd ,
+which should be open for writing.
+The format is as described for
+.IR readimage .
+.PP
+.I Readimage
+and
+.I writeimage
+do not close
+.IR fd .
+.PP
+.I Bytesperline
+and
+.I wordsperline
+return the number of bytes or words occupied in memory by one scan line of rectangle
+.I r
+in an image with
+.I d
+bits per pixel.
+.SH EXAMPLE
+To allocate a single-pixel replicated image that may be used to paint a region red,
+.EX
+	red = allocimage(display, Rect(0, 0, 1, 1), RGB24, 1, DRed);
+.EE
+.SH SOURCE
+.B /sys/src/libdraw
+.SH "SEE ALSO"
+.IR graphics (2),
+.IR draw (2),
+.IR draw (3),
+.IR image (6)
+.SH DIAGNOSTICS
+These functions return pointer 0 or integer \-1 on failure, usually due to insufficient
+memory.
+.PP
+May set
+.IR errstr .
+.SH BUGS
+.B Depth
+must be a divisor or multiple of 8.

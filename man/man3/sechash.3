@@ -1,0 +1,150 @@
+.TH SECHASH 3
+.SH NAME
+md4, md5, sha1, hmac_md5, hmac_sha1, md5pickle, md5unpickle, sha1pickle, sha1unpickle \- cryptographically secure hashes
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <mp.h>
+.br
+.B #include <libsec.h>
+.PP
+.B
+DigestState*	md4(uchar *data, ulong dlen, uchar *digest,
+.B
+			 DigestState *state)
+.PP
+.B
+DigestState*	md5(uchar *data, ulong dlen, uchar *digest,
+.B
+			 DigestState *state)
+.PP
+.B
+char*		md5pickle(MD5state *state)
+.PP
+.B
+MD5state*	md5unpickle(char *p);
+.PP
+.B
+DigestState*	sha1(uchar *data, ulong dlen, uchar *digest,
+.B
+			 DigestState *state)
+.PP
+.B
+char*		sha1pickle(MD5state *state)
+.PP
+.B
+MD5state*	sha1unpickle(char *p);
+.PP
+.B
+DigestState*	hmac_md5(uchar *data, ulong dlen,
+.br
+.B
+			 uchar *key, ulong klen,
+.br
+.B
+			 uchar *digest, DigestState *state)
+.PP
+.B
+DigestState*	hmac_sha1(uchar *data, ulong dlen,
+.br
+.B
+			 uchar *key, ulong klen,
+.br
+.B
+			 uchar *digest, DigestState *state)
+.SH DESCRIPTION
+.PP
+We support several secure hash functions.  The output of the
+hash is called a
+.IR digest .
+A hash is secure if, given the hashed data and the digest,
+it is difficult to predict the change to the digest resulting
+from some change to the data without rehashing
+the whole data.  Therefore, if a secret is part of the hashed
+data, the digest can be used as an integrity check of the data by anyone
+possessing the secret.
+.PP
+The routines
+.IR md4 ,
+.IR md5 ,
+.IR sha1 ,
+.IR hmac_md5 ,
+and
+.I hmac_sha1
+differ only in the length of the resulting digest
+and in the security of the hash.  Usage for each is the same.
+The first call to the routine should have
+.B nil
+as the 
+.I state
+parameter.  This call returns a state which can be used to chain
+subsequent calls.
+The last call should have digest non-\fBnil\fR.
+.I Digest
+must point to a buffer of at least the size of the digest produced.
+This last call will free the state and copy the result into
+.IR digest .
+For example, to hash a single buffer using
+.IR md5 :
+.EX
+
+	uchar digest[MD5dlen];
+
+	md5(data, len, digest, nil);
+.EE
+.PP
+To chain a number of buffers together,
+bounded on each end by some secret:
+.EX
+
+	char buf[256];
+	uchar digest[MD5dlen];
+	DigestState *s;
+
+	s = md5("my password", 11, nil, nil);
+	while((n = read(fd, buf, 256)) > 0)
+		md5(buf, n, nil, s);
+	md5("drowssap ym", 11, digest, s);
+.EE
+.PP
+The constants
+.IR MD4dlen ,
+.IR MD5dlen ,
+and
+.I SHA1dlen
+define the lengths of the digests.
+.PP
+.I Hmac_md5
+and
+.I hmac_sha1
+are used slightly differently.  These hash algorithms are keyed and require
+a key to be specified on every call.
+The digest lengths for these hashes are
+.I MD5dlen
+and
+.I SHA1dlen
+respectively.
+.PP
+The functions
+.I md5pickle
+and
+.I sha1pickle
+marshal the state of a digest for transmission.
+.I Md5unpickle
+and
+.I sha1unpickle
+unmarshal a pickled digest.
+All four routines return a pointer to a newly
+.IR malloc (2)'d
+object.
+.SH SOURCE
+.B /sys/src/libsec
+.SH SEE ALSO
+.IR aes (2),
+.IR blowfish (2),
+.IR des (2),
+.IR elgamal (2),
+.IR rc4 (2),
+.IR rsa (2)

@@ -1,0 +1,124 @@
+.TH ARG 3
+.SH NAME
+ARGBEGIN, ARGEND, ARGC, ARGF, EARGF, arginit, argopt \- process option letters from argv
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.B ARGBEGIN {
+.B char *ARGF();
+.B char *EARGF(code);
+.B Rune ARGC();
+.B } ARGEND
+.PP
+.B extern char *argv0;
+.SH DESCRIPTION
+These macros assume the names
+.I argc
+and
+.I argv
+are in scope; see
+.IR exec (2).
+.I ARGBEGIN
+and
+.I ARGEND
+surround code for processing program options.
+The code
+should be the cases of a C switch on
+option characters;
+it is executed once for each option character.
+Options end after an argument 
+.BR -- ,
+before an argument
+.BR - ,
+or before an argument that doesn't begin with
+.BR - .
+.PP
+The function macro
+.I ARGC
+returns the current option character, as an integer.
+.PP
+The function macro
+.I ARGF
+returns the current option argument:
+a pointer to the rest of the option string if not empty,
+or the next argument in
+.I argv
+if any, or 0.
+.I ARGF
+must be called just once for each option
+that takes an argument.
+The macro
+.I EARGF
+is like
+.I ARGF
+but instead of returning zero
+runs
+.I code
+and, if that returns, calls
+.IR abort (2).
+A typical value for
+.I code
+is 
+.BR usage() ,
+as in
+.BR EARGF(usage()) .
+.PP
+After
+.IR ARGBEGIN ,
+.I argv0
+is a copy of
+.BR argv[0]
+(conventionally the name of the program).
+.PP
+After
+.IR ARGEND ,
+.I argv
+points at a zero-terminated list of the remaining
+.I argc
+arguments.
+.SH EXAMPLE
+This C program can take option
+.B b
+and option
+.BR f ,
+which requires an argument.
+.IP
+.EX
+.ta \w'12345678'u +\w'12345678'u +\w'12345678'u +\w'12345678'u +\w'12345678'u
+#include <u.h>
+#include <libc.h>
+void
+main(int argc, char *argv[])
+{
+	char *f;
+	print("%s", argv[0]);
+	ARGBEGIN {
+	case 'b':
+		print(" -b");
+		break;
+	case 'f':
+		print(" -f(%s)", (f=ARGF())? f: "no arg");
+		break;
+	default:
+		print(" badflag('%c')", ARGC());
+	} ARGEND
+	print(" %d args:", argc);
+	while(*argv)
+		print(" '%s'", *argv++);
+	print("\en");
+	exits(nil);
+}
+.EE
+.PP
+Here is the output from running the command
+.B
+prog -bffile1 -r -f file2 arg1 arg2
+.IP
+.B
+prog -b -f(file1) badflag('r') -f(file2) 2 args: 'arg1' 'arg2'
+.PP
+.SH SOURCE
+.B /sys/include/libc.h

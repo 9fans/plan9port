@@ -1,0 +1,45 @@
+.TH TIME 3
+.SH NAME
+time, nsec \- time in seconds and nanoseconds since epoch
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.B
+long time(long *tp)
+.PP
+.B
+vlong nsec(void)
+.SH DESCRIPTION
+Both
+.I time
+and
+.I nsec
+return the time since the epoch 00:00:00 GMT, Jan. 1, 1970.
+The return value of the former is in seconds and the latter in nanoseconds.
+For
+.IR time ,
+if
+.I tp
+is not zero then
+.BI * tp
+is also set to the answer.
+.PP
+These functions work by reading
+.BR /dev/bintime ,
+opening that file when
+.I they
+are first called.
+.SH SOURCE
+.B /sys/src/libc/9sys/time.c
+.br
+.B /sys/src/libc/9sys/nsec.c
+.SH SEE ALSO
+.IR cons (3)
+.SH DIAGNOSTICS
+Sets
+.IR errstr .
+.SH BUGS
+These routines maintain a static file descriptor.

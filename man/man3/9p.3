@@ -1,0 +1,760 @@
+.TH 9P 3
+.SH NAME
+Srv,
+dirread9p,
+emalloc9p,
+erealloc9p,
+estrdup9p,
+postfd,
+postmountsrv,
+readbuf,
+readstr,
+respond,
+threadpostmountsrv,
+srv \- 9P file service
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+#include <fcall.h>
+#include <thread.h>
+#include <9p.h>
+.fi
+.PP
+.ft L
+.nf
+.ta \w'\fL1234'u +\w'\fLTree* 'u
+typedef struct Srv {
+	Tree*	tree;
+
+	void		(*attach)(Req *r);
+	void		(*auth)(Req *r);
+	void		(*open)(Req *r);
+	void		(*create)(Req *r);
+	void		(*read)(Req *r);
+	void		(*write)(Req *r);
+	void		(*remove)(Req *r);
+	void		(*flush)(Req *r);
+	void		(*stat)(Req *r);
+	void		(*wstat)(Req *r);
+	void		(*walk)(Req *r);
+
+	char*	(*walk1)(Fid *fid, char *name, Qid *qid);
+	char*	(*clone)(Fid *oldfid, Fid *newfid);
+
+	void		(*destroyfid)(Fid *fid);
+	void		(*destroyreq)(Req *r);
+	void		(*end)(Srv *s);
+	void*	aux;
+
+	int		infd;
+	int		outfd;
+	int		srvfd;
+	int		nopipe;
+} Srv;
+.fi
+.PP
+.nf
+.ft L
+.ta \w'\fLvoid* 'u
+int	srv(Srv *s)
+void	postmountsrv(Srv *s, char *name, char *mtpt, int flag)
+void	threadpostmountsrv(Srv *s, char *name, char *mtpt, int flag)
+int	postfd(char *srvname, int fd)
+void	respond(Req *r, char *error)
+ulong	readstr(Req *r, char *src)
+ulong	readbuf(Req *r, void *src, ulong nsrc)
+typedef int Dirgen(int n, Dir *dir, void *aux)
+void		dirread9p(Req *r, Dirgen *gen, void *aux)
+void	walkandclone(Req *r, char *(*walk1)(Fid *old, char *name, void *v),
+          char *(*clone)(Fid *old, Fid *new, void *v), void *v)
+.fi
+.PP
+.nf
+.ft L
+.ta \w'\fLvoid* 'u
+void*	emalloc9p(ulong n)
+void*	erealloc9p(void *v, ulong n)
+char*	estrdup9p(char *s)
+.fi
+.PP
+.nf
+.ft L
+extern int chatty9p;
+.fi
+.SH DESCRIPTION
+The function
+.I srv
+serves a 9P session by reading requests from
+.BR s->infd ,
+dispatching them to the function pointers kept in 
+.BR Srv ,
+and
+writing the responses to
+.BR s->outfd .
+(Typically,
+.I postmountsrv
+or
+.I threadpostmountsrv
+initializes the
+.B infd
+and
+.B outfd
+structure members.  See the description below.)
+.PP
+.B Req
+and 
+.B Fid
+structures are allocated one-to-one with uncompleted
+requests and active fids, and are described in
+.IR 9pfid (2).
+.PP
+The behavior of
+.I srv
+depends on whether there is a file tree
+(see
+.IR 9pfile (2))
+associated with the server, that is,
+whether the
+.B tree
+element is nonzero.
+The differences are made explicit in the
+discussion of the service loop below.
+The
+.B aux
+element is the client's, to do with as it pleases.
+.PP
+.I Srv
+does not return until the 9P conversation is finished.
+Since it is usually run in a separate process so that
+the caller can exit, the service loop has little chance
+to return gracefully on out of memory errors.
+It calls 
+.IR emalloc9p ,
+.IR erealloc9p ,
+and
+.I estrdup9p
+to obtain its memory.
+The default implementations of these functions
+act as
+.IR malloc ,
+.IR realloc ,
+and
+.I strdup 
+but abort the program if they run out of memory.
+If alternate behavior is desired, clients can link against
+alternate implementations of these functions.
+.PP
+.I Postmountsrv
+and
+.I threadpostmountsrv
+are wrappers that create a separate process in which to run
+.IR srv .
+They do the following:
+.IP
+If
+.IB s -> nopipe
+is zero (the common case),
+initialize
+.IB s -> infd
+and
+.IB s -> outfd
+to be one end of a freshly allocated pipe,
+with
+.IB s -> srvfd
+initialized as the other end.
+.IP
+If
+.B name
+is non-nil, call
+.BI postfd( s -> srvfd ,
+.IB name )
+to post
+.IB s -> srvfd
+as
+.BI /srv/ name .
+.IP
+Fork a child process via
+.I rfork
+(see
+.IR fork (2))
+or
+.I procrfork
+(see
+.IR thread (2)),
+using the
+.BR RFFDG ,
+.RR RFNOTEG ,
+.BR RFNAMEG ,
+and
+.BR RFMEM
+flags.
+The child process
+calls
+.IB close( s -> srvfd )
+and then
+.IB srv( s ) \fR;
+it will exit once
+.I srv
+returns.
+.IP
+If
+.I mtpt
+is non-nil,
+call
+.BI amount( s -> srvfd,
+.IB mtpt ,
+.IB flag ,
+\fB"")\fR;
+otherwise, close
+.IB s -> srvfd \fR.
+.IP
+The parent returns to the caller.
+.LP
+If any error occurs during
+this process, the entire process is terminated by calling
+.I sysfatal
+(see
+.IR perror (2)).
+.SS Service functions
+The functions in a 
+.B Srv
+structure named after 9P transactions
+are called to satisfy requests as they arrive.
+If a function is provided, it
+.I must
+arrange for
+.I respond
+to be called when the request is satisfied.
+The only parameter of each service function
+is a 
+.B Req*
+parameter (say
+.IR r ).
+The incoming request parameters are stored in 
+.IB r -> ifcall \fR;
+.IB r -> fid
+and
+.IB r -> newfid
+are pointers to 
+.B Fid
+structures corresponding to the
+numeric fids in
+.IB r -> ifcall \fR;
+similarly, 
+.IB r -> oldreq
+is the
+.B Req
+structure corresponding to
+.IB r -> ifcall.oldtag \fR.
+The outgoing response data should be stored in 
+.IB r -> ofcall \fR.
+The one exception to this rule is that 
+.I stat
+should fill in 
+.IB r -> d
+rather than
+.IB r -> ofcall.stat \fR:
+the library will convert the structure into the machine-independent
+wire representation.
+Similarly, 
+.I wstat
+may consult
+.IB r -> d
+rather than decoding
+.IB r -> ifcall . stat
+itself.
+When a request has been handled,
+.I respond
+should be called with
+.I r
+and an error string.
+If the request was satisfied successfully, the error
+string should be a nil pointer.
+Note that it is permissible for a function to return
+without itself calling 
+.IR respond ,
+as long as it has arranged for
+.I respond
+to be called at some point in the future
+by another proc sharing its address space,
+but see the discussion of
+.I flush
+below.
+Once
+.I respond
+has been called, the 
+.B Req*
+as well as any pointers it once contained must
+be considered freed and not referenced.
+.PP
+If the service loop detects an error in a request
+(e.g., an attempt to reuse an extant fid, an open of
+an already open fid, a read from a fid opened for write, etc.)
+it will reply with an error without consulting
+the service functions.
+.PP
+The service loop provided by
+.I srv
+(and indirectly by
+.I postmountsrv
+and
+.IR threadpostmountsrv )
+is single-threaded.
+If it is expected that some requests might
+block, arranging for alternate processes
+to handle them is suggested.
+.PP
+The constraints on the service functions are as follows.
+These constraints are checked while the server executes.
+If a service function fails to do something it ought to have,
+.I srv
+will call
+.I endsrv
+and then abort.
+.TP 
+.I Auth
+If authentication is desired,
+the
+.I auth
+function should record that
+.I afid
+is the new authentication fid and
+set 
+.I afid->qid
+and
+.IR ofcall.qid .
+.I Auth
+may be nil, in which case it will be treated as having
+responded with the error
+.RI `` "argv0: authentication not required" ,''
+where
+.I argv0
+is the program name variable as set by
+.I ARGBEGIN
+(see
+.IR arg (2)).
+.TP
+.I Attach
+The
+.I attach
+function should check the authentication state of
+.I afid
+if desired,
+and set
+.IB r -> fid -> qid
+and
+.I ofcall.qid
+to the qid of the file system root.
+.I Attach
+may be nil only if file trees are in use;
+in this case, the qid will be filled from the root
+of the tree, and no authentication will be done.
+.TP
+.I Walk
+If file trees are in use,
+.I walk
+is handled internally, and 
+.IB srv -> walk
+is never called.
+.IP
+If file trees are not in use,
+.I walk
+should consult
+.IB r -> ifcall . wname
+and
+.IB r -> ifcall . nwname \fR,
+filling in 
+.IB ofcall . qid
+and
+.IB ofcall . nqid \fR,
+and also copying any necessary 
+.I aux
+state from
+.IB r -> fid
+to
+.IB r -> newfid
+when the two are different.
+As long as
+.I walk 
+sets
+.IB ofcall . nqid
+appropriately, it can
+.I respond
+with a nil error string even when 9P
+demands an error 
+.RI ( e.g. ,
+in the case of a short walk);
+the library detects error conditions and handles them appropriately.
+.IP
+Because implementing the full walk message is intricate and
+prone to error, the helper routine
+.I walkandclone
+will handle the request given pointers to two functions
+.I walk1
+and (optionally)
+.I clone .
+.IR Clone ,
+if non-nil, is called to signal the creation of
+.I newfid
+from
+.IR oldfid .
+Typically a 
+.I clone
+routine will copy or increment a reference count in
+.IR oldfid 's
+.I aux
+element.
+.I Walk1
+should walk
+.I fid
+to
+.IR name ,
+initializing
+.IB fid -> qid
+to the new path's qid.
+Both should return nil
+on success or an error message on error.
+.I Walkandclone
+will call
+.I respond
+after handling the request.
+.TP
+.I Walk1\fR, \fPClone
+If the client provides functions
+.IB srv -> walk1
+and (optionally)
+.IB srv -> clone \fR,
+the 9P service loop will call
+.I walkandclone
+with these functions to handle the request.
+Unlike the
+.I walk1
+above,
+.IB srv -> walk1
+must fill in both
+.IB fid -> qid
+and
+.BI * qid
+with the new qid on a successful walk.
+.TP
+.I Open
+If file trees are in use, the file
+metadata will be consulted on open, create, remove, and wstat
+to see if the requester has the appropriate permissions.
+If not, an error will be sent back without consulting a service function.
+.PP
+If not using file trees or the user has the appropriate permissions,
+.I open
+is called with
+.IB r -> ofcall . qid
+already initialized to the one stored in the 
+.B Fid
+structure (that is, the one returned in the previous walk).
+If the qid changes, both should be updated.
+.TP
+.I Create
+The
+.I create
+function must fill in
+both
+.IB r -> fid -> qid
+and
+.IB r -> ofcall . qid
+on success.
+When using file trees,
+.I create
+should allocate a new 
+.B File
+with
+.IR createfile ;
+note that
+.I createfile
+may return nil (because, say, the file already exists).
+If the 
+.I create
+function is nil,
+.I srv 
+behaves as though it were a function that always responded
+with the error ``create prohibited''.
+.TP
+.I Remove
+.I Remove
+should mark the file as removed, whether
+by calling
+.I removefile
+when using file trees, or by updating an internal data structure.
+In general it is not a good idea to clean up the
+.I aux
+information associated with the corresponding
+.B File
+at this time, to avoid memory errors if other
+fids have references to that file.
+Instead, it is suggested that 
+.I remove
+simply mark the file as removed (so that further
+operations on it know to fail) and wait until the
+file tree's destroy function is called to reclaim the
+.I aux
+pointer.
+If not using file trees, it is prudent to take the
+analogous measures.
+If
+.I remove
+is not provided, all remove requests will draw
+``remove prohibited'' errors.
+.TP
+.I Read
+The
+.I read
+function must be provided; it fills
+.IB r -> ofcall . data
+with at most
+.IB r -> ifcall . count
+bytes of data from offset
+.IB r -> ifcall . offset
+of the file.
+It also sets
+.IB r -> ofcall . count
+to the number of bytes being returned.
+If using file trees, 
+.I srv
+will handle reads of directories internally, only
+calling
+.I read
+for requests on files.
+.I Readstr
+and
+.I readbuf
+are useful for satisfying read requests on a string or buffer.
+Consulting the request in
+.IB r -> ifcall \fR,
+they fill
+.IB r -> ofcall . data
+and set
+.IB r -> ofcall . count \fR;
+they do not call
+.IB respond .
+Similarly,
+.I dirread9p
+can be used to handle directory reads in servers
+not using file trees.
+The passed
+.I gen
+function will be called as necessary to
+fill
+.I dir
+with information for the
+.IR n th
+entry in the directory.
+The string pointers placed in
+.I dir
+should be fresh copies
+made with
+.IR estrdup9p ;
+they will be freed by
+.I dirread9p
+after each successful call to 
+.IR gen .
+.I Gen
+should return zero if it successfully filled
+.IR dir ,
+minus one on end of directory.
+.TP
+.I Write
+The 
+.I write 
+function is similar but need not be provided.
+If it is not, all writes will draw 
+``write prohibited'' errors.
+Otherwise, 
+.I write
+should attempt to write the
+.IB r -> ifcall . count
+bytes of 
+.IB r -> ifcall . data
+to offset
+.IB r -> ifcall . offset
+of the file, setting
+.IB r -> ofcall . count
+to the number of bytes actually written.
+Most programs consider it an error to
+write less than the requested amount.
+.TP
+.I Stat
+.I Stat
+should fill
+.IB r -> d
+with the stat information for
+.IB r -> fid \fR.
+If using file trees, 
+.IB r -> d
+will have been initialized with the stat info from 
+the tree, and
+.I stat
+itself may be nil.
+.TP
+.I Wstat
+The
+.I wstat
+consults 
+.IB r -> d
+in changing the metadata for
+.IB r -> fid
+as described in
+.IR stat (5).
+When using file trees,
+.I srv
+will take care to check that the request satisfies
+the permissions outlined in
+.IR stat (5).
+Otherwise 
+.I wstat
+should take care to enforce permissions
+where appropriate.
+.TP
+.I Flush
+Single-threaded servers, which always call 
+.I respond
+before returning from the service functions,
+need not provide a 
+.I flush
+implementation:
+.I flush
+is only necessary in multithreaded programs,
+which arrange for 
+.I respond
+to be called asynchronously.
+.I Flush
+should cause the request
+.IB r -> oldreq
+to be cancelled or hurried along.
+If
+.I oldreq
+is cancelled, this should be signalled by calling
+.I respond
+on
+.I oldreq
+with error string
+.RB ` interrupted '.
+.I Flush
+must respond to
+.I r
+with a nil error string.
+.I Flush
+may respond to
+.I r
+before forcing a response to
+.IB r -> oldreq \fR.
+In this case, the library will delay sending
+the
+.I Rflush
+message until the response to 
+.IB r -> oldreq
+has been sent.
+.PD
+.PP
+.IR Destroyfid ,
+.IR destroyreq ,
+and
+.I end
+are auxiliary functions, not called in direct response to 9P requests.
+.TP
+.I Destroyfid
+When a 
+.BR Fid 's
+reference count drops to zero
+.RI ( i.e., 
+it has been clunked and there are no outstanding
+requests referring to it),
+.I destroyfid
+is called to allow the program to dispose
+of the
+.IB fid -> aux
+pointer.
+.TP
+.I Destroyreq
+Similarly, when a
+.BR Req 's
+reference count drops to zero
+.RI ( i.e. ,
+it has been handled via
+.I respond
+and other outstanding pointers to it have been closed),
+.I destroyreq
+is called to allow the program to dispose of the
+.IB r -> aux
+pointer.
+.TP
+.I End
+Once the 9P service loop has finished
+(end of file been reached on the service pipe
+or a bad message has been read),
+.I end
+is called (if provided) to allow any final cleanup.
+For example, it was used by the Palm Pilot synchronization
+file system (never finished) to gracefully terminate the serial conversation once
+the file system had been unmounted.
+After calling
+.IR end ,
+the service loop (which runs in a separate process
+from its caller) terminates using 
+.I _exits
+(see
+.IR exits (2)).
+.PD
+.PP
+If the 
+.B chatty9p
+flag is at least one,
+a transcript of the 9P session is printed
+on standard error.
+If the
+.B chatty9p
+flag is greater than one,
+additional unspecified debugging output is generated.
+By convention, servers written using this library
+accept the
+.B -D
+option to increment
+.BR chatty9p .
+.SH EXAMPLES
+.IR Archfs (4),
+.IR cdfs (4),
+.IR nntpfs (4),
+.IR snap (4),
+and
+.B /sys/src/lib9p/ramfs.c
+are good examples of simple single-threaded file servers.
+.IR Webfs (4)
+and
+.I sshnet
+(see
+.IR ssh (1))
+are good examples of multithreaded file servers.
+.PP
+In general, the
+.B File
+interface is appropriate for maintaining arbitrary file trees (as in
+.IR ramfs ).
+The 
+.B File
+interface is best avoided when the 
+tree structure is easily generated as necessary;
+this is true when the tree is highly structured (as in
+.I cdfs
+and
+.IR nntpfs )
+or is maintained elsewhere.
+.SH SOURCE
+.B /sys/src/lib9p
+.SH SEE ALSO
+.IR 9pfid (2),
+.IR 9pfile (2),
+.IR srv (3),
+.IR intro (5)
+.SH BUGS
+The switch to 9P2000 was taken as an opportunity to tidy
+much of the interface; we promise to avoid such gratuitous change
+in the future.

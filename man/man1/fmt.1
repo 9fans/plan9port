@@ -1,0 +1,90 @@
+.TH FMT 1
+.SH NAME
+fmt, htmlfmt \- simple text formatters
+.SH SYNOPSIS
+.B fmt
+[
+.I option ...
+]
+[
+.I file ...
+]
+.PP
+.B htmlfmt
+[
+.B -a
+] [
+.B -c
+.I charset
+] [
+.B -u
+.I url
+] [
+.I file ...
+]
+.SH DESCRIPTION
+.I Fmt
+copies the given
+.I files
+(standard input by default)
+to its standard output, filling and indenting lines.
+The options are
+.TP
+.BI -l " n
+Output line length is
+.IR n ,
+including indent (default 70).
+.TP
+.BI -w " n
+A synonym for
+.BR -l .
+.TP
+.BI -i " n
+Indent
+.I n
+spaces (default 0).
+.TP
+.BI -j
+Do not join short lines: only fold long lines.
+.PP
+Empty lines and initial white space in input lines are preserved.
+Empty lines are inserted between input files.
+.PP
+.I Fmt
+is idempotent: it leaves already formatted text unchanged.
+.PP
+.I Htmlfmt
+performs a similar service, but accepts as input text formatted with
+HTML tags.
+It accepts
+.IR fmt 's
+.B -l
+and
+.B -w
+flags and also:
+.TP
+.BI -a
+Normally
+.I htmlfmt
+suppresses the contents of form fields and anchors (URLs and image files); this flag
+causes it to print them, in square brackets.
+.TP
+.BI -c " charset
+change the default character set from iso-8859-1 to
+.IR charset .
+This is the character set assumed if there isn't one
+specified by the html itself in a <meta> directive.
+.TP
+.BI -u " url
+Use
+.I url
+as the base URL for the document when displaying anchors; sets
+.BI -a .
+.SH SOURCE
+.B /sys/src/cmd/fmt.c
+.PP
+.B /sys/src/cmd/htmlfmt
+.SH BUGS
+.I Htmlfmt
+makes no attempt to render the two-dimensional geometry of tables;
+it just treats the table entries as plain, to-be-formatted text.

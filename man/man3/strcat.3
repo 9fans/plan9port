@@ -1,0 +1,268 @@
+.TH STRCAT 3
+.SH NAME
+strcat, strncat, strcmp, strncmp, cistrcmp, cistrncmp, strcpy, strncpy, strecpy, strlen, strchr, strrchr, strpbrk, strspn, strcspn, strtok, strdup, strstr, cistrstr \- string operations
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.ta \w'\fLchar* \fP'u
+.B
+char*	strcat(char *s1, char *s2)
+.PP
+.B
+char*	strncat(char *s1, char *s2, long n)
+.PP
+.B
+int	strcmp(char *s1, char *s2)
+.PP
+.B
+int	strncmp(char *s1, char *s2, long n)
+.PP
+.B
+int	cistrcmp(char *s1, char *s2)
+.PP
+.B
+int	cistrncmp(char *s1, char *s2, long n)
+.PP
+.B
+char*	strcpy(char *s1, char *s2)
+.PP
+.B
+char*	strecpy(char *s1, char *es1, char *s2)
+.PP
+.B
+char*	strncpy(char *s1, char *s2, long n)
+.PP
+.B
+long	strlen(char *s)
+.PP
+.B
+char*	strchr(char *s, char c)
+.PP
+.B
+char*	strrchr(char *s, char c)
+.PP
+.B
+char*	strpbrk(char *s1, char *s2)
+.PP
+.B
+long	strspn(char *s1, char *s2)
+.PP
+.B
+long	strcspn(char *s1, char *s2)
+.PP
+.B
+char*	strtok(char *s1, char *s2)
+.PP
+.B
+char*	strdup(char *s)
+.PP
+.B
+char*	strstr(char *s1, char *s2)
+.PP
+.B
+char*	cistrstr(char *s1, char *s2)
+.SH DESCRIPTION
+The arguments
+.I s1, s2
+and
+.I s
+point to null-terminated strings.
+The functions
+.IR strcat ,
+.IR strncat ,
+.IR strcpy ,
+.IR strecpy ,
+and
+.I strncpy
+all alter
+.IR s1 .
+.I Strcat
+and
+.I strcpy
+do not check for overflow of
+the array pointed to by
+.IR s1 .
+.PP
+.I Strcat
+appends a copy of string
+.I s2
+to the end of string
+.IR s1 .
+.I Strncat
+appends at most
+.I n
+bytes.
+Each returns a pointer to the null-terminated result.
+.PP
+.I Strcmp
+compares its arguments and returns an integer
+less than, equal to, or greater than 0,
+according as
+.I s1
+is lexicographically less than, equal to, or
+greater than
+.IR s2 .
+.I Strncmp
+makes the same comparison but examines at most
+.I n
+bytes.
+.I Cistrcmp
+and
+.I cistrncmp
+ignore ASCII case distinctions when comparing strings.
+The comparisons are made with unsigned bytes.
+.PP
+.I Strcpy
+copies string
+.I s2
+to
+.IR s1 ,
+stopping after the null byte has been copied.
+.I Strncpy
+copies exactly
+.I n
+bytes,
+truncating
+.I s2
+or adding
+null bytes to
+.I s1
+if necessary.
+The result will not be null-terminated if the length
+of
+.I s2
+is
+.I n
+or more.
+Each function returns
+.IR s1 .
+.PP
+.I Strecpy
+copies bytes until a null byte has been copied, but writes no bytes beyond
+.IR es1 .
+If any bytes are copied,
+.I s1
+is terminated by a null byte, and a pointer to that byte is returned.
+Otherwise, the original
+.I s1
+is returned.
+.PP
+.I Strlen
+returns the number of bytes in
+.IR s ,
+not including the terminating null byte.
+.PP
+.I Strchr
+.RI ( strrchr )
+returns a pointer to the first (last)
+occurrence of byte
+.I c
+in string
+.IR s ,
+or
+.L 0
+if
+.I c
+does not occur in the string.
+The null byte terminating a string is considered to
+be part of the string.
+.PP
+.I Strpbrk
+returns a pointer to the first occurrence in string
+.I s1
+of any byte from string
+.IR s2 ,
+.L 0
+if no byte from
+.I s2
+exists in
+.IR s1 .
+.PP
+.I Strspn
+.RI ( strcspn )
+returns the length of the initial segment of string
+.I s1
+which consists entirely of bytes from (not from) string
+.IR s2 .
+.PP
+.I Strtok
+considers the string
+.I s1
+to consist of a sequence of zero or more text tokens separated
+by spans of one or more bytes from the separator string
+.IR s2 .
+The first call, with pointer
+.I s1
+specified, returns a pointer to the first byte of the first
+token, and will have written a
+null byte into
+.I s1
+immediately following the returned token.
+The function
+keeps track of its position in the string
+between separate calls; subsequent calls,
+signified by
+.I s1
+being
+.LR 0 ,
+will work through the string
+.I s1
+immediately following that token.
+The separator string
+.I s2
+may be different from call to call.
+When no token remains in
+.IR s1 ,
+.L 0
+is returned.
+.PP
+.I Strdup
+returns a pointer to a distinct copy of the null-terminated string
+.I s
+in space obtained from
+.IR malloc (2)
+or
+.L 0
+if no space can be obtained.
+.PP
+.I Strstr
+returns a pointer to the first occurrence of
+.I s2
+as a substring of
+.IR s1 ,
+or 0 if there is none.
+If
+.I s2
+is the null string,
+.I strstr
+returns
+.IR s1 .
+.I Cistrstr
+operates analogously, but ignores ASCII case differences when comparing strings.
+.SH SOURCE
+All these routines have portable C implementations in
+.BR /sys/src/libc/port .
+Many also have machine-dependent assembly language
+implementations in
+.BR /sys/src/libc/$objtype .
+.SH SEE ALSO
+.IR memory (2),
+.IR rune (2),
+.IR runestrcat (2)
+.SH BUGS
+These routines know nothing about
+.SM UTF.
+Use the routines in
+.IR rune (2)
+as appropriate.
+Note, however, that the definition of
+.SM UTF
+guarantees that
+.I strcmp
+compares
+.SM UTF
+strings correctly.
+.PP
+The outcome of overlapping moves varies among implementations.

@@ -1,0 +1,69 @@
+.TH STRINGSIZE 3
+.SH NAME
+stringsize, stringwidth, stringnwidth, runestringsize, runestringwidth, runestringnwidth \- graphical size of strings
+.SH SYNOPSIS
+.nf
+.PP
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+.ft P
+.ta \w'\fLPoint 'u
+.PP
+.B
+Point	stringsize(Font *f, char *s)
+.PP
+.B
+int	stringwidth(Font *f, char *s)
+.PP
+.B
+int	stringnwidth(Font *f, char *s, int n)
+.PP
+.B
+Point	runestringsize(Font *f, Rune *s)
+.PP
+.B
+int	runestringwidth(Font *f, Rune *s)
+.PP
+.B
+int	runestringnwidth(Font *f, Rune *s, int n)
+.SH DESCRIPTION
+These routines compute the geometrical extent of character strings when drawn on the display.  The most straightforward,
+.BR stringsize ,
+returns a
+.B Point
+representing the vector from upper left to lower right of the NUL-terminated string
+.I s
+drawn in font
+.IR f .
+.B Stringwidth
+returns just the
+.I x
+component.
+.B Stringnwidth
+returns the width of the first
+.I n
+characters of
+.IR s .
+.PP
+The routines beginning with
+.B rune
+are analogous, but accept an array of runes rather than
+.SM UTF\c
+-encoded bytes.
+.SH FILES
+.BR /lib/font/bit "    directory of fonts
+.SH SOURCE
+.B /sys/src/libdraw
+.SH "SEE ALSO"
+.IR addpt (2),
+.IR cachechars (2),
+.IR subfont (2),
+.IR draw (2),
+.IR draw (3),
+.IR image (6),
+.IR font (6)
+.SH DIAGNOSTICS
+Because strings are loaded dynamically, these routines may generate I/O
+to the server and produce calls to the graphics error function.

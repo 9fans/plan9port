@@ -1,0 +1,72 @@
+.TH IDIFF 1
+.SH NAME
+idiff \- interactive diff
+.SH SYNOPSIS
+.B idiff
+[
+.B -bw
+]
+.I file1
+.I file2
+.SH DESCRIPTION
+.I Idiff
+interactively
+merges 
+.I file1
+and 
+.IR file2 .
+Wherever
+.I file1
+and
+.I file2
+differ,
+.I idiff
+displays the differences in the style of
+.RB `` diff
+.RB -n ''
+and prompts the user to select a chunk.
+Valid responses are:
+.TP
+.B <
+Use the chunk from 
+.IR file1 .
+.TP
+.B >
+Use the chunk from
+.IR file2 .
+.TP
+.B =
+Use the diff output itself.
+.TP
+.BR q< ", " q> ", " q=
+Use the given response for all future questions.
+.TP
+.BI ! cmd
+Execute
+.I cmd
+and prompt again.
+.PP
+.I Idiff
+invokes
+.IR diff (1)
+to compare the files.
+The
+.B -b
+and
+.B -w
+flags
+are simply
+passed through to
+.IR diff .
+.SH FILES
+.B /tmp/idiff.*
+.SH SOURCE
+.B /sys/src/cmd/idiff.c
+.SH "SEE ALSO
+.IR diff (1)
+.br
+Kernighan and Pike,
+.IR "The Unix Programming Environment" ,
+Prentice-Hall, 1984.
+.SH BUGS
+This is a poorly-written manual page.

@@ -1,0 +1,105 @@
+.TH COMPLETE 3
+.SH NAME
+complete \- file name completion
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <complete.h>
+.PP
+.ft L
+.nf
+.ta \w'    'u +\w'    'u +\w'    'u +\w'    'u +\w'    'u
+typedef struct Completion	Completion;
+struct Completion{
+	uchar advance;		/* whether forward progress has been made */
+	uchar complete;	/* whether the completion now represents a file or directory */
+	char *string;		/* the string to advance, suffixed " " or "/" for file or directory */
+	int nmatch;		/* number of files that matched */
+	int nfile;			/* number of files returned */
+	char **filename;	/* their names */
+};
+
+.fi
+.PP
+.B
+.ta \w'\fLchar* 'u
+
+.PP
+.B
+Completion* complete(char *dir, char *s);
+.PP
+.B
+void freecompletion(Completion *c);
+.SH DESCRIPTION
+The
+.I complete
+function implements file name completion.
+Given a directory
+.I dir
+and a string
+.IR s ,
+it returns an analysis of the file names in that directory that begin with the string
+.IR s .
+The fields
+.B nmatch
+and
+.B nfile
+will be set to the number of files that match the prefix and
+.B filename
+will be filled in with their names.
+If the file named is a directory, a slash character will be appended to it.
+.PP
+If no files match the string,
+.B nmatch
+will be zero, but
+.I complete
+will return the full set of files in the directory, with
+.I nfile
+set to their number.
+.PP
+The flag
+.B advance
+reports whether the string
+.I s
+can be extended without changing the set of files that match.  If true,
+.B string
+will be set to the extension; that is, the value of
+.B string
+may be appended to
+.I s
+by the caller to extend the embryonic file name unambiguously.
+.PP
+The flag
+.B complete
+reports whether the extended file name uniquely identifies a file.
+If true,
+.B string
+will be suffixed with a blank, or a slash and a blank,
+depending on whether the resulting file name identifies a plain file or a directory.
+.PP
+The
+.I freecompletion
+function frees a
+.B Completion
+structure and its contents.
+.PP
+In
+.IR rio (1)
+and
+.IR acme (1),
+file name completion is triggered by a control-F character or an Insert character.
+.SH SOURCE
+.B /sys/src/libcomplete
+.SH SEE ALSO
+.IR rio (1),
+.IR acme (1)
+.SH DIAGNOSTICS
+The
+.I complete
+function returns a null pointer and sets
+.I errstr
+if the directory is unreadable or there is some other error.
+.SH BUGS
+The behavior of file name completion should be controlled by the plumber.

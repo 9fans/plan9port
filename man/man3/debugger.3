@@ -1,0 +1,386 @@
+.TH DEBUGGER 3
+.SH NAME
+cisctrace, risctrace, ciscframe, riscframe, localaddr, symoff,
+fpformat, beieee80ftos, beieeesftos, beieeedftos, leieee80ftos,
+leieeesftos, leieeedftos, ieeesftos, ieeedftos \- machine-independent debugger functions
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <bio.h>
+.br
+.B #include <mach.h>
+.PP
+.ta \w'\fLmachines 'u
+.nf
+.B
+int cisctrace(Map *map, ulong pc, ulong sp, ulong link,
+.B
+              Tracer trace)
+.PP
+.nf
+.B
+int risctrace(Map *map, ulong pc, ulong sp, ulong link,
+.B
+              Tracer trace)
+.PP
+.nf
+.B
+ulong ciscframe(Map *map, ulong addr, ulong pc, ulong sp,
+.B
+                ulong link)
+.PP
+.nf
+.B
+ulong riscframe(Map *map, ulong addr, ulong pc, ulong sp,
+.B
+                ulong link)
+.PP
+.nf
+.B
+int localaddr(Map *map, char *fn, char *var, long *ret,
+.B
+              Rgetter rget)
+.PP
+.B
+int symoff(char *buf, int n, long addr, int type)
+.PP
+.B
+int fpformat(Map *map, Reglist *rp, char *buf, int n, int code)
+.PP
+.B
+int beieee80ftos(char *buf, int n, void *fp)
+.PP
+.B
+int beieeesftos(char *buf, int n, void *fp)
+.PP
+.B
+int beieeedftos(char *buf, int n, void *fp)
+.PP
+.B
+int leieee80ftos(char *buf, int n, void *fp)
+.PP
+.B
+int leieeesftos(char *buf, int n, void *fp)
+.PP
+.B
+int leieeedftos(char *buf, int n, void *fp)
+.PP
+.B
+int ieeesftos(char *buf, int n, ulong f)
+.PP
+.B
+int ieeedftos(char *buf, int n, ulong high, ulong low)
+.PP
+.B
+extern Machdata *machdata;
+.SH DESCRIPTION
+These functions provide machine-independent implementations
+of common debugger functions.
+Many of the functions assume that global variables
+.I mach
+and
+.I machdata
+point to the
+.I Mach
+and
+.I Machdata
+data structures describing the target architecture.
+The former contains machine parameters and a description of
+the register set; it is usually
+set by invoking
+.I crackhdr
+(see
+.IR mach (2))
+to interpret the header of an executable.
+The
+.I Machdata
+structure
+is primarily a jump table specifying
+functions appropriate for processing an
+executable image for a given architecture.
+Each application is responsible for setting
+.I machdata
+to the address of the
+.I Machdata
+structure for the target architecture. 
+Many of the functions described here are not
+called directly; instead, they are invoked
+indirectly through the
+.I Machdata
+jump table.
+.PP
+These functions must retrieve data and register contents
+from an executing image.  The
+.I Map
+(see
+.IR mach (2))
+data structure
+supports the consistent retrieval of data, but
+no uniform access mechanism exists for registers.
+The application passes the address of a register
+retrieval function as an argument to those functions
+requiring register values.
+This function, called an
+.IR Rgetter ,
+is of the form
+.PP
+.RS
+.B "ulong rget(Map *map, char *name);
+.RE
+.PP
+It returns the contents of a register when given
+the address of a
+.I Map
+associated with an executing image and the name of the register.
+.PP
+.I Cisctrace
+and
+.I risctrace
+unwind the stack for up to 40 levels or until the frame for
+.I main
+is found.  They return the
+count of the number of levels unwound.  These functions
+process stacks conforming to the generic compiler model for
+.SM RISC
+and
+.SM CISC
+architectures, respectively.
+.I Map
+is the address of a
+.I Map
+data structure associated with the image
+of an executing process.
+.IR Sp ,
+.I pc
+and
+.I link
+are starting values for the stack pointer, program counter, and
+link register from which the unwinding is to take place.  Normally, they are
+the current contents of the appropriate
+registers but they can be any values defining a legitimate
+process context, for example, an alternate stack in a
+multi-threaded process.
+.I Trace
+is the address of an application-supplied function to be called
+on each iteration as the frame unwinds.  The prototype of this
+function is:
+.PP
+.RS
+.B "void tracer(Map *map, ulong pc, ulong fp, Symbol *s);
+.RE
+.PP
+where
+.I Map
+is the
+.I Map
+pointer passed to
+.I cisctrace
+or
+.I risctrace
+and
+.I pc
+and
+.I fp
+are the program counter and frame pointer.
+.I S
+is the address of a 
+.I Symbol
+structure, as defined in
+.IR symbol (2),
+containing the symbol table information for the
+function owning the frame (i.e., the function that
+caused the frame to be instantiated).
+.PP
+.I Ciscframe
+and
+.I riscframe
+calculate the frame pointer associated with
+a function.  They are suitable for
+programs conforming to the
+.SM CISC
+and
+.SM RISC
+stack models.
+.I Map
+is the address of a
+.I Map
+associated with the memory image of an executing
+process.
+.I Addr
+is the entry point of the desired function.
+.IR Pc ,
+.I sp
+and
+.I link
+are the program counter, stack pointer and link register of
+an execution context.  As with the stack trace
+functions, these can be the current values of the
+registers or any legitimate execution context.
+The value of the frame pointer is returned.  A return
+value of zero indicates an error.
+.PP
+.I Localaddr
+fills the location
+pointed to by
+.I ret
+with the address of a local variable.
+.I Map
+is the address of a
+.I Map
+associated with an executing memory image.
+.I Fn
+and
+.I var
+are pointers to the names of the function and variable of interest.
+.I Rget
+is the address of a register retrieval function.
+If both
+.I fn
+and
+.I var
+are non-zero, the frame for function
+.I fn
+is calculated and the address of the automatic or
+argument named
+.I var
+in that frame is returned.
+If
+.I var
+is zero, the address of the
+frame for function
+.I fn
+is returned.
+In all cases, the frame for the function named
+.I fn
+must be instantiated somewhere on the current stack.
+If there are multiple frames for the function (that is, if
+it is recursive), the most recent frame is used.
+The search starts from the context defined by the
+current value of the program counter and stack pointer.
+If a valid address is found,
+.I localaddr
+returns 1.  A negative return indicates an error in
+resolving the address.
+.PP
+.I Symoff
+converts a virtual address to a symbolic reference.  The
+string containing that reference is of 
+the form `name+offset', where `name' is the name of the
+nearest symbol with an address less than
+or equal to the target address and `offset' is the hexadecimal offset
+beyond that symbol.  If `offset' is zero, only the name of
+the symbol is printed.  If no symbol is found within 4,096
+bytes of the address, the address is formatted as a hexadecimal
+address.
+.I Buf
+is the address of a buffer of
+.I n
+characters to receive the formatted string.
+.I Addr
+is the address to be converted.
+.I Type
+is the type code of the search space:
+.BR CTEXT ,
+.BR CDATA ,
+or
+.BR CANY .
+.I Symoff
+returns the length of the formatted string contained in
+.IR buf .
+.PP
+.I Fpformat
+converts the contents of a floating point register to a
+string.
+.I Map
+is the address of a
+.I Map
+associated with an executing process.
+.I Rp
+is the address of a
+.I Reglist
+data structure describing the desired register.
+.I Buf
+is the address of a buffer of
+.I n
+characters to hold the resulting string.
+.I Code
+must be either
+.B F
+or
+.BR f,
+selecting double
+or single precision, respectively.  If
+.I code
+is
+.BR F ,
+the contents of the specified register and 
+the following register
+are interpreted as a double precision floating point
+number; this
+is only meaningful for architectures that implement
+double precision floats by combining adjacent
+single precision registers.
+For
+.I code
+.BR f ,
+the specified register is formatted
+as a single precision float.
+.I Fpformat
+returns 1 if the number is successfully converted or \-1
+in the case of an error.
+.PP
+.IR Beieee80ftos ,
+.I beieeesftos
+and
+.I beieeedftos
+convert big-endian 80-bit extended, 32-bit single precision,
+and 64-bit double precision floating point values to
+a string.
+.IR Leieee80ftos ,
+.IR leieeesftos ,
+and
+.I leieeedftos
+are the little-endian counterparts.
+.I Buf
+is the address of a buffer of
+.I n
+characters to receive the formatted string.
+.I Fp
+is the address of the floating point value to be
+converted.  These functions return the length of
+the resulting string.
+.PP
+.I Ieeesftos
+converts the 32-bit single precision floating point value
+.IR f ,
+to a string in
+.IR buf ,
+a buffer of
+.I n
+bytes.  It returns the length of the resulting string.
+.PP
+.I Ieeedftos
+converts a 64-bit double precision floating point value
+to a character string.
+.I Buf
+is the address of a buffer of
+.I n
+characters to hold the resulting string.
+.I High
+and
+.I low
+contain the most and least significant 32 bits of
+the floating point value, respectively.
+.I Ieeedftos
+returns the number of characters in the resulting string.
+.SH SOURCE
+.B /sys/src/libmach
+.SH "SEE ALSO"
+.IR mach (2),
+.IR symbol (2),
+.IR errstr (2)
+.SH DIAGNOSTICS
+Set
+.IR errstr .

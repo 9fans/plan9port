@@ -1,0 +1,92 @@
+.TH PLUMB 1
+.SH NAME
+plumb \- send message to plumber
+.SH SYNOPSIS
+.B plumb
+[
+.B -p
+.I plumbfile
+] [
+.B -a
+.I attributes
+] [
+.B -s
+.I source
+] [
+.B -d
+.I destination
+] [
+.B -t
+.I type
+] [
+.B -w
+.I directory
+]
+.B -i
+|
+.I data...
+.SH DESCRIPTION
+The
+.I plumb
+command formats and sends a plumbing message whose data
+is, by default, the concatenation of the argument strings separated by blanks.
+The options are:
+.TP
+.B -p
+write the message to
+.I plumbfile
+(default
+.BR /mnt/plumb/send ).
+.TP
+.B -a
+set the
+.B attr
+field of the message (default is empty).
+.TP
+.B -s
+set the
+.B src
+field of the message (default is
+.BR plumb ).
+.TP
+.B -d
+set the
+.B dst
+field of the message (default is empty).
+.TP
+.B -t
+set the
+.B type
+field of the message (default is
+.BR text ).
+.TP
+.B -w
+set the
+.B wdir
+field of the message (default is the current working directory of
+.IR plumb ).
+.TP
+.B -i
+take the data from standard input rather than the argument strings.
+If an
+.B action=
+attribute is not otherwise specified,
+.I plumb
+will add an
+.B action=showdata
+attribute to the message.
+.SH FILES
+.TF /usr/$user/lib/plumbing
+.TP
+.B /usr/$user/lib/plumbing
+default rules file
+.TP
+.B /mnt/plumb
+mount point for
+.IR plumber (4).
+.SH SOURCE
+.B /sys/src/cmd/plumb
+.SH "SEE ALSO"
+.IR plumb (2),
+.IR plumber (4),
+.IR plumb (6)

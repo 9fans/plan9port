@@ -1,0 +1,40 @@
+.TH MKTEMP 3
+.SH NAME
+mktemp \- make a unique file name
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.nf
+.B
+char* mktemp(char *template)
+.fi
+.SH DESCRIPTION
+.I Mktemp
+replaces
+.I template
+by a unique file name, and returns the
+address of the template.
+The template should look like a file name with eleven trailing
+.LR X s.
+The
+.LR X s
+are replaced by a letter followed by the current process id.
+Letters from
+.L a
+to
+.L z
+are tried until a name that can be accessed
+(see
+.IR access (2))
+is generated.
+If no such name can be generated,
+.I mktemp
+returns
+\f5"/"\f1 .
+.SH SOURCE
+.B /sys/src/libc/port/mktemp.c
+.SH "SEE ALSO"
+.IR getpid (2),
+.IR access (2)

@@ -1,0 +1,240 @@
+.TH PLUMB 3
+.SH NAME
+eplumb, plumbfree, plumbopen, plumbsend, plumbsendtext, plumblookup, plumbpack, plumbpackattr, plumbaddattr, plumbdelattr, plumbrecv, plumbunpack, plumbunpackpartial, plumbunpackattr, Plumbmsg  \- plumb messages
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.br
+.B #include <plumb.h>
+.PP
+.ta \w'\fLPlumbattr* 'u
+.PP
+.B
+int	plumbopen(char *port, int omode)
+.PP
+.B
+int	plumbsend(int fd, Plumbmsg *m)
+.PP
+.B
+int	plumbsendtext(int fd, char *src, char *dst, char *wdir, char *data)
+.PP
+.B
+void	plumbfree(Plumbmsg *m)
+.PP
+.B
+Plumbmsg*	plumbrecv(int fd)
+.PP
+.B
+char*	plumbpack(Plumbmsg *m, int *np)
+.PP
+.B
+Plumbmsg*	plumbunpack(char *buf, int n)
+.PP
+.B
+Plumbmsg*	plumbunpackpartial(char *buf, int n, int *morep)
+.PP
+.B
+char*	plumbpackattr(Plumbattr *a)
+.PP
+.B
+Plumbattr*	plumbunpackattr(char *a)
+.PP
+.B
+char*	plumblookup(Plumbattr *a, char *name)
+.PP
+.B
+Plumbattr*	plumbaddattr(Plumbattr *a, Plumbattr *new)
+.PP
+.B
+Plumbattr*	plumbdelattr(Plumbattra *a, char *name)
+.PP
+.B
+int	eplumb(int key, char *port)
+.SH DESCRIPTION
+These routines manipulate
+.IR plumb (6)
+messages, transmitting them, receiving them, and
+converting them between text and these data structures:
+.IP
+.EX
+.ta 6n +\w'\fLPlumbattr 'u +\w'ndata;   'u
+typedef
+struct Plumbmsg
+{
+	char	*src;
+	char	*dst;
+	char	*wdir;
+	char	*type;
+	Plumbattr	*attr;
+	int	ndata;
+	char	*data;
+} Plumbmsg;
+
+typedef
+struct Plumbattr
+{
+	char	*name;
+	char	*value;
+	Plumbattr	*next;
+} Plumbattr;
+.EE
+.PP
+.I Plumbopen
+opens the named plumb
+.IR port ,
+using
+.IR open (2)
+mode
+.IR omode .
+If
+.I port
+begins with a slash, it is taken as a literal file name;
+otherwise
+.I plumbopen
+searches for the location of the
+.IR plumber (4)
+service and opens the port there.
+.PP
+For programs using the
+.IR event (2)
+interface,
+.I eplumb
+registers, using the given
+.IR key ,
+receipt of messages from the named
+.IR port .
+.PP
+.I Plumbsend
+formats and writes message
+.I m
+to the file descriptor
+.IR fd ,
+which will usually be the result of
+.B plumbopen("send",
+.BR OWRITE) .
+.I Plumbsendtext
+is a simplified version for text-only messages; it assumes
+.B type
+is
+.BR text ,
+sets
+.B attr
+to nil,
+and sets
+.B ndata
+to
+.BI strlen( data )\f1.
+.PP
+.I Plumbfree
+frees all the data associated with the message
+.IR m ,
+all the components of which must therefore have been allocated with
+.IR malloc (2).
+.PP
+.I Plumbrecv
+returns the next message available on the file descriptor
+.IR fd ,
+or nil for error.
+.PP
+.I Plumbpack
+encodes message
+.I m
+as a character string in the format of
+.IR plumb (6) ,
+setting
+.BI * np
+to the length in bytes of the string.
+.I Plumbunpack
+does the inverse, translating the
+.I n
+bytes of
+.I buf
+into a
+.BR Plumbmsg .
+.PP
+.I Plumbunpackpartial
+enables unpacking of messages that arrive in pieces.
+The first call to
+.I plumbunpackpartial
+for a given message must be sufficient to unpack the header;
+subsequent calls permit unpacking messages with long data sections.
+For each call,
+.I buf
+points to the beginning of the complete message received so far, and
+.I n
+reports the total number of bytes received for that message.
+If the message is complete, the return value will be as in
+.IR plumbunpack .
+If not, and
+.I morep
+is not null, the return value will be
+.B nil
+and
+.BR * morep
+will be set to the number of bytes remaining to be read for this message to be complete
+(recall that the byte count is in the header).
+Those bytes should be read by the caller, placed at location
+.IB buf + n \f1,
+and the message unpacked again.
+If an error is encountered, the return value will be
+.B nil
+and
+.BI * morep
+will be zero.
+.PP
+.I Plumbpackattr
+converts the list
+.I a
+of
+.B Plumbattr
+structures into a null-terminated string.
+If an attribute value contains white space, quote characters, or equal signs,
+the value will be quoted appropriately.
+A newline character will terminate processing.
+.I Plumbunpackattr
+converts the null-terminated string
+.I a
+back into a list of
+.I Plumbattr
+structures.
+.PP
+.I Plumblookup
+searches the
+.B Plumbattr
+list
+.I a
+for an attribute with the given
+.I name
+and returns the associated value.
+The returned string is the original value, not a copy.
+If the attribute has no value, the returned value will be the empty string;
+if the attribute does not occur in the list at all, the value will be nil.
+.PP
+.I Plumbaddattr
+appends the
+.I new
+.B Plumbattr
+(which may be a list) to the attribute list
+.IR a
+and returns the new list.
+.I Plumbattr
+searches the list
+.I a
+for the first attribute with name
+.I name
+and deletes it from the list, returning the resulting list.
+.I Plumbdelattr
+is a no-op if no such attribute exists.
+.SH SOURCE
+.B /sys/src/libplumb
+.SH SEE ALSO
+.IR plumb (1),
+.IR event (2),
+.IR plumber (4),
+.IR plumb (6)
+.SH DIAGNOSTICS
+When appropriate, including when a
+.I plumbsend
+fails, these routine set
+.IR errstr .

@@ -1,0 +1,249 @@
+.TH MOUSE 3
+.SH NAME
+initmouse, readmouse, closemouse, moveto, cursorswitch, getrect, drawgetrect, menuhit, setcursor \- mouse control
+.SH SYNOPSIS
+.nf
+.B
+#include <u.h>
+.B
+#include <libc.h>
+.B
+#include <draw.h>
+.B
+#include <thread.h>
+.B
+#include <mouse.h>
+.B
+#include <cursor.h>
+.PP
+.B
+Mousectl	*initmouse(char *file, Image *i)
+.PP
+.B
+int		readmouse(Mousectl *mc)
+.PP
+.B
+int		atomouse();
+.PP
+.B
+void		closemouse(Mousectl *mc)
+.PP
+.B
+void		moveto(Mousectl *mc, Point pt)
+.PP
+.B
+void		setcursor(Mousectl *mc, Cursor *c)
+.PP
+.B
+Rectangle	getrect(int but, Mousectl *mc)
+.PP
+.B
+void		drawgetrect(Rectangle r, int up)
+.PP
+.B
+int		menuhit(int but, Mousectl *mc, Menu *menu, Screen *scr)
+.fi
+.SH DESCRIPTION
+These functions access and control a mouse in a multi-threaded environment.
+They use the message-passing
+.B Channel
+interface in the threads library
+(see
+.IR thread (2));
+programs that wish a more event-driven, single-threaded approach should use
+.IR event (2).
+.PP
+The state of the mouse is recorded in a structure,
+.BR Mouse ,
+defined in
+.BR <mouse.h> :
+.IP
+.EX
+.ta 6n +\w'Rectangle 'u +\w'buttons;   'u
+typedef struct Mouse Mouse;
+struct Mouse
+{
+	int	buttons;	/* bit array: LMR=124 */
+	Point	xy;
+	ulong	msec;
+};
+.EE
+.PP
+The
+.B Point
+.B xy
+records the position of the cursor,
+.B buttons
+the state of the buttons (three bits representing, from bit 0 up, the buttons from left to right,
+0 if the button is released, 1 if it is pressed),
+and
+.BR msec ,
+a millisecond time stamp.
+.PP
+The routine
+.B initmouse
+returns a structure through which one may access the mouse:
+.IP
+.EX
+typedef struct Mousectl Mousectl;
+struct Mousectl
+{
+	Mouse;
+	Channel	*c;	/* chan(Mouse)[16] */
+	Channel	*resizec;	/* chan(int)[2] */
+
+	char	*file;
+	int	mfd;		/* to mouse file */
+	int	cfd;		/* to cursor file */
+	int	pid;		/* of slave proc */
+	Image*	image;	/* of associated window/display */
+};
+.EE
+.PP
+The arguments to
+.I initmouse
+are a
+.I file
+naming the device file connected to the mouse and an
+.I Image
+(see
+.IR draw (2))
+on which the mouse will be visible.
+Typically the file is
+nil,
+which requests the default
+.BR /dev/mouse ;
+and the image is the window in which the program is running, held in the variable
+.B screen
+after a call to
+.IR initdraw .
+.PP
+Once the
+.B Mousectl
+is set up,
+mouse motion will be reported by messages of type
+.B Mouse
+sent on the
+.B Channel
+.BR Mousectl.c .
+Typically, a message will be sent every time a read of
+.B /dev/mouse
+succeeds, which is every time the state of the mouse changes.
+.PP
+When the window is resized, a message is sent on
+.BR Mousectl.resizec .
+The actual value sent may be discarded; the receipt of the message
+tells the program that it should call
+.B getwindow
+(see
+.IR graphics (2))
+to reconnect to the window.
+.PP
+.I Readmouse
+updates the
+.B Mouse
+structure held in the
+.BR Mousectl ,
+blocking if the state has not changed since the last
+.I readmouse
+or message sent on the channel.
+It calls
+.B flushimage
+(see
+.IR graphics (2))
+before blocking, so any buffered graphics requests are displayed.
+.PP
+.I Closemouse
+closes the file descriptors associated with the mouse, kills the slave processes,
+and frees the
+.B Mousectl
+structure.
+.PP
+.I Moveto
+moves the mouse cursor on the display to the position specified by
+.IR pt .
+.PP
+.I Setcursor
+sets the image of the cursor to that specified by
+.IR c .
+If
+.I c
+is nil, the cursor is set to the default.
+The format of the cursor data is spelled out in
+.B <cursor.h>
+and described in
+.IR graphics (2).
+.PP
+.I Getrect
+returns the dimensions of a rectangle swept by the user, using the mouse,
+in the manner
+.IR rio (1)
+or
+.IR sam (1)
+uses to create a new window.
+The
+.I but
+argument specifies which button the user must press to sweep the window;
+any other button press cancels the action.
+The returned rectangle is all zeros if the user cancels.
+.PP
+.I Getrect
+uses successive calls to
+.I drawgetrect
+to maintain the red rectangle showing the sweep-in-progress.
+The rectangle to be drawn is specified by
+.I rc
+and the
+.I up
+parameter says whether to draw (1) or erase (0) the rectangle.
+.PP
+.I Menuhit
+provides a simple menu mechanism.
+It uses a
+.B Menu
+structure defined in
+.BR <mouse.h> :
+.IP
+.EX
+typedef struct Menu Menu;
+struct Menu
+{
+	char	**item;
+	char	*(*gen)(int);
+	int	lasthit;
+};
+.EE
+.PP
+.IR Menuhit
+behaves the same as its namesake
+.I emenuhit
+described in
+.IR event (2),
+with two exceptions.
+First, it uses a
+.B Mousectl
+to access the mouse rather than using the event interface;
+and second,
+it creates the menu as a true window on the
+.B Screen
+.I scr
+(see
+.IR window (2)),
+permitting the menu to be displayed in parallel with other activities on the display.
+If
+.I scr
+is null,
+.I menuhit
+behaves like
+.IR emenuhit ,
+creating backing store for the menu, writing the menu directly on the display, and
+restoring the display when the menu is removed.
+.PP
+.SH SOURCE
+.B /sys/src/libdraw
+.SH SEE ALSO
+.IR graphics (2),
+.IR draw (2),
+.IR event (2),
+.IR keyboard (2),
+.IR thread (2).

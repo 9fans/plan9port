@@ -1,0 +1,161 @@
+.TH ASCII 1 
+.SH NAME
+ascii, unicode \- interpret ASCII, Unicode characters
+.SH SYNOPSIS
+.B ascii
+[
+.B -8
+]
+[
+.BI -oxdb n
+]
+[
+.B -nct
+]
+[
+.I text
+]
+.PP
+.B unicode
+[
+.B -nt
+]
+.IB hexmin - hexmax
+.PP
+.B unicode
+[
+.B -t
+]
+.I hex
+[
+\&...
+]
+.PP
+.B unicode
+[
+.B -n
+]
+.I characters
+.PP
+.B look
+.I hex
+.B /lib/unicode
+.SH DESCRIPTION
+.I Ascii
+prints the
+.SM ASCII 
+values corresponding to characters and
+.I vice
+.IR versa ;
+under the
+.B -8
+option, the
+.SM ISO
+Latin-1 extensions (codes 0200-0377) are included.
+The values are interpreted in a settable numeric base;
+.B -o
+specifies octal,
+.B -d
+decimal,
+.B -x
+hexadecimal (the default), and
+.BI -b n
+base
+.IR n .
+.PP
+With no arguments,
+.I ascii
+prints a table of the character set in the specified base.
+Characters of
+.I text
+are converted to their
+.SM ASCII 
+values, one per line. If, however, the first
+.I text
+argument is a valid number in the specified base, conversion
+goes the opposite way.
+Control characters are printed as two- or three-character mnemonics.
+Other options are:
+.TP
+.B -n
+Force numeric output.
+.TP
+.B -c
+Force character output.
+.TP
+.B -t
+Convert from numbers to running text; do not interpret
+control characters or insert newlines.
+.PP
+.I Unicode
+is similar; it converts between
+.SM UTF
+and character values from the Unicode Standard (see
+.IR utf (6)).
+If given a range of hexadecimal numbers,
+.I unicode
+prints a table of the specified Unicode characters \(em their values and
+.SM UTF
+representations.
+Otherwise it translates from
+.SM UTF
+to numeric value or vice versa,
+depending on the appearance of the supplied text;
+the
+.B -n
+option forces numeric output to avoid ambiguity with numeric characters.
+If converting to
+.SM UTF ,
+the characters are printed one per line unless the
+.B -t
+flag is set, in which case the output is a single string
+containing only the specified characters.
+Unlike
+.IR ascii ,
+.I unicode
+treats no characters specially.
+.PP
+The output of
+.I ascii
+and
+.I unicode
+may be unhelpful if the characters printed are not available in the current font.
+.PP
+The file
+.B /lib/unicode
+contains a
+table of characters and descriptions, sorted in hexadecimal order,
+suitable for
+.IR look (1)
+on the lower case
+.I hex
+values of characters.
+.SH EXAMPLES
+.TP
+.B "ascii -d"
+Print the
+.SM ASCII 
+table base 10.
+.TP
+.B "unicode p"
+Print the hex value of `p'.
+.TP
+.B "unicode 2200-22f1"
+Print a table of miscellaneous mathematical symbols.
+.TP
+.B "look 039 /lib/unicode"
+See the start of the Greek alphabet's encoding in the Unicode Standard.
+.SH FILES
+.TF /lib/unicode
+.TP
+.B /lib/unicode
+table of characters and descriptions.
+.SH SOURCE
+.B /sys/src/cmd/ascii.c
+.br
+.B /sys/src/cmd/unicode.c
+.SH "SEE ALSO"
+.IR look (1)
+.IR tcs (1),
+.IR utf (6),
+.IR font (6)

@@ -1,0 +1,41 @@
+.TH GETPID 3
+.SH NAME
+getpid, getppid \- get process ids
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int getpid(void)
+.PP
+.B
+int getppid(void)
+.SH DESCRIPTION
+.I Getpid
+reads
+.B /dev/pid
+(see
+.IR cons (3))
+and converts it to get the process id of the current process,
+a number guaranteed to be unique among all running processes on the machine
+executing
+.IR getpid .
+.PP
+.I Getppid
+reads
+.B /dev/ppid
+(see
+.IR cons (3))
+and converts it to get the id of the parent of the current process.
+.SH SOURCE
+.B /sys/src/libc/9sys
+.SH SEE ALSO
+.IR intro (2),
+.IR cons (3),
+.IR proc (3)
+.SH DIAGNOSTICS
+Returns 0 and
+sets
+.I errstr
+if unsuccessful.

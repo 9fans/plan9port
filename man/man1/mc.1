@@ -1,0 +1,40 @@
+.TH MC 1
+.SH NAME
+mc \- multicolumn print
+.SH SYNOPSIS
+.B mc
+[
+.B -
+]
+[
+.BI - N
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Mc
+splits the input into as many columns as will fit in
+.I N
+print positions.
+If run in a
+.IR rio (1)
+window, the default
+.I N
+is the number of blanks that will fit across the window;
+otherwise the default
+.I N
+is 80.
+Under option
+.B -
+each input line ending in a colon 
+.L :
+is printed separately.
+.SH SOURCE
+.B /sys/src/cmd/mc.c
+.SH "SEE ALSO"
+.IR rio (1),
+.IR pr (1),
+.I lc
+in
+.IR ls (1)

@@ -1,0 +1,45 @@
+.TH SLEEP 3
+.SH NAME
+sleep, alarm \- delay, ask for delayed note
+.SH SYNOPSIS
+.B #include <u.h>
+.br
+.B #include <libc.h>
+.PP
+.B
+int sleep(long millisecs)
+.PP
+.B
+long alarm(unsigned long millisecs)
+.SH DESCRIPTION
+.I Sleep
+suspends the current process for the number
+of milliseconds specified by the argument.
+The actual suspension time may be a little more or less than
+the requested time. If
+.I millisecs
+is 0, the process
+gives up the CPU if another process is waiting to run, returning
+immediately if not.
+Sleep returns \-1 if interrupted, 0 otherwise.
+.PP
+.I Alarm
+causes an
+.B alarm
+note (see
+.IR notify (2))
+to be sent to the invoking process after the number of milliseconds
+given by the argument.
+Successive calls to
+.I alarm
+reset the alarm clock.
+A zero argument clears the alarm.
+The return value is the amount of time previously remaining in
+the alarm clock.
+.SH SOURCE
+.B /sys/src/libc/9syscall
+.SH SEE ALSO
+.IR intro (2)
+.SH DIAGNOSTICS
+These functions set
+.IR errstr .

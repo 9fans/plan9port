@@ -1,0 +1,77 @@
+.TH SUM 1
+.SH NAME
+sum, md5sum, sha1sum \- sum and count blocks in a file
+.SH SYNOPSIS
+.B sum
+[
+.B -5r
+]
+[
+.I file ...
+]
+.PP
+.B md5sum
+[
+.I file ...
+]
+.PP
+.B sha1sum
+[
+.I file ...
+]
+.SH DESCRIPTION
+By default,
+.I sum
+calculates and prints a 32-bit hexadecimal checksum,
+a byte count,
+and the name of
+each
+.IR file .
+The checksum is also a function of the input length.
+If no files are given,
+the standard input is
+summed.
+Other summing algorithms are available.
+The options are
+.TP
+.B -r
+Sum with the algorithm of System V's
+.B "sum -r"
+and print the length (in 1K blocks) of the input.
+.TP
+.B -5
+Sum with System V's default algorithm
+and print the length (in 512-byte blocks) of the input.
+.PP
+.I Sum
+is typically used to look for bad spots,
+to validate a file communicated over
+some transmission line or
+as a quick way to determine if two files on different machines might be the same.
+.PP
+.B Md5sum
+computes the 32 hex digit RSA Data Security, Inc. MD5 Message-Digest Algorithm
+described in RFC1321.
+If no
+.I files
+are given,
+the standard input is
+summed.
+.PP
+.B Sha1sum
+computes the 40 hex digit National Institute of Standards and Technology SHA1 secure hash algorithm
+described in FIPS PUB 180-1.
+If no
+.I files
+are given,
+the standard input is
+summed.
+.SH SOURCE
+.B /sys/src/cmd/sum.c
+.br
+.B /sys/src/cmd/md5sum.c
+.br
+.B /sys/src/cmd/sha1sum.c
+.SH "SEE ALSO"
+.IR cmp (1),
+.IR wc (1)

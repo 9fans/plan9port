@@ -1,0 +1,1420 @@
+.TH HTML 3
+.SH NAME
+parsehtml,
+printitems,
+validitems,
+freeitems,
+freedocinfo,
+dimenkind,
+dimenspec,
+targetid,
+targetname,
+fromStr,
+toStr
+\- HTML parser
+.SH SYNOPSIS
+.nf
+.PP
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <html.h>
+.ft P
+.PP
+.ta \w'\fLToken* 'u
+.B
+Item*	parsehtml(uchar* data, int datalen, Rune* src, int mtype,
+.B
+	int chset, Docinfo** pdi)
+.PP
+.B
+void	printitems(Item* items, char* msg)
+.PP
+.B
+int	validitems(Item* items)
+.PP
+.B
+void	freeitems(Item* items)
+.PP
+.B
+void	freedocinfo(Docinfo* d)
+.PP
+.B
+int	dimenkind(Dimen d)
+.PP
+.B
+int	dimenspec(Dimen d)
+.PP
+.B
+int	targetid(Rune* s)
+.PP
+.B
+Rune*	targetname(int targid)
+.PP
+.B
+uchar*	fromStr(Rune* buf, int n, int chset)
+.PP
+.B
+Rune*	toStr(uchar* buf, int n, int chset)
+.SH DESCRIPTION
+.PP
+This library implements a parser for HTML 4.0 documents.
+The parsed HTML is converted into an intermediate representation that
+describes how the formatted HTML should be laid out.
+.PP
+.I Parsehtml
+parses an entire HTML document contained in the buffer
+.I data
+and having length
+.IR datalen .
+The URL of the document should be passed in as
+.IR src .
+.I Mtype
+is the media type of the document, which should be either
+.B TextHtml
+or
+.BR TextPlain .
+The character set of the document is described in
+.IR chset ,
+which can be one of
+.BR US_Ascii ,
+.BR ISO_8859_1 ,
+.B UTF_8
+or
+.BR Unicode .
+The return value is a linked list of
+.B Item
+structures, described in detail below.
+As a side effect, 
+.BI * pdi
+is set to point to a newly created
+.B Docinfo
+structure, containing information pertaining to the entire document.
+.PP
+The library expects two allocation routines to be provided by the
+caller,
+.B emalloc
+and
+.BR erealloc .
+These routines are analogous to the standard malloc and realloc routines,
+except that they should not return if the memory allocation fails.
+In addition,
+.B emalloc
+is required to zero the memory.
+.PP
+For debugging purposes,
+.I printitems
+may be called to display the contents of an item list; individual items may
+be printed using the
+.B %I
+print verb, installed on the first call to
+.IR parsehtml .
+.I validitems
+traverses the item list, checking that all of the pointers are valid.
+It returns
+.B 1
+is everything is ok, and
+.B 0
+if an error was found.
+Normally, one would not call these routines directly.
+Instead, one sets the global variable
+.I dbgbuild
+and the library calls them automatically.
+One can also set
+.IR warn ,
+to cause the library to print a warning whenever it finds a problem with the
+input document, and
+.IR dbglex ,
+to print debugging information in the lexer.
+.PP
+When an item list is finished with, it should be freed with
+.IR freeitems .
+Then,
+.I freedocinfo
+should be called on the pointer returned in
+.BI * pdi\f1.
+.PP
+.I Dimenkind
+and
+.I dimenspec
+are provided to interpret the
+.B Dimen
+type, as described in the section
+.IR "Dimension Specifications" .
+.PP
+Frame target names are mapped to integer ids via a global, permanent mapping.
+To find the value for a given name, call
+.IR targetid ,
+which allocates a new id if the name hasn't been seen before.
+The name of a given, known id may be retrieved using
+.IR targetname .
+The library predefines
+.BR FTtop ,
+.BR FTself ,
+.B FTparent
+and
+.BR FTblank .
+.PP
+The library handles all text as Unicode strings (type
+.BR Rune* ).
+Character set conversion is provided by
+.I fromStr
+and
+.IR toStr .
+.I FromStr
+takes
+.I n
+Unicode characters from
+.I buf
+and converts them to the character set described by
+.IR chset .
+.I ToStr
+takes
+.I n
+bytes from
+.IR buf ,
+interpretted as belonging to character set
+.IR chset ,
+and converts them to a Unicode string.
+Both routines null-terminate the result, and use
+.B emalloc
+to allocate space for it.
+.SS Items
+The return value of
+.I parsehtml
+is a linked list of variant structures,
+with the generic portion described by the following definition:
+.PP
+.EX
+.ta 6n +\w'Genattr* 'u
+typedef struct Item Item;
+struct Item
+{
+	Item*	next;
+	int	width;
+	int	height;
+	int	ascent;
+	int	anchorid;
+	int	state;
+	Genattr*	genattr;
+	int	tag;
+};
+.EE
+.PP
+The field
+.B next
+points to the successor in the linked list of items, while
+.BR width ,
+.BR height ,
+and
+.B ascent
+are intended for use by the caller as part of the layout process.
+.BR Anchorid ,
+if non-zero, gives the integer id assigned by the parser to the anchor that
+this item is in (see section
+.IR Anchors ).
+.B State
+is a collection of flags and values described as follows:
+.PP
+.EX
+.ta 6n +\w'IFindentshift = 'u
+enum
+{
+	IFbrk =	0x80000000,
+	IFbrksp =	0x40000000,
+	IFnobrk =	0x20000000,
+	IFcleft =	0x10000000,
+	IFcright =	0x08000000,
+	IFwrap =	0x04000000,
+	IFhang =	0x02000000,
+	IFrjust =	0x01000000,
+	IFcjust =	0x00800000,
+	IFsmap =	0x00400000,
+	IFindentshift =	8,
+	IFindentmask =	(255<<IFindentshift),
+	IFhangmask =	255
+};
+.EE
+.PP
+.B IFbrk
+is set if a break is to be forced before placing this item.
+.B IFbrksp
+is set if a 1 line space should be added to the break (in which case
+.B IFbrk
+is also set).
+.B IFnobrk
+is set if a break is not permitted before the item.
+.B IFcleft
+is set if left floats should be cleared (that is, if the list of pending left floats should be placed)
+before this item is placed, and
+.B IFcright
+is set for right floats.
+In both cases, IFbrk is also set.
+.B IFwrap
+is set if the line containing this item is allowed to wrap.
+.B IFhang
+is set if this item hangs into the left indent.
+.B IFrjust
+is set if the line containing this item should be right justified,
+and
+.B IFcjust
+is set for center justified lines.
+.B IFsmap
+is used to indicate that an image is a server-side map.
+The low 8 bits, represented by
+.BR IFhangmask ,
+indicate the current hang into left indent, in tenths of a tabstop.
+The next 8 bits, represented by
+.B IFindentmask
+and
+.BR IFindentshift ,
+indicate the current indent in tab stops.
+.PP
+The field
+.B genattr
+is an optional pointer to an auxiliary structure, described in the section
+.IR "Generic Attributes" .
+.PP
+Finally,
+.B tag
+describes which variant type this item has.
+It can have one of the values
+.BR Itexttag ,
+.BR Iruletag ,
+.BR Iimagetag ,
+.BR Iformfieldtag ,
+.BR Itabletag ,
+.B Ifloattag
+or
+.BR Ispacertag .
+For each of these values, there is an additional structure defined, which
+includes Item as an unnamed initial substructure, and then defines additional
+fields.
+.PP
+Items of type
+.B Itexttag
+represent a piece of text, using the following structure:
+.PP
+.EX
+.ta 6n +\w'Rune* 'u
+struct Itext
+{
+	Item;
+	Rune*	s;
+	int	fnt;
+	int	fg;
+	uchar	voff;
+	uchar	ul;
+};
+.EE
+.PP
+Here
+.B s
+is a null-terminated Unicode string of the actual characters making up this text item,
+.B fnt
+is the font number (described in the section
+.IR "Font Numbers" ),
+and
+.B fg
+is the RGB encoded color for the text.
+.B Voff
+measures the vertical offset from the baseline; subtract
+.B Voffbias
+to get the actual value (negative values represent a displacement down the page).
+The field
+.B ul
+is the underline style:
+.B ULnone
+if no underline,
+.B ULunder
+for conventional underline, and
+.B ULmid
+for strike-through.
+.PP
+Items of type
+.B Iruletag
+represent a horizontal rule, as follows:
+.PP
+.EX
+.ta 6n +\w'Dimen 'u
+struct Irule
+{
+	Item;
+	uchar	align;
+	uchar	noshade;
+	int	size;
+	Dimen	wspec;
+};
+.EE
+.PP
+Here
+.B align
+is the alignment specification (described in the corresponding section),
+.B noshade
+is set if the rule should not be shaded,
+.B size
+is the height of the rule (as set by the size attribute),
+and
+.B wspec
+is the desired width (see section
+.IR "Dimension Specifications" ).
+.PP
+Items of type
+.B Iimagetag
+describe embedded images, for which the following structure is defined:
+.PP
+.EX
+.ta 6n +\w'Iimage* 'u
+struct Iimage
+{
+	Item;
+	Rune*	imsrc;
+	int	imwidth;
+	int	imheight;
+	Rune*	altrep;
+	Map*	map;
+	int	ctlid;
+	uchar	align;
+	uchar	hspace;
+	uchar	vspace;
+	uchar	border;
+	Iimage*	nextimage;
+};
+.EE
+.PP
+Here
+.B imsrc
+is the URL of the image source,
+.B imwidth
+and
+.BR imheight ,
+if non-zero, contain the specified width and height for the image,
+and
+.B altrep
+is the text to use as an alternative to the image, if the image is not displayed.
+.BR Map ,
+if set, points to a structure describing an associated client-side image map.
+.B Ctlid
+is reserved for use by the application, for handling animated images.
+.B Align
+encodes the alignment specification of the image.
+.B Hspace
+contains the number of pixels to pad the image with on either side, and
+.B Vspace
+the padding above and below.
+.B Border
+is the width of the border to draw around the image.
+.B Nextimage
+points to the next image in the document (the head of this list is
+.BR Docinfo.images ).
+.PP
+For items of type
+.BR Iformfieldtag ,
+the following structure is defined:
+.PP
+.EX
+.ta 6n +\w'Formfield* 'u
+struct Iformfield
+{
+	Item;
+	Formfield*	formfield;
+};
+.EE
+.PP
+This adds a single field,
+.BR formfield ,
+which points to a structure describing a field in a form, described in section
+.IR Forms .
+.PP
+For items of type
+.BR Itabletag ,
+the following structure is defined:
+.PP
+.EX
+.ta 6n +\w'Table* 'u
+struct Itable
+{
+	Item;
+	Table*	table;
+};
+.EE
+.PP
+.B Table
+points to a structure describing the table, described in the section
+.IR Tables .
+.PP
+For items of type
+.BR Ifloattag ,
+the following structure is defined:
+.PP
+.EX
+.ta 6n +\w'Ifloat* 'u
+struct Ifloat
+{
+	Item;
+	Item*	item;
+	int	x;
+	int	y;
+	uchar	side;
+	uchar	infloats;
+	Ifloat*	nextfloat;
+};
+.EE
+.PP
+The
+.B item
+points to a single item (either a table or an image) that floats (the text of the
+document flows around it), and
+.B side
+indicates the margin that this float sticks to; it is either
+.B ALleft
+or
+.BR ALright .
+.B X
+and
+.B y
+are reserved for use by the caller; these are typically used for the coordinates
+of the top of the float.
+.B Infloats
+is used by the caller to keep track of whether it has placed the float.
+.B Nextfloat
+is used by the caller to link together all of the floats that it has placed.
+.PP
+For items of type
+.BR Ispacertag ,
+the following structure is defined:
+.PP
+.EX
+.ta 6n +\w'Item; 'u
+struct Ispacer
+{
+	Item;
+	int	spkind;
+};
+.EE
+.PP
+.B Spkind
+encodes the kind of spacer, and may be one of
+.B ISPnull
+(zero height and width),
+.B ISPvline
+(takes on height and ascent of the current font),
+.B ISPhspace
+(has the width of a space in the current font) and
+.B ISPgeneral
+(for all other purposes, such as between markers and lists).
+.SS Generic Attributes
+.PP
+The genattr field of an item, if non-nil, points to a structure that holds
+the values of attributes not specific to any particular
+item type, as they occur on a wide variety of underlying HTML tags.
+The structure is as follows:
+.PP
+.EX
+.ta 6n +\w'SEvent* 'u
+typedef struct Genattr Genattr;
+struct Genattr
+{
+	Rune*	id;
+	Rune*	class;
+	Rune*	style;
+	Rune*	title;
+	SEvent*	events;
+};
+.EE
+.PP
+Fields
+.BR id ,
+.BR class ,
+.B style
+and
+.BR title ,
+when non-nil, contain values of correspondingly named attributes of the HTML tag
+associated with this item.
+.B Events
+is a linked list of events (with corresponding scripted actions) associated with the item:
+.PP
+.EX
+.ta 6n +\w'SEvent* 'u
+typedef struct SEvent SEvent;
+struct SEvent
+{
+	SEvent*	next;
+	int	type;
+	Rune*	script;
+};
+.EE
+.PP
+Here,
+.B next
+points to the next event in the list,
+.B type
+is one of
+.BR SEonblur ,
+.BR SEonchange ,
+.BR SEonclick ,
+.BR SEondblclick ,
+.BR SEonfocus ,
+.BR SEonkeypress ,
+.BR SEonkeyup ,
+.BR SEonload ,
+.BR SEonmousedown ,
+.BR SEonmousemove ,
+.BR SEonmouseout ,
+.BR SEonmouseover ,
+.BR SEonmouseup ,
+.BR SEonreset ,
+.BR SEonselect ,
+.B SEonsubmit
+or
+.BR SEonunload ,
+and
+.B script
+is the text of the associated script.
+.SS Dimension Specifications
+.PP
+Some structures include a dimension specification, used where
+a number can be followed by a
+.B %
+or a
+.B *
+to indicate
+percentage of total or relative weight.
+This is encoded using the following structure:
+.PP
+.EX
+.ta 6n +\w'int 'u
+typedef struct Dimen Dimen;
+struct Dimen
+{
+	int	kindspec;
+};
+.EE
+.PP
+Separate kind and spec values are extracted using
+.I dimenkind
+and
+.IR dimenspec .
+.I Dimenkind
+returns one of
+.BR Dnone ,
+.BR Dpixels ,
+.B Dpercent
+or
+.BR Drelative .
+.B Dnone
+means that no dimension was specified.
+In all other cases,
+.I dimenspec
+should be called to find the absolute number of pixels, the percentage of total,
+or the relative weight.
+.SS Background Specifications
+.PP
+It is possible to set the background of the entire document, and also
+for some parts of the document (such as tables).
+This is encoded as follows:
+.PP
+.EX
+.ta 6n +\w'Rune* 'u
+typedef struct Background Background;
+struct Background
+{
+	Rune*	image;
+	int	color;
+};
+.EE
+.PP
+.BR Image ,
+if non-nil, is the URL of an image to use as the background.
+If this is nil,
+.B color
+is used instead, as the RGB value for a solid fill color.
+.SS Alignment Specifications
+.PP
+Certain items have alignment specifiers taken from the following
+enumerated type:
+.PP
+.EX
+.ta 6n
+enum
+{
+	ALnone = 0, ALleft, ALcenter, ALright, ALjustify,
+	ALchar, ALtop, ALmiddle, ALbottom, ALbaseline
+};
+.EE
+.PP
+These values correspond to the various alignment types named in the HTML 4.0
+standard.
+If an item has an alignment of
+.B ALleft
+or
+.BR ALright ,
+the library automatically encapsulates it inside a float item.
+.PP
+Tables, and the various rows, columns and cells within them, have a more
+complex alignment specification, composed of separate vertical and
+horizontal alignments:
+.PP
+.EX
+.ta 6n +\w'uchar 'u
+typedef struct Align Align;
+struct Align
+{
+	uchar	halign;
+	uchar	valign;
+};
+.EE
+.PP
+.B Halign
+can be one of
+.BR ALnone ,
+.BR ALleft ,
+.BR ALcenter ,
+.BR ALright ,
+.B ALjustify
+or
+.BR ALchar .
+.B Valign
+can be one of
+.BR ALnone ,
+.BR ALmiddle ,
+.BR ALbottom ,
+.BR ALtop
+or
+.BR ALbaseline .
+.SS Font Numbers
+.PP
+Text items have an associated font number (the
+.B fnt
+field), which is encoded as
+.BR style*NumSize+size .
+Here,
+.B style
+is one of
+.BR FntR ,
+.BR FntI ,
+.B FntB
+or
+.BR FntT ,
+for roman, italic, bold and typewriter font styles, respectively, and size is
+.BR Tiny ,
+.BR Small ,
+.BR Normal ,
+.B Large
+or
+.BR Verylarge .
+The total number of possible font numbers is
+.BR NumFnt ,
+and the default font number is
+.B DefFnt
+(which is roman style, normal size).
+.SS Document Info
+.PP
+Global information about an HTML page is stored in the following structure:
+.PP
+.EX
+.ta 6n +\w'DestAnchor* 'u
+typedef struct Docinfo Docinfo;
+struct Docinfo
+{
+	// stuff from HTTP headers, doc head, and body tag
+	Rune*	src;
+	Rune*	base;
+	Rune*	doctitle;
+	Background	background;
+	Iimage*	backgrounditem;
+	int	text;
+	int	link;
+	int	vlink;
+	int	alink;
+	int	target;
+	int	chset;
+	int	mediatype;
+	int	scripttype;
+	int	hasscripts;
+	Rune*	refresh;
+	Kidinfo*	kidinfo;
+	int	frameid;
+
+	// info needed to respond to user actions
+	Anchor*	anchors;
+	DestAnchor*	dests;
+	Form*	forms;
+	Table*	tables;
+	Map*	maps;
+	Iimage*	images;
+};
+.EE
+.PP
+.B Src
+gives the URL of the original source of the document,
+and
+.B base
+is the base URL.
+.B Doctitle
+is the document's title, as set by a
+.B <title>
+element.
+.B Background
+is as described in the section
+.IR "Background Specifications" ,
+and
+.B backgrounditem
+is set to be an image item for the document's background image (if given as a URL),
+or else nil.
+.B Text
+gives the default foregound text color of the document,
+.B link
+the unvisited hyperlink color,
+.B vlink
+the visited hyperlink color, and
+.B alink
+the color for highlighting hyperlinks (all in 24-bit RGB format).
+.B Target
+is the default target frame id.
+.B Chset
+and
+.B mediatype
+are as for the
+.I chset
+and
+.I mtype
+parameters to
+.IR parsehtml .
+.B Scripttype
+is the type of any scripts contained in the document, and is always
+.BR TextJavascript .
+.B Hasscripts
+is set if the document contains any scripts.
+Scripting is currently unsupported.
+.B Refresh
+is the contents of a
+.B "<meta http-equiv=Refresh ...>"
+tag, if any.
+.B Kidinfo
+is set if this document is a frameset (see section
+.IR Frames ).
+.B Frameid
+is this document's frame id.
+.PP
+.B Anchors
+is a list of hyperlinks contained in the document,
+and
+.B dests
+is a list of hyperlink destinations within the page (see the following section for details).
+.BR Forms ,
+.B tables
+and
+.B maps
+are lists of the various forms, tables and client-side maps contained
+in the document, as described in subsequent sections.
+.B Images
+is a list of all the image items in the document.
+.SS Anchors
+.PP
+The library builds two lists for all of the
+.B <a>
+elements (anchors) in a document.
+Each anchor is assigned a unique anchor id within the document.
+For anchors which are hyperlinks (the
+.B href
+attribute was supplied), the following structure is defined:
+.PP
+.EX
+.ta 6n +\w'Anchor* 'u
+typedef struct Anchor Anchor;
+struct Anchor
+{
+	Anchor*	next;
+	int	index;
+	Rune*	name;
+	Rune*	href;
+	int	target;
+};
+.EE
+.PP
+.B Next
+points to the next anchor in the list (the head of this list is
+.BR Docinfo.anchors ).
+.B Index
+is the anchor id; each item within this hyperlink is tagged with this value
+in its
+.B anchorid
+field.
+.B Name
+and
+.B href
+are the values of the correspondingly named attributes of the anchor
+(in particular, href is the URL to go to).
+.B Target
+is the value of the target attribute (if provided) converted to a frame id.
+.PP
+Destinations within the document (anchors with the name attribute set)
+are held in the
+.B Docinfo.dests
+list, using the following structure:
+.PP
+.EX
+.ta 6n +\w'DestAnchor* 'u
+typedef struct DestAnchor DestAnchor;
+struct DestAnchor
+{
+	DestAnchor*	next;
+	int	index;
+	Rune*	name;
+	Item*	item;
+};
+.EE
+.PP
+.B Next
+is the next element of the list,
+.B index
+is the anchor id,
+.B name
+is the value of the name attribute, and
+.B item
+is points to the item within the parsed document that should be considered
+to be the destination.
+.SS Forms
+.PP
+Any forms within a document are kept in a list, headed by
+.BR Docinfo.forms .
+The elements of this list are as follows:
+.PP
+.EX
+.ta 6n +\w'Formfield* 'u
+typedef struct Form Form;
+struct Form
+{
+	Form*	next;
+	int	formid;
+	Rune*	name;
+	Rune*	action;
+	int	target;
+	int	method;
+	int	nfields;
+	Formfield*	fields;
+};
+.EE
+.PP
+.B Next
+points to the next form in the list.
+.B Formid
+is a serial number for the form within the document.
+.B Name
+is the value of the form's name or id attribute.
+.B Action
+is the value of any action attribute.
+.B Target
+is the value of the target attribute (if any) converted to a frame target id.
+.B Method
+is one of
+.B HGet
+or
+.BR HPost .
+.B Nfields
+is the number of fields in the form, and
+.B fields
+is a linked list of the actual fields.
+.PP
+The individual fields in a form are described by the following structure:
+.PP
+.EX
+.ta 6n +\w'Formfield* 'u
+typedef struct Formfield Formfield;
+struct Formfield
+{
+	Formfield*	next;
+	int	ftype;
+	int	fieldid;
+	Form*	form;
+	Rune*	name;
+	Rune*	value;
+	int	size;
+	int	maxlength;
+	int	rows;
+	int	cols;
+	uchar	flags;
+	Option*	options;
+	Item*	image;
+	int	ctlid;
+	SEvent*	events;
+};
+.EE
+.PP
+Here,
+.B next
+points to the next field in the list.
+.B Ftype
+is the type of the field, which can be one of
+.BR Ftext ,
+.BR Fpassword ,
+.BR Fcheckbox ,
+.BR Fradio ,
+.BR Fsubmit ,
+.BR Fhidden ,
+.BR Fimage ,
+.BR Freset ,
+.BR Ffile ,
+.BR Fbutton ,
+.B Fselect
+or
+.BR Ftextarea .
+.B Fieldid
+is a serial number for the field within the form.
+.B Form
+points back to the form containing this field.
+.BR Name ,
+.BR value ,
+.BR size ,
+.BR maxlength ,
+.B rows
+and
+.B cols
+each contain the values of corresponding attributes of the field, if present.
+.B Flags
+contains per-field flags, of which
+.B FFchecked
+and
+.B FFmultiple
+are defined.
+.B Image
+is only used for fields of type
+.BR Fimage ;
+it points to an image item containing the image to be displayed.
+.B Ctlid
+is reserved for use by the caller, typically to store a unique id
+of an associated control used to implement the field.
+.B Events
+is the same as the corresponding field of the generic attributes
+associated with the item containing this field.
+.B Options
+is only used by fields of type
+.BR Fselect ;
+it consists of a list of possible options that may be selected for that
+field, using the following structure:
+.PP
+.EX
+.ta 6n +\w'Option* 'u
+typedef struct Option Option;
+struct Option
+{
+	Option*	next;
+	int	selected;
+	Rune*	value;
+	Rune*	display;
+};
+.EE
+.PP
+.B Next
+points to the next element of the list.
+.B Selected
+is set if this option is to be displayed initially.
+.B Value
+is the value to send when the form is submitted if this option is selected.
+.B Display
+is the string to display on the screen for this option.
+.SS Tables
+.PP
+The library builds a list of all the tables in the document,
+headed by
+.BR Docinfo.tables .
+Each element of this list has the following format:
+.PP
+.EX
+.ta 6n +\w'Tablecell*** 'u
+typedef struct Table Table;
+struct Table
+{
+	Table*	next;
+	int	tableid;
+	Tablerow*	rows;
+	int	nrow;
+	Tablecol*	cols;
+	int	ncol;
+	Tablecell*	cells;
+	int	ncell;
+	Tablecell***	grid;
+	Align	align;
+	Dimen	width;
+	int	border;
+	int	cellspacing;
+	int	cellpadding;
+	Background	background;
+	Item*	caption;
+	uchar	caption_place;
+	Lay*	caption_lay;
+	int	totw;
+	int	toth;
+	int	caph;
+	int	availw;
+	Token*	tabletok;
+	uchar	flags;
+};
+.EE
+.PP
+.B Next
+points to the next element in the list of tables.
+.B Tableid
+is a serial number for the table within the document.
+.B Rows
+is an array of row specifications (described below) and
+.B nrow
+is the number of elements in this array.
+Similarly,
+.B cols
+is an array of column specifications, and
+.B ncol
+the size of this array.
+.B Cells
+is a list of all cells within the table (structure described below)
+and
+.B ncell
+is the number of elements in this list.
+Note that a cell may span multiple rows and/or columns, thus
+.B ncell
+may be smaller than
+.BR nrow*ncol .
+.B Grid
+is a two-dimensional array of cells within the table; the cell
+at row
+.B i
+and column
+.B j
+is
+.BR Table.grid[i][j] .
+A cell that spans multiple rows and/or columns will
+be referenced by
+.B grid
+multiple times, however it will only occur once in
+.BR cells .
+.B Align
+gives the alignment specification for the entire table,
+and
+.B width
+gives the requested width as a dimension specification.
+.BR Border ,
+.B cellspacing
+and
+.B cellpadding
+give the values of the corresponding attributes for the table,
+and
+.B background
+gives the requested background for the table.
+.B Caption
+is a linked list of items to be displayed as the caption of the
+table, either above or below depending on whether
+.B caption_place
+is
+.B ALtop
+or
+.BR ALbottom .
+Most of the remaining fields are reserved for use by the caller,
+except
+.BR tabletok ,
+which is reserved for internal use.
+The type
+.B Lay
+is not defined by the library; the caller can provide its
+own definition.
+.PP
+The
+.B Tablecol
+structure is defined for use by the caller.
+The library ensures that the correct number of these
+is allocated, but leaves them blank.
+The fields are as follows:
+.PP
+.EX
+.ta 6n +\w'Point 'u
+typedef struct Tablecol Tablecol;
+struct Tablecol
+{
+	int	width;
+	Align	align;
+	Point		pos;
+};
+.EE
+.PP
+The rows in the table are specified as follows:
+.PP
+.EX
+.ta 6n +\w'Background 'u
+typedef struct Tablerow Tablerow;
+struct Tablerow
+{
+	Tablerow*	next;
+	Tablecell*	cells;
+	int	height;
+	int	ascent;
+	Align	align;
+	Background	background;
+	Point	pos;
+	uchar	flags;
+};
+.EE
+.PP
+.B Next
+is only used during parsing; it should be ignored by the caller.
+.B Cells
+provides a list of all the cells in a row, linked through their
+.B nextinrow
+fields (see below).
+.BR Height ,
+.B ascent
+and
+.B pos
+are reserved for use by the caller.
+.B Align
+is the alignment specification for the row, and
+.B background
+is the background to use, if specified.
+.B Flags
+is used by the parser; ignore this field.
+.PP
+The individual cells of the table are described as follows:
+.PP
+.EX
+.ta 6n +\w'Background 'u
+typedef struct Tablecell Tablecell;
+struct Tablecell
+{
+	Tablecell*	next;
+	Tablecell*	nextinrow;
+	int	cellid;
+	Item*	content;
+	Lay*	lay;
+	int	rowspan;
+	int	colspan;
+	Align	align;
+	uchar	flags;
+	Dimen	wspec;
+	int	hspec;
+	Background	background;
+	int	minw;
+	int	maxw;
+	int	ascent;
+	int	row;
+	int	col;
+	Point	pos;
+};
+.EE
+.PP
+.B Next
+is used to link together the list of all cells within a table
+.RB ( Table.cells ),
+whereas
+.B nextinrow
+is used to link together all the cells within a single row
+.RB ( Tablerow.cells ).
+.B Cellid
+provides a serial number for the cell within the table.
+.B Content
+is a linked list of the items to be laid out within the cell.
+.B Lay
+is reserved for the user to describe how these items have
+been laid out.
+.B Rowspan
+and
+.B colspan
+are the number of rows and columns spanned by this cell,
+respectively.
+.B Align
+is the alignment specification for the cell.
+.B Flags
+is some combination of
+.BR TFparsing ,
+.B TFnowrap
+and
+.B TFisth
+or'd together.
+Here
+.B TFparsing
+is used internally by the parser, and should be ignored.
+.B TFnowrap
+means that the contents of the cell should not be
+wrapped if they don't fit the available width,
+rather, the table should be expanded if need be
+(this is set when the nowrap attribute is supplied).
+.B TFisth
+means that the cell was created by the
+.B <th>
+element (rather than the
+.B <td>
+element),
+indicating that it is a header cell rather than a data cell.
+.B Wspec
+provides a suggested width as a dimension specification,
+and
+.B hspec
+provides a suggested height in pixels.
+.B Background
+gives a background specification for the individual cell.
+.BR Minw ,
+.BR maxw ,
+.B ascent
+and
+.B pos
+are reserved for use by the caller during layout.
+.B Row
+and
+.B col
+give the indices of the row and column of the top left-hand
+corner of the cell within the table grid.
+.SS Client-side Maps
+.PP
+The library builds a list of client-side maps, headed by
+.BR Docinfo.maps ,
+and having the following structure:
+.PP
+.EX
+.ta 6n +\w'Rune* 'u
+typedef struct Map Map;
+struct Map
+{
+	Map*	next;
+	Rune*	name;
+	Area*	areas;
+};
+.EE
+.PP
+.B Next
+points to the next element in the list,
+.B name
+is the name of the map (use to bind it to an image), and
+.B areas
+is a list of the areas within the image that comprise the map,
+using the following structure:
+.PP
+.EX
+.ta 6n +\w'Dimen* 'u
+typedef struct Area Area;
+struct Area
+{
+	Area*	next;
+	int	shape;
+	Rune*	href;
+	int	target;
+	Dimen*	coords;
+	int	ncoords;
+};
+.EE
+.PP
+.B Next
+points to the next element in the map's list of areas.
+.B Shape
+describes the shape of the area, and is one of
+.BR SHrect ,
+.B SHcircle
+or
+.BR  SHpoly .
+.B Href
+is the URL associated with this area in its role as
+a hypertext link, and
+.B target
+is the target frame it should be loaded in.
+.B Coords
+is an array of coordinates for the shape, and
+.B ncoords
+is the size of this array (number of elements).
+.SS Frames
+.PP
+If the
+.B Docinfo.kidinfo
+field is set, the document is a frameset.
+In this case, it is typical for
+.I parsehtml
+to return nil, as a document which is a frameset should have no actual
+items that need to be laid out (such will appear only in subsidiary documents).
+It is possible that items will be returned by a malformed document; the caller
+should check for this and free any such items.
+.PP
+The
+.B Kidinfo
+structure itself reflects the fact that framesets can be nested within a document.
+If is defined as follows:
+.PP
+.EX
+.ta 6n +\w'Kidinfo* 'u
+typedef struct Kidinfo Kidinfo;
+struct Kidinfo
+{
+	Kidinfo*	next;
+	int	isframeset;
+
+	// fields for "frame"
+	Rune*	src;
+	Rune*	name;
+	int	marginw;
+	int	marginh;
+	int	framebd;
+	int	flags;
+
+	// fields for "frameset"
+	Dimen*	rows;
+	int	nrows;
+	Dimen*	cols;
+	int	ncols;
+	Kidinfo*	kidinfos;
+	Kidinfo*	nextframeset;
+};
+.EE
+.PP
+.B Next
+is only used if this structure is part of a containing frameset; it points to the next
+element in the list of children of that frameset.
+.B Isframeset
+is set when this structure represents a frameset; if clear, it is an individual frame.
+.PP
+Some fields are used only for framesets.
+.B Rows
+is an array of dimension specifications for rows in the frameset, and
+.B nrows
+is the length of this array.
+.B Cols
+is the corresponding array for columns, of length
+.BR ncols .
+.B Kidinfos
+points to a list of components contained within this frameset, each
+of which may be a frameset or a frame.
+.B Nextframeset
+is only used during parsing, and should be ignored.
+.PP
+The remaining fields are used if the structure describes a frame, not a frameset.
+.B Src
+provides the URL for the document that should be initially loaded into this frame.
+Note that this may be a relative URL, in which case it should be interpretted
+using the containing document's URL as the base.
+.B Name
+gives the name of the frame, typically supplied via a name attribute in the HTML.
+If no name was given, the library allocates one.
+.BR Marginw ,
+.B marginh
+and
+.B framebd
+are the values of the marginwidth, marginheight and frameborder attributes, respectively.
+.B Flags
+can contain some combination of the following:
+.B FRnoresize
+(the frame had the noresize attribute set, and the user should not be allowed to resize it),
+.B FRnoscroll
+(the frame should not have any scroll bars),
+.B FRhscroll
+(the frame should have a horizontal scroll bar),
+.B FRvscroll
+(the frame should have a vertical scroll bar),
+.B FRhscrollauto
+(the frame should be automatically given a horizontal scroll bar if its contents
+would not otherwise fit), and
+.B FRvscrollauto
+(the frame gets a vertical scrollbar only if required).
+.SH SOURCE
+.B /sys/src/libhtml
+.SH SEE ALSO
+.IR fmt (1)
+.PP
+W3C World Wide Web Consortium,
+``HTML 4.01 Specification''.
+.SH BUGS
+The entire HTML document must be loaded into memory before
+any of it can be parsed.
