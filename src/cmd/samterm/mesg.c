@@ -38,7 +38,9 @@ rcv(void)
 	static int i = 0;
 	static int errs = 0;
 
-	while((c=rcvchar()) != -1)
+if(0) print("rcv in\n");
+	while((c=rcvchar()) != -1){
+if(0) print(".");
 		switch(state){
 		case 0:
 			h.type = c;
@@ -79,6 +81,10 @@ rcv(void)
 			}
 			break;
 		}
+if(0) print(":");
+	}
+
+if(0) print("rcv out\n");
 }
 
 Text *

@@ -96,13 +96,6 @@ waitforio(void)
 	ulong type;
 
 again:
-
-	alts[RPlumb].c = plumbc;
-	alts[RPlumb].v = &i;
-	alts[RPlumb].op = CHANRCV;
-	if((block & (1<<RPlumb)) || plumbc == nil)
-		alts[RPlumb].op = CHANNOP;
-
 	alts[RHost].c = hostc;
 	alts[RHost].v = &i;
 	alts[RHost].op = CHANRCV;
@@ -121,11 +114,24 @@ again:
 	if(block & (1<<RMouse))
 		alts[RMouse].op = CHANNOP;
 
+	alts[RPlumb].c = plumbc;
+	alts[RPlumb].v = &i;
+	alts[RPlumb].op = CHANRCV;
+	if((block & (1<<RPlumb)) || plumbc == nil)
+		alts[RPlumb].op = CHANNOP;
+
 	alts[RResize].c = mousectl->resizec;
 	alts[RResize].v = nil;
 	alts[RResize].op = CHANRCV;
 	if(block & (1<<RResize))
 		alts[RResize].op = CHANNOP;
+
+if(0) print("waitforio %c%c%c%c%c\n",
+	"h-"[alts[RHost].op == CHANNOP],
+	"k-"[alts[RKeyboard].op == CHANNOP],
+	"m-"[alts[RMouse].op == CHANNOP],
+	"p-"[alts[RPlumb].op == CHANNOP],
+	"R-"[alts[RResize].op == CHANNOP]);
 
 	alts[NRes].op = CHANEND;
 
@@ -135,6 +141,7 @@ again:
 	type = alt(alts);
 	switch(type){
 	case RHost:
+		if(0) print("hostalt recv %d %d\n", i, hostbuf[i].n);
 		hostp = hostbuf[i].data;
 		hoststop = hostbuf[i].data + hostbuf[i].n;
 		block = 0;
