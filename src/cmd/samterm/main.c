@@ -435,6 +435,19 @@ flushtyping(int clearesc)
 #define	SCROLLKEY	Kdown
 #define	BACKSCROLLKEY	Kup
 #define	ESC		0x1B
+#define	HOMEKEY	Khome
+#define	ENDKEY	Kend
+#define	PAGEUP	Kpgup
+#define	PAGEDOWN	Kpgdown
+
+int
+nontypingkey(c)
+{
+	return c==SCROLLKEY || c==BACKSCROLLKEY
+		|| c==LEFTARROW || c==RIGHTARROW
+		|| c==HOMEKEY || c==ENDKEY
+		|| c==PAGEUP || c==PAGEDOWN;
+}
 
 void
 type(Flayer *l, int res)	/* what a bloody mess this is */
@@ -448,7 +461,7 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 
 	scrollkey = 0;
 	if(res == RKeyboard)
-		scrollkey = (qpeekc()==SCROLLKEY || qpeekc()==BACKSCROLLKEY);	/* ICK */
+		scrollkey = nontypingkey(qpeekc());	/* ICK */
 
 	if(hostlock || t->lock){
 		kbdblock();
@@ -463,7 +476,7 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 	backspacing = 0;
 	while((c = kbdchar())>0){
 		if(res == RKeyboard){
-			if(c==SCROLLKEY || c==BACKSCROLLKEY || c==ESC)
+			if(nontypingkey(c) || c==ESC)
 				break;
 			/* backspace, ctrl-u, ctrl-w, del */
 			if(c=='\b' || c==0x15 || c==0x17 || c==0x7F){
@@ -491,16 +504,36 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 			flushtyping(0);
 		onethird(l, a);
 	}
-	if(c == SCROLLKEY){
+	if(c==SCROLLKEY || c==PAGEDOWN){
 		flushtyping(0);
 		center(l, l->origin+l->f.nchars+1);
 		/* backspacing immediately after outcmd(): sorry */
-	}else if(c == BACKSCROLLKEY){
+	}else if(c==BACKSCROLLKEY || c==PAGEUP){
 		flushtyping(0);
 		a0 = l->origin-l->f.nchars;
 		if(a0 < 0)
 			a0 = 0;
 		center(l, a0);
+	}else if(c == RIGHTARROW){
+		flushtyping(0);
+		a0 = l->p0;
+		if(a0 < t->rasp.nrunes)
+			a0++;
+		flsetselect(l, a0, a0);
+		center(l, a0);
+	}else if(c == LEFTARROW){
+		flushtyping(0);
+		a0 = l->p0;
+		if(a0 > 0)
+			a0--;
+		flsetselect(l, a0, a0);
+		center(l, a0);
+	}else if(c == HOMEKEY){
+		flushtyping(0);
+		center(l, 0);
+	}else if(c == ENDKEY){
+		flushtyping(0);
+		center(l, t->rasp.nrunes);
 	}else if(backspacing && !hostlock){
 		if(l->f.p0>0 && a>0){
 			switch(c){
