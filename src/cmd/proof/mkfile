@@ -1,0 +1,14 @@
+<$PLAN9/src/mkhdr
+
+TARG=proof
+OFILES=main.$O\
+	font.$O\
+	htroff.$O\
+	screen.$O\
+
+HFILES=proof.h
+
+<$PLAN9/src/mkone
+
+$O.pout: $OFILES
+	$LD -o $O.pout -p $OFILES
