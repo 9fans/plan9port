@@ -60,6 +60,14 @@ unpretend(Node *n)
 	n->time = 0;
 }
 
+static char*
+dir(void)
+{
+	static char buf[1024];
+
+	return getcwd(buf, sizeof buf);
+}
+
 int
 work(Node *node, Node *p, Arc *parc)
 {
@@ -90,7 +98,7 @@ work(Node *node, Node *p, Arc *parc)
 	/* consider no prerequsite case */
 	if(node->prereqs == 0){
 		if(node->time == 0){
-			fprint(2, "mk: don't know how to make '%s'\n", node->name);
+			fprint(2, "mk: don't know how to make '%s' in %s\n", node->name, dir());
 			if(kflag){
 				node->flags |= BEINGMADE;
 				runerrs++;
