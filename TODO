@@ -7,7 +7,6 @@
 
 * Venti
 	- wrote new venti library; server uses it and runs
-	- vac needs to be changed to use new library
 	- need way to mount vacs.  have all the code for a /vac file
 	  system (e.g., cd /vac/68b329da9893e34099c7d8ad5cb9c940da9393e3)
 	  but need to put it together.
@@ -19,7 +18,4 @@
 	  serves the backed-up images.  
 	  needs cleanup and release.  should be easy to add ext2,
 	  fat.  ntfs harder but possible.
-
-* win
-	need to make a real pty so that ^D etc. work.
 

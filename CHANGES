@@ -1,0 +1,77 @@
+
+March 25, 2004
+
+	Change putenv not to free the string after calling real putenv.
+	Apparently BSDs copy the string but Linux and others use the
+	one you pass in.
+
+	Add Indent command to acme listing.  Reported by Rob Pike.
+
+	Define clock to plumbclock in plumber/fsys.c to avoid name clash on SunOS.
+	Reported by Axel Belinfante and Markus Friedl.
+
+	Expanded NOTES to discuss CVS some more.
+
+	Change one instance of ulong in rio to unsigned long.
+
+	Tweak SunOS ps from Axel Belinfante.
+
+	Change diff not to mention the dirty word "stdout" anymore.
+	Reported by Taj Khattra et al.
+
+	Change 9l to add -lpthread on OpenBSD.
+	Reported by Markus Friedl.
+
+	Change 9l to add -Rfoo for each -Lfoo on the command line
+	on SunOS.  Avoids need to maintain LD_LIBRARY_PATH.
+	Reported by Axel Belinfante.
+
+	#define time to p9time in libc.h for systems where time_t != long (OpenBSD).
+	Reported by Markus Friedl.
+
+	Add SHAPE support and bitmapped grey background back to rio.
+	Reported by Markus Friedl.
+
+	Add various OpenBSD-specific files from Markus Friedl.
+
+	Change rcmain to use "test" rather than "/bin/test" to accomodate
+	systems where test is in /usr/bin.   Reported by Sam.
+
+	Silence "unknown id '' in attach" message from acme.
+	There are just more attaches than there were in Plan 9, and not
+	all of them are for windows.
+
+	Change 9term to handle "send" a little better.
+
+	Add grep.  Reported by Taj Khattra.
+
+	Split lib9.h into u.h and libc.h, so that programs can
+	include u.h, then unix headers, then libc.h.  Then changed
+	lib9 to do this.
+	Fixes many warnings on SunOS reported by Axel Belinfante.
+
+	Change 9term not to misfree when plumbing empty string.
+	Fix reported by Taj Khattra.
+
+	Fix threadexecl to process vararg list with va_list etc. rather 
+	than using &f+1.  The &f+1 trick fails on SunOS.  Reported by
+	Axel Belinfate.
+
+	Change x11-init to handle SunOS 24-bit colormapped screen
+	properly?  Fix reported by Axel Belinfante.  Let's just play along.
+
+	Add awd.  Suggested by Sam.
+
+	9term no longer aborts without plumber.
+
+	Remove _p9translate from guts of various calls.
+	Instead, callers who want #9 or #d paths explicitly call unsharp
+	to translate them.
+
+	Added ^F completion to 9term.
+
+	Change win to use a real pty, so that things like rubout work.
+
+	Change 9term, win to handle rubout even when output
+		is streaming in.
+
