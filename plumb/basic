@@ -35,11 +35,10 @@ plumb start window rc -c '''echo % mail '''$0'; mail '$0
 # image files go to page
 type is text
 data matches '[a-zA-Z¡-￿0-9_\-./]+'
-data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit)'
+data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
 arg isfile	$0
 plumb to image
-plumb start qiv -t $1
-# plumb client page -wi
+plumb start qiv -t $0
 
 # postscript/pdf/dvi go to page but not over the a plumb port
 # the port is here for reference but is unused
