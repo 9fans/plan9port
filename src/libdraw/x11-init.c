@@ -184,7 +184,7 @@ static Memimage*
 xattach(char *label)
 {
 	char *argv[2], *disp;
-	int i, n, xrootid, havemin;
+	int i, havemin, height, mask, n, width, x, xrootid, y;
 	Rectangle r;
 	XClassHint classhint;
 	XDrawable pmid;
@@ -322,16 +322,62 @@ xattach(char *label)
 	 * This is arbitrary.  In theory we should read the
 	 * command line and allow the traditional X options.
 	 */
+	mask = 0;
 	if(winsize){
 		if(parsewinsize(winsize, &r, &havemin) < 0)
 			sysfatal("%r");
+		x = 0;
+		y = 0;
 	}else{
-		r = Rect(0, 0, WidthOfScreen(xscreen)*2/3,
-			HeightOfScreen(xscreen)*2/3);
-		if(Dx(r) > Dy(r)*3/2)
-			r.max.x = r.min.x + Dy(r)*3/2;
-		if(Dy(r) > Dx(r)*3/2)
-			r.max.y = r.min.y + Dx(r)*3/2;
+		/*
+		 * Parse the various X resources.  Thanks to Peter Canning.
+		 */
+		char *screen_resources, *display_resources, *geom, 
+			*geomrestype, *home, *file;
+		XrmDatabase database;
+		XrmValue geomres;
+
+		database = XrmGetDatabase(_x.display);
+		screen_resources = XScreenResourceString(xscreen);
+		if(screen_resources != nil){
+			XrmCombineDatabase(XrmGetStringDatabase(screen_resources), &database, False);
+			XFree(screen_resources);
+		}
+
+		display_resources = XResourceManagerString(_x.display);
+		if(display_resources == nil){
+			home = getenv("home");
+			if(home == nil)
+				home = getenv("HOME");
+			if(home!=nil && (file=smprint("%s/.Xdefaults")) != nil){
+				XrmCombineFileDatabase(file, &database, False);
+				free(file);
+			}
+			free(home);
+		}else
+			XrmCombineDatabase(XrmGetStringDatabase(display_resources), &database, False);
+
+		geom = smprint("%s.geometry", label);
+		if(geom && XrmGetResource(database, geom, nil, &geomrestype, &geomres))
+			mask = XParseGeometry(geomres.addr, &x, &y, &width, &height);
+		free(geom);
+
+		if((mask & WidthValue) && (mask & HeightValue)){
+			r = Rect(0, 0, width, height);
+		}else{
+			r = Rect(0, 0, WidthOfScreen(xscreen)*3/4,
+					HeightOfScreen(xscreen)*3/4);
+			if(Dx(r) > Dy(r)*3/2)
+				r.max.x = r.min.x + Dy(r)*3/2;
+			if(Dy(r) > Dx(r)*3/2)
+				r.max.y = r.min.y + Dx(r)*3/2;
+		}
+		if(mask & XNegative){
+			x += WidthOfScreen(xscreen);
+		}
+		if(mask & YNegative){
+			y += HeightOfScreen(xscreen);
+		}
 		havemin = 0;
 	}
 
@@ -342,8 +388,8 @@ xattach(char *label)
 	_x.drawable = XCreateWindow(
 		_x.display,	/* display */
 		xrootwin,	/* parent */
-		0,		/* x */
-		0,		/* y */
+		x,		/* x */
+		y,		/* y */
 		Dx(r),		/* width */
 	 	Dy(r),		/* height */
 		0,		/* border width */
@@ -373,6 +419,18 @@ xattach(char *label)
 		normalhint.flags |= USSize;
 		normalhint.width = Dx(r);
 		normalhint.height = Dy(r);
+	}else{
+		if((mask & WidthValue) && (mask & HeightValue)){
+			normalhint.flags &= ~PSize;
+			normalhint.flags |= USSize;
+			normalhint.width = width;
+			normalhint.height = height;
+		}
+		if((mask & WidthValue) && (mask & HeightValue)){
+			normalhint.flags |= USPosition;
+			normalhint.x = x;
+			normalhint.y = y;
+		}
 	}
 
 	normalhint.max_width = WidthOfScreen(xscreen);
