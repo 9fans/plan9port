@@ -2,6 +2,8 @@
 #include <u.h>
 #define NOPLAN9DEFINES
 #include <sys/file.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <libc.h>
 #include <sys/stat.h>
 #ifndef O_DIRECT
@@ -12,6 +14,7 @@ int
 p9create(char *path, int mode, ulong perm)
 {
 	int fd, cexec, umode, rclose, lock, rdwr;
+	struct flock fl;
 
 	rdwr = mode&3;
 	lock = mode&OLOCK;
@@ -49,7 +52,11 @@ p9create(char *path, int mode, ulong perm)
 out:
 	if(fd >= 0){
 		if(lock){
-			if(flock(fd, (rdwr==OREAD) ? LOCK_SH : LOCK_EX) < 0){
+			fl.l_type = (rdwr==OREAD) ? F_RDLCK : F_WRLCK;
+			fl.l_whence = SEEK_SET;
+			fl.l_start = 0;
+			fl.l_len = 0;
+			if(fcntl(fd, F_SETLK, &fl) < 0){
 				close(fd);
 				return -1;
 			}
