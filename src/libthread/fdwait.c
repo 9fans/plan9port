@@ -8,7 +8,6 @@
 #include <fcntl.h>
 
 #define debugpoll 0
-static int noblocked[4096/32];
 
 #ifdef __APPLE__
 #include <sys/time.h>
@@ -228,25 +227,7 @@ threadsleep(int ms)
 void
 threadfdnoblock(int fd)
 {
-	Thread *t;
-
-	if(fd<0)
-		return;
-	if(fd < 8*sizeof(int)*nelem(noblocked)
-	&& (noblocked[fd/(8*sizeof(int))] & (1<<(fd%(8*sizeof(int))))))
-		return;
-	t = _threadgetproc()->thread;
-	if(t && t->lastfd == fd)
-		return;
 	fcntl(fd, F_SETFL, fcntl(fd, F_GETFL, 0)|O_NONBLOCK);
-	if(t)
-		t->lastfd = fd;
-
-	/* We could lock this but we're probably single-threaded
-	 * and the worst that will happen is we'll run fcntl
-	 * a few more times.
-	 */
-	noblocked[fd/(8*sizeof(int))] |= 1<<(fd%(8*sizeof(int)));
 }
 
 long
