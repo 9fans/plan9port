@@ -116,6 +116,16 @@ typedef short s16int;
  */
 #define AUTOLIB(x)	static int __p9l_autolib_ ## x = 1;
 
+/*
+ * Gcc 3 is too smart for its own good.
+ */
+#if defined(__GNUC__)
+#	if __GNUC__ >= 3
+#		undef AUTOLIB
+#		define AUTOLIB(x) int __p9l_autolib_ ## x __attribute__ ((weak));
+#	endif
+#endif
+
 #if defined(__cplusplus)
 }
 #endif
