@@ -1,0 +1,60 @@
+.TH OPENFD 9P
+.SH NAME
+openfd \- prepare a fid for I/O using a file descriptor
+.SH SYNOPSIS
+.ta \w'\fLTopenfd 'u
+.IR size [4]
+.B Topenfd
+.IR tag [2]
+.IR fid [4]
+.IR mode [1]
+.br
+.IR size [4]
+.B Ropenfd
+.IR tag [2]
+.IR qid [13]
+.IR iounit [4]
+.IR unixfd [4]
+.SH DESCRIPTION
+The
+.I openfd
+request behaves like open, except that it prepares and returns
+a Unix file descriptor corresponding to the opened fid.
+.PP
+After a successful
+.I open
+transaction,
+.I fid
+is considered by the client to have been clunked
+and can be reused.
+.PP
+The returned Unix file descriptor is one end of a Unix pipe.
+A proxy process at the other end transfers data between
+the pipe and the 9P server.
+Because it is a pipe, errors on reads and writes are discarded
+and
+.I mode
+must be
+.B OREAD
+or
+.BR OWRITE ;
+it cannot be
+.BR ORDWR .
+.PP
+.I Openfd
+is implemented by
+.IR 9pserve (4).
+9P servers that post their services using
+.IR 9pserve (4)
+(or indirectly via
+.IR post9pservice (3))
+will never see a
+.B Topenfd
+message.
+.SH ENTRY POINTS
+.I Fsopenfd
+(see
+.IR 9pclient (3))
+generates an
+.B openfd
+message.
