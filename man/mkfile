@@ -3,6 +3,6 @@ LIB=$PLAN9/lib
 indices:V:
 	for i in man*
 	do
-		./secindex $i > $i/INDEX
+		rc ./secindex $i > $i/INDEX
 	done
 
