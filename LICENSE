@@ -5,16 +5,14 @@ There are a few exceptions: libutf, libfmt, and libregexp are distributed
 under simpler BSD-like boilerplates.  See the LICENSE files in those
 directories.
 
-The bitmap fonts in the font directory are copyright B&H Inc. and Y&Y Inc.
+The bitmap fonts in the font/lucida directory are copyright B&H Inc. and Y&Y Inc.
 and distributed under the following exception to the Lucent license:
 
    No right is granted to create derivative works of or
    to redistribute (other than with the Plan 9 Operating System)
    the screen imprinter fonts identified in subdirectory
-   /lib/font/bit/lucida and printer fonts (Lucida Sans Unicode, Lucida
-   Sans Italic, Lucida Sans Demibold, Lucida Typewriter, Lucida Sans
-   Typewriter83), identified in subdirectory /sys/lib/postscript/font.
-   These directories contain material copyrights by B&H Inc. and Y&Y Inc.
+   font/lucida.  This directory contains material copyrights by
+   B&H Inc. and Y&Y Inc.
 
 (Of course, X11 already distributes non-Unicode versions of these fonts.)
 
