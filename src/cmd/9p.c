@@ -51,6 +51,8 @@ threadmain(int argc, char **argv)
 	case 'a':
 		addr = EARGF(usage());
 		break;
+	case 'D':
+		
 	default:
 		usage();
 	}ARGEND
