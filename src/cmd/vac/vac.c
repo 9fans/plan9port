@@ -115,6 +115,7 @@ threadmain(int argc, char *argv[])
 	char *host = nil;
 	int statsflag = 0;
 
+	threadlinklibrary();
 	atexit(cleanup);
 
 	ARGBEGIN{

@@ -6,7 +6,7 @@ LIBFILES=\
 	fs\
 	pack\
 
-SHORTLIB=venti sec thread mux bio 9
+SHORTLIB=venti sec mux thread bio 9
 LIB=${LIBFILES:%=%.$O}
 
 HFILES=\
