@@ -137,6 +137,7 @@ LIB9OFILES=\
 	seek.$O\
 	sendfd.$O\
 	sleep.$O\
+	strdup.$O\
 	strecpy.$O\
 	sysfatal.$O\
 	sysname.$O\
