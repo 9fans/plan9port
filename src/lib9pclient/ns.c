@@ -38,3 +38,18 @@ nsmount(char *name, char *aname)
 
 	return fs;
 }
+
+CFid*
+nsopen(char *name, char *aname, char *fname, int mode)
+{
+	CFsys *fs;
+	CFid *fid;
+
+	fs = nsmount(name, aname);
+	if(fs == nil)
+		return nil;
+	fid = fsopen(fs, fname, mode);
+	fsunmount(fs);
+	return fid;
+}
+

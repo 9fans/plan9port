@@ -14,7 +14,7 @@ fsauth(CFsys *fsys, char *uname, char *aname)
 	void *freep;
 	CFid *afid;
 
-	if((fid = _fsgetfid(fsys)) == nil)
+	if((afid = _fsgetfid(fsys)) == nil)
 		return nil;
 
 	tx.type = Tauth;

@@ -145,6 +145,7 @@ fsversion(CFsys *fs, int msize, char *version, int nversion)
 
 	strecpy(version, version+nversion, rx.version);
 	free(freep);
+	fs->msize = rx.msize;
 	return rx.msize;
 }
 
