@@ -38,7 +38,15 @@ child(void)
 		raise(WTERMSIG(status));
 		_exit(98);	/* not reached */
 	}
-	fprint(2, "%s: wait pid %d status 0x%ux\n", pid, status);
+	if(WIFSTOPPED(status)){
+		fprint(2, "%s: wait pid %d stopped\n", argv0, pid);
+		return;
+	}
+	if(WIFCONTINUED(status)){
+		fprint(2, "%s: wait pid %d continued\n", argv0, pid);
+		return;
+	}
+	fprint(2, "%s: wait pid %d status 0x%ux\n", argv0, pid, status);
 	_exit(99);
 }
 
