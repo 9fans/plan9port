@@ -158,14 +158,11 @@ hreadbuf(Hio *h, void *vsave)
 			hh->pos += in;
 		}
 	}else if(in){
-fprint(2, "read %d from %d\n", in, h->fd);
 		if((in = read(h->fd, h->start + cpy, in)) < 0){
-fprint(2, "got error: %r\n");
 			h->state = Herr;
 			h->pos = h->stop;
 			return nil;
 		}
-fprint(2, "got %d\n", in);
 	}
 	if(in == 0)
 		h->state = Hend;
