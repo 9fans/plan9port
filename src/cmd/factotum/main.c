@@ -1,6 +1,7 @@
 #include "std.h"
 #include "dat.h"
 
+int extrafactotumdir;
 int debug;
 int trysecstore = 1;
 char *factname = "factotum";
@@ -56,6 +57,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'n':
 		trysecstore = 0;
+		break;
+	case 'x':
+		extrafactotumdir = 1;
 		break;
 	}ARGEND
 

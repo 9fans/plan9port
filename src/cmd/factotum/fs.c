@@ -15,6 +15,8 @@ enum
 	Qconv,
 };
 
+static int qtop;
+
 Qid
 mkqid(int type, int path)
 {
@@ -106,7 +108,7 @@ fswalk1(Fid *fid, char *name, Qid *qid)
 				return nil;
 			}
 		if(strcmp(name, "..") == 0){
-			*qid = mkqid(QTDIR, Qroot);
+			*qid = mkqid(QTDIR, qtop);
 			fid->qid = *qid;
 			return nil;
 		}
@@ -482,7 +484,7 @@ fsproc(void *v)
 static void
 fsattach(Req *r)
 {
-	r->fid->qid = mkqid(QTDIR, Qroot);
+	r->fid->qid = mkqid(QTDIR, qtop);
 	r->ofcall.qid = r->fid->qid;
 	respond(r, nil);
 }
@@ -505,6 +507,10 @@ fsstart(Srv *s)
 {
 	USED(s);
 
+	if(extrafactotumdir)
+		qtop = Qroot;
+	else
+		qtop = Qfactotum;
 	creq = chancreate(sizeof(Req*), 0);
 	cfid = chancreate(sizeof(Fid*), 0);
 	cfidr = chancreate(sizeof(Fid*), 0);

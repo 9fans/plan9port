@@ -221,5 +221,7 @@ extern int		xiowrite(int, void*, int);
 extern int		xioasrdresp(int, void*, int);
 extern int		xioasgetticket(int, char*, char*);
 
+extern int		extrafactotumdir;
+
 int		havesecstore(void);
 int		secstorefetch(void);
