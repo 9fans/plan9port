@@ -35,13 +35,13 @@ Other arguments
 select particular news items.
 .PP
 To post a news item, create a file in
-.BR  /lib/news .
-.PP
-You may arrange to receive news automatically by 
-registering your mail address in
-.BR /sys/lib/subscribers .
-A daemon mails recent news
-to all addresses on the list.
+.BR  \*9/news .
+.\" .PP
+.\" You may arrange to receive news automatically by 
+.\" registering your mail address in
+.\" .BR /sys/lib/subscribers .
+.\" A daemon mails recent news
+.\" to all addresses on the list.
 .PP
 Empty news items, and news items named
 .B core
@@ -49,15 +49,14 @@ or
 .B dead.letter
 are ignored.
 .SH FILES
-.TF /sys/lib/subscribers
 .TP
-.B /lib/news/*
+.B \*9/news/*
 articles
 .TP
 .B $HOME/lib/newstime
 modify time is time news was last read
-.TP
-.B /sys/lib/subscribers
+.\" .TP
+.\" .B /sys/lib/subscribers
 who gets news mailed to them
 .SH SOURCE
 .B \*9/src/cmd/news.c

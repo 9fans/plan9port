@@ -91,17 +91,17 @@ cp = wtos(tail, ' '); print("assign %s to %s\n", head->s, cp); free(cp);
 */
 				setvar(head->s, (void *) tail);
 				symlook(head->s, S_WESET, (void *)"");
+				if(strcmp(head->s, "MKSHELL") == 0){
+					if((err = setshell(tail)) != nil){
+						SYNERR(hline);
+						fprint(2, "%s\n", err);
+						Exit();
+						break;
+					}
+				}
 			}
 			if(attr)
 				symlook(head->s, S_NOEXPORT, (void *)"");
-			break;
-		case 'S':
-			if((err = setshell(tail)) != nil){
-				SYNERR(hline);
-				fprint(2, "%s\n", err);
-				Exit();
-				break;
-			}
 			break;
 		default:
 			SYNERR(hline);
@@ -144,19 +144,14 @@ rhead(char *line, Word **h, Word **t, int *attr, char **prog)
 	int n;
 	Word *w;
 
-	if(*line == '|'){
-		sep = 'S';	/* shell */
-		p = line+1;
-	}else{
-		p = shellt->charin(line,":=<");
-		if(p == 0)
-			return('?');
-		sep = *p;
-		*p++ = 0;
-		if(sep == '<' && *p == '|'){
-			sep = '|';
-			p++;
-		}
+	p = shellt->charin(line,":=<");
+	if(p == 0)
+		return('?');
+	sep = *p;
+	*p++ = 0;
+	if(sep == '<' && *p == '|'){
+		sep = '|';
+		p++;
 	}
 	*attr = 0;
 	*prog = 0;

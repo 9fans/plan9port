@@ -169,6 +169,7 @@ _threadswitch(void)
 {
 	Proc *p;
 
+	needstack(0);
 	p = proc();
 //print("threadswtch %p\n", p);
 	contextswitch(&p->thread->context, &p->schedcontext);
@@ -322,6 +323,20 @@ threadsetstate(char *fmt, ...)
 	va_start(arg, fmt);
 	vsnprint(t->state, sizeof t->name, fmt, arg);
 	va_end(arg);
+}
+
+void
+needstack(int n)
+{
+	_Thread *t;
+
+	t = proc()->thread;
+
+	if((char*)&t <= (char*)t->stk
+	|| (char*)&t - (char*)t->stk < 256+n){
+		fprint(2, "thread stack overflow\n");
+		abort();
+	}
 }
 
 /*
@@ -497,11 +512,6 @@ threadmainstart(void *v)
 	USED(v);
 	threadmainproc = proc();
 	threadmain(threadargc, threadargv);
-}
-
-void
-threadlinklibrary(void)
-{
 }
 
 int

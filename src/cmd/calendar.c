@@ -75,7 +75,7 @@ main(int argc, char *argv[])
 	for(i=0; i<argc || (i==0 && argc==0); i++){
 		if(i==0 && argc==0)
 			snprint(buf, sizeof(buf),
-				"/usr/%s/lib/calendar", getuser());
+				"%s/lib/calendar", getenv("HOME"));
 		else
 			strcpy(buf, argv[i]);
 		fd = open(buf, OREAD);

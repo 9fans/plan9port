@@ -41,6 +41,7 @@ initshell(void)
 {
 	shellcmd = stow(shells[0]->name);
 	shellt = shells[0];
+	setvar("MKSHELL", shellcmd);
 }
 
 void
@@ -72,5 +73,6 @@ popshell(void)
 	shellstack = s->next;
 	shellt = s->t;
 	shellcmd = s->w;
+	setvar("MKSHELL", shellcmd);
 	free(s);
 }

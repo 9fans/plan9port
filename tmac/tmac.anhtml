@@ -1,4 +1,4 @@
-.so #9/tmac/tmac.an
+.so /usr/local/plan9/tmac/tmac.an
 .de }H
 ..
 .de }F
@@ -9,6 +9,9 @@
 ..
 .nr LL 20i
 .dePP
-\Xhtml <P>
+\Xhtml manPP
 .}p
+..
+.am TH
+\Xhtml manhead \\$1 \\$2
 ..

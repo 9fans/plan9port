@@ -21,9 +21,9 @@ void
 usage(void)
 {
 	if(mk9660)
-		fprint(2, "usage: disk/mk9660 [-D:] [-9cjr] [-b bootfile] [-p proto] [-s src] cdimage\n");
+		fprint(2, "usage: mk9660 [-D:] [-9cjr] [-b bootfile] [-p proto] [-s src] cdimage\n");
 	else
-		fprint(2, "usage: disk/dump9660 [-D:] [-9cjr] [-m maxsize] [-n now] [-p proto] [-s src] cdimage\n");
+		fprint(2, "usage: dump9660 [-D:] [-9cjr] [-m maxsize] [-n now] [-p proto] [-s src] cdimage\n");
 	exits("usage");
 }
 
@@ -42,7 +42,7 @@ main(int argc, char **argv)
 	fix = 0;
 	status = nil;
 	memset(&info, 0, sizeof info);
-	proto = "/sys/lib/sysconfig/proto/allproto";
+	proto = unsharp("#9/proto/allproto");
 	src = "./";
 
 	info.volumename = atom("9CD");

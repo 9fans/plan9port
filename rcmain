@@ -13,6 +13,7 @@ if(~ $rcname ?.out ?.rc */?.rc */?.out) prompt=('broken! ' '	')
 if(flag p) path=(/bin /usr/bin)
 if not{
 	finit
+	# should be taken care of by rc now, but leave just in case
 	if(~ $#path 0) {
 		path=(/bin /usr/bin)
 		eval `{sh -c 'echo $PATH |

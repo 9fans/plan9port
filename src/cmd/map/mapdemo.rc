@@ -9,7 +9,7 @@ fn demo {proj=$1;	shift;
 		echo t $type
 		echo 'm -8192 -8192'
 		echo t $proj - $label
-		MAP=world MAPDIR=/lib/map map $proj $* -s -d 5
+		MAP=world MAPDIR=$PLAN9/map map $proj $* -s -d 5
 	} 
 	sleep 5
 }

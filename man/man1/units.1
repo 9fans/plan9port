@@ -73,13 +73,13 @@ Currency is denoted
 etc.
 .PP
 The complete list of units can be found in
-.BR /lib/units .
+.BR \*9/lib/units .
 A
 .I file
 argument to
 .I units
 specifies a file to be used instead of
-.BR /lib/units.
+.BR \*9/lib/units.
 The
 .B -v
 flag causes
@@ -93,7 +93,7 @@ you want: atm
     / .97973
 .EE
 .SH FILES
-.B /lib/units
+.B \*9/lib/units
 .SH SOURCE
 .B \*9/src/cmd/units.y
 .SH BUGS
@@ -102,7 +102,6 @@ Since
 does only multiplicative scale changes,
 it can convert Kelvin to Rankine but not Centigrade to
 Fahrenheit.
-.br
+.PP
 Currency conversions are only as accurate as the last time someone
-updated
-.BR /lib/units .
+updated the database.

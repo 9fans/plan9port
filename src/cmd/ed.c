@@ -146,7 +146,7 @@ main(int argc, char *argv[])
 		vflag = 0;
 	}
 	if(oflag) {
-		p1 = "/fd/1";
+		p1 = "/dev/stdout";
 		p2 = savedfile;
 		while(*p2++ = *p1++)
 			;

@@ -55,36 +55,6 @@ argument should be the first argument passed to the note handler.
 and
 .I longjmp
 can also be used to switch stacks.
-Defined in
-.B </$objtype/u.h>
-are several macros that can be used to build
-.B jmp_bufs
-by hand.  The following code establishes a
-.B jmp_buf
-.i label
-that may be called by
-.I longjmp
-to begin execution in a function
-.BR f
-with 1024 bytes of stack:
-.IP
-.EX
-#include <u.h>
-#include <libc.h>
-
-jmp_buf label;
-#define NSTACK 1024
-char stack[NSTACK];
-
-void
-setlabel(void)
-{
-	label[JMPBUFPC] = ((ulong)f+JMPBUFDPC);
-	/* -2 leaves room for old pc and new pc in frame */
-	label[JMPBUFSP =
-	        (ulong)(&stack[NSTACK-2*sizeof(ulong*)]);
-}
-.EE
 .SH SOURCE
 .B \*9/src/lib9/jmp.c
 .SH SEE ALSO
@@ -94,3 +64,24 @@ setlabel(void)
 .I Notejmp
 cannot recover from an address trap or bus error (page fault) on the 680x0
 architectures.
+.PP
+To avoid name conflicts with the underlying system,
+.IR setjmp ,
+.IR longjmp ,
+.IR notejmp ,
+and
+.I jmp_buf
+are preprocessor macros defined as
+.IR p9setjmp ,
+.IR p9longjmp ,
+.IR p9notejmp ,
+and
+.IR p9jmp_buf ;
+see
+.IR intro (3).
+.PP
+.I P9setjmp
+is implemented as a preprocessor macro that calls
+.I sigsetjmp
+(see
+Unix's \fIsetjmp\fR(3)).

@@ -24,7 +24,7 @@ ifs='
 '{
 	files=`{echo $*}
 }
-9grep -h '\$LIST|\|reference|^\.(EQ|TS|\[|PS|IS|GS|G1|GD|PP|BM|LP|BP|PI|cstart|begin|TH...)|^\.P$' $* |
+9 grep -h '\$LIST|\|reference|^\.(EQ|TS|\[|PS|IS|GS|G1|GD|PP|BM|LP|BP|PI|cstart|begin|TH...)|^\.P$' $* |
 sort -u |
 awk '
 BEGIN	{ files = "'$files'" }

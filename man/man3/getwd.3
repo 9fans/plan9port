@@ -23,8 +23,15 @@ bytes in the buffer provided.
 .SH SOURCE
 .B \*9/src/lib9/getwd.c
 .SH "SEE ALSO"
-.IR pwd (1),
+.IR pwd (1)
 .SH DIAGNOSTICS
 On error, zero is returned.
 .IR Errstr (3)
 may be consulted for more information.
+.SH BUGS
+To avoid name conflicts with the underlying system,
+.I getwd
+is a preprocessor macro defined as
+.IR p9getwd ;
+see
+.IR intro (3).

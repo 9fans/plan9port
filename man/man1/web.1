@@ -31,6 +31,8 @@ The choice of browser is determined by the
 .B $BROWSER
 environment variable, which should be the name of
 the executable for your choice of web browser.
+The default is
+.BR firefox .
 Since the various browsers all use different syntaxes
 in their
 .B -remote
@@ -41,6 +43,23 @@ When possible,
 .I web
 opens each URL in a new tab rather than a new window.
 .PP
+When run under Mac OS X,
+.B $BROWSER
+should be set to the string
+.B safari
+or
+.BR firefox .
+.I Web
+uses AppleScript to talk to the browser.
+If 
+.B $BROWSER
+is not set,
+.I web
+looks for Firefox in
+.BR /Applications/Firefox.app
+and uses it if found;
+otherwise it uses Safari.
+.PP
 .I Wmail
 starts the composition of a new mail message to
 .IR address .
@@ -49,7 +68,8 @@ The choice of mailer is determined by the
 .B $MAILER
 environment variable.
 The supported mailers are:
-.TP browser
+.TP
+.B browser
 invoke the mailer via a
 .B mailto://
 URL passed to

@@ -17,7 +17,7 @@ Rune *right[]= {
 
 char	RSAM[] = "sam";
 char	SAMTERM[] = "/bin/aux/samterm";
-char	HOME[] = "home";
+char	HOME[] = "HOME";
 char	TMPDIR[] = "/tmp";
 char	SH[] = "rc";
 char	SHPATH[] = "/bin/rc";

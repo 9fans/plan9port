@@ -1,6 +1,6 @@
 .TH COLORS 1
 .SH NAME
-getmap, colors \- display color map
+colors, cmapcube \- display color map
 .SH SYNOPSIS
 .PP
 .B colors
@@ -9,16 +9,13 @@ getmap, colors \- display color map
 .B -x
 ]
 .PP
-.B getmap
+.B cmapcube
 [
-.I colormap
+.B -nbw
 ]
 .SH DESCRIPTION
 .I Colors
-presents a grid showing the colors in the current color map.
-If the display is true color,
-.I colors
-shows a grid of the RGBV color map
+presents a grid showing the colors in the RGBV color map
 (see
 .IR color (7)).
 .PP
@@ -37,36 +34,22 @@ option instead shows, in the same form, a grey-scale ramp.
 .PP
 A menu on mouse button 3 contains a single entry, to exit the program.
 .PP
-On 8-bit color-mapped displays,
-.I getmap
-loads the display's color map (default
-.BR rgbv ).
-The named
-.I colormap
-can be a file in the current directory or in the standard repository
-.BR /lib/cmap .
-It can also be a string of the form
-.B gamma
-or
-.BI gamma N\f1 ,
-where
-.I N
-is a floating point value for the gamma, defining the contrast for a monochrome map.
-Similarly,
-.B rgamma
+.I Cmapcube
+presents the same colors but in a 3-dimensional cube.
+Dragging with button 1 rotates the cube.
+Clicking on a color with button 2
+displays the map index for that color.
+Clicking button 3 exits.
+.PP
+The
+.B -n
+option disables drawing of the color squares.
+The
+.B -b
 and
-.BI rgamma N
-define a reverse-video monochrome map.
-Finally, the names
-.B screen
-or
-.B display
-or
-.B vga
-are taken as synonyms for the current color map stored in the display hardware.
-.SH FILES
-.B /lib/cmap
-directory of color map files
+.B -w
+options set the background (default grey)
+to black or white.
 .SH SOURCE
 .B \*9/src/cmd/draw/colors.c
 .SH SEE ALSO

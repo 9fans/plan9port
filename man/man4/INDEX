@@ -2,5 +2,6 @@
 intro 0intro.4
 9pserve 9pserve.4
 acme acme.4
+import import.4
 plumber plumber.4
 ramfs ramfs.4

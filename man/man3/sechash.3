@@ -13,50 +13,51 @@ md4, md5, sha1, hmac_md5, hmac_sha1, md5pickle, md5unpickle, sha1pickle, sha1unp
 .B
 DigestState*	md4(uchar *data, ulong dlen, uchar *digest,
 .B
-			 DigestState *state)
+			    DigestState *state)
 .PP
 .B
 DigestState*	md5(uchar *data, ulong dlen, uchar *digest,
 .B
-			 DigestState *state)
+			    DigestState *state)
 .PP
 .B
 char*		md5pickle(MD5state *state)
 .PP
 .B
-MD5state*	md5unpickle(char *p);
+MD5state*		md5unpickle(char *p);
 .PP
 .B
 DigestState*	sha1(uchar *data, ulong dlen, uchar *digest,
 .B
-			 DigestState *state)
+			    DigestState *state)
 .PP
 .B
 char*		sha1pickle(MD5state *state)
 .PP
 .B
-MD5state*	sha1unpickle(char *p);
+MD5state*		sha1unpickle(char *p);
 .PP
 .B
 DigestState*	hmac_md5(uchar *data, ulong dlen,
 .br
 .B
-			 uchar *key, ulong klen,
+			    uchar *key, ulong klen,
 .br
 .B
-			 uchar *digest, DigestState *state)
+			    uchar *digest, DigestState *state)
 .PP
 .B
 DigestState*	hmac_sha1(uchar *data, ulong dlen,
 .br
 .B
-			 uchar *key, ulong klen,
+			    uchar *key, ulong klen,
 .br
 .B
-			 uchar *digest, DigestState *state)
+			    uchar *digest, DigestState *state)
 .SH DESCRIPTION
 .PP
-We support several secure hash functions.  The output of the
+These functions implement
+the cryptographic hash functions MD4, MD5, and SHA1.  The output of the
 hash is called a
 .IR digest .
 A hash is secure if, given the hashed data and the digest,

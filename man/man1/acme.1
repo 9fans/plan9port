@@ -71,7 +71,7 @@ The
 .RB ( -F )
 option sets the main font, usually variable-pitch (alternate, usually fixed-pitch);
 the default is
-.B /lib/font/bit/lucidasans/euro.8.font
+.B /usr/local/plan9/font/lucidasans/euro.8.font
 .RB ( \&.../lucm/unicode.9.font ).
 Tab intervals are set to the width of 4 (or the value of
 .BR $tabstop )
@@ -140,7 +140,7 @@ temporarily hiding other windows in the column.
 if any of them needs attention.)
 The layout box in a window is normally white; when it is black in the center,
 it records that the file is `dirty':
-.I Acme
+.I acme
 believes it is modified from its original
 contents.
 .PP
@@ -455,26 +455,31 @@ and error outputs of commands are sent to the error window associated with
 the directory from which the command was run, which will be created if
 necessary.
 For example, in a window
-.B /adm/users
+.B /etc/passwd
 executing
 .B pwd
 will produce the output
-.B /adm
+.B /etc
 in a (possibly newly-created) window labeled
-.BR /adm/+Errors ;
+.BR /etc/+Errors ;
 in a window containing
-.B \*9/src/cmd/sam/sam.c
+.B /home/rob/sam/sam.c
 executing
 .B mk
 will run
 .IR mk (1)
 in
-.BR \*9/src/cmd/sam ,
+.BR /home/rob/sam ,
 producing output in a window labeled
-.BR \*9/src/cmd/sam/+Errors .
+.BR /home/rob/sam/+Errors .
 The environment of such commands contains the variable
 .B $%
-with value set to the filename of the window in which the command is run.
+with value set to the filename of the window in which the command is run,
+and
+.B $winid
+set to the window's id number
+(see
+.IR acme (4)).
 .SS "Mouse button 3
 Pointing at text with button 3 instructs
 .I acme
@@ -586,7 +591,7 @@ creates a new
 window and runs a
 .I command
 (default
-.BR /bin/rc )
+.BR $SHELL )
 in it, turning the window into something analogous to an
 .IR rio (1)
 window.

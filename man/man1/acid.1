@@ -4,7 +4,7 @@ acid, acidtypes \- debugger
 .SH SYNOPSIS
 .B acid
 [
-.BI -l " libfile
+.BI -l " library
 ]
 [
 .B -wq
@@ -49,7 +49,7 @@ It can inspect one or more processes that share an address space.
 A program to be debugged may be specified by the process id of
 a running or defunct process,
 or by the name of the program's text file 
-.RB ( 8.out
+.RB ( a.out
 by default).
 At the prompt,
 .I acid
@@ -514,13 +514,13 @@ for processes that are still active.
 .SH BUGS
 There is no way to redirect the standard input and standard output
 of a new process.
-.br
+.PP
 Source line selection near the beginning of a file may pick
 an adjacent file.
-.br
+.PP
 With the extant stepping commands, one cannot step through instructions
 outside the text segment and it is hard to debug across process forks.
-.br
+.PP
 Breakpoints do not work yet.
 Therefore, commands such as
 .BR step ,

@@ -43,9 +43,7 @@ threadmain(int argc, char *argv[])
 	}ARGEND
 
 	user = getuser();
-	home = getenv("home");
-	if(home == nil)
-		home = getenv("HOME");
+	home = getenv("HOME");
 	if(user==nil || home==nil)
 		error("can't initialize $user or $home: %r");
 	if(plumbfile == nil){

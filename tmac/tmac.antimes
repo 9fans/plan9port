@@ -484,8 +484,10 @@
 .if\nm10 .ds ]m November
 .if\nm11 .ds ]m December
 .ifn \{.nr m \nm+1
+.nr yD (\n(yr%100
+.af yD 01
 .ie\nd .ds ]W (last mod. \nm/\nd/\ny)
-.el.ds ]W (printed \n(mo/\n(dy/\n(yr)
+.el.ds ]W (printed \n(mo/\n(dy/\n(yD)
 ..\}
 .if\n()s .ds ]W
 .if\n()t \{.ie \nd .ds ]W \*(]m \nd, 20\ny

@@ -42,10 +42,12 @@ child(void)
 		fprint(2, "%s: wait pid %d stopped\n", argv0, pid);
 		return;
 	}
+#ifdef WIFCONTINUED
 	if(WIFCONTINUED(status)){
 		fprint(2, "%s: wait pid %d continued\n", argv0, pid);
 		return;
 	}
+#endif
 	fprint(2, "%s: wait pid %d status 0x%ux\n", argv0, pid, status);
 	_exit(99);
 }
@@ -83,8 +85,6 @@ _threadsetupdaemonize(void)
 	char buf[20];
 
 	sigpid = 1;
-
-	threadlinklibrary();
 
 	if(pipe(p) < 0)
 		sysfatal("passer pipe: %r");

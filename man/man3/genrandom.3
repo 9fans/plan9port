@@ -22,8 +22,10 @@ very least, unguessable numbers.
 .I Genrandom
 fills a buffer with bytes from the X9.17 pseudo-random
 number generator.  The X9.17 generator is seeded by 24
-truly random bytes read from
-.BR /dev/random .
+truly random bytes read via
+.I truerand
+(see
+.IR rand (3)).
 .PP
 .I Prng
 uses the native

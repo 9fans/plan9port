@@ -109,13 +109,13 @@ and
 .B Fid
 structures are allocated one-to-one with uncompleted
 requests and active fids, and are described in
-.IR 9pfid (3).
+.IR 9p-fid (3).
 .PP
 The behavior of
 .I srv
 depends on whether there is a file tree
 (see
-.IR 9pfile (3))
+.IR 9p-file (3))
 associated with the server, that is,
 whether the
 .B tree
@@ -717,8 +717,8 @@ accept the
 option to increment
 .BR chatty9p .
 .SH EXAMPLES
-\*9/src/lib9p/ramfs.c
-is an example of simple single-threaded file servers.
+.B \*9/src/lib9p/ramfs.c
+is an example of a simple single-threaded file server.
 On Plan 9, see
 .IR archfs ,
 .IR cdfs ,
@@ -744,6 +744,6 @@ or is maintained elsewhere.
 .SH SOURCE
 .B \*9/src/lib9p
 .SH SEE ALSO
-.IR 9pfid (3),
-.IR 9pfile (3),
+.IR 9p-fid (3),
+.IR 9p-file (3),
 .IR intro (9p)

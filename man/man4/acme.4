@@ -25,14 +25,10 @@ of
 itself.
 When a command is run under
 .IR acme ,
-a directory holding these files is mounted on
-.B /mnt/acme
-(also bound to
-.BR /mnt/wsys )
-and also
-.BR /dev ;
-the files mentioned here
-appear in both those directories.
+a directory holding these files is posted as the 9P service
+.B acme
+(using
+.IR 9pserve (4)).
 .PP
 Some of these files supply virtual versions of services available from the underlying
 environment, in particular the character terminal files in Plan 9's

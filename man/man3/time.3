@@ -31,3 +31,14 @@ is also set to the answer.
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .
+.SH BUGS
+To avoid name conflicts with the underlying system,
+.I time
+and
+.I nsec
+are preprocessor macros defined as
+.I p9time
+and
+.IR p9nsec ;
+see
+.IR intro (3).

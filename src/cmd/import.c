@@ -32,7 +32,7 @@ enum
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-s service] [-n remote-ns] [-fd] [-p remote-prog] remote-system\n", argv0);
+	fprint(2, "usage: %s [-df] [-s service] [-n remote-ns] [-p remote-prog] remote-system\n", argv0);
 	exits("usage");
 }
 

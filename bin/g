@@ -34,4 +34,4 @@ case $# in
 	files="$@"
 esac
 
-exec grep -n $flags -- "$pattern" $files /dev/null
+exec 9 grep -n $flags -- "$pattern" $files /dev/null

@@ -1,0 +1,10 @@
+# mkfile rules to get fonts in Lucida Sans.
+# if you want to use Times, change these next lines to
+# MAN=mantimes
+# FONTS=''
+MAN=man
+FONTS='.fp 1 R LucidaSans
+.fp 2 I LucidaSansI
+.fp 3 B LucidaSansB
+.fp 5 L LucidaCW
+'

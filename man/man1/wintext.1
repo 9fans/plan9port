@@ -1,15 +1,19 @@
 .TH WINTEXT 1
 .SH NAME
 wintext, ", "" \- access text in current window
+.ds x \C'"'
+.ds xx \C'"'\^\^\^\^\C'"'
+.ds y \*x\ 
+.ds yy \*(xx\ 
 .SH SYNOPSIS
 .B wintext
 .br
-.B \C'"'\ 
+.B \*x\ 
 [
 .I prefix
 ]
 .br
-.B \C'"'\C'"'\ 
+.B \*(xx\ 
 [
 .I prefix
 ]
@@ -23,7 +27,7 @@ or
 .IR 9term (1)
 window to standard output.
 .PP
-.I \C'"'
+.I \*y
 searches the window text for commands typed with a particular prefix
 and prints them, indented, to standard output.
 .I Prefix
@@ -31,18 +35,18 @@ is a regular expression that is matched against the beginning of the command-lin
 If
 .I prefix
 is omitted,
-.I \C'"'
+.I \*y
 prints the last command executed.
-.I \C'"'\C'"'
+.I \*(yy
 prints the last command that
-.I \C'"'
+.I \*y
 would print and then executes it by piping it into 
 .IR rc (1).
 .PP
 Both
-.I \C'"'
+.I \*y
 and
-.I \C'"'\C'"'
+.I \*(yy
 identify commands in the window text by looking for lines
 beginning with a shell prompt.
 Prompts are assumed to be an unindented sequence of
@@ -62,7 +66,7 @@ commands executed in this window:
 .IP
 .EX
 .ta +4n
-% \C'"' 'l[sc]'
+% \*x 'l[sc]'
 	% ls -l /tmp/qq*
 	# ls -lrt /etc
 	% lc r*
@@ -75,7 +79,7 @@ command again:
 .IP
 .EX
 .ta +4n
-% \C'"'\C'"' lc
+% \*(xx lc
 	% lc r*
 ramfs   rc      read    rio     rm
 % 
@@ -86,13 +90,9 @@ ramfs   rc      read    rio     rm
 .SH SOURCE
 .B \*9/bin
 .SH BUGS
-.I \C'"'
+.I \*y
 and
-.I \C'"'\C'"'
+.I \*(yy
 are hard to type in shells other than
 .IR rc (1).
 .\" and in troff!
-.PP
-Don't run
-.I \C'"'\C'"'
-twice in a row.

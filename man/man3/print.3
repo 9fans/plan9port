@@ -1,18 +1,10 @@
 .TH PRINT 3
-.de EX
-.nf
-.ft B
-..
-.de EE
-.fi
-.ft R
-..
 .SH NAME
 print, fprint, sprint, snprint, seprint, smprint, runesprint, runesnprint, runeseprint, runesmprint, vfprint, vsnprint, vseprint, vsmprint, runevsnprint, runevseprint, runevsmprint \- print formatted output
 .SH SYNOPSIS
-.B #include <utf.h>
+.B #include <u.h>
 .PP
-.B #include <fmt.h>
+.B #include <libc.h>
 .PP
 .ta \w'\fLchar* 'u
 .B
@@ -72,7 +64,10 @@ Rune*	runevsmprint(Rune *format, va_list v)
 writes text to the standard output.
 .I Fprint
 writes to the named output
-file descriptor.
+file descriptor:
+a buffered form
+is described in
+.IR bio (3).
 .I Sprint
 places text
 followed by the NUL character
@@ -96,7 +91,7 @@ but will not place more than
 bytes in
 .IR s .
 Its result is always NUL-terminated and holds the maximal
-number of characters that can fit.
+number of complete UTF-8 characters that can fit.
 .I Seprint
 is like
 .IR snprint ,
@@ -191,27 +186,26 @@ described below.
 .PP
 The numeric verbs
 .BR d ,
-.BR i ,
-.BR u ,
 .BR o ,
 .BR b ,
 .BR x ,
 and
 .B X
-format their arguments in decimal, decimal,
-unsigned decimal, octal, binary, hexadecimal, and upper case hexadecimal.
+format their arguments in decimal,
+octal, binary, hexadecimal, and upper case hexadecimal.
 Each interprets the flags
 .BR 0 ,
 .BR h ,
 .BR hh ,
 .BR l ,
+.BR u ,
 .BR + ,
 .BR - ,
 .BR , ,
 and
 .B #
 to mean pad with zeros,
-short, byte, long, always print a sign, left justified, commas every three digits,
+short, byte, long, unsigned, always print a sign, left justified, commas every three digits,
 and alternate format.
 Also, a space character in the flag
 position is like
@@ -221,12 +215,9 @@ If neither
 short nor long is specified,
 then the argument is an
 .BR int .
-If an unsigned verb is specified,
+If unsigned is specified,
 then the argument is interpreted as a
-positive number and no sign is output;
-space and
-.B +
-flags are ignored for unsigned verbs.
+positive number and no sign is output.
 If two
 .B l
 flags are given,
@@ -249,8 +240,8 @@ for
 .B o
 conversion, the number is preceded by a
 .B 0
-if it doesn't already begin with one.
-For non-zero numbers and
+if it doesn't already begin with one;
+for
 .B x
 conversion, the number is preceded by
 .BR 0x ;
@@ -345,7 +336,7 @@ conversions, trailing zeros are not removed.
 .PP
 The
 .B s
-verb copies a string
+verb copies a NUL-terminated string
 (pointer to
 .BR char )
 to the output.
@@ -397,9 +388,7 @@ but that will change if pointers and integers are different sizes.
 The
 .B r
 verb takes no arguments; it copies the error string returned by a call to
-.IR strerror (3)
-with an argument of
-.IR errno.
+.IR errstr (3).
 .PP
 Custom verbs may be installed using
 .IR fmtinstall (3).
@@ -414,12 +403,12 @@ void fatal(char *msg, ...)
 	char buf[1024], *out;
 	va_list arg;
 
-	out = vseprint(buf, buf+sizeof buf, "Fatal error: ");
+	out = seprint(buf, buf+sizeof buf, "Fatal error: ");
 	va_start(arg, msg);
 	out = vseprint(out, buf+sizeof buf, msg, arg);
 	va_end(arg);
 	write(2, buf, out-buf);
-	exit(1);
+	exits("fatal error");
 }
 .EE
 .SH SEE ALSO
@@ -438,9 +427,9 @@ the main difference is that
 .B b
 and
 .B r
-are not in ANSI and some
-.B C9X
-verbs are missing.
+are not in ANSI and
+.B u
+is a flag here instead of a verb.
 Also, and distinctly not a bug,
 .I print
 and friends generate
@@ -449,8 +438,8 @@ rather than
 .SM ASCII.
 .PP
 There is no
-.BR runeprint ,
-.BR runefprint ,
+.IR runeprint ,
+.IR runefprint ,
 etc. because runes are byte-order dependent and should not be written directly to a file; use the
 UTF output of
 .I print

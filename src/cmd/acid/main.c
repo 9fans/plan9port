@@ -357,7 +357,7 @@ userinit(void)
 
 	sprint(buf, "#9/acid/%s", mach->name);
 	loadmodule(unsharp(buf));
-	p = getenv("home");
+	p = getenv("HOME");
 	if(p != 0) {
 		sprint(buf, "%s/lib/acid", p);
 		silent = 1;

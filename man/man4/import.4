@@ -1,0 +1,106 @@
+.TH IMPORT 4
+.SH NAME
+import \- import 9P resources from another system
+.SH SYNOPSIS
+.B import
+[
+.B -df
+]
+[
+.B -n
+.I ns
+]
+[
+.B -p
+.I prog
+]
+[
+.B -s
+.I service
+]
+.I system
+.SH DESCRIPTION
+.I Import
+presents the 9P service
+.I service
+(default
+.BR plumb )
+running on
+.I system
+as a service on the local system,
+in the current name space.
+.PP
+The
+.B -n
+option sets the remote name space directory
+where
+.I import
+should expect to find
+.IR service .
+If it is not specified,
+.I import
+uses name of the local system's name space directory.
+(Since name space directories are conventionally inside
+.BR /tmp ,
+the path have different meanings on the two systems.)
+.PP
+.I Import
+connects to
+.I system
+using
+.IR ssh (1).
+It invokes
+.I import
+on the remote system to carry out the remote
+side of the protocol.
+The
+.B -p
+option specifies the path to
+.I import
+on the remote system, in case it is not in the system search path.
+.PP
+The
+.B -d
+option turns on debugging.
+The
+.B -f
+option keeps
+.I import
+from forking itself into the background, also useful for debugging.
+.SH EXAMPLE
+Suppose you run
+.B sam
+.B -r
+to the CPU server
+.IR anna .
+.I Sam
+wants to talk to a plumber on the local terminal,
+but the file names will refer to files on
+.IR anna .
+.PP
+To fix this problem, create a new name space directory
+and start a new plumber on
+.IR anna :
+.IP
+.EX
+remotens=/tmp/ns.`whoami`.on.`hostname`
+ssh anna mkdir $remotens
+ssh anna NAMESPACE=$remotens plumber
+.EE
+Now import that plumber to the local name space before starting
+.I sam
+and
+.IR 9term :
+.IP
+.EX
+NAMESPACE=/tmp/ns.anna
+mkdir $NAMESPACE
+import -n $remotens -s plumb anna
+sam &
+9term ssh anna &
+.EE
+.SH SOURCE
+.B \*9/src/cmd/import.c
+.SH SEE ALSO
+.IR 9pserve (4),
+.IR intro (4)

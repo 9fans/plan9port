@@ -93,3 +93,14 @@ non-empty messages.
 Exit codes 97 through 99 are used by the thread library to signal
 internal synchronization errors between the main program
 and a proxy process that implements backgrounding.
+.PP
+To avoid name conflicts with the underlying system,
+.I atexit
+and
+.I atexitdont
+are preprocessor macros defined as
+.I p9atexit
+and
+.IR p9atexitdont ;
+see
+.IR intro (3).

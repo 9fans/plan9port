@@ -90,9 +90,26 @@ is not
 .SH BUGS
 The return values point to static data
 whose content is overwritten by each call.
-.br
+.PP
 Daylight Savings Time is ``normal'' in the Southern hemisphere.
-.br
+.PP
 These routines are not equipped to handle non-\c
 .SM ASCII
 text, and are provincial anyway.
+.PP
+To avoid name conflicts with the underlying system,
+.IR ctime ,
+.IR localtime ,
+.IR gmtime ,
+.IR asctime ,
+and
+.I tm2sec
+are preprocessor macros defined as
+.IR p9ctime ,
+.IR p9localtime ,
+.IR p9gmtime ,
+.IR p9asctime ,
+and
+.IR p9tm2sec ;
+see
+.IR intro (3).

@@ -128,3 +128,14 @@ use the user's current path to locate
 This is a clumsy way to deal with Unix's lack of
 a union directory for
 .BR /bin .
+.PP
+To avoid name conflicts with the underlying system,
+.I exec
+and
+.I execl
+are preprocessor macros defined as
+.I p9exec
+and
+.IR p9execl ;
+see
+.IR intro (3).

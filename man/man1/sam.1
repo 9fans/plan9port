@@ -19,6 +19,9 @@ sam, B, E, sam.save, samterm, samsave \- screen editor with structural regular e
 .B B
 .IB file \fR[\fP: line \fR]
 \&...
+.PP
+.B E
+.I file
 .SH DESCRIPTION
 .I Sam
 is a multi-file editor.
@@ -845,7 +848,7 @@ It runs
 .I B
 on
 .I file
-and then waits to exit until
+and then does not exit until
 .I file
 is changed, which is taken as a signal that
 .I file
@@ -858,22 +861,22 @@ terminates other than by a
 command (by hangup, deleting its window, etc.), modified
 files are saved in an
 executable file,
-.BR $home/sam.save .
+.BR $HOME/sam.save .
 This program, when executed, asks whether to write
 each file back to a external file.
 The answer
 .L y
 causes writing; anything else skips the file.
 .SH FILES
-.TF \*9/src/cmd/samterm
+.TF $HOME/sam.save
 .TP
-.B $home/sam.save
+.B $HOME/sam.save
 .TP
-.B $home/sam.err
+.B $HOME/sam.err
 .TP
 .B \*9/bin/samsave
 the program called to unpack
-.BR $home/sam.save .
+.BR $HOME/sam.save .
 .SH SOURCE
 .TF \*9/src/cmd/samterm
 .TP
@@ -886,6 +889,8 @@ itself
 source for the separate terminal part
 .TP
 .B \*9/bin/B
+.TP
+.B \*9/bin/E
 .SH SEE ALSO
 .IR ed (1),
 .IR sed (1),

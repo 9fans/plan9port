@@ -961,7 +961,7 @@ main(int argc, char **argv)
 	if(lflag) {
 		argv--;
 		argc++;
-		argv[1] = "/sys/lib/bclib";
+		argv[1] = unsharp("#9/lib/bclib");
 	}
 	if(cflag) {
 		yyinit(argc, argv);

@@ -21,7 +21,7 @@ char *mapindex(char *);
 proj projection;
 
 
-static char *mapdir = "/lib/map";	/* default map directory */
+static char *mapdir = "#9/map";	/* default map directory */
 struct file {
 	char *name;
 	char *color;
@@ -150,6 +150,7 @@ main(int argc, char *argv[])
 	double dd;
 	if(sizeof(short)!=2)
 		abort();	/* getshort() won't work */
+	mapdir = unsharp(mapdir);
 	s = getenv("MAP");
 	if(s)
 		file[0].name = s;

@@ -1,6 +1,6 @@
 .TH MAN 1
 .SH NAME
-man, lookman \- print or find pages of this manual
+man, lookman, sig \- print or find pages of this manual
 .SH SYNOPSIS
 .B man
 [
@@ -88,17 +88,20 @@ command to make an index for a given section
 index for
 .I lookman
 .SH SOURCE
-.B \*9/bin/9man
+.B \*9/bin/man
 .br
 .B \*9/bin/lookman
 .SH "SEE ALSO"
+.IR page (1),
 .IR proof (1)
 .SH BUGS
 The manual was intended to be typeset; some detail is sacrificed on text terminals.
 .PP
 There is no automatic mechanism to keep the indices up to date.
 .PP
-Except for special cases, it doesn't recognize things that should be run through
+Except for special cases,
+.I man
+doesn't recognize things that should be run through
 .I tbl
 and/or
 .IR eqn .

@@ -1,10 +1,12 @@
+0intro 0intro.1
+intro 0intro.1
+9 9.1
 9a 9c.1
 9ar 9c.1
 9c 9c.1
 9l 9c.1
 9p 9p.1
 9term 9term.1
-label 9term.1
 acid acid.1
 acidtypes acid.1
 acme acme.1
@@ -27,13 +29,12 @@ cleanname cleanname.1
 auxclog clog.1
 clog clog.1
 cmp cmp.1
+cmapcube colors.1
 colors colors.1
-getmap colors.1
 comm comm.1
 core core.1
 crop crop.1
 iconv crop.1
-clock date.1
 date date.1
 db db.1
 dc dc.1
@@ -93,6 +94,7 @@ lc ls.1
 ls ls.1
 lookman man.1
 man man.1
+sig man.1
 map map.1
 mapd map.1
 mapdemo map.1
@@ -142,7 +144,6 @@ scat scat.1
 aescbc secstore.1
 ipso secstore.1
 secstore secstore.1
-9sed sed.1
 sed sed.1
 seq seq.1
 sleep sleep.1

@@ -14,7 +14,8 @@ interactively
 merges 
 .I file1
 and 
-.IR file2 .
+.I file2
+onto standard output.
 Wherever
 .I file1
 and
@@ -23,7 +24,8 @@ differ,
 .I idiff
 displays the differences in the style of
 .RB `` diff
-.RB -n ''
+.BR -n ''
+on standard error
 and prompts the user to select a chunk.
 Valid responses are:
 .TP
@@ -54,9 +56,10 @@ The
 .B -b
 and
 .B -w
-flags
-are simply
-passed through to
+flags,
+if passed,
+are
+passed to
 .IR diff .
 .SH FILES
 .B /tmp/idiff.*
@@ -68,5 +71,3 @@ passed through to
 Kernighan and Pike,
 .IR "The Unix Programming Environment" ,
 Prentice-Hall, 1984.
-.SH BUGS
-This is a poorly-written manual page.

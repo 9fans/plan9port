@@ -43,3 +43,14 @@ the alarm clock.
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .
+.SH BUGS
+To avoid name conflicts with the underlying system,
+.I sleep
+and
+.I alarm
+are preprocessor macros defined as
+.I p9sleep
+and
+.IR p9alarm ;
+see
+.IR intro (3).

@@ -15,7 +15,7 @@ calendar \- print upcoming events
 .SH DESCRIPTION
 .I Calendar
 reads the named files, default
-.BR /usr/$user/lib/calendar ,
+.BR $HOME/lib/calendar ,
 and writes to standard output any lines
 containing today's or tomorrow's date.
 Examples of recognized date formats are 
@@ -45,9 +45,9 @@ On Friday and Saturday, events through Monday are printed.
 To have your calendar mailed to you every day, use
 .IR cron (8).
 .SH FILES
-.TF /usr/$user/lib/calendar
+.TF $HOME/lib/calendar
 .TP
-.B /usr/$user/lib/calendar
+.B $HOME/lib/calendar
 personal calendar
 .SH SOURCE
 .B \*9/src/cmd/calendar.c

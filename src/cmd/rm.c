@@ -1,4 +1,5 @@
 #include <u.h>
+#include <sys/stat.h>
 #include <libc.h>
 
 #define rmdir p9rmdir
@@ -14,6 +15,13 @@ err(char *f)
 		errstr(errbuf, sizeof errbuf);
 		fprint(2, "rm: %s: %s\n", f, errbuf);
 	}
+}
+
+int
+issymlink(char *name)
+{
+	struct stat s;
+	return lstat(name, &s) >= 0 && S_ISLNK(s.st_mode);
 }
 
 /*
@@ -48,7 +56,7 @@ rmdir(char *f)
 	ndir = 0;
 	for(i=0; i<n; i++){
 		snprint(name, nname, "%s/%s", f, dirbuf[i].name);
-		if(remove(name) != -1)
+		if(remove(name) != -1 || issymlink(name))
 			dirbuf[i].qid.type = QTFILE;	/* so we won't recurse */
 		else{
 			if(dirbuf[i].qid.type & QTDIR)

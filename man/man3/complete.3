@@ -13,12 +13,12 @@ complete, freecompletion \- file name completion
 .ta \w'    'u +\w'    'u +\w'    'u +\w'    'u +\w'    'u
 typedef struct Completion	Completion;
 struct Completion{
-	uchar advance;		/* whether forward progress has been made */
-	uchar complete;	/* whether the completion now represents a file or directory */
-	char *string;		/* the string to advance, suffixed " " or "/" for file or directory */
-	int nmatch;		/* number of files that matched */
-	int nfile;			/* number of files returned */
-	char **filename;	/* their names */
+	uchar advance;
+	uchar complete;
+	char *string;
+	int nmatch;
+	int nfile;
+	char **filename;
 };
 
 .fi

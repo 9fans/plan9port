@@ -156,9 +156,9 @@ to return a uniform
 .IR x ,
 .RI 0≤ x < val ≤ 2\u\s732\s10\d-1.
 .SH SOURCE
-.B \*9/src/lib9/
+.B \*9/src/lib9
 .br
-.B \*9/src/libsec/port/
+.B \*9/src/libsec/port
 .SH "SEE ALSO
 .\" .IR cons (3),
 .IR mp (3)
@@ -167,3 +167,18 @@ to return a uniform
 and
 .I ntruerand
 maintain a static file descriptor.
+.PP
+To avoid name conflicts with the underlying system,
+.IR rand ,
+.IR lrand ,
+.IR frand ,
+.IR nrand ,
+.IR lnrand ,
+and
+.I srand
+are preprocessor macros defined as
+.IR p9rand ,
+.IR p9lrand ,
+and so on;
+see
+.IR intro (3).

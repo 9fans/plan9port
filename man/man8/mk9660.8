@@ -2,7 +2,7 @@
 .SH NAME
 dump9660, mk9660 \- create an ISO-9660 CD image
 .SH SYNOPSIS
-.B disk/mk9660
+.B mk9660
 [
 .B -:D
 ]
@@ -27,7 +27,7 @@ volume
 ]
 .I image
 .PP
-.B disk/dump9660
+.B dump9660
 [
 .B -:D
 ]
@@ -63,7 +63,7 @@ an ISO-9660 CD image containing the
 files named in
 .I proto
 (by default,
-.BR /sys/lib/sysconfig/proto/allproto )
+.BR \*9/proto/allproto )
 from the file tree
 .I src
 (by default,
@@ -218,8 +218,7 @@ Plan 9 extensions in the system use fields, and
 a Joliet directory tree.
 .IP
 .EX
-disk/mk9660 -9cj -s /n/bootes \e
-	-p /sys/lib/sysconfig/srcproto cdimage
+mk9660 -9cj -s /n/bootes -p srcproto cdimage
 .EE
 .SH SOURCE
 \*9/src/cmd/9660

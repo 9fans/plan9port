@@ -1,0 +1,300 @@
+.TH INTRO 1
+.SH NAME
+intro \- introduction to Plan 9 from User Space
+.SH DESCRIPTION
+Plan 9 is a distributed computing environment built
+at Bell Labs starting in the late 1980s.
+The system can be obtained from Bell Labs at
+.B http://plan9.bell-labs.com/plan9
+and runs on PCs and a variety of other platforms.
+Plan 9 became a convenient platform for experimenting
+with new ideas, applications, and services.
+.PP
+Plan 9 from User Space provides many of the ideas,
+applications, and services from Plan 9
+on Unix-like systems.
+It runs on
+FreeBSD (x86),
+Linux (x86 and PowerPC),
+Mac OS X (PowerPC),
+OpenBSD (x86),
+and
+SunOS (Sparc).
+.SS Commands
+Plan 9 from User Space expects its own directory tree,
+conventionally
+.BR /usr/local/plan9 .
+When programs need to access files in the tree,
+they expect the
+.B $PLAN9
+environment variable 
+to contain the name of the root of the tree.
+See
+.IR install (8)
+for details about installation.
+.PP
+Many of the familiar Unix commands,
+for example
+.IR cat (1),
+.IR ls (1),
+and
+.IR wc (1),
+are present, but in their Plan 9 forms:
+.I cat
+takes no arguments,
+.I ls
+does not columnate its output when printing to a terminal,
+and
+.I wc
+counts UTF characters.
+In some cases, the differences are quite noticeable:
+.IR grep (1)
+and
+.IR sed (1)
+expect Plan 9 regular expressions
+(see
+.IR regexp (7)),
+which are closest to what Unix calls extended regular expressions.
+Because of these differences, it is not recommended to put 
+.B $PLAN9/bin
+before the usual system
+.B bin
+directories in your search path.
+Instead, put it at the end of your path and use the
+.IR 9 (1)
+script when you want to invoke the Plan 9 version of a
+traditional Unix command.
+.PP
+Occasionally the Plan 9 programs have been
+changed to adapt to Unix.
+.IR Mk (1)
+now allows mkfiles to choose their own shell,
+and
+.IR rc (1)
+has a
+.I ulimit
+builtin and manages
+.BR $PATH .
+.PP
+Many of the graphical programs from Plan 9 are present,
+including
+.IR sam (1)
+and
+.IR acme (1).
+An X11 window manager
+.IR rio (1)
+mimics Plan 9's window system, with command windows
+implemented by the external program
+.IR 9term (1).
+Following the style of X Windows, these programs run in new
+windows rather than the one in which they are invoked.
+They all take a
+.B -W
+option to specify the size and placement of the new window.
+The argument is one of
+\fIwidth\^\^\fLx\fI\^\^height\fR,
+\fIwidth\^\^\fLx\fI\^\^height\^\^\fL@\fI\^\^xmin\fL,\fIxmax\fR,
+\fL'\fIxmin ymin xmax ymax\fL'\fR,
+\fRor
+\fIxmin\fL,\fIymin\fL,\fIxmax\fL,\fIymax\fR.
+.PP
+The
+.IR plumber (4)
+helps to connect the various Plan 9 programs together,
+and fittings like
+.IR web (1)
+connect it to external programs such as web browsers;
+one can click on a URL in
+.I acme
+and see the page load in
+.IR Firefox .
+.SS User-level file servers
+In Plan 9, user-level file servers present file trees via the Plan 9 file protocol, 9P.
+Processes can mount arbitrary file servers and customize their own name spaces.
+These facilities are used to connect programs.  Clients interact
+with file servers by reading and writing files.
+.PP
+This cannot be done directly on Unix.
+Instead the servers listen for 9P connections on Unix domain sockets;
+clients connect to these sockets and speak 9P directly using the
+.IR 9pclient (3)
+library.
+.IR Intro (4)
+tells more of the story.
+The effect is not as clean as on Plan 9, but it gets the job done
+and still provides a uniform and easy-to-understand mechanism.
+The
+.IR 9p (1)
+client can be used in shell scripts or by hand to carry out
+simple interactions with servers.
+.SS Programming
+The shell scripts
+.I 9c
+and
+.I 9l
+(see
+.IR 9c (1))
+provide a simple interface to the underlying system compiler and linker,
+similar to the 
+.I 2c
+and
+.I 2l
+families on Plan 9.
+.I 9c
+compiles source files, and
+.I 9l
+links object files into executables.
+When using Plan 9 libraries,
+.I 9l
+infers the correct set of libraries from the object files,
+so that no
+.B -l
+options are needed.
+.PP
+The only way to write multithreaded programs is to use the
+.IR thread (3)
+library.
+.IR Rfork (3)
+exists but is not as capable as on Plan 9.
+There are many unfortunate by necessary preprocessor
+diversions to make Plan 9 and Unix libraries coexist.
+See
+.IR intro (3)
+for details.
+.PP
+The debuggers
+.IR acid (1)
+and
+.IR db (1)
+and the debugging library
+.IR mach (3)
+are works in progress.
+They are platform-independent, so that x86 Linux core dumps
+can be inspected on PowerPC Mac OS X machines,
+but they are also fairly incomplete.
+The x86 target is the most mature; initial PowerPC support
+exists; and other targets are unimplemented.
+The debuggers can only inspect, not manipulate, target processes.
+Support for operating system threads and for 64-bit architectures
+needs to be rethought.
+On x86 Linux systems,
+.I acid
+and
+.I db
+can be relied upon to produce reasonable stack traces
+(often in cases when GNU
+.I gdb
+cannot)
+and dump data structures,
+but that it is the extent to which they have been developed and exercised.
+.SS External databases
+Some programs rely on large databases that would be
+cumbersome to include in every release.
+Scripts are provided that download these databases separately.
+These databases can be downloaded separately.  
+See
+.B $PLAN9/dict/README
+and
+.BR $PLAN9/sky/README .
+.SS Porting programs
+The vast majority of the familiar Plan 9 programs 
+have been ported, including the Unicode-aware
+.IR troff (1).
+.PP
+Of the more recent additions to Plan 9,
+the
+.IR secstore (1)
+client has been ported, though
+.I secstored
+has not.
+.IR Vac (1)
+has been ported, though
+.I vacfs
+has not.
+.IR Factotum
+and
+.IR venti
+are in progress.
+.PP
+A backup system providing a dump file system built atop Venti
+is also in progress.
+.SS Porting to new systems
+Porting the tree to new operating systems or architectures
+should be straightforward, as system-specific code has been
+kept to a minimum.  
+The largest pieces of system-specific code are
+.BR <u.h> ,
+which must include the right system files and
+set up the right integer type definitions,
+and
+.IR libthread ,
+which must implement spin locks, operating system thread
+creation, and context switching routines.
+Portable implementations of these using 
+.B <pthread.h>
+and
+.B <ucontext.h>
+already exist.  If your system supports them, you may not
+need to write any system specific code at all.
+.PP
+There are other smaller system dependencies,
+such as the terminal handling code in
+.IR 9term (1)
+and the implementation of
+.IR getcallerpc (3),
+but these are usually simple and are not on the critical
+path for getting the system up and running.
+.SS SEE ALSO
+The system's documentation is these manual pages.
+Many of the man pages have been brought from Plan 9,
+but they have been updated, and others have been written from scratch.
+.PP
+The manual pages are in a Unix style tree, with names like
+.B $PLAN9/man/man1/cat.1
+instead of Plan 9's simpler
+.BR  $PLAN9/man/1/cat ,
+so that the Unix
+.IR man (1)
+utility can handle it.
+Some systems, for example Debian Linux,
+deduce the man page locations from the search path, so that
+adding 
+.B $PLAN9/bin
+to your path is sufficient to cause
+.B $PLAN9/man
+to be consulted for manual pages using the system
+.IR man .
+On other systems, or to look at manual pages with the
+same name as a system page,
+invoke the Plan 9
+.I man
+directly, as in
+.B 9
+.B man
+.BR cat .
+.PP
+The manual sections follow the Unix numbering conventions,
+not the Plan 9 ones.
+.PP
+Section (1) describes general publicly accessible commands.
+.PP
+Section (3) describes C library functions.
+.PP
+Section (4) describes user-level file servers.
+.PP
+Section (7) describes file formats and protocols.
+(On Unix, section (5) is technically for file formats but
+seems now to be used for describing specific files.)
+.PP
+Section (8) describes commands used for system administration.
+.PP
+Section (9p) describes the Plan 9 file protocol 9P.
+.SH DIAGNOSTICS
+In Plan 9, a program's exit status is an arbitrary text string,
+while on Unix it is an integer.
+Section (1) of this manual describes commands as though they
+exit with string statuses.  In fact, exiting with an empty status
+corresponds to exiting with status 0,
+and exiting with any non-empty string corresponds to exiting with status 1.
+See
+.IR exits (3).

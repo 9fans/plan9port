@@ -356,7 +356,7 @@ tempfile(int n)
 	static uint pid;
 	char *dir;
 
-	dir = "/tmp";
+	dir = "/var/tmp";
 	if(args.tname)
 		dir = args.tname;
 	if(strlen(dir) >= nelem(file)-20) {

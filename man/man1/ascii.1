@@ -39,7 +39,7 @@ ascii, unicode \- interpret ASCII, Unicode characters
 .PP
 .B look
 .I hex
-.B /lib/unicode
+.B \*9/lib/unicode
 .SH DESCRIPTION
 .I Ascii
 prints the
@@ -122,7 +122,7 @@ and
 may be unhelpful if the characters printed are not available in the current font.
 .PP
 The file
-.B /lib/unicode
+.B \*9/lib/unicode
 contains a
 table of characters and descriptions, sorted in hexadecimal order,
 suitable for
@@ -143,19 +143,18 @@ Print the hex value of `p'.
 .B "unicode 2200-22f1"
 Print a table of miscellaneous mathematical symbols.
 .TP
-.B "look 039 /lib/unicode"
+.B "look 039 \*9/lib/unicode"
 See the start of the Greek alphabet's encoding in the Unicode Standard.
 .SH FILES
-.TF /lib/unicode
 .TP
-.B /lib/unicode
+.B \*9/lib/unicode
 table of characters and descriptions.
 .SH SOURCE
 .B \*9/src/cmd/ascii.c
 .br
 .B \*9/src/cmd/unicode.c
 .SH "SEE ALSO"
-.IR look (1)
+.IR look (1),
 .IR tcs (1),
 .IR utf (7),
 .IR font (7)

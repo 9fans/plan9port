@@ -1,6 +1,6 @@
 .TH DIAL 3
 .SH NAME
-dial, hangup, announce, listen, accept, reject, netmkaddr, dialparse \- make and break network connections
+dial, announce, listen, accept, reject, netmkaddr, dialparse \- make and break network connections
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -34,7 +34,10 @@ char* netmkaddr(char *addr, char *defnet, char *defservice)
 .\" void freenetconninfo(NetConnINfo*)
 .PP
 .B
-int	dialparse(char *addr, char **net, char **unix, u32int *host, int *port)
+int   dialparse(char *addr, char **net, char **unix,
+.br
+.B
+          u32int *host, int *port)
 .SH DESCRIPTION
 For these routines,
 .I addr
@@ -310,3 +313,17 @@ bekremvax(void)
 and
 .I listen
 return \-1 if they fail.
+.SH BUGS
+To avoid name conflicts with the underlying system,
+.IR dial ,
+.IR announce ,
+.IR listen ,
+.IR netmkaddr ,
+and
+.I reject
+are preprocessor macros defined as
+.IR p9dial ,
+.IR p9announce ,
+and so on;
+see
+.IR intro (3).

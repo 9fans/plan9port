@@ -3,6 +3,14 @@
 9c, 9a, 9l, 9ar \- C compiler, assembler, linker, archiver
 .SH SYNOPSIS
 .B 9c
+[
+.B -I
+.I path
+]
+[
+.B -D
+.I name
+]
 .I file
 \&...
 .PP
@@ -26,7 +34,7 @@
 \&...
 ]
 [
-.BI -l library
+.BI -l name
 \&...
 ]
 .PP
@@ -49,12 +57,24 @@ One can use them to write portable recipes for mkfiles.
 compiles the named C
 .I files
 into object files for the current system.
-The system C compiler is invoked with warnings enabled,
-with the symbol
+The system C compiler is invoked with warnings enabled.
+The
+.B -I
+option adds
+.I path
+to the include path,
+and the
+.B -D
+option defines
+.I name
+in the C preprocessor.
+.I 9c
+always
+defines the symbol
 .B PLAN9PORT
-is defined in the C preprocessor, and with
+defined in the C preprocessor and adds
 .B $PLAN9/include
-on the include path.
+to the include path.
 .PP
 .I 9c
 also defines
@@ -74,7 +94,7 @@ links the named object files and libraries to create the target executable.
 Each
 .B -l
 option specifies that a library named
-.BI lib library .a
+.BI lib name .a
 be found and linked.
 The
 .B -L
@@ -83,6 +103,30 @@ option adds directories to the library search path.
 invokes the system linker with
 .B $PLAN9/lib
 already on the library search path.
+.PP
+.I 9l
+searches the named objects and libraries for symbols of the form
+.BI __p9l_autolib_ name \fR,
+which it takes as indication that it should link
+.BI $PLAN9/lib/lib name .a
+as well.
+It also examines such libraries to find their own dependencies.
+A single
+.B -l
+option at the beginning of the command line disables this behavior.
+The symbol
+.BI __p9l_autolib_ name
+is added to an object file by the macro
+.B AUTOLIB( name )\fR,
+defined in
+.B <u.h>.
+Header files associated with libraries contain
+.B AUTOLIB
+annotations; ordinary programs need not use them.
+Due to shortcomings in the implementation, a source file may not
+contain the same
+.B AUTOLIB
+statement multiple times.
 .PP
 .I 9ar
 maintains object file archives called libraries.
@@ -154,7 +198,7 @@ inserts a table of contents, required by the linker, at
 the front of the library.
 The table of contents is
 rebuilt whenever the archive is modified.
-.SH EXAMPLE
+.SH EXAMPLES
 .TP
 .L
 9c file1.c file2.c file3.c
@@ -167,6 +211,7 @@ Assemble one assembler source file.
 .L
 9ar rvc lib.a file[12].o
 Archive the first two object files into a library.
+.TP
 .L
 9l -o prog file3.o file4.o lib.a
 Link the final two object files and any necessary objects from the library

@@ -168,3 +168,18 @@ When
 and
 .I free
 detect such corruption, they abort.
+.PP
+To avoid name conflicts with the system versions of these functions,
+.IR malloc ,
+.IR realloc ,
+.IR calloc ,
+and
+.I free
+are preprocessor macros defined as
+.IR p9malloc ,
+.IR p9realloc ,
+.IR p9calloc ,
+and
+.IR p9free ;
+see
+.IR intro (3).

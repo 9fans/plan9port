@@ -36,7 +36,6 @@ OFILES=\
 	mkfont.$O\
 	openfont.$O\
 	poly.$O\
-	readcolmap.$O\
 	readimage.$O\
 	readsubfont.$O\
 	rectclip.$O\
@@ -52,7 +51,6 @@ OFILES=\
 	subfontname.$O\
 	unloadimage.$O\
 	window.$O\
-	writecolmap.$O\
 	writeimage.$O\
 	writesubfont.$O\
 	md-alloc.$O\

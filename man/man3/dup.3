@@ -31,8 +31,9 @@ for the new file descriptor
 Sets
 .IR errstr .
 .SH BUGS
-.I Dup
-is a macro for
-.I p9dup
-to avoid name conflicts with the Unix function; see
+To avoid name conflicts with the underlying system,
+.I dup
+is a preprocessor macro defined as
+.IR p9dup ;
+see
 .IR intro (3).

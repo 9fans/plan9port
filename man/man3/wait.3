@@ -144,3 +144,16 @@ returns
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .
+.SH BUGS
+To avoid name conflicts with the underlying system,
+.IR wait ,
+.IR waitpid ,
+and
+.I waitfor
+are preprocessor macros defined as
+.IR p9wait ,
+.IR p9waitpid ,
+and
+.IR p9waitfor ;
+see 
+.IR intro (3).

@@ -127,70 +127,70 @@ The next three commands fetch the persistent copy of the secrets,
 append a new secret,
 and save the updated file back to secstore.
 The final command loads the new secret into the running factotum.
-.PP
-The
-.I ipso
-command packages this sequence into a convenient script to simplify editing of
-.I files
-stored on a secure store.
-It copies the named
-.I files
-into a local
-.IR ramfs (4)
-and invokes
-.IR acme (1)
-on them.  When the editor exits,
-.I ipso
-prompts the user to confirm copying modifed or newly created files back to
-.I secstore.
-If no
-.I file
-is mentioned,
-.I ipso
-grabs all the user's files from
-.I secstore
-for editing.
-.PP
-By default, ipso will edit the
-.I secstore
-files and, if
-one of them is named
-.BR factotum ,
-flush your current keys from factotum and load
-the new ones from the file.
-If you supply any of the
-.BR -e ,
-.BR -f ,
-or
-.BR -l
-options,
-.I ipso
-will just perform the operations you requested, i.e.,
-edit, flush, and/or load.
-.PP
-The
-.B -s
-option of
-.I ipso
-invokes
-.IR sam (1)
-as the editor insted of
-.BR acme ;
-the
-.B -a
-option provides a similar service for files encrypted by
-.I aescbc
-.RI ( q.v. ).
-With the
-.B -a
-option, the full rooted pathname of the
-.I file
-must be specified and all
-.I files
-must be encrypted with the same key.
-Also with
-.BR -a ,
-newly created files are ignored.
+.\" .PP
+.\" The
+.\" .I ipso
+.\" command packages this sequence into a convenient script to simplify editing of
+.\" .I files
+.\" stored on a secure store.
+.\" It copies the named
+.\" .I files
+.\" into a local
+.\" .IR ramfs (4)
+.\" and invokes
+.\" .IR acme (1)
+.\" on them.  When the editor exits,
+.\" .I ipso
+.\" prompts the user to confirm copying modifed or newly created files back to
+.\" .I secstore.
+.\" If no
+.\" .I file
+.\" is mentioned,
+.\" .I ipso
+.\" grabs all the user's files from
+.\" .I secstore
+.\" for editing.
+.\" .PP
+.\" By default, ipso will edit the
+.\" .I secstore
+.\" files and, if
+.\" one of them is named
+.\" .BR factotum ,
+.\" flush your current keys from factotum and load
+.\" the new ones from the file.
+.\" If you supply any of the
+.\" .BR -e ,
+.\" .BR -f ,
+.\" or
+.\" .BR -l
+.\" options,
+.\" .I ipso
+.\" will just perform the operations you requested, i.e.,
+.\" edit, flush, and/or load.
+.\" .PP
+.\" The
+.\" .B -s
+.\" option of
+.\" .I ipso
+.\" invokes
+.\" .IR sam (1)
+.\" as the editor insted of
+.\" .BR acme ;
+.\" the
+.\" .B -a
+.\" option provides a similar service for files encrypted by
+.\" .I aescbc
+.\" .RI ( q.v. ).
+.\" With the
+.\" .B -a
+.\" option, the full rooted pathname of the
+.\" .I file
+.\" must be specified and all
+.\" .I files
+.\" must be encrypted with the same key.
+.\" Also with
+.\" .BR -a ,
+.\" newly created files are ignored.
 .PP
 .I Aescbc
 encrypts and decrypts using AES (Rijndael) in cipher
@@ -205,8 +205,8 @@ There is deliberately no backup of files on the secstore, so
 .B -r
 (or a disk crash) is irrevocable.  You are advised to store
 important secrets in a second location.
-.PP
-When using
-.IR ipso ,
-secrets will appear as plain text in the editor window,
-so use the command in private.
+.\" .PP
+.\" When using
+.\" .IR ipso ,
+.\" secrets will appear as plain text in the editor window,
+.\" so use the command in private.

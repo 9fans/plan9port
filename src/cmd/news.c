@@ -101,7 +101,7 @@ read_dir(int update)
 	n_count = 0;
 	n_list = malloc(NINC*sizeof(File));
 	na = NINC;
-	home = getenv("home");
+	home = getenv("HOME");
 	if(home) {
 		sprint(newstime, TFILE, home);
 		d = dirstat(newstime);

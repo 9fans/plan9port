@@ -16,7 +16,7 @@ messages between programs.
 Its behavior is programmed by a
 .I plumbing
 file (default
-.BR /usr/$user/lib/plumbing )
+.BR $HOME/lib/plumbing )
 in the format of
 .IR plumb (7).
 .PP
@@ -96,9 +96,9 @@ However, ports are never deleted dynamically; if a new set of rules does not
 include a port that was defined in earlier rules, that port will still exist (although
 no new messages will be delivered there).
 .SH FILES
-.TF /usr/$user/lib/plumbing
+.TF $HOME/lib/plumbing
 .TP
-.B /usr/$user/lib/plumbing
+.B $HOME/lib/plumbing
 default rules file
 .TP
 .B \*9/plumb

@@ -13,11 +13,6 @@ kill, slay, start, stop \- print commands to manipulate processes
 .PP
 .B stop
 .I name ...
-.PP
-.B broke
-[
-.I user
-]
 .SH DESCRIPTION
 .I Kill
 prints commands that will cause all processes with 
@@ -67,3 +62,8 @@ signal.
 .SH "SEE ALSO"
 .IR ps (1),
 .IR notify (3)
+.SH BUGS
+.I Stop
+and
+.I start
+should limit themselves to currently running or stopped processes.

@@ -132,32 +132,92 @@ and
 a button 2 action in the tag
 .RB ( x ).
 .TP
-.I q0
-
+.I q0\fR, \fPq1
+The character addresses of the action.
 .TP
+.I eq0\fR, \fPq1
+The expanded character addresses of the action.
+If the text indicated by
+.IR q0 ,
 .I q1
-
-.TP
-.I eq0
-
-.TP
+is a null string that has a non-null expansion,
+.IR eq0 ,
 .I eq1
-
+are the addresses of the expansion.
+Otherwise they are the same as
+.IR q0 ,
+.IR q1 .
 .TP
 .I flag
-
+.I Flag
+is a bitwise OR (reported decimally) of the following:
+1 if the text indicated is recognized as an
+.I acme
+built-in command;
+2 if the text indicated is a null string that has a non-null expansion
+(see
+.IR eq0 ,
+.I eq1
+above);
+8 if the command has an extra (chorded) argument
+(see
+.I chordarg
+below).
+.I Flag
+remains from the
+.IR acme (4)
+event format.
+Because
+.IR eq0 ,
+.IR eq1 ,
+and
+.I chordarg
+are explicit in each event
+(unlike in
+.IR acme (4)
+events),
+.I flag
+can usually be ignored.
 .TP
 .I textlen
-
+The length of the action text (or its expansion) for button 2 and button 3 events in characters.
 .TP
 .I text
-
+If
+.I textlen
+is less than 256 chracters,
+.I text
+is the action text itself.
+Otherwise it is an empty string and must be read from the
+.B data
+file.
 .TP
 .I chordarg
-
+The chorded argument for an action.
 .TP
 .I chordorigin
-
+If the chord argument is in the body of a named window,
+.I chordorigin
+specifies the full address of the argument,
+as in
+.BR /etc/group:#123,#234 .
+.PD
+.PP
+To experiment with
+.IR acmeevent ,
+create an empty window in
+.I acme
+(using
+.IR New ), type
+.IP
+.EX
+9p read acme/$winid/event | acmeevent
+.EE
+.LP
+inside it, and execute it.
+Actions performed on the window will be printed as events in the
+.B +Errors
+window.
 .PP
 .I Acme.rc
 is a library of

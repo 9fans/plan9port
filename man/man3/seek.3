@@ -44,3 +44,10 @@ Seeking in a pipe is a no-op.
 .SH DIAGNOSTICS
 Sets
 .IR errstr .
+.SH BUGS
+To avoid name conflicts with the underlying system,
+.I seek
+is a preprocessor macro defined as
+.IR p9seek ;
+see
+.IR intro (3).

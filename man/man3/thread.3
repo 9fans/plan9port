@@ -33,7 +33,6 @@ threadint,
 threadintgrp,
 threadkill,
 threadkillgrp,
-threadlinklibrary,
 threadmain,
 threadnotify,
 threadid,
@@ -46,14 +45,6 @@ threadwaitchan,
 yield \- thread and proc management
 .SH SYNOPSIS
 .PP
-.de EX
-.nf
-.ft B
-..
-.de EE
-.fi
-.ft R
-..
 .EX
 .ta 4n +4n +4n +4n +4n +4n +4n
 #include <u.h>
@@ -88,8 +79,6 @@ struct Alt {
 void	threadmain(int argc, char *argv[])
 int	mainstacksize
 int	proccreate(void (*fn)(void*), void *arg, uint stacksize)
-int	procrfork(void (*fn)(void*), void *arg, uint stacksize,
-		int rforkflag)
 int	threadcreate(void (*fn)(void*), void *arg, uint stacksize)
 void	threadexits(char *status)
 void	threadexitsall(char *status)
@@ -393,6 +382,7 @@ fd[0] = 0;
 fd[1] = 1;
 fd[2] = 2;
 .EE
+.LP
 to use the current standard files.  The correct code is
 .IP
 .EX
@@ -656,20 +646,6 @@ contains some example programs.
 .IR intro (3),
 .IR ioproc (3)
 .SH BUGS
-A program that intends to use the thread library
-but does not call any of its functions will not cause Unix linkers
-to link the thread library, resulting in the unintelligible error:
-.IP
-.EX
-\*9/lib/lib9.a(main.o)(.text+0x17): In function `main':
-\*9/src/lib9/main.c:10: undefined reference to `p9main'
-.EE
-.LP
-or similar.  To force the thread library to be linked properly in such cases,
-insert a call to the no-op function
-.I threadlinklibrary
-somewhere in your program.
-.PP
 To avoid name conflicts,
 .IR alt ,
 .IR nbrecv ,
@@ -689,10 +665,11 @@ are defined as macros that expand to
 .IR chanalt ,
 .IR channbrecv ,
 and so on.
-Similarly,
-.I yield
+.I Yield
 is defined as a macro that expands to
 .IR threadyield .
+See
+.IR intro (3).
 .PP
 The implementation of
 .I threadnotify

@@ -358,10 +358,8 @@ extern	double	atof(char*); <stdlib.h>
 extern	int	p9atoi(char*);
 extern	long	p9atol(char*);
 extern	vlong	p9atoll(char*);
-extern	double	charstod(int(*)(void*), void*);
+extern	double	fmtcharstod(int(*)(void*), void*);
 extern	char*	cleanname(char*);
-extern	int	p9decrypt(void*, void*, int);
-extern	int	p9encrypt(void*, void*, int);
 extern	int	dec64(uchar*, int, char*, int);
 extern	int	enc64(char*, int, uchar*, int);
 extern	int	dec32(uchar*, int, char*, int);
@@ -386,7 +384,6 @@ extern	void	p9longjmp(p9jmp_buf, int);
 extern	char*	mktemp(char*);
 extern	int		opentemp(char*);
 /* extern	double	modf(double, double*); <math.h> */
-extern	int	netcrypt(void*, void*);
 extern	void	p9notejmp(void*, p9jmp_buf, int);
 extern	void	perror(const char*);
 extern	int	postnote(int, int, char *);
@@ -397,14 +394,12 @@ extern	double	p9pow10(int);
 #define p9setjmp(b)	sigsetjmp((void*)(b), 1)
 /*
  * <stdlib.h>
-extern	double	strtod(char*, char**);
 extern	long	strtol(char*, char**, int);
 extern	ulong	strtoul(char*, char**, int);
 extern	vlong	strtoll(char*, char**, int);
 extern	uvlong	strtoull(char*, char**, int);
  */
 extern	void	sysfatal(char*, ...);
-extern	void	p9syslog(int, char*, char*, ...);
 extern	long	p9time(long*);
 /* extern	int	tolower(int); <ctype.h> */
 /* extern	int	toupper(int); <ctype.h> */
@@ -426,9 +421,10 @@ extern	void	needstack(int);
 #define putenv		p9putenv
 #define notejmp		p9notejmp
 #define jmp_buf		p9jmp_buf
-#define syslog		p9syslog
 #define time		p9time
 #define pow10		p9pow10
+#define strtod		fmtstrtod
+#define charstod	fmtcharstod
 #endif
 
 /*
@@ -527,7 +523,6 @@ extern	int	p9announce(char*, char*);
 extern	int	p9dial(char*, char*, char*, int*);
 extern	int	p9dialparse(char *ds, char **net, char **unixa, u32int *ip, int *port);
 extern	void	p9setnetmtpt(char*, int, char*);
-extern	int	p9hangup(int);
 extern	int	p9listen(char*, char*);
 extern	char*	p9netmkaddr(char*, char*, char*);
 extern	int	p9reject(int, char*, char*);
@@ -537,7 +532,6 @@ extern	int	p9reject(int, char*, char*);
 #define	announce	p9announce
 #define	dial		p9dial
 #define	setnetmtpt	p9setnetmtpt
-#define	hangup		p9hangup
 #define	listen		p9listen
 #define	netmkaddr	p9netmkaddr
 #define	reject		p9reject
@@ -614,6 +608,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define QTEXCL		0x20		/* type bit for exclusive use files */
 #define QTMOUNT		0x10		/* type bit for mounted channel */
 #define QTAUTH		0x08		/* type bit for authentication file */
+#define QTLINK		0x04		/* symbolic link */
 #define QTFILE		0x00		/* plain file */
 
 /* bits in Dir.mode */
@@ -622,6 +617,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define DMEXCL		0x20000000	/* mode bit for exclusive use files */
 #define DMMOUNT		0x10000000	/* mode bit for mounted channel */
 #define DMAUTH		0x08000000	/* mode bit for authentication file */
+#define DMLINK		0x04000000	/* mode bit for symbolic link */
 #define DMREAD		0x4		/* mode bit for read permission */
 #define DMWRITE		0x2		/* mode bit for write permission */
 #define DMEXEC		0x1		/* mode bit for execute permission */

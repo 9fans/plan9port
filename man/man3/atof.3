@@ -144,3 +144,35 @@ and
 .I atol
 accept octal and hexadecimal numbers in the style of C,
 contrary to the ANSI specification.
+.PP
+.IR Atof ,
+.IR strtod ,
+.IR strtol ,
+.IR strtoul ,
+.IR strtoll ,
+and
+.IR strtoull
+are not provided:
+they are expected to be provided by the underlying system.
+.PP
+Because they are implemented in the fmt library,
+.I charstod
+and
+.I strtod
+are preprocessor macros defined as
+.I fmtcharstod
+and
+.IR fmtstrtod .
+.PP
+To avoid name conflicts with the underlying system,
+.IR atoi ,
+.IR atol ,
+and
+.I atoll
+are preprocessor macros defined as
+.IR p9atoi ,
+.IR p9atol ,
+and
+.IR p9atoll ;
+see
+.IR intro (3).

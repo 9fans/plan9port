@@ -249,6 +249,7 @@ chanalt(Alt *a)
 	Channel *c;
 	_Thread *t;
 
+	needstack(512);
 	for(i=0; a[i].op != CHANEND && a[i].op != CHANNOBLK; i++)
 		;
 	n = i;

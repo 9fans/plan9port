@@ -19,6 +19,8 @@ sort \- sort and/or merge files
 .I ,pos2
 ]
 ] ...
+.br
+\h'0.5in'
 [
 .B -o
 .I output
@@ -210,7 +212,7 @@ This file may be the same as one of the inputs.
 Put temporary files in
 .I dir
 rather than in
-.BR /tmp .
+.BR /var/tmp .
 .ne 4
 .SH EXAMPLES
 .TP
@@ -236,7 +238,7 @@ grep -n '^' input | sort -t: +1f +0n | sed 's/[0-9]*://'
 A stable sort: input lines that compare equal will 
 come out in their original order.
 .SH FILES
-.BI /tmp/sort. <pid>.<ordinal>
+.BI /var/tmp/sort. <pid>.<ordinal>
 .SH SOURCE
 .B \*9/src/cmd/sort.c
 .SH SEE ALSO

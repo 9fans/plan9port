@@ -167,13 +167,21 @@ to exit.
 .PD
 .SH EXAMPLE
 Show the load, memory, interrupts, system calls, context switches,
-and ethernet packets for the local machine, a remote Linux machine 
-.BR tux ,
-and a remote BSD machine
-.BR daemon .
+and ethernet packets for the local machine,
+a remote BSD machine
+.IR daemon ,
+and
+a remote Linux machine 
+.IR tux .
+.I Auxstats
+is not in
+.IR tux 's
+path, so the full path must be given.
 .IP
-.B
-stats -lmisce `hostname` tux:\*9/bin/auxstats daemon
+.EX
+stats -lmisce `hostname` daemon \e
+    tux:\*9/bin/auxstats
+.EE
 .SH SOURCE
 .B \*9/src/cmd/draw/stats.c
 .PP

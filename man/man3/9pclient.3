@@ -9,8 +9,8 @@ CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsmount, fsversion, 
 .B #include <fcall.h>
 .PP
 .B #include <9pclient.h>
+.ta +\w'\fLCFsys* 'u
 .PP
-.ta +'\fLCFsys* 'u
 .B
 CFsys*	fsmount(int fd, char *aname)
 .PP
@@ -214,7 +214,7 @@ The path is parsed as a slash-separated sequence of path elements,
 as on Unix and Plan 9.
 Elements that are empty or
 dot
-.B ( . )
+.RB ( . )
 are ignored.
 .PP
 Once opened, these fids can be read and written using

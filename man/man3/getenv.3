@@ -35,8 +35,13 @@ to
 Sets
 .IR errstr .
 .SH BUGS
-Defined as macros for
+To avoid name conflicts with the underlying system,
+.I getenv
+and
+.I putenv
+are preprocessor macros defined as
 .I p9getenv
 and
-.I p9putenv
-to avoid name conflicts with Unix library calls.
+.IR p9putenv ;
+see
+.IR intro (3).

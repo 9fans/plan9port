@@ -4,8 +4,13 @@ doctype \- intuit command line for formatting a document
 .SH SYNOPSIS
 .B doctype
 [
-.I option ...
-] [
+.B -n
+]
+[
+.B -T
+.I dev
+]
+[
 .I file
 ]
 \&...
@@ -32,7 +37,9 @@ invokes
 .I nroff
 instead of
 .IR troff .
-Other options are passed to
+The
+.B -T
+option is passed to
 .IR troff .
 .SH EXAMPLES
 .TP

@@ -21,6 +21,9 @@ main(int argc, char *argv[])
 		flags[ARGC()]++;
 		break;
 
+	case 'E':	/* ignore, turns gnu grep into egrep */
+		break;
+
 	case 'e':
 		flags['e']++;
 		lineno = 0;

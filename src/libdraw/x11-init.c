@@ -346,9 +346,7 @@ xattach(char *label)
 
 		display_resources = XResourceManagerString(_x.display);
 		if(display_resources == nil){
-			home = getenv("home");
-			if(home == nil)
-				home = getenv("HOME");
+			home = getenv("HOME");
 			if(home!=nil && (file=smprint("%s/.Xdefaults", home)) != nil){
 				XrmCombineFileDatabase(file, &database, False);
 				free(file);

@@ -91,6 +91,7 @@ then
 	do
 		eval "have$i() { false; }"
 	done
+	havethread() { false; }
 
 	# now find correct order
 	libsl=""
@@ -128,6 +129,12 @@ then
 		echo "liborder $libsl"
 	fi
 	libsl="$libsl -l9"
+
+	# cycle: lib9 expects p9main, which is defined in libthread.  oops.
+	if $havethread
+	then
+		libsl="$libsl -lthread"
+	fi
 
 	if [ "x$needdraw" = xtrue ]
 	then
@@ -194,9 +201,11 @@ if $verbose
 then
 	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
 fi
-if ! $ld -L$PLAN9/lib "$@" $libsl $extralibs
+if $ld -L$PLAN9/lib "$@" $libsl $extralibs
 then
+	exit 0
+else
 	rm -f $target
 	exit 1
 fi
-exit 0
+

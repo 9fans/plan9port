@@ -1,6 +1,6 @@
 .TH 9TERM 1
 .SH NAME
-9term, label \- terminal windows
+9term \- terminal windows
 .SH SYNOPSIS
 .B 9term
 [
@@ -14,14 +14,11 @@
 .I cmd
 \&...
 ]
-.PP
-.B label
-.I name
 .SH DESCRIPTION
 .I 9term
 is a terminal window program for the X Window System,
 providing an interface similar to that used on Plan 9.
-.SS Commands
+.SS Command
 The
 .I 9term
 command starts a new window.
@@ -59,15 +56,6 @@ if set; otherwise it uses the graphics system default.
 runs the given command in the window, or 
 .B $SHELL
 if no command is given.
-.PP
-The
-.I label
-command changes a window's identifying name by
-echoing a special control code that both
-.I 9term
-and
-.IR xterm (1)
-understand.
 .SS Text windows
 Characters typed on the keyboard
 collect in the window to form
@@ -152,7 +140,7 @@ An EOT character (control-D) behaves exactly like newline except
 that it is not delivered to a program when read.
 Thus on an empty line an EOT serves to deliver an end-of-file indication:
 the read will return zero characters.
-Like newlines, unread EOTs may be successfully edited out of the text.
+.\" Like newlines, unread EOTs may be successfully edited out of the text.
 The BS character (control-H) erases the character before the selected text.
 The ETB character (control-W) erases any nonalphanumeric characters, then
 the alphanumeric word just before the selected text.
@@ -202,6 +190,10 @@ before (after) the current selection.
 relies on the kernel's terminal processing to handle
 EOT and DEL, so the terminal must be set up with EOT
 as the ``eof'' character and DEL as the ``intr'' character.
+.I 9term
+runs
+.IR stty (1)
+to establish this when the terminal is created.
 .PP
 Normally, written output to a window blocks when
 the text reaches the end of the screen and the terminal
@@ -214,7 +206,7 @@ the terminal settings of the running programs.
 Most programs run with echo enabled.
 In this mode,
 .I 9term
-display and allows editing of the input.
+displays and allows editing of the input.
 Some programs, typically those reading passwords,
 run with echo disabled.
 In this mode,
@@ -279,9 +271,23 @@ If the selection is empty, it sends the white-space-delimited text
 containing the selection (typing cursor).
 A typical use of this feature is to tell the editor to find the source of an error
 by plumbing the file and line information in a compiler's diagnostic.
+.PP
+Each
+.I 9term
+listens for connections on a Unix socket.
+When a client connects, the 
+.I 9term
+writes the window contents to the client and then hangs up.
+.I 9term
+installs the name of this socket in the environment as
+.B $text9term
+before running
+.IR cmd .
 .SH SOURCE
 .B \*9/src/cmd/9term
 .SH BUGS
 There should be a program to toggle the current window's hold mode.
 .PP
 Unix makes everything harder.
+.SH SEE ALSO
+.IR wintext (1)

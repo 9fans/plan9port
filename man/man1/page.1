@@ -49,7 +49,7 @@ To view troff output, use
 .IR proof (1).
 .SH "SEE ALSO
 .IR gs (1),
-.IR gv (1)
+.IR gv (1),
 .IR jpg (1),
 .IR proof (1),
 .IR tex (1),
@@ -64,3 +64,11 @@ When using Preview on Mac OS X,
 leaves temporary files in
 .BR /var/tmp ,
 since it has no way to know when the viewer has exited.
+.PP
+.I Page
+does not handle
+Plan 9 
+.IR image (7)
+files; use
+.I img
+explicitly.

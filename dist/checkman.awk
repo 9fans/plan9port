@@ -41,8 +41,10 @@ BEGIN {
 	Omitman["nm(1)"] = 1
 	Omitman["prof(1)"] = 1
 	Omitman["pwd(1)"] = 1
+	Omitman["qiv(1)"] = 1
 	Omitman["sh(1)"] = 1
 	Omitman["ssh(1)"] = 1
+	Omitman["stty(1)"] = 1
 	Omitman["tar(1)"] = 1
 	Omitman["tex(1)"] = 1
 	Omitman["unutf(1)"] = 1
@@ -50,6 +52,7 @@ BEGIN {
 
 	Omitman["access(2)"] = 1
 	Omitman["brk(2)"] = 1
+	Omitman["chdir(2)"] = 1
 	Omitman["close(2)"] = 1
 	Omitman["connect(2)"] = 1
 	Omitman["fork(2)"] = 1
@@ -90,10 +93,10 @@ BEGIN {
 	# don't need documentation for these in bin
 	Omitted[".cvsignore"] = 1
 	Omitted["Getdir"] = 1
-	Omitted["9grep"] = 1	# is in grep(1)
-	Omitted["9sed"] = 1	# is in sed(1)
-	Omitted["9lex"] = 1		# is in lex(1)
-	Omitted["9yacc"] = 1	# is in yacc(1)
+	Omitted["tcolors"] = 1
+	Omitted["tref"] = 1
+	Omitted["unutf"] = 1
+	Omitted["vtdump"] = 1
 
 	# not for users
 	Omittedlib["creadimage"] = 1
@@ -198,56 +201,66 @@ BEGIN {
 	Renamelib["regsub9"] = "regsub"
 	Renamelib["rregexec9"] = "rregexec"
 	Renamelib["rregsub9"] = "rregsub"
+
+	lastline = "XXX";
+	lastfile = FILENAME;
 }
 
 FNR==1	{
-		n = length(FILENAME)
-		nam = FILENAME
-		if(nam ~ /\.html$/)
-			next
-		if(nam !~ /^man\/man(.*)\/(.*)\.(.*)$/){
-			print "nam", nam, "not of form [0-9][0-9]?/*"
-			next
-		}
-		nam = substr(nam, 8)
-		gsub("[/.]", " ", nam);
-		n = split(nam, a)
-		sec = a[1]
-		name = a[2]
-		section = a[3]
-		if($1 != ".TH" || NF != 3)
-			print "First line of", FILENAME, "not a proper .TH"
-		else if(($2 != toupper(name) || substr($3, 1, length(sec)) != sec || $3 != toupper(section)) \
-				&& ($2!="INTRO" || name!="0intro") \
-				&& (name !~ /^9/ || $2!=toupper(substr(name, 2)))){
-			print ".TH of", FILENAME, "doesn't match filename"
-		}else
-			Pages[tolower($2) "(" tolower($3) ")"] = 1
-		Sh = 0
+	if(lastline == ""){
+		# screws up troff headers
+		print lastfile ":$ is a blank line"
+	}
+
+	n = length(FILENAME)
+	nam = FILENAME
+	if(nam ~ /\.html$/)
+		next
+	if(nam !~ /^man\/man(.*)\/(.*)\.(.*)$/){
+		print "nam", nam, "not of form [0-9][0-9]?/*"
+		next
+	}
+	nam = substr(nam, 8)
+	gsub("[/.]", " ", nam);
+	n = split(nam, a)
+	sec = a[1]
+	name = a[2]
+	section = a[3]
+	if($1 != ".TH" || NF != 3)
+		print "First line of", FILENAME, "not a proper .TH"
+	else if(($2 != toupper(name) || substr($3, 1, length(sec)) != sec || $3 != toupper(section)) \
+			&& ($2!="INTRO" || name!="0intro") \
+			&& (name !~ /^9/ || $2!=toupper(substr(name, 2)))){
+		print ".TH of", FILENAME, "doesn't match filename"
+	}else
+		Pages[tolower($2) "(" tolower($3) ")"] = 1
+	Sh = 0
 }
 
+{ lastline=$0; lastfile=FILENAME; }
+
 $1 == ".SH" {
-		if(inex)
-			print "Unterminated .EX in", FILENAME, ":", $0
-		inex = 0;
-		if (substr($2, 1, 1) == "\"") {
-			if (NF == 2) {
-				print "Unneeded quote in", FILENAME, ":", $0
-				$2 = substr($2, 2, length($2)-2)
-			} else if (NF == 3) {
-				$2 = substr($2, 2) substr($3, 1, length($3)-1)
-				NF = 2
-			}
+	if(inex)
+		print "Unterminated .EX in", FILENAME, ":", $0
+	inex = 0;
+	if (substr($2, 1, 1) == "\"") {
+		if (NF == 2) {
+			print "Unneeded quote in", FILENAME, ":", $0
+			$2 = substr($2, 2, length($2)-2)
+		} else if (NF == 3) {
+			$2 = substr($2, 2) substr($3, 1, length($3)-1)
+			NF = 2
 		}
-		if(Sh == 0 && $2 != "NAME")
-			print FILENAME, "has no .SH NAME"
-		w = Weight[$2]
-		if (w) {
-			if (w < Sh)
-				print "Heading", $2, "out of order in", FILENAME
-			Sh += w
-		}
-		sh = $2
+	}
+	if(Sh == 0 && $2 != "NAME")
+		print FILENAME, "has no .SH NAME"
+	w = Weight[$2]
+	if (w) {
+		if (w < Sh)
+			print "Heading", $2, "out of order in", FILENAME
+		Sh += w
+	}
+	sh = $2
 }
 
 $1 == ".EX" {
@@ -257,43 +270,53 @@ $1 == ".EX" {
 }
 
 $1 == ".EE" {
-		if(!inex)
-			print "Bad .EE in", FILENAME ":" FNR ":", $0
-		inex = 0;
+	if(!inex)
+		print "Bad .EE in", FILENAME ":" FNR ":", $0
+	inex = 0;
 }
 
 $1 == ".TF" {
-		smallspace = 1
+	smallspace = 1
 }
 
 $1 == ".PD" || $1 == ".SH" || $1 == ".SS" || $1 == ".TH" {
-		smallspace = 0
+	smallspace = 0
 }
 
 $1 == ".RE" {
-		lastre = 1
+	lastre = 1
 }
 
 $1 == ".PP" {
-		if(smallspace && !lastre)
-			print "Possible missing .PD at " FILENAME ":" FNR
-		smallspace = 0
+	if(smallspace && !lastre)
+		print "Possible missing .PD at " FILENAME ":" FNR
+	smallspace = 0
 }
 
 $1 != ".RE" {
-		lastre = 0
+	lastre = 0
+}
+
+sh == "BUGS" && $1 == ".br" {
+	print FILENAME ":" FNR ": .br in BUGS"
+}
+
+sh == "SOURCE" && $1 ~ /^\\\*9\// {
+	s = ENVIRON["PLAN9"] substr($1, 4)
+	Sources[s] = 1
+}
+
+sh == "SOURCE" && $2 ~ /^\\\*9\// {
+	s = ENVIRON["PLAN9"] substr($2, 4)
+	Sources[s] = 1
 }
 
 sh == "SOURCE" && $1 ~ /^\// {
-	s = $1
-	sub("\\\*9", ENVIRON["PLAN9"], s)
-	Sources[s] = 1
+	Sources[$1] = 1
 }
 
 sh == "SOURCE" && $2 ~ /^\// {
-	s = $2
-	sub("\\\*9", ENVIRON["PLAN9"], s)
-	Sources[s] = 1
+	Sources[$2] = 1
 }
 
 $0 ~ /^\.[A-Z].*\([1-9]\)/ {
@@ -319,6 +342,10 @@ $0 ~ /^\.[A-Z].*\([1-9]\)/ {
 }
 
 END {
+	if(lastline == ""){
+		print lastfile ":$ is a blank line"
+	}
+
 	print "Checking Source References"
 	cmd = "xargs -n 100 ls -d 2>&1 >/dev/null | sed 's/^ls: /	/; s/: .*//'"
 	for (i in Sources) {

@@ -113,22 +113,22 @@ typedef struct {
 	union {
 	   char *sp;
 	   Rune *rsp;
-	};
+	} s;
 	union {
 	   char *ep;
 	   Rune *rep;
-	};
+	} e;
 } Resub;
 .EE
 .LP
 If
-.B match[0].sp
+.B match[0].s.sp
 is nonzero on entry,
 .I regexec
 starts matching at that point within
 .IR string .
 If
-.B match[0].ep
+.B match[0].e.ep
 is nonzero on entry,
 the last character matched is the one
 preceding that point.

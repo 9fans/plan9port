@@ -8,7 +8,7 @@ deflateinit, deflate, deflatezlib, deflateblock, deflatezlibblock, inflateinit, 
 .br
 .B #include <flate.h>
 .PP
-.ta \w'ulongmm'u
+.ta \w'\fLulongmm'u +\w'\fL  'u
 .PP
 .B
 int	deflateinit(void)
@@ -17,37 +17,37 @@ int	deflateinit(void)
 int	deflate(void *wr, int (*w)(void*,void*,int),
 .br
 .B
-	void *rr, int (*r)(void*,void*,int),
+		void *rr, int (*r)(void*,void*,int),
 .br
 .B
-	int level, int debug)
+		int level, int debug)
 .PP
 .B
 int	deflatezlib(void *wr, int (*w)(void*,void*,int),
 .br
 .B
-	void *rr, int (*r)(void*,void*,int),
+		void *rr, int (*r)(void*,void*,int),
 .br
 .B
-	int level, int debug)
+		int level, int debug)
 .PP
 .B
 int	deflateblock(uchar *dst, int dsize,
 .br
 .B
-	uchar *src, int ssize,
+		uchar *src, int ssize,
 .br
 .B
-	int level, int debug)
+		int level, int debug)
 .PP
 .B
 int	deflatezlibblock(uchar *dst, int dsize,
 .br
 .B
-	uchar *src, int ssize,
+		uchar *src, int ssize,
 .br
 .B
-	int level, int debug)
+		int level, int debug)
 .PP
 .B
 int	inflateinit(void)
@@ -56,25 +56,25 @@ int	inflateinit(void)
 int	inflate(void *wr, int (*w)(void*, void*, int),
 .br
 .B
-	void *getr, int (*get)(void*))
+		void *getr, int (*get)(void*))
 .PP
 .B
 int	inflatezlib(void *wr, int (*w)(void*, void*, int),
 .br
 .B
-	void *getr, int (*get)(void*))
+		void *getr, int (*get)(void*))
 .PP
 .B
 int	inflateblock(uchar *dst, int dsize,
 .br
 .B
-	uchar *src, int ssize)
+		uchar *src, int ssize)
 .PP
 .B
 int	inflatezlibblock(uchar *dst, int dsize,
 .br
 .B
-	uchar *src, int ssize)
+		uchar *src, int ssize)
 .PP
 .B
 char	*flateerr(int error)
