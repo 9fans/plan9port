@@ -317,7 +317,8 @@ threadqlock(QLock *l, int block, ulong pc)
 	_threadswitch();
 
 	if(l->owner != (*threadnow)()){
-		fprint(2, "qlock pc=0x%lux owner=%p self=%p oops\n", pc, l->owner, (*threadnow)());
+		fprint(2, "%s: qlock pc=0x%lux owner=%p self=%p oops\n",
+			argv0, pc, l->owner, (*threadnow)());
 		abort();
 	}
 //print("qlock wakeup %p @%#x by %p\n", l, pc, (*threadnow)());
@@ -329,10 +330,9 @@ threadqunlock(QLock *l, ulong pc)
 {
 	lock(&l->l);
 //print("qlock unlock %p @%#x by %p (owner %p)\n", l, pc, (*threadnow)(), l->owner);
-	if(l->owner == nil){
-		fprint(2, "qunlock pc=0x%lux owner=%p self=%p oops\n",
-			pc, l->owner, (*threadnow)());
-		abort();
+	if(l->owner != (*threadnow)()){
+		fprint(2, "%s: qunlock pc=0x%lux owner=%p self=%p oops\n",
+			argv0, pc, l->owner, (*threadnow)());
 	}
 	if((l->owner = l->waiting.head) != nil){
 		delthread(&l->waiting, l->owner);
@@ -505,8 +505,9 @@ main(int argc, char **argv)
 		mainstacksize = 65536;
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	scheduler(p);
-	threaddaemonize();
+	_threaddaemonize();
 	_threadpexit();
+	return 0;
 }
 
 /*
@@ -605,4 +606,13 @@ delproc(Proc *p)
 	else
 		_threadprocstail = p->prev;
 	unlock(&_threadprocslock);
+}
+
+/* 
+ * notify - for now just use the usual mechanisms
+ */
+void
+threadnotify(int (*f)(void*, char*), int in)
+{
+	atnotify(f, in);
 }
