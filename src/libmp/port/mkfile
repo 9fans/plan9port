@@ -1,0 +1,47 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+LIB=libmp.a
+FILES=\
+	mpaux\
+	mpfmt\
+	strtomp\
+	mptobe\
+	mptole\
+	betomp\
+	letomp\
+	mpadd\
+	mpsub\
+	mpcmp\
+	mpfactorial\
+	mpmul\
+	mpleft\
+	mpright\
+	mpvecadd\
+	mpvecsub\
+	mpvecdigmuladd\
+	mpveccmp\
+	mpdigdiv\
+	mpdiv\
+	mpexp\
+	mpmod\
+	mpextendedgcd\
+	mpinvert\
+	mprand\
+	crt\
+	mptoi\
+	mptoui\
+	mptov\
+	mptouv\
+
+OFILES=${FILES:%=%.$O}
+
+# cull things in the per-machine directories from this list
+# OFILES=	`{sh ./reduce $O $objtype $ALLOFILES}
+
+HFILES=\
+	$PLAN9/include/lib9.h\
+	$PLAN9/include/mp.h\
+	dat.h\
+
+<$PLAN9/src/mksyslib
