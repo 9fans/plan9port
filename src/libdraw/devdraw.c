@@ -10,6 +10,8 @@
 #include <memdraw.h>
 #include <memlayer.h>
 
+extern void _flushmemscreen(Rectangle);
+
 #define NHASH (1<<5)
 #define HASHMASK (NHASH-1)
 
