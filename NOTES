@@ -164,6 +164,31 @@ acme -W spec
 where spec can be WIDTHxHEIGHT, WIDTHxHEIGHT@XMIN,YMIN
 'XMIN YMIN XMAX YMAX' or XMIN,YMIN,XMAX,YMAX.
 
+* Mouse scrolling
+
+The libraries pass along buttons 4 and 5, so if you have a 
+scroll mouse and have X configured to send the up/down 
+events as buttons 4 and 5, acme and 9term will scroll in
+response.
+
+You will likely need to change your X config to enable this.
+In my XF86Config-4 I have
+
+Section "InputDevice"
+	Identifier	"Mouse0"
+	Driver	"mouse"
+	Option	"Buttons" "5"
+	Option	"Emulate3Buttons" "off"
+	Option	"Protocol" "ImPS/2"
+	Option	"ZAxisMapping" "4 5"
+	Option	"Device" "/dev/psaux"
+EndSection
+
+You'll want to find your mouse section (which may have
+a different Identifier -- just leave it alone) and edit that.
+The "Buttons", "Protocol", "ZAxisMapping", and "Emulate3Buttons"
+lines are all important.
+
 * Helping out
 
 If you'd like to help out, great!

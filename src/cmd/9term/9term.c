@@ -115,6 +115,8 @@ void	plumbstart(void);
 void	plumb(uint, uint);
 void	plumbclick(uint*, uint*);
 uint	insert(Rune*, int, uint, int);
+void scrolldown(int);
+void scrollup(int);
 
 #define	runemalloc(n)		malloc((n)*sizeof(Rune))
 #define	runerealloc(a, n)	realloc(a, (n)*sizeof(Rune))
@@ -519,7 +521,7 @@ mouse(void)
 
 	but = t.m.buttons;
 
-	if(but != 1 && but != 2 && but != 4)
+	if(but != 1 && but != 2 && but != 4 && but != 8 && but != 16)
 		return;
 
 	if (ptinrect(t.m.xy, scrollr)) {
@@ -558,6 +560,12 @@ mouse(void)
 			plumb(q0, q1);
 		break;
 	*/
+	case 8:
+		scrollup(3);
+		break;
+	case 16:
+		scrolldown(3);
+		break;
 	}
 }
 
@@ -795,6 +803,20 @@ namecomplete(void)
 }
 
 void
+scrollup(int n)
+{
+	setorigin(backnl(t.org, n), 1);
+}
+
+void
+scrolldown(int n)
+{
+	setorigin(line2q(n), 1);
+	if(t.qh<=t.org+t.f->nchars)
+		consread();
+}
+
+void
 key(Rune r)
 {
 	Rune *rp;
@@ -804,20 +826,16 @@ key(Rune r)
 		return;
 	switch(r){
 	case Kpgup:
-		setorigin(backnl(t.org, t.f->maxlines*2/3), 1);
+		scrollup(t.f->maxlines*2/3);
 		return;
 	case Kpgdown:
-		setorigin(line2q(t.f->maxlines*2/3), 1);
-		if(t.qh<=t.org+t.f->nchars)
-			consread();
+		scrolldown(t.f->maxlines*2/3);
 		return;
 	case Kup:
-		setorigin(backnl(t.org, t.f->maxlines/3), 1);
+		scrollup(t.f->maxlines/3);
 		return;
 	case Kdown:
-		setorigin(line2q(t.f->maxlines/3), 1);
-		if(t.qh<=t.org+t.f->nchars)
-			consread();
+		scrolldown(t.f->maxlines/3);
 		return;
 	case Kleft:
 		if(t.q0 > 0){
