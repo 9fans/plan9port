@@ -8,13 +8,6 @@ files
 .SH SYNOPSIS
 .B page
 [
-.B -abirPRvVw
-]
-[
-.B -p
-.I ppi
-]
-[
 .IR file ...
 ]
 .PP
@@ -30,6 +23,17 @@ files
 Plan 9's
 .IR page (1)
 is not ported.
+Instead, 
+.I page
+is a script that invokes
+.IR qiv (1)
+to view graphic files
+or
+.I psv
+to view PostScript and PDF.
+On Mac OS X,
+.I page
+invokes Preview to handle all files.
 .PP
 .I Img
 is a simple image viewer for Plan 9 images
@@ -54,3 +58,9 @@ To view troff output, use
 .B \*9/src/cmd/draw/img.c
 .br
 .B \*9/bin/psv
+.SH BUGS
+When using Preview on Mac OS X,
+.I page
+leaves temporary files in
+.BR /var/tmp ,
+since it has no way to know when the viewer has exited.

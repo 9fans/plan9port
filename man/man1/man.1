@@ -72,20 +72,19 @@ prints the signature (i.e. C definition) of the
 .IR function 's
 given on the command line.
 .SH FILES
-.TF /sys/lib/man/lookman/index
 .TP
-.B /sys/man/?/*
+.B \*9/man?/*
 .I troff
 source for manual; this page is
-.B /sys/man/1/man
+.B \*9/man/man1/man.1
 .TP
-.B /sys/man/?/INDEX
+.B \*9/man/man?/INDEX
 indices searched to find pages corresponding to titles
 .TP
-.B /sys/lib/man/secindex
+.B \*9/man/secindex
 command to make an index for a given section
 .TP
-.B /sys/lib/man/lookman/index
+.B \*9/man/lookman/index
 index for
 .I lookman
 .SH SOURCE
@@ -96,9 +95,9 @@ index for
 .IR proof (1)
 .SH BUGS
 The manual was intended to be typeset; some detail is sacrificed on text terminals.
-.br
+.PP
 There is no automatic mechanism to keep the indices up to date.
-.br
+.PP
 Except for special cases, it doesn't recognize things that should be run through
 .I tbl
 and/or
