@@ -50,5 +50,5 @@ exits(char *s)
 			onex[i].f = 0;
 			(*f)();
 		}
-	_exits(s);
+	exit(s && *s ? 1 : 0);
 }

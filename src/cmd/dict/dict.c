@@ -59,18 +59,18 @@ void
 main(int argc, char **argv)
 {
 	int i, cmd, kflag;
-	char *line, *p;
+	char *line, *p, *root;
 
 	Binit(&binbuf, 0, OREAD);
 	Binit(&boutbuf, 1, OWRITE);
 	kflag = 0;
 	line = 0;
 	dict = 0;
-	p = getenv("PLAN9");
-	if(p == nil)
-		p = "/usr/local/plan9";
-	if(chdir(p) < 0)
-		sysfatal("chdir %s: %r", p);
+	root = getenv("PLAN9");
+	if(root == nil)
+		root = "/usr/local/plan9";
+	if(chdir(root) < 0)
+		sysfatal("chdir %s: %r", root);
 
 	for(i=0; dicts[i].name; i++){
 		if(access(dicts[i].path, 0)>=0 && access(dicts[i].indexpath, 0)>=0){
@@ -126,12 +126,12 @@ main(int argc, char **argv)
 	}
 	bdict = Bopen(dict->path, OREAD);
 	if(!bdict) {
-		err("can't open dictionary %s/%s", p, dict->path);
+		err("can't open dictionary %s/%s", root, dict->path);
 		exits("nodict");
 	}
 	bindex = Bopen(dict->indexpath, OREAD);
 	if(!bindex) {
-		err("can't open index %s/%s", p, dict->indexpath);
+		err("can't open index %s/%s", root, dict->indexpath);
 		exits("noindex");
 	}
 	indextop = Bseek(bindex, 0L, 2);
@@ -227,10 +227,10 @@ execcmd(int cmd)
 		doall = 0;
 		cur = dot->cur;
 	}
-
 	if(debug && doall && cmd == 'a')
 		Bprint(bout, "%d entries, cur=%d\n", dot->n, cur+1);
 	for(;;){
+print("execcmd dot->n %d\n", dot->n);
 		if(cur >= dot->n)
 			break;
 		if(doall) {
