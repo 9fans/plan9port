@@ -1,4 +1,4 @@
-#!/usr/local/plan9/bin/rc
+#!/usr/bin/env $PLAN9/bin/rc
 
 PROMPT='[^ 	]*[%;$#][ 	]+'
 
