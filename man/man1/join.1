@@ -128,7 +128,7 @@ tr : ' ' </etc/passwd | sort -k 3 3 >temp
 join -1 3 -2 3 -o 1.1,2.1 temp temp | awk '$1 < $2'
 Print all pairs of users with identical userids.
 .SH SOURCE
-.B /usr/local/plan9/src/cmd/join.c
+.B \*9/src/cmd/join.c
 .SH "SEE ALSO"
 .IR sort (1), 
 .IR comm (1), 

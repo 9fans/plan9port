@@ -13,7 +13,7 @@ char*	get9root(void)
 char*	unsharp(char *path)
 .SH DESCRIPTION
 This tree of Plan 9 software is conventionally installed in
-.B /usr/local/plan9
+.B \*9
 but may be installed in other places (for example, users without
 the ability to write to
 .B /usr/local
@@ -25,7 +25,7 @@ should contain the path to the root.
 returns a static pointer to the pathname of root, first checking
 .B $PLAN9
 and defaulting to
-.BR /usr/local/plan9 .
+.BR \*9 .
 .PP
 The lack of a fixed location for the Plan 9 tree
 makes it difficult to hard-code paths
@@ -65,7 +65,7 @@ snprint(buf, sizeof buf, "#9/plumb/%s", name);
 fd = open(unsharp(buf), OREAD);
 .EE
 .SH SOURCE
-.B /usr/local/plan9/src/lib9/getns.c
+.B \*9/src/lib9/getns.c
 .SH SEE ALSO
 .IR intro (4)
 .SH BUGS

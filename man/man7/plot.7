@@ -269,6 +269,13 @@ one of
 .BR white ,
 and
 .BR kblack .
+If
+.I string
+begins with a digit, it is taken to be
+a 32-bit number specifying 8 bit each of red, green, blue, and alpha.
+For example,
+.B 0xFFFF00FF
+denotes solid yellow.
 .TP 10
 .BI pe " string"
 Use

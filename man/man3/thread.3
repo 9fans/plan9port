@@ -643,15 +643,15 @@ To create new processes, use
 .\" group with
 .\" .IR rfork .
 .SH FILES
-.B /usr/local/plan9/acid/thread
+.B \*9/acid/thread
 contains useful
 .IR acid (1)
 functions for debugging threaded programs.
 .PP
-.B /usr/local/plan9/src/libthread/test
+.B \*9/src/libthread/test
 contains some example programs.
 .SH SOURCE
-.B /usr/local/plan9/src/libthread
+.B \*9/src/libthread
 .SH SEE ALSO
 .IR intro (3),
 .IR ioproc (3)
@@ -661,8 +661,8 @@ but does not call any of its functions will not cause Unix linkers
 to link the thread library, resulting in the unintelligible error:
 .IP
 .EX
-/usr/local/plan9/lib/lib9.a(main.o)(.text+0x17): In function `main':
-/usr/local/plan9/src/lib9/main.c:10: undefined reference to `p9main'
+\*9/lib/lib9.a(main.o)(.text+0x17): In function `main':
+\*9/src/lib9/main.c:10: undefined reference to `p9main'
 .EE
 .LP
 or similar.  To force the thread library to be linked properly in such cases,

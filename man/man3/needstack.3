@@ -50,7 +50,7 @@ like
 The X Window library implementation of
 .I XLookupString
 allocates some very large buffers on the stack, so
-.B /usr/local/plan9/src/libdraw/x11-itrans.c
+.B \*9/src/libdraw/x11-itrans.c
 calls
 .B needstack(20*1024)
 before making calls to
@@ -62,8 +62,8 @@ library)
 does not allocate a large enough stack, the problem is diagnosed
 immediately rather than left to corrupt memory.
 .SH SOURCE
-.B /usr/local/plan9/src/lib9/needstack.c
+.B \*9/src/lib9/needstack.c
 .br
-.B /usr/local/plan9/src/libthread
+.B \*9/src/libthread
 .SH SEE ALSO
 .IR thread (3)

@@ -80,9 +80,9 @@ Debug the kernel state for the process, rather than the user state.
 At startup,
 .I acid
 obtains standard function definitions from the library file
-.BR /usr/local/plan9/acid/port ,
+.BR \*9/acid/port ,
 architecture-dependent functions from
-.BR /usr/local/plan9/acid/$objtype ,
+.BR \*9/acid/$objtype ,
 user-specified functions from
 .BR $home/lib/acid ,
 and further functions from 
@@ -95,7 +95,7 @@ is defined, it will be invoked after all modules have been loaded.
 Then the function
 .IR acidmap ()
 will be invoked if defined.
-.B /usr/local/plan9/acid/port
+.B \*9/acid/port
 provides a definition of
 .I acidmap
 that attaches all the shared libraries being used by the target process
@@ -489,19 +489,19 @@ pwrite(1, "--rw-rw-r-- M 9 rob rob 2519 Mar 22 10:29 lib/profile
 acid: cont()
 .EE
 .SH FILES
-.B /usr/local/plan9/acid/$objtype
+.B \*9/acid/$objtype
 .br
-.B /usr/local/plan9/acid/port
+.B \*9/acid/port
 .br
-.B /usr/local/plan9/acid/kernel
+.B \*9/acid/kernel
 .br
-.B /usr/local/plan9/acid/trump
+.B \*9/acid/trump
 .br
-.B /usr/local/plan9/acid/truss
+.B \*9/acid/truss
 .br
 .B $home/lib/acid
 .SH SOURCE
-.B /usr/local/plan9/src/cmd/acid
+.B \*9/src/cmd/acid
 .SH "SEE ALSO"
 .IR mk (1),
 .IR db (1)
