@@ -127,12 +127,10 @@ void flush(io *f)
 }
 io *openfd(int fd){
 	io *f;
-fprint(2, "in openfd\n");
 	f=new(struct io);
 	f->fd=fd;
 	f->bufp=f->ebuf=f->buf;
 	f->strp=0;
-fprint(2, "in openfd\n");
 	return f;
 }
 io *openstr(void){
