@@ -1,6 +1,8 @@
 #!/bin/sh
 
-tag="$OBJTYPE-$SYSNAME-`uname -r`-${CC9:-cc}"
+test -f $PLAN9/config && . $PLAN9/config
+
+tag="$OBJTYPE-$SYSNAME-${SYSVERSION:-`uname -r`}-${CC9:-cc}"
 case "$tag" in
 *-Linux-2.6.*)
 	echo pthread.o

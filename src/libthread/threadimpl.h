@@ -6,6 +6,7 @@
 #include <sched.h>
 #include <signal.h>
 #include <ucontext.h>
+#include <sys/utsname.h>
 #include "libc.h"
 #include "thread.h"
 

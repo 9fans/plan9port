@@ -133,6 +133,23 @@ _threadsetproc(Proc *p)
 void
 _pthreadinit(void)
 {
+	static struct utsname un;
+	pthread_t id;
+
+	if(uname(&un) < 0){
+		fprint(2, "warning: uname failed: %r\n");
+		goto Okay;
+	}
+	if(strcmp(un.sysname, "Linux") == 0){
+		/*
+		 * Want to distinguish between the old LinuxThreads pthreads
+		 * and the new NPTL implementation.  NPTL uses much bigger
+		 * thread IDs.
+		 */
+		id = pthread_self();
+		if(*(ulong*)&id < 1024*1024)
+			sysfatal("cannot use LinuxThreads as pthread library; see %s/src/libthread/README.Linux", get9root());
+	}
 	pthread_key_create(&prockey, 0);
 }
 

@@ -7,8 +7,6 @@ OBJTYPE=`uname -m | sed '
 	s;ppc64;power;g;
 	s;ppc;power;g'`
 
-SYSVERSION=`uname -r`
-
 BIN=$PLAN9/bin
 LIBDIR=$PLAN9/lib
 
