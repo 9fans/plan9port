@@ -40,7 +40,7 @@ OFILES=\
 	symmacho.$O\
 	symstabs.$O\
 
-HFILES=mach.h
+HFILES=$PLAN9/include/mach.h
 
 <$PLAN9/src/mksyslib
 CFLAGS=$CFLAGS -I.

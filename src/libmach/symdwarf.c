@@ -323,11 +323,11 @@ dwarftosym(Fhdr *fp, Dwarf *d, DwarfSym *ds, Symbol *s, int infn)
 }
 
 static int
-dwarfeval(Dwarf *d, Map *map, Regs *regs, ulong cfa, int rno, DwarfExpr e, ulong *u)
+dwarfeval(Dwarf *d, Map *map, Regs *regs, ulong cfa, int rno, DwarfExpr e, uvlong *u)
 {
 	int i;
 	u32int u4;
-	ulong uu;
+	uvlong uu;
 
 	switch(e.type){
 	case RuleUndef:
@@ -400,7 +400,7 @@ _dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next)
 {
 	char *name;
 	int i, j;
-	ulong cfa, pc, u;
+	uvlong cfa, pc, u;
 	Dwarf *d;
 	DwarfExpr *e, epc, ecfa;
 
