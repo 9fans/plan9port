@@ -1,6 +1,6 @@
 <$PLAN9/src/mkhdr
 
-TARG=`ls *.[cy] *.lx | egrep -v "\.tab\.c$" | sed 's/\.[cy]//'`
+TARG=`ls *.[cy] *.lx | egrep -v "\.tab\.c$" | sed 's/\.[cy]//; s/\.lx//'`
 
 <$PLAN9/src/mkmany
 
