@@ -1,6 +1,6 @@
 
 This software was developed as part of a project at MIT:
-	/sys/src/libfs/* except dirread.c
+	/sys/src/lib9pclient/* except dirread.c
 	/sys/include/fs.h
 
 Copyright (c) 2003 Russ Cox,
