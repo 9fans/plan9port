@@ -41,7 +41,7 @@ static struct {
 	"debug", "/tmp/nvram", 0, sizeof(Nvrsafe),
 };
 
-char*
+static char*
 xreadcons(char *prompt, char *def, int secret, char *buf, int nbuf)
 {
 	char *p;
