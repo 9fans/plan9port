@@ -30,7 +30,7 @@ which converts
 .IR man (1)
 pages into HTML
 and depends on a specially annotated set of
-.IR man (6)
+.IR man (7)
 macros, invoked by
 .B troff
 .BR -manhtml .
@@ -63,7 +63,8 @@ pointing to
 .PP
 .I Troff2html
 is new and experimental; in time, it may improve and subsume
-.IR ms2html (1).
+Plan 9's
+\fIms2html\fR(1).
 On the one hand, because it uses the input,
 .B ms2html
 can handle
@@ -74,7 +75,7 @@ etc., which
 does not handle at all; on the other hand,
 .B ms2html
 understands only
-.IR ms (6)
+.IR ms (7)
 documents and is easily confused by complex
 .B troff
 constructions.
@@ -83,10 +84,12 @@ has the reverse properties: it does not handle the preprocessors but its output
 is reliable and (modulo helper annotations) is independent of macro package.
 .SH SEE ALSO
 .IR troff (1),
-.IR ms2html (1),
-.B man2html
+Plan 9's
+\fIms2html\fR(1),
+.I man2html
 in
-.IR httpd (8).
+Plan 9's
+\fIhttpd\fR(8).
 .SH BUGS
 .B Troff
 and HTML have different models, and they don't mesh well in all cases.

@@ -1,6 +1,7 @@
 0intro 0intro.1
 intro 0intro.1
 9 9.1
+9.rc 9.1
 9a 9c.1
 9ar 9c.1
 9c 9c.1
@@ -35,6 +36,7 @@ comm comm.1
 core core.1
 crop crop.1
 iconv crop.1
+cvs cvs.1
 date date.1
 db db.1
 dc dc.1
@@ -99,8 +101,9 @@ map map.1
 mapd map.1
 mapdemo map.1
 mc mc.1
-membername mk.1
 mk mk.1
+dump9660 mk9660.1
+mk9660 mk9660.1
 mkdir mkdir.1
 namespace namespace.1
 news news.1
