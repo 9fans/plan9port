@@ -40,7 +40,17 @@ can safely be repeated to rebuild the system from scratch.
 The system uses different threading implementations on Linux 2.6 and
 later kernels than on 2.4 and earlier;
 and on FreeBSD 5 and later kernels than on FreeBSD 4 and earlier.
-Running binaries from one class on another may not work.
+Running binaries from one class on another will not work.
+.PP
+Some Linux 2.6 systems (e.g., Gentoo) do not use the new NPTL pthread library
+even though the kernel supports them.  On these systems, plan9port must 
+fall back on the threading code intended for Linux 2.4.  To accomplish this,
+.I INSTALL
+checks whether the running system uses NPTL and sets
+.B SYSVERSION
+in
+.B \*9/config
+accordingly.
 .SH FILES
 .TP
 .B \*9/lib/moveplan9.files

@@ -21,6 +21,7 @@ if [ `uname` = Linux ]; then
 		echo "	NPTL not found."
 		echo "SYSVERSION=2.4" >$PLAN9/config
 	fi
+	rm -f ./a.out
 fi
 echo "Building mk..."
 cd src
