@@ -229,7 +229,7 @@ threadmain(int argc, char *argv[])
 		maxtab = 4;	/* be like rio */
 
 	snprint(buf, sizeof buf, "%d", maxtab);
-	putenv("tabstop", maxtab);
+	putenv("tabstop", buf);
 
 	initdraw(0, nil, "9term");
 	notify(hangupnote);
@@ -1080,6 +1080,10 @@ runewrite(Rune *r, int n)
 		} else if(*p == '\r') {	/* treat like ^U */
 			/* convert CR without NL into erased line */
 			/* i feel really sleazy about this but it helps */
+			while(i<n-1 && *(p+1) == '\r'){
+				i++;
+				p++;
+			}
 			if(i<n-1 && *(p+1) != '\n'){
 				while(q > r && *(q-1) != '\n')
 					q--;
