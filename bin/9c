@@ -22,13 +22,6 @@ usegcc()
 
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
-*FreeBSD*) usegcc
-		case "`uname -r`" in
-		5.*)
-			cflags="$cflags -D__FreeBSD5__"
-			;;
-		esac
-		;;
 *BSD*)	usegcc ;;
 *Darwin*)	usegcc 
 		cflags="$ngflags -g3 -no-cpp-precomp" ;;
@@ -69,4 +62,3 @@ case "$tag" in
 	exec $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@"
 	;;
 esac
-
