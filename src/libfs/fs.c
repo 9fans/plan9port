@@ -22,6 +22,10 @@ fsinit(int fd)
 {
 	Fsys *fs;
 
+	fmtinstall('F', fcallfmt);
+	fmtinstall('D', dirfmt);
+	fmtinstall('M', dirmodefmt);
+
 	fs = mallocz(sizeof(Fsys), 1);
 	if(fs == nil)
 		return nil;
@@ -141,8 +145,12 @@ fsrpc(Fsys *fs, Fcall *tx, Fcall *rx, void **freep)
 
 	n = sizeS2M(tx);
 	tpkt = malloc(n);
+fprint(2, "tpkt %p\n", tpkt);
+	if(freep)
+		*freep = nil;
 	if(tpkt == nil)
 		return -1;
+	fprint(2, "<- %F\n", tx);
 	nn = convS2M(tx, tpkt, n);
 	if(nn != n){
 		free(tpkt);
@@ -151,7 +159,9 @@ fsrpc(Fsys *fs, Fcall *tx, Fcall *rx, void **freep)
 		return -1;
 	}
 	rpkt = muxrpc(&fs->mux, tpkt);
+fprint(2, "tpkt %p\n", tpkt);
 	free(tpkt);
+fprint(2, "tpkt freed\n");
 	if(rpkt == nil)
 		return -1;
 	n = GBIT32((uchar*)rpkt);
@@ -162,6 +172,7 @@ fsrpc(Fsys *fs, Fcall *tx, Fcall *rx, void **freep)
 		fprint(2, "%r\n");
 		return -1;
 	}
+	fprint(2, "-> %F\n", rx);
 	if(rx->type == Rerror){
 		werrstr("%s", rx->ename);
 		free(rpkt);
@@ -261,7 +272,7 @@ _fsrecv(Mux *mux)
 		fprint(2, "libfs out of memory reading 9p packet; here comes trouble\n");
 		return nil;
 	}
-	PBIT32(buf, n);
+	PBIT32(pkt, n);
 	if(readn(fs->fd, pkt+4, n-4) != n-4){
 		free(pkt);
 		return nil;

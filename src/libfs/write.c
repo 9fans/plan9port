@@ -8,39 +8,39 @@
 #include "fsimpl.h"
 
 long
-fspwrite(Fid *fd, void *buf, long n, vlong offset)
+fspwrite(Fid *fid, void *buf, long n, vlong offset)
 {
 	Fcall tx, rx;
 	void *freep;
 
-	tx.type = Tread;
+	tx.type = Twrite;
+	tx.fid = fid->fid;
 	if(offset == -1){
-		qlock(&fd->lk);
-		tx.offset = fd->offset;
-		fd->offset += n;
-		qunlock(&fd->lk);
+		qlock(&fid->lk);
+		tx.offset = fid->offset;
+		qunlock(&fid->lk);
 	}else
 		tx.offset = offset;
 	tx.count = n;
 	tx.data = buf;
 
-	fsrpc(fd->fs, &tx, &rx, &freep);
+	fsrpc(fid->fs, &tx, &rx, &freep);
 	if(rx.type == Rerror){
-		if(offset == -1){
-			qlock(&fd->lk);
-			fd->offset -= n;
-			qunlock(&fd->lk);
-		}
 		werrstr("%s", rx.ename);
 		free(freep);
 		return -1;
+	}
+	if(offset == -1 && rx.count){
+		qlock(&fid->lk);
+		fid->offset += rx.count;
+		qunlock(&fid->lk);
 	}
 	free(freep);
 	return rx.count;
 }
 
 long
-fswrite(Fid *fd, void *buf, long n)
+fswrite(Fid *fid, void *buf, long n)
 {
-	return fspwrite(fd, buf, n, -1);
+	return fspwrite(fid, buf, n, -1);
 }

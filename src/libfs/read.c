@@ -14,6 +14,7 @@ fspread(Fid *fid, void *buf, long n, vlong offset)
 	void *freep;
 
 	tx.type = Tread;
+	tx.fid = fid->fid;
 	if(offset == -1){
 		qlock(&fid->lk);
 		tx.offset = fid->offset;
@@ -32,7 +33,7 @@ fspread(Fid *fid, void *buf, long n, vlong offset)
 		memmove(buf, rx.data, rx.count);
 		if(offset == -1){
 			qlock(&fid->lk);
-			tx.offset += n;
+			fid->offset += rx.count;
 			qunlock(&fid->lk);
 		}
 	}

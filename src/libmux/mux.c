@@ -27,7 +27,7 @@ muxinit(Mux *mux)
 void*
 muxrpc(Mux *mux, void *tx)
 {
-	uint tag;
+	int tag;
 	Muxrpc *r, *r2;
 	void *p;
 
@@ -38,17 +38,13 @@ muxrpc(Mux *mux, void *tx)
 	r->r.l = &mux->lk;
 
 	/* assign the tag */
+	qlock(&mux->lk);
 	tag = gettag(mux, r);
-	if(mux->settag(mux, tx, tag) < 0){
+	qunlock(&mux->lk);
+	if(tag < 0 || mux->settag(mux, tx, tag) < 0 || _muxsend(mux, tx) < 0){
+		qlock(&mux->lk);
 		puttag(mux, r);
-		free(r);
-		return nil;
-	}
-
-	/* send the packet */
-	if(_muxsend(mux, tx) < 0){
-		puttag(mux, r);
-		free(r);
+		qunlock(&mux->lk);
 		return nil;
 	}
 
@@ -95,7 +91,6 @@ muxrpc(Mux *mux, void *tx)
 	}
 	p = r->p;
 	puttag(mux, r);
-	free(r);
 	qunlock(&mux->lk);
 	return p;
 }
@@ -121,32 +116,61 @@ dequeue(Mux *mux, Muxrpc *r)
 static int 
 gettag(Mux *mux, Muxrpc *r)
 {
-	int i;
+	int i, mw;
+	Muxrpc **w;
 
-Again:
-	while(mux->nwait == mux->mwait)
-		rsleep(&mux->tagrend);
-	i=mux->freetag;
-	if(mux->wait[i] == 0)
-		goto Found;
-	for(i=0; i<mux->mwait; i++)
-		if(mux->wait[i] == 0){
-		Found:
-			mux->nwait++;
-			mux->wait[i] = r;
-			r->tag = i;
-			return i;
+	for(;;){
+		/* wait for a free tag */
+		while(mux->nwait == mux->mwait){
+			if(mux->mwait < mux->maxtag-mux->mintag){
+				mw = mux->mwait;
+				if(mw == 0)
+					mw = 1;
+				else
+					mw <<= 1;
+				w = realloc(mux->wait, mw*sizeof(w[0]));
+				if(w == nil)
+					return -1;
+				mux->wait = w;
+				mux->freetag = mux->mwait;
+				mux->mwait = mw;
+				break;
+			}
+			rsleep(&mux->tagrend);
 		}
-	fprint(2, "libfs: nwait botch\n");
-	goto Again;
+
+		i=mux->freetag;
+		if(mux->wait[i] == 0)
+			goto Found;
+		for(; i<mux->mwait; i++)
+			if(mux->wait[i] == 0)
+				goto Found;
+		for(i=0; i<mux->freetag; i++)
+			if(mux->wait[i] == 0)
+				goto Found;
+		/* should not fall out of while without free tag */
+		fprint(2, "libfs: nwait botch\n");
+		abort();
+	}
+
+Found:
+	mux->nwait++;
+	mux->wait[i] = r;
+	r->tag = i+mux->mintag;
+	return i;
 }
 
 static void
 puttag(Mux *mux, Muxrpc *r)
 {
-	assert(mux->wait[r->tag] == r);
-	mux->wait[r->tag] = nil;
+	int i;
+
+	i = r->tag - mux->mintag;
+	assert(mux->wait[i] == r);
+	mux->wait[i] = nil;
 	mux->nwait--;
-	mux->freetag = r->tag;
+	mux->freetag = i;
 	rwakeup(&mux->tagrend);
+fprint(2, "free %p\n", r);
+	free(r);
 }
