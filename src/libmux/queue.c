@@ -45,6 +45,7 @@ _muxqsend(Muxqueue *q, void *p)
 	if(q->hungup){
 		werrstr("hungup queue");
 		qunlock(&q->lk);
+		free(e);
 		return -1;
 	}
 	e->p = p;
