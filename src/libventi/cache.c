@@ -384,6 +384,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 		qlock(&b->lk);
 		b->nlock = 1;
 		if(b->iostate == BioVentiError){
+			if(chattyventi)
+				fprint(2, "cached read error for %V\n", score);
 			werrstr("venti i/o error");
 			vtblockput(b);
 			return nil;
@@ -420,7 +422,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	n = vtread(c->z, score, type, b->data, c->blocksize);
 	if(n < 0){
 		werrstr("vtread %V: %r", score);
-abort();
+		if(chattyventi)
+			fprint(2, "read %V: %r\n", score);
 		b->iostate = BioVentiError;
 		vtblockput(b);
 		return nil;
