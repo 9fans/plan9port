@@ -510,6 +510,15 @@ static void
 threadmainstart(void *v)
 {
 	USED(v);
+
+	/*
+	 * N.B. This call to proc() is a program's first call (indirectly) to a
+	 * pthreads function while executing on a non-pthreads-allocated
+	 * stack.  If the pthreads implementation is using the stack pointer
+	 * to locate the per-thread data, then this call will blow up.
+	 * This means the pthread implementation is not suitable for
+	 * running under libthread.  Time to write your own.  Sorry.
+	 */
 	threadmainproc = proc();
 	threadmain(threadargc, threadargv);
 }
