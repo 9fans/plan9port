@@ -697,6 +697,8 @@ notifyf(void *a, char *s)
 			noted(NDFLT);
 		rescue();
 	}
+	if(strstr(s, "child"))
+		noted(NCONT);
 	fprint(2, "ed: note: %s\n", s);
 	abort();
 }
@@ -928,7 +930,8 @@ callunix(void)
 	*p = 0;
 	pid = fork();
 	if(pid == 0) {
-		execl("/bin/rc", "rc", "-c", buf, 0);
+		execlp("rc", "rc", "-c", buf, 0);
+		sysfatal("exec failed: %r");
 		exits("execl failed");
 	}
 	waiting = 1;

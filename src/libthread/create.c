@@ -25,7 +25,7 @@ newthread(Proc *p, void (*f)(void *arg), void *arg, uint stacksize, char *name, 
 		sysfatal("bad stacksize %d", stacksize);
 	t = _threadmalloc(sizeof(Thread), 1);
 	s = _threadmalloc(stacksize, 0);
-	t->stk = (char*)s;
+	t->stk = (uchar*)s;
 	t->stksize = stacksize;
 	_threaddebugmemset(s, 0xFE, stacksize);
 	_threadinitstack(t, f, arg);

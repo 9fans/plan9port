@@ -6,6 +6,8 @@
 #include "defs.h"
 #include "fns.h"
 
+#define ptrace dbptrace
+
 extern	int	infile;
 extern	int	outfile;
 extern	int	maxpos;

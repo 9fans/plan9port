@@ -259,7 +259,8 @@ struct Ispacer
 
 // Item state flags and value fields
 enum {
-	IFbrk =			0x80000000,	// forced break before this item
+//	IFbrk =			0x80000000,	// forced break before this item
+#define	IFbrk		0x80000000 /* too big for sun */
 	IFbrksp =			0x40000000,	// add 1 line space to break (IFbrk set too)
 	IFnobrk =			0x20000000,	// break not allowed before this item
 	IFcleft =			0x10000000,	// clear left floats (IFbrk set too)

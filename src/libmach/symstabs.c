@@ -249,7 +249,7 @@ stabssyminit(Fhdr *fp)
 			/* create new symbol, add it */
 			if(stabcvtsym(&sym, &s, dir, file, i) < 0)
 				continue;
-			if(addsym(fp, &s) < 0)
+			if(addsym(fp, &s) == nil)
 				goto err;
 			break;
 		}

@@ -535,7 +535,7 @@ lzwrite(LZstate *lz, void *buf, int n)
 	if(n && lz->w){
 		nw = (*lz->w)(lz->wr, buf, n);
 		if(nw != n){
-			lz->w = nil;
+			lz->w = 0;
 			lz->wbad = 1;
 		}else
 			lz->totw += n;

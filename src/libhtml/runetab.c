@@ -57,7 +57,7 @@ cvtstringtab(char **tab, int n)
 
 	rtab = emalloc(n*sizeof(rtab[0]));
 	for(i=0; i<n; i++)
-		rtab[i] = toStr(tab[i], strlen(tab[i]), US_Ascii);
+		rtab[i] = toStr((uchar*)tab[i], strlen(tab[i]), US_Ascii);
 	return rtab;
 }
 
@@ -69,7 +69,7 @@ cvtstringinttab(AsciiInt *tab, int n)
 
 	stab = emalloc(n*sizeof(stab[0]));
 	for(i=0; i<n; i++){
-		stab[i].key = toStr(tab[i].key, strlen(tab[i].key), US_Ascii);
+		stab[i].key = toStr((uchar*)tab[i].key, strlen(tab[i].key), US_Ascii);
 		stab[i].val = tab[i].val;
 	}
 	return stab;

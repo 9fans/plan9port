@@ -16,7 +16,7 @@ LIB=lib/libbzip2.a
 SHORTLIB=bio 9
 <$PLAN9/src/mkmany
 
-CFLAGS=$CFLAGS -p -DPLAN9 -Ilib
+CFLAGS=$CFLAGS -DPLAN9 -Ilib
 
 test:V: $O.bzip2 $O.bunzip2
 	./$O.bzip2 -1  < sample1.ref > sample1.rb2

@@ -18,7 +18,9 @@ extern struct penvir {
 	double grade;
 	int pgap;
 	double pslant;
-	int pmode, foregr, backgr;
+	int pmode;
+	ulong foregr;
+	ulong backgr;
 } *e0, *e1, *esave;
 #define RADIAN 57.3	/* radians per degree */
 struct seg {

@@ -52,7 +52,7 @@ initcmap(void)
 	cmap['v']=	'\v'+1;
 	cmap['\\']=	'\\'+1;
 	cmap['"']=	'"'+1;
-};
+}
 
 void
 kinit(void)

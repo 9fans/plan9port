@@ -60,14 +60,14 @@ updatewinsize(int row, int col, int dx, int dy)
 static struct termios ttmode;
 
 int
-israw(int fd)
+isecho(int fd)
 {
 	if(tcgetattr(fd, &ttmode) < 0)
 		fprint(2, "tcgetattr: %r\n");
 	if(debug) fprint(2, "israw %c%c\n",
 		ttmode.c_lflag&ICANON ? 'c' : '-',
 		ttmode.c_lflag&ECHO ? 'e' : '-');
-	return !(ttmode.c_lflag&(ICANON|ECHO));
+	return (ttmode.c_lflag&(ICANON|ECHO));
 }
 
 int

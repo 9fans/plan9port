@@ -30,7 +30,7 @@ initbinop(void)
 	binop[OCAND]=	"&&";
 	binop[OCOR]=	"||";
 	binop[OASGN]=	" = ";
-};
+}
 
 static char *tabs = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 char *typenames[] = {

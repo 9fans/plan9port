@@ -15,7 +15,7 @@ sysfatal(char *fmt, ...)
 	va_end(arg);
 
 	__fixargv0();
-	fprint(2, "%s; %s\n", argv0 ? argv0 : "<prog>", buf);
+	fprint(2, "%s: %s\n", argv0 ? argv0 : "<prog>", buf);
 	exits("fatal");
 }
 

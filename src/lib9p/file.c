@@ -254,6 +254,18 @@ walkfile(File *f, char *path)
 	free(os);
 	return f;
 }
+
+static Qid
+mkqid(vlong path, long vers, int type)
+{
+	Qid q;
+
+	q.path = path;
+	q.vers = vers;
+	q.type = type;
+	return q;
+}
+
 			
 Tree*
 alloctree(char *uid, char *gid, ulong mode, void (*destroy)(File*))
@@ -281,7 +293,7 @@ alloctree(char *uid, char *gid, ulong mode, void (*destroy)(File*))
 
 	muid = estrdup9p(uid);
 
-	f->dir.qid = (Qid){0, 0, QTDIR};
+	f->dir.qid = mkqid(0, 0, QTDIR);
 	f->dir.length = 0;
 	f->dir.atime = f->dir.mtime = time(0);
 	f->dir.mode = DMDIR | mode;

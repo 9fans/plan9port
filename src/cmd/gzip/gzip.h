@@ -34,7 +34,8 @@ enum
 	GZOSACORN	= 13,			/* Acorn RISCOS */
 	GZOSUNK		= 255,
 
-	GZCRCPOLY	= 0xedb88320UL,
+#define GZCRCPOLY 0xedb88320
+/* 	GZCRCPOLY	= 0xedb88320UL, */
 
 	GZOSINFERNO	= GZOSUNIX,
 };

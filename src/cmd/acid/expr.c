@@ -39,7 +39,7 @@ initfsize(void)
 	fsize['s'] = 4;
 	fsize['u'] = 2;
 	fsize['x'] = 2;
-};
+}
 
 int
 fmtsize(Value *v)
@@ -1021,7 +1021,7 @@ initexpop(void)
 	expop[OFMT] = ofmt;
 	expop[OEVAL] = oeval;
 	expop[OWHAT] = owhat;
-};
+}
 
 void
 initexpr(void)

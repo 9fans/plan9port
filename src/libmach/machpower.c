@@ -663,7 +663,7 @@ static	char	rlimi[] = "$%k,R%s,$%z,R%a";
 
 #define	OEM	IBF(~0,22,30)
 #define	FP4	IBF(~0,26,30)
-#define	ALL	(~0)
+#define ALL	((ushort)~0)
 /*
 notes:
 	10-26: crfD = rD>>2; rD&3 mbz
