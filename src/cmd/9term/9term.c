@@ -1536,6 +1536,7 @@ plumb(uint q0, uint q1)
 	pm->dst = 0;
 	pm->wdir = strdup(w);
 	pm->type = strdup("text");
+	pm->data = nil;
 	if(q1 > q0)
 		pm->attr = nil;
 	else{
