@@ -89,6 +89,7 @@ threadmain(int argc, char *argv[])
 		}
 	}
 	columnate();
+	Bflush(&bout);
 	exits(0);
 }
 void

@@ -42,7 +42,7 @@ main(int argc, char **argv)
 	}else
 		fd = 0;
 
-	if(initdraw(nil, nil, nil) < 0)
+	if(initdraw(0, nil, nil) < 0)
 		sysfatal("initdraw: %r");
 
 	if((image=readimage(display, fd, 0)) == nil)
