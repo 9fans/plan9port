@@ -11,6 +11,7 @@ install:V: $TARG.install
 $BIN/%:	$O.%
 	$INSTALL $O.$stem $BIN/$stem
 
+CLEANFILES=$CLEANFILES $PROG
 NUKEFILES=$NUKEFILES $BIN/$TARG
 
 <$PLAN9/src/mkcommon

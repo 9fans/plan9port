@@ -378,7 +378,7 @@ xattach(char *label)
 	/*
 	 * Look up clipboard atom.
 	 */
-	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", True);
+	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", False);
 
 	/*
 	 * Lots of display connections for various procs.
