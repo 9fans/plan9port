@@ -1,0 +1,5 @@
+check.out:V:
+	cd ../man; mk indices
+	cd ..
+	awk -f dist/checkman.awk man/man*/*.* >dist/check.out
+
