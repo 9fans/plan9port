@@ -12,6 +12,7 @@ usegcc()
 		-Wno-switch \
 		-Wno-comment \
 		-Wno-sign-compare \
+		-Wno-unknown-pragmas \
 		-fno-omit-frame-pointer \
 	"
 	# want to put -fno-optimize-sibling-calls here but

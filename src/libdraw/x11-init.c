@@ -173,7 +173,8 @@ xerror(XDisplay *d, XErrorEvent *e)
 static int
 xioerror(XDisplay *d)
 {
-	print("X I/O error\n");
+	//print("X I/O error\n");
+	sysfatal("X I/O error\n");
 	abort();
 	return -1;
 }
