@@ -2,6 +2,8 @@
 #include <libc.h>
 #include <draw.h>
 
+extern vlong _drawflength(int);
+
 Font*
 openfont(Display *d, char *name)
 {
@@ -13,7 +15,7 @@ openfont(Display *d, char *name)
 	if(fd < 0)
 		return 0;
 
-	n = flength(fd);
+	n = _drawflength(fd);
 	buf = malloc(n+1);
 	if(buf == 0){
 		close(fd);

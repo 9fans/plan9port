@@ -37,20 +37,21 @@ xallocmemimage(Rectangle r, u32int chan, int pixmap)
 	}
 
 	/*
-	 * Allocate backing store.  What we call a 32-bit image
-	 * the X server calls a 24-bit image.
+	 * Allocate backing store.
 	 */
-	d = m->depth;
+	if(chan == GREY1)
+		d = 1;
+	else
+		d = _x.depth;
 	if(pixmap != PMundef)
 		xm->pixmap = pixmap;
 	else
-		xm->pixmap = XCreatePixmap(_x.display, _x.drawable,
-			Dx(r), Dy(r), d==32 ? 24 : d);
+		xm->pixmap = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), d);
 
 	/*
 	 * We want to align pixels on word boundaries.
 	 */
-	if(d == 24)
+	if(m->depth == 24)
 		offset = r.min.x&3;
 	else
 		offset = r.min.x&(31/m->depth);
@@ -60,7 +61,7 @@ xallocmemimage(Rectangle r, u32int chan, int pixmap)
 	/*
 	 * Wrap our data in an XImage structure.
 	 */
-	xi = XCreateImage(_x.display, _x.vis, d==32 ? 24 : d,
+	xi = XCreateImage(_x.display, _x.vis, d,
 		ZPixmap, 0, (char*)m->data->bdata, Dx(r), Dy(r),
 		32, m->width*sizeof(u32int));
 	if(xi == nil){

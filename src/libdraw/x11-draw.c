@@ -17,7 +17,6 @@ void
 memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp,
 	Memimage *mask, Point mp, int op)
 {
-	int drew;
 	Memdrawparam *par;
 
 	if((par = _memimagedrawsetup(dst, r, src, sp, mask, mp, op)) == nil)
@@ -116,6 +115,7 @@ xdraw(Memdrawparam *par)
 			}
 		}else{
 			/* this doesn't work on rob's mac?  */
+			return 0;
 			gc = _x.gcsimplesrc;
 			if(dst->chan == CMAP8 && _x.usetable)
 				sdval = _x.tox11[sdval];

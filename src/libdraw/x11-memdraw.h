@@ -54,7 +54,9 @@ struct Xprivate {
 	XDisplay	*mousecon;
 	Rectangle	newscreenr;
 	Memimage*	screenimage;
+	QLock		screenlock;
 	XDrawable	screenpm;
+	XDrawable	nextscreenpm;
 	Rectangle	screenr;
 	XDisplay	*snarfcon;
 	int		toplan9[256];
@@ -73,11 +75,13 @@ extern void	xfillcolor(Memimage*, Rectangle, u32int);
 extern void	xfreexdata(Memimage*);
 extern XImage	*xgetxdata(Memimage*, Rectangle);
 extern void	xputxdata(Memimage*, Rectangle);
+extern void	_initdisplaymemimage(Display*, Memimage*);
 
 struct Mouse;
 extern int	xtoplan9mouse(XEvent*, struct Mouse*);
 extern int	xtoplan9kbd(XEvent*);
 extern void	xexpose(XEvent*, XDisplay*);
+extern int	xselect(XEvent*, XDisplay*);
 extern int	xconfigure(XEvent*, XDisplay*);
 extern void	flushmemscreen(Rectangle);
 extern void	xmoveto(Point);

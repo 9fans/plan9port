@@ -5,7 +5,7 @@
 #include <draw.h>
 
 vlong
-flength(int fd)
+_drawflength(int fd)
 {
 	struct stat s;
 

@@ -10,6 +10,7 @@ enum
 	Arrow3 = 3,
 };
 
+/*
 static
 int
 lmin(int a, int b)
@@ -18,6 +19,7 @@ lmin(int a, int b)
 		return a;
 	return b;
 }
+*/
 
 static
 int

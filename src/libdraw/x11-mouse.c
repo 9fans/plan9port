@@ -48,6 +48,7 @@ void
 _ioproc(void *arg)
 {
 	int one;
+	ulong mask;
 	Mouse m;
 	Mousectl *mc;
 	XEvent xevent;
@@ -57,9 +58,10 @@ _ioproc(void *arg)
 	threadsetname("mouseproc");
 	memset(&m, 0, sizeof m);
 	mc->pid = getpid();
+	mask = MouseMask|ExposureMask|StructureNotifyMask;
+	XSelectInput(_x.mousecon, _x.drawable, mask);
 	for(;;){
-		XSelectInput(_x.mousecon, _x.drawable, MouseMask|ExposureMask|StructureNotifyMask);
-		XWindowEvent(_x.mousecon, _x.drawable, MouseMask|ExposureMask|StructureNotifyMask, &xevent);
+		XNextEvent(_x.mousecon, &xevent);
 		switch(xevent.type){
 		case Expose:
 			xexpose(&xevent, _x.mousecon);
@@ -67,6 +69,9 @@ _ioproc(void *arg)
 		case ConfigureNotify:
 			if(xconfigure(&xevent, _x.mousecon))
 				nbsend(mc->resizec, &one);
+			continue;
+		case SelectionRequest:
+			xselect(&xevent, _x.mousecon);
 			continue;
 		case ButtonPress:
 		case ButtonRelease:

@@ -138,6 +138,7 @@ void
 _initdisplaymemimage(Display *d, Memimage *m)
 {
 	screenimage = m;
+	m->screenref = 1;
 	client0 = mallocz(sizeof(Client), 1);
 	if(client0 == nil){
 		fprint(2, "initdraw: allocating client0: out of memory");
@@ -165,7 +166,16 @@ _drawreplacescreenimage(Memimage *m)
 	 * about the resize through external means, so all we
 	 * need to do is this assignment.
 	 */
+	Memimage *om;
+
+	qlock(&sdraw.lk);
+	om = screenimage;
 	screenimage = m;
+	m->screenref = 1;
+	if(om && --om->screenref == 0){
+		_freememimage(om);
+	}
+	qunlock(&sdraw.lk);
 }
 
 static
@@ -399,6 +409,8 @@ drawinstall(Client *client, int id, Memimage *i, DScreen *dscreen)
 	d->name = 0;
 	d->vers = 0;
 	d->image = i;
+	if(i->screenref)
+		++i->screenref;
 	d->nfchar = 0;
 	d->fchar = 0;
 	d->fromname = 0;
@@ -534,11 +546,9 @@ drawfreedimage(DImage *dimage)
 		drawfreedimage(dimage->fromname);
 		goto Return;
 	}
-	//if(dimage->image == screenimage)	/* don't free the display */
-	//	goto Return;
 	ds = dimage->dscreen;
+	l = dimage->image;
 	if(ds){
-		l = dimage->image;
 		if(l->data == screenimage->data)
 			addflush(l->layer->screenr);
 		if(l->layer->refreshfn == drawrefresh)	/* else true owner will clean up */
@@ -549,8 +559,12 @@ drawfreedimage(DImage *dimage)
 		else
 			memlfree(l);
 		drawfreedscreen(ds);
-	}else
-		freememimage(dimage->image);
+	}else{
+		if(l->screenref==0)
+			freememimage(l);
+		else if(--l->screenref==0)
+			_freememimage(l);
+	}
     Return:
 	free(dimage->fchar);
 	free(dimage);
@@ -732,6 +746,7 @@ _drawmsgread(Display *d, void *a, int n)
 {
 	int inbuf;
 
+	qlock(&sdraw.lk);
 	inbuf = d->obufp - d->obuf; 
 	if(n > inbuf)
 		n = inbuf;
@@ -740,6 +755,7 @@ _drawmsgread(Display *d, void *a, int n)
 	if(inbuf)
 		memmove(d->obuf, d->obufp-inbuf, inbuf);
 	d->obufp = d->obuf+inbuf;
+	qunlock(&sdraw.lk);
 	return n;
 }
 
@@ -776,6 +792,7 @@ _drawmsgwrite(Display *d, void *v, int n)
 	Refreshfn reffn;
 	Refx *refx;
 
+	qlock(&sdraw.lk);
 	d->obufp = d->obuf;
 	a = v;
 	m = 0;
@@ -1516,6 +1533,7 @@ _drawmsgwrite(Display *d, void *v, int n)
 			continue;
 		}
 	}
+	qunlock(&sdraw.lk);
 	return oldn - n;
 
 Enodrawimage:
@@ -1527,9 +1545,11 @@ Enodrawscreen:
 Eshortdraw:
 	err = "short draw message";
 	goto error;
+/*
 Eshortread:
 	err = "draw read too short";
 	goto error;
+*/
 Eimageexists:
 	err = "image id in use";
 	goto error;
@@ -1551,6 +1571,7 @@ Enotfont:
 Eindex:
 	err = "character index out of range";
 	goto error;
+/*
 Enoclient:
 	err = "no such draw client";
 	goto error;
@@ -1560,6 +1581,7 @@ Edepth:
 Enameused:
 	err = "image name in use";
 	goto error;
+*/
 Enoname:
 	err = "no image with that name";
 	goto error;
@@ -1580,7 +1602,8 @@ Ebadarg:
 	goto error;
 
 error:
-	drawerror(display, err);
+	werrstr("%s", err);
+	qunlock(&sdraw.lk);
 	return -1;
 }
 

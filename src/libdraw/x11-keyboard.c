@@ -41,8 +41,8 @@ _ioproc(void *arg)
 	kc = arg;
 	threadsetname("kbdproc");
 	kc->pid = getpid();
+	XSelectInput(_x.kbdcon, _x.drawable, KeyPressMask);
 	for(;;){
-		XSelectInput(_x.kbdcon, _x.drawable, KeyPressMask);
 		XWindowEvent(_x.kbdcon, _x.drawable, KeyPressMask, &xevent);
 		switch(xevent.type){
 		case KeyPress:

@@ -71,7 +71,7 @@ getimage0(Display *d)
 		fprint(2, "cannot read screen info: %r\n");
 		abort();
 	}
-	
+
 	n = _drawmsgread(d, info, sizeof info);
 	if(n != 12*12){
 		fprint(2, "short screen info\n");
@@ -113,8 +113,8 @@ xerror(XDisplay *d, XErrorEvent *e)
 {
 	char buf[200];
 
-	print("X error: error_code=%d, request_code=%d, minor=%d\n",
-		e->error_code, e->request_code, e->minor_code);
+	print("X error: error_code=%d, request_code=%d, minor=%d disp=%p\n",
+		e->error_code, e->request_code, e->minor_code, d);
 	XGetErrorText(d, e->error_code, buf, sizeof buf);
 	print("%s\n", buf);
 	return 0;
@@ -179,6 +179,13 @@ xattach(char *label)
 		_x.usetable = 1;
 	}
 	else
+	if(XMatchVisualInfo(_x.display, xrootid, 15, TrueColor, &xvi)
+	|| XMatchVisualInfo(_x.display, xrootid, 15, DirectColor, &xvi)){
+		_x.vis = xvi.visual;
+		_x.depth = 15;
+		_x.usetable = 1;
+	}
+	else
 	if(XMatchVisualInfo(_x.display, xrootid, 24, TrueColor, &xvi)
 	|| XMatchVisualInfo(_x.display, xrootid, 24, DirectColor, &xvi)){
 		_x.vis = xvi.visual;
@@ -227,6 +234,9 @@ xattach(char *label)
 			case 8:
 				_x.chan = CMAP8;
 				break;
+			case 15:
+				_x.chan = RGB15;
+				break;
 			case 16: /* how to tell RGB15? */
 				_x.chan = RGB16;
 				break;
@@ -264,7 +274,7 @@ xattach(char *label)
 
 	memset(&attr, 0, sizeof attr);
 	attr.colormap = _x.cmap;
-	attr.background_pixel = 0;
+	attr.background_pixel = ~0;
 	attr.border_pixel = 0;
 	_x.drawable = XCreateWindow(
 		_x.display,	/* display */
@@ -274,7 +284,7 @@ xattach(char *label)
 		Dx(r),		/* width */
 	 	Dy(r),		/* height */
 		0,		/* border width */
-		_x.depth,	/* depth */
+		DefaultDepthOfScreen(xscreen),	/* depth */
 		InputOutput,	/* class */
 		_x.vis,		/* visual */
 				/* valuemask */
@@ -328,6 +338,7 @@ xattach(char *label)
 	 */
 	_x.screenr = r;
 	_x.screenpm = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
+	_x.nextscreenpm = _x.screenpm;
 	_x.screenimage = xallocmemimage(r, _x.chan, _x.screenpm);
 
 	/*
@@ -354,11 +365,14 @@ xattach(char *label)
 	XFlush(_x.display);
 
 	/*
-	 * Lots of display connections for various threads.
+	 * Lots of display connections for various procs.
 	 */
 	_x.kbdcon	= XOpenDisplay(NULL);
 	_x.mousecon	= XOpenDisplay(NULL);
 	_x.snarfcon	= XOpenDisplay(NULL);
+
+	if(0) fprint(2, "x: display=%p kbd=%p mouse=%p snarf=%p\n",
+		_x.display, _x.kbdcon, _x.mousecon, _x.snarfcon);
 
 	_x.black	= xscreen->black_pixel;
 	_x.white	= xscreen->white_pixel;
@@ -366,6 +380,7 @@ xattach(char *label)
 	return _x.screenimage;
 
 err0:
+fprint(2, "%r\n");
 	/*
 	 * Should do a better job of cleaning up here.
 	 */
@@ -551,6 +566,14 @@ setupcmap(XWindow w)
 void
 flushmemscreen(Rectangle r)
 {
+	if(_x.nextscreenpm != _x.screenpm){
+		qlock(&_x.screenlock);
+		XSync(_x.display, False);
+		XFreePixmap(_x.display, _x.screenpm);
+		_x.screenpm = _x.nextscreenpm;
+		qunlock(&_x.screenlock);
+	}
+
 	if(r.min.x >= r.max.x || r.min.y >= r.max.y)
 		return;
 	XCopyArea(_x.display, _x.screenpm, _x.drawable, _x.gccopy, r.min.x, r.min.y,
@@ -564,6 +587,11 @@ xexpose(XEvent *e, XDisplay *xd)
 	XExposeEvent *xe;
 	Rectangle r;
 
+	qlock(&_x.screenlock);
+	if(_x.screenpm != _x.nextscreenpm){
+		qunlock(&_x.screenlock);
+		return;
+	}
 	xe = (XExposeEvent*)e;
 	r.min.x = xe->x;
 	r.min.y = xe->y;
@@ -571,17 +599,29 @@ xexpose(XEvent *e, XDisplay *xd)
 	r.max.y = xe->y+xe->height;
 	XCopyArea(xd, _x.screenpm, _x.drawable, _x.gccopy, r.min.x, r.min.y,
 		Dx(r), Dy(r), r.min.x, r.min.y);
-	XFlush(xd);
+	XSync(xd, False);
+	qunlock(&_x.screenlock);
 }
 
 int
 xconfigure(XEvent *e, XDisplay *xd)
 {
+	Rectangle r;
 	XConfigureEvent *xe = (XConfigureEvent*)e;
 
 	if(xe->width == Dx(_x.screenr) && xe->height == Dy(_x.screenr))
 		return 0;
-	_x.newscreenr = Rect(0, 0, xe->width, xe->height);
+	if(xe->width==0 || xe->height==0)
+		fprint(2, "ignoring resize to %dx%d\n", xe->width, xe->height);
+	r = Rect(0, 0, xe->width, xe->height);
+	qlock(&_x.screenlock);
+	if(_x.screenpm != _x.nextscreenpm){
+		XCopyArea(xd, _x.screenpm, _x.drawable, _x.gccopy, r.min.x, r.min.y,
+			Dx(r), Dy(r), r.min.x, r.min.y);
+		XSync(xd, False);
+	}
+	qunlock(&_x.screenlock);
+	_x.newscreenr = r;
 	return 1;
 }
 
@@ -598,7 +638,9 @@ xreplacescreenimage(void)
 
 	pixmap = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
 	m = xallocmemimage(r, _x.chan, pixmap);
-	_x.screenpm = pixmap;
+	if(_x.nextscreenpm != _x.screenpm)
+		XFreePixmap(_x.display, _x.nextscreenpm);
+	_x.nextscreenpm = pixmap;
 	_x.screenr = r;
 	_drawreplacescreenimage(m);
 	return 1;

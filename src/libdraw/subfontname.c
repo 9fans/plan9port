@@ -29,7 +29,9 @@ subfontname(char *cfname, char *fname, int maxdepth)
 	if(maxdepth > 8)
 		maxdepth = 8;
 
-	for(i=log2[maxdepth]; i>=0; i--){
+	for(i=3; i>=0; i--){
+		if((1<<i) > maxdepth)
+			continue;
 		/* try i-bit grey */
 		snprint(tmp2, sizeof tmp2, "%s.%d", t, i);
 		if(access(tmp2, AREAD) == 0)

@@ -256,3 +256,129 @@ xsetcursor(Cursor *c)
 	XFlush(_x.display);
 }
 
+struct {
+	char buf[SnarfSize];
+	QLock lk;
+} clip;
+
+char*
+xgetsnarf(XDisplay *xd)
+{
+	uchar *data, *xdata;
+	Atom type;
+	ulong len, lastlen, dummy;
+	int fmt, i;
+	XWindow w;
+
+	qlock(&clip.lk);
+	w = XGetSelectionOwner(xd, XA_PRIMARY);
+	if(w == _x.drawable){
+		data = (uchar*)strdup(clip.buf);
+		goto out;
+	}
+	if(w == None){
+		data = nil;
+		goto out;
+	}
+	/*
+	 * We should be waiting for SelectionNotify here, but it might never
+	 * come, and we have no way to time out.  Instead, we will zero the 
+	 * property, request our buddy to fill it in for us, and wait until
+	 * he's done.
+	 */
+	XChangeProperty(xd, _x.drawable, XA_PRIMARY, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
+	XConvertSelection(xd, XA_PRIMARY, XA_STRING, None, _x.drawable, CurrentTime);
+	XFlush(xd);
+	lastlen = 0;
+	for(i=0; i<30; i++){
+		usleep(100*1000);
+		XGetWindowProperty(xd, _x.drawable, XA_STRING, 0, 0, 0, AnyPropertyType,
+			&type, &fmt, &dummy, &len, &data);
+		if(lastlen == len && len > 0)
+			break;
+		lastlen = len;
+	}
+	if(i == 30){
+		data = nil;
+		goto out;
+	}
+	/* get the property */
+	data = nil;
+	XGetWindowProperty(xd, _x.drawable, XA_STRING, 0, SnarfSize/4, 0, 
+		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
+	if(type != XA_STRING || len == 0){
+		if(xdata)
+			XFree(xdata);
+		data = nil;
+	}else{
+		if(xdata){
+			data = strdup((char*)xdata);
+			XFree(xdata);
+		}else
+			data = nil;
+	}
+out:
+	qunlock(&clip.lk);
+	return data;
+}
+
+void
+xputsnarf(XDisplay *xd, char *data)
+{
+	if(strlen(data) >= SnarfSize)
+		return;
+	qlock(&clip.lk);
+	strcpy(clip.buf, data);
+	/*
+	 * BUG: This is wrong.  Instead, we should send an event to the
+	 * mouse connection telling it to call XSetSelectionOwner.
+	 */
+	XSetSelectionOwner(_x.mousecon, XA_PRIMARY, _x.drawable, CurrentTime);
+	XFlush(xd);
+	qunlock(&clip.lk);
+}
+
+int
+xselect(XEvent *e, XDisplay *xd)
+{
+	XEvent r;
+	XSelectionRequestEvent *xe;
+
+	memset(&r, 0, sizeof r);
+	xe = (XSelectionRequestEvent*)e;
+	if(1 || xe->target == XA_STRING){
+		qlock(&clip.lk);
+		XChangeProperty(xd, xe->requestor, xe->property, XA_STRING, 8,
+			PropModeReplace, (uchar*)clip.buf, strlen(clip.buf)+1);
+		qunlock(&clip.lk);
+		r.xselection.property = xe->property;
+	}else{
+		fprint(2, "asked for a %d\n", xe->target);
+		r.xselection.property = None;
+	}
+
+	r.xselection.display = xe->display;
+	/* r.xselection.property filled above */
+	r.xselection.target = xe->target;
+	r.xselection.type = SelectionNotify;
+	r.xselection.requestor = xe->requestor;
+	r.xselection.time = xe->time;
+	r.xselection.send_event = True;
+	r.xselection.selection = xe->selection;
+	XSendEvent(xd, xe->requestor, False, 0, &r);
+	XFlush(xd);
+	return 0;
+}
+
+void
+putsnarf(char *data)
+{
+	xputsnarf(_x.snarfcon, data);
+}
+
+char*
+getsnarf(void)
+{
+	return xgetsnarf(_x.snarfcon);
+}
+

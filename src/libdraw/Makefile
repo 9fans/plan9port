@@ -99,6 +99,7 @@ OFILES=\
 	x11-mouse.$O\
 	x11-pixelbits.$O\
 	x11-unload.$O\
+	x11-wsys.$O\
 	devdraw.$O\
 	unix.$O\
 
