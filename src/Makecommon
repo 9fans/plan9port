@@ -1,0 +1,17 @@
+.c.$O:
+	@echo cc $*.c
+	@$(CC) $(CFLAGS) -I$(9SRC)/include $*.c
+
+%.$O: %.c
+	@echo cc $*.c
+	@$(CC) $(CFLAGS) -I$(9SRC)/include $*.c
+
+$(OFILES): $(HFILES)
+
+clean:
+	rm -f $(CLEANFILES)
+
+nuke:
+	rm -f $(CLEANFILES) $(NUKEFILES)
+
+.phony: all install clean nuke
