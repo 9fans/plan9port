@@ -44,7 +44,7 @@ vtrootunpack(VtRoot *r, uchar *p)
 	vers = U16GET(p);
 	if(vers != VtRootVersion) {
 		werrstr("unknown root version");
-		return 0;
+		return -1;
 	}
 	p += 2;
 	memmove(r->name, p, sizeof(r->name));

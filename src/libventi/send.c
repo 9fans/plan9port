@@ -1,5 +1,4 @@
 #include <u.h>
-#include <errno.h>
 #include <libc.h>
 #include <venti.h>
 #include "queue.h"
@@ -47,6 +46,16 @@ _vtsend(VtConn *z, Packet *p)
 	return 1;
 }
 
+static int
+interrupted(void)
+{
+	char e[ERRMAX];
+
+	rerrstr(e, sizeof e);
+	return strstr(e, "interrupted") != nil;
+}
+
+
 static Packet*
 _vtrecv(VtConn *z)
 {
@@ -69,7 +78,7 @@ _vtrecv(VtConn *z)
 		if(0) fprint(2, "%d read hdr\n", getpid());
 		n = read(z->infd, b, MaxFragSize);
 		if(0) fprint(2, "%d got %d (%r)\n", getpid(), n);
-		if(n==0 || (n<0 && errno!=EINTR))
+		if(n==0 || (n<0 && !interrupted()))
 			goto Err;
 		size += n;
 		packettrim(p, 0, size);
@@ -91,7 +100,7 @@ _vtrecv(VtConn *z)
 		if(n > 0)
 			size += n;
 		packettrim(p, 0, size);
-		if(n==0 || (n<0 && errno!=EINTR))
+		if(n==0 || (n<0 && !interrupted()))
 			goto Err;
 	}
 	ventirecvbytes += len;

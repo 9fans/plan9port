@@ -262,7 +262,6 @@ vtcachebumpblock(VtCache *c)
 	 */
 	if(c->nheap == 0){
 		vtcachedump(c);
-abort();
 		sysfatal("vtcachebumpblock: no free blocks in vtCache");
 	}
 	b = c->heap[0];
@@ -305,17 +304,10 @@ vtcachelocal(VtCache *c, u32int addr, int type)
 
 	b = &c->block[addr];
 	if(b->addr == NilBlock || b->iostate != BioLocal)
-{
-abort();
 		sysfatal("vtcachelocal: block is not local");
-}
 
 	if(b->type != type)
-{
-print("%d != %d\n", b->type, type);
-abort();
 		sysfatal("vtcachelocal: block has wrong type %d != %d", b->type, type);
-}
 
 	qlock(&c->lk);
 	b->ref++;
@@ -330,9 +322,6 @@ VtBlock*
 vtcacheallocblock(VtCache *c, int type)
 {
 	VtBlock *b;
-
-if(type >= VtMaxType)
-	abort();
 
 	qlock(&c->lk);
 	b = vtcachebumpblock(c);
@@ -379,6 +368,11 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 		qunlock(&c->lk);
 		qlock(&b->lk);
 		b->nlock = 1;
+		if(b->iostate == BioVentiError){
+			werrstr("venti i/o error");
+			vtblockput(b);
+			return nil;
+		}
 		return b;
 	}
 
@@ -410,7 +404,6 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 
 	n = vtread(c->z, score, type, b->data, c->blocksize);
 	if(n < 0){
-fprint(2, "vtread: %r\n");
 		b->iostate = BioVentiError;
 		vtblockput(b);
 		return nil;
@@ -494,8 +487,8 @@ vtblockwrite(VtBlock *b)
 	int n;
 
 	if(b->iostate != BioLocal){
-		abort();
-		sysfatal("vtBlockWrite: not a local block");
+		werrstr("vtblockwrite: not a local block");
+		return -1;
 	}
 
 	c = b->c;
@@ -562,6 +555,7 @@ vtglobaltolocal(uchar score[VtScoreSize])
 int
 vtblockdirty(VtBlock *b)
 {
+	USED(b);
 	return 0;
 }
 

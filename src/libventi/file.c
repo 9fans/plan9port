@@ -661,9 +661,7 @@ static int
 mkindices(VtEntry *e, u32int bn, int *index)
 {
 	int i, np;
-	u32int obn;
 
-	obn = bn;
 	memset(index, 0, VtPointerDepth*sizeof(int));
 
 	np = e->psize/VtScoreSize;
@@ -772,7 +770,6 @@ vtfileblockscore(VtFile *r, u32int bn, uchar score[VtScoreSize])
 	return 0;
 
 Err:
-fprint(2, "vtfileblockhash: %r\n");
 	vtblockput(b);
 	return -1;
 }
