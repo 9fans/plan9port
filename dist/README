@@ -1,0 +1,11 @@
+This directory contains scripts and files that help to run the distribution.
+
+mk check.out
+	summarizes problems with the man pages.
+
+mk man
+	recreates the HTML version of the man pages
+
+mk push
+	copies the HTML pages to swtch.com
+

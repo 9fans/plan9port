@@ -1,0 +1,27 @@
+This directory contains scripts that build the standalone
+Unix versions of libutf, libfmt, libbio, libregexp, and mk.
+
+make/
+	all the make files, in pieces that are put together for each
+
+man/
+	the variants of the man pages updated for the Unix versions
+
+mk new-utf new-fmt new-bio new-regexp new-mk
+	create a new directory with the files that go into the given archive
+
+mk test-utf test-fmt test-bio test-regexp test-mk
+	create the directory, populate it, and run a test build
+
+mk libutf.tgz libfmt.tgz libbio.tgz libregexp9.tgz mk.tgz
+	create the directory, populate it, and build a tar file
+
+mk mk-with-libs.tgz
+	build a tar file containing everything in one package
+
+mk tgz
+	build all the tar files
+
+mk push
+	copy the tar files to swtch.com
+
