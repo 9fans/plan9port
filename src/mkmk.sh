@@ -62,6 +62,7 @@ cd libbio
 9c  bbuffered.c
 9c  bfildes.c
 9c  bflush.c
+9c  bfmt.c
 9c  bgetc.c
 9c  bgetd.c
 9c  binit.c
@@ -75,7 +76,7 @@ cd libbio
 9c  bwrite.c
 9c  bgetrune.c
 9c  bputrune.c
-9ar rvc ../../lib/libbio.a bbuffered.o bfildes.o bflush.o bgetc.o bgetd.o binit.o boffset.o bprint.o bputc.o brdline.o brdstr.o bread.o bseek.o bwrite.o bgetrune.o bputrune.o
+9ar rvc ../../lib/libbio.a bbuffered.o bfildes.o bflush.o bfmt.o bgetc.o bgetd.o binit.o boffset.o bprint.o bputc.o brdline.o brdstr.o bread.o bseek.o bwrite.o bgetrune.o bputrune.o
 cd ..
 cd libregexp
 9c  regcomp.c
