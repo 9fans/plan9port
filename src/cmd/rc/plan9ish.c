@@ -459,8 +459,8 @@ int Creat(char *file)
 int Dup(int a, int b){
 	return dup(a, b);
 }
-int Dup1(int unused0){
-	return -1;
+int Dup1(int a){
+	return dup(a, -1);
 }
 void Exit(char *stat)
 {

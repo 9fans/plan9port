@@ -316,11 +316,11 @@ void execdot(void){
 		strcpy(file, path->word);
 		if(file[0]) strcat(file, "/");
 		strcat(file, zero);
-		if((fd=open(file, 0))>=0) break;
 		if(strcmp(file, "/dev/stdin")==0){	/* for sun & ucb */
 			fd=Dup1(0);
 			if(fd>=0) break;
 		}
+		if((fd=open(file, 0))>=0) break;
 	}
 	if(fd<0){
 		pfmt(err, "%s: ", zero);
