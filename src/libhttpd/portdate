@@ -1,0 +1,20 @@
+# note that this httpd uses -1 for error and 0 for success
+# while the plan9 httpd uses 0 for error and 1 for success!
+
+alloc.c		2004/1225
+checkcontent.c		2004/1225
+date.c		2004/1225
+fail.c		2004/1225
+gethead.c		2004/1225
+hio.c		2004/1225
+httpfmt.c		2004/1225
+httpunesc.c		2004/1225
+lower.c		2004/1225
+okheaders.c		2004/1225
+parse.c		2004/1225
+parsereq.c		2004/1225
+query.c		2004/1225
+redirected.c		2004/1225
+unallowed.c		2004/1225
+urlfmt.c		2004/1225
+urlunesc.c		2004/1225
