@@ -31,48 +31,44 @@ typedef struct Sig Sig;
 struct Sig
 {
 	int sig;			/* signal number */
-	int restart;			/* do we restart the system call after this signal is handled? */
-	int enabled;		/* is this signal enabled (not masked)? */
-	int notified;		/* do we call the notify function for this signal? */
+	int flags;
 };
 
-/*
- * Bug.  It is profoundly anti-social to play with the masks like this.
- * For example, even though we don't want to see SIGTSTP, others do.
- * Running bash inside a 9term that has disabled SIGTSTP makes ^Z not work.
- * Instead we need to leave the signals enabled but notifyoff them.
- */
+enum
+{
+	Restart = 1<<0,
+	Ignore = 1<<1,
+};
 
-/* initial settings; for current status, ask the kernel */
 static Sig sigs[] = {
-	SIGHUP, 0, 1, 1,
-	SIGINT, 0, 1, 1,
-	SIGQUIT, 0, 1, 1,
-	SIGILL, 0, 1, 1,
-	SIGTRAP, 0, 1, 1,
-/*	SIGABRT, 0, 1, 1,	*/
+	SIGHUP,		0,
+	SIGINT,		0,
+	SIGQUIT,		0,
+	SIGILL,		0,
+	SIGTRAP,		0,
+/*	SIGABRT, 		0, 	*/
 #ifdef SIGEMT
-	SIGEMT, 0, 1, 1,
+	SIGEMT,		0,
 #endif
-	SIGFPE, 0, 1, 1,
-	SIGBUS, 0, 1, 1,
-/*	SIGSEGV, 0, 1, 1,	*/
-	SIGCHLD, 1, 0, 1,
-	SIGSYS, 0, 1, 1,
-	SIGPIPE, 0, 0, 1,
-	SIGALRM, 0, 1, 1,
-	SIGTERM, 0, 1, 1,
-	SIGTSTP, 1, 0, 1,
-	SIGTTIN, 1, 0, 1,
-	SIGTTOU, 1, 0, 1,
-	SIGXCPU, 0, 1, 1,
-	SIGXFSZ, 0, 1, 1,
-	SIGVTALRM, 0, 1, 1,
-	SIGUSR1, 0, 1, 1,
-	SIGUSR2, 0, 1, 1,
-	SIGWINCH, 1, 0, 1,
+	SIGFPE,		0,
+	SIGBUS,		0,
+/*	SIGSEGV, 		0, 	*/
+	SIGCHLD,		Restart|Ignore,
+	SIGSYS,		0,
+	SIGPIPE,		Ignore,
+	SIGALRM,		0,
+	SIGTERM,		0,
+	SIGTSTP,		Restart|Ignore,
+	SIGTTIN,		Restart|Ignore,
+	SIGTTOU,		Restart|Ignore,
+	SIGXCPU,		0,
+	SIGXFSZ,		0,
+	SIGVTALRM,	0,
+	SIGUSR1,		0,
+	SIGUSR2,		0,
+	SIGWINCH,	Restart|Ignore,
 #ifdef SIGINFO
-	SIGINFO, 1, 1, 1,
+	SIGINFO,		Restart|Ignore,
 #endif
 };
 
@@ -121,6 +117,7 @@ signotify(int sig)
 {
 	char tmp[64];
 	Jmp *j;
+	Sig *s;
 
 	j = (*_notejmpbuf)();
 	switch(p9setjmp(j->b)){
@@ -130,6 +127,9 @@ signotify(int sig)
 		/* fall through */
 	case 1:	/* noted(NDFLT) */
 		if(0)print("DEFAULT %d\n", sig);
+		s = findsig(sig);
+		if(s && (s->flags&Ignore))
+			return;
 		signal(sig, SIG_DFL);
 		raise(sig);
 		_exit(1);
@@ -216,7 +216,7 @@ notifyseton(int s, int on)
 		return -1;
 	memset(&sa, 0, sizeof sa);
 	sa.sa_handler = on ? signotify : signonotify;
-	if(sig->restart)
+	if(sig->flags&Restart)
 		sa.sa_flags |= SA_RESTART;
 
 	/*
@@ -264,13 +264,7 @@ noteinit(void)
 		 */
 		if(handler(sig->sig) != SIG_DFL)
 			continue;
-		/*
-		 * Should we only disable and not enable signals?
-		 * (I.e. if parent has disabled for us, should we still enable?)
-		 * Right now we always initialize to the state we want.
-		 */
-		notesetenable(sig->sig, sig->enabled);
-		notifyseton(sig->sig, sig->notified);
+		notifyseton(sig->sig, 1);
 	}
 }
 
