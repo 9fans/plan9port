@@ -1,6 +1,6 @@
 .TH RSA 8
 .SH NAME
-dsagen, rsagen, rsafill, asn12dsa, asn12rsa, dsa2pub, rsa2pub, dsa2ssh, rsa2ssh, rsa2x509 \- generate and format dsa and rsa keys
+dsagen, rsagen, rsafill, asn12dsa, asn12rsa, dsa2pub, rsa2csr, rsa2pub, dsa2ssh, rsa2ssh, rsa2x509 \- generate and format dsa and rsa keys
 .SH SYNOPSIS
 .PP
 .B dsagen
@@ -70,6 +70,12 @@ dsagen, rsagen, rsafill, asn12dsa, asn12rsa, dsa2pub, rsa2pub, dsa2ssh, rsa2ssh,
 .B -e
 .I expiretime
 ]
+.I certinfo
+[
+.I file
+]
+.PP
+.B rsa2csr
 .I certinfo
 [
 .I file
@@ -276,14 +282,15 @@ pemencode CERTIFICATE
 .EE
 .LP
 generates such a textual certificate.
-Applications that serve TLS-encrypted sessions (for example,
-.IR httpd (8),
-.IR pop3 (8),
-and
-.IR tlssrv (8))
-expect certificates in ASN.1/DER/PEM format.
+Applications that serve TLS-encrypted sessions
+typically expect certificates in ASN.1/DER/PEM format.
+.PP
+.I Rsa2csr
+is like
+.I rsa2x509
+but writes an X.509 certificate request.
 .SH EXAMPLES
-Generate a fresh key and use it to start a TLS-enabled web server:
+Generate a fresh key and use it to start the Plan 9 TLS-enabled web server:
 .IP
 .EX
 rsagen -t 'service=tls owner=*' >key
