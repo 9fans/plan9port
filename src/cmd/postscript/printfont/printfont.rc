@@ -1,10 +1,10 @@
-#!/bin/rc
+#!/usr/local/plan9/bin/rc
 # Formatted dump of encoded characters in one or more PostScript fonts.
 # Arguments should be PostScript font names or the word all, which dumps
 # all ROM and disk based fonts.
 #
 
-POSTLIB=/sys/lib/postscript/prologues
+POSTLIB=/usr/local/plan9/postscript/prologues
 PROLOGUE=$POSTLIB/printfont.ps
 
 OPTIONS=''

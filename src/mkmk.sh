@@ -32,6 +32,7 @@ cd lib9
 9c  encodefmt.c
 9c  errstr.c
 9c  exec.c
+9c  execl.c
 9c  fcallfmt.c
 9c  get9root.c
 9c getcallerpc-$OBJTYPE.c || 9a getcallerpc-$OBJTYPE.s
@@ -61,6 +62,7 @@ cd lib9
 9c  postnote.c
 9c  qlock.c
 9c  quote.c
+9c  rand.c
 9c  read9pmsg.c
 9c  readn.c
 9c  rfork.c
@@ -179,15 +181,17 @@ cd cmd/mk
 9c  mk.c
 9c  parse.c
 9c  recipe.c
+9c  rc.c
 9c  rule.c
 9c  run.c
 9c  sh.c
+9c  shell.c
 9c  shprint.c
 9c  symtab.c
 9c  var.c
 9c  varsub.c
 9c  word.c
 9c  unix.c
-9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o $PLAN9/lib/libregexp9.a $PLAN9/lib/libbio.a $PLAN9/lib/lib9.a 
+9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rc.o rule.o run.o sh.o shell.o shprint.o symtab.o var.o varsub.o word.o unix.o 
 install -c o.mk $PLAN9/bin/mk
 cd ..
