@@ -104,10 +104,12 @@ atimes(char *ar)
 {
 	struct ar_hdr h;
 	long t;
-	int fd, i;
-	char buf[1024];
-	char name[sizeof(h.name)+1];
+	int fd, i, namelen;
+	char buf[2048], *p, *strings;
+	char name[1024];
+	Symtab *sym;
 
+	strings = nil;
 	fd = open(ar, OREAD);
 	if(fd < 0)
 		return;
@@ -116,23 +118,74 @@ atimes(char *ar)
 		close(fd);
 		return;
 	}
-	while(read(fd, (char *)&h, sizeof(h)) == sizeof(h)){
+	while(readn(fd, (char *)&h, sizeof(h)) == sizeof(h)){
 		t = atol(h.date);
 		if(t == 0)	/* as it sometimes happens; thanks ken */
 			t = 1;
-		strncpy(name, h.name, sizeof(h.name));
-		for(i = sizeof(h.name)-1; i > 0 && name[i] == ' '; i--)
+		namelen = 0;
+		if(memcmp(h.name, "#1/", 3) == 0){	/* BSD */
+			namelen = atoi(h.name+3);
+			if(namelen >= sizeof name){
+				namelen = 0;
+				goto skip;
+			}
+			if(readn(fd, name, namelen) != namelen)
+				break;
+			name[namelen] = 0;
+		}else if(memcmp(h.name, "// ", 2) == 0){ /* GNU */
+			/* date, uid, gid, mode all ' ' */
+			for(i=2; i<16+12+6+6+8; i++)
+				if(h.name[i] != ' ')
+					goto skip;
+			t = atol(h.size);
+			if(t&01)
+				t++;
+			free(strings);
+			strings = malloc(t+1);
+			if(strings){
+				if(readn(fd, strings, t) != t){
+					free(strings);
+					strings = nil;
+					break;
+				}
+				strings[t] = 0;
+				continue;
+			}
+			goto skip;
+		}else if(strings && h.name[0]=='/' && isdigit(h.name[1])){
+			i = strtol(h.name+1, &p, 10);
+			if(*p != ' ' || strlen(strings) < i)
+				goto skip;
+			p = strings+i;
+			for(; *p && *p != '/'; p++)
 				;
-		if(name[i] == '/')		/* system V bug */
-			i--;
-		name[i+1]=0;
+			namelen = p-(strings+i);
+			if(namelen >= sizeof name){
+				namelen = 0;
+				goto skip;
+			}
+			memmove(name, strings+i, namelen);
+			name[namelen] = 0;
+			namelen = 0;
+		}else{
+			strncpy(name, h.name, sizeof(h.name));
+			for(i = sizeof(h.name)-1; i > 0 && name[i] == ' '; i--)
+					;
+			if(name[i] == '/')		/* system V bug */
+				i--;
+			name[i+1]=0;
+		}
 		snprint(buf, sizeof buf, "%s(%s)", ar, name);
-		symlook(strdup(buf), S_TIME, (void *)t)->value = (void *)t;
+		sym = symlook(strdup(buf), S_TIME, (void *)t);
+		sym->value = (void *)t;
+	skip:
 		t = atol(h.size);
 		if(t&01) t++;
+		t -= namelen;
 		LSEEK(fd, t, 1);
 	}
 	close(fd);
+	free(strings);
 }
 
 static int
