@@ -190,6 +190,8 @@ vtfilecreate(VtFile *r, int psize, int dsize, int dir)
  	u32int offset;
 
 	assert(ISLOCKED(r));
+	assert(psize <= VtMaxLumpSize);
+	assert(dsize <= VtMaxLumpSize);
 
 	if(!r->dir){
 		werrstr(ENotDir);

@@ -98,6 +98,7 @@ vtread(VtConn *z, uchar score[VtScoreSize], uint type, uchar *buf, int n)
 	nn = packetsize(p);
 	if(packetconsume(p, buf, nn) < 0)
 		abort();
+	packetfree(p);
 	return nn;
 }
 
