@@ -49,11 +49,11 @@ esac
 
 case "$tag" in
 *SunOS*-cc)
-	exec $cc -I$PLAN9/include $cflags "$@" 2>&1 | 
+	exec $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>&1 | 
 		/bin/sed 's/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' 1>&2
 	;;
 *)
-	exec $cc -I$PLAN9/include $cflags "$@"
+	exec $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@"
 	;;
 esac
 
