@@ -1,0 +1,11 @@
+default:V:	$PLAN9/lib/$LIB
+
+$PLAN9/lib/$LIB:V:	$OFILES			# force archive even when not needed
+	ar rvc $PLAN9/lib/$LIB $newprereq
+
+&:n:	&.$O
+	ar rvc $LIB $stem.$O
+
+all install:V: $PLAN9/lib/$LIB
+
+<$PLAN9/src/mkcommon

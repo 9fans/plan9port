@@ -1,0 +1,21 @@
+%.$O:	$HFILES			# don't combine with following %.$O rules
+
+%.$O:	%.c
+	$CC $CFLAGS $stem.c
+
+%.$O:	%.s
+	$AS $AFLAGS $stem.s
+
+clean:V:
+	rm -f *.[$OS] [$OS].out $CLEANFILES
+
+%.clean:V:
+	rm -f $stem.[$OS] [$OS].$stem $stem.acid $stem
+
+nuke:V:
+	rm -f *.[$OS] [$OS].out $CLEANFILES
+
+Makefile:D: mkfile
+	rm -f Makefile
+	sh $PLAN9/src/mk2make mkfile >Makefile
+	chmod 444 Makefile

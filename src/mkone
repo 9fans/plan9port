@@ -1,0 +1,44 @@
+PROG=$O.$TARG
+
+all:V:	$PROG
+
+$O.$TARG:	$OFILES $LIB
+	$LD -o $target $prereq $LDFLAGS
+
+%.$O:	$HFILES		# don't combine with following %.$O rules
+
+%.$O:	%.c
+	$CC $CFLAGS $stem.c
+
+%.$O:	%.s
+	$AS $AFLAGS $stem.s
+
+y.tab.h y.tab.c:	$YFILES
+	$YACC $YFLAGS $prereq
+
+%.install:V:	$BIN/%
+
+$BIN/%:	$O.%
+	$INSTALL $O.$stem $BIN/$stem
+
+%.installall:V:
+	for (objtype in $CPUS)
+		mk $stem.install
+
+install:V: $TARG.install
+
+installall:V:
+	for(objtype in $CPUS)
+		mk $MKFLAGS install
+
+nuke:V:
+	rm -f *.[$OS] y.tab.? y.debug y.output [$OS].* *.acid $TARG $NUKEFILES
+
+clean:V:
+	rm -f *.[$OS] y.tab.? y.debug y.output [$OS].* $TARG $CLEANFILES
+
+%.clean:V:
+	rm -f $stem.[$OS] [$OS].$stem $stem.acid $stem
+
+%.acid: %.$O $HFILES
+	$CC $CFLAGS -a $stem.c >$target

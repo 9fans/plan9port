@@ -1,0 +1,11 @@
+dir-%:V:
+	for i in $DIRS
+	do
+		(cd $i; mk $stem)
+	done
+
+all:V: dir-all
+clean:V: dir-clean
+install:V: dir-install
+nuke:V: dir-nuke
+

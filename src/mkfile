@@ -1,0 +1,53 @@
+DIRS=\
+	lib9\
+	libbin\
+	libbio\
+	libdraw\
+	libflate\
+	libfmt\
+	libframe\
+	libhttpd\
+	libip\
+	libregexp\
+	libsec\
+	libthread\
+	libutf\
+	libventi\
+#	cmd\
+
+<mkdirs
+
+MKDIRS=\
+	libutf\
+	libfmt\
+	libbio\
+	libregexp\
+	cmd/mk\
+
+mkmk.sh:VD:
+	(
+		for i in $MKDIRS
+		do	
+			echo cd $i
+			(cd $i; mk -n -a install)
+			echo cd ..
+		done
+	) >$target
+
+testmkmk:V:
+	mk mkmk.sh
+	rm -f ../lib/lib*.a
+	mv ../bin/mk ../bin/_mk
+	sh -ex mkmk.sh
+	ls -l ../bin/mk
+
+testcvs:V:
+	cvs up -dAP
+	cp ../bin/_mk ../bin/mk
+	mk clean
+	rm ../lib/*.a
+	mv ../bin/mk ../bin/_mk
+	rm ../bin/*
+	PLAN9="`pwd`/.." export PLAN9
+	PATH=$PLAN9/bin:$PATH export PATH
+

@@ -1,0 +1,73 @@
+PROGS=${TARG:%=$O.%}
+
+none:VQ:
+	echo usage: mk all, install, installall, '$O'.cmd, cmd.install, or cmd.installall
+
+all:V:	$PROGS
+
+$O.%:	%.$O $OFILES $LIB
+	$LD -o $target $prereq $LDFLAGS
+
+%.$O:	$HFILES		# don't combine with following %.$O rules
+
+%.$O:	%.c
+	$CC $CFLAGS $stem.c
+
+%.$O:	%.s
+	$AS $AFLAGS $stem.s
+
+y.tab.h y.tab.c:	$YFILES
+	$YACC $YFLAGS $prereq
+
+%.install:V:	$BIN/%
+
+$BIN/%:	$O.%
+	$INSTALL $O.$stem $BIN/$stem
+
+%.installall:V:
+	for (objtype in $CPUS)
+		mk $stem.install
+
+install:V:
+	# for (i in $TARG)
+	# 	mk $MKFLAGS $i.install
+	for i in $TARG
+	do
+		mk $MKFLAGS $i.install
+	done
+
+installall:V:
+	for(objtype in $CPUS)
+		mk $MKFLAGS install
+
+%.safeinstall:V:
+	mk $O.$stem
+	test -e $BIN/$stem && mv $BIN/$stem $BIN/_$stem
+	mk $stem.install
+
+%.safeinstallall:V:
+	for(objtype in $CPUS)
+		mk $MKFLAGS $stem.safeinstall
+
+safeinstall:V:
+	for(i in $TARG)
+		mk $MKFLAGS $i.safeinstall
+
+safeinstallall:V:
+	for (objtype in $CPUS)
+		mk safeinstall
+
+update:V:
+	update $UPDATEFLAGS $UPDATE
+
+nuke:V:
+	rm -f *.[$OS] y.tab.? y.debug y.output [$OS].* *.acid $TARG $NUKEFILES
+
+clean:V:
+	rm -f *.[$OS] y.tab.? y.debug y.output [$OS].* $TARG $CLEANFILES
+
+%.clean:V:
+	rm -f $stem.[$OS] [$OS].$stem $stem.acid $stem
+
+%.acid: %.$O $HFILES
+	$CC $CFLAGS -a $stem.c >$target
