@@ -10,7 +10,7 @@ void
 usage(void)
 {
 	fprint(2, "usage: plumb [-p plumbfile] [-a 'attr=value ...'] [-s src] [-d dst] [-t type] [-w wdir] -i | data1\n");
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void
@@ -25,14 +25,14 @@ gather(void)
 		m.data = realloc(m.data, m.ndata+n);
 		if(m.data == nil){
 			fprint(2, "plumb: alloc failed: %r\n");
-			exits("alloc");
+			threadexitsall("alloc");
 		}
 		memmove(m.data+m.ndata, buf, n);
 		m.ndata += n;
 	}
 	if(n < 0){
 		fprint(2, "plumb: i/o error on input: %r\n");
-		exits("read");
+		threadexitsall("read");
 	}
 }
 
@@ -94,7 +94,7 @@ threadmain(int argc, char *argv[])
 		fd = plumbopen("send", OWRITE);
 	if(fd < 0){
 		fprint(2, "plumb: can't open plumb file: %r\n");
-		exits("open");
+		threadexitsall("open");
 	}
 	if(input){
 		gather();
@@ -102,9 +102,9 @@ threadmain(int argc, char *argv[])
 			m.attr = plumbaddattr(m.attr, plumbunpackattr("action=showdata"));
 		if(plumbsend(fd, &m) < 0){
 			fprint(2, "plumb: can't send message: %r\n");
-			exits("error");
+			threadexitsall("error");
 		}
-		exits(nil);
+		threadexitsall(nil);
 	}
 	for(i=0; i<argc; i++){
 		if(input == 0){
@@ -113,7 +113,7 @@ threadmain(int argc, char *argv[])
 		}
 		if(plumbsend(fd, &m) < 0){
 			fprint(2, "plumb: can't send message: %r\n");
-			exits("error");
+			threadexitsall("error");
 		}
 	}
 	threadexitsall(nil);
