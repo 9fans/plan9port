@@ -67,6 +67,16 @@ _procwakeup(_Procrendez *r)
 	}
 }
 
+void
+_procwakeupandunlock(_Procrendez *r)
+{
+	if(r->asleep){
+		r->asleep = 0;
+		pthread_cond_signal(&r->cond);
+	}
+	unlock(&r->l);
+}
+
 static void
 startprocfn(void *v)
 {

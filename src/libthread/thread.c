@@ -166,11 +166,13 @@ _threadready(_Thread *t)
 
 	p = t->proc;
 	lock(&p->lock);
+	p->runrend.l = &p->lock;
 	addthread(&p->runqueue, t);
 //print("%d wake for job %d->%d\n", time(0), getpid(), p->osprocid);
 	if(p != proc())
-		_procwakeup(&p->runrend);
-	unlock(&p->lock);
+		_procwakeupandunlock(&p->runrend);
+	else
+		unlock(&p->lock);
 }
 
 int

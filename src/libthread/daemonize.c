@@ -1,3 +1,6 @@
+#include <u.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "threadimpl.h"
 
 #undef waitpid
@@ -11,6 +14,7 @@ static void
 child(void)
 {
 	int status, pid;
+	struct rlimit rl;
 
 	notedisable("sys: child");
 	pid = waitpid(sigpid, &status, 0);
@@ -21,6 +25,14 @@ child(void)
 	if(WIFEXITED(status))
 		 _exit(WEXITSTATUS(status));
 	if(WIFSIGNALED(status)){
+		/*
+		 * Make sure we don't scribble over the nice
+		 * core file that our child just wrote out.
+		 */
+		rl.rlim_cur = 0;
+		rl.rlim_max = 0;
+		setrlimit(RLIMIT_CORE, &rl);
+
 		signal(WTERMSIG(status), SIG_DFL);
 		raise(WTERMSIG(status));
 		_exit(98);	/* not reached */

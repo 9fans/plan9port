@@ -76,6 +76,7 @@ struct _Procrendez
 
 extern	void	_procsleep(_Procrendez*);
 extern	void	_procwakeup(_Procrendez*);
+extern	void	_procwakeupandunlock(_Procrendez*);
 
 struct Proc
 {

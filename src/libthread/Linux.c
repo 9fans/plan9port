@@ -32,7 +32,7 @@ _threadlock(Lock *l, int block, ulong pc)
 {
 	int i;
 static int first=1;
-if(first) {first=0; fmtinstall('T', timefmt);}
+if(first) {first=0; fmtinstall('\001', timefmt);}
 
 	USED(pc);
 
@@ -48,43 +48,43 @@ if(first) {first=0; fmtinstall('T', timefmt);}
 			return 1;
 		sched_yield();
 	}
-	/* now nice and slow */
+	/* now increasingly slow */
 	for(i=0; i<10; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(1);
 	}
-fprint(2, "%T lock loop %p from %lux\n", l, pc);
+fprint(2, "%\001 %s: lock loop1 %p from %lux\n", argv0, l, pc);
 	for(i=0; i<10; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(10);
 	}
-fprint(2, "%T lock loop %p from %lux\n", l, pc);
+fprint(2, "%\001 %s: lock loop2 %p from %lux\n", argv0, l, pc);
 	for(i=0; i<10; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(100);
 	}
-fprint(2, "%T lock loop %p from %lux\n", l, pc);
+fprint(2, "%\001 %s: lock loop3 %p from %lux\n", argv0, l, pc);
 	for(i=0; i<10; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(1000);
 	}
-fprint(2, "%T lock loop %p from %lux\n", l, pc);
+fprint(2, "%\001 %s: lock loop4 %p from %lux\n", argv0, l, pc);
 	for(i=0; i<10; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(10*1000);
 	}
-fprint(2, "%T lock loop %p from %lux\n", l, pc);
+fprint(2, "%\001 %s: lock loop5 %p from %lux\n", argv0, l, pc);
 	for(i=0; i<1000; i++){
 		if(!_tas(&l->held))
 			return 1;
 		usleep(100*1000);
 	}
-fprint(2, "%T lock loop %p from %lux\n", l, pc);
+fprint(2, "%\001 %s: lock loop6 %p from %lux\n", argv0, l, pc);
 	/* take your time */
 	while(_tas(&l->held))
 		usleep(1000*1000);
@@ -150,13 +150,20 @@ again:
 }
 
 void
-_procwakeup(_Procrendez *r)
+_procwakeupandunlock(_Procrendez *r)
 {
+	int pid;
+
+	pid = 0;
 	if(r->asleep){
 		r->asleep = 0;
 		assert(r->pid >= 1);
-		kill(r->pid, SIGUSR1);
+		pid = r->pid;
 	}
+	assert(r->l);
+	unlock(r->l);
+	if(pid)
+		kill(pid, SIGUSR1);
 }
 
 /*
