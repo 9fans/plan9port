@@ -1,0 +1,8 @@
+<$PLAN9/src/mkhdr
+
+TARG=troff2html
+HFILES=chars.h
+OFILES=troff2html.$O\
+
+<$PLAN9/src/mkone
+
