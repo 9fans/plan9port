@@ -82,7 +82,7 @@ auth_freerpc(AuthRpc *rpc)
 {
 	if(rpc->afd >= 0)
 		close(rpc->afd);
-	if(rpc->afid == nil)
+	if(rpc->afid != nil)
 		fsclose(rpc->afid);
 	free(rpc);
 }
