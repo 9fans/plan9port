@@ -1,5 +1,4 @@
 <$PLAN9/src/mkhdr
-YACC=yacc -d
 
 TARG=rc
 
