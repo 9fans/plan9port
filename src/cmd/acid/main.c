@@ -220,6 +220,7 @@ attachfiles(int argc, char **argv)
 		}
 		fprint(2, "%s: %s %s %s\n", argv[i], hdr->aname, hdr->mname, hdr->fname);
 		if(hdr->ftype == FCORE){
+			fprint(2, "cmd: %s\n", hdr->cmd);
 			if(pid){
 				fprint(2, "already have pid %d; ignoring core %s\n", pid, argv[i]);
 				uncrackhdr(hdr);
