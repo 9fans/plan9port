@@ -4056,3 +4056,4 @@ MessageSocket::setHostname(): gethostbyname() failed: Success
 It's almost as though someone is creating billboards that read, ``If you can#t splel VaigrA, you cn mkae big $M$O$N$E$Y$ wtih b.ul.k adtervising on teh I*N*T*R*E*N*E*T.''  - Rob Kolstad
 And, as you read, please forgive the necessary typos - I'm going for rock-solid facts, rather than spelling.
 mp3riot -  Directory search utility
+val.h:152: class `FloatVal' is implicitly friends with itself
