@@ -72,6 +72,9 @@ LIB9OFILES=\
 	announce.$O\
 	argv0.$O\
 	atexit.$O\
+	atoi.$O\
+	atol.$O\
+	atoll.$O\
 	atnotify.$O\
 	await.$O\
 	cistrcmp.$O\

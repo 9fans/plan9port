@@ -56,6 +56,8 @@ _p9sigstr(int sig, char *tmp)
 	for(i=0; i<nelem(tab); i++)
 		if(tab[i].sig == sig)
 			return tab[i].str;
+	if(tmp == nil)
+		return nil;
 	sprint(tmp, "sys: signal %d", sig);
 	return tmp;
 }
