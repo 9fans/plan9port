@@ -15,7 +15,7 @@
 
 static char *exname;
 
-#define STACK 8192
+#define STACK 16384
 
 void
 getscreen(int argc, char **argv)

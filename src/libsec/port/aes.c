@@ -43,7 +43,7 @@ static const u32 Td3[256];
 static const u8  Te4[256];
 
 static int rijndaelKeySetupEnc(u32 rk[/*4*(Nr + 1)*/], const u8 cipherKey[], int keyBits);
-static int rijndaelKeySetupDec(u32 rk[/*4*(Nr + 1)*/], const u8 cipherKey[], int keyBits);
+// static int rijndaelKeySetupDec(u32 rk[/*4*(Nr + 1)*/], const u8 cipherKey[], int keyBits);
 static int rijndaelKeySetup(u32 erk[/*4*(Nr + 1)*/], u32 drk[/*4*(Nr + 1)*/], const u8 cipherKey[], int keyBits);
 static void	rijndaelEncrypt(const u32int rk[], int Nr, const uchar pt[16], uchar ct[16]);
 static void	rijndaelDecrypt(const u32int rk[], int Nr, const uchar ct[16], uchar pt[16]);

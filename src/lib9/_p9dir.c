@@ -4,12 +4,18 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef _HAVEDISKLABEL
-#include <sys/disklabel.h>
-#endif
 #include <dirent.h>
 #include <pwd.h>
 #include <grp.h>
+
+#if defined(__FreeBSD__)
+#include <sys/disklabel.h>
+#define _HAVEDISKLABEL
+#endif
+
+#if !defined(__linux__) && !defined(__sun__)
+#define _HAVESTGEN
+#endif
 
 int
 _p9dir(struct stat *st, char *name, Dir *d, char **str, char *estr)

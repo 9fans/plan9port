@@ -7,7 +7,7 @@ case "$tag" in
 *BSD*)		ld=gcc ;;
 *Linux*)	ld=gcc ;;
 *Darwin*)	ld=gcc ;;
-*SunOS*)	ld=${CC9:-cc}
+*SunOS*)	ld="${CC9:-cc} -g"
 		extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
 		;;
 *)

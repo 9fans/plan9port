@@ -10,7 +10,6 @@ static char *_psstate[] = {
 	"Ready",
 	"Rendezvous",
 };
-#endif
 
 static char*
 psstate(int s)
@@ -19,6 +18,7 @@ psstate(int s)
 		return "unknown";
 	return _psstate[s];
 }
+#endif
 
 void
 _schedinit(void *arg)

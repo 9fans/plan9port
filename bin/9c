@@ -5,7 +5,6 @@ usegcc()
 	cc=gcc
 	cflags=" \
 		-O2 \
-		-I$PLAN9/include \
 		-c \
 		-ggdb \
 		-Wall \
@@ -29,4 +28,4 @@ case "$tag" in
 	exit 1
 esac
 
-exec $cc $cflags "$@"
+exec $cc -I$PLAN9/include $cflags "$@"

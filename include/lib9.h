@@ -15,6 +15,7 @@ extern "C" {
 #define _XOPEN_SOURCE_EXTENDED 1
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
+#define __EXTENSIONS__ 1 /* SunOS */
 
 #include <unistd.h>
 #include <string.h>
@@ -36,14 +37,6 @@ extern "C" {
 #define _NEEDUINT 1
 #define _NEEDULONG 1
 
-/* better to assume we have these and then be proved wrong */
-#define _HAVESTGEN 1
-#define _HAVETIMEGM 1
-#define _HAVETMZONE 1
-#define _HAVETMTZOFF 1
-#define _HAVEFUTIMESAT 1
-#define _HAVEFUTIMES 1
-
 typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
 #if defined(__linux__)
@@ -53,22 +46,12 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDUINT
 #		undef _NEEDULONG
 #	endif
-#	undef _HAVESTGEN
-#	undef _HAVETMZONE
-#	undef _HAVETMTZOFF
-#	undef _HAVEFUTIMESAT
 #endif
 #if defined(__sun__)
 #	include <sys/types.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
-#	undef _HAVESTGEN
-#	undef _HAVETIMEGM
-#	undef _HAVETMZONE
-#	undef _HAVETMTZOFF
-#	undef _HAVEFUTIMES
-#	undef _HAVEUTIMES
 #endif
 #if defined(__FreeBSD__)
 #	include <sys/types.h>
@@ -76,14 +59,12 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #	endif
-#	define _HAVEDISKLABEL 1
 #endif
 #if defined(__APPLE__)
 #	include <sys/types.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	define _NEEDLL 1
-#	define _GETDIRENTRIES_TAKES_LONG 1
 #endif
 
 typedef signed char schar;
@@ -105,6 +86,11 @@ typedef long long vlong;
 typedef uvlong u64int;
 typedef uchar u8int;
 typedef ushort u16int;
+
+#undef _NEEDUCHAR
+#undef _NEEDUSHORT
+#undef _NEEDUINT
+#undef _NEEDULONG
 
 /*
  * Begin usual libc.h 

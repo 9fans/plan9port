@@ -1,18 +1,24 @@
 #include <stdlib.h> /* setenv etc. */
 
 #include <u.h>
+#define NOPLAN9DEFINES
 #include <libc.h>
-
-#undef gmtime
-#undef localtime
-#undef asctime
-#undef ctime
-#undef cputime
-#undef times
-#undef tm2sec
-#undef nsec
-
 #include <time.h>
+
+#define _HAVETIMEGM 1
+#define _HAVETMZONE 1
+#define _HAVETMTZOFF 1
+
+#if defined(__linux__)
+#	undef _HAVETMZONE
+#	undef _HAVETMTZOFF
+
+#elif defined(__sun__)
+#	undef _HAVETIMEGM
+#	undef _HAVETMZONE
+#	undef _HAVETMTZOFF
+
+#endif
 
 static Tm bigtm;
 
@@ -80,15 +86,17 @@ timegm(struct tm *tm)
 {
 	time_t ret;
 	char *tz;
+	char *s;
 
 	tz = getenv("TZ");
-	setenv("TZ", "", 1);
+	putenv("TZ=");
 	tzset();
 	ret = mktime(tm);
-	if(tz)
-		setenv("TZ", tz, 1);
-	else
-		unsetenv("TZ");
+	if(tz){
+		s = smprint("TZ=%s", tz);
+		if(s)
+			putenv(s);
+	}
 	return ret;
 }
 #endif

@@ -7,7 +7,7 @@ DIRS=\
 	libfmt\
 	libframe\
 	libhttpd\
-	libip\
+#	libip\
 	libregexp\
 	libsec\
 	libthread\
