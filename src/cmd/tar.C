@@ -67,27 +67,24 @@ enum {
 #define issymlink(lf)	((lf) == LF_SYMLINK1 || (lf) == LF_SYMLINK2)
 
 typedef union {
-	uchar	data[Tblock];
-	struct {
-		char	name[Namsiz];
-		char	mode[8];
-		char	uid[8];
-		char	gid[8];
-		char	size[12];
-		char	mtime[12];
-		char	chksum[8];
-		char	linkflag;
-		char	linkname[Namsiz];
+	char	name[Namsiz];
+	char	mode[8];
+	char	uid[8];
+	char	gid[8];
+	char	size[12];
+	char	mtime[12];
+	char	chksum[8];
+	char	linkflag;
+	char	linkname[Namsiz];
 
-		/* rest are defined by POSIX's ustar format; see p1003.2b */
-		char	magic[6];	/* "ustar" */
-		char	version[2];
-		char	uname[32];
-		char	gname[32];
-		char	devmajor[8];
-		char	devminor[8];
-		char	prefix[Maxpfx]; /* if non-null, path= prefix "/" name */
-	};
+	/* rest are defined by POSIX's ustar format; see p1003.2b */
+	char	magic[6];	/* "ustar" */
+	char	version[2];
+	char	uname[32];
+	char	gname[32];
+	char	devmajor[8];
+	char	devminor[8];
+	char	prefix[Maxpfx]; /* if non-null, path= prefix "/" name */
 } Hdr;
 
 int debug;
@@ -200,7 +197,7 @@ getblkz(int ar)
 	Hdr *hp = getblke(ar);
 
 	if (hp != nil)
-		memset(hp->data, 0, Tblock);
+		memset(hp, 0, Tblock);
 	return hp;
 }
 
@@ -270,7 +267,7 @@ chksum(Hdr *hp)
 {
 	int n = Tblock;
 	long i = 0;
-	uchar *cp = hp->data;
+	uchar *cp = (uchar*)hp;
 
 	memset(hp->chksum, ' ', sizeof hp->chksum);
 	while (n-- > 0)
@@ -522,7 +519,7 @@ addtoar(int ar, char *file, char *shortf)
 			hbp = getblke(ar);
 			blksread = gothowmany(blksleft);
 			bytes = blksread * Tblock;
-			n = read(fd, hbp->data, bytes);
+			n = read(fd, hbp, bytes);
 			if (n < 0)
 				sysfatal("error reading %s: %r", file);
 			/*
@@ -530,7 +527,7 @@ addtoar(int ar, char *file, char *shortf)
 			 * compression and emergency recovery of data.
 			 */
 			if (n < Tblock)
-				memset(hbp->data + n, 0, bytes - n);
+				memset((char*)hbp + n, 0, bytes - n);
 			putblkmany(ar, blksread);
 		}
 		close(fd);
@@ -716,7 +713,7 @@ extract1(int ar, Hdr *hp, char *fname)
 				fname);
 		blksread = gothowmany(blksleft);
 		wrbytes = (bytes >= Tblock*blksread? Tblock*blksread: bytes);
-		if (fd >= 0 && write(fd, hbp->data, wrbytes) != wrbytes)
+		if (fd >= 0 && write(fd, (char*)hbp, wrbytes) != wrbytes)
 			sysfatal("write error on %s: %r", fname);
 		putreadblks(ar, blksread);
 		bytes -= wrbytes;
