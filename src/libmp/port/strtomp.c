@@ -1,6 +1,5 @@
 #include "os.h"
 #include <mp.h>
-#include <libsec.h>
 #include "dat.h"
 
 static struct {

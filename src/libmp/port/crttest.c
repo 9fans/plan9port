@@ -1,6 +1,5 @@
 #include "os.h"
 #include <mp.h>
-#include <libsec.h>
 
 void
 testcrt(mpint **p)
