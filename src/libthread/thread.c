@@ -344,9 +344,10 @@ threadqunlock(QLock *l, ulong pc)
 {
 	lock(&l->l);
 //print("qlock unlock %p @%#x by %p (owner %p)\n", l, pc, (*threadnow)(), l->owner);
-	if(l->owner != (*threadnow)()){
+	if(l->owner == 0){
 		fprint(2, "%s: qunlock pc=0x%lux owner=%p self=%p oops\n",
 			argv0, pc, l->owner, (*threadnow)());
+		abort();
 	}
 	if((l->owner = l->waiting.head) != nil){
 		delthread(&l->waiting, l->owner);
