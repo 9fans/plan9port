@@ -24,6 +24,11 @@ _Thread	*_threadwakeup(Rendez*);
 #define	yield		threadyield
 
 /*
+ * signals
+ */
+void		threadnotify(int(*f)(void*,char*), int);
+
+/*
  * daemonize
  *
 void	threaddaemonize(void);
