@@ -1,4 +1,6 @@
 /* acid.h */
+#undef OAPPEND
+
 enum
 {
 	Eof		= -1,
@@ -261,7 +263,6 @@ String*	strnode(char*);
 String*	strnodlen(char*, int);
 #define system acidsystem
 char*	system(void);
-Regs*	threadregs(uint);
 int	trlist(Map*, Regs*, ulong, ulong, Symbol*, int);
 void	unwind(void);
 void	userinit(void);
