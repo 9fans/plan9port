@@ -1,0 +1,18 @@
+awk ' # deroman
+#   Input:  string (tab) [arab or roman]
+#   Output: string (tab) [arab]
+
+#	Roman numeral n is replaced by arab n-1000 (e.g., iii -> -997)
+BEGIN		{ FS = OFS = "\t"
+		  # set a["i"] = 1, a["ii"] = 2, ...
+		  s =   "i ii iii iv v vi vii viii ix x"
+		  s = s " xi xii xiii xiv xv xvi xvii xviii xix xx"
+		  s = s " xxi xxii xxiii xxiv xxv xxvi xxvii xxviii xxix xxx"
+		  n = split(s, b, " ")
+		  for (i = 1; i <= n; i++) a[b[i]] = i
+		}
+$2~/^[ivxlc]+$/	{ if ($2 in a) $2 = -1000 + a[$2]
+		  else print "deroman: bad number: " $0 | "cat 1>&2"
+		}
+		{ print }
+' $*

@@ -1,0 +1,35 @@
+awk ' # range.collapse
+#   Input:  lines of form: string (tab) ["b"|"e"|"a"] (tab) number
+#   Output: lines of form: string (tab) num [(space) num]
+#	In sequence of lines with same value of string:
+#	b line and following e line are combined into single line:
+#		string (tab) num num
+#	a line disappears if between paired b and e 
+#	a line otherwise becomes single line:
+#		string (tab) num
+
+function error(s) {
+	print "range.collapse: " s " near pp " rlo "-" rhi | "cat 1>&2"
+}
+function printoldrange() {
+	if (range == 1) { error("no %end for " term); rhi = "XXX" }
+	if (NR > 1) {
+		if (rlo == rhi)
+			print term, rlo
+		else
+			print term, (rlo " " rhi)
+	}
+	rlo = rhi = $3	# bounds of current range
+}
+
+BEGIN	      { FS = OFS = "\t" }
+$1 != term    {	printoldrange(); term = $1; range = 0 }
+$2 == "e"     {	if (range == 1) { range = 0; rhi = $3 }
+		else { printoldrange(); error("no %begin for " term); rlo = "XXX" }
+		next
+	      }
+$3 <= rhi + 1 { rhi = $3}
+$3 >  rhi + 1 { if (range == 0) printoldrange() }
+$2 == "b"     {	if (range == 1) error("multiple %begin for " term); range = 1 }
+END	      {	if (NR == 1) NR = 2; printoldrange() }
+' $*

@@ -1,0 +1,31 @@
+awk ' # rotate
+#   Input line: string (tab) ["b"|"e"|"a"] (tab) number
+#   Output several lines:
+#	        string (tab) ["b"|"e"|"a"] (tab) number
+#	rotated string (tab) ["b"|"e"|"a"] (tab) number
+#	rotated string (tab) ["b"|"e"|"a"] (tab) number
+#		...
+#
+#   In the output strings, tildes are replaced by spaces
+
+BEGIN	 { FS = OFS = "\t" }
+
+/ %key / { # if explicit sort.key is provided, do not rotate
+	   print $0
+	   next
+	 }
+
+	 {
+	   t1 = $1	#t1 will be $1 with tildes changed to spaces
+	   gsub(/%~/,  "QQ5QQ", t1)	#hide real tildes
+	   gsub(/~/, " ", t1)		#change tildes to spaces
+	   gsub(/QQ5QQ/,  "%~", t1)	#restore real tildes
+	   print t1, $2, $3
+	   i = 1
+	   while ((j = index(substr($1, i+1), " ")) > 0) {
+		i += j
+		printf("%s, %s\t%s\t%s\n", \
+			substr(t1, i+1), substr(t1, 1, i-1), $2, $3)
+	   }
+	 }
+' $*

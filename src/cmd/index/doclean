@@ -1,0 +1,27 @@
+#!/bin/sh
+
+awk ' # doclean
+
+#   Input:  "number tab IX string
+#	107     IX self-reference #1186 -
+#	281     TL APPENDIX A  AMPL Reference Manual   #26 -
+#   Output:        string (tab) number
+#	excess spaces are removed output string
+#	note reversal of order;  rest of programs expect it
+
+# This contains some special pleading for the AMPL book
+
+BEGIN	      { FS = OFS = "\t" }
+
+/\t(TL|H1|H2|H3|LASTPAGE)/	{ next }	# zap expected noise
+
+$0 !~ /[0-9ixv]+\tIX / {
+	print "doclean: non index line: " $0 | "cat 1>&2"; next
+}
+
+{	sub(/IX +/, "", $2)	# zap "IX "
+        sub(/ +#[0-9]+ .*$/, "", $2)	# zap trailing blanks, slug, file
+        gsub(/  +/, " ", $2)	# compress internal blanks
+        print $2, $1		# item (tab) page number
+}
+' $*

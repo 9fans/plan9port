@@ -1,0 +1,21 @@
+awk ' # num.collapse
+#   Input:  lines of form: string (tab) num1 [(space) num2]
+#   Output: lines of form: string (tab) fancy.num.list
+#
+#   fancy.num.list contains items, separated by ", ", of form: num or num-num
+#	Sequence of input lines with same value of string is combined
+#	into a single output line.  Each input line contributes either
+#	num or num-num to output line.
+
+BEGIN	{ FS = OFS = "\t" }
+
+	{ sub(/ /, "\\(en", $2) }  # use - if there is no en dash
+
+$1 != p	{ p = $1
+	  if (NR > 1) printf "\n"
+	  printf "%s\t%s", $1, $2
+	  next
+	}
+	{ printf ", %s", $2 }
+END	{ if (NR > 0) printf "\n" }
+' $*

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+#check.data $*
+
+doclean $* >foo1
+deroman foo1 >foo2
+range.prep foo2 >foo3
+rotate foo3 >foo4
+range.sort foo4 >foo5
+range.collapse foo5 >foo6
+reroman foo6 >foo7
+num.collapse foo7 >foo8
+gen.key foo8 >foo9
+see.prep see.terms | gen.key >foo.see
+final.sort foo9 foo.see >foo.regular
+
+hierarchy foo.regular >foo.hier
+
+format foo.hier >foo.all
+
+cat foo.all
+
+#cleanup

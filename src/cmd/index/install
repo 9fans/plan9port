@@ -1,0 +1,3 @@
+chmod +x check.data cleanup deroman doclean final.sort format \
+	gen.key hierarchy make.index num.collapse range.collapse \
+	range.prep range.sort reroman rotate see.prep

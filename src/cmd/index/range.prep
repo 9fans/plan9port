@@ -1,0 +1,10 @@
+awk ' # range.prep
+#   Input:  ["%begin"|"%end"|""] string (tab) number
+#   Output: string (tab) ["b"|"e"|"a"]  (tab) number
+
+BEGIN		{ FS = OFS = "\t" }
+		{ f2 = "a" }
+$1 ~ /^%begin/	{ f2 = "b"; sub(/^%begin */, "", $1) }
+$1 ~ /^%end/	{ f2 = "e"; sub(/^%end */, "", $1) }
+		{ print $1, f2, $2 }
+' $*

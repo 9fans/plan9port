@@ -1,0 +1,5 @@
+# final.sort
+#   Input/Output: sort key (tab) string (tab) numlist
+#   Sort by $1 (string)
+
+sort -t'	' +0fd -1 +0f -1 $*

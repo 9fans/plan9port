@@ -1,0 +1,80 @@
+
+The indexing programs here are modified from the versions printed in
+Bentley & Kernighan, EP-ODD V1 #1.  The programs are also described in
+AT&T Bell Laboratories Computing Science Technical Report No. 128,
+``Tools for Printing Indexes''.
+
+Changes from the published version derive from further experience
+after the paper was frozen, plus some cleanup and corrections by Joe
+Kruskal (to whom many thanks), plus some very local features for
+printing the AMPL book.
+
+
+USING THE PROGRAMS
+
+install
+	makes the appropriate files executable.  since this file
+	is not executable, use by typing "sh <install"
+ix.test
+see.terms
+	these two files provide test input.  make.index produces
+	standard output and files
+		foo[1-9] foo.regular foo.see foo.hier foo.all
+	from ix.test and see.terms.  to make sure things
+	work when you first unbundle this file, type
+		sh <install
+		make.index ix.test >foo.ix
+		troff -ms foo.ix >foo.out
+	and then examine the troff output foo.out
+cleanup
+	removes the garbage files left around for debugging
+
+
+CHANGES FROM THE PAPER
+
+make.index
+	handles "see" file see.terms.  A line like
+		algorithms<tab>searching, sorting
+	generates in the final index
+		algorithms see searching, sorting
+	a 3rd field of %also makes it
+		algorithms see also searching, sorting
+doclean
+deroman
+range.prep
+	minor change to defend against bug in some versions of "sort"
+rotate
+	moved here (and changed as necessary) to remove subtle bug.
+	see check.data below
+range.sort
+	-u option on sort removes duplicate entries on same page
+range.collapse
+reroman
+	page number concatenation removed from here ...
+num.collapse
+	and moved to here.   also commas between numbers now
+	inserted here (to make see terms easier)
+gen.key
+	literals protected differently in gsub commands.
+	rules for non-alpha index terms slightly richer:
+		purely nonalphabetic lines first
+		lines with leading digits next
+		ordinary lines last
+see.prep
+	changed to match changes above, and to rely on font-changing {}
+final.sort
+	uses -d option for "telephone directory" order.
+hierarchy
+	a rather special purpose version to replace runs of items
+	with a common one or two word prefix and replace them by
+	a head word and indented lines.
+	this also does some rearrangement to bring see terms to the top,
+	and terms with formatting info to the bottom;  this is not
+	always the right thing to do.
+format
+	letter changes (.YY) determined by first letter.
+	minor rearrangement of how output line is created.
+	commas no longer added here.
+	[Some systems have a disk-formatting program called format.]
+check.data
+	new program that catches subtle errors in the data

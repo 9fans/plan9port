@@ -1,0 +1,5 @@
+# range.sort
+#   Input/Output: string (tab) ["b"|"e"|"a"] (tab) number
+#   Sort by $1 (string), $3 (number), then $2 ("b"|"e"|"a")
+
+sort -u '-t	' +0 -1   +2n   +1 -2   $*

@@ -1,0 +1,31 @@
+awk '
+BEGIN{
+	print ".nr Rp 1"	# supress ... Rx lines
+	first=1
+}
+
+#these come first
+$1=="..." && $2=="Rx"{
+	ref[$4] = $3
+	next
+}
+
+first {
+	printf(".lf %d %s\n", 1, inputfile)
+	lineoffset=NR-1
+	first=0
+}
+
+$1==".Rf"{
+	if($2 in ref)
+		$2=ref[$2]
+	else
+		printf("tref: %s:%d: no ref for %s\n",
+			inputfile, NR-lineoffset, $2) >"/dev/stderr"
+}
+
+{
+	print
+}
+
+' $*

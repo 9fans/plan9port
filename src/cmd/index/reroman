@@ -1,0 +1,23 @@
+awk ' # reroman
+#   Output: string (tab) arab1            [(space) arab2]
+#   Input:  string (tab) arab1 or roman1  [(space) arab2 or roman2]
+
+BEGIN	{ FS = OFS = "\t"
+	  # set a[1] = "i", a[2] = "ii", ...
+	  s =   "i ii iii iv v vi vii viii ix x"
+	  s = s " xi xii xiii xiv xv xvi xvii xviii xix xx"
+	  s = s " xxi xxii xxiii xxiv xxv xxvi xxvii xxviii xxix xxx"
+	  split(s, a, " ")
+	}
+$2 < 0	{ n = split($2, b, " ")
+	  for (i = 1; i <= n; i++) {
+		if (b[i] >= 0) continue
+	  	j = 1000 + b[i]
+	  	if (j in a) b[i] = a[j]
+	  	else print "reroman: bad number: " $0  | "cat 1>&2"
+	  }
+	  $2 = b[1]
+	  if (n > 1) $2 = b[1] " " b[2]
+	}
+	{ print }
+' $*

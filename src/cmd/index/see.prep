@@ -1,0 +1,10 @@
+#!/bin/sh
+
+awk ' # see.prep
+#   Input:  string "\t"  	     string
+#   Output: string "\t{see [also]} " string
+
+BEGIN { FS = "\t" }
+$3 ~ /%also/	{ print $1 "\t{see also} " $2; next }
+		{ print $1 "\t{see} " $2 }
+' $*

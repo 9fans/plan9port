@@ -1,0 +1,3 @@
+#!/bin/sh
+
+rm foo[1-9] foo.*

@@ -1,0 +1,69 @@
+soft constraints	penalty function
+[>>> <<<]	error messages
+omitted data value	default symbol
+data value, omitted	default symbol
+["].\|.\|.["], ['].\|.\|.[']	quotes
+[..]	arithmetic progression
+[=] attribute	defined variables
+[.body]	constraint body
+built-in function	function
+Cartesian product	cross product
+conditional expression	logical expression, [if]-[then]-[else]
+conditional declaration	[if] indexing expression
+[.dat] file	file
+[.dual]	dual value
+Lagrange multiplier	dual variables
+index	dummy index
+iterated operator	operator
+comparison operators	relational operators
+[maximize]	objective declaration
+[minimize]	objective declaration
+model file	file
+[.mod] file	file
+price, shadow	dual value
+problem	model	%also
+[.rc]	reduced cost
+data reset	[reset] [data] command
+scaling along arc	loss in network flow
+scope	dummy index	%also
+set of sets	indexed collection
+shadow price	dual value
+marginal~value	dual value
+simplification of expression	presolve	%also
+starting guess	initial values of variables
+[subject] [to]	constraint declaration
+[s.t.]	constraint declaration
+symmetric difference	[symdiff]
+set difference	[diff], [symdiff]
+syntax error	error messages
+messages	error messages
+space requirement	memory use
+viewing data	[display] command
+[;]	semicolon statement terminator
+array	one-dimensional set, parameter
+vector	one-dimensional set, parameter
+matrix	two-dimensional set, parameter
+command mode	model mode
+[>], [>>]	output to file
+redirection	output to file
+qualified name	[.] suffix
+member, dummy	dummy index
+membership test	[in], [within]
+subset test	[in], [within]
+such-that condition	logical condition
+set intersection	[inter]
+intersection, set	[inter]
+slope	piecewise-linear expression
+breakpoint	piecewise-linear expression
+command	statement	%also
+statement	command, declaration	%also
+declaration	statement	%also
+traffic flow	maximum flow model
+flow	network flow
+roll trim problem	cutting-stock problem
+argument	command-line argument
+zero-one programming	integer programming
+reading files	[model], [data]
+file inclusion	[model], [data]
+[include]	[model], [data]	%also
+transposition	table transposition

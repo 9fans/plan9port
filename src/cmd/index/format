@@ -1,0 +1,64 @@
+awk ' # format
+#   Input:  sort key (tab) string (tab) numlist
+#   Output: troff format, commands interpreted
+
+BEGIN {	FS = "\t"
+	s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz "
+	# set upper["a"] = "A"
+	for (i = 1; i <= 27; i++) upper[substr(s,i+27,1)] = substr(s,i,1)
+	# set lower["a"] =  lower["A"] ="a"
+	for (i = 1; i <= 27; i++) {
+		lower[substr(s,i,1)] = substr(s,i+27,1)
+		lower[substr(s,i+27,1)] = substr(s,i+27,1)
+	}
+}
+{ # mark change between letters with .YY
+	# find first non-punctuation char
+	for (i = 1; (c = substr($1,i,1)) != ""; i++)
+		if (c ~ /[a-zA-Z0-9 ]/)
+			break
+	this = c
+	if (!(this in lower)) lower[this] = " "
+	this = lower[this]
+	if (this != last)  # && this != " ")
+		print ".YY", this, upper[last=this]
+	quoted = 0
+
+  # interpret font change language
+
+	if ($2 ~ /^   /)	# different macro, to avoid bad breaks in hier
+		print ".ZZ"
+	else
+		print ".XX"
+	if (NF == 3)
+		$0 = $2 "," "  " $3	# discard sort key, leave term .. numlist
+	else
+		$0 = $2
+
+	if ($0 ~ /%/) {
+		quoted = 1
+		gsub(/%%/,  "QQ0QQ", $0)
+		gsub(/%\[/, "QQ1QQ", $0)
+		gsub(/%\]/, "QQ2QQ", $0)
+		gsub(/%\{/, "QQ3QQ", $0)
+		gsub(/%\}/, "QQ4QQ", $0)
+		gsub(/%~/,  "QQ5QQ", $0)
+	}
+	gsub(/%e/, "\\e", $0) # %e -> \e
+	gsub(/~/, " ", $0)    # unpaddable spaces go away at last
+	if (gsub(/\[/, "\\\\&\\f(CW", $0))
+		gsub(/\]/, "\\fP",   $0)
+	if (gsub(/\{/, "\\f2",   $0))
+		gsub(/\}/, "\\fP",   $0)
+	if (quoted) {
+		gsub(/%/, "", $0)
+		gsub(/QQ0QQ/, "%", $0)
+		gsub(/QQ1QQ/, "[", $0)
+		gsub(/QQ2QQ/, "]", $0)
+		gsub(/QQ3QQ/, "{", $0)
+		gsub(/QQ4QQ/, "}", $0)
+		gsub(/QQ5QQ/, "~", $0)
+	}
+	printf "\\&%s\n", $0
+}
+' $*

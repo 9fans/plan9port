@@ -1,0 +1,133 @@
+#!/bin/sh
+
+# input:
+#	key (tab) string (tab) page numbers
+#		command	command	123
+#		command, data	command, [data]	11
+#		command, display	command, [display]	11, 54, 63, 75
+#		command, model	command, [model]	11
+#		command, quit	command, [quit]	5, 16
+# output:
+#	key (tab) string (tab) page numbers
+#		key	command  123
+#		key	   [data]  11
+#		key	   [display] ...
+#		key	   [model] ...
+#		key	   [quit] ...
+
+awk '
+BEGIN	{ FS = OFS = "\t" }
+
+{	line[NR] = $0; x[NR] = $2 "\t" $3; y[NR] = $1 }
+
+# find a sequence that have the same prefix
+# dump prefix, then each instance with spaces instead of prefix
+END {
+	for (i = 1; i <= NR; i = j+1) {
+		j = findrun(i)		# returns last elem of run
+		if (j > i)
+			printrun(i, j)
+		else
+			print y[i], x[i]
+	}
+}
+
+function findrun(s,	j, p, np) {	# find y[s],y[s+1]... with same prefix
+	p = prefix(y[s])
+	np = length(p)
+	for (j = s+1; j <= NR; j++) {
+		if (y[j] == p)			# same, so include
+			continue
+		if (index(y[j], p) != 1)	# no match
+			break
+		c = substr(y[j], np+1, 1)
+		if (c != " " && c != ",")	# has to be whole word prefix
+			break
+	}
+	return j-1
+}
+
+function prefix(s,	n) {	# find 1st word of s: same sort key, minus ,
+	gsub(/,/, "", s)
+	n = index(s, " ")
+	if (n > 0)
+		return substr(s, 1, n-1)
+	else
+		return s
+}
+
+function printrun(s, e,		i) {	# move [...] to end, "see" to front
+	s1 = 0; e1 = 0; p1 = 0; i1 = 0
+	for (i = s; i <= e; i++) {
+		if (x[i] ~ /{see/) {		# see, see also
+			sx[s1] = x[i]
+			sy[s1] = y[i]
+			s1++
+		} else if (x[i] ~ /^\[/) {	# prefix word is [...]
+			px[p1] = x[i]
+			py[p1] = y[i]
+			p1++
+		} else if (x[i] ~ /\[.*\]/) {	# [...] somewhere else
+			ex[e1] = x[i]
+			ey[e1] = y[i]
+			e1++
+		} else {			# none of the above
+			ix[i1] = x[i]
+			iy[i1] = y[i]
+			i1++
+		}
+	}
+	if (e-s+1 != s1 + p1 + i1 + e1) print "oh shit" >"/dev/stderr"
+
+	for (i = 0; i < s1; i++)	# "see", one/line
+		print sy[i], sx[i]
+	if (i1 > 1)
+		printgroup(ix,iy,0,i1)	# non [...] items
+	else if (i1 == 1)
+		print iy[0], ix[0]
+	if (e1 > 1)
+		printgroup(ex,ey,0,e1)	# prefix [...] items
+	else if (e1 == 1)
+		print ey[0], ex[0]
+	# for (i = 0; i < p1; i++)	# [prefix] ... items
+	# 	print py[i], px[i]
+	if (p1 > 1)
+		printgroup(px,py,0,p1)	# [prefix] ... items
+	else if (p1 == 1)
+		print py[0], px[0]
+}
+
+function printgroup(x, y, s, e,		i, j) {
+	split(x[s], f23)
+	if (split(f23[1], temp, " ") > 1) {
+		pfx = temp[1] " " temp[2]	# 2-word prefix
+		for (i = s+1; i < e; i++) {
+			if (index(x[i], pfx) != 1)
+				break
+			c = substr(x[i], length(pfx)+1, 1)
+			if (c != " " && c != ",")	# has to be whole word prefix
+				break
+		}
+		if (i == e) {
+			# print "got a run with", pfx
+			sub(/ /, "@", f23[1])
+			for (i = s; i < e; i++)
+				sub(/ /, "@", x[i])	# take @ out later
+		}
+	}
+	n = sub(/,?[ ~]+.*/, "", f23[1]) # zap rest of line
+
+	sub(/,$/, "", f23[1])
+	if (n > 0) {	# some change, so not a single word
+		sub(/@/, " ", f23[1])
+		print y[s], f23[1]	# print main entry
+	}
+	for (j = s; j < e; j++) {
+		split(x[j], f23)
+		sub(/^[^, ]+[, ]+/, "   ", f23[1])
+		sub(/@/, " ", f23[1])
+		print y[s], f23[1], f23[2]
+	}
+}
+
+' $*

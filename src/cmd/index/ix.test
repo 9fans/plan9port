@@ -1,0 +1,17 @@
+ix: line	1
+ix: line	2
+ix: line	2
+ix: line	3
+ix: %begin line	11
+ix: line	15
+ix: %end line	19
+ix: \f(CWps\fP \f(CW-a\fP	34
+ix: \f(CWps\fP command	34
+ix: \f(CWPS1\fP shell variable	36
+ix: sorting~a book~index	25
+ix: [pr]~[-]{n} command	31
+ix: [%[^]...[%]] regular~expression	32
+ix: [printf] [%%d] specification	35
+ix: T\v'.17m'\h'-.12m'E\h'-.12m'\v'-.17m'X %key TEX	40
+ix: CONTENTS 7 Input and Output
+ix: [%~] tilde	41
