@@ -2,6 +2,8 @@
 intro 0intro.1
 9 9.1
 9.rc 9.1
+u 9.1
+u.rc 9.1
 9a 9c.1
 9ar 9c.1
 9c 9c.1
@@ -114,6 +116,11 @@ ndbmkdb ndb.1
 ndbmkhash ndb.1
 ndbmkhosts ndb.1
 ndbquery ndb.1
+Netfiles netfiles.1
+netfileget netfiles.1
+netfileput netfiles.1
+netfiles netfiles.1
+netfilestat netfiles.1
 news news.1
 p p.1
 img page.1

@@ -6,4 +6,6 @@ factotum factotum.4
 import import.4
 plumber plumber.4
 ramfs ramfs.4
+9fs srv.4
+srv srv.4
 vacfs vacfs.4
