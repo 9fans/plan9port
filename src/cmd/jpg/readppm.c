@@ -16,14 +16,12 @@ Bgetch(Biobuf *b)
 {
 	int c;
 
-	for(;;) {
-		c = Bgetc(b);
-		if(c == '#') {
-			while((c = Bgetc(b)) != Beof && c != '\n')
-				;
-		}
-		return c;
-	}		
+	c = Bgetc(b);
+	if(c == '#') {
+		while((c = Bgetc(b)) != Beof && c != '\n')
+			;
+	}
+	return c;		
 }
 
 /*
