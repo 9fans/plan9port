@@ -659,7 +659,9 @@ texttype(Text *t, Rune r)
 		n = t->fr.maxlines/3;
 		goto case_Down;
 	case Kscrollonedown:
-		n = 1;
+		n = mousescrollsize(t->fr.maxlines)-1;	/* -1 counters a bug somewhere else */
+		if(n <= 0)
+			n = 1;
 		goto case_Down;
 	case Kpgdown:
 		n = 2*t->fr.maxlines/3;
@@ -671,7 +673,7 @@ texttype(Text *t, Rune r)
 		n = t->fr.maxlines/3;
 		goto case_Up;
 	case Kscrolloneup:
-		n = 2;	/* feels like this should be n=1, but that does nothing */
+		n = mousescrollsize(t->fr.maxlines)+1;	/* +1 counters a bug somewhere else */
 		goto case_Up;
 	case Kpgup:
 		n = 2*t->fr.maxlines/3;

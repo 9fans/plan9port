@@ -556,9 +556,10 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 		d = dirstat(name);
 		isdir = (d!=nil && (d->qid.type & QTDIR));
 		free(d);
-		if(isdir)
+		if(isdir){
 			warning(nil, "%s is a directory; can't read with multiple windows on it\n", name);
-		return;
+			return;
+		}
 	}
 	r = bytetorune(name, &n);
 	for(i=0; i<t->file->ntext; i++){
