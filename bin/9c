@@ -22,7 +22,14 @@ usegcc()
 
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
-*BSD*)		usegcc ;;
+*FreeBSD*) usegcc
+		case "`uname -r`" in
+		5.*)
+			cflags="$cflags -D__FreeBSD5__"
+			;;
+		esac
+		;;
+*BSD*)	usegcc ;;
 *Darwin*)	usegcc 
 		cflags="$ngflags -g3 -no-cpp-precomp" ;;
 *HP-UX*)	cc=cc; cflags="-g -O -c -Ae" ;;
