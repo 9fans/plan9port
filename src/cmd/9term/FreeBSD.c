@@ -1,10 +1,10 @@
 #include <u.h>
-#include "9term.h"
 #include <sys/types.h>
 #include <termios.h>
 #include <sys/termios.h>
 #include <libutil.h>
 #include <libc.h>
+#include "term.h"
 
 int
 getpts(int fd[], char *slave)

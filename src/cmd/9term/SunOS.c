@@ -4,6 +4,8 @@
 #include <libc.h>
 #include "term.h"
 
+#define debug 0
+
 int
 getpts(int fd[], char *slave)
 {
@@ -55,72 +57,34 @@ updatewinsize(int row, int col, int dx, int dy)
 	ows = ws;
 }
 
-/*
- * israw has been inspired by Matty Farrow's 9term.
- * The code below is probably a gross simplification --
- * for the few cases tested it seems to be enough.
- * However, for example, Matty's code also looks at ISIG,
- * whereas, we do not (yet?). Axel.
- *
- *Note: I guess only the get/set terminal mode attribute
- * code needs to be here; the logic around it could be
- * elswhere (9term.c) - but if the code below is split,
- * the question is what a nice interface would be. Axel.
- */
-
 static struct termios ttmode;
 
 int
 israw(int fd)
 {
-	int e, c, i;
-
-	tcgetattr(fd, &ttmode);
-	c = (ttmode.c_lflag & ICANON) ? 1 : 0;
-	e = (ttmode.c_lflag & ECHO) ? 1 : 0;
-	i = (ttmode.c_lflag & ISIG) ? 1 : 0;
-
-	if(0) fprint(2, "israw: icanon=%d echo=%d isig=%d\n", c, e, i);
-
-	return !c || !e ;
+	if(tcgetattr(fd, &ttmode) < 0)
+		fprint(2, "tcgetattr: %r\n");
+	if(debug) fprint(2, "israw %c%c\n",
+		ttmode.c_lflag&ICANON ? 'c' : '-',
+		ttmode.c_lflag&ECHO ? 'e' : '-');
+	return !(ttmode.c_lflag&(ICANON|ECHO));
 }
-
 
 int
-setecho(int fd, int on)
+setecho(int fd, int newe)
 {
-	int e, c, i;
-	int oldecho;
+	int old;
 
-	tcgetattr(fd, &ttmode);
-	c = (ttmode.c_lflag & ICANON) ? 1 : 0;
-	e = (ttmode.c_lflag & ECHO) ? 1 : 0;
-	i = (ttmode.c_lflag & ISIG) ? 1 : 0;
-
-	if(0) fprint(2, "setecho(%d) pre: icanon=%d echo=%d isig=%d\n", on, c, e, i);
-
-	oldecho = e;
-
-	if (oldecho == on)
-		return  oldecho;
-
-	if (on) {
-		ttmode.c_lflag |= ECHO;
-		tcsetattr(fd, TCSANOW, &ttmode);
-	} else {
-		ttmode.c_lflag &= ~ECHO;
-		tcsetattr(fd, TCSANOW, &ttmode);
+	if(tcgetattr(fd, &ttmode) < 0)
+		fprint(2, "tcgetattr: %r\n");
+	old = (ttmode.c_lflag&ECHO)==ECHO;
+	if(old != newe){
+		if(newe)
+			ttmode.c_lflag |= ECHO;
+		else
+			ttmode.c_lflag &= ~ECHO;
+		if(tcsetattr(fd, TCSANOW, &ttmode) < 0)
+			fprint(2, "tcsetattr: %r\n");
 	}
-
-	if (0){
-		tcgetattr(fd, &ttmode);
-		c = (ttmode.c_lflag & ICANON) ? 1 : 0;
-		e =  (ttmode.c_lflag & ECHO) ? 1 : 0;
-		i = (ttmode.c_lflag & ISIG) ? 1 : 0;
-
-		fprint(2, "setecho(%d) post: icanon=%d echo=%d isig=%d\n", on, c, e, i);
-	}
-
-	return oldecho;
+	return old;
 }
-

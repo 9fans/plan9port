@@ -835,7 +835,7 @@ key(Rune r)
 		return;
 	}
 
-	rawon = israw(sfd);
+	rawon = !isecho(sfd);
 	if(rawon && t.q0==t.nr){
 		addraw(&r, 1);
 		consread();
@@ -927,7 +927,7 @@ consready(void)
 	if(holdon)
 		return 0;
 
-	rawon = israw(sfd);
+	rawon = !isecho(sfd);
 	if(rawon) 
 		return t.nraw != 0;
 
@@ -946,12 +946,11 @@ consread(void)
 {
 	char buf[8000], *p;
 	int c, width, n;
-	int echo;
+	int s;
 
 	for(;;) {
 		if(!consready())
 			return;
-
 		n = sizeof(buf);
 		p = buf;
 		c = 0;
@@ -965,19 +964,22 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
-			rawon = israw(sfd);
+			rawon = !isecho(sfd);
 			if(!rawon && (c == '\n' || c == '\004' || c == '\x7F'))
 				break;
 		}
-		/* take out control-d when not doing a zero length write */
 		n = p-buf;
-		if(0) fprint(2, "write buf\n");
-		/* temporarily disable echo for buf. sensitive to race? Axel. */
-	//	echo = setecho(sfd, 0);
+
+		/*
+		 * We've been echoing, so make sure the terminal isn't
+		 * while we do the write.  This screws up if someone 
+		 * else tries to turn on echo at the same time (we'll turn it
+		 * off again after the write), but that's not too likely.
+		 */
+		s = setecho(sfd, 0);
 		if(write(rcfd, buf, n) < 0)
 			exits(0);
-	//	setecho(sfd, echo);
-/*		mallocstats(); */
+		setecho(sfd, s);
 	}
 }
 
@@ -1258,7 +1260,7 @@ paste(Rune *r, int n, int advance)
 {
 	Rune *rbuf;
 
-	rawon = israw(sfd);
+	rawon = !isecho(sfd);
 	if(rawon && t.q0==t.nr){
 		addraw(r, n);
 		return;

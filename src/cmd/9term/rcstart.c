@@ -6,17 +6,10 @@
 #include <signal.h>
 #include "term.h"
 
-/*
- * Somehow we no longer automatically exit
- * when the shell exits; hence the SIGCHLD stuff.
- * Something that can be fixed? Axel.
- */
-static int pid;
-
 int
 rcstart(int argc, char **argv, int *pfd, int *tfd)
 {
-	int fd[2];
+	int fd[2], i, pid;
 	char *xargv[3];
 	char slave[256];
 	int sfd;
@@ -36,7 +29,6 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	fd[0] = fd[1] = -1;
 	if(getpts(fd, slave) < 0)
 		sysfatal("getpts: %r\n");
-
 	switch(pid = fork()) {
 	case 0:
 		putenv("TERM", "9term");
@@ -44,7 +36,9 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		dup(sfd, 0);
 		dup(sfd, 1);
 		dup(sfd, 2);
-		system("stty tabs -onlcr -echo erase '^h' intr '^?'");
+		system("stty tabs -onlcr onocr icanon echo erase '^h' intr '^?'");
+		for(i=3; i<100; i++)
+			close(i);
 		execvp(argv[0], argv);
 		fprint(2, "exec %s failed: %r\n", argv[0]);
 		_exits("oops");
@@ -54,10 +48,11 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		break;
 	}
 	*pfd = fd[1];
-	if(tfd)
-		*tfd = fd[0];
-	else
-		close(fd[0]);
+	close(fd[0]);
+	if(tfd){
+		if((*tfd = open(slave, OREAD)) < 0)
+			sysfatal("parent open %s: %r", slave);
+	}
 	return pid;
 }
 
