@@ -176,12 +176,14 @@ and a remote BSD machine
 stats -lmisce `hostname` tux:/usr/local/plan9/bin/auxstats daemon
 .SH SOURCE
 .B /usr/local/plan9/src/cmd/draw/stats.c
+.PP
+.B /usr/local/plan9/src/cmd/auxstats
 .SH BUGS
 The
 .I auxstats
 binary needs read access to
 .B /dev/kmem
-in order to collect network statistics on BSD systems.
+in order to collect network statistics on non-Linux systems.
 Typically this can be arranged by setting the
 .I auxstat
 binary's

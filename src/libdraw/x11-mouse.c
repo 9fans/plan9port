@@ -149,13 +149,21 @@ setcursor(Mousectl *mc, Cursor *c)
 	_xsetcursor(c);
 }
 
+/*
+ * Send the mouse event back to the window manager.
+ * So that 9term can tell rio to pop up its button3 menu.
+ * Note that we're using _x.mousecon in a few places,
+ * so we have to be sure that the mouse proc isn't using it
+ * when we call!  This is all a bit wonky and should be 
+ * avoided unless you know what you're doing.
+ */
 void
 bouncemouse(Mouse *m)
 {
 	XButtonEvent e;
+	XWindow dw;
 
 	e.type = ButtonPress;
-	e.window = DefaultRootWindow(_x.display);
 	e.state = 0;
 	e.button = 0;
 	if(m->buttons&1)
@@ -164,10 +172,18 @@ bouncemouse(Mouse *m)
 		e.button = 2;
 	else if(m->buttons&4)
 		e.button = 3;
-	e.x = m->xy.x;
-	e.y = m->xy.y;
+	e.same_screen = 1;
+	XTranslateCoordinates(_x.display, _x.drawable,
+		DefaultRootWindow(_x.display),
+		m->xy.x, m->xy.y, &e.x_root, &e.y_root, &dw);
+	e.root = DefaultRootWindow(_x.mousecon);
+	e.window = e.root;
+	e.subwindow = None;
+	e.x = e.x_root;
+	e.y = e.y_root;
 #undef time
 	e.time = CurrentTime;
-	XSendEvent(_x.display, e.window, True, ButtonPressMask, (XEvent*)&e);
-	XFlush(_x.display);
+	XUngrabPointer(_x.mousecon, m->msec);
+	XSendEvent(_x.mousecon, e.root, True, ButtonPressMask, (XEvent*)&e);
+	XFlush(_x.mousecon);
 }

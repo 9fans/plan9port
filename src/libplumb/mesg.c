@@ -64,6 +64,10 @@ plumbsendtofid(Fid *fid, Plumbmsg *m)
 	char *buf;
 	int n;
 
+	if(fid == nil){
+		werrstr("invalid fid");
+		return -1;
+	}
 	buf = plumbpack(m, &n);
 	if(buf == nil)
 		return -1;
@@ -75,6 +79,10 @@ plumbsendtofid(Fid *fid, Plumbmsg *m)
 int
 plumbsend(int fd, Plumbmsg *m)
 {
+	if(fd == -1){
+		werrstr("invalid fd");
+		return -1;
+	}
 	if(fd != pfd){
 		werrstr("fd is not the plumber");
 		return -1;

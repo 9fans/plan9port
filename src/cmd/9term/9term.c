@@ -544,9 +544,13 @@ mouse(void)
 		domenu2(2);
 		break;
 	case 4:
+		bouncemouse(&t.m);
+		break;
+	/*
 		if(aselect(&q0, &q1, plumbcolor) >= 0)
 			plumb(q0, q1);
 		break;
+	*/
 	}
 }
 

@@ -55,6 +55,7 @@ xmeminfo(int first)
 {
 	int i;
 	vlong tot, used;
+	vlong mtot, mfree;
 	static int fd = -1;
 
 	if(first){
@@ -63,9 +64,10 @@ xmeminfo(int first)
 	}
 
 	readfile(fd);
+	mtot = 0;
 	for(i=0; i<nline; i++){
 		tokens(i);
-		if(ntok < 4)
+		if(ntok < 3)
 			continue;
 		tot = atoll(tok[1]);
 		used = atoll(tok[2]);
@@ -73,6 +75,14 @@ xmeminfo(int first)
 			Bprint(&bout, "mem =%lld %lld\n", used/1024, tot/1024);
 		else if(strcmp(tok[0], "Swap:") == 0)
 			Bprint(&bout, "swap =%lld %lld\n", used/1024, tot/1024);
+		else if(strcmp(tok[0], "MemTotal:") == 0)
+			mtot = atoll(tok[1]);	/* kb */
+		else if(strcmp(tok[0], "MemFree:") == 0){
+			mfree = atoll(tok[1]);
+			if(mtot < mfree)
+				continue;
+			Bprint(&bout, "mem =%lld %lld\n", mtot-mfree, mtot);
+		}
 	}
 }
 

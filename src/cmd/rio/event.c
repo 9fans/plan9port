@@ -352,6 +352,7 @@ property(XPropertyEvent *e)
 	Atom a;
 	int delete;
 	Client *c;
+	long msize;
 
 	/* we don't set curtime as nothing here uses it */
 	a = e->atom;
@@ -377,6 +378,15 @@ property(XPropertyEvent *e)
 		return;
 	case XA_WM_TRANSIENT_FOR:
 		gettrans(c);
+		return;
+	case XA_WM_HINTS:
+	case XA_WM_SIZE_HINTS:
+	case XA_WM_ZOOM_HINTS:
+		/* placeholders to not forget.  ignore for now.  -Axel */
+		return;
+	case XA_WM_NORMAL_HINTS:
+		if (XGetWMNormalHints(dpy, c->window, &c->size, &msize) == 0 || c->size.flags == 0)
+			c->size.flags = PSize;	/* not specified - punt */
 		return;
 	}
 	if (a == _rio_hold_mode) {
@@ -404,7 +414,12 @@ reparent(XReparentEvent *e)
 	if ((s = getscreen(e->parent)) != 0) {
 		c = getclient(e->window, 1);
 		if (c != 0 && (c->dx == 0 || c->dy == 0)) {
+			/* flush any errors */
+			ignore_badwindow = 1;
 			XGetWindowAttributes(dpy, c->window, &attr);
+			XSync(dpy, False);
+			ignore_badwindow = 0;
+
 			c->x = attr.x;
 			c->y = attr.y;
 			c->dx = attr.width;

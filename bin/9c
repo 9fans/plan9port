@@ -35,6 +35,7 @@ case "$tag" in
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
+		cflags="$ngflags -g"
 		cflags="$cflags -D__$s__"
 		;;
 *)
@@ -42,4 +43,13 @@ case "$tag" in
 	exit 1
 esac
 
-exec $cc -I$PLAN9/include $cflags "$@"
+case "$tag" in
+*SunOS*-cc)
+	exec $cc -I$PLAN9/include $cflags "$@" | 
+		/bin/sed 's/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g'
+	;;
+*)
+	exec $cc -I$PLAN9/include $cflags "$@"
+	;;
+esac
+

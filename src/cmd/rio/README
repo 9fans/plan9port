@@ -16,7 +16,7 @@ Current incompatibilities that would be nice to fix:
   can put up the usual b3 menu.
 
 Axel Belinfante contributed the code to handle border grabbing
-for resize.
+for resize and various other improvements.
 
 The original README is below.
 

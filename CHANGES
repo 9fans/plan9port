@@ -1,3 +1,11 @@
+April 23, 2004
+
+	fix B to handle non-existent files properly
+
+	add stats
+
+	various 9term/rio fixes from axel belinfante
+
 April 21, 2004
 
 	add bc, units, mtime, primes, news

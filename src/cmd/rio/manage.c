@@ -359,8 +359,11 @@ getcmaps(Client *c)
 	XWindowAttributes attr;
 
 	if (!c->init) {
+		ignore_badwindow = 1;
 		XGetWindowAttributes(dpy, c->window, &attr);
 		c->cmap = attr.colormap;
+		XSync(dpy, False);
+		ignore_badwindow = 0;
 	}
 
 	n = _getprop(c->window, wm_colormaps, XA_WINDOW, 100L, (void*)&cw);
@@ -381,9 +384,13 @@ getcmaps(Client *c)
 		if (cw[i] == c->window)
 			c->wmcmaps[i] = c->cmap;
 		else {
+			/* flush any errors (e.g., caused by mozilla tabs) */
+			ignore_badwindow = 1;
 			XSelectInput(dpy, cw[i], ColormapChangeMask);
 			XGetWindowAttributes(dpy, cw[i], &attr);
 			c->wmcmaps[i] = attr.colormap;
+			XSync(dpy, False);
+			ignore_badwindow = 0;
 		}
 	}
 }
