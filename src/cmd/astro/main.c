@@ -14,8 +14,8 @@ main(int argc, char *argv[])
 	radsec = radian/3600;
 	converge = 1.0e-14;
 
-	startab = unsharp("#9/lib/sky/estartab");
-	herefile = unsharp("#9/lib/sky/estartab");
+	startab = unsharp("#9/sky/estartab");
+	herefile = unsharp("#9/sky/here");
 
 	fmtinstall('R', Rconv);
 	fmtinstall('D', Dconv);
