@@ -13,7 +13,7 @@ void		threadexits(char *);
 void		threadexitsall(char *);
 void		threadsetname(char*, ...);
 void		threadsetstate(char*, ...);
-void		threadyield(void);
+int			threadyield(void);
 void		_threadready(_Thread*);
 void		_threadswitch(void);
 void		_threadsetsysproc(void);
