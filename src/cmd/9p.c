@@ -1,6 +1,7 @@
 #include <u.h>
 #include <signal.h>
 #include <libc.h>
+#include <bio.h>
 #include <fcall.h>
 #include <9pclient.h>
 #include <auth.h>
@@ -15,7 +16,7 @@ usage(void)
 	fprint(2, "possible cmds:\n");
 	fprint(2, "	read name\n");
 	fprint(2, "	readfd name\n");
-	fprint(2, "	write name\n");
+	fprint(2, "	write [-l] name\n");
 	fprint(2, "	writefd name\n");
 	fprint(2, "	stat name\n");
 //	fprint(2, "	ls name\n");
@@ -176,8 +177,14 @@ xwrite(int argc, char **argv)
 	char buf[1024];
 	int n, did;
 	CFid *fid;
+	Biobuf *b;
+	char *p;
+	int byline;
 
+	byline = 0;
 	ARGBEGIN{
+	case 'l':
+		byline = 1;
 	default:
 		usage();
 	}ARGEND
@@ -187,10 +194,25 @@ xwrite(int argc, char **argv)
 
 	did = 0;
 	fid = xopen(argv[0], OWRITE|OTRUNC);
-	while((n = read(0, buf, sizeof buf)) > 0){
-		did = 1;
-		if(fswrite(fid, buf, n) != n)
-			sysfatal("write error: %r");
+	if(byline){
+		n = 0;
+		b = malloc(sizeof *b);
+		if(b == nil)
+			sysfatal("out of memory");
+		Binit(b, 0, OREAD);
+		while((p = Brdstr(b, '\n', 0)) != nil){
+			n = strlen(p);
+			did = 1;
+			if(fswrite(fid, p, n) != n)
+				sysfatal("write error: %r");
+		}
+		free(b);
+	}else{
+		while((n = read(0, buf, sizeof buf)) > 0){
+			did = 1;
+			if(fswrite(fid, buf, n) != n)
+				sysfatal("write error: %r");
+		}
 	}
 	if(n == 0 && !did){
 		if(fswrite(fid, buf, 0) != 0)
