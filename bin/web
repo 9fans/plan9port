@@ -2,20 +2,27 @@
 
 plumb1()
 {
-	case $BROWSER in
+	case x-$BROWSER in
 	# Other browsers here
 	# ...
 	*opera*)
-		$BROWSER -remote 'openURL('$i', new-page)'
+		$BROWSER -remote 'openURL('$i',new-page)'
 		;;
 	*firebird*)
-		$BROWSER -remote 'openURL('$i', new-window)'
+		$BROWSER -remote 'openURL('$i',new-window)'
 		;;
 	*firefox*)
-		$BROWSER -remote 'openURL('$i', new-tab)'
+		$BROWSER -remote 'openURL('$i',new-tab)'
+		;;
+	x-)
+		# run firefox as default!
+		firefox -remote 'openURL('$i',new-tab)'
 		;;
 	*mozilla*)
-		$BROWSER -remote 'openURL('$i', new-tab)'
+		$BROWSER -remote 'openURL('$i',new-tab)'
+		;;
+	x-*)
+		$BROWSER -remote 'openURL('$i',new-tab)'
 		;;
 	esac
 }
