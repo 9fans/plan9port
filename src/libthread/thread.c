@@ -329,6 +329,12 @@ threadsetname(char *fmt, ...)
 	va_end(arg);
 }
 
+char*
+threadgetname(void)
+{
+	return proc()->thread->name;
+}
+
 void
 threadsetstate(char *fmt, ...)
 {
