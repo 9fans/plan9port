@@ -1,0 +1,203 @@
+This is David Hogan's 9wm updated to behave more like 
+Plan 9's rio.  Since I cannot get approval for the changes
+and I'd prefer not to resort to patches, I have renamed it "rio".
+
+Current incompatibilities that would be nice to fix:
+
+- Rio uses X11 fonts for the menu, and there aren't any good ones!
+I'm tempted to hard-code the Plan 9 default font bitmap.
+
+- The command-line options should be made more like Plan 9.
+
+- Should work out a protocol between 9term and rio so that:
+	* 9term can tell rio to blue its border during hold mode
+	* rio can tell 9term to fade its text when it loses focus
+	* rio can tell 9term to unfade its text when it regains focus
+
+- Should change window focus on b2/b3 clicks and then
+  pass along the click event to the now-focused window.
+
+- Should change 9term to redirect b3 clicks to rio so that rio
+  can put up the usual b3 menu.
+
+The original README is below.
+
+- russ cox
+rsc@swtch.com
+20 march 2004
+
+
+                           9wm Version 1.2
+                   Copyright 1994-1996 David Hogan.
+
+What is 9wm?
+============
+
+9wm is an X window manager which attempts to emulate the Plan 9 window
+manager 8-1/2 as far as possible within the constraints imposed by X.
+It provides a simple yet comfortable user interface, without garish
+decorations or title-bars. Or icons.  And it's click-to-type.  This
+will not appeal to everybody, but if you're not put off yet then read
+on.  (And don't knock it until you've tried it.)
+
+One major difference between 9wm and 8-1/2 is that the latter provides
+windows of text with a typescript interface, and doesn't need to run a
+separate program to emulate a terminal.  9wm, as an X window manager,
+does require a separate program.  For better 8-1/2 emulation, you should
+obtain Matthew Farrow's "9term" program (ftp://ftp.cs.su.oz.au/matty/unicode),
+version 1.6 or later (earlier versions don't cooperate with 9wm in
+implementing "hold mode").  Of course, you can run xterm under 9wm as well.
+
+What is 9wm not?
+================
+
+9wm is not a virtual window manager.  It is not customisable to any
+great extent.  It is not large and unwieldy, and doesn't use the X
+toolkit.  Requests to make it any of these things will be silently
+ignored (or flamed if I have had a bad day :-)  If you want tvtwm
+or mwm, you know where to get them...
+
+Where do I get it?
+==================
+
+The latest version of 9wm is held at ftp://ftp.cs.su.oz.au/dhog/9wm
+
+Author
+======
+
+9wm was written by David Hogan (dhog@cs.su.oz.au), a postgraduate
+student at the Basser Department of Computer Science, University
+of Sydney (http://www.cs.su.oz.au/~dhog/).
+
+Licence
+=======
+
+  9wm is free software, and is Copyright (c) 1994-1996 by David Hogan.
+  Permission is granted to all sentient beings to use this software,
+  to make copies of it, and to distribute those copies, provided
+  that:
+
+      (1) the copyright and licence notices are left intact
+      (2) the recipients are aware that it is free software
+      (3) any unapproved changes in functionality are either
+            (i) only distributed as patches
+        or (ii) distributed as a new program which is not called 9wm
+                and whose documentation gives credit where it is due
+      (4) the author is not held responsible for any defects
+          or shortcomings in the software, or damages caused by it.
+
+  There is no warranty for this software.  Have a nice day.
+
+How do I compile/install it?
+============================
+
+Assuming your system is correctly configured, you should only need to
+run xmkmf to generate the Makefile, and then run make or make install.
+make install.man should copy the manpage (9wm.man) to the appropriate
+directory.
+
+If the make fails, complaining that the function _XShapeQueryExtension
+does not exist, try removing the "-DSHAPE" from the Imakefile, and
+run xmkmf and make again.
+
+If you don't have imake, or it is misconfigured, or you would prefer
+not to use it, try copying the file "Makefile.no-imake" to "Makefile",
+then edit the definitions in this Makefile to suit your system.  This
+may require defining suitable compilation flags for your system
+(normally imake does this for you).  For instance, on AIX you must
+include "-DBSD_INCLUDES" in CFLAGS.
+
+How do I use it?
+================
+
+See the manual page for details.  You should probably read the
+man page for 9term as well.
+
+What if I find a bug?
+=====================
+
+Please mail all bug reports to 9wm-bugs@plan9.cs.su.oz.au, so
+that I can incorporate fixes into the next release.  If you can
+tell me how to fix it, all the better.
+
+Known Problems/Bugs
+===================
+
+9wm tries hard to emulate 8-1/2, but isn't 100% compatible.  If
+you are an experienced 8-1/2 user, please be patient with it.
+
+One intentional difference between 9wm and 8-1/2 is in the behaviour
+of the menu when the last hidden item is unhidden.  Under 8-1/2, when
+the menu is next used, it pops up with "New" selected.  Under 9wm,
+the (new) last menu item will be selected.  This is a feature.  It
+may be confusing if you frequently switch between 9wm and 8-1/2.
+If you don't like this feature, email me for the one line fix.
+
+There have been some problems encountered when resizing 9term on
+some platforms.  This turns out to be a problem in 9term (actually
+in libXg, to be precise).  Newer versions of 9term should be
+immune to this, see matty@cs.su.oz.au if your 9term needs fixing.
+
+Some client programs do weird things.  One of these is Frame Maker.
+It appears that if it has a modal dialog on the screen, then if any
+of its windows are current, all keypresses are redirected to the
+modal dialog.  This is not 9wm's fault -- Frame Maker is doing this.
+
+Programs like Netscape Navigator like to put riddiculously long
+icon name properties on their windows, of the form "Netscape: blah blah".
+There is no way that I know of to stop netscape from doing this.  For this
+reason, 9wm truncates labels at the first colon it finds.  This keeps the
+button 3 menu from becoming excessively wide.  Note that with same
+applications, you can use an iconName resource to set the label; this
+works well for "xman", whose default icon name of "Manual Browser"
+is a tad too long.
+
+See Also
+========
+
+http://www.cs.su.oz.au/~dhog/
+    The 9wm Home Page
+
+ftp://ftp.cs.su.oz.au/matty/unicode/
+    for source to 9term (get README first)
+
+ftp://plan9.att.com/plan9/unixsrc/sam/
+    for source && info on Rob Pike's editor "sam"
+
+ftp://rtfm.mit.edu/pub/usenet/news.answers/unix-faq/shell/rc
+    for information on a publically available implementation
+    of the Plan 9 shell "rc" for unix (or look in comp.unix.shell).
+
+ftp://viz.tamu.edu/pub/rc
+    for source to the abovementioned implementation of rc.
+
+http://plan9.att.com/plan9/
+http://plan9.att.com/magic/man2html/1/8%c2%bd
+    for information on Plan 9 (including the 8-1/2 manual entry)
+
+Acknowledgements
+================
+
+Thanks to Rob Pike for writing the original 8-1/2 program (and
+before that, mux) which inspired the writing of 9wm.
+
+Thanks to John Mackin, whose gwm "wool code" for emulating mux
+was also an inspiration: I used it (and hacked it) until I got
+too frustrated with gwm's large memory requirements and lack of
+speed (sorry Colas!), and decided to write a dedicated program.
+
+Thanks to Matthew Farrow for writing 9term.
+
+A big thanks to Dave Edmondson for adding support for
+multi-screen displays.
+
+The following people helped beta test 9wm:
+
+	John Mackin
+	Noel Hunt
+	Fred Curtis
+	James Matthew Farrow
+	Danny Yee
+	Arnold Robbins
+	Byron Rakitzis
+	micro@cooper.edu
