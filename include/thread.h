@@ -120,7 +120,7 @@ void		chansetname(Channel *c, char *fmt, ...);
 #define	alt		chanalt
 #define	nbrecv	channbrecv
 #define	nbrecvp	channbrecvp
-#define	nvrecvul	channbrecvul
+#define	nbrecvul	channbrecvul
 #define	nbsend	channbsend
 #define	nbsendp	channbsendp
 #define	nbsendul	channbsendul
