@@ -47,6 +47,7 @@ void	getdata(void), setdefaults(void);
 void	setfval(char *, double);
 int	getpid(void);
 
+int
 main(int argc, char *argv[])
 {
 	char buf[20];
@@ -120,27 +121,27 @@ static struct {
 	double val;
 	short scalable;		/* 1 => adjust when "scale" changes */
 } defaults[] ={
-	"scale", SCALE, 1,
-	"lineht", HT, 1,
-	"linewid", HT, 1,
-	"moveht", HT, 1,
-	"movewid", HT, 1,
-	"dashwid", HT10, 1,
-	"boxht", HT, 1,
-	"boxwid", WID, 1,
-	"circlerad", HT2, 1,
-	"arcrad", HT2, 1,
-	"ellipseht", HT, 1,
-	"ellipsewid", WID, 1,
-	"arrowht", HT5, 1,
-	"arrowwid", HT10, 1,
-	"arrowhead", 2, 0,		/* arrowhead style */
-	"textht", 0.0, 1,		/* 6 lines/inch is also a useful value */
-	"textwid", 0.0, 1,
-	"maxpsht", MAXHT, 0,
-	"maxpswid", MAXWID, 0,
-	"fillval", 0.7, 0,		/* gray value for filling boxes */
-	NULL, 0, 0
+	{ "scale", SCALE, 1, },
+	{ "lineht", HT, 1, },
+	{ "linewid", HT, 1, },
+	{ "moveht", HT, 1, },
+	{ "movewid", HT, 1, },
+	{ "dashwid", HT10, 1, },
+	{ "boxht", HT, 1, },
+	{ "boxwid", WID, 1, },
+	{ "circlerad", HT2, 1, },
+	{ "arcrad", HT2, 1, },
+	{ "ellipseht", HT, 1, },
+	{ "ellipsewid", WID, 1, },
+	{ "arrowht", HT5, 1, },
+	{ "arrowwid", HT10, 1, },
+	{ "arrowhead", 2, 0, },		/* arrowhead style */
+	{ "textht", 0.0, 1, },		/* 6 lines/inch is also a useful value */
+	{ "textwid", 0.0, 1, },
+	{ "maxpsht", MAXHT, 0, },
+	{ "maxpswid", MAXWID, 0, },
+	{ "fillval", 0.7, 0, },		/* gray value for filling boxes */
+	{ NULL, 0, 0 }
 };
 
 void setdefaults(void)	/* set default sizes for variables like boxht */

@@ -1,0 +1,24 @@
+</$objtype/mkfile
+
+TARG=aux/pm
+OFILES=misc.$O\
+	slug.$O\
+	range.$O\
+	queue.$O\
+	page.$O\
+
+HFILES=misc.h\
+
+BIN=/$objtype/bin
+</sys/src/cmd/mkone
+CC=c++/$CC
+LD=c++/$LD
+CFLAGS=
+
+slug.$O:	slug.h
+range.$O:	range.h slug.h
+queue.$O:	page.h range.h slug.h
+page.$O:	page.h range.h slug.h
+
+test:V:	$O.out
+	tryout $O.out

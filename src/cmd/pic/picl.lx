@@ -133,7 +133,7 @@ WS	[ \t]
 <A>ccw		{ yylval.i = CCW; return(ATTR); }
 <A>invis(ible)?	{ yylval.i = INVIS; return(ATTR); }
 <A>noedge	{ yylval.i = INVIS; return ATTR; }
-<A>fill		return(yylval.i = FILL);
+<A>fill		{ yylval.i = FILL; return ATTR; }
 <A>solid	;
 <A>dot(ted)?	return(yylval.i = DOT);
 <A>dash(ed)?	return(yylval.i = DASH);

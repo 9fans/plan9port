@@ -25,6 +25,8 @@ void print(void)
 	int fill, vis, invis;
 	double x0, y0, x1, y1, ox, oy, dx, dy, ndx, ndy;
 
+	x1 = y1 = 0.0; /* Botch? (gcc) */
+
 	for (i = 0; i < nobj; i++) {
 		p = objlist[i];
 		ox = p->o_x;
@@ -179,6 +181,8 @@ void dotline(double x0, double y0, double x1, double y1, int ddtype, double ddva
 	static double prevval = 0.05;	/* 20 per inch by default */
 	int i, numdots;
 	double a, b, dx, dy;
+
+	b = 0.0; /* Botch? (gcc) */
 
 	if (ddval == 0)
 		ddval = prevval;

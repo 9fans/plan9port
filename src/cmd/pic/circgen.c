@@ -12,6 +12,8 @@ obj *circgen(int type)
 	obj *p, *ppos;
 	Attr *ap;
 
+	r = r2 = 0.0; /* Botch? (gcc) */
+
 	battr = at = 0;
 	with = xwith = ywith = fillval = ddval = 0;
 	t = (type == CIRCLE) ? 0 : 1;

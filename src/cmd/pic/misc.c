@@ -9,6 +9,7 @@ int whatpos(obj *p, int corner, double *px, double *py);
 void makeattr(int type, int sub, YYSTYPE val);
 YYSTYPE getblk(obj *, char *);
 
+int
 setdir(int n)	/* set direction (hvmode) from LEFT, RIGHT, etc. */
 {
 	switch (n) {
@@ -20,6 +21,7 @@ setdir(int n)	/* set direction (hvmode) from LEFT, RIGHT, etc. */
  	return(hvmode);
 }
 
+int
 curdir(void)	/* convert current dir (hvmode) to RIGHT, LEFT, etc. */
 {
 	switch (hvmode) {
@@ -32,7 +34,8 @@ curdir(void)	/* convert current dir (hvmode) to RIGHT, LEFT, etc. */
 	return 0;
 }
 
-double getcomp(obj *p, int t)	/* return component of a position */
+double 
+getcomp(obj *p, int t)	/* return component of a position */
 {
 	switch (t) {
 	case DOTX:
@@ -207,7 +210,9 @@ int whatpos(obj *p, int corner, double *px, double *py)	/* what is the position 
 {
 	double x, y, x1, y1;
 
-	dprintf("whatpos %o %d %d\n", p, p->o_type, corner);
+	x1 = y1 = 0.0; /* Botch? (gcc) */
+
+	dprintf("whatpos %p %d %d\n", p, p->o_type, corner);
 	x = p->o_x;
 	y = p->o_y;
 	if (p->o_type != PLACE && p->o_type != MOVE) {
@@ -320,7 +325,7 @@ obj *getlast(int n, int t)	/* find n-th previous occurrence of type t */
 		dprintf("got a last of x,y= %g,%g\n", p->o_x, p->o_y);
 		return(p);
 	}
-	ERROR "there is no %dth last", n FATAL;
+	ERROR "there is no %dth last", n WARNING;
 	return(NULL);
 }
 
@@ -343,7 +348,7 @@ obj *getfirst(int n, int t)	/* find n-th occurrence of type t */
 		dprintf("got a first of x,y= %g,%g\n", p->o_x, p->o_y);
 		return(p);
 	}
-	ERROR "there is no %dth ", n FATAL;
+	ERROR "there is no %dth ", n WARNING;
 	return(NULL);
 }
 

@@ -26,7 +26,7 @@ void pushsrc(int type, char *ptr)	/* new input source */
 	srcp->type = type;
 	srcp->sp = ptr;
 	if (dbg > 1) {
-		printf("\n%3d ", srcp - src);
+		printf("\n%3d ", (int) (srcp - src));
 		switch (srcp->type) {
 		case File:
 			printf("push file %s\n", ((Infile *)ptr)->fname);
@@ -57,7 +57,7 @@ void popsrc(void)	/* restore an old one */
 	if (srcp <= src)
 		ERROR "too many inputs popped" FATAL;
 	if (dbg > 1) {
-		printf("%3d ", srcp - src);
+		printf("%3d ", (int) (srcp - src));
 		switch (srcp->type) {
 		case File:
 			printf("pop file\n");
@@ -142,6 +142,7 @@ char *delimstr(char *s)	/* get body of X ... X */
 	return tostring(buf);
 }
 
+int
 baldelim(int c, char *s)	/* replace c by balancing entry in s */
 {
 	for ( ; *s; s += 2)
@@ -187,11 +188,12 @@ void dodef(struct symtab *stp)	/* collect args and switch input to defn */
 		ap->argstk[i] = "";
 	if (dbg)
 		for (i = 0; i < argcnt; i++)
-			printf("arg %d.%d = <%s>\n", ap-args, i+1, ap->argstk[i]);
+			printf("arg %d.%d = <%s>\n", (int) (ap-args), i+1, ap->argstk[i]);
 	argfp = ap;
 	pushsrc(Macro, stp->s_val.p);
 }
 
+int
 getarg(char *p)	/* pick up single argument, store in p, return length */
 {
 	int n, c, npar;
@@ -232,6 +234,7 @@ extern	int	thru;
 extern	struct symtab	*thrudef;
 extern	char	*untilstr;
 
+int
 input(void)
 {
 	register int c;
@@ -248,9 +251,12 @@ input(void)
 	return *ep++ = c;
 }
 
+int
 nextchar(void)
 {
 	register int c;
+
+	c = 0; /* Botch: gcc */
 
   loop:
 	switch (srcp->type) {
@@ -289,9 +295,9 @@ nextchar(void)
 				ERROR "argfp underflow" FATAL;
 			popsrc();
 			goto loop;
-		} else if (c == '$' && isdigit(*srcp->sp)) {
+		} else if (c == '$' && isdigit((unsigned char) *srcp->sp)) {
 			int n = 0;
-			while (isdigit(*srcp->sp))
+			while (isdigit((unsigned char) *srcp->sp))
 				n = 10 * n + *srcp->sp++ - '0';
 			if (n > 0 && n <= MAXARGS)
 				pushsrc(String, argfp->argstk[n-1]);
@@ -380,7 +386,7 @@ void do_thru(void)	/* read one line, make into a macro expansion */
 		ap->argstk[i] = "";
 	if (dbg)
 		for (i = 0; i < argcnt; i++)
-			printf("arg %d.%d = <%s>\n", ap-args, i+1, ap->argstk[i]);
+			printf("arg %d.%d = <%s>\n", (int) (ap-args), i+1, ap->argstk[i]);
 	if (strcmp(ap->argstk[0], ".PE") == 0) {
 		thru = 0;
 		thrudef = 0;
@@ -400,6 +406,7 @@ void do_thru(void)	/* read one line, make into a macro expansion */
 	pushsrc(Macro, thrudef->s_val.p);
 }
 
+int
 unput(int c)
 {
 	if (++pb >= pbuf + sizeof pbuf)
@@ -580,7 +587,7 @@ void shell_init(void)	/* set up to interpret a shell command */
 
 void shell_text(char *s)	/* add string to command being collected */
 {
-	while (*shellp++ = *s++)
+	while ((*shellp++ = *s++))
 		;
 	shellp--;
 }
