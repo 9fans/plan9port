@@ -52,7 +52,7 @@ dumbmap(int fd)
 void
 main(int argc, char *argv[])
 {
-	Lsym *l;
+	Lsym *volatile l;
 	Node *n;
 	char buf[128], *s;
 	int pid, i;
@@ -173,7 +173,8 @@ main(int argc, char *argv[])
 static int
 attachfiles(int argc, char **argv)
 {
-	int fd, pid;
+	int fd;
+	volatile int pid;
 	char *s;
 	int i, omode;
 	Fhdr *hdr;

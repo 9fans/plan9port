@@ -88,7 +88,6 @@ xnet(int first)
 	struct ifnet ifnet;
 	struct ifnethead ifnethead;
 	char name[16];
-	int n;
 
 	if(first)
 		return;

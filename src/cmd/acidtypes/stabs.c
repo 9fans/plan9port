@@ -600,8 +600,9 @@ out:
 int
 stabs2acid(Stab *stabs, Biobuf *b)
 {
-	int fno, i;
-	char c, *dir, *fn, *file, *name, *desc, *p;
+	volatile int fno, i;
+	char c, *file, *desc, *p;
+	char *volatile dir, *volatile fn, *volatile name;
 	Ftypes *f;
 	Type *t, *tt;
 	StabSym sym;

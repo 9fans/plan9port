@@ -38,9 +38,9 @@ void	usage(void);
 extern int notify(void(*)(void*,char*));
 
 int
-main(int argc, char *argv[])
+main(int volatile argc, char **volatile argv)
 {
-	int i;
+	int volatile i;
 	String *t;
 	char **ap, **arg;
 

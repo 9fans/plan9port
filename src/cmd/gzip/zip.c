@@ -45,9 +45,9 @@ usage(void)
 }
 
 void
-main(int argc, char *argv[])
+main(int volatile argc, char **volatile argv)
 {
-	char *zfile;
+	char *volatile zfile;
 	int i, fd, err;
 
 	zfile = nil;

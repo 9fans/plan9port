@@ -179,9 +179,9 @@ usage(void)
 }
 
 void
-main(int argc, char *argv[])
+main(volatile int argc, char **volatile argv)
 {
-	int i;
+	volatile int i;
 	Event e;
 	Thing *t;
 
@@ -575,7 +575,7 @@ tget(char *file)
 	Image *b;
 	Subfont *s;
 	Thing *t;
-	Dir *d;
+	Dir *volatile d;
 	jmp_buf oerr;
 	uchar buf[256];
 	char *data;

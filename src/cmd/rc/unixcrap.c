@@ -1,5 +1,6 @@
 #include <u.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <sys/resource.h>
 #include <libc.h>
 #include "rc.h"
@@ -174,10 +175,7 @@ execumask(void)
 		n = strtol(argv[0], &p, 8);
 		if(*p != 0 || p == argv[0])
 			goto usage;
-		if(umask(n) < 0){
-			fprint(mapfd(2), "umask: %r\n");
-			goto out;
-		}
+		umask(n);
 		goto out;
 	}
 

@@ -13,7 +13,8 @@ plan9(File *f, int type, String *s, int nest)
 {
 	long l;
 	int m;
-	int pid, fd;
+	int volatile pid;
+	int fd;
 	int retcode;
 	int pipe1[2], pipe2[2];
 

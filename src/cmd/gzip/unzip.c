@@ -135,7 +135,7 @@ static int
 unztable(Biobuf *bin, char *file)
 {
 	ZipHead zh;
-	int entries;
+	int volatile entries;
 
 	entries = findCDir(bin, file);
 	if(entries < 0)
@@ -273,7 +273,7 @@ unzip(Biobuf *bin, char *file)
 {
 	ZipHead zh;
 	vlong off;
-	int ok, eok, entries;
+	int volatile ok, eok, entries;
 
 	entries = findCDir(bin, file);
 	if(entries < 0)

@@ -29,7 +29,8 @@ void
 threadmain(int argc, char *argv[])
 {
 	char buf[512];
-	int fd, dofork;
+	int fd;
+	int volatile dofork;
 
 	progname = "plumber";
 	dofork = 1;
