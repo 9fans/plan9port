@@ -4,6 +4,12 @@
 int
 opentemp(char *template)
 {
-	return mkstemp(template);
+	int fd;
+
+	fd = mkstemp(template);
+	if(fd < 0)
+		return -1;
+	remove(template);
+	return fd;
 }
 
