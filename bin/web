@@ -12,7 +12,7 @@ plumb1()
 		$BROWSER -remote 'openURL('$i', new-window)'
 		;;
 	*firefox*)
-		$BROWSER -remote 'openURL('$i', new-window)'
+		$BROWSER -remote 'openURL('$i', new-tab)'
 		;;
 	esac
 }
