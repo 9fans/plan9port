@@ -28,6 +28,7 @@
 #endif
 
 #undef pipe	/* so that /dev/fd works */
+#define searchpath rcsearchpath	/* avoid new libc function */
 
 typedef struct tree tree;
 typedef struct word word;

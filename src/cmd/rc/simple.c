@@ -100,7 +100,7 @@ void doredir(redir *rp)
 word *searchpath(char *w){
 	word *path;
 	if(strncmp(w, "/", 1)==0
-	|| strncmp(w, "#", 1)==0
+/*	|| strncmp(w, "#", 1)==0 */
 	|| strncmp(w, "./", 2)==0
 	|| strncmp(w, "../", 3)==0
 	|| (path=vlook("path")->val)==0)
