@@ -19,7 +19,9 @@ usegcc()
 tag="`uname`-`uname -m`-${CC9:-cc}"
 case "$tag" in
 *BSD*)		usegcc ;;
-*Darwin*)	usegcc ;;
+*Darwin*)	usegcc 
+	cflags=`echo $cflags|sed 's/-ggdb/-g3 -no-cpp-precomp/'`
+	;;
 *HP-UX*)	cc=cc; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc ;;
 *OSF1*)		cc=cc; cflags="-g -O -c" ;;

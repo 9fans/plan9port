@@ -2,7 +2,6 @@
 #include <libc.h>
 #include <fcall.h>
 #include <thread.h>
-#include <poll.h>
 #include <errno.h>
 
 enum

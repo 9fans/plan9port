@@ -1,9 +1,9 @@
 #include <u.h>
 #include <libc.h>
 
-int	(*doquote)(int);
 
 /* in libfmt */
+extern int (*doquote)(int);
 extern int __needsquotes(char*, int*);
 extern int __runeneedsquotes(Rune*, int*);
 

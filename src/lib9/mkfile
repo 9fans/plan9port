@@ -10,7 +10,6 @@ NUM=\
 # Could add errfmt, but we want to pick it up from lib9 instead.
 FMTOFILES=\
 	dofmt.$O\
-	errfmt.$O\
 	fltfmt.$O\
 	fmt.$O\
 	fmtfd.$O\
