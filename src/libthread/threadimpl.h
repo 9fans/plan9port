@@ -197,6 +197,7 @@ void		_threadsysfatal(char*, va_list);
 long		_xdec(long*);
 void		_xinc(long*);
 void		_threadremove(Proc*, Thread*);
+void		threadstatus(void);
 
 extern int			_threaddebuglevel;
 extern char*		_threadexitsallstatus;

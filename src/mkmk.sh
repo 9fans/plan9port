@@ -156,10 +156,9 @@ cd libregexp
 9c  regexec.c
 9c  regsub.c
 9c  regaux.c
-9c  rregaux.c
 9c  rregexec.c
 9c  rregsub.c
-9ar rvc ../../lib/libregexp9.a regcomp.o regerror.o regexec.o regsub.o regaux.o rregaux.o rregexec.o rregsub.o
+9ar rvc ../../lib/libregexp9.a regcomp.o regerror.o regexec.o regsub.o regaux.o rregexec.o rregsub.o
 cd ..
 cd cmd/mk
 9c  arc.c

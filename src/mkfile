@@ -1,22 +1,10 @@
 <mkhdr
 
+BUGGERED="String|html|httpd|ip|venti"
+LIBDIRS=`ls -ld lib* | sed -n 's/^d.* //p' |egrep -v "^lib($BUGGERED)$"`
+
 DIRS=\
-	lib9\
-	libbin\
-	libbio\
-	libcomplete\
-	libdraw\
-	libflate\
-	libframe\
-	libfs\
-#	libhttpd\
-#	libip\
-	libmux\
-	libplumb\
-	libregexp\
-	libsec\
-	libthread\
-#	libventi\
+	$LIBDIRS\
 	cmd\
 
 <mkdirs

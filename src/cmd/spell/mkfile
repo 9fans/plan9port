@@ -1,0 +1,12 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+TARG=sprog
+OFILES=sprog.$O\
+
+HFILES =\
+	code.h\
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkone
+

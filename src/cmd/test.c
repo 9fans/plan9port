@@ -12,6 +12,8 @@
 #include <libc.h>
 #define EQ(a,b)	((tmp=a)==0?0:(strcmp(tmp,b)==0))
 
+extern int isatty(int); /* <unistd.h> */
+
 int	ap;
 int	ac;
 char	**av;
@@ -21,7 +23,6 @@ void	synbad(char *, char *);
 int	fsizep(char *);
 int	isdir(char *);
 int	isreg(char *);
-int	isatty(int);
 int	isint(char *, int *);
 int	hasmode(char *, ulong);
 int	tio(char *, int);
@@ -255,18 +256,6 @@ isreg(char *f)
 	if(localstat(f,&dir)<0)
 		return(0);
 	return(!(dir.mode&DMDIR));
-}
-
-int
-isatty(int fd)
-{
-	Dir d1, d2;
-
-	if(localfstat(fd, &d1) < 0)
-		return 0;
-	if(localstat("/dev/cons", &d2) < 0)
-		return 0;
-	return d1.type==d2.type && d1.dev==d2.dev && d1.qid.path==d2.qid.path;
 }
 
 int

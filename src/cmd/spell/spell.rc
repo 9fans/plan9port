@@ -1,0 +1,21 @@
+#!/bin/rc
+
+spellflags=()
+deroffargs=()
+fflag=''
+for(x){
+	switch($x){
+	case -[abcvx]
+		spellflags=($spellflags $x)
+	case -f
+		fflag=$x
+	case *
+		if(~ $fflag -f)	{
+			spellflags=($spellflags -f $x)
+			fflag=''
+		}
+		if not		deroffargs=($deroffargs $x)
+	}
+}
+
+deroff -w $deroffargs | sort -u | aux/sprog $spellflags

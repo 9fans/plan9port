@@ -8,7 +8,7 @@ SHORTLIB=sec fs mux regexp9 thread bio 9
 <$PLAN9/src/mkmany
 
 BUGGERED='CVS|faces|factotum|oplumb|plumb2|mk|vac|9term|upas|venti|htmlfmt'
-DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "$BUGGERED"`
+DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"`
 
 <$PLAN9/src/mkdirs
 

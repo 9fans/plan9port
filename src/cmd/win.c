@@ -610,7 +610,7 @@ sendtype(int fd0)
 			}
 		print("no breakchar\n");
 		ntypebreak = 0;
-cont2:
+cont2:;
 	}
 }
 
