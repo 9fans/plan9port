@@ -189,7 +189,7 @@ mainproc(void *v)
 	nn = write(1, vbuf, n);
 	if(n != nn)
 		sysfatal("error writing Tversion: %r\n");
-	n = threadread9pmsg(0, vbuf, sizeof vbuf);
+	n = read9pmsg(0, vbuf, sizeof vbuf);
 	if(convM2S(vbuf, n, &f) != n)
 		sysfatal("convM2S failure");
 	if(f.msize < msize)
@@ -1150,157 +1150,6 @@ rewritehdr(Fcall *f, uchar *pkt)
 	}
 }
 
-#ifdef _LIBC_H_
-/* unix select-based polling */
-struct Ioproc
-{
-	Channel *c;
-	Ioproc *next;
-	int index;
-};
-
-Ioproc*
-ioproc(void)
-{
-	return (Ioproc*)-1;
-}
-
-void
-closeioproc(Ioproc *io)
-{
-}
-
-long
-ioread(Ioproc *io, int fd, void *v, long n)
-{
-	USED(io);
-
-	return threadread(fd, v, n);
-}
-
-long
-ioreadn(Ioproc *io, int fd, void *v, long n)
-{
-	long tot, m;
-	uchar *u;
-
-	u = v;
-	for(tot=0; tot<n; tot+=m){
-		m = ioread(io, fd, u+tot, n-tot);
-		if(m <= 0){
-			if(tot)
-				break;
-			return m;
-		}
-	}
-	return tot;
-}
-
-int
-iorecvfd(Ioproc *io, int fd)
-{
-	int r;
-
-	threadfdnoblock(fd);
-	while((r=recvfd(fd)) < 0){
-		if(errno == EINTR)
-			continue;
-		if(errno == EWOULDBLOCK || errno == EAGAIN){
-			threadfdwait(fd, 'r');
-			continue;
-		}
-		break;
-	}
-	return r;
-}
-
-int
-iosendfd(Ioproc *io, int s, int fd)
-{
-	int r;
-
-	threadfdnoblock(s);
-	while((r=sendfd(s, fd)) < 0){
-		if(errno == EINTR)
-			continue;
-		if(errno == EWOULDBLOCK || errno == EAGAIN){
-			threadfdwait(fd, 'w');
-			continue;
-		}
-		break;
-	}
-	return r;
-}
-
-static long
-_iowrite(Ioproc *io, int fd, void *v, long n)
-{
-	USED(io);
-	return threadwrite(fd, v, n);
-}
-
-long
-iowrite(Ioproc *io, int fd, void *v, long n)
-{
-	long tot, m;
-	uchar *u;
-
-	u = v;
-	for(tot=0; tot<n; tot+=m){
-		m = _iowrite(io, fd, u+tot, n-tot);
-		if(m < 0){
-			if(tot)
-				break;
-			return m;
-		}
-	}
-	return tot;
-}
-
-int
-iolisten(Ioproc *io, char *dir, char *ndir)
-{
-	int fd;
-	int r;
-	extern int _p9netfd(char*);
-	USED(io);
-
-	if((fd = _p9netfd(dir)) < 0)
-		return -1;
-	threadfdnoblock(fd);
-	while((r=listen(dir, ndir)) < 0){
-		if(errno == EINTR)
-			continue;
-		if(errno == EWOULDBLOCK || errno == EAGAIN){
-			threadfdwait(fd, 'r');
-			continue;
-		}
-		break;
-	}
-	return r;
-}
-
-int
-ioaccept(Ioproc *io, int fd, char *dir)
-{
-	int r;
-	USED(io);
-
-	threadfdnoblock(fd);
-	while((r=accept(fd, dir)) < 0){
-		if(errno == EINTR)
-			continue;
-		if(errno == EWOULDBLOCK || errno == EAGAIN){
-			threadfdwait(fd, 'r');
-			continue;
-		}
-		break;
-	}
-	return r;
-}
-
-#else
-/* real plan 9 io procs */
 static long
 _iolisten(va_list *arg)
 {
@@ -1333,4 +1182,3 @@ ioaccept(Ioproc *io, int fd, char *dir)
 {
 	return iocall(io, _ioaccept, fd, dir);
 }
-#endif
