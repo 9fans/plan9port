@@ -36,6 +36,8 @@ install: $(LIB)
 	install -c -m 0644 utf.7 $(PREFIX)/man/man7/utf.7
 	install -c -m 0644 rune.3 $(PREFIX)/man/man3/rune.3
 	install -c -m 0644 runestrcat.3 $(PREFIX)/man/man3/runestrcat.3
+	mkdir -p $(PREFIX)/include
 	install -c -m 0644 utf.h $(PREFIX)/include/utf.h
+	mkdir -p $(PREFIX)/lib
 	install -c -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
 

@@ -53,7 +53,9 @@ install: $(LIB)
 	test -d $(PREFIX)/man/man3 || mkdir $(PREFIX)/man/man3
 	install -m 0644 print.3 $(PREFIX)/man/man3/print.3
 	install -m 0644 fmtinstall.3 $(PREFIX)/man/man3/fmtinstall.3
+	mkdir -p $(PREFIX)/include
 	install -m 0644 fmt.h $(PREFIX)/include/fmt.h
+	mkdir -p $(PREFIX)/lib
 	install -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
 
 $(NAN).$O: nan.h

@@ -19,11 +19,12 @@ HFILES=\
 all: $(LIB)
 
 install: $(LIB)
-	test -d $(PREFIX)/man/man3 || mkdir $(PREFIX)/man/man3
-	test -d $(PREFIX)/man/man7 || mkdir $(PREFIX)/man/man7
+	mkdir -p $(PREFIX)/man/man3 $(PREFIX)/man/man7
 	install -m 0644 regexp9.3 $(PREFIX)/man/man3/regexp9.3
 	install -m 0644 regexp9.7 $(PREFIX)/man/man7/regexp9.7
+	mkdir -p $(PREFIX)/lib
 	install -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
+	mdir -p $(PREFIX)/include
 	install -m 0644 regexp9.h $(PREFIX)/include/regexp9.h
 
 test: test.$O $(LIB)

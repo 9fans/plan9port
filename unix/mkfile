@@ -38,15 +38,15 @@ test-%:V:
 
 lib%.tgz:V:
 	mk new-$stem
-	tar cf - lib$stem |gzip >lib$stem.tgz
+	tar cf $target lib$stem
 
 libregexp9.tgz:V:
 	mk new-regexp
-	tar cf - libregexp | gzip >libregexp9.tgz
+	tar cf $target libregexp
 
 mk.tgz:V:
 	mk new-mk
-	tar cf - mk | gzip >mk.tgz
+	tar cf $target mk
 
 mk-with-libs.tgz:V:
 	mk new-utf 
@@ -59,12 +59,12 @@ mk-with-libs.tgz:V:
 	mv libutf libfmt libbio libregexp mk zot
 	mv zot mk
 	cp Makefile mk/Makefile
-	tar cf - mk | gzip >$target
+	tar cf $target mk
 	rm -r mk
 
 tgz:V: libutf.tgz libfmt.tgz libregexp9.tgz libbio.tgz mk.tgz mk-with-libs.tgz
 
 push:
 	rsync -e ssh -t *.tgz swtch:www/swtch.com/plan9port/unix
-	ssh swtch rm www/swtch.com/plan9port/unix/*.sha1 \
+	ssh swtch rm -f www/swtch.com/plan9port/unix/*.sha1 \
 		www/swtch.com/plan9port/unix/*.md5

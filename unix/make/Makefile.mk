@@ -2,6 +2,7 @@ TARG=mk
 VERSION=2.0
 PORTPLACE=devel/mk
 NAME=mk
+CLEANFILES=mk mk.1a
 
 OFILES=\
 	arc.$O\
@@ -38,10 +39,11 @@ all: $(TARG)
 TGZFILES+=mk.pdf
 
 install: $(LIB)
-	test -d $(PREFIX)/man/man1 || mkdir $(PREFIX)/man/man1
-	test -d $(PREFIX)/doc || mkdir $(PREFIX)/doc
+	mkdir -p $(PREFIX)/bin
 	install -m 0755 mk $(PREFIX)/bin/mk
 	cat mk.1 | sed 's;DOCPREFIX;$(PREFIX);g' >mk.1a
+	mkdir -p $(PREFIX)/man/man1
 	install -m 0644 mk.1a $(PREFIX)/man/man1/mk.1
+	mkdir -p $(PREFIX)/doc
 	install -m 0644 mk.pdf $(PREFIX)/doc/mk.pdf
 

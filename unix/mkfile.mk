@@ -8,6 +8,7 @@ TARG=\
 	mk.h\
 	sys.h\
 	fns.h\
+	mk.pdf\
 	`{9 ls -p $PLAN9/src/cmd/mk/*.c}\
 
 WHAT=mk

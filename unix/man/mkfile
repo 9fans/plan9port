@@ -1,17 +1,3 @@
-MAN=\
-	isalpharune.3\
-	rune.3\
-	runestrcat.3\
-	utf.7\
-	print.3\
-	fmtinstall.3\
-	quote.3\
-	fmtstrtod.3\
-	bio.3\
-	regexp9.3\
-	regexp9.7\
-	mk.1\
-
 HTML=\
 	isalpharune3.html\
 	rune3.html\
@@ -26,7 +12,7 @@ HTML=\
 	regexp97.html\
 	mk1.html\
 
-all:V: $MAN $HTML
+all:V: $HTML
 
 title='Ported from Plan 9'
 MKSHELL=$PLAN9/bin/rc

@@ -15,7 +15,7 @@ tgz:
 	rm -rf $(NAME)-$(VERSION)
 
 clean:
-	rm -f $(OFILES) $(LIB)
+	rm -f $(OFILES) $(LIB) $(CLEANFILES)
 
 nuke:
 	rm -f $(OFILES) *.tgz *.rpm $(NUKEFILES)

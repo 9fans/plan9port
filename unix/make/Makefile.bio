@@ -28,9 +28,11 @@ HFILES=\
 all: $(LIB)
 
 install: $(LIB)
-	test -d $(PREFIX)/man/man3 || mkdir $(PREFIX)/man/man3
+	mkdir -p $(PREFIX)/man/man3
 	install -m 0644 bio.3 $(PREFIX)/man/man3/bio.3
+	mkdir -p $(PREFIX)/include
 	install -m 0644 bio.h $(PREFIX)/include
+	mkdir -p $(PREFIX)/lib
 	install -m 0644 $(LIB) $(PREFIX)/lib/$(LIB)
 
 bcat: bcat.$O $(LIB)
