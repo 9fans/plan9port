@@ -1,5 +1,11 @@
-#include <lib9.h>
+#include <u.h>
+#include <libc.h>
 #include <thread.h>
+
+enum
+{
+	STACK = 8192
+};
 
 int quiet;
 int goal;
@@ -19,7 +25,7 @@ primethread(void *arg)
 	if(!quiet)
 		print("%d\n", p);
 	nc = chancreate(sizeof(ulong), buffer);
-	(*fn)(primethread, nc, 8192);
+	(*fn)(primethread, nc, STACK);
 	for(;;){
 		i = recvul(c);
 		if(i%p)
@@ -56,7 +62,7 @@ threadmain(int argc, char **argv)
 		goal = 100;
 
 	c = chancreate(sizeof(ulong), buffer);
-	(*fn)(primethread, c, 8192);
+	(*fn)(primethread, c, STACK);
 	for(i=2;; i++)
 		sendul(c, i);
 }

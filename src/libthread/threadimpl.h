@@ -219,4 +219,4 @@ extern int _threadgetpid(void);
 extern void _threadmemset(void*, int, int);
 extern void _threaddebugmemset(void*, int, int);
 extern int _threadprocs;
-
+extern void _threadstacklimit(void*);

@@ -166,14 +166,15 @@ Resched:
 	p = _threadgetproc();
 //fprint(2, "p %p\n", p);
 	if((t = p->thread) != nil){
-		if((ulong)&p < (ulong)t->stk){	/* stack overflow */
-			fprint(2, "stack overflow %lux %lux\n", (ulong)&p, (ulong)t->stk);
+		if((ulong)&p < (ulong)t->stk+512){	/* stack overflow waiting to happen */
+			fprint(2, "stack overflow: stack at %lux, limit at %lux\n", (ulong)&p, (ulong)t->stk);
 			abort();
 		}
 	//	_threaddebug(DBGSCHED, "pausing, state=%s set %p goto %p",
 	//		psstate(t->state), &t->sched, &p->sched);
 		if(_setlabel(&t->sched)==0)
 			_gotolabel(&p->sched);
+		_threadstacklimit(t->stk);
 		return;
 	}else{
 		t = runthread(p);

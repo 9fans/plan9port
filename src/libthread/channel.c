@@ -277,7 +277,7 @@ static void
 channelsize(Channel *c, int sz)
 {
 	if(c->e != sz){
-		fprint(2, "expected channel with elements of size %d, got size %d",
+		fprint(2, "expected channel with elements of size %d, got size %d\n",
 			sz, c->e);
 		abort();
 	}

@@ -53,3 +53,6 @@ trend: trend.$O $PLAN9/lib/$LIB
 
 CLEANFILES=$CLEANFILES tprimes texec
 
+asm-Linux-386.$O: asm-FreeBSD-386.s
+asm-NetBSD-386.$O: asm-FreeBSD-386.s
+asm-OpenBSD-386.$O: asm-FreeBSD-386.s

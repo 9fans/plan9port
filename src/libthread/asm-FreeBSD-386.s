@@ -17,6 +17,9 @@ _setlabel:
 .type	_gotolabel,@function
 
 _gotolabel:
+	pushl $1
+	call _threadinswitch
+	popl %eax
 	movl	4(%esp), %edx
 	movl	0(%edx), %ecx
 	movl	4(%edx), %ebx
@@ -24,9 +27,12 @@ _gotolabel:
 	movl	12(%edx), %ebp
 	movl	16(%edx), %esi
 	movl	20(%edx), %edi
+	movl	%ecx, 0(%esp)
+	pushl $0
+	call _threadinswitch
+	popl %eax
 	xorl	%eax, %eax
 	incl	%eax
-	movl	%ecx, 0(%esp)
 	ret
 
 
