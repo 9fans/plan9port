@@ -125,7 +125,7 @@ menuhit(XButtonEvent *e, Menu *m)
 		XMaskEvent(dpy, MenuMask, &ev);
 		switch (ev.type) {
 		default:
-			fprintf(stderr, "9wm: menuhit: unknown ev.type %d\n", ev.type);
+			fprintf(stderr, "rio: menuhit: unknown ev.type %d\n", ev.type);
 			break;
 		case ButtonPress:
 			break;

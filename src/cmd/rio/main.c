@@ -39,8 +39,8 @@ int 			signalled;
 int 			num_screens;
 int			solidsweep = 0;
 
-Atom		exit_9wm;
-Atom		restart_9wm;
+Atom		exit_rio;
+Atom		restart_rio;
 Atom		wm_state;
 Atom		wm_change_state;
 Atom		wm_protocols;
@@ -48,8 +48,8 @@ Atom		wm_delete;
 Atom		wm_take_focus;
 Atom		wm_lose_focus;
 Atom		wm_colormaps;
-Atom		_9wm_running;
-Atom		_9wm_hold_mode;
+Atom		_rio_running;
+Atom		_rio_hold_mode;
 
 char	*fontlist[] = {
 	"lucm.latin1.9",
@@ -138,17 +138,17 @@ main(int argc, char *argv[])
 	if (signal(SIGHUP, sighandler) == SIG_IGN)
 		signal(SIGHUP, SIG_IGN);
 
-	exit_9wm = XInternAtom(dpy, "9WM_EXIT", False);
-	restart_9wm = XInternAtom(dpy, "9WM_RESTART", False);
+	exit_rio = XInternAtom(dpy, "9WM_EXIT", False);
+	restart_rio = XInternAtom(dpy, "9WM_RESTART", False);
 
 	curtime = -1;		/* don't care */
 	if (do_exit) {
-		sendcmessage(DefaultRootWindow(dpy), exit_9wm, 0L, 1);
+		sendcmessage(DefaultRootWindow(dpy), exit_rio, 0L, 1);
 		XSync(dpy, False);
 		exit(0);
 	}
 	if (do_restart) {
-		sendcmessage(DefaultRootWindow(dpy), restart_9wm, 0L, 1);
+		sendcmessage(DefaultRootWindow(dpy), restart_rio, 0L, 1);
 		XSync(dpy, False);
 		exit(0);
 	}
@@ -162,19 +162,19 @@ main(int argc, char *argv[])
 	wm_take_focus = XInternAtom(dpy, "WM_TAKE_FOCUS", False);
 	wm_lose_focus = XInternAtom(dpy, "_9WM_LOSE_FOCUS", False);
 	wm_colormaps = XInternAtom(dpy, "WM_COLORMAP_WINDOWS", False);
-	_9wm_running = XInternAtom(dpy, "_9WM_RUNNING", False);
-	_9wm_hold_mode = XInternAtom(dpy, "_9WM_HOLD_MODE", False);
+	_rio_running = XInternAtom(dpy, "_9WM_RUNNING", False);
+	_rio_hold_mode = XInternAtom(dpy, "_9WM_HOLD_MODE", False);
 
 	if (fname != 0)
 		if ((font = XLoadQueryFont(dpy, fname)) == 0)
-			fprintf(stderr, "9wm: warning: can't load font %s\n", fname);
+			fprintf(stderr, "rio: warning: can't load font %s\n", fname);
 
 	if (font == 0) {
 		i = 0;
 		for (;;) {
 			fname = fontlist[i++];
 			if (fname == 0) {
-				fprintf(stderr, "9wm: warning: can't find a font\n");
+				fprintf(stderr, "rio: warning: can't find a font\n");
 				break;
 			}
 			font = XLoadQueryFont(dpy, fname);
@@ -199,7 +199,7 @@ main(int argc, char *argv[])
 
 	/* set selection so that 9term knows we're running */
 	curtime = CurrentTime;
-	XSetSelectionOwner(dpy, _9wm_running, screens[0].menuwin, timestamp());
+	XSetSelectionOwner(dpy, _rio_running, screens[0].menuwin, timestamp());
 
 	XSync(dpy, False);
 	initting = 0;
@@ -389,7 +389,7 @@ timestamp(void)
 	XEvent ev;
 
 	if (curtime == CurrentTime) {
-		XChangeProperty(dpy, screens[0].root, _9wm_running, _9wm_running, 8,
+		XChangeProperty(dpy, screens[0].root, _rio_running, _rio_running, 8,
 				PropModeAppend, (unsigned char *)"", 0);
 		XMaskEvent(dpy, PropertyChangeMask, &ev);
 		curtime = ev.xproperty.time;
@@ -418,7 +418,7 @@ sendcmessage(Window w, Atom a, long x, int isroot)
 		mask = ExposureMask;	/* not really correct but so be it */
 	status = XSendEvent(dpy, w, False, mask, &ev);
 	if (status == 0)
-		fprintf(stderr, "9wm: sendcmessage failed\n");
+		fprintf(stderr, "rio: sendcmessage failed\n");
 }
 
 void
@@ -472,11 +472,11 @@ getevent(XEvent *e)
 			return;
 		}
 		if (errno != EINTR || !signalled) {
-			perror("9wm: select failed");
+			perror("rio: select failed");
 			exit(1);
 		}
 	}
-	fprintf(stderr, "9wm: exiting on signal\n");
+	fprintf(stderr, "rio: exiting on signal\n");
 	cleanup();
 	exit(1);
 }

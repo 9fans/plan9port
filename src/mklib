@@ -8,6 +8,6 @@ $LIB:	$OFILES
 
 all install:V: $LIB
 
-NUKEFILES=$NUKEFILES $LIB
+CLEANFILES=$CLEANFILES $LIB
 
 <$PLAN9/src/mkcommon

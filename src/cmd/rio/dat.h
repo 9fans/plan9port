@@ -3,7 +3,7 @@
 #define BORDER		_border
 #define CORNER		_corner
 #define	INSET		_inset
-#define MAXHIDDEN	32
+#define MAXHIDDEN	128
 #define B3FIXED 	5
 
 #define AllButtonMask	(Button1Mask|Button2Mask|Button3Mask \
@@ -147,11 +147,11 @@ extern int			curtime;
 extern int			debug;
 extern int			solidsweep;
 
-extern Atom		exit_9wm;
-extern Atom		restart_9wm;
+extern Atom		exit_rio;
+extern Atom		restart_rio;
 extern Atom 		wm_state;
 extern Atom		wm_change_state;
-extern Atom 		_9wm_hold_mode;
+extern Atom 		_rio_hold_mode;
 extern Atom 		wm_protocols;
 extern Atom 		wm_delete;
 extern Atom 		wm_take_focus;

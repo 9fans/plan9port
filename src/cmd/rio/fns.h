@@ -6,7 +6,7 @@
 #define	trace(s, c, e)
 #endif
 
-#define setstate setstate9wm
+#define setstate setstaterio
 
 
 /* color.c */

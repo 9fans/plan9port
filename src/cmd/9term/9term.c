@@ -191,9 +191,10 @@ usage(void)
 void
 threadmain(int argc, char *argv[])
 {
-	char *p;
+	char *p, *font;
 
 	rfork(RFNOTEG);
+	font = nil;
 	_wantfocuschanges = 1;
 	mainpid = getpid();
 	ARGBEGIN{
@@ -202,6 +203,9 @@ threadmain(int argc, char *argv[])
 	case 'a':	/* acme mode */
 		button2exec++;
 		break;
+	case 'f':
+		font = EARGF(usage());
+		break;
 	case 's':
 		scrolling++;
 		break;
@@ -209,6 +213,9 @@ threadmain(int argc, char *argv[])
 		use9wm = 1;
 		break;
 	}ARGEND
+
+	if(font)
+		putenv("font", font);
 
 	p = getenv("tabstop");
 	if(p == 0)
@@ -607,9 +614,9 @@ domenu2(int but)
 	else
 		menu2str[Scroll] = "☐ scroll";
 	if(cooked)
-		menu2str[Cooked] = "☑ cooked";
+		menu2str[Cooked] = "☑ mustecho";
 	else
-		menu2str[Cooked] = "☐ cooked";
+		menu2str[Cooked] = "☐ mustecho";
 
 	switch(menuhit(but, mc, &menu2, nil)){
 	case -1:

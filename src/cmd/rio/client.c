@@ -16,7 +16,7 @@ void
 setactive(Client *c, int on)
 {
 	if (c->parent == c->screen->root) {
-		fprintf(stderr, "9wm: bad parent in setactive; dumping core\n");
+		fprintf(stderr, "rio: bad parent in setactive; dumping core\n");
 		abort();
 	}
 	if (on) {
@@ -62,7 +62,7 @@ active(Client *c)
 	Client *cc;
 
 	if (c == 0) {
-		fprintf(stderr, "9wm: active(c==0)\n");
+		fprintf(stderr, "rio: active(c==0)\n");
 		return;
 	}
 	if (c == current)
@@ -131,7 +131,7 @@ top(Client *c)
 		}
 		l = &cc->next;
 	}
-	fprintf(stderr, "9wm: %p not on client list in top()\n", c);
+	fprintf(stderr, "rio: %p not on client list in top()\n", c);
 }
 
 Client *

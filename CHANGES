@@ -1,3 +1,34 @@
+April 19, 2004
+
+	lots of man page updates.
+
+	fix bug in comm, reported by Taj Khattra.
+
+	add libmach, db, acid
+
+April 18, 2004
+
+	add utf-8 input support from david tolpin.
+
+	pick up rog's acme fixes w.r.t. cut and paste
+
+	small fixes to ps, B, web
+
+	more types in u.h
+
+	man page nits
+
+	make gzip, bzip2 work with gnu tar
+
+	add fmt, tweak
+
+	change misc/ding checkboxes to be smaller
+
+
+April 17, 2004
+
+	make 9term work a bit better w.r.t. terminal modes
+
 April 14, 2004
 
 	add look.  thanks to Taj Khattra.

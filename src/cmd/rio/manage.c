@@ -52,7 +52,7 @@ manage(Client *c, int mapped)
 	getproto(c);
 	gettrans(c);
 	if (c->is9term)
-		c->hold = getiprop(c->window, _9wm_hold_mode);
+		c->hold = getiprop(c->window, _rio_hold_mode);
 
 	/* Figure out what to do with the window from hints */
 
@@ -299,7 +299,7 @@ gravitate(Client *c, int invert)
 		dy = 2*delta;
 		break;
 	default:
-		fprintf(stderr, "9wm: bad window gravity %d for 0x%x\n", gravity, (int)c->window);
+		fprintf(stderr, "rio: bad window gravity %d for 0x%x\n", gravity, (int)c->window);
 		return;
 	}
 	dx += BORDER;

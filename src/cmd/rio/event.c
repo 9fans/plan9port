@@ -32,7 +32,7 @@ mainloop(int shape_event)
 				shapenotify((XShapeEvent *)&ev);
 			else
 #endif
-				fprintf(stderr, "9wm: unknown ev.type %d\n", ev.type);
+				fprintf(stderr, "rio: unknown ev.type %d\n", ev.type);
 			break;
 		case ButtonPress:
 			button(&ev.xbutton);
@@ -67,13 +67,13 @@ mainloop(int shape_event)
 			property(&ev.xproperty);
 			break;
 		case SelectionClear:
-			fprintf(stderr, "9wm: SelectionClear (this should not happen)\n");
+			fprintf(stderr, "rio: SelectionClear (this should not happen)\n");
 			break;
 		case SelectionNotify:
-			fprintf(stderr, "9wm: SelectionNotify (this should not happen)\n");
+			fprintf(stderr, "rio: SelectionNotify (this should not happen)\n");
 			break;
 		case SelectionRequest:
-			fprintf(stderr, "9wm: SelectionRequest (this should not happen)\n");
+			fprintf(stderr, "rio: SelectionRequest (this should not happen)\n");
 			break;
 		case EnterNotify:
 			enter(&ev.xcrossing);
@@ -180,13 +180,13 @@ mapreq(XMapRequestEvent *e)
 
 	if (c == 0 || c->window != e->window) {
 		/* workaround for stupid NCDware */
-		fprintf(stderr, "9wm: bad mapreq c %p w %x, rescanning\n",
+		fprintf(stderr, "rio: bad mapreq c %p w %x, rescanning\n",
 			c, (int)e->window);
 		for (i = 0; i < num_screens; i++)
 			scanwins(&screens[i]);
 		c = getclient(e->window, 0);
 		if (c == 0 || c->window != e->window) {
-			fprintf(stderr, "9wm: window not found after rescan\n");
+			fprintf(stderr, "rio: window not found after rescan\n");
 			return;
 		}
 	}
@@ -293,15 +293,15 @@ clientmesg(XClientMessageEvent *e)
 	Client *c;
 
 	curtime = CurrentTime;
-	if (e->message_type == exit_9wm) {
+	if (e->message_type == exit_rio) {
 		cleanup();
 		exit(0);
 	}
-	if (e->message_type == restart_9wm) {
-		fprintf(stderr, "*** 9wm restarting ***\n");
+	if (e->message_type == restart_rio) {
+		fprintf(stderr, "*** rio restarting ***\n");
 		cleanup();
 		execvp(myargv[0], myargv);
-		perror("9wm: exec failed");
+		perror("rio: exec failed");
 		exit(1);
 	}
 	if (e->message_type == wm_change_state) {
@@ -311,11 +311,11 @@ clientmesg(XClientMessageEvent *e)
 				hide(c);
 		}
 		else
-			fprintf(stderr, "9wm: WM_CHANGE_STATE: format %d data %d w 0x%x\n",
+			fprintf(stderr, "rio: WM_CHANGE_STATE: format %d data %d w 0x%x\n",
 				(int)e->format, (int)e->data.l[0], (int)e->window);
 		return;
 	}
-	fprintf(stderr, "9wm: strange ClientMessage, type 0x%x window 0x%x\n",
+	fprintf(stderr, "rio: strange ClientMessage, type 0x%x window 0x%x\n",
 		(int)e->message_type, (int)e->window);
 }
 
@@ -379,8 +379,8 @@ property(XPropertyEvent *e)
 		gettrans(c);
 		return;
 	}
-	if (a == _9wm_hold_mode) {
-		c->hold = getiprop(c->window, _9wm_hold_mode);
+	if (a == _rio_hold_mode) {
+		c->hold = getiprop(c->window, _rio_hold_mode);
 		if (c == current)
 			draw_border(c, 1);
 	}

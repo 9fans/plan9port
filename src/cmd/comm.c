@@ -7,7 +7,7 @@ int	one;
 int	two;
 int	three;
 
-char	*ldr[3];
+char	ldr[3][4] = { "", "\t", "\t\t" };
 
 Biobuf *ib1;
 Biobuf *ib2;
@@ -23,9 +23,6 @@ main(int argc, char *argv[])
 	int l;
 	char	lb1[LB],lb2[LB];
 
-	ldr[0] = "";
-	ldr[1] = "\t";
-	ldr[2] = "\t\t";
 	l = 2;
 	ARGBEGIN{
 	case '1':

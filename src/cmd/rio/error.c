@@ -13,7 +13,7 @@ int 	ignore_badwindow;
 void
 fatal(char *s)
 {
-	fprintf(stderr, "9wm: ");
+	fprintf(stderr, "rio: ");
 	perror(s);
 	fprintf(stderr, "\n");
 	exit(1);
@@ -25,7 +25,7 @@ handler(Display *d, XErrorEvent *e)
 	char msg[80], req[80], number[80];
 
 	if (initting && (e->request_code == X_ChangeWindowAttributes) && (e->error_code == BadAccess)) {
-		fprintf(stderr, "9wm: it looks like there's already a window manager running;  9wm not started\n");
+		fprintf(stderr, "rio: it looks like there's already a window manager running;  rio not started\n");
 		exit(1);
 	}
 
@@ -38,10 +38,10 @@ handler(Display *d, XErrorEvent *e)
 	if (req[0] == '\0')
 		sprintf(req, "<request-code-%d>", (int)e->request_code);
 
-	fprintf(stderr, "9wm: %s(0x%x): %s\n", req, (int)e->resourceid, msg);
+	fprintf(stderr, "rio: %s(0x%x): %s\n", req, (int)e->resourceid, msg);
 
 	if (initting) {
-		fprintf(stderr, "9wm: failure during initialisation; aborting\n");
+		fprintf(stderr, "rio: failure during initialisation; aborting\n");
 		exit(1);
 	}
 	return 0;
@@ -69,10 +69,10 @@ graberror(char *f, int err)
 	case GrabSuccess:
 		return;
 	default:
-		fprintf(stderr, "9wm: %s: grab error: %d\n", f, err);
+		fprintf(stderr, "rio: %s: grab error: %d\n", f, err);
 		return;
 	}
-	fprintf(stderr, "9wm: %s: grab error: %s\n", f, s);
+	fprintf(stderr, "rio: %s: grab error: %s\n", f, s);
 #endif
 }
 
@@ -85,7 +85,7 @@ graberror(char *f, int err)
 void
 dotrace(char *s, Client *c, XEvent *e)
 {
-	fprintf(stderr, "9wm: %s: c=0x%x", s, c);
+	fprintf(stderr, "rio: %s: c=0x%x", s, c);
 	if (c)
 		fprintf(stderr, " x %d y %d dx %d dy %d w 0x%x parent 0x%x", c->x, c->y, c->dx, c->dy, c->window, c->parent);
 #ifdef	DEBUG_EV

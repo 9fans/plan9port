@@ -140,12 +140,12 @@ spawn(ScreenInfo *s)
 				putenv(s->display);
 			if (termprog != NULL) {
 				execl(shell, shell, "-c", termprog, 0);
-				fprintf(stderr, "9wm: exec %s", shell);
+				fprintf(stderr, "rio: exec %s", shell);
 				perror(" failed");
 			}
 			execlp("9term", "9term", "-w", 0);
 			execlp("xterm", "xterm", "-ut", 0);
-			perror("9wm: exec 9term/xterm failed");
+			perror("rio: exec 9term/xterm failed");
 			exit(1);
 		}
 		exit(0);
@@ -206,7 +206,7 @@ hide(Client *c)
 	if (c == 0 || numhidden == MAXHIDDEN)
 		return;
 	if (hidden(c)) {
-		fprintf(stderr, "9wm: already hidden: %s\n", c->label);
+		fprintf(stderr, "rio: already hidden: %s\n", c->label);
 		return;
 	}
 	XUnmapWindow(dpy, c->parent);
@@ -227,12 +227,12 @@ unhide(int n, int map)
 	int i;
 
 	if (n >= numhidden) {
-		fprintf(stderr, "9wm: unhide: n %d numhidden %d\n", n, numhidden);
+		fprintf(stderr, "rio: unhide: n %d numhidden %d\n", n, numhidden);
 		return;
 	}
 	c = hiddenc[n];
 	if (!hidden(c)) {
-		fprintf(stderr, "9wm: unhide: not hidden: %s(0x%x)\n",
+		fprintf(stderr, "rio: unhide: not hidden: %s(0x%x)\n",
 			c->label, (int)c->window);
 		return;
 	}
@@ -263,7 +263,7 @@ unhidec(Client *c, int map)
 			unhide(i, map);
 			return;
 		}
-	fprintf(stderr, "9wm: unhidec: not hidden: %s(0x%x)\n",
+	fprintf(stderr, "rio: unhidec: not hidden: %s(0x%x)\n",
 		c->label, (int)c->window);
 }
 
