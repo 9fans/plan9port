@@ -472,7 +472,7 @@ coldragwin(Column *c, Window *w, int but)
 	}
 	/* is it a flick to the right? */
 	if(abs(p.y-op.y)<10 && p.x>op.x+30 && rowwhichcol(c->row, p)==c)
-		p.x += Dx(w->r);	/* yes: toss to next column */
+		p.x = op.x+Dx(w->r);	/* yes: toss to next column */
 	nc = rowwhichcol(c->row, p);
 	if(nc!=nil && nc!=c){
 		colclose(c, w, FALSE);

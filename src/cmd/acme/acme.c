@@ -45,7 +45,7 @@ Command *command;
 
 void	acmeerrorinit(void);
 void	readfile(Column*, char*);
-int	shutdown(void*, char*);
+static int	shutdown(void*, char*);
 
 void
 derror(Display *d, char *errorstr)
@@ -270,7 +270,7 @@ char *oknotes[] ={
 
 int	dumping;
 
-int
+static int
 shutdown(void *v, char *msg)
 {
 	int i;

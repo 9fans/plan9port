@@ -201,7 +201,6 @@ _threadnalt++;
 	}else{
 		altexec(a, s);	/* unlocks chanlock, does splx */
 	}
-	_sched();
 	t->chan = Channone;
 _threadnalt++;
 	return a - alts;

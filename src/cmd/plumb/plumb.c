@@ -9,7 +9,7 @@ Plumbmsg m;
 void
 usage(void)
 {
-	fprint(2, "usage:  plumb [-p plumbfile] [-a 'attr=value ...'] [-s src] [-d dst] [-t type] [-w wdir] -i | data1\n");
+	fprint(2, "usage: plumb [-p plumbfile] [-a 'attr=value ...'] [-s src] [-d dst] [-t type] [-w wdir] -i | data1\n");
 	exits("usage");
 }
 

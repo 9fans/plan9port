@@ -146,10 +146,11 @@ pollidle(void *v)
 		for(i=0; i<npoll; i++)
 			if(pfd[i].fd != -1 && pfd[i].revents){
 				//fprint(2, " %d", pfd[i].fd);
-				nbsendul(polls[i].c, 1);
 				pfd[i].fd = -1;
 				pfd[i].events = 0;
 				pfd[i].revents = 0;
+				nbsendul(polls[i].c, 1);
+				//fprint(2, " x%d", pfd[i].fd);
 			}
 		//fprint(2, "\n");
 	}
@@ -192,7 +193,7 @@ _threadfdwait(int fd, int rw, ulong pc)
 	pfd[i].fd = fd;
 	pfd[i].events = rw=='r' ? POLLIN : POLLOUT;
 	polls[i].c = &s.c;
-	//fprint(2, "%s [%3d] fdwait %d %c list *0x%lux\n",
+	if(0) fprint(2, "%s [%3d] fdwait %d %c list *0x%lux\n",
 		argv0, threadid(), fd, rw, pc);
 	recvul(&s.c);
 }
