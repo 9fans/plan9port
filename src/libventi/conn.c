@@ -9,6 +9,7 @@ VtConn*
 vtconn(int infd, int outfd)
 {
 	VtConn *z;
+	NetConnInfo *nci;
 
 	z = vtmallocz(sizeof(VtConn));
 	z->tagrend.l = &z->lk;
@@ -16,6 +17,13 @@ vtconn(int infd, int outfd)
 	z->infd = infd;
 	z->outfd = outfd;
 	z->part = packetalloc();
+	nci = getnetconninfo(nil, infd);
+	if(nci == nil)
+		snprint(z->addr, sizeof z->addr, "/dev/fd/%d", infd);
+	else{
+		strecpy(z->addr, z->addr+sizeof z->addr, nci->raddr);
+		freenetconninfo(nci);
+	}
 	return z;
 }
 

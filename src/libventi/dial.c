@@ -7,6 +7,7 @@ vtdial(char *addr)
 {
 	char *na;
 	int fd;
+	VtConn *z;
 
 	if(addr == nil)
 		addr = getenv("venti");
@@ -17,5 +18,8 @@ vtdial(char *addr)
 	if((fd = dial(na, nil, nil, nil)) < 0)
 		return nil;
 
-	return vtconn(fd, fd);
+	z = vtconn(fd, fd);
+	if(z)
+		strecpy(z->addr, z->addr+sizeof z->addr, na);
+	return z;
 }

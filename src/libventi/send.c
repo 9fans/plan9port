@@ -37,11 +37,13 @@ _vtsend(VtConn *z, Packet *p)
 		if(n == 0)
 			break;
 		if(write(z->outfd, ioc.addr, ioc.len) < ioc.len){
+			vtlog(VtServerLog, "%s: sending packet %p: %r", z->addr, p);
 			packetfree(p);
 			return 0;
 		}
 		packetconsume(p, nil, ioc.len);
 	}
+	vtlog(VtServerLog, "%s: sent packet %p", z->addr, p);
 	packetfree(p);
 	return 1;
 }
@@ -106,8 +108,10 @@ _vtrecv(VtConn *z)
 	ventirecvbytes += len;
 	ventirecvpackets++;
 	p = packetsplit(p, len);
+	vtlog(VtServerLog, "%s: read packet %p len %d", z->addr, p, len);
 	return p;
 Err:	
+	vtlog(VtServerLog, "%s: error reading packet: %r", z->addr);
 	return nil;	
 }
 

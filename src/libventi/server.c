@@ -31,6 +31,8 @@ struct VtSrv
 static void listenproc(void*);
 static void connproc(void*);
 
+char *VtServerLog = "libventi/server";
+
 static void
 scincref(VtSconn *sc)
 {
@@ -140,10 +142,12 @@ if(first && chattyventi){
 	while((p = vtrecv(c)) != nil){
 		r = vtmallocz(sizeof(VtReq));
 		if(vtfcallunpack(&r->tx, p) < 0){
-			packetfree(p);
+			vtlog(VtServerLog, "%s: recv bad packet %p: %r", c->addr, p);
 			fprint(2, "bad packet on %s: %r\n", sc->dir);
+			packetfree(p);
 			continue;
 		}
+		vtlog(VtServerLog, "%s: recv packet %p (%F)", c->addr, p, &r->tx);
 		if(chattyventi)
 			fprint(2, "%s <- %F\n", argv0, &r->tx);
 		packetfree(p);
@@ -175,7 +179,11 @@ out:
 VtReq*
 vtgetreq(VtSrv *srv)
 {
-	return _vtqrecv(srv->q);
+	VtReq *r;
+	
+	r = _vtqrecv(srv->q);
+	vtlog(VtServerLog, "%s: vtgetreq %F\n", ((VtSconn*)r->sc)->c->addr, &r->tx);
+	return r;
 }
 
 void
@@ -192,11 +200,13 @@ vtrespond(VtReq *r)
 	if(chattyventi)
 		fprint(2, "%s -> %F\n", argv0, &r->rx);
 	if((p = vtfcallpack(&r->rx)) == nil){
+		vtlog(VtServerLog, "%s: vtfcallpack %F: %r", sc->c->addr, &r->rx);
 		fprint(2, "fcallpack on %s: %r\n", sc->dir);
 		packetfree(p);
 		vtfcallclear(&r->rx);
 		return;
 	}
+	vtlog(VtServerLog, "%s: send packet %p (%F)", sc->c->addr, p, &r->rx);
 	if(vtsend(sc->c, p) < 0)
 		fprint(2, "vtsend %F: %r\n", &r->rx);
 	scdecref(sc);
