@@ -22,7 +22,7 @@ p9open(char *name, int mode)
 		mode ^= ODIRECT;
 	}
 	if(mode){
-		werrstr("mode not supported");
+		werrstr("mode 0x%x not supported", mode);
 		return -1;
 	}
 	fd = open(name, umode);
