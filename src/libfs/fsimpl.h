@@ -1,6 +1,8 @@
 /* Copyright (C) 2003 Russ Cox, Massachusetts Institute of Technology */
 /* See COPYRIGHT */
 
+#include <thread.h>
+
 typedef struct Queue Queue;
 Queue *_fsqalloc(void);
 int _fsqsend(Queue*, void*);
@@ -22,6 +24,8 @@ struct Fsys
 	Queue *rxq;
 	Fid *freefid;
 	int nextfid;
+	Ioproc *iorecv;
+	Ioproc *iosend;
 };
 
 struct Fid

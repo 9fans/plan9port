@@ -39,6 +39,8 @@ fsinit(int fd)
 	fs->mux.recv = _fsrecv;
 	fs->mux.gettag = _fsgettag;
 	fs->mux.settag = _fssettag;
+	fs->iorecv = ioproc();
+	fs->iosend = ioproc();
 	muxinit(&fs->mux);
 	return fs;
 }
@@ -105,6 +107,8 @@ _fsdecref(Fsys *fs)
 			next = f->next;
 			free(f);
 		}
+		closeioproc(fs->iorecv);
+		closeioproc(fs->iosend);
 		free(fs);
 		return;
 	}
@@ -267,7 +271,7 @@ _fssend(Mux *mux, void *pkt)
 	Fsys *fs;
 
 	fs = mux->aux;
-	return threadwrite(fs->fd, pkt, GBIT32((uchar*)pkt));
+	return iowrite(fs->iosend, fs->fd, pkt, GBIT32((uchar*)pkt));
 }
 
 static void*
@@ -279,7 +283,7 @@ _fsrecv(Mux *mux)
 	Fsys *fs;
 
 	fs = mux->aux;
-	n = threadreadn(fs->fd, buf, 4);
+	n = ioreadn(fs->iorecv, fs->fd, buf, 4);
 	if(n != 4)
 		return nil;
 	n = GBIT32(buf);
@@ -289,12 +293,12 @@ _fsrecv(Mux *mux)
 		return nil;
 	}
 	PBIT32(pkt, n);
-	if(threadreadn(fs->fd, pkt+4, n-4) != n-4){
+	if(ioreadn(fs->iorecv, fs->fd, pkt+4, n-4) != n-4){
 		free(pkt);
 		return nil;
 	}
 	if(pkt[4] == Ropenfd){
-		if((nfd=threadrecvfd(fs->fd)) < 0){
+		if((nfd=iorecvfd(fs->iorecv, fs->fd)) < 0){
 			fprint(2, "recv fd error: %r\n");
 			free(pkt);
 			return nil;
