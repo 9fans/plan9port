@@ -23,7 +23,7 @@ fi
 echo 'WSYSTYPE='$WSYSTYPE
 echo 'X11='$X11
 
-if [ WSYSTYPE = x11 ]; then
+if [ $WSYSTYPE = x11 ]; then
 	echo 'CFLAGS=$CFLAGS -I$X11/include'
 	echo 'HFILES=$HFILES $XHFILES'
 fi
