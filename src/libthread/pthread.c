@@ -130,3 +130,9 @@ _pthreadinit(void)
 	pthread_key_create(&prockey, 0);
 }
 
+void
+threadexitsall(char *msg)
+{
+	exits(msg);
+}
+

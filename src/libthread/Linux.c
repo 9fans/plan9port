@@ -8,9 +8,6 @@
 #include "thread.h"
 #include "threadimpl.h"
 
-int ngetpid;
-
-
 /*
  * spin locks
  */

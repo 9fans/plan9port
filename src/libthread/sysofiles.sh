@@ -1,6 +1,6 @@
 #!/bin/sh
 
-tag="${SYSNAME:-`uname -m`}-${OBJTYPE:-`uname`}-`uname -r`-${CC9:-cc}"
+tag="${OBJTYPE:-`uname -m`}-${SYSNAME:-`uname`}-`uname -r`-${CC9:-cc}"
 case "$tag" in
 *-Linux-2.6.*)
 	echo pthread.o
