@@ -22,6 +22,12 @@ else
 	do
 		pwd=`pwd`
 		file=`cleanname -d $pwd $i`
+		line=`echo $file | sed 's/.*://'`
+		file=`echo $file | sed 's/:.*//'`
 		echo "B $file" >>$sam
+		if [ "x$line" != "x" -a "x$line" != "x$file" ]
+		then
+			echo "$line" >> $sam
+		fi
 	done
 fi
