@@ -8,7 +8,7 @@ if(! ~ $#* 1){
 fn srv1 {
 	if(! 9p stat $1 >/dev/null >[2=1]){
 		rm -f $ns/$1
-		srv $2 $1
+		srv -a $2 $1
 	}
 }
 
