@@ -9,7 +9,6 @@ NUM=\
 
 OFILES=\
 	dofmt.$O\
-	errfmt.$O\
 	fltfmt.$O\
 	fmt.$O\
 	fmtfd.$O\
