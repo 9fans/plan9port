@@ -1,0 +1,30 @@
+<$PLAN9/src/mkhdr
+
+#TARG=lex
+TARG=lex.9
+OFILES=lmain.$O\
+	y.tab.$O\
+	sub1.$O\
+	sub2.$O\
+	header.$O\
+
+HFILES=ldefs.h\
+
+YFILES=parser.y\
+
+SHORTLIB=bio 9
+UPDATE=\
+	mkfile\
+	$HFILES\
+	lmain.c\
+	sub1.c\
+	sub2.c\
+	header.c
+
+<$PLAN9/src/mkone
+
+installall:V:
+	for objtype in $CPUS ; do
+		mk install
+	done
+	cp ncform $SYS9/lib/lex
