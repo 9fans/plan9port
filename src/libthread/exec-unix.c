@@ -4,7 +4,7 @@
 #include "threadimpl.h"
 
 static void efork(int[3], int[2], char*, char**);
-static void
+static int
 _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 {
 	int pfd[2];
@@ -63,18 +63,26 @@ _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 		sendul(pidc, pid);
 
 	_threaddebug(DBGEXEC, "threadexec schedexecwait");
-	threadexits(0);
+	return pid;
 
 Bad:
 	_threaddebug(DBGEXEC, "threadexec bad %r");
 	if(pidc)
 		sendul(pidc, ~0);
+	return -1;
 }
 
 void
 threadexec(Channel *pidc, int fd[3], char *prog, char *args[])
 {
-	_threadexec(pidc, fd, prog, args, 0);
+	if(_threadexec(pidc, fd, prog, args, 0) >= 0)
+		threadexits(nil);
+}
+
+int
+threadspawn(int fd[3], char *prog, char *args[])
+{
+	return _threadexec(nil, fd, prog, args, 0);
 }
 
 /*

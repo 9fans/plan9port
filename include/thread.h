@@ -82,6 +82,7 @@ int		procrfork(void (*f)(void *arg), void *arg, unsigned int stacksize, int flag
 void**		procdata(void);
 void		threadexec(Channel *, int[3], char *, char *[]);
 void		threadexecl(Channel *, int[3], char *, ...);
+int		threadspawn(int[3], char*, char*[]);
 int		recv(Channel *c, void *v);
 void*		recvp(Channel *c);
 unsigned long		recvul(Channel *c);

@@ -12,13 +12,6 @@ DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"`
 
 dir-all dir-install: $PLAN9/bin/9yacc
 
-XLIB=draw bio 9
-$O.clock: clock.$O ${XLIB:%=$PLAN9/lib/lib%.a}
-	$LD -o $target $prereq -L$X11/lib -lX11
-
-$O.tweak: tweak.$O ${XLIB:%=$PLAN9/lib/lib%.a}
-	$LD -o $target $prereq -L$X11/lib -lX11
-
 %.tab.h %.tab.c: %.y
 	$YACC $YFLAGS -s $stem $prereq
 

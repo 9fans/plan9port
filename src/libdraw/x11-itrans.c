@@ -96,7 +96,9 @@ __xtoplan9kbd(XEvent *e)
 			k = '\n';
 			break;
 		case XK_Alt_L:
+		case XK_Meta_L:	/* Shift Alt on PCs */
 		case XK_Alt_R:
+		case XK_Meta_R:	/* Shift Alt on PCs */
 			k = Kalt;
 			break;
 		default:		/* not ISO-1 or tty control */
@@ -117,7 +119,6 @@ __xtoplan9kbd(XEvent *e)
 		return -1;
 	}
 
-	/* BUG: could/should do Alt translation here! */
 	return k+0;
 }
 
