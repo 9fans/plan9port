@@ -50,6 +50,9 @@ tprimes: tprimes.$O $PLAN9/lib/$LIB
 texec: texec.$O $PLAN9/lib/$LIB
 	$LD -o texec texec.$O $LDFLAGS -lthread -l9
 
+tspawn: tspawn.$O $PLAN9/lib/$LIB
+	$LD -o tspawn tspawn.$O $LDFLAGS -lthread -l9
+
 trend: trend.$O $PLAN9/lib/$LIB
 	$LD -o trend trend.$O $LDFLAGS -lthread -l9
 

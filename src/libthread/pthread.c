@@ -60,6 +60,7 @@ _threadinitproc(Proc *p)
 void
 _threadexitproc(char *exitstr)
 {
+	_threaddebug(DBGSCHED, "_pthreadexit");
 	pthread_exit(nil);
 }
 
@@ -69,7 +70,8 @@ _threadexitproc(char *exitstr)
 void
 _threadexitallproc(char *exitstr)
 {
-	exits(0);
+	_threaddebug(DBGSCHED, "_threadexitallproc");
+	exits(exitstr);
 }
 
 /*
@@ -111,6 +113,7 @@ _threadwaitproc(void *v)
 		else
 			free(w);
 	}
+fprint(2, "_threadwaitproc exits\n");
 }
 
 /* 

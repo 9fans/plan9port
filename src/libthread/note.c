@@ -87,9 +87,7 @@ _threadnote(void *v, char *s)
 	Note *n;
 
 	_threaddebug(DBGNOTE, "Got note %s", s);
-	if(strncmp(s, "sys:", 4) == 0
-	&& strcmp(s, "sys: write on closed pipe") != 0
-	&& strcmp(s, "sys: child") != 0)
+	if(strncmp(s, "sys:", 4) == 0)
 		noted(NDFLT);
 
 //	if(_threadexitsallstatus){

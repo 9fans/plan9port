@@ -170,9 +170,10 @@ runthread(Proc *p)
 		/*
 		 * Maybe we were awakened to exit?
 		 */
-		if(_threadexitsallstatus)
+		if(_threadexitsallstatus){
+			_threaddebug(DBGSCHED, "time to exit");
 			_exits(_threadexitsallstatus);
-
+		}
 		assert(q->head != nil);
 	}
 
@@ -291,9 +292,12 @@ schedexit(Proc *p)
 	strncpy(ex, p->exitstr, sizeof ex);
 	ex[sizeof ex-1] = '\0';
 	free(p);
-	if(n == 0)
+	if(n == 0){
+		_threaddebug(DBGSCHED, "procexit; no more procs");
 		_threadexitallproc(ex);
-	else
+	}else{
+		_threaddebug(DBGSCHED, "procexit");
 		_threadexitproc(ex);
+	}
 }
 

@@ -50,6 +50,7 @@ _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 		goto Bad;
 	case 0:
 		efork(fd, pfd, prog, args);
+		_threaddebug(DBGSCHED, "exit after efork");
 		_exit(0);
 	default:
 		_threadafterexec();
@@ -152,6 +153,7 @@ efork(int stdfd[3], int fd[2], char *prog, char **args)
 		strcpy(buf, "exec failed");
 	write(fd[1], buf, strlen(buf));
 	close(fd[1]);
+	_threaddebug(DBGSCHED, "_exits in exec-unix");
 	_exits(buf);
 }
 

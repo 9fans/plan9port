@@ -1,5 +1,12 @@
 #include "threadimpl.h"
 
+static void
+launcher(void (*f)(void*), void *arg)
+{
+	f(arg);
+	threadexits(nil);
+}
+
 void
 _threadinitstack(Thread *t, void (*f)(void*), void *arg)
 {
@@ -17,7 +24,7 @@ _threadinitstack(Thread *t, void (*f)(void*), void *arg)
 	/* leave a few words open on both ends */
 	t->context.uc.uc_stack.ss_sp = t->stk+8;
 	t->context.uc.uc_stack.ss_size = t->stksize-16;
-	makecontext(&t->context.uc, (void(*)())f, 1, arg);
+	makecontext(&t->context.uc, (void(*)())launcher, 2, f, arg);
 }
 
 void

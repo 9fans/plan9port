@@ -66,6 +66,7 @@ threadsetname(char *fmt, ...)
 	t->name = vsmprint(fmt, arg);
 	va_end(arg);
 
+	_threaddebug(DBGSCHED, "set name %s", t->name);
 /* Plan 9 only 
 	if(p->nthreads == 1){
 		snprint(buf, sizeof buf, "#p/%d/args", getpid());
