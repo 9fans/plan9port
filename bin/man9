@@ -10,23 +10,23 @@ while [ $# -gt 0 ] ; do
 done
 
 if [ "X$sec" = "X" ] ; then
-    sec=`ls -d $root/[0-9]* | sed -e 's;/$;;' -e 's;^.*/;;'`
+    sec=`ls -d $root/man[0-9]* | sed -e 's;/$;;' -e 's;^.*/man;;'`
 fi
 
 pat='^('`echo $* | sed -e 's; ;|;g'`')' ;
 for s in $sec ; do
     if [ -f $root/$s/INDEX ] ; then
-	try=`grep -E $pat $root/$s/INDEX | sed -e 's;^[^ ]* ;;'` ;
+	try=`grep -E $pat $root/man$s/INDEX | sed -e 's;^[^ ]* ;;'` ;
     fi
     if [ "X$try" != "X" ] ; then
 	for f in $try ; do
-	    files="$files $root/$s/$f";
+	    files="$files $root/man$s/$f.$s";
 	done
 	try="";
     fi
     for f in $* ; do
-	if [ -f $root/$s/$f ] ; then
-	    files="$files $root/$s/$f" ;
+	if [ -f $root/man$s/$f.$s ] ; then
+	    files="$files $root/man$s/$f.$s" ;
 	fi
     done
 done 
