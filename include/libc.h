@@ -40,8 +40,8 @@ extern	int	strcmp(char*, char*);
 extern	char*	strcpy(char*, char*);
  */
 extern	char*	strecpy(char*, char*, char*);
- /*
-extern	char*	strdup(char*);
+extern	char*	p9strdup(char*);
+/*
 extern	char*	strncat(char*, char*, long);
 extern	char*	strncpy(char*, char*, long);
 extern	int	strncmp(char*, char*, long);
@@ -128,6 +128,8 @@ extern	void*	malloctopoolblock(void*);
 #define	realloc	p9realloc
 #define	calloc	p9calloc
 #define	free	p9free
+#undef strdup
+#define	strdup	p9strdup
 #endif
 
 /*
