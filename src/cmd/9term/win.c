@@ -63,7 +63,7 @@ Channel *cwait;
 int pid = -1;
 
 int	label(char*, int);
-void	error(char*);
+void	error(char*, ...);
 void	stdinproc(void*);
 void	stdoutproc(void*);
 void	type(Event*, int, CFid*, CFid*);
@@ -206,8 +206,15 @@ threadmain(int argc, char **argv)
 }
 
 void
-error(char *s)
+error(char *s, ...)
 {
+	va_list arg;
+	
+	if(s){
+		va_start(arg, s);
+		s = vsmprint(s, arg);
+		va_end(arg);
+	}
 	if(s)
 		fprint(2, "win: %s: %r\n", s);
 	else
@@ -478,8 +485,15 @@ stdoutproc(void *v)
 			buf[n] = 0;
 			qlock(&q.lk);
 			m = sprint(x, "#%d", q.p);
-			if(fswrite(afd, x, m) != m)
-				error("stdout writing address");
+			if(fswrite(afd, x, m) != m){
+				fprint(2, "stdout writing address: %r; resetting\n");
+				fswrite(afd, "$", 1);
+				m = fsread(afd, x, sizeof x-1);
+				if(m >= 0){
+					x[m] = 0;
+					q.p = atoi(x);
+				}
+			}
 			if(fswrite(dfd, buf, n) != n)
 				error("stdout writing body");
 			q.p += nrunes(buf, n);
