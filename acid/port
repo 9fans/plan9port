@@ -84,7 +84,7 @@ defn _stkign(frame)
 // only print the last one.
 defn _stk(regs, dolocals)
 {
-	local stk, pc, fn, done, callerpc, paramlist, locallist;
+	local stk, frame, pc, fn, done, callerpc, paramlist, locallist;
 
 	stk = strace(regs);
 	if stkignore then {

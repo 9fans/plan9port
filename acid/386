@@ -186,7 +186,7 @@ dynamicmap()
 			while m != 0 && n < 100 do {
 				complex Linkmap m;
 				if m.name && *(m.name\b) && access(*(m.name\s)) then
-					textfile({*(m.name\s), m.addr\X});
+					print("textfile({\"", *(m.name\s), "\", ", m.addr\X, "});\n");
 				m = m.next;
 				n = n+1;
 			}
@@ -197,7 +197,7 @@ dynamicmap()
 defn
 acidmap()
 {
-	dynamicmap();
+//	dynamicmap();
 	acidtypes();
 }
 
