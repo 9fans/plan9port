@@ -29,7 +29,7 @@ _threaddie(int x)
 	USED(x);
 
 	if(_threadexitsallstatus)
-		exit(_threadexitsallstatus[0] ? 1 : 0);
+		_exit(_threadexitsallstatus[0] ? 1 : 0);
 }
 
 int
