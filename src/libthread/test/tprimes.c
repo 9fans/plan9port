@@ -9,6 +9,7 @@ enum
 
 int max = 10000;
 int (*mk)(void (*fn)(void*), void *arg, uint stack);
+void printmsg(void*, char*);
 
 void
 countthread(void *v)
@@ -55,6 +56,7 @@ threadmain(int argc, char **argv)
 	Channel *c;
 	int nbuf;
 
+	notify(printmsg);
 	nbuf = 0;
 	mk = threadcreate;
 	ARGBEGIN{
@@ -78,4 +80,10 @@ threadmain(int argc, char **argv)
 	mk(countthread, c, STACK);
 	mk(filterthread, c, STACK);
 	recvp(chancreate(sizeof(void*), 0));
+}
+
+void
+printmsg(void *v, char *msg)
+{
+	print("note: %s\n", msg);
 }

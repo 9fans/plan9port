@@ -18,7 +18,7 @@ execproc(void *v)
 	args[2] = nil;
 	threadexec(nil, fd, args[0], args);
 }
-	
+
 void
 threadmain(int argc, char **argv)
 {

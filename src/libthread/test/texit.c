@@ -3,14 +3,16 @@
 #include <thread.h>
 
 void
-proc(void *v)
+f(void *v)
 {
-	sleep(5*1000);
-	print("still running\n");
+	USED(v);
+
+	recvp(chancreate(sizeof(void*), 0));
 }
 
 void
 threadmain(int argc, char **argv)
 {
-	proccreate(proc, nil, 32768);
+	proccreate(f, nil, 32000);
+	exit(1);
 }
