@@ -1,4 +1,4 @@
-all: $(9SRC)/lib/$(LIB)
+all install: $(9SRC)/lib/$(LIB)
 
 $(9SRC)/lib/$(LIB): $(OFILES)
 	$(AR) $(ARFLAGS) $(9SRC)/lib/$(LIB) $(OFILES)
@@ -6,3 +6,4 @@ $(9SRC)/lib/$(LIB): $(OFILES)
 
 include $(9SRC)/Makecommon
 
+NUKEFILES+=$(9SRC)/lib/$(LIB)

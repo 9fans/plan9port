@@ -1,4 +1,4 @@
-DIRS=\
+LIBS=\
 	lib9\
 	libbio\
 	libdraw\
@@ -7,13 +7,15 @@ DIRS=\
 	libregexp\
 	libthread\
 	libutf\
+
+CMDS=\
 	mk\
 	sam\
 	samterm\
 
-clean all install:
-	for i in $(DIRS); \
+clean all install nuke:
+	for i in $(LIBS) $(DIRS); \
 	do \
-		(echo $$i; cd $$i; $(MAKE) $*); \
+		(echo $$i; cd $$i; $(MAKE) $@); \
 	done
 

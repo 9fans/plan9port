@@ -1,3 +1,5 @@
+all: $(TARG)
+
 $(TARG): $(OFILES)
 	$(CC) -o $(TARG) $(OFILES) $(LDFLAGS)
 
