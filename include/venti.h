@@ -387,6 +387,7 @@ void vtcachefree(VtCache*);
 VtBlock *vtcachelocal(VtCache*, u32int addr, int type);
 VtBlock *vtcacheglobal(VtCache*, uchar[VtScoreSize], int type);
 VtBlock *vtcacheallocblock(VtCache*, int type);
+void vtcachesetwrite(VtCache*, int(*)(VtConn*,uchar[VtScoreSize],uint,uchar*,int));
 void vtblockput(VtBlock*);
 u32int vtcacheblocksize(VtCache*);
 int vtblockwrite(VtBlock*);
