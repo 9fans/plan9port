@@ -25,7 +25,9 @@
 #define vlong _fmtvlong
 #define uvlong _fmtuvlong
 
+#ifndef USED
 #define USED(x) if(x);else
+#endif
 
 typedef unsigned char		uchar;
 typedef unsigned short		ushort;
@@ -37,6 +39,7 @@ typedef unsigned long long	uvlong;
 typedef long long		vlong;
 #endif
 
+#undef nil
 #define nil		0	/* cannot be ((void*)0) because used for function pointers */
 
 typedef int (*Fmts)(Fmt*);
