@@ -1,13 +1,15 @@
 <$PLAN9/src/mkhdr
 
 LIB=libthread.a
-
+THREAD=`sh ./thread.sh`
 OFILES=\
 	$OBJTYPE.$O\
+	$THREAD.$O\
 	asm-$SYSNAME-$OBJTYPE.$O\
 	channel.$O\
 	chanprint.$O\
 	create.$O\
+	daemon.$O\
 	debug.$O\
 	exec-unix.$O\
 	exit.$O\
@@ -28,7 +30,6 @@ OFILES=\
 	memset.$O\
 	memsetd.$O\
 	note.$O\
-	pthread.$O\
 	read9pmsg.$O\
 	ref.$O\
 	sched.$O\
@@ -69,3 +70,4 @@ VG=`test -d /home/rsc/pub/valgrind-debian && echo -DUSEVALGRIND`
 
 CFLAGS=$CFLAGS $VG
 
+Linux-clone.$O: execproc.ch exit-getpid.ch proctab.ch procstack.ch

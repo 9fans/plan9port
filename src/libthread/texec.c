@@ -22,15 +22,20 @@ threadmain(int argc, char **argv)
 {
 	Channel *c;
 	Waitmsg *w;
+	int (*mk)(void(*)(void*), void*, uint);
 
+	mk = threadcreate;
 	ARGBEGIN{
 	case 'D':
 		_threaddebuglevel = ~0;
 		break;
+	case 'p':
+		mk = proccreate;
+		break;
 	}ARGEND
 
 	c = threadwaitchan();
-	proccreate(doexec, argv, 8192);
+	mk(doexec, argv, 8192);
 	w = recvp(c);
 	if(w == nil)
 		print("exec/recvp failed: %r\n");

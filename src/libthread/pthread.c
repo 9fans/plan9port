@@ -45,6 +45,25 @@ _threadgetproc(void)
 }
 
 /*
+ * Called to start a new proc.
+ */
+void
+_threadstartproc(Proc *p)
+{
+	Proc *np;
+	pthread_t tid;
+	sigset_t all;
+
+	np = p->newproc;
+	sigfillset(&all);
+	pthread_sigmask(SIG_SETMASK, &all, nil);
+	if(pthread_create(&tid, nil, (void*(*)(void*))_threadscheduler, 
+			np) < 0)
+		sysfatal("pthread_create: %r");
+	np->pthreadid = tid;
+}
+
+/*
  * Called to associate p with the current pthread.
  */
 void
@@ -87,9 +106,10 @@ _threadwaitkids(Proc *p)
 
 /*
  * Separate process to wait for child messages.
+ * Also runs signal handlers.
  */
-Channel *_threadexecchan;
-void
+static Channel *_threadexecchan;
+static void
 _threadwaitproc(void *v)
 {
 	Channel *c;
@@ -124,6 +144,9 @@ _threadfirstexec(void)
 {
 }
 
+/*
+ * Called from mainlauncher before threadmain.
+ */
 void
 _threadmaininit(void)
 {
@@ -141,27 +164,12 @@ _threadmaininit(void)
 	unlock(&_threadpq.lock);
 }
 
+/*
+ * Called after forking the exec child.
+ */
 void
 _threadafterexec(void)
 {
 	nbsendul(_threadexecchan, 1);
 }
 
-/*
- * Called to start a new proc.
- */
-void
-_threadstartproc(Proc *p)
-{
-	Proc *np;
-	pthread_t tid;
-	sigset_t all;
-
-	np = p->newproc;
-	sigfillset(&all);
-	pthread_sigmask(SIG_SETMASK, &all, nil);
-	if(pthread_create(&tid, nil, (void*(*)(void*))_threadscheduler, 
-			np) < 0)
-		sysfatal("pthread_create: %r");
-	np->pthreadid = tid;
-}

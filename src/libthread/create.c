@@ -18,6 +18,9 @@ _newthread(Proc *p, void (*f)(void *arg), void *arg, uint stacksize,
 
 	t = _threadmalloc(sizeof(Thread), 1);
 	t->proc = p;
+	t->nextproc = p;
+	t->homeproc = p;
+
 	t->grp = grp;
 	t->id = id = newthreadid();
 	if(name)
@@ -42,15 +45,7 @@ _newthread(Proc *p, void (*f)(void *arg), void *arg, uint stacksize,
 	 * Add thread to proc.
 	 */
 	lock(&p->lock);
-	p->nthreads++;
-	if(p->threads.head == nil)
-		p->threads.head = t;
-	else{
-		t->prevt = p->threads.tail;
-		t->prevt->nextt = t;
-	}
-	p->threads.tail = t;
-	t->next = (Thread*)~0;
+	_procaddthread(p, t);
 
 	/*
 	 * Mark thread as ready to run.
@@ -123,7 +118,7 @@ threadcreateidle(void (*f)(void *arg), void *arg, uint stacksize)
 {
 	int id;
 
-	assert(_threadnprocs == 1);
+	assert(_threadpq.head->next == nil);	/* only 1 */
 
 	id = threadcreate(f, arg, stacksize);
 	_threaddebug(DBGSCHED, "idle is %d", id);
@@ -181,3 +176,36 @@ newprocid(void)
 	return i;
 }
 
+/*
+ * Add thread to proc's list.
+ */
+void
+_procaddthread(Proc *p, Thread *t)
+{
+	p->nthreads++;
+	if(p->threads.head == nil)
+		p->threads.head = t;
+	else{
+		t->prevt = p->threads.tail;
+		t->prevt->nextt = t;
+	}
+	p->threads.tail = t;
+	t->next = (Thread*)~0;
+}
+
+/*
+ * Remove thread from proc's list.
+ */
+void
+_procdelthread(Proc *p, Thread *t)
+{
+	if(t->prevt)
+		t->prevt->nextt = t->nextt;
+	else
+		p->threads.head = t->nextt;
+	if(t->nextt)
+		t->nextt->prevt = t->prevt;
+	else
+		p->threads.tail = t->prevt;
+	p->nthreads--;
+}

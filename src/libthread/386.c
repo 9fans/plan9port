@@ -1,6 +1,6 @@
+#if defined(__linux__)
 #include "ucontext.c"
-
-#ifdef OLD
+#else
 
 #include "threadimpl.h"
 /*

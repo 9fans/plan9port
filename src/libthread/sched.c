@@ -51,26 +51,41 @@ _threadscheduler(void *arg)
 
 		/*
 		 * If thread needs to die, kill it.
+		 * t->proc == p may not be true if we're
+		 * trying to jump into the exec proc (see exec-unix.c).
 		 */
 		if(t->moribund){
 			_threaddebug(DBGSCHED, "moribund %d.%d", p->id, t->id);
+			if(t->moribund != 1)
+				print("moribund broke %p %d\n", &t->moribund, t->moribund);
 			assert(t->moribund == 1);
 			t->state = Dead;
-			if(t->prevt)
-				t->prevt->nextt = t->nextt;
-			else
-				p->threads.head = t->nextt;
-			if(t->nextt)
-				t->nextt->prevt = t->prevt;
-			else
-				p->threads.tail = t->prevt;
+			_procdelthread(p, t);
 			unlock(&p->lock);
 			_threadfree(t);
-			p->nthreads--;
 			t = nil;
 			continue;
 		}
+
+		/*
+		 * If the thread has asked to move to another proc,
+		 * let it go (only to be used in *very* special situations).
+		if(t->nextproc != p)
+			_procdelthread(p, t);
+		 */
+
 		unlock(&p->lock);
+
+		/*
+		 * If the thread has asked to move to another proc,
+		 * add it to the new proc.
+		 */
+		if(t->nextproc != p){
+		//	lock(&t->nextproc->lock);
+		//	_procaddthread(t->nextproc, t);
+		//	unlock(&t->nextproc->lock);
+			t->proc = t->nextproc;
+		}
 
 		/*
 		 * If there is a request to run a function on the 
@@ -87,7 +102,7 @@ _threadscheduler(void *arg)
 		 * Move the thread along.
 		 */
 		t->state = t->nextstate;
-		_threaddebug(DBGSCHED, "moveon %d.%d", p->id, t->id);
+		_threaddebug(DBGSCHED, "moveon %d.%d", t->proc->id, t->id);
 		if(t->state == Ready)
 			_threadready(t);
 	}

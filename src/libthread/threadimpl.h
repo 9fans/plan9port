@@ -70,11 +70,13 @@ struct Thread
 	int		asleep;		/* thread is in _threadsleep */
 	Label	context;		/* for context switches */
 	int 		grp;			/* thread group */
+	Proc		*homeproc;	/* ``home'' proc */
 	int		id;			/* thread id */
 	int		moribund;	/* thread needs to die */
 	char		*name;		/* name of thread */
 	Thread	*next;		/* next on ready queue */
 	Thread	*nextt;		/* next on list of threads in this proc */
+	Proc		*nextproc;	/* next proc in which to run (rarely changes) */
 	State		nextstate;		/* next run state */
 	Proc		*proc;		/* proc of this thread */
 	Thread	*prevt;		/* prev on list of threads in this proc */
@@ -117,6 +119,7 @@ struct Proc
 	Thread	*thread;		/* running thread */
 	Thread	*idle;			/* idle thread */
 	int		id;
+	int		procid;
 
 	int		needexec;
 	Execargs	exec;		/* exec argument */
@@ -195,7 +198,9 @@ void		threadstatus(void);
 void		_threadstartproc(Proc*);
 void		_threadexitproc(char*);
 void		_threadexitallproc(char*);
+void		_threadefork(int[3], int[2], char*, char**);
 
+extern int			_threadmainpid;
 extern int			_threadnprocs;
 extern int			_threaddebuglevel;
 extern char*		_threadexitsallstatus;
@@ -214,3 +219,11 @@ extern void _threadmemset(void*, int, int);
 extern void _threaddebugmemset(void*, int, int);
 extern int _threadprocs;
 extern void _threadstacklimit(void*, void*);
+extern void _procdelthread(Proc*, Thread*);
+extern void _procaddthread(Proc*, Thread*);
+
+extern void _threadafterexec(void);
+extern void _threadmaininit(void);
+extern void _threadfirstexec(void);
+extern int _threadexec(Channel*, int[3], char*, char*[], int);
+extern int _callthreadexec(Channel*, int[3], char*, char*[], int);

@@ -163,7 +163,7 @@ threadfdwaitsetup(void)
 
 	if(!setup){
 		setup = 1;
-		threadcreateidle(pollidle, nil, 16384);
+		proccreate(pollidle, nil, 16384);
 	}
 }
 

@@ -1,5 +1,6 @@
 #include "threadimpl.h"
 
+
 int	_threadnopasser;
 
 #define	NFN		33

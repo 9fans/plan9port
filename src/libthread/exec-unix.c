@@ -4,7 +4,7 @@
 #include "threadimpl.h"
 
 static void efork(int[3], int[2], char*, char**);
-static int
+int
 _threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 {
 	int pfd[2];
@@ -88,14 +88,14 @@ Bad:
 void
 threadexec(Channel *pidc, int fd[3], char *prog, char *args[])
 {
-	if(_threadexec(pidc, fd, prog, args, 0) >= 0)
+	if(_callthreadexec(pidc, fd, prog, args, 0) >= 0)
 		threadexits(nil);
 }
 
 int
 threadspawn(int fd[3], char *prog, char *args[])
 {
-	return _threadexec(nil, fd, prog, args, 0);
+	return _callthreadexec(nil, fd, prog, args, 0);
 }
 
 /*
@@ -128,7 +128,7 @@ threadexecl(Channel *pidc, int fd[3], char *f, ...)
 	args[n] = 0;
 	va_end(arg);
 
-	if(_threadexec(pidc, fd, f, args, 1) >= 0)
+	if(_callthreadexec(pidc, fd, f, args, 1) >= 0)
 		threadexits(nil);
 }
 
