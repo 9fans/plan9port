@@ -16,6 +16,10 @@ extern	int		swapcontext(ucontext_t*, ucontext_t*);
 extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
+#if defined(__APPLE__)
+#	include "Darwin-ucontext.h"
+#endif
+
 typedef struct Context Context;
 typedef struct Execjob Execjob;
 typedef struct Proc Proc;
