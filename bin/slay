@@ -1,6 +1,3 @@
 #!/bin/sh
 
-for i
-do
-	psu | awk '$NF ~ /^('$i')$/ {printf("/bin/kill -9 %d # %s\n", $2, $0);}'
-done
+exec /usr/local/plan9/bin/kill -9 "$@"
