@@ -12,17 +12,12 @@ HFILES=acme.h
 <$PLAN9/src/mkone
 
 XTARG=\
-	netget\
-	netput\
-	netstat\
+	netfileget\
+	netfileput\
+	netfilestat\
 
 install:V:
 	for i in $XTARG; do
 		cp $i $BIN
 	done
-
-push:V:
-	tar cf - mkfile acme.c main.c wait.c acme.h netget netput netstat |
-	gzip >netfiles.tar.gz
-	scp netfiles.tar.gz swtch.com:www/swtch.com
 
