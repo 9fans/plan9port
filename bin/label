@@ -1,7 +1,16 @@
 #!/bin/sh
 
+case `uname` in
+SunOS)
+	awk=nawk
+	;;
+*)
+	awk=awk
+	;;
+esac
+
 label() {
-	echo "$@" | awk '{printf("\033];%s\007", $0);}'
+	echo "$@" | $awk '{printf("\033];%s\007", $0);}'
 }
 
 label "$@"

@@ -407,9 +407,8 @@ xattach(char *label)
 			r.max.x = wattr.width;
 			r.max.y = wattr.height;
 		}
-			fprint(2, "new rect %dx%d\n", r.max.x, r.max.y);
 	}else
-		fprint(2, "bad attrs\n");
+		fprint(2, "XGetWindowAttributes: bad attrs\n");
 
 	/*
 	 * Allocate our local backing store.
