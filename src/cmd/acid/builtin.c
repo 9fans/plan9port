@@ -478,6 +478,8 @@ interpret(Node *r, Node *args)
 void
 include(Node *r, Node *args)
 {
+	char *file, *libfile;
+	static char buf[1024];
 	Node res;
 	int isave;
 
@@ -488,7 +490,19 @@ include(Node *r, Node *args)
 		error("include(string): arg type");
 
 	Bflush(bout);
-	pushfile(res.store.u.string->string);
+
+	libfile = nil;
+	file = res.store.u.string->string;
+	if(access(file, AREAD) < 0 && file[0] != '/'){
+		snprint(buf, sizeof buf, "#9/acid/%s", file);
+		libfile = unsharp(buf);
+		if(access(libfile, AREAD) >= 0){
+			strecpy(buf, buf+sizeof buf, libfile);
+			file = buf;
+		}
+		free(libfile);
+	}
+	pushfile(file);
 
 	isave = interactive;
 	interactive = 0;

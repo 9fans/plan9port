@@ -36,7 +36,7 @@ unique(char *buf, Symbol *s)
 		}
 	}
 	if(renamed && !quiet)
-		print("\t%s=%s %c/%Z\n", s->name, buf, s->type, s->loc);
+		print("\t%s=%s %c/%L\n", s->name, buf, s->type, s->loc);
 	if(l == 0)
 		l = enter(buf, Tid);
 	return l;	

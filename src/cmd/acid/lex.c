@@ -76,6 +76,7 @@ struct IOstack
 	IOstack	*prev;
 };
 IOstack *lexio;
+uint nlexio;
 
 void
 setacidfile(void)
@@ -100,6 +101,9 @@ pushfile(char *file)
 	Biobuf *b;
 	IOstack *io;
 
+	if(nlexio > 64)
+		error("too many includes");
+
 	if(file)
 		b = Bopen(file, OREAD);
 	else{
@@ -122,6 +126,7 @@ pushfile(char *file)
 	io->fin = b;
 	io->prev = lexio;
 	lexio = io;
+	nlexio++;
 	setacidfile();
 }
 
@@ -156,6 +161,7 @@ pushstr(Node *s)
 	io->ip = io->text;
 	io->fin = 0;
 	io->prev = lexio;
+	nlexio++;
 	lexio = io;
 	setacidfile();
 }
@@ -190,6 +196,7 @@ popio(void)
 	s = lexio;
 	lexio = s->prev;
 	free(s);
+	nlexio--;
 	setacidfile();
 	return 1;
 }
@@ -197,18 +204,17 @@ popio(void)
 int
 Zfmt(Fmt *f)
 {
-	int i;
-	char buf[1024];
+	char buf[1024], *p;
 	IOstack *e;
 
 	e = lexio;
 	if(e) {
-		i = sprint(buf, "%s:%d", e->name, line);
+		p = seprint(buf, buf+sizeof buf, "%s:%d", e->name, line);
 		while(e->prev) {
 			e = e->prev;
 			if(initialising && e->prev == 0)
 				break;
-			i += sprint(buf+i, " [%s:%d]", e->name, e->line);
+			p = seprint(p, buf+sizeof buf, " [%s:%d]", e->name, e->line);
 		}
 	} else
 		sprint(buf, "no file:0");
