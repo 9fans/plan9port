@@ -59,8 +59,8 @@ static Sig sigs[] = {
 	SIGALRM,		0,
 	SIGTERM,		0,
 	SIGTSTP,		Restart|Ignore,
-	SIGTTIN,		Restart|Ignore,
-	SIGTTOU,		Restart|Ignore,
+/*	SIGTTIN,		Restart|Ignore, */
+/*	SIGTTOU,		Restart|Ignore, */
 	SIGXCPU,		0,
 	SIGXFSZ,		0,
 	SIGVTALRM,	0,
