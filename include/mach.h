@@ -254,12 +254,18 @@ struct Fhdr
 	ulong	sppcoff;		/* offset of sp-pc table in file */
 	ulong	lnpcsz;		/* size of line number-pc table */
 	ulong	lnpcoff;		/* size of line number-pc table */
-	char		*txtfil;		/* text name, for core files */
 	void		*elf;			/* handle to elf image */
 	void		*dwarf;		/* handle to dwarf image */
 	void		*macho;		/* handle to mach-o image */
 	struct Stab	stabs;
-	char		*cmd;		/* command-line that produced core */
+	uint		pid;			/* for core files */
+	char		*prog;		/* program name, for core files */
+	char		*cmdline;		/* command-line that produced core */
+	struct	{			/* thread state for core files */
+		uint	id;
+		void	*ureg;
+	} *thread;
+	uint		nthread;
 
 	/* private */
 	Symbol	*sym;		/* cached list of symbols */
@@ -293,6 +299,7 @@ Fhdr*	crackhdr(char *file, int mode);
 void		uncrackhdr(Fhdr *hdr);
 int		crackelf(int fd, Fhdr *hdr);
 int		crackmacho(int fd, Fhdr *hdr);
+Regs*	coreregs(Fhdr*, uint);
 
 int		symopen(Fhdr*);
 int		symdwarf(Fhdr*);
@@ -328,8 +335,8 @@ extern Map *cormap;
 
 int		attachproc(int pid);
 int		attachcore(Fhdr *hdr);
-int		attachargs(int argc, char **argv, int omode);
-
+int		attachargs(int argc, char **argv, int omode, int);
+int		attachdynamic(int);
 /*
  * Machine descriptions.
  *
