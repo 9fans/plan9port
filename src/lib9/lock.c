@@ -1,5 +1,6 @@
 #include <u.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include <sched.h>
 #include <libc.h>
 
