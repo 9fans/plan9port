@@ -1586,17 +1586,12 @@ makeciphers(void)
 static AuthRpc*
 factotum_rsa_open(uchar *cert, int certlen)
 {
-	int afd;
 	char *s;
 	mpint *pub = nil;
 	RSApub *rsapub;
 	AuthRpc *rpc;
 
-	// start talking to factotum
-	if((afd = open("/mnt/factotum/rpc", ORDWR)) < 0)
-		return nil;
-	if((rpc = auth_allocrpc(afd)) == nil){
-		close(afd);
+	if((rpc = auth_allocrpc()) == nil){
 		return nil;
 	}
 	s = "proto=rsa service=tls role=client";
