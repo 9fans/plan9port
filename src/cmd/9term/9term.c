@@ -108,7 +108,7 @@ threadmain(int argc, char *argv[])
 
 	hcols[BACK] = cols[BACK];
 	hcols[HIGH] = cols[HIGH];
-	hcols[BORD] = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, DMedblue);
+	hcols[BORD] = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, 0x006600FF);
 	hcols[TEXT] = hcols[BORD];
 	hcols[HTEXT] = hcols[TEXT];
 
