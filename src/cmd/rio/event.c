@@ -131,7 +131,7 @@ configurereq(XConfigureRequestEvent *e)
 			c->border = e->border_width;
 		gravitate(c, 0);
 		if (e->value_mask & CWStackMode) {
-			if (wc.stack_mode == Above)
+			if (e->detail == Above)
 				top(c);
 			else
 				e->value_mask &= ~CWStackMode;
