@@ -1,7 +1,7 @@
-#include <sys/time.h>
-#include <sys/resource.h>
-
 #include <u.h>
+#include <sys/time.h>
+#include <time.h>
+#include <sys/resource.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
 

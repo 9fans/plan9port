@@ -40,7 +40,8 @@ p9announce(char *addr, char *dir)
 	char *net;
 	u32int host;
 	int port, s;
-	int n, sn;
+	int n;
+	socklen_t sn;
 	struct sockaddr_in sa;
 	struct sockaddr_un sun;
 
@@ -72,7 +73,7 @@ p9announce(char *addr, char *dir)
 	if((s = socket(AF_INET, proto, 0)) < 0)
 		return -1;
 	sn = sizeof n;
-	if(port && getsockopt(s, SOL_SOCKET, SO_TYPE, (char*)&n, &sn) >= 0
+	if(port && getsockopt(s, SOL_SOCKET, SO_TYPE, (void*)&n, &sn) >= 0
 	&& n == SOCK_STREAM){
 		n = 1;
 		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof n);

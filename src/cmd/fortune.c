@@ -4,8 +4,8 @@
 
 #define index findex
 char choice[2048];
-char index[] = "/sys/games/lib/fortunes.index";
-char fortunes[] = "/sys/games/lib/fortunes";
+char *index = "#9/lib/fortunes.index";
+char *fortunes = "#9/lib/fortunes";
 
 #define lrand rand
 
@@ -20,6 +20,9 @@ main(int argc, char *argv[])
 	char *p;
 	Dir *fbuf, *ixbuf;
 	Biobuf *f, g;
+
+	index = unsharp(index);
+	fortunes = unsharp(index);
 
 	newindex = 0;
 	oldindex = 0;
@@ -55,6 +58,7 @@ main(int argc, char *argv[])
 		}
 	}
 	if(oldindex){
+		srand(getpid());
 		seek(ix, lrand()%(ixbuf->length/sizeof(offs))*sizeof(offs), 0);
 		read(ix, off, sizeof(off));
 		Bseek(f, off[0]|(off[1]<<8)|(off[2]<<16)|(off[3]<<24), 0);

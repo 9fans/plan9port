@@ -9,6 +9,9 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#ifdef SHAPE
+#include <X11/extensions/shape.h>
+#endif
 #include "dat.h"
 #include "fns.h"
 #include "patchlevel.h"
@@ -70,12 +73,15 @@ main(int argc, char *argv[])
 	int i, background, do_exit, do_restart;
 	char *fname;
 	int shape_event;
+#ifdef SHAPE
+	int dummy;
+#endif
 
 	shape_event = 0;
 	myargv = argv;			/* for restart */
 
 	do_exit = do_restart = 0;
-	background = 1;
+	background = 0;
 	font = 0;
 	fname = 0;
 	for (i = 1; i < argc; i++)
@@ -289,12 +295,11 @@ initscreen(ScreenInfo *s, int i, int background)
 	XSync(dpy, False);
 
 	if (background) {
-/*
 		XSetWindowBackgroundPixmap(dpy, s->root, s->root_pixmap);
 		XClearWindow(dpy, s->root);
-*/
+	} else
 		system("xsetroot -solid grey30");
-	}
+
 	s->menuwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 2, colorpixel(dpy, s->depth, 0x88CC88), colorpixel(dpy, s->depth, 0xE9FFE9));
 	s->sweepwin = XCreateSimpleWindow(dpy, s->root, 0, 0, 1, 1, 4, s->red, colorpixel(dpy, s->depth, 0xEEEEEE));
 }

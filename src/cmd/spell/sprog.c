@@ -460,6 +460,9 @@ main(int argc, char *argv[])
 	int low;
 	Bits h;
 
+	codefile = unsharp(codefile);
+	brfile = unsharp(brfile);
+
 	Binit(&bin, 0, OREAD);
 	Binit(&bout, 1, OWRITE);
 	for(i=0; c = "aeiouyAEIOUY"[i]; i++)

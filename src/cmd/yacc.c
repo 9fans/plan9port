@@ -399,7 +399,7 @@ others(void)
 {
 	int c, i, j;
 
-	finput = Bopen(parser, OREAD);
+	finput = Bopen(unsharp(parser), OREAD);
 	if(finput == 0)
 		error("cannot open parser %s: %r", parser);
 	warray("yyr1", levprd, nprod);

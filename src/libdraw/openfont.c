@@ -18,8 +18,10 @@ openfont(Display *d, char *name)
 		nambuf = smprint("#9/font/%s", name+14);
 		if(nambuf == nil)
 			return 0;
+		nambuf = unsharp(nambuf);
+		if(nambuf == nil)
+			return 0;
 		if((fd = open(nambuf, OREAD)) < 0){
-fprint(2, "failed at %s\n", nambuf);
 			free(nambuf);
 			return 0;
 		}

@@ -1,6 +1,7 @@
+#include <u.h>
 #include <unistd.h>
 #include <sched.h>
-#include <lib9.h>
+#include <libc.h>
 
 int _ntas;
 static int

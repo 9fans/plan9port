@@ -14,6 +14,16 @@
 static	Point		prevmouse;
 static	Window	*mousew;
 
+Runestr
+runestr(Rune *r, uint n)
+{
+	Runestr rs;
+
+	rs.r = r;
+	rs.nr = n;
+	return rs;
+}
+
 void
 cvttorunes(char *p, int n, Rune *r, int *nb, int *nr, int *nulls)
 {
@@ -133,12 +143,17 @@ addwarningtext(Mntdir *md, Rune *r, int nr)
 	}
 	warn = emalloc(sizeof(Warning));
 	warn->next = warnings;
+	warn->md = md;
+	if(md)
+		fsysincid(md);
 	warnings = warn;
 	bufinsert(&warn->buf, 0, r, nr);
+	nbsendp(cwarn, 0);
 }
 
+/* called while row is locked */
 void
-flushwarnings(int dolock)
+flushwarnings(void)
 {
 	Warning *warn, *next;
 	Window *w;
@@ -146,8 +161,6 @@ flushwarnings(int dolock)
 	int owner, nr, q0, n;
 	Rune *r;
 
-	if(dolock)
-		qlock(&row.lk);
 	if(row.ncol == 0){	/* really early error */
 		rowinit(&row, screen->clipr);
 		rowadd(&row, nil, -1);
@@ -189,11 +202,11 @@ flushwarnings(int dolock)
 		winunlock(w);
 		bufclose(&warn->buf);
 		next = warn->next;
+		if(warn->md)
+			fsysdelid(warn->md);
 		free(warn);
 	}
 	warnings = nil;
-	if(dolock)
-		qunlock(&row.lk);
 }
 
 void

@@ -415,7 +415,7 @@ include(char *s)
 	fd = open(t, OREAD);
 	if(fd<0 && t[0]!='/' && strncmp(t, "./", 2)!=0 && strncmp(t, "../", 3)!=0){
 		snprint(buf, sizeof buf, "#9/plumb/%s", t);
-		t = buf;
+		t = unsharp(buf);
 		fd = open(t, OREAD);
 	}
 	if(fd < 0)

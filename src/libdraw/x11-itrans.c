@@ -11,6 +11,9 @@
 #include <keyboard.h>
 #include "x11-memdraw.h"
 
+#undef time
+
+
 static int
 __xtoplan9kbd(XEvent *e)
 {

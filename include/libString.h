@@ -43,4 +43,4 @@ typedef struct Sinstack Sinstack;
 extern char	*s_rdinstack(Sinstack*, String*);
 extern Sinstack	*s_allocinstack(char*);
 extern void	s_freeinstack(Sinstack*);
-#endif BGETC
+#endif /* BGETC */

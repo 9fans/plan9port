@@ -1,6 +1,5 @@
-#include <pwd.h>
-
 #include <u.h>
+#include <pwd.h>
 #include <libc.h>
 
 char*

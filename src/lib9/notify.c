@@ -1,6 +1,5 @@
-#include <signal.h>
-
 #include <u.h>
+#include <signal.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
 #include "9proc.h"

@@ -1,15 +1,15 @@
 PLAN9=../../..
 <$PLAN9/src/mkhdr
 
-TARG=9term
+TARG=9term win
 
 OFILES=\
-	9term.$O\
+	rcstart.$O\
 	$SYSNAME.$O\
 
-SHORTLIB=frame draw plumb fs mux thread 9
+SHORTLIB=complete frame draw plumb fs mux thread 9
 
-<$PLAN9/src/mkone
+<$PLAN9/src/mkmany
 
 LDFLAGS=-L$X11/lib -lX11 -lutil
 

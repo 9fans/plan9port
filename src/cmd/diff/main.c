@@ -26,6 +26,8 @@ void
 done(int status)
 {
 	rmtmpfiles();
+Bflush(&stdout);
+Bterm(&stdout);
 	switch(status)
 	{
 	case 0:

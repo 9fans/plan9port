@@ -268,7 +268,7 @@ D_cmd(Text *t, Cmd *cp)
 			runemove(n, dir.r, dir.nr);
 			n[dir.nr] = '/';
 			runemove(n+dir.nr+1, r, nn);
-			rs = cleanrname((Runestr){n, dir.nr+1+nn});
+			rs = cleanrname(runestr(n, dir.nr+1+nn));
 		}
 		w = lookfile(rs.r, rs.nr);
 		if(w == nil){

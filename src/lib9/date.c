@@ -1,6 +1,5 @@
-#include <stdlib.h> /* setenv etc. */
-
 #include <u.h>
+#include <stdlib.h> /* setenv etc. */
 #define NOPLAN9DEFINES
 #include <libc.h>
 #include <time.h>
@@ -25,6 +24,8 @@ static Tm bigtm;
 static void
 tm2Tm(struct tm *tm, Tm *bigtm)
 {
+	char *s;
+
 	memset(bigtm, 0, sizeof *bigtm);
 	bigtm->sec = tm->tm_sec;
 	bigtm->min = tm->tm_min;
@@ -39,6 +40,13 @@ tm2Tm(struct tm *tm, Tm *bigtm)
 #ifdef _HAVETZOFF
 	bigtm->tzoff = tm->tm_gmtoff;
 #endif
+	if(bigtm->zone[0] == 0){
+		s = getenv("TIMEZONE");
+		if(s){
+			strecpy(bigtm->zone, bigtm->zone+4, tm->tm_zone);
+			free(s);
+		}
+	}
 }
 
 static void

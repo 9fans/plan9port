@@ -259,7 +259,7 @@ plumbshow(Plumbmsg *m)
 	}
 	cvttorunes(name, strlen(name), rb, &nb, &nr, nil);
 	free(p);
-	rs = cleanrname((Runestr){rb, nr});
+	rs = cleanrname(runestr(rb, nr));
 	winsetname(w, rs.r, rs.nr);
 	r = runemalloc(m->ndata);
 	cvttorunes(m->data, m->ndata, r, &nb, &nr, nil);
@@ -385,13 +385,13 @@ includefile(Rune *dir, Rune *file, int nfile)
 	n = access(a, 0);
 	free(a);
 	if(n < 0)
-		return (Runestr){nil, 0};
+		return runestr(nil, 0);
 	r = runemalloc(m+1+nfile);
 	runemove(r, dir, m);
 	runemove(r+m, Lslash, 1);
 	runemove(r+m+1, file, nfile);
 	free(file);
-	return cleanrname((Runestr){r, m+1+nfile});
+	return cleanrname(runestr(r, m+1+nfile));
 }
 
 static	Rune	*objdir;
@@ -442,7 +442,7 @@ includename(Text *t, Rune *r, int n)
 	return file;
 
     Rescue:
-	return (Runestr){r, n};
+	return runestr(r, n);
 }
 
 Runestr
@@ -475,11 +475,11 @@ dirname(Text *t, Rune *r, int n)
 		goto Rescue;
 	runemove(b+slash+1, r, n);
 	free(r);
-	return cleanrname((Runestr){b, slash+1+n});
+	return cleanrname(runestr(b, slash+1+n));
 
     Rescue:
 	free(b);
-	tmp = (Runestr){r, n};
+	tmp = runestr(r, n);
 	if(r)
 		return cleanrname(tmp);
 	return tmp;

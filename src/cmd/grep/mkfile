@@ -1,0 +1,20 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+# Calling this grep breaks a LOT.  Like egrep on Linux.
+# And probably configure.
+
+TARG=9grep
+HFILES=\
+	grep.h\
+
+OFILES=\
+	y.tab.$O\
+	main.$O\
+	comp.$O\
+	sub.$O\
+
+YFILES=grep.y\
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkone

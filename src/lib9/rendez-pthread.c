@@ -32,9 +32,10 @@
  * shared memory and mutexes.
  */
 
+#include <u.h>
 #include <pthread.h>
 #include <signal.h>
-#include <lib9.h>
+#include <libc.h>
 
 enum
 {

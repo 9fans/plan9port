@@ -3,8 +3,8 @@
 #include "threadimpl.h"
 
 static void efork(int[3], int[2], char*, char**);
-void
-threadexec(Channel *pidc, int fd[3], char *prog, char *args[])
+static void
+_threadexec(Channel *pidc, int fd[3], char *prog, char *args[], int freeargs)
 {
 	int pfd[2];
 	int n, pid;
@@ -40,6 +40,8 @@ threadexec(Channel *pidc, int fd[3], char *prog, char *args[])
 		efork(fd, pfd, prog, args);
 		_exit(0);
 	default:
+		if(freeargs)
+			free(args);
 		break;
 	}
 
@@ -69,9 +71,42 @@ Bad:
 }
 
 void
+threadexec(Channel *pidc, int fd[3], char *prog, char *args[])
+{
+	_threadexec(pidc, fd, prog, args, 0);
+}
+
+/*
+ * The &f+1 trick doesn't work on SunOS, so we might 
+ * as well bite the bullet and do this correctly.
+ */
+void
 threadexecl(Channel *pidc, int fd[3], char *f, ...)
 {
-	threadexec(pidc, fd, f, &f+1);
+	char **args, *s;
+	int n;
+	va_list arg;
+
+	va_start(arg, f);
+	for(n=0; va_arg(arg, char*) != 0; n++)
+		;
+	n++;
+	va_end(arg);
+
+	args = malloc(n*sizeof(args[0]));
+	if(args == nil){
+		if(pidc)
+			sendul(pidc, ~0);
+		return;
+	}
+
+	va_start(arg, f);
+	for(n=0; (s=va_arg(arg, char*)) != 0; n++)
+		args[n] = s;
+	args[n] = 0;
+	va_end(arg);
+
+	_threadexec(pidc, fd, f, args, 1);
 }
 
 static void

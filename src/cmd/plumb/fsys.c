@@ -97,6 +97,7 @@ static Dirtab dir[NDIR] =
 static int	ndir = NQID;
 
 static int		srvfd;
+#define clock plumbclock	/* SunOS name clash */
 static int		clock;
 static Fid		*fids[Nhash];
 static QLock	readlock;

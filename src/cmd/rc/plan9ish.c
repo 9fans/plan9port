@@ -27,20 +27,10 @@ char *syssigname[]={
 char*
 Rcmain(void)
 {
-	return "#9/rcmain";
-/*
-	static char buf[256];
-	char *root;
-
-	root = getenv("PLAN9");
-	if(root == nil)
-		root = "/usr/local/plan9";
-	snprint(buf, sizeof buf, "%s/rcmain", root);
-	return buf;
-*/
+	return unsharp("#9/rcmain");
 }
 
-char Fdprefix[]="#d/";
+char Fdprefix[]="/dev/fd/";
 void execfinit(void);
 void execbind(void);
 void execmount(void);

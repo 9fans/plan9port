@@ -1,3 +1,4 @@
+PLAN9=../../..
 <$PLAN9/src/mkhdr
 
 OFILES=\
@@ -18,3 +19,7 @@ TARG=rio
 LDFLAGS=-L$X11/lib -lXext -lX11
 
 <$PLAN9/src/mkone
+
+CFLAGS=$CFLAGS -DSHAPE -I$X11/include
+
+

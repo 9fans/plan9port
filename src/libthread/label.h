@@ -7,7 +7,7 @@
 typedef struct Label Label;
 #define LABELDPC 0
 
-#if defined (__i386__) && (defined(__FreeBSD__) || defined(__linux__))
+#if defined (__i386__) && (defined(__FreeBSD__) || defined(__linux__) || defined(__OpenBSD__))
 struct Label
 {
 	ulong pc;

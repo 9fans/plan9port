@@ -2,12 +2,9 @@
 #define NOPLAN9DEFINES
 #include <libc.h>
 
-extern char* _p9translate(char*);
-
 int
-p9open(char *xname, int mode)
+p9open(char *name, int mode)
 {
-	char *name;
 	int cexec, rclose;
 	int fd, umode;
 
@@ -23,8 +20,6 @@ p9open(char *xname, int mode)
 		werrstr("mode not supported");
 		return -1;
 	}
-	if((name = _p9translate(xname)) == nil)
-		return -1;
 	fd = open(name, umode);
 	if(fd >= 0){
 		if(cexec)
@@ -32,7 +27,5 @@ p9open(char *xname, int mode)
 		if(rclose)
 			remove(name);
 	}
-	if(name != xname)
-		free(name);
 	return fd;
 }

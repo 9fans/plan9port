@@ -3,11 +3,11 @@ PLAN9=../..
 
 TARG=`ls *.c | sed 's/\.c//'`
 LDFLAGS=$LDFLAGS
-SHORTLIB=sec fs mux regexp9 thread bio 9
+SHORTLIB=mach sec fs mux regexp9 thread bio 9
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|9term|faces|factotum|htmlfmt|mk|rio|upas|vac|venti'
+BUGGERED='CVS|faces|factotum|htmlfmt|mk|upas|vac|venti'
 DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"`
 
 <$PLAN9/src/mkdirs

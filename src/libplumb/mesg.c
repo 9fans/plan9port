@@ -68,7 +68,6 @@ plumbsendtofid(Fid *fid, Plumbmsg *m)
 	if(buf == nil)
 		return -1;
 	n = fswrite(fid, buf, n);
-fprint(2, "fswrite %d\n", n);
 	free(buf);
 	return n;
 }

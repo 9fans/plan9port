@@ -3,6 +3,7 @@
 #include <thread.h>
 #include <fcall.h>
 #include <fs.h>
+#include "term.h"
 
 #define	EVENTSIZE	256
 #define	STACK	32768
@@ -51,11 +52,11 @@ int	ntypeb;
 int	ntyper;
 int	ntypebreak;
 int	debug;
+int	rcfd;
+
 char *name;
 
 char **prog;
-int p[2];
-Channel *cpid;
 Channel *cwait;
 int pid = -1;
 
@@ -124,9 +125,11 @@ threadmain(int argc, char **argv)
 
 	prog = argv;
 
-	if(argc > 0)
+	if(argc > 0){
 		name = argv[0];
-	else
+		argc--;
+		argv++;
+	}else
 		name = "gnot";
 
 	threadnotify(nopipes, 1);
@@ -156,14 +159,9 @@ threadmain(int argc, char **argv)
 */
 	fsunmount(fs);
 
-	if(pipe(p) < 0)
-		sysfatal("pipe: %r");
-
-	cpid = chancreate(sizeof(ulong), 1);
 	cwait = threadwaitchan();
 	threadcreate(waitthread, nil, STACK);
-	threadcreate(runproc, nil, STACK);
-	pid = recvul(cpid);
+	pid = rcstart(argc, argv, &rcfd);
 	if(pid == -1)
 		sysfatal("exec failed");
 
@@ -177,30 +175,6 @@ threadmain(int argc, char **argv)
 	
 	threadcreate(stdoutproc, nil, STACK);
 	stdinproc(nil);
-}
-
-char *shell[] = { "rc", "-i", 0 };
-void
-runproc(void *v)
-{
-	int fd[3];
-	char *sh;
-
-	USED(v);
-
-	fd[0] = p[1];
-//	fd[1] = bodyfd;
-//	fd[2] = bodyfd;
-	fd[1] = p[1];
-	fd[2] = p[1];
-
-	if(prog[0] == nil){
-		prog = shell;
-		if((sh = getenv("SHELL")) != nil)
-			shell[0] = sh;
-	}
-	threadexec(cpid, fd, prog[0], prog);
-	threadexits(nil);
 }
 
 void
@@ -329,7 +303,7 @@ stdinproc(void *v)
 	Fid *efd = eventfd;
 	Fid *dfd = datafd;
 	Fid *afd = addrfd;
-	int fd0 = p[0];
+	int fd0 = rcfd;
 	Event e, e2, e3, e4;
 
 	USED(v);
@@ -426,7 +400,7 @@ stdinproc(void *v)
 void
 stdoutproc(void *v)
 {
-	int fd1 = p[0];
+	int fd1 = rcfd;
 	Fid *afd = addrfd;
 	Fid *dfd = datafd;
 	int n, m, w, npart;
@@ -439,6 +413,8 @@ stdoutproc(void *v)
 	buf = malloc(8192+UTFmax+1);
 	npart = 0;
 	for(;;){
+		/* Let typing have a go -- maybe there's a rubout waiting. */
+		yield();
 		n = threadread(fd1, buf+npart, 8192);
 		if(n < 0)
 			error(nil);
@@ -556,7 +532,7 @@ addtype(int c, uint p0, char *b, int nb, int nr)
 	for(i=0; i<nb; i+=w){
 		w = chartorune(&r, b+i);
 		if((r==0x7F||r==3) && c=='K'){
-			postnote(PNGROUP, pid, "interrupt");
+			write(rcfd, "\x7F", 1);
 			/* toss all typing */
 			q.p += ntyper+nr;
 			ntypebreak = 0;

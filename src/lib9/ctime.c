@@ -15,6 +15,7 @@ ct_numb(char *cp, int n)
 char*
 asctime(Tm *t)
 {
+	int i;
 	char *ncp;
 	static char cbuf[30];
 
@@ -31,6 +32,12 @@ asctime(Tm *t)
 	ct_numb(cbuf+11, t->hour+100);
 	ct_numb(cbuf+14, t->min+100);
 	ct_numb(cbuf+17, t->sec+100);
+	ncp = t->zone;
+	for(i=0; i<3; i++)
+		if(ncp[i] == 0)
+			break;
+	for(; i<3; i++)
+		ncp[i] = '?';
 	ncp = t->zone;
 	cbuf[20] = *ncp++;
 	cbuf[21] = *ncp++;

@@ -1,18 +1,9 @@
+#include <u.h>
+#include <termios.h>
+#include <sys/termios.h>
+#include <pty.h>
+#include <libc.h>
 #include "9term.h"
-
-int
-getchildwd(int pid, char *wdir, int bufn)
-{
-	char path[256];
-	int n;
-
-	snprint(path, sizeof path, "/proc/%d/cwd", pid);
-	n = readlink(path, wdir, bufn);
-	if(n < 0)
-		return -1;
-	wdir[n] = '\0';
-	return 0;
-}
 
 int
 getpts(int fd[], char *slave)
@@ -20,3 +11,36 @@ getpts(int fd[], char *slave)
 	openpty(&fd[1], &fd[0], slave, 0, 0);
 	return 0;
 }
+
+int
+childpty(int fd[], char *slave)
+{
+	int sfd;
+
+	close(fd[1]);
+	setsid();
+	sfd = open(slave, ORDWR);
+	if(sfd < 0)
+		sysfatal("open %s: %r\n", slave);
+	if(ioctl(sfd, TIOCSCTTY, 0) < 0)
+		fprint(2, "ioctl TIOCSCTTY: %r\n");
+	return sfd;
+}
+
+struct winsize ows;
+
+void
+updatewinsize(int row, int col, int dx, int dy)
+{
+	struct winsize ws;
+
+	ws.ws_row = row;
+	ws.ws_col = col;
+	ws.ws_xpixel = dx;
+	ws.ws_ypixel = dy;
+	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
+	if(ioctl(rcfd[0], TIOCSWINSZ, &ws) < 0)
+		fprint(2, "ioctl: %r\n");
+	ows = ws;
+}
+

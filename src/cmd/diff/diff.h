@@ -1,3 +1,5 @@
+#define stdout bstdout
+
 char mode;			/* '\0', 'e', 'f', 'h' */
 char bflag;			/* ignore multiple and trailing blanks */
 char rflag;			/* recurse down directory trees */

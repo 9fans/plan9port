@@ -14,7 +14,7 @@ static struct {
 };
 
 char*
-_p9translate(char *old)
+plan9translate(char *old)
 {
 	char *new;
 	int i, olen, nlen, len;
@@ -36,7 +36,7 @@ _p9translate(char *old)
 		len = strlen(old)+nlen-olen;
 		new = malloc(len+1);
 		if(new == nil)
-			return nil;
+			return "<out of memory>";
 		strcpy(new, replace[i].new);
 		strcpy(new+nlen, old+olen);
 		assert(strlen(new) == len);

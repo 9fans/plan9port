@@ -8,7 +8,7 @@
 #include "fns.h"
 
 unsigned long
-colorpixel(Display *dpy, int depth, ulong rgb)
+colorpixel(Display *dpy, int depth, unsigned long rgb)
 {
 	int r, g, b;
 

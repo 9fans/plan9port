@@ -69,8 +69,6 @@ LIB9OFILES=\
 	_p9dialparse.$O\
 	_p9dir.$O\
 	_p9proc.$O\
-	_p9translate.$O\
-	access.$O\
 	announce.$O\
 	argv0.$O\
 	atexit.$O\
@@ -100,6 +98,7 @@ LIB9OFILES=\
 	exec.$O\
 	fcallfmt.$O\
 	ffork-$SYSNAME.$O\
+	get9root.$O\
 	getcallerpc-$OBJTYPE.$O\
 	getenv.$O\
 	getfields.$O\
@@ -142,6 +141,7 @@ LIB9OFILES=\
 	u16.$O\
 	u32.$O\
 	u64.$O\
+	unsharp.$O\
 	wait.$O\
 	waitpid.$O\
 

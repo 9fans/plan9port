@@ -69,6 +69,7 @@ Rune*	bytetorune(char*, int*);
 void	fsysinit(void);
 Mntdir*	fsysmount(Rune*, int, Rune**, int);
 void		fsysdelid(Mntdir*);
+void		fsysincid(Mntdir*);
 Xfid*		respond(Xfid*, Fcall*, char*);
 int		rxcompile(Rune*);
 int		rgetc(void*, uint);
@@ -86,8 +87,10 @@ int	expand(Text*, uint, uint, Expand*);
 Rune*	skipbl(Rune*, int, int*);
 Rune*	findbl(Rune*, int, int*);
 char*	edittext(Window*, int, Rune*, int);
-void		flushwarnings(int);
+void		flushwarnings(void);
 void		startplumbing(void);
+
+Runestr	runestr(Rune*, uint);
 
 #define	runemalloc(a)		(Rune*)emalloc((a)*sizeof(Rune))
 #define	runerealloc(a, b)	(Rune*)erealloc((a), (b)*sizeof(Rune))

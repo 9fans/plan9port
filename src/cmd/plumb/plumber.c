@@ -54,9 +54,10 @@ threadmain(int argc, char *argv[])
 		error("can't initialize $user or $home: %r");
 	if(plumbfile == nil){
 		sprint(buf, "%s/lib/plumbing", home);
-		if(access(buf, 0) < 0)
-			sprint(buf, "#9/plumb/initial.plumbing");
-		plumbfile = estrdup(buf);
+		if(access(buf, 0) >= 0)
+			plumbfile = estrdup(buf);
+		else
+			plumbfile = unsharp("#9/plumb/initial.plumbing");
 	}
 
 	fd = open(plumbfile, OREAD);

@@ -80,6 +80,7 @@ extern	int	fmtfdflush(Fmt*);
 extern	int	fmtstrinit(Fmt*);
 extern	char*	fmtstrflush(Fmt*);
 extern	int	runefmtstrinit(Fmt*);
+extern	Rune*	runefmtstrflush(Fmt*);
 
 extern	int	quotestrfmt(Fmt *f);
 extern	void	quotefmtinstall(void);

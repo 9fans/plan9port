@@ -18,7 +18,7 @@ mygetdents(int fd, struct dirent *buf, int n)
 	nn = getdirentries(fd, (void*)buf, n, &off);
 	return nn;
 }
-#elif defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
@@ -171,7 +171,7 @@ dirreadall(int fd, Dir **d)
 		ts += n;
 	}
 	if(ts >= 0)
-		ts = dirpackage(fd, buf, ts, d);
+		ts = dirpackage(fd, (char*)buf, ts, d);
 	free(buf);
 	if(ts == 0 && n < 0)
 		return -1;

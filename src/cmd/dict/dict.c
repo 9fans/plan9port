@@ -119,6 +119,8 @@ main(int argc, char **argv)
 		line = malloc(strlen(p)+5);
 		sprint(line, "/%s/P\n", p);
 	}
+	dict->path = unsharp(dict->path);
+	dict->indexpath = unsharp(dict->indexpath);
 	bdict = Bopen(dict->path, OREAD);
 	if(!bdict) {
 		err("can't open dictionary %s", dict->path);

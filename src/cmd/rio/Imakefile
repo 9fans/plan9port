@@ -1,0 +1,27 @@
+INCLUDES = -I$(TOP)
+DEPLIBS = $(DEPXLIB)
+LOCAL_LIBRARIES = $(XLIB)
+DEFINES = -DSHAPE # -g3 -DDEBUG -DDEBUG_EV
+SRCS = main.c event.c manage.c menu.c client.c grab.c cursor.c error.c color.c
+OBJS = main.o event.o manage.o menu.o client.o grab.o cursor.o error.o color.o
+HFILES = dat.h fns.h patchlevel.h
+MFILES = README 9wm.man Imakefile Makefile.no-imake
+
+ComplexProgramTarget(rio)
+
+bun:
+	bundle $(MFILES) $(SRCS) $(HFILES) >bun
+
+dist:
+	bundle $(MFILES) main.c event.c manage.c >bun1
+	bundle menu.c client.c grab.c cursor.c error.c $(HFILES) >bun2
+
+trout: 9wm.man
+	troff -man 9wm.man >trout
+
+vu: trout
+	xditview trout
+
+clean::
+	$(RM) bun bun[12] trout core
+

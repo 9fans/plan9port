@@ -37,22 +37,25 @@ static	Xfid*	fsysremove(Xfid*, Fid*);
 static	Xfid*	fsysstat(Xfid*, Fid*);
 static	Xfid*	fsyswstat(Xfid*, Fid*);
 
-Xfid* 	(*fcall[Tmax])(Xfid*, Fid*) =
+Xfid* 	(*fcall[Tmax])(Xfid*, Fid*);
+
+static void
+initfcall(void)
 {
-	[Tflush]	= fsysflush,
-	[Tversion]	= fsysversion,
-	[Tauth]	= fsysauth,
-	[Tattach]	= fsysattach,
-	[Twalk]	= fsyswalk,
-	[Topen]	= fsysopen,
-	[Tcreate]	= fsyscreate,
-	[Tread]	= fsysread,
-	[Twrite]	= fsyswrite,
-	[Tclunk]	= fsysclunk,
-	[Tremove]= fsysremove,
-	[Tstat]	= fsysstat,
-	[Twstat]	= fsyswstat,
-};
+	fcall[Tflush]	= fsysflush;
+	fcall[Tversion]	= fsysversion;
+	fcall[Tauth]	= fsysauth;
+	fcall[Tattach]	= fsysattach;
+	fcall[Twalk]	= fsyswalk;
+	fcall[Topen]	= fsysopen;
+	fcall[Tcreate]	= fsyscreate;
+	fcall[Tread]	= fsysread;
+	fcall[Twrite]	= fsyswrite;
+	fcall[Tclunk]	= fsysclunk;
+	fcall[Tremove]= fsysremove;
+	fcall[Tstat]	= fsysstat;
+	fcall[Twstat]	= fsyswstat;
+}
 
 char Eperm[] = "permission denied";
 char Eexist[] = "file does not exist";
@@ -113,6 +116,7 @@ fsysinit(void)
 	int p[2];
 	char *u;
 
+	initfcall();
 	if(pipe(p) < 0)
 		error("can't create pipe");
 	if(post9pservice(p[0], "acme") < 0)
@@ -184,6 +188,14 @@ fsysaddid(Rune *dir, int ndir, Rune **incl, int nincl)
 	mnt.md = m;
 	qunlock(&mnt.lk);
 	return m;
+}
+
+void
+fsysincid(Mntdir *m)
+{
+	qlock(&mnt.lk);
+	m->ref++;
+	qunlock(&mnt.lk);
 }
 
 void
@@ -331,7 +343,7 @@ fsysattach(Xfid *x, Fid *f)
 			m->ref++;
 			break;
 		}
-	if(m == nil){
+	if(m == nil && x->fcall.aname[0]){
 		snprint(buf, sizeof buf, "unknown id '%s' in attach", x->fcall.aname);
 		sendp(cerr, estrdup(buf));
 	}

@@ -1,6 +1,7 @@
+#include <u.h>
 #include <unistd.h>
 #include <string.h>
-#include <lib9.h>
+#include <libc.h>
 
 void*
 mallocz(unsigned long n, int clr)

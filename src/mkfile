@@ -1,6 +1,6 @@
 <mkhdr
 
-BUGGERED='9p|html|httpd|ip|venti'
+BUGGERED='9p|fmt|html|httpd|ip|utf|venti'
 LIBDIRS=`ls -ld lib* | sed -n 's/^d.* //p' |egrep -v "^lib($BUGGERED)$"`
 
 DIRS=\

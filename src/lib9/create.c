@@ -3,16 +3,10 @@
 #include <libc.h>
 #include <sys/stat.h>
 
-extern char *_p9translate(char*);
-
 int
-p9create(char *xpath, int mode, ulong perm)
+p9create(char *path, int mode, ulong perm)
 {
 	int fd, cexec, umode, rclose;
-	char *path;
-
-	if((path = _p9translate(xpath)) == nil)
-		return -1;
 
 	cexec = mode&OCEXEC;
 	rclose = mode&ORCLOSE;
@@ -48,7 +42,5 @@ out:
 		if(rclose)
 			remove(path);
 	}
-	if(path != xpath)
-		free(path);
 	return fd;
 }

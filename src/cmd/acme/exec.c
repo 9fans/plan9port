@@ -25,6 +25,7 @@ void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
 void	get(Text*, Text*, Text*, int, int, Rune*, int);
 void	id(Text*, Text*, Text*, int, int, Rune*, int);
 void	incl(Text*, Text*, Text*, int, int, Rune*, int);
+void	indent(Text*, Text*, Text*, int, int, Rune*, int);
 void	xkill(Text*, Text*, Text*, int, int, Rune*, int);
 void	local(Text*, Text*, Text*, int, int, Rune*, int);
 void	look(Text*, Text*, Text*, int, int, Rune*, int);
@@ -58,6 +59,7 @@ static Rune LFont[] = { 'F', 'o', 'n', 't', 0 };
 static Rune LGet[] = { 'G', 'e', 't', 0 };
 static Rune LID[] = { 'I', 'D', 0 };
 static Rune LIncl[] = { 'I', 'n', 'c', 'l', 0 };
+static Rune LIndent[] = { 'I', 'n', 'd', 'e', 'n', 't', 0 };
 static Rune LKill[] = { 'K', 'i', 'l', 'l', 0 };
 static Rune LLoad[] = { 'L', 'o', 'a', 'd', 0 };
 static Rune LLocal[] = { 'L', 'o', 'c', 'a', 'l', 0 };
@@ -87,6 +89,7 @@ Exectab exectab[] = {
 	{ LGet,		get,		FALSE,	TRUE,	XXX		},
 	{ LID,		id,		FALSE,	XXX,		XXX		},
 	{ LIncl,		incl,		FALSE,	XXX,		XXX		},
+	{ LIndent,		indent,	FALSE,	XXX,		XXX		},
 	{ LKill,		xkill,		FALSE,	XXX,		XXX		},
 	{ LLoad,		dump,	FALSE,	FALSE,	XXX		},
 	{ LLocal,		local,	FALSE,	XXX,		XXX		},
@@ -1443,7 +1446,6 @@ runproc(void *argvp)
 	goto Fail;
 
 Hard:
-
 	/*
 	 * ugly: set path = (. $cputype /bin)
 	 * should honor $path if unusual.

@@ -1150,7 +1150,7 @@ rewritehdr(Fcall *f, uchar *pkt)
 	}
 }
 
-#ifdef _LIB9_H_
+#ifdef _LIBC_H_
 /* unix select-based polling */
 struct Ioproc
 {

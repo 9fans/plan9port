@@ -1,15 +1,24 @@
-#include "9term.h"
-
-#define fatal	sysfatal
+#include <u.h>
+#include <libc.h>
+#include <ctype.h>
+#include <draw.h>
+#include <thread.h>
+#include <mouse.h>
+#include <cursor.h>
+#include <keyboard.h>
+#include <frame.h>
+#include <plumb.h>
+#include <complete.h>
+#include "term.h"
 
 typedef struct Text	Text;
 typedef struct Readbuf	Readbuf;
 
 enum
 {
-	/* these are chosen to use malloc()'s properties well */
 	HiWater	= 640000,	/* max size of history */
-	LoWater	= 330000,	/* min size of history after max'ed */
+	LoWater	= 400000,	/* min size of history after max'ed */
+	MinWater	= 20000,
 };
 
 /* various geometric paramters */
@@ -30,21 +39,22 @@ enum
 	Scroll,
 };
 
-
-#define	SCROLLKEY	Kdown
 #define	ESC		0x1B
-#define CUT		0x18	/* ctrl-x */		
-#define COPY		0x03	/* crtl-c */
-#define PASTE		0x16	/* crtl-v */
-#define BACKSCROLLKEY	Kup
+#define	CUT		0x18	/* ctrl-x */		
+#define	COPY		0x03	/* crtl-c */
+#define	PASTE		0x16	/* crtl-v */
 
 #define	READBUFSIZE 8192
+#define TRUE 1
+#define FALSE 0
+
 
 struct Text
 {
 	Frame		*f;		/* frame ofr terminal */
 	Mouse		m;
 	uint		nr;		/* num of runes in term */
+	uint		maxr;	/* max num of runes in r */
 	Rune		*r;		/* runes for term */
 	uint		nraw;		/* num of runes in raw buffer */
 	Rune		*raw;		/* raw buffer */
@@ -72,7 +82,6 @@ void	fill(void);
 void	tcheck(void);
 void	updatesel(void);
 void	doreshape(void);
-void	rcstart(int fd[2], int, char**);
 void	runewrite(Rune*, int);
 void	consread(void);
 void	conswrite(char*, int);
@@ -99,11 +108,10 @@ void	scrdraw(void);
 void	scroll(int);
 void	hostproc(void *arg);
 void	hoststart(void);
-int	getchildwd(int, char*, int);
 void	plumbstart(void);
 void	plumb(uint, uint);
 void	plumbclick(uint*, uint*);
-int	getpts(int fd[], char *slave);
+uint	insert(Rune*, int, uint, int);
 
 #define	runemalloc(n)		malloc((n)*sizeof(Rune))
 #define	runerealloc(a, n)	realloc(a, (n)*sizeof(Rune))
@@ -115,7 +123,7 @@ int		rawon;		/* raw mode */
 int		scrolling;	/* window scrolls */
 int		clickmsec;	/* time of last click */
 uint		clickq0;	/* point of last click */
-int		rcfd[2];
+int		rcfd;
 int		rcpid;
 int		maxtab;
 int		use9wm;
@@ -211,7 +219,7 @@ threadmain(int argc, char *argv[])
 
 	mc = initmouse(nil, screen);
 	kc = initkeyboard(nil);
-	rcstart(rcfd, argc, argv);
+	rcpid = rcstart(argc, argv, &rcfd);
 	hoststart();
 	plumbstart();
 
@@ -265,8 +273,9 @@ hostproc(void *arg)
 
 	i = 0;
 	for(;;){
+		/* Let typing have a go -- maybe there's a rubout waiting. */
 		i = 1-i;	/* toggle */
-		n = threadread(rcfd[0], rcbuf[i].data, sizeof rcbuf[i].data);
+		n = threadread(rcfd, rcbuf[i].data, sizeof rcbuf[i].data);
 		if(n <= 0){
 			if(n < 0)
 				fprint(2, "9term: host read error: %r\n");
@@ -308,7 +317,7 @@ loop(void)
 			a[2].op = CHANNOP;;
 		switch(alt(a)) {
 		default:
-			fatal("impossible");
+			sysfatal("impossible");
 		case 0:
 			t.m = mc->m;
 			mouse();
@@ -330,23 +339,23 @@ void
 doreshape(void)
 {
 	if(getwindow(display, Refnone) < 0)
-		fatal("can't reattach to window");
+		sysfatal("can't reattach to window");
 	draw(screen, screen->r, cols[BACK], nil, ZP);
 	geom();
 	scrdraw();
 }
 
-struct winsize ows;
-
 void
 geom(void)
 {
-	struct winsize ws;
 	Point p;
 	Rectangle r;
 
 	r = screen->r;
-	scrollr = screen->r;
+	r.min.y++;
+	r.max.y--;
+
+	scrollr = r;
 	scrollr.max.x = r.min.x+Scrollwid;
 	lastsr = Rect(0,0,0,0);
 
@@ -362,13 +371,7 @@ geom(void)
 	if(p.x == 0 || p.y == 0)
 		return;
 
-	ws.ws_row = Dy(r)/p.y;
-	ws.ws_col = Dx(r)/p.x;
-	ws.ws_xpixel = Dx(r);
-	ws.ws_ypixel = Dy(r);
-	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
-	if(ioctl(rcfd[0], TIOCSWINSZ, &ws) < 0)
-		fprint(2, "ioctl: %r\n");
+	updatewinsize(Dy(r)/p.y, Dx(r)/p.x, Dx(r), Dy(r));
 }
 
 void
@@ -585,7 +588,10 @@ domenu2(int but)
 			show(t.q0);
 		break;
 	case Send:
-		snarf();
+		if(t.q0 != t.q1)
+			snarf();
+		else
+			snarfupdate();
 		t.q0 = t.q1 = t.nr;
 		updatesel();
 		paste(t.snarf, t.nsnarf, 1);
@@ -605,37 +611,182 @@ domenu2(int but)
 		plumb(t.q0, t.q1);
 		break;
 	default:
-		fatal("bad menu item");
+		sysfatal("bad menu item");
 	}
+}
+
+int
+windfilewidth(uint q0, int oneelement)
+{
+	uint q;
+	Rune r;
+
+	q = q0;
+	while(q > 0){
+		r = t.r[q-1];
+		if(r<=' ')
+			break;
+		if(oneelement && r=='/')
+			break;
+		--q;
+	}
+	return q0-q;
+}
+
+void
+showcandidates(Completion *c)
+{
+	int i;
+	Fmt f;
+	Rune *rp;
+	uint nr, qline, q0;
+	char *s;
+
+	runefmtstrinit(&f);
+	if (c->nmatch == 0)
+		s = "[no matches in ";
+	else
+		s = "[";
+	if(c->nfile > 32)
+		fmtprint(&f, "%s%d files]\n", s, c->nfile);
+	else{
+		fmtprint(&f, "%s", s);
+		for(i=0; i<c->nfile; i++){
+			if(i > 0)
+				fmtprint(&f, " ");
+			fmtprint(&f, "%s", c->filename[i]);
+		}
+		fmtprint(&f, "]\n");
+	}
+	/* place text at beginning of line before host point */
+	qline = t.qh;
+	while(qline>0 && t.r[qline-1] != '\n')
+		qline--;
+
+	rp = runefmtstrflush(&f);
+	nr = runestrlen(rp);
+
+	q0 = t.q0;
+	q0 += insert(rp, nr, qline, 0) - qline;
+	free(rp);
+	t.q0 = q0+nr;
+	t.q1 = q0+nr;
+	updatesel();
+}
+
+Rune*
+namecomplete(void)
+{
+	int nstr, npath;
+	Rune *rp, *path, *str;
+	Completion *c;
+	char *s, *dir, *root;
+
+	/* control-f: filename completion; works back to white space or / */
+	if(t.q0<t.nr && t.r[t.q0]>' ')	/* must be at end of word */
+		return nil;
+	nstr = windfilewidth(t.q0, TRUE);
+	str = runemalloc(nstr);
+	runemove(str, t.r+(t.q0-nstr), nstr);
+	npath = windfilewidth(t.q0-nstr, FALSE);
+	path = runemalloc(npath);
+	runemove(path, t.r+(t.q0-nstr-npath), npath);
+	rp = nil;
+
+	/* is path rooted? if not, we need to make it relative to window path */
+	if(npath>0 && path[0]=='/'){
+		dir = malloc(UTFmax*npath+1);
+		sprint(dir, "%.*S", npath, path);
+	}else{
+		if(strcmp(wdir, "") == 0)
+			root = ".";
+		else
+			root = wdir;
+		dir = malloc(strlen(root)+1+UTFmax*npath+1);
+		sprint(dir, "%s/%.*S", root, npath, path);
+	}
+	dir = cleanname(dir);
+
+	s = smprint("%.*S", nstr, str);
+	c = complete(dir, s);
+	free(s);
+	if(c == nil)
+		goto Return;
+
+	if(!c->advance)
+		showcandidates(c);
+
+	if(c->advance)
+		rp = runesmprint("%s", c->string);
+
+  Return:
+	freecompletion(c);
+	free(dir);
+	free(path);
+	free(str);
+	return rp;
 }
 
 void
 key(Rune r)
 {
-	uint sig;
+	Rune *rp;
+	int nr;
 
 	if(r == 0)
 		return;
-	if(r==SCROLLKEY){	/* scroll key */
+	switch(r){
+	case Kpgup:
+		setorigin(backnl(t.org, t.f->maxlines*2/3), 1);
+		return;
+	case Kpgdown:
 		setorigin(line2q(t.f->maxlines*2/3), 1);
 		if(t.qh<=t.org+t.f->nchars)
 			consread();
 		return;
-	}else if(r == BACKSCROLLKEY){
-		setorigin(backnl(t.org, t.f->maxlines*2/3), 1);
+	case Kup:
+		setorigin(backnl(t.org, t.f->maxlines/3), 1);
 		return;
-	}else if(r == CUT){
+	case Kdown:
+		setorigin(line2q(t.f->maxlines/3), 1);
+		if(t.qh<=t.org+t.f->nchars)
+			consread();
+		return;
+	case Kleft:
+		if(t.q0 > 0){
+			t.q0--;
+			t.q1 = t.q0;
+			updatesel();
+			show(t.q0);
+		}
+		return;
+	case Kright:
+		if(t.q1 < t.nr){
+			t.q1++;
+			t.q0 = t.q1;
+			updatesel();
+			show(t.q1);
+		}
+		return;
+	case Khome:
+		show(0);
+		return;
+	case Kend:
+	case 0x05:
+		show(t.nr);
+		return;
+	case CUT:
 		snarf();
 		cut();
 		if(scrolling)
 			show(t.q0);
 		return;
-	}else if(r == COPY){
+	case COPY:
 		snarf();
 		if(scrolling)
 			show(t.q0);
 		return;
-	}else if(r == PASTE){
+	case PASTE:
 		snarfupdate();
 		paste(t.snarf, t.nsnarf, 0);
 		if(scrolling)
@@ -661,19 +812,21 @@ key(Rune r)
 	snarf();
 
 	switch(r) {
+	case 0x03:	/* ^C: send interrupt */
 	case 0x7F:	/* DEL: send interrupt */
 		t.qh = t.q0 = t.q1 = t.nr;
 		show(t.q0);
-		goto Default;
-fprint(2, "send interrupt to %d group\n", rcpid);
-#ifdef TIOCSIG
-		sig = 2; /* SIGINT */
-		if(ioctl(rcfd[0], TIOCSIG, &sig) < 0)
-			fprint(2, "sending interrupt: %r\n");
-#else
-		postnote(PNGROUP, rcpid, "interrupt");
-#endif
+		write(rcfd, "\x7F", 1);
 		break;
+	case 0x06:	/* ^F: file name completion */
+	case Kins:		/* Insert: file name completion */
+		rp = namecomplete();
+		if(rp == nil)
+			return;
+		nr = runestrlen(rp);
+		paste(rp, nr, 1);
+		free(rp);
+		return;
 	case 0x08:	/* ^H: erase character */
 	case 0x15:	/* ^U: erase line */
 	case 0x17:	/* ^W: erase word */
@@ -682,7 +835,6 @@ fprint(2, "send interrupt to %d group\n", rcpid);
 		cut();
 		break;
 	default:
-	Default:
 		paste(&r, 1, 1);
 		break;
 	}
@@ -773,7 +925,7 @@ consread(void)
 		}
 		/* take out control-d when not doing a zero length write */
 		n = p-buf;
-		if(write(rcfd[1], buf, n) < 0)
+		if(write(rcfd, buf, n) < 0)
 			exits(0);
 /*		mallocstats(); */
 	}
@@ -833,7 +985,6 @@ conswrite(char *p, int n)
 void
 runewrite(Rune *r, int n)
 {
-	uint m;
 	int i;
 	uint initial;
 	uint q0, q1;
@@ -896,37 +1047,7 @@ runewrite(Rune *r, int n)
 		updatesel();
 	}
 
-	if(t.nr>HiWater && t.qh>=t.org){
-		m = HiWater-LoWater;
-		if(m > t.org);
-			m = t.org;
-		t.org -= m;
-		t.qh -= m;
-		if(t.q0 > m)
-			t.q0 -= m;
-		else
-			t.q0 = 0;
-		if(t.q1 > m)
-			t.q1 -= m;
-		else
-			t.q1 = 0;
-		t.nr -= m;
-		runemove(t.r, t.r+m, t.nr);
-	}
-	t.r = runerealloc(t.r, t.nr+n);
-	runemove(t.r+t.qh+n, t.r+t.qh, t.nr-t.qh);
-	runemove(t.r+t.qh, r, n);
-	t.nr += n;
-	if(t.qh < t.org)
-		t.org += n;
-	else if(t.qh <= t.f->nchars+t.org)
-		frinsert(t.f, r, r+n, t.qh-t.org);
-	if (t.qh <= t.q0)
-		t.q0 += n;
-	if (t.qh <= t.q1)
-		t.q1 += n;
-	t.qh += n;
-	updatesel();
+	insert(r, n, t.qh, 1);
 }
 
 
@@ -1009,12 +1130,83 @@ snarf(void)
 	putsnarf(sbuf);
 }
 
+uint
+min(uint x, uint y)
+{
+	if(x < y)
+		return x;
+	return y;
+}
+
+uint
+max(uint x, uint y)
+{
+	if(x > y)
+		return x;
+	return y;
+}
+
+uint
+insert(Rune *r, int n, uint q0, int hostwrite)
+{
+	uint m;
+
+	if(n == 0)
+		return q0;
+	if(t.nr+n>HiWater && q0>=t.org && q0>=t.qh){
+		m = min(HiWater-LoWater, min(t.org, t.qh));
+		t.org -= m;
+		t.qh -= m;
+		if(t.q0 > m)
+			t.q0 -= m;
+		else
+			t.q0 = 0;
+		if(t.q1 > m)
+			t.q1 -= m;
+		else
+			t.q1 = 0;
+		t.nr -= m;
+		runemove(t.r, t.r+m, t.nr);
+		q0 -= m;
+	}
+	if(t.nr+n > t.maxr){
+		/*
+		 * Minimize realloc breakage:
+		 *	Allocate at least MinWater
+		 * 	Double allocation size each time
+		 *	But don't go much above HiWater
+		 */
+		m = max(min(2*(t.nr+n), HiWater), t.nr+n)+MinWater;
+		if(m > HiWater)
+			m = max(HiWater+MinWater, t.nr+n);
+		if(m > t.maxr){
+			t.r = runerealloc(t.r, m);
+			t.maxr = m;
+		}
+	}
+	runemove(t.r+q0+n, t.r+q0, t.nr-q0);
+	runemove(t.r+q0, r, n);
+	t.nr += n;
+	/* if output touches, advance selection, not qh; works best for keyboard and output */
+	if(q0 <= t.q1)
+		t.q1 += n;
+	if(q0 <= t.q0)
+		t.q0 += n;
+	if(q0 < t.qh || (q0==t.qh && hostwrite))
+		t.qh += n;
+	else
+		consread();
+	if(q0 < t.org)
+		t.org += n;
+	else if(q0 <= t.org+t.f->nchars)
+		frinsert(t.f, r, r+n, q0-t.org);
+	return q0;
+}
+
 void
 paste(Rune *r, int n, int advance)
 {
 	Rune *rbuf;
-	uint m;
-	uint q0;
 
 	if(rawon && t.q0==t.nr){
 		addraw(r, n);
@@ -1024,6 +1216,7 @@ paste(Rune *r, int n, int advance)
 	cut();
 	if(n == 0)
 		return;
+
 	/*
 	 * if this is a button2 execute then we might have been passed
 	 * runes inside the buffer.  must save them before realloc.
@@ -1035,36 +1228,7 @@ paste(Rune *r, int n, int advance)
 		r = rbuf;
 	}
 
-	if(t.nr>HiWater && t.q0>=t.org && t.q0>=t.qh){
-		m = HiWater-LoWater;
-		if(m > t.org)
-			m = t.org;
-		if(m > t.qh);
-			m = t.qh;
-		t.org -= m;
-		t.qh -= m;
-		t.q0 -= m;
-		t.q1 -= m;
-		t.nr -= m;
-		runemove(t.r, t.r+m, t.nr);
-	}
-
-	t.r = runerealloc(t.r, t.nr+n);
-	q0 = t.q0;
-	runemove(t.r+q0+n, t.r+q0, t.nr-q0);
-	runemove(t.r+q0, r, n);
-	t.nr += n;
-	if(q0 < t.qh)
-		t.qh += n;
-	else
-		consread();
-	if(q0 < t.org)
-		t.org += n;
-	else if(q0 <= t.f->nchars+t.org)
-		frinsert(t.f, r, r+n, q0-t.org);
-	if(advance)
-		t.q0 += n;
-	t.q1 += n;
+	insert(r, n, t.q0, 0);
 	updatesel();
 	free(rbuf);
 }
@@ -1322,61 +1486,6 @@ clickmatch(int cl, int cr, int dir, uint *q)
 }
 
 void
-rcstart(int fd[2], int argc, char **argv)
-{
-	int pid;
-	char *xargv[3];
-	char slave[256];
-	int sfd;
-
-	if(argc == 0){
-		argc = 2;
-		argv = xargv;
-		argv[0] = getenv("SHELL");
-		if(argv[0] == 0)
-			argv[0] = "rc";
-		argv[1] = "-i";
-		argv[2] = 0;
-	}
-	/*
-	 * fd0 is slave (tty), fd1 is master (pty)
-	 */
-	fd[0] = fd[1] = -1;
-	if(getpts(fd, slave) < 0)
-		fprint(2, "getpts: %r\n");
-
-	switch(pid = fork()) {
-	case 0:
-		putenv("TERM", "9term");
-		close(fd[1]);
-		setsid();
-//		tcsetpgrp(0, pid);
-		sfd = open(slave, ORDWR);
-		if(sfd < 0)
-			fprint(2, "open %s: %r\n", slave);
-		if(ioctl(sfd, TIOCSCTTY, 0) < 0)
-			fprint(2, "ioctl TIOCSCTTY: %r\n");
-//		ioctl(sfd, I_PUSH, "ptem");
-//		ioctl(sfd, I_PUSH, "ldterm");
-		dup(sfd, 0);
-		dup(sfd, 1);
-		dup(sfd, 2);
-		system("stty tabs -onlcr -echo erase ^h intr ^?");
-		execvp(argv[0], argv);
-		fprint(2, "exec %s failed: %r\n", argv[0]);
-		_exits("oops");
-		break;
-	case -1:
-		fatal("proc failed: %r");
-		break;
-	}
-	close(fd[0]);
-	fd[0] = fd[1];
-
-	rcpid = pid;
-}
-
-void
 tcheck(void)
 {
 	Frame *f;
@@ -1421,7 +1530,7 @@ scrdraw(void)
 			freeimage(scrx);
 		scrx = allocimage(display, Rect(0, 0, 32, r.max.y), screen->chan, 1, DPaleyellow);
 		if(scrx == 0)
-			fatal("scroll balloc");
+			sysfatal("scroll balloc");
 	}
 	r1.min.x = 0;
 	r1.max.x = Dx(r);
@@ -1525,16 +1634,11 @@ plumb(uint q0, uint q1)
 	char *p;
 	int i, p0, n;
 	char cbuf[100];
-	char *w;
 
-	if(getchildwd(rcpid, childwdir, sizeof childwdir) == 0)
-		w = childwdir;
-	else
-		w = wdir;
 	pm = malloc(sizeof(Plumbmsg));
 	pm->src = strdup("9term");
 	pm->dst = 0;
-	pm->wdir = strdup(w);
+	pm->wdir = strdup(wdir);
 	pm->type = strdup("text");
 	pm->data = nil;
 	if(q1 > q0)

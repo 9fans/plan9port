@@ -543,7 +543,6 @@ xfidwrite(Xfid *x)
 	}
 	if(w)
 		winunlock(w);
-	flushwarnings(1);
 }
 
 void
@@ -814,7 +813,6 @@ xfideventwrite(Xfid *x, Window *w)
 			qunlock(&row.lk);
 			goto Rescue;
 		}
-		flushwarnings(0);
 		qunlock(&row.lk);
 
 	}
@@ -1032,7 +1030,6 @@ xfidindexread(Xfid *x)
 			b[n++] = '\n';
 		}
 	}
-	flushwarnings(0);
 	qunlock(&row.lk);
 	off = x->fcall.offset;
 	cnt = x->fcall.count;

@@ -1,21 +1,6 @@
 #include "9term.h"
-
-int
-getchildwd(int pid, char *wdir, int bufn)
-{
-	char path[256];
-	char cwd[256];
-
-	if(getcwd(cwd, sizeof cwd) < 0)
-		return -1;
-	snprint(path, sizeof path, "/proc/%d/cwd", pid);
-	if(chdir(path) < 0)
-		return -1;
-	if(getcwd(wdir, bufn) < 0)
-		return -1;
-	chdir(cwd);
-	return 0;
-}
+#include <termios.h>
+#include <sys/termios.h>
 
 int
 getpts(int fd[], char *slave)
@@ -28,3 +13,21 @@ getpts(int fd[], char *slave)
 	fd[0] = open(slave, OREAD);
 	return 0;
 }
+
+struct winsize ows;
+
+void
+updatewinsize(int row, int col, int dx, int dy)
+{
+	struct winsize ws;
+
+	ws.ws_row = row;
+	ws.ws_col = col;
+	ws.ws_xpixel = dx;
+	ws.ws_ypixel = dy;
+	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
+	if(ioctl(rcfd[0], TIOCSWINSZ, &ws) < 0)
+		fprint(2, "ioctl: %r\n");
+	ows = ws;
+}
+

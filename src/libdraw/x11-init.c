@@ -185,26 +185,22 @@ xattach(char *label)
 	/* 
 	 * Figure out underlying screen format.
 	 */
-	_x.depth = DefaultDepth(_x.display, xrootid);
 	if(XMatchVisualInfo(_x.display, xrootid, 16, TrueColor, &xvi)
 	|| XMatchVisualInfo(_x.display, xrootid, 16, DirectColor, &xvi)){
 		_x.vis = xvi.visual;
 		_x.depth = 16;
-		_x.usetable = 1;
 	}
 	else
 	if(XMatchVisualInfo(_x.display, xrootid, 15, TrueColor, &xvi)
 	|| XMatchVisualInfo(_x.display, xrootid, 15, DirectColor, &xvi)){
 		_x.vis = xvi.visual;
 		_x.depth = 15;
-		_x.usetable = 1;
 	}
 	else
 	if(XMatchVisualInfo(_x.display, xrootid, 24, TrueColor, &xvi)
 	|| XMatchVisualInfo(_x.display, xrootid, 24, DirectColor, &xvi)){
 		_x.vis = xvi.visual;
 		_x.depth = 24;
-		_x.usetable = 1;
 	}
 	else
 	if(XMatchVisualInfo(_x.display, xrootid, 8, PseudoColor, &xvi)
@@ -218,12 +214,16 @@ xattach(char *label)
 		_x.depth = 8;
 	}
 	else{
+		_x.depth = DefaultDepth(_x.display, xrootid);
 		if(_x.depth != 8){
 			werrstr("can't understand depth %d screen", _x.depth);
 			goto err0;
 		}
 		_x.vis = DefaultVisual(_x.display, xrootid);
 	}
+
+	if(DefaultDepth(_x.display, xrootid) == _x.depth)
+		_x.usetable = 1;
 
 	/*
 	 * _x.depth is only the number of significant pixel bits,
@@ -298,7 +298,7 @@ xattach(char *label)
 		Dx(r),		/* width */
 	 	Dy(r),		/* height */
 		0,		/* border width */
-		DefaultDepthOfScreen(xscreen),	/* depth */
+		_x.depth,	/* depth */
 		InputOutput,	/* class */
 		_x.vis,		/* visual */
 				/* valuemask */
@@ -563,6 +563,18 @@ setupcmap(XWindow w)
 
 	if(_x.depth >= 24) {
 		/*
+		 * This is needed for SunOS.  Ask Axel Belinfante.
+		 */
+		if(_x.usetable == 0){
+			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocAll); 
+			XStoreColors(_x.display, _x.cmap, _x.map, 256);
+			for(i = 0; i < 256; i++){
+				_x.tox11[i] = i;
+				_x.toplan9[i] = i;
+			}
+		}
+
+		/*
 		 * The pixel value returned from XGetPixel needs to
 		 * be converted to RGB so we can call rgb2cmap()
 		 * to translate between 24 bit X and our color. Unfortunately,
@@ -573,7 +585,6 @@ setupcmap(XWindow w)
 		 * some displays say MSB even though they run on LSB.
 		 * Besides, this is more anal.
 		 */
-
 		c = _x.map[19];	/* known to have different R, G, B values */
 		if(!XAllocColor(_x.display, _x.cmap, &c)){
 			werrstr("XAllocColor: %r");

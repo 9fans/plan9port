@@ -5,9 +5,10 @@
  * okay.
  */
 
+#include <u.h>
 #include <errno.h>
 #include <string.h>
-#include <lib9.h>
+#include <libc.h>
 
 enum
 {
