@@ -173,12 +173,22 @@ isdot(Win *w, uint xq0, uint xq1)
 char*
 expandarg(Win *w, Event *e)
 {
+	uint q0, q1;
+	
 	if(e->c2 == 'l')	/* in tag - no choice but to accept acme's expansion */
 		return estrdup(e->text);
-	dprint("expand %d %d %d %d\n", e->oq0, e->oq1, e->q0, e->q1);
-	if(e->oq0 == e->oq1 && e->q0 != e->q1 && !isdot(w, e->q0, e->q1))
+	winaddr(w, ",");
+	winctl(w, "addr=dot");
+
+	q0 = winreadaddr(w, &q1);
+	cprint("acme expanded %d-%d into %d-%d (dot %d-%d)\n",
+		e->oq0, e->oq1, e->q0, e->q1, q0, q1);
+
+	if(e->oq0 == e->oq1 && e->q0 != e->q1 && !isdot(w, e->q0, e->q1)){
 		winaddr(w, "#%ud+#1-/[^ \t\\n]*/,#%ud-#1+/[^ \t\\n]*/", e->q0, e->q1);
-	else
+		q0 = winreadaddr(w, &q1);
+		cprint("\tre-expand to %d-%d\n", q0, q1);	
+	}else
 		winaddr(w, "#%ud,#%ud", e->q0, e->q1);
 	return winmread(w, "xdata");
 }

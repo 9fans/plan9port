@@ -6,33 +6,27 @@ if(! ~ $#* 2){
 }
 
 f=dostat
-ns=`{namespace}
-if(u test -S $ns/$1)
-	f=$f^9p
 
-t=/tmp/netisdir.$pid.$USER
-fn sigexit { rm -f $t }
+. netfilelib.rc $1
 
 fn dostat {
 	{
-		echo !echo XXX connected
-		echo cd $2
-		echo !echo XXX directory exists
-	}  | sftp -b /dev/stdin $1 >$t >[2=1]
-	if(9 grep -s XXX.directory.exists $t){
+		9 echo -cd $2
+	}  | mysftp $1 >$t
+	if(9 test -e $t -a ! -s $t){
 		echo directory
 		exit 0
 	}
-	if(9 grep -s 'is not a directory' $t){
+	if(9 grep -s 'Can''t change directory|is not a directory' $t){
 		echo file
 		exit 0
 	}
-	cat $t | sed 's/sftp> //g; /^$/d; /XXX/d; /^cd /d' >[1=2]
-	if(! 9 grep -s XXX.connected $t){
-		echo connect failed
+	if(9 grep -s 'Couldn''t stat remote file|such file' $t){
+		echo nonexistent
 		exit 0
 	}
-	echo nonexistent
+	cat $t >[1=2]
+	echo unknown error
 	exit 0
 }
 

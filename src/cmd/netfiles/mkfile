@@ -15,6 +15,7 @@ XTARG=\
 	netfileget\
 	netfileput\
 	netfilestat\
+	netfilelib.rc\
 
 install:V:
 	for i in $XTARG; do

@@ -11,17 +11,17 @@ if(! ~ $#* 2){
 	exit usage
 }
 
-ns=`{namespace}
-if(u test -S $ns/$1)
-	f=$f^9p
-
-t=/tmp/netget.$pid.$USER
-fn sigexit { rm -f $t }
+. netfilelib.rc $1
 
 fn getfile {
 	rm -f $t
-	if(! echo get $2 $t | sftp -b /dev/stdin $1 >/dev/null)
+	if(! 9 echo -get $2 $t | mysftp $1 >$t.e >[2=1])
 		exit 1
+	egrep -v '^Fetching' $t.e >$t.e2
+	if(test -s $t.e2){
+		cat $t.e >[1=2]
+		exit 1
+	}
 	cat $t
 }
 
@@ -31,7 +31,7 @@ fn getfile9p {
 }
 
 fn getdir {
-	if(! {echo cd $2; echo ls -l} | sftp -b /dev/stdin $1 | sed '1,2d; s/sftp> //g; /^$/d' >$t)
+	if(! {echo cd $2; echo ls -l} | mysftp $1 | sed '1,2d; s/sftp> //g; /^$/d' >$t)
 		exit 1
 	cat $t | awk '$NF == "." || $NF == ".." { next } {s = $NF; if($0 ~ /^d/) s = s "/"; print s}'
 }
