@@ -32,6 +32,9 @@ uvlong vtgetuint48(uchar *p);
 void usage(void);
 void readroot(VtRoot*, uchar *score, char *file);
 int dumpdir(Source*, int indent);
+int timevtread(VtConn*, uchar*, int, void*, int);
+
+int mainstacksize = 512*1024;
 
 void
 threadmain(int argc, char *argv[])
@@ -39,9 +42,9 @@ threadmain(int argc, char *argv[])
 	char *host = nil, *pref;
 	uchar score[VtScoreSize];
 	Source source;
-	uchar buf[VtMaxLumpSize];
 	char *p;
 	int n;
+	uchar buf[VtMaxLumpSize];
 
 	ARGBEGIN{
 	case 'h':
@@ -88,7 +91,7 @@ threadmain(int argc, char *argv[])
 	}
 
 fprint(2, "read...\n");
-	n = vtread(z, root.score, VtDirType, buf, bsize);
+	n = timevtread(z, root.score, VtDirType, buf, bsize);
 	if(n < 0)
 		sysfatal("could not read root dir");
 
@@ -161,12 +164,11 @@ parse(Source *s, uchar *p)
 	s->active = 1;
 	s->gen = dir.gen;
 	s->psize = dir.psize;
-	s->dsize = dir.size;
+	s->dsize = dir.dsize;
 	s->size = dir.size;
 	memmove(s->score, dir.score, VtScoreSize);
 	if((dir.type&~VtTypeDepthMask) == VtDirType)
 		s->dir = 1;
-fprint(2, "sdir %d type %d %.*H\n", s->dir, dir.type, VtEntrySize, p);
 	s->depth = dir.type&VtTypeDepthMask;
 	return 0;
 }
@@ -191,7 +193,7 @@ sourceread(Source *s, ulong block, uchar *p, int n)
 	assert(block == 0);
 
 	for(i=s->depth-1; i>=0; i--) {
-		nn = vtread(z, score, (s->dir ? VtDirType : VtDataType)+1+i, buf, s->psize);
+		nn = timevtread(z, score, (s->dir ? VtDirType : VtDataType)+1+i, buf, s->psize);
 		if(nn < 0){
 fprint(2, "vtread %V %d: %r\n", score, (s->dir ? VtDirType : VtDataType)+1+i);
 			free(buf);
@@ -210,7 +212,7 @@ fprint(2, "vtread %V %d: %r\n", score, (s->dir ? VtDirType : VtDataType)+1+i);
 	else
 		type = VtDataType;
 
-	nn = vtread(z, score, type, p, n);
+	nn = timevtread(z, score, type, p, n);
 	if(nn < 0){
 fprint(2, "vtread %V %d: %r\n", score, type);
 abort();
@@ -346,9 +348,25 @@ readroot(VtRoot *root, uchar *score, char *file)
 	if(vtparsescore(buf, &pref, score) < 0){
 		sysfatal("not a root file");
 	}
-	nn = vtread(z, score, VtRootType, buf, VtRootSize);
+	nn = timevtread(z, score, VtRootType, buf, VtRootSize);
 	if(nn < 0)
 		sysfatal("cannot read root %V", score);
 	if(vtrootunpack(root, buf) < 0)
 		sysfatal("cannot parse root: %r");
+}
+
+int
+timevtread(VtConn *z, uchar *score, int type, void *buf, int nbuf)
+{
+/*
+	ulong t0, t1;
+	int n;
+
+	t0 = nsec();
+	n = vtread(z, score, type, buf, nbuf);
+	t1 = nsec();
+	fprint(2, "read %V: %.6f seconds\n", score, (t1-t0)/1.e9);
+	return n;
+*/
+	return vtread(z, score, type, buf, nbuf);
 }
