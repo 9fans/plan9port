@@ -4,9 +4,16 @@
 #include <draw.h>
 #include <cursor.h>
 #include <event.h>
-
 #include <memdraw.h>
 #include "x11-memdraw.h"
+
+/*
+ * Should change this to support etimer and estartfn again.
+ * The main eread() would prepare a select mask from the keys
+ * and then call select() to wait for input.  Then it would read an
+ * event from the readied fd and return it.  Use XCheckWindowEvent
+ * to poll the X connection.
+ */
 
 ulong
 event(Event *e)
