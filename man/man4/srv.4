@@ -1,0 +1,50 @@
+.TH SRV 4
+.SH NAME
+srv, 9fs \- start network file esrvice
+.SH SYNOPSIS
+.B srv
+.I address
+[
+.I srvname
+]
+.PP
+.B 9fs
+.I system
+.SH DESCRIPTION
+.I Srv
+dials the given address and initializes the connection to serve the 9P protocol.
+It then posts the resulting connection in the current name space 
+(see
+.IR intro (4))
+as
+.I srvname 
+(default
+.IR address ).
+.PP
+The
+.I 9fs
+command executes the
+.I srv
+necessary to make available the files of 
+.IR system .
+.PP
+.I 9fs
+recognizes some special names,
+such as
+.B sources
+to make the file server
+.I sources.cs.bell-labs.com
+available as service
+.IR sources .
+.I 9fs
+is an
+.IR rc (1)
+script; examine it to see what local conventions apply.
+.SH SOURCE
+.B \*9/src/cmd/srv.c
+.br
+.B \*9/bin/9fs
+.SH "SEE ALSO
+.IR dial (3),
+.IR intro (4),
+.IR netfiles (1)
