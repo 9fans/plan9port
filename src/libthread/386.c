@@ -3,7 +3,6 @@
  * To use this you need some patches to Valgrind that
  * let it help out with detecting stack overflow. 
  */
-#define USEVALGRIND 0
 #ifdef USEVALGRIND
 #include <valgrind/memcheck.h>
 #endif

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+/usr/bin/sed -E '
+	s/\.(sp|rsp)/.s.\1/g
+	s/\.(ep|rep)/.e.\1/g
+	s/(\.|->)(cp|r|subid|right)([^a-zA-Z0-9_])/\1u1.\2\3/g
+	s/(\.|->)(left|next)([^a-z])/\1u2.\2\3/g
+	/#include <u.h>/d
+	s/<libc.h>/"lib9.h"/g
+	s/"regexp.h"/"regexp9.h"/g
+' $*

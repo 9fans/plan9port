@@ -1,0 +1,644 @@
+sizeof_1_ = 8;
+aggr _1_
+{
+	'U' 0 lo;
+	'U' 4 hi;
+};
+
+defn
+_1_(addr) {
+	complex _1_ addr;
+	print("	lo	", addr.lo, "\n");
+	print("	hi	", addr.hi, "\n");
+};
+
+sizeofFPdbleword = 8;
+aggr FPdbleword
+{
+	'F' 0 x;
+	{
+	'U' 0 lo;
+	'U' 4 hi;
+	};
+};
+
+defn
+FPdbleword(addr) {
+	complex FPdbleword addr;
+	print("	x	", addr.x, "\n");
+	print("_1_ {\n");
+		_1_(addr+0);
+	print("}\n");
+};
+
+UTFmax = 3;
+Runesync = 128;
+Runeself = 128;
+Runeerror = 128;
+sizeofFmt = 48;
+aggr Fmt
+{
+	'b' 0 runes;
+	'X' 4 start;
+	'X' 8 to;
+	'X' 12 stop;
+	'X' 16 flush;
+	'X' 20 farg;
+	'D' 24 nfmt;
+	'X' 28 args;
+	'D' 32 r;
+	'D' 36 width;
+	'D' 40 prec;
+	'U' 44 flags;
+};
+
+defn
+Fmt(addr) {
+	complex Fmt addr;
+	print("	runes	", addr.runes, "\n");
+	print("	start	", addr.start\X, "\n");
+	print("	to	", addr.to\X, "\n");
+	print("	stop	", addr.stop\X, "\n");
+	print("	flush	", addr.flush\X, "\n");
+	print("	farg	", addr.farg\X, "\n");
+	print("	nfmt	", addr.nfmt, "\n");
+	print("	args	", addr.args\X, "\n");
+	print("	r	", addr.r, "\n");
+	print("	width	", addr.width, "\n");
+	print("	prec	", addr.prec, "\n");
+	print("	flags	", addr.flags, "\n");
+};
+
+FmtWidth = 1;
+FmtLeft = 2;
+FmtPrec = 4;
+FmtSharp = 8;
+FmtSpace = 16;
+FmtSign = 32;
+FmtZero = 64;
+FmtUnsigned = 128;
+FmtShort = 256;
+FmtLong = 512;
+FmtVLong = 1024;
+FmtComma = 2048;
+FmtByte = 4096;
+FmtFlag = 8192;
+sizeofTm = 40;
+aggr Tm
+{
+	'D' 0 sec;
+	'D' 4 min;
+	'D' 8 hour;
+	'D' 12 mday;
+	'D' 16 mon;
+	'D' 20 year;
+	'D' 24 wday;
+	'D' 28 yday;
+	'a' 32 zone;
+	'D' 36 tzoff;
+};
+
+defn
+Tm(addr) {
+	complex Tm addr;
+	print("	sec	", addr.sec, "\n");
+	print("	min	", addr.min, "\n");
+	print("	hour	", addr.hour, "\n");
+	print("	mday	", addr.mday, "\n");
+	print("	mon	", addr.mon, "\n");
+	print("	year	", addr.year, "\n");
+	print("	wday	", addr.wday, "\n");
+	print("	yday	", addr.yday, "\n");
+	print("	zone	", addr.zone, "\n");
+	print("	tzoff	", addr.tzoff, "\n");
+};
+
+PNPROC = 1;
+PNGROUP = 2;
+sizeofLock = 4;
+aggr Lock
+{
+	'D' 0 val;
+};
+
+defn
+Lock(addr) {
+	complex Lock addr;
+	print("	val	", addr.val, "\n");
+};
+
+sizeofQLp = 12;
+aggr QLp
+{
+	'D' 0 inuse;
+	'A' QLp 4 next;
+	'C' 8 state;
+};
+
+defn
+QLp(addr) {
+	complex QLp addr;
+	print("	inuse	", addr.inuse, "\n");
+	print("	next	", addr.next\X, "\n");
+	print("	state	", addr.state, "\n");
+};
+
+sizeofQLock = 16;
+aggr QLock
+{
+	Lock 0 lock;
+	'D' 4 locked;
+	'A' QLp 8 $head;
+	'A' QLp 12 $tail;
+};
+
+defn
+QLock(addr) {
+	complex QLock addr;
+	print("Lock lock {\n");
+	Lock(addr.lock);
+	print("}\n");
+	print("	locked	", addr.locked, "\n");
+	print("	$head	", addr.$head\X, "\n");
+	print("	$tail	", addr.$tail\X, "\n");
+};
+
+sizeofRWLock = 20;
+aggr RWLock
+{
+	Lock 0 lock;
+	'D' 4 readers;
+	'D' 8 writer;
+	'A' QLp 12 $head;
+	'A' QLp 16 $tail;
+};
+
+defn
+RWLock(addr) {
+	complex RWLock addr;
+	print("Lock lock {\n");
+	Lock(addr.lock);
+	print("}\n");
+	print("	readers	", addr.readers, "\n");
+	print("	writer	", addr.writer, "\n");
+	print("	$head	", addr.$head\X, "\n");
+	print("	$tail	", addr.$tail\X, "\n");
+};
+
+sizeofRendez = 12;
+aggr Rendez
+{
+	'A' QLock 0 l;
+	'A' QLp 4 $head;
+	'A' QLp 8 $tail;
+};
+
+defn
+Rendez(addr) {
+	complex Rendez addr;
+	print("	l	", addr.l\X, "\n");
+	print("	$head	", addr.$head\X, "\n");
+	print("	$tail	", addr.$tail\X, "\n");
+};
+
+sizeofNetConnInfo = 28;
+aggr NetConnInfo
+{
+	'X' 0 dir;
+	'X' 4 root;
+	'X' 8 spec;
+	'X' 12 lsys;
+	'X' 16 lserv;
+	'X' 20 rsys;
+	'X' 24 rserv;
+};
+
+defn
+NetConnInfo(addr) {
+	complex NetConnInfo addr;
+	print("	dir	", addr.dir\X, "\n");
+	print("	root	", addr.root\X, "\n");
+	print("	spec	", addr.spec\X, "\n");
+	print("	lsys	", addr.lsys\X, "\n");
+	print("	lserv	", addr.lserv\X, "\n");
+	print("	rsys	", addr.rsys\X, "\n");
+	print("	rserv	", addr.rserv\X, "\n");
+};
+
+RFNAMEG = 1;
+RFENVG = 2;
+RFFDG = 4;
+RFNOTEG = 8;
+RFPROC = 16;
+RFMEM = 32;
+RFNOWAIT = 64;
+RFCNAMEG = 1024;
+RFCENVG = 2048;
+RFCFDG = 4096;
+RFREND = 8192;
+RFNOMNT = 16384;
+sizeofQid = 16;
+aggr Qid
+{
+	'W' 0 path;
+	'U' 8 vers;
+	'b' 12 type;
+};
+
+defn
+Qid(addr) {
+	complex Qid addr;
+	print("	path	", addr.path, "\n");
+	print("	vers	", addr.vers, "\n");
+	print("	type	", addr.type, "\n");
+};
+
+sizeofDir = 60;
+aggr Dir
+{
+	'u' 0 type;
+	'U' 4 dev;
+	Qid 8 qid;
+	'U' 24 mode;
+	'U' 28 atime;
+	'U' 32 mtime;
+	'V' 36 length;
+	'X' 44 name;
+	'X' 48 uid;
+	'X' 52 gid;
+	'X' 56 muid;
+};
+
+defn
+Dir(addr) {
+	complex Dir addr;
+	print("	type	", addr.type, "\n");
+	print("	dev	", addr.dev, "\n");
+	print("Qid qid {\n");
+	Qid(addr.qid);
+	print("}\n");
+	print("	mode	", addr.mode, "\n");
+	print("	atime	", addr.atime, "\n");
+	print("	mtime	", addr.mtime, "\n");
+	print("	length	", addr.length, "\n");
+	print("	name	", addr.name\X, "\n");
+	print("	uid	", addr.uid\X, "\n");
+	print("	gid	", addr.gid\X, "\n");
+	print("	muid	", addr.muid\X, "\n");
+};
+
+sizeofWaitmsg = 20;
+aggr Waitmsg
+{
+	'D' 0 pid;
+	'a' 4 time;
+	'X' 16 msg;
+};
+
+defn
+Waitmsg(addr) {
+	complex Waitmsg addr;
+	print("	pid	", addr.pid, "\n");
+	print("	time	", addr.time, "\n");
+	print("	msg	", addr.msg\X, "\n");
+};
+
+sizeofIOchunk = 8;
+aggr IOchunk
+{
+	'X' 0 addr;
+	'U' 4 len;
+};
+
+defn
+IOchunk(addr) {
+	complex IOchunk addr;
+	print("	addr	", addr.addr\X, "\n");
+	print("	len	", addr.len, "\n");
+};
+
+MaxFragSize = 9216;
+VtScoreSize = 20;
+VtMaxStringSize = 1024;
+VtMaxFileSize = 281474976710655;
+VtMaxLumpSize = 57344;
+VtPointerDepth = 7;
+VtDataType = 0;
+VtDirType = 8;
+VtRootType = 16;
+VtMaxType = 17;
+VtTypeDepthMask = 7;
+VtEntryActive = 1;
+VtEntryDir = 2;
+VtEntryDepthShift = 2;
+VtEntryDepthMask = 28;
+VtEntryLocal = 32;
+VtEntrySize = 40;
+sizeofVtEntry = 40;
+aggr VtEntry
+{
+	'U' 0 gen;
+	'u' 4 psize;
+	'u' 6 dsize;
+	'b' 8 type;
+	'b' 9 flags;
+	'W' 12 size;
+	'a' 20 score;
+};
+
+defn
+VtEntry(addr) {
+	complex VtEntry addr;
+	print("	gen	", addr.gen, "\n");
+	print("	psize	", addr.psize, "\n");
+	print("	dsize	", addr.dsize, "\n");
+	print("	type	", addr.type, "\n");
+	print("	flags	", addr.flags, "\n");
+	print("	size	", addr.size, "\n");
+	print("	score	", addr.score, "\n");
+};
+
+sizeofVtRoot = 300;
+aggr VtRoot
+{
+	'a' 0 name;
+	'a' 128 type;
+	'a' 256 score;
+	'u' 276 blocksize;
+	'a' 278 prev;
+};
+
+defn
+VtRoot(addr) {
+	complex VtRoot addr;
+	print("	name	", addr.name, "\n");
+	print("	type	", addr.type, "\n");
+	print("	score	", addr.score, "\n");
+	print("	blocksize	", addr.blocksize, "\n");
+	print("	prev	", addr.prev, "\n");
+};
+
+VtRootSize = 300;
+VtRootVersion = 2;
+VtCryptoStrengthNone = 0;
+VtCryptoStrengthAuth = 1;
+VtCryptoStrengthWeak = 2;
+VtCryptoStrengthStrong = 3;
+VtCryptoNone = 0;
+VtCryptoSSL3 = 1;
+VtCryptoTLS1 = 2;
+VtCryptoMax = 3;
+VtCodecNone = 0;
+VtCodecDeflate = 1;
+VtCodecThwack = 2;
+VtCodecMax = 3;
+VtRerror = 1;
+VtTping = 2;
+VtRping = 3;
+VtThello = 4;
+VtRhello = 5;
+VtTgoodbye = 6;
+VtRgoodbye = 7;
+VtTauth0 = 8;
+VtRauth0 = 9;
+VtTauth1 = 10;
+VtRauth1 = 11;
+VtTread = 12;
+VtRread = 13;
+VtTwrite = 14;
+VtRwrite = 15;
+VtTsync = 16;
+VtRsync = 17;
+VtTmax = 18;
+sizeofVtFcall = 80;
+aggr VtFcall
+{
+	'b' 0 type;
+	'b' 1 tag;
+	'X' 4 error;
+	'X' 8 version;
+	'X' 12 uid;
+	'b' 16 strength;
+	'X' 20 crypto;
+	'U' 24 ncrypto;
+	'X' 28 codec;
+	'U' 32 ncodec;
+	'X' 36 sid;
+	'b' 40 rcrypto;
+	'b' 41 rcodec;
+	'X' 44 auth;
+	'U' 48 nauth;
+	'a' 52 score;
+	'b' 72 dtype;
+	'u' 74 count;
+	'X' 76 data;
+};
+
+defn
+VtFcall(addr) {
+	complex VtFcall addr;
+	print("	type	", addr.type, "\n");
+	print("	tag	", addr.tag, "\n");
+	print("	error	", addr.error\X, "\n");
+	print("	version	", addr.version\X, "\n");
+	print("	uid	", addr.uid\X, "\n");
+	print("	strength	", addr.strength, "\n");
+	print("	crypto	", addr.crypto\X, "\n");
+	print("	ncrypto	", addr.ncrypto, "\n");
+	print("	codec	", addr.codec\X, "\n");
+	print("	ncodec	", addr.ncodec, "\n");
+	print("	sid	", addr.sid\X, "\n");
+	print("	rcrypto	", addr.rcrypto, "\n");
+	print("	rcodec	", addr.rcodec, "\n");
+	print("	auth	", addr.auth\X, "\n");
+	print("	nauth	", addr.nauth, "\n");
+	print("	score	", addr.score, "\n");
+	print("	dtype	", addr.dtype, "\n");
+	print("	count	", addr.count, "\n");
+	print("	data	", addr.data\X, "\n");
+};
+
+VtStateAlloc = 0;
+VtStateConnected = 1;
+VtStateClosed = 2;
+sizeofVtConn = 1148;
+aggr VtConn
+{
+	QLock 0 lk;
+	QLock 16 inlk;
+	QLock 32 outlk;
+	'D' 48 debug;
+	'D' 52 infd;
+	'D' 56 outfd;
+	'D' 60 muxer;
+	'X' 64 writeq;
+	'X' 68 readq;
+	'D' 72 state;
+	'a' 76 wait;
+	'U' 1100 ntag;
+	'U' 1104 nsleep;
+	'X' 1108 part;
+	Rendez 1112 tagrend;
+	Rendez 1124 rpcfork;
+	'X' 1136 version;
+	'X' 1140 uid;
+	'X' 1144 sid;
+};
+
+defn
+VtConn(addr) {
+	complex VtConn addr;
+	print("QLock lk {\n");
+	QLock(addr.lk);
+	print("}\n");
+	print("QLock inlk {\n");
+	QLock(addr.inlk);
+	print("}\n");
+	print("QLock outlk {\n");
+	QLock(addr.outlk);
+	print("}\n");
+	print("	debug	", addr.debug, "\n");
+	print("	infd	", addr.infd, "\n");
+	print("	outfd	", addr.outfd, "\n");
+	print("	muxer	", addr.muxer, "\n");
+	print("	writeq	", addr.writeq\X, "\n");
+	print("	readq	", addr.readq\X, "\n");
+	print("	state	", addr.state, "\n");
+	print("	wait	", addr.wait, "\n");
+	print("	ntag	", addr.ntag, "\n");
+	print("	nsleep	", addr.nsleep, "\n");
+	print("	part	", addr.part\X, "\n");
+	print("Rendez tagrend {\n");
+	Rendez(addr.tagrend);
+	print("}\n");
+	print("Rendez rpcfork {\n");
+	Rendez(addr.rpcfork);
+	print("}\n");
+	print("	version	", addr.version\X, "\n");
+	print("	uid	", addr.uid\X, "\n");
+	print("	sid	", addr.sid\X, "\n");
+};
+
+NilBlock = -1;
+sizeofVtBlock = 88;
+aggr VtBlock
+{
+	'X' 0 c;
+	QLock 4 lk;
+	'X' 20 data;
+	'a' 24 score;
+	'b' 44 type;
+	'D' 48 nlock;
+	'D' 52 iostate;
+	'D' 56 ref;
+	'U' 60 heap;
+	'A' VtBlock 64 next;
+	'A' VtBlock 68 prev;
+	'U' 72 used;
+	'U' 76 used2;
+	'U' 80 addr;
+	'D' 84 decrypted;
+};
+
+defn
+VtBlock(addr) {
+	complex VtBlock addr;
+	print("	c	", addr.c\X, "\n");
+	print("QLock lk {\n");
+	QLock(addr.lk);
+	print("}\n");
+	print("	data	", addr.data\X, "\n");
+	print("	score	", addr.score, "\n");
+	print("	type	", addr.type, "\n");
+	print("	nlock	", addr.nlock, "\n");
+	print("	iostate	", addr.iostate, "\n");
+	print("	ref	", addr.ref, "\n");
+	print("	heap	", addr.heap, "\n");
+	print("	next	", addr.next\X, "\n");
+	print("	prev	", addr.prev\X, "\n");
+	print("	used	", addr.used, "\n");
+	print("	used2	", addr.used2, "\n");
+	print("	addr	", addr.addr, "\n");
+	print("	decrypted	", addr.decrypted, "\n");
+};
+
+VtOREAD = 0;
+VtOWRITE = 1;
+VtORDWR = 2;
+VtOCREATE = 256;
+BioLocal = 1;
+BioVenti = 2;
+BioReading = 3;
+BioWriting = 4;
+BioEmpty = 5;
+BioVentiError = 6;
+BadHeap = -1;
+sizeofVtCache = 60;
+aggr VtCache
+{
+	QLock 0 lk;
+	'A' VtConn 16 z;
+	'U' 20 blocksize;
+	'U' 24 now;
+	'A' VtBlock 28 hash;
+	'D' 32 nhash;
+	'A' VtBlock 36 heap;
+	'D' 40 nheap;
+	'A' VtBlock 44 block;
+	'D' 48 nblock;
+	'X' 52 mem;
+	'D' 56 mode;
+};
+
+defn
+VtCache(addr) {
+	complex VtCache addr;
+	print("QLock lk {\n");
+	QLock(addr.lk);
+	print("}\n");
+	print("	z	", addr.z\X, "\n");
+	print("	blocksize	", addr.blocksize, "\n");
+	print("	now	", addr.now, "\n");
+	print("	hash	", addr.hash\X, "\n");
+	print("	nhash	", addr.nhash, "\n");
+	print("	heap	", addr.heap\X, "\n");
+	print("	nheap	", addr.nheap, "\n");
+	print("	block	", addr.block\X, "\n");
+	print("	nblock	", addr.nblock, "\n");
+	print("	mem	", addr.mem\X, "\n");
+	print("	mode	", addr.mode, "\n");
+};
+
+complex VtConn vtcachealloc:z;
+complex VtCache vtcachealloc:c;
+complex VtBlock vtcachealloc:b;
+complex VtCache vtcachefree:c;
+complex VtCache vtcachedump:c;
+complex VtBlock vtcachedump:b;
+complex VtCache cachecheck:c;
+complex VtBlock cachecheck:b;
+complex VtBlock upheap:b;
+complex VtBlock upheap:bb;
+complex VtCache upheap:c;
+complex VtBlock downheap:b;
+complex VtBlock downheap:bb;
+complex VtCache downheap:c;
+complex VtBlock heapdel:b;
+complex VtCache heapdel:c;
+complex VtBlock heapins:b;
+complex VtCache vtcachebumpblock:c;
+complex VtBlock vtcachebumpblock:b;
+complex VtCache vtcachelocal:c;
+complex VtBlock vtcachelocal:b;
+complex VtCache vtcacheallocblock:c;
+complex VtBlock vtcacheallocblock:b;
+complex VtCache vtcacheglobal:c;
+complex VtBlock vtcacheglobal:b;
+complex VtBlock vtblockduplock:b;
+complex VtBlock vtblockput:b;
+complex VtCache vtblockput:c;
+complex VtBlock vtblockwrite:b;
+complex VtCache vtblockwrite:c;
+complex VtCache vtcacheblocksize:c;
+complex VtBlock vtblockcopy:b;
+complex VtBlock vtblockcopy:bb;

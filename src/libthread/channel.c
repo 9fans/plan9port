@@ -497,7 +497,7 @@ altexec(Alt *a, int spl)
 		_threaddebug(DBGCHAN, "unlocking the chanlock");
 		unlock(&chanlock);
 		_procsplx(spl);
-		_threaddebug(DBGCHAN, "chanlock is %lud", *(ulong*)&chanlock);
+		_threaddebug(DBGCHAN, "chanlock is %lud", *(ulong*)(void*)&chanlock);
 		while(_threadrendezvous((ulong)b->tag, 0) == ~0)
 			;
 		return 1;

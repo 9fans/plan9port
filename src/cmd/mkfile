@@ -1,11 +1,11 @@
 <$PLAN9/src/mkhdr
 
-TARG=`ls *.[cy] | sed 's/\.c//'`
+TARG=`ls *.[cy] | sed 's/\.[cy]//'`
 SHORTLIB=sec fs mux regexp9 thread bio 9
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|faces|factotum|mailfs|mk|scat|upas|vac|venti|lex'
+BUGGERED='CVS|faces|factotum|mailfs|scat|upas|vac|venti|lex'
 DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"`
 
 <$PLAN9/src/mkdirs
@@ -26,5 +26,4 @@ $O.tweak: tweak.$O ${XLIB:%=$PLAN9/lib/lib%.a}
 	9c -o $target $stem.tab.c
 
 CLEANFILES=$CLEANFILES bc.tab.[ch] units.tab.[ch]
-
 
