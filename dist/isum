@@ -1,0 +1,3 @@
+#!/bin/sh
+
+egrep -v '^(\+ )?(9a|9c|9l|9ar|install|cp|cd|rm|mv|mk|9 yacc|9 lex|for i|do|done)|^[ 	]+(\(cd|mk)|^[ar] -|up to date|nothing to see here|assuming it will be an archive|conflicts:|nodes\(%e\)|packed transitions|Add these|PLAN9=|PATH=|^[ 	]*$|^SYSNAME=|^OBJTYPE=|^sh |^cmp |^\./o\.rgb|^rc \./manweb' $PLAN9/install.log
