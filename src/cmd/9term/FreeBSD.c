@@ -44,3 +44,15 @@ updatewinsize(int row, int col, int dx, int dy)
 	ows = ws;
 }
 
+int
+israw(int fd)
+{
+	return 0;
+}
+
+int
+setecho(int fd, int on)
+{
+	return 0;
+}
+

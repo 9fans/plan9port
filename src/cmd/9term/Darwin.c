@@ -133,3 +133,15 @@ myopenpty(int fd[], char *name)
 
 }
 
+int
+israw(int fd)
+{
+	return 0;
+}
+
+int
+setecho(int fd, int on)
+{
+	return 0;
+}
+

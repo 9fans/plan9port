@@ -44,3 +44,20 @@ updatewinsize(int row, int col, int dx, int dy)
 	ows = ws;
 }
 
+
+int
+israw(int fd)
+{
+	return 0;
+/*
+	if(tcgetattr(fd, &ttmode) < 0)
+		fprint(2, "tcgetattr: %r\n");
+	return !(ttmode.c_lflag&(ICANON|ECHO));
+*/
+}
+
+int
+setecho(int fd, int on)
+{
+	return 0;
+}

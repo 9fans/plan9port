@@ -161,7 +161,7 @@ threadmain(int argc, char **argv)
 
 	cwait = threadwaitchan();
 	threadcreate(waitthread, nil, STACK);
-	pid = rcstart(argc, argv, &rcfd);
+	pid = rcstart(argc, argv, &rcfd, nil);
 	if(pid == -1)
 		sysfatal("exec failed");
 

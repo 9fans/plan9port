@@ -124,6 +124,7 @@ int		scrolling;	/* window scrolls */
 int		clickmsec;	/* time of last click */
 uint		clickq0;	/* point of last click */
 int		rcfd;
+int		sfd;	/* slave fd, to get/set terminal mode */
 int		rcpid;
 int		maxtab;
 int		use9wm;
@@ -223,7 +224,7 @@ threadmain(int argc, char *argv[])
 
 	mc = initmouse(nil, screen);
 	kc = initkeyboard(nil);
-	rcpid = rcstart(argc, argv, &rcfd);
+	rcpid = rcstart(argc, argv, &rcfd, &sfd);
 	hoststart();
 	plumbstart();
 
@@ -270,6 +271,10 @@ hangupnote(void *a, char *msg)
 		postnote(PNGROUP, rcpid, "hangup");
 		noted(NDFLT);
 	}
+	if(strstr(msg, "child")){
+		/* bug: do better */
+		exits(0);
+	}
 	noted(NDFLT);
 }
 
@@ -284,6 +289,8 @@ hostproc(void *arg)
 	i = 0;
 	for(;;){
 		/* Let typing have a go -- maybe there's a rubout waiting. */
+		yield();
+
 		i = 1-i;	/* toggle */
 		n = threadread(rcfd, rcbuf[i].data, sizeof rcbuf[i].data);
 		if(n <= 0){
@@ -828,6 +835,7 @@ key(Rune r)
 		return;
 	}
 
+	rawon = israw(sfd);
 	if(rawon && t.q0==t.nr){
 		addraw(&r, 1);
 		consread();
@@ -837,6 +845,7 @@ key(Rune r)
 	if(r==ESC || (holdon && r==0x7F)){	/* toggle hold */
 		holdon = !holdon;
 		drawhold(holdon);
+	//	replaceintegerproperty("_9WM_HOLD_MODE", 1, 32, holdon);
 		if(!holdon)
 			consread();
 		if(r==ESC)
@@ -918,6 +927,7 @@ consready(void)
 	if(holdon)
 		return 0;
 
+	rawon = israw(sfd);
 	if(rawon) 
 		return t.nraw != 0;
 
@@ -936,6 +946,7 @@ consread(void)
 {
 	char buf[8000], *p;
 	int c, width, n;
+	int echo;
 
 	for(;;) {
 		if(!consready())
@@ -954,13 +965,18 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
+			rawon = israw(sfd);
 			if(!rawon && (c == '\n' || c == '\004' || c == '\x7F'))
 				break;
 		}
 		/* take out control-d when not doing a zero length write */
 		n = p-buf;
+		if(0) fprint(2, "write buf\n");
+		/* temporarily disable echo for buf. sensitive to race? Axel. */
+	//	echo = setecho(sfd, 0);
 		if(write(rcfd, buf, n) < 0)
 			exits(0);
+	//	setecho(sfd, echo);
 /*		mallocstats(); */
 	}
 }
@@ -1242,6 +1258,7 @@ paste(Rune *r, int n, int advance)
 {
 	Rune *rbuf;
 
+	rawon = israw(sfd);
 	if(rawon && t.q0==t.nr){
 		addraw(r, n);
 		return;

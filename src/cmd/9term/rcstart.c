@@ -1,11 +1,21 @@
 #include <u.h>
 #include <libc.h>
+#if 0
+#include <sys/wait.h>
+#endif
+#include <signal.h>
 #include "term.h"
 
+/*
+ * Somehow we no longer automatically exit
+ * when the shell exits; hence the SIGCHLD stuff.
+ * Something that can be fixed? Axel.
+ */
+static int pid;
+
 int
-rcstart(int argc, char **argv, int *pfd)
+rcstart(int argc, char **argv, int *pfd, int *tfd)
 {
-	int pid;
 	int fd[2];
 	char *xargv[3];
 	char slave[256];
@@ -27,7 +37,6 @@ rcstart(int argc, char **argv, int *pfd)
 	if(getpts(fd, slave) < 0)
 		sysfatal("getpts: %r\n");
 
-
 	switch(pid = fork()) {
 	case 0:
 		putenv("TERM", "9term");
@@ -44,8 +53,11 @@ rcstart(int argc, char **argv, int *pfd)
 		sysfatal("proc failed: %r");
 		break;
 	}
-	close(fd[0]);
 	*pfd = fd[1];
+	if(tfd)
+		*tfd = fd[0];
+	else
+		close(fd[0]);
 	return pid;
 }
 
