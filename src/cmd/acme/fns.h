@@ -92,6 +92,9 @@ char*	edittext(Window*, int, Rune*, int);
 void		flushwarnings(void);
 void		startplumbing(void);
 
+int		expandenv(Rune**, uint*);
+int		abbrevenv(Rune**, uint*);
+
 Runestr	runestr(Rune*, uint);
 Range range(int, int);
 

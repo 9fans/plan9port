@@ -15,6 +15,8 @@
 #include "dat.h"
 #include "fns.h"
 
+#define debug 0
+
 FsFid *plumbsendfid;
 FsFid *plumbeditfid;
 
@@ -456,10 +458,12 @@ dirname(Text *t, Rune *r, int n)
 	b = nil;
 	if(t==nil || t->w==nil)
 		goto Rescue;
+	if(n>=1 && r[0]=='$')
+		expandenv(&r, &n);
 	nt = t->w->tag.file->b.nc;
 	if(nt == 0)
 		goto Rescue;
-	if(n>=1 &&  r[0]=='/')
+	if(n>=1 && r[0]=='/')
 		goto Rescue;
 	b = runemalloc(nt+n+1);
 	bufread(&t->w->tag.file->b, 0, b, nt);
@@ -473,9 +477,12 @@ dirname(Text *t, Rune *r, int n)
 	}
 	if(slash < 0)
 		goto Rescue;
-	runemove(b+slash+1, r, n);
+	slash++;
+	if(expandenv(&b, &slash))
+		b = runerealloc(b, slash+n);
+	runemove(b+slash, r, n);
 	free(r);
-	return cleanrname(runestr(b, slash+1+n));
+	return cleanrname(runestr(b, slash+n));
 
     Rescue:
 	free(b);
@@ -535,9 +542,11 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	n = q1-q0;
 	if(n == 0)
 		return FALSE;
+
 	/* see if it's a file name */
-	r = runemalloc(n);
+	r = runemalloc(n+1);	/* +1 for $ below */
 	bufread(&t->file->b, q0, r, n);
+
 	/* first, does it have bad chars? */
 	nname = -1;
 	for(i=0; i<n; i++){
@@ -552,9 +561,13 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	}
 	if(nname == -1)
 		nname = n;
-	for(i=0; i<nname; i++)
+	for(i=0; i<nname; i++){
+		if(i==0 && r[0]=='$')
+			continue;
 		if(!isfilec(r[i]))
 			goto Isntfile;
+	}
+
 	/*
 	 * See if it's a file name in <>, and turn that into an include
 	 * file name if so.  Should probably do it for "" too, but that's not
@@ -569,10 +582,18 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	else if(amin == q0)
 		goto Isfile;
 	else{
-		rs = dirname(t, r, nname);
-		r = rs.r;
-		nname = rs.nr;
+		if(debug) fprint(2, "x1 %.*S\n", nname, r);
+		if(r[0] != '$'){
+			rs = dirname(t, r, nname);
+			r = rs.r;
+			nname = rs.nr;
+			if(debug) fprint(2, "x1.5 %.*S\n", nname, r);
+		}
+		if(r[0]=='$')
+			expandenv(&r, &nname);
+		if(debug) fprint(2, "x2 %.*S\n", nname, r);
 	}
+
 	e->bname = runetobyte(r, nname);
 	/* if it's already a window name, it's a file */
 	w = lookfile(r, nname);

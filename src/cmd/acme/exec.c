@@ -159,6 +159,8 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 				q1++;
 			while(q0>0 && isexecc(c=textreadc(t, q0-1)) && c!=':')
 				q0--;
+			if(q0>0 && textreadc(t, q0-1)=='$')
+				q0--;
 			if(q1 == q0)
 				return;
 		}

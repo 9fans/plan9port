@@ -454,3 +454,4 @@ makenewwindow(Text *t)
 		colgrow(w->col, w, 1);
 	return w;
 }
+
