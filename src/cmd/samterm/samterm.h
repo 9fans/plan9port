@@ -177,7 +177,3 @@ void	outlong(long);
 void	outvlong(void*);
 void	outsend(void);
 
-int	perror(char*);
-int	remove(char*);
-int	create(char*, int, ulong);
-
