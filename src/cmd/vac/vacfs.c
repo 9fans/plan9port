@@ -130,14 +130,14 @@ notifyf(void *a, char *s)
 void
 threadmain(int argc, char *argv[])
 {
-	char *defsrv;
-	int p[2];
+	char *defsrv, *q;
+	int p[2], l;
 	int stdio = 0;
 	char *host = nil;
 	long ncache = 1000;
 	int readOnly = 1;
 
-	defsrv = "vacfs";
+	defsrv = nil;
 	ARGBEGIN{
 	case 'd':
 		fmtinstall('F', fcallfmt);
@@ -176,7 +176,21 @@ threadmain(int argc, char *argv[])
 	mfd[1] = p[0];
 	proccreate(srv, 0, 32 * 1024);
 
-	if (post9pservice(p[1], defsrv) != 0) 
+	if(defsrv == nil){
+		q = strrchr(argv[0], '/');
+		if(q)
+			q++;
+		else
+			q = argv[0];
+		defsrv = vtmalloc(6+strlen(q)+1);
+		strcpy(defsrv, "vacfs.");
+		strcat(defsrv, q);
+		l = strlen(defsrv);
+		if(strcmp(defsrv+l-4, ".vac") == 0)
+			defsrv[l-4] = 0;
+	}
+
+	if(post9pservice(p[1], defsrv) != 0) 
 		sysfatal("post9pservice");
 
 
