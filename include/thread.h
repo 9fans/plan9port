@@ -94,6 +94,7 @@ ulong		chanrecvul(Channel *c);
 int		chansend(Channel *c, void *v);
 int		chansendp(Channel *c, void *v);
 int		chansendul(Channel *c, ulong v);
+void		chansetname(Channel *c, char *fmt, ...);
 
 #define	alt		chanalt
 #define	nbrecv	channbrecv
