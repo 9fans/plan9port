@@ -22,6 +22,7 @@ fi
 
 if [ ! -p $sam ]
 then
+	pwd="`pwd`"
 	for i
 	do
 		plumb -s B -d edit $i
