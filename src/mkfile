@@ -37,7 +37,12 @@ mkmk.sh:VD:
 			(cd $i; mk -n -a install)
 			echo cd ..
 		done
-	) | sed 's/'$SYSNAME'/$SYSNAME/; s/'$OBJTYPE'/$OBJTYPE/' >$target
+	) | sed '
+		s/'$SYSNAME'/$SYSNAME/g
+		s/'$OBJTYPE'/$OBJTYPE/g
+		s/9[ac] *getcallerpc-.*/9a getcallerpc-$OBJTYPE.s || 9c getcallerpc-$OBJTYPE.c/
+		s/^9[ac] *tas-.*/9a tas-$OBJTYPE.s || 9c tas-$OBJTYPE.c/
+	' >$target
 
 testmkmk:V:
 	mk mkmk.sh

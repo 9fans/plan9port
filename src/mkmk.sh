@@ -67,7 +67,7 @@ cd lib9
 9c  sleep.c
 9c  strecpy.c
 9c  sysfatal.c
-9a tas-$SYSNAME.s || 9c tas-$SYSNAME.c
+9a tas-$OBJTYPE.s || 9c tas-$OBJTYPE.c
 9c  time.c
 9c  tokenize.c
 9c  u16.c
