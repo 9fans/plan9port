@@ -69,7 +69,7 @@ extern int	regexec9(Reprog*, char*, Resub*, int);
 extern void	regsub9(char*, char*, int, Resub*, int);
 
 extern int	rregexec9(Reprog*, Rune*, Resub*, int);
-extern void	rregsub9(Rune*, Rune*, Resub*, int);
+extern void	rregsub9(Rune*, Rune*, int, Resub*, int);
 
 /*
  * Darwin simply cannot handle having routines that
