@@ -1,0 +1,152 @@
+.TH GVIEW 1
+.SH NAME
+gview \- interactive graph viewer
+.SH SYNOPSIS
+.B gview
+[
+.B -l
+.I logfile
+]
+[
+.B -m
+]
+[
+.I file
+]
+.SH DESCRIPTION
+.I Gview
+reads polygonal lines or a polygonal line drawing from an
+.B ASCII
+input file (which defaults to standard input), and views it interactively,
+with commands to zoom in and out, perform simple editing operations, and
+display information about points and polylines.  The editing commands can
+change the color and thickness of the polylines, delete (or undelete)
+some of them, and optionally rotate and move them.  It is also possible to
+generate an output file that reflects these changes and is in the same format
+as the input.
+.PP
+Since the
+.B move
+and
+.B rotate
+commands are undesirable when just viewing a graph, they are only enabled if
+.I gview
+is invoked with the
+.B -m
+option.
+.PP
+Clicking on a polyline with button 1 displays the coordinates and a
+.I t
+value that tells how far along the polyline.
+.IR (t =0
+at the first vertex,
+.IR t =1
+at the first vertex,
+.IR t =1.5
+halfway between the second and third vertices, etc.)  The
+.B -l
+option generates a log file that lists all points selected in this manner.
+.PP
+The most important interactive operations are to
+.I zoom in
+by sweeping out a rectangle, or to
+.I zoom out
+so that everything currently being displayed shrinks to fit in the swept-out
+rectangle.  Other options on the button 3 menu are
+.I unzoom
+which restores the coordinate system to the default state where everything
+fits on the screen,
+.I recenter
+which takes a point and makes it the center of the window, and
+.I square up
+which makes the horizontal and vertical scale factors equal.
+.PP
+To take a graph of a function where some part is almost linear and
+see how it deviates from a straight line, select two points on this
+part of the graph (i.e., select one with button 1 and then select the
+other) and then use the
+.I slant
+command on the button 3 menu.
+This slants the coordinate system so that the line between the two
+selected points appears horizontal (but vertical still means positive
+.IR y ).
+Then the
+.I zoom in
+command can be used to accentuate deviations from horizontal.
+There is also an
+.I unslant
+command that undoes all of this and goes back to an unslanted coordinate
+system.
+.PP
+There is a
+.I recolor
+command on button 3 that lets you select a color and change everything
+to have that color, and a similar command on button 2 that only affects
+the selected polyline.  The
+.I thick
+or
+.I thin
+command on button 2 changes the thickness of the selected polyline
+and there is also an undo command for such edits.
+.PP
+Finally, button 3 had commands to
+.I read
+a new input file and display it on top of everything else,
+.I restack
+the drawing order (in case lines of different color are drawn on top of
+each other),
+.I write
+everything into an output file, or
+.I exit
+the program.
+.PP
+Each polyline in an input or output file is a space-delimited
+.I x
+.I y
+coordinate pair on a line by itself, and the polyline is a sequence
+of such vertices followed by a label.  The label could be just a
+blank line or it could be a string in double
+quotes, or virtually any text that does not contain spaces and is
+on a line by itself.  The label at the end of the last polyline is
+optional.   It is not legal to have two consecutive labels, since that
+would denote a zero-vertex polyline and each polyline must have at least
+one vertex. (One-vertex polylines are useful for scatter plots.)
+
+If the label after a polyline can contains the word
+.B "Thick"
+or a color name
+.BR (Red ,
+.BR Pink ,
+.BR Dkred ,
+.BR Orange ,
+.BR Yellow ,
+.BR Dkyellow ,
+.BR Green ,
+.BR Dkgreen ,
+.BR Cyan ,
+.BR Blue ,
+.BR Ltblue ,
+.BR Magenta ,
+.BR Violet ,
+.BR Gray ,
+.BR Black ,
+.BR White ),
+whichever color name comes first will be used to color the polyline.
+.SH EXAMPLE
+To see a graph of the function
+.IR y = sin( x )/ x ,
+generate input with an awk script and pipe it into
+.IR gview :
+.IP
+.EX
+awk 'BEGIN{for(x=.1;x<500;x+=.1)print x,sin(x)/x}' | gview
+.EE
+.SH SOURCE
+.B /usr/local/plan9/src/cmd/draw/gview.c
+.SH SEE ALSO
+.IR awk (1)
+.SH BUGS
+The user interface for the
+.I slant
+command is counter-intuitive.  Perhaps it would be better to have a scheme
+for sweeping out a parallelogram.

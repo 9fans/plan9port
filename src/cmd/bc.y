@@ -6,6 +6,8 @@
 	#define	bsp_max	5000
 
 	Biobuf	*in;
+	#define stdin bstdin
+	#define stdout bstdout
 	Biobuf	stdin;
 	Biobuf	stdout;
 	char	cary[1000];
@@ -979,5 +981,5 @@ main(int argc, char **argv)
 	dup(p[0], 0);
 	close(p[0]);
 	close(p[1]);
-	execl("/bin/dc", "dc", 0);
+	execlp("dc", "dc", 0);
 }
