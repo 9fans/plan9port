@@ -123,3 +123,4 @@ extern int _runthreadspawn(int*, char*, char**);
 extern void _threadsetupdaemonize(void);
 extern void _threaddodaemonize(char*);
 extern void _threadpexit(void);
+extern void _threaddaemonize(void);
