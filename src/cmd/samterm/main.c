@@ -361,6 +361,10 @@ ctlw(Rasp *r, long o, long p)
 long
 ctlu(Rasp *r, long o, long p)
 {
+	if(--p < o)
+		return o;
+	if(raspc(r, p)=='\n')
+		return p;
 	for(; p-1>=o && raspc(r, p-1)!='\n'; --p)
 		;
 	return p>=o? p : o;
