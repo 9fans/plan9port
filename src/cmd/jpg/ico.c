@@ -473,7 +473,7 @@ main(int argc, char **argv)
 		sysfatal("reading header: %r");
 
 	initdraw(0, nil, "ico");
-	background = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, (128<<24)|(128<<16)|(128<<8)|0xFF);
+	background = allocimage(display, Rect(0, 0, 1, 1), screen->chan, 1, 0x808080FF);
 
 	einit(Emouse|Ekeyboard);
 
