@@ -10,7 +10,7 @@ case 1
 	prompt=($prompt '	')
 }
 if(~ $rcname ?.out ?.rc */?.rc */?.out) prompt=('broken! ' '	')
-if(flag p) path=(/bin)
+if(flag p) path=(/bin /usr/bin)
 if not{
 	finit
 	if(~ $#path 0) {
@@ -28,9 +28,9 @@ if(! ~ $#cflag 0){
 if not if(flag i){
 	if(~ $TERM 9term){
 		if(~ $#'fn#cd' 0)
-			fn cd { builtin cd $1 && label `{pwd} }
+			fn cd { builtin cd $1 && flag i && awd }
 	}
-	if(flag l && /bin/test -r $home/lib/profile) . $home/lib/profile
+	if(flag l && test -r $home/lib/profile) . $home/lib/profile
 	status=''
 	if(! ~ $#* 0) . $*
 	. -i '/dev/stdin'

@@ -55,8 +55,9 @@ threadexitsall(char *exitstr)
 		_threaddebug(DBGSCHED, "threadexitsall kill %d", pid[i]);
 		if(pid[i]==0 || pid[i]==-1)
 			fprint(2, "bad pid in threadexitsall: %d\n", pid[i]);
-		else if(pid[i] != mypid)
+		else if(pid[i] != mypid){
 			kill(pid[i], SIGTERM);
+		}
 	}
 
 	/* leave */

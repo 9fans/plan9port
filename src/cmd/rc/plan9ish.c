@@ -34,7 +34,6 @@ char Fdprefix[]="/dev/fd/";
 void execfinit(void);
 void execbind(void);
 void execmount(void);
-void execnewpgrp(void);
 builtin Builtin[]={
 	"cd",		execcd,
 	"whatis",	execwhatis,

@@ -38,7 +38,7 @@ data matches '[a-zA-Z¡-￿0-9_\-./]+'
 data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
 arg isfile	$0
 plumb to image
-plumb start qiv -t $0
+plumb start qiv -t $file
 
 # postscript/pdf/dvi go to page but not over the a plumb port
 # the port is here for reference but is unused

@@ -23,8 +23,16 @@ readenv(void)
 	Word *w;
 
 	for(p = environ; *p; p++){
+/* rsc 5/5/2004 -- This misparses fn#cd={whatever} 
 		s = shname(*p);
 		if(*s == '=') {
+			*s = 0;
+			w = newword(s+1);
+		} else
+			w = newword("");
+*/
+		s = strchr(*p, '=');
+		if(s){
 			*s = 0;
 			w = newword(s+1);
 		} else

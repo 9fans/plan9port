@@ -18,3 +18,5 @@ struct Uproc
 
 extern Uproc *_p9uproc(int);
 extern void _p9uprocdie(void);
+extern void _clearuproc(void);
+

@@ -18,6 +18,19 @@ static Uproc *alluproc[PIDHASH];
 static int allupid[PIDHASH];
 static Lock uproclock;
 
+void
+_clearuproc(void)
+{
+	int i;
+
+	/* called right after fork - no locking needed */
+	for(i=0; i<PIDHASH; i++)
+		if(alluproc[i] != T && alluproc[i] != 0)
+			free(alluproc[i]);
+	memset(alluproc, 0, sizeof alluproc);
+	memset(allupid, 0, sizeof allupid);
+}
+		
 Uproc*
 _p9uproc(int inhandler)
 {
