@@ -3,6 +3,7 @@
 #include <libc.h>
 #include <fcall.h>
 #include <9pclient.h>
+#include <auth.h>
 #include <thread.h>
 
 char *addr;
@@ -52,7 +53,8 @@ threadmain(int argc, char **argv)
 		addr = EARGF(usage());
 		break;
 	case 'D':
-		
+		chatty9pclient = 1;
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -86,7 +88,7 @@ xparse(char *name, char **path)
 		else
 			*p++ = 0;
 		*path = p;
-		fs = nsmount(name, "");
+		fs = nsamount(name, "");
 		if(fs == nil)
 			sysfatal("mount: %r");
 	}else{
@@ -94,7 +96,7 @@ xparse(char *name, char **path)
 		fprint(2, "dial %s...", addr);
 		if((fd = dial(addr, nil, nil, nil)) < 0)
 			sysfatal("dial: %r");
-		if((fs = fsmount(fd, "")) == nil)
+		if((fs = fsamount(fd, "")) == nil)
 			sysfatal("fsmount: %r");
 	}
 	return fs;
