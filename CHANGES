@@ -1,3 +1,11 @@
+March 28, 2005
+	open(3): note that open and create are macros
+	add NetBSD support (tahnks to Christoph Lohmann)
+
+March 24, 2005
+	netfiles: robustness fixes
+	sftpcache: robustness fixes
+
 March 23, 2005
 	acme: fix Edit filename bug, elogapply warnings
 
