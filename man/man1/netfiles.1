@@ -1,0 +1,127 @@
+.TH NETFILES 4
+.SH NAME
+Netfiles, netfileget, netfileput, netfilestat \- network file access inside acme
+.SH SYNOPSIS
+.B Netfiles
+.PP
+.B netfileget
+[
+.B -d
+]
+.I system
+.I path
+.PP
+.B netfileput
+.I system
+.I path
+.PP
+.B netfilestat
+.I system
+.I path
+.SH DESCRIPTION
+.B Netfiles
+presents remote file systems in
+.IR acme (4)
+windows.
+Each window is named
+.BI /n/ system / path
+and displays the contents of
+.I path
+on 
+.IR system .
+.PP
+.I Netfiles
+reads names of windows to create from the
+plumbing channel
+.B netfileedit
+(see
+.IR plumber (4)
+and the example section below).
+In a
+.IR netfiles -controlled
+window,
+.BR Get ,
+.BR Put ,
+and
+button 3 loads work as in normal acme windows.
+External commands executed with button 2
+run in the directory in which
+.I acme
+was started.
+.PP
+.I Netfiles
+uses the helper programs
+.IR netfileget ,
+.IR netfileput ,
+and
+.I netfilestat
+to access the remote file systems.
+The three first check to see if 
+.I system
+is a service in the current name space
+(see
+.IR intro (4)).
+If so, they use
+.IR 9p (1)
+to access it.
+Otherwise, they assume that the system is a network name
+and use
+.IR ssh (1)'s
+.I sftp
+to access it.
+.PP
+.I Netfileget
+prints the contents of the named
+.I path 
+to standard output.
+If the
+.B -d
+option is given, then
+.I netfileget
+prints a single-column listing of
+.IR path ,
+which must be a directory.
+Directories in the listing have
+.L /
+appended to their names.
+.PP
+.I Netfileput
+writes its standard input to the named
+.IR path .
+.PP
+.I Netfilestat
+prints the file type of
+.IR path ,
+one of
+.BR nonexistent ,
+.BR directory ,
+or
+.BR file .
+.SH EXAMPLES
+The following plumbing rule 
+(see
+.IR plumb (7))
+passes 
+.B /n/
+paths to 
+.IR Netfiles ,
+starting it if necessary.
+.IP
+.EX
+# /n/ paths go to simulator in acme
+kind is text
+data matches '[a-zA-Z0-9_\e-./]+('$addr')?'
+data matches '(/n/[a-zA-Z0-9_\e-./]+)('$addr')?'
+plumb to netfileedit
+plumb client Netfiles
+.EE
+.SH SOURCE
+.B \*9/src/cmd/netfiles
+.SH SEE ALSO
+.IR 9p (1),
+.IR ssh (1),
+.IR ssh-agent (1),
+.IR intro (4),
+.IR acme (4),
+.IR factotum (4),
+.HR http://v9fs.sf.net
