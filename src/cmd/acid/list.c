@@ -192,6 +192,32 @@ listvar(char *s, long v)
 }
 
 static List*
+listregisters(Map *map, Regs *regs)
+{
+	List **tail, *l2, *l;
+	Regdesc *rp;
+	ulong v;
+
+	l2 = 0;
+	tail = &l2;
+	for(rp=mach->reglist; rp->name; rp++){
+		if(rget(regs, rp->name, &v) < 0)
+			continue;
+		l = al(TSTRING);
+		l->store.fmt = 's';
+		l->store.u.string = strnode(rp->name);
+		*tail = l;
+		tail = &l->next;
+		l = al(TINT);
+		l->store.fmt = 'X';
+		l->store.u.ival = v;
+		*tail = l;
+		tail = &l->next;
+	}
+	return l2;
+}
+
+static List*
 listlocals(Map *map, Regs *regs, Symbol *fn, int class)
 {
 	int i;
@@ -265,6 +291,10 @@ trlist(Map *map, Regs *regs, ulong pc, ulong callerpc, Symbol *sym, int depth)
 	l = l->next;
 	if(sym)
 		l->store.u.l = listautos(map, regs, sym);
+
+	l->next = al(TLIST);		/* make list of registers */
+	l = l->next;
+	l->store.u.l = listregisters(map, regs);
 
 	return depth<40;
 }
