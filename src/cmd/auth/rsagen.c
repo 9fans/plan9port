@@ -45,7 +45,7 @@ main(int argc, char **argv)
 		key = rsagen(bits, 6, 0);
 	}while(mpsignif(key->pub.n) != bits);
 
-	s = smprint("key proto=rsa %s%ssize=%d ek=%B !dk=%B n=%B !p=%B !q=%B !kp=%B !kq=%B !c2=%B\n",
+	s = smprint("key proto=rsa %s%ssize=%d ek=%lB !dk=%lB n=%lB !p=%lB !q=%lB !kp=%lB !kq=%lB !c2=%lB\n",
 		tag ? tag : "", tag ? " " : "",
 		mpsignif(key->pub.n), key->pub.ek,
 		key->dk, key->pub.n, key->p, key->q,

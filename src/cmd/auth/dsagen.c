@@ -36,7 +36,7 @@ main(int argc, char **argv)
 
 	key = dsagen(nil);
 
-	s = smprint("key proto=dsa %s%sp=%B q=%B alpha=%B key=%B !secret=%B\n",
+	s = smprint("key proto=dsa %s%sp=%lB q=%lB alpha=%lB key=%lB !secret=%lB\n",
 		tag ? tag : "", tag ? " " : "",
 		key->pub.p, key->pub.q, key->pub.alpha, key->pub.key,
 		key->secret);

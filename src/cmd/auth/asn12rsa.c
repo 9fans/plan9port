@@ -59,7 +59,7 @@ main(int argc, char **argv)
 	if(key == nil)
 		sysfatal("couldn't parse asn1 key");
 
-	s = smprint("key proto=rsa %s%ssize=%d ek=%B !dk=%B n=%B !p=%B !q=%B !kp=%B !kq=%B !c2=%B\n",
+	s = smprint("key proto=rsa %s%ssize=%d ek=%lB !dk=%lB n=%lB !p=%lB !q=%lB !kp=%lB !kq=%lB !c2=%lB\n",
 		tag ? tag : "", tag ? " " : "",
 		mpsignif(key->pub.n), key->pub.ek,
 		key->dk, key->pub.n, key->p, key->q,

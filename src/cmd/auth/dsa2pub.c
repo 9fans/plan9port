@@ -8,7 +8,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: auth/rsafill [file]\n");
+	fprint(2, "usage: auth/dsa2pub [file]\n");
 	exits("usage");
 }
 
@@ -31,14 +31,12 @@ main(int argc, char **argv)
 	if(argc > 1)
 		usage();
 
-	if((key = getkey(argc, argv, 1, &a)) == nil)
+	if((key = getdsakey(argc, argv, 0, &a)) == nil)
 		sysfatal("%r");
 
-	s = smprint("key %A size=%d ek=%lB !dk=%lB n=%lB !p=%lB !q=%lB !kp=%lB !kq=%lB !c2=%lB\n",
+	s = smprint("key %A p=%lB q=%lB alpha=%lB key=%lB\n",
 		a, 
-		mpsignif(key->pub.n), key->pub.ek,
-		key->dk, key->pub.n, key->p, key->q,
-		key->kp, key->kq, key->c2);
+		key->pub.p, key->pub.q, key->pub.alpha, key->pub.key);
 	if(s == nil)
 		sysfatal("smprint: %r");
 	write(1, s, strlen(s));

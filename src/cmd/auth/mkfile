@@ -6,6 +6,7 @@ TARG=\
 	asn12dsa\
 	asn12rsa\
 	dsagen\
+	dsa2pub\
 	dsa2ssh\
 	passwd\
 	pemdecode\
