@@ -1,0 +1,42 @@
+PLAN9=../..
+<$PLAN9/src/mkhdr
+
+LIB=libventi.a
+
+OFILES=\
+	cache.$O\
+	client.$O\
+	conn.$O\
+	dial.$O\
+	debug.$O\
+	dtype.$O\
+	entry.$O\
+	fcall.$O\
+	fcallfmt.$O\
+	file.$O\
+	hangup.$O\
+	mem.$O\
+	packet.$O\
+	queue.$O\
+	root.$O\
+	rpc.$O\
+	scorefmt.$O\
+	send.$O\
+	server.$O\
+	srvhello.$O\
+	strdup.$O\
+	string.$O\
+	version.$O\
+	zero.$O\
+	zeroscore.$O\
+
+HFILES=\
+	$PLAN9/include/venti.h\
+
+<$PLAN9/src/mksyslib
+
+send.$O: queue.h
+server.$O: queue.h
+queue.$O: queue.h
+
+
