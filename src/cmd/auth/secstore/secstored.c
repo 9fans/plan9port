@@ -389,7 +389,7 @@ main(int argc, char **argv)
 	for(;;){
 		if((lcfd = listen(adir, ldir)) < 0)
 			exits("can't listen");
-		switch(fork()){
+		switch(rfork(RFPROC|RFFDG|RFNOWAIT)){
 		case -1:
 			fprint(2, "secstore forking: %r\n");
 			close(lcfd);
