@@ -13,7 +13,9 @@ extern "C" {
  * Begin usual libc.h 
  */
 
+#ifndef nil
 #define	nil	((void*)0)
+#endif
 #define	nelem(x)	(sizeof(x)/sizeof((x)[0]))
 
 #ifndef offsetof

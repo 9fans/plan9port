@@ -39,47 +39,49 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
 #if defined(__linux__)
 #	include <sys/types.h>
+#	if defined(__Linux26__)
+#		include <pthread.h>
+#		define PLAN9PORT_USING_PTHREADS 1
+#	endif
 #	if defined(__USE_MISC)
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #		undef _NEEDULONG
 #	endif
-#	if defined(__Linux26__)
-#		define PLAN9PORT_USING_PTHREADS 1
-#	endif
 #elif defined(__sun__)
 #	include <sys/types.h>
+#	include <pthread.h>
+#	define PLAN9PORT_USING_PTHREADS 1
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
-#	define PLAN9PORT_USING_PTHREADS 1
+#	define nil 0	/* no cast to void* */
 #elif defined(__FreeBSD__)
 #	include <sys/types.h>
 #	include <osreldate.h>
+#	if __FreeBSD_version >= 500000
+#		define PLAN9PORT_USING_PTHREADS 1
+#		include <pthread.h>
+#	endif
 #	if !defined(_POSIX_SOURCE)
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
 #	endif
-#	if __FreeBSD_version >= 500000
-#		define PLAN9PORT_USING_PTHREADS 1
-#	endif
 #elif defined(__APPLE__)
 #	include <sys/types.h>
+#	include <pthread.h>
+#	define PLAN9PORT_USING_PTHREADS 1
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	define _NEEDLL 1
-#	define PLAN9PORT_USING_PTHREADS 1
 #else
 	/* No idea what system this is -- try some defaults */
+#	include <pthread.h>
 #	define PLAN9PORT_USING_PTHREADS 1
 #endif
 
 #ifndef O_DIRECT
 #define O_DIRECT 0
-#endif
-
-#ifdef PLAN9PORT_USING_PTHREADS
-#include <pthread.h>
 #endif
 
 typedef signed char schar;
