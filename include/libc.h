@@ -234,11 +234,15 @@ extern	int	quoterunestrfmt(Fmt*);
 extern	int	needsrcquote(int);
 
 /*
- * random number (in <stdlib.h>)
- *
+ * random number (also in <stdlib.h>)
+ */
+#ifndef NOPLAN9DEFINES
+#define rand	p9rand
+#define srand	p9srand
+#endif
+
 extern	void	srand(long);
 extern	int	rand(void);
- */
 extern	int	nrand(int);
 extern	long	lrand(void);
 extern	long	lnrand(long);
