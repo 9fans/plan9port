@@ -2,13 +2,12 @@
 #include <libc.h>
 
 static Waitmsg*
-_wait(int nohang)
+_wait(int n, char *buf)
 {
-	int n, l;
-	char buf[512], *fld[5];
+	int l;
+	char *fld[5];
 	Waitmsg *w;
 
-	n = (nohang ? awaitnohang : await)(buf, sizeof buf-1);
 	if(n <= 0)
 		return nil;
 	buf[n] = '\0';
@@ -32,12 +31,24 @@ _wait(int nohang)
 Waitmsg*
 wait(void)
 {
-	return _wait(0);
+	char buf[256];
+
+	return _wait(await(buf, sizeof buf-1), buf);
 }
 
 Waitmsg*
 waitnohang(void)
 {
-	return _wait(1);
+	char buf[256];
+
+	return _wait(awaitnohang(buf, sizeof buf-1), buf);
+}
+
+Waitmsg*
+waitfor(int pid)
+{
+	char buf[256];
+
+	return _wait(awaitfor(pid, buf, sizeof buf-1), buf);
 }
 

@@ -693,6 +693,7 @@ extern	void	abort(void);
 /* extern	int	access(char*, int); */
 extern	long	p9alarm(ulong);
 extern	int	await(char*, int);
+extern	int	awaitfor(int, char*, int);
 extern	int	awaitnohang(char*, int);
 /* extern	int	bind(char*, char*, int); give up */
 /* extern	int	brk(void*); <unistd.h> */
@@ -746,6 +747,7 @@ extern	int	segfree(void*, ulong);
 extern	int	p9sleep(long);
 /* extern	int	stat(char*, uchar*, int); give up */
 extern	Waitmsg*	p9wait(void);
+extern	Waitmsg*	p9waitfor(int);
 extern	Waitmsg*	waitnohang(void);
 extern	int	p9waitpid(void);
 /* <unistd.h>
@@ -770,6 +772,7 @@ extern	ulong	rendezvous(ulong, ulong);
 #undef open
 #define open		p9open
 #define pipe		p9pipe
+#define	waitfor		p9waitfor
 #endif
 
 extern	Dir*	dirstat(char*);
