@@ -47,6 +47,7 @@ void	threaddaemonize(void);
  * per proc and thread data
  */
 void		**procdata(void);
+void		**threaddata(void);
 
 /*
  * supplied by user instead of main.
@@ -73,8 +74,8 @@ enum
 
 struct Alt
 {
-	void		*v;
 	Channel		*c;
+	void		*v;
 	uint		op;
 	_Thread		*thread;
 	Alt			*xalt;
