@@ -1,0 +1,45 @@
+PLAN9=../../..
+<$PLAN9/src/mkhdr
+
+OFILES=
+
+TARG=\
+	bzip2\
+	bunzip2\
+
+HFILES=\
+	lib/os.h\
+	lib/bzlib.h\
+	lib/plan9.h\
+
+LIB=lib/libbzip2.a
+
+SHORTLIB=bio 9
+<$PLAN9/src/mkmany
+
+CFLAGS=$CFLAGS -p -DPLAN9 -Ilib
+
+test:V: $O.bzip2 $O.bunzip2
+	./$O.bzip2 -1  < sample1.ref > sample1.rb2
+	./$O.bzip2 -2  < sample2.ref > sample2.rb2
+	./$O.bzip2 -3  < sample3.ref > sample3.rb2
+	./$O.bunzip2  < sample1.bz2 > sample1.tst
+	./$O.bunzip2  < sample2.bz2 > sample2.tst
+	./$O.bunzip2 < sample3.bz2 > sample3.tst
+	cmp sample1.bz2 sample1.rb2 
+	cmp sample2.bz2 sample2.rb2
+	cmp sample3.bz2 sample3.rb2
+	cmp sample1.tst sample1.ref
+	cmp sample2.tst sample2.ref
+	cmp sample3.tst sample3.ref
+
+bzip2recover.$O: bzip2recover.c
+	pcc -D_POSIX_SOURCE -D_BSD_EXTENSION -c bzip2recover.c
+
+clean:V:
+	rm -f *.[$OS] y.tab.? y.debug y.output [$OS].* $TARG *.rb2 *.tst
+	cd lib; mk clean
+
+lib/libbzip2.a:
+	cd lib; mk
+

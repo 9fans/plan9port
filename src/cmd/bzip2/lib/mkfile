@@ -1,0 +1,36 @@
+PLAN9=../../../..
+<$PLAN9/src/mkhdr
+
+OFILES=\
+	blocksort.$O\
+	bzassert.$O\
+	bzcompress.$O\
+	bzdecompress.$O\
+	bzfeof.$O\
+	bzlib.$O\
+	bzread.$O\
+	bzversion.$O\
+	bzwrite.$O\
+	bzzlib.$O\
+	compress.$O\
+	crctable.$O\
+	decompress.$O\
+	huffman.$O\
+	randtable.$O\
+
+HFILES=\
+	bzlib.h\
+	bzlib_private.h\
+	bzlib_stdio.h\
+	bzlib_stdio_private.h\
+	os.h\
+	plan9.h\
+
+LIB=libbzip2.a
+<$PLAN9/src/mklib
+
+CFLAGS=-DPLAN9
+
+clean:V:
+	rm -f *.[$OS] [$OS].out libbzip2.a
+

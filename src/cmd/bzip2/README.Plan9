@@ -1,0 +1,11 @@
+This is Julian Seward's bzip2 but has
+been hacked up a fair amount to allow finer
+granularity of function selection.
+
+In case that wasn't clear,
+THESE ARE NOT THE ORIGINAL SOURCES.
+THEY HAVE BEEN MODIFIED.
+
+Russ Cox
+July 2000
+rsc@plan9.bell-labs.com
