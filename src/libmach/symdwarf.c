@@ -112,6 +112,9 @@ dwarflenum(Fhdr *fhdr, Symbol *p, char *name, uint j, Loc l, Symbol *s)
 	if(p == nil)
 		return -1;
 
+	if(p->u.dwarf.unit == 0 && p->u.dwarf.uoff == 0)
+		return -1;
+
 	if(dwarfseeksym(fhdr->dwarf, p->u.dwarf.unit, p->u.dwarf.uoff, &ds) < 0)
 		return -1;
 
@@ -200,7 +203,7 @@ dwarfsyminit(Fhdr *fp)
 	if(dwarfenum(d, &s) < 0)
 		return;
 
-	dwarfnextsymat(d, &s, 0);
+	while(dwarfnextsymat(d, &s, 0) == 1)
 	while(dwarfnextsymat(d, &s, 1) == 1){
 		if(s.attrs.name == nil)
 			continue;

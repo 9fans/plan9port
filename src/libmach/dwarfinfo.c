@@ -267,7 +267,8 @@ top:
 
 	a = dwarfgetabbrev(d, s->aoff, num);
 	if(a == nil){
-		fprint(2, "getabbrev %ud: %r\n", num);
+		fprint(2, "getabbrev %ud %ud for %ud,%ud: %r\n", s->aoff, num, s->unit, s->uoff);
+		abort();
 		return -1;
 	}
 	if(parseattrs(&s->b, s->unit, a, &s->attrs) < 0)

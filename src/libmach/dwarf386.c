@@ -15,10 +15,8 @@ dwarf386regs[] =
 	"BP",
 	"SI",
 	"DI",
-	"LR",
-	"CFA",
 };
 
-int dwarf386nregs = 10;
+int dwarf386nregs = nelem(dwarf386regs);
 
 

@@ -113,6 +113,7 @@ findabbrev(DwarfAbbrev *a, int na, ulong num)
 	for(i=0; i<na; i++)
 		if(a[i].num == num)
 			return &a[i];
+	werrstr("abbrev not found");
 	return nil;
 }
 
@@ -122,8 +123,10 @@ dwarfgetabbrev(Dwarf *d, ulong off, ulong num)
 	DwarfAbbrev *a;
 	int na;
 
-	if((na = loadabbrevs(d, off, &a)) < 0)
+	if((na = loadabbrevs(d, off, &a)) < 0){
+		werrstr("loadabbrevs: %r");
 		return nil;
+	}
 	return findabbrev(a, na, num);
 }
 
