@@ -46,7 +46,6 @@ BEGIN {
 	Omitman["sh(1)"] = 1
 	Omitman["ssh(1)"] = 1
 	Omitman["stty(1)"] = 1
-	Omitman["tar(1)"] = 1
 	Omitman["tex(1)"] = 1
 	Omitman["unutf(1)"] = 1
 	Omitman["vnc(1)"] = 1
@@ -82,8 +81,6 @@ BEGIN {
 	Omitman["remove(3)"] = 1
 	Omitman["sin(3)"] = 1
 	Omitman["strerror(3)"] = 1
-
-	Omitman["factotum(4)"] = 1	# for now leave undocumented
 
 	Omitman["core(5)"] = 1
 	Omitman["passwd(5)"] = 1

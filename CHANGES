@@ -1,3 +1,6 @@
+February 14, 2005
+	add source links to man pages
+
 February 13, 2005
 	lib9: add readcons(1)
 		add laddr, raddr to Netconninfo (see dial(3))

@@ -72,7 +72,7 @@ for (i in */[~.]*.[0-9]*){
 		sed '/<!-- TRAILER -->/q' /tmp/manweb.html
 		cat $PLAN9/dist/mantrailer.html
 		sed -n '/<!-- TRAILER -->/,$p' /tmp/manweb.html
-	} >$d/$p.html
+	} | $PLAN9/dist/addsrclinks >$d/$p.html
 }
 rm /tmp/manweb.html
 cd $PLAN9/dist
