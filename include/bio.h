@@ -55,6 +55,7 @@ struct	Biobuf
 	(bp)->fid
 
 int	Bbuffered(Biobuf*);
+Biobuf*	Bfdopen(int, int);
 int	Bfildes(Biobuf*);
 int	Bflush(Biobuf*);
 int	Bgetc(Biobuf*);
