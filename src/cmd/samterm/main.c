@@ -439,6 +439,8 @@ flushtyping(int clearesc)
 #define	ENDKEY	Kend
 #define	PAGEUP	Kpgup
 #define	PAGEDOWN	Kpgdown
+#define LEFTARROW	Kleft
+#define RIGHTARROW	Kright
 
 int
 nontypingkey(c)
@@ -507,7 +509,6 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 	if(c==SCROLLKEY || c==PAGEDOWN){
 		flushtyping(0);
 		center(l, l->origin+l->f.nchars+1);
-		/* backspacing immediately after outcmd(): sorry */
 	}else if(c==BACKSCROLLKEY || c==PAGEUP){
 		flushtyping(0);
 		a0 = l->origin-l->f.nchars;
@@ -535,6 +536,7 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 		flushtyping(0);
 		center(l, t->rasp.nrunes);
 	}else if(backspacing && !hostlock){
+		/* backspacing immediately after outcmd(): sorry */
 		if(l->f.p0>0 && a>0){
 			switch(c){
 			case '\b':
