@@ -177,7 +177,6 @@ ds2acid(Dwarf *d, DwarfSym *s, Biobuf *b, char *fn)
 
 	case TagFormalParameter:
 	case TagVariable:
-fprint(2, "var %s %lud\n", s->attrs.name, (ulong)s->attrs.type);
 		if(s->attrs.name==nil || s->attrs.type==0)
 			break;
 		addsymx(fn, s->attrs.name, typebynum(s->attrs.type, 0));
