@@ -206,7 +206,7 @@ void
 usage(void)
 {
 	fprint(2, "usage: %s [-sd] [-h host] [-c ncache] [-m mountpoint] vacfile\n", argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 char*

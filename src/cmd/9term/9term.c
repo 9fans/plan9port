@@ -1064,7 +1064,7 @@ consread(void)
 		 */
 		s = setecho(sfd, 0);
 		if(write(rcfd, buf, n) < 0)
-			exits(0);
+			threadexitsall(0);
 		if(s)
 			setecho(sfd, s);
 	}

@@ -114,7 +114,7 @@ threadmain(int argc, char *argv[])
 	default:
 	Usage:
 		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile -W winsize\n");
-		exits("usage");
+		threadexitsall("usage");
 	}ARGEND
 
 	fontnames[0] = estrdup(fontnames[0]);
@@ -147,12 +147,12 @@ threadmain(int argc, char *argv[])
 /*
 	if(geninitdraw(nil, derror, fontnames[0], "acme", nil, Refnone) < 0){
 		fprint(2, "acme: can't open display: %r\n");
-		exits("geninitdraw");
+		threadexitsall("geninitdraw");
 	}
 */
 	if(initdraw(derror, fontnames[0], "acme") < 0){
 		fprint(2, "acme: can't open display: %r\n");
-		exits("initdraw");
+		threadexitsall("initdraw");
 	}
 
 	d = display;
@@ -192,19 +192,19 @@ threadmain(int argc, char *argv[])
 	chansetname(cwarn, "cwarn");
 	if(cwait==nil || ccommand==nil || ckill==nil || cxfidalloc==nil || cxfidfree==nil || cerr==nil || cexit==nil || cwarn==nil){
 		fprint(2, "acme: can't create initial channels: %r\n");
-		exits("channels");
+		threadexitsall("channels");
 	}
 
 	mousectl = initmouse(nil, screen);
 	if(mousectl == nil){
 		fprint(2, "acme: can't initialize mouse: %r\n");
-		exits("mouse");
+		threadexitsall("mouse");
 	}
 	mouse = &mousectl->m;
 	keyboardctl = initkeyboard(nil);
 	if(keyboardctl == nil){
 		fprint(2, "acme: can't initialize keyboard: %r\n");
-		exits("keyboard");
+		threadexitsall("keyboard");
 	}
 	mainpid = getpid();
 	startplumbing();

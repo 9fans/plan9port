@@ -24,6 +24,14 @@ _Thread	*_threadwakeup(Rendez*);
 #define	yield		threadyield
 
 /*
+ * I am tired of making this mistake.
+ */
+#define	exits	do_not_call_exits_in_threaded_programs
+#define	_exits	do_not_call__exits_in_threaded_programs
+
+
+
+/*
  * signals
  */
 void		threadnotify(int(*f)(void*,char*), int);

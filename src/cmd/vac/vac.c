@@ -105,7 +105,7 @@ static void
 usage(void)
 {
 	fprint(2, "usage: %s [-amqsv] [-h host] [-d vacfile] [-b blocksize] [-i name] [-e exclude] [-f vacfile] file ... \n", argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void

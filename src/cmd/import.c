@@ -33,7 +33,7 @@ void
 usage(void)
 {
 	fprint(2, "usage: %s [-df] [-s service] [-n remote-ns] [-p remote-prog] remote-system\n", argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void

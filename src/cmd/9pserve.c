@@ -119,7 +119,7 @@ usage(void)
 {
 	fprint(2, "usage: 9pserve [-lv] address\n");
 	fprint(2, "\treads/writes 9P messages on stdin/stdout\n");
-	exits("usage");
+	threadexitsall("usage");
 }
 
 uchar vbuf[128];

@@ -19,7 +19,7 @@ usage(void)
 	fprint(2, "	stat name\n");
 //	fprint(2, "	ls name\n");
 	fprint(2, "without -a, name elem/path means /path on server unix!$ns/elem\n");
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void xread(int, char**);
@@ -142,7 +142,7 @@ xread(int argc, char **argv)
 		write(1, buf, n);
 	if(n < 0)
 		sysfatal("read error: %r");
-	exits(0);	
+	threadexitsall(0);	
 }
 
 void
@@ -165,7 +165,7 @@ xreadfd(int argc, char **argv)
 		write(1, buf, n);
 	if(n < 0)
 		sysfatal("read error: %r");
-	exits(0);	
+	threadexitsall(0);	
 }
 
 void
@@ -196,7 +196,7 @@ xwrite(int argc, char **argv)
 	}
 	if(n < 0)
 		sysfatal("read error: %r");
-	exits(0);	
+	threadexitsall(0);	
 }
 
 void
@@ -220,7 +220,7 @@ xwritefd(int argc, char **argv)
 			sysfatal("write error: %r");
 	if(n < 0)
 		sysfatal("read error: %r");
-	exits(0);	
+	threadexitsall(0);	
 }
 
 void
@@ -245,5 +245,5 @@ xstat(int argc, char **argv)
 	fmtinstall('D', dirfmt);
 	fmtinstall('M', dirmodefmt);
 	print("%D\n", d);
-	exits(0);
+	threadexitsall(0);
 }
