@@ -3,6 +3,9 @@
 #define NOPLAN9DEFINES
 #include <libc.h>
 #include <sys/stat.h>
+#ifndef O_DIRECT
+#define O_DIRECT 0
+#endif
 
 int
 p9create(char *path, int mode, ulong perm)

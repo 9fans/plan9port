@@ -27,5 +27,5 @@ HFILES=\
 <$PLAN9/src/mksyslib
 
 bcat: bcat.$O $PLAN9/lib/$LIB
-	$LD -o bcat bcat.$O -lbio -lfmt -lutf
+	$LD -o bcat bcat.$O -lbio -l9
 

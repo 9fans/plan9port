@@ -2,6 +2,9 @@
 #include <u.h>
 #define NOPLAN9DEFINES
 #include <libc.h>
+#ifndef O_DIRECT
+#define O_DIRECT 0
+#endif
 
 int
 p9open(char *name, int mode)

@@ -34,6 +34,7 @@ cd lib9
 9c  errstr.c
 9c  exec.c
 9c  fcallfmt.c
+9c  fork.c
 9c  ffork-$SYSNAME.c
 9c  get9root.c
 9a getcallerpc-$OBJTYPE.s || 9c getcallerpc-$OBJTYPE.c
@@ -52,6 +53,7 @@ cd lib9
 9c  mallocz.c
 9c  nan.c
 9c  needsrcquote.c
+9c  needstack.c
 9c  netmkaddr.c
 9c  notify.c
 9c  nrand.c
@@ -72,9 +74,11 @@ cd lib9
 9c  sleep.c
 9c  strecpy.c
 9c  sysfatal.c
+9c  sysname.c
 9a tas-$OBJTYPE.s || 9c tas-$OBJTYPE.c
 9c  time.c
 9c  tokenize.c
+9c  truerand.c
 9c  u16.c
 9c  u32.c
 9c  u64.c
@@ -134,7 +138,7 @@ cd lib9
 9c  utf/utfrrune.c
 9c  utf/utfrune.c
 9c  utf/utfutf.c
-9ar rvc ../../lib/lib9.a _exits.o _p9dialparse.o _p9dir.o _p9proc.o announce.o argv0.o atexit.o atoi.o atol.o atoll.o atnotify.o await.o cistrcmp.o cistrncmp.o cistrstr.o cleanname.o convD2M.o convM2D.o convM2S.o convS2M.o create.o ctime.o date.o dial.o dirfstat.o dirfwstat.o dirmodefmt.o dirread.o dirstat.o dirwstat.o dup.o encodefmt.o errstr.o exec.o fcallfmt.o ffork-$SYSNAME.o get9root.o getcallerpc-$OBJTYPE.o getenv.o getfields.o getns.o getuser.o getwd.o jmp.o lrand.o lnrand.o lock.o main.o malloc.o malloctag.o mallocz.o nan.o needsrcquote.o netmkaddr.o notify.o nrand.o nulldir.o open.o opentemp.o pipe.o post9p.o postnote.o qlock.o quote.o read9pmsg.o readn.o rendez-$SYSNAME.o rfork.o seek.o sendfd.o sleep.o strecpy.o sysfatal.o tas-$OBJTYPE.o time.o tokenize.o u16.o u32.o u64.o unsharp.o wait.o waitpid.o dofmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlock.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
+9ar rvc $PLAN9/lib/lib9.a *.o
 cd ..
 cd libbio
 9c  bbuffered.c
@@ -154,7 +158,7 @@ cd libbio
 9c  bwrite.c
 9c  bgetrune.c
 9c  bputrune.c
-9ar rvc ../../lib/libbio.a bbuffered.o bfildes.o bflush.o bfmt.o bgetc.o bgetd.o binit.o boffset.o bprint.o bputc.o brdline.o brdstr.o bread.o bseek.o bwrite.o bgetrune.o bputrune.o
+9ar rvc $PLAN9/lib/libbio.a *.o
 cd ..
 cd libregexp
 9c  regcomp.c
@@ -164,7 +168,7 @@ cd libregexp
 9c  regaux.c
 9c  rregexec.c
 9c  rregsub.c
-9ar rvc ../../lib/libregexp9.a regcomp.o regerror.o regexec.o regsub.o regaux.o rregexec.o rregsub.o
+9ar rvc $PLAN9/lib/libregexp9.a *.o
 cd ..
 cd cmd/mk
 9c  arc.c
@@ -189,6 +193,6 @@ cd cmd/mk
 9c  varsub.c
 9c  word.c
 9c  unix.c
-9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o ../../../lib/libregexp9.a ../../../lib/libbio.a ../../../lib/lib9.a 
-install -c o.mk ../../../bin/mk
+9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rule.o run.o sh.o shprint.o symtab.o var.o varsub.o word.o unix.o /Users/rsc/plan9/lib/libregexp9.a /Users/rsc/plan9/lib/libbio.a /Users/rsc/plan9/lib/lib9.a 
+install -c o.mk /Users/rsc/plan9/bin/mk
 cd ..

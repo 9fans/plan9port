@@ -2,6 +2,7 @@
 #include <u.h>
 #include <libc.h>
 #include <pthread.h>
+#include "9proc.h"
 
 extern int __isthreaded;
 int

@@ -28,6 +28,7 @@ mkmk.sh:VD:
 	) | sed '
 		s/'$SYSNAME'/$SYSNAME/g
 		s/'$OBJTYPE'/$OBJTYPE/g
+		s/`membername \$newprereq`/*.o/g
 		s/9[ac] *getcallerpc-.*/9a getcallerpc-$OBJTYPE.s || 9c getcallerpc-$OBJTYPE.c/
 		s/^9[ac] *tas-.*/9a tas-$OBJTYPE.s || 9c tas-$OBJTYPE.c/
 	' >$target
