@@ -104,14 +104,14 @@ connproc(void *v)
 	int fd;
 static int first=1;
 
-if(first){
+if(first && chattyventi){
 	first=0;
 	fmtinstall('F', vtfcallfmt);
 }
 	r = nil;
 	sc = v;
 	sc->c = nil;
-	fprint(2, "new call %s on %d\n", sc->dir, sc->ctl);
+	if(0) fprint(2, "new call %s on %d\n", sc->dir, sc->ctl);
 	fd = accept(sc->ctl, sc->dir);
 	close(sc->ctl);
 	if(fd < 0){
@@ -130,7 +130,7 @@ if(first){
 		goto out;
 	}
 
-	fprint(2, "new proc %s\n", sc->dir);
+	if(0) fprint(2, "new proc %s\n", sc->dir);
 	proccreate(vtsendproc, c, STACK);
 	qlock(&c->lk);
 	while(!c->writeq)
@@ -160,14 +160,14 @@ if(first){
 		r = nil;
 	}
 
-	fprint(2, "eof on %s\n", sc->dir);
+	if(0) fprint(2, "eof on %s\n", sc->dir);
 
 out:
 	if(r){
 		vtfcallclear(&r->tx);
 		vtfree(r);
 	}
-	fprint(2, "freed %s\n", sc->dir);
+	if(0) fprint(2, "freed %s\n", sc->dir);
 	scdecref(sc);
 	return;
 }

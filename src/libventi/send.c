@@ -1,7 +1,11 @@
 #include <u.h>
+#include <errno.h>
 #include <libc.h>
 #include <venti.h>
 #include "queue.h"
+
+long ventisendbytes, ventisendpackets;
+long ventirecvbytes, ventirecvpackets;
 
 static int
 _vtsend(VtConn *z, Packet *p)
@@ -9,7 +13,8 @@ _vtsend(VtConn *z, Packet *p)
 	IOchunk ioc;
 	int n;
 	uchar buf[2];
-	
+
+
 	if(z->state != VtStateConnected) {
 		werrstr("session not connected");
 		return -1;
@@ -25,6 +30,8 @@ _vtsend(VtConn *z, Packet *p)
 	buf[0] = n>>8;
 	buf[1] = n;
 	packetprefix(p, buf, 2);
+	ventisendbytes += n+2;
+	ventisendpackets++;
 
 	for(;;){
 		n = packetfragments(p, &ioc, 1, 0);
@@ -62,7 +69,7 @@ _vtrecv(VtConn *z)
 		if(0) fprint(2, "%d read hdr\n", getpid());
 		n = read(z->infd, b, MaxFragSize);
 		if(0) fprint(2, "%d got %d (%r)\n", getpid(), n);
-		if(n <= 0)
+		if(n==0 || (n<0 && errno!=EINTR))
 			goto Err;
 		size += n;
 		packettrim(p, 0, size);
@@ -84,9 +91,11 @@ _vtrecv(VtConn *z)
 		if(n > 0)
 			size += n;
 		packettrim(p, 0, size);
-		if(n <= 0)
+		if(n==0 || (n<0 && errno!=EINTR))
 			goto Err;
 	}
+	ventirecvbytes += len;
+	ventirecvpackets++;
 	p = packetsplit(p, len);
 	return p;
 Err:	

@@ -45,13 +45,15 @@ struct Frag
 	Frag *next;
 	void (*free)(void*);
 	void *a;
+	Packet *p;	/* parent packet, for debugging only */
 };
 
 struct Packet
 {
 	int size;
 	int asize;  /* allocated memory - greater than size unless foreign frags */
-	
+	ulong pc;
+
 	Packet *next;
 	
 	Frag *first;
@@ -73,6 +75,14 @@ static char EPacketSize[] = "bad packet size";
 static char EPacketOffset[] = "bad packet offset";
 static char EBadSize[] = "bad size";
 
+static void checkpacket(Packet*);
+
+/*
+ * the free list is primarily for speed, but it is 
+ * also necessary for packetsplit that packets
+ * are never freed -- a packet can contain a different
+ * packet's local fragments, thanks to packetsplit!
+ */
 static struct {
 	Lock lk;
 	Packet *packet;
@@ -88,7 +98,7 @@ static struct {
 #define FRAGSIZE(f) ((f)->wp - (f)->rp)
 #define FRAGASIZE(f) ((f)->mem ? (f)->mem->ep - (f)->mem->bp : 0)
 
-#define NOTFREE(p) assert((p)->size>=0)
+#define NOTFREE(p) assert((p)->size>=0)/*; checkpacket(p)*/
 
 Packet *
 packetalloc(void)
@@ -112,9 +122,11 @@ packetalloc(void)
 	p->first = nil;
 	p->last = nil;
 	p->next = nil;
+	p->pc = getcallerpc((char*)&p+8);	/* might not work, but fine */
 
 //if(0)fprint(2, "packetalloc %p from %08lux %08lux %08lux\n", p, *((uint*)&p+2), *((uint*)&p+3), *((uint*)&p+4));
 
+	NOTFREE(p);
 	return p;
 }
 
@@ -123,20 +135,21 @@ packetfree(Packet *p)
 {
 	Frag *f, *ff;
 
-if(0)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p));
+//if(1)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p));
 
 	if(p == nil)
 		return;
 
 	NOTFREE(p);
-	p->size = -1;
+	p->pc = getcallerpc(&p);
 
 	for(f=p->first; f!=nil; f=ff) {
 		ff = f->next;
 		fragfree(f);
 	}
-	p->first = nil;
-	p->last = nil;
+	p->first = (void*)0xDeadBeef;
+	p->last = (void*)0xDeadBeef;
+	p->size = -1;
 
 	lock(&freelist.lk);
 	p->next = freelist.packet;
@@ -157,8 +170,11 @@ packetdup(Packet *p, int offset, int n)
 	}
 
 	pp = packetalloc();
-	if(n == 0)
+	pp->pc = getcallerpc(&p);
+	if(n == 0){
+		NOTFREE(pp);
 		return pp;
+	}
 
 	pp->size = n;
 
@@ -187,6 +203,8 @@ packetdup(Packet *p, int offset, int n)
 	ff->next = nil;
 	pp->last = ff;
 
+	NOTFREE(pp);
+	NOTFREE(p);
 	return pp;
 }
 
@@ -204,8 +222,11 @@ packetsplit(Packet *p, int n)
 	}
 
 	pp = packetalloc();
-	if(n == 0)
+	pp->pc = getcallerpc(&p);
+	if(n == 0){
+		NOTFREE(pp);
 		return pp;
+	}
 
 	pp->size = n;
 	p->size -= n;
@@ -214,22 +235,28 @@ packetsplit(Packet *p, int n)
 		n -= FRAGSIZE(f);
 		p->asize -= FRAGASIZE(f);
 		pp->asize += FRAGASIZE(f);
+		f->p = pp;
 		ff = f;
 	}
 
 	/* split shared frag */
 	if(n > 0) {
+		f->p = pp;
 		ff = f;
-		f = fragdup(pp, ff);
+		f = fragdup(p, ff);
 		pp->asize += FRAGASIZE(ff);
-		ff->next = nil;
 		ff->wp = ff->rp + n;
 		f->rp += n;
 	}
 
 	pp->first = p->first;
 	pp->last = ff;
+	ff->next = nil;
 	p->first = f;
+	if(f == nil || f->next == nil)
+		p->last = f;
+	NOTFREE(pp);
+	NOTFREE(p);
 	return pp;
 }
 
@@ -270,6 +297,7 @@ packettrim(Packet *p, int offset, int n)
 		}
 		p->first = p->last = nil;
 		p->asize = 0;
+		NOTFREE(p);
 		return 0;
 	}
 	
@@ -301,6 +329,7 @@ packettrim(Packet *p, int offset, int n)
 		ff = f->next;
 		fragfree(f);
 	}
+	NOTFREE(p);
 	return 0;
 }
 
@@ -325,6 +354,7 @@ packetheader(Packet *p, int n)
 		if(n <= f->rp - m->bp)
 		if(m->ref == 1 || memhead(m, f->rp, n) >= 0) {
 			f->rp -= n;
+			NOTFREE(p);
 			return f->rp;
 		}
 	}
@@ -335,6 +365,7 @@ packetheader(Packet *p, int n)
 	if(p->first == nil)
 		p->last = f;
 	p->first = f;
+	NOTFREE(p);
 	return f->rp;
 }
 
@@ -360,6 +391,7 @@ packettrailer(Packet *p, int n)
 		if(n <= m->ep - f->wp)
 		if(m->ref == 1 || memtail(m, f->wp, n) >= 0) {
 			f->wp += n;
+			NOTFREE(p);
 			return f->wp - n;
 		}
 	}
@@ -372,6 +404,7 @@ packettrailer(Packet *p, int n)
 	else
 		p->last->next = f;
 	p->last = f;
+	NOTFREE(p);
 	return f->rp;
 }
 
@@ -414,6 +447,7 @@ packetprefix(Packet *p, uchar *buf, int n)
 		n -= nn;
 		memmove(f->rp, buf+n, nn);
 	}
+	NOTFREE(p);
 }
 
 void
@@ -458,28 +492,35 @@ packetappend(Packet *p, uchar *buf, int n)
 		buf += nn;
 		n -= nn;
 	}
-	return;
+	NOTFREE(p);
 }
 
 void
 packetconcat(Packet *p, Packet *pp)
 {
+	Frag *f;
+
 	NOTFREE(p);
 	NOTFREE(pp);
 	if(pp->size == 0)
 		return;
 	p->size += pp->size;
 	p->asize += pp->asize;
+	for(f=pp->first; f; f=f->next)
+		f->p = p;
 
 	if(p->first != nil)
 		p->last->next = pp->first;
 	else
 		p->first = pp->first;
+
 	p->last = pp->last;
 	pp->size = 0;
 	pp->asize = 0;
 	pp->first = nil;
 	pp->last = nil;
+	NOTFREE(p);
+	NOTFREE(pp);
 }
 
 uchar *
@@ -508,8 +549,10 @@ packetpeek(Packet *p, uchar *buf, int offset, int n)
 		offset -= FRAGSIZE(f);
 
 	/* easy case */
-	if(offset + n <= FRAGSIZE(f))
+	if(offset + n <= FRAGSIZE(f)){
+		NOTFREE(p);
 		return f->rp + offset;
+	}
 
 	for(b=buf; n>0; n -= nn) {
 		nn = FRAGSIZE(f) - offset;
@@ -521,6 +564,7 @@ packetpeek(Packet *p, uchar *buf, int offset, int n)
 		b += nn;
 	}
 
+	NOTFREE(p);
 	return buf;
 }
 
@@ -740,6 +784,7 @@ fragalloc(Packet *p, int n, int pos, Frag *next)
 
 Found:
 	f->next = next;
+	f->p = p;
 
 	if(n == 0){
 		f->mem = 0;
@@ -764,6 +809,7 @@ packetforeign(uchar *buf, int n, void (*free)(void *a), void *a)
 	Frag *f;
 
 	p = packetalloc();
+	p->pc = getcallerpc(&buf);
 	f = fragalloc(p, 0, 0, nil);
 	f->free = free;
 	f->a = a;
@@ -772,7 +818,9 @@ packetforeign(uchar *buf, int n, void (*free)(void *a), void *a)
 	f->wp = buf+n;
 
 	p->first = f;
+	p->last = f;
 	p->size = n;
+	NOTFREE(p);
 	return p;
 }
 
@@ -794,12 +842,23 @@ fragdup(Packet *p, Frag *f)
 	}
 
 	ff = fragalloc(p, 0, 0, nil);
-	*ff = *f;
+	ff->mem = f->mem;
+	ff->rp = f->rp;
+	ff->wp = f->wp;
+	ff->next = f->next;
+
+	/*
+	 * We can't duplicate these -- there's no dup function.
+	 */
+	assert(f->free==nil && f->a==nil);
+
 	if(m){
 		lock(&m->lk);
 		m->ref++;
 		unlock(&m->lk);
 	}
+
+	
 	return ff;
 }
 
@@ -898,6 +957,7 @@ memfree(Mem *m)
 	unlock(&m->lk);
 	assert(m->ref == 0);
 
+/*	memset(m->bp, 0xEF, m->ep-m->bp); */
 	switch(m->ep - m->bp) {
 	default:
 		assert(0);
@@ -919,6 +979,8 @@ memfree(Mem *m)
 static int
 memhead(Mem *m, uchar *rp, int n)
 {
+	fprint(2, "memhead called\n");
+	abort();
 	lock(&m->lk);
 	if(m->rp != rp) {
 		unlock(&m->lk);
@@ -932,6 +994,8 @@ memhead(Mem *m, uchar *rp, int n)
 static int
 memtail(Mem *m, uchar *wp, int n)
 {
+	fprint(2, "memtail called\n");
+	abort();
 	lock(&m->lk);
 	if(m->wp != wp) {
 		unlock(&m->lk);
@@ -941,3 +1005,25 @@ memtail(Mem *m, uchar *wp, int n)
 	unlock(&m->lk);
 	return 0;
 }
+
+static void
+checkpacket(Packet *p)
+{
+	int s, as;
+	Frag *f;
+	Frag *ff;
+
+	s = 0;
+	as = 0;
+	ff=p->first;
+	for(f=p->first; f; ff=f,f=f->next){
+		assert(f->p == p);
+		s += FRAGSIZE(f);
+		as += FRAGASIZE(f);
+	}
+	assert(s == p->size);
+	assert(as == p->asize);
+	if(p->first)
+		assert(ff==p->last);
+}
+
