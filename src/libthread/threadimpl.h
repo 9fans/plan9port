@@ -1,6 +1,7 @@
 #include <ucontext.h>
 
 typedef struct Context Context;
+typedef struct Execjob Execjob;
 typedef struct Proc Proc;
 typedef struct _Procrendez _Procrendez;
 
@@ -18,6 +19,14 @@ enum
 struct Context
 {
 	ucontext_t	uc;
+};
+
+struct Execjob
+{
+	int *fd;
+	char *cmd;
+	char **argv;
+	Channel *c;
 };
 
 struct _Thread
@@ -88,3 +97,5 @@ extern void _threadsetproc(Proc*);
 extern int _threadlock(Lock*, int, ulong);
 extern void _threadunlock(Lock*, ulong);
 extern void _pthreadinit(void);
+extern int _threadspawn(int*, char*, char**);
+extern int _runthreadspawn(int*, char*, char**);

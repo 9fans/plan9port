@@ -130,3 +130,9 @@ _pthreadinit(void)
 	pthread_key_create(&prockey, 0);
 }
 
+int
+_runthreadspawn(int *fd, char *cmd, char **argv)
+{
+	return _threadspawn(fd, cmd, argv);
+}
+
