@@ -3,7 +3,7 @@ PLAN9=../..
 
 TARG=`ls *.c | sed 's/\.c//'`
 LDFLAGS=$LDFLAGS
-SHORTLIB=mach sec fs mux regexp9 thread bio 9
+SHORTLIB=sec fs mux regexp9 thread bio 9
 
 <$PLAN9/src/mkmany
 
