@@ -490,7 +490,7 @@ main(int argc, char **argv)
 	AuthConn *c;
 
 	serve = "$auth";
-	user = getenv("USER");
+	user = getuser();
 	memset(Gflag, 0, sizeof Gflag);
 	fmtinstall('B', mpfmt);
 	fmtinstall('H', encodefmt);
