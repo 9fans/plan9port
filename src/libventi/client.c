@@ -136,7 +136,7 @@ vtwrite(VtConn *z, uchar score[VtScoreSize], uint type, uchar *buf, int n)
 {
 	Packet *p;
 
-	p = packetforeign(buf, n, nil, nil);
+	p = packetforeign(buf, n, 0, nil);
 	return vtwritepacket(z, score, type, p);
 }
 

@@ -243,7 +243,7 @@ shuffle(void *arg)
 			if(tbuf == nil)
 				tbuf = emalloc(BLEN+1);
 			memmove(tbuf, buf, n);	// because convM2S is destructive
-			if(convM2S(tbuf, n, t) != n)
+			if(convM2S((uchar*)tbuf, n, t) != n)
 				fprint(dfd, "%d->%d convert error in convM2S", fd[0], fd[1]);
 			else
 				fprint(dfd, "%d->%d %F\n", fd[0], fd[1], t);

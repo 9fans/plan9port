@@ -1,11 +1,14 @@
 #!/bin/sh
 
-export PLAN9=${PLAN9:-/usr/local/plan9}
+PLAN9=${PLAN9:-/usr/local/plan9}
+export PLAN9
+
 case "$PATH" in
 $PLAN9/bin:*)
 	;;
 *)
-	export PATH=$PLAN9/bin:$PATH
+	PATH=$PLAN9/bin:$PATH
+	export PATH
 	;;
 esac
 

@@ -16,10 +16,7 @@
 #include <libc.h>
 #include <venti.h>
 
-enum
-{
-	MaxBlock = (1UL<<31),
-};
+#define MaxBlock (1UL<<31)
 
 static char EBadEntry[] = "bad VtEntry";
 static char ENotDir[] = "walk in non-directory";

@@ -93,7 +93,6 @@ main(int argc, char *argv[])
 			continue;
 		}
 	}
-	exits(0);
 }
 
 int
