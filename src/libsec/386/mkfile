@@ -14,3 +14,8 @@ UPDATE=mkfile\
 	$SFILES\
 
 <$PLAN9/src/mksyslib
+
+%.s: %.spp
+	cpp $stem.spp >$stem.s
+
+CLEANFILES=md5block.s sha1block.s
