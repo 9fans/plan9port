@@ -1,6 +1,6 @@
 .TH SECSTORE 1
 .SH NAME
-aescbc, secstore \- secstore commands
+aescbc, ipso, secstore \- secstore commands
 .SH SYNOPSIS
 .B secstore
 [
@@ -42,14 +42,14 @@ aescbc, secstore \- secstore commands
 -d
 .I <ciphertext
 .I >cleartext
-.\" .PP
-.\" .B ipso
-.\" [
-.\" .B -a -e -l -f -s
-.\" ] [
-.\" .I file
-.\" \&...
-.\" ]
+.PP
+.B ipso
+[
+.B -a -e -l -f
+] [
+.I file
+\&...
+]
 .SH DESCRIPTION
 .PP
 .I Secstore
@@ -125,70 +125,64 @@ The middle commands fetch the persistent copy of the secrets,
 append a new secret,
 and save the updated file back to secstore.
 The final command loads the new secret into the running factotum.
-.\" .PP
-.\" The
-.\" .I ipso
-.\" command packages this sequence into a convenient script to simplify editing of
-.\" .I files
-.\" stored on a secure store.
-.\" It copies the named
-.\" .I files
-.\" into a local
-.\" .IR ramfs (4)
-.\" and invokes
-.\" .IR acme (1)
-.\" on them.  When the editor exits,
-.\" .I ipso
-.\" prompts the user to confirm copying modifed or newly created files back to
-.\" .I secstore.
-.\" If no
-.\" .I file
-.\" is mentioned,
-.\" .I ipso
-.\" grabs all the user's files from
-.\" .I secstore
-.\" for editing.
-.\" .PP
-.\" By default, ipso will edit the
-.\" .I secstore
-.\" files and, if
-.\" one of them is named
-.\" .BR factotum ,
-.\" flush your current keys from factotum and load
-.\" the new ones from the file.
-.\" If you supply any of the
-.\" .BR -e ,
-.\" .BR -f ,
-.\" or
-.\" .BR -l
-.\" options,
-.\" .I ipso
-.\" will just perform the operations you requested, i.e.,
-.\" edit, flush, and/or load.
-.\" .PP
-.\" The
-.\" .B -s
-.\" option of
-.\" .I ipso
-.\" invokes
-.\" .IR sam (1)
-.\" as the editor insted of
-.\" .BR acme ;
-.\" the
-.\" .B -a
-.\" option provides a similar service for files encrypted by
-.\" .I aescbc
-.\" .RI ( q.v. ).
-.\" With the
-.\" .B -a
-.\" option, the full rooted pathname of the
-.\" .I file
-.\" must be specified and all
-.\" .I files
-.\" must be encrypted with the same key.
-.\" Also with
-.\" .BR -a ,
-.\" newly created files are ignored.
+.PP
+The
+.I ipso
+command packages this sequence into a convenient script to simplify editing of
+.I files
+stored on a secure store.
+It copies the named
+.I files
+into a private directory,
+plumbs them to the editor,
+and waits for a line on the console
+Once a line is typed,
+signifying that editing is complete,
+.I ipso
+prompts the user to confirm copying modifed or newly created files back to
+.I secstore.
+If no
+.I file
+is mentioned,
+.I ipso
+grabs all the user's files from
+.I secstore
+for editing.
+.PP
+By default, ipso will edit the
+.I secstore
+files and, if
+one of them is named
+.BR factotum ,
+flush current keys from factotum and load
+the new ones from the file.
+If the 
+.BR -e ,
+.BR -f ,
+or
+.BR -l
+options are given,
+.I ipso
+will just perform only the requested operations, i.e.,
+edit, flush, and/or load.
+.PP
+The
+.B -a
+option of
+.I ipso
+provides a similar service for files encrypted by
+.I aescbc
+.RI ( q.v. ).
+With the
+.B -a
+option, the full rooted pathname of the
+.I file
+must be specified and all
+.I files
+must be encrypted with the same key.
+Also with
+.BR -a ,
+newly created files are ignored.
 .PP
 .I Aescbc
 encrypts and decrypts using AES (Rijndael) in cipher
@@ -203,8 +197,30 @@ There is deliberately no backup of files on the secstore, so
 .B -r
 (or a disk crash) is irrevocable.  You are advised to store
 important secrets in a second location.
-.\" .PP
-.\" When using
-.\" .IR ipso ,
-.\" secrets will appear as plain text in the editor window,
-.\" so use the command in private.
+.PP
+When using
+.IR ipso ,
+secrets will appear as plain text in the editor window,
+so use the command in private.
+.PP
+Establishing a private directory in which to store the secret
+files is difficult on Unix.
+On most systems,
+.I ipso
+creates a mode 700 directory
+.BI /tmp/ipso. user
+and works there.
+On Linux systems,
+.I ipso
+looks for a
+.B tmpfs
+file system; if it exists, 
+.I ipso
+creates the
+.BI ipso. user
+directory in its root
+instead of
+.BR /tmp .
+.PP
+.I Ipso
+should zero the secret files before removing them.
