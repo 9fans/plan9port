@@ -9,6 +9,8 @@
 
 #define	ONES	~0
 
+#define devname proof_devname
+
 extern	char	devname[];
 extern	double	mag;
 extern	int	nview;
