@@ -1,0 +1,9 @@
+frbox.c		2004/1225
+frdelete.c		2004/1225
+frdraw.c		2004/1225
+frinit.c		2004/1225
+frinsert.c		2004/1225
+frptofchar.c		2004/1225
+frselect.c		2004/1225
+frstr.c		2004/1225
+frutil.c		2004/1225

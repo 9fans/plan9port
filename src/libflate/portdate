@@ -1,0 +1,11 @@
+adler.c		2004/1225
+crc.c		2004/1225
+deflate.c		2004/1225
+deflateblock.c		2004/1225
+deflatezlib.c		2004/1225
+deflatezlibblock.c		2004/1225
+flateerr.c		2004/1225
+inflate.c		2004/1225
+inflateblock.c		2004/1225
+inflatezlib.c		2004/1225
+inflatezlibblock.c		2004/1225
