@@ -327,6 +327,12 @@ procdata(void)
 	return &proc()->udata;
 }
 
+void**
+threaddata(void)
+{
+	return &proc()->thread->udata;
+}
+
 extern Jmp *(*_notejmpbuf)(void);
 static Jmp*
 threadnotejmp(void)

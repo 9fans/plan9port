@@ -70,6 +70,7 @@ struct _Thread
 	Proc	*proc;
 	char	name[256];
 	char	state[256];
+	void *udata;
 };
 
 struct _Procrendez
