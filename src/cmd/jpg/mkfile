@@ -38,12 +38,12 @@ torgbv.$O:	ycbcr.h rgbv.h
 
 ycbcr.h:	rgbycc.c
 	9c rgbycc.c
-	9l -o o.rgbycc rgbycc.c
+	9l -o o.rgbycc rgbycc.o -ldraw -l9
 	./o.rgbycc >ycbcr.h
 
 rgbv.h:	rgbrgbv.c
 	9c rgbrgbv.c
-	9l -o o.rgbrgbv rgbrgbv.c
+	9l -o o.rgbrgbv rgbrgbv.o -ldraw -l9
 	./o.rgbrgbv >rgbv.h
 
 nuke:V:	nuke-headers

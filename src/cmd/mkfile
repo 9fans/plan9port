@@ -1,8 +1,7 @@
 <$PLAN9/src/mkhdr
 
-TARG=`ls *.c | sed 's/\.c//'`
-LDFLAGS=$LDFLAGS -L$X11/lib -lX11
-SHORTLIB=sec fs mux regexp9 draw thread bio 9
+TARG=`ls *.[cy] | sed 's/\.c//'`
+SHORTLIB=sec fs mux regexp9 thread bio 9
 
 <$PLAN9/src/mkmany
 
@@ -11,4 +10,21 @@ DIRS=`ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"`
 
 <$PLAN9/src/mkdirs
 
-dir-install: $PLAN9/bin/yacc
+dir-all dir-install: $PLAN9/bin/9yacc
+
+XLIB=draw bio 9
+$O.clock: clock.$O ${XLIB:%=$PLAN9/lib/lib%.a}
+	$LD -o $target $prereq -L$X11/lib -lX11
+
+$O.tweak: tweak.$O ${XLIB:%=$PLAN9/lib/lib%.a}
+	$LD -o $target $prereq -L$X11/lib -lX11
+
+%.tab.h %.tab.c: %.y
+	$YACC $YFLAGS -s $stem $prereq
+
+%.o: %.tab.c
+	9c -o $target $stem.tab.c
+
+CLEANFILES=$CLEANFILES bc.tab.[ch] units.tab.[ch]
+
+
