@@ -1,3 +1,29 @@
+June 9, 2004
+
+	#define PLAN9PORT when compiling (sorry)
+
+	handle local files better in web
+
+	rewrite malloc, realloc, calloc, free, strdup to p9*
+
+	various venti library fixes
+
+	update plumbing rules to handle urls better
+
+	add mouse wheel scrolling to acme, libdraw, from rob
+
+	add mouse wheel scrolling to 9term
+
+	add page up, pagedown, etc. work in sam
+
+	better plumbing in sam, from presotto
+
+	fix race in rendez-signal.
+
+	quiet httpd a bit
+
+	fix race in libthread - call _exit not exit
+
 May 18, 2004
 
         merge troff and friends from wkj and Taj Khattra
