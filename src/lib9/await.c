@@ -8,6 +8,10 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 
+#ifndef WCOREDUMP	/* not on Mac OS X Tiger */
+#define WCOREDUMP(status) 0
+#endif
+
 static struct {
 	int sig;
 	char *str;
@@ -34,12 +38,16 @@ static struct {
 	SIGCHLD,		"sys: child",
 	SIGTTIN,		"sys: ttin",
 	SIGTTOU,		"sys: ttou",
+#ifdef SIGIO	/* not on Mac OS X Tiger */
 	SIGIO,		"sys: i/o possible on fd",
+#endif
 	SIGXCPU,		"sys: cpu time limit exceeded",
 	SIGXFSZ,		"sys: file size limit exceeded",
 	SIGVTALRM,	"sys: virtual time alarm",
 	SIGPROF,		"sys: profiling timer alarm",
+#ifdef SIGWINCH	/* not on Mac OS X Tiger */
 	SIGWINCH,	"sys: window size change",
+#endif
 #ifdef SIGINFO
 	SIGINFO,		"sys: status request",
 #endif
