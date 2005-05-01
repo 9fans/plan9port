@@ -307,9 +307,7 @@ threadmain(int argc, char *argv[])
 int
 isexpand(Rune r)
 {
-	return r=='_' || ('0' <= r && r <= '9') 
-		|| ('a' <= r && r <= 'z')
-		|| ('A' <= r && r <= 'Z');
+	return r=='_' || ('0' <= r && r <= '9') || isalpharune(r);
 }
 
 void
