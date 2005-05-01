@@ -321,24 +321,24 @@ loadngc(long index)
 	cur->index = index;
 	seek(ngcdb, j, 0);
 	/* special case: NGC data may not be available */
-	if(read(ngcdb, &cur->ngc, sizeof(NGCrec)) != sizeof(NGCrec)){
+	if(read(ngcdb, &cur->u.ngc, sizeof(NGCrec)) != sizeof(NGCrec)){
 		if(!failed){
 			fprint(2, "scat: NGC database not available\n");
 			failed++;
 		}
 		cur->type = NONGC;
-		cur->ngc.ngc = 0;
-		cur->ngc.ra = 0;
-		cur->ngc.dec = 0;
-		cur->ngc.diam = 0;
-		cur->ngc.mag = 0;
+		cur->u.ngc.ngc = 0;
+		cur->u.ngc.ra = 0;
+		cur->u.ngc.dec = 0;
+		cur->u.ngc.diam = 0;
+		cur->u.ngc.mag = 0;
 		return 0;
 	}
-	cur->ngc.ngc = Short(&cur->ngc.ngc);
-	cur->ngc.ra = Long(&cur->ngc.ra);
-	cur->ngc.dec = Long(&cur->ngc.dec);
-	cur->ngc.diam = Long(&cur->ngc.diam);
-	cur->ngc.mag = Short(&cur->ngc.mag);
+	cur->u.ngc.ngc = Short(&cur->u.ngc.ngc);
+	cur->u.ngc.ra = Long(&cur->u.ngc.ra);
+	cur->u.ngc.dec = Long(&cur->u.ngc.dec);
+	cur->u.ngc.diam = Long(&cur->u.ngc.diam);
+	cur->u.ngc.mag = Short(&cur->u.ngc.mag);
 	return 1;
 }
 
@@ -353,20 +353,20 @@ loadabell(long index)
 	cur->type = Abell;
 	cur->index = index;
 	seek(abelldb, j*sizeof(Abellrec), 0);
-	Eread(abelldb, "abell", &cur->abell, sizeof(Abellrec));
-	cur->abell.abell = Short(&cur->abell.abell);
-	if(cur->abell.abell != index){
+	Eread(abelldb, "abell", &cur->u.abell, sizeof(Abellrec));
+	cur->u.abell.abell = Short(&cur->u.abell.abell);
+	if(cur->u.abell.abell != index){
 		fprint(2, "bad format in abell catalog\n");
 		exits("abell");
 	}
-	cur->abell.ra = Long(&cur->abell.ra);
-	cur->abell.dec = Long(&cur->abell.dec);
-	cur->abell.glat = Long(&cur->abell.glat);
-	cur->abell.glong = Long(&cur->abell.glong);
-	cur->abell.rad = Long(&cur->abell.rad);
-	cur->abell.mag10 = Short(&cur->abell.mag10);
-	cur->abell.pop = Short(&cur->abell.pop);
-	cur->abell.dist = Short(&cur->abell.dist);
+	cur->u.abell.ra = Long(&cur->u.abell.ra);
+	cur->u.abell.dec = Long(&cur->u.abell.dec);
+	cur->u.abell.glat = Long(&cur->u.abell.glat);
+	cur->u.abell.glong = Long(&cur->u.abell.glong);
+	cur->u.abell.rad = Long(&cur->u.abell.rad);
+	cur->u.abell.mag10 = Short(&cur->u.abell.mag10);
+	cur->u.abell.pop = Short(&cur->u.abell.pop);
+	cur->u.abell.dist = Short(&cur->u.abell.dist);
 	return 1;
 }
 
@@ -380,14 +380,14 @@ loadsao(int index)
 	cur->type = SAO;
 	cur->index = index;
 	seek(saodb, (index-1)*sizeof(SAOrec), 0);
-	Eread(saodb, "sao", &cur->sao, sizeof(SAOrec));
-	cur->sao.ra = Long(&cur->sao.ra);
-	cur->sao.dec = Long(&cur->sao.dec);
-	cur->sao.dra = Long(&cur->sao.dra);
-	cur->sao.ddec = Long(&cur->sao.ddec);
-	cur->sao.mag = Short(&cur->sao.mag);
-	cur->sao.mpg = Short(&cur->sao.mpg);
-	cur->sao.hd = Long(&cur->sao.hd);
+	Eread(saodb, "sao", &cur->u.sao, sizeof(SAOrec));
+	cur->u.sao.ra = Long(&cur->u.sao.ra);
+	cur->u.sao.dec = Long(&cur->u.sao.dec);
+	cur->u.sao.dra = Long(&cur->u.sao.dra);
+	cur->u.sao.ddec = Long(&cur->u.sao.ddec);
+	cur->u.sao.mag = Short(&cur->u.sao.mag);
+	cur->u.sao.mpg = Short(&cur->u.sao.mpg);
+	cur->u.sao.hd = Long(&cur->u.sao.hd);
 	return 1;
 }
 
@@ -401,9 +401,9 @@ loadplanet(int index, Record *r)
 	cur->index = index;
 	/* check whether to take new or existing record */
 	if(r == nil)
-		memmove(&cur->planet, &planet[index], sizeof(Planetrec));
+		memmove(&cur->u.planet, &planet[index], sizeof(Planetrec));
 	else
-		memmove(&cur->planet, &r->planet, sizeof(Planetrec));
+		memmove(&cur->u.planet, &r->u.planet, sizeof(Planetrec));
 	return 1;
 }
 
@@ -419,10 +419,10 @@ loadpatch(long index)
 	cur->type = Patch;
 	cur->index = index;
 	seek(patchdb, patchaddr[index-1], 0);
-	cur->patch.nkey = (patchaddr[index]-patchaddr[index-1])/4;
-	Eread(patchdb, "patch", cur->patch.key, cur->patch.nkey*4);
-	for(i=0; i<cur->patch.nkey; i++)
-		cur->patch.key[i] = Long(&cur->patch.key[i]);
+	cur->u.patch.nkey = (patchaddr[index]-patchaddr[index-1])/4;
+	Eread(patchdb, "patch", cur->u.patch.key, cur->u.patch.nkey*4);
+	for(i=0; i<cur->u.patch.nkey; i++)
+		cur->u.patch.key[i] = Long(&cur->u.patch.key[i]);
 	return 1;
 }
 
@@ -495,8 +495,8 @@ flatten(void)
 			break;
 
 		case Patch:
-			for(j=1; j<or->patch.nkey; j++){
-				key = or->patch.key[j];
+			for(j=1; j<or->u.patch.nkey; j++){
+				key = or->u.patch.key[j];
 				if((key&0x3F) == SAO)
 					loadsao((key>>8)&0xFFFFFF);
 				else if((key&0x3F) == Abell)
@@ -640,13 +640,13 @@ cull(char *s, int keep, int dobbox)
 		abellopen();
 	for(i=0,or=orec; i<norec; i++,or++){
 		keepthis = !keep;
-		if(dobbox && inbbox(or->ngc.ra, or->ngc.dec))
+		if(dobbox && inbbox(or->u.ngc.ra, or->u.ngc.dec))
 			keepthis = keep;
-		if(doless && or->ngc.mag <= mless)
+		if(doless && or->u.ngc.mag <= mless)
 			keepthis = keep;
-		if(dogrtr && or->ngc.mag >= mgrtr)
+		if(dogrtr && or->u.ngc.mag >= mgrtr)
 			keepthis = keep;
-		if(dom && (or->type==NGC && ism(or->ngc.ngc)))
+		if(dom && (or->type==NGC && ism(or->u.ngc.ngc)))
 			keepthis = keep;
 		if(dongc && or->type==NGC)
 			keepthis = keep;
@@ -655,7 +655,7 @@ cull(char *s, int keep, int dobbox)
 		if(dosao && or->type==SAO)
 			keepthis = keep;
 		for(j=0; j<nobj; j++)
-			if(or->type==NGC && or->ngc.type==obj[j])
+			if(or->type==NGC && or->u.ngc.type==obj[j])
 				keepthis = keep;
 		if(keepthis){
 			grow();
@@ -769,8 +769,8 @@ coords(int deg)
 	for(i=0,or=orec; i<norec; i++,or++){
 		if(or->type == Planet)	/* must keep it here */
 			loadplanet(or->index, or);
-		dec = or->ngc.dec/MILLIARCSEC;
-		ra = or->ngc.ra/MILLIARCSEC;
+		dec = or->u.ngc.dec/MILLIARCSEC;
+		ra = or->u.ngc.ra/MILLIARCSEC;
 		rdeg = deg/cos((dec*PI)/180);
 		for(y=-deg; y<=+deg; y++){
 			ndec = dec*2+y;
@@ -936,8 +936,8 @@ pplate(char *flags)
 			else
 				d1 = 0, d2 = c;
 		}else if(r->type==SAO || r->type==NGC || r->type==Abell){
-			ra = r->ngc.ra;
-			dec = r->ngc.dec;
+			ra = r->u.ngc.ra;
+			dec = r->u.ngc.dec;
 			d1 = 0, d2 = 0, r0 = 0;
 		}else if(r->type==NGCN){
 			loadngc(r->index);
@@ -1253,7 +1253,7 @@ lookup(char *s, int doreset)
 					rec[j].type = NamedAbell;
 					rec[j].index = name[i].abell;
 				}
-				strcpy(rec[j].named.name, name[i].name);
+				strcpy(rec[j].u.named.name, name[i].name);
 				j++;
 			}
 		if(parsename(starts))
@@ -1264,7 +1264,7 @@ lookup(char *s, int doreset)
 					grow();
 					rec[j].type = NamedSAO;
 					rec[j].index = bayer[i].sao;
-					strncpy(rec[j].named.name, starts, sizeof(rec[j].named.name));
+					strncpy(rec[j].u.named.name, starts, sizeof(rec[j].u.named.name));
 					j++;
 				}
 		if(j == 0){
@@ -1361,9 +1361,9 @@ printnames(Record *r)
 		ok = 0;
 		if(r->type==SAO && r->index==name[i].sao)
 			ok = 1;
-		if(r->type==NGC && r->ngc.ngc==name[i].ngc)
+		if(r->type==NGC && r->u.ngc.ngc==name[i].ngc)
 			ok = 1;
-		if(r->type==Abell && r->abell.abell==name[i].abell)
+		if(r->type==Abell && r->u.abell.abell==name[i].abell)
 			ok = 1;
 		if(ok){
 			if(done++ == 0)
@@ -1490,7 +1490,7 @@ nameof(Record *r)
 	default:
 		return nil;
 	case SAO:
-		s = &r->sao;
+		s = &r->u.sao;
 		if(s->name[0] == 0)
 			return nil;
 		if(s->name[0] >= 100){
@@ -1502,7 +1502,7 @@ nameof(Record *r)
 		snprint(buf+i, sizeof buf-i, " %s", constel[(uchar)s->name[2]]);
 		break;
 	case NGC:
-		n = &r->ngc;
+		n = &r->u.ngc;
 		if(n->type >= Uncertain)
 			return nil;
 		if(n->ngc <= NNGC)
@@ -1511,7 +1511,7 @@ nameof(Record *r)
 			snprint(buf, sizeof buf, "IC%4d ", n->ngc-NNGC);
 		break;
 	case Abell:
-		a = &r->abell;
+		a = &r->u.abell;
 		snprint(buf, sizeof buf, "Abell%4d", a->abell);
 		break;
 	}
@@ -1534,7 +1534,7 @@ prrec(Record *r)
 		exits("type");
 
 	case Planet:
-		p = &r->planet;
+		p = &r->u.planet;
 		Bprint(&bout, "%s", p->name);
 		Bprint(&bout, "\t%s %s",
 			hms(angle(p->ra)),
@@ -1549,7 +1549,7 @@ prrec(Record *r)
 		break;
 
 	case NGC:
-		n = &r->ngc;
+		n = &r->u.ngc;
 		if(n->ngc <= NNGC)
 			Bprint(&bout, "NGC%4d ", n->ngc);
 		else
@@ -1569,7 +1569,7 @@ prrec(Record *r)
 		break;
 
 	case Abell:
-		a = &r->abell;
+		a = &r->u.abell;
 		Bprint(&bout, "Abell%4d  %.1f %.2f° %dMpc", a->abell, a->mag10/10.0,
 			DEG(angle(a->rad)), a->dist);
 		Bprint(&bout, "\t%s %s\t%.2f %.2f\n",
@@ -1585,7 +1585,7 @@ prrec(Record *r)
 		break;
 
 	case SAO:
-		s = &r->sao;
+		s = &r->u.sao;
 		Bprint(&bout, "SAO%6ld  ", r->index);
 		if(s->mag==UNKNOWNMAG)
 			Bprint(&bout, "---");
@@ -1611,7 +1611,7 @@ prrec(Record *r)
 	case Patch:
 		radec(r->index, &rah, &ram, &dec);
 		Bprint(&bout, "%dh%dm %d°", rah, ram, dec);
-		key = r->patch.key[0];
+		key = r->u.patch.key[0];
 		Bprint(&bout, " %s", constel[key&0xFF]);
 		if((key>>=8) & 0xFF)
 			Bprint(&bout, " %s", constel[key&0xFF]);
@@ -1619,8 +1619,8 @@ prrec(Record *r)
 			Bprint(&bout, " %s", constel[key&0xFF]);
 		if((key>>=8) & 0xFF)
 			Bprint(&bout, " %s", constel[key&0xFF]);
-		for(i=1; i<r->patch.nkey; i++){
-			key = r->patch.key[i];
+		for(i=1; i<r->u.patch.nkey; i++){
+			key = r->u.patch.key[i];
 			switch(key&0x3F){
 			case SAO:
 				Bprint(&bout, " SAO%ld", (key>>8)&0xFFFFFF);
@@ -1649,18 +1649,18 @@ prrec(Record *r)
 		break;
 
 	case NamedSAO:
-		Bprint(&bout, "SAO%ld \"%s\"\n", r->index, togreek(r->named.name));
+		Bprint(&bout, "SAO%ld \"%s\"\n", r->index, togreek(r->u.named.name));
 		break;
 
 	case NamedNGC:
 		if(r->index <= NNGC)
-			Bprint(&bout, "NGC%ld \"%s\"\n", r->index, togreek(r->named.name));
+			Bprint(&bout, "NGC%ld \"%s\"\n", r->index, togreek(r->u.named.name));
 		else
-			Bprint(&bout, "IC%ld \"%s\"\n", r->index-NNGC, togreek(r->named.name));
+			Bprint(&bout, "IC%ld \"%s\"\n", r->index-NNGC, togreek(r->u.named.name));
 		break;
 
 	case NamedAbell:
-		Bprint(&bout, "Abell%ld \"%s\"\n", r->index, togreek(r->named.name));
+		Bprint(&bout, "Abell%ld \"%s\"\n", r->index, togreek(r->u.named.name));
 		break;
 
 	case PatchC:

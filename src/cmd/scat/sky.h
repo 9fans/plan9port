@@ -258,7 +258,7 @@ struct Record{
 		Patchrec	patch;
 		Planetrec	planet;
 		/* PatchCrec is empty */
-	};
+	} u;
 };
 
 typedef struct Name Name;

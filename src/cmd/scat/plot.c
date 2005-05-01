@@ -445,7 +445,7 @@ tolast(char *name)
 	nlast = 0;
 	for(i=0,r=rec; i<nrec-nlast; i++,r++)
 		if(r->type == Planet)
-			if(name==nil || strcmp(r->planet.name, name)==0){
+			if(name==nil || strcmp(r->u.planet.name, name)==0){
 				rr = *r;
 				memmove(rec+i, rec+i+1, (nrec-i-1)*sizeof(Record));
 				rec[nrec-1] = rr;
@@ -483,8 +483,8 @@ bbox(long extrara, long extradec, int quantize)
 			else
 				d1 = 0, d2 = c;
 		}else if(r->type==SAO || r->type==NGC || r->type==Planet || r->type==Abell){
-			ra = r->ngc.ra;
-			dec = r->ngc.dec;
+			ra = r->u.ngc.ra;
+			dec = r->u.ngc.dec;
 			d1 = 0, d2 = 0, r0 = 0;
 		}else
 			continue;
@@ -729,8 +729,8 @@ plot(char *flags)
 	tolast("shadow");	/* ... except the shadow */
 
 	for(i=0,r=rec; i<nrec; i++,r++){
-		dec = r->ngc.dec;
-		ra = r->ngc.ra;
+		dec = r->u.ngc.dec;
+		ra = r->u.ngc.ra;
 		if(folded){
 			ra -= 180*c;
 			if(ra < 0)
@@ -746,13 +746,13 @@ plot(char *flags)
 				drawname(scr, nogrey? display->white : alphagrey, name, ra, dec);
 		}
 		if(r->type == Planet){
-			drawplanet(scr, &r->planet, map(ra, dec));
+			drawplanet(scr, &r->u.planet, map(ra, dec));
 			continue;
 		}
 		if(r->type == SAO){
-			m = r->sao.mag;
+			m = r->u.sao.mag;
 			if(m == UNKNOWNMAG)
-				m = r->sao.mpg;
+				m = r->u.sao.mpg;
 			if(m == UNKNOWNMAG)
 				continue;
 			m = dsize(m);
@@ -770,9 +770,9 @@ plot(char *flags)
 			ellipse(scr, addpt(map(ra, dec), Pt(0, -2)), 1, 2, 0, lightblue, ZP);
 			continue;
 		}
-		switch(r->ngc.type){
+		switch(r->u.ngc.type){
 		case Galaxy:
-			j = npixels(r->ngc.diam);
+			j = npixels(r->u.ngc.diam);
 			if(j < 4)
 				j = 4;
 			if(j > 10)
@@ -784,7 +784,7 @@ plot(char *flags)
 
 		case PlanetaryN:
 			p = map(ra, dec);
-			j = npixels(r->ngc.diam);
+			j = npixels(r->u.ngc.diam);
 			if(j < 3)
 				j = 3;
 			ellipse(scr, p, j, j, 0, green, ZP);
@@ -801,12 +801,12 @@ plot(char *flags)
 		case DiffuseN:
 		case NebularCl:
 			p = map(ra, dec);
-			j = npixels(r->ngc.diam);
+			j = npixels(r->u.ngc.diam);
 			if(j < 4)
 				j = 4;
 			r1.min = Pt(p.x-j, p.y-j);
 			r1.max = Pt(p.x+j, p.y+j);
-			if(r->ngc.type != DiffuseN)
+			if(r->u.ngc.type != DiffuseN)
 				draw(scr, r1, ocstipple, ocstipple, ZP);
 			line(scr, Pt(p.x-j, p.y-j), Pt(p.x+j, p.y-j),
 				Endsquare, Endsquare, 0, green, ZP);
@@ -820,14 +820,14 @@ plot(char *flags)
 
 		case OpenCl:
 			p = map(ra, dec);
-			j = npixels(r->ngc.diam);
+			j = npixels(r->u.ngc.diam);
 			if(j < 4)
 				j = 4;
 			fillellipse(scr, p, j, j, ocstipple, ZP);
 			break;
 
 		case GlobularCl:
-			j = npixels(r->ngc.diam);
+			j = npixels(r->u.ngc.diam);
 			if(j < 4)
 				j = 4;
 			p = map(ra, dec);
