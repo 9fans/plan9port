@@ -9,6 +9,10 @@
 %.$O:	%.s
 	$AS $AFLAGS $stem.s
 
+# OpenBSD needs this; sigh
+%.$O:	%.S
+	$CC $CFLAGS $stem.S
+	
 y.tab.h y.tab.c:	$YFILES
 	$YACC $YFLAGS $prereq
 

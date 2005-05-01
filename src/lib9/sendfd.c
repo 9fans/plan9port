@@ -6,21 +6,16 @@
 #include <unistd.h>
 #include <errno.h>
 
-typedef struct Sendfd Sendfd;
-struct Sendfd {
-	struct cmsghdr cmsg;
-	int fd;
-};
-
 int
 sendfd(int s, int fd)
 {
 	char buf[1];
 	struct iovec iov;
 	struct msghdr msg;
+	struct cmsghdr *cmsg;
 	int n;
-	Sendfd sfd;
-
+	char cms[CMSG_SPACE(sizeof(int))];
+	
 	buf[0] = 0;
 	iov.iov_base = buf;
 	iov.iov_len = 1;
@@ -28,14 +23,14 @@ sendfd(int s, int fd)
 	memset(&msg, 0, sizeof msg);
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
+	msg.msg_control = (caddr_t)cms;
+	msg.msg_controllen = CMSG_LEN(sizeof(int));
 
-	sfd.cmsg.cmsg_len = sizeof sfd;
-	sfd.cmsg.cmsg_level = SOL_SOCKET;
-	sfd.cmsg.cmsg_type = SCM_RIGHTS;
-	sfd.fd = fd;
-
-	msg.msg_control = (caddr_t)&sfd;
-	msg.msg_controllen = sizeof sfd;
+	cmsg = CMSG_FIRSTHDR(&msg);
+	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+	cmsg->cmsg_level = SOL_SOCKET;
+	cmsg->cmsg_type = SCM_RIGHTS;
+	*(int*)CMSG_DATA(cmsg) = fd;
 
 	if((n=sendmsg(s, &msg, 0)) != iov.iov_len)
 		return -1;
@@ -46,10 +41,12 @@ int
 recvfd(int s)
 {
 	int n;
+	int fd;
 	char buf[1];
 	struct iovec iov;
 	struct msghdr msg;
-	Sendfd sfd;
+	struct cmsghdr *cmsg;
+	char cms[CMSG_SPACE(sizeof(int))];
 
 	iov.iov_base = buf;
 	iov.iov_len = 1;
@@ -60,20 +57,13 @@ recvfd(int s)
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 
-	memset(&sfd, 0, sizeof sfd);
-	sfd.fd = -1;
-	sfd.cmsg.cmsg_len = sizeof sfd;
-	sfd.cmsg.cmsg_level = SOL_SOCKET;
-	sfd.cmsg.cmsg_type = SCM_RIGHTS;
-
-	msg.msg_control = (caddr_t)&sfd;
-	msg.msg_controllen = sizeof sfd;
+	msg.msg_control = (caddr_t)cms;
+	msg.msg_controllen = sizeof cms;
 
 	if((n=recvmsg(s, &msg, 0)) < 0)
 		return -1;
-	if(n==0 && sfd.fd==-1){
-		werrstr("eof in recvfd");
-		return -1;
-	}
-	return sfd.fd;
+
+	cmsg = CMSG_FIRSTHDR(&msg);
+	fd = *(int*)CMSG_DATA(cmsg);
+	return fd;
 }

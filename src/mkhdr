@@ -5,6 +5,7 @@ OBJTYPE=`uname -m | sed '
 	s;/.*;;;
 	s; ;;g;
 	s;PowerMacintosh;power;g;
+	s;macppc;power;g;
 	s;ppc64;power;g;
 	s;ppc;power;g'`
 

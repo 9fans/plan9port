@@ -638,7 +638,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define DMWRITE		0x2		/* mode bit for write permission */
 #define DMEXEC		0x1		/* mode bit for execute permission */
 
-#if defined(__FreeBSD__)
+#ifdef RFMEM	/* FreeBSD, OpenBSD */
 #undef RFFDG
 #undef RFNOTEG
 #undef RFPROC
@@ -830,6 +830,10 @@ extern	int	post9pservice(int, char*);
 #		undef USED
 #		define USED(x) { ulong __y __attribute__ ((unused)); __y = (ulong)(x); }
 #	endif
+#endif
+
+#ifdef __OpenBSD__
+#define sched_yield()	syscall(302)	/* what is this? */
 #endif
 
 /* command line */
