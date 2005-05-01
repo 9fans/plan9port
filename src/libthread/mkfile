@@ -28,6 +28,13 @@ tspawnloop: tspawnloop.$O
 %.$O: %.c
 	$CC $CFLAGS -I. $stem.c
 
+# cannot use generic .S rule because it conflicts
+# with generic .s rule in mkcommon on case-insensitive
+# systems like Mac OS X.
+
+OpenBSD-power-asm.$O:	OpenBSD-power-asm.S
+	$CC $CFLAGS $stem.S
+	
 
 test:V: tprimes tspawn
 	primes 1 10007 >p1.txt
