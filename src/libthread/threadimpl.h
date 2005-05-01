@@ -5,7 +5,9 @@
 #include <sys/wait.h>
 #include <sched.h>
 #include <signal.h>
-#include <ucontext.h>
+#if !defined(_OpenBSD__)
+#	include <ucontext.h>
+#endif
 #include <sys/utsname.h>
 #include "libc.h"
 #include "thread.h"
@@ -22,7 +24,12 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #	define mcontext_t libthread_mcontext_t
 #	define ucontext libthread_ucontext
 #	define ucontext_t libthread_ucontext_t
-#	include "Darwin-ucontext.h"
+#	include "power-ucontext.h"
+#endif
+
+#if defined(__OpenBSD__)
+#	include "power-ucontext.h"
+extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #endif
 
 typedef struct Context Context;

@@ -15,6 +15,8 @@ OFILES=\
 <$PLAN9/src/mksyslib
 
 HFILES=thread.h threadimpl.h
+OpenBSD.$O FreeBSD.$O: BSD.c
+NetBSD.$O: Linux.c
 
 tprimes: tprimes.$O
 	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
@@ -24,9 +26,8 @@ tspawnloop: tspawnloop.$O
 	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
 
 %.$O: %.c
-	$CC -I. $stem.c
+	$CC $CFLAGS -I. $stem.c
 
-NetBSD.$O: Linux.c
 
 test:V: tprimes tspawn
 	primes 1 10007 >p1.txt
@@ -39,6 +40,4 @@ test:V: tprimes tspawn
 	$PLAN9/bin/time ./tspawn sleep 3 >/dev/null
 
 CLEANFILES=p1.txt p2.txt tp1.txt tp2.txt
-
-
 

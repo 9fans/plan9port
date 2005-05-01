@@ -23,6 +23,9 @@ case "$tag" in
 *-Darwin-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o pthread.o
 	;;
+*-OpenBSD-*)
+	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o $SYSNAME.o
+	;;
 *)
 	echo pthread.o
 esac
