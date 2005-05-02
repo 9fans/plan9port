@@ -1,6 +1,14 @@
+May 1, 2005
+	lib9/await: Mac OS X Tiger fixes (thanks to Jeff Sickel)
+	lib9/sendfd: fix alignment bug (thanks to Tim Wiess)
+	libdraw/latin1: more smiley face alt sequences (thanks to Erik Quanstrom)
+	9term: unicode in identifiers for double-click (thanks to Erik Quanstrom)
+	scat: various fixes to use standard C (thanks to Roland Kaufmann)
+	add OpenBSD/PowerPC support (thanks to Tim Wiess)
+
 March 28, 2005
 	open(3): note that open and create are macros
-	add NetBSD support (tahnks to Christoph Lohmann)
+	add NetBSD support (thanks to Christoph Lohmann)
 
 March 24, 2005
 	netfiles: robustness fixes
