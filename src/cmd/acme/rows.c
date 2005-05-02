@@ -74,7 +74,7 @@ rowadd(Row *row, Column *c, int x)
 			return nil;
 		draw(screen, r, display->white, nil, ZP);
 		r1 = r;
-		r1.max.x = min(x, r.max.x-50);
+		r1.max.x = min(x-Border, r.max.x-50);
 		if(Dx(r1) < 50)
 			r1.max.x = r1.min.x+50;
 		colresize(d, r1);
@@ -551,15 +551,17 @@ rowload(Row *row, char *file, int initing)
 			c2 = row->col[i];
 			r1 = c1->r;
 			r2 = c2->r;
-			r1.max.x = x;
-			r2.min.x = x+Border;
+			if(x<Border)
+				x = Border;
+			r1.max.x = x-Border;
+			r2.min.x = x;
 			if(Dx(r1) < 50 || Dx(r2) < 50)
 				continue;
 			draw(screen, Rpt(r1.min, r2.max), display->white, nil, ZP);
 			colresize(c1, r1);
 			colresize(c2, r2);
-			r2.min.x = x;
-			r2.max.x = x+Border;
+			r2.min.x = x-Border;
+			r2.max.x = x;
 			draw(screen, r2, display->black, nil, ZP);
 		}
 		if(i >= row->ncol)
