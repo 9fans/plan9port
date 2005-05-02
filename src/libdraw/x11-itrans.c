@@ -375,6 +375,12 @@ _xgetsnarf(XDisplay *xd)
 
 	qlock(&clip.lk);
 	/*
+	 * Have we snarfed recently and the X server hasn't caught up?
+	 */
+	if(_x.putsnarf != _x.assertsnarf)
+		goto mine;
+
+	/*
 	 * Is there a primary selection (highlighted text in an xterm)?
 	 */
 	clipboard = XA_PRIMARY;
