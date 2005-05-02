@@ -1,3 +1,7 @@
+May 2, 2005
+	libdraw/x11-itrans: correct snarf race (reported by Karl Sackett)
+	acme: row load/dump consistency fix (thanks to Peter Canning)
+	
 May 1, 2005
 	lib9/await: Mac OS X Tiger fixes (thanks to Jeff Sickel)
 	lib9/sendfd: fix alignment bug (thanks to Tim Wiess)
