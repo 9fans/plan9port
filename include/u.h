@@ -137,6 +137,9 @@ typedef short s16int;
 #	if __GNUC__ >= 3
 #		undef AUTOLIB
 #		define AUTOLIB(x) int __p9l_autolib_ ## x __attribute__ ((weak));
+#	else
+#		undef AUTOLIB
+#		define AUTOLIB(x) static int __p9l_autolib_ ## x __attribute__ ((unused));
 #	endif
 #endif
 
