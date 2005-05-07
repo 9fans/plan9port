@@ -52,27 +52,22 @@ plumbapple()
 
 plumbunix()
 {
-	case ${BROWSER:-firefox} in
+	case "${BROWSER:=firefox}" in
 	# Other browsers here
 	# ...
 	*opera*)
-		$BROWSER -remote 'openURL('$i',new-page)'
+		$BROWSER -remote 'openURL('"$i"',new-page)'
 		;;
 	*firebird*)
-		$BROWSER -remote 'openURL('$i',new-window)'
+		$BROWSER -remote 'openURL('"$i"',new-window)'
 		;;
 	*firefox*)
-		$BROWSER -remote 'openURL('$i',new-tab)'
-		;;
-	x-)
-		BROWSER=firefox
-		$BROWSER -remote 'openURL('$i',new-tab)'
+		$BROWSER -remote 'openURL('"$i"',new-tab)' ||
+		$BROWSER "$i"
 		;;
 	*mozilla*)
-		$BROWSER -remote 'openURL('$i',new-tab)'
-		;;
-	x-*)
-		$BROWSER -remote 'openURL('$i',new-tab)'
+		$BROWSER -remote 'openURL('"$i"',new-tab)' ||
+		$BROWSER "$i"
 		;;
 	esac
 }
@@ -99,8 +94,11 @@ else
 		if [ -f "$i" ]
 		then
 			p=`pwd`
+			i=`echo $i | sed 's/ /%20/g'`
 			i=`cleanname -d $p $i`
 			i=file://$i
+		else
+			i=`echo $i | tr -d ' '`
 		fi
 		plumb1 $i
 	done
