@@ -96,7 +96,6 @@ getdata(void)
 {
 	int i, type, ln;
 	char fname[100];
-	extern int errno;
 
 	errno = 0;
 	curfile->lineno = 0;

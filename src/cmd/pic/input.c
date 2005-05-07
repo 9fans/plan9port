@@ -425,8 +425,6 @@ void pbstr(char *s)
 
 double errcheck(double x, char  *s)
 {
-	extern int errno;
-
 	if (errno == EDOM) {
 		errno = 0;
 		ERROR "%s argument out of domain", s WARNING;
