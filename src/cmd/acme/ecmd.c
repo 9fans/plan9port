@@ -479,7 +479,7 @@ s_cmd(Text *t, Cmd *cp)
 	buf = allocstring(0);
 	for(m=0; m<nrp; m++){
 		buf->n = 0;
-		buf->r[0] = L'\0';
+		buf->r[0] = '\0';
 		sel = rp[m];
 		for(i = 0; i<cp->u.text->n; i++)
 			if((c = cp->u.text->r[i])=='\\' && i<cp->u.text->n-1){
@@ -761,7 +761,7 @@ pdisplay(File *f)
 		if(np>RBUFSIZE-1)
 			np = RBUFSIZE-1;
 		bufread(&f->b, p1, buf, np);
-		buf[np] = L'\0';
+		buf[np] = '\0';
 		warning(nil, "%S", buf);
 		p1 += np;
 	}

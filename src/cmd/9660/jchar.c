@@ -34,7 +34,7 @@ jolietstring(uchar *buf, int len)
 int
 isjolietfrog(Rune r)
 {
-	return r==L'*' || r==L'/' || r==L':' 
+	return r=='*' || r=='/' || r==':' 
 		|| r==';' || r=='?' || r=='\\';
 }
 

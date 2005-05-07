@@ -10,16 +10,16 @@
 #undef isalnum
 #undef isspace
 #undef tolower
-#define	isupper(r)	(L'A' <= (r) && (r) <= L'Z')
-#define	islower(r)	(L'a' <= (r) && (r) <= L'z')
+#define	isupper(r)	('A' <= (r) && (r) <= 'Z')
+#define	islower(r)	('a' <= (r) && (r) <= 'z')
 #define	isalpha(r)	(isupper(r) || islower(r))
 #define	islatin1(r)	(0xC0 <= (r) && (r) <= 0xFF)
 
-#define	isdigit(r)	(L'0' <= (r) && (r) <= L'9')
+#define	isdigit(r)	('0' <= (r) && (r) <= '9')
 
 #define	isalnum(r)	(isalpha(r) || isdigit(r))
 
-#define	isspace(r)	((r) == L' ' || (r) == L'\t' \
+#define	isspace(r)	((r) == ' ' || (r) == '\t' \
 			|| (0x0A <= (r) && (r) <= 0x0D))
 
 #define	tolower(r)	((r)-'A'+'a')
@@ -263,7 +263,7 @@ rcanon(Rune *old, Rune *new)
 		if (islatin1(r) && latin_fold_tab[r-0xc0])
 				r = latin_fold_tab[r-0xc0];
 		if(direc)
-			if(!(isalnum(r) || r == L' ' || r == L'\t'))
+			if(!(isalnum(r) || r == ' ' || r == '\t'))
 				continue;
 		if(fold)
 			if(isupper(r))
@@ -339,7 +339,7 @@ getword(Biobuf *f, Rune *rp, int n)
 		if(c < 0)
 			return 0;
 		if(c == '\n') {
-			*rp = L'\0';
+			*rp = '\0';
 			return 1;
 		}
 		*rp++ = c;

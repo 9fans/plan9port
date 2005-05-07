@@ -334,7 +334,7 @@ nextc(Rune *rp)
 		return 1;
 	}
 	exprp += chartorune(rp, exprp);
-	if(*rp == L'\\'){
+	if(*rp == '\\'){
 		exprp += chartorune(rp, exprp);
 		return 1;
 	}
@@ -358,25 +358,25 @@ lex(int literal, int dot_type)
 	switch(yyrune){
 	case 0:
 		return END;
-	case L'*':
+	case '*':
 		return STAR;
-	case L'?':
+	case '?':
 		return QUEST;
-	case L'+':
+	case '+':
 		return PLUS;
-	case L'|':
+	case '|':
 		return OR;
-	case L'.':
+	case '.':
 		return dot_type;
-	case L'(':
+	case '(':
 		return LBRA;
-	case L')':
+	case ')':
 		return RBRA;
-	case L'^':
+	case '^':
 		return BOL;
-	case L'$':
+	case '$':
 		return EOL;
-	case L'[':
+	case '[':
 		return bldcclass();
 	}
 	return RUNE;
@@ -399,11 +399,11 @@ bldcclass(void)
 	/* SPECIAL CASE!!! negated classes don't match \n */
 	ep = r;
 	quoted = nextc(&rune);
-	if(!quoted && rune == L'^'){
+	if(!quoted && rune == '^'){
 		type = NCCLASS;
 		quoted = nextc(&rune);
-		*ep++ = L'\n';
-		*ep++ = L'\n';
+		*ep++ = '\n';
+		*ep++ = '\n';
 	}
 
 	/* parse class into a set of spans */
@@ -412,15 +412,15 @@ bldcclass(void)
 			rcerror("malformed '[]'");
 			return 0;
 		}
-		if(!quoted && rune == L']')
+		if(!quoted && rune == ']')
 			break;
-		if(!quoted && rune == L'-'){
+		if(!quoted && rune == '-'){
 			if(ep == r){
 				rcerror("malformed '[]'");
 				return 0;
 			}
 			quoted = nextc(&rune);
-			if((!quoted && rune == L']') || rune == 0){
+			if((!quoted && rune == ']') || rune == 0){
 				rcerror("malformed '[]'");
 				return 0;
 			}

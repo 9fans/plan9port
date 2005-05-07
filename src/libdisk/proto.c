@@ -378,7 +378,7 @@ loop:
 
 	f->new = mkpath(mkaux, old->new, elem);
 	free(elem);
-	f->elem = utfrrune(f->new, L'/') + 1;
+	f->elem = utfrrune(f->new, '/') + 1;
 	p = getmode(mkaux, p, &f->mode);
 	p = getname(mkaux, p, &f->uid);	/* LEAK */
 	if(p == nil)

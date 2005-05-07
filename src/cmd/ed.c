@@ -393,7 +393,7 @@ commands(void)
 			newline();
 			count = addr2 - zero;
 			putd();
-			putchr(L'\n');
+			putchr('\n');
 			continue;
 
 		case '!':
@@ -419,7 +419,7 @@ printcom(void)
 		if(listn) {
 			count = a1-zero;
 			putd();
-			putchr(L'\t');
+			putchr('\t');
 		}
 		putshst(getline(*a1++));
 	} while(a1 <= addr2);
@@ -624,7 +624,7 @@ exfile(int om)
 	io = -1;
 	if(vflag) {
 		putd();
-		putchr(L'\n');
+		putchr('\n');
 	}
 }
 
@@ -653,7 +653,7 @@ error1(char *s)
 		close(io);
 		io = -1;
 	}
-	putchr(L'?');
+	putchr('?');
 	putst(s);
 }
 
@@ -687,7 +687,7 @@ notifyf(void *a, char *s)
 	if(strcmp(s, "interrupt") == 0){
 		if(rescuing || waiting)
 			noted(NCONT);
-		putchr(L'\n');
+		putchr('\n');
 		lastc = '\n';
 		error1(Q);
 		notejmp(a, savej, 0);
@@ -1496,7 +1496,7 @@ putd(void)
 	count /= 10;
 	if(count)
 		putd();
-	putchr(r + L'0');
+	putchr(r + '0');
 }
 
 void
@@ -1511,7 +1511,7 @@ putst(char *sp)
 			break;
 		putchr(r);
 	}
-	putchr(L'\n');
+	putchr('\n');
 }
 
 void
@@ -1520,7 +1520,7 @@ putshst(Rune *sp)
 	col = 0;
 	while(*sp)
 		putchr(*sp++);
-	putchr(L'\n');
+	putchr('\n');
 }
 
 void

@@ -502,7 +502,7 @@ getpref(char *pat, Rune *pre)
 		case 0x7c: case 0x5e: case 0x24:
 			*pre = 0;
 			return p-pat;
-		case L'\\':
+		case '\\':
 			p += n;
 			p += chartorune(++pre, p);
 			pre++;
@@ -542,7 +542,7 @@ getfield(Rune *rp)
 		if ((c = Bgetrune(bindex)) < 0)
 			return 0;
 		if(c == '\t' || c == '\n') {
-			*rp = L'\0';
+			*rp = '\0';
 			return 1;
 		}
 		*rp++ = c;

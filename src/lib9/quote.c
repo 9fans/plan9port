@@ -100,7 +100,7 @@ quotestrdup(char *s)
 	*u++ = '\'';
 	for(t=s; *t; t++){
 		r = *t;
-		if(r == L'\'')
+		if(r == '\'')
 			*u++ = r;	/* double the quote */
 		*u++ = r;
 	}
@@ -126,7 +126,7 @@ quoterunestrdup(Rune *s)
 	*u++ = '\'';
 	for(t=s; *t; t++){
 		r = *t;
-		if(r == L'\'')
+		if(r == '\'')
 			*u++ = r;	/* double the quote */
 		*u++ = r;
 	}
