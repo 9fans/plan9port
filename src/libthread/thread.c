@@ -141,7 +141,7 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	y = z;
 	z >>= 16;	/* hide undefined 32-bit shift from 32-bit compilers */
 	x = z>>16;
-	makecontext(&t->context.uc, (void(*)())threadstart, 2, y, x);
+	makecontext(&t->context.uc, (void(*)(void))threadstart, 2, y, x);
 
 	return t;
 }

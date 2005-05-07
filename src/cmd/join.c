@@ -165,7 +165,7 @@ Rune *strtorune(Rune *buf, char *s){
 #define get1() n1=input(F1)
 #define get2() n2=input(F2)
 void
-seek2()
+seek2(void)
 {
 	int n1, n2;
 	int top2=0;
@@ -208,7 +208,7 @@ seek2()
 	}
 }
 void
-seek1()
+seek1(void)
 {
 	int n1, n2;
 	int top1=0;

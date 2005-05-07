@@ -88,16 +88,16 @@ int	atend = FALSE;			/* TRUE only if a comment says so */
 FILE	*fp_in;				/* next input file */
 FILE	*fp_temp = NULL;		/* for copying stdin */
 
-void init_signals();
-void options();
-void readmap();
-void readresident();
-void arguments();
-void done();
-void download();
+void init_signals(void);
+void options(void);
+void readmap(void);
+void readresident(void);
+void arguments(void);
+void done(void);
+void download(void);
 int lookup(char *font);
 void copyfonts(char *list);
-void copyinput();
+void copyinput(void);
 extern int cat(char *file);
 extern void error(int errtype, char *fmt, ...);
 

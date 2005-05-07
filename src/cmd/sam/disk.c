@@ -25,7 +25,7 @@ extern int tempdisk(void);
 #endif
 
 Disk*
-diskinit()
+diskinit(void)
 {
 	Disk *d;
 

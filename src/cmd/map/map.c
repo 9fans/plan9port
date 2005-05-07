@@ -1204,7 +1204,7 @@ inpoly(double x, double y)
 }
 
 void
-realcut()
+realcut(void)
 {
 	struct place g;
 	double lat;

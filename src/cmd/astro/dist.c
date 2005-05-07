@@ -192,7 +192,7 @@ event(char *format, char *arg1, char *arg2, double tim, int flag)
 	p->flag = flag;
 }
 
-int	evcomp();
+int	evcomp(const void*, const void*);
 
 void
 evflush(void)
@@ -214,13 +214,13 @@ evflush(void)
 }
 
 int
-evcomp(void *a1, void *a2)
+evcomp(const void *a1, const void *a2)
 {
 	double t1, t2;
 	Event *p1, *p2;
 
-	p1 = a1;
-	p2 = a2;
+	p1 = (Event*)a1;
+	p2 = (Event*)a2;
 	t1 = p1->tim;
 	t2 = p2->tim;
 	if(p1->flag & SIGNIF)

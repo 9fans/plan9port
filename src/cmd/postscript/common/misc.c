@@ -24,7 +24,6 @@ void error(int kind, char *mesg, unsigned int a1, unsigned int a2, unsigned int 
 int cat(char *file);
 
 /*****************************************************************************/
-extern	int	str_convert();
 
 void
 out_list(str)

@@ -67,7 +67,7 @@ cover(x, y)
 }   /* End of cover */
 
 /*****************************************************************************/
-void	resetbbox();
+void	resetbbox(int);
 
 void
 writebbox(fp, keyword, slop)

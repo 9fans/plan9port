@@ -416,7 +416,7 @@ static int	winchars[]= { 8226,	// 8226 is a bullet
 static StringInt*	tagtable;		// initialized from tagnames
 static StringInt*	attrtable;		// initialized from attrnames
 
-static void		lexinit();
+static void		lexinit(void);
 static int		getplaindata(TokenSource* ts, Token* a, int* pai);
 static int		getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai);
 static int		getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai);

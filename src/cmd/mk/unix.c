@@ -278,7 +278,7 @@ notifyf(int sig)
 }
 
 void
-catchnotes()
+catchnotes(void)
 {
 	int i;
 

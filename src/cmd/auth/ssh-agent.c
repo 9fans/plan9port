@@ -950,7 +950,7 @@ runmsg(Aconn *a)
 		ek = getmp(&m);
 		mod = getmp(&m);
 		chal = getmp(&m);
-		if((p = getn(&m, 16)) == nil){
+		if((p = (char*)getn(&m, 16)) == nil){
 		Failchal:
 			mpfree(ek);
 			mpfree(mod);
@@ -977,8 +977,8 @@ runmsg(Aconn *a)
 		break;
 
 	case SSH2_AGENTC_SIGN_REQUEST:
-		if(getm(&m, &mkey) < 0
-		|| getm(&m, &mdata) < 0)
+		if(getm(&m, &mkey) == nil
+		|| getm(&m, &mdata) == nil)
 			goto Failure;
 		flags = get4(&m);
 		if(flags & SSH_AGENT_OLD_SIGNATURE)
