@@ -43,6 +43,7 @@ BEGIN {
 	Omitman["prof(1)"] = 1
 	Omitman["pwd(1)"] = 1
 	Omitman["qiv(1)"] = 1
+	Omitman["sftp(1)"] = 1
 	Omitman["sh(1)"] = 1
 	Omitman["ssh(1)"] = 1
 	Omitman["stty(1)"] = 1
