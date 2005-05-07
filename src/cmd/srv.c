@@ -141,7 +141,7 @@ xauth(void)
 		return;
 	}
 
-	if(xauth_proxy(auth_getkey, "proto=p9any role=client %s", keypattern) < 0)
+	if(xauth_proxy(auth_getkey, "proto=p9any role=client %s", keypattern) == nil)
 		sysfatal("authproxy: %r");
 }
 
