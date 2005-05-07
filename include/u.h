@@ -72,8 +72,15 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	include <sys/types.h>
 #	include <pthread.h>
 #	define PLAN9PORT_USING_PTHREADS 1
-#	undef _NEEDUSHORT
-#	undef _NEEDUINT
+#	if __GNUC__ < 4
+#		undef _NEEDUSHORT
+#		undef _NEEDUINT
+#	endif
+#	undef _ANSI_SOURCE
+#	undef _POSIX_C_SOURCE
+#	if !defined(NSIG)
+#		define NSIG 32
+#	endif
 #	define _NEEDLL 1
 #elif defined(__NetBSD__)
 #	include <sched.h>
@@ -131,10 +138,10 @@ typedef short s16int;
 #define AUTOLIB(x)	static int __p9l_autolib_ ## x = 1;
 
 /*
- * Gcc 3 is too smart for its own good.
+ * Gcc is too smart for its own good.
  */
-#if defined(__GNUC__) && !defined(__APPLE_CC__)
-#	if __GNUC__ >= 3
+#if defined(__GNUC__)
+#	if __GNUC__ >= 4 || (__GNUC__==3 && !defined(__APPLE_CC__))
 #		undef AUTOLIB
 #		define AUTOLIB(x) int __p9l_autolib_ ## x __attribute__ ((weak));
 #	else

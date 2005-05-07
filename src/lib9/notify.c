@@ -66,7 +66,9 @@ static Sig sigs[] = {
 	SIGVTALRM,	0,
 	SIGUSR1,		0,
 	SIGUSR2,		0,
+#ifdef SIGWINCH
 	SIGWINCH,	Restart|Ignore,
+#endif
 #ifdef SIGINFO
 	SIGINFO,		Restart|Ignore,
 #endif
