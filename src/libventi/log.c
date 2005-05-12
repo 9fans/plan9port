@@ -30,6 +30,41 @@ hash(char *s)
 	return h;
 }
 
+char**
+vtlognames(int *pn)
+{
+	int i, nname, size;
+	VtLog *l;
+	char **s, *a, *e;
+	
+	qlock(&vl.lk);
+	size = 0;
+	nname = 0;
+	for(i=0; i<nelem(vl.hash); i++)
+	for(l=vl.hash[i]; l; l=l->next){
+		nname++;
+		size += strlen(l->name)+1;
+	}
+	
+	s = vtmalloc(nname*sizeof(char*)+size);
+	a = (char*)(s+nname);
+	e = (char*)s+nname*sizeof(char*)+size;
+
+	size = 0;
+	nname = 0;
+	for(i=0; i<nelem(vl.hash); i++)
+	for(l=vl.hash[i]; l; l=l->next){
+		strcpy(a, l->name);
+		s[nname++] = a;
+		a += strlen(a)+1;
+	}
+	*pn = nname;
+	assert(a == e);
+	qunlock(&vl.lk);
+
+	return s;
+}
+
 VtLog*
 vtlogopen(char *name, uint size)
 {
