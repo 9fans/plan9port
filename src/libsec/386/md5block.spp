@@ -133,7 +133,7 @@
 
 	movl DATA(%esp), %ebp
 
-mainloop:
+0:
 	movl STATE(%esp), %esi
 	movl (%esi), %eax
 	movl 4(%esi), %ebx
@@ -232,7 +232,7 @@ mainloop:
 
 	movl EDATA(%esp), %edi
 	cmpl %edi, %ebp
-	jb mainloop
+	jb 0b
 
 	/* Postlude */
 	movl OLDEBX(%esp), %ebx

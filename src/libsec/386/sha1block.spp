@@ -123,7 +123,7 @@ _sha1block:
 	leal (WARRAY+80*4)(%esp), %edi	/* aw80 */
 	movl %edi, W80(%esp)
 
-mainloop:
+0:
 	leal WARRAY(%esp), %ebp		/* warray */
 
 	movl STATE(%esp), %edi		/* state */
@@ -136,7 +136,7 @@ mainloop:
 
 	movl DATA(%esp), %ebx		/* data */
 
-loop1:
+1:
 	BODY0(0,FN1,0x5a827999,%eax,TMP1(%esp),%ecx,%edx,%esi)
 	movl %esi,TMP2(%esp)
 	BODY0(4,FN1,0x5a827999,%esi,%eax,TMP1(%esp),%ecx,%edx)
@@ -150,7 +150,7 @@ loop1:
 	addl $20, %ebx
 	addl $20, %ebp
 	cmpl W15(%esp), %ebp	/* w15 */
-	jb loop1
+	jb 1b
 
 	BODY0(0,FN1,0x5a827999,%eax,TMP1(%esp),%ecx,%edx,%esi)
 	addl $4, %ebx
@@ -164,7 +164,7 @@ loop1:
 
 	addl $20, %ebp
 
-loop2:
+2:
 	BODY(0,FN24,0x6ed9eba1,%eax,%ebx,%ecx,%edx,%esi)
 	BODY(4,FN24,0x6ed9eba1,%esi,%eax,%ebx,%ecx,%edx)
 	BODY(8,FN24,0x6ed9eba1,%edx,%esi,%eax,%ebx,%ecx)
@@ -173,9 +173,9 @@ loop2:
 
 	addl $20,%ebp
 	cmpl W40(%esp), %ebp
-	jb loop2
+	jb 2b
 
-loop3:
+3:
 	BODY(0,FN3,0x8f1bbcdc,%eax,%ebx,%ecx,%edx,%esi)
 	BODY(4,FN3,0x8f1bbcdc,%esi,%eax,%ebx,%ecx,%edx)
 	BODY(8,FN3,0x8f1bbcdc,%edx,%esi,%eax,%ebx,%ecx)
@@ -184,9 +184,9 @@ loop3:
 
 	addl $20, %ebp
 	cmpl W60(%esp), %ebp 	/* w60 */
-	jb loop3
+	jb 3b
 
-loop4:
+4:
 	BODY(0,FN24,0xca62c1d6,%eax,%ebx,%ecx,%edx,%esi)
 	BODY(4,FN24,0xca62c1d6,%esi,%eax,%ebx,%ecx,%edx)
 	BODY(8,FN24,0xca62c1d6,%edx,%esi,%eax,%ebx,%ecx)
@@ -195,7 +195,7 @@ loop4:
 
 	addl $20, %ebp
 	cmpl W80(%esp), %ebp 	/* w80 */
-	jb loop4
+	jb 4b
 
 	movl STATE(%esp), %edi	/* state */
 	addl %eax, 0(%edi)
@@ -206,7 +206,7 @@ loop4:
 
 	movl EDATA(%esp), %edi	/* edata */
 	cmpl %edi, DATA(%esp)	/* data */
-	jb mainloop
+	jb 0b
 
 	/* Postlude */
 	mov OLDEBX(%esp), %ebx
