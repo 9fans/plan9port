@@ -1,0 +1,78 @@
+This is Shinonome (東雲) Font converted from BDF to Plan 9 font format.
+Shinonome Font provides 12, 14, 16, 18 dot japanese fonts and others and
+its license is public domain.  The original BDF distribution site is:
+
+	http://openlab.jp/efont/shinonome/
+	http://openlab.jp/efont/dist/shinonome/shinonome-0.9.11p1.tar.bz2
+
+The conversion was done by YAMANASHI Takeshi.
+	nashi AT tip9ug DOT jp
+	http://www.tip9ug.jp/
+
+Font Description:
+
+6x12a.font		6x12 ASCII (backslash, tilder)
+6x12ab.font		 " bold
+6x12abi.font	 " bold italic
+6x12ai.font		 " italic
+6x12r.font		6x12 Roman (yen, upper score)
+6x12rb.font		 " bold
+6x12rbi.font	 " bold italic
+6x12ri.font		 " italic
+7x14a.font		7x14 ASCII (backslash, tilder)
+7x14ab.font			:
+7x14abi.font		:
+7x14ai.font			:
+7x14r.font		7x14 Roman (yen, upper score)
+7x14rb.font			:
+7x14rbi.font		:
+7x14ri.font			:
+8x16a.font		8x16 ASCII (backslash, tilder)
+8x16ab.font			:
+8x16abi.font		:
+8x16ai.font			:
+8x16r.font		8x16 Roman (yen, upper score)
+8x16rb.font			:
+8x16rbi.font		:
+8x16ri.font			:
+9x18a.font		9x18 ASCII (backslash, tilder)
+9x18ab.font			:
+9x18abi.font		:
+9x18ai.font			:
+9x18r.font		9x18 Roman (yen, upper score)
+9x18rb.font			:
+9x18rbi.font		:
+9x18ri.font			:
+k12.font		12x12 JIS gothic
+k12b.font		 " bold
+k12bi.font		 " bold italic
+k12i.font		 " italic
+k12maru.font	12x12 JIS marumoji
+k12marub.font		:
+k12marubi.font		:
+k12marui.font		:
+k12min.font		12x12 JIS mincho
+k12minb.font		:
+k12minbi.font		:
+k12mini.font		:
+k12p.font		12x12 JIS gothic proportional (bad)
+k12pb.font			:
+k12pbi.font			:
+k12pi.font			:
+k14.font		14x14 JIS gothic
+k14b.font			:
+k14bi.font			:
+k14i.font			:
+k14min.font		14x14 JIS mincho
+k14minb.font		:
+k14minbi.font		:
+k14mini.font		:
+k16.font		16x16 JIS gothic
+k16b.font			:
+k16bi.font			:
+k16i.font			:
+k16min.font		16x16 JIS mincho
+k16minb.font		:
+k16minbi.font		:
+k16mini.font		:
+-- 

@@ -1,0 +1,22 @@
+These fonts are converted from NAGA10 font collection distributed under
+public domain license.  There are 10 dot japanese fonts with several type
+faces (gothic, bold, mincho, maru).
+
+The original distribution site is:
+
+	http://hp.vector.co.jp/authors/VA013391/fonts/
+	http://hp.vector.co.jp/authors/VA013391/fonts/knj10-1.1.tar.gz
+
+The conversion was done by the TIP9UG JP FONTS project.
+	http://www.tip9ug.jp/en/projects.html
+
+Font Description:
+
+5x10a.font		5x10 ASCII (backslash, tilder)
+5x10B.font		 " bold
+5x10rk.font		10x10 Roman (yen, upper score)
+knj10.font		10x10 JIS gothic
+knj10B.font		 " bold
+maru10.font		10x10 JIS marumoji
+min10.font		10x10 JIS mincho
+-- 
