@@ -6,6 +6,7 @@
 #pragma lib "libsunrpc.a"
 #pragma src "/sys/src/libsunrpc"
 */
+AUTOLIB(sunrpc)
 
 typedef uchar u1int;
 
