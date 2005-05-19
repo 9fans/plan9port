@@ -11,16 +11,18 @@ encodefmt(Fmt *f)
 	uchar *b;
 	char obuf[64];	// rsc optimization
 
-	if(!(f->flags&FmtPrec) || f->prec < 1)
-		goto error;
-
 	b = va_arg(f->args, uchar*);
 	if(b == 0)
 		return fmtstrcpy(f, "<nil>");
 
 	ilen = f->prec;
 	f->prec = 0;
+
+	if(!(f->flags&FmtPrec) || ilen < 0)
+		goto error;
+
 	f->flags &= ~FmtPrec;
+
 	switch(f->r){
 	case '<':
 		len = (8*ilen+4)/5 + 3;
