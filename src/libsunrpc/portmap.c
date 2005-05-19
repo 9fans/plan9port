@@ -489,7 +489,7 @@ static SunProc proc[] = {
 	(P)portRCallitPack, (P)portRCallitUnpack, (S)portRCallitSize, (F)portRCallitPrint, sizeof(PortRCallit),
 };
 
-SunProg portProg = 
+SunProg portprog = 
 {
 	PortProgram,
 	PortVersion,

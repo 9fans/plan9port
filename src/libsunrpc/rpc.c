@@ -68,12 +68,17 @@ sunrpcpack(uchar *a, uchar *ea, uchar **pa, SunRpc *rpc)
 			|| sunauthinfopack(a, ea, &a, &rpc->verf) < 0)
 				goto Err;
 			break;
+		case SunAuthError:
+			if(sunuint32pack(a, ea, &a, (x=MsgDenied, &x)) < 0
+			|| sunuint32pack(a, ea, &a, (x=MsgAuthError, &x)) < 0)
+				goto Err;
+			break;
 		default:
 			if(sunuint32pack(a, ea, &a, (x=MsgDenied, &x)) < 0)
 				goto Err;
 			break;
 		}
-
+	
 		switch(rpc->status){
 		case SunSuccess:
 			if(sunuint32pack(a, ea, &a, (x=MsgSuccess, &x)) < 0
@@ -90,6 +95,7 @@ sunrpcpack(uchar *a, uchar *ea, uchar **pa, SunRpc *rpc)
 		default:
 			if(sunuint32pack(a, ea, &a, (x=rpc->status&0xFFFF, &x)) < 0)
 				goto Err;
+
 			break;
 		}
 	}
@@ -118,6 +124,9 @@ sunrpcsize(SunRpc *rpc)
 		case 0:
 		case SunAcceptError:
 			a += 4+sunauthinfosize(&rpc->verf);
+			break;
+		case SunAuthError:
+			a += 4+4;
 			break;
 		default:
 			a += 4;
@@ -169,6 +178,7 @@ sunrpcunpack(uchar *a, uchar *ea, uchar **pa, SunRpc *rpc)
 		rpc->iscall = 0;
 		if(sunuint32unpack(a, ea, &a, &x) < 0)
 			goto Err;
+fprint(2, "x %x\n", x);
 		switch(x){
 		default:
 			goto Err;
@@ -200,6 +210,7 @@ sunrpcunpack(uchar *a, uchar *ea, uchar **pa, SunRpc *rpc)
 		case MsgDenied:
 			if(sunuint32unpack(a, ea, &a, &x) < 0)
 				goto Err;
+fprint(2, "xx %ux\n", x);
 			switch(x){
 			default:
 				goto Err;

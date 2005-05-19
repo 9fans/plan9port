@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <ip.h>
 #include <thread.h>
 #include <sunrpc.h>
 
@@ -79,6 +80,7 @@ sunsrvthreadcreate(SunSrv *srv, void (*fn)(void*), void *arg)
 static void
 sunrpcrequestthread(void *v)
 {
+	int status;
 	uchar *p, *ep;
 	Channel *c;
 	SunSrv *srv = v;
@@ -93,6 +95,7 @@ if(srv->chatty) fprint(2, "sun msg %p count %d\n", m, m->count);
 		m->srv = srv;
 		p = m->data;
 		ep = p+m->count;
+		status = m->rpc.status;
 		if(sunrpcunpack(p, ep, &p, &m->rpc) != SunSuccess){
 			fprint(2, "in: %.*H unpack failed\n", m->count, m->data);
 			sunmsgdrop(m);
@@ -100,7 +103,10 @@ if(srv->chatty) fprint(2, "sun msg %p count %d\n", m, m->count);
 		}
 		if(srv->chatty)
 			fprint(2, "in: %B\n", &m->rpc);
-
+		if(status){
+			sunmsgreplyerror(m, status);
+			continue;
+		}
 		if(srv->alwaysreject){
 			if(srv->chatty)
 				fprint(2, "\trejecting\n");

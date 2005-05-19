@@ -48,8 +48,18 @@ sunudpread(void *v)
 	while((n = udpread(arg.fd, &udp, buf, UdpMaxRead)) > 0){
 		if(arg.srv->chatty)
 			fprint(2, "udpread got %d (%d) from %I\n", n, Udphdrsize, udp.raddr);
+		msg = emalloc(sizeof(SunMsgUdp));
+		msg->udp = udp;
+		msg->msg.data = emalloc(n);
+		msg->msg.count = n;
+		memmove(msg->msg.data, buf, n);
+		msg->msg.creply = arg.creply;
+		msg->msg.srv = arg.srv;
+		if(arg.srv->chatty)
+			fprint(2, "message %p count %d\n", msg, msg->msg.count);
 		if((srv->localonly || srv->localparanoia) && ipcmp(udp.raddr, localip) != 0){
 			fprint(2, "dropping message from %I: not local\n", udp.raddr);
+			sunmsgreplyerror(&msg->msg, SunAuthTooWeak);
 			continue;
 		}
 		if(srv->localparanoia){
@@ -59,17 +69,12 @@ sunudpread(void *v)
 				paraport = port;
 			}else if(paraport != port){
 				fprint(2, "dropping message from %I: not port %d\n", udp.raddr, port);
+				sunmsgreplyerror(&msg->msg, SunAuthTooWeak);
 				continue;
 			}
 		}
-		msg = emalloc(sizeof(SunMsgUdp));
-		msg->udp = udp;
-		msg->msg.data = emalloc(n);
-		msg->msg.count = n;
-		memmove(msg->msg.data, buf, n);
-		msg->msg.creply = arg.creply;
-		if(arg.srv->chatty)
-			fprint(2, "message %p count %d\n", msg, msg->msg.count);
+		if(srv->ipokay && !srv->ipokay(udp.raddr, nhgets(udp.rport)))
+			msg->msg.rpc.status = SunProgUnavail;
 		sendp(arg.srv->crequest, msg);
 	}
 }

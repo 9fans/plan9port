@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <ip.h>
 #include <thread.h>
 #include <sunrpc.h>
 
@@ -16,7 +17,10 @@ sunnetlisten(void *v)
 {
 	int fd, lcfd;
 	char ldir[40];
+	uchar ip[IPaddrlen];
+	int port;
 	Arg *a = v;
+	NetConnInfo *nci;
 
 	for(;;){
 		lcfd = listen(a->adir, ldir);
@@ -26,6 +30,19 @@ sunnetlisten(void *v)
 		close(lcfd);
 		if(fd < 0)
 			continue;
+		if(a->srv->ipokay){
+			if((nci = getnetconninfo(nil, fd)) == nil){
+				close(fd);
+				continue;
+			}
+			port = atoi(nci->rserv);
+			parseip(ip, nci->raddr);
+			freenetconninfo(nci);
+			if(!a->srv->ipokay(ip, port)){
+				close(fd);
+				continue;
+			}
+		}
 		if(!sunsrvfd(a->srv, fd))
 			close(fd);
 	}

@@ -156,6 +156,7 @@ rpcMuxThread(void *v)
 	Out *o, **out;
 	SunRpc rpc;
 	SunClient *cli;
+	SunStatus ok;
 
 	cli = v;
 	mout = 16;
@@ -262,7 +263,7 @@ if(cli->chatty) fprint(2, "resend %lux %lud %lud\n", o->xid, t, o->t);
 			n = (p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3];
 			p += 4;
 			ep = p+n;
-			if(sunrpcunpack(p, ep, &p, &rpc) < 0){
+			if((ok = sunrpcunpack(p, ep, &p, &rpc)) != SunSuccess){
 				fprint(2, "%s: in: %.*H unpack failed\n", argv0, n, buf+4);
 				free(buf);
 				break;
@@ -288,9 +289,9 @@ if(cli->chatty) fprint(2, "resend %lux %lud %lud\n", o->xid, t, o->t);
 			out[i] = out[--nout];
 			free(o->p);
 			o->p = nil;
+			o->rpc = rpc;
 			if(rpc.status == SunSuccess){
 				o->p = buf;
-				o->rpc = rpc;
 			}else{
 				o->p = nil;
 				free(buf);
@@ -353,9 +354,9 @@ sunclientclose(SunClient *cli)
 	if(!cli->timertid)
 		n++;
 	while(n < 2){
-		threadint(cli->nettid);
-		if(cli->timertid)
-			threadint(cli->timertid);
+	//	threadint(cli->nettid);
+	//	if(cli->timertid)
+	//		threadint(cli->timertid);
 		yield();
 		while(nbrecv(cli->dying, nil) == 1)
 			n++;
@@ -469,6 +470,13 @@ sunclientrpc(SunClient *cli, ulong tag, SunCall *tx, SunCall *rx, uchar **tofree
 	rx->rpc.prog = tx->rpc.prog;
 	rx->rpc.vers = tx->rpc.vers;
 	rx->type = (rx->rpc.proc<<1)|1;
+	if(rx->rpc.status != SunSuccess){
+		sunerrstr(rx->rpc.status);
+		werrstr("unpack: %r");
+		free(o.p);
+		return -1;
+	}
+
 	if((ok = suncallunpack(prog, p, ep, &p, rx)) != SunSuccess){
 		sunerrstr(ok);
 		werrstr("unpack: %r");
