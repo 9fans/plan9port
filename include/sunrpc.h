@@ -214,6 +214,7 @@ struct SunSrv
 	int localparanoia;
 	SunProg **map;
 	Channel *crequest;
+	int (*ipokay)(uchar*, ushort);
 
 /* implementation use only */
 	Channel **cdispatch;
