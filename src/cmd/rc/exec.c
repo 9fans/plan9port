@@ -110,6 +110,9 @@ main(int argc, char *argv[])
 	code bootstrap[32];
 	char num[12], *rcmain;
 	int i;
+	
+	/* needed for rcmain later */
+	setenv("PLAN9", unsharp("#9"), 1);
 
 	argc=getflags(argc, argv, "srdiIlxepvVc:1m:1[command]", 1);
 	if(argc==-1) usage("[file [arg ...]]");
