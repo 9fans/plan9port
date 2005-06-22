@@ -81,6 +81,9 @@ main(int argc, char **argv)
 			if(s.attrs.have.lowpc){
 				if(dwarfpctoline(d, s.attrs.lowpc, &cdir, &dir, &file, &line, &mtime, &length) < 0)
 					print("\tcould not find source: %r\n");
+				else if(dir == nil)
+					print("\t%s/%s:%lud mtime=%lud length=%lud\n",
+						cdir, file, line, mtime, length);
 				else
 					print("\t%s/%s/%s:%lud mtime=%lud length=%lud\n",
 						cdir, dir, file, line, mtime, length);
