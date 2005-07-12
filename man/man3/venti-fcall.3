@@ -1,0 +1,273 @@
+.TH VENTI-FCALL 3
+.SH NAME
+VtEntry, VtFcall, VtRoot,
+vtentrypack,
+vtentryunpack,
+vtfcallclear,
+vtfcallfmt,
+vtfcallpack,
+vtfcallunpack,
+vtfromdisktype,
+vttodisktype,
+vtgetstring,
+vtputstring,
+vtrootpack,
+vtrootunpack,
+vtparsescore,
+vtscorefmt \- Venti external data representation
+.SH SYNOPSIS
+.PP
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLxxxx'u
+.PP
+.ft L
+.nf
+enum
+{
+	VtEntrySize = 40,
+	VtRootSize = 300,
+	VtRootVersion = 2,
+	VtScoreSize = 20,
+};
+.PP
+.ft L
+.nf
+typedef struct VtEntry
+{
+	ulong gen;			/* generation number */
+	ushort psize;			/* pointer block size */
+	ushort dsize;			/* data block size */
+	uchar type;
+	uchar flags;
+	uvlong size;
+	uchar score[VtScoreSize];
+} VtEntry;
+.PP
+.ft L
+.nf
+typedef struct VtRoot
+{
+	char name[128];
+	char type[128];
+	uchar score[VtScoreSize];	/* to a Dir block */
+	ushort blocksize;		/* maximum block size */
+	uchar prev[VtScoreSize];	/* previous root block */
+} VtRoot;
+.ta +\w'\fLPacket* 'u
+.PP
+.B
+void	vtentrypack(VtEntry *e, uchar *buf, int index)
+.br
+.B
+int	vtentryunpack(VtEntry *e, uchar *buf, int index)
+.PP
+.B
+Packet*	vtfcallpack(VtFcall *f)
+.br
+.B
+int	vtfcallunpack(VtFcall *f, Packet *p)
+.PP
+.B
+void vtfcallclear(VtFcall *f)
+.PP
+.B
+uint	vttodisktype(uint type)
+.br
+.B
+uint	vtfromdisktype(uint type)
+.PP
+.B
+int	vtputstring(Packet *p, char *s)
+.br
+.B
+int	vtgetstring(Packet *p, char **s)
+.PP
+.B
+void	vtrootpack(VtRoot *r, uchar *buf)
+.br
+.B
+int	vtrootunpack(VtRoot *r, uchar *buf)
+.PP
+.B
+int	vtparsescore(char *s, char **prefix, uchar score[VtScoreSize])
+.PP
+.B
+int	vtfcallfmt(Fmt *fmt)
+.B
+int	vtscorefmt(Fmt *fmt)
+.SH DESCRIPTION
+These routines convert between C representations of Venti
+structures and serialized representations used on disk and
+on the network.
+.PP
+.I Vtentrypack
+converts a
+.B VtEntry
+structure describing a Venti file
+(see
+.IR venti (1))
+into a 40-byte
+.RB ( VtEntrySize )
+structure at
+.IB buf + index *40 \fR.
+Vtentryunpack
+does the reverse conversion.
+.PP
+.I Vtfcallpack
+converts a
+.B VtFcall
+structure describing a Venti protocol message
+(see
+.IR venti (7))
+into a packet.
+.I Vtfcallunpack
+does the reverse conversion.
+.PP
+The fields in a
+.B VtFcall
+are named after the protocol fields described in
+.IR venti (7),
+except that the
+.B type
+field is renamed
+.BR blocktype .
+The
+.B msgtype
+field holds the one-byte message type:
+.BR VtThello ,
+.BR VtRhello ,
+and so on.
+.PP
+.I Vtfcallclear
+frees the strings
+.IB f ->error \fR,
+.IB f ->version \fR,
+.IB f ->uid \fR,
+.IB f ->sid \fR,
+the buffers
+.I f ->crypto
+and
+.IB f ->codec \fR,
+and the packet
+.IB f ->data \fR.
+.PP
+The block type enumeration defined in
+.B <venti.h>
+(presented in 
+.IR venti (1))
+differs from the one used on disk and in the network
+protocol.
+The disk and network representation uses different
+constants does not distinguish between
+.BI VtDataType+ n
+and
+.BI VtDirType+ n
+blocks.
+.I Vttodisktype
+converts a
+.B <venti.h>
+enumeration value to the disk value;
+.I vtfromdisktype
+converts a disk value to the enumeration value.
+The
+.B VtFcall
+field
+.B blocktype
+is an enumeration value
+.RI ( vtfcallpack
+and
+.I vtfcallunpack
+convert to and from the disk values used in packets
+automatically),
+so most programs will not need to call these functions.
+.PP
+.I Vtputstring
+appends the Venti protocol representation of the string
+.I s
+to the packet
+.IR p .
+.I Vtgetstring
+reads a string from the packet, returning a pointer to a copy
+of the string in
+.BI * s \fR.
+The copy must be freed by the caller.
+These functions are used by
+.I vtfcallpack
+and
+.IR vtfcallunpack ;
+most programs will not need to call them directly.
+.PP
+.I Vtrootpack
+converts a
+.B VtRoot
+structure describing a Venti file tree
+into the 300-byte 
+.RB ( VtRootSize )
+buffer pointed to by
+.IR buf .
+.I Vtrootunpack does the reverse conversion.
+.PP
+.I Vtparsescore
+parses the 40-digit hexadecimal string
+.IR s ,
+writing its value
+into
+.IR score .
+If the hexadecimal string is prefixed with
+a text label followed by a colon, a copy of that
+label is returned in
+.BI * prefix \fR.
+If
+.I prefix
+is nil, the label is ignored.
+.PP
+.I Vtfcallfmt
+and
+.I vtscorefmt
+are
+.IR print (3)
+formatters to print
+.B VtFcall
+structures and scores.
+.I Vtfcallfmt
+assumes that
+.I vtscorefmt
+is installed as
+.BR %V .
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3),
+.IR venti (7)
+.SH DIAGNOSTICS
+.IR Vtentrypack ,
+.IR vtfcallpack ,
+.IR vtrootpack ,
+and
+.I vtfcallclear
+cannot fail.
+.PP
+.IR Vtentryunpack ,
+.IR vtrootunpack ,
+.IR vtputstring ,
+.IR vtgetstring ,
+and
+.I vtparsescore
+return 0 on success, \-1 on error.
+.PP
+.I Vtfcallpack
+returns a packet on success, nil on error.
+.PP
+.I Vttodisktype
+and
+.I vtfromdisktype
+return
+.B VtCorruptType
+(255)
+when presented with invalid input.

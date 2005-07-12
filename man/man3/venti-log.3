@@ -1,0 +1,133 @@
+.TH VENTI-LOG 3
+.SH NAME
+VtLog,
+VtLogChunk, 
+vtlog,
+vtlogclose,
+vtlogdump,
+vtlognames,
+vtlogopen,
+vtlogprint,
+vtlogremove,
+vtlogopen,
+ventilogging \- Venti logs
+.SH SYNOPSIS
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLVtLog* 'u
+.PP
+.B
+VtLog*	vtlogopen(char *name, uint size);
+.PP
+.B
+void	vtlogprint(VtLog *log, char *fmt, ...);
+.PP
+.B
+void	vtlogclose(VtLog *log);
+.PP
+.B
+void	vtlog(char *name, char *fmt, ...);
+.PP
+.B
+void	vtlogremove(char *name);
+.PP
+.B
+char**	vtlognames(int *n);
+.PP
+.B
+void	vtlogdump(int fd, VtLog *log);
+.PP
+.B
+extern int ventilogging;    /* default 0 */
+.PP
+.B
+extern char *VtServerLog;    /* "libventi/server" */
+.SH DESCRIPTION
+These routines provide an in-memory circular log
+structure used by the Venti library and the Venti server
+to record events for debugging purposes.
+The logs have textual names represented as UTF strings.
+.PP
+.I Vtlogopen
+returns a reference to the log named
+.I name .
+If a log with that name does not exist and
+.I size 
+is non-zero, a new log capable of holding at
+least
+.I size
+bytes is allocated and returned.
+.I Vtlogclose
+releases the reference returned by
+.IR vtlogopen .
+.PP
+.I Vtlogprint
+writes to
+.IR log ,
+which must be open.
+.PP
+.I Vtlog
+is a convenient packaging of
+.I vtlogopen
+followed by
+.I vtlogprint
+and
+.IR vtlogclose .
+.PP
+.I Vtlogremove
+removes the log with the given
+.IR name ,
+freeing any associated storage.
+.PP
+.I Vtlognames
+returns a list of the names of all the logs.
+The length of the list is returned in
+.BI * n \fR.
+The list
+should be freed
+by calling
+.I vtfree
+on the returned pointer.
+The strings in the list will be freed by this call as well.
+(It is an error to call
+.I vtfree
+on any of the strings in the list.)
+.PP
+.I Vtlogdump
+prints
+.IR log ,
+which must be open, to the file descriptor
+.IR fd .
+.PP
+If
+.I ventilogging
+is set to zero (the default),
+.I vtlognames
+and
+.I vtlogdump
+can inspect existing logs, but
+.I vtlogopen
+always returns nil
+and
+.I vtlog
+is a no-op.
+The other functions are no-ops when
+passed nil log structures.
+.PP
+The server library
+(see
+.IR venti-conn (3)
+and
+.IR venti-server (3))
+writes debugging information to the log named
+.IR VtServerLog ,
+which defaults to the string
+.LR libventi/server .
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (3)

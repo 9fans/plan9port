@@ -1,0 +1,198 @@
+.TH VENTI-CACHE 3
+.SH NAME
+VtBlock, VtCache, 
+vtblockcopy,
+vtblockdirty,
+vtblockduplock,
+vtblockput,
+vtblockwrite,
+vtcachealloc,
+vtcacheallocblock,
+vtcacheblocksize,
+vtcachefree,
+vtcacheglobal,
+vtcachelocal,
+vtcachesetwrite,
+vtglobaltolocal,
+vtlocaltoglobal \- Venti block cache
+.SH SYNOPSIS
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLxxxx 'u
+.PP
+typedef struct VtBlock
+{
+	uchar *data;
+	uchar type;
+	uchar score[VtScoreSize];
+	u32int addr;
+	...
+} VtBlock;
+.ta +\w'\fLVtBlock* 'u +\w'\fLxxxxxxxx'u
+.PP
+.B
+VtCache*	vtcachealloc(VtConn *z, int blocksize, ulong nblocks, int mode);
+.PP
+.B
+void	vtcachefree(VtCache *c);
+.PP
+.B
+u32int	vtcacheblocksize(VtCache *c);
+.br
+.B
+		int (*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int));
+.PP
+.B
+u32int	vtglobaltolocal(uchar score[VtScoreSize])
+.br
+.B
+void	vtlocaltoglobal(u32int local, uchar score[VtScoreSize])
+.PP
+.B
+VtBlock*	vtcacheallocblock(VtCache *c, int type);
+.PP
+.B
+VtBlock*	vtcachelocal(VtCache *c, u32int addr, int type);
+.PP
+.B
+VtBlock*	vtcacheglobal(VtCache *c, uchar[VtScoreSize], int type);
+.PP
+.B
+void	vtblockput(VtBlock *b);
+.PP
+.B
+void	vtblockduplock(VtBlock *b);
+.PP
+.B
+int	vtblockwrite(VtBlock *b);
+.PP
+.B
+void	vtcachesetwrite(VtCache *c,
+.PP
+.B
+VtBlock*	vtblockcopy(VtBlock *b);
+.PP
+.B
+int	vtblockdirty(VtBlock *b);
+.SH DESCRIPTION
+These functions provide access to a simple in-memory
+cache of blocks already stored on a Venti server
+and blocks that will eventually be stored on a Venti server.
+.PP
+.I Vtcachealloc
+allocates a new cache using the client connection
+.I z
+(see
+.IR venti-conn (3)
+and
+.IR venti-client (3)),
+with room for
+.I nblocks
+of maximum block size
+.I blocksize .
+.PP
+.I Vtcachefree
+frees a cache and all the associated blocks.
+.PP
+.I Vtcacheblocksize
+.PP
+XXX global vs local blocks
+.PP
+.I Vtcacheallocblock
+allocates a new local block with the given
+.IR type .
+.PP
+.I Vtcachelocal
+retrieves the local block at address
+.I addr
+from the cache.
+The given
+.I type
+must match the type of the block found at
+.IR addr .
+.PP
+.I Vtcacheglobal
+retrieves the block with the given
+.I score
+and
+.I dtype
+from the cache, consulting the Venti server
+if necessary.
+If passed a local score,
+.I vtcacheglobal
+behaves as
+.IR vtcachelocal .
+.PP
+The block references returned by
+.IR vtcacheallocblock ,
+.IR vtcachelocal ,
+and
+.I vtcacheglobal
+must be released when no longer needed.
+.I Vtblockput
+releases such a reference.
+.PP
+It is occasionally convenient to have multiple variables
+refer to the same block.
+.I Vtblockduplock
+increments the block's reference count so that
+an extra 
+.I vtblockput
+will be required in order to release the block.
+.PP
+.I Vtblockwrite
+writes a local block to the Venti server,
+changing the block to a global block.
+It calls the cache's
+.I write
+function
+to write the block to the server.
+The default
+.I write
+function is 
+.I vtwrite
+(see
+.IR venti-client (3));
+.I vtsetcachewrite
+sets it.
+.I Vtsetcachewrite
+is used by clients to install replacement functions 
+that run writes in the background or perform other
+additional processing.
+.PP
+.I Vtblockcopy
+copies a block in preparation for modifying its contents.
+The old block may be a local or global block, 
+but the new block will be a local block.
+.PP
+The cache only evicts global blocks.
+Local blocks can only leave the cache via
+.IR vtblockwrite ,
+which turns them into global blocks, making them candidates for
+eviction.
+.PP
+If a new cache block must be allocated (for
+.IR vtcacheallocblock ,
+.IR vtcachelocal ,
+.IR vtcacheglobal ,
+or
+.IR vtblockcopy ),
+but the cache is filled (with local blocks and blocks that
+have not yet been released with
+.IR vtblockput ),
+the library prints the score and reference count of
+every block in the cache and then aborts.
+A full cache indicates either that the cache is too small,
+or, more commonly, that cache blocks are being leaked.
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3),
+.IR venti-client (3),
+.IR venti-conn (3),
+.IR venti-file (3)

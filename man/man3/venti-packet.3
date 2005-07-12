@@ -1,0 +1,266 @@
+.TH VENTI-PACKET 3
+.SH NAME
+Packet, packetalloc, packetfree, packetforeign, packetdup,
+packetsplit, packetconsume, packettrim, packetheader, 
+packettrailer, packetprefix, packetappend, packetconcat,
+packetpeek, packetcopy, packetfragments,
+packetsize, packetasize, packetcompact, packetcmp,
+packetstats, packetsha1 \- zero-copy network buffers
+.SH SYNOPSIS
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLPacket* 'u +\w'\fLxxxx'u
+.PP
+.B
+.PP
+.B
+Packet*	packetalloc(void);
+.PP
+.B
+void	packetfree(Packet *p)
+.PP
+.B
+Packet*	packetforeign(uchar *buf, int n,
+.br
+.B
+		void (*free)(void *a), void *a)
+.PP
+.B
+Packet*	packetdup(Packet *p, int offset, int n)
+.PP
+.B
+Packet*	packetsplit(Packet *p, int n)
+.PP
+.B
+int	packetconsume(Packet *p, uchar *buf, int n)
+.PP
+.B
+int	packettrim(Packet *p, int offset, int n)
+.PP
+.B
+uchar*	packetheader(Packet *p, int n)
+.PP
+.B
+uchar*	packettrailer(Packet *p, int n)
+.PP
+.B
+void	packetprefix(Packet *p, uchar *buf, int n)
+.PP
+.B
+void	packetappend(Packet *p, uchar *buf, int n)
+.PP
+.B
+void	packetconcat(Packet *p, Packet *q)
+.PP
+.B
+uchar*	packetpeek(Packet *p, uchar *buf, int offset, int n)
+.PP
+.B
+int	packetcopy(Packet *p, uchar *buf, int offset, int n)
+.PP
+.B
+int	packetfragments(Packet *p, IOchunk *io, int nio,
+.br
+.B
+		int offset)
+.PP
+.B
+uint	packetsize(Packet *p)
+.PP
+.B
+uint	packetasize(Packet *p)
+.PP
+.B
+int	packetcmp(Packet *p, Packet *q)
+.PP
+.B
+void	packetstats(void)
+.PP
+.B
+void	packetsha1(Packet *p, uchar sha1[20])
+.SH DESCRIPTION
+A
+.B Packet
+is a list of blocks of data.
+Each block is contiguous in memory, but the entire packet
+may not be.
+This representation helps avoid unnecessary memory copies.
+.PP
+.I Packetalloc
+allocates an empty packet.
+.PP
+.I Packetappend
+appends the
+.I n
+bytes at
+.I buf
+to the end of
+.IR p .
+.PP
+.I Packetasize
+returns the number of data bytes allocated to
+.IR p .
+This may be larger than the number of bytes stored
+in
+.IR p
+because individual fragments may not be filled.
+.PP
+.I Packetcmp
+compares the data sections of two packets as
+.I memcmp
+(see
+.IR memory (3))
+would.
+.PP
+.I Packetconcat
+removes all data from
+.IR q ,
+appending it to
+.IR p .
+.PP
+.I Packetconsume
+removes
+.I n
+bytes from the beginning of 
+.IR p ,
+storing them into
+.IR buf .
+.PP
+.I Packetcopy
+copies
+.I n
+bytes at
+.I offset
+in
+.I p
+to
+.IR buf .
+.PP
+.I Packetdup
+creates a new packet initialized with
+.I n
+bytes from
+.I offset
+in
+.IR p .
+.PP
+.I Packetforeign
+allocates a packet containing `foreign' data: the
+.I n
+bytes pointed to by
+.IR buf .
+Once the bytes are no longer needed, they are freed by calling
+.IB free ( a )\fR.
+.PP
+.I Packetfragments
+initializes up to
+.I nio
+of the
+.I io
+structures with pointers to the data in
+.IR p ,
+starting at
+.IR offset .
+It returns the total number of bytes represented
+by the returned structures.
+.I Packetfragments
+initializes any unused
+.I io
+structures with nil pointer and zero length.
+.PP
+.I Packetfree
+frees the packet
+.IR p .
+.PP
+.I Packetheader
+returns a pointer to the first
+.I n
+bytes of 
+.IR p ,
+making them contiguous in memory
+if necessary.
+.PP
+.I Packetpeek
+returns a pointer to the
+.I n
+bytes at
+.I offset
+in
+.IR p .
+If the requested bytes are already stored contiguously in memory,
+the returned pointer points at the internal data storage for
+.IR p .
+Otherwise, the bytes are copied into
+.IR buf ,
+and
+.I packetpeek
+returns
+.IR buf .
+.PP
+.I Packetprefix
+inserts a copy of the
+.I n
+bytes at
+.I buf
+at the beginning of
+.IR p .
+.PP
+.I Packetsha1
+computes the SHA1 hash of the data contained in
+.IR p .
+.PP
+.I Packetsize
+returns the number of bytes of data contained in
+.IR p .
+.PP
+.I Packetsplit
+returns a new packet initialized with
+.I n
+bytes removed from the beginning of 
+.IR p .
+.PP
+.I Packetstats
+prints run-time statistics to standard output.
+.PP
+.I Packettrailer
+returns a pointer to the last
+.I n
+bytes of
+.IR p ,
+making them contiguous in memory
+if necessary.
+.PP
+.I Packettrim
+removes
+.I n
+bytes at offset
+.I offset
+from packet
+.IR p .
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (3)
+.SH DIAGNOSTICS
+These functions return errors only when passed
+invalid inputs,
+.IR e.g. ,
+requests for data at negative offsets or beyond the end of a packet.
+.PP
+Functions returning pointers return nil on error;
+functions returning integers return \-1 on error.
+Most functions returning integers return 0 on success.
+The exceptions are
+.I packetfragments
+and
+.IR packetcmp ,
+whose return values are described above.
+.PP
+When these functions run out of memory, they
+print error messages and call
+.IR sysfatal .
+They do not return.

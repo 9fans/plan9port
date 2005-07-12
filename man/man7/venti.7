@@ -1,0 +1,439 @@
+.TH VENTI 7
+.SH NAME
+venti \- archival storage server
+.SH DESCRIPTION
+Venti is a block storage server intended for archival data.
+In a Venti server, the SHA1 hash of a block's contents acts
+as the block identifier for read and write operations.
+This approach enforces a write-once policy, preventing
+accidental or malicious destruction of data.  In addition,
+duplicate copies of a block are coalesced, reducing the
+consumption of storage and simplifying the implementation
+of clients.
+.PP
+This manual page documents the basic concepts of
+block storage using Venti as well as the Venti network protocol.
+.PP
+.IR Venti (1)
+documents some simple clients.
+.IR Vac (1),
+.IR vbackup (1),
+.IR vacfs (4),
+and
+.IR vnfs (4)
+are more complex clients.
+.PP
+.IR Venti (3)
+describes a C library interface for accessing
+Venti servers and manipulating Venti data structures.
+.PP
+.IR Venti.conf (7)
+describes the Venti server configuration file.
+.PP
+.IR Venti (8)
+describes the programs used to run a Venti server.
+.PP
+.SS "Scores
+The SHA1 hash that identifies a block is called its
+.IR score .
+The score of the zero-length block is called the
+.IR "zero score" .
+.PP
+Scores may have an optional 
+.IB label :
+prefix, typically used to
+describe the format of the data.
+For example, 
+.IR vac (1)
+uses a
+.B vac:
+prefix, while
+.IR vbackup (1)
+uses prefixes corresponding to the file system
+types: 
+.BR ext2: ,
+.BR ffs: ,
+and so on.
+.SS "Files and Directories
+Venti accepts blocks up to 56 kilobytes in size.  
+By convention, Venti clients use hash trees of blocks to
+represent arbitrary-size data
+.IR files .
+The data to be stored is split into fixed-size
+blocks and written to the server, producing a list
+of scores.
+The resulting list of scores is split into fixed-size pointer
+blocks (using only an integral number of scores per block)
+and written to the server, producing a smaller list
+of scores.
+The process continues, eventually ending with the
+score for the hash tree's top-most block.
+Each file stored this way is summarized by
+a
+.B VtEntry
+structure recording the top-most score, the depth
+of the tree, the data block size, and the pointer block size.
+One or more 
+.B VtEntry
+structures can be concatenated
+and stored as a special file called a
+.IR directory .
+In this
+manner, arbitrary trees of files can be constructed
+and stored.
+.PP
+Scores passed between programs conventionally refer
+to
+.B VtRoot
+blocks, which contain descriptive information
+as well as the score of a block containing a small number
+of
+.B VtEntries .
+.SS "Block Types
+To allow programs to traverse these structures without
+needing to understand their higher-level meanings,
+Venti tags each block with a type.  The types are:
+.PP
+.nf
+.ft L
+    VtDataType     000  \f1data\fL
+    VtDataType+1   001  \fRscores of \fPVtDataType\fR blocks\fL
+    VtDataType+2   002  \fRscores of \fPVtDataType+1\fR blocks\fL
+    \fR\&...\fL
+    VtDirType      010  VtEntry\fR structures\fL
+    VtDirType+1    011  \fRscores of \fLVtDirType\fR blocks\fL
+    VtDirType+2    012  \fRscores of \fLVtDirType+1\fR blocks\fL
+    \fR\&...\fL
+    VtRootType     020  VtRoot\fR structure\fL
+.fi
+.PP
+The octal numbers listed are the type numbers used
+by the commands below.
+(For historical reasons, the type numbers used on
+disk and on the wire are different from the above.
+They do not distinguish
+.BI VtDataType+ n
+blocks from
+.BI VtDirType+ n
+blocks.)
+.SS "Zero Truncation
+To avoid storing the same short data blocks padded with
+differing numbers of zeros, Venti clients working with fixed-size
+blocks conventionally
+`zero truncate' the blocks before writing them to the server.
+For example, if a 1024-byte data block contains the 
+11-byte string 
+.RB ` hello " " world '
+followed by 1013 zero bytes,
+a client would store only the 11-byte block.
+When the client later read the block from the server,
+it would append zeros to the end as necessary to
+reach the expected size.
+.PP
+When truncating pointer blocks
+.RB ( VtDataType+ \fIn
+and
+.BI VtDirType+ n
+blocks),
+trailing zero scores are removed
+instead of trailing zero bytes.
+.PP
+Because of the truncation convention,
+any file consisting entirely of zero bytes,
+no matter what the length, will be represented by the zero score:
+the data blocks contain all zeros and are thus truncated
+to the empty block, and the pointer blocks contain all zero scores
+and are thus also truncated to the empty block, 
+and so on up the hash tree.
+.SS NETWORK PROTOCOL
+A Venti session begins when a
+.I client
+connects to the network address served by a Venti
+.IR server ;
+the conventional address is 
+.BI tcp! server !venti
+(the
+.B venti
+port is 17034).
+Both client and server begin by sending a version
+string of the form
+.BI venti- versions - comment \en \fR.
+The
+.I versions
+field is a list of acceptable versions separated by
+colons.
+The protocol described here is version
+.B 02 .
+The client is responsible for choosing a common
+version and sending it in the
+.B VtThello
+message, described below.
+.PP
+After the initial version exchange, the client transmits
+.I requests
+.RI ( T-messages )
+to the server, which subsequently returns
+.I replies
+.RI ( R-messages )
+to the client.
+The combined act of transmitting (receiving) a request
+of a particular type, and receiving (transmitting) its reply
+is called a
+.I transaction
+of that type.
+.PP
+Each message consists of a sequence of bytes.
+Two-byte fields hold unsigned integers represented
+in big-endian order (most significant byte first).
+Data items of variable lengths are represented by
+a one-byte field specifying a count,
+.IR n ,
+followed by
+.I n
+bytes of data.
+Text strings are represented similarly,
+using a two-byte count with
+the text itself stored as a UTF-8 encoded sequence
+of Unicode characters (see
+.IR utf (7)).
+Text strings are not
+.SM NUL\c
+-terminated:
+.I n
+counts the bytes of UTF-8 data, which include no final
+zero byte.
+The
+.SM NUL
+character is illegal in text strings in the Venti protocol.
+The maximum string length in Venti is 1024 bytes.
+.PP
+Each Venti message begins with a two-byte size field 
+specifying the length in bytes of the message,
+not including the length field itself.
+The next byte is the message type, one of the constants
+in the enumeration in the include file
+.BR <venti.h> .
+The next byte is an identifying
+.IR tag ,
+used to match responses with requests.
+The remaining bytes are parameters of different sizes.
+In the message descriptions, the number of bytes in a field
+is given in brackets after the field name.
+The notation
+.IR parameter [ n ]
+where
+.I n
+is not a constant represents a variable-length parameter:
+.IR n [1]
+followed by
+.I n
+bytes of data forming the
+.IR parameter .
+The notation
+.IR string [ s ]
+(using a literal
+.I s
+character)
+is shorthand for
+.IR s [2]
+followed by
+.I s
+bytes of UTF-8 text.
+The notation
+.IR parameter []
+where 
+.I parameter
+is the last field in the message represents a 
+variable-length field that comprises all remaining
+bytes in the message.
+.PP
+All Venti RPC messages are prefixed with a field
+.IR size [2]
+giving the length of the message that follows
+(not including the
+.I size
+field itself).
+The message bodies are:
+.ta \w'\fLVtTgoodbye 'u
+.IP
+.ne 2v
+.B VtThello
+.IR tag [1]
+.IR version [ s ]
+.IR uid [ s ]
+.IR strength [1]
+.IR crypto [ n ]
+.IR codec [ n ]
+.br
+.B VtRhello
+.IR tag [1]
+.IR sid [ s ] 
+.IR rcrypto [1]
+.IR rcodec [1]
+.IP
+.ne 2v
+.B VtTping
+.IR tag [1]
+.br
+.B VtRping
+.IR tag [1]
+.IP
+.ne 2v
+.B VtTread
+.IR tag [1]
+.IR score [20]
+.IR type [1]
+.IR pad [1]
+.IR count [2]
+.br
+.B VtRead
+.IR tag [1]
+.IR data []
+.IP
+.ne 2v
+.B VtTwrite
+.IR tag [1]
+.IR type [1]
+.IR pad [3]
+.IR data []
+.br
+.B VtRwrite
+.IR tag [1]
+.IR score [20]
+.IP
+.ne 2v
+.B VtTsync
+.IR tag [1]
+.br
+.B VtRsync
+.IR tag [1]
+.IP
+.ne 2v
+.B VtRerror
+.IR tag [1]
+.IR error [ s ]
+.IP
+.ne 2v
+.B VtTgoodbye
+.IR tag [1]
+.PP
+Each T-message has a one-byte
+.I tag
+field, chosen and used by the client to identify the message.
+The server will echo the request's
+.I tag
+field in the reply.
+Clients should arrange that no two outstanding
+messages have the same tag field so that responses
+can be distinguished.
+.PP
+The type of an R-message will either be one greater than
+the type of the corresponding T-message or
+.BR Rerror ,
+indicating that the request failed.
+In the latter case, the
+.I error
+field contains a string describing the reason for failure.
+.PP
+Venti connections must begin with a 
+.B hello
+transaction.
+The
+.B VtThello
+message contains the protocol
+.I version
+that the client has chosen to use.
+The fields
+.IR strength ,
+.IR crypto ,
+and
+.IR codec
+could be used to add authentication, encryption,
+and compression to the Venti session
+but are currently ignored.
+The 
+.IR rcrypto ,
+and
+.I rcodec
+fields in the 
+.B VtRhello
+response are similarly ignored.
+The
+.IR uid 
+and
+.IR sid
+fields are intended to be the identity
+of the client and server but, given the lack of
+authentication, should be treated only as advisory.
+The initial
+.B hello
+should be the only
+.B hello
+transaction during the session.
+.PP
+The
+.B ping
+message has no effect and 
+is used mainly for debugging.
+Servers should respond immediately to pings.
+.PP
+The
+.B read
+message requests a block with the given
+.I score
+and
+.I type .
+Use
+.I vttodisktype
+and
+.I vtfromdisktype
+(see
+.IR venti (3))
+to convert a block type enumeration value
+.RB ( VtDataType ,
+etc.)
+to the 
+.I type
+used on disk and in the protocol.
+The
+.I count
+field specifies the maximum expected size
+of the block.
+The
+.I data
+in the reply is the block's contents.
+.PP
+The
+.B write
+message writes a new block of the given
+.I type
+with contents
+.I data
+to the server.
+The response includes the
+.I score
+to use to read the block,
+which should be the SHA1 hash of 
+.IR data .
+.PP
+The Venti server may buffer written blocks in memory,
+waiting until after responding to the
+.B write
+message before writing them to
+permanent storage.
+The server will delay the response to a
+.B sync
+message until after all blocks in earlier
+.B write
+messages have been written to permanent storage.
+.PP
+The
+.B goodbye
+message ends a session.  There is no
+.BR VtRgoodbye :
+upon receiving the
+.BR VtTgoodbye
+message, the server terminates up the connection.
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3)

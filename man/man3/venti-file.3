@@ -1,0 +1,324 @@
+.TH VENTI-FILE 3
+.SH NAME
+VtFile,
+vtfileopenroot,
+vtfilecreateroot,
+vtfileopen,
+vtfilecreate,
+vtfileblock,
+vtfileread, 
+vtfilewrite,
+vtfileflush,
+vtfileincref,
+vtfileclose,
+vtfilegetentry,
+vtfilesetentry,
+vtfileblockscore,
+vtfilegetdirsize,
+vtfilesetdirsize,
+vtfileunlock,
+vtfilelock,
+vtfilelock2,
+vtfileflushbefore,
+vtfiletruncate,
+vtfilegetsize,
+vtfilesetsize,
+vtfileremove \- Venti files
+.SH SYNOPSIS
+.ta +\w'\fLVtBlock* 'u
+.PP
+.B
+VtFile*	vtfilecreateroot(VtCache *c, int psize, int dsize, int type);
+.PP
+.B
+VtFile*	vtfileopenroot(VtCache *c, VtEntry *e);
+.PP
+.B
+VtFile*	vtfileopen(VtFile *f, u32int n, int mode);
+.PP
+.B
+VtFile*	vtfilecreate(VtFile *f, int psize, int dsize, int dir);
+.PP
+.B
+void	vtfileincref(VtFile *f);
+.PP
+.B
+void	vtfileclose(VtFile *f);
+.PP
+.B
+int	vtfileremove(VtFile *f);
+.PP
+.B
+VtBlock*	vtfileblock(VtFile *f, u32int n, int mode);
+.PP
+.B
+long	vtfileread(VtFile *f, void *buf, long n, vlong offset);
+.PP
+.B
+long	vtfilewrite(VtFile *f, void *buf, long n, vlong offset);
+.PP
+.B
+int	vtfileflush(VtFile *f);
+.PP
+.B
+int	vtfileflushbefore(VtFile *f, vlong offset);
+.PP
+.B
+int	vtfiletruncate(VtFile *f);
+.PP
+.B
+uvlong	vtfilegetsize(VtFile *f);
+.PP
+.B
+int	vtfilesetsize(VtFile *f, vlong size);
+.PP
+.B
+u32int	vtfilegetdirsize(VtFile *f);
+.PP
+.B
+int	vtfilesetdirsize(VtFile *f, u32int size);
+.PP
+.B
+int	vtfilegetentry(VtFile *f, VtEntry *e);
+.PP
+.B
+int	vtfilesetentry(VtFile *f, VtEntry *e);
+.PP
+.B
+int	vtfileblockscore(VtFile *f, u32int n, uchar score[VtScoreSize]);
+.PP
+.B
+int	vtfilelock(VtFile *f, int mode);
+.PP
+.B
+int	vtfilelock2(VtFile *f, VtFile *f, int mode);
+.PP
+.B
+void	vtfileunlock(VtFile *f);
+.SH DESCRIPTION
+These routines provide a simple interface to create and
+manipulate Venti file trees (see
+.IR venti (1)).
+.PP
+.I Vtfilecreateroot
+creates a new Venti file.
+.I Btype
+must be either
+.B VtDataType
+or
+.BR VtDirType ,
+specifying a data or directory file.
+.I Dsize
+is the block size to use for leaf (data or directory) blocks in the hash tree;
+.I psize
+is the block size to use for intermediate (pointer) blocks.
+.PP
+.I Vtfileopenroot
+opens an existing Venti file described by
+.IR e .
+.PP
+.I Vtfileopen
+opens the Venti file described by the
+.IR n th
+entry in the directory
+.IR f .
+.I Mode
+should be one of
+.IR VtOREAD ,
+.IR VtOWRITE ,
+or
+.IR VtORDWR ,
+indicating how the returned file is to be used.
+The
+.IR VtOWRITE
+and
+.IR VtORDWR
+modes can only be used if
+.IR f
+is open with mode
+.IR VtORDWR .
+.PP
+.I Vtfilecreate
+creates a new file in the directory
+.I f
+with block type
+.I type
+and block sizes
+.I dsize
+and
+.I psize
+(see
+.I vtfilecreateroot
+above).
+.PP
+Each file has an associated reference count
+and holds a reference to its parent in the file tree.
+.I Vtfileincref
+increments this reference count.
+.I Vtfileclose
+decrements the reference count.
+If there are no other references,
+.I vtfileclose
+releases the reference to
+.IR f 's
+parent and then frees the in-memory structure
+.IR f .
+The data stored in 
+.I f
+is still accessible by reopening it.
+.PP
+.I Vtfileremove
+removes the file
+.I f
+from its parent directory.
+It also acts as 
+.IR vtfileclose ,
+releasing the reference to
+.I f
+and potentially freeing the structure.
+.PP
+.I Vtfileblock
+returns the
+.IR n th
+block in the file
+.IR f .
+If there are not 
+.I n
+blocks in the file and
+.I mode
+is 
+.BR VtOREAD ,
+.I vtfileblock
+returns nil.
+If the mode is
+.B VtOWRITE
+or
+.BR VtORDWR ,
+.I vtfileblock
+grows the file as needed and then returns the block.
+.PP
+.I Vtfileread
+reads at most
+.I n
+bytes at offset
+.I offset
+from
+.I f
+into memory at
+.IR buf .
+It returns the number of bytes read.
+.PP
+.I Vtfilewrite
+writes the 
+.I n
+bytes in memory at
+.I buf
+into the file
+.I f
+at offset 
+.IR n .
+It returns the number of bytes written,
+or \-1 on error.
+Writing fewer bytes than requested will only happen
+if an error is encountered.
+.PP
+.I Vtfilewrite
+writes to an in-memory copy of the data blocks
+(see
+.IR venti-cache (3))
+instead of writing directly to Venti.
+.I Vtfileflush
+writes all copied blocks associated with 
+.I f
+to the Venti server.
+.I Vtfileflushbefore
+flushes only those blocks corresponding to data in the file before
+byte
+.IR offset .
+Loops that
+.I vtfilewrite
+should call
+.I vtfileflushbefore
+regularly to avoid filling the block cache with dirty blocks.
+.PP
+.I Vtfiletruncate
+changes the file
+.I f
+to have zero length.
+.PP
+.I Vtfilegetsize
+returns the length (in bytes) of file
+.IR f .
+.PP
+.I Vtfilesetsize
+sets the length (in bytes) of file
+.IR f .
+.PP
+.I Vtfilegetdirsize
+returns the length (in directory entries)
+of the directory
+.IR f .
+.PP
+.I Vtfilesetdirsize
+sets the length (in directory entries)
+of the directory
+.IR f .
+.PP
+.I Vtfilegetentry
+fills
+.I e
+with an entry that can be passed to
+.IR vtfileopenroot
+to reopen
+.I f
+at a later time.
+.PP
+.I Vtfilesetentry
+sets the entry associated with
+.I f
+to be
+.IR e .
+.PP
+.I Vtfileblockscore
+returns in
+.I score
+the score of the
+.I n th
+block in the file
+.IR f .
+.PP
+Venti files are locked and unlocked
+via
+.I vtfilelock
+and
+.I vtfileunlock
+to moderate concurrent access.
+Only one thread at a time\(emthe one that has the file locked\(emcan
+read or modify the file.
+The functions that return files
+.RI ( vtfilecreateroot ,
+.IR vtfileopenroot ,
+.IR vtfilecreate ,
+and
+.IR vtfileopen )
+return them unlocked.
+When files are passed to any of the functions documented in 
+this manual page, it is the caller's responsibility to ensure that
+they are already locked.
+.PP
+Internally, a file is locked by locking the
+block that contains its directory entry.
+When two files in the same
+directory both need to be locked,
+.I vtfilelock2
+must be used.
+It locks both its arguments, taking special care
+not to deadlock if their entries are stored
+in the same directory block.
+.SH SOURCE
+.B \*9/src/libventi/file.c
+.SH SEE ALSO
+.IR venti (1),
+.IR venti-cache (3),
+.IR venti-conn (3),
+.IR venti-client (3)

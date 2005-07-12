@@ -1,0 +1,121 @@
+.TH VENTI-SERVER 3
+.SH NAME
+vtsrvhello, vtlisten, vtgetreq, vtrespond \- Venti server
+.SH SYNOPSIS
+.PP
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLVtReq* 'u
+.PP
+.ft L
+.nf
+typedef struct VtReq
+{
+	VtFcall tx;
+	VtFcall rx;
+	...
+} VtReq;
+.PP
+.B
+int	vtsrvhello(VtConn *z)
+.PP
+.B
+VtSrv*	vtlisten(char *addr)
+.PP
+.B
+VtReq*	vtgetreq(VtSrv *srv)
+.PP
+.B
+void	vtrespond(VtReq *req)
+.SH DESCRIPTION
+These routines execute the server side of the
+.IR venti (7)
+protocol.
+.PP
+.I Vtsrvhello
+executes the server side of the initial
+.B hello
+transaction.
+It sets
+.IB z -> uid
+with the user name claimed by the other side.
+Each new connection must be initialized by running
+.I vtversion
+and then
+.IR vtsrvhello .
+The framework below takes care of this detail automatically;
+.I vtsrvhello
+is provided for programs that do not use the functions below.
+.PP
+.IR Vtlisten ,
+.IR vtgetreq ,
+and
+.I vtrespond
+provide a simple framework for writing Venti servers.
+.PP
+.I Vtlisten
+announces at the network address
+.IR addr ,
+returning a fresh
+.B VtSrv
+structure representing the service.
+.PP
+.I Vtgetreq
+waits for and returns
+the next 
+.BR read ,
+.BR write ,
+.BR sync ,
+or
+.B ping
+request from any client connected to
+the service
+.IR srv .
+.B Hello
+and
+.B goodbye
+messages are handled internally and not returned to the client.
+The interface does not distinguish between the
+different clients that may be connected at any given time.
+The request can be found in the
+.I tx
+field of the returned
+.BR VtReq .
+.PP
+Once a request has been served and a response stored in
+.IB r ->rx \fR,
+the server should call
+.IR vtrespond
+to send the response to the client.
+.I Vtrespond
+frees the structure
+.I r
+as well as the packets
+.IB r ->tx.data
+and
+.IB r ->rx.data \fR.
+.SH EXAMPLE
+.B \*9/src/venti/cmd
+contains two simple Venti servers 
+.B ro.c
+and
+.B devnull.c
+written using these routines.
+.I Ro
+is a read-only Venti proxy (it rejects
+.B write
+requests).
+.I Devnull
+is a write-only Venti server: it discards all
+blocks written to it and returns error on all reads.
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3),
+.IR venti-conn (3),
+.IR venti-packet (3)

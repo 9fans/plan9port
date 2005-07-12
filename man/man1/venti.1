@@ -1,0 +1,149 @@
+.TH VENTI 1
+.SH NAME
+read, write, copy \- simple Venti clients
+.SH SYNOPSIS
+.B venti/read
+[
+.B -h
+.I host
+]
+[
+.B -t
+.I type
+]
+.I score
+.br
+.B venti/write
+[
+.B -z
+]
+[
+.B -h
+.I host
+]
+[
+.B -t
+.I type
+]
+.br
+.B venti/copy
+[
+.B -fir
+]
+[
+.B -t
+.I type
+]
+.I srchost
+.I dsthost
+.I score
+.SH DESCRIPTION
+Venti is a SHA1-addressed block storage server.
+See 
+.IR venti (7)
+for a full introduction.
+.PP
+.I Read
+reads a block with the given
+.I score
+and numeric
+.I type 
+from the server
+.I host
+and prints the block to standard output.
+If the
+.B -h
+option is omitted,
+.I read
+consults the environment variable
+.B $venti
+for the name of the Venti server.
+If the
+.B -t
+option is omitted,
+.I read
+will try each type, one at a time, until it finds
+one that works.
+It prints the corresponding
+.B read
+.B -t
+command to standard error
+to indicate the type of the block.
+.PP
+.I Write
+writes at most 56 kilobytes of data from standard input 
+to the server
+.I host
+and prints the resulting score to standard output.
+If the
+.B -t
+option is omitted,
+.I write
+uses type 0,
+denoting a data block.
+If the
+.B -z
+option is given,
+.I write
+truncates the block before writing it to the server.
+.PP
+.I Copy
+expects
+.I score
+to be the score of a 
+.B VtRoot
+block.
+It copies the entire tree of blocks reachable from
+the root block from the server
+.I srchost
+to the server
+.IR dsthost .
+.PP
+The
+.B -f
+option causes
+.I copy
+to run in `fast' mode,
+assuming that if a block already exists on the
+destination Venti server, all its children also
+exist and need not be checked.
+.PP
+The
+.B -i
+and
+.B -r
+option control
+.IR copy 's
+behavior upon encountering errors while reading
+from srchost.
+.I Copy
+always prints information to standard error
+about each read error.
+By default,
+.I copy
+immediately exits after printing the first error.
+If the
+.B -i
+option is given, read errors are ignored.
+This is dangerous behavior because it breaks the 
+assumption made by `fast' mode.
+If the
+.B -r
+option is given, 
+.I copy
+replaces pointers to unreadable blocks with
+pointers to the zero block.
+It writes the new root score to standard output.
+.SH SOURCE
+.B \*9/src/cmd/venti/cmd
+.SH SEE ALSO
+.IR vac (1),
+.IR vbackup (1),
+.IR venti (3),
+.IR vacfs (4),
+.IR vnfs (4),
+.IR venti (7),
+.IR venti (8)
+.SH BUGS
+There should be programs to read and write
+streams and directories.

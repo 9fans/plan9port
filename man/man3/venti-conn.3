@@ -1,0 +1,188 @@
+.TH VENTI-CONN 3
+.SH NAME
+VtConn, vtconn, vtdial, vtfreeconn, vtsend, vtrecv, vtversion,
+vtdebug, vthangup \- Venti network connections
+.SH SYNOPSIS
+.PP
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.PP
+.ft L
+.nf
+.ta +\w'\fL    'u
+typedef struct VtConn {
+	int  debug;
+	char *version;
+	char *uid;
+	char *sid;
+	char addr[256];
+	...
+} VtConn;
+.PP
+.ta \w'\fLextern int 'u
+.B
+VtConn*	vtconn(int infd, int outfd)
+.PP
+.B
+VtConn*	vtdial(char *addr)
+.PP
+.B
+int	vtversion(VtConn *z)
+.PP
+.B
+int	vtsend(VtConn *z, Packet *p)
+.PP
+.B
+Packet*	vtrecv(VtConn *z)
+.PP
+.B
+void	vtrecvproc(void *z)
+.PP
+.B
+void	vtsendproc(void *z)
+.PP
+.B
+void	vtdebug(VtConn *z, char *fmt, ...)
+.PP
+.B
+void	vthangup(VtConn *z)
+.PP
+.B
+void	vtfreeconn(VtConn *z)
+.PP
+.B
+extern int	chattyventi;	/* default 0 */
+.SH DESCRIPTION
+A
+.B VtConn
+structure represents a connection to a Venti server
+(when used by a client) or to a client (when used by a server).
+.PP
+.I Vtconn
+initializes a new connection structure using file descriptors
+.I infd
+and
+.I outfd
+(which may be the same)
+for reading and writing.
+.I Vtdial
+dials the given network address
+(see
+.IR dial (3))
+and returns a corresponding connection.
+It returns nil if the connection cannot be established.
+.PP
+.I Vtversion
+exchanges version information with the remote side
+as described in
+.IR venti (7).
+The negotiated version is stored in
+.IB z -> version \fR.
+.PP
+.I Vtsend
+writes a packet
+(see
+.IR venti-packet (3))
+on the connection
+.IR z .
+The packet
+.IR p
+should be a formatted Venti message as might
+be returned by
+.IR vtfcallpack ;
+.I vtsend
+will add the two-byte length field
+(see
+.IR venti (7))
+at the begnning.
+.I Vtsend
+frees
+.IR p ,
+even on error.
+.PP
+.I Vtrecv
+reads a packet from the connection
+.IR z .
+Analogous to
+.IR vtsend ,
+the data read from the connection must start with
+a two-byte length, but the returned packet will omit them.
+.PP
+By default, 
+.I vtsend
+and
+.I vtrecv
+block until the packet can be written or read from the network.
+In a threaded program
+(see
+.IR thread (3)),
+this may not be desirable.
+If the caller arranges for
+.IR vtsendproc
+and
+.IR vtrecvproc
+to run in their own procs
+(typically by calling
+.IR proccreate ),
+then
+.I vtsend
+and
+.I vtrecv
+will yield the proc in which they are run
+to other threads when waiting on the network.
+The
+.B void*
+argument to
+.I vtsendproc
+and
+.I vtrecvproc
+must be the connection structure
+.IR z .
+.PP
+.I Vtdebug
+prints the formatted message to standard error
+when
+.IB z -> debug
+is set.  Otherwise it is a no-op.
+.PP
+.I Vthangup
+hangs up a connection.
+It closes the associated file descriptors
+and shuts down send and receive procs if they have been
+started.
+Future calls to
+.IR vtrecv
+or
+.IR vtsend
+will return errors.
+Additional calls to
+.I vthangup
+will have no effect.
+.PP
+.I Vtfreeconn
+frees the connection structure, hanging it up first
+if necessary.
+.PP
+If the global variable
+.I chattyventi
+is set, the library prints all Venti RPCs to standard error
+as they are sent or received.
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3),
+.IR venti-client (3),
+.IR venti-packet (3),
+.IR venti-server (3),
+.IR venti (7)
+.SH DIAGNOSTICS
+Routines that return pointers return nil on error.
+Routines returning integers return 0 on success, \-1 on error.
+All routines set
+.I errstr
+on error.

@@ -1,0 +1,56 @@
+.TH VENTI-ZERO 3
+.SH NAME
+vtzerotruncate, vtzeroextend, vtzeroscore \- Venti block truncation
+.SH SYNOPSIS
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLuint 'u
+.PP
+.B
+uint	vtzerotruncate(int type, uchar *buf, uint size)
+.PP
+.B
+void	vtzeroextend(int type, uchar *buf, uint size, uint newsize)
+.PP
+.B
+extern uchar vtzeroscore[VtScoreSize];
+.SH DESCRIPTION
+These utility functions compute how to truncate or replace
+trailing zeros (for data blocks) or trailing zero scores
+(for pointer blocks) to canonicalize the blocks before
+storing them to Venti.
+.PP
+.I Vtzerotruncate
+returns the size of the 
+.IR size -byte
+buffer pointed to by
+.I buf
+ignoring trailing zeros or zero scores,
+according to the block type
+.IR type .
+.PP
+.I Vtzeroextend
+pads
+.I buf
+with zeros or zero scores,
+according to the block type
+.IR type ,
+to grow it from
+.I size
+bytes to
+.I newsize
+bytes.
+.PP
+.I Vtzeroscore
+is the score of the zero-length block.
+.SH SOURCE
+.B \*9/src/libventi/zero.c
+.br
+.B \*9/src/libventi/zeroscore.c
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3)

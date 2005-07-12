@@ -1,0 +1,194 @@
+.TH VENTI-CLIENT 3
+.SH NAME
+vtconnect, vthello, vtread, vtwrite, vtreadpacket, vtwritepacket, vtsync, vtping, vtrpc, ventidoublechecksha1 \- Venti client
+.SH SYNOPSIS
+.ft L
+#include <u.h>
+.br
+#include <libc.h>
+.br
+#include <venti.h>
+.ta +\w'\fLextern int 'u +\w'\fLxxxxxxxx'u
+.PP
+.B
+Packet*	vtrpc(VtConn *z, Packet *p)
+.PP
+.B
+int	vthello(VtConn *z)
+.PP
+.B
+int	vtconnect(VtConn *z)
+.PP
+.B
+int	vtread(VtConn *z, uchar score[VtScoreSize],
+.br
+.B
+		uint type, uchar *buf, int n)
+.PP
+.B
+int	vtwrite(VtConn *z, uchar score[VtScoreSize],
+.br
+.B
+		uint type, uchar *buf, int n)
+.PP
+.B
+Packet*	vtreadpacket(VtConn *z, uchar score[VtScoreSize],
+.br
+.B
+		uint type, int n)
+.PP
+.B
+int	vtwritepacket(VtConn *z, uchar score[VtScoreSize],
+.br
+.B
+		uint type, Packet *p)
+.PP
+.B
+int	vtsync(VtConn *z)
+.PP
+.B
+int	vtping(VtConn *z)
+.PP
+.B
+extern int	ventidoublechecksha1;	/* default 1 */
+.SH DESCRIPTION
+These routines execute the client side of the 
+.IR venti (7)
+protocol.
+.PP
+.I Vtrpc
+executes a single Venti RPC transaction, sending the request 
+packet
+.IR p
+and then waiting for and returning the response packet.
+.I Vtrpc
+will set the tag in the packet.
+.I Vtrpc
+frees
+.IR p ,
+even on error.
+.I Vtrpc
+is typically called only indirectly, via the functions below.
+.PP
+.I Vthello
+executes a
+.B hello
+transaction
+(see
+.IR venti (7)), setting
+.IB z -> sid
+to the name used by the server.
+.I Vthello
+is typically called only indirectly, via
+.IR vtconnect .
+.PP
+.I Vtconnect
+calls
+.I vtversion
+(see
+.IR venti-conn (3))
+and
+.IR vthello ,
+in that order, returning success only
+if both succeed.
+This sequence (calling 
+.I vtversion
+and then
+.IR vthello )
+must be done before the functions below can be called.
+.PP
+.I Vtread
+reads the block with the given
+.I score
+and
+.I type
+from the server,
+writes the returned data
+to
+.IR buf ,
+and returns the number of bytes retrieved.
+If the stored block has size larger than
+.IR n ,
+.I vtread 
+does not modify
+.I buf
+and
+returns an error.
+.PP
+.I Vtwrite
+writes the
+.I n
+bytes in 
+.I buf
+with type
+.IR type ,
+setting 
+.IR score .
+.PP
+.I Vtreadpacket
+and
+.I vtwritepacket
+are like
+.I vtread
+and
+.I vtwrite
+but return or accept the block contents in the
+form of a
+.BR Packet .
+They avoid making a copy of the data.
+.PP
+.I Vtsync
+causes the server to flush all pending write requests
+to disk before returning.
+.PP
+.I Vtping
+executes a ping transaction with the server.
+.PP
+By default,
+.I vtread
+and
+.I vtreadpacket
+check that the SHA1 hash of the returned data 
+matches the requested
+.IR score ,
+and
+.I vtwrite
+and
+.I vtwritepacket
+check that the returned
+.I score
+matches the SHA1 hash of the written data.
+Setting
+.I ventidoublechecksha1
+to zero disables these extra checks,
+mainly for benchmarking purposes.
+Doing so in production code is not recommended.
+.PP
+These functions can be called from multiple threads
+or procs simultaneously to issue requests 
+in parallel.
+Programs that issue requests from multiple threads
+in the same proc should start separate procs running
+.I vtsendproc
+and
+.I vtrecvproc
+as described in
+.IR venti-conn (3).
+.SH SOURCE
+.B \*9/src/libventi
+.SH SEE ALSO
+.IR venti (1),
+.IR venti (3),
+.IR venti-conn (3),
+.IR venti-packet (3),
+.IR venti (7)
+.SH DIAGNOSTICS
+.I Vtrpc
+and
+.I vtpacket
+return nil on error.
+The other routines return \-1 on error.
+.PP
+.I Vtwrite
+returns 0 on success,
+meaning it wrote the entire block.
