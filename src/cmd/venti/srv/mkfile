@@ -1,0 +1,146 @@
+<$PLAN9/src/mkhdr
+CC=9c
+
+AR=ar
+
+LIBOFILES=\
+	arena.$O\
+	arenas.$O\
+	bloom.$O\
+	buildbuck.$O\
+	clump.$O\
+	config.$O\
+	conv.$O\
+	dcache.$O\
+	dump.$O\
+	graph.$O\
+	httpd.$O\
+	icache.$O\
+	icachewrite.$O\
+	ifile.$O\
+	index.$O\
+	lump.$O\
+	lumpcache.$O\
+	lumpqueue.$O\
+	part.$O\
+	png.$O\
+	round.$O\
+	score.$O\
+	sortientry.$O\
+	stats.$O\
+	syncarena.$O\
+	syncindex0.$O\
+	trace.$O\
+	unwhack.$O\
+	utils.$O\
+	unittoull.$O\
+	whack.$O\
+	xml.$O\
+	zblock.$O\
+	zeropart.$O\
+
+SLIB=libvs.a
+
+LIB=$SLIB
+
+HFILES=	dat.h\
+	fns.h\
+	stdinc.h\
+
+TARG=\
+	venti\
+	fmtarenas\
+	fmtbloom\
+	fmtisect\
+	fmtindex\
+	buildindex\
+	checkarenas\
+	checkindex\
+	clumpstats\
+	findscore\
+	rdarena\
+	wrarena\
+	syncindex\
+	printarena\
+	verifyarena\
+
+OFILES=
+
+BIN=$BIN/venti
+
+it:V: $O.venti
+
+$O.venti: # debugmalloc2.$O # debugmalloc.$O #_p9dir.$O debugmalloc.$O
+
+CLEANFILES=$CLEANFILES $SLIB
+
+<$PLAN9/src/mkmany
+
+$SLIB: $LIBOFILES
+	$AR rvc $SLIB $LIBOFILES
+
+# xml.c:D:	mkxml dat.h
+# 	./mkxml dat.h > xml.c
+
+ainstall:V: ${TARG:%=%.ainstall}
+
+%.ainstall:V:	$O.%
+	scp $prereq amsterdam:/usr/local/bin/venti/$stem
+
+test:VQ: ${TARG:%=o.%}
+	slay o.venti|rc
+	vtmp=/home/tmp
+	echo '**********' FMTARENAS
+	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
+	echo '**********' FMTBLOOM
+	./o.fmtbloom -s 10M $vtmp/bloom
+	echo '**********' FMTISECT
+	./o.fmtisect -b 8k isect $vtmp/isect
+	(
+		echo index main
+		echo isect $vtmp/isect
+		echo arenas $vtmp/arena
+		echo bloom $vtmp/bloom
+		echo webroot $HOME/src/venti/www
+		echo mem 64M
+		echo icmem 64M
+		echo bcmem 64M
+	) >vtmp.conf
+	echo '**********' FMTINDEX
+	./o.fmtindex vtmp.conf
+	echo '**********' VENTI
+	# ./o.venti -c vtmp.conf -B 64M -I 64M -C 64M -a 'tcp!*!17034' -h 'tcp!*!8001'  >a 2>&1 &
+	./o.venti -c vtmp.conf -a 'tcp!*!17034' -h 'tcp!*!8001'  >a 2>&1 &
+	sleep 5
+	echo '**********' VAC
+	venti='tcp!127.0.0.1!17034' export venti
+	9 time vac /usr/local/plan9 >a.vac
+	case ${websync:-no} in
+	yes)
+		echo '**********' SYNC VIA WEB
+		hget http://127.0.0.1:8001/flushdcache
+		hget http://127.0.0.1:8001/flushicache
+		hget http://127.0.0.1:8001/flushdcache
+		echo '**********' KILL VENTI
+		killall -9 o.venti
+		;;
+	no)
+		echo '**********' KILL VENTI
+		killall -9 o.venti
+		echo '**********' SYNCINDEX
+		./o.syncindex -B64M -I64M -f vtmp.conf
+		;;
+	esac
+	echo '**********' CHECKINDEX
+	./o.checkindex -B64M vtmp.conf /home/tmp/check >check.out
+	wc check.out
+
+luadisk.o: luadisk.c
+	gcc -c -ggdb -Wall -I/usr/include/lua50 luadisk.c
+
+libluadisk.so: luadisk.o
+	gcc -shared -o $target luadisk.o -llua50 -llualib50
+
+$O.xwrarena: xwrarena.$O
+	$LD -o $target xwrarena.$O 
+

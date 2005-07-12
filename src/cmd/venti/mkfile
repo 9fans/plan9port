@@ -1,3 +1,13 @@
-%:VQ:
-	echo venti will return once it is debugged.
+<$PLAN9/src/mkhdr
+
+DIRS=srv
+
+TARG=\
+	copy\
+	read\
+	sync\
+	write\
+
+<$PLAN9/src/mkmany
+<$PLAN9/src/mkdirs
 
