@@ -1265,9 +1265,3 @@ refreshconfigread(Cnode *n, u32int count, u64int offset, uchar **data, u32int *p
 	return Nfs3Ok;
 }
 
-void
-abort(void)
-{
-	for(;;)
-		*(int*)0=0;
-}
