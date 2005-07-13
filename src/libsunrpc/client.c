@@ -354,9 +354,12 @@ sunclientclose(SunClient *cli)
 	if(!cli->timertid)
 		n++;
 	while(n < 2){
-	//	threadint(cli->nettid);
-	//	if(cli->timertid)
-	//		threadint(cli->timertid);
+/*
+		threadint(cli->nettid);
+		if(cli->timertid)
+			threadint(cli->timertid);
+*/
+
 		yield();
 		while(nbrecv(cli->dying, nil) == 1)
 			n++;
