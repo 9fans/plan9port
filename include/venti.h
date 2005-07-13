@@ -281,7 +281,7 @@ enum
 
 struct VtFcall
 {
-	uchar	type;
+	uchar	msgtype;
 	uchar	tag;
 
 	char	*error;	/* Rerror */
@@ -299,7 +299,7 @@ struct VtFcall
 	uchar	*auth;		/* TauthX, RauthX */
 	uint	nauth;		/* TauthX, RauthX */
 	uchar	score[VtScoreSize];	/* Tread, Rwrite */
-	uchar	dtype;		/* Tread, Twrite */
+	uchar	blocktype;		/* Tread, Twrite */
 	ushort	count;		/* Tread */
 	Packet	*data;		/* Rread, Twrite */
 };
@@ -411,9 +411,6 @@ struct VtBlock
 	u32int	used;
 	u32int	used2;
 	u32int	addr;
-
-	/* internal to efile (HACK) */
-	int		decrypted;
 };
 
 u32int vtglobaltolocal(uchar[VtScoreSize]);
@@ -460,7 +457,6 @@ enum
 	VtOREAD,
 	VtOWRITE,
 	VtORDWR,
-	VtOCREATE = 0x100,
 };
 
 VtFile *vtfileopenroot(VtCache*, VtEntry*);
@@ -481,7 +477,7 @@ int vtfilesetdirsize(VtFile*, u32int);
 void	vtfileunlock(VtFile*);
 int vtfilelock(VtFile*, int);
 int vtfilelock2(VtFile*, VtFile*, int);
-int vtfileflushbefore(VtFile*, u64int);
+int vtfileflushbefore(VtFile*, uvlong);
 int vtfiletruncate(VtFile*);
 uvlong vtfilegetsize(VtFile*);
 int vtfilesetsize(VtFile*, uvlong);
