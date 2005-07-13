@@ -9,8 +9,6 @@
 #include "grap.h"
 #include "y.tab.h"
 
-extern	struct	symtab	symtab[];
-
 int	yyback(int *, int);
 int	yylook(void);
 int	yywrap(void);
