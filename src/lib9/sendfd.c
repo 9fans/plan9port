@@ -6,6 +6,22 @@
 #include <unistd.h>
 #include <errno.h>
 
+#ifndef CMSG_ALIGN
+#	ifdef __sun__
+#		define CMSG_ALIGN _CMSG_DATA_ALIGN
+#	else
+#		define CMSG_ALIGN(len) (((len)+sizeof(long)-1) & ~(sizeof(long)-1))
+#	endif
+#endif
+
+#ifndef CMSG_SPACE
+#	define CMSG_SPACE(len) (CMSG_ALIGN(sizeof(struct cmsghdr))+CMSG_ALIGN(len))
+#endif
+
+#ifndef CMSG_LEN
+#	define CMSG_LEN(len) (CMSG_ALIGN(sizeof(struct cmsghdr))+(len))
+#endif
+
 int
 sendfd(int s, int fd)
 {
