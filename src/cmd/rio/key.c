@@ -46,6 +46,7 @@ keypress(XKeyEvent *e)
 	/*
 	 * process key press here
 	 */
+	if(0)
 	if(e->keycode == tabcode)
 		alttab(e->state&ShiftMask);
 	XAllowEvents(dpy, SyncKeyboard, e->time);

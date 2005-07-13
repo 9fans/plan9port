@@ -26,7 +26,7 @@ manage(Client *c, int mapped)
 	XSetWindowAttributes attrs;
 
 	trace("manage", c, 0);
-	XSelectInput(dpy, c->window, ColormapChangeMask | EnterWindowMask | PropertyChangeMask | FocusChangeMask);
+	XSelectInput(dpy, c->window, ColormapChangeMask | EnterWindowMask | PropertyChangeMask | FocusChangeMask | KeyPressMask);
 
 	/* Get loads of hints */
 
@@ -138,7 +138,7 @@ manage(Client *c, int mapped)
 			CWBackPixel | CWBorderPixel | CWColormap,
 			&attrs);
 
-	XSelectInput(dpy, c->parent, SubstructureRedirectMask | SubstructureNotifyMask|ButtonPressMask| PointerMotionMask|LeaveWindowMask);
+	XSelectInput(dpy, c->parent, SubstructureRedirectMask | SubstructureNotifyMask|ButtonPressMask| PointerMotionMask|LeaveWindowMask|KeyPressMask);
 	if(mapped)
 		c->reparenting = 1;
 	if(doreshape && !fixsize)

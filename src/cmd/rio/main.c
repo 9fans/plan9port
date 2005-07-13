@@ -335,7 +335,8 @@ initscreen(ScreenInfo *s, int i, int background)
 	attr.cursor = s->arrow;
 	attr.event_mask = SubstructureRedirectMask
 		| SubstructureNotifyMask | ColormapChangeMask
-		| ButtonPressMask | ButtonReleaseMask | PropertyChangeMask;
+		| ButtonPressMask | ButtonReleaseMask | PropertyChangeMask |
+		KeyPressMask;
 	mask = CWCursor|CWEventMask;
 	XChangeWindowAttributes(dpy, s->root, mask, &attr);
 	XSync(dpy, False);
