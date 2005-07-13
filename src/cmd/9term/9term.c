@@ -922,6 +922,23 @@ key(Rune r)
 		return;
 	}
 
+	/*
+	 * This if used to be below the if(rawon() && t.q0==t.nr),
+	 * but let's try putting it here.  This will allow ESC-processing
+	 * to toggle hold mode even in remote SSH connections.
+	 * The drawback is that vi-style processing gets harder.
+	 * If you find yourself in some weird readline mode, good
+	 * luck getting out without ESC.  Let's see who complains.
+	 */
+	if(r==ESC){	/* toggle hold */
+		holdon = !holdon;
+		drawhold(holdon);
+	/*	replaceintegerproperty("_9WM_HOLD_MODE", 1, 32, holdon); */
+		if(!holdon)
+			consread();
+		return;
+	}
+	
 	if(rawon() && t.q0 == t.nr){
 		addraw(&r, 1);
 		consread();
@@ -939,15 +956,6 @@ key(Rune r)
 		return;
 	}
 
-	if(r==ESC){	/* toggle hold */
-		holdon = !holdon;
-		drawhold(holdon);
-	/*	replaceintegerproperty("_9WM_HOLD_MODE", 1, 32, holdon); */
-		if(!holdon)
-			consread();
-		return;
-	}
-	
 	snarf();
 
 	switch(r) {

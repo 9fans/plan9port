@@ -52,7 +52,13 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		exit(3);
 		sysfatal("getpts: %r\n");
 	}
-	notedisable("sys: window size change");
+	/*
+	 * notedisable("sys: window size change");
+	 * 
+	 * Can't disable because will be inherited by other programs
+	 * like if you run an xterm from the prompt, and then xterm's
+	 * resizes won't get handled right.  Sigh.
+	 */
 	pid = fork();
 	switch(pid){
 	case 0:
