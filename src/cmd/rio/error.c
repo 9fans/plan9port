@@ -85,9 +85,9 @@ graberror(char *f, int err)
 void
 dotrace(char *s, Client *c, XEvent *e)
 {
-	fprintf(stderr, "rio: %s: c=0x%x", s, c);
+	fprintf(stderr, "rio: %s: c=%p", s, c);
 	if(c)
-		fprintf(stderr, " x %d y %d dx %d dy %d w 0x%x parent 0x%x", c->x, c->y, c->dx, c->dy, c->window, c->parent);
+		fprintf(stderr, " x %d y %d dx %d dy %d w 0x%x parent 0x%x", c->x, c->y, c->dx, c->dy, (uint)c->window, (uint)c->parent);
 #ifdef	DEBUG_EV
 	if(e){
 		fprintf(stderr, "\n\t");

@@ -229,7 +229,7 @@ dump_revert(void)
 
 	i = 0;
 	for(c = current; c; c = c->revert){
-		fprintf(stderr, "%s(%x:%d)", c->label ? c->label : "?", c->window, c->state);
+		fprintf(stderr, "%s(%x:%d)", c->label ? c->label : "?", (uint)c->window, c->state);
 		if(i++ > 100)
 			break;
 		if(c->revert)
@@ -246,7 +246,7 @@ dump_clients(void)
 	Client *c;
 
 	for(c = clients; c; c = c->next)
-		fprintf(stderr, "w 0x%x parent 0x%x @ (%d, %d)\n", c->window, c->parent, c->x, c->y);
+		fprintf(stderr, "w 0x%x parent 0x%x @ (%d, %d)\n", (uint)c->window, (uint)c->parent, c->x, c->y);
 }
 #endif
 
@@ -263,7 +263,7 @@ shuffle(int up)
 		for(l=&clients; (*l)->next; l=&(*l)->next)
 			;
 		c = *l;
-		*l = nil;
+		*l = 0;
 		c->next = clients;
 		clients = c;
 		XMapRaised(dpy, c->parent);
