@@ -15,24 +15,32 @@ void
 mainloop(int shape_event)
 {
 	XEvent ev;
-
-	for (;;) {
+	XKeyEvent *ke;
+	
+Top:
+	for(;;){
 		getevent(&ev);
 
 #ifdef	DEBUG_EV
-		if (debug) {
+		if(debug){
 			ShowEvent(&ev);
 			printf("\n");
 		}
 #endif
-		switch (ev.type) {
+		switch (ev.type){
 		default:
 #ifdef	SHAPE
-			if (shape && ev.type == shape_event)
+			if(shape && ev.type == shape_event)
 				shapenotify((XShapeEvent *)&ev);
 			else
 #endif
 				fprintf(stderr, "rio: unknown ev.type %d\n", ev.type);
+			break;
+		case KeyPress:
+			keypress(&ev.xkey);
+			break;
+		case KeyRelease:
+			keyrelease(&ev.xkey);
 			break;
 		case ButtonPress:
 			button(&ev.xbutton);
@@ -117,26 +125,26 @@ configurereq(XConfigureRequestEvent *e)
 
 	e->value_mask &= ~CWSibling;
 
-	if (c) {
+	if(c){
 		gravitate(c, 1);
-		if (e->value_mask & CWX)
+		if(e->value_mask & CWX)
 			c->x = e->x;
-		if (e->value_mask & CWY)
+		if(e->value_mask & CWY)
 			c->y = e->y;
-		if (e->value_mask & CWWidth)
+		if(e->value_mask & CWWidth)
 			c->dx = e->width;
-		if (e->value_mask & CWHeight)
+		if(e->value_mask & CWHeight)
 			c->dy = e->height;
-		if (e->value_mask & CWBorderWidth)
+		if(e->value_mask & CWBorderWidth)
 			c->border = e->border_width;
 		gravitate(c, 0);
-		if (e->value_mask & CWStackMode) {
-			if (e->detail == Above)
+		if(e->value_mask & CWStackMode){
+			if(e->detail == Above)
 				top(c);
 			else
 				e->value_mask &= ~CWStackMode;
 		}
-		if (c->parent != c->screen->root && c->window == e->window) {
+		if(c->parent != c->screen->root && c->window == e->window){
 			wc.x = c->x-BORDER;
 			wc.y = c->y-BORDER;
 			wc.width = c->dx+2*BORDER;
@@ -146,14 +154,14 @@ configurereq(XConfigureRequestEvent *e)
 			wc.stack_mode = e->detail;
 			XConfigureWindow(dpy, c->parent, e->value_mask, &wc);
 			sendconfig(c);
-			if (e->value_mask & CWStackMode) {
+			if(e->value_mask & CWStackMode){
 				top(c);
 				active(c);
 			}
 		}
 	}
 
-	if (c && c->init) {
+	if(c && c->init){
 		wc.x = BORDER;
 		wc.y = BORDER;
 	}
@@ -182,23 +190,23 @@ mapreq(XMapRequestEvent *e)
 	c = getclient(e->window, 0);
 	trace("mapreq", c, e);
 
-	if (c == 0 || c->window != e->window) {
+	if(c == 0 || c->window != e->window){
 		/* workaround for stupid NCDware */
 		fprintf(stderr, "rio: bad mapreq c %p w %x, rescanning\n",
 			c, (int)e->window);
-		for (i = 0; i < num_screens; i++)
+		for(i = 0; i < num_screens; i++)
 			scanwins(&screens[i]);
 		c = getclient(e->window, 0);
-		if (c == 0 || c->window != e->window) {
+		if(c == 0 || c->window != e->window){
 			fprintf(stderr, "rio: window not found after rescan\n");
 			return;
 		}
 	}
 
-	switch (c->state) {
+	switch (c->state){
 	case WithdrawnState:
-		if (c->parent == c->screen->root) {
-			if (!manage(c, 0))
+		if(c->parent == c->screen->root){
+			if(!manage(c, 0))
 				return;
 			break;
 		}
@@ -210,7 +218,7 @@ mapreq(XMapRequestEvent *e)
 		XMapRaised(dpy, c->parent);
 		top(c);
 		setstate(c, NormalState);
-		if (c->trans != None && current && c->trans == current->window)
+		if(c->trans != None && current && c->trans == current->window)
 				active(c);
 		break;
 	case IconicState:
@@ -226,18 +234,18 @@ unmap(XUnmapEvent *e)
 
 	curtime = CurrentTime;
 	c = getclient(e->window, 0);
-	if (c) {
-		switch (c->state) {
+	if(c){
+		switch (c->state){
 		case IconicState:
-			if (e->send_event) {
+			if(e->send_event){
 				unhidec(c, 0);
 				withdraw(c);
 			}
 			break;
 		case NormalState:
-			if (c == current)
+			if(c == current)
 				nofocus();
-			if (!c->reparenting)
+			if(!c->reparenting)
 				withdraw(c);
 			break;
 		}
@@ -258,17 +266,17 @@ newwindow(XCreateWindowEvent *e)
 	ScreenInfo *s;
 
 	/* we don't set curtime as nothing here uses it */
-	if (e->override_redirect)
+	if(e->override_redirect)
 		return;
 	c = getclient(e->window, 1);
-	if (c && c->window == e->window && (s = getscreen(e->parent))) {
+	if(c && c->window == e->window && (s = getscreen(e->parent))){
 		c->x = e->x;
 		c->y = e->y;
 		c->dx = e->width;
 		c->dy = e->height;
 		c->border = e->border_width;
 		c->screen = s;
-		if (c->parent == None)
+		if(c->parent == None)
 			c->parent = c->screen->root;
 	}
 }
@@ -280,7 +288,7 @@ destroy(Window w)
 
 	curtime = CurrentTime;
 	c = getclient(w, 0);
-	if (c == 0)
+	if(c == 0)
 		return;
 
 	rmclient(c);
@@ -297,21 +305,21 @@ clientmesg(XClientMessageEvent *e)
 	Client *c;
 
 	curtime = CurrentTime;
-	if (e->message_type == exit_rio) {
+	if(e->message_type == exit_rio){
 		cleanup();
 		exit(0);
 	}
-	if (e->message_type == restart_rio) {
+	if(e->message_type == restart_rio){
 		fprintf(stderr, "*** rio restarting ***\n");
 		cleanup();
 		execvp(myargv[0], myargv);
 		perror("rio: exec failed");
 		exit(1);
 	}
-	if (e->message_type == wm_change_state) {
+	if(e->message_type == wm_change_state){
 		c = getclient(e->window, 0);
-		if (e->format == 32 && e->data.l[0] == IconicState && c != 0) {
-			if (normal(c))
+		if(e->format == 32 && e->data.l[0] == IconicState && c != 0){
+			if(normal(c))
 				hide(c);
 		}
 		else
@@ -330,19 +338,19 @@ cmap(XColormapEvent *e)
 	int i;
 
 	/* we don't set curtime as nothing here uses it */
-	if (e->new) {
+	if(e->new){
 		c = getclient(e->window, 0);
-		if (c) {
+		if(c){
 			c->cmap = e->colormap;
-			if (c == current)
+			if(c == current)
 				cmapfocus(c);
 		}
 		else
-			for (c = clients; c; c = c->next) {
-				for (i = 0; i < c->ncmapwins; i++)
-					if (c->cmapwins[i] == e->window) {
+			for(c = clients; c; c = c->next){
+				for(i = 0; i < c->ncmapwins; i++)
+					if(c->cmapwins[i] == e->window){
 						c->wmcmaps[i] = e->colormap;
-						if (c == current)
+						if(c == current)
 							cmapfocus(c);
 						return;
 					}
@@ -362,19 +370,19 @@ property(XPropertyEvent *e)
 	a = e->atom;
 	delete = (e->state == PropertyDelete);
 	c = getclient(e->window, 0);
-	if (c == 0)
+	if(c == 0)
 		return;
 
-	switch (a) {
+	switch (a){
 	case XA_WM_ICON_NAME:
-		if (c->iconname != 0)
+		if(c->iconname != 0)
 			XFree((char*) c->iconname);
 		c->iconname = delete ? 0 : getprop(c->window, a);
 		setlabel(c);
 		renamec(c, c->label);
 		return;
 	case XA_WM_NAME:
-		if (c->name != 0)
+		if(c->name != 0)
 			XFree((char*) c->name);
 		c->name = delete ? 0 : getprop(c->window, a);
 		setlabel(c);
@@ -389,18 +397,18 @@ property(XPropertyEvent *e)
 		/* placeholders to not forget.  ignore for now.  -Axel */
 		return;
 	case XA_WM_NORMAL_HINTS:
-		if (XGetWMNormalHints(dpy, c->window, &c->size, &msize) == 0 || c->size.flags == 0)
+		if(XGetWMNormalHints(dpy, c->window, &c->size, &msize) == 0 || c->size.flags == 0)
 			c->size.flags = PSize;	/* not specified - punt */
 		return;
 	}
-	if (a == _rio_hold_mode) {
+	if(a == _rio_hold_mode){
 		c->hold = getiprop(c->window, _rio_hold_mode);
-		if (c == current)
+		if(c == current)
 			draw_border(c, 1);
 	}
-	else if (a == wm_colormaps) {
+	else if(a == wm_colormaps){
 		getcmaps(c);
-		if (c == current)
+		if(c == current)
 			cmapfocus(c);
 	}
 }
@@ -413,11 +421,11 @@ reparent(XReparentEvent *e)
 	ScreenInfo *s;
 
 	/* we don't set curtime as nothing here uses it */
-	if (!getscreen(e->event) || e->override_redirect)
+	if(!getscreen(e->event) || e->override_redirect)
 		return;
-	if ((s = getscreen(e->parent)) != 0) {
+	if((s = getscreen(e->parent)) != 0){
 		c = getclient(e->window, 1);
-		if (c != 0 && (c->dx == 0 || c->dy == 0)) {
+		if(c != 0 && (c->dx == 0 || c->dy == 0)){
 			/* flush any errors */
 			ignore_badwindow = 1;
 			XGetWindowAttributes(dpy, c->window, &attr);
@@ -430,13 +438,13 @@ reparent(XReparentEvent *e)
 			c->dy = attr.height;
 			c->border = attr.border_width;
 			c->screen = s;
-			if (c->parent == None)
+			if(c->parent == None)
 				c->parent = c->screen->root;
 		}
 	}
 	else {
 		c = getclient(e->window, 0);
-		if (c != 0 && (c->parent == c->screen->root || withdrawn(c)))
+		if(c != 0 && (c->parent == c->screen->root || withdrawn(c)))
 			rmclient(c);
 	}
 }
@@ -449,7 +457,7 @@ shapenotify(XShapeEvent *e)
 
 	/* we don't set curtime as nothing here uses it */
 	c = getclient(e->window, 0);
-	if (c == 0)
+	if(c == 0)
 		return;
 
 	setshape(c);
@@ -462,10 +470,10 @@ enter(XCrossingEvent *e)
 	Client *c;
 
 	curtime = e->time;
-	if (e->mode != NotifyGrab || e->detail != NotifyNonlinearVirtual)
+	if(e->mode != NotifyGrab || e->detail != NotifyNonlinearVirtual)
 		return;
 	c = getclient(e->window, 0);
-	if (c != 0 && c != current) {
+	if(c != 0 && c != current){
 		/* someone grabbed the pointer; make them current */
 		XMapRaised(dpy, c->parent);
 		top(c);
@@ -479,7 +487,7 @@ leave(XCrossingEvent *e)
 	Client *c;
 
 	c = getclient(e->window, 0);
-	if (c)
+	if(c)
 		XUndefineCursor(dpy, c->parent);
 /* 	XDefineCursor(dpy, c->parent, c->screen->arrow); */
 }
@@ -490,10 +498,10 @@ focusin(XFocusChangeEvent *e)
 	Client *c;
 
 	curtime = CurrentTime;
-	if (e->detail != NotifyNonlinearVirtual)
+	if(e->detail != NotifyNonlinearVirtual)
 		return;
 	c = getclient(e->window, 0);
-	if (c != 0 && c->window == e->window && c != current) {
+	if(c != 0 && c->window == e->window && c != current){
 		/* someone grabbed keyboard or seized focus; make them current */
 		XMapRaised(dpy, c->parent);
 		top(c);
@@ -504,60 +512,60 @@ focusin(XFocusChangeEvent *e)
 BorderOrient
 borderorient(Client *c, int x, int y)
 {
-	if (x <= BORDER) {
-		if (y <= CORNER) {
-			if (debug) fprintf(stderr, "topleft\n");
+	if(x <= BORDER){
+		if(y <= CORNER){
+			if(debug) fprintf(stderr, "topleft\n");
 			return BorderWNW;
 		}
-		if (y >= (c->dy + 2*BORDER) - CORNER) {
-			if (debug) fprintf(stderr, "botleft\n");
+		if(y >= (c->dy + 2*BORDER) - CORNER){
+			if(debug) fprintf(stderr, "botleft\n");
 			return BorderWSW;
 		}
-		if (y > CORNER &&
-			y < (c->dy + 2*BORDER) - CORNER) {
-			if (debug) fprintf(stderr, "left\n");
+		if(y > CORNER &&
+			y < (c->dy + 2*BORDER) - CORNER){
+			if(debug) fprintf(stderr, "left\n");
 			return BorderW;
 		}
-	} else if (x <= CORNER) {
-		if (y <= BORDER) {
-			if (debug) fprintf(stderr, "topleft\n");
+	} else if(x <= CORNER){
+		if(y <= BORDER){
+			if(debug) fprintf(stderr, "topleft\n");
 			return BorderNNW;
 		}
-		if  (y >= (c->dy + BORDER)) {
-			if (debug) fprintf(stderr, "botleft\n");
+		if  (y >= (c->dy + BORDER)){
+			if(debug) fprintf(stderr, "botleft\n");
 			return BorderSSW;
 		}
-	} else if (x >= (c->dx + BORDER)) {
-		if (y <= CORNER) {
-			if (debug) fprintf(stderr, "topright\n");
+	} else if(x >= (c->dx + BORDER)){
+		if(y <= CORNER){
+			if(debug) fprintf(stderr, "topright\n");
 			return BorderENE;
 		}
-		if (y >= (c->dy + 2*BORDER) - CORNER) {
-			if (debug) fprintf(stderr, "botright\n");
+		if(y >= (c->dy + 2*BORDER) - CORNER){
+			if(debug) fprintf(stderr, "botright\n");
 			return BorderESE;
 		}
-		if (y > CORNER &&
-			y < (c->dy + 2*BORDER) - CORNER) {
-			if (debug) fprintf(stderr, "right\n");
+		if(y > CORNER &&
+			y < (c->dy + 2*BORDER) - CORNER){
+			if(debug) fprintf(stderr, "right\n");
 			return BorderE;
 		}
-	} else if (x >= (c->dx + 2*BORDER) - CORNER) {
-		if (y <= BORDER) {
-			if (debug) fprintf(stderr, "topright\n");
+	} else if(x >= (c->dx + 2*BORDER) - CORNER){
+		if(y <= BORDER){
+			if(debug) fprintf(stderr, "topright\n");
 			return BorderNNE;
 		}
-		if  (y >= (c->dy + BORDER)) {
-			if (debug) fprintf(stderr, "botright\n");
+		if  (y >= (c->dy + BORDER)){
+			if(debug) fprintf(stderr, "botright\n");
 			return BorderSSE;
 		}
-	} else if (x > CORNER &&
-			x < (c->dx + 2*BORDER) - CORNER) {
-		if (y <= BORDER) {
-			if (debug) fprintf(stderr, "top\n");
+	} else if(x > CORNER &&
+			x < (c->dx + 2*BORDER) - CORNER){
+		if(y <= BORDER){
+			if(debug) fprintf(stderr, "top\n");
 			return BorderN;
 		}
-		if (y >= (c->dy + BORDER)) {
-			if (debug) fprintf(stderr, "bot\n");
+		if(y >= (c->dy + BORDER)){
+			if(debug) fprintf(stderr, "bot\n");
 			return BorderS;
 		}
 	}
@@ -571,9 +579,9 @@ motionnotify(XMotionEvent *e)
 	BorderOrient bl;
 
 	c = getclient(e->window, 0);
-	if (c) {
+	if(c){
 		bl = borderorient(c, e->x, e->y);
-		if (bl == BorderUnknown)
+		if(bl == BorderUnknown)
 			XUndefineCursor(dpy, c->parent);
 		else
 			XDefineCursor(dpy, c->parent, c->screen->bordcurs[bl]);

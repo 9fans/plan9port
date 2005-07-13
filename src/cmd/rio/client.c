@@ -15,18 +15,19 @@ Client	*current;
 void
 setactive(Client *c, int on)
 {
-	if (c->parent == c->screen->root) {
-		fprintf(stderr, "rio: bad parent in setactive; dumping core\n");
-		abort();
-	}
-	if (on) {
+//	dbg("setactive client %x %d", c->window, c->on);
+
+	if(c->parent == c->screen->root)
+		return;
+	
+	if(on){
 		XUngrabButton(dpy, AnyButton, AnyModifier, c->parent);
 		XSetInputFocus(dpy, c->window, RevertToPointerRoot, timestamp());
-		if (c->proto & Ptakefocus)
+		if(c->proto & Ptakefocus)
 			sendcmessage(c->window, wm_protocols, wm_take_focus, 0, 1);
 		cmapfocus(c);
-	} else {
-		if (c->proto & Plosefocus)
+	}else{
+		if(c->proto & Plosefocus)
 			sendcmessage(c->window, wm_protocols, wm_lose_focus, 0, 1);
 		XGrabButton(dpy, AnyButton, AnyModifier, c->parent, False,
 			ButtonMask, GrabModeAsync, GrabModeSync, None, None);
@@ -51,7 +52,7 @@ draw_border(Client *c, int active)
 			pixel = c->screen->inactiveborder;
 	}
 
-	if (debug) fprintf(stderr, "draw_border %p pixel %ld active %d hold %d\n", c, pixel, active, c->hold);
+	if(debug) fprintf(stderr, "draw_border %p pixel %ld active %d hold %d\n", c, pixel, active, c->hold);
 	XSetWindowBackground(dpy, c->parent, pixel);
 	XClearWindow(dpy, c->parent);
 }
@@ -61,27 +62,27 @@ active(Client *c)
 {
 	Client *cc;
 
-	if (c == 0) {
+	if(c == 0){
 		fprintf(stderr, "rio: active(c==0)\n");
 		return;
 	}
-	if (c == current)
+	if(c == current)
 		return;
-	if (current) {
+	if(current){
 		setactive(current, 0);
-		if (current->screen != c->screen)
+		if(current->screen != c->screen)
 			cmapnofocus(current->screen);
 	}
 	setactive(c, 1);
-	for (cc = clients; cc; cc = cc->next)
-		if (cc->revert == c)
+	for(cc = clients; cc; cc = cc->next)
+		if(cc->revert == c)
 			cc->revert = c->revert;
 	c->revert = current;
-	while (c->revert && !normal(c->revert))
+	while(c->revert && !normal(c->revert))
 		c->revert = c->revert->revert;
 	current = c;
 #ifdef	DEBUG
-	if (debug)
+	if(debug)
 		dump_revert();
 #endif
 }
@@ -94,10 +95,10 @@ nofocus(void)
 	XSetWindowAttributes attr;
 	Client *c;
 
-	if (current) {
+	if(current){
 		setactive(current, 0);
-		for (c = current->revert; c; c = c->revert)
-			if (normal(c)) {
+		for(c = current->revert; c; c = c->revert)
+			if(normal(c)){
 				active(c);
 				return;
 			}
@@ -105,7 +106,7 @@ nofocus(void)
 		/* if no candidates to revert to, fall through */
 	}
 	current = 0;
-	if (w == 0) {
+	if(w == 0){
 		mask = CWOverrideRedirect/*|CWColormap*/;
 		attr.override_redirect = 1;
 		/* attr.colormap = screens[0].def_cmap;*/
@@ -122,8 +123,8 @@ top(Client *c)
 	Client **l, *cc;
 
 	l = &clients;
-	for (cc = *l; cc; cc = *l) {
-		if (cc == c) {
+	for(cc = *l; cc; cc = *l){
+		if(cc == c){
 			*l = c->next;
 			c->next = clients;
 			clients = c;
@@ -139,14 +140,14 @@ getclient(Window w, int create)
 {
 	Client *c;
 
-	if (w == 0 || getscreen(w))
+	if(w == 0 || getscreen(w))
 		return 0;
 
-	for (c = clients; c; c = c->next)
-		if (c->window == w || c->parent == w)
+	for(c = clients; c; c = c->next)
+		if(c->window == w || c->parent == w)
 			return c;
 
-	if (!create)
+	if(!create)
 		return 0;
 
 	c = (Client *)malloc(sizeof(Client));
@@ -176,44 +177,44 @@ rmclient(Client *c)
 {
 	Client *cc;
 
-	for (cc = current; cc && cc->revert; cc = cc->revert)
-		if (cc->revert == c)
+	for(cc = current; cc && cc->revert; cc = cc->revert)
+		if(cc->revert == c)
 			cc->revert = cc->revert->revert;
 
-	if (c == clients)
+	if(c == clients)
 		clients = c->next;
-	for (cc = clients; cc && cc->next; cc = cc->next)
-		if (cc->next == c)
+	for(cc = clients; cc && cc->next; cc = cc->next)
+		if(cc->next == c)
 			cc->next = cc->next->next;
 
-	if (hidden(c))
+	if(hidden(c))
 		unhidec(c, 0);
 
-	if (c->parent != c->screen->root)
+	if(c->parent != c->screen->root)
 		XDestroyWindow(dpy, c->parent);
 
 	c->parent = c->window = None;		/* paranoia */
-	if (current == c) {
+	if(current == c){
 		current = c->revert;
-		if (current == 0)
+		if(current == 0)
 			nofocus();
 		else {
-			if (current->screen != c->screen)
+			if(current->screen != c->screen)
 				cmapnofocus(c->screen);
 			setactive(current, 1);
 		}
 	}
-	if (c->ncmapwins != 0) {
+	if(c->ncmapwins != 0){
 		XFree((char *)c->cmapwins);
 		free((char *)c->wmcmaps);
 	}
-	if (c->iconname != 0)
+	if(c->iconname != 0)
 		XFree((char*) c->iconname);
-	if (c->name != 0)
+	if(c->name != 0)
 		XFree((char*) c->name);
-	if (c->instance != 0)
+	if(c->instance != 0)
 		XFree((char*) c->instance);
-	if (c->class != 0)
+	if(c->class != 0)
 		XFree((char*) c->class);
 	memset(c, 0, sizeof(Client));		/* paranoia */
 	free(c);
@@ -227,14 +228,14 @@ dump_revert(void)
 	int i;
 
 	i = 0;
-	for (c = current; c; c = c->revert) {
+	for(c = current; c; c = c->revert){
 		fprintf(stderr, "%s(%x:%d)", c->label ? c->label : "?", c->window, c->state);
-		if (i++ > 100)
+		if(i++ > 100)
 			break;
-		if (c->revert)
+		if(c->revert)
 			fprintf(stderr, " -> ");
 	}
-	if (current == 0)
+	if(current == 0)
 		fprintf(stderr, "empty");
 	fprintf(stderr, "\n");
 }
@@ -244,7 +245,41 @@ dump_clients(void)
 {
 	Client *c;
 
-	for (c = clients; c; c = c->next)
+	for(c = clients; c; c = c->next)
 		fprintf(stderr, "w 0x%x parent 0x%x @ (%d, %d)\n", c->window, c->parent, c->x, c->y);
 }
 #endif
+
+void
+shuffle(int up)
+{
+	Client **l, *c;
+	
+	if(clients == 0 || clients->next == 0)
+		return;
+	if(up){
+		//for(c=clients; c->next; c=c->next)
+		//	;
+		for(l=&clients; (*l)->next; l=&(*l)->next)
+			;
+		c = *l;
+		*l = nil;
+		c->next = clients;
+		clients = c;
+		XMapRaised(dpy, c->parent);
+		top(c);
+		active(c);
+	}else{
+		c = clients;
+		for(l=&clients; *l; l=&(*l)->next)
+			;
+		clients = c->next;
+		*l = c;
+		c->next = 0;
+		XLowerWindow(dpy, c->window);
+	}
+//	XMapRaised(dpy, clients->parent);
+//	top(clients);	
+//	active(clients);
+}
+

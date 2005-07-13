@@ -1,4 +1,5 @@
 <$PLAN9/src/mkhdr
+<|sh $PLAN9/src/libdraw/mkwsysrules.sh	# for X11
 
 OFILES=\
 	client.$O\
@@ -7,10 +8,12 @@ OFILES=\
 	error.$O\
 	event.$O\
 	grab.$O\
+	key.$O\
 	main.$O\
 	manage.$O\
 	menu.$O\
 
+CFLAGS=$CFLAGS -DDEBUG
 HFILES=dat.h fns.h
 
 TARG=rio
@@ -18,10 +21,14 @@ TARG=rio
 # need to add lib64 when it exists (on x86-64), but
 # Darwin complains about the nonexistant directory
 L64=`[ -d $X11/lib64 ] && echo 64; echo`
-LDFLAGS=-L$X11/lib$L64\ -lXext -lX11
+LDFLAGS=-L$X11/lib$L64 -lXext -lX11
 
 <$PLAN9/src/mkone
 
-CFLAGS=$CFLAGS -DSHAPE -I$X11/include
+CFLAGS=$CFLAGS -DSHAPE
 
+$O.xevents: xevents.$O printevent.$O
+	$LD -o $target $prereq $LDFLAGS
+
+xevents.$O printevent.$O: printevent.h
 

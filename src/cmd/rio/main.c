@@ -88,83 +88,83 @@ main(int argc, char *argv[])
 	background = 0;
 	font = 0;
 	fname = 0;
-	for (i = 1; i < argc; i++)
-		if (strcmp(argv[i], "-nostalgia") == 0)
+	for(i = 1; i < argc; i++)
+		if(strcmp(argv[i], "-nostalgia") == 0)
 			nostalgia++;
-		else if (strcmp(argv[i], "-grey") == 0)
+		else if(strcmp(argv[i], "-grey") == 0)
 			background = 1;
-		else if (strcmp(argv[i], "-debug") == 0)
+		else if(strcmp(argv[i], "-debug") == 0)
 			debug++;
-		else if (strcmp(argv[i], "-font") == 0 && i+1<argc) {
+		else if(strcmp(argv[i], "-font") == 0 && i+1<argc){
 			i++;
 			fname = argv[i];
 		}
-		else if (strcmp(argv[i], "-term") == 0 && i+1<argc)
+		else if(strcmp(argv[i], "-term") == 0 && i+1<argc)
 			termprog = argv[++i];
-		else if (strcmp(argv[i], "-virtuals") == 0 && i+1<argc) {
+		else if(strcmp(argv[i], "-virtuals") == 0 && i+1<argc){
 			numvirtuals = atoi(argv[++i]);
-			if(numvirtuals < 0 || numvirtuals > 12) {
+			if(numvirtuals < 0 || numvirtuals > 12){
 				fprintf(stderr, "rio: wrong number of virtual displays, defaulting to 4\n");
 				numvirtuals = 4;
 			}
-		} else if (strcmp(argv[i], "-version") == 0) {
+		} else if(strcmp(argv[i], "-version") == 0){
 			fprintf(stderr, "%s", version[0]);
-			if (PATCHLEVEL > 0)
+			if(PATCHLEVEL > 0)
 				fprintf(stderr, "; patch level %d", PATCHLEVEL);
 			fprintf(stderr, "\n");
 			exit(0);
 		}
-		else if (strcmp(argv[i], "-s") == 0) {
+		else if(strcmp(argv[i], "-s") == 0){
 			scrolling = 1;
 		}
-		else if (argv[i][0] == '-')
+		else if(argv[i][0] == '-')
 			usage();
 		else
 			break;
-	for (; i < argc; i++)
-		if (strcmp(argv[i], "exit") == 0)
+	for(; i < argc; i++)
+		if(strcmp(argv[i], "exit") == 0)
 			do_exit++;
-		else if (strcmp(argv[i], "restart") == 0)
+		else if(strcmp(argv[i], "restart") == 0)
 			do_restart++;
 		else
 			usage();
 
-	if (do_exit && do_restart)
+	if(do_exit && do_restart)
 		usage();
 
 	shell = (char *)getenv("SHELL");
-	if (shell == NULL)
+	if(shell == NULL)
 		shell = DEFSHELL;
 
 	dpy = XOpenDisplay("");
-	if (dpy == 0)
+	if(dpy == 0)
 		fatal("can't open display");
 
 	initting = 1;
 	XSetErrorHandler(handler);
-	if (signal(SIGTERM, sighandler) == SIG_IGN)
+	if(signal(SIGTERM, sighandler) == SIG_IGN)
 		signal(SIGTERM, SIG_IGN);
-	if (signal(SIGINT, sighandler) == SIG_IGN)
+	if(signal(SIGINT, sighandler) == SIG_IGN)
 		signal(SIGINT, SIG_IGN);
-	if (signal(SIGHUP, sighandler) == SIG_IGN)
+	if(signal(SIGHUP, sighandler) == SIG_IGN)
 		signal(SIGHUP, SIG_IGN);
 
 	exit_rio = XInternAtom(dpy, "9WM_EXIT", False);
 	restart_rio = XInternAtom(dpy, "9WM_RESTART", False);
 
 	curtime = -1;		/* don't care */
-	if (do_exit) {
+	if(do_exit){
 		sendcmessage(DefaultRootWindow(dpy), exit_rio, 0L, 1, 1);
 		XSync(dpy, False);
 		exit(0);
 	}
-	if (do_restart) {
+	if(do_restart){
 		sendcmessage(DefaultRootWindow(dpy), restart_rio, 0L, 1, 1);
 		XSync(dpy, False);
 		exit(0);
 	}
 
-	if (0) XSynchronize(dpy, True);
+	if(0) XSynchronize(dpy, True);
 
 	wm_state = XInternAtom(dpy, "WM_STATE", False);
 	wm_change_state = XInternAtom(dpy, "WM_CHANGE_STATE", False);
@@ -176,24 +176,24 @@ main(int argc, char *argv[])
 	_rio_running = XInternAtom(dpy, "_9WM_RUNNING", False);
 	_rio_hold_mode = XInternAtom(dpy, "_9WM_HOLD_MODE", False);
 
-	if (fname != 0)
-		if ((font = XLoadQueryFont(dpy, fname)) == 0)
+	if(fname != 0)
+		if((font = XLoadQueryFont(dpy, fname)) == 0)
 			fprintf(stderr, "rio: warning: can't load font %s\n", fname);
 
-	if (font == 0) {
+	if(font == 0){
 		i = 0;
-		for (;;) {
+		for(;;){
 			fname = fontlist[i++];
-			if (fname == 0) {
+			if(fname == 0){
 				fprintf(stderr, "rio: warning: can't find a font\n");
 				break;
 			}
 			font = XLoadQueryFont(dpy, fname);
-			if (font != 0)
+			if(font != 0)
 				break;
 		}
 	}
-	if (nostalgia) {
+	if(nostalgia){
 		_border--;
 		_inset--;
 	}
@@ -205,7 +205,7 @@ main(int argc, char *argv[])
 	num_screens = ScreenCount(dpy);
 	screens = (ScreenInfo *)malloc(sizeof(ScreenInfo) * num_screens);
 
-	for (i = 0; i < num_screens; i++)
+	for(i = 0; i < num_screens; i++)
 		initscreen(&screens[i], i, background);
 
 	initb2menu(numvirtuals);
@@ -219,9 +219,10 @@ main(int argc, char *argv[])
 
 	nofocus();
 
-	for (i = 0; i < num_screens; i++)
+	for(i = 0; i < num_screens; i++)
 		scanwins(&screens[i]);
 
+	keysetup();
 	mainloop(shape_event);
 	return 0;
 }
@@ -277,18 +278,18 @@ initscreen(ScreenInfo *s, int i, int background)
 		}
 		s->vis = DefaultVisual(dpy, i);
 	}
-	if(DefaultDepth(dpy, i) != s->depth) {
+	if(DefaultDepth(dpy, i) != s->depth){
 		s->def_cmap = XCreateColormap(dpy, s->root, s->vis, AllocNone); 
 	}
 
 	ds = DisplayString(dpy);
 	colon = rindex(ds, ':');
-	if (colon && num_screens > 1) {
+	if(colon && num_screens > 1){
 		strcpy(s->display, "DISPLAY=");
 		strcat(s->display, ds);
 		colon = s->display + 8 + (colon - ds);	/* use version in buf */
 		dot1 = index(colon, '.');	/* first period after colon */
-		if (!dot1)
+		if(!dot1)
 			dot1 = colon + strlen(colon);	/* if not there, append */
 		sprintf(dot1, ".%d", i);
 	}
@@ -314,7 +315,7 @@ initscreen(ScreenInfo *s, int i, int background)
 	gv.subwindow_mode = IncludeInferiors;
 	gmask = GCForeground | GCBackground | GCFunction | GCLineWidth
 		| GCSubwindowMode;
-	if (font != 0) {
+	if(font != 0){
 		gv.font = font->fid;
 		gmask |= GCFont;
 	}
@@ -339,7 +340,7 @@ initscreen(ScreenInfo *s, int i, int background)
 	XChangeWindowAttributes(dpy, s->root, mask, &attr);
 	XSync(dpy, False);
 
-	if (background) {
+	if(background){
 		XSetWindowBackgroundPixmap(dpy, s->root, s->root_pixmap);
 		XClearWindow(dpy, s->root);
 	} else
@@ -389,8 +390,8 @@ getscreen(Window w)
 {
 	int i;
 
-	for (i = 0; i < num_screens; i++)
-		if (screens[i].root == w)
+	for(i = 0; i < num_screens; i++)
+		if(screens[i].root == w)
 			return &screens[i];
 
 	return 0;
@@ -401,7 +402,7 @@ timestamp(void)
 {
 	XEvent ev;
 
-	if (curtime == CurrentTime) {
+	if(curtime == CurrentTime){
 		XChangeProperty(dpy, screens[0].root, _rio_running, _rio_running, 8,
 				PropModeAppend, (unsigned char *)"", 0);
 		XMaskEvent(dpy, PropertyChangeMask, &ev);
@@ -427,13 +428,13 @@ sendcmessage(Window w, Atom a, long x, int isroot, int usemask)
 	mask = 0;
 	if(usemask){
 		mask |= KeyPressMask;	/* seems to be necessary */
-		if (isroot)
+		if(isroot)
 			mask |= SubstructureRedirectMask;		/* magic! */
 		else
 			mask |= ExposureMask;	/* not really correct but so be it */
 	}
 	status = XSendEvent(dpy, w, False, mask, &ev);
-	if (status == 0)
+	if(status == 0)
 		fprintf(stderr, "rio: sendcmessage failed\n");
 }
 
@@ -468,8 +469,8 @@ getevent(XEvent *e)
 	fd_set rfds;
 	struct timeval t;
 
-	if (!signalled) {
-		if (QLength(dpy) > 0) {
+	if(!signalled){
+		if(QLength(dpy) > 0){
 			XNextEvent(dpy, e);
 			return;
 		}
@@ -477,17 +478,17 @@ getevent(XEvent *e)
 		FD_ZERO(&rfds);
 		FD_SET(fd, &rfds);
 		t.tv_sec = t.tv_usec = 0;
-		if (select(fd+1, &rfds, NULL, NULL, &t) == 1) {
+		if(select(fd+1, &rfds, NULL, NULL, &t) == 1){
 			XNextEvent(dpy, e);
 			return;
 		}
 		XFlush(dpy);
 		FD_SET(fd, &rfds);
-		if (select(fd+1, &rfds, NULL, NULL, NULL) == 1) {
+		if(select(fd+1, &rfds, NULL, NULL, NULL) == 1){
 			XNextEvent(dpy, e);
 			return;
 		}
-		if (errno != EINTR || !signalled) {
+		if(errno != EINTR || !signalled){
 			perror("rio: select failed");
 			exit(1);
 		}
@@ -506,16 +507,16 @@ cleanup(void)
 
 	/* order of un-reparenting determines final stacking order... */
 	cc[0] = cc[1] = 0;
-	for (c = clients; c; c = next) {
+	for(c = clients; c; c = next){
 		next = c->next;
 		i = normal(c);
 		c->next = cc[i];
 		cc[i] = c;
 	}
 
-	for (i = 0; i < 2; i++) {
-		for (c = cc[i]; c; c = c->next) {
-			if (!withdrawn(c)) {
+	for(i = 0; i < 2; i++){
+		for(c = cc[i]; c; c = c->next){
+			if(!withdrawn(c)){
 				gravitate(c, 1);
 				XReparentWindow(dpy, c->window, c->screen->root,
 						c->x, c->y);
@@ -526,7 +527,7 @@ cleanup(void)
 	}
 
 	XSetInputFocus(dpy, PointerRoot, RevertToPointerRoot, timestamp());
-	for (i = 0; i < num_screens; i++)
+	for(i = 0; i < num_screens; i++)
 		cmapnofocus(&screens[i]);
 	XCloseDisplay(dpy);
 }

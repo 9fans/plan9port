@@ -61,6 +61,11 @@ void	setlabel();
 void	getproto();
 void	gettrans();
 
+/* key.c */
+void keypress();
+void keyrelease();
+void keysetup();
+
 /* menu.c */
 void	button();
 void	spawn();
@@ -88,6 +93,7 @@ Client	*getclient();
 void	rmclient();
 void	dump_revert();
 void	dump_clients();
+void shuffle(int);
 
 /* grab.c */
 int 	menuhit();

@@ -21,7 +21,7 @@ grab(Window w, Window constrain, int mask, Cursor curs, int t)
 {
 	int status;
 
-	if (t == 0)
+	if(t == 0)
 		t = timestamp();
 	status = XGrabPointer(dpy, w, False, mask,
 		GrabModeAsync, GrabModeAsync, constrain, curs, t);
@@ -33,13 +33,13 @@ ungrab(XButtonEvent *e)
 {
 	XEvent ev;
 
-	if (!nobuttons(e))
-		for (;;) {
+	if(!nobuttons(e))
+		for(;;){
 			XMaskEvent(dpy, ButtonMask | ButtonMotionMask, &ev);
-			if (ev.type == MotionNotify)
+			if(ev.type == MotionNotify)
 				continue;
 			e = &ev.xbutton;
-			if (nobuttons(e))
+			if(nobuttons(e))
 				break;
 		}
 	XUngrabPointer(dpy, e->time);
@@ -65,21 +65,21 @@ menuhit(XButtonEvent *e, Menu *m)
 	int x, y, dx, dy, xmax, ymax;
 	ScreenInfo *s;
 
-	if (font == 0)
+	if(font == 0)
 		return -1;
 	s = getscreen(e->root);
-	if (s == 0 || e->window == s->menuwin)	   /* ugly event mangling */
+	if(s == 0 || e->window == s->menuwin)	   /* ugly event mangling */
 		return -1;
 
 	dx = 0;
-	for (n = 0; m->item[n]; n++) {
+	for(n = 0; m->item[n]; n++){
 		wide = XTextWidth(font, m->item[n], strlen(m->item[n])) + 4;
-		if (wide > dx)
+		if(wide > dx)
 			dx = wide;
 	}
 	wide = dx;
 	cur = m->lasthit;
-	if (cur >= n)
+	if(cur >= n)
 		cur = n - 1;
 
 	high = font->ascent + font->descent + 1;
@@ -89,88 +89,88 @@ menuhit(XButtonEvent *e, Menu *m)
 	warp = 0;
 	xmax = DisplayWidth(dpy, s->num);
 	ymax = DisplayHeight(dpy, s->num);
-	if (x < 0) {
+	if(x < 0){
 		e->x -= x;
 		x = 0;
 		warp++;
 	}
-	if (x+wide >= xmax) {
+	if(x+wide >= xmax){
 		e->x -= x+wide-xmax;
 		x = xmax-wide;
 		warp++;
 	}
-	if (y < 0) {
+	if(y < 0){
 		e->y -= y;
 		y = 0;
 		warp++;
 	}
-	if (y+dy >= ymax) {
+	if(y+dy >= ymax){
 		e->y -= y+dy-ymax;
 		y = ymax-dy;
 		warp++;
 	}
-	if (warp)
+	if(warp)
 		setmouse(e->x, e->y, s);
 	XMoveResizeWindow(dpy, s->menuwin, x, y, dx, dy);
 	XSelectInput(dpy, s->menuwin, MenuMask);
 	XMapRaised(dpy, s->menuwin);
 	status = grab(s->menuwin, None, MenuGrabMask, None, e->time);
-	if (status != GrabSuccess) {
+	if(status != GrabSuccess){
 		/* graberror("menuhit", status); */
 		XUnmapWindow(dpy, s->menuwin);
 		return -1;
 	}
 	drawn = 0;
-	for (;;) {
+	for(;;){
 		XMaskEvent(dpy, MenuMask, &ev);
-		switch (ev.type) {
+		switch (ev.type){
 		default:
 			fprintf(stderr, "rio: menuhit: unknown ev.type %d\n", ev.type);
 			break;
 		case ButtonPress:
 			break;
 		case ButtonRelease:
-			if (ev.xbutton.button != e->button)
+			if(ev.xbutton.button != e->button)
 				break;
 			x = ev.xbutton.x;
 			y = ev.xbutton.y;
 			i = y/high;
-			if (cur >= 0 && y >= cur*high-3 && y < (cur+1)*high+3)
+			if(cur >= 0 && y >= cur*high-3 && y < (cur+1)*high+3)
 				i = cur;
-			if (x < 0 || x > wide || y < -3)
+			if(x < 0 || x > wide || y < -3)
 				i = -1;
-			else if (i < 0 || i >= n)
+			else if(i < 0 || i >= n)
 				i = -1;
 			else
 				m->lasthit = i;
-			if (!nobuttons(&ev.xbutton))
+			if(!nobuttons(&ev.xbutton))
 				i = -1;
 			ungrab(&ev.xbutton);
 			XUnmapWindow(dpy, s->menuwin);
 			return i;
 		case MotionNotify:
-			if (!drawn)
+			if(!drawn)
 				break;
 			x = ev.xbutton.x;
 			y = ev.xbutton.y;
 			old = cur;
 			cur = y/high;
-			if (old >= 0 && y >= old*high-3 && y < (old+1)*high+3)
+			if(old >= 0 && y >= old*high-3 && y < (old+1)*high+3)
 				cur = old;
-			if (x < 0 || x > wide || y < -3)
+			if(x < 0 || x > wide || y < -3)
 				cur = -1;
-			else if (cur < 0 || cur >= n)
+			else if(cur < 0 || cur >= n)
 				cur = -1;
-			if (cur == old)
+			if(cur == old)
 				break;
-			if (old >= 0 && old < n)
+			if(old >= 0 && old < n)
 				drawstring(dpy, s, m, wide, high, old, 0);
-			if (cur >= 0 && cur < n)
+			if(cur >= 0 && cur < n)
 				drawstring(dpy, s, m, wide, high, cur, 1);
 			break;
 		case Expose:
 			XClearWindow(dpy, s->menuwin);
-			for (i = 0; i < n; i++)
+			for(i = 0; i < n; i++)
 				drawstring(dpy, s, m, wide, high, i, cur==i);
 			drawn = 1;
 		}
@@ -187,35 +187,35 @@ selectwin(int release, int *shift, ScreenInfo *s)
 	Client *c;
 
 	status = grab(s->root, s->root, ButtonMask, s->target, 0);
-	if (status != GrabSuccess) {
+	if(status != GrabSuccess){
 		graberror("selectwin", status); /* */
 		return 0;
 	}
 	w = None;
-	for (;;) {
+	for(;;){
 		XMaskEvent(dpy, ButtonMask, &ev);
 		e = &ev.xbutton;
-		switch (ev.type) {
+		switch (ev.type){
 		case ButtonPress:
-			if (e->button != Button3) {
+			if(e->button != Button3){
 				ungrab(e);
 				return 0;
 			}
 			w = e->subwindow;
-			if (!release) {
+			if(!release){
 				c = getclient(w, 0);
-				if (c == 0)
+				if(c == 0)
 					ungrab(e);
-				if (shift != 0)
+				if(shift != 0)
 					*shift = (e->state&ShiftMask) != 0;
 				return c;
 			}
 			break;
 		case ButtonRelease:
 			ungrab(e);
-			if (e->button != Button3 || e->subwindow != w)
+			if(e->button != Button3 || e->subwindow != w)
 				return 0;
-			if (shift != 0)
+			if(shift != 0)
 				*shift = (e->state&ShiftMask) != 0;
 			return getclient(w, 0);
 		}
@@ -231,12 +231,12 @@ sweepcalc(Client *c, int x, int y, BorderOrient bl, int ignored)
 	dy = y - c->y;
 	sx = sy = 1;
 	x += dx;
-	if (dx < 0) {
+	if(dx < 0){
 		dx = -dx;
 		sx = -1;
 	}
 	y += dy;
-	if (dy < 0) {
+	if(dy < 0){
 		dy = -dy;
 		sy = -1;
 	}
@@ -244,22 +244,22 @@ sweepcalc(Client *c, int x, int y, BorderOrient bl, int ignored)
 	dx -= 2*BORDER;
 	dy -= 2*BORDER;
 
-	if (!c->is9term) {
-		if (dx < c->min_dx)
+	if(!c->is9term){
+		if(dx < c->min_dx)
 			dx = c->min_dx;
-		if (dy < c->min_dy)
+		if(dy < c->min_dy)
 			dy = c->min_dy;
 	}
 
-	if (c->size.flags & PResizeInc) {
+	if(c->size.flags & PResizeInc){
 		dx = c->min_dx + (dx-c->min_dx)/c->size.width_inc*c->size.width_inc;
 		dy = c->min_dy + (dy-c->min_dy)/c->size.height_inc*c->size.height_inc;
 	}
 
-	if (c->size.flags & PMaxSize) {
-		if (dx > c->size.max_width)
+	if(c->size.flags & PMaxSize){
+		if(dx > c->size.max_width)
 			dx = c->size.max_width;
-		if (dy > c->size.max_height)
+		if(dy > c->size.max_height)
 			dy = c->size.max_height;
 	}
 	c->dx = sx*(dx + 2*BORDER);
@@ -291,7 +291,7 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
  	xoff = yoff = 0;
 	xcorn = ycorn = 0;
 
-	switch(bl) {
+	switch(bl){
 	case BorderN:
 		py = y;
 		dy = (c->y + c->dy)  - y;
@@ -351,7 +351,7 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 	default:
 		break;
 	}
-	switch(bl) {
+	switch(bl){
 	case BorderNNW:
 	case BorderNNE:
 	case BorderSSW:
@@ -365,21 +365,21 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 		ycorn = 1;
 		break;
 	}
-	if (!init
+	if(!init
 		|| xoff < 0 || (xcorn && xoff > CORNER) || (!xcorn && xoff > BORDER)
-		|| yoff < 0 || (ycorn && yoff > CORNER) || (!ycorn && yoff > BORDER)) {
+		|| yoff < 0 || (ycorn && yoff > CORNER) || (!ycorn && yoff > BORDER)){
 		xoff = 0;
 		yoff = 0;
 		init = 0;
 	}
 
-	if (debug) fprintf(stderr, "c %dx%d+%d+%d m +%d+%d r  %dx%d+%d+%d sp (%d,%d) bl %d\n",
+	if(debug) fprintf(stderr, "c %dx%d+%d+%d m +%d+%d r  %dx%d+%d+%d sp (%d,%d) bl %d\n",
 				c->dx, c->dy, c->x, c->y, x, y, dx, dy, px, py, spx, spy, bl);
-	if (dx < 0) {
+	if(dx < 0){
 		dx = -dx;
 		sx = -1;
 	}
-	if (dy < 0) {
+	if(dy < 0){
 		dy = -dy;
 		sy = -1;
 	}
@@ -394,22 +394,22 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 	dx -= (2*BORDER - xoff);
 	dy -= (2*BORDER - yoff);
 
-	if (!c->is9term) {
-		if (dx < c->min_dx)
+	if(!c->is9term){
+		if(dx < c->min_dx)
 			dx = c->min_dx;
-		if (dy < c->min_dy)
+		if(dy < c->min_dy)
 			dy = c->min_dy;
 	}
 
-	if (c->size.flags & PResizeInc) {
+	if(c->size.flags & PResizeInc){
 		dx = c->min_dx + (dx-c->min_dx)/c->size.width_inc*c->size.width_inc;
 		dy = c->min_dy + (dy-c->min_dy)/c->size.height_inc*c->size.height_inc;
 	}
 
-	if (c->size.flags & PMaxSize) {
-		if (dx > c->size.max_width)
+	if(c->size.flags & PMaxSize){
+		if(dx > c->size.max_width)
 			dx = c->size.max_width;
-		if (dy > c->size.max_height)
+		if(dy > c->size.max_height)
 			dy = c->size.max_height;
 	}
 
@@ -443,22 +443,22 @@ drawbound(Client *c, int drawing)
 	int x, y, dx, dy;
 	ScreenInfo *s;
 
-	if (debug) fprintf(stderr, "drawbound %d %dx%d+%d+%d\n", drawing, c->dx, c->dy, c->x, c->y);
+	if(debug) fprintf(stderr, "drawbound %d %dx%d+%d+%d\n", drawing, c->dx, c->dy, c->x, c->y);
 	
 	s = c->screen;
 	x = c->x;
 	y = c->y;
 	dx = c->dx;
 	dy = c->dy;
-	if (dx < 0) {
+	if(dx < 0){
 		x += dx;
 		dx = -dx;
 	}
-	if (dy < 0) {
+	if(dy < 0){
 		y += dy;
 		dy = -dy;
 	}
-	if (dx <= 2 || dy <= 2)
+	if(dx <= 2 || dy <= 2)
 		return;
 
 	if(solidsweep){
@@ -525,22 +525,22 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderOrient bl, int (*recalc)(C
 	c->y -= BORDER;
 	c->dx += 2*BORDER;
 	c->dy += 2*BORDER;
-	if (bl != BorderUnknown || e0 == 0)
+	if(bl != BorderUnknown || e0 == 0)
 		getmouse(&cx, &cy, c->screen);
 	else
 		getmouse(&c->x, &c->y, c->screen);
 	XGrabServer(dpy);
-	if (bl != BorderUnknown) {
+	if(bl != BorderUnknown){
 		notmoved = recalc(c, cx, cy, bl, notmoved);
 	}
 	drawbound(c, 1);
 	idle = 0;
-	for (;;) {
-		if (XCheckMaskEvent(dpy, ButtonMask, &ev) == 0) {
+	for(;;){
+		if(XCheckMaskEvent(dpy, ButtonMask, &ev) == 0){
 			getmouse(&rx, &ry, c->screen);
-			if (rx != cx || ry != cy || ++idle > 300) {
+			if(rx != cx || ry != cy || ++idle > 300){
 				drawbound(c, 0);
-				if (rx == cx && ry == cy) {
+				if(rx == cx && ry == cy){
 					XUngrabServer(dpy);
 					XFlush(dpy);
 					misleep(500);
@@ -560,19 +560,19 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderOrient bl, int (*recalc)(C
 			continue;
 		}
 		e = &ev.xbutton;
-		switch (ev.type) {
+		switch (ev.type){
 		case ButtonPress:
 		case ButtonRelease:
 			drawbound(c, 0);
 			ungrab(e);
 			XUngrabServer(dpy);
-			if (e->button != but && c->init)
+			if(e->button != but && c->init)
 				goto bad;
-			if (c->dx < 0) {
+			if(c->dx < 0){
 				c->x += c->dx;
 				c->dx = -c->dx;
 			}
-			if (c->dy < 0) {
+			if(c->dy < 0){
 				c->y += c->dy;
 				c->dy = -c->dy;
 			}
@@ -580,13 +580,13 @@ sweepdrag(Client *c, int but, XButtonEvent *e0, BorderOrient bl, int (*recalc)(C
 			c->y += BORDER;
 			c->dx -= 2*BORDER;
 			c->dy -= 2*BORDER;
-			if (c->dx < 4 || c->dy < 4 || c->dx < c->min_dx || c->dy < c->min_dy)
+			if(c->dx < 4 || c->dy < 4 || c->dx < c->min_dx || c->dy < c->min_dy)
 				goto bad;
 			return 1;
 		}
 	}
 bad:
-	if (debug) fprintf(stderr, "sweepdrag bad\n");
+	if(debug) fprintf(stderr, "sweepdrag bad\n");
 	c->x = ox;
 	c->y = oy;
 	c->dx = odx;
@@ -607,14 +607,14 @@ sweep(Client *c, int but, XButtonEvent *ignored)
 	c->dx = 0;
 	c->dy = 0;
 	status = grab(s->root, s->root, ButtonMask, s->sweep0, 0);
-	if (status != GrabSuccess) {
+	if(status != GrabSuccess){
 		graberror("sweep", status); /* */
 		return 0;
 	}
 
 	XMaskEvent(dpy, ButtonMask, &ev);
 	e = &ev.xbutton;
-	if (e->button != but) {
+	if(e->button != but){
 		ungrab(e);
 		return 0;
 	}
@@ -634,7 +634,7 @@ pull(Client *c, int but, XButtonEvent *e)
 
 	s = c->screen;
 	status = grab(s->root, s->root, ButtonMask, s->bordcurs[bl], 0);
-	if (status != GrabSuccess) {
+	if(status != GrabSuccess){
 		graberror("pull", status); /* */
 		return 0;
 	}
@@ -650,7 +650,7 @@ drag(Client *c, int but)
 
 	s = c->screen;
 	status = grab(s->root, s->root, ButtonMask, s->boxcurs, 0);
-	if (status != GrabSuccess) {
+	if(status != GrabSuccess){
 		graberror("drag", status); /* */
 		return 0;
 	}
@@ -665,7 +665,7 @@ getmouse(int *x, int *y, ScreenInfo *s)
 	unsigned int t3;
 
 	XQueryPointer(dpy, s->root, &dw1, &dw2, x, y, &t1, &t2, &t3);
-	if (debug) fprintf(stderr, "getmouse: %d %d\n", *x, *y);
+	if(debug) fprintf(stderr, "getmouse: %d %d\n", *x, *y);
 }
 
 void

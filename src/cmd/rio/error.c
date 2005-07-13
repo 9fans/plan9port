@@ -24,23 +24,23 @@ handler(Display *d, XErrorEvent *e)
 {
 	char msg[80], req[80], number[80];
 
-	if (initting && (e->request_code == X_ChangeWindowAttributes) && (e->error_code == BadAccess)) {
+	if(initting && (e->request_code == X_ChangeWindowAttributes) && (e->error_code == BadAccess)){
 		fprintf(stderr, "rio: it looks like there's already a window manager running;  rio not started\n");
 		exit(1);
 	}
 
-	if (ignore_badwindow && (e->error_code == BadWindow || e->error_code == BadColor))
+	if(ignore_badwindow && (e->error_code == BadWindow || e->error_code == BadColor))
 		return 0;
 
 	XGetErrorText(d, e->error_code, msg, sizeof(msg));
 	sprintf(number, "%d", e->request_code);
 	XGetErrorDatabaseText(d, "XRequest", number, "", req, sizeof(req));
-	if (req[0] == '\0')
+	if(req[0] == '\0')
 		sprintf(req, "<request-code-%d>", (int)e->request_code);
 
 	fprintf(stderr, "rio: %s(0x%x): %s\n", req, (int)e->resourceid, msg);
 
-	if (initting) {
+	if(initting){
 		fprintf(stderr, "rio: failure during initialisation; aborting\n");
 		exit(1);
 	}
@@ -53,7 +53,7 @@ graberror(char *f, int err)
 #ifdef	DEBUG	/* sick of "bug" reports; grab errors "just happen" */
 	char *s;
 
-	switch (err) {
+	switch (err){
 	case GrabNotViewable:
 		s = "not viewable";
 		break;
@@ -86,10 +86,10 @@ void
 dotrace(char *s, Client *c, XEvent *e)
 {
 	fprintf(stderr, "rio: %s: c=0x%x", s, c);
-	if (c)
+	if(c)
 		fprintf(stderr, " x %d y %d dx %d dy %d w 0x%x parent 0x%x", c->x, c->y, c->dx, c->dy, c->window, c->parent);
 #ifdef	DEBUG_EV
-	if (e) {
+	if(e){
 		fprintf(stderr, "\n\t");
 		ShowEvent(e);
 	}

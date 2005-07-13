@@ -182,7 +182,7 @@ ScreenInfo *s;
 	XAllocNamedColor(dpy, DefaultColormap(dpy, s->num),
 			"white", &wh, &dummy);
 
-	if (nostalgia) {
+	if(nostalgia){
 		s->arrow = getcursor(&blitarrow, s);
 		s->target = getcursor(&blittarget, s);
 		s->sweep0 = getcursor(&blitsweep, s);
