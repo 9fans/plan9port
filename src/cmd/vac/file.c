@@ -422,11 +422,11 @@ vacfilecreate(VacFile *f, char *elem, ulong mode, char *uid)
 	ff = filealloc(f->fs);
 	isdir = mode & ModeDir;
 
-	r = vtfilecreate(pr, pr->dsize, isdir, 0);
+	r = vtfilecreate(pr, pr->dsize, xxx, isdir, VtDataType);
 	if(r == nil)
 		goto Err;
 	if(isdir){
-		mr = vtfilecreate(pr, pr->dsize, 0, r->offset);
+		mr = vtfilecreate(pr, pr->dsize, xxx, 0, r->offset);
 		if(mr == nil)
 			goto Err;
 	}
