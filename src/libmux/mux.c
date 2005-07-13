@@ -35,8 +35,10 @@ muxrpc(Mux *mux, void *tx)
 
 	/* must malloc because stack could be private */
 	r = mallocz(sizeof(Muxrpc), 1);
-	if(r == nil)
+	if(r == nil){
+		werrstr("mallocz: %r");
 		return nil;
+	}
 	r->r.l = &mux->lk;
 
 	/* assign the tag, add selves to response queue */
@@ -48,6 +50,8 @@ muxrpc(Mux *mux, void *tx)
 
 	/* actually send the packet */
 	if(tag < 0 || mux->settag(mux, tx, tag) < 0 || _muxsend(mux, tx) < 0){
+		werrstr("settag/send tag %d: %r", tag);
+		fprint(2, "%r\n");
 		qlock(&mux->lk);
 		dequeue(mux, r);
 		puttag(mux, r);
@@ -105,6 +109,8 @@ muxrpc(Mux *mux, void *tx)
 	p = r->p;
 	puttag(mux, r);
 	qunlock(&mux->lk);
+	if(p == nil)
+		werrstr("unexpected eof");
 	return p;
 }
 
