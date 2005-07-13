@@ -81,7 +81,7 @@ while(~ $d 0) {
 		shift
 	}
 	if not switch($1) {
-		case -t ; fmt=dotroff ; shift
+		case -t ; cmd=dotroff ; shift
 		case -n ; cmd=donroff ; shift
 		case -p ; cmd=doproof ; shift
 		case -P ; cmd=dopage ; shift
@@ -124,7 +124,8 @@ for(word){
 }
 if(~ $#allfiles 0)
 	exit 'no man'
-allfiles=`{ls $allfiles | sort -u >[2]/dev/null}
+# complicated sort order: want 9p.3, 9p-cmdbuf.3, 9pclient.3
+allfiles=`{ls $allfiles | sed 's/[.\-]/ &/g;s/\./ &/g' | sort -u | tr -d ' '}
 
 files=()
 for(i in $allfiles){
