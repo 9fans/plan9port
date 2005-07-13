@@ -31,8 +31,10 @@ fsinit(int fd)
 	fmtinstall('M', dirmodefmt);
 
 	fs = mallocz(sizeof(CFsys), 1);
-	if(fs == nil)
+	if(fs == nil){
+		werrstr("mallocz: %r");
 		return nil;
+	}
 	fs->fd = fd;
 	fs->ref = 1;
 	fs->mux.aux = fs;
@@ -48,6 +50,8 @@ fsinit(int fd)
 	
 	strcpy(fs->version, "9P2000");
 	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
+		werrstr("fsversion: %r");
+fprint(2, "%r\n");
 		_fsunmount(fs);
 		return nil;
 	}
@@ -150,8 +154,10 @@ fsversion(CFsys *fs, int msize, char *version, int nversion)
 	r = _fsrpc(fs, &tx, &rx, &freep);
 	fs->mux.mintag = oldmintag;
 	fs->mux.maxtag = oldmaxtag;
-	if(r < 0)
+	if(r < 0){
+		werrstr("fsrpc: %r");
 		return -1;
+	}
 
 	strecpy(version, version+nversion, rx.version);
 	free(freep);
@@ -212,19 +218,21 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 	nn = convS2M(tx, tpkt, n);
 	if(nn != n){
 		free(tpkt);
-		werrstr("libfs: sizeS2M convS2M mismatch");
+		werrstr("lib9pclient: sizeS2M convS2M mismatch");
 		fprint(2, "%r\n");
 		return -1;
 	}
 	rpkt = muxrpc(&fs->mux, tpkt);
 	free(tpkt);
-	if(rpkt == nil)
+	if(rpkt == nil){
+		werrstr("muxrpc: %r");
 		return -1;
+	}
 	n = GBIT32((uchar*)rpkt);
 	nn = convM2S(rpkt, n, rx);
 	if(nn != n){
 		free(rpkt);
-		werrstr("libfs: convM2S packet size mismatch %d %d", n, nn);
+		werrstr("lib9pclient: convM2S packet size mismatch %d %d", n, nn);
 		fprint(2, "%r\n");
 		return -1;
 	}
@@ -331,7 +339,7 @@ _fsrecv(Mux *mux)
 	n = GBIT32(buf);
 	pkt = malloc(n+4);
 	if(pkt == nil){
-		fprint(2, "libfs out of memory reading 9p packet; here comes trouble\n");
+		fprint(2, "lib9pclient out of memory reading 9p packet; here comes trouble\n");
 		return nil;
 	}
 	PBIT32(pkt, n);

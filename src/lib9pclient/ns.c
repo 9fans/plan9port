@@ -11,13 +11,17 @@ nsinit(char *name)
 	int fd;
 
 	ns = getns();
-	if(ns == nil)
+	if(ns == nil){
+		werrstr("no name space");
 		return nil;
+	}
 
 	addr = smprint("unix!%s/%s", ns, name);
 	free(ns);
-	if(addr == nil)
+	if(addr == nil){
+		werrstr("smprint: %r");
 		return nil;
+	}
 
 	fd = dial(addr, 0, 0, 0);
 	if(fd < 0){
@@ -27,7 +31,7 @@ nsinit(char *name)
 	}
 	free(addr);
 
-	fcntl(fd, F_SETFL, FD_CLOEXEC);
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
 	return fsinit(fd);
 }
 
