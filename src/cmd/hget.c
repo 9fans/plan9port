@@ -84,10 +84,10 @@ struct {
 	char	*name;
 	int	(*f)(URL*, URL*, Range*, Out*, long);
 } method[] = {
-	[Http]	{ "http",	dohttp },
-	[Https]	{ "https",	dohttp },
-	[Ftp]	{ "ftp",	doftp },
-	[Other]	{ "_______",	nil },
+	{ "http",	dohttp },
+	{ "https",	dohttp },
+	{ "ftp",	doftp },
+	{ "_______",	nil },
 };
 
 void
