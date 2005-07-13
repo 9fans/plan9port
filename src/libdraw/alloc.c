@@ -196,7 +196,7 @@ _freeimage1(Image *i)
 	Display *d;
 	Image *w;
 
-	if(i == 0)
+	if(i == 0 || i->display == 0)
 		return 0;
 	/* make sure no refresh events occur on this if we block in the write */
 	d = i->display;

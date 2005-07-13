@@ -129,7 +129,7 @@ freefont(Font *f)
 	}
 	for(i=0; i<f->nsubf; i++){
 		s = f->subf[i].f;
-		if(s && s!=display->defaultsubfont)
+		if(s && (!display || s!=display->defaultsubfont))
 			freesubfont(s);
 	}
 	freeimage(f->cacheimage);
