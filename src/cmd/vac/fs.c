@@ -14,7 +14,7 @@ vacfsalloc(VtConn *z, int bsize, int ncache, int mode)
 	fs->ref = 1;
 	fs->z = z;
 	fs->bsize = bsize;
-	fs->cache = vtcachealloc(z, bsize, ncache, mode);
+	fs->cache = vtcachealloc(z, bsize, ncache);
 	return fs;
 }
 

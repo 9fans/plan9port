@@ -640,7 +640,7 @@ filemapblock(VacFile *f, ulong bn, uchar score[VtScoreSize], ulong tag)
 		vtentrypack(&e, b->data, f->source->offset % f->source->epb);
 	}else
 		memmove(b->data + (bn%(e.psize/VtScoreSize))*VtScoreSize, score, VtScoreSize);
-	vtblockdirty(b);
+	/* vtblockdirty(b); */
 	vtblockput(b);
 	vtfileunlock(s);
 	fileunlock(f);
@@ -738,7 +738,7 @@ if(0)fprint(2, "fileWrite: %s %d, %lld\n", f->dir.elem, cnt, offset);
 		p += n;
 		offset += n;
 		bn++;
-		vtblockdirty(b);
+		/* vtblockdirty(b); */
 		vtblockput(b);
 	}
 	if(offset > eof && vtfilesetsize(s, offset) < 0)
@@ -1084,7 +1084,7 @@ if(0)fprint(2, "old size %d new size %d\n", me.size, n);
 		vdpack(&f->dir, &me);
 		mbinsert(&mb, i, &me);
 		mbpack(&mb);
-		vtblockdirty(b);
+		/* vtblockdirty(b); */
 		vtblockput(b);
 		vtfileunlock(fp->msource);
 		f->dirty = 0;
@@ -1104,7 +1104,7 @@ if(0)fprint(2, "old size %d new size %d\n", me.size, n);
 	if(boff == NilBlock){
 		/* mbResize might have modified block */
 		mbpack(&mb);
-		vtblockdirty(b);
+		/* vtblockdirty(b); */
 		goto Err;
 	}
 fprint(2, "fileMetaFlush moving entry from %ud -> %ud\n", f->boff, boff);
@@ -1116,7 +1116,7 @@ fprint(2, "fileMetaFlush moving entry from %ud -> %ud\n", f->boff, boff);
 	mbpack(&mb);
 //	blockDependency(b, bb, -1, nil, nil);
 	vtblockput(bb);
-	vtblockdirty(b);
+	/* vtblockdirty(b); */
 	vtblockput(b);
 	vtfileunlock(fp->msource);
 
@@ -1159,7 +1159,7 @@ filemetaremove(VacFile *f, char *uid)
 	mbpack(&mb);
 	vtfileunlock(up->msource);
 
-	vtblockdirty(b);
+	/* vtblockdirty(b); */
 	vtblockput(b);
 
 	f->removed = 1;
@@ -1562,7 +1562,7 @@ filemetaalloc(VacFile *f, VacDir *dir, u32int start)
 	if(p == nil){
 		/* mbAlloc might have changed block */
 		mbpack(&mb);
-		vtblockdirty(b);
+		/* vtblockdirty(b); */
 		werrstr(EBadMeta);
 		goto Err;
 	}
@@ -1593,7 +1593,7 @@ filemetaalloc(VacFile *f, VacDir *dir, u32int start)
 	}
 #endif
 
-	vtblockdirty(b);
+	/* vtblockdirty(b); */
 	vtblockput(b);
 	return bo;
 Err:
@@ -1792,7 +1792,7 @@ setEntry(Source *r, Entry *e)
 	/* BUG b should depend on the entry pointer */
 
 	markCopied(b);
-	vtblockdirty(b);
+	/* vtblockdirty(b); */
 	vtblockput(b);
 	return 1;
 }

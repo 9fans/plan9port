@@ -86,6 +86,7 @@ vtfilealloc(VtCache *c, VtBlock *b, VtFile *p, u32int offset, int mode)
 	r->c = c;
 	r->mode = mode;
 	r->dsize = e.dsize;
+	r->psize = e.psize;
 	r->gen = e.gen;
 	r->dir = (e.type & VtTypeBaseMask) == VtDirType;
 	r->ref = 1;
