@@ -605,6 +605,7 @@ simpleaddr(void)
 	Addr addr;
 	Addr *ap, *nap;
 
+	addr.num = 0;
 	addr.next = 0;
 	addr.u.left = 0;
 	switch(cmdskipbl()){

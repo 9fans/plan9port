@@ -83,6 +83,7 @@ kread(ulong addr, char *buf, int size)
 void
 xnet(int first)
 {
+#if 0
 	ulong out, in, outb, inb, err;
 	static ulong ifnetaddr;
 	ulong addr;
@@ -123,6 +124,8 @@ xnet(int first)
 	Bprint(&bout, "ethererr %lud\n", err);
 	Bprint(&bout, "ether %lud\n", in+out);
 	Bprint(&bout, "etherb %lud\n", inb+outb);
+#endif
+	USED(first);
 }
 
 

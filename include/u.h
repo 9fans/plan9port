@@ -10,8 +10,10 @@ extern "C" {
 #define _BSD_SOURCE 1
 #define _NETBSD_SOURCE 1	/* NetBSD */
 #define _SVID_SOURCE 1
-#define _XOPEN_SOURCE 1000
-#define _XOPEN_SOURCE_EXTENDED 1
+#ifndef __APPLE__
+#	define _XOPEN_SOURCE 1000
+#	define _XOPEN_SOURCE_EXTENDED 1
+#endif
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 
@@ -78,6 +80,7 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	endif
 #	undef _ANSI_SOURCE
 #	undef _POSIX_C_SOURCE
+#	undef _XOPEN_SOURCE
 #	if !defined(NSIG)
 #		define NSIG 32
 #	endif

@@ -929,7 +929,7 @@ callunix(void)
 	*p = 0;
 	pid = fork();
 	if(pid == 0) {
-		execlp("rc", "rc", "-c", buf, 0);
+		execlp("rc", "rc", "-c", buf, (char*)0);
 		sysfatal("exec failed: %r");
 		exits("execl failed");
 	}

@@ -146,6 +146,7 @@ parseinfo(char *desc, char **pp)
 	Type *t;
 	char *attr;
 
+	n1 = n2 = 0;
 	parsenum(desc, &n1, &n2, &desc);
 	t = typebynum(n1, n2);
 	if(*desc != '='){

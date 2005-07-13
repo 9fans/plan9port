@@ -144,11 +144,6 @@ void vgoto(double n)
 	vpos = n;
 }
 
-double fabs(double x)
-{
-	return x < 0 ? -x : x;
-}
-
 void hvflush(void)	/* get to proper point for output */
 {
 	if (fabs(hpos-htrue) >= 0.0005) {

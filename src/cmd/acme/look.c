@@ -696,6 +696,8 @@ openfile(Text *t, Expand *e)
 	Rune *rp;
 	uint dummy;
 
+	r.q0 = 0;
+	r.q1 = 0;
 	if(e->nname == 0){
 		w = t->w;
 		if(w == nil)

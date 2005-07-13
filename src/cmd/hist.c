@@ -144,7 +144,7 @@ ysearch(char *file)
 				print("diff %s %s\n", pair[toggle^1], pair[toggle]);
 			switch(rfork(RFFDG|RFPROC)){
 			case 0:
-				execlp("diff", "diff", diffb ? "-cb" : "-c", pair[toggle], pair[toggle ^ 1], 0);
+				execlp("diff", "diff", diffb ? "-cb" : "-c", pair[toggle], pair[toggle ^ 1], (char*)0);
 				fprint(2, "can't exec diff: %r\n");
 				exits(0);
 			case -1:

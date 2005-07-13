@@ -4,9 +4,9 @@
 
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/time.h>
 #include <sys/resource.h>
-#include <sys/wait.h>
 
 #ifndef WCOREDUMP	/* not on Mac OS X Tiger */
 #define WCOREDUMP(status) 0

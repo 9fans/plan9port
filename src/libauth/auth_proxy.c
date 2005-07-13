@@ -91,6 +91,7 @@ auth_getinfo(AuthRpc *rpc)
 
 	if(auth_rpc(rpc, "authinfo", nil, 0) != ARok)
 		return nil;
+	a = nil;
 	if(convM2AI((uchar*)rpc->arg, rpc->narg, &a) == nil){
 		werrstr("bad auth info from factotum");
 		return nil;

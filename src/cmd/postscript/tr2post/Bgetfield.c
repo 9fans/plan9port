@@ -108,7 +108,7 @@ Bgetfield(Biobuf *bp, int type, void *thing, int size) {
 		while (!bailout && (r = Bgetrune(bp))>=0) {
 			switch (sindex++) {
 			case 0:
-				if (*c == '0') {
+				if (r == '0') {
 					base = 8;
 					continue;
 				}
