@@ -167,7 +167,7 @@ threadmain(int argc, char **argv)
 
 	if(verbose)
 		fprint(2, "cache %d blocks\n", csize);
-	c = vtcachealloc(z, bsize, csize, VtORDWR);
+	c = vtcachealloc(z, bsize, csize);
 	zcache = c;
 
 	/*

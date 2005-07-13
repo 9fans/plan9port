@@ -47,7 +47,7 @@ threadmain(int argc, char **argv)
 		sysfatal("vtdial: %r");
 	if(vtconnect(z) < 0)
 		sysfatal("vtconnect: %r");
-	if((c = vtcachealloc(z, 16384, 32, VtOREAD)) == nil)
+	if((c = vtcachealloc(z, 16384, 32)) == nil)
 		sysfatal("vtcache: %r");
 	if((disk = diskopenventi(c, score)) == nil)
 		sysfatal("diskopenventi: %r");
