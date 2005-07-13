@@ -981,5 +981,5 @@ main(int argc, char **argv)
 	dup(p[0], 0);
 	close(p[0]);
 	close(p[1]);
-	execlp("dc", "dc", 0);
+	execlp("dc", "dc", (char*)0);
 }
