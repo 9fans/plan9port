@@ -204,12 +204,12 @@ spawn(ScreenInfo *s)
 			signal(SIGTERM, SIG_DFL);
 			signal(SIGHUP, SIG_DFL);
 			if(termprog != NULL){
-				execl(shell, shell, "-c", termprog, 0);
+				execl(shell, shell, "-c", termprog, nil);
 				fprintf(stderr, "rio: exec %s", shell);
 				perror(" failed");
 			}
-			execlp("9term", "9term", scrolling ? "-ws" : "-w", 0);
-			execlp("xterm", "xterm", "-ut", 0);
+			execlp("9term", "9term", scrolling ? "-ws" : "-w", nil);
+			execlp("xterm", "xterm", "-ut", nil);
 			perror("rio: exec 9term/xterm failed");
 			exit(1);
 		}
