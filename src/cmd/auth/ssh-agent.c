@@ -252,7 +252,7 @@ getstr(Msg *m)
 	p--;
 	memmove(p, p+1, n);
 	p[n] = 0;
-	return p;
+	return (char*)p;
 }
 
 mpint*
