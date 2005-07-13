@@ -545,9 +545,6 @@ xattach(char *label)
 	if(0) fprint(2, "x: display=%p kbd=%p mouse=%p snarf=%p\n",
 		_x.display, _x.kbdcon, _x.mousecon, _x.snarfcon);
 
-	_x.black	= xscreen->black_pixel;
-	_x.white	= xscreen->white_pixel;
-
 	return _x.screenimage;
 
 err0:

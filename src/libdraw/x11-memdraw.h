@@ -20,7 +20,6 @@ struct Xmem
 };
 
 struct Xprivate {
-	u32int		black;
 	u32int		chan;
 	XColormap	cmap;
 	XCursor		cursor;
@@ -63,7 +62,6 @@ struct Xprivate {
 	int		tox11[256];
 	int		usetable;
 	XVisual		*vis;
-	u32int		white;
 	Atom		clipboard;
 	Atom		utf8string;
 	Atom		targets;
