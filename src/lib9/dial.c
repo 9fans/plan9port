@@ -17,6 +17,7 @@
 #include <netdb.h>
 
 #undef unix
+#define unix xunix
 
 int
 p9dial(char *addr, char *local, char *dummy2, int *dummy3)
@@ -122,9 +123,12 @@ Unix:
 	}
 	strcpy(su.sun_path, unix);
 	free(buf);
-	if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+	if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0){
+		werrstr("socket: %r");
 		return -1;
+	}
 	if(connect(s, (struct sockaddr*)&su, sizeof su) < 0){
+		werrstr("connect %s: %r", su.sun_path);
 		close(s);
 		return -1;
 	}
