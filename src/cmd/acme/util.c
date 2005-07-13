@@ -71,7 +71,7 @@ void
 error(char *s)
 {
 	fprint(2, "acme: %s: %r\n", s);
-	abort();
+	threadexitsall(nil);
 }
 
 Window*
