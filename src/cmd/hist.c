@@ -73,7 +73,7 @@ void
 ysearch(char *file)
 {
 	char *ndump;
-	char fil[400], buf[500], nbuf[100], pair[2][500], *p;
+	char fil[400], buf[500], nbuf[100], pair[2][500];
 	Tm *tm;
 	Dir *dir, *d;
 	ulong otime, dt;
