@@ -416,7 +416,7 @@ struct VtBlock
 u32int vtglobaltolocal(uchar[VtScoreSize]);
 void vtlocaltoglobal(u32int, uchar[VtScoreSize]);
 
-VtCache *vtcachealloc(VtConn*, int blocksize, ulong nblocks, int mode);
+VtCache *vtcachealloc(VtConn*, int blocksize, ulong nblocks);
 void vtcachefree(VtCache*);
 VtBlock *vtcachelocal(VtCache*, u32int addr, int type);
 VtBlock *vtcacheglobal(VtCache*, uchar[VtScoreSize], int type);
