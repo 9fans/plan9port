@@ -1,0 +1,346 @@
+.TH VENTI-FMT 8
+.SH NAME
+buildindex,
+checkarenas,
+checkindex,
+conf,
+fmtarenas,
+fmtindex,
+fmtisect,
+syncindex \- prepare and maintain a venti server
+.SH SYNOPSIS
+.PP
+.B venti/fmtarenas
+[
+.B -Z
+]
+[
+.B -a
+.I arenasize
+]
+[
+.B -b
+.I blocksize
+]
+.I name
+.I file
+.PP
+.B venti/fmtisect
+[
+.B -1Z
+]
+[
+.B -b
+.I blocksize
+]
+.I name
+.I file
+.PP
+.B venti/fmtindex
+[
+.B -a
+]
+.I venti.conf
+.PP
+.B venti/conf
+[
+.B -w
+]
+.I partition
+[
+.I configfile
+]
+.if t .sp 0.5
+.PP
+.B venti/buildindex
+[
+.B -B
+.I blockcachesize
+]
+[
+.B -Z
+]
+.I venti.conf
+.I tmp
+.PP
+.B venti/checkindex
+[
+.B -f
+]
+[
+.B -B
+.I blockcachesize
+]
+.I venti.conf
+.I tmp
+.PP
+.B venti/checkarenas
+[
+.B -afv 
+]
+.I file
+.PP
+.B venti/copy
+[
+.B -f
+]
+.I src
+.I dst
+.I score
+[
+.I type
+]
+.SH DESCRIPTION
+These commands aid in the setup, maintenance, and debugging of
+venti servers.
+See
+.IR venti (7)
+for an overview of the venti system and
+.IR venti (8)
+for an overview of the data structures used by the venti server.
+.PP
+Note that the units for the various sizes in the following
+commands can be specified by appending
+.LR k ,
+.LR m ,
+or
+.LR g
+to indicate kilobytes, megabytes, or gigabytes respectively.
+.SS Formatting
+To prepare a server for its initial use, the arena partitions and
+the index sections must be formatted individually, with
+.I fmtarenas
+and
+.IR fmtisect .
+Then the 
+collection of index sections must be combined into a venti
+index with 
+.IR fmtindex .
+.PP
+.I Fmtarenas
+formats the given
+.IR file ,
+typically a disk partition, into an arena partition.
+The arenas in the partition are given names of the form
+.IR name%d ,
+where
+.I %d
+is replaced with a sequential number starting at 0.
+.PP
+Options to 
+.I fmtarenas
+are:
+.TP
+.BI -a " arenasize
+The arenas are of
+.I arenasize
+bytes.  The default is
+.BR 512M ,
+which was selected to provide a balance
+between the number of arenas and the ability to copy an arena to external
+media such as recordable CDs and tapes.
+.TP
+.BI -b " blocksize
+The size, in bytes, for read and write operations to the file.
+The size is recorded in the file, and is used by applications that access the arenas.
+The default is
+.BR 8k .
+.TP
+.B -4
+Create a `version 4' arena partition for backwards compatibility with old servers.
+The default is version 5, used by the current venti server.
+.TP
+.B -Z
+Do not zero the data sections of the arenas.
+Using this option reduces the formatting time
+but should only be used when it is known that the file was already zeroed.
+(Version 4 only; version 5 sections are not and do not need to be zeroed.)
+.PD
+.PP
+.I Fmtisect
+formats the given
+.IR file ,
+typically a disk partition, as a venti index section with the specified
+.IR name .
+Each of the index sections in a venti configuration must have a unique name.
+.PP
+Options to 
+.I fmtisect
+are:
+.TP
+.BI -b " bucketsize
+The size of an index bucket, in bytes.
+All the index sections within a index must have the same bucket size.
+The default is
+.BR 8k .
+.TP
+.B -1
+Create a `version 1' index section for backwards compatibility with old servers.
+The default is version 2, used by the current venti server.
+.TP
+.B -Z
+Do not zero the index.
+Using this option reduces the formatting time
+but should only be used when it is known that the file was already zeroed.
+(Version 1 only; version 2 sections are not and do not need to be zeroed.)
+.PD
+.I Fmtindex
+reads the configuration file
+.I venti.conf
+and initializes the index sections to form a usable index structure.
+The arena files and index sections must have previously been formatted
+using 
+.I fmtarenas
+and 
+.I fmtisect
+respectively.
+.PP
+The function of a venti index is to map a SHA1 fingerprint to a location
+in the data section of one of the arenas.  The index is composed of
+blocks, each of which contains the mapping for a fixed range of possible
+fingerprint values.
+.I Fmtindex
+determines the mapping between SHA1 values and the blocks
+of the collection of index sections.  Once this mapping has been determined,
+it cannot be changed without rebuilding the index. 
+The basic assumption in the current implementation is that the index
+structure is sufficiently empty that individual blocks of the index will rarely
+overflow.  The total size of the index should be about 2% to 10% of
+the total size of the arenas, but the exact percentage depends both on the
+index block size and the compressed size of blocks stored.
+See the discussion in
+.IR venti (8)
+for more.
+.PP
+.I Fmtindex
+also computes a mapping between a linear address space and
+the data section of the collection of arenas.  The
+.B -a
+option can be used to add additional arenas to an index.
+To use this feature,
+add the new arenas to
+.I venti.conf
+after the existing arenas and then run
+.I fmtindex
+.BR -a .
+.PP
+A copy of the above mappings is stored in the header for each of the index sections.
+These copies enable
+.I buildindex
+to restore a single index section without rebuilding the entire index.
+.PP
+To make it easier to bootstrap servers, the configuration
+file can be stored in otherwise empty space
+at the beginning of any venti partitions using
+.IR conf .
+A partition so branded with a configuration file can
+be used in place of a configuration file when invoking any
+of the venti commands.
+By default,
+.I conf
+prints the configuration stored in
+.IR partition .
+When invoked with the
+.B -w
+flag,
+.I conf
+reads a configuration file from 
+.I configfile
+(or else standard input)
+and stores it in
+.IR partition .
+.SS Checking and Rebuilding
+.PP
+.I Buildindex
+populates the index for the Venti system described in
+.IR venti.conf .
+The index must have previously been formatted using
+.IR fmtindex .
+This command is typically used to build a new index for a Venti
+system when the old index becomes too small, or to rebuild
+an index after media failure.
+Small errors in an index can usually be fixed with
+.IR checkindex .
+.PP
+The
+.I tmp
+file, usually a disk partition, must be large enough to store a copy of the index.
+This temporary space is used to perform a merge sort of index entries
+generated by reading the arenas.
+.PP
+Options to 
+.I buildindex
+are:
+.TP
+.BI -B " blockcachesize
+The amount of memory, in bytes, to use for caching raw disk accesses while running
+.IR buildindex .
+(This is not a property of the created index.)
+The default is 8k.
+.TP
+.B -Z
+Do not zero the index.
+This option should only be used when it is known that the index was already zeroed.
+(Version 1 indexes only; see the discussion in
+.I fmtindex
+above.)
+.PD
+.PP
+.I Checkindex
+examines the Venti index described in
+.IR venti.conf .
+The program detects various error conditions including:
+blocks that are not indexed, index entries for blocks that do not exist,
+and duplicate index entries.
+If requested, an attempt can be made to fix errors that are found.
+.PP
+The
+.I tmp
+file, usually a disk partition, must be large enough to store a copy of the index.
+This temporary space is used to perform a merge sort of index entries
+generated by reading the arenas.
+.PP
+Options to 
+.I checkindex
+are:
+.TP
+.BI -B " blockcachesize
+The amount of memory, in bytes, to use for caching raw disk accesses while running
+.IR checkindex .
+The default is 8k.
+.TP
+.B -f
+Attempt to fix any errors that are found.
+.PD
+.PP
+.I Checkarenas
+examines the Venti arenas contained in the given
+.IR file .
+The program detects various error conditions, and optionally attempts
+to fix any errors that are found.
+.PP
+Options to 
+.I checkarenas
+are:
+.TP
+.B -a
+For each arena, scan the entire data section.
+If this option is omitted, only the end section of
+the arena is examined.
+.TP
+.B -f
+Attempt to fix any errors that are found.
+.TP
+.B -v
+Increase the verbosity of output.
+.PD
+.SH SOURCE
+.B \*9/src/cmd/venti/srv
+.SH SEE ALSO
+.IR venti (7),
+.IR venti (8)
+.SH BUGS
+.I Buildindex
+should allow an individual index section to be rebuilt.
+The merge sort could be performed in the space used to store the
+index rather than requiring a temporary file.

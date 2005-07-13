@@ -1,0 +1,106 @@
+.TH VENTI-BACKUP 8
+.SH NAME
+rdarena, wrarena \- copy arenas between venti servers
+.SH SYNOPSIS
+.PP
+.B venti/rdarena
+[
+.B -v
+]
+.I arenapart
+.I arenaname
+.PP
+.B venti/wrarena
+[
+.B -o
+.I fileoffset
+]
+[
+.B -h
+.I host
+]
+.I arenafile
+[
+.I clumpoffset
+]
+.SH DESCRIPTION
+.PP
+.I Rdarena
+extracts the named
+.I arena
+from the arena partition
+.I arenapart
+and writes this arena to standard output.
+This command is typically used to back up an arena to external media.
+The
+.B -v
+option generates more verbose output on standard error.
+.PP
+.I Wrarena
+writes the blocks contained in the arena
+.I arenafile
+(typically, the output of
+.IR rdarena )
+to a Venti server.
+It is typically used to reinitialize a Venti server from backups of the arenas.
+For example,
+.IP
+.EX
+venti/rdarena /dev/sdC0/arenas arena.0 >external.media
+venti/wrarena -h venti2 external.media
+.EE
+.LP
+writes the blocks contained in
+.B arena.0
+to the Venti server
+.B venti2
+(typically not the one using
+.BR /dev/sdC0/arenas ).
+.PP
+The
+.B -o
+option specifies that the arena starts at byte
+.I fileoffset
+(default
+.BR 0 )
+in
+.I arenafile .
+This is useful for reading directly from
+the Venti arena partition:
+.IP
+.EX
+venti/wrarena -h venti2 -o 335872 /dev/sdC0/arenas
+.EE
+.LP
+(In this example, 335872 is the offset shown in the Venti
+server's index list (344064) minus one block (8192).
+You will need to substitute your own arena offsets
+and block size.)
+.PP
+Finally, the optional
+.I offset
+argument specifies that the writing should begin with the
+clump starting at
+.I offset
+within the arena.
+.I Wrarena
+prints the offset it stopped at (because there were no more data blocks).
+This could be used to incrementally back up a Venti server
+to another Venti server:
+.IP
+.EX
+last=`{cat last}
+venti/wrarena -h venti2 -o 335872 /dev/sdC0/arenas $last >output
+awk '/^end offset/ { print $3 }' offset >last
+.EE
+.LP
+Of course, one would need to add wrapper code to keep track
+of which arenas have been processed.
+See
+.B /sys/src/cmd/venti/backup.example
+for a version that does this.
+.SH SOURCE
+.B \*9/src/cmd/venti/srv
+.SH SEE ALSO
+.IR venti (7),
+.IR venti (8)
