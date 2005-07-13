@@ -1,0 +1,31 @@
+<$PLAN9/src/mkhdr
+
+LIB=libdiskfs.a
+
+FSOFILES=\
+	ext2.$O\
+	fat.$O\
+	ffs.$O\
+	kfs.$O\
+
+DISKOFILES=\
+	cache.$O\
+	file.$O\
+	venti.$O\
+
+OFILES=\
+	block.$O\
+	disk.$O\
+	fsys.$O\
+	$DISKOFILES\
+	$FSOFILES\
+
+HFILES=\
+	fs.h
+
+<$PLAN9/src/mksyslib
+
+CFLAGS=$CFLAGS
+
+%.acid: %.$O %.c
+	$CC $CFLAGS -a $stem.c >$stem.acid
