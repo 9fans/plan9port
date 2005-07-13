@@ -20,8 +20,10 @@ TARG=rio
 
 # need to add lib64 when it exists (on x86-64), but
 # Darwin complains about the nonexistant directory
+# Bug in mk? "$L64 -lXext" gobbles the space, so 
+# add trailing slash.
 L64=`[ -d $X11/lib64 ] && echo 64; echo`
-LDFLAGS=-L$X11/lib$L64 -lXext -lX11
+LDFLAGS=-L$X11/lib$L64/ -lXext -lX11
 
 <$PLAN9/src/mkone
 
