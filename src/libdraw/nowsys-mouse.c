@@ -16,7 +16,7 @@ void
 moveto(Mousectl *m, Point pt)
 {
 	USED(m);
-	USED(pt);
+/*	USED(pt); */
 	bad();
 }
 
