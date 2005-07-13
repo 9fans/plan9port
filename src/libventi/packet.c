@@ -612,7 +612,10 @@ packetfragments(Packet *p, IOchunk *io, int nio, int offset)
 		size += io->len;
 		io++;
 	}
-
+	for(; io < eio; io++){
+		io->addr = nil;
+		io->len = 0;
+	}
 	return size;
 }
 
