@@ -11,7 +11,11 @@
 #include <rpc/pmap_prot.h>
 #include <nfs/rpcv2.h>
 #include <nfs/nfsproto.h>
-#include <nfs/nfs.h>
+#if __FreeBSD_version >= 500000
+#	include <nfsclient/nfs.h>
+#else
+#	include <nfs/nfs.h>
+#endif
 #include <libc.h>
 #include "mountnfs.h"
 
@@ -38,7 +42,6 @@ mountnfs(int proto, struct sockaddr_in *sa,
 	na.retrans = NFS_RETRANS;
 	na.maxgrouplist = NFS_MAXGRPS;
 	na.readahead = 0;
-	na.leaseterm = 0;
 	na.deadthresh = 0;
 	na.hostname = "backup";
 	na.acregmin = 60;
