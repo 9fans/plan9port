@@ -347,7 +347,7 @@ winsettag1(Window *w)
 	ntagname = w->body.file->nname;
 	tagname = runemalloc(ntagname);
 	runemove(tagname, w->body.file->name, ntagname);
-	abbrevenv(&tagname, &ntagname);
+	abbrevenv(&tagname, (uint*)&ntagname);
 
 	/*
 	 * XXX Why is this here instead of letting the code
@@ -490,7 +490,7 @@ wincommit(Window *w, Text *t)
 	for(i=0; i<w->tag.file->b.nc; i++)
 		if(r[i]==' ' || r[i]=='\t')
 			break;
-	expandenv(&r, &i);
+	expandenv(&r, (uint*)&i);
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;
 		filemark(w->body.file);

@@ -456,7 +456,7 @@ dirname(Text *t, Rune *r, int n)
 	if(t==nil || t->w==nil)
 		goto Rescue;
 	if(dodollarsigns && n>=1 && r[0]=='$')
-		expandenv(&r, &n);
+		expandenv(&r, (uint*)&n);
 	nt = t->w->tag.file->b.nc;
 	if(nt == 0)
 		goto Rescue;
@@ -475,7 +475,7 @@ dirname(Text *t, Rune *r, int n)
 	if(slash < 0)
 		goto Rescue;
 	slash++;
-	if(dodollarsigns && expandenv(&b, &slash))
+	if(dodollarsigns && expandenv(&b, (uint*)&slash))
 		b = runerealloc(b, slash+n);
 	runemove(b+slash, r, n);
 	free(r);
@@ -577,7 +577,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 		goto Isfile;
 	else{
 		if(dodollarsigns && r[0] == '$')
-			expandenv(&r, &nname);
+			expandenv(&r, (uint*)&nname);
 		else{
 			rs = dirname(t, r, nname);
 			r = rs.r;
