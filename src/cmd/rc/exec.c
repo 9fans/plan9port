@@ -1,6 +1,9 @@
 #include <u.h>
 #include <signal.h>
 #include <sys/ioctl.h>
+#if defined(PLAN9PORT) && defined(__sun__)
+#	define BSD_COMP	/* sigh.  for TIOCNOTTY */
+#endif
 #include "rc.h"
 #include "getflags.h"
 #include "exec.h"
