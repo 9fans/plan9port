@@ -427,7 +427,6 @@ u32int vtcacheblocksize(VtCache*);
 int vtblockwrite(VtBlock*);
 VtBlock *vtblockcopy(VtBlock*);
 void vtblockduplock(VtBlock*);
-int vtblockdirty(VtBlock*);
 
 /*
  * Hash tree file tree.
@@ -446,6 +445,7 @@ struct VtFile
 	int mode;
 	u32int gen;
 	int dsize;
+	int psize;
 	int dir;
 	VtFile *parent;
 	int epb;			/* entries per block in parent */
