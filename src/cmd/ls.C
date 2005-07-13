@@ -2,6 +2,8 @@
 #include <libc.h>
 #include <bio.h>
 
+#define dirbuf p9dirbuf	/* avoid conflict on sun */
+
 typedef struct NDir NDir;
 struct NDir
 {
