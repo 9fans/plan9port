@@ -25,10 +25,8 @@ main(int argc, char *argv[])
 	int i;
 	
 	sys = sysname();
-	if(strncmp(sys, "amsterdam", 9) == 0)
+	if(strncmp(sys, "amsterdam", 9) == 0)	/* BUG */
 		sys = "am";
-	else if(strncmp(sys, "toil", 4) == 0)
-		sys = "toil";
 
 	ARGBEGIN {
 	default:
