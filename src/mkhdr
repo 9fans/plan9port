@@ -12,13 +12,11 @@ OBJTYPE=`uname -m | sed '
 BIN=$PLAN9/bin
 LIBDIR=$PLAN9/lib
 
-# BUG - figure this out automatically
-X11=/usr/X11R6
-
 O=o
 OS=$O
 
 CC=9c
+#CC=9r
 LD=9l
 AS=9a
 AR=9ar
