@@ -1,0 +1,28 @@
+<$PLAN9/src/mkhdr
+CC=9c
+
+TARG=\
+	disknfs\
+	vbackup\
+	vcat\
+	vmount0\
+	vnfs\
+
+OFILES=util.$O
+HFILES=$PLAN9/include/diskfs.h
+
+<$PLAN9/src/mkmany
+
+disknfs.$O: nfs3srv.h
+mount-%.$O: mountnfs.h
+nfs3srv.$O: nfs3srv.h
+queue.$O: queue.h
+vbackup.$O: queue.h
+vmount0.$O: mountnfs.h
+vnfs.$O: nfs3srv.h
+
+$O.disknfs: nfs3srv.$O
+$O.vbackup: vbackup.$O queue.$O
+$O.vmount0: vmount0.$O mount-$SYSNAME.$O
+$O.vnfs: nfs3srv.$O
+

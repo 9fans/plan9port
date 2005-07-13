@@ -1,0 +1,99 @@
+.TH YESTERDAY 1
+.SH NAME
+yesterday \- print file names from the dump
+.SH SYNOPSIS
+.B yesterday
+[
+.B -cCd
+] [
+.B -n
+.I daysago
+] [
+.I \-date
+]
+.I files ...
+.SH DESCRIPTION
+.I Yesterday
+prints the names of the
+.I files
+from the most recent dump.
+Since dumps are done early in the morning,
+yesterday's files are really in today's dump.
+For example, if today is February 11, 2003,
+.IP
+.EX
+yesterday /home/am3/rsc/.profile
+.EE
+.PP
+prints
+.IP
+.EX
+/dump/am/2003/0211/home/am3/rsc/.profile
+.EE
+.PP
+In fact, the implementation is to select the most recent dump in
+the current year, so the dump selected may not be from today.
+.PP
+By default, 
+.I yesterday
+prints the names of the dump files corresponding to the named files.
+The first set of options changes this behavior.
+.TP
+.B -c
+Copy the dump files over the named files.
+.TP
+.B -C
+Copy the dump files over the named files only when
+they differ.
+.TP
+.B -d
+Run 
+.B diff
+to compare the dump files with the named files.
+.PP
+The
+.I date
+option selects other day's dumps, with a format of
+1, 2, 4, 6, or 8 digits of the form
+.IR d,
+.IR dd ,
+.IR mmdd ,
+.IR yymmdd ,
+or
+.IR yyyymmdd .
+.PP
+The
+.B -n
+option selects the dump
+.I daysago
+prior to the current day.
+.PP
+.I Yesterday
+does not guarantee that the string it prints represents an existing file.
+.SH EXAMPLES
+.PP
+See what's changed in the last week in your profile:
+.IP
+.EX
+yesterday -d -n 7 ~/.profile
+.EE
+.PP
+Restore your profile from yesterday:
+.IP
+.EX
+yesterday -c ~/.profile
+.EE
+.SH FILES
+.B /dump
+.SH SOURCE
+.B /usr/local/bin/yesterday
+.SH SEE ALSO
+.IR diff (1),
+.IR hist (1)
+.SH BUGS
+Backups are only available on
+.B amsterdam
+and
+.BR toil .
+.PP
+It's hard to use this command without singing.

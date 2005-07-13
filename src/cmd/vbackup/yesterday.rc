@@ -1,0 +1,109 @@
+#!/usr/local/plan9/bin/rc
+
+path=($path $PLAN9/bin)
+
+fn usage {
+	echo 'usage: yesterday [-cd] [-[[yy]yy]mm]dd] [-n daysago] file ...' >[1=2]
+	exit 1
+}
+
+fn Xcp {
+	echo cp $1 $2
+	cp $1 $2
+}
+
+fn Xcarefulcp {
+	if(! cmp -s $1 $2) Xcp $1 $2
+}
+
+fn Xdiff {
+	echo diff -c $1 $2
+	diff -c $1 $2
+}
+
+fn Xecho {
+	echo $1
+}
+
+year=`{date|sed 's/.* //'}
+copy=Xecho
+last=()
+while(! ~ $#* 0 && ~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -c
+		copy=Xcp
+		shift
+	case -d
+		copy=Xdiff
+		shift
+	case -C
+		copy=Xcarefulcp
+		shift
+	case -n*
+		if(~ $1 -n){
+			if(~ $#* 1)
+				usage
+			shift
+			days=$1
+		}
+		if not
+			days=`{echo $1 | sed 's/^-.//'}
+		last=`{date -r `{perl -e 'print time() - '$days'*60*60*24'} | 
+				9 sed -e 's%... (...) (..) ..:..:.. ... (....)%\3/\1\2%' -e 'y/ /0/' -e $smon}
+		shift
+	case -[0-9]
+		mon=`{date|9 sed 's/^....(...).*/\1/' -e $smon}
+		last=$year/$mon ^`{echo $1|sed 's/^-/0/'}
+		shift
+	case -[0-9][0-9]
+		mon=`{date|9 sed 's/^....(...).*/\1/' -e $smon}
+		last=$year/$mon ^`{echo $1|9 sed 's/^-//'}
+		shift
+	case -[0-9][0-9][0-9][0-9]
+		last=$year/ ^ `{echo $1|9 sed 's/^-//'}
+		shift
+	case -[0-9][0-9][0-9][0-9][0-9][0-9]
+		last=`{echo $year|9 sed 's/..$//'} ^ `{echo $1|9 sed 's/^-(..)/\1\//'}
+		shift
+	case -[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]
+		last=`{echo $1|9 sed 's/^-(....)/\1\//'}
+		shift
+	case *
+		usage
+	}
+}
+if(! ~ $#* 0 && ~ $1 --)
+	shift
+
+if(~ $#* 0)
+	usage
+
+dir=`{pwd}
+if(! ~ $status ''){
+	echo 'yesterday: can''t find directory' >[1=2]
+	exit 'pwd failed'
+}
+
+h=`{hostname}
+switch($h){
+case amsterdam
+	xdump=/dump/am
+case *
+	if(! test -d /dump/$h){
+		echo 'no dumps on '^`{hostname} >[1=2]
+		exit 1
+	}
+	xdump=/dump/$h
+}
+
+for(i){
+	xpath=$i
+	if(! ~ $xpath /*)
+		xpath=`{9 cleanname -d `{pwd} $i}
+	dumppath=$xpath
+	if(~ $#last 0)
+		xlast=`{9 ls -t $xdump/$year|sed 1q}
+	if not
+		xlast=$xdump/$last
+	$copy $xlast^$dumppath $xpath
+}

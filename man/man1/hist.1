@@ -1,0 +1,78 @@
+.TH HIST 1
+.SH NAME
+hist \- print file names from the dump
+.SH SYNOPSIS
+.B hist
+[
+.B -vdu
+] [
+.B -s
+.I yyyymmdd
+]
+.I files ...
+.SH DESCRIPTION
+.I Hist
+prints the names, dates, and sizes of all versions of the named
+.IR files ,
+looking backwards in time,
+stored in the dump file system.
+If the file exists in the main tree, the first line of output will be its current state.
+For example,
+.IP
+.EX
+hist ~rsc/.bash_history
+.EE
+.PP
+produces
+.IP
+.EX
+.nf
+May 19 16:11:37 EDT 2005 /home/am3/rsc/.bash_history 6175
+May 18 23:32:16 EDT 2005 /dump/am/2005/0519/home/am3/rsc/.bash_history 5156
+May 17 23:32:31 EDT 2005 /dump/am/2005/0518/home/am3/rsc/.bash_history 5075
+May 16 07:53:47 EDT 2005 /dump/am/2005/0517/home/am3/rsc/.bash_history 5065
+.fi
+.EE
+.PP
+The
+.B -v
+option enables verbose debugging printout.
+.PP
+The 
+.B -d
+option causes
+.IR diff (1)
+.B -c
+to be run for each adjacent pair of dump files, while
+.B -b
+runs
+.IR diff
+.BR -cb .
+.PP
+The
+.B -u
+option causes times to be printed in GMT (UT) rather than local time.
+.PP
+Finally, the
+.B -s
+option
+sets the starting (most recent) date for the output.
+.SH EXAMPLES
+.PP
+Examine changes in block.c:
+.IP
+.EX
+hist -d block.c
+.EE
+.SH FILES
+.B /dump
+.SH SOURCE
+.B /home/am3/rsc/src/backup/cmd/history.c
+.SH SEE ALSO
+.IR yesterday (1)
+.SH BUGS
+Should be called
+.IR history ,
+but
+that name is taken by
+.IR sh (1).
