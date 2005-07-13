@@ -1,6 +1,6 @@
 <mkhdr
 
-BUGGERED='fs|fmt|httpd|utf|sunrpc'
+BUGGERED='fs|fmt|httpd|utf|sunrpc|diskfs'
 LIBDIRS=`ls -ld lib* | sed -n 's/^d.* //p' |egrep -v "^lib($BUGGERED)$"`
 
 DIRS=\
