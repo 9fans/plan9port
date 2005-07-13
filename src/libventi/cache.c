@@ -38,14 +38,13 @@ struct VtCache
 	VtBlock	*block;	/* all allocated blocks */
 	int		nblock;
 	uchar	*mem;	/* memory for all blocks and data */
-	int		mode;
 	int		(*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int);
 };
 
 static void cachecheck(VtCache*);
 
 VtCache*
-vtcachealloc(VtConn *z, int blocksize, ulong nblock, int mode)
+vtcachealloc(VtConn *z, int blocksize, ulong nblock)
 {
 	uchar *p;
 	VtCache *c;
@@ -62,7 +61,6 @@ vtcachealloc(VtConn *z, int blocksize, ulong nblock, int mode)
 	c->heap = vtmallocz(nblock*sizeof(VtBlock*));
 	c->block = vtmallocz(nblock*sizeof(VtBlock));
 	c->mem = vtmallocz(nblock*c->blocksize);
-	c->mode = mode;
 	c->write = vtwrite;
 
 	p = c->mem;
@@ -570,12 +568,5 @@ vtglobaltolocal(uchar score[VtScoreSize])
 	if(memcmp(score, zero, 16) != 0)
 		return NilBlock;
 	return (score[16]<<24)|(score[17]<<16)|(score[18]<<8)|score[19];
-}
-
-int
-vtblockdirty(VtBlock *b)
-{
-	USED(b);
-	return 0;
 }
 
