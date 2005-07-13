@@ -17,9 +17,9 @@ vtsrvhello(VtConn *z)
 	}
 	packetfree(p);
 
-	if(tx.type != VtThello){
+	if(tx.msgtype != VtThello){
 		vtfcallclear(&tx);
-		werrstr("bad packet type %d; want Thello %d", tx.type, VtThello);
+		werrstr("bad packet type %d; want Thello %d", tx.msgtype, VtThello);
 		return -1;
 	}
 	if(tx.tag != 0){
@@ -38,7 +38,7 @@ vtsrvhello(VtConn *z)
 	vtfcallclear(&tx);
 
 	memset(&rx, 0, sizeof rx);
-	rx.type = VtRhello;
+	rx.msgtype = VtRhello;
 	rx.tag = tx.tag;
 	rx.sid = "anonymous";
 	if((p = vtfcallpack(&rx)) == nil)

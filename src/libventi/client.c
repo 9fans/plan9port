@@ -22,16 +22,16 @@ vtfcallrpc(VtConn *z, VtFcall *ou, VtFcall *in)
 	}
 	if(chattyventi)
 		fprint(2, "%s <- %F\n", argv0, in);
-	if(in->type == VtRerror){
+	if(in->msgtype == VtRerror){
 		werrstr(in->error);
 		vtfcallclear(in);
 		packetfree(p);
 		return -1;
 	}
-	if(in->type != ou->type+1){
+	if(in->msgtype != ou->msgtype+1){
 		werrstr("type mismatch: sent %c%d got %c%d",
-			"TR"[ou->type&1], ou->type>>1,
-			"TR"[in->type&1], in->type>>1);
+			"TR"[ou->msgtype&1], ou->msgtype>>1,
+			"TR"[in->msgtype&1], in->msgtype>>1);
 		vtfcallclear(in);
 		packetfree(p);
 		return -1;
@@ -46,7 +46,7 @@ vthello(VtConn *z)
 	VtFcall tx, rx;
 
 	memset(&tx, 0, sizeof tx);
-	tx.type = VtThello;
+	tx.msgtype = VtThello;
 	tx.version = z->version;
 	tx.uid = z->uid;
 	if(tx.uid == nil)
@@ -68,8 +68,8 @@ vtreadpacket(VtConn *z, uchar score[VtScoreSize], uint type, int n)
 		return packetalloc();
 
 	memset(&tx, 0, sizeof tx);
-	tx.type = VtTread;
-	tx.dtype = type;
+	tx.msgtype = VtTread;
+	tx.blocktype = type;
 	tx.count = n;
 	memmove(tx.score, score, VtScoreSize);
 	if(vtfcallrpc(z, &tx, &rx) < 0)
@@ -114,8 +114,8 @@ vtwritepacket(VtConn *z, uchar score[VtScoreSize], uint type, Packet *p)
 		memmove(score, vtzeroscore, VtScoreSize);
 		return 0;
 	}
-	tx.type = VtTwrite;
-	tx.dtype = type;
+	tx.msgtype = VtTwrite;
+	tx.blocktype = type;
 	tx.data = p;
 	if(ventidoublechecksha1)
 		packetsha1(p, score);
@@ -148,7 +148,7 @@ vtsync(VtConn *z)
 {
 	VtFcall tx, rx;
 
-	tx.type = VtTsync;
+	tx.msgtype = VtTsync;
 	return vtfcallrpc(z, &tx, &rx);
 }
 
@@ -157,7 +157,7 @@ vtping(VtConn *z)
 {
 	VtFcall tx, rx;
 
-	tx.type = VtTping;
+	tx.msgtype = VtTping;
 	return vtfcallrpc(z, &tx, &rx);
 }
 

@@ -151,7 +151,7 @@ if(first && chattyventi){
 		if(chattyventi)
 			fprint(2, "%s <- %F\n", argv0, &r->tx);
 		packetfree(p);
-		if(r->tx.type == VtTgoodbye)
+		if(r->tx.msgtype == VtTgoodbye)
 			break;
 		r->rx.tag = r->tx.tag;
 		r->sc = sc;
@@ -195,7 +195,7 @@ vtrespond(VtReq *r)
 	sc = r->sc;
 	if(r->rx.tag != r->tx.tag)
 		abort();
-	if(r->rx.type != r->tx.type+1 && r->rx.type != VtRerror)
+	if(r->rx.msgtype != r->tx.msgtype+1 && r->rx.msgtype != VtRerror)
 		abort();
 	if(chattyventi)
 		fprint(2, "%s -> %F\n", argv0, &r->rx);

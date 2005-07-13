@@ -429,7 +429,6 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	vtzeroextend(type, b->data, n, c->blocksize);
 	b->iostate = BioVenti;
 	b->nlock = 1;
-	b->decrypted = 0;
 	return b;
 }
 

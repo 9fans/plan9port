@@ -10,13 +10,13 @@ vtfcallpack(VtFcall *f)
 
 	p = packetalloc();
 
-	buf[0] = f->type;
+	buf[0] = f->msgtype;
 	buf[1] = f->tag;
 	packetappend(p, buf, 2);
 
-	switch(f->type){
+	switch(f->msgtype){
 	default:
-		werrstr("vtfcallpack: unknown packet type %d", f->type);
+		werrstr("vtfcallpack: unknown packet type %d", f->msgtype);
 		goto Err;
 
 	case VtRerror:
@@ -56,7 +56,7 @@ vtfcallpack(VtFcall *f)
 
 	case VtTread:
 		packetappend(p, f->score, VtScoreSize);
-		buf[0] = vttodisktype(f->dtype);
+		buf[0] = vttodisktype(f->blocktype);
 		if(~buf[0] == 0)
 			goto Err;
 		buf[1] = 0;
@@ -70,7 +70,7 @@ vtfcallpack(VtFcall *f)
 		break;
 
 	case VtTwrite:
-		buf[0] = vttodisktype(f->dtype);
+		buf[0] = vttodisktype(f->blocktype);
 		if(~buf[0] == 0)
 			goto Err;
 		buf[1] = 0;
@@ -108,12 +108,12 @@ vtfcallunpack(VtFcall *f, Packet *p)
 	if(packetconsume(p, buf, 2) < 0)
 		return -1;
 
-	f->type = buf[0];
+	f->msgtype = buf[0];
 	f->tag = buf[1];
 
-	switch(f->type){
+	switch(f->msgtype){
 	default:
-		werrstr("vtfcallunpack: unknown bad packet type %d", f->type);
+		werrstr("vtfcallunpack: unknown bad packet type %d", f->msgtype);
 		vtfcallclear(f);
 		return -1;
 
@@ -165,8 +165,8 @@ vtfcallunpack(VtFcall *f, Packet *p)
 		if(packetconsume(p, f->score, VtScoreSize) < 0
 		|| packetconsume(p, buf, 4) < 0)
 			goto Err;
-		f->dtype = vtfromdisktype(buf[0]);
-		if(~f->dtype == 0)
+		f->blocktype = vtfromdisktype(buf[0]);
+		if(~f->blocktype == 0)
 			goto Err;
 		f->count = (buf[2] << 8) | buf[3];
 		break;
@@ -179,8 +179,8 @@ vtfcallunpack(VtFcall *f, Packet *p)
 	case VtTwrite:
 		if(packetconsume(p, buf, 4) < 0)
 			goto Err;
-		f->dtype = vtfromdisktype(buf[0]);
-		if(~f->dtype == 0)
+		f->blocktype = vtfromdisktype(buf[0]);
+		if(~f->blocktype == 0)
 			goto Err;
 		f->data = packetalloc();
 		packetconcat(f->data, p);

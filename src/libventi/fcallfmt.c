@@ -12,9 +12,9 @@ vtfcallfmt(Fmt *f)
 		fmtprint(f, "<nil fcall>");
 		return 0;
 	}
-	switch(t->type){
+	switch(t->msgtype){
 	default:
-		return fmtprint(f, "%c%d tag %ud", "TR"[t->type&1], t->type>>1, t->tag);
+		return fmtprint(f, "%c%d tag %ud", "TR"[t->msgtype&1], t->msgtype>>1, t->tag);
 	case VtRerror:
 		return fmtprint(f, "Rerror tag %ud error %s", t->tag, t->error);
 	case VtTping:
@@ -40,11 +40,11 @@ vtfcallfmt(Fmt *f)
 	case VtRauth1:
 		return fmtprint(f, "Rauth1 tag %ud auth %.*H", t->tag, t->nauth, t->auth);
 	case VtTread:
-		return fmtprint(f, "Tread tag %ud score %V dtype %d count %d", t->tag, t->score, t->dtype, t->count);
+		return fmtprint(f, "Tread tag %ud score %V blocktype %d count %d", t->tag, t->score, t->blocktype, t->count);
 	case VtRread:
 		return fmtprint(f, "Rread tag %ud count %d", t->tag, packetsize(t->data));
 	case VtTwrite:
-		return fmtprint(f, "Twrite tag %ud dtype %d count %d", t->tag, t->dtype, packetsize(t->data));
+		return fmtprint(f, "Twrite tag %ud blocktype %d count %d", t->tag, t->blocktype, packetsize(t->data));
 	case VtRwrite:
 		return fmtprint(f, "Rwrite tag %ud score %V", t->tag, t->score);
 	case VtTsync:
