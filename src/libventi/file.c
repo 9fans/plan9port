@@ -178,7 +178,7 @@ vtfileopen(VtFile *r, u32int offset, int mode)
 }
 
 VtFile *
-vtfilecreate(VtFile *r, int psize, int dsize, int dir)
+vtfilecreate(VtFile *r, int psize, int dsize, int type)
 {
 	int i;
 	VtBlock *b;
@@ -191,6 +191,7 @@ vtfilecreate(VtFile *r, int psize, int dsize, int dir)
 	assert(ISLOCKED(r));
 	assert(psize <= VtMaxLumpSize);
 	assert(dsize <= VtMaxLumpSize);
+	assert(type == VtDirType || type == VtDataType);
 
 	if(!r->dir){
 		werrstr(ENotDir);
@@ -232,7 +233,7 @@ Found:
 	e.psize = psize;
 	e.dsize = dsize;
 	e.flags = VtEntryActive;
-	e.type = dir ? VtDirType : VtDataType;
+	e.type = type;
 	e.size = 0;
 	memmove(e.score, vtzeroscore, VtScoreSize);
 	vtentrypack(&e, b->data, i);
