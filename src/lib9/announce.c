@@ -31,6 +31,7 @@ putfd(char *dir, int fd)
 }
 
 #undef unix
+#define unix sockunix
 
 int
 p9announce(char *addr, char *dir)
