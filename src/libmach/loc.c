@@ -205,6 +205,7 @@ locindir(char *reg, long offset)
 	l.type = LOFFSET;
 	l.reg = reg;
 	l.offset = offset;
+	l.addr = 0;	/* SHUT UP GCC 4.0 */
 	return l;
 }
 
