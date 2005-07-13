@@ -1,3 +1,4 @@
+_*
 9grep
 9lex
 9p
@@ -5,9 +6,6 @@
 9sed
 9term
 9yacc
-Irc
-Juke
-_mk
 acid
 acidtypes
 acme
@@ -52,6 +50,7 @@ ed
 eqn
 factor
 factotum
+flacinfo
 fmt
 fortune
 freq
@@ -65,6 +64,7 @@ grep9
 gunzip
 gview
 gzip
+hget
 hoc
 htmlfmt
 ico
@@ -72,8 +72,10 @@ iconv
 idiff
 img
 import
+Irc
 join
 jpg
+Juke
 jukefmt
 jukeget
 jukeindex
@@ -83,14 +85,18 @@ jukeput
 jukesearch
 jukesongfile
 lex
+listen1
 look
+lpdsend
 ls
 lsr
+m4adec
 m4ainfo
 mapd
 mc
 md5sum
 mk
+_mk
 mk9660
 mkdir
 mp3info
@@ -101,6 +107,7 @@ ndbmkdb
 ndbmkhash
 ndbmkhosts
 ndbquery
+Netfiles
 netkey
 news
 notes
@@ -131,6 +138,7 @@ rsa2ssh
 rsa2x509
 rsafill
 rsagen
+rscc
 sam
 samterm
 scat
@@ -139,12 +147,15 @@ secstored
 secuser
 sed
 seq
+sftpcache
 sha1sum
 sleep
 sort
 split
 sprog
+srv
 ssh-agent
+sslpipe
 stats
 strings
 sum
@@ -156,6 +167,7 @@ tcs
 tee
 test
 testfdpass
+tftpd
 time
 togif
 toico
@@ -175,6 +187,7 @@ unutf
 unzip
 vac
 vacfs
+vmount
 volume
 vtdump
 wc
@@ -183,7 +196,4 @@ xd
 yacc
 yuv
 zip
-Netfiles
-m4adec
-flacinfo
-srv
+zork
