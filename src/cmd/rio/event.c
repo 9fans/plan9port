@@ -15,9 +15,7 @@ void
 mainloop(int shape_event)
 {
 	XEvent ev;
-	XKeyEvent *ke;
 	
-Top:
 	for(;;){
 		getevent(&ev);
 

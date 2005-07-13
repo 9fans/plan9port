@@ -18,12 +18,10 @@ enum
 };
 
 static int tabcode = 0x17;
-static int altcode = 0x40;
-static int pgupcode = 0x63;
-static int pgdowncode = 0x69;
+//static int altcode = 0x40;
+//static int pgupcode = 0x63;
+//static int pgdowncode = 0x69;
 
-static void altpress(void);
-static void altrelease(void);
 static void alttab(int shift);
 
 void
