@@ -517,6 +517,7 @@ simpleaddr(void)
 
 	addr.next = 0;
 	addr.left = 0;
+	addr.num = 0;
 	switch(skipbl()){
 	case '#':
 		addr.type = getch();
