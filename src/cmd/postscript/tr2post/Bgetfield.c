@@ -59,7 +59,6 @@ int
 Bgetfield(Biobuf *bp, int type, void *thing, int size) {
 	int r;
 	Rune R;
-	char c[UTFmax];
 	int sindex = 0, i, j, n = 0;
 	int negate = 0;
 	int base = 10;
