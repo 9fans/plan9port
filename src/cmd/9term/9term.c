@@ -939,7 +939,7 @@ key(Rune r)
 		return;
 	}
 	
-	if(rawon() && t.q0 == t.nr){
+	if(!holdon && rawon() && t.q0 == t.nr){
 		addraw(&r, 1);
 		consread();
 		return;
@@ -1026,7 +1026,7 @@ consready(void)
 		return 0;
 
 	if(rawon()) 
-		return t.nraw != 0;
+		return t.nraw != 0 || t.qh < t.nr;
 
 	/* look to see if there is a complete line */
 	for(i=t.qh; i<t.nr; i++){
@@ -1372,7 +1372,7 @@ paste(Rune *r, int n, int advance)
 {
 	Rune *rbuf;
 
-	if(rawon() && t.q0==t.nr){
+	if(!holdon && rawon() && t.q0==t.nr){
 		addraw(r, n);
 		consread();
 		return;
