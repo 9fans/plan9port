@@ -104,6 +104,7 @@ rundiff(char *arg1, char *arg2, int outfd)
 	Waitmsg *w;
 
 	narg = 0;
+	arg[narg++] = "9";
 	arg[narg++] = "diff";
 	arg[narg++] = "-n";
 	if(diffbflag)
@@ -121,7 +122,7 @@ rundiff(char *arg1, char *arg2, int outfd)
 	case 0:
 		dup(outfd, 1);
 		close(0);
-		exec("diff", arg);
+		exec("9", arg);
 		sysfatal("exec: %r");
 
 	default:
