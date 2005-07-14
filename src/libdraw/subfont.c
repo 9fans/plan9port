@@ -12,7 +12,6 @@ allocsubfont(char *name, int n, int height, int ascent, Fontchar *info, Image *i
 	f = malloc(sizeof(Subfont));
 	if(f == 0)
 		return 0;
-fprint(2, "allocsubfont %p\n", f);
 	f->n = n;
 	f->height = height;
 	f->ascent = ascent;
