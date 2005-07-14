@@ -1,7 +1,78 @@
+
+July 12-13, 2005
+	various: placate gcc-4.0 on OS X.
+	src/Makefile: try to use system binaries in path
+	src/mkhdr: remove X11 guess
+	src/mkdirs: add $MKFLAGS to recursive mk
+	src/mkmk.sh: update
+	lib9/announce: cannot use unix as variable name
+	lib9/malloc: locks around all the malloc routines.
+		old Linux libc cannot be trusted.  maybe other
+		systems.  paranoia rules the day.
+	lib9/sendfd: add macros for systems without (Sun)
+	lib9pclient: better error messages
+	libdiskfs: new library
+	libdraw: crash less when display == nil.
+		look in more places for X11.
+		make nowsys-mouse and nowsys-keyboard compile.
+		handle freeing of subfonts correctly.
+		drop _x.black and _x.white.
+	libmux: better error messages
+	libsunrpc: remove some c++ comments
+	libventi: new and improved, now with manual pages
+	9l: silence nm errors during autolib
+	9term: hold mode even in raw mode (suggested by James Robinson)
+	acme: various needed casts
+		exit gracefully on error
+	dict: no more wide characters
+	diff: use +/- instead of </> in diff -c
+	grap: remove unused symtab
+	hget: remove [] in array initializers 
+	listen1: added
+	ls: cannot use global named "dirbuf"
+	man: sort pages correctly, handle troff correctly.
+	nroff: invoke plan 9 troff
+	rc: sun stupidity
+	rio: clean up code, attempt at keyboard-based window switching
+	ssh-agent: needed cast
+	vac: fix call to vtfilecreate.
+	vbackup: new file system backup program
+		with dump-like access interface.
+	venti: it returns, now with manual pages
+	
+
+June 22, 2005
+	libmach/dwarfdump: avoid bogus <nil> in path (thanks to William Josephson)
+
+May 19, 2005
+	lib9/encodefmt: handle precision==0 better
+	libsunrpc: various fixes
+	rc: set $PLAN9 at startup if necessary
+
+May 12, 2005
+	font: add new japanese fonts
+	include/sunrpc.h: add autolib
+	include/utf.h: change Runeerror
+	libsec/386: change labels in assembly to get
+		better function name boundaries in oprofile
+	libventi: add vtlognames
+	
+May 7, 2005
+	various: remove long character constants.
+	various: use full prototypes everywhere
+	dist/checkman.awk: ignore sftp(1)
+	include/u.h: preliminary OS X Tiger changes
+	lib9/_p9dialparse: set p9unix always
+	libip/udp: try to do better with headers
+	srv: check return value of auth_proxy correctly
+	web: fixes (thanks to Scott Schwartz)
+	
+
 May 2, 2005
 	libdraw/x11-itrans: correct snarf race (reported by Karl Sackett)
 	acme: row load/dump consistency fix (thanks to Peter Canning)
-	
+	include/u.h: workaround for old gcc
+
 May 1, 2005
 	lib9/await: Mac OS X Tiger fixes (thanks to Jeff Sickel)
 	lib9/sendfd: fix alignment bug (thanks to Tim Wiess)
