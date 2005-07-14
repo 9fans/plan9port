@@ -7,12 +7,19 @@
 #define NOPLAN9DEFINES
 #include <libc.h>
 
+static Lock malloclock;
+
 void*
 p9malloc(ulong n)
 {
+	void *v;
+	
 	if(n == 0)
 		n++;
-	return malloc(n);
+	lock(&malloclock);
+	v = malloc(n);
+	unlock(&malloclock);
+	return v;
 }
 
 void
@@ -20,20 +27,30 @@ p9free(void *v)
 {
 	if(v == nil)
 		return;
+	lock(&malloclock);
 	free(v);
+	unlock(&malloclock);
 }
 
 void*
 p9calloc(ulong a, ulong b)
 {
+	void *v;
+	
 	if(a*b == 0)
 		a = b = 1;
 
-	return calloc(a*b, 1);
+	lock(&malloclock);
+	v = calloc(a*b, 1);
+	unlock(&malloclock);
+	return v;
 }
 
 void*
 p9realloc(void *v, ulong n)
 {
-	return realloc(v, n);
+	lock(&malloclock);
+	v = realloc(v, n);
+	unlock(&malloclock);
+	return v;
 }
