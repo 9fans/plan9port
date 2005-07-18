@@ -8,11 +8,14 @@ post9pservice(int fd, char *name)
 	char *ns, *s;
 	Waitmsg *w;
 
-	if((ns = getns()) == nil)
-		return -1;
-
-	s = smprint("unix!%s/%s", ns, name);
-	free(ns);
+	if(strchr(name, '!'))	/* assume is already network address */
+		s = strdup(name);
+	else{
+		if((ns = getns()) == nil)
+			return -1;
+		s = smprint("unix!%s/%s", ns, name);
+		free(ns);
+	}
 	if(s == nil)
 		return -1;
 	switch(fork()){
