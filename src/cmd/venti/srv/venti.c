@@ -18,7 +18,7 @@ static void	ventiserver(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: venti [-dw] [-a ventiaddress] [-h httpaddress] [-c config] [-C cachesize] [-I icachesize] [-B blockcachesize]\n");
+	fprint(2, "usage: venti [-dsw] [-a ventiaddress] [-h httpaddress] [-c config] [-C cachesize] [-I icachesize] [-B blockcachesize]\n");
 	threadexitsall("usage");
 }
 void
