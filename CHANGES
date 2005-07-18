@@ -1,3 +1,18 @@
+July 18, 2005
+	page: handle troff intermediate output
+	man: add hget(1), keyboard(7), and listen1(8)
+
+July 17, 2005
+	9term: better(?) CR handling
+	post9p: announce to networks
+	vmount: change default handle
+
+July 15, 2005
+	dist/isum: work around grep stupidity
+
+July 14, 2005
+	rc: ignore window size change signals
+	man: remove venti.conf(7) -- now in venti(8)
 
 July 12-13, 2005
 	various: placate gcc-4.0 on OS X.
