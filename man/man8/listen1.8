@@ -1,0 +1,40 @@
+.TH LISTEN 8
+.SH NAME
+listen1 \- listen for calls on a network device
+.SH SYNOPSIS
+.PP
+.B aux/listen1
+[
+.B -v
+]
+.I addr
+.I cmd
+[
+.I args...
+]
+.SH DESCRIPTION
+.PP
+.I Listen1
+is a lightweight listener intended for personal use,
+modeled from Inferno's
+.\" write out this way so automatic programs
+.\" don't try to make it into a real man page reference.
+\fIlisten\fR(1).
+It
+announces on
+.IR address ,
+running
+.I cmd
+.I args...
+for each incoming connection;
+the network directory is passed in the environment
+as 
+.BR $net .
+The
+.B -v
+flag causes verbose logging on standard output.
+.SH SOURCE
+.B \*9/src/cmd/aux/listen1.c
+.SH "SEE ALSO"
+.IR dial (3)
+
