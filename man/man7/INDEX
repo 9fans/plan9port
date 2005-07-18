@@ -5,8 +5,10 @@ face face.7
 font font.7
 subfont font.7
 image image.7
+keyboard keyboard.7
 man man.7
 map map.7
+mpictures mpictures.7
 ms ms.7
 ndb ndb.7
 plot plot.7
@@ -18,3 +20,4 @@ UTF utf.7
 Unicode utf.7
 rune utf.7
 utf utf.7
+venti venti.7

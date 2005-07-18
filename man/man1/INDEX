@@ -73,6 +73,8 @@ gunzip gzip.1
 gzip gzip.1
 unzip gzip.1
 zip gzip.1
+hget hget.1
+hist hist.1
 hoc hoc.1
 idiff idiff.1
 install install.1
@@ -184,6 +186,7 @@ secstored secstored.1
 secuser secstored.1
 sed sed.1
 seq seq.1
+sftpcache sftpcache.1
 sleep sleep.1
 sort sort.1
 spell spell.1
@@ -214,6 +217,10 @@ tweak tweak.1
 uniq uniq.1
 units units.1
 vac vac.1
+copy venti.1
+read venti.1
+venti venti.1
+write venti.1
 wc wc.1
 web web.1
 wmail web.1
@@ -222,3 +229,4 @@ wmail web.1
 wintext wintext.1
 xd xd.1
 yacc yacc.1
+yesterday yesterday.1

@@ -114,12 +114,14 @@ Turn on debugging output.
 Trace interactions with Venti server.
 .TP
 .B -m \fImntname
-Set backup name
-(defaults to
-.IR sysname (3)):
+Set backup name:
 this name is used in the printed
 .B mount
 command.
+The default is the name returned by
+.I sysname
+(see
+.IR getuser (3)).
 .TP
 .B -n
 No-op mode: do not write any blocks to the server
@@ -336,4 +338,3 @@ Mount the backups on a client machine using
 .EE
 .PP
 (Users of fancy shells may need to quote the address argument.)
-
