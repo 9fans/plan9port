@@ -22,6 +22,16 @@ preview()
 	end tell' | osascript
 }
 
+xfile()
+{
+	if sed 1q "$1" | 9 grep '^x T '
+	then
+		echo 'troff intermediate output'
+	else
+		file - < "$1"
+	fi
+}
+
 main()
 {
 	case `uname` in
@@ -29,7 +39,10 @@ main()
 		preview "$@"
 		;;
 	*)
-		case "`file $1`" in
+		case "`xfile $1`" in
+		*troff*)
+			tr2post "$1" | psfonts | page
+			;;
 		*PDF*)
 			psv $1
 			;;
@@ -51,7 +64,11 @@ case $# in
 0)
 	tmp=/var/tmp/page.$$.tmp
 	cat >$tmp
-	case "`file $tmp`" in
+	case "`xfile $tmp`" in
+	*troff*)
+		mv $tmp $tmp.tr
+		tmp=$tmp.tr
+		;;
 	*PDF*)
 		mv $tmp $tmp.pdf
 		tmp=$tmp.pdf
