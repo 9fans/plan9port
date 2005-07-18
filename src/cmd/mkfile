@@ -1,10 +1,10 @@
 <$PLAN9/src/mkhdr
 
-TARG=`ls *.[cy] *.lx | egrep -v "\.tab\.c$" | sed 's/\.[cy]//; s/\.lx//'`
+TARG=`ls *.[cy] *.lx | egrep -v "\.tab\.c$|^x\." | sed 's/\.[cy]//; s/\.lx//'`
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|faces|factotum|mailfs|page|scat|upas|venti|vncv|mnihongo|mpm|index'
+BUGGERED='CVS|faces|factotum|mailfs|page|scat|upas|venti|vncv|mnihongo|mpm|index|u9fs|secstore'
 DIRS=lex `ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"|egrep -v '^lex$'`
 
 <$PLAN9/src/mkdirs
