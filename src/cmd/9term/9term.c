@@ -1136,6 +1136,7 @@ conswrite(char *p, int n)
 void
 runewrite(Rune *r, int n)
 {
+	static int havecr;
 	int i;
 	uint initial;
 	uint q0, q1;
@@ -1146,8 +1147,13 @@ runewrite(Rune *r, int n)
 	if(n == 0)
 		return;
 
-	/* get rid of backspaces */
+	/* process trailing \r from previous write */
 	initial = 0;
+	if(havecr && *r != '\r' && *r != '\n')
+		initial = bswidth(0x15, t.qh, 0);
+	havecr = 0;
+
+	/* get rid of backspaces */
 	p = q = r;
 	for(i=0; i<n; i++) {
 		if(*p == '\b') {
@@ -1167,7 +1173,8 @@ runewrite(Rune *r, int n)
 					q--;
 				if(q==r)
 					initial = bswidth(0x15, t.qh, 0);
-			}
+			}else if(i == n-1)
+				havecr = 1;
 		} else if(*p)
 			*q++ = *p;
 		p++;
