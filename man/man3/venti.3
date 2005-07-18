@@ -1,6 +1,6 @@
 .TH VENTI 3
 .SH NAME
-xxx \- Venti storage server
+venti \- archival storage server
 .SH SYNOPSIS
 .PP
 .ft L
@@ -28,7 +28,7 @@ describe routines for writing clients
 and servers on top of these.
 .PP
 .IR Venti-fcall (3)
-describes the in-memory representation of Venti protocol messages
+describes the C representation of Venti protocol messages
 and data structures.
 It also describes routines that convert between the C representation
 and the network and disk representations.
@@ -37,7 +37,7 @@ and the network and disk representations.
 describes routines for writing clients that manipulate
 Venti file trees
 (see
-.IR venti (1)).
+.IR venti (7)).
 .PP
 .IR Venti-log (3)
 describes routines to access in-memory log buffers
@@ -51,13 +51,13 @@ routines that abort on error.
 .PP
 .IR Venti-packet (3)
 describes routines for 
-efficiently manipulating chains of
+manipulating zero-copy chains of
 data buffers.
 .PP
 .IR Venti-zero (3)
 describes routines to zero truncate and zero extend blocks
 (see
-.IR venti (1)).
+.IR venti (7)).
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO

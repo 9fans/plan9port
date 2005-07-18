@@ -110,12 +110,13 @@ is a read-only Venti proxy (it rejects
 .B write
 requests).
 .I Devnull
-is a write-only Venti server: it discards all
+is a dangerous write-only Venti server: it discards all
 blocks written to it and returns error on all reads.
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
-.IR venti (1),
 .IR venti (3),
 .IR venti-conn (3),
-.IR venti-packet (3)
+.IR venti-packet (3),
+.IR venti (7),
+.IR venti (8)

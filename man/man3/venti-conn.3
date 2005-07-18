@@ -61,6 +61,18 @@ A
 .B VtConn
 structure represents a connection to a Venti server
 (when used by a client) or to a client (when used by a server).
+It contains the following user-visible fields:
+.BR debug ,
+a flag enabling debugging prints;
+.BR version ,
+the protocol version in use;
+.BR uid ,
+the (unverified) name of the client;
+.BR sid ,
+the (unverified) name of the server;
+and
+.BR addr ,
+the network address of the remote side.
 .PP
 .I Vtconn
 initializes a new connection structure using file descriptors
@@ -81,7 +93,7 @@ exchanges version information with the remote side
 as described in
 .IR venti (7).
 The negotiated version is stored in
-.IB z -> version \fR.
+.IB z ->version \fR.
 .PP
 .I Vtsend
 writes a packet
@@ -146,7 +158,7 @@ must be the connection structure
 .I Vtdebug
 prints the formatted message to standard error
 when
-.IB z -> debug
+.IB z ->debug
 is set.  Otherwise it is a no-op.
 .PP
 .I Vthangup

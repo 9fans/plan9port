@@ -1,0 +1,151 @@
+.TH MPICTURES 7
+.SH NAME
+mpictures \- picture inclusion macros
+.SH SYNOPSIS
+.B troff -mpictures
+[
+.I options
+]
+.I file ...
+.SH DESCRIPTION
+.I Mpictures
+macros insert PostScript pictures into
+.IR troff (1)
+documents.
+The macros are:
+.TP
+.BI .BP " source height width position offset flags label
+Define a frame and place a picture in it.
+Null arguments, represented by \f5""\fR,
+are interpreted as defaults.
+The arguments are:
+.RS
+.TP
+.I source
+Name of a PostScript picture file, optionally
+suffixed with
+.RI ( n )
+to select page number
+.I n
+from the file (first page by default).
+.PD0
+.TP
+.I height
+Vertical size of the frame, default
+.BR 3.0i .
+.TP
+.I width
+Horizontal size of the frame, current line length by default.
+.TP
+.I position
+.L l
+(default),
+.LR c ,
+or
+.L r
+to left-justify, center, or right-justify the frame.
+.TP
+.I offset
+Move the frame horizontally from the original
+.I position
+by this amount, default
+.BR 0i .
+.TP
+.I flags
+One or more of:
+.RS
+.PD 0v
+.TP
+.BI a d 
+Rotate the picture clockwise
+.I d
+degrees, default 
+.IR d =90.
+.TP
+.B o
+Outline the picture with a box.
+.TP
+.B s
+Freely scale both picture dimensions.
+.TP
+.B w
+White out the area to be occupied by the picture.
+.TP
+.BR l , r , t ,\fPb
+Attach the picture to the left right, top, or bottom of the frame.
+.RE
+.TP
+.I label
+Place
+.I label
+at distance
+.B 1.5v
+below the frame.
+.PD
+.PP
+If there's room,
+.B .BP
+fills text around the frame.
+Everything destined for either side of the frame
+goes into a diversion to be retrieved when the accumulated
+text sweeps past the trap set by 
+.B .BP
+or when the diversion is explicitly closed
+by 
+.BR .EP .
+.RE
+.TP
+.BI .PI " source height" , width , "yoffset\fB,\fPxoffset flags.
+This low-level macro, used by
+.BR .BP ,
+can help do more complex things.
+The two arguments not already described are:
+.RS
+.TP
+.I xoffset
+Offset the frame from the left margin by this amount, default
+.BR 0i .
+.PD0
+.TP
+.I yoffset
+Offset the frame from the current baseline,
+measuring positive downward, default
+.BR 0i .
+.PD
+.RE
+.TP
+.B .EP
+End a picture started by
+.BR .BP ;
+.B .EP
+is usually called implicitly by a trap
+at frame bottom.
+.PP
+If a PostScript file lacks page-delimiting comments,
+the entire file is included.
+If no
+.B %%BoundingBox
+comment is present, the picture is
+assumed to fill an 8.5\(mu11-inch page.
+Nothing prevents the picture from being placed off the page.
+.SH SEE ALSO
+.IR troff (1)
+.SH DIAGNOSTICS
+A picture file that can't be read by the PostScript
+postprocessor is replaced by white space.
+.SH BUGS
+A picture and associated text silently disappear if
+a diversion trap set by
+.B .BP
+isn't reached.
+Call
+.B .EP
+at the end of the document to retrieve it.
+.br
+Macros in other packages may break the adjustments
+made to the line length and indent when text is being placed
+around a picture.
+.br
+A missing or improper
+.B %%BoundingBox
+comment may cause the frame to be filled incorrectly.

@@ -14,7 +14,7 @@ vtputstring,
 vtrootpack,
 vtrootunpack,
 vtparsescore,
-vtscorefmt \- Venti external data representation
+vtscorefmt \- venti data formats
 .SH SYNOPSIS
 .PP
 .ft L
@@ -31,7 +31,6 @@ enum
 {
 	VtEntrySize = 40,
 	VtRootSize = 300,
-	VtRootVersion = 2,
 	VtScoreSize = 20,
 };
 .PP
@@ -39,9 +38,9 @@ enum
 .nf
 typedef struct VtEntry
 {
-	ulong gen;			/* generation number */
-	ushort psize;			/* pointer block size */
-	ushort dsize;			/* data block size */
+	ulong gen;    /* generation number */
+	ushort psize;   /* pointer block size */
+	ushort dsize;   /* data block size */
 	uchar type;
 	uchar flags;
 	uvlong size;
@@ -54,9 +53,9 @@ typedef struct VtRoot
 {
 	char name[128];
 	char type[128];
-	uchar score[VtScoreSize];	/* to a Dir block */
-	ushort blocksize;		/* maximum block size */
-	uchar prev[VtScoreSize];	/* previous root block */
+	uchar score[VtScoreSize];  /* to a Dir block */
+	ushort blocksize;          /* maximum block size */
+	uchar prev[VtScoreSize];   /* previous root block */
 } VtRoot;
 .ta +\w'\fLPacket* 'u
 .PP
@@ -110,7 +109,7 @@ converts a
 .B VtEntry
 structure describing a Venti file
 (see
-.IR venti (1))
+.IR venti (7))
 into a 40-byte
 .RB ( VtEntrySize )
 structure at
@@ -150,7 +149,7 @@ frees the strings
 .IB f ->uid \fR,
 .IB f ->sid \fR,
 the buffers
-.I f ->crypto
+.IB f ->crypto
 and
 .IB f ->codec \fR,
 and the packet
@@ -159,11 +158,11 @@ and the packet
 The block type enumeration defined in
 .B <venti.h>
 (presented in 
-.IR venti (1))
+.IR venti (7))
 differs from the one used on disk and in the network
 protocol.
 The disk and network representation uses different
-constants does not distinguish between
+constants and does not distinguish between
 .BI VtDataType+ n
 and
 .BI VtDirType+ n
@@ -173,7 +172,10 @@ converts a
 .B <venti.h>
 enumeration value to the disk value;
 .I vtfromdisktype
-converts a disk value to the enumeration value.
+converts a disk value to the enumeration value,
+always using the
+.B VtDataType
+pointers.
 The
 .B VtFcall
 field

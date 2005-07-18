@@ -1,29 +1,29 @@
 .TH VENTI-FILE 3
 .SH NAME
 VtFile,
-vtfileopenroot,
-vtfilecreateroot,
-vtfileopen,
-vtfilecreate,
 vtfileblock,
-vtfileread, 
-vtfilewrite,
-vtfileflush,
-vtfileincref,
-vtfileclose,
-vtfilegetentry,
-vtfilesetentry,
 vtfileblockscore,
+vtfileclose,
+vtfilecreate,
+vtfilecreateroot,
+vtfileflush,
+vtfileflushbefore,
 vtfilegetdirsize,
-vtfilesetdirsize,
-vtfileunlock,
+vtfilegetentry,
+vtfilegetsize,
+vtfileincref,
 vtfilelock,
 vtfilelock2,
-vtfileflushbefore,
-vtfiletruncate,
-vtfilegetsize,
+vtfileopen,
+vtfileopenroot,
+vtfileread, 
+vtfileremove,
+vtfilesetdirsize,
+vtfilesetentry,
 vtfilesetsize,
-vtfileremove \- Venti files
+vtfiletruncate,
+vtfileunlock,
+vtfilewrite \- Venti files
 .SH SYNOPSIS
 .ta +\w'\fLVtBlock* 'u
 .PP
@@ -85,7 +85,8 @@ int	vtfilegetentry(VtFile *f, VtEntry *e);
 int	vtfilesetentry(VtFile *f, VtEntry *e);
 .PP
 .B
-int	vtfileblockscore(VtFile *f, u32int n, uchar score[VtScoreSize]);
+int	vtfileblockscore(VtFile *f, u32int n, 
+	    uchar score[VtScoreSize]);
 .PP
 .B
 int	vtfilelock(VtFile *f, int mode);
@@ -98,11 +99,11 @@ void	vtfileunlock(VtFile *f);
 .SH DESCRIPTION
 These routines provide a simple interface to create and
 manipulate Venti file trees (see
-.IR venti (1)).
+.IR venti (7)).
 .PP
 .I Vtfilecreateroot
 creates a new Venti file.
-.I Btype
+.I Type
 must be either
 .B VtDataType
 or
@@ -111,7 +112,7 @@ specifying a data or directory file.
 .I Dsize
 is the block size to use for leaf (data or directory) blocks in the hash tree;
 .I psize
-is the block size to use for intermediate (pointer) blocks.
+is the block size to use for internal (pointer) blocks.
 .PP
 .I Vtfileopenroot
 opens an existing Venti file described by
@@ -124,19 +125,19 @@ entry in the directory
 .IR f .
 .I Mode
 should be one of
-.IR VtOREAD ,
-.IR VtOWRITE ,
+.BR VtOREAD ,
+.BR VtOWRITE ,
 or
-.IR VtORDWR ,
+.BR VtORDWR ,
 indicating how the returned file is to be used.
 The
-.IR VtOWRITE
+.BR VtOWRITE
 and
-.IR VtORDWR
+.BR VtORDWR
 modes can only be used if
 .IR f
 is open with mode
-.IR VtORDWR .
+.BR VtORDWR .
 .PP
 .I Vtfilecreate
 creates a new file in the directory
@@ -239,7 +240,7 @@ Loops that
 .I vtfilewrite
 should call
 .I vtfileflushbefore
-regularly to avoid filling the block cache with dirty blocks.
+regularly to avoid filling the block cache with unwritten blocks.
 .PP
 .I Vtfiletruncate
 changes the file
@@ -283,7 +284,7 @@ to be
 returns in
 .I score
 the score of the
-.I n th
+.IR n th
 block in the file
 .IR f .
 .PP
@@ -318,7 +319,7 @@ in the same directory block.
 .SH SOURCE
 .B \*9/src/libventi/file.c
 .SH SEE ALSO
-.IR venti (1),
 .IR venti-cache (3),
 .IR venti-conn (3),
-.IR venti-client (3)
+.IR venti-client (3),
+.IR venti (7)

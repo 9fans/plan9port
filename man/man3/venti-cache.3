@@ -24,6 +24,8 @@ vtlocaltoglobal \- Venti block cache
 #include <venti.h>
 .ta +\w'\fLxxxx 'u
 .PP
+.ft L
+.nf
 typedef struct VtBlock
 {
 	uchar *data;
@@ -35,16 +37,13 @@ typedef struct VtBlock
 .ta +\w'\fLVtBlock* 'u +\w'\fLxxxxxxxx'u
 .PP
 .B
-VtCache*	vtcachealloc(VtConn *z, int blocksize, ulong nblocks, int mode);
+VtCache*	vtcachealloc(VtConn *z, int blocksize, ulong nblocks);
 .PP
 .B
 void	vtcachefree(VtCache *c);
 .PP
 .B
 u32int	vtcacheblocksize(VtCache *c);
-.br
-.B
-		int (*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int));
 .PP
 .B
 u32int	vtglobaltolocal(uchar score[VtScoreSize])
@@ -72,6 +71,9 @@ int	vtblockwrite(VtBlock *b);
 .PP
 .B
 void	vtcachesetwrite(VtCache *c,
+.br
+.B
+	   int (*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int));
 .PP
 .B
 VtBlock*	vtblockcopy(VtBlock *b);
@@ -82,6 +84,37 @@ int	vtblockdirty(VtBlock *b);
 These functions provide access to a simple in-memory
 cache of blocks already stored on a Venti server
 and blocks that will eventually be stored on a Venti server.
+.PP
+A 
+.B VtBlock
+represents a venti data block.
+Blocks stored on a venti server,
+called
+.IR "global blocks" ,
+are named by the SHA1 hash of their contents.
+This hash is recorded as the block's
+.IR score .
+Such blocks are immutable.
+The cache also stores mutable blocks that have not yet been
+written to a venti server.  These blocks are called
+.IR "local blocks" ,
+and have special scores that are 16 zero bytes
+followed by a 4-byte big-endian
+.IR address .
+The address is an index into the internal set of cache blocks.
+.PP
+The user-visible contents of a
+.B VtBlock
+are
+.BR data ,
+a pointer to the data;
+.BR type ,
+the venti block type;
+.BR score ,
+the block's score;
+and
+.BR addr ,
+the block's cache address.
 .PP
 .I Vtcachealloc
 allocates a new cache using the client connection
@@ -99,8 +132,22 @@ of maximum block size
 frees a cache and all the associated blocks.
 .PP
 .I Vtcacheblocksize
+returns the cache's maximum block size.
 .PP
-XXX global vs local blocks
+.I Vtglobaltolocal
+returns the local address corresponding to the given
+local
+.IR score .
+If passed a global score,
+.I vtglobaltolocal
+returns the special constant
+.B NilBlock
+.RB ( ~0 ).
+.I Vtlocaltoglobal
+is the opposite, setting
+.I score
+to the local score for the cache address
+.IR local .
 .PP
 .I Vtcacheallocblock
 allocates a new local block with the given
@@ -124,8 +171,9 @@ from the cache, consulting the Venti server
 if necessary.
 If passed a local score,
 .I vtcacheglobal
-behaves as
-.IR vtcachelocal .
+invokes
+.I vtcachelocal
+appropriately.
 .PP
 The block references returned by
 .IR vtcacheallocblock ,
@@ -191,8 +239,8 @@ or, more commonly, that cache blocks are being leaked.
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
-.IR venti (1),
 .IR venti (3),
 .IR venti-client (3),
 .IR venti-conn (3),
-.IR venti-file (3)
+.IR venti-file (3),
+.IR venti (7)

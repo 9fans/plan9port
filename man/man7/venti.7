@@ -17,18 +17,14 @@ block storage using Venti as well as the Venti network protocol.
 .IR Venti (1)
 documents some simple clients.
 .IR Vac (1),
-.IR vbackup (1),
 .IR vacfs (4),
 and
-.IR vnfs (4)
+.IR vbackup (8)
 are more complex clients.
 .PP
 .IR Venti (3)
 describes a C library interface for accessing
 Venti servers and manipulating Venti data structures.
-.PP
-.IR Venti.conf (7)
-describes the Venti server configuration file.
 .PP
 .IR Venti (8)
 describes the programs used to run a Venti server.
@@ -86,9 +82,20 @@ Scores passed between programs conventionally refer
 to
 .B VtRoot
 blocks, which contain descriptive information
-as well as the score of a block containing a small number
-of
-.B VtEntries .
+as well as the score of a directory block containing a small number
+of directory entries.
+.PP
+Conventionally, programs do not mix data and directory entries
+in the same file.  Instead, they keep two separate files, one with
+directory entries and one with metadata referencing those
+entries by position.
+Keeping this parallel representation is a minor annoyance
+but makes it possible for general programs like
+.I venti/copy
+(see
+.IR venti (1))
+to traverse the block tree without knowing the specific details
+of any particular program's data.
 .SS "Block Types
 To allow programs to traverse these structures without
 needing to understand their higher-level meanings,
@@ -127,7 +134,7 @@ For example, if a 1024-byte data block contains the
 followed by 1013 zero bytes,
 a client would store only the 11-byte block.
 When the client later read the block from the server,
-it would append zeros to the end as necessary to
+it would append zero bytes to the end as necessary to
 reach the expected size.
 .PP
 When truncating pointer blocks
@@ -140,12 +147,12 @@ instead of trailing zero bytes.
 .PP
 Because of the truncation convention,
 any file consisting entirely of zero bytes,
-no matter what the length, will be represented by the zero score:
+no matter what its length, will be represented by the zero score:
 the data blocks contain all zeros and are thus truncated
 to the empty block, and the pointer blocks contain all zero scores
 and are thus also truncated to the empty block, 
 and so on up the hash tree.
-.SS NETWORK PROTOCOL
+.SS Network Protocol
 A Venti session begins when a
 .I client
 connects to the network address served by a Venti
@@ -163,7 +170,7 @@ The
 field is a list of acceptable versions separated by
 colons.
 The protocol described here is version
-.B 02 .
+.BR 02 .
 The client is responsible for choosing a common
 version and sending it in the
 .B VtThello
@@ -193,14 +200,14 @@ followed by
 bytes of data.
 Text strings are represented similarly,
 using a two-byte count with
-the text itself stored as a UTF-8 encoded sequence
+the text itself stored as a UTF-encoded sequence
 of Unicode characters (see
 .IR utf (7)).
 Text strings are not
 .SM NUL\c
 -terminated:
 .I n
-counts the bytes of UTF-8 data, which include no final
+counts the bytes of UTF data, which include no final
 zero byte.
 The
 .SM NUL
@@ -215,7 +222,7 @@ in the enumeration in the include file
 .BR <venti.h> .
 The next byte is an identifying
 .IR tag ,
-used to match responses with requests.
+used to match responses to requests.
 The remaining bytes are parameters of different sizes.
 In the message descriptions, the number of bytes in a field
 is given in brackets after the field name.
@@ -382,7 +389,7 @@ The
 message requests a block with the given
 .I score
 and
-.I type .
+.IR type .
 Use
 .I vttodisktype
 and

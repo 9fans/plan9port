@@ -50,17 +50,19 @@ extern char *VtServerLog;    /* "libventi/server" */
 These routines provide an in-memory circular log
 structure used by the Venti library and the Venti server
 to record events for debugging purposes.
-The logs have textual names represented as UTF strings.
+The logs are named by UTF strings.
 .PP
 .I Vtlogopen
-returns a reference to the log named
+returns a reference to the log with the given
 .I name .
 If a log with that name does not exist and
 .I size 
-is non-zero, a new log capable of holding at
+is non-zero,
+.I vtlogopen
+creates a new log capable of holding at
 least
 .I size
-bytes is allocated and returned.
+bytes and returns it.
 .I Vtlogclose
 releases the reference returned by
 .IR vtlogopen .
@@ -126,8 +128,9 @@ and
 writes debugging information to the log named
 .IR VtServerLog ,
 which defaults to the string
-.LR libventi/server .
+.RB ` libventi/server '.
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
-.IR venti (3)
+.IR venti (3),
+.IR venti (8)

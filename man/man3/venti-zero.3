@@ -30,14 +30,14 @@ returns the size of the
 buffer pointed to by
 .I buf
 ignoring trailing zeros or zero scores,
-according to the block type
+according to the given
 .IR type .
 .PP
 .I Vtzeroextend
 pads
 .I buf
 with zeros or zero scores,
-according to the block type
+according to the given
 .IR type ,
 to grow it from
 .I size
@@ -52,5 +52,5 @@ is the score of the zero-length block.
 .br
 .B \*9/src/libventi/zeroscore.c
 .SH SEE ALSO
-.IR venti (1),
-.IR venti (3)
+.IR venti (3),
+.IR venti (7)

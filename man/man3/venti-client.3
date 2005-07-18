@@ -8,7 +8,7 @@ vtconnect, vthello, vtread, vtwrite, vtreadpacket, vtwritepacket, vtsync, vtping
 #include <libc.h>
 .br
 #include <venti.h>
-.ta +\w'\fLextern int 'u +\w'\fLxxxxxxxx'u
+.ta +\w'\fLPacket* 'u +\w'\fLxxxxxxxx'u
 .PP
 .B
 Packet*	vtrpc(VtConn *z, Packet *p)
@@ -50,7 +50,7 @@ int	vtsync(VtConn *z)
 int	vtping(VtConn *z)
 .PP
 .B
-extern int	ventidoublechecksha1;	/* default 1 */
+extern int ventidoublechecksha1;  /* default 1 */
 .SH DESCRIPTION
 These routines execute the client side of the 
 .IR venti (7)
@@ -73,10 +73,8 @@ is typically called only indirectly, via the functions below.
 .I Vthello
 executes a
 .B hello
-transaction
-(see
-.IR venti (7)), setting
-.IB z -> sid
+transaction, setting
+.IB z ->sid
 to the name used by the server.
 .I Vthello
 is typically called only indirectly, via
@@ -103,11 +101,11 @@ reads the block with the given
 and
 .I type
 from the server,
-writes the returned data
-to
+stores the returned data
+in memory at
 .IR buf ,
-and returns the number of bytes retrieved.
-If the stored block has size larger than
+and returns the number of bytes read.
+If the server's block has size larger than
 .IR n ,
 .I vtread 
 does not modify
@@ -120,7 +118,7 @@ writes the
 .I n
 bytes in 
 .I buf
-with type
+as a block of the given
 .IR type ,
 setting 
 .IR score .
@@ -177,7 +175,6 @@ as described in
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
-.IR venti (1),
 .IR venti (3),
 .IR venti-conn (3),
 .IR venti-packet (3),
@@ -190,5 +187,4 @@ return nil on error.
 The other routines return \-1 on error.
 .PP
 .I Vtwrite
-returns 0 on success,
-meaning it wrote the entire block.
+returns 0 on success: there are no partial writes.

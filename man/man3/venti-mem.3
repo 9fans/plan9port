@@ -39,10 +39,9 @@ On failure, they print an error message and call
 They do not return.
 .PP
 .I Vtbrk
-returns a pointer to a new block of at least
+returns a pointer to a new, permanently allocated block of at least
 .I size
 bytes.
-The block cannot be freed.
 .PP
 .IR Vtmalloc ,
 .IR vtrealloc ,

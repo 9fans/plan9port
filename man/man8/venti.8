@@ -1,6 +1,41 @@
 .TH VENTI 8
 .SH NAME
-venti.conf  \- venti configuration
+venti  \- archival storage server
+.SH SYNOPSIS
+.B venti/venti
+[
+.B -Ldsw
+]
+[
+.B -a
+.I address
+]
+[
+.B -B
+.I blockcachesize
+]
+[
+.B -c
+.I config
+]
+.PP
+.B "    "
+[
+.B -C
+.I lumpcachesize
+]
+[
+.B -h
+.I httpaddress
+]
+[
+.B -I
+.I indexcachesize
+]
+[
+.B -W
+.I webroot
+]
 .SH DESCRIPTION
 Venti is a SHA1-addressed archival storage server.
 See 
@@ -83,12 +118,10 @@ and the total bitmap size
 .PP
 The bloom filter should be sized so that
 .I nhash
-\(ti
+\(mu
 .I nblock
-\(ti
-0.7
 \(<=
-0.7 \(ti
+0.7 \(mu
 .IR b ,
 where
 .I nblock
@@ -349,21 +382,16 @@ or
 (case-insensitive)
 to indicate kilobytes, megabytes, or gigabytes respectively.
 .SS Command Line
-Options to
-.I venti
-are:
+Many of the options to Venti duplicate parameters that
+can be specified in the configuration file.
+The command line options override those found in a
+configuration file.
+Additional options are:
 .TP
 .BI -c " config
 The server configuration file
 (default
 .BR venti.conf )
-.TP
-.BI -o " line
-Set a server parameter, using the same syntax
-as in the configuration file.
-The
-.B -o
-options override the configuration file.
 .TP
 .B -d
 Produce various debugging information on standard error.
@@ -413,6 +441,8 @@ Start the server and check the storage statistics:
 % venti/venti
 % hget http://$sysname/storage
 .EE
+.SH SOURCE
+.B \*9/src/cmd/venti/srv
 .SH "SEE ALSO"
 .IR venti (1),
 .IR venti (3),
@@ -429,3 +459,14 @@ Setting up a venti server is too complicated.
 .PP
 Venti should not require the user to decide how to
 partition its memory usage.
+.PP
+Users of shells other than 
+.IR rc (1)
+will not be able to use the program names shown.
+One solution is to define
+.B "V=$PLAN9/bin/venti"
+and then substitute
+.B $V/
+for
+.B venti/
+in the paths above.

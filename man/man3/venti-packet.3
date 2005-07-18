@@ -1,11 +1,26 @@
 .TH VENTI-PACKET 3
 .SH NAME
-Packet, packetalloc, packetfree, packetforeign, packetdup,
-packetsplit, packetconsume, packettrim, packetheader, 
-packettrailer, packetprefix, packetappend, packetconcat,
-packetpeek, packetcopy, packetfragments,
-packetsize, packetasize, packetcompact, packetcmp,
-packetstats, packetsha1 \- zero-copy network buffers
+Packet,
+packetalloc,
+packetappend,
+packetasize,
+packetcmp,
+packetconcat,
+packetconsume,
+packetcopy,
+packetdup,
+packetforeign,
+packetfragments,
+packetfree,
+packetheader,
+packetpeek,
+packetprefix,
+packetsha1,
+packetsize,
+packetsplit,
+packetstats,
+packettrailer,
+packettrim \- zero-copy network buffers
 .SH SYNOPSIS
 .ft L
 #include <u.h>
@@ -21,55 +36,7 @@ packetstats, packetsha1 \- zero-copy network buffers
 Packet*	packetalloc(void);
 .PP
 .B
-void	packetfree(Packet *p)
-.PP
-.B
-Packet*	packetforeign(uchar *buf, int n,
-.br
-.B
-		void (*free)(void *a), void *a)
-.PP
-.B
-Packet*	packetdup(Packet *p, int offset, int n)
-.PP
-.B
-Packet*	packetsplit(Packet *p, int n)
-.PP
-.B
-int	packetconsume(Packet *p, uchar *buf, int n)
-.PP
-.B
-int	packettrim(Packet *p, int offset, int n)
-.PP
-.B
-uchar*	packetheader(Packet *p, int n)
-.PP
-.B
-uchar*	packettrailer(Packet *p, int n)
-.PP
-.B
-void	packetprefix(Packet *p, uchar *buf, int n)
-.PP
-.B
 void	packetappend(Packet *p, uchar *buf, int n)
-.PP
-.B
-void	packetconcat(Packet *p, Packet *q)
-.PP
-.B
-uchar*	packetpeek(Packet *p, uchar *buf, int offset, int n)
-.PP
-.B
-int	packetcopy(Packet *p, uchar *buf, int offset, int n)
-.PP
-.B
-int	packetfragments(Packet *p, IOchunk *io, int nio,
-.br
-.B
-		int offset)
-.PP
-.B
-uint	packetsize(Packet *p)
 .PP
 .B
 uint	packetasize(Packet *p)
@@ -78,15 +45,64 @@ uint	packetasize(Packet *p)
 int	packetcmp(Packet *p, Packet *q)
 .PP
 .B
-void	packetstats(void)
+void	packetconcat(Packet *p, Packet *q)
+.PP
+.B
+int	packetconsume(Packet *p, uchar *buf, int n)
+.PP
+.B
+int	packetcopy(Packet *p, uchar *buf, int offset, int n)
+.PP
+.B
+Packet*	packetdup(Packet *p, int offset, int n)
+.PP
+.B
+Packet*	packetforeign(uchar *buf, int n,
+.br
+.B
+		void (*free)(void *a), void *a)
+.PP
+.B
+int	packetfragments(Packet *p, IOchunk *io, int nio,
+.br
+.B
+		int offset)
+.PP
+.B
+void	packetfree(Packet *p)
+.PP
+.B
+uchar*	packetheader(Packet *p, int n)
+.PP
+.B
+uchar*	packetpeek(Packet *p, uchar *buf, int offset, int n)
+.PP
+.B
+void	packetprefix(Packet *p, uchar *buf, int n)
 .PP
 .B
 void	packetsha1(Packet *p, uchar sha1[20])
+.PP
+.B
+uint	packetsize(Packet *p)
+.PP
+.B
+Packet*	packetsplit(Packet *p, int n)
+.PP
+.B
+void	packetstats(void)
+.PP
+.B
+uchar*	packettrailer(Packet *p, int n)
+.PP
+.B
+int	packettrim(Packet *p, int offset, int n)
 .SH DESCRIPTION
 A
 .B Packet
-is a list of blocks of data.
-Each block is contiguous in memory, but the entire packet
+is a chain of blocks of data.
+Each block, called a fragment,
+is contiguous in memory, but the entire packet
 may not be.
 This representation helps avoid unnecessary memory copies.
 .PP
@@ -107,7 +123,7 @@ returns the number of data bytes allocated to
 This may be larger than the number of bytes stored
 in
 .IR p
-because individual fragments may not be filled.
+because fragments may not be filled completely.
 .PP
 .I Packetcmp
 compares the data sections of two packets as
@@ -214,7 +230,7 @@ computes the SHA1 hash of the data contained in
 .IR p .
 .PP
 .I Packetsize
-returns the number of bytes of data contained in
+returns the length, in bytes, of the data contained in
 .IR p .
 .PP
 .I Packetsplit
@@ -263,4 +279,3 @@ whose return values are described above.
 When these functions run out of memory, they
 print error messages and call
 .IR sysfatal .
-They do not return.
