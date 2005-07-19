@@ -832,10 +832,6 @@ extern	int	post9pservice(int, char*);
 #	endif
 #endif
 
-#ifdef __OpenBSD__
-#define sched_yield()	syscall(302)	/* what is this? */
-#endif
-
 /* command line */
 extern char	*argv0;
 extern void __fixargv0(void);

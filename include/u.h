@@ -92,6 +92,7 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUINT
 #	undef _NEEDULONG
 #elif defined(__OpenBSD__)
+#	include <sys/types.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
