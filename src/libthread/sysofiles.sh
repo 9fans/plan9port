@@ -7,18 +7,18 @@ case "$tag" in
 *-Linux-2.6.*)
 	echo pthread.o
 	;;
-*-FreeBSD-5.*)
+*-FreeBSD-[5-9].*)
 	echo pthread.o
 	;;
 *-Linux-*)
 	# will have to fix this for linux power pc
-	echo $SYSNAME.o ${SYSNAME}asm.o
+	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o
 	;;
 *-FreeBSD-*)
-	echo $SYSNAME.o ${SYSNAME}asm.o
+	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o
 	;;
 *-NetBSD-*)
-	echo $SYSNAME.o ${SYSNAME}asm.o
+	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o
 	;;
 *-Darwin-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o pthread.o
