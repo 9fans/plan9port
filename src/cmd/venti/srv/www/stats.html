@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <base href="/">
+    <META http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script language="javascript" src="stats.js"></script>
+    <script language="javascript" src="status.js"></script>
+  </head>
+  <body bgcolor=#ffffff>
+
+    <center>
+    <b>venti.your-domain.com &ndash; venti server statistics</b>
+    <p>
+    <a href="javascript:redraw()">redraw</a>
+    <p>
+    <table id="statgraphs">
+    <tr><td>JavaScript is required to view the graphs.
+    </table>
+    <p>
+    
+    <font size=-1>the small graphs show the past ten minutes of operation.</font>
+    <p>
+    
+    <tt>http://venti.yourdomain.com:8001/</tt>
+    <p id="settings">JavaScript is required to change the settings.</p>
+    <p>
+    <p id="debug"></p>
+    </center>
+    <script language="javascript">
+    loadsettings()
+    redraw()
+    </script>
+  </body>
+</html>
