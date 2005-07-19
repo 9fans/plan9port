@@ -8,6 +8,8 @@ TARG=\
 	sync\
 	write\
 
+BIN=$BIN/venti
+
 <$PLAN9/src/mkmany
 <$PLAN9/src/mkdirs
 
