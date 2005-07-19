@@ -57,7 +57,7 @@ encodefmt(Fmt *f)
 		rv = enc16(out, len, b, ilen);
 		if(rv >= 0 && (f->flags & FmtLong))
 			for(p = buf; *p; p++)
-				*p = tolower(*p);
+				*p = tolower((uchar)*p);
 		break;
 	default:
 		rv = -1;

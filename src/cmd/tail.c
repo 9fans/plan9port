@@ -331,7 +331,7 @@ getnumber(char *s)
 {
 	if(*s=='-' || *s=='+')
 		s++;
-	if(!isdigit(*s))
+	if(!isdigit((uchar)*s))
 		return 0;
 	if(s[-1] == '+')
 		origin = BEG;
@@ -340,7 +340,7 @@ getnumber(char *s)
 	count = atol(s);
 
 	/* check range of count */
-	if(count < 0 ||	(int)count != count)
+	if(count < 0 || (int)count != count)
 		fatal("too big");
 	return 1;
 }	

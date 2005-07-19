@@ -481,7 +481,7 @@ struct Symbol
 			uint locals;
 			char *dir;
 			char *file;
-			char frameptr;
+			schar frameptr;
 			uint framesize;
 		} stabs;
 	} u;

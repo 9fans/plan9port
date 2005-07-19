@@ -712,7 +712,7 @@ hhmtime(char *p, URL *u, Range *r)
 			tm.mon = 5;
 	} else {
 		for(p = month; *p; p++)
-			*p = tolower(*p);
+			*p = tolower((uchar)*p);
 		for(i = 0; i < 12; i++)
 			if(strncmp(&monthchars[i*3], month, 3) == 0){
 				tm.mon = i;
@@ -732,7 +732,7 @@ hhmtime(char *p, URL *u, Range *r)
 				tm.sec = strtoul(p, &p, 10);
 			}
 		}
-		if(tolower(*p) == 'p')
+		if(tolower((uchar)*p) == 'p')
 			tm.hour += 12;
 	}
 
@@ -1129,7 +1129,7 @@ passive(int ctl, URL *u)
 	p = strchr(msg, '(');
 	if(p == nil){
 		for(p = msg+3; *p; p++)
-			if(isdigit(*p))
+			if(isdigit((uchar)*p))
 				break;
 	} else
 		p++;
@@ -1253,7 +1253,7 @@ int
 cistrncmp(char *a, char *b, int n)
 {
 	while(n-- > 0){
-		if(tolower(*a++) != tolower(*b++))
+		if(tolower((uchar)*a++) != tolower((uchar)*b++))
 			return -1;
 	}
 	return 0;

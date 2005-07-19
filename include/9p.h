@@ -39,7 +39,7 @@ typedef struct Srv Srv;
 struct Fid
 {
 	ulong	fid;
-	char		omode;	/* -1 = not open */
+	int		omode;	/* -1 = not open */
 	File*		file;
 	char*	uid;
 	Qid		qid;

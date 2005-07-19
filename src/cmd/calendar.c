@@ -174,7 +174,7 @@ void
 upper2lower(char *to, char *from, int len)
 {
 	while(--len>0 && *from!='\0')
-		*to++ = tolower(*from++);
+		*to++ = tolower((uchar)*from++);
 	*to = 0;
 }
 

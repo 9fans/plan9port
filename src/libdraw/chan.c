@@ -38,10 +38,10 @@ strtochan(char *s)
 
 	c = 0;
 	p=s;
-	while(*p && isspace(*p))
+	while(*p && isspace((uchar)*p))
 		p++;
 
-	while(*p && !isspace(*p)){
+	while(*p && !isspace((uchar)*p)){
 		if((q = strchr(channames, p[0])) == nil) 
 			return 0;
 		t = q-channames;

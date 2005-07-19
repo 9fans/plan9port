@@ -15,11 +15,11 @@ ipattr(char *name)
 
 	for(p = name; *p; p++){
 		c = *p;
-		if(isdigit(c))
+		if(isdigit((uchar)c))
 			continue;
-		if(isxdigit(c))
+		if(isxdigit((uchar)c))
 			hex = 1;
-		else if(isalpha(c) || c == '-')
+		else if(isalpha((uchar)c) || c == '-')
 			alpha = 1;
 		else if(c == '.')
 			dot = 1;

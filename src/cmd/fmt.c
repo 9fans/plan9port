@@ -175,7 +175,7 @@ nspaceafter(char *s)
 	n = strlen(s);
 	if(n < 2)
 		return 1;
-	if(isupper(s[0]) && n < 4)
+	if(isupper((uchar)s[0]) && n < 4)
 		return 1;
 	if(strchr(".!?", s[n-1]) != nil)
 		return 2;

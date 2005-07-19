@@ -327,9 +327,9 @@ struct	Instr
 	char	asize;		/* address size 'W' or 'L' */
 	uchar	mod;		/* bits 6-7 of mod r/m field */
 	uchar	reg;		/* bits 3-5 of mod r/m field */
-	char	ss;		/* bits 6-7 of SIB */
-	char	index;		/* bits 3-5 of SIB */
-	char	base;		/* bits 0-2 of SIB */
+	schar	ss;		/* bits 6-7 of SIB */
+	schar	index;		/* bits 3-5 of SIB */
+	schar	base;		/* bits 0-2 of SIB */
 	short	seg;		/* segment of far address */
 	ulong	disp;		/* displacement */
 	ulong 	imm;		/* immediate */

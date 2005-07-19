@@ -355,7 +355,7 @@ oparse(char *s)
 			break;
 		case '1':
 		case '2':
-			if(s[1] == '.' && isdigit(s[2])) {
+			if(s[1] == '.' && isdigit((uchar)s[2])) {
 				olistf[no] = *s=='1'? F1: F2;
 				olist[no] = atoi(s += 2);
 				break;

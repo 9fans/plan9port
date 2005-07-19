@@ -166,7 +166,7 @@ fold(char *s, int n)
 		fline = realloc(fline,n+1);
 		linesize = n+1;
 	}
-	for(t=fline; *t++ = tolower(*s++); )
+	for(t=fline; *t++ = tolower((uchar)*s++); )
 		continue;
 		/* we assume the 'A'-'Z' only appear as themselves
 		 * in a utf encoding.

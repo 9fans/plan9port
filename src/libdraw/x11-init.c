@@ -880,7 +880,7 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 	i = strtol(s, &s, 0);
 	if(*s == 'x'){
 		s++;
-		if(!isdigit(*s))
+		if(!isdigit((uchar)*s))
 			goto oops;
 		j = strtol(s, &s, 0);
 		r->max.x = i;
@@ -891,13 +891,13 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 			goto oops;
 
 		s++;
-		if(!isdigit(*s))
+		if(!isdigit((uchar)*s))
 			goto oops;
 		i = strtol(s, &s, 0);
 		if(*s != ',' && *s != ' ')
 			goto oops;
 		s++;
-		if(!isdigit(*s))
+		if(!isdigit((uchar)*s))
 			goto oops;
 		j = strtol(s, &s, 0);
 		if(*s != 0)
@@ -911,19 +911,19 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 	if(c != ' ' && c != ',')
 		goto oops;
 	s++;
-	if(!isdigit(*s))
+	if(!isdigit((uchar)*s))
 		goto oops;
 	j = strtol(s, &s, 0);
 	if(*s != c)
 		goto oops;
 	s++;
-	if(!isdigit(*s))
+	if(!isdigit((uchar)*s))
 		goto oops;
 	k = strtol(s, &s, 0);
 	if(*s != c)
 		goto oops;
 	s++;
-	if(!isdigit(*s))
+	if(!isdigit((uchar)*s))
 		goto oops;
 	l = strtol(s, &s, 0);
 	if(*s != 0)
