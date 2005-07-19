@@ -191,7 +191,7 @@ initiebucks(Part *part, int bits, u32int size)
 		return nil;
 	}
 	ib->xbuf = MKN(u8int, size * ((1 << bits)+1));
-	ib->buf = (u8int*)(((ulong)ib->xbuf+size-1)&~(ulong)(size-1));
+	ib->buf = (u8int*)(((uintptr)ib->xbuf+size-1)&~(uintptr)(size-1));
 	if(ib->buf == nil){
 		seterr(EOk, "out of memory allocating sorting buckets' buffers");
 		freeiebucks(ib);
@@ -292,7 +292,7 @@ sortiebuck(IEBucks *ib, int b)
 	if(n == TWID32)
 		return TWID32;
 	qsort(ib->buf, n, IEntrySize, ientrycmp);
-	if(writepart(ib->part, ib->off, ib->buf, n * IEntrySize) < 0){
+	if(writepart(ib->part, ib->off, ib->buf, n*IEntrySize) < 0){
 		seterr(EOk, "can't write sorted bucket: %r");
 		return TWID32;
 	}
@@ -361,7 +361,7 @@ readiebuck(IEBucks *ib, int b)
 //	if(ib->bucks[b].total)
 //		fprint(2, "\tbucket %d: %d entries\n", b, ib->bucks[b].total/IEntrySize);
 	while(head != TWID32){
-		if(readpart(ib->part, (u64int)head * ib->size, &ib->buf[n], m + U32Size) < 0){
+		if(readpart(ib->part, (u64int)head * ib->size, &ib->buf[n], m+U32Size) < 0){
 			seterr(EOk, "can't read index sort bucket: %r");
 			return TWID32;
 		}

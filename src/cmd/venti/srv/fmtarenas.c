@@ -1,9 +1,6 @@
 #include "stdinc.h"
 #include "dat.h"
 #include "fns.h"
-#ifndef ODIRECT
-#define ODIRECT 0
-#endif
 
 void
 usage(void)

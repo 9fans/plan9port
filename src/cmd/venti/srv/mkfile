@@ -90,6 +90,10 @@ ainstall:V: ${TARG:%=%.ainstall}
 test:VQ: ${TARG:%=o.%}
 	slay o.venti|rc
 	vtmp=/home/tmp
+	test -f $vtmp/arena || dd bs=1048576 count=100 if=/dev/zero of=$vtmp/arena
+	test -f $vtmp/bloom || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/bloom
+	test -f $vtmp/isect || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/isect
+	test -f $vtmp/check || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/check
 	echo '**********' FMTARENAS
 	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
 	echo '**********' FMTBLOOM
@@ -101,20 +105,21 @@ test:VQ: ${TARG:%=o.%}
 		echo isect $vtmp/isect
 		echo arenas $vtmp/arena
 		echo bloom $vtmp/bloom
-		echo webroot $HOME/src/venti/www
+		echo webroot $PLAN9/src/cmd/venti/srv/www
 		echo mem 64M
 		echo icmem 64M
 		echo bcmem 64M
+		echo queuewrites
+		echo addr 'tcp!*!17034'
+		echo httpaddr 'tcp!*!8001'
 	) >vtmp.conf
 	echo '**********' FMTINDEX
 	./o.fmtindex vtmp.conf
 	echo '**********' VENTI
-	# ./o.venti -c vtmp.conf -B 64M -I 64M -C 64M -a 'tcp!*!17034' -h 'tcp!*!8001'  >a 2>&1 &
-	./o.venti -c vtmp.conf -a 'tcp!*!17034' -h 'tcp!*!8001'  >a 2>&1 &
-	sleep 5
+	./o.venti -c vtmp.conf >a 2>&1
 	echo '**********' VAC
 	venti='tcp!127.0.0.1!17034' export venti
-	9 time vac /usr/local/plan9 >a.vac
+	9 time vac /usr/local/plan9/src >a.vac
 	case ${websync:-no} in
 	yes)
 		echo '**********' SYNC VIA WEB
@@ -132,7 +137,7 @@ test:VQ: ${TARG:%=o.%}
 		;;
 	esac
 	echo '**********' CHECKINDEX
-	./o.checkindex -B64M vtmp.conf /home/tmp/check >check.out
+	./o.checkindex -B64M vtmp.conf $vtmp/check >check.out
 	wc check.out
 
 luadisk.o: luadisk.c

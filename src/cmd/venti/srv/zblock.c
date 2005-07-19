@@ -14,7 +14,7 @@ fmtzbinit(Fmt *f, ZBlock *b)
 	f->nfmt = 0;
 }
 
-#define ROUNDUP(p, n) ((void*)(((ulong)(p)+(n)-1)&~(ulong)((n)-1)))
+#define ROUNDUP(p, n) ((void*)(((uintptr)(p)+(n)-1)&~(uintptr)((n)-1)))
 
 static char zmagic[] = "1234567890abcdefghijkl";
 

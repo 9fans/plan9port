@@ -45,6 +45,7 @@ threadmain(int argc, char *argv[])
 	if(argc != 1)
 		usage();
 
+	ventifmtinstall();
 	if(initventi(argv[0], &conf) < 0)
 		sysfatal("can't init venti: %r");
 
