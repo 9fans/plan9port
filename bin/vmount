@@ -13,7 +13,6 @@ case Linux
 	exec mount -o 'ro,timeo=100,rsize=8192,retrans=5,port=12049,mountport=12049,mountvers=3,nfsvers=3,nolock,soft,intr,udp' \
 		$server:/dump $mtpt
 case *
-	echo 'cannot mount on' `{uname} >[1=2]
-	exit usage
+	exec vmount0 -h 00 udp!$server!12049 $mtpt
 }
 
