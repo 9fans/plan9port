@@ -89,6 +89,7 @@ BEGIN {
 	Omitman["signal(7)"] = 1
 
 	Omitman["cron(8)"] = 1
+	Omitman["mount(8)"] = 1
 
 	# don't need documentation for these in bin
 	Omitted[".cvsignore"] = 1
@@ -113,6 +114,7 @@ BEGIN {
 	Omitted["unutf"] = 1
 	Omitted["volume"] = 1
 	Omitted["vtdump"] = 1
+	Omitted["netfilelib.rc"] = 1
 
 	# not for users
 	Omittedlib["creadimage"] = 1

@@ -6,7 +6,7 @@ check.out:V:
 	9 awk -f dist/checkman.awk man/man*/*.[0-9]* >dist/check.out
 
 man:V:
-	rc ./manweb
+	9 rc ./manweb
 
 push:V:
 	rsync -r -e ssh -t --delete $PLAN9/man/ swtch.com:www/swtch.com/plan9port/man
