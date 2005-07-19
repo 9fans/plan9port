@@ -127,6 +127,8 @@ The
 .IR 9p (1)
 client can be used in shell scripts or by hand to carry out
 simple interactions with servers.
+.IR Netfiles (1)
+is an experimental client for acme.
 .SS External databases
 Some programs rely on large databases that would be
 cumbersome to include in every release.
@@ -205,17 +207,16 @@ Of the more recent additions to Plan 9,
 .IR factotum (4),
 .IR secstore (1),
 and
-.IR secstored (1)
-are all ported.
-.IR Vac (1)
+.IR secstored (1),
+.IR vac (1),
+.IR vacfs (4),
 and
-.IR vacfs (4)
-have also been ported;
-.IR venti
-is in progress.
+.IR venti (8)
+are all ported.
 .PP
 A backup system providing a dump file system built atop Venti
-is in progress.
+is in progress; see
+.IR vbackup (8).
 .SS Porting to new systems
 Porting the tree to new operating systems or architectures
 should be straightforward, as system-specific code has been
@@ -287,8 +288,9 @@ describes user-level file servers.
 describes file formats and protocols.
 (On Unix, section (5) is technically for file formats but
 seems now to be used for describing specific files.)
-.\" .PP
-.\" Section (8) describes commands used for system administration.
+.PP
+.HR ../man8 "Section (8)
+describes commands used for system administration.
 .PP
 .HR ../man9 "Section (9p)
 describes the Plan 9 file protocol 9P.
@@ -333,12 +335,15 @@ network in
 .IR searchpath (3),
 .IR sendfd (3),
 .IR udpread (3),
+.IR venti (3),
 .IR wait (3),
 .IR wctl (3)
 .IP
 .IR intro (4),
 .IR 9pserve (4),
-.IR import (4)
+.IR import (4),
+.IP
+.IR vbackup (8)
 .IP
 .IR openfd (9p)
 .SH DIAGNOSTICS
