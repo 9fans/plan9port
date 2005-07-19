@@ -5,7 +5,7 @@
 #include <sys/wait.h>
 #include <sched.h>
 #include <signal.h>
-#if !defined(_OpenBSD__)
+#if !defined(__OpenBSD__)
 #	include <ucontext.h>
 #endif
 #include <sys/utsname.h>
@@ -28,7 +28,11 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
 #if defined(__OpenBSD__)
-#	include "power-ucontext.h"
+#	if defined __i386__
+#		include "386-ucontext.h"
+#	else
+#		include "power-ucontext.h"
+#	endif
 extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #endif
 
