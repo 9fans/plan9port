@@ -1,13 +1,14 @@
 #ifdef PLAN9PORT	/* SORRY! */
-#include <u.h>
-#include <sys/types.h>
-#ifdef __linux__	/* REALLY SORRY! */
-#define CANBLOCKSIZE 1
-#include <sys/vfs.h>
-#elif defined(__FreeBSD__)
-#define CANBLOCKSIZE 1
-#include <sys/param.h>
-#include <sys/mount.h>
+#	include <u.h>
+#	include <sys/types.h>
+#	ifdef __linux__	/* REALLY SORRY! */
+#		define CANBLOCKSIZE 1
+#		include <sys/vfs.h>
+#	elif defined(__FreeBSD__)
+#		define CANBLOCKSIZE 1
+#		include <sys/param.h>
+#		include <sys/mount.h>
+#	endif
 #endif
 #include "stdinc.h"
 #include <ctype.h>
