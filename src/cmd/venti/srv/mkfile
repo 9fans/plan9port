@@ -1,7 +1,6 @@
 <$PLAN9/src/mkhdr
 CC=9c
 
-AR=ar
 
 LIBOFILES=\
 	arena.$O\
