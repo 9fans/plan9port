@@ -28,6 +28,10 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
 #if defined(__OpenBSD__)
+#	define mcontext libthread_mcontext
+#	define mcontext_t libthread_mcontext_t
+#	define ucontext libthread_ucontext
+#	define ucontext_t libthread_ucontext_t
 #	if defined __i386__
 #		include "386-ucontext.h"
 #	else

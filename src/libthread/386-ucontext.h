@@ -1,4 +1,5 @@
-
+typedef struct mcontext mcontext_t;
+typedef struct ucontext ucontext_t;
 
 extern	int		getcontext(ucontext_t*);
 extern	void		setcontext(ucontext_t*);
@@ -67,7 +68,7 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
  * $FreeBSD: src/sys/i386/include/ucontext.h,v 1.4 1999/10/11 20:33:09 luoqi Exp $
  */
 
-typedef struct __mcontext {
+struct mcontext {
 	/*
 	 * The first 20 fields must match the definition of
 	 * sigcontext. So that we can support sigcontext
@@ -96,9 +97,9 @@ typedef struct __mcontext {
 
 	int	mc_fpregs[28];		/* env87 + fpacc87 + u_long */
 	int	__spare__[17];
-} mcontext_t;
+};
 
-typedef struct __ucontext {
+struct ucontext {
 	/*
 	 * Keep the order of the first two fields. Also,
 	 * keep them the first two fields in the structure.
@@ -113,6 +114,6 @@ typedef struct __ucontext {
 	struct __ucontext *uc_link;
 	stack_t		uc_stack;
 	int		__spare__[8];
-} ucontext_t;
+};
 
 
