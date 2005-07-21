@@ -832,6 +832,16 @@ extern	int	post9pservice(int, char*);
 #	endif
 #endif
 
+#if defined(__OpenBSD__) && !defined(NOPLAN9DEFINES)
+#define sched_yield() \
+	do { \
+		struct timespec ts; \
+		ts.tv_sec = 0; \
+		ts.tv_nsec = 10; \
+		nanosleep(&ts, NULL); \
+	} while(0)
+#endif
+
 /* command line */
 extern char	*argv0;
 extern void __fixargv0(void);

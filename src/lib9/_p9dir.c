@@ -7,8 +7,9 @@
 #include <pwd.h>
 #include <grp.h>
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <sys/disklabel.h>
+#include <sys/ioctl.h>
 static int diskdev[] = {
 	151,	/* aacd */
 	116,	/* ad */

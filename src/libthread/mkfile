@@ -32,9 +32,8 @@ tspawnloop: tspawnloop.$O
 # with generic .s rule in mkcommon on case-insensitive
 # systems like Mac OS X.
 
-OpenBSD-power-asm.$O:	OpenBSD-power-asm.S
-	$CC $CFLAGS $stem.S
-	
+OpenBSD-%-asm.$O:	OpenBSD-%-asm.S
+	$CC $CFLAGS OpenBSD-$stem-asm.S
 
 test:V: tprimes tspawn
 	primes 1 10007 >p1.txt

@@ -2,6 +2,8 @@
 #include "bsdpty.c"
 #undef getpts
 
+#include <util.h>
+
 int
 getpts(int fd[], char *slave)
 {

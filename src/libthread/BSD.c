@@ -90,6 +90,14 @@ _spinlock(spinlock_t *lk)
 	lock((Lock*)&lk->access_lock);
 }
 
+void
+_spinunlock(spinlock_t *lk)
+{
+	unlock((Lock*)&lk->access_lock);
+}
+
+
+
 /*
  * sleep and wakeup
  */
