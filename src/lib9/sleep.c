@@ -1,8 +1,8 @@
 #include <u.h>
 #define NOPLAN9DEFINES
-#include <libc.h>
 #include <sys/time.h>
 #include <sched.h>
+#include <libc.h>
 
 int
 p9sleep(long milli)

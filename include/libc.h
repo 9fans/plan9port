@@ -832,7 +832,7 @@ extern	int	post9pservice(int, char*);
 #	endif
 #endif
 
-#if defined(__OpenBSD__) && !defined(NOPLAN9DEFINES)
+#if defined(__OpenBSD__)
 #define sched_yield() \
 	do { \
 		struct timespec ts; \
