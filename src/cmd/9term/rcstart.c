@@ -57,8 +57,17 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	 * 
 	 * Can't disable because will be inherited by other programs
 	 * like if you run an xterm from the prompt, and then xterm's
-	 * resizes won't get handled right.  Sigh.
+	 * resizes won't get handled right.  Sigh.  
+	 *
+	 * Can't not disable because when we stty below we'll get a
+	 * signal, which will drop us into the thread library note handler,
+	 * which will get all confused because we just forked and thus
+	 * have an unknown pid. 
+	 *
+	 * So disable it internally.  ARGH!
 	 */
+	notifyoff("sys: window size change");
+
 	pid = fork();
 	switch(pid){
 	case 0:
