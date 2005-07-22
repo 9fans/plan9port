@@ -1,6 +1,36 @@
+July 22, 2005
+	lib/moveplan9.sh: better error handling if cleanname doesn't exist/work.
+	9c: do not try to process stdout, so that 9c -E works on gcc machines.
+	tar: remove anonymous structs/unions.
+
+July 19-22, 2005
+	add OpenBSD x86 support.  many thanks to Tim Wiess.
+	
+July 21, 2005
+	9term, win: ignore window size change signals while forking shell
+	dist: update main.html
+	
+July 20, 2005
+	src/mkfile: unbugger libhttpd for venti
+	
+July 19, 2005
+	dist/*: use "9 rc" instead of just rc to avoid getting
+		/usr/local/bin/rc on systems with byron's rc installed.
+		(matters because of byron's gratuitous "if not" vs. "else" change.)
+	include/u.h: include <inttypes.h> to try to get fixed-size types
+	venti: update part.c to work on freebsd
+	vmount: default to vmount0, do not try to add udp! and !12049.
+	man: update intro(1), hist(1), venti-file(3)
+	various: pedantry from gcc 4.0, most of it unnecessary
+
 July 18, 2005
+	dict/README: change to use hget
 	page: handle troff intermediate output
-	man: add hget(1), keyboard(7), and listen1(8)
+	man: add hget(1), keyboard(7), and listen1(8); edit vbackup(8)
+	src/cmd/mkfile: mark secstore as buggered, it's in auth/secstore now
+		(cvs isn't good at making sure directories go away)
+		unbugger venti
+	venti: fix usage message
 
 July 17, 2005
 	9term: better(?) CR handling
