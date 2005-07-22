@@ -1,6 +1,12 @@
 #!/bin/sh
 
 p=`cleanname $PLAN9`
+if [ X"$p" = X"" ]
+then
+	echo cleanname failed 1>&2
+	exit 1
+fi
+
 cd $PLAN9
 echo "
 	X ,s;/usr/local/plan9($|/|});$p\\1;g
