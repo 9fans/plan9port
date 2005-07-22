@@ -58,7 +58,7 @@ esac
 # The uniq at the end is for gcc's strcmp/etc. built-in nonsense,
 # which multiplies single errors as a result of its expansion.
 xtmp=/tmp/9c.$$.$USER.out
-$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" >$xtmp 2>&1
+$cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>$xtmp
 status=$?
 grep -v '__p9l_autolib_' $xtmp |
 egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|: In function `|: At top level:' |
