@@ -92,7 +92,7 @@ test:VQ: ${TARG:%=o.%}
 	test -f $vtmp/arena || dd bs=1048576 count=100 if=/dev/zero of=$vtmp/arena
 	test -f $vtmp/bloom || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/bloom
 	test -f $vtmp/isect || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/isect
-	test -f $vtmp/check || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/check
+	test -f $vtmp/check || dd bs=1048576 count=20 if=/dev/zero of=$vtmp/check
 	echo '**********' FMTARENAS
 	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
 	echo '**********' FMTBLOOM
