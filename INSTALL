@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PLAN9=`pwd` export PLAN9
-PATH=$PLAN9/bin:$PATH export PATH
+PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 
 echo "Resetting $PLAN9/config"
 rm -f config
