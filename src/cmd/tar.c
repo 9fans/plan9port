@@ -9,7 +9,7 @@
 #include <u.h>
 #include <libc.h>
 #include <fcall.h>		/* for %M */
-#include <String.h>
+#include <libString.h>
 
 /*
  * modified versions of those in libc.h; scans only the first arg for
@@ -116,7 +116,7 @@ typedef struct {
 
 #define OTHER(rdwr) (rdwr == Rd? Wr: Rd)
 
-static int debug;
+/* static int debug; */
 static int verb;
 static int posix = 1;
 static int docreate;
