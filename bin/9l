@@ -169,7 +169,7 @@ case "$tag" in
 *OpenBSD*)
 	ld=gcc
 	userpath=true
-	extralibs="$extralibs -lpthread -lutil"
+	extralibs="$extralibs -lutil"
 	;;
 *FreeBSD*)
 	ld=gcc
