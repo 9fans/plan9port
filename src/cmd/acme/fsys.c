@@ -263,7 +263,12 @@ void
 fsysclose(void)
 {
 	closing = 1;
+	/*
+	 * apparently this is not kosher on openbsd.
+	 * perhaps because fsysproc is reading from sfd right now,
+	 * the close hangs indefinitely.
 	close(sfd);
+	 */
 }
 
 Xfid*
