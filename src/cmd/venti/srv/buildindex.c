@@ -156,5 +156,8 @@ threadmain(int argc, char *argv[])
 	if(buildindex(mainindex, part, base, clumps, zero) < 0)
 		sysfatal("can't build new index: %r");
 	
+	if(mainindex->bloom)
+		writebloom(mainindex->bloom);
+
 	threadexitsall(0);
 }
