@@ -5,6 +5,7 @@ checkarenas,
 checkindex,
 conf,
 fmtarenas,
+fmtbloom,
 fmtindex,
 fmtisect,
 syncindex \- prepare and maintain a venti server
@@ -34,6 +35,20 @@ syncindex \- prepare and maintain a venti server
 .I blocksize
 ]
 .I name
+.I file
+.PP
+.B venti/fmtbloom
+[
+.B -n
+.I nblocks
+|
+.B -N
+.I nhash
+]
+[
+.B -s
+.I size
+]
 .I file
 .PP
 .B venti/fmtindex
@@ -184,6 +199,54 @@ Using this option reduces the formatting time
 but should only be used when it is known that the file was already zeroed.
 (Version 1 only; version 2 sections are not and do not need to be zeroed.)
 .PD
+.PP
+.I Fmtbloom
+formats the given
+.I file
+as a bloom filter
+(see
+.IR venti (7)).
+The options are:
+.TP
+.BI -n " nblock \fR| " -N " nhash
+The number of blocks expected to be indexed by the filter
+or the number of hash functions to use.
+If the
+.B -n
+option
+is given, it is used, along with the total size of the filter,
+to compute an appropriate
+.IR nhash .
+.TP
+.BI -s " size
+The size of the bloom filter.  The default is the total size of the file.
+In either case,
+.I size
+is rounded down to a power of two.
+.PD
+.PP
+The
+.I file
+argument in the commands above can be of the form
+.IB file : lo - hi
+to specify a range of the file. 
+.I Lo
+and
+.I hi
+are specified in bytes but can have the usual
+.BI k ,
+.BI m ,
+or
+.B g
+suffixes.
+Either
+.I lo
+or
+.I hi
+may be omitted.
+This notation eliminates the need to
+partition raw disks on non-Plan 9 systems.
+.PP
 .I Fmtindex
 reads the configuration file
 .I venti.conf
