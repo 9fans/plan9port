@@ -330,6 +330,7 @@ is an arena partition, formatted using
 .I File
 is an index section, formatted using
 .IR fmtisect .
+.PD
 .PP
 After formatting a venti system using
 .IR fmtindex ,
@@ -381,6 +382,28 @@ or
 .LR g
 (case-insensitive)
 to indicate kilobytes, megabytes, or gigabytes respectively.
+.PP
+The
+.I file
+name in the configuration lines above can be of the form
+.IB file : lo - hi
+to specify a range of the file. 
+.I Lo
+and
+.I hi
+are specified in bytes but can have the usual
+.BI k ,
+.BI m ,
+or
+.B g
+suffixes.
+Either
+.I lo
+or
+.I hi
+may be omitted.
+This notation eliminates the need to
+partition raw disks on non-Plan 9 systems.
 .SS Command Line
 Many of the options to Venti duplicate parameters that
 can be specified in the configuration file.
