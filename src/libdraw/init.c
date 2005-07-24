@@ -86,7 +86,7 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 	_screen = allocscreen(display->image, display->white, 0);
 	screen = _allocwindow(nil, _screen, display->image->r, Refnone, DWhite);
 	display->screenimage = screen;
-	draw(screen, screen->r, display->black, nil, ZP);
+	draw(screen, screen->r, display->white, nil, ZP);
 	flushimage(display, 1);
 
 	atexit(drawshutdown);
