@@ -4,6 +4,8 @@
 #include "fns.h"
 #include "error.h"
 
+#define debug 0
+
 /*
  * locking order is upwards.  A thread can hold the lock for a VacFile
  * and then acquire the lock of its parent
@@ -122,12 +124,16 @@ Err:
 VacFile*
 _vacfileroot(VacFs *fs, VtFile *r)
 {
+	int redirected;
+	char err[ERRMAX];	
 	VtBlock *b;
 	VtFile *r0, *r1, *r2;
 	MetaBlock mb;
 	MetaEntry me;
 	VacFile *root, *mr;
 
+	redirected = 0;
+Top:
 	b = nil;
 	root = nil;
 	mr = nil;
@@ -137,13 +143,30 @@ _vacfileroot(VacFs *fs, VtFile *r)
 	if(vtfilelock(r, -1) < 0)
 		return nil;
 	r0 = vtfileopen(r, 0, fs->mode);
+	if(debug)
+		fprint(2, "r0 %p\n", r0);
 	if(r0 == nil)
 		goto Err;
-	r1 = vtfileopen(r, 1, fs->mode);
-	if(r1 == nil)
-		goto Err;
 	r2 = vtfileopen(r, 2, fs->mode);
-	if(r2 == nil)
+	if(debug)
+		fprint(2, "r2 %p\n", r2);
+	if(r2 == nil){
+		/*
+		 * some vac files (e.g., from fossil)
+		 * have an extra layer of indirection.
+		 */
+		rerrstr(err, sizeof err);
+		if(!redirected && strstr(err, "not active")){
+			vtfileunlock(r);
+			r = r0;
+			goto Top;
+		}
+		goto Err;
+	}
+	r1 = vtfileopen(r, 1, fs->mode);
+	if(debug)
+		fprint(2, "r1 %p\n", r1);
+	if(r1 == nil)
 		goto Err;
 
 	mr = filealloc(fs);

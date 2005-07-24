@@ -30,7 +30,7 @@ threadmain(int argc, char *argv[])
 		host = EARGF(usage());
 		break;
 	case 't':
-		type = atoi(argv[1]);
+		type = atoi(EARGF(usage()));
 		break;
 	default:
 		usage();
@@ -62,10 +62,9 @@ threadmain(int argc, char *argv[])
 				break;
 			}
 		}
-	}else{
-		type = atoi(argv[1]);
+	}else
 		n = vtread(z, score, type, buf, VtMaxLumpSize);
-	}
+
 	vthangup(z);
 	if(n < 0)
 		sysfatal("could not read block: %r");

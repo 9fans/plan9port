@@ -3,6 +3,8 @@
 #include "dat.h"
 #include "fns.h"
 
+#define debug 0
+
 static char EBadVacFormat[] = "bad format for vac file";
 
 static VacFs *
@@ -103,13 +105,15 @@ vacfsopenscore(VtConn *z, u8int *score, int mode, int ncache)
 	root = nil;
 	if((r = vtfileopenroot(fs->cache, &e)) == nil)
 		goto Err;
-
+	if(debug)
+		fprint(2, "r %p\n", r);
 	root = _vacfileroot(fs, r);
+	if(debug)
+		fprint(2, "root %p\n", root);
 	vtfileclose(r);
 	if(root == nil)
 		goto Err;
 	fs->root = root;
-
 	return fs;
 Err:
 	if(root)

@@ -7,7 +7,7 @@ static int
 checksize(int n)
 {
 	if(n < 256 || n > VtMaxLumpSize) {
-		werrstr("bad block size");
+		werrstr("bad block size %#ux", n);
 		return -1;
 	}
 	return 0;
@@ -77,6 +77,16 @@ vtentryunpack(VtEntry *e, uchar *p, int index)
 	if(!(e->flags & VtEntryActive))
 		return 0;
 
+	/* 
+	 * Some old vac files use psize==0 and dsize==0 when the
+	 * file itself has size 0 or is zeros.  Just to make programs not
+	 * have to figure out what block sizes of 0 means, rewrite them.
+	 */
+	if(e->psize == 0 && e->dsize == 0
+	&& memcmp(e->score, vtzeroscore, VtScoreSize) == 0){
+		e->psize = 4096;
+		e->dsize = 4096;
+	}
 	if(checksize(e->psize) < 0 || checksize(e->dsize) < 0)
 		return -1;
 

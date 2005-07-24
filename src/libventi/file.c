@@ -18,7 +18,6 @@
 
 #define MaxBlock (1UL<<31)
 
-static char EBadEntry[] = "bad VtEntry";
 static char ENotDir[] = "walk in non-directory";
 static char ETooBig[] = "file too big";
 /* static char EBadAddr[] = "bad address"; */
@@ -49,8 +48,10 @@ vtfilealloc(VtCache *c, VtBlock *b, VtFile *p, u32int offset, int mode)
 	}else
 		epb = p->dsize / VtEntrySize;
 
-	if(b->type != VtDirType)
-		goto Bad;
+	if(b->type != VtDirType){
+		werrstr("bad block type %#uo", b->type);
+		return nil;
+	}
 
 	/*
 	 * a non-active entry is the only thing that
@@ -58,28 +59,26 @@ vtfilealloc(VtCache *c, VtBlock *b, VtFile *p, u32int offset, int mode)
 	 * get prints.
 	 */
 	if(vtentryunpack(&e, b->data, offset % epb) < 0){
-		fprint(2, "vtentryunpack failed\n");
-		goto Bad;
+		fprint(2, "vtentryunpack failed: %r (%.*H)\n", VtEntrySize, b->data+VtEntrySize*(offset%epb));
+		return nil;
 	}
 	if(!(e.flags & VtEntryActive)){
-		if(0)fprint(2, "not active\n");
-		goto Bad;
-	}
-	if(e.psize < 256 || e.dsize < 256){
-		fprint(2, "psize %ud dsize %ud\n", e.psize, e.dsize);
-		goto Bad;
+		werrstr("entry not active");
+		return nil;
 	}
 
 	if(DEPTH(e.type) < sizetodepth(e.size, e.psize, e.dsize)){
 		fprint(2, "depth %ud size %llud psize %ud dsize %ud\n",
 			DEPTH(e.type), e.size, e.psize, e.dsize);
-		goto Bad;
+		werrstr("bad depth");
+		return nil;
 	}
 
 	size = vtcacheblocksize(c);
 	if(e.dsize > size || e.psize > size){
-		fprint(2, "psize %ud dsize %ud blocksize %ud\n", e.psize, e.dsize, size);
-		goto Bad;
+		werrstr("block sizes %ud, %ud bigger than cache block size %ud",
+			e.psize, e.dsize, size);
+		return nil;
 	}
 
 	r = vtmallocz(sizeof(VtFile));
@@ -105,10 +104,6 @@ vtfilealloc(VtCache *c, VtBlock *b, VtFile *p, u32int offset, int mode)
 	r->epb = epb;
 
 	return r;
-Bad:
-	werrstr(EBadEntry);
-	return nil;
-	
 }
 
 VtFile *
@@ -178,8 +173,14 @@ vtfileopen(VtFile *r, u32int offset, int mode)
 	return r;
 }
 
-VtFile *
+VtFile*
 vtfilecreate(VtFile *r, int psize, int dsize, int type)
+{
+	return _vtfilecreate(r, -1, psize, dsize, type);
+}
+
+VtFile*
+_vtfilecreate(VtFile *r, int o, int psize, int dsize, int type)
 {
 	int i;
 	VtBlock *b;
@@ -187,8 +188,8 @@ vtfilecreate(VtFile *r, int psize, int dsize, int type)
 	VtEntry e;
 	int epb;
 	VtFile *rr;
- 	u32int offset;
-
+	u32int offset;
+	
 	assert(ISLOCKED(r));
 	assert(psize <= VtMaxLumpSize);
 	assert(dsize <= VtMaxLumpSize);
@@ -205,8 +206,11 @@ vtfilecreate(VtFile *r, int psize, int dsize, int type)
 	/*
 	 * look at a random block to see if we can find an empty entry
 	 */
-	offset = lnrand(size+1);
-	offset -= offset % epb;
+	if(o == -1){
+		offset = lnrand(size+1);
+		offset -= offset % epb;
+	}else
+		offset = o;
 
 	/* try the given block and then try the last block */
 	for(;;){

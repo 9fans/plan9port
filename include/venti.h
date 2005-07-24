@@ -463,6 +463,7 @@ VtFile *vtfileopenroot(VtCache*, VtEntry*);
 VtFile *vtfilecreateroot(VtCache*, int psize, int dsize, int type);
 VtFile *vtfileopen(VtFile*, u32int, int);
 VtFile *vtfilecreate(VtFile*, int psize, int dsize, int dir);
+VtFile *_vtfilecreate(VtFile*, int offset, int psize, int dsize, int dir);
 VtBlock *vtfileblock(VtFile*, u32int, int mode);
 long vtfileread(VtFile*, void*, long, vlong);
 long vtfilewrite(VtFile*, void*, long, vlong);

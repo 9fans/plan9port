@@ -6,7 +6,7 @@ LIBFILES=\
 	fs\
 	pack\
 
-LIB=${LIBFILES:%=%.$O}
+LIB=${LIBFILES:%=%.$O} $PLAN9/lib/libventi.a
 
 HFILES=\
 	$PLAN9/include/venti.h\

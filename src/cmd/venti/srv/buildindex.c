@@ -119,6 +119,7 @@ threadmain(int argc, char *argv[])
 
 	zero = 1;
 	bcmem = 0;
+	ventifmtinstall();
 	ARGBEGIN{
 	case 'B':
 		bcmem = unittoull(ARGF());

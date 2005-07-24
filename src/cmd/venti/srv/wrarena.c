@@ -190,14 +190,14 @@ threadmain(int argc, char *argv[])
 	if(arena == nil)
 		sysfatal("initarena: %r");
 
-	if(host && strcmp(host, "/dev/null") != 0){
+	z = nil;
+	if(host==nil || strcmp(host, "/dev/null") != 0){
 		z = vtdial(host);
 		if(z == nil)
 			sysfatal("could not connect to server: %r");
 		if(vtconnect(z) < 0)
 			sysfatal("vtconnect: %r");
-	}else
-		z = nil;
+	}
 	
 	c = chancreate(sizeof(ZClump), 0);
 	for(i=0; i<12; i++)

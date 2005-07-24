@@ -141,6 +141,10 @@ threadmain(int argc, char *argv[])
 	long ncache = 1000;
 	int readOnly = 1;
 
+	fmtinstall('H', encodefmt);
+	fmtinstall('V', vtscorefmt);
+	fmtinstall('F', vtfcallfmt);
+	
 	defsrv = nil;
 	ARGBEGIN{
 	case 'd':
@@ -163,6 +167,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'p':
 		noperm = 1;
+		break;
+	case 'V':
+		chattyventi = 1;
 		break;
 	default:
 		usage();
@@ -197,7 +204,6 @@ threadmain(int argc, char *argv[])
 
 	if(post9pservice(p[1], defsrv) != 0) 
 		sysfatal("post9pservice");
-
 
 	threadexits(0);
 }
@@ -839,9 +845,6 @@ init(char *file, char *host, long ncache, int readOnly)
 {
 	notify(notifyf);
 	user = getuser();
-
-	fmtinstall('V', vtscorefmt);
-//	fmtinstall('R', vtErrFmt);
 
 	conn = vtdial(host);
 	if(conn == nil)

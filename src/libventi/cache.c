@@ -311,11 +311,13 @@ vtcachelocal(VtCache *c, u32int addr, int type)
 {
 	VtBlock *b;
 
-	if(addr >= c->nblock)
-		sysfatal("vtcachelocal: asked for block #%ud; only %d blocks\n",
+	if(addr == 0)
+		sysfatal("vtcachelocal: asked for nonexistent block 0");
+	if(addr > c->nblock)
+		sysfatal("vtcachelocal: asked for block #%ud; only %d blocks",
 			addr, c->nblock);
 
-	b = &c->block[addr];
+	b = &c->block[addr-1];
 	if(b->addr == NilBlock || b->iostate != BioLocal)
 		sysfatal("vtcachelocal: block is not local");
 
@@ -340,7 +342,7 @@ vtcacheallocblock(VtCache *c, int type)
 	b = vtcachebumpblock(c);
 	b->iostate = BioLocal;
 	b->type = type;
-	b->addr = b - c->block;
+	b->addr = (b - c->block)+1;
 	vtzeroextend(type, b->data, 0, c->blocksize);
 	vtlocaltoglobal(b->addr, b->score);
 	qunlock(&c->lk);

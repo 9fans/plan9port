@@ -318,9 +318,8 @@ vac(VtConn *z, char *argv[])
 	/* build meta information for the root */
 	ms = metasinkalloc(z, bsize, bsize);
 	/* fake into a directory */
-	dir->mode |= (dir->mode&0444)>>2;
+	dir->mode = DMDIR|0555;
 	dir->qid.type |= QTDIR;
-	dir->mode |= DMDIR;
 	plan9tovacdir(&vd, dir, 0, fileid++);
 	if(strcmp(vd.elem, "/") == 0){
 		vtfree(vd.elem);
