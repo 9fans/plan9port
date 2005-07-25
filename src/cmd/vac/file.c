@@ -157,6 +157,7 @@ Top:
 		 */
 		rerrstr(err, sizeof err);
 		if(!redirected && strstr(err, "not active")){
+			redirected = 1;
 			vtfileunlock(r);
 			r = r0;
 			goto Top;
