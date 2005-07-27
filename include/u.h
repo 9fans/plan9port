@@ -5,8 +5,14 @@ extern "C" {
 #endif
 
 #define __BSD_VISIBLE 1 /* FreeBSD 5.x */
-#define __EXTENSIONS__ 1 /* SunOS */
-/* NOT USING #define __MAKECONTEXT_V2_SOURCE 1 / * SunOS */
+#if defined(__sun__)
+#	define __EXTENSIONS__ 1 /* SunOS */
+#	if defined(__SunOS5_6__) || defined(__SunOS5_7__) || defined(__SunOS5_8__)
+		/* NOT USING #define __MAKECONTEXT_V2_SOURCE 1 / * SunOS */
+#	else
+#		define __MAKECONTEXT_V2_SOURCE 1
+#	endif
+#endif
 #define _BSD_SOURCE 1
 #define _NETBSD_SOURCE 1	/* NetBSD */
 #define _SVID_SOURCE 1
