@@ -1,7 +1,22 @@
+July 27, 2005
+	include/u.h, src/libthread/thread.c: SunOS 10 attempt
+
+July 26, 2005
+	various: fixes for SunOS from Bengt Kleberg
+
+July 25, 2005
+	vac: avoid infinite redirection while sniffing type of archive
+
+July 24, 2005
+	venti: many minor changes, updates
+	libdraw/init.c: start with white screen instead of black
+	man: update venti-fcall(3), venti(8), venti-fmt(8)
+
 July 22, 2005
 	lib/moveplan9.sh: better error handling if cleanname doesn't exist/work.
 	9c: do not try to process stdout, so that 9c -E works on gcc machines.
 	tar: remove anonymous structs/unions.
+	vbackup: bigger stack (oops)
 
 July 19-22, 2005
 	add OpenBSD x86 support.  many thanks to Tim Wiess.
