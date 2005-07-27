@@ -12,6 +12,7 @@ Screen	*_screen;
 
 int		debuglockdisplay = 1;
 
+/*
 static void
 drawshutdown(void)
 {
@@ -23,6 +24,7 @@ drawshutdown(void)
 		closedisplay(d);
 	}
 }
+*/
 
 int
 initdraw(void (*error)(Display*, char*), char *fontname, char *label)
@@ -89,7 +91,13 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 	draw(screen, screen->r, display->white, nil, ZP);
 	flushimage(display, 1);
 
-	atexit(drawshutdown);
+	/*
+	 * I don't see any reason to go away gracefully,
+	 * and if some other proc exits holding the display
+	 * lock, this atexit call never finishes.
+	 *
+	 * atexit(drawshutdown);
+	 */
 	return 1;
 }
 
