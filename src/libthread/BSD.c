@@ -285,6 +285,20 @@ threadexitsall(char *msg)
 	int i, npid, mypid;
 	Proc *p;
 
+	/* 
+	 * Only one guy, ever, gets to run this.
+	 * If two guys do it, inevitably they end up
+	 * tripping over each other in the underlying
+	 * C library exit() implementation, which is
+	 * trying to run the atexit handlers and apparently
+	 * not thread safe.  This has been observed on
+	 * both Linux and OpenBSD.  Sigh.
+	 */
+	{
+		static Lock onelock;
+		lock(&onelock);
+	}
+
 	if(msg == nil)
 		msg = "";
 	mypid = getpid();
