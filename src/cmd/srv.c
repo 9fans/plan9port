@@ -10,7 +10,7 @@ char *keypattern = "";
 int fd;
 int msize;
 int doauth;
-int afid = NOFID;
+u32int afid = NOFID;
 extern char *post9parg;	/* clumsy hack */
 void xauth(void);
 AuthInfo* xauth_proxy(AuthGetkey *getkey, char *fmt, ...);

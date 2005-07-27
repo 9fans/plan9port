@@ -79,7 +79,7 @@ Queue *inq;
 int verbose = 0;
 int logging = 0;
 int msize = 8192;
-int xafid = NOFID;
+u32int xafid = NOFID;
 int attached;
 int versioned;
 
