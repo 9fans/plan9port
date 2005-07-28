@@ -18,6 +18,9 @@
 #endif
 #include <libc.h>
 #include "mountnfs.h"
+#ifndef MNT_NOATIME
+#	define MNT_NOATIME 0
+#endif
 
 void
 mountnfs(int proto, struct sockaddr_in *sa,
