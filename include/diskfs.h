@@ -52,6 +52,8 @@ struct Fsys
 	Nfs3Status (*_readlink)(Fsys *fsys, SunAuthUnix*, Nfs3Handle *h, char **link);
 
 	void *priv;
+	
+	u64int (*fileblock)(Fsys *fsys, Nfs3Handle *h, u64int offset);
 };
 
 struct Handle
