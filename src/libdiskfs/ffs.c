@@ -15,6 +15,7 @@ static Block *ffsblockread(Fsys*, u64int);
 static int ffssync(Fsys*);
 static void ffsclose(Fsys*);
 
+static u64int ffsxfileblock(Fsys *fs, Nfs3Handle *h, u64int offset);
 static Nfs3Status ffsroot(Fsys*, Nfs3Handle*);
 static Nfs3Status ffsgetattr(Fsys*, SunAuthUnix *au, Nfs3Handle*, Nfs3Attr*);
 static Nfs3Status ffslookup(Fsys*, SunAuthUnix *au, Nfs3Handle*, char*, Nfs3Handle*);
@@ -43,6 +44,7 @@ fsysopenffs(Disk *disk)
 	fsys->_readfile = ffsreadfile;
 	fsys->_readlink = ffsreadlink;
 	fsys->_readdir = ffsreaddir;
+	fsys->fileblock = ffsxfileblock;
 
 	if(ffssync(fsys) < 0)
 		goto error;
@@ -288,35 +290,60 @@ ffsdatablock(Ffs *fs, u32int bno, int size)
 	return b;
 }
 
-static Block*
-ffsfileblock(Ffs *fs, Inode *ino, u32int bno, int size)
+static u32int
+ifetch(Ffs *fs, u32int bno, u32int off)
+{
+	u32int *a;
+	Block *b;
+	
+	if(bno == ~0)
+		return ~0;
+	b = ffsdatablock(fs, bno, fs->blocksize);
+	if(b == nil)
+		return ~0;
+	a = (u32int*)b->data;
+	bno = a[off];
+	blockput(b);
+	return bno;
+}
+
+static u32int
+ffsfileblockno(Ffs *fs, Inode *ino, u32int bno)
 {
 	int ppb;
-	Block *b;
-	u32int *a;
 
 	if(bno < NDADDR){
 		if(debug) fprint(2, "ffsfileblock %lud: direct %#lux\n", (ulong)bno, (ulong)ino->db[bno]);
-		return ffsdatablock(fs, ino->db[bno], size);
+		return ino->db[bno];
 	}
 	bno -= NDADDR;
 	ppb = fs->blocksize/4;
 
-	if(bno/ppb < NIADDR){
-		if(debug) fprint(2, "ffsfileblock %lud: indirect %#lux\n", (ulong)(bno+NDADDR),
-			(ulong)ino->ib[bno/ppb]);
-		b = ffsdatablock(fs, ino->ib[bno/ppb], fs->blocksize);
-		if(b == nil)
-			return nil;
-		a = (u32int*)b->data;
-		bno = a[bno%ppb];
-		if(debug) fprint(2, "ffsfileblock: indirect fetch %#lux size %d\n", (ulong)bno, size);
-		blockput(b);
-		return ffsdatablock(fs, bno, size);
-	}
+	if(bno < ppb)	/* single indirect */
+		return ifetch(fs, ino->ib[0], bno);
+	bno -= ppb;
 
-	fprint(2, "ffsfileblock %lud: too big\n", (ulong)bno+NDADDR);
-	return nil;
+	if(bno < ppb*ppb)
+		return ifetch(fs, ifetch(fs, ino->ib[1], bno/ppb), bno%ppb);
+	bno -= ppb*ppb;
+	
+	if(bno/ppb/ppb/ppb == 0)	/* bno < ppb*ppb*ppb w/o overflow */
+		return ifetch(fs, ifetch(fs, ifetch(fs, ino->ib[2], bno/ppb/ppb), (bno/ppb)%ppb), bno%ppb);
+	bno -= ppb*ppb*ppb;
+	
+	fprint(2, "ffsfileblock %lud: way too big\n", (ulong)bno+NDADDR);
+	return ~0;
+}
+
+static Block*
+ffsfileblock(Ffs *fs, Inode *ino, u32int bno, int size)
+{
+	u32int b;
+	
+	b = ffsfileblockno(fs, ino, bno);
+	if(b == ~0)
+		return nil;
+	return ffsdatablock(fs, b, size);
 }
 
 /*
@@ -337,6 +364,8 @@ byte2u32(uchar *p)
 {
 	return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
+
+static u64int iaddr;
 
 static Nfs3Status
 handle2ino(Ffs *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
@@ -370,6 +399,8 @@ handle2ino(Ffs *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 	if((b = diskread(fs->disk, fs->blocksize,
 		(cg->ibno+ioff/fs->inosperblock)*(vlong)fs->blocksize)) == nil)
 		return Nfs3ErrIo;
+	iaddr = (cg->ibno+ioff/fs->inosperblock)*(vlong)fs->blocksize
+		+ (ioff%fs->inosperblock)*sizeof(Inode);
 	*ino = ((Inode*)b->data)[ioff%fs->inosperblock];
 	blockput(b);
 
@@ -457,6 +488,9 @@ static Nfs3Status
 inoperm(Inode *ino, SunAuthUnix *au, int need)
 {
 	int have;
+
+	if(au == nil)
+		return Nfs3Ok;
 
 	have = ino->mode&0777;
 	if(ino->uid == au->uid)
@@ -678,6 +712,32 @@ ffsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int cook
 	*pcount = dp - data;
 	*pdata = data;
 	return Nfs3Ok;
+}
+
+static u64int
+ffsxfileblock(Fsys *fsys, Nfs3Handle *h, u64int offset)
+{
+	u32int bno;
+	Inode ino;
+	Nfs3Status ok;
+	Ffs *fs;
+	
+	fs = fsys->priv;
+	if((ok = handle2ino(fs, h, nil, &ino)) != Nfs3Ok){
+		nfs3errstr(ok);
+		return 0;
+	}
+	if(offset == 1)
+		return iaddr;
+	if(offset >= ino.size){
+		werrstr("beyond end of file");
+		return 0;
+	}
+	bno = offset/fs->blocksize;
+	bno = ffsfileblockno(fs, &ino, bno);
+	if(bno == ~0)
+		return 0;
+	return bno*(u64int)fs->fragsize;
 }
 
 static Nfs3Status
