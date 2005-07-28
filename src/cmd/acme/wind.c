@@ -145,7 +145,6 @@ winlock(Window *w, int owner)
 	int i;
 	File *f;
 
-//fprint(2, "winlock %p %d %lux\n", w, owner, getcallerpc(&w));
 	f = w->body.file;
 	for(i=0; i<f->ntext; i++)
 		winlock1(f->text[i]->w, owner);
@@ -157,16 +156,17 @@ winunlock(Window *w)
 	int i;
 	File *f;
 
-//fprint(2, "winunlock %p %lux\n", w, getcallerpc(&w));
+	/*
+	 * subtle: loop runs backwards to avoid tripping over
+	 * winclose indirectly editing f->text and freeing f
+	 * on the last iteration of the loop.
+	 */
 	f = w->body.file;
-	for(i=0; i<f->ntext; i++){
+	for(i=f->ntext-1; i>=0; i--){
 		w = f->text[i]->w;
 		w->owner = 0;
 		qunlock(&w->lk);
 		winclose(w);
-		/* winclose() can change up f->text; beware */
-		if(f->ntext>0 && w != f->text[i]->w)
-			--i;	/* winclose() deleted window */
 	}
 }
 
