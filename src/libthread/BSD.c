@@ -285,6 +285,9 @@ threadexitsall(char *msg)
 	int i, npid, mypid;
 	Proc *p;
 
+	if(msg == nil)
+		msg = "";
+
 	/* 
 	 * Only one guy, ever, gets to run this.
 	 * If two guys do it, inevitably they end up
@@ -296,7 +299,9 @@ threadexitsall(char *msg)
 	 */
 	{
 		static Lock onelock;
-		lock(&onelock);
+		if(!canlock(&onelock))
+			_exits(threadexitsmsg);
+		threadexitsmsg = msg;
 	}
 
 	if(msg == nil)
