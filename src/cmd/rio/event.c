@@ -314,6 +314,8 @@ clientmesg(XClientMessageEvent *e)
 		perror("rio: exec failed");
 		exit(1);
 	}
+	if(e->message_type == wm_protocols)
+		return;
 	if(e->message_type == wm_change_state){
 		c = getclient(e->window, 0);
 		if(e->format == 32 && e->data.l[0] == IconicState && c != 0){
