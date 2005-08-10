@@ -4,7 +4,7 @@ TARG=`ls *.[cy] *.lx | egrep -v "\.tab\.c$|^x\." | sed 's/\.[cy]//; s/\.lx//'`
 
 <$PLAN9/src/mkmany
 
-BUGGERED='CVS|faces|factotum|mailfs|page|scat|upas|vncv|mnihongo|mpm|index|u9fs|secstore'
+BUGGERED='CVS|faces|factotum|lp|mailfs|page|scat|upas|vncv|mnihongo|mpm|index|u9fs|secstore'
 DIRS=lex `ls -l |sed -n 's/^d.* //p' |egrep -v "^($BUGGERED)$"|egrep -v '^lex$'`
 
 <$PLAN9/src/mkdirs
