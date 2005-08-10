@@ -1,10 +1,8 @@
-/*
- *	mpvecsub(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *diff)
- *
- *		diff[0:alen-1] = a[0:alen-1] - b[0:blen-1]
- *
- *	prereq: alen >= blen, diff has room for alen digits
- */
+/*	mpvecsub(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *diff) */
+/*		diff[0:alen-1] = a[0:alen-1] - b[0:blen-1] */
+/*	prereq: alen >= blen, diff has room for alen digits */
+/* (very old gnu assembler doesn't allow multiline comments) */
+
 .text
 
 .p2align 2,0x90

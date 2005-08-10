@@ -1,10 +1,7 @@
-/*
- *	mpvecadd(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *sum)
- *
- *		sum[0:alen] = a[0:alen-1] + b[0:blen-1]
- *
- *	prereq: alen >= blen, sum has room for alen+1 digits
- */
+/*	mpvecadd(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *sum) */
+/*		sum[0:alen] = a[0:alen-1] + b[0:blen-1] */
+/*	prereq: alen >= blen, sum has room for alen+1 digits */
+/* (very old gnu assembler doesn't allow multiline comments) */
 
 .text
 
