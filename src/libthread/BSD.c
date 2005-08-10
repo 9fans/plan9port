@@ -397,13 +397,6 @@ _threadsetproc(Proc *p)
 }
 
 void
-_pthreadinit(void)
-{
-	__isthreaded = 1;
-	signal(SIGUSR2, sigusr2handler);
-}
-
-void
 _threadpexit(void)
 {
 	_exit(0);

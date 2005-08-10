@@ -41,3 +41,9 @@ swapcontext(ucontext_t *oucp, ucontext_t *ucp)
 	return 0;
 }
 
+void
+_pthreadinit(void)
+{
+	__isthreaded = 1;
+	signal(SIGUSR2, sigusr2handler);
+}
