@@ -355,13 +355,14 @@ dircmp(const void *va, const void *vb)
 void
 xls(int argc, char **argv)
 {
-	char *name, *xname, *f[4], buf[4096];
+	char *err, *name, *xname, *f[4], buf[4096];
 	int nf, i, j, l;
 	int lflag, dflag, n, len[4];
 	Dir *d;
 	CFid *fid;
 	CFsys *fs;
-	
+
+	err = nil;
 	lflag = dflag = 0;
 	ARGBEGIN{
 	case 'l':
@@ -383,6 +384,7 @@ xls(int argc, char **argv)
 		if((d = fsdirstat(fs, xname)) == nil){
 			fprint(2, "dirstat %s: %r\n", name);
 			fsunmount(fs);
+			err = "errors";
 			continue;
 		}
 		if((d->mode&DMDIR) && !dflag){
@@ -390,6 +392,7 @@ xls(int argc, char **argv)
 				fprint(2, "open %s: %r\n", name);
 				fsunmount(fs);
 				free(d);
+				err = "errors";
 				continue;
 			}
 			free(d);
@@ -398,6 +401,7 @@ xls(int argc, char **argv)
 			if(n < 0){
 				fprint(2, "dirreadall %s: %r\n", name);
 				fsunmount(fs);
+				err = "errors";
 				continue;
 			}
 			qsort(d, n, sizeof d[0], dircmp);
@@ -430,6 +434,6 @@ xls(int argc, char **argv)
 		}
 		free(d);
 	}
-	threadexitsall(0);
+	threadexitsall(err);
 }
 
