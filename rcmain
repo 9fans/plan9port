@@ -24,9 +24,16 @@ if(! ~ $#cflag 0){
 }
 if(flag i){
 	if(~ $TERM 9term){
-		if(~ $#'fn#cd' 0)
-			fn cd { builtin cd $1 && flag i && awd }
-		awd
+		fn cd {
+			# builtin cd $1 && flag i && awd
+			# is not sufficient when running in a subshell
+			# that is rc -e (like mk uses!)
+			if(builtin cd $1){
+				if(flag i) $PLAN9/bin/9 awd || status=''
+				status=''
+			}
+		}
+		$PLAN9/bin/9 awd
 	}
 	if(flag l && test -r $home/lib/profile) . $home/lib/profile
 	status=''
