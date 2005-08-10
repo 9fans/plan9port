@@ -70,7 +70,7 @@ bournearg(char *s)
 void
 rcprint(int argc, char *argv[])
 {
-	register c, i, n;
+	int c, i, n;
 	for(c=0;c!=NFLAG;c++) if(flag[c]){
 		print("FLAG%c=", c);		/* bug -- c could be a bad char */
 		n=count(c, argv[1]);
@@ -106,14 +106,14 @@ rcprint(int argc, char *argv[])
 void
 usmsg(char *flagarg)
 {
-	register char *s, *t, c;
-	register count, nflag=0;
+	char *s, *t, c;
+	int count, nflag=0;
 	print("echo Usage: $0'");
 	for(s=flagarg;*s;){
 		c=*s;
 		if(*s++==' ') continue;
 		if(*s==':')
-			count = strtol(++s, &s, 10);
+			count = strtol(s+1, &s, 10);
 		else count=0;
 		if(count==0){
 			if(nflag==0) print(" [-");
@@ -133,7 +133,7 @@ usmsg(char *flagarg)
 		c=*s;
 		if(*s++==' ') continue;
 		if(*s==':')
-			count = strtol(++s, &s, 10);
+			count = strtol(s+1, &s, 10);
 		else count=0;
 		if(count!=0){
 			print(" [-");
@@ -166,13 +166,13 @@ usmsg(char *flagarg)
 int
 count(int flag, char *flagarg)
 {
-	register char *s, c;
-	register n;
+	char *s, c;
+	int n;
 	for(s=flagarg;*s;){
 		c=*s;
 		if(*s++==' ') continue;
 		if(*s==':')
-			n = strtol(++s, &s, 10);
+			n = strtol(s+1, &s, 10);
 		else n=0;
 		if(*s=='['){
 			int depth=1;
