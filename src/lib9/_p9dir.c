@@ -47,6 +47,8 @@ isdisk(struct stat *st)
 #include <linux/hdreg.h>
 #include <linux/fs.h>
 #include <sys/ioctl.h>
+#undef major
+#define major(dev) ((int)(((dev) >> 8) & 0xff))
 static vlong
 disksize(int fd, int dev)
 {
@@ -62,7 +64,7 @@ disksize(int fd, int dev)
 		return u64;
 #endif
 	if(ioctl(fd, BLKGETSIZE, &l) >= 0)
-		return l*512;
+		return (vlong)l*512;
 	if(ioctl(fd, HDIO_GETGEO, &geo) >= 0)
 		return (vlong)geo.heads*geo.sectors*geo.cylinders*512;
 	return 0;
