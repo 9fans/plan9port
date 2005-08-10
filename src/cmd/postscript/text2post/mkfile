@@ -1,0 +1,23 @@
+<$PLAN9/src/mkhdr
+
+<../config
+
+COMMONDIR=../common
+
+TARG=text2post
+
+OFILES=text2post.$O\
+
+HFILES=$COMMONDIR/comments.h\
+	$COMMONDIR/path.h\
+
+BIN=$POSTBIN
+<$PLAN9/src/mkone
+
+CFLAGS=-c -D'PROGRAMVERSION="0.1"' -D'DOROUND=1' -I$COMMONDIR
+
+install:V:	$POSTLIB/pjw.char.ps
+
+$POSTLIB/pjw.char.ps:	pjw.char.ps
+	cp $prereq $target
+
