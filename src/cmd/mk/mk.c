@@ -230,5 +230,5 @@ outofdate(Node *node, Arc *arc, int eval)
 	} else if(strchr(arc->n->name, '(') && arc->n->time == 0)  /* missing archive member */
 		return 1;
 	else
-		return node->time < arc->n->time;
+		return node->time <= arc->n->time;
 }
