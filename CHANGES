@@ -1,5 +1,39 @@
+August 11, 2005
+	libdiskfs: add UFS2 support
+	libthread: add NetBSD power assembly
+	9term: send tty's current interrupt character on DEL keystroke
+	rc: add limited rfork command, make sure errors propagate
+	vftp: add get command
+
+August 10, 2005
+	src/cmd/mkfile: do not build lp yet
+	dist/addsrclinks, fixurls: use /usr/bin/env perl to find perl (NetBSD)
+	lib9/_p9dir: avoid 32-bit overflow in old Linux size calculation
+	lib9/truerand: use /dev/srandom on OpenBSD
+	libthread: annoying wrappers for OpenBSD
+	libmp: different assembly comments for old GNU as
+	9p: set exit status
+	file: add, appease gcc
+	getflags: added
+	mk: decide mtime-related race conservatively
+	postscript/text2post: added
+	rcmain: make fn cd safer for use with rc -e (in mk)
+	rio: turn off debugging prints, remove 9wm.man, fixes from Andrey
+	vbackup: NetBSD fixes for mount-BSD.c
+	venti/srv: add <sys/stat.h> header for FreeBSD
+
+July 28, 2005
+	acme: subtle winunlock bug fix
+	libdiskfs: fix double, triple indirect block reading for FFS
+	vftp: new program
+	vbackup: coalesce mount-*BSD files.
+
 July 27, 2005
 	include/u.h, src/libthread/thread.c: SunOS 10 attempt
+	libdraw: less graceful, less raceful shutdown
+	libthread: avoid C library races during threadexitsall
+	awd: cannot use hostname -s on SunOS
+	9pserve, srv: use correct type for NOFID
 
 July 26, 2005
 	various: fixes for SunOS from Bengt Kleberg
