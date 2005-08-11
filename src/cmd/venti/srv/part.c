@@ -7,6 +7,7 @@
 #	elif defined(__FreeBSD__)
 #		define CANBLOCKSIZE 1
 #		include <sys/param.h>
+#		include <sys/stat.h>
 #		include <sys/mount.h>
 #	endif
 #endif
