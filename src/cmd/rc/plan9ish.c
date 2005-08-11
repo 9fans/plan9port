@@ -36,6 +36,7 @@ void execbind(void);
 void execmount(void);
 void execulimit(void);
 void execumask(void);
+void execrfork(void);
 builtin Builtin[]={
 	"cd",		execcd,
 	"whatis",	execwhatis,
@@ -49,8 +50,60 @@ builtin Builtin[]={
 	"flag",		execflag,
 	"ulimit",	execulimit,
 	"umask",	execumask,
+	"rfork",	execrfork,
 	0
 };
+
+void
+execrfork(void)
+{
+	int arg;
+	char *s;
+
+	switch(count(runq->argv->words)){
+	case 1:
+		arg = RFENVG|RFNOTEG|RFNAMEG;
+		break;
+	case 2:
+		arg = 0;
+		for(s = runq->argv->words->next->word;*s;s++) switch(*s){
+		default:
+			goto Usage;
+		case 'n':
+			arg|=RFNAMEG;  break;
+		case 'N':
+			arg|=RFCNAMEG;
+			break;
+		case 'e':
+			/* arg|=RFENVG; */  break;
+		case 'E':
+			arg|=RFCENVG;  break;
+		case 's':
+			arg|=RFNOTEG;  break;
+		case 'f':
+			arg|=RFFDG;    break;
+		case 'F':
+			arg|=RFCFDG;   break;
+		}
+		break;
+	default:
+	Usage:
+		pfmt(err, "Usage: %s [nNeEsfF]\n", runq->argv->words->word);
+		setstatus("rfork usage");
+		poplist();
+		return;
+	}
+	if(rfork(arg)==-1){
+		pfmt(err, "rc: %s failed\n", runq->argv->words->word);
+		setstatus("rfork failed");
+	}
+	else
+		setstatus("");
+	poplist();
+}
+
+
+
 #define	SEP	'\1'
 char **environp;
 struct word *enval(s)
