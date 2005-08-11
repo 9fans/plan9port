@@ -40,6 +40,7 @@ int 			scrolling;
 int 			num_screens;
 int			solidsweep = 0;
 int			numvirtuals = 0;
+int			ffm = 0;
 
 Atom		exit_rio;
 Atom		restart_rio;
@@ -95,6 +96,10 @@ main(int argc, char *argv[])
 			background = 1;
 		else if(strcmp(argv[i], "-debug") == 0)
 			debug++;
+	/*
+		else if(strcmp(argv[i], "-ffm") == 0)
+			ffm++;
+	*/
 		else if(strcmp(argv[i], "-font") == 0 && i+1<argc){
 			i++;
 			fname = argv[i];
@@ -335,8 +340,8 @@ initscreen(ScreenInfo *s, int i, int background)
 	attr.cursor = s->arrow;
 	attr.event_mask = SubstructureRedirectMask
 		| SubstructureNotifyMask | ColormapChangeMask
-		| ButtonPressMask | ButtonReleaseMask | PropertyChangeMask |
-		KeyPressMask;
+		| ButtonPressMask | ButtonReleaseMask | PropertyChangeMask 
+		| KeyPressMask | EnterWindowMask;
 	mask = CWCursor|CWEventMask;
 	XChangeWindowAttributes(dpy, s->root, mask, &attr);
 	XSync(dpy, False);

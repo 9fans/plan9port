@@ -319,7 +319,7 @@ unhide(int n, int map)
 	}
 
 	numhidden--;
-	for(i = n; i < numhidden; i ++){
+	for(i = n; i < numhidden; i++){
 		hiddenc[i] = hiddenc[i+1];
 		b3items[B3FIXED+i] = b3items[B3FIXED+i+1];
 	}
@@ -368,8 +368,11 @@ button2(int n)
 void
 switch_to_c(int n, Client *c)
 {
-	if(c && c->next)
-		switch_to_c(n,c->next);
+	if(c == 0)
+		return;
+
+	if(c->next)
+		switch_to_c(n, c->next);
 
 	if(c->parent == DefaultRootWindow(dpy))
 		return;
@@ -384,8 +387,8 @@ switch_to_c(int n, Client *c)
 		int i;
 
 		for(i = 0; i < numhidden; i++)
-		if(c == hiddenc[i]) 
-			break;
+			if(c == hiddenc[i]) 
+				break;
 
 		if(i == numhidden){
 			XMapWindow(dpy, c->window);

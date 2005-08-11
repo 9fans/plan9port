@@ -150,6 +150,7 @@ extern int			debug;
 extern int			solidsweep;
 extern int			numvirtuals;
 extern int			scrolling;
+extern int			ffm;	/* focus follows mouse */
 
 extern Atom		exit_rio;
 extern Atom		restart_rio;

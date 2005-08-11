@@ -282,12 +282,18 @@ newwindow(XCreateWindowEvent *e)
 void
 destroy(Window w)
 {
+	int i;
 	Client *c;
 
 	curtime = CurrentTime;
 	c = getclient(w, 0);
 	if(c == 0)
 		return;
+
+	if(numvirtuals > 1)
+		for(i=0; i<numvirtuals; i++)
+			if(currents[i] == c)
+				currents[i] = 0;
 
 	rmclient(c);
 
@@ -470,12 +476,14 @@ enter(XCrossingEvent *e)
 	Client *c;
 
 	curtime = e->time;
+	if(!ffm)
 	if(e->mode != NotifyGrab || e->detail != NotifyNonlinearVirtual)
 		return;
 	c = getclient(e->window, 0);
 	if(c != 0 && c != current){
 		/* someone grabbed the pointer; make them current */
-		XMapRaised(dpy, c->parent);
+		if(!ffm)
+			XMapRaised(dpy, c->parent);
 		top(c);
 		active(c);
 	}
