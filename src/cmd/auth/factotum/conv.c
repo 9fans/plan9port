@@ -105,7 +105,7 @@ convgetrpc(Conv *c, int want)
 			return &c->rpc;
 		rpcrespond(c, "phase in state '%s' want '%s'", c->state, rpcname[want]);
 	}
-	return nil;	/* not reached */
+	/* not reached */
 }
 
 /* read until the done function tells us that's enough */

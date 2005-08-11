@@ -390,6 +390,6 @@ dexec(DwarfBuf *b, State *s, int locstop)
 			return -1;
 		}
 	}
-	return -1;		/* not reached */		
+	/* not reached */		
 }
 

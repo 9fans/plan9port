@@ -81,8 +81,12 @@ vtversion(VtConn *z)
 	vtdebug(z, "version string in: %s", buf);
 
 	p = buf+strlen(prefix);
-	for(;;){
+	for(; *p; p=pp){
+		if(*p == ':' || *p == '-')
+			p++;
 		pp = strpbrk(p, ":-");
+		if(pp == nil)
+			pp = p+strlen(p);
 		for(i=0; okvers[i]; i++)
 			if(strlen(okvers[i]) == pp-p && memcmp(okvers[i], p, pp-p) == 0){
 				*pp = 0;

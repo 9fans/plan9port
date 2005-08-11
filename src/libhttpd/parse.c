@@ -348,7 +348,6 @@ mimeok(Hlex *h, char *name, int multipart, HContent *head)
 		}
 		lex(h);
 	}
-	return head;
 }
 
 /*
@@ -387,7 +386,6 @@ mimeetag(Hlex *h, HETag *head)
 		if(lex(h) != ',')
 			return head;
 	}
-	return head;
 }
 
 /*
@@ -840,8 +838,7 @@ top:
 		}
 		return Word;
 	}
-	goto top;
-	return 0;
+	/* not reached */
 }
 
 /*

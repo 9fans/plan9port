@@ -336,10 +336,8 @@ timefmt(Fmt *fmt)
 	if((long)(time0-u) < 6*30*86400)
 		return fmtprint(fmt, "%s %2d %02d:%02d",
 			mon[tm->mon], tm->mday, tm->hour, tm->min);
-	else
-		return fmtprint(fmt, "%s %2d %5d",
-			mon[tm->mon], tm->mday, tm->year+1900);
-	return 0;
+	return fmtprint(fmt, "%s %2d %5d",
+		mon[tm->mon], tm->mday, tm->year+1900);
 }
 
 static int

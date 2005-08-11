@@ -75,17 +75,17 @@ enum
 	/*
 	 * magic numbers on disk
 	 */
-	_ClumpMagic		= 0xd15cb10c,	/* clump header, deprecated */
+	_ClumpMagic		= 0xd15cb10cU,	/* clump header, deprecated */
 	ClumpFreeMagic		= 0,		/* free clump; terminates active clump log */
 
-	ArenaPartMagic		= 0xa9e4a5e7,	/* arena partition header */
-	ArenaMagic		= 0xf2a14ead,	/* arena trailer */
-	ArenaHeadMagic		= 0xd15c4ead,	/* arena header */
+	ArenaPartMagic		= 0xa9e4a5e7U,	/* arena partition header */
+	ArenaMagic		= 0xf2a14eadU,	/* arena trailer */
+	ArenaHeadMagic		= 0xd15c4eadU,	/* arena header */
 	
-	BloomMagic		= 0xb1004ead,	/* bloom filter header */
+	BloomMagic		= 0xb1004eadU,	/* bloom filter header */
 	BloomMaxHash	= 32,
 
-	ISectMagic		= 0xd15c5ec7,	/* index header */
+	ISectMagic		= 0xd15c5ec7U,	/* index header */
 
 	ArenaPartVersion	= 3,
 	ArenaVersion4		= 4,

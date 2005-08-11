@@ -159,7 +159,7 @@ readlist(int off, int (*gen)(int, char*, uint), Req *r)
 		a += n;
 		off++;
 	}
-	return -1;		/* not reached */
+	/* not reached */
 }
 
 static int
