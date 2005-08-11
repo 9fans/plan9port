@@ -1,43 +1,31 @@
 This copyright NOTICE applies to all files in this directory and
 subdirectories, unless another copyright notice appears in a given
-file or subdirectory.  If you take code from this software to use in
+file or subdirectory.  If you take substantial code from this software to use in
 other programs, you must somehow include with it an appropriate
 copyright notice that includes the copyright notice and the other
-notices above.
-
-This Computer Program is subject to Copyright owned by one or more Authors:
+notices below.  It is fine (and often tidier) to do that in a separate
+file such as NOTICE, LICENCE or COPYING.
 
 	Copyright © 1994-1999 Lucent Technologies Inc.  All rights reserved.
 	Revisions Copyright © 2000-2003 Vita Nuova Holdings Limited (www.vitanuova.com).  All rights reserved.
 
-Under a licence agreement with Lucent Technologies Inc. effective 1st March 2000,
-Vita Nuova Holdings Limited has the right to determine (within a specified scope)
-the form and content of sublicences for this software.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-	Free-for-all Licence
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
-The associated software is hereby made available to Recipients with a
-royalty-free licence for its use, reproduction, transfer
-to other parties and amendment for any purpose not excluding
-product development provided that any such use et cetera
-shall be deemed to be acceptance of the following conditions:
-
-	(1) Its Recipients shall ensure that this Notice
-	and all other copyright notices are reproduced
-    upon any copies or amended versions of it;
-
-    (2) Any amended version of it shall be clearly marked to
-    show both the nature of and the organisation responsible
-    for the relevant amendment or amendments;
-
-    (3) Its agreed onward transfer from a Recipient to another
-    party shall be deemed to be that party's acceptance of
-	these conditions;
-
-    (4) the Authors give no warranty or assurance as to its
-    quality or suitability for any purpose and the Authors accept
-    no liability whatsoever in relation to any use to which
-    it may be put.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 
 ----
 
