@@ -16,6 +16,9 @@
 #else
 #	include <nfs/nfs.h>
 #endif
+#ifdef __NetBSD__
+#	include <nfs/nfsmount.h>
+#endif
 #include <libc.h>
 #include "mountnfs.h"
 #ifndef MNT_NOATIME
@@ -45,11 +48,12 @@ mountnfs(int proto, struct sockaddr_in *sa,
 	na.retrans = NFS_RETRANS;
 	na.maxgrouplist = NFS_MAXGRPS;
 	na.hostname = "backup";
+#ifndef __NetBSD__
 	na.acregmin = 60;
 	na.acregmax = 600;
 	na.acdirmin = 60;
 	na.acdirmax = 600;
-
+#endif
 	mflag = MNT_RDONLY|MNT_NOSUID|MNT_NOATIME|MNT_NODEV;
 	if(mount("nfs", mtpt, mflag, &na) < 0)
 		sysfatal("mount: %r");
