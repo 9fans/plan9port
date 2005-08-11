@@ -22,7 +22,7 @@ char *cmdhelp(int, char**);
 char *cmdcd(int, char**);
 char *cmdpwd(int, char**);
 char *cmdls(int, char**);
-char *cmdcp(int, char**);
+char *cmdget(int, char**);
 char *cmdblock(int, char**);
 char *cmddisk(int, char**);
 
@@ -38,6 +38,7 @@ Cmd cmdtab[] =
 {
 	"cd", cmdcd, "cd dir - change directory",
 	"ls", cmdls, "ls [-d] path... - list file",
+	"get", cmdget, "get path [lpath] - copy file to local directory",
 	"pwd", cmdpwd, "pwd - print working directory",
 	"help", cmdhelp, "help - print usage summaries",
 	"block", cmdblock, "block path offset - print disk offset of path's byte offset",
@@ -162,12 +163,12 @@ lsdir(char *dir, Nfs3Handle *h)
 	cookie = 0;
 	for(;;){
 		ok = fsysreaddir(fsys, auth, h, 8192, cookie, &data, &count, &eof);
-fprint(2, "got %d\n", count);
 		if(ok != Nfs3Ok){
 			nfs3errstr(ok);
 			fprint(2, "ls %s: %r\n", dir);
 			return;
 		}
+fprint(2, "got %d\n", count);
 		p = data;
 		ep = data+count;
 		while(p<ep){
@@ -237,6 +238,67 @@ cmdls(int argc, char **argv)
 	}
 	return nil;
 }
+
+char*
+cmdget(int argc, char **argv)
+{
+	uchar eof;
+	u32int n;
+	int dflag, fd;
+	char *e, *local;
+	uchar *buf;
+	Nfs3Handle h;
+	Nfs3Attr attr;
+	Nfs3Status ok;
+	vlong o;
+	
+	dflag = 0;
+	ARGBEGIN{
+	default:
+	usage:
+		return "usage: get path [lpath]]";
+	}ARGEND
+
+	if(argc != 1 && argc != 2)
+		goto usage;
+	
+	if((e = walk(argv[0], &h)) != nil){
+		fprint(2, "%s: %s\n", argv[0], e);
+		return nil;
+	}
+	if((ok = fsysgetattr(fsys, auth, &h, &attr)) != Nfs3Ok){
+		nfs3errstr(ok);
+		fprint(2, "%s: %r\n", argv[0]);
+		return nil;
+	}
+	local = argv[0];
+	if(argc == 2)
+		local = argv[1];
+	if((fd = create(local, OWRITE, 0666)) < 0){
+		fprint(2, "create %s: %r\n", local);
+		return nil;
+	}
+	eof = 0;
+	for(o=0; o<attr.size && !eof; o+=n){
+		if((ok = fsysreadfile(fsys, nil, &h, fsys->blocksize, o, &buf, &n, &eof)) != Nfs3Ok){
+			nfs3errstr(ok);
+			fprint(2, "reading %s: %r\n", argv[0]);
+			close(fd);
+			return nil;
+		}
+		if(write(fd, buf, n) != n){
+			fprint(2, "writing %s: %r\n", local);
+			close(fd);
+			free(buf);
+			return nil;
+		}
+		free(buf);
+	}
+	close(fd);
+	fprint(2, "copied %,lld bytes\n", o);
+	return nil;
+}
+
 
 char*
 cmdblock(int argc, char **argv)
@@ -334,17 +396,24 @@ threadmain(int argc, char **argv)
 	fmtinstall('F', vtfcallfmt);
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
-
-	if(vtparsescore(argv[0], nil, score) < 0)
-		sysfatal("bad score '%s'", argv[0]);
-	if((z = vtdial(nil)) == nil)
-		sysfatal("vtdial: %r");
-	if(vtconnect(z) < 0)
-		sysfatal("vtconnect: %r");
-	if((c = vtcachealloc(z, 16384, 32)) == nil)
-		sysfatal("vtcache: %r");
-	if((disk = diskopenventi(c, score)) == nil)
-		sysfatal("diskopenventi: %r");
+	
+	if(access(argv[0], AEXIST) >= 0 || strchr(argv[0], '/')){
+		if((disk = diskopenfile(argv[0])) == nil)
+			sysfatal("diskopen: %r");
+		if((disk = diskcache(disk, 16384, 16)) == nil)
+			sysfatal("diskcache: %r");
+	}else{
+		if(vtparsescore(argv[0], nil, score) < 0)
+			sysfatal("bad score '%s'", argv[0]);
+		if((z = vtdial(nil)) == nil)
+			sysfatal("vtdial: %r");
+		if(vtconnect(z) < 0)
+			sysfatal("vtconnect: %r");
+		if((c = vtcachealloc(z, 16384, 32)) == nil)
+			sysfatal("vtcache: %r");
+		if((disk = diskopenventi(c, score)) == nil)
+			sysfatal("diskopenventi: %r");
+	}
 	if((fsys = fsysopen(disk)) == nil)
 		sysfatal("ffsopen: %r");
 
