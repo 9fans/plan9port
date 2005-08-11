@@ -6,3 +6,4 @@ extern int rcstart(int, char*[], int*, int*);
 extern int isecho(int);
 extern int setecho(int, int);
 extern int noecho;
+extern int getintr(int);

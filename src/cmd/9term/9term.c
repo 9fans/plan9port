@@ -946,13 +946,16 @@ key(Rune r)
 	}
 
 	if(r == 0x7F){	/* DEL: send interrupt; what a mess */
+		char rubout[1];
+		
 		if(holdon){
 			holdon = 0;
 			drawhold(holdon);
 		}
 		t.qh = t.q0 = t.q1 = t.nr;
 		show(t.q0);
-		write(rcfd, "\x7F", 1);
+		rubout[0] = getintr(sfd);
+		write(rcfd, rubout, 1);
 		return;
 	}
 
@@ -1031,7 +1034,7 @@ consready(void)
 	/* look to see if there is a complete line */
 	for(i=t.qh; i<t.nr; i++){
 		c = t.r[i];
-		if(c=='\n' || c=='\004' || c=='\x7F')
+		if(c=='\n' || c=='\004' || c==0x7F)
 			return 1;
 	}
 	return 0;
@@ -1062,7 +1065,12 @@ consread(void)
 			c = *p;
 			p += width;
 			n -= width;
-			if(!raw && (c == '\n' || c == '\004' || c == '\x7F'))
+			if(c == 0x7F){
+				*(p-1) = getintr(sfd);
+				if(!raw)
+					break;
+			}
+			if(!raw && (c == '\n' || c == '\004'))
 				break;
 		}
 		n = p-buf;
