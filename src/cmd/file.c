@@ -958,18 +958,18 @@ isenglish(void)
 
 	vow = 0;
 	for(p="AEIOU"; *p; p++) {
-		vow += cfreq[*p];
-		vow += cfreq[tolower(*p)];
+		vow += cfreq[(uchar)*p];
+		vow += cfreq[tolower((uchar)*p)];
 	}
 	comm = 0;
 	for(p="ETAION"; *p; p++) {
-		comm += cfreq[*p];
-		comm += cfreq[tolower(*p)];
+		comm += cfreq[(uchar)*p];
+		comm += cfreq[tolower((uchar)*p)];
 	}
 	rare = 0;
 	for(p="VJKQXZ"; *p; p++) {
-		rare += cfreq[*p];
-		rare += cfreq[tolower(*p)];
+		rare += cfreq[(uchar)*p];
+		rare += cfreq[tolower((uchar)*p)];
 	}
 	if(vow*5 >= nbuf-cfreq[' '] && comm >= 10*rare) {
 		print(mime ? PLAIN : "English text\n");
@@ -1203,32 +1203,50 @@ ismsdos(void)
 int
 iself(void)
 {
-	char *cpu[] = {		/* NB: incomplete and arbitary list */
-	[1]	"WE32100",
-	[2]	"SPARC",
-	[3]	"i386",
-	[4]	"M68000",
-	[5]	"M88000",
-	[6]	"i486",
-	[7]	"i860",
-	[8]	"R3000",
-	[9]	"S370",
-	[10]	"R4000",
-	[15]	"HP-PA",
-	[18]	"sparc v8+",
-	[19]	"i960",
-	[20]	"PPC-32",
-	[21]	"PPC-64",
-	[40]	"ARM",
-	[41]	"Alpha",
-	[43]	"sparc v9",
-	[50]	"IA-46",
-	[62]	"AMD64",
-	[75]	"VAX",
+	static char *cpu[] = {		/* NB: incomplete and arbitary list */
+		nil,
+	/*1*/	"WE32100",
+	/*2*/	"SPARC",
+	/*3*/	"i386",
+	/*4*/	"M68000",
+	/*5*/	"M88000",
+	/*6*/	"i486",
+	/*7*/	"i860",
+	/*8*/	"R3000",
+	/*9*/	"S370",
+	/*10*/	"R4000",
+		nil, nil, nil, nil,
+	/*15*/	"HP-PA",
+		nil,
+		nil,
+	/*18*/	"sparc v8+",
+	/*19*/	"i960",
+	/*20*/	"PPC-32",
+	/*21*/	"PPC-64",
+		nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
+		nil, nil, nil, nil,
+	/*40*/	"ARM",
+	/*41*/	"Alpha",
+		nil,
+	/*43*/	"sparc v9",
+		nil, nil,
+		nil, nil, nil, nil,
+	/*50*/	"IA-46",
+		nil, nil, nil, nil, nil,
+		nil, nil, nil, nil, nil,
+		nil,
+	/*62*/	"AMD64",
+		nil, nil, nil,
+		nil, nil, nil, nil, nil,
+		nil, nil, nil, nil,
+	/*75*/	"VAX",
 	};
 
 
-	if (memcmp(buf, "\x7fELF", 4) == 0){
+	if (memcmp(buf, "\0177ELF", 4) == 0){
+		/* gcc misparses \x7FELF as \x7FE L F */
 		if (!mime){
 			int n = (buf[19] << 8) | buf[18];
 			char *p = "unknown";
