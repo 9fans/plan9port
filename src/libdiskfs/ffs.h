@@ -19,8 +19,10 @@
 typedef struct Cgblk Cgblk;
 typedef struct Cylgrp Cylgrp;
 typedef struct Cylsum Cylsum;
+typedef struct Cylsumtotal Cylsumtotal;
 typedef struct Ffs Ffs;
 typedef struct Fsblk Fsblk;
+typedef struct Inode1 Inode1;
 typedef struct Inode Inode;
 typedef struct Dirent Dirent;
 
@@ -30,9 +32,13 @@ enum
 
 	/* constants for Fsblk */
 	FSMAXMNTLEN = 512,
-	FSNOCSPTRS = 128 / sizeof(void*) - 3,
+	FSMAXMNTLEN2 = 468,
+	FSMAXVOLLEN = 32,				/* UFS2 */
+	FSNOCSPTRSLEN = 128-12,
+	FSNOCSPTRSLEN2 = 128-16,	/* UFS2 */
 	FSMAXSNAP = 20,
 	FSMAGIC = 0x011954,
+	FSMAGIC2 = 0x19540119,
 	FSCHECKSUM = 0x7c269d38,
 	
 	/* Fsblk.inodefmt */
@@ -45,6 +51,8 @@ enum
 
 	/* offset and size of first super block */
 	SBOFF = BBOFF+BBSIZE,
+	SBOFF2 = BBOFF+65536,			/* UFS2 */
+	SBOFFPIGGY = BBOFF+262144,		/* UFS2 */
 	SBSIZE = 8192,
 
 	/* minimum block size */
@@ -60,6 +68,7 @@ enum
 	ROOTINODE = 2,
 	WHITEOUT = 1,
 
+	NXADDR = 2,	/* UFS2 */
 	NDADDR = 12,
 	NIADDR = 3,
 
@@ -102,6 +111,17 @@ struct Cylsum
 	u32int	nffree;
 };
 
+struct Cylsumtotal
+{
+	u64int	ndir;
+	u64int	nbfree;
+	u64int	nifree;
+	u64int	nffree;
+	u64int	numclusters;
+	u64int	unused[3];
+};
+
+/* Fields beginning with underscore are deprecated in UFS2 */
 struct Fsblk
 {
 	u32int	unused0;
@@ -110,11 +130,11 @@ struct Fsblk
 	daddr_t	cfragno;		/* fragment address if cylinder block in file system */
 	daddr_t	ifragno;		/* fragment offset of inode blocks in file system */
 	daddr_t	dfragno;		/* fragment offset of data blocks in cg */
-	u32int	cgoffset;		/* block (maybe fragment?) offset of Cgblk in cylinder */
-	u32int	cgmask;
-	time_t	time;
-	u32int	nfrag;		/* number of blocks in fs * fragsperblock */
-	u32int	ndfrag;
+	u32int	_cgoffset;		/* block (maybe fragment?) offset of Cgblk in cylinder */
+	u32int	_cgmask;
+	time_t	_time;
+	u32int	_nfrag;			/* number of blocks in fs * fragsperblock */
+	u32int	_ndfrag;
 	u32int	ncg;			/* number of cylinder groups in fs */
 	u32int	blocksize;		/* block size in fs */
 	u32int	fragsize;		/* frag size in fs */
@@ -130,58 +150,73 @@ struct Fsblk
 	u32int	maxbpg;
 	u32int	fragshift;
 	u32int	fsbtodbshift;
-	u32int	sbsize;		/* size of super block */
+	u32int	sbsize;			/* size of super block */
 	u32int	unused2;		/* more stuff we don't use ... */
 	u32int	unused3;
 	u32int	nindir;
 	u32int	inosperblock;	/* inodes per block */
-	u32int	nspf;
+	u32int	_nspf;
 	u32int	optim;
-	u32int	npsect;
-	u32int	interleave;
-	u32int	trackskew;
+	u32int	_npsect;
+	u32int	_interleave;
+	u32int	_trackskew;
 	u32int	id[2];
-	daddr_t	csaddr;		/* blk addr of cyl grp summary area */
-	u32int	cssize;		/* size of cyl grp summary area */
-	u32int	cgsize;		/* cylinder group size */
-	u32int	trackspercyl;	/* tracks per cylinder */
-	u32int	secspertrack;	/* sectors per track */
-	u32int	secspercyl;	/* sectors per cylinder */
-	u32int	ncyl;			/* cylinders in fs */
-	u32int	cylspergroup;	/* cylinders per group */
+	daddr_t	_csaddr;		/* blk addr of cyl grp summary area */
+	u32int	cssize;			/* size of cyl grp summary area */
+	u32int	cgsize;			/* cylinder group size */
+	u32int	_trackspercyl;	/* tracks per cylinder */
+	u32int	_secspertrack;	/* sectors per track */
+	u32int	_secspercyl;	/* sectors per cylinder */
+	u32int	_ncyl;			/* cylinders in fs */
+	u32int	_cylspergroup;	/* cylinders per group */
 	u32int	inospergroup;	/* inodes per group */
 	u32int	fragspergroup;	/* data blocks per group * fragperblock */
-	Cylsum	cstotal;		/* more unused... */
+	Cylsum	_cstotal;		/* more unused... */
 	u8int	fmod;
 	u8int	clean;
 	u8int	ronly;
-	u8int	flags;
-	char		fsmnt[FSMAXMNTLEN];
+	u8int	_flags;
+	/* char fsmnt[512]; in UFS1 */
+		char	fsmnt[FSMAXMNTLEN2];
+		char	volname[FSMAXVOLLEN];
+		u64int	swuid;
+		u32int	pad;
 	u32int	cgrotor;
-	void*	ocsp[FSNOCSPTRS];
-	u8int*	contigdirs;
-	Cylsum*	csp;
-	u32int*	maxcluster;
-	u32int	cpc;
-	u16int	opostbl[16][8];
+	uchar	ocsp[FSNOCSPTRSLEN]; /* last 4 bytes is contigdirs in UFS2 */
+	u32int	contigdirs;		/* csp in UFS2 */
+	u32int	csp;			/* maxcluster in UFS2 */
+	u32int	maxcluster;		/* active in UFS2 */
+	u32int	_cpc;
+	/* u16int	opostbl[16][8]; in UFS1 */
+		u32int	maxbsize;
+		u64int	spare64[17];
+		u64int	sblockloc;
+		Cylsumtotal	cstotal;
+		u64int	time;
+		u64int	nfrag;
+		u64int	ndfrag;
+		u64int	csaddr;
+		u64int	pendingblocks;
+		u32int	pendinginodes;
 	u32int	snapinum[FSMAXSNAP];
 	u32int	avgfilesize;
 	u32int	avgfpdir;
-	u32int	sparecon[26];
-	u32int	pendingblocks;
-	u32int	pendinginodes;
+	/* u32int sparecon[26], pendingblocks, pendinginodes; in UFS1 */
+		u32int	savecgsize;
+		u32int	sparecon[26];
+		u32int	flags;
 	u32int	contigsumsize;
 	u32int	maxsymlinklen;
-	u32int	inodefmt;		/* format of on-disk inodes */
+	u32int	_inodefmt;		/* format of on-disk inodes */
 	u64int	maxfilesize;	/* maximum representable file size */
 	u64int	qbmask;
 	u64int	qfmask;
 	u32int	state;
-	u32int	postblformat;
-	u32int	nrpos;
-	u32int	postbloff;
-	u32int	rotbloff;
-	u32int	magic;		/* FS_MAGIC */
+	u32int	_postblformat;
+	u32int	_nrpos;
+	u32int	_postbloff;
+	u32int	_rotbloff;
+	u32int	magic;			/* FSMAGIC or FSMAGIC2 */
 };
 
 /*
@@ -190,12 +225,12 @@ struct Fsblk
 struct Cgblk
 {
 	u32int	unused0;
-	u32int	magic;		/* CGMAGIC */
+	u32int	magic;			/* CGMAGIC */
 	u32int	time;			/* time last written */
-	u32int	num;		/* we are cg #cgnum */
+	u32int	num;			/* we are cg #cgnum */
 	u16int	ncyl;			/* number of cylinders in gp */
-	u16int	nino;		/* number of inodes */
-	u32int	nfrag;		/* number of fragments  */
+	u16int	nino;			/* number of inodes */
+	u32int	nfrag;			/* number of fragments  */
 	Cylsum	csum;
 	u32int	rotor;
 	u32int	frotor;
@@ -215,16 +250,16 @@ struct Cgblk
 struct Cylgrp
 {
 	/* these are block numbers not fragment numbers */
-	u32int	bno;			/* disk block address of start of cg */
-	u32int	ibno;			/* disk block address of first inode */
-	u32int	dbno;		/* disk block address of first data */
-	u32int	cgblkno;
+	u64int	bno;			/* disk block address of start of cg */
+	u64int	ibno;			/* disk block address of first inode */
+	u64int	dbno;			/* disk block address of first data */
+	u64int	cgblkno;
 };
 
 /*
  * this is the on-disk structure
  */
-struct Inode
+struct Inode1
 {
 	u16int	mode;
 	u16int	nlink;
@@ -247,6 +282,33 @@ struct Inode
 	u32int	spare[2];
 };
 
+struct Inode
+{
+	u16int	mode;
+	u16int	nlink;
+	u32int	uid;
+	u32int	gid;
+	u32int	blksize;
+	u64int	size;
+	u64int	nblock;
+	u64int	atime;
+	u64int	mtime;
+	u64int	ctime;
+	u64int	btime;
+	u32int	atimensec;
+	u32int	mtimensec;
+	u32int	ctimensec;
+	u32int	btimensec;
+	u32int	gen;
+	u32int	kernflags;
+	u32int	flags;
+	u32int	extsize;
+	u64int	ext[NXADDR];
+	u64int	db[NDADDR];
+	u64int	ib[NIADDR];
+	u64int	spare[3];
+};
+
 struct Dirent
 {
 	u32int	ino;
@@ -261,17 +323,18 @@ struct Dirent
  */
 struct Ffs
 {
+	int		ufs;
 	int		blocksize;
-	int		nblock;
+	u64int	nblock;
 	int		fragsize;
 	int		fragsperblock;
 	int		inosperblock;
-	int		blockspergroup;
-	int		fragspergroup;
+	u64int	blockspergroup;
+	u64int	fragspergroup;
 	int		inospergroup;
 
-	u32int	nfrag;
-	u32int	ndfrag;
+	u64int	nfrag;
+	u64int	ndfrag;
 
 	int		ncg;
 	Cylgrp	*cg;

@@ -29,3 +29,5 @@ CFLAGS=$CFLAGS
 
 %.acid: %.$O %.c
 	$CC $CFLAGS -a $stem.c >$stem.acid
+
+ffs.$O: ffs.h

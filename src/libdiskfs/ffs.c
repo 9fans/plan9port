@@ -6,6 +6,8 @@
 #include <diskfs.h>
 #include "ffs.h"
 
+#define BADBNO	((u64int)~0ULL)
+
 #define checkcg 0
 #define debug 0
 
@@ -57,7 +59,7 @@ error:
 }
 
 static Cgblk*
-ffscylgrp(Ffs *fs, int i, Block **pb)
+ffscylgrp(Ffs *fs, u32int i, Block **pb)
 {
 	Block *b;
 	Cgblk *cg;
@@ -82,6 +84,7 @@ static int
 ffssync(Fsys *fsys)
 {
 	int i;
+	int off[] = { SBOFF, SBOFF2, SBOFFPIGGY };
 	Block *b, *cgb;
 	Cgblk *cgblk;
 	Cylgrp *cg;
@@ -95,12 +98,18 @@ ffssync(Fsys *fsys)
 	/*
 	 * Read super block.
 	 */
-	if((b = diskread(disk, SBSIZE, SBOFF)) == nil)
-		goto error;
-	fsblk = (Fsblk*)b->data;
-	if(checkfsblk(fsblk) < 0)
-		goto error;
+	for(i=0; i<nelem(off); i++){
+		if((b = diskread(disk, SBSIZE, off[i])) == nil)
+			goto error;
+		fsblk = (Fsblk*)b->data;
+		fprint(2, "offset of magic: %d\n", offsetof(Fsblk, magic));
+		if((fs->ufs = checkfsblk(fsblk)) > 0)
+			goto okay;
+		blockput(b);
+	}
+	goto error;
 
+okay:
 	fs->blocksize = fsblk->blocksize;
 	fs->nblock = (fsblk->nfrag+fsblk->fragsperblock-1) / fsblk->fragsperblock;
 	fs->fragsize = fsblk->fragsize;
@@ -111,21 +120,31 @@ ffssync(Fsys *fsys)
 
 	fs->nfrag = fsblk->nfrag;
 	fs->ndfrag = fsblk->ndfrag;
-	fs->blockspergroup = (u64int)fsblk->cylspergroup * 
-		fsblk->secspercyl * BYTESPERSEC / fsblk->blocksize;
+	/*
+	 * used to use 
+	 *	fs->blockspergroup = (u64int)fsblk->_cylspergroup * 
+	 *		fsblk->secspercyl * BYTESPERSEC / fsblk->blocksize;
+	 * for UFS1, but this should work for both UFS1 and UFS2
+	 */
+	fs->blockspergroup = (u64int)fsblk->fragspergroup / fsblk->fragsperblock;
 	fs->ncg = fsblk->ncg;
 
 	fsys->blocksize = fs->blocksize;
 	fsys->nblock = fs->nblock;
 
-	if(0) fprint(2, "ffs %d %d-byte blocks, %d cylinder groups\n",
+	if(debug) fprint(2, "ffs %lld %d-byte blocks, %d cylinder groups\n",
 		fs->nblock, fs->blocksize, fs->ncg);
+	if(debug) fprint(2, "\tinospergroup %d perblock %d blockspergroup %lld\n",
+		fs->inospergroup, fs->inosperblock, fs->blockspergroup);
 
 	if(fs->cg == nil)
 		fs->cg = emalloc(fs->ncg*sizeof(Cylgrp));
 	for(i=0; i<fs->ncg; i++){
 		cg = &fs->cg[i];
-		cg->bno = fs->blockspergroup*i + fsblk->cgoffset * (i & ~fsblk->cgmask);
+		if(fs->ufs == 2)
+			cg->bno = (u64int)fs->blockspergroup*i;
+		else
+			cg->bno = fs->blockspergroup*i + fsblk->_cgoffset * (i & ~fsblk->_cgmask);
 		cg->cgblkno = cg->bno + fsblk->cfragno/fs->fragsperblock;
 		cg->ibno = cg->bno + fsblk->ifragno/fs->fragsperblock;
 		cg->dbno = cg->bno + fsblk->dfragno/fs->fragsperblock;
@@ -172,12 +191,20 @@ ffsclose(Fsys *fsys)
 static int
 checkfsblk(Fsblk *super)
 {
-	if(super->magic != FSMAGIC){
-		werrstr("bad super block");
-		return -1;
+fprint(2, "ffs magic 0x%ux\n", super->magic);
+	if(super->magic == FSMAGIC){
+		super->time = super->_time;
+		super->nfrag = super->_nfrag;
+		super->ndfrag = super->_ndfrag;
+		super->flags = super->_flags;
+		return 1;
+	}
+	if(super->magic == FSMAGIC2){
+		return 2;
 	}
 
-	return 0;
+	werrstr("bad super block");
+	return -1;
 }
 
 static int
@@ -198,11 +225,10 @@ int nskipx;
 static Block*
 ffsblockread(Fsys *fsys, u64int bno)
 {
-	u32int i, o;
+	int i, o;
 	u8int *fmap;
 	int frag, fsize, avail;
 	Block *b;
-//	Cylgrp *cg;
 	Cgblk *cgblk;
 	Ffs *fs;
 
@@ -211,10 +237,6 @@ ffsblockread(Fsys *fsys, u64int bno)
 	o = bno % fs->blockspergroup;
 	if(i >= fs->ncg)
 		return nil;
-//	cg = &fs->cg[i];
-
-//	if(o >= cg->nblock)
-//		return nil;
 
 	if((cgblk = ffscylgrp(fs, i, &b)) == nil)
 		return nil;
@@ -257,7 +279,7 @@ nskipx++;
 }
 
 static Block*
-ffsdatablock(Ffs *fs, u32int bno, int size)
+ffsdatablock(Ffs *fs, u64int bno, int size)
 {
 	int fsize;
 	u64int diskaddr;
@@ -290,25 +312,26 @@ ffsdatablock(Ffs *fs, u32int bno, int size)
 	return b;
 }
 
-static u32int
-ifetch(Ffs *fs, u32int bno, u32int off)
+static u64int
+ifetch(Ffs *fs, u64int bno, u32int off)
 {
-	u32int *a;
 	Block *b;
 	
-	if(bno == ~0)
-		return ~0;
+	if(bno == BADBNO)
+		return BADBNO;
 	b = ffsdatablock(fs, bno, fs->blocksize);
 	if(b == nil)
-		return ~0;
-	a = (u32int*)b->data;
-	bno = a[off];
+		return BADBNO;
+	if(fs->ufs == 2)
+		bno = ((u64int*)b->data)[off];
+	else
+		bno = ((u32int*)b->data)[off];
 	blockput(b);
 	return bno;
 }
 
-static u32int
-ffsfileblockno(Ffs *fs, Inode *ino, u32int bno)
+static u64int
+ffsfileblockno(Ffs *fs, Inode *ino, u64int bno)
 {
 	int ppb;
 
@@ -329,16 +352,15 @@ ffsfileblockno(Ffs *fs, Inode *ino, u32int bno)
 	
 	if(bno/ppb/ppb/ppb == 0)	/* bno < ppb*ppb*ppb w/o overflow */
 		return ifetch(fs, ifetch(fs, ifetch(fs, ino->ib[2], bno/ppb/ppb), (bno/ppb)%ppb), bno%ppb);
-	bno -= ppb*ppb*ppb;
 	
-	fprint(2, "ffsfileblock %lud: way too big\n", (ulong)bno+NDADDR);
-	return ~0;
+	fprint(2, "ffsfileblock %llud: way too big\n", bno+NDADDR+ppb+ppb*ppb);
+	return BADBNO;
 }
 
 static Block*
-ffsfileblock(Ffs *fs, Inode *ino, u32int bno, int size)
+ffsfileblock(Ffs *fs, Inode *ino, u64int bno, int size)
 {
-	u32int b;
+	u64int b;
 	
 	b = ffsfileblockno(fs, ino, bno);
 	if(b == ~0)
@@ -365,7 +387,33 @@ byte2u32(uchar *p)
 	return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
 
-static u64int iaddr;
+static u64int lastiaddr;	/* debugging */
+
+static void
+inode1to2(Inode1 *i1, Inode *i2)
+{
+	int i;
+	
+	memset(i2, 0, sizeof *i2);
+	i2->mode = i1->mode;
+	i2->nlink = i1->nlink;
+	i2->size = i1->size;
+	i2->atime = i1->atime;
+	i2->atimensec = i1->atimensec;
+	i2->mtime = i1->mtime;
+	i2->mtimensec = i1->mtimensec;
+	i2->ctime = i1->ctime;
+	i2->ctimensec = i1->ctimensec;
+	for(i=0; i<NDADDR; i++)
+		i2->db[i] = i1->db[i];
+	for(i=0; i<NIADDR; i++)
+		i2->ib[i] = i1->ib[i];
+	i2->flags = i1->flags;
+	i2->nblock = i1->nblock;
+	i2->gen = i1->gen;
+	i2->uid = i1->uid;
+	i2->gid = i1->gid;
+}
 
 static Nfs3Status
 handle2ino(Ffs *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
@@ -373,8 +421,10 @@ handle2ino(Ffs *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 	int i;
 	u32int ioff;
 	u32int inum;
+	u64int iaddr;
 	Block *b;
 	Cylgrp *cg;
+	Inode1 ino1;
 
 	if(h->len != 4)
 		return Nfs3ErrBadHandle;
@@ -390,20 +440,21 @@ handle2ino(Ffs *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 	if(i >= fs->ncg)
 		return Nfs3ErrBadHandle;
 	cg = &fs->cg[i];
-/*
-	if(ioff >= cg->nino)
-		return Nfs3ErrBadHandle;
-*/
 
-	if(debug) print("cg->ibno %d...", cg->ibno);
-	if((b = diskread(fs->disk, fs->blocksize,
-		(cg->ibno+ioff/fs->inosperblock)*(vlong)fs->blocksize)) == nil)
+	if(debug) print("cg->ibno %lld ufs %d...", cg->ibno, fs->ufs);
+	iaddr = (cg->ibno+ioff/fs->inosperblock)*(vlong)fs->blocksize;
+	ioff = ioff%fs->inosperblock;
+	if((b = diskread(fs->disk, fs->blocksize, iaddr)) == nil)
 		return Nfs3ErrIo;
-	iaddr = (cg->ibno+ioff/fs->inosperblock)*(vlong)fs->blocksize
-		+ (ioff%fs->inosperblock)*sizeof(Inode);
-	*ino = ((Inode*)b->data)[ioff%fs->inosperblock];
+	if(fs->ufs == 2){
+		*ino = ((Inode*)b->data)[ioff];
+		lastiaddr = iaddr+ioff*sizeof(Inode);
+	}else{
+		ino1 = ((Inode1*)b->data)[ioff];
+		inode1to2(&ino1, ino);
+		lastiaddr = iaddr+ioff*sizeof(Inode1);
+	}
 	blockput(b);
-
 	return Nfs3Ok;
 }
 
@@ -717,7 +768,7 @@ ffsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int cook
 static u64int
 ffsxfileblock(Fsys *fsys, Nfs3Handle *h, u64int offset)
 {
-	u32int bno;
+	u64int bno;
 	Inode ino;
 	Nfs3Status ok;
 	Ffs *fs;
@@ -727,8 +778,8 @@ ffsxfileblock(Fsys *fsys, Nfs3Handle *h, u64int offset)
 		nfs3errstr(ok);
 		return 0;
 	}
-	if(offset == 1)
-		return iaddr;
+	if(offset == 1)	/* clumsy hack for debugging */
+		return lastiaddr;
 	if(offset >= ino.size){
 		werrstr("beyond end of file");
 		return 0;
@@ -820,7 +871,7 @@ ffsreadlink(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char **link)
 	len = ino.size;
 
 	if(ino.nblock != 0){
-		/* BUG: assumes symlink fits in one block */
+		/* assumes symlink fits in one block */
 		b = ffsfileblock(fs, &ino, 0, len);
 		if(b == nil)
 			return Nfs3ErrIo;
