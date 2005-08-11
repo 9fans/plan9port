@@ -188,12 +188,17 @@ before (after) the current selection.
 .PP
 .I 9term
 relies on the kernel's terminal processing to handle
-EOT and DEL, so the terminal must be set up with EOT
-as the ``eof'' character and DEL as the ``intr'' character.
+EOT, so the terminal must be set up with EOT
+as the ``eof'' character.
 .I 9term
 runs
 .IR stty (1)
 to establish this when the terminal is created.
+.PP
+.I 9term
+always treats the DEL keystroke as an interrupt request.
+In response it sends the terminal's current interrupt character
+(which need not be DEL).
 .PP
 Normally, written output to a window blocks when
 the text reaches the end of the screen and the terminal

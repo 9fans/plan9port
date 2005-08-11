@@ -30,6 +30,11 @@ back up Unix file systems to Venti
 .B >
 .I disk
 .PP
+.B vftp
+.I score
+|
+.I disk
+.PP
 .B vmount
 [
 .B -v
@@ -172,6 +177,17 @@ The
 option causes
 .I vcat
 to zero unused blocks instead.
+.PP
+.I Vftp
+presents an
+.IR ftp (1)-like
+interface to a physical or backed-up disk image.
+It is used mainly for debugging.
+Type
+.B help
+at the 
+.B vftp>
+prompt for a list of commands.
 .PP
 .I Vmount
 mounts the NFS service at the network connection

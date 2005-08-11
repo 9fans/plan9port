@@ -64,7 +64,10 @@ at startup if there is not already a function named
 .IP
 .EX
 fn cd {
-	builtin cd $1 && flag i && awd
+	if(builtin cd $1){
+		if(flag i) $PLAN9/bin/9 awd || status=''
+		status=''
+	}
 }
 .EE
 .SH SOURCE
