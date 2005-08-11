@@ -330,6 +330,11 @@ is an arena partition, formatted using
 .I File
 is an index section, formatted using
 .IR fmtisect .
+.TP
+.BI bloom " file
+.I File
+is a bloom filter, formatted using
+.IR fmtbloom .
 .PD
 .PP
 After formatting a venti system using
@@ -440,6 +445,7 @@ index main
 isect /tmp/disks/isect0
 isect /tmp/disks/isect1
 arenas /tmp/disks/arenas
+bloom /tmp/disks/bloom
 mem 10M
 bcmem 20M
 icmem 30M
@@ -453,6 +459,7 @@ finally the main index:
 % venti/fmtisect isect0. /tmp/disks/isect0 &
 % venti/fmtisect isect1. /tmp/disks/isect1 &
 % venti/fmtarenas arenas0. /tmp/disks/arenas &
+% venti/fmtbloom /tmp/disks/bloom &
 % wait
 % venti/fmtindex venti.conf
 % 
