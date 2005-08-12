@@ -120,10 +120,10 @@ threadmain(int argc, char **argv)
 		addr = EARGF(usage());
 		break;
 	case 'b':
-		blocksize = atoi(EARGF(usage()));
+		blocksize = strtoull(EARGF(usage()), 0, 0);
 		break;
 	case 'c':
-		cachesize = atoi(EARGF(usage()));
+		cachesize = strtoull(EARGF(usage()), 0, 0);
 		break;
 	case 'r':
 		srv->alwaysreject++;
