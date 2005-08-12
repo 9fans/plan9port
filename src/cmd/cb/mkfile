@@ -1,0 +1,11 @@
+<$PLAN9/src/mkhdr
+
+TARG=cb
+OFILES=\
+	cb.$O\
+	cbtype.$O\
+
+HFILES=cb.h\
+	cbtype.h\
+
+<$PLAN9/src/mkone
