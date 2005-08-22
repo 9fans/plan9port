@@ -11,5 +11,6 @@ bin/man
 bin/sig
 bin/spell
 bin/src
+bin/stack
 tmac/tmac.anhtml
 man/mkindex
