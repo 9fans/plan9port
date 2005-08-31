@@ -1,4 +1,5 @@
 #include <u.h>
+#define NOPLAN9DEFINES
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -13,27 +14,9 @@
 #include <stdarg.h>
 #include <libc.h>
 
-#undef ctime
-#undef wait
-
-/* for Plan 9 */
-#ifdef PLAN9
-#define LP	"/bin/lp"
+#define LP	unsharp("#9/bin/lp")
 #define TMPDIR "/var/tmp"
 #define LPDAEMONLOG	unsharp("#9/lp/log/lpdaemonl")
-#endif
-/* for Tenth Edition systems */
-#ifdef V10
-#define LP	"/usr/bin/lp"
-#define TMPDIR "/tmp"
-#define LPDAEMONLOG	"/tmp/lpdaemonl"
-#endif
-/* for System V or BSD systems */
-#if defined(SYSV) || defined(BSD)
-#define LP	"/v/bin/lp"
-#define TMPDIR "/tmp"
-#define LPDAEMONLOG	"/tmp/lpdaemonl"
-#endif
 
 #define ARGSIZ 4096
 #define NAMELEN 30
@@ -116,7 +99,7 @@ forklp(int inputfd)
 	}
 	*--cp = '\n';
 	*++cp = '\0';
-	error(logent);
+	error((char *)logent);
 	switch((cpid=fork())){
 	case -1:
 		error("fork error\n");
@@ -126,18 +109,24 @@ forklp(int inputfd)
 			dup2(inputfd, 0);
 		dup2(1, 2);
 		lseek(0, 0L, 0);
-		execvp(LP, (char**)argvals);
+		execvp(LP, (char **)argvals);
 		error("exec failed\n");
 		exit(3);
 	default:
-		while(wait((int *)0) != cpid);
+		while((i=wait((int *)0)) != cpid){
+			if(i == -1 && errno == ECHILD)
+				break;
+			printf("%d %d\n", i, errno);
+			fflush(stdout);
+		}
+		error("wait got %d\n", cpid);
 	}
 }
 
 int
 tempfile(void)
 {
-	int tindx = 0;
+	static int tindx = 0;
 	char tmpf[sizeof(TMPDIR)+64];
 	int crtfd, tmpfd;
 
@@ -153,7 +142,7 @@ tempfile(void)
 		exit(3);
 	}
 	close(crtfd);
-	unlink(tmpf);	/* comment out for debugging */
+/*	unlink(tmpf);	/* comment out for debugging */
 	return(tmpfd);
 }
 
@@ -250,7 +239,7 @@ getfiles(void)
 		case '\1':		/* cleanup - data sent was bad (whatever that means) */
 			break;
 		case '\2':		/* read control file */
-			bsize = atoi(ap);
+			bsize = atoi((const char *)ap);
 			cntrlfd = tempfile();
 			if (readfile(cntrlfd, bsize) < 0) {
 				close(cntrlfd);
@@ -259,7 +248,7 @@ getfiles(void)
 			}
 			break;
 		case '\3':		/* read data file */
-			bsize = atoi(ap);
+			bsize = atoi((const char *)ap);
 			datafd[filecnt] = tempfile();
 			if (readfile(datafd[filecnt], bsize) < 0) {
 				close(datafd[filecnt]);
@@ -326,17 +315,21 @@ alarmhandler(int sig) {
 }
 
 void
-main(int argc, char **argv)
+nop(int sig)
+{
+}
+
+
+int
+main()
 {
 	unsigned char *ap, *bp, *cp, *savbufpnt;
 	int i, blen, rv, saveflg, savargcnt;
 	struct jobinfo *jinfop;
 
-	USED(argc);
-	USED(argv);
-	
-	signal(SIGHUP, SIG_IGN);
-	signal(SIGALRM, alarmhandler);
+	signal(SIGHUP, SIG_IGN);		/* SIGHUP not in lcc */
+	signal(SIGALRM, alarmhandler);	/* SIGALRM not in lcc */
+	signal(SIGCHLD, nop);	/* so that wait will get us something */
 	cp = argvstr;
 	/* setup argv[0] for exec */
 	argvals[argcnt++] = cp;
@@ -447,7 +440,7 @@ main(int argc, char **argv)
 		} while (*bp!='\n' && *bp!='\0');
 		if (readline(0) < 0) exit(7);
 		datafd[0] = tempfile();
-		if(readfile(datafd[0], atoi((char *)lnbuf)) < 0) {
+		if(readfile(datafd[0], atoi((const char *)lnbuf)) < 0) {
 			error("readfile failed\n");
 			exit(8);
 		}
