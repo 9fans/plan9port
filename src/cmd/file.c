@@ -637,8 +637,6 @@ struct	FILE_STRING
 	"!<arch>\n__.SYMDEF",	"archive random library",	16,	"application/octet-stream",
 	"!<arch>\n",		"archive",			8,	"application/octet-stream",
 	"070707",		"cpio archive - ascii header",	6,	"application/octet-stream",
-	"#!/bin/rc",		"rc executable file",		9,	"text/plain",
-	"#!/bin/sh",		"sh executable file",		9,	"text/plain",
 	"%!",			"postscript",			2,	"application/postscript",
 	"\004%!",		"postscript",			3,	"application/postscript",
 	"x T post",		"troff output for post",	8,	"application/troff",
@@ -668,7 +666,7 @@ struct	FILE_STRING
 int
 istring(void)
 {
-	int i;
+	int i, j;
 	struct FILE_STRING *p;
 
 	for(p = file_string; p->key; p++) {
@@ -688,6 +686,17 @@ istring(void)
 			print(OCTET);
 		else
 			print("%.*s picture\n", utfnlen((char*)buf+5, i-5), (char*)buf+5);
+		return 1;
+	}
+	if(buf[0]=='#' && buf[1]=='!'){
+		i=2;
+		for(j=2; j < nbuf && buf[j] != ' ' && buf[j] != '\n' && buf[j] != '\r'; j++)
+			if(buf[j] == '/')
+				i = j+1;
+		if(mime)
+			print(PLAIN);
+		else
+			print("%.*s executable file script\n", utfnlen((char*)buf+i, j-i), (char*)buf+i);
 		return 1;
 	}
 	return 0;
@@ -1245,7 +1254,7 @@ iself(void)
 	};
 
 
-	if (memcmp(buf, "\0177ELF", 4) == 0){
+	if (memcmp(buf, "\177ELF", 4) == 0){
 		/* gcc misparses \x7FELF as \x7FE L F */
 		if (!mime){
 			int n = (buf[19] << 8) | buf[18];
