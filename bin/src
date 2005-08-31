@@ -10,9 +10,9 @@ fn dbsrc{
 }
 
 fn go{
-	type=`{file $1}
+	type=`{9 file $1}
 	switch($type){
-	case *'script text'*
+	case *script*
 		plumbit $1 '(script)'
 	case *executable* *'plan 9 boot image'* *'shared object'*
 		plumbit  `{dbsrc $1} '(executable)'
