@@ -1242,7 +1242,7 @@ iself(void)
 	/*43*/	"sparc v9",
 		nil, nil,
 		nil, nil, nil, nil,
-	/*50*/	"IA-46",
+	/*50*/	"IA-64",
 		nil, nil, nil, nil, nil,
 		nil, nil, nil, nil, nil,
 		nil,
