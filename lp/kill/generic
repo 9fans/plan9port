@@ -1,0 +1,29 @@
+#!/usr/local/plan9/bin/rc
+if (! ~ $DEBUG '') flag x +
+
+cd $LPSPOOL
+if (~ $#* 0) KILLARGS=`{sed 1q};
+if not	KILLARGS=$*;
+	
+if (test -d $LPDEST) {
+	for (i in $KILLARGS) {
+		for (j in `{lpsub sched $SCHED $LPDEST}) {
+			if (test -r $LPDEST/$j^id) {
+				STATLINE=`{cat $LPDEST/$j^id}
+				if (~ $STATLINE(1)^$STATLINE(3) $i)
+					if (rm $LPDEST/$j $LPDEST/$j^id >/dev/null >[1=2])
+						echo $i removed from $LPDEST queue on $THIS_HOST
+			}
+		}
+	}
+}
+if (! ~ $THIS_HOST $DEST_HOST) {
+	@{echo -d$LPDEST -k;echo $KILLARGS;sleep 7} | lpsend.rc $DEST_HOST
+}; if not {
+	if (! ~ $KILLCMD '') {
+		for (i in $KILLARGS) {
+			$KILLCMD $i;
+		}
+	}
+}
+exit ''
