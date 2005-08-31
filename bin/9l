@@ -166,11 +166,6 @@ fi
 extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
-*OpenBSD*)
-	ld=gcc
-	userpath=true
-	extralibs="$extralibs -lutil"
-	;;
 *FreeBSD*)
 	ld=gcc
 	userpath=true
