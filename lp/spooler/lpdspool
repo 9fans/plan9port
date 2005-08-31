@@ -1,0 +1,15 @@
+#!/usr/local/plan9/bin/rc
+
+if (! ~ $DEBUG '') flag x +
+
+if (~ $#* 0) *=''
+
+for (j in $*) {
+	if (~ $j '' || test -f $j) {
+		lpinput $j lpsub process $LPPROC |
+		lpdsend -d$OUTDEV -tf -H$LPMACHID -P$LPUSERID $DEST_HOST >[2]$LPLOGDIR/$LPDEST^.st
+	}
+	if not {
+		echo $j cannot be opened >[1=2]
+	}
+}

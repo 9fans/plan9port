@@ -1,0 +1,80 @@
+# Here is a sample printer devices file where
+# some of the printers have been commented out.
+#
+# The fields are:
+#
+#	$1 printer name
+#	$2 printer location - just a comment for lp -d'?'
+#	$3 destination host - machine that manages print queue
+#	$4 devname - device name used by destination host or physical device file
+#	$5 speed - for printers on serial ports
+#	$6 class - describes printer, e.g., postscript vs pcl
+#	$7 process - how to process file to produce printable output
+#	$8 spooler - how to spool that output for printing
+#	$9 stat - how to query device status
+#	$10 kill - how to remove print jobs
+#	$11 daemon - how to start the print daemon to serve queue
+#	$12 sched - scheduling order
+#
+# HP LaserJet 4M connected to serial port on an Annex terminal server.
+# 2c254 2C-254 rice tcp!annex!7035 19200 post+600dpi generic generic generic generic tcppost FIFO
+#
+# HP LaserJet 4M connected to Ethernet via a JetDirect card.
+# The speed field is used to set the bufffer size in the tcpostio program run from tcppost.
+# 2c307 2C-307 alice tcp!mh2c307!9100 81920 post+600dpi generic generic generic generic tcppost FIFO
+#
+# HP LaserJet 4M connected to serial port on a Cisco terminal server.
+# 2t4 2T-402 pyxis tcp!ts!4010 19200 post+600dpi generic generic generic generic tcppost FIFO
+#
+# HP LaserJet 4Si/MX connected to Ethernet via a JetDirect card.
+# This printer has a duplexing option.
+# See /sys/lib/postscript/prologues/hpsimx.ps for a fix to make it default
+# to the large paper tray at postion 1.
+# fn 2C-501 helix tcp!fn!9100 81920 post2+600dpi+duplex generic generic generic generic tcppost FIFO
+#
+# Tektronix Phaser 200i connected to Ethernet.
+# Using Xinet K-Talk software from a UNIX host. This software is not recommended.
+# We do not want to waste stock on the color printer so we do not print header pages.
+# peacock 2C-501 cetus peacock - post2+300dpi+nohead+color generic generic generic generic appletalk FIFO
+#
+# Any PostScript printer connected to the LPT1 port on my 486 pc running Plan 9 as a terminal.
+pcclone - - /dev/lpt1data - post+nohead generic pcclone - - - -
+#
+# QMS-410 connected to the serial port of an NCD terminal.
+# math34 2T-102 rice tcp!math34!87 9600 post+600dpi generic generic generic generic tcppost FIFO
+#
+# QMS-410 connected to the serial port of an AT&T 630/730 terminal
+# ps630 printer-on-630 - - - post+300dpi+nohead generic ps630 - - - -
+#
+# Xante Accel-a-Writer-8200. 1200dpi printer that uses a BSD lpr print daemon protocol
+# psu 2C-501 cetus psu - post+1200dpi generic generic xante generic lpddaemon FIFO
+#
+# 'stdout' sends the output to the standard output of the lp command.
+# if the 'phys_dev_name' field is set to a file or device, the output will go to it instead.
+# if '+sendEOT' is added to the 'class' field, an EOT character will be sent at the end of the output.
+#
+stdout - - - - post+nohead generic nospool - - - -
+#
+# sends the output to the standard output of the lp command.
+# used for generating output suitable for 100 dpi.
+100dpi - - - - post+100dpi+nohead generic nospool - - - -
+#
+# same as above for generating output suitable for 300 dpi.
+300dpi - - - - post+300dpi+nohead generic nospool - - - -
+#
+# same as above for generating output suitable for 600 dpi.
+#
+600dpi - - - - post+600dpi+nohead generic nospool - - - -
+#
+# same as above for generating output suitable for Linotronics phototypesetter.
+1270dpi - - - - post+lino+nohead generic nospool - - - -
+
+# 600dpi postscript printer named vogon via BSD LPD printer queue on alice
+vogon printer-room t23 /dev/atibm - post+600dpi generic generic generic generic dumb FIFO
+
+# HP DeskJet and Canon BJC-240
+hpdeskjet - - /dev/lpt1data - gs!cdj670+nohead generic nospool - - - -
+canonbjc240l - - /dev/lpt1data - gs!bjc600+nohead generic nospool - - - -
+
+# LaserJet4-compatible printer on Linux parallel port
+laser 2D t23 /dev/par0 - post+gs!ljet4+nohead generic generic generic generic gsdev FIFO

@@ -1,0 +1,19 @@
+#!/usr/local/plan9/bin/rc
+
+fn local {
+	GSDEVICE=`{echo $LPCLASS | 9 sed 's/(.*\+)?gs!([^+]*)(\+.*)?/\2/'}
+	echo gs $GSDEVICE
+	{
+		psdownload -f -H$PLAN9/postscript/font -mfontmap -plw+ \
+			< $LPDEST/$FILE(1) |
+		gs -sDEVICE'='$GSDEVICE -s'OUTPUTFILE='$OUTDEV -dSAFER -dNOPAUSE -dQUIET -dBATCH -
+	} >[2]$PRINTLOG
+}
+fn remote {
+	{
+		echo -d$LPDEST -pnoproc -M$SCHEDLINE(1) -u$SCHEDLINE(2)
+		cat $LPDEST/$FILE
+		sleep 5
+	} | lpsend.rc $DEST_HOST
+}
+generic local remote ''

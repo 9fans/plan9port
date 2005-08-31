@@ -1,0 +1,138 @@
+#!/usr/local/plan9/bin/rc
+
+rfork s	
+
+if (! ~ $DEBUG '') flag x +
+
+LPDELAY=60
+
+if (! ~ $#* 2 && ! ~ $#* 3) {
+	echo 'usage generic local_cmd _remote_cmd [ success_cmd ]' >[1=2]
+	exit 'argument count'
+}
+LOCAL_CMD=$1
+REMOTE_CMD=$2
+SUCCESS_CMD=$3
+
+# we don't want to make a LOCK file unless we are at the destination
+# let the spooler take care of moving it there
+# this is necessary for clients and servers that share the
+# same lp queue directory
+if (! ~ $THIS_HOST $DEST_HOST || ! LOCK $LPSPOOL/$LPDEST/LOCK $THIS_HOST $pid) exit ''
+
+cd $LPSPOOL
+
+MAXTRY=2
+PRINTLOG=$LPLOGDIR/$LPDEST^.st
+
+fn schedule{
+	FILE=`{lpsub sched $SCHED $LPDEST}
+}
+
+while (schedule; ! ~ $#FILE 0) {
+	SCHEDLINE=`{cat $LPDEST/$FILE(1)^id}
+	LSLINE=`{ls -l $LPDEST/$FILE(1)}
+	echo `{date} start $SCHEDLINE
+	if (! test -s $LPDEST/.seqno) {
+		echo 0 > $LPDEST/.seqno
+	}
+	if not {
+		LPSEQNO = `{cat $LPDEST/.seqno | awk '{seqno = $1 + 1; if (seqno > 999) seqno = 0; print seqno}'}
+		echo $LPSEQNO > $LPDEST/.seqno
+	}
+	STARTIME=`{date}
+	if (! test -s $LPDEST/$FILE(1)) {
+		echo `{date} file $LPDEST/$FILE(1) disappeared or is empty
+		ls -l $LPDEST
+		echo $SCHEDLINE(2)$SCHEDLINE(4)'	'$SCHEDLINE(3)	$SCHEDLINE(5)' ! '$LSLINE(6) $STARTIME(4) >> $LPLOG
+		rm -f $LPDEST/$FILE $LPDEST/$FILE^id
+	}
+	if not {
+		if (~ $THIS_HOST $DEST_HOST) {
+			if (test -f $LPLIB/perm/$LPDEST && grep -s $SCHEDLINE(2) $LPLIB/perm/$LPDEST) {
+				echo `{date} permission denied
+				echo you are not allowed to use printer $LPDEST | mail $SCHEDLINE(2)
+				rm -f $LPDEST/$FILE(1) $LPDEST/$FILE(1)^id
+			}
+			if not {
+				echo `{date} sending to printer
+				> $PRINTLOG
+				STARTIME=`{date}
+				@{eval $LOCAL_CMD}
+				rv=$status
+				ENDTIME=`{date}
+				status=$rv
+				if () {
+					echo $SCHEDLINE(1)^$SCHEDLINE(3)'	'$SCHEDLINE(2)'	'$SCHEDLINE(4)' + '$LSLINE(6)' '$STARTIME(4)' '$ENDTIME(4)
+					eval $SUCCESS_CMD
+					rm -f $LPDEST/$FILE(1) $LPDEST/$FILE(1)^id
+				}
+				if not {
+					echo $SCHEDLINE(1)^$SCHEDLINE(3)'	'$SCHEDLINE(2)'	'$SCHEDLINE(4)' - '$LSLINE(6)' '$STARTIME(4)' '$ENDTIME(4)' status='$rv
+					THISTRY=`{echo $SCHEDLINE(4) + 1|hoc}
+					echo $SCHEDLINE(1) $SCHEDLINE(2) $SCHEDLINE(3) $THISTRY >$LPDEST/$FILE(1)^id
+					if (test $THISTRY -ge $MAXTRY) {
+						if (test -d $LPLIB/prob/$LPDEST) {
+							cp $LPDEST/$FILE(1) $LPLIB/prob/$LPDEST
+							cp $LPDEST/$FILE(1)^id $LPLIB/prob/$LPDEST
+							cp $PRINTLOG $LPLIB/prob/$LPDEST/$FILE(1)^log
+						}
+						upasname=daemon
+						mail $SCHEDLINE(2) <<endmail1
+						rm -f $LPDEST/$FILE(1) $LPDEST/$FILE(1)^id
+					}
+					if not {
+						touch $LPDEST/$FILE(1)
+						sleep $LPDELAY
+					}
+				}
+			}
+		}
+		if not {
+# we don't want to be here
+#			trap '' 13	# temp hack: ignore SIGPIPE
+			echo `{date} queuing - should not get here
+			STARTIME=`{date}
+			eval $REMOTE_CMD 
+			rv=$status
+			ENDTIME=`{date}
+			if (~ $rv '') {
+				echo $SCHEDLINE(1)^$SCHEDLINE(3)'	'$SCHEDLINE(2)'	'$SCHEDLINE(4)' + '$LSLINE(6)' '$STARTIME(4)' '$ENDTIME(4)
+				rm -f $LPDEST/$FILE(1) $LPDEST/$FILE(1)^id
+			}
+			if not {
+				echo $SCHEDLINE(1)^$SCHEDLINE(3)'	'$SCHEDLINE(2)'	'$SCHEDLINE(4)' - '$LSLINE(6)' '$STARTIME(4)' '$ENDTIME(4)
+				echo status $rv from '$REMOTE_CMD'
+				THISTRY=`{echo $SCHEDLINE(4) + 1|hoc}
+				echo $SCHEDLINE(1) $SCHEDLINE(2) $SCHEDLINE(3) $THISTRY >$LPDEST/$FILE(1)^id
+				if (~ $THISTRY $MAXTRY) {
+					upasname=daemon
+					mail $SCHEDLINE(2) <<endmail2
+				}
+				if not {
+					touch $LPDEST/$FILE(1)
+					sleep $LPDELAY
+
+				# this is here to deal with running out of
+				# Datakit channels or other stupid problems
+				# backoff connection attempts but not too long
+					LPDELAY=`{echo $LPDELAY '*' 2|hoc}
+					if (test $LPDELAY -gt 960)
+						LPDELAY=60
+				}
+			}
+		}
+	}
+}
+Your job has failed to print on $LPDEST after $MAXTRY attempt(s).
+If the directory $LPLIB/prob/$LPDEST exists on $DEST_HOST,
+the file has been put there along with the printer log file.
+			Your friendly printer daemon
+endmail1
+Your job has failed to print on $LPDEST after $MAXTRY attempt(s).
+There is a problem in sending the job to $DEST_HOST,
+but I'll keep trying.  Have a nice day.
+			Your enthusiastic printer daemon
+endmail2
+UNLOCK $LPSPOOL/$LPDEST
+rm $LPSPOOL/$LPDEST >[2]/dev/null

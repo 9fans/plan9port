@@ -1,0 +1,120 @@
+#!/usr/local/plan9/bin/rc
+if (~ $DEBUG 1) flag x +
+# convert Tex dvi to PostScript
+PATCH='%!PS-Adobe-2.0'
+switch ($LPCLASS) {
+case *hp4simx*;
+	PATCH=$PATCH'
+%% set the default papertray to be the lower tray for HP4siMX printers
+	statusdict begin defaultpapertray end 1 ne {
+		statusdict begin
+			1 setdefaultpapertray
+		end
+	} if'
+}
+for (i in `{echo $IBIN|awk -F, '{ n=split($0, a, ","); for (i=1;i<=n;i++) print a[i]; }'}) {
+	switch ($i) {
+	case man manual manualfeed;
+		PATCH=$PATCH'
+%%BeginFeature: *Select ManualFeed
+[{ systemdict /languagelevel known {languagelevel 1 gt product (HP LaserJet 4Si) ne and} if {
+    << /ManualFeed true >> setpagedevice
+   } {statusdict begin /manualfeed true def end} ifelse
+ } stopped cleartomark
+%%EndFeature'
+	case simplex;
+		DUPLEX=0
+	case [0-9];
+		switch ($LPCLASS) {
+		case *post2*;
+			switch ($i) {
+			case 0; PATCH=$PATCH'
+systemdict/languagelevel known {languagelevel 2 eq {true (0) startjob dup not
+{/exitserver errordict/invalidaccess get exec}if}{false}ifelse}{false}ifelse
+{
+  currentpagedevice/InputAttributes get {0 get} stopped
+  {pop pop} {2 dict dup /InputAttributes 1 dict dup
+  /Priority[0] put put dup /TraySwitch false put setpagedevice} ifelse
+  false (0) startjob pop
+} if'
+			case 1; PATCH=$PATCH'
+systemdict/languagelevel known {languagelevel 2 eq {true (0) startjob dup not
+{/exitserver errordict/invalidaccess get exec}if}{false}ifelse}{false}ifelse
+{
+  currentpagedevice/InputAttributes get {1 get} stopped
+  {pop pop} {2 dict dup /InputAttributes 1 dict dup
+  /Priority[1] put put dup /TraySwitch false put setpagedevice} ifelse
+  false (0) startjob pop
+} if'
+			}
+		case *;	PATCH=$PATCH'
+statusdict begin $i setpapertray end'
+		}
+	case 11x17 ledger;	PATCH=$PATCH'
+statusdict begin '$i'tray end'
+	}
+}
+if (! ~ $#DUPLEX 0) {
+	switch ($DUPLEX) {
+	case 0;
+		DUPLEX=false
+	case 1;
+		DUPLEX=true
+	}
+	PATCH=$PATCH'
+%%BeginFeature: *Set DuplexMode
+[{ systemdict /languagelevel known {languagelevel 1 gt product (HP LaserJet 4Si) ne and} if {
+    << /Duplex '$DUPLEX'  >> setpagedevice
+  } {statusdict /setduplexmode known {statusdict begin '$DUPLEX' setduplexmode end} if} ifelse
+ } stopped cleartomark
+%%EndFeature'
+}
+if (! ~ $#LAND 0 && ~ $LAND 1)
+	LAND='-tlandscape'
+if (~ $LPCLASS *reverse*) {
+	switch ($REVERSE) {
+	case '';
+		REVFLAG=1
+	case 1;
+		REVFLAG=''
+	}
+}
+switch ($LPCLASS) {
+case *post100*;
+	DPI='-Z -D100'
+case *600dpi*;
+	DPI='-Z -D600'
+case *1200dpi*;
+	DPI='-Z -D1200'
+case *;
+	DPI=''
+}
+if (! ~ $COPIES '' -c*) COPIES=-c^$COPIES
+if (! ~ $OLIST '' '='*) OLIST=`{echo $OLIST | sed 's/-o/=/' | sed 's/-/:/g' }
+switch ($REVFLAG) {
+case 1;
+	echo $PATCH
+	switch ($OLIST) {
+	case '';
+		eval dvips -q -f $DPI -r $LAND $COPIES $1
+	case *;
+		DVIFILE=/tmp/dv$pid.dvi
+		dviselect -s $OLIST $1 > $DVIFILE
+		eval dvips -q -f $DPI -r $LAND $COPIES $DVIFILE
+		rm -f $DVIFILE
+	}
+	$LPLIB/process/hpost </dev/null
+case '';
+	$LPLIB/process/hpost </dev/null
+	echo $PATCH
+	switch ($OLIST) {
+	case '';
+		eval dvips -q -f $DPI $LAND $COPIES $1
+	case *;
+		DVIFILE=/tmp/dv$pid.dvi
+		dviselect -s $OLIST $1 > $DVIFILE
+		eval dvips -q -f $DPI $LAND $COPIES $DVIFILE
+		rm -f $DVIFILE
+	}
+}
+exit

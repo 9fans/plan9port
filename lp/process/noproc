@@ -1,0 +1,3 @@
+#!/usr/local/plan9/bin/rc
+# No processing, copy file from input to output
+cat

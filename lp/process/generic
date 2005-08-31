@@ -1,0 +1,108 @@
+#!/usr/local/plan9/bin/rc
+# Tries to determine what type of file you are printing and do the correct
+# thing with it.
+# It currently knows about images, troff intermediate, and ascii files.
+TMPFILE=/tmp/lp$pid
+fn sigexit { rm -f $TMPFILE; }
+if (! ~ $DEBUG '') flag x +
+if (~ $LPCLASS *nohead*) NOHEAD=1
+if (~ $LPCLASS *duplex*) DUPLEX=1
+cat >$TMPFILE
+FILETYPE=`{file $TMPFILE}
+switch ($FILETYPE(2)) {
+case troff;
+	switch ($LPCLASS) {
+	case *Latin1* *post* *opost*;	switch ($FILETYPE(5)) {
+					# Latin1 is for compatibility with old research UNIX systems, doesn't work on Plan 9
+					case Latin1 post; tcs -s -f utf -t latin1 < $TMPFILE |$LPLIB/process/dpost
+
+					case UTF; $LPLIB/process/tr2post < $TMPFILE
+					}
+
+	case *;		echo $FILETYPE(2) -T$FILETYPE(5) output is improper for $LPDEST >[1=2]
+	}
+case special;
+	switch ($FILETYPE(4)) {
+	case '#b';		switch ($LPCLASS) {
+				case *post*;	$LPLIB/process/p9bitpost < $TMPFILE
+				}
+
+	case *;		echo $FILETYPE file is improper for $LPDEST >[1=2]
+	}
+case Compressed plan old;	# type is really 'Compressed image' or 'plan 9 image' 
+				# or 'old plan 9 image'
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/p9bitpost < $TMPFILE
+	}
+case jpeg;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/jpgpost < $TMPFILE
+	}
+
+case GIF;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/gifpost < $TMPFILE
+	}
+
+case ccitt-g31;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/g3post < $TMPFILE
+	}
+
+# bitmap for research UNIX compatibility, does not work on Plan 9.
+case bitmap;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/bpost < $TMPFILE
+	case *mhcc*;	$LPLIB/process/bpost < $TMPFILE | $LPLIB/process/mhcc
+	case *;		echo $FILETYPE(2) file is improper for $LPDEST >[1=2]
+	}
+case tex;
+	mv $TMPFILE $TMPFILE.dvi
+	TMPFILE=$TMPFILE.dvi
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/dvipost $TMPFILE
+	case *;		echo $FILETYPE(2) file is improper for $LPDEST >[1=2]
+	}
+case postscript;
+	switch ($LPCLASS) {
+	case *post*;		$LPLIB/process/post < $TMPFILE
+	case *;			echo $FILETYPE(2) file is improper for $LPDEST >[1=2]
+	}
+case HPJCL;
+	switch ($LPCLASS) {
+	case *HPJCL*;		$LPLIB/process/noproc < $TMPFILE
+	case *;			echo $FILETYPE(2) file is improper for $LPDEST >[1=2]
+	}
+case daisy;
+	switch ($LPDEST) {
+	case *;		echo $FILETYPE(2) file is improper for $LPDEST >[1=2]
+	}
+case English short extended alef limbo [Aa]scii ASCII assembler c latin rc sh as mail email message/rfc822;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/ppost < $TMPFILE
+	case *canon*;	$LPLIB/process/can $* < $TMPFILE
+	case *;		echo Unrecognized class of line printer for $LPDEST >[1=2]
+	}
+
+case tiff;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/tiffpost $TMPFILE
+	case *;		echo Unrecognized class of line printer for $LPDEST >[1=2]
+	}
+case PDF;
+	switch ($LPCLASS) {
+	case *post*;	$LPLIB/process/pdfpost $TMPFILE
+	case *;		echo Unrecognized class of line printer for $LPDEST >[1=2]
+	}
+case empty;
+	echo file is empty >[1=2]
+case cannot;
+	echo cannot open file >[1=2]
+case *;
+	echo $FILETYPE(2) file is improper for $LPDEST >[1=2]
+}
+wait
+rv=$status
+rm -f $TMPFILE
+#exit $status
+exit

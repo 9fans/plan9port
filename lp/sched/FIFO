@@ -1,0 +1,2 @@
+#!/usr/local/plan9/bin/rc
+9 ls -ptr $* | 9 sed -n -e '/^[0-9][0-9]*\.[1-9][0-9]*$/p'

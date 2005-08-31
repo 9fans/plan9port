@@ -1,0 +1,3 @@
+#!/usr/local/plan9/bin/rc
+
+>$1/LOCK && rm -f $1/LOCK

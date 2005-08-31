@@ -1,0 +1,143 @@
+#!/usr/local/plan9/bin/rc
+if (! ~ $DEBUG '') flag x +
+REVFLAG=''
+if (~ $LPCLASS *reverse*) {
+	switch ($REVERSE) {
+	case '';
+		REVFLAG=1
+	case 1;
+		REVFLAG=''
+	}
+}
+if (! ~ $REVFLAG '')
+	postreverse
+
+if (~ $NOHEAD '') {
+	DATE=`{date}
+	face='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
+	facedom=`{awk '{ if(match("'$LPMACHID'", $1)) {print $2; exit}}' $PLAN9/face/.machinelist}
+	if (~ $#facedom 0) facedom=$LPMACHID
+
+	facefile=`{awk '/^'$facedom'\/'$LPUSERID' /{print $2}' $PLAN9/face/48x48x4/.dict}
+	facedepth=4
+
+	if (~ $#facefile 0) {
+		facefile=`{awk '/^'$facedom'\/'$LPUSERID' /{print $2}' $PLAN9/face/48x48x2/.dict}
+		facedepth=2
+	}
+
+	if (~ $#facefile 0) {
+		facefile=`{awk '/^'$facedom'\/'$LPUSERID' /{print $2}' $PLAN9/face/48x48x1/.dict}
+		facedepth=1
+	}
+
+	if (~ $#facefile 0) {facefile=u/unknown.1; facedepth=1}
+	facefile=$PLAN9/face/48x48x$facedepth/$facefile
+
+	if (! ~ $#facefile 0 1)
+		facefile=$facefile(1)
+
+	if (~ $#facefile 0 || ! test -f $facefile ) {facefile=$PLAN9/face/48x48x2/u/unknown.1; facedepth=2}
+	if (test -r $facefile ) {
+		switch($facedepth){
+		case 1 2
+			face=`{cat $facefile |
+				sed -e 's/0x//g' -e 's/, *//g' |
+				tr 0123456789abcdef fedcba9876543210 };
+		case 4
+			face=`{iconv -u -c k4 $facefile |
+				dd -bs 60 -skip 1 >[2]/dev/null |
+				xd -b | sed 's/^[^ ]+ //;s/ //g'  }
+		}
+	}
+}
+
+# We have to make sure the face information is set before rc sees the HERE file
+# so the cat has to be in a separate if statement.  This is an rc bug.
+if (~ $NOHEAD '') cat <<EOF
+%!PS-Adobe-2.0	div 112 page header - research!pg
+/banner {
+	/saveobj save def
+	erasepage initgraphics
+	/#copies 1 def
+	/inch {72 mul} bind def
+	/pageborder {
+		25 747 moveto
+		590 747 lineto
+		590 25 lineto
+		25 25 lineto
+		closepath
+		2 setlinewidth
+		0 setgray
+		stroke
+	} def
+
+	/topborder {
+		25 773 moveto
+		590 773 lineto
+		590 747 lineto
+		25 747 lineto
+		closepath
+		2 setlinewidth
+		0 setgray
+		stroke
+	} def
+
+	/toptext {
+		120 756 moveto
+		/Courier-Bold findfont 14 scalefont setfont
+		($LPUSERID $DATE) show
+	} def
+
+	/prface {
+		gsave
+		translate rotate scale
+		setgray
+		48 48 $facedepth [48 0 0 -48 0 48] {<$face>} image
+		grestore
+	} def
+EOF
+if (~ $NOHEAD '') switch ($LPCLASS) {
+case *hp4simx*;
+	echo '
+%% set the default papertray to be the lower tray for HP4siMX printers
+	statusdict begin defaultpapertray end 1 ne {
+		statusdict begin
+			1 setdefaultpapertray
+		end
+	} if'
+}
+if (~ $NOHEAD '') cat <<EOF
+	statusdict /setduplexmode known {statusdict begin false setduplexmode end} if
+	statusdict begin /manualfeed false def end
+	pageborder
+	topborder
+	toptext
+	0 14 14 0 94 752 prface
+	.3 180 180 -90 3.0 inch 10.2 inch prface
+	showpage
+	saveobj
+	restore
+} bind def
+banner
+EOF
+
+if (~ $REVFLAG '') cat
+exit ''

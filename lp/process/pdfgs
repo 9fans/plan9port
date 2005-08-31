@@ -1,0 +1,78 @@
+#!/usr/local/plan9/bin/rc
+
+#
+# we don't go through postscript, because to
+# get to postscript, we send the pdf through gs!
+# much easier to just go directly.
+#
+
+# usage: pdfgs pdffile [gsdev]
+
+switch($#*) {
+case 2
+	GSDEVICE=$2
+case 1
+	GSDEVICE=`{echo $LPCLASS | sed 's/(.*\+)?gs!([^+]*)(\+.*)?/\2/'}
+case *
+	echo 'usage: pdfgs pdffile [gsdev]' >[1=2]
+}
+
+GSTMPFILE=/tmp/pdf^$pid
+GSOPT=('-sDEVICE='$GSDEVICE '-sOutputFile='^$GSTMPFILE -dSAFER -dNOPAUSE -dQUIET -dBATCH -dNOPAUSE)
+
+#
+# RSC: pswrite produces weird overbars on various
+# letters, most notably Times-Roman A and h, unless
+# we use LanguageLevel=1.  This doesn't seem to be 
+# constrained to hp4simx printers, so just use LanguageLevel 1
+# all the time.
+#
+
+#if(~ $dev pswrite && ~ $LPCLASS *hp4simx*)
+#	GSOPT=($GSOPT '-dLanguageLevel=1')
+if(~ $GSDEVICE pswrite)
+	GSOPT=($GSOPT '-dLanguageLevel=1')
+
+if(~ $OLIST '')
+	gs $GSOPT $1
+if not {
+	PGLIST=`{echo $OLIST | sed 's/-o//;s/,/ /g;s/	/ /g' | tr -cd '0-9 -'}
+	GSPGLIST=()
+	for(i in $PGLIST){
+		switch($i){
+		case -*
+			GSPGLIST=($GSPGLIST `{seq 1 `{echo $i|tr -d '-'}})
+		case *-
+			# BUG assume 100 >= number of pages
+			GSPGLIST=($GSPGLIST `{seq `{echo $i|tr -d '-'} 100})
+		case *-*
+			GSPGLIST=($GSPGLIST `{seq `{echo $i|tr '-' ' '}})
+		case *
+			GSPGLIST=($GSPGLIST $i)
+		}
+	}
+	GSPGLIST=$"GSPGLIST
+	echo '
+		/Page null def
+		/Page# 0 def
+		/PDFSave null def
+		/DSCPageCount 0 def
+		/DoPDFPage {dup /Page# exch store pdfgetpage pdfshowpage} def
+		GS_PDF_ProcSet begin
+		pdfdict begin
+		('^$1^') (r) file pdfopen begin
+		/npage pdfpagecount def
+		['^$GSPGLIST^']
+		{
+			dup dup
+				1 ge exch npage le and 
+				{ DoPDFPage }
+				{ pop }
+			ifelse
+		} forall
+	' | gs $GSOPT - >/dev/null >[2=1]
+}
+
+cat $GSTMPFILE
+rm -f $GSTMPFILE
+exit ''

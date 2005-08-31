@@ -1,0 +1,86 @@
+#!/usr/local/plan9/bin/rc
+if (~ $DEBUG 1) flag x +
+# convert troff output to PostScript
+PATCH='%%Patch from lp'
+switch ($LPCLASS) {
+case *hp4simx*;
+	PATCH=$PATCH'
+%% set the default papertray to be the lower tray for HP4siMX printers
+	statusdict begin defaultpapertray end 1 ne {
+		statusdict begin
+			1 setdefaultpapertray
+		end
+	} if'
+}
+for (i in `{echo $IBIN|awk -F, '{ n=split($0, a, ","); for (i=1;i<=n;i++) print a[i]; }'}) {
+	switch ($i) {
+	case -P*;
+	case man manual manualfeed;
+		PATCH=$PATCH'
+%%BeginFeature: *Select ManualFeed
+[{ systemdict /languagelevel known {languagelevel 1 gt product (HP LaserJet 4Si) ne and} if {
+    << /ManualFeed true >> setpagedevice
+   } {statusdict begin /manualfeed true def end} ifelse
+ } stopped cleartomark
+%%EndFeature'
+	case simplex;
+		DUPLEX=0
+	case [0-9];
+		PATCH=$PATCH'
+%%BeginFeature: *Select InputTray
+[{ systemdict /languagelevel known {languagelevel 1 gt product (HP LaserJet 4Si) ne and} if {
+	<< '$i' << /MediaType (tray'$i') >> >>
+    << /MediaType (tray'$i') >> setpagedevice
+   } {statusdict begin '$i' setpapertray end} ifelse
+ } stopped cleartomark
+%%EndFeature'
+	case 11x17 [Ll]edger;
+		PATCH=$PATCH'
+%%BeginFeature: *Select Ledger
+[{ systemdict /languagelevel known {languagelevel 1 gt product (HP LaserJet 4Si) ne and} if {
+    << /PageSize [792 1224] >> setpagedevice
+   } {statusdict begin '$i'tray end} ifelse
+ } stopped cleartomark
+%%EndFeature'
+	case transparency vg viewgraph;
+		PATCH=$PATCH'
+%%BeginFeature: *Select Transparency
+[{ << /MediaType (Transparency) >> setpagedevice
+ } stopped cleartomark
+%%EndFeature'
+	case *;
+		echo illegal option ''''-i $i'''' >[1=2]
+	}
+}
+if (! ~ $#DUPLEX 0) {
+	switch ($DUPLEX) {
+	case 0;
+		DUPLEX=false
+	case 1;
+		DUPLEX=true
+	}
+	PATCH=$PATCH'
+%%BeginFeature: *Set DuplexMode
+[{ systemdict /languagelevel known {languagelevel 1 gt product (HP LaserJet 4Si) ne and} if {
+    << /Duplex '$DUPLEX'  >> setpagedevice
+  } {statusdict /setduplexmode known {statusdict begin '$DUPLEX' setduplexmode end} if} ifelse
+ } stopped cleartomark
+%%EndFeature'
+}
+PATCH=$PATCH'
+%%EndPatch from lp
+'
+if (! ~ $PATCH '' -P*)
+	PATCH=-P''''$PATCH'''';
+switch ($LAND) {
+case -p*;
+case ''; LAND=-pp
+case 1;	LAND=-pl
+}
+if (! ~ $COPIES '' -c*) COPIES=-c^$COPIES
+if (! ~ $MAG '' -m*) MAG=-m^$MAG
+if (! ~ $NPAG '' -n*) NPAG=-n^$NPAG
+if (! ~ $XOFF '' -x*) XOFF=-x^$XOFF
+if (! ~ $YOFF '' -y*) YOFF=-y^$YOFF
+eval tr2post $XOFF $YOFF $COPIES $MAG $NPAG $LAND $OLIST $PATCH | $LPLIB/process/hpost
+exit

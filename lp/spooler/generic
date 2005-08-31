@@ -1,0 +1,48 @@
+#!/usr/local/plan9/bin/rc
+# fn sigexit { rm -f $LPSPOOL/$LPDEST/.$pid.* $LPSPOOL/$LPDEST/$pid.* $LPSPOOL/$LPDEST }
+if (! ~ $DEBUG '') flag x +
+
+echo $THIS_HOST $DEST_HOST
+if (~ $THIS_HOST $DEST_HOST) {
+	if (! test -d $LPSPOOL/$LPDEST) {
+		mkdir $LPSPOOL/$LPDEST
+		chmod 777 $LPSPOOL/$LPDEST >[2]/dev/null
+		chmod +t $LPSPOOL/$LPDEST >[2]/dev/null
+	}
+}
+# Process and enqueue files to be printed
+# take arguments as input files
+i=0
+if (~ $#* 0) *=''
+for (j in $*) {
+	i= `{echo $i + 1|hoc}
+
+# check access to the file so that you know that a failure in the
+# processing is a drastic error which will cause an exit from lp.
+
+	if (~ $j '' || test -f $j) {
+		if (~ $THIS_HOST $DEST_HOST) {
+			echo $LPMACHID $LPUSERID $pid.$i 0 > $LPSPOOL/$LPDEST/.$pid.$i^id
+			lpinput $j lpsub process $LPPROC >$LPSPOOL/$LPDEST/.$pid.$i
+			if (~ $status '') {
+				mv $LPSPOOL/$LPDEST/.$pid.$i $LPSPOOL/$LPDEST/$pid.$i
+				mv $LPSPOOL/$LPDEST/.$pid.$i^id $LPSPOOL/$LPDEST/$pid.$i^id
+			}
+			if not {
+				rval='preprocessing failed'
+				rm -f $LPSPOOL/$LPDEST/.$pid.$i $LPSPOOL/queue/$LPDEST/.$pid.$i^id
+				exit $rval
+			}
+		}
+		if not {
+			{
+				echo -d^$LPDEST -pnoproc -M^$LPMACHID -u^$LPUSERID 
+				lpinput $j lpsub process $LPPROC
+			} | lpsend.rc $DEST_HOST
+			rval=$status
+		}
+	}
+	if not {
+		echo $j cannot be opened >[1=2]
+	}
+}
