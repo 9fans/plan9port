@@ -1,0 +1,224 @@
+#!/usr/local/plan9/bin/rc
+# This program enqueues the file to be printed and starts the daemon, when necessary.
+# Make changes to /sys/src/cmd/lp/lp.rc.  Changes made directly to /rc/bin/lp will be lost.
+
+# rfork en	# so that environment and name space are not polluted
+# 
+# put 'fn sigexit { rm /tmp/lpcrap; exit interrupted }' into processes that create /tmp/lpcrap.
+
+ifs=' 	
+'		# set ifs in case it is munged in user's environment
+
+LPLIB=$PLAN9/lp		# lp scripts directories and configuration file are here
+LPBIN=$PLAN9/bin/lpbin		# lp specific binaries are here
+LPSPOOL=$LPLIB/queue		# lp queues
+LPLOGDIR=$LPLIB/log		# lp logs
+
+# $LPLIB/bin/lpscratch || exit $status
+LPTMP=/var/tmp
+
+path=($PLAN9/bin /usr/local/bin /usr/bin /bin $LPLIB/bin $LPBIN)
+
+USAGE='usage:	lp [-d printer] [-p process] [options] [files]
+		lp [-d printer] -q
+		lp [-d printer] -k jobnos
+
+		options include:
+		-H		no header
+		-L		landscape mode
+		-c<n>		make <n> copies
+		-f<font.size>	specify font and size
+		-i<src>		take media from <src> input bin
+		-l<n>		print <n> lines per logical page
+		-m<n>		magnify <n> times
+		-n<n>		print <n> logical pages per physical page
+		-o<i-j,k>	print only pages i-j and k
+		-r		reverse pages
+		-x<n>		x page offset in inches
+		-y<n>		y page offset in inches'
+
+umask 000	# this doesn't work in plan 9
+THIS_HOST=$sysname
+if(~ $#THIS_HOST 0)
+	THIS_HOST=`{hostname | sed 's/\..*//'}
+if(~ $#THIS_HOST 0)
+	THIS_HOST=gnot
+
+# Helpers for scripts
+
+# Run a program from a /sys/lib/lp subdirectory.
+fn lpsub { 
+	_LPSUB=$1
+	shift
+	_LPCMD=$1
+	shift
+	@{path=($LPLIB/$_LPSUB $path); $LPLIB/$_LPSUB/$_LPCMD $*}
+}
+
+# Run a command with standard input from file $1.
+# If $1 is '', use the current standard input.
+fn lpinput {
+	_LPFILE=$1
+	shift
+	if(~ $_LPFILE '') $*
+	if not $* < $_LPFILE
+}
+
+LPMACHID=$THIS_HOST
+THIS_USERID=$user
+LPUSERID=$THIS_USERID
+LPLOC=''
+
+# Set default printer to be output device
+if (~ $#LPDEST 0 && test -f $LPLIB/default)
+	LPDEST=`{cat $LPLIB/default}
+
+# Parse option parameters
+
+XOFF=''
+YOFF=''
+POINT=''
+FONT=''
+LINES=''
+LAND=''
+COPIES=''
+MAG=''
+NPAG=''
+OLIST=''
+IBIN=''
+REVERSE=''
+NOHEAD=''
+TRAY=''
+# remove FLAGS from environment
+FLAGD=();FLAGH=();FLAGL=();FLAGM=();FLAGQ=();FLAGc=();FLAGd=();FLAGf=()
+FLAGi=();FLAGk=();FLAGl=();FLAGm=();FLAGn=();FLAGo=();FLAGp=();FLAGq=()
+FLAGr=();FLAGt=();FLAGu=();FLAGx=();FLAGy=()
+# Process options
+eval `{getflags DHLM:1QRc:1d:1f:1i:1kl:1m:1n:1o:1p:1qrt:1u:1x:1y:1 $*}
+if (! ~ $status '') exit $status
+if (! ~ $#FLAGD 0) { DEBUG=1; flag x + }; if not { DEBUG=''; flag x - }
+if (! ~ $#FLAGH 0) NOHEAD=1; if not NOHEAD=''
+if (! ~ $#FLAGL 0) LAND=1; if not LAND=''
+# originating machine id (for information only)
+if (! ~ $#FLAGM 0 && ~ $LPUSERID daemon) LPMACHID=$FLAGM
+if (! ~ $#FLAGQ 0) QONLY=1; if not QONLY=''
+if (! ~ $#FLAGR 0) RESET=1; if not RESET=''
+if (! ~ $#FLAGc 0) COPIES=$FLAGc; if not COPIES=1
+if (! ~ $#FLAGd 0) {
+	switch ($FLAGd) {
+	case '?'; exec awk 'BEGIN{printf "device       location  host                 class\n"}
+			/^[^#]/	{printf "%-12s %-9s %-20s %s\n", $1, $2, $3, $6 }' $LPLIB/devices
+	case *; LPDEST=$FLAGd
+	}
+}
+if (! ~ $#FLAGf 0) eval `{echo $FLAGf | sed -e 's/([^.]*)\.([0-9.]*)/FONT=\1;POINT=\2;/'}
+if (! ~ $#FLAGi 0) IBIN=$FLAGi
+if (! ~ $#FLAGk 0) KILLFLAG=1; if not KILLFLAG=0
+if (! ~ $#FLAGl 0) LINES=$FLAGl
+if (! ~ $#FLAGm 0) MAG=$FLAGm
+if (! ~ $#FLAGn 0) NPAG=$FLAGn
+if (! ~ $#FLAGo 0) OLIST=-o$FLAGo
+if (! ~ $#FLAGp 0) {
+	switch (FLAGp) {
+	case '?';exec ls $LPLIB/process
+	case *;	LPPROC=$FLAGp
+	}
+}
+if (! ~ $#FLAGq 0) LPQ=1; if not LPQ=0
+if (! ~ $#FLAGr 0) {
+	switch ($REVERSE) {
+	case '';REVERSE=1
+	case 1;	REVERSE=''
+	}
+}
+if (! ~ $#FLAGt 0) TRAY=$FLAGt
+# originating user id
+if (! ~ $#FLAGu 0) LPUSERID=$FLAGu
+if (! ~ $#FLAGx 0) XOFF=$FLAGx
+if (! ~ $#FLAGy 0) YOFF=$FLAGy
+
+if (~ $#LPDEST 0) {
+	echo 'Set environment variable LPDEST or use the
+''-d printer'' option to set the destination.' >[1=2]
+	exit 'LPDEST not set'
+}
+if (~ $LPDEST */*) {	# handles MHCC destinations like mh/lino
+	LPLOC=`{echo $LPDEST|sed 's/^(.*)\/(.*)/\1/'}
+	LPDEST=`{echo $LPDEST|sed 's/^(.*)\/(.*)/\2/'}
+}
+
+# Fetch device info from devices file.
+
+LPDLINE=`{grep '^'$LPDEST'[ 	]' $LPLIB/devices}
+if (! ~ $status '') {
+	echo 'device '$LPDEST' is not in '$LPLIB'/devices' >[1=2]
+	exit 'LPDEST is bad'
+}
+LOC=$LPDLINE(2)
+DEST_HOST=$LPDLINE(3)
+OUTDEV=$LPDLINE(4)
+SPEED=$LPDLINE(5)
+LPCLASS=$LPDLINE(6)
+if (~ $#LPPROC 0) LPPROC=$LPDLINE(7)
+SPOOLER=$LPDLINE(8)
+STAT=$LPDLINE(9)
+KILL=$LPDLINE(10)
+DAEMON=$LPDLINE(11)
+SCHED=$LPDLINE(12)
+
+# On to the actual command-line processing.
+
+# lp -k
+if (~ $KILLFLAG 1)
+	switch ($KILL) {
+	case -
+		echo kill option not available on $LPDEST >[1=2]
+		exit 'kill n/a'
+	case *
+		lpsub kill $KILL $*
+		exit $status
+	}
+
+# lp -q
+if (~ $LPQ 1)
+	switch ($STAT) {
+	case -
+		echo queue status option not available on $LPDEST >[1=2]
+		exit 'stat option not available'
+	case *
+		lpsub stat $STAT $* </dev/null
+		exit $status
+	}
+
+# lp
+DATE=`{date}
+LPLOG=$LPLOGDIR/$LPDEST
+if (! test -e $LPLOG) {
+	>$LPLOG
+	chmod +rwa $LPLOG >[2]/dev/null
+}
+
+if (~ $RESET '') {	# lp file
+	switch ($SPOOLER) {
+	case -;	echo spooler does not exist for $LPDEST >[1=2]
+		exit 'no spooler'
+	case *;	path=($LPLIB/spooler $path)
+		if (~ $#* 0) $SPOOLER
+		if not $SPOOLER $*
+	}
+}
+
+if not {	# lp -R
+	echo restarting daemon for printer $LPDEST >[1=2]
+	echo `{date} restarting daemon >>$LPLOG
+	UNLOCK $LPSPOOL/$LPDEST
+	sleep 5
+}
+
+# run daemon
+if (~ $QONLY '') {	# not lp -Q
+	if (! ~ $DAEMON -) {
+		lpsub daemon $DAEMON $* >>$LPLOG >[2=1] &
+	}
+}
+exit ''

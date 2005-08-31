@@ -1,0 +1,30 @@
+<$PLAN9/src/mkhdr
+
+TARG=\
+	lpdsend \
+	lpsend \
+	LOCK \
+	lpdaemon
+
+OFILES=
+
+HFILES=
+
+BIN=$PLAN9/lp/bin
+<$PLAN9/src/mkmany
+CFLAGS=-Dplan9
+
+install:V:	$PLAN9/lp/bin/lpsend.rc $PLAN9/bin/lp
+
+$PLAN9/lp/bin/lpsend.rc:	lpsend.rc
+	cp $prereq $target
+
+lpdsend.$O:	lpdsend.c
+	$CC $CFLAGS -D_POSIX_SOURCE -D_BSD_EXTENSION -D_NET_EXTENSION -DPLAN9 -'DMAXHOSTNAMELEN=64' lpdsend.c
+
+lpdaemon.$O:	lpdaemon.c
+	$CC $CFLAGS -D_POSIX_SOURCE -DPLAN9  lpdaemon.c
+
+$PLAN9/bin/lp:	lp.rc
+	cp $prereq $target
+

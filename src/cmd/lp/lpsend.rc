@@ -1,0 +1,18 @@
+#!/bin/rc
+if (! ~ $DEBUG '') { flag x + }
+if (test -e /net/tcp/clone) {
+	dialstring=`{ndb/query sys $1 dom}
+	network=tcp
+	if (~ $#dialstring 0 || ! ~ $dialstring '') {
+		dialstring=$1
+	}
+	if(lpsend $network^!^$dialstring^!printer) exit ''
+	rv='tcp failed'
+}
+if not rv='no tcp'
+
+
+if (! ~ $dialstring '')
+	exit 'lpsend: no dialstring'
+if not
+	exit 'lpsend: '^$rv
