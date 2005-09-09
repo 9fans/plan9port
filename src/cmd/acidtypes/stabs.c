@@ -115,7 +115,7 @@ comma(char **p)
 static int
 parseint(char **pp)
 {
-	if(!isdigit(**pp))
+	if(!isdigit((uchar)**pp))
 		oops();
 	return strtol(*pp, pp, 10);
 }
@@ -129,7 +129,7 @@ parsename(char *desc, char **pp)
 	if(*desc == 'c')
 		return nil;
 
-	if(isdigit(*desc) || *desc=='-' || *desc=='(')
+	if(isdigit((uchar)*desc) || *desc=='-' || *desc=='(')
 		return parseinfo(desc, pp);
 	if(*desc == 0)
 		oops();
@@ -169,7 +169,7 @@ parseinfo(char *desc, char **pp)
 static int
 parsenum(char *p, int *n1, int *n2, char **pp)
 {
-	if(isdigit(*p)){
+	if(isdigit((uchar)*p)){
 		*n1 = strtol(p, &p, 10);
 		*n2 = 0;
 		*pp = p;
@@ -316,7 +316,7 @@ parsedefn(char *p, Type *t, char **pp)
 	long val;
 	Type *tt;
 
-	if(*p == '(' || isdigit(*p)){
+	if(*p == '(' || isdigit((uchar)*p)){
 		t->ty = Defer;
 		t->sub = parseinfo(p, pp);
 		return t;
@@ -587,7 +587,7 @@ parsebigint(char **pp)
 		neg = 1;
 		p++;
 	}
-	if(!isdigit(*p))
+	if(!isdigit((uchar)*p))
 		oops();
 	n = strtol(p, &p, 10);
 	if(neg)

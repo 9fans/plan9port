@@ -18,10 +18,10 @@ rogetprintentry(Entry e, int cmd)
 	p = e.start;
 
 	if(cmd == 'h'){
-		while(!isspace(*p) && p < e.end)
+		while(!isspace((uchar)*p) && p < e.end)
 			p++;
 		while(strncmp(p, " -- ", 4) != 0 && p < e.end){
-			while(isspace(*p) && p < e.end)
+			while(isspace((uchar)*p) && p < e.end)
 				p++;
 			if (*p == '[' || *p == '{'){	
 				c = (*p == '[')? ']': '}';
@@ -30,14 +30,14 @@ rogetprintentry(Entry e, int cmd)
 				p++;
 				continue;
 			}
-			if (isdigit(*p) || ispunct(*p)){
-				while(!isspace(*p) && p < e.end)
+			if (isdigit((uchar)*p) || ispunct((uchar)*p)){
+				while(!isspace((uchar)*p) && p < e.end)
 					p++;
 				continue;
 			}
 
 
-			if (isspace(*p))
+			if (isspace((uchar)*p))
 				spc = 1;
 			else
 			if (spc){
@@ -45,15 +45,15 @@ rogetprintentry(Entry e, int cmd)
 				spc = 0;
 			}
 
-			while(!isspace(*p) && p < e.end)
+			while(!isspace((uchar)*p) && p < e.end)
 				outchar(*p++);
 		}
 		return;
 	}	
 
-	while(p < e.end && !isspace(*p))
+	while(p < e.end && !isspace((uchar)*p))
 		p++;
-	while(p < e.end && isspace(*p))
+	while(p < e.end && isspace((uchar)*p))
 		p++;
 
 	while (p < e.end){
@@ -78,18 +78,18 @@ rogetprintentry(Entry e, int cmd)
 			while(p < e.end && *p != ')')
 				outchar(*p++);
 			p++;
-			while(p < e.end && isspace(*p))
+			while(p < e.end && isspace((uchar)*p))
 				p++;
-			while(p < e.end && isdigit(*p))
+			while(p < e.end && isdigit((uchar)*p))
 				p++;
 			outchar('/');
 			continue;
 		}
 
 		if (p < e.end -3 && strncmp(p, "&c ", 3) == 0){		/* less usefull xref */
-			while(p < e.end && !isdigit(*p))
+			while(p < e.end && !isdigit((uchar)*p))
 				p++;
-			while(p < e.end && isdigit(*p))
+			while(p < e.end && isdigit((uchar)*p))
 				p++;
 			continue;
 		}
@@ -97,8 +97,8 @@ rogetprintentry(Entry e, int cmd)
 		if (*p == '\n' && p < (e.end -1)){			/* their newlines */
 			spc = 0;
 			p++;
-			if (isspace(*p)){				/* their continuation line */
-				while (isspace(*p))
+			if (isspace((uchar)*p)){				/* their continuation line */
+				while (isspace((uchar)*p))
 					p++;
 				p--;
 			}
@@ -107,11 +107,11 @@ rogetprintentry(Entry e, int cmd)
 			}
 		}
 		if (spc && *p != ';' && *p != '.' &&
-		    *p != ',' && !isspace(*p)){				/* drop spaces before punct */
+		    *p != ',' && !isspace((uchar)*p)){				/* drop spaces before punct */
 			spc = 0;
 			outchar(' ');
 		}
-		if (isspace(*p))
+		if (isspace((uchar)*p))
 			spc = 1;
 		else
 			outchar(*p);
@@ -131,7 +131,7 @@ rogetnextoff(long fromoff)
 	Brdline(bdict, '\n');
 	while ((p = Brdline(bdict, '\n')) != nil){
 		l = Blinelen(bdict);
-		if (!isdigit(*p))
+		if (!isdigit((uchar)*p))
 			continue;
 		for (i = 0; i < l-4; i++)
 			if (strncmp(p+i, " -- ", 4) == 0)

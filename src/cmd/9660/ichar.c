@@ -25,8 +25,7 @@ isostring(uchar *buf, int len)
 	while(len > 0 && p[len-1] == ' ')
 		p[--len] = '\0';
 	for(q=p; *q; q++)
-		*q = tolower(*q);
-
+		*q = tolower((uchar)*q);
 	q = atom(p);
 	free(p);
 	return q;

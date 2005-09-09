@@ -78,7 +78,7 @@ struprcpy(char *p, char *s)
 
 	op = p;
 	for(; *s; s++)
-		*p++ = toupper(*s);
+		*p++ = toupper((uchar)*s);
 	*p = '\0';
 
 	return op;

@@ -456,7 +456,7 @@ static int
 isalldigit(char *s)
 {
 	while(*s)
-		if(!isdigit(*s++))
+		if(!isdigit((uchar)*s++))
 			return 0;
 	return 1;
 }

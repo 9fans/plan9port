@@ -79,7 +79,7 @@ readDESC(void) {
 			break;
 		case 2:
 			if (fontmnt <=0) {
-				if (!isdigit(*token)) {
+				if (!isdigit((uchar)*token)) {
 					error(WARNING, "readdesc: expecting number of fonts in mount table.\n");
 					return(FALSE);
 				}
@@ -99,7 +99,7 @@ readDESC(void) {
 			break;
 		case 4:
 			/* device resolution in dots per inch */
-			if (!isdigit(*token)) {
+			if (!isdigit((uchar)*token)) {
 				error(WARNING, "readdesc: expecting device resolution.\n");
 				return(FALSE);
 			}
@@ -116,7 +116,7 @@ readDESC(void) {
 			break;
 		case 7:
 			/* unitwidth is the font size at which the character widths are 1:1 */
-			if (!isdigit(*token)) {
+			if (!isdigit((uchar)*token)) {
 				error(WARNING, "readdesc: expecting unitwidth.\n");
 				return(FALSE);
 			}

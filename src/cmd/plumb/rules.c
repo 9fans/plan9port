@@ -255,7 +255,7 @@ dollar(Exec *e, char *s, int *namelen)
 	if(e!=nil && '0'<=s[0] && s[0]<='9')
 		return nonnil(e->match[s[0]-'0']);
 
-	for(t=s; isalnum(*t); t++)
+	for(t=s; isalnum((uchar)*t); t++)
 		;
 	n = t-s;
 	*namelen = n;
@@ -377,9 +377,9 @@ assignment(char *p)
 	char *var, *qval;
 	int n;
 
-	if(!isalpha(p[0]))
+	if(!isalpha((uchar)p[0]))
 		return 0;
-	for(var=p; isalnum(*p); p++)
+	for(var=p; isalnum((uchar)*p); p++)
 		;
 	n = p-var;
 	while(*p==' ' || *p=='\t')

@@ -579,7 +579,7 @@ sysrun(int errto, char *fmt, ...)
 	if(tot == sizeof buf)
 		tot--;
 	buf[tot] = 0;
-	while(tot > 0 && isspace(buf[tot-1]))
+	while(tot > 0 && isspace((uchar)buf[tot-1]))
 		tot--;
 	buf[tot] = 0;
 	if(tot == 0){

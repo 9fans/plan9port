@@ -494,7 +494,7 @@ void define(char *a){
 	short	i, j;
 	int curly = 0;
 	ap = a;
-	while(isalpha(*ap))ap++;
+	while(isalpha((uchar)*ap))ap++;
 	if(ap == a){
 		fprint(2,"no name with define\n");
 		exits("define");
@@ -547,7 +547,7 @@ void call(char *a){
 	char sav;
 	double SC;
 	ap = a;
-	while(isalpha(*ap))ap++;
+	while(isalpha((uchar)*ap))ap++;
 	sav = *ap;
 	*ap = '\0';
 	for(f=flibr;f<fptr;f++){
@@ -559,7 +559,7 @@ void call(char *a){
 		exits("undefined");
 	}
 	*ap = sav;
-	while (isspace(*ap) || *ap == ',') 
+	while (isspace((uchar)*ap) || *ap == ',') 
 		ap++;
 	if (*ap != '\0')
 		SC = atof(ap);

@@ -93,7 +93,7 @@ pagelist(char *list) {
 	start = 0;
 	while ((c=*list) != '\0') {
 		n = 0;
-		while (isdigit(c)) {
+		while (isdigit((uchar)c)) {
 			n = n * 10 + c - '0';
 			c = *++list;
 		}

@@ -524,7 +524,7 @@ numsym(char first)
 	if(first == '.')
 		isfloat = 1;
 
-	if(isdigit(*p++) || isfloat) {
+	if(isdigit((uchar)*p++) || isfloat) {
 		for(;;) {
 			c = lexc();
 			if(c < 0)

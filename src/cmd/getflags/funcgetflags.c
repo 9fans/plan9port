@@ -107,7 +107,7 @@ scanflag(int c, char *f)
 		fc=*f++;
 		if(*f==':'){
 			f++;
-			if(!isdigit(*f)){ reason=FLAGSYN; return -1; }
+			if(!isdigit((uchar)*f)){ reason=FLAGSYN; return -1; }
 			count=strtol(f, &f, 10);
 		}
 		else

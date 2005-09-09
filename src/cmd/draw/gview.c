@@ -67,7 +67,7 @@ int remove_substr(char* smain, char* ssub)
 	int n = strlen(ssub);
 	if (s==0)
 		return 0;
-	if (islower(s[n]))
+	if (islower((uchar)s[n]))
 		s[0] ^= 32;			/* probably tolower(s[0]) or toupper(s[0]) */
 	else {
 		for (ss=s+n; *ss!=0; s++, ss++)

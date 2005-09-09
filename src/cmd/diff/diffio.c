@@ -82,7 +82,7 @@ readhash(Biobuf *bp, char *buf)
 		 * coalesce multiple white-space
 		 */
 		for (space = 0; len--; p++) {
-			if (isspace(*p)) {
+			if (isspace((uchar)*p)) {
 				space++;
 				continue;
 			}
@@ -99,7 +99,7 @@ readhash(Biobuf *bp, char *buf)
 		 * strip all white-space
 		 */
 		while (len--) {
-			if (isspace(*p)) {
+			if (isspace((uchar)*p)) {
 				p++;
 				continue;
 			}
@@ -167,7 +167,7 @@ squishspace(char *buf)
 	int space;
 
 	for (space = 0, q = p = buf; *q; q++) {
-		if (isspace(*q)) {
+		if (isspace((uchar)*q)) {
 			space++;
 			continue;
 		}

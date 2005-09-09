@@ -31,7 +31,7 @@ isdk(char *name)
 
 	slash = 0;
 	for(; *name; name++){
-		if(isalnum(*name))
+		if(isalnum((uchar)*name))
 			continue;
 		if(*name == '/'){
 			slash = 1;
@@ -52,7 +52,7 @@ isdomain(char *name)
 	int alpha = 0;
 
 	for(; *name; name++){
-		if(isalpha(*name) || *name == '-'){
+		if(isalpha((uchar)*name) || *name == '-'){
 			alpha = 1;
 			continue;
 		}
@@ -60,7 +60,7 @@ isdomain(char *name)
 			dot = 1;
 			continue;
 		}
-		if(isdigit(*name))
+		if(isdigit((uchar)*name))
 			continue;
 		return 0;
 	}
@@ -80,7 +80,7 @@ isip(char *name)
 			dot = 1;
 			continue;
 		}
-		if(isdigit(*name))
+		if(isdigit((uchar)*name))
 			continue;
 		return 0;
 	}

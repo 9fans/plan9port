@@ -373,7 +373,7 @@ nameof(Type *t, int doanon)
 	else
 		return "";
 	for(p=buf; *p; p++)
-		if(isspace(*p))
+		if(isspace((uchar)*p))
 			*p = '_';
 	return buf;
 }

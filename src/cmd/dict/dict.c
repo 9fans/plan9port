@@ -301,14 +301,14 @@ parseaddr(char *line, char **eptr)
 	} else if(*line == '#') {
 		/* absolute byte offset into dictionary */
 		line++;
-		if(!isdigit(*line))
+		if(!isdigit((uchar)*line))
 			return -1;
 		v = strtoul(line, &e, 10);
 		line = e;
 		dot->doff[0] = v;
 		dot->n = 1;
 		dot->cur = 0;
-	} else if(isdigit(*line)) {
+	} else if(isdigit((uchar)*line)) {
 		v = strtoul(line, &e, 10);
 		line = e;
 		if(v < 1 || v > dot->n)

@@ -22,11 +22,11 @@ scanform(long icount, int prt, char *ifp, Map *map, int literal)
 		savdot=dot;
 		/*now loop over format*/
 		while (*fp) {
-			if (!isdigit(*fp))
+			if (!isdigit((uchar)*fp))
 				fcount = 1;
 			else {
 				fcount = 0;
-				while (isdigit(c = *fp++)) {
+				while (isdigit((uchar)c = *fp++)) {
 					fcount *= 10;
 					fcount += c-'0';
 				}

@@ -646,7 +646,7 @@ getstring(void){
 		return(-1);
 	switch(*labbuf) {
 	default:
-		if(!isdigit(*labbuf)) {
+		if(!isdigit((uchar)*labbuf)) {
 			ungetc(*labbuf,stdin);
 			i = scanf("%s",labbuf);
 			break;

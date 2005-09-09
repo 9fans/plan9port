@@ -438,7 +438,7 @@ header(char *s)
 		char buf[512];
 		strecpy(buf, buf+sizeof buf, pagename);
 		for(p=buf; *p; p++)
-			*p = tolower(*p);
+			*p = tolower((uchar)*p);
 		Bprint(&bout, "<title>%s(%s) - %s</title>\n", buf, section, s);
 	}else
 		Bprint(&bout, "<title>%s</title>\n", s);

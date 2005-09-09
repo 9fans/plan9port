@@ -24,7 +24,7 @@ strtoullsuf(char *p, char **pp, int rad, u64int *u)
 {
 	u64int v;
 
-	if(!isdigit(*p))
+	if(!isdigit((uchar)*p))
 		return -1;
 	v = strtoull(p, &p, rad);
 	switch(*p){
