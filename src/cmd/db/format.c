@@ -26,7 +26,7 @@ scanform(long icount, int prt, char *ifp, Map *map, int literal)
 				fcount = 1;
 			else {
 				fcount = 0;
-				while (isdigit((uchar)c = *fp++)) {
+				while (isdigit((uchar)(c = *fp++))) {
 					fcount *= 10;
 					fcount += c-'0';
 				}
