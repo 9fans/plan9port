@@ -875,7 +875,7 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 	os = s;
 	*havemin = 0;
 	*r = Rect(0,0,0,0);
-	if(!isdigit(*s))
+	if(!isdigit((uchar)*s))
 		goto oops;
 	i = strtol(s, &s, 0);
 	if(*s == 'x'){
