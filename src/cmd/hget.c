@@ -1263,7 +1263,7 @@ int
 cistrcmp(char *a, char *b)
 {
 	while(*a || *b)
-		if(tolower(*a++) != tolower(*b++))
+		if(tolower((uchar)*a++) != tolower((uchar)*b++))
 			return -1;
 
 	return 0;
