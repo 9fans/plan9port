@@ -1,0 +1,16 @@
+if(! ~ $march i386){
+	echo '>>>' do not need to build bin24 on non-x86
+	exit 1
+}
+if(! ~ `{uname -r} 2.6.*){
+	echo '>>>' must build bin26 on 2.6 system
+	exit 1
+}
+arch=$march
+depends=plan9port-^(base)
+conflicts=plan9port-bin24
+desc='Plan 9 from User Space - binaries
+ This package contains binaries for Plan 9 from User Space.
+ XXX Linux note here XXX
+'
+grepfor=bin
