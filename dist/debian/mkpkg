@@ -51,12 +51,11 @@ for(i)@{
 	{
 		echo Package: $package
 		echo Version: $date
-		echo Section: extra
-		echo Priority: optional
 		echo Architecture: $arch
 		comma Depends: $depends
 		comma Suggests: $suggests
 		comma Conflicts: $conflicts
+		echo Source: plan9port-src
 		echo Installed-Size: $size
 		echo Maintainer: 'Russ Cox <rsc@swtch.com>'
 		echo Description: $desc
