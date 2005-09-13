@@ -48,18 +48,6 @@ for(i)@{
 	deb=$package^_$date^_$arch.deb
 	rm -rf $i $deb
 	mkdir $i $i/DEBIAN
-	{
-		echo Package: $package
-		echo Version: $date
-		echo Architecture: $arch
-		comma Depends: $depends
-		comma Suggests: $suggests
-		comma Conflicts: $conflicts
-		echo Source: plan9port-src
-		echo Installed-Size: $size
-		echo Maintainer: 'Russ Cox <rsc@swtch.com>'
-		echo Description: $desc
-	} >$i/DEBIAN/control
 	whatis grepfor
 	awk -v'grepfor='$grepfor -v 'pkg='$i -v 'plan9='$TREE9 '
 	BEGIN { print "grep for " grepfor >"/dev/stderr" }
@@ -73,6 +61,19 @@ for(i)@{
 		if($1 !~ /\/$/)
 			printf("cp ''%s'' ''%s''\n", plan9 "/" $1, pkg "/usr/local/plan9/" $1)
 	}' $TREE9/dist/filelist | rc
+	size=`{du -sk $i | awk '{print $1}'}
+	{
+		echo Package: $package
+		echo Version: $date
+		echo Architecture: $arch
+		comma Depends: $depends
+		comma Suggests: $suggests
+		comma Conflicts: $conflicts
+		echo Source: plan9port-src
+		echo Installed-Size: $size
+		echo Maintainer: 'Russ Cox <rsc@swtch.com>'
+		echo Description: $desc
+	} >$i/DEBIAN/control
 	if(test -d $i/usr){
 		@{
 			cd $i
