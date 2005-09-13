@@ -122,7 +122,7 @@ uvlong	vacfilegetid(VacFile *file);
 ulong	vacfilegetmcount(VacFile *file);
 int		vacfileisdir(VacFile *file);
 int		vacfileisroot(VacFile *file);
-int		vacfilegetmode(VacFile *file);
+ulong	vacfilegetmode(VacFile *file);
 int		vacfilegetblocksize(VacFile *file, u32int bn, u8int *score);
 int		vacfilegetsize(VacFile *file, uvlong *size);
 int		vacfilegetdir(VacFile *file, VacDir *dir);

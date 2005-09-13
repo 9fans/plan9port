@@ -993,12 +993,6 @@ vacfileisdir(VacFile *f)
 }
 
 int
-vacfilegetmode(VacFile *f)
-{
-	return f->dir.mode;
-}
-
-int
 vacfileisroot(VacFile *f)
 {
 	return f == f->fs->root;
