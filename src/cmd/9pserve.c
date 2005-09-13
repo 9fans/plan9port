@@ -30,6 +30,7 @@ struct Fid
 	int ref;
 	int cfid;
 	int openfd;
+	int isdir;
 	Fid *next;
 };
 
@@ -67,6 +68,7 @@ struct Conn
 	Hash *fid[NHASH];
 	Queue *outq;
 	Queue *inq;
+	int dotu;
 };
 
 char *xaname;
@@ -82,11 +84,12 @@ int msize = 8192;
 u32int xafid = NOFID;
 int attached;
 int versioned;
+int dotu;
 
 void *gethash(Hash**, uint);
 int puthash(Hash**, uint, void*);
 int delhash(Hash**, uint, void*);
-Msg *mread9p(Ioproc*, int);
+Msg *mread9p(Ioproc*, int, int);
 int mwrite9p(Ioproc*, int, uchar*);
 uchar *read9ppkt(Ioproc*, int);
 int write9ppkt(int, uchar*);
@@ -108,7 +111,7 @@ void listenthread(void*);
 void outputthread(void*);
 void inputthread(void*);
 void rewritehdr(Fcall*, uchar*);
-void repack(Fcall*, uchar**);
+void repack(Fcall*, uchar**, int);
 int tlisten(char*, char*);
 int taccept(int, char*);
 int iolisten(Ioproc*, char*, char*);
@@ -119,6 +122,8 @@ void mainproc(void*);
 int ignorepipe(void*, char*);
 int timefmt(Fmt*);
 void dorootstat(void);
+int stripudirread(Msg*);
+int stripustat(Fcall*, uchar**, int);
 
 void
 usage(void)
@@ -211,7 +216,7 @@ mainproc(void *v)
 
 	if(!versioned){
 		f.type = Tversion;
-		f.version = "9P2000";
+		f.version = "9P2000.u";
 		f.msize = msize;
 		f.tag = NOTAG;
 		n = convS2M(&f, vbuf, sizeof vbuf);
@@ -225,6 +230,7 @@ mainproc(void *v)
 		if(f.msize < msize)
 			msize = f.msize;
 		if(verbose > 1) fprint(2, "%T * -> %F\n", &f);
+		dotu = strncmp(f.version, "9P2000.u", 8) == 0;
 	}
 
 	threadcreate(inputthread, nil, STACK);
@@ -281,9 +287,9 @@ send9pmsg(Msg *m)
 {
 	int n, nn;
 
-	n = sizeS2M(&m->rx);
+	n = sizeS2Mu(&m->rx, m->c->dotu);
 	m->rpkt = emalloc(n);
-	nn = convS2M(&m->rx, m->rpkt, n);
+	nn = convS2Mu(&m->rx, m->rpkt, n, m->c->dotu);
 	if(nn != n)
 		sysfatal("sizeS2M + convS2M disagree");
 	sendq(m->c->outq, m);
@@ -294,9 +300,9 @@ sendomsg(Msg *m)
 {
 	int n, nn;
 
-	n = sizeS2M(&m->tx);
+	n = sizeS2Mu(&m->tx, m->c->dotu);
 	m->tpkt = emalloc(n);
-	nn = convS2M(&m->tx, m->tpkt, n);
+	nn = convS2Mu(&m->tx, m->tpkt, n, m->c->dotu);
 	if(nn != n)
 		sysfatal("sizeS2M + convS2M disagree");
 	sendq(outq, m);
@@ -342,7 +348,7 @@ connthread(void *arg)
 	close(c->fd);
 	c->fd = fd;
 	threadcreate(connoutthread, c, STACK);
-	while((m = mread9p(io, c->fd)) != nil){
+	while((m = mread9p(io, c->fd, c->dotu)) != nil){
 		if(verbose > 1) fprint(2, "%T fd#%d -> %F\n", c->fd, &m->tx);
 		m->c = c;
 		m->ctag = m->tx.tag;
@@ -360,6 +366,11 @@ connthread(void *arg)
 			if(m->rx.msize > msize)
 				m->rx.msize = msize;
 			m->rx.version = "9P2000";
+			c->dotu = 0;
+			if(dotu && strncmp(m->tx.version, "9P2000.u", 8) == 0){
+				m->rx.version = "9P2000.u";
+				c->dotu = 1;
+			}
 			m->rx.type = Rversion;
 			send9pmsg(m);
 			continue;
@@ -395,7 +406,7 @@ connthread(void *arg)
 				m->tx.afid = xafid;
 				m->tx.aname = xaname;
 				m->tx.uname = estrdup(m->tx.uname);
-				repack(&m->tx, &m->tpkt);
+				repack(&m->tx, &m->tpkt, c->dotu);
 				free(m->tx.uname);
 				m->tx.uname = "XXX";
 			}
@@ -452,6 +463,12 @@ connthread(void *arg)
 				continue;
 			}
 			m->fid->ref++;
+			if(m->tx.type==Twstat && dotu && !c->dotu){
+				if(stripustat(&m->tx, &m->tpkt, 1) < 0){
+					err(m, "cannot convert stat buffer");
+					continue;
+				}
+			}
 			break;
 		}
 
@@ -720,6 +737,7 @@ xopenfd(Msg *m)
 void
 connoutthread(void *arg)
 {
+	char *ename;
 	int err;
 	Conn *c;
 	Queue *outq;
@@ -766,6 +784,24 @@ connoutthread(void *arg)
 				if(delhash(m->c->fid, m->newfid->cfid, m->newfid) == 0)
 					fidput(m->newfid);
 			break;
+		case Tread:
+			if(!err && m->fid->isdir && dotu && !m->c->dotu)
+				stripudirread(m);
+			break;
+		case Tstat:
+			if(!err && dotu && !m->c->dotu)
+				stripustat(&m->rx, &m->rpkt, 0);
+			break;
+		case Topen:
+		case Tcreate:
+			m->fid->isdir = (m->rx.qid.type & QTDIR);
+			break;
+		}
+		if(m->rx.type==Rerror && dotu && !c->dotu){
+			ename = estrdup(m->rx.ename);
+			m->rx.ename = ename;
+			repack(&m->rx, &m->rpkt, c->dotu);
+			free(ename);
 		}
 		if(delhash(m->c->tag, m->ctag, m) == 0)
 			msgput(m);
@@ -829,7 +865,7 @@ inputthread(void *arg)
 			free(pkt);
 			continue;
 		}
-		if((nn = convM2S(pkt, n, &m->rx)) != n){
+		if((nn = convM2Su(pkt, n, &m->rx, dotu)) != n){
 			fprint(2, "%T bad packet - convM2S %d but %d\n", nn, n);
 			free(pkt);
 			msgput(m);
@@ -918,6 +954,7 @@ fidnew(int cfid)
 	freefid = f->next;
 	f->cfid = cfid;
 	f->ref = 1;
+	f->isdir = -1;
 	return f;
 }
 
@@ -1168,7 +1205,7 @@ read9ppkt(Ioproc *io, int fd)
 }
 
 Msg*
-mread9p(Ioproc *io, int fd)
+mread9p(Ioproc *io, int fd, int dotu)
 {
 	int n, nn;
 	uchar *pkt;
@@ -1180,7 +1217,7 @@ mread9p(Ioproc *io, int fd)
 	m = msgnew(0);
 	m->tpkt = pkt;
 	n = GBIT32(pkt);
-	nn = convM2S(pkt, n, &m->tx);
+	nn = convM2Su(pkt, n, &m->tx, dotu);
 	if(nn != n){
 		fprint(2, "%T read bad packet from %d\n", fd);
 		return nil;
@@ -1225,20 +1262,20 @@ restring(uchar *pkt, int pn, char *s)
 }
 
 void
-repack(Fcall *f, uchar **ppkt)
+repack(Fcall *f, uchar **ppkt, int dotu)
 {
 	uint n, nn;
 	uchar *pkt;
 	
 	pkt = *ppkt;
 	n = GBIT32(pkt);
-	nn = sizeS2M(f);
+	nn = sizeS2Mu(f, dotu);
 	if(nn > n){
 		free(pkt);
 		pkt = emalloc(nn);
 		*ppkt = pkt;
 	}
-	convS2M(f, pkt, nn);	
+	convS2Mu(f, pkt, nn, dotu);	
 }
 
 void
@@ -1337,3 +1374,86 @@ timefmt(Fmt *fmt)
 		mon[tm.mon], tm.mday, tm.hour, tm.min, tm.sec,
 		(int)(ns%1000000000)/1000000);
 }
+
+int
+stripustat(Fcall *f, uchar **fpkt, int s2u)
+{
+	int n;
+	char *buf;
+	char *str;
+	Dir dir;
+
+	str = emalloc(f->nstat);
+	n = convM2Du(f->stat, f->nstat, &dir, str, s2u);
+	if(n <= BIT16SZ)
+		return -1;
+	n = sizeD2Mu(&dir, !s2u);
+	buf = emalloc(n);
+
+	n = convD2Mu(&dir, buf, n, !s2u);
+	if(n <= BIT16SZ)
+		return -1;
+	f->nstat = n;
+	f->stat = buf;
+
+	repack(f, fpkt, dotu);
+	free(buf);
+	free(str);
+
+	return 0;
+}
+
+int
+stripudirread(Msg* msg)
+{
+	int i, m, n, nn;
+	char *buf, *str;
+	Dir d;
+	Fcall* rx;
+
+	buf = nil;
+	str = nil;
+	rx = &msg->rx;
+	n = 0;
+	nn = 0;
+	for(i = 0; i < rx->count; i += m){
+		m = BIT16SZ + GBIT16(&rx->data[i]);
+		if(statchecku(&rx->data[i], m, 1) < 0)
+			return -1;
+		if(nn < m)
+			nn = m;
+		n++;
+	}
+
+	str = emalloc(nn);
+	buf = emalloc(rx->count);
+
+	nn = 0;
+	for(i = 0; i < rx->count; i += m){
+		m = BIT16SZ + GBIT16(&rx->data[i]);
+		if(convM2Du(&rx->data[i], m, &d, str, 1) != m){
+			free(buf);
+			free(str);
+			return -1;
+		}
+
+		n = convD2M(&d, &buf[nn], rx->count - nn);
+		if(n <= BIT16SZ){
+			free(buf);
+			free(str);
+			return -1;
+		}
+
+		nn += n;
+	}
+
+	rx->count = nn;
+	rx->data = buf;
+
+	repack(&msg->rx, &msg->rpkt, 0);
+	free(str);
+	free(buf);
+
+	return 0;
+}
+
