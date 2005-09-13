@@ -1419,7 +1419,7 @@ stripudirread(Msg* msg)
 	nn = 0;
 	for(i = 0; i < rx->count; i += m){
 		m = BIT16SZ + GBIT16(&rx->data[i]);
-		if(statchecku(&rx->data[i], m, 1) < 0)
+		if(statchecku((uchar*)&rx->data[i], m, 1) < 0)
 			return -1;
 		if(nn < m)
 			nn = m;
@@ -1432,7 +1432,7 @@ stripudirread(Msg* msg)
 	nn = 0;
 	for(i = 0; i < rx->count; i += m){
 		m = BIT16SZ + GBIT16(&rx->data[i]);
-		if(convM2Du(&rx->data[i], m, &d, str, 1) != m){
+		if(convM2Du((uchar*)&rx->data[i], m, &d, str, 1) != m){
 			free(buf);
 			free(str);
 			return -1;
@@ -1449,7 +1449,7 @@ stripudirread(Msg* msg)
 	}
 
 	rx->count = nn;
-	rx->data = buf;
+	rx->data = (char*)buf;
 
 	repack(&msg->rx, &msg->rpkt, 0);
 	free(str);
