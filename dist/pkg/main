@@ -1,5 +1,5 @@
 package=plan9port
-depends=plan9port-^(base bin devel dict dist font-asian \
+depends=plan9port-^(base bin devel dict dist faces font-asian \
 	font-bh font-core font-proof lib lp postscript postscript-bh \
 	sky sky-data src troff unixdist)
 desc='Plan 9 from User Space
