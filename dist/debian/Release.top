@@ -1,0 +1,7 @@
+Origin: swtch.com packages (Plan 9, Inferno)
+Label: swtch.com packages (Plan 9, Inferno)
+Suite: testing
+Codename: swtch
+Architectures: i386
+Components: main
+Description: This repository mostly holds Plan 9-related software.

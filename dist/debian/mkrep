@@ -1,0 +1,13 @@
+#!/usr/local/plan9/bin/rc
+
+rm -rf dists pool
+mkdir -p dists pool
+./mkpkg all
+d=dists/testing/main/binary-i386
+mkdir -p $d
+apt-ftparchive packages pool |tee $d/Packages |gzip >$d/Packages.gz
+cp Release.testing $d/Release
+{
+	cat Release.top
+	apt-ftparchive release dists/testing 
+} >dists/testing/Release
