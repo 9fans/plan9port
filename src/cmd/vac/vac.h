@@ -29,6 +29,8 @@ enum
 	ModeArchive = (1<<18),		/* MS-DOS */
 	ModeTemporary = (1<<19),	/* MS-DOS */
 	ModeSnapshot = (1<<20),		/* read only snapshot */
+	ModeDevice = (1<<21),		/* Unix device */
+	ModeNamedPipe = (1<<22),	/* Unix named pipe */
 };
 
 enum
@@ -120,6 +122,7 @@ uvlong	vacfilegetid(VacFile *file);
 ulong	vacfilegetmcount(VacFile *file);
 int		vacfileisdir(VacFile *file);
 int		vacfileisroot(VacFile *file);
+int		vacfileisspecial(VacFile *file);
 int		vacfilegetblocksize(VacFile *file, u32int bn, u8int *score);
 int		vacfilegetsize(VacFile *file, uvlong *size);
 int		vacfilegetdir(VacFile *file, VacDir *dir);
