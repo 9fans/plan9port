@@ -1,0 +1,5 @@
+depends=plan9port-^(base font-core)
+desc='Plan 9 from User Space - bitmap fonts for Asian languages
+ This package contains bitmap fonts for the Unicode ranges
+ used by Asian languages.
+'

@@ -1,0 +1,9 @@
+depends=plan9port-^(base)
+suggests=plan9port-^(bin devel)
+desc='Plan 9 from User Space - source code
+ This package contains the source code to all the
+ Plan 9 from User Space programs.
+ .
+ The plan9port-devel package must be installed to
+ recompile the sources.
+'

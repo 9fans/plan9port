@@ -1,0 +1,4 @@
+depends=plan9port-^(base sky)
+desc='Plan 9 from User Space - sky database
+ This package contains the sky database used by scat(1).
+'

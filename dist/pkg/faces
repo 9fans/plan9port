@@ -1,0 +1,4 @@
+depends=plan9port-^(base)
+desc='Plan 9 from User Space - faces
+ This package contains the face database used by lp.
+'

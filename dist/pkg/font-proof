@@ -1,0 +1,7 @@
+depends=plan9port-^(base font-core)
+suggests=plan9port-^(font-proof)
+desc='Plan 9 from User Space - bitmap proof fonts
+ This package contains scaled bitmap versions of the 
+ Times, Palatino, and Symbol fonts.  These fonts are
+ used by proof(1).
+'

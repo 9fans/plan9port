@@ -1,0 +1,9 @@
+depends=plan9port-^(base)
+suggests=plan9port-^(devel)
+desc='Plan 9 from User Space - libraries
+ This package contains binaries for the
+ libraries provided by Plan 9 from User Space.  
+ The libraries are static, not dynamic, so this package
+ is only needed for writing new programs, not for
+ running existing ones.
+'

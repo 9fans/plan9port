@@ -1,0 +1,8 @@
+depends=plan9port-^(base bin lib)
+suggests=plan9port-^(src)
+desc='Plan 9 from User Space - development tools
+ .
+ This package contains include files, manual pages,
+ and development tools for writing programs using
+ Plan 9 from User Space.
+'

@@ -1,0 +1,12 @@
+arch=$march
+depends=plan9port-^(base)
+if(~ `{uname} Linux && ~ $arch i386){
+	depends='plan9port-bin24 | plan9port-bin26'
+}
+desc='Plan 9 from User Space - binaries
+ Binaries for Plan 9 from User Space.
+ (On x86 Linux, this is a virtual package, requiring either
+ plan9port-bin24 or plan9port-bin26, depending on the
+ kernel type.)
+'
+grepfor=binxxx

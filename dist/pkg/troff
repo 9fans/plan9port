@@ -1,0 +1,6 @@
+depends=plan9port-^(base bin postscript)
+desc='Plan 9 from User Space - troff support files
+ This package contains the macros and font definition
+ files used by troff(1).  The troff binary itself is in the
+ plan9port-bin package.
+'

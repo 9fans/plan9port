@@ -1,0 +1,7 @@
+depends=plan9port-^(base)
+suggests=plan9port-^(bin)
+desc='Plan 9 from User Space - dictionaries
+ This package contains the original Webster''s Dictionary
+ and Roget''s Thesaurus, converted from the Project Gutenberg
+ versions, for use with dict(1).
+'

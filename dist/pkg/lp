@@ -1,0 +1,4 @@
+depends=plan9port-^(base bin postscript)
+desc='Plan 9 from User Space - lp support files
+ This package contains support files for lp(1).
+'

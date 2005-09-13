@@ -1,0 +1,6 @@
+depends=plan9port-^(base bin)
+desc='Plan 9 from User Space
+ This is a virtual package depending on the files for a minimal installation
+ of Plan 9 from User Space.  See the package plan9port for a
+ complete installation.
+'

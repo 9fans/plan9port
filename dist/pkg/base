@@ -1,0 +1,4 @@
+suggests=plan9port-^(bin devel dict font src sky)
+desc='Plan 9 from User Space - base package
+ This package contains the base Plan 9 from User Space tree.
+'

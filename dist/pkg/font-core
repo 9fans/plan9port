@@ -1,0 +1,5 @@
+depends=plan9port-^(base)
+suggests=plan9port-^(font-asian font-bh font-proof)
+desc='Plan 9 from User Space - bitmap fonts
+ This package contains basic bitmap fonts for Plan 9 from User Space.
+'

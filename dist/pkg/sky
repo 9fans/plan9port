@@ -1,0 +1,10 @@
+depends=plan9port-^(base)
+suggests=plan9port-^(sky-data)
+desc='Plan 9 from User Space - sky directory
+ This package contains the sky/ directory as well as a
+ sample version of sky/here.  The latter is required for
+ astro(1).  
+ .
+ The (quite larger) package sky-data provides the sky
+ databases used by scat(1).
+'

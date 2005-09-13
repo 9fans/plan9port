@@ -1,0 +1,6 @@
+depends=plan9port-^(base bin devel src)
+suggests=plan9port-^(unixdist)
+desc='Plan 9 from User Space - distribution builder
+ This package contains tools used to build and maintain
+ the Plan 9 from User Space distribution.
+'

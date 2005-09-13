@@ -1,0 +1,20 @@
+package=plan9port
+depends=plan9port-^(base bin devel dict dist font-asian \
+	font-bh font-core font-proof lib lp postscript postscript-bh \
+	sky sky-data src troff unixdist)
+desc='Plan 9 from User Space
+ Plan 9 is a distributed computing environment built at Bell Labs 
+ starting in the late 1980s. The system can be obtained from Bell Labs 
+ at http://plan9.bell-labs.com/plan9 and runs on PCs and a variety
+ of other platforms.  Plan 9 became a convenient platform for 
+ experimenting with new ideas, applications, and services.
+ .
+ Plan 9 from User Space provides many of the ideas, applications, 
+ and services from Plan 9 on Unix-like systems.  It runs on FreeBSD (x86),
+ Linux (x86 and PowerPC), Mac OS X (PowerPC), OpenBSD (x86), and
+ SunOS (Sparc).
+ .
+ This is a virtual package depending on the files for a complete
+ installation of Plan 9 from User Space.  See the package
+ plan9port-minimal for a minimal installation.
+'

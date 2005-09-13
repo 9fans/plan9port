@@ -1,0 +1,6 @@
+depends=plan9port-^(base)
+suggests=plan9port-^(postscript-bh)
+desc='Plan 9 from User Space - postscript fonts and prologues
+ This package contains PostScript fonts and prologues used
+ by troff(1), lp(1), and their helpers.
+'

@@ -1,0 +1,5 @@
+depends=plan9port-^(base font-core)
+desc='Plan 9 from User Space - bitmap B&H fonts
+ This package contains Lucida bitmap fonts from Bigelow & Holmes
+ as found in the Plan 9 from Bell Labs distribution.
+'

@@ -1,0 +1,5 @@
+depends=plan9port-^(base postscript)
+desc='Plan 9 from User Space - postscript B&H fonts
+ This package contains PostScript fonts from Bigelow & Holmes
+ as found in the Plan 9 from Bell Labs distribution.
+'

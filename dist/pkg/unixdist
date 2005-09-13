@@ -1,0 +1,6 @@
+depends=plan9port-^(base bin devel dist src)
+desc='Plan 9 from User Space - Unix distributions builder
+ This package contains tools used to build and maintain
+ the Unix extracts (libutf, libfmt, libbio, libregexp, mk)
+ derived from the Plan 9 from User Space distribution.
+'
