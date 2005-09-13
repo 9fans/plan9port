@@ -770,7 +770,7 @@ vacspecial(DirSink *dsink, Dir* dir, char *lname, char *sname, VacFile *vf)
 	entry = dsink->nentry;
 
 	sink = sinkalloc(dsink->sink->z, bsize, bsize);
-	sinkwrite(sink, buf, n);
+	sinkwrite(sink, (uchar*)buf, n);
 	sinkclose(sink);
 	dirsinkwritesink(dsink, sink);
 	sinkfree(sink);

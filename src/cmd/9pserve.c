@@ -1379,7 +1379,7 @@ int
 stripustat(Fcall *f, uchar **fpkt, int s2u)
 {
 	int n;
-	char *buf;
+	uchar *buf;
 	char *str;
 	Dir dir;
 
@@ -1406,8 +1406,9 @@ stripustat(Fcall *f, uchar **fpkt, int s2u)
 int
 stripudirread(Msg* msg)
 {
+	char *str;
 	int i, m, n, nn;
-	char *buf, *str;
+	uchar *buf;
 	Dir d;
 	Fcall* rx;
 
