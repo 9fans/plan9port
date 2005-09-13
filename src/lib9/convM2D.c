@@ -33,6 +33,12 @@ statchecku(uchar *buf, uint nbuf, int dotu)
 	return 0;
 }
 
+int
+statcheck(uchar *buf, uint nbuf)
+{
+	return statchecku(buf, nbuf, 0);
+}
+
 static char nullstring[] = "";
 
 uint
