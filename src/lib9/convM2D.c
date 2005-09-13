@@ -3,10 +3,10 @@
 #include	<fcall.h>
 
 int
-statcheck(uchar *buf, uint nbuf)
+statchecku(uchar *buf, uint nbuf, int dotu)
 {
 	uchar *ebuf;
-	int i;
+	int i, nstr;
 
 	ebuf = buf + nbuf;
 
@@ -15,11 +15,17 @@ statcheck(uchar *buf, uint nbuf)
 
 	buf += STATFIXLEN - 4 * BIT16SZ;
 
-	for(i = 0; i < 4; i++){
+	nstr = 4;
+	if(dotu)
+		nstr = 5;
+	for(i = 0; i < nstr; i++){
 		if(buf + BIT16SZ > ebuf)
 			return -1;
 		buf += BIT16SZ + GBIT16(buf);
 	}
+
+	if(dotu)
+		buf += 3*BIT32SZ;
 
 	if(buf != ebuf)
 		return -1;
@@ -30,11 +36,11 @@ statcheck(uchar *buf, uint nbuf)
 static char nullstring[] = "";
 
 uint
-convM2D(uchar *buf, uint nbuf, Dir *d, char *strs)
+convM2Du(uchar *buf, uint nbuf, Dir *d, char *strs, int dotu)
 {
 	uchar *p, *ebuf;
-	char *sv[4];
-	int i, ns;
+	char *sv[5];
+	int i, ns, nstr;
 
 	if(nbuf < STATFIXLEN)
 		return 0; 
@@ -62,7 +68,10 @@ convM2D(uchar *buf, uint nbuf, Dir *d, char *strs)
 	d->length = GBIT64(p);
 	p += BIT64SZ;
 
-	for(i = 0; i < 4; i++){
+	nstr = 4;
+	if(dotu)
+		nstr = 5;
+	for(i = 0; i < nstr; i++){
 		if(p + BIT16SZ > ebuf)
 			return 0;
 		ns = GBIT16(p);
@@ -78,17 +87,38 @@ convM2D(uchar *buf, uint nbuf, Dir *d, char *strs)
 		p += ns;
 	}
 
+	if(dotu){
+		if(p + BIT32SZ*3 > ebuf)
+			return 0;
+		d->uidnum = GBIT32(p);
+		p += BIT32SZ;
+		d->gidnum = GBIT32(p);
+		p += BIT32SZ;
+		d->muidnum = GBIT32(p);
+		p += BIT32SZ;
+	}
+	
 	if(strs){
 		d->name = sv[0];
 		d->uid = sv[1];
 		d->gid = sv[2];
 		d->muid = sv[3];
+		d->ext = nullstring;
+		if(dotu)
+			d->ext = sv[4];
 	}else{
 		d->name = nullstring;
 		d->uid = nullstring;
 		d->gid = nullstring;
 		d->muid = nullstring;
+		d->ext = nullstring;
 	}
 	
 	return p - buf;
+}
+
+uint
+convM2D(uchar *buf, uint nbuf, Dir *d, char *strs)
+{
+	return convM2Du(buf, nbuf, d, strs, 0);
 }

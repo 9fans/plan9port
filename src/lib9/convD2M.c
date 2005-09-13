@@ -3,30 +3,44 @@
 #include	<fcall.h>
 
 uint
-sizeD2M(Dir *d)
+sizeD2Mu(Dir *d, int dotu)
 {
-	char *sv[4];
-	int i, ns;
+	char *sv[5];
+	int i, ns, nstr, fixlen;
 
 	sv[0] = d->name;
 	sv[1] = d->uid;
 	sv[2] = d->gid;
 	sv[3] = d->muid;
-
+	
+	fixlen = STATFIXLEN;
+	nstr = 4;
+	if(dotu){
+		fixlen = STATFIXLENU;
+		sv[4] = d->ext;
+		nstr = 5;
+	}
+	
 	ns = 0;
-	for(i = 0; i < 4; i++)
+	for(i = 0; i < nstr; i++)
 		if(sv[i])
 			ns += strlen(sv[i]);
 
-	return STATFIXLEN + ns;
+	return fixlen + ns;
 }
 
 uint
-convD2M(Dir *d, uchar *buf, uint nbuf)
+sizeD2M(Dir *d)
+{
+	return sizeD2Mu(d, 0);
+}
+
+uint
+convD2Mu(Dir *d, uchar *buf, uint nbuf, int dotu)
 {
 	uchar *p, *ebuf;
-	char *sv[4];
-	int i, ns, nsv[4], ss;
+	char *sv[5];
+	int i, ns, nsv[4], ss, nstr, fixlen;
 
 	if(nbuf < BIT16SZ)
 		return 0;
@@ -39,8 +53,16 @@ convD2M(Dir *d, uchar *buf, uint nbuf)
 	sv[2] = d->gid;
 	sv[3] = d->muid;
 
+	fixlen = STATFIXLEN;
+	nstr = 4;
+	if(dotu){
+		fixlen = STATFIXLENU;
+		sv[4] = d->ext;
+		nstr = 5;
+	}
+	
 	ns = 0;
-	for(i = 0; i < 4; i++){
+	for(i = 0; i < nstr; i++){
 		if(sv[i])
 			nsv[i] = strlen(sv[i]);
 		else
@@ -48,7 +70,7 @@ convD2M(Dir *d, uchar *buf, uint nbuf)
 		ns += nsv[i];
 	}
 
-	ss = STATFIXLEN + ns;
+	ss = fixlen + ns;
 
 	/* set size befor erroring, so user can know how much is needed */
 	/* note that length excludes count field itself */
@@ -77,7 +99,7 @@ convD2M(Dir *d, uchar *buf, uint nbuf)
 	PBIT64(p, d->length);
 	p += BIT64SZ;
 
-	for(i = 0; i < 4; i++){
+	for(i = 0; i < nstr; i++){
 		ns = nsv[i];
 		if(p + ns + BIT16SZ > ebuf)
 			return 0;
@@ -87,9 +109,24 @@ convD2M(Dir *d, uchar *buf, uint nbuf)
 			memmove(p, sv[i], ns);
 		p += ns;
 	}
+	
+	if(dotu){
+		PBIT32(p, d->uidnum);
+		p += BIT32SZ;
+		PBIT32(p, d->gidnum);
+		p += BIT32SZ;
+		PBIT32(p, d->muidnum);
+		p += BIT32SZ;
+	}
 
 	if(ss != p - buf)
 		return 0;
 
 	return p - buf;
+}
+
+uint
+convD2M(Dir *d, uchar *buf, uint nbuf)
+{
+	return convD2Mu(d, buf, nbuf, 0);
 }

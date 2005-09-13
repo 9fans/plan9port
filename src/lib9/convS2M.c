@@ -46,7 +46,7 @@ stringsz(char *s)
 }
 
 uint
-sizeS2M(Fcall *f)
+sizeS2Mu(Fcall *f, int dotu)
 {
 	uint n;
 	int i;
@@ -141,6 +141,8 @@ sizeS2M(Fcall *f)
 
 	case Rerror:
 		n += stringsz(f->ename);
+		if(dotu)
+			n += BIT16SZ;
 		break;
 
 	case Rflush:
@@ -198,7 +200,13 @@ sizeS2M(Fcall *f)
 }
 
 uint
-convS2M(Fcall *f, uchar *ap, uint nap)
+sizeS2M(Fcall *f)
+{
+	return sizeS2Mu(f, 0);
+}
+
+uint
+convS2Mu(Fcall *f, uchar *ap, uint nap, int dotu)
 {
 	uchar *p;
 	uint i, size;
@@ -331,6 +339,10 @@ convS2M(Fcall *f, uchar *ap, uint nap)
 
 	case Rerror:
 		p = pstring(p, f->ename);
+		if(dotu){
+			PBIT16(p, f->errornum);
+			p += BIT16SZ;
+		}
 		break;
 
 	case Rflush:
@@ -396,4 +408,10 @@ convS2M(Fcall *f, uchar *ap, uint nap)
 	if(size != p-ap)
 		return 0;
 	return size;
+}
+
+uint
+convS2M(Fcall *f, uchar *ap, uint nap)
+{
+	return convS2Mu(f, ap, nap, 0);
 }
