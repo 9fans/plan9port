@@ -595,7 +595,7 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define	OCEXEC	32	/* or'ed in, close on exec */
 #define	ORCLOSE	64	/* or'ed in, remove on close */
 #define	ODIRECT	128	/* or'ed in, direct access */
-#define ONONBLOCK 256	/* or'ed in, non-blocking call */
+#define	ONONBLOCK 256	/* or'ed in, non-blocking call */
 #define	OEXCL	0x1000	/* or'ed in, exclusive use (create only) */
 #define	OLOCK	0x2000	/* or'ed in, lock after opening */
 #define	OAPPEND	0x4000	/* or'ed in, append only */
@@ -620,8 +620,9 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define QTEXCL		0x20		/* type bit for exclusive use files */
 #define QTMOUNT		0x10		/* type bit for mounted channel */
 #define QTAUTH		0x08		/* type bit for authentication file */
-#define QTLINK		0x04		/* symbolic link */
-#define QTFILE		0x00		/* plain file */
+#define QTTMP		0x04		/* type bit for non-backed-up file */
+#define QTSYMLINK	0x02		/* type bit for symbolic link */
+#define QTFILE		0x00		/* type bits for plain file */
 
 /* bits in Dir.mode */
 #define DMDIR		0x80000000	/* mode bit for directories */
@@ -629,10 +630,11 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define DMEXCL		0x20000000	/* mode bit for exclusive use files */
 #define DMMOUNT		0x10000000	/* mode bit for mounted channel */
 #define DMAUTH		0x08000000	/* mode bit for authentication file */
-#define DMDEVICE		0x00800000	/* mode bit for device files (Unix) */
-#define DMSYMLINK	0x00400000	/* mode bit for symbolic links (Unix) */
-#define DMNAMEDPIPE	0x00200000	/* mode bit for named pipes (Unix) */
-#define DMSOCKET		0x00100000	/* mode bit for sockets (Unix) */
+#define DMTMP		0x04000000	/* mode bit for non-backed-up file */
+#define DMSYMLINK	0x02000000	/* mode bit for symbolic link (Unix, 9P2000.u) */
+#define DMDEVICE	0x00800000	/* mode bit for device file (Unix, 9P2000.u) */
+#define DMNAMEDPIPE	0x00200000	/* mode bit for named pipe (Unix, 9P2000.u) */
+#define DMSOCKET	0x00100000	/* mode bit for socket (Unix, 9P2000.u) */
 
 #define DMREAD		0x4		/* mode bit for read permission */
 #define DMWRITE		0x2		/* mode bit for write permission */
@@ -691,6 +693,12 @@ struct Dir {
 	char	*uid;	/* owner name */
 	char	*gid;	/* group name */
 	char	*muid;	/* last modifier name */
+	
+	/* 9P2000.u extensions */
+	uint	uidnum;		/* numeric uid */
+	uint	gidnum;		/* numeric gid */
+	uint	muidnum;	/* numeric muid */
+	char	*ext;		/* extended info */
 } Dir;
 
 /* keep /sys/src/ape/lib/ap/plan9/sys9.h in sync with this -rsc */
