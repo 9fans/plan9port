@@ -1,15 +1,27 @@
 #!/bin/sh
 
-p=`cleanname $PLAN9`
-if [ X"$p" = X"" ]
+case $# in
+0)
+	old=/usr/local/plan9
+	;;
+1)
+	old=`cleanname $1`
+	;;
+*)
+	echo 'usage: moveplan9.sh [oldpath]' 1>&2
+	exit 1
+fi
+
+new=`cleanname $PLAN9`
+if [ X"$new" = X"" ]
 then
 	echo cleanname failed 1>&2
-	exit 1
+	exit 2
 fi
 
 cd $PLAN9
 echo "
-	X ,s;/usr/local/plan9($|/|});$p\\1;g
+	X ,s;$old(\$|/|});$new\\1;g
 	X/'/w
 	q
 " | sam -d `cat lib/moveplan9.files` >/dev/null 2>&1
