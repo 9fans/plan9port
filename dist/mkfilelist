@@ -59,6 +59,7 @@ awk -vplan9'='$PLAN9 '
 	
 	/^dict\// { cat("dict") }
 	
+	/^dist\/debian\/(dists|pool)/ { next }
 	/^dist\// { cat("dist") }
 
 	/^face\// { cat("faces") }
@@ -67,8 +68,8 @@ awk -vplan9'='$PLAN9 '
 	/^font\/LICENSE/ { cat("font-bh") }
 	/^font\/(lucida|lucidasans|lucm|pelm)\// { cat("font-bh") }
 	/^font\/(MAP|fixed|misc|sample|smiley)/ { cat("font-core") }
-	/^font\// { cat("font-core") }
 	/^font\/(palatino|times|special)/ { cat("font-proof") }
+	/^font\// { cat("font-core") }
 	
 	/^include\// { cat("devel") }
 
