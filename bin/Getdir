@@ -21,7 +21,7 @@ if(! ~ $tag(1) */){
 
 echo -n , | wr addr
 
-ls -pF $tag(1) | sed 's/\*$//' |
+ls -pF `{eval echo $tag(1)} | sed 's/\*$//' |
 	grep -v '^''?\.|\.o$|^''?o\.' |
 	mc |
 	wr data
