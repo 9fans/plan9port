@@ -1,5 +1,10 @@
 #!/usr/local/plan9/bin/rc
 
+cd /scratch/rsc/plan9
+cvs up -dAP
+cd dist; ./mkfilelist >filelist
+cp filelist /usr/local/plan9/dist
+
 rm -rf dists pool
 mkdir -p dists pool
 ./mkpkg all
@@ -11,3 +16,4 @@ cp Release.testing $d/Release
 	cat Release.top
 	apt-ftparchive release dists/testing 
 } >dists/testing/Release
+echo rsync -r dists pool swtch.com:www/swtch.com/debian
