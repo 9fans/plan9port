@@ -61,6 +61,7 @@ VacFs	*fs;
 VtConn  *conn;
 // VtSession *session;
 int	noperm;
+int	dotu;
 
 Fid *	newfid(int);
 void	error(char*);
@@ -76,7 +77,7 @@ VacDir	*dirBufGet(DirBuf*);
 int	dirBufUnget(DirBuf*);
 void	dirBufFree(DirBuf*);
 int	vacdirread(Fid *f, char *p, long off, long cnt);
-int	vdStat(VacDir *vd, uchar *p, int np);
+int	vdStat(VacFile *parent, VacDir *vd, uchar *p, int np);
 void 	srv(void* a);
 
 
@@ -242,6 +243,10 @@ rversion(Fid *unused)
 	if(strncmp(rhdr.version, "9P2000", 6) != 0)
 		return vtstrdup("unrecognized 9P version");
 	thdr.version = "9P2000";
+	if(strncmp(rhdr.version, "9P2000.u", 8) == 0){
+		dotu = 1;
+		thdr.version = "9P2000.u";
+	}
 	return nil;
 }
 
@@ -355,6 +360,8 @@ rwalk(Fid *f)
 		qid.type = QTFILE;
 		if(vacfileisdir(file))
 			qid.type = QTDIR;
+		if(vacfilegetmode(file)&ModeLink)
+			qid.type = QTSYMLINK;
 		qid.vers = vacfilegetmcount(file);
 		qid.path = vacfilegetid(file);
 		thdr.wqid[nqid] = qid;
@@ -499,6 +506,12 @@ rread(Fid *f)
 	cnt = rhdr.count;
 	if(f->qid.type & QTDIR)
 		n = vacdirread(f, buf, off, cnt);
+	else if(vacfilegetmode(f->file)&ModeDevice)
+		return vtstrdup("device");
+	else if(vacfilegetmode(f->file)&ModeLink)
+		return vtstrdup("symbolic link");
+	else if(vacfilegetmode(f->file)&ModeNamedPipe)
+		return vtstrdup("named pipe");
 	else
 		n = vacfileread(vf, buf, cnt, off);
 	if(n < 0) {
@@ -586,13 +599,16 @@ rstat(Fid *f)
 {
 	VacDir dir;
 	static uchar statbuf[1024];
-
+	VacFile *parent;
+	
 	if(!f->busy)
 		return vtstrdup(Enotexist);
+	parent = vacfilegetparent(f->file);
 	vacfilegetdir(f->file, &dir);
 	thdr.stat = statbuf;
-	thdr.nstat = vdStat(&dir, thdr.stat, sizeof statbuf);
+	thdr.nstat = vdStat(parent, &dir, thdr.stat, sizeof statbuf);
 	vdcleanup(&dir);
+	vacfiledecref(parent);
 	return 0;
 }
 
@@ -605,11 +621,16 @@ rwstat(Fid *f)
 }
 
 int
-vdStat(VacDir *vd, uchar *p, int np)
+vdStat(VacFile *parent, VacDir *vd, uchar *p, int np)
 {
+	char *ext;
+	int n, ret;
+	uvlong size;
 	Dir dir;
+	VacFile *vf;
 
 	memset(&dir, 0, sizeof(dir));
+	ext = nil;
 
 	/*
 	 * Where do path and version come from
@@ -629,7 +650,28 @@ vdStat(VacDir *vd, uchar *p, int np)
 		dir.qid.type |= QTDIR;
 		dir.mode |= DMDIR;
 	}
-
+	
+	if(vd->mode & (ModeLink|ModeDevice|ModeNamedPipe)){
+		vf = vacfilewalk(parent, vd->elem);
+		if(vf == nil)
+			return 0;
+		vacfilegetsize(vf, &size);
+		ext = malloc(size+1);
+		if(ext == nil)
+			return 0;
+		n = vacfileread(vf, ext, size, 0);
+		ext[size] = 0;
+		vacfiledecref(vf);
+		if(vd->mode & ModeLink){
+			dir.qid.type |= QTSYMLINK;
+			dir.mode |= DMSYMLINK;
+		}
+		if(vd->mode & ModeDevice)
+			dir.mode |= DMDEVICE;
+		if(vd->mode & ModeNamedPipe)
+			dir.mode |= DMNAMEDPIPE;
+	}
+	
 	dir.atime = vd->atime;
 	dir.mtime = vd->mtime;
 	dir.length = vd->size;
@@ -638,8 +680,11 @@ vdStat(VacDir *vd, uchar *p, int np)
 	dir.uid = vd->uid;
 	dir.gid = vd->gid;
 	dir.muid = vd->mid;
+	dir.ext = ext;
 
-	return convD2M(&dir, p, np);
+	ret = convD2Mu(&dir, p, np, dotu);
+	free(ext);
+	return ret;
 }
 
 DirBuf*
@@ -726,7 +771,7 @@ vacdirread(Fid *f, char *p, long off, long cnt)
 				return -1;
 			break;
 		}
-		n = vdStat(vd, (uchar*)p, cnt-nb);
+		n = vdStat(f->file, vd, (uchar*)p, cnt-nb);
 		if(n <= BIT16SZ) {
 			dirBufUnget(f->db);
 			break;
@@ -779,7 +824,7 @@ io(void)
 			continue;
 		if(n < 0)
 			break;
-		if(convM2S(mdata, n, &rhdr) != n)
+		if(convM2Su(mdata, n, &rhdr, dotu) != n)
 			sysfatal("convM2S conversion error");
 
 		if(dflag)
@@ -793,6 +838,7 @@ io(void)
 		if(err){
 			thdr.type = Rerror;
 			thdr.ename = err;
+			thdr.errornum = 0;
 		}else{
 			thdr.type = rhdr.type + 1;
 			thdr.fid = rhdr.fid;
@@ -800,7 +846,7 @@ io(void)
 		thdr.tag = rhdr.tag;
 		if(dflag)
 			fprint(2, "vacfs:->%F\n", &thdr);
-		n = convS2M(&thdr, mdata, messagesize);
+		n = convS2Mu(&thdr, mdata, messagesize, dotu);
 		if (err)
 			vtfree(err);
 
