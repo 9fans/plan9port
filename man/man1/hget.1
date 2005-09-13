@@ -1,0 +1,77 @@
+.TH HGET 1 
+.SH NAME
+hget  \- retrieve a web page corresponding to a url
+.SH SYNOPSIS
+.PP
+.B hget
+[
+.B -dhv
+][
+.B -o
+.I ofile
+][
+.B -p
+.I body
+][
+.B -x
+.I netmntpt
+]
+.I url
+.SH DESCRIPTION
+.I Hget
+retrieves the web page specified by the URL
+.I url
+and writes it, absent the
+.B -o
+option, to standard output.
+The only supported URL type is http.
+.PP
+If
+.I url
+is of type HTTP and the
+.B -p
+option is specified, then an HTTP POST is performed
+with
+.I body
+as the data to be posted.
+.PP
+The
+.B -o
+option is used to keep a local file in sync with a
+web page.  If the web page has been modified later than the
+file, it is copied into the file.  If the file is up to date
+but incomplete,
+.I hget
+will fetch the missing bytes.
+.PP
+Option
+.B -h
+causes HTTP headers to be printed to standard output
+in addition to the transferred web page.
+.PP
+Option
+.B -d
+turns on debugging written to standard error.
+.PP
+Normally,
+.I hget
+uses the IP stack mounted under
+.BR /net .
+The
+.B -x
+option can be used to specify the mount point of
+a different IP stack to use.
+.PP
+Option
+.B -v
+writes progress lines to standard output once a second.
+Each line contains two numbers, the bytes transferred so
+far and the total length to be transferred.
+.PP
+If the environment variable
+.B httpproxy
+is set, it is used as a URL denoting an HTTP proxy server.
+All HTTP accesses use this server to get the page instead of
+calling the destination server.
+.SH SOURCE
+.B \*9/src/cmd/hget.c
