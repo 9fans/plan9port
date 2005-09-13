@@ -10,7 +10,7 @@ case $# in
 *)
 	echo 'usage: moveplan9.sh [oldpath]' 1>&2
 	exit 1
-fi
+esac
 
 new=`cleanname $PLAN9`
 if [ X"$new" = X"" ]
