@@ -1,9 +1,51 @@
+September 12, 2005
+	lib/moveplan9.sh: allow specification of old directory
+	Getdir: interpret tags with $ in them
+	mpm: use g++ as LD, add tmac.pm to tmac directory
+	include/libc.h, fcall.h: add 9P2000.u extensions
+	9pserve: add 9P2000.u extensions
+	vac: add 9P2000.u extensions
+
+September 9, 2005
+	lc: add -p like man page says
+	various: insert (uchar) casts for ctype arguments
+		for broken NetBSD.
+
+September 4, 2005
+	dist/main.html: note x86 OpenBSD
+
+August 31, 2005
+	file: spell IA-64 correctly (Zoltan Jarai)
+
+August 30, 2005
+	dist/debian, dist/pkg: start playing with building packages
+	dist/isum: ignore 'loop not entered at top' (SunOS cc)
+	dist/ss.html: add screen shots
+	dist/unix.html: update VN license summary
+	9l: no need to handle OpenBSD specially
+	file: handle #! scripts, ELF better
+	font/lucidasans/bold*unicode.7.font: more subfonts
+	g: search .pl, .cgi
+	hget: add hget(1)
+	lp: add preliminary lp (not expected to work yet)
+	src: use Plan 9 file(1)
+
+August 12, 2005
+	lib/moveplan9.files: add bin/stack
+	include/libc.h: use DM constants from v9fs, add DMTMP
+	libthread: add Linux-power-asm.s
+	cb: add
+
 August 11, 2005
+	various: silence warnings
+	unix/*: note new BSD license from Vita Nuova
 	libdiskfs: add UFS2 support
 	libthread: add NetBSD power assembly
 	9term: send tty's current interrupt character on DEL keystroke
 	rc: add limited rfork command, make sure errors propagate
+	venti(8): document bloom line in config
 	vftp: add get command
+	vnfs: use strtoull for arguments instead of atoi.
 
 August 10, 2005
 	src/cmd/mkfile: do not build lp yet
