@@ -1,0 +1,85 @@
+#!/usr/local/plan9/bin/rc
+
+nl='
+'
+
+fn comma {
+	if(! ~ $#* 0 1){
+		echo -n $1
+		shift
+		sep=' '
+		len=0
+		for(i){
+			echo -n $sep$i
+			sep=', '
+			l=`{echo -n $sep$i|9 wc -c}
+			len=`{echo $l+$len | hoc}
+			if(test $len -gt 60){
+				sep=','^$nl^' '
+				len=0
+			}
+		}
+		echo
+	}
+}
+
+if(~ $#* 1 && ~ $1 all)
+	*=`{9 ls -p ../pkg | grep -v CVS}
+
+if(~ $#TREE9 0)
+	TREE9=$PLAN9
+
+date=`{u date +%Y%m%d}
+march=`{uname -m}
+arch=all
+switch($march){
+case i*86
+	march=i386
+}
+
+for(i)@{
+	if(! test -f ../pkg/$i){
+		echo no package ../pkg/$i
+		exit 1
+	}
+	package=plan9port-$i
+	grepfor=$i
+	. ../pkg/$i
+	deb=$package^_$date^_$arch.deb
+	rm -rf $i $deb
+	mkdir $i $i/DEBIAN
+	{
+		echo Package: $package
+		echo Version: $date
+		echo Section: extra
+		echo Priority: optional
+		echo Architecture: $arch
+		comma Depends: $depends
+		comma Suggests: $suggests
+		comma Conflicts: $conflicts
+		echo Installed-Size: $size
+		echo Maintainer: 'Russ Cox <rsc@swtch.com>'
+		echo Description: $desc
+	} >$i/DEBIAN/control
+	awk -v'pkg='$grepfor -v 'plan9='$TREE9 '$2==pkg {
+		dir=$1
+		sub("/[^/]+$", "/", dir)
+		if(dir != lastdir){
+			printf("mkdir -p ''%s''\n", pkg "/usr/local/plan9/" dir);
+			lastdir = dir
+		}
+		if($1 !~ /\/$/)
+			printf("cp ''%s'' ''%s''\n", plan9 "/" $1, pkg "/usr/local/plan9/" $1)
+	}' $TREE9/dist/filelist |rc
+	if(test -d $i/usr){
+		@{
+			cd $i
+			find usr -type f -print0 | xargs -0 -n 100 u md5sum
+		} >$i/DEBIAN/md5sums
+	}
+	if not
+		echo '>>>' $package is a virtual package.
+	dpkg -b $i pool/$deb
+	rm -rf $i
+}
+
