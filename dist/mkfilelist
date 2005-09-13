@@ -4,7 +4,7 @@
 	sort | sed 's;^./;;' | grep . |
 awk -vplan9'='$PLAN9 '
 	function cat(s) {
-		print $0, s
+		print line0, s
 		next
 	}
 	
@@ -28,6 +28,7 @@ awk -vplan9'='$PLAN9 '
 	}
 	
 	# Eliminate unmentionables.
+	{ line0 = $0 }
 	/^CVS\// { next }
 	/\/CVS\// { next }
 	/\.#/ { next }
