@@ -39,15 +39,16 @@ utf_in(int fd, long *notused, struct convert *out)
 		tot += n;
 		for(i=j=0; i<tot; ){
 			c = our_mbtowc(&l, buf+i, tot-i);
-			if(c == -1)
+			if(c == -2)
 				break;
-			if(c == -2){
+			if(c == -1){
 				if(squawk)
 					EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput+i);
 				if(clean)
 					continue;
 				nerrors++;
 				l = Runeerror;
+				c = 1;
 			}
 			runes[j++] = l;
 			i += c;
