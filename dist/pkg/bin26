@@ -11,6 +11,11 @@ depends=plan9port-^(base)
 conflicts=plan9port-bin24
 desc='Plan 9 from User Space - binaries
  This package contains binaries for Plan 9 from User Space.
- XXX Linux note here XXX
+ Due to incompatibilities between the Linux 2.6+ thread library
+ (NPTL) and the pre-2.6 Linux thread library (linuxthreads),
+ different binaries must be used on the pre-2.6 systems than
+ on 2.6 and later systems.
+ .
+ This package contains binaries for Linux 2.4 and earlier kernels.
 '
 grepfor=bin
