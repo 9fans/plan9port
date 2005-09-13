@@ -9,6 +9,8 @@ OFILES=misc.$O\
 
 HFILES=misc.h\
 
+LD=g++
+
 <$PLAN9/src/mkone
 CFLAGS=
 
