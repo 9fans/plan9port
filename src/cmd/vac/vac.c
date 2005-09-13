@@ -48,7 +48,7 @@ static void vacstdin(DirSink *dsink, char *name, VacFile *vf);
 static void vacdata(DirSink *dsink, int fd, char *lname, VacFile*, Dir*);
 static void vacdir(DirSink *dsink, int fd, char *lname, char *sname, VacFile*);
 static int vacmerge(DirSink *dsink, char *lname, char *sname);
-
+static int vacspecial(DirSink *dsink, Dir *dir, char *lname, char *sname, VacFile *vf);
 Sink *sinkalloc(VtConn *z, int psize, int dsize);
 void sinkwrite(Sink *k, uchar *data, int n);
 void sinkwritescore(Sink *k, uchar *score, int n);
@@ -401,7 +401,11 @@ vacfile(DirSink *dsink, char *lname, char *sname, VacFile *vf)
 		warn("could not stat file %s: %r", lname);
 		return;
 	}
-	if(dir->mode&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET)){
+	if(dir->mode&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE)){
+		vacspecial(dsink, dir, lname, sname, vf);
+		free(dir);
+		return;
+	}else if(dir->mode&DMSOCKET){
 		free(dir);
 		return;
 	}
@@ -724,6 +728,64 @@ Done:
 	return 0;
 }
 
+static int
+vacspecial(DirSink *dsink, Dir* dir, char *lname, char *sname, VacFile *vf)
+{
+	char *btmp, *buf;
+	int buflen, dtype, major, minor, n;
+	ulong entry;
+	Sink *sink;
+	VacDir vd;
+
+	n = 0;
+	buflen = 128;
+	buf = malloc(buflen);
+	if(buf == nil)
+		return -1;
+
+	if(verbose)
+		fprint(2, "%s\n", lname);
+
+	dir->name = lastelem(sname);
+
+	if(dir->mode & DMSYMLINK){
+		while((n = readlink(sname, buf, buflen)) == buflen){
+			buflen *= 2;
+			btmp = vtrealloc(buf, buflen);
+			if(btmp == nil){
+				free(buf);
+				return -1;
+			}
+			buf = btmp;
+		}
+		dir->mode &= ~DMDIR;
+		dir->mode |= DMSYMLINK;
+	}else if(dir->mode & DMDEVICE){
+		dtype = (dir->qid.path >> 16) & 0xFF;
+		minor = dir->qid.path & 0xff;
+		major = (dir->qid.path >> 8) & 0xFF;
+		n = snprint(buf, buflen, "%c %d %d", dtype, major, minor);
+	}
+
+	entry = dsink->nentry;
+
+	sink = sinkalloc(dsink->sink->z, bsize, bsize);
+	sinkwrite(sink, buf, n);
+	sinkclose(sink);
+	dirsinkwritesink(dsink, sink);
+	sinkfree(sink);
+	free(buf);
+	
+	dir->name = lastelem(sname);
+	dir->length = n;
+	plan9tovacdir(&vd, dir, entry, fileid++);
+	metasinkwritedir(dsink->msink, &vd);
+	vdcleanup(&vd);
+
+	return 0;
+}
+
+
 Sink *
 sinkalloc(VtConn *z, int psize, int dsize)
 {
@@ -783,6 +845,9 @@ sinkwrite(Sink *k, uchar *p, int n)
 {
 	int type;
 	uchar score[VtScoreSize];
+
+	if(n == 0)
+		return;
 
 	if(n > k->dir.dsize)
 		sysfatal("sinkWrite: size too big");
@@ -1134,6 +1199,12 @@ plan9tovacdir(VacDir *vd, Dir *dir, ulong entry, uvlong qid)
 		vd->mode |= ModeAppend;
 	if(dir->mode & DMEXCL)
 		vd->mode |= ModeExclusive;
+	if(dir->mode & DMDEVICE)
+		vd->mode |= ModeDevice;
+	if(dir->mode & DMNAMEDPIPE)
+		vd->mode |= ModeNamedPipe;
+	if(dir->mode & DMSYMLINK)
+		vd->mode |= ModeLink;
 
 	vd->plan9 = 1;
 	vd->p9path = dir->qid.path;
