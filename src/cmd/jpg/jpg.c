@@ -268,16 +268,18 @@ rpt:	array = Breadjpg(&b, colorspace);
 	c = nil;
 	if(jflag)
 		goto Return;
-	if(!dflag && !inited){
-		if(initdraw(0, 0, 0) < 0){
-			fprint(2, "jpg: initdraw failed: %r\n");
-			return "initdraw";
+	if(!dflag){
+		if(!inited){
+			if(initdraw(0, 0, 0) < 0){
+				fprint(2, "jpg: initdraw failed: %r\n");
+				return "initdraw";
+			}
+			if(Fflag == 0)
+				einit(Ekeyboard|Emouse);
+		inited++;
 		}
-		if(Fflag == 0)
-			einit(Ekeyboard|Emouse);
 		if(defaultcolor && screen->depth>8 && outchan==CMAP8)
 			outchan = RGB24;
-		inited++;
 	}
 	if(outchan == CMAP8)
 		c = torgbv(r, !eflag);
