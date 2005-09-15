@@ -90,7 +90,7 @@ again:
 			goto again;
 		return Ekeyboard;
 	default:
-		return 0;
+		goto again;
 	}
 }
 
