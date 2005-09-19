@@ -253,7 +253,7 @@ char* _attrnames[] = {
 // Character entity to unicode character number map.
 // Keep sorted by name.
 StringInt *chartab;
-AsciiInt _chartab[142] = {
+AsciiInt _chartab[] = {
 	{"AElig", 198},
 	{"Aacute", 193},
 	{"Acirc", 194},
@@ -310,9 +310,9 @@ AsciiInt _chartab[142] = {
 	{"eacute", 233},
 	{"ecirc", 234},
 	{"egrave", 232},
-	{"emdash", 8212},
+	{"emdash", 8212},	/* non-standard but commonly used */
 	{"emsp", 8195},
-	{"endash", 8211},
+	{"endash", 8211},	/* non-standard but commonly used */
 	{"ensp", 8194},
 	{"epsilon", 949},
 	{"eta", 951},
@@ -336,10 +336,12 @@ AsciiInt _chartab[142] = {
 	{"ldots", 8230},
 	{"lt", 60},
 	{"macr", 175},
+	{"mdash", 8212},
 	{"micro", 181},
 	{"middot", 183},
 	{"mu", 956},
 	{"nbsp", 160},
+	{"ndash", 8211},
 	{"not", 172},
 	{"ntilde", 241},
 	{"nu", 957},
@@ -397,7 +399,7 @@ AsciiInt _chartab[142] = {
 	{"yuml", 255},
 	{"zeta", 950}
 };
-#define NCHARTAB (sizeof(chartab)/sizeof(chartab[0]))
+#define NCHARTAB (sizeof(_chartab)/sizeof(_chartab[0]))
 
 // Characters Winstart..Winend are those that Windows
 // uses interpolated into the Latin1 set.
