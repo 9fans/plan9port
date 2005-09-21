@@ -99,7 +99,7 @@ setecho(int fd, int newe)
 int
 getintr(int fd)
 {
-	if((tcgetattr(fd, &ttmode) < 0)
+	if(tcgetattr(fd, &ttmode) < 0)
 		return 0x7F;
 	return ttmode.c_cc[VINTR];
 }
