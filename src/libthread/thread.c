@@ -16,6 +16,7 @@ static	void		addthreadinproc(Proc*, _Thread*);
 static	void		delthreadinproc(Proc*, _Thread*);
 static	void		contextswitch(Context *from, Context *to);
 static	void		procscheduler(Proc*);
+static	int		threadinfo(void*, char*);
 
 static void
 _threaddebug(char *fmt, ...)
@@ -614,6 +615,7 @@ main(int argc, char **argv)
 	_threadsetproc(p);
 	if(mainstacksize == 0)
 		mainstacksize = 256*1024;
+	atnotify(threadinfo, 1);
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	procscheduler(p);
 	sysfatal("procscheduler returned in threadmain!");
@@ -727,3 +729,42 @@ threadnotify(int (*f)(void*, char*), int in)
 {
 	atnotify(f, in);
 }
+
+static int
+onrunqueue(Proc *p, _Thread *t)
+{
+	_Thread *tt;
+
+	for(tt=p->runqueue.head; tt; tt=tt->next)
+		if(tt == t)
+			return 1;
+	return 0;
+}
+
+/*
+ * print state - called from SIGINFO
+ */
+static int
+threadinfo(void *v, char *s)
+{
+	Proc *p;
+	_Thread *t;
+
+	if(strcmp(s, "quit") != 0 && strcmp(s, "sys: status request") != 0)
+		return 0;
+
+	for(p=_threadprocs; p; p=p->next){
+		fprint(2, "proc %p %s%s\n", (void*)p->osprocid, p->msg,
+			p->sysproc ? " (sysproc)": "");
+		for(t=p->allthreads.head; t; t=t->allnext){
+			fprint(2, "\tthread %d %s: %s %s\n", 
+				t->id, 
+				t == p->thread ? "Running" : 
+				onrunqueue(p, t) ? "Ready" : "Sleeping",
+				t->state, t->name);
+		}
+	}
+	return 1;
+}
+
+
