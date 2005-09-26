@@ -1323,6 +1323,8 @@ runproc(void *argvp)
 	void **argv;
 	CFsys *fs;
 
+	threadsetname("runproc");
+
 	argv = argvp;
 	win = argv[0];
 	s = argv[1];

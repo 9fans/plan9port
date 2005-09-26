@@ -139,6 +139,8 @@ fsysproc(void *v)
 	Fcall t;
 	uchar *buf;
 
+	threadsetname("fsysproc");
+
 	USED(v);
 	x = nil;
 	for(;;){

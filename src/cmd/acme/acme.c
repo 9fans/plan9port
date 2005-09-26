@@ -341,6 +341,7 @@ shutdownthread(void *v)
 
 	USED(v);
 
+	threadsetname("shutdown");
 	c = threadnotechan();
 	while((msg = recvp(c)) != nil)
 		shutdown(nil, msg);
