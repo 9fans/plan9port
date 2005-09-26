@@ -26,11 +26,8 @@ _threaddebug(char *fmt, ...)
 	char *p;
 	static int fd = -1;
 
-return;
-	va_start(arg, fmt);
-	vfprint(1, fmt, arg);
-	va_end(arg);
-return;
+	if(_threaddebuglevel == 0)
+		return;
 
 	if(fd < 0){
 		p = strrchr(argv0, '/');
