@@ -830,6 +830,66 @@ extern	int	post9pservice(int, char*);
 #define main	p9main
 #endif
 
+/* compiler checking on plan 9, in rscc */
+#ifdef VARARGCK
+#pragma	varargck	type	"lld"	vlong
+#pragma	varargck	type	"llx"	vlong
+#pragma	varargck	type	"lld"	uvlong
+#pragma	varargck	type	"llx"	uvlong
+#pragma	varargck	type	"ld"	long
+#pragma	varargck	type	"lx"	long
+#pragma	varargck	type	"ld"	ulong
+#pragma	varargck	type	"lx"	ulong
+#pragma	varargck	type	"d"	int
+#pragma	varargck	type	"x"	int
+#pragma	varargck	type	"c"	int
+#pragma	varargck	type	"C"	int
+#pragma	varargck	type	"d"	uint
+#pragma	varargck	type	"x"	uint
+#pragma	varargck	type	"c"	uint
+#pragma	varargck	type	"C"	uint
+#pragma	varargck	type	"f"	double
+#pragma	varargck	type	"e"	double
+#pragma	varargck	type	"g"	double
+#pragma	varargck	type	"lf"	long double
+#pragma	varargck	type	"le"	long double
+#pragma	varargck	type	"lg"	long double
+#pragma	varargck	type	"s"	char*
+#pragma	varargck	type	"q"	char*
+#pragma	varargck	type	"S"	Rune*
+#pragma	varargck	type	"Q"	Rune*
+#pragma	varargck	type	"r"	void
+#pragma	varargck	type	"%"	void
+#pragma	varargck	type	"n"	int*
+#pragma	varargck	type	"p"	void*
+#pragma	varargck	type	"<"	void*
+#pragma	varargck	type	"["	void*
+#pragma	varargck	type	"H"	void*
+#pragma	varargck	type	"lH"	void*
+
+#pragma	varargck	flag	' '
+#pragma	varargck	flag	'#'
+#pragma	varargck	flag	'+'
+#pragma	varargck	flag	','
+#pragma	varargck	flag	'-'
+#pragma	varargck	flag	'u'
+
+#pragma	varargck	argpos	fmtprint	2
+#pragma	varargck	argpos	fprint	2
+#pragma	varargck	argpos	print	1
+#pragma	varargck	argpos	runeseprint	3
+#pragma	varargck	argpos	runesmprint	1
+#pragma	varargck	argpos	runesnprint	3
+#pragma	varargck	argpos	runesprint	2
+#pragma	varargck	argpos	seprint	3
+#pragma	varargck	argpos	smprint	1
+#pragma	varargck	argpos	snprint	3
+#pragma	varargck	argpos	sprint	2
+#pragma	varargck	argpos	sysfatal	1
+#pragma	varargck	argpos	syslog	3
+#pragma	varargck	argpos	werrstr	1
+#endif
+
 /* compiler directives on plan 9 */
 #define	SET(x)	((x)=0)
 #define	USED(x)	if(x){}else{}
