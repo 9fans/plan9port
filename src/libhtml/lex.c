@@ -333,7 +333,9 @@ AsciiInt _chartab[] = {
 	{"kappa", 954},
 	{"lambda", 955},
 	{"laquo", 171},
+	{"ldquo", 8220},
 	{"ldots", 8230},
+	{"lsquo", 8216},
 	{"lt", 60},
 	{"macr", 175},
 	{"mdash", 8212},
@@ -364,8 +366,10 @@ AsciiInt _chartab[] = {
 	{"quad", 8193},
 	{"quot", 34},
 	{"raquo", 187},
+	{"rdquo", 8221},
 	{"reg", 174},
 	{"rho", 961},
+	{"rsquo", 8217},
 	{"sect", 167},
 	{"shy", 173},
 	{"sigma", 963},
@@ -492,9 +496,9 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 	ai = 0;
 	if(dbglex)
 		fprint(2, "_gettoks starts, ts.i=%d, ts.edata=%d\n", ts->i, ts->edata);
-	if(ts->mtype == TextHtml) {
-		for(;;) {
-			if(ai == alen) {
+	if(ts->mtype == TextHtml){
+		for(;;){
+			if(ai == alen){
 				a = (Token*)erealloc(a, (alen+ToksChunk)*sizeof(Token));
 				alen += ToksChunk;
 			}
@@ -502,9 +506,9 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 			c = getchar(ts);
 			if(c < 0)
 				break;
-			if(c == '<') {
+			if(c == '<'){
 				tag = gettag(ts, starti, a, &ai);
-				if(tag == Tscript) {
+				if(tag == Tscript){
 					// special rules for getting Data after....
 					starti = ts->i;
 					c = getchar(ts);
@@ -521,8 +525,8 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 	}
 	else {
 		// plain text (non-html) tokens
-		for(;;) {
-			if(ai == alen) {
+		for(;;){
+			if(ai == alen){
 				a = (Token*)erealloc(a, (alen+ToksChunk)*sizeof(Token));
 				alen += ToksChunk;
 			}
@@ -560,14 +564,14 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 	s = nil;
 	j = 0;
 	starti = ts->i;
-	for(c = getchar(ts); c >= 0; c = getchar(ts)) {
-		if(c < ' ') {
-			if(isspace(c)) {
-				if(c == '\r') {
+	for(c = getchar(ts); c >= 0; c = getchar(ts)){
+		if(c < ' '){
+			if(isspace(c)){
+				if(c == '\r'){
 					// ignore it unless no following '\n',
 					// in which case treat it like '\n'
 					c = getchar(ts);
-					if(c != '\n') {
+					if(c != '\n'){
 						if(c >= 0)
 							ungetchar(ts, c);
 						c = '\n';
@@ -577,9 +581,9 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 			else
 				c = 0;
 		}
-		if(c != 0) {
+		if(c != 0){
 			buf[j++] = c;
-			if(j == sizeof(buf)-1) {
+			if(j == sizeof(buf)-1){
 				s = buftostr(s, buf, j);
 				j = 0;
 			}
@@ -627,19 +631,19 @@ getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 	s = nil;
 	j = 0;
 	c = firstc;
-	while(c >= 0) {
-		if(c == '&') {
+	while(c >= 0){
+		if(c == '&'){
 			c = ampersand(ts);
 			if(c < 0)
 				break;
 		}
-		else if(c < ' ') {
-			if(isspace(c)) {
-				if(c == '\r') {
+		else if(c < ' '){
+			if(isspace(c)){
+				if(c == '\r'){
 					// ignore it unless no following '\n',
 					// in which case treat it like '\n'
 					c = getchar(ts);
-					if(c != '\n') {
+					if(c != '\n'){
 						if(c >= 0)
 							ungetchar(ts, c);
 						c = '\n';
@@ -652,13 +656,13 @@ getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 				c = 0;
 			}
 		}
-		else if(c == '<') {
+		else if(c == '<'){
 			ungetchar(ts, c);
 			break;
 		}
-		if(c != 0) {
+		if(c != 0){
 			buf[j++] = c;
-			if(j == BIGBUFSIZE-1) {
+			if(j == BIGBUFSIZE-1){
 				s = buftostr(s, buf, j);
 				j = 0;
 			}
@@ -696,12 +700,12 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 	tstarti = starti;
 	c = firstc;
 	done = 0;
-	while(c >= 0) {
-		if(c == '<') {
+	while(c >= 0){
+		if(c == '<'){
 			// other browsers ignore stuff to end of line after <!
 			savei = ts->i;
 			c = getchar(ts);
-			if(c == '!') {
+			if(c == '!'){
 				while(c >= 0 && c != '\n' && c != '\r')
 					c = getchar(ts);
 				if(c == '\r')
@@ -709,7 +713,7 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 				if(c == '\n')
 					c = getchar(ts);
 			}
-			else if(c >= 0) {
+			else if(c >= 0){
 				backup(ts, savei);
 				tag = gettag(ts, tstarti, a, pai);
 				if(tag == -1)
@@ -717,7 +721,7 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 				if(tag != Comment)
 					(*pai)--;
 				backup(ts, tstarti);
-				if(tag == Tscript + RBRA) {
+				if(tag == Tscript + RBRA){
 					done = 1;
 					break;
 				}
@@ -727,9 +731,9 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 		}
 		if(c < 0)
 			break;
-		if(c != 0) {
+		if(c != 0){
 			buf[j++] = c;
-			if(j == BIGBUFSIZE-1) {
+			if(j == BIGBUFSIZE-1){
 				s = buftostr(s, buf, j);
 				j = 0;
 			}
@@ -737,7 +741,7 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 		tstarti = ts->i;
 		c = getchar(ts);
 	}
-	if(done || ts->i == ts->edata) {
+	if(done || ts->i == ts->edata){
 		s = buftostr(s, buf, j);
 		tok = &a[(*pai)++];
 		tok->tag = Data;
@@ -784,15 +788,15 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 	tok->attr = nil;
 	tok->starti = starti;
 	c = getchar(ts);
-	if(c == '/') {
+	if(c == '/'){
 		rbra = RBRA;
 		c = getchar(ts);
 	}
 	if(c < 0)
 		goto eob_done;
-	if(c >= 256 || !isalpha(c)) {
+	if(c >= 256 || !isalpha(c)){
 		// not a tag
-		if(c == '!') {
+		if(c == '!'){
 			ans = comment(ts);
 			if(ans != -1)
 				return ans;
@@ -809,7 +813,7 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 	// c starts a tagname
 	buf[0] = c;
 	i = 1;
-	while(1) {
+	for(;;){
 		c = getchar(ts);
 		if(c < 0)
 			goto eob_done;
@@ -826,34 +830,34 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 
 	// attribute gathering loop
 	al = nil;
-	while(1) {
+	for(;;){
 		// look for "ws name" or "ws name ws = ws val"  (ws=whitespace)
 		// skip whitespace
 attrloop_continue:
-		while(c < 256 && isspace(c)) {
+		while(c < 256 && isspace(c)){
 			c = getchar(ts);
 			if(c < 0)
 				goto eob_done;
 		}
 		if(c == '>')
 			goto attrloop_done;
-		if(c == '<') {
+		if(c == '<'){
 			if(warn)
 				fprint(2, "warning: unclosed tag\n");
 			ungetchar(ts, c);
 			goto attrloop_done;
 		}
-		if(c >= 256 || !isalpha(c)) {
+		if(c >= 256 || !isalpha(c)){
 			if(warn)
 				fprint(2, "warning: expected attribute name\n");
 			// skipt to next attribute name
-			while(1) {
+			for(;;){
 				c = getchar(ts);
 				if(c < 0)
 					goto eob_done;
 				if(c < 256 && isalpha(c))
 					goto attrloop_continue;
-				if(c == '<') {
+				if(c == '<'){
 					if(warn)
 						fprint(2, "warning: unclosed tag\n");
 					ungetchar(ts, 60);
@@ -866,7 +870,7 @@ attrloop_continue:
 		// gather attribute name
 		buf[0] = c;
 		i = 1;
-		while(1) {
+		for(;;){
 			c = getchar(ts);
 			if(c < 0)
 				goto eob_done;
@@ -876,23 +880,23 @@ attrloop_continue:
 				buf[i++] = c;
 		}
 		afnd = _lookup(attrtable, Numattrs, buf, i, &attid);
-		if(warn && !afnd) {
+		if(warn && !afnd){
 			buf[i] = 0;
 			fprint(2, "warning: unknown attribute name %S\n", buf);
 		}
 		// skip whitespace
-		while(c < 256 && isspace(c)) {
+		while(c < 256 && isspace(c)){
 			c = getchar(ts);
 			if(c < 0)
 				goto eob_done;
 		}
-		if(c != '=') {
+		if(c != '='){
 			if(afnd)
 				al = newattr(attid, nil, al);
 			goto attrloop_continue;
 		}
 		//# c is '=' here;  skip whitespace
-		while(1) {
+		for(;;){
 			c = getchar(ts);
 			if(c < 0)
 				goto eob_done;
@@ -900,7 +904,7 @@ attrloop_continue:
 				break;
 		}
 		quote = 0;
-		if(c == '\'' || c == '"') {
+		if(c == '\'' || c == '"'){
 			quote = c;
 			c = getchar(ts);
 			if(c < 0)
@@ -908,31 +912,31 @@ attrloop_continue:
 		}
 		val = nil;
 		nv = 0;
-		while(1) {
+		for(;;){
 valloop_continue:
 			if(c < 0)
 				goto eob_done;
-			if(c == '>') {
-				if(quote) {
+			if(c == '>'){
+				if(quote){
 					// c might be part of string (though not good style)
 					// but if line ends before close quote, assume
 					// there was an unmatched quote
 					ti = ts->i;
-					while(1) {
+					for(;;){
 						c = getchar(ts);
 						if(c < 0)
 							goto eob_done;
-						if(c == quote) {
+						if(c == quote){
 							backup(ts, ti);
 							buf[nv++] = '>';
-							if(nv == BIGBUFSIZE-1) {
+							if(nv == BIGBUFSIZE-1){
 								val = buftostr(val, buf, nv);
 								nv = 0;
 							}
 							c = getchar(ts);
 							goto valloop_continue;
 						}
-						if(c == '\n') {
+						if(c == '\n'){
 							if(warn)
 								fprint(2, "warning: apparent unmatched quote\n");
 							backup(ts, ti);
@@ -944,14 +948,14 @@ valloop_continue:
 				else
 					goto valloop_done;
 			}
-			if(quote) {
-				if(c == quote) {
+			if(quote){
+				if(c == quote){
 					c = getchar(ts);
 					if(c < 0)
 						goto eob_done;
 					goto valloop_done;
 				}
-				if(c == '\r') {
+				if(c == '\r'){
 					c = getchar(ts);
 					goto valloop_continue;
 				}
@@ -962,20 +966,20 @@ valloop_continue:
 				if(c < 256 && isspace(c))
 					goto valloop_done;
 			}
-			if(c == '&') {
+			if(c == '&'){
 				c = ampersand(ts);
 				if(c == -1)
 					goto eob_done;
 			}
 			buf[nv++] = c;
-			if(nv == BIGBUFSIZE-1) {
+			if(nv == BIGBUFSIZE-1){
 				val = buftostr(val, buf, nv);
 				nv = 0;
 			}
 			c = getchar(ts);
 		}
 valloop_done:
-		if(afnd) {
+		if(afnd){
 			val = buftostr(val, buf, nv);
 			al = newattr(attid, val, al);
 		}
@@ -1017,19 +1021,19 @@ comment(TokenSource* ts)
 	nexti = ts->i;
 	havecomment = 0;
 	c = getchar(ts);
-	if(c == '-') {
+	if(c == '-'){
 		c = getchar(ts);
-		if(c == '-') {
+		if(c == '-'){
 			if(findstr(ts, L(Larrow)))
 				havecomment = 1;
 			else
 				backup(ts, nexti);
 		}
 	}
-	if(!havecomment) {
+	if(!havecomment){
 		if(c == '>')
 			havecomment = 1;
-		else if(c >= 0) {
+		else if(c >= 0){
 			if(findstr(ts, L(Lgt)))
 				havecomment = 1;
 		}
@@ -1053,15 +1057,15 @@ findstr(TokenSource* ts, Rune* s)
 
 	c0 = s[0];
 	n = runestrlen(s);
-	while(1) {
+	for(;;){
 		c = getchar(ts);
 		if(c < 0)
 			break;
-		if(c == c0) {
+		if(c == c0){
 			if(n == 1)
 				return 1;
 			nexti = ts->i;
-			for(i = 1; i < n; i++) {
+			for(i = 1; i < n; i++){
 				c = getchar(ts);
 				if(c < 0)
 					goto mainloop_done;
@@ -1075,6 +1079,18 @@ findstr(TokenSource* ts, Rune* s)
 	}
 mainloop_done:
 	return 0;
+}
+
+static int
+xdigit(int c)
+{
+	if('0' <= c && c <= '9')
+		return c-'0';
+	if('a' <= c && c <= 'f')
+		return c-'a'+10;
+	if('A' <= c && c <= 'F')
+		return c-'A'+10;
+	return -1;
 }
 
 // We've just read an '&'; look for an entity reference
@@ -1100,36 +1116,42 @@ ampersand(TokenSource* ts)
 	c = getchar(ts);
 	fnd = 0;
 	ans = -1;
-	if(c == '#') {
+	if(c == '#'){
 		c = getchar(ts);
 		v = 0;
-		while(c >= 0) {
-			if(!(c < 256 && isdigit(c)))
-				break;
-			v = v*10 + c - 48;
+		if(c == 'x'){
 			c = getchar(ts);
+			while((i=xdigit(c)) != -1){
+				v = v*16 + i;
+				c = getchar(ts);
+			}
+		}else{
+			while('0' <= c && c <= '9'){
+				v = v*10 + c - '0';
+				c = getchar(ts);
+			}
 		}
-		if(c >= 0) {
+		if(c >= 0){
 			if(!(c == ';' || c == '\n' || c == '\r'))
 				ungetchar(ts, c);
 			c = v;
 			if(c == 160)
 				c = 160;
-			if(c >= Winstart && c <= Winend) {
+			if(c >= Winstart && c <= Winend){
 				c = winchars[c - Winstart];
 			}
 			ans = c;
 			fnd = 1;
 		}
 	}
-	else if(c < 256 && isalpha(c)) {
+	else if(c < 256 && isalpha(c)){
 		buf[0] = c;
 		k = 1;
-		while(1) {
+		for(;;){
 			c = getchar(ts);
 			if(c < 0)
 				break;
-			if(ISNAMCHAR(c)) {
+			if(ISNAMCHAR(c)){
 				if(k < SMALLBUFSIZE-1)
 					buf[k++] = c;
 			}
@@ -1139,17 +1161,17 @@ ampersand(TokenSource* ts)
 				break;
 			}
 		}
-		if(c >= 0) {
+		if(c >= 0){
 			fnd = _lookup(chartab, NCHARTAB, buf, k, &ans);
-			if(!fnd) {
+			if(!fnd){
 				// Try prefixes of s
 				if(c == ';' || c == '\n' || c == '\r')
 					ungetchar(ts, c);
 				i = k;
-				while(--k > 0) {
+				while(--k > 0){
 					fnd = _lookup(chartab, NCHARTAB, buf, k, &ans);
-					if(fnd) {
-						while(i > k) {
+					if(fnd){
+						while(i > k){
 							i--;
 							ungetchar(ts, buf[i]);
 						}
@@ -1159,7 +1181,7 @@ ampersand(TokenSource* ts)
 			}
 		}
 	}
-	if(!fnd) {
+	if(!fnd){
 		backup(ts, savei);
 		ans = '&';
 	}
@@ -1181,14 +1203,14 @@ getchar(TokenSource* ts)
 		return -1;
 	buf = ts->data;
 	c = buf[ts->i];
-	switch(ts->chset) {
+	switch(ts->chset){
 	case ISO_8859_1:
 		if(c >= Winstart && c <= Winend)
 			c = winchars[c - Winstart];
 		ts->i++;
 		break;
 	case US_Ascii:
-		if(c > 127) {
+		if(c > 127){
 			if(warn)
 				fprint(2, "non-ascii char (%x) when US-ASCII specified\n", c);
 		}
@@ -1197,7 +1219,7 @@ getchar(TokenSource* ts)
 	case UTF_8:
 		ok = fullrune((char*)(buf+ts->i), ts->edata-ts->i);
 		n = chartorune(&r, (char*)(buf+ts->i));
-		if(ok) {
+		if(ok){
 			if(warn && c == 0x80)
 				fprint(2, "warning: invalid utf-8 sequence (starts with %x)\n", ts->data[ts->i]);
 			ts->i += n;
@@ -1210,7 +1232,7 @@ getchar(TokenSource* ts)
 		}
 		break;
 	case Unicode:
-		if(ts->i < ts->edata - 1) {
+		if(ts->i < ts->edata - 1){
 			//standards say most-significant byte first
 			c = (c << 8)|(buf[ts->i + 1]);
 			ts->i += 2;
@@ -1235,9 +1257,9 @@ ungetchar(TokenSource* ts, int c)
 	char	a[UTFmax];
 
 	n = 1;
-	switch(ts->chset) {
+	switch(ts->chset){
 	case UTF_8:
-		if(c >= 128) {
+		if(c >= 128){
 			r = c;
 			n = runetochar(a, &r);
 		}
@@ -1273,8 +1295,8 @@ _tokaval(Token* t, int attid, Rune** pans, int xfer)
 	Attr*	attr;
 
 	attr = t->attr;
-	while(attr != nil) {
-		if(attr->attid == attid) {
+	while(attr != nil){
+		if(attr->attid == attid){
 			if(pans != nil)
 				*pans = attr->value;
 			if(xfer)
@@ -1308,12 +1330,12 @@ Tconv(Fmt *f)
 		if(dbglex > 1)
 			i = snprint(buf, sizeof(buf), "[%d]", t->starti);
 		tag = t->tag;
-		if(tag == Data) {
+		if(tag == Data){
 			i += snprint(buf+i, sizeof(buf)-i-1, "'%S'", t->text);
 		}
 		else {
 			srbra = "";
-			if(tag >= RBRA) {
+			if(tag >= RBRA){
 				tag -= RBRA;
 				srbra = "/";
 			}
@@ -1321,7 +1343,7 @@ Tconv(Fmt *f)
 			if(tag == Notfound)
 				tname = L(Lquestion);
 			i += snprint(buf+i, sizeof(buf)-i-1, "<%s%S", srbra, tname);
-			for(a = t->attr; a != nil; a = a->next) {
+			for(a = t->attr; a != nil; a = a->next){
 				aname = attrnames[a->attid];
 				i += snprint(buf+i, sizeof(buf)-i-1, " %S", aname);
 				if(a->value != nil)
@@ -1356,7 +1378,7 @@ freeattrs(Attr* ahead)
 	Attr* nexta;
 
 	a = ahead;
-	while(a != nil) {
+	while(a != nil){
 		nexta = a->next;
 		free(a->value);
 		free(a);
@@ -1377,7 +1399,7 @@ _freetokens(Token* tarray, int n)
 
 	if(tarray == nil)
 		return;
-	for(i = 0; i < n; i++) {
+	for(i = 0; i < n; i++){
 		t = &tarray[i];
 		free(t->text);
 		freeattrs(t->attr);
