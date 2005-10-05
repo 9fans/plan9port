@@ -1,10 +1,4 @@
-/*
- * No idea whether this will work.  It does compile.
- */
-
 #include <u.h>
-#include <kvm.h>
-#include <nlist.h>
 #include <sys/types.h>
 #include <sys/protosw.h>
 #include <sys/socket.h>
@@ -15,119 +9,302 @@
 #include <net/if_var.h>
 #include <net/if_dl.h>
 #include <net/if_types.h>
+#include <ifaddrs.h>
 #include <sys/ioctl.h>
 #include <limits.h>
 #include <libc.h>
 #include <bio.h>
+
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/ps/IOPowerSources.h>
+AUTOFRAMEWORK(CoreFoundation)
+AUTOFRAMEWORK(IOKit)
+
 #include "dat.h"
 
+typedef struct Sample Sample;
+
+struct Sample
+{
+	uint seq;
+	host_cpu_load_info_data_t cpu, p_cpu;
+	vm_size_t pgsize;
+	double divisor;
+	uint64_t time, p_time;
+	vm_statistics_data_t vm_stat, p_vm_stat;
+	boolean_t purgeable_is_valid;
+	struct xsw_usage xsu;
+	boolean_t xsu_valid;
+	integer_t syscalls_mach, p_syscalls_mach;
+	integer_t syscalls_unix, p_syscalls_unix;
+	ulong csw, p_csw;
+	uint net_ifaces;
+	uvlong net_ipackets, p_net_ipackets;
+	uvlong net_opackets, p_net_opackets;
+	uvlong net_ibytes, p_net_ibytes;
+	uvlong net_obytes, p_net_obytes;
+	uvlong net_errors, p_net_errors;
+	ulong usecs;
+};
+
+static Sample sample;
+
+void xsample(int);
+void xapm(int);
 void xloadavg(int);
 void xcpu(int);
 void xswap(int);
-void xsysctl(int);
+void xvm(int);
 void xnet(int);
-void xkvm(int);
 
 void (*statfn[])(int) =
 {
-	xkvm,
+	xsample,
+	xapm,
 	xloadavg,
 	xswap,
 	xcpu,
-	xsysctl,
+	xvm,
 	xnet,
 	0
 };
 
-static kvm_t *kvm;
-
-static struct nlist nl[] = {
-	{ "_ifnet" },
-	{ "_cp_time" },
-	{ "" },
-};
+static mach_port_t stat_port;
 
 void
-kvminit(void)
+sampleinit(void)
 {
-	char buf[_POSIX2_LINE_MAX];
+	mach_timebase_info_data_t info;
+	
+	if(stat_port)
+		return;
 
-	if(kvm)
+	stat_port = mach_host_self();
+	memset(&sample, 0, sizeof sample);
+	if(host_page_size(stat_port, &sample.pgsize) != KERN_SUCCESS)
+		sample.pgsize = 4096;
+
+	// populate clock tick info for timestamps
+	mach_timebase_info(&info);
+        sample.divisor = 1000.0 * (double)info.denom/info.numer;
+	sample.time = mach_absolute_time();
+}
+
+void
+samplenet(void)
+{
+	struct ifaddrs *ifa_list, *ifa;
+	
+	ifa_list = nil;
+	sample.net_ifaces = nil;
+	if(getifaddrs(&ifa_list) == 0){
+		sample.p_net_ipackets = sample.net_ipackets;
+		sample.p_net_opackets = sample.net_opackets;
+		sample.p_net_ibytes = sample.net_ibytes;
+		sample.p_net_obtypes = sample.net_obytes;
+		sample.p_net_errors = sample.net_errors;
+
+		sample.net_ipackets = 0;
+		sample.net_opackets = 0;
+		sample.net_ibytes = 0;
+		sample.net_obytes = 0;
+		sample.net_errors = 0;
+		sample.net_ifaces = 0;
+		
+		for(ifa=ifa_list; ifa; ifa=ifa->next){
+			if(ifa->ifa_addr->sa_family != AF_LINK)
+				continue;
+			if((ifa->ifa_flags&(IFF_UP|IFF_RUNNING)) == 0)
+				continue;
+			if(ifa->ifa_data == nil)
+				continue;
+			if(strncmp(ifa->ifa_name, "lo", 2) == 0)	/* loopback */
+				continue;
+			
+			sample.net_ipackets += if_data->ifi_ipackets;
+			sample.net_opackets += if_data->ifi_opackets;
+			sample.net_ibytes += if_data->ifi_ibytes;
+			sample.net_obytes += if_data->ifi_obtypes;
+			sample.net_errors += if_data->ifi_ierrors + if_data->ifif_oerrors;
+			sample.net_ifaces++;
+		}
+		freeifaddrs(ifa_list);
+	}
+}
+
+
+/*
+ * The following forces the program to be run with the suid root as
+ * all the other stat monitoring apps get set:
+ *
+ * -rwsr-xr-x   1 root  wheel  83088 Mar 20  2005 /usr/bin/top
+ * -rwsrwxr-x   1 root  admin  54048 Mar 20  2005 
+ *	/Applications/Utilities/Activity Monitor.app/Contents/Resources/pmTool
+ *
+ * If Darwin eventually encompases more into sysctl then this
+ * won't be required.
+ */
+void
+sampevents(void)
+{
+	uint i, j, pcnt, tcnt;
+	mach_msg_type_number_t count;
+	kern_return_t error;
+	processor_set_t *psets, pset;
+	task_t *tasks;
+	task_events_info_data_t events;
+
+	if((error = host_processor_sets(stat_port, &psets, &pcnt)) != KERN_SUCCESS){
+		Bprint(&bout, "host_processor_sets: %s (make sure auxstats is setuid root)\n",
+			mach_error_string(error));
 		return;
-	kvm = kvm_openfiles(nil, nil, nil, OREAD, buf);
-	if(kvm == nil)
-		return;
-	if(kvm_nlist(kvm, nl) < 0 || nl[0].n_type == 0){
-		kvm = nil;
+	}
+	
+	sample.p_syscalls_mach = sample.syscalls_mach;
+	sample.p_syscalls_unix = sample.syscalls_unix;
+	sample.p_csw = sample.csw;
+
+	sample.syscalls_mach = 0;
+	sample.syscalls_unix = 0;
+	sample.csw = 0;
+	
+	for(i=0; i<pcnt; i++){
+		if((error=host_processor_set_priv(stat_port, psets[i], &pset)) != KERN_SUCCESS){
+			Bprint(&bout, "host_processor_set_priv: %s\n", mach_error_string(error));
+			return;
+		}
+		if((error=host_processor_set_tasks(pset, &tasks, &tcnt)) != KERN_SUCCESS){
+			Bprint(&bout, "host_processor_set_tasks: %s\n", mach_error_string(error));
+			return;
+		}
+		for(j=0; j<tcnt; j++){
+			count = TASK_EVENTS_INFO_COUNT;
+			if(task_info(tasks[j], TASK_EVENTS_INFO, (task_info_t)&events, &count) == KERN_SUCCESS){
+				sample.syscalls_mach += events.syscalls_mach;
+				sample.syscalls_unix += events.syscalls_unix;
+				sample.csw += events.csw;
+			}
+			
+			if(tasks[j] != mach_task_self())
+				mach_port_deallocate(mach_task_self(), tasks[j]);
+		}
+		
+		if((error = vm_deallocate((vm_map_t)mach_task_self(), 
+				(vm_address_t)tasks, tcnt*sizeof(task_t))) != KERN_SUCCESS){
+			Bprint(&bout, "vm_deallocate: %s\n", mach_error_string(error));
+			return;
+		}
+		
+		if((error = mach_port_deallocate(mach_task_self(), pset)) != KERN_SUCCESS
+		|| (error = mach_port_deallocate(mach_task_self(), psets[i])) != KERN_SUCCESS){
+			Bprint(&bout, "mach_port_deallocate: %s\n", mach_error_string(error));
+			return;
+		}
+	}
+	
+	if((error = vm_deallocate((vm_map_t)mach_task_self(), (vm_address_t)psets,
+			pcnt*sizeof(processor_set_t))) != KERN_SUCCESS){
+		Bprint(&bout, "vm_deallocate: %s\n", mach_error_string(error));
 		return;
 	}
 }
 
 void
-xkvm(int first)
+xsample(int first)
 {
+	int mib[2];
+	mach_msg_type_number_t count;
+	kern_return_t error;
+	size_t len;
+	
+	if(first){
+		sampleinit();
+		return;
+	}
+	
+	sample.seq++;
+	sample.p_time = sample.time;
+	sample.time = mach_absolute_time();
+
+	sample.p_vm_stat = sample.vm_stat;
+	count = sizeof(sample.vm_stat) / sizeof(natural_t);
+	host_statistics(stat_port, HOST_VM_INFO, (host_info_t)&sample.vm_stat, &count);
+	
+	if(sample.seq == 1)
+		sample.p_vm_stat = sample.vm_stat;
+
+	mib[0] = CTL_VM;
+	mib[1] = VM_SWAPUSAGE;
+	len = sizeof sample.xsu;
+	sample.xsu_valid = TRUE;
+	if(sysctl(mib, 2, &asamp.xsu, &len, NULL, 0) < 0 && errno == ENOENT)
+		sample.xsu_value = FALSE;
+		
+	samplenet();
+	sampleevents();
+
+	sample.p_cpu = sample.cpu;
+	count = HOST_CPU_LOAD_INFO_COUNT;
+	host_statistics(stat_port, HOST_CPU_LOAD_INFO, (host_info_t)&sample.cpu, &count);
+	sample.usecs = (double)(asamp.time - asamp.p_time)/asamp.divisor;
+	Bprint(&bout, "usecs %lud\n", sample.usecs);
+}
+
+void
+xapm(int first)
+{
+	int i, battery;
+	CFArrayRef array;
+	CFDictionaryRef dict;
+	CFTypeRef cf, src, value;
+
 	if(first)
-		kvminit();
-}
+		return;
+		
+	src = IOPSCopyPowerSourcesInfo();
+	array = IOPSCopyPowerSourcesList(src);
 
-int
-kread(ulong addr, char *buf, int size)
-{
-	if(kvm_read(kvm, addr, buf, size) != size){
-		memset(buf, 0, size);
-		return -1;
+	for(i=0; i<CFArrayGetCount(array); i++){
+		cf = CFArrayGetValueAtIndex(array, i);
+		dict = IOPSGetPowerSourceDescription(src, cf);
+		if(dict != nil){
+			value = CFDictionaryGetValue(dict, CFSTR("Current Capacity"));
+			if(value != nil){
+				if(!CFNumberGetValue(value, kCFNumberIntType, &battery))
+					battery = 100;
+				Bprint(&bout, "battery =%d 100\n", battery);
+				break;
+			}
+		}
 	}
-	return size;
+
+	CFRelease(array);
+	CFRelease(src);
 }
 
 void
 xnet(int first)
 {
-#if 0
-	ulong out, in, outb, inb, err;
-	static ulong ifnetaddr;
-	ulong addr;
-	struct ifnet ifnet;
-	struct ifnethead ifnethead;
-	char name[16];
-
-	if(first)
-		return;
-
-	if(ifnetaddr == 0){
-		ifnetaddr = nl[0].n_value;
-		if(ifnetaddr == 0)
-			return;
-	}
-
-	if(kread(ifnetaddr, (char*)&ifnethead, sizeof ifnethead) < 0)
-		return;
-
-	out = in = outb = inb = err = 0;
-	addr = (ulong)TAILQ_FIRST(&ifnethead);
-	while(addr){
-		if(kread(addr, (char*)&ifnet, sizeof ifnet) < 0
-		|| kread((ulong)ifnet.if_name, name, 16) < 0)
-			return;
-		name[15] = 0;
-		addr = (ulong)TAILQ_NEXT(&ifnet, if_link);
-		out += ifnet.if_opackets;
-		in += ifnet.if_ipackets;
-		outb += ifnet.if_obytes;
-		inb += ifnet.if_ibytes;
-		err += ifnet.if_oerrors+ifnet.if_ierrors;
-	}
-	Bprint(&bout, "etherin %lud\n", in);
-	Bprint(&bout, "etherout %lud\n", out);
-	Bprint(&bout, "etherinb %lud\n", inb);
-	Bprint(&bout, "etheroutb %lud\n", outb);
-	Bprint(&bout, "ethererr %lud\n", err);
-	Bprint(&bout, "ether %lud\n", in+out);
-	Bprint(&bout, "etherb %lud\n", inb+outb);
-#endif
-	USED(first);
+	uint n;
+	uvlong err, in, inb, out, outb;
+	
+	n = sample.net_ifaces;
+	in = sample.net_ipackets;
+	out = sample.net_opackets;
+	inb = sample.net_ibytes;
+	outb = sample.net_obytes;
+	err = sample.net_errors;
+	
+       Bprint(&bout, "etherb %llud %d\n", inb+outb, n*1000000);
+       Bprint(&bout, "ether %llud %d\n", in+out, n*1000);
+       Bprint(&bout, "ethererr %llud %d\n", err, n*1000);
+       Bprint(&bout, "etherin %llud %d\n", in, n*1000);
+       Bprint(&bout, "etherout %llud %d\n", out, n*1000);
+       Bprint(&bout, "etherinb %llud %d\n", inb, n*1000);
+       Bprint(&bout, "etheroutb %llud %d\n", outb, n*1000);
 }
-
 
 int
 rsys(char *name, char *buf, int len)
@@ -154,56 +331,60 @@ isys(char *name)
 }
 
 void
-xsysctl(int first)
+xvm(int first)
 {
-	static int pgsize;
-	vlong t;
+	uvlong total;
 
-	if(first){
-		pgsize = isys("vm.stats.vm.v_page_size");
-		if(pgsize == 0)
-			pgsize = 4096;
-	}
-	if((t = isys("vm.stats.vm.v_page_count")) != 0)
-		Bprint(&bout, "mem %lld %lld\n", 
-			isys("vm.stats.vm.v_active_count")*pgsize, 
-			t*pgsize);
-	Bprint(&bout, "context %lld 1000\n", isys("vm.stats.sys.v_swtch"));
-	Bprint(&bout, "syscall %lld 1000\n", isys("vm.stats.sys.v_syscall"));
-	Bprint(&bout, "intr %lld 1000\n", isys("vm.stats.sys.v_intr")+isys("vm.stats.sys.v_trap"));
-	Bprint(&bout, "fault %lld 1000\n", isys("vm.stats.vm.v_vm_faults"));
-	Bprint(&bout, "fork %lld 1000\n", isys("vm.stats.vm.v_forks")
-		+isys("vm.stats.vm.v_rforks")
+	if(first)
+		return;
+
+	total = sample.vm_stat.free_count
+		+ sample.vm_stat.active_count
+		+ sample.vm_stat.inactive_count
+		+ sample.vm_stat.wire_count;
+	if(total)
+		Bprint(&bout, "mem =%lld %lld\n", sample.vm_stat_active_count, total);
+
+	Bprint(&bout, "context %lld 1000\n", (vlong)sample.csw);
+	Bprint(&bout, "syscall %lld 1000\n", (vlong)sample.syscalls_mach+sample.syscalls_unix);
+	Bprint(&bout, "intr %lld 1000\n", 
+		isys("vm.stats.sys.v_intr")
+		+isys("vm.stats.sys.v_trap"));
+	
+	Bprint(&bout, "fault %lld 1000\n", sample.vm_stats.faults);
+	Bprint(&bout, "fork %lld 1000\n",
+		isys("vm.stats.vm.v_rforks")
 		+isys("vm.stats.vm.v_vforks"));
+
+//    Bprint(&bout, "hits %lud of %lud lookups (%d%% hit rate)\n",
+//               (asamp.vm_stat.hits),
+//               (asamp.vm_stat.lookups),
+//               (natural_t)(((double)asamp.vm_stat.hits*100)/ (double)asamp.vm_stat.lookups));
 }
 
 void
 xcpu(int first)
 {
-#if 0
-	static int stathz;
-	ulong x[20];
-	struct clockinfo *ci;
-	int n;
+	ulong user, sys, idle, nice, t;
 
-	if(first){
-		if(rsys("kern.clockrate", (char*)&x, sizeof x) < sizeof ci)
-			stathz = 128;
-		else{
-			ci = (struct clockinfo*)x;
-			stathz = ci->stathz;
-		}
-		return;
-	}
-
-	if((n=rsys("kern.cp_time", (char*)x, sizeof x)) < 5*sizeof(ulong))
+	if(first)
 		return;
 
-	Bprint(&bout, "user %lud %d\n", x[CP_USER]+x[CP_NICE], stathz);
-	Bprint(&bout, "sys %lud %d\n", x[CP_SYS], stathz);
-	Bprint(&bout, "cpu %lud %d\n", x[CP_USER]+x[CP_NICE]+x[CP_SYS], stathz);
-	Bprint(&bout, "idle %lud %d\n", x[CP_IDLE], stathz);
-#endif
+	sys = sample.cpu.cpu_ticks[CPU_STATE_SYSTEM] -
+		sample.p_cpu.cpu_ticks[CPU_STATE_SYSTEM];
+	idle = sample.cpu.cpu_ticks[CPU_STATE_IDLE] -
+		sample.p_cpu.cpu_ticks[CPU_STATE_IDLE];
+	user = sample.cpu.cpu_ticks[CPU_STATE_USER] -
+		sample.p_cpu.cpu_ticks[CPU_STATE_USER];
+	nice = sample.cpu.cpu_ticks[CPU_STATE_NICE] -
+		sample.p_cpu.cpu_ticks[CPU_STATE_NICE];
+	
+	t = sys+idle+user+nice;
+
+	Bprint(&bout, "user =%lud %lud\n", user, t);
+	Bprint(&bout, "sys =%lud %lud\n", sys, t);
+	Bprint(&bout, "idle =%lud %lud\n", idle, t);
+	Bprint(&bout, "nice =%lud %lud\n", nice, t);
 }
 
 void
@@ -222,32 +403,11 @@ xloadavg(int first)
 void
 xswap(int first)
 {
-#if 0
-	static struct kvm_swap s;
-	static ulong pgin, pgout;
-	int i, o;
-	static int pgsize;
-
-	if(first){
-		pgsize = getpagesize();
-		if(pgsize == 0)
-			pgsize = 4096;
+	if(first)
 		return;
-	}
-
-	if(kvm == nil)
-		return;
-
-	i = isys("vm.stats.vm.v_swappgsin");
-	o = isys("vm.stats.vm.v_swappgsout");
-	if(i != pgin || o != pgout){
-		pgin = i;
-		pgout = o;
-		kvm_getswapinfo(kvm, &s, 1, 0);
-	}
-
-
-	Bprint(&bout, "swap %lld %lld\n", s.ksw_used*(vlong)pgsize, s.ksw_total*(vlong)pgsize);
-#endif
+	
+	if(sample.xsu_valid)
+		Bprint(&bout, "swap %lld %lld\n", 
+			(vlong)samle.xsu.xsu_used, 
+			(vlong)sample.xsu.xsu_total);
 }
-
