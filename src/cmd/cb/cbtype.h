@@ -1,11 +1,20 @@
+#undef	_U
+#undef	_L
+#undef	_N
+#undef	_S
+#undef	_P
+#undef	_C
+#undef	_X
+#undef	_O
+
 #define	_U	01
 #define	_L	02
 #define	_N	04
 #define	_S	010
-#define _P	020
-#define _C	040
+#define	_P	020
+#define	_C	040
 #define	_X	0100
-#define _O	0200
+#define	_O	0200
 
 extern	unsigned char	_cbtype_[];	/* in /usr/src/libc/gen/ctype_.c */
 
