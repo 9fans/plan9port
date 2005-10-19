@@ -64,8 +64,24 @@ function statestr(s, wchan)
 	if(start ~ /..:..:../){	# drop :ss
 		sub(/:..$/, "", start);
 	}
-	printf("%-8s  %11d %8s %8s %8dK %-8s %s\n",
+	sub(/[ 	]+$/, "", cmd);
+	line[0+nline++] = sprintf("%s\001%d\001%s\001%s\001%dK\001%s\001%s",
 		user, pid, start, cputime, mem, statestr(stat, wchan), cmd);
+}
+
+END{
+	for(i=0; i<nline; i++){
+		split(line[i], a, "\001");
+		for(j=1; j<=7; j++)
+			if(length(a[j]) > max[j])
+				max[j] = length(a[j]);
+	}
+	for(i=0; i<nline; i++){
+		split(line[i], a, "\001");
+		printf("%-*s %*s %*s %*s %*s %-*s %s\n",
+			max[1], a[1], max[2], a[2], max[3], a[3], max[4], a[4],
+			max[5], a[5], max[6], a[6], a[7]);
+	}
 }
 !
 

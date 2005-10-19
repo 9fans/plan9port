@@ -19,4 +19,23 @@ case $# in
 	exit 1
 esac
 
-9 ps $flag | grep "^$user "
+9 ps $flag | grep "^$user " | awk '
+	BEGIN { min = 1000000 };
+	{ 
+		line[0+nline++] = $0;
+		n = length;
+		sub(/ +/, "", $0);
+		n -= length;
+		if(n < min)
+			min = n;
+	}
+	END{
+		s = "";
+		for(i=0; i<min-1; i++)
+			s = s " ";
+		for(i=0; i<nline; i++){
+			sub(s, "", line[i])
+			print line[i]
+		}
+	}
+'

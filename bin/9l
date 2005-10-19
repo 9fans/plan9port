@@ -2,14 +2,16 @@
 
 test -f $PLAN9/config && . $PLAN9/config
 libsl=""
-
+frameworks=""
 doautolib=true
+doautoframework=true
 verbose=false
 
 if [ "x$1" = "x-l" ]
 then
 	shift
 	doautolib=false
+	doautoframework=false
 elif [ "x$1" = "x-v" ]
 then
 	shift
@@ -162,6 +164,51 @@ then
 		libsl="$libsl -L$X11/lib -lX11"
 	fi
 fi
+if $doautoframework
+then
+	ofiles=""
+	for i
+	do
+		case "$i" in
+		*.[ao])
+			ofiles="$ofiles $i"
+			;;
+		esac
+	done
+
+	# echo "ofiles $ofiles"
+	autoframeworks=""
+	if [ "x$ofiles" != "x" ]
+	then
+		a=`
+			nm $ofiles |
+			grep '__p9l_autoframework_[a-zA-Z0-9+-]*$' |
+			sed 's/.*__p9l_autoframework_//' |
+			sort -u
+		`
+		for i in $a
+		do
+			autoframeworks="$autoframeworks $i"
+			eval "need$i=true"
+		done
+	fi
+
+	if $verbose
+	then
+		echo "autoframeworks $autoframeworks"
+	fi
+
+	for i in $autoframeworks
+	do
+		eval "have$i() { false; }"
+	done
+
+	frameworks=""
+	for i in $autoframeworks
+	do	
+		frameworks="-framework $i $frameworks"
+	done
+fi
 
 extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
@@ -245,7 +292,7 @@ esac
 
 if $verbose
 then
-	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs
+	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs $frameworks
 fi
 
 xtmp=/tmp/9l.$$.$USER.out
@@ -254,7 +301,7 @@ xxout() {
 	rm -f $xtmp
 }
 
-if $ld -L$PLAN9/lib "$@" $libsl $extralibs >$xtmp 2>&1
+if $ld -L$PLAN9/lib "$@" $libsl $extralibs $frameworks >$xtmp 2>&1
 then
 	xxout
 	exit 0
