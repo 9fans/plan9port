@@ -28,7 +28,7 @@ xfile()
 	then
 		echo 'troff intermediate output'
 	else
-		file - < "$1"
+		9 file < "$1" | sed 's/stdin: //'
 	fi
 }
 
@@ -49,6 +49,9 @@ main()
 		*PS*)
 			psv $1
 			;;
+		*postscript*)
+			psv $1
+			;;
 		*PostScript*)
 			psv $1
 			;;
@@ -64,7 +67,8 @@ case $# in
 0)
 	tmp=/var/tmp/page.$$.tmp
 	cat >$tmp
-	case "`xfile $tmp`" in
+	type=`xfile $tmp`
+	case "$type" in
 	*troff*)
 		mv $tmp $tmp.tr
 		tmp=$tmp.tr
@@ -78,6 +82,10 @@ case $# in
 		tmp=$tmp.ps
 		;;
 	*PostScript*)
+		mv $tmp $tmp.ps
+		tmp=$tmp.ps
+		;;
+	*postscript*)
 		mv $tmp $tmp.ps
 		tmp=$tmp.ps
 		;;
@@ -98,7 +106,7 @@ case $# in
 		tmp=$tmp.png
 		;;
 	*)
-		echo 1>&2 page: unrecognized file type on standard input
+		echo 1>&2 page: unrecognized file type on standard input: $type
 		rm -f $tmp
 		exit 1
 	esac
