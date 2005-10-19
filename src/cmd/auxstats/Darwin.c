@@ -96,14 +96,15 @@ void
 samplenet(void)
 {
 	struct ifaddrs *ifa_list, *ifa;
-	
+	struct if_data *if_data;
+
 	ifa_list = nil;
-	sample.net_ifaces = nil;
+	sample.net_ifaces = 0;
 	if(getifaddrs(&ifa_list) == 0){
 		sample.p_net_ipackets = sample.net_ipackets;
 		sample.p_net_opackets = sample.net_opackets;
 		sample.p_net_ibytes = sample.net_ibytes;
-		sample.p_net_obtypes = sample.net_obytes;
+		sample.p_net_obytes = sample.net_obytes;
 		sample.p_net_errors = sample.net_errors;
 
 		sample.net_ipackets = 0;
@@ -113,7 +114,7 @@ samplenet(void)
 		sample.net_errors = 0;
 		sample.net_ifaces = 0;
 		
-		for(ifa=ifa_list; ifa; ifa=ifa->next){
+		for(ifa=ifa_list; ifa; ifa=ifa->ifa_next){
 			if(ifa->ifa_addr->sa_family != AF_LINK)
 				continue;
 			if((ifa->ifa_flags&(IFF_UP|IFF_RUNNING)) == 0)
@@ -123,11 +124,12 @@ samplenet(void)
 			if(strncmp(ifa->ifa_name, "lo", 2) == 0)	/* loopback */
 				continue;
 			
+			if_data = (struct if_data*)ifa->ifa_data;
 			sample.net_ipackets += if_data->ifi_ipackets;
 			sample.net_opackets += if_data->ifi_opackets;
 			sample.net_ibytes += if_data->ifi_ibytes;
-			sample.net_obytes += if_data->ifi_obtypes;
-			sample.net_errors += if_data->ifi_ierrors + if_data->ifif_oerrors;
+			sample.net_obytes += if_data->ifi_obytes;
+			sample.net_errors += if_data->ifi_ierrors + if_data->ifi_oerrors;
 			sample.net_ifaces++;
 		}
 		freeifaddrs(ifa_list);
@@ -147,7 +149,7 @@ samplenet(void)
  * won't be required.
  */
 void
-sampevents(void)
+samplevents(void)
 {
 	uint i, j, pcnt, tcnt;
 	mach_msg_type_number_t count;
@@ -175,8 +177,8 @@ sampevents(void)
 			Bprint(&bout, "host_processor_set_priv: %s\n", mach_error_string(error));
 			return;
 		}
-		if((error=host_processor_set_tasks(pset, &tasks, &tcnt)) != KERN_SUCCESS){
-			Bprint(&bout, "host_processor_set_tasks: %s\n", mach_error_string(error));
+		if((error=processor_set_tasks(pset, &tasks, &tcnt)) != KERN_SUCCESS){
+			Bprint(&bout, "processor_set_tasks: %s\n", mach_error_string(error));
 			return;
 		}
 		for(j=0; j<tcnt; j++){
@@ -216,7 +218,6 @@ xsample(int first)
 {
 	int mib[2];
 	mach_msg_type_number_t count;
-	kern_return_t error;
 	size_t len;
 	
 	if(first){
@@ -239,7 +240,7 @@ xsample(int first)
 	mib[1] = VM_SWAPUSAGE;
 	len = sizeof sample.xsu;
 	sample.xsu_valid = TRUE;
-	if(sysctl(mib, 2, &asamp.xsu, &len, NULL, 0) < 0 && errno == ENOENT)
+	if(sysctl(mib, 2, &sample.xsu, &len, NULL, 0) < 0 && errno == ENOENT)
 		sample.xsu_value = FALSE;
 		
 	samplenet();
@@ -248,7 +249,7 @@ xsample(int first)
 	sample.p_cpu = sample.cpu;
 	count = HOST_CPU_LOAD_INFO_COUNT;
 	host_statistics(stat_port, HOST_CPU_LOAD_INFO, (host_info_t)&sample.cpu, &count);
-	sample.usecs = (double)(asamp.time - asamp.p_time)/asamp.divisor;
+	sample.usecs = (double)(sample.time - sample.p_time)/sample.divisor;
 	Bprint(&bout, "usecs %lud\n", sample.usecs);
 }
 
@@ -343,7 +344,7 @@ xvm(int first)
 		+ sample.vm_stat.inactive_count
 		+ sample.vm_stat.wire_count;
 	if(total)
-		Bprint(&bout, "mem =%lld %lld\n", sample.vm_stat_active_count, total);
+		Bprint(&bout, "mem =%lld %lld\n", sample.vm_stat.active_count, total);
 
 	Bprint(&bout, "context %lld 1000\n", (vlong)sample.csw);
 	Bprint(&bout, "syscall %lld 1000\n", (vlong)sample.syscalls_mach+sample.syscalls_unix);
@@ -351,7 +352,7 @@ xvm(int first)
 		isys("vm.stats.sys.v_intr")
 		+isys("vm.stats.sys.v_trap"));
 	
-	Bprint(&bout, "fault %lld 1000\n", sample.vm_stats.faults);
+	Bprint(&bout, "fault %lld 1000\n", sample.vm_stat.faults);
 	Bprint(&bout, "fork %lld 1000\n",
 		isys("vm.stats.vm.v_rforks")
 		+isys("vm.stats.vm.v_vforks"));
@@ -408,6 +409,6 @@ xswap(int first)
 	
 	if(sample.xsu_valid)
 		Bprint(&bout, "swap %lld %lld\n", 
-			(vlong)samle.xsu.xsu_used, 
+			(vlong)sample.xsu.xsu_used, 
 			(vlong)sample.xsu.xsu_total);
 }
