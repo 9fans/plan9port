@@ -550,7 +550,7 @@ parseipandmask(char *s, uchar *ip, uchar *mask)
 	if(p == nil)
 		memset(mask, 0xFF, IPaddrlen);
 	else{
-		if(isdigit(*p) && strtol(p, &q, 10)>=0 && *q==0)
+		if(isdigit((uchar)*p) && strtol(p, &q, 10)>=0 && *q==0)
 			*--p = '/';
 		if(parseipmask(mask, p) == ~0UL)
 			return -1;
@@ -580,7 +580,7 @@ parsetime(char *s, ulong *time)
 	if(strlen(s) != 14 || s[4] != '/' || s[9] != '/')
 		return -1;
 	for(i=0; i<4; i++)
-		if(!isdigit(s[i]) || !isdigit(s[i+5]) || !isdigit(s[i+10]))
+		if(!isdigit((uchar)s[i]) || !isdigit((uchar)s[i+5]) || !isdigit((uchar)s[i+10]))
 			return -1;
 	memset(&tm, 0, sizeof tm);
 	tm.year = atoi(s)-1900;
