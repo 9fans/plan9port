@@ -1,0 +1,52 @@
+<$PLAN9/src/mkhdr
+
+TARG=send\
+	filter
+
+UOFILES=message.$O\
+	dest.$O\
+	log.$O\
+	skipequiv.$O\
+
+OFILES=\
+	$UOFILES\
+	../smtp/rfc822.tab.$O\
+
+SMOBJ=main.$O\
+	bind.$O\
+	rewrite.$O\
+	local.$O\
+	translate.$O\
+	authorize.$O\
+	gateway.$O\
+	cat_mail.$O\
+
+LIB=../common/libcommon.av\
+
+HFILES=send.h\
+	../common/common.h\
+	../common/sys.h\
+
+LIB=../common/libcommon.a\
+
+BIN=$PLAN9/bin/upas
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${UOFILES:%.$O=%.c}\
+	${SMOBJ:%.$O=%.c}\
+	${TARG:%=%.c}\
+
+<$PLAN9/src/mkmany
+CFLAGS=$CFLAGS -I../common
+
+$O.send: $SMOBJ $OFILES
+	$LD $LDFLAGS -o $target $prereq $LIB
+
+message.$O:	../smtp/y.tab.h
+
+../smtp/y.tab.h ../smtp/rfc822.tab.$O: ../smtp/rfc822.y
+#	@{
+		cd ../smtp
+		mk rfc822.tab.$O
+#	}

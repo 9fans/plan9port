@@ -1,0 +1,73 @@
+#!/bin/rc
+
+# create a /tmp for here documents
+rfork en
+bind -c /mail/tmp /tmp
+
+KEY=whocares
+USER=ken
+
+RECIP=$1
+MBOX=$2
+PF=/mail/box/$USER/_pattern
+TMP=/mail/tmp/mine.$pid
+BIN=/bin/upas
+D=/mail/fs/mbox/1
+
+# save and parse the mail file
+{sed '/^$/,$ s/^From / From /'; echo} > $TMP
+upas/fs -f $TMP
+
+# if we like the source
+# or if the subject contains a valid token
+# then deliver the mail and allow all the addresses
+if( $BIN/list check $PF $D/from $D/sender $D/replyto )
+{
+	$BIN/deliver $RECIP $D/from $MBOX < $D/raw
+	$BIN/list add $PF $D/from $D/to $D/cc $D/sender
+	rm $TMP
+	exit 0
+}
+switch($status){
+case *!match*
+	echo `{date} dropped $RECIP From `{cat $D/replyto} >> /mail/box/$USER/_bounced >[2] /dev/null
+	rm $TMP
+	exit 0
+}
+if ( $BIN/token $KEY $D/subject )
+{
+	$BIN/deliver $RECIP $D/from $MBOX < $D/raw
+	$BIN/list add $PF $D/from $D/to $D/cc $D/sender
+	rm $TMP
+	echo `{date} added $RECIP From `{cat $D/replyto} \
+		>> /mail/box/$USER/_bounced >[2] /dev/null
+	exit 0
+}
+
+# don't recognize the sender so
+# return the message with instructions
+TOKEN=`{upas/token $KEY}
+upasname=/dev/null
+{{cat; cat $D/raw} | upas/send `{cat $D/replyto}}<<EOF
+Subject: $USER's mail filter
+I've been getting so much junk mail that I'm resorting to
+a draconian mechanism to avoid the mail.  In order
+to make sure that there's a real person sending mail, I'm
+asking you to explicitly enable access.  To do that, send
+mail to $USER at this domain with the token:
+	$TOKEN
+in the subject of your mail message.  After that, you
+shouldn't get any bounces from me.  Sorry if this is
+an inconvenience.
+
+----------------
+Original message
+----------------
+EOF
+
+echo `{date} bounced $RECIP From `{cat $D/replyto} \
+	>> /mail/box/$USER/_bounced >[2] /dev/null
+
+rv=$status
+rm $TMP
+exit $status

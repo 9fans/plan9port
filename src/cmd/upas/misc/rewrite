@@ -1,0 +1,20 @@
+# case conversion for postmaster
+pOsTmAsTeR	alias		postmaster
+
+# local mail
+[^!@]+		translate	"/bin/upas/aliasmail '&'"
+local!(.*)	>>		/mail/box/\1/mbox
+\l!(.*)		alias		\1
+(helix|helix.bell-labs.com)!(.*)	alias		\2
+
+# we can be just as complicated as BSD sendmail...
+# convert source domain address to a chain a@b@c@d...
+@([^@!,]*):([^!@]*)@([^!]*)	alias	\2@\3@\1
+@([^@!]*),([^!@,]*):([^!@]*)@([^!]*)	alias	@\1:\3@\4@\2
+
+# convert a chain a@b@c@d... to ...d!c!b!a
+([^@]+)@([^@]+)@(.+)	alias	\2!\1@\3
+([^@]+)@([^@]+)		alias	\2!\1
+
+# /mail/lib/remotemail will take care of gating to systems we don't know
+([^!]*)!(.*) 		| 		"/mail/lib/qmail '\s' 'net!\1'" "'\2'"

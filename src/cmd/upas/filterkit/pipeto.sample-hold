@@ -1,0 +1,43 @@
+#!/bin/rc
+
+# create a /tmp for here documents
+rfork en
+bind -c /mail/tmp /tmp
+
+KEY=whocares
+USER=ken
+
+RECIP=$1
+MBOX=$2
+PF=/mail/box/$USER/_pattern
+TMP=/mail/tmp/mine.$pid
+BIN=/bin/upas
+D=/mail/fs/mbox/1
+
+# save and parse the mail file
+{sed '/^$/,$ s/^From / From /'; echo} > $TMP
+upas/fs -f $TMP
+
+# if we like the source
+# or if the subject contains a valid token
+# then deliver the mail and allow all the addresses
+if( $BIN/list check $PF $D/from $D/sender $D/replyto )
+{
+	$BIN/deliver $RECIP $D/from $MBOX < $D/raw
+	$BIN/list add $PF $D/from $D/to $D/cc $D/sender
+	rm $TMP
+	exit 0
+}
+switch($status){
+case *!match*
+	echo `{date} dropped $RECIP From `{cat $D/replyto} >> /mail/box/$USER/_bounced >[2] /dev/null
+	rm $TMP
+	exit 0
+}
+
+# don't recognize the sender so hold the message
+$BIN/deliver $RECIP $D/from /mail/box/$USER/_held < $D/raw
+
+rv=$status
+rm $TMP
+exit $status

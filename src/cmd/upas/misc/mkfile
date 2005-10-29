@@ -1,0 +1,39 @@
+
+RCFILES=mail.rc\
+
+all:Q:
+	;
+
+installall:Q:	install
+	;
+
+install:V:
+	cp mail.rc /rc/bin/mail
+
+safeinstall:V:
+	cp mail.rc /rc/bin/mail
+
+safeinstallall:V:
+	cp mail.rc /rc/bin/mail
+
+clean:Q:
+	;
+nuke:V:
+	rm /rc/bin/mail
+
+UPDATE=\
+	gone.fishing\
+	gone.msg\
+	mail.c\
+	mail.rc\
+	mail.sh\
+	makefile\
+	mkfile\
+	namefiles\
+	omail.rc\
+	qmail\
+	remotemail\
+	rewrite\
+
+update:V:
+	update $UPDATEFLAGS $UPDATE

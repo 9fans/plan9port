@@ -1,0 +1,20 @@
+<$PLAN9/src/mkhdr
+
+TARG=marshal
+
+LIB=../common/libcommon.a\
+
+HFILES=	../common/common.h\
+
+OFILES= marshal.$O
+
+BIN=$PLAN9/bin/upas
+
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}\
+	
+<$PLAN9/src/mkone
+CFLAGS=$CFLAGS -I../common
+

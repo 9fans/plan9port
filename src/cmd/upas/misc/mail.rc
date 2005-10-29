@@ -1,0 +1,12 @@
+#!/bin/rc
+switch($#*){
+case 0
+	exec upas/nedmail
+}
+
+switch($1){
+case -f* -r* -c* -m*
+	exec upas/nedmail $*
+case *
+	exec upas/marshal $*
+}

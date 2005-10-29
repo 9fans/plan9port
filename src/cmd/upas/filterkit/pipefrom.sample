@@ -1,0 +1,24 @@
+#!/bin/rc
+
+rfork e
+TMP=/tmp/myupassend.$pid
+
+# collect upas/send options
+options=()
+while (! ~ $#* 0 && ~ $1 -*) {
+	options=($options $1);
+	shift
+}
+
+# collect addresses and add them to my patterns
+dests=()
+while (! ~ $#* 0) {
+	dests=($dests $1);
+	shift
+}
+echo $dests > $TMP
+upas/list add /mail/box/$user/_pattern $TMP >[2] /dev/null
+rm $TMP
+
+# send mail
+upas/send $options $dests

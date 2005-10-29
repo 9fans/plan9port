@@ -1,0 +1,14 @@
+#!/bin/rc
+switch($#*){
+case 0
+	exec upas/edmail -m
+}
+
+switch($1){
+case -F* -m* -f* -r* -p* -e* -c* -D*
+	exec upas/edmail -m $*
+case '-#'* -a*
+	exec upas/sendmail $*
+case *
+	exec upas/sendmail $*
+}

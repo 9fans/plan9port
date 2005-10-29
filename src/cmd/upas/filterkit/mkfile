@@ -1,0 +1,21 @@
+</$objtype/mkfile
+
+TARG=\
+	token\
+	list\
+	deliver\
+
+LIB=../common/libcommon.a$O\
+
+BIN=/$objtype/bin/upas
+OFILES=readaddrs.$O
+UPDATE=\
+	mkfile\
+	${TARG:%=%.c}\
+	pipeto.sample\
+	pipefrom.sample\
+	pipeto.sample-hold\
+
+</sys/src/cmd/mkmany
+CFLAGS=$CFLAGS -I../common
+

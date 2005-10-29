@@ -1,0 +1,6 @@
+#!/bin/rc
+sender=$1
+shift
+addr=$1
+shift
+qer /mail/queue mail $sender $addr $* && runq /mail/queue /mail/lib/remotemail

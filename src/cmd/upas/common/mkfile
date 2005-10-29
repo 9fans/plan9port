@@ -1,0 +1,20 @@
+<$PLAN9/src/mkhdr
+
+LIB=libcommon.a
+
+OFILES=aux.$O\
+	become.$O\
+	mail.$O\
+	process.$O\
+	libsys.$O\
+	config.$O\
+	appendfiletombox.$O\
+
+HFILES=common.h\
+	sys.h\
+
+<$PLAN9/src/mklib
+
+nuke:V:
+	mk clean
+	rm -f libcommon.a

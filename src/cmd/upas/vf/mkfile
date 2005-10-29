@@ -1,0 +1,20 @@
+<$PLAN9/src/mkhdr
+
+TARG=vf
+
+OFILES=vf.$O\
+
+LIB=../common/libcommon.a\
+
+HFILES=../common/common.h\
+	 ../common/sys.h\
+
+
+BIN=$PLAN9/bin/upas
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}\
+
+<$PLAN9/src/mkone
+CFLAGS=$CFLAGS -I../common
