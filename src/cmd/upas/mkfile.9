@@ -1,0 +1,99 @@
+<$PLAN9/src/mkhdr
+
+LIBS=common
+#PROGS=smtp alias fs ned misc q send scanmail pop3 ml marshal vf filterkit unesc
+PROGS=smtp alias fs q send marshal vf 
+#libs must be made first
+DIRS=$LIBS $PROGS
+
+UPDATE=\
+	mkfile\
+	/sys/man/1/mail\
+
+all:V:
+	for i in $DIRS
+	do
+		(cd $i; mk $stem)
+	done
+
+clean:V:
+	for (i in $DIRS) @{
+		cd $i
+		mk clean
+	}
+
+nuke:V:
+	for (i in $LIBS) @{
+		cd $i
+		mk nuke
+	}
+	for (i in $PROGS) @{
+		cd $i
+		mk clean
+	}
+
+install:V:
+	for (i in $DIRS) @{
+		cd $i
+		mk install
+	}
+
+installall:V:
+	for (i in $DIRS) @{
+		cd $i
+		mk installall
+	}
+	for (i in $DIRS) @{
+		cd $i
+		mk clean
+	}
+
+safeinstallall:V:
+	for (i in $LIBS) @{
+		cd $i
+		mk installall
+	}
+	for (i in $PROGS) @{
+		cd $i
+		mk safeinstallall
+	}
+	for (i in $DIRS) @{
+		cd $i
+		mk clean
+	}
+
+update:V:
+	update $UPDATEFLAGS $UPDATE
+	for (i in $DIRS) @{
+		cd $i
+		echo '>>>>>>>>>>' `{pwd} '<<<<<<<<<<<'
+		mk $MKFLAGS 'UPDATEFLAGS='$"UPDATEFLAGS update
+	}
+
+#
+# setup the mail directories.  this should be done by the administrator since
+# he/she will own everything.  the following files must be altered to reflect
+# local preference.
+#
+# /mail/lib/namefiles	- remove alias files you don't use, insert ones you do.
+# /mail/lib/remotemail	- change '-g research.research.bell-labs.com' to your own mail
+#			  gateway.  if you have none, remove it.
+#			- change '-h plan9.bell-labs.com' to a name you would like
+#			  this host to be known as.  if you don't care, take it
+#			  out and it will use the name in /env/site.
+# /mail/lib/rewrite	- change the line that contains 'helix' to include names,
+#			  other than the contents of /env/site, that your system
+#			  answers to.  this is a hack and will be fixed.
+#
+setup:V:
+	mkdir /mail
+	chmod 775 /mail
+	mkdir /mail/lib
+	chmod 775 /mail/lib
+	mkdir /mail/queue
+	mkdir /mail/box
+	mkdir /mail/tmp
+	chmod 777 /mail/queue /mail/box /mail/tmp
+	mkdir /mail/ml
+	chmod 775 /mail/ml
+	cp misc/rewrite misc/qmail misc/remotemail misc/namefiles /mail/lib

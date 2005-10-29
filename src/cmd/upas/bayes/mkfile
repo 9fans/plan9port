@@ -1,0 +1,33 @@
+</$objtype/mkfile
+
+TARG=addhash bayes msgtok
+HFILES=
+OFILES=
+LIB=
+
+BIN=/$objtype/bin/upas
+</sys/src/cmd/mkmany
+
+# msg tokenizer
+$O.regen: regcomp.$O dfa.$O
+dfa.$O regcomp.$O regen.$O: dfa.h
+
+/mail/lib/classify.re: $O.regen
+	if(~ $cputype $objtype)
+		$O.regen >x && cp x $target
+
+$O.msgtok: dfa.$O
+
+# msg database 
+msgdbx.$O msgdb.$O: msgdb.h
+
+# hash table creator/dumper
+$O.msgdb: msgdbx.$O
+
+$O.msgclass: hash.$O msgdbx.$O
+
+$O.addhash: hash.$O 
+
+$O.bayes: hash.$O
+
+

@@ -1,0 +1,50 @@
+upas:
+	from thread(3):
+		It is not safe to call rfork in a  threaded  program,  except  to  call
+		rfork(RFNOTEG) from the main proc before any other procs have been cre-
+		ated.  To create new processes, use proccreate.
+
+
+upas/fs:
+	when serving a file writes tbox.tmp when writing back tbox.
+	make L.mbox in home directory (sometimes)
+
+	=======> auth stuff:
+	Server, Certificate, ...
+	
+	    * POP3/IMAP Server (receiving emails): mail.physik.fu-berlin.de (unchanged)
+	    * SMTP Server (sending emails): mail.physik.fu-berlin.de (unchanged and not relevant for this change [no STARTTLS/SMTP_AUTH])
+	    * Certificate Authority (CA) Certificate: cacert.crt (CN=ZEDV)
+	      SHA1 Fingerprint: 37:19:00:47:BB:91:20:94:3B:AA:A7:75:57:D5:4C:0D:EA:5C:18:D9
+	      MD5 Fingerprint: 56:58:1C:91:DC:08:1B:42:D0:C2:D6:D4:FF:28:AE:C5
+	    * mail.physik.fu-berlin.de Fingerprints (IMAP/POP3):
+	      SHA1 Fingerprint: 75:C6:A5:1E:CB:F4:33:2E:95:85:A0:65:87:71:19:08:3D:19:FE:7D
+	      MD5 Fingerprint: 67:76:23:98:65:0A:39:44:5B:79:BD:91:31:49:59:7A
+	
+	The fingerprints can be displayed in the mail clients and can be optained using:
+	
+	openssl s_client -connect mail.physik.fu-berlin.de:993 -showcerts # IMAP
+	openssl s_client -connect mail.physik.fu-berlin.de:995 -showcerts # POP3
+	
+	Save all between -----BEGIN CERTIFICATE----- and -----END CERTIFICATE-----
+	
+	openssl x509       -noout -fingerprint -in mail.physik.fu-berlin.de.pem # MD5
+	openssl x509 -sha1 -noout -fingerprint -in mail.physik.fu-berlin.de.pem # SHA1
+	
+	<======= auth stuff
+
+upas/ned:
+	need to understand singleton stuff.
+	
+	need to understand wait (cf lpdaemon.c ~315)  is it safe to fork in a threaded prog? shoud i use proccreate?
+	
+	routines to check/fix:
+		appendtofile()
+		switchmb()
+		rooted()
+		plumb() <= understand how this works, it may help in deciding how to present attachments in acme/Mail
+	
+
+upas/marshal:
+	some attachments work, some don't. looks like pdf files work while ps don't!? problem in body64()
+	actually, it seems like the size of attachment is the problem: large attacments don't seem to work, somewhere between 19967 and 161065 is the failure point.
