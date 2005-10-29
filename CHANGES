@@ -1,10 +1,54 @@
+October 29, 2005
+	upas, acme mail: add initial port (John Cummings)
+	lib9: remove reference to ffork
+
+October 18, 2005
+	9l: add autoframework (like autolib) for OS X (Jeff Sickel)
+	page: use "9 file" always
+	ps, psu: narrower display
+	stats: better OS X support (Jeff Sickel)
+
+October 17, 2005
+	cb: undef old type macros before redefining.
+
+October 5, 2005
+	stats: better OS X support (Jeff Sickel) 
+
+September 30, 2005
+	libhtml: more &names and numbers (Erik Quanstrom)
+
+September 29, 2005
+	libc.h: add #pragmas for varargck, #ifdef'ed out.
+
+September 26, 2005
+	libthread: print thread info on SIGQUIT, SIGINFO, logging
+	acme: add more thread names
+
+September 21, 2005
+	9term: fix SunOS typo (Bengt Kleberg, glaive)
+
+September 19, 2005
+	libhtml: more &names (Erik Quanstrom)
+
+September 19, 2005
+	lib9/truerand: OpenBSD lets you open /dev/random
+		but not read it! (Chad Dougherty, Mechiel Lukkien)
+
+September 15, 2005
+	libdraw/x11-event: Ignore unexpected events (Rob Pike)
+	jpg: do not revert to CMAP for second file (Rob Pike)
+
+September 13, 2005
+	9pserve: signedness bug
+
 September 12, 2005
+	dist: various attempts at Debian packaging
 	lib/moveplan9.sh: allow specification of old directory
 	Getdir: interpret tags with $ in them
 	mpm: use g++ as LD, add tmac.pm to tmac directory
 	include/libc.h, fcall.h: add 9P2000.u extensions
 	9pserve: add 9P2000.u extensions
-	vac: add 9P2000.u extensions
+	vac: add 9P2000.u extensions, signedness bug
 
 September 9, 2005
 	lc: add -p like man page says
