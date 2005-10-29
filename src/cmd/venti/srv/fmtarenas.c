@@ -33,12 +33,12 @@ threadmain(int argc, char *argv[])
 		settrace(EARGF(usage()));
 		break;
 	case 'a':
-		asize = unittoull(ARGF());
+		asize = unittoull(EARGF(usage()));
 		if(asize == TWID64)
 			usage();
 		break;
 	case 'b':
-		blocksize = unittoull(ARGF());
+		blocksize = unittoull(EARGF(usage()));
 		if(blocksize == ~0)
 			usage();
 		if(blocksize > MaxDiskBlock){
