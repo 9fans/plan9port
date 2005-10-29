@@ -1,9 +1,11 @@
 #include "mk.h"
 
 static Shell *shells[] = {
+	&rcshell,
 	&shshell,
-	&rcshell
 };
+
+Shell *shelldefault = &shshell;
 
 Shell *shellt;
 Word *shellcmd;
@@ -39,8 +41,8 @@ setshell(Word *w)
 void
 initshell(void)
 {
-	shellcmd = stow(shells[0]->name);
-	shellt = shells[0];
+	shellcmd = stow(shelldefault->name);
+	shellt = shelldefault;
 	setvar("MKSHELL", shellcmd);
 }
 
