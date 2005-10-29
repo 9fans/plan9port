@@ -15,7 +15,7 @@ truerand(void)
 		if(randfd < 0 || read(randfd, buf, 1) != 1)
 			randfd = open(randfile="/dev/srandom", OREAD);	/* OpenBSD */
 		if(randfd < 0)
-			sysfatal("can't open /dev/random: %r");
+			sysfatal("can't open %s: %r", randfile);
 		fcntl(randfd, F_SETFD, FD_CLOEXEC);
 	}
 	for(i=0; i<sizeof(buf); i += n)
