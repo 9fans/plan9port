@@ -35,4 +35,5 @@ traceinit(void)
 void
 settrace(char *trace)
 {
+	USED(trace);
 }
