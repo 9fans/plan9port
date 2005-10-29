@@ -1,6 +1,7 @@
 <$PLAN9/src/mkhdr
 
 OFILES=\
+	disk.$O\
 	proto.$O\
 
 HFILES=$PLAN9/include/disk.h
