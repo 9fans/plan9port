@@ -98,11 +98,12 @@ ffssync(Fsys *fsys)
 	/*
 	 * Read super block.
 	 */
+	b = nil;
 	for(i=0; i<nelem(off); i++){
 		if((b = diskread(disk, SBSIZE, off[i])) == nil)
 			goto error;
 		fsblk = (Fsblk*)b->data;
-		fprint(2, "offset of magic: %d\n", offsetof(Fsblk, magic));
+		fprint(2, "offset of magic: %ld\n", offsetof(Fsblk, magic));
 		if((fs->ufs = checkfsblk(fsblk)) > 0)
 			goto okay;
 		blockput(b);
@@ -293,7 +294,7 @@ ffsdatablock(Ffs *fs, u64int bno, int size)
 		fsize = fs->fragsize;
 
 	if(bno >= fs->nfrag){
-		fprint(2, "ffs: request for block %#lux; nfrag %#x\n", (ulong)bno, fs->nfrag);
+		fprint(2, "ffs: request for block %#lux; nfrag %#llux\n", (ulong)bno, fs->nfrag);
 		return nil;
 	}
 	diskaddr = (u64int)bno*fs->fragsize;
