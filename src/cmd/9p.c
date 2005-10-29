@@ -151,6 +151,7 @@ xread(int argc, char **argv)
 	fid = xopen(argv[0], OREAD);
 	while((n = fsread(fid, buf, sizeof buf)) > 0)
 		write(1, buf, n);
+	fsclose(fid);
 	if(n < 0)
 		sysfatal("read error: %r");
 	threadexitsall(0);	
@@ -229,6 +230,7 @@ xwrite(int argc, char **argv)
 	}
 	if(n < 0)
 		sysfatal("read error: %r");
+	fsclose(fid);
 	threadexitsall(0);	
 }
 
@@ -312,6 +314,7 @@ xrdwr(int argc, char **argv)
 		if(fswrite(fid, buf, n) != n)
 			fprint(2, "write: %r\n");
 	}
+	fsclose(fid);
 	threadexitsall(0);	
 }
 
