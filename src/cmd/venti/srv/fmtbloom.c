@@ -24,7 +24,8 @@ threadmain(int argc, char *argv[])
 	statsinit();
 
 	size = 0;
-	nhash = nblocks = 0;
+	nhash = 0;
+	nblocks = 0;
 	ARGBEGIN{
 	case 'n':
 		if(nhash || nblocks)
@@ -67,7 +68,7 @@ threadmain(int argc, char *argv[])
 
 	if(size > MaxBloomSize){
 		fprint(2, "warning: not using entire %,lld bytes; using only %,lld bytes\n",
-			size, MaxBloomSize);
+			size, (vlong)MaxBloomSize);
 		size = MaxBloomSize;
 	}
 	if(size&(size-1)){
