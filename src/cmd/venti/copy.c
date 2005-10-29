@@ -43,7 +43,7 @@ walk(uchar score[VtScoreSize], uint type, int base)
 			changes++;
 			memmove(score, vtzeroscore, VtScoreSize);
 		}else if(!ignoreerrors)
-			sysfatal("reading block %V (type %d): %r", type, score);
+			sysfatal("reading block %V (type %d): %r", score, type);
 		return;
 	}
 
