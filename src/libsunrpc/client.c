@@ -156,7 +156,6 @@ rpcMuxThread(void *v)
 	Out *o, **out;
 	SunRpc rpc;
 	SunClient *cli;
-	SunStatus ok;
 
 	cli = v;
 	mout = 16;
@@ -263,7 +262,7 @@ if(cli->chatty) fprint(2, "resend %lux %lud %lud\n", o->xid, t, o->t);
 			n = (p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3];
 			p += 4;
 			ep = p+n;
-			if((ok = sunrpcunpack(p, ep, &p, &rpc)) != SunSuccess){
+			if(sunrpcunpack(p, ep, &p, &rpc) != SunSuccess){
 				fprint(2, "%s: in: %.*H unpack failed\n", argv0, n, buf+4);
 				free(buf);
 				break;

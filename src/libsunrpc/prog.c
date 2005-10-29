@@ -29,7 +29,7 @@ suncallunpack(SunProg *prog, uchar *a, uchar *ea, uchar **pa, SunCall *c)
 	if(c->type < 0 || c->type >= prog->nproc || (unpack=prog->proc[c->type].unpack) == nil)
 		return SunProcUnavail;
 	if((*unpack)(a, ea, pa, c) < 0){
-		fprint(2, "%lud %d: '%.*H' unpack failed\n", prog->prog, c->type, (int)(ea-a), a);
+		fprint(2, "%ud %d: '%.*H' unpack failed\n", prog->prog, c->type, (int)(ea-a), a);
 		return SunGarbageArgs;
 	}
 	return SunSuccess;
