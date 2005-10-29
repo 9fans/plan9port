@@ -732,6 +732,8 @@ getcib(Arena *arena, int clump, int writing, CIBlock *rock)
 static void
 putcib(Arena *arena, CIBlock *cib)
 {
+	USED(arena);
+
 	putdblock(cib->data);
 	cib->data = nil;
 }
