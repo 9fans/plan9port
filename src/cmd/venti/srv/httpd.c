@@ -159,7 +159,6 @@ httpproc(void *v)
 		if(hparsereq(c, 0) < 0)
 			break;
 
-		ok = -1;
 		for(i = 0; i < MaxObjs && objs[i].name[0]; i++){
 			n = strlen(objs[i].name);
 			if((objs[i].name[n-1] == '/' && strncmp(c->req.uri, objs[i].name, n) == 0)
