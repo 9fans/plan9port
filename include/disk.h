@@ -31,6 +31,7 @@ Scsi*		openscsi(char*);
 int		scsiready(Scsi*);
 
 extern int		scsiverbose;
+#endif
 
 /* disk partition interface */
 typedef struct Disk Disk;
@@ -65,7 +66,6 @@ enum {
 	Gdisk,
 	Gguess,
 };
-#endif
 
 /* proto file parsing */
 typedef void Protoenum(char *new, char *old, Dir *d, void *a);
