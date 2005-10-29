@@ -137,6 +137,7 @@ ext2blockread(Fsys *fsys, u64int vbno)
 static Block*
 ext2datablock(Ext2 *fs, u32int bno, int size)
 {
+	USED(size);
 	return ext2blockread(fs->fsys, bno+fs->firstblock);
 }
 
@@ -211,7 +212,7 @@ ext2fileblock(Ext2 *fs, Inode *ino, u32int bno, int size)
 		return ext2datablock(fs, bno, size);
 	}
 
-	fprint(2, "ext2fileblock %llud: too big\n", obno);
+	fprint(2, "ext2fileblock %ud: too big\n", obno);
 	return nil;
 }
 
@@ -325,6 +326,7 @@ handle2ino(Ext2 *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 static Nfs3Status
 ext2root(Fsys *fsys, Nfs3Handle *h)
 {
+	USED(fsys);
 	mkhandle(h, ROOTINODE);
 	return Nfs3Ok;
 }
