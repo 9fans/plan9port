@@ -1,6 +1,16 @@
 October 29, 2005
+	9p: clunk fids before exiting
+	mk: handle MKSHELL type correctly
 	upas, acme mail: add initial port (John Cummings)
+	vbackup: silence compiler warnings
+	venti: silence compiler warnings
 	lib9: remove reference to ffork
+		print correct file name in truerand error
+	libdisk: add Disk routines
+	libdiskfs: silence compiler warnings
+	libframe: add noredraw flag
+	libhtml: many fixes
+	libsunrpc: silence compiler warnings
 
 October 18, 2005
 	9l: add autoframework (like autolib) for OS X (Jeff Sickel)
