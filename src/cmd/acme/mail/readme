@@ -1,0 +1,57 @@
+The Acme Mail program uses upas/fs to parse the mail box, and then
+presents a file-browser-like user interface to reading and sending
+messages.  The Mail window presents each numbered message like the
+contents of a directory presented one per line.  If a message has a
+Subject: line, that is shown indented on the following line.
+Multipart MIME-encoded messages are presented in the obvious
+hierarchical format.
+
+Mail uses upas/fs to access the mail box.  By default it reads "mbox",
+the standard user mail box.  If Mail is given an argument, it is
+passed to upas/fs as the name of the mail box (or upas/fs directory)
+to open.
+
+Although Mail works if the plumber is not running, it's designed to be
+run with plumbing enabled and many of its features work best if it is.
+
+The mailbox window has a few commands: Put writes back the mailbox;
+Mail creates a new window in which to compose a message; and Delmesg
+deletes messages by number.  The number may be given as argument or
+indicated by selecting the header line in the mailbox window.
+(Delmesg does not expand null selections, in the interest of safety.)
+
+Clicking the right button on a message number opens it; clicking on
+any of the subparts of a message opens that (and also opens the
+message itself).  Each message window has a few commands in the tag
+with obvious names: Reply, Delmsg, etc.  "Reply" replies to the single
+sender of the message, "Reply all" or "Replyall" replies to everyone
+in the From:, To:, and CC: lines.
+
+Message parts with recognized MIME types such as image/jpeg are sent
+to the plumber for further dispatch.  Acme Mail also listens to
+messages on the seemail and showmail plumbing ports, to report the
+arrival of new messages (highlighting the entry; right-click on the
+entry to open the message) and open them if you right-click on the
+face in the faces window.
+
+When composing a mail message or replying to a message, the first line
+of the text is a list of recipients of the message.  To:, and CC:, and BCC:
+lines are interpreted in the usual way. Two other header lines are
+special to Acme Mail:
+        Include: file places a copy of file in the message as an
+		inline MIME attachment.
+        Attach: file places a copy of file in the message as a regular
+		MIME attachment.
+
+Acme Mail uses these conventions when replying to messages,
+constructing headers for the default behavior.  You may edit these to
+change behavior.  Most important, when replying to a message Mail will
+always Include: the original message; delete that line if you don't
+want to include it.
+
+If the mailbox
+	/mail/box/$user/outgoing
+exists, Acme Mail will save your a copy of your outgoing messages
+there.  Attachments are described in the copy but not included.
+
+The -m mntpoint flag specifies a different mount point for /upas/fs.
