@@ -89,7 +89,7 @@ static AsciiInt _align_tab[] = {
 	{"right",		ALright},
 	{"top",		ALtop}
 };
-#define NALIGNTAB (sizeof(align_tab)/sizeof(StringInt))
+#define NALIGNTAB (sizeof(_align_tab)/sizeof(StringInt))
 
 static StringInt *input_tab;
 static AsciiInt _input_tab[] = {
@@ -104,7 +104,7 @@ static AsciiInt _input_tab[] = {
 	{"submit",	Fsubmit},
 	{"text",		Ftext}
 };
-#define NINPUTTAB (sizeof(input_tab)/sizeof(StringInt))
+#define NINPUTTAB (sizeof(_input_tab)/sizeof(StringInt))
 
 static StringInt *clear_tab;
 static AsciiInt _clear_tab[] = {
@@ -112,7 +112,7 @@ static AsciiInt _clear_tab[] = {
 	{"left",	IFcleft},
 	{"right",	IFcright}
 };
-#define NCLEARTAB (sizeof(clear_tab)/sizeof(StringInt))
+#define NCLEARTAB (sizeof(_clear_tab)/sizeof(StringInt))
 
 static StringInt *fscroll_tab;
 static AsciiInt _fscroll_tab[] = {
@@ -120,7 +120,7 @@ static AsciiInt _fscroll_tab[] = {
 	{"no",	FRnoscroll},
 	{"yes",	FRhscroll|FRvscroll},
 };
-#define NFSCROLLTAB (sizeof(fscroll_tab)/sizeof(StringInt))
+#define NFSCROLLTAB (sizeof(_fscroll_tab)/sizeof(StringInt))
 
 static StringInt *shape_tab;
 static AsciiInt _shape_tab[] = {
@@ -131,14 +131,14 @@ static AsciiInt _shape_tab[] = {
 	{"rect",		SHrect},
 	{"rectangle",	SHrect}
 };
-#define NSHAPETAB (sizeof(shape_tab)/sizeof(StringInt))
+#define NSHAPETAB (sizeof(_shape_tab)/sizeof(StringInt))
 
 static StringInt *method_tab;
 static AsciiInt _method_tab[] = {
 	{"get",		HGet},
 	{"post",		HPost}
 };
-#define NMETHODTAB (sizeof(method_tab)/sizeof(StringInt))
+#define NMETHODTAB (sizeof(_method_tab)/sizeof(StringInt))
 
 static Rune** roman;
 static char* _roman[15]= {
@@ -528,7 +528,7 @@ static AsciiInt _color_tab[] = {
 	{"white", 0xFFFFFF},
 	{"yellow", 0xFFFF00}
 };
-#define NCOLORS (sizeof(color_tab)/sizeof(StringInt))
+#define NCOLORS (sizeof(_color_tab)/sizeof(StringInt))
 
 static StringInt 		*targetmap;
 static int			targetmapsize;
