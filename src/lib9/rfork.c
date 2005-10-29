@@ -101,7 +101,7 @@ p9rfork(int flags)
 			return pid;
 	}
 	if(flags&RFPROC){
-		werrstr("cannot use rfork for shared memory -- use ffork");
+		werrstr("cannot use rfork for shared memory -- use libthread");
 		return -1;
 	}
 	if(flags&RFNAMEG){
