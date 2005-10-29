@@ -50,6 +50,7 @@ struct Frame
 	Image		*tick;	/* typing tick */
 	Image		*tickback;	/* saved image under tick */
 	int			ticked;	/* flag: is tick onscreen? */
+	int			noredraw;	/* don't draw on the screen */
 };
 
 ulong	frcharofpt(Frame*, Point);
