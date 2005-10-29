@@ -13,9 +13,8 @@ _frredraw(Frame *f, Point pt)
 
 	for(nb=0,b=f->box; nb<f->nbox; nb++, b++){
 		_frcklinewrap(f, &pt, b);
-		if(b->nrune >= 0){
+		if(!f->noredraw && b->nrune >= 0)
 			string(f->b, pt, f->cols[TEXT], ZP, f->font, (char *)b->ptr);
-		}
 		pt.x += b->wid;
 	}
 }
