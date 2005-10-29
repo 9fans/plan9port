@@ -150,6 +150,7 @@ typedef int32_t s32int;
  * Funny-named symbols to tip off 9l to autolink.
  */
 #define AUTOLIB(x)	static int __p9l_autolib_ ## x = 1;
+#define AUTOFRAMEWORK(x) static int __p9l_autoframework_ ## x = 1;
 
 /*
  * Gcc is too smart for its own good.
@@ -158,9 +159,13 @@ typedef int32_t s32int;
 #	if __GNUC__ >= 4 || (__GNUC__==3 && !defined(__APPLE_CC__))
 #		undef AUTOLIB
 #		define AUTOLIB(x) int __p9l_autolib_ ## x __attribute__ ((weak));
+#		undef AUTOFRAMEWORK
+#		define AUTOFRAMEWORK(x) int __p9l_autoframework_ ## x __attribute__ ((weak));
 #	else
 #		undef AUTOLIB
 #		define AUTOLIB(x) static int __p9l_autolib_ ## x __attribute__ ((unused));
+#		undef AUTOFRAMEWORK
+#		define AUTOFRAMEWORK(x) static int __p9l_autoframework_ ## x __attribute__ ((unused));
 #	endif
 #endif
 
