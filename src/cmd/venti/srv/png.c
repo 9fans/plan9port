@@ -87,9 +87,7 @@ zread(void *va, void *buf, int n)
 			 */
 			for(i=0; i<pixels; i++, b+=4){
 				a = b[3];
-				if(a == 255 || a == 0)
-					;
-				else{
+				if(a != 0 && a != 255){
 					if(b[0] >= a)
 						b[0] = a;
 					b[0] = (b[0]*255)/a;
