@@ -269,7 +269,7 @@ colsort(Column *c)
 		r1.max.y = r1.min.y+Border;
 		draw(screen, r1, display->black, nil, ZP);
 		r.min.y = r1.max.y;
-		y = winresize(w, r, FALSE, TRUE);
+		y = winresize(w, r, FALSE, i==c->nw-1);
 	}
 	free(rp);
 	free(c->w);
@@ -386,7 +386,7 @@ colgrow(Column *c, Window *w, int but)
 	r.max.y = y2;
 	h = w->body.fr.font->height;
 	if(Dy(r) < Dy(w->tagtop)+1+h+Border)
-		r.max.y = r.min.y+Dy(w->tagtop)+1+h+Border;
+		r.max.y = r.min.y + Dy(w->tagtop)+1+h+Border;
 	/* draw window */
 	winresize(w, r, c->safe, TRUE);
 	if(i < c->nw-1){
@@ -402,7 +402,7 @@ colgrow(Column *c, Window *w, int but)
 		v = c->w[j];
 		r = v->r;
 		r.min.y = y1;
-		r.max.y = y1+Dy(v->tag.all);
+		r.max.y = y1+Dy(v->tagtop);
 		if(nl[j])
 			r.max.y += 1 + nl[j]*v->body.fr.font->height;
 		y1 = winresize(v, r, c->safe, j+1==c->nw);

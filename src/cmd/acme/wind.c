@@ -32,10 +32,10 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->ctlfid = ~0;
 	w->utflastqid = -1;
 	r1 = r;
-	
+
 	w->tagtop = r;
 	w->tagtop.max.y = r.min.y + font->height;
-	
+
 	r1.max.y = r1.min.y + w->taglines*font->height;
 	incref(&reffont.ref);
 	f = fileaddtext(nil, &w->tag);
@@ -127,8 +127,9 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	r1 = r;
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
-	if(1 || !safe || !eqrect(w->tag.fr.r, r1)){
-		y = textresize(&w->tag, r1, TRUE);
+	if(1 || !safe || !eqrect(w->tag.all, r1)){
+		textresize(&w->tag, r1, TRUE);
+		y = w->tag.fr.r.max.y;
 		b = button;
 		if(w->body.file->mod && !w->isdir && !w->isscratch)
 			b = modbutton;
@@ -140,7 +141,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	
 	r1 = r;
 	r1.min.y = y;
-	if(1 || !safe || !eqrect(w->body.fr.r, r1)){
+	if(!safe || !eqrect(w->body.all, r1)){
 		if(y+1+w->body.fr.font->height <= r.max.y){	/* room for one line */
 			r1.min.y = y;
 			r1.max.y = y+1;
