@@ -189,9 +189,9 @@ input(void)
 				ERROR "argfp underflow" FATAL;
 			popsrc();
 			goto loop;
-		} else if (c == '$' && isdigit(*srcp->sp)) {
+		} else if (c == '$' && isdigit((uchar)*srcp->sp)) {
 			int n = 0;
-			while (isdigit(*srcp->sp))
+			while (isdigit((uchar)*srcp->sp))
 				n = 10 * n + *srcp->sp++ - '0';
 			if (n > 0 && n <= MAXARGS)
 				pushsrc(String, argfp->argstk[n-1]);

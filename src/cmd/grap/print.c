@@ -147,7 +147,7 @@ void graph(char *s)	/* graph statement */
 			s++;
 		if (c == '\0')
 			ERROR "no name on graph statement" WARNING;
-		if (!isupper(s[0]))
+		if (!isupper((uchar)s[0]))
 			ERROR "graph name %s must be capitalized", s WARNING;
 		for (p=graphname; (c = *s) != ' ' && c != '\t' && c != '\0'; )
 			*p++ = *s++;

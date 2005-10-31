@@ -1,3 +1,4 @@
+#include <u.h>
 #include "tdef.h"
 #include "fns.h"
 #include "ext.h"
@@ -495,7 +496,7 @@ static void install(char *s)	/* map ab4c5de to: 12 abcde \0 00405 \0 */
 	num[0] = '0';
 	*nextpat++ = ' ';	/* fill in with count later */
 	for (npat = lastpat = 0; *s != '\n' && *s != '\0'; s++) {
-		if (isdigit(*s)) {
+		if (isdigit((uchar)*s)) {
 			num[npat] = *s;
 			lastpat = npat;
 		} else {

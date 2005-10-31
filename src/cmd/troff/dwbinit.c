@@ -73,6 +73,7 @@
  *
  */
 
+#include <u.h>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -169,10 +170,10 @@ char *DWBhome(void)
     if ( (fp = fopen(DWBCONFIG, "r")) != NULL ) {
 	len = strlen(DWBENV);
 	while ( fgets(buf, sizeof(buf), fp) != NULL ) {
-	    for ( ptr = buf; isspace(*ptr); ptr++ ) ;
+	    for ( ptr = buf; isspace((uchar)*ptr); ptr++ ) ;
 	    if ( strncmp(ptr, DWBENV, len) == 0 && *(ptr+len) == '=' ) {
 		path = ptr + len + 1;
-		for ( ptr = path; !isspace(*ptr) && *ptr != ';'; ptr++ ) ;
+		for ( ptr = path; !isspace((uchar)*ptr) && *ptr != ';'; ptr++ ) ;
 		*ptr = '\0';
 		if ( home != NULL )
 		    free(home);

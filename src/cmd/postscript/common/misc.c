@@ -4,6 +4,7 @@
  *
  */
 
+#include <u.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -170,10 +171,10 @@ str_convert(str, err)
  *
  */
 
-    if ( ! isdigit(**str) )
+    if ( ! isdigit((uchar)**str) )
 	return(err);
 
-    for ( i = 0; isdigit(**str); *str += 1 )
+    for ( i = 0; isdigit((uchar)**str); *str += 1 )
 	i = 10 * i + **str - '0';
 
     return(i);

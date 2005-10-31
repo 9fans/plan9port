@@ -5,6 +5,7 @@
  *	input routines, escape function calling
  */
 
+#include <u.h>
 #include "tdef.h"
 #include "fns.h"
 #include "ext.h"
@@ -1091,10 +1092,10 @@ void getpn(char *a)
 			continue;
 		default:
 			n = 0;
-			if (isdigit(*a)) {
+			if (isdigit((uchar)*a)) {
 				do
 					n = 10 * n + *a++ - '0';
-				while (isdigit(*a));
+				while (isdigit((uchar)*a));
 				a--;
 			} else
 				n = 9999;

@@ -171,7 +171,7 @@ atimes(char *ar)
 				continue;
 			}
 			goto skip;
-		}else if(strings && h.name[0]=='/' && isdigit(h.name[1])){
+		}else if(strings && h.name[0]=='/' && isdigit((uchar)h.name[1])){
 			i = strtol(h.name+1, &p, 10);
 			if(*p != ' ' || i >= strlen(strings))
 				goto skip;
