@@ -56,7 +56,7 @@ work(void){
 	int c;
 	struct keyw *lptr;
 	char *pt;
-	char cc;
+	int cc;
 	int ct;
 
 	while ((c = getch()) != Beof){

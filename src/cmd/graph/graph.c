@@ -258,7 +258,7 @@ numb(float *np, int *argcp, char ***argvp){
 		return(0);
 	while((c=(*argvp)[1][0]) == '+')
 		(*argvp)[1]++;
-	if(!(isdigit(c) || c=='-'&&(*argvp)[1][1]<'A' || c=='.'))
+	if(!(isdigit((uchar)c) || c=='-'&&(*argvp)[1][1]<'A' || c=='.'))
 		return(0);
 	*np = atof((*argvp)[1]);
 	(*argcp)--;

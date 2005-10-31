@@ -4,6 +4,7 @@ n10.c
 Device interfaces
 */
 
+#include <u.h>
 #include "tdef.h"
 #include "ext.h"
 #include "fns.h"
@@ -48,7 +49,7 @@ static char *parse(char *s, int typeit)	/* convert \0, etc to nroff driving tabl
 			*t++ = *s++;
 		else {
 			s++;	/* skip \\ */
-			if (isdigit(s[0]) && isdigit(s[1]) && isdigit(s[2])) {
+			if (isdigit((uchar)s[0]) && isdigit((uchar)s[1]) && isdigit((uchar)s[2])) {
 				*t++ = (s[0]-'0')<<6 | (s[1]-'0')<<3 | s[2]-'0';
 				s += 2;
 			} else if (isdigit(s[0])) {

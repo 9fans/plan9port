@@ -23,7 +23,7 @@ gettbl(void)
 			break;
 		}
 		fullbot[nlin] = 0;
-		if (cstore[0] == '.' && !isdigit(cstore[1])) {
+		if (cstore[0] == '.' && !isdigit((uchar)cstore[1])) {
 			instead[nlin] = cstore;
 			while (*cstore++)
 				;

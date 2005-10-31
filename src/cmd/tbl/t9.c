@@ -29,7 +29,7 @@ domore(char *dataln)
 
 	if (prefix(".TE", dataln))
 		return(0);
-	if (dataln[0] == '.' && !isdigit(dataln[1])) {
+	if (dataln[0] == '.' && !isdigit((uchar)dataln[1])) {
 		Bprint(&tabout, "%s\n", dataln);
 		return(1);
 	}
