@@ -149,7 +149,7 @@ samplenet(void)
  * won't be required.
  */
 void
-samplevents(void)
+sampleevents(void)
 {
 	uint i, j, pcnt, tcnt;
 	mach_msg_type_number_t count;
@@ -241,7 +241,7 @@ xsample(int first)
 	len = sizeof sample.xsu;
 	sample.xsu_valid = TRUE;
 	if(sysctl(mib, 2, &sample.xsu, &len, NULL, 0) < 0 && errno == ENOENT)
-		sample.xsu_value = FALSE;
+		sample.xsu_valid = FALSE;
 		
 	samplenet();
 	sampleevents();
