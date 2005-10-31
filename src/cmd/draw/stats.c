@@ -107,6 +107,7 @@ Image	*cols[Ncolor][3];
 Graph	*graph;
 Machine	*mach;
 Font		*mediumfont;
+char		*fontname;
 char		*mysysname;
 char		argchars[] = "bceEfiIlmnsw";
 int		pids[1024];
@@ -180,7 +181,10 @@ mkcol(int i, int c0, int c1, int c2)
 void
 colinit(void)
 {
-	mediumfont = openfont(display, "/lib/font/bit/pelm/latin1.8.font");
+	if(fontname)
+		mediumfont = openfont(display, fontname);
+	if(mediumfont == nil)
+		mediumfont = openfont(display, "/lib/font/bit/pelm/latin1.8.font");
 	if(mediumfont == nil)
 		mediumfont = font;
 
@@ -332,7 +336,7 @@ update1(Graph *g, long v, ulong vmax)
 void
 usage(void)
 {
-	fprint(2, "usage: stats [-O] [-S scale] [-LY] [-W winsize] [-%s] [machine...]\n", argchars);
+	fprint(2, "usage: stats [-LY] [-F font] [-O] [-S scale] [-W winsize] [-%s] [machine...]\n", argchars);
 	threadexitsall("usage");
 }
 
@@ -704,6 +708,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'L':
 		logscale++;
+		break;
+	case 'F':
+		fontname = EARGF(usage());
 		break;
 	case 'Y':
 		ylabels++;
