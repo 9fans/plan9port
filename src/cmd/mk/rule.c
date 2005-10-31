@@ -83,7 +83,6 @@ dumpr(char *s, Rule *r)
 			Bprint(&bout, " prog='%s'", r->prog);
 		Bprint(&bout, "\n\ttarget=%s: %s\n", r->target, wtos(r->tail, ' '));
 		Bprint(&bout, "\trecipe@%ld='%s'\n", r->recipe, r->recipe);
-break;
 	}
 }
 
