@@ -1,0 +1,26 @@
+<$PLAN9/src/mkhdr
+
+# default domain for faces, overridden by $facedom
+DEFAULT=\"astro\"
+
+TARG=faces
+
+OFILES=main.$O\
+	facedb.$O\
+	plumb.$O\
+	util.$O\
+
+HFILES=faces.h\
+
+BIN=$PLAN9/bin
+
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}\
+
+<$PLAN9/src/mkone
+CFLAGS=$CFLAGS '-DDEFAULT='$DEFAULT
+
+$O.dblook: dblook.$O facedb.$O util.$O
+	$LD -o $target $prereq
