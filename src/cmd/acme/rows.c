@@ -111,7 +111,7 @@ rowresize(Row *row, Rectangle r)
 	row->r = r;
 	r1 = r;
 	r1.max.y = r1.min.y + font->height;
-	textresize(&row->tag, r1);
+	textresize(&row->tag, r1, TRUE);
 	r1.min.y = r1.max.y;
 	r1.max.y += Border;
 	draw(screen, r1, display->black, nil, ZP);

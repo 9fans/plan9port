@@ -69,23 +69,26 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 }
 
 int
-textresize(Text *t, Rectangle r)
+textresize(Text *t, Rectangle r, int keepextra)
 {
-	int odx;
-
-	if(Dy(r) > 0)
-		r.max.y -= Dy(r)%t->fr.font->height;
-	else
+	if(Dy(r) <= 0)
 		r.max.y = r.min.y;
-	odx = Dx(t->all);
+	if(!keepextra)
+		r.max.y -= Dy(r)%t->fr.font->height;
 	t->all = r;
 	t->scrollr = r;
 	t->scrollr.max.x = r.min.x+Scrollwid;
 	t->lastsr = nullrect;
 	r.min.x += Scrollwid+Scrollgap;
 	frclear(&t->fr, 0);
-	textredraw(t, r, t->fr.font, screen, odx);
-	return r.max.y;
+	textredraw(t, r, t->fr.font, screen, Dx(t->all));
+	if(keepextra && t->fr.r.max.y < t->all.max.y){
+		r.min.x -= Scrollgap;
+		r.min.y = t->fr.r.max.y;
+		r.max.y = t->all.max.y;
+		draw(screen, r, t->fr.cols[BACK], nil, ZP);
+	}
+	return t->all.max.y;
 }
 
 void
@@ -279,7 +282,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 		if(u != t){
 			if(u->org > u->file->b.nc)	/* will be 0 because of reset(), but safety first */
 				u->org = 0;
-			textresize(u, u->all);
+			textresize(u, u->all, TRUE);
 			textbacknl(u, u->org, 0);	/* go to beginning of line */
 		}
 		textsetselect(u, q0, q0);
