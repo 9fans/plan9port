@@ -307,7 +307,7 @@ opendisk(char *disk, int rdonly, int noctl)
 	/* check for floppy(3) disk */
 	if(strlen(p) >= 7) {
 		q = p+strlen(p)-7;
-		if(q[0] == 'f' && q[1] == 'd' && isdigit(q[2]) && strcmp(q+3, "disk") == 0) {
+		if(q[0] == 'f' && q[1] == 'd' && isdigit((uchar)q[2]) && strcmp(q+3, "disk") == 0) {
 			strcpy(q+3, "ctl");
 			if((d->ctlfd = open(p, ORDWR)) >= 0) {
 				*q = '\0';

@@ -52,7 +52,7 @@ static char *parse(char *s, int typeit)	/* convert \0, etc to nroff driving tabl
 			if (isdigit((uchar)s[0]) && isdigit((uchar)s[1]) && isdigit((uchar)s[2])) {
 				*t++ = (s[0]-'0')<<6 | (s[1]-'0')<<3 | s[2]-'0';
 				s += 2;
-			} else if (isdigit(s[0])) {
+			} else if (isdigit((uchar)s[0])) {
 				*t++ = *s - '0';
 			} else if (*s == 'b') {
 				*t++ = '\b';

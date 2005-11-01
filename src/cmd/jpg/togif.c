@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 	ARGBEGIN{
 	case 'l':
 		s = ARGF();
-		if(s==nil || (!isdigit(s[0]) && s[0]!='-'))
+		if(s==nil || (!isdigit((uchar)s[0]) && s[0]!='-'))
 			usage();
 		loop = atoi(s);
 		break;
@@ -42,13 +42,13 @@ main(int argc, char *argv[])
 		break;
 	case 'd':
 		s = ARGF();
-		if(s==nil || !isdigit(s[0]))
+		if(s==nil || !isdigit((uchar)s[0]))
 			usage();
 		dt = atoi(s);
 		break;
 	case 't':
 		s = ARGF();
-		if(s==nil || !isdigit(s[0]))
+		if(s==nil || !isdigit((uchar)s[0]))
 			usage();
 		trans = atoi(s);
 		if(trans > 255)
@@ -101,7 +101,7 @@ main(int argc, char *argv[])
 						usage();
 				}else
 					s = &argv[j][2];
-				if(!isdigit(s[0]))
+				if(!isdigit((uchar)s[0]))
 					usage();
 				dt = atoi(s);
 				if(j == argc-1)	/* last argument must be file */
