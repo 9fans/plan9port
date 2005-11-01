@@ -1,9 +1,11 @@
 SYSNAME=`uname`
+# objtype rules also in Makefile
 OBJTYPE=`uname -m | sed '
 	s;i.86;386;;
 	s;amd64;x86_64;;
 	s;/.*;;;
 	s; ;;g;
+	s;armv4l;arm;g;
 	s;PowerMacintosh;power;g;
 	s;macppc;power;g;
 	s;ppc64;power;g;

@@ -436,3 +436,43 @@ _threadpexit(void)
 	_exit(0);
 }
 
+#ifdef __arm__
+extern int getmcontext(mcontext_t*);
+extern int setmcontext(const mcontext_t*);
+
+void
+makecontext(ucontext_t *uc, void (*fn)(void), int argc, ...)
+{
+	int i, *sp;
+	va_list arg;
+	
+	sp = (int*)uc->uc_stack.ss_sp+uc->uc_stack.ss_size/4;
+	va_start(arg, argc);
+	for(i=0; i<4 && i<argc; i++)
+		uc->uc_mcontext.gregs[0] = va_arg(arg, uint);
+	uc->uc_mcontext.gregs[13] = (uint)sp;
+	uc->uc_mcontext.gregs[14] = (uint)fn;
+}
+
+int
+getcontext(ucontext_t *uc)
+{
+	return getmcontext(&uc->uc_mcontext);
+}
+
+int
+setcontext(const ucontext_t *uc)
+{
+	setmcontext(&uc->uc_mcontext);
+	return 0;	/* not reached */
+}
+
+int
+swapcontext(ucontext_t *oucp, const ucontext_t *ucp)
+{
+	if(getcontext(oucp) == 0)
+		setcontext(ucp);
+	return 0;
+}
+#endif
+
