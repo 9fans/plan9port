@@ -13,7 +13,7 @@ void setsize(char *p)	/* set size as found in p */
 		ps -= atoi(p+1);
 		if (szstack[nszstack-1] != 0)
 			szstack[nszstack] = ps;
-	} else if (isdigit((uchar)*p)) {
+	} else if (isdigit((unsigned char)*p)) {
 		if (szstack[nszstack-1] == 0)
 			printf(".nr %d \\n(.s\n", 99-nszstack);
 		else
@@ -52,7 +52,7 @@ void globsize(void)
 		gsize -= atoi(temp+1);
 		if (szstack[0] != 0)
 			szstack[0] = gsize;
-	} else  if (isdigit((uchar)temp[0])) {
+	} else  if (isdigit((unsigned char)temp[0])) {
 		gsize = atoi(temp);
 		szstack[0] = gsize;
 		printf(".nr 99 \\n(.s\n");
