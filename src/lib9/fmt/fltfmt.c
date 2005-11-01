@@ -376,7 +376,7 @@ found:
 static int
 floatfmt(Fmt *fmt, double f)
 {
-	char s[FDIGIT+10];
+	char s[341];		/* precision+exponent+sign+'.'+null */
 
 	xdtoa(fmt, s, f);
 	fmt->flags &= FmtWidth|FmtLeft;
