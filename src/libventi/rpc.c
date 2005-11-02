@@ -29,10 +29,9 @@ struct Rwait
 static int gettag(VtConn*, Rwait*);
 static void puttag(VtConn*, Rwait*, int);
 static void muxrpc(VtConn*, Packet*);
-Packet *vtrpc(VtConn*, Packet*);
 
 Packet*
-vtrpc(VtConn *z, Packet *p)
+_vtrpc(VtConn *z, Packet *p, VtFcall *tx)
 {
 	int i;
 	uchar tag, buf[2], *top;
@@ -44,6 +43,12 @@ vtrpc(VtConn *z, Packet *p)
 	qlock(&z->lk);
 	r->r.l = &z->lk;
 	tag = gettag(z, r);
+	if(tx){
+		/* vtfcallrpc can't print packet because it doesn't have tag */
+		tx->tag = tag;
+		if(chattyventi)
+			fprint(2, "%s -> %F\n", argv0, tx);
+	}
 
 	/* slam tag into packet */
 	top = packetpeek(p, buf, 0, 2);
@@ -102,6 +107,12 @@ vtrpc(VtConn *z, Packet *p)
 	vtfree(r);
 	qunlock(&z->lk);
 	return p;
+}
+
+Packet*
+vtrpc(VtConn *z, Packet *p)
+{
+	return _vtrpc(z, p, nil);
 }
 
 static int 

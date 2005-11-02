@@ -12,7 +12,9 @@
 #include <libc.h>
 #include <venti.h>
 
-int nread, ncopy, nwrite;
+int vtcachenread;
+int vtcachencopy;
+int vtcachenwrite;
 
 enum {
 	BioLocal = 1,
@@ -419,6 +421,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	b->nlock = 1;
 	qunlock(&c->lk);
 
+	vtcachenread++;
 	n = vtread(c->z, score, type, b->data, c->blocksize);
 	if(n < 0){
 		werrstr("vtread %V: %r", score);
@@ -512,6 +515,7 @@ vtblockwrite(VtBlock *b)
 
 	c = b->c;
 	n = vtzerotruncate(b->type, b->data, c->blocksize);
+	vtcachenwrite++;
 	if(c->write(c->z, score, b->type, b->data, n) < 0)
 		return -1;
 
@@ -540,7 +544,7 @@ vtblockcopy(VtBlock *b)
 {
 	VtBlock *bb;
 
-ncopy++;
+	vtcachencopy++;
 	bb = vtcacheallocblock(b->c, b->type);
 	if(bb == nil){
 		vtblockput(b);

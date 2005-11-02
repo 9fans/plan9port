@@ -9,12 +9,10 @@ vtfcallrpc(VtConn *z, VtFcall *ou, VtFcall *in)
 {
 	Packet *p;
 
-	if(chattyventi)
-		fprint(2, "%s -> %F\n", argv0, ou);
 	p = vtfcallpack(ou);
 	if(p == nil)
 		return -1;
-	if((p = vtrpc(z, p)) == nil)
+	if((p = _vtrpc(z, p, ou)) == nil)
 		return -1;
 	if(vtfcallunpack(in, p) < 0){
 		packetfree(p);

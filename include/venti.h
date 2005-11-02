@@ -369,6 +369,7 @@ void vtrespond(VtReq*);
 
 /* client */
 Packet *vtrpc(VtConn*, Packet*);
+Packet *_vtrpc(VtConn*, Packet*, VtFcall*);
 void vtrecvproc(void*);	/* VtConn* */
 void vtsendproc(void*);	/* VtConn* */
 
@@ -427,6 +428,8 @@ u32int vtcacheblocksize(VtCache*);
 int vtblockwrite(VtBlock*);
 VtBlock *vtblockcopy(VtBlock*);
 void vtblockduplock(VtBlock*);
+
+extern int vtcachencopy, vtcachenread, vtcachenwrite;
 
 /*
  * Hash tree file tree.
