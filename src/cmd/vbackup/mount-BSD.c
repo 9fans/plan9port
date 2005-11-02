@@ -44,7 +44,7 @@ mountnfs(int proto, struct sockaddr_in *sa,
 	na.wsize = NFS_WSIZE;
 	na.rsize = NFS_RSIZE;
 	na.readdirsize = NFS_READDIRSIZE;
-	na.timeo = 2;
+	na.timeo = 200;
 	na.retrans = NFS_RETRANS;
 	na.maxgrouplist = NFS_MAXGRPS;
 	na.hostname = "backup";
