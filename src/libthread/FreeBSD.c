@@ -18,21 +18,6 @@ makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 	ucp->uc_mcontext.mc_esp = (int)sp;
 }
 
-extern int getmcontext(mcontext_t*);
-extern int setmcontext(mcontext_t*);
-
-int
-getcontext(ucontext_t *uc)
-{
-	return getmcontext(&uc->uc_mcontext);
-}
-
-void
-setcontext(ucontext_t *uc)
-{
-	setmcontext(&uc->uc_mcontext);
-}
-
 int
 swapcontext(ucontext_t *oucp, ucontext_t *ucp)
 {
