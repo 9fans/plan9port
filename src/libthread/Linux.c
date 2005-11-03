@@ -449,7 +449,8 @@ makecontext(ucontext_t *uc, void (*fn)(void), int argc, ...)
 	sp = (int*)uc->uc_stack.ss_sp+uc->uc_stack.ss_size/4;
 	va_start(arg, argc);
 	for(i=0; i<4 && i<argc; i++)
-		uc->uc_mcontext.gregs[0] = va_arg(arg, uint);
+		uc->uc_mcontext.gregs[i] = va_arg(arg, uint);
+	va_end(arg);
 	uc->uc_mcontext.gregs[13] = (uint)sp;
 	uc->uc_mcontext.gregs[14] = (uint)fn;
 }
