@@ -42,6 +42,11 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #endif
 
+#if defined(__arm__)
+int _getmcontext(mcontext_t*);
+void _setmcontext(mcontext_t*);
+#endif
+
 typedef struct Context Context;
 typedef struct Execjob Execjob;
 typedef struct Proc Proc;

@@ -437,9 +437,6 @@ _threadpexit(void)
 }
 
 #ifdef __arm__
-#define	setcontext(u)	setmcontext(&(u)->uc_mcontext)
-#define	getcontext(u)	getmcontext(&(u)->uc_mcontext)
-
 void
 makecontext(ucontext_t *uc, void (*fn)(void), int argc, ...)
 {
