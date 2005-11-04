@@ -43,8 +43,10 @@ extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #endif
 
 #if defined(__arm__)
-int _getmcontext(mcontext_t*);
-void _setmcontext(mcontext_t*);
+int getmcontext(mcontext_t*);
+void setmcontext(mcontext_t*);
+#define	setcontext(u)	setmcontext(&(u)->uc_mcontext)
+#define	getcontext(u)	getmcontext(&(u)->uc_mcontext)
 #endif
 
 typedef struct Context Context;
