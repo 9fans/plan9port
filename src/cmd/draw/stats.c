@@ -109,7 +109,7 @@ Machine	*mach;
 Font		*mediumfont;
 char		*fontname;
 char		*mysysname;
-char		argchars[] = "bceEfiIlmnsw";
+char		argchars[] = "bcCeEfiIlmnsw";
 int		pids[1024];
 int 		parity;	/* toggled to avoid patterns in textured background */
 int		nmach;
