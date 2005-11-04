@@ -5,11 +5,10 @@ _tas:
 	xchgl %eax, 0(%ecx)
 	ret
 
-.globl getcontext
-getcontext:
+.globl getmcontext
+getmcontext:
 	movl	4(%esp), %eax
-	addl		$16, %eax	/* point to mcontext */
-	
+
 	movl	%fs, 8(%eax)
 	movl	%es, 12(%eax)
 	movl	%ds, 16(%eax)
@@ -26,16 +25,15 @@ getcontext:
 	movl	%ecx, 60(%eax)
 	leal	4(%esp), %ecx	/* %esp */
 	movl	%ecx, 72(%eax)
-	
+
 	movl	44(%eax), %ecx	/* restore %ecx */
 	movl	$0, %eax
 	ret
 
-.globl setcontext
-setcontext:
+.globl setmcontext
+setmcontext:
 	movl	4(%esp), %eax
-	addl		$16, %eax	/* point to mcontext */
-	
+
 	movl	8(%eax), %fs
 	movl	12(%eax), %es
 	movl	16(%eax), %ds
@@ -45,11 +43,10 @@ setcontext:
 	movl	28(%eax), %ebp
 	movl	36(%eax), %ebx
 	movl	40(%eax), %edx
-	movl	72(%eax), %esp
-	
-	movl	60(%eax), %ecx	/* push new %eip */
-	pushl	%ecx
-
 	movl	44(%eax), %ecx
+
+	movl	72(%eax), %esp
+	pushl	60(%eax)	/* new %eip */
 	movl	48(%eax), %eax
 	ret
+

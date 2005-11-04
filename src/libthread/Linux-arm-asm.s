@@ -9,9 +9,8 @@ _tas:
 	mov	r0, r3
 	mov	pc, lr
 
-.globl getcontext
-getcontext:
-	add	r0, r0, #148	/* walk to mcontext */
+.globl getmcontext
+getmcontext:
 	str	r1, [r0,#4]
 	str	r2, [r0,#8]
 	str	r3, [r0,#12]
@@ -33,9 +32,8 @@ getcontext:
 	mov	r0, #0
 	mov	pc, lr
 
-.globl setcontext
-setcontext:
-	add	r0, r0, #148	/* walk to mcontext */
+.globl setmcontext
+setmcontext:
 	ldr	r1, [r0,#4]
 	ldr	r2, [r0,#8]
 	ldr	r3, [r0,#12]

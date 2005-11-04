@@ -1,3 +1,5 @@
+#define	setcontext(u)	_setmcontext(&(u)->uc_mcontext)
+#define	getcontext(u)	_getmcontext(&(u)->uc_mcontext)
 typedef struct mcontext mcontext_t;
 typedef struct ucontext ucontext_t;
 struct mcontext
@@ -27,8 +29,6 @@ struct ucontext
 };
 
 void makecontext(ucontext_t*, void(*)(void), int, ...);
-int getcontext(ucontext_t*);
-int setcontext(ucontext_t*);
 int swapcontext(ucontext_t*, ucontext_t*);
 int _getmcontext(mcontext_t*);
 void _setmcontext(mcontext_t*);
