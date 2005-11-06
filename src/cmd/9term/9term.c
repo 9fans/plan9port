@@ -202,7 +202,7 @@ mousethread(void *v)
 			send(w->mc.c, &tmp);
 			continue;
 		}
-		if(mouse->buttons&1){
+		if((mouse->buttons&1) || ptinrect(mouse->xy, w->scrollr)){
 			sending = TRUE;
 			goto Send;
 		}else if(mouse->buttons&2)
