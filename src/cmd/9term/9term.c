@@ -419,6 +419,16 @@ rcoutputproc(void *arg)
 	}
 }
 
+void
+winterrupt(Window *w)
+{
+	char rubout[1];
+	
+	USED(w);
+	rubout[0] = getintr(sfd);
+	write(rcfd, rubout, 1);
+}
+
 /*
  * Process in-band messages about window title changes.
  * The messages are of the form:

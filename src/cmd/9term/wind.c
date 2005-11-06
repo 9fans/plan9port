@@ -563,7 +563,6 @@ wkeyctl(Window *w, Rune r)
 	uint q0 ,q1;
 	int n, nb, nr;
 	Rune *rp;
-	int *notefd;
 
 	if(r == 0)
 		return;
@@ -665,9 +664,7 @@ wkeyctl(Window *w, Rune r)
 	case 0x7F:		/* send interrupt */
 		w->qh = w->nr;
 		wshow(w, w->qh);
-		notefd = emalloc(sizeof(int));
-		*notefd = w->notefd;
-		proccreate(interruptproc, notefd, 4096);
+		winterrupt(w);
 		return;
 	case 0x06:	/* ^F: file name completion */
 	case Kins:		/* Insert: file name completion */
@@ -1294,19 +1291,14 @@ void
 wsetpid(Window *w, int pid, int dolabel)
 {
 	char buf[128];
-	int fd;
 
 	w->pid = pid;
 	if(dolabel){
 		sprint(buf, "rc %d", pid);
 		free(w->label);
 		w->label = estrdup(buf);
+		drawsetlabel(w->label);
 	}
-	sprint(buf, "/proc/%d/notepg", pid);
-	fd = open(buf, OWRITE|OCEXEC);
-	if(w->notefd > 0)
-		close(w->notefd);
-	w->notefd = fd;
 }
 
 static Rune left1[] =  { '{', '[', '(', '<', 0xAB, 0 };
