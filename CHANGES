@@ -1,3 +1,34 @@
+November 6, 2005
+	9term: new port directly from rio
+	include/libc.h: p9syslog, not syslog in varargck
+	libauthsrv: close fd, memory leak in authdial
+	libdraw: X11 debugging helps
+	lib9: add getcallerpc-arm (Ron Minnich)
+
+November 4, 2005
+	stats: add -C to argchars (Lou Kamenov)
+	libthread: ARM fixes (Ron Minnich), getcontext fixes
+
+November 2, 2005
+	vbackup: longer timeout on BSD mount
+	libthread: Linux ARM fixes (Ron Minnich)
+
+November 1, 2005
+	various: ctype sign fixes (Tom Miller)
+	libfmt: avoid overflow on %f
+	libthread: Linux ARM fixes (Ron Minnich), FreeBSD 5 fixes
+	libventi: various cleanup
+
+October 31, 2005
+	acme: preparation for multiline tags (Paul Lalonde)
+	bc: 64-bit safe (Taj Khattra)
+	faces: initial port (John Cummings)
+	stats: add -F option (Lou Kamenov)
+	various: ctype sign fixes (Tom Miller)
+
+October 30, 2005
+	auxstats: more OS X fixes (Jeff Sickel)	
+
 October 29, 2005
 	9p: clunk fids before exiting
 	mk: handle MKSHELL type correctly
