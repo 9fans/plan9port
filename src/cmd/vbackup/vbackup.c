@@ -5,6 +5,7 @@
  * Prints a vnfs config line for the copied image.
  *
  *	-D	print debugging
+ *	-f	'fast' writes - skip write if block exists on server
  *	-m	set mount name
  *	-n	nop -- don't actually write blocks
  *	-s	print status updates
@@ -50,6 +51,7 @@ struct WriteReq
 {
 	Packet *p;
 	uint type;
+	uchar score[VtScoreSize];
 };
 
 Biobuf	bscores;		/* biobuf filled with block scores */
@@ -57,11 +59,13 @@ int		debug;		/* debugging flag (not used) */
 Disk*	disk;			/* disk being backed up */
 RWLock	endlk;		/* silly synchonization */
 int		errors;		/* are we exiting with an error status? */
+int		fastwrites;		/* do not write blocks already on server */
 int		fsscanblock;	/* last block scanned */
 Fsys*	fsys;			/* file system being backed up */
 int		nchange;		/* number of changed blocks */
 int		nop;			/* don't actually send blocks to venti */
-int		nwrite;		/* number of write-behind threads */
+int		nskip;		/* number of blocks skipped (already on server) */
+int		nwritethread;	/* number of write-behind threads */
 Queue*	qcmp;		/* queue fsys->cmp */
 Queue*	qventi;		/* queue cmp->venti */
 int		statustime;	/* print status every _ seconds */
@@ -72,7 +76,7 @@ VtConn*	z;			/* connection to venti */
 VtCache*	zcache;		/* cache of venti blocks */
 uchar*	zero;			/* blocksize zero bytes */
 
-extern	int	nwrite;	/* hidden in libventi */
+int nsend, nrecv;
 
 void		cmpproc(void*);
 void		fsysproc(void*);
@@ -118,6 +122,9 @@ threadmain(int argc, char **argv)
 	case 'V':
 		chattyventi = 1;
 		break;
+	case 'f':
+		fastwrites = 1;
+		break;
 	case 'm':
 		mountname = EARGF(usage());
 		break;
@@ -131,7 +138,7 @@ threadmain(int argc, char **argv)
 		verbose = 1;
 		break;
 	case 'w':
-		nwrite = atoi(EARGF(usage()));
+		nwritethread = atoi(EARGF(usage()));
 		break;
 	}ARGEND
 
@@ -140,6 +147,7 @@ threadmain(int argc, char **argv)
 
 	if(statustime)
 		print("# %T vbackup %s %s\n", argv[0], argc>=2 ? argv[1] : "");
+
 	/*
 	 * open fs
 	 */
@@ -278,8 +286,8 @@ threadmain(int argc, char **argv)
 	wlock(&endlk);
 
 	if(statustime)
-		print("# %T procs exited: %d blocks changed, %d written\n",
-			nchange, nwrite);
+		print("# %T procs exited: %d blocks changed, %d read, %d written, %d skipped, %d copied\n",
+			nchange, vtcachenread, vtcachenwrite, nskip, vtcachencopy);
 
 	/*
 	 * prepare root block
@@ -347,7 +355,8 @@ fsysproc(void *dummy)
 	fsscanblock = i;
 	qclose(qcmp);
 
-	print("# %T fsys proc exiting\n");
+	if(statustime)
+		print("# %T fsys proc exiting\n");
 	runlock(&endlk);
 }
 
@@ -379,6 +388,8 @@ cmpproc(void *dummy)
 			blockput(db);
 	}
 	qclose(qventi);
+	if(statustime)
+		print("# %T cmp proc exiting\n");
 	runlock(&endlk);
 }
 
@@ -386,14 +397,24 @@ void
 writethread(void *v)
 {
 	WriteReq wr;
-	uchar score[VtScoreSize];
+	char err[ERRMAX];
 
 	USED(v);
 
 	while(recv(writechan, &wr) == 1){
+		nrecv++;
 		if(wr.p == nil)
 			break;
-		if(vtwritepacket(z, score, wr.type, wr.p) < 0)
+		
+		if(fastwrites && vtread(z, wr.score, wr.type, nil, 0) < 0){
+			rerrstr(err, sizeof err);
+			if(strstr(err, "read too small")){	/* already exists */
+				nskip++;
+				packetfree(wr.p);
+				continue;
+			}
+		}
+		if(vtwritepacket(z, wr.score, wr.type, wr.p) < 0)
 			sysfatal("vtwritepacket: %r");
 	}
 }
@@ -403,13 +424,15 @@ myvtwrite(VtConn *z, uchar score[VtScoreSize], uint type, uchar *buf, int n)
 {
 	WriteReq wr;
 
-	if(nwrite == 0)
+	if(nwritethread == 0)
 		return vtwrite(z, score, type, buf, n);
 
 	wr.p = packetalloc();
 	packetappend(wr.p, buf, n);
 	packetsha1(wr.p, score);
+	memmove(wr.score, score, VtScoreSize);
 	wr.type = type;
+	nsend++;
 	send(writechan, &wr);
 	return 0;
 }
@@ -428,7 +451,7 @@ ventiproc(void *dummy)
 	proccreate(vtrecvproc, z, STACK);
 
 	writechan = chancreate(sizeof(WriteReq), 0);
-	for(i=0; i<nwrite; i++)
+	for(i=0; i<nwritethread; i++)
 		threadcreate(writethread, nil, STACK);
 	vtcachesetwrite(zcache, myvtwrite);
 
@@ -447,8 +470,10 @@ ventiproc(void *dummy)
 	}
 	vtfileunlock(vfile);
 	vtcachesetwrite(zcache, nil);
-	for(i=0; i<nwrite; i++)
+	for(i=0; i<nwritethread; i++)
 		send(writechan, nil);
+	if(statustime)
+		print("# %T venti proc exiting - nsend %d nrecv %d\n", nsend, nrecv);
 	runlock(&endlk);
 }
 
@@ -476,6 +501,7 @@ statusproc(void *dummy)
 			percent(qcmp->nel, MAXQ),
 			percent(qventi->nel, MAXQ));
 	}
+	print("# %T status proc exiting\n");
 	runlock(&endlk);
 }
 
