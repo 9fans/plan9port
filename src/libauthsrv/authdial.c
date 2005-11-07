@@ -29,6 +29,7 @@ authdial(char *netroot, char *dom)
 		rv = dial(netmkaddr(p, "tcp", "ticket"), 0, 0, 0);
 		if(p != dom)
 			free(p);
+		ndbclose(db);
 		return rv;
 	}
 	p = getenv("auth");
