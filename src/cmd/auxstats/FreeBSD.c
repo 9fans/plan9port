@@ -11,7 +11,9 @@
 #include <net/if_var.h>
 #include <net/if_dl.h>
 #include <net/if_types.h>
+#if __FreeBSD_version < 600000
 #include <machine/apm_bios.h>
+#endif
 #include <sys/ioctl.h>
 #include <limits.h>
 #include <libc.h>
@@ -137,7 +139,8 @@ int
 xacpi(int first)
 {
 	int rv;
-	int val, len;
+	int val;
+	long len;
 
 	len = sizeof(val);
 	rv = sysctlbyname("hw.acpi.battery.life", &val, &len, nil, 0);
@@ -154,6 +157,7 @@ xacpi(int first)
 }
 #endif
 
+#if __FreeBSD_version < 600000
 void
 xapm(int first)
 {
@@ -175,6 +179,13 @@ xapm(int first)
 	if(ai.ai_batt_life <= 100)
 		Bprint(&bout, "battery =%d 100\n", ai.ai_batt_life);
 }
+#else
+void
+xapm(int first)
+{
+	return;
+}
+#endif
 
 int
 rsys(char *name, char *buf, int len)
