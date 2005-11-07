@@ -97,8 +97,6 @@ threadmain(int argc, char *argv[])
 	keyboardctl = initkeyboard(nil);
 	if(keyboardctl == nil)
 		error("cannot find keyboard");
-	if((plumbfd = plumbopen("send", OWRITE)) < 0)
-		fprint(2, "9term: plumbopen: %r\n");
 	mouse = &mousectl->m;
 
 	winclosechan = chancreate(sizeof(Window*), 0);
@@ -523,7 +521,6 @@ riogetsnarf(void)
 	char *s;
 	int n, nb, nulls;
 
-fprint(2, "getsnarf\n");
 	s = getsnarf();
 	if(s == nil)
 		return;

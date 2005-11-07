@@ -7,6 +7,7 @@
 #include <keyboard.h>
 #include <frame.h>
 #include <fcall.h>
+#include <9pclient.h>
 #include <plumb.h>
 #include <complete.h>
 #include "dat.h"
@@ -806,14 +807,14 @@ void
 wplumb(Window *w)
 {
 	Plumbmsg *m;
-	static int fd = -2;
+	static CFid *fd;
 	char buf[32];
 	uint p0, p1;
 	Cursor *c;
 
-	if(fd == -2)
-		fd = plumbopen("send", OWRITE|OCEXEC);
-	if(fd < 0)
+	if(fd == nil)
+		fd = plumbopenfid("send", OWRITE);
+	if(fd == nil)
 		return;
 	m = emalloc(sizeof(Plumbmsg));
 	m->src = estrdup("rio");
@@ -837,7 +838,7 @@ wplumb(Window *w)
 		return;	/* too large for 9P */
 	}
 	m->data = runetobyte(w->r+p0, p1-p0, &m->ndata);
-	if(plumbsend(fd, m) < 0){
+	if(plumbsendtofid(fd, m) < 0){
 		c = lastcursor;
 		riosetcursor(&query, 1);
 		sleep(300);
