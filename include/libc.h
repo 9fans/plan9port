@@ -886,7 +886,7 @@ extern	int	post9pservice(int, char*);
 #pragma	varargck	argpos	snprint	3
 #pragma	varargck	argpos	sprint	2
 #pragma	varargck	argpos	sysfatal	1
-#pragma	varargck	argpos	syslog	3
+#pragma	varargck	argpos	p9syslog	3
 #pragma	varargck	argpos	werrstr	1
 #endif
 
