@@ -137,8 +137,10 @@ getwindow(Display *d, int ref)
 	Image *i;
 	Image *oi;
 
-	if(_x.destroyed)
+	if(_x.destroyed){
 		postnote(PNGROUP, getpgrp(), "hangup");
+		return -1;
+	}
 	if(xreplacescreenimage() == 0)
 		return 0;
 

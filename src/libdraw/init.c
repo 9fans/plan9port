@@ -202,8 +202,8 @@ bufimage(Display *d, int n)
 {
 	uchar *p;
 
-	if(n<0 || n>d->bufsize){
-abort();
+	if(n<0 || d == nil || n>d->bufsize){
+		abort();
 		werrstr("bad count in bufimage");
 		return 0;
 	}
