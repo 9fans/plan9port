@@ -322,7 +322,7 @@ button2menu(Window *w)
 		break;
 
 	case Paste:
-	//XXX	getsnarf();
+		riogetsnarf();
 		wpaste(w);
 		wscrdraw(w);
 		break;
@@ -332,7 +332,7 @@ button2menu(Window *w)
 		break;
 
 	case Send:
-	//XXX	getsnarf();
+		riogetsnarf();
 		wsnarf(w);
 		if(nsnarf == 0)
 			break;
@@ -505,3 +505,31 @@ rcinputproc(void *arg)
 	}
 }
 
+void
+rioputsnarf(void)
+{
+	char *s;
+	
+	s = smprint("%.*S", nsnarf, snarf);
+	if(s){
+		putsnarf(s);
+		free(s);
+	}
+}
+
+void
+riogetsnarf(void)
+{
+	char *s;
+	int n, nb, nulls;
+
+fprint(2, "getsnarf\n");
+	s = getsnarf();
+	if(s == nil)
+		return;
+	n = strlen(s)+1;
+	free(snarf);
+	snarf = runemalloc(n);
+	cvttorunes(s, n, snarf, &nb, &nsnarf, &nulls);
+	free(s);
+}

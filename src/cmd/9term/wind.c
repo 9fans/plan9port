@@ -772,7 +772,7 @@ wsnarf(Window *w)
 	snarf = runerealloc(snarf, nsnarf);
 	snarfversion++;	/* maybe modified by parent */
 	runemove(snarf, w->r+w->q0, nsnarf);
-//XXX	putsnarf();
+	rioputsnarf();
 }
 
 void
@@ -1034,7 +1034,7 @@ wselect(Window *w)
 			}else{
 				if(first){
 					first = 0;
-					getsnarf();
+					riogetsnarf();
 				}
 				wpaste(w);
 			}

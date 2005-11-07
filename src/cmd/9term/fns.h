@@ -35,3 +35,7 @@ void	winterrupt(Window*);
 #define	runemalloc(n)		malloc((n)*sizeof(Rune))
 #define	runerealloc(a, n)	realloc(a, (n)*sizeof(Rune))
 #define	runemove(a, b, n)	memmove(a, b, (n)*sizeof(Rune))
+
+void rioputsnarf(void);
+void riogetsnarf(void);
+
