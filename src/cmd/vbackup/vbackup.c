@@ -72,7 +72,7 @@ VtConn*	z;			/* connection to venti */
 VtCache*	zcache;		/* cache of venti blocks */
 uchar*	zero;			/* blocksize zero bytes */
 
-extern	int	ncopy, nread, nwrite;	/* hidden in libventi */
+extern	int	nwrite;	/* hidden in libventi */
 
 void		cmpproc(void*);
 void		fsysproc(void*);
@@ -278,8 +278,8 @@ threadmain(int argc, char **argv)
 	wlock(&endlk);
 
 	if(statustime)
-		print("# %T procs exited: %d blocks changed, %d read, %d written, %d copied\n",
-			nchange, nread, nwrite, ncopy);
+		print("# %T procs exited: %d blocks changed, %d written\n",
+			nchange, nwrite);
 
 	/*
 	 * prepare root block
