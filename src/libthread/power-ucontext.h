@@ -1,5 +1,5 @@
-#define	setcontext(u)	_setmcontext(&(u)->uc_mcontext)
-#define	getcontext(u)	_getmcontext(&(u)->uc_mcontext)
+#define	setcontext(u)	_setmcontext(&(u)->mc)
+#define	getcontext(u)	_getmcontext(&(u)->mc)
 typedef struct mcontext mcontext_t;
 typedef struct ucontext ucontext_t;
 struct mcontext

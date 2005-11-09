@@ -16,19 +16,6 @@ makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 }
 
 int
-getcontext(ucontext_t *uc)
-{
-	return _getmcontext(&uc->mc);
-}
-
-int
-setcontext(ucontext_t *uc)
-{
-	_setmcontext(&uc->mc);
-	return 0;
-}
-
-int
 swapcontext(ucontext_t *oucp, ucontext_t *ucp)
 {
 	if(getcontext(oucp) == 0)
