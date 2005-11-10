@@ -190,7 +190,7 @@ wclose(Window *w)
 void
 winctl(void *arg)
 {
-	Rune *rp, *bp, *tp, *up, *kbdr;
+	Rune *rp, *bp, *up, *kbdr;
 	uint qh;
 	int nr, nb, c, wid, i, npart, initial, lastb;
 	char *s, *t, part[3];
@@ -328,37 +328,48 @@ winctl(void *arg)
 			recv(cwm.cw, &pair);
 			rp = pair.s;
 			nr = pair.ns;
-			bp = rp;
-			for(i=0; i<nr; i++)
-				if(*bp++ == '\b'){
-					--bp;
-					initial = 0;
-					tp = runemalloc(nr);
-					runemove(tp, rp, i);
-					up = tp+i;
-					for(; i<nr; i++){
-						*up = *bp++;
-						if(*up == '\b')
-							if(up == tp)
-								initial++;
-							else
-								--up;
-						else
-							up++;
+			up = bp = rp;
+			initial = 0;
+			for(i=0; i<nr; i++){
+				switch(*bp){
+				case 0:
+					break;
+				case '\b':
+					if(up == rp)
+						initial++;
+					else
+						--up;
+					break;
+/*
+				case '\r':
+					while(i<nr-1 && *(bp+1) == '\r'){
+						bp++;
+						i++;
 					}
-					if(initial){
-						if(initial > w->qh)
-							initial = w->qh;
-						qh = w->qh-initial;
-						wdelete(w, qh, qh+initial);
-						w->qh = qh;
-					}
-					free(rp);
-					rp = tp;
-					nr = up-tp;
-					rp[nr] = 0;
+					if(i<nr-1 && *(bp+1) != '\n'){
+						while(up > rp && *(up-1) != '\n')
+							up--;
+						if(up == rp)
+							initial = wbswidth(w, 0x15);
+					}else if(i == nr-1)
+						*up = '\n';
+					break;
+*/
+				default:
+					*up++ = *bp;
 					break;
 				}
+				bp++;
+			}
+			if(initial){
+				if(initial > w->qh)
+					initial = w->qh;
+				qh = w->qh - initial;
+				wdelete(w, qh, qh+initial);
+				w->qh = qh;
+			}
+			nr = rp - up;
+			rp[nr] = 0;
 			w->qh = winsert(w, rp, nr, w->qh)+nr;
 			if(w->scrolling || w->mouseopen)
 				wshow(w, w->qh);
