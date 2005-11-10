@@ -34,6 +34,7 @@ void rcoutputproc(void*);
 void	rcinputproc(void*);
 void hangupnote(void*, char*);
 void resizethread(void*);
+void	servedevtext(void);
 
 int errorshouldabort = 0;
 
@@ -89,7 +90,6 @@ threadmain(int argc, char *argv[])
 	initdraw(derror, nil, "9term");
 	notify(hangupnote);
 	noteenable("sys: child");
-//	servedevtext();
 	
 	mousectl = initmouse(nil, screen);
 	if(mousectl == nil)
@@ -109,7 +109,8 @@ threadmain(int argc, char *argv[])
 	threadcreate(keyboardthread, nil, STACK);
 	threadcreate(mousethread, nil, STACK);
 	threadcreate(resizethread, nil, STACK);
-	
+	servedevtext();
+
 	proccreate(rcoutputproc, nil, STACK);
 	proccreate(rcinputproc, nil, STACK);
 }
@@ -169,12 +170,18 @@ keyboardthread(void *v)
 void
 resizethread(void *v)
 {
+	Point p;
+	
 	USED(v);
 	
 	while(recv(mousectl->resizec, nil) == 1){
 		if(getwindow(display, Refnone) < 0)
 			sysfatal("can't reattach to window");
 		wresize(w, screen, 0);
+		p = stringsize(display->defaultfont, "0");
+		if(p.x && p.y)
+			updatewinsize(Dy(screen->r)/p.y, Dx(screen->r)/p.x, 
+				Dx(screen->r), Dy(screen->r));
 	}
 }
 			
@@ -503,6 +510,9 @@ rcinputproc(void *arg)
 	}
 }
 
+/*
+ * Snarf buffer - rio uses runes internally
+ */
 void
 rioputsnarf(void)
 {
@@ -530,3 +540,92 @@ riogetsnarf(void)
 	cvttorunes(s, n, snarf, &nb, &nsnarf, &nulls);
 	free(s);
 }
+
+/*
+ * Clumsy hack to make " and "" work.
+ * Then again, what's not a clumsy hack here in Unix land?
+ */
+
+char adir[100];
+char thesocket[100];
+int afd;
+
+void listenproc(void*);
+void textproc(void*);
+
+void
+removethesocket(void)
+{
+	if(thesocket[0])
+		if(remove(thesocket) < 0)
+			fprint(2, "remove %s: %r\n", thesocket);
+}
+
+void
+servedevtext(void)
+{
+	char buf[100];
+
+	snprint(buf, sizeof buf, "unix!/tmp/9term-text.%d", getpid());
+
+	if((afd = announce(buf, adir)) < 0){
+		putenv("text9term", "");
+		return;
+	}
+
+	putenv("text9term", buf);
+	proccreate(listenproc, nil, STACK);
+	strcpy(thesocket, buf+5);
+	atexit(removethesocket);
+}
+
+void
+listenproc(void *arg)
+{
+	int fd;
+	char dir[100];
+
+	USED(arg);
+	for(;;){
+		fd = listen(adir, dir);
+		if(fd < 0){
+			close(afd);
+			return;
+		}
+		proccreate(textproc, (void*)fd, STACK);
+	}
+}
+
+void
+textproc(void *arg)
+{
+	int fd, i, x, n, end;
+	Rune r;
+	char buf[4096], *p, *ep;
+
+	fd = (int)arg;
+	p = buf;
+	ep = buf+sizeof buf;
+	end = w->org+w->nr;	/* avoid possible output loop */
+	for(i=w->org;; i++){
+		if(i >= end || ep-p < UTFmax){
+			for(x=0; x<p-buf; x+=n)
+				if((n = write(fd, buf+x, (p-x)-buf)) <= 0)
+					goto break2;
+			
+			if(i >= end)
+				break;
+			p = buf;
+		}
+		if(i < w->org)
+			i = w->org;
+		r = w->r[i-w->org];
+		if(r < Runeself)
+			*p++ = r;
+		else
+			p += runetochar(p, &r);
+	}
+break2:
+	close(fd);
+}
+
