@@ -48,7 +48,7 @@ usage(void)
 void
 threadmain(int argc, char *argv[])
 {
-	char *p, *font;
+	char *p;
 	
 	rfork(RFNOTEG);
 	font = nil;
@@ -60,7 +60,7 @@ threadmain(int argc, char *argv[])
 	default:
 		usage();
 	case 'f':
-		font = EARGF(usage());
+		fontname = EARGF(usage());
 		break;
 	case 's':
 		scrolling = TRUE;
@@ -73,9 +73,9 @@ threadmain(int argc, char *argv[])
 		break;
 	}ARGEND
 	
-	if(font)
-		putenv("font", font);
-	
+	if(fontname)
+		putenv("font", fontname);
+
 	p = getenv("tabstop");
 	if(p == 0)
 		p = getenv("TABSTOP");
@@ -86,8 +86,8 @@ threadmain(int argc, char *argv[])
 	free(p);
 	
 	startdir = ".";
-	
-	initdraw(derror, nil, "9term");
+
+	initdraw(derror, fontname, "9term");
 	notify(hangupnote);
 	noteenable("sys: child");
 	
