@@ -328,7 +328,8 @@ winctl(void *arg)
 			recv(cwm.cw, &pair);
 			rp = pair.s;
 			nr = pair.ns;
-			up = bp = rp;
+			bp = rp;
+			up = rp;
 			initial = 0;
 			for(i=0; i<nr; i++){
 				switch(*bp){
@@ -340,7 +341,6 @@ winctl(void *arg)
 					else
 						--up;
 					break;
-/*
 				case '\r':
 					while(i<nr-1 && *(bp+1) == '\r'){
 						bp++;
@@ -354,7 +354,6 @@ winctl(void *arg)
 					}else if(i == nr-1)
 						*up = '\n';
 					break;
-*/
 				default:
 					*up++ = *bp;
 					break;
@@ -368,8 +367,7 @@ winctl(void *arg)
 				wdelete(w, qh, qh+initial);
 				w->qh = qh;
 			}
-			nr = rp - up;
-			rp[nr] = 0;
+			nr = up - rp;
 			w->qh = winsert(w, rp, nr, w->qh)+nr;
 			if(w->scrolling || w->mouseopen)
 				wshow(w, w->qh);

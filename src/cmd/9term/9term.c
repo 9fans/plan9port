@@ -103,13 +103,13 @@ threadmain(int argc, char *argv[])
 	deletechan = chancreate(sizeof(char*), 0);
 
 	timerinit();
+	servedevtext();
 	rcpid = rcstart(argc, argv, &rcfd, &sfd);
 	w = new(screen, FALSE, scrolling, rcpid, ".", nil, nil);
 
 	threadcreate(keyboardthread, nil, STACK);
 	threadcreate(mousethread, nil, STACK);
 	threadcreate(resizethread, nil, STACK);
-	servedevtext();
 
 	proccreate(rcoutputproc, nil, STACK);
 	proccreate(rcinputproc, nil, STACK);
@@ -606,6 +606,10 @@ textproc(void *arg)
 	fd = (int)arg;
 	p = buf;
 	ep = buf+sizeof buf;
+	if(w == nil){
+		close(fd);
+		return;
+	}
 	end = w->org+w->nr;	/* avoid possible output loop */
 	for(i=w->org;; i++){
 		if(i >= end || ep-p < UTFmax){
