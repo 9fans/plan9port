@@ -177,11 +177,12 @@ resizethread(void *v)
 	while(recv(mousectl->resizec, nil) == 1){
 		if(getwindow(display, Refnone) < 0)
 			sysfatal("can't reattach to window");
-		wresize(w, screen, 0);
 		p = stringsize(display->defaultfont, "0");
 		if(p.x && p.y)
 			updatewinsize(Dy(screen->r)/p.y, Dx(screen->r)/p.x, 
 				Dx(screen->r), Dy(screen->r));
+		wresize(w, screen, 0);
+		flushimage(display, 1);
 	}
 }
 			
@@ -585,6 +586,7 @@ listenproc(void *arg)
 	int fd;
 	char dir[100];
 
+	threadsetname("listen %s", thesocket);
 	USED(arg);
 	for(;;){
 		fd = listen(adir, dir);
@@ -603,6 +605,7 @@ textproc(void *arg)
 	Rune r;
 	char buf[4096], *p, *ep;
 
+	threadsetname("textproc");
 	fd = (int)arg;
 	p = buf;
 	ep = buf+sizeof buf;
