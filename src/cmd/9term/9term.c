@@ -179,7 +179,7 @@ resizethread(void *v)
 			sysfatal("can't reattach to window");
 		p = stringsize(display->defaultfont, "0");
 		if(p.x && p.y)
-			updatewinsize(Dy(screen->r)/p.y, Dx(screen->r)/p.x, 
+			updatewinsize(Dy(screen->r)/p.y, (Dx(screen->r)-Scrollwid-2)/p.x, 
 				Dx(screen->r), Dy(screen->r));
 		wresize(w, screen, 0);
 		flushimage(display, 1);
