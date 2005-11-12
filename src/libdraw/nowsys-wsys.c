@@ -17,8 +17,6 @@ drawtopwindow(void)
 
 void
 drawresizewindow(Rectangle r)
-{
-	USED(r);
-	
+{	
 	bad();
 }

@@ -123,7 +123,7 @@ int ignorepipe(void*, char*);
 int timefmt(Fmt*);
 void dorootstat(void);
 int stripudirread(Msg*);
-int stripustat(Fcall*, uchar**, int);
+int cvtustat(Fcall*, uchar**, int);
 
 void
 usage(void)
@@ -464,7 +464,7 @@ connthread(void *arg)
 			}
 			m->fid->ref++;
 			if(m->tx.type==Twstat && dotu && !c->dotu){
-				if(stripustat(&m->tx, &m->tpkt, 1) < 0){
+				if(cvtustat(&m->tx, &m->tpkt, 1) < 0){
 					err(m, "cannot convert stat buffer");
 					continue;
 				}
@@ -790,7 +790,7 @@ connoutthread(void *arg)
 			break;
 		case Tstat:
 			if(!err && dotu && !m->c->dotu)
-				stripustat(&m->rx, &m->rpkt, 0);
+				cvtustat(&m->rx, &m->rpkt, 0);
 			break;
 		case Topen:
 		case Tcreate:
@@ -802,6 +802,7 @@ connoutthread(void *arg)
 			m->rx.ename = ename;
 			repack(&m->rx, &m->rpkt, c->dotu);
 			free(ename);
+			m->rx.ename = "XXX";
 		}
 		if(delhash(m->c->tag, m->ctag, m) == 0)
 			msgput(m);
@@ -973,6 +974,7 @@ fidput(Fid *f)
 
 Msg **msgtab;
 int nmsgtab;
+int nmsg;
 Msg *freemsg;
 
 void
@@ -999,6 +1001,7 @@ msgnew(int x)
 	m->ref = 1;
 	if(verbose > 1) fprint(2, "%T msgnew @0x%lux %p tag %d ref %d\n",
 		getcallerpc(&x), m, m->tag, m->ref);
+	nmsg++;
 	return m;
 }
 
@@ -1050,6 +1053,7 @@ msgput(Msg *m)
 	assert(m->ref > 0);
 	if(--m->ref > 0)
 		return;
+	nmsg--;
 	msgclear(m);
 	if(m->tpkt){
 		free(m->tpkt);
@@ -1141,6 +1145,7 @@ sendq(Queue *q, void *p)
 	e = emalloc(sizeof(Qel));
 	qlock(&q->lk);
 	if(q->hungup){
+		free(e);
 		werrstr("hungup queue");
 		qunlock(&q->lk);
 		return -1;
@@ -1376,7 +1381,7 @@ timefmt(Fmt *fmt)
 }
 
 int
-stripustat(Fcall *f, uchar **fpkt, int s2u)
+cvtustat(Fcall *f, uchar **fpkt, int tounix)
 {
 	int n;
 	uchar *buf;
@@ -1384,20 +1389,21 @@ stripustat(Fcall *f, uchar **fpkt, int s2u)
 	Dir dir;
 
 	str = emalloc(f->nstat);
-	n = convM2Du(f->stat, f->nstat, &dir, str, s2u);
-	if(n <= BIT16SZ)
+	n = convM2Du(f->stat, f->nstat, &dir, str, !tounix);
+	if(n <= BIT16SZ){
+		free(str);
 		return -1;
-	n = sizeD2Mu(&dir, !s2u);
-	buf = emalloc(n);
+	}
 
-	n = convD2Mu(&dir, buf, n, !s2u);
-	if(n <= BIT16SZ)
-		return -1;
+	n = sizeD2Mu(&dir, tounix);
+	buf = emalloc(n);
+	convD2Mu(&dir, f->stat, n, tounix);
 	f->nstat = n;
 	f->stat = buf;
 
 	repack(f, fpkt, dotu);
 	free(buf);
+	f->stat = nil;	/* is this okay ??? */
 	free(str);
 
 	return 0;
@@ -1454,6 +1460,7 @@ stripudirread(Msg* msg)
 	repack(&msg->rx, &msg->rpkt, 0);
 	free(str);
 	free(buf);
+	rx->data = nil;	/* is this okay ??? */
 
 	return 0;
 }
