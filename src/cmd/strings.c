@@ -21,7 +21,7 @@ main(int argc, char **argv)
 
 	Binit(&fout, 1, OWRITE);
 	if(argc < 2) {
-		stringit("/fd/0");
+		stringit("/dev/stdin");
 		exits(0);
 	}
 

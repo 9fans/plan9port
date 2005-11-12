@@ -77,7 +77,7 @@ main(int argc, char **argv)
 	/* read in all the images */
 	initdraw(0, nil, nil);
 	if(argc < 1){
-		readicon("/fd/0");
+		readicon("/dev/stdin");
 	} else {
 		for(i = 0; i < argc; i++)
 			readicon(argv[i]);
