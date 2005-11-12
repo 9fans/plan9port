@@ -160,7 +160,7 @@ translatedomain(char *dom)
 	if(dom == nil || *dom == 0)
 		return nil;
 
-	if((file = readfile(unsharp("#9/lib/face/.machinelist"))) == nil)
+	if((file = readfile(unsharp("#9/face/.machinelist"))) == nil)
 		return dom;
 
 	for(p=file; p; p=nextp) {
@@ -213,10 +213,17 @@ static char*
 tryfindpicture_user(char *dom, char *user, int depth)
 {
 	static char buf[200];
-	char *p, *q, *nextp, *file, *usr;
-	usr = getuser();
+	char *p, *q, *nextp, *file;
+	static char *home;
 
-	sprint(buf, "/usr/%s/lib/face/48x48x%d/.dict", usr, depth);
+	if(home == nil)
+		home = getenv("home");
+	if(home == nil)
+		home = getenv("HOME");
+	if(home == nil)
+		return nil;
+
+	sprint(buf, "%s/lib/face/48x48x%d/.dict", home, depth);
 	if((file = readfile(buf)) == nil)
 		return nil;
 
@@ -232,7 +239,7 @@ tryfindpicture_user(char *dom, char *user, int depth)
 
 		if(strcmp(buf, p) == 0) {
 			q += strspn(q, " \t");
-			q = buf+snprint(buf, sizeof buf, "/usr/%s/lib/face/48x48x%d/%s", usr, depth, q);
+			q = buf+snprint(buf, sizeof buf, "%s/lib/face/48x48x%d/%s", home, depth, q);
 			while(q > buf && (q[-1] == ' ' || q[-1] == '\t'))
 				*--q = 0;
 			free(file);
@@ -249,7 +256,7 @@ tryfindpicture_global(char *dom, char *user, int depth)
 	static char buf[200];
 	char *p, *q, *nextp, *file;
 
-	sprint(buf, "#9/lib/face/48x48x%d/.dict", depth);
+	sprint(buf, "#9/face/48x48x%d/.dict", depth);
 	if((file = readfile(unsharp(buf))) == nil)
 		return nil;
 
@@ -265,7 +272,7 @@ tryfindpicture_global(char *dom, char *user, int depth)
 
 		if(strcmp(buf, p) == 0) {
 			q += strspn(q, " \t");
-			q = buf+snprint(buf, sizeof buf, "#9/lib/face/48x48x%d/%s", depth, q);
+			q = buf+snprint(buf, sizeof buf, "#9/face/48x48x%d/%s", depth, q);
 			while(q > buf && (q[-1] == ' ' || q[-1] == '\t'))
 				*--q = 0;
 			free(file);
