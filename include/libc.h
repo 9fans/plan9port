@@ -900,7 +900,8 @@ extern	int	post9pservice(int, char*);
 #	endif
 #endif
 
-#if defined(__OpenBSD__)
+/* this really shouldn't be here */
+#if defined(__OpenBSD__) || (defined(__NetBSD__) && !defined(sched_yield))
 #define sched_yield() \
 	do { \
 		struct timespec ts; \
