@@ -24,7 +24,7 @@ if [ "x$WSYSTYPE" = "x" ]; then
 	fi
 fi
 
-if [ "x$WSYSTYPE" = "xX11" -a "x$X11H" = "x" ]; then
+if [ "x$WSYSTYPE" = "xx11" -a "x$X11H" = "x" ]; then
 	if [ -d "$X11/include" ]; then
 		X11H="-I$X11/include"
 	else
@@ -37,7 +37,7 @@ echo 'WSYSTYPE='$WSYSTYPE
 echo 'X11='$X11
 
 if [ $WSYSTYPE = x11 ]; then
-	echo 'CFLAGS=$CFLAGS $X11H'
+	echo 'CFLAGS=$CFLAGS '$X11H
 	echo 'HFILES=$HFILES $XHFILES'
 fi
 
