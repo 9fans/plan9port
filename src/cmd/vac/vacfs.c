@@ -557,7 +557,8 @@ rclunk(Fid *f)
 	f->open = 0;
 	vtfree(f->user);
 	f->user = nil;
-	vacfiledecref(f->file);
+	if(f->file)
+		vacfiledecref(f->file);
 	f->file = nil;
 	dirBufFree(f->db);
 	f->db = nil;
@@ -847,7 +848,9 @@ io(void)
 		if(dflag)
 			fprint(2, "vacfs:->%F\n", &thdr);
 		n = convS2Mu(&thdr, mdata, messagesize, dotu);
-		if (err)
+		if(n <= BIT16SZ)
+			sysfatal("convS2Mu conversion error");
+		if(err)
 			vtfree(err);
 
 		if(write(mfd[1], mdata, n) != n)

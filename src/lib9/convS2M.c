@@ -211,7 +211,7 @@ convS2Mu(Fcall *f, uchar *ap, uint nap, int dotu)
 	uchar *p;
 	uint i, size;
 
-	size = sizeS2M(f);
+	size = sizeS2Mu(f, dotu);
 	if(size == 0)
 		return 0;
 	if(size > nap)

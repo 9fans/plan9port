@@ -124,7 +124,7 @@ fcallfmt(Fmt *fmt)
 		break;
 	case Rstat:
 		p = seprint(buf, e, "Rstat tag %ud ", tag);
-		if(f->nstat > sizeof tmp)
+		if(f->stat == nil || f->nstat > sizeof tmp)
 			seprint(p, e, " stat(%d bytes)", f->nstat);
 		else{
 			d = (Dir*)tmp;
@@ -135,7 +135,7 @@ fcallfmt(Fmt *fmt)
 		break;
 	case Twstat:	/* 126 */
 		p = seprint(buf, e, "Twstat tag %ud fid %ud", tag, fid);
-		if(f->nstat > sizeof tmp)
+		if(f->stat == nil || f->nstat > sizeof tmp)
 			seprint(p, e, " stat(%d bytes)", f->nstat);
 		else{
 			d = (Dir*)tmp;

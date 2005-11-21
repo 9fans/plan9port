@@ -220,6 +220,8 @@ mainproc(void *v)
 		f.msize = msize;
 		f.tag = NOTAG;
 		n = convS2M(&f, vbuf, sizeof vbuf);
+		if(n <= BIT16SZ)
+			sysfatal("convS2M conversion error");
 		if(verbose > 1) fprint(2, "%T * <- %F\n", &f);
 		nn = write(1, vbuf, n);
 		if(n != nn)
@@ -290,8 +292,10 @@ send9pmsg(Msg *m)
 	n = sizeS2Mu(&m->rx, m->c->dotu);
 	m->rpkt = emalloc(n);
 	nn = convS2Mu(&m->rx, m->rpkt, n, m->c->dotu);
+	if(nn <= BIT16SZ)
+		sysfatal("convS2Mu conversion error");
 	if(nn != n)
-		sysfatal("sizeS2M + convS2M disagree");
+		sysfatal("sizeS2Mu and convS2Mu disagree");
 	sendq(m->c->outq, m);
 }
 
@@ -303,8 +307,10 @@ sendomsg(Msg *m)
 	n = sizeS2Mu(&m->tx, m->c->dotu);
 	m->tpkt = emalloc(n);
 	nn = convS2Mu(&m->tx, m->tpkt, n, m->c->dotu);
+	if(nn <= BIT16SZ)
+		sysfatal("convS2Mu conversion error");
 	if(nn != n)
-		sysfatal("sizeS2M + convS2M disagree");
+		sysfatal("sizeS2Mu and convS2Mu disagree");
 	sendq(outq, m);
 }
 
@@ -1280,7 +1286,11 @@ repack(Fcall *f, uchar **ppkt, int dotu)
 		pkt = emalloc(nn);
 		*ppkt = pkt;
 	}
-	convS2Mu(f, pkt, nn, dotu);	
+	n = convS2Mu(f, pkt, nn, dotu);	
+	if(n <= BIT16SZ)
+		sysfatal("convS2M conversion error");
+	if(n != nn)
+		sysfatal("convS2Mu and sizeS2Mu disagree");
 }
 
 void
@@ -1397,7 +1407,8 @@ cvtustat(Fcall *f, uchar **fpkt, int tounix)
 
 	n = sizeD2Mu(&dir, tounix);
 	buf = emalloc(n);
-	convD2Mu(&dir, f->stat, n, tounix);
+	if(convD2Mu(&dir, buf, n, tounix) != n)
+		sysfatal("convD2Mu conversion error");
 	f->nstat = n;
 	f->stat = buf;
 
