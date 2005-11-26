@@ -9,6 +9,9 @@
 extern "C" {
 #endif                                                                
 
+#include <utf.h>
+#include <fmt.h>
+
 /*
  * Begin usual libc.h 
  */
