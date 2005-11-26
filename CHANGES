@@ -1,7 +1,7 @@
 November 26, 2005
-	9term: add button 3 menu
+	9term: add button 3 menu, fix \r
 	include: move utf.h, fmt.h from u.h to libc.h
-	dist: print summary w/ errors during INSTALl
+	dist: print summary w/ errors during INSTALL
 
 November 25, 2005
 	root: add Makefile and configure for the blind,
