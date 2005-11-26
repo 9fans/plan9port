@@ -214,7 +214,7 @@ mousethread(void *v)
 		}else if(mouse->buttons&2)
 			button2menu(w);
 		else
-			/* send to rio */;
+			bouncemouse(mouse);
 	}
 }
 		
