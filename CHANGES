@@ -1,9 +1,46 @@
+November 26, 2005
+	9term: add button 3 menu
+	include: move utf.h, fmt.h from u.h to libc.h
+	dist: print summary w/ errors during INSTALl
+
+November 25, 2005
+	root: add Makefile and configure for the blind,
+		rename NOTES to README	
+
+November 21, 2005
+	lib9, 9pserve, vac: 9P2000.u fixes (Lucho Ionkov)
+
+November 15, 2005
+	libdraw: more X11 fixes
+	libc.h: sched_yield NetBSD tweak (Anselm Garbe)
+
+November 12, 2005
+	faces: fix face location
+	jpg, strings: remove references to /fd/
+
+November 12, 2005
+	various: X11 fixes
+
+November 11, 2005
+	9term: more fixes (Tim Wiess)
+
+November 10, 2005
+	9term: handle \r, other fixes (Tim Wiess)
+	auxstats: new Darwin tweaks
+
+November 9, 2005
+	libthread: fix OS X context switch code
+
+November 7, 2005
+	vbackup: various fixes
+
 November 6, 2005
 	9term: new port directly from rio
 	include/libc.h: p9syslog, not syslog in varargck
 	libauthsrv: close fd, memory leak in authdial
 	libdraw: X11 debugging helps
 	lib9: add getcallerpc-arm (Ron Minnich)
+	auxstats: Fix FreeBSD 6 build (William Josephson)
 
 November 4, 2005
 	stats: add -C to argchars (Lou Kamenov)
