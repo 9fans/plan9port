@@ -350,7 +350,7 @@ winctl(void *arg)
 						while(up > rp && *(up-1) != '\n')
 							up--;
 						if(up == rp)
-							initial = wbswidth(w, 0x15);
+							initial = wbswidth(w, '\r');
 					}else if(i == nr-1)
 						*up = '\n';
 					break;
@@ -757,7 +757,7 @@ wbswidth(Window *w, Rune c)
 	while(q > stop){
 		r = w->r[q-1];
 		if(r == '\n'){		/* eat at most one more character */
-			if(q == w->q0)	/* eat the newline */
+			if(q == w->q0 && c != '\r')	/* eat the newline */
 				--q;
 			break; 
 		}
