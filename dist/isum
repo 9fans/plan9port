@@ -1,7 +1,4 @@
 #!/bin/sh
 
-# LC_CTYPE=C works around stupidity in GNU grep
-# With LC_CTYPE=en_US.UTF-8 this is MUCH slower.
-LC_CTYPE=C export LC_CTYPE
+awk -f $PLAN9/dist/isum.awk $PLAN9/install.log
 
-egrep -v '^(\+ )?(9a|9c|9l|9ar|install|cp|cd|rm|mv|mk|9 yacc|9 lex|for i|do|done|if \[|fi|else|then)([ 	]|$)|^[ 	]+(\(cd|mk|gcc|cpp|cp)( |$)|^[ar] - |up to date|nothing to see here|assuming it will be an archive|loop not entered at top|conflicts:|nodes\(%e\)|packed transitions|Add these|PLAN9=|PATH=|^[ 	]*$|^SYSNAME=|^OBJTYPE=|^sh |^cmp |^\./o\.rgb|^rc \./manweb' $PLAN9/install.log
