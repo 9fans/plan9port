@@ -14,7 +14,7 @@ libs:V: libs-all
 libs-%:V:
 	for i in $LIBDIRS
 	do
-		(cd $i; mk $stem)
+		(cd $i; echo cd `pwd`';' mk $MKFLAGS $stem; mk $MKFLAGS $stem)
 	done
 
 MKDIRS=\
@@ -29,8 +29,7 @@ mkmk.sh:VD:
 		echo cd ..
 		for i in libbio libregexp cmd/mk
 		do	
-			echo cd $i
-			(cd $i; mk -n -a install)
+			(cd $i; echo cd `pwd`; mk -n -a install)
 			echo cd ..
 		done
 	) | sed '
