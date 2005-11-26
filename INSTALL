@@ -3,7 +3,7 @@
 PLAN9=`pwd` export PLAN9
 PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 
-echo "Resetting $PLAN9/config"
+echo "* Resetting $PLAN9/config"
 rm -f config
 
 (
@@ -11,7 +11,7 @@ if [ `uname` = Linux ]; then
 	# On Linux, we use the kernel version to decide whether
 	# to use pthreads or not.  On 2.6 versions that aren't
 	# linking with NPTL by default, pretend to be an older kernel.
-	echo "Running on Linux: checking for NPTL..."
+	echo "* Running on Linux: checking for NPTL..."
 	gcc lib/linux-isnptl.c -lpthread
 	if ./a.out >/dev/null
 	then	
@@ -30,31 +30,49 @@ if [ -f LOCAL.config ]; then
 	cat LOCAL.config >>config
 fi
 
-echo "Building mk..."
+echo "* Building mk..."
 cd src
 make
-echo "Building everything..."
+echo "* Building everything (be patient)..."
 mk clean
 mk libs-nuke
-mk all
-echo "Installing everything..."
-mk install 
-echo "Cleaning up..."
+mk all || exit 1
+if [ ! -x $PLAN9/src/cmd/o.cleanname -o ! -x $PLAN9/src/cmd/acme/o.acme ]; then
+	echo "* Warning: not all binaries built successfully."
+fi
+echo "* Installing everything..."
+mk install || exit 1
+if [ ! -x $PLAN9/bin/cleanname -o ! -x $PLAN9/bin/acme ]; then
+	echo " "
+	echo "* Warning: not all binaries built successfully."
+fi
+if [ ! -x $PLAN9/bin/cleanname ]; then
+	echo " "
+	echo "* Installation failed: $PLAN9/bin/cleanname does not exist."
+	exit 1
+fi
+echo "* Cleaning up..."
 mk clean
-echo "Renaming hard-coded /usr/local/plan9 paths..."
+echo "* Renaming hard-coded /usr/local/plan9 paths..."
 cd $PLAN9
 sh lib/moveplan9.sh
-echo "Building web manual..."
-cd $PLAN9/dist; mk man
+echo "* Building web manual..."
+(
+	cd $PLAN9/dist
+	echo cd `pwd`';' mk man
+	mk man
+)
 if [ -x LOCAL.INSTALL ]; then
-	echo "Running local modifications..."
+	echo "* Running local modifications..."
+	echo ./LOCAL.INSTALL
 	./LOCAL.INSTALL
 fi
 
-echo "Done. "
-echo " "
-echo "Add these to your profile environment."
+echo "* Done. "
+echo "	"
+echo "* Add these to your profile environment."
 echo "	PLAN9=$PLAN9 export PLAN9"
-echo '	PATH=$PATH:'"$PLAN9/bin export PATH"
+echo '	PATH=$PATH:$PLAN9/bin export PATH'
 
-) 2>&1 | tee install.log
+) 2>&1 | tee install.log | awk -f $PLAN9/dist/isum.awk | tee install.sum
+
