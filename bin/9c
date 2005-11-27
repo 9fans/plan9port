@@ -67,7 +67,7 @@ xtmp=/tmp/9c.$$.$USER.out
 $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>$xtmp
 status=$?
 grep -v '__p9l_autolib_' $xtmp |
-egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|: In function `|: At top level:' |
+egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|is almost always misused|: In function `|: At top level:' |
 sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' |
 uniq 1>&2
 rm -f $xtmp $xtmp.status

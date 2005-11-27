@@ -297,7 +297,7 @@ fi
 
 xtmp=/tmp/9l.$$.$USER.out
 xxout() {
-	egrep -v ': In function `' $xtmp
+	egrep -v 'is almost always misused|: In function `' $xtmp
 	rm -f $xtmp
 }
 
