@@ -183,7 +183,7 @@ xapm(int first)
 void
 xapm(int first)
 {
-	return;
+	xacpi(first);
 }
 #endif
 
