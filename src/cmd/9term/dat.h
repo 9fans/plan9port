@@ -2,6 +2,9 @@
 #undef Borderwidth
 #define Borderwidth 0
 
+#undef TRUE	/* OS X */
+#undef FALSE
+
 typedef	struct	Consreadmesg Consreadmesg;
 typedef	struct	Conswritemesg Conswritemesg;
 typedef	struct	Stringpair Stringpair;

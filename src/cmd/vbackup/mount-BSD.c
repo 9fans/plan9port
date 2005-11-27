@@ -48,7 +48,7 @@ mountnfs(int proto, struct sockaddr_in *sa,
 	na.retrans = NFS_RETRANS;
 	na.maxgrouplist = NFS_MAXGRPS;
 	na.hostname = "backup";
-#ifndef __NetBSD__
+#if !defined(__NetBSD__) && !defined(__APPLE__)
 	na.acregmin = 60;
 	na.acregmax = 600;
 	na.acdirmin = 60;
