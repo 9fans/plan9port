@@ -358,9 +358,9 @@ imap4login(Imap *imap)
 		return "error in initial IMAP handshake";
 
 	if(imap->user != nil)
-		up = auth_getuserpasswd(auth_getkey, "proto=pass service=imap server=%q user=%q", imap->host, imap->user);
+		up = auth_getuserpasswd(auth_getkey, "proto=pass role=client service=imap server=%q user=%q", imap->host, imap->user);
 	else
-		up = auth_getuserpasswd(auth_getkey, "proto=pass service=imap server=%q", imap->host);
+		up = auth_getuserpasswd(auth_getkey, "proto=pass role=client service=imap server=%q", imap->host);
 	if(up == nil)
 		return "cannot find IMAP password";
 
