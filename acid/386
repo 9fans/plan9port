@@ -67,17 +67,44 @@ defn mmregs()
 	print("MM6\t", *MM6, " MM7\t", *MM7, "\n");
 }
 
+defn pfixstop(pid)
+{
+	if *fmt(*PC-1, 'b') == 0xCC then {
+		// Linux stops us after the breakpoint, not at it
+		*PC = *PC-1;
+	}
+}
+
+
 defn pstop(pid)
 {
 	local l;
 	local pc;
+	local why;
 
 	pc = *PC;
 
-	print(pid,": ", reason(*TRAP), "\t");
-	print(fmt(pc, 'a'), "\t", *fmt(pc, 'i'), "\n");
+	// FIgure out why we stopped.
+	if *fmt(pc, 'b') == 0xCC then {
+		why = "breakpoint";
+		
+		// fix up instruction for print; will put back later
+		*pc = @pc;
+	} else if *(pc-2\x) == 0x80CD then {
+		pc = pc-2;
+		why = "system call";
+	} else
+		why = "stopped";
 
-	if notes then {
+	if printstopped then {
+		print(pid,": ", why, "\t");
+		print(fmt(pc, 'a'), "\t", *fmt(pc, 'i'), "\n");
+	}
+	
+	if why == "breakpoint" then
+		*fmt(pc, bpfmt) = bpinst;
+	
+	if printstopped && notes then {
 		if notes[0] != "sys: breakpoint" then {
 			print("Notes pending:\n");
 			l = notes;

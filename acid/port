@@ -326,6 +326,16 @@ defn bpdel(addr)				// delete a breakpoint
 {
 	local n, pc, nbplist;
 
+	if addr == 0 then {
+		while bplist do {
+			pc = head bplist;
+			pc = fmt(pc, bpfmt);
+			*pc = @pc;
+			bplist = tail bplist;
+		}
+		return {};
+	}
+
 	n = match(addr, bplist);
 	if n < 0  then {
 		print("no breakpoint at ", fmt(addr, 'a'), "\n");
@@ -360,6 +370,7 @@ defn cont()					// continue execution
 
 defn stopped(pid)		// called from acid when a process changes state
 {
+	pfixstop(pid);
 	pstop(pid);		// stub so this is easy to replace
 }
 
@@ -472,14 +483,22 @@ defn win2()
 	stopped(npid);
 }
 
+printstopped = 1;
 defn new()
 {
+	local a;
+	
 	bplist = {};
 	newproc(progargs);
-	// Dont miss the delay slot calls
-	bpset(follow(main)[0]);
-	cont();
-	bpdel(*PC);
+	a = var("p9main");
+	if a == {} then
+		a = var("main");
+	if a == {} then
+		return {};
+	bpset(a);
+	while *PC != a do
+		cont();
+	bpdel(a);
 }
 
 defn stmnt()			// step one statement
@@ -517,10 +536,14 @@ defn func()			// step until we leave the current function
 
 defn next()
 {
-	local sp, bound;
+	local sp, bound, pc;
 
 	sp = *SP;
 	bound = fnbound(*PC);
+	if bound == {} then {
+		print("cannot locate text symbol\n");
+		return {};
+	}
 	stmnt();
 	pc = *PC;
 	if pc >= bound[0] && pc < bound[1] then
