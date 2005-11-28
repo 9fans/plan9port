@@ -11,6 +11,9 @@ debug { print "# " $0 }
 
 /^$/ { next }
 
+/^echo cd / { next }
+/^\+\+ pwd/ { next }
+
 /^\* /{
 	if(debug) print "% mark"
 	print >out

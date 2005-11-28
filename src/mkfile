@@ -25,11 +25,12 @@ MKDIRS=\
 mkmk.sh:VD:
 	(
 		echo cd lib9
+		echo 'echo cd `pwd`'
 		(cd lib9; mk -n -a install)
 		echo cd ..
 		for i in libbio libregexp cmd/mk
 		do	
-			(cd $i; echo cd `pwd`; mk -n -a install)
+			(cd $i; echo cd $i; echo 'echo cd `pwd`'; mk -n -a install)
 			echo cd ..
 		done
 	) | sed '
