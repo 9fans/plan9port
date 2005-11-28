@@ -431,7 +431,7 @@ imap4dial(Imap *imap)
 	if(imap->mustssl)
 		port = "imaps";
 	else
-		port = "imap4";
+		port = "imap";
 
 	if((imap->fd = dial(netmkaddr(imap->host, "net", port), 0, 0, 0)) < 0)
 		return geterrstr();
