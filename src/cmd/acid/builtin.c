@@ -28,7 +28,7 @@ void	match(Node*, Node*);
 void	status(Node*, Node*);
 void	xkill(Node*,Node*);
 void	waitstop(Node*, Node*);
-void sysstop(Node*, Node*);
+void waitsyscall(Node*, Node*);
 void	stop(Node*, Node*);
 void	start(Node*, Node*);
 void	filepc(Node*, Node*);
@@ -47,6 +47,7 @@ void stringn(Node*, Node*);
 void xregister(Node*, Node*);
 void refconst(Node*, Node*);
 void dolook(Node*, Node*);
+void step1(Node*, Node*);
 
 typedef struct Btab Btab;
 struct Btab
@@ -87,13 +88,14 @@ struct Btab
 	"start",	start,
 	"startstop",	startstop,
 	"status",	status,
+	"step1",	step1,
 	"stop",		stop,
 	"strace",	strace,
 	"stringn",	stringn,
-	"sysstop",		sysstop,
 	"textfile",	textfile,
 	"var",	dolook,
 	"waitstop",	waitstop,
+	"waitsyscall",	waitsyscall,
 	0
 };
 
@@ -221,6 +223,23 @@ newproc(Node *r, Node *args)
 }
 
 void
+step1(Node *r, Node *args)
+{
+	Node res;
+
+	USED(r);
+	if(args == 0)
+		error("step1(pid): no pid");
+	expr(args, &res);
+	if(res.type != TINT)
+		error("step1(pid): arg type");
+
+	msg(res.store.u.ival, "step");
+	notes(res.store.u.ival);
+	dostop(res.store.u.ival);
+}
+
+void
 startstop(Node *r, Node *args)
 {
 	Node res;
@@ -256,16 +275,16 @@ waitstop(Node *r, Node *args)
 }
 
 void
-sysstop(Node *r, Node *args)
+waitsyscall(Node *r, Node *args)
 {
 	Node res;
 
 	USED(r);
 	if(args == 0)
-		error("waitstop(pid): no pid");
+		error("waitsyscall(pid): no pid");
 	expr(args, &res);
 	if(res.type != TINT)
-		error("waitstop(pid): arg type");
+		error("waitsycall(pid): arg type");
 
 	Bflush(bout);
 	msg(res.store.u.ival, "sysstop");
@@ -471,7 +490,7 @@ funcbound(Node *r, Node *args)
 		error("fnbound(addr): arg type");
 
 	n = fnbound(res.store.u.ival, bounds);
-	if (n != 0) {
+	if (n >= 0) {
 		r->store.u.l = al(TINT);
 		l = r->store.u.l;
 		l->store.u.ival = bounds[0];

@@ -88,6 +88,7 @@ nproc(char **argv)
 		fatal("new: exec %s: %r");
 	default:
 		install(pid);
+		msg(pid, "attached");
 		msg(pid, "waitstop");
 		notes(pid);
 		sproc(pid);
@@ -242,21 +243,6 @@ msg(int pid, char *msg)
 char *
 getstatus(int pid)
 {
-	int fd;
-	char *p;
-
-	static char buf[128];
-
-	sprint(buf, "/proc/%d/status", pid);
-	fd = open(buf, OREAD);
-	if(fd < 0)
-		error("open %s: %r", buf);
-	read(fd, buf, sizeof(buf));
-	close(fd);
-	p = buf+56+12;			/* Do better! */
-	while(*p == ' ')
-		p--;
-	p[1] = '\0';
-	return buf+56;			/* ditto */
+	return "unknown";
 }
 

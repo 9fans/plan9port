@@ -73,7 +73,7 @@ addvarsym(Fhdr *fp)
 	Lsym *l;
 	String *file;
 	ulong v;
-	char buf[1024];
+	char buf[65536];	/* Some of those C++ names are really big */
 	List *list, **tail, *tl;
 
 	if(fp == nil)
