@@ -491,6 +491,8 @@ symclose(Fhdr *hdr)
 Symbol*
 _addsym(Fhdr *fp, Symbol *sym)
 {
+	char *t;
+	static char buf[65536];
 	Symbol *s;
 
 	if(fp->nsym%128 == 0){
@@ -502,6 +504,12 @@ _addsym(Fhdr *fp, Symbol *sym)
 	if(machdebug)
 		fprint(2, "sym %s %c %L\n", sym->name, sym->type, sym->loc);
 	sym->fhdr = fp;
+	t = demangle(sym->name, buf, 1);
+	if(t != sym->name){
+		sym->name = strdup(t);
+		if(sym->name == nil)
+			return nil;
+	}
 	s = &fp->sym[fp->nsym++];
 	*s = *sym;
 	return s;

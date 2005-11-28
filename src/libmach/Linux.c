@@ -47,13 +47,6 @@ ptraceattach(int pid)
 {
 	int i;
 
-	/*
-	if(nattached==1 && attachedpids[0] == pid)
-		goto already;
-	if(nattached)
-		detachproc(attachedpids[0]);
-	*/
-	
 	for(i=0; i<nattached; i++)
 		if(attachedpids[i]==pid)
 			return 0;
@@ -243,7 +236,7 @@ ptraceregrw(Regs *regs, char *name, ulong *val, int isr)
 		*val = u;
 	}else{
 		u = *val;
-		if(ptrace(PTRACE_POKEUSER, pid, addr, &u) < 0)
+		if(ptrace(PTRACE_POKEUSER, pid, addr, (void*)u) < 0)
 			goto ptraceerr;
 	}
 	return 0;
@@ -321,7 +314,6 @@ isstopped(int pid)
 	36. processor
 */
 
-
 int
 procnotes(int pid, char ***pnotes)
 {
@@ -386,7 +378,19 @@ procnotes(int pid, char ***pnotes)
 int
 ctlproc(int pid, char *msg)
 {
-	int p, status;
+	int i, p, status;
+
+	if(strcmp(msg, "attached") == 0){
+		for(i=0; i<nattached; i++)
+			if(attachedpids[i]==pid)
+				return 0;
+		if(nattached == nelem(attachedpids)){
+			werrstr("attached to too many processes");
+			return -1;
+		}
+		attachedpids[nattached++] = pid;
+		return 0;
+	}
 
 	if(strcmp(msg, "hang") == 0){
 		if(pid == getpid())
@@ -411,6 +415,11 @@ ctlproc(int pid, char *msg)
 			return -1;
 		goto waitstop;
 	}
+	if(strcmp(msg, "step") == 0){
+		if(ptrace(PTRACE_SINGLESTEP, pid, 0, 0) < 0)
+			return -1;
+		goto waitstop;
+	}
 	if(strcmp(msg, "waitstop") == 0){
 	waitstop:
 		if(isstopped(pid))
@@ -424,6 +433,7 @@ ctlproc(int pid, char *msg)
 				}
 				return -1;
 			}
+//fprint(2, "got pid %d status %x\n", pid, status);
 			if(WIFEXITED(status) || WIFSTOPPED(status))
 				return 0;
 		}

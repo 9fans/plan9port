@@ -32,6 +32,9 @@ OFILES=\
 	macho.$O\
 	machocorepower.$O\
 	machpower.$O\
+	mangle.$O\
+	manglegcc2.$O\
+	manglegcc3.$O\
 	map.$O\
 	regs.$O\
 	stabs.$O\
