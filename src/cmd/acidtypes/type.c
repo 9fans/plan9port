@@ -319,6 +319,7 @@ denumber(void)
 void
 renumber(TypeList *tl, uint n1)
 {
+	int n;
 	Type *t, *tt;
 
 	for(; tl; tl=tl->tl){
@@ -326,6 +327,21 @@ renumber(TypeList *tl, uint n1)
 		tt = typebynum(n1, t->n2);
 		*tt = *t;
 		tt->n1 = n1;
+		if(tt->n){
+			n = (tt->n+31)&~31;
+			if(tt->tname){
+				tt->tname = emalloc(n*sizeof tt->tname[0]);
+				memmove(tt->tname, t->tname, n*sizeof tt->tname[0]);
+			}
+			if(tt->val){
+				tt->val = emalloc(n*sizeof tt->val[0]);
+				memmove(tt->val, t->val, n*sizeof tt->val[0]);
+			}
+			if(tt->t){
+				tt->t = emalloc(n*sizeof tt->t[0]);
+				memmove(tt->t, t->t, n*sizeof tt->t[0]);
+			}
+		}
 		addhash(tt);
 	}
 }
