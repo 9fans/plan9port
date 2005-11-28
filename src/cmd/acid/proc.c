@@ -84,8 +84,8 @@ nproc(char **argv)
 		open("/dev/tty", OREAD);
 		open("/dev/tty", OWRITE);
 		open("/dev/tty", OWRITE);
-		exec(argv[0], argv);
-		fatal("new: exec %s: %r");
+		execv(argv[0], argv);
+		fatal("new: exec %s: %r", argv[0]);
 	default:
 		install(pid);
 		msg(pid, "attached");
