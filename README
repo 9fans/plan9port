@@ -3,8 +3,10 @@ This is a port of many Plan 9 libraries and programs to Unix.
 * Installation
 
 To install, run ./INSTALL.  It builds mk and then uses mk to
-run the rest of the installation.  For more details, see install(1),
-at http://swtch.com/plan9port/man/man1/install.html.
+run the rest of the installation.  
+
+For more details, see install(1), at install.txt in this directory
+and at http://swtch.com/plan9port/man/man1/install.html.
 
 * Documentation
 

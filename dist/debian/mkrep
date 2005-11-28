@@ -4,10 +4,13 @@ cd /scratch/rsc/plan9
 cvs up -dAP
 cd dist; ./mkfilelist >filelist
 cp filelist /usr/local/plan9/dist
+cd /usr/local/plan9/dist/debian
 
 rm -rf dists pool
 mkdir -p dists pool
 ./mkpkg all
+mkdir other
+cp other/*.deb pool
 d=dists/testing/main/binary-i386
 mkdir -p $d
 apt-ftparchive packages pool |tee $d/Packages |gzip >$d/Packages.gz

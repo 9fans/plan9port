@@ -16,3 +16,4 @@ authdom=cs.bell-labs.com
 authdom=tip9ug.jp
 	auth=mordor.tip9ug.jp
 	
+authdom=pdos.csail.mit.edu auth=glenda.csail.mit.edu

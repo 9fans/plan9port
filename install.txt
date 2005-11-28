@@ -1,0 +1,85 @@
+
+     INSTALL(1)                                             INSTALL(1)
+
+     NAME
+          install - notes about Plan 9 from User Space installation
+
+     SYNOPSIS
+          cd /usr/local/plan9; ./INSTALL
+
+     DESCRIPTION
+          To obtain the Plan 9 tree, use CVS (see cvs(1)) or download
+          a tar file from http://swtch.com/plan9port.
+
+          In the root of the tree, run ./INSTALL.  This script first
+          uses make(1) to build the Plan 9 build program mk(1) if nec-
+          essary.  It cleans all previously built object files and
+          libraries out of the tree, rebuilds and installs everything,
+          and then cleans up.
+
+          There are a few files in tree which have the root hard-coded
+          in them.  After the build, INSTALL edits these files to
+          replace the string /usr/local/plan9 with the name of the
+          root of the current tree.
+
+          Finally, INSTALL builds an HTML version of the manual and
+          installs it in /usr/local/plan9/man.
+
+          INSTALL can safely be repeated to rebuild the system from
+          scratch.
+
+          At the end of the build, INSTALL prints suggested settings
+          for the environment variables $PLAN9 and $PATH.  After set-
+          ting those, the script $PLAN9/dist/isum will print a short
+          summary of the installation output, omitting the usual com-
+          mand chatter but preserving compiler warnings and errors.
+
+          Plan 9 from User Space uses different threading implementa-
+          tions on Linux 2.6 and later kernels than on 2.4 and ear-
+          lier; and on FreeBSD 5 and later kernels than on FreeBSD 4
+          and earlier.  Running binaries from one class on another
+          will not work.
+
+          Some Linux 2.6 systems (e.g., Gentoo) do not use the new
+          NPTL pthread library even though the kernel supports them.
+          On these systems, plan9port must fall back on the threading
+          code intended for Linux 2.4.  To accomplish this, INSTALL
+          checks whether the running system uses NPTL and sets
+          SYSVERSION in /usr/local/plan9/config accordingly.  The file
+          /usr/local/plan9/LOCAL.config is appended to config after
+          this auto-detection and can be used to override the choices.
+          If LOCAL.config contains a line WSYSTYPE=nowsys then the
+          system is built without using X11.
+
+     Page 1                       Plan 9            (printed 11/28/05)
+
+     INSTALL(1)                                             INSTALL(1)
+
+          Once the system is built for the first time, it can be main-
+          tained and rebuilt using mk(1).
+
+     FILES
+          /usr/local/plan9/lib/moveplan9.files
+               the list of files that need to have /usr/local/plan9
+               edited out of them
+
+          /usr/local/plan9/lib/moveplan9.sh
+               the script that edits the files
+
+          /usr/local/plan9/src/mkmk.sh
+               the shell script used to build mk(1)
+
+          /usr/local/plan9/dist/manweb
+               the shell script that builds the HTML manual
+
+          /usr/local/plan9/man/index.html
+               the top-level page in the HTML version of the manual
+
+          /usr/local/plan9/install.log
+               logged output from the last run of INSTALL
+
+     SEE ALSO
+          intro(1), cvs(1)
+
+     Page 2                       Plan 9            (printed 11/28/05)
+

@@ -833,7 +833,6 @@ extern	int	post9pservice(int, char*);
 #define main	p9main
 #endif
 
-/* compiler checking on plan 9, in rscc */
 #ifdef VARARGCK
 #pragma	varargck	type	"lld"	vlong
 #pragma	varargck	type	"llx"	vlong

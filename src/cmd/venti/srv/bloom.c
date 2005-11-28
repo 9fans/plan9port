@@ -24,7 +24,6 @@ bloominit(Bloom *b, vlong vsize, u8int *data)
 		if(unpackbloomhead(b, data) < 0)
 			return -1;
 	
-fprint(2, "bloom size %lud nhash %d\n", b->size, b->nhash);
 	b->mask = b->size-1;
 	b->data = data;
 	return 0;
@@ -49,7 +48,6 @@ readbloom(Part *p)
 	b = vtmallocz(sizeof *b);
 	if(readpart(p, 0, buf, sizeof buf) < 0)
 		return nil;
-fprint(2, "header %.16H\n", buf);
 	if(bloominit(b, 0, buf) < 0){
 		vtfree(b);
 		return nil;

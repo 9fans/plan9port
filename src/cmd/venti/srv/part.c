@@ -145,6 +145,8 @@ initpart(char *name, int mode)
 	if(hi == 0)
 		hi = dir->length;
 	part->size = hi - part->offset;
+fprint(2, "part %s: file %s offset %,lld size %,lld\n", 
+	name, file, part->offset, part->size);
 #ifdef CANBLOCKSIZE
 	{
 		struct statfs sfs;
