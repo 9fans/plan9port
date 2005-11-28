@@ -515,6 +515,9 @@ Symbol*	flookupsym(Fhdr*, char*);
 Symbol*	ffindsym(Fhdr*, Loc, uint);
 Symbol*	_addsym(Fhdr*, Symbol*);
 
+char*	demangle(char*, char*, int);
+char*	demanglegcc3(char*, char*);
+char*	demanglegcc2(char*, char*);
 /*
  * Stack frame walking.
  *
