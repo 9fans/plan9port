@@ -43,7 +43,7 @@ static char*
 mkpath(char *dir, char *name)
 {
 	char *s;
-	if(name[0] == '/')
+	if(name[0] == '/' || dir == nil)
 		return estrdup(name);
 	else{
 		s = emalloc(strlen(dir)+strlen(name)+1);
@@ -384,6 +384,7 @@ parsedefn(char *p, Type *t, char **pp)
 		break;
 	case '*':	/* pointer */
 	case 'A':	/* open array */
+	case '&':	/* reference */	/* guess - C++? (rob) */
 		t->ty = Pointer;
 		t->sub = parseinfo(p+1, &p);
 		break;
@@ -613,6 +614,8 @@ stabs2acid(Stab *stabs, Biobuf *b)
 	fno = 0;
 	fn = nil;
 	for(i=0; stabsym(stabs, i, &sym)>=0; i++){
+		if(verbose)
+			print("%d %s\n", sym.type, sym.name);
 		switch(sym.type){
 		case N_SO:
 			if(sym.name){
@@ -638,7 +641,10 @@ stabs2acid(Stab *stabs, Biobuf *b)
 		case N_EXCL:
 			fno++;
 			if((f = findftypes(dir, sym.name)) == nil){
-				fprint(2, "cannot find remembered %s\n", sym.name);
+				static int cannotprint;
+				
+				if(cannotprint++ == 0)
+					fprint(2, "cannot find remembered %s\n", sym.name);
 				continue;
 			}
 			renumber(f->list, fno);
@@ -656,7 +662,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 					fn = nil;
 				continue;
 			}
-			if((p = strchr(name, ':')) == nil)
+			if((p = findcolon(name)) == nil)
 				continue;
 			name = estrndup(name, p-name);
 			desc = ++p;
@@ -666,14 +672,21 @@ stabs2acid(Stab *stabs, Biobuf *b)
 				continue;
 			}
 			if(setjmp(kaboom)){
-				fprint(2, "cannot parse %s\n", name);
+				static int cannotparse;
+				
+				if(cannotparse++ == 0)
+					fprint(2, "cannot parse %s\n", name);
 				continue;
 			}
 			t = parsename(desc, &p);
 			if(t == nil)
 				continue;
-			if(*p != 0)
-				fprint(2, "extra desc '%s' in '%s'\n", p, desc);
+			if(*p != 0){
+				static int extradesc;
+				
+				if(extradesc++ == 0)
+					fprint(2, "extra desc '%s' in '%s'\n", p, desc);
+			}
 			/* void is defined as itself */
 			if(t->ty==Defer && t->sub==t && strcmp(name, "void")==0){
 				t->ty = Base;
@@ -729,6 +742,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 			}
 			break;
 		}
+if(1) print("");
 	}
 
 	printtypes(b);

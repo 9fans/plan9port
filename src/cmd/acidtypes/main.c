@@ -4,17 +4,19 @@
 #include <mach.h>
 #include "dat.h"
 
+int verbose;
+
 void
 usage(void)
 {
-	fprint(2, "usage: acidtypes [-p prefix] executable...\n");
+	fprint(2, "usage: acidtypes [-v] [-p prefix] executable...\n");
 	exits("usage");
 }
 
 void
 main(int argc, char **argv)
 {
-	int i;
+	int i, have;
 	Fhdr *fp;
 	Biobuf b;
 	char err[ERRMAX];
@@ -22,6 +24,9 @@ main(int argc, char **argv)
 	quotefmtinstall();
 
 	ARGBEGIN{
+	case 'v':
+		verbose = 1;
+		break;
 	case 'p':
 		prefix = EARGF(usage());
 		break;
@@ -41,19 +46,25 @@ main(int argc, char **argv)
 			fprint(2, "open %s: %s\n", argv[i], err);
 			continue;
 		}
+		have = 0;
 		if(fp->dwarf){
 			if(dwarf2acid(fp->dwarf, &b) < 0){
 				rerrstr(err, sizeof err);
 				Bprint(&b, "// dwarf2acid %s: %s\n\n", argv[i], err);
 				fprint(2, "dwarf2acid %s: %s\n", argv[i], err);
 			}
-		}else if(fp->stabs.stabbase){
+			have = 1;
+		}
+		if(fp->stabs.stabbase){
 			if(stabs2acid(&fp->stabs, &b) < 0){
 				rerrstr(err, sizeof err);
 				Bprint(&b, "// dwarf2acid %s: %s\n\n", argv[i], err);
 				fprint(2, "dwarf2acid %s: %s\n", argv[i], err);
 			}
-		}else{
+			have = 1;
+		}
+		
+		if(!have){
 			Bprint(&b, "// no debugging symbols in %s\n\n", argv[i]);
 		//	fprint(2, "no debugging symbols in %s\n", argv[i]);
 		}

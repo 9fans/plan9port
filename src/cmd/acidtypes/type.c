@@ -239,16 +239,74 @@ struct {
 };
 
 char*
+nonempty(char *name)
+{
+	if(name[0] == '\0')
+		return "__empty__name__";
+	return name;
+}
+
+char*
+cleanstl(char *name)
+{
+	char *b, *p;
+	static char buf[65536];	/* These can be huge. */
+	
+	if(strchr(name, '<') == nil)
+		return nonempty(name);
+	
+	b = buf;
+	for(p = name; *p != 0; p++){
+		switch(*p){
+		case '<':
+			strcpy(b, "_L_");
+			b += 3;
+			break;
+		case '>':
+			strcpy(b, "_R_");
+			b += 3;
+			break;
+		case '*':
+			strcpy(b, "_A_");
+			b += 3;
+			break;
+		case ',':
+			strcpy(b, "_C_");
+			b += 3;
+			break;
+		case '.':
+			strcpy(b, "_D_");
+			b += 3;
+			break;
+		default:
+			*b++ = *p;
+			break;
+		}
+	}
+	*b = 0;
+	return buf;
+}
+
+char*
 fixname(char *name)
 {
 	int i;
+	char *s;
+	static int nbuf;
+	static char buf[8][65536];
 
 	if(name == nil)
 		return nil;
+	s = demangle(name, buf[nbuf], 1);
+	if(s != name){
+		if(++nbuf == nelem(buf))
+			nbuf = 0;
+		name = s;
+	}
 	for(i=0; i<nelem(fixes); i++)
 		if(name[0]==fixes[i].old[0] && strcmp(name, fixes[i].old)==0)
-			return fixes[i].new;
-	return name;
+			return nonempty(fixes[i].new);
+	return nonempty(name);
 }
 
 void
@@ -261,12 +319,14 @@ denumber(void)
 void
 renumber(TypeList *tl, uint n1)
 {
-	Type *t;
+	Type *t, *tt;
 
 	for(; tl; tl=tl->tl){
 		t = tl->hd;
-		t->n1 = n1;
-		addhash(t);
+		tt = typebynum(n1, t->n2);
+		*tt = *t;
+		tt->n1 = n1;
+		addhash(tt);
 	}
 }
 
@@ -276,6 +336,10 @@ defer(Type *t)
 	Type *u, *oldt;
 	int n;
 
+	if(t == nil)
+		return nil;
+
+/* XXX rob has return t; here */
 	u = t;
 	n = 0;
 	oldt = t;
@@ -286,6 +350,8 @@ defer(Type *t)
 		if(t == u)	/* cycle */
 			goto cycle;
 	}
+	if(oldt != t)
+		oldt->sub = t;
 	return t;
 
 cycle:
@@ -361,7 +427,7 @@ dorange(Type *t)
 char*
 nameof(Type *t, int doanon)
 {
-	static char buf[1024];
+	static char buf[65536];
 	char *p;
 
 	if(t->name)
@@ -499,7 +565,7 @@ printtype(Biobuf *b, Type *t)
 	t->printed = 1;
 	switch(t->ty){
 	case Aggr:
-		name = nameof(t, 1);
+		name = cleanstl(nameof(t, 1));
 		Bprint(b, "sizeof%s = %lud;\n", name, t->xsizeof);
 		Bprint(b, "aggr %s {\n", name);
 		nprint = 0;
@@ -516,10 +582,12 @@ printtype(Biobuf *b, Type *t)
 				Bprint(b, "// oops: unknown type %d for %p/%s (%d,%d; %c,%s; %p)\n",
 					tt->ty, tt, fixname(t->tname[j]),
 					tt->n1, tt->n2, tt->sue ? tt->sue : '.', tt->suename, tt->sub);
+if(0){
 Bprint(b, "// t->t[j] = %p\n", ttt=t->t[j]);
 while(ttt){
 Bprint(b, "// %s %d (%d,%d) sub %p\n", ttt->name, ttt->ty, ttt->n1, ttt->n2, ttt->sub);
 ttt=ttt->sub;
+}
 }
 			case Base:
 			case Pointer:
@@ -539,9 +607,9 @@ ttt=ttt->sub;
 			Bprint(b, "\t'X' 0 __dummy;\n");
 		Bprint(b, "};\n\n");
 	
-		name = nameof(t, 1);	/* might have smashed it */
+		name = cleanstl(nameof(t, 1));	/* might have smashed it */
 		Bprint(b, "defn %s(addr) { indent_%s(addr, \"\"); }\n", name, name);
-		Bprint(b, "defn\nindent_%s(addr, indent) {\n", name);
+		Bprint(b, "defn indent_%s(addr, indent) {\n", name);
 		Bprint(b, "\tcomplex %s addr;\n", name);
 		for(j=0; j<t->n; j++){
 			name = fixname(t->tname[j]);
@@ -598,7 +666,7 @@ ttt=ttt->sub;
 		for(j=0; j<t->n; j++)
 			Bprint(b, "\t\"%s\",\n", fixname(t->tname[j]));
 		Bprint(b, "};\n");
-		Bprint(b, "defn\n%s(val) {\n", name);
+		Bprint(b, "defn %s(val) {\n", name);
 		Bprint(b, "\tlocal i;\n");
 		Bprint(b, "\ti = match(val, vals_%s);\n", name);
 		Bprint(b, "\tif i >= 0 then return names_%s[i];\n", name);
@@ -620,7 +688,7 @@ printtypes(Biobuf *b)
 		t = tl->hd;
 		if(t->ty==None){
 			if(t->n1 || t->n2)
-				warn("type %d,%d referenced but not defined", t->n1, t->n2);
+				warn("type %d,%d referenced but not defined - %p", t->n1, t->n2, t);
 			else if(t->sue && t->suename)
 				warn("%s %s referenced but not defined",
 					t->sue=='s' ? "struct" :

@@ -79,10 +79,12 @@ char *nameof(Type*, int);
 void freetypes(void);
 
 extern char *prefix;
+extern int verbose;
+
 char *fixname(char*);
+char *cleanstl(char*);
 
 void addsymx(char*, char*, Type*);
 void dumpsyms(Biobuf*);
-
 
 
