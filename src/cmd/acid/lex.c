@@ -348,7 +348,6 @@ bqsymbol(void)
 	char *p;
 	Lsym *s;
 
-	symbol[0] = 0;
 	p = symbol;
 	while((c = lexc()) != '`'){
 		if(c == Eof)
@@ -361,6 +360,7 @@ bqsymbol(void)
 		sysfatal("overflow in bqsymbol");
 	*p = 0;
 	
+fprint(2, "bq: %s\n", symbol);
 	s = look(symbol);
 	if(s == 0)
 		s = enter(symbol, Tid);
@@ -601,7 +601,19 @@ numsym(char first)
 			error("%d <eof> eating symbols", line);
 		if(c == '\n')
 			line++;
-		if(c != '_' && c != '$' && c <= '~' && !isalnum(c)) {	/* checking against ~ lets UTF names through */
+		/* allow :: in name */
+		if(c == ':'){
+			c = lexc();
+			if(c == ':'){
+				*p++ = ':';
+				*p++ = ':';
+				continue;
+			}
+			unlexc(c);
+			unlexc(':');
+			break;
+		}
+		if(c != '_' && c != '$' && c < Runeself && !isalnum(c)) {
 			unlexc(c);
 			break;
 		}

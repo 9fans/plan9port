@@ -16,7 +16,7 @@ unique(char *buf, Symbol *s)
 	int i, renamed;
 
 	renamed = 0;
-	strcpy(buf, s->name);
+	strcpy(buf, s->xname);
 	for(;;) {
 		l = look(buf);
 		if(l == 0 || (l->lexval == Tid && l->v->set == 0))
@@ -36,9 +36,10 @@ unique(char *buf, Symbol *s)
 		}
 	}
 	if(renamed && !quiet)
-		print("\t%s=%s %c/%L\n", s->name, buf, s->type, s->loc);
+		print("\t%s=%s %c/%L\n", s->xname, buf, s->type, s->loc);
 	if(l == 0)
 		l = enter(buf, Tid);
+	s->aux = l;
 	return l;	
 }
 
@@ -116,23 +117,31 @@ addvarsym(Fhdr *fp)
 			if(l->v->store.comt == 0)
 				l->v->store.fmt = 'X';
 
-			/* Enter as list of { name, type, value, file } */
+			/* Enter as list of { name, type, value, file, xname } */
 			list = al(TSTRING);
 			tl->store.u.l = list;
 			list->store.u.string = strnode(buf);
 			list->store.fmt = 's';
+			
 			list->next = al(TINT);
 			list = list->next;
 			list->store.fmt = 'c';
 			list->store.u.ival = s.type;
+			
 			list->next = al(TINT);
 			list = list->next;
 			list->store.fmt = 'X';
 			list->store.u.ival = v;
+			
 			list->next = al(TSTRING);
 			list = list->next;
 			list->store.fmt = 's';
 			list->store.u.string = file;
+			
+			list->next = al(TSTRING);
+			list = list->next;
+			list->store.fmt = 's';
+			list->store.u.string = strnode(s.xname);
 		}
 	}
 	*tail = nil;

@@ -4,7 +4,7 @@
 enum
 {
 	Eof		= -1,
-	Strsize		= 4096,
+	Strsize		= 65536,
 	Hashsize	= 128,
 	Maxarg		= 512,
 	NFD		= 100,
