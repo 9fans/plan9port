@@ -1,0 +1,375 @@
+<HTML>
+<HEAD>
+<!-- This HTML file has been created by texi2html 1.52
+     from gxxint.texi on 27 August 1999 -->
+
+<TITLE>G++ internals - Mangling</TITLE>
+</HEAD>
+<BODY>
+Go to the <A HREF="gxxint_1.html">first</A>, <A HREF="gxxint_14.html">previous</A>, <A HREF="gxxint_16.html">next</A>, <A HREF="gxxint_16.html">last</A> section, <A HREF="gxxint_toc.html">table of contents</A>.
+<P><HR><P>
+
+
+<H2><A NAME="SEC20" HREF="gxxint_toc.html#TOC20">Function name mangling for C++ and Java</A></H2>
+
+<P>
+Both C++ and Jave provide overloaded function and methods,
+which are methods with the same types but different parameter lists.
+Selecting the correct version is done at compile time.
+Though the overloaded functions have the same name in the source code,
+they need to be translated into different assembler-level names,
+since typical assemblers and linkers cannot handle overloading.
+This process of encoding the parameter types with the method name
+into a unique name is called <EM>name mangling</EM>.  The inverse
+process is called <EM>demangling</EM>.
+
+</P>
+<P>
+It is convenient that C++ and Java use compatible mangling schemes,
+since the makes life easier for tools such as gdb, and it eases
+integration between C++ and Java.
+
+</P>
+<P>
+Note there is also a standard "Jave Native Interface" (JNI) which
+implements a different calling convention, and uses a different
+mangling scheme.  The JNI is a rather abstract ABI so Java can call methods
+written in C or C++; 
+we are concerned here about a lower-level interface primarily
+intended for methods written in Java, but that can also be used for C++
+(and less easily C).
+
+</P>
+
+
+<H3><A NAME="SEC21" HREF="gxxint_toc.html#TOC21">Method name mangling</A></H3>
+
+<P>
+C++ mangles a method by emitting the function name, followed by <CODE>__</CODE>,
+followed by encodings of any method qualifiers (such as <CODE>const</CODE>),
+followed by the mangling of the method's class,
+followed by the mangling of the parameters, in order.
+
+</P>
+<P>
+For example <CODE>Foo::bar(int, long) const</CODE> is mangled
+as <SAMP>`bar__C3Fooil'</SAMP>.
+
+</P>
+<P>
+For a constructor, the method name is left out.
+That is <CODE>Foo::Foo(int, long) const</CODE>  is mangled 
+as <SAMP>`__C3Fooil'</SAMP>. 
+
+</P>
+<P>
+GNU Java does the same.
+
+</P>
+
+
+<H3><A NAME="SEC22" HREF="gxxint_toc.html#TOC22">Primitive types</A></H3>
+
+<P>
+The C++ types <CODE>int</CODE>, <CODE>long</CODE>, <CODE>short</CODE>, <CODE>char</CODE>,
+and <CODE>long long</CODE> are mangled as <SAMP>`i'</SAMP>, <SAMP>`l'</SAMP>,
+<SAMP>`s'</SAMP>, <SAMP>`c'</SAMP>, and <SAMP>`x'</SAMP>, respectively.
+The corresponding unsigned types have <SAMP>`U'</SAMP> prefixed
+to the mangling.  The type <CODE>signed char</CODE> is mangled <SAMP>`Sc'</SAMP>.
+
+</P>
+<P>
+The C++ and Java floating-point types <CODE>float</CODE> and <CODE>double</CODE>
+are mangled as <SAMP>`f'</SAMP> and <SAMP>`d'</SAMP> respectively.
+
+</P>
+<P>
+The C++ <CODE>bool</CODE> type and the Java <CODE>boolean</CODE> type are
+mangled as <SAMP>`b'</SAMP>.
+
+</P>
+<P>
+The C++ <CODE>wchar_t</CODE> and the Java <CODE>char</CODE> types are
+mangled as <SAMP>`w'</SAMP>.
+
+</P>
+<P>
+The Java integral types <CODE>byte</CODE>, <CODE>short</CODE>, <CODE>int</CODE>
+and <CODE>long</CODE> are mangled as <SAMP>`c'</SAMP>, <SAMP>`s'</SAMP>, <SAMP>`i'</SAMP>,
+and <SAMP>`x'</SAMP>, respectively.
+
+</P>
+<P>
+C++ code that has included <CODE>javatypes.h</CODE> will mangle
+the typedefs  <CODE>jbyte</CODE>, <CODE>jshort</CODE>, <CODE>jint</CODE>
+and <CODE>jlong</CODE> as respectively <SAMP>`c'</SAMP>, <SAMP>`s'</SAMP>, <SAMP>`i'</SAMP>,
+and <SAMP>`x'</SAMP>.  (This has not been implemented yet.)
+
+</P>
+
+
+<H3><A NAME="SEC23" HREF="gxxint_toc.html#TOC23">Mangling of simple names</A></H3>
+
+<P>
+A simple class, package, template, or namespace name is
+encoded as the number of characters in the name, followed by
+the actual characters.  Thus the class <CODE>Foo</CODE>
+is encoded as <SAMP>`3Foo'</SAMP>.
+
+</P>
+<P>
+If any of the characters in the name are not alphanumeric
+(i.e not one of the standard ASCII letters, digits, or '_'),
+or the initial character is a digit, then the name is
+mangled as a sequence of encoded Unicode letters.
+A Unicode encoding starts with a <SAMP>`U'</SAMP> to indicate
+that Unicode escapes are used, followed by the number of
+bytes used by the Unicode encoding, followed by the bytes
+representing the encoding.  ASSCI letters and
+non-initial digits are encoded without change.  However, all
+other characters (including underscore and initial digits) are
+translated into a sequence starting with an underscore,
+followed by the big-endian 4-hex-digit lower-case encoding of the character.
+
+</P>
+<P>
+If a method name contains Unicode-escaped characters, the
+entire mangled method name is followed by a <SAMP>`U'</SAMP>.
+
+</P>
+<P>
+For example, the method <CODE>X\u0319::M\u002B(int)</CODE> is encoded as
+<SAMP>`M_002b__U6X_0319iU'</SAMP>.
+
+</P>
+
+
+<H3><A NAME="SEC24" HREF="gxxint_toc.html#TOC24">Pointer and reference types</A></H3>
+
+<P>
+A C++ pointer type is mangled as <SAMP>`P'</SAMP> followed by the
+mangling of the type pointed to.
+
+</P>
+<P>
+A C++ reference type as mangled as <SAMP>`R'</SAMP> followed by the
+mangling of the type referenced.
+
+</P>
+<P>
+A Java object reference type is equivalent
+to a C++ pointer parameter, so we mangle such an parameter type
+as <SAMP>`P'</SAMP> followed by the mangling of the class name.
+
+</P>
+
+
+<H3><A NAME="SEC25" HREF="gxxint_toc.html#TOC25">Qualified names</A></H3>
+
+<P>
+Both C++ and Java allow a class to be lexically nested inside another
+class.  C++ also supports namespaces (not yet implemented by G++).
+Java also supports packages.
+
+</P>
+<P>
+These are all mangled the same way:  First the letter <SAMP>`Q'</SAMP>
+indicates that we are emitting a qualified name.
+That is followed by the number of parts in the qualified name.
+If that number is 9 or less, it is emitted with no delimiters.
+Otherwise, an underscore is written before and after the count.
+Then follows each part of the qualified name, as described above.
+
+</P>
+<P>
+For example <CODE>Foo::\u0319::Bar</CODE> is encoded as
+<SAMP>`Q33FooU5_03193Bar'</SAMP>.
+
+</P>
+
+
+<H3><A NAME="SEC26" HREF="gxxint_toc.html#TOC26">Templates</A></H3>
+
+<P>
+A class template instantiation is encoded as the letter <SAMP>`t'</SAMP>,
+followed by the encoding of the template name, followed
+the number of template parameters, followed by encoding of the template
+parameters.  If a template parameter is a type, it is written
+as a <SAMP>`Z'</SAMP> followed by the encoding of the type.
+
+</P>
+<P>
+A function template specialization (either an instantiation or an
+explicit specialization) is encoded by an <SAMP>`H'</SAMP> followed by the
+encoding of the template parameters, as described above, followed by 
+an <SAMP>`_'</SAMP>, the encoding of the argument types template function (not the
+specialization), another <SAMP>`_'</SAMP>, and the return type.  (Like the
+argument types, the return type is the return type of the function
+template, not the specialization.)  Template parameters in the argument
+and return types are encoded by an <SAMP>`X'</SAMP> for type parameters, or a
+<SAMP>`Y'</SAMP> for constant parameters, and an index indicating their position
+in the template parameter list declaration.
+
+</P>
+
+
+<H3><A NAME="SEC27" HREF="gxxint_toc.html#TOC27">Arrays</A></H3>
+
+<P>
+C++ array types are mangled by emitting <SAMP>`A'</SAMP>, followed by
+the length of the array, followed by an <SAMP>`_'</SAMP>, followed by
+the mangling of the element type.  Of course, normally
+array parameter types decay into a pointer types, so you
+don't see this.
+
+</P>
+<P>
+Java arrays are objects.  A Java type <CODE>T[]</CODE> is mangled
+as if it were the C++ type <CODE>JArray&#60;T&#62;</CODE>.
+For example <CODE>java.lang.String[]</CODE> is encoded as
+<SAMP>`Pt6JArray1ZPQ34java4lang6String'</SAMP>.
+
+</P>
+
+
+<H3><A NAME="SEC28" HREF="gxxint_toc.html#TOC28">Table of demangling code characters</A></H3>
+
+<P>
+The following special characters are used in mangling:
+
+</P>
+<DL COMPACT>
+
+<DT><SAMP>`A'</SAMP>
+<DD>
+Indicates a C++ array type.
+
+<DT><SAMP>`b'</SAMP>
+<DD>
+Encodes the C++ <CODE>bool</CODE> type,
+and the Java <CODE>boolean</CODE> type.
+
+<DT><SAMP>`c'</SAMP>
+<DD>
+Encodes the C++ <CODE>char</CODE> type, and the Java <CODE>byte</CODE> type.
+
+<DT><SAMP>`C'</SAMP>
+<DD>
+A modifier to indicate a <CODE>const</CODE> type.
+Also used to indicate a <CODE>const</CODE> member function
+(in which cases it precedes the encoding of the method's class).
+
+<DT><SAMP>`d'</SAMP>
+<DD>
+Encodes the C++ and Java <CODE>double</CODE> types.
+
+<DT><SAMP>`e'</SAMP>
+<DD>
+Indicates extra unknown arguments <CODE>...</CODE>.
+
+<DT><SAMP>`f'</SAMP>
+<DD>
+Encodes the C++ and Java <CODE>float</CODE> types.
+
+<DT><SAMP>`F'</SAMP>
+<DD>
+Used to indicate a function type.
+
+<DT><SAMP>`H'</SAMP>
+<DD>
+Used to indicate a template function.
+
+<DT><SAMP>`i'</SAMP>
+<DD>
+Encodes the C++ and Java <CODE>int</CODE> types.
+
+<DT><SAMP>`J'</SAMP>
+<DD>
+Indicates a complex type.
+
+<DT><SAMP>`l'</SAMP>
+<DD>
+Encodes the C++ <CODE>long</CODE> type.
+
+<DT><SAMP>`P'</SAMP>
+<DD>
+Indicates a pointer type.  Followed by the type pointed to.
+
+<DT><SAMP>`Q'</SAMP>
+<DD>
+Used to mangle qualified names, which arise from nested classes.
+Should also be used for namespaces (?).
+In Java used to mangle package-qualified names, and inner classes.
+
+<DT><SAMP>`r'</SAMP>
+<DD>
+Encodes the GNU C++ <CODE>long double</CODE> type.
+
+<DT><SAMP>`R'</SAMP>
+<DD>
+Indicates a reference type.  Followed by the referenced type.
+
+<DT><SAMP>`s'</SAMP>
+<DD>
+Encodes the C++ and java <CODE>short</CODE> types.
+
+<DT><SAMP>`S'</SAMP>
+<DD>
+A modifier that indicates that the following integer type is signed.
+Only used with <CODE>char</CODE>.
+
+Also used as a modifier to indicate a static member function.
+
+<DT><SAMP>`t'</SAMP>
+<DD>
+Indicates a template instantiation.
+
+<DT><SAMP>`T'</SAMP>
+<DD>
+A back reference to a previously seen type.
+
+<DT><SAMP>`U'</SAMP>
+<DD>
+A modifier that indicates that the following integer type is unsigned.
+Also used to indicate that the following class or namespace name
+is encoded using Unicode-mangling.
+
+<DT><SAMP>`v'</SAMP>
+<DD>
+Encodes the C++ and Java <CODE>void</CODE> types.
+
+<DT><SAMP>`V'</SAMP>
+<DD>
+A modified for a <CODE>const</CODE> type or method.
+
+<DT><SAMP>`w'</SAMP>
+<DD>
+Encodes the C++ <CODE>wchar_t</CODE> type, and the Java <CODE>char</CODE> types.
+
+<DT><SAMP>`x'</SAMP>
+<DD>
+Encodes the GNU C++ <CODE>long long</CODE> type, and the Java <CODE>long</CODE> type.
+
+<DT><SAMP>`X'</SAMP>
+<DD>
+Encodes a template type parameter, when part of a function type.
+
+<DT><SAMP>`Y'</SAMP>
+<DD>
+Encodes a template constant parameter, when part of a function type.
+
+<DT><SAMP>`Z'</SAMP>
+<DD>
+Used for template type parameters. 
+
+</DL>
+
+<P>
+The letters <SAMP>`G'</SAMP>, <SAMP>`M'</SAMP>, <SAMP>`O'</SAMP>, and <SAMP>`p'</SAMP>
+also seem to be used for obscure purposes ...
+
+</P>
+<P><HR><P>
+Go to the <A HREF="gxxint_1.html">first</A>, <A HREF="gxxint_14.html">previous</A>, <A HREF="gxxint_16.html">next</A>, <A HREF="gxxint_16.html">last</A> section, <A HREF="gxxint_toc.html">table of contents</A>.
+</BODY>
+</HTML>
