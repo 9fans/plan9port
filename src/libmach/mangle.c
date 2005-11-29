@@ -43,14 +43,8 @@ demangle(char *s, char *buf, int strip)
 			nparen--;
 			break;
 		default:
-			if(nparen == 0 && nangle == 0){
-				if(*r == ':' && *(r+1) == ':'){
-					*w++ = '$';
-					r++;
-				}
-				else
-					*w++ = *r;
-			}
+			if(nparen == 0 && nangle == 0)
+				*w++ = *r;
 			break;
 		}
 	}

@@ -187,6 +187,40 @@ flookupsym(Fhdr *fhdr, char *name)
 	return nil;
 }
 
+Symbol*
+flookupsymx(Fhdr *fhdr, char *name)
+{
+	Symbol **a, *t;
+	uint n, m;
+	int i;
+
+	a = fhdr->byxname;
+	n = fhdr->nsym;
+	if(a == nil)
+		return nil;
+
+	while(n > 0){
+		m = n/2;
+		t = a[m];
+		i = strcmp(name, t->xname);
+		if(i < 0)
+			n = m;
+		else if(i > 0){
+			n -= m+1;
+			a += m+1;
+		}else{
+			/* found! */
+			m += a - fhdr->byxname;
+			a = fhdr->byxname;
+			assert(strcmp(name, a[m]->xname) == 0);
+			while(m > 0 && strcmp(name, a[m-1]->xname) == 0)
+				m--;
+			return a[m];
+		}
+	}
+	return nil;
+}
+
 int
 lookupsym(char *fn, char *var, Symbol *s)
 {
@@ -199,10 +233,12 @@ lookupsym(char *fn, char *var, Symbol *s)
 		return -1;
 	t = nil;
 	for(p=fhdrlist; p; p=p->next)
-		if((t=flookupsym(p, nam)) != nil){
+		if((t=flookupsym(p, nam)) != nil
+		|| (t=flookupsymx(p, nam)) != nil){
 			relocsym(&s1, t, p->base);
 			break;
 		}
+
 	if(t == nil)
 		goto err;
 	if(fn && var)
@@ -423,6 +459,27 @@ byloccmp(const void *va, const void *vb)
 
 /* name, location, class */
 static int
+byxnamecmp(const void *va, const void *vb)
+{
+	int i;
+	Symbol *a, *b;
+
+	a = *(Symbol**)va;
+	b = *(Symbol**)vb;
+	i = strcmp(a->xname, b->xname);
+	if(i != 0)
+		return i;
+	i = strcmp(a->name, b->name);
+	if(i != 0)
+		return i;
+	i = loccmp(&a->loc, &b->loc);
+	if(i != 0)
+		return i;
+	return a->class - b->class;
+}
+
+/* name, location, class */
+static int
 bynamecmp(const void *va, const void *vb)
 {
 	int i;
@@ -466,11 +523,20 @@ symopen(Fhdr *hdr)
 
 	hdr->byname = malloc(hdr->nsym*sizeof(hdr->byname[0]));
 	if(hdr->byname == nil){
-		fprint(2, "could not allocate table to sort by location\n");
+		fprint(2, "could not allocate table to sort by name\n");
 	}else{
 		for(i=0; i<hdr->nsym; i++)
 			hdr->byname[i] = &hdr->sym[i];
 		qsort(hdr->byname, hdr->nsym, sizeof(hdr->byname[0]), bynamecmp);
+	}
+	
+	hdr->byxname = malloc(hdr->nsym*sizeof(hdr->byxname[0]));
+	if(hdr->byxname == nil){
+		fprint(2, "could not allocate table to sort by xname\n");
+	}else{
+		for(i=0; i<hdr->nsym; i++)
+			hdr->byxname[i] = &hdr->sym[i];
+		qsort(hdr->byxname, hdr->nsym, sizeof(hdr->byxname[0]), byxnamecmp);
 	}
 	return 0;
 }
@@ -506,10 +572,11 @@ _addsym(Fhdr *fp, Symbol *sym)
 	sym->fhdr = fp;
 	t = demangle(sym->name, buf, 1);
 	if(t != sym->name){
-		sym->name = strdup(t);
-		if(sym->name == nil)
+		t = strdup(t);
+		if(t == nil)
 			return nil;
 	}
+	sym->xname = t;
 	s = &fp->sym[fp->nsym++];
 	*s = *sym;
 	return s;

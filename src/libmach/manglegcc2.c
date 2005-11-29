@@ -7,6 +7,7 @@
  *
  * Not implemented:
  *	unicode mangling
+ *	rename operator functions
  */
 /*
 RULES TO ADD:
@@ -178,7 +179,9 @@ demanglegcc2(char *s, char *buf)
 		if(name == constructor || name == destructor){
 			*p = 0;
 			t = strrchr(buf, ':');
-			if(t == nil)
+			if(t)
+				t++;
+			else
 				t = buf;
 		}
 		strcpy(p, "::");
@@ -190,6 +193,8 @@ demanglegcc2(char *s, char *buf)
 			name = t;
 		}
 	}
+	if(p >= buf+2 && memcmp(p-2, "::", 2) == 0 && *(p-3) == ')')
+		p -= 2;
 	memmove(p, name, namelen);
 	p += namelen;
 	
@@ -444,6 +449,8 @@ gccname(char **ps, char **pp)
 		break;
 
 	case 'H':	/* template specialization */
+		if(memcmp(s-2, "__", 2) != 0)
+			fprint(2, "wow: %s\n", s-2);
 		t = s;
 		s++;
 		if(!gccnumber(&s, &n, 0))
@@ -474,14 +481,44 @@ gccname(char **ps, char **pp)
 			return 0;
 		}
 		s++;
-		p1 = p;
-		/* name */
-		if(!gccname(&s, &p))
-			return 0;
-		/* XXX 
-__adjust_heap__H3ZPt4pair2Zt12basic_string3ZcZt11char_traits1ZcZt9allocator1ZcZt12basic_string3ZcZt11char_traits1ZcZt9allocator1ZcZiZt4pair2Zt12basic_string3ZcZt11char_traits1ZcZt9allocator1ZcZt12basic_string3ZcZt11char_traits1ZcZt9allocator1Zc_X01X11X11X21_v
-		*/
-		/* XXX swap p0, p1, p - maybe defer to main */
+
+		/*
+		 * Can't seem to tell difference between a qualifying name
+		 * and arguments.  Not sure which is which.  It appears that if
+		 * you get a name, use it, otherwise look for types.
+		 * The G type qualifier appears to have no effect other than
+		 * turning an ambiguous name into a definite type.
+		 *
+		 *	SetFlag__H1Zb_P15FlagSettingMode_v
+		 *	=>	void SetFlag<bool>(FlagSettingMode *)
+		 *	SetFlag__H1Zb_15FlagSettingMode_v
+		 *	=>	void FlagSettingMode::SetFlag<bool>()
+		 *	SetFlag__H1Zb_G15FlagSettingMode_v
+		 *	=>	void SetFlag<bool>(FlagSettingMode)
+		 */
+		if(strchr("ACFGPRSUVX", *s)){
+			/* args */
+			t = s;
+			p1 = p;
+			*p++ = '(';
+			while(*s != '_'){
+				if(*s == 0 || !gccname(&s, &p)){
+					werrstr("bad H args: %s", t);
+					return 0;
+				}
+			}
+			*p++ = ')';
+			s++;
+		}else{
+			p1 = p;
+			/* name */
+			if(!gccname(&s, &p))
+				return 0;
+		}
+		/*
+		 * Need to do some rearrangement of <> () and names here.
+		 * Doesn't matter since we strip out the <> and () anyway.
+		 */
 		break;
 
 	case 'M':	/* M1S: pointer to member */
