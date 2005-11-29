@@ -270,9 +270,9 @@ struct Fhdr
 	/* private */
 	Symbol	*sym;		/* cached list of symbols */
 	Symbol	**byname;
+	Symbol	**byxname;
 	uint		nsym;
 	Symbol	*esym;		/* elf symbols */
-	Symbol	**ebyname;
 	uint		nesym;
 	ulong	base;		/* base address for relocatables */
 	Fhdr		*next;		/* link to next fhdr (internal) */
@@ -462,6 +462,8 @@ enum
 struct Symbol
 {
 	char		*name;		/* name of symbol */
+	char		*xname;		/* demangled name */
+
 	/* Symtype	*typedesc;	/* type info, if any */
 	Loc		loc;			/* location of symbol */
 	Loc		hiloc;		/* location of end of symbol */
@@ -485,6 +487,8 @@ struct Symbol
 			uint framesize;
 		} stabs;
 	} u;
+	
+	void *aux;	/* for use by client */
 };
 
 /* look through all currently cracked Fhdrs calling their fns */
