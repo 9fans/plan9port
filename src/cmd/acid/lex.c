@@ -342,6 +342,33 @@ eatnl(void)
 }
 
 int
+bqsymbol(void)
+{
+	int c;
+	char *p;
+	Lsym *s;
+
+	symbol[0] = 0;
+	p = symbol;
+	while((c = lexc()) != '`'){
+		if(c == Eof)
+			error("eof in backquote");
+		if(c == '\n')
+			error("newline in backquote");
+		*p++ = c;
+	}
+	if(p >= symbol+sizeof symbol)
+		sysfatal("overflow in bqsymbol");
+	*p = 0;
+	
+	s = look(symbol);
+	if(s == 0)
+		s = enter(symbol, Tid);
+	yylval.sym = s;
+	return s->lexval;
+}
+
+int
 yylex(void)
 {
 	int c;
@@ -359,6 +386,9 @@ loop:
 			goto loop;
 		}
 		return Eof;
+
+	case '`':
+		return bqsymbol();
 
 	case '"':
 		eatstring();
