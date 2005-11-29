@@ -1,6 +1,20 @@
 /*
  * gcc2 name demangler.
+ *
+ * gcc2 follows the C++ Annotated Reference Manual section 7.2.1
+ * name mangling description with a few changes.
+ * See gpcompare.texi, gxxint_15.html in this directory for the changes.
+ *
+ * Not implemented:
+ *	unicode mangling
  */
+/*
+RULES TO ADD:
+
+_10CycleTimer.cycles_per_ms_ => CycleTimer::cycles_per_ms_
+
+
+*/
 #include <u.h>
 #include <libc.h>
 #include <bio.h>
@@ -24,114 +38,310 @@ chartabsearch(Chartab *ct, int c)
 	return nil;
 }
 
-typedef struct Gccstate Gccstate;
-struct Gccstate
-{
-	char *name[128];
-	int nname;
-};
-static int gccname(char**, char**, Gccstate*);
-char*
-demanglegcc2(char *s, char *buf)
-{
-	char *p, *os, *name, *t;
-	int namelen;
-	Gccstate state;
-	
-	state.nname = 0;
-	os = s;
-	p = buf;
-
-	if(memcmp(os, "_._", 3) == 0){
-		name = "destructor";
-		namelen = strlen(name);
-		s = os+3;
-	}else{
-		/* the mangled part begins with the final __ */
-		if((s = strstr(os, "__")) == nil)
-			return os;
-		do{
-			t = s;
-			if(strchr("123456789FHQt", s[2]))
-				break;
-		}while((s = strstr(t+1, "__")) != nil);
-		
-		s = t;
-		name = os;
-		namelen = t - os;
-		if(namelen == 0){
-			name = "constructor";
-			namelen = strlen(name);
-		}
-		s += 2;
-	}
-
-	switch(*s){
-	default:
-		return os;
-
-	case 'F':	/* plain function */
-		s++;
-		break;
-	
-	case 'Q':
-	case 'H':
-	case 't':
-	case '1': case '2': case '3': case '4':
-	case '5': case '6': case '7': case '8': case '9':
-		if(!gccname(&s, &p, &state)){
-			if(debug) fprint(2, "bad name: %s\n", os);
-			return os;
-		}
-		strcpy(p, "::");
-		p += 2;
-		break;
-	}
-
-	memmove(p, name, namelen);
-	p += namelen;
-
-	if(*s && *s != '_'){
-		/* the rest of the name is the argument types */
-		*p++ = '(';
-		while(*s != 0 && *s != '_' && gccname(&s, &p, &state))
-			*p++ = ',';
-		if(*(p-1) == ',')
-			p--;
-		*p++ = ')';
-	}
-	
-	if(*s == '_'){
-		/* the remainder is the type of the return value */
-	}
-
-	*p = 0;
-	return buf;
-}
-
 static Chartab typetab[] =
 {
 	'b',	"bool",
 	'c',	"char",
 	'd',	"double",
+	'e',	"...",
+	'f',	"float",
 	'i',	"int",
+	'J',	"complex",
 	'l',	"long",
+	'r',	"long double",
+	's',	"short",
 	'v',	"void",
+	'w',	"wchar_t",
+	'x',	"long long",
 	0, 0
 };
 
+static Chartab modifiertab[] =
+{
+	'C',	"const",
+	'S',	"signed",		/* means static for member functions */
+	'U',	"unsigned",
+	'V',	"volatile",
+	
+	'G',	"garbage",	/* no idea what this is */
+	0, 0
+};
+
+static char constructor[] = "constructor";
+static char destructor[] = "destructor";
+static char gconstructor[] = "$gconstructor";	/* global destructor */
+static char gdestructor[] = "$gdestructor";	/* global destructor */
+
+static char manglestarts[] = "123456789CFHQSUVt";
+
+static int gccname(char**, char**);
+static char *demanglegcc2a(char*, char*);
+static char *demanglegcc2b(char*, char*);
+static char *demanglegcc2c(char*, char*);
+static int gccnumber(char**, int*, int);
+
+char*
+demanglegcc2(char *s, char *buf)
+{
+	char *name, *os, *p, *t;
+	int isfn, namelen;
+	
+
+	/*
+	 * Pick off some cases that seem not to fit the pattern.
+	 */
+	if((t = demanglegcc2a(s, buf)) != nil)
+		return t;
+	if((t = demanglegcc2b(s, buf)) != nil)
+		return t;
+	if((t = demanglegcc2c(s, buf)) != nil)
+		return t;
+
+	/*
+	 * First, figure out whether this is a mangled name.
+	 * The name begins with a short version of the name, then __.
+	 * Of course, some C names begin with __ too, so the ultimate
+	 * test is whether what follows __ looks reasonable.
+	 * We use a test on the first letter instead.
+	 *
+	 * Constructors have no name - they begin __ (double underscore).
+	 * Destructors break the rule - they begin _._ (underscore, dot, underscore).
+	 */
+	os = s;
+	isfn = 0;
+	if(memcmp(s, "_._", 3) == 0){
+		isfn = 1;
+		name = destructor;
+		namelen = strlen(name);
+		s += 3;
+	}else if(memcmp(s, "_GLOBAL_.D.__", 13) == 0){
+		isfn = 1;
+		name = gdestructor;
+		namelen = strlen(name);
+		s += 13;		
+	}else if(memcmp(s, "_GLOBAL_.D._", 12) == 0){
+		isfn = 0;
+		name = gdestructor;
+		namelen = strlen(name);
+		s += 12;		
+	}else if(memcmp(s, "_GLOBAL_.I.__", 13) == 0){
+		isfn = 1;
+		name = gconstructor;
+		namelen = strlen(name);
+		s += 13;		
+	}else if(memcmp(s, "_GLOBAL_.I._", 12) == 0){
+		isfn = 0;
+		name = gconstructor;
+		namelen = strlen(name);
+		s += 12;		
+	}else{
+		t = strstr(os, "__");
+		if(t == nil)
+			return os;
+		do{
+			s = t;
+			if(strchr(manglestarts, *(s+2)))
+				break;
+		}while((t = strstr(s+1, "__")) != nil);
+	
+		name = os;
+		namelen = s - os;
+		if(namelen == 0){
+			isfn = 1;
+			name = constructor;
+			namelen = strlen(name);
+		}
+		s += 2;
+	}
+	
+	/*
+	 * Now s points at the mangled crap (maybe).
+	 * and name is the final element of the name.
+	 */
+	if(strchr(manglestarts, *s) == nil)
+		return os;
+	
+	p = buf;
+	if(*s == 'F'){
+		/* global function, no extra name pieces, just types */
+		isfn = 1;
+	}else{
+		/* parse extra name pieces */
+		if(!gccname(&s, &p)){
+			if(debug)
+				fprint(2, "parsename %s: %r\n", s);
+			return os;
+		}
+		
+		/* if we have a constructor or destructor, try to use the C++ name */
+		t = nil;
+		if(name == constructor || name == destructor){
+			*p = 0;
+			t = strrchr(buf, ':');
+			if(t == nil)
+				t = buf;
+		}
+		strcpy(p, "::");
+		p += 2;
+		if(t){
+			namelen = strlen(t)-2;
+			if(name == destructor)
+				*p++ = '~';
+			name = t;
+		}
+	}
+	memmove(p, name, namelen);
+	p += namelen;
+	
+	if(*s == 'F'){
+		/* might be from above, or might follow name pieces */
+		s++;
+		isfn = 1;
+	}
+
+	/* the rest of the name is argument types - could skip this */
+	if(*s || isfn){
+		*p++ = '(';
+		while(*s != 0 && *s != '_'){
+			if(!gccname(&s, &p))
+				break;
+			*p++ = ',';
+		}
+		if(*(p-1) == ',')
+			p--;
+		*p++ = ')';
+	}
+
+	if(*s == '_'){
+		/* return type (left over from H) */
+	}	
+	
+	*p = 0;
+	return buf;
+}
+
+/*
+ * _10CycleTimer.cycles_per_ms_ => CycleTimer::cycles_per_ms_
+ * _t12basic_string3ZcZt11char_traits1ZcZt9allocator1Zc.npos
+ * (maybe the funny syntax means they are private)
+ */
+static char*
+demanglegcc2a(char *s, char *buf)
+{
+	char *p;
+	
+	if(*s != '_' || strchr(manglestarts, *(s+1)) == nil)
+		return nil;
+	p = buf;
+	s++;
+	if(!gccname(&s, &p))
+		return nil;
+	if(*s != '.')
+		return nil;
+	s++;
+	strcpy(p, "::");
+	p += 2;
+	strcpy(p, s);
+	return buf;
+}
+
+/*
+ * _tfb => type info for bool
+ * __vt_7ostream => vtbl for ostream
+ */
+static char*
+demanglegcc2b(char *s, char *buf)
+{
+	char *p;
+	char *t;
+	
+	if(memcmp(s, "__ti", 4) == 0){
+		t = "$typeinfo";
+		s += 4;
+	}else if(memcmp(s, "__tf", 4) == 0){
+		t = "$typeinfofn";
+		s += 4;
+	}else if(memcmp(s, "__vt_", 5) == 0){
+		t = "$vtbl";
+		s += 5;
+	}else
+		return nil;
+
+	p = buf;
+	for(;;){
+		if(*s == 0 || !gccname(&s, &p))
+			return nil;
+		if(*s == 0)
+			break;
+		if(*s != '.' && *s != '$')
+			return nil;
+		strcpy(p, "::");
+		p += 2;
+		s++;
+	}
+	strcpy(p, "::");
+	p += 2;
+	strcpy(p, t);
+	return buf;
+}
+
+/*
+ * __thunk_176__._Q210LogMessage9LogStream => thunk (offset -176) for LogMessage::LogStream
+ */
+static char*
+demanglegcc2c(char *s, char *buf)
+{
+	int n;
+	char *p;
+
+	if(memcmp(s, "__thunk_", 8) != 0)
+		return nil;
+	s += 8;
+	if(!gccnumber(&s, &n, 1))
+		return nil;
+	if(memcmp(s, "__._", 4) != 0)	/* might as well be morse code */
+		return nil;
+	s += 4;
+	p = buf;
+	if(!gccname(&s, &p))
+		return nil;
+	strcpy(p, "::$thunk");
+	return buf;
+}
+
+/*
+ * Parse a number, a non-empty run of digits.
+ * If many==0, then only one digit is used, even
+ * if it is followed by more.  When we need a big
+ * number in a one-digit slot, it gets bracketed by underscores.
+ */
 static int
-gccnumber(char **ps, int *pn)
+gccnumber(char **ps, int *pn, int many)
 {
 	char *s;
-	int n;
+	int n, eatunderscore;
 	
 	s = *ps;
-	if(!isdigit((uchar)*s))
-		return 0;
-	n = strtol(s, &s, 10);
-	if(*s == '_')
+	eatunderscore = 0;
+	if(!many && *s == '_'){
+		many = 1;
 		s++;
+		eatunderscore = 1;
+	}
+	if(!isdigit((uchar)*s)){
+	bad:
+		werrstr("bad number %.20s", *ps);
+		return 0;
+	}
+	if(many)
+		n = strtol(s, &s, 10);
+	else
+		n = *s++ - '0';
+	if(eatunderscore){
+		if(*s != '_')
+			goto bad;
+		s++;
+	}
 	*ps = s;
 	*pn = n;
 	return 1;
@@ -143,10 +353,10 @@ gccnumber(char **ps, int *pn)
  * Let's see how far we can go before that becomes a problem.
  */
 static int
-gccname(char **ps, char **pp, Gccstate *state)
+gccname(char **ps, char **pp)
 {
 	int i, n, m, val;
-	char c, *os, *s, *t, *p;
+	char *os, *s, *t, *p, *p0, *p1;
 	
 	s = *ps;
 	os = s;
@@ -154,96 +364,159 @@ gccname(char **ps, char **pp, Gccstate *state)
 
 /*	print("\tgccname: %s\n", s); */
 
-#if 0
-	/* overloaded operators */
-	for(i=0; operators[i].shrt; i++){
-		if(memcmp(operators[i].shrt, s, 2) == 0){
-			strcpy(p, "operator$");
-			strcat(p, operators[i].lng);
-			p += strlen(p);
-			s += 2;
-			goto suffix;
-		}
-	}
-#endif
 	/* basic types */
 	if((t = chartabsearch(typetab, *s)) != nil){
 		s++;
 		strcpy(p, t);
 		p += strlen(t);
-		goto suffix;
+		goto out;
 	}
-
+	
+	/* modifiers */
+	if((t = chartabsearch(modifiertab, *s)) != nil){
+		s++;
+		if(!gccname(&s, &p))
+			return 0;
+		/*
+		 * These don't end up in the right place
+		 * and i don't care anyway
+		 * (AssertHeld__C17ReaderWriterMutex)
+		 */
+		/*
+		*p++ = ' ';
+		strcpy(p, t);
+		p += strlen(p);
+		*/
+		goto out;
+	}
+	
 	switch(*s){
 	default:
 	bad:
-		if(debug) fprint(2, "gccname: %s (%s)\n", os, s);
+		if(debug)
+			fprint(2, "gccname: %s (%s)\n", os, s);
+		werrstr("bad name %.20s", s);
 		return 0;
 
-	case '1': case '2': case '3': case '4':	/* name length */
+	case '1': case '2': case '3': case '4':	/* length-prefixed string */
 	case '5': case '6': case '7': case '8': case '9':
-		n = strtol(s, &s, 10);
+		if(!gccnumber(&s, &n, 1))
+			return 0;
 		memmove(p, s, n);
 		p += n;
 		s += n;
 		break;
 
-	case 'C':	/* const */
-		s++;
-		strcpy(p, "const ");
-		p += strlen(p);
-		if(!gccname(&s, &p, state))
-			return 0;
-		break;
-
-	case 'U':	/* unsigned */
-		s++;
-		strcpy(p, "unsigned ");
-		p += strlen(p);
-		if(!gccname(&s, &p, state))
-			return 0;
-		break;
-
-#if 0
-	case 'L':	/* default value */
+	case 'A':	/* array */
 		t = s;
 		s++;
-		if(!gccname(&s, &p, state))
+		if(!gccnumber(&s, &n, 1))
 			return 0;
-		if(!isdigit((uchar)*s)){
-			fprint(2, "bad value: %s\n", t);
-			return 0;
-		}
-		n = strtol(s, &s, 10);
-		if(*s != 'E'){
-			fprint(2, "bad value2: %s\n", t);
+		if(*s != '_'){
+			werrstr("bad array %.20s", t);
 			return 0;
 		}
-		sprint(p, "=%d", n);
-		p += strlen(p);
 		s++;
-		break;
-#endif
-
-	case 'N':	/* repeated name/type */
-	case 'X':
-		c = *s++;
-		if(!isdigit((uchar)*s) || !isdigit((uchar)*(s+1)))
-			goto bad;
-		n = *s++ - '0';
-		m = *s++ - '0';
-		sprint(p, "%c%d/%d", c, n, m);
+		sprint(p, "array[%d] ", n);
 		p += strlen(p);
 		break;
 
-	case 'Q':	/* hierarchical name */
+	case 'F':	/* function */
+		t = s;
 		s++;
-		if(!isdigit((uchar)*s))
-			goto bad;
-		n = *s++ - '0';
+		strcpy(p, "fn(");
+		p += 3;
+		/* arguments */
+		while(*s && *s != '_')
+			if(!gccname(&s, &p))
+				return 0;
+		if(*s != '_'){
+			werrstr("unexpected end in function: %s", t);
+			return 0;
+		}
+		s++;
+		strcpy(p, " => ");
+		p += 4;
+		/* return type */
+		if(!gccname(&s, &p))
+			return 0;
+		*p++ = ')';
+		break;
+
+	case 'H':	/* template specialization */
+		t = s;
+		s++;
+		if(!gccnumber(&s, &n, 0))
+			return 0;
+		p0 = p;
+		/* template arguments */
+		*p++ = '<';
 		for(i=0; i<n; i++){
-			if(!gccname(&s, &p, state)){
-				if(debug) fprint(2, "bad name in hierarchy: %s in %s\n", s, os);
+			val = 1;
+			if(*s == 'Z'){	/* argument is a type, not value */
+				val = 0;
+				s++;
+			}
+			if(!gccname(&s, &p))
+				return 0;
+			if(val){
+				if(!gccnumber(&s, &m, 1))	/* gccnumber: 1 or 0? */
+					return 0;
+				sprint(p, "=%d", m);
+				p += strlen(p);
+			}
+			if(i+1<n)
+				*p++ = ',';
+		}
+		*p++ = '>';
+		if(*s != '_'){
+			werrstr("bad template %s", t);
+			return 0;
+		}
+		s++;
+		p1 = p;
+		/* name */
+		if(!gccname(&s, &p))
+			return 0;
+		/* XXX 
+__adjust_heap__H3ZPt4pair2Zt12basic_string3ZcZt11char_traits1ZcZt9allocator1ZcZt12basic_string3ZcZt11char_traits1ZcZt9allocator1ZcZiZt4pair2Zt12basic_string3ZcZt11char_traits1ZcZt9allocator1ZcZt12basic_string3ZcZt11char_traits1ZcZt9allocator1Zc_X01X11X11X21_v
+		*/
+		/* XXX swap p0, p1, p - maybe defer to main */
+		break;
+
+	case 'M':	/* M1S: pointer to member */
+		if(*(s+1) != '1' || *(s+2) != 'S')
+			goto bad;
+		s += 3;
+		strcpy(p, "mptr ");
+		p += 5;
+		if(!gccname(&s, &p))
+			return 0;
+		break;
+
+	case 'N':	/* multiply-repeated type */
+		s++;
+		if(!gccnumber(&s, &n, 0) || !gccnumber(&s, &m, 0))
+			return 0;
+		sprint(p, "T%dx%d", m, n);
+		p += strlen(p);
+		break;
+
+	case 'P':	/* pointer */
+		s++;
+		strcpy(p, "ptr ");
+		p += 4;
+		if(!gccname(&s, &p))
+			return 0;
+		break;
+	
+	case 'Q':	/* qualified name */
+		s++;
+		if(!gccnumber(&s, &n, 0))
+			return 0;
+		for(i=0; i<n; i++){
+			if(!gccname(&s, &p)){
+				werrstr("in hierarchy: %r");
 				return 0;
 			}
 			if(i+1 < n){
@@ -252,84 +525,64 @@ gccname(char **ps, char **pp, Gccstate *state)
 			}
 		}
 		break;
-	
-	case 'P':	/* pointer to */
+
+	case 'R':	/* reference */
 		s++;
-		if(!gccname(&s, &p, state))
+		strcpy(p, "ref ");
+		p += 4;
+		if(!gccname(&s, &p))
 			return 0;
-		*p++ = '*';
 		break;
 
-	case 'R':	/* reference to */
+	case 't':	/* class template instantiation */
+		/* should share code with case 'H' */
+		t = s;
 		s++;
-		if(!gccname(&s, &p, state))
+		if(!gccname(&s, &p))
 			return 0;
-		*p++ = '&';
-		break;
-
-	case 'S':	/* standard or previously-seen name */
-		s++;
-		if('0' <= *s && *s <= '9'){
-			/* previously seen */
-			t = s-1;
-			n = strtol(s, &s, 10);
-			if(*s != '_'){
-				fprint(2, "bad S: %s\n", t);
-				return 0;
-			}
-			s++;
-			sprint(p, "S%d_", n);
-			p += strlen(p);
-			break;
-		}
-		goto bad;
-
-	case 't':	/* named template */
-		c = *s++;
-		if(!gccname(&s, &p, state))
+		if(!gccnumber(&s, &n, 0))
 			return 0;
-		goto template;
-	case 'H':	/* nameless template */
-		c = *s++;
-	template:
-		if(!gccnumber(&s, &n))
-			goto bad;
+		p0 = p;
+		/* template arguments */
 		*p++ = '<';
 		for(i=0; i<n; i++){
 			val = 1;
-			if(*s == 'Z'){
+			if(*s == 'Z'){	/* argument is a type, not value */
 				val = 0;
 				s++;
 			}
-			if(!gccname(&s, &p, state))
-				goto bad;
+			if(!gccname(&s, &p))
+				return 0;
 			if(val){
-				if(!gccnumber(&s, &m))
-					goto bad;
+				if(!gccnumber(&s, &m, 1))	/* gccnumber: 1 or 0? */
+					return 0;
 				sprint(p, "=%d", m);
 				p += strlen(p);
 			}
-			if(i+1 < n)
+			if(i+1<n)
 				*p++ = ',';
 		}
 		*p++ = '>';
-		if(c == 'H'){
-			if(*s != '_')
-				goto bad;
-			s++;
-		}
 		break;
-
-	case 'T':	/* previously-seen type??? e.g., T2 */
-		t = s;
-		for(s++; isdigit((uchar)*s); s++)
-			;
-		memmove(p, t, s-t);
-		p += s-t;
-		break;		
+		
+	case 'T':	/* once-repeated type */
+		s++;
+		if(!gccnumber(&s, &n, 0))
+			return 0;
+		sprint(p, "T%d", n);
+		p += strlen(p);
+		break;
+	
+	case 'X':	/* type parameter in 'H' */
+		if(!isdigit((uchar)*(s+1)) || !isdigit((uchar)*(s+2)))
+			goto bad;
+		memmove(p, s, 3);
+		p += 3;
+		s += 3;
+		break;
 	}
 
-suffix:	
+out:	
 	*ps = s;
 	*pp = p;
 	return 1;

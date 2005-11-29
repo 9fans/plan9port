@@ -69,6 +69,9 @@ t: t.o $LIBDIR/$LIB
 elfnm: elfnm.o $LIBDIR/$LIB
 	$LD -o $target $prereq -l9
 
+demangler: demangler.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9
+
 
 SunOS.$O: nosys.c
 Darwin.$O: nosys.c
