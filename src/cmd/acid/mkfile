@@ -16,8 +16,7 @@ UOFILES=\
 OFILES=$UOFILES y.tab.$O
 
 YFILES=dbg.y
-HFILES=acid.h
-
+HFILES=acid.h $PLAN9/include/mach.h
 
 
 <$PLAN9/src/mkone
