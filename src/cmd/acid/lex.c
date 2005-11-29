@@ -359,8 +359,7 @@ bqsymbol(void)
 	if(p >= symbol+sizeof symbol)
 		sysfatal("overflow in bqsymbol");
 	*p = 0;
-	
-fprint(2, "bq: %s\n", symbol);
+
 	s = look(symbol);
 	if(s == 0)
 		s = enter(symbol, Tid);
