@@ -41,7 +41,7 @@ dumpsyms(Biobuf *b)
 		}
 		if(t == nil || t->ty != Aggr)
 			continue;
-		Bprint(b, "complex %s %s%s%s;\n", cleanstl(nameof(t, 1)),
+		Bprint(b, "complex %B %B%s%B;\n", nameof(t, 1),
 			s->fn ? fixname(s->fn) : "", s->fn ? ":" : "", fixname(s->name));
 	}
 

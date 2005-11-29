@@ -87,4 +87,9 @@ char *cleanstl(char*);
 void addsymx(char*, char*, Type*);
 void dumpsyms(Biobuf*);
 
+int Bfmt(Fmt*);
+
+#ifdef VARARGCK
+#pragma varargck type "B" char*
+#endif
 

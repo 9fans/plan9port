@@ -61,3 +61,32 @@ mktl(Type *hd, TypeList *tail)
 	return tl;
 }
 
+static int isBfrog[256];
+
+int
+Bfmt(Fmt *fmt)
+{
+	int i;
+	char *s, *t;
+	
+	if(!isBfrog['.']){
+		for(i=0; i<256; i++)
+			if(i != '_' && i != '$' && i < Runeself && !isalnum(i))
+				isBfrog[i] = 1;
+	}
+
+	s = va_arg(fmt->args, char*);
+	for(t=s; *t; t++){
+		if(isBfrog[(uchar)*t]){
+			if(*t == ':' && *(t+1) == ':'){
+				t++;
+				continue;
+			}
+			goto encode;
+		}
+	}
+	return fmtstrcpy(fmt, s);
+
+encode:
+	return fmtprint(fmt, "`%s`", s);
+}

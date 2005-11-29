@@ -439,6 +439,14 @@ dorange(Type *t)
 		t->xsizeof = countbytes(t->hi);
 }
 
+char*
+mkname(char *prefix, char *name)
+{
+	static char buf[65536];
+	
+	snprint(buf, sizeof buf, "%s%s", prefix, name);
+	return buf;
+}
 
 char*
 nameof(Type *t, int doanon)
@@ -581,9 +589,9 @@ printtype(Biobuf *b, Type *t)
 	t->printed = 1;
 	switch(t->ty){
 	case Aggr:
-		name = cleanstl(nameof(t, 1));
-		Bprint(b, "sizeof%s = %lud;\n", name, t->xsizeof);
-		Bprint(b, "aggr %s {\n", name);
+		name = nameof(t, 1);
+		Bprint(b, "%B = %lud;\n", mkname("sizeof", name), t->xsizeof);
+		Bprint(b, "aggr %B {\n", name);
 		nprint = 0;
 		for(j=0; j<t->n; j++){
 			tt = defer(t->t[j]);
@@ -611,11 +619,11 @@ ttt=ttt->sub;
 			case Array:
 			case Function:
 				nprint++;
-				Bprint(b, "\t'%c' %lud %s;\n", basecharof(tt), t->val[j], fixname(t->tname[j]));
+				Bprint(b, "\t'%c' %lud %B;\n", basecharof(tt), t->val[j], fixname(t->tname[j]));
 				break;
 			case Aggr:
 				nprint++;
-				Bprint(b, "\t%s %lud %s;\n", nameof(tt, 1), t->val[j], fixname(t->tname[j]));
+				Bprint(b, "\t%B %lud %B;\n", nameof(tt, 1), t->val[j], fixname(t->tname[j]));
 				break;
 			}
 		}
@@ -623,10 +631,10 @@ ttt=ttt->sub;
 			Bprint(b, "\t'X' 0 __dummy;\n");
 		Bprint(b, "};\n\n");
 	
-		name = cleanstl(nameof(t, 1));	/* might have smashed it */
-		Bprint(b, "defn %s(addr) { indent_%s(addr, \"\"); }\n", name, name);
-		Bprint(b, "defn indent_%s(addr, indent) {\n", name);
-		Bprint(b, "\tcomplex %s addr;\n", name);
+		name = nameof(t, 1);	/* might have smashed it */
+		Bprint(b, "defn %B(addr) { %B(addr, \"\"); }\n", name, mkname("indent_", name));
+		Bprint(b, "defn %B(addr, indent) {\n", mkname("indent_", name));
+		Bprint(b, "\tcomplex %B addr;\n", name);
 		for(j=0; j<t->n; j++){
 			name = fixname(t->tname[j]);
 			tt = defer(t->t[j]);
@@ -637,30 +645,30 @@ ttt=ttt->sub;
 			switch(tt->ty){
 			case Base:
 			base:
-				Bprint(b, "\tprint(indent, \"%s\t\", addr.%s, \"\\n\");\n",
+				Bprint(b, "\tprint(indent, \"%s\t\", addr.%B, \"\\n\");\n",
 					name, name);
 				break;
 			case Pointer:
 				ttt = defer(tt->sub);
 				if(ttt && ttt->ty == Aggr)
-					Bprint(b, "\tprint(indent, \"%s\t(%s)\", addr.%s, \"\\n\");\n",
+					Bprint(b, "\tprint(indent, \"%s\t(%s)\", addr.%B, \"\\n\");\n",
 						name, nameof(ttt, 1), name);
 				else
 					goto base;
 				break;
 			case Array:
-				Bprint(b, "\tprint(indent, \"%s\t\", addr.%s\\X, \"\\n\");\n",
+				Bprint(b, "\tprint(indent, \"%s\t\", addr.%B\\X, \"\\n\");\n",
 					name, name);
 				break;
 			case Enum:
-				Bprint(b, "\tprint(indent, \"%s\t\", addr.%s, \" \", %s(addr.%s), \"\\n\");\n",
+				Bprint(b, "\tprint(indent, \"%s\t\", addr.%B, \" \", %B(addr.%B), \"\\n\");\n",
 					name, name, nameof(tt, 1), name);
 				break;
 			case Aggr:
 				Bprint(b, "\tprint(indent, \"%s\t%s{\\n\");\n",
 					name, nameof(tt, 0));
-				Bprint(b, "\tindent_%s(addr+%lud, indent+\"  \");\n",
-					nameof(tt, 1), t->val[j]);
+				Bprint(b, "\t%B(addr+%lud, indent+\"  \");\n",
+					mkname("indent_", nameof(tt, 1)), t->val[j]);
 				Bprint(b, "\tprint(indent, \"}\\n\");\n");
 				break;
 			}
@@ -672,20 +680,20 @@ ttt=ttt->sub;
 		name = nameof(t, 1);
 		Bprint(b, "// enum %s\n", name);
 		for(j=0; j<t->n; j++)
-			Bprint(b, "%s = %ld;\n", fixname(t->tname[j]), t->val[j]);
+			Bprint(b, "%B = %ld;\n", fixname(t->tname[j]), t->val[j]);
 	
-		Bprint(b, "vals_%s = {\n", name);
+		Bprint(b, "%B = {\n", mkname("vals_", name));
 		for(j=0; j<t->n; j++)
 			Bprint(b, "\t%lud,\n", t->val[j]);
 		Bprint(b, "};\n");
-		Bprint(b, "names_%s = {\n", name);
+		Bprint(b, "%B = {\n", mkname("names_", name));
 		for(j=0; j<t->n; j++)
 			Bprint(b, "\t\"%s\",\n", fixname(t->tname[j]));
 		Bprint(b, "};\n");
-		Bprint(b, "defn %s(val) {\n", name);
+		Bprint(b, "defn %B(val) {\n", name);
 		Bprint(b, "\tlocal i;\n");
-		Bprint(b, "\ti = match(val, vals_%s);\n", name);
-		Bprint(b, "\tif i >= 0 then return names_%s[i];\n", name);
+		Bprint(b, "\ti = match(val, %B);\n", mkname("vals_", name));
+		Bprint(b, "\tif i >= 0 then return %B[i];\n", mkname("names_", name));
 		Bprint(b, "\treturn \"???\";\n");
 		Bprint(b, "};\n");
 		break;

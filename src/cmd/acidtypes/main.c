@@ -22,6 +22,7 @@ main(int argc, char **argv)
 	char err[ERRMAX];
 
 	quotefmtinstall();
+	fmtinstall('B', Bfmt);
 
 	ARGBEGIN{
 	case 'v':
