@@ -76,9 +76,10 @@ updatewinsize(int row, int col, int dx, int dy)
 	ws.ws_col = col;
 	ws.ws_xpixel = dx;
 	ws.ws_ypixel = dy;
-	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col)
-	if(ioctl(rcfd, TIOCSWINSZ, &ws) < 0)
-		fprint(2, "ioctl: %r\n");
+	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col){
+		if(ioctl(rcfd, TIOCSWINSZ, &ws) < 0)
+			fprint(2, "ioctl: %r\n");
+	}
 	ows = ws;
 }
 

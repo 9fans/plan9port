@@ -174,15 +174,17 @@ resizethread(void *v)
 	
 	USED(v);
 	
-	while(recv(mousectl->resizec, nil) == 1){
-		if(getwindow(display, Refnone) < 0)
-			sysfatal("can't reattach to window");
+	for(;;){
 		p = stringsize(display->defaultfont, "0");
 		if(p.x && p.y)
 			updatewinsize(Dy(screen->r)/p.y, (Dx(screen->r)-Scrollwid-2)/p.x, 
 				Dx(screen->r), Dy(screen->r));
 		wresize(w, screen, 0);
 		flushimage(display, 1);
+		if(recv(mousectl->resizec, nil) != 1)
+			break;
+		if(getwindow(display, Refnone) < 0)
+			sysfatal("can't reattach to window");
 	}
 }
 			
