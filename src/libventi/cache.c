@@ -424,7 +424,6 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	vtcachenread++;
 	n = vtread(c->z, score, type, b->data, c->blocksize);
 	if(n < 0){
-		werrstr("vtread %V: %r", score);
 		if(chattyventi)
 			fprint(2, "read %V: %r\n", score);
 		b->iostate = BioVentiError;
