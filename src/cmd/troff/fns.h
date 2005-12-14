@@ -172,7 +172,6 @@ void	casefl(void);
 void	caseev(void);
 void	envcopy(Env *e1, Env *e2);
 void	caseel(void);
-void caseei(void);
 void	caseie(void);
 void	casexif(void);
 void	caseif(void);

@@ -70,7 +70,6 @@ Contab contab[NM] = {
 	C(PAIR('n', 'r'), casenr),
 	C(PAIR('i', 'f'), caseif),
 	C(PAIR('i', 'e'), caseie),
-	C(PAIR('e', 'i'), caseei),
 	C(PAIR('e', 'l'), caseel),
 	C(PAIR('p', 'o'), casepo),
 	C(PAIR('t', 'l'), casetl),
