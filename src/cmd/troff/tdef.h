@@ -163,7 +163,7 @@ extern	char	errbuf[];
 /* array sizes, and similar limits: */
 
 #define MAXFONTS 99	/* Maximum number of fonts in fontab */
-#define	NM	90	/* requests + macros */
+#define	NM	91	/* requests + macros */
 #define	NN	NNAMES	/* number registers */
 #define	NNAMES	15	/* predefined reg names */
 #define	NIF	15	/* if-else nesting */
