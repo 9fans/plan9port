@@ -8,7 +8,7 @@
 #include "fns.h"
 #include "ext.h"
 
-int	iflist[NIF];
+int	iflist[NIF];	/* whether 'else' is true */
 int	ifx;
 int	ifnum = 0;	/* trying numeric expression for .if or .ie condition */
 
@@ -612,6 +612,16 @@ void envcopy(Env *e1, Env *e2)	/* copy env e2 to e1 */
 }
 
 
+void caseei(void)
+{
+	if (--ifx < 0) {
+		ifx = 0;
+		iflist[0] = 0;
+	}
+	caseif1(1);
+	ifx++;
+}
+
 void caseel(void)
 {
 	if (--ifx < 0) {
@@ -621,7 +631,6 @@ void caseel(void)
 	caseif1(2);
 }
 
-
 void caseie(void)
 {
 	if (ifx >= NIF) {
@@ -629,10 +638,10 @@ void caseie(void)
 		ifx = 0;
 		edone(040);
 	}
+	iflist[ifx] = 1;
 	caseif1(1);
 	ifx++;
 }
-
 
 void caseif(void)
 {
@@ -645,7 +654,7 @@ void caseif1(int x)
 	int notflag, true;
 	Tchar i;
 
-	if (x == 2) {
+	if (x == 2) {	/* .el */
 		notflag = 0;
 		true = iflist[ifx];
 		goto i1;
@@ -691,8 +700,10 @@ void caseif1(int x)
 	}
 i1:
 	true ^= notflag;
-	if (x == 1)
-		iflist[ifx] = !true;
+	if (x == 1) {	/* .ie or .ei */
+		true = true && iflist[ifx];
+		iflist[ifx] = iflist[ifx] && !true;
+	}
 	if (true) {
 i2:
 		while ((cbits(i = getch())) == ' ')
