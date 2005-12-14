@@ -16,6 +16,7 @@ demangle(char *s, char *buf, int strip)
 	char *r, *w;
 	int i, nangle, nparen;
 	
+	t = nil;
 	for(i=0; i<nelem(demanglers); i++){
 		t = demanglers[i](s, buf);
 		if(t != s)
