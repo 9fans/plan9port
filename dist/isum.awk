@@ -4,10 +4,11 @@
 BEGIN {
 #	print verbose 
 	cd = ""
-	out = "/dev/stdout";
+	out = "/dev/stdout"
+	debug = 0
 }
 
-debug { print "# " $0 }
+debug!=0 { print "# " $0 }
 
 /^$/ { next }
 
@@ -24,7 +25,7 @@ debug { print "# " $0 }
 	next
 }
 
-/^	/ && printtabs {
+/^	/ && printtabs!=0 {
 	print >out
 	fflush(out)
 	next
@@ -58,7 +59,7 @@ debug { print "# " $0 }
 	cmd = cmd $0 "\n"
 }
 
-errors {
+errors != 0 {
 	if(debug) print "% errors"
 	printf "%s", cmd >out
 	fflush(out)
@@ -70,12 +71,12 @@ errors {
 	next
 }
 
-/^(up to date|nothing to see|assuming it will be|loop not entered|conflicts:)/ {
+/^(conflicts:)/ {
 	if(debug) print "% skip1"
 	next
 }
 
-/is up to date/ {
+/(up to date|nothing to see|assuming it will be|loop not entered)/ {
 	next
 }
 
