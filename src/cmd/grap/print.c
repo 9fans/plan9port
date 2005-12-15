@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#Include <unistd.h>
 #include "grap.h"
 #include "y.tab.h"
 
@@ -180,7 +181,6 @@ void do_first(void)	/* done at first .G1:  definitions, etc. */
 	extern char *lib_defines;
 	static char buf[100], buf1[100];	/* static because pbstr uses them */
 	FILE *fp;
-	extern int getpid(void);
 
 	snprintf(buf, sizeof buf, "define pid /%d/\n", getpid());
 	pbstr(buf);	
