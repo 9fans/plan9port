@@ -4,7 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
-#Include <unistd.h>
+#include <unistd.h>
 #include "grap.h"
 #include "y.tab.h"
 
