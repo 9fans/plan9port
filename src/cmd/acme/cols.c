@@ -81,8 +81,6 @@ coladd(Column *c, Window *w, Window *clone, int y)
 fprint(2, "oops: dy=%d\n", Dy(v->body.all));
 				break;
 			}
-			if(j > 1)
-fprint(2, "regrow\n");
 			colgrow(c, v, 1);
 		}
 		if(i == c->nw)
