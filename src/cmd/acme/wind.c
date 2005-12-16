@@ -117,25 +117,15 @@ wintaglines(Window *w, Rectangle r)
 	bufread(&w->tag.file->b, w->tag.file->b.nc-1, &rune, 1);
 	if(rune == '\n')
 		n++;
-
-	/* cannot magically shrink tag - would lose focus */
-	if(n < w->taglines)
-		n = w->taglines;
-
-	/* on initial expansion, create an extra line */
-	if(n < 2){
-		rune = '\n';
-		textinsert(&w->tag, w->tag.file->b.nc, &rune, 1, TRUE);
-		n = 2;
-	}
 	return n;
 }
 
 int
 winresize(Window *w, Rectangle r, int safe, int keepextra)
 {
-	int y;
+	int y, mouseintag;
 	Image *b;
+	Point p;
 	Rectangle br, r1;
 
 if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepextra, font->height);
@@ -149,7 +139,9 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	r1 = r;
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
+	mouseintag = ptinrect(mouse->xy, w->tag.all);
 	if(1 || !safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
+
 		w->taglines = wintaglines(w, r);
 		w->tagsafe = TRUE;
 	}
@@ -170,6 +162,13 @@ if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		br.max.x = br.min.x + Dx(b->r);
 		br.max.y = br.min.y + Dy(b->r);
 		draw(screen, br, b, nil, b->r.min);
+/* TAG */
+		if(mouseintag && !ptinrect(mouse->xy, w->tag.all)){
+			p = mouse->xy;
+			p.y = w->tag.all.max.y-3;
+			moveto(mousectl, p);
+		}
+/* END TAG */
 	}
 
 	
