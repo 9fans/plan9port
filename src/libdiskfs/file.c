@@ -2,14 +2,14 @@
 #include <libc.h>
 #include <diskfs.h>
 
+int nfilereads;
+
 typedef struct DiskFile DiskFile;
 struct DiskFile
 {
 	Disk disk;
 	int fd;
 };
-
-int nfilereads;
 
 static long
 preadn(int fd, void *vdata, u32int ulen, u64int offset)

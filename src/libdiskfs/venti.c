@@ -13,7 +13,7 @@ struct DiskVenti
 	VtCache *c;
 };
 
-int nfilereads;
+extern int nfilereads;
 
 /*
  * This part is like file.c but doesn't require storing the root block
