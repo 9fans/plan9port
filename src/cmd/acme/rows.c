@@ -282,6 +282,17 @@ rowtype(Row *row, Rune r, Point p)
 		else{
 			winlock(w, 'K');
 			wintype(w, t, r);
+/*
+ * TAG If we typed in the tag, might need to make it
+ * bigger to show text.  \n causes tag to expand.
+ */
+			if(t->what == Tag){
+				t->w->tagsafe = FALSE;
+				if(r == '\n')
+					t->w->tagexpand = TRUE;
+				winresize(w, w->r, TRUE, TRUE);
+			}
+/* END TAG */
 			winunlock(w);
 		}
 	}

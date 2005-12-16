@@ -646,11 +646,21 @@ texttype(Text *t, Rune r)
 	uint q0, q1;
 	int nnb, nb, n, i;
 	int nr;
+	Point p;
 	Rune *rp;
 	Text *u;
 
-	if(t->what!=Body && r=='\n')
+/*
+ * TAG
+ * Used to disallow \n in tag here.
+ * Also if typing in tag, mark that resize might be necessary.
+ */
+	if(t->what!=Body && t->what!=Tag && r=='\n')
 		return;
+	if(t->what == Tag)
+		t->w->tagsafe = FALSE;
+/* END TAG */
+
 	nr = 1;
 	rp = &r;
 	switch(r){
@@ -667,9 +677,17 @@ texttype(Text *t, Rune r)
 		}
 		return;
 	case Kdown:
+/* TAG */
+		if(t->what == Tag)
+			goto Tagdown;
+/* END TAG */
 		n = t->fr.maxlines/3;
 		goto case_Down;
 	case Kscrollonedown:
+/* TAG */
+		if(t->what == Tag)
+			goto Tagdown;
+/* END TAG */
 		n = mousescrollsize(t->fr.maxlines);
 		if(n <= 0)
 			n = 1;
@@ -681,9 +699,17 @@ texttype(Text *t, Rune r)
 		textsetorigin(t, q0, TRUE);
 		return;
 	case Kup:
+/* TAG */
+		if(t->what == Tag)
+			goto Tagup;
+/* END TAG */
 		n = t->fr.maxlines/3;
 		goto case_Up;
 	case Kscrolloneup:
+/* TAG */
+		if(t->what == Tag)
+			goto Tagup;
+/* END TAG */
 		n = mousescrollsize(t->fr.maxlines);
 		goto case_Up;
 	case Kpgup:
@@ -715,6 +741,31 @@ texttype(Text *t, Rune r)
 			q0++;
 		textshow(t, q0, q0, TRUE);
 		return;
+/* TAG policy here */
+	Tagdown:
+		/* expand tag to show all text */
+		if(!t->w->tagexpand){
+			t->w->tagexpand = TRUE;
+			winresize(t->w, t->w->r, FALSE, TRUE);
+		}
+		return;
+	
+	Tagup:
+		/* shrink tag to single line */
+		if(t->w->tagexpand){
+			t->w->tagexpand = FALSE;
+			t->w->taglines = 1;
+			/* move mouse to stay in tag */
+			p = mouse->xy;
+			if(ptinrect(p, t->w->tag.all) 
+			&& !ptinrect(p, t->w->tagtop)){
+				p.y = t->w->tagtop.min.y + Dy(t->w->tagtop)/2;
+				moveto(mousectl, p);
+			}
+			winresize(t->w, t->w->r, FALSE, TRUE);
+		}
+		return;
+/* END TAG */
 	}
 	if(t->what == Body){
 		seq++;

@@ -100,17 +100,28 @@ wintaglines(Window *w, Rectangle r)
 	int n;
 	Rune rune;
 
+/* TAG policy here */
+
 	if(!w->tagexpand)
 		return 1;
 	w->tag.fr.noredraw = 1;
 	textresize(&w->tag, r, TRUE);
 	w->tag.fr.noredraw = 0;
+	
+	/* can't use more than we have */
 	if(w->tag.fr.nlines >= w->tag.fr.maxlines)
 		return w->tag.fr.maxlines;
+
+	/* if tag ends with \n, include empty line at end for typing */
 	n = w->tag.fr.nlines;
 	bufread(&w->tag.file->b, w->tag.file->b.nc-1, &rune, 1);
 	if(rune == '\n')
 		n++;
+
+	/* cannot magically shrink tag - would lose focus */
+	if(n < w->taglines)
+		n = w->taglines;
+
 	return n;
 }
 
@@ -124,6 +135,19 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepextra, font->height);
 	w->tagtop = r;
 	w->tagtop.max.y = r.min.y+font->height;
+
+/* 
+ * TAG If necessary, recompute the number of lines that should
+ * be in the tag.
+ */
+	r1 = r;
+	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
+	y = r1.max.y;
+	if(1 || !safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
+		w->taglines = wintaglines(w, r);
+		w->tagsafe = TRUE;
+	}
+/* END TAG */
 
 	r1 = r;
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
@@ -141,6 +165,7 @@ if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		br.max.y = br.min.y + Dy(b->r);
 		draw(screen, br, b, nil, b->r.min);
 	}
+
 	
 	r1 = r;
 	r1.min.y = y;

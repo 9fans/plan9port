@@ -591,7 +591,11 @@ mousethread(void *v)
 				goto Continue;
 			}
 			/* scroll buttons, wheels, etc. */
-			if(t->what==Body && w != nil && (m.buttons & (8|16))){
+/*
+ * TAG used to require t->what==Body but now allow
+ * scroll wheel in tag too.
+ */
+			if(w != nil && (m.buttons & (8|16))){
 				if(m.buttons & 8)
 					but = Kscrolloneup;
 				else

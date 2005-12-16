@@ -467,6 +467,9 @@ coldragwin(Column *c, Window *w, int but)
 	error("can't find window");
 
   Found:
+/* TAG - force recompute tag size (if in auto-expand mode) on mouse op. */
+	w->taglines = 1;
+/* END TAG */
 	p = mouse->xy;
 	if(abs(p.x-op.x)<5 && abs(p.y-op.y)<5){
 		colgrow(c, w, but);
