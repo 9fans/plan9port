@@ -13,3 +13,12 @@
 			       4.000,	       4.000	       \n\
 			       8.000,	       8.000	       \n\
 			       10.00,	       10.00
+
+GV.gsQuiet:		True
+GV.gsSafer:		False
+GV.gsArguments:		
+GV.gsX11AlphaDevice:    -sDEVICE=x11 -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -dMaxBitmap=10000000 -dNOPLATFONTS
+GV.gsX11Device:		-sDEVICE=x11
+GV.gsCmdConvPDF:	gs -dNOPAUSE -dQUIET -dBATCH -sDEVICE=pswrite -sOutputFile='%s' -f '%s' -c save pop quit
+GV.gsCmdScanPDF:	gs -dNODISPLAY -dQUIET -sPDFname='%s' -sDSCname='%s' pdf2dsc.ps -c quit
+GV.gsInterpreter:       gs
