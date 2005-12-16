@@ -121,6 +121,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	Image *b;
 	Rectangle br, r1;
 
+if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepextra, font->height);
 	w->tagtop = r;
 	w->tagtop.max.y = r.min.y+font->height;
 
@@ -128,7 +129,9 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
 	if(1 || !safe || !eqrect(w->tag.all, r1)){
+if(0) fprint(2, "resize tag %R => %R", w->tag.all, r1);
 		textresize(&w->tag, r1, TRUE);
+if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		y = w->tag.fr.r.max.y;
 		b = button;
 		if(w->body.file->mod && !w->isdir && !w->isscratch)
@@ -141,7 +144,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	
 	r1 = r;
 	r1.min.y = y;
-	if(!safe || !eqrect(w->body.all, r1)){
+	if(1 || !safe || !eqrect(w->body.all, r1)){
 		if(y+1+w->body.fr.font->height <= r.max.y){	/* room for one line */
 			r1.min.y = y;
 			r1.max.y = y+1;
@@ -153,8 +156,10 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 			r1.min.y = y;
 			r1.max.y = y;
 		}
+if(0) fprint(2, "resize body %R => %R", w->body.all, r1);
 		w->r = r;
 		w->r.max.y = textresize(&w->body, r1, keepextra);
+if(0) fprint(2, " => %R (%R; %R)\n", w->body.all, w->body.fr.r, w->r);
 		textscrdraw(&w->body);
 	}
 	w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));

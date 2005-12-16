@@ -16,7 +16,7 @@
 CFid *plumbsendfid;
 CFid *plumbeditfid;
 
-Window*	openfile(Text*, Expand*);
+Window*	openfile(Text*, Expand*, int);
 
 int	nuntitled;
 
@@ -167,7 +167,7 @@ look3(Text *t, uint q0, uint q1, int external)
 	if(expanded == FALSE)
 		return;
 	if(e.name || e.u.at)
-		openfile(t, &e);
+		openfile(t, &e, FALSE);
 	else{
 		if(t->w == nil)
 			return;
@@ -207,6 +207,7 @@ plumblook(Plumbmsg *m)
 {
 	Expand e;
 	char *addr;
+	int newwindow;
 
 	if(m->ndata >= BUFSIZE){
 		warning(nil, "insanely long file name (%d bytes) in plumb message (%.32s...)\n", m->ndata, m->data);
@@ -227,7 +228,8 @@ plumblook(Plumbmsg *m)
 		e.u.ar = bytetorune(addr, &e.a1);
 		e.agetc = plumbgetc;
 	}
-	openfile(nil, &e);
+	newwindow = plumblookup(m->attr, "newwindow") != nil;
+	openfile(nil, &e, newwindow);
 	free(e.name);
 	free(e.u.at);
 	drawtopwindow();
@@ -688,7 +690,7 @@ lookid(int id, int dump)
 
 
 Window*
-openfile(Text *t, Expand *e)
+openfile(Text *t, Expand *e, int newwindow)
 {
 	Range r;
 	Window *w, *ow;
@@ -705,6 +707,8 @@ openfile(Text *t, Expand *e)
 	}else
 		w = lookfile(e->name, e->nname);
 	if(w){
+		if(newwindow==TRUE && !w->isdir)
+			w = coladd(w->col, nil, w, -1);
 		t = &w->body;
 		if(!t->col->safe && t->fr.maxlines==0) /* window is obscured by full-column window */
 			colgrow(t->col, t->col->w[0], 1);
@@ -785,7 +789,7 @@ new(Text *et, Text *t, Text *argt, int flag1, int flag2, Rune *arg, int narg)
 		e.nname = nf;
 		e.bname = runetobyte(f, nf);
 		e.jump = TRUE;
-		openfile(et, &e);
+		openfile(et, &e, FALSE);
 		free(f);
 		free(e.bname);
 		arg = skipbl(a, na, &narg);

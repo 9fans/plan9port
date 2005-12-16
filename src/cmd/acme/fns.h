@@ -9,7 +9,7 @@ void	warningew(Window*, Mntdir*, char*, ...);
 #define	fbufalloc()	emalloc(BUFSIZE)
 #define	fbuffree(x)	free(x)
 
-void	plumblook(Plumbmsg*m);
+void	plumblook(Plumbmsg *m);
 void	plumbshow(Plumbmsg*m);
 void	acmeputsnarf(void);
 void	acmegetsnarf(void);

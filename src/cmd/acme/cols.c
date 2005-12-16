@@ -53,7 +53,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 {
 	Rectangle r, r1;
 	Window *v;
-	int i, t;
+	int i, j, minht, t;
 
 	v = nil;
 	r = c->r;
@@ -74,15 +74,27 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		/*
 		 * if v's too small, grow it first.
 		 */
-		if(!c->safe || v->body.fr.maxlines<=3){
+		minht = v->tag.fr.font->height+Border+1;
+		j = 0;
+		while(!c->safe || v->body.fr.maxlines<=3 || Dy(v->body.all) <= minht){
+			if(++j > 10){
+fprint(2, "oops: dy=%d\n", Dy(v->body.all));
+				break;
+			}
+			if(j > 1)
+fprint(2, "regrow\n");
 			colgrow(c, v, 1);
-			y = v->body.fr.r.min.y+Dy(v->body.fr.r)/2;
 		}
-		r = v->r;
 		if(i == c->nw)
 			t = c->r.max.y;
 		else
 			t = c->w[i]->r.min.y-Border;
+		y = v->body.all.min.y+Dy(v->body.all)/2;
+		if(t - y < minht)
+			y = t - minht;
+		if(y < v->body.all.min.y)
+			y = v->body.all.min.y;
+		r = v->r;
 		r.max.y = t;
 		draw(screen, r, textcols[BACK], nil, ZP);
 		r1 = r;
@@ -209,6 +221,8 @@ colresize(Column *c, Rectangle r)
 			r1.max.y = r.max.y;
 		else
 			r1.max.y = r1.min.y+(Dy(w->r)+Border)*Dy(r)/Dy(c->r);
+		if(Dy(r1) < Border+font->height)
+			r1.max.y = r1.min.y + Border+font->height;
 		r2 = r1;
 		r2.max.y = r2.min.y+Border;
 		draw(screen, r2, display->black, nil, ZP);
