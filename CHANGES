@@ -1,3 +1,31 @@
+December 16, 2005
+	dist/moveplan9.files: more (Rafal Sulejman, Erik Quanstrom)
+
+December 15, 2005
+	grap: remove getpid declaration (Bengt Kleberg)
+
+December 14, 2005
+	dist/isum.awk: cope with Solaris
+
+November 29, 2005
+	9term: set initial window size correctly
+	acidtypes, libmach: more demangling fixes
+
+November 28, 2005
+	add install(1) as install.txt, add README
+	make INSTALL less chatty
+	remove Makefiles
+	acidtypes, libmach: demangling fixes
+
+November 27, 2005
+	libmach: name mangling, process control
+	9c, 9l: shut up OpenBSD (Geoff Collyer)
+	9term, vbackup: OS X fixes
+	acid: name mangling, process control
+	acidtypes: name mangling, process control
+	auxstats: FreeBSD 6 fix (Lou Kamenov)
+	upas/fs: correct imap service name, use role=client
+
 November 26, 2005
 	9term: add button 3 menu, fix \r
 	include: move utf.h, fmt.h from u.h to libc.h
