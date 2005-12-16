@@ -122,6 +122,12 @@ wintaglines(Window *w, Rectangle r)
 	if(n < w->taglines)
 		n = w->taglines;
 
+	/* on initial expansion, create an extra line */
+	if(n < 2){
+		rune = '\n';
+		textinsert(&w->tag, w->tag.file->b.nc, &rune, 1, TRUE);
+		n = 2;
+	}
 	return n;
 }
 
