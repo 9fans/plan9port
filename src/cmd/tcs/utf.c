@@ -2,6 +2,12 @@
 #include	<u.h>
 #include	<libc.h>
 #include	<bio.h>
+#ifdef PLAN9PORT
+#include	<errno.h>
+#else
+extern int errno;
+#define EILSEQ 123
+#endif
 #else
 #include	<sys/types.h>
 #include	<stdio.h>
@@ -291,10 +297,6 @@ fullisorune(char *str, int n)
 	return 0;
 }
 
-#ifdef PLAN9
-int	errno;
-#endif
-
 enum
 {
 	T1	= 0x00,
@@ -326,11 +328,6 @@ enum
 	Wchar3	= (1UL<<(Bit3+2*Bitx))-1,
 	Wchar4	= (1UL<<(Bit4+3*Bitx))-1,
 	Wchar5	= (1UL<<(Bit5+4*Bitx))-1
-
-#ifndef	EILSEQ
-	, /* we hate ansi c's comma rules */
-	EILSEQ	= 123
-#endif /* PLAN9 */
 };
 
 int
