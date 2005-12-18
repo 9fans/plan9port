@@ -1,6 +1,20 @@
 #!/usr/local/plan9/bin/rc
 
-path=($path $PLAN9/bin)
+. 9.rc
+
+smon='s/Jan/01/
+	s/Feb/02/
+	s/Mar/03/
+	s/Apr/04/
+	s/May/05/
+	s/Jun/06/
+	s/Jul/07/
+	s/Aug/08/
+	s/Sep/09/
+	s/Oct/10/
+	s/Nov/11/
+	s/Dec/12/'
+
 
 fn usage {
 	echo 'usage: yesterday [-cd] [-[[yy]yy]mm]dd] [-n daysago] file ...' >[1=2]
@@ -48,8 +62,8 @@ while(! ~ $#* 0 && ~ $1 -* && ! ~ $1 --){
 		}
 		if not
 			days=`{echo $1 | sed 's/^-.//'}
-		last=`{date -r `{perl -e 'print time() - '$days'*60*60*24'} | 
-				9 sed -e 's%... (...) (..) ..:..:.. ... (....)%\3/\1\2%' -e 'y/ /0/' -e $smon}
+		last=`{date `{hoc -e `{date -n} ^ '-'$days'*60*60*24'} | \
+				sed -e 's%... (...) (..) ..:..:.. ... (....)%\3/\1\2%' -e 'y/ /0/' -e $smon}
 		shift
 	case -[0-9]
 		mon=`{date|9 sed 's/^....(...).*/\1/' -e $smon}
