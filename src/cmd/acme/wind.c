@@ -24,6 +24,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 
 	w->tag.w = w;
 	w->taglines = 1;
+	w->tagexpand = TRUE;
 	w->body.w = w;
 	w->id = ++winid;
 	incref(&w->ref);
@@ -520,6 +521,7 @@ winsettag1(Window *w)
 	br.max.x = br.min.x + Dx(b->r);
 	br.max.y = br.min.y + Dy(b->r);
 	draw(screen, br, b, nil, b->r.min);
+	winresize(w, w->r, TRUE, TRUE);
 }
 
 void
