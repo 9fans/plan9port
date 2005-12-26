@@ -6,7 +6,6 @@
 #include	<errno.h>
 #else
 extern int errno;
-#define EILSEQ 123
 #endif
 #else
 #include	<sys/types.h>
@@ -18,6 +17,9 @@ extern int errno;
 #include	"plan9.h"
 #endif
 #include	"hdr.h"
+#ifndef EILSEQ
+#define EILSEQ 9998
+#endif
 
 /*
 	the our_* routines are implementations for the corresponding library

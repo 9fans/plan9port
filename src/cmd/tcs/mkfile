@@ -6,6 +6,7 @@ OFILES=tcs.$O\
 	conv_big5.$O\
 	conv_gb.$O\
 	conv_ksc.$O\
+	html.$O\
 	utf.$O\
 	kuten208.$O\
 	gb.$O\

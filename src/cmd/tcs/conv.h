@@ -11,6 +11,8 @@ void gb_in(int fd, long *notused, struct convert *out);
 void gb_out(Rune *base, int n, long *notused);
 void uksc_in(int fd, long *notused, struct convert *out);
 void uksc_out(Rune *base, int n, long *notused);
+void html_in(int fd, long *notused, struct convert *out);
+void html_out(Rune *base, int n, long *notused);
 
 #define		emit(x)		*(*r)++ = (x)
 #define		NRUNE		65536
