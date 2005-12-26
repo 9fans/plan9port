@@ -5,10 +5,10 @@
 #include <ndb.h>
 #include "ndbhf.h"
 
-static Ndb*	doopen(char*);
+static Ndb*	doopen(char*, char*);
 static void	hffree(Ndb*);
 
-static char *deffile = "/lib/ndb/local";
+static char *deffile = "#9/ndb/local";
 
 /*
  *  the database entry in 'file' indicates the list of files
@@ -23,8 +23,8 @@ ndbopen(char *file)
 	Ndbtuple *t, *nt;
 
 	if(file == 0)
-		file = deffile;
-	db = doopen(file);
+		file = unsharp(deffile);
+	db = doopen(file, nil);
 	if(db == 0)
 		return 0;
 	first = last = db;
@@ -48,7 +48,7 @@ ndbopen(char *file)
 			}
 			continue;
 		}
-		db = doopen(nt->val);
+		db = doopen(nt->val, file);
 		if(db == 0)
 			continue;
 		last->next = db;
@@ -62,15 +62,25 @@ ndbopen(char *file)
  *  open a single file
  */
 static Ndb*
-doopen(char *file)
+doopen(char *file, char *rel)
 {
+	char *p;
 	Ndb *db;
 
 	db = (Ndb*)malloc(sizeof(Ndb));
 	if(db == 0)
 		return 0;
+
 	memset(db, 0, sizeof(Ndb));
-	strncpy(db->file, file, sizeof(db->file)-1);
+	/*
+	 * Rooted paths are taken as is.
+	 * Unrooted paths are taken relative to db we opened.
+	 */
+	if(file[0]!='/' && rel && (p=strrchr(rel, '/'))!=nil)
+		snprint(db->file, sizeof(db->file), "%.*s/%s", 
+			utfnlen(rel, p-rel), rel, file);
+	else
+		strncpy(db->file, file, sizeof(db->file)-1);
 
 	if(ndbreopen(db) < 0){
 		free(db);
