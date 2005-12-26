@@ -98,6 +98,8 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 		free(buf);
 	}
 
+	n = 1;
+	setsockopt(s, SOL_SOCKET, SO_BROADCAST, &n, sizeof n);
 	if(connect(s, (struct sockaddr*)&sa, sizeof sa) < 0){
 		close(s);
 		return -1;
