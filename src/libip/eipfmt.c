@@ -28,8 +28,10 @@ int
 eipfmt(Fmt *f)
 {
 	char buf[5*8];
-	static char *efmt = "%.2lux%.2lux%.2lux%.2lux%.2lux%.2lux";
+	static char *efmt = "%.2ux%.2ux%.2ux%.2ux%.2ux%.2ux";
+	static char *altefmt = "%.2ux:%.2ux:%.2ux:%.2ux:%.2ux:%.2ux";
 	static char *ifmt = "%d.%d.%d.%d";
+	char *fmt;
 	uchar *p, ip[16];
 	ulong *lp;
 	ushort s;
@@ -54,6 +56,9 @@ eipfmt(Fmt *f)
 	switch(f->r) {
 	case 'E':		/* Ethernet address */
 		p = va_arg(f->args, uchar*);
+		fmt = efmt;
+		if(f->flags&FmtSharp)
+			fmt = altefmt;
 		snprint(buf, sizeof buf, efmt, p[0], p[1], p[2], p[3], p[4], p[5]);
 		return fmtstrcpy(f, buf);
 
