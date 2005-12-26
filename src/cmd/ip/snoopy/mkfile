@@ -1,0 +1,69 @@
+<$PLAN9/src/mkhdr
+
+TARG=snoopy
+PROTOS=\
+	ether\
+	ip\
+	ip6\
+	dump\
+	arp\
+	rarp\
+	udp\
+	bootp\
+	dhcp\
+	hdlc\
+	rtp\
+	rtcp\
+	tcp\
+	il\
+	icmp\
+	icmp6\
+	ninep\
+	ospf\
+	ppp\
+	ppp_ccp\
+	ppp_lcp\
+	ppp_chap\
+	ppp_ipcp\
+	pppoe_sess\
+	pppoe_disc\
+
+POBJS=${PROTOS:%=%.$O}
+
+OFILES=	main.$O\
+	y.tab.$O\
+	protos.$O\
+	$SYSNAME.$O\
+	$POBJS
+
+HFILES=dat.h\
+	protos.h\
+	y.tab.h\
+
+<$PLAN9/src/mkone
+
+protos.h: mkfile
+	(
+		for i in $PROTOS
+		do
+			echo extern Proto $i';'
+		done
+	) > protos.h
+
+protos.c: mkfile
+	(
+		echo '#include <u.h>'
+		echo '#include <libc.h>'
+		echo '#include "dat.h"'
+		echo '#include "protos.h"'
+		echo 'Proto *protos[] ='
+		echo '{'
+		for i in $PROTOS
+		do
+			echo '	&'$i','
+		done
+		echo '	0,'
+		echo '};'
+	) > protos.c
+
+y.tab.c: filter.y

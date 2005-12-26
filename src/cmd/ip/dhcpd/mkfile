@@ -1,0 +1,22 @@
+<$PLAN9/src/mkhdr
+
+TARG=dhcpd\
+	dhcpleases\
+
+DOFILES=\
+	db.$O\
+	ndb.$O\
+	ping.$O\
+
+IOFILES=\
+	db.$O\
+	ping.$O\
+
+HFILES=dat.h ../dhcp.h
+
+<$PLAN9/src/mkmany
+
+$O.dhcpd: $DOFILES
+$O.dhcpleases: $IOFILES
+$O.testping: ping.$O
+
