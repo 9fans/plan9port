@@ -1,0 +1,130 @@
+#include <u.h>
+#include <libc.h>
+#include <bio.h>
+#include <ndb.h>
+#include <ip.h>
+#include "dns.h"
+
+Area *owned;
+Area *delegated;
+
+/*
+ *  true if a name is in our area
+ */
+Area*
+inmyarea(char *name)
+{
+	int len;
+	Area *s, *d;
+
+	len = strlen(name);
+	for(s = owned; s; s = s->next){
+		if(s->len > len)
+			continue;
+		if(cistrcmp(s->soarr->owner->name, name + len - s->len) == 0)
+			if(len == s->len || name[len - s->len - 1] == '.')
+				break;
+	}
+	if(s == 0)
+		return 0;
+
+	for(d = delegated; d; d = d->next){
+		if(d->len > len)
+			continue;
+		if(cistrcmp(d->soarr->owner->name, name + len - d->len) == 0)
+			if(len == d->len || name[len - d->len - 1] == '.')
+				return 0;
+	}
+
+	return s;
+}
+
+/*
+ *  our area is the part of the domain tree that
+ *  we serve
+ */
+void
+addarea(DN *dp, RR *rp, Ndbtuple *t)
+{
+	Area **l, *s;
+
+	if(t->val[0])
+		l = &delegated;
+	else
+		l = &owned;
+
+	/*
+	 *  The area contains a copy of the soa rr that created it.
+	 *  The owner of the the soa rr should stick around as long
+	 *  as the area does.
+	 */
+	s = emalloc(sizeof(*s));
+	s->len = strlen(dp->name);
+	rrcopy(rp, &s->soarr);
+	s->soarr->owner = dp;
+	s->soarr->db = 1;
+	s->soarr->ttl = Hour;
+	s->neednotify = 1;
+	s->needrefresh = 0;
+
+syslog(0, logfile, "new area %s", dp->name);
+
+	s->next = *l;
+	*l = s;
+}
+
+void
+freearea(Area **l)
+{
+	Area *s;
+
+	while(s = *l){
+		*l = s->next;
+		rrfree(s->soarr);
+		free(s);
+	}
+}
+
+/*
+ * refresh all areas that need it
+ *  this entails running a command 'zonerefreshprogram'.  This could
+ *  copy over databases from elsewhere or just do a zone transfer.
+ */
+void
+refresh_areas(Area *s)
+{
+	int pid;
+	Waitmsg *w;
+
+	for(; s != nil; s = s->next){
+		if(!s->needrefresh)
+			continue;
+
+		if(zonerefreshprogram == nil){
+			s->needrefresh = 0;
+			continue;
+		}
+
+		switch(pid = fork()){
+		case -1:
+			break;
+		case 0:
+			execl(zonerefreshprogram, "zonerefresh", s->soarr->owner->name, 0);
+			exits(0);
+			break;
+		default:
+			for(;;){
+				w = wait();
+				if(w == nil)
+					break;
+				if(w->pid == pid){
+					if(w->msg == nil || *w->msg == 0)
+						s->needrefresh = 0;
+					free(w);
+					break;
+				}
+				free(w);
+			}
+		}
+	}
+}
