@@ -172,7 +172,7 @@ extern	char	errbuf[];
 #define	NEV	3	/* environments */
 #define	EVLSZ	10	/* size of ev stack */
 
-#define	STACKSIZE (6*1024)	/* stack for macros and strings in progress */
+#define	STACKSIZE (12*1024)	/* stack for macros and strings in progress */
 #define	NHYP	10	/* max hyphens per word */
 #define	NHEX	512	/* byte size of exception word list */
 #define	NTAB	100	/* tab stops */
