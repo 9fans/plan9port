@@ -28,7 +28,7 @@ xfile()
 	then
 		echo 'troff intermediate output'
 	else
-		9 file < "$1" | sed 's/stdin: //'
+		9 file < "$1" | sed 's/stdin: //' | tr A-Z a-z
 	fi
 }
 
@@ -43,16 +43,13 @@ main()
 		*troff*)
 			tr2post "$1" | psfonts | page
 			;;
-		*PDF*)
+		*pdf*)
 			psv $1
 			;;
-		*PS*)
+		*ps*)
 			psv $1
 			;;
 		*postscript*)
-			psv $1
-			;;
-		*PostScript*)
 			psv $1
 			;;
 		*)
@@ -73,15 +70,27 @@ case $# in
 		mv $tmp $tmp.tr
 		tmp=$tmp.tr
 		;;
-	*PDF*)
+	*pdf*)
 		mv $tmp $tmp.pdf
 		tmp=$tmp.pdf
 		;;
-	*PS*)
-		mv $tmp $tmp.ps
-		tmp=$tmp.ps
+	*gif*)
+		mv $tmp $tmp.gif
+		tmp=$tmp.gif
 		;;
-	*PostScript*)
+	*jpg*)
+		mv $tmp $tmp.jpg
+		tmp=$tmp.jpg
+		;;
+	*jpeg*)
+		mv $tmp $tmp.jpg
+		tmp=$tmp.jpg
+		;;
+	*png*)
+		mv $tmp $tmp.png
+		tmp=$tmp.png
+		;;
+	*postscript*)
 		mv $tmp $tmp.ps
 		tmp=$tmp.ps
 		;;
@@ -89,21 +98,9 @@ case $# in
 		mv $tmp $tmp.ps
 		tmp=$tmp.ps
 		;;
-	*GIF*)
-		mv $tmp $tmp.gif
-		tmp=$tmp.gif
-		;;
-	*JPG*)
-		mv $tmp $tmp.jpg
-		tmp=$tmp.jpg
-		;;
-	*JPEG*)
-		mv $tmp $tmp.jpg
-		tmp=$tmp.jpg
-		;;
-	*PNG*)
-		mv $tmp $tmp.png
-		tmp=$tmp.png
+	*ps*)
+		mv $tmp $tmp.ps
+		tmp=$tmp.ps
 		;;
 	*)
 		echo 1>&2 page: unrecognized file type on standard input: $type
