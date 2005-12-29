@@ -609,8 +609,12 @@ vacdir(DirSink *dsink, int fd, char *lname, char *sname, VacFile *vf)
 				continue;
 			ln = vtmalloc(strlen(lname) + strlen(name) + 2);
 			sn = vtmalloc(strlen(sname) + strlen(name) + 2);
-			sprint(ln, "%s/%s", lname, name);
-			sprint(sn, "%s/%s", sname, name);
+			strcpy(ln, lname);
+			strcat(ln, "/");
+			strcat(ln, name);
+			strcpy(sn, sname);
+			strcat(sn, "/");
+			strcat(sn, name);
 			if(vf != nil)
 				vvf = vacfilewalk(vf, name);
 			else
