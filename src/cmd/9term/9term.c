@@ -257,7 +257,7 @@ new(Image *i, int hideit, int scrollit, int pid, char *dir, char *cmd, char **ar
 		hidden[nhidden++] = w;
 		w->screenr = ZR;
 	}
-	threadcreate(winctl, w, 8192);
+	threadcreate(winctl, w, STACK);
 	if(!hideit)
 		wcurrent(w);
 	flushimage(display, 1);
