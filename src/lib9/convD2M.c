@@ -40,7 +40,7 @@ convD2Mu(Dir *d, uchar *buf, uint nbuf, int dotu)
 {
 	uchar *p, *ebuf;
 	char *sv[5];
-	int i, ns, nsv[4], ss, nstr, fixlen;
+	int i, ns, nsv[5], ss, nstr, fixlen;
 
 	if(nbuf < BIT16SZ)
 		return 0;
