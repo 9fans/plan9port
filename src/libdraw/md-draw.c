@@ -503,42 +503,39 @@ allocdrawbuf(void)
 	return 0;
 }
 
-static Param
-getparam(Memimage *img, Rectangle r, int convgrey, int needbuf)
+static void
+getparam(Param *p, Memimage *img, Rectangle r, int convgrey, int needbuf)
 {
-	Param p;
 	int nbuf;
 
-	memset(&p, 0, sizeof p);
+	memset(p, 0, sizeof *p);
 
-	p.img = img;
-	p.r = r;
-	p.dx = Dx(r);
-	p.needbuf = needbuf;
-	p.convgrey = convgrey;
+	p->img = img;
+	p->r = r;
+	p->dx = Dx(r);
+	p->needbuf = needbuf;
+	p->convgrey = convgrey;
 
 	assert(img->r.min.x <= r.min.x && r.min.x < img->r.max.x);
 
-	p.bytey0s = byteaddr(img, Pt(img->r.min.x, img->r.min.y));
-	p.bytermin = byteaddr(img, Pt(r.min.x, img->r.min.y));
-	p.bytey0e = byteaddr(img, Pt(img->r.max.x, img->r.min.y));
-	p.bwidth = sizeof(u32int)*img->width;
+	p->bytey0s = byteaddr(img, Pt(img->r.min.x, img->r.min.y));
+	p->bytermin = byteaddr(img, Pt(r.min.x, img->r.min.y));
+	p->bytey0e = byteaddr(img, Pt(img->r.max.x, img->r.min.y));
+	p->bwidth = sizeof(u32int)*img->width;
 
-	assert(p.bytey0s <= p.bytermin && p.bytermin <= p.bytey0e);
+	assert(p->bytey0s <= p->bytermin && p->bytermin <= p->bytey0e);
 
-	if(p.r.min.x == p.img->r.min.x)
-		assert(p.bytermin == p.bytey0s);
+	if(p->r.min.x == p->img->r.min.x)
+		assert(p->bytermin == p->bytey0s);
 
 	nbuf = 1;
 	if((img->flags&Frepl) && Dy(img->r) <= MAXBCACHE && Dy(img->r) < Dy(r)){
-		p.replcache = 1;
+		p->replcache = 1;
 		nbuf = Dy(img->r);
 	}
-	p.bufdelta = 4*p.dx;
-	p.bufoff = ndrawbuf;
-	ndrawbuf += p.bufdelta*nbuf;
-
-	return p;
+	p->bufdelta = 4*p->dx;
+	p->bufoff = ndrawbuf;
+	ndrawbuf += p->bufdelta*nbuf;
 }
 
 static void
@@ -640,9 +637,9 @@ alphadraw(Memdrawparam *par)
 	 */
 	needbuf = (src->data == dst->data);
 
-	spar = getparam(src, sr, isgrey, needbuf);
-	dpar = getparam(dst, r, isgrey, needbuf);
-	mpar = getparam(mask, mr, 0, needbuf);
+	getparam(&spar, src, sr, isgrey, needbuf);
+	getparam(&dpar, dst, r, isgrey, needbuf);
+	getparam(&mpar, mask, mr, 0, needbuf);
 
 	dir = (needbuf && byteaddr(dst, r.min) > byteaddr(src, sr.min)) ? -1 : 1;
 	spar.dir = mpar.dir = dpar.dir = dir;
