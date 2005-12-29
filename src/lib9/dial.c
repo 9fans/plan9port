@@ -60,10 +60,6 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 	}
 	free(buf);
 
-	memset(&sa, 0, sizeof sa);
-	memmove(&sa.sin_addr, &host, 4);
-	sa.sin_family = AF_INET;
-	sa.sin_port = htons(port);
 	if((s = socket(AF_INET, proto, 0)) < 0)
 		return -1;
 		
@@ -100,9 +96,15 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 
 	n = 1;
 	setsockopt(s, SOL_SOCKET, SO_BROADCAST, &n, sizeof n);
-	if(connect(s, (struct sockaddr*)&sa, sizeof sa) < 0){
-		close(s);
-		return -1;
+	if(host != 0){
+		memset(&sa, 0, sizeof sa);
+		memmove(&sa.sin_addr, &host, 4);
+		sa.sin_family = AF_INET;
+		sa.sin_port = htons(port);
+		if(connect(s, (struct sockaddr*)&sa, sizeof sa) < 0){
+			close(s);
+			return -1;
+		}
 	}
 	if(proto == SOCK_STREAM){
 		int one = 1;

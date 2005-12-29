@@ -64,7 +64,7 @@ disksize(int fd, int dev)
 		return u64;
 #endif
 	if(ioctl(fd, BLKGETSIZE, &l) >= 0)
-		return (vlong)l*512;
+		return l*512;
 	if(ioctl(fd, HDIO_GETGEO, &geo) >= 0)
 		return (vlong)geo.heads*geo.sectors*geo.cylinders*512;
 	return 0;
@@ -173,6 +173,8 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 #ifdef _HAVESTGEN
 		d->qid.vers = st->st_gen;
 #endif
+		if(d->qid.vers == 0)
+			d->qid.vers = st->st_mtime + st->st_ctime;
 		d->mode = st->st_mode&0777;
 		d->atime = st->st_atime;
 		d->mtime = st->st_mtime;
