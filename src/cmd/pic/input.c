@@ -26,7 +26,7 @@ void pushsrc(int type, char *ptr)	/* new input source */
 	srcp->type = type;
 	srcp->sp = ptr;
 	if (dbg > 1) {
-		printf("\n%3d ", (int) (srcp - src));
+		printf("\n%3d ", (int)(srcp - src));
 		switch (srcp->type) {
 		case File:
 			printf("push file %s\n", ((Infile *)ptr)->fname);

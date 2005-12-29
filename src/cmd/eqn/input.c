@@ -19,7 +19,7 @@ void pushsrc(int type, char *ptr)	/* new input source */
 	srcp->type = type;
 	srcp->sp = ptr;
 	if (dbg > 1) {
-		printf("\n%3d ", srcp - src);
+		printf("\n%3ld ", (long)(srcp - src));
 		switch (srcp->type) {
 		case File:
 			printf("push file %s\n", ((Infile *)ptr)->fname);
@@ -47,7 +47,7 @@ void popsrc(void)	/* restore an old one */
 	if (srcp <= src)
 		ERROR "too many inputs popped" FATAL;
 	if (dbg > 1) {
-		printf("%3d ", srcp - src);
+		printf("%3ld ", (long)(srcp - src));
 		switch (srcp->type) {
 		case File:
 			printf("pop file\n");
@@ -98,7 +98,7 @@ void dodef(tbl *stp)	/* collect args and switch input to defn */
 		ap->argstk[i] = "";
 	if (dbg)
 		for (i = 0; i < argcnt; i++)
-			printf("arg %d.%d = <%s>\n", ap-args, i+1, ap->argstk[i]);
+			printf("arg %ld.%d = <%s>\n", (long)(ap-args), i+1, ap->argstk[i]);
 	argfp = ap;
 	pushsrc(Macro, stp->cval);
 }
