@@ -126,8 +126,10 @@ closedisplay(Display *disp)
 
 	free(disp->devdir);
 	free(disp->windir);
-	freeimage(disp->white);
-	freeimage(disp->black);
+	if(disp->white)
+		freeimage(disp->white);
+	if(disp->black)
+		freeimage(disp->black);
 	free(disp);
 }
 
