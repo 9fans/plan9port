@@ -596,7 +596,7 @@ listenproc(void *arg)
 			close(afd);
 			return;
 		}
-		proccreate(textproc, (void*)fd, STACK);
+		proccreate(textproc, (void*)(uintptr)fd, STACK);
 	}
 }
 
@@ -608,7 +608,7 @@ textproc(void *arg)
 	char buf[4096], *p, *ep;
 
 	threadsetname("textproc");
-	fd = (int)arg;
+	fd = (uintptr)arg;
 	p = buf;
 	ep = buf+sizeof buf;
 	if(w == nil){

@@ -803,7 +803,7 @@ wpaste(Window *w)
 		return;
 	wcut(w);
 	q0 = w->q0;
-	if(w->rawing && q0==w->nr){
+	if(w->rawing && !w->holding && q0==w->nr){
 		waddraw(w, snarf, nsnarf);
 		wsetselect(w, q0, q0);
 	}else{
