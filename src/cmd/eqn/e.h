@@ -2,10 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdint.h>
 
 #undef sqrt
 #define sqrt p9_sqrt
-#define YYSTYPE int  /* DEC v. GNU garbage */
+#define YYSTYPE uintptr_t  /* DEC v. GNU garbage */
 
 enum charclass {
 	OTHER, OLET, ILET, DIG, LPAR, RPAR, SLASH, PLUS, ILETF, ILETJ, VBAR,

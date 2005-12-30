@@ -44,8 +44,8 @@ tbox	: TO box	%prec TO	{ $$ = $2; }
 	;
 
 box	: '{' eqn '}'	{ $$ = $2; }
-	| QTEXT		{ text(QTEXT, (char *) $1); }
-	| CONTIG	{ text(CONTIG, (char *) $1); }
+	| QTEXT		{ text(QTEXT, (char *)$1); }
+	| CONTIG	{ text(CONTIG, (char *)$1); }
 	| SPACE		{ text(SPACE, (char *) 0); }
 	| THIN		{ text(THIN, (char *) 0); }
 	| TAB		{ text(TAB, (char *) 0); }
@@ -80,10 +80,10 @@ box	: '{' eqn '}'	{ $$ = $2; }
 int	: INT		{ setintegral(); }
 	;
 
-fwd	: FWD text	{ $$ = atoi((char *) $1); } ;
+fwd	: FWD text	{ $$ = atoi((char *)$1); } ;
 up	: UP text	{ $$ = atoi((char *) $1); } ;
-back	: BACK text	{ $$ = atoi((char *) $1); } ;
-down	: DOWN text	{ $$ = atoi((char *) $1); } ;
+back	: BACK text	{ $$ = atoi((char *)$1); } ;
+down	: DOWN text	{ $$ = atoi((char *)$1); } ;
 
 diacrit	: HAT		{ $$ = HAT; }
 	| VEC		{ $$ = VEC; }
