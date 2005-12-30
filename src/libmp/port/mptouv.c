@@ -22,7 +22,10 @@ uvtomp(uvlong v, mpint *b)
 		return b;
 	for(s = 0; s < VLDIGITS && v != 0; s++){
 		b->p[s] = v;
-		v >>= sizeof(mpdigit)*8;
+		if(sizeof(mpdigit) == sizeof(uvlong))
+			v = 0;
+		else
+			v >>= sizeof(mpdigit)*8;
 	}
 	b->top = s;
 	return b;

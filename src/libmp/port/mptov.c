@@ -28,7 +28,10 @@ vtomp(vlong v, mpint *b)
 		uv = v;
 	for(s = 0; s < VLDIGITS && uv != 0; s++){
 		b->p[s] = uv;
-		uv >>= sizeof(mpdigit)*8;
+		if(sizeof(mpdigit) == sizeof(uvlong))
+			uv = 0;
+		else
+			uv >>= sizeof(mpdigit)*8;
 	}
 	b->top = s;
 	return b;
