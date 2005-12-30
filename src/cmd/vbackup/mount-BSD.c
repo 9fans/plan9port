@@ -13,6 +13,9 @@
 #include <nfs/nfsproto.h>
 #if defined(__FreeBSD_version) && __FreeBSD_version >= 500000
 #	include <nfsclient/nfs.h>
+#	ifndef MNT_NODEV
+#		define MNT_NODEV 0
+#	endif
 #else
 #	include <nfs/nfs.h>
 #endif
