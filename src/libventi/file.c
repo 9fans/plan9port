@@ -389,7 +389,7 @@ shrinksize(VtFile *r, VtEntry *e, uvlong size)
 }
 
 int
-vtfilesetsize(VtFile *r, uvlong size)
+vtfilesetsize(VtFile *r, u64int size)
 {
 	int depth, edepth;
 	VtEntry e;

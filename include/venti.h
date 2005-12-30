@@ -481,10 +481,10 @@ int vtfilesetdirsize(VtFile*, u32int);
 void	vtfileunlock(VtFile*);
 int vtfilelock(VtFile*, int);
 int vtfilelock2(VtFile*, VtFile*, int);
-int vtfileflushbefore(VtFile*, uvlong);
+int vtfileflushbefore(VtFile*, u64int);
 int vtfiletruncate(VtFile*);
 uvlong vtfilegetsize(VtFile*);
-int vtfilesetsize(VtFile*, uvlong);
+int vtfilesetsize(VtFile*, u64int);
 int vtfileremove(VtFile*);
 
 extern int chattyventi;
