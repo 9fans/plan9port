@@ -4,6 +4,11 @@ install \- notes about Plan 9 from User Space installation
 .SH SYNOPSIS
 .B
 cd \*9; ./INSTALL
+[
+.B -b
+|
+.B -c
+]
 .SH DESCRIPTION
 To obtain the Plan 9 tree, use CVS
 (see
@@ -11,14 +16,15 @@ To obtain the Plan 9 tree, use CVS
 or download a tar file from
 .HR http://swtch.com/plan9port "" .
 .PP
+The tree can be unpacked anywhere, but the
+usual place is
+.BR /usr/local/plan9 .
 In the root of the tree, run
 .BR ./INSTALL .
-This script first uses
-.IR make (1)
-to build the Plan 9 build program
+This script builds the Plan 9 build program
 .IR mk (1)
-if necessary.
-It cleans all previously built object files and libraries out of the tree,
+if necessary,
+cleans all previously built object files and libraries out of the tree,
 rebuilds and installs everything, and then cleans up.
 .PP
 There are a few files in tree which have the root
@@ -34,20 +40,31 @@ Finally,
 builds an HTML version of the manual and installs it in
 .BR \*9/man .
 .PP
+The installation can be thought of as two steps:
+build all the binaries, and then edit files as necessary
+to fix the references to the installation root.
+If necessary, these can be run separately.
+Given the
+.B -b
+flag,
 .I INSTALL
-can safely be repeated to rebuild the system from scratch.
+performs only the first step.
+Given the
+.B -c
+flag,
+.I INSTALL
+performs only the second step.
+The first step can be done with the tree in a temporary work directory,
+but the second step must be done once the tree is in its final location.
+These flags are only necessary when trying to conform to the
+expectations of certain package management systems.
 .PP
-At the end of the build,
+At the end of the installation,
 .I INSTALL
 prints suggested settings for the environment variables 
 .B $PLAN9
 and
 .BR $PATH .
-After setting those, the script
-.B $PLAN9/dist/isum
-will print a short summary of the installation output,
-omitting the usual command chatter but preserving
-compiler warnings and errors.
 .PP
 Plan 9 from User Space uses different threading implementations on Linux 2.6 and
 later kernels than on 2.4 and earlier;
@@ -74,9 +91,22 @@ contains a line
 .B WSYSTYPE=nowsys
 then the system is built without using X11.
 .PP
+.I INSTALL
+can safely be repeated to rebuild the system from scratch.
+.PP
 Once the system is built for the first time,
 it can be maintained and rebuilt using 
 .IR mk (1).
+To rebuild individual commands or libraries,
+run
+.B mk
+.B install
+and
+.B mk
+.B clean
+in the appropriate source directory
+(see
+.IR src (1)).
 .SH FILES
 .TP
 .B \*9/lib/moveplan9.files
@@ -100,6 +130,10 @@ the top-level page in the HTML version of the manual
 .B \*9/install.log
 logged output from the last run of
 .I INSTALL
+.TP
+.B \*9/install.isum
+a summary of
+.B install.log
 .SH SEE ALSO
 .IR intro (1),
 .IR cvs (1)
