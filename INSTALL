@@ -1,5 +1,24 @@
 #!/bin/sh
 
+dobuild=true
+doinstall=true
+
+case "x$1" in
+x)
+	;;
+x-b)
+	dobuild=true
+	doinstall=false
+	;;
+x-c)
+	dobuild=false
+	doinstall=true
+	;;
+*)
+	echo 'usage: INSTALL [-b | -c]' 1>&2
+	exit 1
+esac
+
 PLAN9=`pwd` export PLAN9
 PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 
@@ -31,67 +50,71 @@ if [ -f LOCAL.config ]; then
 fi
 
 cd src
-if [ ! -x ../bin/mk ]; then
-	echo "* Building mk..."
-	../dist/buildmk 2>&1 | sed 's/^[+] //'
-fi
-if [ ! -x ../bin/mk ]; then
-	echo "* Error: mk failed to build."
-	exit 1
-fi
-
-echo "* Building everything (be patient)..."
-mk clean
-mk libs-nuke
-mk all || exit 1
-if [ ! -x $PLAN9/src/cmd/o.cleanname -o ! -x $PLAN9/src/cmd/acme/o.acme ]; then
-	echo "* Warning: not all binaries built successfully."
-fi
-echo "* Installing everything..."
-mk install || exit 1
-if [ ! -x $PLAN9/bin/cleanname -o ! -x $PLAN9/bin/acme -o ! -x $PLAN9/bin/sam ]; then
-	echo " "
-	echo "* Warning: not all binaries built successfully."
-fi
-echo "* Cleaning up..."
-mk clean
-if [ ! -x $PLAN9/bin/cleanname -o ! -x $PLAN9/bin/sam ]; then
-	# Cleanname and sam are needed for moveplan9.sh and the man updates.
-	if [ ! -x $PLAN9/bin/cleanname ]; then
-		echo " "
-		echo "* Installation failed: $PLAN9/bin/cleanname does not exist."
+if $dobuild; then
+	if [ ! -x ../bin/mk ]; then
+		echo "* Building mk..."
+		../dist/buildmk 2>&1 | sed 's/^[+] //'
+	fi
+	if [ ! -x ../bin/mk ]; then
+		echo "* Error: mk failed to build."
 		exit 1
 	fi
-	if [ ! -x $PLAN9/bin/sam ]; then
-		echo " "
-		echo "* Installation failed: $PLAN9/bin/sam does not exist."
-		exit 1
+	
+	echo "* Building everything (be patient)..."
+	mk clean
+	mk libs-nuke
+	mk all || exit 1
+	if [ ! -x $PLAN9/src/cmd/o.cleanname -o ! -x $PLAN9/src/cmd/acme/o.acme ]; then
+		echo "* Warning: not all binaries built successfully."
 	fi
-	echo "* NOT renaming hard-coded /usr/local/plan9 paths."
-	echo "* NOT building web manual."
-else
-	echo "* Renaming hard-coded /usr/local/plan9 paths..."
-	cd $PLAN9
-	sh lib/moveplan9.sh
-	echo "* Building web manual..."
-	(
-		cd $PLAN9/dist
-		echo cd `pwd`';' mk man
-		mk man
-	)
+	echo "* Installing everything in $PLAN9/bin..."
+	mk install || exit 1
+	if [ ! -x $PLAN9/bin/cleanname -o ! -x $PLAN9/bin/acme -o ! -x $PLAN9/bin/sam ]; then
+		echo " "
+		echo "* Warning: not all binaries built successfully."
+	fi
+	echo "* Cleaning up..."
+	mk clean
 fi
 
-if [ -x LOCAL.INSTALL ]; then
-	echo "* Running local modifications..."
-	echo cd `pwd`';' ./LOCAL.INSTALL
-	./LOCAL.INSTALL
+if $doinstall; then
+	if [ ! -x $PLAN9/bin/cleanname -o ! -x $PLAN9/bin/sam ]; then
+		# Cleanname and sam are needed for moveplan9.sh and the man updates.
+		if [ ! -x $PLAN9/bin/cleanname ]; then
+			echo " "
+			echo "* Installation failed: $PLAN9/bin/cleanname does not exist."
+			exit 1
+		fi
+		if [ ! -x $PLAN9/bin/sam ]; then
+			echo " "
+			echo "* Installation failed: $PLAN9/bin/sam does not exist."
+			exit 1
+		fi
+		echo "* NOT renaming hard-coded /usr/local/plan9 paths."
+		echo "* NOT building web manual."
+	else
+		echo "* Renaming hard-coded /usr/local/plan9 paths..."
+		cd $PLAN9
+		sh lib/moveplan9.sh
+		echo "* Building web manual..."
+		(
+			cd $PLAN9/dist
+			echo cd `pwd`';' mk man
+			mk man
+		)
+	fi
+	
+	if [ -x LOCAL.INSTALL ]; then
+		echo "* Running local modifications..."
+		echo cd `pwd`';' ./LOCAL.INSTALL
+		./LOCAL.INSTALL
+	fi
+	
+	echo "* Done. "
+	echo "	"
+	echo "* Add these to your profile environment."
+	echo "	PLAN9=$PLAN9 export PLAN9"
+	echo '	PATH=$PATH:$PLAN9/bin export PATH'
 fi
-
-echo "* Done. "
-echo "	"
-echo "* Add these to your profile environment."
-echo "	PLAN9=$PLAN9 export PLAN9"
-echo '	PATH=$PATH:$PLAN9/bin export PATH'
-
 ) 2>&1 | tee install.log | awk -f $PLAN9/dist/isum.awk | tee install.sum
 
