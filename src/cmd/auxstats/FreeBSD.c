@@ -140,7 +140,7 @@ xacpi(int first)
 {
 	int rv;
 	int val;
-	long len;
+	size_t len;
 
 	len = sizeof(val);
 	rv = sysctlbyname("hw.acpi.battery.life", &val, &len, nil, 0);
