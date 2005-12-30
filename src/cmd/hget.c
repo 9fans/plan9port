@@ -856,23 +856,18 @@ doftp(URL *u, URL *px, Range *r, Out *out, long mtime)
 	int pid, ctl, data, rv;
 	Waitmsg *w;
 	char msg[64];
-	char conndir[NETPATHLEN];
-	char *p;
 
 	/* untested, proxy dosn't work with ftp (I think) */
 	if(px->host == nil){
-		ctl = dial(netmkaddr(u->host, tcpdir, u->port), 0, conndir, 0);
+		ctl = dial(netmkaddr(u->host, tcpdir, u->port), 0, 0, 0);
 	} else {
-		ctl = dial(netmkaddr(px->host, tcpdir, px->port), 0, conndir, 0);
+		ctl = dial(netmkaddr(px->host, tcpdir, px->port), 0, 0, 0);
 	}
 
 	if(ctl < 0)
 		return Error;
-	if(net == nil){
-		p = strrchr(conndir, '/');
-		*p = 0;
-		snprint(tcpdir, sizeof(tcpdir), conndir);
-	}
+	if(net == nil)
+		strcpy(tcpdir, "tcp");
 
 	initibuf();
 
