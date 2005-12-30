@@ -171,6 +171,7 @@ struct Item
 	Item*	next;		// successor in list of items
 	int		width;	// width in pixels (0 for floating items)
 	int		height;	// height in pixels
+	Rectangle	r;
 	int		ascent;	// ascent (from top to baseline) in pixels
 	int		anchorid;	// if nonzero, which anchor we're in
 	int		state;	// flags and values (see below)
@@ -223,6 +224,7 @@ struct Iimage
 	uchar	vspace;		// in pixels; buffer space on top and bottom
 	uchar	border;		// in pixels: border width to draw around image
 	Iimage*	nextimage;	// next in list of document's images
+	void *aux;
 };
 
 
@@ -230,6 +232,7 @@ struct Iformfield
 {
 	Item item;				// (with tag ==Iformfieldtag)
 	Formfield*	formfield;
+	void *aux;
 };
 
 
