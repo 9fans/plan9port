@@ -52,7 +52,7 @@ void popsrc(void)	/* restore an old one */
 	if (srcp <= src)
 		ERROR "too many inputs popped" FATAL;
 	if (dbg) {
-		printf("%3ld ", (srcp - src));
+		printf("%3ld ", (long)(srcp - src));
 		switch (srcp->type) {
 		case File:
 			printf("pop file\n");
