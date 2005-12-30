@@ -5,17 +5,18 @@
           install - notes about Plan 9 from User Space installation
 
      SYNOPSIS
-          cd /usr/local/plan9; ./INSTALL
+          cd /usr/local/plan9; ./INSTALL [ -b | -c ]
 
      DESCRIPTION
           To obtain the Plan 9 tree, use CVS (see cvs(1)) or download
           a tar file from http://swtch.com/plan9port.
 
-          In the root of the tree, run ./INSTALL.  This script first
-          uses make(1) to build the Plan 9 build program mk(1) if nec-
-          essary.  It cleans all previously built object files and
-          libraries out of the tree, rebuilds and installs everything,
-          and then cleans up.
+          The tree can be unpacked anywhere, but the usual place is
+          /usr/local/plan9.  In the root of the tree, run ./INSTALL.
+          This script builds the Plan 9 build program mk(1) if neces-
+          sary, cleans all previously built object files and libraries
+          out of the tree, rebuilds and installs everything, and then
+          cleans up.
 
           There are a few files in tree which have the root hard-coded
           in them.  After the build, INSTALL edits these files to
@@ -25,14 +26,19 @@
           Finally, INSTALL builds an HTML version of the manual and
           installs it in /usr/local/plan9/man.
 
-          INSTALL can safely be repeated to rebuild the system from
-          scratch.
+          The installation can be thought of as two steps: build all
+          the binaries, and then edit files as necessary to fix the
+          references to the installation root.  If necessary, these
+          can be run separately.  Given the -b flag, INSTALL performs
+          only the first step.  Given the -c flag, INSTALL performs
+          only the second step.  The first step can be done with the
+          tree in a temporary work directory, but the second step must
+          be done once the tree is in its final location.  These flags
+          are only necessary when trying to conform to the expecta-
+          tions of certain package management systems.
 
-          At the end of the build, INSTALL prints suggested settings
-          for the environment variables $PLAN9 and $PATH.  After set-
-          ting those, the script $PLAN9/dist/isum will print a short
-          summary of the installation output, omitting the usual com-
-          mand chatter but preserving compiler warnings and errors.
+          At the end of the installation, INSTALL prints suggested
+          settings for the environment variables $PLAN9 and $PATH.
 
           Plan 9 from User Space uses different threading implementa-
           tions on Linux 2.6 and later kernels than on 2.4 and ear-
@@ -45,18 +51,24 @@
           On these systems, plan9port must fall back on the threading
           code intended for Linux 2.4.  To accomplish this, INSTALL
           checks whether the running system uses NPTL and sets
+
+     Page 1                       Plan 9            (printed 12/30/05)
+
+     INSTALL(1)                                             INSTALL(1)
+
           SYSVERSION in /usr/local/plan9/config accordingly.  The file
           /usr/local/plan9/LOCAL.config is appended to config after
           this auto-detection and can be used to override the choices.
           If LOCAL.config contains a line WSYSTYPE=nowsys then the
           system is built without using X11.
 
-     Page 1                       Plan 9            (printed 11/28/05)
-
-     INSTALL(1)                                             INSTALL(1)
+          INSTALL can safely be repeated to rebuild the system from
+          scratch.
 
           Once the system is built for the first time, it can be main-
-          tained and rebuilt using mk(1).
+          tained and rebuilt using mk(1). To rebuild individual com-
+          mands or libraries, run mk install and mk clean in the
+          appropriate source directory (see src(1)).
 
      FILES
           /usr/local/plan9/lib/moveplan9.files
@@ -78,8 +90,11 @@
           /usr/local/plan9/install.log
                logged output from the last run of INSTALL
 
+          /usr/local/plan9/install.isum
+               a summary of install.log
+
      SEE ALSO
           intro(1), cvs(1)
 
-     Page 2                       Plan 9            (printed 11/28/05)
+     Page 2                       Plan 9            (printed 12/30/05)
 
