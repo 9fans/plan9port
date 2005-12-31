@@ -59,7 +59,7 @@ eipfmt(Fmt *f)
 		fmt = efmt;
 		if(f->flags&FmtSharp)
 			fmt = altefmt;
-		snprint(buf, sizeof buf, efmt, p[0], p[1], p[2], p[3], p[4], p[5]);
+		snprint(buf, sizeof buf, fmt, p[0], p[1], p[2], p[3], p[4], p[5]);
 		return fmtstrcpy(f, buf);
 
 	case 'I':		/* Ip address */
