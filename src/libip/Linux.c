@@ -244,11 +244,3 @@ readipifc(char *net, Ipifc *ifc, int index)
 	return ifc;
 }
 
-int
-_myetheraddr(uchar *to, char *dev)
-{
-	int fd;
-	struct ifreq ifr;
-	
-	return 0;
-}
