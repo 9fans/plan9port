@@ -5,14 +5,14 @@ OFILES=\
 	bo.$O\
 	classmask.$O\
 	eipfmt.$O\
+	freeipifc.$O\
 	ipaux.$O\
-	myetheraddr.$O\
 	myipaddr.$O\
 	parseether.$O\
 	parseip.$O\
 	ptclbsum.$O\
-	readipifc.$O\
 	udp.$O\
+	$SYSNAME.$O\
 
 HFILES=\
 	ip.h
