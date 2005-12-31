@@ -2,7 +2,7 @@
 #include <mp.h>
 #include "dat.h"
 
-#define LO(x) ((x) & (((mpint)1<<(Dbits/2))-1))
+#define LO(x) ((x) & (((mpdigit)1<<(Dbits/2))-1))
 #define HI(x) ((x) >> (Dbits/2))
 
 static void
