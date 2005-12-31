@@ -64,6 +64,7 @@ struct Ipifc
 	/* per ip interface */
 	int	index;			/* number of interface in ipifc dir */
 	char	dev[64];
+	uchar	ether[6];
 	uchar	sendra6;		/* on == send router adv */
 	uchar	recvra6;		/* on == rcv router adv */
 	int	mtu;
@@ -79,7 +80,7 @@ struct Ipifc
  */
 enum 
 {
-	Udphdrsize=	36,	/* size of a Udphdr */
+	Udphdrsize=	52,	/* size of a Udphdr */
 };
 
 typedef struct Udphdr Udphdr;
@@ -87,6 +88,7 @@ struct Udphdr
 {
 	uchar	raddr[IPaddrlen];	/* remote address and port */
 	uchar	laddr[IPaddrlen];	/* local address and port */
+	uchar	ifcaddr[IPaddrlen];	/* address of ifc message was received from */
 	uchar	rport[2];
 	uchar	lport[2];
 };
@@ -107,6 +109,7 @@ long	udpread(int, Udphdr*, void*, long);
 long	udpwrite(int, Udphdr*, void*, long);
 
 Ipifc*	readipifc(char*, Ipifc*, int);
+void	freeipifc(Ipifc*);
 
 void	hnputv(void*, uvlong);
 void	hnputl(void*, uint);
