@@ -32,8 +32,8 @@ sockaddr2ip(uchar *ip, struct sockaddr *sa)
 Ipifc*
 readipifc(char *net, Ipifc *ifc, int index)
 {
-	char *p, *ep, *q;
-	int i, mib[6], n, alloc;
+	char *p, *ep, *q, *bp;
+	int i, mib[6], n;
 	Ipifc *list, **last;
 	Iplifc *lifc, **lastlifc;
 	struct if_msghdr *mh, *nmh;
@@ -60,15 +60,18 @@ readipifc(char *net, Ipifc *ifc, int index)
 	mib[4] = NET_RT_IFLIST;
 	mib[5] = 0;
 	
+	n = 0;
 	if(sysctl(mib, 6, nil, &n, nil, 0) < 0)
 		return nil;
-	p = mallocz(n, 1);
-	if(p == nil)
+	bp = mallocz(n, 1);
+	if(bp == nil)
 		return nil;
-	if(sysctl(mib, 6, p, &n, nil, 0) < 0){
-		free(p);
+	if(sysctl(mib, 6, bp, &n, nil, 0) < 0){
+		free(bp);
 		return nil;
 	}
+
+	p = bp;
 	ep = p+n;
 	while(p < ep){
 		mh = (struct if_msghdr*)p;
@@ -89,30 +92,27 @@ readipifc(char *net, Ipifc *ifc, int index)
 		ifc->rp.linkmtu = mh->ifm_data.ifi_mtu;
 		lastlifc = &ifc->lifc;
 
+		if(sdl->sdl_type == IFT_ETHER && sdl->sdl_alen == 6)
+			memmove(ifc->ether, LLADDR(sdl), 6);
+
 		while(p < ep){
 			ah = (struct ifa_msghdr*)p;
 			nmh = (struct if_msghdr*)p;
 			if(nmh->ifm_type != RTM_NEWADDR)
 				break;
 			p += nmh->ifm_msglen;
-			alloc = 0;
+			lifc = nil;
 			for(i=0, q=(char*)(ah+1); i<RTAX_MAX && q<p; i++){
 				if(!(ah->ifam_addrs & (1<<i)))
 					continue;
 				sa = (struct sockaddr*)q;
 				q += (sa->sa_len+sizeof(long)-1) & ~(sizeof(long)-1);
-
-				if(sa->sa_family == AF_LINK && i == RTAX_IFA){
-					struct sockaddr_dl *e;
-					
-					if(e->sdl_type == IFT_ETHER && e->sdl_alen == 6)
-						memmove(ifc->ether, LLADDR(e), 6);
-				}
 				if(sa->sa_family != AF_INET)
 					continue;
-				if(alloc == 0){
-					alloc = 1;
+				if(lifc == nil){
 					lifc = mallocz(sizeof *lifc, 1);
+					if(lifc == nil)
+						continue;
 					*lastlifc = lifc;
 					lastlifc = &lifc->next;
 				}	
@@ -137,8 +137,10 @@ readipifc(char *net, Ipifc *ifc, int index)
 					break;
 				}
 			}
-			maskip(lifc->ip, lifc->mask, lifc->net);
+			if(lifc)
+				maskip(lifc->ip, lifc->mask, lifc->net);
 		}
 	}
+	free(bp);
 	return list;
 }

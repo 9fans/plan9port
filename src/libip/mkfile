@@ -18,3 +18,8 @@ HFILES=\
 	ip.h
 
 <$PLAN9/src/mksyslib
+
+testreadipifc: testreadipifc.o $LIBDIR/$LIB
+	$LD -o testreadipifc testreadipifc.o
+
+

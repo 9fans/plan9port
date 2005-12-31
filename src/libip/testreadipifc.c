@@ -7,7 +7,6 @@ main(void)
 {
 	Ipifc *ifc, *list;
 	Iplifc *lifc;
-	int i;
 
 	fmtinstall('I', eipfmt);
 	fmtinstall('M', eipfmt);
