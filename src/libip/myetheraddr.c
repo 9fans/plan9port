@@ -11,7 +11,7 @@ myetheraddr(uchar *to, char *dev)
 	
 	ifclist = readipifc(nil, nil, -1);
 	for(ifc=ifclist; ifc; ifc=ifc->next){
-		if(dev && strcmp(ifc->dev) != 0)
+		if(dev && strcmp(ifc->dev, dev) != 0)
 			continue;
 		if(memcmp(zea, ifc->ether, 6) == 0)
 			continue;
