@@ -140,7 +140,12 @@ getlink(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 
 	if(attr[IFLA_MTU])
 		ifc->mtu = *(int*)RTA_DATA(attr[IFLA_MTU]);
-	
+
+	/*
+	 * Does not work on old Linux systems,
+	 * and not really necessary for my purposes.
+	 * Uncomment if you want it bad.
+	 *
 	if(attr[IFLA_STATS]){
 		struct rtnl_link_stats *s;
 
@@ -150,7 +155,9 @@ getlink(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 		ifc->errin = s->rx_errors;
 		ifc->errout = s->tx_errors;
 	}
-	
+	 *
+	 */
+
 	if((fd = devsocket()) > 0){
 		struct ifreq ifr;
 
