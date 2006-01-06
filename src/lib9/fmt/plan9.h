@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <inttypes.h>
 
 /*
  * compiler directive on Plan 9

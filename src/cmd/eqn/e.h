@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <stdint.h>
+#include <inttypes.h>
 
 #undef sqrt
 #define sqrt p9_sqrt
