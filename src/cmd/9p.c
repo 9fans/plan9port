@@ -33,11 +33,13 @@ void xwritefd(int, char**);
 void xstat(int, char**);
 void xls(int, char**);
 void xrdwr(int, char**);
+void xcon(int, char**);
 
 struct {
 	char *s;
 	void (*f)(int, char**);
 } cmds[] = {
+	"con", xcon,
 	"read", xread,
 	"write", xwrite,
 	"readfd", xreadfd,
@@ -313,6 +315,61 @@ xrdwr(int argc, char **argv)
 			n--;
 		if(fswrite(fid, buf, n) != n)
 			fprint(2, "write: %r\n");
+	}
+	fsclose(fid);
+	threadexitsall(0);	
+}
+
+void
+rdcon(void *v)
+{
+	char buf[4096];
+	CFid *fid;
+	
+	fid = v;
+	for(;;){
+		n = read(0, buf, sizeof buf);
+		if(n <= 0)
+			threadexitsall(0);
+		if(fswrite(fid, buf, n) != n)
+			fprint(2, "write: %r\n");
+	}
+}
+
+void
+xcon(int argc, char **argv)
+{
+	char buf[4096], *r, *w, *e;
+	int n, nocr;
+	CFid *fid;
+	
+	nocr = 1;
+
+	ARGBEGIN{
+	case 'r':
+		nocr = 0;
+		break;
+	default:
+		usage();
+	}ARGEND
+
+	if(argc != 1)
+		usage();
+
+	fid = xopen(argv[0], ORDWR);
+	proccreate(rdcon, fid, STACK);
+	for(;;){
+		n = fsread(fid, buf, n);
+		if(n <= 0)
+			threadexitsall(0);
+		if(nocr){
+			for(r=w=buf, e=buf+n; r<e; r++)
+				if(*r != '\r')
+					*w++ = *r;
+			n = w-buf;
+		}
+		if(write(1, buf, n) != n)
+			threadexitsall(0);
 	}
 	fsclose(fid);
 	threadexitsall(0);	
