@@ -323,6 +323,7 @@ xrdwr(int argc, char **argv)
 void
 rdcon(void *v)
 {
+	int n;
 	char buf[4096];
 	CFid *fid;
 	
@@ -330,6 +331,8 @@ rdcon(void *v)
 	for(;;){
 		n = read(0, buf, sizeof buf);
 		if(n <= 0)
+			threadexitsall(0);
+		if(buf[0] == 'R'-'A'+1)
 			threadexitsall(0);
 		if(fswrite(fid, buf, n) != n)
 			fprint(2, "write: %r\n");
@@ -357,9 +360,9 @@ xcon(int argc, char **argv)
 		usage();
 
 	fid = xopen(argv[0], ORDWR);
-	proccreate(rdcon, fid, STACK);
+	proccreate(rdcon, fid, 32768);
 	for(;;){
-		n = fsread(fid, buf, n);
+		n = fsread(fid, buf, sizeof buf);
 		if(n <= 0)
 			threadexitsall(0);
 		if(nocr){
