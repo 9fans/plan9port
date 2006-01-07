@@ -26,6 +26,7 @@ static int diskdev[] = {
 	43,	/* vn */
 	3,	/* wd */
 	87,	/* wfd */
+	4,	/* da on FreeBSD 5 */
 };
 static int
 isdisk(struct stat *st)
