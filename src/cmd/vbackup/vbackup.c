@@ -153,7 +153,7 @@ threadmain(int argc, char **argv)
 	 */
 	if((disk = diskopenfile(argv[0])) == nil)
 		sysfatal("diskopen: %r");
-	if((disk = diskcache(disk, 16384, 2*MAXQ+16)) == nil)
+	if((disk = diskcache(disk, 32768, 2*MAXQ+16)) == nil)
 		sysfatal("diskcache: %r");
 	if((fsys = fsysopen(disk)) == nil)
 		sysfatal("ffsopen: %r");
