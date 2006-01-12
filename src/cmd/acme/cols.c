@@ -307,7 +307,7 @@ colgrow(Column *c, Window *w, int but)
 		if(i==c->nw-1 || c->safe==FALSE)
 			r.max.y = cr.max.y;
 		else
-			r.max.y = c->w[i+1]->r.min.y;
+			r.max.y = c->w[i+1]->r.min.y-Border;
 		winresize(w, r, FALSE, TRUE);
 		return;
 	}
@@ -516,7 +516,7 @@ coldragwin(Column *c, Window *w, int but)
 		r.max.y = c->r.max.y;
 	else
 		r.max.y = c->w[i+1]->r.min.y-Border;
-	winresize(w, r, c->safe, i+1==c->nw);
+	winresize(w, r, c->safe, TRUE);
 	c->safe = TRUE;
     	winmousebut(w);
 }
