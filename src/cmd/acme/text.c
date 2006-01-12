@@ -859,6 +859,16 @@ texttype(Text *t, Rune r)
 			u->cq0 = t->q0;
 		else if(t->q0 != u->cq0+u->ncache)
 			error("text.type cq1");
+		/*
+		 * Change the tag before we add to ncache,
+		 * so that if the window body is resized the
+		 * commit will not find anything in ncache.
+		 */
+		if(u->what==Body && u->ncache == 0){
+			u->needundo = TRUE;
+			winsettag(t->w);
+			u->needundo = FALSE;
+		}
 		textinsert(u, t->q0, rp, nr, FALSE);
 		if(u != t)
 			textsetselect(u, u->q0, u->q1);

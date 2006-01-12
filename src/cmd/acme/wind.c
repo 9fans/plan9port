@@ -124,7 +124,7 @@ wintaglines(Window *w, Rectangle r)
 int
 winresize(Window *w, Rectangle r, int safe, int keepextra)
 {
-	int y, mouseintag;
+	int oy, y, mouseintag, tagresized;
 	Image *b;
 	Point p;
 	Rectangle br, r1;
@@ -141,7 +141,7 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
 	mouseintag = ptinrect(mouse->xy, w->tag.all);
-	if(1 || !safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
+	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
 
 		w->taglines = wintaglines(w, r);
 		w->tagsafe = TRUE;
@@ -151,8 +151,10 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	r1 = r;
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
+	tagresized = 0;
 	if(1 || !safe || !eqrect(w->tag.all, r1)){
-if(0) fprint(2, "resize tag %R => %R", w->tag.all, r1);
+		tagresized = 1;
+if(0) fprint(2, "resize tag %R => %R\n", w->tag.all, r1);
 		textresize(&w->tag, r1, TRUE);
 if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		y = w->tag.fr.r.max.y;
@@ -175,7 +177,9 @@ if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 	
 	r1 = r;
 	r1.min.y = y;
-	if(1 || !safe || !eqrect(w->body.all, r1)){
+	if(tagresized || !safe || !eqrect(w->body.all, r1)){
+		oy = y;
+if(0) fprint(2, "resizing body; safe=%d all=%R r1=%R\n", safe, w->body.all, r1);
 		if(y+1+w->body.fr.font->height <= r.max.y){	/* room for one line */
 			r1.min.y = y;
 			r1.max.y = y+1;
@@ -187,11 +191,12 @@ if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 			r1.min.y = y;
 			r1.max.y = y;
 		}
-if(0) fprint(2, "resize body %R => %R", w->body.all, r1);
+if(0) fprint(2, "resizing body; new r=%R; r1=%R\n", r, r1);
 		w->r = r;
 		w->r.max.y = textresize(&w->body, r1, keepextra);
-if(0) fprint(2, " => %R (%R; %R)\n", w->body.all, w->body.fr.r, w->r);
+if(0) fprint(2, "after textresize: body.all=%R\n", w->body.all);
 		textscrdraw(&w->body);
+		w->body.all.min.y = oy;
 	}
 	w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));
 	return w->r.max.y;
@@ -446,7 +451,7 @@ winsettag1(Window *w)
 	runemove(new+i, Ldelsnarf, 10);
 	i += 10;
 	if(w->filemenu){
-		if(w->body.file->delta.nc>0 || w->body.ncache){
+		if(w->body.needundo || w->body.file->delta.nc>0 || w->body.ncache){
 			runemove(new+i, Lundo, 5);
 			i += 5;
 		}
@@ -523,8 +528,10 @@ winsettag1(Window *w)
 	br.max.x = br.min.x + Dx(b->r);
 	br.max.y = br.min.y + Dy(b->r);
 	draw(screen, br, b, nil, b->r.min);
-	if(resize)
+	if(resize){
+		w->tagsafe = 0;
 		winresize(w, w->r, TRUE, TRUE);
+	}
 }
 
 void

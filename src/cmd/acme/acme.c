@@ -287,6 +287,7 @@ readfile(Column *c, char *s)
 	w->body.file->mod = FALSE;
 	w->dirty = FALSE;
 	winsettag(w);
+	winresize(w, w->r, FALSE, TRUE);
 	textscrdraw(&w->body);
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
 }
