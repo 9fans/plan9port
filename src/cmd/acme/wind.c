@@ -387,7 +387,7 @@ wincleartag(Window *w)
 void
 winsettag1(Window *w)
 {
-	int bar, dirty, i, j, k, n, ntagname;
+	int bar, dirty, i, j, k, n, ntagname, resize;
 	Rune *new, *old, *r, *tagname;
 	Image *b;
 	uint q0, q1;
@@ -482,7 +482,9 @@ winsettag1(Window *w)
 	assert(i==runestrlen(new));
 	
 	/* replace tag if the new one is different */
+	resize = 0;
 	if(runeeq(new, i, old, k) == FALSE){
+		resize = 1;
 		n = k;
 		if(n > i)
 			n = i;
@@ -521,7 +523,8 @@ winsettag1(Window *w)
 	br.max.x = br.min.x + Dx(b->r);
 	br.max.y = br.min.y + Dy(b->r);
 	draw(screen, br, b, nil, b->r.min);
-	winresize(w, w->r, TRUE, TRUE);
+	if(resize)
+		winresize(w, w->r, TRUE, TRUE);
 }
 
 void
