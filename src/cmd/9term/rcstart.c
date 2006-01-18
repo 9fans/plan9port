@@ -41,7 +41,7 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		argv[0] = getenv("SHELL");
 		if(argv[0] == 0)
 			argv[0] = "rc";
-		argv[1] = "-l";
+		argv[1] = "-i";
 		argv[2] = 0;
 	}
 	/*
