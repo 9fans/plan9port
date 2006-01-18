@@ -3,6 +3,8 @@
 #include <libc.h>
 #include "term.h"
 
+int loginshell;
+
 static void
 sys(char *buf, int devnull)
 {
@@ -31,7 +33,7 @@ int
 rcstart(int argc, char **argv, int *pfd, int *tfd)
 {
 	int fd[2], i, pid;
-	char *xargv[3];
+	char *cmd, *xargv[3];
 	char slave[256];
 	int sfd;
 
@@ -44,6 +46,13 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		argv[1] = "-i";
 		argv[2] = 0;
 	}
+	cmd = argv[0];
+	if(loginshell){
+		argv[0] = malloc(strlen(cmd)+2);
+		strcpy(argv[0]+1, cmd);
+		argv[0][0] = '-';
+	}
+
 	/*
 	 * fd0 is slave (tty), fd1 is master (pty)
 	 */
@@ -85,7 +94,7 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		signal(SIGINT, SIG_DFL);
 		signal(SIGHUP, SIG_DFL);
 		signal(SIGTERM, SIG_DFL);
-		execvp(argv[0], argv);
+		execvp(cmd, argv);
 		fprint(2, "exec %s failed: %r\n", argv[0]);
 		_exit(2);
 		break;

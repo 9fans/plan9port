@@ -7,3 +7,4 @@ extern int isecho(int);
 extern int setecho(int, int);
 extern int noecho;
 extern int getintr(int);
+extern int loginshell;

@@ -59,6 +59,9 @@ threadmain(int argc, char *argv[])
 	ARGBEGIN{
 	default:
 		usage();
+	case 'l':
+		loginshell = TRUE;
+		break;
 	case 'f':
 		fontname = EARGF(usage());
 		break;
