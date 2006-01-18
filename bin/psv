@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# add plan 9 postscript fonts
+GS_FONTPATH=$GS_FONTPATH:$PLAN9/postscript/font
+export GS_FONTPATH
+
 # 
 # gv has decided to rename all its -foo options to --foo.
 # 
