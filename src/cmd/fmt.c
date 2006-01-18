@@ -210,7 +210,7 @@ printwords(Word **w, int nw)
 			nsp = nspaceafter(w[i-1]->text);
 			if(col+nsp+utflen(w[i]->text) > extraindent+length)
 				break;	/* fold line */
-			if(!join && n != 0 && w[i]->bol)
+			if(!join && w[i]->bol)
 				break;
 			for(j=0; j<nsp; j++)
 				Bputc(&bout, ' ');	/* emit space; another word will follow */
