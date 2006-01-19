@@ -130,10 +130,8 @@ hangupnote(void *a, char *msg)
 {
 	if(getpid() != mainpid)
 		noted(NDFLT);
-	if(strcmp(msg, "hangup") == 0 && rcpid != 0){
-		postnote(PNGROUP, rcpid, "hangup");
-		noted(NDFLT);
-	}
+	if(strcmp(msg, "hangup") == 0)
+		noted(NCONT);
 	if(strstr(msg, "child")){
 		char buf[128];
 		int n;
