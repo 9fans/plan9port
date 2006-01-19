@@ -323,7 +323,7 @@ html_out(Rune *r, int n, long *x)
 		else if((s = findbyrune(*r)) != nil)
 			Bprint(&b, "&%s;", s);
 		else
-			Bprint(&b, "&#%04x;", *r);
+			Bprint(&b, "&#x%04x;", *r);
 	}
 	Bflush(&b);
 }
