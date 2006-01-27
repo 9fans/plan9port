@@ -246,7 +246,7 @@ skipquestion(uchar *buf, uchar *ebuf, uchar *p, int n)
 	for(i=0; i<n; i++){
 		if((len = dn_expand(buf, ebuf, p, tmp, sizeof tmp)) <= 0)
 			return nil;
-		p += NS_QFIXEDSZ+len;
+		p += 4+len;
 	}
 	return p;
 }
