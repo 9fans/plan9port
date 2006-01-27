@@ -150,7 +150,7 @@ then
 		libsl="$libsl -lsec -l9"
 	fi
 
-	if [ "x$needdraw" = xtrue ]
+	if [ "x$needdraw" = xtrue -a "x$WSYSTYPE" != xnowsys ]
 	then
 		if [ "x$X11" = "x" ]
 		then
