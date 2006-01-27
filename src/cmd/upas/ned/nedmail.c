@@ -1512,7 +1512,7 @@ printpartindented(String *s, char *part, char *indent)
 		if(interrupted)
 			break;
 		p[Blinelen(b)-1] = 0;
-		if(Bprint(&out, "%s%s\n", indent, p) <= 0)
+		if(Bprint(&out, "%s%s\n", indent, p) < 0)
 			break;
 	}
 	Bprint(&out, "\n");
