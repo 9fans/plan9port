@@ -41,6 +41,9 @@ void fssetroot(CFsys*, CFid*);
 CFsys *nsinit(char*);
 CFsys *nsmount(char*, char*);
 CFid *nsopen(char*, char*, char*, int);
+int	fsfremove(CFid*);
+int	fsremove(CFsys*, char*);
+CFid *fscreate(CFsys*, char*, int, ulong);
 
 extern int chatty9pclient;
 
