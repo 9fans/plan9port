@@ -6,7 +6,7 @@ typedef struct ucontext ucontext_t;
 extern	int		swapcontext(ucontext_t*, ucontext_t*);
 extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 extern	int		getmcontext(mcontext_t*);
-extern	void		setmcontext(mcontetx_t*);
+extern	void		setmcontext(mcontext_t*);
 
 /*-
  * Copyright (c) 1999 Marcel Moolenaar
