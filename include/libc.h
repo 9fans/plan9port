@@ -638,6 +638,8 @@ extern	void		freenetconninfo(NetConnInfo*);
 #define DMDEVICE	0x00800000	/* mode bit for device file (Unix, 9P2000.u) */
 #define DMNAMEDPIPE	0x00200000	/* mode bit for named pipe (Unix, 9P2000.u) */
 #define DMSOCKET	0x00100000	/* mode bit for socket (Unix, 9P2000.u) */
+#define DMSETUID	0x00080000	/* mode bit for setuid (Unix, 9P2000.u) */
+#define DMSETGID	0x00040000	/* mode bit for setgid (Unix, 9P2000.u) */
 
 #define DMREAD		0x4		/* mode bit for read permission */
 #define DMWRITE		0x2		/* mode bit for write permission */

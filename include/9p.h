@@ -204,6 +204,7 @@ struct Srv {
 	int		nopipe;
 	int		srvfd;
 	int		leavefdsopen;	/* magic for acme win */
+	int		dotu;
 
 /* below is implementation-specific; don't use */
 	Fidpool*	fpool;
