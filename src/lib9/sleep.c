@@ -1,8 +1,18 @@
 #include <u.h>
 #define NOPLAN9DEFINES
+#include <sys/param.h>
 #include <sys/time.h>
 #include <sched.h>
 #include <libc.h>
+
+#if defined(__NetBSD__) || (defined(__OpenBSD__) && OpenBSD <= 200511)
+#	define sched_yield() \
+#		do{ struct timespec ts; \
+#			ts.tv_sec = 0; \
+#			ts.tv_nsec = 10; \
+#			nanosleep(&ts, 0); \
+#		}while(0)
+#endif
 
 int
 p9sleep(long milli)

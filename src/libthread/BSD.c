@@ -33,7 +33,7 @@ _threadlock(Lock *l, int block, ulong pc)
 	for(i=0; i<1000; i++){
 		if(!_tas(&l->held))
 			return 1;
-		sched_yield();
+		sleep(0);
 	}
 	/* increasingly slow */
 	for(i=0; i<10; i++){

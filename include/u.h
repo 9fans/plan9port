@@ -154,6 +154,7 @@ typedef int32_t s32int;
  * Gcc is too smart for its own good.
  */
 #if defined(__GNUC__)
+#	undef strcmp	/* causes way too many warnings */
 #	if __GNUC__ >= 4 || (__GNUC__==3 && !defined(__APPLE_CC__))
 #		undef AUTOLIB
 #		define AUTOLIB(x) int __p9l_autolib_ ## x __attribute__ ((weak));

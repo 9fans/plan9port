@@ -904,17 +904,6 @@ extern	int	post9pservice(int, char*);
 #	endif
 #endif
 
-/* this really shouldn't be here */
-#if defined(__OpenBSD__) || (defined(__NetBSD__) && !defined(sched_yield))
-#define sched_yield() \
-	do { \
-		struct timespec ts; \
-		ts.tv_sec = 0; \
-		ts.tv_nsec = 10; \
-		nanosleep(&ts, NULL); \
-	} while(0)
-#endif
-
 /* command line */
 extern char	*argv0;
 extern void __fixargv0(void);
