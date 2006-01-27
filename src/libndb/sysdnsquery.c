@@ -96,56 +96,7 @@ enum
 {
 	MAXRR = 100,
 	MAXDNS = 4096,
-};
 
-static int name2type(char*);
-static uchar *skipquestion(uchar*, uchar*, uchar*, int);
-static uchar *unpack(uchar*, uchar*, uchar*, Ndbtuple**, int);
-static uchar *rrnext(uchar*, uchar*, uchar*, Ndbtuple**);
-static Ndbtuple *rrunpack(uchar*, uchar*, uchar**, char*, ...);
-
-static Ndbtuple*
-doquery(char *name, char *type)
-{
-	int n, nstype;
-	uchar *buf, *p;
-	HEADER *h;
-	Ndbtuple *t;
-
-	if((nstype = name2type(type)) < 0){
-		werrstr("unknown dns type %s", type);
-		return nil;
-	}
-
-	buf = malloc(MAXDNS);
-	if(buf == nil)
-		return nil;
-
-	if((n = res_search(name, ns_c_in, nstype, buf, MAXDNS)) < 0){
-		free(buf);
-		return nil;
-	}
-	if(n >= MAXDNS){
-		free(buf);
-		werrstr("too much dns information");
-		return nil;
-	}
-	
-	h = (HEADER*)buf;
-	h->qdcount = ntohs(h->qdcount);
-	h->ancount = ntohs(h->ancount);
-	h->nscount = ntohs(h->nscount);
-	h->arcount = ntohs(h->arcount);
-	
-	p = buf+sizeof(HEADER);
-	p = skipquestion(buf, buf+n, p, h->qdcount);
-	p = unpack(buf, buf+n, p, &t, h->ancount);
-	USED(p);
-	return t;
-}
-
-enum
-{
 	/* RR types */
 	Ta=	1,
 	Tns=	2,
@@ -186,6 +137,53 @@ enum
 	Call=	255,	/* all classes */
 
 };
+
+
+static int name2type(char*);
+static uchar *skipquestion(uchar*, uchar*, uchar*, int);
+static uchar *unpack(uchar*, uchar*, uchar*, Ndbtuple**, int);
+static uchar *rrnext(uchar*, uchar*, uchar*, Ndbtuple**);
+static Ndbtuple *rrunpack(uchar*, uchar*, uchar**, char*, ...);
+
+static Ndbtuple*
+doquery(char *name, char *type)
+{
+	int n, nstype;
+	uchar *buf, *p;
+	HEADER *h;
+	Ndbtuple *t;
+
+	if((nstype = name2type(type)) < 0){
+		werrstr("unknown dns type %s", type);
+		return nil;
+	}
+
+	buf = malloc(MAXDNS);
+	if(buf == nil)
+		return nil;
+
+	if((n = res_search(name, Cin, nstype, buf, MAXDNS)) < 0){
+		free(buf);
+		return nil;
+	}
+	if(n >= MAXDNS){
+		free(buf);
+		werrstr("too much dns information");
+		return nil;
+	}
+	
+	h = (HEADER*)buf;
+	h->qdcount = ntohs(h->qdcount);
+	h->ancount = ntohs(h->ancount);
+	h->nscount = ntohs(h->nscount);
+	h->arcount = ntohs(h->arcount);
+	
+	p = buf+sizeof(HEADER);
+	p = skipquestion(buf, buf+n, p, h->qdcount);
+	p = unpack(buf, buf+n, p, &t, h->ancount);
+	USED(p);
+	return t;
+}
 
 static struct {
 	char *s;
@@ -315,7 +313,7 @@ rrnext(uchar *buf, uchar *ebuf, uchar *p, Ndbtuple **tt)
 	rrlen = G2(p+8);
 	p += 10;
 	
-	if(rrtype == ns_t_ptr)
+	if(rrtype == Tptr)
 		first = ndbnew("ptr", b);
 	else
 		first = ndbnew("dom", b);
@@ -323,27 +321,27 @@ rrnext(uchar *buf, uchar *ebuf, uchar *p, Ndbtuple **tt)
 	switch(rrtype){
 	default:
 		goto end;
-	case ns_t_hinfo:
+	case Thinfo:
 		t = rrunpack(buf, ebuf, &p, "YY", "cpu", "os");
 		break;
-	case ns_t_minfo:
+	case Tminfo:
 		t = rrunpack(buf, ebuf, &p, "NN", "mbox", "mbox");
 		break;
-	case ns_t_mx:
+	case Tmx:
 		t = rrunpack(buf, ebuf, &p, "SN", "pref", "mx");
 		break;
-	case ns_t_cname:
-	case ns_t_md:
-	case ns_t_mf:
-	case ns_t_mg:
-	case ns_t_mr:
-	case ns_t_mb:
-	case ns_t_ns:
-	case ns_t_ptr:
-	case ns_t_rp:
+	case Tcname:
+	case Tmd:
+	case Tmf:
+	case Tmg:
+	case Tmr:
+	case Tmb:
+	case Tns:
+	case Tptr:
+	case Trp:
 		t = rrunpack(buf, ebuf, &p, "N", type2name(rrtype));
 		break;
-	case ns_t_a:
+	case Ta:
 		if(rrlen != IPv4addrlen)
 			goto corrupt;
 		memmove(ip, v4prefix, IPaddrlen);
@@ -352,37 +350,37 @@ rrnext(uchar *buf, uchar *ebuf, uchar *p, Ndbtuple **tt)
 		t = ndbnew("ip", tmp);
 		p += rrlen;
 		break;
-	case ns_t_aaaa:
+	case Taaaa:
 		if(rrlen != IPaddrlen)
 			goto corrupt;
 		snprint(tmp, sizeof tmp, "%I", ip);
 		t = ndbnew("ip", tmp);
 		p += rrlen;
 		break;
-	case ns_t_null:
+	case Tnull:
 		snprint(tmp, sizeof tmp, "%.*H", rrlen, p);
 		t = ndbnew("null", tmp);
 		p += rrlen;
 		break;
-	case ns_t_txt:
+	case Ttxt:
 		t = rrunpack(buf, ebuf, &p, "Y", "txt");
 		break;
 
-	case ns_t_soa:
+	case Tsoa:
 		t = rrunpack(buf, ebuf, &p, "NNLLLLL", "ns", "mbox", 
 			"serial", "refresh", "retry", "expire", "ttl");
 		break;
 
-	case ns_t_key:
+	case Tkey:
 		t = rrunpack(buf, ebuf, &p, "SCCY", "flags", "proto", "alg", "key");
 		break;
 	
-	case ns_t_sig:
+	case Tsig:
 		t = rrunpack(buf, ebuf, &p, "SCCLLLSNY", "type", "alg", "labels",
 			"ttl", "exp", "incep", "tag", "signer", "sig");
 		break;
 	
-	case ns_t_cert:
+	case Tcert:
 		t = rrunpack(buf, ebuf, &p, "SSCY", "type", "tag", "alg", "cert");
 		break;
 	}
