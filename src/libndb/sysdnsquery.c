@@ -144,34 +144,77 @@ doquery(char *name, char *type)
 	return t;
 }
 
+enum
+{
+	/* RR types */
+	Ta=	1,
+	Tns=	2,
+	Tmd=	3,
+	Tmf=	4,
+	Tcname=	5,
+	Tsoa=	6,
+	Tmb=	7,
+	Tmg=	8,
+	Tmr=	9,
+	Tnull=	10,
+	Twks=	11,
+	Tptr=	12,
+	Thinfo=	13,
+	Tminfo=	14,
+	Tmx=	15,
+	Ttxt=	16,
+	Trp=	17,
+	Tsig=	24,
+	Tkey=	25,
+	Taaaa=	28,
+	Tcert=	37,
+
+	/* query types (all RR types are also queries) */
+	Tixfr=	251,	/* incremental zone transfer */
+	Taxfr=	252,	/* zone transfer */
+	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */	
+	Tall=	255,	/* all records */
+
+	/* classes */
+	Csym=	0,	/* internal symbols */
+	Cin=	1,	/* internet */
+	Ccs,		/* CSNET (obsolete) */
+	Cch,		/* Chaos net */
+	Chs,		/* Hesiod (?) */
+
+	/* class queries (all class types are also queries) */
+	Call=	255,	/* all classes */
+
+};
+
 static struct {
 	char *s;
 	int t;
 } dnsnames[] =
 {
-	"ip",		ns_t_a,
-	"ns",	ns_t_ns,
-	"md",	ns_t_md,
-	"mf",	ns_t_mf,
-	"cname",	ns_t_cname,
-	"soa",	ns_t_soa,
-	"mb",	ns_t_mb,
-	"mg",	ns_t_mg,
-	"mr",	ns_t_mr,
-	"null",	ns_t_null,
-	"ptr",	ns_t_ptr,
-	"hinfo",	ns_t_hinfo,
-	"minfo",	ns_t_minfo,
-	"mx",	ns_t_mx,
-	"txt",	ns_t_txt,
-	"rp",	ns_t_rp,
-	"key",	ns_t_key,
-	"cert",	ns_t_cert,
-	"sig",	ns_t_sig,
-	"aaaa",	ns_t_aaaa,
-	"ixfr",	ns_t_ixfr,
-	"axfr",	ns_t_axfr,
-	"all",	ns_t_any,
+	"ip",		Ta,
+	"ns",	Tns,
+	"md",	Tmd,
+	"mf",	Tmf,
+	"cname",	Tcname,
+	"soa",	Tsoa,
+	"mb",	Tmb,
+	"mg",	Tmg,
+	"mr",	Tmr,
+	"null",	Tnull,
+	"ptr",	Tptr,
+	"hinfo",	Thinfo,
+	"minfo",	Tminfo,
+	"mx",	Tmx,
+	"txt",	Ttxt,
+	"rp",	Trp,
+	"key",	Tkey,
+	"cert",	Tcert,
+	"sig",	Tsig,
+	"aaaa",	Taaaa,
+	"ixfr",	Tixfr,
+	"axfr",	Taxfr,
+	"all",	Call,
 };
 
 static char*
