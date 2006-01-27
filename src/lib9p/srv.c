@@ -68,7 +68,7 @@ getreq(Srv *s)
 	memmove(buf, s->rbuf, n);
 	qunlock(&s->rlock);
 
-	if(convM2S(buf, n, &f) != n){
+	if(convM2Su(buf, n, &f, s->dotu) != n){
 		free(buf);
 		return nil;
 	}
@@ -173,7 +173,13 @@ sversion(Srv *srv, Req *r)
 		return;
 	}
 
-	r->ofcall.version = "9P2000";
+	if(strncmp(r->ifcall.version, "9P2000.u", 8) == 0){
+		r->ofcall.version = "9P2000.u";
+		srv->dotu = 1;
+	}else{
+		r->ofcall.version = "9P2000";
+		srv->dotu = 0;
+	}
 	r->ofcall.msize = r->ifcall.msize;
 	respond(r, nil);
 }
@@ -624,8 +630,8 @@ rstat(Req *r, char *error)
 
 	if(error)
 		return;
-	if(convD2M(&r->d, tmp, BIT16SZ) != BIT16SZ){
-		r->error = "convD2M(_,_,BIT16SZ) did not return BIT16SZ";
+	if(convD2Mu(&r->d, tmp, BIT16SZ, r->srv->dotu) != BIT16SZ){
+		r->error = "convD2Mu(_,_,BIT16SZ,_) did not return BIT16SZ";
 		return;
 	}
 	n = GBIT16(tmp)+BIT16SZ;
@@ -634,10 +640,10 @@ rstat(Req *r, char *error)
 		r->error = "out of memory";
 		return;
 	}
-	r->ofcall.nstat = convD2M(&r->d, statbuf, n);
+	r->ofcall.nstat = convD2Mu(&r->d, statbuf, n, r->srv->dotu);
 	r->ofcall.stat = statbuf;	/* freed in closereq */
 	if(r->ofcall.nstat <= BIT16SZ){
-		r->error = "convD2M fails";
+		r->error = "convD2Mu fails";
 		free(statbuf);
 		return;
 	}
@@ -654,7 +660,7 @@ swstat(Srv *srv, Req *r)
 		respond(r, Enowstat);
 		return;
 	}
-	if(convM2D(r->ifcall.stat, r->ifcall.nstat, &r->d, (char*)r->ifcall.stat) != r->ifcall.nstat){
+	if(convM2Du(r->ifcall.stat, r->ifcall.nstat, &r->d, (char*)r->ifcall.stat, srv->dotu) != r->ifcall.nstat){
 		respond(r, Ebaddir);
 		return;
 	}
@@ -787,7 +793,7 @@ if(chatty9p)
 	fprint(2, "-%d-> %F\n", srv->outfd, &r->ofcall);
 
 	qlock(&srv->wlock);
-	n = convS2M(&r->ofcall, srv->wbuf, srv->msize);
+	n = convS2Mu(&r->ofcall, srv->wbuf, srv->msize, srv->dotu);
 	if(n <= 0){
 		fprint(2, "n = %d %F\n", n, &r->ofcall);
 		abort();
