@@ -25,7 +25,7 @@ TARG=rio
 L64=`[ -d $X11/lib64 ] && echo 64; echo`
 LDFLAGS=-L$X11/lib$L64/ -lXext -lX11
 
-<$PLAN9/src/mkone
+<|sh mkriorules.sh
 
 CFLAGS=$CFLAGS -DSHAPE
 
