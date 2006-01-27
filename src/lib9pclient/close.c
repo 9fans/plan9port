@@ -27,3 +27,16 @@ fsclose(CFid *fid)
 	/* maybe someday there will be a ref count */
 	fidclunk(fid);
 }
+
+int
+fsfremove(CFid *fid)
+{
+	int n;
+	Fcall tx, rx;
+	
+	tx.type = Tremove;
+	tx.fid = fid->fid;
+	n = _fsrpc(fid->fs, &tx, &rx, 0);
+	_fsputfid(fid);
+	return n;
+}
