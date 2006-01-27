@@ -35,7 +35,9 @@ struct Sample
 	uint64_t time, p_time;
 	vm_statistics_data_t vm_stat, p_vm_stat;
 	boolean_t purgeable_is_valid;
+#ifdef VM_SWAPUSAGE	/* 10.4+ */
 	struct xsw_usage xsu;
+#endif
 	boolean_t xsu_valid;
 	integer_t syscalls_mach, p_syscalls_mach;
 	integer_t syscalls_unix, p_syscalls_unix;
@@ -236,13 +238,15 @@ xsample(int first)
 	if(sample.seq == 1)
 		sample.p_vm_stat = sample.vm_stat;
 
+#ifdef VM_SWAPUSAGE
 	mib[0] = CTL_VM;
 	mib[1] = VM_SWAPUSAGE;
 	len = sizeof sample.xsu;
 	sample.xsu_valid = TRUE;
 	if(sysctl(mib, 2, &sample.xsu, &len, NULL, 0) < 0 && errno == ENOENT)
 		sample.xsu_valid = FALSE;
-		
+#endif
+
 	samplenet();
 	sampleevents();
 
