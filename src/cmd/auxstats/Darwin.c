@@ -410,9 +410,11 @@ xswap(int first)
 {
 	if(first)
 		return;
-	
+
+#ifdef VM_SWAPUSAGE
 	if(sample.xsu_valid)
 		Bprint(&bout, "swap %lld %lld\n", 
 			(vlong)sample.xsu.xsu_used, 
 			(vlong)sample.xsu.xsu_total);
+#endif
 }
