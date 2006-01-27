@@ -21,6 +21,7 @@ OFILES=\
 	ndbparse.$O\
 	ndbreorder.$O\
 	ndbsubstitute.$O\
+	sysdnsquery.$O\
 
 HFILES=\
 	$PLAN9/include/ndb.h\
@@ -28,5 +29,6 @@ HFILES=\
 
 <$PLAN9/src/mksyslib
 
-$O.out: testipinfo.$O
-	$LD $prereq
+testdns: testdns.$O $LIBDIR/$LIB
+	$LD -o $target $prereq
+
