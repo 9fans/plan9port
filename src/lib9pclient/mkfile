@@ -3,6 +3,7 @@
 LIB=lib9pclient.a
 
 OFILES=\
+	access.$O\
 	auth.$O\
 	close.$O\
 	create.$O\
