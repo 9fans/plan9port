@@ -80,6 +80,8 @@ auth_allocrpc(void)
 void
 auth_freerpc(AuthRpc *rpc)
 {
+	if(rpc == nil)
+		return;
 	if(rpc->afd >= 0)
 		close(rpc->afd);
 	if(rpc->afid != nil)
