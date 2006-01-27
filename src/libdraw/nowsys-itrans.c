@@ -1,3 +1,23 @@
-/* so that there's *something* in this file */
-int __nowsys__itrans(void) {return 0;}
+#include <u.h>
+#include <libc.h>
+ 
+static int
+bad(void)
+{
+    sysfatal("compiled with no window system support");
+    return 0;
+}
 
+void
+putsnarf(char *data)
+{
+	USED(data);
+	bad();
+}
+
+char*
+getsnarf(void)
+{
+	bad();
+	return nil;
+}

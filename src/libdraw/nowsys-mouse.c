@@ -5,6 +5,7 @@
 #include <cursor.h>
 #include <mouse.h>
 
+int _wantfocuschanges;
 static int
 bad(void)
 {
