@@ -9,7 +9,7 @@
 #	define sched_yield() \
 #		do{ struct timespec ts; \
 #			ts.tv_sec = 0; \
-#			ts.tv_nsec = 10; \
+#			ts.tv_nsec = 0; \
 #			nanosleep(&ts, 0); \
 #		}while(0)
 #endif
