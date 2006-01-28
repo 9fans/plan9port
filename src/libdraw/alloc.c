@@ -231,9 +231,10 @@ freeimage(Image *i)
 {
 	int ret;
 
+	if(i == nil)
+		return;
 	if(i == screen)
 		abort();
-
 	ret = _freeimage1(i);
 	free(i);
 	return ret;
