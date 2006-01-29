@@ -150,8 +150,8 @@ doquery(char *name, char *type)
 {
 	int n, nstype;
 	uchar *buf, *p;
-	HEADER *h;
 	Ndbtuple *t;
+	int qdcount, ancount;
 
 	if((nstype = name2type(type)) < 0){
 		werrstr("unknown dns type %s", type);
@@ -171,16 +171,13 @@ doquery(char *name, char *type)
 		werrstr("too much dns information");
 		return nil;
 	}
+
+	qdcount = (buf[4]<<8)|buf[5];
+	ancount = (buf[6]<<8)|buf[7];
 	
-	h = (HEADER*)buf;
-	h->qdcount = ntohs(h->qdcount);
-	h->ancount = ntohs(h->ancount);
-	h->nscount = ntohs(h->nscount);
-	h->arcount = ntohs(h->arcount);
-	
-	p = buf+sizeof(HEADER);
-	p = skipquestion(buf, buf+n, p, h->qdcount);
-	p = unpack(buf, buf+n, p, &t, h->ancount);
+	p = buf+12;
+	p = skipquestion(buf, buf+n, p, qdcount);
+	p = unpack(buf, buf+n, p, &t, ancount);
 	USED(p);
 	return t;
 }
