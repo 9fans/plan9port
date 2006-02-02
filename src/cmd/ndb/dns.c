@@ -192,8 +192,8 @@ main(int argc, char *argv[])
 	srand(now*getpid());
 	db2cache(1);
 
-	if(serve)
-		proccreate(dnudpserver, mntpt, STACK);
+//	if(serve)
+//		proccreate(dnudpserver, mntpt, STACK);
 	if(sendnotifies)
 		notifyproc();
 
@@ -267,6 +267,10 @@ newfid(int fid, int needunused)
 			return mf;
 		}
 	}
+	if(!needunused){
+		unlock(&mfalloc.lk);
+		return nil;
+	}
 	mf = emalloc(sizeof(*mf));
 	if(mf == nil)
 		sysfatal("out of memory");
@@ -282,6 +286,7 @@ freefid(Mfile *mf)
 {
 	Mfile **l;
 
+fprint(2, "freefid %d\n", mf->fid);
 	lock(&mfalloc.lk);
 	for(l = &mfalloc.inuse; *l != nil; l = &(*l)->next){
 		if(*l == mf){
@@ -385,12 +390,33 @@ io(void)
 			freejob(job);
 			continue;
 		}
-		mf = newfid(job->request.fid, 0);
 		if(debug)
 			syslog(0, logfile, "%F", &job->request);
 
 		getactivity(&req);
 		req.aborttime = now + 60;	/* don't spend more than 60 seconds */
+
+		mf = nil;
+		switch(job->request.type){
+		case Tversion:
+		case Tauth:
+		case Tflush:
+			break;
+		case Tattach:
+			mf = newfid(job->request.fid, 1);
+			if(mf == nil){
+				sendmsg(job, "fid in use");
+				goto skip;
+			}
+			break;
+		default:
+			mf = newfid(job->request.fid, 0);
+			if(mf == nil){
+				sendmsg(job, "unknown fid");
+				goto skip;
+			}
+			break;
+		}
 
 		switch(job->request.type){
 		default:
@@ -436,7 +462,7 @@ io(void)
 			rwstat(job, mf);
 			break;
 		}
-
+skip:
 		freejob(job);
 	
 		/*

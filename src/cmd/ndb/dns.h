@@ -364,7 +364,6 @@ extern int	mkreq(DN *dp, int type, uchar *buf, int flags, ushort reqno);
 
 /* dnserver.c */
 extern void	dnserver(DNSmsg*, DNSmsg*, Request*);
-extern void	dnudpserver(void*);
 extern void	dntcpserver(char*);
 
 /* dnnotify.c */
