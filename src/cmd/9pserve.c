@@ -30,6 +30,8 @@ struct Fid
 	int ref;
 	int cfid;
 	int openfd;
+	int offset;
+	int coffset;
 	int isdir;
 	Fid *next;
 };
@@ -475,6 +477,12 @@ connthread(void *arg)
 					continue;
 				}
 			}
+			if(m->tx.type==Tread && m->fid->isdir && dotu && !c->dotu){
+				if(m->tx.offset = m->fid->coffset)
+					m->tx.offset = m->fid->offset;
+				else
+					m->fid->offset = m->fid->coffset;
+			}
 			break;
 		}
 
@@ -791,8 +799,11 @@ connoutthread(void *arg)
 					fidput(m->newfid);
 			break;
 		case Tread:
-			if(!err && m->fid->isdir && dotu && !m->c->dotu)
+			if(!err && m->fid->isdir && dotu && !m->c->dotu){
+				m->fid->offset += m->rx.count;
 				stripudirread(m);
+				m->fid->coffset += m->rx.count;
+			}
 			break;
 		case Tstat:
 			if(!err && dotu && !m->c->dotu)
@@ -961,6 +972,8 @@ fidnew(int cfid)
 	freefid = f->next;
 	f->cfid = cfid;
 	f->ref = 1;
+	f->offset = 0;
+	f->coffset = 0;
 	f->isdir = -1;
 	return f;
 }
@@ -1329,13 +1342,16 @@ rewritehdr(Fcall *f, uchar *pkt)
 		restring(pkt, n, f->name);
 		/* fall through */
 	case Topen:
-	case Tread:
-	case Twrite:
 	case Tclunk:
 	case Tremove:
 	case Tstat:
 	case Twstat:
+	case Twrite:
 		PBIT32(pkt+7, f->fid);
+		break;
+	case Tread:
+		PBIT32(pkt+7, f->fid);
+		PBIT64(pkt+11, f->offset);
 		break;
 	case Rerror:
 		restring(pkt, n, f->ename);
