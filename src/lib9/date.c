@@ -6,16 +6,15 @@
 
 #define _HAVETIMEGM 1
 #define _HAVETMZONE 1
-#define _HAVETMTZOFF 1
+#define _HAVETMGMTOFF 1
 
 #if defined(__linux__)
 #	undef _HAVETMZONE
-#	undef _HAVETMTZOFF
 
 #elif defined(__sun__)
 #	undef _HAVETIMEGM
 #	undef _HAVETMZONE
-#	undef _HAVETMTZOFF
+#	undef _HAVETMGMTOFF
 
 #endif
 
@@ -35,7 +34,7 @@ tm2Tm(struct tm *tm, Tm *bigtm)
 	bigtm->year = tm->tm_year;
 	bigtm->wday = tm->tm_wday;
 	strftime(bigtm->zone, sizeof bigtm->zone, "%Z", tm);
-#ifdef _HAVETZOFF
+#ifdef _HAVETMGMTOFF
 	bigtm->tzoff = tm->tm_gmtoff;
 #endif
 	
@@ -62,7 +61,7 @@ Tm2tm(Tm *bigtm, struct tm *tm)
 #ifdef _HAVETMZONE
 	tm->tm_zone = bigtm->zone;
 #endif
-#ifdef _HAVETZOFF
+#ifdef _HAVETMGMTOFF
 	tm->tm_gmtoff = bigtm->tzoff;
 #endif
 }
