@@ -108,8 +108,8 @@ void text(int t, char *p1)	/* convert text string p1 of type t */
 		rclass[yyval] = nclass;
 	}
 	dprintf(".\t%dtext: S%d <- %s; b=%g,h=%g,lf=%c,rf=%c,ps=%d\n",
-		t, yyval, p, ebase[yyval], eht[yyval], lfont[yyval], rfont[yyval], ps);
-	printf(".ds %d \"%s\n", yyval, p);
+		t, (int)yyval, p, ebase[yyval], eht[yyval], lfont[yyval], rfont[yyval], ps);
+	printf(".ds %d \"%s\n", (int)yyval, p);
 }
 
 int isalpharune(int c)

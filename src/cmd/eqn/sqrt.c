@@ -19,13 +19,13 @@ void sqrt(int p2)
 		eht[yyval] = EM(1.15, nps);
 	dprintf(".\tS%d <- sqrt S%d;b=%g, h=%g, nps=%d\n", 
 		yyval, p2, ebase[yyval], eht[yyval], nps);
-	printf(".as %d \\|\n", yyval);
+	printf(".as %d \\|\n", (int)yyval);
 	nrwid(p2, ps, p2);
 	if (af++ == 0)
 		printf(".af 10 01\n");	/* make it two digits when it prints */
 	printf(".nr 10 %.3fu*\\n(.su/10\n", 9.2*eht[p2]);	/* this nonsense */
 			/* guesses point size corresponding to height of stuff */
-	printf(".ds %d \\v'%gm'\\s(\\n(10", yyval, REL(ebase[p2],ps));
+	printf(".ds %d \\v'%gm'\\s(\\n(10", (int)yyval, REL(ebase[p2],ps));
 	if (ttype == DEVCAT || ttype == DEVAPS)
 		printf("\\v'-.2m'\\(sr\\l'\\n(%du\\(rn'\\v'.2m'", p2);
 	else		/* DEV202, DEVPOST so far */

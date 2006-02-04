@@ -32,20 +32,20 @@ void pile(int oct)
 	ebase[yyval] = (nlist%2) ? b + ebase[lp[mid]]
 			: b - EM(Pilebase, ps) - gap;
 	if (dbg) {
-		printf(".\tS%d <- %d pile of:", yyval, type);
+		printf(".\tS%d <- %d pile of:", (int)yyval, type);
 		for (i = p1; i < p2; i++)
 			printf(" S%d", lp[i]);
 		printf("; h=%g b=%g\n", eht[yyval], ebase[yyval]);
 	}
 	nrwid(lp[p1], ps, lp[p1]);
-	printf(".nr %d \\n(%d\n", yyval, lp[p1]);
+	printf(".nr %d \\n(%d\n", (int)yyval, lp[p1]);
 	for (i = p1+1; i < p2; i++) {
 		nrwid(lp[i], ps, lp[i]);
 		printf(".if \\n(%d>\\n(%d .nr %d \\n(%d\n", 
-			lp[i], yyval, yyval, lp[i]);
+			lp[i], (int)yyval, (int)yyval, lp[i]);
 	}
-	printf(".ds %d \\v'%gm'\\h'%du*\\n(%du'\\\n", yyval, REL(ebase[yyval],ps), 
-		type==RCOL ? 1 : 0, yyval);
+	printf(".ds %d \\v'%gm'\\h'%du*\\n(%du'\\\n", (int)yyval, REL(ebase[yyval],ps), 
+		type==RCOL ? 1 : 0, (int)yyval);
 	sb = 0;		/* sum of box hts */
 	for (i = p2-1; i >= p1; i--) {
 		bi = sb + ebase[lp[i]];
@@ -61,7 +61,7 @@ void pile(int oct)
 		case CCOL:
 		case COL:
 			printf("\\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d", 
-				REL(-bi,ps), yyval, lp[i], lp[i]);
+				REL(-bi,ps), (int)yyval, lp[i], lp[i]);
 			printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\\n", 
 				yyval, lp[i], REL(bi,ps));
 			break;
@@ -69,7 +69,7 @@ void pile(int oct)
 		sb += eht[lp[i]] + gap;
 	}
 	printf("\\v'%gm'\\h'%du*\\n(%du'\n", REL(-ebase[yyval],ps), 
-		type!=RCOL ? 1 : 0, yyval);
+		type!=RCOL ? 1 : 0, (int)yyval);
 	for (i = p1; i < p2; i++)
 		sfree(lp[i]);
 	lfont[yyval] = rfont[yyval] = 0;

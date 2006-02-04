@@ -12,7 +12,7 @@ void boverb(int p1, int p2)
 	h = eht[p1] + eht[p2] + d;
 	b = eht[p2] - d;
 	dprintf(".\tS%d <- %d over %d; b=%g, h=%g\n", 
-		yyval, p1, p2, b, h);
+		(int)yyval, p1, p2, b, h);
 	nrwid(p1, ps, p1);
 	nrwid(p2, ps, p2);
 	printf(".nr %d \\n(%d\n", treg, p1);
@@ -20,7 +20,7 @@ void boverb(int p1, int p2)
 	printf(".nr %d \\n(%d+%gm\n", treg, treg, Overwid);
 	d2 = eht[p2]-ebase[p2]-d;	/* denom */
 	printf(".ds %d \\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d\\v'%gm'\\\n", 
-		yyval, REL(d2,ps), treg, p2, p2, REL(-d2,ps));
+		(int)yyval, REL(d2,ps), treg, p2, p2, REL(-d2,ps));
 	d1 = 2 * d + ebase[p1];		/* num */
 	printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\*(%d\\v'%gm'\\\n", 
 		p2, p1, REL(-d1,ps), p1, REL(d1,ps));

@@ -23,7 +23,7 @@ void integral(int p, int p1, int p2)
 void setintegral(void)
 {
 	yyval = salloc();
-	printf(".ds %d %s\n", yyval, lookup(deftbl, "int_def")->cval);
+	printf(".ds %d %s\n", (int)yyval, lookup(deftbl, "int_def")->cval);
 	eht[yyval] = EM(Intht, ps+Intps);
 	ebase[yyval] = EM(Intbase, ps);
 	lfont[yyval] = rfont[yyval] = ROM;

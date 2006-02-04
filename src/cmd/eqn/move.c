@@ -7,7 +7,7 @@ void move(int dir, int amt, int p)
 
 	yyval = p;
 	a = EM(amt/100.0, ps);
-	printf(".ds %d ", yyval);
+	printf(".ds %d ", (int)yyval);
 	if (dir == FWD || dir == BACK)
 		printf("\\h'%s%gm'\\*(%d\n", (dir==BACK) ? "-" : "", a, p);
 	else if (dir == UP)

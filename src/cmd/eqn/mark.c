@@ -13,7 +13,7 @@ void lineup(int p1)
 	markline = 2;
 	if (p1 == 0) {
 		yyval = salloc();
-		printf(".ds %d \\h'|\\n(09u'\n", yyval);
+		printf(".ds %d \\h'|\\n(09u'\n", (int)yyval);
 	}
 	dprintf(".\tlineup %d\n", p1);
 }

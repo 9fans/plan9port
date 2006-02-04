@@ -32,9 +32,9 @@ void size(int p1, int p2)
 	dprintf(".\tS%d <- \\s%d %d \\s%d; b=%g, h=%g\n", 
 		yyval, ps, p2, p1, ebase[yyval], eht[yyval]);
 	if (szstack[nszstack] != 0) {
-		printf(".ds %d %s\\*(%d\\s\\n(%d\n", yyval, ABSPS(ps), p2, 99-nszstack);
+		printf(".ds %d %s\\*(%d\\s\\n(%d\n", (int)yyval, ABSPS(ps), p2, 99-nszstack);
 	} else
-		printf(".ds %d %s\\*(%d%s\n", yyval, DPS(p1,ps), p2, DPS(ps,p1));
+		printf(".ds %d %s\\*(%d%s\n", (int)yyval, DPS(p1,ps), p2, DPS(ps,p1));
 	nszstack--;
 	ps = p1;
 }

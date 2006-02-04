@@ -36,7 +36,7 @@ void paren(int leftc, int p1, int rightc)
 	else
 		v = 0;	/* don't shift it at all */
 
-	printf(".ds %d \\^", yyval);	/* was \| */
+	printf(".ds %d \\^", (int)yyval);	/* was \| */
 	if (bv)
 		printf("\\v'%gm'", bv);
 	switch (leftc) {
