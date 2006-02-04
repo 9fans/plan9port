@@ -63,6 +63,7 @@ threadmain(int argc, char **argv)
 	else
 		service = argv[0];
 
+	rfork(RFNOTEG);
 	if(post9pservice(fd, service) < 0)
 		sysfatal("post9pservice: %r");
 
