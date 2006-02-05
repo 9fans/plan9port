@@ -23,6 +23,7 @@ void		_threadsetsysproc(void);
 void		_threadsleep(Rendez*);
 _Thread	*_threadwakeup(Rendez*);
 #define	yield		threadyield
+int		threadid(void);
 
 /*
  * I am tired of making this mistake.

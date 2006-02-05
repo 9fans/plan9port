@@ -370,6 +370,15 @@ threadsetstate(char *fmt, ...)
 	va_end(arg);
 }
 
+int
+threadid(void)
+{
+	_Thread *t;
+	
+	t = proc()->thread;
+	return t->id;
+}
+
 void
 needstack(int n)
 {
