@@ -20,7 +20,7 @@ usage(void)
 	fprint(2, "	writefd name\n");
 	fprint(2, "	stat name\n");
 	fprint(2, "	rdwr name\n");
-	fprint(2, "	ls [-ld] name\n");
+	fprint(2, "	ls [-ldn] name\n");
 	fprint(2, "without -a, name elem/path means /path on server unix!$ns/elem\n");
 	threadexitsall("usage");
 }
@@ -33,6 +33,8 @@ void xwritefd(int, char**);
 void xstat(int, char**);
 void xls(int, char**);
 void xrdwr(int, char**);
+void xrm(int, char**);
+void xcreate(int, char**);
 void xcon(int, char**);
 
 struct {
@@ -47,6 +49,8 @@ struct {
 	"stat", xstat,
 	"rdwr", xrdwr,
 	"ls", xls,
+	"rm", xrm,
+	"create", xcreate,
 };
 
 void
@@ -321,6 +325,55 @@ xrdwr(int argc, char **argv)
 }
 
 void
+xcreate(int argc, char **argv)
+{
+	int i;
+	CFsys *fs;
+	CFid *fid;
+	char *p;
+
+	ARGBEGIN{
+	default:
+		usage();
+	}ARGEND
+	
+	if(argc == 0)
+		usage();
+	
+	for(i=0; i<argc; i++){
+		fs = xparse(argv[i], &p);
+		if((fid=fscreate(fs, p, OREAD, 0666)) == nil)
+			fprint(2, "create %s: %r\n", argv[i]);
+		else
+			fsclose(fid);
+		fsunmount(fs);
+	}
+}
+
+void
+xrm(int argc, char **argv)
+{
+	int i;
+	CFsys *fs;
+	char *p;
+
+	ARGBEGIN{
+	default:
+		usage();
+	}ARGEND
+	
+	if(argc == 0)
+		usage();
+	
+	for(i=0; i<argc; i++){
+		fs = xparse(argv[i], &p);
+		if(fsremove(fs, p) < 0)
+			fprint(2, "remove %s: %r\n", argv[i]);
+		fsunmount(fs);
+	}
+}
+
+void
 rdcon(void *v)
 {
 	int n;
@@ -417,15 +470,19 @@ void
 xls(int argc, char **argv)
 {
 	char *err, *name, *xname, *f[4], buf[4096];
-	int nf, i, j, l;
+	int nf, i, j, l, sort;
 	int lflag, dflag, n, len[4];
 	Dir *d;
 	CFid *fid;
 	CFsys *fs;
 
 	err = nil;
+	sort = 0;
 	lflag = dflag = 0;
 	ARGBEGIN{
+	case 'n':
+		sort = 0;
+		break;
 	case 'l':
 		lflag = 1;
 		break;
@@ -465,7 +522,8 @@ xls(int argc, char **argv)
 				err = "errors";
 				continue;
 			}
-			qsort(d, n, sizeof d[0], dircmp);
+			if(sort)
+				qsort(d, n, sizeof d[0], dircmp);
 			for(j=0; j<5; j++)
 				len[j] = 0;
 			for(i=0; i<n; i++){
