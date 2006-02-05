@@ -755,6 +755,11 @@ respond(Req *r, char *error)
 	srv = r->srv;
 	assert(srv != nil);
 
+	if(r->responded){
+		assert(r->pool);
+		goto free;
+	}
+		
 	assert(r->responded == 0);
 	r->error = error;
 
@@ -806,13 +811,16 @@ if(chatty9p)
 		sysfatal("lib9p srv: write %d returned %d on fd %d: %r", n, m, srv->outfd);
 	qunlock(&srv->wlock);
 
+free:
 	qlock(&r->lk);	/* no one will add flushes now */
 	r->responded = 1;
-	qunlock(&r->lk);
-
+	
 	for(i=0; i<r->nflush; i++)
 		respond(r->flush[i], nil);
 	free(r->flush);
+	r->nflush = 0;
+	r->flush = nil;
+	qunlock(&r->lk);
 
 	if(r->pool)
 		closereq(r);

@@ -21,5 +21,8 @@ readbuf(Req *r, void *s, long n)
 void
 readstr(Req *r, char *s)
 {
-	readbuf(r, s, strlen(s));
+	if(s == nil)
+		r->ofcall.count = 0;
+	else
+		readbuf(r, s, strlen(s));
 }
