@@ -187,11 +187,14 @@ lput8(Map *map, Regs *regs, Loc loc, u64int u)
 	return -1;
 }
 
+static Loc zl;
+
 Loc
 locaddr(ulong addr)
 {
 	Loc l;
 
+	l = zl;
 	l.type = LADDR;
 	l.addr = addr;
 	return l;
@@ -202,6 +205,7 @@ locindir(char *reg, long offset)
 {
 	Loc l;
 
+	l = zl;
 	l.type = LOFFSET;
 	l.reg = reg;
 	l.offset = offset;
@@ -214,6 +218,7 @@ locconst(ulong con)
 {
 	Loc l;
 
+	l = zl;
 	l.type = LCONST;
 	l.addr = con;
 	return l;
@@ -224,6 +229,7 @@ locnone(void)
 {
 	Loc l;
 
+	l = zl;
 	l.type = LNONE;
 	return l;
 }
@@ -233,6 +239,7 @@ locreg(char *reg)
 {
 	Loc l;
 
+	l = zl;
 	l.type = LREG;
 	l.reg = reg;
 	return l;
