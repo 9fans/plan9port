@@ -18,7 +18,7 @@ void sqrt(int p2)
 	else		/* DEV202, DEVPOST */
 		eht[yyval] = EM(1.15, nps);
 	dprintf(".\tS%d <- sqrt S%d;b=%g, h=%g, nps=%d\n", 
-		yyval, p2, ebase[yyval], eht[yyval], nps);
+		(int)yyval, p2, ebase[yyval], eht[yyval], nps);
 	printf(".as %d \\|\n", (int)yyval);
 	nrwid(p2, ps, p2);
 	if (af++ == 0)

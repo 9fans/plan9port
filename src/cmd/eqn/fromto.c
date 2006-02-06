@@ -31,10 +31,10 @@ void fromto(int p1, int p2, int p3)
 		printf("\\v'%gm'\\h'\\n(%du-\\n(%du/2u'%s\\*(%d%s", 
 			REL(t,ps), (int)yyval, p2, DPS(ps,subps), p2, DPS(subps,ps));
 		printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\\n", 
-			yyval, p2, REL(-t,ps));
+			(int)yyval, p2, REL(-t,ps));
 	}
 	printf("\\h'\\n(%du-\\n(%du/2u'\\*(%d\\h'\\n(%du-\\n(%du/2u'\\\n", 
-		yyval, p1, p1, (int)yyval, p1);
+		(int)yyval, p1, p1, (int)yyval, p1);
 	if (p3  >0) {
 		t = h1-b1+ebase[p3];
 		printf("\\v'%gm'\\h'-\\n(%du-\\n(%du/2u'%s\\*(%d%s\\h'\\n(%du-\\n(%du/2u'\\v'%gm'\\\n", 
@@ -43,7 +43,7 @@ void fromto(int p1, int p2, int p3)
 	printf("\n");
 	ebase[yyval] = b + b1;
 	dprintf(".\tS%d <- %d from %d to %d; h=%g b=%g\n", 
-		yyval, p1, p2, p3, eht[yyval], ebase[yyval]);
+		(int)yyval, p1, p2, p3, eht[yyval], ebase[yyval]);
 	sfree(p1);
 	if (p2 > 0)
 		sfree(p2);

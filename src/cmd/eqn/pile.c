@@ -63,7 +63,7 @@ void pile(int oct)
 			printf("\\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d", 
 				REL(-bi,ps), (int)yyval, lp[i], lp[i]);
 			printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\\n", 
-				yyval, lp[i], REL(bi,ps));
+				(int)yyval, lp[i], REL(bi,ps));
 			break;
 		}
 		sb += eht[lp[i]] + gap;
