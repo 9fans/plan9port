@@ -115,9 +115,12 @@ wintaglines(Window *w, Rectangle r)
 
 	/* if tag ends with \n, include empty line at end for typing */
 	n = w->tag.fr.nlines;
-	bufread(&w->tag.file->b, w->tag.file->b.nc-1, &rune, 1);
+	if(w->tag.file->b.nc > 0)
+		bufread(&w->tag.file->b, w->tag.file->b.nc-1, &rune, 1);
 	if(rune == '\n')
 		n++;
+	if(n == 0)
+		n = 1;
 	return n;
 }
 

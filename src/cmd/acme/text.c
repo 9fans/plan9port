@@ -1009,8 +1009,8 @@ textselect(Text *t)
 	while(mouse->buttons){
 		mouse->msec = 0;
 		b = mouse->buttons;
-		if(b & 6){
-			if(state==0 && op==0 && t->what==Body){
+		if((b&1) && (b&6)){
+			if(state==0 && t->what==Body){
 				seq++;
 				filemark(t->w->body.file);
 			}
@@ -1019,18 +1019,18 @@ textselect(Text *t)
 					winundo(t->w, TRUE);
 					textsetselect(t, q0, t->q0);
 					state = 0;
-				}else if(state != 1 && op != -1){
+				}else if(state != 1){
 					cut(t, t, nil, TRUE, TRUE, nil, 0);
-					op = state = 1;
+					state = 1;
 				}
 			}else{
 				if(state==1 && t->what==Body){
 					winundo(t->w, TRUE);
 					textsetselect(t, q0, t->q1);
 					state = 0;
-				}else if(state != -1 && op != 1){
+				}else if(state != -1){
 					paste(t, t, nil, TRUE, FALSE, nil, 0);
-					op = state = -1;
+					state = -1;
 				}
 			}
 			textscrdraw(t);
