@@ -17,6 +17,7 @@ void		threadsetname(char*, ...);
 void		threadsetstate(char*, ...);
 char		*threadgetname(void);
 int			threadyield(void);
+int			threadidle(void);
 void		_threadready(_Thread*);
 void		_threadswitch(void);
 void		_threadsetsysproc(void);

@@ -126,6 +126,7 @@ struct Proc
 	int			nswitch;
 	_Thread		*thread;
 	_Threadlist	runqueue;
+	_Threadlist	idlequeue;
 	_Threadlist	allthreads;
 	uint		nthread;
 	uint		sysproc;

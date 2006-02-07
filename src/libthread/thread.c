@@ -208,6 +208,22 @@ _threadready(_Thread *t)
 }
 
 int
+threadidle(void)
+{
+	int n;
+	Proc *p;
+	
+	p = proc();
+	n = p->nswitch;
+	lock(&p->lock);
+	p->runrend.l = &p->lock;
+	addthread(&p->idlequeue, p->thread);
+	unlock(&p->lock);
+	_threadswitch();
+	return p->nswitch - n;
+}
+
+int
 threadyield(void)
 {
 	int n;
@@ -255,6 +271,16 @@ procscheduler(Proc *p)
 		while((t = p->runqueue.head) == nil){
 			if(p->nthread == 0)
 				goto Out;
+			if((t = p->idlequeue.head) != nil){
+				/*
+				 * Run all the idling threads once.
+				 */
+				while((t = p->idlequeue.head) != nil){
+					delthread(&p->idlequeue, t);
+					addthread(&p->runqueue, t);
+				}
+				continue;
+			}
 			p->runrend.l = &p->lock;
 			_threaddebug("scheduler sleep");
 			_procsleep(&p->runrend);
@@ -272,7 +298,7 @@ procscheduler(Proc *p)
 		if(t->exiting){
 			delthreadinproc(p, t);
 			p->nthread--;
-//print("ntrhead %d\n", p->nthread);
+//print("nthread %d\n", p->nthread);
 			free(t);
 		}
 	}
@@ -598,7 +624,8 @@ main(int argc, char **argv)
 
 	argv0 = argv[0];
 
-	_threadsetupdaemonize();
+	if(getenv("NOLIBTHREADDAEMONIZE") == nil)
+		_threadsetupdaemonize();
 
 	threadargc = argc;
 	threadargv = argv;
