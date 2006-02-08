@@ -9,3 +9,19 @@ char *SHELL = 		"#9/bin/rc";
 char *POST =		"#9/sys/lib/post/dispatch";
 
 int MBOXMODE = 0662;
+
+void
+upasconfig(void)
+{
+	static int did;
+	
+	if(did)
+		return;
+	did = 1;
+	MAILROOT = unsharp(MAILROOT);
+	UPASLOG = unsharp(UPASLOG);
+	UPASLIB = unsharp(UPASLIB);
+	UPASBIN = unsharp(UPASBIN);
+	SHELL = unsharp(SHELL);
+	POST = unsharp(POST);
+}

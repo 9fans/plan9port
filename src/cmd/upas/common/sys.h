@@ -6,7 +6,7 @@
 #include <libc.h>
 #include <regexp.h>
 #include <bio.h>
-#include "libString.h"   /* jpc String.h -> libString.h */
+#include <libString.h>
 
 /*
  *  for the lock routines in libsys.c
@@ -19,7 +19,7 @@ struct Mlock {
 };
 
 /*
- *  from config.c
+ *  from config.c - call upasconfig() before using
  */
 extern char *MAILROOT;	/* root of mail system */
 extern char *UPASLOG;	/* log directory */
@@ -29,6 +29,7 @@ extern char *UPASTMP;	/* temporary directory */
 extern char *SHELL;	/* path name of shell */
 extern char *POST;	/* path name of post server addresses */
 extern int MBOXMODE;	/* default mailbox protection mode */
+extern void upasconfig(void);
 
 /*
  *  files in libsys.c
@@ -58,7 +59,6 @@ extern int	syskill(int);
 extern int	syskillpg(int);
 extern int	syscreate(char*, int, ulong);
 extern Mlock	*trylock(char *);
-extern void	exit9(int);
 extern void	pipesig(int*);
 extern void	pipesigoff(void);
 extern int	holdon(void);

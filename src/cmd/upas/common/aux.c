@@ -30,8 +30,8 @@ append_match(Resub *subexp, String *sp, int se)
 {
 	char *cp, *ep;
 
-	cp = subexp[se].s.sp;    /* jpc .sp -> .s.sp */
-	ep = subexp[se].e.ep;    /* jpc .ep -> .e.ep */
+	cp = subexp[se].s.sp;
+	ep = subexp[se].e.ep;
 	for (; cp < ep; cp++)
 		s_putc(sp, *cp);
 	s_terminate(sp);
@@ -53,7 +53,7 @@ shellchars(char *cp)
 	return 0;
 }
 
-static char *specialchars = " ()<>{};=\\'\`^&|";
+static char *specialchars = " ()<>{};=\\'`^&|";
 static char *escape = "%%";
 
 int

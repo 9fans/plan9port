@@ -93,10 +93,8 @@ noshell_proc_start(char **av, stream *inp, stream *outp, stream *errp, int newpg
 				dup(pp->std[i]->fd, i);
 		for (n = sysfiles(); i < n; i++)
 			close(i);
-		if(who) {
-			fprint(2,"process.c: trying to become(%s,%s)\n",av,who);
-			// jpc become(av, who);
-		}
+		if(who)
+			fprint(2, "warning: cannot run %s as %s\n", av[0], who);
 		exec(av[0], av);
 		perror("proc_start");
 		exits("proc_start");
@@ -116,7 +114,8 @@ proc_start(char *cmd, stream *inp, stream *outp, stream *errp, int newpg, char *
 {
 	char *av[4];
 
-	av[0] = unsharp(SHELL);
+	upasconfig();
+	av[0] = SHELL;
 	av[1] = "-c";
 	av[2] = cmd;
 	av[3] = 0;

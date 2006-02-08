@@ -33,24 +33,7 @@ getlog(void)
 {
 	return getuser();
 }
-#if 0  /* jpc */
-extern char *
-getlog(void)
-{
-	static char user[64];
-	int fd;
-	int n;
 
-	fd = open("/dev/user", 0);
-	if(fd < 0)
-		return nil;
-	if((n=read(fd, user, sizeof(user)-1)) <= 0)
-		return nil;
-	close(fd);
-	user[n] = 0;
-	return user;
-}
-#endif /* jpc */
 /*
  *  return the lock name (we use one lock per directory)
  */
@@ -704,64 +687,17 @@ pipesigoff(void)
 	atnotify(catchpipe, 0);
 }
 
-void
-exit9(int i)
-{
-	char buf[32];
-
-	if(i == 0)
-		exits(0);
-	snprint(buf, sizeof(buf), "%d", i);
-	exits(buf);
-}
-
-static int
-islikeatty(int fd)
-{
-	Dir *d;
-	int rv;
-
-	d = dirfstat(fd);
-	if(d == nil)
-		return 0;
-	rv = strcmp(d->name, "cons") == 0;
-	free(d);
-	return rv;
-}
-
-#if 0
-/* jpc */
-static int
-islikeatty(int fd)
-{
-	char buf[64];
-
-	if(fd2path(fd, buf, sizeof buf) != 0)
-		return 0;
-
-	/* might be /mnt/term/dev/cons */
-	return strlen(buf) >= 9 && strcmp(buf+strlen(buf)-9, "/dev/cons") == 0;
-}
-#endif
-
 extern int
 holdon(void)
 {
-	int fd;
-
-	if(!islikeatty(0))
-		return -1;
-
-	fd = open("/dev/consctl", OWRITE);
-	write(fd, "holdon", 6);
-
-	return fd;
+	/* XXX talk to 9term? */
+	return -1;
 }
 
 extern int
 sysopentty(void)
 {
-	return open("/dev/cons", ORDWR);
+	return open("/dev/tty", ORDWR);
 }
 
 extern void
@@ -786,11 +722,13 @@ sysfiles(void)
 extern String *
 mboxpath(char *path, char *user, String *to, int dot)
 {
+	upasconfig();
+
 	if (dot || *path=='/' || strncmp(path, "./", 2) == 0
 			      || strncmp(path, "../", 3) == 0) {
 		to = s_append(to, path);
 	} else {
-		to = s_append(to, unsharp(MAILROOT));
+		to = s_append(to, MAILROOT);
 		to = s_append(to, "/box/");
 		to = s_append(to, user);
 		to = s_append(to, "/");
@@ -885,35 +823,7 @@ username(String *from)
 char *
 remoteaddr(int fd, char *dir)
 {
-	char buf[128], *p;
-	int n;
-
-	if(dir == 0){
-		fprint(2,"remoteaddr: called fd2path: fixme\n"); /* jpc
-		if(fd2path(fd, buf, sizeof(buf)) != 0)
-			return ""; */
-
-		/* parse something of the form /net/tcp/nnnn/data */
-		p = strrchr(buf, '/');
-		if(p == 0)
-			return "";
-		strncpy(p+1, "remote", sizeof(buf)-(p-buf)-2);
-	} else
-		snprint(buf, sizeof buf, "%s/remote", dir);
-	buf[sizeof(buf)-1] = 0;
-
-	fd = open(buf, OREAD);
-	if(fd < 0)
-		return "";
-	n = read(fd, buf, sizeof(buf)-1);
-	close(fd);
-	if(n > 0){
-		buf[n] = 0;
-		p = strchr(buf, '!');
-		if(p)
-			*p = 0;
-		return strdup(buf);
-	}
+	/* XXX should call netconninfo */
 	return "";
 }
 

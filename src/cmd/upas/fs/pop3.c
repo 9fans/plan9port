@@ -231,10 +231,8 @@ pop3login(Pop *pop)
 		if(pop->needtls && !pop->encrypted)
 			return "could not negotiate TLS";
 
-		up = auth_getuserpasswd(auth_getkey, "role=client proto=pass service=pop dom=%q%s",
+		up = auth_getuserpasswd(auth_getkey, "proto=pass role=client service=pop dom=%q%s",
 			pop->host, ubuf);
-		/* up = auth_getuserpasswd(auth_getkey, "proto=pass service=pop dom=%q%s",
-			pop->host, ubuf); jpc */
 		if(up == nil)
 			return "no usable keys found";
 

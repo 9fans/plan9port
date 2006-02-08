@@ -3,7 +3,6 @@
 #include <draw.h>
 #include <plumb.h>
 #include <regexp.h>
-//jpc #include <event.h>	/* for support routines only */
 #include <bio.h>
 #include <thread.h>
 #include <mouse.h>
@@ -20,6 +19,8 @@ enum
 	Infolines = 9,
 
 	HhmmTime = 18*60*60,	/* max age of face to display hh:mm time */
+	
+	STACK = 32768
 };
 
 enum
@@ -27,6 +28,7 @@ enum
 	Mainp,
 	Timep,
 	Mousep,
+	Resizep,
 	NPROC
 };
 
@@ -34,7 +36,8 @@ int pids[NPROC];
 char *procnames[] = {
 	"main",
 	"time",
-	"mouse"
+	"mouse",
+	"resize",
 };
 
 Rectangle leftright = {0, 0, 20, 15};
@@ -57,7 +60,7 @@ uchar rightdata[] = {
 	0x18, 0x00, 0x00, 0x10, 0x00
 };
 
-CFsys	*upasfs;
+CFsys	*mailfs;
 Mousectl	*mousectl;
 Image	*blue;		/* full arrow */
 Image	*bgrnd;		/* pale blue background color */
@@ -74,7 +77,7 @@ int	ndown;
 
 char	date[64];
 Face	**faces;
-char	*maildir = "/mail/fs/mbox";
+char	*maildir = "INBOX";
 ulong	now;
 
 Point	datep = { 8, 6 };
@@ -83,6 +86,7 @@ Point	enddate;			/* where date ends on display; used to place arrows */
 Rectangle	leftr;			/* location of left arrow on display */
 Rectangle	rightr;		/* location of right arrow on display */
 void updatetimes(void);
+void eresized(int);
 
 void
 setdate(void)
@@ -95,15 +99,12 @@ setdate(void)
 void
 init(void)
 {
-#if 0
-	mousefd = open("/dev/mouse", OREAD);
-	if(mousefd < 0){
-		fprint(2, "faces: can't open mouse: %r\n");
-		threadexitsall("mouse");
-	}
-#endif
-	upasfs = nsmount("upasfs",nil);
-	mousectl = initmouse(nil,screen);
+	mailfs = nsmount("mail", nil);
+	if(mailfs == nil)
+		sysfatal("mount mail: %r");
+	mousectl = initmouse(nil, screen);
+	if(mousectl == nil)
+		sysfatal("initmouse: %r");
 	initplumb();
 
 	/* make background color */
@@ -332,7 +333,7 @@ addface(Face *f)	/* always adds at 0 */
 	lockdisplay(display);
 	if(first != 0){
 		first = 0;
-		resized();
+		eresized(0);
 	}
 	findbit(f);
 
@@ -366,27 +367,6 @@ addface(Face *f)	/* always adds at 0 */
 	unlockdisplay(display);
 }
 
-#if 0
-void
-loadmboxfaces(char *maildir)
-{
-	int dirfd;
-	Dir *d;
-	int i, n;
-
-	dirfd = open(maildir, OREAD);
-	if(dirfd >= 0){
-		chdir(maildir);
-		while((n = dirread(dirfd, &d)) > 0){
-			for(i=0; i<n; i++)
-				addface(dirface(maildir, d[i].name));
-			free(d);
-		}
-		close(dirfd);
-	}
-}
-#endif
-
 void
 loadmboxfaces(char *maildir)
 {
@@ -394,20 +374,16 @@ loadmboxfaces(char *maildir)
 	Dir *d;
 	int i, n;
 
-	dirfd = fsopen(upasfs,maildir, OREAD);
+	dirfd = fsopen(mailfs, maildir, OREAD);
 	if(dirfd != nil){
-		//jpc chdir(maildir);
 		while((n = fsdirread(dirfd, &d)) > 0){
-			for(i=0; i<n; i++) {
+			for(i=0; i<n; i++)
 				addface(dirface(maildir, d[i].name));
-			}
 			free(d);
 		}
 		fsclose(dirfd);
-	}
-	else {
-		error("cannot open %s: %r",maildir);
-	}
+	}else
+		sysfatal("open %s: %r", maildir);
 }
 
 void
@@ -542,30 +518,15 @@ eresized(int new)
 	unlockdisplay(display);
 }
 
-#if 0
-int
-getmouse(Mouse *m)
+void
+resizeproc(void *v)
 {
-	int n;
-	static int eof;
-	char buf[128];
+	USED(v);
 
-	if(eof)
-		return 0;
-	for(;;){
-		n = read(mousefd, buf, sizeof(buf));
-		if(n <= 0){
-			/* so callers needn't check return value every time */
-			eof = 1;
-			m->buttons = 0;
-			return 0;
-		}
-		//jpc n = eatomouse(m, buf, n);
-		if(n > 0)
-			return 1;
-	}
+	while(recv(mousectl->resizec, 0) == 1)
+		eresized(1);
 }
-#endif
+
 int
 getmouse(Mouse *m)
 {
@@ -573,19 +534,13 @@ getmouse(Mouse *m)
 
 	if(eof)
 		return 0;
-	if( readmouse(mousectl) < 0 ) {
+	if(readmouse(mousectl) < 0){
 		eof = 1;
 		m->buttons = 0;
 		return 0;
 	}
-	else {
-		*m = mousectl->m;
-/*		m->buttons = mousectl->m.buttons;
-		m->xy.x = mousectl->m.xy.x;
-		m->xy.y = mousectl->m.xy.y;
-		m->msec = mousectl->m.msec;	*/
-		return 1;
-	}
+	*m = mousectl->m;
+	return 1;
 }
 
 enum
@@ -680,9 +635,10 @@ click(int button, Mouse *m)
 }
 
 void
-mouseproc(void *dummy)
+mouseproc(void *v)
 {
 	Mouse mouse;
+	USED(v);
 
 	while(getmouse(&mouse)){
 		if(mouse.buttons == 1)
@@ -700,33 +656,7 @@ mouseproc(void *dummy)
 void
 killall(char *s)
 {
-	int i, pid;
-
-	pid = getpid();
-	for(i=0; i<NPROC; i++)
-		if(pids[i] && pids[i]!=pid)
-			postnote(PNPROC, pids[i], "kill");
 	threadexitsall(s);
-}
-
-void
-startproc(void (*f)(void), int index)
-{
-	int pid;
-
-	switch(pid = rfork(RFPROC|RFNOWAIT)){ //jpc removed |RFMEM
-	case -1:
-		fprint(2, "faces: fork failed: %r\n");
-		killall("fork failed");
-	case 0:
-		f();
-		fprint(2, "faces: %s process exits\n", procnames[index]);
-		if(index >= 0)
-			killall("process died");
-		threadexitsall(nil);
-	}
-	if(index >= 0)
-		pids[index] = pid;
 }
 
 void
@@ -740,6 +670,8 @@ void
 threadmain(int argc, char *argv[])
 {
 	int i;
+
+	rfork(RFNOTEG);
 
 	ARGBEGIN{
 	case 'h':
@@ -772,8 +704,9 @@ threadmain(int argc, char *argv[])
 	eresized(0);
 
 	pids[Mainp] = getpid();
-	pids[Timep] = proccreate(timeproc, nil, 16000);
-	pids[Mousep] = proccreate(mouseproc, nil, 16000);
+	pids[Timep] = proccreate(timeproc, nil, STACK);
+	pids[Mousep] = proccreate(mouseproc, nil, STACK);
+	pids[Resizep] = proccreate(resizeproc, nil, STACK);
 	if(initload)
 		for(i = 0; i < nmaildirs; i++)
 			loadmboxfaces(maildirs[i]);
