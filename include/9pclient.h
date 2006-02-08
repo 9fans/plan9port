@@ -44,6 +44,9 @@ CFid *nsopen(char*, char*, char*, int);
 int	fsfremove(CFid*);
 int	fsremove(CFsys*, char*);
 CFid *fscreate(CFsys*, char*, int, ulong);
+int fsaccess(CFsys*, char*, int);
+int	fsvprint(CFid*, char*, va_list);
+int	fsprint(CFid*, char*, ...);
 
 extern int chatty9pclient;
 

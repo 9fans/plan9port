@@ -12,6 +12,7 @@ OFILES=\
 	ns.$O\
 	open.$O\
 	openfd.$O\
+	print.$O\
 	read.$O\
 	remove.$O\
 	seek.$O\
