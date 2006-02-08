@@ -949,7 +949,8 @@ textselect(Text *t)
 {
 	uint q0, q1;
 	int b, x, y;
-	int state, op;
+	int state;
+	enum { None, Cut, Paste };
 
 	selecttext = t;
 	/*
@@ -1005,32 +1006,32 @@ textselect(Text *t)
 		clicktext = nil;
 	textsetselect(t, q0, q1);
 	flushimage(display, 1);
-	state = op = 0;	/* undo when possible; +1 for cut, -1 for paste */
+	state = None;	/* what we've done; undo when possible */
 	while(mouse->buttons){
 		mouse->msec = 0;
 		b = mouse->buttons;
 		if((b&1) && (b&6)){
-			if(state==0 && t->what==Body){
+			if(state==None && t->what==Body){
 				seq++;
 				filemark(t->w->body.file);
 			}
 			if(b & 2){
-				if(state==-1 && t->what==Body){
-					winundo(t->w, TRUE);
-					textsetselect(t, q0, t->q0);
-					state = 0;
-				}else if(state != 1){
-					cut(t, t, nil, TRUE, TRUE, nil, 0);
-					state = 1;
-				}
-			}else{
-				if(state==1 && t->what==Body){
+				if(state==Paste && t->what==Body){
 					winundo(t->w, TRUE);
 					textsetselect(t, q0, t->q1);
-					state = 0;
-				}else if(state != -1){
+					state = None;
+				}else if(state != Cut){
+					cut(t, t, nil, TRUE, TRUE, nil, 0);
+					state = Cut;
+				}
+			}else{
+				if(state==Cut && t->what==Body){
+					winundo(t->w, TRUE);
+					textsetselect(t, q0, t->q1);
+					state = None;
+				}else if(state != Paste){
 					paste(t, t, nil, TRUE, FALSE, nil, 0);
-					state = -1;
+					state = Paste;
 				}
 			}
 			textscrdraw(t);
