@@ -92,79 +92,16 @@ error(char *fmt, ...)
 	threadexitsall(fmt);
 }
 
-#if 0 /* jpc */
 void
-ctlprint(int fd, char *fmt, ...)
+ctlprint(CFid *fd, char *fmt, ...)
 {
 	int n;
 	va_list arg;
 
 	va_start(arg, fmt);
-	n = vfprint(fd, fmt, arg);
+	n = fsvprint(fd, fmt, arg);
 	va_end(arg);
-	fsync(fd);
-	if(n <= 0)
-		error("control file write error: %r");
-}
-#endif
-
-void
-ctlprint(CFid* fd, char *fmt, ...)
-{
-	int n;
-	va_list arg;
-	char tmp[250];
-
-	va_start(arg, fmt);
-	n = vsnprint(tmp, 250, fmt, arg);
-	va_end(arg);
-	n = fswrite(fd, tmp, strlen(tmp));
 	if(n <= 0)
 		error("control file write error: %r");
 }
 
-int fsprint(CFid *fid, char* fmt, ...) {
-	// example call this replaces:  Bprint(b, ">%s%s\n", lines[i][0]=='>'? "" : " ", lines[i]);
-	char *tmp;
-	va_list arg;
-	int n, tlen;
-
-	tmp = emalloc( tlen=(strlen(fmt)+250) );  // leave room for interpolated text
-	va_start(arg, fmt);
-	n = vsnprint(tmp, tlen, fmt, arg);
-	va_end(arg);
-	if(n == tlen)
-		error("fsprint formatting error");
-	n = fswrite(fid, tmp, strlen(tmp));
-	if(n <= 0)
-		error("fsprint write error: %r");
-	free(tmp);
-
-	return n;
-
-}
-#if 0 /* jpc */
-/*
-here's a read construct (from winselection) that may be useful in fsprint - think about it.
-*/
-	int m, n;
-	char *buf;
-	char tmp[256];
-	CFid* fid;
-
-	fid = winopenfid1(w, "rdsel", OREAD);
-	if(fid == nil)
-		error("can't open rdsel: %r");
-	n = 0;
-	buf = nil;
-
-	for(;;){
-		m = fsread(fid, tmp, sizeof tmp);
-		if(m <= 0)
-			break;
-		buf = erealloc(buf, n+m+1);
-		memmove(buf+n, tmp, m);
-		n += m;
-		buf[n] = '\0';
-	}
-#endif

@@ -3,39 +3,23 @@
 #include <bio.h>
 #include <thread.h>
 #include <plumb.h>
-#include <9pclient.h> /* jpc */
+#include <9pclient.h>
 #include "dat.h"
-
-extern CFsys *acmefs; /* jpc */
 
 Window*
 newwindow(void)
 {
 	char buf[12];
 	Window *w;
-	int n = 0;
 
 	w = emalloc(sizeof(Window));
-/* jpc
-	w->ctl = open("/mnt/wsys/new/ctl", ORDWR|OCEXEC);
-	if(w->ctl<0 || read(w->ctl, buf, 12)!=12)
-		error("can't open window ctl file: %r");
-*/
-/*	w->ctl = fsopenfd(acmefs, "new/ctl", ORDWR|OCEXEC);
-	if(w->ctl<0 || (n = read(w->ctl, buf, 12))!=12) {
-		fprint(2,"%d bytes read from %d\n",n,w->ctl);
-		error("can't open window ctl file: %r");
-	}
-  jpc end */
 	w->ctl = fsopen(acmefs, "new/ctl", ORDWR|OCEXEC);
-	if(w->ctl == nil || (n = fsread(w->ctl, buf, 12))!=12) {
-		fprint(2,"%d bytes read from %d\n",n,w->ctl);
+	if(w->ctl == nil || fsread(w->ctl, buf, 12)!=12)
 		error("can't open window ctl file: %r");
-	}
 
 	ctlprint(w->ctl, "noscroll\n");
 	w->id = atoi(buf);
-	w->event = winopenfid(w, "event");
+	w->event = winopenfile(w, "event");
 	w->addr = nil;	/* will be opened when needed */
 	w->body = nil;
 	w->data = nil;
@@ -68,7 +52,7 @@ wineventproc(void *v)
 }
 
 static CFid*
-winopenfid1(Window *w, char *f, int m)
+winopenfile1(Window *w, char *f, int m)
 {
 	char buf[64];
 	CFid* fd;
@@ -80,30 +64,7 @@ winopenfid1(Window *w, char *f, int m)
 	return fd;
 }
 
-static int
-winopenfile1(Window *w, char *f, int m)
-{
-	char buf[64];
-	int fd;
-
-/* jpc
-	sprint(buf, "/mnt/wsys/%d/%s", w->id, f);
-	fd = open(buf, m|OCEXEC);
-*/
-	sprint(buf, "%d/%s", w->id, f);
-	fd = fsopenfd(acmefs, buf, m|OCEXEC);
-	if(fd < 0)
-		error("can't open window file %s: %r", f);
-	return fd;
-}
-
 CFid*
-winopenfid(Window *w, char *f)
-{
-	return winopenfid1(w, f, ORDWR);
-}
-
-int
 winopenfile(Window *w, char *f)
 {
 	return winopenfile1(w, f, ORDWR);
@@ -114,7 +75,7 @@ wintagwrite(Window *w, char *s, int n)
 {
 	CFid* fid;
 
-	fid = winopenfid(w, "tag");
+	fid = winopenfile(w, "tag");
 	if(fswrite(fid, s, n) != n)
 		error("tag write: %r");
 	fsclose(fid);
@@ -132,13 +93,9 @@ winopenbody(Window *w, int mode)
 	char buf[256];
 	CFid* fid;
 
-/* jpc
-	sprint(buf, "/mnt/wsys/%d/body", w->id);
-	w->body = Bopen(buf, mode|OCEXEC);
-*/
 	sprint(buf, "%d/body", w->id);
-	fid = fsopen(acmefs,buf, mode|OCEXEC);
-	w->body = fid; // jpcBfdopen(id, mode|OCEXEC);
+	fid = fsopen(acmefs, buf, mode|OCEXEC);
+	w->body = fid;
 	if(w->body == nil)
 		error("can't open window body file: %r");
 }
@@ -147,7 +104,6 @@ void
 winclosebody(Window *w)
 {
 	if(w->body != nil){
-		// jpc Bterm(w->body);
 		fsclose(w->body);
 		w->body = nil;
 	}
@@ -158,7 +114,6 @@ winwritebody(Window *w, char *s, int n)
 {
 	if(w->body == nil)
 		winopenbody(w, OWRITE);
-	// jpc if(Bwrite(w->body, s, n) != n)
 	if(fswrite(w->body, s, n) != n)
 		error("write error to window: %r");
 }
@@ -246,9 +201,9 @@ winread(Window *w, uint q0, uint q1, char *data)
 	char buf[256];
 
 	if(w->addr == nil)
-		w->addr = winopenfid(w, "addr");
+		w->addr = winopenfile(w, "addr");
 	if(w->data == nil)
-		w->data = winopenfid(w, "data");
+		w->data = winopenfile(w, "data");
 	m = q0;
 	while(m < q1){
 		n = sprint(buf, "#%d", m);
@@ -292,14 +247,10 @@ windormant(Window *w)
 int
 windel(Window *w, int sure)
 {
-	if(sure) {
+	if(sure)
 		fswrite(w->ctl, "delete\n", 7);
-		// fsync(w->ctl);
-	}
-	else if(fswrite(w->ctl, "del\n", 4) != 4) {
-		// fsync(w->ctl);
+	else if(fswrite(w->ctl, "del\n", 4) != 4)
 		return 0;
-	}
 	/* event proc will die due to read error from event file */
 	windormant(w);
 	fsclose(w->ctl);
@@ -312,9 +263,6 @@ windel(Window *w, int sure)
 void
 winclean(Window *w)
 {
-	// int fd;
-	// if(w->body)
-	// 	Bflush(w->body);
 	ctlprint(w->ctl, "clean\n");
 }
 
@@ -322,7 +270,7 @@ int
 winsetaddr(Window *w, char *addr, int errok)
 {
 	if(w->addr == nil)
-		w->addr = winopenfid(w, "addr");
+		w->addr = winopenfile(w, "addr");
 	if(fswrite(w->addr, addr, strlen(addr)) < 0){
 		if(!errok)
 			error("error writing addr(%s): %r", addr);
@@ -358,7 +306,6 @@ winreadbody(Window *w, int *np)	/* can't use readfile because acme doesn't repor
 			na += 1024;
 			s = realloc(s, na+1);
 		}
-		// jpc m = Bread(w->body, s+n, na-n);
 		m = fsread(w->body, s+n, na-n);
 		if(m <= 0)
 			break;
@@ -378,7 +325,7 @@ winselection(Window *w)
 	char tmp[256];
 	CFid* fid;
 
-	fid = winopenfid1(w, "rdsel", OREAD);
+	fid = winopenfile1(w, "rdsel", OREAD);
 	if(fid == nil)
 		error("can't open rdsel: %r");
 	n = 0;

@@ -4,12 +4,11 @@
 #include <thread.h>
 #include <plumb.h>
 #include <ctype.h>
-#include <9pclient.h> /* jpc */
+#include <9pclient.h>
 #include "dat.h"
 
-char	*maildir = "/mail/fs/";			/* mountpoint of mail file system */
-char	*mailtermdir = "/mnt/term/mail/fs/";	/* alternate mountpoint */
-char *mboxname = "mbox";			/* mailboxdir/mboxname is mail spool file */
+char	*maildir = "/mail/";			/* mountpoint of mail file system */
+char *mboxname = "INBOX";			/* mailboxdir/mboxname is mail spool file */
 char	*mailboxdir = nil;				/* nil == /mail/box/$user */
 char *fsname;						/* filesystem for mailboxdir/mboxname is at maildir/fsname */
 char	*user;
@@ -37,8 +36,8 @@ void		plumbsendthread(void*);
 
 int			shortmenu;
 
-CFsys *upasfs;  /*jpc */
-CFsys *acmefs; /*jpc */
+CFsys *mailfs;
+CFsys *acmefs;
 
 void
 usage(void)
@@ -55,7 +54,7 @@ removeupasfs(void)
 	if(strcmp(mboxname, "mbox") == 0)
 		return;
 	snprint(buf, sizeof buf, "close %s", mboxname);
-	write(mbox.ctlfd, buf, strlen(buf));
+	fswrite(mbox.ctlfd, buf, strlen(buf));
 }
 
 int
@@ -90,11 +89,6 @@ threadmain(int argc, char *argv[])
 	plumbseemailfd = plumbopen("seemail", OREAD|OCEXEC);
 	plumbshowmailfd = plumbopen("showmail", OREAD|OCEXEC);
 
-	/* jpc */
-	acmefs = nsmount("acme",nil);
-	upasfs = nsmount("upasfs", nil);
-	/* jpc end */
-
 	shortmenu = 0;
 	ARGBEGIN{
 	case 's':
@@ -113,13 +107,14 @@ threadmain(int argc, char *argv[])
 		usage();
 	}ARGEND
 
-	name = "mbox";
+	acmefs = nsmount("acme",nil);
+	if(acmefs == nil)
+		error("cannot mount acme: %r");
+	mailfs = nsmount("mail", nil);
+	if(mailfs == nil)
+		error("cannot mount mail: %r");
 
-	/* bind the terminal /mail/fs directory over the local one */
-	if(access(maildir, 0)<0 && access(mailtermdir, 0)==0) {
-		/* jpc - bind(mailtermdir, maildir, MAFTER); */
-		fprint(2,"jpc: trying to bind(mailtermdir, maildir, MAFTER)\n");
-	}
+	name = "INBOX";
 
 	newdir = 1;
 	if(argc > 0){
@@ -154,27 +149,31 @@ threadmain(int argc, char *argv[])
 	user = getenv("user");
 	if(user == nil)
 		user = "none";
+	home = getenv("home");
+	if(home == nil)
+		home = getenv("HOME");
+	if(home == nil)
+		error("can't find $home");
 	if(mailboxdir == nil)
-		mailboxdir = estrstrdup(unsharp("#9/mail/box/"), user);
+		mailboxdir = estrstrdup(home, "/mail");
 	if(outgoing == nil)
 		outgoing = estrstrdup(mailboxdir, "/outgoing");
 
-	// s = estrstrdup(maildir, "ctl");
-	mbox.ctlfd = fsopenfd(upasfs,"ctl", ORDWR|OCEXEC);
-	if(mbox.ctlfd < 0)
-		error("can't open %s: %r\n", s);
+	mbox.ctlfd = fsopen(mailfs, "INBOX/ctl", OWRITE);
+	if(mbox.ctlfd == nil)
+		error("can't open %s: %r", "INBOX/ctl");
 
 	fsname = estrdup(name);
 	if(newdir && argc > 0){
 		s = emalloc(5+strlen(mailboxdir)+strlen(mboxname)+strlen(name)+10+1);
 		for(i=0; i<10; i++){
 			sprint(s, "open %s/%s %s", mailboxdir, mboxname, fsname);
-			if(write(mbox.ctlfd, s, strlen(s)) >= 0)
+			if(fswrite(mbox.ctlfd, s, strlen(s)) >= 0)
 				break;
 			err[0] = '\0';
 			errstr(err, sizeof err);
 			if(strstr(err, "mbox name in use") == nil)
-				error("can't create directory %s for mail: %s\n", name, err);
+				error("can't create directory %s for mail: %s", name, err);
 			free(fsname);
 			fsname = emalloc(strlen(name)+10);
 			sprint(fsname, "%s-%d", name, i);
@@ -186,7 +185,6 @@ threadmain(int argc, char *argv[])
 
 	s = estrstrdup(fsname, "/");
 	mbox.name = estrstrdup(maildir, s);
-	// mbox.name = "/mail/fs/mbox/";
 	mbox.level= 0;
 	readmbox(&mbox, maildir, s);
 	home = getenv("home");
@@ -212,13 +210,13 @@ threadmain(int argc, char *argv[])
 	mbox.w = wbox;
 
 	mesgmenu(wbox, &mbox);
-	// sleep(100);
 	winclean(wbox);
 
-	wctlfd = open("/dev/wctl", OWRITE|OCEXEC);	/* for acme window */
+/*	wctlfd = open("/dev/wctl", OWRITE|OCEXEC);	/* for acme window */
+	wctlfd = -1;
 	cplumb = chancreate(sizeof(Plumbmsg*), 0);
 	cplumbshow = chancreate(sizeof(Plumbmsg*), 0);
-	if(strcmp(name, "mbox") == 0){
+	if(strcmp(name, "INBOX") == 0){
 		/*
 		 * Avoid creating multiple windows to send mail by only accepting
 		 * sendmail plumb messages if we're reading the main mailbox.
@@ -282,24 +280,18 @@ void
 newmesg(char *name, char *digest)
 {
 	Dir *d;
-	char* tmp;
 
-	if(strncmp(name, mbox.name, strlen(mbox.name)) != 0) {
+	if(strncmp(name, mbox.name, strlen(mbox.name)) != 0)
 		return;	/* message is about another mailbox */
-	}
-	if(mesglookupfile(&mbox, name, digest) != nil) {
+	if(mesglookupfile(&mbox, name, digest) != nil)
 		return;
-	}
-	if (strncmp(name,"/mail/fs/",strlen("/mail/fs/"))==0) {
-		tmp = name+strlen("/mail/fs/");
-	}
-	d = fsdirstat(upasfs,tmp);
-	if(d == nil) {
+	if(strncmp(name, "/mail/", 6) == 0)
+		name += 6;
+	d = fsdirstat(mailfs, name);
+	if(d == nil)
 		return;
-	}
-	if(mesgadd(&mbox, mbox.name, d, digest)) {
+	if(mesgadd(&mbox, mbox.name, d, digest))
 		mesgmenunew(wbox, &mbox);
-	}
 	free(d);
 }
 
@@ -307,13 +299,17 @@ void
 showmesg(char *name, char *digest)
 {
 	char *n;
-
-	if(strncmp(name, mbox.name, strlen(mbox.name)) != 0)
+	char *mb;
+	
+	mb = mbox.name;
+	if(strncmp(mb, "/mail/", 6) == 0)
+		mb += 6;
+	if(strncmp(name, mb, strlen(mb)) != 0)
 		return;	/* message is about another mailbox */
-	n = estrdup(name+strlen(mbox.name));
+	n = estrdup(name+strlen(mb));
 	if(n[strlen(n)-1] != '/')
 		n = egrow(n, "/", nil);
-	mesgopen(&mbox, mbox.name, name+strlen(mbox.name), nil, 1, digest);
+	mesgopen(&mbox, mbox.name, name+strlen(mb), nil, 1, digest);
 	free(n);
 }
 
@@ -356,10 +352,11 @@ plumbthread(void)
 }
 
 void
-plumbshowthread(void* v)
+plumbshowthread(void *v)
 {
 	Plumbmsg *m;
 
+	USED(v);
 	threadsetname("plumbshowthread");
 	while((m = recvp(cplumbshow)) != nil){
 		showmesg(m->data, plumblookup(m->attr, "digest"));
@@ -369,10 +366,11 @@ plumbshowthread(void* v)
 }
 
 void
-plumbsendthread(void* v)
+plumbsendthread(void *v)
 {
 	Plumbmsg *m;
 
+	USED(v);
 	threadsetname("plumbsendthread");
 	while((m = recvp(cplumbsend)) != nil){
 		mkreply(nil, "Mail", m->data, m->attr, nil);

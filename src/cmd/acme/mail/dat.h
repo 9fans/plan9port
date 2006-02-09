@@ -26,11 +26,6 @@ struct Event
 struct Window
 {
 	/* file descriptors */
-/* jpc	int		ctl;
-	int		event;
-	int		addr;
-	int		data; 
-	Biobuf	*body; jpc */
 	CFid*		ctl;
 	CFid*		event;
 	CFid*		addr;
@@ -51,7 +46,7 @@ struct Window
 struct Message
 {
 	Window	*w;
-	int		ctlfd;
+	CFid*	ctlfd;
 	char		*name;
 	char		*replyname;
 	uchar	opened;
@@ -64,7 +59,6 @@ struct Message
 	uchar	level;
 
 	/* header info */
-	char		*fromcolon;	/* from header file; all rest are from info file */
 	char		*from;
 	char		*to;
 	char		*cc;
@@ -99,8 +93,7 @@ struct Exec
 };
 
 extern	Window*	newwindow(void);
-extern	int		winopenfile(Window*, char*);
-extern	CFid*	winopenfid(Window*, char*);
+extern	CFid*	winopenfile(Window*, char*);
 extern	void		winopenbody(Window*, int);
 extern	void		winclosebody(Window*);
 extern	void		wintagwrite(Window*, char*, int);
@@ -141,7 +134,6 @@ extern	void		mesgfreeparts(Message*);
 
 extern	char*	readfile(char*, char*, int*);
 extern	char*	readbody(char*, char*, int*);
-// jpc extern	void		ctlprint(int, char*, ...);
 extern	void		ctlprint(CFid*, char*, ...);
 extern	void*	emalloc(uint);
 extern	void*	erealloc(void*, uint);
@@ -170,3 +162,7 @@ extern	char		*user;
 extern	char		deleted[];
 extern	int		wctlfd;
 extern	int		shortmenu;
+
+extern	CFsys	*mailfs;
+extern	CFsys	*acmefs;
+

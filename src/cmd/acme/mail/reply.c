@@ -67,66 +67,6 @@ quote(Message *m, CFid *fid, char *dir, char *quotetext)
 	return 1;
 }
 
-#if 0 /* jpc */
-int
-quote(Message *m, Biobuf *b, char *dir, char *quotetext)
-{
-	char *body, *type;
-	int i, n, nlines;
-	char **lines;
-
-	if(quotetext){
-		body = quotetext;
-		n = strlen(body);
-		type = nil;
-	}else{
-		/* look for first textual component to quote */
-		type = readfile(dir, "type", &n);
-		if(type == nil){
-			print("no type in %s\n", dir);
-			return 0;
-		}
-		if(strncmp(type, "multipart/", 10)==0 || strncmp(type, "message/", 8)==0){
-			dir = estrstrdup(dir, "1/");
-			if(quote(m, b, dir, nil)){
-				free(type);
-				free(dir);
-				return 1;
-			}
-			free(dir);
-		}
-		if(strncmp(type, "text", 4) != 0){
-			free(type);
-			return 0;
-		}
-		body = readbody(m->type, dir, &n);
-		if(body == nil)
-			return 0;
-	}
-	nlines = 0;
-	for(i=0; i<n; i++)
-		if(body[i] == '\n')
-			nlines++;
-	nlines++;
-	lines = emalloc(nlines*sizeof(char*));
-	nlines = getfields(body, lines, nlines, 0, "\n");
-	/* delete leading and trailing blank lines */
-	i = 0;
-	while(i<nlines && lines[i][0]=='\0')
-		i++;
-	while(i<nlines && lines[nlines-1][0]=='\0')
-		nlines--;
-	while(i < nlines){
-		Bprint(b, ">%s%s\n", lines[i][0]=='>'? "" : " ", lines[i]);
-		i++;
-	}
-	free(lines);
-	free(body);	/* will free quotetext if non-nil */
-	free(type);
-	return 1;
-}
-#endif 
-
 void
 mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 {
@@ -156,36 +96,24 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 	r->tagposted = 1;
 	threadcreate(mesgctl, r, STACK);
 	winopenbody(r->w, OWRITE);
-	if(to!=nil && to[0]!='\0') {
-		// Bprint(r->w->body, "%s\n", to);
+	if(to!=nil && to[0]!='\0')
 		fsprint(r->w->body, "%s\n", to);
-	}
-	for(a=attr; a; a=a->next) {
-		// Bprint(r->w->body, "%s: %s\n", a->name, a->value);
+	for(a=attr; a; a=a->next)
 		fsprint(r->w->body, "%s: %s\n", a->name, a->value);
-	}
 	dir = nil;
 	if(m != nil){
 		dir = estrstrdup(mbox.name, m->name);
 		if(to == nil && attr == nil){
 			/* Reply goes to replyto; Reply all goes to From and To and CC */
-			if(strstr(label, "all") == nil) {
-				// jpc Bprint(r->w->body, "To: %s\n", m->replyto);
+			if(strstr(label, "all") == nil)
 				fsprint(r->w->body, "To: %s\n", m->replyto);
-			}
 			else{	/* Replyall */
-				if(strlen(m->from) > 0) {
-					// Bprint(r->w->body, "To: %s\n", m->from);
+				if(strlen(m->from) > 0)
 					fsprint(r->w->body, "To: %s\n", m->from);
-				}
-				if(strlen(m->to) > 0) {
-					// Bprint(r->w->body, "To: %s\n", m->to);
+				if(strlen(m->to) > 0)
 					fsprint(r->w->body, "To: %s\n", m->to);
-				}
-				if(strlen(m->cc) > 0) {
-					// Bprint(r->w->body, "CC: %s\n", m->cc);
+				if(strlen(m->cc) > 0)
 					fsprint(r->w->body, "CC: %s\n", m->cc);
-				}
 			}
 		}
 		if(strlen(m->subject) > 0){
@@ -193,21 +121,16 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 			if(strlen(m->subject) >= 3)
 				if(tolower(m->subject[0])=='r' && tolower(m->subject[1])=='e' && m->subject[2]==':')
 					t = "Subject: ";
-			// Bprint(r->w->body, "%s%s\n", t, m->subject);
 			fsprint(r->w->body, "%s%s\n", t, m->subject);
 		}
 		if(!quotereply){
-			// Bprint(r->w->body, "Include: %sraw\n", dir);
 			fsprint(r->w->body, "Include: %sraw\n", dir);
 			free(dir);
 		}
 	}
-	// Bprint(r->w->body, "\n");
 	fsprint(r->w->body, "\n");
-	if(m == nil) {
-		// Bprint(r->w->body, "\n");
+	if(m == nil)
 		fsprint(r->w->body, "\n");
-	}
 	else if(quotereply){
 		quote(m, r->w->body, dir, quotetext);
 		free(dir);
@@ -274,37 +197,24 @@ execproc(void *v)
 	q[0] = e->q[0];
 	q[1] = e->q[1];
 	prog = e->prog;	/* known not to be malloc'ed */
-	rfork(RFFDG);
+	
+	fd[0] = dup(p[0], -1);
+	if(q[0])
+		fd[1] = dup(q[1], -1);
+	else
+		fd[1] = dup(1, -1);
+	fd[2] = dup(2, -2);
 	sendul(e->sync, 1);
 	buildargv(e->argv, argv, args);
 	free(e->argv);
 	chanfree(e->sync);
 	free(e);
-	dup(p[0], 0);
-	close(p[0]);
-	close(p[1]);
-	if(q[0]){
-		dup(q[1], 1);
-		close(q[0]);
-		close(q[1]);
-	}
-
-	// jpc - start
-	fd[0] = dup(0, -1);
-	fd[1] = dup(1, -1);
+	
 	threadexec(nil, fd, prog, argv);
 	close(fd[0]);
 	close(fd[1]);
-	/* jpc - procexec(nil, prog, argv); */
-	// jpc end
-//fprint(2, "exec: %s", e->prog);
-//{int i;
-//for(i=0; argv[i]; i++) print(" '%s'", argv[i]);
-//print("\n");
-//}
-//argv[0] = "cat";
-//argv[1] = nil;
-//procexec(nil, "/bin/cat", argv);
+	close(fd[2]);
+
 	fprint(2, "Mail: can't exec %s: %r\n", prog);
 	threadexits("can't exec");
 }

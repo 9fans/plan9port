@@ -7,7 +7,6 @@
 #include <9pclient.h>
 #include "dat.h"
 
-
 char*
 formathtml(char *body, int *np)
 {
@@ -28,12 +27,12 @@ formathtml(char *body, int *np)
 	e->argv[0] = estrdup("htmlfmt");
 	e->argv[1] = estrdup("-cutf-8");
 	e->argv[2] = nil;
-	e->prog = unsharp("#9/bin/htmlfmt");
+	e->prog = "htmlfmt";
 	sync = chancreate(sizeof(int), 0);
 	e->sync = sync;
 	proccreate(execproc, e, EXECSTACK);
 	recvul(sync);
-	// close(p[0]);
+	close(p[0]);
 	close(q[1]);
 
 	if((i=write(p[1], body, *np)) != *np){
