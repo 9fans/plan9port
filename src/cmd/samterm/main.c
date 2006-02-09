@@ -29,6 +29,14 @@ int	autoindent;
 #define chording 0	/* code here for reference but it causes deadlocks */
 
 void
+notifyf(void *a, char *msg)
+{
+	if(strcmp(msg, "interrupt") == 0)
+		noted(NCONT);
+	noted(NDFLT);
+}
+
+void
 threadmain(int argc, char *argv[])
 {
 	int i, got, scr, w;
@@ -50,6 +58,8 @@ threadmain(int argc, char *argv[])
 	open("/dev/null", OREAD);
 	if(open("/dev/tty", OWRITE) < 0)
 		open("/dev/null", OWRITE);
+
+	notify(notifyf);
 
 	if(protodebug) print("getscreen\n");
 	getscreen(argc, argv);
