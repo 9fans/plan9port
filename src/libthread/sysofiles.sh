@@ -30,3 +30,11 @@ case "$tag" in
 	echo pthread.o
 esac
 
+case "$OBJTYPE-$SYSNAME" in
+sparc64-Linux)
+	# Debian glibc doesn't supply swapcontext, makecontext
+	# so we supply our own copy from the latest glibc.
+	echo Linux-sparc64-context.o Linux-sparc64-swapcontext.o
+	;;
+esac
+
