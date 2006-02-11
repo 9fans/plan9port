@@ -3,8 +3,8 @@
 #include <bio.h>
 #include <thread.h>
 #include <ctype.h>
-#include <plumb.h>
 #include <9pclient.h>
+#include <plumb.h>
 #include "dat.h"
 
 enum
@@ -200,9 +200,9 @@ isnumeric(char *s)
 CFid*
 mailopen(char *name, int mode)
 {
-	if(strncmp(name, "/mail/", 6) != 0)
+	if(strncmp(name, "Mail/", 5) != 0)
 		return nil;
-	return fsopen(mailfs, name+6, mode);
+	return fsopen(mailfs, name+5, mode);
 }
 
 Dir*
@@ -624,7 +624,7 @@ mesgsave(Message *m, char *s, int save)
 	char *t, *raw, *unixheader, *all;
 
 	if(save){
-		if(fsprint(mbox.ctlfd, "save %q %q", m->name, s) < 0){
+		if(fsprint(mbox.ctlfd, "save %q %q", s, m->name) < 0){
 			fprint(2, "Mail: can't save %s to %s: %r\n", m->name, s);
 			return 0;
 		}
@@ -865,7 +865,7 @@ replytoaddr(Window *w, Message *m, Event *e, char *s)
 				pm->attr->value = estrdup(m->subject);
 			pm->attr->next = nil;
 		}
-		if(plumbsend(plumbsendfd, pm) < 0)
+		if(plumbsendtofid(plumbsendfd, pm) < 0)
 			fprint(2, "error writing plumb message: %r\n");
 		plumbfree(pm);
 	}
@@ -1253,7 +1253,7 @@ plumb(Message *m, char *dir)
 		pm->ndata = -1;
 		pm->data = estrstrdup(dir, "body");
 		pm->data = eappend(pm->data, "", ports[i].suffix);
-		if(plumbsend(plumbsendfd, pm) < 0)
+		if(plumbsendtofid(plumbsendfd, pm) < 0)
 			fprint(2, "error writing plumb message: %r\n");
 		plumbfree(pm);
 	}

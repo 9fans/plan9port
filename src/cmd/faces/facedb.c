@@ -15,6 +15,9 @@ enum	/* number of deleted faces to cache */
 static Facefile	*facefiles;
 static int		nsaved;
 static char	*facedom;
+static char	*libface;
+static char	*homeface;
+static char	*machinelist;
 
 /*
  * Loading the files is slow enough on a dial-up line to be worth this trouble
@@ -148,9 +151,8 @@ readfile(char *s)
 	return strdup(r->data);
 }
 
-
 static char*
-translatedomain(char *dom)
+translatedomain(char *dom, char *list)
 {
 	static char buf[200];
 	char *p, *ep, *q, *nextp, *file;
@@ -160,7 +162,7 @@ translatedomain(char *dom)
 	if(dom == nil || *dom == 0)
 		return nil;
 
-	if((file = readfile(unsharp("#9/face/.machinelist"))) == nil)
+	if(list == nil || (file = readfile(list)) == nil)
 		return dom;
 
 	for(p=file; p; p=nextp) {
@@ -210,26 +212,17 @@ translatedomain(char *dom)
 }
 
 static char*
-tryfindpicture_user(char *dom, char *user, int depth)
+tryfindpicture(char *dom, char *user, char *dir, char *dict)
 {
-	static char buf[200];
-	char *p, *q, *nextp, *file;
-	static char *home;
-
-	if(home == nil)
-		home = getenv("home");
-	if(home == nil)
-		home = getenv("HOME");
-	if(home == nil)
-		return nil;
-
-	sprint(buf, "%s/lib/face/48x48x%d/.dict", home, depth);
-	if((file = readfile(buf)) == nil)
+	static char buf[1024];
+	char *file, *p, *nextp, *q;
+	
+	if((file = readfile(dict)) == nil)
 		return nil;
 
 	snprint(buf, sizeof buf, "%s/%s", dom, user);
 
-	for(p=file; p; p=nextp) {
+	for(p=file; p; p=nextp){
 		if(nextp = strchr(p, '\n'))
 			*nextp++ = '\0';
 
@@ -237,75 +230,114 @@ tryfindpicture_user(char *dom, char *user, int depth)
 			continue;
 		*q++ = 0;
 
-		if(strcmp(buf, p) == 0) {
+		if(strcmp(buf, p) == 0){
 			q += strspn(q, " \t");
-			q = buf+snprint(buf, sizeof buf, "%s/lib/face/48x48x%d/%s", home, depth, q);
+			snprint(buf, sizeof buf, "%s/%s", dir, q);
+			q = buf+strlen(buf);
 			while(q > buf && (q[-1] == ' ' || q[-1] == '\t'))
 				*--q = 0;
 			free(file);
-			return buf;
+			return estrdup(buf);
 		}
 	}
 	free(file);
-	return nil;			
+	return nil;
 }
 
 static char*
-tryfindpicture_global(char *dom, char *user, int depth)
+estrstrdup(char *a, char *b)
 {
-	static char buf[200];
-	char *p, *q, *nextp, *file;
+	char *t;
+	
+	t = emalloc(strlen(a)+strlen(b)+1);
+	strcpy(t, a);
+	strcat(t, b);
+	return t;
+}
 
-	sprint(buf, "#9/face/48x48x%d/.dict", depth);
-	if((file = readfile(unsharp(buf))) == nil)
+static char*
+tryfindfiledir(char *dom, char *user, char *dir)
+{
+	char *dict, *ndir, *x;
+	int fd;
+	int i, n;
+	Dir *d;
+	
+	/*
+	 * If this directory has a .machinelist, use it.
+	 */
+	x = estrstrdup(dir, "/.machinelist");
+	dom = estrdup(translatedomain(dom, x));
+	free(x);
+
+	/*
+	 * If this directory has a .dict, use it.
+	 */
+	dict = estrstrdup(dir, "/.dict");
+	if(access(dict, AEXIST) >= 0){
+		x = tryfindpicture(dom, user, dir, dict);
+		free(dict);
+		free(dom);
+		return x;
+	}
+	free(dict);
+	
+	/*
+	 * If not, recurse into subdirectories.
+	 * Ignore 48x48xN directories for now.
+	 */
+	if((fd = open(dir, OREAD)) < 0)
 		return nil;
-
-	snprint(buf, sizeof buf, "%s/%s", dom, user);
-
-	for(p=file; p; p=nextp) {
-		if(nextp = strchr(p, '\n'))
-			*nextp++ = '\0';
-
-		if(*p == '#' || (q = strpbrk(p, " \t")) == nil)
-			continue;
-		*q++ = 0;
-
-		if(strcmp(buf, p) == 0) {
-			q += strspn(q, " \t");
-			q = buf+snprint(buf, sizeof buf, "#9/face/48x48x%d/%s", depth, q);
-			while(q > buf && (q[-1] == ' ' || q[-1] == '\t'))
-				*--q = 0;
-			free(file);
-			return unsharp(buf);
+	while((n = dirread(fd, &d)) > 0){
+		for(i=0; i<n; i++){
+			if((d[i].mode&DMDIR)&& strncmp(d[i].name, "48x48x", 6) != 0){
+				ndir = emalloc(strlen(dir)+1+strlen(d[i].name)+1);
+				strcpy(ndir, dir);
+				strcat(ndir, "/");
+				strcat(ndir, d[i].name);
+				if((x = tryfindfiledir(dom, user, ndir)) != nil){
+					free(ndir);
+					free(d);
+					close(fd);
+					free(dom);
+					return x;
+				}
+			}
+		}
+		free(d);
+	}
+	close(fd);
+	
+	/*
+	 * Handle 48x48xN directories in the right order.
+	 */
+	ndir = estrstrdup(dir, "/48x48x8");
+	for(i=8; i>0; i>>=1){
+		ndir[strlen(ndir)-1] = i+'0';
+		if(access(ndir, AEXIST) >= 0 && (x = tryfindfiledir(dom, user, ndir)) != nil){
+			free(ndir);
+			free(dom);
+			return x;
 		}
 	}
-	free(file);
-	return nil;			
+	free(ndir);
+	free(dom);
+	return nil;
 }
 
 static char*
-tryfindpicture(char *dom, char *user, int depth)
+tryfindfile(char *dom, char *user)
 {
-	char* result;
+	char *p;
 
-	if((result = tryfindpicture_user(dom, user, depth)) != nil)
-		return result;
-
-	return tryfindpicture_global(dom, user, depth);
-}
-
-static char*
-tryfindfile(char *dom, char *user, int depth)
-{
-	char *p, *q;
-
-	for(;;){
-		for(p=dom; p; (p=strchr(p, '.')) && p++)
-			if(q = tryfindpicture(p, user, depth))
-				return q;
-		depth >>= 1;
-		if(depth == 0)
+	while(dom && *dom){
+		if(homeface && (p = tryfindfiledir(dom, user, homeface)) != nil)
+			return p;
+		if((p = tryfindfiledir(dom, user, libface)) != nil)
+			return p;
+		if((dom = strchr(dom, '.')) == nil)
 			break;
+		dom++;
 	}
 	return nil;
 }
@@ -314,34 +346,31 @@ char*
 findfile(Face *f, char *dom, char *user)
 {
 	char *p;
-	int depth;
 
 	if(facedom == nil){
 		facedom = getenv("facedom");
 		if(facedom == nil)
 			facedom = DEFAULT;
 	}
+	if(libface == nil)
+		libface = unsharp("#9/face");
+	if(machinelist == nil)
+		machinelist = estrstrdup(libface, "/.machinelist");
+	if(homeface == nil)
+		homeface = smprint("%s/lib/face", getenv("HOME"));
 
-	dom = translatedomain(dom);
+	dom = translatedomain(dom, machinelist);
 	if(dom == nil)
 		dom = facedom;
 
-	if(screen == nil)
-		depth = 8;
-	else
-		depth = screen->depth;
-
-	if(depth > 8)
-		depth = 8;
-
 	f->unknown = 0;
-	if(p = tryfindfile(dom, user, depth))
+	if((p = tryfindfile(dom, user)) != nil)
 		return p;
 	f->unknown = 1;
-	p = tryfindfile(dom, "unknown", depth);
-	if(p != nil || strcmp(dom, facedom)==0)
+	p = tryfindfile(dom, "unknown");
+	if(p != nil || strcmp(dom, facedom) == 0)
 		return p;
-	return tryfindfile("unknown", "unknown", depth);
+	return tryfindfile("unknown", "unknown");
 }
 
 static

@@ -45,24 +45,23 @@ attr(Face *f)
 void
 showmail(Face *f)
 {
+	char buf[256];
 	Plumbmsg pm;
 	Plumbattr a;
-	char *s;
 
 	if(showfd<0 || f->str[Sshow]==nil || f->str[Sshow][0]=='\0')
 		return;
-	s = emalloc(strlen("/mail/fs")+1+strlen(f->str[Sshow]));
-	sprint(s,"/mail/fs/%s",f->str[Sshow]);
+	snprint(buf, sizeof buf, "Mail/%s", f->str[Sshow]);
 	pm.src = "faces";
 	pm.dst = "showmail";
-	pm.wdir = "/mail/fs";
+	pm.wdir = "/";
 	pm.type = "text";
 	a.name = "digest";
 	a.value = f->str[Sdigest];
 	a.next = nil;
 	pm.attr = &a;
-	pm.ndata = strlen(s);
-	pm.data = s;
+	pm.ndata = strlen(buf);
+	pm.data = buf;
 	plumbsendtofid(showfd, &pm);
 }
 
@@ -203,12 +202,9 @@ nextface(void)
 			delete(m->data, value(m->attr, "digest", nil));
 		else if(strcmp(t, "new") != 0)
 			fprint(2, "faces: unknown plumb message type %s\n", t);
-		else for(i=0; i<nmaildirs; i++) {	/* XXX */
-			if(strncmp(m->data,"/mail/fs/",strlen("/mail/fs/")) == 0)
-				m->data += strlen("/mail/fs/");
+		else for(i=0; i<nmaildirs; i++)
 			if(strncmp(m->data, maildirs[i], strlen(maildirs[i])) == 0)
 				goto Found;
-		}
 		plumbfree(m);
 		continue;
 

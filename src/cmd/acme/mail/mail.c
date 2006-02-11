@@ -2,13 +2,13 @@
 #include <libc.h>
 #include <bio.h>
 #include <thread.h>
+#include <9pclient.h>
 #include <plumb.h>
 #include <ctype.h>
-#include <9pclient.h>
 #include "dat.h"
 
-char	*maildir = "/mail/";			/* mountpoint of mail file system */
-char *mboxname = "INBOX";			/* mailboxdir/mboxname is mail spool file */
+char	*maildir = "Mail/";			/* mountpoint of mail file system */
+char *mboxname = "mbox";			/* mailboxdir/mboxname is mail spool file */
 char	*mailboxdir = nil;				/* nil == /mail/box/$user */
 char *fsname;						/* filesystem for mailboxdir/mboxname is at maildir/fsname */
 char	*user;
@@ -18,10 +18,10 @@ Window	*wbox;
 Message	mbox;
 Message	replies;
 char		*home;
-int		plumbsendfd;
-int		plumbseemailfd;
-int		plumbshowmailfd;
-int		plumbsendmailfd;
+CFid		*plumbsendfd;
+CFid		*plumbseemailfd;
+CFid		*plumbshowmailfd;
+CFid		*plumbsendmailfd;
 Channel	*cplumb;
 Channel	*cplumbshow;
 Channel	*cplumbsend;
@@ -85,9 +85,9 @@ threadmain(int argc, char *argv[])
 	quotefmtinstall();
 
 	/* open these early so we won't miss notification of new mail messages while we read mbox */
-	plumbsendfd = plumbopen("send", OWRITE|OCEXEC);
-	plumbseemailfd = plumbopen("seemail", OREAD|OCEXEC);
-	plumbshowmailfd = plumbopen("showmail", OREAD|OCEXEC);
+	plumbsendfd = plumbopenfid("send", OWRITE|OCEXEC);
+	plumbseemailfd = plumbopenfid("seemail", OREAD|OCEXEC);
+	plumbshowmailfd = plumbopenfid("showmail", OREAD|OCEXEC);
 
 	shortmenu = 0;
 	ARGBEGIN{
@@ -114,7 +114,7 @@ threadmain(int argc, char *argv[])
 	if(mailfs == nil)
 		error("cannot mount mail: %r");
 
-	name = "INBOX";
+	name = "mbox";
 
 	newdir = 1;
 	if(argc > 0){
@@ -159,9 +159,9 @@ threadmain(int argc, char *argv[])
 	if(outgoing == nil)
 		outgoing = estrstrdup(mailboxdir, "/outgoing");
 
-	mbox.ctlfd = fsopen(mailfs, "INBOX/ctl", OWRITE);
+	mbox.ctlfd = fsopen(mailfs, "mbox/ctl", OWRITE);
 	if(mbox.ctlfd == nil)
-		error("can't open %s: %r", "INBOX/ctl");
+		error("can't open %s: %r", "mbox/ctl");
 
 	fsname = estrdup(name);
 	if(newdir && argc > 0){
@@ -216,12 +216,12 @@ threadmain(int argc, char *argv[])
 	wctlfd = -1;
 	cplumb = chancreate(sizeof(Plumbmsg*), 0);
 	cplumbshow = chancreate(sizeof(Plumbmsg*), 0);
-	if(strcmp(name, "INBOX") == 0){
+	if(strcmp(name, "mbox") == 0){
 		/*
 		 * Avoid creating multiple windows to send mail by only accepting
 		 * sendmail plumb messages if we're reading the main mailbox.
 		 */
-		plumbsendmailfd = plumbopen("sendmail", OREAD|OCEXEC);
+		plumbsendmailfd = plumbopenfid("sendmail", OREAD|OCEXEC);
 		cplumbsend = chancreate(sizeof(Plumbmsg*), 0);
 		proccreate(plumbsendproc, nil, STACK);
 		threadcreate(plumbsendthread, nil, STACK);
@@ -241,7 +241,7 @@ plumbproc(void* v)
 
 	threadsetname("plumbproc");
 	for(;;){
-		m = plumbrecv(plumbseemailfd);
+		m = plumbrecvfid(plumbseemailfd);
 		sendp(cplumb, m);
 		if(m == nil)
 			threadexits(nil);
@@ -255,7 +255,7 @@ plumbshowproc(void* v)
 
 	threadsetname("plumbshowproc");
 	for(;;){
-		m = plumbrecv(plumbshowmailfd);
+		m = plumbrecvfid(plumbshowmailfd);
 		sendp(cplumbshow, m);
 		if(m == nil)
 			threadexits(nil);
@@ -269,7 +269,7 @@ plumbsendproc(void* v)
 
 	threadsetname("plumbsendproc");
 	for(;;){
-		m = plumbrecv(plumbsendmailfd);
+		m = plumbrecvfid(plumbsendmailfd);
 		sendp(cplumbsend, m);
 		if(m == nil)
 			threadexits(nil);
@@ -285,8 +285,8 @@ newmesg(char *name, char *digest)
 		return;	/* message is about another mailbox */
 	if(mesglookupfile(&mbox, name, digest) != nil)
 		return;
-	if(strncmp(name, "/mail/", 6) == 0)
-		name += 6;
+	if(strncmp(name, "Mail/", 5) == 0)
+		name += 5;
 	d = fsdirstat(mailfs, name);
 	if(d == nil)
 		return;
@@ -300,10 +300,8 @@ showmesg(char *name, char *digest)
 {
 	char *n;
 	char *mb;
-	
+
 	mb = mbox.name;
-	if(strncmp(mb, "/mail/", 6) == 0)
-		mb += 6;
 	if(strncmp(name, mb, strlen(mb)) != 0)
 		return;	/* message is about another mailbox */
 	n = estrdup(name+strlen(mb));

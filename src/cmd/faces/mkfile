@@ -22,5 +22,5 @@ UPDATE=\
 <$PLAN9/src/mkone
 CFLAGS=$CFLAGS '-DDEFAULT='$DEFAULT
 
-$O.dblook: dblook.$O facedb.$O util.$O
+dblook: dblook.$O facedb.$O util.$O
 	$LD -o $target $prereq

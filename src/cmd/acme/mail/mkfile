@@ -1,7 +1,5 @@
 <$PLAN9/src/mkhdr
 
-CC=9c
-
 TARG=Mail
 OFILES=\
 		html.$O\
@@ -12,21 +10,6 @@ OFILES=\
 		win.$O
 
 HFILES=dat.h
-LIB=
-
-BIN=/acme/bin/$objtype
-
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}\
 
 <$PLAN9/src/mkone
-
-$O.out: $OFILES
-	$LD -o $target  $LDFLAGS $OFILES
-
-syms:V:
-	8c -a mail.c	>syms
-	8c -aa mesg.c reply.c util.c win.c 	>>syms
 

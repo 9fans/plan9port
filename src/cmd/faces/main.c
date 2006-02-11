@@ -77,7 +77,7 @@ int	ndown;
 
 char	date[64];
 Face	**faces;
-char	*maildir = "INBOX";
+char	*maildir = "mbox";
 ulong	now;
 
 Point	datep = { 8, 6 };
@@ -108,7 +108,7 @@ init(void)
 	initplumb();
 
 	/* make background color */
-	bgrnd = allocimagemix(display, DPalebluegreen, DWhite);
+	bgrnd = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DWhite);
 	blue = allocimage(display, Rect(0,0,1,1), screen->chan, 1, 0x008888FF);	/* blue-green */
 	left = allocimage(display, leftright, GREY1, 0, DWhite);
 	right = allocimage(display, leftright, GREY1, 0, DWhite);
