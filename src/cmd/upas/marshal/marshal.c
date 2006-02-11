@@ -1,6 +1,8 @@
 #include "common.h"
 #include <ctype.h>
 
+#define inline _inline
+
 typedef struct Attach Attach;
 typedef struct Alias Alias;
 typedef struct Addr Addr;
@@ -10,7 +12,7 @@ struct Attach {
 	Attach	*next;
 	char	*path;
 	char	*type;
-	int	tinline;
+	int	inline;
 	Ctype	*ctype;
 };
 
@@ -684,7 +686,7 @@ attachment(Attach *a, Biobuf *out)
 	if(strcmp(a->type, "text/plain") != 0)
 		Bprint(out, "Content-Type: %s\n", a->type);
 
-	if(a->tinline){
+	if(a->inline){
 		Bprint(out, "Content-Disposition: inline\n");
 	} else {
 		p = strrchr(a->path, '/');
@@ -811,7 +813,7 @@ printinreplyto(Biobuf *out, char *dir)
 }
 
 Attach*
-mkattach(char *file, char *type, int tinline)
+mkattach(char *file, char *type, int inline)
 {
 	Ctype *c;
 	Attach *a;
@@ -829,7 +831,7 @@ mkattach(char *file, char *type, int tinline)
 	a->path = file;
 	a->next = nil;
 	a->type = type;
-	a->tinline = tinline;
+	a->inline = inline;
 	a->ctype = nil;
 	if(type != nil){
 		for(c = ctype; ; c++)
@@ -1067,7 +1069,7 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 
 	if(pipe(pfd) < 0)
 		fatal("%r");
-	switch(*pid = rfork(RFFDG|RFPROC)){   // jpc - removed |RFENVG|RFREND|
+	switch(*pid = fork()){
 	case -1:
 		fatal("%r");
 		break;
@@ -1105,7 +1107,7 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 
 		cmd = mboxpath("pipefrom", login, s_new(), 0);
 		exec(s_to_c(cmd), av);
-		exec(unsharp("#9/bin/myupassend"), av);
+		exec("myupassend", av);
 		exec(unsharp("#9/bin/upas/send"), av);
 		fatal("execing: %r");
 		break;
@@ -1130,6 +1132,7 @@ pgpfilter(int *pid, int fd, int pgpflag)
 	v = av = emalloc(sizeof(char*)*8);
 	ac = 0;
 	v[ac++] = "pgp";
+	v[ac++] = "-fat";		/* operate as a filter, generate text */
 	if(pgpflag & PGPsign)
 		v[ac++] = "-s";
 	if(pgpflag & PGPencrypt)
@@ -1148,8 +1151,10 @@ pgpfilter(int *pid, int fd, int pgpflag)
 		close(pfd[0]);
 		dup(fd, 1);
 		close(fd);
+		/* add newline to avoid confusing pgp output with 822 headers */
+		write(1, "\n", 1);
 
-		exec("/bin/upas/pgp", av);
+		exec("pgp", av);
 		fatal("execing: %r");
 		break;
 	default:
@@ -1314,7 +1319,6 @@ readaliases(void)
 	Alias *a, **l, *first;
 	Addr *addr, **al;
 	String *file, *line, *token;
-	// jpc - static int already;
 	Sinstack *sp;
 
 	first = nil;
@@ -1747,7 +1751,7 @@ readmimetypes(void)
 		mimetypes[0].ext = "";
 	}
 
-	b = Bopen(unsharp("#9/sys/lib/mimetype"), OREAD);
+	b = Bopen(unsharp("#9/lib/mimetype"), OREAD);
 	if(b == nil)
 		return;
 	for(;;){

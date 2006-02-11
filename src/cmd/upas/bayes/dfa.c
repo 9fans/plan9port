@@ -3,7 +3,7 @@
 #include <bin.h>
 #include <bio.h>
 #include <regexp.h>
-#include "/sys/src/libregexp/regcomp.h"
+#include "../../../libregexp/regcomp.h"
 #include "dfa.h"
 
 void rdump(Reprog*);
@@ -140,19 +140,19 @@ followempty(Deter *d, uchar *bits, int bol, int eol)
 			switch(i->type){
 			case RBRA:
 			case LBRA:
-				again |= add(i->next - d->p->firstinst, bits, k);
+				again |= add(i->u2.next - d->p->firstinst, bits, k);
 				break;
 			case OR:
-				again |= add(i->left - d->p->firstinst, bits, k);
-				again |= add(i->right - d->p->firstinst, bits, k);
+				again |= add(i->u2.left - d->p->firstinst, bits, k);
+				again |= add(i->u1.right - d->p->firstinst, bits, k);
 				break;
 			case BOL:
 				if(bol)
-					again |= add(i->next - d->p->firstinst, bits, k);
+					again |= add(i->u2.next - d->p->firstinst, bits, k);
 				break;
 			case EOL:
 				if(eol)
-					again |= add(i->next - d->p->firstinst, bits, k);
+					again |= add(i->u2.next - d->p->firstinst, bits, k);
 				break;
 			}
 		}
@@ -209,27 +209,27 @@ transition(Deter *d, Reiset *s, Rune r, uint eol)
 			longjmp(d->kaboom, 1);
 
 		case RUNE:
-			if(r == i->r)
-				bits[i->next - inst0] = 1;
+			if(r == i->u1.r)
+				bits[i->u2.next - inst0] = 1;
 			break;
 		case ANY:
 			if(r != L'\n')
-				bits[i->next - inst0] = 1;
+				bits[i->u2.next - inst0] = 1;
 			break;
 		case ANYNL:
-			bits[i->next - inst0] = 1;
+			bits[i->u2.next - inst0] = 1;
 			break;
 		case NCCLASS:
 			if(r == L'\n')
 				break;
 			/* fall through */
 		case CCLASS:
-			ep = i->cp->end;
-			for(rp = i->cp->spans; rp < ep; rp += 2)
+			ep = i->u1.cp->end;
+			for(rp = i->u1.cp->spans; rp < ep; rp += 2)
 				if(rp[0] <= r && r <= rp[1])
 					break;
 			if((rp < ep) ^! (i->type == CCLASS))
-				bits[i->next - inst0] = 1;
+				bits[i->u2.next - inst0] = 1;
 			break;
 		case END:
 			break;
@@ -290,9 +290,9 @@ findchars(Deter *d, Reprog *p)
 			set(d, tab, L'\n'+1);
 			break;
 		case RUNE:
-			set(d, tab, i->r-1);
-			set(d, tab, i->r);
-			set(d, tab, i->r+1);
+			set(d, tab, i->u1.r-1);
+			set(d, tab, i->u1.r);
+			set(d, tab, i->u1.r+1);
 			break;
 		case NCCLASS:
 			set(d, tab, L'\n'-1);
@@ -300,8 +300,8 @@ findchars(Deter *d, Reprog *p)
 			set(d, tab, L'\n'+1);
 			/* fall through */
 		case CCLASS:
-			ep = i->cp->end;
-			for(rp = i->cp->spans; rp < ep; rp += 2){
+			ep = i->u1.cp->end;
+			for(rp = i->u1.cp->spans; rp < ep; rp += 2){
 				set(d, tab, rp[0]-1);
 				set(d, tab, rp[0]);
 				set(d, tab, rp[1]);

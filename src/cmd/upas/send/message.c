@@ -143,7 +143,7 @@ getstring(Node *p)
 	return s;
 }
 
-#if 0 /* jpc */
+#if 0
 static char *fieldname[] =
 {
 [WORD-WORD]	"WORD",
@@ -172,7 +172,7 @@ static char *fieldname[] =
 [MAILER-WORD]	"MAILER",
 [BADTOKEN-WORD]	"BADTOKEN",
 };
-#endif /* jpc */
+#endif
 
 /* fix 822 addresses */
 static void

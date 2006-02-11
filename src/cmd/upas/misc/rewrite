@@ -2,8 +2,8 @@
 pOsTmAsTeR	alias		postmaster
 
 # local mail
-[^!@]+		translate	"/bin/upas/aliasmail '&'"
-local!(.*)	>>		/mail/box/\1/mbox
+[^!@]+		translate	"upas/aliasmail '&'"
+local!(.*)	>>		$PLAN9/mail/box/\1/mbox
 \l!(.*)		alias		\1
 (helix|helix.bell-labs.com)!(.*)	alias		\2
 
@@ -17,4 +17,4 @@ local!(.*)	>>		/mail/box/\1/mbox
 ([^@]+)@([^@]+)		alias	\2!\1
 
 # /mail/lib/remotemail will take care of gating to systems we don't know
-([^!]*)!(.*) 		| 		"/mail/lib/qmail '\s' 'net!\1'" "'\2'"
+([^!]*)!(.*) 		| 		"$PLAN9/mail/lib/qmail '\s' 'net!\1'" "'\2'"

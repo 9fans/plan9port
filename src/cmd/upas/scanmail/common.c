@@ -585,15 +585,15 @@ matchpat(Pattern *p, char *message, Resub *m)
 				if(c1 == spat->c1)
 				if(memcmp(s, spat->string, spat->len) == 0)
 				if(!isalt(message, spat->alt)){
-					m->sp = s;
-					m->ep = s + spat->len;
+					m->s.sp = s;
+					m->e.ep = s + spat->len;
 					return 1;
 				}
 			}
 		}
 		return 0;
 	}
-	m->sp = m->ep = 0;
+	m->s.sp = m->e.ep = 0;
 	if(regexec(p->pat, message, m, 1) == 0)
 		return 0;
 	if(isalt(message, p->alt))
@@ -608,23 +608,23 @@ xprint(int fd, char *type, Resub *m)
 	char *p, *q;
 	int i;
 
-	if(m->sp == 0 || m->ep == 0)
+	if(m->s.sp == 0 || m->e.ep == 0)
 		return;
 
 		/* back up approx 30 characters to whitespace */
-	for(p = m->sp, i = 0; *p && i < 30; i++, p--)
+	for(p = m->s.sp, i = 0; *p && i < 30; i++, p--)
 			;
 	while(*p && *p != ' ')
 		p--;
 	p++;
 
 		/* grab about 30 more chars beyond the end of the match */
-	for(q = m->ep, i = 0; *q && i < 30; i++, q++)
+	for(q = m->e.ep, i = 0; *q && i < 30; i++, q++)
 			;
 	while(*q && *q != ' ')
 		q++;
 
-	fprint(fd, "%s %.*s~%.*s~%.*s\n", type, (int)(m->sp-p), p, (int)(m->ep-m->sp), m->sp, (int)(q-m->ep), m->ep);
+	fprint(fd, "%s %.*s~%.*s~%.*s\n", type, (int)(m->s.sp-p), p, (int)(m->e.ep-m->s.sp), m->s.sp, (int)(q-m->e.ep), m->e.ep);
 }
 
 enum {

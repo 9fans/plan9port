@@ -1,17 +1,7 @@
-</$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=unesc
+OFILES=unesc.$O
 
-OFILES=unesc.$O\
-
-BIN=/$objtype/bin/upas
-
-CC=pcc -c
-CFLAGS=-B
-
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}\
-
-</sys/src/cmd/mkone
+BIN=$BIN/upas
+<$PLAN9/src/mkone

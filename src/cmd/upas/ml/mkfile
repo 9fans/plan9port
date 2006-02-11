@@ -1,4 +1,4 @@
-</$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=ml\
 	mlowner\
@@ -16,25 +16,17 @@ UHFILES= ../common/common.h\
 HFILES=$UHFILES\
 	../smtp/y.tab.h\
 
-LIB=../common/libcommon.a$O\
+LIB=../common/libcommon.a
 
-BIN=/$objtype/bin/upas
-
-UPDATE=\
-	mkfile\
-	$UHFILES\
-	${TARG:%=%.c}\
-	${OFILES:%.$O=%.c}\
-	../smtp/rfc822.y\
-
-</sys/src/cmd/mkmany
+BIN=$BIN/upas
+<$PLAN9/src/mkmany
 CFLAGS=$CFLAGS -I../common
 
 $O.ml: ../smtp/rfc822.tab.$O
 $O.mlowner: ../smtp/rfc822.tab.$O
 
 ../smtp/y.tab.h ../smtp/rfc822.tab.$O:
-	@{
+	(
 		cd ../smtp
 		mk rfc822.tab.$O
-	}
+	)

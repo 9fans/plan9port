@@ -1,12 +1,12 @@
 <$PLAN9/src/mkhdr
 
-TARG = # smtpd\
+TARG=\
 	smtp\
+	smtpd\
 
 OFILES=
 
-LIB=../common/libcommon.a\
-	$PLAN9/lib/libthread.a   # why do i have to explicitly put this?
+LIB=../common/libcommon.a
 
 HFILES=../common/common.h\
 	../common/sys.h\
@@ -27,7 +27,7 @@ UPDATE=\
 	${TARG:%=%.c}\
 
 <$PLAN9/src/mkmany
-CFLAGS=$CFLAGS -I../common -D'SPOOL="/mail"'
+CFLAGS=$CFLAGS -I../common -D'SPOOL="'$PLAN9'/mail"'
 
 $O.smtpd:	smtpd.tab.$O rmtdns.$O spam.$O rfc822.tab.$O greylist.$O
 $O.smtp:	rfc822.tab.$O mxdial.$O
@@ -37,7 +37,7 @@ smtpd.$O: 	smtpd.h
 smtp.$O to.$O: 	smtp.h
 
 smtpd.tab.c: smtpd.y smtpd.h
-	yacc -o xxx smtpd.y
+	9 yacc -o xxx smtpd.y
 	sed 's/yy/zz/g' < xxx > $target
 	rm xxx
 
@@ -47,8 +47,6 @@ rfc822.tab.c: rfc822.y smtp.h
 clean:V:
 	rm -f *.[$OS] [$OS].$TARG smtpd.tab.c rfc822.tab.c y.tab.? y.debug $TARG
 
-../common/libcommon.a$O:
-	@{ 	
-		cd ../common
-		mk
-	}
+../common/libcommon.a
+	cd ../common; mk
+

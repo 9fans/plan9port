@@ -2,7 +2,7 @@
 #include <libc.h>
 #include <regexp.h>
 #include <libsec.h>
-#include <String.h>
+#include <libString.h>
 #include <bio.h>
 #include "dat.h"
 
@@ -188,8 +188,9 @@ readpatterns(char *path)
 }
 
 /* fuck, shit, bugger, damn */
-void regerror(char*)
+void regerror(char *err)
 {
+	USED(err);
 }
 
 /*

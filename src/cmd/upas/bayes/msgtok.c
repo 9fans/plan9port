@@ -13,7 +13,7 @@
 
 void buildre(Dreprog*[3]);
 int debug;
-char *refile = "/mail/lib/classify.re";
+char *refile = "#9/mail/lib/classify.re";
 int maxtoklen = 20;
 int trim(char*);
 
@@ -35,6 +35,7 @@ main(int argc, char **argv)
 	char msg[1024+1];
 	char buf[1024];
 
+	refile = unsharp(refile);
 	buildre(re);
 	ARGBEGIN{
 	case 'D':

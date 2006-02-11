@@ -131,7 +131,7 @@ getrules(void)
 	String	*type;
 	String	*file;
 
-	file = abspath("rewrite", unsharp(UPASLIB), (String *)0);
+	file = abspath("rewrite", UPASLIB, (String *)0);
 	rfp = sysopen(s_to_c(file), "r", 0);
 	if(rfp == 0) {
 		rulep = 0;
@@ -168,7 +168,7 @@ findrule(String *addrp, int authorized)
 			continue;
 		memset(rp->subexp, 0, sizeof(rp->subexp));
 		if(debug)
-			print("matching %s aginst %s\n", s_to_c(addrp), rp->matchre->base);
+			fprint(2, "matching %s aginst %s\n", s_to_c(addrp), rp->matchre->base);
 		if(regexec(rp->program, s_to_c(addrp), rp->subexp, NSUBEXP))
 		if(s_to_c(addrp) == rp->subexp[0].s.sp)
 		if((s_to_c(addrp) + strlen(s_to_c(addrp))) == rp->subexp[0].e.ep)
@@ -203,15 +203,43 @@ rewrite(dest *dp, message *mp)
 	dp->repl2 = substitute(rp->repl2, rp->subexp, mp);
 	dp->status = rp->type;
 	if(debug){
-		print("\t->");
+		fprint(2, "\t->");
 		if(dp->repl1)
-			print("%s", s_to_c(dp->repl1));
+			fprint(2, "%s", s_to_c(dp->repl1));
 		if(dp->repl2)
-			print("%s", s_to_c(dp->repl2));
-		print("\n");
+			fprint(2, "%s", s_to_c(dp->repl2));
+		fprint(2, "\n");
 	}
 	s_free(lower);
 	return 0;
+}
+
+/* stolen from rc/lex.c */
+static int
+idchr(int c)
+{
+	return c>' ' && !strchr("!\"#$%&'()+,-./:;<=>?@[\\]^`{|}~", c);
+}
+
+static char*
+getrcvar(char* p, char** rv)
+{
+	char* p0;
+	char buf[128];
+	char* bufe;
+
+	*rv = 0;
+	p0=p;
+	bufe=buf+sizeof buf-1;
+	while(p<bufe && idchr(*p))
+		p++;
+
+	memcpy(buf, p0, p-p0);
+	buf[p-p0]=0;
+	*rv = getenv(buf);
+	if (debug)
+		fprint(2, "varsubst: %s → %s\n", buf, *rv);
+	return p;
 }
 
 static String *
@@ -264,11 +292,15 @@ substitute(String *source, Resub *subexp, message *mp)
 				s_putc(stp, *sp);
 				break;
 			}
-		} else if(*sp == '&') {				
+		} else if(*sp == '&') {			
 			if(subexp[0].s.sp != 0)
 				for (s = subexp[0].s.sp;
 				     s < subexp[0].e.ep; s++)
 					s_putc(stp, *s);
+		} else if(*sp == '$') {
+			sp = getrcvar(sp+1, &s);
+			s_append(stp, s);
+			free(s);
 		} else
 			s_putc(stp, *sp);
 		sp++;

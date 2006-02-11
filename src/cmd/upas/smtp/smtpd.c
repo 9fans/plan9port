@@ -157,7 +157,7 @@ main(int argc, char **argv)
 
 	if(debug){
 		close(2);
-		snprint(buf, sizeof(buf), "%s/smtpd", UPASLOG);
+		snprint(buf, sizeof(buf), "%s/smtpd.db", UPASLOG);
 		if (open(buf, OWRITE) >= 0) {
 			seek(2, 0, 2);
 			fprint(2, "%d smtpd %s\n", getpid(), thedate());
@@ -1221,6 +1221,16 @@ data(void)
 		}
 		reply("%d mail process terminated abnormally\r\n", code);
 	} else {
+		/*
+		 * if a message appeared on stderr, despite good status,
+		 * log it.  this can happen if rewrite.in contains a bad
+		 * r.e., for example.
+		 */
+		if(*s_to_c(err))
+			syslog(0, "smtpd",
+				"%s returned good status, but said: %s",
+				s_to_c(mailer), s_to_c(err));
+
 		if(filterstate == BLOCKED)
 			reply("554 we believe this is spam.  we don't accept it.\r\n");
 		else

@@ -313,7 +313,7 @@ matcher(char *action, Pattern *p, char *message, Resub *m)
 	char *cp;
 	String *s;
 
-	for(cp = message; matchpat(p, cp, m); cp = m->ep){
+	for(cp = message; matchpat(p, cp, m); cp = m->e.ep){
 		switch(p->action){
 		case SaveLine:
 			if(vflag)
@@ -340,12 +340,12 @@ matcher(char *action, Pattern *p, char *message, Resub *m)
 		case Dump:
 			if(vflag)
 				xprint(2, action, m);
-			*(m->ep) = 0;
+			*m->e.ep = 0;
 			if(!tflag){
 				s = s_new();
 				s_append(s, sender);
 				s = unescapespecial(s);
-				syslog(0, "smtpd", "Dumped %s [%s] to %s", s_to_c(s), m->sp,
+				syslog(0, "smtpd", "Dumped %s [%s] to %s", s_to_c(s), m->s.sp,
 					s_to_c(s_restart(recips)));
 				s_free(s);
 			}
@@ -367,17 +367,17 @@ saveline(char *file, char *sender, Resub *rp)
 	int i, c;
 	Biobuf *bp;
 
-	if(rp->sp == 0 || rp->ep == 0)
+	if(rp->s.sp == 0 || rp->e.ep == 0)
 		return;
 		/* back up approx 20 characters to whitespace */
-	for(p = rp->sp, i = 0; *p && i < 20; i++, p--)
+	for(p = rp->s.sp, i = 0; *p && i < 20; i++, p--)
 			;
 	while(*p && *p != ' ')
 		p--;
 	p++;
 
 		/* grab about 20 more chars beyond the end of the match */
-	for(q = rp->ep, i = 0; *q && i < 20; i++, q++)
+	for(q = rp->e.ep, i = 0; *q && i < 20; i++, q++)
 			;
 	while(*q && *q != ' ')
 		q++;

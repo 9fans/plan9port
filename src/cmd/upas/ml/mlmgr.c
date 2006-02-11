@@ -21,7 +21,7 @@ main(int argc, char **argv)
 	char *listname, *addr;
 	String *owner, *alfile;
 
-	rfork(RFENVG|RFREND);
+	rfork(RFENVG);
 
 	ARGBEGIN{
 	case 'c':

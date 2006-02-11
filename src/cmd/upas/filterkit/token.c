@@ -1,7 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <libsec.h>
-#include <String.h>
+#include <libString.h>
 #include "dat.h"
 
 void

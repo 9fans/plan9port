@@ -191,11 +191,11 @@ matchaction(Patterns *pp, char *message)
 	p = pp->strings;
 	ret = 0;
 	if(p)
-		for(cp = message; matcher(name, p, cp, m); cp = m[0].ep)
+		for(cp = message; matcher(name, p, cp, m); cp = m[0].e.ep)
 				ret++;
 
 	for(p = pp->regexps; p; p = p->next)
-		for(cp = message; matcher(name, p, cp, m); cp = m[0].ep)
+		for(cp = message; matcher(name, p, cp, m); cp = m[0].e.ep)
 				ret++;
 	return ret;
 }

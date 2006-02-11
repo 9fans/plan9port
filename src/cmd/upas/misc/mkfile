@@ -2,24 +2,19 @@
 RCFILES=mail.rc\
 
 all:Q:
-	;
+	#
 
 installall:Q:	install
-	;
+	#
 
-install:V:
-	cp mail.rc /rc/bin/mail
-
-safeinstall:V:
-	cp mail.rc /rc/bin/mail
-
-safeinstallall:V:
-	cp mail.rc /rc/bin/mail
+install safeinstall safeinstallall:V:
+	cp mail.rc $PLAN9/bin/mail
 
 clean:Q:
-	;
+	#
+
 nuke:V:
-	rm /rc/bin/mail
+	rm $PLAN9/bin/mail
 
 UPDATE=\
 	gone.fishing\

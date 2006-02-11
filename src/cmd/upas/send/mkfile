@@ -21,22 +21,13 @@ SMOBJ=main.$O\
 	gateway.$O\
 	cat_mail.$O\
 
-LIB=../common/libcommon.av\
-
 HFILES=send.h\
 	../common/common.h\
 	../common/sys.h\
 
-LIB=../common/libcommon.a\
+LIB=../common/libcommon.a
 
-BIN=$PLAN9/bin/upas
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${UOFILES:%.$O=%.c}\
-	${SMOBJ:%.$O=%.c}\
-	${TARG:%=%.c}\
-
+BIN=$BIN/upas
 <$PLAN9/src/mkmany
 CFLAGS=$CFLAGS -I../common
 
@@ -46,7 +37,6 @@ $O.send: $SMOBJ $OFILES
 message.$O:	../smtp/y.tab.h
 
 ../smtp/y.tab.h ../smtp/rfc822.tab.$O: ../smtp/rfc822.y
-#	@{
-		cd ../smtp
-		mk rfc822.tab.$O
-#	}
+	cd ../smtp
+	mk rfc822.tab.$O
+

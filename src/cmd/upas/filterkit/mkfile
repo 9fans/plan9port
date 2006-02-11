@@ -1,21 +1,14 @@
-</$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=\
 	token\
 	list\
 	deliver\
 
-LIB=../common/libcommon.a$O\
-
-BIN=/$objtype/bin/upas
+LIB=../common/libcommon.a
 OFILES=readaddrs.$O
-UPDATE=\
-	mkfile\
-	${TARG:%=%.c}\
-	pipeto.sample\
-	pipefrom.sample\
-	pipeto.sample-hold\
 
-</sys/src/cmd/mkmany
+BIN=$BIN/upas
+<$PLAN9/src/mkmany
+
 CFLAGS=$CFLAGS -I../common
-

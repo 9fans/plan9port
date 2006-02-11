@@ -1,11 +1,12 @@
 #include "dat.h"
+#include <thread.h>
 #include "common.h"
 
 void
 usage(void)
 {
 	fprint(2, "usage: %s recipient fromaddr-file mbox\n", argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void

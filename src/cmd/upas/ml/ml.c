@@ -35,7 +35,7 @@ main(int argc, char **argv)
 		break;
 	}ARGEND;
 
-	rfork(RFENVG|RFREND);
+	rfork(RFENVG);
 
 	if(argc < 2)
 		usage();

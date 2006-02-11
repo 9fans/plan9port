@@ -62,7 +62,7 @@ findkey(char *val, Keyword *p)
 char*
 actstr(int a)
 {
-	char buf[32];
+	static char buf[32];
 	Keyword *p;
 
 	for(p=actions; p->name; p++)
@@ -84,7 +84,8 @@ getaction(char *s, char *type)
 		return ACCEPT;
 
 	for(k = actions; k->name != 0; k++){
-		snprint(buf, sizeof buf, "/mail/ratify/%s/%s/%s", k->name, type, s);
+		snprint(buf, sizeof buf, "%s/mail/ratify/%s/%s/%s", 
+			get9root(), k->name, type, s);
 		if(access(buf,0) >= 0)
 			return k->code;
 	}
@@ -99,7 +100,7 @@ istrusted(char *s)
 	if(s == nil || *s == 0)
 		return 0;
 
-	snprint(buf, sizeof buf, "/mail/ratify/trusted/%s", s);
+	snprint(buf, sizeof buf, "%s/mail/ratify/trusted/%s", get9root(), s);
 	return access(buf,0) >= 0;
 }
 
@@ -167,6 +168,7 @@ getconf(void)
 	sysclose(bp);
 }
 
+#if 0
 /*
  *	match a user name.  the only meta-char is '*' which matches all
  *	characters.  we only allow it as "*", which matches anything or
@@ -186,6 +188,7 @@ usermatch(char *pathuser, char *specuser)
 	}
 	return strcmp(pathuser, specuser);
 }
+#endif
 
 static int
 dommatch(char *pathdom, char *specdom)
@@ -493,7 +496,7 @@ dumpfile(char *sender)
 	return "/dev/null";
 }
 
-char *validator = "/mail/lib/validateaddress";
+char *validator = "#9/mail/lib/validateaddress";
 
 int
 recipok(char *user)
@@ -504,7 +507,12 @@ recipok(char *user)
 	Biobuf *bp;
 	int pid;
 	Waitmsg *w;
-
+	static int beenhere;
+	
+	if(!beenhere){
+		beenhere++;
+		validator = unsharp(validator);
+	}
 	if(shellchars(user)){
 		syslog(0, "smtpd", "shellchars in user name");
 		return 0;
@@ -522,9 +530,7 @@ recipok(char *user)
 			if(w->pid != pid)
 				continue;
 			if(w->msg[0] != 0){
-				/*
 				syslog(0, "smtpd", "validateaddress %s: %s", user, w->msg);
-				*/
 				return 0;
 			}
 			break;
@@ -581,7 +587,7 @@ optoutofspamfilter(char *addr)
 
 
 	rv = 0;
-	f = smprint("/mail/box/%s/nospamfiltering", p);
+	f = smprint("%s/mail/box/%s/nospamfiltering", get9root(), p);
 	if(f != nil){
 		rv = access(f, 0)==0;
 		free(f);

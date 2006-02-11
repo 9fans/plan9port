@@ -1,4 +1,4 @@
-#!/bin/rc
+#!/usr/local/plan9/bin/rc
 switch($#*){
 case 0
 	exec upas/nedmail

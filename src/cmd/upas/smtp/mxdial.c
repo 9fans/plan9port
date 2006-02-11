@@ -1,6 +1,7 @@
 #include "common.h"
 #include <ndb.h>
 #include "smtp.h"	/* to publish dial_string_parse */
+#include <ip.h>
 
 enum
 {
@@ -42,12 +43,18 @@ mxdial(char *addr, char *ddomain, char *gdomain)
 
 	/* try our mail gateway */
 	rerrstr(err, sizeof(err));
-	if(fd < 0 && gdomain && strstr(err, "can't translate") != 0) {
-		fprint(2,"dialing %s\n",gdomain);
+	if(fd < 0 && gdomain && strstr(err, "can't translate") != 0)
 		fd = dial(netmkaddr(gdomain, 0, "smtp"), 0, 0, 0);
-	}
 
 	return fd;
+}
+
+static int
+timeout(void*, char *msg)
+{
+	if(strstr(msg, "alarm"))
+		return 1;
+	return 0;
 }
 
 /*
@@ -92,7 +99,11 @@ callmx(DS *ds, char *dest, char *domain)
 			mx[i].host, ds->service);
 		if(debug)
 			fprint(2, "mxdial trying %s\n", addr);
+		atnotify(timeout, 1);
+		alarm(10*1000);
 		fd = dial(addr, 0, 0, 0);
+		alarm(0);
+		atnotify(timeout, 0);
 		if(fd >= 0)
 			return fd;
 	}
@@ -316,6 +327,7 @@ expand_meta(DS *ds)
 }
 #endif /* jpc */
 
+/* XXX */
 static void
 expand_meta(DS *ds)
 {

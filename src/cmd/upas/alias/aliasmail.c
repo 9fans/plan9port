@@ -39,10 +39,9 @@ main(int argc, char *argv[])
 		namefiles = ARGF();
 		break;
 	} ARGEND
-	if (chdir(unsharp(UPASLIB)) < 0) {
-		perror("translate(chdir):");
-		exit9(1);
-	}
+
+	if (chdir(UPASLIB) < 0)
+		sysfatal("aliasmail chdir %s: %r", UPASLIB);
 
 	/* get environmental info */
 	names = sysnames_read();

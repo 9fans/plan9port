@@ -117,6 +117,13 @@ int justreject;
 char *savefile;
 
 void
+usage(void)
+{
+	fprint(2, "usage: upas/vf [-r] [-s savefile]\n");
+	exits("usage");
+}
+
+void
 main(int argc, char **argv)
 {
 	ARGBEGIN{
@@ -124,11 +131,14 @@ main(int argc, char **argv)
 		justreject = 1;
 		break;
 	case 's':
-		savefile = ARGF();
-		if(savefile == nil)
-			exits("usage");
+		savefile = EARGF(usage());
 		break;
+	default:
+		usage();
 	}ARGEND;
+
+	if(argc)
+		usage();
 
 	Binit(&in, 0, OREAD);
 	Binit(&out, 1, OWRITE);
@@ -415,8 +425,7 @@ savetmp(Part *p)
 }
 
 /*
- * XXX save the decoded file, run 9 unzip -tf on it, and then
- * look at the file list.
+ * Run the external checker to do content-based checks.
  */
 static int
 runchecker(Part *p)
@@ -483,19 +492,18 @@ problemchild(Part *p)
 	if(runchecker(p) > 0)
 		return p;
 
-fprint(2, "x\n");
+	if(justreject)
+		return p;
+		
 	syslog(0, "mail", "vf wrapped %s %s", p->type?s_to_c(p->type):"?",
 		p->filename?s_to_c(p->filename):"?");
-fprint(2, "x\n");
 
 	boundary = mkboundary();
-fprint(2, "x\n");
 	/* print out non-mime headers */
 	for(hl = p->hl; hl != nil; hl = hl->next)
 		if(cistrncmp(s_to_c(hl->s), "content-", 8) != 0)
 			Bprint(&out, "%s", s_to_c(hl->s));
 
-fprint(2, "x\n");
 	/* add in our own multipart headers and message */
 	Bprint(&out, "Content-Type: multipart/mixed;\n");
 	Bprint(&out, "\tboundary=\"%s\"\n", s_to_c(boundary));
@@ -539,11 +547,9 @@ fprint(2, "x\n");
 		break;
 	}
 
-fprint(2, "z\n");
 	/* pass the body */
 	np = passbody(p, 0);
 
-fprint(2, "w\n");
 	/* add the new boundary and the original terminator */
 	Bprint(&out, "--%s--\n", s_to_c(boundary));
 	if(np && np->boundary){
@@ -551,7 +557,6 @@ fprint(2, "w\n");
 		Bwrite(&out, cp, Blinelen(&in));
 	}
 
-fprint(2, "a %p\n", np);
 	return np;
 }
 
@@ -871,8 +876,6 @@ badfile(char *name)
 				return 2;
 			}
 		}
-	if(justreject)
-		return 0;
 	return 1;
 }
 
@@ -886,9 +889,6 @@ badtype(char *type)
 	Mtype *m;
 	char *s, *fix;
 	int rv = 1;
-
-	if(justreject)
-		return 0;
 
 	fix = s = strchr(type, '/');
 	if(s != nil)

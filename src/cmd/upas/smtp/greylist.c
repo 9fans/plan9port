@@ -23,7 +23,7 @@ typedef struct {
 enum {
 	Nonspammax = 14*60*60,  /* must call back within this time if real */
 };
-static char whitelist[] = "/mail/lib/whitelist";
+static char *whitelist = "#9/mail/lib/whitelist";
 
 /*
  * matches ip addresses or subnets in whitelist against nci->rsys.
@@ -40,11 +40,11 @@ onwhitelist(void)
 	uchar mask[IPaddrlen], addr[IPaddrlen], addrmasked[IPaddrlen];
 	Biobuf *wl;
 	static int beenhere;
-	static allzero[IPaddrlen];
 
 	if (!beenhere) {
 		beenhere = 1;
 		fmtinstall('I', eipfmt);
+		whitelist = unsharp(whitelist);
 	}
 
 	parseip(ip, nci->rsys);
@@ -219,8 +219,8 @@ isrcptrecent(char *rcpt)
 		user++;
 
 	/* check & try to update the grey list entry */
-	snprint(file, sizeof file, "/mail/grey/%s/%s/%s",
-		nci->lsys, nci->rsys, user);
+	snprint(file, sizeof file, "%s/mail/grey/%s/%s/%s",
+		get9root(), nci->lsys, nci->rsys, user);
 	memset(gsp, 0, sizeof *gsp);
 	addgreylist(file, gsp);
 
@@ -258,10 +258,7 @@ vfysenderhostok(void)
 
 		if (fd >= 0) {
 			seek(fd, 0, 2);			/* paranoia */
-			if ((fqdn = csgetvalue(nil, "ip", nci->rsys, "dom", nil)) != nil)
-				fprint(fd, "# %s\n%s\n\n", fqdn, nci->rsys);
-			else
-				fprint(fd, "# unknown\n%s\n\n", nci->rsys);
+			fprint(fd, "# %s\n%s\n\n", fqdn, nci->rsys);
 			close(fd);
 		}
 	} else {

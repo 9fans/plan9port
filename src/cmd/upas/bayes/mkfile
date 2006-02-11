@@ -1,18 +1,18 @@
-</$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=addhash bayes msgtok
 HFILES=
 OFILES=
 LIB=
 
-BIN=/$objtype/bin/upas
-</sys/src/cmd/mkmany
+BIN=$BIN/upas
+<$PLAN9/src/mkmany
 
 # msg tokenizer
 $O.regen: regcomp.$O dfa.$O
 dfa.$O regcomp.$O regen.$O: dfa.h
 
-/mail/lib/classify.re: $O.regen
+$PLAN9/mail/lib/classify.re: $O.regen
 	if(~ $cputype $objtype)
 		$O.regen >x && cp x $target
 

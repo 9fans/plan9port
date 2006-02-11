@@ -171,7 +171,7 @@ threadmain(int argc, char **argv)
 	if(*argv == 0)
 		usage();
 	addr = *argv++; argc--;
-	// expand $smtp if necessary
+	// expand $smtp if necessary XXX
 	addr = expand_addr(addr);
 	farend = addr;
 
@@ -202,12 +202,12 @@ threadmain(int argc, char **argv)
 		exits(0);
 	}
 
-	/* 10 minutes to get through the initial handshake */
-	atnotify(timeout, 1);
-
-	alarm(10*alarmscale);
+	/* mxdial uses its own timeout handler */
 	if((rv = connect(addr)) != 0)
 		exits(rv);
+
+	/* 10 minutes to get through the initial handshake */
+	atnotify(timeout, 1);
 	alarm(10*alarmscale);
 	if((rv = hello(hellodomain, 0)) != 0)
 		goto error;
@@ -1097,6 +1097,7 @@ dBputc(int x)
 	return Bputc(&bout, x);
 }
 
+/* XXX */
 char* 
 expand_addr(char* a)
 {

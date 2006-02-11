@@ -454,6 +454,7 @@ sysnames_read(void)
 	if(namev)
 		return namev;
 
+/* XXX */
 	/* free(csgetvalue(0, "sys", alt_sysname_read(), "dom", &t));  jpc */
 	db = ndbopen(unsharp("#9/ndb/local"));
 	free(ndbgetvalue(db, &s, "sys", sysname(),"dom", &t));

@@ -1,4 +1,4 @@
-</$objtype/mkfile
+<$PLAN9/src/mkhdr
 
 TARG=scanmail\
 	testscan
@@ -8,17 +8,11 @@ OFILES=	common.$O
 HFILES=	spam.h\
 	../common/sys.h\
 
-LIB=	../common/libcommon.a$O\
+LIB=	../common/libcommon.a
 
-BIN=/$objtype/bin/upas
-UPDATE=\
-	mkfile\
-	$HFILES\
-	${OFILES:%.$O=%.c}\
-	${TARG:%=%.c}\
-
-</sys/src/cmd/mkmany
+BIN=$BIN/upas
+<$PLAN9/src/mkmany
 CFLAGS=$CFLAGS -I../common
 
 scanmail.$O:	scanmail.c
-	$CC $CFLAGS -D'SPOOL="/mail"' scanmail.c
+	$CC $CFLAGS -D'SPOOL="'$PLAN9'/mail"' scanmail.c
