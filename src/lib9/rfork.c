@@ -15,13 +15,14 @@ p9rfork(int flags)
 {
 	int pid, status;
 	int p[2];
-	int n;
+	int i, n;
 	char buf[128], *q;
+	extern char **environ;
 
 	if((flags&(RFPROC|RFFDG|RFMEM)) == (RFPROC|RFFDG)){
 		/* check other flags before we commit */
-		flags &= ~(RFPROC|RFFDG);
-		n = (flags & ~(RFNOTEG|RFNAMEG|RFNOWAIT));
+		flags &= ~(RFPROC|RFFDG|RFENVG);
+		n = (flags & ~(RFNOTEG|RFNAMEG|RFNOWAIT|RFCENVG));
 		if(n){
 			werrstr("unknown flags %08ux in rfork", n);
 			return -1;
@@ -99,6 +100,9 @@ p9rfork(int flags)
 		}
 		if(pid != 0)
 			return pid;
+		if(flags&RFCENVG)
+			if(environ)
+				*environ = nil;
 	}
 	if(flags&RFPROC){
 		werrstr("cannot use rfork for shared memory -- use libthread");
