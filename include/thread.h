@@ -178,6 +178,11 @@ int		threadspawn(int[3], char*, char*[]);
 int		threadspawnl(int[3], char*, ...);
 Channel*	threadwaitchan(void);
 
+/*
+ * alternate interface to threadwaitchan - don't use both! 
+ */
+Waitmsg*	procwait(int pid);
+
 #if defined(__cplusplus)
 }
 #endif
