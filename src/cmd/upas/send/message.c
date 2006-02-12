@@ -335,11 +335,10 @@ m_read(Biobuf *fp, int rmail, int interactive)
 		mp->size += n;
 		if(n == VMLIMIT){
 			if(m_read_to_file(fp, mp) < 0){
-				perror("m_read");
+				perror("m_read_to_file");
 				exit(1);
 			}
 		}
-
 	}
 
 	/*

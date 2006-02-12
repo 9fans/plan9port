@@ -4,7 +4,7 @@ char *_MAILROOT =	"#9/mail";
 char *_UPASLOG =		"#9/sys/log";
 char *_UPASLIB = 	"#9/mail/lib";
 char *_UPASBIN=		"#9/bin/upas";
-char *_UPASTMP = 	"#9/mail/tmp";
+char *_UPASTMP = 	"/var/tmp";
 char *_SHELL = 		"#9/bin/rc";
 char *_POST =		"#9/sys/lib/post/dispatch";
 

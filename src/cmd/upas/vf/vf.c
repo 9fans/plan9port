@@ -806,7 +806,7 @@ readmtypes(void)
 	Mtype *m;
 	Mtype **l;
 
-	b = Bopen(unsharp("#9/sys/lib/mimetype"), OREAD);
+	b = Bopen(unsharp("#9/lib/mimetype"), OREAD);
 	if(b == nil)
 		return;
 

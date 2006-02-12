@@ -1,5 +1,12 @@
 #include "common.h"
+#include <thread.h>
+#include <9pclient.h>
 #include <ctype.h>
+
+enum
+{
+	STACK = 32768
+};
 
 #define inline _inline
 
@@ -11,6 +18,7 @@ typedef struct Ctype Ctype;
 struct Attach {
 	Attach	*next;
 	char	*path;
+	int	fd;
 	char	*type;
 	int	inline;
 	Ctype	*ctype;
@@ -124,6 +132,8 @@ void	freeaddrs(Addr*);
 void	freealias(Alias*);
 void	freealiases(Alias*);
 int	doublequote(Fmt*);
+int	mountmail(void);
+int	nprocexec;
 
 int rflag, lbflag, xflag, holding, nflag, Fflag, eightflag, dflag;
 int pgpflag = 0;
@@ -133,6 +143,8 @@ Alias *aliases;
 int rfc822syntaxerror;
 char lastchar;
 char *replymsg;
+
+CFsys *mailfs;
 
 enum
 {
@@ -149,7 +161,7 @@ usage(void)
 {
 	fprint(2, "usage: %s [-Fr#xn] [-s subject] [-c ccrecipient] [-t type] [-aA attachment] [-p[es]] [-R replymsg] -8 | recipient-list\n",
 		argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void
@@ -168,11 +180,11 @@ fatal(char *fmt, ...)
 	va_end(arg);
 	fprint(2, "%s: %s\n", argv0, buf);
 	holdoff(holding);
-	exits(buf);
+	threadexitsall(buf);
 }
 
 void
-main(int argc, char **argv)
+threadmain(int argc, char **argv)
 {
 	Attach *first, **l, *a;
 	char *subject, *type, *boundary;
@@ -195,12 +207,11 @@ main(int argc, char **argv)
 
 	quotefmtinstall();
 	fmtinstall('Z', doublequote);
+	threadwaitchan();
 
 	ARGBEGIN{
 	case 't':
-		type = ARGF();
-		if(type == nil)
-			usage();
+		type = EARGF(usage());
 		break;
 	case 'a':
 		flags = 0;
@@ -208,9 +219,9 @@ main(int argc, char **argv)
 	case 'A':
 		flags = 1;
 	aflag:
-		a = mkattach(ARGF(), type, flags);
+		a = mkattach(EARGF(usage()), type, flags);
 		if(a == nil)
-			exits("bad args");
+			threadexitsall("bad args");
 		type = nil;
 		*l = a;
 		l = &a->next;
@@ -224,10 +235,10 @@ main(int argc, char **argv)
 		ccargc++;
 		break;
 	case 'R':
-		replymsg = ARGF();
+		replymsg = EARGF(usage());
 		break;
 	case 's':
-		subject = ARGF();
+		subject = EARGF(usage());
 		break;
 	case 'F':
 		Fflag = 1;		// file message
@@ -251,7 +262,7 @@ main(int argc, char **argv)
 		eightflag = 1;
 		break;
 	case 'p':			// pgp flag: encrypt, sign, or both
-		if(pgpopts(ARGF()) < 0)
+		if(pgpopts(EARGF(usage())) < 0)
 			sysfatal("bad pgp options");
 		break;
 	default:
@@ -308,7 +319,7 @@ main(int argc, char **argv)
 		case Nomessage:		// no message, just exit mimicking old behavior
 			noinput = 1;
 			if(first == nil)
-				exits(0);
+				threadexitsall(0);
 			break;
 		}
 	}
@@ -316,9 +327,10 @@ main(int argc, char **argv)
 	fd = sendmail(to, cc, &pid, Fflag ? argv[0] : nil);
 	if(fd < 0)
 		sysfatal("execing sendmail: %r\n:");
+fprint(2, "sendmail fd %d\n", fd);
 	if(xflag || lbflag || dflag){
 		close(fd);
-		exits(waitforsubprocs());
+		threadexitsall(waitforsubprocs());
 	}
 	
 	if(Binit(&out, fd, OWRITE) < 0)
@@ -364,8 +376,7 @@ main(int argc, char **argv)
 		if(printsubject(&out, subject) < 0)
 			fatal("writing");
 	if(replymsg != nil)
-		if(printinreplyto(&out, replymsg) < 0)
-			fatal("writing");
+		printinreplyto(&out, replymsg);	/* ignore errors */
 	Bprint(&out, "MIME-Version: 1.0\n");
 
 	if(pgpflag){	// interpose pgp process between us and sendmail to handle body
@@ -411,7 +422,7 @@ main(int argc, char **argv)
 
 	Bterm(&out);
 	close(fd);
-	exits(waitforsubprocs());
+	threadexitsall(waitforsubprocs());
 }
 
 // evaluate pgp option string
@@ -664,17 +675,14 @@ attachment(Attach *a, Biobuf *out)
 	Biobuf *f;
 	char *p;
 
+	f = emalloc(sizeof *f);
+	Binit(f, a->fd, OREAD);
 	// if it's already mime encoded, just copy
 	if(strcmp(a->type, "mime") == 0){
-		f = Bopen(a->path, OREAD);
-		if(f == nil){
-			/* hack: give marshal time to stdin, before we kill it (for dead.letter) */
-			sleep(500);
-			postnote(PNPROC, pid, "interrupt");
-			sysfatal("opening %s: %r", a->path);
-		}
 		copy(f, out);
 		Bterm(f);
+		free(f);
+		return;
 	}
 	
 	// if it's not already mime encoded ...
@@ -692,14 +700,6 @@ attachment(Attach *a, Biobuf *out)
 		Bprint(out, "Content-Disposition: attachment; filename=%Z\n", p);
 	}
 
-	f = Bopen(a->path, OREAD);
-	if(f == nil){
-		/* hack: give marshal time to stdin, before we kill it (for dead.letter) */
-		sleep(500);
-		postnote(PNPROC, pid, "interrupt");
-		sysfatal("opening %s: %r", a->path);
-	}
-
 	/* dump our local 'From ' line when passing along mail messages */
 	if(strcmp(a->type, "message/rfc822") == 0){
 		p = Brdline(f, '\n');
@@ -713,6 +713,7 @@ attachment(Attach *a, Biobuf *out)
 		body64(f, out);
 	}
 	Bterm(f);
+	free(f);
 }
 
 char *ascwday[] =
@@ -789,20 +790,25 @@ printsubject(Biobuf *b, char *subject)
 int
 printinreplyto(Biobuf *out, char *dir)
 {
-	String *s = s_copy(dir);
+	String *s;
 	char buf[256];
 	int fd;
 	int n;
 
+	if(mountmail() < 0)
+		return -1;
+	if(strncmp(dir, "Mail/", 5) != 0)
+		return -1;
+	s = s_copy(dir+5);
 	s_append(s, "/messageid");
-	fd = open(s_to_c(s), OREAD);
+	fd = fsopenfd(mailfs, s_to_c(s), OREAD);
 	s_free(s);
 	if(fd < 0)
-		return 0;
-	n = read(fd, buf, sizeof(buf)-1);
+		return -1;
+	n = readn(fd, buf, sizeof(buf)-1);
 	close(fd);
 	if(n <= 0)
-		return 0;
+		return -1;
 	buf[n] = 0;
 	return Bprint(out, "In-Reply-To: %s\n", buf);
 }
@@ -814,15 +820,17 @@ mkattach(char *file, char *type, int inline)
 	Attach *a;
 	char ftype[64];
 	char *p;
-	int n, pfd[2];
+	int fd, n, pfd[2], xfd[3];
 
 	if(file == nil)
 		return nil;
-	if(access(file, 4) == -1){
+	if((fd = open(file, OREAD)) < 0)
+	if(strncmp(file, "Mail/", 5) != 0 || mountmail() < 0 || (fd = fsopenfd(mailfs, file+5, OREAD)) < 0){
 		fprint(2, "%s: %s can't read file\n", argv0, file);
 		return nil;
 	}
 	a = emalloc(sizeof(*a));
+	a->fd = fd;
 	a->path = file;
 	a->next = nil;
 	a->type = type;
@@ -868,28 +876,24 @@ mkattach(char *file, char *type, int inline)
 	a->type = "application/octet-stream";		// safest default
 	if(pipe(pfd) < 0)
 		return a;
-	switch(fork()){
-	case -1:
-		break;
-	case 0:
-		close(pfd[1]);
-		close(0);
-		dup(pfd[0], 0);
-		close(1);
-		dup(pfd[0], 1);
-		execl(unsharp("#9/bin/file"), "file", "-m", file, nil);
-		exits(0);
-	default:
-		close(pfd[0]);
-		n = read(pfd[1], ftype, sizeof(ftype));
-		if(n > 0){
-			ftype[n-1] = 0;
-			a->type = estrdup(ftype);
-		}
-		close(pfd[1]);
-		waitpid();
-		break;
+	
+	xfd[0] = pfd[0];
+	xfd[1] = pfd[0];
+	xfd[2] = dup(2, -1);
+	if((pid=threadspawnl(xfd, unsharp("#9/bin/file"), "file", "-m", file, nil)) < 0){
+		close(xfd[0]);
+		close(xfd[2]);
+		return a;
 	}
+	/* threadspawnl closed pfd[0] */
+
+	n = readn(pfd[1], ftype, sizeof(ftype));
+	if(n > 0){
+		ftype[n-1] = 0;
+		a->type = estrdup(ftype);
+	}
+	close(pfd[1]);
+	procwait(pid);
 
 	for(c = ctype; ; c++)
 		if(strncmp(a->type, c->type, strlen(c->type)) == 0){
@@ -930,6 +934,16 @@ tee(int in, int out1, int out2)
 		if(write(out2, buf, n) < 0)
 			break;
 	}
+}
+
+static void
+teeproc(void *v)
+{
+	int *a;
+	
+	a = v;
+	tee(a[0], a[1], a[2]);
+	write(a[2], "\n", 1);
 }
 
 // print the unix from line
@@ -1031,9 +1045,10 @@ int
 sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 {
 	char **av, **v;
-	int ac, fd;
-	int pfd[2];
+	int ac, fd, *targ;
+	int pfd[2], sfd, xfd[3];
 	String *cmd;
+	char *x;
 	Addr *a;
 
 	fd = -1;
@@ -1063,56 +1078,40 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 	v[ac] = 0;
 
 	if(pipe(pfd) < 0)
-		fatal("%r");
-	switch(*pid = fork()){
-	case -1:
-		fatal("%r");
-		break;
-	case 0:
-		if(holding)
-			close(holding);
-		close(pfd[1]);
-		dup(pfd[0], 0);
-		close(pfd[0]);
+		fatal("pipe: %r");
+	
+	xfd[0] = pfd[0];
+	xfd[1] = dup(1, -1);
+	xfd[2] = dup(2, -1);
 
-		if(rcvr != nil){
-			if(pipe(pfd) < 0)
-				fatal("%r");
-			switch(fork()){
-			case -1:
-				fatal("%r");
-				break;
-			case 0:
-				close(pfd[0]);
-				seek(fd, 0, 2);
-				printunixfrom(fd);
-				tee(0, pfd[1], fd);
-				write(fd, "\n", 1);
-				exits(0);
-			default:
-				close(fd);
-				close(pfd[1]);
-				dup(pfd[0], 0);
-				break;
-			}
-		}
+	if(replymsg != nil)
+		putenv("replymsg", replymsg);
+	cmd = mboxpath("pipefrom", login, s_new(), 0);
 
-		if(replymsg != nil)
-			putenv("replymsg", replymsg);
-
-		cmd = mboxpath("pipefrom", login, s_new(), 0);
-		exec(s_to_c(cmd), av);
-		exec("myupassend", av);
-		exec(unsharp("#9/bin/upas/send"), av);
+	if((*pid = threadspawn(xfd, x=s_to_c(cmd), av)) < 0
+	&& (*pid = threadspawn(xfd, x="myupassend", av)) < 0
+	&& (*pid = threadspawn(xfd, x=unsharp("#9/bin/upas/send"), av)) < 0)
 		fatal("exec: %r");
-		break;
-	default:
-		if(rcvr != nil)
-			close(fd);
-		close(pfd[0]);
-		break;
+	/* threadspawn closed pfd[0] (== xfd[0]) */
+	sfd = pfd[1];
+
+fprint(2, "exec'ed %s\n", x);
+
+	if(rcvr != nil){
+fprint(2, "rcvr\n");
+		if(pipe(pfd) < 0)
+			fatal("pipe: %r");
+		seek(fd, 0, 2);
+		printunixfrom(fd);
+		targ = emalloc(3*sizeof targ[0]);
+		targ[0] = sfd;
+		targ[1] = pfd[0];
+		targ[2] = fd;
+		proccreate(teeproc, targ, STACK);
+		sfd = pfd[1];
 	}
-	return pfd[1];
+	
+	return sfd;
 }
 
 // start up pgp process and return an fd to talk to it with.
@@ -1168,15 +1167,10 @@ waitforsubprocs(void)
 	char *err;
 
 	err = nil;
-	while((w = wait()) != nil){
-		if(w->pid == pid || w->pid == pgppid){
-			if(w->msg[0] != 0)
-				err = estrdup(w->msg);
-		}
-		free(w);
-	}
-	if(err)
-		exits(err);
+	if(pgppid >= 0 && (w=procwait(pgppid)) && w->msg[0])
+		err = w->msg;
+	if(pid >= 0 && (w=procwait(pid)) && w->msg[0])
+		err = w->msg;
 	return nil;
 }
 
@@ -1853,4 +1847,14 @@ doublequote(Fmt *f)
 		fmtrune(f, r);
 	}
 	return fmtrune(f, '"');
+}
+
+int
+mountmail(void)
+{
+	if(mailfs != nil)
+		return 0;
+	if((mailfs = nsmount("mail", nil)) == nil)
+		return -1;
+	return 0;
 }
