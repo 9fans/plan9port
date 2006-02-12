@@ -1,0 +1,6 @@
+To run mail you need to do at least the following:
+
+	cd $PLAN9/src/cmd/upas; mk install
+	cd $PLAN9/log; chmod 666 smtp smtp.debug smtp.fail mail >smtp >smtp.debug >smtp.fail >mail
+	chmod 777 $PLAN9/mail/queue
+
