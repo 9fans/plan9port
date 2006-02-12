@@ -99,6 +99,7 @@ LIB9OFILES=\
 	errstr.$O\
 	exec.$O\
 	execl.$O\
+	exitcode.$O\
 	fcallfmt.$O\
 	get9root.$O\
 	getcallerpc-$OBJTYPE.$O\
