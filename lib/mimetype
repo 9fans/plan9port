@@ -1,0 +1,167 @@
+#suffix		generic type	specific type	encoding	safe? y=yes, m=maybe, n=no, p=previous.suffix, r=mailreject
+.3gp		video		3gpp		-		y
+.3gpp		video		3gpp		-		y
+.C		text		plain		-		y # C++ program
+.Z		-		-		compress	m
+.a		application	octet-stream	-		y
+.ada		text		plain		-		y # ada program
+.ai		application	postscript	-		y
+.aif		audio		x-aiff		-		y
+.aifc		audio		x-aiff		-		y
+.aiff		audio		x-aiff		-		y
+.asf		video		x-ms-asf	-		m # MS streaming
+.asc		application	text		-		y # sometimes application/pgp-signature
+.asx		video		x-ms-asf	-		m # MS streaming
+.au		audio		basic		-		y # sun audio
+.avi		video		x-msvideo	-		m
+.awk		text		plain		-		y # awk program
+.bas		text		plain		-		y # basic program
+.bat		application	octet-stream	-		r # DOS executable
+.bbl		text		plain		-		y # BibTex output
+.bcpio		application	x-bcpio		-		m
+.bib		text		plain		-		y # BibTex input
+.bmp		image		bmp		-		y # bitmapped image
+.c		text		plain		-		y # C program
+.c++		text		plain		-		y # C++ program
+.cacert		application	x-x509-ca-cert	-		y # DER X.509 CA certificate
+.cc		text		plain		-		y
+.cdf		application	x-netcdf	-		y
+.class		application	java		-		y # Java bytecodes
+.com		application	octet-stream	-		r # DOS executable
+.cpio		application	x-cpio		-		y
+.cpl		application	octet-stream	-		r # Windows Control Panel Applet
+.cpp		text		plain		-		y # DOS C++ program
+.crt		application	x-x509-ca-cert	-		y # DER X.509 CA certificate
+.css		text		css		-		m
+.csv		application	vnd.ms-excel	-		y # Microsoft Excel comma-separated-values
+.dat		text		plain		-		y # AMPL et al.
+.diff		text		plain		-		y
+.doc		application	msword		-		n # Microsoft Word
+.dvi		application	x-dvi		-		y # TeX output
+.enc		application	octet-stream	-		y # encrypted file
+.eps		application	postscript	-		y
+.etx		text		x-setext	-		m
+.exe		application	octet-stream	-		r # DOS executable
+.executable	application	octet-stream	-		r # DOS executable
+.exz		application	octet-stream	gzip		n # gzipped DOS executable
+.f		text		plain		-		y # fortran-77 program
+.fm		application	framemaker	-		y
+.f90		text		plain		-		y # fortran-90 program
+.flc		video		x-flc		-		m
+.fli		video		x-fli		-		m
+.gcd		text		x-pcs-gcd	-		y	# helper file for .qcp
+.gif		image		gif		-		y
+.gtar		application	x-gtar		-		m
+.gz		-		-		gzip		m # gzipped file
+.h		text		plain		-		y # C header file
+.hdf		application	x-hdf		-		y
+.hdml		text		x-hdml		-		y
+.hqx		application	octet-stream	-		m # Mac BinHex
+.htm		text		html		-		m
+.html		text		html		-		m
+.ico		image		x-icon		-		y
+.ief		image		ief		-		y
+.jad		text		vnd.sun.j2me.app-descriptor	-	y
+.jar		application	java-archive	-		y
+.jfif		image		jpeg		-		y
+.jfif-tbnl	image		jpeg		-		y
+.jpe		image		jpeg		-		y
+.jpeg		image		jpeg		-		y
+.jpg		image		jpeg		-		y
+.jpg		image		pjpeg		-		y
+.latex		application	x-latex		-		y
+.ltx		application	x-latex		-		y
+.man		application	x-troff-man	-		y
+.me		application	x-troff-me	-		y
+.mid		audio		midi		-		y # MIDI music
+.mime		message		rfc822		-		y
+.mod		text		plain		-		y # AMPL et al.
+.mov		video		quicktime	-		y
+.movie		video		x-sgi-movie	-		y
+.mpe		video		mpeg		-		y
+.mpeg		video		mpeg		-		y
+.mpg		video		mpeg		-		y
+.ms		application	x-troff-ms	-		y
+.mv		video		x-sgi-movie	-		y
+.nc		application	x-netcdf	-		y
+.o		application	octet-stream	-		y
+.oda		application	oda		-		m
+.p		text		plain			-	y # Pascal program
+.p7m		application	x-pkcs7-mime		-	y # SMIME
+.p7s		application	x-pkcs7-signature	-	y # SMIME
+.pbm		image		x-portable-bitmap	-	y
+.pdf		application	pdf		-		y # Adobe Portable Document Format
+.pif		application	octet-stream	-		r # DOS executable
+.pgm		image		x-portable-graymap	-	y
+.pl		text		plain		-		y
+.png		image		png		-		y
+.pnm		image		x-portable-anymap	-	y
+.ppm		image		x-portable-pixmap	-	y
+.ppt		application	vnd.ms-powerpoint	-	n # Microsoft PowerPoint
+.ps		application	postscript	-		m
+.qcp		audio		vnd.qcelp	-		y # Qualcomm CELP
+.qcp2		audio		qcp		-		y # Qualcomm CELP
+.qt		video		quicktime	-		y
+.r		text		plain		-		y # ratfor program
+.ra		audio		x-pn-realaudio	-		y # G2 RealAudio
+.ram		audio		x-pn-realaudio	-		y # G2 RealAudio
+.ras		image		x-cmu-rast	-		y
+.rc		text		plain		-		y # rc
+.rfr		text		plain		-		y # refer
+.rgb		image		x-rgb		-		y
+.rm		application	x-pn-realmedia	-		y # G2 RealAudio
+.roff		application	x-troff		-		y
+.rpm		audio		x-pn-realaudio-plugin	-	y # G2 RealAudio
+.rtf		application	rtf		-		y
+.rtx		text		richtext 	-		y
+.scr		application	octet-stream	-		r # DOS executable (screen saver)
+.sh		application	x-shar		-		m
+.shar		application	x-shar		-		m
+.smi		application	smil		-		m # sync multimedia
+.smil		application	smil		-		m # sync multimedia
+.snd		audio		basic		-		y
+.suspect	application	octet-stream	-		y # upas/vf
+.sv4cpio	application	x-sv4cpio	-		m
+.sv4crc		application	x-sv4crc	-		y
+.t		application	x-troff		-		y
+.tar		application	x-tar		-		m
+.tardist	application	x-tardist	-		n # SGI SoftwareManager
+.taz		application	x-tar		compress	m
+.tcl		application	x-tcl		-		y
+.tex		application	x-tex		-		y # Tex input
+.texi		application	x-texinfo	-		y
+.texinfo	application	x-texinfo	-		y
+.text		text		plain		-		y
+.tgz		application	x-tar		gzip		m
+.tif		image		tiff		-		y
+.tiff		image		tiff		-		y
+.toc		text		plain		-		y # table of contents
+.tr		application	x-troff		-		y
+.trz		application	x-tar		compress	m
+.tsv		text		tab-separated-values	-	y
+.txt		text		-		-		y
+.txt		text		plain		-		y
+.ucert		application	x-x509-user-cert	-	y # DER X.509 user certificate
+.ustar		application	x-ustar		-		m
+.vcf		text		x-vcard		-		y # vCard
+.wav		audio		x-wav		-		y
+.wbmp		image		vnd.wap.wbmp	-		y # wireless bitmap
+.wml		text		vnd.wap.wml	-		m # WML doc
+.wmlc		application	vnd.wap.wmlc	-		m # compiled WML doc
+.wmls		text		vnd.wap.wmlscript	-	m # WMLScript
+.wmlsc		application	vnd.wap.wmlscriptc	-	m # compiled WMLScript
+.wsrc		application	x-wais-source	-		y
+.xbm		image		x-xbitmap	-		y # X bitmap
+.xgz		-		-		x-gzip		m # gzipped file
+.xls		application	vnd.ms-excel	-		n # Microsoft Excel
+.xml		text		xml		-		m
+.xpm		image		x-xpixmap	-		y
+.xwd		image		x-xwindowdump	-		y
+.z		-		-		compress	m
+.Z		-		-		compress	m
+.zip		application	zip		-		n
+.zzz		application	sleep		-		n # testing
+-		application	x-gunzip	-		p # type for .tar.gz
+-		message		delivery-status	-		y # mail bounces
+-		application	pgp-signature	-		y
+-		application	pgp-encrypted	-		y
