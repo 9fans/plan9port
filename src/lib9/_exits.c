@@ -4,7 +4,7 @@
 void
 _exits(char *s)
 {
-	if(s && *s)
-		_exit(1);
-	_exit(0);
+	if(s == 0 || *s == 0)
+		_exit(0);
+	_exit(exitcode(s));
 }

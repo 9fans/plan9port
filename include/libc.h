@@ -376,6 +376,7 @@ extern	int	dec16(uchar*, int, char*, int);
 extern	int	enc16(char*, int, uchar*, int);
 extern	int	encodefmt(Fmt*);
 extern	int	dirmodefmt(Fmt*);
+extern	int	exitcode(char*);
 extern	void	exits(char*);
 extern	double	frexp(double, int*);
 extern	ulong	getcallerpc(void*);

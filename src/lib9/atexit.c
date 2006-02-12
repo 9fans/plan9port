@@ -50,5 +50,7 @@ exits(char *s)
 			onex[i].f = 0;
 			(*f)();
 		}
-	exit(s && *s ? 1 : 0);
+	if(s == 0 || *s == 0)
+		exit(0);
+	exit(exitcode(s));
 }
