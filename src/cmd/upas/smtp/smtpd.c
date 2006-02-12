@@ -7,7 +7,7 @@
 #include <mp.h>
 #include <libsec.h>
 #include <auth.h>
-#include "../smtp/y.tab.h"
+#include "../smtp/rfc822.tab.h"
 
 #define DBGMX 1
 

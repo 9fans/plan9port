@@ -118,6 +118,7 @@ getaddr(Node *p)
 	for(; p; p = p->next)
 		if(p->s && p->addr)
 			return s_copy(s_to_c(p->s));
+	return nil;
 }
 
 /* get the text of a header line minus the field name */

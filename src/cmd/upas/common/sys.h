@@ -21,15 +21,24 @@ struct Mlock {
 /*
  *  from config.c - call upasconfig() before using
  */
-extern char *MAILROOT;	/* root of mail system */
-extern char *UPASLOG;	/* log directory */
-extern char *UPASLIB;	/* upas library directory */
-extern char *UPASBIN;	/* upas binary directory */
-extern char *UPASTMP;	/* temporary directory */
-extern char *SHELL;	/* path name of shell */
-extern char *POST;	/* path name of post server addresses */
+extern char *_MAILROOT;	/* root of mail system */
+extern char *_UPASLOG;	/* log directory */
+extern char *_UPASLIB;	/* upas library directory */
+extern char *_UPASBIN;	/* upas binary directory */
+extern char *_UPASTMP;	/* temporary directory */
+extern char *_SHELL;	/* path name of shell */
+extern char *_POST;	/* path name of post server addresses */
 extern int MBOXMODE;	/* default mailbox protection mode */
 extern void upasconfig(void);
+
+/* forgive me */
+#define	MAILROOT	(upasconfig(), _MAILROOT)
+#define	UPASLOG	(upasconfig(), _UPASLOG)
+#define	UPASLIB	(upasconfig(), _UPASLIB)
+#define	UPASBIN	(upasconfig(), _UPASBIN)
+#define	UPASTMP	(upasconfig(), _UPASTMP)
+#define	SHELL	(upasconfig(), _SHELL)
+#define	POST	(upasconfig(), _POST)
 
 /*
  *  files in libsys.c

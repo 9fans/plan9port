@@ -1,12 +1,12 @@
 #include "common.h"
 
-char *MAILROOT =	"#9/mail";
-char *UPASLOG =		"#9/sys/log";
-char *UPASLIB = 	"#9/mail/lib";
-char *UPASBIN=		"#9/bin/upas";
-char *UPASTMP = 	"#9/mail/tmp";
-char *SHELL = 		"#9/bin/rc";
-char *POST =		"#9/sys/lib/post/dispatch";
+char *_MAILROOT =	"#9/mail";
+char *_UPASLOG =		"#9/sys/log";
+char *_UPASLIB = 	"#9/mail/lib";
+char *_UPASBIN=		"#9/bin/upas";
+char *_UPASTMP = 	"#9/mail/tmp";
+char *_SHELL = 		"#9/bin/rc";
+char *_POST =		"#9/sys/lib/post/dispatch";
 
 int MBOXMODE = 0662;
 
@@ -18,10 +18,10 @@ upasconfig(void)
 	if(did)
 		return;
 	did = 1;
-	MAILROOT = unsharp(MAILROOT);
-	UPASLOG = unsharp(UPASLOG);
-	UPASLIB = unsharp(UPASLIB);
-	UPASBIN = unsharp(UPASBIN);
-	SHELL = unsharp(SHELL);
-	POST = unsharp(POST);
+	_MAILROOT = unsharp(_MAILROOT);
+	_UPASLOG = unsharp(_UPASLOG);
+	_UPASLIB = unsharp(_UPASLIB);
+	_UPASBIN = unsharp(_UPASBIN);
+	_SHELL = unsharp(_SHELL);
+	_POST = unsharp(_POST);
 }

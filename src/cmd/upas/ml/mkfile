@@ -14,7 +14,7 @@ UHFILES= ../common/common.h\
 	dat.h\
 
 HFILES=$UHFILES\
-	../smtp/y.tab.h\
+	../smtp/rfc822.tab.h\
 
 LIB=../common/libcommon.a
 
@@ -25,7 +25,7 @@ CFLAGS=$CFLAGS -I../common
 $O.ml: ../smtp/rfc822.tab.$O
 $O.mlowner: ../smtp/rfc822.tab.$O
 
-../smtp/y.tab.h ../smtp/rfc822.tab.$O:
+../smtp/rfc822.tab.h ../smtp/rfc822.tab.$O:
 	(
 		cd ../smtp
 		mk rfc822.tab.$O

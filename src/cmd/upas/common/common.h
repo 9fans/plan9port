@@ -75,5 +75,4 @@ extern int	proc_wait(process*);
 extern int	proc_free(process*);
 extern int	proc_kill(process*);
 
-/* tell compiler we're using a value so it won't complain */
-#define USE(x)	if(x)
+

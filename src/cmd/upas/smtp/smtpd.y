@@ -189,6 +189,7 @@ parseinit(void)
 	yyfp = &bin;
 }
 
+int
 yylex(void)
 {
 	int c;
@@ -229,6 +230,7 @@ cat(YYSTYPE *y1, YYSTYPE *y2, YYSTYPE *y3, YYSTYPE *y4, YYSTYPE *y5, YYSTYPE *y6
 {
 	YYSTYPE rv;
 
+	memset(&rv, 0, sizeof rv);
 	if(y1->s)
 		rv.s = y1->s;
 	else {
@@ -296,6 +298,7 @@ cat(YYSTYPE *y1, YYSTYPE *y2, YYSTYPE *y3, YYSTYPE *y4, YYSTYPE *y5, YYSTYPE *y6
 		}
 	} else
 		return rv;
+	return rv;
 }
 
 void
@@ -312,6 +315,7 @@ anonymous(void)
 {
 	YYSTYPE rv;
 
+	memset(&rv, 0, sizeof rv);
 	rv.s = s_copy("/dev/null");
 	return rv;
 }

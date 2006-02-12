@@ -41,12 +41,13 @@ smtpd.tab.c: smtpd.y smtpd.h
 	sed 's/yy/zz/g' < xxx > $target
 	rm xxx
 
-rfc822.tab.c: rfc822.y smtp.h
+rfc822.tab.c rfc822.tab.h: rfc822.y smtp.h
 	9 yacc -d -o $target rfc822.y
+	mv y.tab.h rfc822.tab.h
 
 clean:V:
 	rm -f *.[$OS] [$OS].$TARG smtpd.tab.c rfc822.tab.c y.tab.? y.debug $TARG
 
-../common/libcommon.a
+../common/libcommon.a:
 	cd ../common; mk
 

@@ -23,7 +23,7 @@ extern int debug;
 
 static int	mxlookup(DS*, char*);
 static int	mxlookup1(DS*, char*);
-static int	compar(void*, void*);
+static int	compar(const void*, const void*);
 static int	callmx(DS*, char*, char*);
 static void expand_meta(DS *ds);
 extern int	cistrcmp(char*, char*);
@@ -50,8 +50,10 @@ mxdial(char *addr, char *ddomain, char *gdomain)
 }
 
 static int
-timeout(void*, char *msg)
+timeout(void *v, char *msg)
 {
+	USED(v);
+
 	if(strstr(msg, "alarm"))
 		return 1;
 	return 0;
@@ -232,7 +234,7 @@ mxlookup1(DS *ds, char *domain)
 }
 
 static int
-compar(void *a, void *b)
+compar(const void *a, const void *b)
 {
 	return ((Mx*)a)->pref - ((Mx*)b)->pref;
 }

@@ -1,6 +1,6 @@
 
 #include "../smtp/smtp.h"
-#include "../smtp/y.tab.h"
+#include "../smtp/rfc822.tab.h"
 
 typedef struct Addr Addr;
 struct Addr
