@@ -15,7 +15,7 @@ p9rfork(int flags)
 {
 	int pid, status;
 	int p[2];
-	int i, n;
+	int n;
 	char buf[128], *q;
 	extern char **environ;
 
