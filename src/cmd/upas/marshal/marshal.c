@@ -629,20 +629,15 @@ body64(Biobuf *in, Biobuf *out)
 	Bprint(out, "\n");
 	for(;;){
 		n = Bread(in, buf, sizeof(buf));
-		fprint(2,"read %d bytes\n",n);
 		if(n < 0)
 			fatal("input error");
 		if(n == 0)
 			break;
 		m = enc64(obuf, sizeof(obuf), buf, n);
-		fprint(2,"encoded %d bytes\n",m);
-		fprint(2,"writing to %x\n",out);
 		if((n=Bwrite(out, obuf, m)) < 0)
 			fatal("output error");
-		fprint(2,"wrote %d bytes\n",n);
 	}
 	lastchar = '\n';
-		fprint(2,"done with attachment\n");
 }
 
 // pass message to sendmail, make sure body starts with a newline
