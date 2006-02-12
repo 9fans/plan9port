@@ -1,0 +1,6 @@
+#!/usr/local/plan9/bin/rc
+# qmail sender machine user...
+rfork s
+upas/vf | upas/qer $PLAN9/mail/queue smtp $* || exit 'qer failed'
+upas/runq -n 10 $PLAN9/mail/queue $PLAN9/mail/lib/remotemail </dev/null >/dev/null >[2=1] &
+exit ''

@@ -1,0 +1,5 @@
+# alias file, listed in /mail/lib/namefiles
+
+# postmaster goes to glenda
+postmaster	glenda
+

@@ -1,0 +1,14 @@
+#!/usr/local/plan9/bin/rc
+shift
+sender=$1
+shift
+addr=$1
+shift
+fd=`{upas/aliasmail -f $sender}
+switch($fd){
+case *.*
+	;
+case *
+	fd=YOURDOMAIN.DOM
+}
+exec upas/smtp -h $fd $addr $sender $* 
