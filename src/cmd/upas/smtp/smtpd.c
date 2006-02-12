@@ -7,6 +7,7 @@
 #include <mp.h>
 #include <libsec.h>
 #include <auth.h>
+#include <thread.h>
 #include "../smtp/rfc822.tab.h"
 
 #define DBGMX 1
@@ -84,11 +85,11 @@ s_error(char *f, char *status)
 	else
 		reply("452 out of memory %s\r\n", errbuf);
 	syslog(0, "smtpd", "++Malloc failure %s [%s]", him, nci->rsys);
-	exits(status);
+	threadexitsall(status);
 }
 
 void
-main(int argc, char **argv)
+threadmain(int argc, char **argv)
 {
 	char *p, buf[1024];
 	char *netdir;
@@ -137,6 +138,8 @@ main(int argc, char **argv)
 		passwordinclear = 1;
 		break;
 	case 'c':
+		fprint(2, "tls is not available\n");
+		threadexitsall("no tls");
 		tlscert = ARGF();
 		break;
 	case 't':
@@ -145,7 +148,7 @@ main(int argc, char **argv)
 		break;
 	default:
 		fprint(2, "usage: smtpd [-dfhrs] [-n net] [-c cert]\n");
-		exits("usage");
+		threadexitsall("usage");
 	}ARGEND;
 
 	nci = getnetconninfo(netdir, 0);
@@ -179,7 +182,7 @@ main(int argc, char **argv)
 	atnotify(catchalarm, 1);
 	alarm(45*60*1000);
 	zzparse();
-	exits(0);
+	threadexitsall(0);
 }
 
 void
@@ -276,7 +279,7 @@ hello(String *himp, int extended)
 				syslog(0, "smtpd", "Hung up on %s; claimed to be %s",
 					nci->rsys, him);
 				reply("554 Liar!\r\n");
-				exits("client pretended to be us");
+				threadexitsall("client pretended to be us");
 				return;
 			}
 		}
@@ -533,7 +536,7 @@ quit(void)
 {
 	reply("221 Successful termination\r\n");
 	close(0);
-	exits(0);
+	threadexitsall(0);
 }
 
 void
@@ -1063,6 +1066,7 @@ sendermxcheck(void)
 	char *who;
 	int pid;
 	Waitmsg *w;
+	static char *validate;
 
 	who = s_to_c(senders.first->p);
 	if(strcmp(who, "/dev/null") == 0){
@@ -1074,7 +1078,9 @@ sendermxcheck(void)
 		return 0;
 	}
 
-	if(access("/mail/lib/validatesender", AEXEC) < 0)
+	if(validate == nil)
+		validate = unsharp("#9/mail/lib/validatesender");
+	if(access(validate, AEXEC) < 0)
 		return 0;
 
 	senddom = strdup(who);
@@ -1095,9 +1101,9 @@ sendermxcheck(void)
 		 * Could add an option with the remote IP address
 		 * to allow validatesender to implement SPF eventually.
 		 */
-		execl("/mail/lib/validatesender", "validatesender", 
+		execl(validate, "validatesender", 
 			"-n", nci->root, senddom, user, nil);
-		_exits("exec validatesender: %r");
+		threadexitsall("exec validatesender: %r");
 	default:
 		break;
 	}
@@ -1265,7 +1271,7 @@ rejectcheck(void)
 	if(rejectcount > MAXREJECTS){
 		syslog(0, "smtpd", "Rejected (%s/%s)", him, nci->rsys);
 		reply("554 too many errors.  transaction failed.\r\n");
-		exits("errcount");
+		threadexitsall("errcount");
 	}
 	if(hardreject){
 		rejectcount++;
@@ -1344,7 +1350,7 @@ starttls(void)
 		/* force the client to hang up */
 		close(Bfildes(&bin));		/* probably fd 0 */
 		close(1);
-		exits("tls failed");
+		threadexitsall("tls failed");
 	}
 	Bterm(&bin);
 	Binit(&bin, fd, OREAD);

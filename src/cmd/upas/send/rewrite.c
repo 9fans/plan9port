@@ -301,6 +301,7 @@ substitute(String *source, Resub *subexp, message *mp)
 			sp = getrcvar(sp+1, &s);
 			s_append(stp, s);
 			free(s);
+			sp--;	/* counter sp++ below */
 		} else
 			s_putc(stp, *sp);
 		sp++;

@@ -513,7 +513,7 @@ dofile(Dir *dp)
 		if(wm->msg[0]){
 			if(debug)
 				fprint(2, "[%d] wm->msg == %s\n", getpid(), wm->msg);
-			if(!Rflag && strstr(wm->msg, "Retry")==0){
+			if(!Rflag && atoi(wm->msg) != RetryCode){
 				/* return the message and remove it */
 				if(returnmail(av, dp->name, wm->msg) != 0)
 					logit("returnmail failed", dp->name, av);

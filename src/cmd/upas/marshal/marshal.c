@@ -1104,7 +1104,7 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 		exec(s_to_c(cmd), av);
 		exec("myupassend", av);
 		exec(unsharp("#9/bin/upas/send"), av);
-		fatal("execing: %r");
+		fatal("exec: %r");
 		break;
 	default:
 		if(rcvr != nil)

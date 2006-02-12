@@ -18,6 +18,8 @@ enum
 	Elemlen= 28,
 	Errlen=	128,
 	Pathlen= 256,
+	
+	RetryCode = 2,
 };
 
 /*

@@ -22,7 +22,6 @@ Ndb *db;
 extern int debug;
 
 static int	mxlookup(DS*, char*);
-static int	mxlookup1(DS*, char*);
 static int	compar(const void*, const void*);
 static int	callmx(DS*, char*, char*);
 static void expand_meta(DS *ds);
@@ -113,83 +112,28 @@ callmx(DS *ds, char *dest, char *domain)
 }
 
 /*
- *  call the dns process and have it try to resolve the mx request
- *
- *  this routine knows about the firewall and tries inside and outside
- *  dns's seperately.
+ *  use dns to resolve the mx request
  */
 static int
 mxlookup(DS *ds, char *domain)
 {
-	int n;
-
-	/* just in case we find no domain name */
-	strcpy(domain, ds->host);
-
-	if(ds->netdir){
-		n = mxlookup1(ds, domain);
-	} else {
-		ds->netdir = "/net";
-		n = mxlookup1(ds, domain);
-		if(n == 0) {
-			ds->netdir = "/net.alt";
-			n = mxlookup1(ds, domain);
-		}
-	}
-
-	return n;
-}
-
-static int
-mxlookup1(DS *ds, char *domain)
-{
-	char buf[1024];
-	char dnsname[Maxstring];
-	char *fields[4];
-	int i, n, fd, nmx;
-
-	snprint(dnsname, sizeof dnsname, "%s/dns", ds->netdir);
-
-	fd = open(dnsname, ORDWR);
-	if(fd < 0)
-		return 0;
-
+	int i, n, nmx;
+	Ndbtuple *t, *tmx, *tpref, *tip;
+	
+	ds->netdir = "/net";
 	nmx = 0;
-	snprint(buf, sizeof(buf), "%s mx", ds->host);
-	if(debug)
-		fprint(2, "sending %s '%s'\n", dnsname, buf);
-	n = write(fd, buf, strlen(buf));
-	if(n < 0){
-		rerrstr(buf, sizeof buf);
-		if(debug)
-			fprint(2, "dns: %s\n", buf);
-		if(strstr(buf, "dns failure")){
-			/* if dns fails for the mx lookup, we have to stop */
-			close(fd);
-			return -1;
+	if((t = dnsquery(nil, ds->host, "mx")) != nil){
+		for(tmx=t; (tmx=ndbfindattr(tmx->entry, nil, "mx")) != nil && nmx<Nmx; ){
+			for(tpref=tmx->line; tpref != tmx; tpref=tmx->line){
+				if(strcmp(tpref->attr, "pref") == 0){
+					strncpy(mx[nmx].host, tmx->val, sizeof(mx[n].host)-1);
+					mx[nmx].pref = atoi(tpref->val);
+					nmx++;
+					break;
+				}
+			}	
 		}
-	} else {
-		/*
-		 *  get any mx entries
-		 */
-		seek(fd, 0, 0);
-		while(nmx < Nmx && (n = read(fd, buf, sizeof(buf)-1)) > 0){
-			buf[n] = 0;
-			if(debug)
-				fprint(2, "dns mx: %s\n", buf);
-			n = getfields(buf, fields, 4, 1, " \t");
-			if(n < 4)
-				continue;
-
-			if(strchr(domain, '.') == 0)
-				strcpy(domain, fields[0]);
-
-			strncpy(mx[nmx].host, fields[3], sizeof(mx[n].host)-1);
-			mx[nmx].pref = atoi(fields[2]);
-			nmx++;
-		}
-		if(debug)
-			fprint(2, "dns mx; got %d entries\n", nmx);
+		ndbfree(t);
 	}
 
 	/*
@@ -210,20 +154,16 @@ mxlookup1(DS *ds, char *domain)
 	 * look up all ip addresses
 	 */
 	for(i = 0; i < nmx; i++){
-		seek(fd, 0, 0);
-		snprint(buf, sizeof buf, "%s ip", mx[i].host);
-		mx[i].ip[0] = 0;
-		if(write(fd, buf, strlen(buf)) < 0)
+		if((t = dnsquery(nil, mx[i].host, "ip")) == nil)
 			goto no;
-		seek(fd, 0, 0);
-		if((n = read(fd, buf, sizeof buf-1)) < 0)
+		if((tip = ndbfindattr(t, nil, "ip")) == nil){
+			ndbfree(t);
 			goto no;
-		buf[n] = 0;
-		if(getfields(buf, fields, 4, 1, " \t") < 3)
-			goto no;
-		strncpy(mx[i].ip, fields[2], sizeof(mx[i].ip)-1);
+		}
+		strncpy(mx[i].ip, tip->val, sizeof(mx[i].ip)-1);
+		ndbfree(t);
 		continue;
-
+	
 	no:
 		/* remove mx[i] and go around again */
 		nmx--;
@@ -274,74 +214,17 @@ dial_string_parse(char *str, DS *ds)
 		expand_meta(ds);
 }
 
-#if 0 /* jpc */
 static void
 expand_meta(DS *ds)
 {
-	char buf[128], cs[128], *net, *p;
-	int fd, n;
-
-	net = ds->netdir;
-	if(!net)
-		net = "/net";
-
-	if(debug)
-		fprint(2, "expanding %s!%s\n", net, ds->host);
-	snprint(cs, sizeof(cs), "%s/cs", net);
-	if((fd = open(cs, ORDWR)) == -1){
-		if(debug)
-			fprint(2, "open %s: %r\n", cs);
-		syslog(0, "smtp", "cannot open %s: %r", cs);
-		return;
-	}
-
-	snprint(buf, sizeof(buf), "!ipinfo %s", ds->host+1);	// +1 to skip $
-	if(write(fd, buf, strlen(buf)) <= 0){
-		if(debug)
-			fprint(2, "write %s: %r\n", cs);
-		syslog(0, "smtp", "%s to %s - write failed: %r", buf, cs);
-		close(fd);
-		return;
-	}
-
-	seek(fd, 0, 0);
-	if((n = read(fd, ds->expand, sizeof(ds->expand)-1)) < 0){
-		if(debug)
-			fprint(2, "read %s: %r\n", cs);
-		syslog(0, "smtp", "%s - read failed: %r", cs);
-		close(fd);
-		return;
-	}
-	close(fd);
-
-	ds->expand[n] = 0;
-	if((p = strchr(ds->expand, '=')) == nil){
-		if(debug)
-			fprint(2, "response %s: %s\n", cs, ds->expand);
-		syslog(0, "smtp", "%q from %s - bad response: %r", ds->expand, cs);
-		return;
-	}
-	ds->host = p+1;
-
-	/* take only first one returned (quasi-bug) */
-	if((p = strchr(ds->host, ' ')) != nil)
-		*p = 0;
-}
-#endif /* jpc */
-
-/* XXX */
-static void
-expand_meta(DS *ds)
-{
-	Ndb *db;
+	static Ndb *db;
 	Ndbs s;
 	char *sys, *smtpserver;
 
+	/* can't ask cs, so query database directly. */
 	sys = sysname();
-	db = ndbopen(unsharp("#9/ndb/local"));
-	fprint(2,"%s",ds->host);
+	if(db == nil)
+		db = ndbopen(0);
 	smtpserver = ndbgetvalue(db, &s, "sys", sys, "smtp", nil);
-	snprint(ds->host,128,"%s",smtpserver);
-	fprint(2," exanded to %s\n",ds->host);
-
+	snprint(ds->host, 128, "%s", smtpserver);
 }

@@ -241,7 +241,6 @@ isrcptrecent(char *rcpt)
 void
 vfysenderhostok(void)
 {
-	char *fqdn;
 	int recent = 0;
 	Link *l;
 
@@ -258,7 +257,7 @@ vfysenderhostok(void)
 
 		if (fd >= 0) {
 			seek(fd, 0, 2);			/* paranoia */
-			fprint(fd, "# %s\n%s\n\n", fqdn, nci->rsys);
+			fprint(fd, "# unknown\n%s\n\n", nci->rsys);
 			close(fd);
 		}
 	} else {

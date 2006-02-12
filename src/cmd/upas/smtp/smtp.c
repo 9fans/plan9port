@@ -5,6 +5,7 @@
 #include <libsec.h>
 #include <auth.h>
 #include <ndb.h>
+#include <thread.h>
 
 static	char*	connect(char*);
 static	char*	dotls(char*);
@@ -59,7 +60,7 @@ void
 usage(void)
 {
 	fprint(2, "usage: smtp [-adips] [-uuser] [-hhost] [.domain] net!host[!service] sender rcpt-list\n");
-	exits(Giveup); 
+	threadexitsall(Giveup); 
 }
 
 int
@@ -70,17 +71,16 @@ timeout(void *x, char *msg)
 	if(strstr(msg, "alarm")){
 		fprint(2, "smtp timeout: connection to %s timed out\n", farend);
 		if(quitting)
-			exits(quitrv);
-		exits(Retry);
+			threadexitsall(quitrv);
+		threadexitsall(Retry);
 	}
 	if(strstr(msg, "closed pipe")){
-			/* call _exits() to prevent Bio from trying to flush closed pipe */
 		fprint(2, "smtp timeout: connection closed to %s\n", farend);
 		if(quitting){
 			syslog(0, "smtp.fail", "closed pipe to %s", farend);
-			_exits(quitrv);
+			threadexitsall(quitrv);
 		}
-		_exits(Retry);
+		threadexitsall(Retry);
 	}
 	return 0;
 }
@@ -94,6 +94,14 @@ removenewline(char *p)
 		return;
 	if(p[n] == '\n')
 		p[n] = 0;
+}
+
+int
+exitcode(char *s)
+{
+	if(strstr(s, "Retry"))	/* known to runq */
+		return RetryCode;
+	return 1;
 }
 
 void
@@ -171,7 +179,7 @@ threadmain(int argc, char **argv)
 	if(*argv == 0)
 		usage();
 	addr = *argv++; argc--;
-	// expand $smtp if necessary XXX
+	// expand $smtp if necessary
 	addr = expand_addr(addr);
 	farend = addr;
 
@@ -199,12 +207,12 @@ threadmain(int argc, char **argv)
 		rv = data(from, &bfile);
 		if(rv != 0)
 			goto error;
-		exits(0);
+		threadexitsall(0);
 	}
 
 	/* mxdial uses its own timeout handler */
 	if((rv = connect(addr)) != 0)
-		exits(rv);
+		threadexitsall(rv);
 
 	/* 10 minutes to get through the initial handshake */
 	atnotify(timeout, 1);
@@ -238,7 +246,7 @@ threadmain(int argc, char **argv)
 
 	if(ping){
 		quit(0);
-		exits(0);
+		threadexitsall(0);
 	}
 
 	rv = data(from, &bfile);
@@ -246,7 +254,7 @@ threadmain(int argc, char **argv)
 		goto error;
 	quit(0);
 	if(rcvrs == ok)
-		exits(0);
+		threadexitsall(0);
 
 	/*
 	 *  here when some but not all rcvrs failed
@@ -258,7 +266,7 @@ threadmain(int argc, char **argv)
 			fprint(2, "  mail to %s failed: %s", argv[i], errs[i]);
 		}
 	}
-	exits(Giveup);
+	threadexitsall(Giveup);
 
 	/*
 	 *  here when all rcvrs failed
@@ -271,7 +279,7 @@ error:
 	fprint(2, "%s connect to %s:\n%s\n", thedate(), addr, s_to_c(reply));
 	if(!filter)
 		quit(rv);
-	exits(rv);
+	threadexitsall(rv);
 }
 
 /*
@@ -318,6 +326,8 @@ dotls(char *me)
 	char *h;
 	int fd;
 	uchar hash[SHA1dlen];
+
+	return Giveup;
 
 	c = mallocz(sizeof(*c), 1);	/* Note: not freed on success */
 	if (c == nil)
@@ -1097,27 +1107,44 @@ dBputc(int x)
 	return Bputc(&bout, x);
 }
 
-/* XXX */
 char* 
-expand_addr(char* a)
+expand_addr(char *addr)
 {
+	static char buf[256];
+	char *p, *q, *name, *sys;
+	Ndbtuple *t;
 	Ndb *db;
-	Ndbs s;
-	char *sys, *ret, *proto, *host;
-
-	proto = strtok(a,"!");
-	if ( strcmp(proto,"net") != 0 ) {
-		fprint(2,"unknown proto %s\n",proto);
+	
+	p = strchr(addr, '!');
+	if(p){
+		q = strchr(p+1, '!');
+		name = p+1;
+	}else{
+		name = addr;
+		q = nil;
 	}
-	host = strtok(0,"!");
-	if ( strcmp(host,"$smtp") == 0 ) {
-		sys = sysname();
-		db = ndbopen(unsharp("#9/ndb/local"));
-		host = ndbgetvalue(db, &s, "sys", sys, "smtp", nil);
+
+	if(name[0] != '$')
+		return addr;
+	name++;
+	if(q)
+		*q = 0;
+		
+	sys = sysname();
+	db = ndbopen(0);
+	t = ndbipinfo(db, "sys", sys, &name, 1);
+	if(t == nil){
+		ndbclose(db);
+		if(q)
+			*q = '!';
+		return addr;
 	}
-	ret = malloc(strlen(proto)+strlen(host)+2);
-	sprint(ret,"%s!%s",proto,host);
-
-	return ret;
-
+	
+	*(name-1) = 0;
+	if(q)
+		*q = '!';
+	else
+		q = "";
+	snprint(buf, sizeof buf, "%s%s%s", addr, t->val, q);
+	return buf;
 }

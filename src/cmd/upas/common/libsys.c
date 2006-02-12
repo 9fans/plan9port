@@ -1,3 +1,7 @@
+#include <u.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <netdb.h>
 #include "common.h"
 #include <auth.h>
 #include <ndb.h>
@@ -407,6 +411,7 @@ sysdirreadall(int fd, Dir **d)
 /*
  *  read in the system name
  */
+static char *unix_hostname_read(void);
 extern char *
 sysname_read(void)
 {
@@ -424,18 +429,25 @@ sysname_read(void)
 extern char *
 alt_sysname_read(void)
 {
+	char *cp;
 	static char name[128];
-	int n, fd;
 
-	fd = open("/dev/sysname", OREAD);
-	if(fd < 0)
+	cp = getenv("sysname");
+	if(cp == 0 || *cp == 0)
+		cp = unix_hostname_read();
+	if(cp == 0 || *cp == 0)
 		return 0;
-	n = read(fd, name, sizeof(name)-1);
-	close(fd);
-	if(n <= 0)
-		return 0;
-	name[n] = 0;
+	strecpy(name, name+sizeof name, cp);
 	return name;
+}
+static char *
+unix_hostname_read(void)
+{
+	static char hostname[256];
+
+	if(gethostname(hostname, sizeof hostname) < 0)
+		return nil;
+	return hostname;
 }
 
 /*
@@ -445,57 +457,49 @@ extern char**
 sysnames_read(void)
 {
 	static char **namev;
-	Ndbtuple *t, *nt;
-	Ndb* db;
-	Ndbs s;
-	int n;
-	char *cp;
+	struct hostent *h;
+	char **p, **a;
 
 	if(namev)
 		return namev;
 
-/* XXX */
-	/* free(csgetvalue(0, "sys", alt_sysname_read(), "dom", &t));  jpc */
-	db = ndbopen(unsharp("#9/ndb/local"));
-	free(ndbgetvalue(db, &s, "sys", sysname(),"dom", &t));
-	/* t = nil; /* jpc */
-	/* fprint(2,"csgetvalue called: fixme"); /* jpc */
+	h = gethostbyname(alt_sysname_read());
+	for(p=h->h_aliases; *p; p++)
+		;
+	
+	namev = malloc((2+p-h->h_aliases)*sizeof namev[0]);
+	if(namev == 0)
+		return 0;
 
-	n = 0;
-	for(nt = t; nt; nt = nt->entry)
-		if(strcmp(nt->attr, "dom") == 0)
-			n++;
-
-	namev = (char**)malloc(sizeof(char *)*(n+3));
-
-	if(namev){
-		n = 0;
-		namev[n++] = strdup(sysname_read());
-		cp = alt_sysname_read();
-		if(cp)
-			namev[n++] = strdup(cp);
-		for(nt = t; nt; nt = nt->entry)
-			if(strcmp(nt->attr, "dom") == 0)
-				namev[n++] = strdup(nt->val);
-		namev[n] = 0;
-	}
-	if(t)
-		ndbfree(t);
+	a = namev;
+	*a++ = strdup(h->h_name);
+	for(p=h->h_aliases; *p; p++)
+		*a++ = strdup(*p);
+	*a = 0;
 
 	return namev;
 }
 
 /*
- *  read in the domain name
+ *  read in the domain name.
+ *  chop off beginning pieces until we find one with an mx record.
  */
 extern char *
 domainname_read(void)
 {
-	char **namev;
+	char **namev, *p;
+	Ndbtuple *t;
 
-	for(namev = sysnames_read(); *namev; namev++)
-		if(strchr(*namev, '.'))
-			return *namev;
+	for(namev = sysnames_read(); *namev; namev++){
+		if(strchr(*namev, '.')){
+			for(p=*namev-1; p && *++p; p=strchr(p, '.')){
+				if((t = dnsquery(nil, p, "mx")) != nil){
+					ndbfree(t);
+					return p;
+				}
+			}
+		}
+	}
 	return 0;
 }
 
@@ -608,36 +612,12 @@ sysisdir(char *file)
 }
 
 /*
- * kill a process or process group
- */
-
-static int
-stomp(int pid, char *file)
-{
-	char name[64];
-	int fd;
-
-	snprint(name, sizeof(name), "/proc/%d/%s", pid, file);
-	fd = open(name, 1);
-	if(fd < 0)
-		return -1;
-	if(write(fd, "die: yankee pig dog\n", sizeof("die: yankee pig dog\n") - 1) <= 0){
-		close(fd);
-		return -1;
-	}
-	close(fd);
-	return 0;
-	
-}
-
-/*
  *  kill a process
  */
 extern int
 syskill(int pid)
 {
-	return stomp(pid, "note");
-	
+	return postnote(PNPROC, pid, "kill");
 }
 
 /*
@@ -646,7 +626,7 @@ syskill(int pid)
 extern int
 syskillpg(int pid)
 {
-	return stomp(pid, "notepg");
+	return postnote(PNGROUP, pid, "kill");
 }
 
 extern int
@@ -723,12 +703,24 @@ sysfiles(void)
 extern String *
 mboxpath(char *path, char *user, String *to, int dot)
 {
-	upasconfig();
-
+	char *dir;
+	String *s;
+	
 	if (dot || *path=='/' || strncmp(path, "./", 2) == 0
 			      || strncmp(path, "../", 3) == 0) {
 		to = s_append(to, path);
 	} else {
+		if ((dir = homedir(user)) != nil) {
+			s = s_copy(dir);
+			s_append(s, "/mail/");
+			if(access(s_to_c(s), AEXIST) >= 0){
+				to = s_append(to, s_to_c(s));
+				s_free(s);
+				to = s_append(to, path);
+				return to;
+			}
+			s_free(s);
+		}
 		to = s_append(to, MAILROOT);
 		to = s_append(to, "/box/");
 		to = s_append(to, user);
@@ -755,13 +747,6 @@ deadletter(String *to)		/* pass in sender??? */
 	return mboxpath("dead.letter", cp, to, 0);
 }
 
-char *
-homedir(char *user)
-{
-	USED(user);
-	return getenv("home");
-}
-
 String *
 readlock(String *file)
 {
@@ -776,56 +761,48 @@ readlock(String *file)
 String *
 username(String *from)
 {
-	int n;
-	Biobuf *bp;
-	char *p, *q;
-	String *s;
+	String* s;
+	struct passwd* pw;
 
-	bp = Bopen("/adm/keys.who", OREAD);
-	if(bp == 0)
-		bp = Bopen("/adm/netkeys.who", OREAD);
-	if(bp == 0)
-		return 0;
-
-	s = 0;
-	n = strlen(s_to_c(from));
-	for(;;) {
-		p = Brdline(bp, '\n');
-		if(p == 0)
-			break;
-		p[Blinelen(bp)-1] = 0;
-		if(strncmp(p, s_to_c(from), n))
-			continue;
-		p += n;
-		if(*p != ' ' && *p != '\t')	/* must be full match */
-			continue;
-		while(*p && (*p == ' ' || *p == '\t'))
-				p++;
-		if(*p == 0)
-			continue;
-		for(q = p; *q; q++)
-			if(('0' <= *q && *q <= '9') || *q == '<')
-				break;
-		while(q > p && q[-1] != ' ' && q[-1] != '\t')
-			q--;
-		while(q > p && (q[-1] == ' ' || q[-1] == '\t'))
-			q--;
-		*q = 0;
-		s = s_new();
-		s_append(s, "\"");
-		s_append(s, p);
-		s_append(s, "\"");
-		break;
+	setpwent();
+	while((pw = getpwent()) != nil){
+		if(strcmp(s_to_c(from), pw->pw_name) == 0){
+			s = s_new();
+			s_append(s, "\"");
+			s_append(s, pw->pw_gecos);
+			s_append(s, "\"");
+			return s;
+		}
 	}
-	Bterm(bp);
-	return s;
+	return nil;
+}
+
+char *
+homedir(char *user)
+{
+	static char buf[1024];
+	struct passwd* pw;
+
+	setpwent();
+	while((pw = getpwent()) != nil)
+		if(strcmp(user, pw->pw_name) == 0){
+			strecpy(buf, buf+sizeof buf, pw->pw_dir);
+			return buf;
+		}
+	return nil;
 }
 
 char *
 remoteaddr(int fd, char *dir)
 {
-	/* XXX should call netconninfo */
-	return "";
+	char *raddr;
+	NetConnInfo *nci;
+	
+	if((nci = getnetconninfo(dir, fd)) == nil)
+		return nil;
+	raddr = strdup(nci->raddr);
+	freenetconninfo(nci);
+	return raddr;
 }
 
 //  create a file and 
