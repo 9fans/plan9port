@@ -4,6 +4,8 @@
 #include <9pclient.h>
 #include <thread.h>
 
+#define system nedsystem
+
 typedef struct Message Message;
 typedef struct Ctype Ctype;
 typedef struct Cmd Cmd;
@@ -63,9 +65,11 @@ Ctype ctype[] = {
 	{ "text/rtf",			"rtf",	1,	0	},
 	{ "text",			"txt",	1,	0	},
 	{ "message/rfc822",		"msg",	0,	0	},
+	{ "message/delivery-status",	"txt",	1,	0	},
 	{ "image/bmp",			"bmp",	0,	"image"	},
 	{ "image/jpeg",			"jpg",	0,	"image"	},
 	{ "image/gif",			"gif",	0,	"image"	},
+	{ "image/png",			"png",	0,	"image"	},
 	{ "application/pdf",		"pdf",	0,	"postscript"	},
 	{ "application/postscript",	"ps",	0,	"postscript"	},
 	{ "application/",		0,	0,	0	},
@@ -166,7 +170,7 @@ char*		parseaddr(char**, Message*, Message*, Message*, Message**);
 char*		parsecmd(char*, Cmd*, Message*, Message*);
 char*		readline(char*, char*, int);
 void		messagecount(Message*);
-void		system9(char*, char**, int);
+void		system(char*, char**, int);
 void		mkid(String*, Message*);
 int		switchmb(char*, char*);
 void		closemb(void);
@@ -179,19 +183,21 @@ String*		addrecolon(char*);
 void		exitfs(char*);
 Message*	flushdeleted(Message*);
 
-CFsys *upasfs;
+CFsys *mailfs;
 
 void
 usage(void)
 {
 	fprint(2, "usage: %s [-nr] [-f mailfile] [-s mailfile]\n", argv0);
 	fprint(2, "       %s -c dir\n", argv0);
-	threadexits("usage");
+	threadexitsall("usage");
 }
 
 void
-catchnote(void* dummy, char *note)
+catchnote(void *x, char *note)
 {
+	USED(x);
+
 	if(strstr(note, "interrupt") != nil){
 		interrupted = 1;
 		noted(NCONT);
@@ -217,10 +223,8 @@ threadmain(int argc, char **argv)
 	Ctype *cp;
 	char *err;
 	int n, cflag;
-	char *av[4];
 	String *prompt;
 	char *file, *singleton;
-	char *fscmd;
 
 	Binit(&out, 1, OWRITE);
 
@@ -233,6 +237,7 @@ threadmain(int argc, char **argv)
 		cflag = 1;
 		break;
 	case 'f':
+		sysfatal("-f not available");
 		file = EARGF(usage());
 		break;
 	case 's':
@@ -259,33 +264,15 @@ threadmain(int argc, char **argv)
 			creatembox(user, argv[0]);
 		else
 			creatembox(user, nil);
-		threadexits(0);
+		threadexitsall(0);
 	}
 
 	if(argc)
 		usage();
+	if((mailfs = nsmount("mail", nil)) == nil)
+		sysfatal("cannot mount mail: %r");
 
-#if 0 /* jpc */
-	if(access("/mail/fs/ctl", 0) < 0){
-		startedfs = 1;
-		av[0] = "fs";
-		av[1] = "-p";
-		av[2] = 0;
-		system9("/bin/upas/fs", av, -1);
-	}
-#endif
-	if( (upasfs = nsmount("upasfs", nil)) == nil ) {
-		startedfs = 1;
-		av[0] = "fs";
-		av[1] = "-p";
-		av[2] = 0;
-		fscmd = unsharp("#9/bin/upas/fs");
-		system9(fscmd, av, -1);
-	}
-
-fprint(2,"switchmb\n");
 	switchmb(file, singleton);
-fprint(2,"switchmb2\n");
 
 	top.path = s_copy(root);
 
@@ -377,24 +364,51 @@ file2message(Message *parent, char *name)
 {
 	Message *m;
 	String *path;
-	char *f[10];
-
+	char *f[30], *s, *t;
+	int i, nf;
+	
 	m = mallocz(sizeof(Message), 1);
 	if(m == nil)
 		return nil;
 	m->path = path = extendpath(parent->path, name);
 	m->fileno = atoi(name);
 	m->info = file2string(path, "info");
-	lineize(s_to_c(m->info), f, nelem(f));
-	m->from = f[0];
-	m->to = f[1];
-	m->cc = f[2];
-	m->replyto = f[3];
-	m->date = f[4];
-	m->subject = f[5];
-	m->type = f[6];
-	m->disposition = f[7];
-	m->filename = f[8];
+	m->from = "";
+	m->to = "";
+	m->cc = "";
+	m->replyto = "";
+	m->date = "";
+	m->subject = "";
+	m->type = "";
+	m->disposition = "";
+	m->filename = "";
+	nf = lineize(s_to_c(m->info), f, nelem(f));
+	for(i=0; i<nf; i++){
+		s = f[i];
+		t = strchr(f[i], ' ');
+		if(t == nil)
+			continue;
+		*t++ = 0;
+		
+		if(strcmp(s, "from") == 0)
+			m->from = t;
+		else if(strcmp(s, "to") == 0)
+			m->to = t;
+		else if(strcmp(s, "cc") == 0)
+			m->cc = t;
+		else if(strcmp(s, "replyto") == 0)
+			m->replyto = t;
+		else if(strcmp(s, "unixdate") == 0 && (t=strchr(t, ' ')) != nil)
+			m->date = t;
+		else if(strcmp(s, "subject") == 0)
+			m->subject = t;
+		else if(strcmp(s, "type") == 0)
+			m->type = t;
+		else if(strcmp(s, "disposition") == 0)
+			m->disposition = t;
+		else if(strcmp(s, "filename") == 0)
+			m->filename = t;
+	}
 	m->len = filelen(path, "raw");
 	if(strstr(m->type, "multipart") != nil || strcmp(m->type, "message/rfc822") == 0)
 		dir2message(m, 0);
@@ -423,18 +437,14 @@ freemessage(Message *m)
 int
 dir2message(Message *parent, int reverse)
 {
-//jpc	int i, n, fd, highest, newmsgs;
 	int i, n, highest, newmsgs;
-	CFid *fid;
+	CFid *fd;
 	
 	Dir *d;
 	Message *first, *last, *m;
 
-/*	fd = open(s_to_c(parent->path), OREAD);
-	if(fd < 0)
-		return -1; jpc */
-	fid = fsopen(upasfs, s_to_c(parent->path), OREAD);
-	if(fid == nil)
+	fd = fsopen(mailfs, s_to_c(parent->path), OREAD);
+	if(fd == nil)
 		return -1;
 
 	// count current entries
@@ -447,7 +457,7 @@ dir2message(Message *parent, int reverse)
 		if(last->fileno > highest)
 			highest = last->fileno;
 
-	n = fsdirreadall(fid, &d);
+	n = fsdirreadall(fd, &d);
 	fprint(2,"read %d messages\n", n);
 	for(i = 0; i < n; i++){
 		if((d[i].qid.type & QTDIR) == 0)
@@ -473,26 +483,20 @@ dir2message(Message *parent, int reverse)
 			m->prev = last;
 			last = m;
 		}
-	} 
-	fprint(2,"exiting loop\n");
+	}
 	free(d);
-	fprint(2,"close fid\n");
-	fsclose(fid);
-	fprint(2,"fid closed\n");
+	fsclose(fd);
 	parent->child = first;
 
 	// renumber and file longest from
 	i = 1;
 	longestfrom = 12;
 	for(m = first; m != nil; m = m->next){
-		fprint(2,"m:%x from: %s\n", m, m->from);
 		m->id = natural ? m->fileno : i++;
 		n = strlen(m->from);
-		fprint(2,"in loop\n");
 		if(n > longestfrom)
 			longestfrom = n;
 	}
-	fprint(2,"exiting dir2message\n");
 
 	return newmsgs;
 }
@@ -543,17 +547,14 @@ String*
 file2string(String *dir, char *file)
 {
 	String *s;
-//jpc	int fd, n, m;
 	int n, m;
-	CFid *fid;
+	CFid *fd;
 
 	s = extendpath(dir, file);
-// jpc	fd = open(s_to_c(s), OREAD);
-	fid = fsopen(upasfs,s_to_c(s), OREAD);
+	fd = fsopen(mailfs, s_to_c(s), OREAD);
 	s_grow(s, 512);			/* avoid multiple reads on info files */
 	s_reset(s);
-//jpc	if(fd < 0)
-	if(fid == nil)
+	if(fd == nil)
 		return s;
 
 	for(;;){
@@ -562,8 +563,7 @@ file2string(String *dir, char *file)
 			s_grow(s, 128);
 			continue;
 		}
-//jpc		m = read(fd, s->ptr, n);
-		m = fsread(fid, s->ptr, n);
+		m = fsread(fd, s->ptr, n);
 		if(m <= 0)
 			break;
 		s->ptr += m;
@@ -571,8 +571,7 @@ file2string(String *dir, char *file)
 			break;
 	}
 	s_terminate(s);
-//jpc	close(fd);
-	fsclose(fid);
+	fsclose(fd);
 
 	return s;
 }
@@ -588,8 +587,7 @@ filelen(String *dir, char *file)
 	int rv;
 
 	path = extendpath(dir, file);
-//jpc	d = dirstat(s_to_c(path));
-	d = fsdirstat(upasfs,s_to_c(path));
+	d = fsdirstat(mailfs, s_to_c(path));
 	if(d == nil){
 		s_free(path);
 		return -1;
@@ -732,18 +730,12 @@ findctype(Message *m)
 	char ftype[128];
 	int n, pfd[2];
 	Ctype *a, *cp;
-	/* static Ctype nulltype	= { "", 0, 0, 0 }; jpc */
 	static Ctype bintype 	= { "application/octet-stream", "bin", 0, 0 };
 
 	for(cp = ctype; cp; cp = cp->next)
 		if(strncmp(cp->type, m->type, strlen(cp->type)) == 0)
 			return cp;
 
-/*	use file(1) for any unknown mimetypes
- *
- *	if (strcmp(m->type, bintype.type) != 0)
- *		return &nulltype;
- */
 	if(pipe(pfd) < 0)
 		return &bintype;
 
@@ -757,7 +749,6 @@ findctype(Message *m)
 		dup(pfd[0], 0);
 		close(1);
 		dup(pfd[0], 1);
-//jpc 		execl("/bin/file", "file", "-m", s_to_c(extendpath(m->path, "body")), nil);
 		execl(unsharp("#9/bin/file"), "file", "-m", s_to_c(extendpath(m->path, "body")), nil);
 		threadexits(0);
 	default:
@@ -1054,25 +1045,20 @@ int
 rawsearch(Message *m, Reprog *prog)
 {
 	char buf[4096+1];
-//jpc	int i, fd, rv;
 	int i, rv;
-	CFid *fid;
+	CFid *fd;
 	String *path;
 
 	path = extendpath(m->path, "raw");
-//jpc	fd = open(s_to_c(path), OREAD);
-//jpc	if(fd < 0)
-//jpc		return 0;
-	fid = fsopen(upasfs,s_to_c(path), OREAD);
-	if(fid == nil)
+	fd = fsopen(mailfs, s_to_c(path), OREAD);
+	if(fd == nil)
 		return 0;
 
 	// march through raw message 4096 bytes at a time
 	// with a 128 byte overlap to chain the re search.
 	rv = 0;
 	for(;;){
-//jpc		i = read(fd, buf, sizeof(buf)-1);
-		i = fsread(fid, buf, sizeof(buf)-1);
+		i = fsread(fd, buf, sizeof(buf)-1);
 		if(i <= 0)
 			break;
 		buf[i] = 0;
@@ -1082,12 +1068,11 @@ rawsearch(Message *m, Reprog *prog)
 		}
 		if(i < sizeof(buf)-1)
 			break;
-//jpc		if(seek(fd, -128LL, 1) < 0)
-		if(fsseek(fid, -128LL, 1) < 0)
+		if(fsseek(fd, -128LL, 1) < 0)
 			break;
 	}
 
-	fsclose(fid);
+	fsclose(fd);
 	s_free(path);
 	return rv;
 }
@@ -1297,8 +1282,10 @@ aichcmd(Message *m, int indent)
 }
 
 Message*
-Hcmd(Cmd* dummy, Message *m)
+Hcmd(Cmd *x, Message *m)
 {
+	USED(x);
+
 	if(m == &top)
 		return nil;
 	aichcmd(m, 0);
@@ -1306,10 +1293,11 @@ Hcmd(Cmd* dummy, Message *m)
 }
 
 Message*
-hcmd(Cmd* dummy, Message *m)
+hcmd(Cmd *x, Message *m)
 {
 	char	hdr[256];
 
+	USED(x);
 	if(m == &top)
 		return nil;
 
@@ -1319,11 +1307,12 @@ hcmd(Cmd* dummy, Message *m)
 }
 
 Message*
-bcmd(Cmd* dummy, Message *m)
+bcmd(Cmd *x, Message *m)
 {
 	int i;
 	Message *om = m;
 
+	USED(x);
 	if(m == &top)
 		m = top.child;
 	for(i = 0; i < 10 && m != nil; i++){
@@ -1336,8 +1325,9 @@ bcmd(Cmd* dummy, Message *m)
 }
 
 Message*
-ncmd(Cmd* dummy, Message *m)
+ncmd(Cmd *x, Message *m)
 {
+	USED(x);
 	if(m == &top)
 		return m->child;
 	return m->next;
@@ -1347,30 +1337,26 @@ int
 printpart(String *s, char *part)
 {
 	char buf[4096];
-//jpc	int n, fd, tot;
 	int n, tot;
-	CFid *fid;
+	CFid *fd;
 	String *path;
 
 	path = extendpath(s, part);
-//jpc	fd = open(s_to_c(path), OREAD);
-	fid = fsopen(upasfs,s_to_c(path), OREAD);
+	fd = fsopen(mailfs, s_to_c(path), OREAD);
 	s_free(path);
-//jpc	if(fd < 0){
-	if(fid ==  nil){
+	if(fd == nil){
 		fprint(2, "!message dissappeared\n");
 		return 0;
 	}
 	tot = 0;
-//jpc 	while((n = read(fd, buf, sizeof(buf))) > 0){
-	while((n = fsread(fid, buf, sizeof(buf))) > 0){
+	while((n = fsread(fd, buf, sizeof(buf))) > 0){
 		if(interrupted)
 			break;
 		if(Bwrite(&out, buf, n) <= 0)
 			break;
 		tot += n;
 	}
-	fsclose(fid);
+	fsclose(fd);
 	return tot;
 }
 
@@ -1380,7 +1366,7 @@ printhtml(Message *m)
 	Cmd c;
 
 	c.an = 3;
-	c.av[1] = unsharp("#9/bin/htmlfmt");
+	c.av[1] = "htmlfmt";
 	c.av[2] = "-l 40 -cutf-8";
 	Bprint(&out, "!%s\n", c.av[1]);
 	Bflush(&out);
@@ -1389,8 +1375,9 @@ printhtml(Message *m)
 }
 
 Message*
-Pcmd(Cmd* dummy, Message *m)
+Pcmd(Cmd *x, Message *m)
 {
+	USED(x);
 	if(m == &top)
 		return &top;
 	if(m->parent == &top)
@@ -1416,13 +1403,14 @@ compress(char *p)
 }
 
 Message*
-pcmd(Cmd* dummy, Message *m)
+pcmd(Cmd *x, Message *m)
 {
 	Message *nm;
 	Ctype *cp;
 	String *s;
 	char buf[128];
 
+	USED(x);
 	if(m == &top)
 		return &top;
 	if(m->parent == &top)
@@ -1520,11 +1508,12 @@ printpartindented(String *s, char *part, char *indent)
 }
 
 Message*
-quotecmd(Cmd* dummy, Message *m)
+quotecmd(Cmd *x, Message *m)
 {
 	Message *nm;
 	Ctype *cp;
 
+	USED(x);
 	if(m == &top)
 		return &top;
 	Bprint(&out, "\n");
@@ -1564,21 +1553,15 @@ flushdeleted(Message *cur)
 {
 	Message *m, **l;
 	char buf[1024], *p, *e, *msg;
-//jpc	int deld, n, fd;
 	int deld, n;
-	CFid *fid;
+	CFid *fd;
 	int i;
 
 	doflush = 0;
 	deld = 0;
 
-//jpc	fd = open("/mail/fs/ctl", ORDWR);
-//jpc	if(fd < 0){
-//jpc		fprint(2, "!can't delete mail, opening /mail/fs/ctl: %r\n");
-//jpc		exitfs(0);
-//jpc	}
-	fid = fsopen(upasfs,"ctl", ORDWR);
-	if(fid == nil){
+	fd = fsopen(mailfs, "ctl", OWRITE);
+	if(fd == nil){
 		fprint(2, "!can't delete mail, opening /mail/fs/ctl: %r\n");
 		exitfs(0);
 	}
@@ -1603,8 +1586,7 @@ flushdeleted(Message *cur)
 		else
 			msg++;
 		if(e-p < 10){
-//jpc			write(fd, buf, p-buf);
-			fswrite(fid, buf, p-buf);
+			fswrite(fd, buf, p-buf);
 			n = 0;
 			p = seprint(buf, e, "delete %s", mbname);
 		}
@@ -1618,11 +1600,9 @@ flushdeleted(Message *cur)
 		freemessage(m);
 	}
 	if(n)
-		fswrite(fid, buf, p-buf);
-//jpc		write(fd, buf, p-buf);
+		fswrite(fd, buf, p-buf);
 
-//jpc	close(fd);
-	fsclose(fid);
+	fsclose(fd);
 
 	if(deld)
 		Bprint(&out, "!%d message%s deleted\n", deld, plural(deld));
@@ -1644,8 +1624,11 @@ flushdeleted(Message *cur)
 }
 
 Message*
-qcmd(Cmd* dummy, Message* dummy2)
+qcmd(Cmd *x, Message *m)
 {
+	USED(x);
+	USED(m);
+
 	flushdeleted(nil);
 
 	if(didopen)
@@ -1657,23 +1640,30 @@ qcmd(Cmd* dummy, Message* dummy2)
 }
 
 Message*
-ycmd(Cmd* dummy, Message *m)
+ycmd(Cmd *x, Message *m)
 {
+	USED(x);
+	
 	doflush = 1;
 
 	return icmd(nil, m);
 }
 
 Message*
-xcmd(Cmd* dummy, Message* dummy2)
+xcmd(Cmd *x, Message *m)
 {
+	USED(x);
+	USED(m);
+
 	exitfs(0);
 	return nil;	// not reached
 }
 
 Message*
-eqcmd(Cmd* dummy, Message *m)
+eqcmd(Cmd *x, Message *m)
 {
+	USED(x);
+
 	if(m == &top)
 		Bprint(&out, "0\n");
 	else
@@ -1682,8 +1672,10 @@ eqcmd(Cmd* dummy, Message *m)
 }
 
 Message*
-dcmd(Cmd* dummy, Message *m)
+dcmd(Cmd *x, Message *m)
 {
+	USED(x);
+
 	if(m == &top){
 		Bprint(&out, "!address\n");
 		return nil;
@@ -1695,8 +1687,10 @@ dcmd(Cmd* dummy, Message *m)
 }
 
 Message*
-ucmd(Cmd* dummy, Message *m)
+ucmd(Cmd *x, Message *m)
 {
+	USED(x);
+
 	if(m == &top)
 		return nil;
 	while(m->parent != &top)
@@ -1709,10 +1703,11 @@ ucmd(Cmd* dummy, Message *m)
 
 
 Message*
-icmd(Cmd* dummy, Message *m)
+icmd(Cmd *x, Message *m)
 {
 	int n;
 
+	USED(x);
 	n = dir2message(&top, reverse);
 	if(n > 0)
 		Bprint(&out, "%d new message%s\n", n, plural(n));
@@ -1720,10 +1715,11 @@ icmd(Cmd* dummy, Message *m)
 }
 
 Message*
-helpcmd(Cmd* dummy, Message *m)
+helpcmd(Cmd *x, Message *m)
 {
 	int i;
 
+	USED(x);
 	Bprint(&out, "Commands are of the form [<range>] <command> [args]\n");
 	Bprint(&out, "<range> := <addr> | <addr>','<addr>| 'g'<search>\n");
 	Bprint(&out, "<addr> := '.' | '$' | '^' | <number> | <search> | <addr>'+'<addr> | <addr>'-'<addr>\n");
@@ -1737,8 +1733,12 @@ helpcmd(Cmd* dummy, Message *m)
 int
 tomailer(char **av)
 {
+	static char *marshal;
 	Waitmsg *w;
 	int pid, i;
+
+	if(marshal == nil)
+		marshal = unsharp("#9/bin/upas/marshal");
 
 	// start the mailer and get out of the way
 	switch(pid = fork()){
@@ -1746,8 +1746,7 @@ tomailer(char **av)
 		fprint(2, "can't fork: %r\n");
 		return -1;
 	case 0:
-//jpc		Bprint(&out, "!/bin/upas/marshal");
-		Bprint(&out, "!%s",unsharp("#9/bin/upas/marshal"));
+		Bprint(&out, "!%s", marshal);
 		for(i = 1; av[i]; i++){
 			if(strchr(av[i], ' ') != nil)
 				Bprint(&out, " '%s'", av[i]);
@@ -1758,10 +1757,8 @@ tomailer(char **av)
 		Bflush(&out);
 		av[0] = "marshal";
 		chdir(wd);
-//jpc		exec("/bin/upas/marshal", av);
-//jpc		fprint(2, "couldn't exec /bin/upas/marshal\n");
-		exec(unsharp("#9/bin/upas/marshal"), av);
-		fprint(2, "couldn't exec %s\n",unsharp("#9/bin/upas/marshal"));
+		exec(marshal, av);
+		fprint(2, "couldn't exec %s\n", marshal);
 		threadexits(0);
 	default:
 		w = wait();
@@ -2235,7 +2232,7 @@ fcmd(Cmd *c, Message *m)
 }
 
 void
-system9(char *cmd, char **av, int in)
+system(char *cmd, char **av, int in)
 {
 	int pid;
 
@@ -2243,6 +2240,8 @@ system9(char *cmd, char **av, int in)
 	case -1:
 		return;
 	case 0:
+		if(strcmp(cmd, "rc") == 0)
+			cmd = unsharp("#9/bin/rc");
 		if(in >= 0){
 			close(0);
 			dup(in, 0);
@@ -2283,7 +2282,7 @@ bangcmd(Cmd *c, Message *m)
 	av[1] = "-c";
 	av[2] = cmd;
 	av[3] = 0;
-	system9(unsharp("#9/bin/rc"), av, -1);
+	system("rc", av, -1);
 	Bprint(&out, "!\n");
 	return m;
 }
@@ -2295,9 +2294,7 @@ xpipecmd(Cmd *c, Message *m, char *part)
 	char *p, *e;
 	char *av[4];
 	String *path;
-//jpc	int i, fd;
-	int i;
-	CFid *fid;
+	int i, fd;
 
 	if(c->an < 2){
 		Bprint(&out, "!usage: | cmd\n");
@@ -2310,17 +2307,14 @@ xpipecmd(Cmd *c, Message *m, char *part)
 	}
 
 	path = extendpath(m->path, part);
-//jpc	fd = open(s_to_c(path), OREAD);
-	fid = fsopen(upasfs,s_to_c(path), OREAD);
+	fd = fsopenfd(mailfs, s_to_c(path), OREAD);
 	s_free(path);
-//jpc	if(fd < 0){	// compatibility with older upas/fs
-	if(fid == nil){	// compatibility with older upas/fs
+	if(fd < 0){	// compatibility with older upas/fs
 		path = extendpath(m->path, "raw");
-//jpc		fd = open(s_to_c(path), OREAD);
-		fid = fsopen(upasfs,s_to_c(path), OREAD);
+		fd = fsopenfd(mailfs, s_to_c(path), OREAD);
 		s_free(path);
 	}
-	if(fid < 0){
+	if(fd < 0){
 		fprint(2, "!message disappeared\n");
 		return nil;
 	}
@@ -2334,9 +2328,7 @@ xpipecmd(Cmd *c, Message *m, char *part)
 	av[1] = "-c";
 	av[2] = cmd;
 	av[3] = 0;
-//	system9("/bin/rc", av, fd);	/* system closes fd */
-	system9(unsharp("#9/bin/rc"), av, 0);
-	fsclose(fid);
+	system("rc", av, fd);	/* system closes fd */
 	Bprint(&out, "!\n");
 	return m;
 }
@@ -2353,41 +2345,20 @@ rpipecmd(Cmd *c, Message *m)
 	return xpipecmd(c, m, "rawunix");
 }
 
-#if 0 /* jpc */
 void
 closemb(void)
 {
-	int fd;
+	CFid *fd;
 
-	fd = open("/mail/fs/ctl", ORDWR);
-	if(fd < 0)
-		sysfatal("can't open /mail/fs/ctl: %r");
+	fd = fsopen(mailfs, "ctl", OWRITE);
+	if(fd == nil)
+		sysfatal("can't open ctl: %r");
 
 	// close current mailbox
 	if(*mbname && strcmp(mbname, "mbox") != 0)
-		fprint(fd, "close %s", mbname);
+		fsprint(fd, "close %s", mbname);
 
-	close(fd);
-}
-#endif
-void
-closemb(void)
-{
-	CFid *fid;
-	char s[256];
-
-	fid = fsopen(upasfs,"ctl", ORDWR);
-	if(fid == nil)
-		sysfatal("can't open upasfs/ctl: %r");
-
-	// close current mailbox
-	if(*mbname && strcmp(mbname, "mbox") != 0) {
-		snprint(s, 256, "close %s", mbname);
-		fswrite(fid,s,strlen(s));
-	}
-
-//jpc	close(fd);
-	fsclose(fid);
+	fsclose(fd);
 }
 
 int
@@ -2401,11 +2372,9 @@ switchmb(char *file, char *singleton)
 	// if the user didn't say anything and there
 	// is an mbox mounted already, use that one
 	// so that the upas/fs -fdefault default is honored.
-	if(file 
-	|| (singleton && access(singleton, 0)<0)
-/* 	|| (!singleton && access("/mail/fs/mbox", 0)<0)){ jpc */
-	|| (!singleton && fsdirstat(upasfs, "upasfs/mbox") )){
-		fprint(2,"can't access /mail/fs/mbox\n");
+	if(file || (singleton && fsaccess(mailfs, singleton, 0) < 0)){
+	/* XXX all wrong */
+		fprint(2, "file=%s singleton=%s\n", file, singleton);
 		if(file == nil)
 			file = "mbox";
 
@@ -2462,14 +2431,13 @@ switchmb(char *file, char *singleton)
 		}
 		close(fd);
 	}else
-	if (singleton && access(singleton, 0)==0
-	    && strncmp(singleton, "/mail/fs/", 9) == 0){
-		if ((p = strchr(singleton +10, '/')) == nil){
+	if (singleton && fsaccess(mailfs, singleton, 0)==0){
+		if ((p = strchr(singleton, '/')) == nil){
 			fprint(2, "!bad mbox name");
 			return -1;
 		}
-		n = p-(singleton+9);
-		strncpy(mbname, singleton+9, n);
+		n = p-singleton;
+		strncpy(mbname, singleton, n);
 		mbname[n+1] = 0;
 		path = s_reset(nil);
 		mboxpath(mbname, user, path, 0);
@@ -2479,11 +2447,7 @@ switchmb(char *file, char *singleton)
 		strcpy(mbname, "mbox");
 	}
 
-	sprint(root, "%s", mbname);
-	if(getwd(wd, sizeof(wd)) == 0)
-		wd[0] = 0;
-	if(singleton == nil && chdir(root) >= 0)
-		strcpy(root, ".");
+	snprint(root, sizeof root, "%s", mbname);
 	rootlen = strlen(root);
 
 	if(mbpath != nil)
@@ -2557,8 +2521,9 @@ plumb(Message *m, Ctype *cp)
 }
 
 void
-regerror(char* dummy)
+regerror(char *x)
 {
+	USED(x);
 }
 
 String*
@@ -2577,10 +2542,5 @@ addrecolon(char *s)
 void
 exitfs(char *rv)
 {
-	if(startedfs) {
-		fsunmount(upasfs);
-		/* unmount(nil, "/mail/fs"); jpc */
-	}
-//jpc chdir("/sys/src/cmd/upas/ned");
-	threadexits(rv);
+	threadexitsall(rv);
 }

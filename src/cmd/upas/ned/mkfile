@@ -2,18 +2,13 @@
 
 TARG=nedmail
 
-LIB=../common/libcommon.a\
+LIB=../common/libcommon.a
 
-HFILES=	../common/common.h\
+HFILES=../common/common.h
 
 OFILES=nedmail.$O
 
-BIN=$PLAN9/bin/upas
-
-UPDATE=\
-	mkfile\
-	${OFILES:%.$O=%.c}\
-	$HFILES\
+BIN=$BIN/upas
 
 <$PLAN9/src/mkone
 CFLAGS=$CFLAGS -I../common
