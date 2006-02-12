@@ -75,7 +75,8 @@ _threadspawn(int fd[3], char *cmd, char *argv[])
 		close(p[1]);
 		return -1;
 	case 0:
-		rfork(RFNOTEG);
+		/* can't RFNOTEG - will lose tty */
+		/* rfork(RFNOTEG); */
 		dup2(fd[0], 0);
 		dup2(fd[1], 1);
 		dup2(fd[2], 2);

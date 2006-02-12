@@ -11,6 +11,7 @@ OFILES=\
 	iorw.$O\
 	ref.$O\
 	thread.$O\
+	wait.$O\
 
 <$PLAN9/src/mksyslib
 
