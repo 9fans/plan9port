@@ -1,7 +1,7 @@
 #include	"misc.h"
 #include	"slug.h"
-//#include	<libc.h>
 #include	<math.h>
+#include	<utf.h>
 
 static char	*bufptr(int);
 
@@ -156,7 +156,7 @@ static char *getutf(FILE *fp)	// get 1 utf-encoded char (might be multiple bytes
 
 	for (*p = 0; (*p++ = getc(fp)) != EOF; ) {
 		*p = 0;
-		if (mblen(buf, sizeof buf) > 0)	// found a valid character
+		if (fullrune(buf, p-buf))	// found a valid character
 			break;
 	}
 	return buf;
