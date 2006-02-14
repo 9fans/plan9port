@@ -18,6 +18,7 @@ struct Proto
 	int	(*filter)(Filter*, Msg*);
 	int	(*seprint)(Msg*);
 	Mux*	mux;
+	char*	valfmt;
 	Field*	field;
 	int	(*framer)(int, uchar*, int);
 };

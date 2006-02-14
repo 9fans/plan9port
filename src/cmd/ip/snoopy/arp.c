@@ -112,6 +112,7 @@ Proto arp =
 	p_filter,
 	p_seprint,
 	nil,
+	nil,
 	p_fields,
 	defaultframer,
 };
@@ -122,6 +123,7 @@ Proto rarp =
 	p_compile,
 	p_filter,
 	p_seprint,
+	nil,
 	nil,
 	p_fields,
 	defaultframer,

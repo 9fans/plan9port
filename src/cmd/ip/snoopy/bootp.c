@@ -171,6 +171,7 @@ Proto bootp =
 	p_filter,
 	p_seprint,
 	p_mux,
+	"%#.8lux",
 	p_fields,
 	defaultframer,
 };

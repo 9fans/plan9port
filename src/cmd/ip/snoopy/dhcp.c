@@ -106,15 +106,7 @@ enum
 static void
 p_compile(Filter *f)
 {
-	sysfatal("unknown bootp field: %s", f->s);
-}
-
-static int
-p_filter(Filter *f, Msg *m)
-{
-	USED(f);
-	USED(m);
-	return 0;
+	sysfatal("unknown dhcp field: %s", f->s);
 }
 
 /*
@@ -474,8 +466,9 @@ Proto dhcp =
 {
 	"dhcp",
 	p_compile,
-	p_filter,
+	nil,
 	p_seprint,
+	nil,
 	nil,
 	nil,
 	defaultframer,

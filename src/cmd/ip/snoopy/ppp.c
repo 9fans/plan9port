@@ -569,6 +569,7 @@ Proto ppp =
 	p_filter,
 	p_seprint,
 	p_mux,
+	"%#.4lux",
 	nil,
 	defaultframer,
 };
@@ -579,6 +580,7 @@ Proto ppp_ipcp =
 	p_compile,
 	p_filter,
 	p_seprintipcp,
+	nil,
 	nil,
 	nil,
 	defaultframer,
@@ -592,6 +594,7 @@ Proto ppp_lcp =
 	p_seprintlcp,
 	nil,
 	nil,
+	nil,
 	defaultframer,
 };
 
@@ -601,6 +604,7 @@ Proto ppp_ccp =
 	p_compile,
 	p_filter,
 	p_seprintccp,
+	nil,
 	nil,
 	nil,
 	defaultframer,
@@ -614,6 +618,7 @@ Proto ppp_chap =
 	p_seprintchap,
 	nil,
 	nil,
+	nil,
 	defaultframer,
 };
 
@@ -623,6 +628,7 @@ Proto ppp_comp =
 	p_compile,
 	p_filter,
 	p_seprintcomp,
+	nil,
 	nil,
 	nil,
 	defaultframer,

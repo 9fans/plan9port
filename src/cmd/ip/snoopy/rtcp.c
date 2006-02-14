@@ -31,21 +31,6 @@ enum{
 	REPORTLEN = 24,
 };
 
-
-static void
-p_compile(Filter *f)
-{
-	sysfatal("unknown rtcp field: %s", f->s);
-}
-
-static int
-p_filter(Filter *f, Msg *m)
-{
-	USED(f);
-	USED(m);
-	return 0;
-}
-
 static int
 p_seprint(Msg *m)
 {
@@ -88,9 +73,10 @@ p_seprint(Msg *m)
 
 Proto rtcp = {
 	"rtcp",
-	p_compile,
-	p_filter,
+	nil,
+	nil,
 	p_seprint,
+	nil,
 	nil,
 	nil,
 	defaultframer,

@@ -23,6 +23,7 @@ static Mux p_mux[] =
 	{"ip6", 	0x86dd, } ,
 	{"pppoe_disc",	0x8863, },
 	{"pppoe_sess",	0x8864, },
+	{"eapol",	0x888e, },
 	{0}
 };
 
@@ -116,6 +117,7 @@ Proto ether =
 	p_filter,
 	p_seprint,
 	p_mux,
+	"%#.4lux",
 	p_fields,
 	defaultframer
 };
