@@ -81,6 +81,16 @@ setname(Face *f, char *sender)
 {
 	char *at, *bang;
 	char *p;
+	char *fld[3];
+	int nf;
+
+	p = estrdup(sender);
+	nf = tokenize(p, fld, 3);
+	if(nf <= 1)
+		sender = estrdup(fld[0]);
+	else
+		sender = estrdup(fld[1]);
+	free(p);
 
 	/* works with UTF-8, although it's written as ASCII */
 	for(p=sender; *p!='\0'; p++)
@@ -189,7 +199,7 @@ nextface(void)
 	int i;
 	Face *f;
 	Plumbmsg *m;
-	char *t, *senderp, *showmailp, *digestp;
+	char *t, *data, *showmailp, *digestp;
 	ulong xtime;
 
 	f = emalloc(sizeof(Face));
@@ -197,13 +207,18 @@ nextface(void)
 		m = plumbrecvfid(seefd);
 		if(m == nil)
 			killall("error on seemail plumb port");
+		if(strncmp(m->data, "Mail/", 5) != 0){
+			plumbfree(m);
+			continue;
+		}
+		data = m->data+5;
 		t = value(m->attr, "mailtype", "");
 		if(strcmp(t, "delete") == 0)
-			delete(m->data, value(m->attr, "digest", nil));
+			delete(data, value(m->attr, "digest", nil));
 		else if(strcmp(t, "new") != 0)
 			fprint(2, "faces: unknown plumb message type %s\n", t);
 		else for(i=0; i<nmaildirs; i++)
-			if(strncmp(m->data, maildirs[i], strlen(maildirs[i])) == 0)
+			if(strncmp(data, maildirs[i], strlen(maildirs[i])) == 0)
 				goto Found;
 		plumbfree(m);
 		continue;
@@ -216,11 +231,16 @@ nextface(void)
 			plumbfree(m);
 			continue;
 		}
-		senderp = estrdup(value(m->attr, "sender", "???"));
-		showmailp = estrdup(m->data);
+		showmailp = estrdup(data);
 		if(digestp)
 			digestp = estrdup(digestp);
+		setname(f, value(m->attr, "sender", "???"));
 		plumbfree(m);
+		f->time = xtime;
+		f->tm = *localtime(xtime);
+		f->str[Sshow] = showmailp;
+		f->str[Sdigest] = digestp;
+		return f;
 	}
 	return nil;
 }
@@ -244,7 +264,7 @@ Face*
 dirface(char *dir, char *num)
 {
 	Face *f;
-	char buf[1024],  *fld[3], *info, *p, *t, *s;
+	char buf[1024],  *info, *p, *t, *s;
 	int n;
 	ulong len;
 	CFid *fid;
@@ -274,8 +294,8 @@ dirface(char *dir, char *num)
 			f->time = atoi(t);
 			f->tm = *localtime(f->time);
 		}
-		else if(strcmp(s, "from") == 0 && tokenize(t, fld, 3) >= 2)
-			setname(f, estrdup(fld[1]));
+		else if(strcmp(s, "from") == 0)
+			setname(f, t);
 		else if(strcmp(s, "digest") == 0)
 			f->str[Sdigest] = estrdup(t);
 	}

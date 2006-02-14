@@ -17,7 +17,6 @@ static int		nsaved;
 static char	*facedom;
 static char	*libface;
 static char	*homeface;
-static char	*machinelist;
 
 /*
  * Loading the files is slow enough on a dial-up line to be worth this trouble
@@ -258,7 +257,7 @@ estrstrdup(char *a, char *b)
 static char*
 tryfindfiledir(char *dom, char *user, char *dir)
 {
-	char *dict, *ndir, *x;
+	char *dict, *ndir, *x, *odom;
 	int fd;
 	int i, n;
 	Dir *d;
@@ -269,7 +268,6 @@ tryfindfiledir(char *dom, char *user, char *dir)
 	x = estrstrdup(dir, "/.machinelist");
 	dom = estrdup(translatedomain(dom, x));
 	free(x);
-
 	/*
 	 * If this directory has a .dict, use it.
 	 */
@@ -354,12 +352,9 @@ findfile(Face *f, char *dom, char *user)
 	}
 	if(libface == nil)
 		libface = unsharp("#9/face");
-	if(machinelist == nil)
-		machinelist = estrstrdup(libface, "/.machinelist");
 	if(homeface == nil)
 		homeface = smprint("%s/lib/face", getenv("HOME"));
 
-	dom = translatedomain(dom, machinelist);
 	if(dom == nil)
 		dom = facedom;
 
