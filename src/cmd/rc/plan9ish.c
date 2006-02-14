@@ -206,7 +206,7 @@ int Waitfor(int pid, int unused0){
 			free(w);
 			return 0;
 		}
-		if(strncmp(w->msg, "signal: ", 8) == 0)
+		if(runq->iflag && strncmp(w->msg, "signal: ", 8) == 0)
 			fprint(2, "%d: %s\n", w->pid, w->msg);
 		for(p=runq->ret;p;p=p->ret)
 			if(p->pid==w->pid){
