@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <ip.h>
 #include <ndb.h>
+#include <thread.h>
 #include "dns.h"
 
 enum
@@ -16,7 +17,6 @@ enum
 };
 
 static char *servername;
-static RR *serverrr;
 static RR *serveraddrs;
 
 int	debug;
@@ -42,7 +42,14 @@ void doquery(char*, char*);
 void docmd(int, char**);
 
 void
-main(int argc, char *argv[])
+usage(void)
+{
+	fprint(2, "usage: dnsdebug -rxf [-p port] [query ...]\n");
+	threadexitsall("usage");
+}
+
+void
+threadmain(int argc, char *argv[])
 {
 	int n;
 	Biobuf in;
@@ -52,6 +59,9 @@ main(int argc, char *argv[])
 	strcpy(mntpt, "/net");
 
 	ARGBEGIN{
+	case 'p':	/* XXX */
+		portname = EARGF(usage());
+		break;
 	case 'r':
 		resolver = 1;
 		break;
@@ -60,8 +70,10 @@ main(int argc, char *argv[])
 		strcpy(mntpt, "/net.alt");
 		break;
 	case 'f':
-		dbfile = ARGF();
+		dbfile = EARGF(usage());
 		break;
+	default:
+		usage();
 	}ARGEND
 
 	now = time(0);
@@ -78,7 +90,7 @@ main(int argc, char *argv[])
 
 	if(argc > 0){
 		docmd(argc, argv);
-		exits(0);
+		threadexitsall(0);
 	}
 
 	Binit(&in, 0, OREAD);
@@ -94,7 +106,7 @@ main(int argc, char *argv[])
 		docmd(n, f);
 
 	}
-	exits(0);
+	threadexitsall(0);
 }
 
 static char*

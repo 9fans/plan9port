@@ -408,7 +408,6 @@ static RR*
 rrloop(Scan *sp, int count, int quest)
 {
 	int i;
-	static char errbuf[64];
 	RR *first, *rp, **l;
 
 	if(sp->err)

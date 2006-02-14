@@ -1,7 +1,10 @@
 <$PLAN9/src/mkhdr
 
 TARG=\
-#	dns\
+	dns\
+	dnsquery\
+	dnsdebug\
+	dnstcp\
 	ndbmkdb\
 	ndbquery\
 	ndbmkhash\
@@ -20,6 +23,7 @@ DNSOFILES=\
 	dn.$O\
 	dnresolve.$O\
 	dnserver.$O\
+	dntcpserver.$O\
 
 $DNSOFILES dns.$O dnstcp.$O dnsdebug.$O: dns.h
 

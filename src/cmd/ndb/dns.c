@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <ip.h>
 #include <ndb.h>
+#include <thread.h>
 #include "dns.h"
 
 enum
@@ -89,13 +90,14 @@ void	rremove(Job*, Mfile*);
 void	rstat(Job*, Mfile*);
 void	rwstat(Job*, Mfile*);
 void	sendmsg(Job*, char*);
-void	mountinit(char*, char*);
+void	mountinit(char*);
 void	io(void);
 int	fillreply(Mfile*, int);
 Job*	newjob(void);
 void	freejob(Job*);
 void	setext(char*, int, char*);
 
+char *portname = "domain";
 char	*logfile = "dns";
 char	*dbfile;
 char	mntpt[Maxpath];
@@ -104,61 +106,52 @@ char	*LOG;
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-rs] [-f ndb-file] [-x netmtpt]\n", argv0);
-	exits("usage");
+	fprint(2, "usage: %s [-dnrstT] [-a maxage] [-f ndb-file] [-p port] [-x service] [-z zoneprog]\n", argv0);
+	threadexitsall("usage");
 }
 
 void
-main(int argc, char *argv[])
+threadmain(int argc, char *argv[])
 {
-	int	serve;
-	char	servefile[Maxpath];
-	char	ext[Maxpath];
-	char	*p;
+	int serveudp, servetcp;
+	char *service;
 
-	serve = 0;
-//	setnetmtpt(mntpt, sizeof(mntpt), nil);
-	ext[0] = 0;
+	serveudp = 0;
+	servetcp = 0;
+	service = "dns";
 	ARGBEGIN{
 	case 'd':
 		debug = 1;
 		traceactivity = 1;
 		break;
 	case 'f':
-		p = ARGF();
-		if(p == nil)
-			usage();
-		dbfile = p;
+		dbfile = EARGF(usage());
 		break;
-	case 'i':
-		haveip = 1;
-		parseip(ipaddr, EARGF(usage()));
+	case 'x':
+		service = EARGF(usage());
 		break;
-//	case 'x':
-	//	p = ARGF();
-	//	if(p == nil)
-	//		usage();
-	//	setnetmtpt(mntpt, sizeof(mntpt), p);
-	//	setext(ext, sizeof(ext), mntpt);
-	//	break;
 	case 'r':
 		resolver = 1;
 		break;
 	case 's':
-		serve = 1;	/* serve network */
+		serveudp = 1;	/* serve network */
+		cachedb = 1;
+		break;
+	case 'T':
+		servetcp = 1;
 		cachedb = 1;
 		break;
 	case 'a':
-		p = ARGF();
-		if(p == nil)
-			usage();
-		maxage = atoi(p);
+		maxage = atoi(EARGF(usage()));
 		break;
 	case 't':
 		testing = 1;
 		break;
 	case 'z':
-		zonerefreshprogram = ARGF();
+		zonerefreshprogram = EARGF(usage());
+		break;
+	case 'p':
+		portname = EARGF(usage());
 		break;
 	case 'n':
 		sendnotifies = 1;
@@ -167,9 +160,7 @@ main(int argc, char *argv[])
 	USED(argc);
 	USED(argv);
 
-//if(testing) mainmem->flags |= POOL_NOREUSE;
-#define RFREND 0
-	rfork(RFREND|RFNOTEG);
+	rfork(RFNOTEG);
 
 	/* start syslog before we fork */
 	fmtinstall('F', fcallfmt);
@@ -181,25 +172,20 @@ main(int argc, char *argv[])
 
 	opendatabase();
 
-/*
-	snprint(servefile, sizeof(servefile), "#s/dns%s", ext);
-	unmount(servefile, mntpt);
-	remove(servefile);
-*/
-	mountinit(servefile, mntpt);
+	mountinit(service);
 
 	now = time(0);
 	srand(now*getpid());
 	db2cache(1);
 
-//	if(serve)
-//		proccreate(dnudpserver, mntpt, STACK);
+	if(serveudp)
+		proccreate(dnudpserver, nil, STACK);
+	if(servetcp)
+		proccreate(dntcpserver, nil, STACK);
 	if(sendnotifies)
-		notifyproc();
+		proccreate(notifyproc, nil, STACK);
 
 	io();
-	syslog(0, logfile, "io returned, exiting");
-	exits(0);
 }
 
 int
@@ -231,25 +217,15 @@ setext(char *ext, int n, char *p)
 }
 
 void
-mountinit(char *service, char *mntpt)
+mountinit(char *service)
 {
 	int p[2];
 
 	if(pipe(p) < 0)
 		abort(); /* "pipe failed" */;
-	switch(rfork(RFFDG|RFPROC|RFNAMEG)){
-	case 0:
-		close(p[1]);
-		break;
-	case -1:
-		abort(); /* "fork failed\n" */;
-	default:
-		close(p[0]);
-
-		if(post9pservice(p[1], "dns") < 0)
-			fprint(2, "post9pservice dns: %r\n");
-		_exits(0);
-	}
+	if(post9pservice(p[1], service) < 0)
+		fprint(2, "post9pservice dns: %r\n");
+	close(p[1]);
 	mfd[0] = mfd[1] = p[0];
 }
 
@@ -286,7 +262,6 @@ freefid(Mfile *mf)
 {
 	Mfile **l;
 
-fprint(2, "freefid %d\n", mf->fid);
 	lock(&mfalloc.lk);
 	for(l = &mfalloc.inuse; *l != nil; l = &(*l)->next){
 		if(*l == mf){
@@ -363,7 +338,7 @@ flushjob(int tag)
 }
 
 void
-io(void)
+ioproc0(void *v)
 {
 	long n;
 	Mfile *mf;
@@ -371,19 +346,13 @@ io(void)
 	Request req;
 	Job *job;
 
-	/*
-	 *  a slave process is sometimes forked to wait for replies from other
-	 *  servers.  The master process returns immediately via a longjmp
-	 *  through 'mret'.
-	 */
-	if(setjmp(req.mret))
-		putactivity();
-	req.isslave = 0;
+	USED(v);
+
 	for(;;){
 		n = read9pmsg(mfd[0], mdata, sizeof mdata);
 		if(n<=0){
 			syslog(0, logfile, "error reading mntpt: %r");
-			exits(0);
+			break;
 		}
 		job = newjob();
 		if(convM2S(mdata, n, &job->request) != n){
@@ -464,17 +433,17 @@ io(void)
 		}
 skip:
 		freejob(job);
-	
-		/*
-		 *  slave processes die after replying
-		 */
-		if(req.isslave){
-			putactivity();
-			_exits(0);
-		}
-	
 		putactivity();
 	}
+}
+
+void
+io(void)
+{
+	int i;
+
+	for(i=0; i<Maxactive; i++)
+		proccreate(ioproc0, 0, STACK);
 }
 
 void
@@ -667,6 +636,7 @@ rwrite(Job *job, Mfile *mf, Request *req)
 	char *err, *p, *atype;
 	RR *rp, *tp, *neg;
 	int wantsav;
+	static char *dumpfile;
 
 	err = 0;
 	cnt = job->request.count;
@@ -685,18 +655,21 @@ rwrite(Job *job, Mfile *mf, Request *req)
 	/*
 	 *  special commands
 	 */
-	if(strncmp(job->request.data, "debug", 5)==0 && job->request.data[5] == 0){
+	p = job->request.data;
+	if(strcmp(p, "debug")==0){
 		debug ^= 1;
 		goto send;
-	} else if(strncmp(job->request.data, "dump", 4)==0 && job->request.data[4] == 0){
-		dndump("/lib/ndb/dnsdump");
+	} else if(strcmp(p, "dump")==0){
+		if(dumpfile == nil)
+			dumpfile = unsharp("#9/ndb/dnsdump");
+		dndump(dumpfile);
 		goto send;
-	} else if(strncmp(job->request.data, "refresh", 7)==0 && job->request.data[7] == 0){
+	} else if(strncmp(p, "dump ", 5) == 0){
+		dndump(p+5);
+		goto send;
+	} else if(strcmp(p, "refresh")==0){
 		needrefresh = 1;
 		goto send;
-//	} else if(strncmp(job->request.data, "poolcheck", 9)==0 && job->request.data[9] == 0){
-//		poolcheck(mainmem);
-//		goto send;
 	}
 
 	/*

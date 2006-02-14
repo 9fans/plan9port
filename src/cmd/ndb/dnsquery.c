@@ -2,58 +2,43 @@
 #include <libc.h>
 #include <bio.h>
 #include <ndb.h>
+#include <thread.h>
 #include "dns.h"
 #include "ip.h"
 
 void
+usage(void)
+{
+	fprint(2, "usage: dnsquery [-x dns]\n");
+	threadexitsall("usage");
+}
+
+void
 main(int argc, char *argv[])
 {
-	int fd, n, len, domount;
+	char *dns;
+	CFid *fd;
+	int n, len;
 	Biobuf in;
 	char line[1024], *lp, *p, *np, *mtpt, *srv, *dns;
 	char buf[1024];
 
-	dns = "/net/dns";
-	mtpt = "/net";
-	srv = "/srv/dns";
-	domount = 1;
-	ARGBEGIN {
+	dns = "dns";
+	ARGBEGIN{
 	case 'x':
-		dns = "/net.alt/dns";
-		mtpt = "/net.alt";
-		srv = "/srv/dns_net.alt";
+		dns = EARGF(usage());
 		break;
 	default:
-		fprint(2, "usage: %s -x [dns-mount-point]\n", argv0);
-		exits("usage");
-	} ARGEND;
+		usage();
+	}ARGEND;
 
-	if(argc == 1){
-		domount = 0;
-		mtpt = argv[0];
-	}
+	if(argc)
+		usage();
 
-	fd = open(dns, ORDWR);
-	if(fd < 0){
-		if(domount == 0){
-			fprint(2, "can't open %s: %r\n", mtpt);
-			exits(0);
-		}
-		fd = open(srv, ORDWR);
-		if(fd < 0){
-			print("can't open %s: %r\n", srv);
-			exits(0);
-		}
-		if(mount(fd, -1, mtpt, MBEFORE, "") < 0){
-			print("can't mount(%s, %s): %r\n", srv, mtpt);
-			exits(0);
-		}
-		fd = open(mtpt, ORDWR);
-		if(fd < 0){
-			print("can't open %s: %r\n", mtpt);
-			exits(0);
-		}
-	}
+	fd = nsopen(dns, nil, "dns", ORDWR);
+	if(fd == nil)
+		sysfatal("open %s!dns: %r", dns);
+
 	Binit(&in, 0, OREAD);
 	for(print("> "); lp = Brdline(&in, '\n'); print("> ")){
 		n = Blinelen(&in)-1;
@@ -98,16 +83,16 @@ main(int argc, char *argv[])
 			n = strlen(line);
 		}
 
-		seek(fd, 0, 0);
-		if(write(fd, line, n) < 0) {
+		fsseek(fd, 0, 0);
+		if(fswrite(fd, line, n) < 0) {
 			print("!%r\n");
 			continue;
 		}
-		seek(fd, 0, 0);
-		while((n = read(fd, buf, sizeof(buf))) > 0){
+		fsseek(fd, 0, 0);
+		while((n = fsread(fd, buf, sizeof(buf))) > 0){
 			buf[n] = 0;
 			print("%s\n", buf);
 		}
 	}
-	exits(0);
+	threadexitsall(0);
 }

@@ -1,6 +1,3 @@
-#define OUdphdrsize Udphdrsize
-#define OUdphdr Udphdr
-
 enum
 {
 	/* RR types */
@@ -114,9 +111,7 @@ typedef struct Txt	Txt;
  */
 struct Request
 {
-	int	isslave;	/* pid of slave */
 	ulong	aborttime;	/* time at which we give up */
-	jmp_buf	mret;		/* where master jumps to after starting a slave */
 	int	id;
 };
 
@@ -291,6 +286,11 @@ enum
 	OKneg,
 };
 
+enum
+{
+	STACK = 32*1024
+};
+
 /* dn.c */
 extern char	*rrtname[];
 extern char	*rname[];
@@ -326,7 +326,6 @@ extern int	getactivity(Request*);
 extern void	putactivity(void);
 extern void	abort(); /* char*, ... */;
 extern void	warning(char*, ...);
-extern void	slave(Request*);
 extern void	dncheck(void*, int);
 extern void	unique(RR*);
 extern int	subsume(char*, char*);
@@ -364,11 +363,13 @@ extern int	mkreq(DN *dp, int type, uchar *buf, int flags, ushort reqno);
 
 /* dnserver.c */
 extern void	dnserver(DNSmsg*, DNSmsg*, Request*);
-extern void	dntcpserver(char*);
+extern void	dnudpserver(void*);
+extern void	dntcpserver(void*);
+extern void	tcpproc(void*);
 
 /* dnnotify.c */
 extern void	dnnotify(DNSmsg*, DNSmsg*, Request*);
-extern void	notifyproc(void);
+extern void	notifyproc(void*);
 
 /* convDNS2M.c */
 extern int	convDNS2M(DNSmsg*, uchar*, int);
@@ -380,8 +381,8 @@ extern char*	convM2DNS(uchar*, int, DNSmsg*);
 extern void	mallocsanity(void*);
 extern void	lasthist(void*, int, ulong);
 
-extern int debug;
-extern int traceactivity;
+extern int	debug;
+extern int	traceactivity;
 extern char	*trace;
 extern int	testing;	/* test cache whenever removing a DN */
 extern int	cachedb;
@@ -396,6 +397,8 @@ extern int	sendnotifies;
 extern ulong	now;		/* time base */
 extern Area	*owned;
 extern Area	*delegated;
+
+extern char	*portname;
 
 #pragma	varargck	type	"R"	RR*
 #pragma	varargck	type	"Q"	RR*

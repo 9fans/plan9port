@@ -46,6 +46,10 @@ syslog(0, logfile, "serial old %lud new %lud", a->soarr->soa->serial, repp->qd->
 	a->needrefresh = 1;
 }
 
+/*
+ * this isn't going to work as a thread!
+ */
+
 static void
 ding(void *u, char *msg)
 {
@@ -62,10 +66,10 @@ static void
 send_notify(char *slave, RR *soa, Request *req)
 {
 	int i, len, n, reqno, status, fd;
-	uchar obuf[Maxudp+OUdphdrsize];
-	uchar ibuf[Maxudp+OUdphdrsize];
+	uchar obuf[Maxudp+Udphdrsize];
+	uchar ibuf[Maxudp+Udphdrsize];
 	RR *rp;
-	OUdphdr *up = (OUdphdr*)obuf;
+	Udphdr *up = (Udphdr*)obuf;
 	char *err;
 	DNSmsg repmsg;
 
@@ -93,14 +97,14 @@ send_notify(char *slave, RR *soa, Request *req)
 	/* send 3 times or until we get anything back */
 	for(i = 0; i < 3; i++){
 syslog(0, logfile, "sending %d byte notify to %s/%I.%d about %s", n, slave, up->raddr, nhgets(up->rport), soa->owner->name);
-		if(udpwrite(fd, (OUdphdr*)obuf, obuf+OUdphdrsize, n) != n)
+		if(udpwrite(fd, (Udphdr*)obuf, obuf+Udphdrsize, n) != n)
 			break;
 		alarm(2*1000);
-		len = udpread(fd, (Udphdr*)ibuf, ibuf+OUdphdrsize, Maxudp);
+		len = udpread(fd, (Udphdr*)ibuf, ibuf+Udphdrsize, Maxudp);
 		alarm(0);
-		if(len <= OUdphdrsize)
+		if(len <= Udphdrsize)
 			continue;
-		err = convM2DNS(&ibuf[OUdphdrsize], len, &repmsg);
+		err = convM2DNS(&ibuf[Udphdrsize], len, &repmsg);
 		if(err != nil)
 			continue;
 		if(repmsg.id == reqno && (repmsg.flags & Omask) == Onotify)
@@ -132,24 +136,11 @@ notify_areas(Area *a, Request *req)
  *  (also reads in new databases)
  */
 void
-notifyproc(void)
+notifyproc(void *v)
 {
 	Request req;
-	static int already;
 
-	if(already)
-		return;
-
-	switch(rfork(RFPROC|RFNOTEG|RFMEM|RFNOWAIT)){
-	case -1:
-		return;
-	case 0:
-		break;
-	default:
-		return;
-	}
-
-	req.isslave = 1;	/* son't fork off subprocesses */
+	USED(v);
 
 	for(;;){
 		getactivity(&req);

@@ -3,6 +3,7 @@
 #include <bio.h>
 #include <ndb.h>
 #include <ip.h>
+#include <thread.h>
 #include "dns.h"
 
 Area *owned;
@@ -90,6 +91,7 @@ freearea(Area **l)
  *  this entails running a command 'zonerefreshprogram'.  This could
  *  copy over databases from elsewhere or just do a zone transfer.
  */
+/* XXX WRONG - can't use fork and exec */
 void
 refresh_areas(Area *s)
 {
@@ -110,7 +112,7 @@ refresh_areas(Area *s)
 			break;
 		case 0:
 			execl(zonerefreshprogram, "zonerefresh", s->soarr->owner->name, 0);
-			exits(0);
+			threadexitsall(0);
 			break;
 		default:
 			for(;;){

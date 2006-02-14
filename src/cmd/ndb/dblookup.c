@@ -78,9 +78,6 @@ dblookup(char *name, int class, int type, int auth, int ttl)
 	char *wild, *cp;
 	DN *dp, *ndp;
 	int err;
-	static int parallel;
-	static int parfd[2];
-	static char token[1];
 
 	/* so far only internet lookups are implemented */
 	if(class != Cin)
@@ -488,16 +485,6 @@ look(Ndbtuple *entry, Ndbtuple *line, char *attr)
 		if(cistrcmp(attr, nt->attr) == 0)
 			return nt;
 	return 0;
-}
-
-static RR**
-linkrr(RR *rp, DN *dp, RR **l)
-{
-	rp->owner = dp;
-	rp->auth = 1;
-	rp->db = 1;
-	*l = rp;
-	return &rp->next;
 }
 
 /* these are answered specially by the tcp version */

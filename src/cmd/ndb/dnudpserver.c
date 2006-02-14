@@ -3,6 +3,7 @@
 #include <ip.h>
 #include <bio.h>
 #include <ndb.h>
+#include <thread.h>
 #include "dns.h"
 
 static int	udpannounce(char*);
@@ -10,21 +11,11 @@ static void	reply(int, uchar*, DNSmsg*, Request*);
 
 extern char *logfile;
 
-static void
-ding(void *x, char *msg)
-{
-	USED(x);
-	if(strcmp(msg, "alarm") == 0)
-		noted(NCONT);
-	else
-		noted(NDFLT);
-}
-
 typedef struct Inprogress Inprogress;
 struct Inprogress
 {
 	int	inuse;
-	OUdphdr	uh;
+	Udphdr	uh;
 	DN	*owner;
 	int	type;
 	int	id;
@@ -33,15 +24,15 @@ Inprogress inprog[Maxactive+2];
 
 /*
  *  record client id and ignore retransmissions.
- *  we're still single thread at this point.
+ *  we're still single thread at this point.  BUG
  */
 static Inprogress*
 clientrxmit(DNSmsg *req, uchar *buf)
 {
 	Inprogress *p, *empty;
-	OUdphdr *uh;
+	Udphdr *uh;
 
-	uh = (OUdphdr *)buf;
+	uh = (Udphdr *)buf;
 	empty = 0;
 	for(p = inprog; p < &inprog[Maxactive]; p++){
 		if(p->inuse == 0){
@@ -52,7 +43,7 @@ clientrxmit(DNSmsg *req, uchar *buf)
 		if(req->id == p->id)
 		if(req->qd->owner == p->owner)
 		if(req->qd->type == p->type)
-		if(memcmp(uh, &p->uh, OUdphdrsize) == 0)
+		if(memcmp(uh, &p->uh, Udphdrsize) == 0)
 			return 0;
 	}
 	if(empty == 0)
@@ -61,7 +52,7 @@ clientrxmit(DNSmsg *req, uchar *buf)
 	empty->id = req->id;
 	empty->owner = req->qd->owner;
 	empty->type = req->qd->type;
-	memmove(&empty->uh, uh, OUdphdrsize);
+	memmove(&empty->uh, uh, Udphdrsize);
 	empty->inuse = 1;
 	return empty;
 }
@@ -69,52 +60,33 @@ clientrxmit(DNSmsg *req, uchar *buf)
 /*
  *  a process to act as a dns server for outside reqeusts
  */
-void
-dnudpserver(char *mntpt)
+static void
+udpproc(void *v)
 {
 	int fd, len, op;
 	Request req;
 	DNSmsg reqmsg, repmsg;
-	uchar buf[OUdphdrsize + Maxudp + 1024];
+	uchar buf[Udphdrsize + Maxudp + 1024];
 	char *err;
 	Inprogress *p;
 	char tname[32];
-	OUdphdr *uh;
+	Udphdr *uh;
 
-	/* fork sharing text, data, and bss with parent */
-	switch(rfork(RFPROC|RFNOTEG|RFMEM|RFNOWAIT)){
-	case -1:
-		break;
-	case 0:
-		break;
-	default:
-		return;
-	}
-
-	fd = -1;
-	notify(ding);
-restart:
-	if(fd >= 0)
-		close(fd);
-	while((fd = udpannounce(mntpt)) < 0)
-		sleep(5000);
-	if(setjmp(req.mret))
-		putactivity();
-	req.isslave = 0;
+	fd = (int)v;
 
 	/* loop on requests */
 	for(;; putactivity()){
 		memset(&repmsg, 0, sizeof(repmsg));
 		memset(&reqmsg, 0, sizeof(reqmsg));
 		alarm(60*1000);
-		len = udpread(fd, (OUdphdr*)buf, buf+OUdphdrsize, sizeof(buf)-OUdphdrsize);
+		len = udpread(fd, (Udphdr*)buf, buf+Udphdrsize, sizeof(buf)-Udphdrsize);
 		alarm(0);
 		if(len <= 0)
-			goto restart;
-		uh = (OUdphdr*)buf;
+			continue;
+		uh = (Udphdr*)buf;
 		getactivity(&req);
 		req.aborttime = now + 30;	/* don't spend more than 30 seconds */
-		err = convM2DNS(&buf[OUdphdrsize], len, &reqmsg);
+		err = convM2DNS(&buf[Udphdrsize], len, &reqmsg);
 		if(err){
 			syslog(0, logfile, "server: input error: %s from %I", err, buf);
 			continue;
@@ -173,12 +145,6 @@ freereq:
 		rrfreelist(reqmsg.an);
 		rrfreelist(reqmsg.ns);
 		rrfreelist(reqmsg.ar);
-
-		if(req.isslave){
-			putactivity();
-			_exits(0);
-		}
-
 	}
 }
 
@@ -192,8 +158,9 @@ udpannounce(char *mntpt)
 	char buf[40];
 	
 	USED(mntpt);
-	
-	if((fd=announce("udp!*!nameserver", buf)) < 0)
+
+	snprint(buf, sizeof buf, "udp!*!%s", portname);
+	if((fd=announce(buf, buf)) < 0)
 		warning("can't announce on dns udp port");
 	return fd;
 }
@@ -211,7 +178,7 @@ reply(int fd, uchar *buf, DNSmsg *rep, Request *reqp)
 			rep->id, rep->qd->owner->name,
 			rrname(rep->qd->type, tname, sizeof tname), rep->an, rep->ns, rep->ar);
 
-	len = convDNS2M(rep, &buf[OUdphdrsize], Maxudp);
+	len = convDNS2M(rep, &buf[Udphdrsize], Maxudp);
 	if(len <= 0){
 		syslog(0, logfile, "error converting reply: %s %d", rep->qd->owner->name,
 			rep->qd->type);
@@ -223,6 +190,18 @@ reply(int fd, uchar *buf, DNSmsg *rep, Request *reqp)
 			syslog(0, logfile, "ar %R", rp);
 		return;
 	}
-	if(udpwrite(fd, (OUdphdr*)buf, buf+OUdphdrsize, len) != len)
+	if(udpwrite(fd, (Udphdr*)buf, buf+Udphdrsize, len) != len)
 		syslog(0, logfile, "error sending reply: %r");
 }
+
+void
+dnudpserver(void *v)
+{
+	int i, fd;
+
+	while((fd = udpannounce(v)) < 0)
+		sleep(5*1000);
+	for(i=0; i<Maxactive; i++)
+		proccreate(udpproc, (void*)fd, STACK);
+}
+

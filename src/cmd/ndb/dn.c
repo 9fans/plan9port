@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <bio.h>
 #include <ndb.h>
+#include <thread.h>
 #include "dns.h"
 
 /*
@@ -346,7 +347,6 @@ dnagedb(void)
 	DN *dp;
 	int i;
 	RR *rp;
-	static ulong nextage;
 
 	lock(&dnlock);
 
@@ -370,7 +370,6 @@ dnauthdb(void)
 	int i;
 	Area *area;
 	RR *rp;
-	static ulong nextage;
 
 	lock(&dnlock);
 
@@ -404,7 +403,7 @@ getactivity(Request *req)
 {
 	int rv;
 
-	if(traceactivity) syslog(0, "dns", "get %d by %d", dnvars.active, getpid());
+	if(traceactivity) syslog(0, "dns", "get %d by %d.%d", dnvars.active, getpid(), threadid());
 	lock(&dnvars.lk);
 	while(dnvars.mutex){
 		unlock(&dnvars.lk);
@@ -423,7 +422,7 @@ putactivity(void)
 {
 	static ulong lastclean;
 
-	if(traceactivity) syslog(0, "dns", "put %d by %d", dnvars.active, getpid());
+	if(traceactivity) syslog(0, "dns", "put %d by %d.%d", dnvars.active, getpid(), threadid());
 	lock(&dnvars.lk);
 	dnvars.active--;
 	assert(dnvars.active >= 0); /* "dnvars.active %d", dnvars.active */;
@@ -1176,36 +1175,6 @@ warning(char *fmt, ...)
 	vseprint(dnserr, dnserr+sizeof(dnserr), fmt, arg);
 	va_end(arg);
 	syslog(1, "dns", dnserr);
-}
-
-/*
- *  create a slave process to handle a request to avoid one request blocking
- *  another
- */
-void
-slave(Request *req)
-{
-	static int slaveid;
-
-	if(req->isslave)
-		return;		/* we're already a slave process */
-
-	/* limit parallelism */
-	if(getactivity(req) > Maxactive){
-		putactivity();
-		return;
-	}
-
-	switch(rfork(RFPROC|RFNOTEG|RFMEM|RFNOWAIT)){
-	case -1:
-		putactivity();
-		break;
-	case 0:
-		req->isslave = 1;
-		break;
-	default:
-		longjmp(req->mret, 1);
-	}
 }
 
 /*
