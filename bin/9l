@@ -62,14 +62,14 @@ then
 		for i in $w
 		do
 			# can't trust the libraries about using
-			# libthread - we might not be linking with
+			# libthread or libdraw - we might not be linking with
 			# those object files.
 			a=`
 				nm $PLAN9/lib/lib$i.a 2>/dev/null |
 				grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
 				sed 's/.*__p9l_autolib_//' |
 				sort -u |
-				grep -v thread
+				egrep -v 'thread|draw'
 			`
 			okayfn="true"
 			for j in $a
@@ -148,6 +148,11 @@ then
 	if havesec
 	then
 		libsl="$libsl -lsec -l9"
+	fi
+
+	if [ "x$needndb" = xtrue -a -f /usr/lib/libresolv.a ]
+	then
+		libsl="$libsl -lresolv"
 	fi
 
 	if [ "x$needdraw" = xtrue -a "x$WSYSTYPE" != xnowsys ]
@@ -297,7 +302,8 @@ fi
 
 xtmp=/tmp/9l.$$.$USER.out
 xxout() {
-	egrep -v 'is almost always misused|: In function `' $xtmp
+	sed 's/.*: In function `[^:]*: *//' $xtmp | egrep . | 
+	egrep -v 'is almost always misused' $xtmp
 	rm -f $xtmp
 }
 
