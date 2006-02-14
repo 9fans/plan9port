@@ -700,11 +700,11 @@ int is_valid_label(char* lab)
 */
 fpolygon* rd_fpoly(FILE* fin, int *lineno)
 {
-	char buf[256], junk[2];
+	char buf[1024], junk[2];
 	fpoint q;
 	fpolygon* fp;
 	int allocn;
-	if (!fgets(buf,256,fin))
+	if (!fgets(buf,sizeof buf,fin))
 		return 0;
 	(*lineno)++;
 	if (sscanf(buf,"%lg%lg%1s",&q.x,&q.y,junk) != 2)
@@ -717,7 +717,7 @@ fpolygon* rd_fpoly(FILE* fin, int *lineno)
 	fp->nam = "";
 	fp->thick = 0;
 	fp->clr = clr_im(DBlack);
-	while (fgets(buf,256,fin)) {
+	while (fgets(buf,sizeof buf,fin)) {
 		(*lineno)++;
 		if (sscanf(buf,"%lg%lg%1s",&q.x,&q.y,junk) != 2) {
 			if (!is_valid_label(buf))
@@ -784,7 +784,7 @@ fpolygon* fp_reverse(fpolygon* fp)
 
 void wr_fpoly(FILE* fout, const fpolygon* fp)
 {
-	char buf[256];
+	char buf[1024];
 	int i;
 	for (i=0; i<=fp->n; i++)
 		fprintf(fout,"%.12g\t%.12g\n", fp->p[i].x, fp->p[i].y);
