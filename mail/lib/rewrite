@@ -14,7 +14,7 @@
 [^!@.]+			translate	"$PLAN9/bin/upas/aliasmail '&'"
 
 # append the local domain to addresses without a domain
-local!(.*)		alias		\1@swtch.com
+local!(.*)		alias		\1@YOURDOMAIN.DOM
 
 # convert source domain address to a chain a@b@c@d...
 @([^@!,]*):([^!@]*)@([^!]*)		alias	\2@\3@\1
@@ -25,5 +25,4 @@ local!(.*)		alias		\1@swtch.com
 ([^@]+)@([^@]+)		alias		\2!\1
 
 # send all mail to the gateway or mail server, $smtp,  for delivery
-([^!]*)!(.*) 		| 		"$PLAN9/mail/lib/qmail '\s' 'tcp!holo.morphisms.net!5356'" "'\2@\1'"
-
+([^!]*)!(.*) 		| 		"$PLAN9/mail/lib/qmail '\s' 'YOURGATEWAY.DOM'" "'\2@\1'"
