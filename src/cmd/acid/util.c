@@ -141,7 +141,7 @@ addvarsym(Fhdr *fp)
 			list->next = al(TSTRING);
 			list = list->next;
 			list->store.fmt = 's';
-			list->store.u.string = strnode(s.xname);
+			list->store.u.string = strnode(s.name);
 		}
 	}
 	*tail = nil;
