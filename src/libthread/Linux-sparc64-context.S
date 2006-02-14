@@ -46,7 +46,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#include <sysdep.h>
+#include <linux/linkage.h>
+
 /*#include "ucontext_i.h" (up above) */
 
 /* int getcontext(ucontext_t *); */
@@ -130,4 +131,9 @@ ENTRY(__setcontext)
 	stx	%o2, [%o0 + __UC_SIGMASK]
 	ta	0x6f
 
+#ifdef END
+#define END(x)
+#endif
+
 END(__setcontext)
+
