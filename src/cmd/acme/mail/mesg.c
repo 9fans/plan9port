@@ -45,15 +45,6 @@ char *goodtypes[] = {
 	nil,
 };
 
-struct{
-	char *type;
-	char	*ext;
-} exts[] = {
-	"image/gif",	".gif",
-	"image/jpeg",	".jpg",
-	nil, nil
-};
-
 char *okheaders[] =
 {
 	"From:",
@@ -109,10 +100,10 @@ mkaddrs(char *t)
 	for(i=0; i+1<nf; i+=2){
 		if(i > 0)
 			fmtprint(&fmt, ", ");
-		if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0)
+	//	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0)
 			fmtprint(&fmt, "%s", f[i+1]);
-		else
-			fmtprint(&fmt, "%s <%s>", f[i], f[i+1]);
+	//	else
+	//		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]);
 	}
 	free(f);
 	return fmtstrflush(&fmt);
@@ -137,15 +128,18 @@ loadinfo(Message *m, char *dir)
 		if(strcmp(s, "from") == 0){
 			free(m->from);
 			m->from = mkaddrs(t);
+		}else if(strcmp(s, "sender") == 0){
+			free(m->sender);
+			m->sender = mkaddrs(t);
 		}else if(strcmp(s, "to") == 0){
 			free(m->to);
-			m->from = mkaddrs(t);
+			m->to = mkaddrs(t);
 		}else if(strcmp(s, "cc") == 0){
 			free(m->cc);
-			m->from = mkaddrs(t);
+			m->cc = mkaddrs(t);
 		}else if(strcmp(s, "replyto") == 0){
 			free(m->replyto);
-			m->from = mkaddrs(t);
+			m->replyto = mkaddrs(t);
 		}else if(strcmp(s, "subject") == 0){
 			free(m->subject);
 			m->subject = estrdup(t);
@@ -155,7 +149,7 @@ loadinfo(Message *m, char *dir)
 		}else if(strcmp(s, "unixdate") == 0 && (t=strchr(t, ' ')) != nil){
 			free(m->date);
 			m->date = estrdup(t+1);
-		}else if(strcmp(s, "messageid") == 0){
+		}else if(strcmp(s, "digest") == 0){
 			free(m->digest);
 			m->digest = estrdup(t);
 		}
@@ -163,14 +157,20 @@ loadinfo(Message *m, char *dir)
 	}
 	free(s);
 	free(data);
+	if(m->replyto == nil){
+		if(m->sender)
+			m->replyto = estrdup(m->sender);
+		else if(m->from)
+			m->replyto = estrdup(m->from);
+		else
+			m->replyto = estrdup("");
+	}
 	if(m->from == nil)
 		m->from = estrdup("");
 	if(m->to == nil)
 		m->to = estrdup("");
 	if(m->cc == nil)
 		m->cc = estrdup("");
-	if(m->replyto == nil)
-		m->replyto = estrdup("");
 	if(m->subject == nil)
 		m->subject = estrdup("");
 	if(m->type == nil)
@@ -955,9 +955,9 @@ mesgctl(void *v)
 						s += strlen(mbox.name);
 					if(strstr(s, "body") != nil){
 						/* strip any known extensions */
-						for(i=0; exts[i].ext!=nil; i++){
-							j = strlen(exts[i].ext);
-							if(strlen(s)>j && strcmp(s+strlen(s)-j, exts[i].ext)==0){
+						for(i=0; ports[i].suffix!=nil; i++){
+							j = strlen(ports[i].suffix);
+							if(strlen(s)>j && strcmp(s+strlen(s)-j, ports[i].suffix)==0){
 								s[strlen(s)-j] = '\0';
 								break;
 							}
@@ -1014,9 +1014,9 @@ ext(char *type)
 {
 	int i;
 
-	for(i=0; exts[i].type!=nil; i++)
-		if(strcmp(type, exts[i].type)==0)
-			return exts[i].ext;
+	for(i=0; ports[i].type!=nil; i++)
+		if(strcmp(type, ports[i].type)==0)
+			return ports[i].suffix;
 	return "";
 }
 
@@ -1027,13 +1027,13 @@ mimedisplay(Message *m, char *name, char *rootdir, Window *w, int fileonly)
 
 	if(strcmp(m->disposition, "file")==0 || strlen(m->filename)!=0 || !fileonly){
 		if(strlen(m->filename) == 0)
-			dest = estrstrdup("a.", ext(m->type));
+			dest = estrstrdup("a", ext(m->type));
 		else
 			dest = estrdup(m->filename);
 		if(m->filename[0] != '/')
 			dest = egrow(estrdup(home), "/", dest);
-		fsprint(w->body, "\t9p read mail/%sbody%s > %s\n",
-			name, ext(m->type), dest);
+		fsprint(w->body, "\t9p read mail/%s/%sbody > %s\n",
+			mboxname, name, dest);
 		free(dest);
 	}
 }
@@ -1137,11 +1137,15 @@ mesgload(Message *m, char *rootdir, char *file, Window *w)
 int
 tokenizec(char *str, char **args, int max, char *splitc)
 {
-	int na;
+	int i, na;
 	int intok = 0;
+	char *p;
 
 	if(max <= 0)
-		return 0;	
+		return 0;
+		
+//	if(strchr(str, ',') || strchr(str, '"') || strchr(str, '<') || strchr(str, '('))
+//		splitc = ",";
 	for(na=0; *str != '\0';str++){
 		if(strchr(splitc, *str) == nil){
 			if(intok)
@@ -1157,6 +1161,13 @@ tokenizec(char *str, char **args, int max, char *splitc)
 					break;
 			}
 		}
+	}
+	for(i=0; i<na; i++){
+		while(*args[i] && strchr(" \t\r\n", *args[i]))
+			args[i]++;
+		p = args[i]+strlen(args[i]);
+		while(p>args[i] && strchr(" \t\r\n", *(p-1)))
+			*--p = 0;
 	}
 	return na;
 }

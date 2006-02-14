@@ -63,6 +63,7 @@ struct Message
 	char		*to;
 	char		*cc;
 	char		*replyto;
+	char		*sender;
 	char		*date;
 	char		*subject;
 	char		*type;
@@ -158,6 +159,7 @@ extern	CFid		*plumbseemailfd;
 extern	char		*home;
 extern	char		*outgoing;
 extern	char		*mailboxdir;
+extern	char		*mboxname;
 extern	char		*user;
 extern	char		deleted[];
 extern	int		wctlfd;

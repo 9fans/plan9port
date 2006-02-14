@@ -60,12 +60,10 @@ removeupasfs(void)
 int
 ismaildir(char *s)
 {
-	char buf[256];
 	Dir *d;
 	int ret;
 
-	snprint(buf, sizeof buf, "%s%s", maildir, s);
-	d = dirstat(buf);
+	d = fsdirstat(mailfs, s);
 	if(d == nil)
 		return 0;
 	ret = d->qid.type & QTDIR;
@@ -122,9 +120,9 @@ threadmain(int argc, char *argv[])
 		if(argc>2 || i==0)
 			usage();
 		/* see if the name is that of an existing /mail/fs directory */
-		if(argc==1 && strchr(argv[0], '/')==0 && ismaildir(argv[0])){
+		if(argc==1 && argv[0][0] != '/' && ismaildir(argv[0])){
 			name = argv[0];
-			mboxname = eappend(estrdup(maildir), "", name);
+			mboxname = estrdup(name);
 			newdir = 0;
 		}else{
 			if(argv[0][i-1] == '/')
@@ -159,9 +157,9 @@ threadmain(int argc, char *argv[])
 	if(outgoing == nil)
 		outgoing = estrstrdup(mailboxdir, "/outgoing");
 
-	mbox.ctlfd = fsopen(mailfs, "mbox/ctl", OWRITE);
+	mbox.ctlfd = fsopen(mailfs, estrstrdup(mboxname, "/ctl"), OWRITE);
 	if(mbox.ctlfd == nil)
-		error("can't open %s: %r", "mbox/ctl");
+		error("can't open %s: %r", estrstrdup(mboxname, "/ctl"));
 
 	fsname = estrdup(name);
 	if(newdir && argc > 0){
