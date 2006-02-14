@@ -194,3 +194,9 @@ ioread(Ioproc *io, int fd, void *a, long n)
 .SH BUGS
 .I Iointerrupt
 is currently unimplemented.
+.PP
+C99 disallows the use of pointers to
+.BR va_list .
+This interface will have to change to
+use pointers to a structure containing a 
+.BR va_list .
