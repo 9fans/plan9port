@@ -1,6 +1,6 @@
 .TH EXITS 3
 .SH NAME
-exits, _exits, atexit, atexitdont, terminate \- terminate process, process cleanup
+exits, _exits, exitcode, atexit, atexitdont \- terminate process, process cleanup
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -11,6 +11,9 @@ exits, _exits, atexit, atexitdont, terminate \- terminate process, process clean
 void	_exits(char *msg)
 .B
 void	exits(char *msg)
+.PP
+.B
+int	exitcode(char *msg)
 .PP
 .B
 int	atexit(void(*)(void))
@@ -87,8 +90,19 @@ cancels a previous registration of an exit function.
 .SH BUGS
 Because of limitations of Unix, the exit status of a
 process can only be an 8-bit integer.
-Exit status 0 is used for empty exit messages, and 1 for
-non-empty messages.
+.I Exits
+and
+.I _exits
+treat null or empty exit status as exit code 0
+and call 
+.I exitcode
+to translate any other string into an exit code.
+By default, the library provides an
+.I exitcode
+that maps all messages to 1.
+Applications may find it useful to provide their own 
+implementations of
+.I exitcode .
 .PP
 Exit codes 97 through 99 are used by the thread library to signal
 internal synchronization errors between the main program
