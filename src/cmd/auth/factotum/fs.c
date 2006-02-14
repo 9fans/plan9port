@@ -349,18 +349,18 @@ fsread(Req *r)
 		logread(r);
 		break;
 	case Qctl:
-		r->fid->aux = (void*)readlist((int)r->fid->aux, keylist, r);
+		r->fid->aux = (void*)(uintptr)readlist((uintptr)r->fid->aux, keylist, r);
 		respond(r, nil);
 		break;
 	case Qneedkey:
 		needkeyread(r);
 		break;
 	case Qprotolist:
-		r->fid->aux = (void*)readlist((int)r->fid->aux, protolist, r);
+		r->fid->aux = (void*)(uintptr)readlist((uintptr)r->fid->aux, protolist, r);
 		respond(r, nil);
 		break;
 	case Qconv:
-		r->fid->aux = (void*)readlist((int)r->fid->aux, convlist, r);
+		r->fid->aux = (void*)(uintptr)readlist((uintptr)r->fid->aux, convlist, r);
 		respond(r, nil);
 		break;
 	}

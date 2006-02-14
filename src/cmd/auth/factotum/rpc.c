@@ -108,14 +108,8 @@ convthread(void *v)
 	}
 	c->attr = a;
 	proto = strfindattr(a, "proto");
-	role = strfindattr(a, "role");
-
 	if(proto == nil){
 		werrstr("no proto in attrs");
-		goto out;
-	}
-	if(role == nil){
-		werrstr("no role in attrs");
 		goto out;
 	}
 
@@ -124,8 +118,14 @@ convthread(void *v)
 		werrstr("unknown proto %s", proto);
 		goto out;
 	}
-
 	c->proto = p;
+
+	role = strfindattr(a, "role");
+	if(role == nil){
+		werrstr("no role in attrs");
+		goto out;
+	}
+
 	for(r=p->roles; r->name; r++){
 		if(strcmp(r->name, role) != 0)
 			continue;
