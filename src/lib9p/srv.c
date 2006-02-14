@@ -64,7 +64,7 @@ getreq(Srv *s)
 		return nil;
 	}
 
-	buf = emalloc9p(n);
+	buf = emalloc9p(n+1);	/* +1 for NUL in swrite */
 	memmove(buf, s->rbuf, n);
 	qunlock(&s->rlock);
 
@@ -535,9 +535,10 @@ swrite(Srv *srv, Req *r)
 		respond(r, e);
 		return;
 	}
-	if(srv->write)
+	if(srv->write){
+		r->ifcall.data[r->ifcall.count] = 0;	/* enough room - see getreq */
 		srv->write(r);
-	else
+	}else
 		respond(r, "no srv->write");
 }
 static void
