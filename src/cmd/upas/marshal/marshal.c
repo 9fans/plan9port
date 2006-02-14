@@ -813,6 +813,18 @@ printinreplyto(Biobuf *out, char *dir)
 	return Bprint(out, "In-Reply-To: %s\n", buf);
 }
 
+int
+mopen(char *file, int mode)
+{
+	int fd;
+	
+	if((fd = open(file, mode)) >= 0)
+		return fd;
+	if(strncmp(file, "Mail/", 5) == 0 && mountmail() >= 0 && (fd = fsopenfd(mailfs, file+5, mode)) >= 0)
+		return fd;
+	return -1;
+}
+
 Attach*
 mkattach(char *file, char *type, int inline)
 {
@@ -824,11 +836,8 @@ mkattach(char *file, char *type, int inline)
 
 	if(file == nil)
 		return nil;
-	if((fd = open(file, OREAD)) < 0)
-	if(strncmp(file, "Mail/", 5) != 0 || mountmail() < 0 || (fd = fsopenfd(mailfs, file+5, OREAD)) < 0){
-		fprint(2, "%s: %s can't read file\n", argv0, file);
+	if((fd = mopen(file, OREAD)) < 0)
 		return nil;
-	}
 	a = emalloc(sizeof(*a));
 	a->fd = fd;
 	a->path = file;
@@ -877,11 +886,12 @@ mkattach(char *file, char *type, int inline)
 	if(pipe(pfd) < 0)
 		return a;
 	
-	xfd[0] = pfd[0];
+	xfd[0] = mopen(file, OREAD);
 	xfd[1] = pfd[0];
 	xfd[2] = dup(2, -1);
-	if((pid=threadspawnl(xfd, unsharp("#9/bin/file"), "file", "-m", file, nil)) < 0){
+	if((pid=threadspawnl(xfd, unsharp("#9/bin/file"), "file", "-m", nil)) < 0){
 		close(xfd[0]);
+		close(xfd[1]);
 		close(xfd[2]);
 		return a;
 	}
@@ -892,6 +902,7 @@ mkattach(char *file, char *type, int inline)
 		ftype[n-1] = 0;
 		a->type = estrdup(ftype);
 	}
+fprint(2, "got type %s\n", a->type);
 	close(pfd[1]);
 	procwait(pid);
 
