@@ -7,7 +7,7 @@
  *
  * Not implemented:
  *	unicode mangling
- *	rename operator functions
+ *	renaming of operator functions
  */
 /*
 RULES TO ADD:

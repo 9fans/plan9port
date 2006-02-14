@@ -236,7 +236,7 @@ ptraceregrw(Regs *regs, char *name, ulong *val, int isr)
 		*val = u;
 	}else{
 		u = *val;
-		if(ptrace(PTRACE_POKEUSER, pid, addr, (void*)u) < 0)
+		if(ptrace(PTRACE_POKEUSER, pid, addr, (void*)(uintptr)u) < 0)
 			goto ptraceerr;
 	}
 	return 0;
