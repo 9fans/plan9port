@@ -144,8 +144,12 @@ parseline(char *line, Word **words, int *nwordp)
 		}
 		/* how long is this word? */
 		for(l=0; line[l]; l++)
-			if(line[l]==' ' || line[l]=='\t')
+			if(line[l]==' ' || line[l]=='\t'){
+				if(join)
+					while(line[l]==' ' || line[l]=='\t')
+						l++;
 				break;
+			}
 		words = addword(words, nwordp, line, l, indent, bol);
 		bol = 0;
 		line += l;
