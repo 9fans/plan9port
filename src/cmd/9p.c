@@ -306,6 +306,7 @@ xrdwr(int argc, char **argv)
 
 	fid = xopen(argv[0], ORDWR);
 	for(;;){
+		fsseek(fid, 0, 0);
 		if((n = fsread(fid, buf, sizeof buf)) < 0)
 			fprint(2, "read: %r\n");
 		else{
