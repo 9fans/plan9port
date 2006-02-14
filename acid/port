@@ -603,13 +603,17 @@ defn mem(addr, fmt)
 
 defn symbols(pattern)
 {
-	local l, s;
-
+	local l, s, name;
+	
 	l = symbols;
 	while l do {
 		s = head l;
-		if regexp(pattern, s[0]) then
-			print(s[0], "\t", s[1], "\t", s[2], "\t", s[3], "\n");
+		if regexp(pattern, s[0]) then {
+			name = s[4];
+			if name == {} then
+				name = "";
+			print(s[0], "\t", s[1], "\t", s[2], "\t", s[3], "\t", name, "\n");
+		}
 		l = tail l;
 	}
 }
