@@ -119,6 +119,7 @@ void
 usage(void)
 {
 	EPR "Usage: %s [-slv] [-f cs] [-t cs] [file ...]\n", argv0);
+	verbose = 1;
 	list();
 	EXIT(1, "usage");
 }
@@ -426,13 +427,13 @@ struct convert convert[] =
 	{ "ebcdic", "EBCDIC", Table, (void *)tabebcdic },	/* 6f is recommended bad map */
 	{ "euc-k", "Korean EUC: ASCII+KS C 5601 1987", From|Func, 0, (Fnptr)uksc_in },
 	{ "euc-k", "Korean EUC: ASCII+KS C 5601 1987", Func, 0, (Fnptr)uksc_out },
-	{ "gb", "GB2312-80", From|Func, 0, (Fnptr)gb_in },
-	{ "gb", "GB2312-80", Func, 0, (Fnptr)gb_out },
+	{ "gb", "GB2312-80 (Chinese)", From|Func, 0, (Fnptr)gb_in },
+	{ "gb", "GB2312-80 (Chinese)", Func, 0, (Fnptr)gb_out },
 	{ "html", "HTML", From|Func, 0, (Fnptr)html_in },
 	{ "html", "HTML", Func, 0, (Fnptr)html_out },
 	{ "jis", "guesses at the JIS encoding", From|Func, 0, (Fnptr)jis_in },
-	{ "jis-kanji", "ISO 2022-JP", From|Func, 0, (Fnptr)jisjis_in },
-	{ "jis-kanji", "ISO 2022-JP", Func, 0, (Fnptr)jisjis_out },
+	{ "jis-kanji", "ISO 2022-JP (Japanese)", From|Func, 0, (Fnptr)jisjis_in },
+	{ "jis-kanji", "ISO 2022-JP (Japanese)", Func, 0, (Fnptr)jisjis_out },
 	{ "koi8", "KOI-8 (GOST 19769-74)", Table, (void *)tabkoi8 },
 	{ "latin1", "ISO 8859-1", Table, (void *)tab8859_1 },
 	{ "macrom", "Macintosh Standard Roman character set", Table, (void *)tabmacroman },
