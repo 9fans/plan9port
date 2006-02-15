@@ -48,10 +48,10 @@ eresized(int new)
 	}
 	if(allims==nil || allims[which]==nil)
 		return;
-	r = imager();
-	border(screen, r, -Border, nil, ZP);
-	r.min.x += allims[which]->r.min.x - allims[0]->r.min.x;
-	r.min.y += allims[which]->r.min.y - allims[0]->r.min.y;
+	r = rectaddpt(allims[0]->r, subpt(screen->r.min, allims[0]->r.min));
+	if(!new)
+		drawresizewindow(r);
+	r = rectaddpt(r, subpt(allims[which]->r.min, allims[0]->r.min));
 	drawop(screen, r, allims[which], allmasks[which], allims[which]->r.min, S);
 	flushimage(display, 1);
 }

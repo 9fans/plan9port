@@ -37,10 +37,9 @@ eresized(int new)
 	}
 	if(image == nil)
 		return;
-	r = insetrect(screen->clipr, Edge+Border);
-	r.max.x = r.min.x+Dx(image->r);
-	r.max.y = r.min.y+Dy(image->r);
-	border(screen, r, -Border, nil, ZP);
+	r = rectaddpt(image->clipr, subpt(screen->r.min, image->clipr.min));
+	if(!new)
+		drawresizewindow(r);
 	draw(screen, r, image, nil, image->r.min);
 	flushimage(display, 1);
 }
