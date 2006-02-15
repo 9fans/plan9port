@@ -1,0 +1,18 @@
+<$PLAN9/src/mkhdr
+
+TARG=mailfs
+
+OFILES=\
+	box.$O\
+	decode.$O\
+	fs.$O\
+	imap.$O\
+	main.$O\
+	sx.$O\
+	thread.$O\
+	util.$O\
+
+HFILES=a.h box.h imap.h sx.h
+
+<$PLAN9/src/mkone
+
