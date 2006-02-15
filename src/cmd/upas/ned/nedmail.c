@@ -356,6 +356,38 @@ threadmain(int argc, char **argv)
 	qcmd(nil, nil);
 }
 
+static char*
+mkaddrs(char *t)
+{
+	int i, nf, inquote;
+	char **f, *s;
+	Fmt fmt;
+	
+	inquote = 0;
+	nf = 2;
+	for(s=t; *s; s++){
+		if(*s == '\'')
+			inquote = !inquote;
+		if(*s == ' ' && !inquote)
+			nf++;
+	}
+	f = malloc(nf*sizeof f[0]);
+	if(f == nil)
+		return nil;
+	nf = tokenize(t, f, nf);
+	fmtstrinit(&fmt);
+	for(i=0; i+1<nf; i+=2){
+		if(i > 0)
+			fmtprint(&fmt, " ");
+	//	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0)
+			fmtprint(&fmt, "%s", f[i+1]);
+	//	else
+	//		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]);
+	}
+	free(f);
+	return fmtstrflush(&fmt);
+}
+
 //
 // read the message info
 //
@@ -391,13 +423,13 @@ file2message(Message *parent, char *name)
 		*t++ = 0;
 		
 		if(strcmp(s, "from") == 0)
-			m->from = t;
+			m->from = mkaddrs(t);
 		else if(strcmp(s, "to") == 0)
-			m->to = t;
+			m->to = mkaddrs(t);
 		else if(strcmp(s, "cc") == 0)
-			m->cc = t;
+			m->cc = mkaddrs(t);
 		else if(strcmp(s, "replyto") == 0)
-			m->replyto = t;
+			m->replyto = mkaddrs(t);
 		else if(strcmp(s, "unixdate") == 0 && (t=strchr(t, ' ')) != nil)
 			m->date = t;
 		else if(strcmp(s, "subject") == 0)
@@ -464,7 +496,6 @@ dir2message(Message *parent, int reverse)
 			continue;
 		if(atoi(d[i].name) <= highest)
 			continue;
-		fprint(2,"calling file2message %d\n", i);
 		m = file2message(parent, d[i].name);
 		// fprint(2,"returned from file2message\n");
 		if(m == nil)
@@ -1560,13 +1591,14 @@ flushdeleted(Message *cur)
 	doflush = 0;
 	deld = 0;
 
-	fd = fsopen(mailfs, "ctl", OWRITE);
+	snprint(buf, sizeof buf, "%s/ctl", mbname);
+	fd = fsopen(mailfs, buf, OWRITE);
 	if(fd == nil){
-		fprint(2, "!can't delete mail, opening /mail/fs/ctl: %r\n");
+		fprint(2, "!can't delete mail, opening %s: %r\n", buf);
 		exitfs(0);
 	}
 	e = &buf[sizeof(buf)];
-	p = seprint(buf, e, "delete %s", mbname);
+	p = seprint(buf, e, "delete");
 	n = 0;
 	for(l = &top.child; *l != nil;){
 		m = *l;
@@ -1588,7 +1620,7 @@ flushdeleted(Message *cur)
 		if(e-p < 10){
 			fswrite(fd, buf, p-buf);
 			n = 0;
-			p = seprint(buf, e, "delete %s", mbname);
+			p = seprint(buf, e, "delete");
 		}
 		p = seprint(p, e, " %s", msg);
 		n++;
@@ -2068,7 +2100,9 @@ appendtofile(Message *m, char *part, char *base, int mbox)
 Message*
 scmd(Cmd *c, Message *m)
 {
-	char *file;
+	char buf[256];
+	CFid *fd;
+	char *file, *msg;
 
 	if(m == &top){
 		Bprint(&out, "!address\n");
@@ -2087,9 +2121,24 @@ scmd(Cmd *c, Message *m)
 		return nil;
 	}
 
-	if(appendtofile(m, "raw", file, 1) < 0)
-		return nil;
-
+	if(file[0] == '/' || (file[0]=='.' && file[1]=='/')){
+		if(appendtofile(m, "raw", file, 1) < 0)
+			return nil;
+	}else{
+		snprint(buf, sizeof buf, "%s/ctl", mbname);
+		if((fd = fsopen(mailfs, buf, OWRITE)) == nil)
+			return nil;
+		msg = strrchr(s_to_c(m->path), '/');
+		if(msg == nil)
+			msg = s_to_c(m->path);
+		else
+			msg++;
+		if(fsprint(fd, "save %s %s", file, msg) < 0){
+			fsclose(fd);
+			return nil;
+		}
+		fsclose(fd);
+	}
 	m->stored = 1;
 	return m;
 }
