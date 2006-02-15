@@ -47,6 +47,7 @@ usage(void)
 	fprint(2, "usage: dnsdebug -rxf [-p port] [query ...]\n");
 	threadexitsall("usage");
 }
+char *portname = "domain";
 
 void
 threadmain(int argc, char *argv[])
@@ -323,7 +324,6 @@ squirrelserveraddrs(void)
 			l = &(*l)->next;
 			continue;
 		}
-		req.isslave = 1;
 		req.aborttime = now + 60;	/* don't spend more than 60 seconds */
 		*l = dnresolve(rp->host->name, Cin, Ta, &req, 0, 0, Recurse, 0, 0);
 		while(*l != nil)
@@ -427,7 +427,6 @@ doquery(char *name, char *tstr)
 	}
 
 	getactivity(&req);
-	req.isslave = 1;
 	req.aborttime = now + 60;	/* don't spend more than 60 seconds */
 	rr = dnresolve(buf, Cin, type, &req, 0, 0, Recurse, rooted, 0);
 	if(rr){

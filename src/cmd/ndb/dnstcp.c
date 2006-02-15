@@ -28,10 +28,15 @@ char	*zonerefreshprogram;
 char	*portname = "domain";
 
 void
+usage(void)
+{
+	fprint(2, "usage: dnstcp [-dr] [-f dbfile]\n");
+	threadexitsall("usage");
+}
+
+void
 threadmain(int argc, char *argv[])
 {
-	char *ext = "";
-
 	ARGBEGIN{
 	default:
 		usage();
@@ -45,6 +50,9 @@ threadmain(int argc, char *argv[])
 		resolver = 1;
 		break;
 	}ARGEND
+
+	if(argc)
+		usage();
 
 	if(debug < 2)
 		debug = 0;

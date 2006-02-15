@@ -3,6 +3,7 @@
 #include <bio.h>
 #include <ndb.h>
 #include <thread.h>
+#include <9pclient.h>
 #include "dns.h"
 #include "ip.h"
 
@@ -14,9 +15,8 @@ usage(void)
 }
 
 void
-main(int argc, char *argv[])
+threadmain(int argc, char *argv[])
 {
-	char *dns;
 	CFid *fd;
 	int n, len;
 	Biobuf in;
