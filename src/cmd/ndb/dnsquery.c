@@ -20,7 +20,7 @@ threadmain(int argc, char *argv[])
 	CFid *fd;
 	int n, len;
 	Biobuf in;
-	char line[1024], *lp, *p, *np, *mtpt, *srv, *dns;
+	char line[1024], *lp, *p, *np, *dns;
 	char buf[1024];
 
 	dns = "dns";
