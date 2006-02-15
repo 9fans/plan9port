@@ -25,6 +25,10 @@ struct Event
 
 struct Window
 {
+	/* coordinate wineventproc and window thread */
+	QLock	lk;
+	int		ref;
+
 	/* file descriptors */
 	CFid*		ctl;
 	CFid*		event;
@@ -112,6 +116,8 @@ extern	int		winsetaddr(Window*, char*, int);
 extern	char*	winreadbody(Window*, int*);
 extern	void		windormant(Window*);
 extern	void		winsetdump(Window*, char*, char*);
+extern	void		winincref(Window*);
+extern	void		windecref(Window*);
 
 extern	void		readmbox(Message*, char*, char*);
 extern	void		rewritembox(Window*, Message*);

@@ -720,8 +720,7 @@ mesgcommand(Message *m, char *cmd)
 	}
 	if(strcmp(args[0], "Del") == 0){
 		if(windel(m->w, 0)){
-			chanfree(m->w->cevent);
-			free(m->w);
+			windecref(m->w);
 			m->w = nil;
 			if(m->isreply)
 				delreply(m);
@@ -886,6 +885,7 @@ mesgctl(void *v)
 	m = v;
 	w = m->w;
 	threadsetname("mesgctl");
+	winincref(w);
 	proccreate(wineventproc, w, STACK);
 	for(;;){
 		e = recvp(w->cevent);

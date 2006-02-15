@@ -470,6 +470,7 @@ mainctl(void *v)
 	char *s, *t, *buf;
 
 	w = v;
+	winincref(w);
 	proccreate(wineventproc, w, STACK);
 
 	for(;;){
