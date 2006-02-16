@@ -47,12 +47,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
-#define __ASSEMBLER__
-#include <linux/linkage.h>
-
-#ifndef END
+#define ENTRY(x) x:
 #define END(x)
-#endif
 
 /*#include "ucontext_i.h" (up above) */
 
