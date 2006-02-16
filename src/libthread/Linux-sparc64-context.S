@@ -20,6 +20,7 @@
 /* Constants shared between setcontext() and getcontext().  Don't
    install this header file.  */
 
+
 #define UC_LINK		0
 #define __UC_SIGMASK	16
 #define UC_M_PC		40
@@ -46,13 +47,18 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#define __ASSEMBLER__
 #include <linux/linkage.h>
+
+#ifndef END
+#define END(x)
+#endif
 
 /*#include "ucontext_i.h" (up above) */
 
 /* int getcontext(ucontext_t *); */
 
-ENTRY(__getcontext)
+ENTRY(getcontext)
 
 	ldx	[%o0 + UC_LINK], %o1	/* Preserve uc_link field, the
 					   trap clears it.  */
@@ -84,15 +90,13 @@ ENTRY(__getcontext)
 	stx	%g0, [%o0 + UC_SIGMASK + 112]
 	stx	%g0, [%o0 + UC_SIGMASK + 120]
 #else
-# error Adjust __getcontext
+# error Adjust getcontext
 #endif
 2:
 	retl
 	 clr	%o0
 
-END(__getcontext)
-
-weak_alias(__getcontext, getcontext)
+END(getcontext)
 
 /* Copyright (C) 1997, 2001 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
@@ -130,10 +134,6 @@ ENTRY(__setcontext)
 	ldx	[%o0 + UC_SIGMASK], %o2
 	stx	%o2, [%o0 + __UC_SIGMASK]
 	ta	0x6f
-
-#ifdef END
-#define END(x)
-#endif
 
 END(__setcontext)
 
