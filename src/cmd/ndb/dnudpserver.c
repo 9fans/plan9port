@@ -21,6 +21,7 @@ struct Inprogress
 	int	id;
 };
 Inprogress inprog[Maxactive+2];
+QLock inproglk;
 
 /*
  *  record client id and ignore retransmissions.
@@ -32,6 +33,7 @@ clientrxmit(DNSmsg *req, uchar *buf)
 	Inprogress *p, *empty;
 	Udphdr *uh;
 
+	qlock(&inproglk);
 	uh = (Udphdr *)buf;
 	empty = 0;
 	for(p = inprog; p < &inprog[Maxactive]; p++){
@@ -43,17 +45,22 @@ clientrxmit(DNSmsg *req, uchar *buf)
 		if(req->id == p->id)
 		if(req->qd->owner == p->owner)
 		if(req->qd->type == p->type)
-		if(memcmp(uh, &p->uh, Udphdrsize) == 0)
+		if(memcmp(uh, &p->uh, Udphdrsize) == 0){
+			qunlock(&inproglk);
 			return 0;
+		}
 	}
-	if(empty == 0)
+	if(empty == 0){
+		qunlock(&inproglk);
 		return 0;	/* shouldn't happen - see slave() and definition of Maxactive */
+	}
 
 	empty->id = req->id;
 	empty->owner = req->qd->owner;
 	empty->type = req->qd->type;
 	memmove(&empty->uh, uh, Udphdrsize);
 	empty->inuse = 1;
+	qunlock(&inproglk);
 	return empty;
 }
 
