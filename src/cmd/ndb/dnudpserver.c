@@ -25,7 +25,6 @@ QLock inproglk;
 
 /*
  *  record client id and ignore retransmissions.
- *  we're still single thread at this point.  BUG
  */
 static Inprogress*
 clientrxmit(DNSmsg *req, uchar *buf)
