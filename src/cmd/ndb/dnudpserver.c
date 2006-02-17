@@ -72,15 +72,13 @@ udpproc(void *v)
 	char tname[32];
 	Udphdr *uh;
 
-	fd = (int)v;
+	fd = (uintptr)v;
 
 	/* loop on requests */
 	for(;; putactivity()){
 		memset(&repmsg, 0, sizeof(repmsg));
 		memset(&reqmsg, 0, sizeof(reqmsg));
-		alarm(60*1000);
 		len = udpread(fd, (Udphdr*)buf, buf+Udphdrsize, sizeof(buf)-Udphdrsize);
-		alarm(0);
 		if(len <= 0)
 			continue;
 		uh = (Udphdr*)buf;
@@ -161,7 +159,7 @@ udpannounce(char *mntpt)
 
 	snprint(buf, sizeof buf, "udp!*!%s", portname);
 	if((fd=announce(buf, buf)) < 0)
-		warning("can't announce on dns udp port");
+		warning("announce %s: %r", buf);
 	return fd;
 }
 
@@ -202,6 +200,6 @@ dnudpserver(void *v)
 	while((fd = udpannounce(v)) < 0)
 		sleep(5*1000);
 	for(i=0; i<Maxactive; i++)
-		proccreate(udpproc, (void*)fd, STACK);
+		proccreate(udpproc, (void*)(uintptr)fd, STACK);
 }
 

@@ -33,6 +33,7 @@ char	*logfile = "dns";
 char	*dbfile;
 char	mntpt[Maxpath];
 char	*zonerefreshprogram;
+char *portname = "domain";
 
 int prettyrrfmt(Fmt*);
 void preloadserveraddrs(void);
@@ -47,7 +48,6 @@ usage(void)
 	fprint(2, "usage: dnsdebug -rxf [-p port] [query ...]\n");
 	threadexitsall("usage");
 }
-char *portname = "domain";
 
 void
 threadmain(int argc, char *argv[])
@@ -60,9 +60,6 @@ threadmain(int argc, char *argv[])
 	strcpy(mntpt, "/net");
 
 	ARGBEGIN{
-	case 'p':	/* XXX */
-		portname = EARGF(usage());
-		break;
 	case 'r':
 		resolver = 1;
 		break;
@@ -72,6 +69,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'f':
 		dbfile = EARGF(usage());
+		break;
+	case 'p':
+		portname = EARGF(usage());
 		break;
 	default:
 		usage();

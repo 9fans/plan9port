@@ -61,7 +61,6 @@ struct {
 	Mfile	*inuse;		/* active mfile's */
 } mfalloc;
 
-int	haveip;
 int	mfd[2];
 int	debug;
 int traceactivity;
@@ -97,7 +96,7 @@ Job*	newjob(void);
 void	freejob(Job*);
 void	setext(char*, int, char*);
 
-char *portname = "domain";
+char 	*portname = "domain";
 char	*logfile = "dns";
 char	*dbfile;
 char	mntpt[Maxpath];
@@ -106,7 +105,7 @@ char	*LOG;
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-dnrstT] [-a maxage] [-f ndb-file] [-p port] [-x service] [-z zoneprog]\n", argv0);
+	fprint(2, "usage: dns [-dnrstT] [-a maxage] [-f ndb-file] [-p port] [-x service] [-z zoneprog]\n");
 	threadexitsall("usage");
 }
 
@@ -134,7 +133,7 @@ threadmain(int argc, char *argv[])
 		resolver = 1;
 		break;
 	case 's':
-		serveudp = 1;	/* serve network */
+		serveudp = 1;
 		cachedb = 1;
 		break;
 	case 'T':
@@ -165,7 +164,7 @@ threadmain(int argc, char *argv[])
 	/* start syslog before we fork */
 	fmtinstall('F', fcallfmt);
 	dninit();
-	if(!haveip && myipaddr(ipaddr, mntpt) < 0)
+	if(myipaddr(ipaddr, mntpt) < 0)
 		sysfatal("can't read my ip address");
 
 	syslog(0, logfile, "starting dns on %I", ipaddr);
@@ -350,7 +349,7 @@ ioproc0(void *v)
 
 	for(;;){
 		n = read9pmsg(mfd[0], mdata, sizeof mdata);
-		if(n<=0){
+		if(n <= 0){
 			syslog(0, logfile, "error reading mntpt: %r");
 			break;
 		}
@@ -665,7 +664,10 @@ rwrite(Job *job, Mfile *mf, Request *req)
 		dndump(dumpfile);
 		goto send;
 	} else if(strncmp(p, "dump ", 5) == 0){
-		dndump(p+5);
+		if(*(p+5))
+			dndump(p+5);
+		else
+			err = "bad filename";
 		goto send;
 	} else if(strcmp(p, "refresh")==0){
 		needrefresh = 1;

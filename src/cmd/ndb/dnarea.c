@@ -91,12 +91,15 @@ freearea(Area **l)
  *  this entails running a command 'zonerefreshprogram'.  This could
  *  copy over databases from elsewhere or just do a zone transfer.
  */
-/* XXX WRONG - can't use fork and exec */
 void
 refresh_areas(Area *s)
 {
-	int pid;
 	Waitmsg *w;
+	char *argv[3];
+	
+	argv[0] = zonerefreshprogram;
+	argv[1] = "XXX";
+	argv[2] = nil;
 
 	for(; s != nil; s = s->next){
 		if(!s->needrefresh)
@@ -107,26 +110,9 @@ refresh_areas(Area *s)
 			continue;
 		}
 
-		switch(pid = fork()){
-		case -1:
-			break;
-		case 0:
-			execl(zonerefreshprogram, "zonerefresh", s->soarr->owner->name, 0);
-			threadexitsall(0);
-			break;
-		default:
-			for(;;){
-				w = wait();
-				if(w == nil)
-					break;
-				if(w->pid == pid){
-					if(w->msg == nil || *w->msg == 0)
-						s->needrefresh = 0;
-					free(w);
-					break;
-				}
-				free(w);
-			}
-		}
+		argv[1] = s->soarr->owner->name;
+		w = runproc(argv[0], argv, 0);
+		free(w);
 	}
 }
+

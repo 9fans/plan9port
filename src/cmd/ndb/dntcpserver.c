@@ -35,10 +35,10 @@ connreadmsg(int tfd, int *fd, uchar *buf, int max)
 	if (lfd < 0)
 		return -1;
 	*fd = accept(lfd, ldir);
-	n = -1;
-	if (*fd < 0)
+	if (*fd >= 0)
 		n = readmsg(*fd, buf, max);
-	//close(fd);
+	else
+		n = -1;
 	close(lfd);
 	return n;
 }
@@ -181,7 +181,7 @@ out:
 void
 tcpproc(void *v)
 {
-	int len;
+	int len, rv;
 	Request req;
 	DNSmsg reqmsg, repmsg;
 	char *err;
@@ -191,7 +191,7 @@ tcpproc(void *v)
 	NetConnInfo *caller;
 
 	rfd = -1;
-	fd = (int)v;
+	fd = (uintptr)v;
 	caller = 0;
 	/* loop on requests */
 	for(;; putactivity()){
@@ -244,12 +244,13 @@ tcpproc(void *v)
 					break;
 			} else {
 				dnserver(&reqmsg, &repmsg, &req);
-				if(reply(rfd, &repmsg, &req, caller) < 0)
-					break;
+				rv = reply(rfd, &repmsg, &req, caller);
 				rrfreelist(repmsg.qd);
 				rrfreelist(repmsg.an);
 				rrfreelist(repmsg.ns);
 				rrfreelist(repmsg.ar);
+				if(rv < 0)
+					break;
 			}
 		}
 
@@ -263,8 +264,6 @@ tcpproc(void *v)
 enum {
 	Maxactivetcp = 4,
 };
-
-extern char *portname;
 
 static int
 tcpannounce(char *mntpt)
@@ -283,12 +282,10 @@ void
 dntcpserver(void *v)
 {
 	int i, fd;
-	char *mntpt;
 
-	mntpt = v;
-	while((fd = tcpannounce(mntpt)) < 0)
+	while((fd = tcpannounce(v)) < 0)
 		sleep(5*1000);
 
 	for(i=0; i<Maxactivetcp; i++)
-		proccreate(tcpproc, (void*)fd, STACK);
+		proccreate(tcpproc, (void*)(uintptr)fd, STACK);
 }

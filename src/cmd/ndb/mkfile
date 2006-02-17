@@ -24,6 +24,7 @@ DNSOFILES=\
 	dnresolve.$O\
 	dnserver.$O\
 	dntcpserver.$O\
+	runproc.$O\
 
 $DNSOFILES dns.$O dnstcp.$O dnsdebug.$O: dns.h
 

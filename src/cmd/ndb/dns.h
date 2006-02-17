@@ -381,6 +381,10 @@ extern char*	convM2DNS(uchar*, int, DNSmsg*);
 extern void	mallocsanity(void*);
 extern void	lasthist(void*, int, ulong);
 
+/* runproc.c */
+extern Waitmsg*	runproc(char*, char**, int);
+extern Waitmsg*	runprocfd(char*, char**, int[3]);
+
 extern int	debug;
 extern int	traceactivity;
 extern char	*trace;
