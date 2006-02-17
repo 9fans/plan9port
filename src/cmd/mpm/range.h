@@ -18,6 +18,7 @@ class range {
   public:
 	range()		{ first = 0; accumV = 0; }
 	range(slug *p)	{ first = p; accumV = 0; }
+	virtual ~range() { }
 	char	*headstr()		{
 		return first ? first->headstr() : (char*)""; }
 	char	*typename()		{ return first->typename(); }
@@ -307,6 +308,7 @@ class generator {
 
 extern stream	ptlist, btlist;		// page titles
 
+#undef INFINITY
 #define INFINITY 1000001
 
 // A queue is a distinguished kind of stream.

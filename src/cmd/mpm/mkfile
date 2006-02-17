@@ -12,7 +12,8 @@ HFILES=misc.h\
 LD=g++
 
 <$PLAN9/src/mkone
-CFLAGS=
+CC=g++
+CFLAGS=-c
 
 slug.$O:	slug.h
 range.$O:	range.h slug.h

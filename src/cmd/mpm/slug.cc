@@ -1,7 +1,6 @@
 #include	"misc.h"
 #include	"slug.h"
 #include	<math.h>
-#include	<utf.h>
 
 static char	*bufptr(int);
 
@@ -147,6 +146,19 @@ static void adds(char *s)
 {
 	for (char *p = s; *p; p++)
 		addc(*p);
+}
+
+static int fullrune(char *c, int n)
+{
+	if(n <= 0)
+		return 0;
+	if(n>=1 && (unsigned char)c[0] < 0x80)
+		return 1;
+	if(n>=2 && (unsigned char)c[0] < 0xE0)
+		return 1;
+	if(n>=3)
+		return 1;
+	return 0;
 }
 
 static char *getutf(FILE *fp)	// get 1 utf-encoded char (might be multiple bytes)
