@@ -187,13 +187,6 @@ threadmain(int argc, char *argv[])
 	io();
 }
 
-int
-myipaddr(uchar *ip, char *net)
-{
-	ipmove(ip, ipaddr);
-	return 0;
-}
-
 /*
  *  if a mount point is specified, set the cs extention to be the mount point
  *  with '_'s replacing '/'s
