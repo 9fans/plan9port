@@ -1009,16 +1009,18 @@ parsedate(Sx *v)
 		warn("bad date: %$", v);
 		return 0;
 	}
+	
+	/* cannot use atoi because 09 is malformed octal! */
 	memset(&tm, 0, sizeof tm);
 	p = v->data;
-	tm.mday = atoi(p);
+	tm.mday = strtol(p, 0, 10);
 	tm.mon = parsemon(p+3);
 	if(tm.mon == -1)
 		goto bad;
-	tm.year = atoi(p+7) - 1900;
-	tm.hour = atoi(p+12);
-	tm.min = atoi(p+15);
-	tm.sec = atoi(p+18);
+	tm.year = strtol(p+7, 0, 10) - 1900;
+	tm.hour = strtol(p+12, 0, 10);
+	tm.min = strtol(p+15, 0, 10);
+	tm.sec = strtol(p+18, 0, 10);
 	strcpy(tm.zone, "GMT");
 
 	t = tm2sec(&tm);
