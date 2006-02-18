@@ -91,12 +91,12 @@ getnetconninfo(char *dir, int fd)
 	nci->spec = unknown;
 	if(nci->dir == nil || nci->root == nil)
 		goto err;
-	sn = sizeof sn;
+	sn = sizeof u;
 	if(getsockname(fd, &u.sa, &sn) < 0)
 		goto err;
 	if(convert(fd, &u.sa, &nci->lsys, &nci->lserv, &nci->laddr) < 0)
 		goto err;
-	sn = sizeof sn;
+	sn = sizeof u;
 	if(getpeername(fd, &u.sa, &sn) < 0)
 		goto err;
 	if(convert(fd, &u.sa, &nci->rsys, &nci->rserv, &nci->raddr) < 0)
