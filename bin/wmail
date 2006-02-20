@@ -3,9 +3,9 @@
 case "x-$MAILER" in
 x-|x-browser)
 	# start mail in a new window
-	web 'mailto://'$1
+	web "mailto:$1"
 	;;
 *)
-	9term $MAILER
+	9term $MAILER "$1"
 	;;
 esac
