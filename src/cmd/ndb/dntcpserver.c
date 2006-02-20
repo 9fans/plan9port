@@ -269,12 +269,10 @@ static int
 tcpannounce(char *mntpt)
 {
 	int fd;
-	char an[40];
 	
 	USED(mntpt);
-	snprint(an, sizeof an, "tcp!*!%s", portname);
-	if((fd=announce(an, adir)) < 0)
-		warning("announce %s: %r", an);
+	if((fd=announce(tcpaddr, adir)) < 0)
+		warning("announce %s: %r", tcpaddr);
 	return fd;
 }
 

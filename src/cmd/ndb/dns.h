@@ -402,8 +402,10 @@ extern ulong	now;		/* time base */
 extern Area	*owned;
 extern Area	*delegated;
 
-extern char	*portname;
+extern char	*udpaddr;
+extern char	*tcpaddr;
 
+#ifdef VARARGCK
 #pragma	varargck	type	"R"	RR*
 #pragma	varargck	type	"Q"	RR*
-
+#endif

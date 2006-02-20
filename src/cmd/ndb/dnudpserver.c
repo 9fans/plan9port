@@ -160,11 +160,9 @@ udpannounce(char *mntpt)
 {
 	int fd;
 	char buf[40];
-	
 	USED(mntpt);
 
-	snprint(buf, sizeof buf, "udp!*!%s", portname);
-	if((fd=announce(buf, buf)) < 0)
+	if((fd=announce(udpaddr, buf)) < 0)
 		warning("announce %s: %r", buf);
 	return fd;
 }

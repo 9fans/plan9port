@@ -10,7 +10,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: dnsquery [-x dns]\n");
+	fprint(2, "usage: dnsquery [-x service]\n");
 	threadexitsall("usage");
 }
 

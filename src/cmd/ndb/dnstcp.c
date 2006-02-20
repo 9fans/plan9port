@@ -25,7 +25,8 @@ int	maxage;
 uchar	ipaddr[IPaddrlen];	/* my ip address */
 char	*LOG;
 char	*zonerefreshprogram;
-char	*portname = "domain";
+char	*tcpaddr;
+char	*udpaddr;
 
 void
 usage(void)

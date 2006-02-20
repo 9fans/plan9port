@@ -1183,8 +1183,8 @@ warning(char *fmt, ...)
 void
 dncheck(void *p, int dolock)
 {
-	int i;
 	DN *dp;
+	int i;
 	RR *rp;
 
 	if(p != nil){

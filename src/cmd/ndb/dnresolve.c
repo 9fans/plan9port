@@ -278,17 +278,6 @@ mkreq(DN *dp, int type, uchar *buf, int flags, ushort reqno)
 	return len;
 }
 
-/* for alarms in readreply */
-static void
-ding(void *x, char *msg)
-{
-	USED(x);
-	if(strcmp(msg, "alarm") == 0)
-		noted(NCONT);
-	else
-		noted(NDFLT);
-}
-
 static void
 freeanswers(DNSmsg *mp)
 {
@@ -301,6 +290,7 @@ freeanswers(DNSmsg *mp)
 /*
  *  read replies to a request.  ignore any of the wrong type.  wait at most 5 seconds.
  */
+static int udpreadtimeout(int, Udphdr*, void*, int, int);
 static int
 readreply(int fd, DN *dp, int type, ushort req,
 	  uchar *ibuf, DNSmsg *mp, ulong endtime, Request *reqp)
@@ -310,17 +300,13 @@ readreply(int fd, DN *dp, int type, ushort req,
 	ulong now;
 	RR *rp;
 
-	notify(ding);
-
 	for(; ; freeanswers(mp)){
 		now = time(0);
 		if(now >= endtime)
 			return -1;	/* timed out */
 
 		/* timed read */
-		alarm((endtime - now) * 1000);
-		len = udpread(fd, (Udphdr*)ibuf, ibuf+Udphdrsize, Maxudpin);
-		alarm(0);
+		len = udpreadtimeout(fd, (Udphdr*)ibuf, ibuf+Udphdrsize, Maxudpin, (endtime-now)*1000);
 		if(len < 0)
 			return -1;	/* timed out */
 		
@@ -363,6 +349,23 @@ readreply(int fd, DN *dp, int type, ushort req,
 	}
 
 	return 0;	/* never reached */
+}
+
+static int
+udpreadtimeout(int fd, Udphdr *h, void *data, int n, int ms)
+{
+	fd_set rd;
+	struct timeval tv;
+	
+	FD_ZERO(&rd);
+	FD_SET(fd, &rd);
+	
+	tv.tv_sec = ms/1000;
+	tv.tv_usec = (ms%1000)*1000;
+	
+	if(select(fd+1, &rd, 0, 0, &tv) != 1)
+		return -1;
+	return udpread(fd, h, data, n);
 }
 
 /*

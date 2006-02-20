@@ -96,7 +96,8 @@ Job*	newjob(void);
 void	freejob(Job*);
 void	setext(char*, int, char*);
 
-char 	*portname = "domain";
+char *tcpaddr = "tcp!*!dns";
+char *udpaddr = "udp!*!dns";
 char	*logfile = "dns";
 char	*dbfile;
 char	mntpt[Maxpath];
@@ -105,8 +106,19 @@ char	*LOG;
 void
 usage(void)
 {
-	fprint(2, "usage: dns [-dnrstT] [-a maxage] [-f ndb-file] [-p port] [-x service] [-z zoneprog]\n");
+	fprint(2, "usage: dns [-dnrst] [-a maxage] [-f ndb-file] [-p port] [-T tcpaddr] [-U udpaddr] [-x service] [-z zoneprog]\n");
 	threadexitsall("usage");
+}
+
+void
+checkaddress(void)
+{
+	char *u, *t;
+
+	u = strchr(udpaddr, '!');
+	t = strchr(tcpaddr, '!');
+	if(u && t && strcmp(u, t) != 0)
+		fprint(2, "warning: announce mismatch %s %s\n", udpaddr, tcpaddr);
 }
 
 void
@@ -136,28 +148,33 @@ threadmain(int argc, char *argv[])
 		serveudp = 1;
 		cachedb = 1;
 		break;
-	case 'T':
+	case 't':
 		servetcp = 1;
 		cachedb = 1;
 		break;
 	case 'a':
 		maxage = atoi(EARGF(usage()));
 		break;
-	case 't':
-		testing = 1;
-		break;
 	case 'z':
 		zonerefreshprogram = EARGF(usage());
-		break;
-	case 'p':
-		portname = EARGF(usage());
 		break;
 	case 'n':
 		sendnotifies = 1;
 		break;
+	case 'U':
+		udpaddr = estrdup(netmkaddr(EARGF(usage()), "udp", "dns"));
+		break;
+	case 'T':
+		tcpaddr = estrdup(netmkaddr(EARGF(usage()), "tcp", "dns"));
+		break;
+	default:
+		usage();
 	}ARGEND
-	USED(argc);
-	USED(argv);
+	
+	if(argc)
+		usage();
+	if(serveudp && servetcp)
+		checkaddress();
 
 	rfork(RFNOTEG);
 
