@@ -1,0 +1,94 @@
+.de HTML
+\! \<?xml version="1.0" encoding="utf-8"?\>
+\! \<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+\!   "http://www.w3.org/TR/html4/loose.dtd"\>
+.html html <html>
+.html head <head>
+.if !'\\$1'' .html title <title>\\$1</title>
+.HEAD
+.html head
+.html body <body>
+..
+.de FSFIRST
+.de NOTES xx
+._NOTES
+.rm _NOTES
+xx
+.em NOTES
+.da _NOTES
+.sp
+.B "Notes
+.sp
+.da
+..
+.de FS
+.FSFIRST
+.rm FSFIRST
+.da _NOTES
+..
+.de FE
+.sp
+.da
+..
+.nr png -1 1
+.de TS
+.ds pngbase "\\*[basename]
+.if '\\*[pngbase]'' .ds pngbase \\n(.B
+.ds pngfile \\*[pngbase]\\n+[png].png
+.html - <center><img src="\\*[pngfile]"></center>
+.\" The .inputpipe must be the last line of the macro!
+.inputpipe .TE troff2png >\\*[pngfile]
+..
+.de TE
+..
+.de PS
+.ds pngbase "\\*[basename]
+.if '\\*[pngbase]'' .ds pngbase \\n(.B
+.ds pngfile \\*[pngbase]\\n+[png].png
+.html - <center><img src="\\*[pngfile]"></center>
+.inputpipe .PE troff2png >\\*[pngfile]
+..
+.de PE
+..
+.de B1
+.margin 0
+.nr TW 10
+.nr TW1 80
+.if !'\\$1'' .nr TW \\$1
+.if !'\\$2'' .nr TW1 \\$2
+.html box \
+<center>\
+<table width=\\n[TW1]% cellspacing=0 cellpadding=0 border=0>\
+<tr height=1>\
+	<td width=1 bgcolor=#000000 />\
+	<td width=\\n(TW bgcolor=#000000 />\
+	<td bgcolor=#000000 />\
+	<td width=\\n(TW bgcolor=#000000 />\
+	<td width=1 bgcolor=#000000 />\
+</tr>\
+<tr height=\\n(TW>\
+	<td width=1 bgcolor=#000000 />\
+	<td width=\\n(TW />\
+	<td />\
+	<td width=\\n(TW />\
+	<td width=1 bgcolor=#000000 />\
+</tr>
+.html box0 <tr>
+.html box1 <td width=1 bgcolor=#000000 /><td width=\\n(TW /><td>
+..
+.de B2
+.html box1 <td width=\\n(TW /><td width=1 bgcolor=#000000 />
+.html box0 <tr height=\\n(TW><td width=1 bgcolor=#000000 />\
+	<td width=\\n(TW /><td /><td width=\\n(TW />\
+	<td width=1 bgcolor=#000000 />\
+</tr>\
+<tr height=1>\
+	<td width=1 bgcolor=#000000 />\
+	<td width=\\n(TW bgcolor=#000000 />\
+	<td bgcolor=#000000 />\
+	<td width=\\n(TW bgcolor=#000000 />\
+	<td width=1 bgcolor=#000000 />\
+</tr>
+.html box
+.margin 1
+..

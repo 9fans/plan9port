@@ -71,12 +71,14 @@
 .in 0
 .ls 1
 .if \\n(TB=0 .ev
+.if \\n(TB=0 .KX
 .if \\n(TB=0 .br
 .if \\n(TB=0 .ev 2
 .if \\n(TB=0 .KK
 .ls
 .ce 0
 .if \\n(TB=0 .rm KK
+.if \\n(TB=0 .KY
 .if \\n(TB .da KJ
 .if \\n(TB \!.KD \\n(dn \\n(KV
 .if \\n(TB .KK

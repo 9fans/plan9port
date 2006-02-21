@@ -1,0 +1,58 @@
+<$PLAN9/src/mkhdr
+
+TARG=htmlroff
+
+OFILES=\
+	char.$O\
+	html.$O\
+	input.$O\
+	main.$O\
+	roff.$O\
+	t1.$O\
+	t2.$O\
+	t3.$O\
+	t4.$O\
+	t5.$O\
+	t6.$O\
+	t7.$O\
+	t8.$O\
+#	t9.$O\
+	t10.$O\
+	t11.$O\
+#	t12.$O\
+	t13.$O\
+	t14.$O\
+	t15.$O\
+	t16.$O\
+	t17.$O\
+	t18.$O\
+	t19.$O\
+	t20.$O\
+	util.$O\
+
+HFILES=a.h
+
+<$PLAN9/src/mkone
+
+auth:V: auth.html
+	web auth.html
+
+auth.html: o.htmlroff auth.ms htmlmac.s 
+	9 pic auth.ms | 9 eqn | ./o.htmlroff -ms >auth.html
+	# 9 pic auth.ms | 9 eqn | ./o.htmlroff htmlmac.s /usr/local/plan9/tmac/tmac.skeep - >auth.html
+
+test%.html: o.htmlroff test.% htmlmac.s
+	./o.htmlroff htmlmac.s test.$stem - >$target
+
+eqn:V: eqn.html
+	web eqn.html
+
+eqn.html: o.htmlroff htmlmac.s eqn.ms
+	9 eqn eqn.ms | ./o.htmlroff htmlmac.s - >eqn.html
+
+eqn0.html: o.htmlroff htmlmac.s eqn0.ms
+	./o.htmlroff htmlmac.s eqn0.ms - >eqn0.html
+
+rc.html: o.htmlroff rc.ms htmlmac.s
+	9 tbl rc.ms | ./o.htmlroff -ms >rc.html
+
