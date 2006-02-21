@@ -346,7 +346,7 @@ readfile(char *dir, char *name, int *np)
 		len = d->length;
 	free(d);
 	data = emalloc(len+1);
-	fsread(fid, data, len);
+	len = fsreadn(fid, data, len);
 	fsclose(fid);
 	if(np != nil)
 		*np = len;

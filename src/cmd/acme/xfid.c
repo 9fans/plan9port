@@ -976,7 +976,6 @@ void
 xfideventread(Xfid *x, Window *w)
 {
 	Fcall fc;
-	char *b;
 	int i, n;
 
 	i = 0;
@@ -1000,10 +999,14 @@ xfideventread(Xfid *x, Window *w)
 	fc.count = n;
 	fc.data = w->events;
 	respond(x, &fc, nil);
-	b = w->events;
-	w->events = estrdup(w->events+n);
-	free(b);
 	w->nevents -= n;
+	if(w->nevents){
+		memmove(w->events, w->events+n, w->nevents);
+		w->events = erealloc(w->events, w->nevents);
+	}else{
+		free(w->events);
+		w->events = nil;
+	}
 }
 
 void

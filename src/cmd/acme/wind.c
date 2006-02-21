@@ -679,7 +679,7 @@ winevent(Window *w, char *fmt, ...)
 	if(b == nil)
 		error("vsmprint failed");
 	n = strlen(b);
-	w->events = realloc(w->events, w->nevents+1+n);
+	w->events = erealloc(w->events, w->nevents+1+n);
 	w->events[w->nevents++] = w->owner;
 	memmove(w->events+w->nevents, b, n);
 	free(b);
