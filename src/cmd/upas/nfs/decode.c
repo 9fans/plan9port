@@ -65,7 +65,7 @@ decode(int kind, char *s, int *len)
 	if(s == nil)
 		return s;
 	switch(kind){
-	case QuotedPrintable
+	case QuotedPrintable:
 	case QuotedPrintableU:
 		l = strlen(s)+1;
 		t = emalloc(l);
