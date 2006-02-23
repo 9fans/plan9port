@@ -11,6 +11,7 @@ enum
 	FlagMarked = 1<<8,
 	FlagNoSelect = 1<<9,
 	FlagUnMarked = 1<<10,
+	FlagRecent = 1<<11,
 };
 
 typedef struct Box Box;

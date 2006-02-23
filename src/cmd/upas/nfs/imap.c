@@ -45,6 +45,7 @@ static struct {
 	"\\Flagged",	FlagFlagged,
 	"\\Deleted",	FlagDeleted,
 	"\\Draft",		FlagDraft,
+	"\\Recent",	FlagRecent,
 	"\\Seen",		FlagSeen,
 	"\\NoInferiors",	FlagNoInferiors,
 	"\\NoSelect",	FlagNoSelect,
