@@ -21,7 +21,7 @@ unhex(char *s)
 }
 
 int
-decqp(uchar *out, int lim, char *in, int n)
+_decqp(uchar *out, int lim, char *in, int n, int underscores)
 {
 	char *p, *ep;
 	uchar *eout, *out0;
@@ -29,7 +29,7 @@ decqp(uchar *out, int lim, char *in, int n)
 	out0 = out;
 	eout = out+lim;
 	for(p=in, ep=in+n; p<ep && out<eout; ){
-		if(*p == '_'){
+		if(underscores && *p == '_'){
 			*out++ = ' ';
 			p++;
 		}
@@ -50,6 +50,12 @@ decqp(uchar *out, int lim, char *in, int n)
 	return out-out0;
 }
 
+int
+decqp(uchar *out, int lim, char *in, int n)
+{
+	return _decqp(out, lim, in, n, 0);
+}
+
 char*
 decode(int kind, char *s, int *len)
 {
@@ -59,10 +65,11 @@ decode(int kind, char *s, int *len)
 	if(s == nil)
 		return s;
 	switch(kind){
-	case QuotedPrintable:
+	case QuotedPrintable
+	case QuotedPrintableU:
 		l = strlen(s)+1;
 		t = emalloc(l);
-		l = decqp((uchar*)t, l, s, l-1);
+		l = decqp((uchar*)t, l, s, l-1, kind==QuotedPrintableU);
 		*len = l;
 		t[l] = 0;
 		return t;
@@ -202,7 +209,7 @@ unrfc2047(char *s)
 			case 'q':
 			case 'Q':
 				*u = 0;
-				v = decode(QuotedPrintable, t, &len);
+				v = decode(QuotedPrintableU, t, &len);
 				break;
 			case 'b':
 			case 'B':

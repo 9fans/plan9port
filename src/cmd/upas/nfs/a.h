@@ -31,6 +31,7 @@ enum
 {
 	NoEncoding,
 	QuotedPrintable,
+	QuotedPrintableU,
 	Base64,
 };
 
