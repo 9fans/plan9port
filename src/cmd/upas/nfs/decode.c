@@ -69,7 +69,7 @@ decode(int kind, char *s, int *len)
 	case QuotedPrintableU:
 		l = strlen(s)+1;
 		t = emalloc(l);
-		l = decqp((uchar*)t, l, s, l-1, kind==QuotedPrintableU);
+		l = _decqp((uchar*)t, l, s, l-1, kind==QuotedPrintableU);
 		*len = l;
 		t[l] = 0;
 		return t;
