@@ -1,0 +1,13 @@
+<$PLAN9/src/mkhdr
+
+TARG=tarfs tpfs v6fs 32vfs cpiofs tapfs v10fs zipfs
+OFILES=\
+	fs.$O\
+	util.$O\
+
+HFILES=tapefs.h
+
+BIN=$BIN/fs
+<$PLAN9/src/mkmany
+
+zipfs.$O:	zip.h
