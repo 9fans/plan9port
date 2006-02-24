@@ -200,8 +200,6 @@ tcpproc(void *v)
 		close(rfd);
 		now = time(0);
 		memset(&repmsg, 0, sizeof(repmsg));
-		freenetconninfo(caller);
-		caller = getnetconninfo(0, fd);
 		if (fd == 0) {
 			len = readmsg(fd, buf, sizeof buf);
 			rfd = 1;
@@ -210,6 +208,8 @@ tcpproc(void *v)
 		}
 		if(len <= 0)
 			continue;
+		freenetconninfo(caller);
+		caller = getnetconninfo(0, fd);
 		getactivity(&req);
 		req.aborttime = now + 15*Min;
 		err = convM2DNS(buf, len, &reqmsg);

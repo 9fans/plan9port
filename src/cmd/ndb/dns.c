@@ -96,8 +96,8 @@ Job*	newjob(void);
 void	freejob(Job*);
 void	setext(char*, int, char*);
 
-char *tcpaddr = "tcp!*!dns";
-char *udpaddr = "udp!*!dns";
+char *tcpaddr = "tcp!*!domain";
+char *udpaddr = "udp!*!domain";
 char	*logfile = "dns";
 char	*dbfile;
 char	mntpt[Maxpath];
@@ -162,10 +162,10 @@ threadmain(int argc, char *argv[])
 		sendnotifies = 1;
 		break;
 	case 'U':
-		udpaddr = estrdup(netmkaddr(EARGF(usage()), "udp", "dns"));
+		udpaddr = estrdup(netmkaddr(EARGF(usage()), "udp", "domain"));
 		break;
 	case 'T':
-		tcpaddr = estrdup(netmkaddr(EARGF(usage()), "tcp", "dns"));
+		tcpaddr = estrdup(netmkaddr(EARGF(usage()), "tcp", "domain"));
 		break;
 	default:
 		usage();
