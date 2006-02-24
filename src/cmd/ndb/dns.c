@@ -106,7 +106,7 @@ char	*LOG;
 void
 usage(void)
 {
-	fprint(2, "usage: dns [-dnrst] [-a maxage] [-f ndb-file] [-p port] [-T tcpaddr] [-U udpaddr] [-x service] [-z zoneprog]\n");
+	fprint(2, "usage: dns [-dnrst] [-a maxage] [-f ndb-file] [-T tcpaddr] [-U udpaddr] [-x service] [-z zoneprog]\n");
 	threadexitsall("usage");
 }
 
