@@ -77,7 +77,7 @@ main(int argc, char *argv[])
 
 	fmtinstall('F', fcallfmt);
 
-	defmnt = "/n/tapefs";
+	defmnt = "tapefs";
 	ARGBEGIN{
 	case 'm':
 		defmnt = ARGF();
