@@ -94,6 +94,10 @@ callmx(DS *ds, char *dest, char *domain)
 	if(nmx > 1)
 		qsort(mx, nmx, sizeof(Mx), compar);
 
+	if(debug){
+		for(i=0; i<nmx; i++)
+			print("%s %d\n", mx[i].host, mx[i].pref);
+	}
 	/* dial each one in turn */
 	for(i = 0; i < nmx; i++){
 		snprint(addr, sizeof(addr), "%s/%s!%s!%s", ds->netdir, ds->proto,
@@ -124,7 +128,7 @@ mxlookup(DS *ds, char *domain)
 	nmx = 0;
 	if((t = dnsquery(nil, ds->host, "mx")) != nil){
 		for(tmx=t; (tmx=ndbfindattr(tmx->entry, nil, "mx")) != nil && nmx<Nmx; ){
-			for(tpref=tmx->line; tpref != tmx; tpref=tmx->line){
+			for(tpref=tmx->line; tpref != tmx; tpref=tpref->line){
 				if(strcmp(tpref->attr, "pref") == 0){
 					strncpy(mx[nmx].host, tmx->val, sizeof(mx[n].host)-1);
 					mx[nmx].pref = atoi(tpref->val);
