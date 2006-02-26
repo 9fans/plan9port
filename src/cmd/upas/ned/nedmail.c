@@ -237,7 +237,6 @@ threadmain(int argc, char **argv)
 		cflag = 1;
 		break;
 	case 'f':
-		sysfatal("-f not available");
 		file = EARGF(usage());
 		break;
 	case 's':
@@ -490,7 +489,6 @@ dir2message(Message *parent, int reverse)
 			highest = last->fileno;
 
 	n = fsdirreadall(fd, &d);
-	fprint(2,"read %d messages\n", n);
 	for(i = 0; i < n; i++){
 		if((d[i].qid.type & QTDIR) == 0)
 			continue;
@@ -1515,16 +1513,22 @@ pcmd(Cmd *x, Message *m)
 void
 printpartindented(String *s, char *part, char *indent)
 {
+	int fd;
 	char *p;
 	String *path;
 	Biobuf *b;
 
-	fprint(2,"printpartindented: fixme\n");
 	path = extendpath(s, part);
-	b = Bopen(s_to_c(path), OREAD);
+	fd = fsopenfd(mailfs, s_to_c(path), OREAD);
 	s_free(path);
-	if(b == nil){
-		fprint(2, "!message dissappeared\n");
+	if(fd < 0){
+		fprint(2, "!message disappeared\n");
+		return;
+	}
+	b = Bfdopen(fd, OREAD);
+	if(b == 0){
+		fprint(2, "out of memory\n");
+		close(fd);
 		return;
 	}
 	while((p = Brdline(b, '\n')) != nil){
@@ -2358,6 +2362,7 @@ xpipecmd(Cmd *c, Message *m, char *part)
 	path = extendpath(m->path, part);
 	fd = fsopenfd(mailfs, s_to_c(path), OREAD);
 	s_free(path);
+
 	if(fd < 0){	// compatibility with older upas/fs
 		path = extendpath(m->path, "raw");
 		fd = fsopenfd(mailfs, s_to_c(path), OREAD);
@@ -2421,7 +2426,7 @@ switchmb(char *file, char *singleton)
 	// if the user didn't say anything and there
 	// is an mbox mounted already, use that one
 	// so that the upas/fs -fdefault default is honored.
-	if(file || (singleton && fsaccess(mailfs, singleton, 0) < 0)){
+	if(0 && (file || (singleton && fsaccess(mailfs, singleton, 0) < 0))){
 	/* XXX all wrong */
 		fprint(2, "file=%s singleton=%s\n", file, singleton);
 		if(file == nil)
@@ -2491,9 +2496,12 @@ switchmb(char *file, char *singleton)
 		path = s_reset(nil);
 		mboxpath(mbname, user, path, 0);
 	}else{
+		if(file)
+			strecpy(mbname, mbname+sizeof mbname, file);
+		else
+			strcpy(mbname, "mbox");
 		path = s_reset(nil);
-		mboxpath("mbox", user, path, 0);
-		strcpy(mbname, "mbox");
+		mboxpath(mbname, user, path, 0);
 	}
 
 	snprint(root, sizeof root, "%s", mbname);
