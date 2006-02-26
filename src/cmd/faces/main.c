@@ -330,7 +330,6 @@ addface(Face *f)	/* always adds at 0 */
 
 	if(f == nil)
 		return;
-	lockdisplay(display);
 	if(first != 0){
 		first = 0;
 		eresized(0);
@@ -340,6 +339,7 @@ addface(Face *f)	/* always adds at 0 */
 	nx = nacross;
 	ny = (nfaces+(nx-1)) / nx;
 
+	lockdisplay(display);
 	for(y=ny; y>=0; y--){
 		/* move them along */
 		r0 = facerect(y*nx+0);
@@ -613,8 +613,11 @@ click(int button, Mouse *m)
 			for(i=first; i<last; i++)	/* clear vwhois faces */
 				if(ptinrect(p, facerect(i-first)) 
 				&& strstr(faces[i]->str[Sshow], "/XXXvwhois")){
+					lockdisplay(display);
 					delface(i);
 					flushimage(display, 1);
+					unlockdisplay(display);
+					break;
 				}
 		}
 		break;
