@@ -1,5 +1,213 @@
+February 25, 2006
+	faces: locking mistakes (Erik Quanstrom)
+	nedmail: minor fixes (Erik Quanstrom)
+	tapefs: minor fixes (Erik Quanstrom)
+
+February 24, 2006
+	ndb: dns clean up (Erik Quanstrom)
+	mkhdr, etc: use install not install -c
+	tapefs: import from Plan 9 (Erik Quanstrom)
+
+February 23, 2006
+	upas: latest nfs
+
+February 22, 2006
+	fortunes: import from Plan 9
+
+February 21, 2006
+	acme: fix event buffer NUL-termination bug
+	htmlroff: import from Plan 9
+
+February 20, 2006
+	lib9: add "dns" service to _p9dialparse
+	ndb: dns clean up (Erik Quanstrom)
+
+February 19, 2006
+	wmail: use correct URL
+
+February 18, 2006
+	lib9: sizeof socket fixes in getnetconn
+	upas: handle 09 in nfs imap
+
+February 17, 2006
+	mpm: make build without libutf
+	ndb: dns clean up (Erik Quanstrom)
+	upas/nfs: add a.h
+
+February 16, 2006
+	libthread: more sparc64 changes
+
+February 15, 2006
+	jpg, etc: resize window to fit image (Erik Quanstrom)
+	ndb: dns clean up (Erik Quanstrom)
+	upas: add new upas/fs (in upas/nfs)
+
+February 14, 2006
+	lib9p: correct memory overflow bug
+	libmach: pointer conversion fixes
+	libthread: more sparc64 changes
+	9c: adapt to ever-changing gcc error messages
+	9p: seek backward in rdwr
+	acid: better names
+	faces: better lookup
+	factotum: silence pointer conversion warnings
+	fmt: fix fmt -j again
+	gview: bigger line buffer
+	mpm: better UTF support
+	ndb: add root servers, remove unused functions
+	rc: shut up about signals during scripts
+	snoopy: fixes
+	tcs: better labels in listing
+
+February 13, 2006
+	9l: more draw fixes, add -lresolv for ndb.
+
+February 12, 2006
+	lib9: add exitcode
+	libthread: add procwait
+	upas: more clean up
+	mail: add tree
+
+February 11, 2006
+	acme mail, faces: more changes
+	upas: clean up
+
+February 10, 2006
+	libthread: more sparc64 changes
+
+February 9, 2006
+	libmp, libthread: add sparc64
+	acme/mail: use new upas conventions
+	samterm: ignore SIGINT
+
+February 8, 2006
+	lib9pclient: add fsprint
+	acme: add another chord fix
+	postscript/font: add NOTICE about location of lucida fonts
+	upas: clean up
+
+February 7, 2006
+	libthread: add threadidle (experimental)
+
+February 6, 2006
+	acme: add chord fix from Plan 9
+	eqn: silence printf warnings
+
+February 5, 2006
+	lib9p: ignore doubled calls to respond; allow nil readstr (experimental)
+	libmach: silence warnings
+	libthread: add threadid
+	9p: add -n to ls; add rm and create
+
+February 4, 2006
+	eqn: silence various warnings about printf formats
+	srv: put in new note group
+
+February 2, 2006
+	lib9: attempt at more portable date handling
+	9pserve: correct offsets in 9P2000.u -> 9P2000 conversion
+	ndb/dns: fix fid handling
+
+January 30, 2006
+	lib9pclient: add <thread.h> to 9pclient(3)
+
+January 29, 2006
+	libndb: remove dependence on arpa headers
+
+January 28, 2006
+	libdraw: allow freeimage(0) when screen==0
+
+January 27, 2006
+	libndb: add dnsquery implemented via C library resolver
+	various: OpenBSD fixes
+
+January 26, 2006
+	lib9pclient: add fsremove, fscreate, fsaccess
+	lib9p: handle 9P2000.u
+	libauth: handle auth_freerpc(nil).
+	libbio: document return value of Bprint,  Bvprint
+	libdraw: nowsys fixes (Lou Kamenov)
+	9l: don't link with X11 if nowsys
+	auxstats: avoid nonportable vm_swapusage on OS X
+	rio: better build rules
+
+January 18, 2006
+	9term: ignore SIGHUP
+	tcs: add more character sets
+
+January 18, 2006
+	fmt: fix -j implementation
+	psv: add fonts to GS_FONTPATH
+
+January 17, 2006
+	9term: start a "login" shell
+	
+January 16, 2006
+	include/fcall.h: sign fix
+
+January 11, 2006
+	libframe: stop eating the edge of the frame
+	acme: various cleanup
+	
+January 7, 2006
+	lib9: try to accomodate FreeBSD 5 disk device numbers
+	vbackup: use bigger block size
+
+January 6, 2006
+	9p: add "con" verb
+	lib9, eqn: use inttypes.h instead of not-so-stdint.h
+
+December 31, 2005
+	libip: add routines for fetching ethernet, ip interfaces
+
+December 30, 2005
+	libhtml: import changes from Plan 9
+	libmp: fix shifts, casts in mptov, mptouv
+	auxstats: FreeBSD tweak
+	eqn, grap: more 64-bit pointer fixes (Taj Khattra)
+	hget: attempt at making ftp work
+	install: split into two phases, document new installation
+	snoopy: add filter.y
+	vbackup: accomodate FreeBSD 6
+	vnfs: accept units on arguments
+
+December 29, 2005
+	9term: fix paste in hold mode, use STACK
+	eqn, grap, lex, pic, troff: 64-bit fixes
+	page: no more case problems
+	lib9: correct array size in convD2M (Marco Gaddoni)
+		set qid.vers in _p9dir (Erik Quanstrom)
+		fmt 64-bit fixes - inttypes.h and uintptr.
+	libdraw: avoid nil freeimage (Lou Kamenov)
+		do not trust gcc to do nrv optimization (Taj Khattra)
+	libmp: add mpdigit cast (Taj Khattra)
+	libthread: more OpenBSD fixes (Tim Wiess)
+	libventi: consistent uvlong vs u64int
+		
+December 26, 2005
+	ndb: add dns
+
+December 25, 2005
+	lib9: allow broadcast address in dial
+	libip: add alternate ethernet format in eipfmt
+	libndb: allow relative paths in database stanza
+	dhcpd: import from Plan 9
+	snoopy: import from Plan 9
+	tcs: add EILSEQ on OS X
+
+December 21, 2005
+	acme: turn on auto-expanding window tags by default
+
+December 18, 2005
+	yesterday: fix from Plan 9
+
+December 17, 2005
+	tcs: don't redeclare errno
+
 December 16, 2005
 	dist/moveplan9.files: more (Rafal Sulejman, Erik Quanstrom)
+	acme: integrate big tags into main branch (Paul Lalonde)
+	libdiskfs: avoid bad names on OS X
 
 December 15, 2005
 	grap: remove getpid declaration (Bengt Kleberg)
