@@ -32,7 +32,6 @@ enum
 	NPROC
 };
 
-int pids[NPROC];
 char *procnames[] = {
 	"main",
 	"time",
@@ -706,14 +705,12 @@ threadmain(int argc, char *argv[])
 	setdate();
 	eresized(0);
 
-	pids[Mainp] = getpid();
-	pids[Timep] = proccreate(timeproc, nil, STACK);
-	pids[Mousep] = proccreate(mouseproc, nil, STACK);
-	pids[Resizep] = proccreate(resizeproc, nil, STACK);
+	proccreate(timeproc, nil, STACK);
+	proccreate(mouseproc, nil, STACK);
+	proccreate(resizeproc, nil, STACK);
 	if(initload)
 		for(i = 0; i < nmaildirs; i++)
 			loadmboxfaces(maildirs[i]);
 	faceproc();
-	fprint(2, "faces: %s process exits\n", procnames[Mainp]);
 	killall(nil);
 }
