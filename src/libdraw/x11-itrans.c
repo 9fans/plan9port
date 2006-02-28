@@ -2,6 +2,21 @@
 
 #include <u.h>
 #include "x11-inc.h"
+#ifdef __APPLE__
+#define APPLESNARF
+#define Boolean AppleBoolean
+#define Rect AppleRect
+#define EventMask AppleEventMask
+#define Point ApplePoint
+#define Cursor AppleCursor
+#include <Carbon/Carbon.h>
+AUTOFRAMEWORK(Carbon)
+#undef Boolean
+#undef Rect
+#undef EventMask
+#undef Point
+#undef Cursor
+#endif
 #include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
@@ -10,9 +25,7 @@
 #include <keyboard.h>
 #include "x11-memdraw.h"
 #include "x11-keysym2ucs.h"
-
 #undef time
-
 
 static KeySym
 __xtoplan9kbd(XEvent *e)
@@ -360,8 +373,12 @@ _xsetcursor(Cursor *c)
 }
 
 struct {
-	char buf[SnarfSize];
 	QLock lk;
+	char buf[SnarfSize];
+#ifdef APPLESNARF
+	Rune rbuf[SnarfSize];
+	PasteboardRef apple;
+#endif
 } clip;
 
 char*
@@ -464,7 +481,6 @@ _xputsnarf(XDisplay *xd, char *data)
 		return;
 	qlock(&clip.lk);
 	strcpy(clip.buf, data);
-
 	/* leave note for mouse proc to assert selection ownership */
 	_x.putsnarf++;
 
@@ -476,7 +492,6 @@ _xputsnarf(XDisplay *xd, char *data)
 	e.button = ~0;
 	XSendEvent(xd, _x.drawable, True, ButtonPressMask, (XEvent*)&e);
 	XFlush(xd);
-
 	qunlock(&clip.lk);
 }
 
@@ -527,15 +542,133 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 	return 0;
 }
 
+#ifdef APPLESNARF
+char*
+applegetsnarf(void)
+{
+	char *s, *t;
+	CFArrayRef flavors;
+	CFDataRef data;
+	CFIndex nflavor, ndata, j;
+	CFStringRef type;
+	ItemCount nitem;
+	PasteboardItemID id;
+	PasteboardSyncFlags flags;
+	UInt32 i;
+	
+	qlock(&clip.lk);
+	if(clip.apple == nil){
+		if(PasteboardCreate(kPasteboardClipboard, &clip.apple) != noErr){
+			fprint(2, "apple pasteboard create failed\n");
+			qunlock(&clip.lk);
+			return nil;
+		}
+	}
+	flags = PasteboardSynchronize(clip.apple);
+	if(flags&kPasteboardClientIsOwner){
+		qunlock(&clip.lk);
+		return strdup(clip.buf);
+	}
+	if(PasteboardGetItemCount(clip.apple, &nitem) != noErr){
+		fprint(2, "apple pasteboard get item count failed\n");
+		qunlock(&clip.lk);
+		return nil;
+	}
+	for(i=1; i<=nitem; i++){
+		if(PasteboardGetItemIdentifier(clip.apple, i, &id) != noErr)
+			continue;
+		if(PasteboardCopyItemFlavors(clip.apple, id, &flavors) != noErr)
+			continue;
+		nflavor = CFArrayGetCount(flavors);
+		for(j=0; j<nflavor; j++){
+			type = (CFStringRef)CFArrayGetValueAtIndex(flavors, j);
+			if(!UTTypeConformsTo(type, CFSTR("public.utf16-plain-text")))
+				continue;
+			if(PasteboardCopyItemFlavorData(clip.apple, id, type, &data) != noErr)
+				continue;
+			ndata = CFDataGetLength(data);
+			qunlock(&clip.lk);
+			s = smprint("%.*S", ndata/2, (Rune*)CFDataGetBytePtr(data));
+			CFRelease(flavors);
+			CFRelease(data);
+			for(t=s; *t; t++)
+				if(*t == '\r')
+					*t = '\n';
+			return s;
+		}
+		CFRelease(flavors);
+	}
+	qunlock(&clip.lk);
+	return nil;		
+}
+
+void
+appleputsnarf(char *s)
+{
+	CFDataRef cfdata;
+	PasteboardSyncFlags flags;
+
+	if(strlen(s) >= SnarfSize)
+		return;
+	qlock(&clip.lk);
+	strcpy(clip.buf, s);
+	runesnprint(clip.rbuf, nelem(clip.rbuf), "%s", s);
+	if(clip.apple == nil){
+		if(PasteboardCreate(kPasteboardClipboard, &clip.apple) != noErr){
+			fprint(2, "apple pasteboard create failed\n");
+			qunlock(&clip.lk);
+			return;
+		}
+	}
+	if(PasteboardClear(clip.apple) != noErr){
+		fprint(2, "apple pasteboard clear failed\n");
+		qunlock(&clip.lk);
+		return;
+	}
+	flags = PasteboardSynchronize(clip.apple);
+	if((flags&kPasteboardModified) || !(flags&kPasteboardClientIsOwner)){
+		fprint(2, "apple pasteboard cannot assert ownership\n");
+		qunlock(&clip.lk);
+		return;
+	}
+	cfdata = CFDataCreate(kCFAllocatorDefault, 
+		(uchar*)clip.rbuf, runestrlen(clip.rbuf)*2);
+	if(cfdata == nil){
+		fprint(2, "apple pasteboard cfdatacreate failed\n");
+		qunlock(&clip.lk);
+		return;
+	}
+	if(PasteboardPutItemFlavor(clip.apple, (PasteboardItemID)1,
+		CFSTR("public.utf16-plain-text"), cfdata, 0) != noErr){
+		fprint(2, "apple pasteboard putitem failed\n");
+		CFRelease(cfdata);
+		qunlock(&clip.lk);
+		return;
+	}
+	/* CFRelease(cfdata); ??? */
+	qunlock(&clip.lk);
+}
+#endif	/* APPLESNARF */
+
 void
 putsnarf(char *data)
 {
+#ifdef APPLESNARF
+	if(1){
+		appleputsnarf(data);
+		return;
+	}
+#endif
 	_xputsnarf(_x.snarfcon, data);
 }
 
 char*
 getsnarf(void)
 {
+#ifdef APPLESNARF
+	if(1)
+		return applegetsnarf();
+#endif
 	return _xgetsnarf(_x.snarfcon);
 }
 
