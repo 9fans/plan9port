@@ -552,7 +552,7 @@ mesgmenudel(Window *w, Message *mbox, Message *m)
 	fsclose(w->addr);
 	w->addr = nil;
 	w->data = nil;
-	mbox->dirty = 1;
+/* assume caller knows best	mbox->dirty = 1; */
 	m->deleted = 1;
 }
 

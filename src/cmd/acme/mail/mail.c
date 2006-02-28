@@ -310,15 +310,22 @@ showmesg(char *name, char *digest)
 }
 
 void
-delmesg(char *name, char *digest, int dodel)
+delmesg(char *name, char *digest, int dodel, char *save)
 {
 	Message *m;
 
 	m = mesglookupfile(&mbox, name, digest);
 	if(m != nil){
-		mesgmenumarkdel(wbox, &mbox, m, 0);
+		if(save)
+			mesgcommand(m, estrstrdup("Save ", save));
 		if(dodel)
-			m->writebackdel = 1;
+			mesgmenumarkdel(wbox, &mbox, m, 1);
+		else{
+			/* notification came from plumber - message is gone */
+			mesgmenudel(wbox, &mbox, m);
+			if(!m->opened)
+				mesgdel(&mbox, m);
+		}
 	}
 }
 
@@ -339,7 +346,7 @@ plumbthread(void)
 		else if(strcmp(type, "new") == 0)
 			newmesg(m->data, digest);
 		else if(strcmp(type, "delete") == 0)
-			delmesg(m->data, digest, 0);
+			delmesg(m->data, digest, 0, nil);
 		else
 			fprint(2, "Mail: unknown plumb attribute %s\n", type);
 		plumbfree(m);
@@ -378,7 +385,7 @@ plumbsendthread(void *v)
 int
 mboxcommand(Window *w, char *s)
 {
-	char *args[10], **targs;
+	char *args[10], **targs, *save;
 	Message *m, *next;
 	int ok, nargs, i, j;
 	char buf[128];
@@ -430,12 +437,9 @@ mboxcommand(Window *w, char *s)
 		return 1;
 	}
 	if(strcmp(s, "Delmesg") == 0){
-		if(nargs > 1){
-			for(i=1; i<nargs; i++){
-				snprint(buf, sizeof buf, "%s%s", mbox.name, args[i]);
-				delmesg(buf, nil, 1);
-			}
-		}
+		save = nil;
+		if(nargs > 1)
+			save = args[1];
 		s = winselection(w);
 		if(s == nil)
 			return 1;
@@ -452,7 +456,7 @@ mboxcommand(Window *w, char *s)
 			if(j == 0)
 				continue;
 			snprint(buf, sizeof buf, "%s%d", mbox.name, j);
-			delmesg(buf, nil, 1);
+			delmesg(buf, nil, 1, save);
 		}
 		free(s);
 		free(targs);

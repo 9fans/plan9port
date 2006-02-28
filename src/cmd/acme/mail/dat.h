@@ -138,6 +138,7 @@ extern	void		mesgmenumarkdel(Window*, Message*, Message*, int);
 extern	Message*	mesglookup(Message*, char*, char*);
 extern	Message*	mesglookupfile(Message*, char*, char*);
 extern	void		mesgfreeparts(Message*);
+extern	int		mesgcommand(Message*, char*);
 
 extern	char*	readfile(char*, char*, int*);
 extern	char*	readbody(char*, char*, int*);
