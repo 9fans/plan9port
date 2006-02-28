@@ -22,11 +22,6 @@ void		mailthread(void (*fn)(void*), void*);
 
 void		warn(char*, ...);
 
-#define esmprint smprint
-#define emalloc(n) mallocz(n, 1)
-#define erealloc realloc
-#define estrdup strdup
-
 enum
 {
 	NoEncoding,
@@ -40,3 +35,12 @@ char*	tcs(char*, char*);
 char*	unrfc2047(char*);
 
 extern Imap *imap;
+
+#undef isnumber
+#define isnumber	upas_isnumber
+
+#define esmprint smprint
+#define emalloc(n) mallocz(n, 1)
+#define erealloc realloc
+#define estrdup strdup
+

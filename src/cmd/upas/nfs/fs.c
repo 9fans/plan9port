@@ -222,7 +222,7 @@ fsattach(Req *r)
 	respond(r, nil);
 }
 
-int
+static int
 isnumber(char *s)
 {
 	int n;
