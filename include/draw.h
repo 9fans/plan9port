@@ -5,6 +5,9 @@ extern "C" {
 #endif
 
 AUTOLIB(draw)
+#ifdef __APPLE__
+AUTOFRAMEWORK(Carbon)
+#endif
 
 typedef struct	Cachefont Cachefont;
 typedef struct	Cacheinfo Cacheinfo;
