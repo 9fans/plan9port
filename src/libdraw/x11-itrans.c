@@ -669,12 +669,7 @@ void
 putsnarf(char *data)
 {
 #ifdef APPLESNARF
-	if(useapplesnarf == -1)
-		useapplesnarf = checkapplesnarf();
-	if(useapplesnarf){
-		appleputsnarf(data);
-		return;
-	}
+	appleputsnarf(data);
 #endif
 	_xputsnarf(_x.snarfcon, data);
 }
@@ -682,12 +677,6 @@ putsnarf(char *data)
 char*
 getsnarf(void)
 {
-#ifdef APPLESNARF
-	if(useapplesnarf == -1)
-		useapplesnarf = checkapplesnarf();
-	if(useapplesnarf)
-		return applegetsnarf();
-#endif
 	return _xgetsnarf(_x.snarfcon);
 }
 
