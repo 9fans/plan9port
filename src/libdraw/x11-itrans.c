@@ -555,7 +555,8 @@ applegetsnarf(void)
 	PasteboardItemID id;
 	PasteboardSyncFlags flags;
 	UInt32 i;
-	
+
+//	fprint(2, "applegetsnarf\n");
 	qlock(&clip.lk);
 	if(clip.apple == nil){
 		if(PasteboardCreate(kPasteboardClipboard, &clip.apple) != noErr){
@@ -566,8 +567,9 @@ applegetsnarf(void)
 	}
 	flags = PasteboardSynchronize(clip.apple);
 	if(flags&kPasteboardClientIsOwner){
+		s = strdup(clip.buf);
 		qunlock(&clip.lk);
-		return strdup(clip.buf);
+		return s;
 	}
 	if(PasteboardGetItemCount(clip.apple, &nitem) != noErr){
 		fprint(2, "apple pasteboard get item count failed\n");
@@ -607,6 +609,8 @@ appleputsnarf(char *s)
 {
 	CFDataRef cfdata;
 	PasteboardSyncFlags flags;
+
+//	fprint(2, "appleputsnarf\n");
 
 	if(strlen(s) >= SnarfSize)
 		return;
@@ -648,13 +652,26 @@ appleputsnarf(char *s)
 	/* CFRelease(cfdata); ??? */
 	qunlock(&clip.lk);
 }
+static int useapplesnarf = -1;
+static int
+checkapplesnarf(void)
+{
+	char *x;
+	
+	x = getenv("USEX11SNARF");
+	if(x && x[0])
+		return 0;
+	return 1;
+}
 #endif	/* APPLESNARF */
 
 void
 putsnarf(char *data)
 {
 #ifdef APPLESNARF
-	if(1){
+	if(useapplesnarf == -1)
+		useapplesnarf = checkapplesnarf();
+	if(useapplesnarf){
 		appleputsnarf(data);
 		return;
 	}
@@ -666,7 +683,9 @@ char*
 getsnarf(void)
 {
 #ifdef APPLESNARF
-	if(1)
+	if(useapplesnarf == -1)
+		useapplesnarf = checkapplesnarf();
+	if(useapplesnarf)
 		return applegetsnarf();
 #endif
 	return _xgetsnarf(_x.snarfcon);
