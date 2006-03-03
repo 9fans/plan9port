@@ -161,6 +161,8 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		p += BIT32SZ;
 		f->mode = GBIT8(p);
 		p += BIT8SZ;
+		if(dotu)
+			p = gstring(p, ep, &f->extension);
 		break;
 
 	case Tread:

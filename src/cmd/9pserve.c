@@ -449,6 +449,12 @@ connthread(void *arg)
 			}
 			m->afid->ref++;
 			break;
+		case Tcreate:
+			if(dotu && !c->dotu && (m->tx.perm&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET))){
+				err(m, "unsupported file type");
+				continue;
+			}
+			goto caseTopen;
 		case Topenfd:
 			if(m->tx.mode&~(OTRUNC|3)){
 				err(m, "bad openfd mode");
@@ -458,7 +464,7 @@ connthread(void *arg)
 			m->tx.type = Topen;
 			m->tpkt[4] = Topen;
 			/* fall through */
-		case Tcreate:
+		caseTopen:
 		case Topen:
 		case Tclunk:
 		case Tread:

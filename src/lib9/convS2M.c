@@ -102,6 +102,8 @@ sizeS2Mu(Fcall *f, int dotu)
 		n += stringsz(f->name);
 		n += BIT32SZ;
 		n += BIT8SZ;
+		if(dotu)
+			n += stringsz(f->extension);
 		break;
 
 	case Tread:
@@ -287,6 +289,8 @@ convS2Mu(Fcall *f, uchar *ap, uint nap, int dotu)
 		p += BIT32SZ;
 		PBIT8(p, f->mode);
 		p += BIT8SZ;
+		if(dotu)
+			p = pstring(p, f->extension);
 		break;
 
 	case Tread:

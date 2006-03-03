@@ -44,6 +44,7 @@ struct	Fcall
 	
 	/* 9P2000.u extensions */
 	int	errornum;	/* Rerror */
+	char	*extension;	/* Tcreate */
 } Fcall;
 
 
