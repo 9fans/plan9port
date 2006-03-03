@@ -70,12 +70,25 @@ quote(Message *m, CFid *fid, char *dir, char *quotetext)
 void
 mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 {
+	char buf[100];
+	CFid *fd;
 	Message *r;
 	char *dir, *t;
 	int quotereply;
 	Plumbattr *a;
 
 	quotereply = (label[0] == 'Q');
+	
+	if(quotereply && m && m->replywinid > 0){
+		snprint(buf, sizeof buf, "%d/body", m->replywinid);
+		if((fd = fsopen(acmefs, buf, OWRITE)) != nil){
+			dir = estrstrdup(mbox.name, m->name);
+			quote(m, fd, dir, quotetext);
+			free(dir);
+			return;
+		}
+	}
+	
 	r = emalloc(sizeof(Message));
 	r->isreply = 1;
 	if(m != nil)
@@ -90,6 +103,8 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 	r->name = emalloc(strlen(mbox.name)+strlen(label)+10);
 	sprint(r->name, "%s%s%d", mbox.name, label, ++replyid);
 	r->w = newwindow();
+	if(m)
+		m->replywinid = r->w->id;
 	winname(r->w, r->name);
 	ctlprint(r->w->ctl, "cleartag");
 	wintagwrite(r->w, "fmt Look Post Undo", 4+5+5+4);

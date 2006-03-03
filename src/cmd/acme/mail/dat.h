@@ -61,6 +61,7 @@ struct Message
 	uchar	tagposted;
 	uchar	recursed;
 	uchar	level;
+	uint		replywinid;
 
 	/* header info */
 	char		*from;
