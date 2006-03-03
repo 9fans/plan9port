@@ -55,7 +55,7 @@ static struct {
 
 int			chattyimap;
 
-static char	*tag = "+";
+static char	*tag = "#";
 
 static void	checkbox(Imap*, Box*);
 static char*	copyaddrs(Sx*);
