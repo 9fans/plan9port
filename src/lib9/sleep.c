@@ -6,12 +6,14 @@
 #include <libc.h>
 
 #if defined(__NetBSD__) || (defined(__OpenBSD__) && OpenBSD <= 200511)
+#if !defined(sched_yield)
 #	define sched_yield() \
 		do{ struct timespec ts; \
 			ts.tv_sec = 0; \
 			ts.tv_nsec = 0; \
 			nanosleep(&ts, 0); \
 		}while(0)
+#endif
 #endif
 
 int

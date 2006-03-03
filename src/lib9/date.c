@@ -1,30 +1,28 @@
-#include <u.h>
-#include <stdlib.h> /* setenv etc. */
 #define NOPLAN9DEFINES
+#include <u.h>
 #include <libc.h>
+#include <stdlib.h> /* setenv etc. */
 #include <time.h>
 
-#define _HAVETIMEGM 1
-#define _HAVETMZONE 1
-#define _HAVETMGMTOFF 1
-
-#if defined(__linux__)
-#	undef _HAVETMZONE
-
-#elif defined(__sun__)
-#	undef _HAVETIMEGM
-#	undef _HAVETMZONE
-#	undef _HAVETMGMTOFF
-
-#endif
-
-static Tm bigtm;
+static int didtz;
+static int tzdelta;
+static char tzone[4];
 
 static void
-tm2Tm(struct tm *tm, Tm *bigtm)
+dotz(void)
 {
-	char *s;
+	time_t t;
 
+	if(didtz)
+		return;
+	t = time(0);
+	tzdelta = t - mktime(gmtime(&t));
+	strftime(tzone, sizeof tzone, "%Z", localtime(&t));
+}
+
+static void
+tm2Tm(struct tm *tm, Tm *bigtm, int gmt)
+{
 	memset(bigtm, 0, sizeof *bigtm);
 	bigtm->sec = tm->tm_sec;
 	bigtm->min = tm->tm_min;
@@ -33,17 +31,13 @@ tm2Tm(struct tm *tm, Tm *bigtm)
 	bigtm->mon = tm->tm_mon;
 	bigtm->year = tm->tm_year;
 	bigtm->wday = tm->tm_wday;
-	strftime(bigtm->zone, sizeof bigtm->zone, "%Z", tm);
-#ifdef _HAVETMGMTOFF
-	bigtm->tzoff = tm->tm_gmtoff;
-#endif
-	
-	if(bigtm->zone[0] == 0){
-		s = getenv("TIMEZONE");
-		if(s){
-			strecpy(bigtm->zone, bigtm->zone+4, s);
-			free(s);
-		}
+	if(gmt){
+		strcpy(bigtm->zone, "GMT");
+		bigtm->tzoff = 0;
+	}else{
+		dotz();
+		strcpy(bigtm->zone, tzone);
+		bigtm->tzoff = tzdelta;
 	}
 }
 
@@ -58,12 +52,6 @@ Tm2tm(Tm *bigtm, struct tm *tm)
 	tm->tm_mon = bigtm->mon;
 	tm->tm_year = bigtm->year;
 	tm->tm_wday = bigtm->wday;
-#ifdef _HAVETMZONE
-	tm->tm_zone = bigtm->zone;
-#endif
-#ifdef _HAVETMGMTOFF
-	tm->tm_gmtoff = bigtm->tzoff;
-#endif
 }
 
 Tm*
@@ -71,10 +59,11 @@ p9gmtime(long x)
 {
 	time_t t;
 	struct tm tm;
-
+	static Tm bigtm;
+	
 	t = (time_t)x;
 	tm = *gmtime(&t);
-	tm2Tm(&tm, &bigtm);
+	tm2Tm(&tm, &bigtm, 1);
 	return &bigtm;
 }
 
@@ -83,42 +72,26 @@ p9localtime(long x)
 {
 	time_t t;
 	struct tm tm;
+	static Tm bigtm;
 
 	t = (time_t)x;
 	tm = *localtime(&t);
-	tm2Tm(&tm, &bigtm);
+	tm2Tm(&tm, &bigtm, 0);
 	return &bigtm;
 }
-
-#if !defined(_HAVETIMEGM)
-static time_t
-timegm(struct tm *tm)
-{
-	time_t ret;
-	char *tz;
-	char *s;
-
-	tz = getenv("TZ");
-	putenv("TZ=");
-	tzset();
-	ret = mktime(tm);
-	if(tz){
-		s = smprint("TZ=%s", tz);
-		if(s)
-			putenv(s);
-	}
-	return ret;
-}
-#endif
 
 long
 p9tm2sec(Tm *bigtm)
 {
+	time_t t;
 	struct tm tm;
 
 	Tm2tm(bigtm, &tm);
-	if(strcmp(bigtm->zone, "GMT") == 0 || strcmp(bigtm->zone, "UCT") == 0)
-		return timegm(&tm);
-	return mktime(&tm);	/* local time zone */
+	t = mktime(&tm);
+	if(strcmp(bigtm->zone, "GMT") == 0 || strcmp(bigtm->zone, "UCT") == 0){
+		dotz();
+		t += tzdelta;
+	}
+	return t;
 }
 
