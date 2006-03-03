@@ -1,0 +1,9 @@
+<$PLAN9/src/mkhdr
+
+TARG=snarfer
+OFILES=
+HFILES=
+
+<|sh ../../libdraw/mkwsysrules.sh
+<$PLAN9/src/mkmany
+
