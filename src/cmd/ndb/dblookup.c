@@ -111,7 +111,7 @@ dblookup(char *name, int class, int type, int auth, int ttl)
 
 	/* try lower case version */
 	for(cp = name; *cp; cp++)
-		*cp = tolower(*cp);
+		*cp = tolower((uchar)*cp);
 	if(cachedb)
 		rp = rrlookup(dp, type, NOneg);
 	else
