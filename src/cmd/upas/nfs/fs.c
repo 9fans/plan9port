@@ -768,7 +768,6 @@ boxgen(int i, Dir *d, void *aux)
 	Box *box;
 
 	box = aux;
-if(i==0) fprint(2, "boxgen %s %d nsub=%d nmsg=%d\n", box->name, i, box->nsub, box->nmsg);
 	if(i == 0)
 		return filldir(d, Qboxctl, box, nil, nil);
 	i--;

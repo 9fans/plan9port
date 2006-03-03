@@ -327,7 +327,6 @@ threadmain(int argc, char **argv)
 	fd = sendmail(to, cc, &pid, Fflag ? argv[0] : nil);
 	if(fd < 0)
 		sysfatal("execing sendmail: %r\n:");
-fprint(2, "sendmail fd %d\n", fd);
 	if(xflag || lbflag || dflag){
 		close(fd);
 		threadexitsall(waitforsubprocs());
@@ -1106,10 +1105,7 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 	/* threadspawn closed pfd[0] (== xfd[0]) */
 	sfd = pfd[1];
 
-fprint(2, "exec'ed %s\n", x);
-
 	if(rcvr != nil){
-fprint(2, "rcvr\n");
 		if(pipe(pfd) < 0)
 			fatal("pipe: %r");
 		seek(fd, 0, 2);

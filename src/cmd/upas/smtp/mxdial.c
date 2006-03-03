@@ -103,7 +103,7 @@ callmx(DS *ds, char *dest, char *domain)
 		snprint(addr, sizeof(addr), "%s/%s!%s!%s", ds->netdir, ds->proto,
 			mx[i].host, ds->service);
 		if(debug)
-			fprint(2, "mxdial trying %s\n", addr);
+			fprint(2, "mxdial trying %s (%d)\n", addr, i);
 		atnotify(timeout, 1);
 		alarm(10*1000);
 		fd = dial(addr, 0, 0, 0);
