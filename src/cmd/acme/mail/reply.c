@@ -477,6 +477,7 @@ mesgsend(Message *m)
 	if(ofd > 0){
 		/* From dhog Fri Aug 24 22:13:00 EDT 2001 */
 		now = ctime(time(0));
+		seek(ofd, 0, 2);
 		fprint(ofd, "From %s %s", user, now);
 		fprint(ofd, "From: %s\n", user);
 		fprint(ofd, "Date: %s", now);
