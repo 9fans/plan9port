@@ -37,4 +37,5 @@ drawresizewindow(Rectangle r)
 	e.width = Dx(r);
 	e.height = Dy(r);
 	XConfigureWindow(_x.display, _x.drawable, value_mask, &e);
+	XFlush(_x.display);
 }
