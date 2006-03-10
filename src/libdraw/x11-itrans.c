@@ -516,14 +516,18 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 
 		XChangeProperty(xd, xe->requestor, xe->property, xe->target,
 			8, PropModeReplace, (uchar*)a, sizeof a);
-	}else if(xe->target == XA_STRING || xe->target == _x.utf8string || xe->target == _x.text || xe->target == _x.compoundtext){
+	}else if(xe->target == XA_STRING 
+	|| xe->target == _x.utf8string 
+	|| xe->target == _x.text 
+	|| xe->target == _x.compoundtext
+	|| ((name = XGetAtomName(xd, xe->target)) && strcmp(name, "text/plain;charset=UTF-8") == 0)){
+		/* text/plain;charset=UTF-8 seems nonstandard but is used by Synergy */
 		/* if the target is STRING we're supposed to reply with Latin1 XXX */
 		qlock(&clip.lk);
 		XChangeProperty(xd, xe->requestor, xe->property, xe->target,
 			8, PropModeReplace, (uchar*)clip.buf, strlen(clip.buf));
 		qunlock(&clip.lk);
 	}else{
-		name = XGetAtomName(xd, xe->target);
 		if(strcmp(name, "TIMESTAMP") != 0)
 			fprint(2, "%s: cannot handle selection request for '%s' (%d)\n", argv0, name, (int)xe->target);
 		r.xselection.property = None;
