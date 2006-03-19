@@ -3,8 +3,28 @@
 # MAN=mantimes
 # FONTS=''
 MAN=man
+MANFONT=luxi
+switch($MANFONT){
+
+case lucida
 FONTS='.fp 1 R LucidaSans
 .fp 2 I LucidaSansI
 .fp 3 B LucidaSansB
 .fp 5 L LucidaCW
 '
+
+case luxi
+FONTS='.fp 1 R LuxiSans
+.fp 2 I LuxiSans-Oblique
+.fp 3 B LuxiSans-Bold
+.fp 5 L LuxiMono
+'
+
+case dejavu
+FONTS='.fp 1 R DejaVuSans
+.fp 2 I DejaVuSansOblique
+.fp 3 B DejaVuSansBold
+.fp 5 L DejaVuMonoSans
+'
+
+}

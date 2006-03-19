@@ -244,6 +244,24 @@
 .	fp 2 I LucidaSansI
 .	fp 3 B LucidaSansB
 .	fp 5 CW LucidaCW\}
+.if '\\$1'luxisans'\{\
+.	fp 1 R LuxiSans
+.	fp 2 I LuxiSans-Oblique
+.	fp 3 B LuxiSans-Bold
+.	fp 4 BI LuxiSans-BoldOblique
+.	fp 5 CW LuxiMono\}
+.if '\\$1'dejavu'\{\
+.	fp 1 R DejaVuSerif
+.	fp 2 I DejaVuSerifOblique
+.	fp 3 B DejaVuSerifBold
+.	fp 4 BI DejaVuSerifBoldOblique
+.	fp 5 CW DejaVuMonoSans\}
+.if '\\$1'dejavusans'\{\
+.	fp 1 R DejaVuSans
+.	fp 2 I DejaVuSansOblique
+.	fp 3 B DejaVuSansBold
+.	fp 4 BI DejaVuSansBoldOblique
+.	fp 5 CW DejaVuMonoSans\}
 .if '\\$1'syntax'\{\
 .	fp 1 R Syntax
 .	fp 2 I SyntaxI

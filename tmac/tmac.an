@@ -1,7 +1,8 @@
-.fp 1 R LucidaSans
-.fp 2 I LucidaSansI
-.fp 3 B LucidaSansB
-.fp 5 L LucidaCW
+.fp 1 R LuxiSans
+.fp 2 I LuxiSans-Oblique
+.fp 3 B LuxiSans-Bold
+.fp 4 BI LuxiSans-BoldOblique
+.fp 5 L LuxiMono
 .ds 9 /usr/local/plan9
 .if n .uf 4
 .if n .bd 3
