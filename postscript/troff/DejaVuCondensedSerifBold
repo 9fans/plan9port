@@ -1,0 +1,23 @@
+0x0000 0x00FF DejaVuCondensedSerifBold00
+0x0100 0x01FF DejaVuCondensedSerifBold01
+0x0200 0x02FF DejaVuCondensedSerifBold02
+0x0300 0x03FF DejaVuCondensedSerifBold03
+0x0400 0x04FF DejaVuCondensedSerifBold04
+0x1D00 0x1DFF DejaVuCondensedSerifBold1D
+0x1E00 0x1EFF DejaVuCondensedSerifBold1E
+0x1F00 0x1FFF DejaVuCondensedSerifBold1F
+0x2000 0x20FF DejaVuCondensedSerifBold20
+0x2100 0x21FF DejaVuCondensedSerifBold21
+0x2200 0x22FF DejaVuCondensedSerifBold22
+0x2300 0x23FF DejaVuCondensedSerifBold23
+0x2400 0x24FF DejaVuCondensedSerifBold24
+0x2500 0x25FF DejaVuCondensedSerifBold25
+0x2600 0x26FF DejaVuCondensedSerifBold26
+0x2700 0x27FF DejaVuCondensedSerifBold27
+0x2800 0x28FF DejaVuCondensedSerifBold28
+0x2900 0x29FF DejaVuCondensedSerifBold29
+0x2B00 0x2BFF DejaVuCondensedSerifBold2B
+0xFB00 0xFBFF DejaVuCondensedSerifBoldFB
+0xFF00 0xFFFF DejaVuCondensedSerifBoldFF
+0x0027 0x0027 0x19 DejaVuCondensedSerifBold20  # map apostrophe to right quote
+0x0060 0x0060 0x18 DejaVuCondensedSerifBold20  # map grave to left quote

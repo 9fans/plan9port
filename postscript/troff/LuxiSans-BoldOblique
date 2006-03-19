@@ -1,0 +1,13 @@
+0x0000 0x00FF LuxiSans-BoldOblique00
+0x0100 0x01FF LuxiSans-BoldOblique01
+0x0200 0x02FF LuxiSans-BoldOblique02
+0x0300 0x03FF LuxiSans-BoldOblique03
+0x2000 0x20FF LuxiSans-BoldOblique20
+0x2100 0x21FF LuxiSans-BoldOblique21
+0x2200 0x22FF LuxiSans-BoldOblique22
+0xEA00 0xEAFF LuxiSans-BoldObliqueEA
+0xF000 0xF0FF LuxiSans-BoldObliqueF0
+0xF600 0xF6FF LuxiSans-BoldObliqueF6
+0xFB00 0xFBFF LuxiSans-BoldObliqueFB
+0x0027 0x0027 0x19 LuxiSans-BoldOblique20  # map apostrophe to right quote
+0x0060 0x0060 0x18 LuxiSans-BoldOblique20  # map grave to left quote

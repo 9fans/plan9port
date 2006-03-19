@@ -1,0 +1,23 @@
+0x0000 0x00FF DejaVuCondensedSerif00
+0x0100 0x01FF DejaVuCondensedSerif01
+0x0200 0x02FF DejaVuCondensedSerif02
+0x0300 0x03FF DejaVuCondensedSerif03
+0x0400 0x04FF DejaVuCondensedSerif04
+0x1D00 0x1DFF DejaVuCondensedSerif1D
+0x1E00 0x1EFF DejaVuCondensedSerif1E
+0x1F00 0x1FFF DejaVuCondensedSerif1F
+0x2000 0x20FF DejaVuCondensedSerif20
+0x2100 0x21FF DejaVuCondensedSerif21
+0x2200 0x22FF DejaVuCondensedSerif22
+0x2300 0x23FF DejaVuCondensedSerif23
+0x2400 0x24FF DejaVuCondensedSerif24
+0x2500 0x25FF DejaVuCondensedSerif25
+0x2600 0x26FF DejaVuCondensedSerif26
+0x2700 0x27FF DejaVuCondensedSerif27
+0x2800 0x28FF DejaVuCondensedSerif28
+0x2900 0x29FF DejaVuCondensedSerif29
+0x2B00 0x2BFF DejaVuCondensedSerif2B
+0xFB00 0xFBFF DejaVuCondensedSerifFB
+0xFF00 0xFFFF DejaVuCondensedSerifFF
+0x0027 0x0027 0x19 DejaVuCondensedSerif20  # map apostrophe to right quote
+0x0060 0x0060 0x18 DejaVuCondensedSerif20  # map grave to left quote
