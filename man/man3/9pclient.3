@@ -1,6 +1,6 @@
 .TH 9PCLIENT 3
 .SH NAME
-CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsinit, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, nsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fsseek, fswrite \- 9P client library
+CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsinit, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsremove, fsfremove, fsaccess, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, nsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fsseek, fswrite, fsprint, fsvprint \- 9P client library
 .SH SYNOPSIS
 .B #include <u.h>
 .PP
@@ -50,6 +50,15 @@ void	fsclose(CFid *fid)
 CFid*	fscreate(CFsys *fs, char *path, int mode, ulong perm)
 .PP
 .B
+int	fsremove(CFSys *fs, char *path)
+.PP
+.B
+int	fsfremove(CFid *fid)
+.PP
+.B
+int	fsaccess(CFsys *fs, char *path, int amode)
+.PP
+.B
 CFid*	fsopen(CFsys *fs, char *path, int mode)
 .PP
 .B
@@ -66,6 +75,12 @@ long	fsreadn(CFid *fid, void *buf, long n)
 .PP
 .B
 long	fswrite(CFid *fid, void *buf, long n)
+.PP
+.B
+int	fsprint(CFid *fid, char *fmt, ...)
+.PP
+.B
+int	fsvprint(CFid *fid, char *fmt, ...)
 .PP
 .B
 vlong	fsseek(CFid *Fid, vlong n, int type)
@@ -276,8 +291,30 @@ repeatedly to obtain exactly
 .I n
 bytes of data, unless it encounters end-of-file or an error.
 .PP
+.I Fsaccess
+behaves like Unix's
+.IR access (2).
+.I Fsremove
+removes the named path.
+.I Fsfremove
+removes the path corresponding to an open
+.BR CFid* .
+.PP
 Reading an open a directory returns directory entries encoded as described in
 .IR stat (9p).
+.PP
+.I Fsprint
+and
+.I fsvprint
+are like
+.I fprint
+and
+.I vfprint
+(see
+.IR print (3))
+but write to 
+.BR CFid* s.
+.PP
 .I Fsdirread
 calls
 .I fsread
