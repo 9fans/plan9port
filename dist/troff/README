@@ -1,0 +1,4 @@
+This directory contains tools used to import fonts for use in troff.
+
+afm2troff.c - simple AFM file reader, generates desc for troff/font/devutf.
+tfont - simple TTF or SFD converter

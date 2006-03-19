@@ -1,0 +1,43 @@
+#!/usr/local/plan9/bin/rc
+
+rm *.tpost *.troff *.pfb *.pfa *.afm map.sfd
+
+hex1=(0 1 2 3 4 5 6 7 8 9 A B C D E F)
+hex=()
+for(i in $hex1) for(j in $hex1) hex=($hex $i$j)
+{
+	for(h in $hex)
+		echo $h 0x$h^00_0x$h^FF
+} >map.sfd
+for(font){
+	f0=$font
+	if(~ $font *.ttf)
+		font=`{9 basename $font .ttf}
+	if not if(~ $font *.sfd)
+		font=`{9 basename $font .sfd}
+	fontforge -c 'Open($1); Generate($2, "", -1, 72, "map.sfd")' \
+		$f0 $font^%s.pfb map.sfd
+	{
+		echo name $font
+		echo fontname $font
+	} >$font.troff
+	>$font.tpost
+	for(h in $hex){
+		if(test -f $font$h.pfb){
+			pfb2pfa $font$h.pfb $font$h.pfa
+			mv $font$h.pfa /usr/local/plan9/postscript/font/dejavu/$font$h
+			afm2troff -h -o 0x$h^00 $font$h.afm >>$font.troff
+			echo 0x$h^00 0x$h^FF $font$h >>$font.tpost
+		}
+	}
+	{
+		echo '0x0027 0x0027 0x19 '$font'20  # map apostrophe to right quote'
+		echo '0x0060 0x0060 0x18 '$font'20  # map grave to left quote'
+	} >>$font.tpost
+
+	sam -d $font.troff <$PLAN9/dist/troff/devutf.sam
+	if(~ $font *Mono*)
+		sam -d $font.troff <$PLAN9/dist/troff/mono.sam
+	cp $font.troff /usr/local/plan9/troff/font/devutf/$font
+	cp $font.tpost /usr/local/plan9/postscript/troff/$font
+}
