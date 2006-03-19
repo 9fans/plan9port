@@ -36,7 +36,7 @@ eresized(int new)
 	if(image == nil)
 		return;
 	r = rectaddpt(image->r, subpt(screen->r.min, image->r.min));
-	if(!new)
+	if(!new && !winsize)
 		drawresizewindow(r);
 	flushimage(display, 1);
 }

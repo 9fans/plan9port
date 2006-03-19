@@ -49,7 +49,7 @@ eresized(int new)
 	if(allims==nil || allims[which]==nil)
 		return;
 	r = rectaddpt(allims[0]->r, subpt(screen->r.min, allims[0]->r.min));
-	if(!new)
+	if(!new && !winsize)
 		drawresizewindow(r);
 	r = rectaddpt(r, subpt(allims[which]->r.min, allims[0]->r.min));
 	drawop(screen, r, allims[which], allmasks[which], allims[which]->r.min, S);
