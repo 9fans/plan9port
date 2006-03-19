@@ -68,11 +68,11 @@ struct HTMLfont{
 HTMLfont htmlfonts[] =
 {
 	"R",			nil,		0,
-	"LucidaSans",	nil,		0,
+	"LuxiSans",	nil,		0,
 	"I",			"i",	Italic,
-	"LucidaSansI",	"i",	Italic,
+	"LuxiSans-Oblique",	"i",	Italic,
 	"CW",		"tt",		CW,
-	"LucidaCW",	"tt",		CW,
+	"LuxiMono",	"tt",		CW,
 	nil,	nil,
 };
 

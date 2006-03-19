@@ -55,7 +55,7 @@ ginit(void)
 		
 	first = 0;
 	memimageinit();
-	smallfont = openmemsubfont(unsharp("#9/font/lucidasans/lstr.10"));
+	smallfont = openmemsubfont(unsharp("#9/font/lucsans/lstr.10"));
 	black = memblack;
 	blue = allocrepl(DBlue);
 	red = allocrepl(DRed);
