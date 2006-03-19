@@ -1,0 +1,342 @@
+.TH HTMLROFF 7
+.SH NAME
+htmlroff \- HTML formatting and typesetting
+.SH DESCRIPTION
+.I Htmlroff (1)
+accepts 
+.I troff
+input with a few extensions and changes.
+This manual describes the changes to the input language,
+assuming a working knowledge of
+.I troff
+itself.
+.SS Name lengths
+.PP
+Request, macro, string, and number names can be longer
+than two letters, as in:
+.IP
+.EX
+\&.html c <center>
+\&.de footnote
+Footnote here.
+\&..
+\&.footnote
+\&.ds string "hello
+\&\e*[string]
+\&.nr number 1
+\&\en[number]
+.EE
+.SS HTML output
+.PP
+Two new requests:
+.IP
+.EX
+\&.html \fIid\fP \fR[ \fI<html>\fP ]\fL
+\&.ihtml \fIid\fP \fR[ \fI<ihtml>\fP ]\fL
+.EE
+.LP
+.B .html
+and
+.B .ihtml
+insert HTML into the output.
+The requests are only for opening new HTML tags.
+To close previously-opened tags, repeat the request
+with the same
+.IR id .
+For example, the input:
+.IP
+.EX
+\&.html t <table><tr>
+\&.html td <td>Cell 1
+\&.html td <td>Cell 2
+\&.html td
+\&.html t
+.EX
+.LP
+produces this output:
+.IP
+.EX
+<table><tr><td>Cell 1</td><td>Cell 2</td></tr></table>
+.EE
+.LP
+The
+.B .html
+request is intended for block-level HTML constructs (those that can contain
+.BR <p> )
+and maintains the HTML tag stack automatically.
+Intermediate tags need not be explicitly closed:
+removing the final
+.B \&.html t
+line in the example above would produce the same output.
+The special
+.I id
+.L -
+closes the HTML tags immediately after printing them.
+.PP
+The
+.B .ihtml
+request is similar to
+.B .html
+but is intended for inline HTML constructs such as
+.B <b>
+or
+.B <i>
+(those that can be contained
+within 
+.BR <p> ).
+Unlike
+.BR .html ,
+.B .ihtml
+treats the open HTML tags as a set rather than a stack:
+each must be explicitly closed.
+Although it treats the tags as a set, 
+.B .ihtml
+treats nesting properly in the output,
+closing and reopening tags as necessary.
+For example, the input:
+.IP
+.EX
+\&.ihtml style <b>
+\&.ihtml link <a href="link.html">
+Bold
+\&.ihtml style <i>
+and italic, still linked.
+\&.ihtml link <a>
+Unlinked.
+\&.ihtml style
+.EE
+.LP
+produces this output:
+.IP
+.EX
+<b><a href="link.html">Bold</a></b>
+<i><a href="link.html">and italic, still linked.</i></a>
+<i>Unlinked.</i>
+.EE
+.PP
+Outside of
+.B .html
+and
+.B .ihtml
+requests, the characters
+.L < ,
+.L > ,
+and
+.L &
+are treated as normal characters, not HTML markers,
+and are translated to
+.L &lt; ,
+.L &gt; ,
+and
+.L &amp;
+on output.
+To embed the raw HTML markers, use
+.L \e< ,
+.L \e> ,
+and
+.L \e@
+.RI [ sic ].
+.SS Font changes
+.PP
+.I Htmlroff
+interprets the usual 
+.BR \ef ,
+.BR .ft ,
+.BR \es ,
+and
+.B .ps
+requests to change the font and point size.
+After applying each such change to its internal registers,
+.I htmlroff
+invokes the
+.B .font
+macro to emit corresponding HTML.
+The default definition of
+.B .font
+is:
+.IP
+.EX
+\&.de font
+\&.ihtml f1
+\&.ihtml f
+\&.ihtml f <span style=\"font-size=\\n(.spt\">
+\&.if \\n(.f==2 .ihtml f1 <i>
+\&.if \\n(.f==3 .ihtml f1 <b>
+\&.if \\n(.f==4 .ihtml f1 <b><i>
+\&.if \\n(.f==5 .ihtml f1 <tt>
+\&.if \\n(.f==6 .ihtml f1 <tt><i>
+\&..
+.EE
+.LP
+Input files can redefine
+.B .font
+like any other request or macro.
+.SS Paragraphs
+.I Htmlroff
+implements line height, text adjustment, and margins by 
+wrapping all output text in 
+.B <p style="...">
+tags.
+This behavior can be disabled by setting the
+.B .paragraph
+number register to zero.
+Setting the
+.B .margin
+register to zero
+eliminates only the margin annotations.
+.SS Subscripts and superscripts
+.PP
+.I Htmlroff
+interprets the
+.BR \eu ,
+.BR \ed ,
+and
+.BR \ev 
+requests to move vertically during output.
+It emits output vertically offset up the page inside
+.B <sup>
+tags and output vertically offset down the page 
+inside
+.B <sub>
+tags.  
+This heuristic handles simple equations formatted by
+.IR eqn (1).
+.SS Conditional input
+.PP
+To make it easier to write input files that can be formatted by both
+.I troff
+and
+.IR htmlroff ,
+.I htmlroff
+adds a new condition
+.B h
+which evaluates true in
+.B .if
+and
+.B .ie
+requests.
+The
+.B t
+condition continues to evaluate true, to accomodate 
+input files trying to distinguish between
+.I troff
+and
+.IR nroff .
+To write a conditional matching
+.I troff
+alone, use
+.RB ` ".if !h .if t" '.
+.PP
+.I Htmlroff 's
+handling of conditional input does not match
+.IR troff 's
+exactly.
+For example,
+.IP
+.EX
+\&.if 0 \e{\e
+\&.de xx
+\&..
+\&.\e}
+.EE
+.LP
+redefines the
+.B xx
+macro in 
+.I troff
+but not in
+.IR htmlroff .
+Do not write files depending on this behavior, as this bug may be fixed
+in the future.
+.I Htmlroff
+also mishandles
+.B \e}
+in some cases.  To work around them, use
+.B .\e}
+on a line by itself, as in the last example.
+.SS Diversions
+.PP
+Diversions in 
+.I htmlroff
+use the alignment in effect at the time of the
+diversion
+when output.
+In particular,
+.IP
+.EX
+\&.di xx
+Line here.
+\&.di
+\&.nf
+\&.ce 
+\&.xx
+.EE
+.LP
+produces a centered line in 
+.I troff
+but not in 
+.IR htmlroff .
+The solution is to center inside the diversion, as in
+.IP
+.EX
+\&.di xx
+\&.if h .ce 999
+Line here
+\&.di
+.EE
+.SS Input pipes
+.PP
+.I Htmlroff
+adds a new request
+.B .inputpipe
+.I stop
+.I cmd
+that redirects
+.I htmlroff 's
+input into a pipe to the
+given 
+.I cmd .
+The redirection stops on encountering the line
+.IR stop ,
+optionally followed by white space and extra text.
+This is a dangerous and clusmy request, as 
+.I htmlroff
+stops interpreting its input during the redirection, so
+.I stop
+must be found in the input itself, not in a macro that
+the input might appear to call.
+Although clusmy,
+.B .inputpipe
+allows input files to invoke
+.I troff
+to handle complicated input.
+For example, 
+.B tmac.html
+redefines the
+.B PS
+macro that marks the beginning of a
+.IR pic (1)
+picture:
+.IP
+.EX
+\&.nr png -1 1
+\&.de PS
+\&.ds pngbase "\e\e*[basename]
+\&.if '\e\e*[pngbase]'' .ds pngbase \e\en(.B
+\&.ds pngfile \e\e*[pngbase]\e\en+[png].png
+\&.html - <center><img src="\e\e*[pngfile]"></center>
+\&.inputpipe .PE troff2png >\e\e*[pngfile]
+\&..
+.EE
+.LP
+This macro invokes the shell script
+.I troff2png
+to run troff and convert the Postscript
+output to a PNG image file.
+Before starting the program, the macro creates
+a new file name for the image and prints
+HTML referring to it.
+The new
+.B .B
+register holds the final path element
+(the base name) of the current input file.

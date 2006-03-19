@@ -1,0 +1,105 @@
+.TH MHTML 7
+.SH NAME
+mhtml \- macros for formatting HTML
+.SH SYNOPSIS
+.B pic
+.B |
+.B tbl
+.B |
+.B eqn
+.B |
+.B htmlroff
+[
+.B -man
+|
+.B -ms
+]
+.B -mhtml
+.I file
+\&...
+.SH DESCRIPTION
+This package of
+.IR htmlroff (1)
+macro definitions provides convenient macros for formatting HTML.
+It is usually used along with 
+.I troff (1)
+macro packages such as
+.IR man (7)
+and
+.IR ms (7).
+.I Mhtml
+replaces some macros defined in the other packages,
+so it should be listed after them on the
+.I htmlroff 
+command line.
+.PP
+The following macros are defined:
+.TP
+.B .HTML \fItitle
+Print an HTML header marking the output as 
+HTML 4.01 loose transitional encoded in UTF.
+If given, the
+.I title
+is printed inside
+.B <title>
+tags.
+This macro opens the
+.B <html>
+tag, opens and closes the
+.B <head>
+section, and opens
+.B <body> .
+It invokes the
+.B .HEAD
+macro inside the
+.B <head>
+section.
+To add arbitrary lines to the header,
+append to
+.B .HEAD
+before invoking
+.BR .HTML .
+.TP
+.B .FS\fR, \fP.FE
+Accumulate footnotes and print them at the end of the
+document under a \fBNotes\fP heading.
+These replace the macros in
+.IR ms (7).
+To emit the notes accumulated so far, invoke
+.BR .NOTES .
+.TP
+.B .PS\fR, \fP.PE
+Replace input bracketed
+.B .PS
+and
+.B .PE
+with a PNG image corresponding to the output of
+running
+.I troff(1)
+on the input.
+.TP
+.B .TS\fR, \fP.TE
+Identical to
+.B .PS
+and
+.BR .PE .
+.TP
+.B .B1 \fImargin\fP \fIwidth\fR, \fL.B2
+Format the input between
+.B .B1
+and
+.B .B2
+inside a box, with
+.I margin
+(default 10)
+pixels between the box and the text.
+The box is set to be
+.I width
+(default 60)
+percent of the current output width.
+.SH FILES
+.B \*9/tmac/tmac.html
+.SH  SEE ALSO
+.IR htmlroff (1),
+.IR htmlroff (7),
+.IR ms (7)

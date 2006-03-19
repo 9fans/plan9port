@@ -1,0 +1,119 @@
+.TH HTMLROFF 1
+.SH NAME
+htmlroff \- HTML formatting and typesetting
+.SH SYNOPSIS
+.B htmlroff
+[
+.B -iuv
+]
+[
+.B -m
+.I name
+]
+[
+.B -r
+.I aN
+]
+[
+.I file
+\&...
+]
+.SH DESCRIPTION
+.I Htmlroff
+accepts
+.IR troff (1)
+input in the named 
+.I files
+and formats it as HTML for viewing in a web browser.
+.PP
+If no
+.I file
+argument is given, 
+.I htmlroff
+reads the standard input.
+An argument consisting of a single minus
+.RB ( - )
+is taken to be
+a file name corresponding to the standard input.
+The options are:
+.TP
+.B -i
+Read standard input after the input files are exhausted.
+.TP
+.BI -m name
+Process the macro file
+.BI \*9/tmac/tmac. name
+before the input
+.IR files .
+.TP
+.BI -r aN
+Set register
+.I a
+(one character name) to
+.IR N .
+.TP
+.B -u
+Generate UTF output.
+By default, 
+.I htmlroff
+converts Unicode runes into the corresponding
+HTML entity sequences
+.RB ( &alpha; ,
+.BR &nbsp; ,
+and so on).
+.I Htmlroff
+invokes
+.IR tcs (1)
+for the conversion.
+.TP
+.B -v
+Generate debugging output and warnings about suspicious input.
+.PD
+.PP
+Most 
+.I troff
+input files, especially those using the
+.IR ms (7)
+macros, can be used unaltered.
+In general, the macro file
+.B tmac.html
+should be processed after processing other standard macro files,
+as in 
+.B htmlroff
+.B -ms
+.BR -mhtml .
+.PP
+.IR Htmlroff (7)
+describes the changes to the input language.
+.PP
+.IR Mhtml (7)
+describes the new macros.
+.SH EXAMPLES
+Format the Plan 9 web page:
+.IP
+.EX
+cd /usr/web/plan9
+htmlroff -mhtml index.tr >index.html
+.EE
+.PP
+Format a paper:
+.IP
+.EX
+cd /sys/doc
+pic auth.ms | tbl | eqn | htmlroff -ms -mhtml >auth.html
+.EE
+.SH FILES
+.TP
+.B \*9/troff/font/devutf/utfmap
+Mapping from
+.I troff
+two-character names like
+.B \e(*a
+to Unicode characters like α.
+.SH SOURCE
+.B \*9/src/cmd/htmlroff
+.SH "SEE ALSO
+.IR tcs (1),
+.IR troff (1),
+.IR htmlroff (7),
+.IR mhtml (7)
