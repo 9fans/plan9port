@@ -6,16 +6,9 @@ under simpler BSD-like boilerplates.  See the LICENSE files in those
 directories.  There are other exceptions, also marked with LICENSE files
 in their directories.
 
-The bitmap fonts in the font/lucida directory are copyright B&H Inc. and Y&Y Inc.
-and distributed under the following exception to the Lucent license:
-
-   No right is granted to create derivative works of or
-   to redistribute (other than with the Plan 9 Operating System)
-   the screen imprinter fonts identified in subdirectory
-   font/lucida.  This directory contains material copyrights by
-   B&H Inc. and Y&Y Inc.
-
-(Of course, X11 already distributes non-Unicode versions of these fonts.)
+The bitmap fonts in the font/luc, font/lucm, font/lucsans, and font/pelm
+directory are copyright B&H Inc. and distributed under more restricted
+terms under agreement with B&H.  See the NOTICE file in those directories.
 
 ===================================================================
 

@@ -5,6 +5,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include "page.h"
@@ -71,6 +72,8 @@ static Image*	convert(Graphic*);
 static Image*	gfxdrawpage(Document *d, int page);
 static char*	gfxpagename(Document*, int);
 static int	spawnrc(char*, uchar*, int);
+static void	waitrc(void);
+static int	spawnpost(int);
 static int	addpage(Document*, char*);
 static int	rmpage(Document*, int);
 static int	genaddpage(Document*, char*, uchar*, int);
@@ -97,6 +100,7 @@ initgfx(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	int i;
 
 	USED(b);
+
 	doc = emalloc(sizeof(*doc));
 	gfx = emalloc(sizeof(*gfx));
 	gfx->g = nil;

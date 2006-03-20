@@ -754,6 +754,8 @@ getreply(void)
 	reply = s_reset(reply);
 	for(;;){
 		line = getcrnl(reply);
+		if(debug)
+			Bflush(&berr);
 		if(line == 0)
 			return -1;
 		if(!isdigit(line[0]) || !isdigit(line[1]) || !isdigit(line[2]))
@@ -761,8 +763,6 @@ getreply(void)
 		if(line[3] != '-')
 			break;
 	}
-	if(debug)
-		Bflush(&berr);
 	rv = atoi(line)/100;
 	return rv;
 }
@@ -999,6 +999,7 @@ getcrnl(String *s)
 		case '\r':
 			c = Bgetc(&bin);
 			if(c == '\n'){
+		case '\n':
 				s_putc(s, c);
 				if(debug)
 					Bputc(&berr, c);

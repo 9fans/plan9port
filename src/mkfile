@@ -24,6 +24,7 @@ MKDIRS=\
 
 mkmk.sh:VD:
 	(
+		echo '# AUTOMATICALLY GENERATED - DO NOT EDIT'
 		echo cd lib9
 		echo 'echo cd `pwd`'
 		(cd lib9; mk -n -a install)

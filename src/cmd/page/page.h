@@ -1,5 +1,3 @@
-#include <cursor.h>
-
 typedef struct Document Document;
 
 struct Document {
@@ -44,6 +42,7 @@ extern int mknewwindow;
 
 void rot180(Image*);
 Image *rot90(Image*);
+Image *rot270(Image*);
 Image *resample(Image*, Image*);
 
 /* ghostscript interface shared by ps, pdf */
@@ -57,7 +56,7 @@ struct GSInfo {
 };
 void	waitgs(GSInfo*);
 int	gscmd(GSInfo*, char*, ...);
-int	spawngs(GSInfo*);
+int	spawngs(GSInfo*, char*);
 void	setdim(GSInfo*, Rectangle, int, int);
 int	spawnwriter(GSInfo*, Biobuf*);
 Rectangle	screenrect(void);

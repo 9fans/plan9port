@@ -7,6 +7,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include "page.h"
@@ -97,14 +98,14 @@ initpdf(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	d->pagename = pdfpagename;
 	d->fwdonly = 0;
 
-	if(spawngs(&pdf->gs) < 0)
+	if(spawngs(&pdf->gs, "-dDELAYSAFER") < 0)
 		return nil;
 
 	gscmd(&pdf->gs, "%s", pdfprolog);
 	waitgs(&pdf->gs);
 
 	setdim(&pdf->gs, Rect(0,0,0,0), ppi, 0);
-	gscmd(&pdf->gs, "(%s) (r) file pdfopen begin\n", fn);
+	gscmd(&pdf->gs, "(%s) (r) file { DELAYSAFER { .setsafe } if } stopped pop pdfopen begin\n", fn);
 	gscmd(&pdf->gs, "pdfpagecount PAGE==\n");
 	p = Brdline(&pdf->gs.gsrd, '\n');
 	npage = atoi(p);
@@ -121,11 +122,10 @@ initpdf(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	pdf->pagebbox = emalloc(sizeof(Rectangle)*npage);
 	for(i=0; i<npage; i++) {
 		gscmd(&pdf->gs, "%d pdfgetpage\n", i+1);
-		pdf->pagebbox[i] = pdfbbox(&pdf->gs);
+		pdf->pagebbox[i] = pdfbbox(pdf);
 		if(Dx(pdf->pagebbox[i]) <= 0)
 			pdf->pagebbox[i] = bbox;
 	}
-
 	return d;
 }
 
@@ -149,6 +149,7 @@ static char*
 pdfpagename(Document *d, int page)
 {
 	static char str[15];
+	
 	USED(d);
 	sprint(str, "p %d", page+1);
 	return str;

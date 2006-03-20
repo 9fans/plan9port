@@ -15,6 +15,7 @@
 #include <libc.h>
 #include <bio.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include "page.h"
 
@@ -54,6 +55,7 @@ moveup(Image *im, Image *tmp, int a, int b, int c, int axis)
 	drawop(tmp, tmp->r, im, nil, im->r.min, S);
 
 	switch(axis){
+	default:
 	case Xaxis:
 		range = Rect(a, im->r.min.y,  c, im->r.max.y);
 		dr0 = range;
@@ -88,6 +90,7 @@ interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
 	r0 = im->r;
 	r1 = im->r;
 	switch(axis) {
+	default:
 	case Xaxis:
 		r0.max.x = n;
 		r1.min.x = n;
@@ -245,6 +248,31 @@ rot90(Image *im)
 	return(tmp);
 }
 
+/* rotates an image 270 degrees clockwise */
+Image *
+rot270(Image *im)
+{
+	Image *tmp;
+	int i, j, dx, dy;
+
+	dx = Dx(im->r);
+	dy = Dy(im->r);
+	tmp = xallocimage(display, Rect(0, 0, dy, dx), im->chan, 0, DCyan);
+	if(tmp == nil) {
+		fprint(2, "out of memory during rot270: %r\n");
+		wexits("memory");
+	}
+
+	for(i = 0; i < dy; i++) {
+		for(j = 0; j < dx; j++) {
+			drawop(tmp, Rect(i, j, i+1, j+1), im, nil, Pt(dx-(j+1), i), S);
+		}
+	}
+	freeimage(im);
+
+	return(tmp);
+}
+
 /* from resample.c -- resize from → to using interpolation */
 
 
@@ -287,6 +315,7 @@ kaiser(double x, double tau, double alpha)
 		return 0.;
 	return i0(alpha*sqrt(1-(x*x/(tau*tau))))/i0(alpha);
 }
+
 
 void
 resamplex(uchar *in, int off, int d, int inx, uchar *out, int outx)

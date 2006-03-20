@@ -14,7 +14,7 @@ OFILES=\
 	util.$O\
 	view.$O\
 
-<$PLAN9/src//mkone
+<$PLAN9/src/mkone
 
 pdfprolog.c: pdfprolog.ps
 	cat pdfprolog.ps | sed 's/.*/"&\\n"/g' >pdfprolog.c

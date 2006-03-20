@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include "page.h"

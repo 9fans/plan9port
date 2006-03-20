@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include "page.h"
@@ -19,43 +20,6 @@ int wctlfd = -1;
 int stdinfd;
 int truecolor;
 int imagemode;
-int notewatcher;
-int notegp;
-
-int
-watcher(void *v, char *x)
-{
-	USED(v);
-
-	if(strcmp(x, "die") != 0)
-		postnote(PNGROUP, notegp, x);
-	_exits(0);
-	return 0;
-}
-
-int
-bell(void *u, char *x)
-{
-	if(x && strcmp(x, "hangup") == 0)
-		_exits(0);
-
-	if(x && strstr(x, "die") == nil)
-		fprint(2, "postnote %d: %s\n", getpid(), x);
-
-	/* alarms come from the gs monitor */
-	if(x && strstr(x, "alarm")){
-		postnote(PNGROUP, getpid(), "die (gs error)");
-		postnote(PNPROC, notewatcher, "die (gs error)");
-	}
-
-	/* function mentions u so that it's in the stack trace */
-	if((u == nil || u != x) && doabort)
-		abort();
-
-/*	fprint(2, "exiting %d\n", getpid()); */
-	wexits("note");
-	return 0;
-}
 
 static int
 afmt(Fmt *fmt)
@@ -128,23 +92,7 @@ main(int argc, char **argv)
 		usage();
 	}ARGEND;
 
-	notegp = getpid();
-
-	switch(notewatcher = fork()){
-	case -1:
-		sysfatal("fork\n");
-		exits(0);
-	default:
-		break;
-	case 0:
-		atnotify(watcher, 1);
-		for(;;)
-			sleep(1000);
-		_exits(0);
-	}
-
 	rfork(RFNOTEG);
-	atnotify(bell, 1);
 
 	readstdin = 0;
 	if(imagemode == 0 && argc == 0){
@@ -159,6 +107,8 @@ main(int argc, char **argv)
 
 	fmtinstall('R', Rfmt);
 	fmtinstall('P', Pfmt);
+	if(mknewwindow)
+		newwin();
 
 	if(readstdin){
 		b = nil;
@@ -229,8 +179,5 @@ main(int argc, char **argv)
 void
 wexits(char *s)
 {
-	if(s && *s && strcmp(s, "note") != 0 && mknewwindow)
-		sleep(10*1000);
-	postnote(PNPROC, notewatcher, "die");
 	exits(s);
 }

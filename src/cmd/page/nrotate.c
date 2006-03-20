@@ -15,6 +15,7 @@
 #include <libc.h>
 #include <bio.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include "page.h"
 

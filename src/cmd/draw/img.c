@@ -50,6 +50,7 @@ main(int argc, char **argv)
 
 	if((image=readimage(display, fd, 0)) == nil)
 		sysfatal("readimage: %r");
+	sleep(1000);
 
 	drawresizewindow(Rect(0,0,Dx(image->r),Dy(image->r)));
 
@@ -60,6 +61,7 @@ main(int argc, char **argv)
 		case Ekeyboard:
 			if(e.kbdc == 'q' || e.kbdc == 0x7F)
 				exits(nil);
+			eresized(0);
 			break;
 		case Emouse:
 			break;

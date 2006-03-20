@@ -226,7 +226,7 @@ connectto(char *machine, char **argv)
 	// count args
 	for(av = argv; *av; av++)
 		;
-	av = malloc(sizeof(char*)*((av-argv) + 5));
+	av = malloc(sizeof(char*)*((av-argv) + 10));
 	if(av == nil){
 		dprint("out of memory\n");
 		exits("fork/exec");
@@ -234,6 +234,8 @@ connectto(char *machine, char **argv)
 	ac = 0;
 	av[ac++] = RX;
 	av[ac++] = machine;
+	if(rxopt)
+		av[ac++] = rxopt;
 	av[ac++] = rsamname;
 	av[ac++] = "-R";
 	while(*argv)

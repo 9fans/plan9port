@@ -30,6 +30,7 @@ Disk	*disk;
 long	seq;
 
 char *winsize;
+char *rxopt;
 
 Rune	baddir[] = { '<', 'b', 'a', 'd', 'd', 'i', 'r', '>', '\n'};
 
@@ -55,6 +56,9 @@ main(int volatile argc, char **volatile argv)
 		break;
 	case 'R':
 		Rflag++;
+		break;
+	case 'O':
+		rxopt = EARGF(usage());
 		break;
 	case 't':
 		samterm = EARGF(usage());
@@ -118,7 +122,7 @@ main(int volatile argc, char **volatile argv)
 void
 usage(void)
 {
-	dprint("usage: sam [-d] [-t samterm] [-s sam name] -r machine\n");
+	dprint("usage: sam [-d] [-t samterm] [-s sam name] [-r machine] [file ...]\n");
 	exits("usage");
 }
 

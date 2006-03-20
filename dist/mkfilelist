@@ -67,7 +67,7 @@ awk -vplan9'='$PLAN9 '
 
 	/^font\/(big5|gb|jis|naga10|shinonome)/ { cat("font-asian") }
 	/^font\/LICENSE/ { cat("font-bh") }
-	/^font\/(lucida|lucidasans|lucm|pelm)\// { cat("font-bh") }
+	/^font\/(luc|lucsans|lucm|pelm)\// { cat("font-bh") }
 	/^font\/(MAP|fixed|misc|sample|smiley)/ { cat("font-core") }
 	/^font\/(palatino|times|special)/ { cat("font-proof") }
 	/^font\// { cat("font-core") }

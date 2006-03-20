@@ -7,6 +7,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include <ctype.h>
@@ -348,7 +349,7 @@ Keepreading:
 	d->fwdonly = ps->clueless = dumb;
 	d->docname = argv[0];
 
-	if(spawngs(&ps->gs) < 0)
+	if(spawngs(&ps->gs, "-dSAFER") < 0)
 		return nil;
 
 	if(!cantranslate)

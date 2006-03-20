@@ -7,6 +7,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include "page.h"
@@ -134,7 +135,7 @@ spawnmonitor(int fd)
 }
 
 int 
-spawngs(GSInfo *g)
+spawngs(GSInfo *g, char *safer)
 {
 	char *args[16];
 	char tb[32], gb[32];
@@ -158,7 +159,7 @@ spawngs(GSInfo *g)
 	nargs = 0;
 	args[nargs++] = "gs";
 	args[nargs++] = "-dNOPAUSE";
-	args[nargs++] = "-dSAFER";
+	args[nargs++] = safer;
 	args[nargs++] = "-sDEVICE=plan9";
 	args[nargs++] = "-sOutputFile=/fd/3";
 	args[nargs++] = "-dQUIET";
@@ -268,14 +269,11 @@ setdim(GSInfo *gs, Rectangle bbox, int ppi, int landscape)
 	if(!Dx(bbox))
 		bbox = Rect(0, 0, 612, 792);	/* 8½×11 */
 
-	switch(landscape){
-	case 0:
-		pbox = bbox;
-		break;
-	case 1:
+	if(landscape)
 		pbox = Rect(bbox.min.y, bbox.min.x, bbox.max.y, bbox.max.x);
-		break;
-	}
+	else
+		pbox = bbox;
+
 	gscmd(gs, "/PageSize [%d %d]\n", Dx(pbox), Dy(pbox));
 	gscmd(gs, "/Margins [%d %d]\n", -pbox.min.x, -pbox.min.y);
 	gscmd(gs, "currentdevice putdeviceprops pop\n");

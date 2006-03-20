@@ -6,6 +6,7 @@
 #include <libc.h>
 #include <draw.h>
 #include <cursor.h>
+#include <cursor.h>
 #include <event.h>
 #include <bio.h>
 #include <plumb.h>
@@ -16,7 +17,7 @@
 Document *doc;
 Image *im;
 int page;
-int upside = 0;
+int angle = 0;
 int showbottom = 0;		/* on the next showpage, move the image so the bottom is visible. */
 
 Rectangle ulrange;	/* the upper left corner of the image must be in this rectangle */
@@ -156,8 +157,17 @@ showpage(int page, Menu *m)
 		im = tmp;
 	}
 
-	if(upside)
+	switch(angle){
+	case 90:
+		im = rot90(im);
+		break;
+	case 180:
 		rot180(im);
+		break;
+	case 270:
+		im = rot270(im);
+		break;
+	}
 
 	esetcursor(nil);
 	if(showbottom){
@@ -390,7 +400,7 @@ viewer(Document *dd)
 				esetcursor(&reading);
 				rot180(im);
 				esetcursor(nil);
-				upside = !upside;
+				angle = (angle+180) % 360;
 				redraw(screen);
 				flushimage(display, 1);
 				break;
@@ -589,6 +599,7 @@ viewer(Document *dd)
 					esetcursor(&reading);
 					im = rot90(im);
 					esetcursor(nil);
+					angle = (angle+90) % 360;
 					redraw(screen);
 					flushimage(display, 1);
 					break;
@@ -598,7 +609,7 @@ viewer(Document *dd)
 					esetcursor(&reading);
 					rot180(im);
 					esetcursor(nil);
-					upside = !upside;
+					angle = (angle+180) % 360;
 					redraw(screen);
 					flushimage(display, 1);
 					break;
@@ -978,6 +989,67 @@ rdenv(char *name)
 	return v;
 }
 
+void
+newwin(void)
+{
+	char *srv, *mntsrv;
+	char spec[100];
+	int srvfd, cons, pid;
+
+	switch(rfork(RFFDG|RFPROC|RFNAMEG|RFENVG|RFNOTEG|RFNOWAIT)){
+	case -1:
+		fprint(2, "page: can't fork: %r\n");
+		wexits("no fork");
+	case 0:
+		break;
+	default:
+		wexits(0);
+	}
+
+	srv = rdenv("/env/wsys");
+	if(srv == 0){
+		mntsrv = rdenv("/mnt/term/env/wsys");
+		if(mntsrv == 0){
+			fprint(2, "page: can't find $wsys\n");
+			wexits("srv");
+		}
+		srv = malloc(strlen(mntsrv)+10);
+		sprint(srv, "/mnt/term%s", mntsrv);
+		free(mntsrv);
+		pid  = 0;			/* can't send notes to remote processes! */
+	}else
+		pid = getpid();
+	srvfd = open(srv, ORDWR);
+	free(srv);
+	if(srvfd == -1){
+		fprint(2, "page: can't open %s: %r\n", srv);
+		wexits("no srv");
+	}
+	sprint(spec, "new -pid %d", pid);
+	if(mount(srvfd, -1, "/mnt/wsys", 0, spec) == -1){
+		fprint(2, "page: can't mount /mnt/wsys: %r (spec=%s)\n", spec);
+		wexits("no mount");
+	}
+	close(srvfd);
+	unmount("/mnt/acme", "/dev");
+	bind("/mnt/wsys", "/dev", MBEFORE);
+	cons = open("/dev/cons", OREAD);
+	if(cons==-1){
+	NoCons:
+		fprint(2, "page: can't open /dev/cons: %r");
+		wexits("no cons");
+	}
+	dup(cons, 0);
+	close(cons);
+	cons = open("/dev/cons", OWRITE);
+	if(cons==-1)
+		goto NoCons;
+	dup(cons, 1);
+	dup(cons, 2);
+	close(cons);
+//	wctlfd = open("/dev/wctl", OWRITE);
+}
+
 Rectangle
 screenrect(void)
 {
@@ -1011,7 +1083,7 @@ zerox(void)
 		case 0: 
 			dup(pfd[1], 0);
 			close(pfd[0]);
-			execl("/bin/page", "page", "-w", 0);
+			execl("/bin/page", "page", "-w", nil);
 			wexits("cannot exec in zerox: %r\n");
 		default:
 			close(pfd[1]);
