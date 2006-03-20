@@ -1,6 +1,19 @@
 
 This directory is intended to contain the same files
-as in /sys/lib/postscript/font in a Plan 9 distribution.
+as in /sys/lib/postscript/font in a Plan 9 distribution,
+including the Lucida Sans Unicode font from B&H.  
 The terms of the font license in Plan 9 do not permit 
 us to distribute those files here.
+
+As a substitute for the Lucida Sans fonts, 
+Plan 9 from User Space provides Luxi Sans,
+also by B&H but available under a more liberal
+license, and Deja Vu, a Unicode extension of the
+Bitstream Vera family of fonts.
+
+Luxi Sans is similar to Lucida Sans except that
+it has no Unicode support.  Deja Vu does have 
+good Unicode support.
+
+
 
