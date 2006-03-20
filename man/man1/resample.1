@@ -1,0 +1,58 @@
+.TH RESAMPLE 1
+.SH NAME
+resample \- resample a picture
+.SH SYNOPSIS
+.B resample
+[
+.B -x
+.I size
+] [
+.B -y
+.I size
+] [
+.I file
+]
+.SH DESCRIPTION
+.I Resample
+resamples its input image (default standard input) to a new size.
+The image is decimated or interpolated using
+a Kaiser window.
+.PP
+The size of the resampled image can be specified
+with the
+.B -x
+and
+.B -y
+options.
+An unadorned value sets the number of pixels of that dimension; a suffixed percent sign specifies a percentage.
+If only one of
+.B -x
+or
+.B -y
+is given, the other dimension is scaled to preserve
+the aspect ratio of the original image.
+Thus,
+.B -x50%
+will reduce the image to half its original dimension in both
+.B x
+and
+.BR y .
+.PP
+The input should be a Plan 9 image
+as described in 
+.IR image (6),
+and the output will be a compressed 24-bit
+.B r8g8b8
+image.
+To uncompress the image or change the pixel format, use
+.I iconv
+(see
+.IR crop (1)).
+.PP
+.SH SOURCE
+.B \*9/src/cmd/resample.c
+.SH "SEE ALSO
+.IR crop (1),
+.IR image (6)
+.SH BUGS
+Faster algorithms exist, but this implementation produces correct pictures.
