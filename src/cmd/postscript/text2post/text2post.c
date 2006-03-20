@@ -105,15 +105,14 @@ struct strtab charcode[256] = {
 	{4, "\\374"}, {4, "\\375"}, {4, "\\376"}, {4, "\\377"}
 };
 
-#define FONTABSIZE 0x27
-
+#define FONTABSIZE 0x2D
 struct strtab fontname[FONTABSIZE] = {
-	{19, "LucidaSansUnicode00", 0},
-	{19, "LucidaSansUnicode01", 0},
-	{19, "LucidaSansUnicode02", 0},
-	{19, "LucidaSansUnicode03", 0},
-	{19, "LucidaSansUnicode04", 0},
-	{19, "LucidaSansUnicode05", 0},
+	{12, "DejaVuSans00", 0},
+	{12, "DejaVuSans01", 0},
+	{12, "DejaVuSans02", 0},
+	{12, "DejaVuSans03", 0},
+	{12, "DejaVuSans04", 0},
+	{12, "DejaVuSans05", 0},
 	{0, "", 0},
 	{0, "", 0},
 	{0, "", 0},
@@ -137,17 +136,65 @@ struct strtab fontname[FONTABSIZE] = {
 	{0, "", 0},
 	{0, "", 0},
 	{0, "", 0},
-	{0, "", 0},
-	{0, "", 0},
-	{0, "", 0},
-	{19, "LucidaSansUnicode20", 0},
-	{19, "LucidaSansUnicode21", 0},
-	{19, "LucidaSansUnicode22", 0},
-	{0, "", 0},
-	{19, "LucidaSansUnicode24", 0},
-	{19, "LucidaSansUnicode25", 0},
+	{12, "DejaVuSans1D", 0},
+	{12, "DejaVuSans1E", 0},
+	{12, "DejaVuSans1F", 0},
+	{12, "DejaVuSans20", 0},
+	{12, "DejaVuSans21", 0},
+	{12, "DejaVuSans22", 0},
+	{12, "DejaVuSans23", 0},
+	{12, "DejaVuSans24", 0},
+	{12, "DejaVuSans25", 0},
+	{12, "DejaVuSans26", 0},
+	{12, "DejaVuSans27", 0},
+	{12, "DejaVuSans28", 0},
+	{12, "DejaVuSans29", 0},
+	{12, "DejaVuSans2A", 0},
+	{12, "DejaVuSans2B", 0},
 	{7, "Courier", 0}
 };
+
+/*
+#define FONTABSIZE 0x24
+struct strtab fontname[FONTABSIZE] = {
+	{10, "LuxiSans00", 0},
+	{10, "LuxiSans01", 0},
+	{10, "LuxiSans02", 0},
+	{10, "LuxiSans03", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{0, "", 0},
+	{10, "LuxiSans20", 0},
+	{10, "LuxiSans21", 0},
+	{10, "LuxiSans22", 0},
+	{7, "Courier", 0}
+};
+*/
 
 /* This was taken from postprint */
 
@@ -157,6 +204,7 @@ cat(char *filename) {
 	int n;
 	static char buf[Bsize];
 
+	filename = unsharp(filename);
 	bstdin = Bopen(filename, 0);
 	if (bstdin == 0) {
 		return(1);
@@ -411,10 +459,11 @@ void
 pagelist(char *list) {
 	char c;
 	int n, m;
-	int state, start, end;
+	int state, start;
 
 	if (list == 0) return;
 	state = 1;
+	start = 0;
 	while ((c=*list) != '\0') {
 		n = 0;
 		while (isdigit(c)) {
@@ -468,10 +517,10 @@ finish(void) {
 
 }
 
+int
 main(int argc, char *argv[]) {
 	int i;
 	char *t;
-	Biobuf *input;
 
 	if ((bstderr = (Biobuf *)malloc(sizeof(Biobuf))) < (Biobuf *)0)
 		exits("malloc");
@@ -561,4 +610,5 @@ main(int argc, char *argv[]) {
 	}
 	finish();
 	exits("");
+	return 0;
 }

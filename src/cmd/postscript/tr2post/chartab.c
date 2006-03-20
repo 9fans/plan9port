@@ -1,6 +1,6 @@
 /*    Unicode   |     PostScript
  *  start  end  | offset  font name
- * 0x0000 0x00ff  0x00   LucidaSansUnicode00
+ * 0x0000 0x00ff  0x00   LuxiSans00
  */
 #include <u.h>
 #include <libc.h>
@@ -10,7 +10,7 @@
 #include "comments.h"
 #include "path.h"
 
-/* Postscript font names, e.g., `LucidaSansUnicode00'
+/* Postscript font names, e.g., `LuxiSans00'
  * names may only be added because reference to the
  * names is made by indexing into this table.
  */
