@@ -15,7 +15,6 @@ usegcc()
 		-Wno-sign-compare \
 		-Wno-unknown-pragmas \
 		-fno-omit-frame-pointer \
-		-fno-inline-functions-called-once \
 	"
 	# want to put -fno-optimize-sibling-calls here but
 	# that option only works with gcc3+ it seems
