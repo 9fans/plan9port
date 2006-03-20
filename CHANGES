@@ -1,3 +1,65 @@
+March 19, 2006
+	9pclient(3): document new functions
+	jpg, gif, etc.: resize window to fit image (Erik Quanstrom)
+	man: add htmlroff(1), mhtml(7)
+	page (source code): various cleanup, still not working
+	rc: fix lexing overflow bug
+	resample: import from Plan 9
+	sam: fix usage
+	upas/smtp: be more lenient about \r
+
+	new postscript fonts DejaVu and Luxi families
+	- postscript/font: new files
+	- postscript/troff: Unicode maps
+	- troff/font/devutf: descriptions and metrics
+	- tmac/tmac.an: use Luxi Sans in man pages
+	- tmac/tmac.s: .FP luxisans
+	- dist/troff: tools for importing new fonts
+	- troff2html: recognize new man fonts
+	- postscript/text2post: use DejaVu font
+	
+	new license for bitmap fonts from B&H
+	- font/luc, font/lucsans: new directory names
+	- font/^(luc lucm lucsans pelm)^/NOTICE: distribution terms
+	- font/LICENSE: pointers to new terms
+	- LICENSE: pointer to new terms
+	- font/lucsans/*.font: use new luc name
+	- font/shinonome/*.font: use new luc name
+	- dist/main.html: acknowledge B&H
+	- acme, scat, venti/srv: use new names
+
+March 12, 2006
+	libdraw: import new latin1 tables
+	label(1): fix typo (Georg Neis)
+
+March 9, 2006
+	libdraw: new X11 snarf type for Synergy (Paul LaLonde)
+		possible flushimage to fix jpg (Erik Quanstrom)
+
+March 7, 2006
+	acme Mail: seek to end of outgoing file
+
+March 5, 2006
+	libmp: mptouv bug fix
+
+March 3, 2006
+	lib9: change 9P2000.u Tcreate message
+	acme Mail: various updates
+	ndb: add subscript to tolower() call
+	upas: various cleanup
+	upas/nfs: use valid imap tag (Lou Kamenov)
+
+March 2, 2006
+	lib9: avoid redefining sched_yield (Christian Pfeil)
+
+February 28, 2006
+	libdraw: use Carbon pasteboard directly on OS X
+	upas/nfs: avoid reserved word 'isnumber'
+	snarfer: new command
+
+February 27, 2006
+	acme Mail: new Delmesg argument
+
 February 25, 2006
 	faces: locking mistakes (Erik Quanstrom)
 	nedmail: minor fixes (Erik Quanstrom)
