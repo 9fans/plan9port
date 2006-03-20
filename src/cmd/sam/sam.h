@@ -348,7 +348,6 @@ extern char	SH[];
 extern char	SHPATH[];
 extern char	RX[];
 extern char	RXPATH[];
-extern char	*rxopt;
 
 /*
  * acme globals

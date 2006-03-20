@@ -30,7 +30,6 @@ Disk	*disk;
 long	seq;
 
 char *winsize;
-char *rxopt;
 
 Rune	baddir[] = { '<', 'b', 'a', 'd', 'd', 'i', 'r', '>', '\n'};
 
@@ -56,9 +55,6 @@ main(int volatile argc, char **volatile argv)
 		break;
 	case 'R':
 		Rflag++;
-		break;
-	case 'O':
-		rxopt = EARGF(usage());
 		break;
 	case 't':
 		samterm = EARGF(usage());
