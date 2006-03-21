@@ -319,7 +319,7 @@ rowdump(Row *row, char *file)
 	uint q0, q1;
 	Biobuf *b;
 	char *buf, *a, *fontname;
-	Rune *r;
+	Rune *r, *rp;
 	Column *c;
 	Window *w, *w1;
 	Text *t;
@@ -417,11 +417,17 @@ rowdump(Row *row, char *file)
 			Bwrite(b, buf, strlen(buf));
 			m = min(RBUFSIZE, w->tag.file->b.nc);
 			bufread(&w->tag.file->b, 0, r, m);
+			if(dodollarsigns && r[0] == '$'){
+				rp = runestrdup(r);
+				expandenv(&rp, (uint*)&m);
+			}else
+				rp = r;
 			n = 0;
-			while(n<m && r[n]!='\n')
+			while(n<m && rp[n]!='\n')
 				n++;
-			r[n++] = '\n';
-			Bprint(b, "%.*S", n, r);
+			Bprint(b, "%.*S\n", n, rp);
+			if(rp != r)
+				free(rp);
 			if(dumped){
 				q0 = 0;
 				q1 = t->file->b.nc;
