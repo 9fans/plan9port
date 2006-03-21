@@ -68,6 +68,7 @@ struct Msg
 	uchar *bp;
 	uchar *p;
 	uchar *ep;
+	int bpalloc;
 };
 
 char adir[40];
@@ -279,6 +280,22 @@ getmp2(Msg *m)
 	return betomp(p, n, nil);
 }
 
+void
+newmsg(Msg *m)
+{
+	memset(m, 0, sizeof *m);
+}
+
+void
+mreset(Msg *m)
+{
+	if(m->bpalloc){
+		memset(m->bp, 0, m->ep-m->bp);
+		free(m->bp);
+	}
+	memset(m, 0, sizeof *m);
+}
+
 Msg*
 getm(Msg *m, Msg *mm)
 {
@@ -291,21 +308,35 @@ getm(Msg *m, Msg *mm)
 	mm->bp = p;
 	mm->p = p;
 	mm->ep = p+n;
+	mm->bpalloc = 0;
 	return mm;
 }
 
 uchar*
 ensure(Msg *m, int n)
 {
-	int len, plen;
+	int len;
 	uchar *p;
-	
+	uchar *obp;
+
+	if(m->bp == nil)
+		m->bpalloc = 1;
+	if(!m->bpalloc){
+		p = emalloc(m->ep - m->bp);
+		memmove(p, m->bp, m->ep - m->bp);
+		obp = m->bp;
+		m->bp = p;
+		m->ep += m->bp - obp;
+		m->p += m->bp - obp;
+		m->bpalloc = 1;
+	}
 	len = m->ep - m->bp;
 	if(m->p+n > m->ep){
-		plen = m->p - m->bp;
+		obp = m->bp;
 		m->bp = erealloc(m->bp, len+n+1024);
-		m->p = m->bp+plen;
-		m->ep = m->bp+len+n+1024;
+		m->p += m->bp - obp;
+		m->ep += m->bp - obp;
+		m->ep += n+1024;
 	}
 	p = m->p;
 	m->p += n;
@@ -407,12 +438,6 @@ putm(Msg *m, Msg *mm)
 }
 
 void
-newmsg(Msg *m)
-{
-	memset(m, 0, sizeof *m);
-}
-
-void
 newreply(Msg *m, int type)
 {
 	memset(m, 0, sizeof *m);
@@ -433,10 +458,9 @@ reply(Aconn *a, Msg *m)
 	p[2] = (n>>8)&0xFF;
 	p[3] = n&0xFF;
 	if(chatty)
-		fprint(2, "respond %d: %.*H\n", p[4], n, m->bp+4);
+		fprint(2, "respond %d t=%d: %.*H\n", n, p[4], n, m->bp+4);
 	write(a->fd, p, n+4);
-	free(p);
-	memset(m, 0, sizeof *m);
+	mreset(m);
 }
 
 typedef struct Key Key;
@@ -605,7 +629,7 @@ putkey2(Msg *m, int (*put)(Msg*,char**,int), char **f, int nf)
 	if(put(&mm, f, nf) < 0)
 		return -1;
 	putm(m, &mm);
-	free(mm.bp);
+	mreset(&mm);
 	p = find(f, nf, "comment");
 	if(p == nil)
 		p = "";
@@ -628,7 +652,7 @@ printkey(char *type, int (*put)(Msg*,char**,int), char **f, int nf)
 	if(chatty)
 		printattr(f, nf);
 	print("%s %.*[ %s\n", type, m.p-m.bp, m.bp, p);
-	free(m.bp);
+	mreset(&m);
 	return 0;
 }
 
@@ -655,12 +679,12 @@ static int
 listkeys(Msg *m, int version)
 {
 	char buf[8192+1], *line[100], *f[20], *p, *s;
-	uchar *pnk;
+	int pnk;
 	int i, n, nl, nf, nk;
 	CFid *fid;
 
 	nk = 0;
-	pnk = m->p;
+	pnk = m->p - m->bp;
 	put4(m, 0);
 	if((fid = nsopen(factotum, nil, "ctl", OREAD)) == nil){
 		fprint(2, "ssh-agent: open factotum: %r\n");
@@ -693,18 +717,20 @@ listkeys(Msg *m, int version)
 					nk++;
 		}
 	}
+	if(chatty)
+		fprint(2, "sending %d keys\n", nk);
 	fsclose(fid);
-	pnk[0] = (nk>>24)&0xFF;
-	pnk[1] = (nk>>16)&0xFF;
-	pnk[2] = (nk>>8)&0xFF;
-	pnk[3] = nk&0xFF;
+	m->bp[pnk+0] = (nk>>24)&0xFF;
+	m->bp[pnk+1] = (nk>>16)&0xFF;
+	m->bp[pnk+2] = (nk>>8)&0xFF;
+	m->bp[pnk+3] = nk&0xFF;
 	return nk;
 }
 
 void
 listkeystext(void)
 {
-	char buf[4096+1], *line[100], *f[20], *p, *s;
+	char buf[8192+1], *line[100], *f[20], *p, *s;
 	int i, n, nl, nf;
 	CFid *fid;
 
@@ -937,7 +963,7 @@ runmsg(Aconn *a)
 	Identities:
 		nk = listkeys(&m, vers);
 		if(nk < 0){
-			free(m.bp);
+			mreset(&m);
 			goto Failure;
 		}
 		if(chatty)
@@ -990,7 +1016,7 @@ runmsg(Aconn *a)
 				msig.p-msig.bp, msig.bp);
 		newreply(&m, SSH2_AGENT_SIGN_RESPONSE);
 		putm(&m, &msig);
-		free(msig.bp);
+		mreset(&msig);
 		reply(a, &m);
 		break;
 		
