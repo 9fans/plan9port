@@ -805,8 +805,49 @@ if(chatty9p)
 		abort();
 	}
 	assert(n > 2);
+	/*
+	 * There is a race here - we must remove the entry before
+	 * the write, so that if the client is very fast and reuses the
+	 * tag, the read loop won't think it is still in use.
+	 * 
+	 * By removing the entry before the write, we open up a 
+	 * race with incoming Tflush messages.  Specifically, an
+	 * incoming Tflush might not see r even though it has not
+	 * yet been responded to.  It would then send an Rflush
+	 * immediately, potentially before we do the write.  This can't
+	 * happen because we already old srv->wlock, so nothing
+	 * is going out on the wire before this write.
+	 */
 	if(r->pool)	/* not a fake */
 		closereq(removereq(r->pool, r->ifcall.tag));
+
+	qlock(&r->lk);
+	r->responded = 1;
+	if(r->pool)
+	if(r->ref.ref == 1+r->nflush)
+	if(r->fid){
+		/*
+		 * There are no references other than in our r->flush array,
+		 * so no one else should be accessing r concurrently.
+		 * Close the fid now, before responding to the message.
+		 * 
+		 * If the client is behaving (there are no outstanding T-messages
+		 * that reference r->fid) and the message is a Tclunk or Tremove,
+		 * then this closefid will call destroyfid.  
+		 * 
+		 * This means destroyfid can't piddle around 
+		 * indefinitely (we're holding srv->wlock!), but it provides
+		 * for tighter semantics as to when destroyfid is called.
+		 *
+		 * LANL has observed cases where waiting until after the write
+		 * can delay a closefid on a Twrite for many 9P transactions,
+		 * so that a handful of transactions can happen including a Tclunk
+		 * and a Topen, and the original fid will still not be destroyed.
+		 */
+		closefid(r->fid);
+		r->fid = nil;
+	}
+	qunlock(&r->lk);
 	m = write(srv->outfd, srv->wbuf, n);
 	if(m != n)
 		sysfatal("lib9p srv: write %d returned %d on fd %d: %r", n, m, srv->outfd);
@@ -814,8 +855,7 @@ if(chatty9p)
 
 free:
 	qlock(&r->lk);	/* no one will add flushes now */
-	r->responded = 1;
-	
+
 	for(i=0; i<r->nflush; i++)
 		respond(r->flush[i], nil);
 	free(r->flush);
