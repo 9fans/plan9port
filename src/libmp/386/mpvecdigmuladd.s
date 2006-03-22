@@ -27,15 +27,16 @@
 	.type mpvecdigmuladd, @function
 mpvecdigmuladd:
 	/* Prelude */
-	pushl %ebp
-	movl %ebx, -4(%esp)		/* save on stack */
-	movl %esi, -8(%esp)
-	movl %edi, -12(%esp)
+	pushl %ebp		/* save on stack */
+	pushl %ebx
+	pushl %esi
+	pushl %edi
 
-	movl	8(%esp), %esi		/* b */
-	movl	12(%esp), %ecx		/* n */
-	movl	16(%esp), %ebx		/* m */
-	movl	20(%esp), %edi		/* p */
+	leal 20(%esp), %ebp		/* %ebp = FP for now */
+	movl	0(%ebp), %esi		/* b */
+	movl	4(%ebp), %ecx		/* n */
+	movl	8(%ebp), %ebx		/* m */
+	movl	12(%ebp), %edi		/* p */
 	movl	%ecx, %ebp
 	negl	%ebp			/* BP = -n */
 	shll	$2, %ecx
@@ -61,9 +62,9 @@ _muladdnocarry2:
 	adcl	%eax, %eax		/* return carry out of p[n] */
 
 	/* Postlude */
-	movl -4(%esp), %ebx		/* restore from stack */
-	movl -8(%esp), %esi
-	movl -12(%esp), %edi
-	movl %esp, %ebp
-	leave
+	popl %edi
+	popl %esi
+	popl %ebx
+	popl %ebp
 	ret
+

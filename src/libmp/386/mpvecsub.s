@@ -10,16 +10,18 @@
 	.type mpvecsub, @function
 mpvecsub:
 	/* Prelude */
-	pushl %ebp
-	movl %ebx, -4(%esp)		/* save on stack */
-	movl %esi, -8(%esp)
-	movl %edi, -12(%esp)
+	pushl %ebp		/* save on stack */
+	pushl %ebx
+	pushl %esi
+	pushl %edi
 
-	movl	8(%esp), %esi		/* a */
-	movl	16(%esp), %ebx		/* b */
-	movl	12(%esp), %edx		/* alen */
-	movl	20(%esp), %ecx		/* blen */
-	movl	24(%esp), %edi		/* diff */
+	leal 20(%esp), %ebp		/* %ebp = FP for now */
+	movl	0(%ebp), %esi		/* a */
+	movl	8(%ebp), %ebx		/* b */
+	movl	4(%ebp), %edx		/* alen */
+	movl	12(%ebp), %ecx		/* blen */
+	movl	16(%ebp), %edi		/* diff */
+
 	subl	%ecx,%edx
 	xorl	%ebp,%ebp			/* this also sets carry to 0 */
 
@@ -46,15 +48,14 @@ _subloop2:
 	movl	(%esi, %ebp, 4), %eax
 	sbbl	$0, %eax
 	movl	%eax, (%edi, %ebp, 4)
-	INCL	%ebp
-	LOOP	_subloop2
+	incl	%ebp
+	loop	_subloop2
 
 done:
 	/* Postlude */
-	movl -4(%esp), %ebx		/* restore from stack */
-	movl -8(%esp), %esi
-	movl -12(%esp), %edi
-	movl %esp, %ebp
-	leave
+	popl %edi
+	popl %esi
+	popl %ebx
+	popl %ebp
 	ret
 

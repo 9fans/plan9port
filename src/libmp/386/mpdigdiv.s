@@ -1,19 +1,19 @@
 .text
-
 .p2align 2,0x90
 .globl mpdigdiv
 	.type mpdigdiv, @function
 mpdigdiv:
 	/* Prelude */
-	pushl %ebp
-	movl %ebx, -4(%esp)		/* save on stack */
+	pushl %ebp		/* save on stack */
+	pushl %ebx
+	
+	leal 12(%esp), %ebp	/* %ebp = FP for now */
+	movl 0(%ebp), %ebx	/* dividend */
+	movl 0(%ebx), %eax
+	movl 4(%ebx), %edx
+	movl 4(%ebp), %ebx	/* divisor */
+	movl 8(%ebp), %ebp	/* quotient */
 
-	movl	8(%esp), %ebx
-	movl	(%ebx), %eax
-	movl	4(%ebx), %edx
-
-	movl	12(%esp), %ebx
-	movl	16(%esp), %ebp
 	xorl	%ecx, %ecx
 	cmpl	%ebx, %edx		/* dividend >= 2^32 * divisor */
 	jae	divovfl
@@ -21,19 +21,14 @@ mpdigdiv:
 	je	divovfl
 	divl	%ebx		/* AX = DX:AX/BX */
 	movl	%eax, (%ebp)
-	jmp done
+done:
+	/* Postlude */
+	popl %ebx
+	popl %ebp
+	ret
 
 	/* return all 1's */
 divovfl:
 	notl	%ecx
 	movl	%ecx, (%ebp)
-
-done:
-	/* Postlude */
-	movl -4(%esp), %ebx		/* restore from stack */
-	movl %esp, %ebp
-	leave
-	ret
-
-.endmpdigdiv:
-	.size mpdigdiv,.endmpdigdiv-mpdigdiv
+	jmp done

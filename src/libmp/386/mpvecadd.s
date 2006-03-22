@@ -10,17 +10,19 @@
 	.type mpvecadd, @function
 mpvecadd:
 	/* Prelude */
-	pushl %ebp
-	movl %ebx, -4(%esp)		/* save on stack */
-	movl %esi, -8(%esp)
-	movl %edi, -12(%esp)
+	pushl %ebp		/* save on stack */
+	pushl %ebx
+	pushl %esi
+	pushl %edi
 
-	movl	12(%esp), %edx		/* alen */
-	movl	20(%esp), %ecx		/* blen */
-	movl	8(%esp), %esi		/* a */
-	movl	16(%esp), %ebx		/* b */
+	leal 20(%esp), %ebp		/* %ebp = FP for now */
+
+	movl	4(%ebp), %edx		/* alen */
+	movl	12(%ebp), %ecx		/* blen */
+	movl	0(%ebp), %esi		/* a */
+	movl	8(%ebp), %ebx		/* b */
 	subl	%ecx, %edx
-	movl	24(%esp), %edi		/* sum */
+	movl	16(%ebp), %edi		/* sum */
 	xorl	%ebp, %ebp		/* this also sets carry to 0 */
 
 	/* skip addition if b is zero */
@@ -62,9 +64,8 @@ _addloop2:
 
 done:
 	/* Postlude */
-	movl -4(%esp), %ebx		/* restore from stack */
-	movl -8(%esp), %esi
-	movl -12(%esp), %edi
-	movl %esp, %ebp
-	leave
+	popl %edi
+	popl %esi
+	popl %ebx
+	popl %ebp
 	ret
