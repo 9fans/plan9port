@@ -200,13 +200,18 @@ xgetsnarf(void)
 	
 	xd = xdisplay;
 
+	w = None;
+	clipboard = None;
+
 	/*
 	 * Is there a primary selection (highlighted text in an xterm)?
 	 */
-	clipboard = XA_PRIMARY;
-	w = XGetSelectionOwner(xd, XA_PRIMARY);
-	if(w == drawable)
-		return snarf;
+	if(0){
+		clipboard = XA_PRIMARY;
+		w = XGetSelectionOwner(xd, XA_PRIMARY);
+		if(w == drawable)
+			return snarf;
+	}
 
 	/*
 	 * If not, is there a clipboard selection?
