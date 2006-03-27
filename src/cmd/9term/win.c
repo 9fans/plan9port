@@ -214,11 +214,8 @@ error(char *s, ...)
 		va_start(arg, s);
 		s = vsmprint(s, arg);
 		va_end(arg);
-	}
-	if(s)
 		fprint(2, "win: %s: %r\n", s);
-	else
-		s = "kill";
+	}
 	if(pid != -1)
 		postnote(PNGROUP, pid, "hangup");
 	threadexitsall(s);
