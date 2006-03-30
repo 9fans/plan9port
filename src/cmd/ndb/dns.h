@@ -86,8 +86,8 @@ enum
 	/* length of domain name hash table */
 	HTLEN= 		4*1024,
 
-	RRmagic=	0xdeadbabe,
-	DNmagic=	0xa110a110,
+#define 	RRmagic	0xdeadbabe
+#define	DNmagic	0xa110a110
 
 	/* parallelism */
 	Maxactive=	32,
@@ -197,7 +197,7 @@ struct RR
 	uchar	db;		/* from database */
 	uchar	cached;		/* rr in cache */
 	ulong	marker;		/* used locally when scanning rrlists */
-	union {
+/*	union { */
 		DN	*negsoaowner;	/* soa for cached negative response */
 		DN	*host;	/* hostname - soa, cname, mb, md, mf, mx, ns */
 		DN	*cpu;	/* cpu type - hinfo */
@@ -206,8 +206,8 @@ struct RR
 		DN	*rp;	/* rp arg - rp */
 		int	cruftlen;
 		ulong	arg0;
-	};
-	union {
+/*	}; */
+/*	union { */
 		int	negrcode;	/* response code for cached negative response */
 		DN	*rmb;	/* responsible maibox - minfo, soa, rp */
 		DN	*ptr;	/* pointer to domain name - ptr */
@@ -215,15 +215,15 @@ struct RR
 		ulong	pref;	/* preference value - mx */
 		ulong	local;	/* ns served from local database - ns */
 		ulong	arg1;
-	};
-	union {
+/*	}; */
+/*	union { */
 		SOA	*soa;	/* soa timers - soa */
 		Key	*key;
 		Cert	*cert;
 		Sig	*sig;
 		Null	*null;
 		Txt	*txt;
-	};
+/*	}; */
 };
 
 /*
