@@ -324,7 +324,6 @@ extern int	tsame(int, int);
 extern void	dndump(char*);
 extern int	getactivity(Request*);
 extern void	putactivity(void);
-extern void	abort(); /* char*, ... */;
 extern void	warning(char*, ...);
 extern void	dncheck(void*, int);
 extern void	unique(RR*);
