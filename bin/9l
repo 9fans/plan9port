@@ -303,7 +303,7 @@ fi
 xtmp=/tmp/9l.$$.$USER.out
 xxout() {
 	sed 's/.*: In function `[^:]*: *//' $xtmp | egrep . | 
-	egrep -v 'is almost always misused' $xtmp
+	egrep -v 'is almost always misused' 
 	rm -f $xtmp
 }
 
