@@ -94,7 +94,8 @@ enum {
 	Simplemask=1<<1,
 	Replsrc=1<<2,
 	Replmask=1<<3,
-	Fullmask=1<<4,
+	Fullsrc = 1<<4,
+	Fullmask=1<<5,
 };
 struct	Memdrawparam
 {
