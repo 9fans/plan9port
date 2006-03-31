@@ -80,7 +80,7 @@ u32int _imgtorgba(Memimage*, u32int);
 u32int _rgbatoimg(Memimage*, u32int);
 u32int _pixelbits(Memimage*, Point);
 
-#define DBG if(0)
+#define DBG if(drawdebug)
 static Memdrawparam par;
 
 Memdrawparam*
@@ -123,6 +123,8 @@ DBG	print("memimagedraw %p/%luX %R @ %p %p/%luX %P %p/%luX %P... ", dst, dst->ch
 //				if (drawdebug) iprint("fill with transparent source\n");
 				return nil;	/* no-op successfully handled */
 			}
+			if((par.srgba&0xFF) == 0xFF)
+				par.state |= Fullsrc;
 		}
 	}
 
@@ -600,7 +602,7 @@ dumpbuf(char *s, Buffer b, int n)
  * the calculator, and that buffer is passed to a function to write it to the destination.
  * If the buffer is already pointing at the destination, the writing function is a no-op.
  */
-#define DBG if(0)
+#define DBG if(drawdebug)
 static int
 alphadraw(Memdrawparam *par)
 {
@@ -614,6 +616,8 @@ alphadraw(Memdrawparam *par)
 	Memimage *src, *mask, *dst;
 	Rectangle r, sr, mr;
 
+	if(drawdebug)
+		print("alphadraw %R\n", par->r);
 	r = par->r;
 	dx = Dx(r);
 	dy = Dy(r);
@@ -748,6 +752,9 @@ alphadraw(Memdrawparam *par)
 	assert(0 <= masky && masky < Dy(mask->r));
 	assert(0 <= dsty && dsty < Dy(dst->r));
 
+	if(drawdebug)
+		print("alphadraw: rdsrc=%p rdmask=%p rddst=%p calc=%p wrdst=%p\n",
+			rdsrc, rdmask, rddst, calc, wrdst);
 	for(y=starty; y!=endy; y+=dir, srcy+=dir, masky+=dir, dsty+=dir){
 		clipy(src, &srcy);
 		clipy(dst, &dsty);
@@ -762,6 +769,7 @@ DBG		dumpbuf("src", bsrc, dx);
 DBG		dumpbuf("mask", bmask, dx);
 DBG		dumpbuf("dst", bdst, dx);
 		bdst = calc(bdst, bsrc, bmask, dx, isgrey, op);
+DBG		dumpbuf("bdst", bdst, dx);
 		wrdst(&dpar, dpar.bytermin+dsty*dpar.bwidth, bdst);
 	}
 
@@ -1471,7 +1479,7 @@ writecmap(Param *p, uchar *w, Buffer src)
 		*w++ = cmap[(*red>>4)*256+(*grn>>4)*16+(*blu>>4)];
 }
 
-#define DBG if(0)
+#define DBG if(drawdebug)
 static Buffer
 readbyte(Param *p, uchar *buf, int y)
 {
@@ -1496,7 +1504,6 @@ readbyte(Param *p, uchar *buf, int y)
 	alphaonly = p->alphaonly;
 	copyalpha = (img->flags&Falpha) ? 1 : 0;
 
-DBG print("copyalpha %d alphaonly %d convgrey %d isgrey %d\n", copyalpha, alphaonly, convgrey, isgrey);
 	/* if we can, avoid processing everything */
 	if(!(img->flags&Frepl) && !convgrey && (img->flags&Fbytes)){
 		memset(&b, 0, sizeof b);
@@ -1521,7 +1528,6 @@ DBG print("copyalpha %d alphaonly %d convgrey %d isgrey %d\n", copyalpha, alphao
 		return b;
 	}
 
-DBG print("2\n");
 	rrepl = replbit[img->nbits[CRed]];
 	grepl = replbit[img->nbits[CGreen]];
 	brepl = replbit[img->nbits[CBlue]];
@@ -1530,10 +1536,8 @@ DBG print("2\n");
 
 	for(i=0; i<dx; i++){
 		u = r[0] | (r[1]<<8) | (r[2]<<16) | (r[3]<<24);
-		if(copyalpha) {
+		if(copyalpha)
 			*w++ = arepl[(u>>img->shift[CAlpha]) & img->mask[CAlpha]];
-DBG print("a %x\n", w[-1]);
-		}
 
 		if(isgrey)
 			*w++ = krepl[(u >> img->shift[CGrey]) & img->mask[CGrey]];
@@ -1542,9 +1546,7 @@ DBG print("a %x\n", w[-1]);
 			ugrn = grepl[(u >> img->shift[CGreen]) & img->mask[CGreen]];
 			ublu = brepl[(u >> img->shift[CBlue]) & img->mask[CBlue]];
 			if(convgrey){
-DBG print("g %x %x %x\n", ured, ugrn, ublu);
 				*w++ = RGB2K(ured, ugrn, ublu);
-DBG print("%x\n", w[-1]);
 			}else{
 				*w++ = brepl[(u >> img->shift[CBlue]) & img->mask[CBlue]];
 				*w++ = grepl[(u >> img->shift[CGreen]) & img->mask[CGreen]];
@@ -1567,7 +1569,6 @@ DBG print("%x\n", w[-1]);
 		b.grey = buf+copyalpha;
 		b.red = b.grn = b.blu = buf+copyalpha;
 		b.delta = copyalpha+1;
-DBG print("alpha %x grey %x\n", b.alpha ? *b.alpha : 0xFF, *b.grey);
 	}else{
 		b.blu = buf+copyalpha;
 		b.grn = buf+copyalpha+1;
@@ -1579,7 +1580,7 @@ DBG print("alpha %x grey %x\n", b.alpha ? *b.alpha : 0xFF, *b.grey);
 }
 #undef DBG
 
-#define DBG if(0)
+#define DBG if(drawdebug)
 static void
 writebyte(Param *p, uchar *w, Buffer src)
 {
@@ -1640,6 +1641,7 @@ DBG print("|alpha %.8lux...", u);
 		w[1] = u>>8;
 		w[2] = u>>16;
 		w[3] = u>>24;
+DBG print("write back %.8lux...", u);
 		w += nb;
 	}
 }
@@ -2322,8 +2324,8 @@ if(0) if(drawdebug) iprint("chardraw? mf %lux md %d sf %lux dxs %d dys %d dd %d 
 	mr = par->mr;
 	op = par->op;
 
-	if((par->state&(Replsrc|Simplesrc|Replmask)) != (Replsrc|Simplesrc)
-	|| mask->depth != 1 || src->flags&Falpha || dst->depth<8 || dst->data==src->data
+	if((par->state&(Replsrc|Simplesrc|Fullsrc|Replmask)) != (Replsrc|Simplesrc|Fullsrc)
+	|| mask->depth != 1 || dst->depth<8 || dst->data==src->data
 	|| op != SoverD)
 		return 0;
 

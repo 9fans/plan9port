@@ -63,7 +63,7 @@ xdraw(Memdrawparam *par)
 	 * If we have an opaque mask and source is one opaque pixel,
 	 * we can convert to the destination format and just XFillRectangle.
 	 */
-	m = Simplesrc|Simplemask|Fullmask;
+	m = Simplesrc|Fullsrc|Simplemask|Fullmask;
 	if((state&m) == m){
 		_xfillcolor(dst, r, par->sdval);
 	//	xdirtyxdata(dst, r);
