@@ -186,7 +186,8 @@ main(int argc, char *argv[])
 		parse(unsharp("#9/ndb/local"));
 		parse(unsharp("#9/ndb/friends"));
 	}
-	
+
+/*	
 //	sprint(fn, "/lib/ndb/hosts.%-.21s", domname);
 //	fd = create(fn, OWRITE, 0664);
 //	if(fd < 0){
@@ -197,6 +198,7 @@ main(int argc, char *argv[])
 //		printentry(fd, &x[i]);
 //	close(fd);
 //
+*/
 
 	sprint(fn, "/lib/ndb/db.%-.24s", domname);
 	fd = create(fn, OWRITE, 0664);

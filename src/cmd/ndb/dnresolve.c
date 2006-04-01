@@ -8,7 +8,7 @@
 enum
 {
 	Maxdest=	24,	/* maximum destinations for a request message */
-	Maxtrans=	3,	/* maximum transmissions to a server */
+	Maxtrans=	3	/* maximum transmissions to a server */
 };
 
 static int	netquery(DN*, int, RR*, Request*, int);

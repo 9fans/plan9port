@@ -25,52 +25,94 @@ static struct
 } dnvars;
 
 /* names of RR types */
-char *rrtname[] =
+char *rrtname[Tall+2] =
 {
-[Ta]		"ip",
-[Tns]		"ns",
-[Tmd]		"md",
-[Tmf]		"mf",
-[Tcname]	"cname",
-[Tsoa]		"soa",
-[Tmb]		"mb",
-[Tmg]		"mg",
-[Tmr]		"mr",
-[Tnull]		"null",
-[Twks]		"wks",
-[Tptr]		"ptr",
-[Thinfo]	"hinfo",
-[Tminfo]	"minfo",
-[Tmx]		"mx",
-[Ttxt]		"txt",
-[Trp]		"rp",
-[Tkey]		"key",
-[Tcert]		"cert",
-[Tsig]		"sig",
-[Taaaa]		"ipv6",
-[Tixfr]		"ixfr",
-[Taxfr]		"axfr",
-[Tall]		"all",
-		0,
+	nil,
+	"ip",
+	"ns",
+	"md",
+	"mf",
+	"cname",
+	"soa",
+	"mb",
+	"mg",
+	"mr",
+	"null",
+	"wks",
+	"ptr",
+	"hinfo",
+	"minfo",
+	"mx",
+	"txt",
+	"rp",
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,
+	"sig",
+	"key",
+	nil,
+	nil,
+	"aaaa",
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,
+	nil,
+	"cert",
+	nil,
+	nil,
+	
+/* 40 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 48 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 56 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 64 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 72 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 80 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 88 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 96 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 104 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 112 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 120 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 128 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 136 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 144 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 152 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 160 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 168 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 176 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 184 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 192 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 200 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 208 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 216 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 224 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 232 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 240 */	nil, nil, nil, nil, nil, nil, nil, nil,
+/* 248 */	nil, nil, nil, 
+
+	"ixfr",
+	"axfr",
+	"mailb",
+	nil,
+	"all",
+	nil
 };
 
 /* names of response codes */
 char *rname[Rmask+1] =
 {
-[Rok]			"ok",
-[Rformat]		"format error",
-[Rserver]		"server failure",
-[Rname]			"bad name",
-[Runimplimented]	"unimplemented",
-[Rrefused]		"we don't like you",
-};
-
-/* names of op codes */
-char *opname[] =
-{
-[Oquery]	"query",
-[Oinverse]	"inverse",
-[Ostatus]	"status",
+	"ok",
+	"format error",
+	"server failure",
+	"bad name",
+	"unimplemented",
+	"we don't like you",
 };
 
 Lock	dnlock;
@@ -845,7 +887,7 @@ rrtype(char *atype)
 		if(rrtname[i] && strcmp(rrtname[i], atype) == 0)
 			return i;
 
-	// make any a synonym for all
+	/* make any a synonym for all */
 	if(strcmp(atype, "any") == 0)
 		return Tall;
 	return atoi(atype);
@@ -1012,7 +1054,7 @@ rrfmt(Fmt *f)
 		fmtprint(&fstr, "\t%s", rp->ip->name);
 		break;
 	case Tptr:
-//		fmtprint(&fstr, "\t%s(%lud)", rp->ptr->name, rp->ptr->ordinal);
+/*		fmtprint(&fstr, "\t%s(%lud)", rp->ptr->name, rp->ptr->ordinal); */
 		fmtprint(&fstr, "\t%s", rp->ptr->name);
 		break;
 	case Tsoa:
@@ -1325,7 +1367,7 @@ sencodefmt(Fmt *f)
 	int ilen;
 	int rv;
 	uchar *b;
-	char obuf[64];	// rsc optimization
+	char obuf[64];	/* rsc optimization */
 
 	if(!(f->flags&FmtPrec) || f->prec < 1)
 		goto error;
@@ -1372,7 +1414,7 @@ sencodefmt(Fmt *f)
 	} else
 		buf = obuf;
 
-	// convert
+	/* convert */
 	out = buf;
 	switch(f->r){
 	case '<':

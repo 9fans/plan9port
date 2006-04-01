@@ -262,7 +262,7 @@ tcpproc(void *v)
 }
 
 enum {
-	Maxactivetcp = 4,
+	Maxactivetcp = 4
 };
 
 static int

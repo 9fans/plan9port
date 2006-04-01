@@ -13,7 +13,7 @@ enum
 	Ncache=			8,
 	Maxpath=		128,
 	Maxreply=		512,
-	Maxrrr=			16,
+	Maxrrr=			16
 };
 
 static char *servername;

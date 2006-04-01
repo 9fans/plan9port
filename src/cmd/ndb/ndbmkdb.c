@@ -12,7 +12,7 @@ enum
 	Sys,
 	Dk,
 	Ip,
-	Domain,
+	Domain
 };
 
 int

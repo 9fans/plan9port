@@ -10,7 +10,7 @@
  */
 enum
 {
-	Ndict=	64,
+	Ndict=	64
 };
 typedef struct Dict	Dict;
 struct Dict

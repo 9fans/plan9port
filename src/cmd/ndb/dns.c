@@ -19,7 +19,7 @@ enum
 	Maxfdata=		8192,
 
 	Qdir=			0,
-	Qdns=			1,
+	Qdns=			1
 };
 
 typedef struct Mfile	Mfile;
@@ -43,9 +43,9 @@ struct Mfile
 	ushort		nrr;		/* number of rr's */
 };
 
-//
-//  active local requests
-//
+/*
+ * active local requests
+ */
 struct Job
 {
 	Job	*next;

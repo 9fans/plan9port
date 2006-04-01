@@ -8,7 +8,7 @@
 
 enum
 {
-	Maxpath=		128,
+	Maxpath=		128
 };
 
 char	*logfile = "dns";

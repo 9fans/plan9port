@@ -23,14 +23,23 @@ static void	createptrs(void);
 
 static int	implemented[Tall] =
 {
-	[Ta]		1,
-	[Tns]		1,
-	[Tsoa]		1,
-	[Tmx]		1,
-	[Tptr]		1,
-	[Tcname]	1,
-	[Tnull]		1,
-	[Ttxt]		1,
+	0,
+	/* Ta */ 1,
+	/* Tns */ 1,
+	0,
+	0,
+	/* Tcname */ 1,
+	/* Tsoa */ 1,
+	0,
+	0,
+	0,
+	/* Tnull */ 1,
+	0,
+	/* Tptr */ 1,
+	0,
+	0,
+	/* Tmx */ 1,
+	/* Ttxt */ 1
 };
 
 static void

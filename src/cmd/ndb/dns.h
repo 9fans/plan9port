@@ -90,7 +90,7 @@ enum
 #define	DNmagic	0xa110a110
 
 	/* parallelism */
-	Maxactive=	32,
+	Maxactive=	32
 };
 
 typedef struct DN	DN;
@@ -283,7 +283,7 @@ enum
 	Recurse,
 	Dontrecurse,
 	NOneg,
-	OKneg,
+	OKneg
 };
 
 enum
@@ -294,7 +294,6 @@ enum
 /* dn.c */
 extern char	*rrtname[];
 extern char	*rname[];
-extern char	*opname[];
 extern void	db2cache(int);
 extern void	dninit(void);
 extern DN*	dnlookup(char*, int, int);
