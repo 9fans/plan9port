@@ -12,7 +12,7 @@ enum
 	VectorState,
 	ThreadState64,
 	ExceptionState64,
-	ThreadStateNone,
+	ThreadStateNone
 };
 
 typedef struct Lreg Lreg;

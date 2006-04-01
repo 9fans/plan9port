@@ -2,7 +2,7 @@
 
 char*	satlst[] =
 {
-	0,
+	0
 };
 
 struct

@@ -467,8 +467,10 @@ fsyswalk(Xfid *x, Fid *f)
 			goto Accept;
 	
     Regular:
-//			if(FILE(f->qid) == Qacme)	/* empty directory */
-//				break;
+/*
+			if(FILE(f->qid) == Qacme)	// empty directory
+				break;
+*/
 			if(strcmp(x->fcall.wname[i], "new") == 0){
 				if(w)
 					error("w set in walk to new");

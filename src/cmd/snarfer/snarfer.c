@@ -54,7 +54,7 @@ AUTOFRAMEWORK(Carbon)
 AUTOLIB(draw)	/* to cause link of X11 */
 
 enum {
-	SnarfSize = 65536,
+	SnarfSize = 65536
 };
 char snarf[3*SnarfSize+1];
 Rune rsnarf[SnarfSize+1];

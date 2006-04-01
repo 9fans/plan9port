@@ -76,7 +76,7 @@ struct List	/* code depends on a long being able to hold a pointer */
 enum Defaddr{	/* default addresses */
 	aNo,
 	aDot,
-	aAll,
+	aAll
 };
 
 int	nl_cmd(Text*, Cmd*), a_cmd(Text*, Cmd*), b_cmd(Text*, Cmd*);

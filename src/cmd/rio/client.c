@@ -15,7 +15,7 @@ Client	*current;
 void
 setactive(Client *c, int on)
 {
-//	dbg("setactive client %x %d", c->window, c->on);
+/*	dbg("setactive client %x %d", c->window, c->on); */
 
 	if(c->parent == c->screen->root)
 		return;
@@ -52,7 +52,7 @@ draw_border(Client *c, int active)
 			pixel = c->screen->inactiveborder;
 	}
 
-	if(debug) fprintf(stderr, "draw_border %p pixel %ld active %d hold %d\n", c, pixel, active, c->hold);
+	if(debug) fprintf(stderr, "draw_border %p pixel %ld active %d hold %d\n", (void*)c, pixel, active, c->hold);
 	XSetWindowBackground(dpy, c->parent, pixel);
 	XClearWindow(dpy, c->parent);
 }
@@ -132,7 +132,7 @@ top(Client *c)
 		}
 		l = &cc->next;
 	}
-	fprintf(stderr, "rio: %p not on client list in top()\n", c);
+	fprintf(stderr, "rio: %p not on client list in top()\n", (void*)c);
 }
 
 Client *
@@ -229,7 +229,7 @@ dump_revert(void)
 
 	i = 0;
 	for(c = current; c; c = c->revert){
-		fprintf(stderr, "%s(%x:%d)", c->label ? c->label : "?", (uint)c->window, c->state);
+		fprintf(stderr, "%s(%x:%d)", c->label ? c->label : "?", (int)c->window, c->state);
 		if(i++ > 100)
 			break;
 		if(c->revert)
@@ -246,7 +246,7 @@ dump_clients(void)
 	Client *c;
 
 	for(c = clients; c; c = c->next)
-		fprintf(stderr, "w 0x%x parent 0x%x @ (%d, %d)\n", (uint)c->window, (uint)c->parent, c->x, c->y);
+		fprintf(stderr, "w 0x%x parent 0x%x @ (%d, %d)\n", (int)c->window, (int)c->parent, c->x, c->y);
 }
 #endif
 
@@ -258,8 +258,8 @@ shuffle(int up)
 	if(clients == 0 || clients->next == 0)
 		return;
 	if(up){
-		//for(c=clients; c->next; c=c->next)
-		//	;
+		/*for(c=clients; c->next; c=c->next) */
+		/*	; */
 		for(l=&clients; (*l)->next; l=&(*l)->next)
 			;
 		c = *l;
@@ -278,8 +278,8 @@ shuffle(int up)
 		c->next = 0;
 		XLowerWindow(dpy, c->window);
 	}
-//	XMapRaised(dpy, clients->parent);
-//	top(clients);	
-//	active(clients);
+/*	XMapRaised(dpy, clients->parent); */
+/*	top(clients);	 */
+/*	active(clients); */
 }
 

@@ -2,17 +2,17 @@
 #include <mp.h>
 #include "dat.h"
 
-// res = b**e
-//
-// knuth, vol 2, pp 398-400
+/* res = b**e */
+/* */
+/* knuth, vol 2, pp 398-400 */
 
 enum {
 	Freeb=	0x1,
 	Freee=	0x2,
-	Freem=	0x4,
+	Freem=	0x4
 };
 
-//int expdebug;
+/*int expdebug; */
 
 void
 mpexp(mpint *b, mpint *e, mpint *m, mpint *res)
@@ -47,7 +47,7 @@ mpexp(mpint *b, mpint *e, mpint *m, mpint *res)
 		tofree |= Freem;
 	}
 
-	// skip first bit
+	/* skip first bit */
 	i = e->top-1;
 	d = e->p[i];
 	for(bit = mpdighi; (bit & d) == 0; bit >>= 1)

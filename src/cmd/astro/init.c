@@ -14,7 +14,7 @@ Obj2*	objlst[] =
 	&onept,
 	&oplut,
 	&ocomet,
-	0,
+	0
 };
 
 struct	idata
@@ -35,7 +35,7 @@ struct	idata
 	"Uranus",	"uranus",	uran,
 	"Neptune",	"neptune",	nept,
 	"Pluto",	"pluto",	plut,
-	"Comet",	"comet",	comet,
+	"Comet",	"comet",	comet
 };
 
 void

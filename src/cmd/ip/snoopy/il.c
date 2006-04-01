@@ -19,14 +19,14 @@ struct Hdr
 
 enum
 {
-	ILLEN= 18,
+	ILLEN= 18
 };
 
 enum
 {
 	Os,
 	Od,
-	Osd,
+	Osd
 };
 
 static Field p_fields[] = 
@@ -45,7 +45,7 @@ static Mux p_mux[] =
 	{"ninep",	17005, },	/* ocpu */
 	{"ninep",	17010, },	/* ncpu */
 	{"ninep",	17013, },	/* cpu */
-	{0},
+	{0}
 };
 
 static void
@@ -143,5 +143,5 @@ Proto il =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

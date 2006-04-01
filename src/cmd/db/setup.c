@@ -96,8 +96,8 @@ cmdmap(Map *map)
 		error("Invalid map name");
 
 	if (expr(0)) {
-	//	if (strcmp(name, "text") == 0)
-	//		textseg(expv, &fhdr);
+	/*	if (strcmp(name, "text") == 0) */
+	/*		textseg(expv, &fhdr); */
 		map->seg[i].base = expv;
 	} else
 		error("Invalid base address"); 

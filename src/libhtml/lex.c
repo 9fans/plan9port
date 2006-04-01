@@ -8,11 +8,11 @@
 typedef struct TokenSource TokenSource;
 struct TokenSource
 {
-	int			i;		// index of next byte to use
-	uchar*		data;		// all the data
-	int			edata;	// data[0:edata] is valid
-	int			chset;	// one of US_Ascii, etc.
-	int			mtype;	// TextHtml or TextPlain
+	int			i;		/* index of next byte to use */
+	uchar*		data;		/* all the data */
+	int			edata;	/* data[0:edata] is valid */
+	int			chset;	/* one of US_Ascii, etc. */
+	int			mtype;	/* TextHtml or TextPlain */
 };
 
 enum {
@@ -25,8 +25,8 @@ enum {
 #define SMALLBUFSIZE 240
 #define BIGBUFSIZE 2000
 
-// HTML 4.0 tag names.
-// Keep sorted, and in correspondence with enum in iparse.h.
+/* HTML 4.0 tag names. */
+/* Keep sorted, and in correspondence with enum in iparse.h. */
 Rune **tagnames;
 char *_tagnames[] = {
 	" ",
@@ -127,8 +127,8 @@ char *_tagnames[] = {
 	"var"
 };
 
-// HTML 4.0 attribute names.
-// Keep sorted, and in correspondence with enum in i.h.
+/* HTML 4.0 attribute names. */
+/* Keep sorted, and in correspondence with enum in i.h. */
 Rune **attrnames;
 char* _attrnames[] = {
 	"abbr",
@@ -250,8 +250,8 @@ char* _attrnames[] = {
 };
 
 
-// Character entity to unicode character number map.
-// Keep sorted by name.
+/* Character entity to unicode character number map. */
+/* Keep sorted by name. */
 StringInt *chartab;
 AsciiInt _chartab[] = {
 	{"AElig", 198},
@@ -405,22 +405,22 @@ AsciiInt _chartab[] = {
 };
 #define NCHARTAB (sizeof(_chartab)/sizeof(_chartab[0]))
 
-// Characters Winstart..Winend are those that Windows
-// uses interpolated into the Latin1 set.
-// They aren't supposed to appear in HTML, but they do....
+/* Characters Winstart..Winend are those that Windows */
+/* uses interpolated into the Latin1 set. */
+/* They aren't supposed to appear in HTML, but they do.... */
 enum {
 	Winstart = 127,
 	Winend = 159
 };
 
-static int	winchars[]= { 8226,	// 8226 is a bullet
+static int	winchars[]= { 8226,	/* 8226 is a bullet */
 	8226, 8226, 8218, 402, 8222, 8230, 8224, 8225,
 	710, 8240, 352, 8249, 338, 8226, 8226, 8226,
 	8226, 8216, 8217, 8220, 8221, 8226, 8211, 8212,
 	732, 8482, 353, 8250, 339, 8226, 8226, 376};
 
-static StringInt*	tagtable;		// initialized from tagnames
-static StringInt*	attrtable;		// initialized from attrnames
+static StringInt*	tagtable;		/* initialized from tagnames */
+static StringInt*	attrtable;		/* initialized from attrnames */
 
 static void		lexinit(void);
 static int		getplaindata(TokenSource* ts, Token* a, int* pai);
@@ -431,11 +431,11 @@ static Rune*		buftostr(Rune* s, Rune* buf, int j);
 static int		comment(TokenSource* ts);
 static int		findstr(TokenSource* ts, Rune* s);
 static int		ampersand(TokenSource* ts);
-//static int		lowerc(int c);
+/*static int		lowerc(int c); */
 static int		getchar(TokenSource* ts);
 static void		ungetchar(TokenSource* ts, int c);
 static void		backup(TokenSource* ts, int savei);
-//static void		freeinsidetoken(Token* t);
+/*static void		freeinsidetoken(Token* t); */
 static void		freeattrs(Attr* ahead);
 static Attr*		newattr(int attid, Rune* value, Attr* link);
 static int		Tconv(Fmt* f);
@@ -475,8 +475,8 @@ enum {
 	ToksChunk = 500
 };
 
-// Call this to get the tokens.
-//  The number of returned tokens is returned in *plen.
+/* Call this to get the tokens. */
+/*  The number of returned tokens is returned in *plen. */
 Token*
 _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 {
@@ -509,7 +509,7 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 			if(c == '<'){
 				tag = gettag(ts, starti, a, &ai);
 				if(tag == Tscript){
-					// special rules for getting Data after....
+					/* special rules for getting Data after.... */
 					starti = ts->i;
 					c = getchar(ts);
 					tag = getscriptdata(ts, c, starti, a, &ai);
@@ -524,7 +524,7 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 		}
 	}
 	else {
-		// plain text (non-html) tokens
+		/* plain text (non-html) tokens */
 		for(;;){
 			if(ai == alen){
 				a = (Token*)erealloc(a, (alen+ToksChunk)*sizeof(Token));
@@ -545,12 +545,12 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 	return a;
 }
 
-// For case where source isn't HTML.
-// Just make data tokens, one per line (or partial line,
-// at end of buffer), ignoring non-whitespace control
-// characters and dumping \r's.
-// If find non-empty token, fill in a[*pai], bump *pai, and return Data.
-// Otherwise return -1;
+/* For case where source isn't HTML. */
+/* Just make data tokens, one per line (or partial line, */
+/* at end of buffer), ignoring non-whitespace control */
+/* characters and dumping \r's. */
+/* If find non-empty token, fill in a[*pai], bump *pai, and return Data. */
+/* Otherwise return -1; */
 static int
 getplaindata(TokenSource* ts, Token* a, int* pai)
 {
@@ -568,8 +568,8 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 		if(c < ' '){
 			if(isspace(c)){
 				if(c == '\r'){
-					// ignore it unless no following '\n',
-					// in which case treat it like '\n'
+					/* ignore it unless no following '\n', */
+					/* in which case treat it like '\n' */
 					c = getchar(ts);
 					if(c != '\n'){
 						if(c >= 0)
@@ -602,7 +602,7 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 	return Data;
 }
 
-// Return concatenation of s and buf[0:j]
+/* Return concatenation of s and buf[0:j] */
 static Rune*
 buftostr(Rune* s, Rune* buf, int j)
 {
@@ -614,11 +614,11 @@ buftostr(Rune* s, Rune* buf, int j)
 	return s;
 }
 
-// Gather data up to next start-of-tag or end-of-buffer.
-// Translate entity references (&amp;).
-// Ignore non-whitespace control characters and get rid of \r's.
-// If find non-empty token, fill in a[*pai], bump *pai, and return Data.
-// Otherwise return -1;
+/* Gather data up to next start-of-tag or end-of-buffer. */
+/* Translate entity references (&amp;). */
+/* Ignore non-whitespace control characters and get rid of \r's. */
+/* If find non-empty token, fill in a[*pai], bump *pai, and return Data. */
+/* Otherwise return -1; */
 static int
 getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 {
@@ -640,8 +640,8 @@ getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 		else if(c < ' '){
 			if(isspace(c)){
 				if(c == '\r'){
-					// ignore it unless no following '\n',
-					// in which case treat it like '\n'
+					/* ignore it unless no following '\n', */
+					/* in which case treat it like '\n' */
 					c = getchar(ts);
 					if(c != '\n'){
 						if(c >= 0)
@@ -680,8 +680,8 @@ getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 	return Data;
 }
 
-// The rules for lexing scripts are different (ugh).
-// Gather up everything until see a </SCRIPT>.
+/* The rules for lexing scripts are different (ugh). */
+/* Gather up everything until see a </SCRIPT>. */
 static int
 getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 {
@@ -702,7 +702,7 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 	done = 0;
 	while(c >= 0){
 		if(c == '<'){
-			// other browsers ignore stuff to end of line after <!
+			/* other browsers ignore stuff to end of line after <! */
 			savei = ts->i;
 			c = getchar(ts);
 			if(c == '!'){
@@ -725,7 +725,7 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 					done = 1;
 					break;
 				}
-				// here tag was not </SCRIPT>, so take as regular data
+				/* here tag was not </SCRIPT>, so take as regular data */
 				c = getchar(ts);
 			}
 		}
@@ -754,13 +754,13 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 	return -1;
 }
 
-// We've just seen a '<'.  Gather up stuff to closing '>' (if buffer
-// ends before then, return -1).
-// If it's a tag, look up the name, gather the attributes, and return
-// the appropriate token.
-// Else it's either just plain data or some kind of ignorable stuff:
-// return Data or Comment as appropriate.
-// If it's not a Comment, put it in a[*pai] and bump *pai.
+/* We've just seen a '<'.  Gather up stuff to closing '>' (if buffer */
+/* ends before then, return -1). */
+/* If it's a tag, look up the name, gather the attributes, and return */
+/* the appropriate token. */
+/* Else it's either just plain data or some kind of ignorable stuff: */
+/* return Data or Comment as appropriate. */
+/* If it's not a Comment, put it in a[*pai] and bump *pai. */
 static int
 gettag(TokenSource* ts, int starti, Token* a, int* pai)
 {
@@ -795,7 +795,7 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 	if(c < 0)
 		goto eob_done;
 	if(c >= 256 || !isalpha(c)){
-		// not a tag
+		/* not a tag */
 		if(c == '!'){
 			ans = comment(ts);
 			if(ans != -1)
@@ -810,7 +810,7 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 			return Data;
 		}
 	}
-	// c starts a tagname
+	/* c starts a tagname */
 	buf[0] = c;
 	i = 1;
 	for(;;){
@@ -819,20 +819,20 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 			goto eob_done;
 		if(!ISNAMCHAR(c))
 			break;
-		// if name is bigger than buf it won't be found anyway...
+		/* if name is bigger than buf it won't be found anyway... */
 		if(i < BIGBUFSIZE)
 			buf[i++] = c;
 	}
 	if(_lookup(tagtable, Numtags, buf, i, &tag))
 		tok->tag = tag + rbra;
 	else
-		tok->text = _Strndup(buf, i);	// for warning print, in build
+		tok->text = _Strndup(buf, i);	/* for warning print, in build */
 
-	// attribute gathering loop
+	/* attribute gathering loop */
 	al = nil;
 	for(;;){
-		// look for "ws name" or "ws name ws = ws val"  (ws=whitespace)
-		// skip whitespace
+		/* look for "ws name" or "ws name ws = ws val"  (ws=whitespace) */
+		/* skip whitespace */
 attrloop_continue:
 		while(c < 256 && isspace(c)){
 			c = getchar(ts);
@@ -850,7 +850,7 @@ attrloop_continue:
 		if(c >= 256 || !isalpha(c)){
 			if(warn)
 				fprint(2, "warning: expected attribute name\n");
-			// skipt to next attribute name
+			/* skipt to next attribute name */
 			for(;;){
 				c = getchar(ts);
 				if(c < 0)
@@ -867,7 +867,7 @@ attrloop_continue:
 					goto attrloop_done;
 			}
 		}
-		// gather attribute name
+		/* gather attribute name */
 		buf[0] = c;
 		i = 1;
 		for(;;){
@@ -884,7 +884,7 @@ attrloop_continue:
 			buf[i] = 0;
 			fprint(2, "warning: unknown attribute name %S\n", buf);
 		}
-		// skip whitespace
+		/* skip whitespace */
 		while(c < 256 && isspace(c)){
 			c = getchar(ts);
 			if(c < 0)
@@ -895,7 +895,7 @@ attrloop_continue:
 				al = newattr(attid, nil, al);
 			goto attrloop_continue;
 		}
-		//# c is '=' here;  skip whitespace
+		/*# c is '=' here;  skip whitespace */
 		for(;;){
 			c = getchar(ts);
 			if(c < 0)
@@ -918,9 +918,9 @@ valloop_continue:
 				goto eob_done;
 			if(c == '>'){
 				if(quote){
-					// c might be part of string (though not good style)
-					// but if line ends before close quote, assume
-					// there was an unmatched quote
+					/* c might be part of string (though not good style) */
+					/* but if line ends before close quote, assume */
+					/* there was an unmatched quote */
 					ti = ts->i;
 					for(;;){
 						c = getchar(ts);
@@ -999,18 +999,18 @@ eob_done:
 	return Data;
 }
 
-// We've just read a '<!' at position starti,
-// so this may be a comment or other ignored section, or it may
-// be just a literal string if there is no close before end of file
-// (other browsers do that).
-// The accepted practice seems to be (note: contrary to SGML spec!):
-// If see <!--, look for --> to close, or if none, > to close.
-// If see <!(not --), look for > to close.
-// If no close before end of file, leave original characters in as literal data.
-//
-// If we see ignorable stuff, return Comment.
-// Else return nil (caller should back up and try again when more data arrives,
-// unless at end of file, in which case caller should just make '<' a data token).
+/* We've just read a '<!' at position starti, */
+/* so this may be a comment or other ignored section, or it may */
+/* be just a literal string if there is no close before end of file */
+/* (other browsers do that). */
+/* The accepted practice seems to be (note: contrary to SGML spec!): */
+/* If see <!--, look for --> to close, or if none, > to close. */
+/* If see <!(not --), look for > to close. */
+/* If no close before end of file, leave original characters in as literal data. */
+/* */
+/* If we see ignorable stuff, return Comment. */
+/* Else return nil (caller should back up and try again when more data arrives, */
+/* unless at end of file, in which case caller should just make '<' a data token). */
 static int
 comment(TokenSource* ts)
 {
@@ -1043,9 +1043,9 @@ comment(TokenSource* ts)
 	return -1;
 }
 
-// Look for string s in token source.
-// If found, return 1, with buffer at next char after s,
-// else return 0 (caller should back up).
+/* Look for string s in token source. */
+/* If found, return 1, with buffer at next char after s, */
+/* else return 0 (caller should back up). */
 static int
 findstr(TokenSource* ts, Rune* s)
 {
@@ -1093,13 +1093,13 @@ xdigit(int c)
 	return -1;
 }
 
-// We've just read an '&'; look for an entity reference
-// name, and if found, return translated char.
-// if there is a complete entity name but it isn't known,
-// try prefixes (gets around some buggy HTML out there),
-// and if that fails, back up to just past the '&' and return '&'.
-// If the entity can't be completed in the current buffer, back up
-// to the '&' and return -1.
+/* We've just read an '&'; look for an entity reference */
+/* name, and if found, return translated char. */
+/* if there is a complete entity name but it isn't known, */
+/* try prefixes (gets around some buggy HTML out there), */
+/* and if that fails, back up to just past the '&' and return '&'. */
+/* If the entity can't be completed in the current buffer, back up */
+/* to the '&' and return -1. */
 static int
 ampersand(TokenSource* ts)
 {
@@ -1164,7 +1164,7 @@ ampersand(TokenSource* ts)
 		if(c >= 0){
 			fnd = _lookup(chartab, NCHARTAB, buf, k, &ans);
 			if(!fnd){
-				// Try prefixes of s
+				/* Try prefixes of s */
 				if(c == ';' || c == '\n' || c == '\r')
 					ungetchar(ts, c);
 				i = k;
@@ -1188,8 +1188,8 @@ ampersand(TokenSource* ts)
 	return ans;
 }
 
-// Get next char, obeying ts.chset.
-// Returns -1 if no complete character left before current end of data.
+/* Get next char, obeying ts.chset. */
+/* Returns -1 if no complete character left before current end of data. */
 static int
 getchar(TokenSource* ts)
 {
@@ -1226,19 +1226,19 @@ getchar(TokenSource* ts)
 			c = r;
 		}
 		else {
-			// not enough bytes in buf to complete utf-8 char
-			ts->i = ts->edata;	// mark "all used"
+			/* not enough bytes in buf to complete utf-8 char */
+			ts->i = ts->edata;	/* mark "all used" */
 			c = -1;
 		}
 		break;
 	case Unicode:
 		if(ts->i < ts->edata - 1){
-			//standards say most-significant byte first
+			/*standards say most-significant byte first */
 			c = (c << 8)|(buf[ts->i + 1]);
 			ts->i += 2;
 		}
 		else {
-			ts->i = ts->edata;	// mark "all used"
+			ts->i = ts->edata;	/* mark "all used" */
 			c = -1;
 		}
 		break;
@@ -1246,9 +1246,9 @@ getchar(TokenSource* ts)
 	return c;
 }
 
-// Assuming c was the last character returned by getchar, set
-// things up so that next getchar will get that same character
-// followed by the current 'next character', etc.
+/* Assuming c was the last character returned by getchar, set */
+/* things up so that next getchar will get that same character */
+/* followed by the current 'next character', etc. */
 static void
 ungetchar(TokenSource* ts, int c)
 {
@@ -1271,7 +1271,7 @@ ungetchar(TokenSource* ts, int c)
 	ts->i -= n;
 }
 
-// Restore ts so that it is at the state where the index was savei.
+/* Restore ts so that it is at the state where the index was savei. */
 static void
 backup(TokenSource* ts, int savei)
 {
@@ -1281,14 +1281,14 @@ backup(TokenSource* ts, int savei)
 }
 
 
-// Look for value associated with attribute attid in token t.
-// If there is one, return 1 and put the value in *pans,
-// else return 0.
-// If xfer is true, transfer ownership of the string to the caller
-// (nil it out here); otherwise, caller must duplicate the answer
-// if it needs to save it.
-// OK to have pans==0, in which case this is just looking
-// to see if token is present.
+/* Look for value associated with attribute attid in token t. */
+/* If there is one, return 1 and put the value in *pans, */
+/* else return 0. */
+/* If xfer is true, transfer ownership of the string to the caller */
+/* (nil it out here); otherwise, caller must duplicate the answer */
+/* if it needs to save it. */
+/* OK to have pans==0, in which case this is just looking */
+/* to see if token is present. */
 int
 _tokaval(Token* t, int attid, Rune** pans, int xfer)
 {
@@ -1356,8 +1356,8 @@ Tconv(Fmt *f)
 	return fmtstrcpy(f, buf);
 }
 
-// Attrs own their constituent strings, but build may eventually
-// transfer some values to its items and nil them out in the Attr.
+/* Attrs own their constituent strings, but build may eventually */
+/* transfer some values to its items and nil them out in the Attr. */
 static Attr*
 newattr(int attid, Rune* value, Attr* link)
 {
@@ -1370,7 +1370,7 @@ newattr(int attid, Rune* value, Attr* link)
 	return ans;
 }
 
-// Free list of Attrs linked through next field
+/* Free list of Attrs linked through next field */
 static void
 freeattrs(Attr* ahead)
 {
@@ -1386,11 +1386,11 @@ freeattrs(Attr* ahead)
 	}
 }
 
-// Free array of Tokens.
-// Allocated space might have room for more than n tokens,
-// but only n of them are initialized.
-// If caller has transferred ownership of constitutent strings
-// or attributes, it must have nil'd out the pointers in the Tokens.
+/* Free array of Tokens. */
+/* Allocated space might have room for more than n tokens, */
+/* but only n of them are initialized. */
+/* If caller has transferred ownership of constitutent strings */
+/* or attributes, it must have nil'd out the pointers in the Tokens. */
 void
 _freetokens(Token* tarray, int n)
 {

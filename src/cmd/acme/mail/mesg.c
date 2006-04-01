@@ -42,7 +42,7 @@ char *goodtypes[] = {
 	"text/richtext",
 	"text/tab-separated-values",
 	"application/octet-stream",
-	nil,
+	nil
 };
 
 char *okheaders[] =
@@ -60,7 +60,7 @@ char *extraheaders[] =
 	"Resent-From:",
 	"Resent-To:",
 	"Sort:",
-	nil,
+	nil
 };
 
 char*
@@ -100,10 +100,10 @@ mkaddrs(char *t)
 	for(i=0; i+1<nf; i+=2){
 		if(i > 0)
 			fmtprint(&fmt, ", ");
-	//	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0)
+	/*	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0) */
 			fmtprint(&fmt, "%s", f[i+1]);
-	//	else
-	//		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]);
+	/*	else */
+	/*		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]); */
 	}
 	free(f);
 	return fmtstrflush(&fmt);
@@ -752,10 +752,10 @@ mesgcommand(Message *m, char *cmd)
 			mesgmenumarkundel(wbox, &mbox, m);
 		goto Return;
 	}
-//	if(strcmp(args[0], "Headers") == 0){
-//		m->showheaders();
-//		return True;
-//	}
+/*	if(strcmp(args[0], "Headers") == 0){ */
+/*		m->showheaders(); */
+/*		return True; */
+/*	} */
 
 	ret = 0;
 
@@ -1149,8 +1149,8 @@ tokenizec(char *str, char **args, int max, char *splitc)
 	if(max <= 0)
 		return 0;
 		
-//	if(strchr(str, ',') || strchr(str, '"') || strchr(str, '<') || strchr(str, '('))
-//		splitc = ",";
+/*	if(strchr(str, ',') || strchr(str, '"') || strchr(str, '<') || strchr(str, '(')) */
+/*		splitc = ","; */
 	for(na=0; *str != '\0';str++){
 		if(strchr(splitc, *str) == nil){
 			if(intok)
@@ -1331,7 +1331,7 @@ mesgopen(Message *mbox, char *dir, char *s, Message *mesg, int plumbed, char *di
 		winopenbody(m->w, OWRITE);
 		mesgload(m, dir, m->name, m->w);
 		winclosebody(m->w);
-		// sleep(100);
+		/* sleep(100); */
 		winclean(m->w);
 		m->opened = 1;
 		if(ndirelem == 1){
@@ -1405,7 +1405,7 @@ mesglookupfile(Message *mbox, char *name, char *digest)
 	k = strlen(name);
 	n = strlen(mbox->name);
 	if(k==0 || strncmp(name, mbox->name, n) != 0){
-//		fprint(2, "Mail: message %s not in this mailbox\n", name);
+/*		fprint(2, "Mail: message %s not in this mailbox\n", name); */
 		return nil;
 	}
 	return mesglookup(mbox, name+n, digest);

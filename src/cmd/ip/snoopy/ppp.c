@@ -90,7 +90,7 @@ enum
 	Oipdns=		129,
 	Oipwins=	130,
 	Oipdns2=	131,
-	Oipwins2=	132,
+	Oipwins2=	132
 };
 
 char *
@@ -110,7 +110,7 @@ lcpcode[] = {
 	"id",
 	"timeremain",
 	"resetreq",
-	"resetack",
+	"resetack"
 };
 
 static Mux p_mux[] =
@@ -126,12 +126,12 @@ static Mux p_mux[] =
 	{"ppp_lcp",	PPP_lcp, },
 	{"ppp_lqm",	PPP_lqm, },
 	{"ppp_chap",	PPP_chap, },
-	{0},
+	{0}
 };
 
 enum
 {
-	OOproto,
+	OOproto
 };
 
 static void
@@ -571,7 +571,7 @@ Proto ppp =
 	p_mux,
 	"%#.4lux",
 	nil,
-	defaultframer,
+	defaultframer
 };
 
 Proto ppp_ipcp =
@@ -583,7 +583,7 @@ Proto ppp_ipcp =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };
 
 Proto ppp_lcp =
@@ -595,7 +595,7 @@ Proto ppp_lcp =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };
 
 Proto ppp_ccp =
@@ -607,7 +607,7 @@ Proto ppp_ccp =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };
 
 Proto ppp_chap =
@@ -619,7 +619,7 @@ Proto ppp_chap =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };
 
 Proto ppp_comp =
@@ -631,5 +631,5 @@ Proto ppp_comp =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };

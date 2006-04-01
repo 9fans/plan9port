@@ -36,7 +36,7 @@ char *procnames[] = {
 	"main",
 	"time",
 	"mouse",
-	"resize",
+	"resize"
 };
 
 Rectangle leftright = {0, 0, 20, 15};

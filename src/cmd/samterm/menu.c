@@ -59,7 +59,7 @@ char	*menu3str[] = {
 	"zerox",
 	"resize",
 	"close",
-	"write",
+	"write"
 };
 
 Menu	menu2 =	{0, genmenu2};

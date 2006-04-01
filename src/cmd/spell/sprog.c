@@ -229,7 +229,7 @@ Suftab*	suftab[] =
 	stabz,
 	stabz,
 	staby,
-	stabz,
+	stabz
 };
 
 Ptab	ptaba[] =
@@ -417,7 +417,7 @@ Ptab*	preftab[] =
 	ptabw,
 	ptabx,
 	ptaby,
-	ptabz,
+	ptabz
 };
 
 typedef struct {
@@ -1338,7 +1338,7 @@ loop:
 		close(f);
 		while(sp < 128*128)
 			spacep[++sp] = s;
-		*s = 0x80;		/* fence */
+		*s = (char)0x80;		/* fence */
 		return;
 	}
 	p = (c>>3) & 0xf;

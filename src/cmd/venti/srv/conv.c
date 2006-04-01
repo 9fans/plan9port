@@ -23,7 +23,7 @@ static struct {
 	ArenaHeadMagic, "ArenaHeadMagic",
 	ArenaMagic, "ArenaMagic",
 	ISectMagic, "ISectMagic",
-	BloomMagic, "BloomMagic",
+	BloomMagic, "BloomMagic"
 };
 
 static char*

@@ -14,13 +14,13 @@
 enum
 {
 	GrabAltTab,
-	GrabAltAny,
+	GrabAltAny
 };
 
 static int tabcode = 0x17;
-//static int altcode = 0x40;
-//static int pgupcode = 0x63;
-//static int pgdowncode = 0x69;
+/*static int altcode = 0x40; */
+/*static int pgupcode = 0x63; */
+/*static int pgdowncode = 0x69; */
 
 static void alttab(int shift);
 
@@ -32,9 +32,9 @@ keysetup(void)
 	for(i=0; i<num_screens; i++){
 		XGrabKey(dpy, tabcode, Mod1Mask, screens[i].root, 0, GrabModeSync, GrabModeAsync);
 		XGrabKey(dpy, tabcode, Mod1Mask|ShiftMask, screens[i].root, 0, GrabModeSync, GrabModeAsync);
-	//	XGrabKey(dpy, pgupcode, Mod1Mask, screens[i].root, 0, GrabModeSync, GrabModeAsync);
-	//	XGrabKey(dpy, pgdowncode, Mod1Mask, screens[i].root, 0, GrabModeSync, GrabModeAsync);
-	//	XGrabKey(dpy, altcode, 0, screens[i].root, 0, GrabModeSync, GrabModeAsync);
+	/*	XGrabKey(dpy, pgupcode, Mod1Mask, screens[i].root, 0, GrabModeSync, GrabModeAsync); */
+	/*	XGrabKey(dpy, pgdowncode, Mod1Mask, screens[i].root, 0, GrabModeSync, GrabModeAsync); */
+	/*	XGrabKey(dpy, altcode, 0, screens[i].root, 0, GrabModeSync, GrabModeAsync); */
 	}
 }
 
@@ -60,6 +60,6 @@ static void
 alttab(int shift)
 {
 	shuffle(shift);
-//	fprintf(stderr, "%sTab\n", shift ? "Back" : "");
+/*	fprintf(stderr, "%sTab\n", shift ? "Back" : ""); */
 }
 

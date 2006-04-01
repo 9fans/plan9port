@@ -30,7 +30,7 @@ sal(int n)
 	State *s;
 
 	s = mal(sizeof(*s));
-//	s->next = mal(256*sizeof(*s->next));
+/*	s->next = mal(256*sizeof(*s->next)); */
 	s->count = n;
 	s->re = mal(n*sizeof(*state0->re));
 	return s;

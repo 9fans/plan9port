@@ -6,7 +6,7 @@
 
 enum
 {
-	STACK = 8192,
+	STACK = 8192
 };
 
 typedef struct VtSconn VtSconn;
@@ -93,7 +93,7 @@ listenproc(void *v)
 		proccreate(connproc, sc, STACK);
 	}
 
-	// hangup
+	/* hangup */
 }
 
 static void

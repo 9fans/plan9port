@@ -16,7 +16,7 @@ enum {
 	LBSIZE		= 8192,		/* input line size */
 	LABSIZE		= 50,		/* max label name size */
 	MAXSUB		= 10,		/* max number of sub reg exp */
-	MAXFILES	= 120,		/* max output files */
+	MAXFILES	= 120		/* max output files */
 };
 	/* An address is a line #, a R.E., "$", a reference to the last
 	 * R.E., or nothing.
@@ -27,7 +27,7 @@ typedef struct	{
 		A_DOL,
 		A_LINE,
 		A_RE,
-		A_LAST,
+		A_LAST
 	}type;
 	union {
 		long line;		/* Line # */

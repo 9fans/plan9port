@@ -13,7 +13,7 @@ enum
 	Maxunscroll = 25,	/* maximum #entries before scrolling turns on */
 	Nscroll = 20,		/* number entries in scrolling part */
 	Scrollwid = 14,		/* width of scroll bar */
-	Gap = 4,			/* between text and scroll bar */
+	Gap = 4			/* between text and scroll bar */
 };
 
 static	Image	*menutxt;

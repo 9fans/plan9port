@@ -127,7 +127,7 @@ void Vinit(void){
 		for(s=*env;*s && *s!='(' && *s!='=';s++);
 		switch(*s){
 		case '\0':
-		//	pfmt(err, "rc: odd environment %q?\n", *env);
+		/*	pfmt(err, "rc: odd environment %q?\n", *env); */
 			break;
 		case '=':
 			*s='\0';

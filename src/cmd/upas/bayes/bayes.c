@@ -7,7 +7,7 @@
 enum
 {
 	MAXTAB = 256,
-	MAXBEST = 32,
+	MAXBEST = 32
 };
 
 typedef struct Table Table;

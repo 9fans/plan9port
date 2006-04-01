@@ -1,6 +1,6 @@
-// PAK is an encrypted key exchange protocol designed by Philip MacKenzie et al.
-// It is patented and use outside Plan 9 requires you get a license.
-// (All other EKE protocols are patented as well, by Lucent or others.)
+/* PAK is an encrypted key exchange protocol designed by Philip MacKenzie et al. */
+/* It is patented and use outside Plan 9 requires you get a license. */
+/* (All other EKE protocols are patented as well, by Lucent or others.) */
 #include <u.h>
 #include <libc.h>
 #include <mp.h>
@@ -19,7 +19,7 @@ typedef struct PAKparams{
 
 static PAKparams *pak;
 
-// from seed EB7B6E35F7CD37B511D96C67D6688CC4DD440E1E
+/* from seed EB7B6E35F7CD37B511D96C67D6688CC4DD440E1E */
 static void
 initPAKparams(void)
 {
@@ -43,8 +43,8 @@ initPAKparams(void)
 		nil, 16, nil);
 }
 
-// H = (sha(ver,C,sha(passphrase)))^r mod p,
-// a hash function expensive to attack by brute force.
+/* H = (sha(ver,C,sha(passphrase)))^r mod p, */
+/* a hash function expensive to attack by brute force. */
 static void
 longhash(char *ver, char *C, uchar *passwd, mpint *H)
 {
@@ -70,7 +70,7 @@ longhash(char *ver, char *C, uchar *passwd, mpint *H)
 	mpexp(H, pak->r, pak->p, H);
 }
 
-// Hi = H^-1 mod p
+/* Hi = H^-1 mod p */
 char *
 PAK_Hi(char *C, char *passphrase, mpint *H, mpint *Hi)
 {
@@ -83,8 +83,8 @@ PAK_Hi(char *C, char *passphrase, mpint *H, mpint *Hi)
 	return mptoa(Hi, 64, nil, 0);
 }
 
-// another, faster, hash function for each party to
-// confirm that the other has the right secrets.
+/* another, faster, hash function for each party to */
+/* confirm that the other has the right secrets. */
 static void
 shorthash(char *mess, char *C, char *S, char *m, char *mu, char *sigma, char *Hi, uchar *digest)
 {
@@ -106,12 +106,12 @@ shorthash(char *mess, char *C, char *S, char *m, char *mu, char *sigma, char *Hi
 	sha1((uchar*)Hi, strlen(Hi), digest, state);
 }
 
-// On input, conn provides an open channel to the server;
-//	C is the name this client calls itself;
-//	pass is the user's passphrase
-// On output, session secret has been set in conn
-//	(unless return code is negative, which means failure).
-//    If pS is not nil, it is set to the (alloc'd) name the server calls itself.
+/* On input, conn provides an open channel to the server; */
+/*	C is the name this client calls itself; */
+/*	pass is the user's passphrase */
+/* On output, session secret has been set in conn */
+/*	(unless return code is negative, which means failure). */
+/*    If pS is not nil, it is set to the (alloc'd) name the server calls itself. */
 int
 PAKclient(SConn *conn, char *C, char *pass, char **pS)
 {
@@ -124,9 +124,9 @@ PAKclient(SConn *conn, char *C, char *pass, char **pS)
 
 	hexHi = PAK_Hi(C, pass, H, Hi);
 	if(verbose)
-		fprint(2,"%s\n", feedback[H->p[0]&0x7]);  // provide a clue to catch typos
+		fprint(2,"%s\n", feedback[H->p[0]&0x7]);  /* provide a clue to catch typos */
 
-	// random 1<=x<=q-1; send C, m=g**x H
+	/* random 1<=x<=q-1; send C, m=g**x H */
 	x = mprand(240, genrandom, nil);
 	mpmod(x, pak->q, x);
 	if(mpcmp(x, mpzero) == 0)
@@ -140,7 +140,7 @@ PAKclient(SConn *conn, char *C, char *pass, char **pS)
 	snprint(mess, Maxmsg, "%s\tPAK\nC=%s\nm=%s\n", VERSION, C, hexm);
 	conn->write(conn, (uchar*)mess, strlen(mess));
 
-	// recv g**y, S, check hash1(g**xy)
+	/* recv g**y, S, check hash1(g**xy) */
 	if(readstr(conn, mess) < 0){
 		fprint(2, "error: %s\n", mess);
 		writerr(conn, "couldn't read g**y");
@@ -179,13 +179,13 @@ PAKclient(SConn *conn, char *C, char *pass, char **pS)
 		goto done;
 	}
 
-	// send hash2(g**xy)
+	/* send hash2(g**xy) */
 	shorthash("client", C, S, hexm, hexmu, hexsigma, hexHi, digest);
 	enc64(kc, sizeof kc, digest, SHA1dlen);
 	snprint(mess2, Maxmsg, "k'=%s\n", kc);
 	conn->write(conn, (uchar*)mess2, strlen(mess2));
 
-	// set session key
+	/* set session key */
 	shorthash("session", C, S, hexm, hexmu, hexsigma, hexHi, digest);
 	memset(hexsigma, 0, strlen(hexsigma));
 	n = conn->secret(conn, digest, 0);
@@ -210,12 +210,12 @@ done:
 	return rc;
 }
 
-// On input,
-//	mess contains first message;
-//	name is name this server should call itself.
-// On output, session secret has been set in conn;
-//	if pw!=nil, then *pw points to PW struct for authenticated user.
-//	returns -1 if error
+/* On input, */
+/*	mess contains first message; */
+/*	name is name this server should call itself. */
+/* On output, session secret has been set in conn; */
+/*	if pw!=nil, then *pw points to PW struct for authenticated user. */
+/*	returns -1 if error */
 int
 PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 {
@@ -227,7 +227,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 	mpint *y = nil, *m = mpnew(0), *mu = mpnew(0), *sigma = mpnew(0);
 	PW *pw = nil;
 
-	// secstore version and algorithm
+	/* secstore version and algorithm */
 	snprint(mess2,Maxmsg,"%s\tPAK\n", VERSION);
 	n = strlen(mess2);
 	if(strncmp(mess,mess2,n) != 0){
@@ -237,7 +237,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 	mess += n;
 	initPAKparams();
 
-	// parse first message into C, m
+	/* parse first message into C, m */
 	eol = strchr(mess, '\n');
 	if(strncmp("C=", mess, 2) != 0 || !eol){
 		fprint(2,"mess[1]=%s\n", mess);
@@ -256,7 +256,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 	strtomp(hexm, nil, 64, m);
 	mpmod(m, pak->p, m);
 
-	// lookup client
+	/* lookup client */
 	if((pw = getPW(C,0)) == nil) {
 		snprint(mess2, sizeof mess2, "%r");
 		writerr(conn, mess2);
@@ -270,7 +270,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 	}
 	hexHi = mptoa(pw->Hi, 64, nil, 0);
 
-	// random y, mu=g**y, sigma=g**xy
+	/* random y, mu=g**y, sigma=g**xy */
 	y = mprand(240, genrandom, nil);
 	mpmod(y, pak->q, y);
 	if(mpcmp(y, mpzero) == 0){
@@ -281,7 +281,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 	mpmod(m, pak->p, m);
 	mpexp(m, y, pak->p, sigma);
 
-	// send g**y, hash1(g**xy)
+	/* send g**y, hash1(g**xy) */
 	hexmu = mptoa(mu, 64, nil, 0);
 	hexsigma = mptoa(sigma, 64, nil, 0);
 	shorthash("server", C, S, hexm, hexmu, hexsigma, hexHi, digest);
@@ -289,7 +289,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 	snprint(mess2, sizeof mess2, "mu=%s\nk=%s\nS=%s\n", hexmu, ks, S);
 	conn->write(conn, (uchar*)mess2, strlen(mess2));
 
-	// recv hash2(g**xy)
+	/* recv hash2(g**xy) */
 	if(readstr(conn, mess2) < 0){
 		writerr(conn, "couldn't read verifier");
 		goto done;
@@ -308,7 +308,7 @@ PAKserver(SConn *conn, char *S, char *mess, PW **pwp)
 		goto done;
 	}
 
-	// set session key
+	/* set session key */
 	shorthash("session", C, S, hexm, hexmu, hexsigma, hexHi, digest);
 	n = conn->secret(conn, digest, 1);
 	if(n < 0){

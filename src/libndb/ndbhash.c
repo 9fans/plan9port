@@ -7,7 +7,7 @@
 enum {
 	Dptr,	/* pointer to database file */
 	Cptr,	/* pointer to first chain entry */
-	Cptr1,	/* pointer to second chain entry */
+	Cptr1	/* pointer to second chain entry */
 };
 
 /*

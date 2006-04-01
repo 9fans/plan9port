@@ -5,12 +5,12 @@
 char *emalloc(long n){
 	char *p=(char *)Malloc(n);
 	if(p==0) panic("Can't malloc %d bytes", n);
-/*	if(err){ pfmt(err, "malloc %d->%p\n", n, p); flush(err); } *//**/
+/*	if(err){ pfmt(err, "malloc %d->%p\n", n, p); flush(err); } */
 	return p;
 }
 void efree(char *p)
 {
-/*	pfmt(err, "free %p\n", p); flush(err); *//**/
+/*	pfmt(err, "free %p\n", p); flush(err); */
 	if(p) free(p);
 	else pfmt(err, "free 0\n");
 }

@@ -85,11 +85,11 @@ threadstart(uint y, uint x)
 	z |= y;
 	t = (_Thread*)z;
 
-//print("threadstart %p\n", v);
+/*print("threadstart %p\n", v); */
 	t->startfn(t->startarg);
-//print("threadexits %p\n", v);
+/*print("threadexits %p\n", v); */
 	threadexits(nil);
-//print("not reacehd\n");
+/*print("not reacehd\n"); */
 }
 
 static _Thread*
@@ -187,7 +187,7 @@ _threadswitch(void)
 
 	needstack(0);
 	p = proc();
-//print("threadswtch %p\n", p);
+/*print("threadswtch %p\n", p); */
 	contextswitch(&p->thread->context, &p->schedcontext);
 }
 
@@ -200,7 +200,7 @@ _threadready(_Thread *t)
 	lock(&p->lock);
 	p->runrend.l = &p->lock;
 	addthread(&p->runqueue, t);
-//print("%d wake for job %d->%d\n", time(0), getpid(), p->osprocid);
+/*print("%d wake for job %d->%d\n", time(0), getpid(), p->osprocid); */
 	if(p != proc())
 		_procwakeupandunlock(&p->runrend);
 	else
@@ -265,7 +265,7 @@ procscheduler(Proc *p)
 
 	setproc(p);
 	_threaddebug("scheduler enter");
-//	print("s %p\n", p);
+/*	print("s %p\n", p); */
 	lock(&p->lock);
 	for(;;){
 		while((t = p->runqueue.head) == nil){
@@ -292,13 +292,13 @@ procscheduler(Proc *p)
 		p->nswitch++;
 		_threaddebug("run %d (%s)", t->id, t->name);
 		contextswitch(&p->schedcontext, &t->context);
-//print("back in scheduler\n");
+/*print("back in scheduler\n"); */
 		p->thread = nil;
 		lock(&p->lock);
 		if(t->exiting){
 			delthreadinproc(p, t);
 			p->nthread--;
-//print("nthread %d\n", p->nthread);
+/*print("nthread %d\n", p->nthread); */
 			free(t);
 		}
 	}
@@ -425,11 +425,11 @@ needstack(int n)
 static int
 threadqlock(QLock *l, int block, ulong pc)
 {
-//print("threadqlock %p\n", l);
+/*print("threadqlock %p\n", l); */
 	lock(&l->l);
 	if(l->owner == nil){
 		l->owner = (*threadnow)();
-//print("qlock %p @%#x by %p\n", l, pc, l->owner);
+/*print("qlock %p @%#x by %p\n", l, pc, l->owner); */
 		unlock(&l->l);
 		return 1;
 	}
@@ -437,7 +437,7 @@ threadqlock(QLock *l, int block, ulong pc)
 		unlock(&l->l);
 		return 0;
 	}
-//print("qsleep %p @%#x by %p\n", l, pc, (*threadnow)());
+/*print("qsleep %p @%#x by %p\n", l, pc, (*threadnow)()); */
 	addthread(&l->waiting, (*threadnow)());
 	unlock(&l->l);
 
@@ -448,7 +448,7 @@ threadqlock(QLock *l, int block, ulong pc)
 			argv0, pc, l->owner, (*threadnow)());
 		abort();
 	}
-//print("qlock wakeup %p @%#x by %p\n", l, pc, (*threadnow)());
+/*print("qlock wakeup %p @%#x by %p\n", l, pc, (*threadnow)()); */
 	return 1;
 }
 
@@ -458,7 +458,7 @@ threadqunlock(QLock *l, ulong pc)
 	_Thread *ready;
 	
 	lock(&l->l);
-//print("qlock unlock %p @%#x by %p (owner %p)\n", l, pc, (*threadnow)(), l->owner);
+/*print("qlock unlock %p @%#x by %p (owner %p)\n", l, pc, (*threadnow)(), l->owner); */
 	if(l->owner == 0){
 		fprint(2, "%s: qunlock pc=0x%lux owner=%p self=%p oops\n",
 			argv0, pc, l->owner, (*threadnow)());

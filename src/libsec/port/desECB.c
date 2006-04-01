@@ -2,10 +2,10 @@
 #include <mp.h>
 #include <libsec.h>
 
-// I wasn't sure what to do when the buffer was not
-// a multiple of 8.  I did what lacy's cryptolib did
-// to be compatible, but it looks dangerous to me
-// since its encrypting plain text with the key. -- presotto
+/* I wasn't sure what to do when the buffer was not */
+/* a multiple of 8.  I did what lacy's cryptolib did */
+/* to be compatible, but it looks dangerous to me */
+/* since its encrypting plain text with the key. -- presotto */
 
 void
 desECBencrypt(uchar *p, int len, DESstate *s)

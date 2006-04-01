@@ -2,7 +2,7 @@
 #include <mp.h>
 #include "dat.h"
 
-// res = b << shift
+/* res = b << shift */
 void
 mpleft(mpint *b, int shift, mpint *res)
 {
@@ -15,17 +15,17 @@ mpleft(mpint *b, int shift, mpint *res)
 		return;
 	}
 
-	// a negative left shift is a right shift
+	/* a negative left shift is a right shift */
 	if(shift < 0){
 		mpright(b, -shift, res);
 		return;
 	}
 
-	// b and res may be the same so remember the old top
+	/* b and res may be the same so remember the old top */
 	otop = b->top;
 
-	// shift
-	mpbits(res, otop*Dbits + shift);	// overkill
+	/* shift */
+	mpbits(res, otop*Dbits + shift);	/* overkill */
 	res->top = DIGITS(otop*Dbits + shift);
 	d = shift/Dbits;
 	l = shift - d*Dbits;
@@ -46,7 +46,7 @@ mpleft(mpint *b, int shift, mpint *res)
 	for(i = 0; i < d; i++)
 		res->p[i] = 0;
 
-	// normalize
+	/* normalize */
 	while(res->top > 0 && res->p[res->top-1] == 0)
 		res->top--;
 }

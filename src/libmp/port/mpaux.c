@@ -37,7 +37,7 @@ mpint *mpzero = &_mpzero;
 
 static int mpmindigits = 33;
 
-// set minimum digit allocation
+/* set minimum digit allocation */
 void
 mpsetminbits(int n)
 {
@@ -48,7 +48,7 @@ mpsetminbits(int n)
 	mpmindigits = DIGITS(n);
 }
 
-// allocate an n bit 0'd number 
+/* allocate an n bit 0'd number  */
 mpint*
 mpnew(int n)
 {
@@ -72,7 +72,7 @@ mpnew(int n)
 	return b;
 }
 
-// guarantee at least n significant bits
+/* guarantee at least n significant bits */
 void
 mpbits(mpint *b, int m)
 {
@@ -101,7 +101,7 @@ mpfree(mpint *b)
 		return;
 	if(b->flags & MPstatic)
 		sysfatal("freeing mp constant");
-	memset(b->p, 0, b->size*Dbytes);	// information hiding
+	memset(b->p, 0, b->size*Dbytes);	/* information hiding */
 	free(b->p);
 	free(b);
 }
@@ -140,7 +140,7 @@ mpassign(mpint *old, mpint *new)
 	memmove(new->p, old->p, Dbytes*old->top);
 }
 
-// number of significant bits in mantissa
+/* number of significant bits in mantissa */
 int
 mpsignif(mpint *n)
 {
@@ -159,7 +159,7 @@ mpsignif(mpint *n)
 	return 0;
 }
 
-// k, where n = 2**k * q for odd q
+/* k, where n = 2**k * q for odd q */
 int
 mplowbits0(mpint *n)
 {

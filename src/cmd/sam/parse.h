@@ -48,7 +48,7 @@ extern struct cmdtab{
 enum Defaddr{	/* default addresses */
 	aNo,
 	aDot,
-	aAll,
+	aAll
 };
 
 int	nl_cmd(File*, Cmd*), a_cmd(File*, Cmd*), b_cmd(File*, Cmd*);

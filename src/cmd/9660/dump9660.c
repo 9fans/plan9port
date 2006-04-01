@@ -203,16 +203,16 @@ main(int argc, char **argv)
 	} else
 		convertnames(&iroot, (char* (*)(char*, char*))strcpy);
 
-//	isoabstract = findconform(&iroot, abstract);
-//	isobiblio = findconform(&iroot, biblio);
-//	isonotice = findconform(&iroot, notice);
+/*	isoabstract = findconform(&iroot, abstract); */
+/*	isobiblio = findconform(&iroot, biblio); */
+/*	isonotice = findconform(&iroot, notice); */
 
 	dsort(&iroot, isocmp);
 
 	if(cd->flags & CDjoliet) {
-	//	jabstract = findconform(&jroot, abstract);
-	//	jbiblio = findconform(&jroot, biblio);
-	//	jnotice = findconform(&jroot, notice);
+	/*	jabstract = findconform(&jroot, abstract); */
+	/*	jbiblio = findconform(&jroot, biblio); */
+	/*	jnotice = findconform(&jroot, notice); */
 
 		checknames(&jroot, isbadjoliet);
 		convertnames(&jroot, (char* (*)(char*, char*))strcpy);
@@ -393,7 +393,7 @@ addprotofile(char *new, char *old, Dir *d, void *a)
 	if((direc = adddirec((Direc*)a, new, &xd))) {
 		direc->srcfile = atom(old);
 
-		// BUG: abstract, biblio, notice
+		/* BUG: abstract, biblio, notice */
 	}
 	if(name)
 		free(name);

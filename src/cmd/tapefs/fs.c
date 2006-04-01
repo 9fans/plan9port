@@ -31,21 +31,24 @@ char	*rflush(Fid*), *rversion(Fid*), *rauth(Fid*),
 	*rread(Fid*), *rwrite(Fid*), *rclunk(Fid*),
 	*rremove(Fid*), *rstat(Fid*), *rwstat(Fid*);
 
-char 	*(*fcalls[])(Fid*) = {
-	[Tflush]	rflush,
-	[Tversion]		rversion,
-	[Tauth]	rauth,
-	[Tattach]	rattach,
-	[Twalk]		rwalk,
-	[Topen]		ropen,
-	[Tcreate]	rcreate,
-	[Tread]		rread,
-	[Twrite]	rwrite,
-	[Tclunk]	rclunk,
-	[Tremove]	rremove,
-	[Tstat]		rstat,
-	[Twstat]	rwstat,
-};
+char 	*(*fcalls[Tmax])(Fid*);
+void
+initfcalls(void)
+{
+	fcalls[Tflush]=	rflush;
+	fcalls[Tversion]=	rversion;
+	fcalls[Tauth]=	rauth;
+	fcalls[Tattach]=	rattach;
+	fcalls[Twalk]=	rwalk;
+	fcalls[Topen]=	ropen;
+	fcalls[Tcreate]=	rcreate;
+	fcalls[Tread]=	rread;
+	fcalls[Twrite]=	rwrite;
+	fcalls[Tclunk]=	rclunk;
+	fcalls[Tremove]=	rremove;
+	fcalls[Tstat]=	rstat;
+	fcalls[Twstat]=	rwstat;
+}
 
 char	Eperm[] =	"permission denied";
 char	Enotdir[] =	"not a directory";
@@ -76,6 +79,7 @@ main(int argc, char *argv[])
 	char buf[TICKREQLEN];
 
 	fmtinstall('F', fcallfmt);
+	initfcalls();
 
 	defmnt = "tapefs";
 	ARGBEGIN{

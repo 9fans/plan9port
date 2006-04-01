@@ -9,7 +9,7 @@ encodefmt(Fmt *f)
 	int ilen;
 	int rv;
 	uchar *b;
-	char obuf[64];	// rsc optimization
+	char obuf[64];	/* rsc optimization */
 
 	b = va_arg(f->args, uchar*);
 	if(b == 0)
@@ -44,7 +44,7 @@ encodefmt(Fmt *f)
 	} else
 		buf = obuf;
 
-	// convert
+	/* convert */
 	out = buf;
 	switch(f->r){
 	case '<':

@@ -120,7 +120,7 @@ enum{			/* actions */
 	AWDR,		/* enter statewd, don't count a rune */
 	AWDW,		/* enter statewd, count a word */
 	AWDWX,		/* enter statewd, count a word, count a bad rune */
-	AWDX,		/* enter statewd, count a bad rune */
+	AWDX		/* enter statewd, count a bad rune */
 };
 uchar statesp[256]={	/* looking for the start of a word */
 AWDW, AWDW, AWDW, AWDW, AWDW, AWDW, AWDW, AWDW,	/* 00-07 */
@@ -154,7 +154,7 @@ AC2W, AC2W, AC2W, AC2W, AC2W, AC2W, AC2W, AC2W,	/* d8-df */
 AC3W, AC3W, AC3W, AC3W, AC3W, AC3W, AC3W, AC3W,	/* e0-e7 */
 AC3W, AC3W, AC3W, AC3W, AC3W, AC3W, AC3W, AC3W,	/* e8-ef */
 AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,/* f0-f7 */
-AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,/* f8-ff */
+AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX,AWDWX/* f8-ff */
 };
 uchar statewd[256]={	/* looking for the next character in a word */
 AWD,  AWD,  AWD,  AWD,  AWD,  AWD,  AWD,  AWD,	/* 00-07 */
@@ -188,7 +188,7 @@ AC2,  AC2,  AC2,  AC2,  AC2,  AC2,  AC2,  AC2,	/* d8-df */
 AC3,  AC3,  AC3,  AC3,  AC3,  AC3,  AC3,  AC3,	/* e0-e7 */
 AC3,  AC3,  AC3,  AC3,  AC3,  AC3,  AC3,  AC3,	/* e8-ef */
 AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* f0-f7 */
-AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* f8-ff */
+AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX	/* f8-ff */
 };
 uchar statec2[256]={	/* looking for 10xxxxxx to complete a rune */
 AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* 00-07 */
@@ -222,7 +222,7 @@ AC2X, AC2X, AC2X, AC2X, AC2X, AC2X, AC2X, AC2X,	/* d8-df */
 AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X,	/* e0-e7 */
 AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X,	/* e8-ef */
 AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* f0-f7 */
-AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* f8-ff */
+AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX	/* f8-ff */
 };
 uchar statec3[256]={	/* looking for 10xxxxxx,10xxxxxx to complete a rune */
 AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* 00-07 */
@@ -256,7 +256,7 @@ AC2X, AC2X, AC2X, AC2X, AC2X, AC2X, AC2X, AC2X,	/* d8-df */
 AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X,	/* e0-e7 */
 AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X, AC3X,	/* e8-ef */
 AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* f0-f7 */
-AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX,	/* f8-ff */
+AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX, AWDX	/* f8-ff */
 };
 void
 count(int f, char *name)

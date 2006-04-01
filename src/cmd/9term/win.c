@@ -31,7 +31,7 @@ Event blank = {
 	'X',
 	0, 0, 0, 1, 1,
 	{ ' ', 0 },
-	{ ' ', 0 },
+	{ ' ', 0 }
 };
 
 struct Q
@@ -47,7 +47,7 @@ CFid *eventfd;
 CFid *addrfd;
 CFid *datafd;
 CFid *ctlfd;
-// int bodyfd;
+/* int bodyfd; */
 
 char	*typing;
 int	ntypeb;

@@ -56,14 +56,14 @@ _vtfileblock(VtCache *c, VtEntry *e, u32int bn)
 		return nil;
 	}
 
-//fprint(2, "vtread %V\n", e->score);
+/*fprint(2, "vtread %V\n", e->score); */
 	b = vtcacheglobal(c, e->score, e->type);
 	if(b == nil)
 		return nil;
 
 	for(i=d-1; i>=0; i--){
 		t = VtDataType+i;
-//fprint(2, "vtread %V\n", b->data+index[i]*VtScoreSize);
+/*fprint(2, "vtread %V\n", b->data+index[i]*VtScoreSize); */
 		bb = vtcacheglobal(c, b->data+index[i]*VtScoreSize, t);
 		vtblockput(b);
 		if(bb == nil)

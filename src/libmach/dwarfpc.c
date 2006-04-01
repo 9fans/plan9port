@@ -25,7 +25,7 @@ enum
 	BasicDwarfBlock = 1<<1,
 	EndSequence = 1<<2,
 	PrologueEnd = 1<<3,
-	EpilogueBegin = 1<<4,
+	EpilogueBegin = 1<<4
 };
 
 typedef struct State State;

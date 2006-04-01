@@ -8,7 +8,7 @@ enum
 	Ndim	= 15,		/* number of dimensions */
 	Nsym	= 40,		/* size of a name */
 	Nvar	= 203,		/* hash table size */
-	Maxe	= 695,		/* log of largest number */
+	Maxe	= 695		/* log of largest number */
 };
 
 typedef	struct	Var	Var;

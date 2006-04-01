@@ -1174,7 +1174,7 @@ textsetselect(Text *t, uint q0, uint q1)
  */
 enum {
 	DELAY = 2,
-	MINMOVE = 4,
+	MINMOVE = 4
 };
 
 uint

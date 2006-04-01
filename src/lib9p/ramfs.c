@@ -25,7 +25,7 @@ fsread(Req *r)
 	offset = r->ifcall.offset;
 	count = r->ifcall.count;
 
-//print("read %ld %lld\n", *count, offset);
+/*print("read %ld %lld\n", *count, offset); */
 	if(offset >= rf->ndata){
 		r->ofcall.count = 0;
 		respond(r, nil);
@@ -104,7 +104,7 @@ fsdestroyfile(File *f)
 {
 	Ramfile *rf;
 
-//fprint(2, "clunk\n");
+/*fprint(2, "clunk\n"); */
 	rf = f->aux;
 	if(rf){
 		free(rf->data);

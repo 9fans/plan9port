@@ -102,7 +102,7 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 
 		trace(TraceProc, "icachewritesect readpart 0x%llux+0x%ux", addr, nbuf);
 		if(readpart(is->part, addr, buf, nbuf) < 0){
-			// XXX
+			/* XXX */
 			fprint(2, "icachewriteproc readpart: %r\n");
 			err  = -1;
 			continue;
@@ -154,7 +154,7 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 
 		trace(TraceProc, "icachewritesect writepart", addr, nbuf);
 		if(writepart(is->part, addr, buf, nbuf) < 0){
-			// XXX
+			/* XXX */
 			fprint(2, "icachewriteproc writepart: %r\n");
 			err = -1;
 			continue;

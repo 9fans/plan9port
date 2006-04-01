@@ -228,7 +228,7 @@ Rune multitab[Nmulti][5] = {
 	{0x2bd, 0x3c9, 0},
 	{0x2bc, 0x3c9, 0},
 	{0x6f, 0x65, 0},
-	{0x20, 0x20, 0},
+	{0x20, 0x20, 0}
 };
 
 #define	risupper(r)	(0x41 <= (r) && (r) <= 0x5a)
@@ -256,7 +256,7 @@ static Rune latin_fold_tab[] =
 	'a', 'a', 'a', 'a', 'a', 'a', 'a', 'c',
 	'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
 	'd', 'n', 'o', 'o', 'o', 'o', 'o',  0 ,
-	'o', 'u', 'u', 'u', 'u', 'y',  0 , 'y',
+	'o', 'u', 'u', 'u', 'u', 'y',  0 , 'y'
 };
 
 static Rune 	*ttabstack[20];

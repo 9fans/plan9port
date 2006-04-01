@@ -5,7 +5,7 @@
 
 enum
 {
-	STACK = 32768,
+	STACK = 32768
 };
 
 void

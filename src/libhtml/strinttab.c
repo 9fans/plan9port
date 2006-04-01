@@ -4,10 +4,10 @@
 #include <html.h>
 #include "impl.h"
 
-// Do case-insensitive lookup of key[0:keylen] in t[0:n] (key part),
-// returning 1 if found, 0 if not.
-// Array t must be sorted in increasing lexicographic order of key.
-// If found, return corresponding val in *pans.
+/* Do case-insensitive lookup of key[0:keylen] in t[0:n] (key part), */
+/* returning 1 if found, 0 if not. */
+/* Array t must be sorted in increasing lexicographic order of key. */
+/* If found, return corresponding val in *pans. */
 int
 _lookup(StringInt* t, int n, Rune* key, int keylen, int* pans)
 {
@@ -33,8 +33,8 @@ _lookup(StringInt* t, int n, Rune* key, int keylen, int* pans)
 	return 0;
 }
 
-// Return first key in t[0:n] that corresponds to val,
-// nil if none.
+/* Return first key in t[0:n] that corresponds to val, */
+/* nil if none. */
 Rune*
 _revlookup(StringInt* t, int n, int val)
 {
@@ -46,8 +46,8 @@ _revlookup(StringInt* t, int n, int val)
 	return nil;
 }
 
-// Make a StringInt table out of a[0:n], mapping each string
-// to its index.  Check that entries are in alphabetical order.
+/* Make a StringInt table out of a[0:n], mapping each string */
+/* to its index.  Check that entries are in alphabetical order. */
 StringInt*
 _makestrinttab(Rune** a, int n)
 {

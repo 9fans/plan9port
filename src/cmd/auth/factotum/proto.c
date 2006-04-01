@@ -23,7 +23,7 @@ Proto *prototab[] = {
 	&p9sk2,
 	&pass,
 	&rsa,
-	nil,
+	nil
 };
 
 Proto*

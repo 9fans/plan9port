@@ -44,7 +44,7 @@ enum
 	DT_PLTREL,
 	DT_DEBUG,
 	DT_TEXTREL,
-	DT_JMPREL,
+	DT_JMPREL
 };
 
 static int

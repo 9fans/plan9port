@@ -3,12 +3,12 @@
 
 #define iseven(a)	(((a)->p[0] & 1) == 0)
 
-// extended binary gcd
-//
-// For a anv b it solves, v = gcd(a,b) and finds x and y s.t.
-// ax + by = v
-//
-// Handbook of Applied Cryptography, Menezes et al, 1997, pg 608.  
+/* extended binary gcd */
+/* */
+/* For a anv b it solves, v = gcd(a,b) and finds x and y s.t. */
+/* ax + by = v */
+/* */
+/* Handbook of Applied Cryptography, Menezes et al, 1997, pg 608.   */
 void
 mpextendedgcd(mpint *a, mpint *b, mpint *v, mpint *x, mpint *y)
 {
@@ -53,7 +53,7 @@ mpextendedgcd(mpint *a, mpint *b, mpint *v, mpint *x, mpint *y)
 	D = mpcopy(mpone);
 
 	for(;;) {
-//		print("%B %B %B %B %B %B\n", u, v, A, B, C, D);
+/*		print("%B %B %B %B %B %B\n", u, v, A, B, C, D); */
 		while(iseven(u)){
 			mpright(u, 1, u);
 			if(!iseven(A) || !iseven(B)) {
@@ -64,7 +64,7 @@ mpextendedgcd(mpint *a, mpint *b, mpint *v, mpint *x, mpint *y)
 			mpright(B, 1, B);
 		}
 	
-//		print("%B %B %B %B %B %B\n", u, v, A, B, C, D);
+/*		print("%B %B %B %B %B %B\n", u, v, A, B, C, D); */
 		while(iseven(v)){
 			mpright(v, 1, v);
 			if(!iseven(C) || !iseven(D)) {
@@ -75,7 +75,7 @@ mpextendedgcd(mpint *a, mpint *b, mpint *v, mpint *x, mpint *y)
 			mpright(D, 1, D);
 		}
 	
-//		print("%B %B %B %B %B %B\n", u, v, A, B, C, D);
+/*		print("%B %B %B %B %B %B\n", u, v, A, B, C, D); */
 		if(mpcmp(u, v) >= 0){
 			mpsub(u, v, u);
 			mpsub(A, C, A);

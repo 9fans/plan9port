@@ -37,7 +37,7 @@ enum
 	InfoReply	= 16,
 
 	ICMP_IPSIZE	= 20,
-	ICMP_HDRSIZE	= 8,
+	ICMP_HDRSIZE	= 8
 };
 
 static void

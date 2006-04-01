@@ -235,7 +235,7 @@ struct {
 	"XER",		"$XER",
 	"CTR",		"$CTR",
 	"VRSAVE",		"$VRSAVE",
-	"FPSCR",		"$FPSCR",
+	"FPSCR",		"$FPSCR"
 };
 
 char*
@@ -469,7 +469,7 @@ nameof(Type *t, int doanon)
 }
 
 static char
-basecharof(Type *t)	//XXX
+basecharof(Type *t)	/*XXX */
 {
 	switch(t->xsizeof){
 	default:

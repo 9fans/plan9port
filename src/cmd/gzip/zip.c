@@ -6,7 +6,7 @@
 
 enum
 {
-	HeadAlloc	= 64,
+	HeadAlloc	= 64
 };
 
 static	void	zip(Biobuf *bout, char *file, int stdout);

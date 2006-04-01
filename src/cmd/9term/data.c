@@ -169,7 +169,7 @@ Cursor l = {
 Cursor *corners[9] = {
 	&tl,	&t,	&tr,
 	&l,	nil,	&r,
-	&bl,	&b,	&br,
+	&bl,	&b,	&br
 };
 
 void

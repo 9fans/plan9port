@@ -106,7 +106,7 @@ _fsdecref(CFsys *fs)
 
 	qlock(&fs->lk);
 	--fs->ref;
-	//fprint(2, "fsdecref %p to %d\n", fs, fs->ref);
+	/*fprint(2, "fsdecref %p to %d\n", fs, fs->ref); */
 	if(fs->ref == 0){
 		if(fs->fd >= 0)
 			close(fs->fd);

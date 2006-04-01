@@ -22,7 +22,7 @@ mprand(int bits, void (*gen)(uchar*, int), mpint *b)
 	betomp(p, n*Dbytes, b);
 	free(p);
 
-	// make sure we don't give too many bits
+	/* make sure we don't give too many bits */
 	m = bits%Dbits;
 	n--;
 	if(m > 0){

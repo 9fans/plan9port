@@ -148,7 +148,7 @@ enum {
 	Nfs3FsCanSetTime = 16,
 
 	Nfs3Version = 3,	
-	Nfs3Program = 100003,
+	Nfs3Program = 100003
 };
 typedef enum
 {
@@ -183,7 +183,7 @@ typedef enum
 	Nfs3ErrBadType = 10007,
 	Nfs3ErrJukebox = 10008,
 	Nfs3ErrFprintNotFound = 10009,
-	Nfs3ErrAborted = 10010,
+	Nfs3ErrAborted = 10010
 } Nfs3Status;
 
 void nfs3errstr(Nfs3Status);
@@ -196,14 +196,14 @@ typedef enum
 	Nfs3FileChar = 4,
 	Nfs3FileSymlink = 5,
 	Nfs3FileSocket = 6,
-	Nfs3FileFifo = 7,
+	Nfs3FileFifo = 7
 } Nfs3FileType;
 
 enum
 {
 	Nfs3ModeSetUid = 0x800,
 	Nfs3ModeSetGid = 0x400,
-	Nfs3ModeSticky = 0x200,
+	Nfs3ModeSticky = 0x200
 };
 
 typedef enum
@@ -251,7 +251,7 @@ typedef enum
 	Nfs3CallTPathconf,
 	Nfs3CallRPathconf,
 	Nfs3CallTCommit,
-	Nfs3CallRCommit,
+	Nfs3CallRCommit
 } Nfs3CallType;
 
 typedef struct Nfs3Handle Nfs3Handle;
@@ -263,7 +263,7 @@ typedef enum
 {
 	Nfs3SetTimeDont = 0,
 	Nfs3SetTimeServer = 1,
-	Nfs3SetTimeClient = 2,
+	Nfs3SetTimeClient = 2
 } Nfs3SetTime;
 
 typedef struct Nfs3SetAttr Nfs3SetAttr;
@@ -285,7 +285,7 @@ typedef enum
 {
 	Nfs3SyncNone = 0,
 	Nfs3SyncData = 1,
-	Nfs3SyncFile = 2,
+	Nfs3SyncFile = 2
 } Nfs3Sync;
 
 typedef struct Nfs3TWrite Nfs3TWrite;
@@ -294,7 +294,7 @@ typedef enum
 {
 	Nfs3CreateUnchecked = 0,
 	Nfs3CreateGuarded = 1,
-	Nfs3CreateExclusive = 2,
+	Nfs3CreateExclusive = 2
 } Nfs3Create;
 
 typedef struct Nfs3TCreate Nfs3TCreate;

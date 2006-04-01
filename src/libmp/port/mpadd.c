@@ -2,14 +2,14 @@
 #include <mp.h>
 #include "dat.h"
 
-// sum = abs(b1) + abs(b2), i.e., add the magnitudes
+/* sum = abs(b1) + abs(b2), i.e., add the magnitudes */
 void
 mpmagadd(mpint *b1, mpint *b2, mpint *sum)
 {
 	int m, n;
 	mpint *t;
 
-	// get the sizes right
+	/* get the sizes right */
 	if(b2->top > b1->top){
 		t = b1;
 		b1 = b2;
@@ -34,7 +34,7 @@ mpmagadd(mpint *b1, mpint *b2, mpint *sum)
 	mpnorm(sum);
 }
 
-// sum = b1 + b2
+/* sum = b1 + b2 */
 void
 mpadd(mpint *b1, mpint *b2, mpint *sum)
 {

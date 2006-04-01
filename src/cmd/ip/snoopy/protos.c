@@ -29,5 +29,5 @@ Proto *protos[] =
 	&ppp_ipcp,
 	&pppoe_sess,
 	&pppoe_disc,
-	0,
+	0
 };

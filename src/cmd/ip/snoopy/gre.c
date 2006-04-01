@@ -8,7 +8,7 @@ enum {
 	GRE_srcrt	= (1<<11),
 	GRE_recur	= (7<<8),
 	GRE_ack		= (1<<7),
-	GRE_ver		= 0x7,
+	GRE_ver		= 0x7
 };
 
 /* GRE protocols */
@@ -25,7 +25,7 @@ enum {
 	GRE_vinesecho	= 0x0bae,
 	GRE_vinesloop	= 0x0baf,
 	GRE_decnetIV	= 0x6003,
-	GRE_ppp		= 0x880b,
+	GRE_ppp		= 0x880b
 };
 
 int

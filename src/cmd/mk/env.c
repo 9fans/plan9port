@@ -27,7 +27,7 @@ static char	*myenv[] =
 	"stem7",
 	"stem8",
 	"stem9",
-	0,
+	0
 };
 
 void

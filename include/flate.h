@@ -22,7 +22,7 @@ enum
 	FlateInputFail		= -2,
 	FlateOutputFail		= -3,
 	FlateCorrupted		= -4,
-	FlateInternal		= -5,
+	FlateInternal		= -5
 };
 
 int	deflateinit(void);

@@ -7,7 +7,7 @@
 
 enum {
 	LEN	= 8*1024,
-	HUNKS	= 128,
+	HUNKS	= 128
 };
 
 #undef warn
@@ -67,11 +67,11 @@ static void	setnames(Mkaux*, File*);
 static void	skipdir(Mkaux*);
 static void	warn(Mkaux*, char *, ...);
 
-//static void
-//mprint(char *new, char *old, Dir *d, void*)
-//{
-//	print("%s %s %D\n", new, old, d);
-//}
+/*static void */
+/*mprint(char *new, char *old, Dir *d, void*) */
+/*{ */
+/*	print("%s %s %D\n", new, old, d); */
+/*} */
 
 int
 rdproto(char *proto, char *root, Mkfsenum *mkenum, Mkfserr *mkerr, void *a)

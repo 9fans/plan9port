@@ -2,14 +2,14 @@
 #include <mp.h>
 #include <libsec.h>
 
-// Because of the way that non multiple of 8
-// buffers are handled, the decryptor must
-// be fed buffers of the same size as the
-// encryptor
+/* Because of the way that non multiple of 8 */
+/* buffers are handled, the decryptor must */
+/* be fed buffers of the same size as the */
+/* encryptor */
 
 
-// If the length is not a multiple of 8, I encrypt
-// the overflow to be compatible with lacy's cryptlib
+/* If the length is not a multiple of 8, I encrypt */
+/* the overflow to be compatible with lacy's cryptlib */
 void
 desCBCencrypt(uchar *p, int len, DESstate *s)
 {

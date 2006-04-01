@@ -34,7 +34,7 @@ enum
 {
 	HashLog		= 9,
 	HashSize	= 1<<HashLog,
-	HashMask	= HashSize - 1,
+	HashMask	= HashSize - 1
 };
 
 struct DCache
@@ -213,7 +213,7 @@ return;
 		lastmiss.addr = addr;
 	}
 
-//	fprint(2, "%s %llx %s\n", part->name, addr, miss ? "miss" : "hit");
+/*	fprint(2, "%s %llx %s\n", part->name, addr, miss ? "miss" : "hit"); */
 }
 
 int
@@ -297,7 +297,7 @@ _getdblock(Part *part, u64int addr, int mode, int load)
 	/*
 	 * look for the block in the cache
 	 */
-//checkdcache();
+/*checkdcache(); */
 	qlock(&dcache.lock);
 again:
 	for(b = dcache.heads[h]; b != nil; b = b->next){
@@ -367,7 +367,7 @@ found:
 		fixheap(b->heap, b);
 
 	qunlock(&dcache.lock);
-//checkdcache();
+/*checkdcache(); */
 
 	trace(TraceBlock, "getdblock lock");
 	addstat(StatDblockStall, 1);
@@ -427,7 +427,7 @@ putdblock(DBlock *b)
 	else
 		wunlock(&b->lock);
 
-//checkdcache();
+/*checkdcache(); */
 	qlock(&dcache.lock);
 	if(--b->ref == 0 && !b->dirty){
 		if(b->heap == TWID32)
@@ -435,7 +435,7 @@ putdblock(DBlock *b)
 		rwakeupall(&dcache.full);
 	}
 	qunlock(&dcache.lock);
-//checkdcache();
+/*checkdcache(); */
 }
 
 void

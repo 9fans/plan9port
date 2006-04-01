@@ -36,7 +36,7 @@ struct Status
 };
 enum
 {
-	StatusSize = sizeof(Status),
+	StatusSize = sizeof(Status)
 };
 
 struct Psinfo
@@ -57,7 +57,7 @@ struct Psinfo
 };
 enum
 {
-	PsinfoSize = sizeof(Psinfo),
+	PsinfoSize = sizeof(Psinfo)
 };
 
 int
@@ -92,7 +92,7 @@ corecmdlinux386(Elf *elf, ElfNote *note, char **pp)
 		return -1;
 	}
 	p = (Psinfo*)note->desc;
-	// print("elf name %s\nelf args %s\n", p->fname, p->psargs);
+	/* print("elf name %s\nelf args %s\n", p->fname, p->psargs); */
 	t = malloc(80+1);
 	if(t == nil)
 		return -1;

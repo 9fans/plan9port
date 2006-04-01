@@ -154,7 +154,7 @@ enum
 	LREG,		/* register */
 	LADDR,		/* absolute address */
 	LCONST,		/* constant (an anonymous readonly location) */
-	LOFFSET,		/* dereference offset + register ptr */
+	LOFFSET		/* dereference offset + register ptr */
 };
 
 struct Loc
@@ -357,7 +357,7 @@ enum
 
 	RINT = 0<<0,
 	RFLT = 1<<0,
-	RRDONLY = 1<<1,
+	RRDONLY = 1<<1
 };
 
 struct Regdesc
@@ -456,7 +456,7 @@ enum
 	CPARAM,		/* function parameter */
 	CTEXT,		/* text segment */
 	CDATA,		/* data segment */
-	CANY,
+	CANY
 };
 
 struct Symbol

@@ -49,7 +49,7 @@ r_fi(int argc, Rune **argv)
 	USED(argc);
 	USED(argv);
 	nr(L(".fi"), 1);
-// warn(".fi");
+/* warn(".fi"); */
 }
 
 /* no-fill mode */

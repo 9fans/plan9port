@@ -5,7 +5,7 @@ char*	solstr[] =
 	"Fall equinox",
 	"Winter solstice",
 	"Spring equinox",
-	"Summer solstice",
+	"Summer solstice"
 };
 
 struct

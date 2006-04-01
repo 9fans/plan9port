@@ -7,7 +7,7 @@
 
 enum
 {
-	STACK = 8192,
+	STACK = 8192
 };
 
 int nbit, npix;

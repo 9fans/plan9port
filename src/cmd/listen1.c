@@ -87,9 +87,9 @@ main(int argc, char **argv)
 			print("incoming call for %s from %s in %s\n", argv[0], remoteaddr(ndir), ndir);
 			close(ctl);
 			close(nctl);
-			//putenv("net", ndir);
-			//sprint(data, "%s/data", ndir);
-			//bind(data, "/dev/cons", MREPL);
+			/*putenv("net", ndir); */
+			/*sprint(data, "%s/data", ndir); */
+			/*bind(data, "/dev/cons", MREPL); */
 			dup(fd, 0);
 			dup(fd, 1);
 			dup(fd, 2);

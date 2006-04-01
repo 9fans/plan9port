@@ -98,7 +98,7 @@ enum
 	EMPTY		= 1,
 	WHOKNOWS	= 0,
 	OK		= 1,
-	NOMORE		= -1000,
+	NOMORE		= -1000
 };
 
 	/* macros for getting associativity and precedence levels */

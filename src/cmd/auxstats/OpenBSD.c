@@ -41,7 +41,7 @@ static kvm_t *kvm;
 static struct nlist nl[] = {
 	{ "_ifnet" },
 	{ "_cp_time" },
-	{ "" },
+	{ "" }
 };
 
 void

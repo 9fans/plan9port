@@ -42,7 +42,7 @@ enum State
 {
 	Clean =		' ',
 	Dirty =		'\'',
-	Unread =	'-',
+	Unread =	'-'
 };
 
 struct Range
@@ -97,7 +97,7 @@ enum
 	Maxblock = 	8*1024,
 
 	BUFSIZE = Maxblock,	/* size from fbufalloc() */
-	RBUFSIZE = BUFSIZE/sizeof(Rune),
+	RBUFSIZE = BUFSIZE/sizeof(Rune)
 };
 
 
@@ -108,7 +108,7 @@ enum
 	Insert		= 'i',
 	Filename	= 'f',
 	Dot		= 'D',
-	Mark		= 'm',
+	Mark		= 'm'
 };
 
 struct Block
@@ -168,10 +168,12 @@ struct File
 	int		mod;		/* file appears modified in menu */
 	char		rescuing;	/* sam exiting; this file unusable */
 
+#if 0
 //	Text		*curtext;	/* most recently used associated text */
 //	Text		**text;		/* list of associated texts */
 //	int		ntext;
 //	int		dumpid;		/* used in dumping zeroxed windows */
+#endif
 
 	Posn		hiposn;		/* highest address touched this Mod */
 	Address		dot;		/* current position */
@@ -187,10 +189,10 @@ struct File
 	long		prevseq;
 	int		prevmod;
 };
-//File*		fileaddtext(File*, Text*);
+/*File*		fileaddtext(File*, Text*); */
 void		fileclose(File*);
 void		filedelete(File*, uint, uint);
-//void		filedeltext(File*, Text*);
+/*void		filedeltext(File*, Text*); */
 void		fileinsert(File*, uint, Rune*, uint);
 uint		fileload(File*, uint, int, int*);
 void		filemark(File*);

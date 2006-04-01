@@ -15,13 +15,13 @@ enum
 {
 	None = 0,
 	Fore = '+',
-	Back = '-',
+	Back = '-'
 };
 
 enum
 {
 	Char,
-	Line,
+	Line
 };
 
 int

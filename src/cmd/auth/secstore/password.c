@@ -42,7 +42,7 @@ getPW(char *id, int dead_or_alive)
 	uint now = time(0);
 	Biobuf *bin;
 	PW *pw;
-	char *f1, *f2; // fields 1, 2 = attribute, value
+	char *f1, *f2; /* fields 1, 2 = attribute, value */
 
 	if((bin = openPW(id, OREAD)) == 0){
 		id = "FICTITIOUS";
@@ -75,7 +75,7 @@ getPW(char *id, int dead_or_alive)
 	}
 	Bterm(bin);
 	if(dead_or_alive)
-		return pw;  // return PW entry for editing, whether currently valid or not
+		return pw;  /* return PW entry for editing, whether currently valid or not */
 	if(pw->expire <= now){
 		werrstr("account expired");
 		freePW(pw);
@@ -87,14 +87,14 @@ getPW(char *id, int dead_or_alive)
 		return nil;
 	}
 	if(pw->failed < 10)
-		return pw;  // success
+		return pw;  /* success */
 	if(now < mtimePW(id)+300){
 		werrstr("too many failures; try again in five minutes");
 		freePW(pw);
 		return nil;
 	}
 	pw->failed = 0;
-	putPW(pw);  // reset failed-login-counter after five minutes
+	putPW(pw);  /* reset failed-login-counter after five minutes */
 	return pw;
 }
 

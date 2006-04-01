@@ -164,9 +164,9 @@ okay:
 				blockput(cgb);
 				goto error;
 			}
-			// cg->nfrag = cgblk->nfrag;
-			// cg->nblock = (cgblk->nfrag+fs->fragsperblock-1) / fs->fragsperblock;
-			// fprint(2, "cg #%d: cgblk %lud, %d blocks, %d inodes\n", cgblk->num, (ulong)cg->cgblkno, cg->nblock, cg->nino);
+			/* cg->nfrag = cgblk->nfrag; */
+			/* cg->nblock = (cgblk->nfrag+fs->fragsperblock-1) / fs->fragsperblock; */
+			/* fprint(2, "cg #%d: cgblk %lud, %d blocks, %d inodes\n", cgblk->num, (ulong)cg->cgblkno, cg->nblock, cg->nino); */
 		}
 	}
 	blockput(b);

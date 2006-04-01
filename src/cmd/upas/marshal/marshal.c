@@ -53,12 +53,12 @@ enum {
 	Hcontent,
 	Hx,
 	Hprecedence,
-	Nhdr,
+	Nhdr
 };
 
 enum {
 	PGPsign = 1,
-	PGPencrypt = 2,
+	PGPencrypt = 2
 };
 
 char *hdrs[Nhdr] = {
@@ -76,7 +76,7 @@ char *hdrs[Nhdr] = {
 [Hmime]		"mime-",
 [Hcontent]	"content-",
 [Hx]		"x-",
-[Hprecedence]	"precedence",
+[Hprecedence]	"precedence"
 };
 
 struct Ctype {
@@ -92,7 +92,7 @@ Ctype ctype[] = {
 	{ "text/tab-separated-values",	"tsv",	1,	},
 	{ "text/richtext",		"rtx",	1,	},
 	{ "message/rfc822",		"txt",	1,	},
-	{ "", 				0,	0,	},
+	{ "", 				0,	0,	}
 };
 
 Ctype *mimetypes;
@@ -153,7 +153,7 @@ enum
 	Ok = 0,
 	Nomessage = 1,
 	Nobody = 2,
-	Error = -1,
+	Error = -1
 };
 
 #pragma varargck	type	"Z"	char*
@@ -244,27 +244,27 @@ threadmain(int argc, char **argv)
 		subject = EARGF(usage());
 		break;
 	case 'F':
-		Fflag = 1;		// file message
+		Fflag = 1;		/* file message */
 		break;
 	case 'r':
-		rflag = 1;		// for sendmail
+		rflag = 1;		/* for sendmail */
 		break;
 	case 'd':
-		dflag = 1;		// for sendmail
+		dflag = 1;		/* for sendmail */
 		break;
 	case '#':
-		lbflag = 1;		// for sendmail
+		lbflag = 1;		/* for sendmail */
 		break;
 	case 'x':
-		xflag = 1;		// for sendmail
+		xflag = 1;		/* for sendmail */
 		break;
-	case 'n':			// no standard input
+	case 'n':			/* no standard input */
 		nflag = 1;
 		break;
-	case '8':			// read recipients from rfc822 header
+	case '8':			/* read recipients from rfc822 header */
 		eightflag = 1;
 		break;
-	case 'p':			// pgp flag: encrypt, sign, or both
+	case 'p':			/* pgp flag: encrypt, sign, or both */
 		if(pgpopts(EARGF(usage())) < 0)
 			sysfatal("bad pgp options");
 		break;
@@ -302,8 +302,8 @@ threadmain(int argc, char **argv)
 	flags = 0;
 	headersrv = Nomessage;
 	if(!nflag && !xflag && !lbflag &&!dflag) {
-		// pass through headers, keeping track of which we've seen,
-		// perhaps building to list.
+		/* pass through headers, keeping track of which we've seen, */
+		/* perhaps building to list. */
 		holding = holdon();
 		headersrv = readheaders(&in, &flags, &hdrstring, eightflag ? &to : nil, 1);
 		if(rfc822syntaxerror){
@@ -316,10 +316,10 @@ threadmain(int argc, char **argv)
 		}
 
 		switch(headersrv){
-		case Error:		// error
+		case Error:		/* error */
 			fatal("reading");
 			break;
-		case Nomessage:		// no message, just exit mimicking old behavior
+		case Nomessage:		/* no message, just exit mimicking old behavior */
 			noinput = 1;
 			if(first == nil)
 				threadexitsall(0);
@@ -344,13 +344,13 @@ threadmain(int argc, char **argv)
 		s_free(hdrstring);
 		hdrstring = nil;
 
-		// read user's standard headers
+		/* read user's standard headers */
 		file = s_new();
 		mboxpath("headers", user, file, 0);
 		b = Bopen(s_to_c(file), OREAD);
 		if(b != nil){
 			switch(readheaders(b, &flags, &hdrstring, nil, 0)){
-			case Error:	// error
+			case Error:	/* error */
 				fatal("reading");
 			}
 			Bterm(b);
@@ -361,7 +361,7 @@ threadmain(int argc, char **argv)
 		}
 	}
 
-	// add any headers we need
+	/* add any headers we need */
 	if((flags & (1<<Hdate)) == 0)
 		if(printdate(&out) < 0)
 			fatal("writing");
@@ -381,7 +381,7 @@ threadmain(int argc, char **argv)
 		printinreplyto(&out, replymsg);	/* ignore errors */
 	Bprint(&out, "MIME-Version: 1.0\n");
 
-	if(pgpflag){	// interpose pgp process between us and sendmail to handle body
+	if(pgpflag){	/* interpose pgp process between us and sendmail to handle body */
 		Bflush(&out);
 		Bterm(&out);
 		fd = pgpfilter(&pgppid, fd, pgpflag);
@@ -389,7 +389,7 @@ threadmain(int argc, char **argv)
 			fatal("can't Binit 1: %r");
 	}
 
-	// if attachments, stick in multipart headers
+	/* if attachments, stick in multipart headers */
 	boundary = nil;
 	if(first != nil){
 		boundary = mkboundary();
@@ -427,7 +427,7 @@ threadmain(int argc, char **argv)
 	threadexitsall(waitforsubprocs());
 }
 
-// evaluate pgp option string
+/* evaluate pgp option string */
 int
 pgpopts(char *s)
 {
@@ -448,9 +448,9 @@ pgpopts(char *s)
 	return 0;
 }
 
-// read headers from stdin into a String, expanding local aliases,
-// keep track of which headers are there, which addresses we have
-// remove Bcc: line.
+/* read headers from stdin into a String, expanding local aliases, */
+/* keep track of which headers are there, which addresses we have */
+/* remove Bcc: line. */
 int
 readheaders(Biobuf *in, int *fp, String **sp, Addr **top, int strict)
 {
@@ -469,7 +469,7 @@ readheaders(Biobuf *in, int *fp, String **sp, Addr **top, int strict)
 			seen = 1;
 			p[Blinelen(in)-1] = 0;
 
-			// coalesce multiline headers
+			/* coalesce multiline headers */
 			if((*p == ' ' || *p == '\t') && sline){
 				s_append(sline, "\n");
 				s_append(sline, p);
@@ -478,7 +478,7 @@ readheaders(Biobuf *in, int *fp, String **sp, Addr **top, int strict)
 			}
 		}
 
-		// process the current header, it's all been read
+		/* process the current header, it's all been read */
 		if(sline) {
 			assert(hdrtype != -1);
 			if(top){
@@ -504,7 +504,7 @@ readheaders(Biobuf *in, int *fp, String **sp, Addr **top, int strict)
 		if(p == nil)
 			break;
 
-		// if no :, it's not a header, seek back and break
+		/* if no :, it's not a header, seek back and break */
 		if(strchr(p, ':') == nil){
 			p[Blinelen(in)-1] = '\n';
 			Bseek(in, -Blinelen(in), 1);
@@ -513,12 +513,12 @@ readheaders(Biobuf *in, int *fp, String **sp, Addr **top, int strict)
 
 		sline = s_copy(p);
 
-		// classify the header.  If we don't recognize it, break.  This is
-		// to take care of user's that start messages with lines that contain
-		// ':'s but that aren't headers.  This is a bit hokey.  Since I decided
-		// to let users type headers, I need some way to distinguish.  Therefore,
-		// marshal tries to know all likely headers and will indeed screw up if
-		// the user types an unlikely one. -- presotto
+		/* classify the header.  If we don't recognize it, break.  This is */
+		/* to take care of user's that start messages with lines that contain */
+		/* ':'s but that aren't headers.  This is a bit hokey.  Since I decided */
+		/* to let users type headers, I need some way to distinguish.  Therefore, */
+		/* marshal tries to know all likely headers and will indeed screw up if */
+		/* the user types an unlikely one. -- presotto */
 		hdrtype = -1;
 		for(i = 0; i < nelem(hdrs); i++){
 			if(cistrncmp(hdrs[i], p, strlen(hdrs[i])) == 0){
@@ -553,7 +553,7 @@ readheaders(Biobuf *in, int *fp, String **sp, Addr **top, int strict)
 	return Ok;
 }
 
-// pass the body to sendmail, make sure body starts and ends with a newline
+/* pass the body to sendmail, make sure body starts and ends with a newline */
 void
 body(Biobuf *in, Biobuf *out, int docontenttype)
 {
@@ -564,7 +564,7 @@ body(Biobuf *in, Biobuf *out, int docontenttype)
 	len = 16*1024;
 	buf = emalloc(len);
 
-	// first char must be newline
+	/* first char must be newline */
 	i = Bgetc(in);
 	if(i > 0){
 		if(i != '\n')
@@ -574,7 +574,7 @@ body(Biobuf *in, Biobuf *out, int docontenttype)
 		buf[n++] = '\n';
 	}
 
-	// read into memory
+	/* read into memory */
 	if(docontenttype){
 		while(docontenttype){
 			if(n == len){
@@ -604,7 +604,7 @@ body(Biobuf *in, Biobuf *out, int docontenttype)
 		}
 	}
 
-	// write what we already read
+	/* write what we already read */
 	if(Bwrite(out, buf, n) < 0)
 		fatal("output error");
 	if(n > 0)
@@ -613,7 +613,7 @@ body(Biobuf *in, Biobuf *out, int docontenttype)
 		lastchar = '\n';
 
 
-	// pass the rest
+	/* pass the rest */
 	for(;;){
 		n = Bread(in, buf, len);
 		if(n < 0)
@@ -626,15 +626,15 @@ body(Biobuf *in, Biobuf *out, int docontenttype)
 	}
 }
 
-// pass the body to sendmail encoding with base64
-//
-//  the size of buf is very important to enc64.  Anything other than
-//  a multiple of 3 will cause enc64 to output a termination sequence.
-//  To ensure that a full buf corresponds to a multiple of complete lines,
-//  we make buf a multiple of 3*18 since that's how many enc64 sticks on
-//  a single line.  This avoids short lines in the output which is pleasing
-//  but not necessary.
-//
+/* pass the body to sendmail encoding with base64 */
+/* */
+/*  the size of buf is very important to enc64.  Anything other than */
+/*  a multiple of 3 will cause enc64 to output a termination sequence. */
+/*  To ensure that a full buf corresponds to a multiple of complete lines, */
+/*  we make buf a multiple of 3*18 since that's how many enc64 sticks on */
+/*  a single line.  This avoids short lines in the output which is pleasing */
+/*  but not necessary. */
+/* */
 void
 body64(Biobuf *in, Biobuf *out)
 {
@@ -656,7 +656,7 @@ body64(Biobuf *in, Biobuf *out)
 	lastchar = '\n';
 }
 
-// pass message to sendmail, make sure body starts with a newline
+/* pass message to sendmail, make sure body starts with a newline */
 void
 copy(Biobuf *in, Biobuf *out)
 {
@@ -682,7 +682,7 @@ attachment(Attach *a, Biobuf *out)
 
 	f = emalloc(sizeof *f);
 	Binit(f, a->fd, OREAD);
-	// if it's already mime encoded, just copy
+	/* if it's already mime encoded, just copy */
 	if(strcmp(a->type, "mime") == 0){
 		copy(f, out);
 		Bterm(f);
@@ -690,7 +690,7 @@ attachment(Attach *a, Biobuf *out)
 		return;
 	}
 	
-	// if it's not already mime encoded ...
+	/* if it's not already mime encoded ... */
 	if(strcmp(a->type, "text/plain") != 0)
 		Bprint(out, "Content-Type: %s\n", a->type);
 
@@ -859,12 +859,12 @@ mkattach(char *file, char *type, int inline)
 		return a;
 	}
 
-	// pick a type depending on extension
+	/* pick a type depending on extension */
 	p = strchr(file, '.');
 	if(p != nil)
 		p++;
 
-	// check the builtin extensions
+	/* check the builtin extensions */
 	if(p != nil){
 		for(c = ctype; c->ext != nil; c++)
 			if(strcmp(p, c->ext) == 0){
@@ -874,7 +874,7 @@ mkattach(char *file, char *type, int inline)
 			}
 	}
 
-	// try the mime types file
+	/* try the mime types file */
 	if(p != nil){
 		if(mimetypes == nil)
 			readmimetypes();
@@ -886,8 +886,8 @@ mkattach(char *file, char *type, int inline)
 			}
 	}
 
-	// run file to figure out the type
-	a->type = "application/octet-stream";		// safest default
+	/* run file to figure out the type */
+	a->type = "application/octet-stream";		/* safest default */
 	if(pipe(pfd) < 0)
 		return a;
 	
@@ -934,7 +934,7 @@ mkboundary(void)
 	return estrdup(buf);
 }
 
-// copy types to two fd's
+/* copy types to two fd's */
 static void
 tee(int in, int out1, int out2)
 {
@@ -962,7 +962,7 @@ teeproc(void *v)
 	write(a[2], "\n", 1);
 }
 
-// print the unix from line
+/* print the unix from line */
 int
 printunixfrom(int fd)
 {
@@ -987,7 +987,7 @@ char *specialfile[] =
 	"names"
 };
 
-// return 1 if this is a special file
+/* return 1 if this is a special file */
 static int
 special(String *s)
 {
@@ -1005,7 +1005,7 @@ special(String *s)
 	return 0;
 }
 
-// open the folder using the recipients account name
+/* open the folder using the recipients account name */
 static int
 openfolder(char *rcvr)
 {
@@ -1019,7 +1019,7 @@ openfolder(char *rcvr)
 	file = s_new();
 	mboxpath("f", user, file, 0);
 
-	// if $mail/f exists, store there, otherwise in $mail
+	/* if $mail/f exists, store there, otherwise in $mail */
 	d = dirstat(s_to_c(file));
 	if(d == nil || d->qid.type != QTDIR){
 		scarey = 1;
@@ -1056,7 +1056,7 @@ openfolder(char *rcvr)
 	return fd;
 }
 
-// start up sendmail and return an fd to talk to it with
+/* start up sendmail and return an fd to talk to it with */
 int
 sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 {
@@ -1127,8 +1127,8 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 	return sfd;
 }
 
-// start up pgp process and return an fd to talk to it with.
-// its standard output will be the original fd, which goes to sendmail.
+/* start up pgp process and return an fd to talk to it with. */
+/* its standard output will be the original fd, which goes to sendmail. */
 int
 pgpfilter(int *pid, int fd, int pgpflag)
 {
@@ -1172,7 +1172,7 @@ pgpfilter(int *pid, int fd, int pgpflag)
 	return pfd[1];
 }
 
-// wait for sendmail and pgp to exit; exit here if either failed
+/* wait for sendmail and pgp to exit; exit here if either failed */
 char*
 waitforsubprocs(void)
 {
@@ -1312,9 +1312,9 @@ freealiases(Alias *a)
 	}
 }
 
-//
-//  read alias file
-//
+/* */
+/*  read alias file */
+/* */
 Alias*
 readaliases(void)
 {
@@ -1328,7 +1328,7 @@ readaliases(void)
 	line = s_new();
 	token = s_new();
 
-	// open and get length
+	/* open and get length */
 	mboxpath("names", login, file, 0);
 	sp = s_allocinstack(s_to_c(file));
 	if(sp == nil)
@@ -1336,7 +1336,7 @@ readaliases(void)
 
 	l = &first;
 
-	// read a line at a time.
+	/* read a line at a time. */
 	while(s_rdinstack(sp, s_restart(line))!=nil) {
 		s_restart(line);
 		a = emalloc(sizeof(Alias));
@@ -1380,10 +1380,10 @@ newaddr(char *name)
 	return a;
 }
 
-//
-//  expand personal aliases since the names are meaningless in
-//  other contexts
-//
+/* */
+/*  expand personal aliases since the names are meaningless in */
+/*  other contexts */
+/* */
 Addr*
 _expand(Addr *old, int *changedp)
 {
@@ -1458,7 +1458,7 @@ expand(int ac, char **av)
 
 	first = nil;
 
-	// make a list of the starting addresses
+	/* make a list of the starting addresses */
 	l = &first;
 	for(i = 0; i < ac; i++){
 		*l = newaddr(av[i]);
@@ -1467,7 +1467,7 @@ expand(int ac, char **av)
 		l = &(*l)->next;
 	}
 
-	// recurse till we don't change any more
+	/* recurse till we don't change any more */
 	return unique(rexpand(first));
 }
 
@@ -1510,21 +1510,21 @@ s_copyn(char *s, int n)
 	return s_nappend(s_reset(nil), s, n);
 }
 
-// fetch the next token from an RFC822 address string
-// we assume the header is RFC822-conformant in that
-// we recognize escaping anywhere even though it is only
-// supposed to be in quoted-strings, domain-literals, and comments.
-//
-// i'd use yylex or yyparse here, but we need to preserve 
-// things like comments, which i think it tosses away.
-//
-// we're not strictly RFC822 compliant.  we misparse such nonsense as
-//
-//	To: gre @ (Grace) plan9 . (Emlin) bell-labs.com
-//
-// make sure there's no whitespace in your addresses and 
-// you'll be fine.
-//
+/* fetch the next token from an RFC822 address string */
+/* we assume the header is RFC822-conformant in that */
+/* we recognize escaping anywhere even though it is only */
+/* supposed to be in quoted-strings, domain-literals, and comments. */
+/* */
+/* i'd use yylex or yyparse here, but we need to preserve  */
+/* things like comments, which i think it tosses away. */
+/* */
+/* we're not strictly RFC822 compliant.  we misparse such nonsense as */
+/* */
+/*	To: gre @ (Grace) plan9 . (Emlin) bell-labs.com */
+/* */
+/* make sure there's no whitespace in your addresses and  */
+/* you'll be fine. */
+/* */
 enum {
 	Twhite,
 	Tcomment,
@@ -1533,9 +1533,9 @@ enum {
 	Tleftangle,
 	Trightangle,
 	Terror,
-	Tend,
+	Tend
 };
-//char *ty82[] = {"white", "comment", "words", "comma", "<", ">", "err", "end"};
+/*char *ty82[] = {"white", "comment", "words", "comma", "<", ">", "err", "end"}; */
 #define ISWHITE(p) ((p)==' ' || (p)=='\t' || (p)=='\n' || (p)=='\r')
 int
 get822token(String **tok, char *p, char **pp)
@@ -1551,7 +1551,7 @@ get822token(String **tok, char *p, char **pp)
 		*pp = nil;
 		return Tend;
 
-	case ' ':	// get whitespace
+	case ' ':	/* get whitespace */
 	case '\t':
 	case '\n':
 	case '\r':
@@ -1560,7 +1560,7 @@ get822token(String **tok, char *p, char **pp)
 			p++;
 		break;
 
-	case '(':	// get comment
+	case '(':	/* get comment */
 		type = Tcomment;
 		for(p++; *p && *p != ')'; p++)
 			if(*p == '\\') {
@@ -1589,7 +1589,7 @@ get822token(String **tok, char *p, char **pp)
 		type = Trightangle;
 		p++;
 		break;
-	default:	// bunch of letters, perhaps quoted strings tossed in
+	default:	/* bunch of letters, perhaps quoted strings tossed in */
 		type = Twords;
 		quoting = 0;
 		for(; *p && (quoting || (!ISWHITE(*p) && *p != '>' && *p != '<' && *p != ',')); p++) {
@@ -1612,8 +1612,8 @@ get822token(String **tok, char *p, char **pp)
 	return type;
 }	
 
-// expand local aliases in an RFC822 mail line
-// add list of expanded addresses to to.
+/* expand local aliases in an RFC822 mail line */
+/* add list of expanded addresses to to. */
 Addr*
 expandline(String **s, Addr *to)
 {
@@ -1630,14 +1630,14 @@ expandline(String **s, Addr *to)
 	ns = s_copyn(s_to_c(*s), p-s_to_c(*s));
 	stok = nil;
 	nto = nil;
-	//
-	// the only valid mailbox namings are word
-	// and word* < addr >
-	// without comments this would be simple.
-	// we keep the following:
-	//	lastword - current guess at the address
-	//	sinceword - whitespace and comment seen since lastword
-	//
+	/* */
+	/* the only valid mailbox namings are word */
+	/* and word* < addr > */
+	/* without comments this would be simple. */
+	/* we keep the following: */
+	/*	lastword - current guess at the address */
+	/*	sinceword - whitespace and comment seen since lastword */
+	/* */
 	lastword = s_new();
 	sinceword = s_new();
 	inangle = 0;
@@ -1710,7 +1710,7 @@ expandline(String **s, Addr *to)
 			if(!inangle)
 				nword++;
 			break;
-		case Terror:	// give up, use old string, addrs
+		case Terror:	/* give up, use old string, addrs */
 		Error:
 			ns = os;
 			os = nil;
@@ -1775,7 +1775,7 @@ readmimetypes(void)
 		mimetypes[inuse].display = !strcmp(type, "text/plain");
 		inuse++;
 
-		// always make sure there's a terminator
+		/* always make sure there's a terminator */
 		mimetypes[inuse].ext = 0;
 	}
 	Bterm(b);
@@ -1810,15 +1810,15 @@ erealloc(void *x, int n)
 	return x;
 }
 
-//
-// Formatter for %"
-// Use double quotes to protect white space, frogs, \ and "
-//
+/* */
+/* Formatter for %" */
+/* Use double quotes to protect white space, frogs, \ and " */
+/* */
 enum
 {
 	Qok = 0,
 	Qquote,
-	Qbackslash,
+	Qbackslash
 };
 
 static int

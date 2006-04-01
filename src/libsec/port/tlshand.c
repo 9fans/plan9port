@@ -5,37 +5,37 @@
 #include <mp.h>
 #include <libsec.h>
 
-// The main groups of functions are:
-//		client/server - main handshake protocol definition
-//		message functions - formating handshake messages
-//		cipher choices - catalog of digest and encrypt algorithms
-//		security functions - PKCS#1, sslHMAC, session keygen
-//		general utility functions - malloc, serialization
-// The handshake protocol builds on the TLS/SSL3 record layer protocol,
-// which is implemented in kernel device #a.  See also /lib/rfc/rfc2246.
+/* The main groups of functions are: */
+/*		client/server - main handshake protocol definition */
+/*		message functions - formating handshake messages */
+/*		cipher choices - catalog of digest and encrypt algorithms */
+/*		security functions - PKCS#1, sslHMAC, session keygen */
+/*		general utility functions - malloc, serialization */
+/* The handshake protocol builds on the TLS/SSL3 record layer protocol, */
+/* which is implemented in kernel device #a.  See also /lib/rfc/rfc2246. */
 
 enum {
 	TLSFinishedLen = 12,
 	SSL3FinishedLen = MD5dlen+SHA1dlen,
-	MaxKeyData = 104,	// amount of secret we may need
+	MaxKeyData = 104,	/* amount of secret we may need */
 	MaxChunk = 1<<14,
 	RandomSize = 32,
 	SidSize = 32,
 	MasterSecretSize = 48,
 	AQueue = 0,
-	AFlush = 1,
+	AFlush = 1
 };
 
 typedef struct TlsSec TlsSec;
 
 typedef struct Bytes{
 	int len;
-	uchar data[1];  // [len]
+	uchar data[1];  /* [len] */
 } Bytes;
 
 typedef struct Ints{
 	int len;
-	int data[1];  // [len]
+	int data[1];  /* [len] */
 } Ints;
 
 typedef struct Algs{
@@ -52,34 +52,34 @@ typedef struct Finished{
 } Finished;
 
 typedef struct TlsConnection{
-	TlsSec *sec;	// security management goo
-	int hand, ctl;	// record layer file descriptors
-	int erred;		// set when tlsError called
-	int (*trace)(char*fmt, ...); // for debugging
-	int version;	// protocol we are speaking
-	int verset;		// version has been set
-	int ver2hi;		// server got a version 2 hello
-	int isClient;	// is this the client or server?
-	Bytes *sid;		// SessionID
-	Bytes *cert;	// only last - no chain
+	TlsSec *sec;	/* security management goo */
+	int hand, ctl;	/* record layer file descriptors */
+	int erred;		/* set when tlsError called */
+	int (*trace)(char*fmt, ...); /* for debugging */
+	int version;	/* protocol we are speaking */
+	int verset;		/* version has been set */
+	int ver2hi;		/* server got a version 2 hello */
+	int isClient;	/* is this the client or server? */
+	Bytes *sid;		/* SessionID */
+	Bytes *cert;	/* only last - no chain */
 
 	Lock statelk;
-	int state;		// must be set using setstate
+	int state;		/* must be set using setstate */
 
-	// input buffer for handshake messages
+	/* input buffer for handshake messages */
 	uchar buf[MaxChunk+2048];
 	uchar *rp, *ep;
 
-	uchar crandom[RandomSize];	// client random
-	uchar srandom[RandomSize];	// server random
-	int clientVersion;	// version in ClientHello
-	char *digest;	// name of digest algorithm to use
-	char *enc;		// name of encryption algorithm to use
-	int nsecret;	// amount of secret data to init keys
+	uchar crandom[RandomSize];	/* client random */
+	uchar srandom[RandomSize];	/* server random */
+	int clientVersion;	/* version in ClientHello */
+	char *digest;	/* name of digest algorithm to use */
+	char *enc;		/* name of encryption algorithm to use */
+	int nsecret;	/* amount of secret data to init keys */
 
-	// for finished messages
-	MD5state	hsmd5;	// handshake hash
-	SHAstate	hssha1;	// handshake hash
+	/* for finished messages */
+	MD5state	hsmd5;	/* handshake hash */
+	SHAstate	hssha1;	/* handshake hash */
 	Finished	finished;
 } TlsConnection;
 
@@ -117,16 +117,16 @@ typedef struct Msg{
 } Msg;
 
 struct TlsSec{
-	char *server;	// name of remote; nil for server
-	int ok;	// <0 killed; ==0 in progress; >0 reusable
+	char *server;	/* name of remote; nil for server */
+	int ok;	/* <0 killed; ==0 in progress; >0 reusable */
 	RSApub *rsapub;
-	AuthRpc *rpc;	// factotum for rsa private key
-	uchar sec[MasterSecretSize];	// master secret
-	uchar crandom[RandomSize];	// client random
-	uchar srandom[RandomSize];	// server random
-	int clientVers;		// version in ClientHello
-	int vers;			// final version
-	// byte generation and handshake checksum
+	AuthRpc *rpc;	/* factotum for rsa private key */
+	uchar sec[MasterSecretSize];	/* master secret */
+	uchar crandom[RandomSize];	/* client random */
+	uchar srandom[RandomSize];	/* server random */
+	int clientVers;		/* version in ClientHello */
+	int vers;			/* final version */
+	/* byte generation and handshake checksum */
 	void (*prf)(uchar*, int, uchar*, int, char*, uchar*, int, uchar*, int);
 	void (*setFinished)(TlsSec*, MD5state, SHAstate, uchar*, int);
 	int nfin;
@@ -136,12 +136,12 @@ struct TlsSec{
 enum {
 	TLSVersion = 0x0301,
 	SSL3Version = 0x0300,
-	ProtocolVersion = 0x0301,	// maximum version we speak
-	MinProtoVersion = 0x0300,	// limits on version we accept
-	MaxProtoVersion	= 0x03ff,
+	ProtocolVersion = 0x0301,	/* maximum version we speak */
+	MinProtoVersion = 0x0300,	/* limits on version we accept */
+	MaxProtoVersion	= 0x03ff
 };
 
-// handshake type
+/* handshake type */
 enum {
 	HHelloRequest,
 	HClientHello,
@@ -157,7 +157,7 @@ enum {
 	HMax
 };
 
-// alerts
+/* alerts */
 enum {
 	ECloseNotify = 0,
 	EUnexpectedMessage = 10,
@@ -186,7 +186,7 @@ enum {
 	EMax = 256
 };
 
-// cipher suites
+/* cipher suites */
 enum {
 	TLS_NULL_WITH_NULL_NULL	 		= 0x0000,
 	TLS_RSA_WITH_NULL_MD5 			= 0x0001,
@@ -207,7 +207,7 @@ enum {
 	TLS_DH_RSA_WITH_3DES_EDE_CBC_SHA	= 0X0010,
 	TLS_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA	= 0X0011,
 	TLS_DHE_DSS_WITH_DES_CBC_SHA		= 0X0012,
-	TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA	= 0X0013,	// ZZZ must be implemented for tls1.0 compliance
+	TLS_DHE_DSS_WITH_3DES_EDE_CBC_SHA	= 0X0013,	/* ZZZ must be implemented for tls1.0 compliance */
 	TLS_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA	= 0X0014,
 	TLS_DHE_RSA_WITH_DES_CBC_SHA		= 0X0015,
 	TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA	= 0X0016,
@@ -217,7 +217,7 @@ enum {
 	TLS_DH_anon_WITH_DES_CBC_SHA		= 0X001A,
 	TLS_DH_anon_WITH_3DES_EDE_CBC_SHA	= 0X001B,
 
-	TLS_RSA_WITH_AES_128_CBC_SHA		= 0X002f,	// aes, aka rijndael with 128 bit blocks
+	TLS_RSA_WITH_AES_128_CBC_SHA		= 0X002f,	/* aes, aka rijndael with 128 bit blocks */
 	TLS_DH_DSS_WITH_AES_128_CBC_SHA		= 0X0030,
 	TLS_DH_RSA_WITH_AES_128_CBC_SHA		= 0X0031,
 	TLS_DHE_DSS_WITH_AES_128_CBC_SHA	= 0X0032,
@@ -232,7 +232,7 @@ enum {
 	CipherMax
 };
 
-// compression methods
+/* compression methods */
 enum {
 	CompressionNull = 0,
 	CompressionMax
@@ -306,10 +306,10 @@ static Ints* newints(int len);
 /* static Ints* makeints(int* buf, int len); */
 static void freeints(Ints* b);
 
-//================= client/server ========================
+/*================= client/server ======================== */
 
-//	push TLS onto fd, returning new (application) file descriptor
-//		or -1 if error.
+/*	push TLS onto fd, returning new (application) file descriptor */
+/*		or -1 if error. */
 int
 tlsServer(int fd, TLSconn *conn)
 {
@@ -352,7 +352,7 @@ tlsServer(int fd, TLSconn *conn)
 	}
 	if(conn->cert)
 		free(conn->cert);
-	conn->cert = 0;  // client certificates are not yet implemented
+	conn->cert = 0;  /* client certificates are not yet implemented */
 	conn->certlen = 0;
 	conn->sessionIDlen = tls->sid->len;
 	conn->sessionID = emalloc(conn->sessionIDlen);
@@ -361,8 +361,8 @@ tlsServer(int fd, TLSconn *conn)
 	return data;
 }
 
-//	push TLS onto fd, returning new (application) file descriptor
-//		or -1 if error.
+/*	push TLS onto fd, returning new (application) file descriptor */
+/*		or -1 if error. */
 int
 tlsClient(int fd, TLSconn *conn)
 {
@@ -465,7 +465,7 @@ tlsServer2(int ctl, int hand, uchar *cert, int ncert, int (*trace)(char*fmt, ...
 	memmove(c->crandom, m.u.clientHello.random, RandomSize);
 	cipher = okCipher(m.u.clientHello.ciphers);
 	if(cipher < 0) {
-		// reply with EInsufficientSecurity if we know that's the case
+		/* reply with EInsufficientSecurity if we know that's the case */
 		if(cipher == -2)
 			tlsError(c, EInsufficientSecurity, "cipher suites too weak");
 		else
@@ -676,8 +676,8 @@ tlsClient2(int ctl, int hand, uchar *csid, int ncsid, int (*trace)(char*fmt, ...
 	if(m.tag == HServerKeyExchange) {
 		tlsError(c, EUnexpectedMessage, "got an server key exchange");
 		goto Err;
-		// If implementing this later, watch out for rollback attack
-		// described in Wagner Schneier 1996, section 4.4.
+		/* If implementing this later, watch out for rollback attack */
+		/* described in Wagner Schneier 1996, section 4.4. */
 	}
 
 	/* certificate request (optional) */
@@ -739,8 +739,8 @@ tlsClient2(int ctl, int hand, uchar *csid, int ncsid, int (*trace)(char*fmt, ...
 		goto Err;
 	}
 
-	// Cipherchange must occur immediately before Finished to avoid
-	// potential hole;  see section 4.3 of Wagner Schneier 1996.
+	/* Cipherchange must occur immediately before Finished to avoid */
+	/* potential hole;  see section 4.3 of Wagner Schneier 1996. */
 	if(tlsSecFinished(c->sec, c->hsmd5, c->hssha1, c->finished.verify, c->finished.n, 1) < 0){
 		tlsError(c, EInternalError, "can't set finished 1: %r");
 		goto Err;
@@ -793,14 +793,14 @@ Err:
 }
 
 
-//================= message functions ========================
+/*================= message functions ======================== */
 
 static uchar sendbuf[9000], *sendp;
 
 static int
 msgSend(TlsConnection *c, Msg *m, int act)
 {
-	uchar *p; // sendp = start of new message;  p = write pointer
+	uchar *p; /* sendp = start of new message;  p = write pointer */
 	int nn, n, i;
 
 	if(sendp == nil)
@@ -809,7 +809,7 @@ msgSend(TlsConnection *c, Msg *m, int act)
 	if(c->trace)
 		c->trace("send %s", msgPrint((char*)p, (sizeof sendbuf) - (p-sendbuf), m));
 
-	p[0] = m->tag;	// header - fill in size later
+	p[0] = m->tag;	/* header - fill in size later */
 	p += 4;
 
 	switch(m->tag) {
@@ -817,15 +817,15 @@ msgSend(TlsConnection *c, Msg *m, int act)
 		tlsError(c, EInternalError, "can't encode a %d", m->tag);
 		goto Err;
 	case HClientHello:
-		// version
+		/* version */
 		put16(p, m->u.clientHello.version);
 		p += 2;
 
-		// random
+		/* random */
 		memmove(p, m->u.clientHello.random, RandomSize);
 		p += RandomSize;
 
-		// sid
+		/* sid */
 		n = m->u.clientHello.sid->len;
 		assert(n < 256);
 		p[0] = n;
@@ -851,11 +851,11 @@ msgSend(TlsConnection *c, Msg *m, int act)
 		put16(p, m->u.serverHello.version);
 		p += 2;
 
-		// random
+		/* random */
 		memmove(p, m->u.serverHello.random, RandomSize);
 		p += RandomSize;
 
-		// sid
+		/* sid */
 		n = m->u.serverHello.sid->len;
 		assert(n < 256);
 		p[0] = n;
@@ -901,12 +901,12 @@ msgSend(TlsConnection *c, Msg *m, int act)
 		break;
 	}
 
-	// go back and fill in size
+	/* go back and fill in size */
 	n = p-sendp;
 	assert(p <= sendbuf+sizeof(sendbuf));
 	put24(sendp+1, n-4);
 
-	// remember hash of Handshake messages
+	/* remember hash of Handshake messages */
 	if(m->tag != HHelloRequest) {
 		md5(sendp, n, 0, &c->hsmd5);
 		sha1(sendp, n, 0, &c->hssha1);
@@ -1366,7 +1366,7 @@ tlsError(TlsConnection *c, int err, char *fmt, ...)
 	fprint(c->ctl, "alert %d", err);
 }
 
-// commit to specific version number
+/* commit to specific version number */
 static int
 setVersion(TlsConnection *c, int version)
 {
@@ -1386,15 +1386,15 @@ setVersion(TlsConnection *c, int version)
 	return fprint(c->ctl, "version 0x%x", version);
 }
 
-// confirm that received Finished message matches the expected value
+/* confirm that received Finished message matches the expected value */
 static int
 finishedMatch(TlsConnection *c, Finished *f)
 {
 	return memcmp(f->verify, c->finished.verify, f->n) == 0;
 }
 
-// free memory associated with TlsConnection struct
-//		(but don't close the TLS channel itself)
+/* free memory associated with TlsConnection struct */
+/*		(but don't close the TLS channel itself) */
 static void
 tlsConnectionFree(TlsConnection *c)
 {
@@ -1406,7 +1406,7 @@ tlsConnectionFree(TlsConnection *c)
 }
 
 
-//================= cipher choices ========================
+/*================= cipher choices ======================== */
 
 static int weakCipher[CipherMax] =
 {
@@ -1579,10 +1579,10 @@ makeciphers(void)
 
 
 
-//================= security functions ========================
+/*================= security functions ======================== */
 
-// given X.509 certificate, set up connection to factotum
-//	for using corresponding private key
+/* given X.509 certificate, set up connection to factotum */
+/*	for using corresponding private key */
 static AuthRpc*
 factotum_rsa_open(uchar *cert, int certlen)
 {
@@ -1600,7 +1600,7 @@ factotum_rsa_open(uchar *cert, int certlen)
 		return nil;
 	}
 
-	// roll factotum keyring around to match certificate
+	/* roll factotum keyring around to match certificate */
 	rsapub = X509toRSApub(cert, certlen, nil, 0);
 	while(1){
 		if(auth_rpc(rpc, "read", nil, 0) != ARok){
@@ -1651,7 +1651,7 @@ tlsPmd5(uchar *buf, int nbuf, uchar *key, int nkey, uchar *label, int nlabel, uc
 	int i, n;
 	MD5state *s;
 
-	// generate a1
+	/* generate a1 */
 	s = hmac_md5(label, nlabel, key, nkey, nil, nil);
 	s = hmac_md5(seed0, nseed0, key, nkey, nil, s);
 	hmac_md5(seed1, nseed1, key, nkey, ai, s);
@@ -1680,7 +1680,7 @@ tlsPsha1(uchar *buf, int nbuf, uchar *key, int nkey, uchar *label, int nlabel, u
 	int i, n;
 	SHAstate *s;
 
-	// generate a1
+	/* generate a1 */
 	s = hmac_sha1(label, nlabel, key, nkey, nil, nil);
 	s = hmac_sha1(seed0, nseed0, key, nkey, nil, s);
 	hmac_sha1(seed1, nseed1, key, nkey, ai, s);
@@ -1702,7 +1702,7 @@ tlsPsha1(uchar *buf, int nbuf, uchar *key, int nkey, uchar *label, int nlabel, u
 	}
 }
 
-// fill buf with md5(args)^sha1(args)
+/* fill buf with md5(args)^sha1(args) */
 static void
 tlsPRF(uchar *buf, int nbuf, uchar *key, int nkey, char *label, uchar *seed0, int nseed0, uchar *seed1, int nseed1)
 {
@@ -1729,7 +1729,7 @@ tlsSecInits(int cvers, uchar *csid, int ncsid, uchar *crandom, uchar *ssid, int 
 {
 	TlsSec *sec = emalloc(sizeof(*sec));
 
-	USED(csid); USED(ncsid);  // ignore csid for now
+	USED(csid); USED(ncsid);  /* ignore csid for now */
 
 	memmove(sec->crandom, crandom, RandomSize);
 	sec->clientVers = cvers;
@@ -1905,9 +1905,9 @@ serverMasterSecret(TlsSec *sec, uchar *epm, int nepm)
 
 	pm = pkcs1_decrypt(sec, epm, nepm);
 
-	// if the client messed up, just continue as if everything is ok,
-	// to prevent attacks to check for correctly formatted messages.
-	// Hence the fprint(2,) can't be replaced by tlsError(), which sends an Alert msg to the client.
+	/* if the client messed up, just continue as if everything is ok, */
+	/* to prevent attacks to check for correctly formatted messages. */
+	/* Hence the fprint(2,) can't be replaced by tlsError(), which sends an Alert msg to the client. */
 	if(sec->ok < 0 || pm == nil || get16(pm->data) != sec->clientVers){
 		fprint(2, "serverMasterSecret failed ok=%d pm=%p pmvers=%x cvers=%x nepm=%d\n",
 			sec->ok, pm, pm ? get16(pm->data) : -1, sec->clientVers, nepm);
@@ -1988,14 +1988,14 @@ sslSetFinished(TlsSec *sec, MD5state hsmd5, SHAstate hssha1, uchar *finished, in
 	sha1(h1, SHA1dlen, finished + MD5dlen, s);
 }
 
-// fill "finished" arg with md5(args)^sha1(args)
+/* fill "finished" arg with md5(args)^sha1(args) */
 static void
 tlsSetFinished(TlsSec *sec, MD5state hsmd5, SHAstate hssha1, uchar *finished, int isClient)
 {
 	uchar h0[MD5dlen], h1[SHA1dlen];
 	char *label;
 
-	// get current hash value, but allow further messages to be hashed in
+	/* get current hash value, but allow further messages to be hashed in */
 	md5(nil, 0, h0, &hsmd5);
 	sha1(nil, 0, h1, &hssha1);
 
@@ -2061,8 +2061,8 @@ mptobytes(mpint* big)
 	return ans;
 }
 
-// Do RSA computation on block according to key, and pad
-// result on left with zeros to make it modlen long.
+/* Do RSA computation on block according to key, and pad */
+/* result on left with zeros to make it modlen long. */
 static Bytes*
 rsacomp(Bytes* block, RSApub* key, int modlen)
 {
@@ -2084,7 +2084,7 @@ rsacomp(Bytes* block, RSApub* key, int modlen)
 		ybytes = a;
 	}
 	else if(ylen > modlen) {
-		// assume it has leading zeros (mod should make it so)
+		/* assume it has leading zeros (mod should make it so) */
 		a = newbytes(modlen);
 		memmove(a->data, ybytes->data, modlen);
 		freebytes(ybytes);
@@ -2094,7 +2094,7 @@ rsacomp(Bytes* block, RSApub* key, int modlen)
 	return ybytes;
 }
 
-// encrypt data according to PKCS#1, /lib/rfc/rfc2437 9.1.2.1
+/* encrypt data according to PKCS#1, /lib/rfc/rfc2437 9.1.2.1 */
 static Bytes*
 pkcs1_encrypt(Bytes* data, RSApub* key, int blocktype)
 {
@@ -2128,8 +2128,8 @@ pkcs1_encrypt(Bytes* data, RSApub* key, int blocktype)
 	return ans;
 }
 
-// decrypt data according to PKCS#1, with given key.
-// expect a block type of 2.
+/* decrypt data according to PKCS#1, with given key. */
+/* expect a block type of 2. */
 static Bytes*
 pkcs1_decrypt(TlsSec *sec, uchar *epm, int nepm)
 {
@@ -2145,7 +2145,7 @@ pkcs1_decrypt(TlsSec *sec, uchar *epm, int nepm)
 	if(y == nil)
 		return nil;
 	eb = mptobytes(y);
-	if(eb->len < modlen){ // pad on left with zeros
+	if(eb->len < modlen){ /* pad on left with zeros */
 		ans = newbytes(modlen);
 		memset(ans->data, 0, modlen-eb->len);
 		memmove(ans->data+modlen-eb->len, eb->data, eb->len);
@@ -2164,7 +2164,7 @@ pkcs1_decrypt(TlsSec *sec, uchar *epm, int nepm)
 }
 
 
-//================= general utility functions ========================
+/*================= general utility functions ======================== */
 
 static void *
 emalloc(int n)

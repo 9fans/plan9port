@@ -19,7 +19,7 @@
 enum {
 	IS_MSDOS = 0,	/* creator OS (interpretation of external flags) */
 	IS_RDONLY = 1,	/* file was readonly (external flags) */
-	IS_TEXT = 1,	/* file was text  (internal flags) */
+	IS_TEXT = 1	/* file was text  (internal flags) */
 };
 
 typedef struct Block Block;

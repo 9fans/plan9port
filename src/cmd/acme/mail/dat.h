@@ -7,7 +7,7 @@ enum
 {
 	STACK		= 8192,
 	EVENTSIZE	= 256,
-	NEVENT		= 5,
+	NEVENT		= 5
 };
 
 struct Event

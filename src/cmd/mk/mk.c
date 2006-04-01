@@ -76,7 +76,7 @@ work(Node *node, Node *p, Arc *parc)
 	int ready;
 	int did = 0;
 
-	/*print("work(%s) flags=0x%x time=%ld\n", node->name, node->flags, node->time);*//**/
+	/*print("work(%s) flags=0x%x time=%ld\n", node->name, node->flags, node->time); */
 	if(node->flags&BEINGMADE)
 		return(did);
 	if((node->flags&MADE) && (node->flags&PRETENDING) && p && outofdate(p, parc, 0)){
@@ -188,7 +188,7 @@ update(int fake, Node *node)
 			if(a->n && outofdate(node, a, 1))
 				node->time = a->n->time;
 	}
-/*	print("----node %s time=%ld flags=0x%x\n", node->name, node->time, node->flags);*//**/
+/*	print("----node %s time=%ld flags=0x%x\n", node->name, node->time, node->flags);*/
 }
 
 static int

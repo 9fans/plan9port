@@ -18,7 +18,7 @@ enum
 	GBSIZE	= 256,		/* max size of global command */
 	MAXSUB	= 9,		/* max number of sub reg exp */
 	ESCFLG	= 0xFFFF,	/* escape Rune - user defined code */
-	EOF	= -1,
+	EOF	= -1
 };
 
 void	(*oldhup)(int);

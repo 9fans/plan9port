@@ -805,9 +805,9 @@ remoteaddr(int fd, char *dir)
 	return raddr;
 }
 
-//  create a file and 
-//	1) ensure the modes we asked for
-//	2) make gid == uid
+/*  create a file and  */
+/*	1) ensure the modes we asked for */
+/*	2) make gid == uid */
 static int
 docreate(char *file, int perm)
 {
@@ -815,7 +815,7 @@ docreate(char *file, int perm)
 	Dir ndir;
 	Dir *d;
 
-	//  create the mbox
+	/*  create the mbox */
 	fd = create(file, OREAD, perm);
 	if(fd < 0){
 		fprint(2, "couldn't create %s\n", file);
@@ -835,7 +835,7 @@ docreate(char *file, int perm)
 	return 0;
 }
 
-//  create a mailbox
+/*  create a mailbox */
 int
 creatembox(char *user, char *folder)
 {
@@ -852,14 +852,14 @@ creatembox(char *user, char *folder)
 		mboxpath(buf, user, mailfile, 0);
 	}
 
-	// don't destroy existing mailbox
+	/* don't destroy existing mailbox */
 	if(access(s_to_c(mailfile), 0) == 0){
 		fprint(2, "mailbox already exists\n");
 		return -1;
 	}
 	fprint(2, "creating new mbox: %s\n", s_to_c(mailfile));
 
-	//  make sure preceding levels exist
+	/*  make sure preceding levels exist */
 	for(p = s_to_c(mailfile); p; p++) {
 		if(*p == '/')	/* skip leading or consecutive slashes */
 			continue;
@@ -874,7 +874,7 @@ creatembox(char *user, char *folder)
 		*p = '/';
 	}
 
-	//  create the mbox
+	/*  create the mbox */
 	if(docreate(s_to_c(mailfile), 0622|DMAPPEND|DMEXCL) < 0)
 		return -1;
 

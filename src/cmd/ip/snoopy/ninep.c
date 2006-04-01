@@ -38,5 +38,5 @@ Proto ninep =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };

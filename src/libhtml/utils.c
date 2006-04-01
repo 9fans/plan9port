@@ -8,8 +8,8 @@
 Rune whitespace[] = { ' ', '\t', '\n', '\r', '\0' };
 Rune notwhitespace[] = { '^', ' ', '\t', '\n', '\r' , '\0'};
 
-// All lists start out like List structure.
-// List itself can be used as list of int.
+/* All lists start out like List structure. */
+/* List itself can be used as list of int. */
 int
 _listlen(List* l)
 {
@@ -22,7 +22,7 @@ _listlen(List* l)
 	return n;
 }
 
-// Cons
+/* Cons */
 List*
 _newlist(int val, List* rest)
 {
@@ -34,7 +34,7 @@ _newlist(int val, List* rest)
 	return ans;
 }
 
-// Reverse a list in place
+/* Reverse a list in place */
 List*
 _revlist(List* l)
 {
@@ -51,15 +51,15 @@ _revlist(List* l)
 	return newl;
 }
 
-// The next few routines take a "character class" as argument.
-//    e.g., "a-zA-Z", or "^ \t\n"
-// (ranges indicated by - except in first position;
-//  ^ is first position means "not in" the following class)
+/* The next few routines take a "character class" as argument. */
+/*    e.g., "a-zA-Z", or "^ \t\n" */
+/* (ranges indicated by - except in first position; */
+/*  ^ is first position means "not in" the following class) */
 
-// Splitl splits s[0:n] just before first character of class cl.
-// Answers go in (p1, n1) and (p2, n2).
-// If no split, the whole thing goes in the first component.
-// Note: answers contain pointers into original string.
+/* Splitl splits s[0:n] just before first character of class cl. */
+/* Answers go in (p1, n1) and (p2, n2). */
+/* If no split, the whole thing goes in the first component. */
+/* Note: answers contain pointers into original string. */
 void
 _splitl(Rune* s, int n, Rune* cl, Rune** p1, int* n1, Rune** p2, int* n2)
 {
@@ -79,10 +79,10 @@ _splitl(Rune* s, int n, Rune* cl, Rune** p1, int* n1, Rune** p2, int* n2)
 	}
 }
 
-// Splitr splits s[0:n] just after last character of class cl.
-// Answers go in (p1, n1) and (p2, n2).
-// If no split, the whole thing goes in the last component.
-// Note: answers contain pointers into original string.
+/* Splitr splits s[0:n] just after last character of class cl. */
+/* Answers go in (p1, n1) and (p2, n2). */
+/* If no split, the whole thing goes in the last component. */
+/* Note: answers contain pointers into original string. */
 void
 _splitr(Rune* s, int n, Rune* cl, Rune** p1, int* n1, Rune** p2, int* n2)
 {
@@ -103,11 +103,11 @@ _splitr(Rune* s, int n, Rune* cl, Rune** p1, int* n1, Rune** p2, int* n2)
 	}
 }
 
-// Splitall splits s[0:n] into parts that are separated by characters from class cl.
-// Each part will have nonzero length.
-// At most alen parts are found, and pointers to their starts go into
-// the strarr array, while their lengths go into the lenarr array.
-// The return value is the number of parts found.
+/* Splitall splits s[0:n] into parts that are separated by characters from class cl. */
+/* Each part will have nonzero length. */
+/* At most alen parts are found, and pointers to their starts go into */
+/* the strarr array, while their lengths go into the lenarr array. */
+/* The return value is the number of parts found. */
 int
 _splitall(Rune* s, int n, Rune* cl, Rune** strarr, int* lenarr, int alen)
 {
@@ -138,8 +138,8 @@ _splitall(Rune* s, int n, Rune* cl, Rune** strarr, int* lenarr, int alen)
 	return i;
 }
 
-// Find part of s that excludes leading and trailing whitespace,
-// and return that part in *pans (and its length in *panslen).
+/* Find part of s that excludes leading and trailing whitespace, */
+/* and return that part in *pans (and its length in *panslen). */
 void
 _trimwhite(Rune* s, int n, Rune** pans, int* panslen)
 {
@@ -159,8 +159,8 @@ _trimwhite(Rune* s, int n, Rune** pans, int* panslen)
 	*panslen = n;
 }
 
-// _Strclass returns a pointer to the first element of s that is
-// a member of class cl, nil if none.
+/* _Strclass returns a pointer to the first element of s that is */
+/* a member of class cl, nil if none. */
 Rune*
 _Strclass(Rune* s, Rune* cl)
 {
@@ -172,8 +172,8 @@ _Strclass(Rune* s, Rune* cl)
 	return nil;
 }
 
-// _Strnclass returns a pointer to the first element of s[0:n] that is
-// a member of class cl, nil if none.
+/* _Strnclass returns a pointer to the first element of s[0:n] that is */
+/* a member of class cl, nil if none. */
 Rune*
 _Strnclass(Rune* s, Rune* cl, int n)
 {
@@ -185,8 +185,8 @@ _Strnclass(Rune* s, Rune* cl, int n)
 	return nil;
 }
 
-// _Strrclass returns a pointer to the last element of s that is
-// a member of class cl, nil if none
+/* _Strrclass returns a pointer to the last element of s that is */
+/* a member of class cl, nil if none */
 Rune*
 _Strrclass(Rune* s, Rune* cl)
 {
@@ -203,8 +203,8 @@ _Strrclass(Rune* s, Rune* cl)
 	return nil;
 }
 
-// _Strnrclass returns a pointer to the last element of s[0:n] that is
-// a member of class cl, nil if none
+/* _Strnrclass returns a pointer to the last element of s[0:n] that is */
+/* a member of class cl, nil if none */
 Rune*
 _Strnrclass(Rune* s, Rune* cl, int n)
 {
@@ -221,7 +221,7 @@ _Strnrclass(Rune* s, Rune* cl, int n)
 	return nil;
 }
 
-// Is c in the class cl?
+/* Is c in the class cl? */
 int
 _inclass(Rune c, Rune* cl)
 {
@@ -258,7 +258,7 @@ _inclass(Rune c, Rune* cl)
 	return ans;
 }
 
-// Is pre a prefix of s?
+/* Is pre a prefix of s? */
 int
 _prefix(Rune* pre, Rune* s)
 {
@@ -277,7 +277,7 @@ _prefix(Rune* pre, Rune* s)
 	return 1;
 }
 
-// Number of runes in (null-terminated) s
+/* Number of runes in (null-terminated) s */
 int
 _Strlen(Rune* s)
 {
@@ -286,7 +286,7 @@ _Strlen(Rune* s)
 	return runestrlen(s);
 }
 
-// -1, 0, 1 as s1 is lexicographically less, equal greater than s2
+/* -1, 0, 1 as s1 is lexicographically less, equal greater than s2 */
 int
 _Strcmp(Rune *s1, Rune *s2)
 {
@@ -297,11 +297,11 @@ _Strcmp(Rune *s1, Rune *s2)
 	return runestrcmp(s1, s2);
 }
 
-// Like Strcmp, but use exactly n chars of s1 (assume s1 has at least n chars).
-// Also, do a case-insensitive match, assuming s2
-// has no chars in [A-Z], only their lowercase versions.
-// (This routine is used for in-place keyword lookup, where s2 is in a keyword
-// list and s1 is some substring, possibly mixed-case, in a buffer.)
+/* Like Strcmp, but use exactly n chars of s1 (assume s1 has at least n chars). */
+/* Also, do a case-insensitive match, assuming s2 */
+/* has no chars in [A-Z], only their lowercase versions. */
+/* (This routine is used for in-place keyword lookup, where s2 is in a keyword */
+/* list and s1 is some substring, possibly mixed-case, in a buffer.) */
 int
 _Strncmpci(Rune *s1, int n1, Rune *s2)
 {
@@ -325,7 +325,7 @@ _Strncmpci(Rune *s1, int n1, Rune *s2)
 	}
 }
 
-// emalloc and copy
+/* emalloc and copy */
 Rune*
 _Strdup(Rune* s)
 {
@@ -334,9 +334,9 @@ _Strdup(Rune* s)
 	return _Strndup(s, runestrlen(s));
 }
 
-// emalloc and copy n chars of s (assume s is at least that long),
-// and add 0 terminator.
-// Return nil if n==0.
+/* emalloc and copy n chars of s (assume s is at least that long), */
+/* and add 0 terminator. */
+/* Return nil if n==0. */
 Rune*
 _Strndup(Rune* s, int n)
 {
@@ -349,15 +349,15 @@ _Strndup(Rune* s, int n)
 	ans[n] = 0;
 	return ans;
 }
-// emalloc enough room for n Runes, plus 1 null terminator.
-// (Not initialized to anything.)
+/* emalloc enough room for n Runes, plus 1 null terminator. */
+/* (Not initialized to anything.) */
 Rune*
 _newstr(int n)
 {
 	return (Rune*)emalloc((n+1)*sizeof(Rune));
 }
 
-// emalloc and copy s+t
+/* emalloc and copy s+t */
 Rune*
 _Strdup2(Rune* s, Rune* t)
 {
@@ -376,7 +376,7 @@ _Strdup2(Rune* s, Rune* t)
 	return ans;
 }
 
-// Return emalloc'd substring s[start:stop],
+/* Return emalloc'd substring s[start:stop], */
 Rune*
 _Strsubstr(Rune* s, int start, int stop)
 {
@@ -388,7 +388,7 @@ _Strsubstr(Rune* s, int start, int stop)
 	return t;
 }
 
-// Copy n chars to s1 from s2, and return s1+n
+/* Copy n chars to s1 from s2, and return s1+n */
 Rune*
 _Stradd(Rune* s1, Rune* s2, int n)
 {
@@ -398,10 +398,10 @@ _Stradd(Rune* s1, Rune* s2, int n)
 	return s1+n;
 }
 
-// Like strtol, but converting from Rune* string
+/* Like strtol, but converting from Rune* string */
 
-//#define LONG_MAX	2147483647L
-//#define LONG_MIN	-2147483648L
+/*#define LONG_MAX	2147483647L */
+/*#define LONG_MIN	-2147483648L */
 
 long
 _Strtol(Rune* nptr, Rune** endptr, int base)
@@ -493,8 +493,8 @@ _Strtol(Rune* nptr, Rune** endptr, int base)
 	return n;
 }
 
-// Convert buf[0:n], bytes whose character set is chset,
-// into a emalloc'd null-terminated Unicode string.
+/* Convert buf[0:n], bytes whose character set is chset, */
+/* into a emalloc'd null-terminated Unicode string. */
 Rune*
 toStr(uchar* buf, int n, int chset)
 {
@@ -534,9 +534,9 @@ toStr(uchar* buf, int n, int chset)
 	return ans;
 }
 
-// Convert buf[0:n], Unicode characters,
-// into an emalloc'd null-terminated string in character set chset.
-// Use 0x80 for unconvertable characters.
+/* Convert buf[0:n], Unicode characters, */
+/* into an emalloc'd null-terminated string in character set chset. */
+/* Use 0x80 for unconvertable characters. */
 uchar*
 fromStr(Rune* buf, int n, int chset)
 {
@@ -580,7 +580,7 @@ fromStr(Rune* buf, int n, int chset)
 
 }
 
-// Convert n to emalloc'd String.
+/* Convert n to emalloc'd String. */
 Rune*
 _ltoStr(int n)
 {

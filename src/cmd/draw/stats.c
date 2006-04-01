@@ -23,7 +23,7 @@ enum
 	Lx		= 4,	/* label tick length */
 
 	STACK	= 8192,
-	XSTACK	= 32768,
+	XSTACK	= 32768
 };
 
 enum
@@ -45,7 +45,7 @@ enum
 	Vsys,
 	Vsyscall,
 	Vuser,
-	Nvalue,
+	Nvalue
 };
 
 char*
@@ -67,7 +67,7 @@ labels[Nvalue] =
 	"swap",
 	"sys",
 	"syscall",
-	"user",
+	"user"
 };	
 
 struct Graph
@@ -527,7 +527,7 @@ resize(void)
 	for(x=startx, i=0; i<nmach; i++,x+=dx){
 		draw(screen, Rect(x-1, starty-1, x, screen->r.max.y), display->black, nil, ZP);
 		j = dx/stringwidth(mediumfont, "0");
-	//	n = mach[i].nproc;
+	/*	n = mach[i].nproc; */
 		n = 1;
 		if(n>1 && j>=1+3+(n>10)+(n>100)){	/* first char of name + (n) */
 			j -= 3+(n>10)+(n>100);

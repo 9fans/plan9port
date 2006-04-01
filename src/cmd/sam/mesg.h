@@ -34,7 +34,7 @@ typedef enum Tmesg
 	Tack,		/* acknowledge Hack */
 	Texit,		/* exit */
 	Tplumb,		/* send plumb message */
-	TMAX,
+	TMAX
 }Tmesg;
 /*
  * Messages originating at the host
@@ -67,7 +67,7 @@ typedef enum Hmesg
 	Hack,		/* request acknowledgement */
 	Hexit,
 	Hplumb,		/* return plumb message to terminal - version 1 */
-	HMAX,
+	HMAX
 }Hmesg;
 typedef struct Header{
 	uchar	type;		/* one of the above */

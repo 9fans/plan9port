@@ -43,7 +43,7 @@
 
 enum
 {
-	STACK = 32768,
+	STACK = 32768
 };
 
 typedef struct WriteReq WriteReq;

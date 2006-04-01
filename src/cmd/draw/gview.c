@@ -13,7 +13,7 @@
 enum {
 	But1	= Button_bit(1),/* mouse buttons for events */
 	But2	= Button_bit(2),
-	But3	= Button_bit(3),
+	But3	= Button_bit(3)
 };
 int cantmv = 1;			/* disallow rotate and move? 0..1 */
 int top_border, bot_border, lft_border, rt_border;
@@ -911,7 +911,7 @@ double out_length(const fpoint* p0, const fpoint* pn, frectangle r, double slope
 #define Len_thous  30			/* bound on strlen(thous_nam[i]) */
 char* thous_nam[Nthous] = {
 	"one", "thousand", "million", "billion",
-	"trillion", "quadrillion", "quintillion",
+	"trillion", "quadrillion", "quintillion"
 };
 
 
@@ -1966,6 +1966,8 @@ void usage(void)
 "Read a polygonal line graph in an ASCII format (one x y pair per line, delimited\n"
 "by spaces with a label after each polyline), and view it interactively.  Use\n"
 "standard input if no infile is specified.\n"
+	);
+	fprintf(stderr,
 "Option -l specifies a file in which to log the coordinates of each point selected.\n"
 "(Clicking a point with button one selects it and displays its coordinates and\n"
 "the label of its polylone.)  Option -m allows polylines to be moved and rotated.\n"

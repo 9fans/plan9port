@@ -375,7 +375,7 @@ r_di(int argc, Rune **argv)
 	if(argc == 1){
 		/* end diversion */
 		if(ndi <= 0){
-			// warn("unmatched %C%S", dot, argv[0]);
+			/* warn("unmatched %C%S", dot, argv[0]); */
 			return;
 		}
 		flushdi();

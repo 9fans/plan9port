@@ -2,21 +2,21 @@
 
 static	double	elem[] =
 {
-	36525.0,		// [0] eday of epoc
+	36525.0,		/* [0] eday of epoc */
 
-	30.06896348,		// [1] semi major axis (au)
-	0.00858587,		// [2] eccentricity
- 	1.76917,		// [3] inclination (deg)
-	131.72169,		// [4] longitude of the ascending node (deg)
-	44.97135,		// [5] longitude of perihelion (deg)
-	304.88003,		// [6] mean longitude (deg)
+	30.06896348,		/* [1] semi major axis (au) */
+	0.00858587,		/* [2] eccentricity */
+ 	1.76917,		/* [3] inclination (deg) */
+	131.72169,		/* [4] longitude of the ascending node (deg) */
+	44.97135,		/* [5] longitude of perihelion (deg) */
+	304.88003,		/* [6] mean longitude (deg) */
 
-	-0.00125196,		// [1+6] (au/julian century)
-	0.0000251,		// [2+6] (e/julian century)
-  	-3.64,			// [3+6] (arcsec/julian century)
-	-151.25,		// [4+6] (arcsec/julian century)
-	-844.43,		// [5+6] (arcsec/julian century)
-	786449.21,		// [6+6] (arcsec/julian century)
+	-0.00125196,		/* [1+6] (au/julian century) */
+	0.0000251,		/* [2+6] (e/julian century) */
+  	-3.64,			/* [3+6] (arcsec/julian century) */
+	-151.25,		/* [4+6] (arcsec/julian century) */
+	-844.43,		/* [5+6] (arcsec/julian century) */
+	786449.21,		/* [6+6] (arcsec/julian century) */
 };
 
 void
@@ -32,12 +32,12 @@ nept(void)
 
 	double cy;
 
-	cy = (eday - elem[0]) / 36525.;		// per julian century
+	cy = (eday - elem[0]) / 36525.;		/* per julian century */
 
 	mrad = elem[1] + elem[1+6]*cy;
 	ecc = elem[2] + elem[2+6]*cy;
 
-	cy = cy / 3600;				// arcsec/deg per julian century
+	cy = cy / 3600;				/* arcsec/deg per julian century */
 	incl = elem[3] + elem[3+6]*cy;
 	node = elem[4] + elem[4+6]*cy;
 	argp = elem[5] + elem[5+6]*cy;

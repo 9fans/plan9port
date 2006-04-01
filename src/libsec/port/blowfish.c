@@ -2,10 +2,10 @@
 #include <mp.h>
 #include <libsec.h>
 
-// Blowfish block cipher.  See:
-// 	Lecture Notes in Computer Science 809
-// 	Fast Software Encryption
-// 	Cambridge Security Workshop, Cambridge, England (1993)
+/* Blowfish block cipher.  See: */
+/* 	Lecture Notes in Computer Science 809 */
+/* 	Fast Software Encryption */
+/* 	Cambridge Security Workshop, Cambridge, England (1993) */
 
 static u32int sbox[1024];
 static u32int pbox[BFrounds+2];

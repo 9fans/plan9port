@@ -269,14 +269,14 @@ enum
 	Mexit,
 
 	Up= 1,
-	Down= 0,
+	Down= 0
 };
 
 char	*menu3str[] = {
 	"write image",
 	"write mask",
 	"exit",
-	0,
+	0
 };
 
 Menu	menu3 = {
@@ -409,7 +409,7 @@ mousemoved(void)
 
 enum
 {
-	BORDER= 1,
+	BORDER= 1
 };
 
 void

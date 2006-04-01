@@ -70,7 +70,7 @@ static Trtab trinit[] =
 	"em",	0x2014,
 	"en",	0x2013,
 	"mi",	Umi,
-	"fm",	0x2032,
+	"fm",	0x2032
 };
 
 Rune

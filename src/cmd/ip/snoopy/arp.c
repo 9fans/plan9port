@@ -20,7 +20,7 @@ struct Hdr
 
 enum
 {
-	ARPLEN=	28,
+	ARPLEN=	28
 };
 
 enum
@@ -31,7 +31,7 @@ enum
 	Osha,
 	Otha,
 	Ostha,
-	Opa,
+	Opa
 };
 
 static Field p_fields[] = 
@@ -114,7 +114,7 @@ Proto arp =
 	nil,
 	nil,
 	p_fields,
-	defaultframer,
+	defaultframer
 };
 
 Proto rarp =
@@ -126,5 +126,5 @@ Proto rarp =
 	nil,
 	nil,
 	p_fields,
-	defaultframer,
+	defaultframer
 };

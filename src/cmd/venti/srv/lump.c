@@ -45,7 +45,7 @@ readlump(u8int *score, int type, u32int size, int *cached)
 		*cached = 0;
 
 	if(lookupscore(score, type, &ia, &rac) < 0){
-		//ZZZ place to check for someone trying to guess scores
+		/*ZZZ place to check for someone trying to guess scores */
 		seterr(EOk, "no block with score %V/%d exists", score, type);
 
 		putlump(u);

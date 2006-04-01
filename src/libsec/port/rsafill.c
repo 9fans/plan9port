@@ -8,7 +8,7 @@ rsafill(mpint *n, mpint *e, mpint *d, mpint *p, mpint *q)
 	mpint *c2, *kq, *kp, *x;
 	RSApriv *rsa;
 
-	// make sure we're not being hoodwinked
+	/* make sure we're not being hoodwinked */
 	if(!probably_prime(p, 10) || !probably_prime(q, 10)){
 		werrstr("rsafill: p or q not prime");
 		return nil;
@@ -33,10 +33,10 @@ rsafill(mpint *n, mpint *e, mpint *d, mpint *p, mpint *q)
 		return nil;
 	}
 
-	// compute chinese remainder coefficient
+	/* compute chinese remainder coefficient */
 	mpinvert(p, q, c2);
 
-	// for crt a**k mod p == (a**(k mod p-1)) mod p
+	/* for crt a**k mod p == (a**(k mod p-1)) mod p */
 	kq = mpnew(0);
 	kp = mpnew(0);
 	mpsub(p, mpone, x);

@@ -15,7 +15,7 @@ enum{
 	MaxHtml		= 256,
 	Hdrsize		= 4096,
 	Bodysize	= 8192,
-	Maxread		= 64*1024,
+	Maxread		= 64*1024
 };
 
 typedef struct spat 	Spat;

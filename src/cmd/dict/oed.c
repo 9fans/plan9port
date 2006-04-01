@@ -5,7 +5,7 @@
 
 enum {
 	Buflen=1000,
-	Maxaux=5,
+	Maxaux=5
 };
 
 /* Possible tags */
@@ -185,7 +185,7 @@ static Assoc tagtab[] = {
 	{"xi",		Xi},
 	{"xid",		Xid},
 	{"xr",		Xr},
-	{"xs",		Xs},
+	{"xs",		Xs}
 };
 
 /* Possible tag auxilliary info */
@@ -800,7 +800,7 @@ static Assoc spectab[] = {
 	{"zced",	0x7a},		/* +cedilla */
 	{"zeta",	0x3b6},
 	{"zh",		0x292},
-	{"zhacek",	0x17e},
+	{"zhacek",	0x17e}
 };
 /*
    The following special characters don't have close enough
@@ -816,7 +816,7 @@ static Assoc spectab[] = {
 	bbc1		single chem bond below
 	bbc2		double chem bond below
 	bbl1		chem bond like /
-	bbl2		chem bond like //
+	bbl2		chem bond like // 
 	bbr1		chem bond like \
 	bbr2		chem bond \\
 	bcop1		copper symbol. Cf copper
@@ -907,7 +907,7 @@ static Rune normtab[128] = {
 /*60*/	0x60,	0x61,	0x62,	0x63,	0x64,	0x65,	0x66,	0x67,
 	0x68,	0x69,	0x6a,	0x6b,	0x6c,	0x6d,	0x6e,	0x6f,
 /*70*/	0x70,	0x71,	0x72,	0x73,	0x74,	0x75,	0x76,	0x77,
-	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE,
+	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE
 };
 static Rune phtab[128] = {
 	/*0*/	/*1*/	/*2*/	/*3*/	/*4*/	/*5*/	/*6*/	/*7*/
@@ -926,7 +926,7 @@ static Rune phtab[128] = {
 /*60*/	0x60,	0x61,	0x62,	0x63,	0x64,	0x65,	0x66,	0x67,
 	0x68,	0x69,	0x6a,	0x6b,	0x6c,	0x6d,	0x6e,	0x6f,
 /*70*/	0x70,	0x71,	0x72,	0x73,	0x74,	0x75,	0x76,	0x77,
-	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE,
+	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE
 };
 static Rune grtab[128] = {
 	/*0*/	/*1*/	/*2*/	/*3*/	/*4*/	/*5*/	/*6*/	/*7*/
@@ -945,7 +945,7 @@ static Rune grtab[128] = {
 /*60*/	0x60,	0x3b1,	0x3b2,	0x3be,	0x3b4,	0x3b5,	0x3c6,	0x3b3,
 	0x3b7,	0x3b9,	0x3c2,	0x3ba,	0x3bb,	0x3bc,	0x3bd,	0x3bf,
 /*70*/	0x3c0,	0x3b8,	0x3c1,	0x3c3,	0x3c4,	0x3c5,	0x76,	0x3c9,
-	0x3c7,	0x3c8,	0x3b6,	0x7b,	0x7c,	0x7d,	0x7e,	NONE,
+	0x3c7,	0x3c8,	0x3b6,	0x7b,	0x7c,	0x7d,	0x7e,	NONE
 };
 static Rune subtab[128] = {
 	/*0*/	/*1*/	/*2*/	/*3*/	/*4*/	/*5*/	/*6*/	/*7*/
@@ -964,7 +964,7 @@ static Rune subtab[128] = {
 /*60*/	0x60,	0x61,	0x62,	0x63,	0x64,	0x65,	0x66,	0x67,
 	0x68,	0x69,	0x6a,	0x6b,	0x6c,	0x6d,	0x6e,	0x6f,
 /*70*/	0x70,	0x71,	0x72,	0x73,	0x74,	0x75,	0x76,	0x77,
-	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE,
+	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE
 };
 static Rune suptab[128] = {
 	/*0*/	/*1*/	/*2*/	/*3*/	/*4*/	/*5*/	/*6*/	/*7*/
@@ -983,7 +983,7 @@ static Rune suptab[128] = {
 /*60*/	0x60,	0x61,	0x62,	0x63,	0x64,	0x65,	0x66,	0x67,
 	0x68,	0x69,	0x6a,	0x6b,	0x6c,	0x6d,	0x6e,	0x6f,
 /*70*/	0x70,	0x71,	0x72,	0x73,	0x74,	0x75,	0x76,	0x77,
-	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE,
+	0x78,	0x79,	0x7a,	0x7b,	0x7c,	0x7d,	0x7e,	NONE
 };
 
 static int	tagstarts;
@@ -1233,7 +1233,7 @@ oednextoff(long fromoff)
 	return (Boffset(bdict)-n);
 }
 
-static char *prkey =
+static char *prkey1 =
 "KEY TO THE PRONUNCIATION\n"
 "\n"
 "I. CONSONANTS\n"
@@ -1252,6 +1252,8 @@ static char *prkey =
 "ʃ  ...  shop (ʃɒp), dish (dɪʃ)\n"
 "tʃ ...  chop (tʃɒp), ditch (dɪtʃ)\n"
 "ʒ  ...  vision (ˈvɪʒən), déjeuner (deʒøne)\n"
+;
+static char *prkey2 = 
 "dʒ ...  judge (dʒʌdʒ)\n"
 "ŋ  ...  singing (ˈsɪŋɪŋ), think (θiŋk)\n"
 "ŋg ...  finger (ˈfiŋgə(r))\n"
@@ -1265,6 +1267,8 @@ static char *prkey =
 "c  ...  Afrikaans baardmannetjie (ˈbaːrtmanəci)\n"
 "ɥ  ...  Fr. cuisine (kɥizin)\n"
 "\n"
+;
+static char *prkey3 = 
 "II. VOWELS AND DIPTHONGS\n"
 "\n"
 "Short\n"
@@ -1283,6 +1287,8 @@ static char *prkey =
 "ɔ  ...  Fr. homme (ɔm)\n"
 "o  ...  Fr. eau (o)\n"
 "ø  ...  Fr. peu (pø)\n"
+;
+static char *prkey4 =
 "œ  ...  Fr. boeuf (bœf), coeur (kœr)\n"
 "u  ...  Fr. douce (dus)\n"
 "ʏ  ...  Ger. Müller (ˈmʏlər)\n"
@@ -1301,6 +1307,8 @@ static char *prkey =
 "øː ...  Ger. Goethe (gøːtə)\n"
 "yː ...  Ger. grün (gryːn)\n"
 "\n"
+;
+static char *prkey5 = 
 "Nasal\n"
 "ɛ˜, æ˜ as in Fr. fin (fɛ˜, fæ˜)\n"
 "ã  ...  Fr. franc (frã)\n"
@@ -1318,6 +1326,8 @@ static char *prkey =
 "ʊə ...  tour (tʊə(r))\n"
 "ɔə ...  boar (bɔə(r))\n"
 "\n"
+;
+static char *prkey6 = 
 "III. STRESS\n"
 "\n"
 "Main stress: ˈ preceding stressed syllable\n"
@@ -1329,7 +1339,8 @@ static char *prkey =
 void
 oedprintkey(void)
 {
-	Bprint(bout, "%s", prkey);
+	Bprint(bout, "%s%s%s%s%s%s",
+		prkey1, prkey2, prkey3, prkey4, prkey5, prkey6);
 }
 
 /*

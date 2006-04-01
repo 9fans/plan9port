@@ -99,7 +99,7 @@ dorecipe(Node *node)
 		}
 		MADESET(n, BEINGMADE);
 	}
-	/*print("lt=%s ln=%s lp=%s\n",wtos(head.next, ' '),wtos(ln.next, ' '),wtos(lp.next, ' '));*//**/
+	/*print("lt=%s ln=%s lp=%s\n",wtos(head.next, ' '),wtos(ln.next, ' '),wtos(lp.next, ' '));*/
 	run(newjob(r, node, aa->stem, aa->match, lp.next, ln.next, head.next, ahead.next));
 	return(1);
 }

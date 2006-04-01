@@ -197,7 +197,7 @@ out:
 
 enum
 {
-	MAXCHAL = 64,
+	MAXCHAL = 64
 };
 
 typedef struct State State;
@@ -222,7 +222,7 @@ enum
 	SHaveChal,
 	SNeedResp,
 
-	Maxphase,
+	Maxphase
 };
 
 static char *phasenames[Maxphase] =
@@ -231,7 +231,7 @@ static char *phasenames[Maxphase] =
 [CHaveResp]	"CHaveResp",
 
 [SHaveChal]	"SHaveChal",
-[SNeedResp]	"SNeedResp",
+[SNeedResp]	"SNeedResp"
 };
 
 static void
@@ -525,7 +525,7 @@ Proto p9cr =
 .write=		p9crwrite,
 .read=		p9crread,
 .close=		p9crclose,
-.keyprompt=	"user? !password?",
+.keyprompt=	"user? !password?"
 };
 
 Proto vnc =
@@ -536,5 +536,5 @@ Proto vnc =
 .read=		p9crread,
 .close=		p9crclose,
 .keyprompt=	"!password?",
-.addkey=	vncaddkey,
+.addkey=	vncaddkey
 };

@@ -1,12 +1,12 @@
 #include "os.h"
 #include <mp.h>
 
-// extended euclid
-//
-// For a and b it solves, d = gcd(a,b) and finds x and y s.t.
-// ax + by = d
-//
-// Handbook of Applied Cryptography, Menezes et al, 1997, pg 67
+/* extended euclid */
+/* */
+/* For a and b it solves, d = gcd(a,b) and finds x and y s.t. */
+/* ax + by = d */
+/* */
+/* Handbook of Applied Cryptography, Menezes et al, 1997, pg 67 */
 
 void
 mpeuclid(mpint *a, mpint *b, mpint *d, mpint *x, mpint *y)
@@ -44,16 +44,16 @@ mpeuclid(mpint *a, mpint *b, mpint *d, mpint *x, mpint *y)
 	r = mpnew(0);
 
 	while(b->top != 0 && b->sign > 0){
-		// q = a/b
-		// r = a mod b
+		/* q = a/b */
+		/* r = a mod b */
 		mpdiv(a, b, q, r);
-		// x0 = x2 - qx1
+		/* x0 = x2 - qx1 */
 		mpmul(q, x1, x0);
 		mpsub(x2, x0, x0);
-		// y0 = y2 - qy1
+		/* y0 = y2 - qy1 */
 		mpmul(q, y1, y0);
 		mpsub(y2, y0, y0);
-		// rotate values
+		/* rotate values */
 		tmp = a;
 		a = b;
 		b = r;

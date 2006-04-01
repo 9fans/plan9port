@@ -541,7 +541,7 @@ filemagic(Filemagic *tab, int ntab, ulong x)
 int
 long0(void)
 {
-//	Fhdr *f;
+/*	Fhdr *f; */
 	long x;
 
 	seek(fd, 0, 0);		/* reposition to start of file */

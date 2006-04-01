@@ -25,7 +25,7 @@ enum
 	MachoFileExecutable = 2,
 	MachoFileFvmlib = 3,
 	MachoFileCore = 4,
-	MachoFilePreload = 5,
+	MachoFilePreload = 5
 };
 
 struct MachoCmd

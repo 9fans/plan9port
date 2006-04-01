@@ -69,9 +69,9 @@ void		redirout(char*);
 void		readfname(char *);
 void		reread(void);
 char*		regname(int);
-//vlong		rget(Map*, char*);
+/*vlong		rget(Map*, char*); */
 Regdesc*	rname(char*);
-//void		rput(Map*, char*, vlong);
+/*void		rput(Map*, char*, vlong); */
 int		runpcs(int, int);
 void		runrun(int);
 void		runstep(ulong, int);

@@ -16,31 +16,31 @@ enum{  IDATSIZE=1000000,
 	FilterAvg	=	3,	/* new[x][y] = buf[x][y] + (new[x-1][y]+new[x][y-1])/2 */ 
 	FilterPaeth=	4,	/* new[x][y] = buf[x][y] + paeth(new[x-1][y],new[x][y-1],new[x-1][y-1]) */
 	FilterLast	=	5,
-	PropertyBit =	1<<5,
+	PropertyBit =	1<<5
 };
 
 
 typedef struct ZlibW{
-	uchar *chan[4]; // Rawimage channels
-	uchar *scan;	// new scanline
-	uchar *pscan;	// previous scanline
-	int scanl;		// scan len
-	int scanp;		// scan pos
-	int nchan;		// number of input chans
-	int npix;		// pixels read so far
-	int	chanl;		// number of bytes allocated to chan[x]
+	uchar *chan[4]; /* Rawimage channels */
+	uchar *scan;	/* new scanline */
+	uchar *pscan;	/* previous scanline */
+	int scanl;		/* scan len */
+	int scanp;		/* scan pos */
+	int nchan;		/* number of input chans */
+	int npix;		/* pixels read so far */
+	int	chanl;		/* number of bytes allocated to chan[x] */
 	int scanpix;
-	int bpp;		// bits per sample
+	int bpp;		/* bits per sample */
 	int palsize;
-	int row;		// current scanline number
+	int row;		/* current scanline number */
 	uchar palette[3*256];
 } ZlibW;
 
 typedef struct ZlibR{
 	Biobuf *bi;
 	uchar *buf;
-	uchar *b;	// next byte to decompress
-	uchar *e;	// past end of buf
+	uchar *b;	/* next byte to decompress */
+	uchar *e;	/* past end of buf */
 	ZlibW *w;
 } ZlibR;
 

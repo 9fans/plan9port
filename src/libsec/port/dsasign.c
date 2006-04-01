@@ -18,7 +18,7 @@ dsasign(DSApriv *priv, mpint *m)
 	k = mpnew(0);
 	mpsub(pub->q, mpone, qm1);
 
-	// find a k that has an inverse mod q
+	/* find a k that has an inverse mod q */
 	while(1){
 		mprand(qlen, genrandom, k);
 		if((mpcmp(mpone, k) > 0) || (mpcmp(k, pub->q) >= 0))
@@ -29,14 +29,14 @@ dsasign(DSApriv *priv, mpint *m)
 		break;
 	}
 
-  	// make kinv positive
+  	/* make kinv positive */
 	mpmod(kinv, pub->q, kinv);
 
-	// r = ((alpha**k) mod p) mod q
+	/* r = ((alpha**k) mod p) mod q */
 	mpexp(alpha, k, p, r);
 	mpmod(r, q, r);
 
-	// s = (kinv*(m + ar)) mod q
+	/* s = (kinv*(m + ar)) mod q */
 	mpmul(r, priv->secret, s);
 	mpadd(s, m, s);
 	mpmul(s, kinv, s);

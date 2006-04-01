@@ -6,7 +6,7 @@
 enum
 {
 	Nmx=	16,
-	Maxstring=	256,
+	Maxstring=	256
 };
 
 typedef struct Mx	Mx;

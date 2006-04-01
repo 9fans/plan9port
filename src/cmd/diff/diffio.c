@@ -325,7 +325,7 @@ change(int a, int b, int c, int d)
 
 enum
 {
-	Lines = 3,	/* number of lines of context shown */
+	Lines = 3		/* number of lines of context shown */
 };
 
 int

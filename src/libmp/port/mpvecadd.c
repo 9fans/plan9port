@@ -2,7 +2,7 @@
 #include <mp.h>
 #include "dat.h"
 
-// prereq: alen >= blen, sum has at least blen+1 digits
+/* prereq: alen >= blen, sum has at least blen+1 digits */
 void
 mpvecadd(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *sum)
 {

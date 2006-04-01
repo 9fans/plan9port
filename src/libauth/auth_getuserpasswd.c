@@ -4,7 +4,7 @@
 #include "authlocal.h"
 
 enum {
-	ARgiveup = 100,
+	ARgiveup = 100
 };
 
 static int

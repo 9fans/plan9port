@@ -314,7 +314,7 @@ rendertext(URLwin *u, Bytes *b)
 
 	rurl = toStr((uchar*)u->url, strlen(u->url), ISO_8859_1);
 	u->items = parsehtml(b->b, b->n, rurl, u->type, charset((char*)b->b), &u->docinfo);
-//	free(rurl);
+/*	free(rurl); */
 
 	rerender(u);
 }

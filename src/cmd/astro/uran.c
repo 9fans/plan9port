@@ -2,21 +2,21 @@
 
 static	double	elem[] =
 {
-	36525.0,		// [0] eday of epoc
+	36525.0,		/* [0] eday of epoc */
 
-	19.19126393,		// [1] semi major axis (au)
-	0.04716771,		// [2] eccentricity
- 	0.76986,		// [3] inclination (deg)
-	74.22988,		// [4] longitude of the ascending node (deg)
-	170.96424,		// [5] longitude of perihelion (deg)
-	313.23218,		// [6] mean longitude (deg)
+	19.19126393,		/* [1] semi major axis (au) */
+	0.04716771,		/* [2] eccentricity */
+ 	0.76986,		/* [3] inclination (deg) */
+	74.22988,		/* [4] longitude of the ascending node (deg) */
+	170.96424,		/* [5] longitude of perihelion (deg) */
+	313.23218,		/* [6] mean longitude (deg) */
 
-	0.00152025,		// [1+6] (au/julian century)
-	-0.00019150,		// [2+6] (e/julian century)
-  	-2.09,			// [3+6] (arcsec/julian century)
-	-1681.40,		// [4+6] (arcsec/julian century)
-	1312.56,		// [5+6] (arcsec/julian century)
-	1542547.79,		// [6+6] (arcsec/julian century)
+	0.00152025,		/* [1+6] (au/julian century) */
+	-0.00019150,		/* [2+6] (e/julian century) */
+  	-2.09,			/* [3+6] (arcsec/julian century) */
+	-1681.40,		/* [4+6] (arcsec/julian century) */
+	1312.56,		/* [5+6] (arcsec/julian century) */
+	1542547.79,		/* [6+6] (arcsec/julian century) */
 };
 
 void
@@ -32,12 +32,12 @@ uran(void)
 
 	double cy;
 
-	cy = (eday - elem[0]) / 36525.;		// per julian century
+	cy = (eday - elem[0]) / 36525.;		/* per julian century */
 
 	mrad = elem[1] + elem[1+6]*cy;
 	ecc = elem[2] + elem[2+6]*cy;
 
-	cy = cy / 3600;				// arcsec/deg per julian century
+	cy = cy / 3600;				/* arcsec/deg per julian century */
 	incl = elem[3] + elem[3+6]*cy;
 	node = elem[4] + elem[4+6]*cy;
 	argp = elem[5] + elem[5+6]*cy;

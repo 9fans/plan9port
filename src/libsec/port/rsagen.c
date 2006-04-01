@@ -15,7 +15,7 @@ rsagen(int nlen, int elen, int rounds)
 	d = mpnew(0);
 	phi = mpnew(nlen);
 
-	// create the prime factors and euclid's function
+	/* create the prime factors and euclid's function */
 	genprime(p, nlen/2, rounds);
 	genprime(q, nlen - mpsignif(p) + 1, rounds);
 	mpmul(p, q, n);
@@ -23,16 +23,16 @@ rsagen(int nlen, int elen, int rounds)
 	mpsub(q, mpone, d);
 	mpmul(e, d, phi);
 
-	// find an e relatively prime to phi
+	/* find an e relatively prime to phi */
 	t1 = mpnew(0);
 	t2 = mpnew(0);
 	mprand(elen, genrandom, e);
 	if(mpcmp(e,mptwo) <= 0)
 		itomp(3, e);
-	// See Menezes et al. p.291 "8.8 Note (selecting primes)" for discussion
-	// of the merits of various choices of primes and exponents.  e=3 is a
-	// common and recommended exponent, but doesn't necessarily work here
-	// because we chose strong rather than safe primes.
+	/* See Menezes et al. p.291 "8.8 Note (selecting primes)" for discussion */
+	/* of the merits of various choices of primes and exponents.  e=3 is a */
+	/* common and recommended exponent, but doesn't necessarily work here */
+	/* because we chose strong rather than safe primes. */
 	for(;;){
 		mpextendedgcd(e, phi, t1, d, t2);
 		if(mpcmp(t1, mpone) == 0)
@@ -42,11 +42,11 @@ rsagen(int nlen, int elen, int rounds)
 	mpfree(t1);
 	mpfree(t2);
 
-	// compute chinese remainder coefficient
+	/* compute chinese remainder coefficient */
 	c2 = mpnew(0);
 	mpinvert(p, q, c2);
 
-	// for crt a**k mod p == (a**(k mod p-1)) mod p
+	/* for crt a**k mod p == (a**(k mod p-1)) mod p */
 	kq = mpnew(0);
 	kp = mpnew(0);
 	mpsub(p, mpone, phi);

@@ -26,7 +26,7 @@ char *prog = "import";
 
 enum
 {
-	Stack= 32*1024,
+	Stack= 32*1024
 };
 
 void
@@ -68,13 +68,13 @@ threadmain(int argc, char *argv[])
 	case 'f':
 		dofork = 0;
 		break;
-	case 'n':	// name of remote namespace
+	case 'n':	/* name of remote namespace */
 		ns = EARGF(usage());
 		break;
 	case 'p':
 		prog = EARGF(usage());
 		break;
-	case 's':	// name of service
+	case 's':	/* name of service */
 		srv = EARGF(usage());
 		break;
 	case 'R':
@@ -94,7 +94,7 @@ threadmain(int argc, char *argv[])
 		fmtinstall('F', fcallfmt);
 	}
 
-	// is this the remote side?
+	/* is this the remote side? */
 	if(rem){
 		if(srv == nil)
 			fatal("-R requires -s");
@@ -118,11 +118,11 @@ runproc(void *arg)
 {
 	USED(arg);
 
-	// start a loal service and connect to remote service
+	/* start a loal service and connect to remote service */
 	srvfd = post(srv);
 	netfd = call(addr, ns, srv);
 
-	// threads to shuffle messages each way
+	/* threads to shuffle messages each way */
 	srv_to_net[0] = srvfd;
 	srv_to_net[1] = netfd;
 	proccreate(shuffle, srv_to_net, Stack);
@@ -196,8 +196,8 @@ call(char *rsys, char *ns, char *srv)
 	}
 	close(p[1]);
 
-	// ignore crap that might come out of the .profile
-	// keep reading till we have an "OK"
+	/* ignore crap that might come out of the .profile */
+	/* keep reading till we have an "OK" */
 	if(read(p[0], &buf[0], 1) != 1)
 		fatal("EOF");
 	for(;;){
@@ -242,7 +242,7 @@ shuffle(void *arg)
 				t = emalloc(sizeof(Fcall));
 			if(tbuf == nil)
 				tbuf = emalloc(BLEN+1);
-			memmove(tbuf, buf, n);	// because convM2S is destructive
+			memmove(tbuf, buf, n);	/* because convM2S is destructive */
 			if(convM2S((uchar*)tbuf, n, t) != n)
 				fprint(dfd, "%d->%d convert error in convM2S", fd[0], fd[1]);
 			else

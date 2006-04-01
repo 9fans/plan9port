@@ -23,7 +23,7 @@ enum
 	ROUT_HDR	= 43,
 	FRAG_HDR	= 44,
 	FRAG_HSZ	= 8, 		/* in bytes */
-	DEST_HDR	= 60,
+	DEST_HDR	= 60
 };
 
 static Mux p_mux[] =
@@ -126,10 +126,10 @@ static Mux p_mux[] =
 
 enum
 {
-	Os,	// source
-	Od,	// destination
-	Osd,	// source or destination
-	Ot,	// type
+	Os,	/* source */
+	Od,	/* destination */
+	Osd,	/* source or destination */
+	Ot,	/* type */
 };
 
 static Field p_fields[] = 
@@ -306,5 +306,5 @@ Proto ip6 =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

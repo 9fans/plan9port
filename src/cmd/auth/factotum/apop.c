@@ -148,7 +148,7 @@ struct ServerState
 
 enum
 {
-	APOPCHALLEN = 128,
+	APOPCHALLEN = 128
 };
 
 static int apopchal(ServerState*, int, char[APOPCHALLEN]);

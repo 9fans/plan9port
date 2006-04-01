@@ -38,7 +38,7 @@ enum
 	MsgAuthRejectedVerf = 4,
 	MsgAuthTooWeak = 5,
 	MsgAuthInvalidResp = 6,
-	MsgAuthFailed = 7,
+	MsgAuthFailed = 7
 };
 
 SunStatus
@@ -271,8 +271,8 @@ sunauthinfoprint(Fmt *fmt, SunAuthInfo *ai)
 		fmtprint(fmt, "%#ux", ai->flavor);
 		break;
 	}
-//	if(ai->ndata)
-//		fmtprint(fmt, " %.*H", ai->ndata, ai->data);
+/*	if(ai->ndata) */
+/*		fmtprint(fmt, " %.*H", ai->ndata, ai->data); */
 }
 
 uint

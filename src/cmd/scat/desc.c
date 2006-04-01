@@ -313,7 +313,7 @@ char *desctab[][2]={
 	"vs",	"very suddenly",
 	"vv",	"very very",
 	"zeta",	"ζ",
-	0,	0,
+	0,	0
 };
 
 /*&

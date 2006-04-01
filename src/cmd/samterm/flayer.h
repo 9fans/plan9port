@@ -1,11 +1,11 @@
 typedef enum Vis{
 	None=0,
 	Some,
-	All,
+	All
 }Vis;
 
 enum{
-	Clicktime=1000,		/* one second */
+	Clicktime=1000		/* one second */
 };
 
 typedef struct Flayer Flayer;

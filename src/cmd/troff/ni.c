@@ -22,7 +22,7 @@ Numtab numtab[NN] = {
 	{ PAIR('s', 't') },
 	{ PAIR('s', 'b') },
 	{ PAIR('c', '.') },
-	{ PAIR('$', '$') },
+	{ PAIR('$', '$') }
 };
 
 
@@ -150,7 +150,7 @@ Contab contab[NM] = {
 	C(PAIR('s', 'y'), casesy),
 	C(PAIR('l', 'f'), caself),
 	C(PAIR('p', 't'), casept),
-	C(PAIR('g', 'd'), casegd),
+	C(PAIR('g', 'd'), casegd)
 };
 
 
@@ -228,7 +228,7 @@ Env env[NEV] = { {	/* this sets up env[0] */
 /* int	pendnf	 */	0,
 /* int	spread	 */	0,
 /* int	it	 */	0,	/* input trap count */
-/* int	itmac	 */	0,
+/* int	itmac	 */	0
 } };
 
 Env	*envp	= env;	/* start off in env 0 */

@@ -29,9 +29,9 @@ dsagen(DSApub *opub)
 	pub->key = mpnew(0);
 	priv->secret = mpnew(0);
 
-	// find a generator alpha of the multiplicative
-	// group Z*p, i.e., of order n = p-1.  We use the
-	// fact that q divides p-1 to reduce the exponent.
+	/* find a generator alpha of the multiplicative */
+	/* group Z*p, i.e., of order n = p-1.  We use the */
+	/* fact that q divides p-1 to reduce the exponent. */
 	exp = mpnew(0);
 	g = mpnew(0);
 	r = mpnew(0);
@@ -49,7 +49,7 @@ dsagen(DSApub *opub)
 	mpfree(g);
 	mpfree(exp);
 
-	// create the secret key
+	/* create the secret key */
 	mprand(bits, genrandom, priv->secret);
 	mpmod(priv->secret, pub->p, priv->secret);
 	mpexp(pub->alpha, priv->secret, pub->p, pub->key);

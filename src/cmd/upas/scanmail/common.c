@@ -7,7 +7,7 @@
 enum {
 	Quanta	= 8192,
 	Minbody = 6000,
-	HdrMax	= 15,
+	HdrMax	= 15
 };
 
 typedef struct keyword Keyword;
@@ -65,7 +65,7 @@ Keyword	keywords[] =
 	"hold",		Hold,
 	"dump",		Dump,
 	"loff",		Lineoff,
-	0,		Nactions,
+	0,		Nactions
 };
 
 Patterns patterns[] = {
@@ -74,7 +74,7 @@ Patterns patterns[] = {
 [Hold]		{ "HOLD:", 0, 0 },
 [SaveLine]	{ "LINE:", 0, 0 },
 [Lineoff]	{ "LINEOFF:", 0, 0 },
-[Nactions]	{ 0, 0, 0 },
+[Nactions]	{ 0, 0, 0 }
 };
 
 static char*	endofhdr(char*, char*);
@@ -306,7 +306,7 @@ conv64(char *msg, char *end, char *buf, int bufsize)
 	char *cp;
 
 	len = end - msg;
-	i = (len*3)/4+1;	// room for max chars + null
+	i = (len*3)/4+1;	/* room for max chars + null */
 	cp = Malloc(i);
 	len = dec64((uchar*)cp, i, msg, len);
 	convert(cp, cp+len, buf, bufsize, 1);
@@ -663,5 +663,5 @@ static uchar t64d[256] = {
 /*E0*/	INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL,
 	INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL,
 /*F0*/	INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL,
-	INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL,
+	INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL, INVAL
 };

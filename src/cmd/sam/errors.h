@@ -48,7 +48,7 @@ typedef enum Err{
 	Etmpovfl,
 	Eappend,
 	Ecantplumb,
-	Ebufload,
+	Ebufload
 }Err;
 typedef enum Warn{
 	/* warn_s */
@@ -61,5 +61,5 @@ typedef enum Warn{
 	Wnulls,
 	Wpwd,
 	Wnotnewline,
-	Wbadstatus,
+	Wbadstatus
 }Warn;

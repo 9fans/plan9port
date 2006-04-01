@@ -49,7 +49,7 @@ enum {
 	Toffset		= 446,		/* offset of partition table in sector */
 	Magic0		= 0x55,
 	Magic1		= 0xAA,
-	NTentry		= 4,
+	NTentry		= 4
 };
 struct Table {
 	Tentry	entry[NTentry];

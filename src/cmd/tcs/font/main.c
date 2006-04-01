@@ -19,7 +19,7 @@ struct {
 	[Jis] { "../han/jis.bits", "../han/jis16.bits", kmap, kreadbits },
 	[Big5] { "no 24 bit file", "../han/big5.16.bits", bmap, breadbits },
 	[Gb_bdf] { "no 24 bit file", "../han/cclib16fs.bdf", gmap, greadbits },
-	[Gb_qw] { "no 24 bit file", "no 16bit file", gmap, qreadbits },
+	[Gb_qw] { "no 24 bit file", "no 16bit file", gmap, qreadbits }
 };
 
 void

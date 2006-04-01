@@ -29,14 +29,14 @@ typedef struct PseudoHdr{
 
 enum
 {
-	TCPLEN= 20,
+	TCPLEN= 20
 };
 
 enum
 {
 	Os,
 	Od,
-	Osd,
+	Osd
 };
 
 static Field p_fields[] = 
@@ -55,7 +55,7 @@ static Mux p_mux[] =
 	{"ninep",	17005, },	/* ocpu */
 	{"ninep",	17010, },	/* ncpu */
 	{"ninep",	17013, },	/* cpu */
-	{0},
+	{0}
 };
 
 enum
@@ -204,7 +204,7 @@ p_seprint(Msg *m)
 	}
 
 	if(Cflag){
-		// editing in progress by ehg
+		/* editing in progress by ehg */
 	}
 	return 0;
 }
@@ -218,5 +218,5 @@ Proto tcp =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

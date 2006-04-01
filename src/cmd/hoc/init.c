@@ -16,7 +16,7 @@ static struct {		/* Keywords */
 	"for",		FOR,
 	"print",	PRINT,
 	"read",		READ,
-	0,		0,
+	0,		0
 };
 
 static struct {		/* Constants */

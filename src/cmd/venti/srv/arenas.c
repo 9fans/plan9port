@@ -214,7 +214,7 @@ wbarenapart(ArenaPart *ap)
 		return -1;
 	b = alloczblock(HeadSize, 1, 0);
 	if(b == nil)
-//ZZZ set error message?
+/*ZZZ set error message? */
 		return -1;
 
 	if(packarenapart(ap, b->data) < 0){

@@ -7,7 +7,7 @@ enum
 {
 	FileHdrLen=	6,
 	IconDescrLen=	16,
-	IconHdrLen=	40,
+	IconHdrLen=	40
 };
 
 typedef struct Icon Icon;

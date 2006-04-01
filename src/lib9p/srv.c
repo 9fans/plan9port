@@ -7,20 +7,20 @@
 
 int chatty9p;
 
-// static char Ebadattach[] = "unknown specifier in attach";
+/* static char Ebadattach[] = "unknown specifier in attach"; */
 static char Ebadoffset[] = "bad offset";
-// static char Ebadcount[] = "bad count";
+/* static char Ebadcount[] = "bad count"; */
 static char Ebotch[] = "9P protocol botch";
 static char Ecreatenondir[] = "create in non-directory";
 static char Edupfid[] = "duplicate fid";
 static char Eduptag[] = "duplicate tag";
 static char Eisdir[] = "is a directory";
 static char Enocreate[] = "create prohibited";
-// static char Enomem[] = "out of memory";
+/* static char Enomem[] = "out of memory"; */
 static char Enoremove[] = "remove prohibited";
 static char Enostat[] = "stat prohibited";
 static char Enotfound[] = "file not found";
-// static char Enowrite[] = "write prohibited";
+/* static char Enowrite[] = "write prohibited"; */
 static char Enowstat[] = "wstat prohibited";
 static char Eperm[] = "permission denied";
 static char Eunknownfid[] = "unknown fid";
@@ -348,7 +348,7 @@ rwalk(Req *r, char *error)
 			if(error==nil && r->ifcall.nwname!=0)
 				r->error = Enotfound;
 		}else
-			r->error = nil;	// No error on partial walks
+			r->error = nil;	/* No error on partial walks */
 	}else{
 		if(r->ofcall.nwqid == 0){
 			/* Just a clone */

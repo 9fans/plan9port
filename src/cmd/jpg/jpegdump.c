@@ -113,7 +113,7 @@ char *sofName[16] = {
 	"c is otherwise used",
 	"Sequential DCT - differential arithmetic coding",
 	"Progressive DCT - differential arithmetic coding",
-	"Lossless - differential arithmetic coding",
+	"Lossless - differential arithmetic coding"
 };
 
 void get_sof (int kind) {
@@ -272,10 +272,10 @@ main (int argc, char *argv[]) {
 	if (infile == NULL)
 		quit ("can't open %s\n", fname);
     Start:
-//	if (get1() != 0xff || get1() != 0xd8)
-//		quit ("not JFIF");
-//	printf ("SOI\n");
-//	get_app (0xe0);
+/*	if (get1() != 0xff || get1() != 0xd8) */
+/*		quit ("not JFIF"); */
+/*	printf ("SOI\n"); */
+/*	get_app (0xe0); */
 	for (;;) {
 		c = get1();
 		if (c != 0xff)

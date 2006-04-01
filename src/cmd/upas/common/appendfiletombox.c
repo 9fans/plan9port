@@ -1,7 +1,7 @@
 #include "common.h"
 
 enum {
-	Buffersize = 64*1024,
+	Buffersize = 64*1024
 };
 
 typedef struct Inbuf Inbuf;

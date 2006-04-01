@@ -47,7 +47,7 @@ Env defenv =
 	12,
 	0,
 	0,
-	0,
+	0
 };
 
 Env env[3];

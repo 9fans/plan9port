@@ -65,7 +65,7 @@ struct Direc {
 	int nchild;
 };
 enum {  /* Direc flags */
-	Dbadname = 1<<0,  /* Non-conformant name     */
+	Dbadname = 1<<0  /* Non-conformant name     */
 };
 
 /*
@@ -132,7 +132,7 @@ enum {	/* Cdimg->flags, Cdinfo->flags */
 	CDrockridge = 1<<3,
 	CDnew = 1<<4,
 	CDdump = 1<<5,
-	CDbootable = 1<<6,
+	CDbootable = 1<<6
 };
 
 typedef struct Tx Tx;
@@ -159,7 +159,7 @@ struct Cdinfo {
 };
 
 enum {
-	Blocklen = 2048,
+	Blocklen = 2048
 };
 
 /*
@@ -265,7 +265,7 @@ enum { /* Rockridge flags */
 	RR_CL = 1<<4,
 	RR_PL = 1<<5,
 	RR_RE = 1<<6,
-	RR_TF = 1<<7,
+	RR_TF = 1<<7
 };
 
 enum { /* CputrripTF type argument */
@@ -276,7 +276,7 @@ enum { /* CputrripTF type argument */
 	TFbackup = 1<<4,
 	TFexpiration = 1<<5,
 	TFeffective = 1<<6,
-	TFlongform = 1<<7,
+	TFlongform = 1<<7
 };
 
 enum { /* CputrripNM flag types */
@@ -285,7 +285,7 @@ enum { /* CputrripNM flag types */
 	NMparent = 1<<2,
 	NMroot = 1<<3,
 	NMvolroot = 1<<4,
-	NMhost = 1<<5,
+	NMhost = 1<<5
 };
 
 /* boot.c */
@@ -414,7 +414,7 @@ enum {
 	DTdotdot,
 	DTiden,
 	DTroot,
-	DTrootdot,
+	DTrootdot
 };
 
 extern ulong now;

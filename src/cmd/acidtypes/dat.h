@@ -14,7 +14,7 @@ enum
 	Array,
 	Range,
 	Defer,
-	Typedef,
+	Typedef
 };
 
 struct Type

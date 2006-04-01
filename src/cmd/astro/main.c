@@ -52,12 +52,12 @@ loop:
 			d = dist(&eobj1->point[i], &eobj2->point[i]);
 			print("dist %s to %s = %.4f\n", eobj1->name, eobj2->name, d);
 		}
-//		if(flags['p']) {
-//			pdate(d);
-//			print(" ");
-//			ptime(d);
-//			print("\n");
-//		}
+/*		if(flags['p']) { */
+/*			pdate(d); */
+/*			print(" "); */
+/*			ptime(d); */
+/*			print("\n"); */
+/*		} */
 		if(flags['p'] || flags['e'])
 			break;
 		d += deld;
@@ -151,8 +151,8 @@ args(int argc, char *argv[])
 	if(flags['j'])
 		print("jday = %.4f\n", day);
 	deltat = day * .001704;
-	if(deltat > 32.184)		// assume date is utc1
-		deltat = 32.184;	// correct by leap sec
+	if(deltat > 32.184)		/* assume date is utc1 */
+		deltat = 32.184;	/* correct by leap sec */
 	if(flags['t'])
 		deltat = readdt();
 

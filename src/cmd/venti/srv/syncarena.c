@@ -30,7 +30,7 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 	ZBlock *lump;
 	Clump cl;
 	ClumpInfo ci;
-	static ClumpInfo zci = { .type = -1 };
+	static ClumpInfo zci = { -1 };
 	u8int score[VtScoreSize];
 	u64int uncsize, used, aa;
 	u32int clump, clumps, cclumps, magic;

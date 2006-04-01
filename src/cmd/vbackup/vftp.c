@@ -42,7 +42,7 @@ Cmd cmdtab[] =
 	"pwd", cmdpwd, "pwd - print working directory",
 	"help", cmdhelp, "help - print usage summaries",
 	"block", cmdblock, "block path offset - print disk offset of path's byte offset",
-	"disk", cmddisk, "disk offset count - dump disk contents",
+	"disk", cmddisk, "disk offset count - dump disk contents"
 };
 
 char*

@@ -125,7 +125,7 @@ enum
 	ElfNotePrPsinfo = 3,
 	ElfNotePrTaskstruct = 4,
 	ElfNotePrAuxv = 6,
-	ElfNotePrXfpreg = 0x46e62b7f,	/* for gdb/386 */
+	ElfNotePrXfpreg = 0x46e62b7f	/* for gdb/386 */
 };
 
 struct ElfHdr

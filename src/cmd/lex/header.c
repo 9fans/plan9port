@@ -31,7 +31,7 @@ phead1(void)
 	Bprint(&fout,"int yymorfg;\n");
 	Bprint(&fout,"extern Uchar *yysptr, yysbuf[];\n");
 	Bprint(&fout,"int yytchar;\n");
-//	Bprint(&fout,"FILE *yyin = stdin, *yyout = stdout;\n");
+/*	Bprint(&fout,"FILE *yyin = stdin, *yyout = stdout;\n"); */
 	Bprint(&fout,"FILE *yyin, *yyout;\n");
 	Bprint(&fout,"extern int yylineno;\n");
 	Bprint(&fout,"struct yysvf { \n");

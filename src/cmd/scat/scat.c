@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 	if(display != nil){
 		closedisplay(display);
 		/* automatic refresh of rio window is triggered by mouse */
-	//	close(open("/dev/mouse", OREAD));
+	/*	close(open("/dev/mouse", OREAD)); */
 	}
 	return;
 }
@@ -1338,7 +1338,7 @@ char *ngctypes[] =
 [Uncertain]	"?",
 [Nonexistent]	"-",
 [Unknown]	" ",
-[PlateDefect]	"PD",
+[PlateDefect]	"PD"
 };
 
 char*

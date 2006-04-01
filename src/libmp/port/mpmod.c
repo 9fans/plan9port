@@ -2,9 +2,9 @@
 #include <mp.h>
 #include "dat.h"
 
-// remainder = b mod m
-//
-// knuth, vol 2, pp 398-400
+/* remainder = b mod m */
+/* */
+/* knuth, vol 2, pp 398-400 */
 
 void
 mpmod(mpint *b, mpint *m, mpint *remainder)

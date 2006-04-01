@@ -37,7 +37,7 @@ enum {
 
 	Kalt=		KF|0x15,
 	Kshift=	KF|0x16,
-	Kctl=		KF|0x17,
+	Kctl=		KF|0x17
 };
 
 #if defined(__cplusplus)

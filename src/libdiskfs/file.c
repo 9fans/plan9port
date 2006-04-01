@@ -21,7 +21,7 @@ preadn(int fd, void *vdata, u32int ulen, u64int offset)
 	nfilereads++;
 	len = ulen;
 	data = vdata;
-//	fprint(2, "readn 0x%llux 0x%ux\n", offset, ulen);
+/*	fprint(2, "readn 0x%llux 0x%ux\n", offset, ulen); */
 	while(len > 0){
 		n = pread(fd, data, len, offset);
 		if(n <= 0)

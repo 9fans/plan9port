@@ -30,7 +30,7 @@ enum
 	ModeTemporary = (1<<19),	/* MS-DOS */
 	ModeSnapshot = (1<<20),		/* read only snapshot */
 	ModeDevice = (1<<21),		/* Unix device */
-	ModeNamedPipe = (1<<22),	/* Unix named pipe */
+	ModeNamedPipe = (1<<22)	/* Unix named pipe */
 };
 
 enum
@@ -39,7 +39,7 @@ enum
 	MetaHeaderSize = 12,
 	MetaIndexSize = 4,
 	IndexEntrySize = 8,
-	DirMagic = 0x1c4d9072,
+	DirMagic = 0x1c4d9072
 };
 
 enum
@@ -47,7 +47,7 @@ enum
 	DirPlan9Entry = 1,	/* not valid in version >= 9 */
 	DirNTEntry,		/* not valid in version >= 9 */
 	DirQidSpaceEntry,
-	DirGenEntry,		/* not valid in version >= 9 */
+	DirGenEntry		/* not valid in version >= 9 */
 };
 
 struct VacDir

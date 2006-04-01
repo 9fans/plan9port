@@ -115,7 +115,7 @@ main(int argc, char *argv[])
 	stmp = allocmemimage(Rect(0, 0, Xrange, Yrange), strtochan(schan));
 	mtmp = allocmemimage(Rect(0, 0, Xrange, Yrange), strtochan(mchan));
 	ones = allocmemimage(Rect(0, 0, Xrange, Yrange), strtochan(mchan));
-//	print("chan %lux %lux %lux %lux %lux %lux\n", dst->chan, src->chan, mask->chan, stmp->chan, mtmp->chan, ones->chan);
+/*	print("chan %lux %lux %lux %lux %lux %lux\n", dst->chan, src->chan, mask->chan, stmp->chan, mtmp->chan, ones->chan); */
 	if(dst==0 || src==0 || mask==0 || mtmp==0 || ones==0) {
 	Alloc:
 		fprint(2, "dtest: allocation failed: %r\n");
@@ -235,13 +235,13 @@ dumpimage(char *name, Memimage *img, void *vdata, Point labelpt)
 	bpp = img->depth;
 	Bprint(&b, "%s\t%d\tr %R clipr %R repl %d data %p *%P\n", name, r.min.x, r, img->clipr, (img->flags&Frepl) ? 1 : 0, vdata, labelpt);
 	mask = (1ULL<<bpp)-1;
-//	for(y=r.min.y; y<r.max.y; y++){
+/*	for(y=r.min.y; y<r.max.y; y++){ */
 	for(y=0; y<Yrange; y++){
 		nb = 0;
 		v = 0;
 		p = data+(byteaddr(img, Pt(0,y))-(uchar*)img->data->bdata);
 		Bprint(&b, "%-4d\t", y);
-//		for(x=r.min.x; x<r.max.x; x++){
+/*		for(x=r.min.x; x<r.max.x; x++){ */
 		for(x=0; x<Xrange; x++){
 			if(x==0)
 				Bprint(&b, "\t");
@@ -263,7 +263,7 @@ dumpimage(char *name, Memimage *img, void *vdata, Point labelpt)
 				nb += 8;
 			}
 			nb -= bpp;
-//			print("bpp %d v %.8lux mask %.8lux nb %d\n", bpp, v, mask, nb);
+/*			print("bpp %d v %.8lux mask %.8lux nb %d\n", bpp, v, mask, nb); */
 			fmt(&b, arg, (v>>nb)&mask);
 		}
 		Bprint(&b, "\n");
@@ -635,8 +635,8 @@ replicate(Memimage *i, Memimage *tmp)
 	i->flags |= Frepl;
 	i->r = r;
 	i->clipr = randrect();
-//	fprint(2, "replicate [[%d %d] [%d %d]] [[%d %d][%d %d]]\n", r.min.x, r.min.y, r.max.x, r.max.y,
-//		i->clipr.min.x, i->clipr.min.y, i->clipr.max.x, i->clipr.max.y);
+/*	fprint(2, "replicate [[%d %d] [%d %d]] [[%d %d][%d %d]]\n", r.min.x, r.min.y, r.max.x, r.max.y, */
+/*		i->clipr.min.x, i->clipr.min.y, i->clipr.max.x, i->clipr.max.y); */
 	tmp->clipr = i->clipr;
 }
 
@@ -651,7 +651,7 @@ verifyrectmaskrepl(int srcrepl, int maskrepl)
 	int x, y;
 	Memimage *s, *m;
 
-//	print("verfrect %d %d\n", srcrepl, maskrepl);
+/*	print("verfrect %d %d\n", srcrepl, maskrepl); */
 	src->flags &= ~Frepl;
 	src->r = Rect(0, 0, Xrange, Yrange);
 	src->clipr = src->r;

@@ -14,7 +14,7 @@ struct Hdr
 
 enum
 {
-	ICMP6LEN=	4,
+	ICMP6LEN=	4
 };
 
 enum
@@ -30,7 +30,7 @@ static Field p_fields[] =
 
 enum
 {	
-	// ICMPv6 types
+	/* ICMPv6 types */
 	EchoReply	= 0,
 	UnreachableV6	= 1,
 	PacketTooBigV6	= 2,
@@ -54,7 +54,7 @@ enum
 	NbrAdvert	= 136,
 	RedirectV6	= 137,
 
-	Maxtype6	= 137,
+	Maxtype6	= 137
 };
 
 static Mux p_mux[] =
@@ -62,7 +62,7 @@ static Mux p_mux[] =
 	{"ip6",	UnreachableV6, },
 	{"ip6",	RedirectV6, },
 	{"ip6",	TimeExceedV6, },
-	{0},
+	{0}
 };
 
 char *icmpmsg6[256] =
@@ -87,7 +87,7 @@ char *icmpmsg6[256] =
 [RouterAdvert]		"RouterAdvert",
 [NbrSolicit]		"NbrSolicit",
 [NbrAdvert]		"NbrAdvert",
-[RedirectV6]		"RedirectV6",
+[RedirectV6]		"RedirectV6"
 };
 
 static char *unreachcode[] =
@@ -97,14 +97,14 @@ static char *unreachcode[] =
 [2]	"icmp unreachable: unassigned error code (2)",
 [3]	"address unreachable",
 [4]	"port unreachable",
-[5]	"icmp unreachable: unknown code",
+[5]	"icmp unreachable: unknown code"
 };
 
 static char *timexcode[] =
 {
 [0]	"hop limit exc",
 [1]	"reassmbl time exc",
-[2]	"icmp time exc: unknown code",
+[2]	"icmp time exc: unknown code"
 };
 
 static char *parpcode[] =
@@ -112,7 +112,7 @@ static char *parpcode[] =
 [0]	"erroneous header field encountered",
 [1]	"unrecognized Next Header type encountered",
 [2]	"unrecognized IPv6 option encountered",
-[3]	"icmp par prob: unknown code",
+[3]	"icmp par prob: unknown code"
 };
 enum 
 {
@@ -120,7 +120,7 @@ enum
 	tll	= 2,
 	pref	= 3,
 	redir	= 4,
-	mtu	= 5,
+	mtu	= 5
 };
 
 static char *icmp6opts[256] = 
@@ -130,7 +130,7 @@ static char *icmp6opts[256] =
 [2]	"tll_addr",
 [3]	"pref_opt",
 [4]	"redirect",
-[5]	"mtu_opt",
+[5]	"mtu_opt"
 };
 
 static void
@@ -278,7 +278,7 @@ p_seprint(Msg *m)
 	char *e = m->e;
 	int i;
 	uchar *a;
-//	ushort cksum2, cksum;
+/*	ushort cksum2, cksum; */
 
 	h = (Hdr*)m->ps;
 	m->ps += ICMP6LEN;
@@ -425,5 +425,5 @@ Proto icmp6 =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

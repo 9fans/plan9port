@@ -2,7 +2,7 @@
 #include <mp.h>
 #include "dat.h"
 
-// res = b >> shift
+/* res = b >> shift */
 void
 mpright(mpint *b, int shift, mpint *res)
 {
@@ -15,7 +15,7 @@ mpright(mpint *b, int shift, mpint *res)
 		return;
 	}
 
-	// a negative right shift is a left shift
+	/* a negative right shift is a left shift */
 	if(shift < 0){
 		mpleft(b, -shift, res);
 		return;
@@ -27,13 +27,13 @@ mpright(mpint *b, int shift, mpint *res)
 	r = shift - d*Dbits;
 	l = Dbits - r;
 
-	//  shift all the bits out == zero
+	/*  shift all the bits out == zero */
 	if(d>=b->top){
 		res->top = 0;
 		return;
 	}
 
-	// special case digit shifts
+	/* special case digit shifts */
 	if(r == 0){
 		for(i = 0; i < b->top-d; i++)
 			res->p[i] = b->p[i+d];

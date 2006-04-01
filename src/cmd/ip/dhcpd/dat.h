@@ -2,7 +2,7 @@
 
 enum
 {
-	Maxstr=	256,
+	Maxstr=	256
 };
 
 typedef struct Binding Binding;

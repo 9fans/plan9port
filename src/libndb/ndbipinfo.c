@@ -7,8 +7,8 @@
 enum
 {
 	Ffound=	1<<0,
-	Fignore=1<<1,
-	Faddr=	1<<2,
+	Fignore=	1<<1,
+	Faddr=	1<<2
 };
 
 static Ndbtuple*	filter(Ndb *db, Ndbtuple *t, Ndbtuple *f);

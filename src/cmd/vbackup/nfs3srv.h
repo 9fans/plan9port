@@ -11,6 +11,6 @@ extern void mount3proc(void*);
 
 enum
 {
-	MaxDataSize = 8192,
+	MaxDataSize = 8192
 };
 

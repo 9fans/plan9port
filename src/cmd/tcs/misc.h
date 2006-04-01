@@ -26,7 +26,7 @@ long tabatari[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 0x03a6, 0x03b8, 0x2126, 0x03b4, 
                                 0x222e, 0x03c6, 0x2208, 0x220f, /* math */
 0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248,
-0x00b0, 0x2022, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x00b3, 0x00af,
+0x00b0, 0x2022, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x00b3, 0x00af
 };
 long tabebcdic[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 {
@@ -61,7 +61,7 @@ long tabebcdic[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 0x5c, -1,   0x53, 0x54, 0x55, 0x56, 0x57, 0x58,
 0x59, 0x5a, -1,   -1,   -1,   -1,   -1,   -1,
 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
-0x38, 0x39, -1,   -1,   -1,   -1,   -1,   -1,
+0x38, 0x39, -1,   -1,   -1,   -1,   -1,   -1
 };
 long tabmacroman[256] =	/* (modified via world.std.com!choupt) from mduerst@ifi.unizh.ch (Martin J. Du"rst) */
 {
@@ -88,7 +88,7 @@ long tabmacroman[256] =	/* (modified via world.std.com!choupt) from mduerst@ifi.
 0x2021,0x00b7,0x201a,0x201e,0x2030,0x00c2,0x00ca,0x00c1,
 0x00cb,0x00c8,0x00cd,0x00ce,0x00cf,0x00cc,0x00d3,0x00d4,
 0xf7ff,0x00d2,0x00da,0x00db,0x00d9,0x0131,0x02c6,0x02dc,
-0x00af,0x02d8,0x02d9,0x02da,0x00b8,0x02dd,0x02db,0x02c7,
+0x00af,0x02d8,0x02d9,0x02da,0x00b8,0x02dd,0x02db,0x02c7
 };
 long tabnextstep[256] = 	/* From mduerst@ifi.unizh.ch (Martin J. Du"rst) */
 /* From NEXTSTEP Encoding Vector / Character Code Palette */
@@ -146,7 +146,7 @@ long tabps2[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 0x00d3, 0x00df, 0x00d4, 0x00d2, 0x00f5, 0x00d5, 0x00b5, 0x00fe,
 0x00de, 0x00da, 0x00db, 0x00d9, 0x00fd, 0x00dd, 0x00af, 0x00b4,
 0x00ad, 0x00b1, 0x2017, 0x00be, 0x00b6, 0x00a7, 0x00f7, 0x00b8,
-0x00b0, 0x00a8, 0x00b7, 0x00b9, 0x00b3, 0x00b2, 0x220e, 0x00a0,
+0x00b0, 0x00a8, 0x00b7, 0x00b9, 0x00b3, 0x00b2, 0x220e, 0x00a0
 };
 long tabsf1[256] =	/* From Kari.Hurtta@Helsinki.FI (Kari E. Hurtta) */
 {
@@ -165,7 +165,7 @@ long tabsf1[256] =	/* From Kari.Hurtta@Helsinki.FI (Kari E. Hurtta) */
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1
 };
 long tabsf2[256] =	/* from wirzeniu@cc.helsinki.fi (Lars Wirzenius) */
 {
@@ -184,7 +184,7 @@ long tabsf2[256] =	/* from wirzeniu@cc.helsinki.fi (Lars Wirzenius) */
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1
 };
 long tabtis620[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 {
@@ -209,7 +209,7 @@ long tabtis620[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 0x0e40, 0x0e41, 0x0e42, 0x0e43, 0x0e44, 0x0e45, 0x0e46, 0x0e47,
 0x0e48, 0x0e49, 0x0e4a, 0x0e4b, 0x0e4c, 0x0e4d, 0x0e4e, 0x0e4f,
 0x0e50, 0x0e51, 0x0e52, 0x0e53, 0x0e54, 0x0e55, 0x0e56, 0x0e57,
-0x0e58, 0x0e59, 0x0e5a, 0x0e5b, -1,     -1,     -1,     -1,
+0x0e58, 0x0e59, 0x0e5a, 0x0e5b, -1,     -1,     -1,     -1
 };
 long tabviet1[256] =	/* From jdo@sjc.mentorg.com (James Do) */
 {

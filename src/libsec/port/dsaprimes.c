@@ -2,12 +2,12 @@
 #include <mp.h>
 #include <libsec.h>
 
-// NIST algorithm for generating DSA primes
-// Menezes et al (1997) Handbook of Applied Cryptography, p.151
-// q is a 160-bit prime;  p is a 1024-bit prime;  q divides p-1
+/* NIST algorithm for generating DSA primes */
+/* Menezes et al (1997) Handbook of Applied Cryptography, p.151 */
+/* q is a 160-bit prime;  p is a 1024-bit prime;  q divides p-1 */
 
-// arithmetic on unsigned ints mod 2**160, represented
-//    as 20-byte, little-endian uchar array
+/* arithmetic on unsigned ints mod 2**160, represented */
+/*    as 20-byte, little-endian uchar array */
 
 static void
 Hrand(uchar *s)
@@ -29,7 +29,7 @@ Hincr(uchar *s)
 			break;
 }
 
-// this can run for quite a while;  be patient
+/* this can run for quite a while;  be patient */
 void
 DSAprimes(mpint *q, mpint *p, uchar seed[SHA1dlen])
 {
@@ -58,7 +58,7 @@ forever:
 		Hs[19] |= 0x80;
 		letomp(Hs, 20, q);
 	}while(!probably_prime(q, 18));
-	if(seed != nil)	// allow skeptics to confirm computation
+	if(seed != nil)	/* allow skeptics to confirm computation */
 		memmove(seed, s, SHA1dlen);
 	i = 0;
 	j = 2;

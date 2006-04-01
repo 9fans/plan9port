@@ -26,7 +26,7 @@ _layerop(
 	fr = front->layer->screenr;
 	if(rectXrect(r, fr) == 0){
 		/* r doesn't touch this window; continue on next rearmost */
-		// assert(front && front->layer && front->layer->screen && front->layer->rear);
+		/* assert(front && front->layer && front->layer->screen && front->layer->rear); */
 		front = front->layer->rear;
 		goto Top;
 	}

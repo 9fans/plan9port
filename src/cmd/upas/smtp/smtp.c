@@ -179,7 +179,7 @@ threadmain(int argc, char **argv)
 	if(*argv == 0)
 		usage();
 	addr = *argv++; argc--;
-	// expand $smtp if necessary
+	/* expand $smtp if necessary */
 	addr = expand_addr(addr);
 	farend = addr;
 
@@ -359,7 +359,7 @@ dotls(char *me)
 		h = malloc(2*sizeof hash + 1);
 		if (h != nil) {
 			enc16(h, 2*sizeof hash + 1, hash, sizeof hash);
-			// print("x509 sha1=%s", h);
+			/* print("x509 sha1=%s", h); */
 			syslog(0, "smtp",
 		"remote cert. has bad thumbprint: x509 sha1=%s server=%q",
 				h, ddomain);

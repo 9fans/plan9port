@@ -5,7 +5,7 @@
 #include <string.h>
 #include "grap.h"
 
-//#define	RAND_MAX 32767	/* if your rand() returns bigger, change this too */
+/*#define	RAND_MAX 32767	/* if your rand() returns bigger, change this too */
 
 extern int yylex(void);
 extern int yyparse(void);

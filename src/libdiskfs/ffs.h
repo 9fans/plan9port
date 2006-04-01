@@ -100,7 +100,7 @@ enum
 	DTREG = 8,
 	DTLNK = 10,
 	DTSOCK = 12,
-	DTWHT = 14,
+	DTWHT = 14
 };
 
 struct Cylsum

@@ -19,7 +19,7 @@ static ulong CputsuspCE(Cdimg *cd, ulong offset);
 static int CputsuspER(Cdimg*, int);
 static int CputsuspRR(Cdimg*, int, int);
 static int CputsuspSP(Cdimg*, int);
-//static int CputsuspST(Cdimg*, int);
+/*static int CputsuspST(Cdimg*, int); */
 static int Cputrripname(Cdimg*, char*, int, char*, int);
 static int CputrripSL(Cdimg*, int, int, char*, int);
 static int CputrripPX(Cdimg*, Direc*, int, int);
@@ -524,12 +524,12 @@ CputrripTF(Cdimg *cd, Direc *d, int type, int dowrite)
 		if (type & TFattributes)
 			Cputdate(cd, d?d->ctime:0);
 	
-	//	if (type & TFbackup)
-	//		Cputdate(cd, 0);
-	//	if (type & TFexpiration)
-	//		Cputdate(cd, 0);
-	//	if (type & TFeffective)
-	//		Cputdate(cd, 0);
+	/*	if (type & TFbackup) */
+	/*		Cputdate(cd, 0); */
+	/*	if (type & TFexpiration) */
+	/*		Cputdate(cd, 0); */
+	/*	if (type & TFeffective) */
+	/*		Cputdate(cd, 0); */
 	}
 	return 5+7*length;
 }

@@ -9,12 +9,12 @@ typedef struct DirBuf DirBuf;
 
 enum
 {
-	OPERM	= 0x3,		/* mask of all permission types in open mode */
+	OPERM	= 0x3		/* mask of all permission types in open mode */
 };
 
 enum
 {
-	DirBufSize = 20,
+	DirBufSize = 20
 };
 
 struct Fid
@@ -46,7 +46,7 @@ enum
 	Pread = 	4,
 	Pother = 	1,
 	Pgroup = 	8,
-	Powner =	64,
+	Powner =	64
 };
 
 Fid	*fids;
@@ -59,7 +59,7 @@ Fcall	rhdr;
 Fcall	thdr;
 VacFs	*fs;
 VtConn  *conn;
-// VtSession *session;
+/* VtSession *session; */
 int	noperm;
 int	dotu;
 

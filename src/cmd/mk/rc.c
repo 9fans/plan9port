@@ -190,5 +190,5 @@ Shell rcshell = {
 	rcexpandquote,
 	rcescapetoken,
 	rccopyq,
-	rcmatchname,
+	rcmatchname
 };

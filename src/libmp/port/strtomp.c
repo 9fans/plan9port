@@ -84,7 +84,7 @@ from10(char *a, mpint *b)
 
 	b->top = 0;
 	for(;;){
-		// do a billion at a time in native arithmetic
+		/* do a billion at a time in native arithmetic */
 		x = 0;
 		for(i = 0; i < 9; i++){
 			y = tab.t10[*(uchar*)a];
@@ -97,7 +97,7 @@ from10(char *a, mpint *b)
 		if(i == 0)
 			break;
 
-		// accumulate into mpint
+		/* accumulate into mpint */
 		uitomp(mppow10[i], pow);
 		uitomp(x, r);
 		mpmul(b, pow, b);
@@ -191,7 +191,7 @@ strtomp(char *a, char **pp, int base, mpint *b)
 		break;
 	}
 
-	// if no characters parsed, there wasn't a number to convert
+	/* if no characters parsed, there wasn't a number to convert */
 	if(e == a)
 		return nil;
 

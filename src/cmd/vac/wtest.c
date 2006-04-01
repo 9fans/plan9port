@@ -2,7 +2,7 @@
 
 enum {
 	Nblock = 10000,
-	BlockSize = 8*1024,
+	BlockSize = 8*1024
 };
 
 uchar data[Nblock*BlockSize];

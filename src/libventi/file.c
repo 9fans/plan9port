@@ -517,7 +517,7 @@ blockwalk(VtBlock *p, int index, VtCache *c, int mode, VtEntry *e)
 		score = p->data+index*VtScoreSize;
 		break;
 	}
-//print("walk from %V/%d ty %d to %V ty %d\n", p->score, index, p->type, score, type);
+/*print("walk from %V/%d ty %d to %V ty %d\n", p->score, index, p->type, score, type); */
 
 	if(mode == VtOWRITE && vtglobaltolocal(score) == NilBlock){
 		b = vtcacheallocblock(c, type);

@@ -61,7 +61,7 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 	if(fontname == nil){
 		snprint(buf, sizeof buf, "%d %d\n0 %d\t%s\n", df->height, df->ascent,
 			df->n-1, deffontname);
-//BUG: Need something better for this	installsubfont("*default*", df);
+/*BUG: Need something better for this	installsubfont("*default*", df); */
 		font = buildfont(display, buf, deffontname);
 		if(font == nil){
 			fprint(2, "initdraw: can't open default font: %r\n");

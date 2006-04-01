@@ -15,7 +15,7 @@ int	pipeline = 1;
 
 typedef struct Imap Imap;
 struct Imap {
-	char *freep;	// free this to free the strings below
+	char *freep;	/* free this to free the strings below */
 
 	char *host;
 	char *user;
@@ -38,7 +38,7 @@ struct Imap {
 
 	Thumbprint *thumb;
 
-	// open network connection
+	/* open network connection */
 	Biobuf bin;
 	Biobuf bout;
 	int fd;
@@ -56,9 +56,9 @@ removecr(char *s)
 	return s;
 }
 
-//
-// send imap4 command
-//
+/* */
+/* send imap4 command */
+/* */
 static void
 imap4cmd(Imap *imap, char *fmt, ...)
 {
@@ -89,7 +89,7 @@ enum {
 	EXISTS,
 	STATUS,
 	FETCH,
-	UNKNOWN,
+	UNKNOWN
 };
 
 static char *verblist[] = {
@@ -99,7 +99,7 @@ static char *verblist[] = {
 [BYE]	"BYE",
 [EXISTS]	"EXISTS",
 [STATUS]	"STATUS",
-[FETCH]	"FETCH",
+[FETCH]	"FETCH"
 };
 
 static int
@@ -141,7 +141,7 @@ imapgrow(Imap *imap, int n)
 		imap->size = n+1;
 	}
 	if(n >= imap->size){
-		// friggin microsoft - reallocate
+		/* friggin microsoft - reallocate */
 		i = imap->data - imap->base;
 		imap->base = erealloc(imap->base, i+n+1);
 		imap->data = imap->base + i;
@@ -150,10 +150,10 @@ imapgrow(Imap *imap, int n)
 }
 
 
-//
-// get imap4 response line.  there might be various 
-// data or other informational lines mixed in.
-//
+/* */
+/* get imap4 response line.  there might be various  */
+/* data or other informational lines mixed in. */
+/* */
 static char*
 imap4resp(Imap *imap)
 {
@@ -176,7 +176,7 @@ imap4resp(Imap *imap)
 				fprint(2, "unexpected: %s\n", p);
 			break;
 
-		// ``unsolicited'' information; everything happens here.
+		/* ``unsolicited'' information; everything happens here. */
 		case '*':
 			if(p[1]!=' ')
 				continue;
@@ -196,19 +196,19 @@ imap4resp(Imap *imap)
 			case OK:
 			case NO:
 			case BAD:
-				// human readable text at p;
+				/* human readable text at p; */
 				break;
 			case BYE:
-				// early disconnect
-				// human readable text at p;
+				/* early disconnect */
+				/* human readable text at p; */
 				break;
 
-			// * 32 EXISTS
+			/* * 32 EXISTS */
 			case EXISTS:
 				imap->nmsg = n;
 				break;
 
-			// * STATUS Inbox (MESSAGES 2 UIDVALIDITY 960164964)
+			/* * STATUS Inbox (MESSAGES 2 UIDVALIDITY 960164964) */
 			case STATUS:
 				if(q = strstr(p, "MESSAGES"))
 					imap->nmsg = atoi(q+8);
@@ -217,9 +217,9 @@ imap4resp(Imap *imap)
 				break;
 
 			case FETCH:
-				// * 1 FETCH (uid 8889 RFC822.SIZE 3031 body[] {3031}
-				// <3031 bytes of data>
- 				// )
+				/* * 1 FETCH (uid 8889 RFC822.SIZE 3031 body[] {3031} */
+				/* <3031 bytes of data> */
+ 				/* ) */
 				if(strstr(p, "RFC822.SIZE") && strstr(p, "BODY[]")){
 					if((q = strchr(p, '{')) 
 					&& (n=strtol(q+1, &en, 0), *en=='}')){
@@ -257,16 +257,16 @@ imap4resp(Imap *imap)
 					break;
 				}
 
-				// * 1 FETCH (UID 1 RFC822.SIZE 511)
+				/* * 1 FETCH (UID 1 RFC822.SIZE 511) */
 				if(q=strstr(p, "RFC822.SIZE")){
 					imap->size = atoi(q+11);
 					break;
 				}
 
-				// * 1 FETCH (UID 1 RFC822.HEADER {496}
-				// <496 bytes of data>
- 				// )
-				// * 1 FETCH (UID 1 RFC822.HEADER "data")
+				/* * 1 FETCH (UID 1 RFC822.HEADER {496} */
+				/* <496 bytes of data> */
+ 				/* ) */
+				/* * 1 FETCH (UID 1 RFC822.HEADER "data") */
 				if(strstr(p, "RFC822.HEADER") || strstr(p, "RFC822.TEXT")){
 					if((q = strchr(p, '{')) 
 					&& (n=strtol(q+1, &en, 0), *en=='}')){
@@ -304,8 +304,8 @@ imap4resp(Imap *imap)
 					break;
 				}
 
-				// * 1 FETCH (UID 1)
-				// * 2 FETCH (UID 6)
+				/* * 1 FETCH (UID 1) */
+				/* * 2 FETCH (UID 6) */
 				if(q = strstr(p, "UID")){
 					if(imap->nuid < imap->muid)
 						imap->uid[imap->nuid++] = ((vlong)imap->validity<<32)|strtoul(q+3, nil, 10);
@@ -317,7 +317,7 @@ imap4resp(Imap *imap)
 				return line;
 			break;
 
-		case '9':		// response to our message
+		case '9':		/* response to our message */
 			op = p;
 			if(p[1]=='X' && strtoul(p+2, &p, 10)==imap->tag){
 				while(*p==' ')
@@ -343,9 +343,9 @@ isokay(char *resp)
 	return strncmp(resp, "OK", 2)==0;
 }
 
-//
-// log in to IMAP4 server, select mailbox, no SSL at the moment
-//
+/* */
+/* log in to IMAP4 server, select mailbox, no SSL at the moment */
+/* */
 static char*
 imap4login(Imap *imap)
 {
@@ -377,9 +377,9 @@ imap4login(Imap *imap)
 	return nil;
 }
 
-//
-// push tls onto a connection
-//
+/* */
+/* push tls onto a connection */
+/* */
 int
 mypushtls(int fd)
 {
@@ -409,9 +409,9 @@ mypushtls(int fd)
 	return p[1];
 }
 
-//
-// dial and handshake with the imap server
-//
+/* */
+/* dial and handshake with the imap server */
+/* */
 static char*
 imap4dial(Imap *imap)
 {
@@ -476,9 +476,9 @@ imap4dial(Imap *imap)
 	return nil;
 }
 
-//
-// close connection
-//
+/* */
+/* close connection */
+/* */
 #if 0  /* jpc */
 static void
 imap4hangup(Imap *imap)
@@ -489,9 +489,9 @@ imap4hangup(Imap *imap)
 }
 #endif
 
-//
-// download a single message
-//
+/* */
+/* download a single message */
+/* */
 static char*
 imap4fetch(Mailbox *mb, Message *m)
 {
@@ -522,7 +522,7 @@ imap4fetch(Mailbox *mb, Message *m)
 
 	parse(m, 0, mb, 1);
 
-	// digest headers
+	/* digest headers */
 	sha1((uchar*)m->start, m->end - m->start, m->digest, nil);
 	for(i = 0; i < SHA1dlen; i++)
 		sprint(sdigest+2*i, "%2.2ux", m->digest[i]);
@@ -531,10 +531,10 @@ imap4fetch(Mailbox *mb, Message *m)
 	return nil;
 }
 
-//
-// check for new messages on imap4 server
-// download new messages, mark deleted messages
-//
+/* */
+/* check for new messages on imap4 server */
+/* download new messages, mark deleted messages */
+/* */
 static char*
 imap4read(Imap *imap, Mailbox *mb, int doplumb)
 {
@@ -565,7 +565,7 @@ imap4read(Imap *imap, Mailbox *mb, int doplumb)
 				l = &(*l)->next;
 				break;
 			}else{
-				// old mail, we don't have it anymore
+				/* old mail, we don't have it anymore */
 				if(doplumb)
 					mailplumb(mb, *l, 1);
 				(*l)->inmbox = 0;
@@ -576,18 +576,18 @@ imap4read(Imap *imap, Mailbox *mb, int doplumb)
 		if(ignore)
 			continue;
 
-		// new message
+		/* new message */
 		m = newmessage(mb->root);
 		m->mallocd = 1;
 		m->inmbox = 1;
 		m->imapuid = imap->uid[i];
 
-		// add to chain, will download soon
+		/* add to chain, will download soon */
 		*l = m;
 		l = &m->next;
 	}
 
-	// whatever is left at the end of the chain is gone
+	/* whatever is left at the end of the chain is gone */
 	while(*l != nil){
 		if(doplumb)
 			mailplumb(mb, *l, 1);
@@ -596,7 +596,7 @@ imap4read(Imap *imap, Mailbox *mb, int doplumb)
 		l = &(*l)->next;
 	}
 
-	// download new messages
+	/* download new messages */
 	t = imap->tag;
 	if(pipeline)
 	switch(rfork(RFPROC|RFMEM)){
@@ -631,7 +631,7 @@ imap4read(Imap *imap, Mailbox *mb, int doplumb)
 		}
 
 		if(s = imap4fetch(mb, m)){
-			// message disappeared?  unchain
+			/* message disappeared?  unchain */
 			fprint(2, "download %lud: %s\n", (ulong)m->imapuid, s);
 			delmessage(mb, m);
 			mb->root->subname--;
@@ -652,9 +652,9 @@ imap4read(Imap *imap, Mailbox *mb, int doplumb)
 	return nil;
 }
 
-//
-// sync mailbox
-//
+/* */
+/* sync mailbox */
+/* */
 static void
 imap4purge(Imap *imap, Mailbox *mb)
 {
@@ -682,9 +682,9 @@ imap4purge(Imap *imap, Mailbox *mb)
 	}
 }
 
-//
-// connect to imap4 server, sync mailbox
-//
+/* */
+/* connect to imap4 server, sync mailbox */
+/* */
 static char*
 imap4sync(Mailbox *mb, int doplumb)
 {
@@ -705,7 +705,7 @@ imap4sync(Mailbox *mb, int doplumb)
 	/*
 	 * don't hang up; leave connection open for next time.
 	 */
-	// imap4hangup(imap);
+	/* imap4hangup(imap); */
 	mb->waketime = time(0) + imap->refreshtime;
 	return err;
 }
@@ -754,9 +754,9 @@ imap4ctl(Mailbox *mb, int argc, char **argv)
 	return Eimap4ctl;
 }
 
-//
-// free extra memory associated with mb
-//
+/* */
+/* free extra memory associated with mb */
+/* */
 static void
 imap4close(Mailbox *mb)
 {
@@ -771,9 +771,9 @@ imap4close(Mailbox *mb)
 	free(imap);
 }
 
-//
-// open mailboxes of the form /imap/host/user
-//
+/* */
+/* open mailboxes of the form /imap/host/user */
+/* */
 char*
 imap4mbox(Mailbox *mb, char *path)
 {
@@ -818,20 +818,20 @@ imap4mbox(Mailbox *mb, char *path)
 	mb->close = imap4close;
 	mb->ctl = imap4ctl;
 	mb->d = emalloc(sizeof(*mb->d));
-	//mb->fetch = imap4fetch;
+	/*mb->fetch = imap4fetch; */
 
 	return nil;
 }
 
-//
-// Formatter for %"
-// Use double quotes to protect white space, frogs, \ and "
-//
+/* */
+/* Formatter for %" */
+/* Use double quotes to protect white space, frogs, \ and " */
+/* */
 enum
 {
 	Qok = 0,
 	Qquote,
-	Qbackslash,
+	Qbackslash
 };
 
 static int

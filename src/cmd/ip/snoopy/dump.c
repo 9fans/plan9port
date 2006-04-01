@@ -75,5 +75,5 @@ Proto dump =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };

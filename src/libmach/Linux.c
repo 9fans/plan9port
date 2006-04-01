@@ -433,7 +433,7 @@ ctlproc(int pid, char *msg)
 				}
 				return -1;
 			}
-//fprint(2, "got pid %d status %x\n", pid, status);
+/*fprint(2, "got pid %d status %x\n", pid, status); */
 			if(WIFEXITED(status) || WIFSTOPPED(status))
 				return 0;
 		}

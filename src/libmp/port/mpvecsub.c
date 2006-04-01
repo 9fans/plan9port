@@ -2,7 +2,7 @@
 #include <mp.h>
 #include "dat.h"
 
-// prereq: a >= b, alen >= blen, diff has at least alen digits
+/* prereq: a >= b, alen >= blen, diff has at least alen digits */
 void
 mpvecsub(mpdigit *a, int alen, mpdigit *b, int blen, mpdigit *diff)
 {

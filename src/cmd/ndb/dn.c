@@ -112,7 +112,7 @@ char *rname[Rmask+1] =
 	"server failure",
 	"bad name",
 	"unimplemented",
-	"we don't like you",
+	"we don't like you"
 };
 
 Lock	dnlock;

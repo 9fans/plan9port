@@ -6,15 +6,15 @@
 
 typedef struct Hdr Hdr;
 struct Hdr {
-	uchar	hdr;		// RTP header
-	uchar	marker;	// Payload and marker
-	uchar	seq[2];	// Sequence number
-	uchar	ts[4];		// Time stamp
-	uchar	ssrc[4];	// Synchronization source identifier
+	uchar	hdr;		/* RTP header */
+	uchar	marker;	/* Payload and marker */
+	uchar	seq[2];	/* Sequence number */
+	uchar	ts[4];		/* Time stamp */
+	uchar	ssrc[4];	/* Synchronization source identifier */
 };
 
 enum{
-	RTPLEN = 12,		// Minimum size of an RTP header
+	RTPLEN = 12,		/* Minimum size of an RTP header */
 };
 
 static int
@@ -58,5 +58,5 @@ Proto rtp = {
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };

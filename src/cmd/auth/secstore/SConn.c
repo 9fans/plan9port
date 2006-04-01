@@ -13,8 +13,8 @@ typedef struct ConnState {
 } ConnState;
 
 typedef struct SS{
-	int fd;		// file descriptor for read/write of encrypted data
-	int alg;	// if nonzero, "alg sha rc4_128"
+	int fd;		/* file descriptor for read/write of encrypted data */
+	int alg;	/* if nonzero, "alg sha rc4_128" */
 	ConnState in, out;
 } SS;
 
@@ -31,7 +31,7 @@ SC_secret(SConn *conn, uchar *sigma, int direction)
 		hmac_sha1(sigma, nsigma, (uchar*)"two", 3, ss->out.secret, nil);
 		hmac_sha1(sigma, nsigma, (uchar*)"one", 3, ss->in.secret, nil);
 	}
-	setupRC4state(&ss->in.rc4, ss->in.secret, 16); // restrict to 128 bits
+	setupRC4state(&ss->in.rc4, ss->in.secret, 16); /* restrict to 128 bits */
 	setupRC4state(&ss->out.rc4, ss->out.secret, 16);
 	ss->alg = 1;
 	return 0;
@@ -82,7 +82,7 @@ SC_read(SConn *conn, uchar *buf, int n)
 		snprint((char*)buf,n,"!SC_read invalid count");
 		return -1;
 	}
-	len = (count[0]&0x7f)<<8 | count[1];	// SSL-style count; no pad
+	len = (count[0]&0x7f)<<8 | count[1];	/* SSL-style count; no pad */
 	if(ss->alg){
 		len -= SHA1dlen;
 		if(len <= 0 || readn(ss->fd, digest, SHA1dlen) != SHA1dlen){

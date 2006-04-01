@@ -28,8 +28,20 @@ static	int	i386foll(Map*, Regs*, ulong, ulong*);
 static	int	i386hexinst(Map*, ulong, char*, int);
 static	int	i386das(Map*, ulong, char, char*, int);
 static	int	i386instlen(Map*, ulong);
-static	char	*i386windregs[];
 static	int	i386unwind(Map*, Regs*, ulong*, Symbol*);
+
+static char *i386windregs[] = {
+	"PC",
+	"SP",
+	"BP",
+	"AX",
+	"CX",
+	"DX",
+	"BX",
+	"SI",
+	"DI",
+	0,
+};
 
 static	Regdesc i386reglist[] = {
 	{"DI",		REGOFF(di),	RINT, 'X'},
@@ -115,19 +127,6 @@ Mach mach386 =
 	i386instlen,		/* instruction size calculation */
 };
 
-static char *i386windregs[] = {
-	"PC",
-	"SP",
-	"BP",
-	"AX",
-	"CX",
-	"DX",
-	"BX",
-	"SI",
-	"DI",
-	0,
-};
-
 /*
  * The wrapper code around Linux system calls 
  * saves AX on the stack before calling some calls
@@ -158,7 +157,7 @@ i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 	u32int v;
 	char buf[60], *p;
 
-//print("i386unwind %s\n", sym ? sym->name : nil);
+/*print("i386unwind %s\n", sym ? sym->name : nil); */
 	isp = windindex("SP");
 	ipc = windindex("PC");
 	ibp = windindex("BP");
@@ -176,14 +175,14 @@ i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 	 */
 	if(sym){
 		pc = sym->loc.addr;
-//print("startpc %lux\n", pc);
+/*print("startpc %lux\n", pc); */
 		memset(off, 0xff, sizeof off);
 		spoff = 0;
 		havebp = 0;
 		for(;;){
 			if((n = i386das(map, pc, 0, buf, sizeof buf)) < 0)
 				break;
-//print("%s\n", buf);
+/*print("%s\n", buf); */
 			pc += n;
 			if(strncmp(buf, "PUSHL\t", 6) == 0){
 				spoff += 4;
@@ -193,7 +192,7 @@ i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 				havebp = 1;
 			}else if(strncmp(buf, "SUBL\t$", 6) == 0){
 				if((p = strrchr(buf, ',')) && strcmp(p, ",SP") == 0){
-//print("spoff %s\n", buf+6);
+/*print("spoff %s\n", buf+6); */
 					spoff += strtol(buf+6, 0, 16);
 				}
 				break;
@@ -209,14 +208,14 @@ i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 		syscallhack(map, regs, &spoff);
 
 		if(havebp){
-//print("havebp\n");
+/*print("havebp\n"); */
 			rget(regs, "BP", &next[isp]);
 			get4(map, next[isp], &v);
 			next[ibp] = v;
 			next[isp] += 4;
 		}else{
 			rget(regs, "SP", &next[isp]);
-//print("old sp %lux + %d\n", next[isp], spoff);
+/*print("old sp %lux + %d\n", next[isp], spoff); */
 			next[isp] += spoff;
 		}
 		for(i=0; i<nelem(off); i++)
@@ -227,7 +226,7 @@ i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 
 		if(get4(map, next[isp], &v) < 0)
 			return -1;
-//print("new pc %lux => %lux\n", next[isp], v);
+/*print("new pc %lux => %lux\n", next[isp], v); */
 		next[ipc] = v;
 		next[isp] += 4;
 		return 0;
@@ -248,8 +247,8 @@ i386unwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 	return 0;
 }
 
-//static	char	STARTSYM[] =	"_main";
-//static	char	PROFSYM[] =	"_mainp";
+/*static	char	STARTSYM[] =	"_main"; */
+/*static	char	PROFSYM[] =	"_mainp"; */
 static	char	FRAMENAME[] =	".frame";
 static char *excname[] =
 {
@@ -348,7 +347,7 @@ enum{
 	SP,
 	BP,
 	SI,
-	DI,
+	DI
 };
 	/* Operand Format codes */
 /*
@@ -404,7 +403,7 @@ enum {
 	PRE,			/* Instr Prefix */
 	SEG,			/* Segment Prefix */
 	OPOVER,			/* Operand size override */
-	ADDOVER,		/* Address size override */
+	ADDOVER		/* Address size override */
 };
 	
 static Optable optab0F00[8]=

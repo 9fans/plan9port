@@ -152,7 +152,7 @@ getwindow(Display *d, int ref)
 	oi = d->image;
 	i = getimage0(d, oi);
 	d->image = i;
-	// fprint(2, "getwindow %p -> %p\n", oi, i);
+	/* fprint(2, "getwindow %p -> %p\n", oi, i); */
 
 	_screen = allocscreen(i, d->white, 0);
 	_freeimage1(screen);
@@ -181,7 +181,7 @@ xerror(XDisplay *d, XErrorEvent *e)
 static int
 xioerror(XDisplay *d)
 {
-	//print("X I/O error\n");
+	/*print("X I/O error\n"); */
 	sysfatal("X I/O error\n");
 	abort();
 	return -1;

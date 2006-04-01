@@ -30,7 +30,7 @@ enum
 	OSPFdd=		2,
 	OSPFlsrequest=	3,
 	OSPFlsupdate=	4,
-	OSPFlsack=	5,
+	OSPFlsack=	5
 };
 
 
@@ -39,7 +39,7 @@ char *ospftype[] = {
 	[OSPFdd]	"data definition",
 	[OSPFlsrequest]	"link state request",
 	[OSPFlsupdate]	"link state update",
-	[OSPFlsack]	"link state ack",
+	[OSPFlsack]	"link state ack"
 };
 
 char*
@@ -115,7 +115,7 @@ char *lsatype[] = {
 	[LSANetwork]	"Network LSA",
 	[LSASummN]	"Summary LSA (Network)",
 	[LSASummR]	"Summary LSA (Router)",
-	[LSAASext]	"LSA AS external",
+	[LSAASext]	"LSA AS external"
 };
 
 char*
@@ -386,5 +386,5 @@ Proto ospf =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };

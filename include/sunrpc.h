@@ -21,7 +21,7 @@ enum
 	SunAuthNone = 0,
 	SunAuthSys,
 	SunAuthShort,
-	SunAuthDes,
+	SunAuthDes
 };
 
 typedef enum {
@@ -46,7 +46,7 @@ typedef enum {
 	SunAuthRejectedVerf,
 	SunAuthTooWeak,
 	SunAuthInvalidResp,
-	SunAuthFailed,
+	SunAuthFailed
 } SunStatus;
 
 struct SunAuthInfo
@@ -78,7 +78,7 @@ struct SunRpc
 	u32int proc;
 
 	/* call */
-	// uint proc;
+	/* uint proc; */
 	u32int prog, vers;
 	SunAuthInfo cred;
 	SunAuthInfo verf;
@@ -87,16 +87,16 @@ struct SunRpc
 
 	/* reply */
 	u32int status;
-	// SunAuthInfo verf;
+	/* SunAuthInfo verf; */
 	u32int low, high;
-	// uchar *data;
-	// uint ndata;
+	/* uchar *data; */
+	/* uint ndata; */
 };
 
 typedef enum
 {
 	SunCallTypeTNull,
-	SunCallTypeRNull,
+	SunCallTypeRNull
 } SunCallType;
 
 struct SunCall
@@ -191,7 +191,7 @@ typedef struct SunSrv SunSrv;
 
 enum
 {
-	SunStackSize = 32768,
+	SunStackSize = 32768
 };
 
 struct SunMsg
@@ -316,7 +316,7 @@ typedef enum
 	PortCallTDump,
 	PortCallRDump,
 	PortCallTCallit,
-	PortCallRCallit,
+	PortCallRCallit
 } PortCallType;
 
 enum

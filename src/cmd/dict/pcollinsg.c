@@ -33,7 +33,7 @@
 
 enum {
 	IBASE=0x69,	/* dotless i */
-	Taglen=32,
+	Taglen=32
 };
 
 static Rune intab[256] = {
@@ -69,7 +69,7 @@ static Rune intab[256] = {
 /*E0*/	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,
 	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,
 /*F0*/	0x20,	0x20,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,
-	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,
+	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE,	NONE
 };
 
 static Nassoc numtab[] = {
@@ -103,7 +103,7 @@ static Nassoc overtab[] = {
 	{0x3a,	LUML},
 	{'\\',	LGRV},
 	{0x5e,	LFRN},
-	{0x7e,	LTIL},
+	{0x7e,	LTIL}
 };
 
 static uchar *reach(uchar*, int);

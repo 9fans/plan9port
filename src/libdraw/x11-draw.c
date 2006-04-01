@@ -66,7 +66,7 @@ xdraw(Memdrawparam *par)
 	m = Simplesrc|Fullsrc|Simplemask|Fullmask;
 	if((state&m) == m){
 		_xfillcolor(dst, r, par->sdval);
-	//	xdirtyxdata(dst, r);
+	/*	xdirtyxdata(dst, r); */
 		return 1;
 	}
 
@@ -85,7 +85,7 @@ xdraw(Memdrawparam *par)
 
 		XCopyArea(_x.display, xsrc->pixmap, xdst->pixmap, gc,
 			sp.x, sp.y, Dx(r), Dy(r), dp.x, dp.y);
-	//	xdirtyxdata(dst, r);
+	/*	xdirtyxdata(dst, r); */
 		return 1;
 	}
 
@@ -132,7 +132,7 @@ xdraw(Memdrawparam *par)
 		XSetTSOrigin(_x.display, gc, mp.x, mp.y);
 		XFillRectangle(_x.display, xdst->pixmap, gc, dp.x, dp.y,
 			Dx(r), Dy(r));
-	//	xdirtyxdata(dst, r);
+	/*	xdirtyxdata(dst, r); */
 		return 1;
 	}
 

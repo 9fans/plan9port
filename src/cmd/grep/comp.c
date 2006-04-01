@@ -128,12 +128,12 @@ loop:
 Rune	tab1[] =
 {
 	0x007f,
-	0x07ff,
+	0x07ff
 };
 Rune	tab2[] =
 {
 	0x003f,
-	0x0fff,
+	0x0fff
 };
 
 Re2
@@ -144,7 +144,7 @@ rclass(Rune p0, Rune p1)
 	Re2 x;
 
 	if(p0 > p1)
-		return re2char(0xff, 0xff);	// no match
+		return re2char(0xff, 0xff);	/* no match */
 
 	/*
 	 * bust range into same length

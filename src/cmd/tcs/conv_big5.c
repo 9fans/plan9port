@@ -139,7 +139,7 @@ big5_out(Rune *base, int n, long *notused)
 			if(tab[r] != -1){
 				r = tab[r];
 				if(r >= BIG5MAX){
-					*p++ = 0xA1;
+					*p++ = (char)0xA1;
 					*p++ = r-BIG5MAX;
 					continue;
 				} else {

@@ -1,8 +1,10 @@
 #include	<u.h>
 #include	<libc.h>
 
-//#pragma	varargck	type	"R"	double
-//#pragma	varargck	type	"D"	double
+#ifdef VARARGCK
+#pragma	varargck	type	"R"	double
+#pragma	varargck	type	"D"	double
+#endif
 
 typedef	struct	Obj1	Obj1;
 typedef	struct	Obj2	Obj2;
@@ -20,7 +22,7 @@ enum
 	DARK	= 1<<0,
 	SIGNIF	= 1<<1,
 	PTIME	= 1<<2,
-	LIGHT	= 1<<3,
+	LIGHT	= 1<<3
 };
 
 struct	Obj1
@@ -150,7 +152,7 @@ extern	double	cosx(double, int, int, int, int, double);
 extern	double	dist(Obj1*, Obj1*);
 extern	double	dsrc(double, Tim*, int);
 extern	void	dtsetup(double, Tim*);
-//extern	int	evcomp(void*, void*);
+/*extern	int	evcomp(void*, void*);*/
 extern	void	event(char*, char*, char*, double, int);
 extern	void	evflush(void);
 extern	double	fmod(double, double);

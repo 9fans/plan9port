@@ -46,7 +46,7 @@ enum {
 	Lrefresh,
 	Lselect,
 	Lsquare,
-	Ltextarea,
+	Ltextarea
 };
 
 #define L(x)	runeconsttab[(x)]

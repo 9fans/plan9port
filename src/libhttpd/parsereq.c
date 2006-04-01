@@ -152,7 +152,7 @@ parseuri(HConnect *c, char *uri)
 
 	/*
 	 * anything starting with // is a host name or number
-	 * hostnames constists of letters, digits, - and .
+	 * hostnames consists of letters, digits, - and .
 	 * for now, just ignore any port given
 	 */
 	if(uri[0] == '/' && uri[1] == '/'){

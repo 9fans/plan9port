@@ -108,7 +108,7 @@ Exectab exectab[] = {
 	{ LTab,		tab,		FALSE,	XXX,		XXX		},
 	{ LUndo,		undo,	FALSE,	TRUE,	XXX		},
 	{ LZerox,		zeroxx,	FALSE,	XXX,		XXX		},
-	{ nil, 			0,		0,		0,		0		},
+	{ nil, 			0,		0,		0,		0		}
 };
 
 Exectab*
@@ -1198,7 +1198,7 @@ enum {
 	IGlobal = -2,
 	IError = -1,
 	Ion = 0,
-	Ioff = 1,
+	Ioff = 1
 };
 
 static int
@@ -1318,7 +1318,7 @@ runproc(void *argvp)
 	char buf[512];
 	int olddir;
 	int ret;
-	//static void *parg[2];
+	/*static void *parg[2]; */
 	char *rcarg[4];
 	void **argv;
 	CFsys *fs;

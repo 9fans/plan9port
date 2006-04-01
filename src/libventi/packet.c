@@ -9,14 +9,14 @@ typedef struct Frag Frag;
 enum {
 	BigMemSize = MaxFragSize,
 	SmallMemSize = BigMemSize/8,
-	NLocalFrag = 2,
+	NLocalFrag = 2
 };
 
 /* position to carve out of a Mem */
 enum {
 	PFront,
 	PMiddle,
-	PEnd,
+	PEnd
 };
 
 struct Mem
@@ -33,7 +33,7 @@ struct Mem
 enum {
 	FragLocalFree,
 	FragLocalAlloc,
-	FragGlobal,
+	FragGlobal
 };
 	
 struct Frag
@@ -126,7 +126,7 @@ packetalloc(void)
 	p->next = nil;
 	p->pc = getcallerpc((char*)&p+8);	/* might not work, but fine */
 
-//if(0)fprint(2, "packetalloc %p from %08lux %08lux %08lux\n", p, *((uint*)&p+2), *((uint*)&p+3), *((uint*)&p+4));
+/*if(0)fprint(2, "packetalloc %p from %08lux %08lux %08lux\n", p, *((uint*)&p+2), *((uint*)&p+3), *((uint*)&p+4)); */
 
 	NOTFREE(p);
 	return p;
@@ -137,7 +137,7 @@ packetfree(Packet *p)
 {
 	Frag *f, *ff;
 
-//if(1)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p));
+/*if(1)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p)); */
 
 	if(p == nil)
 		return;

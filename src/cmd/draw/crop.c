@@ -9,7 +9,7 @@ enum
 	Inset,	/* move border in or out uniformly */
 	Insetxy,	/* move border in or out; different parameters for x and y */
 	Set,		/* set rectangle to absolute values */
-	Blank,	/* cut off blank region according to color value */
+	Blank	/* cut off blank region according to color value */
 			/* Blank is not actually set as a mode; it can be combined with others */
 };
 

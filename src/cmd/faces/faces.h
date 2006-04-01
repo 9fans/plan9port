@@ -9,7 +9,7 @@ enum	/* face strings */
 
 enum
 {
-	Facesize = 48,
+	Facesize = 48
 };
 
 typedef struct Face		Face;

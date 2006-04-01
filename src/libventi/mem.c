@@ -4,7 +4,7 @@
 
 enum {
 	IdealAlignment = 32,
-	ChunkSize 	= 128*1024,
+	ChunkSize 	= 128*1024
 };
 
 

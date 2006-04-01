@@ -92,7 +92,7 @@ struct pcall {
 	/*SPLINE*/ 	"sp", 	2,
 	/*TEXT*/ 		"t", 	1,
 	/*VEC*/ 		"v", 	1,
-	/*LAST*/	 	0, 	0,
+	/*LAST*/	 	0, 	0
 };
 
 struct pcall *pplots;		/* last command read */

@@ -15,8 +15,8 @@ static uchar loopbackmask[IPaddrlen] = {
 	0xff, 0, 0, 0
 };
 
-// find first ip addr that isn't the friggin loopback address
-// unless there are no others
+/* find first ip addr that isn't the friggin loopback address */
+/* unless there are no others */
 int
 myipaddr(uchar *ip, char *net)
 {

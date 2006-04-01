@@ -13,7 +13,7 @@ enum
 	 * tokens
 	 */
 	Word	= 1,
-	QString,
+	QString
 };
 
 #define UlongMax	4294967295UL

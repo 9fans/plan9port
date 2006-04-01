@@ -7,7 +7,7 @@ enum
 {
 	Arrow1 = 8,
 	Arrow2 = 10,
-	Arrow3 = 3,
+	Arrow3 = 3
 };
 
 /*

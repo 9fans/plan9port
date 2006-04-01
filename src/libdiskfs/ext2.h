@@ -44,7 +44,7 @@ enum
 	IFREG = 0100000,
 	IFLNK = 0120000,
 	IFSOCK = 0140000,
-	IFWHT = 0160000,
+	IFWHT = 0160000
 };
 
 #define DIRLEN(namlen)	(((namlen)+8+3)&~3)
@@ -144,7 +144,7 @@ struct Dirent
 };
 enum
 {
-	MinDirentSize = 4+2+1+1,
+	MinDirentSize = 4+2+1+1
 };
 
 /*

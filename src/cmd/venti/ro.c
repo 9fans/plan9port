@@ -15,7 +15,7 @@ int verbose;
 
 enum
 {
-	STACK = 8192,
+	STACK = 8192
 };
 
 void

@@ -608,5 +608,5 @@ Uchar	*suftab[] = {
 	0,
 	0,
 	sufy,
-	0,
+	0
 };

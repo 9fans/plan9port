@@ -134,8 +134,7 @@ enum
 	Chs,		/* Hesiod (?) */
 
 	/* class queries (all class types are also queries) */
-	Call=	255,	/* all classes */
-
+	Call=	255	/* all classes */
 };
 
 

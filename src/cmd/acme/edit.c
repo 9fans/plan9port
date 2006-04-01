@@ -49,7 +49,7 @@ struct cmdtab cmdtab[]={
 	'q',	0,	0,	0,	0,	aNo,	0,	0,	q_cmd,
 	'!',	0,	0,	0,	0,	aNo,	0,	linex,	plan9_cmd,
  */
-	0,	0,	0,	0,	0,	0,	0,	0,
+	0,	0,	0,	0,	0,	0,	0,	0
 };
 
 Cmd	*parsecmd(int);
@@ -82,8 +82,8 @@ editthread(void *v)
 	USED(v);
 	threadsetname("editthread");
 	while((cmdp=parsecmd(0)) != 0){
-//		ocurfile = curfile;
-//		loaded = curfile && !curfile->unread;
+/*		ocurfile = curfile; */
+/*		loaded = curfile && !curfile->unread; */
 		if(cmdexec(curtext, cmdp) == 0)
 			break;
 		freecmd();

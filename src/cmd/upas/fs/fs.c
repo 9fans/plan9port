@@ -8,7 +8,7 @@
 
 enum
 {
-	OPERM	= 0x3,		// mask of all permission types in open mode
+	OPERM	= 0x3,		/* mask of all permission types in open mode */
 };
 
 typedef struct Fid Fid;
@@ -22,15 +22,15 @@ struct Fid
 	Fid	*next;
 	Mailbox	*mb;
 	Message	*m;
-	Message *mtop;		// top level message
+	Message *mtop;		/* top level message */
 
-	//finger pointers to speed up reads of large directories
-	long	foff;	// offset/DIRLEN of finger
-	Message	*fptr;	// pointer to message at off
-	int	fvers;	// mailbox version when finger was saved
+	/*finger pointers to speed up reads of large directories */
+	long	foff;	/* offset/DIRLEN of finger */
+	Message	*fptr;	/* pointer to message at off */
+	int	fvers;	/* mailbox version when finger was saved */
 };
 
-ulong	path;		// incremented for each new file
+ulong	path;		/* incremented for each new file */
 Fid	*fids;
 int	mfd[2];
 char	user[Elemlen];
@@ -81,7 +81,7 @@ char 	*(*fcalls[])(Fid*) = {
 	[Tclunk]	rclunk,
 	[Tremove]	rremove,
 	[Tstat]		rstat,
-	[Twstat]	rwstat,
+	[Twstat]	rwstat
 };
 
 char	Eperm[] =	"permission denied";
@@ -125,12 +125,12 @@ char *dirtab[] =
 [Qunixdate]	"unixdate",
 [Qunixheader]	"unixheader",
 [Qctl]		"ctl",
-[Qmboxctl]	"ctl",
+[Qmboxctl]	"ctl"
 };
 
 enum
 {
-	Hsize=	1277,
+	Hsize=	1277
 };
 
 Hash	*htab[Hsize];
@@ -455,7 +455,7 @@ int infofields[] = {
 	Qsender,
 	Qmessageid,
 	Qlines,
-	-1,
+	-1
 };
 
 static int
@@ -654,7 +654,7 @@ dowalk(Fid *f, char *name)
 	else
 		qlock(&mbllock);
 
-	// this must catch everything except . and ..
+	/* this must catch everything except . and .. */
 retry:
 	h = hlook(f->qid.path, name);
 	if(h != nil){
@@ -788,7 +788,7 @@ ropen(Fid *f)
 		if(file != Qctl && file != Qmboxctl)
 			return Eperm;
 
-	// make sure we've decoded
+	/* make sure we've decoded */
 	if(file == Qbody){
 		if(f->m->decoded == 0)
 			decode(f->m);
@@ -865,7 +865,7 @@ readmboxdir(Fid *f, uchar *buf, long off, int cnt, int blen)
 			off -= m;
 	}
 
-	// to avoid n**2 reads of the directory, use a saved finger pointer
+	/* to avoid n**2 reads of the directory, use a saved finger pointer */
 	if(f->mb->vers == f->fvers && off >= f->foff && f->fptr != nil){
 		msg = f->fptr;
 		pos = f->foff;
@@ -875,7 +875,7 @@ readmboxdir(Fid *f, uchar *buf, long off, int cnt, int blen)
 	} 
 
 	for(; cnt > 0 && msg != nil; msg = msg->next){
-		// act like deleted files aren't there
+		/* act like deleted files aren't there */
 		if(msg->deleted)
 			continue;
 
@@ -890,7 +890,7 @@ readmboxdir(Fid *f, uchar *buf, long off, int cnt, int blen)
 		pos += m;
 	}
 
-	// save a finger pointer for next read of the mbox directory
+	/* save a finger pointer for next read of the mbox directory */
 	f->foff = pos;
 	f->fptr = msg;
 	f->fvers = f->mb->vers;
@@ -1370,7 +1370,7 @@ hdrlen(char *p, char *e)
 	return ep - p;
 }
 
-// rfc2047 non-ascii
+/* rfc2047 non-ascii */
 typedef struct Charset Charset;
 struct Charset {
 	char *name;
@@ -1386,7 +1386,7 @@ struct Charset {
 	{ "big5",		4,	2, "big5", },
 	{ "iso-2022-jp",	11, 2, "jis", },
 	{ "windows-1251",	12,	2, "cp1251"},
-	{ "koi8-r",		6,	2, "koi8"},
+	{ "koi8-r",		6,	2, "koi8"}
 };
 
 int
@@ -1403,7 +1403,7 @@ rfc2047convert(String *s, char *token, int len)
 	e = token+len-2;
 	token += 2;
 
-	// bail if we don't understand the character set
+	/* bail if we don't understand the character set */
 	for(i = 0; i < nelem(charsets); i++)
 		if(cistrncmp(charsets[i].name, token, charsets[i].len) == 0)
 		if(token[charsets[i].len] == '?'){
@@ -1413,11 +1413,11 @@ rfc2047convert(String *s, char *token, int len)
 	if(i >= nelem(charsets))
 		return -1;
 
-	// bail if it doesn't fit 
+	/* bail if it doesn't fit  */
 	if(e-token > sizeof(decoded)-1)
 		return -1;
 
-	// bail if we don't understand the encoding
+	/* bail if we don't understand the encoding */
 	if(cistrncmp(token, "b?", 2) == 0){
 		token += 2;
 		len = dec64((uchar*)decoded, sizeof(decoded), token, e-token);
@@ -1483,7 +1483,7 @@ rfc2047start(char *start, char *end)
 	return nil;
 }
 
-// convert a header line
+/* convert a header line */
 String*
 stringconvert(String *s, char *uneaten, int len)
 {
@@ -1521,7 +1521,7 @@ readheader(Message *m, char *buf, int off, int cnt)
 	e = m->hend;
 	s = nil;
 
-	// copy in good headers
+	/* copy in good headers */
 	while(cnt > 0 && p < e){
 		n = hdrlen(p, e);
 		if(ignore(p)){
@@ -1529,7 +1529,7 @@ readheader(Message *m, char *buf, int off, int cnt)
 			continue;
 		}
 
-		// rfc2047 processing
+		/* rfc2047 processing */
 		s = stringconvert(s, p, n);
 		ns = s_len(s);
 		if(off > 0){

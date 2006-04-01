@@ -71,7 +71,7 @@ enum
 	CHANSND,
 	CHANRCV,
 	CHANNOP,
-	CHANNOBLK,
+	CHANNOBLK
 };
 
 struct Alt

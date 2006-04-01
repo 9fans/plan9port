@@ -52,12 +52,12 @@ char *ignore[] =
 
 	/* little things */
 	".",
-	"\n",
+	"\n"
 };
 
 char *keywords[] =
 {
-	"([a-zA-Z'`$!¡-￿]|[0-9]([.,][0-9])*)+",
+	"([a-zA-Z'`$!¡-￿]|[0-9]([.,][0-9])*)+"
 };
 
 int debug;

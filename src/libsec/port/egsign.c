@@ -26,7 +26,7 @@ egsign(EGpriv *priv, mpint *m)
 			continue;
 		break;
 	}
-	mpmod(kinv, pm1, kinv);  // make kinv positive
+	mpmod(kinv, pm1, kinv);  /* make kinv positive */
 	mpexp(alpha, k, p, r);
 	mpmul(priv->secret, r, s);
 	mpmod(s, pm1, s);

@@ -111,8 +111,8 @@ ext2blockread(Fsys *fsys, u64int vbno)
 			fprint(2, "loading group: %r...");
 		return nil;
 	}
-//	if(debug)
-//		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock);
+/*	if(debug) */
+/*		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock); */
 
 	if((bitb = diskread(fs->disk, fs->blocksize, (u64int)g->bitblock*fs->blocksize)) == nil){
 		if(debug)

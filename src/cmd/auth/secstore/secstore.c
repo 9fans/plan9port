@@ -142,8 +142,8 @@ getfile(SConn *conn, char *gf, uchar **buf, ulong *buflen, uchar *key, int nkey)
 	return 0;
 }
 
-// This sends a file to the secstore disk that can, in an emergency, be
-// decrypted by the program aescbc.c.
+/* This sends a file to the secstore disk that can, in an emergency, be */
+/* decrypted by the program aescbc.c. */
 static int
 putfile(SConn *conn, char *pf, uchar *buf, ulong len, uchar *key, int nkey)
 {
@@ -206,7 +206,7 @@ putfile(SConn *conn, char *pf, uchar *buf, ulong len, uchar *key, int nkey)
 		ivo = 0;
 		if(n < Maxmsg){ /* EOF on input; append XX... */
 			memset(b+n, 'X', CHK);
-			n += CHK; // might push n>Maxmsg
+			n += CHK; /* might push n>Maxmsg */
 			done = 1;
 		}
 		aesCBCencrypt(b, n, &aes);
@@ -255,7 +255,7 @@ cmd(AuthConn *c, char **gf, int *Gflag, char **pf, char **rf)
 		if(getfile(c->conn, *gf, *Gflag ? &memfile : nil, &len, (uchar*)c->pass, c->passlen) < 0)
 			goto Out;
 		if(*Gflag){
-			// write one line at a time, as required by /mnt/factotum/ctl
+			/* write one line at a time, as required by /mnt/factotum/ctl */
 			memcur = memfile;
 			while(len>0){
 				memnext = (uchar*)strchr((char*)memcur, '\n');
@@ -309,7 +309,7 @@ chpasswd(AuthConn *c, char *id)
 
 	H = mpnew(0);
 	Hi = mpnew(0);
-	// changing our password is vulnerable to connection failure
+	/* changing our password is vulnerable to connection failure */
 	for(;;){
 		snprint(prompt, sizeof(prompt), "new password for %s: ", id);
 		newpass = readcons(prompt, nil, 1);
@@ -392,7 +392,7 @@ login(char *id, char *dest, int pass_stdin, int pass_nvram)
 		strecpy(c->pass, c->pass+sizeof c->pass, nvr.config);
 	}
 	if(pass_stdin){
-		n = readn(0, s, Maxmsg-2);  // so len(PINSTA)<Maxmsg-3
+		n = readn(0, s, Maxmsg-2);  /* so len(PINSTA)<Maxmsg-3 */
 		if(n < 1)
 			exits("no password on standard input");
 		s[n] = 0;
@@ -442,7 +442,7 @@ login(char *id, char *dest, int pass_stdin, int pass_nvram)
 			exits("invalid password on standard input");
 		if(pass_nvram)
 			exits("invalid password in nvram");
-		// and let user try retyping the password
+		/* and let user try retyping the password */
 		if(ntry==3)
 			fprint(2, "Enter an empty password to quit.\n");
 	}

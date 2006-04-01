@@ -117,22 +117,22 @@ readconfigfile(char *name, VtCache *vcache)
 		nf = tokenize(p, f, nelem(f));
 		if(nf != 3){
 			fprint(2, "%s:%d: syntax error\n", name, line);
-			// ok = 0;
+			/* ok = 0; */
 			continue;
 		}
 		if(vtparsescore(f[1], &pref, score) < 0){
 			fprint(2, "%s:%d: bad score '%s'\n", name, line, f[1]);
-			// ok = 0;
+			/* ok = 0; */
 			continue;
 		}
 		if(f[0][0] != '/'){
 			fprint(2, "%s:%d: unrooted path '%s'\n", name, line, f[0]);
-			// ok = 0;
+			/* ok = 0; */
 			continue;
 		}
 		if(addpath(c, f[0], score, strtoul(f[2], 0, 0)) < 0){
 			fprint(2, "%s:%d: %s: %r\n", name, line, f[0]);
-			// ok = 0;
+			/* ok = 0; */
 			continue;
 		}
 	}

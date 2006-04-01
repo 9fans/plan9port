@@ -379,7 +379,7 @@ diffreg(char *f, char *t)
 		return;
 	}
 	if (binary){
-		// could use b0 and b1 but this is simpler.
+		/* could use b0 and b1 but this is simpler. */
 		if (cmp(b0, b1))
 			print("binary files %s %s differ\n", f, t);
 		Bterm(b0);

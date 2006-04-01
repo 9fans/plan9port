@@ -240,7 +240,7 @@ enum{
 	CC,
 	FROM,
 	INCLUDE,
-	TO,
+	TO
 };
 
 char *headers[] = {
@@ -250,7 +250,7 @@ char *headers[] = {
 	"from:",
 	"include:",
 	"to:",
-	nil,
+	nil
 };
 
 int
@@ -516,7 +516,7 @@ mesgsend(Message *m)
 	e->sync = sync;
 	proccreate(execproc, e, EXECSTACK);
 	recvul(sync);
-	// close(p[0]);
+	/* close(p[0]); */
 
 	/* using marshal -8, so generate rfc822 headers */
 	if(nto > 0){

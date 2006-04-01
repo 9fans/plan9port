@@ -5,7 +5,7 @@
 
 enum{
 	Nfont = 11,
-	Wid = 20,	/* tmac.anhtml sets page width to 20" so we can recognize .nf text */
+	Wid = 20	/* tmac.anhtml sets page width to 20" so we can recognize .nf text */
 };
 
 typedef ulong Char;
@@ -24,13 +24,13 @@ enum
 	Indent2,
 	Indent3,
 	Heading =	25,
-	Anchor =	26,	/* must be last */
+	Anchor =	26	/* must be last */
 };
 
 enum	/* magic emissions */
 {
 	Estring = 0,
-	Epp = 1<<16,
+	Epp = 1<<16
 };
 
 int attrorder[] = { Indent1, Indent2, Indent3, Heading, Anchor, Italic, Bold, CW };
@@ -73,7 +73,7 @@ HTMLfont htmlfonts[] =
 	"LuxiSans-Oblique",	"i",	Italic,
 	"CW",		"tt",		CW,
 	"LuxiMono",	"tt",		CW,
-	nil,	nil,
+	nil,	nil
 };
 
 #define TABLE "<table border=0 cellpadding=0 cellspacing=0>"
@@ -468,7 +468,7 @@ trailer(void)
 
 	t = localtime(time(nil));
 	Bprint(&bout, TABLE "<tr height=20><td></table>\n");
-	Bprint(&bout, "<font size=-1><a href=\"http://www.lucent.com/copyright.html\">\n");
+	Bprint(&bout, "<font size=-1><a href=\"http:/*www.lucent.com/copyright.html\">\n"); */
 	Bprint(&bout, "Portions Copyright</A> &#169; %d Lucent Technologies.  All rights reserved.</font>\n", t->year+1900);
     }
 #endif
@@ -784,7 +784,7 @@ process(Biobuf *b, char *name)
 			break;
 		case 'n':
 			setnum(b, "n1", -10000, 10000);
-			//Bprint(&bout, " N1=%d", v);
+			/*Bprint(&bout, " N1=%d", v); */
 			getc(b);	/* space separates */
 			setnum(b, "n2", -10000, 10000);
 			atnewline = 1;
@@ -815,7 +815,7 @@ process(Biobuf *b, char *name)
 			break;
 		case 'H':
 			hp = setnum(b, "hpos", 0, 20000);
-			//Bprint(&bout, " H=%d ", hp);
+			/*Bprint(&bout, " H=%d ", hp); */
 			break;
 		case 'V':
 			vp = setnum(b, "vpos", 0, 10000);

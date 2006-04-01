@@ -1,9 +1,9 @@
 
-// UTILS
+/* UTILS */
 typedef struct List List;
 typedef struct Strlist Strlist;
 
-// List of integers (and also generic list with next pointer at beginning)
+/* List of integers (and also generic list with next pointer at beginning) */
 struct List
 {
 	List*	next;
@@ -45,10 +45,10 @@ extern void	_trimwhite(Rune* s, int n, Rune** pans, int* panslen);
 extern Rune	notwhitespace[];
 extern Rune	whitespace[];
 
-// STRINTTAB
+/* STRINTTAB */
 typedef struct StringInt StringInt;
 
-// Element of String-Int table (used for keyword lookup)
+/* Element of String-Int table (used for keyword lookup) */
 struct StringInt
 {
 	Rune*	key;
@@ -59,17 +59,17 @@ extern int			_lookup(StringInt* t, int n, Rune* key, int keylen, int* pans);
 extern StringInt*	_makestrinttab(Rune** a, int n);
 extern Rune*		_revlookup(StringInt* t, int n, int val);
 
-// Colors, in html format, not Plan 9 format.  (RGB values in bottom 3 bytes)
+/* Colors, in html format, not Plan 9 format.  (RGB values in bottom 3 bytes) */
 enum {
 	White = 0xFFFFFF,
 	Black = 0x000000,
-	Blue = 0x0000CC,
+	Blue = 0x0000CC
 };
 
-// LEX
+/* LEX */
 
-// HTML 4.0 tags (plus blink, nobr)
-// sorted in lexical order; used as array indices
+/* HTML 4.0 tags (plus blink, nobr) */
+/* sorted in lexical order; used as array indices */
 enum {
 	Notfound,
 	Comment,
@@ -101,8 +101,8 @@ enum {
 	Data = Numtags+RBRA
 };
 
-// HTML 4.0 tag attributes
-// Keep sorted in lexical order
+/* HTML 4.0 tag attributes */
+/* Keep sorted in lexical order */
 enum {
 	Aabbr, Aaccept_charset, Aaccess_key, Aaction,
 	Aalign, Aalink, Aalt, Aarchive, Aaxis,
@@ -138,17 +138,17 @@ enum {
 
 struct Attr
 {
-	Attr*		next;		// in list of attrs for a token
-	int		attid;		// Aabbr, etc.
+	Attr*		next;		/* in list of attrs for a token */
+	int		attid;		/* Aabbr, etc. */
 	Rune*	value;
 };
 
 struct Token
 {
-	int		tag;		// Ta, etc
-	Rune*	text;		// text in Data, attribute text in tag
-	Attr*		attr;		// list of Attrs
-	int		starti;	// index into source buffer of token start
+	int		tag;		/* Ta, etc */
+	Rune*	text;		/* text in Data, attribute text in tag */
+	Attr*		attr;		/* list of Attrs */
+	int		starti;	/* index into source buffer of token start */
 };
 
 extern Rune**	tagnames;

@@ -11,7 +11,7 @@ enum {
 	OURDOMS,
 
 	IP = 0,
-	STRING,
+	STRING
 };
 
 
@@ -29,7 +29,7 @@ static Keyword options[] = {
 	"defaultdomain",	DOMNAME,	
 	"ournets",		OURNETS,
 	"ourdomains",		OURDOMS,
-	0,			NONE,
+	0,			NONE
 };
 
 static Keyword actions[] = {
@@ -38,7 +38,7 @@ static Keyword actions[] = {
 	"deny",			DENIED,
 	"dial",			DIALUP,
 	"delay",		DELAY,
-	0,			NONE,
+	0,			NONE
 };
 
 static	int	hisaction;

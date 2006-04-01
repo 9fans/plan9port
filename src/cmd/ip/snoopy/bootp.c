@@ -24,7 +24,7 @@ enum
 	Bootreply= 	2,
 
 	/* bootp flags */
-	Fbroadcast=	1<<15,
+	Fbroadcast=	1<<15
 };
 
 typedef struct Hdr	Hdr;
@@ -52,7 +52,7 @@ enum
 {
 	Oca,
 	Osa,
-	Ot,
+	Ot
 };
 
 static Field p_fields[] = 
@@ -173,5 +173,5 @@ Proto bootp =
 	p_mux,
 	"%#.8lux",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

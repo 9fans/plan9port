@@ -29,7 +29,7 @@ typedef struct Secret{
 typedef struct Attribute{
 	struct Attribute *next;
 	uchar type;
-	uchar len;	// number of bytes in value
+	uchar len;	/* number of bytes in value */
 	uchar val[256];
 } Attribute;
 
@@ -39,7 +39,7 @@ typedef struct Packet{
 	Attribute first;
 } Packet;
 
-// assumes pass is at most 16 chars
+/* assumes pass is at most 16 chars */
 void
 hide(Secret *shared, uchar *auth, Secret *pass, uchar *x)
 {
@@ -60,9 +60,9 @@ authcmp(Secret *shared, uchar *buf, int m, uchar *auth)
 	DigestState *M;
 	uchar x[16];
 
-	M = md5(buf, 4, nil, nil); // Code+ID+Length
-	M = md5(auth, 16, nil, M); // RequestAuth
-	M = md5(buf+20, m-20, nil, M); // Attributes
+	M = md5(buf, 4, nil, nil); /* Code+ID+Length */
+	M = md5(auth, 16, nil, M); /* RequestAuth */
+	M = md5(buf+20, m-20, nil, M); /* Attributes */
 	md5(shared->s, shared->len, x, M);
 	return memcmp(x, buf+4, 16);
 }
@@ -118,7 +118,7 @@ rpc(char *dest, Secret *shared, Packet *req)
 	Attribute *a;
 	int m, n, fd, try;
 
-	// marshal request
+	/* marshal request */
 	e = buf + sizeof buf;
 	buf[0] = req->code;
 	buf[1] = req->ID;
@@ -136,7 +136,7 @@ rpc(char *dest, Secret *shared, Packet *req)
 	buf[2] = n>>8;
 	buf[3] = n;
 
-	// send request, wait for reply
+	/* send request, wait for reply */
 	fd = dial(dest, 0, 0, 0);
 	if(fd < 0){
 		syslog(0, AUTHLOG, "%s: rpc can't get udp channel", dest);
@@ -156,9 +156,9 @@ rpc(char *dest, Secret *shared, Packet *req)
 		alarm(0);
 		if(m < 0){
 			syslog(0, AUTHLOG, "%s rpc read err %d: %r", dest, m);
-			break; // failure
+			break; /* failure */
 		}
-		if(m == 0 || buf2[1] != buf[1]){  // need matching ID
+		if(m == 0 || buf2[1] != buf[1]){  /* need matching ID */
 			syslog(0, AUTHLOG, "%s unmatched reply %d", dest, m);
 			continue;
 		}
@@ -170,7 +170,7 @@ rpc(char *dest, Secret *shared, Packet *req)
 	if(m <= 0)
 		return nil;
 
-	// unmarshal reply
+	/* unmarshal reply */
 	b = buf2;
 	e = buf2+m;
 	resp = (Packet*)malloc(sizeof(*resp));
@@ -192,18 +192,18 @@ rpc(char *dest, Secret *shared, Packet *req)
 	while(1){
 		if(b >= e){
 			a->next = nil;
-			break;			// exit loop
+			break;			/* exit loop */
 		}
 		a->type = *b++;
 		a->len = (*b++) - 2;
-		if(b + a->len > e){ // corrupt packet
+		if(b + a->len > e){ /* corrupt packet */
 			a->next = nil;
 			freePacket(resp);
 			return nil;
 		}
 		memmove(a->val, b, a->len);
 		b += a->len;
-		if(b < e){  // any more attributes?
+		if(b < e){  /* any more attributes? */
 			a->next = (Attribute*)malloc(sizeof(*a));
 			if(a->next == nil){
 				free(req);
@@ -230,7 +230,7 @@ setAttribute(Packet *p, uchar type, uchar *s, int n)
 	}
 	a->type = type;
 	a->len = n;
-	if(a->len > 253 )  // RFC2138, section 5
+	if(a->len > 253 )  /* RFC2138, section 5 */
 		a->len = 253;
 	memmove(a->val, s, a->len);
 	return 0;
@@ -435,7 +435,7 @@ secureidcheck(char *user, char *response)
 			syslog(0, AUTHLOG, "%s code=%d ruser=%s %s", dest, resp->code, ruser, replymsg(resp));
 			break;
 		}
-		break; // we have a proper reply, no need to ask again
+		break; /* we have a proper reply, no need to ask again */
 	}
 	ndbfree(t);
 	free(radiussecret);

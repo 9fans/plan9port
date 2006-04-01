@@ -63,12 +63,12 @@ setupAESstate(AESstate *s, uchar key[], int keybytes, uchar *ivec)
 		memmove(s->ivec, ivec, AESbsize);
 	if(keybytes==16 || keybytes==24 || keybytes==32)
 		s->setup = 0xcafebabe;
-	// else rijndaelKeySetup was invalid
+	/* else rijndaelKeySetup was invalid */
 }
 
-// Define by analogy with desCBCencrypt;  AES modes are not standardized yet.
-// Because of the way that non-multiple-of-16 buffers are handled,
-// the decryptor must be fed buffers of the same size as the encryptor.
+/* Define by analogy with desCBCencrypt;  AES modes are not standardized yet. */
+/* Because of the way that non-multiple-of-16 buffers are handled, */
+/* the decryptor must be fed buffers of the same size as the encryptor. */
 void
 aesCBCencrypt(uchar *p, int len, AESstate *s)
 {

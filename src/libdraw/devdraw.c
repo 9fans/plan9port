@@ -799,10 +799,10 @@ _drawmsgwrite(Display *d, void *v, int n)
 
 	while((n-=m) > 0){
 		a += m;
-//fprint(2, "msgwrite %d(%d)...", n, *a);
+/*fprint(2, "msgwrite %d(%d)...", n, *a); */
 		switch(*a){
 		default:
-//fprint(2, "bad command %d\n", *a);
+/*fprint(2, "bad command %d\n", *a); */
 			err = "bad draw command";
 			goto error;
 

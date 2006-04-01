@@ -305,10 +305,10 @@ waitgs(GSInfo *gs)
 	uchar buf[1024];
 	int n;
 
-//	gscmd(gs, "(\\n**bstack\\n) print flush\n");
-//	gscmd(gs, "stack flush\n");
-//	gscmd(gs, "(**estack\\n) print flush\n");
-	gscmd(gs, "(\\n//GO.SYSIN DD\\n) PAGE==\n");
+/*	gscmd(gs, "(\\n**bstack\\n) print flush\n"); */
+/*	gscmd(gs, "stack flush\n"); */
+/*	gscmd(gs, "(**estack\\n) print flush\n"); */
+	gscmd(gs, "(\\n/*GO.SYSIN DD\\n) PAGE==\n"); */
 
 	alarm(300*1000);
 	for(;;) {

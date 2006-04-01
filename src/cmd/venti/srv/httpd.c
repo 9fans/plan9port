@@ -105,7 +105,7 @@ listenproc(void *vaddress)
 	char *address, ndir[NETPATHLEN], dir[NETPATHLEN];
 	int ctl, nctl, data;
 
-//sleep(1000);	/* let strace find us */
+/*sleep(1000);	// let strace find us */
 
 	address = vaddress;
 	ctl = announce(address, dir);
@@ -148,7 +148,7 @@ httpproc(void *v)
 	HConnect *c;
 	int ok, i, n;
 
-//sleep(1000);	/* let strace find us */
+/*sleep(1000);	// let strace find us */
 	c = v;
 
 	for(;;){
@@ -722,7 +722,7 @@ static char* graphname[] =
 	"isectwritebyte",
 
 	"sumread",
-	"sumreadbyte",
+	"sumreadbyte"
 };
 
 static int

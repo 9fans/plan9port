@@ -37,7 +37,7 @@ struct Sig
 enum
 {
 	Restart = 1<<0,
-	Ignore = 1<<1,
+	Ignore = 1<<1
 };
 
 static Sig sigs[] = {

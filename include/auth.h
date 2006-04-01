@@ -40,7 +40,7 @@ enum
 	ARrpcfailure,
 	ARphase,
 
-	AuthRpcMax = 4096,
+	AuthRpcMax = 4096
 };
 
 struct AuthRpc
@@ -108,7 +108,7 @@ typedef struct Attr Attr;
 enum {
 	AttrNameval,		/* name=val -- when matching, must have name=val */
 	AttrQuery,		/* name? -- when matching, must be present */
-	AttrDefault,		/* name:=val -- when matching, if present must match INTERNAL */
+	AttrDefault		/* name:=val -- when matching, if present must match INTERNAL */
 };
 struct Attr
 {

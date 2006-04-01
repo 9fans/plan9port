@@ -29,10 +29,10 @@ static Mux p_mux[] =
 
 enum
 {
-	Os,	// source
-	Od,	// destination
-	Oa,	// source or destination
-	Ot,	// type
+	Os,	/* source */
+	Od,	/* destination */
+	Oa,	/* source or destination */
+	Ot,	/* type */
 };
 
 static Field p_fields[] = 

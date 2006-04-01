@@ -22,7 +22,6 @@
 typedef struct Client Client;
 typedef struct Menu Menu;
 typedef struct ScreenInfo ScreenInfo;
-typedef enum BorderOrient BorderOrient;
 
 struct Client {
 	Window		window;
@@ -91,8 +90,9 @@ enum BorderOrient {
 	BorderW,
 	BorderWNW,
 	BorderNNW,
-	NBorder,
+	NBorder
 };
+typedef enum BorderOrient BorderOrient;
 
 struct ScreenInfo {
 	int			num;

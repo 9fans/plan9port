@@ -2,14 +2,14 @@
 #include <mp.h>
 #include "dat.h"
 
-// diff = abs(b1) - abs(b2), i.e., subtract the magnitudes
+/* diff = abs(b1) - abs(b2), i.e., subtract the magnitudes */
 void
 mpmagsub(mpint *b1, mpint *b2, mpint *diff)
 {
 	int n, m, sign;
 	mpint *t;
 
-	// get the sizes right
+	/* get the sizes right */
 	if(mpmagcmp(b1, b2) < 0){
 		sign = -1;
 		t = b1;
@@ -32,7 +32,7 @@ mpmagsub(mpint *b1, mpint *b2, mpint *diff)
 	mpnorm(diff);
 }
 
-// diff = b1 - b2
+/* diff = b1 - b2 */
 void
 mpsub(mpint *b1, mpint *b2, mpint *diff)
 {

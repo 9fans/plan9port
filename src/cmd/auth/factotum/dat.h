@@ -13,7 +13,7 @@ enum
 	RpcWriteHex,
 
 	/* thread stack size - big buffers for printing */
-	STACK = 65536,
+	STACK = 65536
 };
 
 typedef struct Conv Conv;

@@ -2,9 +2,9 @@
 #include <mp.h>
 #include "dat.h"
 
-// convert an mpint into a big endian byte array (most significant byte first)
-//   return number of bytes converted
-//   if p == nil, allocate and result array
+/* convert an mpint into a big endian byte array (most significant byte first) */
+/*   return number of bytes converted */
+/*   if p == nil, allocate and result array */
 int
 mptobe(mpint *b, uchar *p, uint n, uchar **pp)
 {
@@ -22,7 +22,7 @@ mptobe(mpint *b, uchar *p, uint n, uchar **pp)
 		*pp = p;
 	memset(p, 0, n);
 
-	// special case 0
+	/* special case 0 */
 	if(b->top == 0){
 		if(n < 1)
 			return -1;
@@ -46,7 +46,7 @@ mptobe(mpint *b, uchar *p, uint n, uchar **pp)
 		}
 	}
 
-	// guarantee at least one byte
+	/* guarantee at least one byte */
 	if(s == p){
 		if(p >= e)
 			return -1;

@@ -21,7 +21,7 @@ enum
 	QWwrsel,
 	QWtag,
 	QWxdata,
-	QMAX,
+	QMAX
 };
 
 enum
@@ -29,7 +29,7 @@ enum
 	Blockincr =	256,
 	Maxblock = 	8*1024,
 	NRange =		10,
-	Infinity = 		0x7FFFFFFF,	/* huge value for regexp address */
+	Infinity = 		0x7FFFFFFF	/* huge value for regexp address */
 };
 
 #define Buffer AcmeBuffer
@@ -166,7 +166,7 @@ enum	/* Text.what */
 	Columntag,
 	Rowtag,
 	Tag,
-	Body,
+	Body
 };
 
 struct Text
@@ -463,7 +463,7 @@ enum
 	Scrollwid = 12,	/* width of scroll bar */
 	Scrollgap = 4,	/* gap right of scroll bar */
 	Margin = 4,	/* margin around text */
-	Border = 2,	/* line between rows, cols, windows */
+	Border = 2	/* line between rows, cols, windows */
 };
 
 #define	QID(w,q)	((w<<8)|(q))
@@ -477,7 +477,7 @@ enum
 {
 	FALSE,
 	TRUE,
-	XXX,
+	XXX
 };
 
 enum
@@ -487,14 +487,14 @@ enum
 	Delete	= 'd',
 	Insert	= 'i',
 	Replace	= 'r',
-	Filename	= 'f',
+	Filename	= 'f'
 };
 
 enum	/* editing */
 {
 	Inactive	= 0,
 	Inserting,
-	Collecting,
+	Collecting
 };
 
 uint		globalincref;
@@ -545,7 +545,7 @@ int			dodollarsigns;
 enum
 {
 	Kscrolloneup		= KF|0x20,
-	Kscrollonedown	= KF|0x21,
+	Kscrollonedown	= KF|0x21
 };
 
 Channel	*cplumb;		/* chan(Plumbmsg*) */

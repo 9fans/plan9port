@@ -10,7 +10,7 @@ enum
 	NFD		= 100,
 	Maxproc		= 50,
 	Maxval		= 10,
-	Mempergc	= 1024*1024,
+	Mempergc	= 1024*1024
 };
 
 /* #pragma varargck type "L"	void */
@@ -81,7 +81,7 @@ enum
 	TCODE,
 	TREG,
 	TCON,
-	NUMT,
+	NUMT
 };
 
 struct Type
@@ -327,5 +327,5 @@ enum
 	OEVAL,
 	OWHAT,
 	OUPLUS,
-	NUMO,
+	NUMO
 };

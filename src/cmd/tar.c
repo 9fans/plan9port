@@ -56,7 +56,7 @@ enum {
 
 	Nblock = 40,		/* maximum blocksize */
 	Dblock = 20,		/* default blocksize */
-	DEBUG = 0,
+	DEBUG = 0
 };
 
 /* POSIX link flags */
@@ -70,7 +70,7 @@ enum {
 	LF_BLK =	'4',
 	LF_DIR =	'5',
 	LF_FIFO =	'6',
-	LF_CONTIG =	'7',
+	LF_CONTIG =	'7'
 	/* 'A' - 'Z' are reserved for custom implementations */
 };
 
@@ -625,7 +625,7 @@ mkhdr(Hdr *hp, Dir *dir, char *file)
 			printed = 1;
 			fprint(2, "%s: storing large sizes in \"base 256\"\n", argv0);
 		}
-		hp->size[0] = Binsize;
+		hp->size[0] = (char)Binsize;
 		/* emit so-called `base 256' representation of size */
 		putbe((uchar *)hp->size+1, dir->length, sizeof hp->size - 2);
 		hp->size[sizeof hp->size - 1] = ' ';

@@ -41,7 +41,7 @@ Win *mkwin(char*);
 int do3(Win *w, char *arg);
 
 enum {
-	STACK = 128*1024,
+	STACK = 128*1024
 };
 
 enum {
@@ -65,7 +65,7 @@ char *cmds[] = {
 char *debugstr[] = {
 	"off",
 	"minimal",
-	"chatty",
+	"chatty"
 };
 
 typedef struct Arg Arg;
@@ -218,7 +218,7 @@ doplumb(void *vm)
 	winaddr(w, "%s", addr);
 	winctl(w, "dot=addr");
 	winctl(w, "show");
-//	windecref(w);
+/*	windecref(w); */
 	plumbfree(m);
 }
 

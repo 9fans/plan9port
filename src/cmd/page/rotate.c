@@ -22,7 +22,7 @@
 int ndraw = 0;
 enum {
 	Xaxis = 0,
-	Yaxis = 1,
+	Yaxis = 1
 };
 
 Image *mtmp;
@@ -137,7 +137,7 @@ nextmask(Image *mask, int axis, int maskdim)
 	delta = axis==Xaxis ? Pt(maskdim,0) : Pt(0,maskdim);
 	drawop(mtmp, mtmp->r, mask, nil, mask->r.min, S);
 	gendrawop(mask, mask->r, mtmp, delta, mtmp, divpt(delta,-2), S);
-//	writefile("mask", mask, maskdim/2);
+/*	writefile("mask", mask, maskdim/2); */
 	return maskdim/2;
 }
 
@@ -153,13 +153,13 @@ shuffle(Image *im, Image *tmp, int axis, int n, Image *mask, int gran,
 	nn = n - left;
 
 	interlace(im, tmp, axis, nn, mask, gran);
-//	writefile("interlace", im, gran);
+/*	writefile("interlace", im, gran); */
 	
 	gran = nextmask(mask, axis, gran);
 	shuffle(im, tmp, axis, n, mask, gran, nn);
-//	writefile("shuffle", im, gran);
+/*	writefile("shuffle", im, gran); */
 	moveup(im, tmp, lastnn, nn, n, axis);
-//	writefile("move", im, gran);
+/*	writefile("move", im, gran); */
 }
 
 void
@@ -198,7 +198,7 @@ rot180(Image *im)
 	}
 	rmask.max.x = gran;
 	drawop(mask, rmask, display->opaque, nil, ZP, S);
-//	writefile("mask", mask, gran);
+/*	writefile("mask", mask, gran); */
 	shuffle(im, tmp, Xaxis, Dx(im->r), mask, gran, 0);
 	freeimage(mask);
 	freeimage(mtmp);

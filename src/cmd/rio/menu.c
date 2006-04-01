@@ -3,6 +3,7 @@
  */
 
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
+#define _SVID_SOURCE 1	/* putenv in glibc */
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
@@ -24,7 +25,7 @@ int reversehide = 1;
 
 Client * currents[NUMVIRTUALS] =
 {
-	NULL, NULL, NULL, NULL, 
+	NULL, NULL, NULL, NULL
 };
 
 char	*b2items[NUMVIRTUALS+1] =
@@ -41,12 +42,12 @@ char	*b2items[NUMVIRTUALS+1] =
 	"Ten",
 	"Eleven",
 	"Twelve",
-	0,
+	0
 };
 
 Menu b2menu = 
 {
-	b2items,
+	b2items
 };
 
 char	*b3items[B3FIXED+MAXHIDDEN+1] =
@@ -56,7 +57,7 @@ char	*b3items[B3FIXED+MAXHIDDEN+1] =
 	"Move",
 	"Delete",
 	"Hide",
-	0,
+	0
 };
 
 enum
@@ -70,12 +71,12 @@ enum
 
 Menu	b3menu =
 {
-	b3items,
+	b3items
 };
 
 Menu	egg =
 {
-	version,
+	version
 };
 
 void

@@ -17,18 +17,18 @@ dsaverify(DSApub *pub, DSAsig *sig, mpint *m)
 	v = mpnew(0);
 	sinv = mpnew(0);
 
-	// find (s**-1) mod q, make sure it exists
+	/* find (s**-1) mod q, make sure it exists */
 	mpextendedgcd(sig->s, pub->q, u1, sinv, v);
 	if(mpcmp(u1, mpone) != 0)
 		goto out;
 
-	// u1 = (sinv * m) mod q, u2 = (r * sinv) mod q
+	/* u1 = (sinv * m) mod q, u2 = (r * sinv) mod q */
 	mpmul(sinv, m, u1);
 	mpmod(u1, pub->q, u1);
 	mpmul(sig->r, sinv, u2);
 	mpmod(u2, pub->q, u2);
 
-	// v = (((alpha**u1)*(key**u2)) mod p) mod q
+	/* v = (((alpha**u1)*(key**u2)) mod p) mod q */
 	mpexp(pub->alpha, u1, pub->p, sinv);
 	mpexp(pub->key, u2, pub->p, v);
 	mpmul(sinv, v, v);

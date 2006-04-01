@@ -2149,7 +2149,7 @@ seekc(Blk *hptr, int n)
 		lbytes += nn - hptr->last;
 		if(n > longest)
 			longest = n;
-/*		free(hptr->beg); *//**/
+/*		free(hptr->beg); */
 		p = realloc(hptr->beg, n);
 		if(p == 0) {
 /*			hptr->beg = realloc(hptr->beg, hptr->last-hptr->beg);
@@ -2194,7 +2194,7 @@ more(Blk *hptr)
 		longest = size;
 	lbytes += size/2;
 	lmore++;
-/*	free(hptr->beg);*//**/
+/*	free(hptr->beg);*/
 	p = realloc(hptr->beg, size);
 
 	if(p == 0) {

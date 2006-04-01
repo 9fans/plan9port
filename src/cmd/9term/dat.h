@@ -24,13 +24,13 @@ enum
 	Scrollgap 		= 4,		/* gap right of scroll bar */
 	BIG			= 3,		/* factor by which window dimension can exceed screen */
 	TRUE		= 1,
-	FALSE		= 0,
+	FALSE		= 0
 };
 
 enum
 {
 	Kscrolloneup = KF|0x20,
-	Kscrollonedown = KF|0x21,
+	Kscrollonedown = KF|0x21
 };
 
 enum	/* control messages */
@@ -45,7 +45,7 @@ enum	/* control messages */
 	Holdon,
 	Holdoff,
 	Deleted,
-	Exited,
+	Exited
 };
 
 struct Wctlmesg

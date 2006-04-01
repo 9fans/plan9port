@@ -54,7 +54,7 @@ Cmd cmdtab[] =
 	"top", 1, topcmd,
 	"uidl", 1, uidlcmd,
 	"user", 0, usercmd,
-	0, 0, 0,
+	0, 0, 0
 };
 
 static Biobuf in;
@@ -729,7 +729,7 @@ enableaddr(void)
 	fd = create(buf, OREAD, 0666);
 	if(fd >= 0){
 		close(fd);
-//		syslog(0, "pop3", "ratified %s", peeraddr);
+/*		syslog(0, "pop3", "ratified %s", peeraddr); */
 	}
 }
 
@@ -784,7 +784,7 @@ passcmd(char *arg)
 	if((chs = auth_challenge("proto=apop role=server")) == nil)
 		return senderr("couldn't get apop challenge");
 
-	// hash challenge with secret and convert to ascii
+	/* hash challenge with secret and convert to ascii */
 	s = md5((uchar*)chs->chal, chs->nchal, 0, 0);
 	md5((uchar*)arg, strlen(arg), digest, s);
 	snprint(response, sizeof response, "%.*H", MD5dlen, digest);

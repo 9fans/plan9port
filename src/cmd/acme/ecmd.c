@@ -898,14 +898,14 @@ alllooper(Window *w, void *v)
 
 	lp = v;
 	cp = lp->cp;
-//	if(w->isscratch || w->isdir)
-//		return;
+/*	if(w->isscratch || w->isdir) */
+/*		return; */
 	t = &w->body;
 	/* only use this window if it's the current window for the file */
 	if(t->file->curtext != t)
 		return;
-//	if(w->nopen[QWevent] > 0)
-//		return;
+/*	if(w->nopen[QWevent] > 0) */
+/*		return; */
 	/* no auto-execute on files without names */
 	if(cp->re==nil && t->file->nname==0)
 		return;
@@ -1012,7 +1012,7 @@ cmdaddress(Addr *ap, Address a, int sign)
 
 		case '\'':
 editerror("can't handle '");
-//			a.r = f->mark;
+/*			a.r = f->mark; */
 			break;
 
 		case '?':
@@ -1093,8 +1093,8 @@ alltofile(Window *w, void *v)
 	/* only use this window if it's the current window for the file */
 	if(t->file->curtext != t)
 		return;
-//	if(w->nopen[QWevent] > 0)
-//		return;
+/*	if(w->nopen[QWevent] > 0) */
+/*		return; */
 	if(runeeq(tp->r->r, tp->r->n, t->file->name, t->file->nname))
 		tp->f = t->file;
 }
@@ -1127,8 +1127,8 @@ allmatchfile(Window *w, void *v)
 	/* only use this window if it's the current window for the file */
 	if(t->file->curtext != t)
 		return;
-//	if(w->nopen[QWevent] > 0)
-//		return;
+/*	if(w->nopen[QWevent] > 0) */
+/*		return; */
 	if(filematch(w->body.file, tp->r)){
 		if(tp->f != nil)
 			editerror("too many files match \"%S\"", tp->r->r);

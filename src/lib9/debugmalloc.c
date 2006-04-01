@@ -111,13 +111,13 @@ p9malloc(ulong n)
 	void *v;
 	if(n == 0)
 		n++;
-//fprint(2, "%s %d malloc\n", argv0, getpid());
+/*fprint(2, "%s %d malloc\n", argv0, getpid()); */
 	lock(&malloclock);
 	mallocpid = getpid();
 	v = malloc(n+Overhead);
 	v = mark(v, getcallerpc(&n), n, MallocMagic);
 	unlock(&malloclock);
-//fprint(2, "%s %d donemalloc\n", argv0, getpid());
+/*fprint(2, "%s %d donemalloc\n", argv0, getpid()); */
 	return v;
 }
 
@@ -127,13 +127,13 @@ p9free(void *v)
 	if(v == nil)
 		return;
 
-//fprint(2, "%s %d free\n", argv0, getpid());
+/*fprint(2, "%s %d free\n", argv0, getpid()); */
 	lock(&malloclock);
 	mallocpid = getpid();
 	v = mark(v, getcallerpc(&v), 0, FreeMagic);
 	free(v);
 	unlock(&malloclock);
-//fprint(2, "%s %d donefree\n", argv0, getpid());
+/*fprint(2, "%s %d donefree\n", argv0, getpid()); */
 }
 
 void*
@@ -141,26 +141,26 @@ p9calloc(ulong a, ulong b)
 {
 	void *v;
 
-//fprint(2, "%s %d calloc\n", argv0, getpid());
+/*fprint(2, "%s %d calloc\n", argv0, getpid()); */
 	lock(&malloclock);
 	mallocpid = getpid();
 	v = calloc(a*b+Overhead, 1);
 	v = mark(v, getcallerpc(&a), a*b, CallocMagic);
 	unlock(&malloclock);
-//fprint(2, "%s %d donecalloc\n", argv0, getpid());
+/*fprint(2, "%s %d donecalloc\n", argv0, getpid()); */
 	return v;
 }
 
 void*
 p9realloc(void *v, ulong n)
 {
-//fprint(2, "%s %d realloc\n", argv0, getpid());
+/*fprint(2, "%s %d realloc\n", argv0, getpid()); */
 	lock(&malloclock);
 	mallocpid = getpid();
 	v = mark(v, getcallerpc(&v), 0, CheckMagic);
 	v = realloc(v, n+Overhead);
 	v = mark(v, getcallerpc(&v), n, ReallocMagic);
 	unlock(&malloclock);
-//fprint(2, "%s %d donerealloc\n", argv0, getpid());
+/*fprint(2, "%s %d donerealloc\n", argv0, getpid()); */
 	return v;
 }

@@ -38,7 +38,7 @@ char *typenames[] = {
 	"float",
 	"string",
 	"list",
-	"code",
+	"code"
 };
 
 void

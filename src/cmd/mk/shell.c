@@ -2,7 +2,7 @@
 
 static Shell *shells[] = {
 	&rcshell,
-	&shshell,
+	&shshell
 };
 
 Shell *shelldefault = &shshell;

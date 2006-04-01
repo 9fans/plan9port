@@ -4,7 +4,7 @@
 #include "macho.h"
 
 /*
-http://www.channelu.com/NeXT/NeXTStep/3.3/nd/DevTools/14_MachO/MachO.htmld/
+http://www.channelu.com/NeXT/NeXTStep/3.3/nd/DevTools/14_MachO/MachO.htmld/ 
 */
 
 Macho*

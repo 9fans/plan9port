@@ -14,7 +14,7 @@ struct Hdr
 
 enum
 {
-	ICMPLEN=	4,
+	ICMPLEN=	4
 };
 
 enum
@@ -41,7 +41,7 @@ enum
 	TSreq=		13,
 	TSrep=		14,
 	InfoReq=	15,
-	InfoRep=	16,
+	InfoRep=	16
 };
 
 static Mux p_mux[] =
@@ -51,7 +51,7 @@ static Mux p_mux[] =
 	{"ip",	Redirect, },
 	{"ip",	TimeExceed, },
 	{"ip",	ParamProb, },
-	{0},
+	{0}
 };
 
 char *icmpmsg[236] =
@@ -66,7 +66,7 @@ char *icmpmsg[236] =
 [TSreq]		"TSreq",
 [TSrep]		"TSrep",
 [InfoReq]	"InfoReq",
-[InfoRep]	"InfoRep",
+[InfoRep]	"InfoRep"
 };
 
 static void
@@ -193,5 +193,5 @@ Proto icmp =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

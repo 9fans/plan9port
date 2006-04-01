@@ -208,7 +208,7 @@ main(int argc, char *argv[])
 
 	for(i=-K2; i<=K2; i++){
 		K[K2+i] = kaiser(i/10., K2/10., 4.);
-//		print("%g %g\n", i/10., K[K2+i]);
+/*		print("%g %g\n", i/10., K[K2+i]); */
 	}
 
 	/* normalize */

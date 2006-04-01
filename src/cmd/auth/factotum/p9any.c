@@ -15,7 +15,7 @@ extern Proto p9sk1, p9sk2, p9cr;
 static Proto* okproto[] =
 {
 	&p9sk1,
-	nil,
+	nil
 };
 
 static int
@@ -267,6 +267,6 @@ p9anyroles[] =
 
 Proto p9any = {
 	"p9any",
-	p9anyroles,
+	p9anyroles
 };
 

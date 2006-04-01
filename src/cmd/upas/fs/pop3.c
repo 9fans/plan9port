@@ -11,7 +11,7 @@
 
 typedef struct Pop Pop;
 struct Pop {
-	char *freep;	// free this to free the strings below
+	char *freep;	/* free this to free the strings below */
 
 	char *host;
 	char *user;
@@ -26,11 +26,11 @@ struct Pop {
 	int notls;
 	int needssl;
 
-	// open network connection
+	/* open network connection */
 	Biobuf bin;
 	Biobuf bout;
 	int fd;
-	char *lastline;	// from Brdstr
+	char *lastline;	/* from Brdstr */
 
 	Thumbprint *thumb;
 };
@@ -45,11 +45,11 @@ geterrstr(void)
 	return err;
 }
 
-//
-// get pop3 response line , without worrying
-// about multiline responses; the clients
-// will deal with that.
-//
+/* */
+/* get pop3 response line , without worrying */
+/* about multiline responses; the clients */
+/* will deal with that. */
+/* */
 static int
 isokay(char *s)
 {
@@ -124,7 +124,7 @@ pop3pushtls(Pop *pop)
 	TLSconn conn;
 
 	memset(&conn, 0, sizeof conn);
-	// conn.trace = pop3log;
+	/* conn.trace = pop3log; */
 	fd = tlsClient(pop->fd, &conn);
 	if(fd < 0)
 		return "tls error";
@@ -149,9 +149,9 @@ pop3pushtls(Pop *pop)
 	return nil;
 }
 
-//
-// get capability list, possibly start tls
-//
+/* */
+/* get capability list, possibly start tls */
+/* */
 static char*
 pop3capa(Pop *pop)
 {
@@ -183,9 +183,9 @@ pop3capa(Pop *pop)
 	return nil;
 }
 
-//
-// log in using APOP if possible, password if allowed by user
-//
+/* */
+/* log in using APOP if possible, password if allowed by user */
+/* */
 static char*
 pop3login(Pop *pop)
 {
@@ -204,7 +204,7 @@ pop3login(Pop *pop)
 	else
 		ubuf[0] = '\0';
 
-	// look for apop banner
+	/* look for apop banner */
 	if(pop->ppop==0 && (p = strchr(s, '<')) && (q = strchr(p+1, '>'))) {
 		*++q = '\0';
 		if((n=auth_respond(p, q-p, user, sizeof user, buf, sizeof buf, auth_getkey, "proto=apop role=client server=%q%s",
@@ -250,9 +250,9 @@ pop3login(Pop *pop)
 	}
 }
 
-//
-// dial and handshake with pop server
-//
+/* */
+/* dial and handshake with pop server */
+/* */
 static char*
 pop3dial(Pop *pop)
 {
@@ -277,9 +277,9 @@ pop3dial(Pop *pop)
 	return nil;
 }
 
-//
-// close connection
-//
+/* */
+/* close connection */
+/* */
 static void
 pop3hangup(Pop *pop)
 {
@@ -288,9 +288,9 @@ pop3hangup(Pop *pop)
 	close(pop->fd);
 }
 
-//
-// download a single message
-//
+/* */
+/* download a single message */
+/* */
 static char*
 pop3download(Pop *pop, Message *m)
 {
@@ -361,13 +361,13 @@ pop3download(Pop *pop, Message *m)
 
 	m->end = wp;
 
-	// make sure there's a trailing null
-	// (helps in body searches)
+	/* make sure there's a trailing null */
+	/* (helps in body searches) */
 	*m->end = 0;
 	m->bend = m->rbend = m->end;
 	m->header = m->start;
 
-	// digest message
+	/* digest message */
 	sha1((uchar*)m->start, m->end - m->start, m->digest, nil);
 	for(i = 0; i < SHA1dlen; i++)
 		sprint(sdigest+2*i, "%2.2ux", m->digest[i]);
@@ -376,12 +376,12 @@ pop3download(Pop *pop, Message *m)
 	return nil;
 }
 
-//
-// check for new messages on pop server
-// UIDL is not required by RFC 1939, but 
-// netscape requires it, so almost every server supports it.
-// we'll use it to make our lives easier.
-//
+/* */
+/* check for new messages on pop server */
+/* UIDL is not required by RFC 1939, but  */
+/* netscape requires it, so almost every server supports it. */
+/* we'll use it to make our lives easier. */
+/* */
 static char*
 pop3read(Pop *pop, Mailbox *mb, int doplumb)
 {
@@ -389,12 +389,12 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 	int mesgno, ignore, nnew;
 	Message *m, *next, **l;
 
-	// Some POP servers disallow UIDL if the maildrop is empty.
+	/* Some POP servers disallow UIDL if the maildrop is empty. */
 	pop3cmd(pop, "STAT");
 	if(!isokay(s = pop3resp(pop)))
 		return s;
 
-	// fetch message listing; note messages to grab
+	/* fetch message listing; note messages to grab */
 	l = &mb->root->part;
 	if(strncmp(s, "+OK 0 ", 6) != 0) {
 		pop3cmd(pop, "UIDL");
@@ -411,19 +411,19 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 
 			mesgno = atoi(f[0]);
 			uidl = f[1];
-			if(strlen(uidl) > 75)	// RFC 1939 says 70 characters max
+			if(strlen(uidl) > 75)	/* RFC 1939 says 70 characters max */
 				continue;
 
 			ignore = 0;
 			while(*l != nil) {
 				if(strcmp((*l)->uidl, uidl) == 0) {
-					// matches mail we already have, note mesgno for deletion
+					/* matches mail we already have, note mesgno for deletion */
 					(*l)->mesgno = mesgno;
 					ignore = 1;
 					l = &(*l)->next;
 					break;
 				} else {
-					// old mail no longer in box mark deleted
+					/* old mail no longer in box mark deleted */
 					if(doplumb)
 						mailplumb(mb, *l, 1);
 					(*l)->inmbox = 0;
@@ -440,13 +440,13 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 			m->mesgno = mesgno;
 			strcpy(m->uidl, uidl);
 
-			// chain in; will fill in message later
+			/* chain in; will fill in message later */
 			*l = m;
 			l = &m->next;
 		}
 	}
 
-	// whatever is left has been removed from the mbox, mark as deleted
+	/* whatever is left has been removed from the mbox, mark as deleted */
 	while(*l != nil) {
 		if(doplumb)
 			mailplumb(mb, *l, 1);
@@ -455,7 +455,7 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 		l = &(*l)->next;
 	}
 
-	// download new messages
+	/* download new messages */
 	nnew = 0;
 	if(pop->pipeline){
 		switch(rfork(RFPROC|RFMEM)){
@@ -485,7 +485,7 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 			continue;
 
 		if(s = pop3download(pop, m)) {
-			// message disappeared? unchain
+			/* message disappeared? unchain */
 			fprint(2, "download %d: %s\n", m->mesgno, s);
 			delmessage(mb, m);
 			mb->root->subname--;
@@ -509,9 +509,9 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 	return nil;	
 }
 
-//
-// delete marked messages
-//
+/* */
+/* delete marked messages */
+/* */
 static void
 pop3purge(Pop *pop, Mailbox *mb)
 {
@@ -554,7 +554,7 @@ pop3purge(Pop *pop, Mailbox *mb)
 }
 
 
-// connect to pop3 server, sync mailbox
+/* connect to pop3 server, sync mailbox */
 static char*
 pop3sync(Mailbox *mb, int doplumb)
 {
@@ -625,7 +625,7 @@ pop3ctl(Mailbox *mb, int argc, char **argv)
 	return Epop3ctl;
 }
 
-// free extra memory associated with mb
+/* free extra memory associated with mb */
 static void
 pop3close(Mailbox *mb)
 {
@@ -636,9 +636,9 @@ pop3close(Mailbox *mb)
 	free(pop);
 }
 
-//
-// open mailboxes of the form /pop/host/user or /apop/host/user
-//
+/* */
+/* open mailboxes of the form /pop/host/user or /apop/host/user */
+/* */
 char*
 pop3mbox(Mailbox *mb, char *path)
 {

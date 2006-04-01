@@ -9,7 +9,7 @@ egencrypt(EGpub *pub, mpint *in, mpint *out)
 	mpint *p = pub->p, *alpha = pub->alpha;
 	int plen = mpsignif(p);
 	int shift = ((plen+Dbits)/Dbits)*Dbits;
-	// in libcrypt version, (int)(LENGTH(pub->p)*sizeof(NumType)*CHARBITS);
+	/* in libcrypt version, (int)(LENGTH(pub->p)*sizeof(NumType)*CHARBITS); */
 
 	if(out == nil)
 		out = mpnew(0);

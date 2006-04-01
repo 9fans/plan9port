@@ -26,7 +26,7 @@ threadmain(int argc, char *argv[])
 	char *mtpt;
 	char err[ERRMAX];
 
-//	mtpt = "/mnt";
+/*	mtpt = "/mnt"; */
 	mtpt = nil;
 	owner = getuser();
 	quotefmtinstall();

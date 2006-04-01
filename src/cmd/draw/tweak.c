@@ -30,7 +30,7 @@ enum
 	Up		= 1,
 	Down	= 0,
 	Mag		= 4,
-	Maxmag	= 10,
+	Maxmag	= 10
 };
 
 enum
@@ -49,12 +49,12 @@ enum
 	Mchar,
 	Mpixels,
 	Mclose,
-	Mexit,
+	Mexit
 };
 
 enum
 {
-	Blue	= 54,
+	Blue	= 54
 };
 
 char	*menu3str[] = {
@@ -66,7 +66,7 @@ char	*menu3str[] = {
 	"pixels",
 	"close",
 	"exit",
-	0,
+	0
 };
 
 Menu	menu3 = {

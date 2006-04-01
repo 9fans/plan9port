@@ -223,7 +223,7 @@ connectto(char *machine, char **argv)
 	char **av;
 	int ac;
 
-	// count args
+	/* count args */
 	for(av = argv; *av; av++)
 		;
 	av = malloc(sizeof(char*)*((av-argv) + 5));

@@ -1,6 +1,6 @@
 enum
 {
-	MAXQ = 256,
+	MAXQ = 256
 };
 
 typedef struct Queue Queue;

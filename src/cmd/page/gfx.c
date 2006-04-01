@@ -44,7 +44,7 @@ enum {
 	Ippm,
 	Ipng,
 	Iyuv,
-	Ibmp,
+	Ibmp
 };
 
 /*
@@ -65,7 +65,7 @@ Convert cvt[] = {
 [Iccittg4]	{ "ccitt-g4",	"cat %a|rx nslocum /usr/lib/ocr/bin/bcp -M|fb/pcp -tcompressed -l0" },
 [Ipng]		{ "png",	"png -9 %a", "png -t9 %a" },
 [Iyuv]		{ "yuv",	"yuv -9 %a", "yuv -t9 %a"  },
-[Ibmp]		{ "bmp",	"bmp -9 %a", "bmp -t9 %a"  },
+[Ibmp]		{ "bmp",	"bmp -9 %a", "bmp -t9 %a"  }
 };
 
 static Image*	convert(Graphic*);
@@ -325,7 +325,7 @@ spawnrc(char *cmd, uchar *stdinbuf, int nstdinbuf)
 		else
 			dup(open("/dev/null", OREAD), 0);
 		dup(pfd[0], 1);
-		//dup(pfd[0], 2);
+		/*dup(pfd[0], 2); */
 		execl("/bin/rc", "rc", "-c", cmd, nil);
 		wexits("exec");
 	}

@@ -251,7 +251,7 @@ parsedir(Cdimg *cd, Direc *d, uchar *buf, int len, char *(*cvtname)(uchar*, int)
 		d->mode = little(p, 4);
 	}
 
-	// BUG: rock ridge extensions
+	/* BUG: rock ridge extensions */
 	return 0;
 }
 
@@ -604,7 +604,7 @@ Cgetc(Cdimg *cd)
 	if((c = Bgetc(&cd->brd)) == Beof) {
 		fprint(2, "getc at %lud\n", Croffset(cd));
 		assert(0);
-		//sysfatal("Bgetc: %r");
+		/*sysfatal("Bgetc: %r"); */
 	}
 	return c;
 }

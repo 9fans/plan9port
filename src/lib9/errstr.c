@@ -12,7 +12,7 @@
 
 enum
 {
-	EPLAN9 = 0x19283745,
+	EPLAN9 = 0x19283745
 };
 
 char *(*_syserrstr)(void);

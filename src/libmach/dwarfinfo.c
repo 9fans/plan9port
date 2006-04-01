@@ -104,7 +104,7 @@ enum
 	FormRef4 = 0x13,
 	FormRef8 = 0x14,
 	FormRefUdata = 0x15,
-	FormIndirect = 0x16,
+	FormIndirect = 0x16
 };
 
 static int parseattrs(DwarfBuf*, ulong, DwarfAbbrev*, DwarfAttrs*);

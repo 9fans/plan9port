@@ -9,7 +9,7 @@
 
 enum	/* number of deleted faces to cache */
 {
-	Nsave	= 20,
+	Nsave	= 20
 };
 
 static Facefile	*facefiles;

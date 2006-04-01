@@ -575,7 +575,7 @@ int_decode(uchar** pp, uchar* pend, int count, int unsgned, int* pint)
 			err = ASN_ETOOBIG;
 		else {
 			if(!unsgned && count > 0 && count < 4 && (*p&0x80))
-				num = -1;		// set all bits, initially
+				num = -1;		/* set all bits, initially */
 			while(count--)
 				num = (num << 8)|(*p++);
 		}
@@ -2141,7 +2141,7 @@ X509toRSApub(uchar *cert, int ncert, char *name, int nname)
 	if(name != nil && c->subject != nil){
 		e = strchr(c->subject, ',');
 		if(e != nil)
-			*e = 0;  // take just CN part of Distinguished Name
+			*e = 0;  /* take just CN part of Distinguished Name */
 		strncpy(name, c->subject, nname);
 	}
 	pk = decode_rsapubkey(c->publickey);

@@ -349,7 +349,7 @@ extern	vlong	p9nsec(void);
 enum
 {
 	PNPROC		= 1,
-	PNGROUP		= 2,
+	PNGROUP		= 2
 };
 
 /* extern	int	abs(int); <stdlib.h> */
@@ -671,7 +671,7 @@ enum
 	RFNOWAIT	= (1<<6),
 	RFCNAMEG	= (1<<10), 
 	RFCENVG		= (1<<11), 
-	RFCFDG		= (1<<12),
+	RFCFDG		= (1<<12)
 /*	RFREND		= (1<<13), */
 /*	RFNOMNT		= (1<<14) */
 };

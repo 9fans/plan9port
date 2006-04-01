@@ -77,7 +77,7 @@ enum
 	Qunixheader,
 	
 	Qfile0 = Qbody,
-	Qnfile = Qunixheader+1-Qfile0,
+	Qnfile = Qunixheader+1-Qfile0
 };
 
 static char Egreg[] = "gone postal";
@@ -189,7 +189,7 @@ static struct {
 	Qidstr,			"idstr",
 	Qdesc,			"desc",
 	Qencoding,		"encoding",
-	Qcharset,		"charset",
+	Qcharset,		"charset"
 };
 
 char*
@@ -334,9 +334,9 @@ static struct {
 	FlagNonJunk,		"notjunk",
 	FlagReplied,	"replied",
 	FlagFlagged,		"flagged",
-//	FlagDeleted,		"deleted",
+/*	FlagDeleted,		"deleted", */
 	FlagDraft,		"draft",
-	FlagSeen,			"seen",
+	FlagSeen,			"seen"
 };
 
 static void
@@ -604,9 +604,9 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 			fmtprint(&fmt, "type %s\n", part->type);
 		if(part->lines)
 			fmtprint(&fmt, "lines %d\n", part->lines);
-	//	fmtprint(&fmt, "disposition %s\n", "" /* disposition */);
-	//	fmtprint(&fmt, "filename %s\n", "" /* filename */);
-	//	fmtprint(&fmt, "digest %s\n", "" /* digest */);
+	/*	fmtprint(&fmt, "disposition %s\n", "" /* disposition */); */
+	/*	fmtprint(&fmt, "filename %s\n", "" /* filename */); */
+	/*	fmtprint(&fmt, "digest %s\n", "" /* digest */); */
 		s = fmtstrflush(&fmt);
 		if(s == nil)
 			s = estrdup("");
@@ -794,13 +794,13 @@ static int mimemsgdir[] = {
 	Qbody, Qbcc, Qcc, Qdate, Qfrom, Qheader, Qinfo, 
 	Qinreplyto, Qlines, Qmimeheader, Qmessageid, 
 	Qraw, Qrawunix, Qrawbody, Qrawheader,
-	Qreplyto, Qsender, Qsubject, Qto,
+	Qreplyto, Qsender, Qsubject, Qto
 };
 static int mimedir[] = {
 	Qtype,
 	Qbody,
 	Qmimeheader,
-	Qraw,
+	Qraw
 };
 	
 int
@@ -833,11 +833,11 @@ msggen(int i, Dir *d, void *aux)
 
 enum
 {
-	CMhangup,
+	CMhangup
 };
 static Cmdtab ctltab[] =
 {
-	CMhangup, "hangup", 2,
+	CMhangup, "hangup", 2
 };
 
 enum
@@ -848,7 +848,7 @@ enum
 	CMread,
 	CMsave,
 	CMjunk,
-	CMnonjunk,
+	CMnonjunk
 };
 static Cmdtab boxctltab[] =
 {
@@ -858,7 +858,7 @@ static Cmdtab boxctltab[] =
 	CMread,		"read", 0,
 	CMsave,		"save", 0,
 	CMjunk,		"junk", 0,
-	CMnonjunk,	"nonjunk", 0,
+	CMnonjunk,	"nonjunk", 0
 };
 
 static void
@@ -996,7 +996,7 @@ fswrite(Req *r)
 			}
 			nm = mkmsglist(box, cb->f+2, cb->nf-2, &m);
 			if(nm != cb->nf-2){
-			//	free(m);
+			/*	free(m); */
 				respond(r, Enomsg);
 				break;
 			}

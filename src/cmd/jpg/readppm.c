@@ -155,7 +155,7 @@ static Pix pix[] = {
 	{ '5', 0, Bgetc, 1, CY, 0, 0 },	/* raw portable greymap */
 	{ '3', 0, Bgetint, 3, CRGB, 0, 0 },	/* portable pixmap */
 	{ '6', 0, Bgetc, 3, CRGB, 0, 0 },	/* raw portable pixmap */
-	{ 0 },
+	{ 0 }
 };
 
 Rawimage*

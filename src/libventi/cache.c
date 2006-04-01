@@ -22,10 +22,10 @@ enum {
 	BioReading,
 	BioWriting,
 	BioEmpty,
-	BioVentiError,
+	BioVentiError
 };
 enum {
-	BadHeap = ~0,
+	BadHeap = ~0
 };
 struct VtCache
 {
@@ -159,7 +159,7 @@ cachecheck(VtCache *c)
 	}
 if(c->nheap + refed != c->nblock){
 fprint(2, "cachecheck: nheap %d refed %d nblocks %d\n", c->nheap, refed, c->nblock);
-//vtcachedump(c);
+/*vtcachedump(c); */
 }
 	assert(c->nheap + refed == c->nblock);
 	refed = 0;
@@ -488,7 +488,7 @@ if(0)fprint(2, "vtblockput: %d: %x %d %d\n", getpid(), b->addr, c->nheap, b->ios
 	assert(b->ref == 0);
 	switch(b->iostate){
 	case BioVenti:
-//if(b->addr != NilBlock) print("blockput %d\n", b->addr);
+/*if(b->addr != NilBlock) print("blockput %d\n", b->addr); */
 		b->used = c->now++;
 	case BioVentiError:
 		heapins(b);

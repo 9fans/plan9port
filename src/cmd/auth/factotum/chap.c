@@ -33,7 +33,7 @@ enum {
 
 	MShashlen = 16,
 	MSchallen = 8,
-	MSresplen = 24,
+	MSresplen = 24
 };
 
 static int
@@ -315,7 +315,7 @@ out:
 	keyclose(s.k);
 	free(user);
 	free(resp);
-//	xioclose(s.asfd);
+/*	xioclose(s.asfd); */
 	return ret;
 }
 
@@ -411,16 +411,17 @@ chaproles[] =
 };
 
 Proto chap = {
-.name=		"chap",
-.roles=		chaproles,
-.checkkey=	chapcheck,
-.keyprompt=	"user? !password?",
+	"chap",
+	chaproles,
+	"user? !password?",
+	chapcheck
 };
 
 Proto mschap = {
-.name=		"mschap",
-.roles=		chaproles,
-.checkkey=	chapcheck,
-.keyprompt=	"user? !password?",
+	"mschap",
+	chaproles,
+	"user? !password?",
+	chapcheck
 };
+
 

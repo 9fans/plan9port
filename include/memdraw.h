@@ -33,7 +33,7 @@ enum {
 	Fgrey	= 1<<2,	/* is grey */
 	Falpha	= 1<<3,	/* has explicit alpha */
 	Fcmap	= 1<<4,	/* has cmap channel */
-	Fbytes	= 1<<5,	/* has only 8-bit channels */
+	Fbytes	= 1<<5	/* has only 8-bit channels */
 };
 
 struct Memimage
@@ -94,8 +94,8 @@ enum {
 	Simplemask=1<<1,
 	Replsrc=1<<2,
 	Replmask=1<<3,
-	Fullsrc = 1<<4,
-	Fullmask=1<<5,
+	Fullsrc=1<<4,
+	Fullmask=1<<5
 };
 struct	Memdrawparam
 {

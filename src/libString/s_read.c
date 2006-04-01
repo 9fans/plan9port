@@ -5,7 +5,7 @@
 
 enum
 {
-	Minread=	256,
+	Minread=	256
 };
 
 /* Append up to 'len' input bytes to the string 'to'.

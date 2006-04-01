@@ -50,7 +50,7 @@ static struct {
 	"\\NoInferiors",	FlagNoInferiors,
 	"\\NoSelect",	FlagNoSelect,
 	"\\Marked",	FlagMarked,
-	"\\UnMarked",	FlagUnMarked,
+	"\\UnMarked",	FlagUnMarked
 };
 
 int			chattyimap;
@@ -775,7 +775,7 @@ enum
 {
 	Qok = 0,
 	Qquote,
-	Qbackslash,
+	Qbackslash
 };
 
 static int
@@ -1172,7 +1172,7 @@ static struct {
 	1,	"EXISTS",		"ANA",		xexists,
 	1,	"EXPUNGE",	"ANA",		xexpunge,
 	1,	"FETCH",		"ANAL",		xfetch,
-	1,	"RECENT",	"ANA",		xrecent,
+	1,	"RECENT",	"ANA",		xrecent
 };
 
 static void
@@ -1333,7 +1333,7 @@ static struct {
 	"RFC822.SIZE", xmsgrfc822size,
 	"ENVELOPE", xmsgenvelope,
 	"BODY", xmsgbody,
-	"BODY[", xmsgbodydata,
+	"BODY[", xmsgbodydata
 };
 
 static void
@@ -1460,7 +1460,7 @@ static struct {
 	char *name;
 	int offset;
 } paramtab[] = {
-	"charset",	offsetof(Part, charset),
+	"charset",	offsetof(Part, charset)
 };
 
 static void
@@ -1641,7 +1641,7 @@ struct {
 	"PERMANENTFLAGS", 'L',	xokpermflags,
 	"UNSEEN", 'N',	xokunseen,
 	"READ-WRITE", 0,	xokreadwrite,
-	"READ-ONLY",	0, xokreadonly,
+	"READ-ONLY",	0, xokreadonly
 };
 
 static void
@@ -1695,24 +1695,24 @@ xokuidvalidity(Imap *z, Sx *sx)
 static void
 xokpermflags(Imap *z, Sx *sx)
 {
-//	z->permflags = parseflags(sx);
+/*	z->permflags = parseflags(sx); */
 }
 
 static void
 xokunseen(Imap *z, Sx *sx)
 {
-//	z->unseen = sx->number;
+/*	z->unseen = sx->number; */
 }
 
 static void
 xokreadwrite(Imap *z, Sx *sx)
 {
-//	z->boxmode = ORDWR;
+/*	z->boxmode = ORDWR; */
 }
 
 static void
 xokreadonly(Imap *z, Sx *sx)
 {
-//	z->boxmode = OREAD;
+/*	z->boxmode = OREAD; */
 }
 

@@ -1,7 +1,7 @@
-// based on PNG 1.2 specification, July 1999  (see also rfc2083)
-// Alpha is not supported yet because of lack of industry acceptance and
-// because Plan9 Image uses premultiplied alpha, so png can't be lossless.
-// Only 24bit color supported, because 8bit may as well use GIF.
+/* based on PNG 1.2 specification, July 1999  (see also rfc2083) */
+/* Alpha is not supported yet because of lack of industry acceptance and */
+/* because Plan9 Image uses premultiplied alpha, so png can't be lossless. */
+/* Only 24bit color supported, because 8bit may as well use GIF. */
 
 #include <u.h>
 #include <libc.h>
@@ -13,22 +13,22 @@
 #include "imagefile.h"
 
 enum{	IDATSIZE = 	20000,
-	FilterNone =	0,
+	FilterNone =	0
 };
 
 typedef struct ZlibR{
 	uchar *data;
 	int width;
 	int nrow, ncol;
-	int row, col;	// next pixel to send
+	int row, col;	/* next pixel to send */
 	int pixwid;
 } ZlibR;
 
 typedef struct ZlibW{
 	Biobuf *bo;
 	uchar *buf;
-	uchar *b;	// next place to write
-	uchar *e;	// past end of buf
+	uchar *b;	/* next place to write */
+	uchar *e;	/* past end of buf */
 } ZlibW;
 
 static ulong *crctab;
@@ -68,11 +68,11 @@ zread(void *va, void *buf, int n)
 	int nrow = z->nrow;
 	int ncol = z->ncol;
 	uchar *b = buf, *e = b+n, *img;
-	int pixels;  // number of pixels in row that can be sent now
+	int pixels;  /* number of pixels in row that can be sent now */
 	int i, a, pixwid;
 	
 	pixwid = z->pixwid;
-	while(b+pixwid <= e){ // loop over image rows
+	while(b+pixwid <= e){ /* loop over image rows */
 		if(z->row >= nrow)
 			break;
 		if(z->col==0)
@@ -129,7 +129,7 @@ zwrite(void *va, void *buf, int n)
 	uchar *b = buf, *e = b+n;
 	int m;
 
-	while(b < e){ // loop over IDAT chunks
+	while(b < e){ /* loop over IDAT chunks */
 		m = z->e - z->b;
 		if(m > e - b)
 			m = e - b;
@@ -190,15 +190,15 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 	deflateinit();
 
 	Bwrite(bo, PNGmagic, sizeof PNGmagic);
-	// IHDR chunk
+	/* IHDR chunk */
 	h = buf;
 	put4(h, ncol); h += 4;
 	put4(h, nrow); h += 4;
-	*h++ = 8; // bit depth = 24 bit per pixel
-	*h++ = rgb->chan==BGR24 ? 2 : 6; // color type = rgb
-	*h++ = 0; // compression method = deflate
-	*h++ = 0; // filter method
-	*h++ = 0; // interlace method = no interlace
+	*h++ = 8; /* bit depth = 24 bit per pixel */
+	*h++ = rgb->chan==BGR24 ? 2 : 6; /* color type = rgb */
+	*h++ = 0; /* compression method = deflate */
+	*h++ = 0; /* filter method */
+	*h++ = 0; /* interlace method = no interlace */
 	chunk(bo, "IHDR", buf, h-buf);
 
 	tm = gmtime(time(0));
@@ -220,12 +220,12 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 
 	if(II->fields_set & II_COMMENT){
 		strncpy((char*)buf, "Comment", sizeof buf);
-		n = strlen((char*)buf)+1; // leave null between Comment and text
+		n = strlen((char*)buf)+1; /* leave null between Comment and text */
 		strncpy((char*)(buf+n), II->comment, sizeof buf - n);
 		chunk(bo, "tEXt", buf, n+strlen((char*)buf+n));
 	}
 
-	// image chunks
+	/* image chunks */
 	zr.nrow = nrow;
 	zr.ncol = ncol;
 	zr.width = rgb->width * sizeof(ulong);

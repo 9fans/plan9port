@@ -67,7 +67,7 @@ main(int argc, char **argv)
 		
 		if(!have){
 			Bprint(&b, "// no debugging symbols in %s\n\n", argv[i]);
-		//	fprint(2, "no debugging symbols in %s\n", argv[i]);
+		/*	fprint(2, "no debugging symbols in %s\n", argv[i]); */
 		}
 		uncrackhdr(fp);
 	}

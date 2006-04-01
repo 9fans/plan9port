@@ -144,10 +144,10 @@ _parseattr(char *s)
 		t = tok[i];
 		if(p = strchr(t, '=')){
 			*p++ = '\0';
-		//	if(p-2 >= t && p[-2] == ':'){
-		//		p[-2] = '\0';
-		//		type = AttrDefault;
-		//	}else
+		/*	if(p-2 >= t && p[-2] == ':'){ */
+		/*		p[-2] = '\0'; */
+		/*		type = AttrDefault; */
+		/*	}else */
 				type = AttrNameval;
 			a = _mkattr(type, t, p, a);
 			setmalloctag(a, getcallerpc(&s));

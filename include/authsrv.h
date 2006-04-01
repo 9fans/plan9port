@@ -34,7 +34,7 @@ enum
 	KEYDBOFF=	8,		/* length of random data at the start of key file */
 	OKEYDBLEN=	ANAMELEN+DESKEYLEN+4+2,	/* length of an entry in old key file */
 	KEYDBLEN=	OKEYDBLEN+SECRETLEN,	/* length of an entry in key file */
-	OMD5LEN=	16,
+	OMD5LEN=	16
 };
 
 /* encryption numberings (anti-replay) */
@@ -60,7 +60,7 @@ enum
 	AuthAs,		/* server generated authenticator */
 	AuthAc,		/* client generated authenticator */
 	AuthTp,		/* ticket encrypted with client's key for password change */
-	AuthHr,		/* http reply */
+	AuthHr		/* http reply */
 };
 
 struct Ticketreq
@@ -140,7 +140,7 @@ extern	int	passtokey(char*, char*);
  */
 enum {
 	NVwrite = 1<<0,		/* always prompt and rewrite nvram */
-	NVwriteonerr = 1<<1,	/* prompt and rewrite nvram when corrupt */
+	NVwriteonerr = 1<<1	/* prompt and rewrite nvram when corrupt */
 };
 
 struct Nvrsafe

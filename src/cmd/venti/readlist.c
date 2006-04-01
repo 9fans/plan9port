@@ -105,7 +105,7 @@ run(Biobuf *b)
 		n = vtread(z, score, type, buf, VtMaxLumpSize);
 		if(n < 0)
 			sysfatal("could not read %s %s: %r", f[0], f[1]);
-		// write(1, buf, n);
+		/* write(1, buf, n); */
 		if(++nn%1000 == 0)
 			print("%d...", nn);
 	}

@@ -1005,7 +1005,7 @@ static ulong smallprimes[] = {
 	104677,	104681,	104683,	104693,	104701,	104707,	104711,	104717,	104723,	104729,
 };
 
-//  return 1 if p is divisable by sp, 0 otherwise
+/*  return 1 if p is divisable by sp, 0 otherwise */
 static int
 divides(mpint *dividend, ulong divisor)
 {
@@ -1021,7 +1021,7 @@ divides(mpint *dividend, ulong divisor)
 	return d[1] == 0;
 }
 
-//  return -1 if p is divisable by one of the small primes, 0 otherwise
+/*  return -1 if p is divisable by one of the small primes, 0 otherwise */
 int
 smallprimetest(mpint *p)
 {

@@ -10,13 +10,13 @@ typedef struct	Menu Menu;
 enum
 {
 	Emouse		= 1,
-	Ekeyboard	= 2,
+	Ekeyboard	= 2
 };
 
 enum
 {
 	MAXSLAVE = 32,
-	EMAXMSG = 128+8192,	/* size of 9p header+data */
+	EMAXMSG = 128+8192	/* size of 9p header+data */
 };
 
 struct	Mouse

@@ -37,7 +37,7 @@ Rune	snarfrune[NSnarf+1];
 char		*fontnames[2] =
 {
 	"/lib/font/bit/lucsans/euro.8.font",
-	"/lib/font/bit/lucm/unicode.9.font",
+	"/lib/font/bit/lucm/unicode.9.font"
 };
 
 Command *command;
@@ -160,7 +160,7 @@ threadmain(int argc, char *argv[])
 
 	d = display;
 	font = d->defaultfont;
-//assert(font);
+/*assert(font); */
 
 	reffont.f = font;
 	reffonts[0] = &reffont;
@@ -355,8 +355,8 @@ killprocs(void)
 	Command *c;
 
 	fsysclose();
-//	if(display)
-//		flushimage(display, 1);
+/*	if(display) */
+/*		flushimage(display, 1); */
 
 	for(c=command; c; c=c->next)
 		postnote(PNGROUP, c->pid, "hangup");

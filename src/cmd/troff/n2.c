@@ -4,6 +4,7 @@
  * output, cleanup
  */
 
+#define _BSD_SOURCE 1	/* popen */
 #include "tdef.h"
 #include "fns.h"
 #include "ext.h"

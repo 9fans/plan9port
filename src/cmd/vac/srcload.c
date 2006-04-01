@@ -89,12 +89,12 @@ stats(r);
 	}
 
 	fprint(2, "count = %d top = %lud\n", count(r, 0), sourceGetDirSize(r));
-//	cacheCheck(c);
+/*	cacheCheck(c); */
 fprint(2, "deleting\n");
 	for(i=0; i<num; i++)
 		delete(r);
 
-//	dump(r, 0, 0);
+/*	dump(r, 0, 0); */
 	
 	lumpDecRef(r->lump, 0);
 	sourceRemove(r);

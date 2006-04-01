@@ -36,7 +36,7 @@ shoulddump(char *name, int argc, char **argv)
 
 enum
 {
-	ClumpChunks = 32*1024,
+	ClumpChunks = 32*1024
 };
 
 void

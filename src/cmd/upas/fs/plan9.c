@@ -5,7 +5,7 @@
 #include "dat.h"
 
 enum {
-	Buffersize = 64*1024,
+	Buffersize = 64*1024
 };
 
 typedef struct Inbuf Inbuf;
@@ -23,7 +23,7 @@ addtomessage(Message *m, uchar *p, int n, int done)
 {
 	int i, len;
 
-	// add to message (+ 1 in malloc is for a trailing null)
+	/* add to message (+ 1 in malloc is for a trailing null) */
 	if(m->lim - m->end < n){
 		if(m->start != nil){
 			i = m->end-m->start;
@@ -48,9 +48,9 @@ addtomessage(Message *m, uchar *p, int n, int done)
 	m->end += n;
 }
 
-//
-//  read in a single message
-//
+/* */
+/*  read in a single message */
+/* */
 static int
 readmessage(Message *m, Inbuf *inb)
 {
@@ -83,9 +83,9 @@ readmessage(Message *m, Inbuf *inb)
 			inb->wptr += i;
 		}
 
-		// look for end of message
+		/* look for end of message */
 		for(p = inb->rptr; p < inb->wptr; p = np+1){
-			// first part of search for '\nFrom '
+			/* first part of search for '\nFrom ' */
 			np = memchr(p, '\n', inb->wptr - p);
 			if(np == nil){
 				p = inb->wptr;
@@ -109,24 +109,24 @@ readmessage(Message *m, Inbuf *inb)
 			}
 		}
 
-		// add to message (+ 1 in malloc is for a trailing null)
+		/* add to message (+ 1 in malloc is for a trailing null) */
 		n = p - inb->rptr;
 		addtomessage(m, inb->rptr, n, done);
 		inb->rptr += n;
 	}
 
-	// if it doesn't start with a 'From ', this ain't a mailbox
+	/* if it doesn't start with a 'From ', this ain't a mailbox */
 	if(strncmp(m->start, "From ", 5) != 0)
 		return -1;
 
-	// dump trailing newline, make sure there's a trailing null
-	// (helps in body searches)
+	/* dump trailing newline, make sure there's a trailing null */
+	/* (helps in body searches) */
 	if(*(m->end-1) == '\n')
 		m->end--;
 	*m->end = 0;
 	m->bend = m->rbend = m->end;
 
-	// digest message
+	/* digest message */
 	sha1((uchar*)m->start, m->end - m->start, m->digest, nil);
 	for(i = 0; i < SHA1dlen; i++)
 		sprint(sdigest+2*i, "%2.2ux", m->digest[i]);
@@ -136,14 +136,14 @@ readmessage(Message *m, Inbuf *inb)
 }
 
 
-// throw out deleted messages.  return number of freshly deleted messages
+/* throw out deleted messages.  return number of freshly deleted messages */
 int
 purgedeleted(Mailbox *mb)
 {
 	Message *m, *next;
 	int newdels;
 
-	// forget about what's no longer in the mailbox
+	/* forget about what's no longer in the mailbox */
 	newdels = 0;
 	for(m = mb->root->part; m != nil; m = next){
 		next = m->next;
@@ -156,9 +156,9 @@ purgedeleted(Mailbox *mb)
 	return newdels;
 }
 
-//
-//  read in the mailbox and parse into messages.
-//
+/* */
+/*  read in the mailbox and parse into messages. */
+/* */
 static char*
 _readmbox(Mailbox *mb, int doplumb, Mlock *lk)
 {
@@ -223,7 +223,7 @@ retry:
 	inb->rptr = inb->wptr = inb->data;
 	inb->fd = fd;
 
-	//  read new messages
+	/*  read new messages */
 	snprint(err, sizeof err, "reading '%s'", mb->path);
 	logmsg(err, nil);
 	for(;;){
@@ -238,10 +238,10 @@ retry:
 			break;
 		}
 
-		// merge mailbox versions
+		/* merge mailbox versions */
 		while(*l != nil){
 			if(memcmp((*l)->digest, m->digest, SHA1dlen) == 0){
-				// matches mail we already read, discard
+				/* matches mail we already read, discard */
 				logmsg("duplicate", *l);
 				delmessage(mb, m);
 				mb->root->subname--;
@@ -249,7 +249,7 @@ retry:
 				l = &(*l)->next;
 				break;
 			} else {
-				// old mail no longer in box, mark deleted
+				/* old mail no longer in box, mark deleted */
 				logmsg("disappeared", *l);
 				if(doplumb)
 					mailplumb(mb, *l, 1);
@@ -280,7 +280,7 @@ retry:
 	}
 	logmsg("mbox read", nil);
 
-	// whatever is left has been removed from the mbox, mark deleted
+	/* whatever is left has been removed from the mbox, mark deleted */
 	while(*l != nil){
 		if(doplumb)
 			mailplumb(mb, *l, 1);
@@ -380,9 +380,9 @@ plan9syncmbox(Mailbox *mb, int doplumb)
 	return rv;
 }
 
-//
-//  look to see if we can open this mail box
-//
+/* */
+/*  look to see if we can open this mail box */
+/* */
 char*
 plan9mbox(Mailbox *mb, char *path)
 {

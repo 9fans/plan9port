@@ -144,7 +144,7 @@ readnvram(Nvrsafe *safep, int flag)
 		safe = safep;
 
 		err |= check(safe->machkey, DESKEYLEN, safe->machsum, "bad nvram key");
-//		err |= check(safe->config, CONFIGLEN, safe->configsum, "bad secstore key");
+/*		err |= check(safe->config, CONFIGLEN, safe->configsum, "bad secstore key"); */
 		err |= check(safe->authid, ANAMELEN, safe->authidsum, "bad authentication id");
 		err |= check(safe->authdom, DOMLEN, safe->authdomsum, "bad authentication domain");
 	}

@@ -56,7 +56,7 @@ main(int argc, char **argv)
 				fd = openlog(argv[2]);
 				fprint(fd, "%s: %s\n", t, p);
 			}
-		} else if(Blinelen(&in) == 0)	// true eof
+		} else if(Blinelen(&in) == 0)	/* true eof */
 			break;
 		else {
 			Bread(&in, buf, sizeof buf);

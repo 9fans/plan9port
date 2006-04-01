@@ -257,7 +257,7 @@ writearena(Arena *arena, u64int aa, u8int *clbuf, u32int n)
 		if(m > n - nn)
 			m = n - nn;
 		memmove(&b->data[off], &clbuf[nn], m);
-		// ok = writepart(arena->part, a, b->data, blocksize);
+		/* ok = writepart(arena->part, a, b->data, blocksize); */
 		ok = 0;
 		putdblock(b);
 		if(ok < 0){
@@ -329,7 +329,7 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf, u64int start, u64int *pa)
 		if(m > n - nn)
 			m = n - nn;
 		memmove(&b->data[off], &clbuf[nn], m);
-	//	ok = writepart(arena->part, a, b->data, blocksize);
+	/*	ok = writepart(arena->part, a, b->data, blocksize); */
 		ok = 0;
 		putdblock(b);
 		if(ok < 0){
@@ -595,7 +595,7 @@ wbarenahead(Arena *arena)
 	b = alloczblock(arena->blocksize, 1, arena->part->blocksize);
 	if(b == nil){
 		logerr(EAdmin, "can't write arena header: %r");
-///ZZZ add error message?
+/*/ZZZ add error message? */
 		return -1;
 	}
 	/*

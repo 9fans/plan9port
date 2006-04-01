@@ -31,7 +31,7 @@ struct Message {
 	String	*path;
 	int	id;
 	int	len;
-	int	fileno;	// number of directory
+	int	fileno;	/* number of directory */
 	String	*info;
 	char	*from;
 	char	*to;
@@ -136,12 +136,12 @@ struct {
 	{ "|",	1,	pipecmd, "|cmd     pipe message body to a command" },
 	{ "||",	1,	rpipecmd, "||cmd     pipe raw message to a command" },
 	{ "!",	1,	bangcmd, "!cmd     run a command" },
-	{ nil,	0,	nil, 	nil },
+	{ nil,	0,	nil, 	nil }
 };
 
 enum
 {
-	NARG=	32,
+	NARG=	32
 };
 
 struct Cmd {
@@ -305,8 +305,8 @@ threadmain(int argc, char **argv)
 			s_append(prompt, ": ");
 		}
 
-		// leave space at the end of cmd line in case parsecmd needs to
-		// add a space after a '|' or '!'
+		/* leave space at the end of cmd line in case parsecmd needs to */
+		/* add a space after a '|' or '!' */
 		if(readline(s_to_c(prompt), cmdline, sizeof(cmdline)-1) == nil)
 			break;
 		err = parsecmd(cmdline, &cmd, top.child, cur);
@@ -328,10 +328,10 @@ threadmain(int argc, char **argv)
 			if(cmd.delete){
 				dcmd(&cmd, x);
 
-				// dp acts differently than all other commands
-				// since its an old lesk idiom that people love.
-				// it deletes the current message, moves the current
-				// pointer ahead one and prints.
+				/* dp acts differently than all other commands */
+				/* since its an old lesk idiom that people love. */
+				/* it deletes the current message, moves the current */
+				/* pointer ahead one and prints. */
 				if(cmd.f == pcmd){
 					if(x->next == nil){
 						Bprint(&out, "!address\n");
@@ -378,18 +378,18 @@ mkaddrs(char *t)
 	for(i=0; i+1<nf; i+=2){
 		if(i > 0)
 			fmtprint(&fmt, " ");
-	//	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0)
+	/*	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0) */
 			fmtprint(&fmt, "%s", f[i+1]);
-	//	else
-	//		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]);
+	/*	else */
+	/*		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]); */
 	}
 	free(f);
 	return fmtstrflush(&fmt);
 }
 
-//
-// read the message info
-//
+/* */
+/* read the message info */
+/* */
 Message*
 file2message(Message *parent, char *name)
 {
@@ -462,9 +462,9 @@ freemessage(Message *m)
 	free(m);
 }
 
-//
-//  read a directory into a list of messages
-//
+/* */
+/*  read a directory into a list of messages */
+/* */
 int
 dir2message(Message *parent, int reverse)
 {
@@ -478,7 +478,7 @@ dir2message(Message *parent, int reverse)
 	if(fd == nil)
 		return -1;
 
-	// count current entries
+	/* count current entries */
 	first = parent->child;
 	highest = newmsgs = 0;
 	for(last = parent->child; last != nil && last->next != nil; last = last->next)
@@ -495,7 +495,7 @@ dir2message(Message *parent, int reverse)
 		if(atoi(d[i].name) <= highest)
 			continue;
 		m = file2message(parent, d[i].name);
-		// fprint(2,"returned from file2message\n");
+		/* fprint(2,"returned from file2message\n"); */
 		if(m == nil)
 			break;
 		newmsgs++;
@@ -517,7 +517,7 @@ dir2message(Message *parent, int reverse)
 	fsclose(fd);
 	parent->child = first;
 
-	// renumber and file longest from
+	/* renumber and file longest from */
 	i = 1;
 	longestfrom = 12;
 	for(m = first; m != nil; m = m->next){
@@ -530,16 +530,16 @@ dir2message(Message *parent, int reverse)
 	return newmsgs;
 }
 
-//
-//  point directly to a message
-//
+/* */
+/*  point directly to a message */
+/* */
 Message*
 dosingleton(Message *parent, char *path)
 {
 	char *p, *np;
 	Message *m;
 
-	// walk down to message and read it
+	/* walk down to message and read it */
 	if(strlen(path) < rootlen)
 		return nil;
 	if(path[rootlen] != '/')
@@ -554,7 +554,7 @@ dosingleton(Message *parent, char *path)
 	parent->child = m;
 	m->id = 1;
 
-	// walk down to requested component
+	/* walk down to requested component */
 	while(np != nil){
 		*np = '/';
 		np = strchr(np+1, '/');
@@ -569,9 +569,9 @@ dosingleton(Message *parent, char *path)
 	return m;
 }
 
-//
-//  read a file into a string
-//
+/* */
+/*  read a file into a string */
+/* */
 String*
 file2string(String *dir, char *file)
 {
@@ -605,9 +605,9 @@ file2string(String *dir, char *file)
 	return s;
 }
 
-//
-//  get the length of a file
-//
+/* */
+/*  get the length of a file */
+/* */
 int
 filelen(String *dir, char *file)
 {
@@ -627,9 +627,9 @@ filelen(String *dir, char *file)
 	return rv;
 }
 
-//
-//  walk the path name an element
-//
+/* */
+/*  walk the path name an element */
+/* */
 String*
 extendpath(String *dir, char *name)
 {
@@ -720,21 +720,21 @@ cracktime(char *d, char *out, int len)
 	in[sizeof(in)-1] = 0;
 	n = getfields(in, f, 6, 1, " \t\r\n");
 	if(n != 6){
-		// unknown style
+		/* unknown style */
 		snprint(out, 16, "%10.10s", d);
 		return;
 	}
 	now = time(0);
 	memset(&tm, 0, sizeof tm);
 	if(strchr(f[0], ',') != nil && strchr(f[4], ':') != nil){
-		// 822 style
+		/* 822 style */
 		tm.year = atoi(f[3])-1900;
 		tm.mon = month(f[2]);
 		tm.mday = atoi(f[1]);
 		dtime = nosecs(f[4]);
 		then = tm2sec(&tm);
 	} else if(strchr(f[3], ':') != nil){
-		// unix style
+		/* unix style */
 		tm.year = atoi(f[5])-1900;
 		tm.mon = month(f[1]);
 		tm.mday = atoi(f[2]);
@@ -826,12 +826,12 @@ snprintheader(char *buf, int len, Message *m)
 	String *id;
 	char *p, *q;;
 
-	// create id
+	/* create id */
 	id = s_new();
 	mkid(id, m);
 
 	if(*m->from == 0){
-		// no from
+		/* no from */
 		snprint(buf, len, "%-3s    %s %6d  %s",
 			s_to_c(id),
 			m->type,
@@ -877,7 +877,7 @@ snprintHeader(char *buf, int len, int indent, Message *m)
 	char typeid[64];
 	char *p, *e;
 
-	// create id
+	/* create id */
 	id = s_new();
 	mkid(id, m);
 
@@ -900,17 +900,17 @@ snprintHeader(char *buf, int len, int indent, Message *m)
 
 char sstring[256];
 
-//	cmd := range cmd ' ' arg-list ; 
-//	range := address
-//		| address ',' address
-//		| 'g' search ;
-//	address := msgno
-//		| search ;
-//	msgno := number
-//		| number '/' msgno ;
-//	search := '/' string '/'
-//		| '%' string '%' ;
-//
+/*	cmd := range cmd ' ' arg-list ;  */
+/*	range := address */
+/*		| address ',' address */
+/*		| 'g' search ; */
+/*	address := msgno */
+/*		| search ; */
+/*	msgno := number */
+/*		| number '/' msgno ; */
+/*	search := '/' string '/' */
+/*		| '%' string '%' ; */
+/* */
 Reprog*
 parsesearch(char **pp)
 {
@@ -1067,9 +1067,9 @@ parseaddr(char **pp, Message *first, Message *cur, Message *unspec, Message **mp
 	return nil;
 }
 
-//
-//  search a message for a regular expression match
-//
+/* */
+/*  search a message for a regular expression match */
+/* */
 int
 rawsearch(Message *m, Reprog *prog)
 {
@@ -1083,8 +1083,8 @@ rawsearch(Message *m, Reprog *prog)
 	if(fd == nil)
 		return 0;
 
-	// march through raw message 4096 bytes at a time
-	// with a 128 byte overlap to chain the re search.
+	/* march through raw message 4096 bytes at a time */
+	/* with a 128 byte overlap to chain the re search. */
 	rv = 0;
 	for(;;){
 		i = fsread(fd, buf, sizeof(buf)-1);
@@ -1122,17 +1122,17 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 	l = &cmd->msgs;
 	*l = nil;
 
-	// eat white space
+	/* eat white space */
 	while(*p == ' ')
 		p++;
 
-	// null command is a special case (advance and print)
+	/* null command is a special case (advance and print) */
 	if(*p == 0){
 		if(cur == &top){
-			// special case
+			/* special case */
 			m = first;
 		} else {
-			// walk to the next message even if we have to go up
+			/* walk to the next message even if we have to go up */
 			m = cur->next;
 			while(m == nil && cur->parent != nil){
 				cur = cur->parent;
@@ -1148,11 +1148,11 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 		return nil;
 	}
 
-	// global search ?
+	/* global search ? */
 	if(*p == 'g'){
 		p++;
 
-		// no search string means all messages
+		/* no search string means all messages */
 		if(*p != '/' && *p != '%'){
 			for(m = first; m != nil; m = m->next){
 				*l = m;
@@ -1160,7 +1160,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 				*l = nil;
 			}
 		} else {
-			// mark all messages matching this search string
+			/* mark all messages matching this search string */
 			c = *p;
 			prog = parsesearch(&p);
 			if(prog == nil)
@@ -1187,13 +1187,13 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 		}
 	} else {
 	
-		// parse an address
+		/* parse an address */
 		s = e = nil;
 		err = parseaddr(&p, first, cur, cur, &s);
 		if(err != nil)
 			return err;
 		if(*p == ','){
-			// this is an address range
+			/* this is an address range */
 			if(s == &top)
 				s = first;
 			p++;
@@ -1203,7 +1203,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 			if(err != nil)
 				return err;
 	
-			// select all messages in the range
+			/* select all messages in the range */
 			for(; s != nil; s = s->next){
 				*l = s;
 				l = &s->cmd;
@@ -1214,7 +1214,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 			if(s == nil)
 				return "null address range";
 		} else {
-			// single address
+			/* single address */
 			if(s != &top){
 				*l = s;
 				s->cmd = nil;
@@ -1222,7 +1222,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 		}
 	}
 
-	// insert a space after '!'s and '|'s
+	/* insert a space after '!'s and '|'s */
 	for(q = p; *q; q++)
 		if(*q != '!' && *q != '|')
 			break;
@@ -1235,13 +1235,13 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 	if(cmd->an == 0 || *cmd->av[0] == 0)
 		cmd->f = pcmd;
 	else {
-		// hack to allow all messages to start with 'd'
+		/* hack to allow all messages to start with 'd' */
 		if(*(cmd->av[0]) == 'd' && *(cmd->av[0]+1) != 0){
 			cmd->delete = 1;
 			cmd->av[0]++;
 		}
 
-		// search command table
+		/* search command table */
 		for(i = 0; cmdtab[i].cmd != nil; i++)
 			if(strcmp(cmd->av[0], cmdtab[i].cmd) == 0)
 				break;
@@ -1256,7 +1256,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 	return nil; 
 }
 
-// inefficient read from standard input
+/* inefficient read from standard input */
 char*
 readline(char *prompt, char *line, int len)
 {
@@ -1471,7 +1471,7 @@ pcmd(Cmd *x, Message *m)
 	} else if(strncmp(m->type, "multipart/", 10) == 0){
 		nm = m->child;
 		if(nm != nil){
-			// always print first part
+			/* always print first part */
 			pcmd(nil, nm);
 
 			for(nm = nm->next; nm != nil; nm = nm->next){
@@ -1582,7 +1582,7 @@ quotecmd(Cmd *x, Message *m)
 	return m;
 }
 
-// really delete messages
+/* really delete messages */
 Message*
 flushdeleted(Message *cur)
 {
@@ -1611,7 +1611,7 @@ flushdeleted(Message *cur)
 			continue;
 		}
 
-		// don't return a pointer to a deleted message
+		/* don't return a pointer to a deleted message */
 		if(m == cur)
 			cur = m->next;
 
@@ -1629,7 +1629,7 @@ flushdeleted(Message *cur)
 		p = seprint(p, e, " %s", msg);
 		n++;
 
-		// unchain and free
+		/* unchain and free */
 		*l = m->next;
 		if(m->next)
 			m->next->prev = m->prev;
@@ -1643,13 +1643,13 @@ flushdeleted(Message *cur)
 	if(deld)
 		Bprint(&out, "!%d message%s deleted\n", deld, plural(deld));
 
-	// renumber
+	/* renumber */
 	i = 1;
 	for(m = top.child; m != nil; m = m->next)
 		m->id = natural ? m->fileno : i++;
 
-	// if we're out of messages, go back to first
-	// if no first, return the fake first
+	/* if we're out of messages, go back to first */
+	/* if no first, return the fake first */
 	if(cur == nil){
 		if(top.child)
 			return top.child;
@@ -1672,7 +1672,7 @@ qcmd(Cmd *x, Message *m)
 	Bflush(&out);
 
 	exitfs(0);
-	return nil;	// not reached
+	return nil;	/* not reached */
 }
 
 Message*
@@ -1692,7 +1692,7 @@ xcmd(Cmd *x, Message *m)
 	USED(m);
 
 	exitfs(0);
-	return nil;	// not reached
+	return nil;	/* not reached */
 }
 
 Message*
@@ -1776,7 +1776,7 @@ tomailer(char **av)
 	if(marshal == nil)
 		marshal = unsharp("#9/bin/upas/marshal");
 
-	// start the mailer and get out of the way
+	/* start the mailer and get out of the way */
 	switch(pid = fork()){
 	case -1:
 		fprint(2, "can't fork: %r\n");
@@ -1816,9 +1816,9 @@ tomailer(char **av)
 	return 0;
 }
 
-//
-// like tokenize but obey "" quoting
-//
+/* */
+/* like tokenize but obey "" quoting */
+/* */
 int
 tokenize822(char *str, char **args, int max)
 {
@@ -2077,7 +2077,7 @@ appendtofile(Message *m, char *part, char *base, int mbox)
 	if(mbox)
 		seek(out, 0, 2);
 
-	// put on a 'From ' line
+	/* put on a 'From ' line */
 	if(mbox){
 		while(m->parent != &top)
 			m = m->parent;
@@ -2086,7 +2086,7 @@ appendtofile(Message *m, char *part, char *base, int mbox)
 		s_free(h);
 	}
 
-	// copy the message escaping what we have to ad adding newlines if we have to
+	/* copy the message escaping what we have to ad adding newlines if we have to */
 	if(mbox)
 		rv = appendfiletombox(in, out);
 	else
@@ -2192,7 +2192,7 @@ char *specialfile[] =
 	"names"
 };
 
-// return 1 if this is a special file
+/* return 1 if this is a special file */
 static int
 special(String *s)
 {
@@ -2210,7 +2210,7 @@ special(String *s)
 	return 0;
 }
 
-// open the folder using the recipients account name
+/* open the folder using the recipients account name */
 static String*
 foldername(char *rcvr)
 {
@@ -2224,7 +2224,7 @@ foldername(char *rcvr)
 	mboxpath("f", user, file, 0);
 	d = dirstat(s_to_c(file));
 
-	// if $mail/f exists, store there, otherwise in $mail
+	/* if $mail/f exists, store there, otherwise in $mail */
 	s_restart(file);
 	if(d && d->qid.type == QTDIR){
 		scarey = 0;
@@ -2363,7 +2363,7 @@ xpipecmd(Cmd *c, Message *m, char *part)
 	fd = fsopenfd(mailfs, s_to_c(path), OREAD);
 	s_free(path);
 
-	if(fd < 0){	// compatibility with older upas/fs
+	if(fd < 0){	/* compatibility with older upas/fs */
 		path = extendpath(m->path, "raw");
 		fd = fsopenfd(mailfs, s_to_c(path), OREAD);
 		s_free(path);
@@ -2408,7 +2408,7 @@ closemb(void)
 	if(fd == nil)
 		sysfatal("can't open ctl: %r");
 
-	// close current mailbox
+	/* close current mailbox */
 	if(*mbname && strcmp(mbname, "mbox") != 0)
 		fsprint(fd, "close %s", mbname);
 
@@ -2423,16 +2423,16 @@ switchmb(char *file, char *singleton)
 	String *path;
 	char buf[256];
 
-	// if the user didn't say anything and there
-	// is an mbox mounted already, use that one
-	// so that the upas/fs -fdefault default is honored.
+	/* if the user didn't say anything and there */
+	/* is an mbox mounted already, use that one */
+	/* so that the upas/fs -fdefault default is honored. */
 	if(0 && (file || (singleton && fsaccess(mailfs, singleton, 0) < 0))){
 	/* XXX all wrong */
 		fprint(2, "file=%s singleton=%s\n", file, singleton);
 		if(file == nil)
 			file = "mbox";
 
-		// close current mailbox
+		/* close current mailbox */
 		closemb();
 		didopen = 1;
 
@@ -2442,10 +2442,10 @@ switchmb(char *file, char *singleton)
 	
 		path = s_new();
 	
-		// get an absolute path to the mail box
+		/* get an absolute path to the mail box */
 		if(strncmp(file, "./", 2) == 0){
-			// resolve path here since upas/fs doesn't know
-			// our working directory
+			/* resolve path here since upas/fs doesn't know */
+			/* our working directory */
 			if(getwd(buf, sizeof(buf)-strlen(file)) == nil){
 				fprint(2, "!can't get working directory: %s\n", buf);
 				return -1;
@@ -2456,14 +2456,14 @@ switchmb(char *file, char *singleton)
 			mboxpath(file, user, path, 0);
 		}
 	
-		// make up a handle to use when talking to fs
+		/* make up a handle to use when talking to fs */
 		p = strrchr(file, '/');
 		if(p == nil){
-			// if its in the mailbox directory, just use the name
+			/* if its in the mailbox directory, just use the name */
 			strncpy(mbname, file, sizeof(mbname));
 			mbname[sizeof(mbname)-1] = 0;
 		} else {
-			// make up a mailbox name
+			/* make up a mailbox name */
 			p = strrchr(s_to_c(path), '/');
 			p++;
 			if(*p == 0){
@@ -2513,7 +2513,7 @@ switchmb(char *file, char *singleton)
 	return 0;
 }
 
-// like tokenize but for into lines
+/* like tokenize but for into lines */
 int
 lineize(char *s, char **f, int n)
 {

@@ -67,7 +67,7 @@ enum
 
 	EstLitBits	= 8,
 	EstLenBits	= 4,
-	EstOffBits	= 5,
+	EstOffBits	= 5
 };
 
 /*

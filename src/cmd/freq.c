@@ -13,7 +13,7 @@ enum
 	Fhex	= 1<<1,
 	Foct	= 1<<2,
 	Fchar	= 1<<3,
-	Frune	= 1<<4,
+	Frune	= 1<<4
 };
 
 void

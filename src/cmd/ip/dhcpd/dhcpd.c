@@ -12,9 +12,9 @@
 int bwfd;
 int wfd;
 
-//
-//	ala rfc2131
-//
+/* */
+/*	ala rfc2131 */
+/* */
 
 typedef struct Req Req;
 struct Req
@@ -63,7 +63,7 @@ int	slow;
 char	net[256];
 uchar xmyipaddr[IPaddrlen];
 
-int	pptponly;	// only answer request that came from the pptp server
+int	pptponly;	/* only answer request that came from the pptp server */
 int	mute;
 int	minlease = MinLease;
 
@@ -160,7 +160,7 @@ char *optname[256] =
 [ODvendorclass]		"vendorclass",
 [ODclientid]		"cid",
 [ODtftpserver]		"tftpserver",
-[ODbootfile]		"bf",
+[ODbootfile]		"bf"
 };
 
 void	addropt(Req*, int, uchar*);
@@ -1131,8 +1131,8 @@ miscoptions(Req *rp, uchar *ip)
 		addropt(rp, OBrouter, rp->giaddr);
 	}
 
-	// OBhostname for the HP4000M switches
-	// (this causes NT to log infinite errors - tough shit )
+	/* OBhostname for the HP4000M switches */
+	/* (this causes NT to log infinite errors - tough shit ) */
 	if(*rp->ii.domain){
 		remrequested(rp, OBhostname);
 		stringopt(rp, OBhostname, rp->ii.domain);
@@ -1236,10 +1236,10 @@ miscoptions(Req *rp, uchar *ip)
 			break;
 		}
 
-	// add plan9 specific options
+	/* add plan9 specific options */
 	if(strncmp((char*)rp->vendorclass, "plan9_", 6) == 0
 	|| strncmp((char*)rp->vendorclass, "p9-", 3) == 0){
-		// point to temporary area
+		/* point to temporary area */
 		op = rp->p;
 		omax = rp->max;
 		rp->p = vopts;
@@ -1250,7 +1250,7 @@ miscoptions(Req *rp, uchar *ip)
 		j = lookupserver("auth", addrs, t);
 		addrsopt(rp, OP9auth, addrs, j);
 
-		// point back
+		/* point back */
 		j = rp->p - vopts;
 		rp->p = op;
 		rp->max = omax;
@@ -1544,7 +1544,7 @@ char *dhcpmsgname[] =
 	[Ack]		"Ack",
 	[Nak]		"Nak",
 	[Release]	"Release",
-	[Inform]	"Inform",
+	[Inform]	"Inform"
 };
 
 void

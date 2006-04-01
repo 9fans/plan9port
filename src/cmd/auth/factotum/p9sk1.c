@@ -343,11 +343,11 @@ Proto p9sk1 = {
 	p9sk1roles,
 	"user? dom? !password?",
 	p9sk1check,
-	p9sk1close,
+	p9sk1close
 };
 
 Proto p9sk2 = {
 	"p9sk2",
-	p9sk2roles,
+	p9sk2roles
 };
 

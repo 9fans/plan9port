@@ -326,7 +326,7 @@ long tabascii[256] =
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
   -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
-  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,
+  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1,  -1
 };
 
 long tabmsdos[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
@@ -354,7 +354,7 @@ long tabmsdos[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4, /* greek */
 0x03a6, 0x0398, 0x2126, 0x03b4, 0x221e, 0x2205, 0x2208, 0x2229,
 0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248, /* math */
-0x00b0, 0x2022, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x220e, 0x00a0,
+0x00b0, 0x2022, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x220e, 0x00a0
 };
 long tabmsdos2[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 {
@@ -383,7 +383,7 @@ long tabmsdos2[256] =	/* from jhelling@cs.ruu.nl (Jeroen Hellingman) */
 0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4, /* greek */
 0x03a6, 0x0398, 0x2126, 0x03b4, 0x221e, 0x2205, 0x2208, 0x2229,
 0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248, /* math */
-0x00b0, 0x2022, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x220e, 0x00a0,
+0x00b0, 0x2022, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x220e, 0x00a0
 };
 struct convert convert[] =
 {	/* if two entries have the same name, put the from one first */
@@ -462,5 +462,5 @@ struct convert convert[] =
 	{ "viet1", "Vietnamese VSCII-1 (1993)", Table, (void *)tabviet1 },
 	{ "viet2", "Vietnamese VSCII-2 (1993)", Table, (void *)tabviet2 },
 	{ "viscii", "Vietnamese VISCII 1.1 (1992)", Table, (void *)tabviscii },
-	{ 0 },
+	{ 0 }
 };

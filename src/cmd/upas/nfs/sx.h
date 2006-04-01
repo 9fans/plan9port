@@ -8,7 +8,7 @@ enum
 	SxAtom,
 	SxString,
 	SxNumber,
-	SxList,
+	SxList
 };
 
 typedef struct Sx Sx;

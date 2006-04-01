@@ -191,7 +191,7 @@ mapreq(XMapRequestEvent *e)
 	if(c == 0 || c->window != e->window){
 		/* workaround for stupid NCDware */
 		fprintf(stderr, "rio: bad mapreq c %p w %x, rescanning\n",
-			c, (int)e->window);
+			(void*)c, (int)e->window);
 		for(i = 0; i < num_screens; i++)
 			scanwins(&screens[i]);
 		c = getclient(e->window, 0);

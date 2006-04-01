@@ -17,7 +17,7 @@ AUTOLIB(venti)
  */
 enum
 {
-	MaxFragSize = 9*1024,
+	MaxFragSize = 9*1024
 };
 
 typedef struct Packet Packet;
@@ -91,7 +91,7 @@ enum
 	VtScoreSize = 20,
 	VtMaxStringSize = 1024,
 	VtMaxLumpSize	= 56*1024,
-	VtPointerDepth	= 7,
+	VtPointerDepth	= 7
 };
 #define VtMaxFileSize ((1ULL<<48)-1)
 
@@ -120,7 +120,7 @@ enum
 	VtCorruptType = 0xFF,
 
 	VtTypeDepthMask = 7,
-	VtTypeBaseMask = ~VtTypeDepthMask,
+	VtTypeBaseMask = ~VtTypeDepthMask
 };
 
 /* convert to/from on-disk type numbers */
@@ -141,11 +141,11 @@ enum
 	_VtEntryDir = 1<<1,		/* a directory */
 	_VtEntryDepthShift = 2,		/* shift for pointer depth */
 	_VtEntryDepthMask = 7<<2,	/* mask for pointer depth */
-	VtEntryLocal = 1<<5,		/* for local storage only */
+	VtEntryLocal = 1<<5		/* for local storage only */
 };
 enum
 {
-	VtEntrySize = 40,
+	VtEntrySize = 40
 };
 struct VtEntry
 {
@@ -173,7 +173,7 @@ struct VtRoot
 enum
 {
 	VtRootSize = 300,
-	VtRootVersion = 2,
+	VtRootVersion = 2
 };
 
 void vtrootpack(VtRoot*, uchar*);
@@ -231,7 +231,7 @@ enum
 	VtCryptoStrengthNone,
 	VtCryptoStrengthAuth,
 	VtCryptoStrengthWeak,
-	VtCryptoStrengthStrong,
+	VtCryptoStrengthStrong
 };
 
 /*
@@ -242,7 +242,7 @@ enum
 	VtCryptoNone,
 	VtCryptoSSL3,
 	VtCryptoTLS1,
-	VtCryptoMax,
+	VtCryptoMax
 };
 
 /* 
@@ -313,7 +313,7 @@ enum
 {
 	VtStateAlloc,
 	VtStateConnected,
-	VtStateClosed,
+	VtStateClosed
 };
 
 struct VtConn
@@ -387,7 +387,7 @@ int vtping(VtConn*);
  */
 enum
 {
-	NilBlock = ~0,
+	NilBlock = ~0
 };
 
 typedef struct VtBlock VtBlock;
@@ -459,7 +459,7 @@ enum
 {
 	VtOREAD,
 	VtOWRITE,
-	VtORDWR,
+	VtORDWR
 };
 
 VtFile *vtfileopenroot(VtCache*, VtEntry*);

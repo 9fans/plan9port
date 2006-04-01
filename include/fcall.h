@@ -108,7 +108,7 @@ enum
 	Tmax,
 
 	Topenfd = 	98,
-	Ropenfd,
+	Ropenfd
 };
 
 uint	convM2S(uchar*, uint, Fcall*);

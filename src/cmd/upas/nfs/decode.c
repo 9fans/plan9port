@@ -105,7 +105,7 @@ struct {
 	"big5",			"big5",
 	"iso-2022-jp",	"jis-kanji",
 	"windows-1251",	"cp1251",
-	"koi8-r",			"koi8",
+	"koi8-r",			"koi8"
 };
 
 char*

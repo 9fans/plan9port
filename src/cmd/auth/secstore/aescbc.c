@@ -100,7 +100,7 @@ main(int argc, char **argv)
 		aesCBCencrypt(buf+AESbsize, AESbsize, &aes);  /* use second AESbsize bytes as initial plaintext */
 		safewrite(buf, 2*AESbsize);
 		dstate = hmac_sha1(buf+AESbsize, AESbsize, key2, MD5dlen, 0, 0);
-		while(1){
+		for(;;){
 			n = Bread(&bin, buf, BUF);
 			if(n < 0){
 				fprint(2,"read error\n");
@@ -134,9 +134,9 @@ main(int argc, char **argv)
 				exits("decrypted file failed to authenticate");
 			}
 		}else{ /* compatibility with past mistake */
-			// if file was encrypted with bad aescbc use this:
-			//         memset(key, 0, AESmaxkey);
-			//    else assume we're decrypting secstore files
+			/* if file was encrypted with bad aescbc use this: */
+			/*         memset(key, 0, AESmaxkey); */
+			/*    else assume we're decrypting secstore files */
 			setupAESstate(&aes, key, AESbsize, buf);
 			saferead(buf, CHK);
 			aesCBCdecrypt(buf, CHK, &aes);

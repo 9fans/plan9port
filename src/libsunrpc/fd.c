@@ -5,7 +5,7 @@
 
 enum
 {
-	MaxRead = 17000,
+	MaxRead = 17000
 };
 
 typedef struct SunMsgFd SunMsgFd;

@@ -179,9 +179,9 @@ main(int argc, char **argv)
 		if(fd < 0)
 			continue;
 		for(;;){
-		//	alarm(1000);
+		/*	alarm(1000); */
 			n = readstr(fd, cmd, sizeof cmd);
-		//	alarm(0);
+		/*	alarm(0); */
 			if(n <= 0)
 				break;
 			dprint("CMD %s\n", cmd);

@@ -41,7 +41,7 @@ char *rpcname[] =
 	"start",
 	"write",
 	"readhex",
-	"writehex",
+	"writehex"
 };
 
 static int

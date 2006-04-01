@@ -129,10 +129,10 @@ static Mux p_mux[] =
 
 enum
 {
-	Os,	// source
-	Od,	// destination
-	Osd,	// source or destination
-	Ot,	// type
+	Os,	/* source */
+	Od,	/* destination */
+	Osd,	/* source or destination */
+	Ot,	/* type */
 };
 
 static Field p_fields[] = 
@@ -233,5 +233,5 @@ Proto ip =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

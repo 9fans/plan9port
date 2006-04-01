@@ -10,7 +10,7 @@ static char Eremoved[] = "[removed]";
 enum
 {	/* defaults */
 	LogChunkSize = 8192,
-	LogSize = 65536,
+	LogSize = 65536
 };
 
 static struct {

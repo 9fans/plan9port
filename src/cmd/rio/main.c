@@ -18,7 +18,7 @@
 
 char	*version[] =
 {
-	"rio version 1.0, Copyright (c) 1994-1996 David Hogan, (c) 2004 Russ Cox", 0,
+	"rio version 1.0, Copyright (c) 1994-1996 David Hogan, (c) 2004 Russ Cox", 0
 };
 
 Display 		*dpy;
@@ -62,7 +62,7 @@ char	*fontlist[] = {
 	"9x15bold",
 	"fixed",
 	"*",
-	0,
+	0
 };
 
 void

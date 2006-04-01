@@ -259,7 +259,7 @@ static	struct
 	SIGFPE,		"sys: fp: fptrap",
 	SIGPIPE,	"sys: write on closed pipe",
 	SIGILL,		"sys: trap: illegal instruction",
-//	SIGSEGV,	"sys: segmentation violation",
+/*	SIGSEGV,	"sys: segmentation violation", */
 	0,		0
 };
 

@@ -15,7 +15,7 @@ enum {
 	PR,		/* pronunciation */
 	PS,		/* grammar part */
 	XR,		/* cross reference */
-	XX,		/* cross reference (whole entry) */
+	XX		/* cross reference (whole entry) */
 };
 
 /* Assoc tables must be sorted on first field */
@@ -31,7 +31,7 @@ static Assoc tagtab[] = {
 	{"pr",	PR},
 	{"ps",	PS},
 	{"xr",	XR},
-	{"xx",	XX},
+	{"xx",	XX}
 };
 static long	sget(char *, char *, char **, char **);
 static void	soutpiece(char *, char *);

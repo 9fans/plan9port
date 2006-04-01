@@ -14,7 +14,7 @@ char*	month[] =
 	"September",
 	"October",
 	"November",
-	"December",
+	"December"
 };
 
 double
@@ -163,13 +163,13 @@ pstime(double d)
 	lambda = 0;
 	beta = 0;
 
-// uses lambda, beta, rad, motion
-// sets alpha, delta, rp
+/* uses lambda, beta, rad, motion */
+/* sets alpha, delta, rp */
 
 	helio();
 
-// uses alpha, delta, rp
-// sets ra, decl, lha, decl2, az, el
+/* uses alpha, delta, rp */
+/* sets ra, decl, lha, decl2, az, el */
 
 	geo();
 

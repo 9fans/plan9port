@@ -212,7 +212,7 @@ int whatpos(obj *p, int corner, double *px, double *py)	/* what is the position 
 
 	x1 = y1 = 0.0; /* Botch? (gcc) */
 
-	dprintf("whatpos %p %d %d\n", p, p->o_type, corner);
+	dprintf("whatpos %p %d %d\n", (void*)p, p->o_type, corner);
 	x = p->o_x;
 	y = p->o_y;
 	if (p->o_type != PLACE && p->o_type != MOVE) {

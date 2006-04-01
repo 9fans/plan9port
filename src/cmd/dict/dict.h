@@ -62,7 +62,7 @@ enum {	NONE=0xe800,	/* Emit nothing */
 	MWLN,		/* ʼω */
 	MOE,		/* oe */
 	MES,		/* em space */
-	MULTIE,		/* End of multi-rune codes */
+	MULTIE		/* End of multi-rune codes */
 };
 #define Nligs (LIGE-LIGS)
 #define Nmulti (MULTIE-MULTI)

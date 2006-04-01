@@ -67,7 +67,7 @@ enum
 	Ppltdecd,
 	Ppltdecm,
 	Ppltdecs,
-	Pnparam,
+	Pnparam
 };
 
 typedef	struct	Plate	Plate;

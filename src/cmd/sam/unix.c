@@ -128,7 +128,7 @@ statfd(int fd, ulong *dev, uvlong *id, long *time, long *length, long *appendonl
 void
 hup(int sig)
 {
-        panicking = 1; // ???
+        panicking = 1; /* ??? */
         rescue();
         exit(1);
 }
@@ -137,7 +137,7 @@ int
 notify(void(*f)(void *, char *))
 {
         signal(SIGINT, SIG_IGN);
-        signal(SIGPIPE, SIG_IGN);  // XXX - bpipeok?
+        signal(SIGPIPE, SIG_IGN);  /* XXX - bpipeok? */
         signal(SIGHUP, hup);
         return 1;
 }

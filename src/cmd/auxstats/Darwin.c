@@ -88,7 +88,7 @@ sampleinit(void)
 	if(host_page_size(stat_port, &sample.pgsize) != KERN_SUCCESS)
 		sample.pgsize = 4096;
 
-	// populate clock tick info for timestamps
+	/* populate clock tick info for timestamps */
 	mach_timebase_info(&info);
         sample.divisor = 1000.0 * (double)info.denom/info.numer;
 	sample.time = mach_absolute_time();
@@ -361,10 +361,10 @@ xvm(int first)
 		isys("vm.stats.vm.v_rforks")
 		+isys("vm.stats.vm.v_vforks"));
 
-//    Bprint(&bout, "hits %lud of %lud lookups (%d%% hit rate)\n",
-//               (asamp.vm_stat.hits),
-//               (asamp.vm_stat.lookups),
-//               (natural_t)(((double)asamp.vm_stat.hits*100)/ (double)asamp.vm_stat.lookups));
+/*    Bprint(&bout, "hits %lud of %lud lookups (%d%% hit rate)\n", */
+/*               (asamp.vm_stat.hits), */
+/*               (asamp.vm_stat.lookups), */
+/*               (natural_t)(((double)asamp.vm_stat.hits*100)/ (double)asamp.vm_stat.lookups)); */
 }
 
 void

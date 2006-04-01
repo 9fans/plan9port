@@ -77,7 +77,7 @@ void plan9tovacdir(VacDir*, Dir*, ulong entry, uvlong qid);
 enum {
 	Version = 8,
 	BlockSize = 8*1024,
-	MaxExclude = 1000,
+	MaxExclude = 1000
 };
 
 struct {
@@ -202,7 +202,7 @@ threadmain(int argc, char *argv[])
 	if(statsflag)
 		fprint(2, "files %ld:%ld data %ld:%ld:%ld meta %ld\n", stats.file, stats.sfile,
 			stats.data, stats.skip, stats.sdata, stats.meta);
-//packetStats();
+/*packetStats(); */
 	vthangup(z);
 
 	threadexitsall(0);

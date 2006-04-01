@@ -248,7 +248,7 @@ new(Image *i, int hideit, int scrollit, int pid, char *dir, char *cmd, char **ar
 		error("new: channel alloc failed");
 	mc = emalloc(sizeof(Mousectl));
 	*mc = *mousectl;
-//	mc->image = i;
+/*	mc->image = i; */
 	mc->c = cm;
 	w = wmk(i, mc, ck, cctl, scrollit);
 	free(mc);	/* wmk copies *mc */
@@ -282,7 +282,7 @@ enum
 	Plumb,
 	Send,
 	Scroll,
-	Cook,
+	Cook
 };
 
 char		*menu2str[] = {

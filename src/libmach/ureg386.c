@@ -18,8 +18,8 @@ linux2ureg386(UregLinux386 *l, Ureg *u)
 	u->fs = l->xfs;
 	u->es = l->xes;
 	u->ds = l->xds;
-	u->trap = ~0; // l->trapno;
-	u->ecode = ~0; // l->err;
+	u->trap = ~0; /* l->trapno; */
+	u->ecode = ~0; /* l->err; */
 	u->pc = l->eip;
 	u->cs = l->xcs;
 	u->flags = l->eflags;

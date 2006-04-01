@@ -52,7 +52,7 @@ void	usage(void);
 enum {
 	Plen=300,	/* max length of a search pattern */
 	Fieldlen=200,	/* max length of an index field */
-	Aslots=10,	/* initial number of slots in an address */
+	Aslots=10	/* initial number of slots in an address */
 };
 
 void

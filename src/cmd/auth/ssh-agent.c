@@ -49,7 +49,7 @@ enum		/* agent protocol packet types */
 	SSH2_AGENT_FAILURE = 30,
 	
 	SSH_COM_AGENT2_FAILURE = 102,
-	SSH_AGENT_OLD_SIGNATURE = 0x01,
+	SSH_AGENT_OLD_SIGNATURE = 0x01
 };
 
 typedef struct Aconn Aconn;

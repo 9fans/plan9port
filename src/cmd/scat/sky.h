@@ -63,7 +63,7 @@ typedef enum
 	/* internal */
 	NGCN,
 	PatchC,
-	NONGC,
+	NONGC
 }Type;
 
 enum
@@ -128,7 +128,7 @@ enum
 	Ppltdecd,
 	Ppltdecm,
 	Ppltdecs,
-	Pnparam,
+	Pnparam
 };
 
 #define	UNKNOWNMAG	32767

@@ -14,7 +14,7 @@ enum
 	OPERM	= 0x3,		/* mask of all permission types in open mode */
 	Nram	= 2048,
 	Maxsize	= 512*1024*1024,
-	Maxfdata	= 8192,
+	Maxfdata	= 8192
 };
 
 typedef struct Fid Fid;
@@ -55,7 +55,7 @@ enum
 	Pread = 	4,
 	Pother = 	1,
 	Pgroup = 	8,
-	Powner =	64,
+	Powner =	64
 };
 
 ulong	path;		/* incremented for each new file */
@@ -703,7 +703,7 @@ rwstat(Fid *f)
 	 */
 	if(dir.gid[0]!='\0' && strcmp(r->group, dir.gid)!=0){
 		if(strcmp(f->user, r->user) == 0)
-	//	if(strcmp(f->user, dir.gid) == 0)
+	/*	if(strcmp(f->user, dir.gid) == 0) */
 			goto ok;
 		if(strcmp(f->user, r->group) == 0)
 		if(strcmp(f->user, dir.gid) == 0)

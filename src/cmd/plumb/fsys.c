@@ -92,7 +92,7 @@ static Dirtab dir[NDIR] =
 {
 	{ ".",			QTDIR,	Qdir,			0500|DMDIR },
 	{ "rules",		QTFILE,	Qrules,		0600 },
-	{ "send",		QTFILE,	Qsend,		0200 },
+	{ "send",		QTFILE,	Qsend,		0200 }
 };
 static int	ndir = NQID;
 

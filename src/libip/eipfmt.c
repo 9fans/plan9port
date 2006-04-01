@@ -4,10 +4,10 @@
 
 enum
 {
-	Isprefix= 16,
+	Isprefix= 16
 };
 
-// XXX: manually initialize once to placate the Sun monster
+/* XXX: manually initialize once to placate the Sun monster */
 uchar prefixvals[256];
 #ifdef NOTDEF
 uchar prefixvals[256] =
@@ -37,7 +37,7 @@ eipfmt(Fmt *f)
 	ushort s;
 	int i, j, n, eln, eli;
 
-	static int once = 0;	// XXX: placate the Sun monster
+	static int once = 0;	/* XXX: placate the Sun monster */
 
 	if(!once){
 		once = 1;

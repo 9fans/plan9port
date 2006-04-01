@@ -51,7 +51,7 @@ enum
 	Eof = 0,
 	Error = -1,
 	Server = -2,
-	Changed = -3,
+	Changed = -3
 };
 
 int debug;
@@ -106,7 +106,7 @@ threadmain(int argc, char **argv)
 	ulong mtime;
 	Dir *d;
 	char postbody[4096], *p, *e, *t, *hpx;
-	URL px; // Proxy
+	URL px; /* Proxy */
 	Out out;
 
 	ofile = nil;
@@ -835,7 +835,7 @@ enum
 	PermFail=	5,
 
 	Nnetdir=	64,	/* max length of network directory paths */
-	Ndialstr=	64,		/* max length of dial strings */
+	Ndialstr=	64		/* max length of dial strings */
 };
 
 int ftpcmd(int, char*, ...);

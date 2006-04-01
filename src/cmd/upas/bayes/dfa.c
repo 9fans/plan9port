@@ -667,8 +667,8 @@ main(int argc, char **argv)
 		if(p == 0){
 			print("=== %s: bad regexp\n", argv[i]);
 		}
-	//	print("=== %s\n", argv[i]);
-	//	rdump(p);
+	/*	print("=== %s\n", argv[i]); */
+	/*	rdump(p); */
 		dp = dregcvt(p);
 		print("=== dfa\n");
 		dump(dp);

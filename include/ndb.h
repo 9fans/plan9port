@@ -21,7 +21,7 @@ typedef struct Ndbcache	Ndbcache;
 enum
 {
 	Ndbalen=	32,	/* max attribute length */
-	Ndbvlen=	64,	/* max value length */
+	Ndbvlen=	64	/* max value length */
 };
 
 /*

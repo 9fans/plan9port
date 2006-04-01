@@ -202,7 +202,7 @@ deinstall(int pid)
 	for(i = 0; i < Maxproc; i++) {
 		if(ptab[i].pid == pid) {
 			detachproc(pid);
-			// close(ptab[i].ctl);
+			/* close(ptab[i].ctl); */
 			ptab[i].pid = 0;
 			s = look("proclist");
 			d = &s->v->store.u.l;

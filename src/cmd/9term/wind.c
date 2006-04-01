@@ -19,7 +19,7 @@ enum
 {
 	HiWater	= 640000,	/* max size of history */
 	LoWater	= 400000,	/* min size of history after max'ed */
-	MinWater	= 20000,	/* room to leave available when reallocating */
+	MinWater	= 20000	/* room to leave available when reallocating */
 };
 
 static	int		topped;
@@ -121,8 +121,8 @@ fprint(2, "res %p %p\n", w->i, i);
 		freeimage(w->i);
 		w->i = i;
 	}
-//	wsetname(w);
-//XXX	w->mc.image = i;
+/*	wsetname(w); */
+/*XXX	w->mc.image = i; */
 	r = insetrect(i->r, Selborder+1);
 	w->scrollr = r;
 	w->scrollr.max.x = r.min.x+Scrollwid;
@@ -276,9 +276,9 @@ winctl(void *arg)
 		case WKey:
 			for(i=0; kbdr[i]!=L'\0'; i++)
 				wkeyctl(w, kbdr[i]);
-//			wkeyctl(w, r);
-//			while(nbrecv(w->ck, &r))
-//				wkeyctl(w, r);
+/*			wkeyctl(w, r); */
+/*			while(nbrecv(w->ck, &r)) */
+/*				wkeyctl(w, r); */
 			break;
 		case WMouse:
 			if(w->mouseopen) {
@@ -307,9 +307,10 @@ winctl(void *arg)
 				m = w->mouse.queue[w->mouse.ri];
 				if(++w->mouse.ri == nelem(w->mouse.queue))
 					w->mouse.ri = 0;
-			} else
-				m = (Mousestate){w->mc.m, w->mouse.counter};
-
+			} else {
+				m.m = w->mc.m;
+				m.counter = w->mouse.counter;
+			}
 			w->mouse.lastcounter = m.counter;
 			send(mrm.cm, &m.m);
 			continue;
@@ -393,13 +394,13 @@ winctl(void *arg)
 				c = t[i];	/* knows break characters fit in a byte */
 				i += wid;
 				if(!w->rawing && (c == '\n' || c=='\004')){
-				//	if(c == '\004')
-				//		i--;
+				/*	if(c == '\004') */
+				/*		i--; */
 					break;
 				}
 			}
-		//	if(i==nb && w->qh<w->nr && w->r[w->qh]=='\004')
-		//		w->qh++;
+		/*	if(i==nb && w->qh<w->nr && w->r[w->qh]=='\004') */
+		/*		w->qh++; */
 			if(i > nb){
 				npart = i-nb;
 				memmove(part, t+nb, npart);

@@ -74,7 +74,7 @@ dirls(char *path)
 	}
 	for(list=nil, len=0, i=0; i<ndir; i++){
 		date = ctime(dirbuf[i].mtime);
-		date[28] = 0;  // trim newline
+		date[28] = 0;  /* trim newline */
 		n = snprint(buf, sizeof buf, "%*ulld %s", lenwid, dirbuf[i].length, date+4);
 		n += enc64(dig, sizeof dig, sha1file(path, dirbuf[i].name), SHA1dlen);
 		n += nmwid+3+strlen(dirbuf[i].name);

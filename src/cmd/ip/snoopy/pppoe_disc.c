@@ -27,7 +27,7 @@ enum
 	Overs,
 	Otype,
 	Ocode,
-	Osess,
+	Osess
 };
 
 static Field p_fields[] = 
@@ -42,7 +42,7 @@ static Field p_fields[] =
 static void
 p_compilesess(Filter *f)
 {
-//	Mux *m;
+/*	Mux *m; */
 
 	if(f->op == '='){
 		compile_cmp(pppoe_sess.name, f, p_fields);
@@ -62,7 +62,7 @@ p_compilesess(Filter *f)
 static void
 p_compiledisc(Filter *f)
 {
-//	Mux *m;
+/*	Mux *m; */
 
 	if(f->op == '='){
 		compile_cmp(pppoe_disc.name, f, p_fields);

@@ -14,7 +14,7 @@ enum
 	OPlumb,
 	OSrc,
 	OType,
-	OWdir,
+	OWdir
 };
 
 /*
@@ -31,7 +31,7 @@ enum
 	VMatches,
 	VSet,
 	VStart,
-	VTo,
+	VTo
 };
 
 struct Rule

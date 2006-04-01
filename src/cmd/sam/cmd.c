@@ -37,7 +37,7 @@ struct cmdtab cmdtab[]={
 	'|',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd,
 	'=',	0,	0,	0,	0,	aDot,	0,	linex,	eq_cmd,
 	'c'|0x100,0,	0,	0,	0,	aNo,	0,	wordx,	cd_cmd,
-	0,	0,	0,	0,	0,	0,	0,	0,
+	0,	0,	0,	0,	0,	0,	0,	0
 };
 Cmd	*parsecmd(int);
 Addr	*compoundaddr(void);

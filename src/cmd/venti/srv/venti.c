@@ -210,8 +210,8 @@ ventiserver(void *v)
 		trace(TraceRpc, "<- %F", &r->tx);
 		r->rx.msgtype = r->tx.msgtype+1;
 		addstat(StatRpcTotal, 1);
-	//	print("req (arenas[0]=%p sects[0]=%p) %F\n",
-	//		mainindex->arenas[0], mainindex->sects[0], &r->tx);
+	/*	print("req (arenas[0]=%p sects[0]=%p) %F\n", */
+	/*		mainindex->arenas[0], mainindex->sects[0], &r->tx); */
 		switch(r->tx.msgtype){
 		default:
 			vtrerror(r, "unknown request");

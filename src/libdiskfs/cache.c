@@ -145,7 +145,7 @@ diskcachereadbig(DiskCache *d, u64int offset)
 	lock(&d->lk);
 	dcb = findblock(d, offset);
 	if(dcb){
-//fprint(2, "found %llud in cache %p\n", (uvlong)offset, dcb);
+/*fprint(2, "found %llud in cache %p\n", (uvlong)offset, dcb);*/
 		if(dcb->ref++ == 0)
 			delfromlru(d, dcb);
 		unlock(&d->lk);
@@ -165,7 +165,7 @@ diskcachereadbig(DiskCache *d, u64int offset)
 		putlru(d, dcb);
 		dcb = nil;
 	}else{
-//fprint(2, "read %llud from disk %p\n", (uvlong)offset, dcb);
+/*fprint(2, "read %llud from disk %p\n", (uvlong)offset, dcb); */
 		dcb->subblock = b;
 		dcb->ref++;
 		addtohash(d, dcb, offset);
@@ -223,7 +223,7 @@ diskcacheread(Disk *dd, u32int len, u64int offset)
 		len = dlen-frag;
 	}
 	b->len = len;
-//fprint(2, "offset %llud at pointer %p %lux\n", (uvlong)offset, b->data, *(ulong*)(b->data+4));
+/*fprint(2, "offset %llud at pointer %p %lux\n", (uvlong)offset, b->data, *(ulong*)(b->data+4)); */
 	return b;
 }
 

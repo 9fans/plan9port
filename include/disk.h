@@ -64,7 +64,7 @@ enum {
 
 	Gpart = 0,	/* partition info source */
 	Gdisk,
-	Gguess,
+	Gguess
 };
 
 /* proto file parsing */

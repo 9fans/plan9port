@@ -53,7 +53,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 		filereset(w->tag.file);
 		textsetselect(&w->tag, nc, nc);
 	}
-//assert(w->body.w == w);
+/*assert(w->body.w == w); */
 	r1 = r;
 	r1.min.y += w->taglines*font->height + 1;
 	if(r1.max.y < r1.min.y)
@@ -66,7 +66,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 		rf = rfget(FALSE, FALSE, FALSE, clone->body.reffont->f->name);
 	}else
 		rf = rfget(FALSE, FALSE, FALSE, nil);
-//assert(w->body.w == w);
+/*assert(w->body.w == w); */
 	f = fileaddtext(f, &w->body);
 	w->body.what = Body;
 	textinit(&w->body, f, r1, rf, textcols);
@@ -82,7 +82,7 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->filemenu = TRUE;
 	w->maxlines = w->body.fr.maxlines;
 	w->autoindent = globalautoindent;
-//assert(w->body.w == w);
+/*assert(w->body.w == w); */
 	if(clone){
 		w->dirty = clone->dirty;
 		w->autoindent = clone->autoindent;

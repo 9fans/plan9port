@@ -603,7 +603,7 @@ static	const	short	yyexca[] =
 	31, 72,
 	32, 72,
 	35, 72,
-	-2, 74,
+	-2, 74
 };
 #define	YYNPROD	122
 #define	YYPRIVATE 57344

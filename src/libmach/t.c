@@ -163,9 +163,9 @@ main(int argc, char **argv)
 	attachargs(argc, argv, OREAD);
 	attachdynamic();
 
-//	if(!corpid && !corhdr)
-//		sysfatal("could not attach to process");
-//
+/*	if(!corpid && !corhdr) */
+/*		sysfatal("could not attach to process"); */
+/* */
 	p.pid = corpid;
 	if((e = td_ta_new(&p, &ta)) != TD_OK)
 		sysfatal("td_ta_new: %s", terr(e));

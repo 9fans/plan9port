@@ -170,11 +170,11 @@ loop:
 		increment(s, c);
 		goto loop;
 	}
-//	if(flags['2'])
-//		if(s->match)
-//			print("%d: %.2x**\n", s, c);
-//		else
-//			print("%d: %.2x\n", s, c);
+/*	if(flags['2']) */
+/*		if(s->match) */
+/*			print("%d: %.2x**\n", s, c); */
+/*		else */
+/*			print("%d: %.2x\n", s, c); */
 	lp++;
 	s = ns;
 	if(c == '\n') {

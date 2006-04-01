@@ -15,7 +15,7 @@ enum
 {
 	MAXBEST = 32,
 	MAXLEN = 64,
-	MAXTAB = 256,
+	MAXTAB = 256
 };
 
 typedef struct Ndb Ndb;
@@ -163,7 +163,7 @@ main(int argc, char **argv)
 			w.p[i] = p;
 			totp += p;
 		}
-//fprint(2, "%s tot %d totp %g\n", s, tot, totp);
+/*fprint(2, "%s tot %d totp %g\n", s, tot, totp); */
 		if(tot < 2)
 			continue;
 		w.mp = 0.0;

@@ -53,7 +53,7 @@ Header head[] =
 [Mhead]	{ "content-type:", ctype, },
 	{ "content-transfer-encoding:", cencoding, },
 	{ "content-disposition:", cdisposition, },
-	{ 0, },
+	{ 0, }
 };
 
 /* static	void	fatal(char *fmt, ...); jpc */
@@ -76,13 +76,13 @@ char *Enotme = "path not served by this file server";
 
 enum
 {
-	Chunksize = 1024,
+	Chunksize = 1024
 };
 
 Mailboxinit *boxinit[] = {
 	imap4mbox,
 	pop3mbox,
-	plan9mbox,
+	plan9mbox
 };
 
 char*
@@ -119,7 +119,7 @@ newmbox(char *path, char *name, int std)
 	}
 
 	rv = nil;
-	// check for a mailbox type
+	/* check for a mailbox type */
 	for(i=0; i<nelem(boxinit); i++)
 		if((rv = (*boxinit[i])(mb, path)) != Enotme)
 			break;
@@ -128,13 +128,13 @@ newmbox(char *path, char *name, int std)
 		return "bad path";
 	}
 
-	// on error, give up
+	/* on error, give up */
 	if(rv){
 		free(mb);
 		return rv;
 	}
 
-	// make sure name isn't taken
+	/* make sure name isn't taken */
 	qlock(&mbllock);
 	for(l = &mbl; *l != nil; l = &(*l)->next){
 		if(strcmp((*l)->name, mb->name) == 0){
@@ -150,7 +150,7 @@ newmbox(char *path, char *name, int std)
 		}
 	}
 
-	// always try locking
+	/* always try locking */
 	mb->dolock = 1;
 
 	mb->refs = 1;
@@ -172,7 +172,7 @@ newmbox(char *path, char *name, int std)
 	return rv;
 }
 
-// close the named mailbox
+/* close the named mailbox */
 void
 freembox(char *name)
 {
@@ -248,7 +248,7 @@ parseheaders(Message *m, int justmime, Mailbox *mb, int addfrom)
 		henter(PATH(m->id, Qdir), dirtab[i],
 			(Qid){PATH(m->id, i), 0, QTFILE}, m, mb);
 
-	// parse mime headers
+	/* parse mime headers */
 	p = m->header;
 	hl = s_new();
 	while(headerline(&p, hl)){
@@ -266,7 +266,7 @@ parseheaders(Message *m, int justmime, Mailbox *mb, int addfrom)
 	}
 	s_free(hl);
 
-	// the blank line isn't really part of the body or header
+	/* the blank line isn't really part of the body or header */
 	if(justmime){
 		m->mhend = p;
 		m->hend = m->header;
@@ -277,27 +277,27 @@ parseheaders(Message *m, int justmime, Mailbox *mb, int addfrom)
 		p++;
 	m->rbody = m->body = p;
 
-	// if type is text, get any nulls out of the body.  This is
-	// for the two seans and imap clients that get confused.
+	/* if type is text, get any nulls out of the body.  This is */
+	/* for the two seans and imap clients that get confused. */
 	if(strncmp(s_to_c(m->type), "text/", 5) == 0)
 		nullsqueeze(m);
 
-	//
-	// cobble together Unix-style from line
-	// for local mailbox messages, we end up recreating the
-	// original header.
-	// for pop3 messages, the best we can do is 
-	// use the From: information and the RFC822 date.
-	//
+	/* */
+	/* cobble together Unix-style from line */
+	/* for local mailbox messages, we end up recreating the */
+	/* original header. */
+	/* for pop3 messages, the best we can do is  */
+	/* use the From: information and the RFC822 date. */
+	/* */
 	if(m->unixdate == nil || strcmp(s_to_c(m->unixdate), "???") == 0
 	|| strcmp(s_to_c(m->unixdate), "Thu Jan 1 00:00:00 GMT 1970") == 0){
 		if(m->unixdate){
 			s_free(m->unixdate);
 			m->unixdate = nil;
 		}
-		// look for the date in the first Received: line.
-		// it's likely to be the right time zone (it's
-	 	// the local system) and in a convenient format.
+		/* look for the date in the first Received: line. */
+		/* it's likely to be the right time zone (it's */
+	 	/* the local system) and in a convenient format. */
 		if(cistrncmp(m->header, "received:", 9)==0){
 			if((q = strchr(m->header, ';')) != nil){
 				p = q;
@@ -314,7 +314,7 @@ parseheaders(Message *m, int justmime, Mailbox *mb, int addfrom)
 			}
 		}
 
-		// fall back on the rfc822 date	
+		/* fall back on the rfc822 date	 */
 		if(m->unixdate==nil && m->date822)
 			m->unixdate = date822tounix(s_to_c(m->date822));
 	}
@@ -322,10 +322,10 @@ parseheaders(Message *m, int justmime, Mailbox *mb, int addfrom)
 	if(m->unixheader != nil)
 		s_free(m->unixheader);
 
-	// only fake header for top-level messages for pop3 and imap4
-	// clients (those protocols don't include the unix header).
-	// adding the unix header all the time screws up mime-attached
-	// rfc822 messages.
+	/* only fake header for top-level messages for pop3 and imap4 */
+	/* clients (those protocols don't include the unix header). */
+	/* adding the unix header all the time screws up mime-attached */
+	/* rfc822 messages. */
 	if(!addfrom && !m->unixfrom){
 		m->unixheader = nil;
 		return;
@@ -365,7 +365,7 @@ parsebody(Message *m, Mailbox *mb)
 {
 	Message *nm;
 
-	// recurse
+	/* recurse */
 	if(strncmp(s_to_c(m->type), "multipart/", 10) == 0){
 		parseattachments(m, mb);
 	} else if(strcmp(s_to_c(m->type), "message/rfc822") == 0){
@@ -373,7 +373,7 @@ parsebody(Message *m, Mailbox *mb)
 		parseattachments(m, mb);
 		nm = m->part;
 
-		// promote headers
+		/* promote headers */
 		if(m->replyto822 == nil && m->from822 == nil && m->sender822 == nil){
 			m->from822 = promote(&nm->from822);
 			m->to822 = promote(&nm->to822);
@@ -399,7 +399,7 @@ parseattachments(Message *m, Mailbox *mb)
 	Message *nm, **l;
 	char *p, *x;
 
-	// if there's a boundary, recurse...
+	/* if there's a boundary, recurse... */
 	if(m->boundary != nil){
 		p = m->body;
 		nm = nil;
@@ -442,7 +442,7 @@ parseattachments(Message *m, Mailbox *mb)
 		return;
 	}
 
-	// if we've got an rfc822 message, recurse...
+	/* if we've got an rfc822 message, recurse... */
 	if(strcmp(s_to_c(m->type), "message/rfc822") == 0){
 		nm = newmessage(m);
 		m->part = nm;
@@ -496,11 +496,11 @@ addr822(char *p)
 	for(; *p; p++){
 		c = *p;
 
-		// whitespace is ignored
+		/* whitespace is ignored */
 		if(!quoted && isspace(c) || c == '\r')
 			continue;
 
-		// strings are always treated as atoms
+		/* strings are always treated as atoms */
 		if(!quoted && c == '"'){
 			if(!addrdone && !incomment)
 				s_putc(s, c);
@@ -520,7 +520,7 @@ addr822(char *p)
 			continue;
 		}
 
-		// ignore everything in an expicit comment
+		/* ignore everything in an expicit comment */
 		if(!quoted && c == '('){
 			incomment = 1;
 			continue;
@@ -532,7 +532,7 @@ addr822(char *p)
 			continue;
 		}
 
-		// anticomments makes everything outside of them comments
+		/* anticomments makes everything outside of them comments */
 		if(!quoted && c == '<' && !inanticomment){
 			inanticomment = 1;
 			s = s_reset(s);
@@ -544,7 +544,7 @@ addr822(char *p)
 			continue;
 		}
 
-		// commas separate addresses
+		/* commas separate addresses */
 		if(!quoted && c == ',' && !inanticomment){
 			s_terminate(s);
 			addrdone = 0;
@@ -555,10 +555,10 @@ addr822(char *p)
 			continue;
 		}
 
-		// what's left is part of the address
+		/* what's left is part of the address */
 		s_putc(s, c);
 
-		// quoted characters are recognized only as characters
+		/* quoted characters are recognized only as characters */
 		if(c == '\\')
 			quoted = 1;
 		else
@@ -801,7 +801,7 @@ newmessage(Message *parent)
 	return m;
 }
 
-// delete a message from a mailbox
+/* delete a message from a mailbox */
 void
 delmessage(Mailbox *mb, Message *m)
 {
@@ -812,13 +812,13 @@ delmessage(Mailbox *mb, Message *m)
 	msgfreed++;
 
 	if(m->whole != m){
-		// unchain from parent
+		/* unchain from parent */
 		for(l = &m->whole->part; *l && *l != m; l = &(*l)->next)
 			;
 		if(*l != nil)
 			*l = m->next;
 
-		// clear out of name lookup hash table
+		/* clear out of name lookup hash table */
 		if(m->whole->whole == m->whole)
 			hfree(PATH(mb->id, Qmbox), m->name);
 		else
@@ -862,7 +862,7 @@ delmessage(Mailbox *mb, Message *m)
 	free(m);
 }
 
-// mark messages (identified by path) for deletion
+/* mark messages (identified by path) for deletion */
 void
 delmessages(int ac, char **av)
 {
@@ -1019,9 +1019,9 @@ setfilename(Message *m, char *p)
 			*p = '_';
 }
 
-//
-// undecode message body
-//
+/* */
+/* undecode message body */
+/* */
 void
 decode(Message *m)
 {
@@ -1033,7 +1033,7 @@ decode(Message *m)
 	switch(m->encoding){
 	case Ebase64:
 		len = m->bend - m->body;
-		i = (len*3)/4+1;	// room for max chars + null
+		i = (len*3)/4+1;	/* room for max chars + null */
 		x = emalloc(i);
 		len = dec64((uchar*)x, i, m->body, len);
 		if(m->ballocd)
@@ -1044,7 +1044,7 @@ decode(Message *m)
 		break;
 	case Equoted:
 		len = m->bend - m->body;
-		x = emalloc(len+2);	// room for null and possible extra nl
+		x = emalloc(len+2);	/* room for null and possible extra nl */
 		len = decquoted(x, m->body, m->bend);
 		if(m->ballocd)
 			free(m->body);
@@ -1058,14 +1058,14 @@ decode(Message *m)
 	m->decoded = 1;
 }
 
-// convert latin1 to utf
+/* convert latin1 to utf */
 void
 convert(Message *m)
 {
 	int len;
 	char *x;
 
-	// don't convert if we're not a leaf, not text, or already converted
+	/* don't convert if we're not a leaf, not text, or already converted */
 	if(m->converted)
 		return;
 	if(m->part != nil)
@@ -1161,7 +1161,7 @@ convert(Message *m)
 enum
 {
 	Self=	1,
-	Hex=	2,
+	Hex=	2
 };
 uchar	tableqp[256];
 
@@ -1243,7 +1243,7 @@ decquoted(char *out, char *in, char *e)
 	if(in < e)
 		p = decquotedline(p, in, e-1);
 
-	// make sure we end with a new line
+	/* make sure we end with a new line */
 	if(*(p-1) != '\n'){
 		*p++ = '\n';
 		*p = 0;
@@ -1281,7 +1281,7 @@ is8bit(Message *m)
 	return count;
 }
 
-// translate latin1 directly since it fits neatly in utf
+/* translate latin1 directly since it fits neatly in utf */
 int
 latin1toutf(char *out, char *in, char *e)
 {
@@ -1297,7 +1297,7 @@ latin1toutf(char *out, char *in, char *e)
 	return p - out;
 }
 
-// translate any thing else using the tcs program
+/* translate any thing else using the tcs program */
 int
 xtoutf(char *charset, char **out, char *in, char *e)
 {
@@ -1334,7 +1334,7 @@ xtoutf(char *charset, char **out, char *in, char *e)
 		dup(totcs[0], 0);
 		close(fromtcs[1]); close(totcs[0]);
 		dup(open("/dev/null", OWRITE), 2);
-		//jpc exec("/bin/tcs", av);
+		/*jpc exec("/bin/tcs", av); */
 		exec(unsharp("#9/bin/tcs"), av);
 		/* _exits(0); */
 		threadexits(nil);
@@ -1380,7 +1380,7 @@ xtoutf(char *charset, char **out, char *in, char *e)
 
 enum {
 	Winstart= 0x7f,
-	Winend= 0x9f,
+	Winend= 0x9f
 };
 
 Rune winchars[] = {
@@ -1388,7 +1388,7 @@ Rune winchars[] = {
 	L'•', L'•', L'‚', L'ƒ', L'„', L'…', L'†', L'‡',
 	L'ˆ', L'‰', L'Š', L'‹', L'Œ', L'•', L'•', L'•',
 	L'•', L'‘', L'’', L'“', L'”', L'•', L'–', L'—',
-	L'˜', L'™', L'š', L'›', L'œ', L'•', L'•', L'Ÿ',
+	L'˜', L'™', L'š', L'›', L'œ', L'•', L'•', L'Ÿ'
 };
 
 int
@@ -1518,9 +1518,9 @@ mailplumb(Mailbox *mb, Message *m, int delete)
 	plumbsend(fd, &p);
 }
 
-//
-// count the number of lines in the body (for imap4)
-//
+/* */
+/* count the number of lines in the body (for imap4) */
+/* */
 void
 countlines(Message *m)
 {
@@ -1573,15 +1573,15 @@ nullsqueeze(Message *m)
 }
 
 
-//
-// convert an RFC822 date into a Unix style date
-// for when the Unix From line isn't there (e.g. POP3).
-// enough client programs depend on having a Unix date
-// that it's easiest to write this conversion code once, right here.
-//
-// people don't follow RFC822 particularly closely,
-// so we use strtotm, which is a bunch of heuristics.
-//
+/* */
+/* convert an RFC822 date into a Unix style date */
+/* for when the Unix From line isn't there (e.g. POP3). */
+/* enough client programs depend on having a Unix date */
+/* that it's easiest to write this conversion code once, right here. */
+/* */
+/* people don't follow RFC822 particularly closely, */
+/* so we use strtotm, which is a bunch of heuristics. */
+/* */
 
 extern int strtotm(char*, Tm*);
 String*

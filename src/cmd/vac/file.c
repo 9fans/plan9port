@@ -917,12 +917,12 @@ vacfilesetdir(VacFile *f, VacDir *dir, char *uid)
 	f->dir.mtime = dir->mtime;
 	f->dir.atime = dir->atime;
 
-//fprint(2, "mode %x %x ", f->dir.mode, dir->mode);
+/*fprint(2, "mode %x %x ", f->dir.mode, dir->mode); */
 	mask = ~(ModeDir|ModeSnapshot);
 	f->dir.mode &= ~mask;
 	f->dir.mode |= mask & dir->mode;
 	f->dirty = 1;
-//fprint(2, "->%x\n", f->dir.mode);
+/*fprint(2, "->%x\n", f->dir.mode); */
 
 	filemetaflush2(f, oelem);
 	vtfree(oelem);
@@ -1138,7 +1138,7 @@ fprint(2, "fileMetaFlush moving entry from %ud -> %ud\n", f->boff, boff);
 	bb = vtfileblock(fp->msource, f->boff, VtORDWR);
 	mbdelete(&mb, i, &me);
 	mbpack(&mb);
-//	blockDependency(b, bb, -1, nil, nil);
+/*	blockDependency(b, bb, -1, nil, nil); */
 	vtblockput(bb);
 	/* vtblockdirty(b); */
 	vtblockput(b);
@@ -1641,7 +1641,7 @@ chksource(VacFile *f)
 static int
 filerlock(VacFile *f)
 {
-//	assert(!canwlock(&f->fs->elk));
+/*	assert(!canwlock(&f->fs->elk)); */
 	rlock(&f->lk);
 	if(chksource(f) < 0){
 		runlock(&f->lk);
@@ -1659,7 +1659,7 @@ filerunlock(VacFile *f)
 static int
 filelock(VacFile *f)
 {
-//	assert(!canwlock(&f->fs->elk));
+/*	assert(!canwlock(&f->fs->elk)); */
 	wlock(&f->lk);
 	if(chksource(f) < 0){
 		wunlock(&f->lk);
@@ -1683,7 +1683,7 @@ static void
 filemetalock(VacFile *f)
 {
 	assert(f->up != nil);
-//	assert(!canwlock(&f->fs->elk));
+/*	assert(!canwlock(&f->fs->elk)); */
 	wlock(&f->up->lk);
 }
 

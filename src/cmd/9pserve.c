@@ -8,7 +8,7 @@ enum
 {
 	STACK = 32768,
 	NHASH = 31,
-	MAXMSG = 64,	/* per connection */
+	MAXMSG = 64	/* per connection */
 };
 
 typedef struct Hash Hash;
@@ -240,8 +240,8 @@ mainproc(void *v)
 	threadcreate(inputthread, nil, STACK);
 	threadcreate(outputthread, nil, STACK);
 
-//	if(rootfid)
-//		dorootstat();
+/*	if(rootfid) */
+/*		dorootstat(); */
 	
 	threadcreate(listenthread, nil, STACK);
 	threadexits(0);
@@ -618,14 +618,14 @@ openfdthread(void *v)
 			sendomsg(m);
 			recvp(c->internal);
 			if(m->rx.type == Rerror){
-			//	fprint(2, "%T read error: %s\n", m->rx.ename);
+			/*	fprint(2, "%T read error: %s\n", m->rx.ename); */
 				break;
 			}
 			if(m->rx.count == 0)
 				break;
 			tot += m->rx.count;
 			if(iowrite(io, c->fd, m->rx.data, m->rx.count) != m->rx.count){
-				// fprint(2, "%T pipe write error: %r\n");
+				/* fprint(2, "%T pipe write error: %r\n"); */
 				break;
 			}
 			msgput(m);
@@ -658,7 +658,7 @@ openfdthread(void *v)
 			sendomsg(m);
 			recvp(c->internal);
 			if(m->rx.type == Rerror){
-			//	fprint(2, "%T write error: %s\n", m->rx.ename);
+			/*	fprint(2, "%T write error: %s\n", m->rx.ename); */
 			}
 			tot += n;
 			msgput(m);
@@ -907,7 +907,7 @@ inputthread(void *arg)
 			msgput(m);
 	}
 	closeioproc(io);
-	//fprint(2, "%T input eof\n");
+	/*fprint(2, "%T input eof\n"); */
 	threadexitsall(0);
 }
 

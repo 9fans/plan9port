@@ -10,10 +10,10 @@ zeropart(Part *part, int blocksize)
 	int w;
 
 	fprint(2, "clearing the partition\n");
-//fprint(2, "NOT!\n");
-//return;
-//b=alloczblock(MaxIoSize, 1, blocksize);
-//freezblock(b);
+/*fprint(2, "NOT!\n"); */
+/*return; */
+/*b=alloczblock(MaxIoSize, 1, blocksize); */
+/*freezblock(b); */
 	b = alloczblock(MaxIoSize, 1, blocksize);
 
 	w = 0;

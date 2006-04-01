@@ -11,19 +11,19 @@ testcrt(mpint **p)
 
 	fmtinstall('B', mpconv);
 
-	// get a modulus and a test number
+	/* get a modulus and a test number */
 	m = mpnew(1024+160);
 	mpmul(p[0], p[1], m);
 	x = mpnew(1024+160);
 	mpadd(m, mpone, x);
 
-	// do the precomputation for crt conversion
+	/* do the precomputation for crt conversion */
 	crt = crtpre(2, p);
 
-	// convert x to residues
+	/* convert x to residues */
 	res = crtin(crt, x);
 
-	// convert back
+	/* convert back */
 	y = mpnew(1024+160);
 	crtout(crt, res, y);
 	print("x %B\ny %B\n", x, y);

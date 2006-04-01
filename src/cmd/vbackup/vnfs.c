@@ -233,7 +233,7 @@ enum
 	RandSize = 16,
 	SessidSize = 8,
 	HeaderSize = RandSize+SessidSize,
-	MaxHandleSize = Nfs3MaxHandleSize - HeaderSize,
+	MaxHandleSize = Nfs3MaxHandleSize - HeaderSize
 };
 
 AESstate		aesstate;
@@ -342,7 +342,7 @@ enum
 {
 	/* sizes used in handles; see nfs server below */
 	CnodeHandleSize = 8,
-	FsysHandleOffset = CnodeHandleSize,
+	FsysHandleOffset = CnodeHandleSize
 };
 
 /*
@@ -588,7 +588,7 @@ parseipandmask(char *s, uchar *ip, uchar *mask)
 		if(*p != '/')
 			*--p = '/';
 	}
-//fprint(2, "parseipandmask %s => %I %I\n", s, ip, mask);
+/*fprint(2, "parseipandmask %s => %I %I\n", s, ip, mask); */
 	return 0;
 }
 
@@ -863,7 +863,7 @@ timerthread(void *v)
 {
 	for(;;){
 		recvp(timerchan);
-	//	refreshconfig();
+	/*	refreshconfig(); */
 	}
 }
 

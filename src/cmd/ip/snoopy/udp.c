@@ -15,7 +15,7 @@ struct Hdr
 
 enum
 {
-	UDPLEN=	8,
+	UDPLEN=	8
 };
 
 enum
@@ -23,7 +23,7 @@ enum
 	Os,
 	Od,
 	Osd,
-	Osetport,
+	Osetport
 };
 
 static Field p_fields[] = 
@@ -43,7 +43,7 @@ static Mux p_mux[] =
 	{"ninep",	6346, },	/* tvs */
 	{"rtp",		ANYPORT, },
 	{"rtcp",	ANYPORT, },
-	{0},
+	{0}
 };
 
 /* default next protocol, can be changed by p_filter, reset by p_compile */
@@ -128,5 +128,5 @@ Proto udp =
 	p_mux,
 	"%lud",
 	p_fields,
-	defaultframer,
+	defaultframer
 };

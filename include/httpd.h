@@ -48,7 +48,7 @@ enum
 	HExpectFail,
 	HUnkVers,
 	HBadCont,
-	HOK,
+	HOK
 };
 
 /*

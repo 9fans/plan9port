@@ -191,5 +191,5 @@ Troffchar troffchars[] =
 	{ "ul", "_", },
 	{ "rn", " ", },
 	{ "**", "*", },
-	{ nil, nil, },
+	{ nil, nil, }
 };

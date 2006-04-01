@@ -2,7 +2,7 @@
 #include <mp.h>
 #include "dat.h"
 
-// convert a little endian byte array (least significant byte first) to an mpint
+/* convert a little endian byte array (least significant byte first) to an mpint */
 mpint*
 letomp(uchar *s, uint n, mpint *b)
 {

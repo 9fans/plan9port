@@ -1,20 +1,20 @@
 #include "os.h"
 #include <mp.h>
 
-// chinese remainder theorem
-//
-// handbook of applied cryptography, menezes et al, 1997, pp 610 - 613
+/* chinese remainder theorem */
+/* */
+/* handbook of applied cryptography, menezes et al, 1997, pp 610 - 613 */
 
 struct CRTpre
 {
-	int	n;		// number of moduli
-	mpint	**m;		// pointer to moduli
-	mpint	**c;		// precomputed coefficients
-	mpint	**p;		// precomputed products
-	mpint	*a[1];		// local storage
+	int	n;		/* number of moduli */
+	mpint	**m;		/* pointer to moduli */
+	mpint	**c;		/* precomputed coefficients */
+	mpint	**p;		/* precomputed products */
+	mpint	*a[1];		/* local storage */
 };
 
-// setup crt info, returns a newly created structure
+/* setup crt info, returns a newly created structure */
 CRTpre*
 crtpre(int n, mpint **m)
 {
@@ -30,18 +30,18 @@ crtpre(int n, mpint **m)
 	crt->p = crt->c+n;
 	crt->n = n;
 
-	// make a copy of the moduli
+	/* make a copy of the moduli */
 	for(i = 0; i < n; i++)
 		crt->m[i] = mpcopy(m[i]);
 
-	// precompute the products
+	/* precompute the products */
 	u = mpcopy(mpone);
 	for(i = 0; i < n; i++){
 		mpmul(u, m[i], u);
 		crt->p[i] = mpcopy(u);
 	}
 
-	// precompute the coefficients
+	/* precompute the coefficients */
 	for(i = 1; i < n; i++){
 		crt->c[i] = mpcopy(mpone);
 		for(j = 0; j < i; j++){
@@ -70,7 +70,7 @@ crtprefree(CRTpre *crt)
 	free(crt);
 }
 
-// convert to residues, returns a newly created structure
+/* convert to residues, returns a newly created structure */
 CRTres*
 crtin(CRTpre *crt, mpint *x)
 {
@@ -88,7 +88,7 @@ crtin(CRTpre *crt, mpint *x)
 	return res;
 }
 
-// garners algorithm for converting residue form to linear
+/* garners algorithm for converting residue form to linear */
 void
 crtout(CRTpre *crt, CRTres *res, mpint *x)
 {
@@ -109,7 +109,7 @@ crtout(CRTpre *crt, CRTres *res, mpint *x)
 	mpfree(u);
 }
 
-// free the residue
+/* free the residue */
 void
 crtresfree(CRTres *res)
 {

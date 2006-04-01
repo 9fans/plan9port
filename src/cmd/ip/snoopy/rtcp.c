@@ -6,29 +6,29 @@
 
 typedef struct Hdr Hdr;
 struct Hdr {
-	uchar	hdr;			// RTCP header
-	uchar	pt;			// Packet type
-	uchar	len[2];		// Report length
-	uchar	ssrc[4];		// Synchronization source identifier
-	uchar	ntp[8];		// NTP time stamp
-	uchar	rtp[4];		// RTP time stamp
-	uchar	pktc[4];		// Sender's packet count
-	uchar	octc[4];		// Sender's octect count
+	uchar	hdr;			/* RTCP header */
+	uchar	pt;			/* Packet type */
+	uchar	len[2];		/* Report length */
+	uchar	ssrc[4];		/* Synchronization source identifier */
+	uchar	ntp[8];		/* NTP time stamp */
+	uchar	rtp[4];		/* RTP time stamp */
+	uchar	pktc[4];		/* Sender's packet count */
+	uchar	octc[4];		/* Sender's octect count */
 };
 
 typedef struct Report Report;
 struct Report {
-	uchar	ssrc[4];		// SSRC identifier
-	uchar	lost[4];		// Fraction + cumu lost
-	uchar	seqhi[4];		// Highest seq number received
-	uchar	jitter[4];		// Interarrival jitter
-	uchar	lsr[4];		// Last SR
-	uchar	dlsr[4];		// Delay since last SR
+	uchar	ssrc[4];		/* SSRC identifier */
+	uchar	lost[4];		/* Fraction + cumu lost */
+	uchar	seqhi[4];		/* Highest seq number received */
+	uchar	jitter[4];		/* Interarrival jitter */
+	uchar	lsr[4];		/* Last SR */
+	uchar	dlsr[4];		/* Delay since last SR */
 };
 
 enum{
-	RTCPLEN = 28,		// Minimum size of an RTCP header
-	REPORTLEN = 24,
+	RTCPLEN = 28,		/* Minimum size of an RTCP header */
+	REPORTLEN = 24
 };
 
 static int
@@ -79,5 +79,5 @@ Proto rtcp = {
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };

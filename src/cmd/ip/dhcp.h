@@ -126,7 +126,7 @@ enum {
 	Srequesting,
 	Sbound,
 	Srenewing,
-	Srebinding,
+	Srebinding
 };	
 
 typedef struct Bootp	Bootp;

@@ -39,7 +39,7 @@ enum
 
 enum{	/* PNG flags */
 	II_GAMMA =	1 << 0,
-	II_COMMENT =	1 << 1,
+	II_COMMENT =	1 << 1
 };
 
 typedef struct ImageInfo {

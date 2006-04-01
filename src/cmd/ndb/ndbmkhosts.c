@@ -187,18 +187,16 @@ main(int argc, char *argv[])
 		parse(unsharp("#9/ndb/friends"));
 	}
 
-/*	
-//	sprint(fn, "/lib/ndb/hosts.%-.21s", domname);
-//	fd = create(fn, OWRITE, 0664);
-//	if(fd < 0){
-//		fprint(2, "can't create %s: %r\n", fn);
-//		exits("boom");
-//	}
-//	for(i = 0; i < nx; i++)
-//		printentry(fd, &x[i]);
-//	close(fd);
-//
-*/
+/*	sprint(fn, "/lib/ndb/hosts.%-.21s", domname); */
+/*	fd = create(fn, OWRITE, 0664); */
+/*	if(fd < 0){ */
+/*		fprint(2, "can't create %s: %r\n", fn); */
+/*		exits("boom"); */
+/*	} */
+/*	for(i = 0; i < nx; i++) */
+/*		printentry(fd, &x[i]); */
+/*	close(fd); */
+
 
 	sprint(fn, "/lib/ndb/db.%-.24s", domname);
 	fd = create(fn, OWRITE, 0664);

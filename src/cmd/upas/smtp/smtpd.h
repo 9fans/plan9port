@@ -8,7 +8,7 @@ enum {
 	TRUSTED,
 	NONE,
 
-	MAXREJECTS = 100,
+	MAXREJECTS = 100
 };
 
 	

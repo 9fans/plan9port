@@ -20,7 +20,7 @@ char *prom = "promiscuous";
 enum
 {
 	Pktlen=	64*1024,
-	Blen=	16*1024,
+	Blen=	16*1024
 };
 
 Filter *filter;

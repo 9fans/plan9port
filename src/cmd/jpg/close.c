@@ -22,7 +22,7 @@ closest(int Y, int Cb, int Cr)
 	g = Y-c2*Cb-c3*Cr;
 	b = Y+c4*Cb;
 
-//print("YCbCr: %d %d %d, RGB: %g %g %g\n", Y, Cb, Cr, r, g, b);
+/*print("YCbCr: %d %d %d, RGB: %g %g %g\n", Y, Cb, Cr, r, g, b); */
 
 	min = 1000000.;
 	v = 1000;
@@ -32,23 +32,23 @@ closest(int Y, int Cb, int Cr)
 		G = (rgb >> 8) & 0xFF;
 		B = (rgb >> 0) & 0xFF;
 		diff = (R-r)*(R-r) + (G-g)*(G-g) + (B-b)*(B-b);
-//		y1 = 0.5870*G + 0.114*B + 0.299*R;
-//		cb1 = (B-y1)/1.772;
-//		cr1 = (R-y1)/1.402;
+/*		y1 = 0.5870*G + 0.114*B + 0.299*R; */
+/*		cb1 = (B-y1)/1.772; */
+/*		cr1 = (R-y1)/1.402; */
 		if(diff < min){
-//			if(Y==0 && y1!=0)
-//				continue;
-//			if(Y==256-16 && y1<256-16)
-//				continue;
-//			if(Cb==0 && cb1!=0)
-//				continue;
-//			if(Cb==256-16 && cb1<256-16)
-//				continue;
-//			if(Cr==0 && cr1!=0)
-//				continue;
-//			if(Cr==256-16 && cr1<256-16)
-//				continue;
-//print("%d %d %d\n", R, G, B);
+/*			if(Y==0 && y1!=0) */
+/*				continue; */
+/*			if(Y==256-16 && y1<256-16) */
+/*				continue; */
+/*			if(Cb==0 && cb1!=0) */
+/*				continue; */
+/*			if(Cb==256-16 && cb1<256-16) */
+/*				continue; */
+/*			if(Cr==0 && cr1!=0) */
+/*				continue; */
+/*			if(Cr==256-16 && cr1<256-16) */
+/*				continue; */
+/*print("%d %d %d\n", R, G, B); */
 			min = diff;
 			v = i;
 		}

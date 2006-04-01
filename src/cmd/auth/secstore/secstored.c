@@ -8,7 +8,7 @@
 #include "secstore.h"
 
 char *SECSTORE_DIR;
-char* secureidcheck(char *, char *);   // from /sys/src/cmd/auth/
+char* secureidcheck(char *, char *);   /* from /sys/src/cmd/auth/ */
 extern char* dirls(char *path);
 
 int verbose;
@@ -247,7 +247,7 @@ dologin(int fd, char *S, int forceSTA)
 	pw = nil;
 	rv = -1;
 
-	// collect the first message
+	/* collect the first message */
 	if((conn = newSConn(fd)) == nil)
 		return -1;
 	if(readstr(conn, msg) < 0){
@@ -256,7 +256,7 @@ dologin(int fd, char *S, int forceSTA)
 		goto Out;
 	}
 
-	// authenticate
+	/* authenticate */
 	if(PAKserver(conn, S, msg, &pw) < 0){
 		if(pw != nil)
 			syslog(0, LOG, "secstore denied for %s", pw->id);
@@ -277,7 +277,7 @@ dologin(int fd, char *S, int forceSTA)
 	conn->write(conn, (uchar*)"OK", 2);
 	syslog(0, LOG, "AUTH %s", pw->id);
 
-	// perform operations as asked
+	/* perform operations as asked */
 	while((n = readstr(conn, msg)) > 0){
 		syslog(0, LOG, "[%s] %s", pw->id, msg);
 
@@ -346,7 +346,7 @@ main(int argc, char **argv)
 
 	S = sysname();
 	SECSTORE_DIR = unsharp("#9/secstore");
-//	setnetmtpt(net, sizeof(net), nil);
+/*	setnetmtpt(net, sizeof(net), nil); */
 	ARGBEGIN{
 	case 'R':
 		forceSTA = 1;
@@ -362,7 +362,7 @@ main(int argc, char **argv)
 		if(p == nil)
 			usage();
 		USED(p);
-	//	setnetmtpt(net, sizeof(net), p);
+	/*	setnetmtpt(net, sizeof(net), p); */
 		break;
 	case 'v':
 		verbose++;
@@ -395,7 +395,7 @@ main(int argc, char **argv)
 			close(lcfd);
 			break;
 		case 0:
-			// "/lib/ndb/common.radius does not exist" if db set before fork
+			/* "/lib/ndb/common.radius does not exist" if db set before fork */
 			db = ndbopen(dbpath=unsharp("#9/ndb/auth"));
 			if(db == 0)
 				syslog(0, LOG, "no ndb/auth");
@@ -405,7 +405,7 @@ main(int argc, char **argv)
 			db = ndbcat(db, db2);
 			if((dfd = accept(lcfd, ldir)) < 0)
 				exits("can't accept");
-			alarm(30*60*1000); 	// 30 min
+			alarm(30*60*1000); 	/* 30 min */
 			remote = remoteIP(ldir);
 			syslog(0, LOG, "secstore from %s", remote);
 			free(remote);

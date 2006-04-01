@@ -6,7 +6,7 @@ enum
 	BoxChunk = 64,
 	MsgChunk = 256,
 	PartChunk = 4,
-	PartSubChunk = 4,
+	PartSubChunk = 4
 };
 
 Box **boxes;

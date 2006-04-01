@@ -16,7 +16,8 @@ enum
 	ZTrailInfo	= 1 << 3,	/* uncsize, csize, and crc are in trailer */
 	ZCompPatch	= 1 << 5,	/* compression patched data */
 
-	ZCrcPoly	= 0xedb88320,
+/*	ZCrcPoly	= 0xedb88320, */
+#define	ZCrcPoly	0xedb88320
 
 	/*
 	 * compression method
@@ -57,7 +58,7 @@ enum
 	ZHeadCrc	= 4 + 2 + 2 + 2 + 2 + 2,
 	ZTrailSize	= 4 + 4 + 4,
 	ZCHeadSize	= 4 + 2 + 2 + 2 + 2 + 2 + 2 + 4 + 4 + 4 + 2 + 2 + 2 + 2 + 2 + 4 + 4,
-	ZECHeadSize	= 4 + 2 + 2 + 2 + 2 + 4 + 4 + 2,
+	ZECHeadSize	= 4 + 2 + 2 + 2 + 2 + 4 + 4 + 2
 };
 
 /*

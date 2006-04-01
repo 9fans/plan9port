@@ -79,7 +79,7 @@ enum
 	Dfile,
 	Dignore,
 
-	PAD64=	'=',
+	PAD64=	'='
 };
 
 typedef struct Mailbox Mailbox;
@@ -194,7 +194,7 @@ enum
 	Qmbox,
 	Qdir,
 	Qctl,
-	Qmboxctl,
+	Qmboxctl
 };
 
 #define PATH(id, f)	((((id)&0xfffff)<<10) | (f))

@@ -78,7 +78,7 @@ powerexcep(Map *map, Regs *regs)
 #define	REGSP	1	/* should come from q.out.h, but there's a clash */
 #define	REGSB	2
 
-//static	char FRAMENAME[] = ".frame";
+/*static	char FRAMENAME[] = ".frame"; */
 
 static Map *mymap;
 
@@ -1348,12 +1348,12 @@ powerunwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
 	 * to disassemble the function prologues in order to figure
 	 * this out.
 	 */
-	// evaluate lr
-	// if in this function, no good - go to saved one.
-	// set next[sp] to *cur[sp]
-	// set next[pc] to lr
-	// set next[lr] to lr
-	// 
+	/* evaluate lr */
+	/* if in this function, no good - go to saved one. */
+	/* set next[sp] to *cur[sp] */
+	/* set next[pc] to lr */
+	/* set next[lr] to lr */
+	/*  */
 	werrstr("powerunwind not implemented");
 	return -1;
 }

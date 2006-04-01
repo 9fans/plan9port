@@ -201,6 +201,6 @@ Shell shshell = {
 	shexpandquote,
 	shescapetoken,
 	shcopyq,
-	shmatchname,
+	shmatchname
 };
 

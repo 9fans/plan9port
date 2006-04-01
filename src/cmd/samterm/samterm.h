@@ -53,7 +53,7 @@ enum Resource
 	RMouse,
 	RPlumb,
 	RResize,
-	NRes,
+	NRes
 };
 
 extern int	protodebug;

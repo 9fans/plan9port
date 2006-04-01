@@ -23,7 +23,7 @@ to32(mpint *b, char *buf, int len)
 	uchar *p;
 	int n, rv;
 
-	// leave room for a multiple of 5 buffer size
+	/* leave room for a multiple of 5 buffer size */
 	n = b->top*Dbytes + 5;
 	p = malloc(n);
 	if(p == nil)
@@ -32,7 +32,7 @@ to32(mpint *b, char *buf, int len)
 	if(n < 0)
 		return -1;
 
-	// round up buffer size, enc32 only accepts a multiple of 5
+	/* round up buffer size, enc32 only accepts a multiple of 5 */
 	if(n%5)
 		n += 5 - (n%5);
 	rv = enc32(buf, len, p, n);

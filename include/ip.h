@@ -18,7 +18,7 @@ enum
 	IPaddrlen=	16,
 	IPv4addrlen=	4,
 	IPv4off=	12,
-	IPllen=		4,
+	IPllen=		4
 };
 
 /*
@@ -80,7 +80,7 @@ struct Ipifc
  */
 enum 
 {
-	Udphdrsize=	52,	/* size of a Udphdr */
+	Udphdrsize=	52	/* size of a Udphdr */
 };
 
 typedef struct Udphdr Udphdr;

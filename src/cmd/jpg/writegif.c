@@ -8,7 +8,7 @@
 enum
 {
 	Nhash	= 4001,
-	Nbuf		= 300,
+	Nbuf		= 300
 };
 
 typedef struct Entry Entry;

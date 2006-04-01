@@ -24,7 +24,7 @@ enum
 	S31=	3,
 	S32=	9,
 	S33=	11,
-	S34=	15,
+	S34=	15
 };
 
 typedef struct MD4Table MD4Table;

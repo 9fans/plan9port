@@ -30,7 +30,7 @@ enum
 	ArgMode = 1<<3,
 	HtmlMode = 1<<4,
 	
-	MaxLine = 1024,
+	MaxLine = 1024
 };
 
 Rune*	L(char*);

@@ -4,7 +4,7 @@ typedef struct URLwin URLwin;
 enum
 {
 	STACK		= 8192,
-	EVENTSIZE	= 256,
+	EVENTSIZE	= 256
 };
 
 struct Bytes

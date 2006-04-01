@@ -56,7 +56,7 @@ enum {
 	Middle = 2,
 	Right = 4,
 
-	RMenu = 3,
+	RMenu = 3
 };
 
 void
@@ -265,7 +265,7 @@ enum{
 	Del,
 	Write,
 	Empty3,
-	Exit,
+	Exit
 };
  
 void
@@ -866,7 +866,7 @@ redraw(Image *screen)
 		}
 	}
 	border(screen, r, -4000, gray, ZP);
-//	flushimage(display, 0);	
+/*	flushimage(display, 0);	 */
 }
 
 void
@@ -1047,7 +1047,7 @@ newwin(void)
 	dup(cons, 1);
 	dup(cons, 2);
 	close(cons);
-//	wctlfd = open("/dev/wctl", OWRITE);
+/*	wctlfd = open("/dev/wctl", OWRITE); */
 }
 
 Rectangle

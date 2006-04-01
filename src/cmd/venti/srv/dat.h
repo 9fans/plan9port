@@ -75,17 +75,23 @@ enum
 	/*
 	 * magic numbers on disk
 	 */
-	_ClumpMagic		= 0xd15cb10cU,	/* clump header, deprecated */
+/*	_ClumpMagic		= 0xd15cb10cU,	/ * clump header, deprecated */
+#define	_ClumpMagic	0xd15cb10cU
 	ClumpFreeMagic		= 0,		/* free clump; terminates active clump log */
 
-	ArenaPartMagic		= 0xa9e4a5e7U,	/* arena partition header */
-	ArenaMagic		= 0xf2a14eadU,	/* arena trailer */
-	ArenaHeadMagic		= 0xd15c4eadU,	/* arena header */
-	
-	BloomMagic		= 0xb1004eadU,	/* bloom filter header */
+/*	ArenaPartMagic		= 0xa9e4a5e7U,	/ * arena partition header */
+/*	ArenaMagic		= 0xf2a14eadU,	/ * arena trailer */
+/*	ArenaHeadMagic		= 0xd15c4eadU,	/ * arena header */
+#define	ArenaPartMagic		0xa9e4a5e7U
+#define	ArenaMagic		0xf2a14eadU
+#define	ArenaHeadMagic		0xd15c4eadU
+
+/*	BloomMagic		= 0xb1004eadU,	/ * bloom filter header */
+#define	BloomMagic		0xb1004eadU
 	BloomMaxHash	= 32,
 
-	ISectMagic		= 0xd15c5ec7U,	/* index header */
+/*	ISectMagic		= 0xd15c5ec7U,	/ * index header */
+#define	ISectMagic		0xd15c5ec7U
 
 	ArenaPartVersion	= 3,
 	ArenaVersion4		= 4,
@@ -436,7 +442,7 @@ struct Index
 	u32int		buckets;		/* last bucket used in disk hash table */
 	u32int		blocksize;
 	u32int		tabsize;		/* max. bytes in index config */
-	u32int		bitblocks;	//XXX remove these fields
+	u32int		bitblocks;	/* XXX remove these fields */
 	u32int		maxdepth;
 	u32int		bitkeylog;
 	u32int		bitkeymask;

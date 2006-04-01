@@ -83,8 +83,8 @@ rdarena(Arena *arena, u64int offset)
 		if(magic == ClumpFreeMagic)
 			break;
 		if(magic != arena->clumpmagic) {
-		//	fprint(2, "illegal clump magic number %#8.8ux offset %llud\n",
-		//		magic, aa);
+		/*	fprint(2, "illegal clump magic number %#8.8ux offset %llud\n", */
+		/*		magic, aa); */
 			break;
 		}
 		lump = loadclump(arena, aa, 0, &cl, score, 0);

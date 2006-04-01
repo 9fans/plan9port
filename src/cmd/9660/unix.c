@@ -23,7 +23,7 @@ static long numericgid(char *gp);
 void
 dirtoxdir(XDir *xd, Dir *d)
 {
-	//	char buf[NAMELEN+1];
+	/*	char buf[NAMELEN+1]; */
 	memset(xd, 0, sizeof *xd);
 
 	xd->name = atom(d->name);
@@ -38,8 +38,8 @@ dirtoxdir(XDir *xd, Dir *d)
 	xd->length = d->length;
 	if(xd->mode & CHLINK) {
 		xd->mode |= 0777;
-		//xd->symlink = atom(d->symlink);
-		xd->symlink = atom("symlink");		// XXX: rsc
+		/*xd->symlink = atom(d->symlink); */
+		xd->symlink = atom("symlink");		/* XXX: rsc */
 	}
 }
 

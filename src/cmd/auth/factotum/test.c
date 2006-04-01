@@ -41,7 +41,7 @@ Test test[] =
 	"cram",		proxyserver,		proxyclient,
 	"p9sk1",		proxyserver,		proxyclient,
 	"p9sk2",		proxyserver,		proxyclient,
-	"p9any",		proxyserver,		proxyclient,
+	"p9any",		proxyserver,		proxyclient
 };
 
 void

@@ -41,18 +41,18 @@ static void	writeheader(Part *p, int);
 
 enum
 {
-	// encodings
+	/* encodings */
 	Enone=	0,
 	Ebase64,
 	Equoted,
 
-	// disposition possibilities
+	/* disposition possibilities */
 	Dnone=	0,
 	Dinline,
 	Dfile,
 	Dignore,
 
-	PAD64=	'=',
+	PAD64=	'='
 };
 
 /*
@@ -98,7 +98,7 @@ Hdef hdefs[] =
 	{ "content-type:", ctype, },
 	{ "content-transfer-encoding:", cencoding, },
 	{ "content-disposition:", cdisposition, },
-	{ 0, },
+	{ 0, }
 };
 
 /*
@@ -926,7 +926,7 @@ struct Charset {
 {
 	{ "us-ascii",		8,	1, },
 	{ "utf-8",		5,	0, },
-	{ "iso-8859-1",		10,	1, },
+	{ "iso-8859-1",		10,	1, }
 };
 
 /*
@@ -951,7 +951,7 @@ tokenconvert(String *t)
 	e = token+len-2;
 	token += 2;
 
-	// bail if we don't understand the character set
+	/* bail if we don't understand the character set */
 	for(i = 0; i < nelem(charsets); i++)
 		if(cistrncmp(charsets[i].name, token, charsets[i].len) == 0)
 		if(token[charsets[i].len] == '?'){
@@ -961,11 +961,11 @@ tokenconvert(String *t)
 	if(i >= nelem(charsets))
 		goto err;
 
-	// bail if it doesn't fit 
+	/* bail if it doesn't fit  */
 	if(strlen(token) > sizeof(decoded)-1)
 		goto err;
 
-	// bail if we don't understand the encoding
+	/* bail if we don't understand the encoding */
 	if(cistrncmp(token, "b?", 2) == 0){
 		token += 2;
 		len = dec64((uchar*)decoded, sizeof(decoded), token, e-token);
@@ -1002,7 +1002,7 @@ err:
 enum
 {
 	Self=	1,
-	Hex=	2,
+	Hex=	2
 };
 uchar	tableqp[256];
 
@@ -1084,7 +1084,7 @@ decquoted(char *out, char *in, char *e)
 	if(in < e)
 		p = decquotedline(p, in, e-1);
 
-	// make sure we end with a new line
+	/* make sure we end with a new line */
 	if(*(p-1) != '\n'){
 		*p++ = '\n';
 		*p = 0;

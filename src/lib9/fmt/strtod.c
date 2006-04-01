@@ -67,7 +67,7 @@ enum
 	S4,			/* _+#.#	#S4	eS5 */
 	S5,			/* _+#.#e	+S6	#S7 */
 	S6,			/* _+#.#e+	#S7 */
-	S7,			/* _+#.#e+#	#S7 */
+	S7			/* _+#.#e+#	#S7 */
 };
 
 static	int	xcmp(char*, char*);

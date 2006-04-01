@@ -2,9 +2,9 @@
 #include <mp.h>
 #include "dat.h"
 
-// division ala knuth, seminumerical algorithms, pp 237-238
-// the numbers are stored backwards to what knuth expects so j
-// counts down rather than up.
+/* division ala knuth, seminumerical algorithms, pp 237-238 */
+/* the numbers are stored backwards to what knuth expects so j */
+/* counts down rather than up. */
 
 void
 mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
@@ -13,11 +13,11 @@ mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
 	mpdigit qd, *up, *vp, *qp;
 	mpint *u, *v, *t;
 
-	// divide bv zero
+	/* divide bv zero */
 	if(divisor->top == 0)
 		abort();
 
-	// quick check
+	/* quick check */
 	if(mpmagcmp(dividend, divisor) < 0){
 		if(remainder != nil)
 			mpassign(dividend, remainder);
@@ -26,8 +26,8 @@ mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
 		return;
 	}
 
-	// D1: shift until divisor, v, has hi bit set (needed to make trial
-	//     divisor accurate)
+	/* D1: shift until divisor, v, has hi bit set (needed to make trial */
+	/*     divisor accurate) */
 	qd = divisor->p[divisor->top-1];
 	for(s = 0; (qd & mpdighi) == 0; s++)
 		qd <<= 1;
@@ -44,13 +44,13 @@ mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
 	vp = v->p+v->top-1;
 	vn = v->top;
 
-	// D1a: make sure high digit of dividend is less than high digit of divisor
+	/* D1a: make sure high digit of dividend is less than high digit of divisor */
 	if(*up >= *vp){
 		*++up = 0;
 		u->top++;
 	}
 
-	// storage for multiplies
+	/* storage for multiplies */
 	t = mpnew(4*Dbits);
 
 	qp = nil;
@@ -60,15 +60,15 @@ mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
 		qp = quotient->p+quotient->top-1;
 	}
 
-	// D2, D7: loop on length of dividend
+	/* D2, D7: loop on length of dividend */
 	for(j = u->top; j > vn; j--){
 
-		// D3: calculate trial divisor
+		/* D3: calculate trial divisor */
 		mpdigdiv(up-1, *vp, &qd);
 
-		// D3a: rule out trial divisors 2 greater than real divisor
+		/* D3a: rule out trial divisors 2 greater than real divisor */
 		if(vn > 1) for(;;){
-			memset(t->p, 0, 3*Dbytes);	// mpvecdigmuladd adds to what's there
+			memset(t->p, 0, 3*Dbytes);	/* mpvecdigmuladd adds to what's there */
 			mpvecdigmuladd(vp-1, 2, qd, t->p);
 			if(mpveccmp(t->p, 3, up-2, 3) > 0)
 				qd--;
@@ -76,21 +76,21 @@ mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
 				break;
 		}
 
-		// D4: u -= v*qd << j*Dbits
+		/* D4: u -= v*qd << j*Dbits */
 		sign = mpvecdigmulsub(v->p, vn, qd, up-vn);
 		if(sign < 0){
 
-			// D6: trial divisor was too high, add back borrowed
-			//     value and decrease divisor
+			/* D6: trial divisor was too high, add back borrowed */
+			/*     value and decrease divisor */
 			mpvecadd(up-vn, vn+1, v->p, vn, up-vn);
 			qd--;
 		}
 
-		// D5: save quotient digit
+		/* D5: save quotient digit */
 		if(qp != nil)
 			*qp-- = qd;
 
-		// push top of u down one
+		/* push top of u down one */
 		u->top--;
 		*up-- = 0;
 	}
@@ -101,7 +101,7 @@ mpdiv(mpint *dividend, mpint *divisor, mpint *quotient, mpint *remainder)
 	}
 
 	if(remainder != nil){
-		mpright(u, s, remainder);	// u is the remainder shifted
+		mpright(u, s, remainder);	/* u is the remainder shifted */
 		remainder->sign = dividend->sign;
 	}
 

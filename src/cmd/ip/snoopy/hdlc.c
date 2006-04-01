@@ -12,7 +12,7 @@ enum {
 	PPP_addr=	0xff,
 	PPP_ctl=	0x3,
 	PPP_initfcs=	0xffff,
-	PPP_goodfcs=	0xf0b8,
+	PPP_goodfcs=	0xf0b8
 };
 
 /*
@@ -171,5 +171,5 @@ Proto hdlc =
 	p_mux,
 	"%#.4lux",
 	nil,
-	p_framer,
+	p_framer
 };

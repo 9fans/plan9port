@@ -23,7 +23,7 @@ static uchar lenval[1 << (DBigLenBits - 1)] =
 static uchar lenbits[] =
 {
 	0, 0, 0,
-	2, 3, 5, 5,
+	2, 3, 5, 5
 };
 
 static uchar offbits[16] =

@@ -99,8 +99,8 @@ enum
 	ODbootfile=		67,
 
 	/* plan9 vendor info options */
-	OP9fs=			128,	// plan9 file servers
-	OP9auth=		129,	// plan9 auth servers
+	OP9fs=			128,	/* plan9 file servers */
+	OP9auth=		129,	/* plan9 auth servers */
 };
 
 static void
@@ -188,7 +188,7 @@ static char *dhcptype[256] =
 [Ack]		"Ack",
 [Nak]		"Nak",
 [Release]	"Release",
-[Inform]	"Inform",
+[Inform]	"Inform"
 };
 
 
@@ -471,6 +471,6 @@ Proto dhcp =
 	nil,
 	nil,
 	nil,
-	defaultframer,
+	defaultframer
 };
 

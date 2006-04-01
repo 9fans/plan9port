@@ -50,7 +50,7 @@ static char *emsg[]={
 	"temporary file too large",
 	"file is append-only",
 	"no destination for plumb message",
-	"internal read error in buffer load",
+	"internal read error in buffer load"
 };
 static char *wmsg[]={
 	/* warn_s */
@@ -63,7 +63,7 @@ static char *wmsg[]={
 	"null characters elided",
 	"can't run pwd",
 	"last char not newline",
-	"exit status not 0",
+	"exit status not 0"
 };
 
 void

@@ -27,7 +27,7 @@ enum
 	NoEncoding,
 	QuotedPrintable,
 	QuotedPrintableU,
-	Base64,
+	Base64
 };
 
 char*	decode(int, char*, int*);

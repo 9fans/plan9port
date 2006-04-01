@@ -209,7 +209,7 @@ __quotestrfmt(int runesin, Fmt *f)
 		outlen = (char*)f->stop - (char*)f->to;
 
 	__quotesetup(s, r, nin, outlen, &q, f->flags&FmtSharp, f->runes);
-//print("bytes in %d bytes out %d runes in %d runesout %d\n", q.nbytesin, q.nbytesout, q.nrunesin, q.nrunesout);
+/*print("bytes in %d bytes out %d runes in %d runesout %d\n", q.nbytesin, q.nbytesout, q.nrunesin, q.nrunesout); */
 
 	if(runesin){
 		if(!q.quoted)

@@ -286,7 +286,7 @@ found:
 		if(e >= -5 && e <= prec) {
 			c1 = -e - 1;
 			c4 = prec - e;
-			chr = 'h';	// flag for 'f' style
+			chr = 'h';	/* flag for 'f' style */
 		}
 		break;
 	case 'f':

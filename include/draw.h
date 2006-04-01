@@ -60,7 +60,7 @@ enum
 {
 	Displaybufsize	= 8000,
 	ICOSSCALE	= 1024,
-	Borderwidth =	4,
+	Borderwidth =	4
 };
 
 enum
@@ -103,7 +103,7 @@ typedef enum
 	DatopS	= DinS|SoutD,
 	DxorS	= DoutS|SoutD,	/* == SxorD */
 
-	Ncomp = 12,
+	Ncomp = 12
 } Drawop;
 
 /*
@@ -117,7 +117,7 @@ enum {
 	CAlpha,
 	CMap,
 	CIgnore,
-	NChan,
+	NChan
 };
 
 #define __DC(type, nbits)	((((type)&15)<<4)|((nbits)&15))
@@ -143,7 +143,7 @@ enum {
 	ARGB32	= CHAN4(CAlpha, 8, CRed, 8, CGreen, 8, CBlue, 8),	/* stupid VGAs */
 	ABGR32	= CHAN4(CAlpha, 8, CBlue, 8, CGreen, 8, CRed, 8),
 	XRGB32  = CHAN4(CIgnore, 8, CRed, 8, CGreen, 8, CBlue, 8),
-	XBGR32  = CHAN4(CIgnore, 8, CBlue, 8, CGreen, 8, CRed, 8),
+	XBGR32  = CHAN4(CIgnore, 8, CBlue, 8, CGreen, 8, CRed, 8)
 };
 
 extern	char*	chantostr(char*, u32int);
@@ -526,7 +526,7 @@ extern	void		drawsetdebug(int);
  */
 enum
 {
-	SnarfSize = 64*1024,
+	SnarfSize = 64*1024
 };
 char *getsnarf(void);
 void putsnarf(char*);

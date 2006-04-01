@@ -7,7 +7,7 @@ enum
 	MAXESC = 60,
 	MAXLINE = 1024,
 	MAXIF = 20,
-	MAXARG = 10,
+	MAXARG = 10
 };
 
 typedef struct Esc Esc;

@@ -46,7 +46,7 @@ char *hname[] = {
 	[Hsnarflen]	"Hsnarflen",
 	[Hack]		"Hack",
 	[Hexit]		"Hexit",
-	[Hplumb]		"Hplumb",
+	[Hplumb]		"Hplumb"
 };
 
 char *tname[] = {
@@ -72,7 +72,7 @@ char *tname[] = {
 	[Tsetsnarf]	"Tsetsnarf",
 	[Tack]		"Tack",
 	[Texit]		"Texit",
-	[Tplumb]		"Tplumb",
+	[Tplumb]		"Tplumb"
 };
 
 void

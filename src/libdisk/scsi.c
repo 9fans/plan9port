@@ -264,8 +264,8 @@ scsi(Scsi *s, uchar *cmd, int ccount, void *v, int dcount, int io)
 	if(scsiverbose)
 		fprint(2, "scsi cmd #%.2ux: %.2ux %.2ux %.2ux: %s\n", cmd[0], key, code, sense[13], p);
 
-//	if(key == 0)
-//		return dcount;
+/*	if(key == 0) */
+/*		return dcount; */
 	return -1;
 }
 

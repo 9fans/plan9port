@@ -12,7 +12,7 @@ enum
 	Qlog,
 	Qctl,
 	Qneedkey,
-	Qconv,
+	Qconv
 };
 
 static int qtop;
@@ -41,7 +41,7 @@ static struct
 	"rpc",		Qrpc,		0666,
 	"proto",		Qprotolist,	0444,
 	"log",		Qlog,		0600|DMEXCL,
-	"conv",		Qconv,		0400,
+	"conv",		Qconv,		0400
 };
 
 static void

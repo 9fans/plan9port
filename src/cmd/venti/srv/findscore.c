@@ -27,7 +27,7 @@ findscore(Arena *arena, uchar *score)
 	u32int clump;
 	int i, n, found;
 
-//ZZZ remove fprint?
+/*ZZZ remove fprint? */
 	if(arena->memstats.clumps)
 		fprint(2, "reading directory for arena=%s with %d entries\n", arena->name, arena->memstats.clumps);
 

@@ -34,7 +34,7 @@ enum
 	NSzerofract,
 	NSexp,
 	NSexpsign,
-	NSexpdigit,
+	NSexpdigit
 };
 
 typedef	struct	Line	Line;
@@ -1583,7 +1583,7 @@ Rune*	month[12] =
 
 enum
 {
-	Threshold	= 14,
+	Threshold	= 14
 };
 
 void	rsort4(Key***, ulong, int);

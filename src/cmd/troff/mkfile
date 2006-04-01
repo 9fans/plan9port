@@ -27,7 +27,7 @@ HFILES=tdef.h\
 
 
 <$PLAN9/src/mkone
-CFLAGS=-c -DUNICODE
+CFLAGS=-DUNICODE
 
 TMACDIR='"tmac/tmac."'
 FONTDIR='"troff/font"'

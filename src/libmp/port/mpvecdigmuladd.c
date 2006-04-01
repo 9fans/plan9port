@@ -11,19 +11,19 @@ mpdigmul(mpdigit a, mpdigit b, mpdigit *p)
 	mpdigit x, ah, al, bh, bl, p1, p2, p3, p4;
 	int carry;
 
-	// half digits
+	/* half digits */
 	ah = HI(a);
 	al = LO(a);
 	bh = HI(b);
 	bl = LO(b);
 
-	// partial products
+	/* partial products */
 	p1 = ah*bl;
 	p2 = bh*al;
 	p3 = bl*al;
 	p4 = ah*bh;
 
-	// p = ((p1+p2)<<(Dbits/2)) + (p4<<Dbits) + p3
+	/* p = ((p1+p2)<<(Dbits/2)) + (p4<<Dbits) + p3 */
 	carry = 0;
 	x = p1<<(Dbits/2);
 	p3 += x;
@@ -33,12 +33,12 @@ mpdigmul(mpdigit a, mpdigit b, mpdigit *p)
 	p3 += x;
 	if(p3 < x)
 		carry++;
-	p4 += carry + HI(p1) + HI(p2);	// can't carry out of the high digit
+	p4 += carry + HI(p1) + HI(p2);	/* can't carry out of the high digit */
 	p[0] = p3;
 	p[1] = p4;
 }
 
-// prereq: p must have room for n+1 digits
+/* prereq: p must have room for n+1 digits */
 void
 mpvecdigmuladd(mpdigit *b, int n, mpdigit m, mpdigit *p)
 {
@@ -66,7 +66,7 @@ mpvecdigmuladd(mpdigit *b, int n, mpdigit m, mpdigit *p)
 	*p = part[1] + carry;
 }
 
-// prereq: p must have room for n+1 digits
+/* prereq: p must have room for n+1 digits */
 int
 mpvecdigmulsub(mpdigit *b, int n, mpdigit m, mpdigit *p)
 {

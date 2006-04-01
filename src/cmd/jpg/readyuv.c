@@ -76,19 +76,19 @@ Breadyuv(Biobuf *bp, int colourspace)
 	}
 
 	switch (sz) {
-	case 720 * PAL * 2:				// 625 x 8bit
+	case 720 * PAL * 2:				/* 625 x 8bit */
 		bits = 8;
 		lines = PAL;
 		break;
-	case 720 * NTSC * 2:				// 525 x 8bit
+	case 720 * NTSC * 2:				/* 525 x 8bit */
 		bits = 8;
 		lines = NTSC;
 		break;
-	case 720 * PAL * 2 + (720 * PAL / 2) :		// 625 x 10bit
+	case 720 * PAL * 2 + (720 * PAL / 2) :		/* 625 x 10bit */
 			bits = 10;
 		lines = PAL;
 		break;
-	case 720 * NTSC * 2 + (720 * NTSC / 2) :	// 525 x 10bit
+	case 720 * NTSC * 2 + (720 * NTSC / 2) :	/* 525 x 10bit */
 			bits = 10;
 		lines = NTSC;
 		break;
@@ -97,8 +97,8 @@ Breadyuv(Biobuf *bp, int colourspace)
 		goto Error;
 	}
 
-	//	print("bits=%d pixels=%d lines=%d\n", bits, 720, lines);
-	//
+	/*	print("bits=%d pixels=%d lines=%d\n", bits, 720, lines); */
+	/* */
 	a->nchans = 3;
 	a->chandesc = CRGB;
 	a->chanlen = 720 * lines;

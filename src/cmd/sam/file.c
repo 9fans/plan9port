@@ -35,7 +35,7 @@ struct Merge
 enum
 {
 	Maxmerge = 50,
-	Undosize = sizeof(Undo)/sizeof(Rune),
+	Undosize = sizeof(Undo)/sizeof(Rune)
 };
 
 static Merge	merge;

@@ -560,7 +560,7 @@ applegetsnarf(void)
 	PasteboardSyncFlags flags;
 	UInt32 i;
 
-//	fprint(2, "applegetsnarf\n");
+/*	fprint(2, "applegetsnarf\n"); */
 	qlock(&clip.lk);
 	if(clip.apple == nil){
 		if(PasteboardCreate(kPasteboardClipboard, &clip.apple) != noErr){
@@ -614,7 +614,7 @@ appleputsnarf(char *s)
 	CFDataRef cfdata;
 	PasteboardSyncFlags flags;
 
-//	fprint(2, "appleputsnarf\n");
+/*	fprint(2, "appleputsnarf\n"); */
 
 	if(strlen(s) >= SnarfSize)
 		return;

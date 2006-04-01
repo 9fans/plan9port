@@ -17,7 +17,7 @@
 static char *msg[] = {
 	"key",
 	"delkey",
-	"debug",
+	"debug"
 };
 
 static int
