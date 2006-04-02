@@ -1,3 +1,37 @@
+April 1, 2006
+	9c: use -ansi and -pedantic with gcc
+	everything: remove many post-C90-isms.
+	9term: add more matching characters
+	snarfer: avoid primary selection
+
+March 31, 2006
+	libdraw: fix X11 alpha bug
+	marshal: add UTF-in-subject code
+	tar: remove unnamed unions
+
+March 30, 2006
+	9l: fix egrep bug
+	9term: handle grey fonts correctly
+	ndb: remove unnamed unions
+	tar: import from Plan 9
+
+March 27, 2006
+	win: silence on Del
+
+March 26, 2006
+	img: add important flushdisplay call (Erik Quanstrom)
+
+March 23, 2006
+	snarfer: new program
+
+March 22, 2006
+	libmp/386: do not store precious data below stack pointer
+
+March 21, 2006
+	lib9p: call destroyfid in a more timely manner
+	acme: use $-free paths in Dump files (Peter Canning)
+	ssh-agent: fix various memory errors
+
 March 19, 2006
 	9pclient(3): document new functions
 	jpg, gif, etc.: resize window to fit image (Erik Quanstrom)
