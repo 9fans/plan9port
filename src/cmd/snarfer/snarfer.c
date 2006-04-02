@@ -273,7 +273,7 @@ xgetsnarf(void)
 void
 xputsnarf(void)
 {
-	XSetSelectionOwner(xdisplay, XA_PRIMARY, drawable, CurrentTime);
+	if(0) XSetSelectionOwner(xdisplay, XA_PRIMARY, drawable, CurrentTime);
 	if(xclipboard != None)
 		XSetSelectionOwner(xdisplay, xclipboard, drawable, CurrentTime);
 	XFlush(xdisplay);
