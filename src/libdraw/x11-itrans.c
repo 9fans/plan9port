@@ -656,17 +656,6 @@ appleputsnarf(char *s)
 	/* CFRelease(cfdata); ??? */
 	qunlock(&clip.lk);
 }
-static int useapplesnarf = -1;
-static int
-checkapplesnarf(void)
-{
-	char *x;
-	
-	x = getenv("USEX11SNARF");
-	if(x && x[0])
-		return 0;
-	return 1;
-}
 #endif	/* APPLESNARF */
 
 void
