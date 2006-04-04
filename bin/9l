@@ -150,7 +150,7 @@ then
 		libsl="$libsl -lsec -l9"
 	fi
 
-	if [ "x$needndb" = xtrue -a -f /usr/lib/libresolv.a ]
+	if [ "x$needndb" = xtrue -a '(' -f /usr/lib/libresolv.a -o -f /usr/lib/libresolv.dylib ')' ]
 	then
 		libsl="$libsl -lresolv"
 	fi
