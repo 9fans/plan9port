@@ -64,6 +64,27 @@ available as service
 is an
 .IR rc (1)
 script; examine it to see what local conventions apply.
+.SH EXAMPLES
+List the root directory on 
+.IR sources :
+.IP
+.EX
+9fs sources
+9p ls sources
+.EE
+.PP
+Mount a remote file server 
+.I bootes
+on Linux using the kernel 9P mount driver,
+with 
+.I srv
+handling authentication:
+.IP
+.EX
+srv -a sources.cs.bell-labs.com sources
+sudo mount -t 9P -o user=$USER,uid=`id -u`,gid=`id -g`,proto=unix
+           `namespace`/sources /n/sources
+.EE
 .SH SOURCE
 .B \*9/src/cmd/srv.c
 .br
