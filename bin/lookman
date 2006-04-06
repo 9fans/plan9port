@@ -13,7 +13,7 @@ fn sigexit sigint sighup sigterm{
 }
 *=`{echo $*|tr A-Z a-z|tr -dc 'a-z0-9_ \012'}	# fold case, delete funny chars
 if(~ $#* 0){
-	echo Usage: lookman key ... >/fd/2
+	echo usage: lookman key ... >[1=2]
 	exit 1
 }
 look $1 $index|sed 's/.*	//'|sort -u >$t1
