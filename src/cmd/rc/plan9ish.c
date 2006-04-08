@@ -545,3 +545,14 @@ void Memcpy(char *a, char *b, long n)
 void *Malloc(ulong n){
 	return malloc(n);
 }
+
+int
+exitcode(char *msg)
+{
+	int n;
+	
+	n = atoi(msg);
+	if(n == 0)
+		n = 1;
+	return n;
+}
