@@ -1,0 +1,69 @@
+#!/usr/local/plan9/bin/rc
+rfork n
+
+. 9.rc
+
+# exit status matching:
+#
+#	*discard* - is really bad, refuse the message 
+#	*accept* - is really good, leave attachment alone
+#	* - rewrite attachment to have .suspect extension
+# 
+
+# magic exit statuses known to vf
+accept=10
+discard=13
+
+wrap=123	# anything but 10, 13
+
+if(! ~ $#* 1){
+	echo usage: validateattachment mboxfile >[1=2]
+	exit usage
+}
+
+upas/unvf < $1 >$1.unvf
+file=$1.unvf
+fn sigexit { rm $file }
+
+fn save {
+#	d=`{date -n}
+#	cp $file /n/other/upas/tmp/$d.$1
+#	cp raw /n/other/upas/tmp/$d.$1.raw
+#	whatis x >/n/other/upas/tmp/$d.$1.file
+}
+
+x=`{file <$file | sed s/stdin://}
+x=$"x
+switch($x){
+case *Ascii* *text* *'c program'* *'rc executable'* 
+	save accept
+	exit $accept
+
+case *'zip archive'*
+	# >[2=1] because sometimes we get zip files we can't parse
+	# but the errors look like
+	# unzip: reading data for philw.doc.scr failed: ...
+	# so we can still catch these.
+	if(unzip -tsf $file >[2=1] | grep -si '      |\.(scr|exe|pif|bat|com)$'){
+		echo executables inside zip file!
+		exit $discard
+	}
+
+case jpeg 'PNG image' bmp 'GIF image' *'plan 9 image'
+	save accept
+	exit $accept
+
+case *Microsoft* *Office*
+	save wrap
+	exit $wrap
+
+case *MSDOS*
+	# no executables
+	echo $x
+	exit $discard
+}
+
+save wrap
+exit $wrap
+
+
