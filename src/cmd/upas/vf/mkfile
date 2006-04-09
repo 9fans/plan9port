@@ -1,8 +1,8 @@
 <$PLAN9/src/mkhdr
 
-TARG=vf
+TARG=vf unvf
 
-OFILES=vf.$O\
+OFILES=
 
 LIB=../common/libcommon.a\
 
@@ -16,5 +16,5 @@ UPDATE=\
 	$HFILES\
 	${OFILES:%.$O=%.c}\
 
-<$PLAN9/src/mkone
+<$PLAN9/src/mkmany
 CFLAGS=$CFLAGS -I../common

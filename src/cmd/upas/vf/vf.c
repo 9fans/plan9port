@@ -5,6 +5,11 @@
 #include "common.h"
 #include <ctype.h>
 
+enum {
+	Accept = 0xA,
+	Discard = 0xD,
+};
+
 Biobuf in;
 Biobuf out;
 
@@ -400,12 +405,12 @@ savetmp(Part *p)
 	char buf[40], *name;
 	int fd;
 	
-	strcpy(buf, "/tmp/vf.XXXXXXXXXXX");
-	name = mktemp(buf);
-	if((fd = create(name, OWRITE|OEXCL, 0666)) < 0){
+	strcpy(buf, "/var/tmp/vf.XXXXXXXXXXX");
+	if((fd = mkstemp(buf)) < 0){
 		fprint(2, "error creating temporary file: %r\n");
 		refuse();
 	}
+	name = buf;
 	close(fd);
 	if(save(p, name) < 0){
 		fprint(2, "error saving temporary file: %r\n");
@@ -433,10 +438,13 @@ runchecker(Part *p)
 	int pid;
 	char *name;
 	Waitmsg *w;
+	static char *val;
 	
-	if(access("/mail/lib/validateattachment", AEXEC) < 0)
+	if(val == nil)
+		val = unsharp("#9/mail/lib/validateattachment");
+	if(val == nil || access(val, AEXEC) < 0)
 		return 0;
-	
+
 	name = savetmp(p);
 	fprint(2, "run checker %s\n", name);
 	switch(pid = fork()){
@@ -444,7 +452,7 @@ runchecker(Part *p)
 		sysfatal("fork: %r");
 	case 0:
 		dup(2, 1);
-		execl("/mail/lib/validateattachment", "validateattachment", name, nil);
+		execl(val, "validateattachment", name, nil);
 		_exits("exec failed");
 	}
 
@@ -462,11 +470,11 @@ runchecker(Part *p)
 	}
 	if(p->filename)
 		name = s_to_c(p->filename);
-	if(strstr(w->msg, "discard")){
+	if(atoi(w->msg) == Discard){
 		syslog(0, "mail", "vf validateattachment rejected %s", name);
 		refuse();
 	}
-	if(strstr(w->msg, "accept")){
+	if(atoi(w->msg) == Accept){
 		syslog(0, "mail", "vf validateattachment accepted %s", name);
 		return 1;
 	}
