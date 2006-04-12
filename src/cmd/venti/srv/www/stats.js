@@ -73,7 +73,7 @@ graphname = new Array(
 		"uncached read RPC time",
 	"rpcwritenewtime/divdiff=rpcwritenew",
 		"fresh write RPC time",
-	"rpcwriteduptime/divdiff=rpcwritedup",
+	"rpcwriteoldtime/divdiff=rpcwriteold",
 		"dup write RPC time",
 
 	"sumreadbyte/diff",
@@ -153,7 +153,7 @@ column2 = new Array(
 	"rpcreadcachedtime/divdiff=rpcreadcached",
 	"rpcreaduncachedtime/divdiff=rpcreaduncached",
 	"rpcwritenewtime/divdiff=rpcwritenew",
-	"rpcwriteduptime/divdiff=rpcwritedup",
+	"rpcwriteoldtime/divdiff=rpcwriteold",
 	
 	"END"
 	

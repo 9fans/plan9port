@@ -50,7 +50,7 @@ threadmain(int argc, char **argv)
 
 	srv = vtlisten(address);
 	if(srv == nil)
-		sysfatal("vtlisten %s: %r", argv[1]);
+		sysfatal("vtlisten %s: %s", address);
 
 	while((r = vtgetreq(srv)) != nil){
 		r->rx.msgtype = r->tx.msgtype+1;

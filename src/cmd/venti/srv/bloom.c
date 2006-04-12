@@ -163,7 +163,7 @@ inbloomfilter(Bloom *b, u8int *score)
 	rlock(&b->lk);
 	r = _inbloomfilter(b, score);
 	runlock(&b->lk);
-	ms = ms - msec();
+	ms = msec() - ms;
 	addstat2(StatBloomLookup, 1, StatBloomLookupTime, ms);
 	if(r)
 		addstat(StatBloomMiss, 1);
