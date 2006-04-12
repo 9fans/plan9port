@@ -5,9 +5,9 @@ rfork n
 
 # exit status matching:
 #
-#	*discard* - is really bad, refuse the message 
-#	*accept* - is really good, leave attachment alone
-#	* - rewrite attachment to have .suspect extension
+#	$discard - is really bad, refuse the message 
+#	$accept - is really good, leave attachment alone
+#	anything else - rewrite attachment to have .suspect extension
 # 
 
 # magic exit statuses known to vf
@@ -19,6 +19,15 @@ wrap=123	# anything but 10, 13
 if(! ~ $#* 1){
 	echo usage: validateattachment mboxfile >[1=2]
 	exit usage
+}
+
+# some idiot virus is sending around attachments marked as .zip
+# that are completely bogus and just say %TS_ZIP_ATTACH%
+# as the base64 encoding of the zip file.  gmail rejects all zip
+# attachments when we forward them, so nip this one here.
+if(grep -s '^%TS_ZIP_ATTACH%$' $1 && ~ `{wc -l <$1} 1 2 3 4 5 6 7 8 9 10){
+	echo bogus zip file!
+	exit $discard
 }
 
 upas/unvf < $1 >$1.unvf
@@ -40,6 +49,7 @@ case *Ascii* *text* *'c program'* *'rc executable'*
 	exit $accept
 
 case *'zip archive'*
+	
 	# >[2=1] because sometimes we get zip files we can't parse
 	# but the errors look like
 	# unzip: reading data for philw.doc.scr failed: ...
