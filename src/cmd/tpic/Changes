@@ -1,0 +1,24 @@
+30 Nov 1988	ehg
+Copied from /n/bowell/usr/src/cmd/pic.
+
+16 Jan 1989	ehg
+Updates from /n/coma/usr/bwk/pic.
+Brian picked up printlf() and I moved space() in openpl() in pixel and 4014,
+	so no changes were needed in the source imported from bowell and bwk.
+bwk's print.c calls arc(), which is translated in pl$DEV.c into a call to
+	devarc() whose code is in lib$DEV/arc.c.
+I didn't understand howard's dotline change and it conflicted
+	with using pure bwk code, so I commented it out in pltex.c.
+
+8 Sep 1989	hwt
+Updates from /n/bowell/usr/src/cmd/pic
+Some changes in linegen.c (bigger buffers), misc.c, picl.l, picy.y, symtab.c
+I removed the \t-><tab> transformation in picl.l (bwk agreed it was bogus).
+Put the dotline change back in (to get smaller output files, and avoid
+	problems where lines were bunching together).
+
+11 Sep 1989	hwt
+Went back to troff dotline (the postscript one doesn't act the same
+	as troff when scale!=1).
+Changed default pen size from 8 to 9 (to give same thickness lines
+	as default pic), and made dots change size with pen size.

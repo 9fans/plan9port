@@ -1,0 +1,39 @@
+<$PLAN9/src/mkhdr
+
+TARG=tpic
+YFILES=picy.y
+
+OFILES=\
+	arcgen.$O\
+	blockgen.$O\
+	boxgen.$O\
+	circgen.$O\
+	for.$O\
+	input.$O\
+	linegen.$O\
+	main.$O\
+	misc.$O\
+	movegen.$O\
+	picl.$O\
+	picy.$O\
+	pltex.$O\
+	print.$O\
+	symtab.$O\
+	tex.$O\
+	textgen.$O\
+
+HFILES=pic.h y.tab.h tex.h
+
+<$PLAN9/src/mkone
+
+YFLAGS=-d -S
+
+picy.c: y.tab.c
+	mv y.tab.c picy.c
+
+picl.$O: picl.l
+	9 lex  picl.l
+	$CC $CFLAGS lex.yy.c
+	rm lex.yy.c
+	mv lex.yy.$O picl.$O
+
