@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include <ctype.h>
 #include <errno.h>
 #include "pic.h"
@@ -511,7 +512,7 @@ struct symtab*
 copythru(char *s)	/* collect the macro name or body for thru */
 {
 	struct symtab *p;
-	char *q, *addnewline();
+	char *q;
 
 	p = lookup(s);
 	if (p != NULL) {

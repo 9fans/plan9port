@@ -369,7 +369,7 @@ getfirst(int n, int t)	/* find n-th occurrence of type t */
 double
 getblkvar(obj *p, char *s)	/* find variable s2 in block p */
 {
-	YYSTYPE y, getblk();
+	YYSTYPE y;
 
 	y = getblk(p, s);
 	return y.f;
@@ -378,7 +378,7 @@ getblkvar(obj *p, char *s)	/* find variable s2 in block p */
 obj*
 getblock(obj *p, char *s)	/* find variable s in block p */
 {
-	YYSTYPE y, getblk();
+	YYSTYPE y;
 
 	y = getblk(p, s);
 	return y.o;

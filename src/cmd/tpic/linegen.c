@@ -1,3 +1,4 @@
+#include	<math.h>
 #include	<stdio.h>
 #include	"pic.h"
 #include	"y.tab.h"
@@ -11,7 +12,7 @@ linegen(int type)
 	static double prevh = HT5;
 	int i, j, some, head, ddtype, invis, chop;
 	double ddval, chop1, chop2, x0, y0, x1, y1;
-	double sin(), cos(), atan2(), theta;
+	double theta;
 	double defx, defy;
 	obj *p, *ppos;
 	static int xtab[] = { 1, 0, -1, 0 };	/* R=0, U=1, L=2, D=3 */
