@@ -856,8 +856,10 @@ if(chatty9p)
 free:
 	qlock(&r->lk);	/* no one will add flushes now */
 
-	for(i=0; i<r->nflush; i++)
+	for(i=0; i<r->nflush; i++){
+		r->flush[i]->oldreq = nil;	/* so it doesn't try to lock us! */
 		respond(r->flush[i], nil);
+	}
 	free(r->flush);
 	r->nflush = 0;
 	r->flush = nil;
