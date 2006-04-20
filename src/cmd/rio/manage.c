@@ -471,7 +471,7 @@ get1prop(Window w, Atom a, Atom type)
 		return 0;
 	x = *p;
 	XFree((void*) p);
-	return (int)x;
+	return (int)(uintptr)x;
 }
 
 Window
