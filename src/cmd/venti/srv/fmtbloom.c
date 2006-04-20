@@ -107,7 +107,7 @@ threadmain(int argc, char *argv[])
 	b.nhash = nhash;
 	bits = nhash*10/7;
 	nblocks = (8*size)/bits;
-	fprint(2, "fmtbloom: using %lldMB, %d hashes/score, best up to %,lld blocks\n", size, nhash, nblocks);
+	fprint(2, "fmtbloom: using %lldMB, %d hashes/score, best up to %,lld blocks\n", size/1024/1024, nhash, nblocks);
 	b.data = vtmallocz(size);
 	b.part = part;
 	if(writebloom(&b) < 0)

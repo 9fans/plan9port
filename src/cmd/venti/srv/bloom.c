@@ -101,8 +101,6 @@ gethashes(u8int *score, ulong *h)
 		a ^= *(u32int*)(score+i);
 		b ^= *(u32int*)(score+i+4);
 	}
-	if(i+4 <= VtScoreSize)	/* 20 is not 4-aligned */
-		a ^= *(u32int*)(score+i);
 	for(i=0; i<BloomMaxHash; i++, a+=b)
 		h[i] = a < BloomHeadSize*8 ? BloomHeadSize*8 : a;
 }

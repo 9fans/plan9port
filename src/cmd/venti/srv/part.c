@@ -313,7 +313,7 @@ print("FAILED isread=%d r=%d count=%d blocksize=%d\n", isread, r, count, blocksi
 			memmove(buf, tmp, count);
 		else{
 			memmove(tmp, buf, count);
-			if(pwrite(fd, tmp, opsize, offset) != blocksize){
+			if(pwrite(fd, tmp, blocksize, offset) != blocksize){
 				dst = tmp;
 				op = "write";
 				goto Error;
