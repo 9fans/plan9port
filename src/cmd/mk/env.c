@@ -79,7 +79,7 @@ ecopy(Symtab *s)
 	for(p = myenv; *p; p++)
 		if(strcmp(*p, s->name) == 0)
 			return;
-	envinsert(s->name, (Word *) s->value);
+	envinsert(s->name, s->u.ptr);
 }
 
 void

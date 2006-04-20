@@ -168,7 +168,7 @@ again:		/* rogue processes */
 	for(w = j->t; w; w = w->next){
 		if((s = symlook(w->s, S_NODE, 0)) == 0)
 			continue;	/* not interested in this node */
-		update(uarg, (Node *)s->value);
+		update(uarg, s->u.ptr);
 	}
 	if(nrunning < nproclimit)
 		sched();
@@ -182,7 +182,7 @@ nproc(void)
 	Word *w;
 
 	if(sym = symlook("NPROC", S_VAR, 0)) {
-		w = (Word *) sym->value;
+		w = sym->u.ptr;
 		if (w && w->s && w->s[0])
 			nproclimit = atoi(w->s);
 	}

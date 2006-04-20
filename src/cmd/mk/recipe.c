@@ -59,7 +59,7 @@ dorecipe(Node *node)
 			aw = aw->next;
 			if((s = symlook(buf, S_NODE, 0)) == 0)
 				continue;	/* not a node we are interested in */
-			n = (Node *)s->value;
+			n = s->u.ptr;
 			if(aflag == 0 && n->time) {
 				for(a = n->prereqs; a; a = a->next)
 					if(a->n && outofdate(n, a, 0))

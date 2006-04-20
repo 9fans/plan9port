@@ -15,7 +15,7 @@ addrule(char *head, Word *tail, char *body, Word *ahead, int attr, int hline, ch
 	r = 0;
 	reuse = 0;
 	if(sym = symlook(head, S_TARGET, 0)){
-		for(r = (Rule *)sym->value; r; r = r->chain)
+		for(r = sym->u.ptr; r; r = r->chain)
 			if(rcmp(r, head, tail) == 0){
 				reuse = 1;
 				break;
@@ -35,7 +35,7 @@ addrule(char *head, Word *tail, char *body, Word *ahead, int attr, int hline, ch
 	r->prog = prog;
 	r->rule = nrules++;
 	if(!reuse){
-		rr = (Rule *)symlook(head, S_TARGET, (void *)r)->value;
+		rr = symlook(head, S_TARGET, (void *)r)->u.ptr;
 		if(rr != r){
 			r->chain = rr->chain;
 			rr->chain = r;

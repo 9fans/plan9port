@@ -66,7 +66,7 @@ varmatch(char *name, char **s)
 	sym = symlook(name, S_VAR, 0);
 	if(sym){
 			/* check for at least one non-NULL value */
-		for (w = (Word*)sym->value; w; w = w->next)
+		for (w = sym->u.ptr; w; w = w->next)
 			if(w->s && *w->s)
 				return wdup(w);
 	}
@@ -113,10 +113,10 @@ expandvar(char **s)
 	*s = end+1;
 	
 	sym = symlook(buf->start, S_VAR, 0);
-	if(sym == 0 || sym->value == 0)
+	if(sym == 0 || sym->u.ptr == 0)
 		w = newword(buf->start);
 	else
-		w = subsub((Word*) sym->value, cp, end);
+		w = subsub(sym->u.ptr, cp, end);
 	freebuf(buf);
 	return w;
 }

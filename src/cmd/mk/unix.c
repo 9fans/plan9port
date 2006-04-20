@@ -41,7 +41,7 @@ readenv(void)
 			continue;
 		s = strdup(*p);
 		setvar(s, (void *)w);
-		symlook(s, S_EXPORTED, (void*)"")->value = (void*)"";
+		symlook(s, S_EXPORTED, (void*)"")->u.ptr = "";
 	}
 }
 

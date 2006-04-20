@@ -1,9 +1,9 @@
 #include	"mk.h"
 
 void
-setvar(char *name, void *value)
+setvar(char *name, void *ptr)
 {
-	symlook(name, S_VAR, value)->value = value;
+	symlook(name, S_VAR, ptr)->u.ptr = ptr;
 	symlook(name, S_MAKEVAR, (void*)"");
 }
 
@@ -13,7 +13,7 @@ print1(Symtab *s)
 	Word *w;
 
 	Bprint(&bout, "\t%s=", s->name);
-	for (w = (Word *) s->value; w; w = w->next)
+	for (w = s->u.ptr; w; w = w->next)
 		Bprint(&bout, "'%s'", w->s);
 	Bprint(&bout, "\n");
 }

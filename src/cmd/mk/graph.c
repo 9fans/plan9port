@@ -40,14 +40,14 @@ applyrules(char *target, char *cnt)
 /*	print("applyrules(%lux='%s')\n", target, target); */
 	sym = symlook(target, S_NODE, 0);
 	if(sym)
-		return (Node *)(sym->value);
+		return sym->u.ptr;
 	target = strdup(target);
 	node = newnode(target);
 	head.n = 0;
 	head.next = 0;
 	sym = symlook(target, S_TARGET, 0);
 	memset((char*)rmatch, 0, sizeof(rmatch));
-	for(r = sym? (Rule *)(sym->value):0; r; r = r->chain){
+	for(r = sym? sym->u.ptr:0; r; r = r->chain){
 		if(r->attr&META) continue;
 		if(strcmp(target, r->target)) continue;
 		if((!r->recipe || !*r->recipe) && (!r->tail || !r->tail->s || !*r->tail->s)) continue;	/* no effect; ignore */
