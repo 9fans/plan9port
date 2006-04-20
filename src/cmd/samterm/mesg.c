@@ -331,7 +331,7 @@ clrlock(void)
 void
 startfile(Text *t)
 {
-	outTsv(Tstartfile, t->tag, (vlong)t);		/* for 64-bit pointers */
+	outTsv(Tstartfile, t->tag, (vlong)(uintptr)t);		/* for 64-bit pointers */
 	setlock();
 }
 
@@ -339,7 +339,7 @@ void
 startnewfile(int type, Text *t)
 {
 	t->tag = Untagged;
-	outTv(type, (vlong)t);				/* for 64-bit pointers */
+	outTv(type, (vlong)(uintptr)t);				/* for 64-bit pointers */
 }
 
 int
