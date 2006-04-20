@@ -142,7 +142,7 @@ void getstr(char *s, int n)
 	}
 	unput(c);
 	*p = '\0';
-	yylval = (int) s;
+	yylval = (uintptr_t)s;
 }
 
 int
