@@ -61,7 +61,7 @@ gettbl(void)
 			ch = 1;
 			if (match(cstore, "T{")) { /* text follows */
 				table[nlin][icol].col = 
-				    (char *)gettext(cstore, nlin, icol,
+				    (char *)(uintptr)gettext(cstore, nlin, icol,
 				    font[icol][stynum[nlin]],
 				    csize[icol][stynum[nlin]]);
 			} else
