@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
-#include "pic.h"
 #include <math.h>
+#include "pic.h"
 YYSTYPE	y;
 int yylex(void);
 %}
