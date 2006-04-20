@@ -170,7 +170,7 @@ call(void) 		/* call a function */
 		execerror(sp->name, "call nested too deeply");
 	fp++;
 	fp->sp = sp;
-	fp->nargs = (int)pc[1];
+	fp->nargs = (int)(uintptr)pc[1];
 	fp->retpc = pc + 2;
 	fp->argn = stackp - 1;	/* last argument */
 	if(fp->nargs != sp->u.defn->nargs)

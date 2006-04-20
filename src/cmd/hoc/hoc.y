@@ -49,7 +49,7 @@ stmt:	  expr	{ code(xpop); }
 	| RETURN expr
 	        { defnonly("return"); $$=$2; code(funcret); }
 	| PROCEDURE begin '(' arglist ')'
-		{ $$ = $2; code3(call, (Inst)$1, (Inst)$4); }
+		{ $$ = $2; code3(call, (Inst)$1, (Inst)(uintptr)$4); }
 	| PRINT prlist	{ $$ = $2; }
 	| while '(' cond ')' stmt end {
 		($1)[1] = (Inst)$5;	/* body of loop */
@@ -88,7 +88,7 @@ expr:	  NUMBER { $$ = code2(constpush, (Inst)$1); }
 	| VAR	 { $$ = code3(varpush, (Inst)$1, eval); }
 	| asgn
 	| FUNCTION begin '(' arglist ')'
-		{ $$ = $2; code3(call,(Inst)$1,(Inst)$4); }
+		{ $$ = $2; code3(call,(Inst)$1,(Inst)(uintptr)$4); }
 	| READ '(' VAR ')' { $$ = code2(varread, (Inst)$3); }
 	| BLTIN '(' expr ')' { $$=$3; code2(bltin, (Inst)$1->u.ptr); }
 	| '(' expr ')'	{ $$ = $2; }
