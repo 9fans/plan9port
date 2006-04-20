@@ -152,6 +152,7 @@ iget(int ino)
 	long flags, i;
 	Fileinf f;
 
+	memset(&f, 0, sizeof f);
 	seek(tapefile, BLSIZE*((ino-1)/LINOPB + VSUPERB + 1), 0);
 	if (read(tapefile, buf, BLSIZE) != BLSIZE)
 		error("Can't read inode");
