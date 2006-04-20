@@ -441,7 +441,7 @@ unzipEntry(Biobuf *bin, ZipHead *czh)
 			error("copying data for %s failed: %r", zh.file);
 	}else if(zh.meth == 8){
 		off = Boffset(bin);
-		err = inflate((void*)fd, crcwrite, bin, (int(*)(void*))Bgetc);
+		err = inflate((void*)(uintptr)fd, crcwrite, bin, (int(*)(void*))Bgetc);
 		if(err != FlateOk)
 			error("inflate failed: %s", flateerr(err));
 		rlen = Boffset(bin) - off;
@@ -650,7 +650,7 @@ crcwrite(void *out, void *buf, int n)
 
 	wlen += n;
 	crc = blockcrc(crctab, crc, buf, n);
-	fd = (int)out;
+	fd = (int)(uintptr)out;
 	if(fd < 0)
 		return n;
 	nw = write(fd, buf, n);
@@ -673,7 +673,7 @@ copyout(int ofd, Biobuf *bin, long len)
 		if(n <= 0)
 			return 0;
 		rlen += n;
-		if(crcwrite((void*)ofd, buf, n) != n)
+		if(crcwrite((void*)(uintptr)ofd, buf, n) != n)
 			return 0;
 	}
 	return 1;

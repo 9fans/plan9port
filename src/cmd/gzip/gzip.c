@@ -180,7 +180,7 @@ gzip(char *file, long mtime, int ifd, Biobuf *bout)
 	crc = 0;
 	eof = 0;
 	totr = 0;
-	err = deflate(bout, gzwrite, (void*)ifd, crcread, level, debug);
+	err = deflate(bout, gzwrite, (void*)(uintptr)ifd, crcread, level, debug);
 	if(err != FlateOk){
 		fprint(2, "gzip: deflate failed: %s\n", flateerr(err));
 		return 0;
@@ -206,7 +206,7 @@ crcread(void *fd, void *buf, int n)
 
 	nr = 0;
 	for(; !eof && n > 0; n -= m){
-		m = read((int)fd, (char*)buf+nr, n);
+		m = read((int)(uintptr)fd, (char*)buf+nr, n);
 		if(m <= 0){
 			eof = 1;
 			if(m < 0)

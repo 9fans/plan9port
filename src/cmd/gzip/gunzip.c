@@ -189,7 +189,7 @@ gunzip(int ofd, char *ofile, Biobuf *bin)
 		if(!table && verbose)
 			fprint(2, "extracting %s to %s\n", h.file, ofile);
 
-		err = inflate((void*)ofd, crcwrite, bin, (int(*)(void*))Bgetc);
+		err = inflate((void*)(uintptr)ofd, crcwrite, bin, (int(*)(void*))Bgetc);
 		if(err != FlateOk)
 			error("inflate failed: %s", flateerr(err));
 
@@ -324,7 +324,7 @@ crcwrite(void *out, void *buf, int n)
 
 	wlen += n;
 	crc = blockcrc(crctab, crc, buf, n);
-	fd = (int)out;
+	fd = (int)(uintptr)out;
 	if(fd < 0)
 		return n;
 	nw = write(fd, buf, n);

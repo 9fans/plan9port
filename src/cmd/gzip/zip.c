@@ -169,7 +169,7 @@ zip(Biobuf *bout, char *file, int stdout)
 		eof = 0;
 		totr = 0;
 		totw = 0;
-		err = deflate(bout, zwrite, (void*)fd, crcread, level, debug);
+		err = deflate(bout, zwrite, (void*)(uintptr)fd, crcread, level, debug);
 		if(err != FlateOk)
 			error("deflate failed: %s: %r", flateerr(err));
 
@@ -324,7 +324,7 @@ crcread(void *fd, void *buf, int n)
 
 	nr = 0;
 	for(; !eof && n > 0; n -= m){
-		m = read((int)fd, (char*)buf+nr, n);
+		m = read((int)(uintptr)fd, (char*)buf+nr, n);
 		if(m <= 0){
 			eof = 1;
 			if(m < 0)
