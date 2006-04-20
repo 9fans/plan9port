@@ -310,7 +310,7 @@ unpacksect(ElfHdr *h, ElfSect *s, ElfSectBytes *b)
 	u32int (*e4)(uchar*);
 
 	e4 = h->e4;
-	s->name = (char*)e4(b->name);
+	s->name = (char*)(uintptr)e4(b->name);
 	s->type = e4(b->type);
 	s->flags = e4(b->flags);
 	s->addr = e4(b->addr);
