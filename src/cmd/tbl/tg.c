@@ -6,9 +6,10 @@ gettext(char *sp, int ilin, int icol, char *fn, char *sz)
 {
 					/* get a section of text */
 	char	line[4096];
-	int	oname;
+	int	oname, startline;
 	char	*vs;
 
+	startline = iline;
 	if (texname == 0) 
 		error("Too many text block diversions");
 	if (textflg == 0) {
@@ -42,7 +43,11 @@ gettext(char *sp, int ilin, int icol, char *fn, char *sz)
 	if (ctype(ilin, icol) == 'a')
 		Bprint(&tabout, ".ll -2n\n");
 	Bprint(&tabout, ".in 0\n");
-	while (gets1(line, sizeof(line))) {
+	for (;;) {
+		if (gets1(line, sizeof(line)) == nil) {
+			iline = startline;
+			error("missing closing T}");
+		}
 		if (line[0] == 'T' && line[1] == '}' && line[2] == tab) 
 			break;
 		if (match("T}", line)) 

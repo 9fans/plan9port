@@ -5,7 +5,7 @@ void
 choochar(void)
 {
 				/* choose funny characters to delimit fields */
-	int	had[128], ilin, icol, k;
+	int	had[256], ilin, icol, k;
 	char	*s;
 
 	for (icol = 0; icol < 128; icol++)
@@ -56,10 +56,10 @@ choochar(void)
 
 
 int
-point(char *s)
+point(char *ss)
 {
-	int	ss = (int)s;
-	return(ss >= 128 || ss < 0);
+	int	s = (int)(uintptr)ss;
+	return(s >= 128 || s < 0);
 }
 
 

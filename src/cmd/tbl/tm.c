@@ -5,8 +5,8 @@ char	*
 maknew(char *str)
 {
 				/* make two numerical fields */
-	int	dpoint, c;
-	char	*p, *q, *ba;
+	int	c;
+	char	*p, *q, *ba, *dpoint;
 
 	p = str;
 	for (ba = 0; c = *str; str++)
@@ -18,7 +18,7 @@ maknew(char *str)
 			if (*str == '.' && !ineqn(str, p) && 
 			    (str > p && digit(*(str - 1)) || 
 			    digit(*(str + 1))))
-				dpoint = (int)str;
+				dpoint = str;
 		}
 		if (dpoint == 0)
 			for (; str > p; str--) {
@@ -28,7 +28,7 @@ maknew(char *str)
 		if (!dpoint && p == str) /* not numerical, don't split */
 			return(0);
 		if (dpoint) 
-			str = (char *)dpoint;
+			str = dpoint;
 	} else
 		str = ba;
 	p = str;
