@@ -173,12 +173,12 @@ void	outTl(Tmesg, long);
 void	outTslS(Tmesg, int, long, Rune*);
 void	outTsll(Tmesg, int, long, long);
 void	outTsl(Tmesg, int, long);
-void	outTsv(Tmesg, int, void*);
-void	outTv(Tmesg, void*);
+void	outTsv(Tmesg, int, vlong);
+void	outTv(Tmesg, vlong);
 void	outstart(Tmesg);
 void	outcopy(int, uchar*);
 void	outshort(int);
 void	outlong(long);
-void	outvlong(void*);
+void	outvlong(vlong);
 void	outsend(void);
 

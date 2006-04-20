@@ -22,7 +22,7 @@ int	exiting;
 void	inmesg(Hmesg, int);
 int	inshort(int);
 long	inlong(int);
-long	invlong(int);
+vlong	invlong(int);
 void	hsetdot(int, long, long);
 void	hmoveto(int, long);
 void	hsetsnarf(int);
@@ -331,7 +331,7 @@ clrlock(void)
 void
 startfile(Text *t)
 {
-	outTsv(Tstartfile, t->tag, t);		/* for 64-bit pointers */
+	outTsv(Tstartfile, t->tag, (vlong)t);		/* for 64-bit pointers */
 	setlock();
 }
 
@@ -339,7 +339,7 @@ void
 startnewfile(int type, Text *t)
 {
 	t->tag = Untagged;
-	outTv(type, t);				/* for 64-bit pointers */
+	outTv(type, (vlong)t);				/* for 64-bit pointers */
 }
 
 int
@@ -355,15 +355,15 @@ inlong(int n)
 		((long)indata[n+2]<<16)|((long)indata[n+3]<<24);
 }
 
-long
+vlong
 invlong(int n)
 {
-	long l;
+	vlong v;
 
-	l = (indata[n+7]<<24) | (indata[n+6]<<16) | (indata[n+5]<<8) | indata[n+4];
-	l = (l<<16) | (indata[n+3]<<8) | indata[n+2];
-	l = (l<<16) | (indata[n+1]<<8) | indata[n];
-	return l;
+	v = (indata[n+7]<<24) | (indata[n+6]<<16) | (indata[n+5]<<8) | indata[n+4];
+	v = (v<<16) | (indata[n+3]<<8) | indata[n+2];
+	v = (v<<16) | (indata[n+1]<<8) | indata[n];
+	return v;
 }
 
 void
@@ -418,19 +418,19 @@ outTsl(Tmesg type, int s1, long l1)
 }
 
 void
-outTsv(Tmesg type, int s1, void *l1)
+outTsv(Tmesg type, int s1, vlong v1)
 {
 	outstart(type);
 	outshort(s1);
-	outvlong(l1);
+	outvlong(v1);
 	outsend();
 }
 
 void
-outTv(Tmesg type, void *l1)
+outTv(Tmesg type, vlong v1)
 {
 	outstart(type);
-	outvlong(l1);
+	outvlong(v1);
 	outsend();
 }
 
@@ -498,15 +498,15 @@ outlong(long l)
 }
 
 void
-outvlong(void *v)
+outvlong(vlong v)
 {
 	int i;
-	ulong l;
 	uchar buf[8];
 
-	l = (ulong) v;
-	for(i = 0; i < sizeof(buf); i++, l >>= 8)
-		buf[i] = l;
+	for(i = 0; i < sizeof(buf); i++){
+		buf[i] = v;
+		v >>= 8;
+	}
 
 	outcopy(8, buf);
 }

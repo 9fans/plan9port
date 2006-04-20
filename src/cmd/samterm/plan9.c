@@ -121,7 +121,7 @@ extproc(void *argv)
 
 	arg = argv;
 	c = arg[0];
-	fd = (int)arg[1];
+	fd = (int)(uintptr)arg[1];
 
 	i = 0;
 	for(;;){
@@ -190,7 +190,7 @@ extstart(void)
 	plumbc = chancreate(sizeof(int), 0);
 	chansetname(plumbc, "plumbc");
 	arg[0] = plumbc;
-	arg[1] = (void*)fd;
+	arg[1] = (void*)(uintptr)fd;
 	proccreate(extproc, arg, STACK);
 	atexit(removeextern);
 }
