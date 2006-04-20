@@ -287,6 +287,7 @@ gch(void){
 	if(c == Beof) {
 		eof = TRUE;
 		Bterm(fin);
+		fin = 0;
 		return(0);
 	}
 	if(c == '\n')yyline++;
@@ -331,6 +332,28 @@ mn2(int a, int d, int c)
 }
 
 int
+mnp(int a, void *p)
+{
+	name[tptr] = a;
+	left[tptr] = 0;
+	parent[tptr] = 0;
+	nullstr[tptr] = 0;
+	ptr[tptr] = p;
+	switch(a){
+	case RCCL:
+	case RNCCL:
+		if(strlen(p) == 0) nullstr[tptr] = TRUE;
+		break;
+	default:
+		error("bad switch mnp %d %P", a, p);
+		break;
+	}
+	if(tptr > treesize)
+		error("Parse tree too big %s",(treesize == TREESIZE?"\nTry using %e num":""));
+	return(tptr++);
+}
+
+int
 mn1(int a, int d)
 {
 	name[tptr] = a;
@@ -338,10 +361,6 @@ mn1(int a, int d)
 	parent[tptr] = 0;
 	nullstr[tptr] = 0;
 	switch(a){
-	case RCCL:
-	case RNCCL:
-		if(strlen((char *)d) == 0) nullstr[tptr] = TRUE;
-		break;
 	case STAR:
 	case QUEST:
 		nullstr[tptr] = TRUE;
@@ -421,7 +440,9 @@ dupl(int n)
 	switch(i){
 	case RNULLS:
 		return(mn0(i));
-	case RCCL: case RNCCL: case FINAL: case S1FINAL: case S2FINAL:
+	case RCCL: case RNCCL:
+		return(mnp(i,ptr[n]));
+	case FINAL: case S1FINAL: case S2FINAL:
 		return(mn1(i,left[n]));
 	case STAR: case QUEST: case PLUS: case CARAT:
 		return(mn1(i,dupl(left[n])));
@@ -441,6 +462,8 @@ dupl(int n)
 void
 allprint(int c)
 {
+	if(c < 0)
+		c += 256;	/* signed char */
 	switch(c){
 		case 014:
 			print("\\f");
@@ -531,11 +554,11 @@ treedump(void)
 				break;
 			case RCCL:
 				print("ccl ");
-				strpt(left[t]);
+				allprint(ptr[t]);
 				break;
 			case RNCCL:
 				print("nccl ");
-				strpt(left[t]);
+				allprint(ptr[t]);
 				break;
 			case DIV:
 				print("/ %d %d",left[t],right[t]);

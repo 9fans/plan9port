@@ -45,6 +45,7 @@ int *left;
 int *right;
 int *parent;
 uchar *nullstr;
+uchar **ptr;
 int tptr;
 uchar pushc[TOKENSIZE];
 uchar slist[STARTSIZE];
