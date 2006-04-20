@@ -57,10 +57,10 @@ void bshiftb(int p1, int dir, int p2)
 		rclass[p1] = rclass[p2];	/* OTHER leaves too much after sup */
 	}
 	dprintf(".\tS%d <- %d shift %g %d; b=%g, h=%g, ps=%d, subps=%d\n", 
-		yyval, p1, shval, p2, ebase[yyval], eht[yyval], ps, subps);
+		(int)yyval, p1, shval, p2, ebase[yyval], eht[yyval], ps, subps);
 	sh2 = Sub2space;	/* was Sub2space; */
 	printf(".as %d \\v'%gm'%s%s\\*(%d%s%s\\v'%gm'\n", 
-		yyval, REL(shval,ps), DPS(ps,subps), sh1, p2,
+		(int)yyval, REL(shval,ps), DPS(ps,subps), sh1, p2,
 		DPS(subps,ps), sh2, REL(-shval,ps));
 	rfont[p1] = 0;
 	sfree(p2);
@@ -91,7 +91,7 @@ void shift2(int p1, int p2, int p3)
 	ebase[yyval] = subsh + b2 - b1;
 	eht[yyval] = h1 + subsh+b2-b1 + max(0, h3-(1-Supshift)*(h1-b1));
 	dprintf(".\tS%d <- %d sub %d sup %d, ps=%d, subps=%d, h=%g, b=%g\n",
-		yyval, p1, p2, p3, ps, subps, eht[yyval], ebase[yyval]);
+		(int)yyval, p1, p2, p3, ps, subps, eht[yyval], ebase[yyval]);
 	if (rclass[p1] == ILETF)
 		sh2 = "\\|\\|";
 	else
