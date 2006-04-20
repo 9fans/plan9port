@@ -14,7 +14,7 @@ File	*curfile;
 File	*flist;
 File	*cmd;
 jmp_buf	mainloop;
-List	tempfile;
+List	tempfile = { 'p' };
 int	quitok = TRUE;
 int	downloaded;
 int	dflag;
@@ -37,10 +37,10 @@ void	usage(void);
 
 extern int notify(void(*)(void*,char*));
 
-int
-main(int volatile argc, char **volatile argv)
+void
+main(int argc, char **argv)
 {
-	int volatile i;
+	int i;
 	String *t;
 	char *termargs[10], **ap;
 	
@@ -82,7 +82,6 @@ main(int volatile argc, char **volatile argv)
 	Strinit0(&genstr);
 	Strinit0(&rhs);
 	Strinit0(&curwd);
-	tempfile.listptr = emalloc(1);	/* so it can be freed later */
 	Strinit0(&plan9cmd);
 	home = getenv(HOME);
 	disk = diskinit();
@@ -112,7 +111,6 @@ main(int volatile argc, char **volatile argv)
 	cmdloop();
 	trytoquit();	/* if we already q'ed, quitok will be TRUE */
 	exits(0);
-	return 0;
 }
 
 void
@@ -721,10 +719,11 @@ void
 settempfile(void)
 {
 	if(tempfile.nalloc < file.nused){
-		free(tempfile.listptr);
-		tempfile.listptr = emalloc(sizeof(*tempfile.filepptr)*file.nused);
+		if(tempfile.filepptr)
+			free(tempfile.filepptr);
+		tempfile.filepptr = emalloc(sizeof(File*)*file.nused);
 		tempfile.nalloc = file.nused;
 	}
+	memmove(tempfile.filepptr, file.filepptr, sizeof(File*)*file.nused);
 	tempfile.nused = file.nused;
-	memmove(&tempfile.filepptr[0], &file.filepptr[0], file.nused*sizeof(File*));
 }

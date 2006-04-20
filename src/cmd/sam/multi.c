@@ -1,6 +1,6 @@
 #include "sam.h"
 
-List	file;
+List	file = { 'p' };
 ushort	tag;
 
 File *
@@ -9,7 +9,7 @@ newfile(void)
 	File *f;
 
 	f = fileopen();
-	inslist(&file, 0, (long)f);
+	inslist(&file, 0, f);
 	f->tag = tag++;
 	if(downloaded)
 		outTs(Hnewname, f->tag);
@@ -88,7 +88,7 @@ sortname(File *f)
 				break;
 		}
 	}
-	inslist(&file, i, (long)f);
+	inslist(&file, i, f);
 	if(downloaded)
 		outTsS(Hmovname, f->tag, &f->name);
 }

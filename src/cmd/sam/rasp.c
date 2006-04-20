@@ -177,7 +177,7 @@ raspinsert(File *f, uint p1, Rune *buf, uint n, int toterm)
 }
 
 #define	M	0x80000000L
-#define	P(i)	r->longptr[i]
+#define	P(i)	r->posnptr[i]
 #define	T(i)	(P(i)&M)	/* in terminal */
 #define	L(i)	(P(i)&~M)	/* length of this piece */
 

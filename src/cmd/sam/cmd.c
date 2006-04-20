@@ -50,10 +50,12 @@ Rune	termline[BLOCKSIZE];
 Rune	*linep = line;
 Rune	*terminp = termline;
 Rune	*termoutp = termline;
-List	cmdlist;
-List	addrlist;
-List	relist;
-List	stringlist;
+
+List	cmdlist = { 'p' };
+List	addrlist = { 'p' };
+List	relist = { 'p' };
+List	stringlist = { 'p' };
+
 int	eof;
 
 void
@@ -108,15 +110,26 @@ inputc(void)
 int
 inputline(void)
 {
-	int i, c;
+	int i, c, start;
 
-	linep = line;
-	i = 0;
+	/*
+	 * Could set linep = line and i = 0 here and just
+	 * error(Etoolong) below, but this way we keep
+	 * old input buffer history around for a while.
+	 * This is useful only for debugging.
+	 */
+	i = linep - line;
 	do{
 		if((c = inputc())<=0)
 			return -1;
-		if(i == (sizeof line)/RUNESIZE-1)
-			error(Etoolong);
+		if(i == nelem(line)-1){
+			if(linep == line)
+				error(Etoolong);
+			start = linep - line;
+			runemove(line, linep, i-start);
+			i -= start;
+			linep = line;
+		}
 	}while((line[i++]=c) != '\n');
 	line[i] = 0;
 	return 1;
@@ -275,9 +288,9 @@ freecmd(void)
 	int i;
 
 	while(cmdlist.nused > 0)
-		free(cmdlist.ucharpptr[--cmdlist.nused]);
+		free(cmdlist.voidpptr[--cmdlist.nused]);
 	while(addrlist.nused > 0)
-		free(addrlist.ucharpptr[--addrlist.nused]);
+		free(addrlist.voidpptr[--addrlist.nused]);
 	while(relist.nused > 0){
 		i = --relist.nused;
 		Strclose(relist.stringpptr[i]);
