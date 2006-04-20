@@ -67,8 +67,6 @@ if(chatty9p > 1)
 void
 closereq(Req *r)
 {
-	int i;
-
 	if(r == nil)
 		return;
 
