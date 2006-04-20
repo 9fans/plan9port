@@ -28,10 +28,16 @@ vtomp(vlong v, mpint *b)
 		uv = v;
 	for(s = 0; s < VLDIGITS && uv != 0; s++){
 		b->p[s] = uv;
+	/* !@*$&!@$ gcc gives warnings about the >> here
+	 * when running on 64-bit machines, even though 
+	 * it's in dead code.  fake it out with two shifts.
 		if(sizeof(mpdigit) == sizeof(uvlong))
 			uv = 0;
 		else
 			uv >>= sizeof(mpdigit)*8;
+	*/
+		uv >>= sizeof(mpdigit)*4;
+		uv >>= sizeof(mpdigit)*4;
 	}
 	b->top = s;
 	return b;
