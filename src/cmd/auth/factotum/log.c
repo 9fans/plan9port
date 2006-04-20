@@ -46,8 +46,8 @@ lbread(Logbuf *lb, Req *r)
 {
 	if(lb->waitlast == nil)
 		lb->waitlast = &lb->wait;
-	*(lb->waitlast) = r;
-	lb->waitlast = (Req**)&r->aux;
+	*lb->waitlast = r;
+	lb->waitlast = (Req**)(void*)&r->aux;
 	r->aux = nil;
 	lbkick(lb);
 }
@@ -57,7 +57,7 @@ lbflush(Logbuf *lb, Req *r)
 {
 	Req **l;
 
-	for(l=&lb->wait; *l; l=(Req**)&(*l)->aux){
+	for(l=&lb->wait; *l; l=(Req**)(void*)&(*l)->aux){
 		if(*l == r){
 			*l = r->aux;
 			r->aux = nil;
