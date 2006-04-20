@@ -173,7 +173,7 @@ first(int v)	/* calculate set of positions with v as root which can be active in
 			break;
 		case RSCON:
 			i = stnum/2 +1;
-			p = (uchar *)right[v];
+			p = (uchar*)right[v];
 			while(*p)
 				if(*p++ == i){
 					first(left[v]);

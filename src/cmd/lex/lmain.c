@@ -191,7 +191,8 @@ main(int argc, char **argv)
 		debug   ||
 # endif
 			report == 1)statistics();
-	Bterm(fin);
+	if(fin)
+		Bterm(fin);
 	exits(0);	/* success return code */
 }
 
