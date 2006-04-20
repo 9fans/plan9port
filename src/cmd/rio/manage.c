@@ -5,6 +5,7 @@
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <X11/X.h>
 #include <X11/Xos.h>
 #include <X11/Xlib.h>
@@ -471,7 +472,7 @@ get1prop(Window w, Atom a, Atom type)
 		return 0;
 	x = *p;
 	XFree((void*) p);
-	return (int)(uintptr)x;
+	return (int)(uintptr_t)x;
 }
 
 Window
