@@ -42,7 +42,7 @@ Biobuf *fin, *fother;
 int fptr;
 int *name;
 int *left;
-int *right;
+uintptr *right;
 int *parent;
 uchar *nullstr;
 uchar **ptr;

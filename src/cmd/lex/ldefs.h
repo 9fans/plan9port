@@ -88,7 +88,7 @@ extern int pres;	/* present input character */
 extern int peek;	/* next input character */
 extern int *name;
 extern int *left;
-extern int *right;
+extern uintptr *right;
 extern int *parent;
 extern uchar **ptr;
 extern uchar *nullstr;
