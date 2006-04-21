@@ -43,7 +43,7 @@
 #define S43 15
 #define S44 21
 
-#define PAYME(x) $ ## x
+#define PAYME(x) $##x
 
 /*
  * SI is data
@@ -117,7 +117,6 @@
 
 	.p2align 2,0x90
 	.globl _md5block
-		.type _md5block, @function
 	_md5block:
 
 	/* Prelude */

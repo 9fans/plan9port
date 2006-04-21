@@ -2,7 +2,6 @@
 
 .p2align 2,0x90
 .globl _sha1block
-	.type _sha1block, @function
 _sha1block:
 
 /* x = (wp[off-f] ^ wp[off-8] ^ wp[off-14] ^ wp[off-16]) <<< 1;

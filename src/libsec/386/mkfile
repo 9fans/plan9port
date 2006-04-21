@@ -16,7 +16,7 @@ UPDATE=mkfile\
 <$PLAN9/src/mksyslib
 
 %.s: %.spp
-	if [ `uname` = OpenBSD ]
+	if [ `uname` = OpenBSD ] || [ `uname` = Darwin ]
 	then
 		gcc -xc -E $stem.spp >$stem.s
 	else
