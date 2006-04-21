@@ -1267,6 +1267,7 @@ readnbit(Param *p, uchar *buf, int y)
 	uchar *repl, *r, *w, *ow, bits;
 	int i, n, sh, depth, x, dx, npack, nbits;
 
+	memset(&b, 0, sizeof b);
 	b.rgba = (u32int*)buf;
 	b.grey = w = buf;
 	b.red = b.blu = b.grn = w;
@@ -1402,6 +1403,7 @@ readcmap(Param *p, uchar *buf, int y)
 	int a, convgrey, copyalpha, dx, i, m;
 	uchar *q, *cmap, *begin, *end, *r, *w;
 
+	memset(&b, 0, sizeof b);
 	begin = p->bytey0s + y*p->bwidth;
 	r = p->bytermin + y*p->bwidth;
 	end = p->bytey0e + y*p->bwidth;
@@ -1688,6 +1690,7 @@ readptr(Param *p, uchar *s, int y)
 	uchar *q;
 
 	USED(s);
+	memset(&b, 0, sizeof b);
 	q = p->bytermin + y*p->bwidth;
 	b.red = q;	/* ptr to data */
 	b.grn = b.blu = b.grey = b.alpha = nil;
