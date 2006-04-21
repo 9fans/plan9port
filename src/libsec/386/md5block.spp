@@ -116,8 +116,13 @@
 	.text
 
 	.p2align 2,0x90
+#ifdef __Darwin__
+	.globl __md5block
+	__md5block:
+#else
 	.globl _md5block
 	_md5block:
+#endif
 
 	/* Prelude */
 	pushl %ebp

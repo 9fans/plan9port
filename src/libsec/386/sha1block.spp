@@ -1,8 +1,13 @@
 .text
 
 .p2align 2,0x90
+#ifdef __Darwin__
+.globl __sha1block
+__sha1block:
+#else
 .globl _sha1block
 _sha1block:
+#endif
 
 /* x = (wp[off-f] ^ wp[off-8] ^ wp[off-14] ^ wp[off-16]) <<< 1;
  * wp[off] = x;

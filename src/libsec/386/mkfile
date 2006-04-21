@@ -18,7 +18,7 @@ UPDATE=mkfile\
 %.s: %.spp
 	if [ `uname` = OpenBSD ] || [ `uname` = Darwin ]
 	then
-		gcc -xc -E $stem.spp >$stem.s
+		gcc -xc -D__`uname`__ -E $stem.spp >$stem.s
 	else
 		cpp $stem.spp >$stem.s
 	fi
