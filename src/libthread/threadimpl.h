@@ -26,7 +26,11 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #	define mcontext_t libthread_mcontext_t
 #	define ucontext libthread_ucontext
 #	define ucontext_t libthread_ucontext_t
-#	include "power-ucontext.h"
+#	if defined(__i386__)
+#		include "386-ucontext.h"
+#	else
+#		include "power-ucontext.h"
+#	endif
 #endif
 
 #if defined(__OpenBSD__)

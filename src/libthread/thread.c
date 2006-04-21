@@ -624,6 +624,7 @@ main(int argc, char **argv)
 
 	argv0 = argv[0];
 
+	write(1, "", 0);
 	if(getenv("NOLIBTHREADDAEMONIZE") == nil)
 		_threadsetupdaemonize();
 
@@ -651,7 +652,7 @@ main(int argc, char **argv)
 	_threadsetproc(p);
 	if(mainstacksize == 0)
 		mainstacksize = 256*1024;
-	atnotify(threadinfo, 1);
+//	atnotify(threadinfo, 1);
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
 	procscheduler(p);
 	sysfatal("procscheduler returned in threadmain!");
