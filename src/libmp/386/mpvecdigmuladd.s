@@ -24,7 +24,6 @@
 
 .p2align 2,0x90
 .globl mpvecdigmuladd
-	.type mpvecdigmuladd, @function
 mpvecdigmuladd:
 	/* Prelude */
 	pushl %ebp		/* save on stack */

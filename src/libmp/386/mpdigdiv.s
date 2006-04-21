@@ -1,7 +1,6 @@
 .text
 .p2align 2,0x90
 .globl mpdigdiv
-	.type mpdigdiv, @function
 mpdigdiv:
 	/* Prelude */
 	pushl %ebp		/* save on stack */

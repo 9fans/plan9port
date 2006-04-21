@@ -1,19 +1,13 @@
 <$PLAN9/src/mkhdr
 
 LIB=libmp.a
-SFILES=\
-	mpdigdiv.s\
-	mpvecadd.s\
-	mpvecdigmuladd.s\
-	mpvecdigmulsub.s\
-	mpvecsub.s\
+OFILES=\
+	mpdigdiv.$O\
+	mpvecadd.$O\
+	mpvecdigmuladd.$O\
+	mpvecdigmulsub.$O\
+	mpvecsub.$O\
 
 HFILES=$PLAN9/include/mp.h ../port/dat.h
-
-OFILES=${SFILES:%.s=%.$O}
-
-UPDATE=mkfile\
-	$HFILES\
-	$SFILES\
 
 <$PLAN9/src/mksyslib

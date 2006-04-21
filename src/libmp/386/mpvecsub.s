@@ -7,7 +7,6 @@
 
 .p2align 2,0x90
 .globl mpvecsub
-	.type mpvecsub, @function
 mpvecsub:
 	/* Prelude */
 	pushl %ebp		/* save on stack */

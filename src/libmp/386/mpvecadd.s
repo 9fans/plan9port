@@ -7,7 +7,6 @@
 
 .p2align 2,0x90
 .globl mpvecadd
-	.type mpvecadd, @function
 mpvecadd:
 	/* Prelude */
 	pushl %ebp		/* save on stack */
