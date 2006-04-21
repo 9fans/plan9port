@@ -123,12 +123,6 @@ norm(struct place *gg, struct place *pp, struct coord *tw)
 		g->wlon.l += 2*PI;
 }
 
-double
-tan(double x)
-{
-	return(sin(x)/cos(x));
-}
-
 void
 printp(struct place *g)
 {
