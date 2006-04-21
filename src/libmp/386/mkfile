@@ -1,12 +1,14 @@
 <$PLAN9/src/mkhdr
 
 LIB=libmp.a
+UNAME=`uname`
+A=`[ $UNAME = Darwin ] && echo -Darwin`
 OFILES=\
-	mpdigdiv.$O\
-	mpvecadd.$O\
-	mpvecdigmuladd.$O\
-	mpvecdigmulsub.$O\
-	mpvecsub.$O\
+	mpdigdiv$A.$O\
+	mpvecadd$A.$O\
+	mpvecdigmuladd$A.$O\
+	mpvecdigmulsub$A.$O\
+	mpvecsub$A.$O\
 
 HFILES=$PLAN9/include/mp.h ../port/dat.h
 
