@@ -1,5 +1,6 @@
 #include <cursor.h>
 #undef isspace
+#define isspace proofisspace
 #define	NPAGES	500
 #define NFONT	33
 #define NSIZE	40

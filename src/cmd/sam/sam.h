@@ -6,6 +6,9 @@
 #undef waitfor
 #define waitfor samwaitfor
 
+#undef warn
+#define warn samwarn
+
 /*
  * BLOCKSIZE is relatively small to keep memory consumption down.
  */

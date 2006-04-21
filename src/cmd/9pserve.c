@@ -4,6 +4,8 @@
 #include <thread.h>
 #include <errno.h>
 
+#define err err9pserve /* Darwin x86 */
+
 enum
 {
 	STACK = 32768,
