@@ -103,7 +103,7 @@ ffssync(Fsys *fsys)
 		if((b = diskread(disk, SBSIZE, off[i])) == nil)
 			goto error;
 		fsblk = (Fsblk*)b->data;
-		fprint(2, "offset of magic: %ld\n", offsetof(Fsblk, magic));
+	//	fprint(2, "offset of magic: %ld\n", offsetof(Fsblk, magic));
 		if((fs->ufs = checkfsblk(fsblk)) > 0)
 			goto okay;
 		blockput(b);
@@ -193,7 +193,7 @@ ffsclose(Fsys *fsys)
 static int
 checkfsblk(Fsblk *super)
 {
-fprint(2, "ffs magic 0x%ux\n", super->magic);
+// fprint(2, "ffs magic 0x%ux\n", super->magic);
 	if(super->magic == FSMAGIC){
 		super->time = super->_time;
 		super->nfrag = super->_nfrag;
