@@ -107,6 +107,7 @@ ffssync(Fsys *fsys)
 		if((fs->ufs = checkfsblk(fsblk)) > 0)
 			goto okay;
 		blockput(b);
+		b = nil;
 	}
 	goto error;
 
