@@ -41,38 +41,7 @@ vtfileindices(VtEntry *e, u32int bn, int *index)
 	return i;
 }
 
-static VtBlock*
-_vtfileblock(VtCache *c, VtEntry *e, u32int bn)
-{
-	VtBlock *b, *bb;
-	int i, d, index[VtPointerDepth+1], t;
-
-	i = vtfileindices(e, bn, index);
-	if(i < 0)
-		return nil;
-	d = (e->type&VtTypeDepthMask);
-	if(i > d){
-		werrstr("bad address %d > %d (%x %x)", i, d, e->type, e->flags);
-		return nil;
-	}
-
-/*fprint(2, "vtread %V\n", e->score); */
-	b = vtcacheglobal(c, e->score, e->type);
-	if(b == nil)
-		return nil;
-
-	for(i=d-1; i>=0; i--){
-		t = VtDataType+i;
-/*fprint(2, "vtread %V\n", b->data+index[i]*VtScoreSize); */
-		bb = vtcacheglobal(c, b->data+index[i]*VtScoreSize, t);
-		vtblockput(b);
-		if(bb == nil)
-			return nil;
-		b = bb;
-	}
-	return b;
-}
-
+VtBlock *_vtfileblock(VtCache*, VtEntry*, u32int);	/* avoid auto-inline by putting later in file */
 static void
 diskventiblockput(Block *b)
 {
@@ -106,6 +75,34 @@ nfilereads++;
 	b->len = d->e.dsize - frag;
 	if(b->len > len)
 		b->len = len;
+	return b;
+}
+
+VtBlock*
+_vtfileblock(VtCache *c, VtEntry *e, u32int bn)
+{
+	VtBlock *b, *bb;
+	int i, d, index[VtPointerDepth+1], t;
+	uchar score[VtScoreSize];
+
+	i = vtfileindices(e, bn, index);
+	if(i < 0)
+		return nil;
+	d = (e->type&VtTypeDepthMask);
+	if(i > d){
+		werrstr("bad address %d > %d (%x %x)", i, d, e->type, e->flags);
+		return nil;
+	}
+
+/*fprint(2, "vtread %V\n", e->score); */
+	b = vtcacheglobal(c, e->score, e->type);
+	for(i=d-1; i>=0 && b; i--){
+		t = VtDataType+i;
+/*fprint(2, "vtread %V\n", b->data+index[i]*VtScoreSize); */
+		memmove(score, b->data+index[i]*VtScoreSize, VtScoreSize);
+		vtblockput(b);
+		b = vtcacheglobal(c, score, t);
+	}
 	return b;
 }
 

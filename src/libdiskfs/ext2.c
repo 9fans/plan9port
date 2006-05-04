@@ -6,7 +6,7 @@
 #include <diskfs.h>
 #include "ext2.h"
 
-#define debug 1
+#define debug 0
 
 static int ext2sync(Fsys*);
 static void ext2close(Fsys*);
@@ -111,8 +111,10 @@ ext2blockread(Fsys *fsys, u64int vbno)
 			fprint(2, "loading group: %r...");
 		return nil;
 	}
-/*	if(debug) */
-/*		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock); */
+/*
+	if(debug)
+		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock);
+*/
 
 	if((bitb = diskread(fs->disk, fs->blocksize, (u64int)g->bitblock*fs->blocksize)) == nil){
 		if(debug)
@@ -138,7 +140,7 @@ static Block*
 ext2datablock(Ext2 *fs, u32int bno, int size)
 {
 	USED(size);
-	return ext2blockread(fs->fsys, bno+fs->firstblock);
+	return ext2blockread(fs->fsys, bno);
 }
 
 static Block*
@@ -605,15 +607,12 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 				if(debug) fprint(2, "bad namlen %d reclen %d at offset %d of %d\n", de->namlen, de->reclen, (int)(p-b->data), b->len);
 				break;
 			}
-			if(de->name[de->namlen] != 0){
-				if(debug) fprint(2, "bad name %d %.*s\n", de->namlen, de->namlen, de->name);
-				continue;
-			}
-			if(debug) print("%s/%d ", de->name, (int)de->ino);
+			if(debug) print("%.*s/%d ", de->namlen, de->name, (int)de->ino);
 			if((uchar*)de - b->data < off)
 				continue;
 			e.fileid = de->ino;
 			e.name = de->name;
+			e.namelen = de->namlen;
 			e.cookie = (u64int)i*fs->blocksize + (p - b->data);
 			if(nfs3entrypack(dp, dep, &ndp, &e) < 0){
 				done = 1;
