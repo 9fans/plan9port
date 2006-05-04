@@ -439,9 +439,10 @@ sunstringunpack(uchar *a, uchar *ea, uchar **pa, char **s, u32int max)
 	if(sunvaropaqueunpack(a, ea, pa, &dat, &n, max) < 0)
 		goto Err;
 	/* slide string down over length to make room for NUL */
-	memmove(dat-1, dat, n);
-	dat[n-1] = 0;
-	*s = (char*)(dat-1);
+	dat--;
+	memmove(dat, dat+1, n);
+	dat[n] = 0;
+	*s = (char*)dat;
 	return 0;
 Err:
 	return -1;
