@@ -10,7 +10,8 @@ enum
 {
 	STACK = 32768,
 	NHASH = 31,
-	MAXMSG = 64	/* per connection */
+	MAXMSG = 64,	/* per connection */
+	MAXMSGSIZE = 4*1024*1024
 };
 
 typedef struct Hash Hash;
@@ -231,6 +232,8 @@ mainproc(void *v)
 		if(n != nn)
 			sysfatal("error writing Tversion: %r\n");
 		n = read9pmsg(0, vbuf, sizeof vbuf);
+		if(n < 0)
+			sysfatal("read9pmsg failure"):
 		if(convM2S(vbuf, n, &f) != n)
 			sysfatal("convM2S failure");
 		if(f.msize < msize)
@@ -1220,6 +1223,8 @@ read9ppkt(Ioproc *io, int fd)
 	if(n != 4)
 		return nil;
 	n = GBIT32(buf);
+	if(n > MAXMSGSIZE)
+		return nil;
 	pkt = emalloc(n);
 	PBIT32(pkt, n);
 	nn = ioreadn(io, fd, pkt+4, n-4);
