@@ -463,6 +463,7 @@ fsysconfigreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64i
 	ep = data+count;
 	while(e && p < ep){
 		ne.name = e->name;
+		ne.namelen = strlen(e->name);
 		ne.cookie = ++cookie;
 		ne.fileid = *(u64int*)e->sha1;
 		if(nfs3entrypack(p, ep, &np, &ne) < 0)

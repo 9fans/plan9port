@@ -15,7 +15,7 @@ usage(void)
 	fprint(2, "\tcat file\n");
 	fprint(2, "\tls dir\n");
 	fprint(2, "\tstat file\n");
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void
@@ -24,10 +24,10 @@ printattr(Nfs3Attr *attr)
 	Fmt fmt;
 	char buf[256];
 
-	fmtfdinit(&fmt, 1, buf, sizeof buf);
+	fmtfdinit(&fmt, 2, buf, sizeof buf);
 	nfs3attrprint(&fmt, attr);
 	fmtfdflush(&fmt);
-	print("\n");
+	fprint(2, "\n");
 }
 
 char buf[8192];
@@ -105,6 +105,7 @@ threadmain(int argc, char **argv)
 	if(strcmp(argv[1], "cat") == 0){
 		switch(attr.type){
 		case Nfs3FileReg:
+		case Nfs3FileDir:
 			offset = 0;
 			for(;;){
 				x(fsysreadfile(fsys, &au, &h, sizeof buf, offset, &data, &n, &eof));

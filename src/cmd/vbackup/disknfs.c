@@ -39,6 +39,14 @@ threadmain(int argc, char **argv)
 	addr = "*";
 
 	ARGBEGIN{
+	default:
+		usage();
+	case 'L':
+		if(srv->localonly == 0)
+			srv->localonly = 1;
+		else
+			srv->localparanoia = 1;
+		break;
 	case 'R':
 		srv->chatty++;
 		break;
@@ -70,14 +78,15 @@ threadmain(int argc, char **argv)
 
 	if(sunsrvudp(srv, addr) < 0)
 		sysfatal("starting server: %r");
-	sunsrvprog(srv, &nfs3prog, nfs3chan);
-	sunsrvprog(srv, &nfsmount3prog, mountchan);
 
 	sunsrvthreadcreate(srv, nfs3proc, nfs3chan);
 	sunsrvthreadcreate(srv, mount3proc, mountchan);
 
+	sunsrvprog(srv, &nfs3prog, nfs3chan);
+	sunsrvprog(srv, &nfsmount3prog, mountchan);
 	fsgetroot(&h);
-	print("mountbackups -h %.*H %s /mountpoint\n", h.len, h.h, addr);
+
+	print("vmount0 -h %.*H %s /mnt\n", h.len, h.h, addr);
 
 	threadexits(nil);
 }

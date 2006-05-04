@@ -116,7 +116,8 @@ threadmain(int argc, char **argv)
 		tracecalls = 1;
 		break;
 	case 'V':
-		chattyventi = 1;
+		if(chattyventi++)
+			vttracelevel++;
 		break;
 	case 'a':
 		addr = EARGF(usage());
@@ -836,6 +837,7 @@ cnodereaddir(Cnode *n, u32int count, u64int cookie, uchar **pdata, u32int *pcoun
 			continue;
 		}
 		ne.name = n->name;
+		ne.namelen = strlen(n->name);
 		ne.cookie = ++cookie;
 		ne.fileid = *(u64int*)n->handle;
 		if(nfs3entrypack(p, ep, &np, &ne) < 0)
