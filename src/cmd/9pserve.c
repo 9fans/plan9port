@@ -233,7 +233,7 @@ mainproc(void *v)
 			sysfatal("error writing Tversion: %r\n");
 		n = read9pmsg(0, vbuf, sizeof vbuf);
 		if(n < 0)
-			sysfatal("read9pmsg failure"):
+			sysfatal("read9pmsg failure");
 		if(convM2S(vbuf, n, &f) != n)
 			sysfatal("convM2S failure");
 		if(f.msize < msize)
