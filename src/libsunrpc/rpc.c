@@ -140,6 +140,7 @@ sunrpcsize(SunRpc *rpc)
 		case SunRpcMismatch:
 		case SunProgMismatch:
 			a += 3*4;
+			break;
 		default:
 			a += 4;
 		}
@@ -439,7 +440,7 @@ sunstringunpack(uchar *a, uchar *ea, uchar **pa, char **s, u32int max)
 		goto Err;
 	/* slide string down over length to make room for NUL */
 	memmove(dat-1, dat, n);
-	dat[-1+n] = 0;
+	dat[n-1] = 0;
 	*s = (char*)(dat-1);
 	return 0;
 Err:

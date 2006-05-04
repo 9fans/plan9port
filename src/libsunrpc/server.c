@@ -144,11 +144,12 @@ if(srv->chatty) fprint(2, "sun msg %p count %d\n", m, m->count);
 static SunProg*
 sunfindprog(SunSrv *srv, SunMsg *m, SunRpc *rpc, Channel **pc)
 {
-	int i, vlo, vhi;
+	int i, vlo, vhi, any;
 	SunProg *pg;
 
-	vlo = 0x7fffffff;
-	vhi = -1;
+	vlo = 0;
+	vhi = 0;
+	any = 0;
 
 	for(i=0; i<srv->nprog; i++){
 		pg = srv->prog[i];
@@ -159,10 +160,15 @@ sunfindprog(SunSrv *srv, SunMsg *m, SunRpc *rpc, Channel **pc)
 			return pg;
 		}
 		/* right program, wrong version: record range */
-		if(pg->vers < vlo)
+		if(!any++){
 			vlo = pg->vers;
-		if(pg->vers > vhi)
 			vhi = pg->vers;
+		}else{
+			if(pg->vers < vlo)
+				vlo = pg->vers;
+			if(pg->vers > vhi)
+				vhi = pg->vers;
+		}
 	}
 	if(vhi == -1){
 		if(srv->chatty)

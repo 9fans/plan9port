@@ -2938,6 +2938,11 @@ nfs3entrysize(Nfs3Entry *x)
 	a = 0 + 4 + 8 + sunstringsize(x->name) + 8;
 	return a;
 }
+static int
+sunstringvpack(uchar *a, uchar *ea, uchar **pa, char **s, u32int n)
+{
+	return sunvaropaquepack(a, ea, pa, (uchar**)&s, &n, -1);
+}
 int
 nfs3entrypack(uchar *a, uchar *ea, uchar **pa, Nfs3Entry *x)
 {
@@ -2946,7 +2951,7 @@ nfs3entrypack(uchar *a, uchar *ea, uchar **pa, Nfs3Entry *x)
 	one = 1;
 	if(sunuint1pack(a, ea, &a, &one) < 0) goto Err;
 	if(sunuint64pack(a, ea, &a, &x->fileid) < 0) goto Err;
-	if(sunstringpack(a, ea, &a, &x->name, -1) < 0) goto Err;
+	if(sunstringvpack(a, ea, &a, &x->name, x->namelen) < 0) goto Err;
 	if(sunuint64pack(a, ea, &a, &x->cookie) < 0) goto Err;
 	*pa = a;
 	return 0;
@@ -2963,6 +2968,7 @@ nfs3entryunpack(uchar *a, uchar *ea, uchar **pa, Nfs3Entry *x)
 	if(sunuint1unpack(a, ea, &a, &one) < 0 || one != 1) goto Err;
 	if(sunuint64unpack(a, ea, &a, &x->fileid) < 0) goto Err;
 	if(sunstringunpack(a, ea, &a, &x->name, -1) < 0) goto Err;
+	x->namelen = strlen(x->name);
 	if(sunuint64unpack(a, ea, &a, &x->cookie) < 0) goto Err;
 	*pa = a;
 	return 0;
