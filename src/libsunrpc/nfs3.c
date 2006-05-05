@@ -2941,7 +2941,7 @@ nfs3entrysize(Nfs3Entry *x)
 static int
 sunstringvpack(uchar *a, uchar *ea, uchar **pa, char **s, u32int n)
 {
-	return sunvaropaquepack(a, ea, pa, (uchar**)&s, &n, -1);
+	return sunvaropaquepack(a, ea, pa, (uchar**)(void*)&s, &n, -1);
 }
 int
 nfs3entrypack(uchar *a, uchar *ea, uchar **pa, Nfs3Entry *x)
