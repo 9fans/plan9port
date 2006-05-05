@@ -98,9 +98,9 @@ xfidopen(Xfid *x)
 
 	w = x->f->w;
 	t = &w->body;
+	q = FILE(x->f->qid);
 	if(w){
 		winlock(w, 'E');
-		q = FILE(x->f->qid);
 		switch(q){
 		case QWaddr:
 			if(w->nopen[q]++ == 0){
@@ -174,10 +174,25 @@ xfidopen(Xfid *x)
 				respond(x, &fc, Eperm);
 				return;
 			}
+			if(!canqlock(&w->editoutlk)){
+				winunlock(w);
+				respond(x, &fc, Einuse);
+				return;
+			}
 			w->wrselrange = range(t->q1, t->q1);
 			break;
 		}
 		winunlock(w);
+	}
+	else{
+		switch(q){
+		case Qeditout:
+			if(!canqlock(&editoutlk)){
+				respond(x, &fc, Einuse);
+				return;
+			}
+			break;
+		}
 	}
 	fc.qid = x->f->qid;
 	fc.iounit = messagesize-IOHDRSZ;
@@ -203,10 +218,10 @@ xfidclose(Xfid *x)
 		return;
 	}
 
+	q = FILE(x->f->qid);
 	x->f->open = FALSE;
 	if(w){
 		winlock(w, 'E');
-		q = FILE(x->f->qid);
 		switch(q){
 		case QWctl:
 			if(w->ctlfid!=~0 && w->ctlfid==x->f->fid){
@@ -247,9 +262,19 @@ xfidclose(Xfid *x)
 				min(w->wrselrange.q1, t->file->b.nc), 1);
 			textscrdraw(t);
 			break;
+		case QWeditout:
+			qunlock(&w->editoutlk);
+			break;
 		}
 		winunlock(w);
 		winclose(w);
+	}
+	else{
+		switch(q){
+		case Qeditout:
+			qunlock(&editoutlk);
+			break;
+		}
 	}
 	respond(x, &fc, nil);
 }

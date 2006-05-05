@@ -269,6 +269,7 @@ struct Window
 	int		tagexpand;
 	int		taglines;
 	Rectangle	tagtop;
+	QLock	editoutlk;
 };
 
 void	wininit(Window*, Window*, Rectangle);
@@ -561,5 +562,7 @@ Channel	*cexit;		/* chan(int) */
 Channel	*cerr;		/* chan(char*) */
 Channel	*cedit;		/* chan(int) */
 Channel	*cwarn;		/* chan(void*)[1] (really chan(unit)[1]) */
+
+QLock	editoutlk;
 
 #define	STACK	32768

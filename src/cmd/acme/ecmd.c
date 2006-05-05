@@ -592,6 +592,7 @@ runpipe(Text *t, int cmd, Rune *cr, int ncr, int state)
 	int n;
 	Runestr dir;
 	Window *w;
+	QLock *q;
 
 	r = skipbl(cr, ncr, &n);
 	if(n == 0)
@@ -626,6 +627,23 @@ runpipe(Text *t, int cmd, Rune *cr, int ncr, int state)
 		winunlock(t->w);
 	qunlock(&row.lk);
 	recvul(cedit);
+	/*
+	 * The editoutlk exists only so that we can tell when
+	 * the editout file has been closed.  It can get closed *after*
+	 * the process exits because, since the process cannot be 
+	 * connected directly to editout (no 9P kernel support), 
+	 * the process is actually connected to a pipe to another
+	 * process (arranged via 9pserve) that reads from the pipe
+	 * and then writes the data in the pipe to editout using
+	 * 9P transactions.  This process might still have a couple
+	 * writes left to copy after the original process has exited.
+	 */
+	if(w)
+		q = &w->editoutlk;
+	else
+		q = &editoutlk;
+	qlock(q);	/* wait for file to close */
+	qunlock(q);
 	qlock(&row.lk);
 	editing = Inactive;
 	if(t!=nil && t->w!=nil)
