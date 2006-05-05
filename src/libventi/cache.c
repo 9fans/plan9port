@@ -397,8 +397,9 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 			if(chattyventi)
 				fprint(2, "cached read error for %V\n", score);
 			if(vttracelevel)
-				fprint(2, "vtcacheglobal %V %d => cache read error\n", score, typ			werrstr("venti i/o error");
+				fprint(2, "vtcacheglobal %V %d => cache read error\n", score, type);
 			vtblockput(b);
+			werrstr("venti i/o error");
 			return nil;
 		}
 		if(vttracelevel)
@@ -449,7 +450,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	b->iostate = BioVenti;
 	b->nlock = 1;
 	if(vttracelevel)
-		fprint(2, "vtcacheglobal %V %d => loaded into cache; returning\n", score, ty	return b;
+		fprint(2, "vtcacheglobal %V %d => loaded into cache; returning\n", score, type);
+	return b;
 }
 
 /*
