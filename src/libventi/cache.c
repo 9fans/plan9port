@@ -15,6 +15,7 @@
 int vtcachenread;
 int vtcachencopy;
 int vtcachenwrite;
+int vttracelevel;
 
 enum {
 	BioLocal = 1,
@@ -367,9 +368,14 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	int n;
 	u32int addr;
 
+	if(vttracelevel)
+		fprint(2, "vtcacheglobal %V %d from %p\n", score, type, getcallerpc(&c));
 	addr = vtglobaltolocal(score);
-	if(addr != NilBlock)
+	if(addr != NilBlock){
+		if(vttracelevel)
+			fprint(2, "vtcacheglobal %V %d => local\n", score, type);
 		return vtcachelocal(c, addr, type);
+	}
 
 	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|(score[3]<<24)) % c->nhash;
 
@@ -383,15 +389,20 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 		heapdel(b);
 		b->ref++;
 		qunlock(&c->lk);
+		if(vttracelevel)
+			fprint(2, "vtcacheglobal %V %d => found in cache %p; locking\n", score, type, b);
 		qlock(&b->lk);
 		b->nlock = 1;
 		if(b->iostate == BioVentiError){
 			if(chattyventi)
 				fprint(2, "cached read error for %V\n", score);
-			werrstr("venti i/o error");
+			if(vttracelevel)
+				fprint(2, "vtcacheglobal %V %d => cache read error\n", score, typ			werrstr("venti i/o error");
 			vtblockput(b);
 			return nil;
 		}
+		if(vttracelevel)
+			fprint(2, "vtcacheglobal %V %d => found in cache; returning\n", score, type);
 		return b;
 	}
 
@@ -417,6 +428,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	 * the block here can never be the block in a vtblockwrite, so we're safe.
 	 * We're certainly living on the edge.
 	 */
+	if(vttracelevel)
+		fprint(2, "vtcacheglobal %V %d => bumped; locking %p\n", score, type, b);
 	qlock(&b->lk);
 	b->nlock = 1;
 	qunlock(&c->lk);
@@ -426,6 +439,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	if(n < 0){
 		if(chattyventi)
 			fprint(2, "read %V: %r\n", score);
+		if(vttracelevel)
+			fprint(2, "vtcacheglobal %V %d => bumped; read error\n", score, type);
 		b->iostate = BioVentiError;
 		vtblockput(b);
 		return nil;
@@ -433,7 +448,8 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	vtzeroextend(type, b->data, n, c->blocksize);
 	b->iostate = BioVenti;
 	b->nlock = 1;
-	return b;
+	if(vttracelevel)
+		fprint(2, "vtcacheglobal %V %d => loaded into cache; returning\n", score, ty	return b;
 }
 
 /*
@@ -462,6 +478,8 @@ vtblockput(VtBlock* b)
 		return;
 
 if(0)fprint(2, "vtblockput: %d: %x %d %d\n", getpid(), b->addr, c->nheap, b->iostate);
+	if(vttracelevel)
+		fprint(2, "vtblockput %p from %p\n", b, getcallerpc(&b));
 
 	if(--b->nlock > 0)
 		return;
