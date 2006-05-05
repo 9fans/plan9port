@@ -661,6 +661,7 @@ struct Nfs3TReadDirPlus {
 struct Nfs3Entry {
 	u64int fileid;
 	char *name;
+	uint namelen;
 	u64int cookie;
 	u1int haveAttr;
 	Nfs3Attr attr;

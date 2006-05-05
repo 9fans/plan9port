@@ -430,6 +430,7 @@ VtBlock *vtblockcopy(VtBlock*);
 void vtblockduplock(VtBlock*);
 
 extern int vtcachencopy, vtcachenread, vtcachenwrite;
+extern int vttracelevel;
 
 /*
  * Hash tree file tree.
