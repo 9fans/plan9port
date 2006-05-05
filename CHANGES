@@ -1,3 +1,53 @@
+May 5, 2006
+	libdiskfs, libsunrpc, libventi, vbackup: correct compile errors
+	acme: fix Edit | bug.
+
+May 4, 2006
+	libdiskfs: ext2: various off-by-one etc. fixes (Steve VanDeBogart)
+	libsunrpc: various odd Linux errors (Steve VanDeBogart)
+	libsunrpc: 32->64 array index sign extension bug (Lou Kamenov)
+	9pserve: be careful about message sizes (Andrey Mirtchovski)
+
+April 27, 2006
+	libdiskfs: ffs code: fix double free, silence chatty print (Steve VanDeBogart)
+
+April 21, 2006
+	map/libmap: can probably use system tan instead of writing our own
+	libmp, libthread, 9pserve, proof, sam: more OS X x86 fixes
+
+April 20, 2006
+	lib9p, libregexp, factotum, tar: silence 64-bit warnings (Andrey Mirtchovski)
+	libdraw, libmach, libmp, eqn, gzip, hoc, rio, tapefs, tbl, tpic: silence gcc warnings
+	libmp, libsec: use gcc -E instead of cpp on OS X [sic]; clean up assembly
+	libthread: start on OS X x86 version
+	lex, sam, samterm: import 64-bit safe version from Plan 9
+	venti: minor bug fixes (Mechiel Lukkien)
+
+April 19, 2006
+	lib9p: avoid double-lock (Lucho Ionkov)
+
+April 13, 2006
+	tpic: import
+
+April 12, 2006
+	validateattachment: add bogus zip file in virus
+	venti: minor bug fixes (Mechiel Lukkien)
+
+April 8, 2006
+	rc: add exitcode function; exit 123 exits with status 123 now.
+	upas/vf: import vf, create unvf, add mail/lib/validateattachment
+
+April 6, 2006
+	lookman: remove reference to /fd/2
+
+April 4, 2006
+	srv(4): add v9fs-based example
+	9c: give up on -ansi -pedantic with gcc
+	9l: look for libresolv.dylib on OS X (Anothy Sorace)
+	u.h: #defines to get strtoll on FreeBSD
+	libdraw: remove unused checksnarf
+	libthread: remove // comments in power-ucontext.h
+
 April 1, 2006
 	9c: use -ansi and -pedantic with gcc
 	everything: remove many post-C90-isms.
@@ -320,6 +370,7 @@ November 28, 2005
 	make INSTALL less chatty
 	remove Makefiles
 	acidtypes, libmach: demangling fixes
+	g: add .cs files (C#)
 
 November 27, 2005
 	libmach: name mangling, process control
