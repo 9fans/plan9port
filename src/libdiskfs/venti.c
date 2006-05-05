@@ -81,7 +81,7 @@ nfilereads++;
 VtBlock*
 _vtfileblock(VtCache *c, VtEntry *e, u32int bn)
 {
-	VtBlock *b, *bb;
+	VtBlock *b;
 	int i, d, index[VtPointerDepth+1], t;
 	uchar score[VtScoreSize];
 
