@@ -35,6 +35,9 @@ case "$tag" in
 			;;
 		esac
 		case "${SYSVERSION:-`uname -r`}" in
+		2.4.*)
+			cflags="$cflags -D__Linux24__"
+			;;
 		2.6.*)
 			cflags="$cflags -D__Linux26__"
 			;;
