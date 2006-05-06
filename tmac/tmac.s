@@ -525,7 +525,6 @@ ABSTRACT
 .ie \\n(VS>=41 .vs \\n(VSu
 .el .vs \\n(VSp
 .ti +\\n(PIu
-.fi
 ..
 .	\"AE - end of an abstract
 .de AE
@@ -727,14 +726,6 @@ Computing Science Technical Report No. \\*(MN
 .if \\$1H .TQ
 .nr IX 1
 ..
-.if h \{\
-.de TS
-.nr tp -1 1
-.ds tp x\\n+(tp.png
-.html - <center><img src="\\*(tp"></center>
-.dp .TE troff2png >\\*(tp
-..
-.\}
 .de TQ
 .di TT
 .nr IT 1
@@ -849,34 +840,23 @@ Computing Science Technical Report No. \\*(MN
 .in
 .if \\n($1>0 .sp .65
 ..
-.if h \{\
-.de PS
-.nr tp -1 1
-.ds tp x\\n+(tp.png
-.html - <center><img src="\\*(tp" /></center>
-.dp .PE troff2png >\\*(tp
-..
-.\}
 .			\" .P1/.P2 macros for programs
 .
 .nr XP 1	\" delta point size for program
-.if h .nr XP 0
 .nr XV 1p	\" delta vertical for programs
 .nr XT 8	\" delta tab stop for programs
 .nr DV .5v	\" space before start of program
 .
 .de P1
 .nr P1 .4i	\" program indent in .P1
-.nr OI .4i
 .if \\n(.$ .nr P1 \\$1
 .br
 .nr v \\n(.v
 .di p1
-.in +\\n(P1u
+.in \\n(P1u
 .nf
 .ps -\\n(XP
 .vs -\\n(XVu
-.nr xx \\n(.sp
 .ft CW
 .nr t \\n(XT*\\w'x'u
 .ta 1u*\\ntu 2u*\\ntu 3u*\\ntu 4u*\\ntu 5u*\\ntu 6u*\\ntu 7u*\\ntu 8u*\\ntu 9u*\\ntu 10u*\\ntu 11u*\\ntu 12u*\\ntu 13u*\\ntu 14u*\\ntu
@@ -888,7 +868,7 @@ Computing Science Technical Report No. \\*(MN
 .vs \\n(VSp
 .vs \\nvu
 .ft 1
-.in
+.in -\\n(P1u
 .di
 .br
 .sp \\n(DVu
@@ -1036,7 +1016,7 @@ Computing Science Technical Report No. \\*(MN
 .lt \\n(LLu
 .pc %
 .nr PN \\n%
-.if \\n%-1 .tl '\\*(LH'\\*(CH'\\*(RH'
+.if \\n%-1 .tl \\*(LH\\*(CH\\*(RH
 .lt \\n(.lu
 ..
 .	\"FO - footer of page
@@ -1301,7 +1281,8 @@ ABSTRACT
 .ta \\n(JQu \\n(TYuR
 .if \\n(.$ \{\
 .ti \\n(I\\n(IRu
-\&\\$1\t\c\}
+\&\\$1\t\c
+.\}
 ..
 .	\"LP - left aligned (block) paragraph
 .de LP
@@ -1606,50 +1587,6 @@ operating system\\$1
 .if \\n(BQ .fi
 .br
 ..
-.if h \{\
-.de B1
-.margin 0
-.nr TW 10
-.nr TW1 80
-.if !'\\$1'' .nr TW \\$1
-.if !'\\$2'' .nr TW1 \\$2
-.html pic \
-<center>\
-<table width=\\n[TW1]% cellspacing=0 cellpadding=0 border=0>\
-<tr height=1>\
-	<td width=1 bgcolor=#000000 />\
-	<td width=\\n(TW bgcolor=#000000 />\
-	<td bgcolor=#000000 />\
-	<td width=\\n(TW bgcolor=#000000 />\
-	<td width=1 bgcolor=#000000 />\
-</tr>\
-<tr height=\\n(TW>\
-	<td width=1 bgcolor=#000000 />\
-	<td width=\\n(TW />\
-	<td />\
-	<td width=\\n(TW />\
-	<td width=1 bgcolor=#000000 />\
-</tr>
-.html	pic0 <tr>
-.html pic1 <td width=1 bgcolor=#000000 /><td width=\\n(TW /><td>\}
-..
-.de B2
-.html pic1 <td width=\\n(TW /><td width=1 bgcolor=#000000 />
-.html pic0 <tr height=\\n(TW><td width=1 bgcolor=#000000 />\
-	<td width=\\n(TW /><td /><td width=\\n(TW />\
-	<td width=1 bgcolor=#000000 />\
-</tr>\
-<tr height=1>\
-	<td width=1 bgcolor=#000000 />\
-	<td width=\\n(TW bgcolor=#000000 />\
-	<td bgcolor=#000000 />\
-	<td width=\\n(TW bgcolor=#000000 />\
-	<td width=1 bgcolor=#000000 />\
-</tr>
-.html pic \}
-.margin 1
-..
-.\}
 .de AT
 .nf
 .sp
