@@ -38,12 +38,15 @@ void	usage(void);
 extern int notify(void(*)(void*,char*));
 
 void
-main(int argc, char **argv)
+main(int _argc, char **_argv)
 {
-	int i;
+	volatile int i, argc;
+	char **volatile argv;
 	String *t;
 	char *termargs[10], **ap;
 	
+	argc = _argc;
+	argv = _argv;
 	ap = termargs;
 	*ap++ = "samterm";
 	ARGBEGIN{
@@ -88,7 +91,7 @@ main(int argc, char **argv)
 	if(home == 0)
 		home = "/";
 	if(!dflag)
-		startup(machine, Rflag, termargs, argv);
+		startup(machine, Rflag, termargs, (char**)argv);
 	notify(notifyf);
 	getcurwd();
 	if(argc>0){
