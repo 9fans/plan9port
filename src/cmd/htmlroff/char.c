@@ -90,7 +90,7 @@ troff2rune(Rune *rs)
 			trtab[ntrtab] = trinit[i];
 			ntrtab++;
 		}
-		file = "/sys/lib/troff/font/devutf/utfmap";
+		file = unsharp("#9/troff/font/devutf/utfmap");
 		if((b = Bopen(file, OREAD)) == nil)
 			sysfatal("open %s: %r", file);
 		while((p = Brdline(b, '\n')) != nil){
