@@ -80,7 +80,7 @@ line(char *data, char **pp)
 }
 
 static char*
-mkaddrs(char *t)
+mkaddrs(char *t, char **colon)
 {
 	int i, nf, inquote;
 	char **f, *s;
@@ -96,14 +96,23 @@ mkaddrs(char *t)
 	}
 	f = emalloc(nf*sizeof f[0]);
 	nf = tokenize(t, f, nf);
+	if(colon){
+		fmtstrinit(&fmt);
+		for(i=0; i+1<nf; i+=2){
+			if(i > 0)
+				fmtprint(&fmt, ", ");
+			if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0)
+				fmtprint(&fmt, "%s", f[i+1]);
+			else
+				fmtprint(&fmt, "%s <%s>", f[i], f[i+1]);
+		}
+		*colon = fmtstrflush(&fmt);
+	}
 	fmtstrinit(&fmt);
 	for(i=0; i+1<nf; i+=2){
 		if(i > 0)
 			fmtprint(&fmt, ", ");
-	/*	if(f[i][0] == 0 || strcmp(f[i], f[i+1]) == 0) */
-			fmtprint(&fmt, "%s", f[i+1]);
-	/*	else */
-	/*		fmtprint(&fmt, "%s <%s>", f[i], f[i+1]); */
+		fmtprint(&fmt, "%s", f[i+1]);
 	}
 	free(f);
 	return fmtstrflush(&fmt);
@@ -127,19 +136,19 @@ loadinfo(Message *m, char *dir)
 		*t++ = 0;
 		if(strcmp(s, "from") == 0){
 			free(m->from);
-			m->from = mkaddrs(t);
+			m->from = mkaddrs(t, &m->fromcolon);
 		}else if(strcmp(s, "sender") == 0){
 			free(m->sender);
-			m->sender = mkaddrs(t);
+			m->sender = mkaddrs(t, nil);
 		}else if(strcmp(s, "to") == 0){
 			free(m->to);
-			m->to = mkaddrs(t);
+			m->to = mkaddrs(t, nil);
 		}else if(strcmp(s, "cc") == 0){
 			free(m->cc);
-			m->cc = mkaddrs(t);
+			m->cc = mkaddrs(t, nil);
 		}else if(strcmp(s, "replyto") == 0){
 			free(m->replyto);
-			m->replyto = mkaddrs(t);
+			m->replyto = mkaddrs(t, nil);
 		}else if(strcmp(s, "subject") == 0){
 			free(m->subject);
 			m->subject = estrdup(t);
@@ -369,7 +378,7 @@ info(Message *m, int ind, int ogf)
 	if (ogf)
 		p=m->to;
 	else
-		p=m->from;
+		p=m->fromcolon;
 
 	if(ind==0 && shortmenu){
 		len = 30;

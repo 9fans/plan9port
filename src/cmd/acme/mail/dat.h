@@ -65,6 +65,7 @@ struct Message
 
 	/* header info */
 	char		*from;
+	char		*fromcolon;
 	char		*to;
 	char		*cc;
 	char		*replyto;
