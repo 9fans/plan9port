@@ -749,6 +749,7 @@ ffsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int cook
 				continue;
 			e.fileid = de->ino;
 			e.name = de->name;
+			e.namelen = de->namlen;
 			e.cookie = (u64int)i*fs->blocksize + (p - b->data);
 			if(nfs3entrypack(dp, dep, &ndp, &e) < 0){
 				done = 1;
