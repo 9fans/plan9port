@@ -260,7 +260,7 @@ r_html(Rune *name)
 char defaultfont[] =
 	".ihtml f1\n"
 	".ihtml f\n"
-	".ihtml f <span style=\"font-size=\\n(.spt\">\n"
+	".ihtml f <span style=\"font-size: \\n(.spt\">\n"
 	".if \\n(.f==2 .ihtml f1 <i>\n"
 	".if \\n(.f==3 .ihtml f1 <b>\n"
 	".if \\n(.f==4 .ihtml f1 <b><i>\n"
