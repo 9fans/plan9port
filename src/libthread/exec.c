@@ -93,6 +93,7 @@ _threadspawn(int fd[3], char *cmd, char *argv[])
 	n = read(p[0], exitstr, sizeof exitstr-1);
 	close(p[0]);
 	if(n > 0){	/* exec failed */
+		free(waitfor(pid));
 		exitstr[n] = 0;
 		errno = atoi(exitstr);
 		return -1;
