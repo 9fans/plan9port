@@ -1,7 +1,8 @@
 #include <u.h>
 #include <sys/socket.h>
 #include <sys/mount.h>
-#ifdef __Linux24__
+#include <linux/version.h>
+#if LINUX_VERSION_CODE < 0x020600
 #	define __KERNEL__
 #	include <linux/nfs.h>
 #	undef __KERNEL__
