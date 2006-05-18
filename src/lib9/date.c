@@ -44,7 +44,11 @@ tm2Tm(struct tm *tm, Tm *bigtm, int gmt)
 static void
 Tm2tm(Tm *bigtm, struct tm *tm)
 {
-	memset(tm, 0, sizeof *tm);
+	/* initialize with current time to get local time zone! (tm_isdst) */
+	time_t t;
+	time(&t);
+	*tm = *localtime(&t);
+
 	tm->tm_sec = bigtm->sec;
 	tm->tm_min = bigtm->min;
 	tm->tm_hour = bigtm->hour;
