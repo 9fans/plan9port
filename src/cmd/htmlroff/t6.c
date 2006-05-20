@@ -33,11 +33,13 @@ in(int v)
 {
 	nr(L(".i0"), getnr(L(".i")));
 	nr(L(".i"), v);
+	nr(L(".ti"), 0);
 	/* XXX */
 }
 void
 r_in(int argc, Rune **argv)
 {
+	br();
 	if(argc < 2)
 		in(getnr(L(".i0")));
 	else if(argv[1][0] == '+')
@@ -59,6 +61,7 @@ void
 r_ti(int argc, Rune **argv)
 {
 	USED(argc);
+	br();
 	ti(evalscale(argv[1], 'm'));
 }
 
