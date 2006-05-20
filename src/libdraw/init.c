@@ -32,6 +32,7 @@ initdraw(void (*error)(Display*, char*), char *fontname, char *label)
 	Subfont *df;
 	char buf[128];
 
+	rfork(RFNOTEG);	/* x11-event.c will postnote hangup */
 	display = _initdisplay(error, label); /* sets screen too */
 	if(display == nil)
 		return -1;
