@@ -12,12 +12,23 @@ static void
 dotz(void)
 {
 	time_t t;
+	struct tm *gtm;
+	struct tm tm;
 
 	if(didtz)
 		return;
 	t = time(0);
-	tzdelta = t - mktime(gmtime(&t));
 	strftime(tzone, sizeof tzone, "%Z", localtime(&t));
+	tm = *localtime(&t);	/* set local time zone field */
+	gtm = gmtime(&t);
+	tm.tm_sec = gtm->tm_sec;
+	tm.tm_min = gtm->tm_min;
+	tm.tm_hour = gtm->tm_hour;
+	tm.tm_mday = gtm->tm_mday;
+	tm.tm_mon = gtm->tm_mon;
+	tm.tm_year = gtm->tm_year;
+	tm.tm_wday = gtm->tm_wday;
+	tzdelta = t - mktime(&tm);
 }
 
 static void
