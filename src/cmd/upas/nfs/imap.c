@@ -1209,8 +1209,6 @@ xlist(Imap *z, Sx *sx)
 	char *s, *t;
 	Box *box;
 
-	if(sx->sx[3]->data && strcmp(sx->sx[3]->data, "/") != 0)
-		warn("box separator %q not / - need to implement translation", sx->sx[3]->data);
 	s = estrdup(sx->sx[4]->data);
 	if(sx->sx[3]->data && strcmp(sx->sx[3]->data, "/") != 0){
 		s = gsub(s, "/", "_");
