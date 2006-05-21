@@ -5,6 +5,7 @@
 #include <thread.h>
 
 #define system nedsystem
+#define rcmd nedrcmd
 
 typedef struct Message Message;
 typedef struct Ctype Ctype;

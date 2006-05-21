@@ -3,6 +3,8 @@
 #include <bio.h>
 #include "hash.h"
 
+#define mergesort bayesmergesort
+
 /***
  * String hash tables.
  */
