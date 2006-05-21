@@ -88,6 +88,7 @@ gb_in(int fd, long *notused, struct convert *out)
 	gbproc(-1, &r, nin);
 	if(r > ob)
 		OUT(out, ob, r-ob);
+	OUT(out, ob, 0);
 }
 
 void

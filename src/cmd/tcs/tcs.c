@@ -54,7 +54,7 @@ main(int argc, char **argv)
 		clean = 1;
 		break;
 	case 'f':
-		from = ARGF();
+		from = EARGF(usage());
 		break;	
 	case 'l':
 		listem = 1;
@@ -63,7 +63,7 @@ main(int argc, char **argv)
 		squawk = 0;
 		break;
 	case 't':
-		to = ARGF();
+		to = EARGF(usage());
 		break;
 	case 'v':
 		verbose = 1;
@@ -160,7 +160,7 @@ conv(char *name, int from)
 	struct convert *c;
 
 	for(c = convert; c->name; c++){
-		if(strcmp(c->name, name) != 0)
+		if(cistrcmp(c->name, name) != 0)
 			continue;
 		if(c->flags&Table)
 			return(c);
@@ -208,23 +208,79 @@ unicode_in(int fd, long *notused, struct convert *out)
 	}
 	while((n = read(fd, (char *)buf, 2*N)) > 0){
 		ninput += n;
+		if(swabme)
+			swab2((char *)buf, n);
 		if(n&1){
 			if(squawk)
 				EPR "%s: odd byte count in %s\n", argv0, file);
 			nerrors++;
 			if(clean)
 				n--;
-			else {
-				n++;
-				buf[n/2] = Runeerror;
-				if(swabme)	/* swab so later swab undoes it */
-					swab2((char *)&buf[n/2], 2);
-			}
+			else
+				buf[n++/2] = Runeerror;
 		}
-		if(swabme)
-			swab2((char *)buf, n);
 		OUT(out, buf, n/2);
 	}
+}
+
+void
+unicode_in_be(int fd, long *notused, struct convert *out)
+{
+	int i, n;
+	Rune buf[N], r;
+	uchar *p;
+
+	USED(notused);
+	while((n = read(fd, (char *)buf, 2*N)) > 0){
+		ninput += n;
+		p = (uchar*)buf;
+		for(i=0; i<n/2; i++){
+			r = *p++<<8;
+			r |= *p++;
+			buf[i] = r;
+		}
+		if(n&1){
+			if(squawk)
+				EPR "%s: odd byte count in %s\n", argv0, file);
+			nerrors++;
+			if(clean)
+				n--;
+			else
+				buf[n++/2] = Runeerror;
+		}
+		OUT(out, buf, n/2);
+	}
+	OUT(out, buf, 0);
+}
+
+void
+unicode_in_le(int fd, long *notused, struct convert *out)
+{
+	int i, n;
+	Rune buf[N], r;
+	uchar *p;
+
+	USED(notused);
+	while((n = read(fd, (char *)buf, 2*N)) > 0){
+		ninput += n;
+		p = (uchar*)buf;
+		for(i=0; i<n/2; i++){
+			r = *p++;
+			r |= *p++<<8;
+			buf[i] = r;
+		}
+		if(n&1){
+			if(squawk)
+				EPR "%s: odd byte count in %s\n", argv0, file);
+			nerrors++;
+			if(clean)
+				n--;
+			else
+				buf[n++/2] = Runeerror;
+		}
+		OUT(out, buf, n/2);
+	}
+	OUT(out, buf, 0);
 }
 
 void
@@ -240,6 +296,44 @@ unicode_out(Rune *base, int n, long *notused)
 		write(1, (char *)&x, 2);
 		first = 0;
 	}
+	noutput += 2*n;
+	write(1, (char *)base, 2*n);
+}
+
+void
+unicode_out_be(Rune *base, int n, long *notused)
+{
+	int i;
+	uchar *p;
+	Rune r;
+
+	USED(notused);
+	p = (uchar*)base;
+	for(i=0; i<n; i++){
+		r = base[i];
+		*p++ = r>>8;
+		*p++ = r;
+	}
+	nrunes += n;
+	noutput += 2*n;
+	write(1, (char *)base, 2*n);
+}
+
+void
+unicode_out_le(Rune *base, int n, long *notused)
+{
+	int i;
+	uchar *p;
+	Rune r;
+
+	USED(notused);
+	p = (uchar*)base;
+	for(i=0; i<n; i++){
+		r = base[i];
+		*p++ = r;
+		*p++ = r>>8;
+	}
+	nrunes += n;
 	noutput += 2*n;
 	write(1, (char *)base, 2*n);
 }
@@ -270,6 +364,7 @@ intable(int fd, long *table, struct convert *out)
 		}
 		OUT(out, runes, r-runes);
 	}
+	OUT(out, runes, 0);
 	if(n < 0){
 #ifdef	PLAN9
 		EPR "%s: input read: %r\n", argv0);
@@ -403,64 +498,91 @@ struct convert convert[] =
 	{ "av", "Alternativnyj Variant", Table, (void *)tabav },
 	{ "big5", "Big 5 (HKU)", From|Func, 0, (Fnptr)big5_in },
 	{ "big5", "Big 5 (HKU)", Func, 0, (Fnptr)big5_out },
-	{ "cp437", "Code Page 437 (US)", Table, (void*)tabcp437 },
-	{ "cp720", "Code Page 720 (Arabic)", Table, (void*)tabcp720 },
-	{ "cp737", "Code Page 737 (Greek)", Table, (void*)tabcp737 },
-	{ "cp775", "Code Page 775 (Baltic)", Table, (void*)tabcp775 },
-	{ "cp850", "Code Page 850 (Multilingual Latin I)", Table, (void*)tabcp850 },
-	{ "cp852", "Code Page 852 (Latin II)", Table, (void*)tabcp852 },
-	{ "cp855", "Code Page 855 (Cyrillic)", Table, (void*)tabcp855 },
-	{ "cp857", "Code Page 857 (Turkish)", Table, (void*)tabcp857 },
-	{ "cp858", "Code Page 858 (Multilingual Latin I+Euro)", Table, (void*)tabcp858 },
-	{ "cp862", "Code Page 862 (Hebrew)", Table, (void*)tabcp862 },
-	{ "cp866", "Code Page 866 (Russian)", Table, (void*)tabcp866 },
-	{ "cp874", "Code Page 874 (Thai)", Table, (void*)tabcp874 },
-	{ "cp1250", "Code Page 1250 (Central Europe)", Table, (void *)tabcp1250 },
-	{ "cp1251", "Code Page 1251 (Cyrillic)", Table, (void *)tabcp1251 },
-	{ "cp1252", "Code Page 1252 (Latin I)", Table, (void *)tabcp1252 },
-	{ "cp1253", "Code Page 1253 (Greek)", Table, (void *)tabcp1253 },
-	{ "cp1254", "Code Page 1254 (Turkish)", Table, (void *)tabcp1254 },
-	{ "cp1255", "Code Page 1255 (Hebrew)", Table, (void *)tabcp1255 },
-	{ "cp1256", "Code Page 1256 (Arabic)", Table, (void *)tabcp1256 },
-	{ "cp1257", "Code Page 1257 (Baltic)", Table, (void *)tabcp1257 },
-	{ "cp1258", "Code Page 1258 (Vietnam)", Table, (void *)tabcp1258 },
 	{ "ebcdic", "EBCDIC", Table, (void *)tabebcdic },	/* 6f is recommended bad map */
 	{ "euc-k", "Korean EUC: ASCII+KS C 5601 1987", From|Func, 0, (Fnptr)uksc_in },
 	{ "euc-k", "Korean EUC: ASCII+KS C 5601 1987", Func, 0, (Fnptr)uksc_out },
-	{ "gb", "GB2312-80 (Chinese)", From|Func, 0, (Fnptr)gb_in },
-	{ "gb", "GB2312-80 (Chinese)", Func, 0, (Fnptr)gb_out },
+	{ "gb2312", "GB2312-80 (Chinese)", From|Func, 0, (Fnptr)gb_in },
+	{ "gb2312", "GB2312-80 (Chinese)", Func, 0, (Fnptr)gb_out },
 	{ "html", "HTML", From|Func, 0, (Fnptr)html_in },
 	{ "html", "HTML", Func, 0, (Fnptr)html_out },
+	{ "ibm437", "IBM Code Page 437 (US)", Table, (void*)tabcp437 },
+	{ "ibm720", "IBM Code Page 720 (Arabic)", Table, (void*)tabcp720 },
+	{ "ibm737", "IBM Code Page 737 (Greek)", Table, (void*)tabcp737 },
+	{ "ibm775", "IBM Code Page 775 (Baltic)", Table, (void*)tabcp775 },
+	{ "ibm850", "IBM Code Page 850 (Multilingual Latin I)", Table, (void*)tabcp850 },
+	{ "ibm852", "IBM Code Page 852 (Latin II)", Table, (void*)tabcp852 },
+	{ "ibm855", "IBM Code Page 855 (Cyrillic)", Table, (void*)tabcp855 },
+	{ "ibm857", "IBM Code Page 857 (Turkish)", Table, (void*)tabcp857 },
+	{ "ibm858", "IBM Code Page 858 (Multilingual Latin I+Euro)", Table, (void*)tabcp858 },
+	{ "ibm862", "IBM Code Page 862 (Hebrew)", Table, (void*)tabcp862 },
+	{ "ibm866", "IBM Code Page 866 (Russian)", Table, (void*)tabcp866 },
+	{ "ibm874", "IBM Code Page 874 (Thai)", Table, (void*)tabcp874 },
+	{ "iso-2022-jp", "alias for jis-kanji (MIME)", From|Func, 0, (Fnptr)jisjis_in },
+	{ "iso-2022-jp", "alias for jis-kanji (MIME)", Func, 0, (Fnptr)jisjis_out },
+	{ "iso-8859-1", "alias for 8859-1 (MIME)", Table, (void *)tab8859_1 },
+	{ "iso-8859-2", "alias for 8859-2 (MIME)", Table, (void *)tab8859_2 },
+	{ "iso-8859-3", "alias for 8859-3 (MIME)", Table, (void *)tab8859_3 },
+	{ "iso-8859-4", "alias for 8859-4 (MIME)", Table, (void *)tab8859_4 },
+	{ "iso-8859-5", "alias for 8859-5 (MIME)", Table, (void *)tab8859_5 },
+	{ "iso-8859-6", "alias for 8859-6 (MIME)", Table, (void *)tab8859_6 },
+	{ "iso-8859-7", "alias for 8859-7 (MIME)", Table, (void *)tab8859_7 },
+	{ "iso-8859-8", "alias for 8859-8 (MIME)", Table, (void *)tab8859_8 },
+	{ "iso-8859-9", "alias for 8859-9 (MIME)", Table, (void *)tab8859_9 },
+	{ "iso-8859-10", "alias for 8859-10 (MIME)", Table, (void *)tab8859_10 },
+	{ "iso-8859-15", "alias for 8859-15 (MIME)", Table, (void *)tab8859_15 },
 	{ "jis", "guesses at the JIS encoding", From|Func, 0, (Fnptr)jis_in },
 	{ "jis-kanji", "ISO 2022-JP (Japanese)", From|Func, 0, (Fnptr)jisjis_in },
 	{ "jis-kanji", "ISO 2022-JP (Japanese)", Func, 0, (Fnptr)jisjis_out },
 	{ "koi8", "KOI-8 (GOST 19769-74)", Table, (void *)tabkoi8 },
-	{ "latin1", "ISO 8859-1", Table, (void *)tab8859_1 },
+	{ "koi8-r", "alias for koi8 (MIME)", Table, (void *)tabkoi8 },
+	{ "latin1", "alias for 8859-1", Table, (void *)tab8859_1 },
 	{ "macrom", "Macintosh Standard Roman character set", Table, (void *)tabmacroman },
-	{ "microsoft", "Windows (CP 1252)", Table, (void *)tabcp1252 },
-	{ "msdos", "IBM PC (CP 437)", Table, (void *)tabcp437 },
-	{ "msdos2", "IBM PC (CP 437 with graphics in C0)", Table, (void *)tabmsdos2 },
+	{ "microsoft", "alias for windows1252", Table, (void *)tabcp1252 },
 	{ "ms-kanji", "Microsoft, or Shift-JIS", From|Func, 0, (Fnptr)msjis_in },
 	{ "ms-kanji", "Microsoft, or Shift-JIS", Func, 0, (Fnptr)msjis_out },
+	{ "msdos", "IBM PC (alias for ibm437)", Table, (void *)tabcp437 },
+	{ "msdos2", "IBM PC (ibm437 with graphics in C0)", Table, (void *)tabmsdos2 },
 	{ "next", "NEXTSTEP character set", Table, (void *)tabnextstep },
 	{ "ov", "Osnovnoj Variant", Table, (void *)tabov },
-	{ "ps2", "IBM PS/2: (CP 850)", Table, (void *)tabcp850 },
+	{ "ps2", "IBM PS/2: (alias for ibm850)", Table, (void *)tabcp850 },
 	{ "sf1", "ISO-646: Finnish/Swedish SF-1 variant", Table, (void *)tabsf1 },
 	{ "sf2", "ISO-646: Finnish/Swedish SF-2 variant (recommended)", Table, (void *)tabsf2 },
-	{ "tis", "Thai+ASCII (TIS 620-1986)", Table, (void *)tabtis620 },
+	{ "tis-620", "Thai+ASCII (TIS 620-1986)", Table, (void *)tabtis620 },
+	{ "tune", "TUNE (Tamil)", From|Func, 0, (Fnptr)tune_in },
+	{ "tune", "TUNE (Tamil)", Func, 0, (Fnptr)tune_out },
 	{ "ucode", "Russian U-code", Table, (void *)tabucode },
 	{ "ujis", "EUC-JX: JIS 0208", From|Func, 0, (Fnptr)ujis_in },
 	{ "ujis", "EUC-JX: JIS 0208", Func, 0, (Fnptr)ujis_out },
 	{ "unicode", "Unicode 1.1", From|Func, 0, (Fnptr)unicode_in },
 	{ "unicode", "Unicode 1.1", Func, 0, (Fnptr)unicode_out },
-	{ "utf1", "UTF-1 (ISO 10646 Annex A)", From|Func, 0, (Fnptr)isoutf_in },
-	{ "utf1", "UTF-1 (ISO 10646 Annex A)", Func, 0, (Fnptr)isoutf_out },
+	{ "unicode-be", "Unicode 1.1 big-endian", From|Func, 0, (Fnptr)unicode_in_be },
+	{ "unicode-be", "Unicode 1.1 big-endian", Func, 0, (Fnptr)unicode_out_be },
+	{ "unicode-le", "Unicode 1.1 little-endian", From|Func, 0, (Fnptr)unicode_in_le },
+	{ "unicode-le", "Unicode 1.1 little-endian", Func, 0, (Fnptr)unicode_out_le },
+	{ "us-ascii", "alias for ascii (MIME)", Table, (void *)tabascii },
 	{ "utf", "FSS-UTF a.k.a. UTF-8", From|Func, 0, (Fnptr)utf_in },
 	{ "utf", "FSS-UTF a.k.a. UTF-8", Func, 0, (Fnptr)utf_out },
-	{ "utf-l2", "from", From|Func, 0, (Fnptr)utf_in },
-	{ "utf-l2", "to", Func, 0, (Fnptr)utf_out },
+	{ "utf1", "UTF-1 (ISO 10646 Annex A)", From|Func, 0, (Fnptr)isoutf_in },
+	{ "utf1", "UTF-1 (ISO 10646 Annex A)", Func, 0, (Fnptr)isoutf_out },
+	{ "utf-8", "alias for utf (MIME)", From|Func, 0, (Fnptr)utf_in },
+	{ "utf-8", "alias for utf (MIME)", Func, 0, (Fnptr)utf_out },
+	{ "utf-16", "alias for unicode (MIME)", From|Func, 0, (Fnptr)unicode_in },
+	{ "utf-16", "alias for unicode (MIME)", Func, 0, (Fnptr)unicode_out },
+	{ "utf-16be", "alias for unicode-be (MIME)", From|Func, 0, (Fnptr)unicode_in_be },
+	{ "utf-16be", "alias for unicode-be (MIME)", Func, 0, (Fnptr)unicode_out_be },
+	{ "utf-16le", "alias for unicode-le (MIME)", From|Func, 0, (Fnptr)unicode_in_le },
+	{ "utf-16le", "alias for unicode-le (MIME)", Func, 0, (Fnptr)unicode_out_le },
 	{ "viet1", "Vietnamese VSCII-1 (1993)", Table, (void *)tabviet1 },
 	{ "viet2", "Vietnamese VSCII-2 (1993)", Table, (void *)tabviet2 },
-	{ "viscii", "Vietnamese VISCII 1.1 (1992)", Table, (void *)tabviscii },
+	{ "vscii", "Vietnamese VISCII 1.1 (1992)", Table, (void *)tabviscii },
+	{ "windows-1250", "Windows Code Page 1250 (Central Europe)", Table, (void *)tabcp1250 },
+	{ "windows-1251", "Windows Code Page 1251 (Cyrillic)", Table, (void *)tabcp1251 },
+	{ "windows-1252", "Windows Code Page 1252 (Latin I)", Table, (void *)tabcp1252 },
+	{ "windows-1253", "Windows Code Page 1253 (Greek)", Table, (void *)tabcp1253 },
+	{ "windows-1254", "Windows Code Page 1254 (Turkish)", Table, (void *)tabcp1254 },
+	{ "windows-1255", "Windows Code Page 1255 (Hebrew)", Table, (void *)tabcp1255 },
+	{ "windows-1256", "Windows Code Page 1256 (Arabic)", Table, (void *)tabcp1256 },
+	{ "windows-1257", "Windows Code Page 1257 (Baltic)", Table, (void *)tabcp1257 },
+	{ "windows-1258", "Windows Code Page 1258 (Vietnam)", Table, (void *)tabcp1258 },
 	{ 0 }
 };

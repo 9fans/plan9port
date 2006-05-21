@@ -45,15 +45,15 @@ utf_in(int fd, long *notused, struct convert *out)
 	tot = 0;
 	while((n = read(fd, buf+tot, N-tot)) >= 0){
 		tot += n;
-		for(i=j=0; i<tot; ){
+		for(i=j=0; i<tot-UTFmax || (n==0 && i<tot); ){
 			c = our_mbtowc(&l, buf+i, tot-i);
-			if(c == -2)
-				break;
 			if(c == -1){
 				if(squawk)
 					EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput+i);
-				if(clean)
+				if(clean){
+					i++;
 					continue;
+				}
 				nerrors++;
 				l = Runeerror;
 				c = 1;
@@ -69,6 +69,7 @@ utf_in(int fd, long *notused, struct convert *out)
 		if(n == 0)
 			break;
 	}
+	OUT(out, runes, 0);
 }
 
 void
@@ -100,11 +101,13 @@ isoutf_in(int fd, long *notused, struct convert *out)
 			if(!fullisorune(buf+i, tot-i))
 				break;
 			c = isochartorune(&runes[j], buf+i);
-			if(runes[j] == Runeerror){
+			if(runes[j] == Runeerror && c == 1){
 				if(squawk)
 					EPR "%s: bad UTF sequence near byte %ld in input\n", argv0, ninput+i);
-				if(clean)
+				if(clean){
+					i++;
 					continue;
+				}
 				nerrors++;
 			}
 			j++;
@@ -118,6 +121,7 @@ isoutf_in(int fd, long *notused, struct convert *out)
 		if(n == 0)
 			break;
 	}
+	OUT(out, runes, 0);
 }
 
 void
@@ -393,19 +397,19 @@ our_mbtowc(unsigned long *p, char *s, unsigned n)
 		return 0;		/* no shift states */
 
 	if(n < 1)
-		goto badlen;
+		goto bad;
 	us = (uchar*)s;
 	c0 = us[0];
 	if(c0 >= T3) {
 		if(n < 3)
-			goto badlen;
+			goto bad;
 		c1 = us[1] ^ Tx;
 		c2 = us[2] ^ Tx;
 		if((c1|c2) & T2)
 			goto bad;
 		if(c0 >= T5) {
 			if(n < 5)
-				goto badlen;
+				goto bad;
 			c3 = us[3] ^ Tx;
 			c4 = us[4] ^ Tx;
 			if((c3|c4) & T2)
@@ -413,7 +417,7 @@ our_mbtowc(unsigned long *p, char *s, unsigned n)
 			if(c0 >= T6) {
 				/* 6 bytes */
 				if(n < 6)
-					goto badlen;
+					goto bad;
 				c5 = us[5] ^ Tx;
 				if(c5 & T2)
 					goto bad;
@@ -437,7 +441,7 @@ our_mbtowc(unsigned long *p, char *s, unsigned n)
 		if(c0 >= T4) {
 			/* 4 bytes */
 			if(n < 4)
-				goto badlen;
+				goto bad;
 			c3 = us[3] ^ Tx;
 			if(c3 & T2)
 				goto bad;
@@ -460,7 +464,7 @@ our_mbtowc(unsigned long *p, char *s, unsigned n)
 	if(c0 >= T2) {
 		/* 2 bytes */
 		if(n < 2)
-			goto badlen;
+			goto bad;
 		c1 = us[1] ^ Tx;
 		if(c1 & T2)
 			goto bad;
@@ -480,6 +484,4 @@ our_mbtowc(unsigned long *p, char *s, unsigned n)
 bad:
 	errno = EILSEQ;
 	return -1;
-badlen:
-	return -2;
 }
