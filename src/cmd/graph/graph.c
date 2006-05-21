@@ -63,6 +63,22 @@ double ident(double x){
 struct z {
 	float lb,ub,mult,quant;
 };
+
+struct {
+	char *name;
+	int next;
+} palette[] = {
+	['b']	{ "blue", 'b' },
+	['c']	{ "cyan", 'c' },
+	['g']	{ "green", 'g' },
+	['k']	{ "kblack", 'k' },
+	['m']	{ "magenta", 'm' },
+	['r']	{ "red", 'r' },
+	['w']	{ "white", 'w' },
+	['y']	{ "yellow", 'y' }
+};
+int pencolor = 'k';
+
 void init(struct xy *);
 void setopt(int, char *[]);
 void readin(void);
@@ -72,6 +88,7 @@ void equilibrate(struct xy *, struct xy *);
 void scale(struct xy *);
 void limread(struct xy *, int *, char ***);
 int numb(float *, int *, char ***);
+void colread(int *, char ***);
 int copystring(int);
 struct z setloglim(int, int, float, float);
 struct z setlinlim(int, int, float, float);
@@ -221,6 +238,9 @@ again:		switch(argv[0][0]) {
 			if(!numb(&yd.xoff,&argc,&argv))
 				badarg();
 			break;
+		case 'p': /*pen color*/
+			colread(&argc, &argv);
+			break;
 		default:
 			badarg();
 		}
@@ -264,6 +284,26 @@ numb(float *np, int *argcp, char ***argvp){
 	(*argcp)--;
 	(*argvp)++;
 	return(1);
+}
+
+void colread(int *argcp, char ***argvp){
+	int c, cnext;
+	int i, n;
+
+	if(*argcp<=1)
+		return;
+	n = strlen((*argvp)[1]);
+	if(strspn((*argvp)[1], "bcgkmrwy")!=n)
+		return;
+	pencolor = cnext = (*argvp)[1][0];
+	for(i=0; i<n-1; i++){
+		c = (unsigned char)(*argvp)[1][i];
+		cnext = (unsigned char)(*argvp)[1][i+1];
+		palette[c].next = cnext;
+	}
+	palette[cnext].next = pencolor;
+	(*argcp)--;
+	(*argvp)++;
 }
 
 void readin(void){
@@ -599,6 +639,7 @@ void plot(void){
 		default:
 			pen(modes[mode]);
 		}
+		color(palette[pencolor].name);
 		conn = 0;
 		for(i=j; i<n; i+=ovlay) {
 			if(!conv(xx[i].xv,&xd,&ix) ||
@@ -615,6 +656,7 @@ void plot(void){
 			}
 			conn &= symbol(ix,iy,xx[i].lblptr);
 		}
+		pencolor = palette[pencolor].next;
 	}
 	pen(modes[1]);
 }
