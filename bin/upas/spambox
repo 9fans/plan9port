@@ -1,0 +1,14 @@
+#!/usr/local/plan9/bin/rc
+
+if (~ $#* 0)
+	echo usage: spambox mailfs/mbox && exit "usage"
+box=$1
+msgs=(`{9p ls $box>[2=1]|awk '$10 ~ /[0-9][0-9]*/{print $10}'})
+if (~ $#msgs 0)
+	echo no messages in $box && exit "none"
+
+echo -n adding
+for (m in $msgs){
+	echo -n ' '$m
+	spam $box/$m
+}

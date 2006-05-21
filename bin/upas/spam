@@ -1,0 +1,19 @@
+#!/usr/local/plan9/bin/rc
+
+rfork en
+
+if (~ $#* 0)
+	echo usage: spam mesg && exit 1
+
+TMP=/tmp/spam.$USER.$pid
+{
+	echo '# hash table'
+	msgcat $1|sed '/^$/,$ s/^From / From /'|upas/msgtok|
+		grep -v '^....................(.*)	'|
+			sed 's/$/	1/'
+} >$TMP.tok
+
+cd $home/mail
+upas/addhash -o _prof.mbox _prof.mbox 1 $TMP.tok -1
+upas/addhash -o _prof.spam _prof.spam 1 $TMP.tok 1
+rm -f $TMP.*

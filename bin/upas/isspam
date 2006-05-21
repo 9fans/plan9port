@@ -1,0 +1,35 @@
+#!/usr/local/plan9/bin/rc
+
+rfork en
+
+if (~ $#* 0)
+	echo usage: isspam mesg && exit 'usage'
+
+TMP=/tmp/isspam.$USER.$pid
+{
+	echo '# hash table'
+	msgcat $1|sed '/^$/,$ s/^From / From /'|upas/msgtok|
+		grep -v '^....................(.*)	'|
+			sed 's/$/	1/'
+} >$TMP.tok
+
+x=`{upas/bayes -k $HOME/mail/_prof.mbox $HOME/mail/_prof.spam ~ $TMP.tok}
+where=$x(1)
+prob=$x(2)
+echo $where $prob
+*=($x)
+shift 2
+while(! ~$#* 0){
+	echo ' ' $1 $2
+	shift 2
+}
+
+rm -f $TMP.tok
+if (~ $where *spam*){
+	echo spam
+	exit ''
+} 
+if not {
+	echo ok
+	exit 'is ok'
+}

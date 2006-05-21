@@ -1,0 +1,61 @@
+#!/usr/local/plan9/bin/rc
+
+fn read9p {
+	srv=$1; shift
+	9p read $srv >[2=1]|grep -v '^9p\:'
+}
+
+fn dir9p {
+	srv=$1; shift
+	9p ls $srv >[2=1]|grep -v '^9p\:'
+}
+	
+
+fn catmesg {
+	# hold on for a second
+	TMP=/tmp/$USER.`{date -n}; sleep 1
+	msg=$1;
+	read9p $msg/body >$TMP.body
+	t=`{read9p $msg/type}
+	switch($t){
+		case text/html
+			echo '
+					,x/<!--(-?[^\-]|--[^>]|\n)*-->/ c//
+					,x/<[^>]+>/d
+					,p
+					u
+					,y/<[^>]+>/d
+					,p
+				'| sam -d $TMP.body|[2] sed '1d;/^\?/d'
+		case text/*
+			cat $TMP.body
+		case message/*
+			cat $TMP.body
+		case multipart/related
+			if (~ `{read9p $msg/1/type} text/plain)
+				catmesg $msg/1
+			if not if (~ `{read9p $msg/2/type} text/plain)
+				catmesg $msg/2
+			if not {
+				for (i in `{dir9p $msg|awk '$10 ~ /[0-9][0-9]*/ {print $10}'})
+					catmesg $msg/$i
+			}
+		case *
+			echo $t
+		# should there be more?
+	}
+	rm -f $TMP.body
+}
+
+if (~ $#* 0)
+	echo usage: msgcat mail/mbox/msgn && exit 1
+
+mesg=$1
+if (~ `{read9p $mesg/lines} '')
+	echo no such message $mesg && exit 2
+
+			
+read9p $mesg/unixheader; read9p $mesg/header
+echo
+catmesg $mesg
+echo
