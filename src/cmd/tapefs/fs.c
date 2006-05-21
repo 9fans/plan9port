@@ -16,6 +16,7 @@ ulong	path;
 Idmap	*uidmap;
 Idmap	*gidmap;
 int	replete;
+int	blocksize;		/* for 32v */
 int	verbose;
 int	newtap;		/* tap with time in sec */
 

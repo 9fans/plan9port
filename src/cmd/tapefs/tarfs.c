@@ -53,7 +53,7 @@ populate(char *name)
 		f.uid = strtoul(dblock.dbuf.uid, 0, 8);
 		f.gid = strtoul(dblock.dbuf.gid, 0, 8);
 		if((uchar)dblock.dbuf.size[0] == 0x80)
-			f.size = g8byte(dblock.dbuf.size+3);
+			f.size = b8byte(dblock.dbuf.size+3);
 		else
 			f.size = strtoull(dblock.dbuf.size, 0, 8);
 		f.mdate = strtoul(dblock.dbuf.mtime, 0, 8);
