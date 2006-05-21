@@ -19,7 +19,7 @@ memimagemove(void *from, void *to)
 	md->base = to;
 
 	/* if allocmemimage changes this must change too */
-	md->bdata = (uchar*)((ulong*)md->base+2);
+	md->bdata = (uchar*)md->base+sizeof(Memdata*)+sizeof(ulong);
 }
 
 Memimage*
@@ -71,7 +71,7 @@ _allocmemimage(Rectangle r, u32int chan)
 {
 	int d;
 	u32int l, nw;
-	ulong *ul;
+	uchar *p;
 	Memdata *md;
 	Memimage *i;
 
@@ -87,25 +87,21 @@ _allocmemimage(Rectangle r, u32int chan)
 		return nil;
 
 	md->ref = 1;
-	/*
-	 * The first two ulongs are the md and the callerpc.
-	 * Then nw words of data.
-	 * The final word lets the drawing routines be a little
-	 * sloppy about reading past the end of the block.
-	 */
-	md->base = poolalloc(imagmem, 2*sizeof(ulong)+(nw+1)*sizeof(u32int));
+	md->base = poolalloc(imagmem, sizeof(Memdata*)+(1+nw)*sizeof(ulong));
 	if(md->base == nil){
 		free(md);
 		return nil;
 	}
 
-	ul = (ulong*)md->base;
-	ul[0] = (ulong)md;
-	ul[1] = getcallerpc(&r);
+	p = (uchar*)md->base;
+	*(Memdata**)p = md;
+	p += sizeof(Memdata*);
+
+	*(ulong*)p = getcallerpc(&r);
+	p += sizeof(ulong);
 
 	/* if this changes, memimagemove must change too */
-	md->bdata = (uchar*)(ul+2);
-
+	md->bdata = p;
 	md->allocd = 1;
 
 	i = allocmemimaged(r, chan, md, nil);
