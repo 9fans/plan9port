@@ -1,16 +1,4 @@
-/*
- * The authors of this software are Rob Pike and Ken Thompson.
- *              Copyright (c) 2002 by Lucent Technologies.
- * Permission to use, copy, modify, and distribute this software for any
- * purpose without fee is hereby granted, provided that this entire notice
- * is included in all copies of any software which is or includes a copy
- * or modification of this software and in all copies of the supporting
- * documentation for such software.
- * THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTY.  IN PARTICULAR, NEITHER THE AUTHORS NOR LUCENT TECHNOLOGIES MAKE
- * ANY REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
- * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
- */
+/* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
 #include <stdlib.h>
 #include <math.h>
 #include <ctype.h>
@@ -239,7 +227,7 @@ fmtstrtod(const char *as, char **aas)
 	/* close approx by naive conversion */
 	mid[0] = 0;
 	mid[1] = 1;
-	for(i=0; c=a[i]; i++) {
+	for(i=0; (c=a[i]) != '\0'; i++) {
 		mid[0] = mid[0]*10 + (c-'0');
 		mid[1] = mid[1]*10;
 		if(i >= 8)
@@ -521,7 +509,7 @@ xcmp(char *a, char *b)
 {
 	int c1, c2;
 
-	while(c1 = *b++) {
+	while((c1 = *b++) != '\0') {
 		c2 = *a++;
 		if(isupper(c2))
 			c2 = tolower(c2);

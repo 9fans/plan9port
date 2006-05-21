@@ -1,16 +1,4 @@
-/*
- * The authors of this software are Rob Pike and Ken Thompson.
- *              Copyright (c) 2002 by Lucent Technologies.
- * Permission to use, copy, modify, and distribute this software for any
- * purpose without fee is hereby granted, provided that this entire notice
- * is included in all copies of any software which is or includes a copy
- * or modification of this software and in all copies of the supporting
- * documentation for such software.
- * THIS SOFTWARE IS BEING PROVIDED "AS IS", WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTY.  IN PARTICULAR, NEITHER THE AUTHORS NOR LUCENT TECHNOLOGIES MAKE
- * ANY REPRESENTATION OR WARRANTY OF ANY KIND CONCERNING THE MERCHANTABILITY
- * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
- */
+/* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
 #include <stdarg.h>
 #include <string.h>
 #include "plan9.h"
@@ -97,7 +85,7 @@ __fmtflush(Fmt *f, void *t, int len)
 
 /*
  * put a formatted block of memory sz bytes long of n runes into the output buffer,
- * left/right justified in a field of at least f->width charactes
+ * left/right justified in a field of at least f->width characters (if FmtWidth is set)
  */
 int
 __fmtpad(Fmt *f, int n)
@@ -139,8 +127,10 @@ __fmtcpy(Fmt *f, const void *vm, int n, int sz)
 
 	m = (char*)vm;
 	me = m + sz;
-	w = f->width;
 	fl = f->flags;
+	w = 0;
+	if(fl & FmtWidth)
+		w = f->width;
 	if((fl & FmtPrec) && n > f->prec)
 		n = f->prec;
 	if(f->runes){
@@ -194,8 +184,10 @@ __fmtrcpy(Fmt *f, const void *vm, int n)
 	int w;
 
 	m = (Rune*)vm;
-	w = f->width;
 	fl = f->flags;
+	w = 0;
+	if(fl & FmtWidth)
+		w = f->width;
 	if((fl & FmtPrec) && n > f->prec)
 		n = f->prec;
 	if(f->runes){
@@ -324,10 +316,14 @@ __percentfmt(Fmt *f)
 int
 __ifmt(Fmt *f)
 {
-	char buf[70], *p, *conv;
+	char buf[140], *p, *conv;
+	/* 140: for 64 bits of binary + 3-byte sep every 4 digits */
 	uvlong vu;
 	ulong u;
 	int neg, base, i, n, fl, w, isv;
+	int ndig, len, excess, bytelen;
+	char *grouping;
+	char *thousands;
 
 	neg = 0;
 	fl = f->flags;
@@ -339,11 +335,11 @@ __ifmt(Fmt *f)
 	 * Unsigned verbs for ANSI C
 	 */
 	switch(f->r){
+	case 'o':
+	case 'p':
+	case 'u':
 	case 'x':
 	case 'X':
-	case 'o':
-	case 'u':
-	case 'p':
 		fl |= FmtUnsigned;
 		fl &= ~(FmtSign|FmtSpace);
 		break;
@@ -381,21 +377,25 @@ __ifmt(Fmt *f)
 			u = va_arg(f->args, int);
 	}
 	conv = "0123456789abcdef";
+	grouping = "\4";	/* for hex, octal etc. (undefined by spec but nice) */
+	thousands = f->thousands;
 	switch(f->r){
 	case 'd':
 	case 'i':
 	case 'u':
 		base = 10;
-		break;
-	case 'x':
-		base = 16;
+		grouping = f->grouping;
 		break;
 	case 'X':
-		base = 16;
 		conv = "0123456789ABCDEF";
+		/* fall through */
+	case 'x':
+		base = 16;
+		thousands = ":";
 		break;
 	case 'b':
 		base = 2;
+		thousands = ":";
 		break;
 	case 'o':
 		base = 8;
@@ -413,7 +413,11 @@ __ifmt(Fmt *f)
 		}
 	}
 	p = buf + sizeof buf - 1;
-	n = 0;
+	n = 0;	/* in runes */
+	excess = 0;	/* number of bytes > number runes */
+	ndig = 0;
+	len = utflen(thousands);
+	bytelen = strlen(thousands);
 	if(isv){
 		while(vu){
 			i = vu % base;
@@ -421,6 +425,12 @@ __ifmt(Fmt *f)
 			if((fl & FmtComma) && n % 4 == 3){
 				*p-- = ',';
 				n++;
+			}
+			if((fl & FmtApost) && __needsep(&ndig, &grouping)){
+				n += len;
+				excess += bytelen - len;
+				p -= bytelen;
+				memmove(p+1, thousands, bytelen);
 			}
 			*p-- = conv[i];
 			n++;
@@ -433,6 +443,12 @@ __ifmt(Fmt *f)
 				*p-- = ',';
 				n++;
 			}
+			if((fl & FmtApost) && __needsep(&ndig, &grouping)){
+				n += len;
+				excess += bytelen - len;
+				p -= bytelen;
+				memmove(p+1, thousands, bytelen);
+			}
 			*p-- = conv[i];
 			n++;
 		}
@@ -440,9 +456,19 @@ __ifmt(Fmt *f)
 	if(n == 0){
 		*p-- = '0';
 		n = 1;
+		if(fl & FmtApost)
+			__needsep(&ndig, &grouping);
+		fl &= ~FmtSharp;	/* ??? */
 	}
-	for(w = f->prec; n < w && p > buf+3; n++)
+	for(w = f->prec; n < w && p > buf+3; n++){
+		if((fl & FmtApost) && __needsep(&ndig, &grouping)){
+			n += len;
+			excess += bytelen - len;
+			p -= bytelen;
+			memmove(p+1, thousands, bytelen);
+		}
 		*p-- = '0';
+	}
 	if(neg || (fl & (FmtSign|FmtSpace)))
 		n++;
 	if(fl & FmtSharp){
@@ -456,9 +482,19 @@ __ifmt(Fmt *f)
 		}
 	}
 	if((fl & FmtZero) && !(fl & (FmtLeft|FmtPrec))){
-		for(w = f->width; n < w && p > buf+3; n++)
+		w = 0;
+		if(fl & FmtWidth)
+			w = f->width;
+		for(; n < w && p > buf+3; n++){
+			if((fl & FmtApost) && __needsep(&ndig, &grouping)){
+				n += len;
+				excess += bytelen - len;
+				p -= bytelen;
+				memmove(p+1, thousands, bytelen);
+			}
 			*p-- = '0';
-		f->width = 0;
+		}
+		f->flags &= ~FmtWidth;
 	}
 	if(fl & FmtSharp){
 		if(base == 16)
@@ -473,7 +509,7 @@ __ifmt(Fmt *f)
 	else if(fl & FmtSpace)
 		*p-- = ' ';
 	f->flags &= ~FmtPrec;
-	return __fmtcpy(f, p + 1, n, n);
+	return __fmtcpy(f, p + 1, n, n + excess);
 }
 
 int
@@ -513,6 +549,9 @@ __flagfmt(Fmt *f)
 		break;
 	case '#':
 		f->flags |= FmtSharp;
+		break;
+	case '\'':
+		f->flags |= FmtApost;
 		break;
 	case ' ':
 		f->flags |= FmtSpace;
