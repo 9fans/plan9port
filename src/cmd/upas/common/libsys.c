@@ -278,6 +278,7 @@ sysopen(char *path, char *mode, ulong perm)
 			break;
 		case 'l':
 			sysperm |= DMEXCL;
+			sysmode |= OLOCK;
 			break;
 		case 'a':
 			sysperm |= DMAPPEND;
