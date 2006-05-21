@@ -170,6 +170,7 @@ extern	char		*outgoing;
 extern	char		*mailboxdir;
 extern	char		*mboxname;
 extern	char		*user;
+extern	char		*srvname;
 extern	char		deleted[];
 extern	int		wctlfd;
 extern	int		shortmenu;

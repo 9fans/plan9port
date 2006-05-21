@@ -1046,8 +1046,8 @@ mimedisplay(Message *m, char *name, char *rootdir, Window *w, int fileonly)
 			dest = estrdup(m->filename);
 		if(m->filename[0] != '/')
 			dest = egrow(estrdup(home), "/", dest);
-		fsprint(w->body, "\t9p read mail/%s/%sbody > %s\n",
-			mboxname, name, dest);
+		fsprint(w->body, "\t9p read %s/%s/%sbody > %s\n",
+			srvname, mboxname, name, dest);
 		free(dest);
 	}
 }

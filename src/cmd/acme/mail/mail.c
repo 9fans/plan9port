@@ -42,7 +42,7 @@ CFsys *acmefs;
 void
 usage(void)
 {
-	fprint(2, "usage: Mail [-sS] [-o outgoing] [mailboxname [directoryname]]\n");
+	fprint(2, "usage: Mail [-sS] [-n srvname] [-o outgoing] [mailboxname [directoryname]]\n");
 	threadexitsall("usage");
 }
 
@@ -88,6 +88,7 @@ threadmain(int argc, char *argv[])
 	plumbshowmailfd = plumbopenfid("showmail", OREAD|OCEXEC);
 
 	shortmenu = 0;
+	srvname = "mail";
 	ARGBEGIN{
 	case 's':
 		shortmenu = 1;
@@ -101,6 +102,9 @@ threadmain(int argc, char *argv[])
 	case 'm':
 		smprint(maildir, "%s/", EARGF(usage()));
 		break;
+	case 'n':
+		srvname = EARGF(usage());
+		break;
 	default:
 		usage();
 	}ARGEND
@@ -108,9 +112,9 @@ threadmain(int argc, char *argv[])
 	acmefs = nsmount("acme",nil);
 	if(acmefs == nil)
 		error("cannot mount acme: %r");
-	mailfs = nsmount("mail", nil);
+	mailfs = nsmount(srvname, nil);
 	if(mailfs == nil)
-		error("cannot mount mail: %r");
+		error("cannot mount %s: %r", srvname);
 
 	name = "mbox";
 
