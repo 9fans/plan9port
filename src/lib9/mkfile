@@ -13,7 +13,9 @@ FMTOFILES=\
 	fmt.$O\
 	fmtfd.$O\
 	fmtfdflush.$O\
+	fmtlocale.$O\
 	fmtlock2.$O\
+	fmtnull.$O\
 	fmtprint.$O\
 	fmtquote.$O\
 	fmtrune.$O\
@@ -170,3 +172,22 @@ HFILES=\
 
 %.$O: utf/%.c
 	$CC $CFLAGS utf/$stem.c
+
+XLIB=$PLAN9/lib/$LIB
+
+testfmt: testfmt.$O $XLIB
+	$LD -o $target testfmt.$O
+
+testfltfmt: testfltfmt.$O $XLIB
+	$LD -o $target testfltfmt.$O
+
+testprint: testprint.$O $XLIB
+	$LD -o $target testprint.$O
+
+# debugging only - should go away (5/22/2006)
+testgoogfmt: testfltfmt.$O googfmt.$O $XLIB
+	$LD -o $target testfltfmt.$O googfmt.$O
+
+testgoogprint: testprint.$O googfmt.$O $XLIB
+	$LD -o $target testprint.$O googfmt.$O
+

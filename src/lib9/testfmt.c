@@ -44,13 +44,31 @@ mysmprint(char *fmt, ...)
 	return fmtstrflush(&f);
 }
 
+double near1[] = {
+	0.5,
+	0.95,
+	0.995,
+	0.9995,
+	0.99995,
+	0.999995,
+	0.9999995,
+	0.99999995,
+	0.999999995,
+};
 
 void
 main(int argc, char **argv)
 {
+	int i, j;
+
 	quotefmtinstall();
 	fmtinstall('Z', Zflag);
 	fmtinstall(L'\x263a', Zflag);
+#ifdef PLAN9PORT
+{ extern int __ifmt(Fmt*);
+	fmtinstall('i', __ifmt);
+}
+#endif
 
 	verify(smprint("hello world"), "hello world");
 #ifdef PLAN9PORT
@@ -72,6 +90,21 @@ main(int argc, char **argv)
 	verify(smprint("%d", 23), "23");
 	verify(smprint("%i", 23), "23");
 	verify(smprint("%Zi", 1234, 23), "23");
+	
+	/* ANSI and their wacky corner cases */
+	verify(smprint("%.0d", 0), "");
+	verify(smprint("%.0o", 0), "");
+	verify(smprint("%.0x", 0), "");
+	verify(smprint("%#.0o", 0), "0");
+	verify(smprint("%#.0x", 0), "");
+	
+	/* difficult floating point tests that many libraries get wrong */
+	verify(smprint("%.100f", 1.0), "1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+	verify(smprint("%.100g", 1.0), "1");
+	verify(smprint("%0100f", 1.0), "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001.000000");
+	for(i=1; i<9; i++)
+		for(j=0; j<=i; j++)
+			verify(smprint("%.*g", j, near1[i]), "1");
 
 	/* test $ reorderings */
 	verify(smprint("%3$d %4$06d %2$d %1$d", 444, 333, 111, 222), "111 000222 333 444");
@@ -107,6 +140,7 @@ main(int argc, char **argv)
 #endif
 	verify(mysmprint("%'lld %'lld %'lld", 1LL, 222222222LL, 3333333333333LL), "1 222\xe2\x98\xbb""222\xe2\x98\xbb""22\xe2\x98\xbb""2 333\xe2\x98\xbb""3333\xe2\x98\xbb""333\xe2\x98\xbb""33\xe2\x98\xbb""3");
 	verify(mysmprint("%'llx %'llX %'llb", 0x111111111111LL, 0xabcd12345678LL, 112342345LL), "1111:1111:1111 ABCD:1234:5678 110:1011:0010:0011:0101:0100:1001");
+	verify(mysmprint("%.4f", 3.14159), "3\xe2\x98\xba""1416");
 
 	if(failed)
 		sysfatal("tests failed");

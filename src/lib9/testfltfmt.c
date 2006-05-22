@@ -58,7 +58,13 @@ static int
 numclose(char *num1, char *num2)
 {
 	int ndig;
+	double d1, d2;
 	enum { MAXDIG = 15 };
+
+	d1 = fmtstrtod(num1, 0);
+	d2 = fmtstrtod(num2, 0);
+	if(d1 != d2)
+		return 0;
 
 	ndig = 0;
 	while (*num1) {
@@ -126,24 +132,35 @@ doit(int just, int plus, int alt, int zero, int width, int prec, int spec)
 	*p = '\0';
 
 	for (i = 0; i < sizeof(fmtvals) / sizeof(fmtvals[0]); i++) {
-		char ref[256], buf[256];
-		Rune rbuf[256];
+		char ref[1024], buf[1024];
+		Rune rbuf[1024];
+		double d1, d2;
 
 		sprintf(ref, format, fmtvals[i]);
 		snprint(buf, sizeof(buf), format, fmtvals[i]);
 		if (strcmp(ref, buf) != 0
 		&& !numclose(ref, buf)) {
-			fprintf(stderr, "%s: ref='%s' fmt='%s'\n", format, ref, buf);
-			exit(1);
+			d1 = fmtstrtod(ref, 0);
+			d2 = fmtstrtod(buf, 0);
+			fprintf(stderr, "%s: ref='%s'%s fmt='%s'%s\n", 
+				format, 
+				ref, d1==fmtvals[i] ? "" : " (ref is inexact!)", 
+				buf, d2==fmtvals[i] ? "" : " (fmt is inexact!)");
+		//	exits("oops");
 		}
 
 		/* Check again with output to rune string */
-		runesnprint(rbuf, 256, format, fmtvals[i]);
+		runesnprint(rbuf, 1024, format, fmtvals[i]);
 		snprint(buf, sizeof(buf), "%S", rbuf);
 		if (strcmp(ref, buf) != 0
 		&& !numclose(ref, buf)) {
-			fprintf(stderr, "%s: rune ref='%s' fmt='%s'\n", format, ref, buf);
-			exits("oops");
+			d1 = fmtstrtod(ref, 0);
+			d2 = fmtstrtod(buf, 0);
+			fprintf(stderr, "%s: ref='%s'%s fmt='%s'%s\n", 
+				format, 
+				ref, d1==fmtvals[i] ? "" : " (ref is inexact!)", 
+				buf, d2==fmtvals[i] ? "" : " (fmt is inexact!)");
+		//	exits("oops");
 		}
 	}
 }
