@@ -1,4 +1,6 @@
 /* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
+/* Copyright (c) 2004 Google Inc.; see LICENSE */
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <utf.h>

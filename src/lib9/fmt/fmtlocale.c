@@ -1,11 +1,10 @@
-/* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
+/* Copyright (c) 2004 Google Inc.; see LICENSE */
+
 #include <stdarg.h>
 #include <string.h>
 #include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
-
-/* XXX GOOGLE COPYRIGHT */
 
 /*
  * Fill in the internationalization stuff in the State structure.
@@ -35,7 +34,7 @@ fmtlocaleinit(Fmt *f, char *decimal, char *thousands, char *grouping)
  * and pointer into the grouping descriptor.
  */
 int
-__needsep(int *ndig, const char **grouping)
+__needsep(int *ndig, char **grouping)
 {
 	int group;
 	

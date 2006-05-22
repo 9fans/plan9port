@@ -1,4 +1,6 @@
 /* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
+/* Copyright (c) 2004 Google Inc.; see LICENSE */
+
 #include <stdarg.h>
 #include <string.h>
 #include "plan9.h"
@@ -454,11 +456,26 @@ __ifmt(Fmt *f)
 		}
 	}
 	if(n == 0){
-		*p-- = '0';
-		n = 1;
-		if(fl & FmtApost)
-			__needsep(&ndig, &grouping);
-		fl &= ~FmtSharp;	/* ??? */
+		/*
+		 * "The result of converting a zero value with
+		 * a precision of zero is no characters."  - ANSI
+		 *
+		 * "For o conversion, # increases the precision, if and only if
+		 * necessary, to force the first digit of the result to be a zero
+		 * (if the value and precision are both 0, a single 0 is printed)." - ANSI
+		 */
+		if(!(fl & FmtPrec) || f->prec != 0 || (f->r == 'o' && (fl & FmtSharp))){
+			*p-- = '0';
+			n = 1;
+			if(fl & FmtApost)
+				__needsep(&ndig, &grouping);
+		}
+		
+		/*
+		 * Zero values don't get 0x.
+		 */
+		if(f->r == 'x' || f->r == 'X')
+			fl &= ~FmtSharp;
 	}
 	for(w = f->prec; n < w && p > buf+3; n++){
 		if((fl & FmtApost) && __needsep(&ndig, &grouping)){

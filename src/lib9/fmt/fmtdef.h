@@ -41,6 +41,7 @@ void         __fmtunlock(void);
 int          __ifmt(Fmt *f);
 int          __isInf(double d, int sign);
 int          __isNaN(double d);
+int          __needsep(int*, char**);
 int          __needsquotes(char *s, int *quotelenp);
 int          __percentfmt(Fmt *f);
 void         __quotesetup(char *s, Rune *r, int nin, int nout, Quoteinfo *q, int sharp, int runesout);
