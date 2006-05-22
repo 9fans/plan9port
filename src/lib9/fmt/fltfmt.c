@@ -6,11 +6,12 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <stdarg.h>
-#include <ctype.h>
 #include <fmt.h>
+#include <assert.h>
 #include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
+#include "nan.h"
 
 enum
 {
@@ -42,8 +43,8 @@ static double pows10[] =
 	1e140, 1e141, 1e142, 1e143, 1e144, 1e145, 1e146, 1e147, 1e148, 1e149, 
 	1e150, 1e151, 1e152, 1e153, 1e154, 1e155, 1e156, 1e157, 1e158, 1e159, 
 };
-
-#define  pow10(x)  fmtpow10(x)
+#define	npows10 ((int)(sizeof(pows10)/sizeof(pows10[0])))
+#define	pow10(x)  fmtpow10(x)
 
 static double
 pow10(int n)
@@ -53,330 +54,615 @@ pow10(int n)
 
 	neg = 0;
 	if(n < 0){
-		if(n < DBL_MIN_10_EXP){
+		if(n < DBL_MIN_10_EXP)
 			return 0.;
-		}
 		neg = 1;
 		n = -n;
-	}else if(n > DBL_MAX_10_EXP){
+	}else if(n > DBL_MAX_10_EXP)
 		return HUGE_VAL;
-	}
-	if(n < (int)(sizeof(pows10)/sizeof(pows10[0])))
+
+	if(n < npows10)
 		d = pows10[n];
 	else{
-		d = pows10[sizeof(pows10)/sizeof(pows10[0]) - 1];
+		d = pows10[npows10-1];
 		for(;;){
-			n -= sizeof(pows10)/sizeof(pows10[0]) - 1;
-			if(n < (int)(sizeof(pows10)/sizeof(pows10[0]))){
+			n -= npows10 - 1;
+			if(n < npows10){
 				d *= pows10[n];
 				break;
 			}
-			d *= pows10[sizeof(pows10)/sizeof(pows10[0]) - 1];
+			d *= pows10[npows10 - 1];
 		}
 	}
-	if(neg){
+	if(neg)
 		return 1./d;
-	}
 	return d;
 }
 
+/*
+ * add 1 to the decimal integer string a of length n.
+ * if 99999 overflows into 10000, return 1 to tell caller
+ * to move the virtual decimal point.
+ */
 static int
-xadd(char *a, int n, int v)
+xadd1(char *a, int n)
 {
 	char *b;
 	int c;
 
-	if(n < 0 || n >= NSIGNIF)
+	if(n < 0 || n > NSIGNIF)
 		return 0;
-	for(b = a+n; b >= a; b--) {
-		c = *b + v;
+	for(b = a+n-1; b >= a; b--) {
+		c = *b + 1;
 		if(c <= '9') {
 			*b = c;
 			return 0;
 		}
 		*b = '0';
-		v = 1;
 	}
-	*a = '1';	/* overflow adding */
+	/*
+	 * need to overflow adding digit.
+	 * shift number down and insert 1 at beginning.
+	 * decimal is known to be 0s or we wouldn't
+	 * have gotten this far.  (e.g., 99999+1 => 00000)
+	 */
+	a[0] = '1';
 	return 1;
 }
 
+/*
+ * subtract 1 from the decimal integer string a.
+ * if 10000 underflows into 09999, make it 99999
+ * and return 1 to tell caller to move the virtual 
+ * decimal point.  this way, xsub1 is inverse of xadd1.
+ */
 static int
-xsub(char *a, int n, int v)
+xsub1(char *a, int n)
 {
 	char *b;
 	int c;
 
-	for(b = a+n; b >= a; b--) {
-		c = *b - v;
+	if(n < 0 || n > NSIGNIF)
+		return 0;
+	for(b = a+n-1; b >= a; b--) {
+		c = *b - 1;
 		if(c >= '0') {
+			if(c == '0' && b == a) {
+				/*
+				 * just zeroed the top digit; shift everyone up.
+				 * decimal is known to be 9s or we wouldn't
+				 * have gotten this far.  (e.g., 10000-1 => 09999)
+				 */
+				*b = '9';
+				return 1;
+			}
 			*b = c;
 			return 0;
 		}
 		*b = '9';
-		v = 1;
 	}
-	*a = '9';	/* underflow subtracting */
-	return 1;
+	/*
+	 * can't get here.  the number a is always normalized
+	 * so that it has a nonzero first digit.
+	 */
+	abort();
 }
 
+/*
+ * format exponent like sprintf(p, "e%+02d", e)
+ */
 static void
-xdtoa(Fmt *fmt, char *s2, double f)
+xfmtexp(char *p, int e, int ucase)
 {
-	char s1[NSIGNIF+10];
-	double g, h;
-	int e, d, i, n;
-	int c1, c2, c3, c4, ucase, sign, chr, prec;
+	char se[9];
+	int i;
 
-	prec = FDEFLT;
-	if(fmt->flags & FmtPrec)
-		prec = fmt->prec;
-	if(prec > FDIGIT)
-		prec = FDIGIT;
-	if(__isNaN(f)) {
-		strcpy(s2, "NaN");
-		return;
+	*p++ = ucase ? 'E' : 'e';
+	if(e < 0) {
+		*p++ = '-';
+		e = -e;
+	} else
+		*p++ = '+';
+	i = 0;
+	while(e) {
+		se[i++] = e % 10 + '0';
+		e /= 10;
 	}
-	if(__isInf(f, 1)) {
-		strcpy(s2, "+Inf");
-		return;
-	}
-	if(__isInf(f, -1)) {
-		strcpy(s2, "-Inf");
-		return;
-	}
-	sign = 0;
+	while(i < 2)
+		se[i++] = '0';
+	while(i > 0)
+		*p++ = se[--i];
+	*p++ = '\0';
+}
+
+/*
+ * compute decimal integer m, exp such that:
+ *	f = m*10^exp
+ *	m is as short as possible with losing exactness
+ * assumes special cases (NaN, +Inf, -Inf) have been handled.
+ */
+static void
+xdtoa(double f, char *s, int *exp, int *neg, int *ns)
+{
+	int c, d, e2, e, ee, i, ndigit, oerrno;
+	char tmp[NSIGNIF+10];
+	double g;
+
+	oerrno = errno; /* in case strtod smashes errno */
+
+	/*
+	 * make f non-negative.
+	 */
+	*neg = 0;
 	if(f < 0) {
 		f = -f;
-		sign++;
-	}
-	ucase = 0;
-	chr = fmt->r;
-	if(isupper(chr)) {
-		ucase = 1;
-		chr = tolower(chr);
-	}
-
-	e = 0;
-	g = f;
-	if(g != 0) {
-		frexp(f, &e);
-		e = e * .301029995664;
-		if(e >= -150 && e <= +150) {
-			d = 0;
-			h = f;
-		} else {
-			d = e/2;
-			h = f * pow10(-d);
-		}
-		g = h * pow10(d-e);
-		while(g < 1) {
-			e--;
-			g = h * pow10(d-e);
-		}
-		while(g >= 10) {
-			e++;
-			g = h * pow10(d-e);
-		}
+		*neg = 1;
 	}
 
 	/*
-	 * convert NSIGNIF digits and convert
-	 * back to get accuracy.
+	 * must handle zero specially.
+	 */
+	if(f == 0){
+		*exp = 0;
+		s[0] = '0';
+		s[1] = '\0';
+		*ns = 1;
+		return;
+	}
+		
+	/*
+	 * find g,e such that f = g*10^e.
+	 * guess 10-exponent using 2-exponent, then fine tune.
+	 */
+	frexp(f, &e2);
+	e = (int)(e2 * .301029995664);
+	g = f * pow10(-e);
+	while(g < 1) {
+		e--;
+		g = f * pow10(-e);
+	}
+	while(g >= 10) {
+		e++;
+		g = f * pow10(-e);
+	}
+
+	/*
+	 * convert NSIGNIF digits as a first approximation.
 	 */
 	for(i=0; i<NSIGNIF; i++) {
-		d = g;
-		s1[i] = d + '0';
-		g = (g - d) * 10;
+		d = (int)g;
+		s[i] = d+'0';
+		g = (g-d) * 10;
 	}
-	s1[i] = 0;
+	s[i] = 0;
 
 	/*
-	 * try decimal rounding to eliminate 9s
+	 * adjust e because s is 314159... not 3.14159...
 	 */
-	c2 = prec + 1;
-	if(chr == 'f')
-		c2 += e;
-	if(c2 >= NSIGNIF-2) {
-		strcpy(s2, s1);
-		d = e;
-		s1[NSIGNIF-2] = '0';
-		s1[NSIGNIF-1] = '0';
-		sprint(s1+NSIGNIF, "e%d", e-NSIGNIF+1);
-		g = strtod(s1, nil);
-		if(g == f)
-			goto found;
-		if(xadd(s1, NSIGNIF-3, 1)) {
-			e++;
-			sprint(s1+NSIGNIF, "e%d", e-NSIGNIF+1);
-		}
-		g = strtod(s1, nil);
-		if(g == f)
-			goto found;
-		strcpy(s1, s2);
-		e = d;
-	}
+	e -= NSIGNIF-1;
+	xfmtexp(s+NSIGNIF, e, 0);
 
 	/*
-	 * convert back so s1 gets exact answer
+	 * adjust conversion until strtod(s) == f exactly.
 	 */
-	for(;;) {
-		sprint(s1+NSIGNIF, "e%d", e-NSIGNIF+1);
-		g = strtod(s1, nil);
+	for(i=0; i<10; i++) {
+		g = strtod(s, nil);
 		if(f > g) {
-			if(xadd(s1, NSIGNIF-1, 1))
+			if(xadd1(s, NSIGNIF)) {
+				/* gained a digit */
 				e--;
+				xfmtexp(s+NSIGNIF, e, 0);
+			}
 			continue;
 		}
 		if(f < g) {
-			if(xsub(s1, NSIGNIF-1, 1))
+			if(xsub1(s, NSIGNIF)) {
+				/* lost a digit */
 				e++;
+				xfmtexp(s+NSIGNIF, e, 0);
+			}
 			continue;
 		}
 		break;
 	}
 
-found:
 	/*
-	 * sign
+	 * play with the decimal to try to simplify.
 	 */
-	d = 0;
-	i = 0;
-	if(sign)
-		s2[d++] = '-';
-	else if(fmt->flags & FmtSign)
-		s2[d++] = '+';
-	else if(fmt->flags & FmtSpace)
-		s2[d++] = ' ';
 
 	/*
-	 * copy into final place
-	 * c1 digits of leading '0'
-	 * c2 digits from conversion
-	 * c3 digits of trailing '0'
-	 * c4 digits after '.'
+	 * bump last few digits up to 9 if we can
 	 */
-	c1 = 0;
-	c2 = prec + 1;
-	c3 = 0;
-	c4 = prec;
-	switch(chr) {
-	default:
-		if(xadd(s1, c2, 5))
-			e++;
-		break;
-	case 'g':
-		/*
-		 * decide on 'e' of 'f' style convers
-		 */
-		if(xadd(s1, c2, 5))
-			e++;
-		if(e >= -5 && e <= prec) {
-			c1 = -e - 1;
-			c4 = prec - e;
-			chr = 'h';	/* flag for 'f' style */
-		}
-		break;
-	case 'f':
-		if(xadd(s1, c2+e, 5))
-			e++;
-		c1 = -e;
-		if(c1 > prec)
-			c1 = c2;
-		c2 += e;
-		break;
-	}
-
-	/*
-	 * clean up c1 c2 and c3
-	 */
-	if(c1 < 0)
-		c1 = 0;
-	if(c2 < 0)
-		c2 = 0;
-	if(c2 > NSIGNIF) {
-		c3 = c2-NSIGNIF;
-		c2 = NSIGNIF;
-	}
-
-	/*
-	 * copy digits
-	 */
-	while(c1 > 0) {
-		if(c1+c2+c3 == c4)
-			s2[d++] = '.';
-		s2[d++] = '0';
-		c1--;
-	}
-	while(c2 > 0) {
-		if(c2+c3 == c4)
-			s2[d++] = '.';
-		s2[d++] = s1[i++];
-		c2--;
-	}
-	while(c3 > 0) {
-		if(c3 == c4)
-			s2[d++] = '.';
-		s2[d++] = '0';
-		c3--;
-	}
-
-	/*
-	 * strip trailing '0' on g conv
-	 */
-	if(fmt->flags & FmtSharp) {
-		if(0 == c4)
-			s2[d++] = '.';
-	} else
-	if(chr == 'g' || chr == 'h') {
-		for(n=d-1; n>=0; n--)
-			if(s2[n] != '0')
-				break;
-		for(i=n; i>=0; i--)
-			if(s2[i] == '.') {
-				d = n;
-				if(i != n)
-					d++;
+	for(i=NSIGNIF-1; i>=NSIGNIF-3; i--) {
+		c = s[i];
+		if(c != '9') {
+			s[i] = '9';
+			g = strtod(s, nil);
+			if(g != f) {
+				s[i] = c;
 				break;
 			}
-	}
-	if(chr == 'e' || chr == 'g') {
-		if(ucase)
-			s2[d++] = 'E';
-		else
-			s2[d++] = 'e';
-		c1 = e;
-		if(c1 < 0) {
-			s2[d++] = '-';
-			c1 = -c1;
-		} else
-			s2[d++] = '+';
-		if(c1 >= 100) {
-			s2[d++] = c1/100 + '0';
-			c1 = c1%100;
 		}
-		s2[d++] = c1/10 + '0';
-		s2[d++] = c1%10 + '0';
 	}
-	s2[d] = 0;
+
+	/*
+	 * add 1 in hopes of turning 9s to 0s
+	 */
+	if(s[NSIGNIF-1] == '9') {
+		strcpy(tmp, s);
+		ee = e;
+		if(xadd1(tmp, NSIGNIF)) {
+			ee--;
+			xfmtexp(tmp+NSIGNIF, ee, 0);
+		}
+		g = strtod(tmp, nil);
+		if(g == f) {
+			strcpy(s, tmp);
+			e = ee;
+		}
+	}
+	
+	/*
+	 * bump last few digits down to 0 as we can.
+	 */
+	for(i=NSIGNIF-1; i>=NSIGNIF-3; i--) {
+		c = s[i];
+		if(c != '0') {
+			s[i] = '0';
+			g = strtod(s, nil);
+			if(g != f) {
+				s[i] = c;
+				break;
+			}
+		}
+	}
+
+	/*
+	 * remove trailing zeros.
+	 */
+	ndigit = NSIGNIF;
+	while(ndigit > 1 && s[ndigit-1] == '0'){
+		e++;
+		--ndigit;
+	}
+	s[ndigit] = 0;
+	*exp = e;
+	*ns = ndigit;
+	errno = oerrno;
 }
 
-static int
-floatfmt(Fmt *fmt, double f)
-{
-	char s[341];		/* precision+exponent+sign+'.'+null */
+#ifdef PLAN9PORT
+static char *special[] = { "NaN", "NaN", "+Inf", "+Inf", "-Inf", "-Inf" };
+#else
+static char *special[] = { "nan", "NAN", "inf", "INF", "-inf", "-INF" };
+#endif
 
-	xdtoa(fmt, s, f);
-	fmt->flags &= FmtWidth|FmtLeft;
-	__fmtcpy(fmt, s, strlen(s), strlen(s));
+int
+__efgfmt(Fmt *fmt)
+{
+	char buf[NSIGNIF+10], *dot, *digits, *p, *s, suf[10], *t;
+	double f;
+	int c, chr, dotwid, e, exp, fl, ndigits, neg, newndigits;
+	int pad, point, prec, realchr, sign, sufwid, ucase, wid, z1, z2;
+	Rune r, *rs, *rt;
+	
+	f = va_arg(fmt->args, double);
+	
+	/* 
+	 * extract formatting flags
+	 */
+	fl = fmt->flags;
+	fmt->flags = 0;
+	prec = FDEFLT;
+	if(fl & FmtPrec)
+		prec = fmt->prec;
+	chr = fmt->r;
+	ucase = 0;
+	switch(chr) {
+	case 'A':
+	case 'E':
+	case 'F':
+	case 'G':
+		chr += 'a'-'A';
+		ucase = 1;
+		break;
+	}
+
+	/*
+	 * pick off special numbers.
+	 */
+	if(__isNaN(f)) {
+		s = special[0+ucase];
+	special:
+		fmt->flags = fl & (FmtWidth|FmtLeft);
+		return __fmtcpy(fmt, s, strlen(s), strlen(s));
+	}
+	if(__isInf(f, 1)) {
+		s = special[2+ucase];
+		goto special;
+	}
+	if(__isInf(f, -1)) {
+		s = special[4+ucase];
+		goto special;
+	}
+
+	/*
+	 * get exact representation.
+	 */
+	digits = buf;
+	xdtoa(f, digits, &exp, &neg, &ndigits);
+
+	/*
+	 * get locale's decimal point.
+	 */
+	dot = fmt->decimal;
+	if(dot == nil)
+		dot = ".";
+	dotwid = utflen(dot);
+
+	/*
+	 * now the formatting fun begins.
+	 * compute parameters for actual fmt:
+	 *
+	 *	pad: number of spaces to insert before/after field.
+	 *	z1: number of zeros to insert before digits
+	 *	z2: number of zeros to insert after digits
+	 *	point: number of digits to print before decimal point
+	 *	ndigits: number of digits to use from digits[]
+	 *	suf: trailing suffix, like "e-5"
+	 */
+	realchr = chr;
+	switch(chr){
+	case 'g':
+		/*
+		 * convert to at most prec significant digits. (prec=0 means 1)
+		 */
+		if(prec == 0)
+			prec = 1;
+		if(ndigits > prec) {
+			if(digits[prec] >= '5' && xadd1(digits, prec))
+				exp++;
+			exp += ndigits-prec;
+			ndigits = prec;
+		}
+		
+		/*
+		 * extra rules for %g (implemented below):
+		 *	trailing zeros removed after decimal unless FmtSharp.
+		 *	decimal point only if digit follows.
+		 */
+
+		/* fall through to %e */
+	default:
+	case 'e':
+		/* 
+		 * one significant digit before decimal, no leading zeros.
+		 */
+		point = 1;
+		z1 = 0;
+		
+		/*
+		 * decimal point is after ndigits digits right now.
+		 * slide to be after first.
+		 */
+		e  = exp + (ndigits-1);
+
+		/*
+		 * if this is %g, check exponent and convert prec
+		 */
+		if(realchr == 'g') {
+			if(-4 <= e && e < prec)
+				goto casef;
+			prec--;	/* one digit before decimal; rest after */
+		}
+
+		/*
+		 * compute trailing zero padding or truncate digits.
+		 */
+		if(1+prec >= ndigits)
+			z2 = 1+prec - ndigits;
+		else {
+			/*
+			 * truncate digits
+			 */
+			assert(realchr != 'g');
+			newndigits = 1+prec;
+			if(digits[newndigits] >= '5' && xadd1(digits, newndigits)) {
+				/*
+				 * had 999e4, now have 100e5
+				 */
+				e++;
+			}
+			ndigits = newndigits;
+			z2 = 0;
+		}
+		xfmtexp(suf, e, ucase);
+		sufwid = strlen(suf);
+		break;
+
+	casef:
+	case 'f':
+		/*
+		 * determine where digits go with respect to decimal point
+		 */
+		if(ndigits+exp > 0) {
+			point = ndigits+exp;
+			z1 = 0;
+		} else {
+			point = 1;
+			z1 = 1 + -(ndigits+exp);
+		}
+
+		/*
+		 * %g specifies prec = number of significant digits
+		 * convert to number of digits after decimal point
+		 */
+		if(realchr == 'g')
+			prec += z1 - point;
+
+		/*
+		 * compute trailing zero padding or truncate digits.
+		 */
+		if(point+prec >= z1+ndigits)
+			z2 = point+prec - (z1+ndigits);
+		else {
+			/*
+			 * truncate digits
+			 */
+			assert(realchr != 'g');
+			newndigits = point+prec - z1;
+			if(newndigits < 0) {
+				z1 += newndigits;
+				newndigits = 0;
+			} else if(newndigits == 0) {
+				/* perhaps round up */
+				if(digits[0] >= '5'){
+					digits[0] = '1';
+					newndigits = 1;
+					goto newdigit;
+				}
+			} else if(digits[newndigits] >= '5' && xadd1(digits, newndigits)) {
+				/*
+				 * digits was 999, is now 100; make it 1000
+				 */
+				digits[newndigits++] = '0';
+			newdigit:
+				/*
+				 * account for new digit
+				 */
+				if(z1)	/* 0.099 => 0.100 or 0.99 => 1.00*/
+					z1--;
+				else	/* 9.99 => 10.00 */
+					point++;
+			}
+			z2 = 0;
+			ndigits = newndigits;
+		}	
+		sufwid = 0;
+		break;
+	}
+	
+	/*
+	 * if %g is given without FmtSharp, remove trailing zeros.
+	 * must do after truncation, so that e.g. print %.3g 1.001
+	 * produces 1, not 1.00.  sorry, but them's the rules.
+	 */
+	if(realchr == 'g' && !(fl & FmtSharp)) {
+		if(z1+ndigits+z2 >= point) {
+			if(z1+ndigits < point)
+				z2 = point - (z1+ndigits);
+			else{
+				z2 = 0;
+				while(z1+ndigits > point && digits[ndigits-1] == '0')
+					ndigits--;
+			}
+		}
+	}
+
+	/*
+	 * compute width of all digits and decimal point and suffix if any
+	 */
+	wid = z1+ndigits+z2;
+	if(wid > point)
+		wid += dotwid;
+	else if(wid == point){
+		if(fl & FmtSharp)
+			wid += dotwid;
+		else
+			point++;	/* do not print any decimal point */
+	}
+	wid += sufwid;
+
+	/*
+	 * determine sign
+	 */
+	sign = 0;
+	if(neg)
+		sign = '-';
+	else if(fl & FmtSign)
+		sign = '+';
+	else if(fl & FmtSpace)
+		sign = ' ';
+	if(sign)
+		wid++;
+
+	/*
+	 * compute padding
+	 */
+	pad = 0;
+	if((fl & FmtWidth) && fmt->width > wid)
+		pad = fmt->width - wid;
+	if(pad && !(fl & FmtLeft) && (fl & FmtZero)){
+		z1 += pad;
+		point += pad;
+		pad = 0;
+	}
+
+	/*
+	 * format the actual field.  too bad about doing this twice.
+	 */
+	if(fmt->runes){
+		if(pad && !(fl & FmtLeft) && __rfmtpad(fmt, pad) < 0)
+			return -1;
+		rt = (Rune*)fmt->to;
+		rs = (Rune*)fmt->stop;
+		if(sign)
+			FMTRCHAR(fmt, rt, rs, sign);
+		while(z1>0 || ndigits>0 || z2>0) {
+			if(z1 > 0){
+				z1--;
+				c = '0';
+			}else if(ndigits > 0){
+				ndigits--;
+				c = *digits++;
+			}else if(z2 > 0){
+				z2--;
+				c = '0';
+			}
+			FMTRCHAR(fmt, rt, rs, c);
+			if(--point == 0) {
+				for(p = dot; *p; ){
+					p += chartorune(&r, p);
+					FMTRCHAR(fmt, rt, rs, r);
+				}
+			}
+		}
+		fmt->nfmt += rt - (Rune*)fmt->to;
+		fmt->to = rt;
+		if(sufwid && __fmtcpy(fmt, suf, sufwid, sufwid) < 0)
+			return -1;
+		if(pad && (fl & FmtLeft) && __rfmtpad(fmt, pad) < 0)
+			return -1;
+	}else{
+		if(pad && !(fl & FmtLeft) && __fmtpad(fmt, pad) < 0)
+			return -1;
+		t = (char*)fmt->to;
+		s = (char*)fmt->stop;
+		if(sign)
+			FMTCHAR(fmt, t, s, sign);
+		while(z1>0 || ndigits>0 || z2>0) {
+			if(z1 > 0){
+				z1--;
+				c = '0';
+			}else if(ndigits > 0){
+				ndigits--;
+				c = *digits++;
+			}else if(z2 > 0){
+				z2--;
+				c = '0';
+			}
+			FMTCHAR(fmt, t, s, c);
+			if(--point == 0)
+				for(p=dot; *p; p++)
+					FMTCHAR(fmt, t, s, *p);
+		}
+		fmt->nfmt += t - (char*)fmt->to;
+		fmt->to = t;
+		if(sufwid && __fmtcpy(fmt, suf, sufwid, sufwid) < 0)
+			return -1;
+		if(pad && (fl & FmtLeft) && __fmtpad(fmt, pad) < 0)
+			return -1;
+	}
 	return 0;
 }
 
-int
-__efgfmt(Fmt *f)
-{
-	double d;
-
-	d = va_arg(f->args, double);
-	return floatfmt(f, d);
-}
