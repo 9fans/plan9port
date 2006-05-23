@@ -549,6 +549,8 @@ drawfreedimage(DImage *dimage)
 	}
 	ds = dimage->dscreen;
 	l = dimage->image;
+	dimage->dscreen = nil;	/* paranoia */
+	dimage->image = nil;
 	if(ds){
 		if(l->data == screenimage->data)
 			addflush(l->layer->screenr);
@@ -599,23 +601,14 @@ static
 int
 drawuninstall(Client *client, int id)
 {
-	DImage *d, *next;
+	DImage *d, **l;
 
-	d = client->dimage[id&HASHMASK];
-	if(d == 0)
-		return -1;
-	if(d->id == id){
-		client->dimage[id&HASHMASK] = d->next;
-		drawfreedimage(d);
-		return 0;
-	}
-	while(next = d->next){	/* assign = */
-		if(next->id == id){
-			d->next = next->next;
-			drawfreedimage(next);
+	for(l=&client->dimage[id&HASHMASK]; (d=*l) != nil; l=&d->next){
+		if(d->id == id){
+			*l = d->next;
+			drawfreedimage(d);
 			return 0;
 		}
-		d = next;
 	}
 	return -1;
 }

@@ -154,6 +154,7 @@ getwindow(Display *d, int ref)
 	d->image = i;
 	/* fprint(2, "getwindow %p -> %p\n", oi, i); */
 
+	freescreen(_screen);
 	_screen = allocscreen(i, d->white, 0);
 	_freeimage1(screen);
 	screen = _allocwindow(screen, _screen, i->r, ref, DWhite);
@@ -550,7 +551,6 @@ xattach(char *label)
 	return _x.screenimage;
 
 err0:
-fprint(2, "%r\n");
 	/*
 	 * Should do a better job of cleaning up here.
 	 */
