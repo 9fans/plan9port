@@ -74,7 +74,7 @@ ismaildir(char *s)
 void
 threadmain(int argc, char *argv[])
 {
-	char *s, *name;
+	char *s, *srvname, *name;
 	char err[ERRMAX], *cmd;
 	int i, newdir;
 	Fmt fmt;
