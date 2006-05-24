@@ -6,6 +6,11 @@
 #pragma	varargck	type	"D"	double
 #endif
 
+#undef sun
+#define sun astrosun	/* not the machine! */
+#undef fmod
+#define fmod astrofmod	/* ours is always positive */
+
 typedef	struct	Obj1	Obj1;
 typedef	struct	Obj2	Obj2;
 typedef	struct	Obj3	Obj3;
@@ -202,8 +207,6 @@ extern	char*	skip(int);
 extern	double	solstice(int);
 extern	void	star(void);
 extern	void	stars(void);
-#undef sun
-#define sun astrosun	/* not the machine! */
 extern	void	sun(void);
 extern	double	sunel(double);
 extern	void	venus(void);
