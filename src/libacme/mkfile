@@ -1,0 +1,13 @@
+<$PLAN9/src/mkhdr
+
+LIB=libacme.a
+
+OFILES=\
+	acme.$O\
+
+HFILES=\
+	$PLAN9/include/acme.h\
+
+<$PLAN9/src/mksyslib
+
+
