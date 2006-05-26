@@ -96,7 +96,9 @@ echo cd `pwd`
 9c  -Ifmt fmt/fmt.c
 9c  -Ifmt fmt/fmtfd.c
 9c  -Ifmt fmt/fmtfdflush.c
+9c  -Ifmt fmt/fmtlocale.c
 9c  fmtlock2.c
+9c  -Ifmt fmt/fmtnull.c
 9c  -Ifmt fmt/fmtprint.c
 9c  -Ifmt fmt/fmtquote.c
 9c  -Ifmt fmt/fmtrune.c
@@ -144,7 +146,7 @@ echo cd `pwd`
 9c  utf/utfrrune.c
 9c  utf/utfrune.c
 9c  utf/utfutf.c
-9ar rvc $PLAN9/lib/lib9.a _exits.o _p9dialparse.o _p9dir.o announce.o argv0.o atexit.o atoi.o atol.o atoll.o atnotify.o await.o cistrcmp.o cistrncmp.o cistrstr.o cleanname.o convD2M.o convM2D.o convM2S.o convS2M.o create.o crypt.o ctime.o date.o dial.o dirfstat.o dirfwstat.o dirmodefmt.o dirread.o dirstat.o dirwstat.o dup.o encodefmt.o errstr.o exec.o execl.o exitcode.o fcallfmt.o get9root.o getcallerpc-$OBJTYPE.o getenv.o getfields.o getnetconn.o getns.o getuser.o getwd.o jmp.o lrand.o lnrand.o main.o malloc.o malloctag.o mallocz.o nan.o needsrcquote.o needstack.o netcrypt.o netmkaddr.o notify.o nrand.o nulldir.o open.o opentemp.o pipe.o post9p.o postnote.o qlock.o quote.o rand.o read9pmsg.o readcons.o readn.o rfork.o searchpath.o seek.o sendfd.o sleep.o strdup.o strecpy.o sysfatal.o syslog.o sysname.o time.o tokenize.o truerand.o u16.o u32.o u64.o unsharp.o wait.o waitpid.o dofmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlock2.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
+9ar rvc $PLAN9/lib/lib9.a _exits.o _p9dialparse.o _p9dir.o announce.o argv0.o atexit.o atoi.o atol.o atoll.o atnotify.o await.o cistrcmp.o cistrncmp.o cistrstr.o cleanname.o convD2M.o convM2D.o convM2S.o convS2M.o create.o crypt.o ctime.o date.o dial.o dirfstat.o dirfwstat.o dirmodefmt.o dirread.o dirstat.o dirwstat.o dup.o encodefmt.o errstr.o exec.o execl.o exitcode.o fcallfmt.o get9root.o getcallerpc-$OBJTYPE.o getenv.o getfields.o getnetconn.o getns.o getuser.o getwd.o jmp.o lrand.o lnrand.o main.o malloc.o malloctag.o mallocz.o nan.o needsrcquote.o needstack.o netcrypt.o netmkaddr.o notify.o nrand.o nulldir.o open.o opentemp.o pipe.o post9p.o postnote.o qlock.o quote.o rand.o read9pmsg.o readcons.o readn.o rfork.o searchpath.o seek.o sendfd.o sleep.o strdup.o strecpy.o sysfatal.o syslog.o sysname.o time.o tokenize.o truerand.o u16.o u32.o u64.o unsharp.o wait.o waitpid.o dofmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlocale.o fmtlock2.o fmtnull.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
 cd ..
 cd libbio
 echo cd `pwd`
