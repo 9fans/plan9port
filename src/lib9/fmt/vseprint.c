@@ -19,6 +19,7 @@ vseprint(char *buf, char *e, char *fmt, va_list args)
 	f.farg = nil;
 	f.nfmt = 0;
 	VA_COPY(f.args,args);
+	fmtlocaleinit(&f, nil, nil, nil);
 	dofmt(&f, fmt);
 	VA_END(f.args);
 	*(char*)f.to = '\0';

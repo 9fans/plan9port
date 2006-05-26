@@ -20,6 +20,7 @@ runevseprint(Rune *buf, Rune *e, char *fmt, va_list args)
 	f.farg = nil;
 	f.nfmt = 0;
 	VA_COPY(f.args,args);
+	fmtlocaleinit(&f, nil, nil, nil);
 	dofmt(&f, fmt);
 	VA_END(f.args);
 	*(Rune*)f.to = '\0';

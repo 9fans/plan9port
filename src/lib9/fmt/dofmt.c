@@ -252,9 +252,17 @@ fmtstrcpy(Fmt *f, char *s)
 		return __fmtcpy(f, "<nil>", 5, 5);
 	/* if precision is specified, make sure we don't wander off the end */
 	if(f->flags & FmtPrec){
+#ifdef PLAN9PORT
 		i = 0;
 		for(j=0; j<f->prec && s[i]; j++)
 			i += chartorune(&r, s+i);
+#else
+		/* ANSI requires precision in bytes, not Runes */
+		for(i=0; i<f->prec; i++)
+			if(s[i] == 0)
+				break;
+		j = utfnlen(s, i);	/* won't print partial at end */
+#endif
 		return __fmtcpy(f, s, j, i);
 	}
 	return __fmtcpy(f, s, utflen(s), strlen(s));
