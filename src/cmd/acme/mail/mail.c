@@ -13,6 +13,7 @@ char	*mailboxdir = nil;				/* nil == /mail/box/$user */
 char *fsname;						/* filesystem for mailboxdir/mboxname is at maildir/fsname */
 char	*user;
 char	*outgoing;
+char *srvname;
 
 Window	*wbox;
 Message	mbox;
@@ -74,7 +75,7 @@ ismaildir(char *s)
 void
 threadmain(int argc, char *argv[])
 {
-	char *s, *srvname, *name;
+	char *s, *name;
 	char err[ERRMAX], *cmd;
 	int i, newdir;
 	Fmt fmt;
