@@ -418,10 +418,8 @@ connthread(void *arg)
 				}
 				m->tx.afid = xafid;
 				m->tx.aname = xaname;
-				m->tx.uname = estrdup(m->tx.uname);
+				m->tx.uname = getuser();	/* what srv.c used */
 				repack(&m->tx, &m->tpkt, c->dotu);
-				free(m->tx.uname);
-				m->tx.uname = "XXX";
 			}
 			break;
 		case Twalk:
