@@ -34,7 +34,7 @@ fsfmtfidinit(Fmt *f, CFid *fid, char *buf, int size)
 	f->flush = fidflush;
 	f->farg = fid;
 	f->nfmt = 0;
-	fmtlocaleinit(&f, nil, nil, nil);
+	fmtlocaleinit(f, nil, nil, nil);
 	return 0;
 }
 
