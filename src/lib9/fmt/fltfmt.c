@@ -647,7 +647,7 @@ __efgfmt(Fmt *fmt)
 			}else if(ndigits > 0){
 				ndigits--;
 				c = *digits++;
-			}else if(z2 > 0){
+			}else{
 				z2--;
 				c = '0';
 			}
