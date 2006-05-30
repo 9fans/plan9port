@@ -17,6 +17,7 @@ dotz(void)
 
 	if(didtz)
 		return;
+	didtz = 1;
 	t = time(0);
 	strftime(tzone, sizeof tzone, "%Z", localtime(&t));
 	tm = *localtime(&t);	/* set local time zone field */
