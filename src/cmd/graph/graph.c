@@ -67,16 +67,29 @@ struct z {
 struct {
 	char *name;
 	int next;
-} palette[] = {
-	['b']	{ "blue", 'b' },
-	['c']	{ "cyan", 'c' },
-	['g']	{ "green", 'g' },
-	['k']	{ "kblack", 'k' },
-	['m']	{ "magenta", 'm' },
-	['r']	{ "red", 'r' },
-	['w']	{ "white", 'w' },
-	['y']	{ "yellow", 'y' }
+} palette[256];
+
+static char* colors[] = {
+	"blue",
+	"cyan",
+	"green",
+	"kblack",
+	"magenta",
+	"red",
+	"white",
+	"yellow"
 };
+static void
+initpalette(void)
+{
+	int i;
+	
+	for(i=0; i<nelem(colors); i++){
+		palette[(uchar)colors[i][0]].name = colors[i];
+		palette[(uchar)colors[i][0]].next = colors[i][0];
+	}
+}
+
 int pencolor = 'k';
 
 void init(struct xy *);
@@ -106,6 +119,7 @@ void axlab(char, struct xy *, char *);
 
 int main(int argc,char *argv[]){
 
+	initpalette();
 	openpl();
 	range(0,0,4096,4096);
 	init(&xd);
