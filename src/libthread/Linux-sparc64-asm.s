@@ -1,3 +1,6 @@
+! Actually sparc32 assembly. 
+! Debian's sparc64 port is a 32-bit user space.
+
 	.section	".text", #alloc, #execinstr
 	.align		8
 	.skip		16

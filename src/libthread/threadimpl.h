@@ -46,12 +46,21 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #endif
 
+#if defined(__sun__)
+#	define mcontext libthread_mcontext
+#	define mcontext_t libthread_mcontext_t
+#	define ucontext libthread_ucontext
+#	define ucontext_t libthread_ucontext_t
+#	include "sparc-ucontext.h"
+#endif
+
 #if defined(__arm__)
 int getmcontext(mcontext_t*);
 void setmcontext(const mcontext_t*);
 #define	setcontext(u)	setmcontext(&(u)->uc_mcontext)
 #define	getcontext(u)	getmcontext(&(u)->uc_mcontext)
 #endif
+
 
 typedef struct Context Context;
 typedef struct Execjob Execjob;
