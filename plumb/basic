@@ -58,7 +58,7 @@ data matches '[a-zA-Z¡-￿0-9_\-./]+'
 data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
 arg isfile	$0
 plumb to image
-plumb start page $file
+plumb start 9 page $file
 
 # postscript/pdf/dvi go to page but not over the a plumb port
 # the port is here for reference but is unused
@@ -67,7 +67,7 @@ data matches '[a-zA-Z¡-￿0-9_\-./]+'
 data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(ps|PS|eps|EPS|pdf|PDF|dvi|DVI)'
 arg isfile	$0
 plumb to postscript
-plumb start page $file
+plumb start 9 page $file
 
 # open office - s[xt][cdigmw], doc, xls, ppt
 data matches '[a-zA-Z¡-￿0-9_\-./]+'
@@ -137,9 +137,9 @@ plumb start rc -c 'man '$2' '$1' >[2=1] | nobs | plumb -i -d edit -a ''action=sh
 dst is image
 arg isfile $data
 plumb to image
-plumb start page $data
+plumb start 9 page $data
 
 # start rule for postscript without known suffixes
 dst is postscript
 arg isfile $data
-plumb start page $data
+plumb start 9 page $data
