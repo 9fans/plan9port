@@ -6,7 +6,7 @@ void
 fmtzbinit(Fmt *f, ZBlock *b)
 {
 	memset(f, 0, sizeof *f);
-	fmtlocaleinit(f);
+	fmtlocaleinit(f, nil, nil, nil);
 	f->start = b->data;
 	f->to = f->start;
 	f->stop = (char*)f->start + b->len;
