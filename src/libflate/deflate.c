@@ -80,9 +80,9 @@ enum
  * and might be faster on some machines
  */
 /*
-#define hashit(c)	(((ulong)(c) * 0x6b43a9) >> (24 - HashLog))
+#define hashit(c)	((u32int)((c) * 0x6b43a9) >> (24 - HashLog))
 */
-#define hashit(c)	(((((ulong)(c) & 0xffffff) * 0x6b43a9b5) >> (32 - HashLog)) & 0xFFFFFFFF)
+#define hashit(c)	((u32int)(((c) & 0xffffff) * 0x6b43a9b5) >> (32 - HashLog))
 
 /*
  * lempel-ziv style compression state
