@@ -77,6 +77,7 @@ disksize(int fd, int dev)
 #define _HAVESTGEN
 #endif
 
+int _p9usepwlibrary = 1;
 /*
  * Caching the last group and passwd looked up is
  * a significant win (stupidly enough) on most systems.
@@ -123,11 +124,11 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 	/* user */
 	if(p && st->st_uid == uid && p->pw_uid == uid)
 		;
-	else{
+	else if(_p9usepwlibrary){
 		p = getpwuid(st->st_uid);
 		uid = st->st_uid;
 	}
-	if(p == nil){
+	if(p == nil || st->st_uid != uid || p->pw_uid != uid){
 		snprint(tmp, sizeof tmp, "%d", (int)st->st_uid);
 		s = tmp;
 	}else
@@ -146,11 +147,11 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 	/* group */
 	if(g && st->st_gid == gid && g->gr_gid == gid)
 		;
-	else{
+	else if(_p9usepwlibrary){
 		g = getgrgid(st->st_gid);
 		gid = st->st_gid;
 	}
-	if(g == nil){
+	if(g == nil || st->st_gid != gid || g->gr_gid != gid){
 		snprint(tmp, sizeof tmp, "%d", (int)st->st_gid);
 		s = tmp;
 	}else
