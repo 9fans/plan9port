@@ -39,6 +39,11 @@ _threaddebug(char *fmt, ...)
 		snprint(buf, sizeof buf, "/tmp/%s.tlog", p);
 		if((fd = create(buf, OWRITE, 0666)) < 0)
 			fd = open("/dev/null", OWRITE);
+		if(fd >= 0 && fd != 2){
+			dup(fd, 2);
+			close(fd);
+			fd = 2;
+		}
 	}
 
 	va_start(arg, fmt);
@@ -331,6 +336,7 @@ Out:
 		threadexitsall(p->msg);
 	unlock(&threadnproclock);
 	unlock(&p->lock);
+	_threadsetproc(nil);
 	free(p);
 }
 
@@ -599,7 +605,7 @@ threadrwakeup(Rendez *r, int all, ulong pc)
 static int threadargc;
 static char **threadargv;
 int mainstacksize;
-
+extern int _p9usepwlibrary;	/* getgrgid etc. smash the stack - tell _p9dir just say no */
 static void
 threadmainstart(void *v)
 {
@@ -613,6 +619,7 @@ threadmainstart(void *v)
 	 * This means the pthread implementation is not suitable for
 	 * running under libthread.  Time to write your own.  Sorry.
 	 */
+	_p9usepwlibrary = 0;
 	threadmainproc = proc();
 	threadmain(threadargc, threadargv);
 }

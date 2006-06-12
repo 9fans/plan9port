@@ -378,7 +378,7 @@ myperproc(void)
 			break;
 		}
 	}
-	fprint(2, "myperproc %d: cannot find self\n", pid);
+	fprint(2, "myperproc %d (%s): cannot find self\n", pid, argv0);
 	abort();
 	return nil;
 }
