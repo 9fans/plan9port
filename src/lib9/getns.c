@@ -2,6 +2,17 @@
 #include <libc.h>
 #include <ctype.h>
 
+static int
+isme(char *uid)
+{
+	int n;
+	char *p;
+
+	n = strtol(uid, &p, 10);
+	if(*p == 0 && p > uid)
+		return n == getuid();
+	return strcmp(getuser(), uid) == 0;
+}
 /*
  * Absent other hints, it works reasonably well to use
  * the X11 display name as the name space identifier.
@@ -48,7 +59,7 @@ nsfromdisplay(void)
 		free(p);
 		return nil;
 	}
-	if((d->mode&0777) != 0700 || strcmp(d->uid, getuser()) != 0){
+	if((d->mode&0777) != 0700 || !isme(d->uid)){
 		werrstr("bad name space dir %s", p);
 		free(p);
 		free(d);
