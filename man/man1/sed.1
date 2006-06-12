@@ -4,10 +4,7 @@ sed \- stream editor
 .SH SYNOPSIS
 .B sed
 [
-.B -n
-]
-[
-.B -g
+.B -gln
 ]
 [
 .B -e
@@ -44,6 +41,11 @@ option suppresses the default output;
 .B -g
 causes all substitutions to be global, as if suffixed
 .BR g .
+The
+.B -l
+option causes
+.I sed
+to flush its output buffer after every newline.
 .PP
 A script consists of editing commands, one per line,
 of the following form:
