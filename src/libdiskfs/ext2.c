@@ -655,7 +655,7 @@ ext2readfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	uchar *data;
 	Block *b;
 	Ext2 *fs;
-	int off, want, fragcount;
+	int skip1, tot, want, fragcount;
 	Inode ino;
 	Nfs3Status ok;
 
@@ -674,34 +674,36 @@ ext2readfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	}
 	if(offset+count > ino.size)
 		count = ino.size-offset;
-	if(offset/fs->blocksize != (offset+count-1)/fs->blocksize)
-		count = fs->blocksize - offset%fs->blocksize;
 
 	data = malloc(count);
 	if(data == nil)
 		return Nfs3ErrNoMem;
+	memset(data, 0, count);
 
-	want = offset%fs->blocksize+count;
-	if(want%fs->blocksize)
-		want += fs->blocksize - want%fs->blocksize;
+	skip1 = offset%fs->blocksize;
+	offset -= skip1;
+	want = skip1+count;
 
-	b = ext2fileblock(fs, &ino, offset/fs->blocksize, want);
-	if(b == nil){
-		/* BUG: distinguish sparse file from I/O error */
-		memset(data, 0, count);
-	}else{
-		off = offset%fs->blocksize;
-		fragcount = count;	/* need signed variable */
-		if(off+fragcount > b->len){
-			fragcount = b->len - off;
-			if(fragcount < 0)
-				fragcount = 0;
-		}
-		if(fragcount > 0)
-			memmove(data, b->data+off, fragcount);
-		count = fragcount;
+	/*
+	 * have to read multiple blocks if we get asked for a big read.
+	 * Linux NFS client assumes that if you ask for 8k and only get 4k
+	 * back, the remaining 4k is zeros.
+	 */
+	for(tot=0; tot<want; tot+=fragcount){
+		b = ext2fileblock(fs, &ino, (offset+tot)/fs->blocksize, fs->blocksize);
+		fragcount = fs->blocksize;
+		if(b == nil)
+			continue;
+		if(tot+fragcount > want)
+			fragcount = want - tot;
+		if(tot == 0)
+			memmove(data, b->data+skip1, fragcount-skip1);
+		else
+			memmove(data+tot-skip1, b->data, fragcount);
 		blockput(b);
 	}
+	count = tot - skip1;
+
 	*peof = (offset+count == ino.size);
 	*pcount = count;
 	*pdata = data;
