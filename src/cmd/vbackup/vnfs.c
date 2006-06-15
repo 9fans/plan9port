@@ -207,12 +207,16 @@ unittoull(char *s)
  *
  * The decrypted handles begin with the following header:
  *
- *	rand[12]		random bytes used to make encryption non-deterministic
- *	len[4]		length of handle that follows
  *	sessid[8]		random session id chosen at start time
+ *	len[4]		length of handle that follows
  *
  * If we're pressed for space in the rest of the handle, we could
- * probably reduce the amount of randomness.
+ * probably reduce the amount of sessid bytes.  Note that the sessid
+ * bytes must be consistent during a run of vnfs, or else some 
+ * clients (e.g., Linux 2.4) eventually notice that successive TLookups
+ * return different handles, and they return "Stale NFS file handle"
+ * errors to system calls in response (even though we never sent
+ * that error!).
  *
  * Security woes aside, the fact that we have to shove everything
  * into the handles is quite annoying.  We have to encode, in 40 bytes:
@@ -231,9 +235,8 @@ unittoull(char *s)
 
 enum
 {
-	RandSize = 16,
 	SessidSize = 8,
-	HeaderSize = RandSize+SessidSize,
+	HeaderSize = SessidSize+4,
 	MaxHandleSize = Nfs3MaxHandleSize - HeaderSize
 };
 
@@ -269,16 +272,13 @@ hencrypt(Nfs3Handle *h)
 
 	p = h->h;
 	memmove(p+HeaderSize, p, h->len);
-	*(u32int*)p = fastrand();
-	*(u32int*)(p+4) = fastrand();
-	*(u32int*)(p+8) = fastrand();
-	*(u32int*)(p+12) = h->len;
-	memmove(p+16, sessid, SessidSize);
+	memmove(p, sessid, SessidSize);
+	*(u32int*)(p+SessidSize) = h->len;
 	h->len += HeaderSize;
 
 	if(encryptedhandles){
 		while(h->len < MaxHandleSize)
-			h->h[h->len++] = fastrand();
+			h->h[h->len++] = 0;
 		aes = aesstate;
 		aesCBCencrypt(h->h, MaxHandleSize, &aes);
 	}
@@ -305,9 +305,11 @@ hdecrypt(Nfs3Handle *h)
 		aes = aesstate;
 		aesCBCdecrypt(h->h, h->len, &aes);
 	}
-	if(memcmp(h->h+RandSize, sessid, sizeof sessid) != 0)
+	if(memcmp(h->h, sessid, SessidSize) != 0)
 		return Nfs3ErrStale;	/* give benefit of doubt */
-	h->len = *(u32int*)(h->h+12); /* XXX byte order */
+	h->len = *(u32int*)(h->h+SessidSize);
+	if(h->len >= MaxHandleSize-HeaderSize)
+		return Nfs3ErrBadHandle;
 	memmove(h->h, h->h+HeaderSize, h->len);
 	return Nfs3Ok;
 }
