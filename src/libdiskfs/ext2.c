@@ -88,7 +88,7 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	Group *g;
 	Block *gb;
 	uchar *bits;
-	u32int bno, boff;
+	u32int bno, boff, bitpos;
 	Ext2 *fs;
 
 	fs = fsys->priv;
@@ -115,11 +115,12 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	if(debug)
 		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock);
 */
+	bitpos = (u64int)g->bitblock*fs->blocksize;
+	blockput(gb);
 
-	if((bitb = diskread(fs->disk, fs->blocksize, (u64int)g->bitblock*fs->blocksize)) == nil){
+	if((bitb = diskread(fs->disk, fs->blocksize, bitpos)) == nil){
 		if(debug)
 			fprint(2, "loading bitblock: %r...");
-		blockput(gb);
 		return nil;
 	}
 	bits = bitb->data;
@@ -128,9 +129,9 @@ ext2blockread(Fsys *fsys, u64int vbno)
 		if(debug)
 			fprint(2, "block %d not allocated...", bno);
 		blockput(bitb);
-		blockput(gb);
 		return nil;
 	}
+	blockput(bitb);
 
 	bno += fs->firstblock;
 	return diskread(fs->disk, fs->blocksize, (u64int)bno*fs->blocksize);
