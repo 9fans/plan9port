@@ -88,7 +88,8 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	Group *g;
 	Block *gb;
 	uchar *bits;
-	u32int bno, boff, bitpos;
+	u32int bno, boff, bitblock;
+	u64int bitpos;
 	Ext2 *fs;
 
 	fs = fsys->priv;
@@ -113,9 +114,19 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	}
 /*
 	if(debug)
+		fprint(2, "ext2 group %d: bitblock=%ud inodebitblock=%ud inodeaddr=%ud freeblocks=%ud freeinodes=%ud useddirs=%ud\n",
+			(int)(bno/fs->blockspergroup),
+			g->bitblock,
+			g->inodebitblock,
+			g->inodeaddr,
+			g->freeblockscount,
+			g->freeinodescount,
+			g->useddirscount);
+	if(debug)
 		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock);
 */
-	bitpos = (u64int)g->bitblock*fs->blocksize;
+	bitblock = g->bitblock;
+	bitpos = (u64int)bitblock*fs->blocksize;
 	blockput(gb);
 
 	if((bitb = diskread(fs->disk, fs->blocksize, bitpos)) == nil){
@@ -127,7 +138,12 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	boff = bno%fs->blockspergroup;
 	if((bits[boff>>3] & (1<<(boff&7))) == 0){
 		if(debug)
-			fprint(2, "block %d not allocated...", bno);
+			fprint(2, "block %d not allocated in group %d: bitblock %d/%lld bits[%d] = %#x\n",
+				boff, bno/fs->blockspergroup, 
+				(int)bitblock,
+				bitpos,
+				boff>>3,
+				bits[boff>>3]);
 		blockput(bitb);
 		return nil;
 	}
