@@ -374,6 +374,8 @@ usage(void)
 	threadexitsall("usage");
 }
 
+extern int allowall;
+
 void
 threadmain(int argc, char **argv)
 {
@@ -382,6 +384,7 @@ threadmain(int argc, char **argv)
 	uchar score[VtScoreSize];
 	Nfs3Status ok;
 	
+	allowall = 1;
 	ARGBEGIN{
 	case 'V':
 		chattyventi++;
