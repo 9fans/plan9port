@@ -276,11 +276,15 @@ readfile(Column *c, char *s)
 {
 	Window *w;
 	Rune rb[256];
-	int nb, nr;
+	int nr;
 	Runestr rs;
 
 	w = coladd(c, nil, nil, -1);
-	cvttorunes(s, strlen(s), rb, &nb, &nr, nil);
+	if(s[0] != '/')
+		runesnprint(rb, sizeof rb, "%s/%s", wdir, s);
+	else
+		runesnprint(rb, sizeof rb, "%s", s);
+	nr = runestrlen(rb);
 	rs = cleanrname(runestr(rb, nr));
 	winsetname(w, rs.r, rs.nr);
 	textload(&w->body, 0, s, 1);

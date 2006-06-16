@@ -696,6 +696,7 @@ openfile(Text *t, Expand *e, int newwindow)
 	Window *w, *ow;
 	int eval, i, n;
 	Rune *rp;
+	Runestr rs;
 	uint dummy;
 
 	r.q0 = 0;
@@ -704,8 +705,29 @@ openfile(Text *t, Expand *e, int newwindow)
 		w = t->w;
 		if(w == nil)
 			return nil;
-	}else
+	}else{
 		w = lookfile(e->name, e->nname);
+		if(w == nil && e->name[0] != '/'){
+			/*
+			 * Unrooted path in new window.
+			 * This can happen if we type a pwd-relative path
+			 * in the topmost tag or the column tags.  
+			 * Most of the time plumber takes care of these,
+			 * but plumber might not be running or might not
+			 * be configured to accept plumbed directories.
+			 * Make the name a full path, just like we would if
+			 * opening via the plumber.
+			 */
+			n = utflen(wdir)+1+e->nname+1;
+			rp = runemalloc(n);
+			runesnprint(rp, n, "%s/%.*S", wdir, e->nname, e->name);
+			rs = cleanrname(runestr(rp, n-1));
+			free(e->name);
+			e->name = rs.r;
+			e->nname = rs.nr;
+			w = lookfile(e->name, e->nname);
+		}
+	}
 	if(w){
 		if(newwindow==TRUE && !w->isdir)
 			w = coladd(w->col, nil, w, -1);
