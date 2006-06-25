@@ -4,6 +4,6 @@ TARG=snarfer
 OFILES=
 HFILES=
 
-<|sh ../../libdraw/mkwsysrules.sh
+<|sh ../devdraw/mkwsysrules.sh
 <$PLAN9/src/mkmany
 
