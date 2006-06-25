@@ -12,7 +12,7 @@ enum
 };
 
 void
-muxthreads(Mux *mux)
+muxprocs(Mux *mux)
 {
 	proccreate(_muxrecvproc, mux, STACK);
 	qlock(&mux->lk);
