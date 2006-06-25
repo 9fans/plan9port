@@ -56,18 +56,18 @@ plumbunix()
 	# Other browsers here
 	# ...
 	*opera*)
-		$BROWSER -remote 'openURL('"$i"',new-page)'
+		$BROWSER -remote 'openURL('"$@"',new-page)'
 		;;
 	*firebird*)
-		$BROWSER -remote 'openURL('"$i"',new-window)'
+		$BROWSER -remote 'openURL('"$@"',new-window)'
 		;;
 	*firefox*)
-		$BROWSER -remote 'openURL('"$i"',new-tab)' ||
-		$BROWSER "$i"
+		$BROWSER -remote 'openURL('"$@"',new-tab)' ||
+		$BROWSER "$@"
 		;;
 	*mozilla*)
-		$BROWSER -remote 'openURL('"$i"',new-tab)' ||
-		$BROWSER "$i"
+		$BROWSER -remote 'openURL('"$@"',new-tab)' ||
+		$BROWSER "$@"
 		;;
 	esac
 }
@@ -89,17 +89,18 @@ if [ $# = 0 ]
 then
 	plumb1 about:blank
 else
-	for i
+	for i in "$@"
 	do
 		if [ -f "$i" ]
 		then
-			p=`pwd`
+			p=`pwd | sed 's/ /%20/g'`
 			i=`echo $i | sed 's/ /%20/g'`
-			i=`cleanname -d $p $i`
+			i=`cleanname -d "$p" "$i"`
 			i=file://$i
 		else
 			i=`echo $i | tr -d ' '`
 		fi
+		echo p "$i"
 		plumb1 $i
 	done
 fi
