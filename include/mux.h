@@ -12,11 +12,13 @@ typedef struct Muxqueue Muxqueue;
 
 struct Muxrpc
 {
+	Mux *mux;
 	Muxrpc *next;
 	Muxrpc *prev;
 	Rendez r;
 	uint tag;
 	void *p;
+	int waiting;
 };
 
 struct Mux
@@ -25,6 +27,7 @@ struct Mux
 	uint maxtag;
 	int (*send)(Mux*, void*);
 	void *(*recv)(Mux*);
+	void *(*nbrecv)(Mux*);
 	int (*gettag)(Mux*, void*);
 	int (*settag)(Mux*, void*, uint);
 	void *aux;	/* for private use by client */
@@ -41,17 +44,19 @@ struct Mux
 	uint mwait;
 	uint freetag;
 	Muxrpc **wait;
-	uint muxer;
+	Muxrpc *muxer;
 	Muxrpc sleep;
 };
 
 void	muxinit(Mux*);
 void*	muxrpc(Mux*, void*);
-void	muxthreads(Mux*);
+void	muxprocs(Mux*);
+Muxrpc*	muxrpcstart(Mux*, void*);
+void*	muxrpccanfinish(Muxrpc*);
 
 /* private */
 int	_muxsend(Mux*, void*);
-void*	_muxrecv(Mux*);
+void*	_muxrecv(Mux*, int);
 void	_muxsendproc(void*);
 void	_muxrecvproc(void*);
 Muxqueue *_muxqalloc(void);
