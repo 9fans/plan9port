@@ -1,0 +1,423 @@
+.TH ACME 3
+.SH NAME
+Event, Win,
+eventfmt,
+newwin,
+pipetowin,
+pipewinto,
+sysrun,
+winaddr,
+winclosefiles,
+winctl,
+windel,
+windeleteall,
+windows,
+wineventchan,
+winfd,
+winfree,
+winmread,
+winname,
+winopenfd,
+winprint,
+winread,
+winreadaddr,
+winreadevent,
+winseek,
+winwrite,
+winwriteevent \- acme client library
+.SH SYNOPSIS
+.ft L
+.nf
+#include <u.h>
+#include <libc.h>
+#include <thread.h>
+#include <9pclient.h>
+#include <acme.h>
+.fi
+.PP
+.ft L
+.ta +\w'\fLxxxx'u +\w'\fLxxxxx'u
+.nf
+struct Event
+{
+	int	c1;
+	int	c2;
+	int	q0;
+	int	q1;
+	int	oq0;
+	int	oq1;
+	int	flag;
+	int	nb;
+	int	nr;
+	char	text[];
+	char	arg[];
+	char	loc[];
+};
+.PP
+.ta +\w'\fLxxxxxxxxxx'u
+.B
+int	eventfmt(Fmt *fmt)
+.PP
+.B
+Win*	newwin(void)
+.PP
+.B
+Win*	openwin(int id, CFid *ctlfid)
+.PP
+.B
+int	pipetowin(Win *w, char *file, int fderr, char *fmt, ...)
+.PP
+.B
+int	pipewinto(Win *w, char *file, int fdout, char *fmt, ...)
+.PP
+.B
+char*	sysrun(char *fmt, ...)
+.PP
+.B
+int	winaddr(Win *w, char *fmt, ...)
+.PP
+.B
+void	winclosefiles(Win *w)
+.PP
+.B
+int	winctl(Win *w, char *fmt, ...)
+.PP
+.B
+int	windel(Win *w, int sure)
+.PP
+.B
+void	windeleteall(void)
+.PP
+.B
+Channel*	wineventchan(Win *w)
+.PP
+.B
+int	winfd(Win *w, char *name, int mode)
+.PP
+.B
+void	winfree(Win *w)
+.PP
+.B
+char*	winmread(Win *w, char *file)
+.PP
+.B
+int	winname(Win *w, char *fmt, ...)
+.PP
+.B
+int	winopenfd(Win *w, char *name, int mode)
+.PP
+.B
+int	winprint(Win *w, char *file, char *fmt, ...)
+.PP
+.B
+int	winread(Win *w, char *file, void *a, int n)
+.PP
+.B
+int	winreadaddr(Win *w, uint *q1)
+.PP
+.B
+int	winreadevent(Win *w, Event *e)
+.PP
+.B
+int	winseek(Win *w, char *file, int off, int type)
+.PP
+.B
+int	winwrite(Win *w, char *file, void *a, int n)
+.PP
+.B
+int	winwriteevent(Win *w, Event *e)
+.PP
+.B
+void*	emalloc(uint n)
+.PP
+.B
+void*	erealloc(void *v, uint n)
+.PP
+.B
+char*	estrdup(char *s)
+.PP
+.B
+char*	evsmprint(char *fmt, va_list arg)
+.SH DESCRIPTION
+.I Libacme
+provides a simple C interface for interacting with
+.IR acme (1)
+windows.
+.PP
+A
+.B Win
+structure represents a single window and its control files.
+The contents of the structure should not be accessed directly.
+.I Newwin
+creates a new window and returns a structure corresponding to that window.
+.I Openwin
+allocates a structure corresponding to the existing window with the given
+.IR id .
+If
+.I ctlfid
+is non-nil, 
+.I openwin
+assumes it is a file descriptor open for writing to the window's
+.B ctl
+file.
+Ownership of
+.I ctlfid
+passes to the library.
+.PP
+Most of the library routines access files in the window's
+.I acme
+directory.
+See
+.IR acme (4)
+for details.
+Many library routines take a format string
+.I fmt
+followed by a variable list of arguments.
+In the discussion below, the notation
+.I fmt\fR, \fP...
+denotes the result of formatting the string and arguments
+using
+.I smprint
+(see
+.IR print (3)).
+.PP
+.I Pipetowin
+runs the
+.IR rc (1)
+command line
+.I fmt\fR, \fP...
+with 
+.B /dev/null
+on standard input and the window's
+.I file
+on standard output.
+If
+.I fderr
+is non-zero (sic), 
+it is used as standard error.
+Otherwise the command inherits the caller's standard error.
+.PP
+.I Pipewinto
+runs the 
+.IR rc (1)
+command line
+.I fmt\fR, \fP...
+with the window's
+.I file
+on standard input.
+The command runs with
+.I fdout 
+as its standard output and standard error.
+.PP
+.I Sysrun
+runs the
+.I rc
+command line
+.I fmt\fR, \fP...
+and returns a pointer to the first kilobyte of output, NUL-terminated.
+The buffer holding the output is reused on each call.
+.PP
+.I Winaddr
+writes
+.I fmt\fR, \fP...
+to the window's
+.B addr
+file.
+.PP
+.I Winclosefiles
+closes all the open file descriptors associated with the window.
+(These file descriptors are maintained from the library and 
+cached across calls to 
+.IR winctl ,
+.IR etc .)
+.PP
+.I Winctl
+writes
+.I fmt\fR, \fP...
+to the window's
+.B ctl
+file.
+.PP
+.I Windel
+deletes the window,
+writing
+.B del
+(or, if
+.I sure
+is set,
+.B delete)
+to the window's
+.B ctl
+file.
+.PP
+.I Winfd
+returns a file descriptor for the window's
+.I file
+opened for
+.IR mode .
+The caller is responsible for closing the file descriptor.
+.PP
+.I Winmread
+reads the contents of the window's
+.I file
+into a dynamically allocated buffer
+and returns it.
+The caller is responsible for freeing the buffer.
+.PP
+.I Winname
+sets the name of the window to
+.I fmt\fR, \fP...
+by writing to the
+.B ctl
+file.
+.PP
+.I Winprint
+prints
+.I fmt\fR, \fP...
+to the window's
+.IR file .
+.PP
+.I Winread
+reads at most 
+.I n
+bytes from the window's
+.IR file
+into the buffer pointed at by
+.IR a .
+.PP
+.I Winreadaddr
+reads the window's
+.B addr
+file, which contains two integers.
+It returns the first and stores the second in 
+.BI * q1 \fR.
+.PP
+.I Winseek
+seeks the file descriptor for the window's
+.I file
+to position
+.I off
+relative to
+.I type
+(see
+.IR seek (3)).
+.PP
+.I Winwrite
+writes the
+.I n
+bytes pointed at by
+.I a
+to the window's
+.IR file .
+.PP
+An
+.B Event
+structure represents an event originating in a particular window.
+The fields correspond to the fields in
+.IR acme 's
+event messages.
+See 
+.IR acme (4)
+for detailed explanations.
+The fields are:
+.TP
+.BR c1 ", " c2
+The two event characters, indicating origin and type of action.
+.TP
+.BR q0 ", " q1
+The character addresses of the action.
+If the original event had an empty selection
+.RB ( q0 = q1 )
+and was accompanied by an expansion
+(the 2 bit is set in the flag), then 
+.B q0
+and
+.B q1
+will indicate the expansion rather than original event.
+.TP
+.BR oq0 ", " oq1
+The 
+.B q0
+and
+.B q1
+of the original event, even if it was expanded.
+If there was no expansion,
+.BR oq0 = q0
+and
+.BR oq1 = q1 .
+.TP
+.B flag
+The flag.
+.TP
+.B nr
+The number of characters (UTF sequences) included in the optional text.
+.TP
+.B text
+The optional text itself, encoded in UTF.
+.TP
+.B nb
+The number of bytes included in the optional text.
+.TP
+.B arg
+The chorded argument, if present
+(the 8 bit is set in the flag).
+.TP
+.B loc
+The chorded location, if present
+(the 8 bit is set in the flag).
+.PD
+.PP
+.I Winreadevent
+reads the next event (q.v.)
+from the window's
+.B event
+file.
+.PP
+.I Winwriteevent
+writes an event back to the window's 
+.B event
+file, indicating to
+.I acme
+that it should be handled internally.
+.PP
+.I Wineventchan
+returns a pointer to a
+.B Channel
+(see
+.IR thread (3))
+on which event structures (not pointers) can be read.
+The first call to
+.I wineventchan
+allocates a channel and
+starts a new thread that loops calling
+.I winreadevent
+and copying the events into the channel.
+Subsequent calls return the same channel.
+Clients should not call
+.I winreadevent
+after calling
+.IR wineventchan .
+.PP
+.IR Emalloc ,
+.IR erealloc ,
+.IR estrdup ,
+and
+.I evsmprint
+are like
+.IR malloc (3),
+.IR realloc ,
+.IR strdup
+(see
+.IR strcat (3)),
+and
+.IR vsmprint
+(see
+.IR print (3)),
+but they call
+.IR sysfatal (3)
+on error rather than returning nil.
+.SH SOURCE
+.B \*9/src/libacme
+.SH SEE ALSO
+.IR acme (1),
+.IR acme (4)
