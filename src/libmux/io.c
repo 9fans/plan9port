@@ -74,7 +74,7 @@ _muxsendproc(void *v)
 }
 
 void*
-_muxrecv(Mux *mux)
+_muxrecv(Mux *mux, int canblock)
 {
 	void *p;
 
@@ -88,15 +88,24 @@ _muxrecv(Mux *mux)
 */
 	if(mux->readq){
 		qunlock(&mux->lk);
-		return _muxqrecv(mux->readq);
+		if(canblock)
+			return _muxqrecv(mux->readq);
+		return _muxnbqrecv(mux->readq);
 	}
 
 	qlock(&mux->inlk);
 	qunlock(&mux->lk);
-	p = mux->recv(mux);
+	if(canblock)
+		p = mux->recv(mux);
+	else{
+		if(mux->nbrecv)
+			p = mux->nbrecv(mux);
+		else
+			p = nil;
+	}
 	qunlock(&mux->inlk);
 /*
-	if(!p)
+	if(!p && canblock)
 		vthangup(mux);
 */
 	return p;
