@@ -3,6 +3,10 @@
 #if defined(__cplusplus)
 extern "C" { 
 #endif
+
+AUTOLIB(memdraw)
+AUTOLIB(memlayer)
+
 typedef struct	Memimage Memimage;
 typedef struct	Memdata Memdata;
 typedef struct	Memsubfont Memsubfont;
