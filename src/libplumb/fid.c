@@ -9,6 +9,19 @@ static int pfd = -1;
 static CFid *pfid;
 
 int
+plumbunmount(void)
+{
+	CFsys *fsys;
+
+	if(fsplumb){
+		fsys = fsplumb;
+		fsplumb = nil;
+		fsunmount(fsys);
+	}
+	return 0;
+}
+
+int
 plumbopen(char *name, int omode)
 {
 	if(fsplumb == nil)

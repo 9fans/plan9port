@@ -1,6 +1,6 @@
 .TH PLUMB 3
 .SH NAME
-eplumb, plumbfree, plumbopen, plumbopenfid, plumbsend, plumbsendtofid, plumbsendtext, plumblookup, plumbpack, plumbpackattr, plumbaddattr, plumbdelattr, plumbrecv, plumbrecvfid, plumbunpack, plumbunpackpartial, plumbunpackattr, Plumbmsg  \- plumb messages
+eplumb, plumbfree, plumbopen, plumbunmount, plumbopenfid, plumbsend, plumbsendtofid, plumbsendtext, plumblookup, plumbpack, plumbpackattr, plumbaddattr, plumbdelattr, plumbrecv, plumbrecvfid, plumbunpack, plumbunpackpartial, plumbunpackattr, Plumbmsg  \- plumb messages
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -12,6 +12,9 @@ eplumb, plumbfree, plumbopen, plumbopenfid, plumbsend, plumbsendtofid, plumbsend
 .PP
 .B
 int	plumbopen(char *port, int omode)
+.PP
+.B
+int	plumbunmount(void)
 .PP
 .B
 int	plumbsend(int fd, Plumbmsg *m)
@@ -116,6 +119,18 @@ registers, using the given
 .IR key ,
 receipt of messages from the named
 .IR port .
+.PP
+The library mounts the 
+.IR plumber (4)
+service on demand (using the
+.IR 9pclient (3))
+library and reuses the mount instance for future 
+calls to
+.IR plumbopen .
+.I Plumbunmount
+causes the library to discard its cached mount.
+This can be useful if the plumber service itself has been
+restarted and a client wishes to reconnect.
 .PP
 .I Plumbsend
 formats and writes message
