@@ -43,7 +43,7 @@ unloadimage(Image *i, Rectangle r, uchar *data, int ndata)
 		BPLONG(a+17, r.min.y+dy);
 		if(flushimage(d, 0) < 0)
 			return -1;
-		n = _drawmsgread(d, data+ntot, ndata-ntot);
+		n = _displayrddraw(d, data+ntot, ndata-ntot);
 		if(n < 0)
 			return n;
 		ntot += n;

@@ -1,28 +1,12 @@
 #include <u.h>
+#include <sys/select.h>
 #include <libc.h>
 #include <draw.h>
 #include <cursor.h>
 #include <event.h>
 
-typedef struct	Slave Slave;
-typedef struct	Ebuf Ebuf;
 
-struct Slave
-{
-	int	pid;
-	Ebuf	*head;		/* ueue of messages for this descriptor */
-	Ebuf	*tail;
-	int	(*fn)(int, Event*, uchar*, int);
-};
 
-struct Ebuf
-{
-	Ebuf	*next;
-	int	n;		/* number of bytes in buf */
-	uchar	buf[EMAXMSG];
-};
-
-static	Slave	eslave[MAXSLAVE];
 static	int	Skeyboard = -1;
 static	int	Smouse = -1;
 static	int	Stimer = -1;

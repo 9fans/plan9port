@@ -17,6 +17,8 @@ OFILES=\
 	debug.$O\
 	defont.$O\
 	draw.$O\
+	drawclient.$O\
+	drawfcall.$O\
 	drawrepl.$O\
 	egetrect.$O\
 	ellipse.$O\
@@ -29,11 +31,12 @@ OFILES=\
 	icossin.$O\
 	icossin2.$O\
 	init.$O\
+	keyboard.$O\
 	line.$O\
-	latin1.$O\
 	loadimage.$O\
 	menuhit.$O\
 	mkfont.$O\
+	mouse.$O\
 	openfont.$O\
 	poly.$O\
 	readimage.$O\
@@ -42,6 +45,7 @@ OFILES=\
 	replclipr.$O\
 	rgb.$O\
 	scroll.$O\
+	snarf.$O\
 	string.$O\
 	stringbg.$O\
 	stringsubfont.$O\
@@ -53,79 +57,17 @@ OFILES=\
 	window.$O\
 	writeimage.$O\
 	writesubfont.$O\
-	md-alloc.$O\
-	md-arc.$O\
-	md-cload.$O\
-	md-cmap.$O\
-	md-cread.$O\
-	md-defont.$O\
-	md-draw.$O\
-	md-ellipse.$O\
-	md-fillpoly.$O\
-	md-hwdraw.$O\
-	md-iprint.$O\
-	md-line.$O\
-	md-load.$O\
-	md-openmemsubfont.$O\
-	md-poly.$O\
-	md-read.$O\
-	md-string.$O\
-	md-subfont.$O\
-	md-unload.$O\
-	md-write.$O\
-	ml-draw.$O\
-	ml-lalloc.$O\
-	ml-layerop.$O\
-	ml-ldelete.$O\
-	ml-lhide.$O\
-	ml-line.$O\
-	ml-load.$O\
-	ml-lorigin.$O\
-	ml-lsetrefresh.$O\
-	ml-ltofront.$O\
-	ml-ltorear.$O\
-	ml-unload.$O\
-	devdraw.$O\
+	wsys.$O\
 	unix.$O\
 
 HFILES=\
 	$PLAN9/include/draw.h\
-	$PLAN9/include/memdraw.h\
-	$PLAN9/include/memlayer.h\
+	$PLAN9/include/drawfcall.h\
+	$PLAN9/include/mux.h\
 	$PLAN9/include/event.h\
 	$PLAN9/include/cursor.h\
 	$PLAN9/include/mouse.h\
 	$PLAN9/include/keyboard.h\
 
-# some of these should move to wsysofiles
-
-XHFILES=\
-	x11-inc.h\
-	x11-memdraw.h\
-
-<|sh ./mkwsysrules.sh
-
-WSYSOFILES=\
-	$WSYSTYPE-alloc.$O\
-	$WSYSTYPE-cload.$O\
-	$WSYSTYPE-draw.$O\
-	$WSYSTYPE-event.$O\
-	$WSYSTYPE-fill.$O\
-	$WSYSTYPE-get.$O\
-	$WSYSTYPE-init.$O\
-	$WSYSTYPE-itrans.$O\
-	$WSYSTYPE-keyboard.$O\
-	$WSYSTYPE-keysym2ucs.$O\
-	$WSYSTYPE-load.$O\
-	$WSYSTYPE-mouse.$O\
-	$WSYSTYPE-pixelbits.$O\
-	$WSYSTYPE-unload.$O\
-	$WSYSTYPE-wsys.$O\
-
-OFILES=$OFILES $WSYSOFILES
-
 <$PLAN9/src/mksyslib
-
-test: test.o $PLAN9/lib/$LIB
-	gcc -o test test.o -L$PLAN9/lib -ldraw -l9 -lfmt -lutf -L$X11/lib -lX11 -lm
 

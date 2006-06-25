@@ -132,7 +132,7 @@ namedimage(Display *d, char *name)
 	a[6+n] = 'I';
 	if(flushimage(d, 0) < 0)
 		goto Error;
-	if(_drawmsgread(d, buf, sizeof buf) < 12*12)
+	if(_displayrddraw(d, buf, sizeof buf) < 12*12)
 		goto Error;
 	buf[12*12] = '\0';
 
