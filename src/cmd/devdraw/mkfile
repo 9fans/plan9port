@@ -1,0 +1,20 @@
+<$PLAN9/src/mkhdr
+
+TARG=devdraw
+
+WSYSOFILES=\
+	devdraw.$O\
+	latin1.$O\
+	
+<|sh ./mkwsysrules.sh
+
+OFILES=$WSYSOFILES
+
+HFILES=\
+	devdraw.h\
+
+<$PLAN9/src/mkone
+
+$O.drawclient: drawclient.$O drawfcall.$O
+	$LD -o $target $prereq
+
