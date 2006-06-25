@@ -411,11 +411,15 @@ winreadevent(Win *w, Event *e)
 	}
 	efd = wfid(w, "event");
 	gete(w, efd, e);
+	e->oq0 = e->q0;
+	e->oq1 = e->q1;
 
 	/* expansion */
 	if(e->flag&2){
 		gete(w, efd, &w->e2);
 		if(e->q0==e->q1){
+			w->e2.oq0 = e->q0;
+			w->e2.oq1 = e->q1;
 			w->e2.flag = e->flag;
 			*e = w->e2;
 		}
@@ -521,7 +525,7 @@ pipetowin(Win *w, char *name, int errto, char *cmd, ...)
 char*
 sysrun(char *fmt, ...)
 {
-	static char buf[1024];
+	static char buf[1025];
 	char *cmd;
 	va_list arg;
 	int n, fd[3], p[2], tot;
