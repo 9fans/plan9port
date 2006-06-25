@@ -1,4 +1,4 @@
-AUTOLIB(acme);
+AUTOLIB(acme)
 
 typedef struct Event Event;
 typedef struct Win Win;
@@ -8,10 +8,10 @@ struct Event
 {
 	int	c1;
 	int	c2;
-	int	oq0;
-	int	oq1;
 	int	q0;
 	int	q1;
+	int	oq0;
+	int	oq1;
 	int	flag;
 	int	nb;
 	int	nr;
