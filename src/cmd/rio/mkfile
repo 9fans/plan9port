@@ -1,5 +1,5 @@
 <$PLAN9/src/mkhdr
-<|sh $PLAN9/src/libdraw/mkwsysrules.sh	# for X11
+<|sh ../devdraw/mkwsysrules.sh	# for X11
 
 OFILES=\
 	client.$O\
