@@ -4,24 +4,29 @@ LIB=libmemdraw.a
 
 OFILES=\
 	alloc.$O\
+	alloc-stub.$O\
 	arc.$O\
 	cload.$O\
+	cload-stub.$O\
 	cmap.$O\
 	cread.$O\
 	defont.$O\
 	draw.$O\
+	draw-stub.$O\
 	ellipse.$O\
 	fillpoly.$O\
 	hwdraw.$O\
 	iprint.$O\
 	line.$O\
 	load.$O\
+	load-stub.$O\
 	openmemsubfont.$O\
 	poly.$O\
 	read.$O\
 	string.$O\
 	subfont.$O\
 	unload.$O\
+	unload-stub.$O\
 	write.$O\
 
 HFILES=\
