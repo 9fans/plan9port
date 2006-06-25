@@ -1,0 +1,53 @@
+.TH DRAWFCALL
+.SH NAME
+convM2W, convW2M, drawfcallfmt, readwsysmsg, sizeW2M \- window system protocol
+.SH SYNOPSIS
+.nf
+.PP
+.ft L
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <mouse.h>
+#include <cursor.h>
+#include <drawfcall.h>
+.ft P
+.ta \w'\fLuint 'u
+.PP
+.B
+uint	convM2W(uchar *ap, uint nap, Wsysmsg *w)
+.PP
+.B
+uint	convW2M(Wsysmsg *w, uchar *ap, uint nap)
+.PP
+.B
+int	drawfcallfmt(Fmt*)
+.PP
+.B
+int	readwsysmsg(int fd, uchar *buf, uint nbuf)
+.PP
+.B
+uint	sizeW2M(Wsysmsg *w)
+.SH DESCRIPTION
+These routines are analogues of the routines described in 
+.IR fcall (3).
+They manipulate graphics device protocol messages
+rather than 9P protocol messages.
+The graphics device protocol is used for internal 
+communication between the
+.IR devdraw (1)
+graphics server
+and the
+.IR draw (3)
+library.
+A
+.B Wsysmsg
+is the C structure corresponding to a protocol message.
+.PP
+The protocol is intentionally undocumented and may change.
+.SH SOURCE
+.B \*9/src/libdraw/drawfcall.c
+.SH SEE ALSO
+.IR devdraw (1),
+.IR draw (3),
+.IR graphics (3)

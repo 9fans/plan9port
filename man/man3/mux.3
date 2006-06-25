@@ -16,6 +16,7 @@ struct Mux
 	int (*gettag)(Mux *mux, void *msg);
 	int (*send)(Mux *mux, void *msg);
 	void *(*recv)(Mux *mux);
+	void *(*nbrecv)(Mux *mux);
 	void *aux;
 
 	\&...   /* private fields follow */
@@ -30,6 +31,12 @@ void*	muxrpc(Mux *mux, void *request);
 .PP
 .B
 void	muxprocs(Mux *mux);
+.PP
+.B
+Muxrpc*	muxrpcstart(Mux *mux, void *request);
+.PP
+.B
+void*	muxrpccanfinish(Muxrpc *rpc);
 .SH DESCRIPTION
 .I Libmux
 is a generic protocol multiplexor.
@@ -79,14 +86,19 @@ will block until an executing call finishes.
 .I settag\fR, \fPgettag
 Set or get the tag value in a message.
 .TP
-.I send\fR, \fPrecv
+.I send\fR, \fPrecv\fR, \fPnbrecv
 Send or receive protocol messages on the connection.
 .I Recv
 should block until a message is available and
 should return nil if the connection is closed.
+.I Nbrecv
+should not block; it returns nil if there is no
+message available to be read.
 .I Libmux
 will arrange that only one call to
 .I recv
+or
+.I nbrecv
 is active at a time.
 .TP
 .I aux
@@ -130,6 +142,28 @@ either (particularly
 blocks an entire proc
 and there are other threads in the calling proc
 that need to remain active.
+.PP
+.I Libmux
+also provides a non-blocking interface, useful for programs forced
+to use a
+.IR select (2)-based
+main loop.
+.I Muxrpcstart
+runs the first half of
+.IR muxrpc :
+it assigns a tag and sends the request,
+but does not wait for the reply.
+Instead it returns a pointer to a
+.B Muxrpc
+structure that represents the in-progress call.
+.I Muxrpccanfinish
+checks whether the given call
+can finish.
+If no mux procs have been started,
+.I muxrpccanfinish
+may call
+.I nbrecv
+to poll for newly arrived responses.
 .SH EXAMPLE
 See
 .B \*9/src/lib9pclient/fs.c
