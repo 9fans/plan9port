@@ -32,6 +32,7 @@ OFILES=\
 	icossin.$O\
 	icossin2.$O\
 	init.$O\
+	iprint.$O\
 	keyboard.$O\
 	line.$O\
 	loadimage.$O\
