@@ -20,17 +20,7 @@ struct Mousectl
 	struct Channel	*resizec;	/* chan(int)[2] */
 			/* buffered in case client is waiting for a mouse action before handling resize */
 
-	char		*file;
-	int		mfd;		/* to mouse file */
-	int		cfd;		/* to cursor file */
-	int		pid;		/* of slave proc */
-	Display		*display;
-	/*Image*	image;	/ * of associated window/display */
-	
-	/* clumsy hack for X11 */
-	struct Channel *ccursor;
-	struct Channel *ccursorwait;
-	QLock cursorlock;
+	Display		*display;	/* associated display */
 };
 
 struct Menu

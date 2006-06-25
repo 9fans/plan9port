@@ -8,11 +8,6 @@ typedef struct 	Keyboardctl Keyboardctl;
 struct	Keyboardctl
 {
 	struct Channel	*c;	/* chan(Rune)[20] */
-
-	char		*file;
-	int		consfd;		/* to cons file */
-	int		ctlfd;		/* to ctl file */
-	int		pid;		/* of slave proc */
 };
 
 
