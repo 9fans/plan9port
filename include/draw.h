@@ -23,6 +23,8 @@ typedef struct	RGB RGB;
 typedef struct	Screen Screen;
 typedef struct	Subfont Subfont;
 
+struct Mux;
+
 extern	int	Rfmt(Fmt*);
 extern	int	Pfmt(Fmt*);
 
@@ -200,6 +202,8 @@ struct Display
 	Image		*windows;
 	Image		*screenimage;
 	int		_isnewdisplay;
+	struct Mux	*mux;
+	int		srvfd;
 };
 
 struct Image
@@ -535,14 +539,28 @@ void drawtopwindow(void);
 void drawresizewindow(Rectangle);
 extern char *winsize;
 
-/*
- * Port magic.
- */
-int	_drawmsgread(Display*, void*, int);
-int	_drawmsgwrite(Display*, void*, int);
-int	_latin1(Rune*, int);
-
 int	mousescrollsize(int);
+
+/*
+ * RPC interface to draw server.
+ */
+struct Mouse;
+struct Cursor;
+int		_displaybouncemouse(Display *d, struct Mouse *m);
+int		_displayconnect(Display *d);
+int		_displaycursor(Display *d, struct Cursor *c);
+int		_displayinit(Display *d, char *label, char *winsize);
+int		_displaylabel(Display *d, char *label);
+int		_displaymoveto(Display *d, Point p);
+int		_displaymux(Display *d);
+int		_displayrddraw(Display *d, void *v, int n);
+int		_displayrdkbd(Display *d, Rune *r);
+int		_displayrdmouse(Display *d, struct Mouse *m, int *resized);
+char*		_displayrdsnarf(Display *d);
+int		_displaywrdraw(Display *d, void *v, int n);
+int		_displaywrsnarf(Display *d, char *snarf);
+int		_displaytop(Display *d);
+int		_displayresize(Display *d, Rectangle rect);
 
 #if defined(__cplusplus)
 }
