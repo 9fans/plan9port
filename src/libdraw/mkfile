@@ -23,6 +23,7 @@ OFILES=\
 	egetrect.$O\
 	ellipse.$O\
 	emenuhit.$O\
+	event.$O\
 	font.$O\
 	freesubfont.$O\
 	getdefont.$O\

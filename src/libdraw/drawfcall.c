@@ -5,25 +5,11 @@
 #include <cursor.h>
 #include <drawfcall.h>
 
-#define PUT(p, x) \
-	(p)[0] = ((x) >> 24)&0xFF, \
-	(p)[1] = ((x) >> 16)&0xFF, \
-	(p)[2] = ((x) >> 8)&0xFF, \
-	(p)[3] = (x)&0xFF
-
-#define GET(p, x) \
-	((x) = (((p)[0] << 24) | ((p)[1] << 16) | ((p)[2] << 8) | ((p)[3])))
-
-#define PUT2(p, x) \
-	(p)[0] = ((x) >> 8)&0xFF, \
-	(p)[1] = (x)&0xFF
-
-#define GET2(p, x) \
-	((x) = (((p)[0] << 8) | ((p)[1])))
-
 static int
 _stringsize(char *s)
 {
+	if(s == nil)
+		s = "";
 	return 4+strlen(s);
 }
 

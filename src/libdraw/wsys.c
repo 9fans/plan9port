@@ -22,3 +22,9 @@ bouncemouse(Mouse *m)
 	_displaybouncemouse(display, m);
 }
 
+void
+drawresizewindow(Rectangle r)
+{
+	_displayresize(display, r);
+}
+

@@ -1,6 +1,7 @@
 /* Copyright (c) 2006 Russ Cox */
 
 #include <u.h>
+#include <sys/select.h>
 #include <libc.h>
 #include <draw.h>
 #include <mouse.h>
@@ -12,8 +13,10 @@ int chattydrawclient;
 
 static int	drawgettag(Mux *mux, void *vmsg);
 static void*	drawrecv(Mux *mux);
+static void*	drawnbrecv(Mux *mux);
 static int	drawsend(Mux *mux, void *vmsg);
 static int	drawsettag(Mux *mux, void *vmsg, uint tag);
+static int canreadfd(int);
 
 int
 _displayconnect(Display *d)
@@ -35,8 +38,8 @@ _displayconnect(Display *d)
 		dup(p[1], 0);
 		dup(p[1], 1);
 		/* execl("strace", "strace", "-o", "drawsrv.out", "drawsrv", nil); */
-		execl("drawsrv", "drawsrv", nil);
-		sysfatal("exec drawsrv: %r");
+		execl("devdraw", "devdraw", nil);
+		sysfatal("exec devdraw: %r");
 	}
 	close(p[1]);
 	d->srvfd = p[0];
@@ -53,6 +56,7 @@ _displaymux(Display *d)
 	d->mux->maxtag = 255;
 	d->mux->send = drawsend;
 	d->mux->recv = drawrecv;
+	d->mux->nbrecv = drawnbrecv;
 	d->mux->gettag = drawgettag;
 	d->mux->settag = drawsettag;
 	d->mux->aux = d;
@@ -60,9 +64,6 @@ _displaymux(Display *d)
 	
 	return 0;
 }
-
-#define GET(p, x) \
-	((x) = (((p)[0] << 24) | ((p)[1] << 16) | ((p)[2] << 8) | ((p)[3])))
 
 static int
 drawsend(Mux *mux, void *vmsg)
@@ -78,17 +79,17 @@ drawsend(Mux *mux, void *vmsg)
 }
 
 static void*
-drawrecv(Mux *mux)
+_drawrecv(Mux *mux, int nb)
 {
 	int n;
 	uchar buf[4], *p;
 	Display *d;
-	
+
 	d = mux->aux;
-	if((n=readn(d->srvfd, buf, 4)) != 4){
-fprint(2, "readn 4 got %d: %r\n", n);
+	if(nb && !canreadfd(d->srvfd))
 		return nil;
-	}
+	if((n=readn(d->srvfd, buf, 4)) != 4)
+		return nil;
 	GET(buf, n);
 	p = malloc(n);
 	if(p == nil){
@@ -96,11 +97,21 @@ fprint(2, "readn 4 got %d: %r\n", n);
 		return nil;
 	}
 	memmove(p, buf, 4);
-	if(readn(d->srvfd, p+4, n-4) != n-4){
-fprint(2, "short readn\n");
+	if(readn(d->srvfd, p+4, n-4) != n-4)
 		return nil;
-	}
 	return p;
+}
+
+static void*
+drawrecv(Mux *mux)
+{
+	return _drawrecv(mux, 0);
+}
+
+static void*
+drawnbrecv(Mux *mux)
+{
+	return _drawrecv(mux, 1);
 }
 
 static int
@@ -186,8 +197,8 @@ _displayinit(Display *d, char *label, char *winsize)
 	Wsysmsg tx, rx;
 
 	tx.type = Tinit;
-	tx.label = "";
-	tx.winsize = "";
+	tx.label = label;
+	tx.winsize = winsize;
 	return displayrpc(d, &tx, &rx, nil);
 }
 
@@ -332,5 +343,25 @@ _displayresize(Display *d, Rectangle r)
 	tx.type = Tresize;
 	tx.rect = r;
 	return displayrpc(d, &tx, &rx, nil);
+}
+
+static int
+canreadfd(int fd)
+{
+	fd_set rs, ws, xs;
+	struct timeval tv;
+	
+	FD_ZERO(&rs);
+	FD_ZERO(&ws);
+	FD_ZERO(&xs);
+	FD_SET(fd, &rs);
+	FD_SET(fd, &xs);
+	tv.tv_sec = 0;
+	tv.tv_usec = 0;
+	if(select(fd+1, &rs, &ws, &xs, &tv) < 0)
+		return 0;
+	if(FD_ISSET(fd, &rs) || FD_ISSET(fd, &xs))
+		return 1;
+	return 0;
 }
 
