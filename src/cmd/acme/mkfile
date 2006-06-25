@@ -1,7 +1,7 @@
 <$PLAN9/src/mkhdr
 
 TARG=acme
-# DIRS=mail
+DIRS=mail
 
 OFILES=\
 	acme.$O\
@@ -30,6 +30,6 @@ HFILES=dat.h\
 	fns.h\
 
 <$PLAN9/src/mkone
-# <$PLAN9/src/mkdirs
+<$PLAN9/src/mkdirs
 
 edit.$O ecmd.$O elog.$O:	edit.h

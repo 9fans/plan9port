@@ -21,32 +21,60 @@ Window*	openfile(Text*, Expand*, int);
 int	nuntitled;
 
 void
-plumbproc(void *v)
+plumbthread(void *v)
 {
+	CFid *fid;
 	Plumbmsg *m;
+	Timer *t;
 
 	USED(v);
 	threadsetname("plumbproc");
+	
+	/*
+	 * Loop so that if plumber is restarted, acme need not be.
+	 */
 	for(;;){
-		m = plumbrecvfid(plumbeditfid);
-		if(m == nil)
-			threadexits(nil);
-		sendp(cplumb, m);
+		/*
+		 * Connect to plumber.
+		 */
+		plumbunmount();
+		while((fid = plumbopenfid("edit", OREAD|OCEXEC)) == nil){
+			t = timerstart(2000);
+			recv(t->c, nil);
+			timerstop(t);
+		}
+		plumbeditfid = fid;
+		plumbsendfid = plumbopenfid("send", OWRITE|OCEXEC);
+	
+		/*
+		 * Relay messages.
+		 */
+		for(;;){
+			m = plumbrecvfid(plumbeditfid);
+			if(m == nil)
+				break;
+			sendp(cplumb, m);
+		}
+
+		/*
+		 * Lost connection.
+		 */
+		fid = plumbsendfid;
+		plumbsendfid = nil;
+		fsclose(fid);
+
+		fid = plumbeditfid;
+		plumbeditfid = nil;
+		fsclose(fid);
 	}
 }
 
 void
 startplumbing(void)
 {
-	plumbeditfid = plumbopenfid("edit", OREAD|OCEXEC);
-	if(plumbeditfid == nil)
-		fprint(2, "acme: can't initialize plumber: %r\n");
-	else{
-		cplumb = chancreate(sizeof(Plumbmsg*), 0);
-		chansetname(cplumb, "cplumb");
-		threadcreate(plumbproc, nil, STACK);
-	}
-	plumbsendfid = plumbopenfid("send", OWRITE|OCEXEC);
+	cplumb = chancreate(sizeof(Plumbmsg*), 0);
+	chansetname(cplumb, "cplumb");
+	threadcreate(plumbthread, nil, STACK);
 }
 
 
