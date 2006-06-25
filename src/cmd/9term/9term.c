@@ -90,7 +90,9 @@ threadmain(int argc, char *argv[])
 	
 	startdir = ".";
 
-	initdraw(derror, fontname, "9term");
+	if(initdraw(derror, fontname, "9term") < 0)
+		sysfatal("initdraw: %r");
+
 	notify(hangupnote);
 	noteenable("sys: child");
 	
