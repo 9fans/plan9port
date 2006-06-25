@@ -42,6 +42,8 @@ dither[16] =  {
 	15, 7, 13, 5
 };
 
+extern int chattydrawclient;
+
 void
 threadmain(int argc, char *argv[])
 {
@@ -54,6 +56,9 @@ threadmain(int argc, char *argv[])
 	ARGBEGIN{
 	default:
 		goto Usage;
+	case 'D':
+		chattydrawclient = 1;
+		break;
 	case 'x':
 		fmt = "index %2luX r %3luX g %3luX b %3luX 0x%.8luX       ";
 		break;
