@@ -55,6 +55,7 @@ void			plumbfree(Plumbmsg*);
 char*		plumblookup(Plumbattr*, char*);
 int			plumbopen(char*, int);
 int			eplumb(int, char*);
+int			plumbunmount(void);
 
 #ifdef _9PCLIENT_H_
 CFid*		plumbopenfid(char*, int);
