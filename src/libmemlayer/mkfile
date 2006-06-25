@@ -1,0 +1,25 @@
+<$PLAN9/src/mkhdr
+
+LIB=libmemlayer.a
+
+OFILES=\
+	draw.$O\
+	lalloc.$O\
+	layerop.$O\
+	ldelete.$O\
+	lhide.$O\
+	line.$O\
+	load.$O\
+	lorigin.$O\
+	lsetrefresh.$O\
+	ltofront.$O\
+	ltorear.$O\
+	unload.$O\
+
+HFILES=\
+	$PLAN9/include/draw.h\
+	$PLAN9/include/memdraw.h\
+	$PLAN9/include/memlayer.h\
+
+<$PLAN9/src/mksyslib
+
