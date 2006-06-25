@@ -52,6 +52,10 @@ then
 			eval "need$i=true"
 		done
 	fi
+	if $verbose
+	then
+		echo "autolibs1 $autolibs"
+	fi
 
 	# fetch dependencies out of libraries
 	workq="$autolibs"
@@ -69,8 +73,13 @@ then
 				grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
 				sed 's/.*__p9l_autolib_//' |
 				sort -u |
-				egrep -v 'thread|draw'
+				egrep -v '^(thread|draw)$'
 			`
+			# fix up libraries that really need draw
+			if [ "x$i" = "xmemdraw" -o "x$i" = "xmemlayer" -o "x$i" = "xframe" ]
+			then
+				a="$a draw"
+			fi
 			okayfn="true"
 			for j in $a
 			do
@@ -85,7 +94,10 @@ then
 					okayfn="$okayfn && have$j"
 				fi
 			done
-			# echo "can$i: $okayfn"
+			if $verbose
+			then
+				echo "can$i: $okayfn"
+			fi
 			eval "can$i() { $okayfn; }"
 		done
 	done
@@ -100,6 +112,7 @@ then
 	done
 	havethread() { false; }
 	havesec() { false; }
+	canmemlayer() { havedraw; }
 
 	# now find correct order
 	libsl=""
