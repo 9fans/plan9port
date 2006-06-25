@@ -246,13 +246,13 @@ int
 fmtstrcpy(Fmt *f, char *s)
 {
 	int i, j;
-	Rune r;
 
 	if(!s)
 		return __fmtcpy(f, "<nil>", 5, 5);
 	/* if precision is specified, make sure we don't wander off the end */
 	if(f->flags & FmtPrec){
 #ifdef PLAN9PORT
+		Rune r;
 		i = 0;
 		for(j=0; j<f->prec && s[i]; j++)
 			i += chartorune(&r, s+i);
