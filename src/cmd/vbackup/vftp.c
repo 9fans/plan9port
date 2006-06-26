@@ -403,7 +403,7 @@ threadmain(int argc, char **argv)
 	if(access(argv[0], AEXIST) >= 0 || strchr(argv[0], '/')){
 		if((disk = diskopenfile(argv[0])) == nil)
 			sysfatal("diskopen: %r");
-		if((disk = diskcache(disk, 16384, 16)) == nil)
+		if((disk = diskcache(disk, 32768, 16)) == nil)
 			sysfatal("diskcache: %r");
 	}else{
 		if(vtparsescore(argv[0], nil, score) < 0)
@@ -412,7 +412,7 @@ threadmain(int argc, char **argv)
 			sysfatal("vtdial: %r");
 		if(vtconnect(z) < 0)
 			sysfatal("vtconnect: %r");
-		if((c = vtcachealloc(z, 16384, 32)) == nil)
+		if((c = vtcachealloc(z, 32768, 32)) == nil)
 			sysfatal("vtcache: %r");
 		if((disk = diskopenventi(c, score)) == nil)
 			sysfatal("diskopenventi: %r");
