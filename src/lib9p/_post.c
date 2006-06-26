@@ -3,7 +3,6 @@
 #include <fcall.h>
 #include <thread.h>
 #include <9p.h>
-#include <auth.h>
 #include "post.h"
 
 Postcrud*
@@ -67,10 +66,12 @@ _post3(Postcrud *p)
 			close(p->s->outfd);
 	}
 
+#if 0
 	if(p->mtpt){
 		if(amount(p->s->srvfd, p->mtpt, p->flag, "") == -1)
 			sysfatal("mount %s: %r", p->mtpt);
 	}else
+#endif
 		close(p->s->srvfd);
 	free(p);
 }
