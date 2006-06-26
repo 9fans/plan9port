@@ -128,6 +128,7 @@ LIB9OFILES=\
 	nulldir.$O\
 	open.$O\
 	opentemp.$O\
+	pin.$O\
 	pipe.$O\
 	post9p.$O\
 	postnote.$O\

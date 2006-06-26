@@ -25,6 +25,8 @@ void		_threadsleep(Rendez*);
 _Thread	*_threadwakeup(Rendez*);
 #define	yield		threadyield
 int		threadid(void);
+void		_threadpin(void);
+void		_threadunpin(void);
 
 /*
  * I am tired of making this mistake.

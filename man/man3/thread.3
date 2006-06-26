@@ -37,6 +37,8 @@ threadmain,
 threadnotify,
 threadid,
 threadpid,
+threadpin,
+threadunpin,
 threadsetgrp,
 threadsetname,
 threadsetstate,
@@ -84,6 +86,8 @@ int	threadcreate(void (*fn)(void*), void *arg, uint stacksize)
 void	threadexits(char *status)
 void	threadexitsall(char *status)
 void	yield(void)
+int	threadpin(void)
+int	threadunpin(void)
 .XX
 int	threadid(void)
 int	threadgrp(void)
@@ -259,6 +263,20 @@ System calls such as
 .IR read (3)
 block the entire proc;
 all threads in a proc block until the system call finishes.
+.PP
+.I Threadpin
+disables scheduling inside a proc, `pinning' the current
+thread as the only runnable one in the current proc.
+.I Threadunpin
+reenables scheduling, allowing other procs to run once the current
+thread relinquishes the processor.
+.I Threadpin
+and
+.I threadunpin
+can lead to deadlock.
+Used carefully, they can make library routines that use
+.B qlocks
+appear atomic relative to the current proc, like a system call.
 .PP
 As mentioned above, each thread has a unique integer thread id.
 Thread ids are not reused; they are unique across the life of the program.

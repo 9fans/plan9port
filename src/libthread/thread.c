@@ -12,6 +12,7 @@ static	void		addproc(Proc*);
 static	void		delproc(Proc*);
 static	void		addthread(_Threadlist*, _Thread*);
 static	void		delthread(_Threadlist*, _Thread*);
+static	int		onlist(_Threadlist*, _Thread*);
 static	void		addthreadinproc(Proc*, _Thread*);
 static	void		delthreadinproc(Proc*, _Thread*);
 static	void		contextswitch(Context *from, Context *to);
@@ -254,6 +255,32 @@ threadexits(char *msg)
 	_threadswitch();
 }
 
+void
+threadpin(void)
+{
+	Proc *p;
+
+	p = proc();
+	if(p->pinthread){
+		fprint(2, "already pinning a thread - %p %p\n", p->pinthread, p->thread);
+		assert(0);
+	}
+	p->pinthread = p->thread;
+}
+
+void
+threadunpin(void)
+{
+	Proc *p;
+
+	p = proc();
+	if(p->pinthread != p->thread){
+		fprint(2, "wrong pinthread - %p %p\n", p->pinthread, p->thread);
+		assert(0);
+	}
+	p->pinthread = nil;
+}
+
 static void
 contextswitch(Context *from, Context *to)
 {
@@ -273,6 +300,14 @@ procscheduler(Proc *p)
 /*	print("s %p\n", p); */
 	lock(&p->lock);
 	for(;;){
+		if((t = p->pinthread) != nil){
+			while(!onlist(&p->runqueue, t)){
+				p->runrend.l = &p->lock;
+				_threaddebug("scheduler sleep (pin)");
+				_procsleep(&p->runrend);
+				_threaddebug("scheduler wake (pin)");
+			}
+		}else
 		while((t = p->runqueue.head) == nil){
 			if(p->nthread == 0)
 				goto Out;
@@ -291,6 +326,9 @@ procscheduler(Proc *p)
 			_procsleep(&p->runrend);
 			_threaddebug("scheduler wake");
 		}
+		if(p->pinthread && p->pinthread != t)
+			fprint(2, "p->pinthread %p t %p\n", p->pinthread, t);
+		assert(p->pinthread == nil || p->pinthread == t);
 		delthread(&p->runqueue, t);
 		unlock(&p->lock);
 		p->thread = t;
@@ -652,6 +690,8 @@ main(int argc, char **argv)
 	_rsleep = threadrsleep;
 	_rwakeup = threadrwakeup;
 	_notejmpbuf = threadnotejmp;
+	_pin = threadpin;
+	_unpin = threadunpin;
 
 	_pthreadinit();
 	p = procalloc();
@@ -695,6 +735,18 @@ delthread(_Threadlist *l, _Thread *t)
 		t->next->prev = t->prev;
 	else
 		l->tail = t->prev;
+}
+
+/* inefficient but rarely used */
+static int
+onlist(_Threadlist *l, _Thread *t)
+{
+	_Thread *tt;
+
+	for(tt = l->head; tt; tt=tt->next)
+		if(tt == t)
+			return 1;
+	return 0;
 }
 
 static void

@@ -417,6 +417,9 @@ extern	long	p9time(long*);
 extern	void	needstack(int);
 extern	char*	readcons(char*, char*, int);
 
+extern	void	(*_pin)(void);
+extern	void	(*_unpin)(void);
+
 #ifndef NOPLAN9DEFINES
 #define atexit		p9atexit
 #define atexitdont	p9atexitdont
