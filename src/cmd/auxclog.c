@@ -35,7 +35,7 @@ main(int argc, char **argv)
 	}
 
 	if(strcmp(argv[1], "-") == 0)
-		fd = 1;
+		fd = 0;
 	else
 		fd = open(argv[1], OREAD);
 	if(fd < 0){
