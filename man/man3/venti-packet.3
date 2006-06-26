@@ -251,12 +251,12 @@ making them contiguous in memory
 if necessary.
 .PP
 .I Packettrim
-removes
+deletes all bytes from the packet
+.I p
+except the
 .I n
 bytes at offset
-.I offset
-from packet
-.IR p .
+.IR offset .
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
