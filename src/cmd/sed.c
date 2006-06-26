@@ -137,6 +137,7 @@ Rune	*hspend = holdsp;		/* End of hold data */
 
 int	nflag;				/* Command line flags */
 int	gflag;
+int	lflag;
 
 int	dolflag;			/* Set when at true EOF */
 int	sflag;				/* Set when substitution done */
@@ -233,6 +234,9 @@ main(int argc, char **argv)
 			continue;
 		case 'g':
 			gflag++;
+			continue;
+		case 'l':
+			lflag++;
 			continue;
 		default:
 			fprint(2, "sed: Unknown flag: %c\n", ARGC());
@@ -1315,6 +1319,8 @@ putline(Biobuf *bp, Rune *buf, int n)
 	while (n--)
 		Bputrune(bp, *buf++);
 	Bputc(bp, '\n');
+	if(lflag)
+		Bflush(bp);
 }
 
 int
