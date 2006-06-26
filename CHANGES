@@ -1,3 +1,108 @@
+June 25, 2006
+	9l: tweak to handle memdraw memlayer
+	stack: accept process names as arguments
+	web: handle spaces in URLs
+	lib9/fmt: silence a gcc warning
+	lib9p, lib9pclient: clean up useless #includes, debugging prints
+	libacme: document in acme(3)
+	libdraw: split out libmemdraw, libmemlayer
+		move X11 code into separate server devdraw(1)
+		add <drawfcall.h>, drawfcall(3)
+	libmux: add non-blocking support
+		change muxthreads to muxprocs to match mux(3)
+	libplumb: add plumbunmount
+
+June 16, 2006
+	acme: root out unrooted paths
+
+June 14, 2006
+	libdiskfs: ext2, vnfs bug fixes (Steve VanDeBogart)
+
+June 12, 2006
+	libthread: fix Linux 2.4 proc leak
+	lib9, libthread: add p9usepwlibrary to avoid pw library in threaded
+		programs (can stack overflow)
+	sed: new flag -l
+
+June 7, 2006
+	libflate: make 64-bit safe
+	venti: call fmtlocaleinit in fmtzblock
+
+June 6, 2006
+	plumb/basic: use "9 page" instead of page
+
+June 4, 2006
+	libthread: run threaded programs in own note group when
+		not using tty (for threaddaemonize)
+	libthread: attempt at Sparc assembly
+
+May 30, 2006
+	lib9: use didtz correctly (Rob Pike)
+	graph: remove C99-isms
+
+May 27, 2006
+	lib9/fmt: silence warning in fltfmt
+	9pserve: use same uname that srv.c does
+	acme Mail: make srvname global
+	astro: use va_args for cosadd, sinadd (Michael Teichgräber)
+
+May 26, 2006
+	libbio, lib9pclient, libhttpd: bug fixes - call fmtlocaleinit in more places
+
+May 25, 2006
+	lib9/fmt: bug fixes - call fmtlocaleinit in more places
+
+May 24, 2006
+	libacme: new library
+	acme Mail: make compile (missing srvname)
+	upas/nfs: fix broken comments
+
+May 23, 2006
+	astro: make sure to use local fmod (Michael Teichgräber)
+
+May 22, 2006
+	lib9/fmt: new, commented fltfmt (rsc)
+	lib9/fmt: fixes and cleanups (Rob Pike, Google)
+
+May 21, 2006
+	lib9/fmt: fixes and cleanups (Rob Pike, Google)
+	libdraw: import Plan 9 changes to libmemdraw
+	graph: add colors argument (Gregor Asplund)
+	snoopy: fix icmp overflow
+	tapefs: import 64-bit changes from Plan 9
+	tcs: import from Plan 9
+	upas/spam: add spam filter (Lou Kamenov)
+	upas/libcommon: better locking in libcommon
+	upas/nfs: remove useless warning
+
+May 19, 2006
+	libdraw: rfork(RFNOTEG) in initdraw (Anselm Garbe)
+	htmlroff: break line on .ti (Michael Teichgräber)
+
+May 18, 2006
+	lib9: better time zone handling
+
+May 16, 2006
+	vbackup: use linux/version.h to determine Linux version
+
+May 12, 2006
+	libthread: avoid zombie when execvp fails
+
+May 10, 2006
+	libsunrpc: fix bug introduced in ext3 fixes (Serge Gannon)
+
+May 9, 2006
+	libdiskfs: set name length in FFS reader
+	fmt: correct double spacing bug (Rob Pike)
+	htmlroff: fix font size bug (Michael Techgräber)
+
+May 6, 2006
+	acme Mail: show full From name in main window
+	htmlroff: correct path to utfmap (Michael Teichgräber)
+	ndb: fix compilation problem on FreeBSD 4
+	sam: silence gcc warnings
+	tmac: import tmac.s from Plan 9
+
 May 5, 2006
 	libdiskfs, libsunrpc, libventi, vbackup: correct compile errors
 	acme: fix Edit | bug.
