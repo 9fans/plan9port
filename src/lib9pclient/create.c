@@ -21,7 +21,6 @@ fscreate(CFsys *fs, char *name, int mode, ulong perm)
 		elem = p+1;
 	}
 
-fprint(2, "create %s %s\n", dir, elem);
 	if((fid = _fswalk(fs->root, dir)) == nil){
 		if(p)
 			*p = '/';
