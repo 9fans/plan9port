@@ -138,6 +138,7 @@ struct Proc
 	Lock		lock;
 	int			nswitch;
 	_Thread		*thread;
+	_Thread		*pinthread;
 	_Threadlist	runqueue;
 	_Threadlist	idlequeue;
 	_Threadlist	allthreads;
