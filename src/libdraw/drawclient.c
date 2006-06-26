@@ -38,7 +38,12 @@ _displayconnect(Display *d)
 		dup(p[1], 0);
 		dup(p[1], 1);
 		/* execl("strace", "strace", "-o", "drawsrv.out", "drawsrv", nil); */
-		execl("devdraw", "devdraw", nil);
+		/*
+		 * The argv0 has no meaning to devdraw.
+		 * Pass it along only so that the various
+		 * devdraws in psu -a can be distinguished.
+		 */
+		execl("devdraw", "devdraw", argv0, nil);
 		sysfatal("exec devdraw: %r");
 	}
 	close(p[1]);
@@ -157,7 +162,28 @@ displayrpc(Display *d, Wsysmsg *tx, Wsysmsg *rx, void **freep)
 		fprint(2, "%r\n");
 		return -1;
 	}
+	/*
+	 * This is the only point where we might reschedule.
+	 * Muxrpc might need to acquire d->mux->lk, which could
+	 * be held by some other proc (e.g., the one reading from
+	 * the keyboard via Trdkbd messages).  If we need to wait
+	 * for the lock, don't let other threads from this proc
+	 * run.  This keeps up the appearance that writes to /dev/draw
+	 * don't cause rescheduling.  If you *do* allow rescheduling
+	 * here, then flushimage(display, 1) happening in two different
+	 * threads in the same proc can cause a buffer of commands
+	 * to be written out twice, leading to interesting results
+	 * on the screen.
+	 *
+	 * Threadpin and threadunpin were added to the thread library
+	 * to solve exactly this problem.  Be careful!  They are dangerous.
+	 *
+	 * _pin and _unpin are aliases for threadpin and threadunpin
+	 * in a threaded program and are no-ops in unthreaded programs.
+	 */
+	_pin();
 	rpkt = muxrpc(d->mux, tpkt);
+	_unpin();
 	free(tpkt);
 	if(rpkt == nil){
 		werrstr("muxrpc: %r");
