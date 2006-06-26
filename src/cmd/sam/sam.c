@@ -532,13 +532,22 @@ cd(String *str)
 	Strduplstr(&owd, &curwd);
 	getcurwd();
 	settempfile();
+	/*
+	 * Two passes so that if we have open
+	 * /a/foo.c and /b/foo.c and cd from /b to /a,
+	 * we don't ever have two foo.c simultaneously.
+	 */
 	for(i=0; i<tempfile.nused; i++){
 		f = tempfile.filepptr[i];
 		if(f!=cmd && f->name.s[0]!='/' && f->name.s[0]!=0){
 			Strinsert(&f->name, &owd, (Posn)0);
 			fixname(&f->name);
 			sortname(f);
-		}else if(f != cmd && Strispre(&curwd, &f->name)){
+		}
+	}
+	for(i=0; i<tempfile.nused; i++){
+		f = tempfile.filepptr[i];
+		if(f != cmd && Strispre(&curwd, &f->name)){
 			fixname(&f->name);
 			sortname(f);
 		}
