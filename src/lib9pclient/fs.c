@@ -51,7 +51,6 @@ fsinit(int fd)
 	strcpy(fs->version, "9P2000");
 	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
 		werrstr("fsversion: %r");
-fprint(2, "%r\n");
 		_fsunmount(fs);
 		return nil;
 	}
