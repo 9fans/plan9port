@@ -901,7 +901,7 @@ extern	int	post9pservice(int, char*);
 #ifdef __GNUC__
 #	if __GNUC__ >= 3
 #		undef USED
-#		define USED(x) { ulong __y __attribute__ ((unused)); __y = (ulong)(x); }
+#		define USED(x) ((void)(x))
 #	endif
 #endif
 
