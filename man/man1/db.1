@@ -7,22 +7,24 @@ db, stack \- debugger
 .I option ...
 ]
 [
-.I textfile
-]
-[
 .I pid
 |
 .I corefile
+]
+[
+.I textfile
 ]
 .PP
 .B stack
 [
-.I textfile
-]
-[
 .I pid
 |
 .I corefile
+|
+.I name
+]
+[
+.I textfile
 ]
 .SH DESCRIPTION
 .I Db
@@ -94,6 +96,13 @@ takes the same arguments as
 It prints a stack trace (see the
 .B $c
 command below) and then exits.
+If the first argument is a process name,
+then
+.I stack
+prints the stack trace of every running process
+with the given name
+that is 
+owned by the current user.
 .PP
 Commands to
 .I db
