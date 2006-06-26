@@ -18,14 +18,14 @@ mygetdents(int fd, struct dirent *buf, int n)
 	nn = getdirentries(fd, (void*)buf, n, &off);
 	return nn;
 }
-#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#elif defined(__APPLE__) || defined(__FreeBSD__) || defined(__OpenBSD__)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
 	long off;
 	return getdirentries(fd, (void*)buf, n, &off);
 }
-#elif defined(__sun__)
+#elif defined(__sun__) || defined(__NetBSD__)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
