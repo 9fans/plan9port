@@ -90,8 +90,11 @@ fsdirreadall(CFid *fid, Dir **d)
 			break;
 		ts += n;
 	}
-	if(ts >= 0)
+	if(ts >= 0){
 		ts = dirpackage(buf, ts, d);
+		if(ts < 0)
+			werrstr("malformed directory contents");
+	}
 	free(buf);
 	if(ts == 0 && n < 0)
 		return -1;
