@@ -87,12 +87,21 @@ void matchresized(void);
 int fdnoblock(int);
 
 int chatty;
+int drawsleep;
 
 void
 usage(void)
 {
 	fprint(2, "usage: devdraw (don't run  directly)\n");
 	exits("usage");
+}
+
+void
+bell(void *v, char *msg)
+{
+	if(strcmp(msg, "alarm") == 0)
+		drawsleep = drawsleep ? 0 : 1000;
+	noted(NCONT);
 }
 
 void
@@ -110,9 +119,12 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
+
+	/*
+	 * Ignore arguments.  They're only for good ps -a listings.
+	 */
 	
-	if(argc != 0)
-		usage();
+	notify(bell);
 
 	fdin.rp = fdin.wp = fdin.buf;
 	fdin.ep = fdin.buf+sizeof fdin.buf;
@@ -155,7 +167,10 @@ main(int argc, char **argv)
 		if(chatty)
 			fprint(2, "select %d...\n", top+1);
 		/* wait for something to happen */
+	    again:
 		if(select(top+1, &rd, &wr, &xx, NULL) < 0){
+			if(errno == EINTR)
+				goto again;
 			if(chatty)
 				fprint(2, "select failure\n");
 			exits(0);
