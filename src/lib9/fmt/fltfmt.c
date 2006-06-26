@@ -346,7 +346,10 @@ __efgfmt(Fmt *fmt)
 	int pad, point, prec, realchr, sign, sufwid, ucase, wid, z1, z2;
 	Rune r, *rs, *rt;
 	
-	f = va_arg(fmt->args, double);
+	if(f->flags&FmtLong)
+		f = va_arg(fmt->args, long double);
+	else
+		f = va_arg(fmt->args, double);
 	
 	/* 
 	 * extract formatting flags
