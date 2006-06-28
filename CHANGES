@@ -1,5 +1,15 @@
+June 28, 2006
+	9term: better cleanup on window delete
+
+June 27, 2006
+	rc: allow = in command line arguments
+
+June 26, 2006
+	9term: use getdents instead of getdirentries on NetBSD (Christoph Lohmann)
+
 June 25, 2006
 	9l: tweak to handle memdraw memlayer
+	sam: fix bug in duplicate file name detection
 	stack: accept process names as arguments
 	web: handle spaces in URLs
 	lib9/fmt: silence a gcc warning
