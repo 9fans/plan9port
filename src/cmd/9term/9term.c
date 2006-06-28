@@ -17,6 +17,7 @@
 
 int use9wm;
 int mainpid;
+int mousepid;
 int plumbfd;
 int rcpid;
 int rcfd;
@@ -132,8 +133,10 @@ hangupnote(void *a, char *msg)
 {
 	if(getpid() != mainpid)
 		noted(NDFLT);
-	if(strcmp(msg, "hangup") == 0)
-		noted(NCONT);
+	if(strcmp(msg, "hangup") == 0){
+		postnote(PNPROC, rcpid, "hangup");
+		noted(NDFLT);
+	}
 	if(strstr(msg, "child")){
 		char buf[128];
 		int n;
