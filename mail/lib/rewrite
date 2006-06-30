@@ -24,8 +24,5 @@ local!(.*)		alias		\1@swtch.com
 ([^@]+)@([^@]+)@(.+)	alias		\2!\1@\3
 ([^@]+)@([^@]+)		alias		\2!\1
 
-# send swtch.com mail separately to appease mail avenger
-(swtch.com)!(.*)	|	"$PLAN9/mail/lib/qmail '\s' 'swtch.com'" "'\2@\1'"
-
 # send all mail to the gateway or mail server, $smtp,  for delivery
-([^!]*)!(.*) 		| 		"$PLAN9/mail/lib/qmail '\s' 'holo.morphisms.net'" "'\2@\1'"
+([^!]*)!(.*) 		| 		"$PLAN9/mail/lib/qmail '\s' 'YOUR.MAIL.GATEWAY'" "'\2@\1'"
