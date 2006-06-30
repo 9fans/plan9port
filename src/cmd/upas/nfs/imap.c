@@ -1458,7 +1458,8 @@ static struct {
 	char *name;
 	int offset;
 } paramtab[] = {
-	"charset",	offsetof(Part, charset)
+	"charset",	offsetof(Part, charset),
+	"name",		offsetof(Part, filename)
 };
 
 static void

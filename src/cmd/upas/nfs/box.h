@@ -93,6 +93,7 @@ struct Part
 	char*	desc;
 	char*	encoding;
 	char*	charset;
+	char*	filename;
 	char*	raw;
 	char*	rawheader;
 	char*	rawbody;

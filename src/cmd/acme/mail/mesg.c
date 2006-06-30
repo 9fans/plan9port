@@ -161,6 +161,9 @@ loadinfo(Message *m, char *dir)
 		}else if(strcmp(s, "digest") == 0){
 			free(m->digest);
 			m->digest = estrdup(t);
+		}else if(strcmp(s, "filename") == 0){
+			free(m->filename);
+			m->filename = estrdup(t);
 		}
 		free(s);
 	}

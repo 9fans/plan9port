@@ -604,9 +604,8 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 			fmtprint(&fmt, "type %s\n", part->type);
 		if(part->lines)
 			fmtprint(&fmt, "lines %d\n", part->lines);
-	/*	fmtprint(&fmt, "disposition %s\", ""); */
-	/*	fmtprint(&fmt, "filename %s\n", ""); */
-	/*	fmtprint(&fmt, "digest %s\n", ""); */
+		if(part->filename)
+			fmtprint(&fmt, "filename %s\n", part->filename);
 		s = fmtstrflush(&fmt);
 		if(s == nil)
 			s = estrdup("");
