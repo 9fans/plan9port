@@ -5,15 +5,15 @@ fn newwindow {
 }
 
 fn winctl {	
-	echo $* | 9p write acme/acme/$winid/ctl
+	echo $* | 9p write acme/$winid/ctl
 }
 
 fn winread {
-	9p read acme/acme/$winid/$1
+	9p read acme/$winid/$1
 }
 
 fn winwrite {
-	9p write acme/acme/$winid/$1
+	9p write acme/$winid/$1
 }
 
 fn windump {
