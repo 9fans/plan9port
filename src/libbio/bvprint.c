@@ -32,8 +32,7 @@ Bvprint(Biobuf *bp, char *fmt, va_list arg)
 	fmtlocaleinit(&f, nil, nil, nil);
 	n = fmtvprint(&f, fmt, arg);
 	bp->ocount = (char*)f.to - (char*)f.stop;
+	if(n == 0)
+		n = f.nfmt;
 	return n;
 }
-
-
-	
