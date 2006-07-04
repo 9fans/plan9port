@@ -122,8 +122,8 @@ drawnbrecv(Mux *mux)
 static int
 drawgettag(Mux *mux, void *vmsg)
 {
-	USED(mux);
 	uchar *msg;
+	USED(mux);
 	
 	msg = vmsg;
 	return msg[4];
@@ -132,8 +132,8 @@ drawgettag(Mux *mux, void *vmsg)
 static int
 drawsettag(Mux *mux, void *vmsg, uint tag)
 {
-	USED(mux);
 	uchar *msg;
+	USED(mux);
 	
 	msg = vmsg;
 	msg[4] = tag;
