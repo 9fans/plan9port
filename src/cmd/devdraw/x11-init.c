@@ -28,11 +28,18 @@ xerror(XDisplay *d, XErrorEvent *e)
 		return 0;
 	if(e->request_code == 18) /* XChangeProperty */
 		return 0;
+	/*
+	 * BadDrawable happens in apps that get resized a LOT,
+	 * e.g. when KDE is configured to resize continuously
+	 * during a window drag.
+	 */
+	if(e->error_code == 9) /* BadDrawable */
+		return 0;
 
-	print("X error: error_code=%d, request_code=%d, minor=%d disp=%p\n",
+	fprint(2, "X error: error_code=%d, request_code=%d, minor=%d disp=%p\n",
 		e->error_code, e->request_code, e->minor_code, d);
 	XGetErrorText(d, e->error_code, buf, sizeof buf);
-	print("%s\n", buf);
+	fprint(2, "%s\n", buf);
 	return 0;
 }
 
@@ -681,8 +688,6 @@ _xconfigure(XEvent *e)
 
 	if(xe->width == Dx(_x.screenr) && xe->height == Dy(_x.screenr))
 		return 0;
-	if(xe->width==0 || xe->height==0)
-		fprint(2, "ignoring resize to %dx%d\n", xe->width, xe->height);
 	r = Rect(0, 0, xe->width, xe->height);
 	qlock(&_x.screenlock);
 	if(_x.screenpm != _x.nextscreenpm){

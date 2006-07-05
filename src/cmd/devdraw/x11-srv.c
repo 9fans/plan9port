@@ -48,10 +48,10 @@ struct Kbdbuf
 struct Mousebuf
 {
 	Mouse m[32];
-	int resized[32];
 	int ri;
 	int wi;
 	int stall;
+	int resized;
 };
 
 struct Tagbuf
@@ -75,7 +75,6 @@ Fdbuf fdin;
 Fdbuf fdout;
 Tagbuf kbdtags;
 Tagbuf mousetags;
-Tagbuf resizetags;
 
 void fdslide(Fdbuf*);
 void runmsg(Wsysmsg*);
@@ -83,7 +82,6 @@ void replymsg(Wsysmsg*);
 void runxevent(XEvent*);
 void matchkbd(void);
 void matchmouse(void);
-void matchresized(void);
 int fdnoblock(int);
 
 int chatty;
@@ -112,6 +110,19 @@ main(int argc, char **argv)
 	Wsysmsg m;
 	XEvent event;
 
+	/*
+	 * Move the protocol off stdin/stdout so that
+	 * any inadvertent prints don't screw things up.
+	 */
+	dup(0, 3);
+	dup(1, 4);
+	close(0);
+	close(1);
+	open("/dev/null", OREAD);
+	open("/dev/null", OWRITE);
+
+	fmtinstall('W', drawfcallfmt);
+
 	ARGBEGIN{
 	case 'D':
 		chatty++;
@@ -132,8 +143,8 @@ main(int argc, char **argv)
 	fdout.rp = fdout.wp = fdout.buf;
 	fdout.ep = fdout.buf+sizeof fdout.buf;
 
-	fdnoblock(0);
-	fdnoblock(1);
+	fdnoblock(3);
+	fdnoblock(4);
 
 	firstx = 1;
 	_x.fd = -1;
@@ -147,12 +158,12 @@ main(int argc, char **argv)
 		 * already filled the output buffer too much.
 		 */
 		if(fdout.wp < fdout.buf+MAXWMSG && fdin.wp < fdin.ep)
-			FD_SET(0, &rd);
+			FD_SET(3, &rd);
 		if(fdout.wp > fdout.rp)
-			FD_SET(1, &wr);
-		FD_SET(0, &xx);
-		FD_SET(1, &xx);
-		top = 1;
+			FD_SET(4, &wr);
+		FD_SET(3, &xx);
+		FD_SET(4, &xx);
+		top = 4;
 		if(_x.fd >= 0){
 			if(firstx){
 				firstx = 0;
@@ -161,7 +172,8 @@ main(int argc, char **argv)
 			FD_SET(_x.fd, &rd);
 			FD_SET(_x.fd, &xx);
 			XFlush(_x.display);
-			top = _x.fd;
+			if(_x.fd > top)
+				top = _x.fd;
 		}
 
 		if(chatty)
@@ -181,7 +193,7 @@ main(int argc, char **argv)
 		{
 			/* read what we can */
 			n = 1;
-			while(fdin.wp < fdin.ep && (n = read(0, fdin.wp, fdin.ep-fdin.wp)) > 0)
+			while(fdin.wp < fdin.ep && (n = read(3, fdin.wp, fdin.ep-fdin.wp)) > 0)
 				fdin.wp += n;
 			if(n == 0){
 				if(chatty)
@@ -193,6 +205,7 @@ main(int argc, char **argv)
 
 			/* pick off messages one by one */
 			while((n = convM2W(fdin.rp, fdin.wp-fdin.rp, &m)) > 0){
+				/* fprint(2, "<- %W\n", &m); */
 				runmsg(&m);
 				fdin.rp += n;
 			}
@@ -203,7 +216,7 @@ main(int argc, char **argv)
 		{
 			/* write what we can */
 			n = 1;
-			while(fdout.rp < fdout.wp && (n = write(1, fdout.rp, fdout.wp-fdout.rp)) > 0)
+			while(fdout.rp < fdout.wp && (n = write(4, fdout.rp, fdout.wp-fdout.rp)) > 0)
 				fdout.rp += n;
 			if(n == 0)
 				sysfatal("short write writing wsys");
@@ -283,6 +296,7 @@ runmsg(Wsysmsg *m)
 			mousetags.wi = 0;
 		if(mousetags.wi == mousetags.ri)
 			sysfatal("too many queued mouse reads");
+		/* fprint(2, "mouse unstall\n"); */
 		mouse.stall = 0;
 		matchmouse();
 		break;
@@ -376,6 +390,7 @@ replymsg(Wsysmsg *m)
 	if(m->type%2 == 0)
 		m->type++;
 		
+	/* fprint(2, "-> %W\n", m); */
 	/* copy to output buffer */
 	n = sizeW2M(m);
 	if(fdout.wp+n > fdout.ep)
@@ -414,15 +429,18 @@ matchmouse(void)
 {
 	Wsysmsg m;
 	
-	if(mouse.stall)
-		return;
 	while(mouse.ri != mouse.wi && mousetags.ri != mousetags.wi){
 		m.type = Rrdmouse;
 		m.tag = mousetags.t[mousetags.ri++];
 		if(mousetags.ri == nelem(mousetags.t))
 			mousetags.ri = 0;
 		m.mouse = mouse.m[mouse.ri];
-		m.resized = mouse.resized[mouse.ri];
+		m.resized = mouse.resized;
+		/*
+		if(m.resized)
+			fprint(2, "sending resize\n");
+		*/
+		mouse.resized = 0;
 		mouse.ri++;
 		if(mouse.ri == nelem(mouse.m))
 			mouse.ri = 0;
@@ -451,7 +469,7 @@ runxevent(XEvent *xev)
 
 	case ConfigureNotify:
 		if(_xconfigure(xev)){
-			mouse.resized[mouse.wi] = 1;
+			mouse.resized = 1;
 			_xreplacescreenimage();
 			goto addmouse;
 		}
@@ -464,14 +482,18 @@ runxevent(XEvent *xev)
 			return;
 		if(_xtoplan9mouse(xev, &m) < 0)
 			return;
-		mouse.resized[mouse.wi] = 0;
 	addmouse:
 		mouse.m[mouse.wi] = m;
 		mouse.wi++;
 		if(mouse.wi == nelem(mouse.m))
 			mouse.wi = 0;
-		if(mouse.wi == mouse.ri)
+		if(mouse.wi == mouse.ri){
 			mouse.stall = 1;
+			mouse.ri = 0;
+			mouse.wi = 1;
+			mouse.m[0] = m;
+			/* fprint(2, "mouse stall\n"); */
+		}
 		matchmouse();
 		break;
 	

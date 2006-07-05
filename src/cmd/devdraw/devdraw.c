@@ -275,7 +275,7 @@ dstflush(int dstid, Memimage *dst, Rectangle r)
 	}
 	/* how can this happen? -rsc, dec 12 2002 */
 	if(dst == 0){
-		print("nil dstflush\n");
+		fprint(2, "nil dstflush\n");
 		return;
 	}
 	l = dst->layer;
@@ -430,7 +430,7 @@ drawinstallscreen(Client *client, DScreen *d, int id, DImage *dimage, DImage *df
 
 	c = mallocz(sizeof(CScreen), 1);
 	if(dimage && dimage->image && dimage->image->chan == 0){
-		print("bad image %p in drawinstallscreen", dimage->image);
+		fprint(2, "bad image %p in drawinstallscreen", dimage->image);
 		abort();
 	}
 
@@ -494,7 +494,7 @@ drawfreedscreen(DScreen *this)
 
 	this->ref--;
 	if(this->ref < 0)
-		print("negative ref in drawfreedscreen\n");
+		fprint(2, "negative ref in drawfreedscreen\n");
 	if(this->ref > 0)
 		return;
 	ds = dscreen;
@@ -533,7 +533,7 @@ drawfreedimage(DImage *dimage)
 
 	dimage->ref--;
 	if(dimage->ref < 0)
-		print("negative ref in drawfreedimage\n");
+		fprint(2, "negative ref in drawfreedimage\n");
 	if(dimage->ref > 0)
 		return;
 
