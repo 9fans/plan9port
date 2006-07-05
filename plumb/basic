@@ -87,7 +87,7 @@ plumb client $editor
 
 # .h files are looked up in /usr/include and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9]+\.h)('$addr')?'
+data matches '([a-zA-Z¡-￿0-9/_\-]+\.h)('$addr')?'
 arg isfile	/usr/include/$1
 data set	$file
 attr add	addr=$3
@@ -96,7 +96,7 @@ plumb client $editor
 
 # .h files are looked up in /usr/local/include and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9]+\.h)('$addr')?'
+data matches '([a-zA-Z¡-￿0-9/_\-]+\.h)('$addr')?'
 arg isfile	/usr/local/include/$1
 data set	$file
 attr add	addr=$3
@@ -105,7 +105,7 @@ plumb client $editor
 
 # .h files are looked up in $plan9/include and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9]+\.h)('$addr')?'
+data matches '([a-zA-Z¡-￿0-9/_\-]+\.h)('$addr')?'
 arg isfile	$plan9/include/$1
 data set	$file
 attr add	addr=$3
@@ -114,7 +114,7 @@ plumb client $editor
 
 # .m files are looked up in /sys/module and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9]+\.m)('$addr')?'
+data matches '([a-zA-Z¡-￿0-9/_\-]+\.m)('$addr')?'
 arg isfile	/sys/module/$1
 data set	$file
 attr add	addr=$3
