@@ -68,8 +68,6 @@ threadmain(int argc, char **argv)
 			if(pwrite(1, zero, fsys->blocksize,
 			    (u64int)fsys->blocksize*i) != fsys->blocksize)
 				fprint(2, "error writing block %lud: %r\n", i);
-		if(b == nil && i < 2)
-			sysfatal("block %d not in use", i);
 	}
 	fprint(2, "%d blocks in use, %d file reads\n", n, nfilereads);
 	threadexitsall(nil);
