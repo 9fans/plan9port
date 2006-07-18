@@ -58,22 +58,6 @@ initlumpqueues(int nq)
 			seterr(EOk, "can't start write queue slave: %r");
 			return -1;
 		}
-		if(vtproc(queueproc, q) < 0){
-			seterr(EOk, "can't start write queue slave: %r");
-			return -1;
-		}
-		if(vtproc(queueproc, q) < 0){
-			seterr(EOk, "can't start write queue slave: %r");
-			return -1;
-		}
-		if(vtproc(queueproc, q) < 0){
-			seterr(EOk, "can't start write queue slave: %r");
-			return -1;
-		}
-		if(vtproc(queueproc, q) < 0){
-			seterr(EOk, "can't start write queue slave: %r");
-			return -1;
-		}
 	}
 
 	return 0;

@@ -23,16 +23,10 @@
 #include "dat.h"
 #include "fns.h"
 
-/*static int	bucklook(u8int *score, int type, u8int *data, int n); */
-/*static int	writebucket(ISect *is, u32int buck, IBucket *ib, DBlock *b); */
-/*static int	okibucket(IBucket *ib, ISect *is); */
 static int	initindex1(Index*);
 static ISect	*initisect1(ISect *is);
-/*static int	splitiblock(Index *ix, DBlock *b, ISect *is, u32int buck, IBucket *ib); */
 
 #define KEY(k,d)	((d) ? (k)>>(32-(d)) : 0)
-
-/*static QLock	indexlock;	//ZZZ */
 
 static char IndexMagic[] = "venti index configuration";
 
@@ -375,6 +369,8 @@ initisect(Part *part)
 		seterr(EAdmin, "can't read index section header: %r");
 		return nil;
 	}
+print("read %s at %d: %.2ux %.2ux %.2ux %.2ux\n",
+	part->name, PartBlank, b->data[0], b->data[1], b->data[2], b->data[3]);
 
 	is = MKZ(ISect);
 	if(is == nil){
@@ -457,9 +453,10 @@ initisect1(ISect *is)
 	v = is->part->size & ~(u64int)(is->blocksize - 1);
 	if(is->blockbase + (u64int)is->blocks * is->blocksize != v){
 		seterr(ECorrupt, "invalid blocks in index section %s", is->name);
-/*ZZZZZZZZZ */
-/*		freeisect(is); */
-/*		return nil; */
+		/* ZZZ what to do? 
+		freeisect(is);
+		return nil;
+		*/
 	}
 
 	if(is->stop - is->start > is->blocks){
@@ -482,9 +479,10 @@ wbisect(ISect *is)
 	ZBlock *b;
 
 	b = alloczblock(HeadSize, 1, 0);
-	if(b == nil)
-/*ZZZ set error? */
+	if(b == nil){
+		/* ZZZ set error? */
 		return -1;
+	}
 
 	if(packisect(is, b->data) < 0){
 		seterr(ECorrupt, "can't make index section header: %r");
@@ -789,7 +787,7 @@ loadibucket0(Index *ix, u32int buck, ISect **pis, u32int *pbuck, IBucket *ib, in
 /*
  * find the number of the index section holding score
  */
-static int
+int
 indexsect1(Index *ix, u8int *score)
 {
 	return indexsect0(ix, hashbits(score, 32) / ix->div);

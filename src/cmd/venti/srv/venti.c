@@ -105,6 +105,8 @@ threadmain(int argc, char *argv[])
 	fprint(2, "conf...");
 	if(initventi(configfile, &config) < 0)
 		sysfatal("can't init server: %r");
+	if(mainindex->bloom && loadbloom(mainindex->bloom) < 0)
+		sysfatal("can't load bloom filter: %r");
 
 	if(mem == 0)
 		mem = config.mem;
@@ -210,8 +212,8 @@ ventiserver(void *v)
 		trace(TraceRpc, "<- %F", &r->tx);
 		r->rx.msgtype = r->tx.msgtype+1;
 		addstat(StatRpcTotal, 1);
-	/*	print("req (arenas[0]=%p sects[0]=%p) %F\n", */
-	/*		mainindex->arenas[0], mainindex->sects[0], &r->tx); */
+		if(0) print("req (arenas[0]=%p sects[0]=%p) %F\n",
+			mainindex->arenas[0], mainindex->sects[0], &r->tx);
 		switch(r->tx.msgtype){
 		default:
 			vtrerror(r, "unknown request");

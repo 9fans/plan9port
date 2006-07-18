@@ -121,6 +121,7 @@ int
 syncindex(Index *ix, int fix, int mustflush, int check)
 {
 	Arena *arena;
+	AState as;
 	u64int a;
 	u32int clump;
 	int i, e, e1, ok, ok1, flush;
@@ -130,7 +131,12 @@ syncindex(Index *ix, int fix, int mustflush, int check)
 	for(i = 0; i < ix->narenas; i++){
 		trace(TraceProc, "syncindex start %d", i);
 		arena = ix->arenas[i];
-		clump = arena->memstats.clumps;
+		/*
+		 * Syncarena will scan through the arena looking for blocks
+		 * that have been forgotten.  It will update arena->memstats.used,
+		 * so save the currenct copy as the place to start the 
+		 * syncarenaindex scan.
+		 */
 		a = arena->memstats.used;
 		e = syncarena(arena, ix->amap[i].start, TWID32, fix, fix);
 		e1 = e;
@@ -138,15 +144,23 @@ syncindex(Index *ix, int fix, int mustflush, int check)
 			e1 &= ~(SyncHeader|SyncCIZero|SyncCIErr);
 		if(e1 == SyncHeader)
 			fprint(2, "arena %s: header is out-of-date\n", arena->name);
+		clump = arena->diskstats.clumps;
 		if(e1)
 			ok = -1;
 		else{
 			ok1 = syncarenaindex(ix, arena, clump, a + ix->amap[i].start, fix, &flush, check);
 			if(ok1 < 0)
 				fprint(2, "syncarenaindex: %r\n");
+fprint(2, "arena %s: wbarena in syncindex\n", arena->name);
 			if(fix && ok1==0 && (e & SyncHeader) && wbarena(arena) < 0)
 				fprint(2, "arena=%s header write failed: %r\n", arena->name);
 			ok |= ok1;
+
+fprint(2, "arena %s: setdcachestate\n", arena->name);
+			as.arena = arena;
+			as.aa = ix->amap[i].start + arena->memstats.used;
+			as.stats = arena->memstats;
+			setdcachestate(&as);
 		}
 	}
 	if(missing || wrong)

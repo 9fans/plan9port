@@ -55,7 +55,11 @@ ginit(void)
 		
 	first = 0;
 	memimageinit();
+#ifdef PLAN9PORT
 	smallfont = openmemsubfont(unsharp("#9/font/lucsans/lstr.10"));
+#else
+	smallfont = openmemsubfont("/lib/font/bit/lucidasans/lstr.10");
+#endif
 	black = memblack;
 	blue = allocrepl(DBlue);
 	red = allocrepl(DRed);
@@ -121,7 +125,7 @@ statgraph(Graph *g)
 	if(g->wid > nelem(bin))
 		g->wid = nelem(bin);
 	if(g->fill < 0)
-		g->fill = ((uint)(uintptr)g->arg>>8)%nelem(lofill);
+		g->fill = ((uint)g->arg>>8)%nelem(lofill);
 	if(g->fill > nelem(lofill))
 		g->fill %= nelem(lofill);
 	
@@ -151,7 +155,7 @@ statgraph(Graph *g)
 	qlock(&memdrawlock);
 	ginit();
 	if(smallfont==nil || black==nil || blue==nil || red==nil || hifill==nil || lofill==nil){
-		werrstr("graphics initialization failed");
+		werrstr("graphics initialization failed: %r");
 		qunlock(&memdrawlock);
 		return nil;
 	}
@@ -186,12 +190,12 @@ statgraph(Graph *g)
 		if(0)
 		if(lastlo != -1){
 			if(lastlo < lo)
-				memimagedraw(m, Rect(x-1, lastlo, x, lo), hifill[g->fill], ZP, memopaque, ZP, S);
+				memimagedraw(m, Rect(x-1, lastlo, x, lo), hifill[g->fill%nelem(hifill)], ZP, memopaque, ZP, S);
 			else if(lastlo > lo)
-				memimagedraw(m, Rect(x-1, lo, x, lastlo), hifill[g->fill], ZP, memopaque, ZP, S);
+				memimagedraw(m, Rect(x-1, lo, x, lastlo), hifill[g->fill%nelem(hifill)], ZP, memopaque, ZP, S);
 		}
-		memimagedraw(m, Rect(x, hi, x+1,lo), hifill[g->fill], ZP, memopaque, ZP, S);
-		memimagedraw(m, Rect(x, lo, x+1, r.max.y), lofill[g->fill], ZP, memopaque, ZP, S);
+		memimagedraw(m, Rect(x, hi, x+1,lo), hifill[g->fill%nelem(hifill)], ZP, memopaque, ZP, S);
+		memimagedraw(m, Rect(x, lo, x+1, r.max.y), lofill[g->fill%nelem(lofill)], ZP, memopaque, ZP, S);
 		lastlo = lo;
 	}
 

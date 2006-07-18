@@ -145,8 +145,6 @@ initpart(char *name, int mode)
 	if(hi == 0)
 		hi = dir->length;
 	part->size = hi - part->offset;
-fprint(2, "part %s: file %s offset %,lld size %,lld\n", 
-	name, file, part->offset, part->size);
 #ifdef CANBLOCKSIZE
 	{
 		struct statfs sfs;
@@ -203,10 +201,32 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 	u32int c, delta, icount, opsize;
 	int r;
 
+	icount = count;
 	buf = vbuf;
+
+#ifndef PLAN9PORT
+	op = isread ? "read" : "write";
+	dst = buf;
+	freetmp = nil;
+	while(count > 0){
+		opsize = min(count, 131072 /* blocksize */);
+		if(isread)
+			r = pread(fd, dst, opsize, offset);
+		else
+			r = pwrite(fd, dst, opsize, offset);
+		if(r <= 0)
+			goto Error;
+		offset += r;
+		count -= r;
+		dst += r;
+		if(r != opsize)
+			goto Error;
+	}
+	return icount;
+#endif
+
 	tmp = nil;
 	freetmp = nil;
-	icount = count;
 	opsize = blocksize;
 
 	if(count == 0){
@@ -313,7 +333,7 @@ print("FAILED isread=%d r=%d count=%d blocksize=%d\n", isread, r, count, blocksi
 			memmove(buf, tmp, count);
 		else{
 			memmove(tmp, buf, count);
-			if(pwrite(fd, tmp, blocksize, offset) != blocksize){
+			if(pwrite(fd, tmp, opsize, offset) != blocksize){
 				dst = tmp;
 				op = "write";
 				goto Error;
@@ -332,9 +352,16 @@ Error:
 	return -1;
 }
 
+#ifndef PLAN9PORT
+static int sdreset(Part*);
+static int reopen(Part*);
+static int threadspawnl(int[3], char*, char*, ...);
+#endif
+
 int
 rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
 {
+	int n, try;
 	u32int blocksize;
 
 	trace(TraceDisk, "%s %s %ud at 0x%llx", 
@@ -351,9 +378,33 @@ rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
 	if(blocksize == 0)
 		blocksize = 4096;
 
-	return prwb(part->filename, part->fd, isread, part->offset+offset, buf, count, blocksize);
-}
+	for(try=0;; try++){
+		n = prwb(part->filename, part->fd, isread, part->offset+offset, buf, count, blocksize);
+		if(n >= 0 || try > 10)
+			break;
 
+#ifndef PLAN9PORT
+	    {
+		char err[ERRMAX];
+		/*
+		 * This happens with the sdmv disks frustratingly often.
+		 * Try to fix things up and continue.
+		 */
+		rerrstr(err, sizeof err);
+		if(strstr(err, "i/o timeout") || strstr(err, "i/o error")){
+			if(sdreset(part) >= 0)
+				reopen(part);
+			continue;
+		}else if(strstr(err, "partition has changed")){
+			reopen(part);
+			continue;
+		}
+	    }
+#endif
+		break;
+	}
+	return n;
+}
 int
 readpart(Part *part, u64int offset, u8int *buf, u32int count)
 {
@@ -391,3 +442,200 @@ readfile(char *name)
 	return b;
 }
 
+
+
+
+
+
+
+
+#ifndef PLAN9PORT
+static int
+sdreset(Part *part)
+{
+	char *name, *p;
+	int i, fd, xfd[3], rv;
+	static QLock resetlk;
+	Dir *d, *dd;
+	
+	fprint(2, "sdreset %s\n", part->name);
+	name = emalloc(strlen(part->filename)+20);
+	strcpy(name, part->filename);
+	p = strrchr(name, '/');
+	if(p)
+		p++;
+	else
+		p = name;
+	
+	strcpy(p, "ctl");
+	d = dirstat(name);
+	if(d == nil){
+		free(name);
+		return -1;
+	}
+
+	/*
+	 * We don't need multiple people resetting the disk.
+	 */
+	qlock(&resetlk);
+	if((fd = open(name, OWRITE)) < 0)
+		goto error;
+	dd = dirfstat(fd);
+	if(d && dd && d->qid.vers != dd->qid.vers){
+		fprint(2, "sdreset %s: got scooped\n", part->name);
+		/* Someone else got here first. */
+		if(access(part->filename, AEXIST) >= 0)
+			goto ok;
+		goto error;
+	}
+
+	/*
+	 * Write "reset" to the ctl file to cause the chipset
+	 * to reinitialize itself (specific to sdmv driver).
+	 * Ignore error in case using other disk.
+	 */
+	fprint(2, "sdreset %s: reset ctl\n", part->name);
+	write(fd, "reset", 5);
+
+	if(access(part->filename, AEXIST) >= 0)
+		goto ok;
+
+	/*
+	 * Re-run fdisk and prep.  Don't use threadwaitchan
+	 * to avoid coordinating for it.  Reopen ctl because 
+	 * we reset the disk.
+	 */
+	strcpy(p, "ctl");
+	close(fd);
+	if((fd = open(name, OWRITE)) < 0)
+		goto error;
+	strcpy(p, "data");
+	xfd[0] = open("/dev/null", OREAD);
+	xfd[1] = dup(fd, -1);
+	xfd[2] = dup(2, -1);
+	fprint(2, "sdreset %s: run fdisk %s\n", part->name, name);
+	if(threadspawnl(xfd, "/bin/disk/fdisk", "disk/fdisk", "-p", name, nil) < 0){
+		close(xfd[0]);
+		close(xfd[1]);
+		close(xfd[2]);
+		goto error;
+	}
+	strcpy(p, "plan9");
+	for(i=0; i<=20; i++){
+		sleep(i*100);
+		if(access(part->filename, AEXIST) >= 0)
+			goto ok;
+		if(access(name, AEXIST) >= 0)
+			goto prep;
+	}
+	goto error;
+	
+prep:
+	strcpy(p, "ctl");
+	close(fd);
+	if((fd = open(name, OWRITE)) < 0)
+		goto error;
+	strcpy(p, "plan9");
+	xfd[0] = open("/dev/null", OREAD);
+	xfd[1] = dup(fd, -1);
+	xfd[2] = dup(2, -1);
+	fprint(2, "sdreset %s: run prep\n", part->name);
+	if(threadspawnl(xfd, "/bin/disk/prep", "disk/prep", "-p", name, nil) < 0){
+		close(xfd[0]);
+		close(xfd[1]);
+		close(xfd[2]);
+		goto error;
+	}
+	for(i=0; i<=20; i++){
+		sleep(i*100);
+		if(access(part->filename, AEXIST) >= 0)
+			goto ok;
+	}
+
+error:
+	fprint(2, "sdreset %s: error: %r\n", part->name);
+	rv = -1;
+	if(fd >= 0)
+		close(fd);
+	goto out;
+
+ok:
+	fprint(2, "sdreset %s: all okay\n", part->name);
+	rv = 0;
+	goto out;
+
+out:
+	free(name);
+	qunlock(&resetlk);
+	return rv;
+}
+
+static int
+reopen(Part *part)
+{
+	int fd;
+	
+	fprint(2, "reopen %s\n", part->filename);
+	if((fd = open(part->filename, ORDWR)) < 0){
+		fprint(2, "reopen %s: %r\n", part->filename);
+		return -1;
+	}	
+	if(fd != part->fd){
+		dup(fd, part->fd);
+		close(fd);
+	}
+	return 0;
+}
+
+typedef struct Spawn Spawn;
+struct Spawn
+{
+	Channel *c;
+	int fd[3];
+	char *file;
+	char **argv;
+};
+
+static void
+spawnproc(void *v)
+{
+	int i, *fd;
+	Spawn *s;
+	
+	rfork(RFFDG);
+	s = v;
+	fd = s->fd;
+	for(i=0; i<3; i++)
+		dup(fd[i], i);
+	if(fd[0] > 2)
+		close(fd[0]);
+	if(fd[1] > 2 && fd[1] != fd[0])
+		close(fd[1]);
+	if(fd[2] > 2 && fd[2] != fd[1] && fd[2] != fd[0])
+		close(fd[2]);
+	procexec(s->c, s->file, s->argv);
+}
+
+static int
+threadspawnl(int fd[3], char *file, char *argv0, ...)
+{
+	int pid;
+	Spawn s;
+	
+	s.c = chancreate(sizeof(void*), 0);
+	memmove(s.fd, fd, sizeof(s.fd));
+	s.file = file;
+	s.argv = &argv0;
+	vtproc(spawnproc, &s);
+	pid = recvul(s.c);
+	if(pid < 0)
+		return -1;
+	close(fd[0]);
+	if(fd[1] != fd[0])
+		close(fd[1]);
+	if(fd[2] != fd[1] && fd[2] != fd[0])
+		close(fd[2]);
+	return pid;
+}
+
+#endif

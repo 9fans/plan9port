@@ -75,23 +75,17 @@ enum
 	/*
 	 * magic numbers on disk
 	 */
-/*	_ClumpMagic		= 0xd15cb10cU,	/ * clump header, deprecated */
-#define	_ClumpMagic	0xd15cb10cU
+	_ClumpMagic		= 0xd15cb10cU,	/* clump header, deprecated */
 	ClumpFreeMagic		= 0,		/* free clump; terminates active clump log */
 
-/*	ArenaPartMagic		= 0xa9e4a5e7U,	/ * arena partition header */
-/*	ArenaMagic		= 0xf2a14eadU,	/ * arena trailer */
-/*	ArenaHeadMagic		= 0xd15c4eadU,	/ * arena header */
-#define	ArenaPartMagic		0xa9e4a5e7U
-#define	ArenaMagic		0xf2a14eadU
-#define	ArenaHeadMagic		0xd15c4eadU
-
-/*	BloomMagic		= 0xb1004eadU,	/ * bloom filter header */
-#define	BloomMagic		0xb1004eadU
+	ArenaPartMagic		= 0xa9e4a5e7U,	/* arena partition header */
+	ArenaMagic		= 0xf2a14eadU,	/* arena trailer */
+	ArenaHeadMagic		= 0xd15c4eadU,	/* arena header */
+	
+	BloomMagic		= 0xb1004eadU,	/* bloom filter header */
 	BloomMaxHash	= 32,
 
-/*	ISectMagic		= 0xd15c5ec7U,	/ * index header */
-#define	ISectMagic		0xd15c5ec7U
+	ISectMagic		= 0xd15c5ec7U,	/* index header */
 
 	ArenaPartVersion	= 3,
 	ArenaVersion4		= 4,
@@ -120,6 +114,7 @@ enum
 	ArenaPartSize		= 4 * U32Size,
 	ArenaSize4		= 2 * U64Size + 6 * U32Size + ANameSize + U8Size,
 	ArenaSize5			= ArenaSize4 + U32Size,
+	ArenaSize5a		= ArenaSize5 + 2 * U8Size + 2 * U32Size + 2 * U64Size,
 	ArenaHeadSize4		= U64Size + 3 * U32Size + ANameSize,
 	ArenaHeadSize5		= ArenaHeadSize4 + U32Size,
 	BloomHeadSize	= 4 * U32Size,
@@ -137,10 +132,14 @@ enum
 	 */
 	IBucketSize		= U32Size + U16Size,
 	IEntrySize		= U64Size + U32Size + 2*U16Size + 2*U8Size + VtScoreSize,
-	IEntryTypeOff		= VtScoreSize + U64Size + U32Size + 2 * U16Size,
+	IEntryTypeOff		= VtScoreSize + U32Size + U16Size + U64Size + U16Size,
+	IEntryAddrOff		= VtScoreSize + U32Size + U16Size,
 
 	MaxClumpBlocks		=  (VtMaxLumpSize + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog,
+	
+	IcacheFrac		= 1000000,	/* denominator */
 
+	SleepForever		= 1000000000,	/* magic value for sleep time */
 	/*
 	 * dirty flags - order controls disk write order
 	 */
@@ -356,13 +355,11 @@ struct Arena
 	int		blocksize;		/* size of block to read or write */
 	u64int		base;			/* base address on disk */
 	u64int		size;			/* total space in the arena */
-	u64int		limit;			/* storage limit for clumps */
 	u8int		score[VtScoreSize];	/* score of the entire sealed & summed arena */
 
 	int		clumpmax;		/* ClumpInfos per block */
 	AState		mem;
 	int		inqueue;
-	DigestState	sha1;
 
 	/*
 	 * fields stored on disk
@@ -477,6 +474,8 @@ struct ISect
 	u32int		tabsize;		/* max. bytes in index config */
 	Channel	*writechan;
 	Channel	*writedonechan;
+	void		*ig;		/* used by buildindex only */
+	int		ng;
 
 	/*
 	 * fields stored on disk
@@ -716,7 +715,18 @@ extern	int		writestodevnull;	/* dangerous - for performance debugging */
 extern	int		collectstats;
 extern	QLock	memdrawlock;
 extern	int		icachesleeptime;
+extern	int		minicachesleeptime;
 extern	int		arenasumsleeptime;
+extern	int		manualscheduling;
+extern	int		l0quantum;
+extern	int		l1quantum;
+extern	int		ignorebloom;
+extern	int		icacheprefetch;
+extern	int		syncwrites;
+
+extern	Stats	*stathist;
+extern	int	nstathist;
+extern	ulong	stattime;
 
 #ifndef PLAN9PORT
 #pragma varargck type "V" uchar*

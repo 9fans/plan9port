@@ -48,6 +48,8 @@ threadmain(int argc, char *argv[])
 	ventifmtinstall();
 	if(initventi(argv[0], &conf) < 0)
 		sysfatal("can't init venti: %r");
+	if(mainindex->bloom && loadbloom(mainindex->bloom) < 0)
+		sysfatal("can't load bloom filter: %r");
 
 	if(bcmem < maxblocksize * (mainindex->narenas + mainindex->nsects * 4 + 16))
 		bcmem = maxblocksize * (mainindex->narenas + mainindex->nsects * 4 + 16);

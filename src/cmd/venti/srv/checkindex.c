@@ -109,7 +109,7 @@ checkindex(Index *ix, Part *part, u64int off, u64int clumps, int zero)
 	int ok, bok;
 u64int found = 0;
 
-/*ZZZ make buffer size configurable */
+/* ZZZ make buffer size configurable */
 	b = alloczblock(ix->blocksize, 0, ix->blocksize);
 	z = alloczblock(ix->blocksize, 1, ix->blocksize);
 	ies = initiestream(part, off, clumps, 64*1024);
@@ -260,6 +260,8 @@ threadmain(int argc, char *argv[])
 
 	if(initventi(argv[0], &conf) < 0)
 		sysfatal("can't init venti: %r");
+	if(mainindex->bloom && loadbloom(mainindex->bloom) < 0)
+		sysfatal("can't load bloom filter: %r");
 	oldbloom = mainindex->bloom;
 	newbloom = nil;
 	if(oldbloom){

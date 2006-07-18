@@ -11,7 +11,7 @@ enum
 {
 	HashLog		= 9,
 	HashSize	= 1<<HashLog,
-	HashMask	= HashSize - 1
+	HashMask	= HashSize - 1,
 };
 
 struct LumpCache
@@ -175,7 +175,6 @@ again:
 	 * remove it from the heap, and fix up the heap.
 	 */
 	size = packetasize(p);
-/*ZZZ */
 	while(lumpcache.avail < size){
 		trace(TraceLump, "insertlump bump");
 		CHECK(checklumpcache());
@@ -275,6 +274,15 @@ bumplump(void)
 	CHECK(checklumpcache());
 	trace(TraceLump, "bumplump exit");
 	return b;
+}
+
+void
+emptylumpcache(void)
+{
+	qlock(&lumpcache.lock);
+	while(bumplump())
+		;
+	qunlock(&lumpcache.lock);
 }
 
 /*
@@ -415,3 +423,4 @@ checklumpcache(void)
 	if(lumpcache.nheap + nfree + refed != lumpcache.nblocks)
 		sysfatal("lc: missing blocks: %d %d %d %d", lumpcache.nheap, refed, nfree, lumpcache.nblocks);
 }
+

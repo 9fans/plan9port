@@ -7,6 +7,8 @@
 #include "dat.h"
 #include "fns.h"
 
+int ignorebloom;
+
 int
 bloominit(Bloom *b, vlong vsize, u8int *data)
 {
@@ -24,6 +26,7 @@ bloominit(Bloom *b, vlong vsize, u8int *data)
 		if(unpackbloomhead(b, data) < 0)
 			return -1;
 	
+fprint(2, "bloom size %lud nhash %d\n", b->size, b->nhash);
 	b->mask = b->size-1;
 	b->data = data;
 	return 0;
@@ -38,11 +41,7 @@ wbbloomhead(Bloom *b)
 Bloom*
 readbloom(Part *p)
 {
-	int i, n;
-	uint ones;
 	uchar buf[512];
-	uchar *data;
-	u32int *a;
 	Bloom *b;
 	
 	b = vtmallocz(sizeof *b);
@@ -52,14 +51,40 @@ readbloom(Part *p)
 		vtfree(b);
 		return nil;
 	}
+	b->part = p;
+	return b;
+}
+
+int
+resetbloom(Bloom *b)
+{
+	uchar *data;
+	
 	data = vtmallocz(b->size);
-	if(readpart(p, 0, data, b->size) < 0){
+fprint(2, "bloom data %lud\n", b->size);
+	b->data = data;
+	if(b->size == MaxBloomSize)	/* 2^32 overflows ulong */
+		addstat(StatBloomBits, b->size*8-1);
+	else
+		addstat(StatBloomBits, b->size*8);
+	return 0;
+}
+
+int
+loadbloom(Bloom *b)
+{
+	int i, n;
+	uint ones;
+	uchar *data;
+	u32int *a;
+	
+	data = vtmallocz(b->size);
+	if(readpart(b->part, 0, data, b->size) < 0){
 		vtfree(b);
 		vtfree(data);
-		return nil;
+		return -1;
 	}
 	b->data = data;
-	b->part = p;
 
 	a = (u32int*)b->data;
 	n = b->size/4;
@@ -73,7 +98,7 @@ readbloom(Part *p)
 	else
 		addstat(StatBloomBits, b->size*8);
 		
-	return b;
+	return 0;
 }
 
 int
@@ -101,6 +126,8 @@ gethashes(u8int *score, ulong *h)
 		a ^= *(u32int*)(score+i);
 		b ^= *(u32int*)(score+i+4);
 	}
+	if(i+4 <= VtScoreSize)	/* 20 is not 4-aligned */
+		a ^= *(u32int*)(score+i);
 	for(i=0; i<BloomMaxHash; i++, a+=b)
 		h[i] = a < BloomHeadSize*8 ? BloomHeadSize*8 : a;
 }
@@ -154,14 +181,17 @@ inbloomfilter(Bloom *b, u8int *score)
 	int r;
 	uint ms;
 
-	if(b == nil)
+	if(b == nil || b->data == nil)
 		return 1;
 
+	if(ignorebloom)
+		return 1;
+	
 	ms = msec();
 	rlock(&b->lk);
 	r = _inbloomfilter(b, score);
 	runlock(&b->lk);
-	ms = msec() - ms;
+	ms = ms - msec();
 	addstat2(StatBloomLookup, 1, StatBloomLookupTime, ms);
 	if(r)
 		addstat(StatBloomMiss, 1);
@@ -173,7 +203,7 @@ inbloomfilter(Bloom *b, u8int *score)
 void
 markbloomfilter(Bloom *b, u8int *score)
 {
-	if(b == nil)
+	if(b == nil || b->data == nil)
 		return;
 
 	rlock(&b->lk);
@@ -186,14 +216,18 @@ markbloomfilter(Bloom *b, u8int *score)
 static void
 bloomwriteproc(void *v)
 {
+	int ret;
 	Bloom *b;
-	
+
+	threadsetname("bloomwriteproc");	
 	b = v;
 	for(;;){
 		recv(b->writechan, 0);
-		if(writebloom(b) < 0)
+		if((ret=writebloom(b)) < 0)
 			fprint(2, "oops! writing bloom: %r\n");
-		send(b->writedonechan, 0);
+		else
+			ret = 0;
+		sendul(b->writedonechan, ret);
 	}
 }
 

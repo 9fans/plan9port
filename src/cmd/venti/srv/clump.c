@@ -91,7 +91,7 @@ clumpmagic(Arena *arena, u64int aa)
 {
 	u8int buf[U32Size];
 
-	if(readarena(arena, aa, buf, U32Size) < 0)
+	if(readarena(arena, aa, buf, U32Size) == TWID32)
 		return TWID32;
 	return unpackmagic(buf);
 }
@@ -135,6 +135,11 @@ loadclump(Arena *arena, u64int aa, int blocks, Clump *cl, u8int *score, int veri
 	trace(TraceLump, "loadclump unpack");
 	if(unpackclump(cl, cb->data, arena->clumpmagic) < 0){
 		seterr(ECorrupt, "loadclump %s %llud: %r", arena->name, aa);
+		freezblock(cb);
+		return nil;
+	}
+	if(cl->info.type == VtCorruptType){
+		seterr(EOk, "clump is marked corrupt");
 		freezblock(cb);
 		return nil;
 	}

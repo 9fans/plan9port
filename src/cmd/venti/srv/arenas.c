@@ -214,7 +214,7 @@ wbarenapart(ArenaPart *ap)
 		return -1;
 	b = alloczblock(HeadSize, 1, 0);
 	if(b == nil)
-/*ZZZ set error message? */
+/* ZZZ set error message? */
 		return -1;
 
 	if(packarenapart(ap, b->data) < 0){
@@ -337,8 +337,8 @@ wbarenamap(AMap *am, int n, Part *part, u64int base, u64int size)
 /*
  * amap: n '\n' amapelem * n
  * n: u32int
- * amapelem: name '\t' astart '\t' asize '\n'
- * astart, asize: u64int
+ * amapelem: name '\t' astart '\t' astop '\n'
+ * astart, astop: u64int
  */
 int
 parseamap(IFile *f, AMapN *amn)

@@ -11,6 +11,7 @@ struct ICache
 	int	bits;			/* bits to use for indexing heads */
 	u32int	size;			/* number of heads; == 1 << bits, should be < entries */
 	IEntry	*base;			/* all allocated hash table entries */
+	IEntry	*free;
 	u32int	entries;		/* elements in base */
 	IEntry	*dirty;		/* chain of dirty elements */
 	u32int	ndirty;
@@ -22,6 +23,8 @@ struct ICache
 	Arena	*lastload;
 	int		nlast;
 };
+
+int icacheprefetch = 1;
 
 static ICache icache;
 
@@ -43,6 +46,12 @@ initicache(int bits, int depth)
 	icache.heads = MKNZ(IEntry*, icache.size);
 	icache.full.l = &icache.lock;
 	setstat(StatIcacheSize, icache.entries);
+}
+
+ulong
+icachedirtyfrac(void)
+{
+	return (vlong)icache.ndirty*IcacheFrac / icache.entries;
 }
 
 u32int
@@ -141,14 +150,16 @@ lookupscore(u8int *score, int type, IAddr *ia, int *rac)
 	 * load the table of contents for that arena into the cache.
 	 */
 	ie = icachealloc(&d.ia, score);
-	icache.last[icache.nlast++%nelem(icache.last)] = amapitoa(mainindex, ie->ia.addr, &aa);
-	aa = ie->ia.addr - aa;	/* compute base addr of arena */
-	for(i=0; i<nelem(icache.last); i++)
-		if(icache.last[i] != icache.last[0])
-			break;
-	if(i==nelem(icache.last) && icache.lastload != icache.last[0]){
-		load = icache.last[0];
-		icache.lastload = load;
+	if(icacheprefetch){
+		icache.last[icache.nlast++%nelem(icache.last)] = amapitoa(mainindex, ie->ia.addr, &aa);
+		aa = ie->ia.addr - aa;	/* compute base addr of arena */
+		for(i=0; i<nelem(icache.last); i++)
+			if(icache.last[i] != icache.last[0])
+				break;
+		if(i==nelem(icache.last) && icache.lastload != icache.last[0]){
+			load = icache.last[0];
+			icache.lastload = load;
+		}
 	}
 
 found:
@@ -249,6 +260,11 @@ icachealloc(IAddr *ia, u8int *score)
 		trace(TraceLump, "icachealloc unused");
 		goto Found;
 	}
+	
+	if((ie = icache.free) != nil){
+		icache.free = ie->next;
+		goto Found;
+	}
 
 	h = icache.stolen;
 	for(i=0;; i++){
@@ -346,3 +362,21 @@ icacheclean(IEntry *ie)
 	trace(TraceProc, "icachedirty exit");
 }
 
+void
+emptyicache(void)
+{
+	int i;
+	IEntry *ie, **lie;
+	
+	qlock(&icache.lock);
+	for(i=0; i<icache.size; i++)
+	for(lie=&icache.heads[i]; (ie=*lie); ){
+		if(ie->dirty == 0){
+			*lie = ie->next;
+			ie->next = icache.free;
+			icache.free = ie;
+		}else
+			lie = &ie->next;
+	}
+	qunlock(&icache.lock);
+}

@@ -34,7 +34,7 @@ enum
 {
 	HashLog		= 9,
 	HashSize	= 1<<HashLog,
-	HashMask	= HashSize - 1
+	HashMask	= HashSize - 1,
 };
 
 struct DCache
@@ -212,8 +212,6 @@ return;
 		lastmiss.part = part;
 		lastmiss.addr = addr;
 	}
-
-/*	fprint(2, "%s %llx %s\n", part->name, addr, miss ? "miss" : "hit"); */
 }
 
 int
@@ -230,6 +228,7 @@ rareadpart(Part *part, u64int addr, u8int *buf, uint n, int load)
 	}
 	if(load != 2 || addr >= part->size){	/* addr >= part->size: let readpart do the error */	
 		runlock(&ralock);
+		diskaccess(0);
 		return readpart(part, addr, buf, n);
 	}
 
@@ -239,6 +238,7 @@ fprint(2, "raread %s %llx\n", part->name, addr);
 	nn = dcache.ramax;
 	if(addr+nn > part->size)
 		nn = part->size - addr;
+	diskaccess(0);
 	if(readpart(part, addr, dcache.rabuf, nn) < 0){
 		wunlock(&ralock);
 		return -1;
@@ -297,7 +297,6 @@ _getdblock(Part *part, u64int addr, int mode, int load)
 	/*
 	 * look for the block in the cache
 	 */
-/*checkdcache(); */
 	qlock(&dcache.lock);
 again:
 	for(b = dcache.heads[h]; b != nil; b = b->next){
@@ -367,7 +366,6 @@ found:
 		fixheap(b->heap, b);
 
 	qunlock(&dcache.lock);
-/*checkdcache(); */
 
 	trace(TraceBlock, "getdblock lock");
 	addstat(StatDblockStall, 1);
@@ -427,7 +425,6 @@ putdblock(DBlock *b)
 	else
 		wunlock(&b->lock);
 
-/*checkdcache(); */
 	qlock(&dcache.lock);
 	if(--b->ref == 0 && !b->dirty){
 		if(b->heap == TWID32)
@@ -435,7 +432,6 @@ putdblock(DBlock *b)
 		rwakeupall(&dcache.full);
 	}
 	qunlock(&dcache.lock);
-/*checkdcache(); */
 }
 
 void
@@ -474,6 +470,25 @@ dirtydblock(DBlock *b, int dirty)
 	qunlock(&dcache.lock);
 }
 
+static void
+unchain(DBlock *b)
+{
+	ulong h;
+	
+	/*
+	 * unchain the block
+	 */
+	if(b->prev == nil){
+		h = pbhash(b->addr);
+		if(dcache.heads[h] != b)
+			sysfatal("bad hash chains in disk cache");
+		dcache.heads[h] = b->next;
+	}else
+		b->prev->next = b->next;
+	if(b->next != nil)
+		b->next->prev = b->prev;
+}
+
 /*
  * remove some block from use and update the free list and counters
  */
@@ -481,7 +496,6 @@ static DBlock*
 bumpdblock(void)
 {
 	DBlock *b;
-	ulong h;
 
 	trace(TraceBlock, "bumpdblock enter");
 	b = dcache.free;
@@ -512,20 +526,26 @@ bumpdblock(void)
 
 	trace(TraceBlock, "bumpdblock bumping %s 0x%llux", b->part->name, b->addr);
 
-	/*
-	 * unchain the block
-	 */
-	if(b->prev == nil){
-		h = pbhash(b->addr);
-		if(dcache.heads[h] != b)
-			sysfatal("bad hash chains in disk cache");
-		dcache.heads[h] = b->next;
-	}else
-		b->prev->next = b->next;
-	if(b->next != nil)
-		b->next->prev = b->prev;
-
+	unchain(b);
 	return b;
+}
+
+void
+emptydcache(void)
+{
+	DBlock *b;
+	
+	qlock(&dcache.lock);
+	while(dcache.nheap > 0){
+		b = dcache.heap[0];
+		delheap(b);
+		if(!b->ref && !b->dirty){
+			unchain(b);
+			b->next = dcache.free;
+			dcache.free = b;
+		}
+	}
+	qunlock(&dcache.lock);
 }
 
 /*
@@ -683,6 +703,7 @@ static int
 parallelwrites(DBlock **b, DBlock **eb, int dirty)
 {
 	DBlock **p, **q;
+
 	for(p=b; p<eb && (*p)->dirty == dirty; p++){
 		assert(b<=p && p<eb);
 		sendp((*p)->part->writechan, *p);
@@ -803,6 +824,7 @@ writeproc(void *v)
 		trace(TraceProc, "wlock %s 0x%llux", p->name, b->addr);
 		wlock(&b->lock);
 		trace(TraceProc, "writepart %s 0x%llux", p->name, b->addr);
+		diskaccess(0);
 		if(writepart(p, b->addr, b->data, b->size) < 0)
 			fprint(2, "write error: %r\n"); /* XXX details! */
 		addstat(StatApartWrite, 1);

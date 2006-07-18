@@ -20,6 +20,7 @@ static void	sumproc(void *);
 static QLock	sumlock;
 static Rendez	sumwait;
 static ASum	*sumq;
+static ASum	*sumqtail;
 static uchar zero[8192];
 
 int	arenasumsleeptime;
@@ -257,7 +258,6 @@ writearena(Arena *arena, u64int aa, u8int *clbuf, u32int n)
 		if(m > n - nn)
 			m = n - nn;
 		memmove(&b->data[off], &clbuf[nn], m);
-		/* ok = writepart(arena->part, a, b->data, blocksize); */
 		ok = 0;
 		putdblock(b);
 		if(ok < 0){
@@ -329,7 +329,6 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf, u64int start, u64int *pa)
 		if(m > n - nn)
 			m = n - nn;
 		memmove(&b->data[off], &clbuf[nn], m);
-	/*	ok = writepart(arena->part, a, b->data, blocksize); */
 		ok = 0;
 		putdblock(b);
 		if(ok < 0){
@@ -356,6 +355,7 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf, u64int start, u64int *pa)
 		arena->ctime = arena->wtime;
 
 	writeclumpinfo(arena, clump, &c->info);
+	wbarena(arena);
 
 	/* set up for call to setdcachestate */
 	as.arena = arena;
@@ -410,6 +410,9 @@ setatailstate(AState *as)
 
 	trace(0, "setatailstate %s 0x%llux clumps %d", as->arena->name, as->aa, as->stats.clumps);
 
+	/*
+	 * Look up as->arena to find index.
+	 */
 	ix = mainindex;
 	for(i=0; i<ix->narenas; i++)
 		if(ix->arenas[i] == as->arena)
@@ -419,6 +422,9 @@ setatailstate(AState *as)
 		return;
 	}
 
+	/*
+ 	 * Walk backward until we find the last time these were in sync.
+	 */
 	for(j=i; --j>=0; ){
 		a = ix->arenas[j];
 		if(atailcmp(&a->diskstats, &a->memstats) == 0)
@@ -464,8 +470,12 @@ backsumarena(Arena *arena)
 		return;
 	qlock(&sumlock);
 	as->arena = arena;
-	as->next = sumq;
-	sumq = as;
+	as->next = nil;
+	if(sumq)
+		sumqtail->next = as;
+	else
+		sumq = as;
+	sumqtail = as;
 	rwakeup(&sumwait);
 	qunlock(&sumlock);
 }
@@ -499,6 +509,7 @@ sumarena(Arena *arena)
 	DigestState s;
 	u64int a, e;
 	u32int bs;
+	int t;
 	u8int score[VtScoreSize];
 
 	bs = MaxIoSize;
@@ -512,7 +523,12 @@ sumarena(Arena *arena)
 	b = alloczblock(bs, 0, arena->part->blocksize);
 	e = arena->base + arena->size;
 	for(a = arena->base - arena->blocksize; a + arena->blocksize <= e; a += bs){
-		sleep(arenasumsleeptime);
+		disksched();
+		while((t=arenasumsleeptime) == SleepForever){
+			sleep(1000);
+			disksched();
+		}
+		sleep(t);
 		if(a + bs > e)
 			bs = arena->blocksize;
 		if(readpart(arena->part, a, b->data, bs) < 0)
@@ -595,7 +611,7 @@ wbarenahead(Arena *arena)
 	b = alloczblock(arena->blocksize, 1, arena->part->blocksize);
 	if(b == nil){
 		logerr(EAdmin, "can't write arena header: %r");
-/*/ZZZ add error message? */
+/* ZZZ add error message? */
 		return -1;
 	}
 	/*
@@ -681,18 +697,22 @@ okarena(Arena *arena)
 	ok = 0;
 	dsize = arenadirsize(arena, arena->diskstats.clumps);
 	if(arena->diskstats.used + dsize > arena->size){
-		seterr(ECorrupt, "arena used > size");
+		seterr(ECorrupt, "arena %s used > size", arena->name);
 		ok = -1;
 	}
 
 	if(arena->diskstats.cclumps > arena->diskstats.clumps)
-		logerr(ECorrupt, "arena has more compressed clumps than total clumps");
+		logerr(ECorrupt, "arena %s has more compressed clumps than total clumps", arena->name);
 
+	/*
+	 * This need not be true if some of the disk is corrupted.
+	 *
 	if(arena->diskstats.uncsize + arena->diskstats.clumps * ClumpSize + arena->blocksize < arena->diskstats.used)
-		logerr(ECorrupt, "arena uncompressed size inconsistent with used space %lld %d %lld", arena->diskstats.uncsize, arena->diskstats.clumps, arena->diskstats.used);
+		logerr(ECorrupt, "arena %s uncompressed size inconsistent with used space %lld %d %lld", arena->name, arena->diskstats.uncsize, arena->diskstats.clumps, arena->diskstats.used);
+	 */
 
 	if(arena->ctime > arena->wtime)
-		logerr(ECorrupt, "arena creation time after last write time");
+		logerr(ECorrupt, "arena %s creation time after last write time", arena->name);
 
 	return ok;
 }

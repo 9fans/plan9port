@@ -12,6 +12,7 @@ static void icachewritecoord(void*);
 static IEntry *iesort(IEntry*);
 
 int icachesleeptime = 1000;	/* milliseconds */
+int minicachesleeptime = 50;
 
 enum
 {
@@ -74,7 +75,7 @@ nextchunk(Index *ix, ISect *is, IEntry **pie, u64int *paddr, uint *pnbuf)
 static int
 icachewritesect(Index *ix, ISect *is, u8int *buf)
 {
-	int err, h, bsize;
+	int err, h, bsize, t;
 	u32int lo, hi;
 	u64int addr, naddr;
 	uint nbuf, off;
@@ -96,7 +97,14 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 	err = 0;
 
 	while(iedirty){
-		sleep(icachesleeptime);
+		disksched();
+		while((t=icachesleeptime) == SleepForever){
+			sleep(1000);
+			disksched();
+		}
+		if(t < minicachesleeptime)
+			t = minicachesleeptime;
+		sleep(t);
 		trace(TraceProc, "icachewritesect nextchunk");
 		chunk = nextchunk(ix, is, &iedirty, &addr, &nbuf);
 
@@ -146,11 +154,14 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 					break;
 			}
 			packibucket(&ib, buf+off, is->bucketmagic);
+			/* XXX not right - must update cache after writepart */
 			if((b = _getdblock(is->part, naddr, ORDWR, 0)) != nil){
 				memmove(b->data, buf+off, bsize);
 				putdblock(b);
 			}
 		}
+
+		diskaccess(1);
 
 		trace(TraceProc, "icachewritesect writepart", addr, nbuf);
 		if(writepart(is->part, addr, buf, nbuf) < 0){
@@ -171,6 +182,7 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 static void
 icachewriteproc(void *v)
 {
+	int ret;
 	uint bsize;
 	ISect *is;
 	Index *ix;
@@ -188,17 +200,17 @@ icachewriteproc(void *v)
 		trace(TraceProc, "icachewriteproc recv");
 		recv(is->writechan, 0);
 		trace(TraceWork, "start");
-		icachewritesect(ix, is, buf);
+		ret = icachewritesect(ix, is, buf);
 		trace(TraceProc, "icachewriteproc send");
 		trace(TraceWork, "finish");
-		send(is->writedonechan, 0);
+		sendul(is->writedonechan, ret);
 	}
 }
 
 static void
 icachewritecoord(void *v)
 {
-	int i;
+	int i, err;
 	Index *ix;
 	AState as;
 
@@ -216,9 +228,9 @@ icachewritecoord(void *v)
 		as = diskstate();
 		if(as.arena==iwrite.as.arena && as.aa==iwrite.as.aa){
 			/* will not be able to do anything more than last flush - kick disk */
-			trace(TraceProc, "icachewritecoord flush dcache");
+			trace(TraceProc, "icachewritecoord kick dcache");
 			kickdcache();
-			trace(TraceProc, "icachewritecoord flushed dcache");
+			trace(TraceProc, "icachewritecoord kicked dcache");
 		}
 		iwrite.as = as;
 
@@ -229,13 +241,15 @@ icachewritecoord(void *v)
 			if(ix->bloom)
 				send(ix->bloom->writechan, 0);
 		
+			err = 0;
 			for(i=0; i<ix->nsects; i++)
-				recv(ix->sects[i]->writedonechan, 0);
+				err |= recvul(ix->sects[i]->writedonechan);
 			if(ix->bloom)
-				recv(ix->bloom->writedonechan, 0);
+				err |= recvul(ix->bloom->writedonechan);
 
-			trace(TraceProc, "icachewritecoord donewrite");
-			setatailstate(&iwrite.as);
+			trace(TraceProc, "icachewritecoord donewrite err=%d", err);
+			if(err == 0)
+				setatailstate(&iwrite.as);
 		}
 		icacheclean(nil);	/* wake up anyone waiting */
 		trace(TraceWork, "finish");

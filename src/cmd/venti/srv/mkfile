@@ -11,6 +11,7 @@ LIBOFILES=\
 	config.$O\
 	conv.$O\
 	dcache.$O\
+	disksched.$O\
 	dump.$O\
 	graph.$O\
 	httpd.$O\
@@ -52,11 +53,13 @@ TARG=\
 	fmtbloom\
 	fmtisect\
 	fmtindex\
+	fixarenas\
 	buildindex\
 	checkarenas\
 	checkindex\
 	clumpstats\
 	findscore\
+	mirrorarenas\
 	rdarena\
 	wrarena\
 	syncindex\

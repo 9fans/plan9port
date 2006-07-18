@@ -23,7 +23,7 @@ static struct {
 	ArenaHeadMagic, "ArenaHeadMagic",
 	ArenaMagic, "ArenaMagic",
 	ISectMagic, "ISectMagic",
-	BloomMagic, "BloomMagic"
+	BloomMagic, "BloomMagic",
 };
 
 static char*
@@ -138,9 +138,6 @@ unpackarena(Arena *arena, u8int *buf)
 	p += U64Size;
 	arena->diskstats.sealed = U8GET(p);
 	p += U8Size;
-
-	arena->memstats = arena->diskstats;
-
 	switch(arena->version){
 	case ArenaVersion4:
 		sz = ArenaSize4;
@@ -153,6 +150,35 @@ unpackarena(Arena *arena, u8int *buf)
 		seterr(ECorrupt, "arena has bad version number %d", arena->version);
 		return -1;
 	}
+	/*
+	 * Additional fields for the memstats version of the stats.
+	 * Diskstats reflects what is committed to the index.
+	 * Memstats reflects what is in the arena.  Originally intended
+	 * this to be a version 5 extension, but might as well use for
+	 * all the existing version 4 arenas too.
+	 *
+	 * To maintain backwards compatibility with existing venti
+	 * installations using the older format, we define that if 
+	 * memstats == diskstats, then the extension fields are not
+	 * included (see packarena below).  That is, only partially
+	 * indexed arenas have these fields.  Fully indexed arenas
+	 * (in particular, sealed arenas) do not.
+	 */
+	if(U8GET(p) == 1){
+		sz += ArenaSize5a-ArenaSize5;
+		p += U8Size;
+		arena->memstats.clumps = U32GET(p);
+		p += U32Size;
+		arena->memstats.cclumps = U32GET(p);
+		p += U32Size;
+		arena->memstats.used = U64GET(p);
+		p += U64Size;
+		arena->memstats.uncsize = U64GET(p);
+		p += U64Size;
+		arena->memstats.sealed = U8GET(p);
+		p += U8Size;
+	}else
+		arena->memstats = arena->diskstats;
 	if(buf + sz != p)
 		sysfatal("unpackarena unpacked wrong amount");
 
@@ -161,6 +187,12 @@ unpackarena(Arena *arena, u8int *buf)
 
 int
 packarena(Arena *arena, u8int *buf)
+{
+	return _packarena(arena, buf, 0);
+}
+
+int
+_packarena(Arena *arena, u8int *buf, int forceext)
 {
 	int sz;
 	u8int *p;
@@ -207,6 +239,30 @@ packarena(Arena *arena, u8int *buf)
 	p += U64Size;
 	U8PUT(p, arena->diskstats.sealed);
 	p += U8Size;
+	
+	/*
+	 * Extension fields; see above.
+	 */
+	if(forceext
+	|| arena->memstats.clumps != arena->diskstats.clumps
+	|| arena->memstats.cclumps != arena->diskstats.cclumps
+	|| arena->memstats.used != arena->diskstats.used
+	|| arena->memstats.uncsize != arena->diskstats.uncsize
+	|| arena->memstats.sealed != arena->diskstats.sealed){
+		sz += ArenaSize5a - ArenaSize5;
+		U8PUT(p, 1);
+		p += U8Size;
+		U32PUT(p, arena->memstats.clumps);
+		p += U32Size;
+		U32PUT(p, arena->memstats.cclumps);
+		p += U32Size;
+		U64PUT(p, arena->memstats.used, t32);	
+		p += U64Size;
+		U64PUT(p, arena->memstats.uncsize, t32);
+		p += U64Size;
+		U8PUT(p, arena->memstats.sealed);
+		p += U8Size;
+	}
 
 	if(buf + sz != p)
 		sysfatal("packarena packed wrong amount");
@@ -525,6 +581,8 @@ unpackientry(IEntry *ie, u8int *buf)
 	p += U32Size;
 	ie->train = U16GET(p);
 	p += U16Size;
+	if(p - buf != IEntryAddrOff)
+		sysfatal("unpackentry bad IEntryAddrOff amount");
 	ie->ia.addr = U64GET(p);
 if(ie->ia.addr>>56) print("%.8H => %llux\n", p, ie->ia.addr);
 	p += U64Size;

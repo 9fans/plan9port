@@ -61,7 +61,7 @@ sortrawientries(Index *ix, Part *tmp, u64int *base, Bloom *bloom)
 	u32int n;
 	int i, ok;
 
-/*ZZZ should allow configuration of bits, bucket size */
+/* ZZZ should allow configuration of bits, bucket size */
 	ib = initiebucks(tmp, 8, 64*1024);
 	if(ib == nil){
 		seterr(EOk, "can't create sorting buckets: %r");
@@ -116,10 +116,7 @@ readarenainfo(IEBucks *ib, Arena *arena, u64int a, Bloom *b)
 	ClumpInfo *ci, *cis;
 	u32int clump;
 	int i, n, ok, nskip;
-/*	static Biobuf bout; */
 
-/*ZZZ remove fprint? */
-/*fprint(2, "ra %s %d %d\n", arena->name, arena->memstats.clumps, arena->diskstats.clumps); */
 	if(arena->memstats.clumps)
 		fprint(2, "\tarena %s: %d entries\n", arena->name, arena->memstats.clumps);
 	else
@@ -129,7 +126,6 @@ readarenainfo(IEBucks *ib, Arena *arena, u64int a, Bloom *b)
 	ok = 0;
 	nskip = 0;
 	memset(&ie, 0, sizeof(IEntry));
-/*	Binit(&bout, 1, OWRITE); */
 	for(clump = 0; clump < arena->memstats.clumps; clump += n){
 		n = ClumpChunks;
 		if(n > arena->memstats.clumps - clump)
@@ -148,18 +144,15 @@ readarenainfo(IEBucks *ib, Arena *arena, u64int a, Bloom *b)
 			a += ci->size + ClumpSize;
 			ie.ia.blocks = (ci->size + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog;
 			scorecp(ie.score, ci->score);
-		/*	Bprint(&bout, "%22lld %V %3d %5d\n", */
-		/*		ie.ia.addr, ie.score, ie.ia.type, ie.ia.size); */
 			if(ci->type == VtCorruptType){
-			/*	print("! %V %22lld %3d %5d %3d\n", */
-			/*		ie.score, ie.ia.addr, ie.ia.type, ie.ia.size, ie.ia.blocks); */
+				if(0) print("! %V %22lld %3d %5d %3d\n",
+					ie.score, ie.ia.addr, ie.ia.type, ie.ia.size, ie.ia.blocks);
 				nskip++;
 			}else
 				sprayientry(ib, &ie);
 			markbloomfilter(b, ie.score);
 		}
 	}
-/*	Bterm(&bout); */
 	free(cis);
 	if(ok < 0)
 		return TWID32;
@@ -358,8 +351,8 @@ readiebuck(IEBucks *ib, int b)
 	m = ib->bucks[b].used;
 	if(m == 0)
 		m = ib->usable;
-/*	if(ib->bucks[b].total) */
-/*		fprint(2, "\tbucket %d: %d entries\n", b, ib->bucks[b].total/IEntrySize); */
+	if(0) if(ib->bucks[b].total)
+		fprint(2, "\tbucket %d: %d entries\n", b, ib->bucks[b].total/IEntrySize);
 	while(head != TWID32){
 		if(readpart(ib->part, (u64int)head * ib->size, &ib->buf[n], m+U32Size) < 0){
 			seterr(EOk, "can't read index sort bucket: %r");

@@ -148,6 +148,7 @@ emalloc(ulong n)
 		sysfatal("out of memory allocating %lud", n);
 	}
 	memset(p, 0xa5, n);
+	setmalloctag(p, getcallerpc(&n));
 if(0)print("emalloc %p-%p by %lux\n", p, (char*)p+n, getcallerpc(&n));
 	return p;
 }
@@ -164,6 +165,7 @@ ezmalloc(ulong n)
 		sysfatal("out of memory allocating %lud", n);
 	}
 	memset(p, 0, n);
+	setmalloctag(p, getcallerpc(&n));
 if(0)print("ezmalloc %p-%p by %lux\n", p, (char*)p+n, getcallerpc(&n));
 	return p;
 }
@@ -177,6 +179,7 @@ erealloc(void *p, ulong n)
 			abort();
 		sysfatal("out of memory allocating %lud", n);
 	}
+	setrealloctag(p, getcallerpc(&p));
 if(0)print("erealloc %p-%p by %lux\n", p, (char*)p+n, getcallerpc(&p));
 	return p;
 }
@@ -190,6 +193,7 @@ estrdup(char *s)
 	n = strlen(s) + 1;
 	t = emalloc(n);
 	memmove(t, s, n);
+	setmalloctag(t, getcallerpc(&s));
 if(0)print("estrdup %p-%p by %lux\n", t, (char*)t+n, getcallerpc(&s));
 	return t;
 }
@@ -231,6 +235,7 @@ ventifmtinstall(void)
 	fmtinstall('F', vtfcallfmt);
 	fmtinstall('H', encodefmt);
 	fmtinstall('I', ientryfmt);
+	fmtinstall('T', vttimefmt);
 	fmtinstall('V', vtscorefmt);
 }
 

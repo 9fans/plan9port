@@ -80,7 +80,7 @@ Statdesc statdesc[NStat] =
 	{ "isect block write bytes", },
 
 	{ "sum reads", },
-	{ "sum read bytes", }
+	{ "sum read bytes", },
 };
 
 QLock statslock;

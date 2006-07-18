@@ -30,12 +30,11 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 	ZBlock *lump;
 	Clump cl;
 	ClumpInfo ci;
-	static ClumpInfo zci = { -1 };
+	static ClumpInfo zci = { .type = -1 };
 	u8int score[VtScoreSize];
 	u64int uncsize, used, aa;
 	u32int clump, clumps, cclumps, magic;
 	int err, flush, broken;
-	AState as;
 
 	used = arena->memstats.used;
 	clumps = arena->memstats.clumps;
@@ -133,19 +132,21 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 		flushdcache();
 	}
 
+fprint(2, "arena %s: start=%lld fix=%d flush=%d %lld->%lld %ud->%ud %ud->%ud %lld->%lld\n",
+	arena->name,
+	start,
+	fix,
+	flush,
+	used, arena->memstats.used,
+	clumps, arena->memstats.clumps,
+	cclumps, arena->memstats.cclumps,
+	uncsize, arena->memstats.uncsize);
+
 	if(used != arena->memstats.used
 	|| clumps != arena->memstats.clumps
 	|| cclumps != arena->memstats.cclumps
 	|| uncsize != arena->memstats.uncsize)
 		err |= SyncHeader;
-	if(start && (err&SyncHeader)){
-		trace(TraceProc, "syncarena setdcachestate");
-		as.arena = arena;
-		as.aa = start+arena->memstats.used;
-		as.stats = arena->memstats;
-		setdcachestate(&as);
-	}
-
 	return err;
 }
 

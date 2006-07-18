@@ -5,11 +5,13 @@
 void
 fmtzbinit(Fmt *f, ZBlock *b)
 {
-	memset(f, 0, sizeof *f);
-	fmtlocaleinit(f, nil, nil, nil);
+	f->runes = 0;
 	f->start = b->data;
 	f->to = f->start;
 	f->stop = (char*)f->start + b->len;
+	f->flush = nil;
+	f->farg = nil;
+	f->nfmt = 0;
 }
 
 #define ROUNDUP(p, n) ((void*)(((uintptr)(p)+(n)-1)&~(uintptr)((n)-1)))

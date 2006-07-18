@@ -21,7 +21,7 @@ initiestream(Part *part, u64int off, u64int clumps, u32int size)
 {
 	IEStream *ies;
 
-/*ZZZ out of memory? */
+/* out of memory? */
 	ies = MKZ(IEStream);
 	ies->buf = MKN(u8int, size);
 	ies->epos = ies->buf;
@@ -61,7 +61,7 @@ peekientry(IEStream *ies)
 		nn -= n;
 		if(nn == 0)
 			return nil;
-/*fprint(2, "peek %d from %llud into %p\n", nn, ies->off, ies->epos); */
+//fprint(2, "peek %d from %llud into %p\n", nn, ies->off, ies->epos);
 		if(readpart(ies->part, ies->off, ies->epos, nn) < 0){
 			seterr(EOk, "can't read sorted index entries: %r");
 			return nil;
@@ -101,7 +101,7 @@ buildbucket(Index *ix, IEStream *ies, IBucket *ib, uint maxdata)
 		b = peekientry(ies);
 		if(b == nil)
 			return TWID32;
-/*fprint(2, "b=%p ies->n=%lld ib.n=%d buck=%d score=%V\n", b, ies->n, ib->n, iebuck(ix, b, ib, ies), b); */
+/* fprint(2, "b=%p ies->n=%lld ib.n=%d buck=%d score=%V\n", b, ies->n, ib->n, iebuck(ix, b, ib, ies), b); */
 		if(ib->n == 0)
 			buck = iebuck(ix, b, ib, ies);
 		else{

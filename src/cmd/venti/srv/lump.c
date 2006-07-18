@@ -2,6 +2,7 @@
 #include "dat.h"
 #include "fns.h"
 
+int			syncwrites = 0;
 int			queuewrites = 0;
 int			writestodevnull = 0;
 
@@ -45,7 +46,7 @@ readlump(u8int *score, int type, u32int size, int *cached)
 		*cached = 0;
 
 	if(lookupscore(score, type, &ia, &rac) < 0){
-		/*ZZZ place to check for someone trying to guess scores */
+		/* ZZZ place to check for someone trying to guess scores */
 		seterr(EOk, "no block with score %V/%d exists", score, type);
 
 		putlump(u);
@@ -92,7 +93,15 @@ writelump(Packet *p, u8int *score, int type, u32int creator, uint ms)
 	if(u->data != nil){
 		ok = 0;
 		if(packetcmp(p, u->data) != 0){
-			seterr(EStrange, "score collision");
+			uchar nscore[VtScoreSize];
+
+			packetsha1(u->data, nscore);
+			if(scorecmp(u->score, score) != 0)
+				seterr(EStrange, "lookuplump returned bad score %V not %V", u->score, score);
+			else if(scorecmp(u->score, nscore) != 0)
+				seterr(EStrange, "lookuplump returned bad data %V not %V", nscore, u->score);
+			else
+				seterr(EStrange, "score collision %V", score);
 			ok = -1;
 		}
 		packetfree(p);
@@ -138,7 +147,13 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 		if(old != nil){
 			ok = 0;
 			if(packetcmp(p, old) != 0){
-				seterr(EStrange, "score collision");
+				uchar nscore[VtScoreSize];
+
+				packetsha1(old, nscore);
+				if(scorecmp(u->score, nscore) != 0)
+					seterr(EStrange, "readilump returned bad data %V not %V", nscore, u->score);
+				else
+					seterr(EStrange, "score collision %V", u->score);
 				ok = -1;
 			}
 			packetfree(p);
@@ -160,6 +175,12 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 		insertlump(u, p);
 	else
 		packetfree(p);
+	
+	if(syncwrites){
+		flushdcache();
+		flushicache();
+		flushdcache();
+	}
 
 	ms = msec() - ms;
 	addstat2(StatRpcWriteNew, 1, StatRpcWriteNewTime, ms);
