@@ -488,6 +488,8 @@ uvlong vtfilegetsize(VtFile*);
 int vtfilesetsize(VtFile*, u64int);
 int vtfileremove(VtFile*);
 
+extern int vttimefmt(Fmt*);
+
 extern int chattyventi;
 extern int ventidoublechecksha1;
 extern int ventilogging;

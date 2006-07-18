@@ -27,6 +27,7 @@ OFILES=\
 	srvhello.$O\
 	strdup.$O\
 	string.$O\
+	time.$O\
 	version.$O\
 	zero.$O\
 	zeroscore.$O\
