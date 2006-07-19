@@ -10,7 +10,7 @@ mtpt=$2
 
 switch(`{uname}){
 case Linux
-	exec mount -o 'ro,timeo=100,rsize=8192,retrans=5,port=12049,mountport=12049,mountvers=3,nfsvers=3,nolock,soft,intr,udp' \
+	exec mount -o 'ro,timeo=100,rsize=8192,retrans=5,port=2049,mountport=2049,mountvers=3,nfsvers=3,nolock,soft,intr,udp' \
 		$server:/dump $mtpt
 case *
 	exec vmount0 -h 00 $server $mtpt
