@@ -13,7 +13,7 @@ fsdirstat(CFsys *fs, char *name)
 	Dir *d;
 	CFid *fid;
 
-	if((fid = _fswalk(fs->root, name)) == nil)
+	if((fid = fswalk(fs->root, name)) == nil)
 		return nil;
 	
 	d = fsdirfstat(fid);

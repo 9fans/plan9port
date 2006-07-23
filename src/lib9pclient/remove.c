@@ -12,7 +12,7 @@ fsremove(CFsys *fs, char *name)
 {
 	CFid *fid;
 
-	if((fid = _fswalk(fs->root, name)) == nil)
+	if((fid = fswalk(fs->root, name)) == nil)
 		return -1;
 	return fsfremove(fid);
 }

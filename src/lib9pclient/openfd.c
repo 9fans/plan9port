@@ -10,7 +10,7 @@ fsopenfd(CFsys *fs, char *name, int mode)
 	CFid *fid;
 	Fcall tx, rx;
 
-	if((fid = _fswalk(fs->root, name)) == nil)
+	if((fid = fswalk(fs->root, name)) == nil)
 		return -1;
 	tx.type = Topenfd;
 	tx.fid = fid->fid;

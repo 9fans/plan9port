@@ -14,6 +14,7 @@ static int _fsgettag(Mux*, void*);
 static int _fssettag(Mux*, void*, uint);
 
 int chatty9pclient;
+int eofkill9pclient;
 
 enum
 {
@@ -318,9 +319,13 @@ static int
 _fssend(Mux *mux, void *pkt)
 {
 	CFsys *fs;
+	int n;
 
 	fs = mux->aux;
-	return iowrite(fs->iosend, fs->fd, pkt, GBIT32((uchar*)pkt));
+	n = iowrite(fs->iosend, fs->fd, pkt, GBIT32((uchar*)pkt));
+	if(n < 0 && eofkill9pclient)
+		threadexitsall(nil);
+	return n;
 }
 
 static void*
@@ -333,8 +338,11 @@ _fsrecv(Mux *mux)
 
 	fs = mux->aux;
 	n = ioreadn(fs->iorecv, fs->fd, buf, 4);
-	if(n != 4)
+	if(n != 4){
+		if(eofkill9pclient)
+			threadexitsall(nil);
 		return nil;
+	}
 	n = GBIT32(buf);
 	pkt = malloc(n+4);
 	if(pkt == nil){
@@ -355,4 +363,10 @@ _fsrecv(Mux *mux)
 		PBIT32(pkt+n-4, nfd);
 	}
 	return pkt;
+}
+
+Qid
+fsqid(CFid *fid)
+{
+	return fid->qid;
 }

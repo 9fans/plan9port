@@ -4,19 +4,29 @@
 #include <9pclient.h>
 #include "fsimpl.h"
 
+int
+fsfopen(CFid *fid, int mode)
+{
+	Fcall tx, rx;
+
+	tx.type = Topen;
+	tx.fid = fid->fid;
+	tx.mode = mode;
+	if(_fsrpc(fid->fs, &tx, &rx, 0) < 0)
+		return -1;
+	fid->mode = mode;
+	return 0;
+}
+
 CFid*
 fsopen(CFsys *fs, char *name, int mode)
 {
 	char e[ERRMAX];
 	CFid *fid;
-	Fcall tx, rx;
 
-	if((fid = _fswalk(fs->root, name)) == nil)
+	if((fid = fswalk(fs->root, name)) == nil)
 		return nil;
-	tx.type = Topen;
-	tx.fid = fid->fid;
-	tx.mode = mode;
-	if(_fsrpc(fs, &tx, &rx, 0) < 0){
+	if(fsfopen(fid, mode) < 0){
 		rerrstr(e, sizeof e);
 		fsclose(fid);
 		errstr(e, sizeof e);

@@ -8,7 +8,7 @@
 #include "fsimpl.h"
 
 CFid*
-_fswalk(CFid *fid, char *oname)
+fswalk(CFid *fid, char *oname)
 {
 	char *freep, *name;
 	int i, nwalk;

@@ -4,11 +4,26 @@
 #include <9pclient.h>
 #include "fsimpl.h"
 
+int
+fsfcreate(CFid *fid, char *name, int mode, ulong perm)
+{
+	Fcall tx, rx;
+
+	tx.type = Tcreate;
+	tx.name = name;
+	tx.fid = fid->fid;
+	tx.mode = mode;
+	tx.perm = perm;
+	if(_fsrpc(fid->fs, &tx, &rx, 0) < 0)
+		return -1;
+	fid->mode = mode;
+	return 0;
+}
+
 CFid*
 fscreate(CFsys *fs, char *name, int mode, ulong perm)
 {
 	CFid *fid;
-	Fcall tx, rx;
 	char *p, *dir, *elem;
 	
 	p = strrchr(name, '/');
@@ -21,24 +36,16 @@ fscreate(CFsys *fs, char *name, int mode, ulong perm)
 		elem = p+1;
 	}
 
-	if((fid = _fswalk(fs->root, dir)) == nil){
+	if((fid = fswalk(fs->root, dir)) == nil){
 		if(p)
 			*p = '/';
-		return nil;
-	}
-	tx.type = Tcreate;
-	tx.name = elem;
-	tx.fid = fid->fid;
-	tx.mode = mode;
-	tx.perm = perm;
-	if(_fsrpc(fs, &tx, &rx, 0) < 0){
-		if(p)
-			*p = '/';
-		fsclose(fid);
 		return nil;
 	}
 	if(p)
 		*p = '/';
-	fid->mode = mode;
+	if(fsfcreate(fid, elem, mode, perm) < 0){
+		fsclose(fid);
+		return nil;
+	}
 	return fid;
 }

@@ -47,8 +47,15 @@ CFid *fscreate(CFsys*, char*, int, ulong);
 int fsaccess(CFsys*, char*, int);
 int	fsvprint(CFid*, char*, va_list);
 int	fsprint(CFid*, char*, ...);
+Qid	fsqid(CFid*);
+
+/* manipulate unopened fids */
+CFid	*fswalk(CFid*, char*);
+int fsfopen(CFid*, int);
+int fsfcreate(CFid*, char*, int, ulong);
 
 extern int chatty9pclient;
+extern int eofkill9pclient;
 
 #ifdef __cplusplus
 }

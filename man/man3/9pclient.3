@@ -1,6 +1,6 @@
 .TH 9PCLIENT 3
 .SH NAME
-CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsinit, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsremove, fsfremove, fsaccess, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, nsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fsseek, fswrite, fsprint, fsvprint \- 9P client library
+CFid, CFsys, fsinit, fsmount, fsroot, fssetroot, fsunmount, nsinit, nsmount, fsversion, fsauth, fsattach, fsclose, fscreate, fsfcreate, fsremove, fsfremove, fsaccess, fsdirread, fsdirreadall, fsdirstat, fsdirfstat, fsdirwstat, fsdirfwstat, fsopen, fsfopen, nsopen, fsopenfd, fspread, fspwrite, fsread, fsreadn, fsseek, fswrite, fsprint, fsvprint \- 9P client library
 .SH SYNOPSIS
 .B #include <u.h>
 .PP
@@ -50,6 +50,9 @@ void	fsclose(CFid *fid)
 CFid*	fscreate(CFsys *fs, char *path, int mode, ulong perm)
 .PP
 .B
+int	fsfcreate(CFid *fid, char *path, int mode, ulong perm)
+.PP
+.B
 int	fsremove(CFSys *fs, char *path)
 .PP
 .B
@@ -60,6 +63,9 @@ int	fsaccess(CFsys *fs, char *path, int amode)
 .PP
 .B
 CFid*	fsopen(CFsys *fs, char *path, int mode)
+.PP
+.B
+int	fsfopen(CFid *fid, char *path, int mode)
 .PP
 .B
 long	fspread(CFid *fid, void *buf, long n, vlong offset)
@@ -86,6 +92,9 @@ int	fsvprint(CFid *fid, char *fmt, ...)
 vlong	fsseek(CFid *Fid, vlong n, int type)
 .PP
 .B
+Qid	fsqid(CFid *fid)
+.PP
+.B
 long	fsdirread(CFid *fid, Dir **d)
 .PP
 .B
@@ -108,6 +117,12 @@ int	fsopenfd(CFsys *fs, char *path, int mode)
 .PP
 .B
 CFsys*	nsopen(char *name, char *aname, char *path, int mode)
+.PP
+.B
+extern int chatty9pclient;
+.PP
+.B
+extern int eofkill9pclient;
 .SH DESCRIPTION
 The
 .I 9pclient
@@ -218,6 +233,9 @@ Fids are not reference counted: when
 .I fsclose
 is called, the clunk transaction and freeing of storage
 happen immediately.
+Despite its name,
+.I fsclose
+can be used to clunk fids that are not open for I/O.
 .PP
 .I Fscreate
 and
@@ -249,7 +267,25 @@ dot
 .RB ( . )
 are ignored.
 .PP
-Once opened, these fids can be read and written using
+Alternately,
+.I fswalk
+walks from a fid to a given name
+to create a new fid.
+The name may be nil, corresponding to a walk with no names.
+Otherwise the name is taken as a slash-separated sequence
+of path elements.
+.I Fsfcreate
+and
+.I fsfopen
+issue 
+.I create
+and
+.I open
+transactions using the passed fid argument,
+which should have been obtained by calling
+.IR fswalk .
+.PP
+Once opened, fids can be read and written using
 .I fspread
 and
 .IR fspwrite ,
@@ -290,6 +326,17 @@ calls
 repeatedly to obtain exactly
 .I n
 bytes of data, unless it encounters end-of-file or an error.
+.PP
+.IR Attach ,
+.IR walk ,
+.IR create ,
+and
+.I open
+transactions include in their replies an updated qid for the
+fid being manipulated.
+.I Fsqid
+returns the most recent qid returned by one of these transactions
+for the given fid.
 .PP
 .I Fsaccess
 behaves like Unix's
@@ -386,6 +433,18 @@ opens a single file on a name space server: it runs
 .IR fsopen ,
 and then
 .IR fsunmount .
+.PP
+If the
+.B chatty9pclient
+flag is set, the library prints all 9P messages
+to standard error.
+If the
+.B eofkill9pclient
+flag is set, the library calls
+.I threadexitsall
+(see
+.IR thread (3))
+when it detects EOF on a 9P connection.
 .SH SOURCE
 .B \*9/src/lib9pclient
 .SH SEE ALSO
