@@ -460,6 +460,7 @@ runchecker(Part *p)
 	 * Okay to return on error - will let mail through but wrapped.
 	 */
 	w = wait();
+	remove(name);
 	if(w == nil){
 		syslog(0, "mail", "vf wait failed: %r");
 		return 0;
