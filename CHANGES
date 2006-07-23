@@ -1,3 +1,8 @@
+July 23, 2006
+	INSTALL: print status updates
+	ed: clean up on kill signal, use /var/tmp for temp files
+	upas/vf: clean up temporary files
+
 July 22, 2006
 	9pfuse: new program - mount 9P via FUSE (!) (see 9pfuse(4))
 	mount, unmount: new shell scripts (see mount(1))
