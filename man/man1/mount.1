@@ -1,0 +1,69 @@
+.TH MOUNT 1
+.SH NAME
+mount, unmount \- change name space
+.SH SYNOPSIS
+.B mount
+.I servename
+.I mtpt
+.PP
+.B unmount
+.I mtpt
+.SH DESCRIPTION
+.I Mount
+mounts a 9P server's files into the file system.
+.I Servename
+is typically 
+either the name of a Unix domain socket
+(see
+.IR namespace (4))
+or the name or IP address of a machine
+serving 9P over TCP port 564.
+.PP
+.I Unmount
+undoes the effects of the
+.I mount
+command.
+.PP
+9P services can be mounted on Unix systems in multiple ways.
+On Linux,
+.I mount
+uses the native 9P kernel module when present.
+Otherwise it tries to use
+.IR 9pfuse (4)
+with the FUSE file system module.
+Using the 9P kernel module requires root access.
+FUSE can often be used by regular users.
+On FreeBSD,
+.I mount
+tries to use FUSE.
+.PP
+Since Unix already has a 
+.I mount
+command, the version described in this manual page
+should be invoked as
+.B 9
+.BR mount .
+.SH EXAMPLES
+Mount 
+.IR acme (4)
+onto 
+.B /mnt/acme :
+.IP
+.EX
+9 mount `namespace`/acme /mnt/acme
+.EE
+.PP
+View your plumbing rules:
+.IP
+.EX
+9 mount `namespace`/plumb /mnt/plumb
+cat /mnt/plumb/rules
+.EE
+.SH SOURCE
+.B \*9/bin/mount
+.br
+.B \*9/bin/unmount
+.SH SEE ALSO
+.IR intro (4),
+.IR intro (9p),
+.IR 9pfuse (4)
