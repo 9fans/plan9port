@@ -84,9 +84,6 @@ p9dialparse(char *addr, char **pnet, char **punix, u32int *phost, int *pport)
 	struct hostent *he;
 	struct sockaddr_un *sockun;
 
-	if(strncmp(addr, "/net/", 5) == 0)
-		addr += 5;
-
 	*punix = nil;
 	net = addr;
 	if((host = strchr(net, '!')) == nil){
