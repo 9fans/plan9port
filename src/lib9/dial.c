@@ -118,6 +118,9 @@ Unix:
 		free(buf);
 		return -1;
 	}
+	/* Allow regular files in addition to Unix sockets. */
+	if((s = open(unix, ORDWR)) >= 0)
+		return s;
 	memset(&su, 0, sizeof su);
 	su.sun_family = AF_UNIX;
 	if(strlen(unix)+1 > sizeof su.sun_path){

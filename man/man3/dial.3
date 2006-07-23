@@ -162,6 +162,22 @@ It takes an address along with a default network and service to use
 if they are not specified in the address.
 It returns a pointer to static data holding the actual address to use.
 .PP
+.I Netmkaddr
+also translates Unix conventions into Plan 9 syntax.
+If 
+.I addr
+is the name of a local file or Unix domain socket,
+.I netmkaddr
+will return
+.IB unix ! addr \fR.
+If
+.I addr
+is of the form 
+.IB host : port \fR,
+.I netmkaddr
+will return
+.IB net ! host ! port \fR.
+.PP
 .I Dialparse
 parses a network address as described above
 into a network name, a Unix domain socket address,
