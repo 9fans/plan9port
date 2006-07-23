@@ -1,0 +1,5 @@
+#!/usr/local/plan9/bin/rc
+
+for(i)
+	plumb -dseemail -a 'filetype=vwhois digest='$i.$pid' mailtype=new sender='$i Mail/mbox/XXXvwhois
+
