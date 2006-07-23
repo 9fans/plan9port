@@ -1,0 +1,9 @@
+#!/usr/local/plan9/bin/rc
+
+9 troff -ms $* | tr2post |
+  gs -g1000x1000 -r144 -dNOPAUSE -dQUIET \
+  	'-dGraphicsAlphaBits=4' '-dTextAlphaBits=4' \
+  	 '-sOUTPUTFILE=-' '-sDEVICE=png16m' - quit.ps | 9 png -9t | 
+  9 crop -c 255 255 255 | 
+  9 topng
+
