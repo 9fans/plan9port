@@ -42,8 +42,8 @@ void		replyfuseerrno(FuseMsg *m, int e);
 void		replyfuseerrstr(FuseMsg*);
 void		request9p(Fcall *tx);
 
-void*		emalloc(size_t n);
-void*		erealloc(void *p, size_t n);
+void*		emalloc(uint n);
+void*		erealloc(void *p, uint n);
 char*		estrdup(char *p);
 
 int		errstr2errno(void);
