@@ -510,6 +510,7 @@ if(0)fprint(2, "vtblockput: %d: %x %d %d\n", getpid(), b->addr, c->nheap, b->ios
 	case BioVenti:
 /*if(b->addr != NilBlock) print("blockput %d\n", b->addr); */
 		b->used = c->now++;
+		/* fall through */
 	case BioVentiError:
 		heapins(b);
 		break;
@@ -541,6 +542,7 @@ vtblockwrite(VtBlock *b)
 	memmove(b->score, score, VtScoreSize);
 
 	qlock(&c->lk);
+	b->addr = NilBlock;	/* now on venti */
 	b->iostate = BioVenti;
 	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|(score[3]<<24)) % c->nhash;
 	b->next = c->hash[h];
