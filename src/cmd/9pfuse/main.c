@@ -17,8 +17,17 @@
  * TODO: graceful shutdown.
  */
  
-#define _GNU_SOURCE 1	/* for O_DIRECTORY */
+#define _GNU_SOURCE 1	/* for O_DIRECTORY on Linux */
 #include "a.h"
+
+/* GNUisms */
+#ifndef O_DIRECTORY
+#define O_DIRECTORY 0
+#endif
+#ifndef O_LARGEFILE
+#define O_LARGEFILE 0
+#endif
+
 
 int debug;
 char *argv0;
