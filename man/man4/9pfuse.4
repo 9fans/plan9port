@@ -1,0 +1,62 @@
+.TH 9PFUSE 4
+.SH NAME
+9pfuse \- mount 9P service via FUSE
+.SH SYNOPSIS
+.B 9pfuse
+[
+.B -D
+]
+[
+.B -a
+.I t
+]
+[
+.B -e
+.I t
+]
+.I addr
+.I mtpt
+.SH DESCRIPTION
+.I 9pfuse
+mounts the 9P service running at 
+.I addr
+onto 
+.I mtpt
+using the FUSE user-level file system driver.
+.PP
+.I 9pfuse
+sets up the initial mount and then forks itself
+into the background, where it serves the FUSE
+protocol, translating the requests into 9P.
+.PP
+The options are:
+.TP
+.B -D
+Print each FUSE and 9P message to standard error.
+.TP
+.B -a\fI t
+Set the kernel cache timeout for attribute information
+to 
+.I t
+(default 1.0) seconds.
+.TP
+.B -e\fI t
+Set the kernel cache timeout for directory entries to
+.I t
+(default 1.0) seconds.
+.PD
+.PP
+The
+.I fusermount
+binary must exist in the current search path.
+.PP
+FUSE is available for Linux 2.4.21 and later, 
+Linux 2.6, and FreeBSD 6.x and later.
+.SH SEE ALSO
+FUSE Homepage,
+.HR http://fuse.sourceforge.net
+.PP
+FUSE for FreeBSD,
+.HR http://fuse4bsd.creo.hu
+.SH SOURCE
+.B \*9/src/cmd/9pfuse
