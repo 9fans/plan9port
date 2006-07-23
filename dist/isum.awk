@@ -10,21 +10,22 @@ BEGIN {
 	updates = "/dev/stderr"
 }
 
-function clearstatus(  i)
+function clearstatus(  noflush, i)
 {
 	if(!updates)
 		return
 	for(i=0; i<statuslen; i++)
 		printf("\b \b") >updates
 	statuslen = 0
-	fflush(updates)
+	if(!noflush)
+		fflush(updates)
 }
 
 function status(s)
 {
 	if(!updates)
 		return
-	clearstatus()
+	clearstatus(1)
 	printf("    %s ", s) >updates
 	statuslen = length(s)+5
 	fflush(updates)
@@ -75,6 +76,12 @@ debug!=0 { print "# " $0 }
 	next
 }
 
+/^cd .+; mk .+/ && !verbose {
+	dir = $2
+	sub(/;$/, "", dir)
+	status(dir " mk " $4)
+}
+
 /^cd / {
 	if(debug) print "% cd"
 	errors = 0
@@ -85,11 +92,6 @@ debug!=0 { print "# " $0 }
 			print >copy
 			fflush(copy)
 		}
-	}
-	else{
-		dir = $2
-		sub(/;$/, "", dir)
-		status(dir)
 	}
 	cd = $0 "\n"
 	cmd = ""
