@@ -125,7 +125,7 @@ void	substitute(int);
 Rune La[] = { 'a', 0 };
 Rune Lr[] = { 'r', 0 };
 
-char tmp[] = "/tmp/eXXXXX";
+char tmp[] = "/var/tmp/eXXXXX";
 
 void
 main(int argc, char *argv[])
@@ -692,7 +692,7 @@ notifyf(void *a, char *s)
 		error1(Q);
 		notejmp(a, savej, 0);
 	}
-	if(strcmp(s, "hangup") == 0){
+	if(strcmp(s, "hangup") == 0 || strcmp(s, "kill") == 0){
 		if(rescuing)
 			noted(NDFLT);
 		rescue();
