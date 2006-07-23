@@ -9,6 +9,7 @@ bin/doctype
 bin/ipso
 bin/lookman
 bin/man
+bin/mount
 bin/netfileget
 bin/netfileput
 bin/netfilestat
@@ -16,7 +17,10 @@ bin/sig
 bin/spell
 bin/src
 bin/stack
+bin/troff2png
 bin/u.rc
+bin/unmount
+bin/vwhois
 bin/vmount
 bin/yesterday
 man/mkindex
