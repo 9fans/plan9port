@@ -175,7 +175,6 @@ allocfusefid(void)
 		f = emalloc(sizeof *f);
 		fusefid = erealloc(fusefid, (nfusefid+1)*sizeof *fusefid);
 		f->id = nfusefid;
-fprint(2, "allocfusefid %d %p\n", f->id, f);
 		fusefid[f->id] = f;
 		nfusefid++;
 	}else
