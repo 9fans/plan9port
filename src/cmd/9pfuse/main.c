@@ -13,8 +13,6 @@
  * allocates two more procs, one for reading and one for
  * writing the 9P connection.  Thus the many threads in the
  * request proc can do 9P interactions without blocking.
- *
- * TODO: graceful shutdown.
  */
  
 #define _GNU_SOURCE 1	/* for O_DIRECTORY on Linux */
@@ -515,10 +513,8 @@ _fuseopenfid(uvlong nodeid, int isdir, int openmode, int *err)
 	newfid = fswalk(fid, nil);
 	if(newfid == nil){
 		*err = errstr2errno();
-	//	fsclose(fid);
 		return nil;
 	}
-	// fsputfid(fid);
 		
 	if(fsfopen(newfid, openmode) < 0){
 		*err = errstr2errno();
@@ -544,12 +540,21 @@ _fuseopen(FuseMsg *m, int isdir)
 	CFid *fid;
 	int openmode, flags, err;
 
-	/* TODO: better job translating openmode - see lib9 open */
 	in = m->tx;
 	flags = in->flags;
 	openmode = flags&3;
 	flags &= ~3;
 	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE);
+	if(flags & O_TRUNC){
+		openmode |= OTRUNC;
+		flags &= ~O_TRUNC;
+	}
+	/*
+	 * Could translate but not standard 9P:
+	 *	O_DIRECT -> ODIRECT
+	 *	O_NONBLOCK -> ONONBLOCK
+	 *	O_APPEND -> OAPPEND
+	 */
 	if(flags){
 		fprint(2, "unexpected open flags %#uo", (uint)in->flags);
 		replyfuseerrno(m, EACCES);
