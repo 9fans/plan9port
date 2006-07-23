@@ -1,3 +1,43 @@
+July 22, 2006
+	9pfuse: new program - mount 9P via FUSE (!) (see 9pfuse(4))
+	mount, unmount: new shell scripts (see mount(1))
+	snarfer: fix nowsys build (Lou Kamenov)
+	troff2png: new shell script for htmlroff
+	vwhois: new shell script
+	lib9/dial: allow regular files in unix!file syntax
+	lib9/_p9dialparse: experiment: allow host:port and unadorned /tmp/ns/foo
+	lib9pclient: more low-level 9P functions
+	lib9/sendfd: don't die on eof in recvfd
+	libventi: fix cache bug (Eoghan Sherry)
+
+July 18, 2006
+	libventi: add vttimefmt
+	venti/srv: import latest fixes from Plan 9
+	vcat: remove incorrect check for Linux (Michael Kaminsky)
+	vmount: use port 2049 instead of 12049 (Michael Kaminsky)
+
+July 5, 2006
+	devdraw: fix opaque resize error (Bart Locanthi)
+	plumb/basic: allow _, -, and / in header file names
+
+July 4, 2006
+	libdraw: move USED to right place in drawclient.c (Arvindh Tamilmani)
+
+July 2, 2006
+	libbio: return number of bytes output in Bvprint, Bprint
+	bio(3): update Bprint description
+	print(3): update runeprint description
+
+June 30, 2006
+	mail/lib/rewrite: remove personal mail config (oops)
+
+June 29, 2006
+	acme/Mail, upas/nfs: use correct file names
+		for attachments (Lou Kamenov)
+	lib/acme.rc: remove extra acme in names (Arvindh Tamilmani)
+	devdraw(1): fix man page bugs
+	srv(4): fix typo (Serge Gagnon)
+
 June 28, 2006
 	9term: better cleanup on window delete
 
