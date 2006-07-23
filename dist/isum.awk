@@ -5,7 +5,29 @@ BEGIN {
 #	print verbose 
 	cd = ""
 	out = "/dev/stdout"
+	statuslen = 0
 	debug = 0
+	updates = "/dev/stderr"
+}
+
+function clearstatus(  i)
+{
+	if(!updates)
+		return
+	for(i=0; i<statuslen; i++)
+		printf("\b \b") >updates
+	statuslen = 0
+	fflush(updates)
+}
+
+function status(s)
+{
+	if(!updates)
+		return
+	clearstatus()
+	printf("    %s ", s) >updates
+	statuslen = length(s)+5
+	fflush(updates)
 }
 
 debug!=0 { print "# " $0 }
@@ -16,9 +38,14 @@ debug!=0 { print "# " $0 }
 /^\+\+ pwd/ { next }
 
 /^\* /{
+	clearstatus()
 	if(debug) print "% mark"
 	print >out
 	fflush(out)
+	if(copy){
+		print >copy
+		fflush(copy)
+	}
 	cmd = ""
 	printtabs = 1	# print indented lines immediately following
 	errors = 0
@@ -26,8 +53,13 @@ debug!=0 { print "# " $0 }
 }
 
 /^	/ && printtabs!=0 {
+	clearstatus()
 	print >out
 	fflush(out)
+	if(copy){
+		print >copy
+		fflush(copy)
+	}
 	next
 }
 
@@ -49,6 +81,15 @@ debug!=0 { print "# " $0 }
 	if(verbose){
 		print >out
 		fflush(out)
+		if(copy){
+			print >copy
+			fflush(copy)
+		}
+	}
+	else{
+		dir = $2
+		sub(/;$/, "", dir)
+		status(dir)
 	}
 	cd = $0 "\n"
 	cmd = ""
@@ -60,9 +101,14 @@ debug!=0 { print "# " $0 }
 }
 
 errors != 0 {
+	clearstatus()
 	if(debug) print "% errors"
 	printf "%s", cmd >out
 	fflush(out)
+	if(copy){
+		printf "%s", cmd >copy
+		fflush(copy)
+	}
 	cmd = ""
 	next
 }
@@ -87,10 +133,15 @@ errors != 0 {
 
 { 
 	# unexpected line 
+	clearstatus()
 	if(debug) print "% errors1"
 	errors = 1
 	printf ">>> %s", cmd >out
 	fflush(out)
+	if(copy){
+		printf ">>> %s", cmd >copy
+		fflush(copy)
+	}
 	cmd = ""
 }
 
