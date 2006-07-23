@@ -3,6 +3,7 @@
 TARG=9pfuse
 
 OFILES=\
+	errstr.$O\
 	fuse.$O\
 	main.$O\
 

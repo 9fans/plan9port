@@ -48,4 +48,3 @@ char*		estrdup(char *p);
 
 int		errstr2errno(void);
 void unmountatexit(void);
-

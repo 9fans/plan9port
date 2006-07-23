@@ -87,6 +87,8 @@ threadmain(int argc, char **argv)
 	fmtinstall('M', dirmodefmt);
 	fmtinstall('G', fusefmt);
 
+	setsid();	/* won't be able to use console, but can't be interrupted */
+
 	init9p(argv[0]);
 	initfuse(argv[1]);
 
@@ -120,13 +122,6 @@ init9p(char *addr)
 	if((fsys = fsmount(fd, "")) == nil)
 		sysfatal("fsmount: %r");
 	fsysroot = fsroot(fsys);
-}
-
-int
-errstr2errno(void)
-{
-	/* TODO: a better job */
-	return EPERM;
 }
 
 /*
@@ -454,6 +449,7 @@ fusesetattr(FuseMsg *m)
 			if(fsfopen(nfid, OWRITE|OTRUNC) < 0){
 				replyfuseerrstr(m);
 				fsclose(nfid);
+				return;
 			}
 			fsclose(nfid);
 			goto stat;
