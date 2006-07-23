@@ -78,7 +78,10 @@ recvfd(int s)
 
 	if((n=recvmsg(s, &msg, 0)) < 0)
 		return -1;
-
+	if(n == 0){
+		werrstr("unexpected EOF");
+		return -1;
+	}
 	cmsg = CMSG_FIRSTHDR(&msg);
 	fd = *(int*)CMSG_DATA(cmsg);
 	return fd;
