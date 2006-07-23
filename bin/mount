@@ -1,0 +1,24 @@
+#!/usr/local/plan9/bin/rc
+
+if(! ~ $#* 2){
+	echo 'usage: mount addr mtpt' >[1=2]
+	exit usage
+}
+switch(`{uname}){
+case Linux
+	if(lsmod|9 grep -si '^9p(2000)? '){
+		if(test -S $1)
+			exec mount -t 9P -o proto=unix,name=$USER $1 $2
+		exec mount -t 9P -o proto=tcp,name=$USER $1 $2
+	}
+	if(lsmod|9 grep -si '^fuse ')
+		exec 9pfuse $1 $2
+	echo 'don''t know how to mount (no 9p, no fuse)' >[1=2]
+case FreeBSD
+	if(kldstat|9 grep -si ' fuse')
+		exec 9pfuse $1 $2
+	echo 'don''t know how to mount (no fuse)' >[1=2]
+case *
+	echo 'can''t mount on' `{uname} >[1=2]
+}
+exit nomount
