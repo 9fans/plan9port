@@ -689,7 +689,7 @@ fuseaccess(FuseMsg *m)
 {
 	struct fuse_access_in *in;
 	CFid *fid;
-	int err;
+	int err, omode;
 	static int a2o[] = {
 		0,
 		OEXEC,
@@ -706,7 +706,14 @@ fuseaccess(FuseMsg *m)
 		replyfuseerrno(m, EINVAL);
 		return;
 	}
-	if((fid = _fuseopenfid(m->hdr->nodeid, 0, a2o[in->mask], &err)) == nil){
+	omode = a2o[in->mask];
+	if((fid = nodeid2fid(m->hdr->nodeid)) == nil){
+		replyfuseerrno(m, ESTALE);
+		return;
+	}
+	if(fsqid(fid).type&QTDIR)
+		omode = OREAD;
+	if((fid = _fuseopenfid(m->hdr->nodeid, 0, omode, &err)) == nil){
 		replyfuseerrno(m, err);
 		return;
 	}

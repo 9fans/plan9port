@@ -6,6 +6,9 @@ int fusebufsize;
 int fusemaxwrite;
 FuseMsg *fusemsglist;
 
+int mountfuse(char *mtpt);
+void unmountfuse(char *mtpt);
+
 FuseMsg*
 allocfusemsg(void)
 {
@@ -58,10 +61,20 @@ readfusemsg(void)
 		return nil;
 	}
 	m->nbuf = n;
+
+	/*
+	 * FreeBSD FUSE sends a short length in the header
+	 * for FUSE_INIT even though the actual read length
+	 * is correct.
+	 */
+	if(n == sizeof(*m->hdr)+sizeof(struct fuse_init_in)
+	&& m->hdr->opcode == FUSE_INIT && m->hdr->len < n)
+		m->hdr->len = n;
+
 	if(m->hdr->len != n)
 		sysfatal("readfusemsg: got %d wanted %d",
 			n, m->hdr->len);
-	m->hdr->len -= sizeof(m->hdr);
+	m->hdr->len -= sizeof(*m->hdr);
 	
 	/*
 	 * Paranoia.
@@ -244,54 +257,6 @@ void
 replyfuseerrstr(FuseMsg *m)
 {
 	replyfuseerrno(m, errstr2errno());
-}
-
-/*
- * Mounts a fuse file system on mtpt and returns
- * a file descriptor for the corresponding fuse 
- * message conversation.
- */
-int
-mountfuse(char *mtpt)
-{
-	int p[2], pid, fd;
-	char buf[20];
-	
-	if(socketpair(AF_UNIX, SOCK_STREAM, 0, p) < 0)
-		return -1;
-	pid = fork();
-	if(pid < 0)
-		return -1;
-	if(pid == 0){
-		close(p[1]);
-		snprint(buf, sizeof buf, "%d", p[0]);
-		putenv("_FUSE_COMMFD", buf);
-		execlp("fusermount", "fusermount", "--", mtpt, nil);
-		fprint(2, "exec fusermount: %r\n");
-		_exit(1);
-	}
-	close(p[0]);
-	fd = recvfd(p[1]);
-	close(p[1]);
-	waitpid();
-	return fd;
-}
-
-void
-unmountfuse(char *mtpt)
-{
-	int pid;
-	
-	pid = fork();
-	if(pid < 0)
-		return;
-	if(pid == 0){
-		atexitdont(unmountatexit);
-		execlp("fusermount", "fusermount", "-u", "-z", "--", mtpt, nil);
-		fprint(2, "exec fusermount -u: %r\n");
-		_exit(1);
-	}
-	waitpid();
 }
 
 char *fusemtpt;
@@ -770,3 +735,77 @@ fusefmt(Fmt *fmt)
 	return 0;
 }
 
+/*
+ * Mounts a fuse file system on mtpt and returns
+ * a file descriptor for the corresponding fuse 
+ * message conversation.
+ */
+int
+mountfuse(char *mtpt)
+{
+#if defined(__linux__)
+	int p[2], pid, fd;
+	char buf[20];
+	
+	if(socketpair(AF_UNIX, SOCK_STREAM, 0, p) < 0)
+		return -1;
+	pid = fork();
+	if(pid < 0)
+		return -1;
+	if(pid == 0){
+		close(p[1]);
+		snprint(buf, sizeof buf, "%d", p[0]);
+		putenv("_FUSE_COMMFD", buf);
+		execlp("fusermount", "fusermount", "--", mtpt, nil);
+		fprint(2, "exec fusermount: %r\n");
+		_exit(1);
+	}
+	close(p[0]);
+	fd = recvfd(p[1]);
+	close(p[1]);
+	waitpid();
+	return fd;
+#elif defined(__FreeBSD__)
+	int pid, fd;
+	char buf[20];
+	
+	if((fd = open("/dev/fuse", ORDWR)) < 0)
+		return -1;
+	snprint(buf, sizeof buf, "%d", fd);
+	
+	pid = fork();
+	if(pid < 0)
+		return -1;
+	if(pid == 0){
+		execlp("mount_fusefs", "mount_fusefs", buf, mtpt, nil);
+		fprint(2, "exec mount_fusefs: %r\n");
+		_exit(1);
+	}
+	waitpid();
+	return fd;
+#else
+	werrstr("cannot mount fuse on this system");
+	return -1;
+#endif
+}
+
+void
+unmountfuse(char *mtpt)
+{
+	int pid;
+
+	pid = fork();
+	if(pid < 0)
+		return;
+	if(pid == 0){
+#if defined(__linux__)
+		execlp("fusermount", "fusermount", "-u", "-z", "--", mtpt, nil);
+		fprint(2, "exec fusermount -u: %r\n");
+#else
+		execlp("umount", "umount", mtpt, nil);
+		fprint(2, "exec umount: %r\n");
+#endif
+		_exit(1);
+	}
+	waitpid();
+}
