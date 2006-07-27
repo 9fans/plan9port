@@ -8,8 +8,8 @@ switch(`{uname}){
 case Linux
 	if(lsmod|9 grep -si '^9p(2000)? '){
 		if(test -S $1)
-			exec mount -t 9P -o proto=unix,name=$USER $1 $2
-		exec mount -t 9P -o proto=tcp,name=$USER $1 $2
+			exec mount -t 9P -o proto'='unix,name'='$USER $1 $2
+		exec mount -t 9P -o proto'='tcp,name'='$USER $1 $2
 	}
 	if(lsmod|9 grep -si '^fuse ')
 		exec 9pfuse $1 $2
