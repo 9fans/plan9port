@@ -23,7 +23,11 @@
 #define O_DIRECTORY 0
 #endif
 #ifndef O_LARGEFILE
+#if defined(__linux__)
+#define O_LARGEFILE 0100000  /* Sigh */
+#else
 #define O_LARGEFILE 0
+#endif
 #endif
 
 
