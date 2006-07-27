@@ -97,6 +97,11 @@ threadmain(int argc, char **argv)
 	sendp(fusechan, nil);	/* sync */
 
 	proccreate(fusereader, nil, STACK);
+	/*
+	 * Now that we're serving FUSE, we can wait
+	 * for the mount to finish and exit back to the user.
+	 */
+	waitfuse();
 	threadexits(0);
 }
 

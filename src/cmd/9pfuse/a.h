@@ -37,6 +37,7 @@ extern char *fusemtpt;
 void		freefusemsg(FuseMsg *m);
 int		fusefmt(Fmt*);
 void		initfuse(char *mtpt);
+void	waitfuse(void);
 FuseMsg*	readfusemsg(void);
 void		replyfuse(FuseMsg *m, void *arg, int narg);
 void		replyfuseerrno(FuseMsg *m, int e);

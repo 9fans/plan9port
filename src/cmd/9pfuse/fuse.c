@@ -763,7 +763,6 @@ mountfuse(char *mtpt)
 	close(p[0]);
 	fd = recvfd(p[1]);
 	close(p[1]);
-	waitpid();
 	return fd;
 #elif defined(__FreeBSD__)
 	int pid, fd;
@@ -781,12 +780,17 @@ mountfuse(char *mtpt)
 		fprint(2, "exec mount_fusefs: %r\n");
 		_exit(1);
 	}
-	waitpid();
 	return fd;
 #else
 	werrstr("cannot mount fuse on this system");
 	return -1;
 #endif
+}
+
+void
+waitfuse(void)
+{
+	waitpid();
 }
 
 void
