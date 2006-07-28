@@ -3,9 +3,19 @@
 files=""
 dest=""
 
+line=""
+if [ $# -gt 0 ]; then
+	case "$1" in
+	+[0-9]*)
+		line="`echo $1 | sed 's/+/:/'`"
+		shift
+		;;
+	esac
+fi
+
 if [ $# -eq 0 ]
 then
-	echo 'usage: B file...' 2>&1
+	echo 'usage: B [+line] file...' 2>&1
 	exit 1
 fi
 
@@ -25,12 +35,14 @@ then
 	pwd="`pwd`"
 	for i
 	do
+		i="$i$line"
 		i=`cleanname -d "$pwd" "$i"`
 		plumb -s B -d edit "$i"
 	done
 else
 	for i
 	do
+		i="$i$line"
 		pwd=`pwd`
 		file=`cleanname -d $pwd $i`
 		line=`echo $file | sed 's/.*://'`
