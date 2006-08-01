@@ -825,24 +825,26 @@ fusereaddir(FuseMsg *m)
 	p = buf;
 	ep = buf + n;
 	for(;;){
-		if(ff->nd == 0){
-			free(ff->d0);
-			ff->d0 = nil;
-			ff->d = nil;
-			if((ff->nd = fsdirread(ff->fid, &ff->d0)) < 0){
-				replyfuseerrstr(m);
-				return;
-			}
-			if(ff->nd == 0)
-				break;
-			ff->d = ff->d0;
-		}
-		while(ff->nd > 0 && canpack(ff->d, ff->off, &p, ep)){
+		while(ff->nd > 0){
+			if(!canpack(ff->d, ff->off, &p, ep))
+				goto out;
 			ff->off++;
 			ff->d++;
 			ff->nd--;
 		}
-	}				
+		free(ff->d0);
+		ff->d0 = nil;
+		ff->d = nil;
+		if((ff->nd = fsdirread(ff->fid, &ff->d0)) < 0){
+			replyfuseerrstr(m);
+			free(buf);
+			return;
+		}
+		if(ff->nd == 0)
+			break;
+		ff->d = ff->d0;
+	}
+out:			
 	replyfuse(m, buf, p - buf);
 	free(buf);
 }
