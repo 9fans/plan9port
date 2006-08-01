@@ -5,6 +5,7 @@ int fuseeof;
 int fusebufsize;
 int fusemaxwrite;
 FuseMsg *fusemsglist;
+Lock fusemsglock;
 
 int mountfuse(char *mtpt);
 void unmountfuse(char *mtpt);
@@ -15,10 +16,13 @@ allocfusemsg(void)
 	FuseMsg *m;
 	void *vbuf;
 	
+	lock(&fusemsglock);
 	if((m = fusemsglist) != nil){
 		fusemsglist = m->next;
+		unlock(&fusemsglock);
 		return m;
 	}
+	unlock(&fusemsglock);
 	m = emalloc(sizeof(*m) + fusebufsize);
 	vbuf = m+1;
 	m->buf = vbuf;
@@ -31,8 +35,10 @@ allocfusemsg(void)
 void
 freefusemsg(FuseMsg *m)
 {
+	lock(&fusemsglock);
 	m->next = fusemsglist;
 	fusemsglist = m;
+	unlock(&fusemsglock);
 }
 
 FuseMsg*
@@ -234,6 +240,7 @@ replyfuse(FuseMsg *m, void *arg, int narg)
 	}
 	if(writev(fusefd, vec, nvec) < 0)
 		sysfatal("replyfuse: %r");
+	freefusemsg(m);
 }
 
 /*
@@ -251,6 +258,7 @@ replyfuseerrno(FuseMsg *m, int e)
 		fprint(2, "FUSE <- %#G\n", m->hdr, &hdr, 0);
 	if(write(fusefd, &hdr, sizeof hdr) < 0)
 		sysfatal("replyfuseerror: %r");
+	freefusemsg(m);
 }
 
 void
@@ -310,7 +318,6 @@ initfuse(char *mtpt)
 	rx.minor = FUSE_KERNEL_MINOR_VERSION;
 	rx.max_write = fusemaxwrite;
 	replyfuse(m, &rx, sizeof rx);
-	freefusemsg(m);
 }
 
 /*
