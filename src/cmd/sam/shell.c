@@ -8,6 +8,14 @@ String	plan9cmd;	/* null terminated */
 Buffer	plan9buf;
 void	checkerrs(void);
 
+void
+setname(File *f)
+{
+	char buf[1024];
+	snprint(buf, sizeof buf, "%.*S", f->name.n, f->name.s);
+	putenv("samfile", buf);
+}
+
 int
 plan9(File *f, int type, String *s, int nest)
 {
@@ -31,6 +39,7 @@ plan9(File *f, int type, String *s, int nest)
 	if(type=='|')
 		snarf(f, addr.r.p1, addr.r.p2, &plan9buf, 1);
 	if((pid=fork()) == 0){
+		setname(f);
 		if(downloaded){	/* also put nasty fd's into errfile */
 			fd = create(errfile, 1, 0666L);
 			if(fd < 0)
