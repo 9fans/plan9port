@@ -12,7 +12,10 @@ void
 setname(File *f)
 {
 	char buf[1024];
-	snprint(buf, sizeof buf, "%.*S", f->name.n, f->name.s);
+	if(f)
+		snprint(buf, sizeof buf, "%.*S", f->name.n, f->name.s);
+	else
+		buf[0] = 0;
 	putenv("samfile", buf);
 }
 
