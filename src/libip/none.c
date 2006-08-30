@@ -12,13 +12,3 @@ readipifc(char *net, Ipifc *ipifc, int index)
 	werrstr("not implemented");
 	return nil;
 }
-
-int
-myetheraddr(uchar *to, char *dev)
-{
-	USED(to);
-	USED(dev);
-
-	werrstr("not implemented");
-	return -1;
-}
