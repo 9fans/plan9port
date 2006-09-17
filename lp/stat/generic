@@ -1,0 +1,27 @@
+#!/usr/local/plan9/bin/rc
+if (! ~ $DEBUG '') flag x +
+
+if (~ $THIS_HOST $DEST_HOST) {
+	if (test -f $LPLIB/log/$LPDEST^.st) {
+		echo status:
+		tail -3 $LPLIB/log/$LPDEST^.st
+	}
+	cd $LPSPOOL
+	if (test -d $LPDEST) {
+		once=''
+		for (i in `{bind -b $LPLIB/sched /bin;$SCHED $LPDEST}) {
+			if (~ $once '') {
+				echo
+				echo queue on $THIS_HOST:
+				echo 'job		user	try	size'
+				once=1
+			}
+			STATLINE=`{cat $LPDEST/$i^id}
+			LSLINE=`{ls -l $LPDEST/$i}
+			echo $STATLINE(1)^$STATLINE(3)'	'$STATLINE(2)'	'$STATLINE(4)'	'$LSLINE(6)
+		}
+	}
+}
+if not {
+	{ echo -d$LPDEST -q; sleep 5 } | lpsend $DEST_HOST
+}

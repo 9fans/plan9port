@@ -1,0 +1,11 @@
+#!/usr/local/plan9/bin/rc
+
+if (! ~ $DEBUG '') flag x +
+
+echo transmission log:
+if (test -r $LPLIB/log/$LPDEST^.st) {
+	tail -3 $LPLIB/log/$LPDEST^.st
+	echo
+}
+echo printer queue:
+lpdsend -q -d$OUTDEV $DEST_HOST
