@@ -9,7 +9,7 @@ if (~ $THIS_HOST $DEST_HOST) {
 	cd $LPSPOOL
 	if (test -d $LPDEST) {
 		once=''
-		for (i in `{bind -b $LPLIB/sched /bin;$SCHED $LPDEST}) {
+		for (i in `{lpsub sched $SCHED $LPDEST}) {
 			if (~ $once '') {
 				echo
 				echo queue on $THIS_HOST:
