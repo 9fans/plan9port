@@ -232,21 +232,17 @@ File*
 walkfile(File *f, char *path)
 {
 	char *os, *s, *nexts;
-	File *nf;
 
 	if(strchr(path, '/') == nil)
 		return walkfile1(f, path);	/* avoid malloc */
 
 	os = s = estrdup9p(path);
-	incref(&f->ref);
 	for(; *s; s=nexts){
 		if(nexts = strchr(s, '/'))
 			*nexts++ = '\0';
 		else
 			nexts = s+strlen(s);
-		nf = walkfile1(f, s);
-		decref(&f->ref);
-		f = nf;
+		f = walkfile1(f, s);
 		if(f == nil)
 			break;
 	}
