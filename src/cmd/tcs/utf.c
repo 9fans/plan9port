@@ -45,7 +45,7 @@ utf_in(int fd, long *notused, struct convert *out)
 	tot = 0;
 	while((n = read(fd, buf+tot, N-tot)) >= 0){
 		tot += n;
-		for(i=j=0; i<tot-UTFmax || (n==0 && i<tot); ){
+		for(i=j=0; i<=tot-UTFmax || (i<tot && (n==0 || fullrune(buf+i, tot-i))); ){
 			c = our_mbtowc(&l, buf+i, tot-i);
 			if(c == -1){
 				if(squawk)
