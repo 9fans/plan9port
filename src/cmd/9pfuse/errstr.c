@@ -41,7 +41,11 @@ static Error errortab[] = {
 	{ "illegal", EINVAL },
 	{ "read-only", EROFS },
 	{ "read only", EROFS },
+#ifdef EPROTO
 	{ "proto", EPROTO },
+#else
+	{ "proto", EINVAL },
+#endif
 	{ "entry", ENOENT },
 };
 
