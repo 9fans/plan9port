@@ -14,14 +14,14 @@ fn text {
 PROMPT='[^ 	]*[%;$#][ 	]+'
 
 fn cmds {
-	text | grep '^'$PROMPT'[^"]' | sed 's/^/	/'
+	text | sed -n 's/^'$PROMPT'([^"])/	\1/p'
 }
 
 switch($#*) {
 case 0
 	cmds | tail -1
 case *
-	cmds | grep '^	'$PROMPT^$"* | {echo; cat} |
+	cmds | grep '^	'^$"* | {echo; cat} |
 		pr -t -n | sort -nr | sort -u +1 | sort -n |
 		sed 's/^ *[0-9]+	//' | grep .
 }
