@@ -532,7 +532,7 @@ dohttp(URL *u, URL *px, Range *r, Out *out, long mtime)
 		if(output(out, buf, n) != n)
 			break;
 		tot += n;
-		if(verbose && vtime != time(0)) {
+		if(verbose && (vtime != time(0) || r->start == r->end)) {
 			vtime = time(0);
 			fprint(2, "%ld %ld\n", r->start+tot, r->end);
 		}
@@ -1226,7 +1226,7 @@ ftpxfer(int in, Out *out, Range *r)
 		if(output(out, buf, i) != i)
 			return Error;
 		r->start += i;
-		if(verbose && vtime != time(0)) {
+		if(verbose && (vtime != time(0) || r->start == r->end)) {
 			vtime = time(0);
 			fprint(2, "%ld %ld\n", r->start, r->end);
 		}
