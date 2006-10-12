@@ -1,5 +1,7 @@
 #!/usr/local/plan9/bin/rc
 
+. 9.rc
+
 fn text {
 	if(~ $winid [0-9]*)
 		9p read acme/$winid/body
@@ -12,16 +14,16 @@ fn text {
 PROMPT='[^ 	]*[%;$#][ 	]+'
 
 fn cmds {
-	text | 9 grep '^'$PROMPT'[^"]' | sed 's/^/	/'
+	text | grep '^'$PROMPT'[^"]' | sed 's/^/	/'
 }
 
 switch($#*) {
 case 0
 	cmds | tail -1
 case *
-	cmds | 9 grep '^	'$PROMPT^$"* | {echo; cat} |
+	cmds | grep '^	'$PROMPT^$"* | {echo; cat} |
 		pr -t -n | sort -nr | sort -u +1 | sort -n |
-		9 sed 's/^ *[0-9]+	//' | grep .
+		sed 's/^ *[0-9]+	//' | grep .
 }
 
 # the silly {echo; cat} gets around pr printing "empty file" when
