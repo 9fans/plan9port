@@ -13,6 +13,11 @@ struct Hchar
 
 /* &lt;, &gt;, &quot;, &amp; intentionally omitted */
 
+/*
+ * Names beginning with _ are names we recognize
+ * (without the underscore) but will not generate,
+ * because they are nonstandard.
+ */
 static Hchar byname[] =
 {
 	{"AElig", 198},
@@ -116,10 +121,10 @@ static Hchar byname[] =
 	{"eacute", 233},
 	{"ecirc", 234},
 	{"egrave", 232},
-	{"emdash", 8212},	/* non-standard but commonly used */
+	{"_emdash", 8212},	/* non-standard but commonly used */
 	{"empty", 8709},
 	{"emsp", 8195},
-	{"endash", 8211},	/* non-standard but commonly used */
+	{"_endash", 8211},	/* non-standard but commonly used */
 	{"ensp", 8194},
 	{"epsilon", 949},
 	{"equiv", 8801},
@@ -159,7 +164,7 @@ static Hchar byname[] =
 	{"laquo", 171},
 	{"larr", 8592},
 	{"lceil", 8968},
-	{"ldots", 8230},
+	{"_ldots", 8230},
 	{"ldquo", 8220},
 	{"le", 8804},
 	{"lfloor", 8970},
@@ -237,7 +242,7 @@ static Hchar byname[] =
 	{"sigma", 963},
 	{"sigmaf", 962},
 	{"sim", 8764},
-	{"sp", 8194},
+	{"_sp", 8194},
 	{"spades", 9824},
 	{"sub", 8834},
 	{"sube", 8838},
@@ -266,13 +271,13 @@ static Hchar byname[] =
 	{"upsih", 978},
 	{"upsilon", 965},
 	{"uuml", 252},
-	{"varepsilon", 8712},
+	{"_varepsilon", 8712},
 	{"varphi", 981},
-	{"varpi", 982},
+	{"_varpi", 982},
 	{"varrho", 1009},
 	{"vdots", 8942},
-	{"vsigma", 962},
-	{"vtheta", 977},
+	{"_vsigma", 962},
+	{"_vtheta", 977},
 	{"weierp", 8472},
 	{"xi", 958},
 	{"yacute", 253},
@@ -309,11 +314,21 @@ static void
 html_init(void)
 {
 	static int init;
+	int i;
 	
 	if(init)
 		return;
 	init = 1;
 	memmove(byrune, byname, sizeof byrune);
+	
+	/* Eliminate names we aren't allowed to generate. */
+	for(i=0; i<nelem(byrune); i++){
+		if(byrune[i].s[0] == '_'){
+			byrune[i].r = Runeerror;
+			byname[i].s++;
+		}
+	}
+	
 	qsort(byname, nelem(byname), sizeof byname[0], hnamecmp);
 	qsort(byrune, nelem(byrune), sizeof byrune[0], hrunecmp);
 }
@@ -346,6 +361,8 @@ findbyrune(Rune r)
 	Hchar *h;
 	int n, m;
 
+	if(r == Runeerror)
+		return nil;
 	h = byrune;
 	n = nelem(byrune);
 	while(n > 0){
