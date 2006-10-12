@@ -74,6 +74,8 @@ addrule(char *head, Word *tail, char *body, Word *ahead, int attr, int hline, ch
 void
 dumpr(char *s, Rule *r)
 {
+	if(r == nil)
+		return;
 	Bprint(&bout, "%s: start=%ld shelltype=%s shellcmd=%s\n", 
 		s, r, r->shellt->name, wtos(r->shellcmd, ' '));
 	for(; r; r = r->next){
