@@ -11,6 +11,10 @@ if [ "x$X11" = "x" ]; then
 		X11=/usr/X
 	elif [ -d /usr/openwin ]; then	# for Sun
 		X11=/usr/openwin
+	elif [ -d /usr/include/X11 ]; then
+		X11=/usr
+	elif [ -d /usr/local/include/X11 ]; then
+		X11=/usr/local
 	else
 		X11=noX11dir
 	fi
