@@ -699,7 +699,7 @@ vtfileblock(VtFile *r, u32int bn, int mode)
 
 	i = mkindices(&e, bn, index);
 	if(i < 0)
-		return nil;
+		goto Err;
 	if(i > DEPTH(e.type)){
 		if(mode == VtOREAD){
 			werrstr("bad address 0x%lux", (ulong)bn);
@@ -726,6 +726,7 @@ assert(b->type == VtDirType);
 		vtblockput(b);
 		b = bb;
 	}
+	b->pc = getcallerpc(&r);
 	return b;
 Err:
 	vtblockput(b);
@@ -833,6 +834,7 @@ fileloadblock(VtFile *r, int mode)
 			b = vtcacheglobal(r->c, r->score, VtDirType);
 			if(b == nil)
 				return nil;
+			b->pc = getcallerpc(&r);
 			return b;
 		}
 		assert(r->parent != nil);
@@ -902,6 +904,7 @@ vtfilelock(VtFile *r, int mode)
 	 */
 	assert(r->b == nil);
 	r->b = b;
+	b->pc = getcallerpc(&r);
 	return 0;
 }
 
@@ -948,6 +951,8 @@ vtfilelock2(VtFile *r, VtFile *rr, int mode)
 	 */
 	r->b = b;
 	rr->b = bb;
+	b->pc = getcallerpc(&r);
+	bb->pc = getcallerpc(&r);
 	return 0;
 }
 

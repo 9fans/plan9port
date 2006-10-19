@@ -59,12 +59,15 @@ _vtrpc(VtConn *z, Packet *p, VtFcall *tx)
 	if(top == buf){
 		werrstr("first two bytes must be in same packet fragment");
 		packetfree(p);
+		vtfree(r);
 		return nil;
 	}
 	top[1] = tag;
 	qunlock(&z->lk);
-	if(vtsend(z, p) < 0)
+	if(vtsend(z, p) < 0){
+		vtfree(r);
 		return nil;
+	}
 
 	qlock(&z->lk);
 	/* wait for the muxer to give us our packet */
@@ -85,6 +88,7 @@ _vtrpc(VtConn *z, Packet *p, VtFcall *tx)
 			if((p = vtrecv(z)) == nil){
 				werrstr("unexpected eof on venti connection");
 				z->muxer = 0;
+				vtfree(r);
 				return nil;
 			}
 			qlock(&z->lk);

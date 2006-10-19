@@ -32,15 +32,19 @@ vtfreeconn(VtConn *z)
 {
 	vthangup(z);
 	qlock(&z->lk);
-	for(;;){
+	/*
+	 * Wait for send and recv procs to notice
+	 * the hangup and clear out the queues.
+	 */
+	while(z->readq || z->writeq){
 		if(z->readq)
 			_vtqhangup(z->readq);
-		else if(z->writeq)
+		if(z->writeq)
 			_vtqhangup(z->writeq);
-		else
-			break;
 		rsleep(&z->rpcfork);
 	}
 	packetfree(z->part);
+	vtfree(z->version);
+	vtfree(z->sid);
 	vtfree(z);
 }

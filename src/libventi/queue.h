@@ -4,3 +4,4 @@ int _vtqsend(Queue*, void*);
 void *_vtqrecv(Queue*);
 void _vtqhangup(Queue*);
 void *_vtnbqrecv(Queue*);
+void _vtqfree(Queue*);

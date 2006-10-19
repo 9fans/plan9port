@@ -29,6 +29,20 @@ _vtqalloc(void)
 	return q;
 }
 
+void
+_vtqfree(Queue *q)
+{
+	Qel *e;
+	
+	/* Leaks the pointers e->p! */
+	while(q->head){
+		e = q->head;
+		q->head = e->next;
+		free(e);
+	}
+	free(q);
+}
+
 int
 _vtqsend(Queue *q, void *p)
 {

@@ -5,7 +5,7 @@
 /*
  * Disk cache.  Caches by offset, so higher levels have 
  * to deal with alignment issues (if we get asked for the
- * blocks at offsets 0 and 1, we'll do two reads.
+ * blocks at offsets 0 and 1, we'll do two reads).
  */
 
 typedef struct DiskCache DiskCache;

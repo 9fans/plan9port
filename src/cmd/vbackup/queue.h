@@ -20,3 +20,4 @@ Queue	*qalloc(void);
 void	qclose(Queue*);
 Block	*qread(Queue*, u32int*);
 void	qwrite(Queue*, Block*, u32int);
+void	qfree(Queue*);

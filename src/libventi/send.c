@@ -147,7 +147,7 @@ vtrecvproc(void *v)
 	_vtqhangup(q);
 	while((p = _vtnbqrecv(q)) != nil)
 		packetfree(p);
-	vtfree(q);
+	_vtqfree(q);
 	z->readq = nil;
 	rwakeup(&z->rpcfork);
 	qunlock(&z->lk);
@@ -178,7 +178,7 @@ vtsendproc(void *v)
 	_vtqhangup(q);
 	while((p = _vtnbqrecv(q)) != nil)
 		packetfree(p);
-	vtfree(q);
+	_vtqfree(q);
 	z->writeq = nil;
 	rwakeup(&z->rpcfork);
 	qunlock(&z->lk);

@@ -62,3 +62,9 @@ qclose(Queue *q)
 	rwakeup(&q->r);
 	qunlock(&q->lk);
 }
+
+void
+qfree(Queue *q)
+{
+	vtfree(q);
+}

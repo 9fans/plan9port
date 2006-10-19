@@ -284,6 +284,9 @@ threadmain(int argc, char **argv)
 	 * wait for processes to finish
 	 */
 	wlock(&endlk);
+	
+	qfree(qcmp);
+	qfree(qventi);
 
 	if(statustime)
 		print("# %T procs exited: %d blocks changed, %d read, %d written, %d skipped, %d copied\n",
@@ -297,6 +300,8 @@ threadmain(int argc, char **argv)
 		sysfatal("vtfileflush: %r");
 	if(vtfilegetentry(vfile, &e) < 0)
 		sysfatal("vtfilegetentry: %r");
+	vtfileunlock(vfile);
+	vtfileclose(vfile);
 
 	b = vtcacheallocblock(c, VtDirType);
 	if(b == nil)
@@ -336,6 +341,19 @@ threadmain(int argc, char **argv)
 		sysfatal("vtsync: %r");
 	if(statustime)
 		print("# %T synced\n");
+	
+	fsysclose(fsys);
+	diskclose(disk);
+	vtcachefree(zcache);
+	vtgoodbye(z);
+	// Leak here, because I can't seem to make
+	// the vtrecvproc exit.
+	// vtfreeconn(z);
+	free(tmpnam);
+	z = nil;
+	zcache = nil;
+	fsys = nil;
+	disk = nil;
 	threadexitsall(nil);
 }
 
@@ -416,6 +434,7 @@ writethread(void *v)
 		}
 		if(vtwritepacket(z, wr.score, wr.type, wr.p) < 0)
 			sysfatal("vtwritepacket: %r");
+		packetfree(wr.p);
 	}
 }
 
@@ -472,6 +491,7 @@ ventiproc(void *dummy)
 	vtcachesetwrite(zcache, nil);
 	for(i=0; i<nwritethread; i++)
 		send(writechan, nil);
+	chanfree(writechan);
 	if(statustime)
 		print("# %T venti proc exiting - nsend %d nrecv %d\n", nsend, nrecv);
 	runlock(&endlk);
@@ -534,6 +554,7 @@ mountplace(char *dev)
 	if(threadspawnl(fd, "sh", "sh", "-c", cmd, nil) < 0)
 		sysfatal("exec mount|awk (to find mtpt of %s): %r", dev);
 	/* threadspawnl closed p[1] */
+	free(cmd);
 	n = readn(p[0], buf, sizeof buf-1);
 	close(p[0]);
 	if(n <= 0)

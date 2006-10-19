@@ -348,6 +348,8 @@ Packet *vtrecv(VtConn*);
 int vtversion(VtConn *z);
 void vtdebug(VtConn *z, char*, ...);
 void vthangup(VtConn *z);
+int vtgoodbye(VtConn *z);
+
 /* #pragma varargck argpos vtdebug 2 */
 
 /* server */
@@ -412,6 +414,7 @@ struct VtBlock
 	u32int	used;
 	u32int	used2;
 	u32int	addr;
+	uintptr	pc;
 };
 
 u32int vtglobaltolocal(uchar[VtScoreSize]);

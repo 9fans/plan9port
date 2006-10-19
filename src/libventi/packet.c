@@ -756,7 +756,6 @@ packetcmp(Packet *pkt0, Packet *pkt1)
 		}
 	}
 }
-	
 
 static Frag *
 fragalloc(Packet *p, int n, int pos, Frag *next)

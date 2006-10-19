@@ -167,7 +167,7 @@ fprint(2, "cachecheck: nheap %d refed %d nblocks %d\n", c->nheap, refed, c->nblo
 	for(i = 0; i < c->nblock; i++){
 		b = &c->block[i];
 		if(b->ref){
-if(1)fprint(2, "a=%ud %V ref=%d\n", b->addr, b->score, b->ref);
+if(1)fprint(2, "a=%ud %V ref=%d pc=%#lux\n", b->addr, b->score, b->ref, (ulong)b->pc);
 			refed++;
 		}
 	}
@@ -333,6 +333,7 @@ vtcachelocal(VtCache *c, u32int addr, int type)
 
 	qlock(&b->lk);
 	b->nlock = 1;
+	b->pc = getcallerpc(&c);
 	return b;
 }
 
@@ -352,7 +353,7 @@ vtcacheallocblock(VtCache *c, int type)
 
 	qlock(&b->lk);
 	b->nlock = 1;
-
+	b->pc = getcallerpc(&b);
 	return b;
 }
 
@@ -374,7 +375,10 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	if(addr != NilBlock){
 		if(vttracelevel)
 			fprint(2, "vtcacheglobal %V %d => local\n", score, type);
-		return vtcachelocal(c, addr, type);
+		b = vtcachelocal(c, addr, type);
+		if(b)
+			b->pc = getcallerpc(&c);
+		return b;
 	}
 
 	h = (u32int)(score[0]|(score[1]<<8)|(score[2]<<16)|(score[3]<<24)) % c->nhash;
@@ -404,6 +408,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 		}
 		if(vttracelevel)
 			fprint(2, "vtcacheglobal %V %d => found in cache; returning\n", score, type);
+		b->pc = getcallerpc(&c);
 		return b;
 	}
 
@@ -451,6 +456,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	b->nlock = 1;
 	if(vttracelevel)
 		fprint(2, "vtcacheglobal %V %d => loaded into cache; returning\n", score, type);
+	b->pc = getcallerpc(&b);
 	return b;
 }
 
@@ -573,6 +579,7 @@ vtblockcopy(VtBlock *b)
 	}
 	memmove(bb->data, b->data, b->c->blocksize);
 	vtblockput(b);
+	bb->pc = getcallerpc(&b);
 	return bb;
 }
 

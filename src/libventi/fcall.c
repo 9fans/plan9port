@@ -205,6 +205,7 @@ vtfcallunpack(VtFcall *f, Packet *p)
 
 Err:
 	werrstr("bad packet");
+	vtfcallclear(f);
 	return -1;
 }
 

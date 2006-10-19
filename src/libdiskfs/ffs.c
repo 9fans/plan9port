@@ -46,6 +46,7 @@ fsysopenffs(Disk *disk)
 	fsys->_readfile = ffsreadfile;
 	fsys->_readlink = ffsreadlink;
 	fsys->_readdir = ffsreaddir;
+	fsys->_close = ffsclose;
 	fsys->fileblock = ffsxfileblock;
 
 	if(ffssync(fsys) < 0)
