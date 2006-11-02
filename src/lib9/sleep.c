@@ -5,7 +5,7 @@
 #include <sched.h>
 #include <libc.h>
 
-#if defined(__NetBSD__) || (defined(__OpenBSD__) && OpenBSD <= 200511)
+#if defined(__NetBSD__) || (defined(__OpenBSD__) && OpenBSD <= 200611)
 #if !defined(sched_yield)
 #	define sched_yield() \
 		do{ struct timespec ts; \
