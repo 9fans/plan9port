@@ -214,10 +214,14 @@ static int
 finishrpc(Muxrpc *r, Wsysmsg *w)
 {
 	uchar *p;
+	void *v;
 	int n;
 	
-	if((p = muxrpccanfinish(r)) == nil)
+	if(!muxrpccanfinish(r, &v))
 		return 0;
+	p = v;
+	if(p == nil)	/* eof on connection */
+		exit(0);
 	GET(p, n);
 	convM2W(p, n, w);
 	free(p);
@@ -269,6 +273,9 @@ extract(int canblock)
 			if(eslave[i].rpc == nil)
 				eslave[i].rpc = startrpc(Trdmouse);
 			if(eslave[i].rpc){
+				/* if ready, don't block in select */
+				if(eslave[i].rpc->p)
+					canblock = 0;
 				FD_SET(display->srvfd, &rset);
 				FD_SET(display->srvfd, &xset);
 				if(display->srvfd > max)
@@ -278,6 +285,9 @@ extract(int canblock)
 			if(eslave[i].rpc == nil)
 				eslave[i].rpc = startrpc(Trdkbd);
 			if(eslave[i].rpc){
+				/* if ready, don't block in select */
+				if(eslave[i].rpc->p)
+					canblock = 0;
 				FD_SET(display->srvfd, &rset);
 				FD_SET(display->srvfd, &xset);
 				if(display->srvfd > max)

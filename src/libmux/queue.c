@@ -81,8 +81,8 @@ _muxqrecv(Muxqueue *q)
 	return p;
 }
 
-void*
-_muxnbqrecv(Muxqueue *q)
+int
+_muxnbqrecv(Muxqueue *q, void **vp)
 {
 	void *p;
 	Qel *e;
@@ -90,14 +90,16 @@ _muxnbqrecv(Muxqueue *q)
 	qlock(&q->lk);
 	if(q->head == nil){
 		qunlock(&q->lk);
-		return nil;
+		*vp = nil;
+		return q->hungup;
 	}
 	e = q->head;
 	q->head = e->next;
 	qunlock(&q->lk);
 	p = e->p;
 	free(e);
-	return p;
+	*vp = p;
+	return 1;
 }
 
 void

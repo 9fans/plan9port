@@ -1,4 +1,4 @@
-/* Copyright (C) 2003 Russ Cox, Massachusetts Institute of Technology */
+/* Copyright (C) 2003-2006 Russ Cox, Massachusetts Institute of Technology */
 /* See COPYRIGHT */
 
 /*
@@ -100,12 +100,17 @@ muxmsgandqlock(Mux *mux, void *p)
 void
 electmuxer(Mux *mux)
 {
+	Muxrpc *rpc;
+
 	/* if there is anyone else sleeping, wake them to mux */
-	if(mux->sleep.next != &mux->sleep){
-		mux->muxer = mux->sleep.next;
-		rwakeup(&mux->muxer->r);
-	}else
-		mux->muxer = nil;
+	for(rpc=mux->sleep.next; rpc != &mux->sleep; rpc = rpc->next){
+		if(!rpc->async){
+			mux->muxer = rpc;
+			rwakeup(&rpc->r);
+			return;
+		}
+	}
+	mux->muxer = nil;
 }
 
 void*
@@ -133,7 +138,7 @@ muxrpc(Mux *mux, void *tx)
 		mux->muxer = r;
 		while(!r->p){
 			qunlock(&mux->lk);
-			p = _muxrecv(mux, 1);
+			_muxrecv(mux, 1, &p);
 			if(p == nil){
 				/* eof -- just give up and pass the buck */
 				qlock(&mux->lk);
@@ -144,7 +149,6 @@ muxrpc(Mux *mux, void *tx)
 		}
 		electmuxer(mux);
 	}
-/*print("finished %p\n", r); */
 	p = r->p;
 	puttag(mux, r);
 	qunlock(&mux->lk);
@@ -161,24 +165,29 @@ muxrpcstart(Mux *mux, void *tx)
 
 	if((r = allocmuxrpc(mux)) == nil)
 		return nil;
+	r->async = 1;
 	if((tag = tagmuxrpc(r, tx)) < 0)
 		return nil;
 	return r;
 }
 
-void*
-muxrpccanfinish(Muxrpc *r)
+int
+muxrpccanfinish(Muxrpc *r, void **vp)
 {
-	char *p;
+	void *p;
 	Mux *mux;
-	
+	int ret;
+
 	mux = r->mux;
 	qlock(&mux->lk);
+	ret = 1;
 	if(!r->p && !mux->muxer){
 		mux->muxer = r;
 		while(!r->p){
 			qunlock(&mux->lk);
-			p = _muxrecv(mux, 0);
+			p = nil;
+			if(!_muxrecv(mux, 0, &p))
+				ret = 0;
 			if(p == nil){
 				qlock(&mux->lk);
 				break;
@@ -191,7 +200,8 @@ muxrpccanfinish(Muxrpc *r)
 	if(p)
 		puttag(mux, r);
 	qunlock(&mux->lk);
-	return p;
+	*vp = p;
+	return ret;
 }
 
 static void

@@ -19,6 +19,7 @@ struct Muxrpc
 	uint tag;
 	void *p;
 	int waiting;
+	int async;
 };
 
 struct Mux
@@ -27,7 +28,7 @@ struct Mux
 	uint maxtag;
 	int (*send)(Mux*, void*);
 	void *(*recv)(Mux*);
-	void *(*nbrecv)(Mux*);
+	int (*nbrecv)(Mux*, void**);
 	int (*gettag)(Mux*, void*);
 	int (*settag)(Mux*, void*, uint);
 	void *aux;	/* for private use by client */
@@ -52,18 +53,18 @@ void	muxinit(Mux*);
 void*	muxrpc(Mux*, void*);
 void	muxprocs(Mux*);
 Muxrpc*	muxrpcstart(Mux*, void*);
-void*	muxrpccanfinish(Muxrpc*);
+int	muxrpccanfinish(Muxrpc*, void**);
 
 /* private */
 int	_muxsend(Mux*, void*);
-void*	_muxrecv(Mux*, int);
+int	_muxrecv(Mux*, int, void**);
 void	_muxsendproc(void*);
 void	_muxrecvproc(void*);
 Muxqueue *_muxqalloc(void);
 int _muxqsend(Muxqueue*, void*);
 void *_muxqrecv(Muxqueue*);
 void _muxqhangup(Muxqueue*);
-void *_muxnbqrecv(Muxqueue*);
+int _muxnbqrecv(Muxqueue*, void**);
 
 #if defined(__cplusplus)
 }

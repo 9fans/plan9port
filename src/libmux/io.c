@@ -34,7 +34,7 @@ _muxrecvproc(void *v)
 	qunlock(&mux->inlk);
 	qlock(&mux->lk);
 	_muxqhangup(q);
-	while((p = _muxnbqrecv(q)) != nil)
+	while(_muxnbqrecv(q, &p))
 		free(p);
 	free(q);
 	mux->readq = nil;
@@ -64,7 +64,7 @@ _muxsendproc(void *v)
 	qunlock(&mux->outlk);
 	qlock(&mux->lk);
 	_muxqhangup(q);
-	while((p = _muxnbqrecv(q)) != nil)
+	while(_muxnbqrecv(q, &p))
 		free(p);
 	free(q);
 	mux->writeq = nil;
@@ -73,42 +73,39 @@ _muxsendproc(void *v)
 	return;
 }
 
-void*
-_muxrecv(Mux *mux, int canblock)
+int
+_muxrecv(Mux *mux, int canblock, void **vp)
 {
 	void *p;
+	int ret;
 
 	qlock(&mux->lk);
-/*
-	if(mux->state != VtStateConnected){
-		werrstr("not connected");
-		qunlock(&mux->lk);
-		return nil;
-	}
-*/
 	if(mux->readq){
 		qunlock(&mux->lk);
-		if(canblock)
-			return _muxqrecv(mux->readq);
-		return _muxnbqrecv(mux->readq);
+		if(canblock){
+			*vp = _muxqrecv(mux->readq);
+			return 1;
+		}
+		return _muxnbqrecv(mux->readq, vp);
 	}
 
 	qlock(&mux->inlk);
 	qunlock(&mux->lk);
-	if(canblock)
+	if(canblock){
 		p = mux->recv(mux);
-	else{
+		ret = 1;
+	}else{
 		if(mux->nbrecv)
-			p = mux->nbrecv(mux);
-		else
+			ret = mux->nbrecv(mux, &p);
+		else{
+			/* send eof, not "no packet ready" */
 			p = nil;
+			ret = 1;
+		}
 	}
 	qunlock(&mux->inlk);
-/*
-	if(!p && canblock)
-		vthangup(mux);
-*/
-	return p;
+	*vp = p;
+	return ret;
 }
 
 int

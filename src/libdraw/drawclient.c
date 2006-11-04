@@ -13,7 +13,7 @@ int chattydrawclient;
 
 static int	drawgettag(Mux *mux, void *vmsg);
 static void*	drawrecv(Mux *mux);
-static void*	drawnbrecv(Mux *mux);
+static int	drawnbrecv(Mux *mux, void**);
 static int	drawsend(Mux *mux, void *vmsg);
 static int	drawsettag(Mux *mux, void *vmsg, uint tag);
 static int canreadfd(int);
@@ -83,40 +83,46 @@ drawsend(Mux *mux, void *vmsg)
 	return write(d->srvfd, msg, n);
 }
 
-static void*
-_drawrecv(Mux *mux, int nb)
+static int
+_drawrecv(Mux *mux, int canblock, void **vp)
 {
 	int n;
 	uchar buf[4], *p;
 	Display *d;
 
 	d = mux->aux;
-	if(nb && !canreadfd(d->srvfd))
-		return nil;
+	*vp = nil;
+	if(!canblock && !canreadfd(d->srvfd))
+		return 0;
 	if((n=readn(d->srvfd, buf, 4)) != 4)
-		return nil;
+		return 1;
 	GET(buf, n);
 	p = malloc(n);
 	if(p == nil){
 		fprint(2, "out of memory allocating %d in drawrecv\n", n);
-		return nil;
+		return 1;
 	}
 	memmove(p, buf, 4);
-	if(readn(d->srvfd, p+4, n-4) != n-4)
-		return nil;
-	return p;
+	if(readn(d->srvfd, p+4, n-4) != n-4){
+		free(p);
+		return 1;
+	}
+	*vp = p;
+	return 1;
 }
 
 static void*
 drawrecv(Mux *mux)
 {
-	return _drawrecv(mux, 0);
+	void *p;
+	_drawrecv(mux, 1, &p);
+	return p;
 }
 
-static void*
-drawnbrecv(Mux *mux)
+static int
+drawnbrecv(Mux *mux, void **vp)
 {
-	return _drawrecv(mux, 1);
+	return _drawrecv(mux, 0, vp);
 }
 
 static int
