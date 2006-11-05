@@ -92,7 +92,7 @@ eread(ulong keys, Event *e)
 				}
 				return id;
 			}
-		extract(0);
+		extract(1);
 	}
 	return 0;
 }
