@@ -4,10 +4,12 @@ checkindex
 clumpstats
 copy
 findscore
+fixarenas
 fmtarenas
 fmtbloom
 fmtindex
 fmtisect
+mirrorarenas
 printarena
 rdarena
 read
