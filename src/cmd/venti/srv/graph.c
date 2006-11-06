@@ -125,7 +125,7 @@ statgraph(Graph *g)
 	if(g->wid > nelem(bin))
 		g->wid = nelem(bin);
 	if(g->fill < 0)
-		g->fill = ((uint)g->arg>>8)%nelem(lofill);
+		g->fill = ((uint)(uintptr)g->arg>>8)%nelem(lofill);
 	if(g->fill > nelem(lofill))
 		g->fill %= nelem(lofill);
 	
