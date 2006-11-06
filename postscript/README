@@ -1,3 +1,0 @@
-wget -O- http://pdos.lcs.mit.edu/~rsc/software/plan9/postscript.tar.gz|
-	gunzip|
-	tar xf -
