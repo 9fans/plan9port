@@ -41,6 +41,7 @@ fsysopenext2(Disk *disk)
 	fsys->_readfile = ext2readfile;
 	fsys->_readlink = ext2readlink;
 	fsys->_readdir = ext2readdir;
+	fsys->_close = ext2close;
 
 	if(ext2sync(fsys) < 0)
 		goto error;
