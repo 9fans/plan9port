@@ -92,10 +92,12 @@ logit(int severity, char *fmt, va_list args)
 	s = vsmprint(fmt, args);
 	if(s == nil)
 		return nil;
-	if(argv0 == nil)
-		fprint(2, "%s: err %d: %s\n", argv0, severity, s);
-	else
-		fprint(2, "err %d: %s\n", severity, s);
+	if(severity != EOk){
+		if(argv0 == nil)
+			fprint(2, "%s: err %d: %s\n", argv0, severity, s);
+		else
+			fprint(2, "err %d: %s\n", severity, s);
+	}
 	return s;
 }
 
