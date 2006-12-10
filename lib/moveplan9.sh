@@ -20,7 +20,8 @@ then
 fi
 
 cd $PLAN9
-echo '
+# Avoid broken builtin echo in dash that turns \1 into ^A
+`which echo` '
 	X ,s;'$old'($|/|});'$new'\1;g
 	X/'"'"'/w
 	q
