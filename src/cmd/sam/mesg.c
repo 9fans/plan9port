@@ -826,7 +826,7 @@ outsend(void)
 int
 needoutflush(void)
 {
-	return 1;
+	return outmsg >= outdata+DATASIZE;
 }
 
 void
@@ -835,6 +835,7 @@ outflush(void)
 	if(outmsg == outdata)
 		return;
 	outbuffered = 0;
+	/* flow control */
 	outT0(Hack);
 	waitack = 1;
 	do
