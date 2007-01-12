@@ -266,18 +266,6 @@ filedeltext(File *f, Text *t)
 #endif
 
 void
-fileinsert(File *f, uint p0, Rune *s, uint ns)
-{
-	if(p0 > f->b.nc)
-		panic("internal error: fileinsert");
-	if(f->seq > 0)
-		fileuninsert(f, &f->delta, p0, ns);
-	bufinsert(&f->b, p0, s, ns);
-	if(ns)
-		f->mod = TRUE;
-}
-
-void
 fileuninsert(File *f, Buffer *delta, uint p0, uint ns)
 {
 	Undo u;
@@ -289,18 +277,6 @@ fileuninsert(File *f, Buffer *delta, uint p0, uint ns)
 	u.p0 = p0;
 	u.n = ns;
 	bufinsert(delta, delta->nc, (Rune*)&u, Undosize);
-}
-
-void
-filedelete(File *f, uint p0, uint p1)
-{
-	if(!(p0<=p1 && p0<=f->b.nc && p1<=f->b.nc))
-		panic("internal error: filedelete");
-	if(f->seq > 0)
-		fileundelete(f, &f->delta, p0, p1);
-	bufdelete(&f->b, p0, p1);
-	if(p1 > p0)
-		f->mod = TRUE;
 }
 
 void
@@ -499,6 +475,9 @@ fileundo(File *f, int isundo, int canredo, uint *q0p, uint *q1p, int flag)
 
 	raspstart(f);
 	while(delta->nc > 0){
+		/* rasp and buffer are in sync; sync with wire if needed */
+		if(needoutflush())
+			raspflush(f);
 		up = delta->nc-Undosize;
 		bufread(delta, up, (Rune*)&u, Undosize);
 		if(isundo){

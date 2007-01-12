@@ -218,6 +218,7 @@ void		raspstart(File*);
 void		raspdelete(File*, uint, uint, int);
 void		raspinsert(File*, uint, Rune*, uint, int);
 void		raspdone(File*, int);
+void		raspflush(File*);
 
 /*
  * acme fns
@@ -404,4 +405,4 @@ void	outTsll(Hmesg, int, long, long);
 void	outTsl(Hmesg, int, long);
 void	outTsv(Hmesg, int, vlong);
 void	outflush(void);
-
+int needoutflush(void);

@@ -1,5 +1,5 @@
 #include "sam.h"
-
+#define DEBUG
 Header	h;
 uchar	indata[DATASIZE];
 uchar	outdata[2*DATASIZE+3];	/* room for overflow message */
@@ -10,7 +10,7 @@ Posn	cmdpt;
 Posn	cmdptadv;
 Buffer	snarfbuf;
 int	waitack;
-int	noflush;
+int	outbuffered;
 int	tversion;
 
 int	inshort(void);
@@ -807,21 +807,26 @@ outsend(void)
 {
 	int outcount;
 
+	if(outp >= outdata+nelem(outdata))
+		panic("outsend");
 	outcount = outp-outmsg;
 	outcount -= 3;
 	outmsg[1] = outcount;
 	outmsg[2] = outcount>>8;
 	outmsg = outp;
-	if(!noflush){
+	if(!outbuffered){
 		outcount = outmsg-outdata;
 		if (write(1, (char*) outdata, outcount) != outcount)
 			rescue();
 		outmsg = outdata;
 		return;
 	}
-	if(outmsg < outdata+DATASIZE)
-		return;
-	outflush();
+}
+
+int
+needoutflush(void)
+{
+	return 1;
 }
 
 void
@@ -829,7 +834,7 @@ outflush(void)
 {
 	if(outmsg == outdata)
 		return;
-	noflush = 0;
+	outbuffered = 0;
 	outT0(Hack);
 	waitack = 1;
 	do
@@ -839,5 +844,5 @@ outflush(void)
 		}
 	while(waitack);
 	outmsg = outdata;
-	noflush = 1;
+	outbuffered = 1;
 }

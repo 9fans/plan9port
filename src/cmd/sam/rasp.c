@@ -3,7 +3,7 @@
  * GROWDATASIZE must be big enough that all errors go out as Hgrowdata's,
  * so they will be scrolled into visibility in the ~~sam~~ window (yuck!).
  */
-#define	GROWDATASIZE	50	/* if size is > this, send data with grow */
+#define	GROWDATASIZE	50	/* if size is <= this, send data with grow */
 
 void	rcut(List*, Posn, Posn);
 int	rterm(List*, Posn);
@@ -77,6 +77,20 @@ raspdone(File *f, int toterm)
 		cmdpt += cmdptadv;
 		cmdptadv = 0;
 	}
+}
+
+void
+raspflush(File *f)
+{
+	if(grown){
+		outTsll(Hgrow, f->tag, growpos, grown);
+		grown = 0;
+	}
+	else if(shrunk){
+		outTsll(Hcut, f->tag, shrinkpos, shrunk);
+		shrunk = 0;
+	}
+	outflush();
 }
 
 void
@@ -323,3 +337,4 @@ rdata(List *r, Posn p1, Posn n)
 	}
 	return rg;
 }
+
