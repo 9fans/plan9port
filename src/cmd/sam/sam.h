@@ -390,7 +390,7 @@ extern int	bpipeok;
 extern int	panicking;
 extern Rune	empty[];
 extern int	termlocked;
-extern int	noflush;
+extern int	outbuffered;
 
 #include "mesg.h"
 
