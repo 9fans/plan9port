@@ -682,6 +682,8 @@ vdStat(VacFile *parent, VacDir *vd, uchar *p, int np)
 	dir.gid = vd->gid;
 	dir.muid = vd->mid;
 	dir.ext = ext;
+	dir.uidnum = atoi(vd->uid);
+	dir.gidnum = atoi(vd->gid);
 
 	ret = convD2Mu(&dir, p, np, dotu);
 	free(ext);
