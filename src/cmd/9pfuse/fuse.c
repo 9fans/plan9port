@@ -831,7 +831,8 @@ mountfuse(char *mtpt)
 	if(pid == 0){
 		snprint(buf, sizeof buf, "%d", fd);
 		putenv("MOUNT_FUSEFS_CALL_BY_LIB", "");
-		execl("mount_fusefs", "mount_fusefs", buf, mtpt, nil);
+		execl("/System/Library/Filesystems/fusefs.fs/mount_fusefs",
+			"mount_fusefs", buf, mtpt, nil);
 		fprint(2, "exec mount_fusefs: %r\n");
 		_exit(1);
 	}
