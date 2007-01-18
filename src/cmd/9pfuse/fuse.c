@@ -742,6 +742,11 @@ fusefmt(Fmt *fmt)
 	return 0;
 }
 
+#if defined(__APPLE__)
+#include <sys/param.h>
+#include <sys/mount.h>
+#endif
+
 /*
  * Mounts a fuse file system on mtpt and returns
  * a file descriptor for the corresponding fuse 
@@ -788,6 +793,50 @@ mountfuse(char *mtpt)
 		_exit(1);
 	}
 	return fd;
+#elif defined(__APPLE__)
+	int i, pid, fd, r;
+	char buf[20];
+	struct vfsconf vfs;
+	
+	if(getvfsbyname("fusefs", &vfs) < 0){
+		if((r=system("/System/Library/Extensions/fusefs.kext"
+				"/Contents/Resources/load_fusefs")) < 0){
+			werrstr("load fusefs: %r");
+			return -1;
+		}
+		if(r != 0){
+			werrstr("load_fusefs failed: exit %d", r);
+			return -1;
+		}
+		if(getvfsbyname("fusefs", &vfs) < 0){
+			werrstr("getvfsbyname fusefs: %r");
+			return -1;
+		}
+	}
+	
+	/* Look for available FUSE device. */
+	for(i=0;; i++){
+		snprint(buf, sizeof buf, "/dev/fuse%d", i);
+		if(access(buf, 0) < 0){
+			werrstr("no available fuse devices");
+			return -1;
+		}
+		if((fd = open(buf, ORDWR)) >= 0)
+			break;
+	}
+
+	pid = fork();
+	if(pid < 0)
+		return -1;
+	if(pid == 0){
+		snprint(buf, sizeof buf, "%d", fd);
+		putenv("MOUNT_FUSEFS_CALL_BY_LIB", "");
+		execl("mount_fusefs", "mount_fusefs", buf, mtpt, nil);
+		fprint(2, "exec mount_fusefs: %r\n");
+		_exit(1);
+	}
+	return fd;
+	
 #else
 	werrstr("cannot mount fuse on this system");
 	return -1;

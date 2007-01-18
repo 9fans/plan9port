@@ -18,6 +18,11 @@ case FreeBSD
 	if(kldstat|9 grep -si ' fuse')
 		exec 9pfuse $1 $2
 	echo 'don''t know how to mount (no fuse)' >[1=2]
+case Darwin
+	if(sysctl fuse.version >[2=1] |9 grep -si 'fuse.version' ||
+	   test -d /System/Library/Extensions/fusefs.kext)
+		exec 9pfuse $1 $2
+	echo 'don''t know how to mount (no fuse)' >[1=2]
 case *
 	echo 'can''t mount on' `{uname} >[1=2]
 }

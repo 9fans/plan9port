@@ -1,10 +1,10 @@
-#!/usr/local/plan9/bin/rc
+l#!/usr/local/plan9/bin/rc
 
 if(! ~ $#* 1){
 	echo 'usage: unmount mtpt' >[1=2]
 	exit usage
 }
 f=`{u mount | grep $1}
-if(echo $f | 9 grep -s 'type fuse')
+if(echo $f | 9 grep -s 'type fuse' && ! ~ `{uname} Darwin)
 	exec fusermount -u -z $1
 exec u umount $1

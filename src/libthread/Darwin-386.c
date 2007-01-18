@@ -3,7 +3,6 @@
 void
 makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 {
-	int n;
 	int *sp;
 
 	sp = (int*)ucp->uc_stack.ss_sp+ucp->uc_stack.ss_size/4;
