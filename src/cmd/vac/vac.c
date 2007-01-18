@@ -538,7 +538,7 @@ vacdata(DirSink *dsink, int fd, char *lname, VacFile *vf, Dir *dir)
 		if(vd.mtime == dir->mtime)
 		if(vd.size == dir->length)
 		if(!vd.plan9 || /* vd.p9path == dir->qid.path && */ vd.p9version == dir->qid.vers)
-		if(dirsinkwritefile(dsink, vf)) {
+		if(dirsinkwritefile(dsink, vf) >= 0) {
 			stats.sfile++;
 			vdcleanup(&vd);
 			return;
