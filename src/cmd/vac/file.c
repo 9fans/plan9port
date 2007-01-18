@@ -787,7 +787,7 @@ vacfilegetdir(VacFile *f, VacDir *dir)
 	vdcopy(dir, &f->dir);
 	filemetaunlock(f);
 
-	if(vacfileisdir(f) < 0){
+	if(!vacfileisdir(f)){
 		if(vtfilelock(f->source, VtOREAD) < 0){
 			filerunlock(f);
 			return -1;
