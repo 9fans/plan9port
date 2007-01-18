@@ -544,6 +544,9 @@ vacdata(DirSink *dsink, int fd, char *lname, VacFile *vf, Dir *dir)
 			return;
 		}
 
+		if(verbose)
+			fprint(2, "+ %s\n", lname);
+
 		/* look for an append only file */
 		if((dir->mode&DMAPPEND) != 0)
 		if(vd.size < dir->length)
