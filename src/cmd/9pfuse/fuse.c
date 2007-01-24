@@ -797,11 +797,18 @@ mountfuse(char *mtpt)
 	int i, pid, fd, r;
 	char buf[20];
 	struct vfsconf vfs;
+	char *f;
 	
 	if(getvfsbyname("fusefs", &vfs) < 0){
-		if((r=system("/System/Library/Extensions/fusefs.kext"
-				"/Contents/Resources/load_fusefs")) < 0){
-			werrstr("load fusefs: %r");
+		if(access(f="/System/Library/Extensions/fusefs.kext"
+			"/Contents/Resources/load_fusefs", 0) < 0 &&
+		   access(f="/Library/Extensions/fusefs.kext"
+		   	"/Contents/Resources/load_fusefs", 0) < 0){
+		   	werrstr("cannot find load_fusefs");
+		   	return -1;
+		}
+		if((r=system(f)) < 0){
+			werrstr("%s: %r", f);
 			return -1;
 		}
 		if(r != 0){
