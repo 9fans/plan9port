@@ -345,10 +345,17 @@ threadmain(int argc, char **argv)
 	fsysclose(fsys);
 	diskclose(disk);
 	vtcachefree(zcache);
-	vtgoodbye(z);
+
+	// Vtgoodbye hangs on Linux - not sure why.
+	// Probably vtfcallrpc doesn't quite get the
+	// remote hangup right.  Also probably related
+	// to the vtrecvproc problem below.
+	// vtgoodbye(z);
+
 	// Leak here, because I can't seem to make
 	// the vtrecvproc exit.
 	// vtfreeconn(z);
+
 	free(tmpnam);
 	z = nil;
 	zcache = nil;
