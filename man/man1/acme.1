@@ -460,6 +460,24 @@ Undo last textual change or set of changes.
 .TP
 .B Zerox
 Create a copy of the window containing most recently selected text.
+.TP
+.B <|>
+If a regular shell command is preceded by a
+.BR < ,
+.BR | ,
+or
+.B >
+character, the selected text in the body of the window is affected by the
+I/O from the command.
+The
+.B <
+character causes the selection to be replaced by the standard output
+of the command;
+.B >
+causes the selection to be sent as standard input to the command; and
+.B |
+does both at once, `piping' the selection through the command and
+replacing it with the output.
 .PP
 A common place to store text for commands is in the tag; in fact
 .I acme
