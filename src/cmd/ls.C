@@ -227,17 +227,16 @@ format(Dir *db, char *name)
 			db->qid.type);
 	if(lflag)
 		Bprint(&bin,
-			Qflag? "%M %C %*ud %*s %s %*llud %s %s\n" : "%M %C %*ud %*s %s %*llud %s %q\n",
+			"%M %C %*ud %*s %s %*llud %s ",
 			db->mode, db->type,
 			vwidth, db->dev,
 			-uwidth, db->uid,
 			db->gid,
 			(int)(glwidth-strlen(db->gid)), db->length,
-			asciitime(uflag? db->atime : db->mtime), name);
-	else
-		Bprint(&bin,
-			Qflag? "%s%s\n" : "%q%s\n",
-			name, fileflag(db));
+			asciitime(uflag? db->atime : db->mtime));
+	Bprint(&bin,
+		Qflag? "%s%s\n" : "%q%s\n",
+		name, fileflag(db));
 }
 
 void
