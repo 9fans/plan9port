@@ -1223,7 +1223,7 @@ setup(int argc, char *argv[])
 	openup(stemc, dflag, vflag, ytab, ytabc);
 	fout = dflag?fdefine:ftable;
 	if(yyarg){
-		Bprint(fdefine, "#define\tYYARG\t1\n\n");
+		Bprint(ftable, "#define\tYYARG\t1\n\n");
 	}
 	if((fd = mkstemp(ttempname)) >= 0){
 		tempname = ttempname;
