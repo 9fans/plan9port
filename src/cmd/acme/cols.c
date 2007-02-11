@@ -151,7 +151,7 @@ colclose(Column *c, Window *w, int dofree)
 		windelete(w);
 		winclose(w);
 	}
-	memmove(c->w+i, c->w+i+1, (c->nw-i)*sizeof(Window*));
+	memmove(c->w+i, c->w+i+1, (c->nw-i-1)*sizeof(Window*));
 	c->nw--;
 	c->w = realloc(c->w, c->nw*sizeof(Window*));
 	if(c->nw == 0){

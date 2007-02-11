@@ -832,15 +832,13 @@ new(Text *et, Text *t, Text *argt, int flag1, int flag2, Rune *arg, int narg)
 		f = runemalloc(nf);
 		runemove(f, arg, nf);
 		rs = dirname(et, f, nf);
-		f = rs.r;
-		nf = rs.nr;
 		memset(&e, 0, sizeof e);
-		e.name = f;
-		e.nname = nf;
-		e.bname = runetobyte(f, nf);
+		e.name = rs.r;
+		e.nname = rs.nr;
+		e.bname = runetobyte(rs.r, rs.nr);
 		e.jump = TRUE;
 		openfile(et, &e, FALSE);
-		free(f);
+		free(e.name);
 		free(e.bname);
 		arg = skipbl(a, na, &narg);
 	}
