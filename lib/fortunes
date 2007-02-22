@@ -4158,3 +4158,12 @@ Globus is an unstoppable monster - rminnich; No, Globus is an unstartable monste
 Multithreading is just one damn thing after, before, or simultaneous with another.  - Andrei Alexandrescu
 ArrayList of int / my list of int, equals new / ArrayList of int  - Steve Yegge
 In the land of the clueless, the man with half an idea is king.  - Todd Robbins
+Chebyshev said it, and I say it again / There is always a prime between n and 2n.  - Paul Erdös
+Using Linux is like rediscovering your childhood and realising it really was pretty miserable.  - jmk
+remove is identical to install except that packages are removed instead of installed. If a plus sign is appended to the package name (with no intervening space), the identified package will be installed instead of removed.  - apt-get(8)
+I guess the idea is that ... even though the structures are all different. Everythings fine, dont worry, lie back and think of England. ... I think we can call it Pollyanna-morphism. -- Ron Minnich on Python libraries.
+Can't get device information: Success -- Linux Bluetooth discovery.
+Linux is neither Unix nor Windows — it's the worst of both worlds -- jmk
+Did you ever try to write poetry in a committee meeting? It's like a bunch of fat construction guys trying to write an opera while sitting on the couch watching Baywatch. The more fat construction guys you add to the couch, the less likely you are to get opera out of it.  - Joel Spolsky
+Don't interrupt!  Let me finish! - Rae McLellan
+bool x = "false";  // valid C++ [sets x to true]
