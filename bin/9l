@@ -168,7 +168,7 @@ then
 		libsl="$libsl -lresolv"
 	fi
 
-	if [ "x$needdraw" = xtrue -a "x$WSYSTYPE" != xnowsys ]
+	if [ "x$needX11" = xtrue -a "x$WSYSTYPE" != xnowsys ]
 	then
 		if [ "x$X11" = "x" ]
 		then

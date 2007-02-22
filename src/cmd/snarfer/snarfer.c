@@ -34,6 +34,7 @@
 #undef Screen
 #undef Visual
 #undef Window
+AUTOLIB(X11);
 #ifdef __APPLE__
 #define APPLESNARF
 #define Boolean AppleBoolean
