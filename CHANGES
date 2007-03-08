@@ -1,3 +1,110 @@
+February 22, 2007
+	9l, devdraw, snarfer: -ldraw no longer implies -lX11
+
+February 11, 2007
+	acme: fix various memory errors
+
+January 29, 2007
+	ls: make ls -lF work
+	yacc: fix bug in yacc -a writing to wrong file
+
+January 27, 2007
+	acme(1): add paragraph about < | > (Rob Pike)
+
+January 25, 2007
+	vbackup: stop using vtgoodbye, which seems to hang
+		on some systems
+
+January 24, 2007
+	9pfuse: Google moved fusefs.kext; look in both places
+
+January 18, 2007
+	vac:
+		print + lines for new files in verbose mode
+		return value bug fixes
+		decode uid/gid strings as numbers when possible
+		(Michael Kaminsky)
+	mount, unmount, 9pfuse: Mac FUSE support! (Jeff Sickel)
+
+January 14, 2007
+	libmp: change mpdigit to uint - something is wrong if mpdigit is 64 bits
+
+January 12, 2007
+	sam: fix 15-year-old sam protocol bug
+
+December 9, 2006
+	lib/moveplan9.sh: avoid quoting bugs when /bin/sh is dash
+
+November 30, 2006
+	venti: stop printing EOk messages
+
+November 20, 2006
+	libdiskfs: add fsysclose for ext2 (Michael Kaminsky)
+
+November 6, 2006
+	venti: placate 64-bit gcc (William Josephson)
+
+November 5, 2006
+	libdraw: fix cpu-chewing loop in eread (Lu Xuxiao)
+	postscript: update README
+	fcall.h: fix GBIT32 macros to be 64-bit safe
+
+November 4, 2006
+	libdraw: fix cpu-chewing loop in eread (Lu Xuxiao)
+	
+November 2, 2006
+	lib9: fix sleep on OpenBSD 4 (Tim Wiess)
+
+October 19, 2006
+	vbackup, libventi: plug various memory leaks
+
+October 16, 2006
+	psfonts: use 9 psdownload (William Josephson)
+
+October 13, 2006
+	devdraw/mkwsysrules.sh: look for /usr/X11
+
+October 11, 2006
+	": remove prompt to avoid double-send problems
+		use all 9 commands (Karl Sackett)
+	9pfuse: allow for EPROTO being missing (Tim Wiess)
+	hget: print final update in -v mode
+	mk: avoid broken print (Gabriel Diaz)
+	seq: import Plan 9 seq (Anthony Martin)
+	tcs: avoid htmlroff hang, avoid nonstandard entity names (Michael Teichgräber)
+	lib9p: correct ref counting in walkfile (F. J. Ballesteros)
+
+September 18, 2006
+	venti: fix zblock bug
+
+September 17, 2006
+	lp: add generic, lpd stat backends
+
+August 29, 2006
+	libip: remove duplicate myetheraddr (William Josephson)
+	sam: avoid seg fault in new $samfile code
+
+August 24, 2006
+	sam: set $samfile during external commands
+
+August 1, 2006
+	9pfuse: break from read properly (Lou Kamenov)
+
+July 31, 2006
+	9pfuse: free fuse messages
+
+July 27, 2006
+	B: allow +line syntax to placate Unix tools
+	9pfuse: use correct O_LARGEFILE,
+		wait for mount before exiting
+	mount: quote the equals character
+
+July 26, 2006
+	9pfuse: FreeBSD fixes (Lou Kamenov)
+	
+July 24, 2006
+	INSTALL: add space after -v in awk command for OS X (Andrey Mirtchovski)
+
 July 23, 2006
 	INSTALL: print status updates
 	ed: clean up on kill signal, use /var/tmp for temp files
