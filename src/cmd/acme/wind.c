@@ -92,6 +92,24 @@ wininit(Window *w, Window *clone, Rectangle r)
 }
 
 /*
+ * Draw the appropriate button.
+ */
+void
+windrawbutton(Window *w)
+{
+	Image *b;
+	Rectangle br;
+	
+	b = button;
+	if(!w->isdir && !w->isscratch && (w->body.file->mod || w->body.ncache))
+		b = modbutton;
+	br.min = w->tag.scrollr.min;
+	br.max.x = br.min.x + Dx(b->r);
+	br.max.y = br.min.y + Dy(b->r);
+	draw(screen, br, b, nil, b->r.min);
+}
+
+/*
  * Compute number of tag lines required
  * to display entire tag text.
  */
@@ -100,13 +118,25 @@ wintaglines(Window *w, Rectangle r)
 {
 	int n;
 	Rune rune;
+	Rectangle all, scrollr;
 
 /* TAG policy here */
 
 	if(!w->tagexpand)
 		return 1;
 	w->tag.fr.noredraw = 1;
+	/*
+	 * clumsy: since we are calling textresize but
+	 * not redrawing, we need to leave all and
+	 * scrollr unchanged, so that the computation
+	 * in winresize will decide to redraw the tag
+	 * when the rectangle does move.
+	 */
+	all = w->tag.all;
+	scrollr = w->tag.scrollr;
 	textresize(&w->tag, r, TRUE);
+	w->tag.all = all;
+	w->tag.scrollr = scrollr;
 	w->tag.fr.noredraw = 0;
 	
 	/* can't use more than we have */
@@ -128,9 +158,8 @@ int
 winresize(Window *w, Rectangle r, int safe, int keepextra)
 {
 	int oy, y, mouseintag, tagresized;
-	Image *b;
 	Point p;
-	Rectangle br, r1;
+	Rectangle r1;
 
 if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepextra, font->height);
 	w->tagtop = r;
@@ -155,19 +184,14 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
 	tagresized = 0;
-	if(1 || !safe || !eqrect(w->tag.all, r1)){
+if(0) fprint(2, "winresize tag %R %R\n", w->tag.all, r1);
+	if(!safe || !eqrect(w->tag.all, r1)){
 		tagresized = 1;
 if(0) fprint(2, "resize tag %R => %R\n", w->tag.all, r1);
 		textresize(&w->tag, r1, TRUE);
 if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		y = w->tag.fr.r.max.y;
-		b = button;
-		if(w->body.file->mod && !w->isdir && !w->isscratch)
-			b = modbutton;
-		br.min = w->tag.scrollr.min;
-		br.max.x = br.min.x + Dx(b->r);
-		br.max.y = br.min.y + Dy(b->r);
-		draw(screen, br, b, nil, b->r.min);
+		windrawbutton(w);
 /* TAG */
 		if(mouseintag && !ptinrect(mouse->xy, w->tag.all)){
 			p = mouse->xy;
@@ -397,9 +421,7 @@ winsettag1(Window *w)
 {
 	int bar, dirty, i, j, k, n, ntagname, resize;
 	Rune *new, *old, *r, *tagname;
-	Image *b;
 	uint q0, q1;
-	Rectangle br;
 	static Rune Ldelsnarf[] = { ' ', 'D', 'e', 'l', ' ',
 		'S', 'n', 'a', 'r', 'f', 0 };
 	static Rune Lundo[] = { ' ', 'U', 'n', 'd', 'o', 0 };
@@ -524,13 +546,7 @@ winsettag1(Window *w)
 	if(w->tag.q1 > n)
 		w->tag.q1 = n;
 	textsetselect(&w->tag, w->tag.q0, w->tag.q1);
-	b = button;
-	if(!w->isdir && !w->isscratch && (w->body.file->mod || w->body.ncache))
-		b = modbutton;
-	br.min = w->tag.scrollr.min;
-	br.max.x = br.min.x + Dx(b->r);
-	br.max.y = br.min.y + Dy(b->r);
-	draw(screen, br, b, nil, b->r.min);
+	windrawbutton(w);
 	if(resize){
 		w->tagsafe = 0;
 		winresize(w, w->r, TRUE, TRUE);
