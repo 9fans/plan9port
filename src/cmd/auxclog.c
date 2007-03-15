@@ -2,6 +2,8 @@
 #include <libc.h>
 #include <bio.h>
 
+#define openlog auxclog_openlog	/* libc symbol on OS X */
+
 char *argv0;
 
 int
