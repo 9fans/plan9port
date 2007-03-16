@@ -118,26 +118,15 @@ wintaglines(Window *w, Rectangle r)
 {
 	int n;
 	Rune rune;
-	Rectangle all, scrollr;
 
 /* TAG policy here */
 
 	if(!w->tagexpand)
 		return 1;
 	w->tag.fr.noredraw = 1;
-	/*
-	 * clumsy: since we are calling textresize but
-	 * not redrawing, we need to leave all and
-	 * scrollr unchanged, so that the computation
-	 * in winresize will decide to redraw the tag
-	 * when the rectangle does move.
-	 */
-	all = w->tag.all;
-	scrollr = w->tag.scrollr;
 	textresize(&w->tag, r, TRUE);
-	w->tag.all = all;
-	w->tag.scrollr = scrollr;
 	w->tag.fr.noredraw = 0;
+	w->tagsafe = FALSE;
 	
 	/* can't use more than we have */
 	if(w->tag.fr.nlines >= w->tag.fr.maxlines)
@@ -176,7 +165,6 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
 
 		w->taglines = wintaglines(w, r);
-		w->tagsafe = TRUE;
 	}
 /* END TAG */
 
@@ -185,13 +173,14 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	y = r1.max.y;
 	tagresized = 0;
 if(0) fprint(2, "winresize tag %R %R\n", w->tag.all, r1);
-	if(!safe || !eqrect(w->tag.all, r1)){
+	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
 		tagresized = 1;
 if(0) fprint(2, "resize tag %R => %R\n", w->tag.all, r1);
 		textresize(&w->tag, r1, TRUE);
 if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		y = w->tag.fr.r.max.y;
 		windrawbutton(w);
+		w->tagsafe = TRUE;
 /* TAG */
 		if(mouseintag && !ptinrect(mouse->xy, w->tag.all)){
 			p = mouse->xy;
