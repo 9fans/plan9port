@@ -2,6 +2,8 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <libc.h>
 #include "rc.h"
 #include "exec.h"
@@ -208,4 +210,27 @@ out:
 	free(oargv);
 	poplist();
 	flush(err);
+}
+
+/*
+ * Cope with non-blocking read.
+ */
+long
+readnb(int fd, char *buf, long cnt)
+{
+	int n, didreset;
+	int flgs;
+
+	didreset = 0;
+	while((n = read(fd, buf, cnt)) == -1)
+		if(!didreset && errno == EAGAIN){
+			if((flgs = fcntl(fd, F_GETFL, 0)) == -1)
+				return -1;
+			flgs &= ~O_NONBLOCK;
+			if(fcntl(fd, F_SETFL, flgs) == -1)
+				return -1;
+			didreset = 1;
+		}
+
+	return n;
 }

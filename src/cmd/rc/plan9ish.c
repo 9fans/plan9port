@@ -31,6 +31,7 @@ Rcmain(void)
 }
 
 char Fdprefix[]="/dev/fd/";
+long readnb(int, char *, long);
 void execfinit(void);
 void execbind(void);
 void execmount(void);
@@ -488,7 +489,7 @@ long Read(int fd, char *buf, long cnt)
 {
 	int i;
 
-	i = read(fd, buf, cnt);
+	i = readnb(fd, buf, cnt);
 	if(ntrap) dotrap();
 	return i;
 }
