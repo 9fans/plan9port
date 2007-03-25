@@ -705,7 +705,7 @@ troffchar(char *s)
 	for(i=0; troffchars[i].name!=nil; i++)
 		if(strcmp(s, troffchars[i].name) == 0)
 			return troffchars[i].value;
-	return "??";
+	return s;
 }
 
 void
