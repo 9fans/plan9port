@@ -57,7 +57,7 @@ fn dictwin {
 dict=NONE
 if(~ $1 -d){
 	shift
-	dict=$2
+	dict=$1
 	shift
 }
 if(~ $1 -d*){
