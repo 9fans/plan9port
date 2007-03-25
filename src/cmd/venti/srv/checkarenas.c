@@ -109,6 +109,8 @@ threadmain(int argc, char *argv[])
 		usage();
 
 	file = argv[0];
+	argc--;
+	argv++;
 
 	part = initpart(file, ORDWR|ODIRECT);
 	if(part == nil)
