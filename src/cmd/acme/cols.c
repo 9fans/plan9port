@@ -87,7 +87,7 @@ fprint(2, "oops: dy=%d\n", Dy(v->body.all));
 			t = c->r.max.y;
 		else
 			t = c->w[i]->r.min.y-Border;
-		y = v->body.all.min.y+Dy(v->body.all)/2;
+		y = min(y, v->body.all.min.y+Dy(v->body.all)/2);
 		if(t - y < minht)
 			y = t - minht;
 		if(y < v->body.all.min.y)
