@@ -664,10 +664,8 @@ readconfigfile(Config *cp)
 	}
 	c.mtime = dir->mtime;
 	free(dir);
-	if((b = Bopen(name, OREAD)) == nil){
-		free(dir);
+	if((b = Bopen(name, OREAD)) == nil)
 		return -1;
-	}
 	
 	/*
 	 * Reuse old tree, garbage collecting entries that
