@@ -685,7 +685,7 @@ gotop(int c)
 	char *a, *b;
 	op_ptr = optmp;
 	*op_ptr++ = c;
-	while (isop(( *op_ptr = getch())))op_ptr++;
+	while (isop((uchar)( *op_ptr = getch())))op_ptr++;
 	if(!strict)unget(*op_ptr);
 	else if (*op_ptr != ' ')unget( *op_ptr);
 	*op_ptr = '\0';
@@ -845,7 +845,7 @@ lookup(char *first, char *last)
 	ptr = key;
 	while ((ckey = ptr->name) != 0){
 		for (k = cptr; (*ckey == *k && *ckey != '\0'); k++, ckey++);
-		if(*ckey=='\0' && (k==last|| (k<last && !isalnum(*k)))){
+		if(*ckey=='\0' && (k==last|| (k<last && !isalnum((uchar)*k)))){
 			opflag = 1;
 			lastlook = 0;
 			return(ptr);
@@ -955,7 +955,7 @@ getnext(int must){
 	}
 	tp = lastplace;
 	if(inswitch && tptr <= lastplace)
-		if (isalnum(*lastplace)||ispunct(*lastplace)||isop(*lastplace))return(lastplace);
+		if (isalnum((uchar)*lastplace)||ispunct((uchar)*lastplace)||isop((uchar)*lastplace))return(lastplace);
 space:
 	while(isspace(c=Bgetc(input)))puttmp(c,1);
 	beg = tp;

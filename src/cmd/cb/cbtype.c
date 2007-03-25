@@ -1,6 +1,6 @@
 #include	"cbtype.h"
 
-unsigned char _cbtype_[] = {
+unsigned char _cbtype_[257] = {
 	0,
 	_C,	_C,	_C,	_C,	_C,	_C,	_C,	_C,
 	_C,	_C|_S,	_C|_S,	_C|_S,	_C|_S,	_C|_S,	_C,	_C,
