@@ -167,7 +167,7 @@ ext2fileblock(Ext2 *fs, Inode *ino, u32int bno, int size)
 	int ppb;
 	Block *b;
 	u32int *a;
-	u32int obno;
+	u32int obno, pbno;
 
 	obno = bno;
 	if(bno < NDIRBLOCKS){
@@ -185,7 +185,7 @@ ext2fileblock(Ext2 *fs, Inode *ino, u32int bno, int size)
 		if(b == nil)
 			return nil;
 		a = (u32int*)b->data;
-		bno = a[bno%ppb];
+		bno = a[bno];
 		blockput(b);
 		return ext2datablock(fs, bno, size);
 	}
@@ -197,13 +197,14 @@ ext2fileblock(Ext2 *fs, Inode *ino, u32int bno, int size)
 		if(b == nil)
 			return nil;
 		a = (u32int*)b->data;
-		bno = a[(bno/ppb)%ppb];
+		pbno = a[bno/ppb];
+		bno = bno%ppb;
 		blockput(b);
-		b = ext2datablock(fs, bno, fs->blocksize);
+		b = ext2datablock(fs, pbno, fs->blocksize);
 		if(b == nil)
 			return nil;
 		a = (u32int*)b->data;
-		bno = a[bno%ppb];
+		bno = a[bno];
 		blockput(b);
 		return ext2datablock(fs, bno, size);
 	}
@@ -215,19 +216,21 @@ ext2fileblock(Ext2 *fs, Inode *ino, u32int bno, int size)
 		if(b == nil)
 			return nil;
 		a = (u32int*)b->data;
-		bno = a[(bno/(ppb*ppb))%ppb];
+		pbno = a[bno/(ppb*ppb)];
+		bno = bno%(ppb*ppb);
 		blockput(b);
-		b = ext2datablock(fs, bno, fs->blocksize);
+		b = ext2datablock(fs, pbno, fs->blocksize);
 		if(b == nil)
 			return nil;
 		a = (u32int*)b->data;
-		bno = a[(bno/ppb)%ppb];
+		pbno = a[bno/ppb];
+		bno = bno%ppb;
 		blockput(b);
-		b = ext2datablock(fs, bno, fs->blocksize);
+		b = ext2datablock(fs, pbno, fs->blocksize);
 		if(b == nil)
 			return nil;
 		a = (u32int*)b->data;
-		bno = a[bno%ppb];
+		bno = a[bno];
 		blockput(b);
 		return ext2datablock(fs, bno, size);
 	}
@@ -351,6 +354,17 @@ ext2root(Fsys *fsys, Nfs3Handle *h)
 	return Nfs3Ok;
 }
 
+static u64int
+inosize(Inode* ino)
+{
+	u64int size;
+
+	size = ino->size;
+	if((ino->mode&IFMT)==IFREG)
+		size |= (u64int)ino->diracl << 32;
+	return size;
+}
+
 static Nfs3Status
 ino2attr(Ext2 *fs, Inode *ino, u32int inum, Nfs3Attr *attr)
 {
@@ -388,8 +402,8 @@ ino2attr(Ext2 *fs, Inode *ino, u32int inum, Nfs3Attr *attr)
 	attr->nlink = ino->nlink;
 	attr->uid = ino->uid;
 	attr->gid = ino->gid;
-	attr->size = ino->size;
-	attr->used = ino->nblock*fs->blocksize;
+	attr->size = inosize(ino);
+	attr->used = (u64int)ino->nblock*fs->blocksize;
 	if(attr->type==Nfs3FileBlock || attr->type==Nfs3FileChar){
 		rdev = ino->block[0];
 		attr->major = (rdev>>8)&0xFF;
@@ -659,6 +673,7 @@ ext2readfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	int skip1, tot, want, fragcount;
 	Inode ino;
 	Nfs3Status ok;
+	u64int size;
 
 	fs = fsys->priv;
 	if((ok = handle2ino(fs, h, nil, &ino)) != Nfs3Ok)
@@ -667,14 +682,15 @@ ext2readfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	if((ok = inoperm(&ino, au, AREAD)) != Nfs3Ok)
 		return ok;
 
-	if(offset >= ino.size){
+	size = inosize(&ino);
+	if(offset >= size){
 		*pdata = 0;
 		*pcount = 0;
 		*peof = 1;
 		return Nfs3Ok;
 	}
-	if(offset+count > ino.size)
-		count = ino.size-offset;
+	if(offset+count > size)
+		count = size-offset;
 
 	data = malloc(count);
 	if(data == nil)
@@ -705,7 +721,7 @@ ext2readfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	}
 	count = tot - skip1;
 
-	*peof = (offset+count == ino.size);
+	*peof = (offset+count == size);
 	*pcount = count;
 	*pdata = data;
 	return Nfs3Ok;

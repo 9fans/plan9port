@@ -84,7 +84,7 @@ struct Super
 };
 
 /*
- * Blcok group on-disk format.
+ * Block group on-disk format.
  */
 struct Group
 {
@@ -122,7 +122,7 @@ struct Inode
 	u32int	block[NBLOCKS];/* Pointers to blocks */
 	u32int	version;	/* File version (for NFS) */
 	u32int	fileacl;	/* File ACL */
-	u32int	diracl;	/* Directory ACL */
+	u32int	diracl;	/* Directory ACL or high size bits */
 	u32int	faddr;		/* Fragment address */
 	uchar	osd2[12];
 };
