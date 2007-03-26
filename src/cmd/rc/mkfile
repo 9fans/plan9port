@@ -20,7 +20,7 @@ OFILES=\
 	var.$O\
 	y.tab.$O\
 	plan9ish.$O\
-	havep9p.$O\
+	havefork.$O\
 
 HFILES=\
 	rc.h\

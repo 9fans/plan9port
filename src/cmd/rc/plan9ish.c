@@ -199,7 +199,10 @@ int Waitfor(int pid, int unused0){
 	Waitmsg *w;
 	char errbuf[ERRMAX];
 
+	if(pid >= 0 && !havewaitpid(pid))
+		return 0;
 	while((w = wait()) != nil){
+		delwaitpid(w->pid);
 		if(w->pid==pid){
 			if(strncmp(w->msg, "signal: ", 8) == 0)
 				fprint(mapfd(2), "%d: %s\n", w->pid, w->msg);
@@ -217,7 +220,7 @@ int Waitfor(int pid, int unused0){
 		free(w);
 	}
 
-	errstr(errbuf, sizeof errbuf);
+	rerrstr(errbuf, sizeof errbuf);
 	if(strcmp(errbuf, "interrupted")==0) return -1;
 	return 0;
 }
@@ -558,4 +561,44 @@ exitcode(char *msg)
 	if(n == 0)
 		n = 1;
 	return n;
+}
+
+int *waitpids;
+int nwaitpids;
+
+void
+addwaitpid(int pid)
+{
+	waitpids = realloc(waitpids, (nwaitpids+1)*sizeof waitpids[0]);
+	if(waitpids == 0)
+		panic("Can't realloc %d waitpids", nwaitpids+1);
+	waitpids[nwaitpids++] = pid;
+}
+
+void
+delwaitpid(int pid)
+{
+	int r, w;
+	
+	for(r=w=0; r<nwaitpids; r++)
+		if(waitpids[r] != pid)
+			waitpids[w++] = waitpids[r];
+	nwaitpids = w;
+}
+
+void
+clearwaitpids(void)
+{
+	nwaitpids = 0;
+}
+
+int
+havewaitpid(int pid)
+{
+	int i;
+	
+	for(i=0; i<nwaitpids; i++)
+		if(waitpids[i] == pid)
+			return 1;
+	return 0;
 }
