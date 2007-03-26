@@ -411,9 +411,11 @@ int Opendir(char *name)
 	close(f);
 	return -1;
 }
-int Readdir(int f, char *p)
+int Readdir(int f, char *p, int onlydirs)
 {
 	int n;
+	USED(onlydirs);	/* only advisory */
+
 	if(f<0 || f>=NFD)
 		return 0;
 	if(dir[f].i==dir[f].n){	/* read */

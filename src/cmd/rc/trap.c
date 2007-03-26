@@ -3,22 +3,25 @@
 #include "fns.h"
 #include "io.h"
 extern char *Signame[];
-void dotrap(void){
-	register int i;
-	register struct var *trapreq;
-	register struct word *starval;
-	starval=vlook("*")->val;
-	while(ntrap) for(i=0;i!=NSIG;i++) while(trap[i]){
+
+void
+dotrap(void)
+{
+	int i;
+	struct var *trapreq;
+	struct word *starval;
+	starval = vlook("*")->val;
+	while(ntrap) for(i = 0;i!=NSIG;i++) while(trap[i]){
 		--trap[i];
 		--ntrap;
 		if(getpid()!=mypid) Exit(getstatus());
-		trapreq=vlook(Signame[i]);
+		trapreq = vlook(Signame[i]);
 		if(trapreq->fn){
 			start(trapreq->fn, trapreq->pc, (struct var *)0);
-			runq->local=newvar(strdup("*"), runq->local);
-			runq->local->val=copywords(starval, (struct word *)0);
-			runq->local->changed=1;
-			runq->redir=runq->startredir=0;
+			runq->local = newvar(strdup("*"), runq->local);
+			runq->local->val = copywords(starval, (struct word *)0);
+			runq->local->changed = 1;
+			runq->redir = runq->startredir = 0;
 		}
 		else if(i==SIGINT || i==SIGQUIT){
 			/*

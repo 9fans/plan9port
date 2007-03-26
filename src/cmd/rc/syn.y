@@ -2,7 +2,6 @@
 %term WORD REDIR DUP PIPE SUB
 %term SIMPLE ARGLIST WORDS BRACE PAREN PCMD PIPEFD /* not used in syntax */
 /* operator priorities -- lowest first */
-%left LOW
 %left IF WHILE FOR SWITCH ')' NOT
 %left ANDAND OROR
 %left BANG SUBSHELL
@@ -10,7 +9,6 @@
 %left '^'
 %right '$' COUNT '"'
 %left SUB
-%left '='
 %{
 #include "rc.h"
 #include "fns.h"
@@ -80,7 +78,6 @@ first:	comword
 word:	keyword			{lastword=1; $1->type=WORD;}
 |	comword
 |	word '^' word		{$$=tree2('^', $1, $3);}
-|	word '=' word %prec LOW		{$$=tree2('^', tree2('^', $1, token("=", WORD)), $3);}
 comword: '$' word		{$$=tree1('$', $2);}
 |	'$' word SUB words ')'	{$$=tree2(SUB, $2, $4);}
 |	'"' word		{$$=tree1('"', $2);}

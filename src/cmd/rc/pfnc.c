@@ -5,7 +5,7 @@
 struct{
 	void (*f)(void);
 	char *name;
-}fname[]={
+}fname[] = {
 	Xappend, "Xappend",
 	Xasync, "Xasync",
 	Xbang, "Xbang",
@@ -18,6 +18,7 @@ struct{
 	Xjump, "Xjump",
 	Xmark, "Xmark",
 	Xpopm, "Xpopm",
+	Xrdwr, "Xrdwr",
 	Xread, "Xread",
 	Xreturn, "Xreturn",
 	Xtrue, "Xtrue",
@@ -50,18 +51,21 @@ struct{
 	Xrdfn, "Xrdfn",
 	Xqdol, "Xqdol",
 0};
-void pfnc(io *fd, thread *t)
+
+void
+pfnc(io *fd, thread *t)
 {
 	int i;
-	void (*fn)(void)=t->code[t->pc].f;
+	void (*fn)(void) = t->code[t->pc].f;
 	list *a;
 	pfmt(fd, "pid %d cycle %p %d ", getpid(), t->code, t->pc);
-	for(i=0;fname[i].f;i++) if(fname[i].f==fn){
+	for(i = 0;fname[i].f;i++) if(fname[i].f==fn){
 		pstr(fd, fname[i].name);
 		break;
 	}
-	if(!fname[i].f) pfmt(fd, "%p", fn);
-	for(a=t->argv;a;a=a->next) pfmt(fd, " (%v)", a->words);
+	if(!fname[i].f)
+		pfmt(fd, "%p", fn);
+	for(a = t->argv;a;a = a->next) pfmt(fd, " (%v)", a->words);
 	pchr(fd, '\n');
 	flush(fd);
 }

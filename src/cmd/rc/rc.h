@@ -80,6 +80,7 @@ char tok[NTOK];
 #define	HERE	4
 #define	DUPFD	5
 #define	CLOSE	6
+#define	RDWR	7
 struct var{
 	char *name;		/* ascii name */
 	word *val;	/* value */
