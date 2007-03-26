@@ -163,7 +163,7 @@ xcpu(int first)
 	ulong x[20];
 	struct clockinfo *ci;
 	int mib[2];
-	int l;
+	size_t l;
 
 	if(first){
 		mib[0] = CTL_KERN;
