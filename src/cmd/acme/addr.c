@@ -98,7 +98,8 @@ number(uint showerr, Text *t, Range r, int line, int dir, int size, int *evalp)
 			}
 			--q0;
 		}
-		if(line > 0)
+		/* :1-1 is :0 = #0, but :1-2 is an error */
+		if(line > 1)
 			goto Rescue;
 		while(q0>0 && textreadc(t, q0-1)!='\n')
 			--q0;
