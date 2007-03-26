@@ -4,17 +4,19 @@
 
 #include <u.h>
 #include <libc.h>
+#include <9pclient.h>
 #include <draw.h>
 #include <cursor.h>
-#include <cursor.h>
-#include <event.h>
+#include <mouse.h>
+#include <keyboard.h>
+#include <thread.h>
 #include <bio.h>
 #include <plumb.h>
 #include <ctype.h>
-#include <keyboard.h>
 #include "page.h"
 
 Document *doc;
+Mousectl *mc;
 Image *im;
 int page;
 int angle = 0;
@@ -26,6 +28,7 @@ Point ul;			/* the upper left corner of the image is at this point on the screen
 Point pclip(Point, Rectangle);
 Rectangle mkrange(Rectangle screenr, Rectangle imr);
 void redraw(Image*);
+void plumbproc(void*);
 
 Cursor reading={
 	{-1, -1},
@@ -56,20 +59,13 @@ enum {
 	Middle = 2,
 	Right = 4,
 
-	RMenu = 3
+	RMenu = 3,
 };
 
 void
 unhide(void)
 {
-	static int wctl = -1;
-
-	if(wctl < 0)
-		wctl = open("/dev/wctl", OWRITE);
-	if(wctl < 0)
-		return;
-
-	write(wctl, "unhide", 6);
+	USED(nil);
 }
 
 int 
@@ -126,7 +122,7 @@ showpage(int page, Menu *m)
 	else
 		m->lasthit = reverse ? doc->npage-1-page : page;
 	
-	esetcursor(&reading);
+	setcursor(mc, &reading);
 	freeimage(im);
 	if((page < 0 || page >= doc->npage) && !doc->fwdonly){
 		im = nil;
@@ -169,7 +165,7 @@ showpage(int page, Menu *m)
 		break;
 	}
 
-	esetcursor(nil);
+	setcursor(mc, nil);
 	if(showbottom){
 		ul.y = screen->r.max.y - Dy(im->r);
 		showbottom = 0;
@@ -186,7 +182,7 @@ writebitmap(void)
 	char name[64+30];
 	static char result[200];
 	char *p, *q;
-	int fd;
+	int fd = -1;
 
 	if(im == nil)
 		return "no image";
@@ -209,18 +205,18 @@ writebitmap(void)
 		snprint(name, sizeof(name)-1, "%s.%d.bit", q, page+1);
 		if(access(name, 0) >= 0) {
 			strcat(name, "XXXX");
-			mktemp(name);
+			fd = mkstemp(name);
 		}
-		if(access(name, 0) >= 0)
+		if(fd < 0)
 			return "couldn't think of a name for bitmap";
 	} else {
 		strcpy(name, "bitXXXX");
-		mktemp(name);
-		if(access(name, 0) >= 0) 
+		mkstemp(name);
+		if(fd < 0)
 			return "couldn't think of a name for bitmap";
 	}
 
-	if((fd = create(name, OWRITE, 0666)) < 0) {
+	if(fd < 0) {
 		snprint(result, sizeof result, "cannot create %s: %r", name);
 		return result;
 	}
@@ -265,7 +261,7 @@ enum{
 	Del,
 	Write,
 	Empty3,
-	Exit
+	Exit,
 };
  
 void
@@ -273,11 +269,14 @@ viewer(Document *dd)
 {
 	int i, fd, n, oldpage;
 	int nxt;
+	Channel *cp;
 	Menu menu, midmenu;
 	Mouse m;
-	Event e;
+	Keyboardctl *kc;
 	Point dxy, oxy, xy0;
+	Rune run;
 	Rectangle r;
+	int size[2];
 	Image *tmp;
 	static char *fwditems[] = { "this page", "next page", "exit", 0 };
  	static char *miditems[] = {
@@ -299,16 +298,44 @@ viewer(Document *dd)
  		0 
  	};
 	char *s;
-	enum { Eplumb = 4 };
+	enum {
+	    CMouse,
+	    CResize,
+	    CKeyboard,
+	    CPlumb,
+	    CN
+	};
+	Alt alts[CN+1];
 	Plumbmsg *pm;
+
+	cp = chancreate(sizeof pm, 0);
+	assert(cp);
 
 	doc = dd;    /* save global for menuhit */
 	ul = screen->r.min;
-	einit(Emouse|Ekeyboard);
-	if(doc->addpage != nil)
-		eplumb(Eplumb, "image");
+	mc = initmouse(nil, screen);
+	kc = initkeyboard(nil);
+	alts[CMouse].c = mc->c;
+	alts[CMouse].v = &m;
+	alts[CMouse].op = CHANRCV;
+	alts[CResize].c = mc->resizec;
+	alts[CResize].v = &size;
+	alts[CResize].op = CHANRCV;
+	alts[CKeyboard].c = kc->c;
+	alts[CKeyboard].v = &run;
+	alts[CKeyboard].op = CHANRCV;
+	alts[CPlumb].c = cp;
+	alts[CPlumb].v = &pm;
+	alts[CPlumb].op = CHANNOP;
+	alts[CN].op = CHANEND;
 
-	esetcursor(&reading);
+	/* XXX: Event */
+	if(doc->addpage != nil) {
+		alts[CPlumb].op = CHANRCV;
+		proccreate(plumbproc, cp, 16384);
+	}
+
+	setcursor(mc, &reading);
 	r.min = ZP;
 
 	/*
@@ -336,7 +363,7 @@ viewer(Document *dd)
 	midmenu.lasthit = Next;
 
 	showpage(page, &menu);
-	esetcursor(nil);
+	setcursor(mc, nil);
 
 	nxt = 0;
 	for(;;) {
@@ -345,14 +372,14 @@ viewer(Document *dd)
 		 * a fair amount.  we don't care about doc->npage anymore, and
 		 * all that can be done is select the next page.
 		 */
-		switch(eread(Emouse|Ekeyboard|Eplumb, &e)){
-		case Ekeyboard:
-			if(e.kbdc <= 0xFF && isdigit(e.kbdc)) {
-				nxt = nxt*10+e.kbdc-'0';
+		switch(alt(alts)) {
+		case CKeyboard:
+			if(run <= 0xFF && isdigit(run)) {
+				nxt = nxt*10+run-'0';
 				break;
-			} else if(e.kbdc != '\n')
+			} else if(run != '\n')
 				nxt = 0;
-			switch(e.kbdc) {
+			switch(run) {
 			case 'r':	/* reverse page order */
 				if(doc->fwdonly)
 					break;
@@ -372,12 +399,12 @@ viewer(Document *dd)
 				}
 				break;
 			case 'w':	/* write bitmap of current screen */
-				esetcursor(&reading);
+				setcursor(mc, &reading);
 				s = writebitmap();
 				if(s)
 					string(screen, addpt(screen->r.min, Pt(5,5)), display->black, ZP,
 						display->defaultfont, s);
-				esetcursor(nil);
+				setcursor(mc, nil);
 				flushimage(display, 1);
 				break;
 			case 'd':	/* remove image from working set */
@@ -397,9 +424,9 @@ viewer(Document *dd)
 			case 'u':
 				if(im==nil)
 					break;
-				esetcursor(&reading);
+				setcursor(mc, &reading);
 				rot180(im);
-				esetcursor(nil);
+				setcursor(mc, nil);
 				angle = (angle+180) % 360;
 				redraw(screen);
 				flushimage(display, 1);
@@ -470,15 +497,14 @@ viewer(Document *dd)
 				}
 				break;
 			default:
-				esetcursor(&query);
+				setcursor(mc, &query);
 				sleep(1000);
-				esetcursor(nil);
+				setcursor(mc, nil);
 				break;	
 			}
 			break;
 
-		case Emouse:
-			m = e.mouse;
+		case CMouse:
 			switch(m.buttons){
 			case Left:
 				oxy = m.xy;
@@ -487,7 +513,7 @@ viewer(Document *dd)
 					dxy = subpt(m.xy, oxy);
 					oxy = m.xy;	
 					translate(dxy);
-					m = emouse();
+					recv(mc->c, &m);
 				} while(m.buttons == Left);
 				if(m.buttons) {
 					dxy = subpt(xy0, oxy);
@@ -499,7 +525,7 @@ viewer(Document *dd)
 				if(doc->npage == 0)
 					break;
 
-				n = emenuhit(Middle, &m, &midmenu);
+				n = menuhit(Middle, mc, &midmenu, nil);
 				if(n == -1)
 					break;
 				switch(n){
@@ -543,7 +569,7 @@ viewer(Document *dd)
 						double delta;
 						Rectangle r;
 
-						r = egetrect(Middle, &m);
+						r = getrect(Middle, mc);
 						if((rectclip(&r, rectaddpt(im->r, ul)) == 0) ||
 							Dx(r) == 0 || Dy(r) == 0)
 							break;
@@ -553,7 +579,7 @@ viewer(Document *dd)
 						else
 							delta = (double)Dy(im->r)/(double)Dy(r);
 
-						esetcursor(&reading);
+						setcursor(mc, &reading);
 						tmp = xallocimage(display, 
 								Rect(0, 0, (int)((double)Dx(im->r)*delta), (int)((double)Dy(im->r)*delta)), 
 								im->chan, 0, DBlack);
@@ -564,7 +590,7 @@ viewer(Document *dd)
 						resample(im, tmp);
 						freeimage(im);
 						im = tmp;
-						esetcursor(nil);
+						setcursor(mc, nil);
 						ul = screen->r.min;
 						redraw(screen);
 						flushimage(display, 1);
@@ -580,7 +606,7 @@ viewer(Document *dd)
 							delta = (double)Dy(screen->r)/(double)Dy(im->r);
 
 						r = Rect(0, 0, (int)((double)Dx(im->r)*delta), (int)((double)Dy(im->r)*delta));
-						esetcursor(&reading);
+						setcursor(mc, &reading);
 						tmp = xallocimage(display, r, im->chan, 0, DBlack);
 						if(tmp == nil) {
 							fprint(2, "out of memory during fit: %r\n");
@@ -589,16 +615,16 @@ viewer(Document *dd)
 						resample(im, tmp);
 						freeimage(im);
 						im = tmp;
-						esetcursor(nil);
+						setcursor(mc, nil);
 						ul = screen->r.min;
 						redraw(screen);
 						flushimage(display, 1);
 						break;
 					}
 				case Rot:	/* rotate 90 */
-					esetcursor(&reading);
+					setcursor(mc, &reading);
 					im = rot90(im);
-					esetcursor(nil);
+					setcursor(mc, nil);
 					angle = (angle+90) % 360;
 					redraw(screen);
 					flushimage(display, 1);
@@ -606,9 +632,9 @@ viewer(Document *dd)
 				case Upside: 	/* upside-down */
 					if(im==nil)
 						break;
-					esetcursor(&reading);
+					setcursor(mc, &reading);
 					rot180(im);
-					esetcursor(nil);
+					setcursor(mc, nil);
 					angle = (angle+180) % 360;
 					redraw(screen);
 					flushimage(display, 1);
@@ -628,12 +654,12 @@ viewer(Document *dd)
 					}
 					break;
 				case Write: /* write */
-					esetcursor(&reading);
+					setcursor(mc, &reading);
 					s = writebitmap();
 					if(s)
 						string(screen, addpt(screen->r.min, Pt(5,5)), display->black, ZP,
 							display->defaultfont, s);
-					esetcursor(nil);
+					setcursor(mc, nil);
 					flushimage(display, 1);
 					break;
 				case Del: /* delete */
@@ -663,7 +689,7 @@ viewer(Document *dd)
 					break;
 
 				oldpage = page;
-				n = emenuhit(RMenu, &m, &menu);
+				n = menuhit(RMenu, mc, &menu, nil);
 				if(n == -1)
 					break;
 	
@@ -691,9 +717,15 @@ viewer(Document *dd)
 				break;
 			}
 			break;
-
-		case Eplumb:
-			pm = e.v;
+		case CResize:
+			r = screen->r;
+			if(getwindow(display, Refnone) < 0)
+				fprint(2,"can't reattach to window");
+			ul = addpt(ul, subpt(screen->r.min, r.min));
+			redraw(screen);
+			flushimage(display, 1);
+			break;
+		case CPlumb:
 			if(pm->ndata <= 0){
 				plumbfree(pm);
 				break;
@@ -866,18 +898,7 @@ redraw(Image *screen)
 		}
 	}
 	border(screen, r, -4000, gray, ZP);
-/*	flushimage(display, 0);	 */
-}
-
-void
-eresized(int new)
-{
-	Rectangle r;
-	r = screen->r;
-	if(new && getwindow(display, Refnone) < 0)
-		fprint(2,"can't reattach to window");
-	ul = addpt(ul, subpt(screen->r.min, r.min));
-	redraw(screen);
+//	flushimage(display, 0);	
 }
 
 /* clip p to be in r */
@@ -909,20 +930,16 @@ resize(int dx, int dy)
 	static Rectangle sr;
 	Rectangle r, or;
 
-	dx += 2*Borderwidth;
-	dy += 2*Borderwidth;
-	if(wctlfd < 0){
-		wctlfd = open("/dev/wctl", OWRITE);
-		if(wctlfd < 0)
-			return;
+	r = screen->r;
+	if(Dx(sr)*Dy(sr) == 0) {
+		sr = screenrect();
+		/* Start with the size of the first image */
+		r.max.x = r.min.x;
+		r.max.y = r.min.y;
 	}
 
-	r = insetrect(screen->r, -Borderwidth);
 	if(Dx(r) >= dx && Dy(r) >= dy)
 		return;
-
-	if(Dx(sr)*Dy(sr) == 0)
-		sr = screenrect();
 
 	or = r;
 
@@ -950,8 +967,7 @@ resize(int dx, int dy)
 	if(Dx(r) == Dx(or) && Dy(r) == Dy(or))
 		return;
 
-	fprint(wctlfd, "resize -minx %d -miny %d -maxx %d -maxy %d\n",
-		r.min.x, r.min.y, r.max.x, r.max.y);
+	drawresizewindow(r);
 }
 
 /*
@@ -966,129 +982,73 @@ xallocimage(Display *d, Rectangle r, ulong chan, int repl, ulong val)
 	return allocimage(d, r, chan, repl, val);
 }
 
-/* all code below this line should be in the library, but is stolen from colors instead */
-static char*
-rdenv(char *name)
-{
-	char *v;
-	int fd, size;
-
-	fd = open(name, OREAD);
-	if(fd < 0)
-		return 0;
-	size = seek(fd, 0, 2);
-	v = malloc(size+1);
-	if(v == 0){
-		fprint(2, "page: can't malloc: %r\n");
-		wexits("no mem");
-	}
-	seek(fd, 0, 0);
-	read(fd, v, size);
-	v[size] = 0;
-	close(fd);
-	return v;
-}
-
 void
-newwin(void)
+plumbproc(void *c)
 {
-	char *srv, *mntsrv;
-	char spec[100];
-	int srvfd, cons, pid;
+	Channel *cp;
+	CFid *fd;
 
-	switch(rfork(RFFDG|RFPROC|RFNAMEG|RFENVG|RFNOTEG|RFNOWAIT)){
-	case -1:
-		fprint(2, "page: can't fork: %r\n");
-		wexits("no fork");
-	case 0:
-		break;
-	default:
-		wexits(0);
+	cp = c;
+	fd = plumbopenfid("image", OREAD|OCEXEC);
+	if(fd == nil) {
+		fprint(2, "Cannot connect to the plumber");
+		threadexits("plumber");
 	}
-
-	srv = rdenv("/env/wsys");
-	if(srv == 0){
-		mntsrv = rdenv("/mnt/term/env/wsys");
-		if(mntsrv == 0){
-			fprint(2, "page: can't find $wsys\n");
-			wexits("srv");
-		}
-		srv = malloc(strlen(mntsrv)+10);
-		sprint(srv, "/mnt/term%s", mntsrv);
-		free(mntsrv);
-		pid  = 0;			/* can't send notes to remote processes! */
-	}else
-		pid = getpid();
-	srvfd = open(srv, ORDWR);
-	free(srv);
-	if(srvfd == -1){
-		fprint(2, "page: can't open %s: %r\n", srv);
-		wexits("no srv");
+	for(;;) {
+		send(cp, plumbrecvfid(fd));
 	}
-	sprint(spec, "new -pid %d", pid);
-	if(mount(srvfd, -1, "/mnt/wsys", 0, spec) == -1){
-		fprint(2, "page: can't mount /mnt/wsys: %r (spec=%s)\n", spec);
-		wexits("no mount");
-	}
-	close(srvfd);
-	unmount("/mnt/acme", "/dev");
-	bind("/mnt/wsys", "/dev", MBEFORE);
-	cons = open("/dev/cons", OREAD);
-	if(cons==-1){
-	NoCons:
-		fprint(2, "page: can't open /dev/cons: %r");
-		wexits("no cons");
-	}
-	dup(cons, 0);
-	close(cons);
-	cons = open("/dev/cons", OWRITE);
-	if(cons==-1)
-		goto NoCons;
-	dup(cons, 1);
-	dup(cons, 2);
-	close(cons);
-/*	wctlfd = open("/dev/wctl", OWRITE); */
 }
 
+/* XXX: This function is ugly and hacky. There may be a better way... or not */
 Rectangle
 screenrect(void)
 {
-	int fd;
-	char buf[12*5];
+	int fd[3], pfd[2];
+	int n, w, h;
+	char buf[64];
+	char *p, *pr;
 
-	fd = open("/dev/screen", OREAD);
-	if(fd == -1)
-		fd=open("/mnt/term/dev/screen", OREAD);
-	if(fd == -1){
-		fprint(2, "page: can't open /dev/screen: %r\n");
-		wexits("window read");
-	}
-	if(read(fd, buf, sizeof buf) != sizeof buf){
-		fprint(2, "page: can't read /dev/screen: %r\n");
-		wexits("screen read");
-	}
-	close(fd);
-	return Rect(atoi(buf+12), atoi(buf+24), atoi(buf+36), atoi(buf+48));
+	if(pipe(pfd) < 0)
+		wexits("pipe failed");
+
+	fd[0] = open("/dev/null", OREAD);
+	fd[1] = pfd[1];
+	fd[2] = dup(2, -1);
+	if(threadspawnl(fd, "rc", "rc", "-c", "xdpyinfo | grep 'dimensions:'", nil) == -1)
+		wexits("threadspawnl failed");
+
+	if((n = read(pfd[0], buf, 63)) <= 0)
+		wexits("read xdpyinfo failed");
+	close(fd[0]);
+
+	buf[n] = '\0';
+	for(p = buf; *p; p++)
+		if(*p >= '0' && *p <= '9') break;
+	if(*p == '\0')
+		wexits("xdpyinfo parse failed");
+
+	w = strtoul(p, &pr, 10);
+	if(p == pr || *pr == '\0' || *(++pr) == '\0')
+		wexits("xdpyinfo parse failed");
+	h = strtoul(pr, &p, 10);
+	if(p == pr)
+		wexits("xdpyinfo parse failed");
+
+	return Rect(0, 0, w, h);
 }
 
 void
 zerox(void)
 {
 	int pfd[2];
+	int fd[3];
 
 	pipe(pfd);
-	switch(rfork(RFFDG|RFPROC)) {
-		case -1:
-			wexits("cannot fork in zerox: %r");
-		case 0: 
-			dup(pfd[1], 0);
-			close(pfd[0]);
-			execl("/bin/page", "page", "-w", nil);
-			wexits("cannot exec in zerox: %r\n");
-		default:
-			close(pfd[1]);
-			writeimage(pfd[0], im, 0);
-			close(pfd[0]);
-			break;
-	}
+	fd[0] = pfd[0];
+	fd[1] = dup(1, -1);
+	fd[2] = dup(2, -1);
+	threadspawnl(fd, "page", "page", "-R", nil);
+
+	writeimage(pfd[1], im, 0);
+	close(pfd[1]);
 }

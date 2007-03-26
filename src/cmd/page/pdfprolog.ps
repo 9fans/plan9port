@@ -2,28 +2,19 @@
 /Page# 0 def
 /PDFSave null def
 /DSCPageCount 0 def
-/DoPDFPage {dup /Page# exch store pdfgetpage mypdfshowpage } def
+/DoPDFPage {dup /Page# exch store pdfgetpage pdfshowpage } def
 
 /pdfshowpage_mysetpage {	% <pagedict> pdfshowpage_mysetpage <pagedict>
   dup /CropBox pget {
       boxrect
       2 array astore /PageSize exch 4 2 roll
-      neg exch neg exch 2 array astore /PageOffset exch
+      4 index /Rotate pget {
+        dup 0 lt {360 add} if 90 idiv {exch neg} repeat
+      } if
+      exch neg exch 2 array astore /PageOffset exch
       << 5 1 roll >> setpagedevice
   } if
 } bind def
-
-/mypdfshowpage		% <pagedict> pdfshowpage -
- { dup /Page exch store
-   pdfshowpage_init 
-   pdfshowpage_setpage 
-   pdfshowpage_mysetpage
-   save /PDFSave exch store
-   (before exec) VMDEBUG
-     pdfshowpage_finish
-   (after exec) VMDEBUG
-   PDFSave restore
- } bind def
 
 GS_PDF_ProcSet begin
 pdfdict begin

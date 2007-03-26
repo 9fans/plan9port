@@ -1,9 +1,10 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
-#include <cursor.h>
-#include <event.h>
+#include <thread.h>
+#include <thread.h>
 #include <bio.h>
+#include <cursor.h>
 #include "page.h"
 
 int resizing;
@@ -16,10 +17,45 @@ int ppi = 100;
 int teegs = 0;
 int truetoboundingbox;
 int textbits=4, gfxbits=4;
-int wctlfd = -1;
 int stdinfd;
 int truecolor;
 int imagemode;
+int notewatcher;
+int notegp;
+
+int
+watcher(void *v, char *x)
+{
+	USED(v);
+	if(strcmp(x, "die") != 0)
+		postnote(PNGROUP, notegp, x);
+	threadexitsall(0);
+	return 0;
+}
+
+int
+bell(void *u, char *x)
+{
+	if(x && strcmp(x, "hangup") == 0)
+		threadexitsall(0);
+
+	if(x && strstr(x, "die") == nil)
+		fprint(2, "postnote %d: %s\n", getpid(), x);
+
+	/* alarms come from the gs monitor */
+	if(x && strstr(x, "alarm")){
+		postnote(PNGROUP, getpid(), "die (gs error)");
+		postnote(PNPROC, notewatcher, "die (gs error)");
+	}
+
+	/* function mentions u so that it's in the stack trace */
+	if((u == nil || u != x) && doabort)
+		abort();
+
+/*	fprint(2, "exiting %d\n", getpid()); */
+	wexits("note");
+	return 0;
+}
 
 static int
 afmt(Fmt *fmt)
@@ -37,14 +73,15 @@ void
 usage(void)
 {
 	fprint(2, "usage: page [-biRrw] [-p ppi] file...\n");
-	exits("usage");
+	wexits("usage");
 }
 
 void
-main(int argc, char **argv)
+threadmain(int argc, char **argv)
 {
 	Document *doc;
 	Biobuf *b;
+	char *basename = argv[0];
 	enum { Ninput = 16 };
 	uchar buf[Ninput+1];
 	int readstdin;
@@ -82,7 +119,7 @@ main(int argc, char **argv)
 		truetoboundingbox = 1;
 		break;
 	case 'w':
-		mknewwindow = 1;
+		fprint(2, "%s: -w has only the effect of -R X11 systems\n", basename);
 		resizing = 1;
 		break;
 	case 'i':
@@ -92,14 +129,30 @@ main(int argc, char **argv)
 		usage();
 	}ARGEND;
 
+	notegp = getpid();
+
+	switch(notewatcher = fork()){
+	case -1:
+		sysfatal("fork\n");
+		threadexitsall(0);
+	default:
+		break;
+	case 0:
+		atnotify(watcher, 1);
+		for(;;)
+			sleep(1000);
+		/* not reached */
+	}
+
 	rfork(RFNOTEG);
+	atnotify(bell, 1);
 
 	readstdin = 0;
 	if(imagemode == 0 && argc == 0){
 		readstdin = 1;
 		stdinfd = dup(0, -1);
 		close(0);
-		open("/dev/cons", OREAD);
+		open("/dev/tty", OREAD);
 	}
 
 	quotefmtinstall();
@@ -107,8 +160,9 @@ main(int argc, char **argv)
 
 	fmtinstall('R', Rfmt);
 	fmtinstall('P', Pfmt);
+	/*
 	if(mknewwindow)
-		newwin();
+		newwin(); */
 
 	if(readstdin){
 		b = nil;
@@ -179,5 +233,9 @@ main(int argc, char **argv)
 void
 wexits(char *s)
 {
-	exits(s);
+	if(s && *s && strcmp(s, "note") != 0 && mknewwindow)
+		sleep(10*1000);
+	postnote(PNPROC, notewatcher, "die");
+	postnote(PNGROUP, getpid(), "die");
+	threadexitsall(s);
 }

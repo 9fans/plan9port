@@ -15,14 +15,14 @@
 #include <libc.h>
 #include <bio.h>
 #include <draw.h>
+#include <thread.h>
 #include <cursor.h>
-#include <event.h>
 #include "page.h"
 
 int ndraw = 0;
 enum {
 	Xaxis = 0,
-	Yaxis = 1
+	Yaxis = 1,
 };
 
 Image *mtmp;
@@ -55,7 +55,6 @@ moveup(Image *im, Image *tmp, int a, int b, int c, int axis)
 	drawop(tmp, tmp->r, im, nil, im->r.min, S);
 
 	switch(axis){
-	default:
 	case Xaxis:
 		range = Rect(a, im->r.min.y,  c, im->r.max.y);
 		dr0 = range;
@@ -67,6 +66,7 @@ moveup(Image *im, Image *tmp, int a, int b, int c, int axis)
 		p1 = Pt(a, im->r.min.y);
 		break;
 	case Yaxis:
+	default:
 		range = Rect(im->r.min.x, a,  im->r.max.x, c);
 		dr0 = range;
 		dr0.max.y = dr0.min.y+(c-b);
@@ -90,7 +90,6 @@ interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
 	r0 = im->r;
 	r1 = im->r;
 	switch(axis) {
-	default:
 	case Xaxis:
 		r0.max.x = n;
 		r1.min.x = n;
@@ -98,6 +97,7 @@ interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
 		p1 = (Point){-gran, 0};
 		break;
 	case Yaxis:
+	default:
 		r0.max.y = n;
 		r1.min.y = n;
 		p0 = (Point){0, gran};
@@ -132,12 +132,12 @@ interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
 int
 nextmask(Image *mask, int axis, int maskdim)
 {
-	Point delta;
+	Point o;
 
-	delta = axis==Xaxis ? Pt(maskdim,0) : Pt(0,maskdim);
+	o = axis==Xaxis ? Pt(maskdim,0) : Pt(0,maskdim);
 	drawop(mtmp, mtmp->r, mask, nil, mask->r.min, S);
-	gendrawop(mask, mask->r, mtmp, delta, mtmp, divpt(delta,-2), S);
-/*	writefile("mask", mask, maskdim/2); */
+	gendrawop(mask, mask->r, mtmp, o, mtmp, divpt(o,-2), S);
+//	writefile("mask", mask, maskdim/2);
 	return maskdim/2;
 }
 
@@ -153,13 +153,13 @@ shuffle(Image *im, Image *tmp, int axis, int n, Image *mask, int gran,
 	nn = n - left;
 
 	interlace(im, tmp, axis, nn, mask, gran);
-/*	writefile("interlace", im, gran); */
+//	writefile("interlace", im, gran);
 	
 	gran = nextmask(mask, axis, gran);
 	shuffle(im, tmp, axis, n, mask, gran, nn);
-/*	writefile("shuffle", im, gran); */
+//	writefile("shuffle", im, gran);
 	moveup(im, tmp, lastnn, nn, n, axis);
-/*	writefile("move", im, gran); */
+//	writefile("move", im, gran);
 }
 
 void
@@ -198,7 +198,7 @@ rot180(Image *im)
 	}
 	rmask.max.x = gran;
 	drawop(mask, rmask, display->opaque, nil, ZP, S);
-/*	writefile("mask", mask, gran); */
+//	writefile("mask", mask, gran);
 	shuffle(im, tmp, Xaxis, Dx(im->r), mask, gran, 0);
 	freeimage(mask);
 	freeimage(mtmp);
@@ -309,11 +309,11 @@ i0(double x)
 }
 
 double
-kaiser(double x, double tau, double alpha)
+kaiser(double x, double t, double a)
 {
-	if(fabs(x) > tau)
+	if(fabs(x) > t)
 		return 0.;
-	return i0(alpha*sqrt(1-(x*x/(tau*tau))))/i0(alpha);
+	return i0(a*sqrt(1-(x*x/(t*t))))/i0(a);
 }
 
 

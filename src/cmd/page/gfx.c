@@ -5,14 +5,13 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
-#include <cursor.h>
-#include <event.h>
+#include <thread.h>
 #include <bio.h>
+#include <cursor.h>
 #include "page.h"
 
 typedef struct Convert	Convert;
 typedef struct GfxInfo	GfxInfo;
-typedef struct Graphic	Graphic;
 
 struct Convert {
 	char *name;
@@ -22,29 +21,6 @@ struct Convert {
 
 struct GfxInfo {
 	Graphic *g;
-};
-
-struct Graphic {
-	int type;
-	char *name;
-	uchar *buf;	/* if stdin */
-	int nbuf;
-};
-
-enum {
-	Ipic,
-	Itiff,
-	Ijpeg,
-	Igif,
-	Iinferno,
-	Ifax,
-	Icvt2pic,
-	Iplan9bm,
-	Iccittg4,
-	Ippm,
-	Ipng,
-	Iyuv,
-	Ibmp
 };
 
 /*
@@ -65,15 +41,14 @@ Convert cvt[] = {
 [Iccittg4]	{ "ccitt-g4",	"cat %a|rx nslocum /usr/lib/ocr/bin/bcp -M|fb/pcp -tcompressed -l0" },
 [Ipng]		{ "png",	"png -9 %a", "png -t9 %a" },
 [Iyuv]		{ "yuv",	"yuv -9 %a", "yuv -t9 %a"  },
-[Ibmp]		{ "bmp",	"bmp -9 %a", "bmp -t9 %a"  }
+[Ibmp]		{ "bmp",	"bmp -9 %a", "bmp -t9 %a"  },
 };
 
-static Image*	convert(Graphic*);
 static Image*	gfxdrawpage(Document *d, int page);
 static char*	gfxpagename(Document*, int);
-static int	spawnrc(char*, uchar*, int);
-static void	waitrc(void);
-static int	spawnpost(int);
+static int	spawnrc(char*, Graphic*);
+//static void	waitrc(void);
+//static int	spawnpost(int);
 static int	addpage(Document*, char*);
 static int	rmpage(Document*, int);
 static int	genaddpage(Document*, char*, uchar*, int);
@@ -202,12 +177,12 @@ genaddpage(Document *doc, char *name, uchar *buf, int nbuf)
 	else
 		g->type = Icvt2pic;
 
-	if(name)
+	if(name){
 		g->name = estrdup(name);
-	else{
+		g->fd = -1;
+	}else{
 		g->name = estrdup("stdin");	/* so it can be freed */
-		g->buf = buf;
-		g->nbuf = nbuf;
+		g->fd = stdinpipe(buf, nbuf);
 	}
 
 	if(chatty) fprint(2, "classified \"%s\" as \"%s\"\n", g->name, cvt[g->type].name);
@@ -244,7 +219,7 @@ rmpage(Document *doc, int n)
 }
 
 
-static Image*
+Image*
 convert(Graphic *g)
 {
 	int fd;
@@ -253,25 +228,24 @@ convert(Graphic *g)
 	char *name, buf[1000];
 	Image *im;
 	int rcspawned = 0;
-	Waitmsg *w;
 
 	c = cvt[g->type];
 	if(c.cmd == nil) {
 		if(chatty) fprint(2, "no conversion for bitmap \"%s\"...\n", g->name);
-		if(g->buf == nil){	/* not stdin */
+		if(g->fd < 0){	/* not stdin */
 			fd = open(g->name, OREAD);
 			if(fd < 0) {
 				fprint(2, "cannot open file: %r\n");
 				wexits("open");
 			}
 		}else
-			fd = stdinpipe(g->buf, g->nbuf);	
+			fd = g->fd;
 	} else {
 		cmd = c.cmd;
 		if(truecolor && c.truecmd)
 			cmd = c.truecmd;
 
-		if(g->buf != nil)	/* is stdin */
+		if(g->fd >= 0)	/* is pipe */
 			name = "";
 		else
 			name = g->name;
@@ -281,7 +255,7 @@ convert(Graphic *g)
 		}
 		snprint(buf, sizeof buf, cmd, name);
 		if(chatty) fprint(2, "using \"%s\" to convert \"%s\"...\n", buf, g->name);
-		fd = spawnrc(buf, g->buf, g->nbuf);
+		fd = spawnrc(buf, g);
 		rcspawned++;
 		if(fd < 0) {
 			fprint(2, "cannot spawn converter: %r\n");
@@ -293,43 +267,31 @@ convert(Graphic *g)
 	if(im == nil) {
 		fprint(2, "warning: couldn't read image: %r\n");
 	}
-	close(fd);
 
-	/* for some reason rx doesn't work well with wait */
-	/* for some reason 3to1 exits on success with a non-null status of |3to1 */
-	if(rcspawned && g->type != Iccittg4) {
-		if((w=wait())!=nil && w->msg[0] && !strstr(w->msg, "3to1"))
-			fprint(2, "slave wait error: %s\n", w->msg);
-		free(w);
-	}
+	close(fd);
 	return im;
 }
 
 static int
-spawnrc(char *cmd, uchar *stdinbuf, int nstdinbuf)
+spawnrc(char *cmd, Graphic *g)
 {
 	int pfd[2];
-	int pid;
+	int fd[3];
 
 	if(chatty) fprint(2, "spawning(%s)...", cmd);
 
 	if(pipe(pfd) < 0)
 		return -1;
-	if((pid = fork()) < 0)
+
+	if(g->fd > 0)
+		fd[0] = dup(g->fd, -1);
+	else
+		fd[0] = open("/dev/null", OREAD);
+	fd[1] = pfd[1];
+	fd[2] = dup(2, -1);
+
+	if(threadspawnl(fd, "rc", "rc", "-c", cmd, nil) == -1)
 		return -1;
 
-	if(pid == 0) {
-		close(pfd[1]);
-		if(stdinbuf)
-			dup(stdinpipe(stdinbuf, nstdinbuf), 0);
-		else
-			dup(open("/dev/null", OREAD), 0);
-		dup(pfd[0], 1);
-		/*dup(pfd[0], 2); */
-		execl("/bin/rc", "rc", "-c", cmd, nil);
-		wexits("exec");
-	}
-	close(pfd[0]);
-	return pfd[1];
+	return pfd[0];
 }
-

@@ -15,15 +15,15 @@
 #include <libc.h>
 #include <bio.h>
 #include <draw.h>
+#include <thread.h>
 #include <cursor.h>
-#include <event.h>
 #include "page.h"
 
 int ndraw = 0;
 
 enum {
 	Xaxis,
-	Yaxis
+	Yaxis,
 };
 
 static void reverse(Image*, Image*, int);
@@ -229,7 +229,7 @@ swapadjacent(Image *img, Image *tmp, int axis, int imgdim, Image *mask, int mask
 	/*
 	 * r0 is the lower rectangle, while r1 is the upper one.
 	 */
-	draw(tmp, tmp->r, img, nil
+	draw(tmp, tmp->r, img, nil, 
 }
 
 void

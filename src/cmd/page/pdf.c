@@ -8,7 +8,7 @@
 #include <libc.h>
 #include <draw.h>
 #include <cursor.h>
-#include <event.h>
+#include <thread.h>
 #include <bio.h>
 #include "page.h"
 
@@ -66,7 +66,7 @@ initpdf(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	fprint(2, "reading through pdf...\n");
 	if(b == nil){	/* standard input; spool to disk (ouch) */
 		fd = spooltodisk(buf, nbuf, &fn);
-		sprint(fdbuf, "/fd/%d", fd);
+		sprint(fdbuf, "/dev/fd/%d", fd);
 		b = Bopen(fdbuf, OREAD);
 		if(b == nil){
 			fprint(2, "cannot open disk spool file\n");
@@ -122,7 +122,7 @@ initpdf(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	pdf->pagebbox = emalloc(sizeof(Rectangle)*npage);
 	for(i=0; i<npage; i++) {
 		gscmd(&pdf->gs, "%d pdfgetpage\n", i+1);
-		pdf->pagebbox[i] = pdfbbox(pdf);
+		pdf->pagebbox[i] = pdfbbox(&pdf->gs);
 		if(Dx(pdf->pagebbox[i]) <= 0)
 			pdf->pagebbox[i] = bbox;
 	}
@@ -136,7 +136,7 @@ pdfdrawpage(Document *doc, int page)
 	Image *im;
 
 	gscmd(&pdf->gs, "%d DoPDFPage\n", page+1);
-	im = readimage(display, pdf->gs.gsdfd, 0);
+	im = convert(&pdf->gs.g);
 	if(im == nil) {
 		fprint(2, "fatal: readimage error %r\n");
 		wexits("readimage");

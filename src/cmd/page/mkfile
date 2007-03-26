@@ -14,7 +14,17 @@ OFILES=\
 	util.$O\
 	view.$O\
 
+LIB=$PLAN9/lib/libdraw.a
+
+UPDATE=\
+	mkfile\
+	${OFILES:%.$O=%.c}\
+	pdfprolog.ps\
+	$HFILES\
+
 <$PLAN9/src/mkone
+
+BIN=$PLAN9/bin
 
 pdfprolog.c: pdfprolog.ps
 	cat pdfprolog.ps | sed 's/.*/"&\\n"/g' >pdfprolog.c

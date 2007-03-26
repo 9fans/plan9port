@@ -1,9 +1,9 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
-#include <cursor.h>
-#include <event.h>
+#include <thread.h>
 #include <bio.h>
+#include <cursor.h>
 #include "page.h"
 
 Document*
@@ -24,7 +24,7 @@ initfilt(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf, char *type, cha
 	if(docopy){
 		if(pipe(p) < 0){
 			fprint(2, "pipe fails: %r\n");
-			exits("Epipe");
+			threadexits("Epipe");
 		}
 	}else{
 		p[0] = open("/dev/null", ORDWR);
@@ -35,27 +35,29 @@ initfilt(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf, char *type, cha
 	switch(fork()){
 	case -1:
 		fprint(2, "fork fails: %r\n");
-		exits("Efork");
+		threadexits("Efork");
 	default:
-		close(p[1]);
+		close(p[0]);
 		if(docopy){
-			write(p[0], buf, nbuf);
+			write(p[1], buf, nbuf);
 			if(b)
 				while((n = Bread(b, xbuf, sizeof xbuf)) > 0)
-					write(p[0], xbuf, n);
+					write(p[1], xbuf, n);
 			else
 				while((n = read(stdinfd, xbuf, sizeof xbuf)) > 0)
-					write(p[0], xbuf, n);
+					write(p[1], xbuf, n);
 		}
-		close(p[0]);
+		close(p[1]);
 		waitpid();
 		break;
 	case 0:
-		close(p[0]);
-		dup(p[1], 0);
+		close(p[1]);
+		dup(p[0], 0);
 		dup(ofd, 1);
 		/* stderr shines through */
-		execl("/bin/rc", "rc", "-c", cmd, nil);
+		if(chatty)
+			fprint(2, "Execing '%s'\n", cmd);
+		execlp("rc", "rc", "-c", cmd, nil);
 		break;
 	}
 
@@ -81,7 +83,7 @@ initdvi(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	 */
 	if(b == nil){	/* standard input; spool to disk (ouch) */
 		fd = spooltodisk(buf, nbuf, &name);
-		sprint(fdbuf, "/fd/%d", fd);
+		sprint(fdbuf, "/dev/fd/%d", fd);
 		b = Bopen(fdbuf, OREAD);
 		if(b == nil){
 			fprint(2, "cannot open disk spool file\n");

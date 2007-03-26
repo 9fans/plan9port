@@ -1,9 +1,9 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
-#include <cursor.h>
-#include <event.h>
+#include <thread.h>
 #include <bio.h>
+#include <cursor.h>
 #include "page.h"
 
 void*
@@ -41,30 +41,6 @@ estrdup(char *s)
 	return t;
 }
 
-int
-opentemp(char *template)
-{
-	int fd, i;
-	char *p;
-
-	p = estrdup(template);
-	fd = -1;
-	for(i=0; i<10; i++){
-		mktemp(p);
-		if(access(p, 0) < 0 && (fd=create(p, ORDWR|ORCLOSE, 0400)) >= 0)
-			break;
-		strcpy(p, template);
-	}
-	if(fd < 0){
-		fprint(2, "couldn't make temporary file\n");
-		wexits("Ecreat");
-	}
-	strcpy(template, p);
-	free(p);
-
-	return fd;
-}
-
 /*
  * spool standard input to /tmp.
  * we've already read the initial in bytes into ibuf.
@@ -96,37 +72,54 @@ spooltodisk(uchar *ibuf, int in, char **name)
 	return fd;
 }
 
+typedef struct StdinArg StdinArg;
+
+struct StdinArg {
+	Channel *cp;
+	uchar	*ibuf;
+	int	in;
+};
+
 /*
  * spool standard input into a pipe.
  * we've already ready the first in bytes into ibuf
  */
-int
-stdinpipe(uchar *ibuf, int in)
+static void
+_stdinpipe(void *a)
 {
 	uchar buf[8192];
-	int n;
+	StdinArg *arg;
 	int p[2];
+	int n;
+
+	arg = a;
+
 	if(pipe(p) < 0){
 		fprint(2, "pipe fails: %r\n");	
 		wexits("pipe");
 	}
 
-	switch(rfork(RFPROC|RFFDG)){
-	case -1:
-		fprint(2, "fork fails: %r\n");
-		wexits("fork");
-	default:
-		close(p[1]);
-		return p[0];
-	case 0:
-		break;
-	}
+	send(arg->cp, &p[0]);
 
-	close(p[0]);
-	write(p[1], ibuf, in);
+	write(p[1], arg->ibuf, arg->in);
 	while((n = read(stdinfd, buf, sizeof buf)) > 0)
 		write(p[1], buf, n);
+	
+	close(p[1]);
+	threadexits(0);
+}
 
-	_exits(0);
-	return -1;	/* not reached */
+int
+stdinpipe(uchar *ibuf, int in) {
+	StdinArg arg;
+	int fd;
+
+	arg.ibuf = ibuf;
+	arg.in = in;
+	arg.cp = chancreate(sizeof(int), 0);
+	proccreate(_stdinpipe, &arg, mainstacksize);
+	recv(arg.cp, &fd);
+	chanfree(arg.cp);
+
+	return fd;
 }

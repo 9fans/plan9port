@@ -7,9 +7,9 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
-#include <cursor.h>
-#include <event.h>
+#include <thread.h>
 #include <bio.h>
+#include <cursor.h>
 #include "page.h"
 
 static int gspid;	/* globals for atexit */
@@ -37,87 +37,41 @@ killgs(void)
 	postnote(PNPROC, gspid, "die yankee pig dog");
 }
 
-int
-spawnwriter(GSInfo *g, Biobuf *b)
+void
+spawnreader(void *cp)
 {
-	char buf[4096];
-	int n;
-	int fd;
-
-	switch(fork()){
-	case -1:	return -1;
-	case 0:	break;
-	default:	return 0;
-	}
-
-	Bseek(b, 0, 0);
-	fd = g->gsfd;
-	while((n = Bread(b, buf, sizeof buf)) > 0)
-		write(fd, buf, n);
-	fprint(fd, "(/fd/3) (w) file dup (THIS IS NOT AN INFERNO BITMAP\\n) writestring flushfile\n");
-	_exits(0);
-	return -1;
-}
-
-int
-spawnreader(int fd)
-{
-	int n, pfd[2];
+	int n, fd, pfd[2];
 	char buf[1024];
 
+	recv(cp, &fd);
+
 	if(pipe(pfd)<0)
-		return -1;
-	switch(fork()){
-	case -1:
-		return -1;
-	case 0:
-		break;
-	default:
-		close(pfd[0]);
-		return pfd[1];
+		wexits("pipe failed");
+
+	send(cp, &pfd[1]);
+
+	while((n=read(pfd[0], buf, sizeof buf)) > 0) {
+		write(1, buf, n);
+		write(fd, buf, n);
 	}
 
-	close(pfd[1]);
-	switch(fork()){
-	case -1:
-		wexits("fork failed");
-	case 0:
-		while((n=read(fd, buf, sizeof buf)) > 0) {
-			write(1, buf, n);
-			write(pfd[0], buf, n);
-		}
-		break;
-	default:
-		while((n=read(pfd[0], buf, sizeof buf)) > 0) {
-			write(1, buf, n);
-			write(fd, buf, n);
-		}
-		break;
-	}
-	postnote(PNGROUP, getpid(), "i'm die-ing");
-	_exits(0);
-	return -1;
+	close(pfd[0]);
+	threadexits(0);
 }
 
 void
-spawnmonitor(int fd)
+spawnmonitor(void *cp)
 {
 	char buf[4096];
 	char *xbuf;
+	int fd;
 	int n;
 	int out;
 	int first;
 
-	switch(rfork(RFFDG|RFNOTEG|RFPROC)){
-	case -1:
-	default:
-		return;
+	recv(cp, &fd);
 
-	case 0:
-		break;
-	}
-
-	out = open("/dev/cons", OWRITE);
+	out = open("/dev/tty", OWRITE);
 	if(out < 0)
 		out = 2;
 
@@ -131,17 +85,19 @@ spawnmonitor(int fd)
 		write(out, xbuf, n);
 		alarm(500);
 	}
-	_exits(0);
+	threadexits(0);
 }
 
 int 
 spawngs(GSInfo *g, char *safer)
 {
+	Channel *cp;
 	char *args[16];
 	char tb[32], gb[32];
 	int i, nargs;
 	int devnull;
-	int stdinout[2];
+	int stdinp[2];
+	int stdoutp[2];
 	int dataout[2];
 	int errout[2];
 
@@ -153,15 +109,15 @@ spawngs(GSInfo *g, char *safer)
 	 * gs output written to fd 1 (i.e. ouptut gs generates on error) is fed to errout.
 	 * gs data output is written to fd 3, which is dataout.
 	 */
-	if(pipe(stdinout) < 0 || pipe(dataout)<0 || pipe(errout)<0)
+	if(pipe(stdinp)<0 || pipe(stdoutp)<0 || pipe(dataout)<0 || pipe(errout)<0)
 		return -1;
 
 	nargs = 0;
 	args[nargs++] = "gs";
 	args[nargs++] = "-dNOPAUSE";
-	args[nargs++] = safer;
-	args[nargs++] = "-sDEVICE=plan9";
-	args[nargs++] = "-sOutputFile=/fd/3";
+	args[nargs++] = "-dDELAYSAFER";
+	args[nargs++] = "-sDEVICE=bmp16m";
+	args[nargs++] = "-sOutputFile=/dev/fd/3";
 	args[nargs++] = "-dQUIET";
 	args[nargs++] = "-r100";
 	sprint(tb, "-dTextAlphaBits=%d", textbits);
@@ -175,9 +131,10 @@ spawngs(GSInfo *g, char *safer)
 
 	gspid = fork();
 	if(gspid == 0) {
-		close(stdinout[1]);
-		close(dataout[1]);
-		close(errout[1]);
+		close(stdinp[1]);
+		close(stdoutp[0]);
+		close(dataout[0]);
+		close(errout[0]);
 
 		/*
 		 * Horrible problem: we want to dup fd's 0-4 below,
@@ -189,36 +146,49 @@ spawngs(GSInfo *g, char *safer)
 		while((devnull = open("/dev/null", ORDWR)) < 5)
 			;
 
-		stdinout[0] = dup(stdinout[0], -1);
-		errout[0] = dup(errout[0], -1);
-		dataout[0] = dup(dataout[0], -1);
+		stdinp[0] = dup(stdinp[0], -1);
+		stdoutp[1] = dup(stdoutp[1], -1);
+		errout[1] = dup(errout[1], -1);
+		dataout[1] = dup(dataout[1], -1);
 
-		dup(stdinout[0], 0);
-		dup(errout[0], 1);
-		dup(devnull, 2);	/* never anything useful */
-		dup(dataout[0], 3);
-		dup(stdinout[0], 4);
+		dup(stdinp[0], 0);
+		dup(errout[1], 1);
+		dup(errout[1], devnull);	/* never anything useful */
+		dup(dataout[1], 3);
+		dup(stdoutp[1], 4);
 		for(i=5; i<20; i++)
 			close(i);
-		exec("/bin/gs", args);
+		execvp("gs", args);
 		wexits("exec");
 	}
-	close(stdinout[0]);
-	close(errout[0]);
-	close(dataout[0]);
+	close(stdinp[0]);
+	close(stdoutp[1]);
+	close(errout[1]);
+	close(dataout[1]);
 	atexit(killgs);
 
-	if(teegs)
-		stdinout[1] = spawnreader(stdinout[1]);
+	cp = chancreate(sizeof(int), 0);
+	if(teegs) {
+		proccreate(spawnreader, cp, mainstacksize);
+		send(cp, &stdoutp[0]);
+		recv(cp, &stdoutp[0]);
+	}
 
-	gsfd = g->gsfd = stdinout[1];
-	g->gsdfd = dataout[1];
+	gsfd = g->gsfd = stdinp[1];
 	g->gspid = gspid;
+	g->g.fd = dataout[0];
+	g->g.name = "gs pipe";
+	g->g.type = Ibmp;
 
-	spawnmonitor(errout[1]);
-	Binit(&g->gsrd, g->gsfd, OREAD);
+	proccreate(spawnmonitor, cp, mainstacksize);
+	send(cp, &errout[0]);
+	chanfree(cp);
 
-	gscmd(g, "/PAGEOUT (/fd/4) (w) file def\n");
+	Binit(&g->gsrd, stdoutp[0], OREAD);
+
+	gscmd(g, "/PAGEOUT (/dev/fd/4) (w) file def\n");
+	if(!strcmp(safer, "-dSAFER"))
+		gscmd(g, ".setsafe\n");
 	gscmd(g, "/PAGE== { PAGEOUT exch write==only PAGEOUT (\\n) writestring PAGEOUT flushfile } def\n");
 	waitgs(g);
 
@@ -269,11 +239,14 @@ setdim(GSInfo *gs, Rectangle bbox, int ppi, int landscape)
 	if(!Dx(bbox))
 		bbox = Rect(0, 0, 612, 792);	/* 8½×11 */
 
-	if(landscape)
-		pbox = Rect(bbox.min.y, bbox.min.x, bbox.max.y, bbox.max.x);
-	else
+	switch(landscape){
+	case 0:
 		pbox = bbox;
-
+		break;
+	default:
+		pbox = Rect(bbox.min.y, bbox.min.x, bbox.max.y, bbox.max.x);
+		break;
+	}
 	gscmd(gs, "/PageSize [%d %d]\n", Dx(pbox), Dy(pbox));
 	gscmd(gs, "/Margins [%d %d]\n", -pbox.min.x, -pbox.min.y);
 	gscmd(gs, "currentdevice putdeviceprops pop\n");
@@ -305,10 +278,10 @@ waitgs(GSInfo *gs)
 	uchar buf[1024];
 	int n;
 
-/*	gscmd(gs, "(\\n**bstack\\n) print flush\n"); */
-/*	gscmd(gs, "stack flush\n"); */
-/*	gscmd(gs, "(**estack\\n) print flush\n"); */
-	gscmd(gs, "(\\n/*GO.SYSIN DD\\n) PAGE==\n"); */
+//	gscmd(gs, "(\\n**bstack\\n) print flush\n");
+//	gscmd(gs, "stack flush\n");
+//	gscmd(gs, "(**estack\\n) print flush\n");
+	gscmd(gs, "(\\n//GO.SYSIN DD\\n) PAGE==\n");
 
 	alarm(300*1000);
 	for(;;) {

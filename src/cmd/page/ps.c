@@ -8,7 +8,7 @@
 #include <libc.h>
 #include <draw.h>
 #include <cursor.h>
-#include <event.h>
+#include <thread.h>
 #include <bio.h>
 #include <ctype.h>
 #include "page.h"
@@ -158,7 +158,7 @@ initps(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	fprint(2, "reading through postscript...\n");
 	if(b == nil){	/* standard input; spool to disk (ouch) */
 		fd = spooltodisk(buf, nbuf, nil);
-		sprint(fdbuf, "/fd/%d", fd);
+		sprint(fdbuf, "/dev/fd/%d", fd);
 		b = Bopen(fdbuf, OREAD);
 		if(b == nil){
 			fprint(2, "cannot open disk spool file\n");
@@ -367,7 +367,7 @@ Keepreading:
 
 	if(dumb) {
 		fprint(ps->gs.gsfd, "(%s) run\n", argv[0]);
-		fprint(ps->gs.gsfd, "(/fd/3) (w) file dup (THIS IS NOT A PLAN9 BITMAP 01234567890123456789012345678901234567890123456789\\n) writestring flushfile\n");
+		fprint(ps->gs.gsfd, "(/dev/fd/3) (w) file dup (THIS IS NOT A PLAN9 BITMAP 01234567890123456789012345678901234567890123456789\\n) writestring flushfile\n");
 	}
 
 	ps->bbox = bbox;
@@ -417,7 +417,7 @@ psdrawpage(Document *d, int page)
 	Image *im;
 
 	if(ps->clueless)
-		return readimage(display, ps->gs.gsdfd, 0);
+		return convert(&ps->gs.g);
 
 	waitgs(&ps->gs);
 
@@ -433,7 +433,7 @@ psdrawpage(Document *d, int page)
 	 * so send one to avoid deadlock.
 	 */
 	write(ps->gs.gsfd, "\n", 1);
-	im = readimage(display, ps->gs.gsdfd, 0);
+	im = convert(&ps->gs.g);
 	if(im == nil) {
 		fprint(2, "fatal: readimage error %r\n");
 		wexits("readimage");

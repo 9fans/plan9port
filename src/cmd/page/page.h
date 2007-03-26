@@ -1,3 +1,5 @@
+#undef pipe
+
 typedef struct Document Document;
 
 struct Document {
@@ -11,6 +13,31 @@ struct Document {
 	Biobuf *b;
 	void *extra;
 };
+
+typedef struct Graphic	Graphic;
+
+struct Graphic {
+	int type;
+	int fd;
+	char *name;
+};
+
+enum {
+	Ipic,
+	Itiff,
+	Ijpeg,
+	Igif,
+	Iinferno,
+	Ifax,
+	Icvt2pic,
+	Iplan9bm,
+	Iccittg4,
+	Ippm,
+	Ipng,
+	Iyuv,
+	Ibmp,
+};
+
 
 void *emalloc(int);
 void *erealloc(void*, int);
@@ -48,10 +75,10 @@ Image *resample(Image*, Image*);
 /* ghostscript interface shared by ps, pdf */
 typedef struct GSInfo	GSInfo;
 struct GSInfo {
+	Graphic g;
 	int gsfd;
 	Biobuf gsrd;
 	int gspid;
-	int gsdfd;
 	int ppi;
 };
 void	waitgs(GSInfo*);
@@ -70,6 +97,7 @@ void	wexits(char*);
 Image*	xallocimage(Display*, Rectangle, ulong, int, ulong);
 int	bell(void*, char*);
 int	opentemp(char *template);
+Image*	convert(Graphic *g);
 
 extern int stdinfd;
 extern int truecolor;
