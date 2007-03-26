@@ -230,7 +230,7 @@ opencore(char *s, int len)
 }
 
 void
-rewind(io *io)
+iorewind(io *io)
 {
 	if(io->fd==-1)
 		io->bufp = io->strp;
