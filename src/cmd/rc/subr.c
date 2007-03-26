@@ -10,6 +10,7 @@ emalloc(long n)
 	if(p==0)
 		panic("Can't malloc %d bytes", n);
 /*	if(err){ pfmt(err, "malloc %d->%p\n", n, p); flush(err); } /**/
+	memset(p, 0, n);
 	return p;
 }
 

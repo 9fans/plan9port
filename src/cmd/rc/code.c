@@ -26,6 +26,7 @@ morecode(void)
 	if(codebuf==0)
 		panic("Can't realloc %d bytes in morecode!",
 				ncode*sizeof codebuf[0]);
+	memset(codebuf+ncode-100, 0, 100*sizeof codebuf[0]);
 	return 0;
 }
 

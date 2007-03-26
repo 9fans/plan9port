@@ -37,7 +37,7 @@ pfmt(io *f, char *fmt, ...)
 			pwrd(f, va_arg(ap, char *));
 			break;
 		case 'r':
-			errstr(err, sizeof err); pstr(f, err);
+			rerrstr(err, sizeof err); pstr(f, err);
 			break;
 		case 's':
 			pstr(f, va_arg(ap, char *));
