@@ -223,7 +223,7 @@ outofdate(Node *node, Arc *arc, int eval)
 			if(sym)
 				sym->u.value = ret;
 			else
-				symlook(str, S_OUTOFDATE, (void *)ret);
+				symlook(str, S_OUTOFDATE, (void *)(uintptr)ret);
 		} else
 			ret = sym->u.value;
 		return(ret-1);
