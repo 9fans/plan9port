@@ -119,6 +119,7 @@ newvar(char *name, var *next)
 	v->changed = 0;
 	v->fnchanged = 0;
 	v->next = next;
+	v->changefn = 0;
 	return v;
 }
 /*
