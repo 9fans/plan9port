@@ -175,7 +175,7 @@ rcmatchname(char *name)
 {
 	char *p;
 
-	if((p = strchr(name, '/')) != nil)
+	if((p = strrchr(name, '/')) != nil)
 		name = p+1;
 	if(name[0] == 'r' && name[1] == 'c')
 		return 1;
