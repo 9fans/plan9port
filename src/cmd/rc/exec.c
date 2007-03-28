@@ -604,6 +604,8 @@ Xassign(void)
 	freewords(v->val);
 	v->val = runq->argv->words;
 	v->changed = 1;
+	if(v->changefn)
+		v->changefn(v);
 	runq->argv->words = 0;
 	poplist();
 }
