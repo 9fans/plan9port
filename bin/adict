@@ -11,7 +11,7 @@ fn event {
 	# $5 - eq0 beginning of expanded selection
 	# $6 - eq1 end of expanded selection
 	# $7 - flag
-	# $8 - nr number of runes in $7
+	# $8 - nr number of runes in $9
 	# $9 - text
 	# $10 - chorded argument
 	# $11 - origin of chorded argument
