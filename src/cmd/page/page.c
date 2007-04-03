@@ -2,7 +2,6 @@
 #include <libc.h>
 #include <draw.h>
 #include <thread.h>
-#include <thread.h>
 #include <bio.h>
 #include <cursor.h>
 #include "page.h"
@@ -33,6 +32,14 @@ watcher(void *v, char *x)
 	return 0;
 }
 
+void
+watcherproc(void *v)
+{
+	threadnotify(watcher, 1);
+	for(;;)
+		sleep(1000);
+}
+	
 int
 bell(void *u, char *x)
 {
@@ -131,21 +138,14 @@ threadmain(int argc, char **argv)
 
 	notegp = getpid();
 
-	switch(notewatcher = fork()){
-	case -1:
-		sysfatal("fork\n");
+	notewatcher = proccreate(watcherproc, NULL, 1024);
+	if(notewatcher == -1){
+		sysfatal("proccreate");
 		threadexitsall(0);
-	default:
-		break;
-	case 0:
-		atnotify(watcher, 1);
-		for(;;)
-			sleep(1000);
-		/* not reached */
 	}
 
 	rfork(RFNOTEG);
-	atnotify(bell, 1);
+	threadnotify(bell, 1);
 
 	readstdin = 0;
 	if(imagemode == 0 && argc == 0){
