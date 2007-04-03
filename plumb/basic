@@ -17,19 +17,9 @@ plumb start web $data
 
 # urls go to web browser
 type is text
-data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+([:.][a-zA-Z0-9_?,%#~&/\-+=]+)*\.(jpe?g|JPE?G|gif|GIF|ps|PS|pdf|PDF)'
+data matches '(https?|ftp|file|gopher|mailto|news|nntp|telnet|wais|prospero)://[a-zA-Z0-9_@\-]+([.:][a-zA-Z0-9_@\-]+)*/?[a-zA-Z0-9_?,%#~&/\-+=]+([:.][a-zA-Z0-9_?,%#~&/\-+=]+)*'
 plumb to web
 plumb start web $0
-
-# html goes to web browser
-# uncomment if you want this behavior
-# commented out is more like plan 9
-# 
-# type is text
-# data matches '[a-zA-Z¡-￿0-9_\-./]+'
-# data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(html|htm|HTM|HTML)'
-# arg isfile	$0
-# plumb start web $file
 
 # doc and rtf files go to wdoc2txt
 type is text
