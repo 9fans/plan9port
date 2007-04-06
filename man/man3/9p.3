@@ -613,15 +613,15 @@ should take care to enforce permissions
 where appropriate.
 .TP
 .I Flush
-Single-threaded servers, which always call 
+Servers that always call 
 .I respond
-before returning from the service functions,
+before returning from the service functions
 need not provide a 
 .I flush
 implementation:
 .I flush
-is only necessary in multithreaded programs,
-which arrange for 
+is only necessary in programs which 
+arrange for 
 .I respond
 to be called asynchronously.
 .I Flush
