@@ -31,7 +31,8 @@ __isNaN(double d)
 
 	p = &d;
 	x = *(uvlong*)p;
-	return (ulong)((x>>52)&0x7FF)==0x7FF && !__isInf(d, 0);
+	/* IEEE 754: exponent bits 0x7FF and non-zero mantissa */
+	return (x&uvinf) == uvinf && (x&~uvneginf) != 0;
 }
 
 double
