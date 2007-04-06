@@ -9,10 +9,6 @@
 #include "fmt.h"
 #include "fmtdef.h"
 
-#if defined (__APPLE__) || (__powerpc__)
-#define _NEEDLL
-#endif
-
 static uvlong uvnan    = ((uvlong)0x7FF00000<<32)|0x00000001;
 static uvlong uvinf    = ((uvlong)0x7FF00000<<32)|0x00000000;
 static uvlong uvneginf = ((uvlong)0xFFF00000<<32)|0x00000000;
@@ -35,7 +31,7 @@ __isNaN(double d)
 
 	p = &d;
 	x = *(uvlong*)p;
-	return (ulong)(x>>32)==0x7FF00000 && !__isInf(d, 0);
+	return (ulong)((x>>52)&0x7FF)==0x7FF && !__isInf(d, 0);
 }
 
 double
