@@ -450,8 +450,12 @@ myvtwrite(VtConn *z, uchar score[VtScoreSize], uint type, uchar *buf, int n)
 {
 	WriteReq wr;
 
-	if(nwritethread == 0)
-		return vtwrite(z, score, type, buf, n);
+	if(nwritethread == 0){
+		n = vtwrite(z, score, type, buf, n);
+		if(n < 0)
+			sysfatal("vtwrite: %r");
+		return n;
+	}
 
 	wr.p = packetalloc();
 	packetappend(wr.p, buf, n);
