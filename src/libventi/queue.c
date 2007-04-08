@@ -12,6 +12,7 @@ struct Qel
 
 struct Queue
 {
+	int ref;
 	int hungup;
 	QLock lk;
 	Rendez r;
@@ -26,14 +27,32 @@ _vtqalloc(void)
 
 	q = vtmallocz(sizeof(Queue));
 	q->r.l = &q->lk;
+	q->ref = 1;
+	return q;
+}
+
+Queue*
+_vtqincref(Queue *q)
+{
+	qlock(&q->lk);
+	q->ref++;
+	qunlock(&q->lk);
 	return q;
 }
 
 void
-_vtqfree(Queue *q)
+_vtqdecref(Queue *q)
 {
 	Qel *e;
 	
+	qlock(&q->lk);
+	if(--q->ref > 0){
+		qunlock(&q->lk);
+		return;
+	}
+	assert(q->ref == 0);
+	qunlock(&q->lk);
+
 	/* Leaks the pointers e->p! */
 	while(q->head){
 		e = q->head;

@@ -147,7 +147,7 @@ vtrecvproc(void *v)
 	_vtqhangup(q);
 	while((p = _vtnbqrecv(q)) != nil)
 		packetfree(p);
-	_vtqfree(q);
+	_vtqdecref(q);
 	z->readq = nil;
 	rwakeup(&z->rpcfork);
 	qunlock(&z->lk);
@@ -178,7 +178,7 @@ vtsendproc(void *v)
 	_vtqhangup(q);
 	while((p = _vtnbqrecv(q)) != nil)
 		packetfree(p);
-	_vtqfree(q);
+	_vtqdecref(q);
 	z->writeq = nil;
 	rwakeup(&z->rpcfork);
 	qunlock(&z->lk);
@@ -189,6 +189,7 @@ Packet*
 vtrecv(VtConn *z)
 {
 	Packet *p;
+	Queue *q;
 
 	qlock(&z->lk);
 	if(z->state != VtStateConnected){
@@ -197,8 +198,11 @@ vtrecv(VtConn *z)
 		return nil;
 	}
 	if(z->readq){
+		q = _vtqincref(z->readq);
 		qunlock(&z->lk);
-		return _vtqrecv(z->readq);
+		p = _vtqrecv(q);
+		_vtqdecref(q);
+		return p;
 	}
 
 	qlock(&z->inlk);
@@ -213,6 +217,8 @@ vtrecv(VtConn *z)
 int
 vtsend(VtConn *z, Packet *p)
 {
+	Queue *q;
+
 	qlock(&z->lk);
 	if(z->state != VtStateConnected){
 		packetfree(p);
@@ -221,11 +227,14 @@ vtsend(VtConn *z, Packet *p)
 		return -1;
 	}
 	if(z->writeq){
+		q = _vtqincref(z->writeq);
 		qunlock(&z->lk);
-		if(_vtqsend(z->writeq, p) < 0){
+		if(_vtqsend(q, p) < 0){
+			_vtqdecref(q);
 			packetfree(p);
 			return -1;
 		}
+		_vtqdecref(q);
 		return 0;
 	}
 

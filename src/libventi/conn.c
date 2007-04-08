@@ -46,5 +46,6 @@ vtfreeconn(VtConn *z)
 	packetfree(z->part);
 	vtfree(z->version);
 	vtfree(z->sid);
+	qunlock(&z->lk);
 	vtfree(z);
 }
