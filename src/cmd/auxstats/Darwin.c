@@ -338,7 +338,7 @@ isys(char *name)
 void
 xvm(int first)
 {
-	uvlong total;
+	natural_t total, active;
 
 	if(first)
 		return;
@@ -347,8 +347,13 @@ xvm(int first)
 		+ sample.vm_stat.active_count
 		+ sample.vm_stat.inactive_count
 		+ sample.vm_stat.wire_count;
+	
+	active = sample.vm_stat.active_count
+		+ sample.vm_stat.inactive_count
+		+ sample.vm_stat.wire_count;
+
 	if(total)
-		Bprint(&bout, "mem =%lld %lld\n", sample.vm_stat.active_count, total);
+		Bprint(&bout, "mem =%lud %lud\n", active, total);
 
 	Bprint(&bout, "context %lld 1000\n", (vlong)sample.csw);
 	Bprint(&bout, "syscall %lld 1000\n", (vlong)sample.syscalls_mach+sample.syscalls_unix);
