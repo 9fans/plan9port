@@ -293,22 +293,22 @@ void
 xnet(int first)
 {
 	uint n;
-	uvlong err, in, inb, out, outb;
+	ulong err, in, inb, out, outb;
 	
 	n = sample.net_ifaces;
-	in = sample.net_ipackets;
-	out = sample.net_opackets;
-	inb = sample.net_ibytes;
-	outb = sample.net_obytes;
-	err = sample.net_errors;
+	in = sample.net_ipackets - sample.p_net_ipackets;
+	out = sample.net_opackets - sample.p_net_opackets;
+	inb = sample.net_ibytes - sample.p_net_ibytes;
+	outb = sample.net_obytes - sample.p_net_obytes;
+	err = sample.net_errors - sample.p_net_errors;
 	
-       Bprint(&bout, "etherb %llud %d\n", inb+outb, n*1000000);
-       Bprint(&bout, "ether %llud %d\n", in+out, n*1000);
-       Bprint(&bout, "ethererr %llud %d\n", err, n*1000);
-       Bprint(&bout, "etherin %llud %d\n", in, n*1000);
-       Bprint(&bout, "etherout %llud %d\n", out, n*1000);
-       Bprint(&bout, "etherinb %llud %d\n", inb, n*1000);
-       Bprint(&bout, "etheroutb %llud %d\n", outb, n*1000);
+       Bprint(&bout, "etherb %lud %d\n", inb+outb, n*1000000);
+       Bprint(&bout, "ether %lud %d\n", in+out, n*1000);
+       Bprint(&bout, "ethererr %lud %d\n", err, n*1000);
+       Bprint(&bout, "etherin %lud %d\n", in, n*1000);
+       Bprint(&bout, "etherout %lud %d\n", out, n*1000);
+       Bprint(&bout, "etherinb %lud %d\n", inb, n*1000);
+       Bprint(&bout, "etheroutb %lud %d\n", outb, n*1000);
 }
 
 int
