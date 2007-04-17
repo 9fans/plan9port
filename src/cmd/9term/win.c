@@ -130,6 +130,9 @@ threadmain(int argc, char **argv)
 	char buf[256];
 	char buf1[128];
 	CFsys *fs;
+	char *dump;
+	
+	dump = onestring(argc, argv);
 
 	ARGBEGIN{
 	case 'd':
@@ -197,7 +200,7 @@ threadmain(int argc, char **argv)
 	fswrite(ctlfd, buf, strlen(buf));
 	sprint(buf, "dumpdir %s/\n", buf1);
 	fswrite(ctlfd, buf, strlen(buf));
-	sprint(buf, "dump %s\n", onestring(argc, argv));
+	sprint(buf, "dump %s\n", dump);
 	fswrite(ctlfd, buf, strlen(buf));
 	
 	updatewinsize(25, 80, 0, 0);
