@@ -6,7 +6,7 @@
 
 static int didtz;
 static int tzdelta;
-static char tzone[4];
+static char tzone[32];
 
 static void
 dotz(void)
@@ -48,7 +48,8 @@ tm2Tm(struct tm *tm, Tm *bigtm, int gmt)
 		bigtm->tzoff = 0;
 	}else{
 		dotz();
-		strcpy(bigtm->zone, tzone);
+		strncpy(bigtm->zone, tzone, 3);
+		bigtm->zone[3] = 0;
 		bigtm->tzoff = tzdelta;
 	}
 }
