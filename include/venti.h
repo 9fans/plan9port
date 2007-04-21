@@ -4,10 +4,6 @@
 extern "C" { 
 #endif
 
-#ifndef PLAN9PORT
-#pragma lib "libventi.a"
-#pragma src "/sys/src/libventi"
-#endif
 
 AUTOLIB(venti)
 
@@ -202,10 +198,6 @@ int vtparsescore(char *s, char **prefix, uchar[VtScoreSize]);
  *
  * V	a venti score
  */
-#ifndef PLAN9PORT
-#pragma	varargck	type	"V"		uchar*
-#pragma varargck	type	"F"		VtFcall*
-#endif
 
 int vtscorefmt(Fmt*);
 
