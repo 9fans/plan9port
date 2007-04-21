@@ -1,0 +1,76 @@
+#!/usr/local/plan9/bin/rc
+
+vtmp=/home/tmp
+venti=tcp!127.1!17034
+url=127.1:8901
+
+fn reformat {
+	if(! test -f $vtmp/arena)
+		dd bs'='1048576 count'='100 if'='/dev/zero of'='$vtmp/arena
+	if(! test -f $vtmp/bloom)
+		dd bs'='1048576 count'='10 if'='/dev/zero of'='$vtmp/bloom
+	if(! test -f $vtmp/isect)
+		dd bs'='1048576 count'='10 if'='/dev/zero of'='$vtmp/isect
+	if(! test -f $vtmp/check)
+		dd bs'='1048576 count'='20 if'='/dev/zero of'='$vtmp/check
+
+	echo '
+		index main
+		isect '$vtmp'/isect
+		arenas '$vtmp'/arena
+		bloom '$vtmp'/bloom
+		webroot '$PLAN9'/src/cmd/venti/srv/www
+		mem 64M
+		icmem 64M
+		bcmem 64M
+		queuewrites
+		addr tcp!*!17034
+		httpaddr tcp!*!8901
+	' >$vtmp/vtmp.conf
+
+	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
+	./o.fmtbloom -s 10M $vtmp/bloom
+	./o.fmtisect -b 8k isect $vtmp/isect
+	./o.fmtindex vtmp.conf
+}
+
+fn venti {
+	./o.venti -c $vtmp/vtmp.conf >$vtmp/venti.log >[2=1]
+}
+
+fn killventi {
+	killall -9 o.venti
+}
+
+fn die {
+	echo $*
+	# no killventi - leave for debugging
+	echo '(leaving venti running)'
+	exit 1
+}
+
+fn testdcachesync {
+	echo '>>>' testdcachesync...
+	echo '*' reformat
+	reformat
+	echo '*' venti
+	venti
+	sleep 2
+	echo '*' vac
+	9 time vac $PLAN9/src/cmd/venti >$vtmp/a.vac
+	echo '*' flushdcache
+	hget http://$url/flushdcache
+	echo '*' kill venti
+	killventi
+	echo '*' venti
+	venti
+	sleep 2
+	echo '*' read
+	if(venti/read `{cat $vtmp/a.vac} >/dev/null >[2=1])
+		echo worked
+	if not
+		die 'could not find block!'
+}
+
+testdcachesync
+killventi
