@@ -130,6 +130,8 @@ hparsereq(HConnect *c, int timeout)
 
 	c->req.uri = uri;
 	c->req.search = search;
+	if(search)
+		c->req.searchpairs = hparsequery(c, hstrdup(c, search));
 
 	return 1;
 }

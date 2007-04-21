@@ -159,6 +159,7 @@ struct HttpReq
 	char		*search;
 	int		vermaj;
 	int		vermin;
+	HSPairs	*searchpairs;
 };
 
 /*
