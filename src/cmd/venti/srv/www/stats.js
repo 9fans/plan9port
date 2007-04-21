@@ -1,114 +1,114 @@
 
-biggraph = "rpctotal/diff"
+biggraph = "arg=rpctotal&graph=diff"
 
 graphname = new Array(
-	"*/diskbw",
+	"arg=*&graph=diskbw",
 		"<b>disk</b> bytes/second",
-	"*/netbw",
+	"arg=*&graph=netbw",
 		"<b>network</b> bytes/second",
-	"*/iobw",
+	"arg=*&graph=iobw",
 		"total: <b>disk+net</b> bytes/second",
 
-	"apartreadbyte/diff",
+	"arg=apartreadbyte&graph=diff",
 		"arena read bytes/second",
-	"apartwritebyte/diff",
+	"arg=apartwritebyte&graph=diff",
 		"arena write bytes/second",
 
-	"bloomfalsemiss/pctdiff=bloomlookup",
+	"arg=bloomfalsemiss&graph=pctdiff&arg2=bloomlookup&max=100",
 		"bloom false hit %",
-	"bloomhit/pctdiff=bloomlookup",
+	"arg=bloomhit&graph=pctdiff&arg2=bloomlookup&max=100",
 		"bloom miss %",
-	"bloomlookuptime/divdiff=bloomlookup",
+	"arg=bloomlookuptime&graph=divdiff&arg2=bloomlookup",
 		"bloom lookup time",
-	"bloomones/pct=bloombits",
+	"arg=bloomones&graph=pct&arg2=bloombits&max=100",
 		"bloom usage %",
 
-	"dcachedirty/pct=dcachesize",
+	"arg=dcachedirty&graph=pct&arg2=dcachesize&max=100",
 		"dcache dirty %",
-	"dcachehit/pctdiff=dcachelookup",
+	"arg=dcachehit&graph=pctdiff&arg2=dcachelookup&max=100",
 		"dcache hit %",
-	"dcachelookuptime/divdiff=dcachelookup",
+	"arg=dcachelookuptime&graph=divdiff&arg2=dcachelookup",
 		"dcache lookup time",
-	"dcachelookup/diff",
+	"arg=dcachelookup&graph=diff",
 		"dcache lookups/second",
-	"dcachewrite/diff",
+	"arg=dcachewrite&graph=diff",
 		"dcache writes/second",
 
-	"icachedirty/pct=icachesize",
+	"arg=icachedirty&graph=pct&arg2=icachesize&max=100",
 		"icache dirty %",
-	"icachehit/pctdiff=icachelookup",
+	"arg=icachehit&graph=pctdiff&arg2=icachelookup&max=100",
 		"icache hit %",
-	"icachelookuptime/divdiff=icachelookup",
+	"arg=icachelookuptime&graph=divdiff&arg2=icachelookup",
 		"icache lookup time",
-	"icacheprefetch/diff",
+	"arg=icacheprefetch&graph=diff",
 		"icache prefetches/second",
-	"icachewrite/diff",
+	"arg=icachewrite&graph=diff",
 		"icache writes/second",
 
-	"isectreadbyte/diff",	
+	"arg=isectreadbyte&graph=diff",	
 		"isect read bytes/second",
-	"isectwritebyte/diff",
+	"arg=isectwritebyte&graph=diff",
 		"isect write bytes/second",
 
-	"lcachehit/pctdiff=lcachelookup",
+	"arg=lcachehit&graph=pctdiff&arg2=lcachelookup&max=100",
 		"lump cache hit %",
-	"lcachelookuptime/divdiff=lcachelookup",
+	"arg=lcachelookuptime&graph=divdiff&arg2=lcachelookup",
 		"lump cache lookup time",
-	"lcachewrite/diff",
+	"arg=lcachewrite&graph=diff",
 		"lcache writes/second",
 
-	"rpcreadbyte/diff",
+	"arg=rpcreadbyte&graph=diff",
 		"read RPC bytes/second",
-	"rpctotal/diff",
+	"arg=rpctotal&graph=diff",
 		"RPCs/second",
-	"rpcwritebyte/diff",
+	"arg=rpcwritebyte&graph=diff",
 		"write RPC bytes/second",
-	"rpcreadtime/divdiff=rpcread",
+	"arg=rpcreadtime&graph=divdiff&arg2=rpcread",
 		"read RPC time",
-	"rpcwritetime/divdiff=rpcwrite",
+	"arg=rpcwritetime&graph=divdiff&arg2=rpcwrite",
 		"write RPC time",
-	"rpcreadcachedtime/divdiff=rpcreadcached",
+	"arg=rpcreadcachedtime&graph=divdiff&arg2=rpcreadcached",
 		"cached read RPC time",
-	"rpcreaduncachedtime/divdiff=rpcreaduncached",
+	"arg=rpcreaduncachedtime&graph=divdiff&arg2=rpcreaduncached",
 		"uncached read RPC time",
-	"rpcwritenewtime/divdiff=rpcwritenew",
+	"arg=rpcwritenewtime&graph=divdiff&arg2=rpcwritenew",
 		"fresh write RPC time",
-	"rpcwriteoldtime/divdiff=rpcwriteold",
+	"arg=rpcwriteoldtime&graph=divdiff&arg2=rpcwriteold",
 		"dup write RPC time",
 
-	"sumreadbyte/diff",
+	"arg=sumreadbyte&graph=diff",
 		"checksum bytes/second",
 
-	"dblockstall",
+	"arg=dblockstall",
 		"threads stalled: dblock",
-	"dcachestall",
+	"arg=dcachestall",
 		"threads stalled: dcache",
-	"icachestall",
+	"arg=icachestall",
 		"threads stalled: icache",
-	"lumpstall",
+	"arg=lumpstall",
 		"threads stalled: lump",
 
-	"END"
+	"arg=END"
 )
 
 column0 = new Array(
 	"column0",
 	"!bandwidth",
-	"*/iobw",
-	"*/netbw",
-	"rpcreadbyte/diff",
-	"rpcwritebyte/diff",
-	"*/diskbw",
-	"isectreadbyte/diff",
-	"isectwritebyte/diff",
-	"apartreadbyte/diff",
-	"apartwritebyte/diff",
-	"sumreadbyte/diff",
+	"arg=*&graph=iobw",
+	"arg=*&graph=netbw",
+	"arg=rpcreadbyte&graph=diff",
+	"arg=rpcwritebyte&graph=diff",
+	"arg=*&graph=diskbw",
+	"arg=isectreadbyte&graph=diff",
+	"arg=isectwritebyte&graph=diff",
+	"arg=apartreadbyte&graph=diff",
+	"arg=apartwritebyte&graph=diff",
+	"arg=sumreadbyte&graph=diff",
 	
 	"!bloom filter",
-	"bloomhit/pctdiff=bloomlookup",
-	"bloomfalsemiss/pctdiff=bloomlookup",
-	"bloomones/pct=bloombits",
+	"arg=bloomhit&graph=pctdiff&arg2=bloomlookup&max=100",
+	"arg=bloomfalsemiss&graph=pctdiff&arg2=bloomlookup&max=100",
+	"arg=bloomones&graph=pct&arg2=bloombits&max=100",
 	
 	"END"
 )
@@ -116,20 +116,20 @@ column0 = new Array(
 column1 = new Array(
 	"column1",
 	"!icache",
-	"icachedirty/pct=icachesize",
-	"icachehit/pctdiff=icachelookup",
-	"icachewrite/diff",
-	"icacheprefetch/diff",
+	"arg=icachedirty&graph=pct&arg2=icachesize&max=100",
+	"arg=icachehit&graph=pctdiff&arg2=icachelookup&max=100",
+	"arg=icachewrite&graph=diff",
+	"arg=icacheprefetch&graph=diff",
 	
 	"!dcache",
-	"dcachedirty/pct=dcachesize",
-	"dcachehit/pctdiff=dcachelookup",
-	"dcachelookup/diff",
-	"dcachewrite/diff",
+	"arg=dcachedirty&graph=pct&arg2=dcachesize&max=100",
+	"arg=dcachehit&graph=pctdiff&arg2=dcachelookup&max=100",
+	"arg=dcachelookup&graph=diff",
+	"arg=dcachewrite&graph=diff",
 	
 	"!lump cache",
-	"lcachehit/pctdiff=lcachelookup",
-	"lcachewrite/diff",
+	"arg=lcachehit&graph=pctdiff&arg2=lcachelookup&max=100",
+	"arg=lcachewrite&graph=diff",
 	
 	"END"
 )
@@ -138,25 +138,24 @@ column2 = new Array(
 	"column2",
 
 	"!stalls",
-	"icachestall",
-	"dcachestall",
-	"dblockstall",
-	"lumpstall",
+	"arg=icachestall",
+	"arg=dcachestall",
+	"arg=dblockstall",
+	"arg=lumpstall",
 	
 	"!timings",
-	"bloomlookuptime/divdiff=bloomlookup",
-	"icachelookuptime/divdiff=icachelookup",
-	"lcachelookuptime/divdiff=lcachelookup",
-	"dcachelookuptime/divdiff=dcachelookup",
-	"rpcreadtime/divdiff=rpcread",
-	"rpcwritetime/divdiff=rpcwrite",
-	"rpcreadcachedtime/divdiff=rpcreadcached",
-	"rpcreaduncachedtime/divdiff=rpcreaduncached",
-	"rpcwritenewtime/divdiff=rpcwritenew",
-	"rpcwriteoldtime/divdiff=rpcwriteold",
+	"arg=bloomlookuptime&graph=divdiff&arg2=bloomlookup",
+	"arg=icachelookuptime&graph=divdiff&arg2=icachelookup",
+	"arg=lcachelookuptime&graph=divdiff&arg2=lcachelookup",
+	"arg=dcachelookuptime&graph=divdiff&arg2=dcachelookup",
+	"arg=rpcreadtime&graph=divdiff&arg2=rpcread",
+	"arg=rpcwritetime&graph=divdiff&arg2=rpcwrite",
+	"arg=rpcreadcachedtime&graph=divdiff&arg2=rpcreadcached",
+	"arg=rpcreaduncachedtime&graph=divdiff&arg2=rpcreaduncached",
+	"arg=rpcwritenewtime&graph=divdiff&arg2=rpcwritenew",
+	"arg=rpcwriteoldtime&graph=divdiff&arg2=rpcwriteold",
 	
 	"END"
-	
 )
 
 col0info = new Array(column0.length)
@@ -196,12 +195,12 @@ function textofname(name)
 }
 
 function graphrow(row, span, name, dt, wid, ht, fill, text) {
-	var url = "/graph/"+name
-	url = url+"/min=0"
-	url = url+"/t0=-"+dt
-	url = url+"/wid="+wid
-	url = url+"/ht="+ht
-	url = url+"/fill="+fill
+	var url = "/graph?"+name
+	url = url+"&min=0"
+	url = url+"&t0=-"+dt
+	url = url+"&wid="+wid
+	url = url+"&ht="+ht
+	url = url+"&fill="+fill
 
 	var s = "<td colSpan="+span
 	s = s+" valign=bottom"
@@ -234,9 +233,7 @@ function redrawgraphs() {
 		t.insertRow(i)
 
 	graphrow(t.rows[0], 3, biggraph, 86400, 900, 30, 0, " &ndash; showing 24 hours")
-	debug("t.rows.length="+t.rows.length)
 	graphrow(t.rows[1], 3, biggraph, 3600, 900, 30, 1, " &ndash; showing 1 hour")
-	debug("t.rows.length="+t.rows.length)
 	t.rows[2].innerHTML = "<td height=10></td>"
 	
 	var r = t.rows[3]
@@ -308,7 +305,7 @@ function scrolltop() {
 
 function columnclick(e) {
 	if(e.which && e.which != 1)
-		return
+		return;
 	var g = findgraph(scrollleft()+e.clientX, scrolltop()+e.clientY)
 	if(g && g.name.substring(0,1) != "!"){
 		biggraph = g.name
@@ -335,9 +332,10 @@ function findgraphin(x, y, tname, info) {
 	if(x < xpos(t))
 		return
 	y = y - ypos(t)
-	for(var i=info.length-2; i>=1; i--)
+	for(var i=info.length-2; i>=1; i--){
 		if(y > info[i].y)
 			return info[i]
+	}
 	return
 }
 
