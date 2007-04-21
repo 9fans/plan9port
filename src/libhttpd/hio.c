@@ -4,6 +4,7 @@
 
 static	char	hstates[] = "nrewE";
 static	char	hxfers[] = " x";
+static int _hflush(Hio*, int, int);
 
 int
 hinit(Hio *h, int fd, int mode)
@@ -326,7 +327,7 @@ hxferenc(Hio *h, int on)
 {
 	if(h->xferenc && !on && h->pos != h->start)
 		hflush(h);
-	if(hflush(h) < 0)
+	if(_hflush(h, 1, 0) < 0)
 		return -1;
 	h->xferenc = !!on;
 	return 0;
@@ -375,7 +376,7 @@ hvprint(Hio *h, char *fmt, va_list args)
 	f.flush = fmthflush;
 	f.farg = h;
 	f.nfmt = 0;
-	fmtlocaleinit(&f, nil, nil, nil);
+//	fmtlocaleinit(&f, nil, nil, nil);
 	n = fmtvprint(&f, fmt, args);
 	h->pos = f.to;
 	return n;
@@ -394,7 +395,7 @@ hprint(Hio *h, char *fmt, ...)
 }
 
 static int
-_hflush(Hio *h, int dolength)
+_hflush(Hio *h, int force, int dolength)
 {
 	uchar *s;
 	int w;
@@ -406,6 +407,8 @@ _hflush(Hio *h, int dolength)
 	}
 	s = h->start;
 	w = h->pos - s;
+	if(w == 0 && !force)
+		return 0;
 	if(h->xferenc){
 		*--s = '\n';
 		*--s = '\r';
@@ -432,13 +435,13 @@ _hflush(Hio *h, int dolength)
 int
 hflush(Hio *h)
 {
-	return _hflush(h, 0);
+	return _hflush(h, 0, 0);
 }
 
 int
 hlflush(Hio* h)
 {
-	return _hflush(h, 1);
+	return _hflush(h, 0, 1);
 }
 
 int
