@@ -1,5 +1,7 @@
 #include <u.h>
+#ifdef PLAN9PORT
 #include <sys/socket.h>
+#endif
 #include <libc.h>
 #include <venti.h>
 #include "queue.h"
@@ -9,9 +11,11 @@ vthangup(VtConn *z)
 {
 	qlock(&z->lk);
 	z->state = VtStateClosed;
-	/* try to make the read in vtsendproc fail */
+#ifdef PLAN9PORT
+	/* try to make the read in vtrecvproc fail */
 	shutdown(SHUT_WR, z->infd);
 	shutdown(SHUT_WR, z->outfd);
+#endif
 	if(z->infd >= 0)
 		close(z->infd);
 	if(z->outfd >= 0 && z->outfd != z->infd)

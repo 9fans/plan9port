@@ -75,7 +75,7 @@ static char EPacketSize[] = "bad packet size";
 static char EPacketOffset[] = "bad packet offset";
 static char EBadSize[] = "bad size";
 
-#if 0
+#ifdef NOTDEF
 static void checkpacket(Packet*);
 #endif
 
@@ -126,8 +126,6 @@ packetalloc(void)
 	p->next = nil;
 	p->pc = getcallerpc((char*)&p+8);	/* might not work, but fine */
 
-/*if(0)fprint(2, "packetalloc %p from %08lux %08lux %08lux\n", p, *((uint*)&p+2), *((uint*)&p+3), *((uint*)&p+4)); */
-
 	NOTFREE(p);
 	return p;
 }
@@ -136,8 +134,6 @@ void
 packetfree(Packet *p)
 {
 	Frag *f, *ff;
-
-/*if(1)fprint(2, "packetfree %p from %08lux\n", p, getcallerpc(&p)); */
 
 	if(p == nil)
 		return;
@@ -216,7 +212,6 @@ packetsplit(Packet *p, int n)
 	Packet *pp;
 	Frag *f, *ff;
 
-	if(0) fprint(2, "packetsplit %p %d\n", p, n);
 	NOTFREE(p);
 	if(n < 0 || n > p->size) {
 		werrstr(EPacketSize);
@@ -265,7 +260,6 @@ packetsplit(Packet *p, int n)
 int
 packetconsume(Packet *p, uchar *buf, int n)
 {
-	if(0) fprint(2, "packetconsume %p %d\n", p, n);
 	NOTFREE(p);
 	if(buf && packetcopy(p, buf, 0, n) < 0)
 		return -1;
@@ -277,7 +271,6 @@ packettrim(Packet *p, int offset, int n)
 {
 	Frag *f, *ff;
 
-	if(0) fprint(2, "packettrim %p %d %d\n", p, offset, n);
 	NOTFREE(p);
 	if(offset < 0 || offset > p->size) {
 		werrstr(EPacketOffset);
@@ -377,7 +370,6 @@ packettrailer(Packet *p, int n)
 	Mem *m;
 	Frag *f;
 
-	if(0) fprint(2, "packettrailer %p %d\n", p, n);
 	NOTFREE(p);
 	if(n <= 0 || n > MaxFragSize) {
 		werrstr(EPacketSize);
@@ -1009,7 +1001,7 @@ memtail(Mem *m, uchar *wp, int n)
 	return 0;
 }
 
-#if 0
+#ifdef NOTDEF
 static void
 checkpacket(Packet *p)
 {

@@ -50,7 +50,6 @@ vtlognames(int *pn)
 	a = (char*)(s+nname);
 	e = (char*)s+nname*sizeof(char*)+size;
 
-	size = 0;
 	nname = 0;
 	for(i=0; i<nelem(vl.hash); i++)
 	for(l=vl.hash[i]; l; l=l->next){

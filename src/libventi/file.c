@@ -1041,7 +1041,7 @@ filewrite1(VtFile *f, void *data, long count, vlong offset)
 
 	vtfilegetentry(f, &e);
 	if(count < 0 || offset < 0){
-		werrstr("bad offset or count");
+		werrstr("vtfilewrite: bad offset or count");
 		return -1;
 	}
 

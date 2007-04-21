@@ -158,20 +158,14 @@ cachecheck(VtCache *c)
 		else if(b->addr != NilBlock)
 			refed++;
 	}
-if(c->nheap + refed != c->nblock){
-fprint(2, "cachecheck: nheap %d refed %d nblocks %d\n", c->nheap, refed, c->nblock);
-/*vtcachedump(c); */
-}
 	assert(c->nheap + refed == c->nblock);
 	refed = 0;
 	for(i = 0; i < c->nblock; i++){
 		b = &c->block[i];
 		if(b->ref){
-if(1)fprint(2, "a=%ud %V ref=%d pc=%#lux\n", b->addr, b->score, b->ref, (ulong)b->pc);
 			refed++;
 		}
 	}
-if(refed > 0)fprint(2, "cachecheck: in used %d\n", refed);
 }
 
 static int
@@ -353,7 +347,7 @@ vtcacheallocblock(VtCache *c, int type)
 
 	qlock(&b->lk);
 	b->nlock = 1;
-	b->pc = getcallerpc(&b);
+	b->pc = getcallerpc(&c);
 	return b;
 }
 
