@@ -376,7 +376,7 @@ hvprint(Hio *h, char *fmt, va_list args)
 	f.flush = fmthflush;
 	f.farg = h;
 	f.nfmt = 0;
-//	fmtlocaleinit(&f, nil, nil, nil);
+	fmtlocaleinit(&f, nil, nil, nil);
 	n = fmtvprint(&f, fmt, args);
 	h->pos = f.to;
 	return n;
