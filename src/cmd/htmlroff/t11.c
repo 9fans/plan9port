@@ -72,8 +72,13 @@ e_w(void)
 {
 	Rune *a;
 	Rune buf[40];
-	
+	static Rune zero;
+
 	a = getqarg();
+	if(a == nil){
+		warn("no arg for \\w");
+		a = &zero;
+	}
 	runesnprint(buf, sizeof buf, "%ld", runestrlen(a));
 	pushinputstring(buf);
 	nr(L("st"), 0);
