@@ -8,6 +8,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
+#include <stdint.h>
 
 #define OREAD		O_RDONLY
 #define OWRITE	O_WRONLY
@@ -20,3 +21,7 @@
 #define USED(x)	if(x){}else
 #define create(name, mode, perm)	open(name, mode|O_CREAT, perm)
 #define ERRMAX	256
+
+typedef uintptr_t uintptr;
+#define uchar mk_uchar
+typedef unsigned char uchar;
