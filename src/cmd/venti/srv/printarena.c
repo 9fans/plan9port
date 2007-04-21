@@ -68,7 +68,7 @@ threadmain(int argc, char *argv[])
 	Arena *arena;
 	u64int offset, aoffset;
 	Part *part;
-	uchar buf[8192];
+	static uchar buf[8192];
 	ArenaHead head;
 
 	readonly = 1;	/* for part.c */

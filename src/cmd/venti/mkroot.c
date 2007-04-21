@@ -1,6 +1,7 @@
-#include "stdinc.h"
-#include "dat.h"
-#include "fns.h"
+#include <u.h>
+#include <libc.h>
+#include <venti.h>
+#include <thread.h>
 
 char *host;
 
@@ -31,14 +32,15 @@ threadmain(int argc, char *argv[])
 	if(argc != 5)
 		usage();
 
-	ventifmtinstall();
+	fmtinstall('V', vtscorefmt);
+	fmtinstall('F', vtfcallfmt);
 
 	strecpy(root.name, root.name+sizeof root.name, argv[0]);
 	strecpy(root.type, root.type+sizeof root.type, argv[1]);
-	if(vtparsescore(argv[2], strlen(argv[2]), nil, root.score) < 0)
+	if(vtparsescore(argv[2], nil, root.score) < 0)
 		sysfatal("bad score '%s'", argv[2]);
 	root.blocksize = atoi(argv[3]);
-	if(vtparsescore(argv[4], strlen(argv[4]), nil, root.prev) < 0)
+	if(vtparsescore(argv[4], nil, root.prev) < 0)
 		sysfatal("bad score '%s'", argv[4]);
 	vtrootpack(&root, buf);
 

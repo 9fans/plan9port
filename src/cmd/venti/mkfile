@@ -13,3 +13,6 @@ BIN=$BIN/venti
 <$PLAN9/src/mkmany
 <$PLAN9/src/mkdirs
 
+
+extra:V: $O.devnull $O.mkroot $O.randtest $O.readlist $O.ro $O.root
+

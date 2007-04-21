@@ -1,6 +1,4 @@
 <$PLAN9/src/mkhdr
-CC=9c
-
 
 LIBOFILES=\
 	arena.$O\
@@ -14,6 +12,7 @@ LIBOFILES=\
 	disksched.$O\
 	dump.$O\
 	graph.$O\
+	hdisk.$O\
 	httpd.$O\
 	icache.$O\
 	icachewrite.$O\
@@ -41,7 +40,7 @@ LIBOFILES=\
 
 SLIB=libvs.a
 
-LIB=$SLIB
+LIB=$SLIB $LIBDIR/libnventi.a
 
 HFILES=	dat.h\
 	fns.h\
@@ -49,22 +48,22 @@ HFILES=	dat.h\
 
 TARG=\
 	venti\
-	fmtarenas\
-	fmtbloom\
-	fmtisect\
-	fmtindex\
-	fixarenas\
 	buildindex\
 	checkarenas\
 	checkindex\
 	clumpstats\
 	findscore\
+	fixarenas\
+	fmtarenas\
+	fmtbloom\
+	fmtindex\
+	fmtisect\
 	mirrorarenas\
-	rdarena\
-	wrarena\
-	syncindex\
 	printarena\
+	rdarena\
+	syncindex\
 	verifyarena\
+	wrarena\
 
 OFILES=
 
@@ -72,82 +71,18 @@ BIN=$BIN/venti
 
 it:V: $O.venti
 
-$O.venti: # debugmalloc2.$O # debugmalloc.$O #_p9dir.$O debugmalloc.$O
-
 CLEANFILES=$CLEANFILES $SLIB
 
-<$PLAN9/src/mkmany
+<$PLAN9/src/cmd/mkmany
+
+CFLAGS=$CFLAGS -I.
 
 $SLIB: $LIBOFILES
-	$AR rvc $SLIB $LIBOFILES
+	ar rvc $SLIB $LIBOFILES
 
 # xml.c:D:	mkxml dat.h
 # 	./mkxml dat.h > xml.c
 
-ainstall:V: ${TARG:%=%.ainstall}
-
-%.ainstall:V:	$O.%
-	scp $prereq amsterdam:/usr/local/bin/venti/$stem
-
-test:VQ: ${TARG:%=o.%}
-	slay o.venti|rc
-	vtmp=/home/tmp
-	test -f $vtmp/arena || dd bs=1048576 count=100 if=/dev/zero of=$vtmp/arena
-	test -f $vtmp/bloom || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/bloom
-	test -f $vtmp/isect || dd bs=1048576 count=10 if=/dev/zero of=$vtmp/isect
-	test -f $vtmp/check || dd bs=1048576 count=20 if=/dev/zero of=$vtmp/check
-	echo '**********' FMTARENAS
-	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
-	echo '**********' FMTBLOOM
-	./o.fmtbloom -s 10M $vtmp/bloom
-	echo '**********' FMTISECT
-	./o.fmtisect -b 8k isect $vtmp/isect
-	(
-		echo index main
-		echo isect $vtmp/isect
-		echo arenas $vtmp/arena
-		echo bloom $vtmp/bloom
-		echo webroot $PLAN9/src/cmd/venti/srv/www
-		echo mem 64M
-		echo icmem 64M
-		echo bcmem 64M
-		echo queuewrites
-		echo addr 'tcp!*!17034'
-		echo httpaddr 'tcp!*!8001'
-	) >vtmp.conf
-	echo '**********' FMTINDEX
-	./o.fmtindex vtmp.conf
-	echo '**********' VENTI
-	./o.venti -c vtmp.conf >a 2>&1
-	echo '**********' VAC
-	venti='tcp!127.0.0.1!17034' export venti
-	9 time vac /usr/local/plan9/src >a.vac
-	case ${websync:-no} in
-	yes)
-		echo '**********' SYNC VIA WEB
-		hget http://127.0.0.1:8001/flushdcache
-		hget http://127.0.0.1:8001/flushicache
-		hget http://127.0.0.1:8001/flushdcache
-		echo '**********' KILL VENTI
-		killall -9 o.venti
-		;;
-	no)
-		echo '**********' KILL VENTI
-		killall -9 o.venti
-		echo '**********' SYNCINDEX
-		./o.syncindex -B64M -I64M -f vtmp.conf
-		;;
-	esac
-	echo '**********' CHECKINDEX
-	./o.checkindex -B64M vtmp.conf $vtmp/check >check.out
-	wc check.out
-
-luadisk.o: luadisk.c
-	gcc -c -ggdb -Wall -I/usr/include/lua50 luadisk.c
-
-libluadisk.so: luadisk.o
-	gcc -shared -o $target luadisk.o -llua50 -llualib50
-
-$O.xwrarena: xwrarena.$O
-	$LD -o $target xwrarena.$O 
+acid:D: lumpcache.acid
+	cat $prereq >$target
 

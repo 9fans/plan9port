@@ -111,7 +111,7 @@ scalept(int val, int valmin, int valmax, int ptmin, int ptmax)
 Memimage*
 statgraph(Graph *g)
 {
-	int i, lastlo, nbin, x, lo, hi, min, max, first;
+	int i, nbin, x, lo, hi, min, max, first;
 	Memimage *m;
 	Rectangle r;
 	Statbin *b, bin[2000];	/* 32 kB, but whack is worse */
@@ -178,7 +178,6 @@ statgraph(Graph *g)
 		drawlabel(m, Pt(r.min.x, r.max.y-smallfont->height), min);
 	
 	/* actual data */
-	lastlo = -1;
 	for(i=0; i<nbin; i++){
 		b = &bin[i];
 		if(b->nsamp == 0)
@@ -187,16 +186,8 @@ statgraph(Graph *g)
 		hi = scalept(b->max, min, max, r.max.y, r.min.y);
 		x = r.min.x+i;
 		hi-=2;
-		if(0)
-		if(lastlo != -1){
-			if(lastlo < lo)
-				memimagedraw(m, Rect(x-1, lastlo, x, lo), hifill[g->fill%nelem(hifill)], ZP, memopaque, ZP, S);
-			else if(lastlo > lo)
-				memimagedraw(m, Rect(x-1, lo, x, lastlo), hifill[g->fill%nelem(hifill)], ZP, memopaque, ZP, S);
-		}
 		memimagedraw(m, Rect(x, hi, x+1,lo), hifill[g->fill%nelem(hifill)], ZP, memopaque, ZP, S);
 		memimagedraw(m, Rect(x, lo, x+1, r.max.y), lofill[g->fill%nelem(lofill)], ZP, memopaque, ZP, S);
-		lastlo = lo;
 	}
 
 	if(bin[nbin-1].nsamp)

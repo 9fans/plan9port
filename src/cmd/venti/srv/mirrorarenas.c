@@ -32,11 +32,46 @@ usage(void)
 	threadexitsall("usage");
 }
 
+char *tagged;
+
+void
+tag(char *fmt, ...)
+{
+	va_list arg;
+	
+	if(tagged){
+		free(tagged);
+		tagged = nil;
+	}
+	va_start(arg, fmt);
+	tagged = vsmprint(fmt, arg);
+	va_end(arg);
+}
+
+void
+chat(char *fmt, ...)
+{
+	va_list arg;
+
+	if(tagged){
+		write(1, tagged, strlen(tagged));
+		free(tagged);
+		tagged = nil;
+	}
+	va_start(arg, fmt);
+	vfprint(1, fmt, arg);
+	va_end(arg);
+}
+
+#pragma varargck argpos tag 1
+#pragma varargck argpos chat 1
+
+
 int
 ereadpart(Part *p, u64int offset, u8int *buf, u32int count)
 {
 	if(readpart(p, offset, buf, count) != count){
-		print("%T readpart %s at %#llux+%ud: %r\n", p->name, offset, count);
+		chat("%T readpart %s at %#llux+%ud: %r\n", p->name, offset, count);
 		return -1;
 	}
 	return 0;
@@ -46,7 +81,7 @@ int
 ewritepart(Part *p, u64int offset, u8int *buf, u32int count)
 {
 	if(writepart(p, offset, buf, count) != count){
-		print("%T writepart %s at %#llux+%ud: %r\n", p->name, offset, count);
+		chat("%T writepart %s at %#llux+%ud: %r\n", p->name, offset, count);
 		return -1;
 	}
 	return 0;
@@ -84,7 +119,7 @@ copy(uvlong start, uvlong end, char *what, DigestState *ds)
 	assert(astart <= end && end <= aend);
 
 	if(verbose && start != end)
-		print("%T   copy %,llud-%,llud %s\n", start, end, what);
+		chat("%T   copy %,llud-%,llud %s\n", start, end, what);
 
 	i = 0;
 	memset(w, 0, sizeof w);
@@ -146,7 +181,7 @@ copy1(uvlong start, uvlong end, char *what, DigestState *ds)
 	assert(astart <= end && end <= aend);
 
 	if(verbose && start != end)
-		print("%T   copy %,llud-%,llud %s\n", start, end, what);
+		chat("%T   copy %,llud-%,llud %s\n", start, end, what);
 
 	for(o=start; o<end; o+=n){
 		n = sizeof tmp;
@@ -174,7 +209,7 @@ asha1(Part *p, uvlong start, uvlong end, DigestState *ds)
 	assert(start < end);
 
 	if(verbose)
-		print("%T   sha1 %,llud-%,llud\n", start, end);
+		chat("%T   sha1 %,llud-%,llud\n", start, end);
 
 	for(o=start; o<end; o+=n){
 		n = sizeof tmp;
@@ -217,31 +252,28 @@ mirror(Arena *sa, Arena *da)
 	
 	astart = base - blocksize;
 	aend = end + blocksize;
-	
-	shaoff = 0;
 
+	tag("%T %s (%,llud-%,llud)\n", sa->name, astart, aend);
+	
 	if(force){
 		copy(astart, aend, "all", nil);
 		return;
 	}
 
-	if(verbose)
-		print("%T %s (%,llud-%,llud)\n", sa->name, astart, aend);
-
 	if(sa->diskstats.sealed && da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
 		if(scorecmp(sa->score, da->score) == 0)
 			return;
-		print("%T arena %s: sealed score mismatch %V vs %V\n", sa->name, sa->score, da->score);
+		chat("%T arena %s: sealed score mismatch %V vs %V\n", sa->name, sa->score, da->score);
 		status = "errors";
 		return;
 	}
 	if(da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
-		print("%T arena %s: dst is sealed, src is not\n", sa->name);
+		chat("%T arena %s: dst is sealed, src is not\n", sa->name);
 		status = "errors";
 		return;
 	}
 	if(sa->diskstats.used < da->diskstats.used){
-		print("%T arena %s: src used %,lld < dst used %,lld\n", sa->name, sa->diskstats.used, da->diskstats.used);
+		chat("%T arena %s: src used %,lld < dst used %,lld\n", sa->name, sa->diskstats.used, da->diskstats.used);
 		status = "errors";
 		return;
 	}
@@ -331,16 +363,16 @@ mirror(Arena *sa, Arena *da)
 		sha1(buf, blocksize, da->score, ds);
 		if(scorecmp(sa->score, da->score) == 0){
 			if(verbose)
-				print("%T arena %s: %V\n", sa->name, da->score);
+				chat("%T arena %s: %V\n", sa->name, da->score);
 			scorecp(buf+blocksize-VtScoreSize, da->score);
 			if(ewritepart(dst, end, buf, blocksize) < 0)
 				return;
 		}else{
-			print("%T arena %s: sealing dst: score mismatch: %V vs %V\n", sa->name, sa->score, da->score);
+			chat("%T arena %s: sealing dst: score mismatch: %V vs %V\n", sa->name, sa->score, da->score);
 			memset(&xds, 0, sizeof xds);
 			asha1(dst, base-blocksize, end, &xds);
 			sha1(buf, blocksize, da->score, &xds);
-			print("%T   reseal: %V\n", da->score);
+			chat("%T   reseal: %V\n", da->score);
 			status = "errors";
 		}
 	}
@@ -383,7 +415,7 @@ mirrormany(ArenaPart *sp, ArenaPart *dp, char *range)
 				hi = strtol(s, &s, 0);
 		}
 		if(*s != 0){
-			print("%T bad arena range: %s\n", s);
+			chat("%T bad arena range: %s\n", s);
 			continue;
 		}
 		for(i=lo; i<=hi; i++){

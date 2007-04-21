@@ -9,7 +9,7 @@ zeropart(Part *part, int blocksize)
 	u64int addr;
 	int w;
 
-	fprint(2, "clearing the partition\n");
+	fprint(2, "clearing %s\n", part->name);
 	b = alloczblock(MaxIoSize, 1, blocksize);
 
 	w = 0;

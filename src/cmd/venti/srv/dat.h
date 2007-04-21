@@ -696,7 +696,7 @@ struct Bloom
 	QLock mod;		/* one marker at a time, protects nb */
 	int nhash;
 	ulong size;		/* bytes in tab */
-	ulong mask;		/* to produce index */
+	ulong bitmask;		/* to produce bit index */
 	u8int *data;
 	Part *part;
 	Channel *writechan;

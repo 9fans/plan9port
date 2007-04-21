@@ -116,8 +116,7 @@ u64int found = 0;
 	if(b == nil || z == nil || ies == nil){
 		werrstr("allocating: %r");
 		ok = -1;
-		goto breakout;
-		return -1;
+		goto out;
 	}
 	ok = 0;
 	next = 0;
@@ -138,7 +137,7 @@ u64int found = 0;
 					}
 					if(ok < 0)
 						werrstr("%d spurious entries, %d missing, %d wrong", extra, missing, wrong);
-					goto breakout;
+					goto out;
 				}
 				bok = checkbucket(ix, next, &zib);
 				if(bok < 0)
@@ -150,14 +149,14 @@ u64int found = 0;
 				break;
 			werrstr("internal error: bucket out of range");
 			ok = -1;
-			goto breakout;
+			goto out;
 		}
 		bok = checkbucket(ix, buck, &ib);
 		if(bok < 0)
 			ok = -1;
 		next = buck + 1;
 	}
-breakout:
+out:
 	freeiestream(ies);
 	freezblock(z);
 	freezblock(b);

@@ -169,10 +169,23 @@ raproc(void *v)
 		b = _getdblock(ra.part, ra.addr, OREAD, 2);
 		putdblock(b);
 	}
-}	
+}
 
+/*
+ * We do readahead a whole arena at a time now,
+ * so dreadahead is a no-op.  The original implementation
+ * is in unused_dreadahead below.
+ */
 void
 dreadahead(Part *part, u64int addr, int miss)
+{
+	USED(part);
+	USED(addr);
+	USED(miss);
+}
+
+void
+unused_dreadahead(Part *part, u64int addr, int miss)
 {
 	Ra ra;
 	static struct {
@@ -185,7 +198,6 @@ dreadahead(Part *part, u64int addr, int miss)
 		int dir;
 	} lastra;
 
-return;
 	if(miss){
 		if(lastmiss.part==part && lastmiss.addr==addr-dcache.size){
 		XRa:

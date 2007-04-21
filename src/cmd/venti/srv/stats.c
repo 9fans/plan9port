@@ -149,8 +149,8 @@ void
 binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 	long t0, long t1, Statbin *bin, int nbin)
 {
-	long t, xt0, te, v;
-	int i, j, lo, hi, m, oj;
+	long xt0, t, te, v;
+	int i, j, lo, hi, m;
 	vlong tot;
 	Statbin *b;
 	
@@ -177,7 +177,6 @@ binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 			lo = m;
 	}
 	xt0 = stathist[lo%nstathist].now;
-	if(0) fprint(2, "bsearch found %ld\n", xt0);
 	if(xt0 >= t1){
 		/* no samples */
 		memset(bin, 0, nbin*sizeof bin[0]);
@@ -185,15 +184,12 @@ binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 	}
 
 	hi = stattime+nstathist;
-	te = t0;
 	j = lo+1;
 	for(i=0; i<nbin; i++){
-		t = te;
 		te = t0 + (t1-t0)*i/nbin;
 		b = &bin[i];
 		memset(b, 0, sizeof *b);
 		tot = 0;
-		oj = j;
 		for(; j<hi && stathist[j%nstathist].now<te; j++){
 			v = fn(&stathist[(j-1)%nstathist], &stathist[j%nstathist], arg);
 			if(b->nsamp==0 || v < b->min)
@@ -203,7 +199,6 @@ binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 			tot += v;
 			b->nsamp++;
 		}
-		if(0) fprint(2, "bin%d: %ld to %ld; %d to %d - %d samples\n", i, t, te, oj, j, b->nsamp);
 		if(b->nsamp)
 			b->avg = tot / b->nsamp;
 		if(b->nsamp==0 && i>0)

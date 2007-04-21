@@ -64,7 +64,6 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 		if(lump == nil){
 			fprint(2, "%s: clump=%d failed to read correctly: %r\n", arena->name, clump);
 			break;
-			err |= SyncDataErr;
 		}else if(cl.info.type != VtCorruptType){
 			scoremem(score, lump->data, cl.info.uncsize);
 			if(scorecmp(cl.info.score, score) != 0){

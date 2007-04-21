@@ -5,9 +5,13 @@
 int			syncwrites = 0;
 int			queuewrites = 0;
 int			writestodevnull = 0;
+int			verifywrites = 0;
 
 static Packet		*readilump(Lump *u, IAddr *ia, u8int *score, int rac);
 
+/*
+ * Some of this logic is duplicated in hdisk.c
+ */
 Packet*
 readlump(u8int *score, int type, u32int size, int *cached)
 {
@@ -133,11 +137,13 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 	int rac;
 
 	if(lookupscore(u->score, u->type, &ia, &rac) == 0){
-		/* assume the data is here! XXX */
-		packetfree(p);
-		ms = msec() - ms;
-		addstat2(StatRpcWriteOld, 1, StatRpcWriteOldTime, ms);
-		return 0;
+		if(verifywrites == 0){
+			/* assume the data is here! */
+			packetfree(p);
+			ms = msec() - ms;
+			addstat2(StatRpcWriteOld, 1, StatRpcWriteOldTime, ms);
+			return 0;
+		}
 
 		/*
 		 * if the read fails,

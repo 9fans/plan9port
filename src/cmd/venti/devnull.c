@@ -30,7 +30,6 @@ threadmain(int argc, char **argv)
 	VtReq *r;
 	VtSrv *srv;
 	char *address;
-	Packet *p;
 
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
@@ -50,7 +49,7 @@ threadmain(int argc, char **argv)
 
 	srv = vtlisten(address);
 	if(srv == nil)
-		sysfatal("vtlisten %s: %s", address);
+		sysfatal("vtlisten %s: %r", address);
 
 	while((r = vtgetreq(srv)) != nil){
 		r->rx.msgtype = r->tx.msgtype+1;

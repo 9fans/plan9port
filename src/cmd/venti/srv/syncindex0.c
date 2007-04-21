@@ -123,7 +123,6 @@ syncindex(Index *ix, int fix, int mustflush, int check)
 	Arena *arena;
 	AState as;
 	u64int a;
-	u32int clump;
 	int i, e, e1, ok, ok1, flush;
 
 	ok = 0;
@@ -144,11 +143,18 @@ syncindex(Index *ix, int fix, int mustflush, int check)
 			e1 &= ~(SyncHeader|SyncCIZero|SyncCIErr);
 		if(e1 == SyncHeader)
 			fprint(2, "arena %s: header is out-of-date\n", arena->name);
-		clump = arena->diskstats.clumps;
 		if(e1)
 			ok = -1;
 		else{
-			ok1 = syncarenaindex(ix, arena, clump, a + ix->amap[i].start, fix, &flush, check);
+			/*
+			 * use diskstats not memstats here, because diskstats
+			 * is what has been indexed; memstats is what has 
+			 * made it to disk (confusing names).
+			 */
+			ok1 = syncarenaindex(ix, arena,
+					arena->diskstats.clumps,
+					ix->amap[i].start + arena->diskstats.used,
+					fix, &flush, check);
 			if(ok1 < 0)
 				fprint(2, "syncarenaindex: %r\n");
 fprint(2, "arena %s: wbarena in syncindex\n", arena->name);

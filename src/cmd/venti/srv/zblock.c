@@ -6,7 +6,9 @@ void
 fmtzbinit(Fmt *f, ZBlock *b)
 {
 	memset(f, 0, sizeof *f);
+#ifdef PLAN9PORT
 	fmtlocaleinit(f, nil, nil, nil);
+#endif
 	f->start = b->data;
 	f->to = f->start;
 	f->stop = (char*)f->start + b->len;

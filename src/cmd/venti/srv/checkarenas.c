@@ -112,7 +112,7 @@ threadmain(int argc, char *argv[])
 	argc--;
 	argv++;
 
-	part = initpart(file, ORDWR|ODIRECT);
+	part = initpart(file, (fix ? ORDWR : OREAD)|ODIRECT);
 	if(part == nil)
 		sysfatal("can't open partition %s: %r", file);
 

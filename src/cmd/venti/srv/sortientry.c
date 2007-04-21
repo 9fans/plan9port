@@ -250,10 +250,7 @@ sortiebucks(IEBucks *ib)
 		ib->bucks[i].buf = nil;
 	ib->off = (u64int)ib->chunks * ib->size;
 	free(ib->xbuf);
-if(0){
-	fprint(2, "ib->max = %lld\n", ib->max);
-	fprint(2, "ib->chunks = %ud\n", ib->chunks);
-}
+
 	ib->buf = MKN(u8int, ib->max + U32Size);
 	if(ib->buf == nil){
 		seterr(EOk, "out of memory allocating final sorting buffer; try more buckets");
@@ -270,7 +267,6 @@ if(0){
 		tot += n;
 	}
 	return tot;
-	return 0;
 }
 
 /*
@@ -352,7 +348,7 @@ readiebuck(IEBucks *ib, int b)
 	if(m == 0)
 		m = ib->usable;
 	if(0) if(ib->bucks[b].total)
-		fprint(2, "\tbucket %d: %d entries\n", b, ib->bucks[b].total/IEntrySize);
+		fprint(2, "\tbucket %d: %lld entries\n", b, ib->bucks[b].total/IEntrySize);
 	while(head != TWID32){
 		if(readpart(ib->part, (u64int)head * ib->size, &ib->buf[n], m+U32Size) < 0){
 			seterr(EOk, "can't read index sort bucket: %r");

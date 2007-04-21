@@ -35,6 +35,7 @@ wr(char *buf, char *buf2)
 	uchar score[VtScoreSize], score2[VtScoreSize];
 	DigestState ds;
 
+	USED(buf2);
 	memset(&ds, 0, sizeof ds);
 	if(doublecheck)
 		sha1((uchar*)buf, blocksize, score, &ds);

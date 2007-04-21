@@ -976,7 +976,6 @@ ltreewalk(int *p, uchar *score)
 		else
 			p = &cibuf[*p].left;
 	}
-	return nil; 	/* stupid 8c */
 }
 
 void
@@ -1024,7 +1023,6 @@ haveclump(uchar *score)
 		else
 			p = cibuf[p].left;
 	}
-	return 0;	/* stupid 8c */
 }
 
 int

@@ -36,7 +36,6 @@ static	int		hicachekick(HConnect *c);
 static	int		hdcachekick(HConnect *c);
 static	int		hicacheflush(HConnect *c);
 static	int		hdcacheflush(HConnect *c);
-static	int		notfound(HConnect *c);
 static	int		httpdobj(char *name, int (*f)(HConnect*));
 static	int		xgraph(HConnect *c);
 static	int		xset(HConnect *c);
@@ -61,15 +60,15 @@ httpdinit(char *address, char *dir)
 	httpdobj("/flushdcache", hdcacheflush);
 	httpdobj("/kickicache", hicachekick);
 	httpdobj("/kickdcache", hdcachekick);
-	httpdobj("/graph/", xgraph);
+	httpdobj("/graph", xgraph);
 	httpdobj("/set", xset);
-	httpdobj("/set/", xset);
 	httpdobj("/log", xlog);
-	httpdobj("/log/", xlog);
 	httpdobj("/empty", hempty);
 	httpdobj("/emptyicache", hicacheempty);
 	httpdobj("/emptylumpcache", hlcacheempty);
 	httpdobj("/emptydcache", hdcacheempty);
+	httpdobj("/disk", hdisk);
+	httpdobj("/debug", hdebug);
 
 	if(vtproc(listenproc, address) < 0)
 		return -1;
@@ -168,6 +167,11 @@ httpproc(void *v)
 		 */
 		if(hparsereq(c, 0) < 0)
 			break;
+		
+		if(c->req.search)
+			c->req.searchpairs = hparsequery(c, c->req.search);
+		else
+			c->req.searchpairs = nil;
 
 		for(i = 0; i < MaxObjs && objs[i].name[0]; i++){
 			n = strlen(objs[i].name);
@@ -179,6 +183,7 @@ httpproc(void *v)
 		}
 		ok = fromwebdir(c);
 	found:
+		hflush(&c->hout);
 		if(c->head.closeit)
 			ok = -1;
 		hreqcleanup(c);
@@ -189,6 +194,27 @@ httpproc(void *v)
 	hreqcleanup(c);
 	close(c->hin.fd);
 	free(c);
+}
+
+char*
+hargstr(HConnect *c, char *name, char *def)
+{
+	HSPairs *p;
+	
+	for(p=c->req.searchpairs; p; p=p->next)
+		if(strcmp(p->s, name) == 0)
+			return p->t;
+	return def;
+}
+
+vlong
+hargint(HConnect *c, char *name, vlong def)
+{
+	char *a;
+	
+	if((a = hargstr(c, name, nil)) == nil)
+		return def;
+	return atoll(a);
 }
 
 static int
@@ -217,8 +243,8 @@ preq(HConnect *c)
 	return 0;
 }
 
-static int
-preqtype(HConnect *c, char *type)
+int
+hsettype(HConnect *c, char *type)
 {
 	Hio *hout;
 	int r;
@@ -243,10 +269,16 @@ preqtype(HConnect *c, char *type)
 	return 0;
 }
 
-static int
-preqtext(HConnect *c)
+int
+hsethtml(HConnect *c)
 {
-	return preqtype(c, "text/plain");
+	return hsettype(c, "text/html; charset=utf-8");
+}
+
+int
+hsettext(HConnect *c)
+{
+	return hsettype(c, "text/plain; charset=utf-8");
 }
 
 static int
@@ -274,8 +306,8 @@ herror(HConnect *c)
 	return hflush(hout);
 }
 	
-static int
-notfound(HConnect *c)
+int
+hnotfound(HConnect *c)
 {
 	int r;
 
@@ -305,16 +337,16 @@ fromwebdir(HConnect *c)
 	Dir *d;
 	
 	if(webroot == nil || strstr(c->req.uri, ".."))
-		return notfound(c);
+		return hnotfound(c);
 	snprint(buf, sizeof buf-20, "%s/%s", webroot, c->req.uri+1);
 	defaulted = 0;
 reopen:
 	if((fd = open(buf, OREAD)) < 0)
-		return notfound(c);
+		return hnotfound(c);
 	d = dirfstat(fd);
 	if(d == nil){
 		close(fd);
-		return notfound(c);
+		return hnotfound(c);
 	}
 	if(d->mode&DMDIR){
 		if(!defaulted){
@@ -325,7 +357,7 @@ reopen:
 			goto reopen;
 		}
 		free(d);
-		return notfound(c);
+		return hnotfound(c);
 	}
 	free(d);
 	p = buf+strlen(buf);
@@ -337,7 +369,7 @@ reopen:
 			break;
 		}
 	}
-	if(preqtype(c, type) < 0){
+	if(hsettype(c, type) < 0){
 		close(fd);
 		return 0;
 	}
@@ -372,54 +404,41 @@ static struct
 };
 
 static int
-xsetlist(HConnect *c)
-{
-	int i;
-	
-	if(preqtype(c, "text/plain") < 0)
-		return -1;
-	for(i=0; namedints[i].name; i++)
-		print("%s = %d\n", namedints[i].name, *namedints[i].p);
-	hflush(&c->hout);
-	return 0;
-}
-
-
-
-static int
 xset(HConnect *c)
 {
-	int i, nf, r;
-	char *f[10], *s;
+	int i, old;
+	char *name, *value;
 
-	if(strcmp(c->req.uri, "/set") == 0 || strcmp(c->req.uri, "/set/") == 0)
-		return xsetlist(c);
+	if(hsettext(c) < 0)
+		return -1;
 
-	s = estrdup(c->req.uri);
-	nf = getfields(s+strlen("/set/"), f, nelem(f), 1, "/");
-
-	if(nf < 1){
-		r = preqtext(c);
-		if(r < 0)
-			return r;
+	if((name = hargstr(c, "name", nil)) == nil || name[0] == 0){
 		for(i=0; namedints[i].name; i++)
 			hprint(&c->hout, "%s = %d\n", namedints[i].name, *namedints[i].p);
 		hflush(&c->hout);
 		return 0;
 	}
-	for(i=0; namedints[i].name; i++){
-		if(strcmp(f[0], namedints[i].name) == 0){
-			if(nf >= 2)
-				*namedints[i].p = atoi(f[1]);
-			r = preqtext(c);
-			if(r < 0)
-				return r;
-			hprint(&c->hout, "%s = %d\n", f[0], *namedints[i].p);
-			hflush(&c->hout);
-			return 0;
-		}
+
+	for(i=0; namedints[i].name; i++)
+		if(strcmp(name, namedints[i].name) == 0)
+			break;
+	if(!namedints[i].name){
+		hprint(&c->hout, "%s not found\n", name);
+		hflush(&c->hout);
+		return 0;
 	}
-	return notfound(c);
+
+	if((value = hargstr(c, "value", nil)) == nil || value[0] == 0){
+		hprint(&c->hout, "%s = %d\n", namedints[i].name, *namedints[i].p);
+		hflush(&c->hout);
+		return 0;
+	}
+	
+	old = *namedints[i].p;
+	*namedints[i].p = atoll(value);
+	hprint(&c->hout, "%s = %d (was %d)\n", name, *namedints[i].p, old);
+	hflush(&c->hout);
+	return 0;
 }
 
 static int
@@ -428,7 +447,7 @@ estats(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 
@@ -503,7 +522,7 @@ sindex(HConnect *c)
 	vlong clumps, cclumps, uncsize, used, size;
 	int i, r, active;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -567,7 +586,7 @@ hempty(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -586,7 +605,7 @@ hlcacheempty(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -603,7 +622,7 @@ hicacheempty(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -620,7 +639,7 @@ hdcacheempty(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -636,7 +655,7 @@ hicachekick(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -653,7 +672,7 @@ hdcachekick(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -669,7 +688,7 @@ hicacheflush(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -686,7 +705,7 @@ hdcacheflush(HConnect *c)
 	Hio *hout;
 	int r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -704,7 +723,7 @@ dindex(HConnect *c)
 	Index *ix;
 	int i, r;
 
-	r = preqtext(c);
+	r = hsettext(c);
 	if(r < 0)
 		return r;
 	hout = &c->hout;
@@ -769,6 +788,23 @@ pctdiffgraph(Stats *s, Stats *t, void *va)
 
 	a = va;
 	return percent(t->n[a->index]-s->n[a->index], t->n[a->index2]-s->n[a->index2]);
+}
+
+static long
+div(long a, long b)
+{
+	if(b == 0)
+		b++;
+	return a/b;
+}
+
+static long
+divdiffgraph(Stats *s, Stats *t, void *va)
+{
+	Arg *a;
+
+	a = va;
+	return div(t->n[a->index] - s->n[a->index], t->n[a->index2] - s->n[a->index2]);
 }
 
 static long
@@ -928,79 +964,59 @@ dotextbin(Hio *io, Graph *g)
 static int
 xgraph(HConnect *c)
 {
-	char *f[20], *s;
+	char *name;
 	Hio *hout;
 	Memimage *m;
-	int i, nf, dotext;
+	int dotext;
 	Graph g;
 	Arg arg;
+	char *graph, *a;
 
-	s = estrdup(c->req.uri);
-if(0) fprint(2, "graph %s\n" ,s);
-	memset(&g, 0, sizeof g);
-	nf = getfields(s+strlen("/graph/"), f, nelem(f), 1, "/");
-	if(nf < 1){
-		werrstr("bad syntax -- not enough fields");
+	name = hargstr(c, "arg", "");
+	if((arg.index = findname(name)) == -1 && strcmp(name, "*") != 0){
+		werrstr("unknown name %s", name);
 		goto error;
 	}
-	if((arg.index = findname(f[0])) == -1 && strcmp(f[0], "*") != 0){
-		werrstr("unknown name %s", f[0]);
+	a = hargstr(c, "arg2", "");
+	if(a[0] && (arg.index2 = findname(a)) == -1){
+		werrstr("unknown name %s", a);
 		goto error;
 	}
+
 	g.arg = &arg;
-	g.t0 = -120;
-	g.t1 = 0;
-	g.min = -1;
-	g.max = -1;
-	g.fn = rawgraph;
-	g.wid = -1;
-	g.ht = -1;
-	dotext = 0;
-	g.fill = -1;
-	for(i=1; i<nf; i++){
-		if(strncmp(f[i], "t0=", 3) == 0)
-			g.t0 = atoi(f[i]+3);
-		else if(strncmp(f[i], "t1=", 3) == 0)
-			g.t1 = atoi(f[i]+3);
-		else if(strncmp(f[i], "min=", 4) == 0)
-			g.min = atoi(f[i]+4);
-		else if(strncmp(f[i], "max=", 4) == 0)
-			g.max = atoi(f[i]+4);
-		else if(strncmp(f[i], "pct=", 4) == 0){
-			if((arg.index2 = findname(f[i]+4)) == -1){
-				werrstr("unknown name %s", f[i]+4);
-				goto error;
-			}
-			g.fn = pctgraph;
-			g.min = 0;
-			g.max = 100;
-		}else if(strncmp(f[i], "pctdiff=", 8) == 0){
-			if((arg.index2 = findname(f[i]+8)) == -1){
-				werrstr("unknown name %s", f[i]+8);
-				goto error;
-			}
-			g.fn = pctdiffgraph;
-			g.min = 0;
-			g.max = 100;
-		}else if(strcmp(f[i], "diff") == 0)
-			g.fn = diffgraph;
-		else if(strcmp(f[i], "text") == 0)
-			dotext = 1;
-		else if(strncmp(f[i], "wid=", 4) == 0)
-			g.wid = atoi(f[i]+4);
-		else if(strncmp(f[i], "ht=", 3) == 0)
-			g.ht = atoi(f[i]+3);
-		else if(strncmp(f[i], "fill=", 5) == 0)
-			g.fill = atoi(f[i]+5);
-		else if(strcmp(f[i], "diskbw") == 0)
-			g.fn = diskgraph;
-		else if(strcmp(f[i], "iobw") == 0)
-			g.fn = iograph;
-		else if(strcmp(f[i], "netbw") == 0)
-			g.fn = netgraph;
+	g.t0 = hargint(c, "t0", -120);
+	g.t1 = hargint(c, "t1", 0);
+	g.min = hargint(c, "min", -1);
+	g.max = hargint(c, "max", -1);
+	g.wid = hargint(c, "wid", -1);
+	g.ht = hargint(c, "ht", -1);
+	dotext = hargstr(c, "text", "")[0] != 0;
+	g.fill = hargint(c, "fill", -1);
+	
+	graph = hargstr(c, "graph", "raw");
+	if(strcmp(graph, "raw") == 0)
+		g.fn = rawgraph;
+	else if(strcmp(graph, "diskbw") == 0)
+		g.fn = diskgraph;
+	else if(strcmp(graph, "iobw") == 0)
+		g.fn = iograph;
+	else if(strcmp(graph, "netbw") == 0)
+		g.fn = netgraph;
+	else if(strcmp(graph, "diff") == 0)
+		g.fn = diffgraph;
+	else if(strcmp(graph, "pct") == 0)
+		g.fn = pctgraph;
+	else if(strcmp(graph, "pctdiff") == 0)
+		g.fn = pctdiffgraph;
+	else if(strcmp(graph, "divdiff") == 0)
+		g.fn = divdiffgraph;
+	else{
+		werrstr("unknown graph %s", graph);
+		goto error;
 	}
+
 	if(dotext){
-		preqtype(c, "text/plain");
+		hsettype(c, "text/plain");
 		dotextbin(&c->hout, &g);
 		hflush(&c->hout);
 		return 0;
@@ -1010,7 +1026,7 @@ if(0) fprint(2, "graph %s\n" ,s);
 	if(m == nil)
 		goto error;
 
-	if(preqtype(c, "image/png") < 0)
+	if(hsettype(c, "image/png") < 0)
 		return -1;
 	hout = &c->hout;
 	writepng(hout, m);
@@ -1018,18 +1034,16 @@ if(0) fprint(2, "graph %s\n" ,s);
 	freememimage(m);
 	qunlock(&memdrawlock);
 	hflush(hout);
-	free(s);
 	return 0;
 
 error:
-	free(s);
 	return herror(c);
 }
 
 static int
 xloglist(HConnect *c)
 {
-	if(preqtype(c, "text/html") < 0)
+	if(hsettype(c, "text/html") < 0)
 		return -1;
 	vtloghlist(&c->hout);
 	hflush(&c->hout);
@@ -1042,15 +1056,13 @@ xlog(HConnect *c)
 	char *name;
 	VtLog *l;
 
-	if(strcmp(c->req.uri, "/log") == 0 || strcmp(c->req.uri, "/log/") == 0)
+	name = hargstr(c, "log", "");
+	if(!name[0])
 		return xloglist(c);
-	if(strncmp(c->req.uri, "/log/", 5) != 0)
-		return notfound(c);
-	name = c->req.uri + strlen("/log/");
 	l = vtlogopen(name, 0);
 	if(l == nil)
-		return notfound(c);
-	if(preqtype(c, "text/html") < 0){
+		return hnotfound(c);
+	if(hsettype(c, "text/html") < 0){
 		vtlogclose(l);
 		return -1;
 	}
@@ -1063,7 +1075,7 @@ xlog(HConnect *c)
 static int
 xindex(HConnect *c)
 {
-	if(preqtype(c, "text/xml") < 0)
+	if(hsettype(c, "text/xml") < 0)
 		return -1;
 	xmlindex(&c->hout, mainindex, "index", 0);
 	hflush(&c->hout);
@@ -1158,7 +1170,7 @@ vtloghlist(Hio *h)
 	p = vtlognames(&n);
 	qsort(p, n, sizeof(p[0]), strpcmp);
 	for(i=0; i<n; i++)
-		hprint(h, "<a href=\"/log/%s\">%s</a><br>\n", p[i], p[i]);
+		hprint(h, "<a href=\"/log?log=%s\">%s</a><br>\n", p[i], p[i]);
 	vtfree(p);
 	hprint(h, "</body></html>\n");
 }

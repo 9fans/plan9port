@@ -197,14 +197,15 @@ int
 prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u32int blocksize)
 {
 	char *op;
-	u8int *buf, *tmp, *freetmp, *dst;
-	u32int c, delta, icount, opsize;
+	u8int *buf, *freetmp, *dst;
+	u32int icount, opsize;
 	int r;
 
-	icount = count;
-	buf = vbuf;
 
 #ifndef PLAN9PORT
+	USED(blocksize);
+	icount = count;
+	buf = vbuf;
 	op = isread ? "read" : "write";
 	dst = buf;
 	freetmp = nil;
@@ -223,8 +224,12 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 			goto Error;
 	}
 	return icount;
-#endif
+#else
+	u32int c, delta;
+	u8int *tmp;
 
+	icount = count;
+	buf = vbuf;
 	tmp = nil;
 	freetmp = nil;
 	opsize = blocksize;
@@ -343,6 +348,7 @@ print("FAILED isread=%d r=%d count=%d blocksize=%d\n", isread, r, count, blocksi
 	if(freetmp)
 		free(freetmp);
 	return icount;
+#endif
 
 Error:
 	seterr(EAdmin, "%s %s offset 0x%llux count %ud buf %p returned %d: %r",

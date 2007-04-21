@@ -34,7 +34,7 @@ fmtmagic(char *s, u32int m)
 	for(i=0; i<nelem(magics); i++)
 		if(magics[i].m == m)
 			return magics[i].s;
-	sprint(s, "0x%08ux", m);
+	sprint(s, "%#08ux", m);
 	return s;
 }
 
@@ -61,7 +61,7 @@ unpackarenapart(ArenaPart *ap, u8int *buf)
 
 	m = U32GET(p);
 	if(m != ArenaPartMagic){
-		seterr(ECorrupt, "arena set has wrong magic number: %s expected ArenaPartMagic (%lux)", fmtmagic(fbuf, m), ArenaPartMagic);
+		seterr(ECorrupt, "arena set has wrong magic number: %s expected ArenaPartMagic (%#lux)", fmtmagic(fbuf, m), ArenaPartMagic);
 		return -1;
 	}
 	p += U32Size;
@@ -112,7 +112,7 @@ unpackarena(Arena *arena, u8int *buf)
 
 	m = U32GET(p);
 	if(m != ArenaMagic){
-		seterr(ECorrupt, "arena has wrong magic number: %s expected ArenaMagic (%lux)", fmtmagic(fbuf, m), ArenaMagic);
+		seterr(ECorrupt, "arena has wrong magic number: %s expected ArenaMagic (%#lux)", fmtmagic(fbuf, m), ArenaMagic);
 		return -1;
 	}
 	p += U32Size;
@@ -276,10 +276,15 @@ unpackarenahead(ArenaHead *head, u8int *buf)
 	u8int *p;
 	u32int m;
 	int sz;
+	char fbuf[20];
 
 	p = buf;
 
 	m = U32GET(p);
+	if(m != ArenaHeadMagic){
+		seterr(ECorrupt, "arena has wrong magic number: %s expected ArenaHeadMagic (%#lux)", fmtmagic(fbuf, m), ArenaHeadMagic);
+		return -1;
+	}
 	/* XXX check magic! */
 
 	p += U32Size;
@@ -497,7 +502,7 @@ unpackisect(ISect *is, u8int *buf)
 
 	m = U32GET(p);
 	if(m != ISectMagic){
-		seterr(ECorrupt, "index section has wrong magic number: %s expected ISectMagic (%lux)",
+		seterr(ECorrupt, "index section has wrong magic number: %s expected ISectMagic (%#lux)",
 			fmtmagic(fbuf, m), ISectMagic);
 		return -1;
 	}
@@ -665,7 +670,7 @@ unpackbloomhead(Bloom *b, u8int *buf)
 
 	m = U32GET(p);
 	if(m != BloomMagic){
-		seterr(ECorrupt, "bloom filter has wrong magic number: %s expected BloomMagic (%lux)", fmtmagic(fbuf, m), (ulong)BloomMagic);
+		seterr(ECorrupt, "bloom filter has wrong magic number: %s expected BloomMagic (%#lux)", fmtmagic(fbuf, m), (ulong)BloomMagic);
 		return -1;
 	}
 	p += U32Size;
@@ -682,6 +687,10 @@ unpackbloomhead(Bloom *b, u8int *buf)
 
 	b->size = U32GET(p);
 	p += U32Size;
+	if(b->size < BloomHeadSize || b->size > MaxBloomSize || (b->size&(b->size-1))){
+		seterr(ECorrupt, "bloom filter has invalid size %#lux", b->size);
+		return -1;
+	}
 
 	if(buf + BloomHeadSize != p)
 		sysfatal("unpackarena unpacked wrong amount");

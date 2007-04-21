@@ -86,6 +86,42 @@ fprint(2, "seed index cache with arena @%llud, (map %llud), %d clumps\n", arena-
 	}
 }
 
+int
+_lookupscore(u8int *score, int type, IAddr *ia, int *rac)
+{
+	u32int h;
+	IEntry *ie, *last;
+
+	qlock(&icache.lock);
+	h = hashbits(score, icache.bits);
+	last = nil;
+	for(ie = icache.heads[h]; ie != nil; ie = ie->next){
+		if((ie->ia.type == type || type == -1) && scorecmp(ie->score, score)==0){
+			if(last != nil)
+				last->next = ie->next;
+			else
+				icache.heads[h] = ie->next;
+			addstat(StatIcacheHit, 1);
+			if(rac)
+				ie->rac = 1;
+			trace(TraceLump, "lookupscore incache");
+			ie->next = icache.heads[h];
+			icache.heads[h] = ie;
+
+			*ia = ie->ia;
+			if(rac)
+				*rac = ie->rac;
+			qunlock(&icache.lock);
+			return 0;
+		}
+		last = ie;
+	}
+	addstat(StatIcacheMiss, 1);
+	qunlock(&icache.lock);
+	return -1;
+}
+
+
 /*
 ZZZ need to think about evicting the correct IEntry,
 and writing back the wtime.
@@ -97,88 +133,72 @@ and writing back the wtime.
 int
 lookupscore(u8int *score, int type, IAddr *ia, int *rac)
 {
-	IEntry d, *ie, *last;
+	IEntry d, *ie;
 	u32int h;
 	u64int aa;
 	Arena *load;
-	int i;
+	int i, ret;
 	uint ms;
 
-	load = nil;
 	aa = 0;
 	ms = msec();
 	
 	trace(TraceLump, "lookupscore %V.%d", score, type);
 
-	qlock(&icache.lock);
-	h = hashbits(score, icache.bits);
-	last = nil;
-	for(ie = icache.heads[h]; ie != nil; ie = ie->next){
-		if(ie->ia.type == type && scorecmp(ie->score, score)==0){
-			if(last != nil)
-				last->next = ie->next;
-			else
-				icache.heads[h] = ie->next;
-			addstat(StatIcacheHit, 1);
-			ie->rac = 1;
-			trace(TraceLump, "lookupscore incache");
-			goto found;
+	ret = 0;
+	if(_lookupscore(score, type, ia, rac) < 0){
+		if(loadientry(mainindex, score, type, &d) < 0){
+			ret = -1;
+			goto out;
 		}
-		last = ie;
-	}
-	addstat(StatIcacheMiss, 1);
-	qunlock(&icache.lock);
 
-	if(loadientry(mainindex, score, type, &d) < 0){
-		ms = msec() - ms;
-		addstat2(StatIcacheRead, 1, StatIcacheReadTime, ms);
-		return -1;
-	}
+		/* failed in cache but found on disk - fill cache. */
+		trace(TraceLump, "lookupscore loaded");
+		addstat(StatIcacheFill, 1);
 
-	addstat(StatIcacheFill, 1);
-
-	trace(TraceLump, "lookupscore loaded");
-
-	/*
-	 * no one else can load an entry for this score,
-	 * since we have the overall score lock.
-	 */
-	qlock(&icache.lock);
-
-	/*
-	 * If we notice that all the hits are coming from one arena,
-	 * load the table of contents for that arena into the cache.
-	 */
-	ie = icachealloc(&d.ia, score);
-	if(icacheprefetch){
-		icache.last[icache.nlast++%nelem(icache.last)] = amapitoa(mainindex, ie->ia.addr, &aa);
-		aa = ie->ia.addr - aa;	/* compute base addr of arena */
-		for(i=0; i<nelem(icache.last); i++)
-			if(icache.last[i] != icache.last[0])
-				break;
-		if(i==nelem(icache.last) && icache.lastload != icache.last[0]){
-			load = icache.last[0];
-			icache.lastload = load;
+		/*
+		 * no one else can load an entry for this score,
+		 * since we have this score's lump's lock.
+		 */
+		qlock(&icache.lock);
+	
+		/*
+		 * If we notice that all the hits are coming from one arena,
+		 * load the table of contents for that arena into the cache.
+		 */
+		load = nil;
+		h = hashbits(score, icache.bits);
+		ie = icachealloc(&d.ia, score);
+		if(icacheprefetch){
+			icache.last[icache.nlast++%nelem(icache.last)] = amapitoa(mainindex, ie->ia.addr, &aa);
+			aa = ie->ia.addr - aa;	/* compute base addr of arena */
+			for(i=0; i<nelem(icache.last); i++)
+				if(icache.last[i] != icache.last[0])
+					break;
+			if(i==nelem(icache.last) && icache.lastload != icache.last[0]){
+				load = icache.last[0];
+				icache.lastload = load;
+			}
+		}
+	
+		ie->next = icache.heads[h];
+		icache.heads[h] = ie;
+	
+		*ia = ie->ia;
+		*rac = ie->rac;
+	
+		qunlock(&icache.lock);
+		if(load){
+			trace(TraceProc, "preload 0x%llux", aa);
+			loadarenaclumps(load, aa);
 		}
 	}
 
-found:
-	ie->next = icache.heads[h];
-	icache.heads[h] = ie;
-
-	*ia = ie->ia;
-	*rac = ie->rac;
-
-	qunlock(&icache.lock);
-
-	if(load){
-		trace(TraceProc, "preload 0x%llux", aa);
-		loadarenaclumps(load, aa);
-	}
+out:
 	ms = msec() - ms;
 	addstat2(StatIcacheRead, 1, StatIcacheReadTime, ms);
 
-	return 0;
+	return ret;
 }
 
 /*

@@ -674,7 +674,10 @@ bucklook(u8int *score, int otype, u8int *data, int n)
 {
 	int i, r, l, m, h, c, cc, type;
 
-	type = vttodisktype(otype);
+	if(otype == -1)
+		type = -1;
+	else
+		type = vttodisktype(otype);
 	l = 0;
 	r = n - 1;
 	while(l <= r){
@@ -692,7 +695,7 @@ bucklook(u8int *score, int otype, u8int *data, int n)
 			}
 		}
 		cc = data[h + IEntryTypeOff];
-		if(type != cc){
+		if(type != cc && type != -1){
 			if(type > cc)
 				l = m + 1;
 			else

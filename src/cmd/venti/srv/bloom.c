@@ -27,7 +27,7 @@ bloominit(Bloom *b, vlong vsize, u8int *data)
 			return -1;
 	
 fprint(2, "bloom size %lud nhash %d\n", b->size, b->nhash);
-	b->mask = b->size-1;
+	b->bitmask = (b->size<<3) - 1;
 	b->data = data;
 	return 0;
 }
@@ -47,11 +47,17 @@ readbloom(Part *p)
 	b = vtmallocz(sizeof *b);
 	if(readpart(p, 0, buf, sizeof buf) < 0)
 		return nil;
+	/*
+	 * pass buf as b->data so that bloominit
+	 * can parse header.  won't be used for
+	 * accessing bits (cleared below).
+	 */
 	if(bloominit(b, 0, buf) < 0){
 		vtfree(b);
 		return nil;
 	}
 	b->part = p;
+	b->data = nil;
 	return b;
 }
 
@@ -61,7 +67,6 @@ resetbloom(Bloom *b)
 	uchar *data;
 	
 	data = vtmallocz(b->size);
-fprint(2, "bloom data %lud\n", b->size);
 	b->data = data;
 	if(b->size == MaxBloomSize)	/* 2^32 overflows ulong */
 		addstat(StatBloomBits, b->size*8-1);
@@ -145,7 +150,7 @@ _markbloomfilter(Bloom *b, u8int *score)
 	tab = (u32int*)b->data;
 	for(i=0; i<b->nhash; i++){
 		x = h[i];
-		y = &tab[(x&b->mask)>>5];
+		y = &tab[(x&b->bitmask)>>5];
 		z = 1<<(x&31);
 		if(!(*y&z)){
 			nnew++;
@@ -169,7 +174,7 @@ _inbloomfilter(Bloom *b, u8int *score)
 	tab = (u32int*)b->data;
 	for(i=0; i<b->nhash; i++){
 		x = h[i];
-		if(!(tab[(x&b->mask)>>5] & (1<<(x&31))))
+		if(!(tab[(x&b->bitmask)>>5] & (1<<(x&31))))
 			return 0;
 	}
 	return 1;

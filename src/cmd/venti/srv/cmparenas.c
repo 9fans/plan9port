@@ -51,21 +51,64 @@ readblock(int fd, uchar *buf, int n)
 	return 0;
 }
 
+static int
+printheader(char *name, ArenaHead *head, int fd)
+{
+	Arena arena;
+	vlong baseoff, lo, hi, off;
+	int clumpmax;
+	
+	off = seek(fd, 0, 1);
+	seek(fd, off + head->size - head->blocksize, 0);
+	if(readblock(fd, data, head->blocksize) < 0){
+		fprint(2, "%s: reading arena tail: %r\n", name);
+		return -1;
+	}
+	seek(fd, off, 0);
+
+	memset(&arena, 0, sizeof arena);
+	if(unpackarena(&arena, data) < 0){
+		fprint(2, "%s: unpack arena tail: %r\n", name);
+		return -1;
+	}
+	arena.blocksize = head->blocksize;
+	arena.base = off + head->blocksize;
+	arena.clumpmax = arena.blocksize / ClumpInfoSize;
+	arena.size = head->size - 2*head->blocksize;
+
+	fprint(2, "%s: base=%llx size=%llx blocksize=%x\n", name, off, head->size, head->blocksize);
+
+	baseoff = head->blocksize;
+	fprint(2, "\t%llx-%llx: head\n", (vlong)0, baseoff);
+	lo = baseoff;
+	hi = baseoff + arena.diskstats.used;
+	fprint(2, "\t%llx-%llx: data (%llx)\n", lo, hi, hi - lo);
+	hi = head->size - head->blocksize;
+	clumpmax = head->blocksize / ClumpInfoSize;
+	if(clumpmax > 0)
+		lo = hi - (u64int)arena.diskstats.clumps/clumpmax * head->blocksize;
+	else
+		lo = hi;
+	fprint(2, "\t%llx-%llx: clumps (%llx)\n", lo, hi, hi - lo);
+	fprint(2, "\t%llx-%llx: tail\n", hi, hi + head->blocksize);
+	
+	fprint(2, "arena:\n");
+	printarena(2, &arena);
+	return 0;
+}
+
 static void
 cmparena(char *name, vlong len)
 {
-	Arena arena;
 	ArenaHead head;
 	DigestState s;
 	u64int n, e;
 	u32int bs;
-	u8int score[VtScoreSize];
 	int i, j;
 	char buf[20];
 
 	fprint(2, "cmp %s\n", name);
 
-	memset(&arena, 0, sizeof arena);
 	memset(&s, 0, sizeof s);
 
 	/*
@@ -104,6 +147,9 @@ cmparena(char *name, vlong len)
 	seek(fd, -HeadSize, 1);
 	seek(fd1, -HeadSize, 1);
 
+	if(printheader(name, &head, fd) < 0)
+		return;
+	
 	/*
 	 * now we know how much to read
 	 * read everything but the last block, which is special
