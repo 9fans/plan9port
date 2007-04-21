@@ -40,7 +40,7 @@ LIBOFILES=\
 
 SLIB=libvs.a
 
-LIB=$SLIB $LIBDIR/libnventi.a
+LIB=$SLIB $LIBDIR/libventi.a
 
 HFILES=	dat.h\
 	fns.h\
@@ -73,9 +73,7 @@ it:V: $O.venti
 
 CLEANFILES=$CLEANFILES $SLIB
 
-<$PLAN9/src/cmd/mkmany
-
-CFLAGS=$CFLAGS -I.
+<$PLAN9/src/mkmany
 
 $SLIB: $LIBOFILES
 	ar rvc $SLIB $LIBOFILES

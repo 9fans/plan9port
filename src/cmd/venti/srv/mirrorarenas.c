@@ -301,6 +301,7 @@ mirror(Arena *sa, Arena *da)
 	if(ewritepart(dst, base - blocksize, buf, blocksize) < 0)
 		return;
 
+	shaoff = 0;
 	ds = nil;
 	if(sa->diskstats.sealed && scorecmp(sa->score, zeroscore) != 0){
 		/* start sha1 state with header */

@@ -1357,6 +1357,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 		 * (the same pattern gets written many times in a row)
 		 * and should never happen during regular use.
 		 */
+		magic = 0;
 		if((n = isclump(p, &cl, &magic)) > 0){
 			/*
 			 * If we were in the middle of some corrupted data,

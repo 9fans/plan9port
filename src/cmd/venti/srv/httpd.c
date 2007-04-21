@@ -168,11 +168,6 @@ httpproc(void *v)
 		if(hparsereq(c, 0) < 0)
 			break;
 		
-		if(c->req.search)
-			c->req.searchpairs = hparsequery(c, c->req.search);
-		else
-			c->req.searchpairs = nil;
-
 		for(i = 0; i < MaxObjs && objs[i].name[0]; i++){
 			n = strlen(objs[i].name);
 			if((objs[i].name[n-1] == '/' && strncmp(c->req.uri, objs[i].name, n) == 0)
@@ -791,7 +786,7 @@ pctdiffgraph(Stats *s, Stats *t, void *va)
 }
 
 static long
-div(long a, long b)
+xdiv(long a, long b)
 {
 	if(b == 0)
 		b++;
@@ -804,7 +799,7 @@ divdiffgraph(Stats *s, Stats *t, void *va)
 	Arg *a;
 
 	a = va;
-	return div(t->n[a->index] - s->n[a->index], t->n[a->index2] - s->n[a->index2]);
+	return xdiv(t->n[a->index] - s->n[a->index], t->n[a->index2] - s->n[a->index2]);
 }
 
 static long
