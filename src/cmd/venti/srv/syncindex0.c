@@ -157,12 +157,10 @@ syncindex(Index *ix, int fix, int mustflush, int check)
 					fix, &flush, check);
 			if(ok1 < 0)
 				fprint(2, "syncarenaindex: %r\n");
-fprint(2, "arena %s: wbarena in syncindex\n", arena->name);
 			if(fix && ok1==0 && (e & SyncHeader) && wbarena(arena) < 0)
 				fprint(2, "arena=%s header write failed: %r\n", arena->name);
 			ok |= ok1;
 
-fprint(2, "arena %s: setdcachestate\n", arena->name);
 			as.arena = arena;
 			as.aa = ix->amap[i].start + arena->memstats.used;
 			as.stats = arena->memstats;

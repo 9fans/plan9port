@@ -131,21 +131,22 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 		flushdcache();
 	}
 
-fprint(2, "arena %s: start=%lld fix=%d flush=%d %lld->%lld %ud->%ud %ud->%ud %lld->%lld\n",
-	arena->name,
-	start,
-	fix,
-	flush,
-	used, arena->memstats.used,
-	clumps, arena->memstats.clumps,
-	cclumps, arena->memstats.cclumps,
-	uncsize, arena->memstats.uncsize);
-
 	if(used != arena->memstats.used
 	|| clumps != arena->memstats.clumps
 	|| cclumps != arena->memstats.cclumps
-	|| uncsize != arena->memstats.uncsize)
+	|| uncsize != arena->memstats.uncsize){
 		err |= SyncHeader;
+		fprint(2, "arena %s: start=%lld fix=%d flush=%d %lld->%lld %ud->%ud %ud->%ud %lld->%lld\n",
+			arena->name,
+			start,
+			fix,
+			flush,
+			used, arena->memstats.used,
+			clumps, arena->memstats.clumps,
+			cclumps, arena->memstats.cclumps,
+			uncsize, arena->memstats.uncsize);
+	}
+
 	return err;
 }
 
