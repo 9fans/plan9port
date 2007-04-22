@@ -238,8 +238,10 @@ configbloom(char *file)
 	if(part == nil)
 		return nil;
 	b = readbloom(part);
-	if(b == nil)
+	if(b == nil){
 		werrstr("%s: %r", file);
+		freepart(part);
+	}
 	return b;
 }
 
