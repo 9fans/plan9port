@@ -285,7 +285,6 @@ unpackarenahead(ArenaHead *head, u8int *buf)
 		seterr(ECorrupt, "arena has wrong magic number: %s expected ArenaHeadMagic (%#lux)", fmtmagic(fbuf, m), ArenaHeadMagic);
 		return -1;
 	}
-	/* XXX check magic! */
 
 	p += U32Size;
 	head->version = U32GET(p);
