@@ -106,18 +106,14 @@ threadmain(int argc, char *argv[])
 	ap.tabbase = (PartBlank+HeadSize+ap.blocksize-1)&~(ap.blocksize-1);
 	ap.tabsize = ap.arenabase - ap.tabbase;
 
-print("A");
 	table = malloc(ap.tabsize+1);
 	if(readpart(part, ap.tabbase, (uchar*)table, ap.tabsize) < 0)
 		sysfatal("read %s: %r", file);
 	table[ap.tabsize] = 0;
 
-print("A");
 	partblocksize(part, ap.blocksize);
 	initdcache(8 * MaxDiskBlock);
 
-print("A");
-/* XXX - read the number of arenas from the first line */
 	for(p=table; p && *p; p=strchr(p, '\n')){
 		if(*p == '\n')
 			p++;
@@ -127,7 +123,6 @@ print("A");
 			fprint(2, "bad line: %s\n", name);
 			break;
 		}
-print("%p\n", p);
 		offset = strtoull(p, nil, 0);
 		if(readpart(part, offset, buf, sizeof buf) < 0){
 			fprint(2, "%s: read %s: %r\n", argv0, file);

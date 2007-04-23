@@ -8,7 +8,7 @@ fn reformat {
 	if(! test -f $vtmp/arena)
 		dd bs'='1048576 count'='100 if'='/dev/zero of'='$vtmp/arena
 	if(! test -f $vtmp/bloom)
-		dd bs'='1048576 count'='10 if'='/dev/zero of'='$vtmp/bloom
+		dd bs'='1048576 count'='128 if'='/dev/zero of'='$vtmp/bloom
 	if(! test -f $vtmp/isect)
 		dd bs'='1048576 count'='10 if'='/dev/zero of'='$vtmp/isect
 	if(! test -f $vtmp/check)
@@ -29,7 +29,7 @@ fn reformat {
 	' >$vtmp/vtmp.conf
 
 	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
-	./o.fmtbloom -s 10M $vtmp/bloom
+	./o.fmtbloom $vtmp/bloom
 	./o.fmtisect -b 8k isect $vtmp/isect
 	./o.fmtindex vtmp.conf
 }

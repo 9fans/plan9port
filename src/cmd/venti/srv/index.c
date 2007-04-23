@@ -243,7 +243,7 @@ newindex(char *name, ISect **sects, int n)
 	Index *ix;
 	AMap *smap;
 	u64int nb;
-	u32int div, ub, xb, fb, start, stop, blocksize, tabsize;
+	u32int div, ub, xb, start, stop, blocksize, tabsize;
 	int i, j;
 
 	if(n < 1){
@@ -292,7 +292,6 @@ newindex(char *name, ISect **sects, int n)
 		return nil;
 	}
 
-	fb = 0;
 	div = (((u64int)1 << 32) + nb - 1) / nb;
 	ub = (((u64int)1 << 32) - 1) / div + 1;
 	if(div < 100){
@@ -347,7 +346,6 @@ newindex(char *name, ISect **sects, int n)
 	ix->buckets = ub;
 	ix->tabsize = tabsize;
 	ix->div = div;
-	ix->bitblocks = fb;
 
 	if(initindex1(ix) < 0){
 		free(smap);

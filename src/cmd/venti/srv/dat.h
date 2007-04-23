@@ -439,10 +439,6 @@ struct Index
 	u32int		buckets;		/* last bucket used in disk hash table */
 	u32int		blocksize;
 	u32int		tabsize;		/* max. bytes in index config */
-	u32int		bitblocks;	/* XXX remove these fields */
-	u32int		maxdepth;
-	u32int		bitkeylog;
-	u32int		bitkeymask;
 
 	int		mapalloc;		/* first arena to check when adding a lump */
 	Arena		**arenas;		/* arenas in the mapping */

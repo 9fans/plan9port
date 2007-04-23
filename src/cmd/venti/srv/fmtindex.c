@@ -103,8 +103,8 @@ threadmain(int argc, char *argv[])
 	if(0){
 		fprint(2, "configured index=%s with arenas=%d and storage=%lld\n",
 			ix->name, n, addr - IndexBase);
-		fprint(2, "\tbitblocks=%d maxdepth=%d buckets=%d\n",
-			ix->bitblocks, ix->maxdepth, ix->buckets);
+		fprint(2, "\tbuckets=%d\n",
+			ix->buckets);
 	}
 	fprint(2, "fmtindex: %,d arenas, %,d index buckets, %,lld bytes storage\n",
 		n, ix->buckets, addr-IndexBase);

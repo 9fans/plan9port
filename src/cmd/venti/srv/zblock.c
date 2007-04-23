@@ -16,6 +16,9 @@ fmtzbinit(Fmt *f, ZBlock *b)
 
 #define ROUNDUP(p, n) ((void*)(((uintptr)(p)+(n)-1)&~(uintptr)((n)-1)))
 
+enum {
+	OverflowCheck = 32
+};
 static char zmagic[] = "1234567890abcdefghijklmnopqrstuvxyz";
 
 ZBlock *
@@ -29,7 +32,7 @@ alloczblock(u32int size, int zeroed, uint blocksize)
 	if(blocksize == 0)
 		blocksize = 32;	/* try for cache line alignment */
 
-	n = size+32/*XXX*/+sizeof(ZBlock)+blocksize+8;
+	n = size+OverflowCheck+sizeof(ZBlock)+blocksize+8;
 	p = malloc(n);
 	if(p == nil){
 		seterr(EOk, "out of memory");
@@ -37,7 +40,7 @@ alloczblock(u32int size, int zeroed, uint blocksize)
 	}
 
 	data = ROUNDUP(p, blocksize);
-	b = ROUNDUP(data+size+32/*XXX*/, 8);
+	b = ROUNDUP(data+size+OverflowCheck, 8);
 	if(0) fprint(2, "alloc %p-%p data %p-%p b %p-%p\n",
 		p, p+n, data, data+size, b, b+1);
 	*b = z;
@@ -47,7 +50,7 @@ alloczblock(u32int size, int zeroed, uint blocksize)
 	b->_size = size;
 	if(zeroed)
 		memset(b->data, 0, size);
-	memmove(b->data+size, zmagic, 32/*XXX*/);
+	memmove(b->data+size, zmagic, OverflowCheck);
 	return b;
 }
 
@@ -55,9 +58,9 @@ void
 freezblock(ZBlock *b)
 {
 	if(b){
-		if(memcmp(b->data+b->_size, zmagic, 32) != 0)
+		if(memcmp(b->data+b->_size, zmagic, OverflowCheck) != 0)
 			abort();
-		memset(b->data+b->_size, 0, 32);
+		memset(b->data+b->_size, 0, OverflowCheck);
 		free(b->free);
 	}
 }

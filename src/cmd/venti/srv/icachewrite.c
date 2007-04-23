@@ -110,7 +110,7 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 
 		trace(TraceProc, "icachewritesect readpart 0x%llux+0x%ux", addr, nbuf);
 		if(readpart(is->part, addr, buf, nbuf) < 0){
-			/* XXX */
+			/* XXX more details here */
 			fprint(2, "icachewriteproc readpart: %r\n");
 			err  = -1;
 			continue;
@@ -154,7 +154,18 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 					break;
 			}
 			packibucket(&ib, buf+off, is->bucketmagic);
-			/* XXX not right - must update cache after writepart */
+			/* XXX
+			 * This is not quite right - it's good that we 
+			 * update the cached block (if any) here, but
+			 * since the block doesn't get written until writepart
+			 * below, we also need to make sure that the cache 
+			 * doesn't load the stale block before we write it to
+			 * disk below.  We could lock the disk cache during
+			 * the writepart, but that's pretty annoying.
+			 * Another possibility would be never to cache
+			 * index partition blocks.  The hit rate on those is
+			 * miniscule anyway.
+			 */
 			if((b = _getdblock(is->part, naddr, ORDWR, 0)) != nil){
 				memmove(b->data, buf+off, bsize);
 				putdblock(b);
@@ -165,7 +176,7 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 
 		trace(TraceProc, "icachewritesect writepart", addr, nbuf);
 		if(writepart(is->part, addr, buf, nbuf) < 0){
-			/* XXX */
+			/* XXX more details here */
 			fprint(2, "icachewriteproc writepart: %r\n");
 			err = -1;
 			continue;
