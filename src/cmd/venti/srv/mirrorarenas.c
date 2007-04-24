@@ -261,19 +261,22 @@ mirror(Arena *sa, Arena *da)
 	}
 
 	if(sa->diskstats.sealed && da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
-		if(scorecmp(sa->score, da->score) == 0)
+		if(scorecmp(sa->score, da->score) == 0){
+			if(verbose)
+				chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
 			return;
-		chat("%T arena %s: sealed score mismatch %V vs %V\n", sa->name, sa->score, da->score);
+		}
+		chat("%T %s: sealed score mismatch %V vs %V\n", sa->name, sa->score, da->score);
 		status = "errors";
 		return;
 	}
 	if(da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
-		chat("%T arena %s: dst is sealed, src is not\n", sa->name);
+		chat("%T %s: dst is sealed, src is not\n", sa->name);
 		status = "errors";
 		return;
 	}
 	if(sa->diskstats.used < da->diskstats.used){
-		chat("%T arena %s: src used %,lld < dst used %,lld\n", sa->name, sa->diskstats.used, da->diskstats.used);
+		chat("%T %s: src used %,lld < dst used %,lld\n", sa->name, sa->diskstats.used, da->diskstats.used);
 		status = "errors";
 		return;
 	}
@@ -351,31 +354,46 @@ mirror(Arena *sa, Arena *da)
 	da->diskstats = sa->diskstats;
 	da->diskstats.sealed = 0;
 	
+	/*
+	 * Repack the arena tail information
+	 * and save it for next time...
+	 */
 	memset(buf, 0, sizeof buf);
 	packarena(da, buf);
 	if(ewritepart(dst, end, buf, blocksize) < 0)
 		return;
 
 	if(ds){
-		asha1(dst, shaoff, end, ds);
-		da->diskstats.sealed = 1;
-		memset(buf, 0, sizeof buf);
-		packarena(da, buf);
-		sha1(buf, blocksize, da->score, ds);
+		/*
+		 * ... but on the final pass, copy the encoding
+		 * of the tail information from the source
+		 * arena itself.  There are multiple possible
+		 * ways to write the tail info out (the exact
+		 * details have changed as venti went through
+		 * revisions), and to keep the SHA1 hash the
+		 * same, we have to use what the disk uses.
+		 */
+		if(asha1(dst, shaoff, end, ds) < 0
+		|| copy(end, end+blocksize-VtScoreSize, "tail", ds) < 0)
+			return;
+		memset(buf, 0, VtScoreSize);
+		sha1(buf, VtScoreSize, da->score, ds);
 		if(scorecmp(sa->score, da->score) == 0){
 			if(verbose)
-				chat("%T arena %s: %V\n", sa->name, da->score);
-			scorecp(buf+blocksize-VtScoreSize, da->score);
-			if(ewritepart(dst, end, buf, blocksize) < 0)
+				chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
+			if(ewritepart(dst, end+blocksize-VtScoreSize, da->score, VtScoreSize) < 0)
 				return;
 		}else{
-			chat("%T arena %s: sealing dst: score mismatch: %V vs %V\n", sa->name, sa->score, da->score);
+			chat("%T %s: sealing dst: score mismatch: %V vs %V\n", sa->name, sa->score, da->score);
 			memset(&xds, 0, sizeof xds);
-			asha1(dst, base-blocksize, end, &xds);
-			sha1(buf, blocksize, da->score, &xds);
+			asha1(dst, base-blocksize, end+blocksize-VtScoreSize, &xds);
+			sha1(buf, VtScoreSize, 0, &xds);
 			chat("%T   reseal: %V\n", da->score);
 			status = "errors";
 		}
+	}else{
+		chat("%T %s: %,lld used mirrored\n",
+			sa->name, sa->diskstats.used);
 	}
 }
 
