@@ -92,8 +92,7 @@ sunudpwrite(void *v)
 	while((msg = recvp(arg.creply)) != nil){
 		if(udpwrite(arg.fd, &msg->udp, msg->msg.data, msg->msg.count) != msg->msg.count)
 			fprint(2, "udpwrite: %r\n");
-		free(msg->msg.data);
-		free(msg);
+		sunmsgdrop(&msg->msg);
 	}
 }
 
