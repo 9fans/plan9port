@@ -72,7 +72,6 @@ loadarenaclumps(Arena *arena, u64int aa)
 	ClumpInfo ci;
 	IAddr ia;
 
-fprint(2, "seed index cache with arena @%llud, (map %llud), %d clumps\n", arena->base, aa, arena->memstats.clumps);
 	for(i=0; i<arena->memstats.clumps; i++){
 		if(readclumpinfo(arena, i, &ci) < 0)
 			break;
