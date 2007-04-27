@@ -123,9 +123,6 @@ initpart(char *name, int mode)
 		}
 		fprint(2, "warning: %s opened for reading only\n", name);
 	}
-#ifdef __linux__	/* sorry again!  still linus's fault! */
-	posix_fadvise(part->fd, 0, 0, POSIX_FADV_RANDOM);	/* disable readahead */
-#endif
 	part->offset = lo;
 	dir = dirfstat(part->fd);
 	if(dir == nil){
