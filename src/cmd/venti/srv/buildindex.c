@@ -119,9 +119,10 @@ threadmain(int argc, char *argv[])
 	fprint(2, "%T read index\n");
 	isectdonechan = chancreate(sizeof(void*), 0);
 	for(i=0; i<ix->nsects; i++){
-		if(shouldprocess(ix->sects[i]))
+		if(shouldprocess(ix->sects[i])){
 			ix->sects[i]->writechan = chancreate(sizeof(IEntry), 0);
-		vtproc(isectproc, ix->sects[i]);
+			vtproc(isectproc, ix->sects[i]);
+		}
 	}
 	
 	for(i=0; i<nisect; i++)

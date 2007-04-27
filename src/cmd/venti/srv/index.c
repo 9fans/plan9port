@@ -259,8 +259,14 @@ newindex(char *name, ISect **sects, int n)
 	blocksize = sects[0]->blocksize;
 	tabsize = sects[0]->tabsize;
 	for(i = 0; i < n; i++){
-		if(sects[i]->start != 0 || sects[i]->stop != 0
-		|| sects[i]->index[0] != '\0'){
+		/*
+		 * allow index, start, and stop to be set if index is correct
+		 * and start and stop are what we would have picked.
+		 * this allows calling fmtindex to reformat the index after
+		 * replacing a bad index section with a freshly formatted one.
+		 * start and stop are checked below.
+		 */
+		if(sects[i]->index[0] != '\0' && strcmp(sects[i]->index, name) != 0){
 			seterr(EOk, "creating new index using non-empty section %s", sects[i]->name);
 			return nil;
 		}
@@ -318,6 +324,13 @@ newindex(char *name, ISect **sects, int n)
 		stop = start + sects[i]->blocks - xb / n;
 		if(i == n - 1)
 			stop = ub;
+
+		if(sects[i]->start != 0 || sects[i]->stop != 0)
+		if(sects[i]->start != start || sects[i]->stop != stop){
+			seterr(EOk, "creating new index using non-empty section %s", sects[i]->name);
+			return nil;
+		}
+
 		sects[i]->start = start;
 		sects[i]->stop = stop;
 		namecp(sects[i]->index, name);
@@ -367,8 +380,6 @@ initisect(Part *part)
 		seterr(EAdmin, "can't read index section header: %r");
 		return nil;
 	}
-print("read %s at %d: %.2ux %.2ux %.2ux %.2ux\n",
-	part->name, PartBlank, b->data[0], b->data[1], b->data[2], b->data[3]);
 
 	is = MKZ(ISect);
 	if(is == nil){

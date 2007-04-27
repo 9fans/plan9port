@@ -295,7 +295,7 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf, u64int start, u64int *pa)
 	if(arena->memstats.sealed
 	|| aa + n + U32Size + arenadirsize(arena, arena->memstats.clumps + 1) > arena->size){
 		if(!arena->memstats.sealed){
-			trace(0, "seal memstats %s", arena->name);
+			logerr(EOk, "seal memstats %s", arena->name);
 			arena->memstats.sealed = 1;
 			as.arena = arena;
 			as.aa = start+aa;
@@ -422,16 +422,10 @@ setatailstate(AState *as)
 		return;
 	}
 
-	/*
- 	 * Walk backward until we find the last time these were in sync.
-	 */
-	for(j=i; --j>=0; ){
+	for(j=0; j<=i; j++){
 		a = ix->arenas[j];
 		if(atailcmp(&a->diskstats, &a->memstats) == 0)
-			break;
-	}
-	for(j++; j<=i; j++){
-		a = ix->arenas[j];
+			continue;
 		qlock(&a->lock);
 		osealed = a->diskstats.sealed;
 		if(j == i)

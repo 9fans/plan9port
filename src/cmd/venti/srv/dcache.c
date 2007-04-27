@@ -715,6 +715,7 @@ static int
 parallelwrites(DBlock **b, DBlock **eb, int dirty)
 {
 	DBlock **p, **q;
+	Part *part;
 
 	for(p=b; p<eb && (*p)->dirty == dirty; p++){
 		assert(b<=p && p<eb);
@@ -724,6 +725,17 @@ parallelwrites(DBlock **b, DBlock **eb, int dirty)
 	for(p=b; p<q; p++){
 		assert(b<=p && p<eb);
 		recvp((*p)->writedonechan);
+	}
+	
+	/*
+	 * Flush the partitions that have been written to.
+	 */
+	part = nil;
+	for(p=b; p<q; p++){
+		if(part != (*p)->part){
+			part = (*p)->part;
+			flushpart(part);
+		}
 	}
 
 	return p-b;

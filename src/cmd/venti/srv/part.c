@@ -16,6 +16,16 @@
 #include "dat.h"
 #include "fns.h"
 
+/* TODO for linux:
+don't use O_DIRECT.
+use
+	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
+after block is read and also use
+	posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
+to disable readahead on the index partition.
+bump block size of bloom filter higher.
+*/
+
 u32int	maxblocksize;
 int	readonly;
 
@@ -154,6 +164,11 @@ initpart(char *name, int mode)
 #endif
 	free(dir);
 	return part;
+}
+
+void
+flushpart(Part *part)
+{
 }
 
 void
@@ -397,11 +412,7 @@ rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
 		 * Try to fix things up and continue.
 		 */
 		rerrstr(err, sizeof err);
-		if(strstr(err, "i/o timeout") || strstr(err, "i/o error")){
-			if(sdreset(part) >= 0)
-				reopen(part);
-			continue;
-		}else if(strstr(err, "partition has changed")){
+		if(strstr(err, "i/o timeout") || strstr(err, "i/o error") || strstr(err, "partition has changed")){
 			reopen(part);
 			continue;
 		}
@@ -583,9 +594,15 @@ reopen(Part *part)
 	
 	fprint(2, "reopen %s\n", part->filename);
 	if((fd = open(part->filename, ORDWR)) < 0){
-		fprint(2, "reopen %s: %r\n", part->filename);
-		return -1;
-	}	
+		if(access(part->filename, AEXIST) < 0){
+			sdreset(part);
+			fd = open(part->filename, ORDWR);
+		}
+		if(fd < 0){
+			fprint(2, "reopen %s: %r\n", part->filename);
+			return -1;
+		}
+	}
 	if(fd != part->fd){
 		dup(fd, part->fd);
 		close(fd);

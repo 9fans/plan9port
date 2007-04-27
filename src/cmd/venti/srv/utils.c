@@ -94,9 +94,9 @@ logit(int severity, char *fmt, va_list args)
 		return nil;
 	if(severity != EOk){
 		if(argv0 == nil)
-			fprint(2, "%s: err %d: %s\n", argv0, severity, s);
+			fprint(2, "%T %s: err %d: %s\n", argv0, severity, s);
 		else
-			fprint(2, "err %d: %s\n", severity, s);
+			fprint(2, "%T err %d: %s\n", severity, s);
 	}
 	return s;
 }

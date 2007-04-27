@@ -26,7 +26,6 @@ bloominit(Bloom *b, vlong vsize, u8int *data)
 		if(unpackbloomhead(b, data) < 0)
 			return -1;
 	
-fprint(2, "bloom size %lud nhash %d\n", b->size, b->nhash);
 	b->bitmask = (b->size<<3) - 1;
 	b->data = data;
 	return 0;
@@ -54,7 +53,19 @@ readbloom(Part *p)
 	 */
 	if(bloominit(b, 0, buf) < 0){
 		vtfree(b);
+		freepart(p);
 		return nil;
+	}else{
+		/*
+		 * default block size is system page size.
+		 * the bloom filter is usually very big.
+		 * bump the block size up to speed i/o.
+		 */
+		if(p->blocksize < (1<<20)){
+			p->blocksize = 1<<20;
+			if(p->blocksize > p->size)
+				p->blocksize = p->size;
+		}
 	}
 	b->part = p;
 	b->data = nil;

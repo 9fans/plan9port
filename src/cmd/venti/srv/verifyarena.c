@@ -59,7 +59,7 @@ verifyarena(char *name, vlong len)
 	u32int bs;
 	u8int score[VtScoreSize];
 
-	fprint(2, "verify %s\n", name);
+	fprint(2, "%T verify %s\n", name);
 
 	memset(&arena, 0, sizeof arena);
 	memset(&s, 0, sizeof s);
@@ -68,20 +68,20 @@ verifyarena(char *name, vlong len)
 	 * read a little bit, which will include the header
 	 */
 	if(readblock(data, HeadSize) < 0){
-		fprint(2, "%s: reading header: %r\n", name);
+		fprint(2, "%T %s: reading header: %r\n", name);
 		return;
 	}
 	sha1(data, HeadSize, nil, &s);
 	if(unpackarenahead(&head, data) < 0){
-		fprint(2, "%s: corrupt arena header: %r\n", name);
+		fprint(2, "%T %s: corrupt arena header: %r\n", name);
 		return;
 	}
 	if(head.version != ArenaVersion4 && head.version != ArenaVersion5)
-		fprint(2, "%s: warning: unknown arena version %d\n", name, head.version);
+		fprint(2, "%T %s: warning: unknown arena version %d\n", name, head.version);
 	if(len != 0 && len != head.size)
-		fprint(2, "%s: warning: unexpected length %lld != %lld\n", name, head.size, len);
+		fprint(2, "%T %s: warning: unexpected length %lld != %lld\n", name, head.size, len);
 	if(strcmp(name, "<stdin>") != 0 && strcmp(head.name, name) != 0)
-		fprint(2, "%s: warning: unexpected name %s\n", name, head.name);
+		fprint(2, "%T %s: warning: unexpected name %s\n", name, head.name);
 
 	/*
 	 * now we know how much to read
@@ -93,7 +93,7 @@ verifyarena(char *name, vlong len)
 		if(n + bs > e)
 			bs = e - n;
 		if(readblock(data, bs) < 0){
-			fprint(2, "%s: read data: %r\n", name);
+			fprint(2, "%T %s: read data: %r\n", name);
 			return;
 		}
 		sha1(data, bs, nil, &s);
@@ -107,7 +107,7 @@ verifyarena(char *name, vlong len)
 	 */
 	bs = head.blocksize;
 	if(readblock(data, bs) < 0){
-		fprint(2, "%s: read last block: %r\n", name);
+		fprint(2, "%T %s: read last block: %r\n", name);
 		return;
 	}
 	sha1(data, bs-VtScoreSize, nil, &s);
@@ -119,18 +119,18 @@ verifyarena(char *name, vlong len)
 	 */
 	arena.blocksize = head.blocksize;
 	if(unpackarena(&arena, data) < 0){
-		fprint(2, "%s: corrupt arena trailer: %r\n", name);
+		fprint(2, "%T %s: corrupt arena trailer: %r\n", name);
 		return;
 	}
 	scorecp(arena.score, &data[arena.blocksize - VtScoreSize]);
 
 	if(namecmp(arena.name, head.name) != 0){
-		fprint(2, "%s: wrong name in trailer: %s vs. %s\n", 
+		fprint(2, "%T %s: wrong name in trailer: %s vs. %s\n", 
 			name, head.name, arena.name);
 		return;
 	}
 	if(arena.version != head.version){
-		fprint(2, "%s: wrong version in trailer: %d vs. %d\n", 
+		fprint(2, "%T %s: wrong version in trailer: %d vs. %d\n", 
 			name, head.version, arena.version);
 		return;
 	}
@@ -140,11 +140,11 @@ verifyarena(char *name, vlong len)
 	 * check for no checksum or the same
 	 */
 	if(scorecmp(score, arena.score) == 0)
-		fprint(2, "%s: verified score\n", name);
+		fprint(2, "%T %s: verified score\n", name);
 	else if(scorecmp(zeroscore, arena.score) == 0)
-		fprint(2, "%s: unsealed\n", name);
+		fprint(2, "%T %s: unsealed\n", name);
 	else{
-		fprint(2, "%s: mismatch checksum - found=%V calculated=%V\n",
+		fprint(2, "%T %s: mismatch checksum - found=%V calculated=%V\n",
 			name, arena.score, score);
 		return;
 	}
@@ -207,7 +207,7 @@ threadmain(int argc, char *argv[])
 		sysfatal("read arena part header: %r");
 	if(unpackarenapart(&ap, data) < 0)
 		sysfatal("corrupted arena part header: %r");
-	fprint(2, "# arena part version=%d blocksize=%d arenabase=%d\n",
+	fprint(2, "%T # arena part version=%d blocksize=%d arenabase=%d\n",
 		ap.version, ap.blocksize, ap.arenabase);
 	ap.tabbase = (PartBlank+HeadSize+ap.blocksize-1)&~(ap.blocksize-1);
 	ap.tabsize = ap.arenabase - ap.tabbase;
@@ -222,21 +222,21 @@ threadmain(int argc, char *argv[])
 		p++;
 	for(i=0; i<nline; i++){
 		if(p == nil){
-			fprint(2, "warning: unexpected arena table end\n");
+			fprint(2, "%T warning: unexpected arena table end\n");
 			break;
 		}
 		q = strchr(p, '\n');
 		if(q)
 			*q++ = 0;
 		if(strlen(p) >= sizeof line){
-			fprint(2, "warning: long arena table line: %s\n", p);
+			fprint(2, "%T warning: long arena table line: %s\n", p);
 			p = q;
 			continue;
 		}
 		strcpy(line, p);
 		memset(f, 0, sizeof f);
 		if(tokenize(line, f, nelem(f)) < 3){
-			fprint(2, "warning: bad arena table line: %s\n", p);
+			fprint(2, "%T warning: bad arena table line: %s\n", p);
 			p = q;
 			continue;
 		}
@@ -245,17 +245,17 @@ threadmain(int argc, char *argv[])
 			start = strtoull(f[1], 0, 0);
 			stop = strtoull(f[2], 0, 0);
 			if(stop <= start){
-				fprint(2, "%s: bad start,stop %lld,%lld\n", f[0], stop, start);
+				fprint(2, "%T %s: bad start,stop %lld,%lld\n", f[0], stop, start);
 				continue;
 			}
 			if(seek(fd, start, 0) < 0)
-				fprint(2, "%s: seek to start: %r\n", f[0]);
+				fprint(2, "%T %s: seek to start: %r\n", f[0]);
 			verifyarena(f[0], stop - start);
 		}
 	}
 	for(i=1; i<argc; i++)
 		if(argv[i] != 0)
-			fprint(2, "%s: did not find arena\n", argv[i]);
+			fprint(2, "%T %s: did not find arena\n", argv[i]);
 
 	threadexitsall(nil);
 }

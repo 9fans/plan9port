@@ -92,10 +92,10 @@ threadmain(int argc, char *argv[])
 	}
 #endif
 
-	trace(TraceQuiet, "venti started");
-	fprint(2, "venti: ");
-
 	ventifmtinstall();
+	trace(TraceQuiet, "venti started");
+	fprint(2, "%T venti: ");
+
 	if(configfile == nil)
 		configfile = "venti.conf";
 

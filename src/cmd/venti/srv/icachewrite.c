@@ -181,6 +181,7 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 			err = -1;
 			continue;
 		}
+		flushpart(is->part);
 		addstat(StatIsectWriteBytes, nbuf);
 		addstat(StatIsectWrite, 1);
 		icacheclean(chunk);
