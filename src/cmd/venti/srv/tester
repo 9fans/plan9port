@@ -31,7 +31,7 @@ fn reformat {
 	./o.fmtarenas -a 40M -b 8k arenas $vtmp/arena
 	./o.fmtbloom $vtmp/bloom
 	./o.fmtisect -b 8k isect $vtmp/isect
-	./o.fmtindex vtmp.conf
+	./o.fmtindex $vtmp/vtmp.conf
 }
 
 fn venti {
