@@ -175,13 +175,12 @@ icachewritesect(Index *ix, ISect *is, u8int *buf)
 		diskaccess(1);
 
 		trace(TraceProc, "icachewritesect writepart", addr, nbuf);
-		if(writepart(is->part, addr, buf, nbuf) < 0){
+		if(writepart(is->part, addr, buf, nbuf) < 0 || flushpart(is->part) < 0){
 			/* XXX more details here */
 			fprint(2, "icachewriteproc writepart: %r\n");
 			err = -1;
 			continue;
 		}
-		flushpart(is->part);
 		addstat(StatIsectWriteBytes, nbuf);
 		addstat(StatIsectWrite, 1);
 		icacheclean(chunk);

@@ -144,7 +144,8 @@ wbindex(Index *ix)
 		return -1;
 	}
 	for(i = 0; i < ix->nsects; i++){
-		if(writepart(ix->sects[i]->part, ix->sects[i]->tabbase, b->data, ix->tabsize) < 0){
+		if(writepart(ix->sects[i]->part, ix->sects[i]->tabbase, b->data, ix->tabsize) < 0
+		|| flushpart(ix->sects[i]->part) < 0){
 			seterr(EOk, "can't write index: %r");
 			freezblock(b);
 			return -1;
@@ -498,7 +499,7 @@ wbisect(ISect *is)
 		freezblock(b);
 		return -1;
 	}
-	if(writepart(is->part, PartBlank, b->data, HeadSize) < 0){
+	if(writepart(is->part, PartBlank, b->data, HeadSize) < 0 || flushpart(is->part) < 0){
 		seterr(EAdmin, "can't write index section header: %r");
 		freezblock(b);
 		return -1;

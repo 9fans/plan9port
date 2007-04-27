@@ -613,7 +613,8 @@ wbarenahead(Arena *arena)
 	 * during initialization.
 	 */
 	bad = packarenahead(&head, b->data)<0 ||
-	      writepart(arena->part, arena->base - arena->blocksize, b->data, arena->blocksize)<0;
+	      writepart(arena->part, arena->base - arena->blocksize, b->data, arena->blocksize)<0 ||
+	      flushpart(arena->part)<0;
 	freezblock(b);
 	if(bad)
 		return -1;

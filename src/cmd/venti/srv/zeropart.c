@@ -23,5 +23,8 @@ zeropart(Part *part, int blocksize)
 		if(writepart(part, addr, b->data, blocksize) < 0)
 			sysfatal("can't initialize %s: %r", part->name);
 
+	if(flushpart(part) < 0)
+		sysfatal("can't flush writes to %s: %r", part->name);
+
 	freezblock(b);
 }

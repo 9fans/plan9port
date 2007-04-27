@@ -80,7 +80,7 @@ ereadpart(Part *p, u64int offset, u8int *buf, u32int count)
 int
 ewritepart(Part *p, u64int offset, u8int *buf, u32int count)
 {
-	if(writepart(p, offset, buf, count) != count){
+	if(writepart(p, offset, buf, count) != count || flushpart(p) < 0){
 		chat("%T writepart %s at %#llux+%ud: %r\n", p->name, offset, count);
 		return -1;
 	}

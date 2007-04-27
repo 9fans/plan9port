@@ -38,6 +38,7 @@ Arena		*findarena(char *name);
 int		flushciblocks(Arena *arena);
 void		flushdcache(void);
 void		flushicache(void);
+int		flushpart(Part*);
 void		flushqueue(void);
 void		fmtzbinit(Fmt *f, ZBlock *b);
 void		freearena(Arena *arena);

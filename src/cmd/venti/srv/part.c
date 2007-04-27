@@ -16,16 +16,6 @@
 #include "dat.h"
 #include "fns.h"
 
-/* TODO for linux:
-don't use O_DIRECT.
-use
-	posix_fadvise(fd, 0, 0, POSIX_FADV_NOREUSE);
-after block is read and also use
-	posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM);
-to disable readahead on the index partition.
-bump block size of bloom filter higher.
-*/
-
 u32int	maxblocksize;
 int	readonly;
 
@@ -116,6 +106,9 @@ initpart(char *name, int mode)
 		mode &= (OREAD|OWRITE|ORDWR);
 		mode |= OREAD;
 	}
+#ifdef __linux__	/* sorry, but linus made O_DIRECT unusable! */
+	mode &= ~ODIRECT;
+#endif
 	part->fd = open(file, mode);
 	if(part->fd < 0){
 		if((mode&(OREAD|OWRITE|ORDWR)) == ORDWR)
@@ -130,6 +123,9 @@ initpart(char *name, int mode)
 		}
 		fprint(2, "warning: %s opened for reading only\n", name);
 	}
+#ifdef __linux__	/* sorry again!  still linus's fault! */
+	posix_fadvise(part->fd, 0, 0, POSIX_FADV_RANDOM);	/* disable readahead */
+#endif
 	part->offset = lo;
 	dir = dirfstat(part->fd);
 	if(dir == nil){
@@ -166,9 +162,18 @@ initpart(char *name, int mode)
 	return part;
 }
 
-void
+int
 flushpart(Part *part)
 {
+	USED(part);
+#ifdef __linux__	/* grrr! */
+	if(fsync(part->fd) < 0){
+		logerr(EAdmin, "flushpart %s: %r", part->name);
+		return -1;
+	}
+	posix_fadvise(part->fd, 0, 0, POSIX_FADV_DONTNEED);
+#endif
+	return 0;
 }
 
 void
@@ -420,6 +425,9 @@ rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
 #endif
 		break;
 	}
+#ifdef __linux__	/* sigh */
+	posix_fadvise(part->fd, part->offset+offset, n, POSIX_FADV_DONTNEED);
+#endif
 	return n;
 }
 int

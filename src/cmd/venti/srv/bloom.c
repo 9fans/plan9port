@@ -121,7 +121,11 @@ int
 writebloom(Bloom *b)
 {
 	wbbloomhead(b);
-	return writepart(b->part, 0, b->data, b->size);
+	if(writepart(b->part, 0, b->data, b->size) < 0)
+		return -1;
+	if(flushpart(b->part) < 0)
+		return -1;
+	return 0;
 }
 
 /*

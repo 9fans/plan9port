@@ -222,7 +222,8 @@ wbarenapart(ArenaPart *ap)
 		freezblock(b);
 		return -1;
 	}
-	if(writepart(ap->part, PartBlank, b->data, HeadSize) < 0){
+	if(writepart(ap->part, PartBlank, b->data, HeadSize) < 0 ||
+	   flushpart(ap->part) < 0){
 		seterr(EAdmin, "can't write arena partition header: %r");
 		freezblock(b);
 		return -1;
@@ -325,7 +326,7 @@ wbarenamap(AMap *am, int n, Part *part, u64int base, u64int size)
 		freezblock(b);
 		return -1;
 	}
-	if(writepart(part, base, b->data, size) < 0){
+	if(writepart(part, base, b->data, size) < 0 || flushpart(part) < 0){
 		seterr(EAdmin, "can't write arena set: %r");
 		freezblock(b);
 		return -1;

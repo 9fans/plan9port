@@ -734,7 +734,7 @@ parallelwrites(DBlock **b, DBlock **eb, int dirty)
 	for(p=b; p<q; p++){
 		if(part != (*p)->part){
 			part = (*p)->part;
-			flushpart(part);
+			flushpart(part);	/* what if it fails? */
 		}
 	}
 
