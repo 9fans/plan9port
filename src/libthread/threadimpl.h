@@ -46,6 +46,11 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #endif
 
+/* THIS DOES NOT WORK!  Don't do this!
+(At least, not on Solaris.  Maybe this is right for Linux,
+in which case it should say if defined(__linux__) && defined(__sun__),
+but surely the latter would be defined(__sparc__).
+
 #if defined(__sun__)
 #	define mcontext libthread_mcontext
 #	define mcontext_t libthread_mcontext_t
@@ -53,6 +58,7 @@ extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
 #	define ucontext_t libthread_ucontext_t
 #	include "sparc-ucontext.h"
 #endif
+*/
 
 #if defined(__arm__)
 int getmcontext(mcontext_t*);
