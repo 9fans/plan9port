@@ -37,7 +37,14 @@ Filter*	compile(Filter *f);
 void	printfilter(Filter *f, char *tag);
 void	printhelp(char*);
 void	tracepkt(uchar*, int);
-void	pcaphdr(void);
+void	pcaphdr(int);
+
+struct pcap_pkthdr {
+        u64int	ts;	/* time stamp */
+        u32int	caplen;	/* length of portion present */
+        u32int	len;	/* length this packet (off wire) */
+};
+
 
 void
 printusage(void)
@@ -116,6 +123,10 @@ main(int argc, char **argv)
 	case 't':
 		tiflag = 1;
 		break;
+	case 'T':
+		tiflag = 1;
+		pcap = 1;
+		break;
 	case 'C':
 		Cflag = 1;
 		break;
@@ -123,9 +134,6 @@ main(int argc, char **argv)
 		pflag = 0;
 		break;
 	}ARGEND;
-
-	if(pcap)
-		pcaphdr();
 
 	if(argc > 1)
 		usage();
@@ -149,19 +157,32 @@ main(int argc, char **argv)
 	if(root == nil)
 		root = &ether;
 
+	if(pcap)
+		pcaphdr(fd);
+
 	filter = compile(filter);
 
 	if(tiflag){
 		/* read a trace file */
 		for(;;){
-			n = read(fd, pkt, 10);
-			if(n != 10)
-				break;
-			pkttime = NetL(pkt+2);
-			pkttime = (pkttime<<32) | NetL(pkt+6);
-			if(starttime == 0LL)
-				starttime = pkttime;
-			n = NetS(pkt);
+			if(pcap){
+				struct pcap_pkthdr *goo;
+				n = read(fd, pkt, 16);
+				if(n != 16)
+					break;
+				goo = (struct pcap_pkthdr*)pkt;
+				pkttime = goo->ts;
+				n = goo->caplen;
+			}else{
+				n = read(fd, pkt, 10);
+				if(n != 10)
+					break;
+				pkttime = NetL(pkt+2);
+				pkttime = (pkttime<<32) | NetL(pkt+6);
+				if(starttime == 0LL)
+					starttime = pkttime;
+				n = NetS(pkt);
+			}
 			if(readn(fd, pkt, n) != n)
 				break;
 			if(filterpkt(filter, pkt, pkt+n, root, 1))
@@ -259,39 +280,47 @@ filterpkt(Filter *f, uchar *ps, uchar *pe, Proto *pr, int needroot)
 #define TCPDUMP_MAGIC 0xa1b2c3d4
 
 struct pcap_file_header {
-	ulong		magic;
-	ushort		version_major;
-	ushort		version_minor;
-	long		thiszone;    /* gmt to local correction */
-	ulong		sigfigs;    /* accuracy of timestamps */
-	ulong		snaplen;    /* max length saved portion of each pkt */
-	ulong		linktype;   /* data link type (DLT_*) */
-};
-
-struct pcap_pkthdr {
-        uvlong	ts;	/* time stamp */
-        ulong	caplen;	/* length of portion present */
-        ulong	len;	/* length this packet (off wire) */
+	u32int		magic;
+	u16int		version_major;
+	u16int		version_minor;
+	s32int		thiszone;    /* gmt to local correction */
+	u32int		sigfigs;    /* accuracy of timestamps */
+	u32int		snaplen;    /* max length saved portion of each pkt */
+	u32int		linktype;   /* data link type (DLT_*) */
 };
 
 /*
  *  pcap trace header 
  */
 void
-pcaphdr(void)
+pcaphdr(int fd)
 {
-	struct pcap_file_header hdr;
-
-	hdr.magic = TCPDUMP_MAGIC;
-	hdr.version_major = PCAP_VERSION_MAJOR;
-	hdr.version_minor = PCAP_VERSION_MINOR;
-  
-	hdr.thiszone = 0;
-	hdr.snaplen = 1500;
-	hdr.sigfigs = 0;
-	hdr.linktype = 1;
-
-	write(1, &hdr, sizeof(hdr));
+	if(tiflag){
+		struct pcap_file_header hdr;
+		
+		if(readn(fd, &hdr, sizeof hdr) != sizeof hdr)
+			sysfatal("short header");
+		if(hdr.magic != TCPDUMP_MAGIC)
+			sysfatal("packet header %ux != %ux", hdr.magic, TCPDUMP_MAGIC);
+		if(hdr.version_major != PCAP_VERSION_MAJOR || hdr.version_minor != PCAP_VERSION_MINOR)
+			sysfatal("version %d.%d != %d.%d", hdr.version_major, hdr.version_minor, PCAP_VERSION_MAJOR, PCAP_VERSION_MINOR);
+		if(hdr.linktype != 1)
+			sysfatal("unknown linktype %d != 1 (ethernet)", hdr.linktype);
+	}
+	if(toflag){
+		struct pcap_file_header hdr;
+	
+		hdr.magic = TCPDUMP_MAGIC;
+		hdr.version_major = PCAP_VERSION_MAJOR;
+		hdr.version_minor = PCAP_VERSION_MINOR;
+	  
+		hdr.thiszone = 0;
+		hdr.snaplen = 1500;
+		hdr.sigfigs = 0;
+		hdr.linktype = 1;
+	
+		write(1, &hdr, sizeof(hdr));
+	}
 }
 
 /*
