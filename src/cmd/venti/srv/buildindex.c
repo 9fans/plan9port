@@ -269,6 +269,10 @@ score2bucket(ISect *is, uchar *score)
 	u32int b;
 	
 	b = hashbits(score, 32)/ix->div;
+	if(b < is->start || b >= is->stop){
+		fprint(2, "score2bucket: score=%V div=%d b=%ud start=%ud stop=%ud\n",
+			score, ix->div, b, is->start, is->stop);
+	}
 	assert(is->start <= b && b < is->stop);
 	return b - is->start;
 }
