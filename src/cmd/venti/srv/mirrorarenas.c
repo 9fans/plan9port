@@ -266,11 +266,10 @@ mirror(Arena *sa, Arena *da)
 				chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
 			return;
 		}
-		chat("%T %s: sealed score mismatch %V vs %V\n", sa->name, sa->score, da->score);
-		status = "errors";
-		return;
+		chat("%T %s: warning: sealed score mismatch %V vs %V\n", sa->name, sa->score, da->score);
+		/* Keep executing; will correct seal if possible. */
 	}
-	if(da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
+	if(!sa->diskstats.sealed && da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
 		chat("%T %s: dst is sealed, src is not\n", sa->name);
 		status = "errors";
 		return;
