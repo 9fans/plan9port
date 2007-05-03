@@ -5,11 +5,56 @@
 int
 readifile(IFile *f, char *name)
 {
+	int m;
+	Part *p;
 	ZBlock *b;
-
-	b = readfile(name);
-	if(b == nil)
+	u8int *z;
+	
+	p = initpart(name, OREAD);
+	if(p == nil)
 		return -1;
+	b = alloczblock(8192, 1, 0);
+	if(b == nil){
+		seterr(EOk, "can't alloc for %s: %R", name);
+		return -1;
+	}
+	if(p->size > PartBlank){
+		/*
+		 * this is likely a real venti partition, in which case
+		 * we're looking for the config file stored as 8k at end of PartBlank.
+		 */
+		if(readpart(p, PartBlank-8192, b->data, 8192) < 0){
+			seterr(EOk, "can't read %s: %r", name);
+			freezblock(b);
+			freepart(p);
+			return -1;
+		}
+		m = 5+1+6+1;
+		if(memcmp(b->data, "venti config\n", m) != 0){
+			seterr(EOk, "bad venti config magic in %s", name);
+			freezblock(b);
+			freepart(p);
+			return -1;
+		}
+		b->data += m;
+		b->len -= m;
+		z = memchr(b->data, 0, b->len);
+		if(z)
+			b->len = z - b->data;
+	}else if(p->size > 8192){
+		seterr(EOk, "config file is too large");
+		freepart(p);
+		freezblock(b);
+		return -1;
+	}else{
+		freezblock(b);
+		b = readfile(name);
+		if(b == nil){
+			freepart(p);
+			return -1;
+		}
+	}
+	freepart(p);
 	f->name = name;
 	f->b = b;
 	f->pos = 0;
