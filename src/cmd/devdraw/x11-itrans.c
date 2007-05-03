@@ -382,13 +382,61 @@ struct {
 #endif
 } clip;
 
+static uchar*
+_xgetsnarffrom(XWindow w, Atom clipboard, Atom target, int timeout0, int timeout)
+{
+	Atom prop, type;
+	ulong len, lastlen, dummy;
+	int fmt, i;
+	uchar *data, *xdata;
+
+	/*
+	 * We should be waiting for SelectionNotify here, but it might never
+	 * come, and we have no way to time out.  Instead, we will clear
+	 * local property #1, request our buddy to fill it in for us, and poll
+	 * until he's done or we get tired of waiting.
+	 */
+	prop = 1;
+	XChangeProperty(_x.display, _x.drawable, prop, target, 8, PropModeReplace, (uchar*)"", 0);
+	XConvertSelection(_x.display, clipboard, target, prop, _x.drawable, CurrentTime);
+	XFlush(_x.display);
+	lastlen = 0;
+	timeout0 = (timeout0 + 9)/10;
+	timeout = (timeout + 9)/10;
+	for(i=0; i<timeout0 || (lastlen!=0 && i<timeout); i++){
+		usleep(10*1000);
+		XGetWindowProperty(_x.display, _x.drawable, prop, 0, 0, 0, AnyPropertyType,
+			&type, &fmt, &dummy, &len, &xdata);
+		if(lastlen == len && len > 0)
+			break;
+		lastlen = len;
+		XFree(xdata);
+	}
+	if(len == 0)
+		return nil;
+
+	/* get the property */
+	xdata = nil;
+	XGetWindowProperty(_x.display, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0, 
+		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
+	if((type != target && type != XA_STRING && type != _x.utf8string) || len == 0){
+		if(xdata)
+			XFree(xdata);
+		return nil;
+	}
+	if(xdata){
+		data = (uchar*)strdup((char*)xdata);
+		XFree(xdata);
+		return data;
+	}
+	return nil;
+}
+
 char*
 _xgetsnarf(void)
 {
-	uchar *data, *xdata;
-	Atom clipboard, type, prop;
-	ulong len, lastlen, dummy;
-	int fmt, i;
+	uchar *data;
+	Atom clipboard;
 	XWindow w;
 
 	qlock(&clip.lk);
@@ -427,47 +475,11 @@ _xgetsnarf(void)
 		goto out;
 	}
 		
-	/*
-	 * We should be waiting for SelectionNotify here, but it might never
-	 * come, and we have no way to time out.  Instead, we will clear
-	 * local property #1, request our buddy to fill it in for us, and poll
-	 * until he's done or we get tired of waiting.
-	 *
-	 * We should try to go for _x.utf8string instead of XA_STRING,
-	 * but that would add to the polling.
-	 */
-	prop = 1;
-	XChangeProperty(_x.display, _x.drawable, prop, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
-	XConvertSelection(_x.display, clipboard, XA_STRING, prop, _x.drawable, CurrentTime);
-	XFlush(_x.display);
-	lastlen = 0;
-	for(i=0; i<10 || (lastlen!=0 && i<30); i++){
-		usleep(100*1000);
-		XGetWindowProperty(_x.display, _x.drawable, prop, 0, 0, 0, AnyPropertyType,
-			&type, &fmt, &dummy, &len, &data);
-		if(lastlen == len && len > 0)
-			break;
-		lastlen = len;
+	if((data = _xgetsnarffrom(w, clipboard, _x.utf8string, 10, 100)) == nil)
+	if((data = _xgetsnarffrom(w, clipboard, XA_STRING, 10, 100)) == nil){
+		/* nothing left to do */
 	}
-	if(i == 10){
-		data = nil;
-		goto out;
-	}
-	/* get the property */
-	data = nil;
-	XGetWindowProperty(_x.display, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0, 
-		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
-	if((type != XA_STRING && type != _x.utf8string) || len == 0){
-		if(xdata)
-			XFree(xdata);
-		data = nil;
-	}else{
-		if(xdata){
-			data = (uchar*)strdup((char*)xdata);
-			XFree(xdata);
-		}else
-			data = nil;
-	}
+
 out:
 	qunlock(&clip.lk);
 	return (char*)data;
