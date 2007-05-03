@@ -11,6 +11,7 @@ VtConn *z;
 int fast;	/* and a bit unsafe; only for benchmarking */
 int haveaoffset;
 int maxwrites = -1;
+int verbose;
 
 typedef struct ZClump ZClump;
 struct ZClump
@@ -38,6 +39,8 @@ vtsendthread(void *v)
 			break;
 		if(vtwrite(z, zcl.cl.info.score, zcl.cl.info.type, zcl.lump->data, zcl.cl.info.uncsize) < 0)
 			sysfatal("failed writing clump %llud: %r", zcl.aa);
+		if(verbose)
+			print("%V\n", zcl.cl.info.score);
 		freezblock(zcl.lump);
 	}
 	/*
@@ -57,9 +60,10 @@ vtsendthread(void *v)
 static void
 rdarena(Arena *arena, u64int offset)
 {
+	int i;
 	u64int a, aa, e;
-	u32int magic;
 	Clump cl;
+	ClumpInfo ci;
 	uchar score[VtScoreSize];
 	ZBlock *lump;
 	ZClump zcl;
@@ -71,50 +75,51 @@ rdarena(Arena *arena, u64int offset)
 	e = arena->base + arena->size;
 	if(offset != ~(u64int)0) {
 		if(offset >= e-a)
-			sysfatal("bad offset %llud >= %llud\n",
+			sysfatal("bad offset %#llx >= %#llx\n",
 				offset, e-a);
 		aa = offset;
 	} else
 		aa = 0;
 
 	if(maxwrites != 0)
-	for(; aa < e; aa += ClumpSize+cl.info.size) {
-		magic = clumpmagic(arena, aa);
-		if(magic == ClumpFreeMagic)
+	for(i=0, a=0; i<arena->memstats.clumps; i++, a+=ClumpSize+ci.size) {
+		if(readclumpinfo(arena, i, &ci) < 0)
 			break;
-		if(magic != arena->clumpmagic) {
-			if(0) fprint(2, "illegal clump magic number %#8.8ux offset %llud\n",
-				magic, aa);
-			break;
+		if(a < aa || ci.type == VtCorruptType){
+			if(ci.type == VtCorruptType)
+				fprint(2, "corrupt at %#llx: +%d\n", a, ClumpSize+ci.size);
+			continue;
 		}
-		lump = loadclump(arena, aa, 0, &cl, score, 0);
+		lump = loadclump(arena, a, 0, &cl, score, 0);
 		if(lump == nil) {
-			fprint(2, "clump %llud failed to read: %r\n", aa);
-			break;
+			fprint(2, "clump %#llx failed to read: %r\n", a);
+			continue;
 		}
 		if(!fast && cl.info.type != VtCorruptType) {
 			scoremem(score, lump->data, cl.info.uncsize);
 			if(scorecmp(cl.info.score, score) != 0) {
-				fprint(2, "clump %llud has mismatched score\n", aa);
+				fprint(2, "clump %#llx has mismatched score\n", a);
 				break;
 			}
 			if(vttypevalid(cl.info.type) < 0) {
-				fprint(2, "clump %llud has bad type %d\n", aa, cl.info.type);
+				fprint(2, "clump %#llx has bad type %d\n", a, cl.info.type);
 				break;
 			}
 		}
 		if(z && cl.info.type != VtCorruptType){
 			zcl.cl = cl;
 			zcl.lump = lump;
-			zcl.aa = aa;
+			zcl.aa = a;
 			send(c, &zcl);
 		}else
 			freezblock(lump);
 		if(maxwrites>0 && --maxwrites == 0)
 			break;
 	}
+	if(a > aa)
+		aa = a;
 	if(haveaoffset)
-		print("end offset %llud\n", aa);
+		print("end offset %#llx\n", aa);
 }
 
 void
@@ -146,6 +151,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'M':
 		maxwrites = atoi(EARGF(usage()));
+		break;
+	case 'v':
+		verbose = 1;
 		break;
 	default:
 		usage();
@@ -204,8 +212,8 @@ threadmain(int argc, char *argv[])
 		vtproc(vtsendthread, nil);
 
 	rdarena(arena, offset);
-		if(vtsync(z) < 0)
-			sysfatal("executing sync: %r");
+	if(vtsync(z) < 0)
+		sysfatal("executing sync: %r");
 
 	memset(&zerocl, 0, sizeof zerocl);
 	for(i=0; i<12; i++)
