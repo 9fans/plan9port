@@ -103,7 +103,7 @@ initpart(char *name, int mode)
 	part->name = estrdup(name);
 	part->filename = estrdup(file);
 	if(readonly){
-		mode &= (OREAD|OWRITE|ORDWR);
+		mode &= ~(OREAD|OWRITE|ORDWR);
 		mode |= OREAD;
 	}
 #ifdef __linux__	/* sorry, but linus made O_DIRECT unusable! */
