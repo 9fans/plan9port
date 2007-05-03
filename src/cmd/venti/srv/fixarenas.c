@@ -650,7 +650,16 @@ showdiffs(uchar *want, uchar *have, int len, Info *info)
 	}
 }
 
-static int tabsizes[] = { 64*1024, 512*1024, };
+/*
+ * Does part begin with an arena?
+ */
+int
+isonearena(void)
+{
+	return u32(pagein(0, Block)) == ArenaHeadMagic;
+}
+
+static int tabsizes[] = { 16*1024, 64*1024, 512*1024, };
 /*
  * Poke around on the disk to guess what the ArenaPart numbers are.
  */
@@ -808,7 +817,6 @@ guessgeometry(void)
 		u32(p)!=ArenaHeadMagic ? " (but no arena head there)" : "");
 
 	ap.tabsize = ap.arenabase - ap.tabbase;
-	
 }
 
 /*
@@ -1078,6 +1086,8 @@ okayname(char *name, int n)
 	if(nameok(name) < 0)
 		return 0;
 	sprint(buf, "%d", n);
+	if(n == 0)
+		buf[0] = 0;
 	if(strlen(name) < strlen(buf) 
 	|| strcmp(name+strlen(name)-strlen(buf), buf) != 0)
 		return 0;
@@ -1201,9 +1211,12 @@ print("old arena: sealed=%d\n", oarena.diskstats.sealed);
 	}
 	if(arena->version == 0)
 		arena->version = ArenaVersion5;
-	if(basename)
-		snprint(arena->name, ANameSize, "%s%d", basename, anum);
-	else if(lastbase[0])
+	if(basename){
+		if(anum == -1)
+			snprint(arena->name, ANameSize, "%s", basename);
+		else
+			snprint(arena->name, ANameSize, "%s%d", basename, anum);
+	}else if(lastbase[0])
 		snprint(arena->name, ANameSize, "%s%d", lastbase, anum);
 	else if(head->name[0])
 		strcpy(arena->name, head->name);
@@ -1382,7 +1395,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 			}
 
 			if(haveclump(cl.info.score))
-				print("warning: duplicate clump %d %V\n", cl.info.type, cl.info.score);
+				print("warning: duplicate clump %d %V at %#llux+%#d\n", cl.info.type, cl.info.score, offset, n);
 
 			/*
 			 * If clumps use different magic numbers, we don't care.
@@ -1538,6 +1551,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	eci = bci+clumps+1;
 	bcit = cibuf;
 	ecit = cibuf+ncibuf;
+	
 	smart = 1;
 Again:
 	nbad = 0;
@@ -1886,6 +1900,10 @@ threadmain(int argc, char **argv)
 		sysfatal("can't open %s: %r", file);
 	partend = part->size;
 	
+	if(isonearena()){
+		checkarena(0, -1);
+		threadexitsall(nil);
+	}
 	checkarenas(argc > 1 ? argv[1] : nil);
 	checkmap();
 	threadexitsall(nil);
