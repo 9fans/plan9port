@@ -68,7 +68,7 @@ threadmain(int argc, char *argv[])
 		usage();
 		break;
 	}ARGEND
-	
+
 	if(argc != 1)
 		usage();
 
@@ -324,7 +324,7 @@ bflush(Buf *buf)
 	u32int bufsize;
 	
 	if(buf->woffset >= buf->eoffset)
-		sysfatal("buf index chunk overflow - need bufger index");
+		sysfatal("buf index chunk overflow - need bigger index");
 	bufsize = buf->ep - buf->bp;
 	if(writepart(buf->part, buf->woffset, buf->bp, bufsize) < 0){
 		fprint(2, "write %s: %r\n", buf->part->name);
@@ -781,7 +781,7 @@ isectproc(void *v)
 	xminiclump = isectmem/2/IEntrySize;
 	
 	/* total number of minibufs we need */
-	prod = xclump / xminiclump;
+	prod = (xclump+xminiclump-1) / xminiclump;
 	
 	/* if possible, skip second pass */
 	if(!dumb && prod*MinBufSize < isectmem){
@@ -801,7 +801,6 @@ isectproc(void *v)
 		bufsize *= 2;
 	data = emalloc(nbuf*bufsize);
 	epbuf = bufsize/IEntrySize;
-
 	fprint(2, "%T %s: %,ud buckets, %,ud groups, %,ud minigroups, %,ud buffer\n",
 		is->part->name, nbucket, nbuf, nminibuf, bufsize);
 	/*
@@ -859,9 +858,15 @@ isectproc(void *v)
 	/*
 	 * Rearrange entries into minibuffers and then
 	 * split each minibuffer into buckets.
+	 * The minibuffer must be sized so that it is 
+	 * a multiple of blocksize -- ipoolloadblock assumes
+	 * that each minibuf starts aligned on a blocksize
+	 * boundary.
 	 */
 	mbuf = MKN(Minibuf, nminibuf);
 	mbufbuckets = (bufbuckets+nminibuf-1)/nminibuf;
+	while(mbufbuckets*blocksize % bufsize)
+		mbufbuckets++;
 	for(i=0; i<nbuf; i++){
 		/*
 		 * Set up descriptors.
@@ -873,11 +878,10 @@ isectproc(void *v)
 		for(j=0; j<nminibuf; j++){
 			mb = &mbuf[j];
 			mb->boffset = offset;
-			if(j < nminibuf-1){
-				offset += mbufbuckets*blocksize;
-				mb->eoffset = offset;
-			}else
-				mb->eoffset = buf[i].eoffset;
+			offset += mbufbuckets*blocksize;
+			if(offset > buf[i].eoffset)
+				offset = buf[i].eoffset;
+			mb->eoffset = offset;
 			mb->roffset = mb->boffset;
 			mb->woffset = mb->boffset;
 			mb->nentry = epbuf * (mb->eoffset - mb->boffset)/bufsize;
