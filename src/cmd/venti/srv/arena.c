@@ -28,6 +28,8 @@ int	arenasumsleeptime;
 int
 initarenasum(void)
 {
+	needzeroscore();  /* OS X */
+
 	sumwait.l = &sumlock;
 
 	if(vtproc(sumproc, nil) < 0){

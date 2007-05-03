@@ -176,6 +176,7 @@ threadmain(int argc, char *argv[])
 	vlong start, stop;
 	ArenaPart ap;
 	
+	needzeroscore();
 	ventifmtinstall();
 	blocksize = MaxIoSize;
 	ARGBEGIN{

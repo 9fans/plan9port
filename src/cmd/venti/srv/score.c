@@ -4,6 +4,9 @@
 
 u8int zeroscore[VtScoreSize];
 
+/* Call this function to force linking of score.o for zeroscore on OS X */
+void needzeroscore(void) { }
+
 void
 scoremem(u8int *score, u8int *buf, int n)
 {
