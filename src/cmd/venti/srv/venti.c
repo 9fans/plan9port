@@ -18,7 +18,8 @@ static void	ventiserver(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: venti [-dsw] [-a ventiaddress] [-h httpaddress] [-c config] [-C cachesize] [-I icachesize] [-B blockcachesize]\n");
+	fprint(2, "usage: venti [-Ldrs] [-a ventiaddr] [-c config] "
+"[-h httpaddr] [-B blockcachesize] [-C cachesize] [-I icachesize] [-W webroot]\n");
 	threadexitsall("usage");
 }
 void
@@ -65,6 +66,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'L':
 		ventilogging = 1;
+		break;
+	case 'r':
+		readonly = 1;
 		break;
 	case 's':
 		nofork = 1;
@@ -163,10 +167,10 @@ threadmain(int argc, char *argv[])
 		startbloomproc(mainindex->bloom);
 
 	fprint(2, "sync...");
-	if(syncindex(mainindex, 1, 0, 0) < 0)
+	if(!readonly && syncindex(mainindex, 1, 0, 0) < 0)
 		sysfatal("can't sync server: %r");
 
-	if(queuewrites){
+	if(!readonly && queuewrites){
 		fprint(2, "queue...");
 		if(initlumpqueues(mainindex->nsects) < 0){
 			fprint(2, "can't initialize lump queues,"
@@ -237,6 +241,10 @@ ventiserver(void *v)
 			}
 			break;
 		case VtTwrite:
+			if(readonly){
+				vtrerror(r, "read only");
+				break;
+			}
 			p = r->tx.data;
 			r->tx.data = nil;
 			addstat(StatRpcWriteBytes, packetsize(p));
