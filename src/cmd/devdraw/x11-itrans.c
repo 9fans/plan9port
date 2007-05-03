@@ -522,8 +522,8 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 	xe->target, xe->requestor, xe->property, xe->selection);
 	r.xselection.property = xe->property;
 	if(xe->target == _x.targets){
-		a[0] = XA_STRING;
-		a[1] = _x.utf8string;
+		a[0] = _x.utf8string;
+		a[1] = XA_STRING;
 		a[2] = _x.text;
 		a[3] = _x.compoundtext;
 
