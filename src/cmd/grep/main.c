@@ -1,7 +1,7 @@
 #define	EXTERN
 #include	"grep.h"
 
-char *validflags = "bchiLlnsv";
+char *validflags = "bchiLlnsqv";
 void
 usage(void)
 {
@@ -19,6 +19,10 @@ main(int argc, char *argv[])
 		if(utfrune(validflags, ARGC()) == nil)
 			usage();
 		flags[ARGC()]++;
+		break;
+
+	case 'q':	/* gnu grep -q means plan 9 grep -s */
+		flags['s']++;
 		break;
 
 	case 'E':	/* ignore, turns gnu grep into egrep */
