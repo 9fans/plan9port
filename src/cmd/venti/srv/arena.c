@@ -415,6 +415,7 @@ setatailstate(AState *as)
 	/*
 	 * Look up as->arena to find index.
 	 */
+	needmainindex();	/* OS X linker */
 	ix = mainindex;
 	for(i=0; i<ix->narenas; i++)
 		if(ix->arenas[i] == as->arena)

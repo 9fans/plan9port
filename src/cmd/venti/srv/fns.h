@@ -105,6 +105,7 @@ uint		msec(void);
 int		namecmp(char *s, char *t);
 void		namecp(char *dst, char *src);
 int		nameok(char *name);
+void		needmainindex(void);
 void		needzeroscore(void);
 Arena		*newarena(Part *part, u32int, char *name, u64int base, u64int size, u32int blocksize);
 ArenaPart	*newarenapart(Part *part, u32int blocksize, u32int tabsize);
