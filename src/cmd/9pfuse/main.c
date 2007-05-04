@@ -777,7 +777,7 @@ fuseread(FuseMsg *m)
 	if(n > fusemaxwrite)
 		n = fusemaxwrite;
 	buf = emalloc(n);
-	n = fsread(fid, buf, n);
+	n = fspread(fid, buf, n, in->offset);
 	if(n < 0){
 		free(buf);
 		replyfuseerrstr(m);
@@ -904,7 +904,7 @@ fusewrite(FuseMsg *m)
 		replyfuseerrno(m, EINVAL);
 		return;
 	}
-	n = fswrite(fid, a, in->size);
+	n = fspwrite(fid, a, in->size, in->offset);
 	if(n < 0){
 		replyfuseerrstr(m);
 		return;
