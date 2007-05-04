@@ -528,7 +528,7 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 		a[3] = _x.compoundtext;
 
 		XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
-			8, PropModeReplace, (uchar*)a, sizeof a);
+			8*sizeof(a[0]), PropModeReplace, (uchar*)a, nelem(a));
 	}else if(xe->target == XA_STRING 
 	|| xe->target == _x.utf8string 
 	|| xe->target == _x.text 
