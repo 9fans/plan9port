@@ -13,6 +13,7 @@ initfilt(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf, char *type, cha
 	int p[2];
 	char xbuf[8192];
 	int n;
+	char template[] = "/tmp/pagecvtXXXXXXXXX";
 
 	if(argc > 1) {
 		fprint(2, "can only view one %s file at a time\n", type);
@@ -31,7 +32,7 @@ initfilt(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf, char *type, cha
 		p[1] = open("/dev/null", ORDWR);
 	}
 
-	ofd = opentemp("/tmp/pagecvtXXXXXXXXX");
+	ofd = opentemp(template);
 	switch(fork()){
 	case -1:
 		fprint(2, "fork fails: %r\n");
@@ -100,7 +101,7 @@ initdvi(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 Document*
 inittroff(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 {
-	return initfilt(b, argc, argv, buf, nbuf, "troff", "lp -dstdout", 1);
+	return initfilt(b, argc, argv, buf, nbuf, "troff", "9 tr2post | 9 psfonts", 1);
 }
 
 Document*
