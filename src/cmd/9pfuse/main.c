@@ -610,7 +610,7 @@ _fusecreate(uvlong nodeid, char *name, int perm, int ismkdir, int omode, struct 
 		*err = errstr2errno();
 		return nil;
 	}
-	if(fsfcreate(newfid, name, perm, omode) < 0){
+	if(fsfcreate(newfid, name, omode, perm) < 0){
 		*err = errstr2errno();
 		fsclose(newfid);
 		return nil;
