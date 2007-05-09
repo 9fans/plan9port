@@ -672,7 +672,9 @@ fusecreate(FuseMsg *m)
 	in = m->tx;
 	flags = in->flags;
 	openmode = in->flags&3;
+	flags &= ~3;
 	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE);
+	flags &= ~(O_CREAT|O_TRUNC);	/* huh? */
 	if(flags){
 		fprint(2, "bad mode %#uo\n", in->flags);
 		replyfuseerrno(m, EACCES);
