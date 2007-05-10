@@ -285,14 +285,15 @@ flsetselect(Flayer *l, long p0, long p1)
 	flfp0p1(l, &fp0, &fp1, &ticked);
 	if(fp0==l->f.p0 && fp1==l->f.p1){
 		if(l->f.ticked != ticked)
-			frdrawseltick(&l->f, frptofchar(&l->f, fp0), fp0, fp1, 1, ticked);
+			frtick(&l->f, frptofchar(&l->f, fp0), ticked);
 		return;
 	}
 
 	if(fp1<=l->f.p0 || fp0>=l->f.p1 || l->f.p0==l->f.p1 || fp0==fp1){
 		/* no overlap or trivial repainting */
 		frdrawsel(&l->f, frptofchar(&l->f, l->f.p0), l->f.p0, l->f.p1, 0);
-		frdrawsel(&l->f, frptofchar(&l->f, fp0), fp0, fp1, 1);
+		if(fp0 != fp1 || ticked)
+			frdrawsel(&l->f, frptofchar(&l->f, fp0), fp0, fp1, 1);
 		goto Refresh;
 	}
 	/* the current selection and the desired selection overlap and are both non-empty */
@@ -323,7 +324,7 @@ flfp0p1(Flayer *l, ulong *pp0, ulong *pp1, int *ticked)
 {
 	long p0 = l->p0-l->origin, p1 = l->p1-l->origin;
 
-	*ticked = 1;
+	*ticked = p0 == p1;
 	if(p0 < 0){
 		*ticked = 0;
 		p0 = 0;
@@ -429,7 +430,8 @@ flprepare(Flayer *l)
 		frinsert(f, r, r+n, (ulong)0);
 		frdrawsel(f, frptofchar(f, f->p0), f->p0, f->p1, 0);
 		flfp0p1(l, &f->p0, &f->p1, &ticked);
-		frdrawseltick(f, frptofchar(f, f->p0), f->p0, f->p1, 1, ticked);
+		if(f->p0 != f->p1 || ticked)
+			frdrawsel(f, frptofchar(f, f->p0), f->p0, f->p1, 1);
 		l->lastsr = ZR;
 		scrdraw(l, scrtotal(l));
 	}
