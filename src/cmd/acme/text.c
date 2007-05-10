@@ -1122,7 +1122,7 @@ selrestore(Frame *f, Point pt0, uint p0, uint p1)
 void
 textsetselect(Text *t, uint q0, uint q1)
 {
-	int p0, p1;
+	int p0, p1, ticked;
 
 	/* t->fr.p0 and t->fr.p1 are always right; t->q0 and t->q1 may be off */
 	t->q0 = q0;
@@ -1130,21 +1130,30 @@ textsetselect(Text *t, uint q0, uint q1)
 	/* compute desired p0,p1 from q0,q1 */
 	p0 = q0-t->org;
 	p1 = q1-t->org;
-	if(p0 < 0)
+	ticked = 1;
+	if(p0 < 0){
+		ticked = 0;
 		p0 = 0;
+	}
 	if(p1 < 0)
 		p1 = 0;
 	if(p0 > t->fr.nchars)
 		p0 = t->fr.nchars;
-	if(p1 > t->fr.nchars)
+	if(p1 > t->fr.nchars){
+		ticked = 0;
 		p1 = t->fr.nchars;
-	if(p0==t->fr.p0 && p1==t->fr.p1)
+	}
+	if(p0==t->fr.p0 && p1==t->fr.p1){
+		if(p0 == p1 && ticked != t->fr.ticked)
+			frtick(&t->fr, frptofchar(&t->fr, p0), ticked);
 		return;
+	}
 	/* screen disagrees with desired selection */
 	if(t->fr.p1<=p0 || p1<=t->fr.p0 || p0==p1 || t->fr.p1==t->fr.p0){
 		/* no overlap or too easy to bother trying */
 		frdrawsel(&t->fr, frptofchar(&t->fr, t->fr.p0), t->fr.p0, t->fr.p1, 0);
-		frdrawsel(&t->fr, frptofchar(&t->fr, p0), p0, p1, 1);
+		if(p0 != p1 || ticked)
+			frdrawsel(&t->fr, frptofchar(&t->fr, p0), p0, p1, 1);
 		goto Return;
 	}
 	/* overlap; avoid unnecessary painting */
