@@ -26,11 +26,18 @@ __NaN(void)
 int
 __isNaN(double d)
 {
+	/*
+	 * Used to just say x = *(uvlong*)&d,
+	 * but gcc miscompiles that!
+	 */
+	union {
+		uvlong i;
+		double f;
+	} u;
 	uvlong x;
-	double *p;
-
-	p = &d;
-	x = *(uvlong*)p;
+	
+	u.f = d;
+	x = u.i;
 	/* IEEE 754: exponent bits 0x7FF and non-zero mantissa */
 	return (x&uvinf) == uvinf && (x&~uvneginf) != 0;
 }
