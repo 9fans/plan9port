@@ -32,7 +32,7 @@ nbytes(char *s0, int nr)
 }
 
 void
-frdrawseltick(Frame *f, Point pt, ulong p0, ulong p1, int issel, int ticked)
+frdrawsel(Frame *f, Point pt, ulong p0, ulong p1, int issel)
 {
 	Image *back, *text;
 
@@ -40,7 +40,7 @@ frdrawseltick(Frame *f, Point pt, ulong p0, ulong p1, int issel, int ticked)
 		frtick(f, frptofchar(f, f->p0), 0);
 
 	if(p0 == p1){
-		frtick(f, pt, issel && ticked);
+		frtick(f, pt, issel);
 		return;
 	}
 
@@ -53,12 +53,6 @@ frdrawseltick(Frame *f, Point pt, ulong p0, ulong p1, int issel, int ticked)
 	}
 
 	frdrawsel0(f, pt, p0, p1, back, text);
-}
-
-void
-frdrawsel(Frame *f, Point pt, ulong p0, ulong p1, int issel)
-{
-	frdrawseltick(f, pt, p0, p1, issel, issel);
 }
 
 void
