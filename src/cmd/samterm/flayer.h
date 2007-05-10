@@ -28,7 +28,7 @@ struct Flayer
 void	flborder(Flayer*, int);
 void	flclose(Flayer*);
 void	fldelete(Flayer*, long, long);
-void	flfp0p1(Flayer*, ulong*, ulong*);
+void	flfp0p1(Flayer*, ulong*, ulong*, int*);
 void	flinit(Flayer*, Rectangle, Font*, Image**);
 void	flinsert(Flayer*, Rune*, Rune*, long);
 void	flnew(Flayer*, Rune *(*fn)(Flayer*, long, ulong*), int, void*);
