@@ -70,14 +70,16 @@ static int
 isdisk(struct stat *st)
 {
 	char *name;
-	int i;
+	int i, len;
 	
 	if(!S_ISCHR(st->st_mode))
 		return 0;
 	name = devname(st->st_rdev, S_IFCHR);
-	for(i=0; i<nelem(diskdev); i++)
-		if(strcmp(diskdev[i], name) == 0)
+	for(i=0; i<nelem(diskdev); i++){
+		len = strlen(diskdev[i]);
+		if(strncmp(diskdev[i], name, len) == 0 && isdigit((uchar)name[len]))
 			return 1;
+	}
 	return 0;
 }
 #endif
