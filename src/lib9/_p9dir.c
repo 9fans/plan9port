@@ -10,6 +10,10 @@
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <sys/disklabel.h>
 #include <sys/ioctl.h>
+#define _HAVEDISKLABEL
+#endif
+
+#if defined(__OpenBSD__)
 static int diskdev[] = {
 	151,	/* aacd */
 	116,	/* ad */
@@ -41,8 +45,43 @@ isdisk(struct stat *st)
 			return 1;
 	return 0;
 }
-#define _HAVEDISKLABEL
 #endif
+
+#if defined(__FreeBSD__)	/* maybe OpenBSD too? */
+char *diskdev[] = {
+	"aacd",
+	"ad",
+	"ar",
+	"afd",
+	"amrd",
+	"da",
+	"fla",
+	"idad",
+	"md",
+	"mlxd",
+	"pst",
+	"twed",
+	"vn",
+	"wd",
+	"wfd",
+	"da",
+};
+static int
+isdisk(struct stat *st)
+{
+	char *name;
+	int i;
+	
+	if(!S_ISCHR(st->st_mode))
+		return 0;
+	name = devname(st->st_rdev, S_IFCHR);
+	for(i=0; i<nelem(diskdev); i++)
+		if(strcmp(diskdev[i], name) == 0)
+			return 1;
+	return 0;
+}
+#endif
+
 
 #if defined(__linux__)
 #include <linux/hdreg.h>
