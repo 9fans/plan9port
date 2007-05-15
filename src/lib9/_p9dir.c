@@ -7,13 +7,16 @@
 #include <pwd.h>
 #include <grp.h>
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#if defined(__FreeBSD__)
+#include <sys/disk.h>
 #include <sys/disklabel.h>
 #include <sys/ioctl.h>
-#define _HAVEDISKLABEL
 #endif
 
 #if defined(__OpenBSD__)
+#include <sys/disklabel.h>
+#include <sys/ioctl.h>
+#define _HAVEDISKLABEL
 static int diskdev[] = {
 	151,	/* aacd */
 	116,	/* ad */
@@ -249,7 +252,18 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 			close(fd);
 		}
 #endif
-#ifdef _HAVEDISKLABEL
+#if defined(__FreeBSD__)
+		if(isdisk(st)){
+			int fd;
+			off_t mediasize;
+			
+			if((fd = open(name, O_RDONLY)) >= 0){
+				if(ioctl(fd, DIOCGMEDIASIZE, &mediasize) >= 0)
+					d->length = mediasize;
+				close(fd);
+			}
+		}
+#elif defined(_HAVEDISKLABEL)
 		if(isdisk(st)){
 			int fd, n;
 			struct disklabel lab;
