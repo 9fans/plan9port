@@ -58,7 +58,7 @@ regexec1(Reprog *progp,	/* program to run */
 				p = utfrune(s, '\n');
 				if(p == 0 || s == j->eol)
 					return match;
-				s = p;
+				s = p+1;
 				break;
 			}
 		}

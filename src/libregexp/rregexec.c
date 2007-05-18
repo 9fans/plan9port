@@ -25,6 +25,7 @@ rregexec1(Reprog *progp,	/* program to run */
 	Relist* tle;		/* ends of this and next list */
 	Relist* nle;
 	int match;
+	Rune *p;
 
 	match = 0;
 	checkstart = j->startchar;
@@ -44,20 +45,18 @@ rregexec1(Reprog *progp,	/* program to run */
 		if(checkstart) {
 			switch(j->starttype) {
 			case RUNE:
-				while(*s != j->startchar) {
-					if(*s == 0 || s == j->reol)
-						return match;
-					s++;
-				}
+				p = runestrchr(s, j->startchar);
+				if(p == 0 || p == j->eol)
+					return match;
+				s = p;
 				break;
 			case BOL:
 				if(s == bol)
 					break;
-				while(*s != '\n') {
-					if(*s == 0 || s == j->reol)
-						return match;
-					s++;
-				}
+				p = runestrchr(s, '\n');
+				if(p == 0 || s == j->reol)
+					return match;
+				s = p+1;
 				break;
 			}
 		}
