@@ -6,13 +6,13 @@
  * Plan 9 additions:
  *	-A file exists and is append-only
  *	-L file exists and is exclusive-use
+ *	-T file exists and is temporary
  */
 
 #include <u.h>
 #include <libc.h>
-#define EQ(a,b)	((tmp=a)==0?0:(strcmp(tmp,b)==0))
 
-extern int isatty(int); /* <unistd.h> */
+#define EQ(a,b)	((tmp=a)==0?0:(strcmp(tmp,b)==0))
 
 int	ap;
 int	ac;
@@ -23,14 +23,21 @@ void	synbad(char *, char *);
 int	fsizep(char *);
 int	isdir(char *);
 int	isreg(char *);
+int	isatty(int);
 int	isint(char *, int *);
+int	isolder(char *, char *);
+int	isolderthan(char *, char *);
+int	isnewerthan(char *, char *);
 int	hasmode(char *, ulong);
 int	tio(char *, int);
 int	e(void), e1(void), e2(void), e3(void);
+char	*nxtarg(int);
 
 void
 main(int argc, char *argv[])
 {
+	int r;
+	char *c;
 
 	ac = argc; av = argv; ap = 1;
 	if(EQ(argv[0],"[")) {
@@ -38,8 +45,16 @@ main(int argc, char *argv[])
 			synbad("] missing","");
 	}
 	argv[ac] = 0;
-	if (ac<=1) exits("usage");
-	exits(e()?0:"false");
+	if (ac<=1)
+		exits("usage");
+	r = e();
+	/*
+	 * nice idea but short-circuit -o and -a operators may have
+	 * not consumed their right-hand sides.
+	 */
+	if(0 && (c = nxtarg(1)) != nil)
+		synbad("unexpected operator/operand: ", c);
+	exits(r?0:"false");
 }
 
 char *
@@ -66,27 +81,32 @@ nxtintarg(int *pans)
 }
 
 int
-e(void) {
+e(void)
+{
 	int p1;
 
 	p1 = e1();
-	if (EQ(nxtarg(1), "-o")) return(p1 || e());
+	if (EQ(nxtarg(1), "-o"))
+		return(p1 || e());
 	ap--;
 	return(p1);
 }
 
 int
-e1(void) {
+e1(void)
+{
 	int p1;
 
 	p1 = e2();
-	if (EQ(nxtarg(1), "-a")) return (p1 && e1());
+	if (EQ(nxtarg(1), "-a"))
+		return (p1 && e1());
 	ap--;
 	return(p1);
 }
 
 int
-e2(void) {
+e2(void)
+{
 	if (EQ(nxtarg(0), "!"))
 		return(!e2());
 	ap--;
@@ -94,16 +114,16 @@ e2(void) {
 }
 
 int
-e3(void) {
-	int p1;
-	char *a;
-	char *p2;
-	int int1, int2;
+e3(void)
+{
+	int p1, int1, int2;
+	char *a, *p2;
 
 	a = nxtarg(0);
 	if(EQ(a, "(")) {
 		p1 = e();
-		if(!EQ(nxtarg(0), ")")) synbad(") expected","");
+		if(!EQ(nxtarg(0), ")"))
+			synbad(") expected","");
 		return(p1);
 	}
 
@@ -112,6 +132,9 @@ e3(void) {
 
 	if(EQ(a, "-L"))
 		return(hasmode(nxtarg(0), DMEXCL));
+
+	if(EQ(a, "-T"))
+		return(hasmode(nxtarg(0), DMTMP));
 
 	if(EQ(a, "-f"))
 		return(isreg(nxtarg(0)));
@@ -147,10 +170,12 @@ e3(void) {
 		return(fsizep(nxtarg(0)));
 
 	if(EQ(a, "-t"))
-		if(ap>=ac || !nxtintarg(&int1))
+		if(ap>=ac)
 			return(isatty(1));
-		else
+		else if(nxtintarg(&int1))
 			return(isatty(int1));
+		else
+			synbad("not a valid file descriptor number ", "");
 
 	if(EQ(a, "-n"))
 		return(!EQ(nxtarg(0), ""));
@@ -166,8 +191,17 @@ e3(void) {
 	if(EQ(p2, "!="))
 		return(!EQ(nxtarg(0), a));
 
+	if(EQ(p2, "-older"))
+		return(isolder(nxtarg(0), a));
+
+	if(EQ(p2, "-ot"))
+		return(isolderthan(nxtarg(0), a));
+
+	if(EQ(p2, "-nt"))
+		return(isnewerthan(nxtarg(0), a));
+
 	if(!isint(a, &int1))
-		return(!EQ(a,""));
+		synbad("unexpected operator/operand: ", p2);
 
 	if(nxtintarg(&int2)){
 		if(EQ(p2, "-eq"))
@@ -201,9 +235,10 @@ localstat(char *f, Dir *dir)
 	Dir *d;
 
 	d = dirstat(f);
-	if(d == 0)
+	if(d == nil)
 		return(-1);
 	*dir = *d;
+	free(d);
 	dir->name = 0;
 	dir->uid = 0;
 	dir->gid = 0;
@@ -218,9 +253,10 @@ localfstat(int f, Dir *dir)
 	Dir *d;
 
 	d = dirfstat(f);
-	if(d == 0)
+	if(d == nil)
 		return(-1);
 	*dir = *d;
+	free(d);
 	dir->name = 0;
 	dir->uid = 0;
 	dir->gid = 0;
@@ -259,6 +295,18 @@ isreg(char *f)
 }
 
 int
+isatty(int fd)
+{
+	Dir d1, d2;
+
+	if(localfstat(fd, &d1) < 0)
+		return 0;
+	if(localstat("/dev/cons", &d2) < 0)
+		return 0;
+	return d1.type==d2.type && d1.dev==d2.dev && d1.qid.path==d2.qid.path;
+}
+
+int
 fsizep(char *f)
 {
 	Dir dir;
@@ -289,4 +337,73 @@ isint(char *s, int *pans)
 
 	*pans = strtol(s, &ep, 0);
 	return (*ep == 0);
+}
+
+int
+isolder(char *pin, char *f)
+{
+	char *p = pin;
+	ulong n, m;
+	Dir dir;
+
+	if(localstat(f,&dir)<0)
+		return(0);
+
+	/* parse time */
+	n = 0;
+	while(*p){
+		m = strtoul(p, &p, 0);
+		switch(*p){
+		case 0:
+			n = m;
+			break;
+		case 'y':
+			m *= 12;
+			/* fall through */
+		case 'M':
+			m *= 30;
+			/* fall through */
+		case 'd':
+			m *= 24;
+			/* fall through */
+		case 'h':
+			m *= 60;
+			/* fall through */
+		case 'm':
+			m *= 60;
+			/* fall through */
+		case 's':
+			n += m;
+			p++;
+			break;
+		default:
+			synbad("bad time syntax, ", pin);
+		}
+	}
+
+	return(dir.mtime+n < time(0));
+}
+
+int
+isolderthan(char *a, char *b)
+{
+	Dir ad, bd;
+
+	if(localstat(a, &ad)<0)
+		return(0);
+	if(localstat(b, &bd)<0)
+		return(0);
+	return ad.mtime > bd.mtime;
+}
+
+int
+isnewerthan(char *a, char *b)
+{
+	Dir ad, bd;
+
+	if(localstat(a, &ad)<0)
+		return(0);
+	if(localstat(b, &bd)<0)
+		return(0);
+	return ad.mtime < bd.mtime;
 }
