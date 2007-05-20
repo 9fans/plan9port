@@ -3,6 +3,7 @@
 
 int touch(int, char *);
 ulong now;
+int tflag;
 
 void
 usage(void)
@@ -20,6 +21,7 @@ main(int argc, char **argv)
 	now = time(0);
 	ARGBEGIN{
 	case 't':
+		tflag = 1;
 		now = strtoul(EARGF(usage()), 0, 0);
 		break;
 	case 'c':
@@ -52,11 +54,15 @@ touch(int nocreate, char *name)
 		fprint(2, "touch: %s: cannot wstat: %r\n", name);
 		return 1;
 	}
-	if ((fd = create(name, OREAD, 0666)) < 0) {
+	if((fd = create(name, OREAD, 0666)) < 0) {
 		fprint(2, "touch: %s: cannot create: %r\n", name);
 		return 1;
 	}
-	dirfwstat(fd, &stbuff);
+	if(tflag && dirfwstat(fd, &stbuff) < 0){
+		fprint(2, "touch: %s: cannot wstat: %r\n", name);
+		close(fd);
+		return 1;
+	}
 	close(fd);
 	return 0;
 }
