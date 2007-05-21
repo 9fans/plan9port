@@ -12,6 +12,8 @@
 #include <u.h>
 #include <libc.h>
 
+#define isatty plan9_isatty
+
 #define EQ(a,b)	((tmp=a)==0?0:(strcmp(tmp,b)==0))
 
 int	ap;
