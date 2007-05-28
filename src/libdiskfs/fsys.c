@@ -10,6 +10,7 @@ int allowall;
 static Fsys *(*opentab[])(Disk*) =
 {
 	fsysopenffs,
+	fsysopenhfs,
 	fsysopenkfs,
 	fsysopenext2,
 	fsysopenfat,

@@ -77,6 +77,7 @@ Block*	diskread(Disk *disk, u32int, u64int offset);
 int		disksync(Disk *disk);
 
 Fsys*	fsysopenffs(Disk*);
+Fsys*	fsysopenhfs(Disk*);
 Fsys*	fsysopenkfs(Disk*);
 Fsys*	fsysopenext2(Disk*);
 Fsys*	fsysopenfat(Disk*);

@@ -67,5 +67,5 @@ diskpartabandon(Disk *d)
 {
 	if(d->_read != diskpartread)
 		abort();
-	d->subdisk = nil;
+	((DiskPart*)d)->subdisk = nil;
 }
