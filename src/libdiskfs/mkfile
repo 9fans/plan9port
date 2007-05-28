@@ -11,6 +11,7 @@ FSOFILES=\
 DISKOFILES=\
 	cache.$O\
 	file.$O\
+	part.$O\
 	venti.$O\
 
 OFILES=\
