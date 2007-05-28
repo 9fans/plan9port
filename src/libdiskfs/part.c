@@ -28,7 +28,9 @@ diskpartsync(Disk *dd)
 {
 	DiskPart *d = (DiskPart*)dd;
 	
-	return disksync(d->subdisk);
+	if(d->subdisk)
+		return disksync(d->subdisk);
+	return 0;
 }
 
 static void
@@ -36,12 +38,13 @@ diskpartclose(Disk *dd)
 {
 	DiskPart *d = (DiskPart*)dd;
 	
-	diskclose(d->subdisk);
+	if(d->subdisk)
+		diskclose(d->subdisk);
 	free(d);
 }
 
 Disk*
-diskpart(Disk *subdisk, u64int size, u64int offset)
+diskpart(Disk *subdisk, u64int offset, u64int size)
 {
 	DiskPart *d;
 	
@@ -57,4 +60,12 @@ diskpart(Disk *subdisk, u64int size, u64int offset)
 	d->disk._close = diskpartclose;
 	
 	return &d->disk;
+}
+
+void
+diskpartabandon(Disk *d)
+{
+	if(d->_read != diskpartread)
+		abort();
+	d->subdisk = nil;
 }
