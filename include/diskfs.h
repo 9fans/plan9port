@@ -69,6 +69,7 @@ Disk*	diskcache(Disk*, uint, uint);
 Disk*	diskopenventi(struct VtCache*, uchar*);
 Disk*	diskopenfile(char *file);
 Disk*	diskpart(Disk*, u64int offset, u64int count);
+void		diskpartabandon(Disk*);
 
 Disk*	diskopen(char *file);
 void		diskclose(Disk *disk);
