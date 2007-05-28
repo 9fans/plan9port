@@ -36,6 +36,7 @@ blockdump(Block *bb, char *desc)
 		p += 16;
 		Bprint(&b, "\n");
 	}
+	Bterm(&b);
 }
 
 void
