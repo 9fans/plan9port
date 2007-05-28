@@ -283,7 +283,7 @@ ext2sync(Fsys *fsys)
 
 	fsys->blocksize = fs->blocksize;
 	fsys->nblock = fs->nblock;
-	fprint(2, "ext2 %d %d-byte blocks, first data block %d, %d groups of %d\n",
+	if(debug) fprint(2, "ext2 %d %d-byte blocks, first data block %d, %d groups of %d\n",
 		fs->nblock, fs->blocksize, fs->firstblock, fs->ngroup, fs->blockspergroup);
 
 	if(0){
