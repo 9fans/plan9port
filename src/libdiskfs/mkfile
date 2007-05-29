@@ -6,6 +6,7 @@ FSOFILES=\
 	ext2.$O\
 	fat.$O\
 	ffs.$O\
+	hfs.$O\
 	kfs.$O\
 
 DISKOFILES=\
@@ -31,4 +32,6 @@ CFLAGS=$CFLAGS
 %.acid: %.$O %.c
 	$CC $CFLAGS -a $stem.c >$stem.acid
 
+ext2.$O: ext2.h
 ffs.$O: ffs.h
+hfs.$O: hfs.h
