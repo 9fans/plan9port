@@ -17,7 +17,7 @@ diskpartread(Disk *dd, u32int len, u64int offset)
 	DiskPart *d = (DiskPart*)dd;
 
 	if(offset+len > d->size){
-		werrstr("read past region %llud + %lud > %llud", offset, len, d->size);
+		werrstr("read past end of partition %llud + %lud > %llud", offset, len, d->size);
 		return nil;
 	}
 	return diskread(d->subdisk, len, offset+d->offset);
