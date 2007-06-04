@@ -1181,7 +1181,8 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 				n = n->parent;
 		}
 		fid.fsys = n->fsys;
-		fid.fsyshandle = n->fsyshandle;
+		if(!n->isblackhole)
+			fid.fsyshandle = n->fsyshandle;
 		fid.cnode = n;
 	}
 	fidtohandle(&fid, nh);
