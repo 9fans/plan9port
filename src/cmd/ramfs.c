@@ -762,10 +762,8 @@ newfid(int fid)
 
 	ff = 0;
 	for(f = fids; f; f = f->next)
-		if(f->fid == fid){
-fprint(2, "got fid %d busy=%d\n", fid, f->busy);
+		if(f->fid == fid)
 			return f;
-		}
 		else if(!ff && !f->busy)
 			ff = f;
 	if(ff){
