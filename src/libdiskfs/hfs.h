@@ -65,6 +65,9 @@ enum
 	Extentlen = 8,		/* Extent */
 	Ndlen = 14,		/* Node */
 	Folderlen = 88, Filelen = 248,		/* Inode */
+	Adlen = 82,		/* Apple double header */
+		Fioff = 50,
+	Filen = 32,		/* Finder info */
 
 	/* values in Node.type */
 	LeafNode = -1, IndexNode, HeaderNode, MapNode,
@@ -113,6 +116,7 @@ struct Fork
 struct Inode
 {
 	u32int	cnid;
+	u64int	fileid;		/* in memory only */
 	u32int	mtime;		/* modification */
 	u32int	ctime;		/* attribute modification */
 	u32int	atime;		/* access */
@@ -124,7 +128,12 @@ struct Inode
 		u32int	nentries;		/* directories */
 		struct{		/* files */
 			Fork	dfork;
-			/*Fork rfork;*/
+			Fork	rfork;
+			uchar	info[Filen];
+
+			/* in memory only */
+			int	nhdr;		/* 0 or Adlen */
+			Fork	*fork;		/* dfork or rfork */
 		};
 	};
 };
@@ -204,7 +213,6 @@ struct Hfs
 	Fork	catalogfork;
 	Tree	extents;		/* Extentkey -> Extent[NEXTENT] */
 	Tree	catalog;		/* Catalogkey -> Catalogkey + Inode */
-	int	wrapper;		/* HFS wrapper used? */
 	Disk	*disk;
 	Fsys	*fsys;
 };

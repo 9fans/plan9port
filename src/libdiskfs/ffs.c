@@ -696,6 +696,7 @@ ffsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int cook
 		return ok;
 
 	if(cookie >= ino.size){
+		*peof = 1;
 		*pcount = 0;
 		*pdata = 0;
 		return Nfs3Ok;
