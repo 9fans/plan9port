@@ -647,7 +647,7 @@ execute(File *f, Posn startp, Posn eof)
 				/* evaluate right choice later */
 				if(++ntl >= NLIST)
 					goto Overflow;
-				addinst(tlp, inst->right, &tlp->se);
+				addinst(tl, inst->right, &tlp->se);
 				/* efficiency: advance and re-evaluate */
 				inst = inst->left;
 				goto Switchstmt;

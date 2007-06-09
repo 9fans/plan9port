@@ -668,7 +668,7 @@ rxexecute(Text *t, Rune *r, uint startp, uint eof, Rangeset *rp)
 				/* evaluate right choice later */
 				if(++ntl >= NLIST)
 					goto Overflow;
-				addinst(tlp, inst->u.right, &tlp->se);
+				addinst(tl, inst->u.right, &tlp->se);
 				/* efficiency: advance and re-evaluate */
 				inst = inst->u1.left;
 				goto Switchstmt;
