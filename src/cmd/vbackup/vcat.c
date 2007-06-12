@@ -64,7 +64,7 @@ threadmain(int argc, char **argv)
 				fprint(2, "error writing block %lud: %r\n", i);
 			n++;
 			blockput(b);
-		}else if(zerotoo)
+		}else if(zerotoo || i==fsys->nblock-1)
 			if(pwrite(1, zero, fsys->blocksize,
 			    (u64int)fsys->blocksize*i) != fsys->blocksize)
 				fprint(2, "error writing block %lud: %r\n", i);
