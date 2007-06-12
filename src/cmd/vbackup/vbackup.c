@@ -7,6 +7,7 @@
  *	-D	print debugging
  *	-f	'fast' writes - skip write if block exists on server
  *	-m	set mount name
+ *	-M	set mount place
  *	-n	nop -- don't actually write blocks
  *	-s	print status updates
  *	-v	print debugging trace
@@ -83,19 +84,19 @@ void		fsysproc(void*);
 void		statusproc(void*);
 void		ventiproc(void*);
 int		timefmt(Fmt*);
-char*	mountplace(char *dev);
+char*	guessmountplace(char *dev);
 
 void
 usage(void)
 {
-	fprint(2, "usage: vbackup [-DVnv] [-m mtpt] [-s secs] [-w n] disk [score]\n");
+	fprint(2, "usage: vbackup [-DVnv] [-m mtpt] [-M mtpl] [-s secs] [-w n] disk [score]\n");
 	threadexitsall("usage");
 }
 
 void
 threadmain(int argc, char **argv)
 {
-	char *pref, *mountname;
+	char *pref, *mountname, *mountplace;
 	uchar score[VtScoreSize], prev[VtScoreSize];
 	int i, fd, csize;
 	vlong bsize;
@@ -112,6 +113,7 @@ threadmain(int argc, char **argv)
 	fmtinstall('V', vtscorefmt);
 
 	mountname = sysname();
+	mountplace = nil;
 	ARGBEGIN{
 	default:
 		usage();
@@ -127,6 +129,12 @@ threadmain(int argc, char **argv)
 		break;
 	case 'm':
 		mountname = EARGF(usage());
+		break;
+	case 'M':
+		mountplace = EARGF(usage());
+		i = strlen(mountplace);
+		if(i > 0 && mountplace[i-1] == '/')
+			mountplace[i-1] = 0;
 		break;
 	case 'n':
 		nop = 1;
@@ -289,8 +297,10 @@ threadmain(int argc, char **argv)
 	qfree(qventi);
 
 	if(statustime)
-		print("# %T procs exited: %d blocks changed, %d read, %d written, %d skipped, %d copied\n",
-			nchange, vtcachenread, vtcachenwrite, nskip, vtcachencopy);
+		print("# %T procs exited: %d of %d %d-byte blocks changed, "
+			"%d read, %d written, %d skipped, %d copied\n",
+			nchange, fsys->nblock, fsys->blocksize,
+			vtcachenread, vtcachenwrite, nskip, vtcachencopy);
 
 	/*
 	 * prepare root block
@@ -328,9 +338,11 @@ threadmain(int argc, char **argv)
 	tm = *localtime(time(0));
 	tm.year += 1900;
 	tm.mon++;
+	if(mountplace == nil)
+		mountplace = guessmountplace(argv[0]);
 	print("mount /%s/%d/%02d%02d%s %s:%V %d/%02d%02d/%02d%02d\n",
 		mountname, tm.year, tm.mon, tm.mday, 
-		mountplace(argv[0]),
+		mountplace,
 		root.type, b->score,
 		tm.year, tm.mon, tm.mday, tm.hour, tm.min);
 	print("# %T %s %s:%V\n", argv[0], root.type, b->score);
@@ -549,7 +561,7 @@ timefmt(Fmt *fmt)
 }
 
 char*
-mountplace(char *dev)
+guessmountplace(char *dev)
 {
 	char *cmd, *q;
 	int p[2], fd[3], n;
@@ -561,7 +573,7 @@ mountplace(char *dev)
 	fd[0] = -1;
 	fd[1] = p[1];
 	fd[2] = -1;
-	cmd = smprint("mount | awk '$1==\"%s\" && $2 == \"on\" {print $3}'", dev);
+	cmd = smprint("mount | awk 'BEGIN{v=\"%s\"; u=v; sub(/rdisk/, \"disk\", u);} ($1==v||$1==u) && $2 == \"on\" {print $3}'", dev);
 	if(threadspawnl(fd, "sh", "sh", "-c", cmd, nil) < 0)
 		sysfatal("exec mount|awk (to find mtpt of %s): %r", dev);
 	/* threadspawnl closed p[1] */
