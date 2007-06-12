@@ -8,6 +8,14 @@ back up Unix file systems to Venti
 .B -DVnv
 ]
 [
+.B -M
+.I mtpt
+]
+[
+.B -m
+.I host
+]
+[
 .B -s
 .I secs
 ]
@@ -118,9 +126,24 @@ Turn on debugging output.
 .B -V
 Trace interactions with Venti server.
 .TP
-.B -m \fImntname
-Set backup name:
-this name is used in the printed
+.B -m \fIhost
+.B -M \fImtpt
+Set names used to construct the path in the
+.B mount command.
+The default 
+.I host
+is the name returned by 
+.I sysname
+(see
+.IR getuser (3)).
+The default
+.I mtpt
+is the place where
+.I disk
+is currently mounted.
+.TP
+Set backup mount point:
+this name is also used in the printed
 .B mount
 command.
 The default is the name returned by
@@ -150,7 +173,7 @@ When
 finishes, it prints a single line of the form
 .IP
 .EX
-mount /\fImntname\fL/\fIyyyy\fL/\fImmdd\fL/\fImntpath\fL \fIscore\fL \fIyyyy\fL/\fImmdd\fL/\fIhhmm
+mount /\fIhost\fL/\fIyyyy\fL/\fImmdd\fL/\fImtpt\fL \fIscore\fL \fIyyyy\fL/\fImmdd\fL/\fIhhmm
 .EE
 .LP
 This line is a valid configuration line for
