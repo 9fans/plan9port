@@ -14,6 +14,22 @@
 
 Buffer	snarfbuf;
 
+/*
+ * These functions get called as:
+ *
+ *	fn(et, t, argt, flag1, flag1, flag2, s, n);
+ *
+ * Where the arguments are:
+ *
+ *	et: the Text* in which the executing event (click) occurred
+ *	t: the Text* containing the current selection (Edit, Cut, Snarf, Paste)
+ *	argt: the Text* containing the argument for a 2-1 click.
+ *	e->flag1: from Exectab entry
+ * 	e->flag2: from Exectab entry
+ *	s: the command line remainder (e.g., "x" if executing "Dump x")
+ *	n: length of s  (s is *not* NUL-terminated)
+ */
+
 void doabort(Text*, Text*, Text*, int, int, Rune*, int);
 void	del(Text*, Text*, Text*, int, int, Rune*, int);
 void	delcol(Text*, Text*, Text*, int, int, Rune*, int);
@@ -766,7 +782,12 @@ cut(Text *et, Text *t, Text *_0, int dosnarf, int docut, Rune *_2, int _3)
 	USED(_2);
 	USED(_3);
 
-	/* use current window if snarfing and its selection is non-null */
+	/*
+	 * if not executing a mouse chord (et != t) and snarfing (dosnarf)
+	 * and executed Cut or Snarf in window tag (et->w != nil),
+	 * then use the window body selection or the tag selection
+	 * or do nothing at all.
+	 */
 	if(et!=t && dosnarf && et->w!=nil){
 		if(et->w->body.q1>et->w->body.q0){
 			t = &et->w->body;
@@ -774,11 +795,12 @@ cut(Text *et, Text *t, Text *_0, int dosnarf, int docut, Rune *_2, int _3)
 				filemark(t->file);	/* seq has been incremented by execute */
 		}else if(et->w->tag.q1>et->w->tag.q0)
 			t = &et->w->tag;
+		else
+			t = nil;
 	}
-	if(t == nil){
-		/* can only happen if seltext == nil */
+	if(t == nil)	/* no selection */
 		return;
-	}
+
 	locked = FALSE;
 	if(t->w!=nil && et->w!=t->w){
 		locked = TRUE;
@@ -1008,7 +1030,6 @@ putall(Text *et, Text *_0, Text *_1, int _2, int _3, Rune *_4, int _5)
 void
 id(Text *et, Text *_0, Text *_1, int _2, int _3, Rune *_4, int _5)
 {
-	USED(et);
 	USED(_0);
 	USED(_1);
 	USED(_2);
@@ -1219,6 +1240,13 @@ indentval(Rune *s, int n)
 	return runestrncmp(s, Lon, n) == 0;
 }
 
+static void
+fixindent(Window *w, void *arg)
+{
+	USED(arg);
+	w->autoindent = globalautoindent;
+}
+
 void
 indent(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 {
@@ -1242,17 +1270,10 @@ indent(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 		if(a != arg)
 			autoindent = indentval(arg, narg-na);
 	}
-	if(w != nil){
-		switch(autoindent){
-		case Ion:
-		case Ioff:
-			w->autoindent = autoindent;
-			break;
-		case IGlobal:
-			w->autoindent = globalautoindent;
-			break;
-		}
-	}
+	if(autoindent == IGlobal)
+		allwindows(fixindent, nil);
+	else if(w != nil && autoindent >= 0)
+		w->autoindent = autoindent;
 }
 
 void
