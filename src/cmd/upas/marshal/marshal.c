@@ -907,7 +907,6 @@ mkattach(char *file, char *type, int inline)
 		ftype[n-1] = 0;
 		a->type = estrdup(ftype);
 	}
-fprint(2, "got type %s\n", a->type);
 	close(pfd[1]);
 	procwait(pid);
 
