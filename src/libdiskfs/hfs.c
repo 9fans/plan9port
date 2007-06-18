@@ -2,7 +2,6 @@
 	Copyright (c) 2007 David Swasey; see COPYRIGHT.
 	Limitations:
 		Hfsreaddir skips entries whose names contain NUL.
-		Simulated hard links are ignored.
 		Hfsbadblock is untested.
 */
 
@@ -22,6 +21,7 @@ enum { Rplen = nelem(Rprefix)-1 };
 static int hfssync(Fsys*);
 static int hfswrapper(Fsys*);
 static int hfstreesync(Hfs*, Fork*, Tree*, int);
+static u32int hfsmetadir(Hfs*);
 static void hfsclose(Fsys*);
 static Block* hfsblockread(Fsys*, u64int);
 
@@ -29,7 +29,7 @@ static Nfs3Status hfsroot(Fsys*, Nfs3Handle*);
 static Nfs3Status hfsgetattr(Fsys*, SunAuthUnix*, Nfs3Handle*, Nfs3Attr*);
 static Nfs3Status hfsaccess(Fsys *fsys, SunAuthUnix*, Nfs3Handle *, u32int, u32int*, Nfs3Attr *attr);
 static Nfs3Status hfslookup(Fsys*, SunAuthUnix*, Nfs3Handle*, char*, Nfs3Handle*);
-static Nfs3Status _hfslookup(Hfs*, u32int, char*, Catalogkey*, Treeref*);
+static Nfs3Status _hfslookup(Hfs*, u32int, char*, Treeref*);
 static Nfs3Status hfsreaddir(Fsys *fsys, SunAuthUnix*, Nfs3Handle *h, u32int, u64int, uchar**, u32int*, u1int*);
 static Nfs3Status hfsreadfile(Fsys*, SunAuthUnix*, Nfs3Handle*, u32int, u64int, uchar**, u32int*, u1int*);
 static Nfs3Status hfsreadlink(Fsys*, SunAuthUnix*, Nfs3Handle*, char**);
@@ -206,6 +206,7 @@ hfssync(Fsys *fsys)
 		goto error;
 	if(hfstreesync(fs, &fs->catalogfork, &fs->catalog, sensitive) < 0)
 		goto error;
+	fs->hlinkparent = hfsmetadir(fs);
 
 	fsys->blocksize = fs->blocksize;
 	fsys->nblock = fs->nblock;
@@ -256,6 +257,33 @@ error:
 	werrstr("bad tree %ud header", fork->cnid);
 	blockput(b);
 	return -1;
+}
+
+static u32int
+hfsmetadir(Hfs *fs)
+{
+	static Rune name[] = {0,0,0,0,'H','F','S','+',' ','P','r','i','v','a','t','e',' ','D','a','t','a'};
+	Catalogkey key;
+	Treeref ref;
+	Inode ino;
+
+	key.parent = RootId;
+	key.name.len = nelem(name);
+	memcpy(key.name.name, name, sizeof name);
+	if(hfscatsearch(fs, &key, &ref) < 0)
+		goto notfound;
+	if(getcatalogrecord(&ino, ref.data, ref.dlen) < 0)
+		goto notfound;
+	if((ino.mode&IFMT) != IFDIR)
+		goto notfound;
+	hfsrefput(&ref);
+	if(debug) fprint(2, "metadata directory %ud\n", ino.cnid);
+	return ino.cnid;
+
+notfound:
+	if(debug) fprint(2, "metadata directory not found\n");
+	hfsrefput(&ref);
+	return 0;
 }
 
 static int
@@ -327,6 +355,42 @@ useresource(Inode *ino)
 	ino->fork = &ino->rfork;
 }
 
+static int
+ref2ino(Hfs *fs, Treeref *ref, Inode *ino)
+{
+	static uchar magic[] = {'h','l','n','k','h','f','s','+'};
+	Catalogkey key;
+	Treeref hlink;
+	u32int cnid;
+
+	if(getcatalogrecord(ino, ref->data, ref->dlen) < 0)
+		return -1;
+
+	if((ino->mode&IFMT) == IFREG
+	&& memcmp(ino->info, magic, nelem(magic)) == 0){
+		if(debug) print("iNode%ud...", ino->special);
+		if(fs->hlinkparent == 0)
+			return -1;
+		key.parent = fs->hlinkparent;
+		key.name.len = runesnprint(key.name.name, sizeof key.name.name,
+			"iNode%ud", ino->special);
+		if(hfscatsearch(fs, &key, &hlink) < 0)
+			goto error;
+		cnid = ino->cnid;
+		if(getcatalogrecord(ino, hlink.data, hlink.dlen) < 0)
+			goto error;
+		hfsrefput(&hlink);
+		ino->cnid = cnid;
+		ino->fileid = cnid;
+		ino->nlink = ino->special;
+	}
+	return 0;
+
+error:
+	hfsrefput(&hlink);
+	return -1;
+}
+
 static void
 mkhandle(Nfs3Handle *h, int rsrc, u32int cnid)
 {
@@ -377,7 +441,7 @@ handle2ino(Hfs *fs, Nfs3Handle *h, Treeref *ref, Catalogkey *key, Inode *ino)
 	if(hfscatsearch(fs, key, ref) < 0)
 		goto error;
 	if(ino != nil){
-		if(getcatalogrecord(ino, ref->data, ref->dlen) < 0)
+		if(ref2ino(fs, ref, ino) < 0)
 			goto error;
 		if(rsrc){
 			if(!hasresource(ino)){
@@ -431,7 +495,7 @@ ino2attr(Hfs *fs, Inode *ino, Nfs3Attr *attr)
 	}
 
 	attr->mode = ino->mode&07777;
-	attr->nlink = 1;
+	attr->nlink = ino->nlink;
 	attr->uid = ino->uid;
 	attr->gid = ino->gid;
 	if(attr->type==Nfs3FileReg || attr->type==Nfs3FileSymlink){
@@ -603,14 +667,14 @@ hfslookup(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh
 	}
 
 	rsrc = 0;
-	if((ok = _hfslookup(fs, ino.cnid, name, &key, &ref)) != Nfs3Ok){
+	if((ok = _hfslookup(fs, ino.cnid, name, &ref)) != Nfs3Ok){
 		if(memcmp(name, Rprefix, Rplen)==0
-		&& _hfslookup(fs, ino.cnid, name+Rplen, &key, &ref)==Nfs3Ok)
+		&& _hfslookup(fs, ino.cnid, name+Rplen, &ref)==Nfs3Ok)
 			rsrc = 1;
 		else
 			return ok;
 	}
-	if(getcatalogrecord(&target, ref.data, ref.dlen) < 0)
+	if(ref2ino(fs, &ref, &target) < 0)
 		goto error;
 	hfsrefput(&ref);
 	if(rsrc && !hasresource(&target))
@@ -624,14 +688,15 @@ error:
 }
 
 static Nfs3Status
-_hfslookup(Hfs *fs, u32int parent, char *name, Catalogkey *key, Treeref *ref)
+_hfslookup(Hfs *fs, u32int parent, char *name, Treeref *ref)
 {
+	Catalogkey key;
 	Nfs3Status ok;
 
-	key->parent = parent;
-	if((ok = utf2name(&key->name, name)) != Nfs3Ok)
+	key.parent = parent;
+	if((ok = utf2name(&key.name, name)) != Nfs3Ok)
 		return ok;
-	if(hfscatsearch(fs, key, ref) < 0)
+	if(hfscatsearch(fs, &key, ref) < 0)
 		return Nfs3ErrNoEnt;
 	return Nfs3Ok;
 }
@@ -730,7 +795,7 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 				goto error;
 			if(key.parent != ino.cnid)
 				goto badparent;
-			if(getcatalogrecord(&child, ref.data, ref.dlen) < 0)
+			if(ref2ino(fs, &ref, &child) < 0)
 				goto error;
 		}
 		else if(!hasresource(&child))
@@ -1356,6 +1421,7 @@ getcatalogrecord(Inode *ino, uchar *b, int blen)
 	ino->ctime = gettime(b+20);
 	ino->atime = gettime(b+24);
 	p = b+32;
+	ino->nlink = 1;
 	ino->uid = get32(p+0);
 	ino->gid = get32(p+4);
 	ino->mode = get16(p+10);

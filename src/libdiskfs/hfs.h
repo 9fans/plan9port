@@ -120,6 +120,7 @@ struct Inode
 	u32int	mtime;		/* modification */
 	u32int	ctime;		/* attribute modification */
 	u32int	atime;		/* access */
+	u32int	nlink;		/* in memory only */
 	u32int	uid;
 	u32int	gid;
 	int	mode;
@@ -213,6 +214,7 @@ struct Hfs
 	Fork	catalogfork;
 	Tree	extents;		/* Extentkey -> Extent[NEXTENT] */
 	Tree	catalog;		/* Catalogkey -> Catalogkey + Inode */
+	u32int	hlinkparent;		/* 0 or cnid */
 	Disk	*disk;
 	Fsys	*fsys;
 };
