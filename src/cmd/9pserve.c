@@ -260,6 +260,8 @@ ignorepipe(void *v, char *s)
 		return 1;
 	if(strcmp(s, "sys: tstp") == 0)
 		return 1;
+	if(strcmp(s, "sys: window size change") == 0)
+		return 1;
 	fprint(2, "9pserve %s: %T note: %s\n", addr, s);
 	return 0;
 }
