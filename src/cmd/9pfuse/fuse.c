@@ -838,7 +838,14 @@ mountfuse(char *mtpt)
 	if(pid == 0){
 		snprint(buf, sizeof buf, "%d", fd);
 		putenv("MOUNT_FUSEFS_CALL_BY_LIB", "");
+		/*
+		 * Different versions of MacFUSE put the
+		 * mount_fusefs binary in different places.
+		 * Try both.
+		 */
 		execl("/System/Library/Filesystems/fusefs.fs/mount_fusefs",
+			"mount_fusefs", buf, mtpt, nil);
+		execl("/System/Library/Filesystems/fusefs.fs/Support/mount_fusefs",
 			"mount_fusefs", buf, mtpt, nil);
 		fprint(2, "exec mount_fusefs: %r\n");
 		_exit(1);
