@@ -33,6 +33,7 @@
 
 int debug;
 char *argv0;
+char *aname = "";
 void fusedispatch(void*);
 Channel *fusechan;
 
@@ -57,12 +58,12 @@ double entrytimeout = 1.0;
 
 CFsys *fsys;
 CFid *fsysroot;
-void init9p(char*);
+void init9p(char*, char*);
 
 void
 usage(void)
 {
-	fprint(2, "usage: 9pfuse [-D] [-a attrtimeout] address mtpt\n");
+	fprint(2, "usage: 9pfuse [-D] [-A attrtimeout] [-a aname] address mtpt\n");
 	exit(1);
 }
 
@@ -76,8 +77,11 @@ threadmain(int argc, char **argv)
 		chatty9pclient++;
 		debug++;
 		break;
-	case 'a':
+	case 'A':
 		attrtimeout = atof(EARGF(usage()));
+		break;
+	case 'a':
+		aname = EARGF(usage());
 		break;
 	default:
 		usage();
@@ -93,7 +97,7 @@ threadmain(int argc, char **argv)
 
 	setsid();	/* won't be able to use console, but can't be interrupted */
 
-	init9p(argv[0]);
+	init9p(argv[0], aname);
 	initfuse(argv[1]);
 
 	fusechan = chancreate(sizeof(void*), 0);
@@ -122,13 +126,13 @@ fusereader(void *v)
 }
 
 void
-init9p(char *addr)
+init9p(char *addr, char *spec)
 {
 	int fd;
 
 	if((fd = dial(netmkaddr(addr, "tcp", "564"), nil, nil, nil)) < 0)
 		sysfatal("dial %s: %r", addr);
-	if((fsys = fsmount(fd, "")) == nil)
+	if((fsys = fsmount(fd, spec)) == nil)
 		sysfatal("fsmount: %r");
 	fsysroot = fsroot(fsys);
 }

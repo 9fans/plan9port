@@ -7,12 +7,12 @@
 .B -D
 ]
 [
-.B -a
+.B -A
 .I t
 ]
 [
-.B -e
-.I t
+.B -a
+.I aname
 ]
 .I addr
 .I mtpt
@@ -34,14 +34,14 @@ The options are:
 .B -D
 Print each FUSE and 9P message to standard error.
 .TP
-.B -a\fI t
+.B -a\fI aname
+Use
+.I aname
+as the attach name.
+.TP
+.B -A\fI t
 Set the kernel cache timeout for attribute information
 to 
-.I t
-(default 1.0) seconds.
-.TP
-.B -e\fI t
-Set the kernel cache timeout for directory entries to
 .I t
 (default 1.0) seconds.
 .PD
