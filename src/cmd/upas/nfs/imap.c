@@ -1201,6 +1201,14 @@ unexpected(Imap *z, Sx *sx)
 	}
 }
 
+static int
+alldollars(char *s)
+{
+	for(; *s; s++)
+		if(*s != '$')
+			return 0;
+	return 1;
+}
 
 static void
 xlist(Imap *z, Sx *sx)
@@ -1220,7 +1228,7 @@ xlist(Imap *z, Sx *sx)
 	 * Rename any existing mbox by appending a $.
 	 */
 	inbox = 0;
-	if(strncmp(s, "mbox", 4) == 0){
+	if(strncmp(s, "mbox", 4) == 0 && alldollars(s+4)){
 		t = emalloc(strlen(s)+2);
 		strcpy(t, s);
 		strcat(t, "$");
@@ -1588,6 +1596,7 @@ xmsgbodydata(Msg *msg, Sx *k, Sx *v)
 	/* now name is something like 1 or 3.2.MIME - walk down parts from root */
 	part = msg->part[0];
 
+
 	while('1' <= name[0] && name[0] <= '9'){
 		i = strtol(name, &p, 10);
 		if(*p == '.')
@@ -1602,6 +1611,7 @@ xmsgbodydata(Msg *msg, Sx *k, Sx *v)
 		}
 		name = p;
 	}
+
 
 	if(cistrcmp(name, "") == 0){
 		free(part->raw);

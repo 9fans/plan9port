@@ -55,6 +55,7 @@ enum
 	Qdesc,
 	Qencoding,	/* only here temporarily! */
 	Qcharset,
+	Qfilename,
 	Qraw,
 	Qrawheader,
 	Qrawbody,
@@ -69,7 +70,6 @@ enum
 	Qheader,
 	Qdigest,
 	Qdisposition,
-	Qfilename,
 	Qflags,
 	Qinfo,
 	Qrawunix,
@@ -488,6 +488,7 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 	case Qdesc:
 	case Qencoding:
 	case Qcharset:
+	case Qfilename:
 	case Qraw:
 	case Qrawheader:
 	case Qrawbody:
@@ -772,6 +773,7 @@ boxgen(int i, Dir *d, void *aux)
 	i--;
 	if(i == 0)
 		return filldir(d, Qsearch, box, nil, nil);
+	i--;
 	if(i < box->nsub)
 		return filldir(d, Qbox, box->sub[i], nil, nil);
 	i -= box->nsub;
@@ -798,6 +800,8 @@ static int mimemsgdir[] = {
 static int mimedir[] = {
 	Qtype,
 	Qbody,
+	Qfilename,
+	Qcharset,
 	Qmimeheader,
 	Qraw
 };
