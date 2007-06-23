@@ -327,7 +327,6 @@ delmesg(char *name, char *digest, int dodel, char *save)
 		if(dodel)
 			mesgmenumarkdel(wbox, &mbox, m, 1);
 		else{
-fprint(2, "message is gone...\n");
 			/* notification came from plumber - message is gone */
 			mesgmenudel(wbox, &mbox, m);
 			if(!m->opened)
