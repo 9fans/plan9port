@@ -1743,8 +1743,16 @@ Message*
 icmd(Cmd *x, Message *m)
 {
 	int n;
+	char buf[1024];
+	CFid *fd;
 
 	USED(x);
+	snprint(buf, sizeof buf, "%s/ctl", mbname);
+	fd = fsopen(mailfs, buf, OWRITE);
+	if(fd){
+		fswrite(fd, "refresh", 7);
+		fsclose(fd);
+	}
 	n = dir2message(&top, reverse);
 	if(n > 0)
 		Bprint(&out, "%d new message%s\n", n, plural(n));
