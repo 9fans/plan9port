@@ -327,6 +327,7 @@ delmesg(char *name, char *digest, int dodel, char *save)
 		if(dodel)
 			mesgmenumarkdel(wbox, &mbox, m, 1);
 		else{
+fprint(2, "message is gone...\n");
 			/* notification came from plumber - message is gone */
 			mesgmenudel(wbox, &mbox, m);
 			if(!m->opened)
@@ -443,21 +444,6 @@ mboxcommand(Window *w, char *s)
 		return 1;
 	}
 	if(strcmp(s, "Get") == 0){
-		if(mbox.dirty){
-			mbox.dirty = 0;
-			fprint(2, "mail: mailbox not written\n");
-			return 1;
-		}
-		winsetaddr(w, ",", 1);
-		if(w->data == nil)
-			w->data = winopenfile(w, "data");
-		fswrite(w->data, "", 0);
-		mesgmenu(wbox, &mbox);
-		winclean(wbox);
-		fswrite(mbox.ctlfd, "refresh", 7);
-		return 1;
-	}
-	if(strcmp(s, "Refresh") == 0){
 		fswrite(mbox.ctlfd, "refresh", 7);
 		return 1;
 	}

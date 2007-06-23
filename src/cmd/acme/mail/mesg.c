@@ -561,7 +561,7 @@ mesgmenudel(Window *w, Message *mbox, Message *m)
 
 	if(w->data ==nil)
 		w->data = winopenfile(w, "data");
-	buf = name2regexp(deletedrx, m->name);
+	buf = name2regexp(deletedrx01, m->name);
 	if(winsetaddr(w, buf, 1) && winsetaddr(w, ".,./.*\\n(\t.*\\n)*/", 1))
 		fswrite(w->data, "", 0);
 	free(buf);
