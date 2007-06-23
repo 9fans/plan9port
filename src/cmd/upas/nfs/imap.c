@@ -1369,7 +1369,9 @@ xfetch(Imap *z, Sx *sx)
 			}
 		}
 	}
+/* This happens: too bad.
 	warn("FETCH without UID: %$", sx);
+*/
 	return;
 
 haveuid:
