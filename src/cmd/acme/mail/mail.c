@@ -233,6 +233,7 @@ threadmain(int argc, char *argv[])
 	proccreate(plumbproc, nil, STACK);
 	proccreate(plumbshowproc, nil, STACK);
 	threadcreate(plumbshowthread, nil, STACK);
+	fswrite(mbox.ctlfd, "refresh", 7);
 	/* ... and use this thread to read the messages */
 	plumbthread();
 }
@@ -439,6 +440,25 @@ mboxcommand(Window *w, char *s)
 	}
 	if(strcmp(s, "Put") == 0){
 		rewritembox(wbox, &mbox);
+		return 1;
+	}
+	if(strcmp(s, "Get") == 0){
+		if(mbox.dirty){
+			mbox.dirty = 0;
+			fprint(2, "mail: mailbox not written\n");
+			return 1;
+		}
+		winsetaddr(w, ",", 1);
+		if(w->data == nil)
+			w->data = winopenfile(w, "data");
+		fswrite(w->data, "", 0);
+		mesgmenu(wbox, &mbox);
+		winclean(wbox);
+		fswrite(mbox.ctlfd, "refresh", 7);
+		return 1;
+	}
+	if(strcmp(s, "Refresh") == 0){
+		fswrite(mbox.ctlfd, "refresh", 7);
 		return 1;
 	}
 	if(strcmp(s, "Delmesg") == 0){
