@@ -1,3 +1,159 @@
+# Note: the name listed next to a change sometimes
+# submitted the patch but more often just reported
+# the problem.
+
+June 15, 2007
+	acme(1): fix Snarf bug, change Indent ON to apply to all windows.
+
+June 12, 2007
+	vcat: always write last block, to make disk correct size
+	vbackup: more OS X fixes, add -M flag
+	vbackup(8): document -M
+
+June 9, 2007
+	libregexp, sam, acme: day 1 bug in sam regexp code
+
+June 8, 2007
+	libdiskfs: add HFS resource fork support (David Swasey)
+
+June 5, 2007
+	ramfs: be less chatty
+
+June 3, 2007
+	vbackup: fix dotdot (David Swasey)
+
+May 29, 2007
+	libdiskfs: more HFS fixes (David Swasey)
+	
+May 28, 2007
+	libdiskfs: missing Bterm, make ext2 quieter,
+		add disk partitions, HFS code (David Swasey)
+
+May 21, 2007
+	libregexp: fix pointer comparison warning (Ramon de Vera)
+	test: fix
+	
+May 20, 2007
+	touch: print error if wstat fails
+	libc: use futimes on Linux to implement dirfwstat
+
+May 19, 2007
+	test: import from Plan 9
+
+May 18, 2007
+	libregexp: fix bug about leading ^ in regexp on multiline text (Roger Peppe)
+
+May 15, 2007
+	libc: new media size code for _p9dir on FreeBSD (Lou Kamenov)
+	acme(4): document tab width field in ctl file
+
+May 10, 2007
+	libc: more NaN fixes (rsc)
+		use device names in _p9dir for FreeBSD (Lou Kamenov)
+	acme, samterm: manage off-screen tick better (Bill Cheswick)
+
+May 8, 2007
+	9pfuse: better handling of create (Michael Teichgräber)	
+
+May 7, 2007
+	troff: fix age-old troff crash (Noel Hunt)
+
+May 5, 2007
+	page: fix troff input (Colin DeVilbiss)
+
+May 4, 2007
+	9pfuse: propagate offset in read and write (Michael Teichgräber)
+
+May 3, 2007
+	devdraw: fix UTF-8 snarf problems
+	grep: add undocumented -q flag (Rob Pike)
+	venti: more OS X compatibility
+
+May 2, 2007
+	snoopy: add support for reading pcap files
+	venti: debugging, more bug fixes
+
+May 1, 2007
+	libthread: use standard Sun context routines on SunOS
+	mount: use 9p not 9P as mount type (Michael Kaminsky)
+
+April 27, 2007
+	venti: yet more fixes
+
+April 25, 2007
+	acme: allow swap of column 0 with other columns
+
+April 24, 2007
+	libsunrpc: fix memory leak (Bakul Shah)
+	venti: more fixes
+
+April 22-23, 2007
+	venti: more fixes
+
+April 21, 2007
+	libhttpd: fix chunked-related bugs
+	htmlroff: warn about missing argument to \w
+	mk: fix for Unix port
+	venti: many fixes
+
+April 17, 2007
+	date: put up with longer timezones from strftime %Z (xav@chantry)
+	win: better dump string (Fazlul Shahriar)
+
+April 14, 2007
+	auxstats: better network stats (Jeff Sickel)
+
+April 13, 2007
+	grap: fix double-fclose (Gabi Diaz)
+
+April 12, 2007
+	auxstats: better memory stats on OS X (Jeff Sickel)
+
+April 7, 2007
+	libventi: dangling pointer race fix (Bakul Shah)
+	vbackup: complain loudly about vtwrite failure
+
+April 6, 2007
+	libc: new __isNaN (again)
+	9p(3): remove mention of threading
+
+April 5, 2007
+	libc: new __isNaN (Scott Schwartz)
+
+April 3, 2007
+	adict: fix comment (Arvindht Tamilmani)
+	plumb/basic: plumb all URLs
+	page: finish conversion to libthread (Tim Wiess)
+
+March 28, 2007
+	rc: keep path and PATH in sync again
+
+March 26, 2007
+	9l: cope with new gcc error syntax
+	acme: make :1-1 a valid address (Arvindh Tamilmani)
+	auxstats: fix OpenBSD nit (Chad Dougherty)
+	mk: 64-bit fixes, fix memory errors, fix wait (rsc)
+		better rc detection (Michael Teichgräber)
+		empty string interpolation (Michael Teichgräber)
+	page: import from Plan 9 (Kris Maglione)
+	venti: pad zmagic to better length
+	
+March 25, 2007
+	acme: make Load more faithful to Dump (Peter Canning)
+	adict: parse -d arg correctly (Fazlul Shahriar)
+	cb: Beof ctype bug (Michael Teichgräber)
+	dist/main.html: mention x86 OS X, x86-64 Linux & BSD
+	rc: cope with programs that leave fd in non-blocking mode (Tim Wiess)
+	statusbar: import from Plan 9 (Lou Kamenov)
+	troff2html: use plain char if no translation
+	libdiskfs: add big file support in ext2 (David Swasey)
+	venti/checkarenas: fix argument parsing (David Swasey)
+	vnfs: remove double-free (David Swasey)
+
+March 15, 2007
+	acme: redraw tags only as often as needed (Rob Pike)
+	auxclog: avoid libc conflict on OS X
+
 February 22, 2007
 	9l, devdraw, snarfer: -ldraw no longer implies -lX11
 
