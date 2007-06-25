@@ -2,6 +2,26 @@
 # submitted the patch but more often just reported
 # the problem.
 
+June 24, 2007
+	mailfs: fix subject line in header file.
+
+June 23, 2007
+	mailfs: various IMAP bug fixes
+	Mail: add Get command, refresh at startup,
+		fix deleted messages bug
+	nedmail: refresh at startup, on i and y.
+
+June 20, 2007
+	9pfuse: add -a aname to get at sourcesdump
+
+June 19, 2007
+	9pfuse: the MacFUSE file locations changed again (Rob Pike)
+
+June 18, 2007
+	upas/marshal: remove debugging print
+	9pserve: ignore window resizes (fix really should be elsewhere)
+	libdiskfs: more HFS fixes (David Swasey)
+
 June 15, 2007
 	acme(1): fix Snarf bug, change Indent ON to apply to all windows.
 
