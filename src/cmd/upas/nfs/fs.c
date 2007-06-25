@@ -630,7 +630,7 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 		if(part->hdr->from==nil 
 		|| (part->hdr->replyto && strcmp(part->hdr->replyto, part->hdr->from) != 0))
 			addaddrs(&fmt, "Reply-To", part->hdr->replyto);
-		addaddrs(&fmt, "Subject", part->hdr->subject);
+		fmtprint(&fmt, "Subject: %s\n", part->hdr->subject);
 		s = fmtstrflush(&fmt);
 		if(s == nil)
 			s = estrdup("");
