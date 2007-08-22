@@ -5,4 +5,4 @@ if(~ $#PLAN9 0)
 if(! ~ $path(1) $PLAN9/bin)
 	path=($PLAN9/bin $path)
 
-! ~ $#* 0 && exec $*
+~ $#* 0 || exec $*
