@@ -560,12 +560,12 @@ connthread(void *arg)
 	sendq(outq, &sync);
 	recvp(c->outqdead);
 
-	/* should be no messages left anywhere. */
-	assert(c->nmsg == 0);
-
 	/* everything is quiet; can close the local output queue. */
 	sendq(c->outq, nil);
 	recvp(c->outqdead);
+
+	/* should be no messages left anywhere. */
+	assert(c->nmsg == 0);
 
 	/* clunk all outstanding fids */
 	for(i=0; i<NHASH; i++){
