@@ -266,6 +266,7 @@ warning(Mntdir *md, char *s, ...)
 	if(r == nil)
 		error("runevsmprint failed");
 	addwarningtext(md, r, runestrlen(r));
+	free(r);
 }
 
 int
