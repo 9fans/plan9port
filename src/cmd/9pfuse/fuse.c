@@ -803,7 +803,9 @@ mountfuse(char *mtpt)
 		if(access(f="/System/Library/Extensions/fusefs.kext"
 			"/Contents/Resources/load_fusefs", 0) < 0 &&
 		   access(f="/Library/Extensions/fusefs.kext"
-		   	"/Contents/Resources/load_fusefs", 0) < 0){
+		   	"/Contents/Resources/load_fusefs", 0) < 0 &&
+		   access(f="/System/Library/Filesystems"
+		         "/fusefs.fs/Support/load_fusefs", 0) < 0){
 		   	werrstr("cannot find load_fusefs");
 		   	return -1;
 		}

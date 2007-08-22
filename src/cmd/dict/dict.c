@@ -68,7 +68,7 @@ main(int argc, char **argv)
 	dict = 0;
 
 	for(i=0; dicts[i].name; i++){
-		if(access(unsharp(dicts[i].path), 0)>=0 && access(unsharp(dicts[i].indexpath), 0)>=0){
+		if(access(dictfile(dicts[i].path), 0)>=0 && access(dictfile(dicts[i].indexpath), 0)>=0){
 			dict = &dicts[i];
 			break;
 		}
@@ -119,8 +119,8 @@ main(int argc, char **argv)
 		line = malloc(strlen(p)+5);
 		sprint(line, "/%s/P\n", p);
 	}
-	dict->path = unsharp(dict->path);
-	dict->indexpath = unsharp(dict->indexpath);
+	dict->path = dictfile(dict->path);
+	dict->indexpath = dictfile(dict->indexpath);
 	bdict = Bopen(dict->path, OREAD);
 	if(!bdict) {
 		err("can't open dictionary %s", dict->path);
@@ -171,7 +171,7 @@ usage(void)
 	Bprint(bout, "dictionaries (brackets mark dictionaries not present on this system):\n");
 	for(i = 0; dicts[i].name; i++){
 		a = b = "";
-		if(access(unsharp(dicts[i].path), 0)<0 || access(unsharp(dicts[i].indexpath), 0)<0){
+		if(access(dictfile(dicts[i].path), 0)<0 || access(dictfile(dicts[i].indexpath), 0)<0){
 			a = "[";
 			b = "]";
 		}
@@ -674,4 +674,25 @@ setdotprev(void)
 	dot->doff[0] = last;
 	dot->n = 1;
 	dot->cur = 0;
+}
+
+/*
+ * find the specified file and return a path.
+ * default location is #9/dict, but can be 
+ * in $dictdir instead.
+ */
+char*
+dictfile(char *f)
+{
+	static char *dict;
+	static int did;
+	
+	if(!did){
+		dict = getenv("dictpath");
+		did = 1;
+	}
+	
+	if(dict)
+		return smprint("%s/%s", dict, f);
+	return unsharp(smprint("#9/dict/%s", f));
 }

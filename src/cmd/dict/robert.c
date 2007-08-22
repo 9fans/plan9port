@@ -84,10 +84,10 @@ initsubtab(void)
 #define	GSHORT(p)	(((p)[0]<<8) | (p)[1])
 #define	GLONG(p)	(((p)[0]<<24) | ((p)[1]<<16) | ((p)[2]<<8) | (p)[3])
 
-static char	cfile[] = "#9/dict/robert/cits.rob";
-static char	dfile[] = "#9/dict/robert/defs.rob";
-static char	efile[] = "#9/dict/robert/etym.rob";
-static char	kfile[] = "#9/dict/robert/_phon";
+static char	cfile[] = "robert/cits.rob";
+static char	dfile[] = "robert/defs.rob";
+static char	efile[] = "robert/etym.rob";
+static char	kfile[] = "robert/_phon";
 
 static Biobuf *	cb;
 static Biobuf *	db;
@@ -316,7 +316,7 @@ Bouvrir(char *fichier)
 {
 	Biobuf *db;
 
-	fichier = unsharp(fichier);
+	fichier = dictfile(fichier);
 	db = Bopen(fichier, OREAD);
 	if(db == 0){
 		fprint(2, "%s: impossible d'ouvrir %s: %r\n", argv0, fichier);

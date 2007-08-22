@@ -115,6 +115,7 @@ void	outnl(int);
 void	outpiece(char *, char *);
 void	runescpy(Rune*, Rune*);
 long	runetol(Rune*);
+char	*dictfile(char*);
 
 long	oednextoff(long);
 void	oedprintentry(Entry, int);
