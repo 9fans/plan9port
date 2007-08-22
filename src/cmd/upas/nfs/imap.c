@@ -1270,8 +1270,12 @@ xexists(Imap *z, Sx *sx)
 static void
 xflags(Imap *z, Sx *sx)
 {
-	if(z->box)
-		z->box->flags = parseflags(sx->sx[2]);
+	/*
+	 * This response contains in sx->sx[2] the list of flags
+	 * that can be validly attached to messages in z->box.
+	 * We don't have any use for this list, since we 
+	 * use only the standard flags.
+	 */
 }
 
 static void
