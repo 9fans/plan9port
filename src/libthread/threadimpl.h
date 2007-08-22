@@ -114,6 +114,7 @@ struct _Thread
 	char	name[256];
 	char	state[256];
 	void *udata;
+	Alt	*alt;
 };
 
 struct _Procrendez

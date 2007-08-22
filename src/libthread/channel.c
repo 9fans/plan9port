@@ -234,8 +234,8 @@ altexec(Alt *a)
 		i = rand()%ar->n;
 		other = ar->a[i];
 		altcopy(a, other);
-		altalldequeue(other->xalt);
-		other->xalt[0].xalt = other;
+		altalldequeue(other->thread->alt);
+		other->thread->alt = other;
 		_threadready(other->thread);
 	}else
 		altcopy(a, nil);
@@ -256,10 +256,9 @@ chanalt(Alt *a)
 	canblock = a[i].op == CHANEND;
 
 	t = proc()->thread;
-	for(i=0; i<n; i++){
+	for(i=0; i<n; i++)
 		a[i].thread = t;
-		a[i].xalt = a;
-	}
+	t->alt = a;
 	qlock(&chanlock);
 if(dbgalt) print("alt ");
 	ncan = 0;
@@ -307,9 +306,11 @@ if(dbgalt)print("\n");
 
 	/*
 	 * the guy who ran the op took care of dequeueing us
-	 * and then set a[0].alt to the one that was executed.
+	 * and then set t->alt to the one that was executed.
 	 */
-	return a[0].xalt - a;
+	if(t->alt < a || t->alt >= a+n)
+		sysfatal("channel bad alt");
+	return t->alt - a;
 }
 
 static int

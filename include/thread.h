@@ -82,7 +82,6 @@ struct Alt
 	void		*v;
 	uint		op;
 	_Thread		*thread;
-	Alt			*xalt;
 };
 
 struct _Altarray
