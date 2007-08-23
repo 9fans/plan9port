@@ -15,6 +15,7 @@ OFILES=\
 	fmt.$O\
 	fmtfd.$O\
 	fmtfdflush.$O\
+	fmtlocale.$O\
 	fmtlock.$O\
 	fmtprint.$O\
 	fmtquote.$O\
