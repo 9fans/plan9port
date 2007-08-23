@@ -65,7 +65,7 @@ initarena(Part *part, u64int base, u64int size, u32int blocksize)
 	}
 
 	if(arena->diskstats.sealed && scorecmp(zeroscore, arena->score)==0)
-		backsumarena(arena);
+		sealarena(arena);
 
 	return arena;
 }
@@ -516,6 +516,7 @@ sumarena(Arena *arena)
 	/*
 	 * read & sum all blocks except the last one
 	 */
+	flushdcache();
 	memset(&s, 0, sizeof s);
 	b = alloczblock(bs, 0, arena->part->blocksize);
 	e = arena->base + arena->size;
@@ -551,24 +552,19 @@ ReadErr:
 	sha1(b->data, bs-VtScoreSize, nil, &s);
 	sha1(zeroscore, VtScoreSize, nil, &s);
 	sha1(nil, 0, score, &s);
-
+	
 	/*
 	 * check for no checksum or the same
-	 *
-	 * the writepart is okay because we flushed the dcache in sealarena
 	 */
-	if(scorecmp(score, &b->data[bs - VtScoreSize]) != 0){
-		if(scorecmp(zeroscore, &b->data[bs - VtScoreSize]) != 0)
-			logerr(EOk, "overwriting mismatched checksums for arena=%s, found=%V calculated=%V",
-				arena->name, &b->data[bs - VtScoreSize], score);
-		scorecp(&b->data[bs - VtScoreSize], score);
-		if(writepart(arena->part, e, b->data, bs) < 0)
-			logerr(EOk, "sumarena can't write sum for %s: %r", arena->name);
-	}
+	if(scorecmp(score, &b->data[bs - VtScoreSize]) != 0
+	&& scorecmp(zeroscore, &b->data[bs - VtScoreSize]) != 0)
+		logerr(EOk, "overwriting mismatched checksums for arena=%s, found=%V calculated=%V",
+			arena->name, &b->data[bs - VtScoreSize], score);
 	freezblock(b);
 
 	qlock(&arena->lock);
 	scorecp(arena->score, score);
+	wbarena(arena);
 	qunlock(&arena->lock);
 }
 
@@ -587,6 +583,7 @@ wbarena(Arena *arena)
 	}
 	dirtydblock(b, DirtyArenaTrailer);
 	bad = okarena(arena)<0 || packarena(arena, b->data)<0;
+	scorecp(b->data + arena->blocksize - VtScoreSize, arena->score);
 	putdblock(b);
 	if(bad)
 		return -1;
