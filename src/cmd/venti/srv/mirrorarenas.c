@@ -93,6 +93,7 @@ ewritepart(Part *p, u64int offset, u8int *buf, u32int count)
  * src with writing dst during copy.  This is an easy factor of two
  * (almost) in performance.
  */
+static Write wsync;
 static void
 writeproc(void *v)
 {
@@ -100,7 +101,7 @@ writeproc(void *v)
 	
 	USED(v);
 	while((w = recvp(writechan)) != nil){
-		if(w->n == 0)
+		if(w == &wsync)
 			continue;
 		if(ewritepart(dst, w->o, w->p, w->n) < 0)
 			w->error = 1;
@@ -147,11 +148,7 @@ copy(uvlong start, uvlong end, char *what, DigestState *ds)
 	/*
 	 * wait for queued write to finish
 	 */
-	w[i].p = nil;
-	w[i].o = 0;
-	w[i].n = 0;
-	w[i].error = 0;
-	sendp(writechan, &w[i]);
+	sendp(writechan, &wsync);
 	i = 1-i;
 	if(w[i].error)
 		return -1;
