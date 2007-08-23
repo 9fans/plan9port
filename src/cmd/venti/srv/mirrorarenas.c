@@ -22,13 +22,14 @@ Part *src;
 Part *dst;
 int force;
 int verbose;
+int dosha1 = 1;
 char *status;
 uvlong astart, aend;
 
 void
 usage(void)
 {
-	fprint(2, "usage: mirrorarenas [-v] src dst [ranges]\n");
+	fprint(2, "usage: mirrorarenas [-sv] src dst [ranges]\n");
 	threadexitsall("usage");
 }
 
@@ -240,7 +241,7 @@ void
 mirror(Arena *sa, Arena *da)
 {
 	vlong v, si, di, end;
-	int clumpmax, blocksize;
+	int clumpmax, blocksize, sealed;
 	static uchar buf[MaxIoSize];
 	ArenaHead h;
 	DigestState xds, *ds;
@@ -305,7 +306,8 @@ mirror(Arena *sa, Arena *da)
 
 	shaoff = 0;
 	ds = nil;
-	if(sa->diskstats.sealed && scorecmp(sa->score, zeroscore) != 0){
+	sealed = sa->diskstats.sealed && scorecmp(sa->score, zeroscore) != 0;
+	if(sealed && dosha1){
 		/* start sha1 state with header */
 		memset(&xds, 0, sizeof xds);
 		ds = &xds;
@@ -362,7 +364,7 @@ mirror(Arena *sa, Arena *da)
 	if(ewritepart(dst, end, buf, blocksize) < 0)
 		return;
 
-	if(ds){
+	if(sealed){
 		/*
 		 * ... but on the final pass, copy the encoding
 		 * of the tail information from the source
@@ -375,20 +377,27 @@ mirror(Arena *sa, Arena *da)
 		if(asha1(dst, shaoff, end, ds) < 0
 		|| copy(end, end+blocksize-VtScoreSize, "tail", ds) < 0)
 			return;
-		memset(buf, 0, VtScoreSize);
-		sha1(buf, VtScoreSize, da->score, ds);
-		if(scorecmp(sa->score, da->score) == 0){
-			if(verbose)
-				chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
-			if(ewritepart(dst, end+blocksize-VtScoreSize, da->score, VtScoreSize) < 0)
-				return;
+		if(dosha1){
+			memset(buf, 0, VtScoreSize);
+			sha1(buf, VtScoreSize, da->score, ds);
+			if(scorecmp(sa->score, da->score) == 0){
+				if(verbose)
+					chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
+				if(ewritepart(dst, end+blocksize-VtScoreSize, da->score, VtScoreSize) < 0)
+					return;
+			}else{
+				chat("%T %s: sealing dst: score mismatch: %V vs %V\n", sa->name, sa->score, da->score);
+				memset(&xds, 0, sizeof xds);
+				asha1(dst, base-blocksize, end+blocksize-VtScoreSize, &xds);
+				sha1(buf, VtScoreSize, 0, &xds);
+				chat("%T   reseal: %V\n", da->score);
+				status = "errors";
+			}
 		}else{
-			chat("%T %s: sealing dst: score mismatch: %V vs %V\n", sa->name, sa->score, da->score);
-			memset(&xds, 0, sizeof xds);
-			asha1(dst, base-blocksize, end+blocksize-VtScoreSize, &xds);
-			sha1(buf, VtScoreSize, 0, &xds);
-			chat("%T   reseal: %V\n", da->score);
-			status = "errors";
+			if(verbose)
+				chat("%T %s: %V mirrored\n", sa->name, sa->score);
+			if(ewritepart(dst, end+blocksize-VtScoreSize, sa->score, VtScoreSize) < 0)
+				return;
 		}
 	}else{
 		chat("%T %s: %,lld used mirrored\n",
@@ -461,6 +470,9 @@ threadmain(int argc, char **argv)
 		break;
 	case 'v':
 		verbose++;
+		break;
+	case 's':
+		dosha1 = 0;
 		break;
 	default:
 		usage();
