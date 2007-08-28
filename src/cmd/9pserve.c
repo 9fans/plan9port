@@ -542,7 +542,7 @@ connthread(void *arg)
 			assert(mm == m);
 			msgput(m);	/* got from recvp */
 			msgput(m);	/* got from msgnew */
-			if(delhash(c->tag, om->tag, om) == 0)
+			if(delhash(c->tag, om->ctag, om) == 0)
 				msgput(om);	/* got from hash table */
 			msgput(om);	/* got from msgincref */
 		}
