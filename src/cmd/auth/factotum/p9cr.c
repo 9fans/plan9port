@@ -1,5 +1,5 @@
 /*
- * p9cr, vnc - one-sided challenge/response authentication
+ * p9cr - one-sided challenge/response authentication
  *
  * Protocol:
  *
@@ -17,17 +17,50 @@
 #include "std.h"
 #include "dat.h"
 
+/* shared with auth dialing routines */
+typedef struct ServerState ServerState;
+struct ServerState
+{
+	int asfd;
+	Key *k;
+	Ticketreq tr;
+	Ticket t;
+	char *dom;
+	char *hostid;
+};
+
+enum
+{
+	MAXCHAL = 64,
+	MAXRESP = 64,
+};
+
+extern Proto p9cr, vnc;
+static int p9response(char*, uchar*, uchar*);
+// static int vncresponse(char*, uchar*, uchar*);
+static int p9crchal(ServerState *s, int, char*, uchar*, int);
+static int p9crresp(ServerState*, uchar*, int);
+
+static int
+p9crcheck(Key *k)
+{
+	if(!strfindattr(k->attr, "user") || !strfindattr(k->privattr, "!password")){
+		werrstr("need user and !password attributes");
+		return -1;
+	}
+	return 0;
+}
+
 static int
 p9crclient(Conv *c)
 {
-	char *chal, *pw, *res, *user;
-	int astype, nchal, npw, ntry, ret;
-	uchar resp[MD5dlen];
+	char *pw, *res, *user;
+	int astype, challen, resplen, ntry, ret;
 	Attr *attr;
-	DigestState *ds;
 	Key *k;
-	
-	chal = nil;
+	uchar chal[MAXCHAL+1], resp[MAXRESP];
+	int (*response)(char*, uchar*, uchar*);
+
 	k = nil;
 	res = nil;
 	ret = -1;
@@ -36,9 +69,12 @@ p9crclient(Conv *c)
 	if(c->proto == &p9cr){
 		astype = AuthChal;
 		challen = NETCHLEN;
+		response = p9response;
+		attr = _mkattr(AttrNameval, "proto", "p9sk1", _delattr(_copyattr(attr), "proto"));
 	}else if(c->proto == &vnc){
-		astype = AuthVnc;
+		astype = AuthVNC;
 		challen = MAXCHAL;
+	//	response = vncresponse;
 	}else{
 		werrstr("bad proto");
 		goto out;
@@ -53,12 +89,11 @@ p9crclient(Conv *c)
 		if(c->attr != attr)
 			freeattr(c->attr);
 		c->attr = addattrs(copyattr(attr), k->attr);
+
 		if((pw = strfindattr(k->privattr, "!password")) == nil){
 			werrstr("key has no !password (cannot happen)");
 			goto out;
 		}
-		npw = strlen(pw);
-
 		if((user = strfindattr(k->attr, "user")) == nil){
 			werrstr("key has no user (cannot happen)");
 			goto out;
@@ -67,13 +102,14 @@ p9crclient(Conv *c)
 		if(convprint(c, "%s", user) < 0)
 			goto out;
 
-		if(convreadm(c, &chal) < 0)
+		if(convread(c, chal, challen) < 0)
+			goto out;
+		chal[challen] = 0;
+
+		if((resplen = (*response)(pw, chal, resp)) < 0)
 			goto out;
 
-		if((nresp = (*response)(chal, resp)) < 0)
-			goto out;
-
-		if(convwrite(c, resp, nresp) < 0)
+		if(convwrite(c, resp, resplen) < 0)
 			goto out;
 
 		if(convreadm(c, &res) < 0)
@@ -94,7 +130,6 @@ p9crclient(Conv *c)
 
 out:
 	keyclose(k);
-	free(chal);
 	if(c->attr != attr)
 		freeattr(attr);
 	return ret;
@@ -103,11 +138,11 @@ out:
 static int
 p9crserver(Conv *c)
 {
-	char chal[MAXCHAL], *user, *resp;
-	int astype, challen, asfd, fd, ret;
+	uchar chal[MAXCHAL], *resp, *resp1;
+	char *user;
+	ServerState s;
+	int astype, ret, challen, resplen;
 	Attr *a;
-	Key *k;
-	char *hostid, *dom;
 
 	ret = -1;
 	user = nil;
@@ -119,7 +154,7 @@ p9crserver(Conv *c)
 		astype = AuthChal;
 		challen = NETCHLEN;
 	}else if(c->proto == &vnc){
-		astype = AuthVnc;
+		astype = AuthVNC;
 		challen = MAXCHAL;
 	}else{
 		werrstr("bad proto");
@@ -127,44 +162,55 @@ p9crserver(Conv *c)
 	}
 
 	c->state = "find key";
-	if((k = plan9authkey(c->attr)) == nil)
+	if((s.k = plan9authkey(c->attr)) == nil)
 		goto out;
 
-/*
-	a = copyattr(k->attr);
+	a = copyattr(s.k->attr);
 	a = delattr(a, "proto");
 	c->attr = addattrs(c->attr, a);
 	freeattr(a);
-*/
 
 	c->state = "authdial";
-	hostid = strfindattr(s.k->attr, "user");
-	dom = strfindattr(s.k->attr, "dom");
-	if((asfd = xioauthdial(nil, s.dom)) < 0){
+	s.hostid = strfindattr(s.k->attr, "user");
+	s.dom = strfindattr(s.k->attr, "dom");
+	if((s.asfd = xioauthdial(nil, s.dom)) < 0){
 		werrstr("authdial %s: %r", s.dom);
 		goto out;
 	}
-
-	c->state = "authchal";
-	if(p9crchal(&s, astype, chal) < 0)
-		goto out;
-
-	c->state = "write challenge";
-	if(convprint(c, "%s", chal) < 0)
-		goto out;
 
 	for(;;){
 		c->state = "read user";
 		if(convreadm(c, &user) < 0)
 			goto out;
 
-		c->state = "read response";
-		if(convreadm(c, &resp) < 0)
+		c->state = "authchal";
+		if(p9crchal(&s, astype, user, chal, challen) < 0)
 			goto out;
 
+		c->state = "write challenge";
+		if(convwrite(c, chal, challen) < 0)
+			goto out;
+
+		c->state = "read response";
+		if((resplen = convreadm(c, (char**)(void*)&resp)) < 0)
+			goto out;
+		if(c->proto == &p9cr){
+			if(resplen > NETCHLEN){
+				convprint(c, "bad response too long");
+				goto out;
+			}
+			resp1 = emalloc(NETCHLEN);
+			memset(resp1, 0, NETCHLEN);
+			memmove(resp1, resp, resplen);
+			free(resp);
+			resp = resp1;
+			resplen = NETCHLEN;
+		}
+
 		c->state = "authwrite";
-		switch(apopresp(&s, user, resp)){
+		switch(p9crresp(&s, resp, resplen)){
 		case -1:
+			fprint(2, "p9crresp: %r\n");
 			goto out;
 		case 0:
 			c->state = "write status";
@@ -195,346 +241,130 @@ out:
 	return ret;
 }
 
-enum
-{
-	MAXCHAL = 64
-};
-
-typedef struct State State;
-struct State
-{
-	Key	*key;
-	int	astype;
-	int	asfd;
-	Ticket	t;
-	Ticketreq tr;
-	char	chal[MAXCHAL];
-	int	challen;
-	char	resp[MAXCHAL];
-	int	resplen;
-};
-
-enum
-{
-	CNeedChal,
-	CHaveResp,
-
-	SHaveChal,
-	SNeedResp,
-
-	Maxphase
-};
-
-static char *phasenames[Maxphase] =
-{
-[CNeedChal]	"CNeedChal",
-[CHaveResp]	"CHaveResp",
-
-[SHaveChal]	"SHaveChal",
-[SNeedResp]	"SNeedResp"
-};
-
-static void
-p9crclose(Fsstate *fss)
-{
-	State *s;
-
-	s = fss->ps;
-	if(s->asfd >= 0){
-		close(s->asfd);
-		s->asfd = -1;
-	}
-	free(s);
-}
-
-static int getchal(State*, Fsstate*);
-
 static int
-p9crinit(Proto *p, Fsstate *fss)
-{
-	int iscli, ret;
-	char *user;
-	State *s;
-	Attr *attr;
-
-	if((iscli = isclient(_str_findattr(fss->attr, "role"))) < 0)
-		return failure(fss, nil);
-	
-	s = emalloc(sizeof(*s));
-	s->asfd = -1;
-	if(p == &p9cr){
-		s->astype = AuthChal;
-		s->challen = NETCHLEN;
-	}else if(p == &vnc){
-		s->astype = AuthVNC;
-		s->challen = Maxchal;
-	}else
-		abort();
-
-	if(iscli){
-		fss->phase = CNeedChal;
-		if(p == &p9cr)
-			attr = setattr(_copyattr(fss->attr), "proto=p9sk1");
-		else
-			attr = nil;
-		ret = findkey(&s->key, fss, Kuser, 0, attr ? attr : fss->attr,
-			"role=client %s", p->keyprompt);
-		_freeattr(attr);
-		if(ret != RpcOk){
-			free(s);
-			return ret;
-		}
-		fss->ps = s;
-	}else{
-		if((ret = findp9authkey(&s->key, fss)) != RpcOk){
-			free(s);
-			return ret;
-		}
-		if((user = _str_findattr(fss->attr, "user")) == nil){
-			free(s);
-			return failure(fss, "no user name specified in start msg");
-		}
-		if(strlen(user) >= sizeof s->tr.uid){
-			free(s);
-			return failure(fss, "user name too long");
-		}
-		fss->ps = s;
-		strcpy(s->tr.uid, user);
-		ret = getchal(s, fss);
-		if(ret != RpcOk){
-			p9crclose(fss);	/* frees s */
-			fss->ps = nil;
-		}
-	}
-	fss->phasename = phasenames;
-	fss->maxphase = Maxphase;
-	return ret;
-}
-
-static int
-p9crread(Fsstate *fss, void *va, uint *n)
-{
-	int m;
-	State *s;
-
-	s = fss->ps;
-	switch(fss->phase){
-	default:
-		return phaseerror(fss, "read");
-
-	case CHaveResp:
-		if(s->resplen < *n)
-			*n = s->resplen;
-		memmove(va, s->resp, *n);
-		fss->phase = Established;
-		return RpcOk;
-
-	case SHaveChal:
-		if(s->astype == AuthChal)
-			m = strlen(s->chal);	/* ascii string */
-		else
-			m = s->challen;		/* fixed length binary */
-		if(m > *n)
-			return toosmall(fss, m);
-		*n = m;
-		memmove(va, s->chal, m);
-		fss->phase = SNeedResp;
-		return RpcOk;
-	}
-}
-
-static int
-p9response(Fsstate *fss, State *s)
-{
-	char key[DESKEYLEN];
-	uchar buf[8];
-	ulong chal;
-	char *pw;
-
-	pw = _str_findattr(s->key->privattr, "!password");
-	if(pw == nil)
-		return failure(fss, "vncresponse cannot happen");
-	passtokey(key, pw);
-	memset(buf, 0, 8);
-	sprint((char*)buf, "%d", atoi(s->chal));
-	if(encrypt(key, buf, 8) < 0)
-		return failure(fss, "can't encrypt response");
-	chal = (buf[0]<<24)+(buf[1]<<16)+(buf[2]<<8)+buf[3];
-	s->resplen = snprint(s->resp, sizeof s->resp, "%.8lux", chal);
-	return RpcOk;
-}
-
-static uchar tab[256];
-
-/* VNC reverses the bits of each byte before using as a des key */
-static void
-mktab(void)
-{
-	int i, j, k;
-	static int once;
-
-	if(once)
-		return;
-	once = 1;
-
-	for(i=0; i<256; i++) {
-		j=i;
-		tab[i] = 0;
-		for(k=0; k<8; k++) {
-			tab[i] = (tab[i]<<1) | (j&1);
-			j >>= 1;
-		}
-	}
-}
-
-static int
-vncaddkey(Key *k)
-{
-	uchar *p;
-	char *s;
-
-	k->priv = emalloc(8+1);
-	if(s = _str_findattr(k->privattr, "!password")){
-		mktab();
-		memset(k->priv, 0, 8+1);
-		strncpy((char*)k->priv, s, 8);
-		for(p=k->priv; *p; p++)
-			*p = tab[*p];
-	}else{
-		werrstr("no key data");
-		return -1;
-	}
-	return replacekey(k);
-}
-
-static void
-vncclosekey(Key *k)
-{
-	free(k->priv);
-}
-
-static int
-vncresponse(Fsstate*, State *s)
-{
-	DESstate des;
-
-	memmove(s->resp, s->chal, sizeof s->chal);
-	setupDESstate(&des, s->key->priv, nil);
-	desECBencrypt((uchar*)s->resp, s->challen, &des);
-	s->resplen = s->challen;
-	return RpcOk;
-}
-
-static int
-p9crwrite(Fsstate *fss, void *va, uint n)
-{
-	char tbuf[TICKETLEN+AUTHENTLEN];
-	State *s;
-	char *data = va;
-	Authenticator a;
-	char resp[Maxchal];
-	int ret;
-
-	s = fss->ps;
-	switch(fss->phase){
-	default:
-		return phaseerror(fss, "write");
-
-	case CNeedChal:
-		if(n >= sizeof(s->chal))
-			return failure(fss, Ebadarg);
-		memset(s->chal, 0, sizeof s->chal);
-		memmove(s->chal, data, n);
-		s->challen = n;
-
-		if(s->astype == AuthChal)
-			ret = p9response(fss, s);
-		else
-			ret = vncresponse(fss, s);
-		if(ret != RpcOk)
-			return ret;
-		fss->phase = CHaveResp;
-		return RpcOk;
-
-	case SNeedResp:
-		/* send response to auth server and get ticket */
-		if(n > sizeof(resp))
-			return failure(fss, Ebadarg);
-		memset(resp, 0, sizeof resp);
-		memmove(resp, data, n);
-		if(write(s->asfd, resp, s->challen) != s->challen)
-			return failure(fss, Easproto);
-
-		/* get ticket plus authenticator from auth server */
-		if(_asrdresp(s->asfd, tbuf, TICKETLEN+AUTHENTLEN) < 0)
-			return failure(fss, nil);
-
-		/* check ticket */
-		convM2T(tbuf, &s->t, s->key->priv);
-		if(s->t.num != AuthTs
-		|| memcmp(s->t.chal, s->tr.chal, sizeof(s->t.chal)) != 0)
-			return failure(fss, Easproto);
-		convM2A(tbuf+TICKETLEN, &a, s->t.key);
-		if(a.num != AuthAc
-		|| memcmp(a.chal, s->tr.chal, sizeof(a.chal)) != 0
-		|| a.id != 0)
-			return failure(fss, Easproto);
-
-		fss->haveai = 1;
-		fss->ai.cuid = s->t.cuid;
-		fss->ai.suid = s->t.suid;
-		fss->ai.nsecret = 0;
-		fss->ai.secret = nil;
-		fss->phase = Established;
-		return RpcOk;
-	}
-}
-
-static int
-getchal(State *s, Fsstate *fss)
+p9crchal(ServerState *s, int astype, char *user, uchar *chal, int challen)
 {
 	char trbuf[TICKREQLEN];
+	Ticketreq tr;
 	int n;
 
-	safecpy(s->tr.hostid, _str_findattr(s->key->attr, "user"), sizeof(s->tr.hostid));
-	safecpy(s->tr.authdom, _str_findattr(s->key->attr, "dom"), sizeof(s->tr.authdom));
-	s->tr.type = s->astype;
-	convTR2M(&s->tr, trbuf);
+	memset(&tr, 0, sizeof tr);
 
-	/* get challenge from auth server */
-	s->asfd = _authdial(nil, _str_findattr(s->key->attr, "dom"));
-	if(s->asfd < 0)
-		return failure(fss, Easproto);
-	if(write(s->asfd, trbuf, TICKREQLEN) != TICKREQLEN)
-		return failure(fss, Easproto);
-	n = _asrdresp(s->asfd, s->chal, s->challen);
-	if(n <= 0){
-		if(n == 0)
-			werrstr("_asrdresp short read");
-		return failure(fss, nil);
+	tr.type = astype;
+
+	if(strlen(s->hostid) >= sizeof tr.hostid){
+		werrstr("hostid too long");
+		return -1;
 	}
-	s->challen = n;
-	fss->phase = SHaveChal;
-	return RpcOk;
+	strcpy(tr.hostid, s->hostid);
+
+	if(strlen(s->dom) >= sizeof tr.authdom){
+		werrstr("domain too long");
+		return -1;
+	}
+	strcpy(tr.authdom, s->dom);
+
+	if(strlen(user) >= sizeof tr.uid){
+		werrstr("user name too long");
+		return -1;
+	}
+	strcpy(tr.uid, user);
+	convTR2M(&tr, trbuf);
+
+	if(xiowrite(s->asfd, trbuf, TICKREQLEN) != TICKREQLEN)
+		return -1;
+
+	if((n=xioasrdresp(s->asfd, chal, challen)) <= 0)
+		return -1;
+	return n;
 }
 
-Proto p9cr =
+static int
+p9crresp(ServerState *s, uchar *resp, int resplen)
 {
-.name=		"p9cr",
-.init=		p9crinit,
-.write=		p9crwrite,
-.read=		p9crread,
-.close=		p9crclose,
-.keyprompt=	"user? !password?"
+	char tabuf[TICKETLEN+AUTHENTLEN];
+	Authenticator a;
+	Ticket t;
+	Ticketreq tr;
+
+	if(xiowrite(s->asfd, resp, resplen) != resplen)
+		return -1;
+
+	if(xioasrdresp(s->asfd, tabuf, TICKETLEN+AUTHENTLEN) != TICKETLEN+AUTHENTLEN)
+		return 0;
+
+	convM2T(tabuf, &t, s->k->priv);
+	if(t.num != AuthTs
+	|| memcmp(t.chal, tr.chal, sizeof tr.chal) != 0){
+		werrstr("key mismatch with auth server");
+		return -1;
+	}
+
+	convM2A(tabuf+TICKETLEN, &a, t.key);
+	if(a.num != AuthAc
+	|| memcmp(a.chal, tr.chal, sizeof a.chal) != 0
+	|| a.id != 0){
+		werrstr("key2 mismatch with auth server");
+		return -1;
+	}
+
+	s->t = t;
+	return 1;
+}
+
+static int
+p9response(char *pw, uchar *chal, uchar *resp)
+{	
+	char key[DESKEYLEN];
+	uchar buf[8];
+	ulong x;
+
+	passtokey(key, pw);
+	memset(buf, 0, 8);
+	snprint((char*)buf, sizeof buf, "%d", atoi((char*)chal));
+	if(encrypt(key, buf, 8) < 0){
+		werrstr("can't encrypt response");
+		return -1;
+	}
+	x = (buf[0]<<24)+(buf[1]<<16)+(buf[2]<<8)+buf[3];
+	return snprint((char*)resp, MAXRESP, "%.8lux", x);
+}
+
+/*
+static int
+vncresponse(char *pw, uchar *chal, uchar *resp)
+{
+	DESstate des;
+	
+	memmove(resp, chal, MAXCHAL);
+	setupDESstate(&des, 0, nil);  // XXX put key in for 0
+	desECBencrypt(resp, MAXCHAL, &des);
+	return MAXCHAL;
+}
+*/
+
+static Role
+p9crroles[] =
+{
+	"client", p9crclient,
+	"server", p9crserver,
+	0
 };
 
-Proto vnc =
-{
-.name=		"vnc",
-.init=		p9crinit,
-.write=		p9crwrite,
-.read=		p9crread,
-.close=		p9crclose,
-.keyprompt=	"!password?",
-.addkey=	vncaddkey
+Proto p9cr = {
+	"p9cr",
+	p9crroles,
+	"user? !password?",
+	p9crcheck,
+	nil
 };
+
+/* still need to implement vnc key generator
+Proto vnc = {
+	"vnc",
+	p9crroles,
+	"user? !password?",
+	p9crcheck,
+	nil
+};
+*/

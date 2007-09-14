@@ -10,6 +10,7 @@ extern Proto	mschap;		/* chap.c */
 extern Proto	p9any;		/* p9any.c */
 extern Proto	p9sk1;		/* p9sk1.c */
 extern Proto	p9sk2;		/* p9sk2.c */
+extern Proto	p9cr;
 extern Proto	pass;			/* pass.c */
 extern Proto	rsa;			/* rsa.c */
 
@@ -19,6 +20,7 @@ Proto *prototab[] = {
 	&dsa,
 	&httpdigest,
 	&p9any,
+	&p9cr,
 	&p9sk1,
 	&p9sk2,
 	&pass,
