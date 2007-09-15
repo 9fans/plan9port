@@ -22,16 +22,37 @@ void (*statfn[])(int) =
 void
 xapm(int first)
 {
-	static int fd = -1;
+	static int fd = -1, fdb = -1;
+	int i, last = -1, curr = -1;
 
 	if(first){
-		fd = open("/proc/apm", OREAD);
+		fd = open("/proc/acpi/battery/BAT0/info", OREAD);
+		fdb = open("/proc/acpi/battery/BAT0/state", OREAD);
 		return;
 	}
+	if(fd == -1 || fdb == -1)
+		return;
+
 	readfile(fd);
-	tokens(0);
-	if(ntok >= 7 && atoi(tok[6]) != -1)
-		Bprint(&bout, "battery =%d 100\n", atoi(tok[6]));
+	for(i=0; i<nline; i++){
+		tokens(i);
+		if(ntok < 3)
+			continue;
+		if(strcmp(tok[0], "last") == 0 && strcmp(tok[1], "full") == 0)
+			last = atoi(tok[3]);
+	}
+	readfile(fdb);
+	for(i = 0; i < nline; i++) {
+		tokens(i);
+		if(ntok < 3)
+			continue;
+		if(strcmp(tok[0], "remaining") == 0 && strcmp(tok[1], "capacity:") == 0)
+			curr = atoi(tok[2]);
+	}
+			
+	if(curr != -1 && last != -1)
+		Bprint(&bout, "battery =%d 100\n", (int)(((float)curr/(float)last)*100.0));
+
 }
 	
 void
