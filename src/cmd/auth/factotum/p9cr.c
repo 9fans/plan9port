@@ -359,7 +359,7 @@ Proto p9cr = {
 	nil
 };
 
-/* still need to implement vnc key generator
+/* still need to implement vnc key generator */
 Proto vnc = {
 	"vnc",
 	p9crroles,
@@ -367,4 +367,3 @@ Proto vnc = {
 	p9crcheck,
 	nil
 };
-*/
