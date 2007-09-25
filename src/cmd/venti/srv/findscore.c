@@ -29,7 +29,8 @@ findscore(Arena *arena, uchar *score)
 
 //ZZZ remove fprint?
 	if(arena->memstats.clumps)
-		fprint(2, "reading directory for arena=%s with %d entries\n", arena->name, arena->memstats.clumps);
+		fprint(2, "reading directory for arena=%s with %d entries\n",
+			arena->name, arena->memstats.clumps);
 
 	cis = MKN(ClumpInfo, ClumpChunks);
 	found = 0;
