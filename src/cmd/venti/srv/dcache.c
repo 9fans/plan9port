@@ -55,12 +55,6 @@ struct DCache
 	u8int		*mem;			/* memory for all block descriptors */
 	int		ndirty;			/* number of dirty blocks */
 	int		maxdirty;		/* max. number of dirty blocks */
-	Channel	*ra;
-	u8int		*rabuf;
-	u32int		ramax;
-	u32int		rasize;
-	u64int		raaddr;
-	Part		*rapart;
 
 	AState	diskstate;
 	AState	state;
@@ -82,7 +76,6 @@ static void	delheap(DBlock *db);
 static void	fixheap(int i, DBlock *b);
 static void	flushproc(void*);
 static void	writeproc(void*);
-static void raproc(void*);
 
 void
 initdcache(u32int mem)
@@ -109,7 +102,6 @@ initdcache(u32int mem)
 	dcache.blocks = MKNZ(DBlock, nblocks);
 	dcache.write = MKNZ(DBlock*, nblocks);
 	dcache.mem = MKNZ(u8int, (nblocks+1+128) * blocksize);
-	dcache.ra = chancreate(sizeof(Ra), 0);
 
 	last = nil;
 	p = (u8int*)(((ulong)dcache.mem+blocksize-1)&~(ulong)(blocksize-1));
@@ -121,10 +113,6 @@ initdcache(u32int mem)
 		b->next = last;
 		last = b;
 	}
-	dcache.rabuf = &p[i*blocksize];
-	dcache.ramax = 128*blocksize;
-	dcache.raaddr = 0;
-	dcache.rapart = nil;
 
 	dcache.free = last;
 	dcache.nheap = 0;
@@ -133,7 +121,6 @@ initdcache(u32int mem)
 
 	vtproc(flushproc, nil);
 	vtproc(delaykickroundproc, &dcache.round);
-	vtproc(raproc, nil);
 }
 
 void
@@ -154,115 +141,6 @@ diskstate(void)
 	a = dcache.diskstate;
 	qunlock(&dcache.lock);
 	return a;
-}
-
-static void
-raproc(void *v)
-{
-	Ra ra;
-	DBlock *b;
-
-	USED(v);
-	while(recv(dcache.ra, &ra) == 1){
-		if(ra.part->size <= ra.addr)
-			continue;
-		b = _getdblock(ra.part, ra.addr, OREAD, 2);
-		putdblock(b);
-	}
-}
-
-/*
- * We do readahead a whole arena at a time now,
- * so dreadahead is a no-op.  The original implementation
- * is in unused_dreadahead below.
- */
-void
-dreadahead(Part *part, u64int addr, int miss)
-{
-	USED(part);
-	USED(addr);
-	USED(miss);
-}
-
-void
-unused_dreadahead(Part *part, u64int addr, int miss)
-{
-	Ra ra;
-	static struct {
-		Part *part;
-		u64int addr;
-	} lastmiss;
-	static struct {
-		Part *part;
-		u64int addr;
-		int dir;
-	} lastra;
-
-	if(miss){
-		if(lastmiss.part==part && lastmiss.addr==addr-dcache.size){
-		XRa:
-			lastra.part = part;
-			lastra.dir = addr-lastmiss.addr;
-			lastra.addr = addr+lastra.dir;
-			ra.part = part;
-			ra.addr = lastra.addr;
-			nbsend(dcache.ra, &ra);
-		}else if(lastmiss.part==part && lastmiss.addr==addr+dcache.size){
-			addr -= dcache.size;
-			goto XRa;
-		}
-	}else{
-		if(lastra.part==part && lastra.addr==addr){
-			lastra.addr += lastra.dir;
-			ra.part = part;
-			ra.addr = lastra.addr;
-			nbsend(dcache.ra, &ra);
-		}
-	}
-
-	if(miss){
-		lastmiss.part = part;
-		lastmiss.addr = addr;
-	}
-}
-
-int
-rareadpart(Part *part, u64int addr, u8int *buf, uint n, int load)
-{
-	uint nn;
-	static RWLock ralock;
-
-	rlock(&ralock);
-	if(dcache.rapart==part && dcache.raaddr <= addr && addr+n <= dcache.raaddr+dcache.rasize){
-		memmove(buf, dcache.rabuf+(addr-dcache.raaddr), n);
-		runlock(&ralock);
-		return 0;
-	}
-	if(load != 2 || addr >= part->size){	/* addr >= part->size: let readpart do the error */	
-		runlock(&ralock);
-		diskaccess(0);
-		return readpart(part, addr, buf, n);
-	}
-
-	runlock(&ralock);
-	wlock(&ralock);
-fprint(2, "raread %s %llx\n", part->name, addr);
-	nn = dcache.ramax;
-	if(addr+nn > part->size)
-		nn = part->size - addr;
-	diskaccess(0);
-	if(readpart(part, addr, dcache.rabuf, nn) < 0){
-		wunlock(&ralock);
-		return -1;
-	}
-	memmove(buf, dcache.rabuf, n);	
-	dcache.rapart = part;
-	dcache.rasize = nn;
-	dcache.raaddr = addr;
-	wunlock(&ralock);
-
-	addstat(StatApartReadBytes, nn-n);
-	return 0;
 }
 
 static u32int
@@ -313,16 +191,8 @@ _getdblock(Part *part, u64int addr, int mode, int load)
 again:
 	for(b = dcache.heads[h]; b != nil; b = b->next){
 		if(b->part == part && b->addr == addr){
-			/*
-			qlock(&stats.lock);
-			stats.pchit++;
-			qunlock(&stats.lock);
-			*/
-			if(load){
+			if(load)
 				addstat(StatDcacheHit, 1);
-				if(load != 2 && mode != OWRITE)
-					dreadahead(part, b->addr, 0);
-			}
 			goto found;
 		}
 	}
@@ -367,8 +237,6 @@ ZZZ this is not reasonable
 	b->addr = addr;
 	b->part = part;
 	b->size = 0;
-	if(load != 2 && mode != OWRITE)
-		dreadahead(part, b->addr, 1);
 
 found:
 	b->ref++;
@@ -377,6 +245,11 @@ found:
 	if(b->heap != TWID32)
 		fixheap(b->heap, b);
 
+	if((mode == ORDWR || mode == OWRITE) && part->writechan == nil){
+		trace(TraceBlock, "getdblock allocwriteproc %s", part->name);
+		part->writechan = chancreate(sizeof(DBlock*), dcache.nblocks);
+		vtproc(writeproc, part);
+	}
 	qunlock(&dcache.lock);
 
 	trace(TraceBlock, "getdblock lock");
@@ -400,7 +273,8 @@ found:
 				memset(&b->data[b->size], 0, size - b->size);
 			else{
 				trace(TraceBlock, "getdblock readpart %s 0x%llux", part->name, addr);
-				if(rareadpart(part, addr + b->size, &b->data[b->size], size - b->size, load) < 0){
+				diskaccess(0);
+				if(readpart(part, addr + b->size, &b->data[b->size], size - b->size) < 0){
 					b->mode = ORDWR;	/* so putdblock wunlocks */
 					putdblock(b);
 					return nil;
@@ -450,10 +324,9 @@ void
 dirtydblock(DBlock *b, int dirty)
 {
 	int odirty;
-	Part *p;
 
-
-	trace(TraceBlock, "dirtydblock enter %s 0x%llux %d from 0x%lux", b->part->name, b->addr, dirty, getcallerpc(&b));
+	trace(TraceBlock, "dirtydblock enter %s 0x%llux %d from 0x%lux",
+		b->part->name, b->addr, dirty, getcallerpc(&b));
 	assert(b->ref != 0);
 	assert(b->mode==ORDWR || b->mode==OWRITE);
 
@@ -463,13 +336,6 @@ dirtydblock(DBlock *b, int dirty)
 	else
 		b->dirty = dirty;
 
-	p = b->part;
-	if(p->writechan == nil){
-		trace(TraceBlock, "dirtydblock allocwriteproc %s", p->name);
-		/* XXX hope this doesn't fail! */
-		p->writechan = chancreate(sizeof(DBlock*), dcache.nblocks);
-		vtproc(writeproc, p);
-	}
 	qlock(&dcache.lock);
 	if(!odirty){
 		dcache.ndirty++;
@@ -779,13 +645,13 @@ flushproc(void *v)
 		waitforkick(&dcache.round);
 
 		trace(TraceWork, "start");
+		t0 = nsec()/1000;
+		trace(TraceProc, "build t=%lud", (ulong)(nsec()/1000)-t0);
+
 		qlock(&dcache.lock);
 		as = dcache.state;
 		qunlock(&dcache.lock);
 
-		t0 = nsec()/1000;
-
-		trace(TraceProc, "build t=%lud", (ulong)(nsec()/1000)-t0);
 		write = dcache.write;
 		n = 0;
 		for(i=0; i<dcache.nblocks; i++){
@@ -800,20 +666,26 @@ flushproc(void *v)
 		trace(TraceProc, "writeblocks t=%lud", (ulong)(nsec()/1000)-t0);
 		i = 0;
 		for(j=1; j<DirtyMax; j++){
-			trace(TraceProc, "writeblocks.%d t=%lud", j, (ulong)(nsec()/1000)-t0);
+			trace(TraceProc, "writeblocks.%d t=%lud",
+				j, (ulong)(nsec()/1000)-t0);
 			i += parallelwrites(write+i, write+n, j);
 		}
 		if(i != n){
 			fprint(2, "in flushproc i=%d n=%d\n", i, n);
 			for(i=0; i<n; i++)
-				fprint(2, "\tblock %d: dirty=%d\n", i, write[i]->dirty);
+				fprint(2, "\tblock %d: dirty=%d\n",
+					i, write[i]->dirty);
 			abort();
 		}
 
-/* XXX
-* the locking here is suspect.  what if a block is redirtied
-* after the write happens?  we'll still decrement dcache.ndirty here.
-*/
+		/*
+		 * b->dirty is protected by b->lock while ndirty is protected
+		 * by dcache.lock, so the --ndirty below is the delayed one
+		 * from clearing b->dirty in the write proc.  It may happen
+		 * that some other proc has come along and redirtied b since
+		 * the write.  That's okay, it just means that ndirty may be
+		 * one too high until we catch up and do the decrement.
+		 */
 		trace(TraceProc, "undirty.%d t=%lud", j, (ulong)(nsec()/1000)-t0);
 		qlock(&dcache.lock);
 		dcache.diskstate = as;
@@ -850,7 +722,8 @@ writeproc(void *v)
 		trace(TraceProc, "writepart %s 0x%llux", p->name, b->addr);
 		diskaccess(0);
 		if(writepart(p, b->addr, b->data, b->size) < 0)
-			fprint(2, "write error: %r\n"); /* XXX details! */
+			fprint(2, "%s: writeproc: part %s addr 0x%llux: write error: %r\n",
+				argv0, p->name, b->addr);
 		addstat(StatApartWrite, 1);
 		addstat(StatApartWriteBytes, b->size);
 		b->dirty = 0;
