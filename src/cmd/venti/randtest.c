@@ -96,8 +96,9 @@ run(void (*fn)(char*, char*), Channel *c)
 	buf = vtmalloc(blocksize);
 	cur = 0;
 	packets = totalbytes/blocksize;
-	if(maxpackets == 0)
-		maxpackets = packets;
+	if(maxpackets > 0 && maxpackets < packets)
+		packets = maxpackets;
+	totalbytes = (vlong)packets * blocksize;
 	order = vtmalloc(packets*sizeof order[0]);
 	for(i=0; i<packets; i++)
 		order[i] = i;
@@ -109,7 +110,7 @@ run(void (*fn)(char*, char*), Channel *c)
 			order[j] = t;
 		}
 	}
-	for(i=0; i<packets && i<maxpackets; i++){
+	for(i=0; i<packets; i++){
 		memmove(buf, template, blocksize);
 		*(uint*)buf = order[i];
 		if(c){
