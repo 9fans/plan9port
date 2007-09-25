@@ -53,7 +53,6 @@ readbloom(Part *p)
 	 */
 	if(bloominit(b, 0, buf) < 0){
 		vtfree(b);
-		freepart(p);
 		return nil;
 	}else{
 		/*
