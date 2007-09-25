@@ -62,9 +62,9 @@ rdarena(Arena *arena, u64int offset)
 {
 	int i;
 	u64int a, aa, e;
+	uchar score[VtScoreSize];
 	Clump cl;
 	ClumpInfo ci;
-	uchar score[VtScoreSize];
 	ZBlock *lump;
 	ZClump zcl;
 
@@ -74,20 +74,21 @@ rdarena(Arena *arena, u64int offset)
 	a = arena->base;
 	e = arena->base + arena->size;
 	if(offset != ~(u64int)0) {
-		if(offset >= e-a)
-			sysfatal("bad offset %#llx >= %#llx\n",
-				offset, e-a);
+		if(offset >= e - a)
+			sysfatal("bad offset %#llx >= %#llx\n", offset, e - a);
 		aa = offset;
 	} else
 		aa = 0;
 
-	if(maxwrites != 0)
-	for(i=0, a=0; i<arena->memstats.clumps; i++, a+=ClumpSize+ci.size) {
-		if(readclumpinfo(arena, i, &ci) < 0)
+	i = 0;
+	for(a = 0; maxwrites != 0 && i < arena->memstats.clumps;
+	    a += ClumpSize + ci.size){
+		if(readclumpinfo(arena, i++, &ci) < 0)
 			break;
 		if(a < aa || ci.type == VtCorruptType){
 			if(ci.type == VtCorruptType)
-				fprint(2, "corrupt at %#llx: +%d\n", a, ClumpSize+ci.size);
+				fprint(2, "corrupt at %#llx: +%d\n",
+					a, ClumpSize+ci.size);
 			continue;
 		}
 		lump = loadclump(arena, a, 0, &cl, score, 0);
@@ -98,11 +99,13 @@ rdarena(Arena *arena, u64int offset)
 		if(!fast && cl.info.type != VtCorruptType) {
 			scoremem(score, lump->data, cl.info.uncsize);
 			if(scorecmp(cl.info.score, score) != 0) {
-				fprint(2, "clump %#llx has mismatched score\n", a);
+				fprint(2, "clump %#llx has mismatched score\n",
+					a);
 				break;
 			}
 			if(vttypevalid(cl.info.type) < 0) {
-				fprint(2, "clump %#llx has bad type %d\n", a, cl.info.type);
+				fprint(2, "clump %#llx has bad type %d\n",
+					a, cl.info.type);
 				break;
 			}
 		}
@@ -113,8 +116,8 @@ rdarena(Arena *arena, u64int offset)
 			send(c, &zcl);
 		}else
 			freezblock(lump);
-		if(maxwrites>0 && --maxwrites == 0)
-			break;
+		if(maxwrites > 0)
+			--maxwrites;
 	}
 	if(a > aa)
 		aa = a;
