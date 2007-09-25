@@ -38,6 +38,10 @@ graphname = new Array(
 		"icache dirty %",
 	"arg=icachehit&graph=pctdiff&arg2=icachelookup&max=100",
 		"icache hit %",
+	"arg=scachehit&graph=pctdiff&arg2=icachelookup&max=100",
+		"scache hit %",
+	"arg=icachemiss&graph=pctdiff&arg2=icachelookup&max=100",
+		"icache miss %",
 	"arg=icachelookuptime&graph=divdiff&arg2=icachelookup",
 		"icache lookup time",
 	"arg=icacheprefetch&graph=diff",
@@ -75,6 +79,8 @@ graphname = new Array(
 		"fresh write RPC time",
 	"arg=rpcwriteoldtime&graph=divdiff&arg2=rpcwriteold",
 		"dup write RPC time",
+	"arg=cigloadtime&graph=divdiff&arg2=cigload",
+		"cig load time",
 
 	"arg=sumreadbyte&graph=diff",
 		"checksum bytes/second",
@@ -118,8 +124,11 @@ column1 = new Array(
 	"!icache",
 	"arg=icachedirty&graph=pct&arg2=icachesize&max=100",
 	"arg=icachehit&graph=pctdiff&arg2=icachelookup&max=100",
+	"arg=scachehit&graph=pctdiff&arg2=icachelookup&max=100",
+	"arg=icachemiss&graph=pctdiff&arg2=icachelookup&max=100",
 	"arg=icachewrite&graph=diff",
 	"arg=icacheprefetch&graph=diff",
+	"arg=scacheprefetch&graph=diff",
 	
 	"!dcache",
 	"arg=dcachedirty&graph=pct&arg2=dcachesize&max=100",
@@ -154,6 +163,7 @@ column2 = new Array(
 	"arg=rpcreaduncachedtime&graph=divdiff&arg2=rpcreaduncached",
 	"arg=rpcwritenewtime&graph=divdiff&arg2=rpcwritenew",
 	"arg=rpcwriteoldtime&graph=divdiff&arg2=rpcwriteold",
+	"arg=cigloadtime&graph=divdiff&arg2=cigload",
 	
 	"END"
 )

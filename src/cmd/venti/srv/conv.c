@@ -581,9 +581,9 @@ unpackientry(IEntry *ie, u8int *buf)
 
 	scorecp(ie->score, p);
 	p += VtScoreSize;
-	ie->wtime = U32GET(p);
+	/* ie->wtime = U32GET(p); */
 	p += U32Size;
-	ie->train = U16GET(p);
+	/* ie->train = U16GET(p); */
 	p += U16Size;
 	if(p - buf != IEntryAddrOff)
 		sysfatal("unpackentry bad IEntryAddrOff amount");
@@ -613,9 +613,9 @@ packientry(IEntry *ie, u8int *buf)
 
 	scorecp(p, ie->score);
 	p += VtScoreSize;
-	U32PUT(p, ie->wtime);
+	U32PUT(p, 0); /* wtime */
 	p += U32Size;
-	U16PUT(p, ie->train);
+	U16PUT(p, 0); /* train */
 	p += U16Size;
 	U64PUT(p, ie->ia.addr, t32);
 	p += U64Size;

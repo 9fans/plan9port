@@ -60,6 +60,9 @@ Statdesc statdesc[NStat] =
 	{ "index cache flushes", },
 	{ "index cache stalls", },
 	{ "index cache read time", },
+	{ "index cache lookups" },
+	{ "index cache summary hits" },
+	{ "index cache summary prefetches" },
 
 	{ "bloom filter hits", },
 	{ "bloom filter misses", },
@@ -81,6 +84,9 @@ Statdesc statdesc[NStat] =
 
 	{ "sum reads", },
 	{ "sum read bytes", },
+	
+	{ "cig loads" },
+	{ "cig load time" },
 };
 
 QLock statslock;

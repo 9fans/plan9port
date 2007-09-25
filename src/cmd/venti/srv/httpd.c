@@ -895,7 +895,7 @@ static char* graphname[] =
 
 	"icachehit",
 	"icachemiss",
-	"icachelookup",
+	"icacheread",
 	"icachewrite",
 	"icachefill",
 	"icacheprefetch",
@@ -904,6 +904,9 @@ static char* graphname[] =
 	"icacheflush",
 	"icachestall",
 	"icachelookuptime",
+	"icachelookup",
+	"scachehit",
+	"scacheprefetch",
 
 	"bloomhit",
 	"bloommiss",
@@ -925,6 +928,9 @@ static char* graphname[] =
 
 	"sumread",
 	"sumreadbyte",
+	
+	"cigload",
+	"cigloadtime",
 };
 
 static int

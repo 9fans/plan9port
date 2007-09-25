@@ -18,7 +18,7 @@ static void	ventiserver(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: venti [-Ldrs] [-a ventiaddr] [-c config] "
+	fprint(2, "usage: venti [-Ldrsw] [-a ventiaddr] [-c config] "
 "[-h httpaddr] [-B blockcachesize] [-C cachesize] [-I icachesize] [-W webroot]\n");
 	threadexitsall("usage");
 }
@@ -73,6 +73,9 @@ threadmain(int argc, char *argv[])
 	case 's':
 		nofork = 1;
 		break;
+	case 'w':			/* compatibility with old venti */
+		queuewrites = 1;
+		break;
 	case 'W':
 		webroot = EARGF(usage());
 		break;
@@ -102,9 +105,6 @@ threadmain(int argc, char *argv[])
 
 	if(configfile == nil)
 		configfile = "venti.conf";
-
-	if(initarenasum() < 0)
-		fprint(2, "warning: can't initialize arena summing process: %r");
 
 	fprint(2, "conf...");
 	if(initventi(configfile, &config) < 0)
@@ -143,13 +143,7 @@ threadmain(int argc, char *argv[])
 		mem, mem / (8 * 1024));
 	initlumpcache(mem, mem / (8 * 1024));
 
-	icmem = u64log2(icmem / (sizeof(IEntry)+sizeof(IEntry*)) / ICacheDepth);
-	if(icmem < 4)
-		icmem = 4;
-	if(0) fprint(2, "initialize %d bytes of index cache for %d index entries\n",
-		(sizeof(IEntry)+sizeof(IEntry*)) * (1 << icmem) * ICacheDepth,
-		(1 << icmem) * ICacheDepth);
-	initicache(icmem, ICacheDepth);
+	initicache(icmem);
 	initicachewrite();
 
 	/*
@@ -178,6 +172,9 @@ threadmain(int argc, char *argv[])
 			queuewrites = 0;
 		}
 	}
+
+	if(initarenasum() < 0)
+		fprint(2, "warning: can't initialize arena summing process: %r");
 
 	fprint(2, "announce %s...", vaddr);
 	ventisrv = vtlisten(vaddr);
@@ -272,5 +269,3 @@ ventiserver(void *v)
 	flushicache();
 	threadexitsall(0);
 }
-
-

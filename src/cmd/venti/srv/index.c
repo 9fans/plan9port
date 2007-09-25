@@ -596,6 +596,25 @@ print("want arena %d for %llux\n", l, a);
 	return ix->arenas[l];
 }
 
+/*
+ * convert an arena index to the bounds of the containing arena group.
+ */
+Arena*
+amapitoag(Index *ix, u64int a, u64int *gstart, u64int *glimit, int *g)
+{
+	u64int aa;
+	Arena *arena;
+	
+	arena = amapitoa(ix, a, &aa);
+	if(arena == nil)
+		return nil;
+	if(arenatog(arena, aa, gstart, glimit, g) < 0)
+		return nil;
+	*gstart += a - aa;
+	*glimit += a - aa;
+	return arena;
+}
+
 int
 iaddrcmp(IAddr *ia1, IAddr *ia2)
 {

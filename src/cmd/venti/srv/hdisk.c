@@ -547,7 +547,7 @@ debugread(HConnect *c, u8int *score)
 	Lump *u;
 	IAddr ia;
 	IEntry ie;
-	int i, rac;
+	int i;
 	Arena *arena;
 	u64int aa;
 	ZBlock *zb;
@@ -561,7 +561,7 @@ debugread(HConnect *c, u8int *score)
 	}
 	
 	hprint(&c->hout, "<h2>index search %V</h2><pre>\n", score);
-	if(_lookupscore(score, -1, &ia, nil) < 0)
+	if(icachelookup(score, -1, &ia) < 0)
 		hprint(&c->hout, "  icache: not found\n");
 	else
 		hprint(&c->hout, "  icache: addr=%#llx size=%d type=%d blocks=%d\n",
@@ -585,12 +585,12 @@ debugread(HConnect *c, u8int *score)
 			hprint(&c->hout, " -cache");
 		putlump(u);
 		
-		if(lookupscore(score, type, &ia, &rac) < 0){
+		if(lookupscore(score, type, &ia) < 0){
 			hprint(&c->hout, " -lookup\n");
 			continue;
 		}
-		hprint(&c->hout, "\n  lookupscore: addr=%#llx size=%d blocks=%d rac=%d\n",
-			ia.addr, ia.size, ia.blocks, rac);
+		hprint(&c->hout, "\n  lookupscore: addr=%#llx size=%d blocks=%d\n",
+			ia.addr, ia.size, ia.blocks);
 		
 		arena = amapitoa(mainindex, ia.addr, &aa);
 		if(arena == nil){

@@ -7,7 +7,7 @@ int			queuewrites = 0;
 int			writestodevnull = 0;
 int			verifywrites = 0;
 
-static Packet		*readilump(Lump *u, IAddr *ia, u8int *score, int rac);
+static Packet		*readilump(Lump *u, IAddr *ia, u8int *score);
 
 /*
  * Some of this logic is duplicated in hdisk.c
@@ -19,7 +19,6 @@ readlump(u8int *score, int type, u32int size, int *cached)
 	Packet *p;
 	IAddr ia;
 	u32int n;
-	int rac;
 
 	trace(TraceLump, "readlump enter");
 /*
@@ -49,7 +48,7 @@ readlump(u8int *score, int type, u32int size, int *cached)
 	if(cached)
 		*cached = 0;
 
-	if(lookupscore(score, type, &ia, &rac) < 0){
+	if(lookupscore(score, type, &ia) < 0){
 		/* ZZZ place to check for someone trying to guess scores */
 		seterr(EOk, "no block with score %V/%d exists", score, type);
 
@@ -64,7 +63,7 @@ readlump(u8int *score, int type, u32int size, int *cached)
 	}
 
 	trace(TraceLump, "readlump readilump");
-	p = readilump(u, &ia, score, rac);
+	p = readilump(u, &ia, score);
 	putlump(u);
 
 	trace(TraceLump, "readlump exit");
@@ -134,9 +133,8 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 	Packet *old;
 	IAddr ia;
 	int ok;
-	int rac;
 
-	if(lookupscore(u->score, u->type, &ia, &rac) == 0){
+	if(lookupscore(u->score, u->type, &ia) == 0){
 		if(verifywrites == 0){
 			/* assume the data is here! */
 			packetfree(p);
@@ -149,7 +147,7 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 		 * if the read fails,
 		 * assume it was corrupted data and store the block again
 		 */
-		old = readilump(u, &ia, u->score, rac);
+		old = readilump(u, &ia, u->score);
 		if(old != nil){
 			ok = 0;
 			if(packetcmp(p, old) != 0){
@@ -176,7 +174,7 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 	ok = storeclump(mainindex, flat, u->score, u->type, creator, &ia);
 	freezblock(flat);
 	if(ok == 0)
-		ok = insertscore(u->score, &ia, 1);
+		ok = insertscore(u->score, &ia, IEDirty);
 	if(ok == 0)
 		insertlump(u, p);
 	else
@@ -193,39 +191,14 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 	return ok;
 }
 
-static void
-lreadahead(u64int a, Arena *arena, u64int aa, int n)
-{	
-	u8int buf[ClumpSize];
-	Clump cl;
-	IAddr ia;
-
-	while(n > 0) {
-		if (aa >= arena->memstats.used)
-			break;
-		if(readarena(arena, aa, buf, ClumpSize) < ClumpSize)
-			break;
-		if(unpackclump(&cl, buf, arena->clumpmagic) < 0)
-			break;
-		ia.addr = a;
-		ia.type = cl.info.type;
-		ia.size = cl.info.uncsize;
-		ia.blocks = (cl.info.size + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog;
-		insertscore(cl.info.score, &ia, 0);
-		a += ClumpSize + cl.info.size;
-		aa += ClumpSize + cl.info.size;
-		n--;
-	}
-}
-
 static Packet*
-readilump(Lump *u, IAddr *ia, u8int *score, int rac)
+readilump(Lump *u, IAddr *ia, u8int *score)
 {
 	Arena *arena;
 	ZBlock *zb;
 	Packet *p, *pp;
 	Clump cl;
-	u64int a, aa;
+	u64int aa;
 	u8int sc[VtScoreSize];
 
 	trace(TraceLump, "readilump enter");
@@ -256,13 +229,6 @@ readilump(Lump *u, IAddr *ia, u8int *score, int rac)
 		seterr(ECrash, "score mismatch");
 		freezblock(zb);
 		return nil;
-	}
-
-	if(rac == 0) {
-		trace(TraceLump, "readilump readahead");
-		a = ia->addr + ClumpSize + cl.info.size;
-		aa += ClumpSize + cl.info.size;
-		lreadahead(a, arena, aa, 20);
 	}
 
 	trace(TraceLump, "readilump success");

@@ -8,7 +8,7 @@ static void
 phdr(DBlock *eb)
 {
 	static int did;
-	
+
 	if(!did){
 		did = 1;
 		print("# diff actual correct\n");
@@ -168,7 +168,7 @@ checkbloom(Bloom *b1, Bloom *b2, int fix)
 {
 	u32int *a1, *a2;
 	int i, n, extra, missing;
-	
+
 	if(b1==nil && b2==nil)
 		return 0;
 	if(b1==nil || b2==nil){
@@ -188,13 +188,14 @@ checkbloom(Bloom *b1, Bloom *b2, int fix)
 	missing = 0;
 	for(i=BloomHeadSize/4; i<n; i++){
 		if(a1[i] != a2[i]){
-print("%.8ux/%.8ux.", a1[i], a2[i]);
-			extra += countbits(a1[i] & ~a2[i]);
+// print("%.8ux/%.8ux.", a1[i], a2[i]);
+			extra   += countbits(a1[i] & ~a2[i]);
 			missing += countbits(a2[i] & ~a1[i]);
 		}
 	}
 	if(extra || missing)
-		fprint(2, "bloom filter: %d spurious bits, %d missing bits\n", extra, missing);
+		fprint(2, "bloom filter: %d spurious bits, %d missing bits\n",
+			extra, missing);
 	else
 		fprint(2, "bloom filter: correct\n");
 	if(!fix && missing){

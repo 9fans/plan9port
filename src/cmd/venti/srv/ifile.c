@@ -2,46 +2,57 @@
 #include "dat.h"
 #include "fns.h"
 
+static char vcmagic[] = "venti config\n";
+
+enum {
+	Maxconfig = 8 * 1024,
+	Maglen = sizeof vcmagic - 1,
+};
+
 int
 readifile(IFile *f, char *name)
 {
-	int m;
 	Part *p;
 	ZBlock *b;
 	u8int *z;
-	
+
 	p = initpart(name, OREAD);
 	if(p == nil)
 		return -1;
-	b = alloczblock(8192, 1, 0);
+	b = alloczblock(Maxconfig+1, 1, 0);
 	if(b == nil){
 		seterr(EOk, "can't alloc for %s: %R", name);
 		return -1;
 	}
 	if(p->size > PartBlank){
 		/*
-		 * this is likely a real venti partition, in which case
-		 * we're looking for the config file stored as 8k at end of PartBlank.
+		 * this is likely a real venti partition, in which case we're
+		 * looking for the config file stored as 8k at end of PartBlank.
 		 */
-		if(readpart(p, PartBlank-8192, b->data, 8192) < 0){
+		if(readpart(p, PartBlank-Maxconfig, b->data, Maxconfig) < 0){
 			seterr(EOk, "can't read %s: %r", name);
 			freezblock(b);
 			freepart(p);
 			return -1;
 		}
-		m = 5+1+6+1;
-		if(memcmp(b->data, "venti config\n", m) != 0){
+		b->data[Maxconfig] = '\0';
+		if(memcmp(b->data, vcmagic, Maglen) != 0){
 			seterr(EOk, "bad venti config magic in %s", name);
 			freezblock(b);
 			freepart(p);
 			return -1;
 		}
-		b->data += m;
-		b->len -= m;
-		z = memchr(b->data, 0, b->len);
+		/*
+		 * if we change b->data+b->_size, freezblock
+		 * will blow an assertion, so don't.
+		 */
+		b->data  += Maglen;
+		b->_size -= Maglen;
+		b->len   -= Maglen;
+		z = memchr(b->data, '\0', b->len);
 		if(z)
 			b->len = z - b->data;
-	}else if(p->size > 8192){
+	}else if(p->size > Maxconfig){
 		seterr(EOk, "config file is too large");
 		freepart(p);
 		freezblock(b);

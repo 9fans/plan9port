@@ -56,13 +56,7 @@ threadmain(int argc, char *argv[])
 	if(0) fprint(2, "initialize %d bytes of disk block cache\n", bcmem);
 	initdcache(bcmem);
 	initlumpcache(1*1024*1024, 1024/8);
-	icmem = u64log2(icmem / (sizeof(IEntry)+sizeof(IEntry*)) / ICacheDepth);
-	if(icmem < 4)
-		icmem = 4;
-	if(1) fprint(2, "initialize %d bytes of index cache for %d index entries\n",
-		(sizeof(IEntry)+sizeof(IEntry*)) * (1 << icmem) * ICacheDepth,
-		(1 << icmem) * ICacheDepth);
-	initicache(icmem, ICacheDepth);
+	initicache(icmem);
 	initicachewrite();
 	if(mainindex->bloom)
 		startbloomproc(mainindex->bloom);

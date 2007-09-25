@@ -101,7 +101,7 @@ syncarenaindex(Index *ix, Arena *arena, u32int clump, u64int a, int fix, int *pf
 			}
 			flush = 1;
 			trace(TraceProc, "syncarenaindex insert %V", ci->score);
-			insertscore(ci->score, &ia, 1);
+			insertscore(ci->score, &ia, IEDirty);
 		}
 
 		if(0 && clump / 1000 != (clump + n) / 1000)
