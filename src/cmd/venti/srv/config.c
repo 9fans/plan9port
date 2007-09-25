@@ -9,11 +9,6 @@ static ArenaPart	*configarenas(char *file);
 static ISect		*configisect(char *file);
 static Bloom		*configbloom(char *file);
 
-void
-needmainindex(void)
-{
-}
-
 int
 initventi(char *file, Config *conf)
 {
@@ -248,5 +243,11 @@ configbloom(char *file)
 		freepart(part);
 	}
 	return b;
+}
+
+/* for OS X linker, which only resolves functions, not data */
+void
+needmainindex(void)
+{
 }
 
