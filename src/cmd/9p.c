@@ -12,7 +12,7 @@ char *addr;
 void
 usage(void)
 {
-	fprint(2, "usage: 9p [-a address] [-A aname] cmd args...\n");
+	fprint(2, "usage: 9p [-n] [-a address] [-A aname] cmd args...\n");
 	fprint(2, "possible cmds:\n");
 	fprint(2, "	read name\n");
 	fprint(2, "	readfd name\n");
@@ -24,6 +24,9 @@ usage(void)
 	fprint(2, "without -a, name elem/path means /path on server unix!$ns/elem\n");
 	threadexitsall("usage");
 }
+
+CFsys *(*nsmnt)(char*, char*) = nsamount;
+CFsys *(*fsmnt)(int, char*) = fsamount;
 
 char *aname;
 void xread(int, char**);
@@ -68,6 +71,10 @@ threadmain(int argc, char **argv)
 		if(strchr(addr, '!') == nil)
 			addr = netmkaddr(addr, "tcp", "9fs");
 		break;
+	case 'n':
+		nsmnt = nsmount;
+		fsmnt = fsmount;
+		break;
 	case 'D':
 		chatty9pclient = 1;
 		break;
@@ -104,15 +111,15 @@ xparse(char *name, char **path)
 		else
 			*p++ = 0;
 		*path = p;
-		fs = nsamount(name, aname);
+		fs = nsmnt(name, aname);
 		if(fs == nil)
 			sysfatal("mount: %r");
 	}else{
 		*path = name;
 		if((fd = dial(addr, nil, nil, nil)) < 0)
 			sysfatal("dial: %r");
-		if((fs = fsamount(fd, aname)) == nil)
-			sysfatal("fsamount: %r");
+		if((fs = fsmnt(fd, aname)) == nil)
+			sysfatal("mount: %r");
 	}
 	return fs;
 }
@@ -467,6 +474,8 @@ dircmp(const void *va, const void *vb)
 	return strcmp(a->name, b->name);
 }
 
+char *dot[] = { "." };
+
 void
 xls(int argc, char **argv)
 {
@@ -497,6 +506,10 @@ xls(int argc, char **argv)
 	quotefmtinstall();
 	fmtinstall('T', timefmt);
 	
+	if(argc == 0){
+		argv = dot;
+		argc = 1;
+	}
 	for(i=0; i<argc; i++){
 		name = argv[i];
 		fs = xparse(name, &xname);
