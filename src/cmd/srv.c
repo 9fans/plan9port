@@ -41,6 +41,9 @@ threadmain(int argc, char **argv)
 	case 'a':
 		doauth = 1;
 		break;
+	case 'n':
+		doauth = -1;
+		break;
 	case 'k':
 		keypattern = EARGF(usage());
 		break;
@@ -55,7 +58,7 @@ threadmain(int argc, char **argv)
 	if((fd = dial(addr, nil, nil, nil)) < 0)
 		sysfatal("dial %s: %r", addr);
 
-	if(doauth)
+	if(doauth > 0)
 		xauth();
 
 	if(argc == 2)
@@ -216,7 +219,7 @@ post9pservice(int fd, char *name)
 		dup(fd, 1);
 		for(i=3; i<20; i++)
 			close(i);
-		if(doauth)
+		if(doauth > 0)
 			execlp("9pserve", "9pserve", "-u",
 				"-M",
 					smprint("%d", msize),
@@ -224,8 +227,9 @@ post9pservice(int fd, char *name)
 					aname,
 					smprint("%d", afid),
 				s, (char*)0);
-		else		
-			execlp("9pserve", "9pserve", "-u", s, (char*)0);
+		else
+			execlp("9pserve", "9pserve",
+				doauth < 0 ? "-nu" : "-u", s, (char*)0);
 		fprint(2, "exec 9pserve: %r\n");
 		_exits("exec");
 	default:

@@ -4,7 +4,7 @@ srv, 9fs \- start network file service
 .SH SYNOPSIS
 .B srv
 [
-.B -a
+.B -an
 ]
 [
 .B -k
@@ -37,6 +37,14 @@ to post a pre-authenticated connection to the file system
 (by default, the empty string;
 see
 .IR attach (9p)).
+.PP
+The 
+.B -n
+option causes 
+.I srv
+to reject authentication attempts by clients,
+useful if the remote server is known not to require authentication.
+.PP
 .I Srv
 authenticates over the 9P connection to establish a valid auth fid.
 .IR Keypattern ,
