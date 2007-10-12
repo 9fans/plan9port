@@ -4,7 +4,7 @@
 .SH SYNOPSIS
 .B 9pserve
 [
-.B -lv
+.B -lnv
 ]
 [
 .B -A
@@ -54,6 +54,11 @@ The options are:
 .B -l
 logging; write a debugging log to
 .IB addr .log \fR.
+.TP
+.B -n
+no authentication; respond to Tauth
+messages with an error (see 
+.IR attach (9P)).
 .TP
 .B -v
 verbose; more verbose when repeated

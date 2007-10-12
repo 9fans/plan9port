@@ -92,6 +92,7 @@ u32int xafid = NOFID;
 int attached;
 int versioned;
 int dotu;
+int noauth;
 
 void *gethash(Hash**, uint);
 int puthash(Hash**, uint, void*);
@@ -135,7 +136,7 @@ int cvtustat(Fcall*, uchar**, int);
 void
 usage(void)
 {
-	fprint(2, "usage: 9pserve [-lv] [-A aname afid] [-M msize] address\n");
+	fprint(2, "usage: 9pserve [-lnv] [-A aname afid] [-M msize] address\n");
 	fprint(2, "\treads/writes 9P messages on stdin/stdout\n");
 	threadexitsall("usage");
 }
@@ -164,6 +165,9 @@ threadmain(int argc, char **argv)
 	case 'M':
 		versioned = 1;
 		msize = atoi(EARGF(usage()));
+		break;
+	case 'n':
+		noauth = 1;
 		break;
 	case 'v':
 		verbose++;
@@ -448,6 +452,10 @@ connthread(void *arg)
 		case Tauth:
 			if(attached){
 				err(m, "authentication not required");
+				continue;
+			}
+			if(noauth){
+				err(m, "authentication rejected");
 				continue;
 			}
 			m->afid = fidnew(m->tx.afid);
