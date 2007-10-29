@@ -466,6 +466,8 @@ struct Index
 	AMap		*smap;			/* mapping of buckets to index sections */
 	int		narenas;
 	AMap		*amap;			/* mapping from index addesses to arenas */
+	
+	QLock	writing;
 };
 
 /*

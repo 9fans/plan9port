@@ -541,20 +541,33 @@ ZZZ question: should this distinguish between an arena
 filling up and real errors writing the clump?
  */
 u64int
-writeiclump(Index *ix, Clump *c, u8int *clbuf, u64int *pa)
+writeiclump(Index *ix, Clump *c, u8int *clbuf)
 {
 	u64int a;
 	int i;
+	IAddr ia;
+	AState as;
 
 	trace(TraceLump, "writeiclump enter");
+	qlock(&ix->writing);
 	for(i = ix->mapalloc; i < ix->narenas; i++){
-		a = writeaclump(ix->arenas[i], c, clbuf, ix->amap[i].start, pa);
+		a = writeaclump(ix->arenas[i], c, clbuf);
 		if(a != TWID64){
-			ix->mapalloc = i;	/* assuming write is atomic, race is okay */
+			ix->mapalloc = i;
+			ia.addr = ix->amap[i].start + a;
+			ia.type = c->info.type;
+			ia.size = c->info.uncsize;
+			ia.blocks = (c->info.size + ClumpSize + (1<<ABlockLog) - 1) >> ABlockLog;
+			as.arena = ix->arenas[i];
+			as.aa = ia.addr;
+			as.stats = as.arena->memstats;
+			insertscore(c->info.score, &ia, IEDirty, &as);
+			qunlock(&ix->writing);
 			trace(TraceLump, "writeiclump exit");
-			return a;
+			return ia.addr;
 		}
 	}
+	qunlock(&ix->writing);
 
 	seterr(EAdmin, "no space left in arenas");
 	trace(TraceLump, "writeiclump failed");

@@ -13,6 +13,7 @@ LIBOFILES=\
 	dump.$O\
 	graph.$O\
 	hdisk.$O\
+	hproc.$O\
 	httpd.$O\
 	icache.$O\
 	icachewrite.$O\

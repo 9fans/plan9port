@@ -6,7 +6,7 @@ static	int	verbose;
 void
 usage(void)
 {
-	fprint(2, "usage: syncindex [-fv] [-B blockcachesize] config\n");
+	fprint(2, "usage: syncindex [-v] [-B blockcachesize] config\n");
 	threadexitsall("usage");
 }
 
@@ -16,9 +16,7 @@ void
 threadmain(int argc, char *argv[])
 {
 	u32int bcmem, icmem;
-	int fix;
 
-	fix = 0;
 	bcmem = 0;
 	icmem = 0;
 	ARGBEGIN{
@@ -28,9 +26,6 @@ threadmain(int argc, char *argv[])
 	case 'I':
 		icmem = unittoull(EARGF(usage()));
 		break;
-	case 'f':
-		fix++;
-		break;
 	case 'v':
 		verbose++;
 		break;
@@ -38,9 +33,6 @@ threadmain(int argc, char *argv[])
 		usage();
 		break;
 	}ARGEND
-
-	if(!fix)
-		readonly = 1;
 
 	if(argc != 1)
 		usage();
@@ -63,8 +55,10 @@ threadmain(int argc, char *argv[])
 
 	if(verbose)
 		printindex(2, mainindex);
-	if(syncindex(mainindex, fix, 1, 0) < 0)
+	if(syncindex(mainindex) < 0)
 		sysfatal("failed to sync index=%s: %r\n", mainindex->name);
+	flushicache();
+	flushdcache();
 
 	threadexitsall(0);
 }

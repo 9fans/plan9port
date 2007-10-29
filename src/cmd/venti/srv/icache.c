@@ -20,6 +20,7 @@ struct ICache
 	IEntry	dirty;
 	u32int	maxdirty;
 	u32int	ndirty;
+	AState	as;
 
 	ISum	**sum;
 	int		nsum;
@@ -398,7 +399,7 @@ icachelookup(u8int score[VtScoreSize], int type, IAddr *ia)
 }
 
 int
-insertscore(u8int score[VtScoreSize], IAddr *ia, int state)
+insertscore(u8int score[VtScoreSize], IAddr *ia, int state, AState *as)
 {
 	ISum *toload;
 
@@ -409,6 +410,13 @@ insertscore(u8int score[VtScoreSize], IAddr *ia, int state)
 	else{
 		assert(state == IEDirty);
 		toload = nil;
+		if(as == nil)
+			fprint(2, "%T insertscore IEDirty without as; called from %lux\n", getcallerpc(&score));
+		else{
+			if(icache.as.aa > as->aa)
+				fprint(2, "%T insertscore: aa moving backward: %#llux -> %#llux\n", icache.as.aa, as->aa);
+			icache.as = *as;
+		}
 	}
 	qunlock(&icache.lock);
 	if(toload){
@@ -443,7 +451,7 @@ lookupscore_untimed(u8int score[VtScoreSize], int type, IAddr *ia)
 	if(loadientry(mainindex, score, type, &d) < 0)
 		return -1;
 	
-	insertscore(score, &d.ia, IEClean);
+	insertscore(score, &d.ia, IEClean, nil);
 	*ia = d.ia;
 	return 0;
 }
@@ -507,6 +515,16 @@ icachedirty(u32int lo, u32int hi, u64int limit)
 	return dirty;
 }
 
+AState
+icachestate(void)
+{
+	AState as;
+
+	qlock(&icache.lock);
+	as = icache.as;
+	qunlock(&icache.lock);
+	return as;
+}
 
 /*
  * The singly-linked non-circular list of index entries ie

@@ -174,8 +174,6 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 	ok = storeclump(mainindex, flat, u->score, u->type, creator, &ia);
 	freezblock(flat);
 	if(ok == 0)
-		ok = insertscore(u->score, &ia, IEDirty);
-	if(ok == 0)
 		insertlump(u, p);
 	else
 		packetfree(p);

@@ -293,13 +293,12 @@ ZZZ question: should this distinguish between an arena
 filling up and real errors writing the clump?
  */
 u64int
-writeaclump(Arena *arena, Clump *c, u8int *clbuf, u64int start, u64int *pa)
+writeaclump(Arena *arena, Clump *c, u8int *clbuf)
 {
 	DBlock *b;
 	u64int a, aa;
 	u32int clump, n, nn, m, off, blocksize;
 	int ok;
-	AState as;
 
 	n = c->info.size + ClumpSize + U32Size;
 	qlock(&arena->lock);
@@ -309,10 +308,6 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf, u64int start, u64int *pa)
 		if(!arena->memstats.sealed){
 			logerr(EOk, "seal memstats %s", arena->name);
 			arena->memstats.sealed = 1;
-			as.arena = arena;
-			as.aa = start+aa;
-			as.stats = arena->memstats;
-			setdcachestate(&as);
 		}
 		qunlock(&arena->lock);
 		return TWID64;
@@ -390,14 +385,6 @@ NoCIG:
 	writeclumpinfo(arena, clump, &c->info);
 	wbarena(arena);
 
-	/* set up for call to setdcachestate */
-	as.arena = arena;
-	as.aa = start+arena->memstats.used;
-	as.stats = arena->memstats;
-
-	/* update this before calling setdcachestate so it cannot be behind dcache.diskstate */
-	*pa = start+aa;
-	setdcachestate(&as);
 	qunlock(&arena->lock);
 
 	return aa;

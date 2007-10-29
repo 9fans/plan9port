@@ -24,7 +24,7 @@ checkarena(Arena *arena, int scan, int fix)
 
 	err = 0;
 	for(;;){
-		e = syncarena(arena, 0, 1000, 0, fix);
+		e = syncarena(arena, 1000, 0, fix);
 		err |= e;
 		if(!(e & SyncHeader))
 			break;

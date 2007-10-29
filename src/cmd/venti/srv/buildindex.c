@@ -36,7 +36,7 @@ static void	arenapartproc(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: buildindex [-b] [-i isect]... [-M imem] venti.conf\n");
+	fprint(2, "usage: buildindex [-bd] [-i isect]... [-M imem] venti.conf\n");
 	threadexitsall("usage");
 }
 
@@ -54,12 +54,12 @@ threadmain(int argc, char *argv[])
 	case 'b':
 		bloom = 1;
 		break;
+	case 'd':	/* debugging - make sure to run all 3 passes */
+		dumb = 1;
+		break;
 	case 'i':
 		isect = vtrealloc(isect, (nisect+1)*sizeof(isect[0]));
 		isect[nisect++] = EARGF(usage());
-		break;
-	case 'd':	/* debugging - make sure to run all 3 passes */
-		dumb = 1;
 		break;
 	case 'M':
 		imem = unittoull(EARGF(usage()));
@@ -222,22 +222,28 @@ arenapartproc(void *v)
 		if(a->memstats.clumps)
 			fprint(2, "%T arena %s: %d entries\n", 
 				a->name, a->memstats.clumps);
-		addr = ix->amap[i].start;
-		for(clump=0; clump<a->memstats.clumps; clump+=n){
+		/*
+		 * Running the loop backwards accesses the 
+		 * clump info blocks forwards, since they are
+		 * stored in reverse order at the end of the arena.
+		 * This speeds things slightly.
+		 */
+		addr = ix->amap[i].start + a->memstats.used;
+		for(clump=a->memstats.clumps; clump > 0; clump-=n){
 			n = ClumpChunks;
-			if(n > a->memstats.clumps - clump)
-				n = a->memstats.clumps - clump;
-			if(readclumpinfos(a, clump, cis, n) != n){
+			if(n > clump)
+				n = clump;
+			if(readclumpinfos(a, clump-n, cis, n) != n){
 				fprint(2, "%T arena %s: directory read: %r\n", a->name);
 				errors = 1;
 				break;
 			}
-			for(j=0; j<n; j++){
+			for(j=n-1; j>=0; j--){
 				ci = &cis[j];
 				ie.ia.type = ci->type;
 				ie.ia.size = ci->uncsize;
+				addr -= ci->size + ClumpSize;
 				ie.ia.addr = addr;
-				addr += ci->size + ClumpSize;
 				ie.ia.blocks = (ci->size + ClumpSize + (1<<ABlockLog)-1) >> ABlockLog;
 				scorecp(ie.score, ci->score);
 				if(ci->type == VtCorruptType)
@@ -253,6 +259,8 @@ arenapartproc(void *v)
 				}
 			}
 		}
+		if(addr != ix->amap[i].start)
+			fprint(2, "%T arena %s: clump miscalculation %lld != %lld\n", a->name, addr, ix->amap[i].start);
 	}
 	add(&arenaentries, tot);
 	add(&skipentries, nskip);

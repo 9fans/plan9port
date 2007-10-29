@@ -12,7 +12,7 @@ static void icachewritecoord(void*);
 static IEntry *iesort(IEntry*);
 
 int icachesleeptime = 1000;	/* milliseconds */
-int minicachesleeptime = 50;
+int minicachesleeptime = 0;
 
 enum
 {
@@ -242,18 +242,20 @@ icachewritecoord(void *v)
 	threadsetname("icachewritecoord");
 
 	ix = mainindex;
-	iwrite.as = diskstate();
+	iwrite.as = icachestate();
 
 	for(;;){
 		trace(TraceProc, "icachewritecoord sleep");
 		waitforkick(&iwrite.round);
 		trace(TraceWork, "start");
-		as = diskstate();
+		as = icachestate();
 		if(as.arena==iwrite.as.arena && as.aa==iwrite.as.aa){
 			/* will not be able to do anything more than last flush - kick disk */
+			fprint(2, "icache: nothing to do - kick dcache\n");
 			trace(TraceProc, "icachewritecoord kick dcache");
 			kickdcache();
 			trace(TraceProc, "icachewritecoord kicked dcache");
+			goto SkipWork;	/* won't do anything; don't bother rewriting bloom filter */
 		}
 		iwrite.as = as;
 
@@ -271,9 +273,11 @@ icachewritecoord(void *v)
 				err |= recvul(ix->bloom->writedonechan);
 
 			trace(TraceProc, "icachewritecoord donewrite err=%d", err);
-			if(err == 0)
+			if(err == 0){
 				setatailstate(&iwrite.as);
+			}
 		}
+	SkipWork:
 		icacheclean(nil);	/* wake up anyone waiting */
 		trace(TraceWork, "finish");
 		addstat(StatIcacheFlush, 1);

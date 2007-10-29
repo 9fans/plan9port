@@ -661,7 +661,7 @@ isonearena(void)
 	return u32(pagein(0, Block)) == ArenaHeadMagic;
 }
 
-static int tabsizes[] = { 16*1024, 64*1024, 512*1024, };
+static int tabsizes[] = { 16*1024, 64*1024, 512*1024, 768*1024, };
 /*
  * Poke around on the disk to guess what the ArenaPart numbers are.
  */
@@ -807,8 +807,9 @@ guessgeometry(void)
 	 * Fmtarenas used to use 64k tab, now uses 512k tab.
 	 */
 	if(ap.arenabase == 0){
+		print("trying standard arena bases...\n");
 		for(i=0; i<nelem(tabsizes); i++){
-			ap.arenabase = ROUNDUP(PartBlank+HeadSize, ap.blocksize);
+			ap.arenabase = ROUNDUP(PartBlank+HeadSize+tabsizes[i], ap.blocksize);
 			p = pagein(ap.arenabase, Block);
 			if(u32(p) == ArenaHeadMagic)
 				break;
@@ -1554,7 +1555,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	bcit = cibuf;
 	ecit = cibuf+ncibuf;
 	
-	smart = 1;
+	smart = 0;	/* Somehow the smart code doesn't do corrupt clumps right. */
 Again:
 	nbad = 0;
 	ci = bci;

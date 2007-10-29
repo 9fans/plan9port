@@ -25,7 +25,7 @@ clumpinfocmp(ClumpInfo *c, ClumpInfo *d)
  * returns 0 if ok, flags if error occurred
  */
 int
-syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
+syncarena(Arena *arena, u32int n, int zok, int fix)
 {
 	ZBlock *lump;
 	Clump cl;
@@ -53,7 +53,7 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 			fprint(2, "%s: illegal clump magic number=%#8.8ux at clump=%d\n", arena->name, magic, clump);
 			/* err |= SyncDataErr; */
 			if(fix && writeclumpmagic(arena, aa, ClumpFreeMagic) < 0){
-				fprint(2, "can't write corrected clump free magic: %r");
+				fprint(2, "%s: can't write corrected clump free magic: %r", arena->name);
 				err |= SyncFixErr;
 			}
 			break;
@@ -136,9 +136,8 @@ syncarena(Arena *arena, u64int start, u32int n, int zok, int fix)
 	|| cclumps != arena->memstats.cclumps
 	|| uncsize != arena->memstats.uncsize){
 		err |= SyncHeader;
-		fprint(2, "arena %s: start=%lld fix=%d flush=%d %lld->%lld %ud->%ud %ud->%ud %lld->%lld\n",
+		fprint(2, "arena %s: fix=%d flush=%d %lld->%lld %ud->%ud %ud->%ud %lld->%lld\n",
 			arena->name,
-			start,
 			fix,
 			flush,
 			used, arena->memstats.used,

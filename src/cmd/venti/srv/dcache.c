@@ -55,9 +55,6 @@ struct DCache
 	u8int		*mem;			/* memory for all block descriptors */
 	int		ndirty;			/* number of dirty blocks */
 	int		maxdirty;		/* max. number of dirty blocks */
-
-	AState	diskstate;
-	AState	state;
 };
 
 typedef struct Ra Ra;
@@ -121,26 +118,6 @@ initdcache(u32int mem)
 
 	vtproc(flushproc, nil);
 	vtproc(delaykickroundproc, &dcache.round);
-}
-
-void
-setdcachestate(AState *a)
-{
-	trace(TraceBlock, "setdcachestate %s 0x%llux clumps %d", a->arena ? a->arena->name : nil, a->aa, a->stats.clumps);
-	qlock(&dcache.lock);
-	dcache.state = *a;
-	qunlock(&dcache.lock);
-}
-
-AState
-diskstate(void)
-{
-	AState a;
-
-	qlock(&dcache.lock);
-	a = dcache.diskstate;
-	qunlock(&dcache.lock);
-	return a;
 }
 
 static u32int
@@ -637,7 +614,6 @@ flushproc(void *v)
 	int i, j, n;
 	ulong t0;
 	DBlock *b, **write;
-	AState as;
 
 	USED(v);
 	threadsetname("flushproc");
@@ -647,10 +623,6 @@ flushproc(void *v)
 		trace(TraceWork, "start");
 		t0 = nsec()/1000;
 		trace(TraceProc, "build t=%lud", (ulong)(nsec()/1000)-t0);
-
-		qlock(&dcache.lock);
-		as = dcache.state;
-		qunlock(&dcache.lock);
 
 		write = dcache.write;
 		n = 0;
@@ -688,7 +660,6 @@ flushproc(void *v)
 		 */
 		trace(TraceProc, "undirty.%d t=%lud", j, (ulong)(nsec()/1000)-t0);
 		qlock(&dcache.lock);
-		dcache.diskstate = as;
 		for(i=0; i<n; i++){
 			b = write[i];
 			--dcache.ndirty;

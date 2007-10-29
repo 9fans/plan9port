@@ -62,18 +62,16 @@ storeclump(Index *ix, ZBlock *zb, u8int *sc, int type, u32int creator, IAddr *ia
 	memset(cb->data+ClumpSize+dsize, 0, 4);
 	cl.info.size = dsize;
 
-	ia->addr = 0;
-	ia->type = type;
-	ia->size = size;
-	ia->blocks = (dsize + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog;
-
-	a = writeiclump(ix, &cl, cb->data, &ia->addr);
-
+	a = writeiclump(ix, &cl, cb->data);
 	trace(TraceLump, "storeclump exit %lld", a);
-
 	freezblock(cb);
 	if(a == TWID64)
 		return -1;
+
+	ia->addr = a;
+	ia->type = type;
+	ia->size = size;
+	ia->blocks = (dsize + ClumpSize + (1 << ABlockLog) - 1) >> ABlockLog;
 
 /*
 	qlock(&stats.lock);

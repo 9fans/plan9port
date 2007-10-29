@@ -133,7 +133,6 @@ threadmain(int argc, char *argv[])
 	Arena *arena;
 	u64int offset, aoffset;
 	Part *part;
-	Dir *d;
 	uchar buf[8192];
 	ArenaHead head;
 	ZClump zerocl;
@@ -178,9 +177,6 @@ threadmain(int argc, char *argv[])
 
 	statsinit();
 
-	if((d = dirstat(file)) == nil)
-		sysfatal("can't stat file %s: %r", file);
-
 	part = initpart(file, OREAD);
 	if(part == nil)
 		sysfatal("can't open file %s: %r", file);
@@ -190,9 +186,9 @@ threadmain(int argc, char *argv[])
 	if(unpackarenahead(&head, buf) < 0)
 		sysfatal("corrupted arena header: %r");
 
-	if(aoffset+head.size > d->length)
+	if(aoffset+head.size > part->size)
 		sysfatal("arena is truncated: want %llud bytes have %llud\n",
-			head.size, d->length);
+			head.size, part->size);
 
 	partblocksize(part, head.blocksize);
 	initdcache(8 * MaxDiskBlock);

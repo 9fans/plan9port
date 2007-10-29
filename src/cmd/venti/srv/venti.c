@@ -161,7 +161,7 @@ threadmain(int argc, char *argv[])
 		startbloomproc(mainindex->bloom);
 
 	fprint(2, "sync...");
-	if(!readonly && syncindex(mainindex, 1, 0, 0) < 0)
+	if(!readonly && syncindex(mainindex) < 0)
 		sysfatal("can't sync server: %r");
 
 	if(!readonly && queuewrites){
