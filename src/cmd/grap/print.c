@@ -23,8 +23,9 @@ void print(void)	/* arrange final output */
 	int c;
 	double dx, dy, xfac, yfac;
 
-	if (tfd != NULL) {
-		fclose(tfd);	/* end the temp file */
+	if (tfd != stdout) {
+		if (tfd)
+			fclose(tfd);	/* end the temp file */
 		tfd = stdout;
 	}
 
