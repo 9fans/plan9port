@@ -20,8 +20,11 @@ case "$tag" in
 *-NetBSD-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o
 	;;
-*-Darwin-*)
+*-Darwin-[6-8].*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o pthread.o
+	;;
+*-Darwin-*)
+	echo pthread.o
 	;;
 *-OpenBSD-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o $SYSNAME.o

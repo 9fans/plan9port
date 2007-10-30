@@ -19,15 +19,15 @@ HFILES=thread.h threadimpl.h
 OpenBSD.$O FreeBSD.$O: BSD.c
 NetBSD.$O: Linux.c
 
-tprimes: tprimes.$O
-	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
-tspawn: tspawn.$O
-	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
-tspawnloop: tspawnloop.$O
-	9l -o $target $target.$O $PLAN9/lib/$LIB -l9 -lpthread
+tprimes: test/tprimes.$O
+	9l -o $target test/$target.$O
+tspawn: test/tspawn.$O
+	9l -o $target test/$target.$O
+tspawnloop: test/tspawnloop.$O
+	9l -o $target test/$target.$O
 
 %.$O: %.c
-	$CC $CFLAGS -I. $stem.c
+	$CC -o $target $CFLAGS -I. $stem.c
 
 # cannot use generic .S rule because it conflicts
 # with generic .s rule in mkcommon on case-insensitive
