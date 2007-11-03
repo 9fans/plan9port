@@ -21,7 +21,7 @@ extern	int		swapcontext(ucontext_t*, ucontext_t*);
 extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
-#if defined(__APPLE__) && !defined(__DARWIN_UNIX03)
+#if defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
 #	define mcontext libthread_mcontext
 #	define mcontext_t libthread_mcontext_t
 #	define ucontext libthread_ucontext
