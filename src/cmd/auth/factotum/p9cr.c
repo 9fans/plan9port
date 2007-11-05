@@ -75,6 +75,8 @@ p9crclient(Conv *c)
 		astype = AuthVNC;
 		challen = MAXCHAL;
 	//	response = vncresponse;
+		werrstr("no vnc");
+		goto out;
 	}else{
 		werrstr("bad proto");
 		goto out;
