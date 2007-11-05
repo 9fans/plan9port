@@ -3,6 +3,7 @@
 #include <diskfs.h>
 
 int nfilereads;
+void _nfilereads_darwin_sucks(void) { }
 
 typedef struct DiskFile DiskFile;
 struct DiskFile

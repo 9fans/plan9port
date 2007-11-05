@@ -14,6 +14,7 @@ struct DiskVenti
 };
 
 extern int nfilereads;
+extern void _nfilereads_darwin_sucks(void);
 
 /*
  * This part is like file.c but doesn't require storing the root block
@@ -155,6 +156,8 @@ diskopenventi(VtCache *c, uchar score[VtScoreSize])
 Err:
 	if(b)
 		vtblockput(b);
+
+	_nfilereads_darwin_sucks();  /* force Darwin ld to pull in file.o */
 	return nil;
 }
 
