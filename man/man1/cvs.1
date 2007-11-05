@@ -4,11 +4,11 @@ cvs \- introduction using plan9port CVS repository
 .SH SYNOPSIS
 .B cvs 
 .B -d
-.B :pserver:anoncvs@cvs.pdos.lcs.mit.edu:/cvs login
+.B :pserver:anoncvs@cvs.pdos.csail.mit.edu:/cvs login
 .PP
 .B cvs
 .B -d
-.B :pserver:anoncvs@cvs.pdos.lcs.mit.edu:/cvs checkout plan9
+.B :pserver:anoncvs@cvs.pdos.csail.mit.edu:/cvs checkout plan9
 .PP
 .B cvs
 .B update
@@ -43,12 +43,14 @@ cvs \- introduction using plan9port CVS repository
 ]
 .PP
 .B web
-.B http://cvs.pdos.lcs.mit.edu/cvs/plan9/
+.B http://cvs.pdos.csail.mit.edu/cvs/plan9/
 .SH DESCRIPTION
 The master source tree for Plan 9 from User Space is maintained
 using the source control system CVS
 as a poor substitute for Plan 9's
 \fIreplica\fR(8) and dump file system.
+(It is maintained simultaneously using Mercurial; see
+.IR hg (1).)
 .PP
 The first argument to
 .I cvs
@@ -179,7 +181,7 @@ command first to create your
 file.
 .PP
 The CVS tree can be inspected on the web at
-.HR http://cvs.pdos.lcs.mit.edu/cvs/plan9/ "" .
+.HR http://cvs.pdos.csail.mit.edu/cvs/plan9/ "" .
 .SH EXAMPLES
 Incorporate any changes made to the CVS tree since
 the last check out or update:
@@ -233,11 +235,13 @@ directory containing CVS metadata for parent
 .B .cvsignore
 list of files and wildcards to exclude from CVS operations in this directory
 .SH SEE ALSO
+.IR hg (1)
+.PP
 Unix's
 \fIcvs\fR(1),
 .HR http://www.cvshome.org/
 .PP
-.HR http://cvs.pdos.lcs.mit.edu/cvs/plan9/
+.HR http://cvs.pdos.csail.mit.edu/cvs/plan9/
 .SH BUGS
 The CVS server is a read-only public copy of a private tree.
 The dates on versions reflect the date the changes were made in the 

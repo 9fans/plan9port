@@ -1,0 +1,115 @@
+.TH HG 1
+.SH NAME 
+hg \- introduction to using plan9port Mercurial repository
+.SH SYNOPSIS
+.B hg
+.B clone
+.B http://hg.pdos.csail.mit.edu/hg/plan9
+.B plan9
+.PP
+.B hg
+.B pull
+.B -u
+.PP
+.B hg
+.B diff
+[
+.B -r
+.I revision
+]
+[
+.I path ...
+]
+.PP
+.B hg 
+.B serve
+.PP
+.B hg 
+.B view
+.PP
+.B web
+.B http://hg.pdos.csail.mit.edu/hg/plan9/
+.SH DESCRIPTION
+The master source tree for Plan 9 from User Space is maintained
+using the source control system Mercurial
+as a substitute for Plan 9's
+\fIreplica\fR(8) and dump file system.
+(It is maintained simultaneously using CVS; see
+.IR cvs (1).)
+.PP
+The first argument to
+.I hg
+is a command, which determines the form of the rest of the command line.
+.PP
+The
+.B clone
+command downloads a copy of the tree into the directory
+.BR plan9 ,
+which it will create.
+After
+.B hg
+.BR clone ,
+the other commands listed 
+should be run within the
+.B plan9
+directory tree.
+.PP
+Unlike CVS, Mercurial downloads the entire revision history
+of Plan 9 from User Space 
+in addition to the current tree.
+.PP
+.I Hg
+.I pull
+incorporates changes from the master repository
+into the local revision history.
+The 
+.B -u
+flag applies these changes to the current file tree.
+.PP
+.I Hg
+.I diff
+runs Unix's
+.IR diff (1)
+to compare the files in the local tree with the corresponding
+files in the revision history.
+By default it compares against the version that was most recently
+incorporated into the local tree.
+The
+.B -r
+flag specifies an alternate version to compare against.
+The special revision
+.B tip
+refers to the most recent version on the server.
+.PP
+.I Hg
+.I serve
+starts an HTTP server serving information about
+the local repository at the address
+.BR http://localhost:8000/ .
+.PP
+.I Hg
+.I view
+starts an interactive history viewer.
+.PP
+The Mercurial tree can be inspected on the web at
+.HR http://hg.pdos.csail.mit.edu/hg/plan9/ "" .
+.SH FILES
+.TP
+.B \*9/.hg
+directory containing Mercurial local repository
+.TP
+.B .hgignore
+list of files and wildcards to exclude from Mercurial operations
+.SH SEE ALSO
+.IR cvs (1)
+.PP
+Unix's
+\fIhg\fR(1),
+.HR http://www.selenic.com/mercurial/wiki/
+.PP
+.HR http://hg.pdos.csail.mit.edu/hg/plan9/
+.SH BUGS
+The use of Mercurial for accessing Plan 9 from User Space
+should be considered experimental.
+People uncomfortable with Mercurial should continue to use
+.IR cvs (1).
