@@ -17,6 +17,7 @@ struct Imap
 	int		autoreconnect;
 	int		ticks;	/* until boom! */
 	char*	server;
+	char*	root;
 	int		mode;
 	int		fd;
 	Biobuf	b;
@@ -90,7 +91,7 @@ static Sx*		zBrdsx(Imap*);
  */
 
 Imap*
-imapconnect(char *server, int mode)
+imapconnect(char *server, int mode, char *root)
 {
 	Imap *z;
 
@@ -100,6 +101,13 @@ imapconnect(char *server, int mode)
 	z = emalloc(sizeof *z);
 	z->server = estrdup(server);
 	z->mode = mode;
+	if(root)
+		if(root[0] != 0 && root[strlen(root)-1] != '/')
+			z->root = smprint("%s/", root);
+		else
+			z->root = root;
+	else
+		z->root = "";
 	z->fd = -1;
 	z->autoreconnect = 0;
 	z->io = ioproc();
@@ -220,7 +228,9 @@ getboxes(Imap *z)
 		boxes[i]->exists = 0;
 		boxes[i]->maxseen = 0;
 	}
-	if(imapcmd(z, nil, "LIST %Z *", "") < 0)
+	if(imapcmd(z, nil, "LIST %Z *", z->root) < 0)
+		return -1;
+	if(z->root != nil && imapcmd(z, nil, "LIST %Z INBOX", "") < 0)
 		return -1;
 	if(z->nextbox && z->nextbox->mark)
 		z->nextbox = nil;
@@ -739,7 +749,8 @@ imapdial(char *server, int mode)
 		fd[1] = dup(p[0], -1);
 		fd[2] = dup(2, -1);
 		tmp = esmprint("%s:993", server);
-		if(threadspawnl(fd, "/usr/sbin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0){
+		if(threadspawnl(fd, "/usr/sbin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0
+		    && threadspawnl(fd, "/usr/bin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0){
 			free(tmp);
 			close(p[0]);
 			close(p[1]);
@@ -1222,22 +1233,32 @@ xlist(Imap *z, Sx *sx)
 		s = gsub(s, "/", "_");
 		s = gsub(s, sx->sx[3]->data, "/");
 	}
+
+	/*
+	 * INBOX is the special imap name for the main mailbox.
+	 * All other mailbox names have the root prefix removed, if applicable.
+	 */
+	inbox = 0;
+	if(cistrcmp(s, "INBOX") == 0){
+		inbox = 1;
+		free(s);
+		s = estrdup("mbox");
+	} else if(z->root && strstr(s, z->root) == s) {
+		t = estrdup(s+strlen(z->root));
+		free(s);
+		s = t;
+	}
 	
 	/* 
 	 * Plan 9 calls the main mailbox mbox.  
 	 * Rename any existing mbox by appending a $.
 	 */
-	inbox = 0;
-	if(strncmp(s, "mbox", 4) == 0 && alldollars(s+4)){
+	if(!inbox && strncmp(s, "mbox", 4) == 0 && alldollars(s+4)){
 		t = emalloc(strlen(s)+2);
 		strcpy(t, s);
 		strcat(t, "$");
 		free(s);
 		s = t;
-	}else if(cistrcmp(s, "INBOX") == 0){
-		inbox = 1;
-		free(s);
-		s = estrdup("mbox");
 	}
 
 	box = boxcreate(s);

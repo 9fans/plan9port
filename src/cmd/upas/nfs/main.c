@@ -22,17 +22,18 @@ Imap *imap;
 void
 usage(void)
 {
-	fprint(2, "usage: mailfs [-DVtx] [-s srvname] server\n");
+	fprint(2, "usage: mailfs [-DVtx] [-s srvname] [-r root] server\n");
 	threadexitsall("usage");
 }
 
 void
 threadmain(int argc, char **argv)
 {
-	char *server, *srvname;
+	char *server, *srvname, *root;
 	int mode;
 
 	srvname = "mail";
+	root = "";
 	mode = Unencrypted;
 	ARGBEGIN{
 	default:
@@ -52,6 +53,9 @@ threadmain(int argc, char **argv)
 	case 'x':
 		mode = Cmd;
 		break;
+	case 'r':
+		root = EARGF(usage());
+		break;
 	}ARGEND
 
 	quotefmtinstall();	
@@ -65,7 +69,7 @@ threadmain(int argc, char **argv)
 	boxinit();
 	fsinit0();
 
-	if((imap = imapconnect(server, mode)) == nil)
+	if((imap = imapconnect(server, mode, root)) == nil)
 		sysfatal("imapconnect: %r");
 	threadpostmountsrv(&fs, srvname, nil, 0);
 }

@@ -1,7 +1,7 @@
 typedef struct Imap Imap;
 
 void		imapcheckbox(Imap *z, Box *b);
-Imap*		imapconnect(char *server, int mode);
+Imap*		imapconnect(char *server, int mode, char *root);
 int		imapcopylist(Imap *z, char *nbox, Msg **m, uint nm);
 void		imapfetchraw(Imap *z, Part *p);
 void		imapfetchrawbody(Imap *z, Part *p);
