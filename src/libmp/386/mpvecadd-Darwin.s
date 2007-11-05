@@ -26,42 +26,42 @@ _mpvecadd:
 
 	/* skip addition if b is zero */
 	testl	%ecx,%ecx
-	je	_add1
+	je	2f
 
 	/* sum[0:blen-1],carry = a[0:blen-1] + b[0:blen-1] */
-_addloop1:
+1:
 	movl	(%esi, %ebp, 4), %eax
 	adcl	(%ebx, %ebp, 4), %eax
 	movl	%eax, (%edi, %ebp, 4)
 	incl	%ebp
-	loop	_addloop1
+	loop	1b
 
-_add1:
+2:
 	/* jump if alen > blen */
 	incl	%edx
 	movl	%edx, %ecx
-	loop	_addloop2
+	loop	5f
 
 	/* sum[alen] = carry */
-_addend:
-	jb	_addcarry
+3:
+	jb	4f
 	movl	$0, (%edi, %ebp, 4)
-	jmp done
+	jmp 6f
 
-_addcarry:
+4:
 	movl	$1, (%edi, %ebp, 4)
-	jmp done
+	jmp 6f
 
 	/* sum[blen:alen-1],carry = a[blen:alen-1] + 0 */
-_addloop2:
+5:
 	movl	(%esi, %ebp, 4),%eax
 	adcl	$0, %eax
 	movl	%eax, (%edi, %ebp, 4)
 	incl	%ebp
-	loop	_addloop2
-	jmp	_addend
+	loop	5b
+	jmp	3b
 
-done:
+6:
 	/* Postlude */
 	popl %edi
 	popl %esi

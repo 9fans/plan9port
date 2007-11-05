@@ -22,7 +22,6 @@
  */
 .text
 
-.p2align 2,0x90
 .globl _mpvecdigmuladd
 _mpvecdigmuladd:
 	/* Prelude */
@@ -42,20 +41,20 @@ _mpvecdigmuladd:
 	addl	%ecx, %esi		/* SI = b + n */
 	addl	%ecx, %edi		/* DI = p + n */
 	xorl	%ecx, %ecx
-_muladdloop:
+1:
 	movl	(%esi, %ebp, 4), %eax	/* lo = b[i] */
 	mull	%ebx			/* hi, lo = b[i] * m */
 	addl	%ecx,%eax		/* lo += oldhi */
-	jae	_muladdnocarry1
+	jae	2f
 	incl	%edx			/* hi += carry */
-_muladdnocarry1:
+2:
 	addl	%eax, (%edi, %ebp, 4)	/* p[i] += lo */
-	jae	_muladdnocarry2
+	jae	3f
 	incl	%edx			/* hi += carry */
-_muladdnocarry2:
+3:
 	movl	%edx, %ecx		/* oldhi = hi */
 	incl	%ebp			/* i++ */
-	jnz	_muladdloop
+	jnz	1b
 	xorl	%eax, %eax
 	addl	%ecx, (%edi, %ebp, 4)	/* p[n] + oldhi */
 	adcl	%eax, %eax		/* return carry out of p[n] */

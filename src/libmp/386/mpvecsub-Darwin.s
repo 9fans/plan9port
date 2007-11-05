@@ -26,31 +26,31 @@ _mpvecsub:
 
 	/* skip subraction if b is zero */
 	testl	%ecx,%ecx
-	jz	_sub1
+	jz	2f
 
 	/* diff[0:blen-1],borrow = a[0:blen-1] - b[0:blen-1] */
-_subloop1:
+1:
 	movl	(%esi, %ebp, 4), %eax
 	sbbl	(%ebx, %ebp, 4), %eax
 	movl	%eax, (%edi, %ebp, 4)
 	incl	%ebp
-	loop	_subloop1
+	loop	1b
 
-_sub1:
+2:
 	incl	%edx
 	movl	%edx,%ecx
-	loop	_subloop2
-	jmp done
+	loop	3f
+	jmp 4f
 
 	/* diff[blen:alen-1] = a[blen:alen-1] - 0 */
-_subloop2:
+3:
 	movl	(%esi, %ebp, 4), %eax
 	sbbl	$0, %eax
 	movl	%eax, (%edi, %ebp, 4)
 	incl	%ebp
-	loop	_subloop2
+	loop	3b
 
-done:
+4:
 	/* Postlude */
 	popl %edi
 	popl %esi

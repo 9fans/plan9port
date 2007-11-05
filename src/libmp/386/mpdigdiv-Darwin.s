@@ -1,5 +1,5 @@
 .text
-.p2align 2,0x90
+
 .globl _mpdigdiv
 _mpdigdiv:
 	/* Prelude */
@@ -15,19 +15,19 @@ _mpdigdiv:
 
 	xorl	%ecx, %ecx
 	cmpl	%ebx, %edx		/* dividend >= 2^32 * divisor */
-	jae	divovfl
+	jae	2f
 	cmpl	%ecx, %ebx		/* divisor == 1 */
-	je	divovfl
+	je	2f
 	divl	%ebx		/* AX = DX:AX/BX */
 	movl	%eax, (%ebp)
-done:
+1:
 	/* Postlude */
 	popl %ebx
 	popl %ebp
 	ret
 
 	/* return all 1's */
-divovfl:
+2:
 	notl	%ecx
 	movl	%ecx, (%ebp)
-	jmp done
+	jmp 1b

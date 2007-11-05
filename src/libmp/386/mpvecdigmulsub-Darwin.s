@@ -23,7 +23,6 @@
  */
 .text
 
-.p2align 2,0x90
 .globl _mpvecdigmulsub
 _mpvecdigmulsub:
 	/* Prelude */
@@ -39,28 +38,28 @@ _mpvecdigmulsub:
 	movl	12(%ebp), %edi		/* p */
 	xorl	%ebp, %ebp
 	pushl %ebp
-_mulsubloop:
+1:
 	movl	(%esi, %ebp, 4),%eax	/* lo = b[i] */
 	mull	%ebx			/* hi, lo = b[i] * m */
 	addl	0(%esp), %eax		/* lo += oldhi */
-	jae	_mulsubnocarry1
+	jae	2f
 	incl	%edx			/* hi += carry */
-_mulsubnocarry1:
+2:
 	subl	%eax, (%edi, %ebp, 4)
-	jae	_mulsubnocarry2
+	jae	3f
 	incl	%edx			/* hi += carry */
-_mulsubnocarry2:
+3:
 	movl	%edx, 0(%esp)
 	incl	%ebp
-	loop	_mulsubloop
+	loop	1b
 	popl %eax
 	subl	%eax, (%edi, %ebp, 4)
-	jae	_mulsubnocarry3
+	jae	4f
 	movl	$-1, %eax
-	jmp done
-_mulsubnocarry3:
+	jmp 5f
+4:
 	movl	$1, %eax
-done:
+5:
 	/* Postlude */
 	popl %edi
 	popl %esi
