@@ -1,8 +1,7 @@
 #!/bin/sh
 
 ar "$@"
-case "`uname`" in 
-Darwin)
-	ranlib -c $2
-	;;
-esac
+
+# We used to run ranlib if uname = Darwin,
+# but the mkfiles now pass the s flag to 9ar,
+# so ranlib should be unnecessary even there.

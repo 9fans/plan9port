@@ -2,10 +2,10 @@ default:V:	$LIB
 
 $LIB(%):N: %
 $LIB:	${OFILES:%=$LIB(%)}
-	$AR rvc $LIB $newmember
+	$AR rsc $LIB $newmember
 
 &:n:	&.$O
-	$AR rvc $LIB $stem.$O
+	$AR rsc $LIB $stem.$O
 
 all install:V: $LIB
 

@@ -77,7 +77,7 @@ CLEANFILES=$CLEANFILES $SLIB
 <$PLAN9/src/mkmany
 
 $SLIB: $LIBOFILES
-	9ar rvc $SLIB $LIBOFILES
+	9ar rsc $SLIB $LIBOFILES
 
 # xml.c:D:	mkxml dat.h
 # 	./mkxml dat.h > xml.c

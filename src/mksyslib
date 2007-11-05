@@ -1,14 +1,14 @@
 default:V:	$PLAN9/lib/$LIB
 
 # $PLAN9/lib/$LIB:	$OFILES
-# 	$AR rvc $PLAN9/lib/$LIB $newprereq
+# 	$AR rsc $PLAN9/lib/$LIB $newprereq
 
 $PLAN9/lib/$LIB(%):N: %
 $PLAN9/lib/$LIB:	${OFILES:%=$PLAN9/lib/$LIB(%)}
-	$AR rvc $PLAN9/lib/$LIB $newmember
+	$AR rsc $PLAN9/lib/$LIB $newmember
 
 &:n:	&.$O
-	$AR rvc $PLAN9/lib/$LIB $stem.$O
+	$AR rsc $PLAN9/lib/$LIB $stem.$O
 
 all install:V: $PLAN9/lib/$LIB
 
