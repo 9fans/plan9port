@@ -1416,6 +1416,8 @@ nstring(Sx *v)
 {
 	char *p;
 	
+	if(isnil(v))
+		return estrdup("");
 	p = v->data;
 	v->data = nil;
 	return p;
