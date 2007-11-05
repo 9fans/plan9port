@@ -21,11 +21,20 @@ extern	int		swapcontext(ucontext_t*, ucontext_t*);
 extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
-#if defined(__APPLE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
+#if defined(__APPLE__)
+	/*
+	 * OS X before 10.5 (Leopard) does not provide
+	 * swapcontext nor makecontext, so we have to use our own.
+	 * In theory, Leopard does provide them, but when we use 
+	 * them, they seg fault.  Maybe we're using them wrong.
+	 * So just use our own versions, even on Leopard.
+	 */
 #	define mcontext libthread_mcontext
 #	define mcontext_t libthread_mcontext_t
 #	define ucontext libthread_ucontext
 #	define ucontext_t libthread_ucontext_t
+#	define swapcontext libthread_swapcontext
+#	define makecontext libthread_makecontext
 #	if defined(__i386__)
 #		include "386-ucontext.h"
 #	else
