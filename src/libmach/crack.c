@@ -4,6 +4,32 @@
 #include <mach.h>
 #include "elf.h"
 
+
+Mach *mach;
+
+extern Mach mach386;
+extern Mach machpower;
+
+static Mach *machs[] = 
+{
+	&mach386,
+	&machpower,
+};
+
+Mach*
+machbyname(char *name)
+{
+	int i;
+
+	for(i=0; i<nelem(machs); i++)
+		if(strcmp(machs[i]->name, name) == 0){
+			mach = machs[i];
+			return machs[i];
+		}
+	werrstr("machine '%s' not found", name);
+	return nil;
+}
+
 static struct
 {
 	ulong magic;

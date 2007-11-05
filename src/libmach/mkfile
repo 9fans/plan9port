@@ -27,7 +27,6 @@ OFILES=\
 	ieee.$O\
 	loc.$O\
 	localaddr.$O\
-	mach.$O\
 	mach386.$O\
 	macho.$O\
 	machocorepower.$O\
