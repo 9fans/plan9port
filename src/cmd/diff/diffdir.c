@@ -19,8 +19,10 @@ scandir(char *name)
 	int nitems;
 	int fd, n;
 
-	if ((fd = open(name, OREAD)) < 0)
-		panic(2, "can't open %s\n", name);
+	if ((fd = open(name, OREAD)) < 0){
+		panic(mflag ? 0 : 2, "can't open %s\n", name);
+		return nil;
+	}
 	cp = 0;
 	nitems = 0;
 	if((n = dirreadall(fd, &db)) > 0){
@@ -63,6 +65,8 @@ diffdir(char *f, char *t, int level)
 	dt = scandir(t);
 	dirf = df;
 	dirt = dt;
+	if(df == nil || dt == nil)
+		goto Out;
 	while (*df || *dt) {
 		from = *df;
 		to = *dt;
@@ -99,9 +103,10 @@ diffdir(char *f, char *t, int level)
 		diff(fb, tb, level+1);
 		df++; dt++;
 	}
-	for (df = dirf; *df; df++)
+Out:
+	for (df = dirf; df && *df; df++)
 		FREE(*df);
-	for (dt = dirt; *dt; dt++)
+	for (dt = dirt; dt && *dt; dt++)
 		FREE(*dt);
 	FREE(dirf);
 	FREE(dirt);

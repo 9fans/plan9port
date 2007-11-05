@@ -183,7 +183,9 @@ main(int argc, char *argv[])
 	char *p;
 	int i;
 	Dir *fsb, *tsb;
-
+	extern int _p9usepwlibrary;
+	
+	_p9usepwlibrary = 0;
 	Binit(&stdout, 1, OWRITE);
 	progname = *argv;
 	while (--argc && (*++argv)[0] == '-' && (*argv)[1]) {
@@ -208,6 +210,7 @@ main(int argc, char *argv[])
 
 			case 'r':
 				rflag = 1;
+				mflag = 1;
 				break;
 
 			case 'm':
