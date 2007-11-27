@@ -37,3 +37,4 @@ picl.$O: picl.l
 	rm lex.yy.c
 	mv lex.yy.$O picl.$O
 
+CLEANFILES=$CLEANFILES picy.c
