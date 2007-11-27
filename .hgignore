@@ -15,3 +15,5 @@ y.tab.[ch]$
 ^unix/.*\.tgz$
 ^bin/
 ^log/
+^dict/
+^postscript/font/
