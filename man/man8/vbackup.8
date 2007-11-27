@@ -5,7 +5,7 @@ back up Unix file systems to Venti
 .SH SYNOPSIS
 .B vbackup
 [
-.B -DVnv
+.B -DVinv
 ]
 [
 .B -M
@@ -153,6 +153,10 @@ The default is the name returned by
 .TP
 .B -n
 No-op mode: do not write any blocks to the server
+.TP
+.B -i
+Read scores incrementally from the previous backup as needed,
+rather than prefetching them.
 .TP
 .B -v
 Print verbose output.

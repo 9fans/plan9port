@@ -6,6 +6,7 @@
  *
  *	-D	print debugging
  *	-f	'fast' writes - skip write if block exists on server
+ *	-i	read old scores incrementally
  *	-m	set mount name
  *	-M	set mount place
  *	-n	nop -- don't actually write blocks
@@ -63,6 +64,7 @@ int		errors;		/* are we exiting with an error status? */
 int		fastwrites;		/* do not write blocks already on server */
 int		fsscanblock;	/* last block scanned */
 Fsys*	fsys;			/* file system being backed up */
+int		incremental;	/* use vscores rather than bscores */
 int		nchange;		/* number of changed blocks */
 int		nop;			/* don't actually send blocks to venti */
 int		nskip;		/* number of blocks skipped (already on server) */
@@ -72,6 +74,7 @@ Queue*	qventi;		/* queue cmp->venti */
 int		statustime;	/* print status every _ seconds */
 int		verbose;		/* print extra stuff */
 VtFile*	vfile;			/* venti file being written */
+VtFile*	vscores;		/* venti file with block scores */
 Channel*	writechan;	/* chan(WriteReq) */
 VtConn*	z;			/* connection to venti */
 VtCache*	zcache;		/* cache of venti blocks */
@@ -126,6 +129,9 @@ threadmain(int argc, char **argv)
 		break;
 	case 'f':
 		fastwrites = 1;
+		break;
+	case 'i':
+		incremental = 1;
 		break;
 	case 'm':
 		mountname = EARGF(usage());
@@ -233,41 +239,49 @@ threadmain(int argc, char **argv)
 			sysfatal("file system block counts don't match %lld %lld", e.size, fsys->nblock*bsize);
 	}
 
-	/*
-	 * write scores of blocks into temporary file
-	 */
-	if((tmp = getenv("TMP")) != nil){
-		/* okay, good */
-	}else if(access("/var/tmp", 0) >= 0)
-		tmp = "/var/tmp";
-	else
-		tmp = "/tmp";
-	tmpnam = smprint("%s/vbackup.XXXXXX", tmp);
-	if(tmpnam == nil)
-		sysfatal("smprint: %r");
-
-	if((fd = opentemp(tmpnam)) < 0)
-		sysfatal("opentemp %s: %r", tmpnam);
-	if(statustime)
-		print("# %T reading scores into %s\n", tmpnam);
-	if(verbose)
-		fprint(2, "read scores into %s...\n", tmpnam);
-
-	Binit(&bscores, fd, OWRITE);
-	for(i=0; i<fsys->nblock; i++){
-		if(vtfileblockscore(vfile, i, score) < 0)
-			sysfatal("vtfileblockhash %d: %r", i);
-		if(Bwrite(&bscores, score, VtScoreSize) != VtScoreSize)
-			sysfatal("Bwrite: %r");
+	if(incremental){
+		if(vtfilegetentry(vfile, &e) < 0)
+			sysfatal("vtfilegetentry: %r");
+		if((vscores = vtfileopenroot(c, &e)) == nil)
+			sysfatal("vtfileopenroot: %r");
+		vtfileunlock(vfile);
+	}else{
+		/*
+		 * write scores of blocks into temporary file
+		 */
+		if((tmp = getenv("TMP")) != nil){
+			/* okay, good */
+		}else if(access("/var/tmp", 0) >= 0)
+			tmp = "/var/tmp";
+		else
+			tmp = "/tmp";
+		tmpnam = smprint("%s/vbackup.XXXXXX", tmp);
+		if(tmpnam == nil)
+			sysfatal("smprint: %r");
+	
+		if((fd = opentemp(tmpnam)) < 0)
+			sysfatal("opentemp %s: %r", tmpnam);
+		if(statustime)
+			print("# %T reading scores into %s\n", tmpnam);
+		if(verbose)
+			fprint(2, "read scores into %s...\n", tmpnam);
+	
+		Binit(&bscores, fd, OWRITE);
+		for(i=0; i<fsys->nblock; i++){
+			if(vtfileblockscore(vfile, i, score) < 0)
+				sysfatal("vtfileblockhash %d: %r", i);
+			if(Bwrite(&bscores, score, VtScoreSize) != VtScoreSize)
+				sysfatal("Bwrite: %r");
+		}
+		Bterm(&bscores);
+		vtfileunlock(vfile);
+	
+		/*
+		 * prep scores for rereading
+		 */
+		seek(fd, 0, 0);
+		Binit(&bscores, fd, OREAD);
 	}
-	Bterm(&bscores);
-	vtfileunlock(vfile);
-
-	/*
-	 * prep scores for rereading
-	 */
-	seek(fd, 0, 0);
-	Binit(&bscores, fd, OREAD);
 
 	/*
 	 * start the main processes 
@@ -305,6 +319,8 @@ threadmain(int argc, char **argv)
 	/*
 	 * prepare root block
 	 */
+	if(incremental)
+		vtfileclose(vscores);
 	vtfilelock(vfile, -1);
 	if(vtfileflush(vfile) < 0)
 		sysfatal("vtfileflush: %r");
@@ -408,14 +424,21 @@ cmpproc(void *dummy)
 
 	USED(dummy);
 
+	if(incremental)
+		vtfilelock(vscores, VtOREAD);
 	bsize = fsys->blocksize;
 	while((db = qread(qcmp, &bno)) != nil){
 		data = db->data;
 		sha1(data, vtzerotruncate(VtDataType, data, bsize), score, nil);
-		if(Bseek(&bscores, (vlong)bno*VtScoreSize, 0) < 0)
-			sysfatal("cmpproc Bseek: %r");
-		if(Bread(&bscores, score1, VtScoreSize) != VtScoreSize)
-			sysfatal("cmpproc Bread: %r");
+		if(incremental){
+			if(vtfileblockscore(vscores, bno, score1) < 0)
+				sysfatal("cmpproc vtfileblockscore %d: %r", bno);
+		}else{
+			if(Bseek(&bscores, (vlong)bno*VtScoreSize, 0) < 0)
+				sysfatal("cmpproc Bseek: %r");
+			if(Bread(&bscores, score1, VtScoreSize) != VtScoreSize)
+				sysfatal("cmpproc Bread: %r");
+		}
 		if(memcmp(score, score1, VtScoreSize) != 0){
 			nchange++;
 			if(verbose)
@@ -425,6 +448,8 @@ cmpproc(void *dummy)
 			blockput(db);
 	}
 	qclose(qventi);
+	if(incremental)
+		vtfileunlock(vscores);
 	if(statustime)
 		print("# %T cmp proc exiting\n");
 	runlock(&endlk);
