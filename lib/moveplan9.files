@@ -24,5 +24,6 @@ bin/vwhois
 bin/vmount
 bin/yesterday
 man/mkindex
+tmac/tmac.an
 tmac/tmac.anhtml
 tmac/tmac.pm

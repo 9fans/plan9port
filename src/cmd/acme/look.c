@@ -365,11 +365,11 @@ search(Text *ct, Rune *r, uint n)
 			fbuffree(s);
 			return TRUE;
 		}
-		if(around && q>=ct->q1)
-			break;
 		--nb;
 		b++;
 		q++;
+		if(around && q>=ct->q1)
+			break;
 	}
 	fbuffree(s);
 	return FALSE;

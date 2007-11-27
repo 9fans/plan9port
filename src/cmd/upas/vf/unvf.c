@@ -24,7 +24,7 @@ main(void)
 	while((p = Brdstr(&b, '\n', 1)) != nil){
 		if(p[0] == 0)
 			break;
-		if(strncmp(p, "Content-Transfer-Encoding: ", 27) == 0)
+		if(cistrncmp(p, "Content-Transfer-Encoding: ", 27) == 0)
 			encoding = strdup(p+27);
 		free(p);
 	}

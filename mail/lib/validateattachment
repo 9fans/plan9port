@@ -54,6 +54,10 @@ case *'zip archive'*
 	# but the errors look like
 	# unzip: reading data for philw.doc.scr failed: ...
 	# so we can still catch these.
+	if(! unzip -tsf $file >[2=1] >/dev/null){
+		echo corrupt zip file!
+		exit $discard
+	}
 	if(unzip -tsf $file >[2=1] | grep -si '      |\.(scr|exe|pif|bat|com)$'){
 		echo executables inside zip file!
 		exit $discard

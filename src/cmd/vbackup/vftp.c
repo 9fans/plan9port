@@ -418,7 +418,7 @@ threadmain(int argc, char **argv)
 			sysfatal("diskopenventi: %r");
 	}
 	if((fsys = fsysopen(disk)) == nil)
-		sysfatal("ffsopen: %r");
+		sysfatal("fsysopen: %r");
 
 	fprint(2, "block size %d\n", fsys->blocksize);
 	buf = emalloc(fsys->blocksize);

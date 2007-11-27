@@ -534,11 +534,12 @@ colwhich(Column *c, Point p)
 	for(i=0; i<c->nw; i++){
 		w = c->w[i];
 		if(ptinrect(p, w->r)){
-			if(ptinrect(p, w->tagtop) || ptinrect(p, w->tag.fr.r))
+			if(ptinrect(p, w->tagtop) || ptinrect(p, w->tag.all))
 				return &w->tag;
-			if(ptinrect(p, w->body.scrollr) || ptinrect(p, w->body.fr.r))
-				return &w->body;
-			return nil;
+			/* exclude partial line at bottom */
+			if(p.x >= w->body.scrollr.max.x && p.y >= w->body.fr.r.max.y)
+				return nil;
+			return &w->body;
 		}
 	}
 	return nil;

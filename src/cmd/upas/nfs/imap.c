@@ -569,13 +569,19 @@ int
 imapcopylist(Imap *z, char *nbox, Msg **m, uint nm)
 {
 	int rv;
-	char *name;
+	char *name, *p;
 	
 	if(nm == 0)
 		return 0;
 
 	qlock(&z->lk);
-	name = esmprint("%Z", nbox);
+	if(strcmp(nbox, "mbox") == 0)
+		name = estrdup("INBOX");
+	else{
+		p = esmprint("%s%s", z->root, nbox);
+		name = esmprint("%Z", p);
+		free(p);
+	}
 	rv = imaplistcmd(z, m[0]->box, "UID COPY", m, nm, name);
 	free(name);
 	qunlock(&z->lk);

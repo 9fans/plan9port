@@ -538,7 +538,7 @@ xls(int argc, char **argv)
 			}
 			if(sort)
 				qsort(d, n, sizeof d[0], dircmp);
-			for(j=0; j<5; j++)
+			for(j=0; j<4; j++)
 				len[j] = 0;
 			for(i=0; i<n; i++){
 				d[i].type = 'M';

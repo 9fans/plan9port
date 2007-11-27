@@ -6,18 +6,23 @@ if(! ~ $#* 1){
 }
 
 fn srv1 {
+	flag=()
+	if(~ $1 -*){
+		flag=$1
+		shift
+	}
 	if(! 9p stat $1 >/dev/null >[2=1]){
 		rm -f $ns/$1
-		srv -a $2 $1
+		srv $flag $2 $1
 	}
 }
 
 ns=`{namespace}
 switch($1){
 case tip
-	srv1 tip utumno.tip9ug.jp
+	srv1 -a tip utumno.tip9ug.jp
 case sources
-	srv1 sources sources.cs.bell-labs.com
+	srv1 -n sources sources.cs.bell-labs.com
 case *
 	srv1 $1 $1
 }

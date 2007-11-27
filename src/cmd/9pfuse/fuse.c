@@ -804,6 +804,8 @@ mountfuse(char *mtpt)
 			"/Contents/Resources/load_fusefs", 0) < 0 &&
 		   access(f="/Library/Extensions/fusefs.kext"
 		   	"/Contents/Resources/load_fusefs", 0) < 0 &&
+		   access(f="/Library/Filesystems"
+				  "/fusefs.fs/Support/load_fusefs", 0) < 0 &&
 		   access(f="/System/Library/Filesystems"
 		         "/fusefs.fs/Support/load_fusefs", 0) < 0){
 		   	werrstr("cannot find load_fusefs");
@@ -843,8 +845,15 @@ mountfuse(char *mtpt)
 		/*
 		 * Different versions of MacFUSE put the
 		 * mount_fusefs binary in different places.
-		 * Try both.
+		 * Try all.
 		 */
+		/* Leopard location */
+		putenv("MOUNT_FUSEFS_DAEMON_PATH",
+			   "/Library/Filesystems/fusefs.fs/Support/mount_fusefs");
+		execl("/Library/Filesystems/fusefs.fs/Support/mount_fusefs",
+			  "mount_fusefs", buf, mtpt, nil);
+
+		/* possible Tiger locations */
 		execl("/System/Library/Filesystems/fusefs.fs/mount_fusefs",
 			"mount_fusefs", buf, mtpt, nil);
 		execl("/System/Library/Filesystems/fusefs.fs/Support/mount_fusefs",

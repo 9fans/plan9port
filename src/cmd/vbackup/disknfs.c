@@ -67,7 +67,7 @@ threadmain(int argc, char **argv)
 		sysfatal("diskcache: %r");
 
 	if((fsys = fsysopen(disk)) == nil)
-		sysfatal("ffsopen: %r");
+		sysfatal("fsysopen: %r");
 
 	nfs3chan = chancreate(sizeof(SunMsg*), 0);
 	mountchan = chancreate(sizeof(SunMsg*), 0);

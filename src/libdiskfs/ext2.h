@@ -51,7 +51,7 @@ enum
 
 
 /*
- * Super block on-disk format.
+ * Super block
  */
 struct Super
 {
@@ -84,7 +84,7 @@ struct Super
 };
 
 /*
- * Block group on-disk format.
+ * Block group
  */
 struct Group
 {
@@ -94,8 +94,6 @@ struct Group
 	u16int	freeblockscount;	/* Free blocks count */
 	u16int	freeinodescount;	/* Free inodes count */
 	u16int	useddirscount;	/* Directories count */
-	u16int	pad;
-	u32int	reserved[3];
 };
 enum
 {
@@ -103,7 +101,7 @@ enum
 };
 
 /*
- * Structure of an inode on the disk
+ * Inode
  */
 struct Inode
 {
@@ -118,13 +116,11 @@ struct Inode
 	u16int	nlink;	/* Links count */
 	u32int	nblock;	/* Blocks count */
 	u32int	flags;		/* File flags */
-	u32int	osd1;				
 	u32int	block[NBLOCKS];/* Pointers to blocks */
 	u32int	version;	/* File version (for NFS) */
 	u32int	fileacl;	/* File ACL */
 	u32int	diracl;	/* Directory ACL or high size bits */
 	u32int	faddr;		/* Fragment address */
-	uchar	osd2[12];
 };
 enum
 {
@@ -132,15 +128,14 @@ enum
 };
 
 /*
- * Directory entry on-disk structure.
+ * Directory entry
  */
 struct Dirent
 {
 	u32int	ino;			/* Inode number */
 	u16int	reclen;		/* Directory entry length */
 	u8int	namlen;		/* Name length */
-	u8int	pad;
-	char	name[NAMELEN];	/* File name */
+	char	*name;	/* File name */
 };
 enum
 {

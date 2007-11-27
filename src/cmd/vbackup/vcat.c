@@ -52,7 +52,7 @@ threadmain(int argc, char **argv)
 	if((disk = diskopenventi(c, score)) == nil)
 		sysfatal("diskopenventi: %r");
 	if((fsys = fsysopen(disk)) == nil)
-		sysfatal("ffsopen: %r");
+		sysfatal("fsysopen: %r");
 
 	zero = emalloc(fsys->blocksize);
 	fprint(2, "%d blocks total\n", fsys->nblock);

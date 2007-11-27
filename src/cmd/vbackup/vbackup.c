@@ -164,7 +164,7 @@ threadmain(int argc, char **argv)
 	if((disk = diskcache(disk, 32768, 2*MAXQ+16)) == nil)
 		sysfatal("diskcache: %r");
 	if((fsys = fsysopen(disk)) == nil)
-		sysfatal("ffsopen: %r");
+		sysfatal("fsysopen: %r");
 
 	/*
 	 * connect to venti

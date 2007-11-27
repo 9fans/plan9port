@@ -22,12 +22,21 @@
 #ifndef O_DIRECTORY
 #define O_DIRECTORY 0
 #endif
+
 #ifndef O_LARGEFILE
-#if defined(__linux__)
-#define O_LARGEFILE 0100000  /* Sigh */
-#else
-#define O_LARGEFILE 0
+#  if defined(__linux__)
+#    define O_LARGEFILE 0100000  /* Sigh */
+#  else
+#    define O_LARGEFILE 0
+#  endif
 #endif
+
+#ifndef O_CLOEXEC
+#  if defined(__linux__)
+#    define O_CLOEXEC 02000000  /* Sigh */
+#  else
+#    define O_CLOEXEC 0
+#  endif
 #endif
 
 
@@ -552,7 +561,7 @@ _fuseopen(FuseMsg *m, int isdir)
 	flags = in->flags;
 	openmode = flags&3;
 	flags &= ~3;
-	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE);
+	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_CLOEXEC);
 	if(flags & O_TRUNC){
 		openmode |= OTRUNC;
 		flags &= ~O_TRUNC;

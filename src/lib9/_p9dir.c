@@ -252,7 +252,7 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 			close(fd);
 		}
 #endif
-#if defined(__FreeBSD__)
+#if defined(DIOCGMEDIASIZE)
 		if(isdisk(st)){
 			int fd;
 			off_t mediasize;

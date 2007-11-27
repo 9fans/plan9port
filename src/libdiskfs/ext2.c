@@ -6,6 +6,11 @@
 #include <diskfs.h>
 #include "ext2.h"
 
+static void parsedirent(Dirent*, uchar*);
+static void parseinode(Inode*, uchar*);
+static void parsegroup(Group*, uchar*);
+static void parsesuper(Super*, uchar*);
+
 #define debug 0
 
 static int ext2sync(Fsys*);
@@ -63,31 +68,29 @@ ext2close(Fsys *fsys)
 	free(fsys);
 }
 
-static Group*
-ext2group(Ext2 *fs, u32int i, Block **pb)
+static int
+ext2group(Ext2 *fs, u32int i, Group *g)
 {
 	Block *b;
 	u64int addr;
-	Group *g;
 
 	if(i >= fs->ngroup)
-		return nil;
+		return -1;
 
 	addr = fs->groupaddr + i/fs->descperblock;
 	b = diskread(fs->disk, fs->blocksize, addr*fs->blocksize);
 	if(b == nil)
-		return nil;
-	g = (Group*)(b->data+i%fs->descperblock*GroupSize);
-	*pb = b;
-	return g;
+		return -1;
+	parsegroup(g, b->data+i%fs->descperblock*GroupSize);
+	blockput(b);
+	return 0;
 }
 
 static Block*
 ext2blockread(Fsys *fsys, u64int vbno)
 {
 	Block *bitb;
-	Group *g;
-	Block *gb;
+	Group g;
 	uchar *bits;
 	u32int bno, boff, bitblock;
 	u64int bitpos;
@@ -108,7 +111,7 @@ ext2blockread(Fsys *fsys, u64int vbno)
 		return nil;
 
 	bno -= fs->firstblock;
-	if((g = ext2group(fs, bno/fs->blockspergroup, &gb)) == nil){
+	if(ext2group(fs, bno/fs->blockspergroup, &g) < 0){
 		if(debug)
 			fprint(2, "loading group: %r...");
 		return nil;
@@ -117,18 +120,17 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	if(debug)
 		fprint(2, "ext2 group %d: bitblock=%ud inodebitblock=%ud inodeaddr=%ud freeblocks=%ud freeinodes=%ud useddirs=%ud\n",
 			(int)(bno/fs->blockspergroup),
-			g->bitblock,
-			g->inodebitblock,
-			g->inodeaddr,
-			g->freeblockscount,
-			g->freeinodescount,
-			g->useddirscount);
+			g.bitblock,
+			g.inodebitblock,
+			g.inodeaddr,
+			g.freeblockscount,
+			g.freeinodescount,
+			g.useddirscount);
 	if(debug)
-		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g->bitblock);
+		fprint(2, "group %d bitblock=%d...", bno/fs->blockspergroup, g.bitblock);
 */
-	bitblock = g->bitblock;
+	bitblock = g.bitblock;
 	bitpos = (u64int)bitblock*fs->blocksize;
-	blockput(gb);
 
 	if((bitb = diskread(fs->disk, fs->blocksize, bitpos)) == nil){
 		if(debug)
@@ -253,33 +255,33 @@ static int
 ext2sync(Fsys *fsys)
 {
 	int i;
-	Group *g;
+	Group g;
 	Block *b;
-	Super *super;
+	Super super;
 	Ext2 *fs;
 	Disk *disk;
 
 	fs = fsys->priv;
 	disk = fs->disk;
 	if((b = diskread(disk, SBSIZE, SBOFF)) == nil)
-		goto error;
-	super = (Super*)b->data;
-	if(checksuper(super) < 0)
-		goto error;
-	fs->blocksize = MINBLOCKSIZE<<super->logblocksize;
-	fs->nblock = super->nblock;
-	fs->ngroup = (super->nblock+super->blockspergroup-1)
-		/ super->blockspergroup;
-	fs->inospergroup = super->inospergroup;
-	fs->blockspergroup = super->blockspergroup;
+		return -1;
+	parsesuper(&super, b->data);
+	blockput(b);
+	if(checksuper(&super) < 0)
+		return -1;
+	fs->blocksize = MINBLOCKSIZE<<super.logblocksize;
+	fs->nblock = super.nblock;
+	fs->ngroup = (super.nblock+super.blockspergroup-1)
+		/ super.blockspergroup;
+	fs->inospergroup = super.inospergroup;
+	fs->blockspergroup = super.blockspergroup;
 	fs->inosperblock = fs->blocksize / InodeSize;
 	if(fs->blocksize == SBOFF)
 		fs->groupaddr = 2;
 	else
 		fs->groupaddr = 1;
 	fs->descperblock = fs->blocksize / GroupSize;
-	fs->firstblock = super->firstdatablock;
-	blockput(b);
+	fs->firstblock = super.firstdatablock;
 
 	fsys->blocksize = fs->blocksize;
 	fsys->nblock = fs->nblock;
@@ -288,16 +290,10 @@ ext2sync(Fsys *fsys)
 
 	if(0){
 		for(i=0; i<fs->ngroup; i++)
-			if((g = ext2group(fs, i, &b)) != nil){
-				fprint(2, "grp %d: bitblock=%d\n", i, g->bitblock);
-				blockput(b);
-			}
+			if(ext2group(fs, i, &g) >= 0)
+				fprint(2, "grp %d: bitblock=%d\n", i, g.bitblock);
 	}
 	return 0;
-
-error:
-	blockput(b);
-	return -1;
 }
 
 static void
@@ -323,8 +319,8 @@ handle2ino(Ext2 *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 	uint ioff;
 	u32int inum;
 	u32int addr;
-	Block *gb, *b;
-	Group *g;
+	Block *b;
+	Group g;
 
 	if(h->len != 4)
 		return Nfs3ErrBadHandle;
@@ -335,13 +331,12 @@ handle2ino(Ext2 *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 	if(i >= fs->ngroup)
 		return Nfs3ErrBadHandle;
 	ioff = (inum-1) % fs->inospergroup;
-	if((g = ext2group(fs, i, &gb)) == nil)
+	if(ext2group(fs, i, &g) < 0)
 		return Nfs3ErrIo;
-	addr = g->inodeaddr + ioff/fs->inosperblock;
-	blockput(gb);
+	addr = g.inodeaddr + ioff/fs->inosperblock;
 	if((b = diskread(fs->disk, fs->blocksize, (u64int)addr*fs->blocksize)) == nil)
 		return Nfs3ErrIo;
-	*ino = ((Inode*)b->data)[ioff%fs->inosperblock];
+	parseinode(ino, b->data+InodeSize*(ioff%fs->inosperblock));
 	blockput(b);
 	return Nfs3Ok;
 }
@@ -505,7 +500,7 @@ ext2lookup(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *n
 	u32int nblock;
 	u32int i;
 	uchar *p, *ep;
-	Dirent *de;
+	Dirent de;
 	Inode ino;
 	Block *b;
 	Ext2 *fs;
@@ -538,27 +533,27 @@ ext2lookup(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *n
 		p = b->data;
 		ep = p+b->len;
 		while(p < ep){
-			de = (Dirent*)p;
-			if(de->reclen == 0){
+			parsedirent(&de, p);
+			if(de.reclen == 0){
 				if(debug)
 					fprint(2, "reclen 0 at offset %d of %d\n", (int)(p-b->data), b->len);
 				break;
 			}
-			p += de->reclen;
+			p += de.reclen;
 			if(p > ep){
 				if(debug)
-					fprint(2, "bad len %d at offset %d of %d\n", de->reclen, (int)(p-b->data), b->len);
+					fprint(2, "bad len %d at offset %d of %d\n", de.reclen, (int)(p-b->data), b->len);
 				break;
 			}
-			if(de->ino == 0)
+			if(de.ino == 0)
 				continue;
-			if(4+2+2+de->namlen > de->reclen){
+			if(4+2+2+de.namlen > de.reclen){
 				if(debug)
-					fprint(2, "bad namelen %d at offset %d of %d\n", de->namlen, (int)(p-b->data), b->len);
+					fprint(2, "bad namelen %d at offset %d of %d\n", de.namlen, (int)(p-b->data), b->len);
 				break;
 			}
-			if(de->namlen == len && memcmp(de->name, name, len) == 0){
-				mkhandle(nh, de->ino);
+			if(de.namlen == len && memcmp(de.name, name, len) == 0){
+				mkhandle(nh, de.ino);
 				blockput(b);
 				return Nfs3Ok;
 			}
@@ -575,7 +570,7 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 	u32int i;
 	int off, done;
 	uchar *data, *dp, *dep, *p, *ep, *ndp;
-	Dirent *de;
+	Dirent de;
 	Inode ino;
 	Block *b;
 	Ext2 *fs;
@@ -622,30 +617,30 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 		ep = p+b->len;
 		memset(&e, 0, sizeof e);
 		while(p < ep){
-			de = (Dirent*)p;
-			if(de->reclen == 0){
+			parsedirent(&de, p);
+			if(de.reclen == 0){
 				if(debug) fprint(2, "reclen 0 at offset %d of %d\n", (int)(p-b->data), b->len);
 				break;
 			}
-			p += de->reclen;
+			p += de.reclen;
 			if(p > ep){
-				if(debug) fprint(2, "reclen %d at offset %d of %d\n", de->reclen, (int)(p-b->data), b->len);
+				if(debug) fprint(2, "reclen %d at offset %d of %d\n", de.reclen, (int)(p-b->data), b->len);
 				break;
 			}
-			if(de->ino == 0){
+			if(de.ino == 0){
 				if(debug) fprint(2, "zero inode\n");
 				continue;
 			}
-			if(4+2+2+de->namlen > de->reclen){
-				if(debug) fprint(2, "bad namlen %d reclen %d at offset %d of %d\n", de->namlen, de->reclen, (int)(p-b->data), b->len);
+			if(4+2+2+de.namlen > de.reclen){
+				if(debug) fprint(2, "bad namlen %d reclen %d at offset %d of %d\n", de.namlen, de.reclen, (int)(p-b->data), b->len);
 				break;
 			}
-			if(debug) print("%.*s/%d ", de->namlen, de->name, (int)de->ino);
-			if((uchar*)de - b->data < off)
+			if(debug) print("%.*s/%d ", de.namlen, de.name, (int)de.ino);
+			if(p-de.reclen - b->data < off)
 				continue;
-			e.fileid = de->ino;
-			e.name = de->name;
-			e.namelen = de->namlen;
+			e.fileid = de.ino;
+			e.name = de.name;
+			e.namelen = de.namlen;
 			e.cookie = (u64int)i*fs->blocksize + (p - b->data);
 			if(nfs3entrypack(dp, dep, &ndp, &e) < 0){
 				done = 1;
@@ -778,3 +773,104 @@ ext2readlink(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char **link)
 	return Nfs3Ok;
 }
 
+/*
+ * Ext2 is always little-endian, even on big-endian machines.
+ */
+
+static u32int
+l32(uchar *p)
+{
+	return p[0] | (p[1]<<8) | (p[2]<<16) | (p[3]<<24);
+}
+
+static u16int
+l16(uchar *p)
+{
+	return p[0] | (p[1]<<8);
+}
+
+static u8int
+l8(uchar *p)
+{
+	return p[0];
+}
+
+static void
+parsedirent(Dirent *de, uchar *p)
+{
+	de->ino = l32(p);
+	de->reclen = l16(p+4);
+	de->namlen = l8(p+6);
+	/* 1 byte pad */
+	de->name = (char*)p+8;
+}
+
+static void
+parseinode(Inode *ino, uchar *p)
+{
+	int i;
+
+	ino->mode = l16(p);
+	ino->uid = l16(p+2);
+	ino->size = l32(p+4);
+	ino->atime = l32(p+8);
+	ino->ctime = l32(p+12);
+	ino->mtime = l32(p+16);
+	ino->dtime = l32(p+20);
+	ino->gid = l16(p+24);
+	ino->nlink = l16(p+26);
+	ino->nblock = l32(p+28);
+	ino->flags = l32(p+32);
+	/* 4 byte osd1 */
+	for(i=0; i<NBLOCKS; i++)
+		ino->block[i] = l32(p+40+i*4);
+	ino->version = l32(p+100);
+	ino->fileacl = l32(p+104);
+	ino->diracl = l32(p+108);
+	ino->faddr = l32(p+112);
+	/* 12 byte osd2 */
+}
+
+static void
+parsegroup(Group *g, uchar *p)
+{
+	g->bitblock = l32(p);
+	g->inodebitblock = l32(p+4);
+	g->inodeaddr = l32(p+8);
+	g->freeblockscount = l16(p+12);
+	g->freeinodescount = l16(p+14);
+	g->useddirscount = l16(p+16);
+	/* 2 byte pad */
+	/* 12 byte reserved */
+}
+
+static void
+parsesuper(Super *s, uchar *p)
+{
+	s->ninode = l32(p);
+	s->nblock = l32(p+4);
+	s->rblockcount = l32(p+8);
+	s->freeblockcount = l32(p+12);
+	s->freeinodecount = l32(p+16);
+	s->firstdatablock = l32(p+20);
+	s->logblocksize = l32(p+24);
+	s->logfragsize = l32(p+28);
+	s->blockspergroup = l32(p+32);
+	s->fragpergroup = l32(p+36);
+	s->inospergroup = l32(p+40);
+	s->mtime = l32(p+44);
+	s->wtime = l32(p+48);
+	s->mntcount = l16(p+52);
+	s->maxmntcount = l16(p+54);
+	s->magic = l16(p+56);
+	s->state = l16(p+58);
+	s->errors = l16(p+60);
+	/* 2 byte pad */
+	s->lastcheck = l32(p+64);
+	s->checkinterval = l32(p+68);
+	s->creatoros = l32(p+72);
+	s->revlevel = l32(p+76);
+	s->defresuid = l16(p+80);
+	s->defresgid = l16(p+82);
+	/* 940 byte reserved */
+}

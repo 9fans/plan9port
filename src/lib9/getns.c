@@ -42,6 +42,11 @@ nsfromdisplay(void)
 		if(strcmp(p, ".0") == 0)
 			*p = 0;
 	}
+	
+	/* turn /tmp/launch/:0 into _tmp_launch_:0 (OS X 10.5) */
+	for(p=disp; *p; p++)
+		if(*p == '/')
+			*p = '_';
 
 	p = smprint("/tmp/ns.%s.%s", getuser(), disp);
 	free(disp);

@@ -33,7 +33,7 @@ main(int argc, char **argv)
 	if((disk = diskcache(disk, 16384, 16)) == nil)
 		sysfatal("diskcache: %r");
 	if((fsys = fsysopen(disk)) == nil)
-		sysfatal("ffsopen: %r");
+		sysfatal("fsysopen: %r");
 
 	zero = emalloc(fsys->blocksize);
 	fprint(2, "%d blocks total\n", fsys->nblock);
