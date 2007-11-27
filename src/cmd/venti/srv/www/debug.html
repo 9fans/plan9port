@@ -1,0 +1,41 @@
+<h1>venti debugging</h1>
+
+<a href="/debug?op=amap">amap</a><br>
+<a href="/debug?op=mem">mem</a><br>
+<a href="/disk">disk</a><br>
+<form method=get action="/disk">
+arena part: 
+<input type=hidden name=type value=a></input>
+<input type=text name=disk size=50></input>
+<input type=submit value="Go">
+</form><br>
+<form method=get action="/disk">
+bloom filter:
+<input type=hidden name=type value=b></input>
+<input type=text name=disk size=50></input>
+<input type=submit value="Go">
+</form><br>
+<form method=get action="/disk">
+index section:
+<input type=hidden name=type value=i></input>
+<input type=text name=disk size=50></input>
+<input type=submit value="Go">
+</form><br>
+<br>
+<form method=get action="/debug">
+<input type=hidden name=op value=read></input>
+read score:
+<input type=text name=score size=50></input>
+<input type=submit value="Go">
+</form><br>
+<br>
+<form method=get action="/disk">
+read score:
+<input type=hidden name=type value=a></input>
+<input type=text name=score size=50></input>
+in arena
+<input type=text name=arena size=20></input>
+in arena partition
+<input type=text name=disk size=20></input>
+<input type=submit value="Go">
+</form><br>
