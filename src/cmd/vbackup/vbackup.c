@@ -239,6 +239,7 @@ threadmain(int argc, char **argv)
 			sysfatal("file system block counts don't match %lld %lld", e.size, fsys->nblock*bsize);
 	}
 
+	tmpnam = nil;
 	if(incremental){
 		if(vtfilegetentry(vfile, &e) < 0)
 			sysfatal("vtfilegetentry: %r");
