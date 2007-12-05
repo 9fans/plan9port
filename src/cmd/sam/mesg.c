@@ -1,5 +1,4 @@
 #include "sam.h"
-#define DEBUG
 Header	h;
 uchar	indata[DATASIZE];
 uchar	outdata[2*DATASIZE+3];	/* room for overflow message */
