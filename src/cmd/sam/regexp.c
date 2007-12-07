@@ -527,26 +527,56 @@ classmatch(int classno, int c, int negate)
 }
 
 /*
- * Note optimization in addinst:
- * 	*l must be pending when addinst called; if *l has been looked
- *		at already, the optimization is a bug.
+ * Add inst to the list [l, l+NLIST), but only if it is not there already.
+ * These work lists are stored and processed in increasing
+ * order of sep->p[0], so if the inst is there already, the one 
+ * there already is a more left match and takes priority.
+ * (This works for backward searches too, because there
+ * is no explicit comparison.)
  */
-int
-addinst(Ilist *l, Inst *inst, Rangeset *sep)
+Ilist*
+addinst1(Ilist *l, Inst *inst, Rangeset *sep)
 {
 	Ilist *p;
 
-	for(p = l; p->inst; p++){
-		if(p->inst==inst){
-			if((sep)->p[0].p1 < p->se.p[0].p1)
-				p->se= *sep;	/* this would be bug */
-			return 0;	/* It's already there */
+	for(p = l; p->inst; p++)
+		if(p->inst==inst)
+			return 0;
+	
+	if(p == l+NLIST)
+		return l+NLIST;
+	
+	p->inst = inst;
+	p->se = *sep;
+	(p+1)->inst = 0;
+	return p;
+}
+
+int
+addinst(Ilist *l, Inst *inst, Rangeset *sep)
+{
+	Ilist *ap;
+	
+	ap = addinst1(l, inst, sep);
+	if(ap == 0)
+		return 0;
+	if(ap == l+NLIST)
+		return -1;
+	
+	/*
+	 * Added inst to list at ap.
+	 * Expand any ORs right now, so that entire 
+	 * work list ends up being sorted by increasing sep->p[0].
+	 */
+	for(; ap->inst; ap++){
+		if(ap->inst->type == OR){
+			if(addinst1(l, ap->inst->left, &ap->se) == l+NLIST)
+				return -1;
+			if(addinst1(l, ap->inst->right, &ap->se) == l+NLIST)
+				return -1;
 		}
 	}
-	p->inst = inst;
-	p->se= *sep;
-	(p+1)->inst = 0;
-	return 1;
+	return 0;
 }
 
 int
@@ -556,13 +586,13 @@ execute(File *f, Posn startp, Posn eof)
 	Inst *inst;
 	Ilist *tlp;
 	Posn p = startp;
-	int nnl = 0, ntl;
 	int c;
 	int wrapped = 0;
 	int startchar = startinst->type<OPERATOR? startinst->type : 0;
 
 	list[0][0].inst = list[1][0].inst = 0;
 	sel.p[0].p1 = -1;
+	nl = list[0];
 	/* Execute machine once for each character */
 	for(;;p++){
 	doloop:
@@ -581,21 +611,18 @@ execute(File *f, Posn startp, Posn eof)
 			default:
 				goto Return;
 			}
-		}else if(((wrapped && p>=startp) || sel.p[0].p1>0) && nnl==0)
+		}else if(((wrapped && p>=startp) || sel.p[0].p1>0) && nl->inst==0)
 			break;
 		/* fast check for first char */
-		if(startchar && nnl==0 && c!=startchar)
+		if(startchar && nl->inst==0 && c!=startchar)
 			continue;
 		tl = list[flag];
 		nl = list[flag^=1];
 		nl->inst = 0;
-		ntl = nnl;
-		nnl = 0;
 		if(sel.p[0].p1<0 && (!wrapped || p<startp || startp==eof)){
 			/* Add first instruction to this list */
 			sempty.p[0].p1 = p;
-			if(addinst(tl, startinst, &sempty))
-			if(++ntl >= NLIST)
+			if(addinst(tl, startinst, &sempty) < 0)
 	Overflow:
 				error(Eoverflow);
 		}
@@ -606,8 +633,7 @@ execute(File *f, Posn startp, Posn eof)
 			default:	/* regular character */
 				if(inst->type==c){
 	Addinst:
-					if(addinst(nl, inst->next, &tlp->se))
-					if(++nnl >= NLIST)
+					if(addinst(nl, inst->next, &tlp->se) < 0)
 						goto Overflow;
 				}
 				break;
@@ -645,13 +671,8 @@ execute(File *f, Posn startp, Posn eof)
 					goto Addinst;
 				break;
 			case OR:
-				/* evaluate right choice later */
-				if(addinst(tl, inst->right, &tlp->se))
-				if(++ntl >= NLIST)
-					goto Overflow;
-				/* efficiency: advance and re-evaluate */
-				inst = inst->left;
-				goto Switchstmt;
+				/* already expanded; just a placeholder */
+				break;
 			case END:	/* Match! */
 				tlp->se.p[0].p2 = p;
 				newmatch(&tlp->se);
@@ -681,13 +702,13 @@ bexecute(File *f, Posn startp)
 	Inst *inst;
 	Ilist *tlp;
 	Posn p = startp;
-	int nnl = 0, ntl;
 	int c;
 	int wrapped = 0;
 	int startchar = bstartinst->type<OPERATOR? bstartinst->type : 0;
 
 	list[0][0].inst = list[1][0].inst = 0;
 	sel.p[0].p1= -1;
+	nl = list[0];
 	/* Execute machine once for each character, including terminal NUL */
 	for(;;--p){
 	doloop:
@@ -706,22 +727,18 @@ bexecute(File *f, Posn startp)
 			default:
 				goto Return;
 			}
-		}else if(((wrapped && p<=startp) || sel.p[0].p1>0) && nnl==0)
+		}else if(((wrapped && p<=startp) || sel.p[0].p1>0) && nl->inst==0)
 			break;
 		/* fast check for first char */
-		if(startchar && nnl==0 && c!=startchar)
+		if(startchar && nl->inst==0 && c!=startchar)
 			continue;
 		tl = list[flag];
 		nl = list[flag^=1];
 		nl->inst = 0;
-		ntl = nnl;
-		nnl = 0;
 		if(sel.p[0].p1<0 && (!wrapped || p>startp)){
 			/* Add first instruction to this list */
-			/* the minus is so the optimizations in addinst work */
-			sempty.p[0].p1 = -p;
-			if(addinst(tl, bstartinst, &sempty))
-			if(++ntl >= NLIST)
+			sempty.p[0].p1 = p;
+			if(addinst(tl, bstartinst, &sempty) < 0)
 	Overflow:
 				error(Eoverflow);
 		}
@@ -732,8 +749,7 @@ bexecute(File *f, Posn startp)
 			default:	/* regular character */
 				if(inst->type == c){
 	Addinst:
-					if(addinst(nl, inst->next, &tlp->se))
-					if(++nnl >= NLIST)
+					if(addinst(nl, inst->next, &tlp->se) < 0)
 						goto Overflow;
 				}
 				break;
@@ -771,15 +787,9 @@ bexecute(File *f, Posn startp)
 					goto Addinst;
 				break;
 			case OR:
-				/* evaluate right choice later */
-				if(addinst(tl, inst->right, &tlp->se))
-				if(++ntl >= NLIST)
-					goto Overflow;
-				/* efficiency: advance and re-evaluate */
-				inst = inst->left;
-				goto Switchstmt;
+				/* already expanded; just a placeholder */
+				break;
 			case END:	/* Match! */
-				tlp->se.p[0].p1 = -tlp->se.p[0].p1; /* minus sign */
 				tlp->se.p[0].p2 = p;
 				bnewmatch(&tlp->se);
 				break;
