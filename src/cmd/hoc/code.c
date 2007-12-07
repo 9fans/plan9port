@@ -598,7 +598,7 @@ printtop(void)	/* pop top value from stack, print it */
 	if (s == 0)
 		s = install("_", VAR, 0.0);
 	d = pop();
-	print("%.12g\n", d.val);
+	print("%.17g\n", d.val);
 	s->u.val = d.val;
 }
 
@@ -607,7 +607,7 @@ prexpr(void)	/* print numeric value */
 {
 	Datum d;
 	d = pop();
-	print("%.12g ", d.val);
+	print("%.17g ", d.val);
 }
 
 void
