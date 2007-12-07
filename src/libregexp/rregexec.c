@@ -9,9 +9,9 @@
  */
 static int
 rregexec1(Reprog *progp,	/* program to run */
-	Rune *bol,		/* string to run machine on */
-	Resub *mp,		/* subexpression elements */
-	int ms,			/* number of elements at mp */
+	Rune *bol,	/* string to run machine on */
+	Resub *mp,	/* subexpression elements */
+	int ms,		/* number of elements at mp */
 	Reljunk *j)
 {
 	int flag=0;
@@ -28,7 +28,7 @@ rregexec1(Reprog *progp,	/* program to run */
 	Rune *p;
 
 	match = 0;
-	checkstart = j->startchar;
+	checkstart = j->starttype;
 	if(mp)
 		for(i=0; i<ms; i++) {
 			mp[i].s.rsp = 0;
@@ -46,7 +46,7 @@ rregexec1(Reprog *progp,	/* program to run */
 			switch(j->starttype) {
 			case RUNE:
 				p = runestrchr(s, j->startchar);
-				if(p == 0 || p == j->reol)
+				if(p == 0 || (j->reol && p >= j->reol))
 					return match;
 				s = p;
 				break;
@@ -54,7 +54,7 @@ rregexec1(Reprog *progp,	/* program to run */
 				if(s == bol)
 					break;
 				p = runestrchr(s, '\n');
-				if(p == 0 || s == j->reol)
+				if(p == 0 || (j->reol && p+1 >= j->reol))
 					return match;
 				s = p+1;
 				break;
@@ -71,15 +71,16 @@ rregexec1(Reprog *progp,	/* program to run */
 		nl->inst = 0;
 
 		/* Add first instruction to current list */
-		_rrenewemptythread(tl, progp->startinst, ms, s);
+		if(match == 0)
+			_rrenewemptythread(tl, tle, progp->startinst, ms, s);
 
 		/* Execute machine until current list is empty */
 		for(tlp=tl; tlp->inst; tlp++){
-			for(inst=tlp->inst; ; inst = inst->u2.next){
+			for(inst = tlp->inst; ; inst = inst->u2.next){
 				switch(inst->type){
 				case RUNE:	/* regular character */
 					if(inst->u1.r == r)
-						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
+						if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
 							return -1;
 					break;
 				case LBRA:
@@ -90,11 +91,11 @@ rregexec1(Reprog *progp,	/* program to run */
 					continue;
 				case ANY:
 					if(r != '\n')
-						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
+						if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
 							return -1;
 					break;
 				case ANYNL:
-					if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
+					if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
 							return -1;
 					break;
 				case BOL:
@@ -109,7 +110,7 @@ rregexec1(Reprog *progp,	/* program to run */
 					ep = inst->u1.cp->end;
 					for(rp = inst->u1.cp->spans; rp < ep; rp += 2)
 						if(r >= rp[0] && r <= rp[1]){
-							if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
+							if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
 								return -1;
 							break;
 						}
@@ -120,15 +121,12 @@ rregexec1(Reprog *progp,	/* program to run */
 						if(r >= rp[0] && r <= rp[1])
 							break;
 					if(rp == ep)
-						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
+						if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
 							return -1;
 					break;
 				case OR:
-					/* evaluate right choice later */
-					if(_renewthread(tl, inst->u1.right, ms, &tlp->se) == tle)
-						return -1;
-					/* efficiency: advance and re-evaluate */
-					continue;
+					/* expanded during renewthread; just a place holder */
+					break;
 				case END:	/* Match! */
 					match = 1;
 					tlp->se.m[0].e.rep = s;
@@ -141,7 +139,7 @@ rregexec1(Reprog *progp,	/* program to run */
 		}
 		if(s == j->reol)
 			break;
-		checkstart = j->startchar && nl->inst==0;
+		checkstart = j->starttype && nl->inst==0;
 		s++;
 	}while(r);
 	return match;
@@ -155,15 +153,26 @@ rregexec2(Reprog *progp,	/* program to run */
 	Reljunk *j
 )
 {
-	Relist relist0[5*LISTSIZE], relist1[5*LISTSIZE];
+	int rv;
+	Relist *relist0, *relist1;
 
-	/* mark space */
+	relist0 = malloc((progp->proglen+1)*sizeof(Relist));
+	if(relist0 == nil)
+		return -1;
+	relist1 = malloc((progp->proglen+1)*sizeof(Relist));
+	if(relist1 == nil){
+		free(relist1);
+		return -1;
+	}
 	j->relist[0] = relist0;
 	j->relist[1] = relist1;
-	j->reliste[0] = relist0 + nelem(relist0) - 2;
-	j->reliste[1] = relist1 + nelem(relist1) - 2;
+	j->reliste[0] = relist0 + progp->proglen;
+	j->reliste[1] = relist1 + progp->proglen;
 
-	return rregexec1(progp, bol, mp, ms, j);
+	rv = rregexec1(progp, bol, mp, ms, j);
+	free(relist0);
+	free(relist1);
+	return rv;
 }
 
 extern int
@@ -199,8 +208,8 @@ rregexec(Reprog *progp,	/* program to run */
 	/* mark space */
 	j.relist[0] = relist0;
 	j.relist[1] = relist1;
-	j.reliste[0] = relist0 + nelem(relist0) - 2;
-	j.reliste[1] = relist1 + nelem(relist1) - 2;
+	j.reliste[0] = relist0 + nelem(relist0) - 1;
+	j.reliste[1] = relist1 + nelem(relist1) - 1;
 
 	rv = rregexec1(progp, bol, mp, ms, &j);
 	if(rv >= 0)

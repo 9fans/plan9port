@@ -232,7 +232,7 @@ optimize(Reprog *pp)
 	int size;
 	Reprog *npp;
 	Reclass *cl;
-	int diff;
+	int diff, proglen;
 
 	/*
 	 *  get rid of NOOP chains
@@ -249,10 +249,13 @@ optimize(Reprog *pp)
 	 *  necessary.  Reallocate to the actual space used
 	 *  and then relocate the code.
 	 */
-	size = sizeof(Reprog) + (freep - pp->firstinst)*sizeof(Reinst);
+	proglen = freep - pp->firstinst;
+	size = sizeof(Reprog) + proglen*sizeof(Reinst);
 	npp = realloc(pp, size);
-	if(npp==0 || npp==pp)
+	if(npp==0 || npp==pp){
+		pp->proglen = proglen;
 		return pp;
+	}
 	diff = (char *)npp - (char *)pp;
 	freep = (Reinst *)((char *)freep + diff);
 	for(inst=npp->firstinst; inst<freep; inst++){
@@ -273,6 +276,7 @@ optimize(Reprog *pp)
 		*(char**)(void*)&inst->u2.left += diff;
 	}
 	*(char**)(void*)&npp->startinst += diff;
+	npp->proglen = proglen;
 	return npp;
 }
 
