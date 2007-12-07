@@ -2,6 +2,7 @@
 #include "regexp9.h"
 #include "regcomp.h"
 
+
 /*
  *  return	0 if no match
  *		>0 if a match
@@ -12,14 +13,16 @@ regexec1(Reprog *progp,	/* program to run */
 	char *bol,	/* string to run machine on */
 	Resub *mp,	/* subexpression elements */
 	int ms,		/* number of elements at mp */
-	Reljunk *j)
+	Reljunk *j
+)
 {
 	int flag=0;
 	Reinst *inst;
 	Relist *tlp;
 	char *s;
-	int i, checkstart, n;
+	int i, checkstart;
 	Rune r, *rp, *ep;
+	int n;
 	Relist* tl;		/* This list, next list */
 	Relist* nl;
 	Relist* tle;		/* ends of this and next list */
@@ -45,7 +48,7 @@ regexec1(Reprog *progp,	/* program to run */
 			switch(j->starttype) {
 			case RUNE:
 				p = utfrune(s, j->startchar);
-				if(p == 0 || (j->eol && p >= j->eol))
+				if(p == 0 || s == j->eol)
 					return match;
 				s = p;
 				break;
@@ -53,7 +56,7 @@ regexec1(Reprog *progp,	/* program to run */
 				if(s == bol)
 					break;
 				p = utfrune(s, '\n');
-				if(p == 0 || (j->eol && p+1 >= j->eol))
+				if(p == 0 || s == j->eol)
 					return match;
 				s = p+1;
 				break;
@@ -74,16 +77,17 @@ regexec1(Reprog *progp,	/* program to run */
 
 		/* Add first instruction to current list */
 		if(match == 0)
-			_renewemptythread(tl, tle, progp->startinst, ms, s);
+			_renewemptythread(tl, progp->startinst, ms, s);
 
 		/* Execute machine until current list is empty */
-		for(tlp=tl; tlp->inst; tlp++){
+		for(tlp=tl; tlp->inst; tlp++){	/* assignment = */
 			for(inst = tlp->inst; ; inst = inst->u2.next){
 				switch(inst->type){
 				case RUNE:	/* regular character */
-					if(inst->u1.r == r)
-						if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
+					if(inst->u1.r == r){
+						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
+					}
 					break;
 				case LBRA:
 					tlp->se.m[inst->u1.subid].s.sp = s;
@@ -93,11 +97,11 @@ regexec1(Reprog *progp,	/* program to run */
 					continue;
 				case ANY:
 					if(r != '\n')
-						if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
+						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					break;
 				case ANYNL:
-					if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
+					if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					break;
 				case BOL:
@@ -112,7 +116,7 @@ regexec1(Reprog *progp,	/* program to run */
 					ep = inst->u1.cp->end;
 					for(rp = inst->u1.cp->spans; rp < ep; rp += 2)
 						if(r >= rp[0] && r <= rp[1]){
-							if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
+							if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 								return -1;
 							break;
 						}
@@ -123,12 +127,15 @@ regexec1(Reprog *progp,	/* program to run */
 						if(r >= rp[0] && r <= rp[1])
 							break;
 					if(rp == ep)
-						if(_renewthread(nl, nle, inst->u2.next, ms, &tlp->se) < 0)
+						if(_renewthread(nl, inst->u2.next, ms, &tlp->se)==nle)
 							return -1;
 					break;
 				case OR:
-					/* expanded during renewthread; just a place holder */
-					break;
+					/* evaluate right choice later */
+					if(_renewthread(tl, inst->u1.right, ms, &tlp->se) == tle)
+						return -1;
+					/* efficiency: advance and re-evaluate */
+					continue;
 				case END:	/* Match! */
 					match = 1;
 					tlp->se.m[0].e.ep = s;
@@ -158,18 +165,19 @@ regexec2(Reprog *progp,	/* program to run */
 	int rv;
 	Relist *relist0, *relist1;
 
-	relist0 = malloc((progp->proglen+1)*sizeof(Relist));
+	/* mark space */
+	relist0 = malloc(BIGLISTSIZE*sizeof(Relist));
 	if(relist0 == nil)
 		return -1;
-	relist1 = malloc((progp->proglen+1)*sizeof(Relist));
+	relist1 = malloc(BIGLISTSIZE*sizeof(Relist));
 	if(relist1 == nil){
 		free(relist1);
 		return -1;
 	}
 	j->relist[0] = relist0;
 	j->relist[1] = relist1;
-	j->reliste[0] = relist0 + progp->proglen;
-	j->reliste[1] = relist1 + progp->proglen;
+	j->reliste[0] = relist0 + BIGLISTSIZE - 2;
+	j->reliste[1] = relist1 + BIGLISTSIZE - 2;
 
 	rv = regexec1(progp, bol, mp, ms, j);
 	free(relist0);
@@ -210,8 +218,8 @@ regexec(Reprog *progp,	/* program to run */
 	/* mark space */
 	j.relist[0] = relist0;
 	j.relist[1] = relist1;
-	j.reliste[0] = relist0 + nelem(relist0) - 1;
-	j.reliste[1] = relist1 + nelem(relist1) - 1;
+	j.reliste[0] = relist0 + nelem(relist0) - 2;
+	j.reliste[1] = relist1 + nelem(relist1) - 2;
 
 	rv = regexec1(progp, bol, mp, ms, &j);
 	if(rv >= 0)

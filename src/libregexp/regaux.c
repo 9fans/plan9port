@@ -23,89 +23,90 @@ _renewmatch(Resub *mp, int ms, Resublist *sp)
 }
 
 /*
- * Add ip to the list [lp, elp], but only if it is not there already.
- * These work lists are stored and processed in increasing
- * order of sp[0], so if the ip is there already, the one that's
- * there already is a more left match and takes priority.
+ * Note optimization in _renewthread:
+ * 	*lp must be pending when _renewthread called; if *l has been looked
+ *		at already, the optimization is a bug.
  */
-static Relist*
-_renewthread1(Relist *lp,	/* Relist to add to */
-	Relist *elp,		/* limit pointer for Relist */
+extern Relist*
+_renewthread(Relist *lp,	/* _relist to add to */
 	Reinst *ip,		/* instruction to add */
 	int ms,
 	Resublist *sep)		/* pointers to subexpressions */
 {
 	Relist *p;
 
-	for(p=lp; p->inst; p++)
-		if(p->inst == ip)
+	for(p=lp; p->inst; p++){
+		if(p->inst == ip){
+			if(sep->m[0].s.sp < p->se.m[0].s.sp){
+				if(ms > 1)
+					p->se = *sep;
+				else
+					p->se.m[0] = sep->m[0];
+			}
 			return 0;
-	
-	if(p == elp)	/* refuse to overflow buffer */
-		return elp;
-
+		}
+	}
 	p->inst = ip;
 	if(ms > 1)
 		p->se = *sep;
 	else
 		p->se.m[0] = sep->m[0];
-	(p+1)->inst = 0;
+	(++p)->inst = 0;
 	return p;
-}
-
-extern int
-_renewthread(Relist *lp, Relist *elp, Reinst *ip, int ms, Resublist *sep)
-{
-	Relist *ap;
-
-	ap = _renewthread1(lp, elp, ip, ms, sep);
-	if(ap == 0)
-		return 0;
-	if(ap == elp)
-		return -1;
-
-	/*
-	 * Added ip to list at ap.  
-	 * Expand any ORs right now, so that entire
-	 * work list ends up being sorted by increasing m[0].sp.
-	 */
-	for(; ap->inst; ap++){
-		if(ap->inst->type == OR){
-			if(_renewthread1(lp, elp, ap->inst->u1.right, ms, &ap->se) == elp)
-				return -1;
-			if(_renewthread1(lp, elp, ap->inst->u2.next, ms, &ap->se) == elp)
-				return -1;
-		}
-	}
-	return 0;
 }
 
 /*
  * same as renewthread, but called with
  * initial empty start pointer.
  */
-extern int
+extern Relist*
 _renewemptythread(Relist *lp,	/* _relist to add to */
-	Relist *elp,
 	Reinst *ip,		/* instruction to add */
 	int ms,
 	char *sp)		/* pointers to subexpressions */
 {
-	Resublist sep;
-	
+	Relist *p;
+
+	for(p=lp; p->inst; p++){
+		if(p->inst == ip){
+			if(sp < p->se.m[0].s.sp) {
+				if(ms > 1)
+					memset(&p->se, 0, sizeof(p->se));
+				p->se.m[0].s.sp = sp;
+			}
+			return 0;
+		}
+	}
+	p->inst = ip;
 	if(ms > 1)
-		memset(&sep, 0, sizeof sep);
-	sep.m[0].s.sp = sp;
-	sep.m[0].e.ep = 0;
-	return _renewthread(lp, elp, ip, ms, &sep);
+		memset(&p->se, 0, sizeof(p->se));
+	p->se.m[0].s.sp = sp;
+	(++p)->inst = 0;
+	return p;
 }
 
-extern int
+extern Relist*
 _rrenewemptythread(Relist *lp,	/* _relist to add to */
-	Relist *elp,
 	Reinst *ip,		/* instruction to add */
 	int ms,
 	Rune *rsp)		/* pointers to subexpressions */
 {
-	return _renewemptythread(lp, elp, ip, ms, (char*)rsp);
+	Relist *p;
+
+	for(p=lp; p->inst; p++){
+		if(p->inst == ip){
+			if(rsp < p->se.m[0].s.rsp) {
+				if(ms > 1)
+					memset(&p->se, 0, sizeof(p->se));
+				p->se.m[0].s.rsp = rsp;
+			}
+			return 0;
+		}
+	}
+	p->inst = ip;
+	if(ms > 1)
+		memset(&p->se, 0, sizeof(p->se));
+	p->se.m[0].s.rsp = rsp;
+	(++p)->inst = 0;
+	return p;
 }
