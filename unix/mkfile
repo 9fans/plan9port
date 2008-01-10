@@ -1,4 +1,4 @@
-MKSHELL=rc
+MKSHELL=$PLAN9/bin/rc
 new-%:V:
 	t=$stem
 	if(! ~ $t utf fmt bio regexp mk){

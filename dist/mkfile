@@ -1,4 +1,4 @@
-MKSHELL=rc
+MKSHELL=$PLAN9/bin/rc
 
 check.out:V:
 	cd ../man; mk indices
