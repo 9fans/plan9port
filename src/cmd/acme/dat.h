@@ -565,4 +565,4 @@ Channel	*cwarn;		/* chan(void*)[1] (really chan(unit)[1]) */
 
 QLock	editoutlk;
 
-#define	STACK	32768
+#define	STACK	65536
