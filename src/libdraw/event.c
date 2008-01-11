@@ -159,7 +159,7 @@ etimer(ulong key, int n)
 	if(n <= 0)
 		n = 1000;
 	eslave[Stimer].n = n;
-	eslave[Stimer].nexttick = nsec()+n*1000LL;
+	eslave[Stimer].nexttick = nsec()+n*1000000LL;
 	return 1<<Stimer;
 }
 
@@ -295,12 +295,12 @@ extract(int canblock)
 			}
 		}else if(i == Stimer){
 			t0 = nsec();
-			if(t0-eslave[i].nexttick <= 0){
+			if(t0 >= eslave[i].nexttick){
 				tv.tv_sec = 0;
 				tv.tv_usec = 0;
 			}else{
-				tv.tv_sec = (t0-eslave[i].nexttick)/1000000000;
-				tv.tv_usec = (t0-eslave[i].nexttick)%1000000000 / 1000;
+				tv.tv_sec = (eslave[i].nexttick-t0)/1000000000;
+				tv.tv_usec = (eslave[i].nexttick-t0)%1000000000 / 1000;
 			}
 			timeout = &tv;
 		}else{
@@ -345,8 +345,8 @@ extract(int canblock)
 			}
 		}else if(i == Stimer){
 			t0 = nsec();
-			while(t0-eslave[i].nexttick > 0){
-				eslave[i].nexttick += eslave[i].n*1000LL;
+			while(t0 > eslave[i].nexttick){
+				eslave[i].nexttick += eslave[i].n*1000000LL;
 				eslave[i].head = (Ebuf*)1;
 				n++;
 			}
