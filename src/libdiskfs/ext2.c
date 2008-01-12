@@ -568,7 +568,7 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 {
 	u32int nblock;
 	u32int i;
-	int off, done;
+	int off, outofspace;
 	uchar *data, *dp, *dep, *p, *ep, *ndp;
 	Dirent de;
 	Inode ino;
@@ -588,6 +588,9 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 	if((ok = inoperm(&ino, au, AREAD)) != Nfs3Ok)
 		return ok;
 
+	if(debug) print("readdir cookie %#llux ino.size %#llux\n", 
+		(u64int)cookie, (u64int)ino.size);
+
 	if(cookie >= ino.size){
 		*peof = 1;
 		*pcount = 0;
@@ -604,8 +607,8 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 	nblock = (ino.size+fs->blocksize-1) / fs->blocksize;
 	i = cookie/fs->blocksize;
 	off = cookie%fs->blocksize;
-	done = 0;
-	for(; i<nblock && !done; i++){
+	outofspace = 0;
+	for(; i<nblock && !outofspace; i++, off=0){
 		if(i==nblock-1)
 			want = ino.size % fs->blocksize;
 		else
@@ -642,16 +645,16 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 			e.name = de.name;
 			e.namelen = de.namlen;
 			e.cookie = (u64int)i*fs->blocksize + (p - b->data);
+			if(debug) print("%.*s %#llux\n", utfnlen(e.name, e.namelen), e.name, (u64int)e.cookie);
 			if(nfs3entrypack(dp, dep, &ndp, &e) < 0){
-				done = 1;
+				outofspace = 1;
 				break;
 			}
 			dp = ndp;
 		}
-		off = 0;
 		blockput(b);
 	}
-	if(i==nblock)
+	if(i==nblock && !outofspace)
 		*peof = 1;
 
 	*pcount = dp - data;
