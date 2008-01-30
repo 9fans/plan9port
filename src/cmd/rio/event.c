@@ -124,7 +124,9 @@ configurereq(XConfigureRequestEvent *e)
 	e->value_mask &= ~CWSibling;
 
 	if(c){
-		gravitate(c, 1);
+		c->x -= c->border;
+		c->y -= c->border;
+
 		if(e->value_mask & CWX)
 			c->x = e->x;
 		if(e->value_mask & CWY)
@@ -135,7 +137,20 @@ configurereq(XConfigureRequestEvent *e)
 			c->dy = e->height;
 		if(e->value_mask & CWBorderWidth)
 			c->border = e->border_width;
-		gravitate(c, 0);
+	
+		if((e->value_mask & (CWX|CWY|CWWidth|CWHeight)) == (CWWidth|CWHeight)
+		&& c->dx >= c->screen->width && c->dy >= c->screen->height){
+			c->border = 0;
+			e->value_mask |= CWX|CWY;
+		}else
+			c->border = BORDER;
+
+		c->x += c->border;
+		c->y += c->border;
+		
+		e->x = c->x;
+		e->y = c->y;
+
 		if(e->value_mask & CWStackMode){
 			if(e->detail == Above)
 				top(c);
@@ -143,15 +158,14 @@ configurereq(XConfigureRequestEvent *e)
 				e->value_mask &= ~CWStackMode;
 		}
 		if(c->parent != c->screen->root && c->window == e->window){
-			wc.x = c->x-BORDER;
-			wc.y = c->y-BORDER;
-			wc.width = c->dx+2*BORDER;
-			wc.height = c->dy+2*BORDER;
+			wc.x = c->x - c->border;
+			wc.y = c->y - c->border;
+			wc.width = c->dx+c->border+c->border;
+			wc.height = c->dy+c->border+c->border;
 			wc.border_width = 1;
 			wc.sibling = None;
 			wc.stack_mode = e->detail;
 			XConfigureWindow(dpy, c->parent, e->value_mask, &wc);
-			sendconfig(c);
 			if(e->value_mask & CWStackMode){
 				top(c);
 				active(c);
@@ -160,8 +174,8 @@ configurereq(XConfigureRequestEvent *e)
 	}
 
 	if(c && c->init){
-		wc.x = BORDER;
-		wc.y = BORDER;
+		wc.x = c->border;
+		wc.y = c->border;
 	}
 	else {
 		wc.x = e->x;
@@ -174,7 +188,6 @@ configurereq(XConfigureRequestEvent *e)
 	wc.stack_mode = Above;
 	e->value_mask &= ~CWStackMode;
 	e->value_mask |= CWBorderWidth;
-
 	XConfigureWindow(dpy, e->window, e->value_mask, &wc);
 }
 

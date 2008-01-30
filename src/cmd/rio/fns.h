@@ -113,3 +113,5 @@ void	dotrace();
 
 /* cursor.c */
 void	initcurs();
+
+void ShowEvent(XEvent*);

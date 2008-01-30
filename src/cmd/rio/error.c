@@ -87,6 +87,7 @@ dotrace(char *s, Client *c, XEvent *e)
 {
 	if(debug == 0)
 		return;
+setbuf(stdout, 0);
 	fprintf(stderr, "rio: %s: c=%p", s, (void*)c);
 	if(c)
 		fprintf(stderr, " x %d y %d dx %d dy %d w 0x%x parent 0x%x", c->x, c->y, c->dx, c->dy, (int)c->window, (int)c->parent);

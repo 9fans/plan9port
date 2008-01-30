@@ -27,10 +27,11 @@ LDFLAGS=-L$X11/lib$L64/ -lXext -lX11
 
 <|sh mkriorules.sh
 
-CFLAGS=$CFLAGS -DSHAPE
+CFLAGS=$CFLAGS -DSHAPE -DDEBUG_EV -DDEBUG
 
 $O.xevents: xevents.$O printevent.$O
 	$LD -o $target $prereq $LDFLAGS
 
 xevents.$O printevent.$O: printevent.h
 
+error.$O: showevent/ShowEvent.c

@@ -1,0 +1,20 @@
+.TH ShowEvent 3X11 "December 1988"
+.SH NAME
+.B ShowEvent \- display the fields of an event
+.br
+.B GetType - get a string representation of an event type
+
+.SH SYNOPSIS
+.B void ShowEvent(event)
+.br
+.B XEvent *event;
+.PP
+.B char *GetType(event)
+.br
+.B XEvent *event;
+
+.SH DESCRIPTION
+ShowEvent displays the fields of the specified event in a readable form.
+.PP
+GetType returns the string representation of the specified event type.
+
