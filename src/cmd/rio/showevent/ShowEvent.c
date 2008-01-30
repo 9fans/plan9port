@@ -389,9 +389,7 @@ XKeyEvent *ev;
 }
 
 /* Returns the string equivalent of an atom or "None"*/
-static char *AtomName(dpy, atom)
-Display *dpy;
-Atom atom;
+static char *AtomName(Display *dpy, Atom atom)
 {
     static char buffer[256];
     char *atom_name;

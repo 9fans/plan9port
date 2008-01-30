@@ -138,8 +138,14 @@ configurereq(XConfigureRequestEvent *e)
 		if(e->value_mask & CWBorderWidth)
 			c->border = e->border_width;
 	
-		if((e->value_mask & (CWX|CWY|CWWidth|CWHeight)) == (CWWidth|CWHeight)
-		&& c->dx >= c->screen->width && c->dy >= c->screen->height){
+		if(!(e->value_mask & (CWX|CWY))){
+			e->x = 0;
+			e->y = 0;
+		}
+
+		if((e->value_mask & (CWWidth|CWHeight)) == (CWWidth|CWHeight)
+		&& c->dx >= c->screen->width && c->dy >= c->screen->height
+		&& e->x == 0 && e->y == 0){
 			c->border = 0;
 			e->value_mask |= CWX|CWY;
 		}else

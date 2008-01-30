@@ -449,7 +449,6 @@ sendconfig(Client *c)
 {
 	XConfigureEvent ce;
 
-fprintf(stderr, "send config: %p / %d %d %d %d\n", c);
 	ce.type = ConfigureNotify;
 	ce.event = c->window;
 	ce.window = c->window;
