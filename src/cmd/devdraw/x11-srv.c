@@ -5,10 +5,16 @@
  * subtle and quick to anger.
  */
 
+// #define SHOWEVENT
+
 #include <u.h>
 #include <sys/select.h>
 #include <errno.h>
+#ifdef SHOWEVENT
+#include <stdio.h>
+#endif
 #include "x11-inc.h"
+
 #include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
@@ -86,11 +92,15 @@ int fdnoblock(int);
 
 int chatty;
 int drawsleep;
+int fullscreen;
+
+Rectangle windowrect;
+Rectangle screenrect;
 
 void
 usage(void)
 {
-	fprint(2, "usage: devdraw (don't run  directly)\n");
+	fprint(2, "usage: devdraw (don't run directly)\n");
 	exits("usage");
 }
 
@@ -120,6 +130,9 @@ main(int argc, char **argv)
 	close(1);
 	open("/dev/null", OREAD);
 	open("/dev/null", OWRITE);
+
+	/* reopens stdout if debugging */
+	runxevent(0);
 
 	fmtinstall('W', drawfcallfmt);
 
@@ -270,6 +283,8 @@ replyerror(Wsysmsg *m)
 	m->error = err;
 	replymsg(m);
 }
+
+
 
 /* 
  * Handle a single wsysmsg. 
@@ -455,7 +470,25 @@ void
 runxevent(XEvent *xev)
 {
 	int c;
+	KeySym k;
 	static Mouse m;
+
+#ifdef SHOWEVENT
+	static int first = 1;
+	if(first){
+		dup(create("/tmp/devdraw.out", OWRITE, 0666), 1);
+		setbuf(stdout, 0);
+		first = 0;
+	}
+#endif
+
+	if(xev == 0)
+		return;
+
+#ifdef SHOWEVENT
+	print("\n");
+	ShowEvent(xev);
+#endif
 
 	switch(xev->type){
 	case Expose:
@@ -500,6 +533,12 @@ runxevent(XEvent *xev)
 	case KeyPress:
 		if(kbd.stall)
 			return;
+		XLookupString((XKeyEvent*)xev, NULL, 0, &k, NULL);
+		if(k == XK_F11){
+			fullscreen = !fullscreen;
+			_xresizewindow(fullscreen ? screenrect : windowrect);
+			return;
+		}
 		if((c = _xtoplan9kbd(xev)) < 0)
 			return;
 		kbd.r[kbd.wi++] = c;

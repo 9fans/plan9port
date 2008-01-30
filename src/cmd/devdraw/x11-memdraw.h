@@ -111,3 +111,6 @@ extern int		_xreplacescreenimage(void);
 	Button2MotionMask|\
 	Button3MotionMask)
 
+extern Rectangle screenrect;
+extern Rectangle windowrect;
+extern int fullscreen;

@@ -253,6 +253,8 @@ _xattach(char *label, char *winsize)
 		}
 		havemin = 0;
 	}
+	screenrect = Rect(0, 0, WidthOfScreen(xscreen), HeightOfScreen(xscreen));
+	windowrect = r;
 
 	memset(&attr, 0, sizeof attr);
 	attr.colormap = _x.cmap;
@@ -687,9 +689,25 @@ _xconfigure(XEvent *e)
 	Rectangle r;
 	XConfigureEvent *xe = (XConfigureEvent*)e;
 
+	if(!fullscreen){
+		// I can't figure this out: apparently window managers
+		// (e.g., rio, twm) send ConfigureEvents using absolute
+		// screen coordinates, but X sends events using coordinates
+		// relative to the parent window.  
+		if(xe->send_event)
+			windowrect = Rect(xe->x, xe->y, xe->x+xe->width, xe->y+xe->height);
+		else{
+			int rx, ry;
+			XWindow w;
+			if(XTranslateCoordinates(_x.display, _x.drawable, DefaultRootWindow(_x.display), xe->x, xe->y, &rx, &ry, &w))
+				windowrect = Rect(rx, ry, rx+xe->width, ry+xe->height);
+		}
+	}
+
 	if(xe->width == Dx(_x.screenr) && xe->height == Dy(_x.screenr))
 		return 0;
 	r = Rect(0, 0, xe->width, xe->height);
+
 	qlock(&_x.screenlock);
 	if(_x.screenpm != _x.nextscreenpm){
 		XCopyArea(_x.display, _x.screenpm, _x.drawable, _x.gccopy, r.min.x, r.min.y,
@@ -709,8 +727,6 @@ _xreplacescreenimage(void)
 	Rectangle r;
 
 	r = _x.newscreenr;
-	if(eqrect(_x.screenr, r))
-		return 0;
 
 	pixmap = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), _x.depth);
 	m = _xallocmemimage(r, _x.chan, pixmap);
