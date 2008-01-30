@@ -523,7 +523,6 @@ cleanup(void)
 	for(i = 0; i < 2; i++){
 		for(c = cc[i]; c; c = c->next){
 			if(!withdrawn(c)){
-				gravitate(c, 1);
 				XReparentWindow(dpy, c->window, c->screen->root,
 						c->x, c->y);
 			}

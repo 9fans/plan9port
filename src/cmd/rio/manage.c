@@ -122,9 +122,7 @@ manage(Client *c, int mapped)
 				cmapfocus(current);
 			return 0;
 		}
-	} else
-		gravitate(c, 0);
-
+	}
 
 	attrs.border_pixel =  c->screen->black;
 	attrs.background_pixel =  c->screen->white;
@@ -243,9 +241,7 @@ void
 withdraw(Client *c)
 {
 	XUnmapWindow(dpy, c->parent);
-	gravitate(c, 1);
 	XReparentWindow(dpy, c->window, c->screen->root, c->x, c->y);
-	gravitate(c, 0);
 	XRemoveFromSaveSet(dpy, c->window);
 	setstate(c, WithdrawnState);
 
@@ -253,68 +249,6 @@ withdraw(Client *c)
 	ignore_badwindow = 1;
 	XSync(dpy, False);
 	ignore_badwindow = 0;
-}
-
-void
-gravitate(Client *c, int invert)
-{
-	int gravity, dx, dy, delta;
-
-	gravity = NorthWestGravity;
-	if(c->size.flags & PWinGravity)
-		gravity = c->size.win_gravity;
-
-	delta = c->border-BORDER;
-	switch (gravity){
-	case NorthWestGravity:
-		dx = 0;
-		dy = 0;
-		break;
-	case NorthGravity:
-		dx = delta;
-		dy = 0;
-		break;
-	case NorthEastGravity:
-		dx = 2*delta;
-		dy = 0;
-		break;
-	case WestGravity:
-		dx = 0;
-		dy = delta;
-		break;
-	case CenterGravity:
-	case StaticGravity:
-		dx = delta;
-		dy = delta;
-		break;
-	case EastGravity:
-		dx = 2*delta;
-		dy = delta;
-		break;
-	case SouthWestGravity:
-		dx = 0;
-		dy = 2*delta;
-		break;
-	case SouthGravity:
-		dx = delta;
-		dy = 2*delta;
-		break;
-	case SouthEastGravity:
-		dx = 2*delta;
-		dy = 2*delta;
-		break;
-	default:
-		fprintf(stderr, "rio: bad window gravity %d for 0x%x\n", gravity, (int)c->window);
-		return;
-	}
-	dx += BORDER;
-	dy += BORDER;
-	if(invert){
-		dx = -dx;
-		dy = -dy;
-	}
-	c->x += dx;
-	c->y += dy;
 }
 
 static void

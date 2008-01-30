@@ -690,18 +690,10 @@ _xconfigure(XEvent *e)
 	XConfigureEvent *xe = (XConfigureEvent*)e;
 
 	if(!fullscreen){
-		// I can't figure this out: apparently window managers
-		// (e.g., rio, twm) send ConfigureEvents using absolute
-		// screen coordinates, but X sends events using coordinates
-		// relative to the parent window.  
-		if(xe->send_event)
-			windowrect = Rect(xe->x, xe->y, xe->x+xe->width, xe->y+xe->height);
-		else{
-			int rx, ry;
-			XWindow w;
-			if(XTranslateCoordinates(_x.display, _x.drawable, DefaultRootWindow(_x.display), xe->x, xe->y, &rx, &ry, &w))
-				windowrect = Rect(rx, ry, rx+xe->width, ry+xe->height);
-		}
+		int rx, ry;
+		XWindow w;
+		if(XTranslateCoordinates(_x.display, _x.drawable, DefaultRootWindow(_x.display), 0, 0, &rx, &ry, &w))
+			windowrect = Rect(rx, ry, rx+xe->width, ry+xe->height);
 	}
 
 	if(xe->width == Dx(_x.screenr) && xe->height == Dy(_x.screenr))
