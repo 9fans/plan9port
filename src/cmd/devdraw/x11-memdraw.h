@@ -101,6 +101,7 @@ extern char*		_xgetsnarf(void);
 extern void		_xputsnarf(char *data);
 extern void		_xtopwindow(void);
 extern void		_xresizewindow(Rectangle);
+extern void		_xmovewindow(Rectangle);
 extern int		_xreplacescreenimage(void);
 
 #define MouseMask (\

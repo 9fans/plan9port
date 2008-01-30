@@ -536,7 +536,7 @@ runxevent(XEvent *xev)
 		XLookupString((XKeyEvent*)xev, NULL, 0, &k, NULL);
 		if(k == XK_F11){
 			fullscreen = !fullscreen;
-			_xresizewindow(fullscreen ? screenrect : windowrect);
+			_xmovewindow(fullscreen ? screenrect : windowrect);
 			return;
 		}
 		if((c = _xtoplan9kbd(xev)) < 0)

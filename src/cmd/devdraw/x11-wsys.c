@@ -22,6 +22,20 @@ _xresizewindow(Rectangle r)
 
 	memset(&e, 0, sizeof e);
 	value_mask = CWX|CWY|CWWidth|CWHeight;
+	e.width = Dx(r);
+	e.height = Dy(r);
+	XConfigureWindow(_x.display, _x.drawable, value_mask, &e);
+	XFlush(_x.display);
+}
+
+void
+_xmovewindow(Rectangle r)
+{
+	XWindowChanges e;
+	int value_mask;
+
+	memset(&e, 0, sizeof e);
+	value_mask = CWX|CWY|CWWidth|CWHeight;
 	e.x = r.min.x;
 	e.y = r.min.y;
 	e.width = Dx(r);
