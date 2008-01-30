@@ -2,6 +2,140 @@
 # submitted the patch but more often just reported
 # the problem.
 
+January 30, 2008
+	acme: fix regexp match choice bug
+	devdraw: add F11 for full-screen toggle
+	rio: accomodate full-screen apps more gracefully
+	sam: fix regexp match choice bug
+
+January 28, 2008
+	xd: fix printing of 4-byte values on 64-bit machines (Sam Hopkins)
+
+January 12, 2008
+	delatex: reset lexer state at each beginning of file
+	ipso: do not flush factotum keys unless using factotum file
+	libdiskfs: fix ext2 directory reading bug (Mike Mammarella)
+	lp: move devices to devices.sample
+	rio: make full-screen work properly; add showevent
+	venti: fewer calls to gettimeofday
+	vmount: need to say -t nfs now on Linux
+
+January 10, 2008
+	acme: make STACK bigger for OS X (David Swasey)
+	dist,unix: use MKSHELL=$PLAN9/bin/rc (John DeGood)
+	libdraw: fix spinning event loop (David Bulkow)
+	libregexp: fix match choice bug
+
+December 7, 2007
+	acme, sam, libregexp: regexp fixes and reversions
+
+December 4, 2007
+	hoc: print exact floating point output
+	sam: turn off DEBUG logging (oops)
+	vbackup: fix uninitialized variable use in -i code
+
+November 28, 2007
+	acme: refresh window properly after Tab command (Fazlul Shahriar)
+
+November 27, 2007
+	.hgignore: ignore more
+	libdiskfs: make ext2 use little-endian disk format on big-endian machines (Joshua Wood)
+	acme: accept clicks between body and scroll bar (Axel Belinfante)
+	tpic: clean up better
+	upas/smtp: remove intermediate files
+	vbackup: add -i flag to avoid score prefetching (David Swasey)
+	venti: add debugging HTML form
+
+November 25, 2007
+	acme: avoid infinite loop on search in 8125-byte file (Roger Peppe)
+	lib9: avoid DIOCGMEDIASIZE on FreeBSD 4.11 (Rodrigo Readi)
+	mailfs: use root in imapcopylist (Richard Bilson)
+	moveplan9.files: add tmac/tmac.an (Tony Lainson)
+
+November 23, 2007
+	9pfuse: ignore Linux O_CLOEXEC flag (Michael Kaminsky)
+
+November 22, 2007
+	9pfuse: fix array bounds error (Michael Teichgräber)
+	vbackup: fix fsysopen error message (Joshua Wood)
+
+November 7, 2007
+	9fs: use -n to mount sources (Jeff Sickel),
+	9pfuse: MacFUSE moved again! (Jeff Sickel)
+
+November 6, 2007
+	.cvsignore: add 9pm (for old trees)
+	unvf: ignore case in Content-Transfer-Encoding: line.
+	validateattachment: reject malformed zip files
+
+November 5, 2007
+	building: use ar s flag to avoid ranlib (OS X)
+	diff: continue after i/o errors when diffing many files
+	factotum: silence gcc warning
+	getns: turn / into _ in $DISPLAY
+	libdiskfs: OS X linker fixes
+	libmach: OS X linker fixes
+	libmp: no text jump labels (OS X)
+	libthread: use our own swapcontext on OS X
+	mailfs: handle NIL body, add -r flag (Richard Bilson)
+
+November 4, 2007
+	man: document hg interface, fix CVS host name
+
+November 3, 2007
+	libthread: more OS X 10.5 changes (Jeff Sickel)
+
+October 31, 2007
+	venti: use 9ar, not ar (fixes Darwin build)
+
+October 30, 2007
+	libthread: OS X 10.5 tweaks (Jeff Sickel, Bakul Shah)
+
+October 29, 2007
+	grap: fclose, error context bug fixes (Doug Gwyn)
+	venti: fix sync deadlock, add /proc stub
+
+October 12, 2007
+	9p: add -n to disable authentication
+	9pserve: add -n to reject authentication
+	srv: add -n to reject authentication
+
+October 9, 2007
+	mount: ask for Unix test explicitly (Chris King)
+
+September 24-25, 2007
+	venti: many fixes, new index cache
+
+September 16, 2007
+	factotum: fix build error (Axel Belinfante)
+
+September 15, 2007
+	auxstats: use acpi for battery on Linux (Andrey Mirtchovski)
+
+September 13, 2007
+	factotum: implement 9pcr (of dubious utility)
+
+August 28, 2007
+	9pserve: fix infinite loop bug
+
+August 23, 2007
+	venti: add -s flag, bug fixes (Michael Kaminsky)
+
+August 22, 2007
+	9.rc: change to work with rc -e (Tony Lainson)
+	9pserve: fix races causing assert(c->nmsg == 0) to fail.
+	acme: fix warning memory leak (Michael Teichgräber)
+	libfmt: add fmtlocale to Makefile (Faried Nawaz)
+	libthread: simplify alt tracking, possibly fixing bug
+	mailfs: fix handling of FLAGS responses (Robert Vollmert)
+	unix ports: Linux x86-64 Makefiles (Ævar Arnfjörð Bjarmason)
+
+July 25, 2007
+	9pfuse: even more MacFUSE path changes
+
+June 29, 2007
+	dict: look in $dictpath for dictionaries
+
 June 24, 2007
 	mailfs: fix subject line in header file.
 
