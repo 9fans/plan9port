@@ -637,7 +637,6 @@ enum
 	StatBloomLookup,
 	StatBloomOnes,
 	StatBloomBits,
-	StatBloomLookupTime,
 
 	StatApartRead,
 	StatApartReadBytes,

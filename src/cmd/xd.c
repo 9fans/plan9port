@@ -11,7 +11,7 @@ int		swizzle;
 int		flush;
 int		abase=2;
 int		xd(char *, int);
-void		xprint(char *, long);
+void		xprint(char *, ulong);
 void		initarg(void), swizz(void);
 enum{
 	Narg=10
@@ -297,7 +297,7 @@ fmt2(char *f)
 {
 	int i;
 	for(i=0; i<ndata; i+=sizeof(unsigned long))
-		xprint(f, (data[i]<<24)|(data[i+1]<<16)|(data[i+2]<<8)|data[i+3]);
+		xprint(f, (u32int)((data[i]<<24)|(data[i+1]<<16)|(data[i+2]<<8)|data[i+3]));
 }
 
 void
@@ -346,7 +346,7 @@ fmtc(char *f)
 }
 
 void
-xprint(char *fmt, long d)
+xprint(char *fmt, ulong d)
 {
 	if(Bprint(&bout, fmt, d)<0){
 		fprint(2, "xd: i/o error\n");

@@ -54,9 +54,9 @@ main(int argc, char **argv)
 {
 	int i;
 	
-	BEGIN Normal; /* Starts yylex off in the right state */
 	if (argc==1) {
 	    yyin = stdin;
+	    BEGIN Normal; /* Starts yylex off in the right state */
 	    yylex();
 	    }
 	else for (i=1; i<argc; i++) {
@@ -65,6 +65,7 @@ main(int argc, char **argv)
 		fprintf(stderr,"can't open %s\n",argv[i]);
 		exit(1);
 		}
+	    BEGIN Normal; /* Starts yylex off in the right state */
 	    yylex();
 	    }
 	exit(0);

@@ -101,7 +101,7 @@ initdcache(u32int mem)
 	dcache.mem = MKNZ(u8int, (nblocks+1+128) * blocksize);
 
 	last = nil;
-	p = (u8int*)(((ulong)dcache.mem+blocksize-1)&~(ulong)(blocksize-1));
+	p = (u8int*)(((uintptr)dcache.mem+blocksize-1)&~(uintptr)(blocksize-1));
 	for(i = 0; i < nblocks; i++){
 		b = &dcache.blocks[i];
 		b->data = &p[i * blocksize];
@@ -134,16 +134,12 @@ DBlock*
 getdblock(Part *part, u64int addr, int mode)
 {
 	DBlock *b;
-	uint ms;
 	
-	ms = msec();
 	b = _getdblock(part, addr, mode, 1);
 	if(mode == OREAD || mode == ORDWR)
 		addstat(StatDcacheRead, 1);
 	if(mode == OWRITE || mode == ORDWR)
 		addstat(StatDcacheWrite, 1);
-	ms = msec() - ms;
-	addstat2(StatDcacheLookup, 1, StatDcacheLookupTime, ms);
 	return b;
 }
 
@@ -151,12 +147,15 @@ DBlock*
 _getdblock(Part *part, u64int addr, int mode, int load)
 {
 	DBlock *b;
-	u32int h, size;
+	u32int h, size, ms;
 
+	ms = 0;
 	trace(TraceBlock, "getdblock enter %s 0x%llux", part->name, addr);
 	size = part->blocksize;
 	if(size > dcache.size){
 		seterr(EAdmin, "block size %d too big for cache with size %d", size, dcache.size);
+		if(load)
+			addstat(StatDcacheLookup, 1);
 		return nil;
 	}
 	h = pbhash(addr);
@@ -169,7 +168,7 @@ again:
 	for(b = dcache.heads[h]; b != nil; b = b->next){
 		if(b->part == part && b->addr == addr){
 			if(load)
-				addstat(StatDcacheHit, 1);
+				addstat2(StatDcacheHit, 1, StatDcacheLookup, 1);
 			goto found;
 		}
 	}
@@ -183,7 +182,12 @@ again:
 		return nil;
 	}
 
-	addstat(StatDcacheMiss, 1);
+	/*
+	 * Only start timer here, on cache miss - calling msec() on plain cache hits
+	 * makes cache hits system-call bound.
+	 */
+	ms = msec();
+	addstat2(StatDcacheLookup, 1, StatDcacheMiss, 1);
 
 	b = bumpdblock();
 	if(b == nil){
@@ -272,6 +276,8 @@ found:
 
 	b->mode = mode;
 	trace(TraceBlock, "getdblock exit");
+	if(ms)
+		addstat(StatDcacheLookupTime, msec() - ms);
 	return b;
 }
 

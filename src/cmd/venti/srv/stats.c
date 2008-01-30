@@ -70,7 +70,6 @@ Statdesc statdesc[NStat] =
 	{ "bloom filter lookups", },
 	{ "bloom filter ones", },
 	{ "bloom filter bits", },
-	{ "bloom filter lookup time", },
 
 	{ "arena block reads", },
 	{ "arena block read bytes", },
