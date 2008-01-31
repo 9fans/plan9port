@@ -36,3 +36,7 @@ CFLAGS=$CFLAGS -c -D'PROGRAMVERSION="0.1"' -D'DOROUND=1' -I$COMMONDIR
 
 %.$O:	$COMMONDIR/%.c
 	$CC $CFLAGS $COMMONDIR/$stem.c
+
+test.ps:V: $O.tr2post
+	9 troff -ms test.tr | $O.tr2post | psfonts >test.ps
+

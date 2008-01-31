@@ -85,9 +85,28 @@ prologues(void) {
 /* output Build character info from charlib if necessary. */
 
 	for (i=0; i<build_char_cnt; i++) {
-		sprint(charlibname, "%s/%s", CHARLIB, build_char_list[i]->name);
+		// Rewrite file name for case-insensitive or non-UTF-8 file systems.
+		// _x means a lowercase x; #1234 means Unicode 0x1234.
+		char buf[100];
+		char *r, *w;
+		for(w=buf, r=build_char_list[i]->name; *r && w<buf+sizeof buf-8; ){
+			if((uchar)*r >= 0x80){
+				Rune rr;
+				r += chartorune(&rr, r);
+				sprint(w, "#%04x", rr);
+				w += strlen(w);
+				continue;
+			}
+			if(('a' <= *r && *r <= 'z') || *r == '_')
+				*w++ = '_';
+			if(*r == '#')
+				*w++ = '#';
+			*w++ = *r++;
+		}
+		*w = 0;
+		sprint(charlibname, "%s/%s", CHARLIB, buf);
 		if (cat(unsharp(charlibname)))
-		Bprint(Bstderr, "cannot open %s\n", charlibname);
+			Bprint(Bstderr, "cannot open %s\n", charlibname);
 	}
 
 	Bprint(Bstdout, "%s", ENDSETUP);
