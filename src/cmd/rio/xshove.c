@@ -41,16 +41,13 @@ int nw;
 
 void getinfo(void);
 void listwindows(void);
-int parsewinsize(char*, Rectangle*, int*);
+int parsewinsize(char*, Rectangle*, int*, int*, int*);
 void shove(char*, char*);
 
 void
 usage(void)
 {
-	fprint(2, "usage: xshove window rectangle\n"
-	          "   or  xshove\n"
-	          "window can be a window ID or a program name\n"
-	          "rectangle is a p9p window spec (see intro(1))\n");
+	fprint(2, "usage: xshove [window rectangle]\n");
 	exits("usage");
 }
 
@@ -183,12 +180,19 @@ void
 shove(char *name, char *geom)
 {
 	int i;
-	int havemin;
+	int isdelta, havemin, havesize;
+	int old, new;
 	Rectangle r;
 
-	if(parsewinsize(geom, &r, &havemin) < 0)
+	if(parsewinsize(geom, &r, &isdelta, &havemin, &havesize) < 0)
 		sysfatal("bad window spec: %s", name);
 
+	old = 0;
+	new = 1;
+	if(isdelta){
+		old = 1;
+		new = isdelta;
+	}
 	for(i=0; i<nw; i++){
 		Win *ww = &w[i];
 		if(ww->instance && strstr(ww->instance, name)
@@ -197,14 +201,21 @@ shove(char *name, char *geom)
 			XWindowChanges e;
 
 			memset(&e, 0, sizeof e);
-			e.width = Dx(r);
-			e.height = Dy(r);
-			value_mask = CWWidth | CWHeight;
 			if(havemin){
-				e.x = r.min.x;
-				e.y = r.min.y;
-				value_mask |= CWX | CWY;
+				e.x = old*ww->x + new*r.min.x;
+				e.y = old*ww->y + new*r.min.y;
+			}else{
+				e.x = ww->x;
+				e.y = ww->y;
 			}
+			if(havesize){
+				e.width = old*ww->dx + new*Dx(r);
+				e.height = old*ww->dy + new*Dy(r);
+			}else{
+				e.width = ww->dx;
+				e.height = ww->dy;
+			}
+			value_mask = CWX | CWY | CWWidth | CWHeight;
 			XConfigureWindow(dpy, ww->xw, value_mask, &e);
 			XFlush(dpy);
 		}
@@ -212,13 +223,22 @@ shove(char *name, char *geom)
 }
 
 int
-parsewinsize(char *s, Rectangle *r, int *havemin)
+parsewinsize(char *s, Rectangle *r, int *isdelta, int *havemin, int *havesize)
 {
 	char c, *os;
 	int i, j, k, l;
 
 	os = s;
+	if(*s == '-'){
+		s++;
+		*isdelta = -1;
+	}else if(*s == '+'){
+		s++;
+		*isdelta = 1;
+	}else
+		*isdelta = 0;
 	*havemin = 0;
+	*havesize = 0;
 	memset(r, 0, sizeof *r);
 	if(!isdigit((uchar)*s))
 		goto oops;
@@ -230,6 +250,7 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 		j = strtol(s, &s, 0);
 		r->max.x = i;
 		r->max.y = j;
+		*havesize = 1;
 		if(*s == 0)
 			return 0;
 		if(*s != '@')
@@ -251,6 +272,7 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 		r->max.x += i;
 		r->min.y += j;
 		r->max.y += j;
+		*havesize = 1;
 		*havemin = 1;
 		return 0;
 	}
@@ -262,6 +284,12 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 	if(!isdigit((uchar)*s))
 		goto oops;
 	j = strtol(s, &s, 0);
+	if(*s == 0){
+		r->min.x = i;
+		r->min.y = j;
+		*havemin = 1;
+		return 0;
+	}
 	if(*s != c)
 		goto oops;
 	s++;
@@ -281,6 +309,7 @@ parsewinsize(char *s, Rectangle *r, int *havemin)
 	r->max.x = k;
 	r->max.y = l;
 	*havemin = 1;
+	*havesize = 1;
 	return 0;
 
 oops:

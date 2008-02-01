@@ -29,6 +29,12 @@ rio \- rio-like Window Manager for X
 |
 .B restart
 ]
+.PP
+.B xshove
+[
+.I name
+.I rectangle
+]
 .SH DESCRIPTION
 .if t .ds 85 8\(12
 .if n .ds 85 8-1/2
@@ -187,6 +193,34 @@ option,
 clicking button 2 brings up a menu to select a virtual screen to view.
 Scrolling the mouse wheel while the cursor points at the background
 will cycle through the virtual screens.
+.PP
+.I Xshove
+moves or resizes every window whose X11 class or instance strings contain
+.IR name .
+The 
+.I rectangle
+argument can be
+\fIwidth\^\^\fLx\fI\^\^height\fR,
+\fIwidth\^\^\fLx\fI\^\^height\^\^\fL@\fI\^\^xmin\fL,\fIxmax\fR,
+\fL'\fIxmin ymin xmax ymax\fL'\fR,
+\fRor
+\fIxmin\fL,\fIymin\fL,\fIxmax\fL,\fIymax\fR.
+A leading 
+.B +
+or
+.B -
+causes the rectangle to be interpreted as a delta:
+.L +10,0
+nudges a window to the right, while
+.L +100x100
+grows a window.
+With no arguments,
+.I xshove
+lists all the current X windows.
+.I Xshove
+is not specific to 
+.I rio
+and can be used with other window managers.
 .SH BUGS
 In
 Plan 9's
