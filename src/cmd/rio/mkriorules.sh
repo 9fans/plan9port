@@ -3,4 +3,4 @@ if [ "x$WSYSTYPE" = xnowsys ]; then
 	echo '	#'
 	exit 0
 fi
-cat $PLAN9/src/mkone
+cat $PLAN9/src/mkmany

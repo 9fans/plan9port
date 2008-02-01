@@ -1,7 +1,7 @@
 <$PLAN9/src/mkhdr
 <|sh ../devdraw/mkwsysrules.sh	# for X11
 
-OFILES=\
+RIOFILES=\
 	client.$O\
 	color.$O\
 	cursor.$O\
@@ -16,7 +16,7 @@ OFILES=\
 CFLAGS=$CFLAGS -DDEBUG
 HFILES=dat.h fns.h
 
-TARG=rio
+TARG=rio xshove
 
 # need to add lib64 when it exists (on x86-64), but
 # Darwin complains about the nonexistant directory
@@ -27,6 +27,8 @@ LDFLAGS=-L$X11/lib$L64/ -lXext -lX11
 
 <|sh mkriorules.sh
 
+$O.rio: $RIOFILES
+
 CFLAGS=$CFLAGS -DSHAPE -DDEBUG_EV -DDEBUG
 
 $O.xevents: xevents.$O printevent.$O
@@ -35,3 +37,7 @@ $O.xevents: xevents.$O printevent.$O
 xevents.$O printevent.$O: printevent.h
 
 error.$O: showevent/ShowEvent.c
+
+$O.xshove: xshove.$O
+	$LD -o $O.xshove xshove.$O -lX11
+
