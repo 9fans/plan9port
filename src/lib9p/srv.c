@@ -227,7 +227,7 @@ sattach(Srv *srv, Req *r)
 	r->fid->uid = estrdup9p(r->ifcall.uname);
 	if(srv->tree){
 		r->fid->file = srv->tree->root;
-		/* BUG? incref(r->fid->file) ??? */
+		incref(&r->fid->file->ref);
 		r->ofcall.qid = r->fid->file->dir.qid;
 		r->fid->qid = r->ofcall.qid;
 	}
