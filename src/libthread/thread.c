@@ -669,7 +669,6 @@ main(int argc, char **argv)
 
 	argv0 = argv[0];
 
-	write(1, "", 0);
 	if(getenv("NOLIBTHREADDAEMONIZE") == nil)
 		_threadsetupdaemonize();
 
