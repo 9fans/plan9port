@@ -48,7 +48,7 @@ yylex(void)
 				ERROR "quoted string %.20s... too long", token FATAL;
 		}
 		token[sp] = '\0';
-		yylval = (int) &token[0];
+		yylval = (intptr_t)&token[0];
 		if (c == '\n')
 			ERROR "missing \" in %.20s", token WARNING;
 		return(QTEXT);
