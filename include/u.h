@@ -144,6 +144,7 @@ typedef int8_t s8int;
 typedef uint16_t u16int;
 typedef int16_t s16int;
 typedef uintptr_t uintptr;
+typedef intptr_t intptr;
 typedef uint32_t u32int;
 typedef int32_t s32int;
 
