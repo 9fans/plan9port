@@ -134,10 +134,11 @@ wintaglines(Window *w, Rectangle r)
 
 	/* if tag ends with \n, include empty line at end for typing */
 	n = w->tag.fr.nlines;
-	if(w->tag.file->b.nc > 0)
+	if(w->tag.file->b.nc > 0){
 		bufread(&w->tag.file->b, w->tag.file->b.nc-1, &rune, 1);
-	if(rune == '\n')
-		n++;
+		if(rune == '\n')
+			n++;
+	}
 	if(n == 0)
 		n = 1;
 	return n;
@@ -162,10 +163,8 @@ if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepex
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
 	y = r1.max.y;
 	mouseintag = ptinrect(mouse->xy, w->tag.all);
-	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
-
+	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1))
 		w->taglines = wintaglines(w, r);
-	}
 /* END TAG */
 
 	r1 = r;
@@ -182,9 +181,16 @@ if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		windrawbutton(w);
 		w->tagsafe = TRUE;
 /* TAG */
+		/* If mouse is in tag, pull up as tag closes. */
 		if(mouseintag && !ptinrect(mouse->xy, w->tag.all)){
 			p = mouse->xy;
 			p.y = w->tag.all.max.y-3;
+			moveto(mousectl, p);
+		}
+		/* If mouse is in body, push down as tag expands. */
+		if(!mouseintag && ptinrect(mouse->xy, w->tag.all)){
+			p = mouse->xy;
+			p.y = w->tag.all.max.y+3;
 			moveto(mousectl, p);
 		}
 /* END TAG */
