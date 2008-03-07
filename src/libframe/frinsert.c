@@ -261,7 +261,7 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 	else
 		col = f->cols[BACK];
 	frselectpaint(f, ppt0, ppt1, col);
-	_frredraw(&frame, ppt0);
+	_frdrawtext(&frame, ppt0, f->cols[TEXT], col);
 	_fraddbox(f, nn0, frame.nbox);
 	for(n=0; n<frame.nbox; n++)
 		f->box[nn0+n] = frame.box[n];

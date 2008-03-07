@@ -5,16 +5,15 @@
 #include <frame.h>
 
 void
-_frredraw(Frame *f, Point pt)
+_frdrawtext(Frame *f, Point pt, Image *text, Image *back)
 {
 	Frbox *b;
 	int nb;
-	/* static int x; */
 
 	for(nb=0,b=f->box; nb<f->nbox; nb++, b++){
 		_frcklinewrap(f, &pt, b);
 		if(!f->noredraw && b->nrune >= 0)
-			string(f->b, pt, f->cols[TEXT], ZP, f->font, (char *)b->ptr);
+			stringbg(f->b, pt, text, ZP, f->font, (char*)b->ptr, back, ZP);
 		pt.x += b->wid;
 	}
 }
@@ -55,7 +54,7 @@ frdrawsel(Frame *f, Point pt, ulong p0, ulong p1, int issel)
 	frdrawsel0(f, pt, p0, p1, back, text);
 }
 
-void
+Point
 frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 {
 	Frbox *b;
@@ -76,6 +75,7 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 		if(p >= p0){
 			qt = pt;
 			_frcklinewrap(f, &pt, b);
+			/* fill in the end of a wrapped line */
 			if(pt.y > qt.y)
 				draw(f->b, Rect(qt.x, qt.y, f->r.max.x, pt.y), back, nil, qt);
 		}
@@ -99,7 +99,7 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 			x = f->r.max.x;
 		draw(f->b, Rect(pt.x, pt.y, x, pt.y+f->font->height), back, nil, pt);
 		if(b->nrune >= 0)
-			stringn(f->b, pt, text, ZP, f->font, ptr, nr);
+			stringnbg(f->b, pt, text, ZP, f->font, ptr, nr, back, ZP);
 		pt.x += w;
 	    Continue:
 		b++;
@@ -112,6 +112,29 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 		if(pt.y > qt.y)
 			draw(f->b, Rect(qt.x, qt.y, f->r.max.x, pt.y), back, nil, qt);
 	}
+	return pt;
+}
+
+void
+frredraw(Frame *f)
+{
+	int ticked;
+	Point pt;
+
+	if(f->p0 == f->p1){
+		ticked = f->ticked;
+		if(ticked)
+			frtick(f, frptofchar(f, f->p0), 0);
+		frdrawsel0(f, frptofchar(f, 0), 0, f->nchars, f->cols[BACK], f->cols[TEXT]);
+		if(ticked)
+			frtick(f, frptofchar(f, f->p0), 1);
+		return;
+	}
+
+	pt = frptofchar(f, 0);
+	pt = frdrawsel0(f, pt, 0, f->p0, f->cols[BACK], f->cols[TEXT]);
+	pt = frdrawsel0(f, pt, f->p0, f->p1, f->cols[HIGH], f->cols[HTEXT]);
+	pt = frdrawsel0(f, pt, f->p1, f->nchars, f->cols[BACK], f->cols[TEXT]);
 }
 
 void
@@ -150,7 +173,7 @@ _frdraw(Frame *f, Point pt)
 		if(b->nrune > 0){
 			n = _frcanfit(f, pt, b);
 			if(n == 0)
-				drawerror(f->display, "_frcanfit==0");
+				break;
 			if(n != b->nrune){
 				_frsplitbox(f, nb, n);
 				b = &f->box[nb];
