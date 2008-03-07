@@ -415,11 +415,8 @@ emalloc(uint n)
 	void *p;
 
 	p = malloc(n);
-	if(p == nil){
-		fprint(2, "allocating %d from %lux: %r\n", n, getcallerpc(&n));
-		*(int*)0=0;
+	if(p == nil)
 		error("malloc failed");
-	}
 	setmalloctag(p, getcallerpc(&n));
 	memset(p, 0, n);
 	return p;
@@ -429,10 +426,8 @@ void*
 erealloc(void *p, uint n)
 {
 	p = realloc(p, n);
-	if(p == nil){
-		fprint(2, "reallocating %d: %r\n", n);
+	if(p == nil)
 		error("realloc failed");
-	}
 	setmalloctag(p, getcallerpc(&n));
 	return p;
 }

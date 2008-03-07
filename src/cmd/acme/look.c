@@ -16,7 +16,7 @@
 CFid *plumbsendfid;
 CFid *plumbeditfid;
 
-Window*	openfile(Text*, Expand*, int);
+Window*	openfile(Text*, Expand*);
 
 int	nuntitled;
 
@@ -195,7 +195,7 @@ look3(Text *t, uint q0, uint q1, int external)
 	if(expanded == FALSE)
 		return;
 	if(e.name || e.u.at)
-		openfile(t, &e, FALSE);
+		openfile(t, &e);
 	else{
 		if(t->w == nil)
 			return;
@@ -225,7 +225,7 @@ plumbgetc(void *a, uint n)
 	Rune *r;
 
 	r = a;
-	if(n<0 || n>runestrlen(r))
+	if(n>runestrlen(r))
 		return 0;
 	return r[n];
 }
@@ -235,7 +235,6 @@ plumblook(Plumbmsg *m)
 {
 	Expand e;
 	char *addr;
-	int newwindow;
 
 	if(m->ndata >= BUFSIZE){
 		warning(nil, "insanely long file name (%d bytes) in plumb message (%.32s...)\n", m->ndata, m->data);
@@ -256,8 +255,7 @@ plumblook(Plumbmsg *m)
 		e.u.ar = bytetorune(addr, &e.a1);
 		e.agetc = plumbgetc;
 	}
-	newwindow = plumblookup(m->attr, "newwindow") != nil;
-	openfile(nil, &e, newwindow);
+	openfile(nil, &e);
 	free(e.name);
 	free(e.u.at);
 	drawtopwindow();
@@ -485,8 +483,6 @@ dirname(Text *t, Rune *r, int n)
 	b = nil;
 	if(t==nil || t->w==nil)
 		goto Rescue;
-	if(dodollarsigns && n>=1 && r[0]=='$')
-		expandenv(&r, (uint*)&n);
 	nt = t->w->tag.file->b.nc;
 	if(nt == 0)
 		goto Rescue;
@@ -504,12 +500,9 @@ dirname(Text *t, Rune *r, int n)
 	}
 	if(slash < 0)
 		goto Rescue;
-	slash++;
-	if(dodollarsigns && expandenv(&b, (uint*)&slash))
-		b = runerealloc(b, slash+n);
-	runemove(b+slash, r, n);
+	runemove(b+slash+1, r, n);
 	free(r);
-	return cleanrname(runestr(b, slash+n));
+	return cleanrname(runestr(b, slash+1+n));
 
     Rescue:
 	free(b);
@@ -570,7 +563,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	if(n == 0)
 		return FALSE;
 	/* see if it's a file name */
-	r = runemalloc(n+1);	/* +1 for possible $ below */
+	r = runemalloc(n);
 	bufread(&t->file->b, q0, r, n);
 	/* first, does it have bad chars? */
 	nname = -1;
@@ -586,12 +579,9 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	}
 	if(nname == -1)
 		nname = n;
-	for(i=0; i<nname; i++){
-		if(dodollarsigns && i==0 && r[0]=='$')
-			continue;
+	for(i=0; i<nname; i++)
 		if(!isfilec(r[i]))
 			goto Isntfile;
-	}
 	/*
 	 * See if it's a file name in <>, and turn that into an include
 	 * file name if so.  Should probably do it for "" too, but that's not
@@ -606,13 +596,9 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	else if(amin == q0)
 		goto Isfile;
 	else{
-		if(dodollarsigns && r[0] == '$')
-			expandenv(&r, (uint*)&nname);
-		else{
-			rs = dirname(t, r, nname);
-			r = rs.r;
-			nname = rs.nr;
-		}
+		rs = dirname(t, r, nname);
+		r = rs.r;
+		nname = rs.nr;
 	}
 	e->bname = runetobyte(r, nname);
 	/* if it's already a window name, it's a file */
@@ -656,6 +642,7 @@ expand(Text *t, uint q0, uint q1, Expand *e)
 
 	if(expandfile(t, q0, q1, e))
 		return TRUE;
+
 	if(q0 == q1){
 		while(q1<t->file->b.nc && isalnum(textreadc(t, q1)))
 			q1++;
@@ -718,7 +705,7 @@ lookid(int id, int dump)
 
 
 Window*
-openfile(Text *t, Expand *e, int newwindow)
+openfile(Text *t, Expand *e)
 {
 	Range r;
 	Window *w, *ow;
@@ -757,8 +744,6 @@ openfile(Text *t, Expand *e, int newwindow)
 		}
 	}
 	if(w){
-		if(newwindow==TRUE && !w->isdir)
-			w = coladd(w->col, nil, w, -1);
 		t = &w->body;
 		if(!t->col->safe && t->fr.maxlines==0) /* window is obscured by full-column window */
 			colgrow(t->col, t->col->w[0], 1);
@@ -837,7 +822,7 @@ new(Text *et, Text *t, Text *argt, int flag1, int flag2, Rune *arg, int narg)
 		e.nname = rs.nr;
 		e.bname = runetobyte(rs.r, rs.nr);
 		e.jump = TRUE;
-		openfile(et, &e, FALSE);
+		openfile(et, &e);
 		free(e.name);
 		free(e.bname);
 		arg = skipbl(a, na, &narg);

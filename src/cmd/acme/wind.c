@@ -414,8 +414,8 @@ wincleartag(Window *w)
 void
 winsettag1(Window *w)
 {
-	int bar, dirty, i, j, k, n, ntagname, resize;
-	Rune *new, *old, *r, *tagname;
+	int i, j, k, n, bar, dirty, resize;
+	Rune *new, *old, *r;
 	uint q0, q1;
 	static Rune Ldelsnarf[] = { ' ', 'D', 'e', 'l', ' ',
 		'S', 'n', 'a', 'r', 'f', 0 };
@@ -425,6 +425,7 @@ winsettag1(Window *w)
 	static Rune Lput[] = { ' ', 'P', 'u', 't', 0 };
 	static Rune Llook[] = { ' ', 'L', 'o', 'o', 'k', ' ', 0 };
 	static Rune Lpipe[] = { ' ', '|', 0 };
+
 	/* there are races that get us here with stuff in the tag cache, so we take extra care to sync it */
 	if(w->tag.ncache!=0 || w->tag.file->mod)
 		wincommit(w, &w->tag);	/* check file name; also guarantees we can modify tag contents */
@@ -434,40 +435,20 @@ winsettag1(Window *w)
 	for(i=0; i<w->tag.file->b.nc; i++)
 		if(old[i]==' ' || old[i]=='\t')
 			break;
-	
-	/* make sure the file name is set correctly in the tag */
-	ntagname = w->body.file->nname;
-	tagname = runemalloc(ntagname);
-	runemove(tagname, w->body.file->name, ntagname);
-	abbrevenv(&tagname, (uint*)&ntagname);
-
-	/*
-	 * XXX Why is this here instead of letting the code
-	 * down below do the work?
-	 */
-	if(runeeq(old, i, tagname, ntagname) == FALSE){
-		q0 = w->tag.q0;
-		q1 = w->tag.q1;
+	if(runeeq(old, i, w->body.file->name, w->body.file->nname) == FALSE){
 		textdelete(&w->tag, 0, i, TRUE);
-		textinsert(&w->tag, 0, tagname, ntagname, TRUE);
+		textinsert(&w->tag, 0, w->body.file->name, w->body.file->nname, TRUE);
 		free(old);
 		old = runemalloc(w->tag.file->b.nc+1);
 		bufread(&w->tag.file->b, 0, old, w->tag.file->b.nc);
 		old[w->tag.file->b.nc] = '\0';
-		if(q0 >= i){
-			/*
-			 * XXX common case - typing at end of name
-			 */
-			w->tag.q0 = q0+ntagname-i;
-			w->tag.q1 = q1+ntagname-i;
-		}
 	}
-	
+
 	/* compute the text for the whole tag, replacing current only if it differs */
-	new = runemalloc(ntagname+100);
+	new = runemalloc(w->body.file->nname+100);
 	i = 0;
-	runemove(new+i, tagname, ntagname);
-	i += ntagname;
+	runemove(new+i, w->body.file->name, w->body.file->nname);
+	i += w->body.file->nname;
 	runemove(new+i, Ldelsnarf, 10);
 	i += 10;
 	if(w->filemenu){
@@ -502,10 +483,7 @@ winsettag1(Window *w)
 		}
 	}
 	new[i] = 0;
-	if(runestrlen(new) != i)
-		fprint(2, "s '%S' len not %d\n", new, i);
-	assert(i==runestrlen(new));
-	
+
 	/* replace tag if the new one is different */
 	resize = 0;
 	if(runeeq(new, i, old, k) == FALSE){
@@ -531,7 +509,6 @@ winsettag1(Window *w)
 			}
 		}
 	}
-	free(tagname);
 	free(old);
 	free(new);
 	w->tag.file->mod = FALSE;
@@ -700,186 +677,5 @@ winevent(Window *w, char *fmt, ...)
 		w->eventx = nil;
 		sendp(x->c, nil);
 	}
-}
-
-/*
- * This is here as a first stab at something. 
- * Run acme with the -'$' flag to enable it.
- * 
- * This code isn't quite right, in that it doesn't play well with 
- * the plumber and with other applications.  For example:
- *
- * If the window tag is $home/bin and you execute script, then acme runs
- * script in $home/bin, via the shell, so everything is fine.  If you do
- * execute "echo $home", it too goes to the shell so you see the value
- * of $home.  And if you right-click on script, then acme plumbs "script"
- * in the directory "/home/you/bin", so that works, but if you right-click
- * on "$home/bin/script", then what?  It's not correct to expand in acme
- * since what you're plumbing might be a price tag for all we know.  So the
- * plumber has to expand it, but in order to do that the plumber should
- * probably publish (and allow users to change) the set of variables it is
- * using in expansions.
- * 
- * Rob has suggested that a better solution is to make tag lines expand
- * automatically to fit the necessary number of lines.
- * 
- * The best solution, of course, is to use nice short path names, but this
- * is not always possible.
- */
-
-int
-expandenv(Rune **rp, uint *np)
-{
-	char *s, *t;
-	Rune *p, *r, *q;
-	uint n, pref;
-	int nb, nr, slash;
-	Runestr rs;
-
-	if(!dodollarsigns)
-		return FALSE;
-
-	r = *rp;
-	n = *np;
-	if(n == 0 || r[0] != '$')
-		return FALSE;
-	for(p=r+1; *p && *p != '/'; p++)
-		;
-	pref = p-r;
-	s = runetobyte(r+1, pref-1);
-	if((t = getenv(s)) == nil){
-		free(s);
-		return FALSE;
-	}
-
-	q = runemalloc(utflen(t)+(n-pref));
-	cvttorunes(t, strlen(t), q, &nb, &nr, nil);
-	assert(nr==utflen(t));
-	runemove(q+nr, p, n-pref);
-	free(r);
-	rs = runestr(q, nr+(n-pref));
-	slash = rs.nr>0 && q[rs.nr-1] == '/';
-	rs = cleanrname(rs);
-	if(slash){
-		rs.r = runerealloc(rs.r, rs.nr+1);
-		rs.r[rs.nr++] = '/';
-	}
-	*rp = rs.r;
-	*np = rs.nr;
-	free(t);
-	return TRUE;
-}
-
-extern char **environ;
-Rune **runeenv;
-
-/*
- * Weird sort order -- shorter names first, 
- * prefer lowercase over uppercase ($home over $HOME),
- * then do normal string comparison.
- */
-int
-runeenvcmp(const void *va, const void *vb)
-{
-	Rune *a, *b;
-	int na, nb;
-
-	a = *(Rune**)va;
-	b = *(Rune**)vb;
-	na = runestrchr(a, '=') - a;
-	nb = runestrchr(b, '=') -  b;
-	if(na < nb)
-		return -1;
-	if(nb > na)
-		return 1;
-	if(na == 0)
-		return 0;
-	if(islowerrune(a[0]) && !islowerrune(b[0]))
-		return -1;
-	if(islowerrune(b[0]) && !islowerrune(a[0]))
-		return 1;
-	return runestrncmp(a, b, na);
-}
-
-void
-mkruneenv(void)
-{
-	int i, bad, n, nr;
-	char *p;
-	Rune *r, *q;
-
-	n = 0;
-	for(i=0; environ[i]; i++){
-		/*
-		 * Ignore some pollution.
-		 */
-		if(environ[i][0] == '_')
-			continue;
-		if(strncmp(environ[i], "PWD=", 4) == 0)
-			continue;
-		if(strncmp(environ[i], "OLDPWD=", 7) == 0)
-			continue;
-
-		/*
-		 * Must be a rooted path.
-		 */
-		if((p = strchr(environ[i], '=')) == nil || *(p+1) != '/')
-			continue;
-
-		/*
-		 * Only use the ones that we accept in look - all isfilec
-		 */
-		bad = 0;
-		r = bytetorune(environ[i], &nr);
-		for(q=r; *q != '='; q++)
-			if(!isfilec(*q)){
-				free(r);
-				bad = 1;
-				break;
-			}
-		if(!bad){
-			runeenv = erealloc(runeenv, (n+1)*sizeof(runeenv[0]));
-			runeenv[n++] = r;
-		}
-	}
-	runeenv = erealloc(runeenv, (n+1)*sizeof(runeenv[0]));
-	runeenv[n] = nil;
-	qsort(runeenv, n, sizeof(runeenv[0]), runeenvcmp);
-}
-
-int
-abbrevenv(Rune **rp, uint *np)
-{
-	int i, len, alen;
-	Rune *r, *p, *q;
-	uint n;
-
-	if(!dodollarsigns)
-		return FALSE;
-
-	r = *rp;
-	n = *np;
-	if(n == 0 || r[0] != '/')
-		return FALSE;
-
-	if(runeenv == nil)
-		mkruneenv();
-
-	for(i=0; runeenv[i]; i++){
-		p = runestrchr(runeenv[i], '=')+1;
-		len = runestrlen(p);
-		if(len <= n && (r[len]==0 || r[len]=='/') && runeeq(r, len, p, len)==TRUE){
-			alen = (p-1) - runeenv[i];
-			q = runemalloc(1+alen+n-len);
-			q[0] = '$';
-			runemove(q+1, runeenv[i], alen);
-			runemove(q+1+alen, r+len, n-len);
-			free(r);
-			*rp = q;
-			*np = 1+alen+n-len;
-			return TRUE;
-		}
-	}
-	return FALSE;
 }
 

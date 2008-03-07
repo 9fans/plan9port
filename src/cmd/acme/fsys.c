@@ -289,11 +289,7 @@ respond(Xfid *x, Fcall *t, char *err)
 		x->buf = emalloc(messagesize);
 	n = convS2M(t, x->buf, messagesize);
 	if(n <= 0)
-{
-fprint(2, "convert error (n=%d, msgsize %d): have %F\n", n, messagesize, &x->fcall);
-fprint(2, "\tresponse: %F\n", t);
 		error("convert error in convS2M");
-}
 	if(write(sfd, x->buf, n) != n)
 		error("write error in respond");
 	free(x->buf);
@@ -467,10 +463,6 @@ fsyswalk(Xfid *x, Fid *f)
 			goto Accept;
 	
     Regular:
-/*
-			if(FILE(f->qid) == Qacme)	// empty directory
-				break;
-*/
 			if(strcmp(x->fcall.wname[i], "new") == 0){
 				if(w)
 					error("w set in walk to new");
@@ -732,13 +724,6 @@ newfid(int fid)
 uint
 getclock(void)
 {
-/*
-	char buf[32];
-
-	buf[0] = '\0';
-	pread(clockfd, buf, sizeof buf, 0);
-	return atoi(buf);
-*/	
 	return time(0);
 }
 

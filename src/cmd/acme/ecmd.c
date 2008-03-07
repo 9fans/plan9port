@@ -1322,7 +1322,7 @@ cmdname(File *f, String *str, int set)
 	}else{
 		newname = dirname(f->curtext, runestrdup(s), n);
 		n = newname.nr;
-		r = runemalloc(n+1);
+		r = runemalloc(n+1);	/* NUL terminate */
 		runemove(r, newname.r, n);
 		free(newname.r);
 	}

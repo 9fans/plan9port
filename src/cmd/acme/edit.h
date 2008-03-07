@@ -65,11 +65,9 @@ struct List	/* code depends on a long being able to hold a pointer */
 	int	nused;
 	union{
 		void	*listptr;
-		Block	*blkptr;
-		long	*longptr;
+		void*	*ptr;
 		uchar*	*ucharptr;
 		String*	*stringptr;
-		File*	*fileptr;
 	} u;
 };
 
