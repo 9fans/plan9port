@@ -71,17 +71,20 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 int
 textresize(Text *t, Rectangle r, int keepextra)
 {
+	int odx;
+
 	if(Dy(r) <= 0)
 		r.max.y = r.min.y;
 	if(!keepextra)
 		r.max.y -= Dy(r)%t->fr.font->height;
+	odx = Dx(t->all);
 	t->all = r;
 	t->scrollr = r;
 	t->scrollr.max.x = r.min.x+Scrollwid;
 	t->lastsr = nullrect;
 	r.min.x += Scrollwid+Scrollgap;
 	frclear(&t->fr, 0);
-	textredraw(t, r, t->fr.font, screen, Dx(t->all));
+	textredraw(t, r, t->fr.font, screen, odx);
 	if(keepextra && t->fr.r.max.y < t->all.max.y){
 		r.min.x -= Scrollgap;
 		r.min.y = t->fr.r.max.y;
