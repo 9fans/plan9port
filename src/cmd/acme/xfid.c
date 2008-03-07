@@ -760,6 +760,14 @@ out:
 			settag = TRUE;
 			m = 4;
 		}else
+		if(strncmp(p, "nomenu", 6) == 0){	/* turn off automatic menu */
+			w->filemenu = FALSE;
+			m = 6;
+		}else
+		if(strncmp(p, "menu", 4) == 0){	/* enable automatic menu */
+			w->filemenu = TRUE;
+			m = 4;
+		}else
 		if(strncmp(p, "noscroll", 8) == 0){	/* turn off automatic scrolling */
 			w->noscroll = TRUE;
 			m = 8;
