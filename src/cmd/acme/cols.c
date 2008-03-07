@@ -53,7 +53,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 {
 	Rectangle r, r1;
 	Window *v;
-	int i, j, minht, ymax;
+	int i, j, minht, ymax, buggered;
 
 	v = nil;
 	r = c->r;
@@ -68,6 +68,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		if(y < v->r.max.y)
 			break;
 	}
+	buggered = 0;
 	if(c->nw > 0){
 		if(i < c->nw)
 			i++;	/* new window will go after v */
@@ -78,7 +79,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		j = 0;
 		while(!c->safe || v->body.fr.maxlines<=3 || Dy(v->body.all) <= minht){
 			if(++j > 10){
-				fprint(2, "coladd: bug dy=%d\n", Dy(v->body.all));
+				buggered = 1;	/* too many windows in column */
 				break;
 			}
 			colgrow(c, v, 1);
@@ -87,20 +88,28 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		/*
 		 * figure out where to split v to make room for w
 		 */
-		if(i == c->nw)
-			ymax = c->r.max.y;
-		else
+		
+		/* new window stops where next window begins */
+		if(i < c->nw)
 			ymax = c->w[i]->r.min.y-Border;
-		y = min(y, v->body.all.min.y+Dy(v->body.all)/2);
+		else
+			ymax = c->r.max.y;
+		
+		/* new window must start after v's tag ends */
+		y = max(y, v->tagtop.max.y+Border);
+		
+		/* new window must start early enough to end before ymax */
 		y = min(y, ymax - minht);
-		y = max(y, v->body.all.min.y);
-		ymax = max(ymax, y+minht);
-		r = v->r;
-		r.max.y = ymax;
+		
+		/* if y is too small, too many windows in column */
+		if(y < v->tagtop.max.y+Border)
+			buggered = 1;
 
 		/*
-		 * redraw w
+		 * resize & redraw v
 		 */
+		r = v->r;
+		r.max.y = ymax;
 		draw(screen, r, textcols[BACK], nil, ZP);
 		r1 = r;
 		y = min(y, ymax-(v->tag.fr.font->height*v->taglines+v->body.fr.font->height+Border+1));
@@ -108,6 +117,10 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		r1.min.y = winresize(v, r1, FALSE, FALSE);
 		r1.max.y = r1.min.y+Border;
 		draw(screen, r1, display->black, nil, ZP);
+		
+		/*
+		 * leave r with w's coordinates
+		 */
 		r.min.y = r1.max.y;
 	}
 	if(w == nil){
@@ -127,11 +140,16 @@ coladd(Column *c, Window *w, Window *clone, int y)
 	memmove(c->w+i+1, c->w+i, (c->nw-i)*sizeof(Window*));
 	c->nw++;
 	c->w[i] = w;
+	c->safe = TRUE;
+	
+	/* if there were too many windows, redraw the whole column */
+	if(buggered)
+		colresize(c, c->r);
+
 	savemouse(w);
-	/* near but not on the button */
+	/* near the button, but in the body */
 	moveto(mousectl, addpt(w->tag.scrollr.max, Pt(3, 3)));
 	barttext = &w->body;
-	c->safe = TRUE;
 	return w;
 }
 
@@ -406,7 +424,7 @@ colgrow(Column *c, Window *w, int but)
 	if(Dy(r) < Dy(w->tagtop)+1+h+Border)
 		r.max.y = r.min.y + Dy(w->tagtop)+1+h+Border;
 	/* draw window */
-	r.max.y = winresize(w, r, c->safe, i==c->nw-1);
+	r.max.y = winresize(w, r, c->safe, TRUE);
 	if(i < c->nw-1){
 		r.min.y = r.max.y;
 		r.max.y += Border;

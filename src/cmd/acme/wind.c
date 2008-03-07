@@ -142,9 +142,12 @@ wintaglines(Window *w, Rectangle r)
 int
 winresize(Window *w, Rectangle r, int safe, int keepextra)
 {
-	int oy, y, mouseintag, tagresized;
+	int oy, y, mouseintag, mouseinbody, tagresized;
 	Point p;
 	Rectangle r1;
+
+	mouseintag = ptinrect(mouse->xy, w->tag.all);
+	mouseinbody = ptinrect(mouse->xy, w->body.all);
 
 	/* tagtop is first line of tag */
 	w->tagtop = r;
@@ -152,7 +155,6 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 
 	r1 = r;
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
-	mouseintag = ptinrect(mouse->xy, w->tag.all);
 
 	/* If needed, recompute number of lines in tag. */
 	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
@@ -178,7 +180,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 		}
 
 		/* If mouse is in body, push down as tag expands. */
-		if(!mouseintag && ptinrect(mouse->xy, w->tag.all)){
+		if(mouseinbody && ptinrect(mouse->xy, w->tag.all)){
 			p = mouse->xy;
 			p.y = w->tag.all.max.y+3;
 			moveto(mousectl, p);
