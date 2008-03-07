@@ -416,8 +416,10 @@ move(File *f, Address addr2)
 	}else if(addr.r.q0 >= addr2.r.q1){
 		copy(f, addr2);
 		elogdelete(f, addr.r.q0, addr.r.q1);
+	}else if(addr.r.q0==addr2.r.q0 && addr.r.q1==addr2.r.q1){
+		; /* move to self; no-op */
 	}else
-		error("move overlaps itself");
+		editerror("move overlaps itself");
 }
 
 int
