@@ -70,9 +70,6 @@ threadmain(int argc, char *argv[])
 
 	loadfile = nil;
 	ARGBEGIN{
-	case '$':
-		dodollarsigns = TRUE;
-		break;
 	case 'D':
 		{extern int _threaddebuglevel;
 		_threaddebuglevel = ~0;
@@ -182,27 +179,27 @@ threadmain(int argc, char *argv[])
 
 	cwait = threadwaitchan();
 	ccommand = chancreate(sizeof(Command**), 0);
-	chansetname(ccommand, "ccommand");
 	ckill = chancreate(sizeof(Rune*), 0);
-	chansetname(ckill, "ckill");
 	cxfidalloc = chancreate(sizeof(Xfid*), 0);
-	chansetname(cxfidalloc, "cxfidalloc");
 	cxfidfree = chancreate(sizeof(Xfid*), 0);
-	chansetname(cxfidfree, "cxfidfree");
 	cnewwindow = chancreate(sizeof(Channel*), 0);
-	chansetname(cnewwindow, "cnewwindow");
 	cerr = chancreate(sizeof(char*), 0);
-	chansetname(cerr, "cerr");
 	cedit = chancreate(sizeof(int), 0);
-	chansetname(cedit, "cedit");
 	cexit = chancreate(sizeof(int), 0);
-	chansetname(cexit, "cexit");
 	cwarn = chancreate(sizeof(void*), 1);
-	chansetname(cwarn, "cwarn");
 	if(cwait==nil || ccommand==nil || ckill==nil || cxfidalloc==nil || cxfidfree==nil || cerr==nil || cexit==nil || cwarn==nil){
 		fprint(2, "acme: can't create initial channels: %r\n");
 		threadexitsall("channels");
 	}
+	chansetname(ccommand, "ccommand");
+	chansetname(ckill, "ckill");
+	chansetname(cxfidalloc, "cxfidalloc");
+	chansetname(cxfidfree, "cxfidfree");
+	chansetname(cnewwindow, "cnewwindow");
+	chansetname(cerr, "cerr");
+	chansetname(cedit, "cedit");
+	chansetname(cexit, "cexit");
+	chansetname(cwarn, "cwarn");
 
 	mousectl = initmouse(nil, screen);
 	if(mousectl == nil){
@@ -602,10 +599,6 @@ mousethread(void *v)
 				goto Continue;
 			}
 			/* scroll buttons, wheels, etc. */
-/*
- * TAG used to require t->what==Body but now allow
- * scroll wheel in tag too.
- */
 			if(w != nil && (m.buttons & (8|16))){
 				if(m.buttons & 8)
 					but = Kscrolloneup;
@@ -890,7 +883,6 @@ rfget(int fix, int save, int setfont, char *name)
 			}
 		f = openfont(display, name);
 		if(f == nil){
-			fprint(2, "can't open font file %s: %r\n", name);
 			warning(nil, "can't open font file %s: %r\n", name);
 			return nil;
 		}
@@ -905,7 +897,7 @@ rfget(int fix, int save, int setfont, char *name)
 		if(reffonts[fix])
 			rfclose(reffonts[fix]);
 		reffonts[fix] = r;
-		if(fontnames[fix] != name){
+		if(name != fontnames[fix]){
 			free(fontnames[fix]);
 			fontnames[fix] = estrdup(name);
 		}
