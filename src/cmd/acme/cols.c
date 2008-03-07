@@ -53,7 +53,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 {
 	Rectangle r, r1;
 	Window *v;
-	int i, j, minht, t;
+	int i, j, minht, ymax;
 
 	v = nil;
 	r = c->r;
@@ -72,31 +72,38 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		if(i < c->nw)
 			i++;	/* new window will go after v */
 		/*
-		 * if v's too small, grow it first.
+		 * if landing window (v) is too small, grow it first.
 		 */
 		minht = v->tag.fr.font->height+Border+1;
 		j = 0;
 		while(!c->safe || v->body.fr.maxlines<=3 || Dy(v->body.all) <= minht){
 			if(++j > 10){
-fprint(2, "oops: dy=%d\n", Dy(v->body.all));
+				fprint(2, "coladd: bug dy=%d\n", Dy(v->body.all));
 				break;
 			}
 			colgrow(c, v, 1);
 		}
+
+		/*
+		 * figure out where to split v to make room for w
+		 */
 		if(i == c->nw)
-			t = c->r.max.y;
+			ymax = c->r.max.y;
 		else
-			t = c->w[i]->r.min.y-Border;
+			ymax = c->w[i]->r.min.y-Border;
 		y = min(y, v->body.all.min.y+Dy(v->body.all)/2);
-		if(t - y < minht)
-			y = t - minht;
-		if(y < v->body.all.min.y)
-			y = v->body.all.min.y;
+		y = min(y, ymax - minht);
+		y = max(y, v->body.all.min.y);
+		ymax = max(ymax, y+minht);
 		r = v->r;
-		r.max.y = t;
+		r.max.y = ymax;
+
+		/*
+		 * redraw w
+		 */
 		draw(screen, r, textcols[BACK], nil, ZP);
 		r1 = r;
-		y = min(y, t-(v->tag.fr.font->height*v->taglines+v->body.fr.font->height+Border+1));
+		y = min(y, ymax-(v->tag.fr.font->height*v->taglines+v->body.fr.font->height+Border+1));
 		r1.max.y = min(y, v->body.fr.r.min.y+v->body.fr.nlines*v->body.fr.font->height);
 		r1.min.y = winresize(v, r1, FALSE, FALSE);
 		r1.max.y = r1.min.y+Border;
@@ -151,8 +158,8 @@ colclose(Column *c, Window *w, int dofree)
 		windelete(w);
 		winclose(w);
 	}
-	memmove(c->w+i, c->w+i+1, (c->nw-i-1)*sizeof(Window*));
 	c->nw--;
+	memmove(c->w+i, c->w+i+1, (c->nw-i)*sizeof(Window*));
 	c->w = realloc(c->w, c->nw*sizeof(Window*));
 	if(c->nw == 0){
 		draw(screen, r, display->white, nil, ZP);
@@ -219,8 +226,7 @@ colresize(Column *c, Rectangle r)
 			r1.max.y = r.max.y;
 		else
 			r1.max.y = r1.min.y+(Dy(w->r)+Border)*Dy(r)/Dy(c->r);
-		if(Dy(r1) < Border+font->height)
-			r1.max.y = r1.min.y + Border+font->height;
+		r1.max.y = max(r1.max.y, r1.min.y + Border+font->height);
 		r2 = r1;
 		r2.max.y = r2.min.y+Border;
 		draw(screen, r2, display->black, nil, ZP);
@@ -307,7 +313,7 @@ colgrow(Column *c, Window *w, int but)
 		if(i==c->nw-1 || c->safe==FALSE)
 			r.max.y = cr.max.y;
 		else
-			r.max.y = c->w[i+1]->r.min.y-Border;
+			r.max.y = c->w[i+1]->r.min.y - Border;
 		winresize(w, r, FALSE, TRUE);
 		return;
 	}
@@ -342,7 +348,7 @@ colgrow(Column *c, Window *w, int but)
 	}
 	nnl = min(onl + max(min(5, w->taglines-1+w->maxlines), onl/2), tot);
 	if(nnl < w->taglines-1+w->maxlines)
-		nnl = (w->taglines-1+w->maxlines+nnl)/2;
+		nnl = (w->taglines-1+w->maxlines + nnl)/2;
 	if(nnl == 0)
 		nnl = 2;
 	dnl = nnl - onl;
@@ -400,7 +406,7 @@ colgrow(Column *c, Window *w, int but)
 	if(Dy(r) < Dy(w->tagtop)+1+h+Border)
 		r.max.y = r.min.y + Dy(w->tagtop)+1+h+Border;
 	/* draw window */
-	winresize(w, r, c->safe, TRUE);
+	r.max.y = winresize(w, r, c->safe, i==c->nw-1);
 	if(i < c->nw-1){
 		r.min.y = r.max.y;
 		r.max.y += Border;
@@ -417,7 +423,7 @@ colgrow(Column *c, Window *w, int but)
 		r.max.y = y1+Dy(v->tagtop);
 		if(nl[j])
 			r.max.y += 1 + nl[j]*v->body.fr.font->height;
-		y1 = winresize(v, r, c->safe, j+1==c->nw);
+		y1 = winresize(v, r, c->safe, j==c->nw-1);
 		if(j < c->nw-1){	/* no border on last window */
 			r.min.y = y1;
 			r.max.y += Border;
@@ -425,12 +431,6 @@ colgrow(Column *c, Window *w, int but)
 			y1 = r.max.y;
 		}
 	}
-/*
-	r = w->r;
-	r.min.y = y1;
-	r.max.y = c->r.max.y;
-	draw(screen, r, textcols[BACK], nil, ZP);
-*/
 	free(nl);
 	free(ny);
 	c->safe = TRUE;
@@ -465,9 +465,8 @@ coldragwin(Column *c, Window *w, int but)
 	error("can't find window");
 
   Found:
-/* TAG - force recompute tag size (if in auto-expand mode) on mouse op. */
-	w->taglines = 1;
-/* END TAG */
+	if(w->tagexpand)	/* force recomputation of window tag size */
+		w->taglines = 1;
 	p = mouse->xy;
 	if(abs(p.x-op.x)<5 && abs(p.y-op.y)<5){
 		colgrow(c, w, but);

@@ -36,8 +36,8 @@ wininit(Window *w, Window *clone, Rectangle r)
 
 	w->tagtop = r;
 	w->tagtop.max.y = r.min.y + font->height;
-
 	r1.max.y = r1.min.y + w->taglines*font->height;
+
 	incref(&reffont.ref);
 	f = fileaddtext(nil, &w->tag);
 	textinit(&w->tag, f, r1, &reffont, tagcols);
@@ -53,7 +53,6 @@ wininit(Window *w, Window *clone, Rectangle r)
 		filereset(w->tag.file);
 		textsetselect(&w->tag, nc, nc);
 	}
-/*assert(w->body.w == w); */
 	r1 = r;
 	r1.min.y += w->taglines*font->height + 1;
 	if(r1.max.y < r1.min.y)
@@ -66,7 +65,6 @@ wininit(Window *w, Window *clone, Rectangle r)
 		rf = rfget(FALSE, FALSE, FALSE, clone->body.reffont->f->name);
 	}else
 		rf = rfget(FALSE, FALSE, FALSE, nil);
-/*assert(w->body.w == w); */
 	f = fileaddtext(f, &w->body);
 	w->body.what = Body;
 	textinit(&w->body, f, r1, rf, textcols);
@@ -82,7 +80,6 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->filemenu = TRUE;
 	w->maxlines = w->body.fr.maxlines;
 	w->autoindent = globalautoindent;
-/*assert(w->body.w == w); */
 	if(clone){
 		w->dirty = clone->dirty;
 		w->autoindent = clone->autoindent;
@@ -119,8 +116,6 @@ wintaglines(Window *w, Rectangle r)
 	int n;
 	Rune rune;
 
-/* TAG policy here */
-
 	if(!w->tagexpand)
 		return 1;
 	w->tag.fr.noredraw = 1;
@@ -151,57 +146,50 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	Point p;
 	Rectangle r1;
 
-if(0) fprint(2, "winresize %d %R safe=%d keep=%d h=%d\n", w->id, r, safe, keepextra, font->height);
+	/* tagtop is first line of tag */
 	w->tagtop = r;
 	w->tagtop.max.y = r.min.y+font->height;
 
-/* 
- * TAG If necessary, recompute the number of lines that should
- * be in the tag.
- */
 	r1 = r;
 	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
-	y = r1.max.y;
 	mouseintag = ptinrect(mouse->xy, w->tag.all);
-	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1))
-		w->taglines = wintaglines(w, r);
-/* END TAG */
 
-	r1 = r;
-	r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
+	/* If needed, recompute number of lines in tag. */
+	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
+		w->taglines = wintaglines(w, r);
+		r1.max.y = min(r.max.y, r1.min.y + w->taglines*font->height);
+	}
+
+	/* If needed, resize & redraw tag. */
 	y = r1.max.y;
 	tagresized = 0;
-if(0) fprint(2, "winresize tag %R %R\n", w->tag.all, r1);
 	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
 		tagresized = 1;
-if(0) fprint(2, "resize tag %R => %R\n", w->tag.all, r1);
 		textresize(&w->tag, r1, TRUE);
-if(0) fprint(2, "=> %R (%R)\n", w->tag.all, w->tag.fr.r);
 		y = w->tag.fr.r.max.y;
 		windrawbutton(w);
 		w->tagsafe = TRUE;
-/* TAG */
+
 		/* If mouse is in tag, pull up as tag closes. */
 		if(mouseintag && !ptinrect(mouse->xy, w->tag.all)){
 			p = mouse->xy;
 			p.y = w->tag.all.max.y-3;
 			moveto(mousectl, p);
 		}
+
 		/* If mouse is in body, push down as tag expands. */
 		if(!mouseintag && ptinrect(mouse->xy, w->tag.all)){
 			p = mouse->xy;
 			p.y = w->tag.all.max.y+3;
 			moveto(mousectl, p);
 		}
-/* END TAG */
 	}
-
 	
+	/* If needed, resize & redraw body. */
 	r1 = r;
 	r1.min.y = y;
 	if(tagresized || !safe || !eqrect(w->body.all, r1)){
 		oy = y;
-if(0) fprint(2, "resizing body; safe=%d all=%R r1=%R\n", safe, w->body.all, r1);
 		if(y+1+w->body.fr.font->height <= r.max.y){	/* room for one line */
 			r1.min.y = y;
 			r1.max.y = y+1;
@@ -213,10 +201,9 @@ if(0) fprint(2, "resizing body; safe=%d all=%R r1=%R\n", safe, w->body.all, r1);
 			r1.min.y = y;
 			r1.max.y = y;
 		}
-if(0) fprint(2, "resizing body; new r=%R; r1=%R\n", r, r1);
+		y = textresize(&w->body, r1, keepextra);
 		w->r = r;
-		w->r.max.y = textresize(&w->body, r1, keepextra);
-if(0) fprint(2, "after textresize: body.all=%R\n", w->body.all);
+		w->r.max.y = y;
 		textscrdraw(&w->body);
 		w->body.all.min.y = oy;
 	}
@@ -354,6 +341,7 @@ winsetname(Window *w, Rune *name, int n)
 	int i;
 	static Rune Lslashguide[] = { '/', 'g', 'u', 'i', 'd', 'e', 0 };
 	static Rune Lpluserrors[] = { '+', 'E', 'r', 'r', 'o', 'r', 's', 0 };
+
 	t = &w->body;
 	if(runeeq(t->file->name, t->file->nname, name, n) == TRUE)
 		return;
@@ -559,7 +547,6 @@ wincommit(Window *w, Text *t)
 	for(i=0; i<w->tag.file->b.nc; i++)
 		if(r[i]==' ' || r[i]=='\t')
 			break;
-	expandenv(&r, (uint*)&i);
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;
 		filemark(w->body.file);
@@ -678,4 +665,3 @@ winevent(Window *w, char *fmt, ...)
 		sendp(x->c, nil);
 	}
 }
-

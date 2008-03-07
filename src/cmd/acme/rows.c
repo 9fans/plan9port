@@ -217,8 +217,8 @@ rowclose(Row *row, Column *c, int dofree)
 	r = c->r;
 	if(dofree)
 		colcloseall(c);
-	memmove(row->col+i, row->col+i+1, (row->ncol-i)*sizeof(Column*));
 	row->ncol--;
+	memmove(row->col+i, row->col+i+1, (row->ncol-i)*sizeof(Column*));
 	row->col = realloc(row->col, row->ncol*sizeof(Column*));
 	if(row->ncol == 0){
 		draw(screen, r, display->white, nil, ZP);
@@ -282,17 +282,13 @@ rowtype(Row *row, Rune r, Point p)
 		else{
 			winlock(w, 'K');
 			wintype(w, t, r);
-/*
- * TAG If we typed in the tag, might need to make it
- * bigger to show text.  \n causes tag to expand.
- */
+			/* Expand tag if necessary */
 			if(t->what == Tag){
 				t->w->tagsafe = FALSE;
 				if(r == '\n')
 					t->w->tagexpand = TRUE;
 				winresize(w, w->r, TRUE, TRUE);
 			}
-/* END TAG */
 			winunlock(w);
 		}
 	}
@@ -319,7 +315,7 @@ rowdump(Row *row, char *file)
 	uint q0, q1;
 	Biobuf *b;
 	char *buf, *a, *fontname;
-	Rune *r, *rp;
+	Rune *r;
 	Column *c;
 	Window *w, *w1;
 	Text *t;
@@ -417,17 +413,10 @@ rowdump(Row *row, char *file)
 			Bwrite(b, buf, strlen(buf));
 			m = min(RBUFSIZE, w->tag.file->b.nc);
 			bufread(&w->tag.file->b, 0, r, m);
-			if(dodollarsigns && r[0] == '$'){
-				rp = runestrdup(r);
-				expandenv(&rp, (uint*)&m);
-			}else
-				rp = r;
 			n = 0;
-			while(n<m && rp[n]!='\n')
+			while(n<m && r[n]!='\n')
 				n++;
-			Bprint(b, "%.*S\n", n, rp);
-			if(rp != r)
-				free(rp);
+			Bprint(b, "%.*S\n", n, r);
 			if(dumped){
 				q0 = 0;
 				q1 = t->file->b.nc;
@@ -705,6 +694,7 @@ rowload(Row *row, char *file, int initing)
 					Bterm(bout);
 					free(bout);
 					close(fd);
+					remove(buf);
 					goto Rescue2;
 				}
 				Bputrune(bout, rune);
@@ -731,7 +721,6 @@ rowload(Row *row, char *file, int initing)
 		w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));
 	}
 	Bterm(b);
-
 	fbuffree(buf);
 	return TRUE;
 

@@ -75,7 +75,7 @@ textresize(Text *t, Rectangle r, int keepextra)
 
 	if(Dy(r) <= 0)
 		r.max.y = r.min.y;
-	if(!keepextra)
+	else if(!keepextra)
 		r.max.y -= Dy(r)%t->fr.font->height;
 	odx = Dx(t->all);
 	t->all = r;
@@ -84,8 +84,9 @@ textresize(Text *t, Rectangle r, int keepextra)
 	t->lastsr = nullrect;
 	r.min.x += Scrollwid+Scrollgap;
 	frclear(&t->fr, 0);
-	textredraw(t, r, t->fr.font, screen, odx);
+	textredraw(t, r, t->fr.font, t->fr.b, odx);
 	if(keepextra && t->fr.r.max.y < t->all.max.y){
+		/* draw background in bottom fringe of window */
 		r.min.x -= Scrollgap;
 		r.min.y = t->fr.r.max.y;
 		r.max.y = t->all.max.y;
@@ -197,7 +198,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 	char *tmp;
 	Text *u;
 
-	if(t->ncache!=0 || t->file->b.nc || t->w==nil || t!=&t->w->body || (t->w->isdir && t->file->nname==0))
+	if(t->ncache!=0 || t->file->b.nc || t->w==nil || t!=&t->w->body)
 		error("text.load");
 	if(t->w->isdir && t->file->nname==0){
 		warning(nil, "empty directory name");
@@ -653,20 +654,13 @@ texttype(Text *t, Rune r)
 	uint q0, q1;
 	int nnb, nb, n, i;
 	int nr;
-	Point p;
 	Rune *rp;
 	Text *u;
 
-/*
- * TAG
- * Used to disallow \n in tag here.
- * Also if typing in tag, mark that resize might be necessary.
- */
 	if(t->what!=Body && t->what!=Tag && r=='\n')
 		return;
 	if(t->what == Tag)
 		t->w->tagsafe = FALSE;
-/* END TAG */
 
 	nr = 1;
 	rp = &r;
@@ -684,17 +678,13 @@ texttype(Text *t, Rune r)
 		}
 		return;
 	case Kdown:
-/* TAG */
 		if(t->what == Tag)
 			goto Tagdown;
-/* END TAG */
 		n = t->fr.maxlines/3;
 		goto case_Down;
 	case Kscrollonedown:
-/* TAG */
 		if(t->what == Tag)
 			goto Tagdown;
-/* END TAG */
 		n = mousescrollsize(t->fr.maxlines);
 		if(n <= 0)
 			n = 1;
@@ -706,17 +696,13 @@ texttype(Text *t, Rune r)
 		textsetorigin(t, q0, TRUE);
 		return;
 	case Kup:
-/* TAG */
 		if(t->what == Tag)
 			goto Tagup;
-/* END TAG */
 		n = t->fr.maxlines/3;
 		goto case_Up;
 	case Kscrolloneup:
-/* TAG */
 		if(t->what == Tag)
 			goto Tagup;
-/* END TAG */
 		n = mousescrollsize(t->fr.maxlines);
 		goto case_Up;
 	case Kpgup:
@@ -748,7 +734,6 @@ texttype(Text *t, Rune r)
 			q0++;
 		textshow(t, q0, q0, TRUE);
 		return;
-/* TAG policy here */
 	Tagdown:
 		/* expand tag to show all text */
 		if(!t->w->tagexpand){
@@ -762,17 +747,9 @@ texttype(Text *t, Rune r)
 		if(t->w->tagexpand){
 			t->w->tagexpand = FALSE;
 			t->w->taglines = 1;
-			/* move mouse to stay in tag */
-			p = mouse->xy;
-			if(ptinrect(p, t->w->tag.all) 
-			&& !ptinrect(p, t->w->tagtop)){
-				p.y = t->w->tagtop.min.y + Dy(t->w->tagtop)/2;
-				moveto(mousectl, p);
-			}
 			winresize(t->w, t->w->r, FALSE, TRUE);
 		}
 		return;
-/* END TAG */
 	}
 	if(t->what == Body){
 		seq++;
