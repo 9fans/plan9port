@@ -51,10 +51,10 @@ nhgetv(void *p)
 	v |= (uvlong)a[1]<<48;
 	v |= (uvlong)a[2]<<40;
 	v |= (uvlong)a[3]<<32;
-	v |= a[4]<<24;
-	v |= a[5]<<16;
-	v |= a[6]<<8;
-	v |= a[7]<<0;
+	v |= (uvlong)a[4]<<24;
+	v |= (uvlong)a[5]<<16;
+	v |= (uvlong)a[6]<<8;
+	v |= (uvlong)a[7]<<0;
 	return v;
 }
 
