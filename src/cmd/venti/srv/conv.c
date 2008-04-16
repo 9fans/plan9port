@@ -177,6 +177,27 @@ unpackarena(Arena *arena, u8int *buf)
 		p += U64Size;
 		arena->memstats.sealed = U8GET(p);
 		p += U8Size;
+		
+		/*
+		 * 2008/4/2
+		 * Packarena (below) used to have a bug in which it would
+		 * not zero out any existing extension fields when writing
+		 * the arena metadata.  This would manifest itself as arenas
+		 * with arena->diskstats.sealed == 1 but arena->memstats.sealed == 0
+		 * after a server restart.  Because arena->memstats.sealed wouldn't
+		 * be set, the server might try to fit another block into the arena
+		 * (and succeed), violating the append-only structure of the log
+		 * and invalidating any already-computed seal on the arena.
+		 *
+		 * It might end up that other fields in arena->memstats end up
+		 * behind arena->diskstats too, but that would be considerably
+		 * more rare, and the bug is fixed now.  The case we need to
+		 * handle is just the sealed mismatch.
+		 *
+		 * If we encounter such a bogus arena, fix the sealed field.
+		 */
+		if(arena->diskstats.sealed)
+			arena->memstats.sealed = 1;
 	}else
 		arena->memstats = arena->diskstats;
 	if(buf + sz != p)
@@ -262,6 +283,11 @@ _packarena(Arena *arena, u8int *buf, int forceext)
 		p += U64Size;
 		U8PUT(p, arena->memstats.sealed);
 		p += U8Size;
+	}else{
+		/* Clear any extension fields already on disk. */
+		memset(p, 0, ArenaSize5a - ArenaSize5);
+		p += ArenaSize5a - ArenaSize5;
+		sz += ArenaSize5a - ArenaSize5;
 	}
 
 	if(buf + sz != p)

@@ -23,6 +23,8 @@ bin/unmount
 bin/vwhois
 bin/vmount
 bin/yesterday
+mail/lib/qmail
+mail/lib/remotemail
 man/mkindex
 tmac/tmac.an
 tmac/tmac.anhtml

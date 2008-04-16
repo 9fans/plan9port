@@ -497,7 +497,7 @@ icachedirty(u32int lo, u32int hi, u64int limit)
 	trace(TraceProc, "icachedirty enter");
 	qlock(&icache.lock);
 	for(ie = icache.dirty.next; ie != &icache.dirty; ie=ie->next){
-		if(ie->state == IEDirty && ie->ia.addr < limit){
+		if(ie->state == IEDirty && ie->ia.addr <= limit){
 			h = hashbits(ie->score, 32);
 			if(lo <= h && h <= hi){
 				ie->nextdirty = dirty;

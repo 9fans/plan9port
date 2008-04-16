@@ -308,6 +308,7 @@ writeaclump(Arena *arena, Clump *c, u8int *clbuf)
 		if(!arena->memstats.sealed){
 			logerr(EOk, "seal memstats %s", arena->name);
 			arena->memstats.sealed = 1;
+			wbarena(arena);
 		}
 		qunlock(&arena->lock);
 		return TWID64;
