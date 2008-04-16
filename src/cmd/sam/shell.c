@@ -142,7 +142,7 @@ plan9(File *f, int type, String *s, int nest)
 void
 checkerrs(void)
 {
-	char buf[256];
+	char buf[4096];
 	int f, n, nl;
 	char *p;
 	long l;
@@ -150,7 +150,7 @@ checkerrs(void)
 	if(statfile(errfile, 0, 0, 0, &l, 0) > 0 && l != 0){
 		if((f=open((char *)errfile, 0)) != -1){
 			if((n=read(f, buf, sizeof buf-1)) > 0){
-				for(nl=0,p=buf; nl<3 && p<&buf[n]; p++)
+				for(nl=0,p=buf; nl<25 && p<&buf[n]; p++)
 					if(*p=='\n')
 						nl++;
 				*p = 0;
