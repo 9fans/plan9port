@@ -19,6 +19,10 @@ acme, win, awd \- interactive text windows
 .I ncol
 ]
 [
+.B -m
+.I mtpt
+]
+[
 .B -l
 .I file
 |
@@ -76,6 +80,16 @@ the default is
 Tab intervals are set to the width of 4 (or the value of
 .BR $tabstop )
 numeral zeros in the appropriate font.
+.PP
+The
+.B -m
+option instructs
+.I acme
+to use FUSE (see
+.IR 9pfuse (4))
+to mount itself at
+.IR mtpt .
+(Experimental.)
 .PP
 .SS Windows
 .I Acme
