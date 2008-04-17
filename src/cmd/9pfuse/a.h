@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <libc.h>
 #include <fcall.h>
 #include <thread.h>

@@ -39,7 +39,6 @@
 #  endif
 #endif
 
-
 int debug;
 char *argv0;
 char *aname = "";
@@ -77,6 +76,7 @@ usage(void)
 }
 
 void fusereader(void*);
+void watchfd(void*);
 
 void
 threadmain(int argc, char **argv)
@@ -139,8 +139,12 @@ init9p(char *addr, char *spec)
 {
 	int fd;
 
-	if((fd = dial(netmkaddr(addr, "tcp", "564"), nil, nil, nil)) < 0)
-		sysfatal("dial %s: %r", addr);
+	if(strcmp(addr, "-") == 0)
+		fd = 0;
+	else
+		if((fd = dial(netmkaddr(addr, "tcp", "564"), nil, nil, nil)) < 0)
+			sysfatal("dial %s: %r", addr);
+	proccreate(watchfd, (void*)(uintptr)fd, STACK);
 	if((fsys = fsmount(fd, spec)) == nil)
 		sysfatal("fsmount: %r");
 	fsysroot = fsroot(fsys);
@@ -1208,4 +1212,16 @@ estrdup(char *p)
 	return pp;
 }
 
+void
+watchfd(void *v)
+{
+	int fd = (int)(uintptr)v;
 
+	/* wait for exception (file closed) */
+	fd_set set;
+	FD_ZERO(&set);
+	FD_SET(fd, &set);
+	if(select(fd+1, NULL, NULL, &set, NULL) >= 0)
+		threadexitsall(nil);
+	return;
+}
