@@ -102,3 +102,5 @@ int	abbrevenv(Rune**, uint*);
 #define	runemalloc(a)		(Rune*)emalloc((a)*sizeof(Rune))
 #define	runerealloc(a, b)	(Rune*)erealloc((a), (b)*sizeof(Rune))
 #define	runemove(a, b, c)	memmove((a), (b), (c)*sizeof(Rune))
+
+int	ismtpt(char*);

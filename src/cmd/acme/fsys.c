@@ -121,7 +121,7 @@ fsysinit(void)
 	initfcall();
 	if(pipe(p) < 0)
 		error("can't create pipe");
-	if(post9pservice(p[0], "acme") < 0)
+	if(post9pservice(p[0], "acme", mtpt) < 0)
 		error("can't post service");
 	sfd = p[1];
 	fmtinstall('F', fcallfmt);

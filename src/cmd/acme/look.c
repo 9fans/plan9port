@@ -620,7 +620,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	if(w != nil)
 		goto Isfile;
 	/* if it's the name of a file, it's a file */
-	if(access(e->bname, 0) < 0){
+	if(ismtpt(e->bname) || access(e->bname, 0) < 0){
 		free(e->bname);
 		e->bname = nil;
 		goto Isntfile;

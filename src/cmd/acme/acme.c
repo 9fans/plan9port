@@ -28,6 +28,7 @@ Reffont	*reffonts[2];
 int		snarffd = -1;
 int		mainpid;
 int		swapscrollbuttons = FALSE;
+char		*mtpt;
 
 enum{
 	NSnarf = 1000	/* less than 1024, I/O buffer size */
@@ -104,6 +105,11 @@ threadmain(int argc, char *argv[])
 	case 'l':
 		loadfile = ARGF();
 		if(loadfile == nil)
+			goto Usage;
+		break;
+	case 'm':
+		mtpt = ARGF();
+		if(mtpt == nil)
 			goto Usage;
 		break;
 	case 'r':
@@ -1055,4 +1061,14 @@ acmegetsnarf(void)
 	bufinsert(&snarfbuf, 0, r, nr);
 	free(r);
 	free(s);
+}
+
+int
+ismtpt(char *file)
+{
+	int n;
+
+	/* This is not foolproof, but it will stop a lot of them. */
+	n = strlen(mtpt);
+	return strncmp(file, mtpt, n) == 0 && ((n > 0 && mtpt[n-1] == '/') || file[n] == '/' || file[n] == 0);
 }

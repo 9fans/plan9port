@@ -200,6 +200,10 @@ textload(Text *t, uint q0, char *file, int setqid)
 		warning(nil, "empty directory name");
 		return 0;
 	}
+	if(ismtpt(file)){
+		warning(nil, "will not open self mount point %s\n", file);
+		return 0;
+	}
 	fd = open(file, OREAD);
 	if(fd < 0){
 		warning(nil, "can't open %s: %r\n", file);
