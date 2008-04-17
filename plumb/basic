@@ -35,13 +35,6 @@ dst is msword
 plumb to msword
 plumb start wdoc2txt $file
 
-# email addresses get a new mail window
-type is text
-data matches '[a-zA-Z0-9_+.\-]+@[a-zA-Z0-9_+.\-]*'
-plumb to sendmail
-plumb start wmail $0
-# plumb start window rc -c '''echo % mail '''$0'; mail '$0
-
 # image files go to page
 type is text
 data matches '[a-zA-Z¡-￿0-9_\-./]+'
@@ -117,6 +110,13 @@ data	matches	'[a-zA-Z¡-￿0-9_\-./]+'
 data	matches	'/mail/fs/[a-zA-Z¡-￿0-9/]+/[0-9]+'
 plumb	to	showmail
 plumb	start	window -r 4 120 750 600 upas/nedmail -s $0
+
+# email addresses get a new mail window
+type is text
+data matches '[a-zA-Z0-9_+.\-]+@[a-zA-Z0-9_+.\-]*'
+plumb to sendmail
+plumb start wmail $0
+# plumb start window rc -c '''echo % mail '''$0'; mail '$0
 
 # man index entries are synthesized
 type is text
