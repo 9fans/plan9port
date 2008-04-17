@@ -911,7 +911,6 @@ vacshutdown(void)
 	for(f = fids; f; f = f->next) {
 		if(!f->busy)
 			continue;
-fprint(2, "open fid: %d\n", f->fid);
 		rclunk(f);
 	}
 
