@@ -62,6 +62,7 @@ VtConn  *conn;
 /* VtSession *session; */
 int	noperm;
 int	dotu;
+char *defmnt;
 
 Fid *	newfid(int);
 void	error(char*);
@@ -166,6 +167,9 @@ threadmain(int argc, char *argv[])
 	case 's':
 		defsrv = EARGF(usage());
 		break;
+	case 'm':
+		defmnt = EARGF(usage());
+		break;
 	case 'p':
 		noperm = 1;
 		break;
@@ -189,7 +193,7 @@ threadmain(int argc, char *argv[])
 	mfd[1] = p[0];
 	proccreate(srv, 0, 32 * 1024);
 
-	if(defsrv == nil){
+	if(defsrv == nil && defmnt == nil){
 		q = strrchr(argv[0], '/');
 		if(q)
 			q++;
@@ -203,7 +207,7 @@ threadmain(int argc, char *argv[])
 			defsrv[l-4] = 0;
 	}
 
-	if(post9pservice(p[1], defsrv) != 0) 
+	if(post9pservice(p[1], defsrv, defmnt) != 0) 
 		sysfatal("post9pservice");
 
 	threadexits(0);
@@ -814,18 +818,8 @@ io(void)
 	int n;
 
 	for(;;){
-		/*
-		 * reading from a pipe or a network device
-		 * will give an error after a few eof reads
-		 * however, we cannot tell the difference
-		 * between a zero-length read and an interrupt
-		 * on the processes writing to us,
-		 * so we wait for the error
-		 */
 		n = read9pmsg(mfd[0], mdata, sizeof mdata);
-		if(n == 0)
-			continue;
-		if(n < 0)
+		if(n <= 0)
 			break;
 		if(convM2Su(mdata, n, &rhdr, dotu) != n)
 			sysfatal("convM2S conversion error");

@@ -14,10 +14,10 @@ vacfs \- a Venti-based file system
 .B -h
 .I host
 ]
-.\" [
-.\" .B -m
-.\" .I mtpt
-.\" ]
+[
+.B -m
+.I mtpt
+]
 [
 .B -s
 .I srvname
@@ -59,10 +59,9 @@ metaname
 .TP
 .B -i
 Use file descriptors 0 and 1 as the 9P communication channel rather than create a pipe.
-.\" .TP
-.\" .BI -m " mtpt
-.\" The location to mount the file system. The default is
-.\" .BR /n/vac .
+.TP
+.BI -m " mtpt
+The location to mount the file system. The default is not to mount.
 .TP
 .BI -p
 Disables permission checking.
