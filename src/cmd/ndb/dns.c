@@ -232,7 +232,7 @@ mountinit(char *service)
 
 	if(pipe(p) < 0)
 		abort(); /* "pipe failed" */;
-	if(post9pservice(p[1], service) < 0)
+	if(post9pservice(p[1], service, nil) < 0)
 		fprint(2, "post9pservice dns: %r\n");
 	close(p[1]);
 	mfd[0] = mfd[1] = p[0];

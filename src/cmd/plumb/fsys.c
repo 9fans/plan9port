@@ -196,7 +196,7 @@ startfsys(void)
 		error("can't create pipe: %r");
 	/* 0 will be server end, 1 will be client end */
 	srvfd = p[0];
-	if(post9pservice(p[1], "plumb") < 0)
+	if(post9pservice(p[1], "plumb", nil) < 0)
 		sysfatal("post9pservice plumb: %r");
 	close(p[1]);
 	proccreate(fsysproc, nil, Stack);

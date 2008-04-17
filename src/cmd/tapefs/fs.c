@@ -142,7 +142,7 @@ main(int argc, char *argv[])
 		break;
 	default:
 		close(p[0]);	/* don't deadlock if child fails */
-		if(post9pservice(p[1], defmnt) < 0) {
+		if(post9pservice(p[1], defmnt, nil) < 0) {
 			sprint(buf, "post on `%s' failed", defmnt);
 			error(buf);
 		}
