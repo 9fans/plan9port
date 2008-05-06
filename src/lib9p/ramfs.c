@@ -59,7 +59,7 @@ fswrite(Req *r)
 		}
 		rf->data = v;
 		rf->ndata = offset+count;
-		r->fid->file->length = rf->ndata;
+		r->fid->file->dir.length = rf->ndata;
 	}
 	memmove(rf->data+offset, r->ifcall.data, count);
 	r->ofcall.count = count;
@@ -76,7 +76,7 @@ fscreate(Req *r)
 		rf = emalloc9p(sizeof *rf);
 		f->aux = rf;
 		r->fid->file = f;
-		r->ofcall.qid = f->qid;
+		r->ofcall.qid = f->dir.qid;
 		respond(r, nil);
 		return;
 	}
@@ -92,7 +92,7 @@ fsopen(Req *r)
 
 	if(rf && (r->ifcall.mode&OTRUNC)){
 		rf->ndata = 0;
-		r->fid->file->length = 0;
+		r->fid->file->dir.length = 0;
 	}
 
 	respond(r, nil);
@@ -122,18 +122,18 @@ void
 usage(void)
 {
 	fprint(2, "usage: ramfs [-D] [-s srvname] [-m mtpt]\n");
-	exits("usage");
+	threadexitsall("usage");
 }
 
 void
-main(int argc, char **argv)
+threadmain(int argc, char **argv)
 {
 	char *srvname = nil;
 	char *mtpt = nil;
 	Qid q;
 
 	fs.tree = alloctree(nil, nil, DMDIR|0777, fsdestroyfile);
-	q = fs.tree->root->qid;
+	q = fs.tree->root->dir.qid;
 
 	ARGBEGIN{
 	case 'D':
@@ -157,6 +157,6 @@ main(int argc, char **argv)
 	if(srvname == nil && mtpt == nil)
 		sysfatal("you should at least specify a -s or -m option");
 
-	postmountsrv(&fs, srvname, mtpt, MREPL|MCREATE);
-	exits(0);
+	threadpostmountsrv(&fs, srvname, mtpt, MREPL|MCREATE);
+	threadexits(0);
 }
