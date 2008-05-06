@@ -96,9 +96,8 @@ altcanexec(Alt *a)
 	_Altarray *ar;
 	Channel *c;
 
-	if(a->op == CHANNOP)
+	if(a->op == CHANNOP || (c=a->c) == nil)
 		return 0;
-	c = a->c;
 	if(c->bufsize == 0){
 		ar = chanarray(c, otherop(a->op));
 		return ar && ar->n;
@@ -119,6 +118,8 @@ altqueue(Alt *a)
 {
 	_Altarray *ar;
 
+	if(a->c == nil)
+		return;
 	ar = chanarray(a->c, a->op);
 	addarray(ar, a);
 }
