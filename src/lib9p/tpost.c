@@ -14,9 +14,8 @@ void
 threadpostmountsrv(Srv *s, char *name, char *mtpt, int flag)
 {
 	int fd[2];
-
-	if(mtpt)
-		sysfatal("mount not supported");
+	int mtfd;
+	char *addr;
 
 	if(!s->nopipe){
 		if(pipe(fd) < 0)
@@ -24,7 +23,10 @@ threadpostmountsrv(Srv *s, char *name, char *mtpt, int flag)
 		s->infd = s->outfd = fd[1];
 		s->srvfd = fd[0];
 	}
-	if(name && post9pservice(s->srvfd, name) < 0)
-		sysfatal("post9pservice %s: %r", name);
+	if(name || mtpt){
+		if(post9pservice(s->srvfd, name, mtpt) < 0)
+			sysfatal("post9pservice %s: %r", name);
+	}else if(!s->nopipe)
+		sysfatal("no one to serve");
 	proccreate(launchsrv, s, 32*1024);
 }

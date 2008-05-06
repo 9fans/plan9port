@@ -832,7 +832,8 @@ extern	char*	get9root(void);
 extern	char*	unsharp(char*);
 extern	int	sendfd(int, int);
 extern	int	recvfd(int);
-extern	int	post9pservice(int, char*);
+extern	int	post9pservice(int, char*, char*);
+extern	int	chattyfuse;
 
 /* external names that we don't want to step on */
 #ifndef NOPLAN9DEFINES

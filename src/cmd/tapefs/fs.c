@@ -75,17 +75,21 @@ void
 main(int argc, char *argv[])
 {
 	Ram *r;
-	char *defmnt;
+	char *defmnt, *defsrv;
 	int p[2];
 	char buf[TICKREQLEN];
 
 	fmtinstall('F', fcallfmt);
 	initfcalls();
 
-	defmnt = "tapefs";
+	defmnt = nil;
+	defsrv = nil;
 	ARGBEGIN{
 	case 'm':
 		defmnt = ARGF();
+		break;
+	case 's':
+		defsrv = ARGF();
 		break;
 	case 'p':			/* password file */
 		uidmap = getpass(ARGF());
@@ -142,8 +146,8 @@ main(int argc, char *argv[])
 		break;
 	default:
 		close(p[0]);	/* don't deadlock if child fails */
-		if(post9pservice(p[1], defmnt, nil) < 0) {
-			sprint(buf, "post on `%s' failed", defmnt);
+		if(post9pservice(p[1], defsrv, defmnt) < 0){
+			sprint(buf, "post9pservice: %r");
 			error(buf);
 		}
 	}
