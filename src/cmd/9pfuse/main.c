@@ -800,6 +800,7 @@ fuseread(FuseMsg *m)
 	if(n < 0){
 		free(buf);
 		replyfuseerrstr(m);
+		return;
 	}
 	replyfuse(m, buf, n);
 	free(buf);
