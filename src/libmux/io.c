@@ -34,8 +34,11 @@ _muxrecvproc(void *v)
 	qunlock(&mux->inlk);
 	qlock(&mux->lk);
 	_muxqhangup(q);
-	while(_muxnbqrecv(q, &p))
+	p = nil;
+	while(_muxnbqrecv(q, &p) && p != nil){
 		free(p);
+		p = nil;
+	}
 	free(q);
 	mux->readq = nil;
 	rwakeup(&mux->rpcfork);
