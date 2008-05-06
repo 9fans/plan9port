@@ -4,22 +4,13 @@
 #include <stdlib.h> /* setenv etc. */
 #include <time.h>
 
-static int didtz;
-static int tzdelta;
-static char tzone[32];
-
-static void
-dotz(void)
+static int
+dotz(time_t t, char *tzone)
 {
-	time_t t;
 	struct tm *gtm;
 	struct tm tm;
 
-	if(didtz)
-		return;
-	didtz = 1;
-	t = time(0);
-	strftime(tzone, sizeof tzone, "%Z", localtime(&t));
+	strftime(tzone, 32, "%Z", localtime(&t));
 	tm = *localtime(&t);	/* set local time zone field */
 	gtm = gmtime(&t);
 	tm.tm_sec = gtm->tm_sec;
@@ -29,11 +20,11 @@ dotz(void)
 	tm.tm_mon = gtm->tm_mon;
 	tm.tm_year = gtm->tm_year;
 	tm.tm_wday = gtm->tm_wday;
-	tzdelta = t - mktime(&tm);
+	return t - mktime(&tm);
 }
 
 static void
-tm2Tm(struct tm *tm, Tm *bigtm, int gmt)
+tm2Tm(struct tm *tm, Tm *bigtm, int tzoff, char *zone)
 {
 	memset(bigtm, 0, sizeof *bigtm);
 	bigtm->sec = tm->tm_sec;
@@ -43,15 +34,9 @@ tm2Tm(struct tm *tm, Tm *bigtm, int gmt)
 	bigtm->mon = tm->tm_mon;
 	bigtm->year = tm->tm_year;
 	bigtm->wday = tm->tm_wday;
-	if(gmt){
-		strcpy(bigtm->zone, "GMT");
-		bigtm->tzoff = 0;
-	}else{
-		dotz();
-		strncpy(bigtm->zone, tzone, 3);
-		bigtm->zone[3] = 0;
-		bigtm->tzoff = tzdelta;
-	}
+	bigtm->tzoff = tzoff;
+	strncpy(bigtm->zone, zone, 3);
+	bigtm->zone[3] = 0;
 }
 
 static void
@@ -80,7 +65,7 @@ p9gmtime(long x)
 	
 	t = (time_t)x;
 	tm = *gmtime(&t);
-	tm2Tm(&tm, &bigtm, 1);
+	tm2Tm(&tm, &bigtm, 0, "GMT");
 	return &bigtm;
 }
 
@@ -90,10 +75,11 @@ p9localtime(long x)
 	time_t t;
 	struct tm tm;
 	static Tm bigtm;
+	char tzone[32];
 
 	t = (time_t)x;
 	tm = *localtime(&t);
-	tm2Tm(&tm, &bigtm, 0);
+	tm2Tm(&tm, &bigtm, dotz(t, tzone), tzone);
 	return &bigtm;
 }
 
@@ -102,12 +88,12 @@ p9tm2sec(Tm *bigtm)
 {
 	time_t t;
 	struct tm tm;
+	char tzone[32];
 
 	Tm2tm(bigtm, &tm);
 	t = mktime(&tm);
 	if(strcmp(bigtm->zone, "GMT") == 0 || strcmp(bigtm->zone, "UCT") == 0){
-		dotz();
-		t += tzdelta;
+		t += dotz(t, tzone);
 	}
 	return t;
 }
