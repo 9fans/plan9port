@@ -363,8 +363,9 @@ chanrecvp(Channel *c)
 {
 	void *v;
 
-	_chanop(c, CHANRCV, (void*)&v, 1);
-	return v;
+	if(_chanop(c, CHANRCV, (void*)&v, 1) > 0)
+		return v;
+	return nil;
 }
 
 int
@@ -378,8 +379,9 @@ channbrecvp(Channel *c)
 {
 	void *v;
 
-	_chanop(c, CHANRCV, (void*)&v, 0);
-	return v;
+	if(_chanop(c, CHANRCV, (void*)&v, 0) > 0)
+		return v;
+	return nil;
 }
 
 int
@@ -393,8 +395,9 @@ chanrecvul(Channel *c)
 {
 	ulong val;
 
-	_chanop(c, CHANRCV, &val, 1);
-	return val;
+	if(_chanop(c, CHANRCV, &val, 1) > 0)
+		return val;
+	return -1;
 }
 
 int
@@ -408,7 +411,8 @@ channbrecvul(Channel *c)
 {
 	ulong val;
 
-	_chanop(c, CHANRCV, &val, 0);
-	return val;
+	if(_chanop(c, CHANRCV, &val, 0) > 0)
+		return val;
+	return -1;
 }
 
