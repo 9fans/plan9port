@@ -104,7 +104,15 @@ struct {
 	"iso-8859-15",	"8859-15",
 	"big5",			"big5",
 	"iso-2022-jp",	"jis-kanji",
-	"windows-1251",	"cp1251",
+	"windows-1250",	"windows-1250",
+	"windows-1251",	"windows-1251",
+	"windows-1252",	"windows-1252",
+	"windows-1253",	"windows-1253",
+	"windows-1254",	"windows-1254",
+	"windows-1255",	"windows-1255",
+	"windows-1256",	"windows-1256",
+	"windows-1257",	"windows-1257",
+	"windows-1258",	"windows-1258",
 	"koi8-r",			"koi8"
 };
 
