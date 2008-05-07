@@ -4,6 +4,7 @@
 #include <fcall.h>
 #include <thread.h>
 
+int post9p(int, char*);
 int debug;
 char *aname = "";
 char *keypattern = "";
@@ -67,8 +68,8 @@ threadmain(int argc, char **argv)
 		service = argv[0];
 
 	rfork(RFNOTEG);
-	if(post9pservice(fd, service) < 0)
-		sysfatal("post9pservice: %r");
+	if(post9p(fd, service) < 0)
+		sysfatal("post9p: %r");
 
 	threadexitsall(0);
 }
@@ -198,7 +199,7 @@ xwrite(void *buf, int n)
  */
 #undef _exits
 int
-post9pservice(int fd, char *name)
+post9p(int fd, char *name)
 {
 	int i;
 	char *ns, *s;

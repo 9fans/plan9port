@@ -178,7 +178,7 @@ main(int argc, char *argv[])
 	if(!stdio){
 		mfd[0] = p[0];
 		mfd[1] = p[0];
-		if(post9pservice(p[1], service) < 0)
+		if(post9pservice(p[1], service, nil) < 0)
 			sysfatal("post9pservice %s: %r", service);
 	}
 
