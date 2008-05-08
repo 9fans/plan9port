@@ -1068,6 +1068,9 @@ ismtpt(char *file)
 {
 	int n;
 
+	if(mtpt == nil)
+		return 0;
+
 	/* This is not foolproof, but it will stop a lot of them. */
 	n = strlen(mtpt);
 	return strncmp(file, mtpt, n) == 0 && ((n > 0 && mtpt[n-1] == '/') || file[n] == '/' || file[n] == 0);
