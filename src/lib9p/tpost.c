@@ -14,8 +14,6 @@ void
 threadpostmountsrv(Srv *s, char *name, char *mtpt, int flag)
 {
 	int fd[2];
-	int mtfd;
-	char *addr;
 
 	if(!s->nopipe){
 		if(pipe(fd) < 0)
