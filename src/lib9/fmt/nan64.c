@@ -6,6 +6,7 @@
  */
 
 #include "plan9.h"
+#include <assert.h>
 #include "fmt.h"
 #include "fmtdef.h"
 
@@ -13,31 +14,43 @@ static uvlong uvnan    = ((uvlong)0x7FF00000<<32)|0x00000001;
 static uvlong uvinf    = ((uvlong)0x7FF00000<<32)|0x00000000;
 static uvlong uvneginf = ((uvlong)0xFFF00000<<32)|0x00000000;
 
+/* gcc sees through the obvious casts. */
+static uvlong
+d2u(double d)
+{
+	union {
+		uvlong v;
+		double d;
+	} u;
+	assert(sizeof(u.d) == sizeof(u.v));
+	u.d = d;
+	return u.v;
+}
+
+static double
+u2d(uvlong v)
+{
+	union {
+		uvlong v;
+		double d;
+	} u;
+	assert(sizeof(u.d) == sizeof(u.v));
+	u.v = v;
+	return u.d;
+}
+
 double
 __NaN(void)
 {
-	uvlong *p;
-
-	/* gcc complains about "return *(double*)&uvnan;" */
-	p = &uvnan;
-	return *(double*)p;
+	return u2d(uvnan);
 }
 
 int
 __isNaN(double d)
 {
-	/*
-	 * Used to just say x = *(uvlong*)&d,
-	 * but gcc miscompiles that!
-	 */
-	union {
-		uvlong i;
-		double f;
-	} u;
 	uvlong x;
 	
-	u.f = d;
-	x = u.i;
+	x = d2u(d);
 	/* IEEE 754: exponent bits 0x7FF and non-zero mantissa */
 	return (x&uvinf) == uvinf && (x&~uvneginf) != 0;
 }
@@ -45,23 +58,15 @@ __isNaN(double d)
 double
 __Inf(int sign)
 {
-	uvlong *p;
-
-	if(sign < 0)
-		p = &uvinf;
-	else
-		p = &uvneginf;
-	return *(double*)p;
+	return u2d(sign < 0 ? uvneginf : uvinf);
 }
 
 int
 __isInf(double d, int sign)
 {
 	uvlong x;
-	double *p;
-
-	p = &d;
-	x = *(uvlong*)p;
+	
+	x = d2u(d);
 	if(sign == 0)
 		return x==uvinf || x==uvneginf;
 	else if(sign > 0)
