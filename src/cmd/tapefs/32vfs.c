@@ -93,7 +93,7 @@ popdir(Ram *r)
 			continue;
 		f = iget(ino);
 		strncpy(name, dp->name, VNAMELEN);
-		name[VNAMELEN+1] = '\0';
+		name[VNAMELEN] = '\0';
 		f.name = name;
 		popfile(r, f);
 	}

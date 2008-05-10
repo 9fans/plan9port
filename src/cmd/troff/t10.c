@@ -75,7 +75,7 @@ void t_ptinit(void)
 	ics = EM;	/* insertion character space */
 	for (i = 0; i < (NTAB - 1) && DTAB * (i + 1) < TABMASK; i++)
 		tabtab[i] = DTAB * (i + 1);
-	tabtab[NTAB] = 0;
+	tabtab[NTAB-1] = 0;
 	pl = 11 * INCH;			/* paper length */
 	po = PO;		/* page offset */
 	spacesz = SS;

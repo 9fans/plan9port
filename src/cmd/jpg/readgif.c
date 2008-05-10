@@ -351,11 +351,8 @@ skipextension(Header *h)
 	}
 	if(hsize>0 && Bread(h->fd, h->buf, hsize) != hsize)
 		giferror(h, extreaderr);
-	if(!hasdata){
-		if(h->buf[hsize-1] != 0)
-			giferror(h, "ReadGIF: bad extension format");
+	if(!hasdata)
 		return;
-	}
 
 	/* loop counter: Application Extension with NETSCAPE2.0 as string and 1 <loop.count> in data */
 	if(type == 0xFF && hsize==11 && memcmp(h->buf, "NETSCAPE2.0", 11)==0){
