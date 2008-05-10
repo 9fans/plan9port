@@ -261,18 +261,18 @@ optimize(Reprog *pp)
 		case STAR:
 		case PLUS:
 		case QUEST:
-			*(char**)(void*)&inst->u1.right += diff;
+			inst->u1.right = (void*)((char*)inst->u1.right + diff);
 			break;
 		case CCLASS:
 		case NCCLASS:
-			*(char**)(void*)&inst->u1.right += diff;
+			inst->u1.right = (void*)((char*)inst->u1.right + diff);
 			cl = inst->u1.cp;
-			*(char**)(void*)&cl->end += diff;
+			cl->end = (void*)((char*)cl->end + diff);
 			break;
 		}
-		*(char**)(void*)&inst->u2.left += diff;
+		inst->u2.left = (void*)((char*)inst->u2.left + diff);
 	}
-	*(char**)(void*)&npp->startinst += diff;
+	npp->startinst = (void*)((char*)npp->startinst + diff);
 	return npp;
 }
 
