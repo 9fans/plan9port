@@ -66,7 +66,7 @@ debug!=0 { print "# " $0 }
 
 { printtabs = 0 }
 
-/^(9a|9c|9l|9ar|9?install|cp|rm|mv|mk|9 yacc|9 lex|9 rc|do|for i|if|mk|gcc|cpp|cp|sh|cmp|rc|\.\/o)($|[^:])/ {
+/^(9a|9c|9l|9ar|9?install|cat pdf|cp|rm|mv|mk|9 yacc|9 lex|9 rc|do|for i|if|mk|gcc|cpp|cp|sh|cmp|rc|\.\/o)($|[^:])/ {
 	if(debug) print "% start"
 	errors = 0
 	cmd = ""
