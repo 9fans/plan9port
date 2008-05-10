@@ -244,7 +244,7 @@ threadmain(int argc, char *argv[])
 		if(srvpost){
 			sprint(srvfile, "/srv/upasfs.%s", user);
 			/* post(srvfile, "upasfs", p[1]);  jpc */
-			post9pservice(p[1], "upasfs");   /* jpc */
+			post9pservice(p[1], "upasfs", nil);   /* jpc */
 		} else {
 			error("tried to mount, fixme");     /* jpc */
 			/* if(mount(p[1], -1, mntpt, MREPL, "") < 0)
