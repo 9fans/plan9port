@@ -22,7 +22,7 @@ Imap *imap;
 void
 usage(void)
 {
-	fprint(2, "usage: mailfs [-DVtx] [-s srvname] [-r root] server\n");
+	fprint(2, "usage: mailfs [-DVtx] [-m mtpt] [-s srvname] [-r root] server\n");
 	threadexitsall("usage");
 }
 
@@ -31,10 +31,12 @@ threadmain(int argc, char **argv)
 {
 	char *server, *srvname, *root;
 	int mode;
+	char *mtpt;
 
 	srvname = "mail";
 	root = "";
 	mode = Unencrypted;
+	mtpt = nil;
 	ARGBEGIN{
 	default:
 		usage();
@@ -43,6 +45,9 @@ threadmain(int argc, char **argv)
 		break;
 	case 'V':
 		chattyimap++;
+		break;
+	case 'm':
+		mtpt = EARGF(usage());
 		break;
 	case 's':
 		srvname = EARGF(usage());
@@ -71,6 +76,6 @@ threadmain(int argc, char **argv)
 
 	if((imap = imapconnect(server, mode, root)) == nil)
 		sysfatal("imapconnect: %r");
-	threadpostmountsrv(&fs, srvname, nil, 0);
+	threadpostmountsrv(&fs, srvname, mtpt, 0);
 }
 
