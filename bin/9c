@@ -56,7 +56,7 @@ case "$tag" in
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
 		cflags="$ngflags -g"
-		cflags="$cflags -D__${s}__"
+		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
 *)
 	echo 9c does not know how to compile on "$tag" 1>&2

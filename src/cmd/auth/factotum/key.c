@@ -67,6 +67,7 @@ keyfetch(Conv *c, char *fmt, ...)
 	a = parseattrfmtv(fmt, arg);
 	va_end(arg);
 
+	flog("keyfetch %A", a);
 	tag = 0;
 
 	for(i=0; i<ring.nkey; i++){
@@ -80,6 +81,7 @@ keyfetch(Conv *c, char *fmt, ...)
 				continue;
 			}
 			freeattr(a);
+			flog("using key %A %N", k->attr, k->privattr);
 			return k;
 		}
 	}

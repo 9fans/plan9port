@@ -48,14 +48,17 @@ havesecstore(void)
 	if(fd < 0){
 		if(debug)
 			fprint(2, "secdial: %r\n");
+		flog("secdial: %r");
 		return 0;
 	}
 	if(write(fd, buf, n) != n || readn(fd, buf, 2) != 2){
+		flog("secstore: no count");
 		close(fd);
 		return 0;
 	}
 	n = ((buf[0]&0x7f)<<8) + buf[1];
 	if(n+1 > sizeof buf){
+		flog("secstore: bad count");
 		werrstr("implausibly large count %d", n);
 		close(fd);
 		return 0;
@@ -63,16 +66,23 @@ havesecstore(void)
 	m = readn(fd, buf, n);
 	close(fd);
 	if(m != n){
+		flog("secstore: unexpected eof");
 		if(m >= 0)
 			werrstr("short read from secstore");
 		return 0;
 	}
 	buf[n] = 0;
 	if(strcmp((char*)buf, "!account expired") == 0){
+		flog("secstore: account expired");
 		werrstr("account expired");
 		return 0;
 	}
-	return strcmp((char*)buf, "!account exists") == 0;
+	if(strcmp((char*)buf, "!account exists") == 0){
+		flog("secstore: account exists");
+		return 1;
+	}
+	flog("secstore: %s", buf);
+	return 0;
 }
 
 /* delimited, authenticated, encrypted connection */
@@ -384,8 +394,10 @@ getfile(SConn *conn, uchar *key, int nkey)
 		if(q = strchr(p, '\n'))
 			*q++ = '\0';
 		n++;
-		if(ctlwrite(p) < 0)
+		if(ctlwrite(p) < 0){
+			flog("secstore %s:%d: %r", gf, n);
 			fprint(2, "secstore(%s) line %d: %r\n", gf, n);
+		}
 		p = q;
 	}
 	free(buf);
@@ -636,6 +648,8 @@ secstorefetch(void)
 	rv = 0;
 
 Out:
+	if(rv < 0)
+		flog("secstorefetch: %r");
 	if(conn)
 		conn->free(conn);
 	if(pass)

@@ -1,8 +1,8 @@
 #include	"lib9.h"
 #include	<bio.h>
 
-off_t
-Bseek(Biobuf *bp, off_t offset, int base)
+long long
+Bseek(Biobuf *bp, long long offset, int base)
 {
 	vlong n, d;
 	int bufsz;
@@ -52,7 +52,7 @@ Bseek(Biobuf *bp, off_t offset, int base)
 
 	case Bwactive:
 		Bflush(bp);
-		n = lseek(bp->fid, offset, base);
+		n = seek(bp->fid, offset, base);
 		break;
 	}
 	bp->offset = n;

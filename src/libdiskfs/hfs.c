@@ -268,8 +268,8 @@ hfsmetadir(Hfs *fs)
 	Inode ino;
 
 	key.parent = RootId;
-	key.name.len = nelem(name);
-	memcpy(key.name.name, name, sizeof name);
+	key.u.name.len = nelem(name);
+	memcpy(key.u.name.name, name, sizeof name);
 	if(hfscatsearch(fs, &key, &ref) < 0)
 		goto notfound;
 	if(getcatalogrecord(&ino, ref.data, ref.dlen) < 0)
@@ -344,15 +344,15 @@ hfsblockread(Fsys *fsys, u64int vbno)
 static int
 hasresource(Inode *ino)
 {
-	return (ino->mode&IFMT)==IFREG && ino->rfork.size>0;
+	return (ino->mode&IFMT)==IFREG && ino->u.f.rfork.size>0;
 }
 
 static void
 useresource(Inode *ino)
 {
 	ino->fileid = ((u64int)1)<<32 | ino->cnid;
-	ino->nhdr = Adlen;
-	ino->fork = &ino->rfork;
+	ino->u.f.nhdr = Adlen;
+	ino->u.f.fork = &ino->u.f.rfork;
 }
 
 static int
@@ -367,12 +367,12 @@ ref2ino(Hfs *fs, Treeref *ref, Inode *ino)
 		return -1;
 
 	if((ino->mode&IFMT) == IFREG
-	&& memcmp(ino->info, magic, nelem(magic)) == 0){
+	&& memcmp(ino->u.f.info, magic, nelem(magic)) == 0){
 		if(debug) print("iNode%ud...", ino->special);
 		if(fs->hlinkparent == 0)
 			return -1;
 		key.parent = fs->hlinkparent;
-		key.name.len = runesnprint(key.name.name, sizeof key.name.name,
+		key.u.name.len = runesnprint(key.u.name.name, sizeof key.u.name.name,
 			"iNode%ud", ino->special);
 		if(hfscatsearch(fs, &key, &hlink) < 0)
 			goto error;
@@ -428,14 +428,14 @@ handle2ino(Hfs *fs, Nfs3Handle *h, Treeref *ref, Catalogkey *key, Inode *ino)
 
 	/* map cnid to full catalog key */
 	key->parent = cnid;
-	key->name.len = 0;
+	key->u.name.len = 0;
 	if(hfscatsearch(fs, key, ref) < 0)
 		goto error;
 	if(getcatalogthread(key, ref->data, ref->dlen) < 0)
 		goto error;
 	hfsrefput(ref);
 
-	if(debug) print("{%ud,%.*S}...", key->parent, key->name.len, key->name.name);
+	if(debug) print("{%ud,%.*S}...", key->parent, key->u.name.len, key->u.name.name);
 
 	/* map full key to catalog info */
 	if(hfscatsearch(fs, key, ref) < 0)
@@ -499,8 +499,8 @@ ino2attr(Hfs *fs, Inode *ino, Nfs3Attr *attr)
 	attr->uid = ino->uid;
 	attr->gid = ino->gid;
 	if(attr->type==Nfs3FileReg || attr->type==Nfs3FileSymlink){
-		attr->size = ino->nhdr+ino->fork->size;
-		attr->used = (u64int)ino->fork->nblocks*fs->blocksize;
+		attr->size = ino->u.f.nhdr+ino->u.f.fork->size;
+		attr->used = (u64int)ino->u.f.fork->nblocks*fs->blocksize;
 	}
 	else{
 		attr->size = 0;
@@ -694,7 +694,7 @@ _hfslookup(Hfs *fs, u32int parent, char *name, Treeref *ref)
 	Nfs3Status ok;
 
 	key.parent = parent;
-	if((ok = utf2name(&key.name, name)) != Nfs3Ok)
+	if((ok = utf2name(&key.u.name, name)) != Nfs3Ok)
 		return ok;
 	if(hfscatsearch(fs, &key, ref) < 0)
 		return Nfs3ErrNoEnt;
@@ -745,9 +745,9 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	if((ok = inoperm(&ino, au, AREAD)) != Nfs3Ok)
 		return ok;
 
-	if(ino.nentries>>31)
+	if(ino.u.nentries>>31)
 		return Nfs3ErrIo;
-	nentries = ino.nentries*2;	/* even data, odd resource */
+	nentries = ino.u.nentries*2;	/* even data, odd resource */
 	
 	i = cookie>>32;
 	cnid = cookie&0xFFFFFFFF;
@@ -772,7 +772,7 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	*/
 	if(cnid == 0){
 		key.parent = ino.cnid;
-		key.name.len = 0;
+		key.u.name.len = 0;
 		if(hfscatsearch(fs, &key, &ref) < 0)
 			goto error;
 	}
@@ -802,16 +802,16 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 			continue;
 		else
 			useresource(&child);
-		if(hfshidename(&key.name))
+		if(hfshidename(&key.u.name))
 			continue;
 		e.fileid = child.fileid;
 		e.name = name;
 		if(rsrc){
 			memcpy(name, Rprefix, Rplen);
-			e.namelen = Rplen+name2utf(name+Rplen, &key.name);
+			e.namelen = Rplen+name2utf(name+Rplen, &key.u.name);
 		}
 		else
-			e.namelen = name2utf(name, &key.name);
+			e.namelen = name2utf(name, &key.u.name);
 		e.cookie = ((u64int)i)<<32 | child.cnid;
 		e.haveAttr = (ino2attr(fs, &child, &e.attr) == Nfs3Ok);
 		e.haveHandle = 1;
@@ -830,7 +830,7 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 
 badparent:
 	if(debug) fprint(2, "%.*S: bad parent %ud != %ud\n",
-		key.name.len, key.name.name, key.parent, ino.cnid);
+		key.u.name.len, key.u.name.name, key.parent, ino.cnid);
 error:
 	hfsrefput(&ref);
 	return Nfs3ErrIo;
@@ -852,13 +852,13 @@ appledouble(Inode *ino, uchar *ad)
 			0,0,0,Adlen,		/* offset */
 	};
 
-	if(ino->rfork.size>>32){
+	if(ino->u.f.rfork.size>>32){
 		if(debug) fprint(2, "resource fork %ud too large\n", ino->cnid);
 		return -1;
 	}
 	memcpy(ad, Adhdr, nelem(Adhdr));
-	put32(ad+nelem(Adhdr), ino->rfork.size);
-	memcpy(ad+Fioff, ino->info, Filen);
+	put32(ad+nelem(Adhdr), ino->u.f.rfork.size);
+	memcpy(ad+Fioff, ino->u.f.info, Filen);
 	return 0;
 }
 
@@ -883,7 +883,7 @@ hfsreadfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	if((ok = inoperm(&ino, au, AREAD)) != Nfs3Ok)
 		return ok;
 
-	size = ino.nhdr+ino.fork->size;
+	size = ino.u.f.nhdr+ino.u.f.fork->size;
 	if(offset >= size){
 		*pdata = 0;
 		*pcount = 0;
@@ -895,7 +895,7 @@ hfsreadfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	data = mallocz(count, 1);
 	if(data == nil)
 		return Nfs3ErrNoMem;
-	if(offset < ino.nhdr){
+	if(offset < ino.u.f.nhdr){
 		if(appledouble(&ino, prefix) < 0)
 			goto error;
 		skip = Adlen-offset;
@@ -905,10 +905,10 @@ hfsreadfile(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 		offset = 0;
 	}
 	else{
-		offset -= ino.nhdr;
+		offset -= ino.u.f.nhdr;
 		skip = 0;
 	}
-	if(hfsforkread(fs, ino.fork, data+skip, count-skip, offset) < 0)
+	if(hfsforkread(fs, ino.u.f.fork, data+skip, count-skip, offset) < 0)
 		goto error;
 
 	*peof = (offset+count == size);
@@ -940,14 +940,14 @@ hfsreadlink(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, char **link)
 	if((ok = inoperm(&ino, au, AREAD)) != Nfs3Ok)
 		return ok;
 
-	len = ino.dfork.size;
+	len = ino.u.f.dfork.size;
 	if(len > 10240)	/* arbitrary limit */
 		return Nfs3ErrIo;
 
 	data = mallocz(len+1, 1);
 	if(data == nil)
 		return Nfs3ErrNoMem;
-	if(hfsforkread(fs, &ino.dfork, data, len, 0) < 0){
+	if(hfsforkread(fs, &ino.u.f.dfork, data, len, 0) < 0){
 		free(data);
 		return Nfs3ErrIo;
 	}
@@ -1048,12 +1048,12 @@ _hfscatalogkeycmp(uchar *buf, int len, int *order, Key *key, int sensitive)
 
 	diff = a.parent - b->parent;
 	if(diff == 0){
-		if(getname(&a.name, a.b) < 0)
+		if(getname(&a.u.name, a.u.b) < 0)
 			return -1;
 		if(sensitive)
-			diff = hfsnamecmp(&a.name, &b->name);
+			diff = hfsnamecmp(&a.u.name, &b->u.name);
 		else
-			diff = hfsinamecmp(&a.name, &b->name);
+			diff = hfsinamecmp(&a.u.name, &b->u.name);
 	}
 	*order = diff;
 	return 0;
@@ -1427,13 +1427,13 @@ getcatalogrecord(Inode *ino, uchar *b, int blen)
 	ino->mode = get16(p+10);
 	ino->special = get32(p+12);
 	if(t == Folder)
-		ino->nentries = get32(b+4);
+		ino->u.nentries = get32(b+4);
 	else{
-		getfork(&ino->dfork, ino->cnid, Dfork, b+88);
-		getfork(&ino->rfork, ino->cnid, Rfork, b+168);
-		memcpy(ino->info, b+48, Filen);
-		ino->nhdr = 0;
-		ino->fork = &ino->dfork;
+		getfork(&ino->u.f.dfork, ino->cnid, Dfork, b+88);
+		getfork(&ino->u.f.rfork, ino->cnid, Rfork, b+168);
+		memcpy(ino->u.f.info, b+48, Filen);
+		ino->u.f.nhdr = 0;
+		ino->u.f.fork = &ino->u.f.dfork;
 	}
 	return 0;
 }
@@ -1464,8 +1464,8 @@ getcatalogkey(Catalogkey *k, uchar *b, int blen, int decode)
 	}
 	k->parent = get32(b+2);
 	if(decode)
-		return getname(&k->name, b+6);
-	k->b = b+6;
+		return getname(&k->u.name, b+6);
+	k->u.b = b+6;
 	return 0;
 }
 

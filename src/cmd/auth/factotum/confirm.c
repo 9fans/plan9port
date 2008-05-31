@@ -30,11 +30,13 @@ confirmwrite(char *s)
 		return -1;
 	}
 	if((t = _strfindattr(a, "tag")) == nil){
+		flog("bad confirm write: no tag");
 		werrstr("no tag");
 		return -1;
 	}
 	tag = strtoul(t, 0, 0);
 	if((ans = _strfindattr(a, "answer")) == nil){
+		flog("bad confirm write: no answer");
 		werrstr("no answer");
 		return -1;
 	}
@@ -43,6 +45,7 @@ confirmwrite(char *s)
 	else if(strcmp(ans, "no") == 0)
 		allow = 0;
 	else{
+		flog("bad confirm write: bad answer");
 		werrstr("bad answer");
 		return -1;
 	}
@@ -62,12 +65,17 @@ confirmwrite(char *s)
 int
 confirmkey(Conv *c, Key *k)
 {
+	int ret;
+
 	if(*confirminuse == 0)
 		return -1;
 
 	lbappend(&confbuf, "confirm tag=%lud %A %N", c->tag, k->attr, k->privattr);
+	flog("confirm %A %N", k->attr, k->privattr);
 	c->state = "keyconfirm";
-	return recvul(c->keywait);
+	ret = recvul(c->keywait);
+	flog("confirm=%d %A %N", ret, k->attr, k->privattr);
+	return ret;
 }
 
 Logbuf needkeybuf;
@@ -124,6 +132,7 @@ needkey(Conv *c, Attr *a)
 		return -1;
 
 	lbappend(&needkeybuf, "needkey tag=%lud %A", c->tag, a);
+	flog("needkey %A", a);
 	return nbrecvul(c->keywait);
 }
 
@@ -135,5 +144,7 @@ badkey(Conv *c, Key *k, char *msg, Attr *a)
 
 	lbappend(&needkeybuf, "badkey tag=%lud %A %N\n%s\n%A",
 		c->tag, k->attr, k->privattr, msg, a);
+	flog("badkey %A / %N / %s / %A",
+		k->attr, k->privattr, msg, a);
 	return nbrecvul(c->keywait);
 }

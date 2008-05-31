@@ -89,12 +89,14 @@ convgetrpc(Conv *c, int want)
 {
 	for(;;){
 		if(c->hangup){
+			flog("convgetrpc: hangup");
 			werrstr("hangup");
 			return nil;
 		}
 		if(c->rpc.op == RpcUnknown){
 			recvp(c->rpcwait);
 			if(c->hangup){
+				flog("convgetrpc: hangup");
 				werrstr("hangup");
 				return nil;
 			}
@@ -227,12 +229,27 @@ convneedkey(Conv *c, Attr *a)
 	 * in response.  The keys get added out-of-band (via the
 	 * ctl file), so assume the key has been added when the
 	 * next request comes in.
+	 *
+	 * The convgetrpc seems dodgy, because we might be in
+	 * the middle of an rpc, and what about the one that comes
+	 * in later?  It's all actually okay: convgetrpc is idempotent
+	 * until rpcrespond is called, so if we're in the middle of an rpc,
+	 * the first convgetrpc is a no-op, the rpcrespond sends back
+	 * the needkey, and then the client repeats the rpc we're in
+	 * the middle of.  Otherwise, if we're not in the middle of an
+	 * rpc, the first convgetrpc waits for one, we respond needkey,
+	 * and then the second convgetrpc waits for another.  Because
+	 * there is no second response, eventually the caller will get
+	 * around to asking for an rpc itself, at which point the already
+	 * gotten rpc will be returned again.
 	 */
 	if(convgetrpc(c, -1) == nil)
 		return -1;
+	flog("convneedkey %A", a);
 	rpcrespond(c, "needkey %A", a);
 	if(convgetrpc(c, -1) == nil)
 		return -1;
+	flog("convneedkey returning");
 	return 0;
 }
 
@@ -242,6 +259,7 @@ convbadkey(Conv *c, Key *k, char *msg, Attr *a)
 {
 	if(convgetrpc(c, -1) == nil)
 		return -1;
+	flog("convbadkey %A %N / %s / %A", k->attr, k->privattr, msg, a);
 	rpcrespond(c, "badkey %A %N\n%s\n%A",
 		k->attr, k->privattr, msg, a);
 	if(convgetrpc(c, -1) == nil)

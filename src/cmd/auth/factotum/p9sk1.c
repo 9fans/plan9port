@@ -139,11 +139,14 @@ p9skclient(Conv *c)
 
 	/* success */
 	c->attr = addcap(c->attr, c->sysuser, &t);
+	flog("p9skclient success %A", c->attr);	/* before adding secret! */
 	des56to64((uchar*)t.key, secret);
 	c->attr = addattr(c->attr, "secret=%.8H", secret);
 	ret = 0;
 
 out:
+	if(ret < 0)
+		flog("p9skclient: %r");
 	freeattr(a);
 	keyclose(k);
 	return ret;
@@ -214,11 +217,14 @@ p9skserver(Conv *c)
 
 	/* success */
 	c->attr = addcap(c->attr, c->sysuser, &t);
+	flog("p9skserver success %A", c->attr);	/* before adding secret! */
 	des56to64((uchar*)t.key, secret);
 	c->attr = addattr(c->attr, "secret=%.8H", secret);
 	ret = 0;
 
 out:
+	if(ret < 0)
+		flog("p9skserver: %r");
 	freeattr(a);
 	keyclose(k);
 	return ret;

@@ -135,8 +135,8 @@ struct Inode
 			/* in memory only */
 			int	nhdr;		/* 0 or Adlen */
 			Fork	*fork;		/* dfork or rfork */
-		};
-	};
+		} f;
+	} u;
 };
 
 struct Tree
@@ -200,7 +200,7 @@ struct Catalogkey
 	union{
 		Name	name;
 		uchar	*b;		/* not yet decoded */
-	};
+	} u;
 };
 
 struct Hfs

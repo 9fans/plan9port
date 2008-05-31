@@ -98,12 +98,14 @@ ctlwrite(char *a)
 				l = &(*l)->next;
 		}
 		*lpriv = nil;
+		flog("addkey %A %A %N", protos, attr, priv);
 
 		/* add keys */
 		ret = 0;
 		for(pa=protos; pa; pa=pa->next){
 			if((proto = protolookup(pa->val)) == nil){
 				werrstr("unknown proto %s", pa->val);
+				flog("addkey: %r");
 				ret = -1;
 				continue;
 			}
@@ -112,6 +114,7 @@ ctlwrite(char *a)
 				if(!matchattr(kpa, attr, priv)){
 					freeattr(kpa);
 					werrstr("missing attributes -- want %s", proto->keyprompt);
+					flog("addkey %s: %r", proto->name);
 					ret = -1;
 					continue;
 				}
@@ -123,10 +126,12 @@ ctlwrite(char *a)
 			k->ref = 1;
 			k->proto = proto;
 			if(proto->checkkey && (*proto->checkkey)(k) < 0){
+				flog("addkey %s: %r", proto->name);
 				ret = -1;
 				keyclose(k);
 				continue;
 			}
+			flog("adding key: %A %N", k->attr, k->privattr);
 			keyadd(k);
 			keyclose(k);
 		}
@@ -137,6 +142,7 @@ ctlwrite(char *a)
 	case 1:	/* delkey */
 		nmatch = 0;
 		attr = parseattr(p);
+		flog("delkey %A", attr);
 		for(pa=attr; pa; pa=pa->next){
 			if(pa->type != AttrQuery && pa->name[0]=='!'){
 				werrstr("only !private? patterns are allowed for private fields");
@@ -147,6 +153,7 @@ ctlwrite(char *a)
 		for(i=0; i<ring.nkey; ){
 			if(matchattr(attr, ring.key[i]->attr, ring.key[i]->privattr)){
 				nmatch++;
+				flog("deleting %A %N", ring.key[i]->attr, ring.key[i]->privattr);
 				keyclose(ring.key[i]);
 				ring.nkey--;
 				memmove(&ring.key[i], &ring.key[i+1], (ring.nkey-i)*sizeof(ring.key[0]));
@@ -161,6 +168,7 @@ ctlwrite(char *a)
 		return 0;
 	case 2:	/* debug */
 		debug ^= 1;
+		flog("debug = %d", debug);
 		return 0;
 	}
 }

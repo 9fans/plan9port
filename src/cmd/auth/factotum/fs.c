@@ -372,6 +372,7 @@ fswrite(Req *r)
 	int ret;
 	char err[ERRMAX], *s;
 	int (*strfn)(char*);
+	char *name;
 
 	switch((int)r->fid->qid.path){
 	default:
@@ -387,12 +388,15 @@ fswrite(Req *r)
 		}
 		break;
 	case Qneedkey:
+		name = "needkey";
 		strfn = needkeywrite;
 		goto string;
 	case Qctl:
+		name = "ctl";
 		strfn = ctlwrite;
 		goto string;
 	case Qconfirm:
+		name = "confirm";
 		strfn = confirmwrite;
 	string:
 		s = emalloc(r->ifcall.count+1);
@@ -403,6 +407,7 @@ fswrite(Req *r)
 		if(ret < 0){
 			rerrstr(err, sizeof err);
 			respond(r, err);
+			flog("write %s: %s", name, err);
 		}else{
 			r->ofcall.count = r->ifcall.count;
 			respond(r, nil);

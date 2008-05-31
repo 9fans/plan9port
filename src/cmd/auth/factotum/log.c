@@ -84,7 +84,7 @@ lbvappend(Logbuf *lb, char *fmt, va_list arg)
 {
 	char *s;
 
-	s = smprint(fmt, arg);
+	s = vsmprint(fmt, arg);
 	if(s == nil)
 		sysfatal("out of memory");
 	if(lb->msg[lb->wp])
