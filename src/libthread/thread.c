@@ -86,7 +86,7 @@ threadstart(uint y, uint x)
 	_Thread *t;
 	ulong z;
 
-	z = x<<16;	/* hide undefined 32-bit shift from 32-bit compilers */
+	z = (ulong)x << 16;	/* hide undefined 32-bit shift from 32-bit compilers */
 	z <<= 16;
 	z |= y;
 	t = (_Thread*)z;
