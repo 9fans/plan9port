@@ -54,6 +54,16 @@ ebuf(void)
 	return buf;
 }
 
+static char*
+estrdup(char *s)
+{
+	char *t;
+	
+	t = emalloc(strlen(s)+1);
+	strcpy(t, s);
+	return t;
+}
+
 char*
 walk(char *path, Nfs3Handle *ph)
 {
@@ -61,6 +71,7 @@ walk(char *path, Nfs3Handle *ph)
 	Nfs3Handle h;
 	Nfs3Status ok;
 	
+	path = estrdup(path); /* writable */
 	if(path[0] == '/')
 		h = root;
 	else
@@ -75,10 +86,12 @@ walk(char *path, Nfs3Handle *ph)
 			continue;
 		if((ok = fsyslookup(fsys, auth, &h, p, &h)) != Nfs3Ok){
 			nfs3errstr(ok);
+			free(path);
 			return ebuf();
 		}
 	}
 	*ph = h;
+	free(path);
 	return nil;
 }
 
@@ -107,7 +120,7 @@ cmdcd(int argc, char **argv)
 		return err;
 	if((ok = fsysgetattr(fsys, auth, &h, &attr)) != Nfs3Ok){
 		nfs3errstr(ok);
-		fprint(2, "%s: %r\n");
+		fprint(2, "%s: %r\n", argv[1]);
 		return nil;
 	}
 	if(attr.type != Nfs3FileDir)
