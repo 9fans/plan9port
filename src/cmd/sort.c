@@ -243,8 +243,7 @@ notifyf(void *a, char *s)
 		done(0);
 	if(strncmp(s, "sys: write on closed pipe", 25) == 0)
 		done(0);
-	fprint(2, "sort: note: %s\n", s);
-	abort();
+	noted(NDFLT);
 }
 
 Line*
