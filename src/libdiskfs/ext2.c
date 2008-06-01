@@ -275,7 +275,11 @@ ext2sync(Fsys *fsys)
 		/ super.blockspergroup;
 	fs->inospergroup = super.inospergroup;
 	fs->blockspergroup = super.blockspergroup;
-	fs->inosperblock = fs->blocksize / InodeSize;
+	if(super.revlevel >= 1)
+		fs->inosize = super.inosize;
+	else
+		fs->inosize = 128;
+	fs->inosperblock = fs->blocksize / fs->inosize;
 	if(fs->blocksize == SBOFF)
 		fs->groupaddr = 2;
 	else
@@ -336,7 +340,7 @@ handle2ino(Ext2 *fs, Nfs3Handle *h, u32int *pinum, Inode *ino)
 	addr = g.inodeaddr + ioff/fs->inosperblock;
 	if((b = diskread(fs->disk, fs->blocksize, (u64int)addr*fs->blocksize)) == nil)
 		return Nfs3ErrIo;
-	parseinode(ino, b->data+InodeSize*(ioff%fs->inosperblock));
+	parseinode(ino, b->data+fs->inosize*(ioff%fs->inosperblock));
 	blockput(b);
 	return Nfs3Ok;
 }
@@ -875,5 +879,8 @@ parsesuper(Super *s, uchar *p)
 	s->revlevel = l32(p+76);
 	s->defresuid = l16(p+80);
 	s->defresgid = l16(p+82);
-	/* 940 byte reserved */
+	s->firstino = l32(p+84);
+	s->inosize = l32(p+88);
+	s->blockgroupnr = l16(p+60);
+	/* 932 byte reserved */
 }

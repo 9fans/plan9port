@@ -80,7 +80,12 @@ struct Super
 	u32int	revlevel;		/* Revision level */
 	u16int	defresuid;		/* Default uid for reserved blocks */
 	u16int	defresgid;		/* Default gid for reserved blocks */
-	u32int	reserved[235];	/* Padding to the end of the block */
+	
+	/* the following are only available with revlevel = 1 */
+	u32int	firstino;		/* First non-reserved inode */
+	u16int	inosize;		/* size of inode structure */
+	u16int	blockgroupnr;	/* block group # of this super block */
+	u32int	reserved[233];	/* Padding to the end of the block */
 };
 
 /*
@@ -122,10 +127,6 @@ struct Inode
 	u32int	diracl;	/* Directory ACL or high size bits */
 	u32int	faddr;		/* Fragment address */
 };
-enum
-{
-	InodeSize = 128
-};
 
 /*
  * Directory entry
@@ -153,6 +154,7 @@ struct Ext2
 	uint	inospergroup;
 	uint	blockspergroup;
 	uint	inosperblock;
+	uint	inosize;
 	uint	groupaddr;
 	uint	descperblock;
 	uint	firstblock;
