@@ -221,6 +221,7 @@ elogapply(File *f)
 	uint tq0, tq1;
 	Buffer *log;
 	Text *t;
+	int owner;
 
 	elogflush(f);
 	log = f->elogbuf;
@@ -228,6 +229,13 @@ elogapply(File *f)
 
 	buf = fbufalloc();
 	mod = FALSE;
+
+	owner = 0;
+	if(t->w){
+		owner = t->w->owner;
+		if(owner == 0)
+			t->w->owner = 'E';
+	}
 
 	/*
 	 * The edit commands have already updated the selection in t->q0, t->q1,
@@ -328,7 +336,7 @@ elogapply(File *f)
 	}
 	fbuffree(buf);
 	elogterm(f);
-
+	
 	/*
 	 * Bad addresses will cause bufload to crash, so double check.
 	 * If changes were out of order, we expect problems so don't complain further.
@@ -339,4 +347,7 @@ elogapply(File *f)
 		t->q1 = min(t->q1, f->b.nc);
 		t->q0 = min(t->q0, t->q1);
 	}
+
+	if(t->w)
+		t->w->owner = owner;
 }
