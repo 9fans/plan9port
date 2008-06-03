@@ -8,7 +8,6 @@ extern "C" {
 AUTOLIB(bio)
 #endif
 
-#include <sys/types.h>	/* for off_t */
 #include <fcntl.h>	/* for O_RDONLY, O_WRONLY */
 
 typedef	struct	Biobuf	Biobuf;
@@ -38,7 +37,7 @@ struct	Biobuf
 	int	state;		/* r/w/inactive */
 	int	fid;		/* open file */
 	int	flag;		/* magic if malloc'ed */
-	off_t	offset;		/* offset of buffer in file */
+	long long	offset;		/* offset of buffer in file */
 	int	bsize;		/* size of buffer */
 	unsigned char*	bbuf;		/* pointer to beginning of buffer */
 	unsigned char*	ebuf;		/* pointer to end of buffer */
@@ -71,7 +70,7 @@ long	Bgetrune(Biobuf*);
 int	Binit(Biobuf*, int, int);
 int	Binits(Biobuf*, int, int, unsigned char*, int);
 int	Blinelen(Biobuf*);
-off_t	Boffset(Biobuf*);
+long long	Boffset(Biobuf*);
 Biobuf*	Bopen(char*, int);
 int	Bprint(Biobuf*, char*, ...);
 int	Bputc(Biobuf*, int);
@@ -79,7 +78,7 @@ int	Bputrune(Biobuf*, long);
 void*	Brdline(Biobuf*, int);
 char*	Brdstr(Biobuf*, int, int);
 long	Bread(Biobuf*, void*, long);
-off_t	Bseek(Biobuf*, off_t, int);
+long long	Bseek(Biobuf*, long long, int);
 int	Bterm(Biobuf*);
 int	Bungetc(Biobuf*);
 int	Bungetrune(Biobuf*);
