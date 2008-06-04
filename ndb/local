@@ -4,7 +4,6 @@
 # probably need some kind of syntax to avoid hard-coding paths.
 
 database
-	file=cox-home
 	file=root-servers
 
 # authentication domains
@@ -12,12 +11,6 @@ database
 authdom=outside.plan9.bell-labs.com
 	auth=sources.cs.bell-labs.com
 
-authdom=cs.bell-labs.com
-	auth=lookout.cs.bell-labs.com
-
 authdom=tip9ug.jp
 	auth=mordor.tip9ug.jp
 	
-authdom=pdos.csail.mit.edu
-	auth=glenda.csail.mit.edu
-
