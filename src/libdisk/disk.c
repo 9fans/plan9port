@@ -143,23 +143,21 @@ drivergeometry(Disk *disk)
 		disk->h = 255;
 		disk->c /= 17;
 		return 0;
-
-	default:
-		for(m = 2; m*disk->h < 256; m *= 2) {
-			if(disk->c/m < 1024) {
-				disk->c /= m;
-				disk->h *= m;
-				return 0;
-			}
-		}
-
-		/* set to 255, 63 and be done with it */
-		disk->h = 255;
-		disk->s = 63;
-		disk->c = disk->secs / (disk->h * disk->s);
-		return 0;
 	}
-	return -1;	/* not reached */
+
+	for(m = 2; m*disk->h < 256; m *= 2) {
+		if(disk->c/m < 1024) {
+			disk->c /= m;
+			disk->h *= m;
+			return 0;
+		}
+	}
+
+	/* set to 255, 63 and be done with it */
+	disk->h = 255;
+	disk->s = 63;
+	disk->c = disk->secs / (disk->h * disk->s);
+	return 0;
 }
 
 /*
