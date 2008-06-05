@@ -44,7 +44,6 @@ tag[1] Tresize rect[4*4]
 tag[1] Rresize 
 */
 
-AUTOLIB(draw)
 
 #define PUT(p, x) \
 	(p)[0] = ((x) >> 24)&0xFF, \
