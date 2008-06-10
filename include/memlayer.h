@@ -4,8 +4,6 @@
 extern "C" { 
 #endif
 
-AUTOLIB(memlayer)
-
 typedef struct Memscreen Memscreen;
 typedef void (*Refreshfn)(Memimage*, Rectangle, void*);
 
