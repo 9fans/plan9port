@@ -46,11 +46,17 @@ netmkaddr(char *linear, char *defnet, char *defsrv)
 		return linear;
 
 	/*
+	 * if the network is unix, no service
+	 */
+	if(strncmp(linear, "unix!", 5) == 0)
+		return linear;
+
+	/*
 	 *  add default service
 	 */
 	if(defsrv == 0)
 		return linear;
-	snprint(addr, sizeof(addr), "%s!%s", linear, defsrv);
 
+	snprint(addr, sizeof(addr), "%s!%s", linear, defsrv);
 	return addr;
 }
