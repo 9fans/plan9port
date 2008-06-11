@@ -12,6 +12,10 @@
 .I afid
 ]
 [
+.B -c
+.I addr
+]
+[
 .B -M
 .I msize
 ]
@@ -72,6 +76,11 @@ used to implement
 .IR srv (4)'s
 .B -a
 option
+.TP
+.B -c
+multiplex clients onto a single connection to
+.IR addr ,
+instead of standard input and output
 .TP
 .B -M
 do not initialize the connection with a

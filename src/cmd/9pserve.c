@@ -136,7 +136,7 @@ int cvtustat(Fcall*, uchar**, int);
 void
 usage(void)
 {
-	fprint(2, "usage: 9pserve [-lnv] [-A aname afid] [-M msize] address\n");
+	fprint(2, "usage: 9pserve [-lnv] [-A aname afid] [-c addr] [-M msize] address\n");
 	fprint(2, "\treads/writes 9P messages on stdin/stdout\n");
 	threadexitsall("usage");
 }
@@ -146,7 +146,7 @@ extern int _threaddebuglevel;
 void
 threadmain(int argc, char **argv)
 {
-	char *file, *x;
+	char *file, *x, *addr;
 	int fd;
 
 	x = getenv("verbose9pserve");
@@ -165,6 +165,15 @@ threadmain(int argc, char **argv)
 	case 'M':
 		versioned = 1;
 		msize = atoi(EARGF(usage()));
+		break;
+	case 'c':
+		addr = netmkaddr(EARGF(usage()), "net", "9fs");
+		if((fd = dial(addr, nil, nil, nil)) < 0)
+			sysfatal("dial %s: %r", addr);
+		dup(fd, 0);
+		dup(fd, 1);
+		if(fd > 1)
+			close(fd);
 		break;
 	case 'n':
 		noauth = 1;
