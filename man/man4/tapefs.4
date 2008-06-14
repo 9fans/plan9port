@@ -1,0 +1,109 @@
+.TH TAPEFS 4
+.SH NAME
+32vfs, cpiofs, tapfs, tarfs, tpfs, v6fs, v10fs, zipfs \- mount archival file systems
+.SH SYNOPSIS
+.B fs/32vfs
+[
+.B -b
+.I blocksize
+]
+[
+.B -m
+.I mountpoint
+]
+[
+.B -p
+.I passwd
+]
+[
+.B -g
+.I group
+]
+.I file
+.br
+.B fs/cpiofs
+.br
+.B fs/tapfs
+.br
+.B fs/tarfs
+.br
+.B fs/tpfs
+.br
+.B fs/v6fs
+.br
+.B fs/v10fs
+.br
+.B fs/zipfs
+.br
+.SH DESCRIPTION
+These commands interpret data from traditional tape or file system formats
+stored in
+.IR file ,
+and mount their contents (read-only) into a Plan 9 file system.
+The optional
+.B -p
+and
+.B -g
+flags specify Unix-format password (respectively group) files
+that give the mapping between the numeric user- and group-ID
+numbers on the media and the strings reported by Plan 9 status
+inquiries.
+The
+.B -m
+flag introduces the name at which the new file system should be
+attached; the default is
+.BR /n/tapefs .
+.PP
+.I 32vfs
+interprets raw disk images of 32V systems, which are ca. 1978 research Unix systems for
+the VAX (512 byte block size, the default), and also pre-FFS Berkeley VAX systems (1KB block size).
+.PP
+.I Cpiofs
+interprets
+.B cpio
+tape images (constructed with
+.BI cpio 's
+.B c
+flag).
+.PP
+.I Tarfs
+interprets
+.I tar
+tape images.
+.PP
+.I Tpfs
+interprets
+.I tp
+tapes from the Fifth through Seventh Edition research Unix systems.
+.PP
+.I Tapfs
+interprets
+.I tap
+tapes from the pre-Fifth Edition era.
+.PP
+.I V6fs
+interprets disk images from the
+Fifth and Sixth edition research Unix systems (512B block size).
+.PP
+.I V10fs
+interprets disk images from the
+Tenth Edition research Unix systems (4KB block size).
+.PP
+.I Zipfs
+interprets zip archives (see
+.IR gzip (1)).
+.SH SOURCE
+.PP
+These commands are constructed in a highly stereotyped
+way using the files
+.I fs.c
+and
+.I util.c
+in
+.BR /sys/src/cmd/tapefs ,
+which in
+turn derive substantially from
+.IR ramfs (4).
+.SH "SEE ALSO
+.IR intro (5),
+.IR ramfs (4).
