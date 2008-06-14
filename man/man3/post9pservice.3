@@ -7,7 +7,7 @@ post9pservice \- post 9P service for use by clients
 .B #include <libc.h>
 .PP
 .B
-int post9pservice(int fd, char *name)
+int post9pservice(int fd, char *name, char *mtpt)
 .SH DESCRIPTION
 .I Post9pservice
 invokes
@@ -22,8 +22,18 @@ Clients connecting to the posted service
 are multiplexed onto a single 9P conversation with the server
 on file descriptor
 .IR fd .
+.PP
+If
+.I mtpt
+is non-nil,
+.I post9pservice
+mounts the service on
+.IR mtpt ,
+using
+.IR 9pfuse (4).
 .SH "SEE ALSO
 .IR intro (4),
+.IR 9pfuse (4),
 .IR 9pserve (4)
 .SH SOURCE
 .B \*9/src/lib9/post9p.c
