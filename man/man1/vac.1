@@ -1,6 +1,6 @@
 .TH VAC 1
 .SH NAME
-vac \- create a vac archive on Venti
+vac, unvac \- create, extract a vac archive on Venti
 .SH SYNOPSIS
 .B vac
 [
@@ -25,6 +25,18 @@ vac \- create a vac archive on Venti
 .I host
 ]
 .I file ...
+.PP
+.B unvac
+[
+.B -Tctv
+] [
+.B -h
+.I host
+]
+.I vacfile
+[
+.I file ...
+]
 .SH DESCRIPTION
 .I Vac
 creates an archival copy of Plan 9 file trees on Venti. It can be used
@@ -46,15 +58,13 @@ but simply reduce the number of write operations to Venti.
 .PP
 The output of
 .I vac
-is the hexadecimal representation of the Sha1 fingerprint of the root of the archive, in this format:
+is the hexadecimal representation of the SHA1 fingerprint of the root of the archive, in this format:
 .IP
 .EX
 vac:64daefaecc4df4b5cb48a368b361ef56012a4f46
 .EE
 .PP
-Option to 
-.I vac
-are:
+The options are:
 .TP
 .BI -b " blocksize
 Specifies the block size that data will be broken into.
@@ -123,7 +133,34 @@ Print out various statistics on standard error.
 .B -v
 Produce more verbose output on standard error, including the name of the files added to the archive
 and the vac archives that are expanded and merged.
+.PP
+.I Unvac
+lists or extracts files stored in the vac archive
+.I vacfile ,
+which can be either a vac archive string in the format
+given above or the name of a file containing one.
+If
+.I file
+arguments are given, only those files or directories
+will be extracted.
+The options are:
+.TP
+.B -T
+Set the modification time on extracted files
+to the time listed in the archive.
+.TP
+.B -c
+Write extracted files to standard output instead of creating a file.
+.TP
+.B -t
+Print a list of the files to standard output rather than extracting them.
+.TP
+.B -v
+If extracting files, print the name of each file and directory
+to standard error.
+If listing files, print metadata in addition to the names.
 .SH SOURCE
 .B \*9/src/cmd/vac
 .SH "SEE ALSO"
-Plan 9's \fIvacfs\fR(4) and \fIventi\fR(8)
+.IR vacfs (4),
+.IR venti (8)
