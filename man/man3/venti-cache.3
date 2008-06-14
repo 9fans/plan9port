@@ -2,7 +2,6 @@
 .SH NAME
 VtBlock, VtCache, 
 vtblockcopy,
-vtblockdirty,
 vtblockduplock,
 vtblockput,
 vtblockwrite,
@@ -77,9 +76,6 @@ void	vtcachesetwrite(VtCache *c,
 .PP
 .B
 VtBlock*	vtblockcopy(VtBlock *b);
-.PP
-.B
-int	vtblockdirty(VtBlock *b);
 .SH DESCRIPTION
 These functions provide access to a simple in-memory
 cache of blocks already stored on a Venti server
