@@ -354,7 +354,7 @@ _fileopen(VacFs *fs, char *path, int partial)
 			elem[n] = 0;
 			ff = _filewalk(f, elem, partial && *p=='\0');
 			if(ff == nil){
-				werrstr("%.*s: %R", utfnlen(opath, p-opath), opath);
+				werrstr("%.*s: %r", utfnlen(opath, p-opath), opath);
 				goto Err;
 			}
 			vacfiledecref(f);

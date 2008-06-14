@@ -1,7 +1,5 @@
 #include "stdinc.h"
-#include <auth.h>
 #include <fcall.h>
-#include <thread.h>
 #include "vac.h"
 
 typedef struct Fid Fid;
@@ -508,29 +506,7 @@ rread(Fid *f)
 char*
 rwrite(Fid *f)
 {
-	char *buf;
-	vlong off;
-	int cnt;
-	VacFile *vf;
-
-	if(!f->busy)
-		return vtstrdup(Enotexist);
-	vf = f->file;
-	thdr.count = 0;
-	off = rhdr.offset;
-	buf = rhdr.data;
-	cnt = rhdr.count;
-	if(f->qid.type & QTDIR)
-		return "file is a directory";
-	thdr.count = vacfilewrite(vf, buf, cnt, off, "none");
-	if(thdr.count < 0) {
-		char err[80];
-
-		rerrstr(err, sizeof err);
-fprint(2, "write failed: %s\n", err);
-		return vtstrdup(err);
-	}
-	return 0;
+	return vtstrdup(Erdonly);
 }
 
 char *

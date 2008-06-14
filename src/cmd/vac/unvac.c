@@ -1,7 +1,5 @@
 #include "stdinc.h"
-#include <auth.h>
-#include <fcall.h>
-#include <thread.h>
+#include <fcall.h>	/* dirmodefmt */
 #include "vac.h"
 
 VacFs *fs;
@@ -35,7 +33,7 @@ threadmain(int argc, char *argv[])
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
-	fmtinstall('T', mtimefmt);
+	fmtinstall('t', mtimefmt);
 	fmtinstall('M', dirmodefmt);
 	
 	host = nil;
@@ -141,7 +139,8 @@ void
 unvac(VacFile *f, char *name, VacDir *vdir)
 {
 	static char buf[65536];
-	int fd, mode, n, mode9;
+	int fd, n;
+	ulong mode, mode9;
 	char *newname;
 	char *what;
 	vlong off;
@@ -175,7 +174,7 @@ unvac(VacFile *f, char *name, VacDir *vdir)
 					mode9 |= DMSETGID;
 				if(mode&ModeDevice)
 					mode9 |= DMDEVICE;
-				print("%M %-10s %-10s %11lld %T %s\n",
+				print("%M %-10s %-10s %11lld %t %s\n",
 					mode9, vdir->uid, vdir->gid, vdir->size,
 					vdir->mtime, name);
 			}else
