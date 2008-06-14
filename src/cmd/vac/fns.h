@@ -8,9 +8,13 @@ int	meunpack(MetaEntry*, MetaBlock *mb, int i);
 int	mecmp(MetaEntry*, char *s);
 int	mecmpnew(MetaEntry*, char *s);
 
-int	vdsize(VacDir *dir);
+enum {
+	VacDirVersion = 8,
+	FossilDirVersion = 9,
+};
+int	vdsize(VacDir *dir, int);
 int	vdunpack(VacDir *dir, MetaEntry*);
-void	vdpack(VacDir *dir, MetaEntry*);
+void	vdpack(VacDir *dir, MetaEntry*, int);
 
 VacFile *_vacfileroot(VacFs *fs, VtFile *file);
 

@@ -5,7 +5,18 @@
 #include "dat.h"
 #include "fns.h"
 
-int mainstacksize = 128*1024;
+/*
+ * We're between a rock and a hard place here.
+ * The pw library (getpwnam, etc.) reads the 
+ * password and group files into an on-stack buffer,
+ * so if you have some huge groups, you overflow
+ * the stack.  Because of this, the thread library turns
+ * it off by default, so that dirstat returns "14571" instead of "rsc".
+ * But for vac we want names.  So cautiously turn the pwlibrary
+ * back on (see threadmain) and make the main thread stack huge.
+ */
+extern int _p9usepwlibrary;
+int mainstacksize = 4*1024*1024;
 
 typedef struct Sink Sink;
 typedef struct MetaSink MetaSink;
@@ -101,6 +112,8 @@ int nowrite;
 int merge;
 char *isi;
 
+char **expandargv(char**);
+
 static void
 usage(void)
 {
@@ -115,6 +128,9 @@ threadmain(int argc, char *argv[])
 	char *p;
 	char *host = nil;
 	int statsflag = 0;
+
+	/* see comment above */
+	_p9usepwlibrary = 1;
 
 	atexit(cleanup);
 
@@ -194,18 +210,69 @@ threadmain(int argc, char *argv[])
 
 	qsort(exclude, nexclude, sizeof(char*), strpcmp);
 
+	argv = expandargv(argv);
+
 	vac(z, argv);
 
 	if(vtsync(z) < 0)
 		fprint(2, "warning: could not ask server to flush pending writes: %r\n");
 
-	if(statsflag)
+	if(statsflag){
 		fprint(2, "files %ld:%ld data %ld:%ld:%ld meta %ld\n", stats.file, stats.sfile,
 			stats.data, stats.skip, stats.sdata, stats.meta);
-/*packetStats(); */
+		dup(2, 1);
+		packetstats();
+	}
 	vthangup(z);
 
 	threadexitsall(0);
+}
+
+// Expand special directory names like / and . and .. into a list of their files.
+char**
+expandargv(char **argv)
+{
+	char **nargv;
+	int nargc;
+	int i, n;
+	Dir *d;
+	int fd;
+	char *s;
+
+	nargc = 0;
+	nargv = nil;
+	for(; *argv; argv++){
+		cleanname(*argv);
+		if(strcmp(*argv, "/") == 0 || strcmp(*argv, ".") == 0 || strcmp(*argv, "..") == 0
+				|| (strlen(*argv) > 3 && strcmp(*argv+strlen(*argv)-3, "/..") == 0)){
+			if((fd = open(*argv, OREAD)) < 0){
+				warn("could not open %s: %r", *argv);
+				continue;
+			}
+			n = dirreadall(fd, &d);
+			close(fd);
+			if(n < 0){
+				warn("could not read %s: %r", *argv);
+				continue;
+			}
+			nargv = vtrealloc(nargv, (nargc+n)*sizeof nargv[0]);
+			for(i=0; i<n; i++){
+				s = vtmalloc(strlen(*argv)+1+strlen(d[i].name)+1);
+				strcpy(s, *argv);
+				strcat(s, "/");
+				strcat(s, d[i].name);
+				cleanname(s);
+				nargv[nargc++] = s;
+			}
+			free(d);
+			continue;
+		}
+		nargv = vtrealloc(nargv, (nargc+1)*sizeof nargv[0]);
+		nargv[nargc++] = *argv;
+	}
+	nargv = vtrealloc(nargv, (nargc+1)*sizeof nargv[0]);
+	nargv[nargc] = nil;
+	return nargv;
 }
 
 static int
@@ -353,7 +420,7 @@ vac(VtConn *z, char *argv[])
 	
 	vtrootpack(&root, buf);
 	if(vacwrite(z, score, VtRootType, buf, VtRootSize) < 0)
-		sysfatal("vacWrite failed: %r");
+		sysfatal("vacwrite: %r");
 
 	fprint(fd, "vac:%V\n", score);
 
@@ -566,7 +633,6 @@ vacdata(DirSink *dsink, int fd, char *lname, VacFile *vf, Dir *dir)
 	if(vfblocks > 1)
 		block += vacdataskip(sink, vf, fd, vfblocks, buf, lname);
 
-if(0) fprint(2, "vacData: %s: %ld\n", lname, block);
 	for(;;) {
 		n = readn(fd, buf, bsize);
 		if(0 && n < 0)
@@ -857,7 +923,7 @@ sinkwrite(Sink *k, uchar *p, int n)
 		return;
 
 	if(n > k->dir.dsize)
-		sysfatal("sinkWrite: size too big");
+		sysfatal("sinkwrite: size too big");
 
 	if((k->dir.type&~VtTypeDepthMask) == VtDirType){
 		type = VtDirType;
@@ -867,7 +933,7 @@ sinkwrite(Sink *k, uchar *p, int n)
 		stats.data++;
 	}
 	if(vacwrite(k->z, score, type, p, n) < 0)
-		sysfatal("vacWrite failed: %r");
+		sysfatal("vacwrite: %r");
 
 	sinkwritescore(k, score, n);
 }
@@ -924,7 +990,7 @@ sinkclose(Sink *k)
 		p = k->buf+i*kd->psize;
 		stats.meta++;
 		if(vacwrite(k->z, k->pbuf[i+1], base+1+i, p, k->pbuf[i]-p) < 0)
-			sysfatal("vacWrite failed: %r");
+			sysfatal("vacwrite: %r");
 		k->pbuf[i+1] += VtScoreSize;
 	}
 	memmove(kd->score, k->pbuf[i] - VtScoreSize, VtScoreSize);
@@ -1141,6 +1207,7 @@ metasinkwrite(MetaSink *k, uchar *data, int n)
 void
 metasinkwritedir(MetaSink *ms, VacDir *dir)
 {
+	
 	metasinkputuint32(ms, DirMagic);
 	metasinkputc(ms, Version>>8);
 	metasinkputc(ms, Version);		
@@ -1217,7 +1284,6 @@ plan9tovacdir(VacDir *vd, Dir *dir, ulong entry, uvlong qid)
 	vd->p9path = dir->qid.path;
 	vd->p9version = dir->qid.vers;
 }
-
 
 void
 metasinkeor(MetaSink *k)

@@ -200,7 +200,7 @@ if(0)print("eo = %d en = %d\n", eo, en);
 	return 0;
 }
 
-/* assumes a small amount of checking has been done in mbEntry */
+/* assumes a small amount of checking has been done in mbentry */
 int
 mecmp(MetaEntry *me, char *s)
 {
@@ -372,18 +372,17 @@ mballoc(MetaBlock *mb, int n)
 }
 
 int
-vdsize(VacDir *dir)
+vdsize(VacDir *dir, int version)
 {
 	int n;
 	
-	/* constant part */
+	if(version < 8 || version > 9)
+		sysfatal("bad version %d in vdpack", version);
 
+	/* constant part */
 	n = 	4 +	/* magic */
 		2 + 	/* version */
 		4 +	/* entry */
-		4 + 	/* guid */
-		4 + 	/* mentry */
-		4 + 	/* mgen */
 		8 +	/* qid */
 		4 + 	/* mtime */
 		4 + 	/* mcount */
@@ -392,6 +391,13 @@ vdsize(VacDir *dir)
 		4 +	/* mode */
 		0;
 
+	if(version == 9){
+		n += 	4 +	/* gen */
+			4 + 	/* mentry */
+			4 + 	/* mgen */
+			0;
+	}
+
 	/* strings */
 	n += 2 + strlen(dir->elem);
 	n += 2 + strlen(dir->uid);
@@ -399,35 +405,53 @@ vdsize(VacDir *dir)
 	n += 2 + strlen(dir->mid);
 
 	/* optional sections */
+	if(version < 9 && dir->plan9) {
+		n += 	3 + 	/* option header */
+			8 + 	/* path */
+			4;	/* version */
+	}
 	if(dir->qidspace) {
 		n += 	3 + 	/* option header */
 			8 + 	/* qid offset */
 			8;	/* qid max */
+	}
+	if(version < 9 && dir->gen) {
+		n += 	3 + 	/* option header */
+			4;	/* gen */
 	}
 
 	return n;
 }
 
 void
-vdpack(VacDir *dir, MetaEntry *me)
+vdpack(VacDir *dir, MetaEntry *me, int version)
 {
 	uchar *p;
 	ulong t32;
 
+	if(version < 8 || version > 9)
+		sysfatal("bad version %d in vdpack", version);
+
 	p = me->p;
 	
 	U32PUT(p, DirMagic);
-	U16PUT(p+4, 9);		/* version */
+	U16PUT(p+4, version);		/* version */
 	p += 6;
 
 	p += stringpack(dir->elem, p);
 
 	U32PUT(p, dir->entry);
-	U32PUT(p+4, dir->gen);
-	U32PUT(p+8, dir->mentry);
-	U32PUT(p+12, dir->mgen);
-	U64PUT(p+16, dir->qid, t32);
-	p += 24;
+	p += 4;
+	
+	if(version == 9){
+		U32PUT(p, dir->gen);
+		U32PUT(p+4, dir->mentry);
+		U32PUT(p+8, dir->mgen);
+		p += 12;
+	}
+
+	U64PUT(p, dir->qid, t32);
+	p += 8;
 
 	p += stringpack(dir->uid, p);
 	p += stringpack(dir->gid, p);
@@ -439,6 +463,15 @@ vdpack(VacDir *dir, MetaEntry *me)
 	U32PUT(p+12, dir->atime);
 	U32PUT(p+16, dir->mode);
 	p += 5*4;
+	
+	if(dir->plan9 && version < 9) {
+		U8PUT(p, DirPlan9Entry);
+		U16PUT(p+1, 8+4);
+		p += 3;
+		U64PUT(p, dir->p9path, t32);
+		U32PUT(p+8, dir->p9version);
+		p += 12;
+	}
 
 	if(dir->qidspace) {
 		U8PUT(p, DirQidSpaceEntry);
@@ -446,11 +479,19 @@ vdpack(VacDir *dir, MetaEntry *me)
 		p += 3;
 		U64PUT(p, dir->qidoffset, t32);
 		U64PUT(p+8, dir->qidmax, t32);
+		p += 16;
+	}
+	
+	if(dir->gen && version < 9) {
+		U8PUT(p, DirGenEntry);
+		U16PUT(p+1, 4);
+		p += 3;
+		U32PUT(p, dir->gen);
+		p += 4;
 	}
 
 	assert(p == me->p + me->size);
 }
-
 
 int
 vdunpack(VacDir *dir, MetaEntry *me)
@@ -463,14 +504,12 @@ vdunpack(VacDir *dir, MetaEntry *me)
 
 	memset(dir, 0, sizeof(VacDir));
 
-if(0)print("vdUnpack\n");
 	/* magic */
 	if(n < 4 || U32GET(p) != DirMagic)
 		goto Err;
 	p += 4;
 	n -= 4;
 
-if(0)print("vdUnpack: got magic\n");
 	/* version */
 	if(n < 2)
 		goto Err;
@@ -480,13 +519,9 @@ if(0)print("vdUnpack: got magic\n");
 	p += 2;
 	n -= 2;	
 
-if(0)print("vdUnpack: got version\n");
-
 	/* elem */
 	if(stringunpack(&dir->elem, &p, &n) < 0)
 		goto Err;
-
-if(0)print("vdUnpack: got elem\n");
 
 	/* entry  */
 	if(n < 4)
@@ -494,8 +529,6 @@ if(0)print("vdUnpack: got elem\n");
 	dir->entry = U32GET(p);
 	p += 4;
 	n -= 4;
-
-if(0)print("vdUnpack: got entry\n");
 
 	if(version < 9) {
 		dir->gen = 0;
@@ -511,8 +544,6 @@ if(0)print("vdUnpack: got entry\n");
 		n -= 3*4;
 	}
 
-if(0)print("vdUnpack: got gen etc\n");
-
 	/* size is gotten from DirEntry */
 
 	/* qid */
@@ -522,7 +553,6 @@ if(0)print("vdUnpack: got gen etc\n");
 	p += 8;
 	n -= 8;
 
-if(0)print("vdUnpack: got qid\n");
 	/* skip replacement */
 	if(version == 7) {
 		if(n < VtScoreSize)
@@ -543,7 +573,6 @@ if(0)print("vdUnpack: got qid\n");
 	if(stringunpack(&dir->mid, &p, &n) < 0)
 		goto Err;
 
-if(0)print("vdUnpack: got ids\n");
 	if(n < 5*4)
 		goto Err;
 	dir->mtime = U32GET(p);
@@ -554,7 +583,6 @@ if(0)print("vdUnpack: got ids\n");
 	p += 5*4;
 	n -= 5*4;
 
-if(0)print("vdUnpack: got times\n");
 	/* optional meta data */
 	while(n > 0) {
 		if(n < 3)
@@ -594,15 +622,12 @@ if(0)print("vdUnpack: got times\n");
 		p += nn;
 		n -= nn;
 	}
-if(0)print("vdUnpack: got options\n");
 
 	if(p != me->p + me->size)
 		goto Err;
 
-if(0)print("vdUnpack: correct size\n");
 	return 0;
 Err:
-if(0)print("vdUnpack: XXXXXXXXXXXX EbadMeta\n");
 	werrstr(EBadMeta);
 	vdcleanup(dir);
 	return -1;

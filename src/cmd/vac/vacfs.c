@@ -5,16 +5,10 @@
 #include "vac.h"
 
 typedef struct Fid Fid;
-typedef struct DirBuf DirBuf;
 
 enum
 {
 	OPERM	= 0x3		/* mask of all permission types in open mode */
-};
-
-enum
-{
-	DirBufSize = 20
 };
 
 struct Fid
@@ -25,18 +19,8 @@ struct Fid
 	char *user;
 	Qid qid;
 	VacFile *file;
-
-	DirBuf *db;
-
-	Fid	*next;
-};
-
-struct DirBuf
-{
 	VacDirEnum *vde;
-	VacDir buf[DirBufSize];
-	int i, n;
-	int eof;
+	Fid	*next;
 };
 
 enum
@@ -73,12 +57,8 @@ int	perm(Fid*, int);
 int	permf(VacFile*, char*, int);
 ulong	getl(void *p);
 void	init(char*, char*, long, int);
-DirBuf	*dirBufAlloc(VacFile*);
-VacDir	*dirBufGet(DirBuf*);
-int	dirBufUnget(DirBuf*);
-void	dirBufFree(DirBuf*);
 int	vacdirread(Fid *f, char *p, long off, long cnt);
-int	vdStat(VacFile *parent, VacDir *vd, uchar *p, int np);
+int	vacstat(VacFile *parent, VacDir *vd, uchar *p, int np);
 void 	srv(void* a);
 
 
@@ -141,7 +121,6 @@ threadmain(int argc, char *argv[])
 	int stdio = 0;
 	char *host = nil;
 	long ncache = 1000;
-	int readOnly = 1;
 
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
@@ -184,7 +163,20 @@ threadmain(int argc, char *argv[])
 		usage();
 
 	initfcalls();
-	init(argv[0], host, ncache, readOnly);
+
+	notify(notifyf);
+	user = getuser();
+
+	conn = vtdial(host);
+	if(conn == nil)
+		sysfatal("could not connect to server: %r");
+
+	if(vtconnect(conn) < 0)
+		sysfatal("vtconnect: %r");
+
+	fs = vacfsopen(conn, argv[0], VtOREAD, ncache);
+	if(fs == nil)
+		sysfatal("vacfsopen: %r");
 
 	if(pipe(p) < 0)
 		sysfatal("pipe failed: %r");
@@ -294,19 +286,6 @@ rattach(Fid *f)
 	return 0;
 }
 
-VacFile*
-_vfWalk(VacFile *file, char *name)
-{
-	VacFile *n;
-
-	n = vacfilewalk(file, name);
-	if(n)
-		return n;
-	if(strcmp(name, "SLASH") == 0)
-		return vacfilewalk(file, "/");
-	return nil;
-}
-
 char*
 rwalk(Fid *f)
 {
@@ -356,7 +335,7 @@ rwalk(Fid *f)
 			err = Eperm;
 			break;
 		}
-		nfile = _vfWalk(file, rhdr.wname[nqid]);
+		nfile = vacfilewalk(file, rhdr.wname[nqid]);
 		if(nfile == nil)
 			break;
 		vacfiledecref(file);
@@ -410,7 +389,7 @@ ropen(Fid *f)
 		if(!perm(f, Pread))
 			return vtstrdup(Eperm);
 		thdr.qid = f->qid;
-		f->db = nil;
+		f->vde = nil;
 		f->open = 1;
 		return 0;
 	}
@@ -564,8 +543,8 @@ rclunk(Fid *f)
 	if(f->file)
 		vacfiledecref(f->file);
 	f->file = nil;
-	dirBufFree(f->db);
-	f->db = nil;
+	vdeclose(f->vde);
+	f->vde = nil;
 	return 0;
 }
 
@@ -588,8 +567,6 @@ rremove(Fid *f)
 
 	if(!vacfileremove(vf, "none")) {
 		rerrstr(errbuf, sizeof errbuf);
-print("vfRemove failed: %s\n", errbuf);
-
 		err = errbuf;
 	}
 
@@ -611,7 +588,7 @@ rstat(Fid *f)
 	parent = vacfilegetparent(f->file);
 	vacfilegetdir(f->file, &dir);
 	thdr.stat = statbuf;
-	thdr.nstat = vdStat(parent, &dir, thdr.stat, sizeof statbuf);
+	thdr.nstat = vacstat(parent, &dir, thdr.stat, sizeof statbuf);
 	vdcleanup(&dir);
 	vacfiledecref(parent);
 	return 0;
@@ -626,7 +603,7 @@ rwstat(Fid *f)
 }
 
 int
-vdStat(VacFile *parent, VacDir *vd, uchar *p, int np)
+vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 {
 	char *ext;
 	int n, ret;
@@ -694,96 +671,39 @@ vdStat(VacFile *parent, VacDir *vd, uchar *p, int np)
 	return ret;
 }
 
-DirBuf*
-dirBufAlloc(VacFile *vf)
-{
-	DirBuf *db;
-
-	db = vtmallocz(sizeof(DirBuf));
-	db->vde = vdeopen(vf);
-	return db;
-}
-
-VacDir *
-dirBufGet(DirBuf *db)
-{
-	VacDir *vd;
-	int n;
-
-	if(db->eof)
-		return nil;
-
-	if(db->i >= db->n) {
-		n = vderead(db->vde, db->buf);
-		if(n < 0)
-			return nil;
-		db->i = 0;
-		db->n = n;
-		if(n == 0) {
-			db->eof = 1;
-			return nil;
-		}
-	}
-
-	vd = db->buf + db->i;
-	db->i++;
-
-	return vd;
-}
-
-int
-dirBufUnget(DirBuf *db)
-{
-	assert(db->i > 0);
-	db->i--;
-	return 1;
-}
-
-void
-dirBufFree(DirBuf *db)
-{
-	int i;
-
-	if(db == nil)
-		return;
-
-	for(i=db->i; i<db->n; i++)
-		vdcleanup(db->buf + i);
-	vdeclose(db->vde);
-	vtfree(db);
-}
-
 int
 vacdirread(Fid *f, char *p, long off, long cnt)
 {
-	int n, nb;
-	VacDir *vd;
+	int i, n, nb;
+	VacDir vd;
 
 	/*
 	 * special case of rewinding a directory
 	 * otherwise ignore the offset
 	 */
-	if(off == 0 && f->db) {
-		dirBufFree(f->db);
-		f->db = nil;
+	if(off == 0 && f->vde){
+		vdeclose(f->vde);
+		f->vde = nil;
 	}
 
-	if(f->db == nil)
-		f->db = dirBufAlloc(f->file);
+	if(f->vde == nil){
+		f->vde = vdeopen(f->file);
+		if(f->vde == nil)
+			return -1;
+	}
 
 	for(nb = 0; nb < cnt; nb += n) {
-		vd = dirBufGet(f->db);
-		if(vd == nil) {
-			if(!f->db->eof)
-				return -1;
+		i = vderead(f->vde, &vd);
+		if(i < 0)
+			return -1;
+		if(i == 0)
 			break;
-		}
-		n = vdStat(f->file, vd, (uchar*)p, cnt-nb);
+		n = vacstat(f->file, &vd, (uchar*)p, cnt-nb);
 		if(n <= BIT16SZ) {
-			dirBufUnget(f->db);
+			vdeunread(f->vde);
 			break;
 		}
-		vdcleanup(vd);
+		vdcleanup(&vd);
 		p += n;
 	}
 	return nb;
@@ -883,24 +803,6 @@ int
 perm(Fid *f, int p)
 {
 	return permf(f->file, f->user, p);
-}
-
-void
-init(char *file, char *host, long ncache, int readOnly)
-{
-	notify(notifyf);
-	user = getuser();
-
-	conn = vtdial(host);
-	if(conn == nil)
-		sysfatal("could not connect to server: %r");
-
-	if(vtconnect(conn) < 0)
-		sysfatal("vtconnect: %r");
-
-	fs = vacfsopen(conn, file, /*readOnly ? ModeSnapshot :*/ VtOREAD, ncache);
-	if(fs == nil)
-		sysfatal("vfsOpen: %r");
 }
 
 void

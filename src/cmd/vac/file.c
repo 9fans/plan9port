@@ -564,8 +564,6 @@ vacfileread(VacFile *f, void *buf, int cnt, vlong offset)
 	VtBlock *b;
 	uchar *p;
 
-if(0)fprint(2, "fileRead: %s %d, %lld\n", f->dir.elem, cnt, offset);
-
 	if(filerlock(f) < 0)
 		return -1;
 
@@ -620,64 +618,6 @@ Err1:
 	return -1;
 }
 
-#if 0
-/* 
- * Changes the file block bn to be the given block score.
- * Very sneaky.  Only used by flfmt.
- */
-int
-filemapblock(VacFile *f, ulong bn, uchar score[VtScoreSize], ulong tag)
-{
-	VtBlock *b;
-	VtEntry e;
-	VtFile *s;
-
-	if(filelock(f) < 0)
-		return -1;
-
-	s = nil;
-	if(f->dir.mode & ModeDir){
-		werrstr(ENotFile);
-		goto Err;
-	}
-
-	if(f->source->mode != VtORDWR){
-		werrstr(EReadOnly);
-		goto Err;
-	}
-
-	if(vtfilelock(f->source, -1) < 0)
-		goto Err;
-
-	s = f->source;
-	b = _vtfileblock(s, bn, VtORDWR, 1, tag);
-	if(b == nil)
-		goto Err;
-
-	if(vtfilegetentry(s, &e) < 0)
-		goto Err;
-	if(b->l.type == BtDir){
-		memmove(e.score, score, VtScoreSize);
-		assert(e.tag == tag || e.tag == 0);
-		e.tag = tag;
-		e.flags |= VtEntryLocal;
-		vtentrypack(&e, b->data, f->source->offset % f->source->epb);
-	}else
-		memmove(b->data + (bn%(e.psize/VtScoreSize))*VtScoreSize, score, VtScoreSize);
-	/* vtblockdirty(b); */
-	vtblockput(b);
-	vtfileunlock(s);
-	fileunlock(f);
-	return 0;
-
-Err:
-	if(s)
-		vtfileunlock(s);
-	fileunlock(f);
-	return -1;
-}
-#endif
-
 int
 vacfilesetsize(VacFile *f, uvlong size)
 {
@@ -712,8 +652,6 @@ filewrite(VacFile *f, void *buf, int cnt, vlong offset, char *uid)
 	VtBlock *b;
 	uchar *p;
 	vlong eof;
-
-if(0)fprint(2, "fileWrite: %s %d, %lld\n", f->dir.elem, cnt, offset);
 
 	if(filelock(f) < 0)
 		return -1;
@@ -1064,7 +1002,7 @@ vacfilemetaflush(VacFile *f, int rec)
 	vtfree(kids);
 }
 
-/* assumes metaLock is held */
+/* assumes metalock is held */
 static int
 filemetaflush2(VacFile *f, char *oelem)
 {
@@ -1097,15 +1035,14 @@ filemetaflush2(VacFile *f, char *oelem)
 	if(mbsearch(&mb, oelem, &i, &me) < 0)
 		goto Err;
 
-	n = vdsize(&f->dir);
-if(0)fprint(2, "old size %d new size %d\n", me.size, n);
+	n = vdsize(&f->dir, VacDirVersion);
 
 	if(mbresize(&mb, &me, n) >= 0){
 		/* fits in the block */
 		mbdelete(&mb, i, &me);
 		if(strcmp(f->dir.elem, oelem) != 0)
 			mbsearch(&mb, f->dir.elem, &i, &me2);
-		vdpack(&f->dir, &me);
+		vdpack(&f->dir, &me, VacDirVersion);
 		mbinsert(&mb, i, &me);
 		mbpack(&mb);
 		/* vtblockdirty(b); */
@@ -1126,19 +1063,17 @@ if(0)fprint(2, "old size %d new size %d\n", me.size, n);
 	 */
 	boff = filemetaalloc(fp, &f->dir, f->boff+1);
 	if(boff == NilBlock){
-		/* mbResize might have modified block */
+		/* mbresize might have modified block */
 		mbpack(&mb);
 		/* vtblockdirty(b); */
 		goto Err;
 	}
-fprint(2, "fileMetaFlush moving entry from %ud -> %ud\n", f->boff, boff);
 	f->boff = boff;
 
 	/* make sure deletion goes to disk after new entry */
 	bb = vtfileblock(fp->msource, f->boff, VtORDWR);
 	mbdelete(&mb, i, &me);
 	mbpack(&mb);
-/*	blockDependency(b, bb, -1, nil, nil); */
 	vtblockput(bb);
 	/* vtblockdirty(b); */
 	vtblockput(b);
@@ -1522,6 +1457,16 @@ Return:
 	return ret;
 }
 
+int
+vdeunread(VacDirEnum *vde)
+{
+	if(vde->i > 0){
+		vde->i--;
+		return 0;
+	}
+	return -1;
+}
+
 void
 vdeclose(VacDirEnum *vde)
 {
@@ -1555,7 +1500,7 @@ filemetaalloc(VacFile *f, VacDir *dir, u32int start)
 	s = f->source;
 	ms = f->msource;
 
-	n = vdsize(dir);
+	n = vdsize(dir, VacDirVersion);
 	nb = (vtfilegetsize(ms)+ms->dsize-1)/ms->dsize;
 	b = nil;
 	if(start > nb)
@@ -1584,9 +1529,8 @@ filemetaalloc(VacFile *f, VacDir *dir, u32int start)
 
 	p = mballoc(&mb, n);
 	if(p == nil){
-		/* mbAlloc might have changed block */
+		/* mballoc might have changed block */
 		mbpack(&mb);
-		/* vtblockdirty(b); */
 		werrstr(EBadMeta);
 		goto Err;
 	}
@@ -1595,29 +1539,10 @@ filemetaalloc(VacFile *f, VacDir *dir, u32int start)
 	assert(me.p == nil);
 	me.p = p;
 	me.size = n;
-	vdpack(dir, &me);
+	vdpack(dir, &me, VacDirVersion);
 	mbinsert(&mb, i, &me);
 	mbpack(&mb);
 
-#ifdef notdef /* XXX */
-	/* meta block depends on super block for qid ... */
-	bb = cacheLocal(b->c, PartSuper, 0, VtOREAD);
-	blockDependency(b, bb, -1, nil, nil);
-	vtblockput(bb);
-
-	/* ... and one or two dir entries */
-	epb = s->dsize/VtEntrySize;
-	bb = vtfileblock(s, dir->entry/epb, VtOREAD);
-	blockDependency(b, bb, -1, nil, nil);
-	vtblockput(bb);
-	if(dir->mode & ModeDir){
-		bb = sourceBlock(s, dir->mentry/epb, VtOREAD);
-		blockDependency(b, bb, -1, nil, nil);
-		vtblockput(bb);
-	}
-#endif
-
-	/* vtblockdirty(b); */
 	vtblockput(b);
 	return bo;
 Err:
@@ -1676,7 +1601,7 @@ fileunlock(VacFile *f)
 
 /*
  * f->source and f->msource must NOT be locked.
- * fileMetaFlush locks the fileMeta and then the source (in fileMetaFlush2).
+ * vacfilemetaflush locks the filemeta and then the source (in filemetaflush2).
  * We have to respect that ordering.
  */
 static void
@@ -1736,130 +1661,3 @@ filewaccess(VacFile* f, char *mid)
 */
 }
 
-#if 0
-static void
-markCopied(Block *b)
-{
-	VtBlock *lb;
-	Label l;
-
-	if(globalToLocal(b->score) == NilBlock)
-		return;
-
-	if(!(b->l.state & BsCopied)){
-		/*
-		 * We need to record that there are now pointers in
-		 * b that are not unique to b.  We do this by marking
-		 * b as copied.  Since we don't return the label block,
-		 * the caller can't get the dependencies right.  So we have
-		 * to flush the block ourselves.  This is a rare occurrence.
-		 */
-		l = b->l;
-		l.state |= BsCopied;
-		lb = _blockSetLabel(b, &l);
-	WriteAgain:
-		while(!blockWrite(lb)){
-			fprint(2, "getEntry: could not write label block\n");
-			sleep(10*1000);
-		}
-		while(lb->iostate != BioClean && lb->iostate != BioDirty){
-			assert(lb->iostate == BioWriting);
-			vtSleep(lb->ioready);
-		}
-		if(lb->iostate == BioDirty)
-			goto WriteAgain;
-		vtblockput(lb);
-	}
-}
-
-static int
-getEntry(VtFile *r, Entry *e, int mark)
-{
-	Block *b;
-
-	if(r == nil){
-		memset(&e, 0, sizeof e);
-		return 1;
-	}
-
-	b = cacheGlobal(r->fs->cache, r->score, BtDir, r->tag, VtOREAD);
-	if(b == nil)
-		return 0;
-	if(!entryUnpack(e, b->data, r->offset % r->epb)){
-		vtblockput(b);
-		return 0;
-	}
-
-	if(mark)
-		markCopied(b);
-	vtblockput(b);
-	return 1;
-}
-
-static int
-setEntry(Source *r, Entry *e)
-{
-	Block *b;
-	Entry oe;
-
-	b = cacheGlobal(r->fs->cache, r->score, BtDir, r->tag, VtORDWR);
-	if(0) fprint(2, "setEntry: b %#ux %d score=%V\n", b->addr, r->offset % r->epb, e->score);
-	if(b == nil)
-		return 0;
-	if(!entryUnpack(&oe, b->data, r->offset % r->epb)){
-		vtblockput(b);
-		return 0;
-	}
-	e->gen = oe.gen;
-	entryPack(e, b->data, r->offset % r->epb);
-
-	/* BUG b should depend on the entry pointer */
-
-	markCopied(b);
-	/* vtblockdirty(b); */
-	vtblockput(b);
-	return 1;
-}
-
-/* assumes hold elk */
-int
-fileSnapshot(VacFile *dst, VacFile *src, u32int epoch, int doarchive)
-{
-	Entry e, ee;
-
-	/* add link to snapshot */
-	if(!getEntry(src->source, &e, 1) || !getEntry(src->msource, &ee, 1))
-		return 0;
-
-	e.snap = epoch;
-	e.archive = doarchive;
-	ee.snap = epoch;
-	ee.archive = doarchive;
-
-	if(!setEntry(dst->source, &e) || !setEntry(dst->msource, &ee))
-		return 0;
-	return 1;
-}
-
-int
-fileGetSources(VacFile *f, Entry *e, Entry *ee, int mark)
-{
-	if(!getEntry(f->source, e, mark)
-	|| !getEntry(f->msource, ee, mark))
-		return 0;
-	return 1;
-}	
-
-int
-fileWalkSources(VacFile *f)
-{
-	if(f->mode == VtOREAD)
-		return 1;
-	if(!sourceLock2(f->source, f->msource, VtORDWR))
-		return 0;
-	vtfileunlock(f->source);
-	vtfileunlock(f->msource);
-	return 1;
-}
-
-#endif

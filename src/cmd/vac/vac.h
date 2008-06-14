@@ -101,13 +101,6 @@ int		vacfssync(VacFs *fs);
 int		vacfssnapshot(VacFs *fs, char *src, char *dst);
 int		vacfsgetscore(VacFs *fs, u8int *score);
 
-/* 
- * other ideas
- *
- * VacFs *vfsSnapshot(VacFs*, char *src);
- * int vfsGraft(VacFs*, char *name, VacFs*);
- */
-
 VacFile *vacfsgetroot(VacFs *fs);
 VacFile	*vacfileopen(VacFs *fs, char *path);
 VacFile	*vacfilecreate(VacFile *file, char *elem, ulong perm, char *muid);
@@ -140,4 +133,4 @@ void		vdcopy(VacDir *dst, VacDir *src);
 VacDirEnum	*vdeopen(VacFile*);
 int			vderead(VacDirEnum*, VacDir *);
 void			vdeclose(VacDirEnum*);
-
+int	vdeunread(VacDirEnum*);

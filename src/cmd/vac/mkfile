@@ -16,7 +16,7 @@ HFILES=\
 	dat.h\
 	fns.h\
 
-TARG=vac vacfs # vtdump
+TARG=vac vacfs unvac # vtdump
 
 default:V: all
 
