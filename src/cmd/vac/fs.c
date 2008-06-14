@@ -49,17 +49,23 @@ vacfsopen(VtConn *z, char *file, int mode, int ncache)
 {
 	int fd;
 	uchar score[VtScoreSize];
-
-	fd = open(file, OREAD);
-	if(fd < 0)
-		return nil;
-
-	if(readscore(fd, score) < 0){
+	char *prefix;
+	
+	if(vtparsescore(file, &prefix, score) >= 0){
+		if(strcmp(prefix, "vac") != 0){
+			werrstr("not a vac file");
+			return nil;
+		}
+	}else{
+		fd = open(file, OREAD);
+		if(fd < 0)
+			return nil;
+		if(readscore(fd, score) < 0){
+			close(fd);
+			return nil;
+		}
 		close(fd);
-		return nil;
 	}
-	close(fd);
-
 	return vacfsopenscore(z, score, mode, ncache);
 }
 
