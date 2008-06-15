@@ -3,6 +3,9 @@ void	mbinsert(MetaBlock *mb, int i, MetaEntry*);
 void	mbdelete(MetaBlock *mb, int i, MetaEntry*);
 void	mbpack(MetaBlock *mb);
 uchar	*mballoc(MetaBlock *mb, int n);
+void		mbinit(MetaBlock *mb, uchar *p, int n, int entries);
+int mbsearch(MetaBlock*, char*, int*, MetaEntry*);
+int mbresize(MetaBlock*, MetaEntry*, int);
 
 int	meunpack(MetaEntry*, MetaBlock *mb, int i);
 int	mecmp(MetaEntry*, char *s);

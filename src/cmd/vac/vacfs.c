@@ -445,7 +445,7 @@ rcreate(Fid* fid)
 		}
 		mode |= ModeDir;
 	}
-	vf = vacfilecreate(vf, rhdr.name, mode, "none");
+	vf = vacfilecreate(vf, rhdr.name, mode);
 	if(vf == nil) {
 		char err[80];
 		rerrstr(err, sizeof err);
@@ -541,7 +541,7 @@ rremove(Fid *f)
 		goto Exit;
 	}
 
-	if(!vacfileremove(vf, "none")) {
+	if(!vacfileremove(vf)) {
 		rerrstr(errbuf, sizeof errbuf);
 		err = errbuf;
 	}

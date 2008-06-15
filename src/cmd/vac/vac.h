@@ -80,10 +80,9 @@ struct VacDir
 	uvlong qidmax;		/* qid maximum */
 };
 
-
 struct VacFs
 {
-	int		ref;
+	char	name[128];
 	uchar	score[VtScoreSize];
 	VacFile	*root;
 	VtConn	*z;
@@ -103,28 +102,28 @@ int		vacfsgetscore(VacFs *fs, u8int *score);
 
 VacFile *vacfsgetroot(VacFs *fs);
 VacFile	*vacfileopen(VacFs *fs, char *path);
-VacFile	*vacfilecreate(VacFile *file, char *elem, ulong perm, char *muid);
+VacFile	*vacfilecreate(VacFile *file, char *elem, ulong perm);
 VacFile	*vacfilewalk(VacFile *file, char *elem);
-int		vacfileremove(VacFile *file, char *muid);
+int		vacfileremove(VacFile *file);
 int		vacfileread(VacFile *file, void *buf, int n, vlong offset);
 int		vacfileblockscore(VacFile *file, u32int, u8int*);
-int		vacfilewrite(VacFile *file, void *buf, int n, vlong offset, char *muid);
-int		vacfilereadpacket(VacFile *file, Packet **pp, vlong offset);
-int		vacfilewritepacket(VacFile *file, Packet *p, vlong offset, char *muid);
+int		vacfilewrite(VacFile *file, void *buf, int n, vlong offset);
 uvlong	vacfilegetid(VacFile *file);
 ulong	vacfilegetmcount(VacFile *file);
 int		vacfileisdir(VacFile *file);
 int		vacfileisroot(VacFile *file);
 ulong	vacfilegetmode(VacFile *file);
-int		vacfilegetblocksize(VacFile *file, u32int bn, u8int *score);
 int		vacfilegetsize(VacFile *file, uvlong *size);
 int		vacfilegetdir(VacFile *file, VacDir *dir);
-int		vacfilesetdir(VacFile *file, VacDir *dir, char *muid);
-int		vacfilegetvtentry(VacFile *file, VtEntry *entry);
+int		vacfilesetdir(VacFile *file, VacDir *dir);
 VacFile	*vacfilegetparent(VacFile *file);
-int		vacfilesync(VacFile*);
+int		vacfileflush(VacFile*, int);
 VacFile	*vacfileincref(VacFile*);
 int		vacfiledecref(VacFile*);
+int		vacfilesetsize(VacFile *f, uvlong size);
+
+int		vacfilegetentries(VacFile *f, VtEntry *e, VtEntry *me);
+int		vacfilesetentries(VacFile *f, VtEntry *e, VtEntry *me);
 
 void		vdcleanup(VacDir *dir);
 void		vdcopy(VacDir *dst, VacDir *src);
@@ -134,3 +133,4 @@ VacDirEnum	*vdeopen(VacFile*);
 int			vderead(VacDirEnum*, VacDir *);
 void			vdeclose(VacDirEnum*);
 int	vdeunread(VacDirEnum*);
+

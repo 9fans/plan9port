@@ -694,12 +694,12 @@ mbsearch(MetaBlock *mb, char *elem, int *ri, MetaEntry *me)
 }
 
 void
-mbinit(MetaBlock *mb, uchar *p, int n)
+mbinit(MetaBlock *mb, uchar *p, int n, int entries)
 {
 	memset(mb, 0, sizeof(MetaBlock));
 	mb->maxsize = n;
 	mb->buf = p;
-	mb->maxindex = n/100;
+	mb->maxindex = entries;
 	mb->size = MetaHeaderSize + mb->maxindex*MetaIndexSize;
 }
 

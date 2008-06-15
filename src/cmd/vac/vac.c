@@ -1044,7 +1044,7 @@ dirsinkwritefile(DirSink *k, VacFile *vf)
 {
 	VtEntry dir;
 
-	if(vacfilegetvtentry(vf, &dir) < 0)
+	if(vacfilegetentries(vf, &dir, nil) < 0)
 		return -1;
 	dirsinkwrite(k, &dir);
 	return 0;

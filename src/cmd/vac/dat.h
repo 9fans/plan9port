@@ -36,5 +36,3 @@ struct VacDirEnum
 	VacDir *buf;
 };
 
-void _mbinit(MetaBlock*, u8int*, uint, uint);
-int _mbsearch(MetaBlock*, char*, int*, MetaEntry*);
