@@ -888,7 +888,7 @@ memalloc(int n, int pos)
 
 	if(n < 0 || n > MaxFragSize) {
 		werrstr(EPacketSize);
-		return 0;
+		return nil;
 	}
 	if(n <= SmallMemSize) {
 		lock(&freelist.lk);

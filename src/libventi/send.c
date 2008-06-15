@@ -39,7 +39,7 @@ _vtsend(VtConn *z, Packet *p)
 		if(write(z->outfd, ioc.addr, ioc.len) < ioc.len){
 			vtlog(VtServerLog, "<font size=-1>%T %s:</font> sending packet %p: %r<br>\n", z->addr, p);
 			packetfree(p);
-			return 0;
+			return -1;
 		}
 		packetconsume(p, nil, ioc.len);
 		tot += ioc.len;
