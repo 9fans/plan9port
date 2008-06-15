@@ -637,14 +637,11 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 	char *ext = nil;
 #endif
 
-	USED(parent);
-
 	memset(&dir, 0, sizeof(dir));
 
-	/*
-	 * Where do path and version come from
-	 */
-	dir.qid.path = vd->qid;
+	dir.qid.path = vd->qid + vacfilegetqidoffset(parent);
+	if(vd->qidspace)
+		dir.qid.path += vd->qidoffset;
 	dir.qid.vers = vd->mcount;
 	dir.mode = vd->mode & 0777;
 	if(vd->mode & ModeAppend){

@@ -135,6 +135,7 @@ int		vacfilesetentries(VacFile *f, VtEntry *e, VtEntry *me);
 void		vdcleanup(VacDir *dir);
 void		vdcopy(VacDir *dst, VacDir *src);
 int		vacfilesetqidspace(VacFile*, u64int, u64int);
+uvlong	vacfilegetqidoffset(VacFile*);
 
 VacDirEnum	*vdeopen(VacFile*);
 int			vderead(VacDirEnum*, VacDir *);

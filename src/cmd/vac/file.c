@@ -142,7 +142,14 @@ uvlong
 vacfilegetid(VacFile *f)
 {
 	/* immutable */
+fprint(2, "getid %s %lld+%lld = %lld\n", f->dir.elem, f->qidoffset, f->dir.qid, f->qidoffset+f->dir.qid);
 	return f->qidoffset + f->dir.qid;
+}
+
+uvlong
+vacfilegetqidoffset(VacFile *f)
+{
+	return f->qidoffset;
 }
 
 ulong
@@ -402,6 +409,7 @@ dirlookup(VacFile *f, char *elem)
 				filefree(ff);
 				goto Err;
 			}
+fprint(2, "offset %s %lld\n", ff->dir.elem, ff->dir.qidoffset);
 			ff->qidoffset = f->qidoffset + ff->dir.qidoffset;
 			vtfileunlock(meta);
 			vtblockput(b);

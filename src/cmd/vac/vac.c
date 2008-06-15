@@ -586,7 +586,9 @@ vacmergefile(VacFile *fp, VacFile *mp, VacDir *d, char *vacfile,
 		d->qidoffset = offset;
 		d->qidmax = max;
 	}
-	if(vacfilesetdir(f, d) < 0 || vacfilesetentries(f, &ed, &em) < 0){
+	if(vacfilesetdir(f, d) < 0
+	|| vacfilesetentries(f, &ed, &em) < 0
+	|| vacfilesetqidspace(f, d->qidoffset, d->qidmax) < 0){
 		warn("vacmergefile %s: %r", d->elem);
 		vacfiledecref(mf);
 		vacfiledecref(f);
