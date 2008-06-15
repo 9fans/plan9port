@@ -15,10 +15,8 @@ HFILES=\
 	dat.h\
 	fns.h\
 
-TARG=vac vacfs unvac # vtdump
+TARG=vac vacfs unvac
 
 default:V: all
-
-test:V: $O.srcload $O.wtest $O.rtest $O.vtdump $O.vtread
 
 <$PLAN9/src/mkmany

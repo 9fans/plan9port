@@ -22,3 +22,4 @@ void	vdpack(VacDir *dir, MetaEntry*, int);
 VacFile *_vacfileroot(VacFs *fs, VtFile *file);
 
 int	_vacfsnextqid(VacFs *fs, uvlong *qid);
+void	vacfsjumpqid(VacFs*, uvlong step);

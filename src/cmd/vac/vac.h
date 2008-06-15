@@ -3,6 +3,11 @@ typedef struct VacDir VacDir;
 typedef struct VacFile VacFile;
 typedef struct VacDirEnum VacDirEnum;
 
+#ifndef PLAN9PORT
+#pragma incomplete VacFile
+#pragma incomplete VacDirEnum
+#endif
+
 /*
  * Mode bits
  */
@@ -99,6 +104,8 @@ void		vacfsclose(VacFs *fs);
 int		vacfssync(VacFs *fs);
 int		vacfssnapshot(VacFs *fs, char *src, char *dst);
 int		vacfsgetscore(VacFs *fs, u8int *score);
+int		vacfsgetmaxqid(VacFs*, uvlong*);
+void		vacfsjumpqid(VacFs*, uvlong);
 
 VacFile *vacfsgetroot(VacFs *fs);
 VacFile	*vacfileopen(VacFs *fs, char *path);
@@ -127,7 +134,7 @@ int		vacfilesetentries(VacFile *f, VtEntry *e, VtEntry *me);
 
 void		vdcleanup(VacDir *dir);
 void		vdcopy(VacDir *dst, VacDir *src);
-
+int		vacfilesetqidspace(VacFile*, u64int, u64int);
 
 VacDirEnum	*vdeopen(VacFile*);
 int			vderead(VacDirEnum*, VacDir *);

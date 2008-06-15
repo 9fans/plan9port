@@ -463,7 +463,7 @@ vdpack(VacDir *dir, MetaEntry *me, int version)
 	U32PUT(p+12, dir->atime);
 	U32PUT(p+16, dir->mode);
 	p += 5*4;
-	
+
 	if(dir->plan9 && version < 9) {
 		U8PUT(p, DirPlan9Entry);
 		U16PUT(p+1, 8+4);

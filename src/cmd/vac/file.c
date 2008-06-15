@@ -45,6 +45,8 @@ struct VacFile
 	VtFile	*msource;	/* metadata for children in a directory */
 	VacFile	*down;	/* children */
 	int		mode;
+	
+	uvlong	qidoffset;	/* qid offset */
 };
 
 static VacFile*
@@ -140,7 +142,7 @@ uvlong
 vacfilegetid(VacFile *f)
 {
 	/* immutable */
-	return f->dir.qid;
+	return f->qidoffset + f->dir.qid;
 }
 
 ulong
@@ -400,6 +402,7 @@ dirlookup(VacFile *f, char *elem)
 				filefree(ff);
 				goto Err;
 			}
+			ff->qidoffset = f->qidoffset + ff->dir.qidoffset;
 			vtfileunlock(meta);
 			vtblockput(b);
 			ff->boff = bo;
@@ -993,6 +996,7 @@ Found:
 	me.p = p;
 	me.size = n;
 	vdpack(dir, &me, VacDirVersion);
+vdunpack(dir, &me);
 	mbinsert(&mb, i, &me);
 	mbpack(&mb);
 	vtblockput(b);
@@ -1062,6 +1066,7 @@ filemetaflush(VacFile *f, char *oelem)
 
 		/* Pack new data into new location. */
 		vdpack(&f->dir, &me, VacDirVersion);
+vdunpack(&f->dir, &me);
 		mbinsert(&mb, i, &me);
 		mbpack(&mb);
 		
@@ -1269,6 +1274,7 @@ vacfilecreate(VacFile *fp, char *elem, ulong mode)
 	if(vtfilelock2(fp->source, fp->msource, -1) < 0)
 		goto Err1;
 	ff = filealloc(fp->fs);
+	ff->qidoffset = fp->qidoffset;	/* hopefully fp->qidoffset == 0 */
 	type = VtDataType;
 	if(mode & ModeDir)
 		type = VtDirType;
@@ -1601,10 +1607,16 @@ vacfilesetqidspace(VacFile *f, u64int offset, u64int max)
 
 	if(filelock(f) < 0)
 		return -1;
+	if(f->source->mode != VtORDWR){
+		fileunlock(f);
+		werrstr(EReadOnly);
+		return -1;
+	}
 	filemetalock(f);
 	f->dir.qidspace = 1;
 	f->dir.qidoffset = offset;
 	f->dir.qidmax = max;
+	f->dirty = 1;
 	ret = filemetaflush(f, nil);
 	filemetaunlock(f);
 	fileunlock(f);
@@ -1853,6 +1865,34 @@ _vacfsnextqid(VacFs *fs, uvlong *qid)
 }
 
 void
+vacfsjumpqid(VacFs *fs, uvlong step)
+{
+	fs->qid += step;
+}
+
+/*
+ * Set *maxqid to the maximum qid expected in this file system.
+ * In newer vac archives, the maximum qid is stored in the
+ * qidspace VacDir annotation.  In older vac archives, the root
+ * got created last, so it had the maximum qid.
+ */
+int
+vacfsgetmaxqid(VacFs *fs, uvlong *maxqid)
+{
+	VacDir vd;
+	
+	if(vacfilegetdir(fs->root, &vd) < 0)
+		return -1;
+	if(vd.qidspace)
+		*maxqid = vd.qidmax;
+	else
+		*maxqid = vd.qid;
+	vdcleanup(&vd);
+	return 0;
+}
+
+
+void
 vacfsclose(VacFs *fs)
 {
 	if(fs->root)
@@ -1952,6 +1992,13 @@ vacfssync(VacFs *fs)
 	/* Sync the entire vacfs to disk. */
 	if(vacfileflush(fs->root, 1) < 0)
 		return -1;
+	if(vtfilelock(fs->root->up->msource, -1) < 0)
+		return -1;
+	if(vtfileflush(fs->root->up->msource) < 0){
+		vtfileunlock(fs->root->up->msource);
+		return -1;
+	}
+	vtfileunlock(fs->root->up->msource);
 
 	/* Prepare the dir stream for the root block. */
 	if(getentry(fs->root->source, &e) < 0)
