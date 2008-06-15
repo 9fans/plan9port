@@ -8,7 +8,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: vac [-b blocksize] [-h host] file...\n");
+	fprint(2, "vac [-imqsv] [-b bsize] [-d old.vac] [-e exclude]... [-f new.vac] [-h host] file...\n");
 	threadexitsall("usage");
 }
 
@@ -46,6 +46,7 @@ static void warn(char *fmt, ...);
 static int strpcmp(const void*, const void*);
 static void removevacfile(void);
 
+#ifdef PLAN9PORT
 /*
  * We're between a rock and a hard place here.
  * The pw library (getpwnam, etc.) reads the 
@@ -59,6 +60,7 @@ static void removevacfile(void);
 extern int _p9usepwlibrary;
 int mainstacksize = 4*1024*1024;
 
+#endif
 void
 threadmain(int argc, char **argv)
 {
