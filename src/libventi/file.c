@@ -607,7 +607,7 @@ shrinkdepth(VtFile *r, VtBlock *p, VtEntry *e, int depth)
 
 	rb = vtcacheglobal(r->c, e->score, e->type);
 	if(rb == nil)
-		return 0;
+		return -1;
 
 	/*
 	 * Walk down to the new root block.
@@ -747,6 +747,12 @@ vtfileblockscore(VtFile *r, u32int bn, uchar score[VtScoreSize])
 	b = fileload(r, &e);
 	if(b == nil)
 		return -1;
+
+	if(DEPTH(e.type) == 0){
+		memmove(score, e.score, VtScoreSize);
+		vtblockput(b);
+		return 0;
+	}
 
 	i = mkindices(&e, bn, index);
 	if(i < 0){
@@ -1058,6 +1064,8 @@ filewrite1(VtFile *f, void *data, long count, vlong offset)
 		return -1;
 
 	memmove(b->data+frag, data, count);
+	if(m == VtOWRITE && frag+count < e.dsize)
+		memset(b->data+frag+count, 0, e.dsize-frag-count);
 
 	if(offset+count > e.size){
 		vtfilegetentry(f, &e);
@@ -1118,9 +1126,12 @@ flushblock(VtCache *c, VtBlock *bb, uchar score[VtScoreSize], int ppb, int epb,
 		for(i=0; i<epb; i++){
 			if(vtentryunpack(&e, b->data, i) < 0)
 				goto Err;
+			if(!(e.flags&VtEntryActive))
+				continue;
 			if(flushblock(c, nil, e.score, e.psize/VtScoreSize, e.dsize/VtEntrySize,
 				e.type) < 0)
 				goto Err;
+			vtentrypack(&e, b->data, i);
 		}
 		break;
 	
