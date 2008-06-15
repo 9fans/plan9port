@@ -2,6 +2,10 @@
 #include <fcall.h>	/* dirmodefmt */
 #include "vac.h"
 
+#ifndef PLAN9PORT
+#pragma varargck type "t" ulong
+#endif
+
 VacFs *fs;
 int tostdout;
 int nwant;
@@ -160,12 +164,13 @@ unvac(VacFile *f, char *name, VacDir *vdir)
 				mode9 = vdir->mode&0777;
 				if(mode&ModeDir)
 					mode9 |= DMDIR;
-				if(mode&ModeLink)
-					mode9 |= DMSYMLINK;
 				if(mode&ModeAppend)
 					mode9 |= DMAPPEND;
 				if(mode&ModeExclusive)
 					mode9 |= DMEXCL;
+#ifdef PLAN9PORT
+				if(mode&ModeLink)
+					mode9 |= DMSYMLINK;
 				if(mode&ModeNamedPipe)
 					mode9 |= DMNAMEDPIPE;
 				if(mode&ModeSetUid)
@@ -174,6 +179,7 @@ unvac(VacFile *f, char *name, VacDir *vdir)
 					mode9 |= DMSETGID;
 				if(mode&ModeDevice)
 					mode9 |= DMDEVICE;
+#endif
 				print("%M %-10s %-10s %11lld %t %s\n",
 					mode9, vdir->uid, vdir->gid, vdir->size,
 					vdir->mtime, name);

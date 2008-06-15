@@ -952,7 +952,6 @@ filemetaalloc(VacFile *fp, VacDir *dir, u32int start)
 			start = 0;
 	}
 	
-	b = nil;
 	if(start > nb)
 		start = nb;
 	for(bo=start; bo<nb; bo++){
@@ -969,7 +968,6 @@ filemetaalloc(VacFile *fp, VacDir *dir, u32int start)
 			goto Found;
 		}
 		vtblockput(b);
-		b = nil;
 	}
 
 	/* No block found, extend the file by one metablock. */
@@ -1179,7 +1177,6 @@ vacfileflush(VacFile *f, int recursive)
 	 */
 	if(filelock(f) < 0)
 		return -1;
-	fileunlock(f);
 	vtfilelock(f->source, -1);
 	if(vtfileflush(f->source) < 0)
 		ret = -1;
@@ -1304,7 +1301,7 @@ vacfilecreate(VacFile *fp, char *elem, ulong mode)
 	dir->ctime = dir->mtime;
 	dir->atime = dir->mtime;
 	dir->mode = mode;
-	if((bo = filemetaalloc(fp, &ff->dir, NilBlock)) < 0)
+	if((bo = filemetaalloc(fp, &ff->dir, NilBlock)) == NilBlock)
 		goto Err;
 
 	/*
