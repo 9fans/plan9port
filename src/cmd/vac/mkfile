@@ -3,7 +3,6 @@
 LIBFILES=\
 	error\
 	file\
-	fs\
 	pack\
 
 LIB=${LIBFILES:%=%.$O} $PLAN9/lib/libventi.a

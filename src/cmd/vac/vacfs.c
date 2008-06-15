@@ -2,6 +2,13 @@
 #include <fcall.h>
 #include "vac.h"
 
+#ifndef PLAN9PORT
+#define convM2Su(a, b, c, d) convM2S(a, b, c)
+#define convS2Mu(a, b, c, d) convS2M(a, b, c)
+#define convM2Du(a, b, c, d) convM2D(a, b, c)
+#define convD2Mu(a, b, c, d) convD2M(a, b, c)
+#endif
+
 typedef struct Fid Fid;
 
 enum
@@ -34,6 +41,7 @@ enum
 Fid	*fids;
 uchar	*data;
 int	mfd[2];
+int	srvfd = -1;
 char	*user;
 uchar	mdata[8192+IOHDRSZ];
 int messagesize = sizeof mdata;
@@ -41,7 +49,6 @@ Fcall	rhdr;
 Fcall	thdr;
 VacFs	*fs;
 VtConn  *conn;
-/* VtSession *session; */
 int	noperm;
 int	dotu;
 char *defmnt;
@@ -114,16 +121,19 @@ notifyf(void *a, char *s)
 void
 threadmain(int argc, char *argv[])
 {
-	char *defsrv, *q;
-	int p[2], l;
-	int stdio = 0;
+	char *defsrv, *srvname;
+	int p[2], fd;
+	int stdio;
 	char *host = nil;
-	long ncache = 1000;
+	long ncache;
 
+	stdio = 0;
+	ncache = 256;
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
 	
+	defmnt = nil;
 	defsrv = nil;
 	ARGBEGIN{
 	case 'd':
@@ -134,6 +144,7 @@ threadmain(int argc, char *argv[])
 		ncache = atoi(EARGF(usage()));
 		break;
 	case 'i':
+		defmnt = nil;
 		stdio = 1;
 		mfd[0] = 0;
 		mfd[1] = 1;
@@ -141,8 +152,11 @@ threadmain(int argc, char *argv[])
 	case 'h':
 		host = EARGF(usage());
 		break;
-	case 's':
+	case 'S':
 		defsrv = EARGF(usage());
+		break;
+	case 's':
+		defsrv = "vacfs";
 		break;
 	case 'm':
 		defmnt = EARGF(usage());
@@ -160,6 +174,26 @@ threadmain(int argc, char *argv[])
 	if(argc != 1)
 		usage();
 
+#ifdef PLAN9PORT
+	if(defsrv == nil && defmnt == nil && !stdio){
+		srvname = strchr(argv[0], '/');
+		if(srvname)
+			srvname++;
+		else
+			srvname = argv[0];
+		defsrv = vtmalloc(6+strlen(srvname)+1);
+		strcpy(defsrv, "vacfs.");
+		strcat(defsrv, srvname);
+		if(strcmp(defsrv+strlen(defsrv)-4, ".vac") == 0)
+			defsrv[strlen(defsrv)-4] = 0;
+	}
+#else
+	if(defsrv == nil && defmnt == nil && !stdio)
+		defmnt = "/n/vac";
+#endif
+	if(stdio && defmnt)
+		sysfatal("cannot use -m with -i");
+
 	initfcalls();
 
 	notify(notifyf);
@@ -176,36 +210,46 @@ threadmain(int argc, char *argv[])
 	if(fs == nil)
 		sysfatal("vacfsopen: %r");
 
-	if(pipe(p) < 0)
-		sysfatal("pipe failed: %r");
-
-	mfd[0] = p[0];
-	mfd[1] = p[0];
-	proccreate(srv, 0, 32 * 1024);
-
-	if(defsrv == nil && defmnt == nil){
-		q = strrchr(argv[0], '/');
-		if(q)
-			q++;
-		else
-			q = argv[0];
-		defsrv = vtmalloc(6+strlen(q)+1);
-		strcpy(defsrv, "vacfs.");
-		strcat(defsrv, q);
-		l = strlen(defsrv);
-		if(strcmp(defsrv+l-4, ".vac") == 0)
-			defsrv[l-4] = 0;
+	if(!stdio){
+		if(pipe(p) < 0)
+			sysfatal("pipe failed: %r");
+		mfd[0] = p[0];
+		mfd[1] = p[0];
+		srvfd = p[1];
 	}
 
-	if(post9pservice(p[1], defsrv, defmnt) != 0) 
+#ifdef PLAN9PORT
+	USED(fd);
+	proccreate(srv, 0, 32 * 1024);
+	if(post9pservice(p[1], defsrv, defmnt) < 0)
 		sysfatal("post9pservice");
+#else
+	procrfork(srv, 0, 32 * 1024, RFFDG|RFNAMEG|RFNOTEG);
 
+	if(!stdio){
+		close(p[0]);
+		if(defsrv){
+			srvname = smprint("/srv/%s", defsrv);
+			fd = create(srvname, OWRITE|ORCLOSE, 0666);
+			if(fd < 0)
+				sysfatal("create %s: %r", srvname);
+			if(fprint(fd, "%d", srvfd) < 0)
+				sysfatal("write %s: %r", srvname);
+			free(srvname);
+		}
+		if(defmnt){
+			if(mount(srvfd, -1, defmnt, MREPL|MCREATE, "") < 0)
+				sysfatal("mount %s: %r", defmnt);
+		}
+	}
+#endif
 	threadexits(0);
 }
 
 void
 srv(void *a)
 {
+	USED(a);
 	io();
 	vacshutdown();
 }
@@ -341,8 +385,10 @@ rwalk(Fid *f)
 		qid.type = QTFILE;
 		if(vacfileisdir(file))
 			qid.type = QTDIR;
+#ifdef PLAN9PORT
 		if(vacfilegetmode(file)&ModeLink)
 			qid.type = QTSYMLINK;
+#endif
 		qid.vers = vacfilegetmcount(file);
 		qid.path = vacfilegetid(file);
 		thdr.wqid[nqid] = qid;
@@ -506,6 +552,7 @@ rread(Fid *f)
 char*
 rwrite(Fid *f)
 {
+	USED(f);
 	return vtstrdup(Erdonly);
 }
 
@@ -581,14 +628,18 @@ rwstat(Fid *f)
 int
 vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 {
-	char *ext;
-	int n, ret;
-	uvlong size;
+	int ret;
 	Dir dir;
+#ifdef PLAN9PORT
+	int n;
 	VacFile *vf;
+	uvlong size;
+	char *ext = nil;
+#endif
+
+	USED(parent);
 
 	memset(&dir, 0, sizeof(dir));
-	ext = nil;
 
 	/*
 	 * Where do path and version come from
@@ -609,6 +660,7 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 		dir.mode |= DMDIR;
 	}
 	
+#ifdef PLAN9PORT
 	if(vd->mode & (ModeLink|ModeDevice|ModeNamedPipe)){
 		vf = vacfilewalk(parent, vd->elem);
 		if(vf == nil)
@@ -629,6 +681,7 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 		if(vd->mode & ModeNamedPipe)
 			dir.mode |= DMNAMEDPIPE;
 	}
+#endif
 	
 	dir.atime = vd->atime;
 	dir.mtime = vd->mtime;
@@ -638,12 +691,16 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 	dir.uid = vd->uid;
 	dir.gid = vd->gid;
 	dir.muid = vd->mid;
+#ifdef PLAN9PORT
 	dir.ext = ext;
 	dir.uidnum = atoi(vd->uid);
 	dir.gidnum = atoi(vd->gid);
+#endif
 
 	ret = convD2Mu(&dir, p, np, dotu);
+#ifdef PLAN9PORT
 	free(ext);
+#endif
 	return ret;
 }
 
@@ -731,7 +788,9 @@ io(void)
 		if(err){
 			thdr.type = Rerror;
 			thdr.ename = err;
+#ifdef PLAN9PORT
 			thdr.errornum = 0;
+#endif
 		}else{
 			thdr.type = rhdr.type + 1;
 			thdr.fid = rhdr.fid;
