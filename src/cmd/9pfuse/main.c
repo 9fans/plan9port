@@ -24,11 +24,20 @@
 #endif
 
 #ifndef O_LARGEFILE
-#  if defined(__linux__)
-#    define O_LARGEFILE 0100000  /* Sigh */
-#  else
-#    define O_LARGEFILE 0
-#  endif
+#  define O_LARGEFILE 0
+#endif
+
+/*
+ * Work around glibc's broken <bits/fcntl.h> which defines
+ * O_LARGEFILE to 0 on 64 bit architectures.  But, on those same
+ * architectures, linux _forces_ O_LARGEFILE (which is always
+ * 0100000 in the kernel) at each file open. FUSE is all too
+ * happy to pass the flag onto us, where we'd have no idea what
+ * to do with it if we trusted glibc.
+ */
+#if defined(__linux__)
+#  undef O_LARGEFILE
+#  define O_LARGEFILE 0100000
 #endif
 
 #ifndef O_CLOEXEC
