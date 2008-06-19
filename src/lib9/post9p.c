@@ -66,6 +66,10 @@ post9pservice(int fd, char *name, char *mtpt)
 			dup(fd, 0);
 			for(i=3; i<20; i++)
 				close(i);
+
+			/* Try v9fs on Linux, which will mount 9P directly. */
+			execlp("mount9p", "mount9p", "-", mtpt, (char*)0);
+
 			if(chattyfuse)
 				execlp("9pfuse", "9pfuse", "-D", "-", mtpt, (char*)0);
 			else
