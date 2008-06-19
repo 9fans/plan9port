@@ -25,6 +25,21 @@ usage(void)
 	threadexitsall("usage");
 }
 
+int
+writen(int fd, void *buf, int n)
+{
+	long m, tot;
+
+	for(tot=0; tot<n; tot+=m){
+		m = n - tot;
+		if(m > 8192)
+			m = 8192;
+		if(write(fd, (uchar*)buf+tot, m) != m)
+			break;
+	}
+	return tot;
+}
+
 CFsys *(*nsmnt)(char*, char*) = nsamount;
 CFsys *(*fsmnt)(int, char*) = fsamount;
 
@@ -163,7 +178,8 @@ xread(int argc, char **argv)
 
 	fid = xopen(argv[0], OREAD);
 	while((n = fsread(fid, buf, sizeof buf)) > 0)
-		write(1, buf, n);
+		if(writen(1, buf, n) < 0)
+			sysfatal("write error: %r");
 	fsclose(fid);
 	if(n < 0)
 		sysfatal("read error: %r");
@@ -187,7 +203,8 @@ xreadfd(int argc, char **argv)
 
 	fd = xopenfd(argv[0], OREAD);
 	while((n = read(fd, buf, sizeof buf)) > 0)
-		write(1, buf, n);
+		if(writen(1, buf, n) < 0)
+			sysfatal("write error: %r");
 	if(n < 0)
 		sysfatal("read error: %r");
 	threadexitsall(0);	
@@ -264,7 +281,7 @@ xwritefd(int argc, char **argv)
 
 	fd = xopenfd(argv[0], OWRITE|OTRUNC);
 	while((n = read(0, buf, sizeof buf)) > 0)
-		if(write(fd, buf, n) != n)
+		if(writen(fd, buf, n) != n)
 			sysfatal("write error: %r");
 	if(n < 0)
 		sysfatal("read error: %r");
@@ -317,8 +334,8 @@ xrdwr(int argc, char **argv)
 		if((n = fsread(fid, buf, sizeof buf)) < 0)
 			fprint(2, "read: %r\n");
 		else{
-			write(1, buf, n);
-			write(1, "\n", 1);
+			if(writen(1, buf, n) < 0 || writen(1, "\n", 1) < 0)
+				sysfatal("write error: %r");
 		}
 		n = read(0, buf, sizeof buf);
 		if(n <= 0)
