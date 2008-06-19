@@ -6,12 +6,12 @@ if(! ~ $#* 2){
 }
 switch(`{uname}){
 case Linux
-	if(lsmod|9 grep -si '^9p(2000)? '){
+	if(9 grep -si '	9p(2000)?$' /proc/filesystems){
 		if(u test -S $1)
 			exec u mount -t 9p -o proto'='unix,name'='$USER $1 $2
 		exec u mount -t 9p -o proto'='tcp,name'='$USER $1 $2
 	}
-	if(lsmod|9 grep -si '^fuse ')
+	if(9 grep -si '	fuse$' /proc/filesystems)
 		exec 9pfuse $1 $2
 	echo 'don''t know how to mount (no 9p, no fuse)' >[1=2]
 case FreeBSD
