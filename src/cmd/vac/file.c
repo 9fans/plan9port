@@ -142,7 +142,6 @@ uvlong
 vacfilegetid(VacFile *f)
 {
 	/* immutable */
-fprint(2, "getid %s %lld+%lld = %lld\n", f->dir.elem, f->qidoffset, f->dir.qid, f->qidoffset+f->dir.qid);
 	return f->qidoffset + f->dir.qid;
 }
 
