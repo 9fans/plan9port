@@ -28,16 +28,21 @@ usage(void)
 int
 writen(int fd, void *buf, int n)
 {
-	long m, tot;
+	int m, tot;
 
-	for(tot=0; tot<n; tot+=m){
-		m = n - tot;
-		if(m > 8192)
-			m = 8192;
-		if(write(fd, (uchar*)buf+tot, m) != m)
-			break;
+	if(n < 0){
+		werrstr("bad count");
+		return -1;
 	}
-	return tot;
+	if(n == 0)
+		return 0;
+	
+	tot = 0;
+	while((m = write(fd, (char*)buf+tot, n-tot)) > 0)
+		tot += m;
+	if(tot < n)
+		return -1;
+	return n;
 }
 
 CFsys *(*nsmnt)(char*, char*) = nsamount;
