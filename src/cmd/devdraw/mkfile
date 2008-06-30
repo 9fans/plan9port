@@ -5,6 +5,7 @@ TARG=devdraw
 WSYSOFILES=\
 	devdraw.$O\
 	latin1.$O\
+	winsize.$O\
 	
 <|sh ./mkwsysrules.sh
 

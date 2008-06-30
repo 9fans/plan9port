@@ -294,16 +294,9 @@ static
 void
 drawflush(void)
 {
-	_flushmemscreen(flushrect);
+	if(flushrect.min.x < flushrect.max.x)
+		_flushmemscreen(flushrect);
 	flushrect = Rect(10000, 10000, -10000, -10000);
-}
-
-void
-xdrawflush(void)
-{
-	qlock(&sdraw.lk);
-	drawflush();
-	qunlock(&sdraw.lk);
 }
 
 static
@@ -798,7 +791,7 @@ _drawmsgwrite(void *v, int n)
 
 	while((n-=m) > 0){
 		a += m;
-/* print("msgwrite %d(%c)...", n, *a); */
+/*fprint(2, "msgwrite %d(%d)...", n, *a); */
 		switch(*a){
 		default:
 /*fprint(2, "bad command %d\n", *a); */

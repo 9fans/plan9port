@@ -36,7 +36,6 @@ if [ "x$WSYSTYPE" = "xx11" -a "x$X11H" = "x" ]; then
 	fi
 fi
 	
-
 echo 'WSYSTYPE='$WSYSTYPE
 echo 'X11='$X11
 
@@ -45,7 +44,8 @@ if [ $WSYSTYPE = x11 ]; then
 	echo 'HFILES=$HFILES $XHFILES'
 	XO=`ls x11-*.c 2>/dev/null | sed 's/\.c$/.o/'`
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
-fi
-if [ $WSYSTYPE = nowsys ]; then
+elif [ $WSYSTYPE = osx ]; then
+	echo 'WSYSOFILES=$WSYSOFILES osx-screen.o osx-draw.o osx-srv.o'
+elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi
