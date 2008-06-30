@@ -53,7 +53,7 @@ _ioproc(void *arg)
 	resized = 0;
 	for(;;){
 		if(_displayrdmouse(mc->display, &m, &resized) < 0)
-			threadexits("read error");
+			threadexitsall("mouse read error");
 		if(resized)
 			send(mc->resizec, &one);
 		send(mc->c, &m);

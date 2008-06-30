@@ -9,7 +9,7 @@
 #include <drawfcall.h>
 #include <mux.h>
 
-int chattydrawclient;
+int chattydrawclient = 0;
 
 static int	drawgettag(Mux *mux, void *vmsg);
 static void*	drawrecv(Mux *mux);
@@ -43,7 +43,7 @@ _displayconnect(Display *d)
 		 * Pass it along only so that the various
 		 * devdraws in psu -a can be distinguished.
 		 */
-		execl("devdraw", "devdraw", argv0, nil);
+		execl("devdraw", argv0, argv0, nil);
 		sysfatal("exec devdraw: %r");
 	}
 	close(p[1]);
