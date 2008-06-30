@@ -29,8 +29,15 @@ nsfromdisplay(void)
 	char *disp, *p;
 
 	if((disp = getenv("DISPLAY")) == nil){
+#ifdef __APPLE__
+		// Might be running native GUI on OS X.
+		disp = strdup(":0.0");
+		if(disp == nil)
+			return nil;
+#else
 		werrstr("$DISPLAY not set");
 		return nil;
+#endif
 	}
 
 	/* canonicalize: xxx:0.0 => xxx:0 */
