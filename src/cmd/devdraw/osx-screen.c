@@ -3,8 +3,6 @@
 #define Cursor OSXCursor
 #include <Carbon/Carbon.h>
 #include <QuickTime/QuickTime.h> // for full screen
-
-
 #undef Rect
 #undef Point
 #undef Cursor
@@ -24,6 +22,9 @@
 #include "devdraw.h"
 #include "glendapng.h"
 
+AUTOFRAMEWORK(Carbon)
+AUTOFRAMEWORK(QuickTime)
+
 #define panic sysfatal
 
 extern Rectangle mouserect;
@@ -36,7 +37,7 @@ struct {
 	Rectangle screenr;
 	Memimage *screenimage;
 	int isfullscreen;
-	Rectangle nonfullscreenr;
+	ulong fullscreentime;
 	
 	Point xy;
 	int buttons;
@@ -63,7 +64,7 @@ enum
 
 static void screenproc(void*);
 static void eresized(int);
-static void fullscreen(int);
+static void fullscreen(void);
 static void seticon(void);
 
 static OSStatus quithandler(EventHandlerCallRef, EventRef, void*);
@@ -255,7 +256,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			exit(0);
 		
 		case CmdFullScreen:
-			fullscreen(1);
+			fullscreen();
 			break;
 		
 		default:
@@ -414,9 +415,10 @@ kbdevent(EventRef event)
 	case kEventRawKeyDown:
 	case kEventRawKeyRepeat:
 		if(mod == cmdKey){
-			if(ch == 'F' && osx.isfullscreen){
-				fullscreen(0);
-				break;
+			if(ch == 'F' || ch == 'f'){
+				if(osx.isfullscreen && msec() - osx.fullscreentime > 500)
+					fullscreen();
+				return noErr;
 			}
 			return eventNotHandledErr;
 		}
@@ -483,8 +485,10 @@ eresized(int new)
 	CGDataProviderRelease(provider);	// CGImageCreate did incref
 	
 	mouserect = m->r;
-	if(new)
+	if(new){
 		mouseresized = 1;
+		mousetrack(osx.xy.x, osx.xy.y, osx.buttons|osx.kbuttons, msec());
+	}
 //	termreplacescreenimage(m);
 	_drawreplacescreenimage(m);	// frees old osx.screenimage if any
 	if(osx.image)
@@ -517,8 +521,24 @@ _flushmemscreen(Rectangle r)
 }
 
 void
-fullscreen(int x)
+fullscreen(void)
 {
+	static Ptr restore;
+	static WindowRef oldwindow;
+
+	if(osx.isfullscreen){
+		EndFullScreen(restore, 0);
+		osx.window = oldwindow;
+		ShowWindow(osx.window);
+		osx.isfullscreen = 0;
+	}else{
+		HideWindow(osx.window);
+		oldwindow = osx.window;
+		BeginFullScreen(&restore, 0, 0, 0, &osx.window, 0, 0);
+		osx.isfullscreen = 1;
+		osx.fullscreentime = msec();
+	}
+	eresized(1);
 }
 
 void
