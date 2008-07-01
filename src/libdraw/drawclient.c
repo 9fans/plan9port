@@ -42,8 +42,12 @@ _displayconnect(Display *d)
 		 * The argv0 has no meaning to devdraw.
 		 * Pass it along only so that the various
 		 * devdraws in psu -a can be distinguished.
+		 * The NOLIBTHREADDAEMONIZE keeps devdraw from
+		 * forking before threadmain. OS X hates it when
+		 * guis fork.
 		 */
-		execl("devdraw", argv0, argv0, nil);
+		putenv("NOLIBTHREADDAEMONIZE", "1");
+		execl("devdraw", argv0, argv0, "(devdraw)", nil);
 		sysfatal("exec devdraw: %r");
 	}
 	close(p[1]);
