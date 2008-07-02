@@ -395,9 +395,9 @@ mousetrack(int x, int y, int b, int ms)
 	matchmouse();
 	zunlock();
 }
-	
+
 void
-keystroke(int c)
+kputc(int c)
 {
 	zlock();
 	kbd.r[kbd.wi++] = c;
@@ -407,4 +407,40 @@ keystroke(int c)
 		kbd.stall = 1;
 	matchkbd();
 	zunlock();
+}
+
+void
+keystroke(int c)
+{
+	static Rune k[10];
+	static int alting, nk;
+	int i;
+
+	if(c == Kalt){
+		alting = !alting;
+		return;
+	}
+	if(!alting){
+		kputc(c);
+		return;
+	}
+	if(nk >= nelem(k))      // should not happen
+		nk = 0;
+	k[nk++] = c;
+	c = _latin1(k, nk);
+	if(c > 0){
+		alting = 0;
+		kputc(c);
+		nk = 0;
+		return;
+	}
+	if(c == -1){
+		alting = 0;
+		for(i=0; i<nk; i++)
+			kputc(k[i]);
+		nk = 0;
+		return;
+	}
+	// need more input
+	return;
 }
