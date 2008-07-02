@@ -408,7 +408,6 @@ dirlookup(VacFile *f, char *elem)
 				filefree(ff);
 				goto Err;
 			}
-fprint(2, "offset %s %lld\n", ff->dir.elem, ff->dir.qidoffset);
 			ff->qidoffset = f->qidoffset + ff->dir.qidoffset;
 			vtfileunlock(meta);
 			vtblockput(b);
@@ -664,7 +663,7 @@ vacfilegetentries(VacFile *f, VtEntry *e, VtEntry *me)
 	if(me){
 		if(f->msource == nil)
 			memset(me, 0, sizeof *me);
-		if(getentry(f->msource, me) < 0){
+		else if(getentry(f->msource, me) < 0){
 			filerunlock(f);
 			return -1;
 		}

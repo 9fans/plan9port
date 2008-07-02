@@ -616,9 +616,9 @@ vacmerge(VacFile *fp, char *name)
 	if(verbose)
 		fprint(2, "merging %s\n", name);
 
-	de = vdeopen(fs->root);
+	mp = vacfsgetroot(mfs);
+	de = vdeopen(mp);
 	if(de){
-		mp = vacfsgetroot(mfs);
 		offset = 0;
 		if(vacfsgetmaxqid(mfs, &maxqid) >= 0){
 			_vacfsnextqid(fs, &offset);
@@ -636,8 +636,8 @@ vacmerge(VacFile *fp, char *name)
 			vdcleanup(&vd);
 		}
 		vdeclose(de);
-		vacfiledecref(mp);
 	}
+	vacfiledecref(mp);
 	vacfsclose(mfs);
 	return 0;
 }
