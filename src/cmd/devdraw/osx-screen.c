@@ -342,7 +342,7 @@ mouseevent(EventRef event)
 		return eventNotHandledErr;
 	}
 
-	mousetrack(osx.xy.x, osx.xy.y, osx.buttons|osx.kbuttons, msec());
+	mousetrack(osx.xy.x, osx.xy.y, osx.buttons|osx.kbuttons|wheel, msec());
 	return noErr;	
 }
 
