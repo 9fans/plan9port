@@ -426,9 +426,11 @@ kbdevent(EventRef event)
 			keystroke(k);
 		else{
 			UniChar ch;
-			GetEventParameter(event, kEventParamKeyUnicodes,
+			OSStatus s;
+
+			s = GetEventParameter(event, kEventParamKeyUnicodes,
 				typeUnicodeText, nil, sizeof uc, nil, &uc);
-			if(uc >= 0)
+			if(s == noErr)
 				keystroke(uc);
 		}
 		break;
