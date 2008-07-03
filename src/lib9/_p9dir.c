@@ -7,95 +7,65 @@
 #include <pwd.h>
 #include <grp.h>
 
-#if defined(__FreeBSD__)
+#if defined(__APPLE__)
+#define _HAVESTGEN
+#include <sys/disk.h>
+static vlong
+disksize(int fd, int dev)
+{
+	u64int bc;
+	u32int bs;
+
+	bs = 0;
+	bc = 0;
+	ioctl(fd, DKIOCGETBLOCKSIZE, &bs);
+	ioctl(fd, DKIOCGETBLOCKCOUNT, &bc);
+	if(bs >0 && bc > 0)
+		return bc*bs;
+	return 0;
+}
+
+#elif defined(__FreeBSD__)
+#define _HAVESTGEN
 #include <sys/disk.h>
 #include <sys/disklabel.h>
 #include <sys/ioctl.h>
-#endif
+static vlong
+disksize(int fd, struct stat *st)
+{
+	off_t mediasize;
+	
+	if(ioctl(fd, DIOCGMEDIASIZE, &mediasize) >= 0)
+		return mediasize;
+	return 0;
+}
 
-#if defined(__OpenBSD__)
+#elif defined(__OpenBSD__)
+#define _HAVESTGEN
 #include <sys/disklabel.h>
 #include <sys/ioctl.h>
-#define _HAVEDISKLABEL
-static int diskdev[] = {
-	151,	/* aacd */
-	116,	/* ad */
-	157,	/* ar */
-	118,	/* afd */
-	133,	/* amrd */
-	13,	/* da */
-	102,	/* fla */
-	109,	/* idad */
-	95,	/* md */
-	131,	/* mlxd */
-	168,	/* pst */
-	147,	/* twed */
-	43,	/* vn */
-	3,	/* wd */
-	87,	/* wfd */
-	4,	/* da on FreeBSD 5 */
-};
-static int
-isdisk(struct stat *st)
+static vlong
+disksize(int fd, struct stat *st)
 {
-	int i, dev;
-
+	struct disklabel lab;
 	if(!S_ISCHR(st->st_mode))
 		return 0;
-	dev = major(st->st_rdev);
-	for(i=0; i<nelem(diskdev); i++)
-		if(diskdev[i] == dev)
-			return 1;
-	return 0;
-}
-#endif
-
-#if defined(__FreeBSD__)	/* maybe OpenBSD too? */
-char *diskdev[] = {
-	"aacd",
-	"ad",
-	"ar",
-	"afd",
-	"amrd",
-	"da",
-	"fla",
-	"idad",
-	"md",
-	"mlxd",
-	"pst",
-	"twed",
-	"vn",
-	"wd",
-	"wfd",
-	"da",
-};
-static int
-isdisk(struct stat *st)
-{
-	char *name;
-	int i, len;
-	
-	if(!S_ISCHR(st->st_mode))
+	if(ioctl(fd, DIOCGDINFO, &lab) < 0)
 		return 0;
-	name = devname(st->st_rdev, S_IFCHR);
-	for(i=0; i<nelem(diskdev); i++){
-		len = strlen(diskdev[i]);
-		if(strncmp(diskdev[i], name, len) == 0 && isdigit((uchar)name[len]))
-			return 1;
-	}
-	return 0;
+	n = minor(st->st_rdev)&7;
+	if(n >= lab.d_npartitions)
+		return 0;
+	return (vlong)lab.d_partitions[n].p_size * lab.d_secsize;
 }
-#endif
 
-
-#if defined(__linux__)
+#elif defined(__linux__)
 #include <linux/hdreg.h>
 #include <linux/fs.h>
 #include <sys/ioctl.h>
 #undef major
 #define major(dev) ((int)(((dev) >> 8) & 0xff))
 static vlong
-disksize(int fd, int dev)
+disksize(int fd, struct stat *st)
 {
 	u64int u64;
 	long l;
@@ -114,11 +84,13 @@ disksize(int fd, int dev)
 		return (vlong)geo.heads*geo.sectors*geo.cylinders*512;
 	return 0;
 }
-#define _HAVEDISKSIZE
-#endif
 
-#if !defined(__linux__) && !defined(__sun__)
-#define _HAVESTGEN
+#else
+static vlong
+disksize(int fd, struct stat *st)
+{
+	return 0;
+}
 #endif
 
 int _p9usepwlibrary = 1;
@@ -246,43 +218,11 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 			d->qid.path = ('c'<<16)|st->st_rdev;
 		}
 		/* fetch real size for disks */
-#ifdef _HAVEDISKSIZE
-		if(S_ISBLK(st->st_mode) && (fd = open(name, O_RDONLY)) >= 0){
-			d->length = disksize(fd, major(st->st_dev));
+		if(S_ISBLK(st->st_mode) || S_ISCHR(st->st_mode))
+		if((fd = open(name, O_RDONLY)) >= 0){
+			d->length = disksize(fd, st);
 			close(fd);
 		}
-#endif
-#if defined(DIOCGMEDIASIZE)
-		if(isdisk(st)){
-			int fd;
-			off_t mediasize;
-			
-			if((fd = open(name, O_RDONLY)) >= 0){
-				if(ioctl(fd, DIOCGMEDIASIZE, &mediasize) >= 0)
-					d->length = mediasize;
-				close(fd);
-			}
-		}
-#elif defined(_HAVEDISKLABEL)
-		if(isdisk(st)){
-			int fd, n;
-			struct disklabel lab;
-
-			if((fd = open(name, O_RDONLY)) < 0)
-				goto nosize;
-			if(ioctl(fd, DIOCGDINFO, &lab) < 0)
-				goto nosize;
-			n = minor(st->st_rdev)&7;
-			if(n >= lab.d_npartitions)
-				goto nosize;
-
-			d->length = (vlong)(lab.d_partitions[n].p_size) * lab.d_secsize;
-
-		nosize:
-			if(fd >= 0)
-				close(fd);
-		}
-#endif
 	}
 
 	return sz;
