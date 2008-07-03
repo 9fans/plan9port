@@ -529,6 +529,7 @@ fullscreen(void)
 {
 	static Ptr restore;
 	static WindowRef oldwindow;
+	GDHandle device;
 
 	if(osx.isfullscreen){
 		EndFullScreen(restore, 0);
@@ -538,7 +539,8 @@ fullscreen(void)
 	}else{
 		HideWindow(osx.window);
 		oldwindow = osx.window;
-		BeginFullScreen(&restore, 0, 0, 0, &osx.window, 0, 0);
+		GetWindowGreatestAreaDevice(osx.window, kWindowTitleBarRgn, &device, nil);
+		BeginFullScreen(&restore, device, 0, 0, &osx.window, 0, 0);
 		osx.isfullscreen = 1;
 		osx.fullscreentime = msec();
 	}
