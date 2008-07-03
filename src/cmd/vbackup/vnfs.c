@@ -1054,7 +1054,6 @@ setrootfid(void)
 	memset(&fid, 0, sizeof fid);
 	fid.cnode = config.ctree->root;
 	_fidtohandle(&fid, &root);
-fprint(2, "handle %.*lH\n", root.len, root.h);
 }
 
 void
