@@ -48,7 +48,6 @@ struct {
 	MenuRef vmenu;
 	WindowRef window;
 	CGImageRef image;
-	WindowGroupRef wingroup;
 	PasteboardRef snarf;
 } osx;
 
@@ -142,8 +141,6 @@ _screeninit(void)
 	or.right = r.max.x;
 	or.bottom = r.max.y;
 	CreateNewWindow(kDocumentWindowClass, WindowAttrs, &or, &osx.window);
-	CreateWindowGroup(0, &osx.wingroup);
-	SetWindowGroup(osx.window, osx.wingroup);
 	setlabel(osx.label);
 	seticon();
 	
