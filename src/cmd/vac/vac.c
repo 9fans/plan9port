@@ -8,14 +8,13 @@
 void
 usage(void)
 {
-	fprint(2, "vac [-imqsv] [-b bsize] [-d old.vac] [-e exclude]... [-f new.vac] [-h host] file...\n");
+	fprint(2, "vac [-imqsv] [-a archive.vac] [-b bsize] [-d old.vac] [-f new.vac] [-e exclude]... [-h host] file...\n");
 	threadexitsall("usage");
 }
 
 enum
 {
 	BlockSize = 8*1024,
-	MaxExclude = 1000
 };
 
 struct
@@ -33,17 +32,16 @@ int verbose;
 char *host;
 VtConn *z;
 VacFs *fs;
-char *exclude[MaxExclude];
-int nexclude;
+char *archivefile;
 char *vacfile;
 
 int vacmerge(VacFile*, char*);
 void vac(VacFile*, VacFile*, char*, Dir*);
 void vacstdin(VacFile*, char*);
+VacFile *recentarchive(VacFs*, char*);
 
 static u64int unittoull(char*);
 static void warn(char *fmt, ...);
-static int strpcmp(const void*, const void*);
 static void removevacfile(void);
 
 #ifdef PLAN9PORT
@@ -81,6 +79,7 @@ threadmain(int argc, char **argv)
 	_p9usepwlibrary = 1;
 #endif
 
+	fmtinstall('F', vtfcallfmt);
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
 
@@ -89,7 +88,14 @@ threadmain(int argc, char **argv)
 	printstats = 0;
 	fsdiff = nil;
 	diffvac = nil;
+
 	ARGBEGIN{
+	case 'V':
+		chattyventi++;
+		break;
+	case 'a':
+		archivefile = EARGF(usage());
+		break;
 	case 'b':
 		u = unittoull(EARGF(usage()));
 		if(u < 512)
@@ -102,12 +108,7 @@ threadmain(int argc, char **argv)
 		diffvac = EARGF(usage());
 		break;
 	case 'e':
-		if(nexclude >= MaxExclude)
-			sysfatal("too many exclusions\n");
-		exclude[nexclude] = ARGF();
-		if(exclude[nexclude] == nil)
-			usage();
-		nexclude++;
+		excludepattern(EARGF(usage()));
 		break;
 	case 'f':
 		vacfile = EARGF(usage());
@@ -130,40 +131,101 @@ threadmain(int argc, char **argv)
 	case 'v':
 		verbose++;
 		break;
+	case 'x':
+		loadexcludefile(EARGF(usage()));
+		break;
 	default:
 		usage();
 	}ARGEND
 	
 	if(argc == 0 && !stdinname)
 		usage();
-
-	if(vacfile == nil)
-		outfd = 1;
-	else if((outfd = create(vacfile, OWRITE, 0666)) < 0)
-		sysfatal("create %s: %r", vacfile);
-	atexit(removevacfile);
-
-	qsort(exclude, nexclude, sizeof(char*), strpcmp);
+	
+	if(archivefile && (vacfile || diffvac)){
+		fprint(2, "cannot use -a with -f, -d\n");
+		usage();
+	}
 
 	z = vtdial(host);
 	if(z == nil)
 		sysfatal("could not connect to server: %r");
 	if(vtconnect(z) < 0)
 		sysfatal("vtconnect: %r");
-	
-	if(diffvac){
-		if((fsdiff = vacfsopen(z, diffvac, VtOREAD, 128)) == nil)
-			warn("vacfsopen %s: %r", diffvac);
+
+	// Setup:
+	//	fs is the output vac file system
+	//	f is directory in output vac to write new files
+	//	fdiff is corresponding directory in existing vac
+	if(archivefile){
+		VacFile *fp;
+		char yyyy[5];
+		char mmdd[10];
+		char oldpath[40];
+		Tm tm;
+
+		fdiff = nil;
+		if((outfd = open(archivefile, ORDWR)) < 0){
+			if(access(archivefile, 0) >= 0)
+				sysfatal("open %s: %r", archivefile);
+			if((outfd = create(archivefile, OWRITE, 0666)) < 0)
+				sysfatal("create %s: %r", archivefile);
+			atexit(removevacfile);	// because it is new
+			if((fs = vacfscreate(z, blocksize, 512)) == nil)
+				sysfatal("vacfscreate: %r");
+		}else{
+			if((fs = vacfsopen(z, archivefile, VtORDWR, 512)) == nil)
+				sysfatal("vacfsopen %s: %r", archivefile);
+			if((fdiff = recentarchive(fs, oldpath)) != nil){
+				if(verbose)
+					fprint(2, "diff %s\n", oldpath);
+			}else
+				if(verbose)
+					fprint(2, "no recent archive to diff against\n");
+		}
+
+		// Create yyyy/mmdd.
+		tm = *localtime(time(0));
+		snprint(yyyy, sizeof yyyy, "%04d", tm.year+1900);
+		fp = vacfsgetroot(fs);
+		if((f = vacfilewalk(fp, yyyy)) == nil
+		&& (f = vacfilecreate(fp, yyyy, ModeDir|0555)) == nil)
+			sysfatal("vacfscreate %s: %r", yyyy);
+		vacfiledecref(fp);
+		fp = f;
+
+		snprint(mmdd, sizeof mmdd, "%02d%02d", tm.mon+1, tm.mday);
+		n = 0;
+		while((f = vacfilewalk(fp, mmdd)) != nil){
+			vacfiledecref(f);
+			n++;
+			snprint(mmdd+4, sizeof mmdd-4, ".%d", n);
+		}
+		f = vacfilecreate(fp, mmdd, ModeDir|0555);
+		if(f == nil)
+			sysfatal("vacfscreate %s/%s: %r", yyyy, mmdd);
+		vacfiledecref(fp);
+
+		if(verbose)
+			fprint(2, "archive %s/%s\n", yyyy, mmdd);
+	}else{
+		if(vacfile == nil)
+			outfd = 1;
+		else if((outfd = create(vacfile, OWRITE, 0666)) < 0)
+			sysfatal("create %s: %r", vacfile);
+		atexit(removevacfile);
+		if((fs = vacfscreate(z, blocksize, 512)) == nil)
+			sysfatal("vacfscreate: %r");
+		f = vacfsgetroot(fs);
+
+		fdiff = nil;
+		if(diffvac){
+			if((fsdiff = vacfsopen(z, diffvac, VtOREAD, 128)) == nil)
+				warn("vacfsopen %s: %r", diffvac);
+			else
+				fdiff = vacfsgetroot(fsdiff);
+		}
 	}
 
-	if((fs = vacfscreate(z, blocksize, 512)) == nil)
-		sysfatal("vacfscreate: %r");
-
-	f = vacfsgetroot(fs);
-	if(fsdiff)
-		fdiff = vacfsgetroot(fsdiff);
-	else
-		fdiff = nil;
 	if(stdinname)
 		vacstdin(f, stdinname);
 	for(i=0; i<argc; i++){
@@ -228,8 +290,8 @@ threadmain(int argc, char **argv)
 		fprint(2, "vacfssync: %r\n");
 
 	fprint(outfd, "vac:%V\n", fs->score);
-	vacfsclose(fs);
 	atexitdont(removevacfile);
+	vacfsclose(fs);
 	vthangup(z);
 
 	if(printstats){
@@ -243,37 +305,90 @@ threadmain(int argc, char **argv)
 	threadexitsall(0);
 }
 
+VacFile*
+recentarchive(VacFs *fs, char *path)
+{
+	VacFile *fp, *f;
+	VacDirEnum *de;
+	VacDir vd;
+	char buf[10];
+	int year, mmdd, nn, n, n1;
+	char *p;
+	
+	fp = vacfsgetroot(fs);
+	de = vdeopen(fp);
+	year = 0;
+	if(de){
+		for(; vderead(de, &vd) > 0; vdcleanup(&vd)){
+			if(strlen(vd.elem) != 4)
+				continue;
+			if((n = strtol(vd.elem, &p, 10)) < 1900 || *p != 0)
+				continue;
+			if(year < n)
+				year = n;
+		}
+	}
+	vdeclose(de);
+	if(year == 0){
+		vacfiledecref(fp);
+		return nil;
+	}
+	snprint(buf, sizeof buf, "%04d", year);
+	if((f = vacfilewalk(fp, buf)) == nil){
+		fprint(2, "warning: dirread %s but cannot walk", buf);
+		vacfiledecref(fp);
+		return nil;
+	}
+	fp = f;
+	
+	de = vdeopen(fp);
+	mmdd = 0;
+	nn = 0;
+	if(de){
+		for(; vderead(de, &vd) > 0; vdcleanup(&vd)){
+			if(strlen(vd.elem) < 4)
+				continue;
+			if((n = strtol(vd.elem, &p, 10)) < 100 || n > 1231 || p != vd.elem+4)
+				continue;
+			if(*p == '.'){
+				if(p[1] == '0' || (n1 = strtol(p+1, &p, 10)) == 0 || *p != 0)
+					continue;
+			}else{
+				if(*p != 0)
+					continue;
+				n1 = 0;
+			}
+			if(n < mmdd || (n == mmdd && n1 < nn))
+				continue;
+			mmdd = n;
+			nn = n1;
+		}
+	}
+	vdeclose(de);
+	if(mmdd == 0){
+		vacfiledecref(fp);
+		return nil;
+	}
+	if(nn == 0)
+		snprint(buf, sizeof buf, "%04d", mmdd);
+	else
+		snprint(buf, sizeof buf, "%04d.%d", mmdd, nn);
+	if((f = vacfilewalk(fp, buf)) == nil){
+		fprint(2, "warning: dirread %s but cannot walk", buf);
+		vacfiledecref(fp);
+		return nil;
+	}
+	vacfiledecref(fp);
+
+	sprint(path, "%04d/%s", year, buf);
+	return f;
+}
+
 static void
 removevacfile(void)
 {
 	if(vacfile)
 		remove(vacfile);
-}
-
-static int
-strpcmp(const void *p0, const void *p1)
-{
-	return strcmp(*(char**)p0, *(char**)p1);
-}
-
-static int
-isexcluded(char *name)
-{
-	int bot, top, i, x;
-
-	bot = 0;	
-	top = nexclude;
-	while(bot < top) {
-		i = (bot+top)>>1;
-		x = strcmp(exclude[i], name);
-		if(x == 0)
-			return 1;
-		if(x < 0)
-			bot = i + 1;
-		else /* x > 0 */
-			top = i;
-	}
-	return 0;
 }
 
 void
@@ -361,7 +476,7 @@ vac(VacFile *fp, VacFile *diffp, char *name, Dir *d)
 	VacFile *f, *fdiff;
 	VtEntry e;
 
-	if(isexcluded(name)){
+	if(!includefile(name)){
 		warn("excluding %s%s", name, (d->mode&DMDIR) ? "/" : "");
 		return;
 	}

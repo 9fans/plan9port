@@ -23,3 +23,8 @@ VacFile *_vacfileroot(VacFs *fs, VtFile *file);
 
 int	_vacfsnextqid(VacFs *fs, uvlong *qid);
 void	vacfsjumpqid(VacFs*, uvlong step);
+
+Reprog*	glob2regexp(char*);
+void	loadexcludefile(char*);
+int	includefile(char*);
+void	excludepattern(char*);

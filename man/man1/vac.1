@@ -6,6 +6,9 @@ vac, unvac \- create, extract a vac archive on Venti
 [
 .B -mqsv
 ] [
+.B -a
+.I vacfile
+] [
 .B -b
 .I blocksize
 ] [
@@ -23,6 +26,9 @@ vac, unvac \- create, extract a vac archive on Venti
 ] [
 .B -h
 .I host
+] [
+.B -x
+.I excludefile
 ]
 .I file ...
 .PP
@@ -66,6 +72,26 @@ vac:64daefaecc4df4b5cb48a368b361ef56012a4f46
 .PP
 The options are:
 .TP
+.BI -a " vacfile
+Specifies that vac should create or update a backup archive, inserting
+the files under an extra two levels of directory hierarchy named
+.I yyyy/mmdd
+(year, month, day)
+in the style of the dump file system
+(see Plan 9's \fIfs\fR(4)).
+If
+.I vacfile
+already exists, an additional backup day is added to the
+existing hierarchy, behaving as though the
+.B -d
+flag was specified giving the most recent backup tree in the archive.
+Typically, this option
+is used as part of a nightly backup script.
+This option cannot be used with
+.B -d
+or 
+.BR -f .
+.TP
 .BI -b " blocksize
 Specifies the block size that data will be broken into.
 The units for the size can be specified by appending
@@ -86,6 +112,12 @@ file tree given by
 Do not include the file or directory specified by
 .IR exclude .
 This option may be repeated multiple times.
+.I Exclude
+can be a shell pattern as accepted by
+.IR rc (1),
+with one extension: 
+.B \&...
+matches any sequence of characters including slashes.
 .TP
 .BI -f " vacfile
 The results of 
@@ -123,8 +155,10 @@ the archive to be unpacked.
 .TP
 .B -q
 Increase the performance of the
+.B -a 
+or
 .B -d
-option by detecting unchanged files based on a match of the files name and other meta data,
+options by detecting unchanged files based on a match of the files name and other meta data,
 rather than examining the contents of the files.
 .TP
 .B -s
@@ -133,6 +167,27 @@ Print out various statistics on standard error.
 .B -v
 Produce more verbose output on standard error, including the name of the files added to the archive
 and the vac archives that are expanded and merged.
+.TP
+.BI -x " excfile
+Read exclude patterns from the file 
+.IR excfile .
+Blank lines and lines beginning with 
+.B #
+are ignored.
+All other lines should be of the form
+.B include
+.I pattern
+or
+.B exclude
+.I pattern .
+When considering whether to include a directory or file
+in the vac archive,
+the earliest matching pattern in the file
+applies.
+The patterns are the same syntax accepted by the
+.B -e
+option.
+This option may be repeated multiple times.
 .PP
 .I Unvac
 lists or extracts files stored in the vac archive

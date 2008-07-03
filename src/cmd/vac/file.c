@@ -974,6 +974,7 @@ filemetaalloc(VacFile *fp, VacDir *dir, u32int start)
 			vtblockput(b);
 			if((b = vtfileblock(ms, bo, VtORDWR)) == nil)
 				goto Err;
+			mbunpack(&mb, b->data, ms->dsize);
 			goto Found;
 		}
 		vtblockput(b);
@@ -1002,7 +1003,6 @@ Found:
 	me.p = p;
 	me.size = n;
 	vdpack(dir, &me, VacDirVersion);
-vdunpack(dir, &me);
 	mbinsert(&mb, i, &me);
 	mbpack(&mb);
 	vtblockput(b);
@@ -1166,6 +1166,7 @@ Err:
 /*
  * Flush all data associated with f out of the cache and onto venti.
  * If recursive is set, flush f's children too.
+ * Vacfiledecref knows how to flush source and msource too.
  */
 int
 vacfileflush(VacFile *f, int recursive)
@@ -1183,25 +1184,12 @@ vacfileflush(VacFile *f, int recursive)
 		ret = -1;
 	filemetaunlock(f);
 
-	/*
-	 * Vacfiledecref knows how to flush source and msource too.
-	 */
 	if(filelock(f) < 0)
 		return -1;
-	vtfilelock(f->source, -1);
-	if(vtfileflush(f->source) < 0)
-		ret = -1;
-	vtfileunlock(f->source);
-	if(f->msource){
-		vtfilelock(f->msource, -1);
-		if(vtfileflush(f->msource) < 0)
-			ret = -1;
-		vtfileunlock(f->msource);
-	}
-	
+
 	/*
 	 * Lock order prevents us from flushing kids while holding
-	 * lock, so make a list.
+	 * lock, so make a list and then flush without the lock.
 	 */
 	nkids = 0;
 	kids = nil;
@@ -1216,14 +1204,32 @@ vacfileflush(VacFile *f, int recursive)
 			p->ref++;
 		}
 	}
-	fileunlock(f);
-	
-	for(i=0; i<nkids; i++){
-		if(vacfileflush(kids[i], 1) < 0)
-			ret = -1;
-		vacfiledecref(kids[i]);
+	if(nkids > 0){
+		fileunlock(f);
+		for(i=0; i<nkids; i++){
+			if(vacfileflush(kids[i], 1) < 0)
+				ret = -1;
+			vacfiledecref(kids[i]);
+		}
+		filelock(f);
 	}
 	free(kids);
+
+	/*
+	 * Now we can flush our own data.
+	 */	
+	vtfilelock(f->source, -1);
+	if(vtfileflush(f->source) < 0)
+		ret = -1;
+	vtfileunlock(f->source);
+	if(f->msource){
+		vtfilelock(f->msource, -1);
+		if(vtfileflush(f->msource) < 0)
+			ret = -1;
+		vtfileunlock(f->msource);
+	}
+	fileunlock(f);
+
 	return ret;
 }
 		
@@ -1332,6 +1338,12 @@ vacfilecreate(VacFile *fp, char *elem, ulong mode)
 	vacfileincref(fp);
 
 	fileunlock(fp);
+	
+	filelock(ff);
+	vtfilelock(ff->source, -1);
+	vtfileunlock(ff->source);
+	fileunlock(ff);
+
 	return ff;
 
 Err:
@@ -2031,7 +2043,7 @@ vacfssync(VacFs *fs)
 		return -1;
 	}
 	vtfileclose(f);
-	
+
 	/* Build a root block. */
 	memset(&root, 0, sizeof root);
 	strcpy(root.type, "vac");

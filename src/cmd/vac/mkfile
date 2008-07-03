@@ -4,6 +4,7 @@ LIBFILES=\
 	error\
 	file\
 	pack\
+	glob\
 
 LIB=${LIBFILES:%=%.$O} $PLAN9/lib/libventi.a
 
@@ -20,3 +21,10 @@ TARG=vac vacfs unvac
 default:V: all
 
 <$PLAN9/src/mkmany
+
+testglob:V: $O.testinc
+	$O.testinc exc <exc.in >exc.test
+	diff exc.out exc.test
+	ls -l exc.out exc.test
+
+
