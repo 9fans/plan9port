@@ -311,7 +311,8 @@ replymsg(Wsysmsg *m)
 		nmbuf = n;
 	}
 	convW2M(m, mbuf, n);
-	write(4, mbuf, n);
+	if(write(4, mbuf, n) != n)
+		sysfatal("write: %r");
 }
 
 /*
