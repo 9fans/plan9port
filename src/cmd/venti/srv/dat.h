@@ -47,7 +47,7 @@ enum
 	IndexBase		= 1024*1024,	/* initial address to use in an index */
 	MaxIo			= 64*1024,	/* max size of a single read or write operation */
 	ICacheBits		= 16,		/* default bits for indexing icache */
-	MaxAMap			= 2*1024,	/* max. allowed arenas in an address mapping; must be < 32*1024 */
+	MaxAMap			= 31*1024,	/* max. allowed arenas in an address mapping; must be < 32*1024 */
 
 	/*
 	 * return codes from syncarena
