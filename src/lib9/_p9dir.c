@@ -198,32 +198,33 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 		d->mtime = st->st_mtime;
 		d->length = st->st_size;
 
-		if(S_ISDIR(st->st_mode)){
-			d->length = 0;
-			d->mode |= DMDIR;
-			d->qid.type = QTDIR;
-		}
 		if(S_ISLNK(lst->st_mode)){	/* yes, lst not st */
 			d->mode |= DMSYMLINK;
 			d->length = lst->st_size;
 		}
-		if(S_ISFIFO(st->st_mode))
+		else if(S_ISDIR(st->st_mode)){
+			d->length = 0;
+			d->mode |= DMDIR;
+			d->qid.type = QTDIR;
+		}
+		else if(S_ISFIFO(st->st_mode))
 			d->mode |= DMNAMEDPIPE;
-		if(S_ISSOCK(st->st_mode))
+		else if(S_ISSOCK(st->st_mode))
 			d->mode |= DMSOCKET;
-		if(S_ISBLK(st->st_mode)){
+		else if(S_ISBLK(st->st_mode)){
 			d->mode |= DMDEVICE;
 			d->qid.path = ('b'<<16)|st->st_rdev;
 		}
-		if(S_ISCHR(st->st_mode)){
+		else if(S_ISCHR(st->st_mode)){
 			d->mode |= DMDEVICE;
 			d->qid.path = ('c'<<16)|st->st_rdev;
 		}
 		/* fetch real size for disks */
-		if(S_ISBLK(st->st_mode) || S_ISCHR(st->st_mode))
-		if((fd = open(name, O_RDONLY)) >= 0){
-			d->length = disksize(fd, st);
-			close(fd);
+		if(S_ISBLK(lst->st_mode) || S_ISCHR(lst->st_mode)){
+			if((fd = open(name, O_RDONLY)) >= 0){
+				d->length = disksize(fd, st);
+				close(fd);
+			}
 		}
 	}
 
