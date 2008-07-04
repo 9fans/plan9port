@@ -320,6 +320,8 @@ dir2attr(Dir *d, struct fuse_attr *attr)
 	attr->mode = d->mode&0777;
 	if(d->mode&DMDIR)
 		attr->mode |= S_IFDIR;
+	else if(d->mode&DMSYMLINK)
+		attr->mode |= S_IFLNK;
 	else
 		attr->mode |= S_IFREG;
 	attr->nlink = 1;	/* works for directories! - see FUSE FAQ */
@@ -815,6 +817,32 @@ fuseread(FuseMsg *m)
 	free(buf);
 }
 
+/*
+ * Readlink.
+ */
+void
+fusereadlink(FuseMsg *m)
+{
+	Dir *d;
+	CFid *fid;
+
+	if((fid = nodeid2fid(m->hdr->nodeid)) == nil){
+		replyfuseerrno(m, ESTALE);
+		return;
+	}
+	if((d = fsdirfstat(fid)) == nil){
+		replyfuseerrstr(m);
+		return;
+	}
+	if(!(d->mode&DMSYMLINK)){
+		replyfuseerrno(m, EINVAL);
+		return;
+	}
+	replyfuse(m, d->ext, strlen(d->ext));
+	free(d);
+	return;
+}
+
 /* 
  * Readdir.
  * Read from file handle in->fh at offset in->offset for size in->size.
@@ -1123,8 +1151,9 @@ struct {
 	{ FUSE_GETATTR,		fusegetattr },
 	{ FUSE_SETATTR,		fusesetattr },
 	/*
-	 * FUSE_READLINK, FUSE_SYMLINK, FUSE_MKNOD are unimplemented.
+	 * FUSE_SYMLINK, FUSE_MKNOD are unimplemented.
 	 */
+	{ FUSE_READLINK,	fusereadlink },
 	{ FUSE_MKDIR,		fusemkdir },
 	{ FUSE_UNLINK,		fuseunlink },
 	{ FUSE_RMDIR,		fusermdir },
