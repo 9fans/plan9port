@@ -19,6 +19,8 @@
 u32int	maxblocksize;
 int	readonly;
 
+int findsubpart(Part *part, char *name);
+
 static int
 strtoullsuf(char *p, char **pp, int rad, u64int *u)
 {
@@ -56,17 +58,21 @@ strtoullsuf(char *p, char **pp, int rad, u64int *u)
 }
 	
 static int
-parsepart(char *name, char **file, u64int *lo, u64int *hi)
+parsepart(char *name, char **file, char **subpart, u64int *lo, u64int *hi)
 {
 	char *p;
 
 	*file = estrdup(name);
-	if((p = strrchr(*file, ':')) == nil){
-		*lo = 0;
-		*hi = 0;
+	*lo = 0;
+	*hi = 0;
+	*subpart = nil;
+	if((p = strrchr(*file, ':')) == nil)
+		return 0;
+	*p++ = 0;
+	if(isalpha(*p)){
+		*subpart = p;
 		return 0;
 	}
-	*p++ = 0;
 	if(*p == '-')
 		*lo = 0;
 	else{
@@ -93,11 +99,13 @@ initpart(char *name, int mode)
 {
 	Part *part;
 	Dir *dir;
-	char *file;
+	char *file, *subname;
 	u64int lo, hi;
 
-	if(parsepart(name, &file, &lo, &hi) < 0)
+	if(parsepart(name, &file, &subname, &lo, &hi) < 0){
+		werrstr("cannot parse name %s", name);
 		return nil;
+	}
 	trace(TraceDisk, "initpart %s file %s lo 0x%llx hi 0x%llx", name, file, lo, hi);
 	part = MKZ(Part);
 	part->name = estrdup(name);
@@ -124,7 +132,7 @@ initpart(char *name, int mode)
 		fprint(2, "warning: %s opened for reading only\n", name);
 	}
 	part->offset = lo;
-	dir = dirfstat(part->fd);
+	dir = dirstat(file);	/* no dirfstat; need name to identify disk devices */
 	if(dir == nil){
 		freepart(part);
 		seterr(EOk, "can't stat partition='%s': %r", file);
@@ -155,6 +163,11 @@ initpart(char *name, int mode)
 			part->fsblocksize = sfs.f_bsize;
 	}
 #endif
+	if(subname && findsubpart(part, subname) < 0){
+		werrstr("cannot find subpartition %s", subname);
+		freepart(part);
+		return nil;
+	}
 	free(dir);
 	return part;
 }
@@ -464,206 +477,106 @@ readfile(char *name)
 	return b;
 }
 
-
-
-
-
-
-
-
-#ifndef PLAN9PORT
+/*
+ * Search for the Plan 9 partition with the given name.
+ * This lets you write things like /dev/ad4:arenas 
+ * if you move a disk from a Plan 9 system to a FreeBSD system.
+ *
+ * God I hope I never write this code again.
+ */
+#define MAGIC "plan9 partitions"
 static int
-sdreset(Part *part)
+tryplan9part(Part *part, char *name)
 {
-	char *name, *p;
-	int i, fd, xfd[3], rv;
-	static QLock resetlk;
-	Dir *d, *dd;
-	
-	fprint(2, "sdreset %s\n", part->name);
-	name = emalloc(strlen(part->filename)+20);
-	strcpy(name, part->filename);
-	p = strrchr(name, '/');
-	if(p)
-		p++;
-	else
-		p = name;
-	
-	strcpy(p, "ctl");
-	d = dirstat(name);
-	if(d == nil){
-		free(name);
+	uchar buf[512];
+	char *line[40], *f[4];
+	int i, n;
+	vlong start, end;
+
+	/*
+	 * Partition table in second sector.
+	 * Could also look on 2nd last sector and last sector,
+	 * but those disks died out long before venti came along.
+	 */
+	if(readpart(part, 512, buf, 512) != 512)
 		return -1;
-	}
 
-	/*
-	 * We don't need multiple people resetting the disk.
-	 */
-	qlock(&resetlk);
-	if((fd = open(name, OWRITE)) < 0)
-		goto error;
-	dd = dirfstat(fd);
-	if(d && dd && d->qid.vers != dd->qid.vers){
-		fprint(2, "sdreset %s: got scooped\n", part->name);
-		/* Someone else got here first. */
-		if(access(part->filename, AEXIST) >= 0)
-			goto ok;
-		goto error;
-	}
+	/* Plan 9 partition table is just text strings */
+	if(strncmp((char*)buf, "part ", 5) != 0)
+		return -1;
 
-	/*
-	 * Write "reset" to the ctl file to cause the chipset
-	 * to reinitialize itself (specific to sdmv driver).
-	 * Ignore error in case using other disk.
-	 */
-	fprint(2, "sdreset %s: reset ctl\n", part->name);
-	write(fd, "reset", 5);
-
-	if(access(part->filename, AEXIST) >= 0)
-		goto ok;
-
-	/*
-	 * Re-run fdisk and prep.  Don't use threadwaitchan
-	 * to avoid coordinating for it.  Reopen ctl because 
-	 * we reset the disk.
-	 */
-	strcpy(p, "ctl");
-	close(fd);
-	if((fd = open(name, OWRITE)) < 0)
-		goto error;
-	strcpy(p, "data");
-	xfd[0] = open("/dev/null", OREAD);
-	xfd[1] = dup(fd, -1);
-	xfd[2] = dup(2, -1);
-	fprint(2, "sdreset %s: run fdisk %s\n", part->name, name);
-	if(threadspawnl(xfd, "/bin/disk/fdisk", "disk/fdisk", "-p", name, nil) < 0){
-		close(xfd[0]);
-		close(xfd[1]);
-		close(xfd[2]);
-		goto error;
-	}
-	strcpy(p, "plan9");
-	for(i=0; i<=20; i++){
-		sleep(i*100);
-		if(access(part->filename, AEXIST) >= 0)
-			goto ok;
-		if(access(name, AEXIST) >= 0)
-			goto prep;
-	}
-	goto error;
-	
-prep:
-	strcpy(p, "ctl");
-	close(fd);
-	if((fd = open(name, OWRITE)) < 0)
-		goto error;
-	strcpy(p, "plan9");
-	xfd[0] = open("/dev/null", OREAD);
-	xfd[1] = dup(fd, -1);
-	xfd[2] = dup(2, -1);
-	fprint(2, "sdreset %s: run prep\n", part->name);
-	if(threadspawnl(xfd, "/bin/disk/prep", "disk/prep", "-p", name, nil) < 0){
-		close(xfd[0]);
-		close(xfd[1]);
-		close(xfd[2]);
-		goto error;
-	}
-	for(i=0; i<=20; i++){
-		sleep(i*100);
-		if(access(part->filename, AEXIST) >= 0)
-			goto ok;
-	}
-
-error:
-	fprint(2, "sdreset %s: error: %r\n", part->name);
-	rv = -1;
-	if(fd >= 0)
-		close(fd);
-	goto out;
-
-ok:
-	fprint(2, "sdreset %s: all okay\n", part->name);
-	rv = 0;
-	goto out;
-
-out:
-	free(name);
-	qunlock(&resetlk);
-	return rv;
-}
-
-static int
-reopen(Part *part)
-{
-	int fd;
-	
-	fprint(2, "reopen %s\n", part->filename);
-	if((fd = open(part->filename, ORDWR)) < 0){
-		if(access(part->filename, AEXIST) < 0){
-			sdreset(part);
-			fd = open(part->filename, ORDWR);
-		}
-		if(fd < 0){
-			fprint(2, "reopen %s: %r\n", part->filename);
+	buf[511] = 0;
+	n = getfields((char*)buf, line, 40, 1, "\n");
+	for(i=0; i<n; i++){
+		if(getfields(line[i], f, 4, 1, " ") != 4)
+			break;
+		if(strcmp(f[0], "part") != 0)
+			break;
+		if(strcmp(f[1], name) == 0){
+			start = 512*strtoll(f[2], 0, 0);
+			end = 512*strtoll(f[3], 0, 0);
+			if(start  < end && end <= part->size){
+				part->offset += start;
+				part->size = end - start;
+				return 0;
+			}
 			return -1;
 		}
 	}
-	if(fd != part->fd){
-		dup(fd, part->fd);
-		close(fd);
-	}
-	return 0;
+	return -1;
 }
 
-typedef struct Spawn Spawn;
-struct Spawn
+#define	GSHORT(p)	(((p)[1]<<8)|(p)[0])
+#define	GLONG(p)	((GSHORT(p+2)<<16)|GSHORT(p))
+
+typedef struct Dospart Dospart;
+struct Dospart
 {
-	Channel *c;
-	int fd[3];
-	char *file;
-	char **argv;
+	uchar flag;		/* active flag */
+	uchar shead;		/* starting head */
+	uchar scs[2];		/* starting cylinder/sector */
+	uchar type;		/* partition type */
+	uchar ehead;		/* ending head */
+	uchar ecs[2];		/* ending cylinder/sector */
+	uchar offset[4];		/* starting sector */
+	uchar size[4];		/* length in sectors */
 };
 
-static void
-spawnproc(void *v)
-{
-	int i, *fd;
-	Spawn *s;
-	
-	rfork(RFFDG);
-	s = v;
-	fd = s->fd;
-	for(i=0; i<3; i++)
-		dup(fd[i], i);
-	if(fd[0] > 2)
-		close(fd[0]);
-	if(fd[1] > 2 && fd[1] != fd[0])
-		close(fd[1]);
-	if(fd[2] > 2 && fd[2] != fd[1] && fd[2] != fd[0])
-		close(fd[2]);
-	procexec(s->c, s->file, s->argv);
-}
 
-static int
-threadspawnl(int fd[3], char *file, char *argv0, ...)
+int
+findsubpart(Part *part, char *name)
 {
-	int pid;
-	Spawn s;
+	int i;
+	uchar buf[512];
+	u64int size;
+	Dospart *dp;
+
+	/* See if this is a Plan 9 partition. */
+	if(tryplan9part(part, name) >= 0)
+		return 0;
 	
-	s.c = chancreate(sizeof(void*), 0);
-	memmove(s.fd, fd, sizeof(s.fd));
-	s.file = file;
-	s.argv = &argv0;
-	vtproc(spawnproc, &s);
-	pid = recvul(s.c);
-	if(pid < 0)
+	/* Otherwise try for an MBR and then narrow to Plan 9 partition. */
+	if(readpart(part, 0, buf, 512) != 512)
 		return -1;
-	close(fd[0]);
-	if(fd[1] != fd[0])
-		close(fd[1]);
-	if(fd[2] != fd[1] && fd[2] != fd[0])
-		close(fd[2]);
-	return pid;
+	if(buf[0x1FE] != 0x55 || buf[0x1FF] != 0xAA)
+		return -1;
+	dp = (Dospart*)(buf+0x1BE);
+	size = part->size;
+	for(i=0; i<4; i++){
+		if(dp[i].type == '9'){
+			part->offset = 512LL*GLONG(dp[i].offset);
+			part->size = 512LL*GLONG(dp[i].size);
+			if(tryplan9part(part, name) >= 0)
+				return 0;
+			part->offset = 0;
+			part->size = size;
+		}
+		/* Not implementing extended partitions - enough is enough. */
+	}
+	return -1;
 }
 
-#endif
+
+
+
+
