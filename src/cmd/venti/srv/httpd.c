@@ -562,6 +562,8 @@ darena(Hio *hout, Arena *arena)
 		hprint(hout, " mem=sealed");
 	if(arena->diskstats.sealed)
 		hprint(hout, " disk=sealed");
+	if(arena->inqueue)
+		hprint(hout, " inqueue");
 	hprint(hout, "\n");
 	if(scorecmp(zeroscore, arena->score) != 0)
 		hprint(hout, "\tscore=%V\n", arena->score);
