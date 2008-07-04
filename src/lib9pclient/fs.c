@@ -49,12 +49,15 @@ fsinit(int fd)
 	fs->iosend = ioproc();
 	muxinit(&fs->mux);
 	
-	strcpy(fs->version, "9P2000");
+	strcpy(fs->version, "9P2000.u");
 	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
 		werrstr("fsversion: %r");
 		_fsunmount(fs);
 		return nil;
 	}
+	if(strcmp(fs->version, "9P2000.u") == 0)
+		fs->dotu = 1;
+fprint(2, "speaking %d\n", fs->dotu);
 	fs->msize = n;
 	return fs;
 }
@@ -215,7 +218,7 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 	tx->tag = 0;
 	if(chatty9pclient)
 		fprint(2, "<- %F\n", tx);
-	nn = convS2M(tx, tpkt, n);
+	nn = convS2Mu(tx, tpkt, n, fs->dotu);
 	if(nn != n){
 		free(tpkt);
 		werrstr("lib9pclient: sizeS2M convS2M mismatch");
@@ -229,7 +232,7 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 		return -1;
 	}
 	n = GBIT32((uchar*)rpkt);
-	nn = convM2S(rpkt, n, rx);
+	nn = convM2Su(rpkt, n, rx, fs->dotu);
 	if(nn != n){
 		free(rpkt);
 		werrstr("lib9pclient: convM2S packet size mismatch %d %d", n, nn);
