@@ -45,7 +45,7 @@ FuseMsg*
 readfusemsg(void)
 {
 	FuseMsg *m;
-	int n;
+	int n, nn;
 	
 	m = allocfusemsg();
 	errno = 0;
@@ -173,10 +173,13 @@ readfusemsg(void)
 			goto bad;
 		break;
 	case FUSE_SETXATTR:
-		/* struct and two strings */
-		if(m->hdr->len <= sizeof(struct fuse_setxattr_in)
-		|| ((char*)m->tx)[m->hdr->len-1] != 0
-		|| memchr((uchar*)m->tx+sizeof(struct fuse_setxattr_in), 0, m->hdr->len-sizeof(struct fuse_setxattr_in)-1) == 0)
+		/* struct, one string, and one binary blob */
+		if(m->hdr->len <= sizeof(struct fuse_setxattr_in))
+			goto bad;
+		nn = ((struct fuse_setxattr_in*)m->tx)->size;
+		if(m->hdr->len < sizeof(struct fuse_setxattr_in)+nn+1)
+			goto bad;
+		if(((char*)m->tx)[m->hdr->len-nn-1] != 0)
 			goto bad;
 		break;
 	case FUSE_GETXATTR:
