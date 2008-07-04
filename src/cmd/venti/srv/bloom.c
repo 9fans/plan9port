@@ -229,6 +229,22 @@ markbloomfilter(Bloom *b, u8int *score)
 	runlock(&b->lk);
 }
 
+void
+markbloomfiltern(Bloom *b, u8int score[][20], int n)
+{
+	int i;
+
+	if(b == nil || b->data == nil)
+		return;
+	
+	rlock(&b->lk);
+	qlock(&b->mod);
+	for(i=0; i<n; i++)
+		_markbloomfilter(b, score[i]);
+	qunlock(&b->mod);
+	runlock(&b->lk);
+}
+
 static void
 bloomwriteproc(void *v)
 {

@@ -105,6 +105,7 @@ Lump		*lookuplump(u8int *score, int type);
 int		lookupscore(u8int *score, int type, IAddr *ia);
 int		maparenas(AMap *am, Arena **arenas, int n, char *what);
 void		markbloomfilter(Bloom*, u8int*);
+void		markbloomfiltern(Bloom*, u8int[][20], int);
 uint		msec(void);
 int		namecmp(char *s, char *t);
 void		namecp(char *dst, char *src);
