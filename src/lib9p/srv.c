@@ -505,7 +505,7 @@ static void
 rread(Req *r, char *error)
 {
 	if(error==nil && (r->fid->qid.type&QTDIR))
-		r->fid->diroffset += r->ofcall.count;
+		r->fid->diroffset = r->ifcall.offset + r->ofcall.count;
 }
 
 static void
