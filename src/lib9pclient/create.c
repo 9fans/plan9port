@@ -14,6 +14,7 @@ fsfcreate(CFid *fid, char *name, int mode, ulong perm)
 	tx.fid = fid->fid;
 	tx.mode = mode;
 	tx.perm = perm;
+	tx.extension = nil;
 	if(_fsrpc(fid->fs, &tx, &rx, 0) < 0)
 		return -1;
 	fid->mode = mode;
