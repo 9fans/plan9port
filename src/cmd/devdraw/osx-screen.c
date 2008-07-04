@@ -425,7 +425,7 @@ kbdevent(EventRef event)
 		if(k >= 0)
 			keystroke(k);
 		else{
-			UniChar ch;
+			UniChar uc;
 			OSStatus s;
 
 			s = GetEventParameter(event, kEventParamKeyUnicodes,
