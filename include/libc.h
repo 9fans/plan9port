@@ -793,6 +793,7 @@ extern	int	p9waitpid(void);
 extern	long	write(int, void*, long);
 extern	long	writev(int, IOchunk*, int);
 */
+extern	long	p9write(int, void*, long);
 /* extern	int	wstat(char*, uchar*, int); give up */
 extern	ulong	rendezvous(ulong, ulong);
 
@@ -813,6 +814,7 @@ extern	ulong	rendezvous(ulong, ulong);
 #define open		p9open
 #define pipe		p9pipe
 #define	waitfor		p9waitfor
+#define write		p9write
 #endif
 
 extern	Dir*	dirstat(char*);

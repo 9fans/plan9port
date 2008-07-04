@@ -157,6 +157,7 @@ LIB9OFILES=\
 	unsharp.$O\
 	wait.$O\
 	waitpid.$O\
+	write.$O\
 
 OFILES=\
 	$LIB9OFILES\
