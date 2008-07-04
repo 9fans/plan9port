@@ -31,7 +31,9 @@ initarenasum(void)
 {
 	needzeroscore();  /* OS X */
 
+	qlock(&sumlock);
 	sumwait.l = &sumlock;
+	qunlock(&sumlock);
 
 	if(vtproc(sumproc, nil) < 0){
 		seterr(EOk, "can't start arena checksum slave: %r");
@@ -478,9 +480,6 @@ backsumarena(Arena *arena)
 {
 	ASum *as;
 
-	if(sumwait.l == nil)
-		return;
-
 	as = MK(ASum);
 	if(as == nil)
 		return;
@@ -492,7 +491,12 @@ backsumarena(Arena *arena)
 	else
 		sumq = as;
 	sumqtail = as;
-	rwakeup(&sumwait);
+	/*
+	 * Might get here while initializing arenas,
+	 * before initarenasum has been called.
+	 */
+	if(sumwait.l)
+		rwakeup(&sumwait);
 	qunlock(&sumlock);
 }
 
@@ -513,7 +517,6 @@ sumproc(void *unused)
 		qunlock(&sumlock);
 		arena = as->arena;
 		free(as);
-
 		sumarena(arena);
 	}
 }
