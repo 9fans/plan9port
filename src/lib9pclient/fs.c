@@ -57,7 +57,6 @@ fsinit(int fd)
 	}
 	if(strcmp(fs->version, "9P2000.u") == 0)
 		fs->dotu = 1;
-fprint(2, "speaking %d\n", fs->dotu);
 	fs->msize = n;
 	return fs;
 }
