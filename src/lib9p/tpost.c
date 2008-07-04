@@ -26,5 +26,8 @@ threadpostmountsrv(Srv *s, char *name, char *mtpt, int flag)
 			sysfatal("post9pservice %s: %r", name);
 	}else if(!s->nopipe)
 		sysfatal("no one to serve");
-	proccreate(launchsrv, s, 32*1024);
+	if(s->foreground)
+		srv(s);
+	else
+		proccreate(launchsrv, s, 32*1024);
 }
