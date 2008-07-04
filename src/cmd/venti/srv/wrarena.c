@@ -173,7 +173,7 @@ threadmain(int argc, char *argv[])
 		file = argv[0];
 	}
 
-	fmtinstall('V', vtscorefmt);
+	ventifmtinstall();
 
 	statsinit();
 
@@ -206,19 +206,21 @@ threadmain(int argc, char *argv[])
 			sysfatal("vtconnect: %r");
 	}
 	
+	print("%T starting to send data\n");
 	c = chancreate(sizeof(ZClump), 0);
 	for(i=0; i<12; i++)
 		vtproc(vtsendthread, nil);
 
 	rdarena(arena, offset);
-	if(vtsync(z) < 0)
-		sysfatal("executing sync: %r");
-
 	memset(&zerocl, 0, sizeof zerocl);
 	for(i=0; i<12; i++)
 		send(c, &zerocl);
+	if(vtsync(z) < 0)
+		sysfatal("executing sync: %r");
 	if(z){
 		vthangup(z);
 	}
+	print("%T sent all data\n");
+
 	threadexitsall(0);
 }
