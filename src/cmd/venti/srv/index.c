@@ -302,7 +302,7 @@ newindex(char *name, ISect **sects, int n)
 	div = (((u64int)1 << 32) + nb - 1) / nb;
 	ub = (((u64int)1 << 32) - 1) / div + 1;
 	if(div < 100){
-		seterr(EBug, "index divisor too coarse");
+		seterr(EBug, "index divisor too coarse [%lld buckets]", nb);
 		return nil;
 	}
 	if(ub > nb){
