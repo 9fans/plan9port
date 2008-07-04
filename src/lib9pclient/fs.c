@@ -209,7 +209,7 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 	int n, nn;
 	void *tpkt, *rpkt;
 
-	n = sizeS2M(tx);
+	n = sizeS2Mu(tx, fs->dotu);
 	tpkt = malloc(n);
 	if(freep)
 		*freep = nil;
