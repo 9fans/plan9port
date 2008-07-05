@@ -48,6 +48,8 @@ static vlong
 disksize(int fd, struct stat *st)
 {
 	struct disklabel lab;
+	int n;
+
 	if(!S_ISCHR(st->st_mode))
 		return 0;
 	if(ioctl(fd, DIOCGDINFO, &lab) < 0)
