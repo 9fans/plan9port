@@ -337,6 +337,15 @@ clientmesg(XClientMessageEvent *e)
 				(int)e->format, (int)e->data.l[0], (int)e->window);
 		return;
 	}
+	if(e->message_type == wm_state){
+//		c = getclient(e->window, 0);
+//		if(e->format == 32 && e->data.l[1] == wm_state_fullscreen){
+//		}else
+		fprintf(stderr, "rio: WM_STATE: format %d data %d %d w 0x%x\n",
+			(int)e->format, (int)e->data.l[0], (int)e->data.l[1],
+			(int)e->window);
+		return;
+	}
 	fprintf(stderr, "rio: strange ClientMessage, type 0x%x window 0x%x\n",
 		(int)e->message_type, (int)e->window);
 }

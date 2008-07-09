@@ -53,6 +53,8 @@ Atom		wm_lose_focus;
 Atom		wm_colormaps;
 Atom		_rio_running;
 Atom		_rio_hold_mode;
+Atom		wm_state_fullscreen;
+Atom		wm_state;
 
 char	*fontlist[] = {
 	"lucm.latin1.9",
@@ -180,6 +182,8 @@ main(int argc, char *argv[])
 	wm_colormaps = XInternAtom(dpy, "WM_COLORMAP_WINDOWS", False);
 	_rio_running = XInternAtom(dpy, "_9WM_RUNNING", False);
 	_rio_hold_mode = XInternAtom(dpy, "_9WM_HOLD_MODE", False);
+	wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
+	wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
 
 	if(fname != 0)
 		if((font = XLoadQueryFont(dpy, fname)) == 0)

@@ -162,7 +162,8 @@ extern Atom 		wm_delete;
 extern Atom 		wm_take_focus;
 extern Atom		wm_lose_focus;
 extern Atom 		wm_colormaps;
-
+extern Atom		wm_state_fullscreen;
+extern Atom		wm_state;
 /* client.c */
 extern Client		*clients;
 extern Client		*current;
