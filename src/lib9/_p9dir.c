@@ -11,7 +11,7 @@
 #define _HAVESTGEN
 #include <sys/disk.h>
 static vlong
-disksize(int fd, int dev)
+disksize(int fd, struct stat *st)
 {
 	u64int bc;
 	u32int bs;
