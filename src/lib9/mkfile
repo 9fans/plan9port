@@ -88,7 +88,6 @@ LIB9OFILES=\
 	create.$O\
 	crypt.$O\
 	ctime.$O\
-	date.$O\
 	dial.$O\
 	dirfstat.$O\
 	dirfwstat.$O\
@@ -149,6 +148,7 @@ LIB9OFILES=\
 	syslog.$O\
 	sysname.$O\
 	time.$O\
+	tm2sec.$O\
 	tokenize.$O\
 	truerand.$O\
 	u16.$O\
@@ -158,6 +158,7 @@ LIB9OFILES=\
 	wait.$O\
 	waitpid.$O\
 	write.$O\
+	zoneinfo.$O\
 
 OFILES=\
 	$LIB9OFILES\
@@ -193,3 +194,4 @@ testgoogfmt: testfltfmt.$O googfmt.$O $XLIB
 testgoogprint: testprint.$O googfmt.$O $XLIB
 	$LD -o $target testprint.$O googfmt.$O
 
+ctime.$O tm2sec.$O zoneinfo.$O: zoneinfo.h
