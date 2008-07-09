@@ -66,11 +66,14 @@ esac
 # N.B. Must use temp file to avoid pipe; pipe loses status.
 # The uniq at the end is for gcc's strcmp/etc. built-in nonsense,
 # which multiplies single errors as a result of its expansion.
+# The "Cursor. is deprecated" kills off warnings from Apple
+# about using SetCursor/InitCursor.  (Okay, they're deprecated,
+# but you could at least tell us what to use instead, Apple!)
 xtmp=/tmp/9c.$$.$USER.out
 $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>$xtmp
 status=$?
 grep -v '__p9l_autolib_' $xtmp |
-egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|is dangerous, better use|is almost always misused|: In function |: At top level:|support .long long.|In file included from|        from|use of C99 long long|ISO C forbids conversion' |
+egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|is dangerous, better use|is almost always misused|: In function |: At top level:|support .long long.|In file included from|        from|use of C99 long long|ISO C forbids conversion|Cursor. is deprecated' |
 sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' |
 uniq 1>&2
 rm -f $xtmp $xtmp.status
