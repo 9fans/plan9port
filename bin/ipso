@@ -58,9 +58,11 @@ while(~ $1 -*){
 }
 
 if(~ $flush no && ~ $edit no && ~ $load no){
-	load = yes
 	edit = yes
-	flush = yes
+	if(~ factotum $*){
+		load = yes
+		flush = yes
+	}
 }
 
 if(~ $flush yes && ~ $edit no && ~ $load no){
