@@ -463,6 +463,12 @@ needstack(int n)
 	}
 }
 
+static int
+singlethreaded(void)
+{
+	return threadnproc == 1 && _threadprocs->nthread == 1;
+}
+
 /*
  * locking
  */
@@ -481,6 +487,12 @@ threadqlock(QLock *l, int block, ulong pc)
 		unlock(&l->l);
 		return 0;
 	}
+
+	if(singlethreaded()){
+		fprint(2, "qlock deadlock\n");
+		abort();
+	}
+
 /*print("qsleep %p @%#x by %p\n", l, pc, (*threadnow)()); */
 	addthread(&l->waiting, (*threadnow)());
 	unlock(&l->l);
@@ -537,6 +549,10 @@ threadrlock(RWLock *l, int block, ulong pc)
 		unlock(&l->l);
 		return 0;
 	}
+	if(singlethreaded()){
+		fprint(2, "rlock deadlock\n");
+		abort();
+	}
 	addthread(&l->rwaiting, (*threadnow)());
 	unlock(&l->l);
 	_threadswitch();
@@ -557,6 +573,10 @@ threadwlock(RWLock *l, int block, ulong pc)
 	if(!block){
 		unlock(&l->l);
 		return 0;
+	}
+	if(singlethreaded()){
+		fprint(2, "wlock deadlock\n");
+		abort();
 	}
 	addthread(&l->wwaiting, (*threadnow)());
 	unlock(&l->l);
@@ -613,6 +633,10 @@ threadwunlock(RWLock *l, ulong pc)
 static void
 threadrsleep(Rendez *r, ulong pc)
 {
+	if(singlethreaded()){
+		fprint(2, "rsleep deadlock\n");
+		abort();
+	}
 	addthread(&r->waiting, proc()->thread);
 	qunlock(r->l);
 	_threadswitch();
