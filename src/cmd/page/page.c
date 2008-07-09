@@ -132,6 +132,9 @@ threadmain(int argc, char **argv)
 	case 'i':
 		imagemode = 1;
 		break;
+	case 'W':
+		winsize = EARGF(usage());
+		break;
 	default:
 		usage();
 	}ARGEND;
