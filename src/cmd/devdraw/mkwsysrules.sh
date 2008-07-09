@@ -21,7 +21,9 @@ if [ "x$X11" = "x" ]; then
 fi
 
 if [ "x$WSYSTYPE" = "x" ]; then
-	if [ -d "$X11" ]; then
+	if [ "x`uname`" = "xDarwin" ]; then
+		WSYSTYPE=osx
+	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
 		WSYSTYPE=nowsys
