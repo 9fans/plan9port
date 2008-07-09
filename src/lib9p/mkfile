@@ -16,3 +16,7 @@ OFILES=\
 	util.$O\
 
 <$PLAN9/src/mksyslib
+
+$O.ramfs: ramfs.$O $LIBDIR/$LIB
+	$LD -o $target $prereq
+
