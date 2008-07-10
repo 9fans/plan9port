@@ -225,7 +225,7 @@ threadmain(int argc, char **argv)
 	char *err;
 	int n, cflag;
 	String *prompt;
-	char *file, *singleton;
+	char *file, *singleton, *service;
 
 	Binit(&out, 1, OWRITE);
 
@@ -233,7 +233,11 @@ threadmain(int argc, char **argv)
 	singleton = nil;
 	reverse = 1;
 	cflag = 0;
+	service = "mail";
 	ARGBEGIN {
+	case 'S':
+		service = EARGF(usage());
+		break;
 	case 'c':
 		cflag = 1;
 		break;
@@ -269,8 +273,8 @@ threadmain(int argc, char **argv)
 
 	if(argc)
 		usage();
-	if((mailfs = nsmount("mail", nil)) == nil)
-		sysfatal("cannot mount mail: %r");
+	if((mailfs = nsmount(service, nil)) == nil)
+		sysfatal("cannot mount %s: %r", service);
 
 	switchmb(file, singleton);
 
