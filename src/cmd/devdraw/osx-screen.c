@@ -48,6 +48,7 @@ struct {
 	MenuRef vmenu;
 	WindowRef window;
 	CGImageRef image;
+	CGContextRef windowctx;
 	PasteboardRef snarf;
 } osx;
 
@@ -466,6 +467,7 @@ eresized(int new)
 	int bpl;
 	CGDataProviderRef provider;
 	CGImageRef image;
+	CGColorSpaceRef cspace;
 	
 	GetWindowBounds(osx.window, kWindowContentRgn, &or);
 	r = Rect(or.left, or.top, or.right, or.bottom);
@@ -484,10 +486,13 @@ eresized(int new)
 	bpl = bytesperline(r, 32);
 	provider = CGDataProviderCreateWithData(0,
 		m->data->bdata, Dy(r)*bpl, 0);
+	//cspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+	cspace = CGColorSpaceCreateDeviceRGB();
 	image = CGImageCreate(Dx(r), Dy(r), 8, 32, bpl,
-		CGColorSpaceCreateDeviceRGB(),
+		cspace,
 		kCGImageAlphaNoneSkipLast,
 		provider, 0, 0, kCGRenderingIntentDefault);
+	CGColorSpaceRelease(cspace);
 	CGDataProviderRelease(provider);	// CGImageCreate did incref
 	
 	mouserect = m->r;
@@ -508,10 +513,10 @@ void
 _flushmemscreen(Rectangle r)
 {
 	CGRect cgr;
-	CGContextRef context;
 	CGImageRef subimg;
 
-	QDBeginCGContext(GetWindowPort(osx.window), &context);
+	if(osx.windowctx == nil)
+		QDBeginCGContext(GetWindowPort(osx.window), &osx.windowctx);
 	
 	cgr.origin.x = r.min.x;
 	cgr.origin.y = r.min.y;
@@ -519,11 +524,9 @@ _flushmemscreen(Rectangle r)
 	cgr.size.height = Dy(r);
 	subimg = CGImageCreateWithImageInRect(osx.image, cgr);
 	cgr.origin.y = Dy(osx.screenr) - r.max.y; // XXX how does this make any sense?
-	CGContextDrawImage(context, cgr, subimg);
-	CGContextFlush(context);
+	CGContextDrawImage(osx.windowctx, cgr, subimg);
+	CGContextFlush(osx.windowctx);
 	CGImageRelease(subimg);
-
-	QDEndCGContext(GetWindowPort(osx.window), &context);
 }
 
 void
@@ -534,11 +537,19 @@ fullscreen(void)
 	GDHandle device;
 
 	if(osx.isfullscreen){
+		if(osx.windowctx){
+			QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
+			osx.windowctx = nil;
+		}
 		EndFullScreen(restore, 0);
 		osx.window = oldwindow;
 		ShowWindow(osx.window);
 		osx.isfullscreen = 0;
 	}else{
+		if(osx.windowctx){
+			QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
+			osx.windowctx = nil;
+		}
 		HideWindow(osx.window);
 		oldwindow = osx.window;
 		GetWindowGreatestAreaDevice(osx.window, kWindowTitleBarRgn, &device, nil);
@@ -699,6 +710,7 @@ putsnarf(char *s)
 		qunlock(&clip.lk);
 		return;
 	}
+	assert(sizeof(clip.rbuf[0]) == 2);
 	cfdata = CFDataCreate(kCFAllocatorDefault, 
 		(uchar*)clip.rbuf, runestrlen(clip.rbuf)*2);
 	if(cfdata == nil){
@@ -713,7 +725,7 @@ putsnarf(char *s)
 		qunlock(&clip.lk);
 		return;
 	}
-	/* CFRelease(cfdata); ??? */
+	CFRelease(cfdata);
 	qunlock(&clip.lk);
 }
 
@@ -724,6 +736,7 @@ setlabel(char *label)
 
 	cs = CFStringCreateWithBytes(nil, (uchar*)osx.label, strlen(osx.label), kCFStringEncodingUTF8, false);
 	SetWindowTitleWithCFString(osx.window, cs);
+	CFRelease(cs);
 }
 
 static void
