@@ -51,7 +51,9 @@ run(char *name, int fd)
 	char *p, *q, *f[100];
 	int nf, code, wid, ad;
 	Biobuf b;
+	Fmt fmt;
 	
+	fmtstrinit(&fmt);
 	Binit(&b, fd, OREAD);
 	while((p = Brdline(&b, '\n')) != nil){
 		p[Blinelen(&b)-1] = 0;
@@ -84,10 +86,14 @@ run(char *name, int fd)
 				ad |= 1;
 			if(atoi(f[nf-2]) > 600)
 				ad |= 2;
+			if(nf >= 7 && strcmp(f[5], "N") == 0 && strcmp(f[6], "space") == 0)
+				code = ' ';
 			if(code == ' ')
 				Bprint(&bout, "spacewidth %d\ncharset\n", wid);
 			else
-				Bprint(&bout, "%C\t%d\t%d\t%d %04x\n", code, wid, ad, code, code);
+				fmtprint(&fmt, "%C\t%d\t%d\t%d %04x\n",
+					code, wid, ad, code, code);
 		}
 	}
+	Bprint(&bout, "%s", fmtstrflush(&fmt));
 }

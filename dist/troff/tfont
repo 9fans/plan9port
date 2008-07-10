@@ -15,8 +15,11 @@ for(font){
 		font=`{9 basename $font .ttf}
 	if not if(~ $font *.sfd)
 		font=`{9 basename $font .sfd}
-	fontforge -c 'Open($1); Generate($2, "", -1, 72, "map.sfd")' \
-		$f0 $font^%s.pfb map.sfd
+	echo '
+		Open("'$f0'")
+		Generate("'$font^%s.pfb'", "", -1, 72, "map.sfd")
+	' >fontforge.in
+	fontforge -script fontforge.in
 	{
 		echo name $font
 		echo fontname $font
@@ -25,7 +28,7 @@ for(font){
 	for(h in $hex){
 		if(test -f $font$h.pfb){
 			pfb2pfa $font$h.pfb $font$h.pfa
-			mv $font$h.pfa /usr/local/plan9/postscript/font/dejavu/$font$h
+			mv $font$h.pfa /usr/local/plan9/postscript/font/$font$h
 			afm2troff -h -o 0x$h^00 $font$h.afm >>$font.troff
 			echo 0x$h^00 0x$h^FF $font$h >>$font.tpost
 		}
