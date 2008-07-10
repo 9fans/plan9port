@@ -45,6 +45,7 @@ struct Kbdbuf
 struct Mousebuf
 {
 	Mouse m[32];
+	Mouse last;
 	int ri;
 	int wi;
 	int stall;
@@ -201,7 +202,6 @@ runmsg(Wsysmsg *m)
 			mousetags.wi = 0;
 		if(mousetags.wi == mousetags.ri)
 			sysfatal("too many queued mouse reads");
-		/* fprint(2, "mouse unstall\n"); */
 		mouse.stall = 0;
 		matchmouse();
 		zunlock();
@@ -379,21 +379,28 @@ mousetrack(int x, int y, int b, int ms)
 		y = mouserect.max.y;
 
 	zlock();
-	m = &mouse.m[mouse.wi];
-	m->xy.x = x;
-	m->xy.y = y;
-	m->buttons = b;
-	m->msec = ms;
-	mouse.wi++;
-	if(mouse.wi == nelem(mouse.m))
-		mouse.wi = 0;
-	if(mouse.wi == mouse.ri){
-		mouse.stall = 1;
-		mouse.ri = 0;
-		mouse.wi = 1;
-		mouse.m[0] = *m;
+	// If reader has stopped reading, don't bother.
+	// If reader is completely caught up, definitely queue.
+	// Otherwise, queue only button change events.
+	if(!mouse.stall)
+	if(mouse.wi == mouse.ri || mouse.last.buttons != b){
+		m = &mouse.last;
+		m->xy.x = x;
+		m->xy.y = y;
+		m->buttons = b;
+		m->msec = ms;
+
+		mouse.m[mouse.wi] = *m;
+		if(++mouse.wi == nelem(mouse.m))
+			mouse.wi = 0;
+		if(mouse.wi == mouse.ri){
+			mouse.stall = 1;
+			mouse.ri = 0;
+			mouse.wi = 1;
+			mouse.m[0] = *m;
+		}
+		matchmouse();
 	}
-	matchmouse();
 	zunlock();
 }
 
