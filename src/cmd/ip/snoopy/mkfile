@@ -62,7 +62,7 @@ protos.c: mkfile
 		do
 			echo '	&'$i','
 		done
-		echo '	0,'
+		echo '	0'
 		echo '};'
 	) > protos.c
 
