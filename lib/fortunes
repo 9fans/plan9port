@@ -4167,3 +4167,51 @@ Linux is neither Unix nor Windows — it's the worst of both worlds -- jmk
 Did you ever try to write poetry in a committee meeting? It's like a bunch of fat construction guys trying to write an opera while sitting on the couch watching Baywatch. The more fat construction guys you add to the couch, the less likely you are to get opera out of it.  - Joel Spolsky
 Don't interrupt!  Let me finish! - Rae McLellan
 bool x = "false";  // valid C++ [sets x to true]
+# The below line not be changed otherwise we refuse to work
+having read AF_UNIX(7) i'm still don't see the point.  portable programs should not do this.  portable programs should not do that.  the details of this varies from implementation to implementation.  none of the following socket things ... are implemented.  the name is limited to 107 bytes.   - forsyth
+Please wait. This can take some time.
+I love troff. It reminds me of runoff, which reminds me of my youth, when VMS was in flower and knowledge of EDT and runoff was all a lad needed to make a good living as a tech writer.  - Frank Willison
+General Internet error has occurred. - [OpenOffice.org 2.0]
+Remember to drink responsibly during this St. Patrick's Day season.
+File under POPULAR: Male Vocal - Syd Barrett LP sleeve
+N = C + {fb (cm) . fb (tc)} + fb (Ts) + fc . ta, where N=force in Newtons required to break the cooked bacon, fb=function of the bacon type, fc=function of the condiment/filling effect, Ts=serving temperature, tc=cooking time, ta=time or duration of application of condiment/filling, cm=cooking method, C=Newtons required to break uncooked bacon
+#define v6addrcurr(lifc) (( (lifc)->origint + (lifc)->preflt >= (NOW/10^3) ) || ( (lifc)->preflt == 0xffffffff ))
+It seems that subjective C is more popular than objective C - brucee
+Eta aquarid  meeteeor shouwer - astro -k
+The program 'apt-get' is currently not installed.  You can install it by typing: apt-get install apt  - ubuntu linux
+Subject: Re: [9fans] speaking of kenc... can you imagine a c compiler that does not translate to asm first? or can you imagine porting a c compiler when you dont have an assembler? -- Rogelio Serrano
+I expect to be quite wealthy once the dust from the Linux IPOs has settled.  - Eric Raymond, "Doing It For the Cause", December 1999
+A handful of characteristics of Unix are responsible for its resilience. First, Unix is simple: whereas some operating systems implement thousands of system calls and have unclear design goals, Unix systems typically implement only hundreds of system calls and have a very clear design. -- Linux Kernel Development, 2nd Ed. by Robert Love
+IF YOU CAN HEAR THUNDER...YOU ARE CLOSE ENOUGH TO BE STRUCK BY LIGHTNING.
+If you go and talk to our people and ask why they are doing something, they will give you a good reason why they are doing it.  - Ravi Sethi, President, Avaya Labs Research
+hi uriel!
+Gianfranco Luigi per tutti bezahlen.
+Science is what we understand well enough to explain to a computer.  Art is everything else we do.  - Donald Knuth
+process `sysctl' is using deprecated sysctl (syscall) net.ipv6.neigh.eth1.base_reachable_time; Use net.ipv6.neigh.eth1.base_reachable_time_ms instead.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+Th' canny man keeps his money in sheep - or he keeps it in th' First Presbyterian Bank o' Scotland
+ttcp-r: 3689238521928343900000000000000 bytes in 41.02 real seconds = 87829643931512629000000000.00 KB/sec +++
+By the time you finish reading this article, you will be able to take advantage of the coolest file system feature to be implemented since the symbolic link.  - CLI Magic: Use Extended Attributes for better file management By Ryan Paul
+Intel Pentium 4 2.0Hz processor - TigerDirect catalogue
+You are roughly 2^90 times more likely to win a U.S. state lottery *and* be struck by lightning simultaneously than you are to encounter [an accidental SHA1 collision] in your file system.  - J. Black
+prelink - prelink ELF shared libraries and binaries to speed up startup time
+	schedule(); // XXX poll? waitqueues?
+gsoc | doc archive | uriel | harmful | 9P | cat-v.org
+/*FIXME: what about parameter checking: context, etc? have a macro too? */
+Results 1 - 10 of about 34,900,000 for all else is the work of God.
+This is Radio Clash on pirate satellite.
+We already agreed on a solution. Nobody is interested in implementing it.  - Lucho
+This resource fork intentionally left blank
+checking size of char... 1  - gnu configure
+Nobody wants to argue with Knuth – it is the equivalent of arguing against the second law of thermodynamics.  - Mick West
+Customer stickiness reduces churn making it a valuable benefit.
+SIP is the Linux of telephony. - Sape
+There was an error during the CUPS operation: 'client-error-not-possible'.
+The following recipient(s) could not be reached: OpenView Service Desk on 11/7/2007 4:24 PM  The message could not be delivered because the recipient's mailbox is full.  - automated response to mail complaining that limits on mailbox size are too low
+Dear Valued Customer #88143191!
+rusty: kernel pseudo files are not the place for chit-chat
+I define UNIX as ``30 definitions of regular expressions living under one roof.''  - Don Knuth
+ADDITIONAL METAPHOR SPOILER ALERT: ``The Old Man and the Sea'' is not just about an old man and the sea.
+2008-06-18 00:00:37: [650] DEBUG: msg 5 not interesting
+Your IP address is: <? echo getenv('REMOTE_ADDR'); ?>. By continuing to browse this website, you agree to the following terms.
+/*	dummy = malloc(0);  *//* prepare for garbage-collection */
