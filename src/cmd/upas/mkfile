@@ -2,7 +2,7 @@
 
 LIBS=common
 #PROGS=smtp alias fs ned misc q send scanmail pop3 ml marshal vf filterkit unesc
-PROGS=smtp alias fs ned q send marshal vf 
+PROGS=smtp alias fs ned q send marshal vf misc
 #libs must be made first
 DIRS=$LIBS $PROGS
 
