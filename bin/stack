@@ -1,8 +1,11 @@
 #!/usr/local/plan9/bin/rc
 
-pid=$1
+if(~ $#* 0)
+	pid=core
+if not
+	pid=$1
 shift
-if(! ~ $pid [0-9] [0-9]*[0-9] */core *.core core.* */core.*){
+if(! ~ $pid [0-9] [0-9]*[0-9] */core *.core core.* */core.* core){
 	name=$pid
 	pid=`{psu|awk '$NF=="'$name'" {print $2}'}
 	if(~ $#pid 0){
