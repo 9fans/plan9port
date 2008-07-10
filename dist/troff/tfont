@@ -16,10 +16,42 @@ for(font){
 	if not if(~ $font *.sfd)
 		font=`{9 basename $font .sfd}
 	echo '
-		Open("'$f0'")
-		Generate("'$font^%s.pfb'", "", -1, 72, "map.sfd")
-	' >fontforge.in
-	fontforge -script fontforge.in
+import fontforge
+f = fontforge.open("'$f0'")
+ff = fontforge.open("./'$f0'")
+changed = True
+while changed:
+	changed = False
+	for i in range(0, len(f)):
+		try:
+			f[i].temporary = [ ]
+		except:
+			pass
+	
+	for i in range(0, len(f)):
+		try:
+			f[i].temporary.append(i)
+		except:
+			pass
+	
+	for i in range(0, len(f)):
+		try:
+			g = f[i]
+			codes = g.temporary
+			if len(codes) > 1:
+				print "Doubled: ", g.temporary
+				gg = ff[i]
+				f.removeGlyph(g)
+				for j in range(1, len(codes)):
+					f.createMappedChar(codes[j])
+				f.createInterpolatedGlyph(gg, gg, 0)
+				changed = True
+		except:
+			pass
+
+f.generate("'$font^%s.pfb'", "", ("afm",), 72, "map.sfd")
+' >fontforge.in
+	fontforge '-lang=py' -script fontforge.in
 	{
 		echo name $font
 		echo fontname $font
@@ -27,7 +59,7 @@ for(font){
 	>$font.tpost
 	for(h in $hex){
 		if(test -f $font$h.pfb){
-			pfb2pfa $font$h.pfb $font$h.pfa
+			pfb2pfa $font$h.pfb
 			mv $font$h.pfa /usr/local/plan9/postscript/font/$font$h
 			afm2troff -h -o 0x$h^00 $font$h.afm >>$font.troff
 			echo 0x$h^00 0x$h^FF $font$h >>$font.tpost
