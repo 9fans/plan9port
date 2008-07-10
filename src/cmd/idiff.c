@@ -7,14 +7,11 @@
 #include <libc.h>
 #include <bio.h>
 
-#define opentemp idiffopentemp
-
 int diffbflag;
 int diffwflag;
 
 void copy(Biobuf*, char*, Biobuf*, char*);
 void idiff(Biobuf*, char*, Biobuf*, char*, Biobuf*, char*, Biobuf*, char*);
-int opentemp(char*, int, long);
 void rundiff(char*, char*, int);
 
 void
@@ -63,9 +60,9 @@ main(int argc, char **argv)
 		sysfatal("open %s: %r", argv[1]);
 
 	strcpy(diffout, "/tmp/idiff.XXXXXX");
-	fd = opentemp(diffout, ORDWR|ORCLOSE, 0);
+	fd = opentemp(diffout, ORDWR|ORCLOSE);
 	strcpy(idiffout, "/tmp/idiff.XXXXXX");
-	ofd = opentemp(idiffout, ORDWR|ORCLOSE, 0);
+	ofd = opentemp(idiffout, ORDWR|ORCLOSE);
 	rundiff(argv[0], argv[1], fd);
 	seek(fd, 0, 0);
 	Binit(&bdiff, fd, OREAD);
@@ -78,22 +75,6 @@ main(int argc, char **argv)
 	Binit(&bstdout, 1, OWRITE);
 	copy(&bout, idiffout, &bstdout, "<stdout>");
 	exits(nil);
-}
-
-int
-opentemp(char *template, int mode, long perm)
-{
-	int fd;
-	Dir d;
-
-	fd = mkstemp(template);
-	if(fd < 0)
-		sysfatal("could not create temporary file");
-	nulldir(&d);
-	d.mode = perm;
-	dirfwstat(fd, &d);
-
-	return fd;
 }
 
 void

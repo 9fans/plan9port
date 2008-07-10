@@ -1,13 +1,13 @@
 .TH OPENTEMP 3
 .SH NAME
-opentemp \- create a uniquely-named file
+opentemp \- create and open a uniquely-named file
 .SH SYNOPSIS
 .B #include <u.h>
 .br
 .B #include <libc.h>
 .PP
 .B
-int opentemp(char *template)
+int opentemp(char *template, int mode)
 .SH DESCRIPTION
 .I Opentemp
 replaces
@@ -28,8 +28,12 @@ are tried until the name of a file that does not yet exist
 .IR access (2))
 is generated.
 .I Opentemp
-then creates the file for reading and writing
+then opens the file for the given
+.I mode
 and returns the file descriptor.
+Most calls should use a mode
+of
+.BR ORDWR|ORCLOSE .
 .PP
 If no such name can be generated,
 .I opentemp

@@ -260,7 +260,7 @@ threadmain(int argc, char **argv)
 		if(tmpnam == nil)
 			sysfatal("smprint: %r");
 	
-		if((fd = opentemp(tmpnam)) < 0)
+		if((fd = opentemp(tmpnam, ORDWR|ORCLOSE)) < 0)
 			sysfatal("opentemp %s: %r", tmpnam);
 		if(statustime)
 			print("# %T reading scores into %s\n", tmpnam);

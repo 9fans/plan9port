@@ -96,7 +96,6 @@ int	min(int, int);
 void	wexits(char*);
 Image*	xallocimage(Display*, Rectangle, ulong, int, ulong);
 int	bell(void*, char*);
-int	opentemp(char *template);
 Image*	convert(Graphic *g);
 
 extern int stdinfd;

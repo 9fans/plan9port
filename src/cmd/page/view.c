@@ -732,7 +732,7 @@ viewer(Document *dd)
 			}
 			if(showdata(pm)) {
 				s = estrdup("/tmp/pageplumbXXXXXXX");
-				fd = opentemp(s);
+				fd = opentemp(s, ORDWR|ORCLOSE);
 				write(fd, pm->data, pm->ndata);
 				/* lose fd reference on purpose; the file is open ORCLOSE */
 			} else if(pm->data[0] == '/') {

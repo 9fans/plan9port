@@ -53,7 +53,7 @@ spooltodisk(uchar *ibuf, int in, char **name)
 	char temp[40];
 
 	strcpy(temp, "/tmp/pagespoolXXXXXXXXX");
-	fd = opentemp(temp);
+	fd = opentemp(temp, ORDWR|ORCLOSE);
 	if(name)
 		*name = estrdup(temp);
 

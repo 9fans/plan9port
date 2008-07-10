@@ -32,7 +32,7 @@ initfilt(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf, char *type, cha
 		p[1] = open("/dev/null", ORDWR);
 	}
 
-	ofd = opentemp(template);
+	ofd = opentemp(template, ORDWR|ORCLOSE);
 	switch(fork()){
 	case -1:
 		fprint(2, "fork fails: %r\n");

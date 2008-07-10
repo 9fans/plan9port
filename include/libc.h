@@ -391,7 +391,7 @@ extern	int	iounit(int);
 /* extern	double	ldexp(double, int); <math.h> */
 extern	void	p9longjmp(p9jmp_buf, int);
 extern	char*	mktemp(char*);
-extern	int		opentemp(char*);
+extern	int		opentemp(char*, int);
 /* extern	double	modf(double, double*); <math.h> */
 extern	void	p9notejmp(void*, p9jmp_buf, int);
 extern	void	perror(const char*);
