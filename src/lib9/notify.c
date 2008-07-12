@@ -37,7 +37,8 @@ struct Sig
 enum
 {
 	Restart = 1<<0,
-	Ignore = 1<<1
+	Ignore = 1<<1,
+	NoNotify = 1<<2,
 };
 
 static Sig sigs[] = {
@@ -58,7 +59,7 @@ static Sig sigs[] = {
 	SIGPIPE,		Ignore,
 	SIGALRM,		0,
 	SIGTERM,		0,
-	SIGTSTP,		Restart|Ignore,
+	SIGTSTP,		Restart|Ignore|NoNotify,
 /*	SIGTTIN,		Restart|Ignore, */
 /*	SIGTTOU,		Restart|Ignore, */
 	SIGXCPU,		0,
@@ -67,10 +68,10 @@ static Sig sigs[] = {
 	SIGUSR1,		0,
 	SIGUSR2,		0,
 #ifdef SIGWINCH
-	SIGWINCH,	Restart|Ignore,
+	SIGWINCH,	Restart|Ignore|NoNotify,
 #endif
 #ifdef SIGINFO
-	SIGINFO,		Restart|Ignore,
+	SIGINFO,		Restart|Ignore|NoNotify,
 #endif
 };
 
@@ -266,7 +267,7 @@ noteinit(void)
 		 */
 		if(handler(sig->sig) != SIG_DFL)
 			continue;
-		notifyseton(sig->sig, 1);
+		notifyseton(sig->sig, !(sig->flags&NoNotify));
 	}
 }
 
