@@ -116,17 +116,37 @@ struct {
 	"koi8-r",			"koi8"
 };
 
+typedef struct Writeargs Writeargs;
+struct Writeargs
+{
+	int fd;
+	char *s;
+};
+
+static void
+twriter(void *v)
+{
+	Writeargs *w;
+	
+	w = v;
+	write(w->fd, w->s, strlen(w->s));
+	close(w->fd);
+	free(w->s);
+	free(w);
+}
+
 char*
 tcs(char *charset, char *s)
 {
-	static char buf[4096];
-	int i, n;
+	char *buf;
+	int i, n, nbuf;
 	int fd[3], p[2], pp[2];
 	uchar *us;
 	char *t, *u;
 	char *argv[4];
 	Rune r;
-	
+	Writeargs *w;
+
 	if(s == nil || charset == nil || *s == 0)
 		return s;
 
@@ -173,15 +193,26 @@ tcs:
 	}
 	close(p[0]);
 	close(pp[0]);
-	write(p[1], s, strlen(s));
-	close(p[1]);
-	n = readn(pp[1], buf, sizeof buf-1);
+
+	nbuf = UTFmax*strlen(s)+100;	/* just a guess at worst case */
+	buf = emalloc(nbuf);
+
+	w = emalloc(sizeof *w);
+	w->fd = p[1];
+	w->s = estrdup(s);
+	proccreate(twriter, w, STACK);
+
+	n = readn(pp[1], buf, nbuf-1);
 	close(pp[1]);
-	if(n <= 0)
+	if(n <= 0){
+		free(buf);
 		goto latin1;
-	free(s);
+	}
 	buf[n] = 0;
-	return estrdup(buf);
+	free(s);
+	s = estrdup(buf);
+	free(buf);
+	return s;
 }
 
 char*
