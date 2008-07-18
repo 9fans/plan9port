@@ -28,7 +28,7 @@ enum {
 	Kview=	0x80,
 	Kpgdown=	KF|0x13,
 	Kins=	KF|0x14,
-	Kend=	'\r',	/* [sic] */
+	Kend=	KF|0x18,
 
 	Kalt=		KF|0x15,
 	Kshift=	KF|0x16,
