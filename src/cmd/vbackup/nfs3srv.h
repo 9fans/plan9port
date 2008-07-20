@@ -9,6 +9,8 @@ Nfs3Status	fsreaddir(SunAuthUnix*, Nfs3Handle*, u32int, u64int, uchar**, u32int*
 extern void nfs3proc(void*);
 extern void mount3proc(void*);
 
+extern int insecure;
+
 enum
 {
 	MaxDataSize = 8192

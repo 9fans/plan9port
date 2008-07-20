@@ -10,6 +10,8 @@
 #include <nfs3.h>
 #include "nfs3srv.h"
 
+int			insecure = 0;
+
 static SunStatus
 authunixunpack(SunRpc *rpc, SunAuthUnix *au)
 {
@@ -23,10 +25,12 @@ authunixunpack(SunRpc *rpc, SunAuthUnix *au)
 	ep = p+ai->ndata;
 	if(sunauthunixunpack(p, ep, &p, au) < 0)
 		return SunGarbageArgs;
-	if(au->uid == 0)
-		au->uid = -1;
-	if(au->gid == 0)
-		au->gid = -1;
+	if(!insecure){
+		if(au->uid == 0)
+			au->uid = -1;
+		if(au->gid == 0)
+			au->gid = -1;
+	}
 
 	return SunSuccess;
 }

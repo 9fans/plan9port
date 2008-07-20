@@ -74,7 +74,7 @@ u64int	unittoull(char*);
 void
 usage(void)
 {
-	fprint(2, "usage: vnfs [-LLRVr] [-a addr] [-b blocksize] [-c cachesize] configfile\n");
+	fprint(2, "usage: vnfs [-LLRVir] [-a addr] [-b blocksize] [-c cachesize] configfile\n");
 	threadexitsall("usage");
 }
 
@@ -127,6 +127,9 @@ threadmain(int argc, char **argv)
 		break;
 	case 'c':
 		cachesize = unittoull(EARGF(usage()));
+		break;
+	case 'i':
+		insecure = 1;
 		break;
 	case 'r':
 		srv->alwaysreject++;

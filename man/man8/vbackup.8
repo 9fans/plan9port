@@ -52,7 +52,7 @@ back up Unix file systems to Venti
 .PP
 .B vnfs
 [
-.B -ELLRVr
+.B -ELLRVir
 ]
 [
 .B -a
@@ -276,6 +276,12 @@ file system mentioned in the configuration.
 .TP
 .BI -c " cachesize
 Set the number of blocks stored by the in-memory venti cache.
+.TP
+.B -i
+Run in ``insecure'' mode, allowing remote root users to 
+use uid and gid 0 and read any file.
+(Normally, remote root is mapped to uid and gid \-1
+and has no special permissions.)
 .TP
 .B -r
 Respond to all requests with a Sun RPC rejection.
