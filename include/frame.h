@@ -64,6 +64,7 @@ Point	frdrawsel0(Frame*, Point, ulong, ulong, Image*, Image*);
 void	frinit(Frame*, Rectangle, Font*, Image*, Image**);
 void	frsetrects(Frame*, Rectangle, Image*);
 void	frclear(Frame*, int);
+void	frredraw(Frame*);
 
 uchar	*_frallocstr(Frame*, unsigned);
 void	_frinsure(Frame*, int, unsigned);
