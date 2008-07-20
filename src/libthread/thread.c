@@ -281,6 +281,19 @@ threadunpin(void)
 	p->pinthread = nil;
 }
 
+void
+threadsysfatal(char *fmt, ...)
+{
+	char buf[256];
+	va_list arg;
+
+	va_start(arg, fmt);
+	vseprint(buf, buf+sizeof(buf), fmt, arg);
+	__fixargv0();
+	fprint(2, "%s: %s\n", argv0 ? argv0 : "<prog>", buf);
+	threadexitsall(buf);
+}
+
 static void
 contextswitch(Context *from, Context *to)
 {
@@ -686,6 +699,8 @@ threadmainstart(void *v)
 	threadmain(threadargc, threadargv);
 }
 
+extern void (*_sysfatal)(char*, ...);
+
 int
 main(int argc, char **argv)
 {
@@ -715,6 +730,7 @@ main(int argc, char **argv)
 	_notejmpbuf = threadnotejmp;
 	_pin = threadpin;
 	_unpin = threadunpin;
+	_sysfatal = threadsysfatal;
 
 	_pthreadinit();
 	p = procalloc();
