@@ -1,0 +1,17 @@
+<$PLAN9/src/mkhdr
+
+TARG=9660srv
+
+OFILES=\
+	main.$O\
+	9660srv.$O\
+	xfile.$O\
+	iobuf.$O\
+	data.$O\
+
+HFILES=dat.h fns.h
+
+<$PLAN9/src/mkone
+
+9660srv.$O: iso9660.h
+
