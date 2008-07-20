@@ -225,6 +225,11 @@ On most operating systems,
 .I vmount
 must be run by the user
 .BR root .
+Because
+.I address
+is passed to the host OS kernel rather than interpreted by
+.IR dial (3),
+it must be only an IP address, not a full dial address.
 .PP
 .I Vnfs
 serves, using the
@@ -344,6 +349,16 @@ or
 rules are given, the default action is to reject the request.
 In the absence of any rules, the default action is to accept all requests.
 .PD
+.PP
+Reading the special file
+.B /dump/+refreshconfig
+causes 
+.I vnfs
+to reload
+.IR config .
+The read returns either the string
+.B ok
+or an error message.
 .SH EXAMPLES
 .PP
 Running on the server
