@@ -1,10 +1,12 @@
 MAKEALL=`{cd ../make; ls Make.*}
+CFILES=`{9 ls -p $PLAN9/src/lib9/fmt/*.c}
+CFILES1=`{9 ls -p $PLAN9/src/lib9/fmt/*.c |grep -v test}
 TARG=\
 	$MAKEALL\
+	$CFILES\
 	NOTICE\
 	README\
 	Makefile\
-	`{9 ls -p $PLAN9/src/lib9/fmt/*.c}\
 	fmt.h\
 	fmtdef.h\
 	nan.h\
@@ -18,4 +20,18 @@ WHAT=fmt
 
 %: $PLAN9/src/lib9/fmt/%
 	cp $prereq $target
+
+fmt1.c: plan9.h $CFILES1
+	(echo '#include <stdarg.h>'; \
+	 echo '#include <string.h>'; \
+	 echo '#include <stdlib.h>'; \
+	 echo '#include <errno.h>'; \
+	 echo '#include <limits.h>'; \
+	 echo '#include <math.h>'; \
+	 echo '#include <float.h>'; \
+	 cat plan9.h; \
+	 echo '#include "utf.h"'; \
+	 echo '#include "fmt.h"'; \
+	 cat fmtdef.h; \
+	 grep -hv '^#include' $CFILES1) >$target
 

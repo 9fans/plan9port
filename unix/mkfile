@@ -17,14 +17,14 @@ test-%:V:
 	t=$stem
 	path=($PLAN9/bin $path)
 	mk new-$t
-	cd $t
 	switch($t){
-	case bio;	d=libbio
-	case regexp;	d=libregexp
-	case fmt;	d=lib9/fmt
-	case utf:	d=lib9/utf
-	case mk;	d=cmd/mk
+	case bio;	d=libbio; td=libbio
+	case regexp;	d=libregexp; td=libregexp
+	case fmt;	d=lib9/fmt; td=libfmt
+	case utf;	d=lib9/utf; td=libutf
+	case mk;	d=cmd/mk; td=mk
 	}
+	cd $td
 	d=$PLAN9/src/$d
 	for(i in `{ls -p $d/*.c})
 		if(! test -f $i)
@@ -34,7 +34,7 @@ test-%:V:
 		if(! test -f `{echo $i | sed 's/.c$/.o/'})
 			echo XXX not building $i
 	cd ..
-	rm -r $t
+	rm -r $td
 
 lib%.tgz:V:
 	mk new-$stem

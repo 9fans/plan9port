@@ -28,8 +28,8 @@ HFILES=\
 all: $(LIB)
 
 install: $(LIB)
-	mkdir -p $(PREFIX)/man/man3
-	install -m 0644 bio.3 $(PREFIX)/man/man3/bio.3
+	mkdir -p $(PREFIX)/share/man/man3
+	install -m 0644 bio.3 $(PREFIX)/share/man/man3/bio.3
 	mkdir -p $(PREFIX)/include
 	install -m 0644 bio.h $(PREFIX)/include
 	mkdir -p $(PREFIX)/lib

@@ -31,11 +31,11 @@ HFILES=\
 all: $(LIB)
 
 install: $(LIB)
-	mkdir -p $(PREFIX)/man/man3 $(PREFIX)/man/man7
-	install -c -m 0644 isalpharune.3 $(PREFIX)/man/man3/isalpharune.3
+	mkdir -p $(PREFIX)/share/man/man3 $(PREFIX)/man/man7
+	install -c -m 0644 isalpharune.3 $(PREFIX)/share/man/man3/isalpharune.3
 	install -c -m 0644 utf.7 $(PREFIX)/man/man7/utf.7
-	install -c -m 0644 rune.3 $(PREFIX)/man/man3/rune.3
-	install -c -m 0644 runestrcat.3 $(PREFIX)/man/man3/runestrcat.3
+	install -c -m 0644 rune.3 $(PREFIX)/share/man/man3/rune.3
+	install -c -m 0644 runestrcat.3 $(PREFIX)/share/man/man3/runestrcat.3
 	mkdir -p $(PREFIX)/include
 	install -c -m 0644 utf.h $(PREFIX)/include/utf.h
 	mkdir -p $(PREFIX)/lib
