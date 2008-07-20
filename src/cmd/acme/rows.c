@@ -355,6 +355,21 @@ rowdump(Row *row, char *file)
 		for(j=0; j<c->nw; j++)
 			c->w[j]->body.file->dumpid = 0;
 	}
+	m = min(RBUFSIZE, row->tag.file->b.nc);
+	bufread(&row->tag.file->b, 0, r, m);
+	n = 0;
+	while(n<m && r[n]!='\n')
+		n++;
+	Bprint(b, "w %.*S\n", n, r);
+	for(i=0; i<row->ncol; i++){
+		c = row->col[i];
+		m = min(RBUFSIZE, c->tag.file->b.nc);
+		bufread(&c->tag.file->b, 0, r, m);
+		n = 0;
+		while(n<m && r[n]!='\n')
+			n++;
+		Bprint(b, "c%11d %.*S\n", i, n, r);
+	}
 	for(i=0; i<row->ncol; i++){
 		c = row->col[i];
 		for(j=0; j<c->nw; j++){
@@ -494,7 +509,7 @@ rowloadfonts(char *file)
 int
 rowload(Row *row, char *file, int initing)
 {
-	int i, j, line, y, nr, nfontr, n, ns, ndumped, dumpid, x, fd;
+	int i, j, line, y, nr, nfontr, n, ns, ndumped, dumpid, x, fd, done;
 	double percent;
 	Biobuf *b, *bout;
 	char *buf, *l, *t, *fontname;
@@ -573,10 +588,45 @@ rowload(Row *row, char *file, int initing)
 		if(i >= row->ncol)
 			rowadd(row, nil, x);
 	}
-	for(;;){
+	done = 0;
+	while(!done){
 		l = rdline(b, &line);
 		if(l == nil)
 			break;
+		switch(l[0]){
+		case 'c':
+			l[Blinelen(b)-1] = 0;
+			i = atoi(l+1+0*12);
+			r = bytetorune(l+1*12, &nr);
+			ns = -1;
+			for(n=0; n<nr; n++){
+				if(r[n] == '/')
+					ns = n;
+				if(r[n] == ' ')
+					break;
+			}
+			textdelete(&row->col[i]->tag, 0, row->col[i]->tag.file->b.nc, TRUE);
+			textinsert(&row->col[i]->tag, 0, r+n+1, nr-(n+1), TRUE);
+			break;
+		case 'w':
+			l[Blinelen(b)-1] = 0;
+			r = bytetorune(l+2, &nr);
+			ns = -1;
+			for(n=0; n<nr; n++){
+				if(r[n] == '/')
+					ns = n;
+				if(r[n] == ' ')
+					break;
+			}
+			textdelete(&row->tag, 0, row->tag.file->b.nc, TRUE);
+			textinsert(&row->tag, 0, r, nr, TRUE);
+			break;
+		default:
+			done = 1;
+			break;
+		}
+	}
+	for(;;){
 		dumpid = 0;
 		switch(l[0]){
 		case 'e':
@@ -719,6 +769,9 @@ rowload(Row *row, char *file, int initing)
 			q0 = q1 = 0;
 		textshow(&w->body, q0, q1, 1);
 		w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));
+		l = rdline(b, &line);
+		if(l == nil)
+			break;
 	}
 	Bterm(b);
 	fbuffree(buf);
