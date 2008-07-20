@@ -686,21 +686,51 @@ Xqdol(void)
 }
 
 word*
+copynwords(word *a, word *tail, int n)
+{
+	word *v, **end;
+	
+	v = 0;
+	end = &v;
+	while(n-- > 0){
+		*end = newword(a->word, 0);
+		end = &(*end)->next;
+		a = a->next;
+	}
+	*end = tail;
+	return v;
+}
+
+word*
 subwords(word *val, int len, word *sub, word *a)
 {
-	int n;
+	int n, m;
 	char *s;
 	if(!sub)
 		return a;
 	a = subwords(val, len, sub->next, a);
 	s = sub->word;
 	deglob(s);
+	m = 0;
 	n = 0;
-	while('0'<=*s && *s<='9') n = n*10+ *s++ -'0';
-	if(n<1 || len<n)
+	while('0'<=*s && *s<='9')
+		n = n*10+ *s++ -'0';
+	if(*s == '-'){
+		if(*++s == 0)
+			m = len - n;
+		else{
+			while('0'<=*s && *s<='9')
+				m = m*10+ *s++ -'0';
+			m -= n;
+		}
+	}
+	if(n<1 || n>len || m<0)
 		return a;
-	for(;n!=1;--n) val = val->next;
-	return newword(val->word, a);
+	if(n+m>len)
+		m = len-n;
+	while(--n > 0)
+		val = val->next;
+	return copynwords(val, a, m+1);
 }
 
 void
