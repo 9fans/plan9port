@@ -554,18 +554,25 @@ xls(int argc, char **argv)
 						len[j] = l;
 				}
 			}
-			for(i=0; i<n; i++)
+			for(i=0; i<n; i++){
+				if(!lflag){
+					print("%q\n", d[i].name);
+					continue;
+				}
 				print("%M %C %*d %*s %*s %*lld %T %q\n",
 					d[i].mode, d[i].type, len[0], d[i].dev,
 					-len[1], d[i].uid, -len[2], d[i].gid,
 					len[3], d[i].length, d[i].mtime, d[i].name);
-			
+			}
 		}else{
 			d->type = 'M';
 			d->dev = 0;
-			print("%M %C %d %s %s %lld %T %q\n",
-				d->mode, d->type, d->dev,
-				d->uid, d->gid, d->length, d->mtime, d->name);
+			if(lflag)
+				print("%M %C %d %s %s %lld %T %q\n",
+					d->mode, d->type, d->dev,
+					d->uid, d->gid, d->length, d->mtime, d->name);
+			else
+				print("%q\n", d->name);
 		}
 		free(d);
 	}
