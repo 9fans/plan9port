@@ -154,12 +154,12 @@ relay(int fd0, int fd1)
 }
 .EE
 .LP
-If the two
+The two
 .I relaythread
-instances were running in different procs, the
+instances are running in the same proc, so the
 common access to
 .I tot
-would be unsafe.
+is safe.
 .PP
 Implement
 .IR ioread :

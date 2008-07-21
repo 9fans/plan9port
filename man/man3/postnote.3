@@ -26,17 +26,15 @@ If
 is
 .BI PNGROUP , 
 the note is delivered to the
-process group which has the process with id
-.I pid
-as a member.
+process group containing the process with id
+.IR pid .
 For
 .B PNGROUP
 only, if the calling process is in the target group, the note is
 .I not
 delivered to that process.
 .PP
-If the write is successful, zero is returned.
-Otherwise \-1 is returned.
+Returns zero if the write succeeds, otherwise \-1.
 .SH SOURCE
 .B \*9/src/lib9/postnote.c
 .SH "SEE ALSO"
