@@ -67,14 +67,15 @@ fn dohtml {
 #
 # parse flags and sections
 #
+fn usage { echo 'Usage: man [-hnpPtw] [-s sec] [0-9] [0-9] ... [--] name1 name2 ...' >[1=2] }
 cmd=donroff
 sec=()
 S=$PLAN9/man
 d=0
 while(~ $d 0) {
 	if(~ $#* 0) {
-		echo 'Usage: man [-hnpPtw] [-s sec] [0-9] [0-9] ... [--] name1 name2 ...' >[1=2]
-		exit
+		usage
+		exit 1
 	}
 	if(test -d $S/man$1){
 		sec=($sec $1)
@@ -88,6 +89,7 @@ while(~ $d 0) {
 		case -w ; cmd=doecho ; shift
 		case -h ; cmd=dohtml ; shift
 		case -- ; d=1 ; shift
+		case -* ; usage ; exit 1
 		case * ; d=1
 	}
 }
