@@ -241,8 +241,7 @@ replyfuse(FuseMsg *m, void *arg, int narg)
 		vec[1].iov_len = narg;
 		nvec++;
 	}
-	if(writev(fusefd, vec, nvec) < 0)
-		sysfatal("replyfuse: %r");
+	writev(fusefd, vec, nvec);
 	freefusemsg(m);
 }
 
@@ -259,8 +258,7 @@ replyfuseerrno(FuseMsg *m, int e)
 	hdr.unique = m->hdr->unique;
 	if(debug)
 		fprint(2, "FUSE <- %#G\n", m->hdr, &hdr, 0);
-	if(write(fusefd, &hdr, sizeof hdr) < 0)
-		sysfatal("replyfuseerror: %r");
+	write(fusefd, &hdr, sizeof hdr);
 	freefusemsg(m);
 }
 
