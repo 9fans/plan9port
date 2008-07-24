@@ -27,6 +27,11 @@ PROTOS=\
 	ppp_ipcp\
 	pppoe_sess\
 	pppoe_disc\
+	dns\
+	p80211\
+	llc\
+	radiotap\
+	snap\
 
 POBJS=${PROTOS:%=%.$O}
 

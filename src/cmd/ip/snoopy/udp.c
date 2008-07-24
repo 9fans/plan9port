@@ -41,6 +41,7 @@ static Mux p_mux[] =
 {
 	{"bootp",	67, },
 	{"ninep",	6346, },	/* tvs */
+	{"dns", 53 },
 	{"rtp",		ANYPORT, },
 	{"rtcp",	ANYPORT, },
 	{0}

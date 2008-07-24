@@ -29,5 +29,10 @@ Proto *protos[] =
 	&ppp_ipcp,
 	&pppoe_sess,
 	&pppoe_disc,
+	&dns,
+	&p80211,
+	&llc,
+	&radiotap,
+	&snap,
 	0
 };

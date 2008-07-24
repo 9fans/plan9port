@@ -23,3 +23,8 @@ extern Proto ppp_chap;
 extern Proto ppp_ipcp;
 extern Proto pppoe_sess;
 extern Proto pppoe_disc;
+extern Proto dns;
+extern Proto p80211;
+extern Proto llc;
+extern Proto radiotap;
+extern Proto snap;
