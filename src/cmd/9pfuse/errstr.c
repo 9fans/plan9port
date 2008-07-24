@@ -39,6 +39,7 @@ static Error errortab[] = {
 	{ "in use", EBUSY },
 	{ "busy", EBUSY },
 	{ "illegal", EINVAL },
+	{ "invalid", EINVAL },
 	{ "read-only", EROFS },
 	{ "read only", EROFS },
 #ifdef EPROTO
