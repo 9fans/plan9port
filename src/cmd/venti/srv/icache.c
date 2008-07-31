@@ -15,7 +15,19 @@ struct ICache
 	IHash	*hash;
 	IEntry	*entries;
 	int		nentries;
-	IEntry	free;
+
+	/*
+	* gcc 4.3 inlines the pushfirst loop in initicache,
+	* but the inliner incorrectly deduces that
+	* icache.free.next has a constant value
+	* throughout the loop.  (In fact, pushfirst
+	* assigns to it as ie->prev->next.)
+	* Marking it volatile should avoid this bug.
+	* The speed of linked list operations is dwarfed
+	* by the disk i/o anyway.
+	*/
+	volatile IEntry free;
+
 	IEntry	clean;
 	IEntry	dirty;
 	u32int	maxdirty;
