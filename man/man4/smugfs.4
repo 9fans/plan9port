@@ -1,0 +1,278 @@
+.TH SMUGFS 4
+.SH NAME
+smugfs \- file system access to SmugMug photo sharing
+.SH SYNOPSIS
+.B smugfs
+[
+.B -DFH
+]
+[
+.B -k
+.I keypattern
+]
+[
+.B -m
+.I mtpt
+]
+[
+.B -s
+.I srvname
+]
+.SH DESCRIPTION
+.I Smugfs
+is a user-level file system that provides access to images
+stored on the SmugMug photo sharing service.
+It logs in after
+obtaining a password from 
+.IR factotum (4)
+using
+.B server=smugmug.com
+and
+.I keypattern
+(if any)
+as key criteria
+(see
+.IR auth (3)).
+Then 
+.I smugfs
+serves a virtual directory tree mounted at
+.I mtpt
+(default
+.BR /n/smug )
+and posted at 
+.I srvname ,
+if the 
+.B -s
+option is given.
+.PP
+The directory tree is arranged in five levels:
+root, user, category, album, and image.
+For example,
+.B /n/smug/cmac/
+is a user directory,
+.B /n/smug/cmac/People/
+is a category directory,
+.B /n/smug/cmac/People/Friends/
+is an album directory,
+and
+.B /n/smug/cmac/albums/Friends/2631/
+is an image directory.
+.PP
+SmugMug allows fine-grained classification
+via subcategories, but subcategories are not yet implemented.
+.ig
+  Subcategories are inserted as
+an additional directory level between category 
+and album.
+[Subcategories are not yet implemented.]
+..
+.PP
+All directories contain a special control file named
+.BR ctl ;
+text commands written to 
+.B ctl
+change 
+.IR smugfs 's
+behavior or implement functionality
+that does not fit nicely into the file system
+interface.
+.PP
+.I Smugfs
+caches information about users, categories, albums,
+and images.  If changes are made outside of
+.I smugfs
+(for example, using a web browser),
+the cache may need to be discarded.
+Writing the string
+.B sync
+to a directory's
+.B ctl
+file causes
+.I smugfs
+to discard all cached information used to
+present that directory and its children.
+Thus, writing
+.B sync
+to the root
+.B ctl
+file discards all of
+.I smugfs 's
+cached information.
+.SS "Root directory"
+The root directory contains directories
+named after users.
+By default, it contains only a directory for
+the logged-in user, but other directories will
+be created as needed to satisfy directory lookups.
+.PP
+In addition to user directories, the root directory
+contains three special files:
+.BR ctl ,
+.BR rpclog ,
+and
+.BR uploads .
+Reading
+.B rpclog
+returns a list of recent RPCs issued to the SmugMug API server.
+Reads at the end of the file block until a new RPC is issued.
+The
+.B uploads
+file lists the file upload queue (q.v.).
+.SS "User directories"
+User directories contain category directories
+named after the categories.
+SmugMug pre-defines a variety of categories,
+so it is common to have many categories that
+do not contain albums.
+.PP
+In a user directory, creating a new directory
+creates a new category on SmugMug.
+Similarly, renaming or removing a category
+directory renames or removes the category on SmugMug.
+Categories cannot be removed if they contain albums.
+.PP
+User directories also contain a directory
+named
+.B albums
+that itself contains all of that user's albums.
+.SS "Category directories"
+Each category directory contains album directories
+named using the album's title.
+.PP
+In a category directory, creating a new directory
+creates a new album on SmugMug.
+Similarly, renaming or removing an album directory
+renames or removes the album on SmugMug.
+Albums cannot be removed if they contain images.
+.ig
+.PP
+Category directories might also contain subcategory directories.
+Like albums, subcategories can be renamed and removed (when empty).
+Unlike albums, subcategories cannot be created via ordinary
+file system operations.
+Instead, write the command
+.B subcategory
+.I name
+to the category's
+.B ctl
+file.
+.PP
+Subcategories are identical to categories
+except that they cannot themselves contain subcategories.
+..
+.SS "Album directories"
+Each album directory contains image directories
+named using the image's decimal SmugMug ID.
+Image directories cannot be created or renamed,
+but they can be removed.  Removing an image directory
+removes the image from the album on SmugMug.
+.PP
+Album directories also contain three special files,
+.BR ctl ,
+.BR settings ,
+and
+.BR url .
+.PP
+The
+.B settings
+file contains the album settings in textual form,
+one setting per line.
+Each line represents a single setting and is formatted
+as an alphabetic setting name followed by a single tab
+followed by the value.
+Many settings can be changed by writing new setting lines,
+in the same format, to the
+.B settings
+file.
+.PP
+Copying a file into the album directory queues it for
+uploading to SmugMug to be added to the album.
+Files disappear from the album directory once they
+have finished uploading, replaced by new image directories.
+The 
+.B uploads
+file in the root directory lists all pending uploads,
+which are stored temporarily
+in 
+.BR /var/tmp .
+.SS "Image directories"
+Each image directory contains an image file, named
+with its original name, if available.
+If the image belongs to another user, SmugMug does not
+expose the original name, so the file is named
+.RB \fInnnn\fP .jpg ,
+where
+.I nnnn
+is the SmugMug image ID number.
+The file content is the original image
+or else the largest image available.
+.PP
+The directory contains a 
+.B settings
+file holding per-image settings, similar to the 
+file in the album directory;
+and a
+.B url
+file, containing URLs to the various sized images
+on the SmugMug server.
+.SH EXAMPLES
+.LP
+Mount
+.I smugfs
+on
+.BR /n/smug ;
+the current user must have write access to 
+.B /n/smug
+and
+.BR /dev/fuse .
+.IP
+.EX
+% smugfs
+.EE
+Watch API calls as they execute:
+.IP
+.EX
+% cat /n/smug/rpclog &
+.EE
+Create a new album in the Vacation category
+and fill it with photos:
+.IP
+.EX
+% mkdir /n/smug/you/Vacation/Summer
+% cp *.jpg /n/smug/you/Vacation/Summer
+.EE
+.LP
+The photos are now uploading in the background.
+Wait for the uploads to finish:
+.IP
+.EX
+% while(test -s /n/smug/uploads) sleep 60
+.EE
+.LP
+Make the album publicly viewable and share it.
+.IP
+.EX
+% echo public 1 >/n/smug/you/Vacation/Summer/settings
+% cat /n/smug/you/Vacation/Summer/url | mail friends
+.EE
+.SH SOURCE
+.B \*9/src/cmd/smugfs
+.SH SEE ALSO
+SmugMug, 
+.HR http://smugmug.com/
+.SH BUGS
+.PP
+If multiple categories or albums have the same name,
+only one will be accessible via the file system interface.
+Renaming the accessible one via 
+.IR mv (1)
+will resolve the problem.
+.PP
+Boolean values appear as
+.B true
+and
+.B false
+in settings files but must be changed using
+.B 1
+and
+.BR 0 .

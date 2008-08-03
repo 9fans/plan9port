@@ -1,0 +1,21 @@
+<$PLAN9/src/mkhdr
+
+TARG=smugfs
+
+HFILES=a.h
+
+OFILES=\
+	cache.$O\
+	download.$O\
+	fs.$O\
+	http.$O\
+	json.$O\
+	jsonrpc.$O\
+	log.$O\
+	main.$O\
+	openssl.$O\
+	tcp.$O\
+	util.$O\
+
+<$PLAN9/src/mkone
+

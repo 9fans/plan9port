@@ -1,0 +1,22 @@
+
+* Threading:
+
+Uploads run in parallel with main fs operation.
+Otherwise, main fs operation is single-threaded.
+Could multi-thread the rest but would have to lock the
+cache properly first.
+
+Right now, only one upload at a time.
+Could have more by kicking off multiple
+uploader procs.
+
+* Implement subcategories.
+
+* Implement renames of categories.
+
+* Implement renames of albums.
+
+* Implement album settings file.
+
+* Implement image settings file.
+
