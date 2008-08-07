@@ -131,7 +131,7 @@ popout(IEntry *ie)
 }
 
 static IEntry*
-poplast(IEntry *list)
+poplast(volatile IEntry *list)
 {
 	if(list->prev == list)
 		return nil;
@@ -139,10 +139,10 @@ poplast(IEntry *list)
 }
 
 static IEntry*
-pushfirst(IEntry *list, IEntry *ie)
+pushfirst(volatile IEntry *list, IEntry *ie)
 {
 	popout(ie);
-	ie->prev = list;
+	ie->prev = (IEntry*)list;
 	ie->next = list->next;
 	ie->prev->next = ie;
 	ie->next->prev = ie;
@@ -311,7 +311,7 @@ fprint(2, "icache %,d bytes = %,d entries; %d scache\n", mem0, entries, scache);
 
 	icache.clean.prev = icache.clean.next = &icache.clean;
 	icache.dirty.prev = icache.dirty.next = &icache.dirty;
-	icache.free.prev = icache.free.next = &icache.free;
+	icache.free.prev = icache.free.next = (IEntry*)&icache.free;
 	
 	icache.hash = mkihash(entries);
 	icache.nentries = entries;
