@@ -339,9 +339,9 @@ outcode(tree *t, int eflag)
 				outcode(c0, eflag);
 				emitf(Xlocal);
 			}
-			t = tt;
-			outcode(c2, eflag);
-			for(;t->type=='=';t = c2) emitf(Xunlocal);
+			outcode(t, eflag);
+			for(t = tt; t->type=='='; t = c2)
+				emitf(Xunlocal);
 		}
 		else{
 			for(t = tt;t;t = c2){
