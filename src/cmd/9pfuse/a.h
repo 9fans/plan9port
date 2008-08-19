@@ -8,6 +8,11 @@
 #include <fcall.h>
 #include <thread.h>
 #include <9pclient.h>
+
+#if defined(__APPLE__)
+#define __FreeBSD__ 10
+#endif
+
 #include "fuse_kernel.h"
 
 /* Somehow the FUSE guys forgot to define this one! */

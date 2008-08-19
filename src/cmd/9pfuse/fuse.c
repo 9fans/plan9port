@@ -777,7 +777,7 @@ mountfuse(char *mtpt)
 	fd = recvfd(p[1]);
 	close(p[1]);
 	return fd;
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) && !defined(__APPLE__)
 	int pid, fd;
 	char buf[20];
 	

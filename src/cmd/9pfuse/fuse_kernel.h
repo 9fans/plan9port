@@ -1,10 +1,14 @@
-/* This file defines the kernel interface of FUSE */
-
 /*
+    This file defines the kernel interface of FUSE
+    Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
+
+
+
+
     This -- and only this -- header file may also be distributed under
     the terms of the BSD Licence as follows:
 
-    Copyright (C) 2001-2006 Miklos Szeredi. All rights reserved.
+    Copyright (C) 2001-2007 Miklos Szeredi. All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -38,13 +42,13 @@
 #define FUSE_KERNEL_VERSION 7
 
 /** Minor version number of this interface */
-#define FUSE_KERNEL_MINOR_VERSION 5
+#define FUSE_KERNEL_MINOR_VERSION 8
 
 /** The node ID of the root inode */
 #define FUSE_ROOT_ID 1
 
 /** The major number of the fuse character device */
-#define FUSE_MAJOR 10
+#define FUSE_MAJOR MISC_MAJOR
 
 /** The minor number of the fuse character device */
 #define FUSE_MINOR 229
@@ -67,6 +71,10 @@ struct fuse_attr {
 	__u32	uid;
 	__u32	gid;
 	__u32	rdev;
+#if (__FreeBSD__ >= 10)
+	__u32	flags; /* file flags; see chflags(2) */
+	__u32	padding;
+#endif /* __FreeBSD__ >= 10 */
 };
 
 struct fuse_kstatfs {
@@ -82,6 +90,16 @@ struct fuse_kstatfs {
 	__u32	spare[6];
 };
 
+struct fuse_file_lock {
+	__u64	start;
+	__u64	end;
+	__u32	type;
+	__u32	pid; /* tgid */
+};
+
+/**
+ * Bitmasks for fuse_setattr_in.valid
+ */
 #define FATTR_MODE	(1 << 0)
 #define FATTR_UID	(1 << 1)
 #define FATTR_GID	(1 << 2)
@@ -89,6 +107,12 @@ struct fuse_kstatfs {
 #define FATTR_ATIME	(1 << 4)
 #define FATTR_MTIME	(1 << 5)
 #define FATTR_FH	(1 << 6)
+#if (__FreeBSD__ >= 10)
+#define FATTR_CRTIME	(1 << 28)
+#define FATTR_CHGTIME	(1 << 29)
+#define FATTR_BKUPTIME	(1 << 30)
+#define FATTR_FLAGS	(1 << 31)
+#endif /* __FreeBSD__ >= 10 */
 
 /**
  * Flags returned by the OPEN request
@@ -98,6 +122,26 @@ struct fuse_kstatfs {
  */
 #define FOPEN_DIRECT_IO		(1 << 0)
 #define FOPEN_KEEP_CACHE	(1 << 1)
+#if (__FreeBSD__ >= 10)
+#define FOPEN_PURGE_ATTR	(1 << 30)
+#define FOPEN_PURGE_UBC		(1 << 31)
+#endif
+
+/**
+ * INIT request/reply flags
+ */
+#define FUSE_ASYNC_READ		(1 << 0)
+#define FUSE_POSIX_LOCKS	(1 << 1)
+#if (__FreeBSD__ >= 10)
+#define FUSE_CASE_INSENSITIVE	(1 << 29)
+#define FUSE_VOL_RENAME		(1 << 30)
+#define FUSE_XTIMES		(1 << 31)
+#endif /* __FreeBSD__ >= 10 */
+
+/**
+ * Release flags
+ */
+#define FUSE_RELEASE_FLUSH	(1 << 0)
 
 enum fuse_opcode {
 	FUSE_LOOKUP	   = 1,
@@ -128,8 +172,19 @@ enum fuse_opcode {
 	FUSE_READDIR       = 28,
 	FUSE_RELEASEDIR    = 29,
 	FUSE_FSYNCDIR      = 30,
+	FUSE_GETLK         = 31,
+	FUSE_SETLK         = 32,
+	FUSE_SETLKW        = 33,
 	FUSE_ACCESS        = 34,
-	FUSE_CREATE        = 35
+	FUSE_CREATE        = 35,
+	FUSE_INTERRUPT     = 36,
+	FUSE_BMAP          = 37,
+	FUSE_DESTROY       = 38,
+#if (__FreeBSD__ >= 10)
+        FUSE_SETVOLNAME    = 61,
+	FUSE_GETXTIMES     = 62,
+	FUSE_EXCHANGE      = 63,
+#endif /* __FreeBSD__ >= 10 */
 };
 
 /* The read buffer is required to be at least 8k, but may be much larger */
@@ -157,6 +212,15 @@ struct fuse_attr_out {
 	struct fuse_attr attr;
 };
 
+#if (__FreeBSD__ >= 10)
+struct fuse_getxtimes_out {
+	__u64	bkuptime;
+	__u64	crtime;
+	__u32	bkuptimensec;
+	__u32	crtimensec;
+};
+#endif /* __FreeBSD__ >= 10 */
+
 struct fuse_mknod_in {
 	__u32	mode;
 	__u32	rdev;
@@ -170,6 +234,14 @@ struct fuse_mkdir_in {
 struct fuse_rename_in {
 	__u64	newdir;
 };
+
+#if (__FreeBSD__ >= 10)
+struct fuse_exchange_in {
+	__u64	olddir;
+	__u64	newdir;
+	__u64	options;
+};
+#endif /* __FreeBSD__ >= 10 */
 
 struct fuse_link_in {
 	__u64	oldnodeid;
@@ -192,6 +264,15 @@ struct fuse_setattr_in {
 	__u32	uid;
 	__u32	gid;
 	__u32	unused5;
+#if (__FreeBSD__ >= 10)
+	__u64	bkuptime;
+	__u64	chgtime;
+	__u64	crtime;
+	__u32	bkuptimensec;
+	__u32	chgtimensec;
+	__u32	crtimensec;
+	__u32	flags; /* file flags; see chflags(2) */
+#endif /* __FreeBSD__ >= 10 */
 };
 
 struct fuse_open_in {
@@ -208,13 +289,15 @@ struct fuse_open_out {
 struct fuse_release_in {
 	__u64	fh;
 	__u32	flags;
-	__u32	padding;
+	__u32	release_flags;
+	__u64	lock_owner;
 };
 
 struct fuse_flush_in {
 	__u64	fh;
 	__u32	flush_flags;
 	__u32	padding;
+	__u64	lock_owner;
 };
 
 struct fuse_read_in {
@@ -251,16 +334,34 @@ struct fuse_fsync_in {
 struct fuse_setxattr_in {
 	__u32	size;
 	__u32	flags;
+#if (__FreeBSD__ >= 10)
+	__u32	position;
+	__u32	padding;
+#endif /* __FreeBSD__ >= 10 */
 };
 
 struct fuse_getxattr_in {
 	__u32	size;
 	__u32	padding;
+#if (__FreeBSD__ >= 10)
+	__u32	position;
+	__u32	padding2;
+#endif /* __FreeBSD__ >= 10 */
 };
 
 struct fuse_getxattr_out {
 	__u32	size;
 	__u32	padding;
+};
+
+struct fuse_lk_in {
+	__u64	fh;
+	__u64	owner;
+	struct fuse_file_lock lk;
+};
+
+struct fuse_lk_out {
+	struct fuse_file_lock lk;
 };
 
 struct fuse_access_in {
@@ -271,13 +372,31 @@ struct fuse_access_in {
 struct fuse_init_in {
 	__u32	major;
 	__u32	minor;
+	__u32	max_readahead;
+	__u32	flags;
 };
 
 struct fuse_init_out {
 	__u32	major;
 	__u32	minor;
-	__u32	unused[3];
+	__u32	max_readahead;
+	__u32	flags;
+	__u32	unused;
 	__u32	max_write;
+};
+
+struct fuse_interrupt_in {
+	__u64	unique;
+};
+
+struct fuse_bmap_in {
+	__u64	block;
+	__u32	blocksize;
+	__u32	padding;
+};
+
+struct fuse_bmap_out {
+	__u64	block;
 };
 
 struct fuse_in_header {
@@ -306,7 +425,7 @@ struct fuse_dirent {
 	char name[1];
 };
 
-#define FUSE_NAME_OFFSET ((uintptr) ((struct fuse_dirent *) 0)->name)
+#define FUSE_NAME_OFFSET offsetof(struct fuse_dirent, name)
 #define FUSE_DIRENT_ALIGN(x) (((x) + sizeof(__u64) - 1) & ~(sizeof(__u64) - 1))
 #define FUSE_DIRENT_SIZE(d) \
 	FUSE_DIRENT_ALIGN(FUSE_NAME_OFFSET + (d)->namelen)
