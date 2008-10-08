@@ -30,6 +30,21 @@ plumbsafari()
 	' | osascript
 }
 
+plumbcamino()
+{
+	echo '
+		tell application "Camino"
+		activate
+		tell application "System Events"
+		tell process "camino"
+		keystroke "t" using {command down}
+		end tell
+		end tell
+		Get URL "'$1'"
+		end tell
+	' | osascript
+}
+
 plumbapple()
 {
 	case ${BROWSER:-none} in
@@ -39,8 +54,14 @@ plumbapple()
 	safari)
 		plumbsafari "$@"
 		;;
+	camino)
+		plumbcamino "$@"
+		;;
 	none)
-		if [ -d /Applications/Firefox.app ]
+		if [ -d /Applications/Camino.app ]
+		then
+			plumbcamino "$@"
+		elif [ -d /Applications/Firefox.app ]
 		then
 			plumbfirefox "$@"
 		else
