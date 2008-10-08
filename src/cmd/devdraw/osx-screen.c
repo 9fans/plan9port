@@ -50,6 +50,8 @@ struct {
 	CGImageRef image;
 	CGContextRef windowctx;
 	PasteboardRef snarf;
+	int needflush;
+	QLock flushlock;
 } osx;
 
 enum
@@ -319,6 +321,8 @@ mouseevent(EventRef event)
 		
 		// OS X swaps button 2 and 3
 		but = (but & ~6) | ((but & 4)>>1) | ((but&2)<<1);
+
+		but = mouseswap(but);
 		
 		// Apply keyboard modifiers and pretend it was a real mouse button.
 		// (Modifiers typed while holding the button go into kbuttons,
@@ -507,6 +511,29 @@ eresized(int new)
 	osx.image = image;
 	osx.screenimage = m;
 	osx.screenr = r;
+	
+	// I'm not 100% sure why this is necessary
+	// but otherwise some resizes (esp. vertical ones)
+	// stop updating the screen.
+	qlock(&osx.flushlock);
+	QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
+	osx.windowctx = nil;
+	qunlock(&osx.flushlock);
+}
+
+void
+flushproc(void *v)
+{
+	for(;;){
+		if(osx.needflush && osx.windowctx && canqlock(&osx.flushlock)){
+			if(osx.windowctx){
+				CGContextFlush(osx.windowctx);
+				osx.needflush = 0;
+			}
+			qunlock(&osx.flushlock);
+		}
+		usleep(33333);
+	}
 }
 
 void
@@ -515,8 +542,11 @@ _flushmemscreen(Rectangle r)
 	CGRect cgr;
 	CGImageRef subimg;
 
-	if(osx.windowctx == nil)
+	qlock(&osx.flushlock);
+	if(osx.windowctx == nil){
 		QDBeginCGContext(GetWindowPort(osx.window), &osx.windowctx);
+		proccreate(flushproc, nil, 256*1024);
+	}
 	
 	cgr.origin.x = r.min.x;
 	cgr.origin.y = r.min.y;
@@ -525,7 +555,8 @@ _flushmemscreen(Rectangle r)
 	subimg = CGImageCreateWithImageInRect(osx.image, cgr);
 	cgr.origin.y = Dy(osx.screenr) - r.max.y; // XXX how does this make any sense?
 	CGContextDrawImage(osx.windowctx, cgr, subimg);
-	CGContextFlush(osx.windowctx);
+	osx.needflush = 1;
+	qunlock(&osx.flushlock);
 	CGImageRelease(subimg);
 }
 
@@ -536,6 +567,7 @@ fullscreen(void)
 	static WindowRef oldwindow;
 	GDHandle device;
 
+	qlock(&osx.flushlock);
 	if(osx.isfullscreen){
 		if(osx.windowctx){
 			QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
@@ -557,6 +589,7 @@ fullscreen(void)
 		osx.isfullscreen = 1;
 		osx.fullscreentime = msec();
 	}
+	qunlock(&osx.flushlock);
 	eresized(1);
 }
 
