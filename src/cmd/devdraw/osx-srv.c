@@ -289,6 +289,7 @@ runmsg(Wsysmsg *m)
 /*
  * Reply to m.
  */
+QLock replylock;
 void
 replymsg(Wsysmsg *m)
 {
@@ -303,6 +304,8 @@ replymsg(Wsysmsg *m)
 	if(trace) fprint(2, "-> %W\n", m);
 	/* copy to output buffer */
 	n = sizeW2M(m);
+
+	qlock(&replylock);
 	if(n > nmbuf){
 		free(mbuf);
 		mbuf = malloc(n);
@@ -313,6 +316,7 @@ replymsg(Wsysmsg *m)
 	convW2M(m, mbuf, n);
 	if(write(4, mbuf, n) != n)
 		sysfatal("write: %r");
+	qunlock(&replylock);
 }
 
 /*
