@@ -19,7 +19,8 @@ case FreeBSD
 		exec 9pfuse $1 $2
 	echo 'don''t know how to mount (no fuse)' >[1=2]
 case Darwin
-	if(sysctl fuse.version >[2=1] |9 grep -si 'fuse.version' ||
+	if(sysctl fuse.version |9 grep -si 'fuse.version' ||
+	   sysctl macfuse.version.number |9 grep -si 'fuse.version' ||
 	   test -d /System/Library/Extensions/fusefs.kext ||
 	   test -d /Library/Filesystems/fusefs.fs/Support/fusefs.kext)
 		exec 9pfuse $1 $2
