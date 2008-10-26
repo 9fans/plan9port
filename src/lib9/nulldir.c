@@ -5,5 +5,5 @@ void
 nulldir(Dir *d)
 {
 	memset(d, ~0, sizeof(Dir));
-	d->name = d->uid = d->gid = d->muid = "";
+	d->name = d->uid = d->gid = d->muid = d->ext = "";
 }
