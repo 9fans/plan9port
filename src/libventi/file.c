@@ -342,7 +342,7 @@ shrinksize(VtFile *r, VtEntry *e, uvlong size)
 		ptrsz *= ppb;
 
 	isdir = r->dir;
-	while(depth > 0){
+	while(DEPTH(type) > 0){
 		if(b->addr == NilBlock){
 			/* not worth copying the block just so we can zero some of it */
 			vtblockput(b);

@@ -312,7 +312,7 @@ vtcachelocal(VtCache *c, u32int addr, int type)
 		sysfatal("vtcachelocal: asked for nonexistent block 0");
 	if(addr > c->nblock)
 		sysfatal("vtcachelocal: asked for block #%ud; only %d blocks",
-			addr, c->nblock);
+			(uint)addr, c->nblock);
 
 	b = &c->block[addr-1];
 	if(b->addr == NilBlock || b->iostate != BioLocal)
