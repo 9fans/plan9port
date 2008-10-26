@@ -282,12 +282,10 @@ threadunpin(void)
 }
 
 void
-threadsysfatal(char *fmt, ...)
+threadsysfatal(char *fmt, va_list arg)
 {
 	char buf[256];
-	va_list arg;
 
-	va_start(arg, fmt);
 	vseprint(buf, buf+sizeof(buf), fmt, arg);
 	__fixargv0();
 	fprint(2, "%s: %s\n", argv0 ? argv0 : "<prog>", buf);
@@ -699,7 +697,7 @@ threadmainstart(void *v)
 	threadmain(threadargc, threadargv);
 }
 
-extern void (*_sysfatal)(char*, ...);
+extern void (*_sysfatal)(char*, va_list);
 
 int
 main(int argc, char **argv)
