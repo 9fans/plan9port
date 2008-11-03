@@ -1,0 +1,35 @@
+<$PLAN9/src/mkhdr
+
+TARG=awk
+OFILES=re.$O\
+	lex.$O\
+	main.$O\
+	parse.$O\
+	proctab.$O\
+	tran.$O\
+	lib.$O\
+	run.$O\
+	y.tab.$O\
+
+HFILES=awk.h\
+	y.tab.h\
+	proto.h\
+
+YFILES=awkgram.y
+
+CLEANFILES=$CLEANFILES proctab.c $O.maketab
+
+<$PLAN9/src/mkone
+
+# CFLAGS=-c -D_REGEXP_EXTENSION -D_RESEARCH_SOURCE -D_BSD_EXTENSION -DUTF
+
+YFLAGS=-S -d -v
+
+proctab.c: $O.maketab
+    ./$O.maketab >proctab.c
+
+maketab.$O: maketab.c
+    $CC $CFLAGS maketab.c
+
+$O.maketab:V: y.tab.h maketab.$O
+    $LD -o $O.maketab maketab.$O

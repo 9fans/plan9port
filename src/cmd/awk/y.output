@@ -1,0 +1,9032 @@
+
+state 0
+	$accept: .program $end 
+	opt_pst: .    (28)
+
+	$end  reduce 28 (src line 156)
+	error  shift 3
+	XBEGIN  reduce 28 (src line 156)
+	XEND  reduce 28 (src line 156)
+	NL  shift 6
+	{  reduce 28 (src line 156)
+	(  reduce 28 (src line 156)
+	;  shift 7
+	/  reduce 28 (src line 156)
+	ARG  reduce 28 (src line 156)
+	BLTIN  reduce 28 (src line 156)
+	FUNC  reduce 28 (src line 156)
+	SUB  reduce 28 (src line 156)
+	GSUB  reduce 28 (src line 156)
+	INDEX  reduce 28 (src line 156)
+	MATCHFCN  reduce 28 (src line 156)
+	SPRINTF  reduce 28 (src line 156)
+	VAR  reduce 28 (src line 156)
+	IVAR  reduce 28 (src line 156)
+	VARNF  reduce 28 (src line 156)
+	CALL  reduce 28 (src line 156)
+	NUMBER  reduce 28 (src line 156)
+	STRING  reduce 28 (src line 156)
+	GETLINE  reduce 28 (src line 156)
+	SPLIT  reduce 28 (src line 156)
+	SUBSTR  reduce 28 (src line 156)
+	+  reduce 28 (src line 156)
+	-  reduce 28 (src line 156)
+	NOT  reduce 28 (src line 156)
+	DECR  reduce 28 (src line 156)
+	INCR  reduce 28 (src line 156)
+	INDIRECT  reduce 28 (src line 156)
+	.  error
+
+	pas  goto 2
+	pst  goto 5
+	opt_pst  goto 4
+	program  goto 1
+
+state 1
+	$accept:  program.$end 
+
+	$end  accept
+	.  error
+
+
+state 2
+	program:  pas.    (1)
+
+	.  reduce 1 (src line 99)
+
+
+state 3
+	program:  error.    (2)
+
+	.  reduce 2 (src line 102)
+
+
+state 4
+	pas:  opt_pst.    (32)
+	pas:  opt_pst.pa_stats opt_pst 
+
+	XBEGIN  shift 12
+	XEND  shift 13
+	{  shift 16
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	FUNC  shift 14
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 32 (src line 167)
+
+	pattern  goto 15
+	term  goto 20
+	re  goto 19
+	pa_pat  goto 10
+	pa_stat  goto 9
+	pa_stats  goto 8
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	lbrace  goto 11
+	subop  goto 39
+
+state 5
+	opt_pst:  pst.    (29)
+	pst:  pst.NL 
+	pst:  pst.; 
+
+	NL  shift 47
+	;  shift 48
+	.  reduce 29 (src line 158)
+
+
+state 6
+	pst:  NL.    (87)
+
+	.  reduce 87 (src line 274)
+
+
+state 7
+	pst:  ;.    (88)
+
+	.  reduce 88 (src line 275)
+
+
+state 8
+	pas:  opt_pst pa_stats.opt_pst 
+	pa_stats:  pa_stats.opt_pst pa_stat 
+	opt_pst: .    (28)
+
+	NL  shift 6
+	;  shift 7
+	.  reduce 28 (src line 156)
+
+	pst  goto 5
+	opt_pst  goto 49
+
+state 9
+	pa_stats:  pa_stat.    (44)
+
+	.  reduce 44 (src line 190)
+
+
+10: shift/reduce conflict (shift 16(0), red'n 35(0)) on {
+state 10
+	pa_stat:  pa_pat.    (35)
+	pa_stat:  pa_pat.lbrace stmtlist } 
+	pa_stat:  pa_pat., pa_pat 
+	pa_stat:  pa_pat., pa_pat lbrace stmtlist } 
+
+	,  shift 51
+	{  shift 16
+	.  reduce 35 (src line 176)
+
+	lbrace  goto 50
+
+state 11
+	lbrace:  lbrace.NL 
+	pa_stat:  lbrace.stmtlist } 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 53
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 12
+	pa_stat:  XBEGIN.lbrace stmtlist } 
+
+	{  shift 16
+	.  error
+
+	lbrace  goto 79
+
+state 13
+	pa_stat:  XEND.lbrace stmtlist } 
+
+	{  shift 16
+	.  error
+
+	lbrace  goto 80
+
+state 14
+	pa_stat:  FUNC.funcname ( varlist rparen $$42 lbrace stmtlist } 
+
+	VAR  shift 82
+	CALL  shift 83
+	.  error
+
+	funcname  goto 81
+
+15: shift/reduce conflict (shift 101(11), red'n 34(0)) on (
+15: shift/reduce conflict (shift 42(8), red'n 34(0)) on ARG
+15: shift/reduce conflict (shift 28(8), red'n 34(0)) on BLTIN
+15: shift/reduce conflict (shift 45(10), red'n 34(0)) on SUB
+15: shift/reduce conflict (shift 46(9), red'n 34(0)) on GSUB
+15: shift/reduce conflict (shift 33(9), red'n 34(0)) on INDEX
+15: shift/reduce conflict (shift 34(9), red'n 34(0)) on MATCHFCN
+15: shift/reduce conflict (shift 37(10), red'n 34(0)) on SPRINTF
+15: shift/reduce conflict (shift 41(11), red'n 34(0)) on VAR
+15: shift/reduce conflict (shift 22(11), red'n 34(0)) on IVAR
+15: shift/reduce conflict (shift 43(11), red'n 34(0)) on VARNF
+15: shift/reduce conflict (shift 29(8), red'n 34(0)) on CALL
+15: shift/reduce conflict (shift 35(9), red'n 34(0)) on NUMBER
+15: shift/reduce conflict (shift 38(10), red'n 34(0)) on STRING
+15: shift/reduce conflict (shift 32(6), red'n 34(0)) on GETLINE
+15: shift/reduce conflict (shift 36(10), red'n 34(0)) on SPLIT
+15: shift/reduce conflict (shift 40(10), red'n 34(0)) on SUBSTR
+15: shift/reduce conflict (shift 27(13), red'n 34(0)) on +
+15: shift/reduce conflict (shift 26(13), red'n 34(0)) on -
+15: shift/reduce conflict (shift 99(15), red'n 34(0)) on NOT
+15: shift/reduce conflict (shift 30(17), red'n 34(0)) on DECR
+15: shift/reduce conflict (shift 31(17), red'n 34(0)) on INCR
+15: shift/reduce conflict (shift 23(18), red'n 34(0)) on INDIRECT
+state 15
+	pa_pat:  pattern.    (34)
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 34 (src line 172)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 16
+	lbrace:  {.    (22)
+
+	.  reduce 22 (src line 143)
+
+
+17: shift/reduce conflict (shift 103(17), red'n 173(0)) on DECR
+17: shift/reduce conflict (shift 104(17), red'n 173(0)) on INCR
+state 17
+	pattern:  var.ASGNOP pattern 
+	term:  var.DECR 
+	term:  var.INCR 
+	term:  var.    (173)
+
+	ASGNOP  shift 102
+	DECR  shift 103
+	INCR  shift 104
+	.  reduce 173 (src line 418)
+
+
+state 18
+	pattern:  (.plist ) IN varname 
+	term:  (.pattern ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 106
+	plist  goto 105
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 19
+	pattern:  re.    (76)
+
+	.  reduce 76 (src line 250)
+
+
+20: shift/reduce conflict (shift 107(14), red'n 77(0)) on /
+20: shift/reduce conflict (shift 108(13), red'n 77(0)) on +
+20: shift/reduce conflict (shift 109(13), red'n 77(0)) on -
+state 20
+	pattern:  term.    (77)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 77 (src line 251)
+
+
+state 21
+	var:  varname.    (174)
+	var:  varname.[ patlist ] 
+
+	[  shift 113
+	.  reduce 174 (src line 421)
+
+
+state 22
+	var:  IVAR.    (176)
+
+	.  reduce 176 (src line 424)
+
+
+state 23
+	var:  INDIRECT.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 114
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 24
+	re:  reg_expr.    (93)
+
+	.  reduce 93 (src line 282)
+
+
+state 25
+	re:  NOT.re 
+	term:  NOT.term 
+
+	(  shift 101
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 116
+	re  goto 115
+	reg_expr  goto 24
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 26
+	term:  -.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 117
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 27
+	term:  +.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 118
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 28
+	term:  BLTIN.( ) 
+	term:  BLTIN.( patlist ) 
+	term:  BLTIN.    (145)
+
+	(  shift 119
+	.  reduce 145 (src line 367)
+
+
+state 29
+	term:  CALL.( ) 
+	term:  CALL.( patlist ) 
+
+	(  shift 120
+	.  error
+
+
+state 30
+	term:  DECR.var 
+
+	ARG  shift 42
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	INDIRECT  shift 23
+	.  error
+
+	var  goto 121
+	varname  goto 21
+
+state 31
+	term:  INCR.var 
+
+	ARG  shift 42
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	INDIRECT  shift 23
+	.  error
+
+	var  goto 122
+	varname  goto 21
+
+state 32
+	term:  GETLINE.var LT term 
+	term:  GETLINE.LT term 
+	term:  GETLINE.var 
+	term:  GETLINE.    (155)
+
+	LT  shift 124
+	ARG  shift 42
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	INDIRECT  shift 23
+	.  reduce 155 (src line 377)
+
+	var  goto 123
+	varname  goto 21
+
+state 33
+	term:  INDEX.( pattern comma pattern ) 
+	term:  INDEX.( pattern comma reg_expr ) 
+
+	(  shift 125
+	.  error
+
+
+state 34
+	term:  MATCHFCN.( pattern comma reg_expr ) 
+	term:  MATCHFCN.( pattern comma pattern ) 
+
+	(  shift 126
+	.  error
+
+
+state 35
+	term:  NUMBER.    (161)
+
+	.  reduce 161 (src line 391)
+
+
+state 36
+	term:  SPLIT.( pattern comma varname comma pattern ) 
+	term:  SPLIT.( pattern comma varname comma reg_expr ) 
+	term:  SPLIT.( pattern comma varname ) 
+
+	(  shift 127
+	.  error
+
+
+state 37
+	term:  SPRINTF.( patlist ) 
+
+	(  shift 128
+	.  error
+
+
+state 38
+	term:  STRING.    (166)
+
+	.  reduce 166 (src line 399)
+
+
+state 39
+	term:  subop.( reg_expr comma pattern ) 
+	term:  subop.( pattern comma pattern ) 
+	term:  subop.( reg_expr comma pattern comma var ) 
+	term:  subop.( pattern comma pattern comma var ) 
+
+	(  shift 129
+	.  error
+
+
+state 40
+	term:  SUBSTR.( pattern comma pattern comma pattern ) 
+	term:  SUBSTR.( pattern comma pattern ) 
+
+	(  shift 130
+	.  error
+
+
+state 41
+	varname:  VAR.    (181)
+
+	.  reduce 181 (src line 436)
+
+
+state 42
+	varname:  ARG.    (182)
+
+	.  reduce 182 (src line 438)
+
+
+state 43
+	varname:  VARNF.    (183)
+
+	.  reduce 183 (src line 439)
+
+
+state 44
+	reg_expr:  /.$$95 REGEXPR / 
+	$$95: .    (95)
+
+	.  reduce 95 (src line 288)
+
+	$$95  goto 131
+
+state 45
+	subop:  SUB.    (131)
+
+	.  reduce 131 (src line 350)
+
+
+state 46
+	subop:  GSUB.    (132)
+
+	.  reduce 132 (src line 351)
+
+
+state 47
+	pst:  pst NL.    (89)
+
+	.  reduce 89 (src line 275)
+
+
+state 48
+	pst:  pst ;.    (90)
+
+	.  reduce 90 (src line 275)
+
+
+state 49
+	pas:  opt_pst pa_stats opt_pst.    (33)
+	pa_stats:  pa_stats opt_pst.pa_stat 
+
+	XBEGIN  shift 12
+	XEND  shift 13
+	{  shift 16
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	FUNC  shift 14
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 33 (src line 169)
+
+	pattern  goto 15
+	term  goto 20
+	re  goto 19
+	pa_pat  goto 10
+	pa_stat  goto 132
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	lbrace  goto 11
+	subop  goto 39
+
+state 50
+	lbrace:  lbrace.NL 
+	pa_stat:  pa_pat lbrace.stmtlist } 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 133
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 51
+	pa_stat:  pa_pat ,.pa_pat 
+	pa_stat:  pa_pat ,.pa_pat lbrace stmtlist } 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 15
+	term  goto 20
+	re  goto 19
+	pa_pat  goto 134
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 52
+	lbrace:  lbrace NL.    (23)
+
+	.  reduce 23 (src line 144)
+
+
+state 53
+	pa_stat:  lbrace stmtlist.} 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 135
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 54
+	stmtlist:  stmt.    (129)
+
+	.  reduce 129 (src line 345)
+
+
+state 55
+	stmt:  BREAK.st 
+
+	NL  shift 140
+	;  shift 139
+	.  error
+
+	st  goto 137
+	nl  goto 138
+
+state 56
+	stmt:  CLOSE.pattern st 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 141
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 57
+	stmt:  CONTINUE.st 
+
+	NL  shift 140
+	;  shift 139
+	.  error
+
+	st  goto 142
+	nl  goto 138
+
+state 58
+	do:  do.NL 
+	stmt:  do.$$112 stmt $$113 WHILE ( pattern ) st 
+	$$112: .    (112)
+
+	NL  shift 143
+	.  reduce 112 (src line 324)
+
+	$$112  goto 144
+
+state 59
+	stmt:  EXIT.pattern st 
+	stmt:  EXIT.st 
+
+	NL  shift 140
+	(  shift 18
+	;  shift 139
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 145
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	st  goto 146
+	nl  goto 138
+	subop  goto 39
+
+state 60
+	stmt:  for.    (117)
+
+	.  reduce 117 (src line 328)
+
+
+state 61
+	stmt:  if.stmt else stmt 
+	stmt:  if.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 147
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 62
+	lbrace:  lbrace.NL 
+	stmt:  lbrace.stmtlist rbrace 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 148
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 63
+	stmt:  NEXT.st 
+
+	NL  shift 140
+	;  shift 139
+	.  error
+
+	st  goto 149
+	nl  goto 138
+
+state 64
+	stmt:  NEXTFILE.st 
+
+	NL  shift 140
+	;  shift 139
+	.  error
+
+	st  goto 150
+	nl  goto 138
+
+state 65
+	stmt:  RETURN.pattern st 
+	stmt:  RETURN.st 
+
+	NL  shift 140
+	(  shift 18
+	;  shift 139
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 151
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	st  goto 152
+	nl  goto 138
+	subop  goto 39
+
+state 66
+	stmt:  simple_stmt.st 
+
+	NL  shift 140
+	;  shift 139
+	.  error
+
+	st  goto 153
+	nl  goto 138
+
+state 67
+	stmt:  while.$$126 stmt 
+	$$126: .    (126)
+
+	.  reduce 126 (src line 341)
+
+	$$126  goto 154
+
+state 68
+	stmt:  ;.opt_nl 
+	opt_nl: .    (26)
+
+	NL  shift 140
+	.  reduce 26 (src line 151)
+
+	nl  goto 156
+	opt_nl  goto 155
+
+state 69
+	do:  DO.    (9)
+
+	.  reduce 9 (src line 117)
+
+
+state 70
+	for:  FOR.( opt_simple_stmt ; opt_nl pattern ; opt_nl opt_simple_stmt rparen $$13 stmt 
+	for:  FOR.( opt_simple_stmt ; ; opt_nl opt_simple_stmt rparen $$15 stmt 
+	for:  FOR.( varname IN varname rparen $$17 stmt 
+
+	(  shift 157
+	.  error
+
+
+state 71
+	if:  IF.( pattern rparen 
+
+	(  shift 158
+	.  error
+
+
+state 72
+	simple_stmt:  print.prarg | term 
+	simple_stmt:  print.prarg APPEND term 
+	simple_stmt:  print.prarg GT term 
+	simple_stmt:  print.prarg 
+	prarg: .    (82)
+
+	(  shift 161
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 82 (src line 264)
+
+	ppattern  goto 162
+	pplist  goto 160
+	prarg  goto 159
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 73
+	simple_stmt:  DELETE.varname [ patlist ] 
+	simple_stmt:  DELETE.varname 
+
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 166
+
+state 74
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	simple_stmt:  pattern.    (105)
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 105 (src line 309)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 75
+	simple_stmt:  error.    (106)
+
+	.  reduce 106 (src line 310)
+
+
+state 76
+	while:  WHILE.( pattern rparen 
+
+	(  shift 167
+	.  error
+
+
+state 77
+	print:  PRINT.    (85)
+
+	.  reduce 85 (src line 270)
+
+
+state 78
+	print:  PRINTF.    (86)
+
+	.  reduce 86 (src line 271)
+
+
+state 79
+	lbrace:  lbrace.NL 
+	pa_stat:  XBEGIN lbrace.stmtlist } 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 168
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 80
+	lbrace:  lbrace.NL 
+	pa_stat:  XEND lbrace.stmtlist } 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 169
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 81
+	pa_stat:  FUNC funcname.( varlist rparen $$42 lbrace stmtlist } 
+
+	(  shift 170
+	.  error
+
+
+state 82
+	funcname:  VAR.    (19)
+
+	.  reduce 19 (src line 134)
+
+
+state 83
+	funcname:  CALL.    (20)
+
+	.  reduce 20 (src line 136)
+
+
+state 84
+	pattern:  pattern ?.pattern : pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 171
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 85
+	bor:  bor.NL 
+	pattern:  pattern bor.pattern 
+
+	NL  shift 172
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 173
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 86
+	and:  and.NL 
+	pattern:  pattern and.pattern 
+
+	NL  shift 174
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 175
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 87
+	pattern:  pattern EQ.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 176
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 88
+	pattern:  pattern GE.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 177
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 89
+	pattern:  pattern GT.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 178
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 90
+	pattern:  pattern LE.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 179
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 91
+	pattern:  pattern LT.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 180
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 92
+	pattern:  pattern NE.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 181
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 93
+	pattern:  pattern MATCHOP.reg_expr 
+	pattern:  pattern MATCHOP.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 183
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 182
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 94
+	pattern:  pattern IN.varname 
+
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 184
+
+state 95
+	pattern:  pattern |.GETLINE var 
+	pattern:  pattern |.GETLINE 
+
+	GETLINE  shift 185
+	.  error
+
+
+state 96
+	pattern:  pattern term.    (75)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 75 (src line 249)
+
+
+state 97
+	bor:  BOR.    (5)
+
+	.  reduce 5 (src line 109)
+
+
+state 98
+	and:  AND.    (3)
+
+	.  reduce 3 (src line 105)
+
+
+state 99
+	term:  NOT.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 116
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+100: shift/reduce conflict (shift 103(17), red'n 173(0)) on DECR
+100: shift/reduce conflict (shift 104(17), red'n 173(0)) on INCR
+state 100
+	term:  var.DECR 
+	term:  var.INCR 
+	term:  var.    (173)
+
+	DECR  shift 103
+	INCR  shift 104
+	.  reduce 173 (src line 418)
+
+
+state 101
+	term:  (.pattern ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 186
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 102
+	pattern:  var ASGNOP.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 187
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 103
+	term:  var DECR.    (150)
+
+	.  reduce 150 (src line 372)
+
+
+state 104
+	term:  var INCR.    (151)
+
+	.  reduce 151 (src line 373)
+
+
+state 105
+	pattern:  ( plist.) IN varname 
+	plist:  plist.comma pattern 
+
+	,  shift 190
+	)  shift 188
+	.  error
+
+	comma  goto 189
+
+state 106
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	plist:  pattern.comma pattern 
+	term:  ( pattern.) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	)  shift 192
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 191
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 107
+	term:  term /.ASGNOP term 
+	term:  term /.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	ASGNOP  shift 193
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 194
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 108
+	term:  term +.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 195
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 109
+	term:  term -.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 196
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 110
+	term:  term *.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 197
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 111
+	term:  term %.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 198
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 112
+	term:  term POWER.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 199
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 113
+	var:  varname [.patlist ] 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 201
+	patlist  goto 200
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 114
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	var:  INDIRECT term.    (177)
+
+	.  reduce 177 (src line 425)
+
+
+state 115
+	re:  NOT re.    (94)
+
+	.  reduce 94 (src line 285)
+
+
+state 116
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	term:  NOT term.    (142)
+
+	POWER  shift 112
+	.  reduce 142 (src line 364)
+
+
+state 117
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	term:  - term.    (140)
+
+	POWER  shift 112
+	.  reduce 140 (src line 362)
+
+
+state 118
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	term:  + term.    (141)
+
+	POWER  shift 112
+	.  reduce 141 (src line 363)
+
+
+state 119
+	term:  BLTIN (.) 
+	term:  BLTIN (.patlist ) 
+
+	(  shift 18
+	/  shift 44
+	)  shift 202
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 201
+	patlist  goto 203
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 120
+	term:  CALL (.) 
+	term:  CALL (.patlist ) 
+
+	(  shift 18
+	/  shift 44
+	)  shift 204
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 201
+	patlist  goto 205
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 121
+	term:  DECR var.    (148)
+
+	.  reduce 148 (src line 370)
+
+
+state 122
+	term:  INCR var.    (149)
+
+	.  reduce 149 (src line 371)
+
+
+state 123
+	term:  GETLINE var.LT term 
+	term:  GETLINE var.    (154)
+
+	LT  shift 206
+	.  reduce 154 (src line 376)
+
+
+state 124
+	term:  GETLINE LT.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 207
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 125
+	term:  INDEX (.pattern comma pattern ) 
+	term:  INDEX (.pattern comma reg_expr ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 208
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 126
+	term:  MATCHFCN (.pattern comma reg_expr ) 
+	term:  MATCHFCN (.pattern comma pattern ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 209
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 127
+	term:  SPLIT (.pattern comma varname comma pattern ) 
+	term:  SPLIT (.pattern comma varname comma reg_expr ) 
+	term:  SPLIT (.pattern comma varname ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 210
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 128
+	term:  SPRINTF (.patlist ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 201
+	patlist  goto 211
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 129
+	term:  subop (.reg_expr comma pattern ) 
+	term:  subop (.pattern comma pattern ) 
+	term:  subop (.reg_expr comma pattern comma var ) 
+	term:  subop (.pattern comma pattern comma var ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 213
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 212
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 130
+	term:  SUBSTR (.pattern comma pattern comma pattern ) 
+	term:  SUBSTR (.pattern comma pattern ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 214
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 131
+	reg_expr:  / $$95.REGEXPR / 
+
+	REGEXPR  shift 215
+	.  error
+
+
+state 132
+	pa_stats:  pa_stats opt_pst pa_stat.    (45)
+
+	.  reduce 45 (src line 192)
+
+
+state 133
+	pa_stat:  pa_pat lbrace stmtlist.} 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 216
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+134: shift/reduce conflict (shift 16(0), red'n 37(0)) on {
+state 134
+	pa_stat:  pa_pat , pa_pat.    (37)
+	pa_stat:  pa_pat , pa_pat.lbrace stmtlist } 
+
+	{  shift 16
+	.  reduce 37 (src line 179)
+
+	lbrace  goto 217
+
+state 135
+	pa_stat:  lbrace stmtlist }.    (39)
+
+	.  reduce 39 (src line 181)
+
+
+state 136
+	stmtlist:  stmtlist stmt.    (130)
+
+	.  reduce 130 (src line 347)
+
+
+state 137
+	stmt:  BREAK st.    (109)
+
+	.  reduce 109 (src line 318)
+
+
+state 138
+	nl:  nl.NL 
+	st:  nl.    (107)
+
+	NL  shift 218
+	.  reduce 107 (src line 313)
+
+
+state 139
+	st:  ;.opt_nl 
+	opt_nl: .    (26)
+
+	NL  shift 140
+	.  reduce 26 (src line 151)
+
+	nl  goto 156
+	opt_nl  goto 219
+
+state 140
+	nl:  NL.    (24)
+
+	.  reduce 24 (src line 147)
+
+
+state 141
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	stmt:  CLOSE pattern.st 
+
+	NL  shift 140
+	(  shift 101
+	|  shift 95
+	;  shift 139
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	st  goto 220
+	nl  goto 138
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 142
+	stmt:  CONTINUE st.    (111)
+
+	.  reduce 111 (src line 322)
+
+
+state 143
+	do:  do NL.    (10)
+
+	.  reduce 10 (src line 118)
+
+
+state 144
+	stmt:  do $$112.stmt $$113 WHILE ( pattern ) st 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 221
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 145
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	stmt:  EXIT pattern.st 
+
+	NL  shift 140
+	(  shift 101
+	|  shift 95
+	;  shift 139
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	st  goto 222
+	nl  goto 138
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 146
+	stmt:  EXIT st.    (116)
+
+	.  reduce 116 (src line 327)
+
+
+147: shift/reduce conflict (shift 224(0), red'n 119(0)) on ELSE
+state 147
+	stmt:  if stmt.else stmt 
+	stmt:  if stmt.    (119)
+
+	ELSE  shift 224
+	.  reduce 119 (src line 330)
+
+	else  goto 223
+
+state 148
+	stmt:  lbrace stmtlist.rbrace 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 226
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	rbrace  goto 225
+	subop  goto 39
+	print  goto 72
+
+state 149
+	stmt:  NEXT st.    (121)
+
+	.  reduce 121 (src line 332)
+
+
+state 150
+	stmt:  NEXTFILE st.    (122)
+
+	.  reduce 122 (src line 335)
+
+
+state 151
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	stmt:  RETURN pattern.st 
+
+	NL  shift 140
+	(  shift 101
+	|  shift 95
+	;  shift 139
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	st  goto 227
+	nl  goto 138
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 152
+	stmt:  RETURN st.    (124)
+
+	.  reduce 124 (src line 339)
+
+
+state 153
+	stmt:  simple_stmt st.    (125)
+
+	.  reduce 125 (src line 340)
+
+
+state 154
+	stmt:  while $$126.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 228
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 155
+	stmt:  ; opt_nl.    (128)
+
+	.  reduce 128 (src line 342)
+
+
+state 156
+	nl:  nl.NL 
+	opt_nl:  nl.    (27)
+
+	NL  shift 218
+	.  reduce 27 (src line 153)
+
+
+state 157
+	for:  FOR (.opt_simple_stmt ; opt_nl pattern ; opt_nl opt_simple_stmt rparen $$13 stmt 
+	for:  FOR (.opt_simple_stmt ; ; opt_nl opt_simple_stmt rparen $$15 stmt 
+	for:  FOR (.varname IN varname rparen $$17 stmt 
+	opt_simple_stmt: .    (30)
+
+	error  shift 75
+	(  shift 18
+	;  reduce 30 (src line 162)
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	DELETE  shift 73
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 231
+	opt_simple_stmt  goto 229
+	var  goto 17
+	varname  goto 230
+	subop  goto 39
+	print  goto 72
+
+state 158
+	if:  IF (.pattern rparen 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 232
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 159
+	simple_stmt:  print prarg.| term 
+	simple_stmt:  print prarg.APPEND term 
+	simple_stmt:  print prarg.GT term 
+	simple_stmt:  print prarg.    (102)
+
+	|  shift 233
+	APPEND  shift 234
+	GT  shift 235
+	.  reduce 102 (src line 306)
+
+
+state 160
+	pplist:  pplist.comma ppattern 
+	prarg:  pplist.    (83)
+
+	,  shift 190
+	.  reduce 83 (src line 266)
+
+	comma  goto 236
+
+state 161
+	ppattern:  (.plist ) IN varname 
+	prarg:  (.plist ) 
+	term:  (.pattern ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 106
+	plist  goto 237
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 162
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+	pplist:  ppattern.    (80)
+
+	(  shift 101
+	MATCHOP  shift 241
+	AND  shift 98
+	BOR  shift 97
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 238
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 80 (src line 259)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+163: shift/reduce conflict (shift 103(17), red'n 173(0)) on DECR
+163: shift/reduce conflict (shift 104(17), red'n 173(0)) on INCR
+state 163
+	ppattern:  var.ASGNOP ppattern 
+	term:  var.DECR 
+	term:  var.INCR 
+	term:  var.    (173)
+
+	ASGNOP  shift 244
+	DECR  shift 103
+	INCR  shift 104
+	.  reduce 173 (src line 418)
+
+
+state 164
+	ppattern:  re.    (57)
+
+	.  reduce 57 (src line 217)
+
+
+165: shift/reduce conflict (shift 108(13), red'n 58(0)) on +
+165: shift/reduce conflict (shift 109(13), red'n 58(0)) on -
+state 165
+	ppattern:  term.    (58)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 58 (src line 218)
+
+
+state 166
+	simple_stmt:  DELETE varname.[ patlist ] 
+	simple_stmt:  DELETE varname.    (104)
+
+	[  shift 245
+	.  reduce 104 (src line 308)
+
+
+state 167
+	while:  WHILE (.pattern rparen 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 246
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 168
+	pa_stat:  XBEGIN lbrace stmtlist.} 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 247
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 169
+	pa_stat:  XEND lbrace stmtlist.} 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 248
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 170
+	pa_stat:  FUNC funcname (.varlist rparen $$42 lbrace stmtlist } 
+	varlist: .    (178)
+
+	VAR  shift 250
+	.  reduce 178 (src line 428)
+
+	varlist  goto 249
+
+state 171
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern ? pattern.: pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	:  shift 251
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 172
+	bor:  bor NL.    (6)
+
+	.  reduce 6 (src line 110)
+
+
+state 173
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern bor pattern.    (61)
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 61 (src line 225)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 174
+	and:  and NL.    (4)
+
+	.  reduce 4 (src line 106)
+
+
+state 175
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern and pattern.    (62)
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 62 (src line 227)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 176
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern EQ pattern.    (63)
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 63 (src line 229)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 177
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern GE pattern.    (64)
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 64 (src line 230)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 178
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern GT pattern.    (65)
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 65 (src line 231)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 179
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern LE pattern.    (66)
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 66 (src line 232)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 180
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern LT pattern.    (67)
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 67 (src line 233)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 181
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern NE pattern.    (68)
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 68 (src line 234)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+182: reduce/reduce conflict (red'ns 69 and 93 ) on $end
+182: reduce/reduce conflict (red'ns 69 and 93 ) on XBEGIN
+182: reduce/reduce conflict (red'ns 69 and 93 ) on XEND
+182: reduce/reduce conflict (red'ns 69 and 93 ) on NL
+182: reduce/reduce conflict (red'ns 69 and 93 ) on ,
+182: reduce/reduce conflict (red'ns 69 and 93 ) on {
+182: reduce/reduce conflict (red'ns 69 and 93 ) on (
+182: reduce/reduce conflict (red'ns 69 and 93 ) on |
+182: reduce/reduce conflict (red'ns 69 and 93 ) on ;
+182: reduce/reduce conflict (red'ns 69 and 93 ) on /
+182: reduce/reduce conflict (red'ns 69 and 93 ) on )
+182: reduce/reduce conflict (red'ns 69 and 93 ) on ]
+182: reduce/reduce conflict (red'ns 69 and 93 ) on MATCHOP
+182: reduce/reduce conflict (red'ns 69 and 93 ) on AND
+182: reduce/reduce conflict (red'ns 69 and 93 ) on BOR
+182: reduce/reduce conflict (red'ns 69 and 93 ) on EQ
+182: reduce/reduce conflict (red'ns 69 and 93 ) on GE
+182: reduce/reduce conflict (red'ns 69 and 93 ) on GT
+182: reduce/reduce conflict (red'ns 69 and 93 ) on LE
+182: reduce/reduce conflict (red'ns 69 and 93 ) on LT
+182: reduce/reduce conflict (red'ns 69 and 93 ) on NE
+182: reduce/reduce conflict (red'ns 69 and 93 ) on IN
+182: reduce/reduce conflict (red'ns 69 and 93 ) on ARG
+182: reduce/reduce conflict (red'ns 69 and 93 ) on BLTIN
+182: reduce/reduce conflict (red'ns 69 and 93 ) on FUNC
+182: reduce/reduce conflict (red'ns 69 and 93 ) on SUB
+182: reduce/reduce conflict (red'ns 69 and 93 ) on GSUB
+182: reduce/reduce conflict (red'ns 69 and 93 ) on INDEX
+182: reduce/reduce conflict (red'ns 69 and 93 ) on MATCHFCN
+182: reduce/reduce conflict (red'ns 69 and 93 ) on SPRINTF
+182: reduce/reduce conflict (red'ns 69 and 93 ) on VAR
+182: reduce/reduce conflict (red'ns 69 and 93 ) on IVAR
+182: reduce/reduce conflict (red'ns 69 and 93 ) on VARNF
+182: reduce/reduce conflict (red'ns 69 and 93 ) on CALL
+182: reduce/reduce conflict (red'ns 69 and 93 ) on NUMBER
+182: reduce/reduce conflict (red'ns 69 and 93 ) on STRING
+182: reduce/reduce conflict (red'ns 69 and 93 ) on ?
+182: reduce/reduce conflict (red'ns 69 and 93 ) on :
+182: reduce/reduce conflict (red'ns 69 and 93 ) on GETLINE
+182: reduce/reduce conflict (red'ns 69 and 93 ) on SPLIT
+182: reduce/reduce conflict (red'ns 69 and 93 ) on SUBSTR
+182: reduce/reduce conflict (red'ns 69 and 93 ) on +
+182: reduce/reduce conflict (red'ns 69 and 93 ) on -
+182: reduce/reduce conflict (red'ns 69 and 93 ) on NOT
+182: reduce/reduce conflict (red'ns 69 and 93 ) on DECR
+182: reduce/reduce conflict (red'ns 69 and 93 ) on INCR
+182: reduce/reduce conflict (red'ns 69 and 93 ) on INDIRECT
+state 182
+	pattern:  pattern MATCHOP reg_expr.    (69)
+	re:  reg_expr.    (93)
+
+	.  reduce 69 (src line 235)
+
+
+state 183
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern MATCHOP pattern.    (70)
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  error
+	MATCHOP  error
+	EQ  error
+	GE  error
+	GT  error
+	LE  error
+	LT  error
+	NE  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 70 (src line 236)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 184
+	pattern:  pattern IN varname.    (71)
+
+	.  reduce 71 (src line 241)
+
+
+state 185
+	pattern:  pattern | GETLINE.var 
+	pattern:  pattern | GETLINE.    (74)
+
+	ARG  shift 42
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	INDIRECT  shift 23
+	.  reduce 74 (src line 246)
+
+	var  goto 252
+	varname  goto 21
+
+state 186
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  ( pattern.) 
+
+	(  shift 101
+	|  shift 95
+	)  shift 192
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 187
+	pattern:  var ASGNOP pattern.    (59)
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 59 (src line 221)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 188
+	pattern:  ( plist ).IN varname 
+
+	IN  shift 253
+	.  error
+
+
+state 189
+	comma:  comma.NL 
+	plist:  plist comma.pattern 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 255
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 190
+	comma:  ,.    (7)
+
+	.  reduce 7 (src line 113)
+
+
+state 191
+	comma:  comma.NL 
+	plist:  pattern comma.pattern 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 256
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 192
+	term:  ( pattern ).    (158)
+
+	.  reduce 158 (src line 383)
+
+
+state 193
+	term:  term / ASGNOP.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 257
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 194
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term / term.    (137)
+	term:  term.% term 
+	term:  term.POWER term 
+
+	POWER  shift 112
+	.  reduce 137 (src line 359)
+
+
+state 195
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term + term.    (134)
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 134 (src line 356)
+
+
+state 196
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term - term.    (135)
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 135 (src line 357)
+
+
+state 197
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term * term.    (136)
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	POWER  shift 112
+	.  reduce 136 (src line 358)
+
+
+state 198
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term % term.    (138)
+	term:  term.POWER term 
+
+	POWER  shift 112
+	.  reduce 138 (src line 360)
+
+
+state 199
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	term:  term POWER term.    (139)
+
+	POWER  shift 112
+	.  reduce 139 (src line 361)
+
+
+state 200
+	patlist:  patlist.comma pattern 
+	var:  varname [ patlist.] 
+
+	,  shift 190
+	]  shift 259
+	.  error
+
+	comma  goto 258
+
+state 201
+	patlist:  pattern.    (46)
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 46 (src line 195)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 202
+	term:  BLTIN ( ).    (143)
+
+	.  reduce 143 (src line 365)
+
+
+state 203
+	patlist:  patlist.comma pattern 
+	term:  BLTIN ( patlist.) 
+
+	,  shift 190
+	)  shift 260
+	.  error
+
+	comma  goto 258
+
+state 204
+	term:  CALL ( ).    (146)
+
+	.  reduce 146 (src line 368)
+
+
+state 205
+	patlist:  patlist.comma pattern 
+	term:  CALL ( patlist.) 
+
+	,  shift 190
+	)  shift 261
+	.  error
+
+	comma  goto 258
+
+state 206
+	term:  GETLINE var LT.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 262
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 207
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	term:  GETLINE LT term.    (153)
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 153 (src line 375)
+
+
+state 208
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  INDEX ( pattern.comma pattern ) 
+	term:  INDEX ( pattern.comma reg_expr ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 263
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 209
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  MATCHFCN ( pattern.comma reg_expr ) 
+	term:  MATCHFCN ( pattern.comma pattern ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 264
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 210
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  SPLIT ( pattern.comma varname comma pattern ) 
+	term:  SPLIT ( pattern.comma varname comma reg_expr ) 
+	term:  SPLIT ( pattern.comma varname ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 265
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 211
+	patlist:  patlist.comma pattern 
+	term:  SPRINTF ( patlist.) 
+
+	,  shift 190
+	)  shift 266
+	.  error
+
+	comma  goto 258
+
+212: shift/reduce conflict (shift 190(0), red'n 93(0)) on ,
+state 212
+	re:  reg_expr.    (93)
+	term:  subop ( reg_expr.comma pattern ) 
+	term:  subop ( reg_expr.comma pattern comma var ) 
+
+	,  shift 190
+	.  reduce 93 (src line 282)
+
+	comma  goto 267
+
+state 213
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  subop ( pattern.comma pattern ) 
+	term:  subop ( pattern.comma pattern comma var ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 268
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 214
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  SUBSTR ( pattern.comma pattern comma pattern ) 
+	term:  SUBSTR ( pattern.comma pattern ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 269
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 215
+	reg_expr:  / $$95 REGEXPR./ 
+
+	/  shift 270
+	.  error
+
+
+state 216
+	pa_stat:  pa_pat lbrace stmtlist }.    (36)
+
+	.  reduce 36 (src line 178)
+
+
+state 217
+	lbrace:  lbrace.NL 
+	pa_stat:  pa_pat , pa_pat lbrace.stmtlist } 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 271
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 218
+	nl:  nl NL.    (25)
+
+	.  reduce 25 (src line 148)
+
+
+state 219
+	st:  ; opt_nl.    (108)
+
+	.  reduce 108 (src line 315)
+
+
+state 220
+	stmt:  CLOSE pattern st.    (110)
+
+	.  reduce 110 (src line 321)
+
+
+state 221
+	stmt:  do $$112 stmt.$$113 WHILE ( pattern ) st 
+	$$113: .    (113)
+
+	.  reduce 113 (src line 0)
+
+	$$113  goto 272
+
+state 222
+	stmt:  EXIT pattern st.    (115)
+
+	.  reduce 115 (src line 326)
+
+
+state 223
+	else:  else.NL 
+	stmt:  if stmt else.stmt 
+
+	error  shift 75
+	NL  shift 273
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 274
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 224
+	else:  ELSE.    (11)
+
+	.  reduce 11 (src line 121)
+
+
+state 225
+	rbrace:  rbrace.NL 
+	stmt:  lbrace stmtlist rbrace.    (120)
+
+	NL  shift 275
+	.  reduce 120 (src line 331)
+
+
+state 226
+	rbrace:  }.    (91)
+
+	.  reduce 91 (src line 278)
+
+
+state 227
+	stmt:  RETURN pattern st.    (123)
+
+	.  reduce 123 (src line 338)
+
+
+state 228
+	stmt:  while $$126 stmt.    (127)
+
+	.  reduce 127 (src line 0)
+
+
+state 229
+	for:  FOR ( opt_simple_stmt.; opt_nl pattern ; opt_nl opt_simple_stmt rparen $$13 stmt 
+	for:  FOR ( opt_simple_stmt.; ; opt_nl opt_simple_stmt rparen $$15 stmt 
+
+	;  shift 276
+	.  error
+
+
+230: shift/reduce conflict (shift 277(7), red'n 174(0)) on IN
+state 230
+	for:  FOR ( varname.IN varname rparen $$17 stmt 
+	var:  varname.    (174)
+	var:  varname.[ patlist ] 
+
+	[  shift 113
+	IN  shift 277
+	.  reduce 174 (src line 421)
+
+
+state 231
+	opt_simple_stmt:  simple_stmt.    (31)
+
+	.  reduce 31 (src line 164)
+
+
+state 232
+	if:  IF ( pattern.rparen 
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	)  shift 279
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	rparen  goto 278
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 233
+	simple_stmt:  print prarg |.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 280
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 234
+	simple_stmt:  print prarg APPEND.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 281
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 235
+	simple_stmt:  print prarg GT.term 
+
+	(  shift 101
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 282
+	var  goto 100
+	varname  goto 21
+	subop  goto 39
+
+state 236
+	comma:  comma.NL 
+	pplist:  pplist comma.ppattern 
+
+	NL  shift 254
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 283
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 237
+	ppattern:  ( plist.) IN varname 
+	plist:  plist.comma pattern 
+	prarg:  ( plist.) 
+
+	,  shift 190
+	)  shift 285
+	.  error
+
+	comma  goto 189
+
+state 238
+	ppattern:  ppattern ?.ppattern : ppattern 
+
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 286
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 239
+	bor:  bor.NL 
+	ppattern:  ppattern bor.ppattern 
+
+	NL  shift 172
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 287
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 240
+	and:  and.NL 
+	ppattern:  ppattern and.ppattern 
+
+	NL  shift 174
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 288
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 241
+	ppattern:  ppattern MATCHOP.reg_expr 
+	ppattern:  ppattern MATCHOP.ppattern 
+
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 290
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 289
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 242
+	ppattern:  ppattern IN.varname 
+
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 291
+
+state 243
+	ppattern:  ppattern term.    (56)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 56 (src line 216)
+
+
+state 244
+	ppattern:  var ASGNOP.ppattern 
+
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 292
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 245
+	simple_stmt:  DELETE varname [.patlist ] 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 201
+	patlist  goto 293
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 246
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	while:  WHILE ( pattern.rparen 
+
+	(  shift 101
+	|  shift 95
+	)  shift 279
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	rparen  goto 294
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 247
+	pa_stat:  XBEGIN lbrace stmtlist }.    (40)
+
+	.  reduce 40 (src line 182)
+
+
+state 248
+	pa_stat:  XEND lbrace stmtlist }.    (41)
+
+	.  reduce 41 (src line 184)
+
+
+state 249
+	pa_stat:  FUNC funcname ( varlist.rparen $$42 lbrace stmtlist } 
+	varlist:  varlist.comma VAR 
+
+	,  shift 190
+	)  shift 279
+	.  error
+
+	rparen  goto 295
+	comma  goto 296
+
+state 250
+	varlist:  VAR.    (179)
+
+	.  reduce 179 (src line 430)
+
+
+state 251
+	pattern:  pattern ? pattern :.pattern 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 297
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 252
+	pattern:  pattern | GETLINE var.    (73)
+
+	.  reduce 73 (src line 243)
+
+
+state 253
+	pattern:  ( plist ) IN.varname 
+
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 298
+
+state 254
+	comma:  comma NL.    (8)
+
+	.  reduce 8 (src line 114)
+
+
+state 255
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	plist:  plist comma pattern.    (79)
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 79 (src line 256)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 256
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	plist:  pattern comma pattern.    (78)
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 78 (src line 254)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 257
+	term:  term./ ASGNOP term 
+	term:  term / ASGNOP term.    (133)
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 133 (src line 354)
+
+
+state 258
+	comma:  comma.NL 
+	patlist:  patlist comma.pattern 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 299
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 259
+	var:  varname [ patlist ].    (175)
+
+	.  reduce 175 (src line 423)
+
+
+state 260
+	term:  BLTIN ( patlist ).    (144)
+
+	.  reduce 144 (src line 366)
+
+
+state 261
+	term:  CALL ( patlist ).    (147)
+
+	.  reduce 147 (src line 369)
+
+
+state 262
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+	term:  GETLINE var LT term.    (152)
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 152 (src line 374)
+
+
+state 263
+	comma:  comma.NL 
+	term:  INDEX ( pattern comma.pattern ) 
+	term:  INDEX ( pattern comma.reg_expr ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 300
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 301
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 264
+	comma:  comma.NL 
+	term:  MATCHFCN ( pattern comma.reg_expr ) 
+	term:  MATCHFCN ( pattern comma.pattern ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 303
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 302
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 265
+	comma:  comma.NL 
+	term:  SPLIT ( pattern comma.varname comma pattern ) 
+	term:  SPLIT ( pattern comma.varname comma reg_expr ) 
+	term:  SPLIT ( pattern comma.varname ) 
+
+	NL  shift 254
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 304
+
+state 266
+	term:  SPRINTF ( patlist ).    (165)
+
+	.  reduce 165 (src line 398)
+
+
+state 267
+	comma:  comma.NL 
+	term:  subop ( reg_expr comma.pattern ) 
+	term:  subop ( reg_expr comma.pattern comma var ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 305
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 268
+	comma:  comma.NL 
+	term:  subop ( pattern comma.pattern ) 
+	term:  subop ( pattern comma.pattern comma var ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 306
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 269
+	comma:  comma.NL 
+	term:  SUBSTR ( pattern comma.pattern comma pattern ) 
+	term:  SUBSTR ( pattern comma.pattern ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 307
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 270
+	reg_expr:  / $$95 REGEXPR /.    (96)
+
+	.  reduce 96 (src line 0)
+
+
+state 271
+	pa_stat:  pa_pat , pa_pat lbrace stmtlist.} 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 308
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 272
+	stmt:  do $$112 stmt $$113.WHILE ( pattern ) st 
+
+	WHILE  shift 309
+	.  error
+
+
+state 273
+	else:  else NL.    (12)
+
+	.  reduce 12 (src line 122)
+
+
+state 274
+	stmt:  if stmt else stmt.    (118)
+
+	.  reduce 118 (src line 329)
+
+
+state 275
+	rbrace:  rbrace NL.    (92)
+
+	.  reduce 92 (src line 279)
+
+
+state 276
+	for:  FOR ( opt_simple_stmt ;.opt_nl pattern ; opt_nl opt_simple_stmt rparen $$13 stmt 
+	for:  FOR ( opt_simple_stmt ;.; opt_nl opt_simple_stmt rparen $$15 stmt 
+	opt_nl: .    (26)
+
+	NL  shift 140
+	;  shift 311
+	.  reduce 26 (src line 151)
+
+	nl  goto 156
+	opt_nl  goto 310
+
+state 277
+	for:  FOR ( varname IN.varname rparen $$17 stmt 
+
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 312
+
+state 278
+	if:  IF ( pattern rparen.    (21)
+	rparen:  rparen.NL 
+
+	NL  shift 313
+	.  reduce 21 (src line 139)
+
+
+state 279
+	rparen:  ).    (97)
+
+	.  reduce 97 (src line 292)
+
+
+state 280
+	simple_stmt:  print prarg | term.    (99)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 99 (src line 296)
+
+
+state 281
+	simple_stmt:  print prarg APPEND term.    (100)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 100 (src line 300)
+
+
+state 282
+	simple_stmt:  print prarg GT term.    (101)
+	term:  term./ ASGNOP term 
+	term:  term.+ term 
+	term:  term.- term 
+	term:  term.* term 
+	term:  term./ term 
+	term:  term.% term 
+	term:  term.POWER term 
+
+	/  shift 107
+	+  shift 108
+	-  shift 109
+	*  shift 110
+	%  shift 111
+	POWER  shift 112
+	.  reduce 101 (src line 303)
+
+
+state 283
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+	pplist:  pplist comma ppattern.    (81)
+
+	(  shift 101
+	MATCHOP  shift 241
+	AND  shift 98
+	BOR  shift 97
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 238
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 81 (src line 261)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+state 284
+	ppattern:  (.plist ) IN varname 
+	term:  (.pattern ) 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 106
+	plist  goto 314
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 285
+	ppattern:  ( plist ).IN varname 
+	prarg:  ( plist ).    (84)
+
+	IN  shift 315
+	.  reduce 84 (src line 267)
+
+
+state 286
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern ? ppattern.: ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+
+	(  shift 101
+	MATCHOP  shift 241
+	AND  shift 98
+	BOR  shift 97
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 238
+	:  shift 316
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+state 287
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern bor ppattern.    (50)
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+
+	(  shift 101
+	MATCHOP  shift 241
+	AND  shift 98
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 50 (src line 204)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+state 288
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern and ppattern.    (51)
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+
+	(  shift 101
+	MATCHOP  shift 241
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 51 (src line 206)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+289: reduce/reduce conflict (red'ns 52 and 93 ) on NL
+289: reduce/reduce conflict (red'ns 52 and 93 ) on ,
+289: reduce/reduce conflict (red'ns 52 and 93 ) on (
+289: reduce/reduce conflict (red'ns 52 and 93 ) on |
+289: reduce/reduce conflict (red'ns 52 and 93 ) on ;
+289: reduce/reduce conflict (red'ns 52 and 93 ) on )
+289: reduce/reduce conflict (red'ns 52 and 93 ) on MATCHOP
+289: reduce/reduce conflict (red'ns 52 and 93 ) on AND
+289: reduce/reduce conflict (red'ns 52 and 93 ) on BOR
+289: reduce/reduce conflict (red'ns 52 and 93 ) on APPEND
+289: reduce/reduce conflict (red'ns 52 and 93 ) on GT
+289: reduce/reduce conflict (red'ns 52 and 93 ) on IN
+289: reduce/reduce conflict (red'ns 52 and 93 ) on ARG
+289: reduce/reduce conflict (red'ns 52 and 93 ) on BLTIN
+289: reduce/reduce conflict (red'ns 52 and 93 ) on SUB
+289: reduce/reduce conflict (red'ns 52 and 93 ) on GSUB
+289: reduce/reduce conflict (red'ns 52 and 93 ) on INDEX
+289: reduce/reduce conflict (red'ns 52 and 93 ) on MATCHFCN
+289: reduce/reduce conflict (red'ns 52 and 93 ) on SPRINTF
+289: reduce/reduce conflict (red'ns 52 and 93 ) on VAR
+289: reduce/reduce conflict (red'ns 52 and 93 ) on IVAR
+289: reduce/reduce conflict (red'ns 52 and 93 ) on VARNF
+289: reduce/reduce conflict (red'ns 52 and 93 ) on CALL
+289: reduce/reduce conflict (red'ns 52 and 93 ) on NUMBER
+289: reduce/reduce conflict (red'ns 52 and 93 ) on STRING
+289: reduce/reduce conflict (red'ns 52 and 93 ) on ?
+289: reduce/reduce conflict (red'ns 52 and 93 ) on :
+289: reduce/reduce conflict (red'ns 52 and 93 ) on GETLINE
+289: reduce/reduce conflict (red'ns 52 and 93 ) on SPLIT
+289: reduce/reduce conflict (red'ns 52 and 93 ) on SUBSTR
+289: reduce/reduce conflict (red'ns 52 and 93 ) on +
+289: reduce/reduce conflict (red'ns 52 and 93 ) on -
+289: reduce/reduce conflict (red'ns 52 and 93 ) on NOT
+289: reduce/reduce conflict (red'ns 52 and 93 ) on DECR
+289: reduce/reduce conflict (red'ns 52 and 93 ) on INCR
+289: reduce/reduce conflict (red'ns 52 and 93 ) on INDIRECT
+state 289
+	ppattern:  ppattern MATCHOP reg_expr.    (52)
+	re:  reg_expr.    (93)
+
+	.  reduce 52 (src line 208)
+
+
+state 290
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern MATCHOP ppattern.    (53)
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+
+	(  shift 101
+	MATCHOP  error
+	IN  error
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 53 (src line 209)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+state 291
+	ppattern:  ppattern IN varname.    (54)
+
+	.  reduce 54 (src line 214)
+
+
+state 292
+	ppattern:  var ASGNOP ppattern.    (48)
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+
+	(  shift 101
+	MATCHOP  shift 241
+	AND  shift 98
+	BOR  shift 97
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 238
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 48 (src line 200)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+state 293
+	patlist:  patlist.comma pattern 
+	simple_stmt:  DELETE varname [ patlist.] 
+
+	,  shift 190
+	]  shift 317
+	.  error
+
+	comma  goto 258
+
+state 294
+	rparen:  rparen.NL 
+	while:  WHILE ( pattern rparen.    (184)
+
+	NL  shift 313
+	.  reduce 184 (src line 443)
+
+
+state 295
+	pa_stat:  FUNC funcname ( varlist rparen.$$42 lbrace stmtlist } 
+	rparen:  rparen.NL 
+	$$42: .    (42)
+
+	NL  shift 313
+	.  reduce 42 (src line 186)
+
+	$$42  goto 318
+
+state 296
+	comma:  comma.NL 
+	varlist:  varlist comma.VAR 
+
+	NL  shift 254
+	VAR  shift 319
+	.  error
+
+
+state 297
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern ? pattern : pattern.    (60)
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 60 (src line 223)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 298
+	pattern:  ( plist ) IN varname.    (72)
+
+	.  reduce 72 (src line 242)
+
+
+state 299
+	patlist:  patlist comma pattern.    (47)
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 47 (src line 197)
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 300
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  INDEX ( pattern comma pattern.) 
+
+	(  shift 101
+	|  shift 95
+	)  shift 320
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+301: shift/reduce conflict (shift 321(0), red'n 93(0)) on )
+state 301
+	re:  reg_expr.    (93)
+	term:  INDEX ( pattern comma reg_expr.) 
+
+	)  shift 321
+	.  reduce 93 (src line 282)
+
+
+302: shift/reduce conflict (shift 322(0), red'n 93(0)) on )
+state 302
+	re:  reg_expr.    (93)
+	term:  MATCHFCN ( pattern comma reg_expr.) 
+
+	)  shift 322
+	.  reduce 93 (src line 282)
+
+
+state 303
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  MATCHFCN ( pattern comma pattern.) 
+
+	(  shift 101
+	|  shift 95
+	)  shift 323
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 304
+	term:  SPLIT ( pattern comma varname.comma pattern ) 
+	term:  SPLIT ( pattern comma varname.comma reg_expr ) 
+	term:  SPLIT ( pattern comma varname.) 
+
+	,  shift 190
+	)  shift 325
+	.  error
+
+	comma  goto 324
+
+state 305
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  subop ( reg_expr comma pattern.) 
+	term:  subop ( reg_expr comma pattern.comma var ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	)  shift 326
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 327
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 306
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  subop ( pattern comma pattern.) 
+	term:  subop ( pattern comma pattern.comma var ) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	)  shift 328
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 329
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 307
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  SUBSTR ( pattern comma pattern.comma pattern ) 
+	term:  SUBSTR ( pattern comma pattern.) 
+
+	,  shift 190
+	(  shift 101
+	|  shift 95
+	)  shift 331
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	comma  goto 330
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 308
+	pa_stat:  pa_pat , pa_pat lbrace stmtlist }.    (38)
+
+	.  reduce 38 (src line 180)
+
+
+state 309
+	stmt:  do $$112 stmt $$113 WHILE.( pattern ) st 
+
+	(  shift 332
+	.  error
+
+
+state 310
+	for:  FOR ( opt_simple_stmt ; opt_nl.pattern ; opt_nl opt_simple_stmt rparen $$13 stmt 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 333
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 311
+	for:  FOR ( opt_simple_stmt ; ;.opt_nl opt_simple_stmt rparen $$15 stmt 
+	opt_nl: .    (26)
+
+	NL  shift 140
+	.  reduce 26 (src line 151)
+
+	nl  goto 156
+	opt_nl  goto 334
+
+state 312
+	for:  FOR ( varname IN varname.rparen $$17 stmt 
+
+	)  shift 279
+	.  error
+
+	rparen  goto 335
+
+state 313
+	rparen:  rparen NL.    (98)
+
+	.  reduce 98 (src line 293)
+
+
+state 314
+	ppattern:  ( plist.) IN varname 
+	plist:  plist.comma pattern 
+
+	,  shift 190
+	)  shift 336
+	.  error
+
+	comma  goto 189
+
+state 315
+	ppattern:  ( plist ) IN.varname 
+
+	ARG  shift 42
+	VAR  shift 41
+	VARNF  shift 43
+	.  error
+
+	varname  goto 337
+
+state 316
+	ppattern:  ppattern ? ppattern :.ppattern 
+
+	(  shift 284
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	ppattern  goto 338
+	term  goto 165
+	re  goto 164
+	reg_expr  goto 24
+	var  goto 163
+	varname  goto 21
+	subop  goto 39
+
+state 317
+	simple_stmt:  DELETE varname [ patlist ].    (103)
+
+	.  reduce 103 (src line 307)
+
+
+state 318
+	pa_stat:  FUNC funcname ( varlist rparen $$42.lbrace stmtlist } 
+
+	{  shift 16
+	.  error
+
+	lbrace  goto 339
+
+state 319
+	varlist:  varlist comma VAR.    (180)
+
+	.  reduce 180 (src line 431)
+
+
+state 320
+	term:  INDEX ( pattern comma pattern ).    (156)
+
+	.  reduce 156 (src line 378)
+
+
+state 321
+	term:  INDEX ( pattern comma reg_expr ).    (157)
+
+	.  reduce 157 (src line 380)
+
+
+state 322
+	term:  MATCHFCN ( pattern comma reg_expr ).    (159)
+
+	.  reduce 159 (src line 384)
+
+
+state 323
+	term:  MATCHFCN ( pattern comma pattern ).    (160)
+
+	.  reduce 160 (src line 386)
+
+
+state 324
+	comma:  comma.NL 
+	term:  SPLIT ( pattern comma varname comma.pattern ) 
+	term:  SPLIT ( pattern comma varname comma.reg_expr ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 340
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 341
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 325
+	term:  SPLIT ( pattern comma varname ).    (164)
+
+	.  reduce 164 (src line 396)
+
+
+state 326
+	term:  subop ( reg_expr comma pattern ).    (167)
+
+	.  reduce 167 (src line 400)
+
+
+state 327
+	comma:  comma.NL 
+	term:  subop ( reg_expr comma pattern comma.var ) 
+
+	NL  shift 254
+	ARG  shift 42
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	INDIRECT  shift 23
+	.  error
+
+	var  goto 342
+	varname  goto 21
+
+state 328
+	term:  subop ( pattern comma pattern ).    (168)
+
+	.  reduce 168 (src line 402)
+
+
+state 329
+	comma:  comma.NL 
+	term:  subop ( pattern comma pattern comma.var ) 
+
+	NL  shift 254
+	ARG  shift 42
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	INDIRECT  shift 23
+	.  error
+
+	var  goto 343
+	varname  goto 21
+
+state 330
+	comma:  comma.NL 
+	term:  SUBSTR ( pattern comma pattern comma.pattern ) 
+
+	NL  shift 254
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 344
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 331
+	term:  SUBSTR ( pattern comma pattern ).    (172)
+
+	.  reduce 172 (src line 416)
+
+
+state 332
+	stmt:  do $$112 stmt $$113 WHILE (.pattern ) st 
+
+	(  shift 18
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 345
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+
+state 333
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern.; opt_nl opt_simple_stmt rparen $$13 stmt 
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+
+	(  shift 101
+	|  shift 95
+	;  shift 346
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 334
+	for:  FOR ( opt_simple_stmt ; ; opt_nl.opt_simple_stmt rparen $$15 stmt 
+	opt_simple_stmt: .    (30)
+
+	error  shift 75
+	(  shift 18
+	/  shift 44
+	)  reduce 30 (src line 162)
+	ARG  shift 42
+	BLTIN  shift 28
+	DELETE  shift 73
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 231
+	opt_simple_stmt  goto 347
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+	print  goto 72
+
+state 335
+	for:  FOR ( varname IN varname rparen.$$17 stmt 
+	rparen:  rparen.NL 
+	$$17: .    (17)
+
+	NL  shift 313
+	.  reduce 17 (src line 130)
+
+	$$17  goto 348
+
+state 336
+	ppattern:  ( plist ).IN varname 
+
+	IN  shift 315
+	.  error
+
+
+state 337
+	ppattern:  ( plist ) IN varname.    (55)
+
+	.  reduce 55 (src line 215)
+
+
+state 338
+	ppattern:  ppattern.? ppattern : ppattern 
+	ppattern:  ppattern ? ppattern : ppattern.    (49)
+	ppattern:  ppattern.bor ppattern 
+	ppattern:  ppattern.and ppattern 
+	ppattern:  ppattern.MATCHOP reg_expr 
+	ppattern:  ppattern.MATCHOP ppattern 
+	ppattern:  ppattern.IN varname 
+	ppattern:  ppattern.term 
+
+	(  shift 101
+	MATCHOP  shift 241
+	AND  shift 98
+	BOR  shift 97
+	IN  shift 242
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 238
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  reduce 49 (src line 202)
+
+	term  goto 243
+	var  goto 100
+	varname  goto 21
+	and  goto 240
+	bor  goto 239
+	subop  goto 39
+
+state 339
+	lbrace:  lbrace.NL 
+	pa_stat:  FUNC funcname ( varlist rparen $$42 lbrace.stmtlist } 
+
+	error  shift 75
+	NL  shift 52
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 54
+	stmtlist  goto 349
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 340
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  SPLIT ( pattern comma varname comma pattern.) 
+
+	(  shift 101
+	|  shift 95
+	)  shift 350
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+341: shift/reduce conflict (shift 351(0), red'n 93(0)) on )
+state 341
+	re:  reg_expr.    (93)
+	term:  SPLIT ( pattern comma varname comma reg_expr.) 
+
+	)  shift 351
+	.  reduce 93 (src line 282)
+
+
+state 342
+	term:  subop ( reg_expr comma pattern comma var.) 
+
+	)  shift 352
+	.  error
+
+
+state 343
+	term:  subop ( pattern comma pattern comma var.) 
+
+	)  shift 353
+	.  error
+
+
+state 344
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	term:  SUBSTR ( pattern comma pattern comma pattern.) 
+
+	(  shift 101
+	|  shift 95
+	)  shift 354
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 345
+	pattern:  pattern.? pattern : pattern 
+	pattern:  pattern.bor pattern 
+	pattern:  pattern.and pattern 
+	pattern:  pattern.EQ pattern 
+	pattern:  pattern.GE pattern 
+	pattern:  pattern.GT pattern 
+	pattern:  pattern.LE pattern 
+	pattern:  pattern.LT pattern 
+	pattern:  pattern.NE pattern 
+	pattern:  pattern.MATCHOP reg_expr 
+	pattern:  pattern.MATCHOP pattern 
+	pattern:  pattern.IN varname 
+	pattern:  pattern.| GETLINE var 
+	pattern:  pattern.| GETLINE 
+	pattern:  pattern.term 
+	stmt:  do $$112 stmt $$113 WHILE ( pattern.) st 
+
+	(  shift 101
+	|  shift 95
+	)  shift 355
+	MATCHOP  shift 93
+	AND  shift 98
+	BOR  shift 97
+	EQ  shift 87
+	GE  shift 88
+	GT  shift 89
+	LE  shift 90
+	LT  shift 91
+	NE  shift 92
+	IN  shift 94
+	ARG  shift 42
+	BLTIN  shift 28
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	?  shift 84
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 99
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	term  goto 96
+	var  goto 100
+	varname  goto 21
+	and  goto 86
+	bor  goto 85
+	subop  goto 39
+
+state 346
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern ;.opt_nl opt_simple_stmt rparen $$13 stmt 
+	opt_nl: .    (26)
+
+	NL  shift 140
+	.  reduce 26 (src line 151)
+
+	nl  goto 156
+	opt_nl  goto 356
+
+state 347
+	for:  FOR ( opt_simple_stmt ; ; opt_nl opt_simple_stmt.rparen $$15 stmt 
+
+	)  shift 279
+	.  error
+
+	rparen  goto 357
+
+state 348
+	for:  FOR ( varname IN varname rparen $$17.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 358
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 349
+	pa_stat:  FUNC funcname ( varlist rparen $$42 lbrace stmtlist.} 
+	stmtlist:  stmtlist.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	}  shift 359
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 136
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 350
+	term:  SPLIT ( pattern comma varname comma pattern ).    (162)
+
+	.  reduce 162 (src line 392)
+
+
+state 351
+	term:  SPLIT ( pattern comma varname comma reg_expr ).    (163)
+
+	.  reduce 163 (src line 394)
+
+
+state 352
+	term:  subop ( reg_expr comma pattern comma var ).    (169)
+
+	.  reduce 169 (src line 407)
+
+
+state 353
+	term:  subop ( pattern comma pattern comma var ).    (170)
+
+	.  reduce 170 (src line 409)
+
+
+state 354
+	term:  SUBSTR ( pattern comma pattern comma pattern ).    (171)
+
+	.  reduce 171 (src line 414)
+
+
+state 355
+	stmt:  do $$112 stmt $$113 WHILE ( pattern ).st 
+
+	NL  shift 140
+	;  shift 139
+	.  error
+
+	st  goto 360
+	nl  goto 138
+
+state 356
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern ; opt_nl.opt_simple_stmt rparen $$13 stmt 
+	opt_simple_stmt: .    (30)
+
+	error  shift 75
+	(  shift 18
+	/  shift 44
+	)  reduce 30 (src line 162)
+	ARG  shift 42
+	BLTIN  shift 28
+	DELETE  shift 73
+	SUB  shift 45
+	GSUB  shift 46
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 231
+	opt_simple_stmt  goto 361
+	var  goto 17
+	varname  goto 21
+	subop  goto 39
+	print  goto 72
+
+state 357
+	for:  FOR ( opt_simple_stmt ; ; opt_nl opt_simple_stmt rparen.$$15 stmt 
+	rparen:  rparen.NL 
+	$$15: .    (15)
+
+	NL  shift 313
+	.  reduce 15 (src line 128)
+
+	$$15  goto 362
+
+state 358
+	for:  FOR ( varname IN varname rparen $$17 stmt.    (18)
+
+	.  reduce 18 (src line 0)
+
+
+state 359
+	pa_stat:  FUNC funcname ( varlist rparen $$42 lbrace stmtlist }.    (43)
+
+	.  reduce 43 (src line 0)
+
+
+state 360
+	stmt:  do $$112 stmt $$113 WHILE ( pattern ) st.    (114)
+
+	.  reduce 114 (src line 0)
+
+
+state 361
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern ; opt_nl opt_simple_stmt.rparen $$13 stmt 
+
+	)  shift 279
+	.  error
+
+	rparen  goto 363
+
+state 362
+	for:  FOR ( opt_simple_stmt ; ; opt_nl opt_simple_stmt rparen $$15.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 364
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 363
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern ; opt_nl opt_simple_stmt rparen.$$13 stmt 
+	rparen:  rparen.NL 
+	$$13: .    (13)
+
+	NL  shift 313
+	.  reduce 13 (src line 125)
+
+	$$13  goto 365
+
+state 364
+	for:  FOR ( opt_simple_stmt ; ; opt_nl opt_simple_stmt rparen $$15 stmt.    (16)
+
+	.  reduce 16 (src line 0)
+
+
+state 365
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern ; opt_nl opt_simple_stmt rparen $$13.stmt 
+
+	error  shift 75
+	{  shift 16
+	(  shift 18
+	;  shift 68
+	/  shift 44
+	ARG  shift 42
+	BLTIN  shift 28
+	BREAK  shift 55
+	CLOSE  shift 56
+	CONTINUE  shift 57
+	DELETE  shift 73
+	DO  shift 69
+	EXIT  shift 59
+	FOR  shift 70
+	SUB  shift 45
+	GSUB  shift 46
+	IF  shift 71
+	INDEX  shift 33
+	MATCHFCN  shift 34
+	NEXT  shift 63
+	NEXTFILE  shift 64
+	PRINT  shift 77
+	PRINTF  shift 78
+	SPRINTF  shift 37
+	VAR  shift 41
+	IVAR  shift 22
+	VARNF  shift 43
+	CALL  shift 29
+	NUMBER  shift 35
+	STRING  shift 38
+	GETLINE  shift 32
+	RETURN  shift 65
+	SPLIT  shift 36
+	SUBSTR  shift 40
+	WHILE  shift 76
+	+  shift 27
+	-  shift 26
+	NOT  shift 25
+	DECR  shift 30
+	INCR  shift 31
+	INDIRECT  shift 23
+	.  error
+
+	pattern  goto 74
+	term  goto 20
+	re  goto 19
+	reg_expr  goto 24
+	simple_stmt  goto 66
+	stmt  goto 366
+	var  goto 17
+	varname  goto 21
+	for  goto 60
+	if  goto 61
+	while  goto 67
+	do  goto 58
+	lbrace  goto 62
+	subop  goto 39
+	print  goto 72
+
+state 366
+	for:  FOR ( opt_simple_stmt ; opt_nl pattern ; opt_nl opt_simple_stmt rparen $$13 stmt.    (14)
+
+	.  reduce 14 (src line 0)
+
+
+111/511 terminals, 48/600 nonterminals
+185/1600 grammar rules, 367/2000 states
+42 shift/reduce, 83 reduce/reduce conflicts reported
+112/350 working sets used
+memory: states,etc. 3507/40000, parser 1243/40000
+174/2400 distinct lookahead sets
+238 extra closures
+4434 shift entries, 98 exceptions
+371 goto entries
+830 entries saved by goto default
+Optimizer space used: input 9564/40000, output 4170/40000
+4170 table entries, 2057 zero
+maximum spread: 110, maximum offset: 365
