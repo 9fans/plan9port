@@ -69,10 +69,16 @@ e_bang(void)
 int
 e_X(void)
 {
-	int c;
+	int c, c1;
 	
-	while((c = getrune()) >= 0 && c != '\'' && c != '\n')
-		outrune(c);
+	c1 = getrune();
+	if(c1 < 0 || c1 == '\n') {
+		c = c1;
+		c1 = 0;
+	} else {
+		while((c = getrune()) >= 0 && c != c1 && c != '\n')
+			;
+	}
 	if(c == '\n'){
 		warn("newline in %CX'...'", backslash);
 		outrune(c);
