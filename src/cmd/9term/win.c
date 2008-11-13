@@ -371,6 +371,12 @@ stdinproc(void *v)
 		case 'M':
 			switch(e.c2){
 			case 'I':
+				if(e.nr == 1 && e.r[0] == 0x7F) {
+					postnote(PNGROUP, pid, "interrupt");
+					fsprint(addrfd, "#%ud,#%ud", e.q0, e.q1);
+					fswrite(datafd, "", 0);
+					break;
+				}
 				if(e.q0 < q.p){
 					if(debug)
 						fprint(2, "shift typing %d... ", e.q1-e.q0);
