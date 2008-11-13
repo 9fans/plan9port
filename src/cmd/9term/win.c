@@ -171,7 +171,7 @@ threadmain(int argc, char **argv)
 	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
 	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
-	write(fd, " Send Delete", 12);
+	write(fd, " Send Noscroll", 1+4+1+8);
 	close(fd);
 	sprint(buf, "%d/event", id);
 	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
@@ -201,6 +201,8 @@ threadmain(int argc, char **argv)
 	sprint(buf, "dumpdir %s/\n", buf1);
 	fswrite(ctlfd, buf, strlen(buf));
 	sprint(buf, "dump %s\n", dump);
+	fswrite(ctlfd, buf, strlen(buf));
+	sprint(buf, "scroll");
 	fswrite(ctlfd, buf, strlen(buf));
 	
 	updatewinsize(25, 80, 0, 0);
@@ -401,6 +403,16 @@ stdinproc(void *v)
 				if(e.q0==e.q1 && (e.flag&2)){
 					e2.flag = e.flag;
 					e = e2;
+				}
+				char buf[100];
+				snprint(buf, sizeof buf, "%.*S", e.nr, e.r);
+				if(cistrcmp(buf, "scroll") == 0) {
+					fsprint(ctlfd, "scroll\nshow");
+					break;
+				}
+				if(cistrcmp(buf, "noscroll") == 0) {
+					fsprint(ctlfd, "noscroll");
+					break;
 				}
 				if(e.flag & 8){
 					if(e.q1 != e.q0){
