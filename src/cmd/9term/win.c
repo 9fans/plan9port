@@ -372,9 +372,11 @@ stdinproc(void *v)
 			switch(e.c2){
 			case 'I':
 				if(e.nr == 1 && e.r[0] == 0x7F) {
-					postnote(PNGROUP, pid, "interrupt");
+					char buf[1];
 					fsprint(addrfd, "#%ud,#%ud", e.q0, e.q1);
 					fswrite(datafd, "", 0);
+					buf[0] = 0x7F;
+					write(fd0, buf, 1);
 					break;
 				}
 				if(e.q0 < q.p){
