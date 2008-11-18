@@ -232,8 +232,7 @@ void error(int die, char *s)
 
 	if (synerr)
 		return;
-	fprintf(stderr, "%s: ", cmdname);
-	fprintf(stderr, s);
+	fprintf(stderr, "%s: %s", cmdname, s);
 	if (errno > 0)
 		perror("???");
 	if (curfile->fin)
