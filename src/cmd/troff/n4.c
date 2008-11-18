@@ -559,7 +559,7 @@ void prnumerr(void)
 									warn);
 	if (frame != stk)	/* uncertainty correction */
 		numtabp[CD].val--;
-	ERROR err_buf WARN;
+	ERROR "%s", err_buf WARN;
 	numtabp[CD].val = savcd;
 }
 

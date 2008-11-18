@@ -467,7 +467,7 @@ void casetm1(int ab, FILE *out)
 			p = chname(c);
 			switch (*p) {
 			case MBchar:
-				sprintf(&tmbuf[i], p+1);
+				strcpy(&tmbuf[i], p+1);
 				break;
 			case Number:
 				sprintf(&tmbuf[i], "\\N'%s'", p+1);
