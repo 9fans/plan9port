@@ -10,7 +10,12 @@ BEGIN {
 	updates = "/dev/stderr"
 }
 
-function clearstatus(  noflush, i)
+function fflush(filename)
+{
+	system("")
+}
+
+function clearstatus(noflush, i)
 {
 	if(!updates)
 		return
