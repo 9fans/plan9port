@@ -28,20 +28,20 @@ struct GfxInfo {
  * with an empty string.
  */
 Convert cvt[] = {
-[Ipic]		{ "plan9",	"fb/3to1 rgbv %a |fb/pcp -tplan9" },
-[Itiff]		{ "tiff",	"fb/tiff2pic %a | fb/3to1 rgbv | fb/pcp -tplan9" },
-[Iplan9bm]	{ "plan9bm",	nil },
-[Ijpeg]		{ "jpeg",	"jpg -9 %a", "jpg -t9 %a" },
-[Igif]		{ "gif",	"gif -9 %a", "gif -t9 %a" },
-[Iinferno]	{ "inferno",	nil },
-[Ifax]		{ "fax",	"aux/g3p9bit -g %a" },
-[Icvt2pic]	{ "unknown",	"fb/cvt2pic %a |fb/3to1 rgbv" },
-[Ippm]		{ "ppm",	"ppm -9 %a", "ppm -t9 %a" },
+	{ "plan9",	"fb/3to1 rgbv %a |fb/pcp -tplan9" },
+	{ "tiff",	"fb/tiff2pic %a | fb/3to1 rgbv | fb/pcp -tplan9" },
+	{ "plan9bm",	nil },
+	{ "jpeg",	"jpg -9 %a", "jpg -t9 %a" },
+	{ "gif",	"gif -9 %a", "gif -t9 %a" },
+	{ "inferno",	nil },
+	{ "fax",	"aux/g3p9bit -g %a" },
+	{ "unknown",	"fb/cvt2pic %a |fb/3to1 rgbv" },
+	{ "ppm",	"ppm -9 %a", "ppm -t9 %a" },
 /* ``temporary'' hack for hobby */
-[Iccittg4]	{ "ccitt-g4",	"cat %a|rx nslocum /usr/lib/ocr/bin/bcp -M|fb/pcp -tcompressed -l0" },
-[Ipng]		{ "png",	"png -9 %a", "png -t9 %a" },
-[Iyuv]		{ "yuv",	"yuv -9 %a", "yuv -t9 %a"  },
-[Ibmp]		{ "bmp",	"bmp -9 %a", "bmp -t9 %a"  },
+	{ "ccitt-g4",	"cat %a|rx nslocum /usr/lib/ocr/bin/bcp -M|fb/pcp -tcompressed -l0" },
+	{ "png",	"png -9 %a", "png -t9 %a" },
+	{ "yuv",	"yuv -9 %a", "yuv -t9 %a"  },
+	{ "bmp",	"bmp -9 %a", "bmp -t9 %a"  },
 };
 
 static Image*	gfxdrawpage(Document *d, int page);
