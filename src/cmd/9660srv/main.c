@@ -53,21 +53,25 @@ int	nojoliet;
 int	noplan9;
 int norock;
 
-void	(*fcalls[])(void) = {
-	[Tversion]	rversion,
-	[Tflush]	rflush,
-	[Tauth]	rauth,
-	[Tattach]	rattach,
-	[Twalk]		rwalk,
-	[Topen]		ropen,
-	[Tcreate]	rcreate,
-	[Tread]		rread,
-	[Twrite]	rwrite,
-	[Tclunk]	rclunk,
-	[Tremove]	rremove,
-	[Tstat]		rstat,
-	[Twstat]	rwstat,
-};
+void    (*fcalls[Tmax])(void);
+
+static void
+initfcalls(void)
+{
+	fcalls[Tversion]=	rversion;
+	fcalls[Tflush]=	rflush;
+	fcalls[Tauth]=	rauth;
+	fcalls[Tattach]=	rattach;
+	fcalls[Twalk]=		rwalk;
+	fcalls[Topen]=		ropen;
+	fcalls[Tcreate]=	rcreate;
+	fcalls[Tread]=		rread;
+	fcalls[Twrite]=	rwrite;
+	fcalls[Tclunk]=	rclunk;
+	fcalls[Tremove]=	rremove;
+	fcalls[Tstat]=		rstat;
+	fcalls[Twstat]=	rwstat;
+}
 
 void
 main(int argc, char **argv)
@@ -76,6 +80,7 @@ main(int argc, char **argv)
 	Xfsub **xs;
 	char *mtpt;
 
+	initfcalls();
 	stdio = 0;
 	mtpt = nil;
 	ARGBEGIN {
