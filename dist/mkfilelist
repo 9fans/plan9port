@@ -1,6 +1,6 @@
 #!/usr/local/plan9/bin/rc
 
-@{cd $PLAN9; find -type f -print; find -type d -print | sed 's;$;/;'} | 
+@{cd $PLAN9; find . -type f -print; find . -type d -print | sed 's;$;/;'} | 
 	sort | sed 's;^./;;' | grep . |
 awk -vplan9'='$PLAN9 '
 	function cat(s) {
