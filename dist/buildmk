@@ -4,6 +4,7 @@
 SYSNAME=`uname` export SYSNAME
 OBJTYPE=`uname -m | sed '
 	s;i.86;386;;
+	s;i86pc;386;;
 	s;amd64;x86_64;;
 	s;/.*;;; s; ;;g;
 	s;armv4l;arm;g;
