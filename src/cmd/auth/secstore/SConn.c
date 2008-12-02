@@ -12,7 +12,8 @@ typedef struct ConnState {
 	RC4state rc4;
 } ConnState;
 
-typedef struct SS{
+#undef SS
+typedef struct SS {
 	int fd;		/* file descriptor for read/write of encrypted data */
 	int alg;	/* if nonzero, "alg sha rc4_128" */
 	ConnState in, out;
