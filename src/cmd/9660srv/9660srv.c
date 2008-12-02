@@ -141,7 +141,7 @@ chat("%d %d\n", haveplan9, nojoliet);
 		putbuf(dirp);
 		nexterror();
 	}
-	root->len = sizeof(Isofile) - sizeof(Drec) + dp->reclen;
+	root->len = sizeof(Isofile) - sizeof(Drec) + dp->z.reclen;
 	root->ptr = fp = ealloc(root->len);
 
 	if(haveplan9)
@@ -151,14 +151,14 @@ chat("%d %d\n", haveplan9, nojoliet);
 	fp->blksize = blksize;
 	fp->offset = 0;
 	fp->doffset = 0;
-	memmove(&fp->d, dp, dp->reclen);
-	root->qid.path = l32(dp->addr);
+	memmove(&fp->d, dp, dp->z.reclen);
+	root->qid.path = l32(dp->z.addr);
 	root->qid.type = QTDIR;
 	putbuf(dirp);
 	poperror();
 	if(getdrec(root, rd) >= 0){
-		n = rd->reclen-(34+rd->namelen);
-		s = (uchar*)rd->name + rd->namelen;
+		n = rd->z.reclen-(34+rd->z.namelen);
+		s = (uchar*)rd->z.name + rd->z.namelen;
 		if((uintptr)s & 1){
 			s++;
 			n--;
@@ -216,13 +216,13 @@ iwalkup(Xfile *f)
 	ppf.ptr = &ppiso;
 	if(opendotdot(f, &pf) < 0)
 		error("can't open pf");
-	paddr = l32(pf.ptr->d.addr);
-	if(l32(f->ptr->d.addr) == paddr)
+	paddr = l32(pf.ptr->d.z.addr);
+	if(l32(f->ptr->d.z.addr) == paddr)
 		return;
 	if(opendotdot(&pf, &ppf) < 0)
 		error("can't open ppf");
 	while(getdrec(&ppf, d) >= 0){
-		if(l32(d->addr) == paddr){
+		if(l32(d->z.addr) == paddr){
 			newdrec(f, d);
 			f->qid.path = paddr;
 			f->qid.type = QTDIR;
@@ -344,10 +344,10 @@ ireaddir(Xfile *f, uchar *buf, long offset, long count)
 	rcnt = 0;
 	setnames(&d, names);
 	while(rcnt < count && getdrec(f, drec) >= 0){
-		if(drec->namelen == 1){
-			if(drec->name[0] == 0)
+		if(drec->z.namelen == 1){
+			if(drec->z.name[0] == 0)
 				continue;
-			if(drec->name[0] == 1)
+			if(drec->z.name[0] == 1)
 				continue;
 		}
 		rzdir(f->xf, &d, ip->fmt, drec);
@@ -371,15 +371,15 @@ iread(Xfile *f, char *buf, vlong offset, long count)
 	Isofile *ip = f->ptr;
 	Iobuf *p;
 
-	size = l32(ip->d.size);
+	size = l32(ip->d.z.size);
 	if(offset >= size)
 		return 0;
 	if(offset+count > size)
 		count = size - offset;
-	addr = ((vlong)l32(ip->d.addr) + ip->d.attrlen)*ip->blksize + offset;
+	addr = ((vlong)l32(ip->d.z.addr) + ip->d.z.attrlen)*ip->blksize + offset;
 	o = addr % Sectorsize;
 	addr /= Sectorsize;
-	/*chat("d.addr=%ld, addr=%lld, o=%d...", l32(ip->d.addr), addr, o);*/
+	/*chat("d.addr=%ld, addr=%lld, o=%d...", l32(ip->d.z.addr), addr, o);*/
 	n = Sectorsize - o;
 
 	while(count > 0){
@@ -449,22 +449,22 @@ showdrec(int fd, int fmt, void *x)
 	int namelen;
 	int syslen;
 
-	if(d->reclen == 0)
+	if(d->z.reclen == 0)
 		return 0;
 	fprint(fd, "%d %d %ld %ld ",
-		d->reclen, d->attrlen, l32(d->addr), l32(d->size));
+		d->z.reclen, d->z.attrlen, l32(d->z.addr), l32(d->z.size));
 	fprint(fd, "%s 0x%2.2x %d %d %ld ",
-		rdate(d->date, fmt), (fmt=='z' ? d->flags : d->r_flags),
-		d->unitsize, d->gapsize, l16(d->vseqno));
-	fprint(fd, "%d %s", d->namelen, nstr(d->name, d->namelen));
+		rdate(d->z.date, fmt), (fmt=='z' ? d->z.flags : d->r.flags),
+		d->z.unitsize, d->z.gapsize, l16(d->z.vseqno));
+	fprint(fd, "%d %s", d->z.namelen, nstr(d->z.name, d->z.namelen));
 	if(fmt != 'J'){
-		namelen = d->namelen + (1-(d->namelen&1));
-		syslen = d->reclen - 33 - namelen;
+		namelen = d->z.namelen + (1-(d->z.namelen&1));
+		syslen = d->z.reclen - 33 - namelen;
 		if(syslen != 0)
-			fprint(fd, " %s", nstr(&d->name[namelen], syslen));
+			fprint(fd, " %s", nstr(&d->z.name[namelen], syslen));
 	}
 	fprint(fd, "\n");
-	return d->reclen + (d->reclen&1);
+	return d->z.reclen + (d->z.reclen&1);
 }
 
 static void
@@ -474,13 +474,13 @@ newdrec(Xfile *f, Drec *dp)
 	Isofile *n;
 	int len;
 
-	len = sizeof(Isofile) - sizeof(Drec) + dp->reclen;
+	len = sizeof(Isofile) - sizeof(Drec) + dp->z.reclen;
 	n = ealloc(len);
 	n->fmt = x->fmt;
 	n->blksize = x->blksize;
 	n->offset = 0;
 	n->doffset = 0;
-	memmove(&n->d, dp, dp->reclen);
+	memmove(&n->d, dp, dp->z.reclen);
 	free(x);
 	f->ptr = n;
 	f->len = len;
@@ -508,9 +508,9 @@ getdrec(Xfile *f, void *buf)
 
 	if(!ip)
 		return -1;
-	size = l32(ip->d.size);
+	size = l32(ip->d.z.size);
 	while(ip->offset < size){
-		addr = (l32(ip->d.addr)+ip->d.attrlen)*ip->blksize + ip->offset;
+		addr = (l32(ip->d.z.addr)+ip->d.z.attrlen)*ip->blksize + ip->offset;
 		boff = addr % Sectorsize;
 		if(boff > Sectorsize-34){
 			ip->offset += Sectorsize-boff;
@@ -546,11 +546,11 @@ opendotdot(Xfile *f, Xfile *pf)
 		chat("opendotdot: getdrec(.) failed...");
 		return -1;
 	}
-	if(d->namelen != 1 || d->name[0] != 0){
+	if(d->z.namelen != 1 || d->z.name[0] != 0){
 		chat("opendotdot: no . entry...");
 		return -1;
 	}
-	if(l32(d->addr) != l32(ip->d.addr)){
+	if(l32(d->z.addr) != l32(ip->d.z.addr)){
 		chat("opendotdot: bad . address...");
 		return -1;
 	}
@@ -558,7 +558,7 @@ opendotdot(Xfile *f, Xfile *pf)
 		chat("opendotdot: getdrec(..) failed...");
 		return -1;
 	}
-	if(d->namelen != 1 || d->name[0] != 1){
+	if(d->z.namelen != 1 || d->z.name[0] != 1){
 		chat("opendotdot: no .. entry...");
 		return -1;
 	}
@@ -591,13 +591,13 @@ rzdir(Xfs *fs, Dir *d, int fmt, Drec *dp)
 	have = 0;
 	flags = 0;
 	vers = -1;
-	d->qid.path = l32(dp->addr);
+	d->qid.path = l32(dp->z.addr);
 	d->qid.type = 0;
 	d->qid.vers = 0;
-	n = dp->namelen;
+	n = dp->z.namelen;
 	memset(d->name, 0, Maxname);
 	if(n == 1) {
-		switch(dp->name[0]){
+		switch(dp->z.name[0]){
 		case 1:
 			d->name[1] = '.';
 			/* fall through */
@@ -606,11 +606,11 @@ rzdir(Xfs *fs, Dir *d, int fmt, Drec *dp)
 			have = Hname;
 			break;
 		default:
-			d->name[0] = tolower(dp->name[0]);
+			d->name[0] = tolower(dp->z.name[0]);
 		}
 	} else {
 		if(fmt == 'J'){	/* Joliet, 16-bit Unicode */
-			q = (uchar*)dp->name;
+			q = (uchar*)dp->z.name;
 			for(i=j=lj=0; i<n && j<Maxname; i+=2){
 				lj = j;
 				r = (q[i]<<8)|q[i+1];
@@ -623,12 +623,12 @@ rzdir(Xfs *fs, Dir *d, int fmt, Drec *dp)
 			if(n >= Maxname)
 				n = Maxname-1;
 			for(i=0; i<n; i++)
-				d->name[i] = tolower(dp->name[i]);
+				d->name[i] = tolower(dp->z.name[i]);
 		}
 	}
 
-	sysl = dp->reclen-(34+dp->namelen);
-	s = (uchar*)dp->name + dp->namelen;
+	sysl = dp->z.reclen-(34+dp->z.namelen);
+	s = (uchar*)dp->z.name + dp->z.namelen;
 	if(((uintptr)s) & 1) {
 		s++;
 		sysl--;
@@ -671,19 +671,19 @@ rzdir(Xfs *fs, Dir *d, int fmt, Drec *dp)
 				strcpy(d->gid, "ridge");
 			else
 				strcpy(d->gid, "iso9660");
-			flags = dp->flags;
+			flags = dp->z.flags;
 			break;
 		case 'r':
 			strcpy(d->gid, "sierra");
-			flags = dp->r_flags;
+			flags = dp->r.flags;
 			break;
 		case 'J':
 			strcpy(d->gid, "joliet");
-			flags = dp->flags;
+			flags = dp->z.flags;
 			break;
 		case '9':
 			strcpy(d->gid, "plan9");
-			flags = dp->flags;
+			flags = dp->z.flags;
 			break;
 		}
 		if(flags & 0x02){
@@ -754,10 +754,10 @@ rzdir(Xfs *fs, Dir *d, int fmt, Drec *dp)
 	}
 	d->length = 0;
 	if((d->mode & DMDIR) == 0)
-		d->length = l32(dp->size);
+		d->length = l32(dp->z.size);
 	d->type = 0;
 	d->dev = 0;
-	d->atime = gtime(dp->date);
+	d->atime = gtime(dp->z.date);
 	d->mtime = d->atime;
 	return vers;
 }

@@ -123,12 +123,12 @@ union	Drec
 		Byte4LM	vseqno;		/* ? in high sierra */
 		uchar	namelen;
 		uchar	name[1];
-	};
+	} z;
 	struct
 	{
-		uchar	r_pad[24];
-		uchar	r_flags;
-	};
+		uchar	pad[24];
+		uchar	flags;
+	} r;
 };
 
 struct	Isofile
