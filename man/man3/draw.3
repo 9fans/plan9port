@@ -5,7 +5,7 @@ replclipr, line, lineop, poly, polyop, fillpoly, fillpolyop, bezier, bezierop,
 bezspline, bezsplineop, bezsplinepts, fillbezier, fillbezierop, 
 fillbezspline, fillbezsplineop, ellipse, ellipseop, 
 fillellipse, fillellipseop, arc, arcop, fillarc, fillarcop, 
-icossin, icossin2, border, string, stringop, stringn, stringnop,
+icossin, icossin2, border, borderop, string, stringop, stringn, stringnop,
 runestring, runestringop, runestringn, runestringnop, stringbg, 
 stringbgop, stringnbg, stringnbgop, runestringbg, runestringbgop,
 runestringnbg, runestringnbgop, _string, ARROW, drawsetdebug \- graphics functions
@@ -156,6 +156,9 @@ int	icossin(int deg, int *cosp, int *sinp)
 int	icossin2(int x, int y, int *cosp, int *sinp)
 .PB
 void	border(Image *dst, Rectangle r, int i, Image *color, Point sp)
+.PB
+void	borderop(Image *im, Rectangle r, int i, Image *color, Point sp,
+		Drawop op)
 .br
 .PB
 Point	string(Image *dst, Point p, Image *src, Point sp,
