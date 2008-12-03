@@ -27,16 +27,25 @@ fi
 if $doautolib
 then
 	ofiles=""
+	lpaths="$PLAN9/lib"
 	for i
 	do
 		case "$i" in
 		*.[ao])
 			ofiles="$ofiles $i"
 			;;
+		-L*)
+			l=`echo $i | sed 's/-L//'`
+			lpaths="$lpaths $l"
 		esac
 	done
 	
-	# echo "ofiles $ofiles"
+	if $verbose
+	then
+		echo "ofiles $ofiles"
+		echo "lpaths $lpaths"
+	fi
+
 	autolibs=""
 	if [ "x$ofiles" != "x" ]
 	then
@@ -68,13 +77,18 @@ then
 			# can't trust the libraries about using
 			# libthread or libdraw - we might not be linking with
 			# those object files.
-			a=`
-				nm $PLAN9/lib/lib$i.a 2>/dev/null |
-				grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
-				sed 's/.*__p9l_autolib_//' |
-				sort -u |
-				egrep -v '^(thread|draw)$'
-			`
+			a=""
+			for lpath in $lpaths
+			do
+				b=`
+					nm $lpath/lib$i.a 2>/dev/null |
+					grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
+					sed 's/.*__p9l_autolib_//' |
+					sort -u |
+					egrep -v '^(thread|draw)$'
+				`
+				a="$a $b"
+			done
 			# fix up libraries that really need draw
 			if [ "x$i" = "xmemdraw" -o "x$i" = "xmemlayer" -o "x$i" = "xframe" ]
 			then
