@@ -10,8 +10,9 @@ BEGIN {
 	updates = "/dev/stderr"
 }
 
-function fflush(filename)
+function myflush(f)
 {
+	# fflush is not available on sun, but system("") appears to work everywhere
 	system("")
 }
 
@@ -23,7 +24,7 @@ function clearstatus(noflush, i)
 		printf("\b \b") >updates
 	statuslen = 0
 	if(!noflush)
-		fflush(updates)
+		myflush(updates)
 }
 
 function status(s)
@@ -33,7 +34,7 @@ function status(s)
 	clearstatus(1)
 	printf("    %s ", s) >updates
 	statuslen = length(s)+5
-	fflush(updates)
+	myflush(updates)
 }
 
 debug!=0 { print "# " $0 }
@@ -47,10 +48,10 @@ debug!=0 { print "# " $0 }
 	clearstatus()
 	if(debug) print "% mark"
 	print >out
-	fflush(out)
+	myflush(out)
 	if(copy){
 		print >copy
-		fflush(copy)
+		myflush(copy)
 	}
 	cmd = ""
 	printtabs = 1	# print indented lines immediately following
@@ -61,10 +62,10 @@ debug!=0 { print "# " $0 }
 /^	/ && printtabs!=0 {
 	clearstatus()
 	print >out
-	fflush(out)
+	myflush(out)
 	if(copy){
 		print >copy
-		fflush(copy)
+		myflush(copy)
 	}
 	next
 }
@@ -92,10 +93,10 @@ debug!=0 { print "# " $0 }
 	errors = 0
 	if(verbose){
 		print >out
-		fflush(out)
+		myflush(out)
 		if(copy){
 			print >copy
-			fflush(copy)
+			myflush(copy)
 		}
 	}
 	cd = $0 "\n"
@@ -111,10 +112,10 @@ errors != 0 {
 	clearstatus()
 	if(debug) print "% errors"
 	printf "%s", cmd >out
-	fflush(out)
+	myflush(out)
 	if(copy){
 		printf "%s", cmd >copy
-		fflush(copy)
+		myflush(copy)
 	}
 	cmd = ""
 	next
@@ -144,10 +145,10 @@ errors != 0 {
 	if(debug) print "% errors1"
 	errors = 1
 	printf ">>> %s", cmd >out
-	fflush(out)
+	myflush(out)
 	if(copy){
 		printf ">>> %s", cmd >copy
-		fflush(copy)
+		myflush(copy)
 	}
 	cmd = ""
 }
