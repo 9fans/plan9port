@@ -31,7 +31,6 @@ enum {
 	Ifax,
 	Icvt2pic,
 	Iplan9bm,
-	Iccittg4,
 	Ippm,
 	Ipng,
 	Iyuv,
