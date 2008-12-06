@@ -2103,14 +2103,13 @@ copy(Blk *hptr, int size)
 	if(size > maxsize)
 		maxsize = size;
 	sz = length(hptr);
-	ptr = nalloc(hptr->beg, size);
+	ptr = malloc(size);
 	if(ptr == 0) {
-		garbage("copy");
-		if((ptr = nalloc(hptr->beg, size)) == 0) {
-			Bprint(&bout,"copy size %d\n",size);
-			ospace("copy");
-		}
+		Bprint(&bout,"copy size %d\n",size);
+		ospace("copy");
 	}
+	memmove(ptr, hptr->beg, sz);
+	memset(ptr+sz, 0, size-sz);
 	if((hdr = hfree) == 0)
 		hdr = morehd();
 	hfree = (Blk *)hdr->rd;
