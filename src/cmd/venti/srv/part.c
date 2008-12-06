@@ -132,7 +132,7 @@ initpart(char *name, int mode)
 		fprint(2, "warning: %s opened for reading only\n", name);
 	}
 	part->offset = lo;
-	dir = dirstat(file);	/* no dirfstat; need name to identify disk devices */
+	dir = dirfstat(part->fd);
 	if(dir == nil){
 		freepart(part);
 		seterr(EOk, "can't stat partition='%s': %r", file);
