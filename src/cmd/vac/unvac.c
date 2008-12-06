@@ -129,7 +129,7 @@ wantfile(char *name)
 		n = strlen(want[i]);
 		if(n < namelen && name[n] == '/' && memcmp(name, want[i], n) == 0)
 			return 1;
-		if(namelen < n && want[i][namelen] == '/' && memcmp(want[i], name, n) == 0)
+		if(namelen < n && want[i][namelen] == '/' && memcmp(want[i], name, namelen) == 0)
 			return 1;
 		if(n == namelen && memcmp(name, want[i], n) == 0){
 			found[i] = 1;
