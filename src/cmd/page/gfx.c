@@ -156,8 +156,6 @@ genaddpage(Document *doc, char *name, uchar *buf, int nbuf)
 		g->type = Ifax;
 	else if(memcmp(buf, "II*", 3) == 0)
 		g->type = Ifax;
-	else if(memcmp(buf, "TYPE=ccitt-g4", 13) == 0)
-		g->type = Iccittg4;
 	else if(memcmp(buf, "TYPE=", 5) == 0)
 		g->type = Ipic;
 	else if(buf[0] == 'P' && '0' <= buf[1] && buf[1] <= '9')
