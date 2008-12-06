@@ -598,11 +598,12 @@ vacfileblockscore(VacFile *f, u32int bn, u8int *score)
 	dsize = s->dsize;
 	size = vtfilegetsize(s);
 	if((uvlong)bn*dsize >= size)
-		goto out;
+		goto out1;
 	ret = vtfileblockscore(f->source, bn, score);
 
-out:
+out1:
 	vtfileunlock(f->source);
+out:
 	filerunlock(f);
 	return ret;
 }
