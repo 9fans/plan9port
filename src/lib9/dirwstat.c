@@ -3,6 +3,7 @@
 #include <libc.h>
 #include <sys/time.h>
 #include <utime.h>
+#include <sys/stat.h>
 
 int
 dirwstat(char *file, Dir *dir)
