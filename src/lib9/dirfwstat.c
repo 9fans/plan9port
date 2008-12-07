@@ -48,6 +48,10 @@ dirfwstat(int fd, Dir *dir)
 		if(futimes(fd, tv) < 0)
 			ret = -1;
 	}
+	if(~dir->length != 0){
+		if(ftruncate(fd, dir->length) < 0)
+			ret = -1;
+	}
 	return ret;
 }
 

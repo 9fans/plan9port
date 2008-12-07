@@ -7,13 +7,24 @@
 int
 dirwstat(char *file, Dir *dir)
 {
+	int ret;
 	struct utimbuf ub;
 
 	/* BUG handle more */
-	if(~dir->mtime == 0)
-		return 0;
-
-	ub.actime = dir->mtime;
-	ub.modtime = dir->mtime;
-	return utime(file, &ub);
+	ret = 0;
+	if(~dir->mode != 0){
+		if(chmod(file, dir->mode) < 0)
+			ret = -1;
+	}
+	if(~dir->mtime != 0){
+		ub.actime = dir->mtime;
+		ub.modtime = dir->mtime;
+		if(utime(file, &ub) < 0)
+			ret = -1;
+	}
+	if(~dir->length != 0){
+		if(truncate(file, dir->length) < 0)
+			ret = -1;
+	}
+	return ret;
 }
