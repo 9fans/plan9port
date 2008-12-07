@@ -165,7 +165,6 @@ void	release(Blk *p);
 Blk*	dcgetwd(Blk *p);
 void	putwd(Blk *p, Blk *c);
 Blk*	lookwd(Blk *p);
-char*	nalloc(char *p, unsigned nbytes);
 int	getstk(void);
 
 /********debug only**/
@@ -1222,7 +1221,7 @@ init(int argc, char *argv[])
 	readptr = &readstk[0];
 	k=0;
 	sp = sptr = &symlst[0];
-	while(sptr < &symlst[TBLSZ]) {
+	while(sptr < &symlst[TBLSZ-1]) {
 		sptr->next = ++sp;
 		sptr++;
 	}
@@ -2266,19 +2265,6 @@ lookwd(Blk *p)
 	if(wp->rdw == wp->wtw)
 		return(0);
 	return(*wp->rdw);
-}
-
-char*
-nalloc(char *p, unsigned nbytes)
-{
-	char *q, *r;
-
-	q = r = malloc(nbytes);
-	if(q==0)
-		return(0);
-	while(nbytes--)
-		*q++ = *p++;
-	return(r);
 }
 
 int
