@@ -7,19 +7,20 @@
 int debug;
 int dfd;
 int srvfd;
-int netfd;
+int netfd[2];
 int srv_to_net[2];
 int net_to_srv[2];
 char *srv;
 char	*addr;
 char *ns;
+int export;
 
 void	shuffle(void *arg);
 int	post(char *srv);
-void	remoteside(char *ns, char *srv);
+void	remoteside(void*);
 int	call(char *rsys, char *ns, char *srv);
 void*	emalloc(int size);
-void	runproc(void *arg);
+void	localside(void*);
 
 char *REXEXEC = "ssh";
 char *prog = "import";
@@ -55,6 +56,7 @@ threadmain(int argc, char *argv[])
 {
 	int dofork;
 	int rem;
+	void (*fn)(void*);
 
 	dofork = 1;
 	rem = 0;
@@ -80,6 +82,9 @@ threadmain(int argc, char *argv[])
 	case 'R':
 		rem = 1;
 		break;
+	case 'x':
+		export = 1;
+		break;
 	}ARGEND
 
 	if(debug){
@@ -94,39 +99,43 @@ threadmain(int argc, char *argv[])
 		fmtinstall('F', fcallfmt);
 	}
 
-	/* is this the remote side? */
+	
 	if(rem){
-		if(srv == nil)
-			fatal("-R requires -s");
-		remoteside(ns, srv);
-		threadexitsall(0);
+		netfd[0] = 0;
+		netfd[1] = 1;	
+		write(1, "OK", 2);
+	}else{
+		if(argc != 1)
+			usage();
+		addr = argv[0];
+		/* connect to remote service */
+		netfd[0] = netfd[1] = call(addr, ns, srv);
 	}
 
-	if(argc != 1)
-		usage();
-
-	addr = argv[0];
+	fn = localside;
+	if(rem+export == 1)
+		fn = remoteside;
 	
-	if(dofork)
-		proccreate(runproc, nil, Stack);
+	if(rem || !dofork)
+		fn(nil);
 	else
-		runproc(nil);
+		proccreate(fn, nil, Stack);
 }
 
+
 void
-runproc(void *arg)
+localside(void *arg)
 {
 	USED(arg);
 
-	/* start a loal service and connect to remote service */
+	/* start a loal service */
 	srvfd = post(srv);
-	netfd = call(addr, ns, srv);
 
 	/* threads to shuffle messages each way */
 	srv_to_net[0] = srvfd;
-	srv_to_net[1] = netfd;
+	srv_to_net[1] = netfd[1];
 	proccreate(shuffle, srv_to_net, Stack);
-	net_to_srv[0] = netfd;
+	net_to_srv[0] = netfd[0];
 	net_to_srv[1] = srvfd;
 	shuffle(net_to_srv);
 }
@@ -172,6 +181,8 @@ call(char *rsys, char *ns, char *srv)
 	}
 	av[ac++] = "-s";
 	av[ac++] = srv;
+	if(export)
+		av[ac++] = "-x";
 	av[ac] = 0;
 
 	if(debug){
@@ -254,7 +265,7 @@ shuffle(void *arg)
 }
 
 void
-remoteside(char *ns, char *srv)
+remoteside(void *v)
 {
 	int srv_to_net[2];
 	int net_to_srv[2];
@@ -277,13 +288,11 @@ remoteside(char *ns, char *srv)
 		fprint(dfd, "remoteside dial %s succeeded\n", addr);
 	fcntl(srvfd, F_SETFL, FD_CLOEXEC);
 
-	write(1, "OK", 2);
-
 	/* threads to shuffle messages each way */
 	srv_to_net[0] = srvfd;
-	srv_to_net[1] = 1;
+	srv_to_net[1] = netfd[1];
 	proccreate(shuffle, srv_to_net, Stack);
-	net_to_srv[0] = 0;
+	net_to_srv[0] = netfd[0];
 	net_to_srv[1] = srvfd;
 	shuffle(net_to_srv);
 

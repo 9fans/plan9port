@@ -4,7 +4,7 @@ import \- import 9P resources from another system
 .SH SYNOPSIS
 .B import
 [
-.B -df
+.B -dfx
 ]
 [
 .B -n
@@ -67,6 +67,12 @@ The
 option keeps
 .I import
 from forking itself into the background, also useful for debugging.
+.PP
+The
+.B -x
+option reverses the roles of the two machines,
+exporting the service to, instead of importing it from,
+the remote system.
 .SH EXAMPLE
 Suppose you run
 .B sam
