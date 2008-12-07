@@ -657,7 +657,7 @@ rowload(Row *row, char *file, int initing)
 			memmove(t, l, Blinelen(b));
 			run(nil, t, r, nr, TRUE, nil, nil, FALSE);
 			/* r is freed in run() */
-			continue;
+			goto Nextline;
 		case 'f':
 			if(Blinelen(b) < 1+5*12+1)
 				goto Rescue2;
@@ -703,7 +703,7 @@ rowload(Row *row, char *file, int initing)
 		else
 			w = coladd(c, nil, lookid(dumpid, TRUE), y);
 		if(w == nil)
-			continue;
+			goto Nextline;
 		w->dumpid = j;
 		l = rdline(b, &line);
 		if(l == nil)
@@ -769,6 +769,7 @@ rowload(Row *row, char *file, int initing)
 			q0 = q1 = 0;
 		textshow(&w->body, q0, q1, 1);
 		w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));
+Nextline:
 		l = rdline(b, &line);
 		if(l == nil)
 			break;
