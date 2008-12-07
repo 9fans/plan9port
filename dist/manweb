@@ -32,6 +32,10 @@ for(i in */INDEX) @{
 			echo '<tr height=1><td colspan=2 bgcolor=#cccccc>'
 			echo '<tr height=1><td>'
 		}
+		if(~ $#name 0)
+			name=XXX-name-$j-XXX
+		if(~ $#n 0)
+			n=XXX-n-$j-XXX
 		echo -n '<tr><td valign=top><a href="'$name'.html">'$name'('$n')</a><td>'
 		sed -n '
 		/SH *NAM/,/SH/{
