@@ -1495,6 +1495,7 @@ xmsgenvelope(Msg *msg, Sx *k, Sx *v)
 {
 	hdrfree(msg->part[0]->hdr);
 	msg->part[0]->hdr = parseenvelope(v);
+	msgplumb(msg, 0);
 }
 
 static struct {
@@ -1612,7 +1613,6 @@ xmsgbody(Msg *msg, Sx *k, Sx *v)
 		msg->box->maxseen = msg->imapid;
 	if(msg->imapuid >= msg->box->uidnext)
 		msg->box->uidnext = msg->imapuid+1;
-	msgplumb(msg, 0);
 }
 
 static void
