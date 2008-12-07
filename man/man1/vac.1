@@ -34,7 +34,7 @@ vac, unvac \- create, extract a vac archive on Venti
 .PP
 .B unvac
 [
-.B -Tctv
+.B -Tcdtv
 ] [
 .B -h
 .I host
@@ -206,6 +206,13 @@ to the time listed in the archive.
 .TP
 .B -c
 Write extracted files to standard output instead of creating a file.
+.TP
+.B -d
+Reduce the number of blocks read from Venti by
+comparing the files to be stored with their counterparts
+in the file system.
+This option cannot be used with
+.BR -c .
 .TP
 .B -t
 Print a list of the files to standard output rather than extracting them.

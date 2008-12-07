@@ -142,3 +142,6 @@ int			vderead(VacDirEnum*, VacDir *);
 void			vdeclose(VacDirEnum*);
 int	vdeunread(VacDirEnum*);
 
+int	vacfiledsize(VacFile *f);
+int	sha1matches(VacFile *f, ulong b, uchar *buf, int n);
+

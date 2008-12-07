@@ -440,24 +440,6 @@ enum {
 #endif
 
 /*
- * Does block b of f have the same SHA1 hash as the n bytes at buf?
- */
-static int
-sha1matches(VacFile *f, ulong b, uchar *buf, int n)
-{
-	uchar fscore[VtScoreSize];
-	uchar bufscore[VtScoreSize];
-	
-	if(vacfileblockscore(f, b, fscore) < 0)
-		return 0;
-	n = vtzerotruncate(VtDataType, buf, n);
-	sha1(buf, n, bufscore, nil);
-	if(memcmp(bufscore, fscore, VtScoreSize) == 0)
-		return 1;
-	return 0;
-}
-
-/*
  * Archive the file named name, which has stat info d,
  * into the vac directory fp (p = parent).  
  *

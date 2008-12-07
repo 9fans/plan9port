@@ -8,6 +8,7 @@
 
 VacFs *fs;
 int tostdout;
+int diff;
 int nwant;
 char **want;
 int *found;
@@ -23,14 +24,20 @@ void unvac(VacFile*, char*, VacDir*);
 void
 usage(void)
 {
-	fprint(2, "usage: unvac [-TVctv] [-h host] file.vac [file ...]\n");
+	fprint(2, "usage: unvac [-TVcdtv] [-h host] file.vac [file ...]\n");
 	threadexitsall("usage");
 }
+
+struct
+{
+	vlong data;
+	vlong skipdata;
+} stats;
 
 void
 threadmain(int argc, char *argv[])
 {
-	int i;
+	int i, printstats;
 	char *host;
 	VacFile *f;
 
@@ -41,6 +48,8 @@ threadmain(int argc, char *argv[])
 	fmtinstall('M', dirmodefmt);
 	
 	host = nil;
+	printstats = 0;
+
 	ARGBEGIN{
 	case 'T':
 		settimes = 1;
@@ -51,8 +60,14 @@ threadmain(int argc, char *argv[])
 	case 'c':
 		tostdout++;
 		break;
+	case 'd':
+		diff++;
+		break;
 	case 'h':
 		host = EARGF(usage());
+		break;
+	case 's':
+		printstats++;
 		break;
 	case 't':
 		table++;
@@ -66,6 +81,11 @@ threadmain(int argc, char *argv[])
 
 	if(argc < 1)
 		usage();
+
+	if(tostdout && diff){
+		fprint(2, "cannot use -c with -d\n");
+		usage();
+	}
 
 	conn = vtdial(host);
 	if(conn == nil)
@@ -94,6 +114,9 @@ threadmain(int argc, char *argv[])
 	}
 	if(errors)
 		threadexitsall("errors");
+	if(printstats)
+		fprint(2, "%lld bytes read, %lld bytes skipped\n",
+			stats.data, stats.skipdata);
 	threadexitsall(0);
 }
 
@@ -143,7 +166,7 @@ void
 unvac(VacFile *f, char *name, VacDir *vdir)
 {
 	static char buf[65536];
-	int fd, n;
+	int fd, n, m,  bsize;
 	ulong mode, mode9;
 	char *newname;
 	char *what;
@@ -256,23 +279,53 @@ unvac(VacFile *f, char *name, VacDir *vdir)
 		vdeclose(vde);
 	}else{
 		if(!table){
+			off = 0;
 			if(tostdout)
 				fd = dup(1, -1);
+			else if(diff && (fd = open(name, ORDWR)) >= 0){
+				bsize = vacfiledsize(f);
+				while((n = readn(fd, buf, bsize)) > 0){
+					if(sha1matches(f, off/bsize, (uchar*)buf, n)){
+						off += n;
+						stats.skipdata += n;
+						continue;
+					}
+					seek(fd, off, 0);
+					if((m = vacfileread(f, buf, n, off)) < 0)
+						break;
+					if(writen(fd, buf, m) != m){
+						fprint(2, "write %s: %r\n", name);
+						goto Err;
+					}
+					off += m;
+					stats.data += m;
+					if(m < n){
+						nulldir(&d);
+						d.length = off;
+						if(dirfwstat(fd, &d) < 0){
+							fprint(2, "dirfwstat %s: %r\n", name);
+							goto Err;
+						}
+						break;
+					}
+				}
+			}
 			else if((fd = create(name, OWRITE, mode&0777)) < 0){
 				fprint(2, "create %s: %r\n", name);
 				errors++;
 				return;
 			}
-			off = 0;
 			while((n = vacfileread(f, buf, sizeof buf, off)) > 0){
 				if(writen(fd, buf, n) != n){
 					fprint(2, "write %s: %r\n", name);
+				Err:
 					errors++;
 					close(fd);
 					remove(name);
 					return;
 				}
 				off += n;
+				stats.data += n;
 			}
 			close(fd);
 		}

@@ -2061,3 +2061,32 @@ vacfssync(VacFs *fs)
 		return -1;
 	return 0;
 }
+
+int
+vacfiledsize(VacFile *f)
+{
+	VtEntry e;
+
+	if(vacfilegetentries(f,&e,nil) < 0)
+		return -1;
+	return e.dsize;
+}
+
+/*
+ * Does block b of f have the same SHA1 hash as the n bytes at buf?
+ */
+int
+sha1matches(VacFile *f, ulong b, uchar *buf, int n)
+{
+	uchar fscore[VtScoreSize];
+	uchar bufscore[VtScoreSize];
+	
+	if(vacfileblockscore(f, b, fscore) < 0)
+		return 0;
+	n = vtzerotruncate(VtDataType, buf, n);
+	sha1(buf, n, bufscore, nil);
+	if(memcmp(bufscore, fscore, VtScoreSize) == 0)
+		return 1;
+	return 0;
+}
+
