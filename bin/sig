@@ -9,6 +9,12 @@ if(~ $#* 0){
 	exit 1
 }
 
+noplan9=()
+for(p in $path) {
+	if(! ~ $p $PLAN9/bin)
+		noplan9=($noplan9 $p)
+}	
+
 for (i) {
 	files=`{grep -il '[ 	]\*?'$i'\(' $PLAN9/man/man3/*.3*}
 	for(j in $files) {
@@ -24,6 +30,17 @@ for (i) {
 				s/[ 	]+/ /g' |
 			grep -i -e '[ 	]\*?'$i'\(' | sed 's/^[ +]/	/'
 	}
+	{ path=$noplan9; man 2 $i; man 3 $i } >[2]/dev/null | nobs | sed -n '
+		:d
+		/SYNOPSIS/bp
+		n
+		bd
+		:p
+		/DESCRIPTION/bd
+		p
+		n
+		bp
+	' | grep -i -e '[ 	]\*?'$i'\(' | sed 's/^[ +]/	/'
 }
 
 exit 0
