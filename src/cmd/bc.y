@@ -786,9 +786,10 @@ loop:
 	peekc = -1;
 	if(ch >= 0)
 		return ch;
+
 	ifile++;
-	if(ifile > sargc) {
-		if(ifile >= sargc+2)
+	if(ifile >= sargc) {
+		if(ifile >= sargc+1)
 			getout();
 		in = &bstdin;
 		Binit(in, 0, OREAD);
@@ -802,6 +803,7 @@ loop:
 		ss = sargv[ifile];
 		goto loop;
 	}
+	fprint(2, "open %s: %r\n", sargv[ifile]);
 	yyerror("cannot open input file");
 	return 0;		/* shut up ken */
 }
@@ -871,7 +873,7 @@ yyerror(char *s, ...)
 {
 	if(ifile > sargc)
 		ss = "teletype";
-	Bprint(&bstdout, "c[%s on line %d, %s]pc\n", s, ln+1, ss);
+	Bprint(&bstdout, "c[%s:%d, %s]pc\n", s, ln+1, ss);
 	Bflush(&bstdout);
 	cp = cary;
 	crs = rcrs;
@@ -905,15 +907,15 @@ yyinit(int argc, char **argv)
 {
 	Binit(&bstdout, 1, OWRITE);
 	sargv = argv;
-	sargc = argc - 1;
+	sargc = argc;
 	if(sargc == 0) {
 		in = &bstdin;
 		Binit(in, 0, OREAD);
-	} else if((in = Bopen(sargv[1], OREAD)) == 0)
+	} else if((in = Bopen(sargv[0], OREAD)) == 0)
 		yyerror("cannot open input file");
-	ifile = 1;
+	ifile = 0;
 	ln = 0;
-	ss = sargv[1];
+	ss = sargv[0];
 }
 
 void
@@ -941,31 +943,28 @@ main(int argc, char **argv)
 {
 	int p[2];
 
-	while(argc > 1 && *argv[1] == '-') {
-		switch(argv[1][1]) {
-		case 'd':
-			bdebug++;
-			break;
-		case 'c':
-			cflag++;
-			break;
-		case 'l':
-			lflag++;
-			break;
-		case 's':
-			sflag++;
-			break;
-		default:
-			fprint(2, "Usage: bc [-l] [-c] [file ...]\n");
-			exits("usage");
-		}
-		argc--;
-		argv++;
-	}
+	ARGBEGIN{
+	case 'd':
+		bdebug++;
+		break;
+	case 'c':
+		cflag++;
+		break;
+	case 'l':
+		lflag++;
+		break;
+	case 's':
+		sflag++;
+		break;
+	default:
+		fprint(2, "Usage: bc [-l] [-c] [file ...]\n");
+		exits("usage");
+	}ARGEND
+	
 	if(lflag) {
-		argv--;
 		argc++;
-		argv[1] = unsharp("#9/lib/bclib");
+		argv--;
+		*argv = unsharp("#9/lib/bclib");
 	}
 	if(cflag) {
 		yyinit(argc, argv);
@@ -985,5 +984,5 @@ main(int argc, char **argv)
 	dup(p[0], 0);
 	close(p[0]);
 	close(p[1]);
-	execl("dc", "dc", nil);
+	execl(unsharp("#9/bin/dc"), "dc", nil);
 }
