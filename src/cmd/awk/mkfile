@@ -26,10 +26,10 @@ CLEANFILES=$CLEANFILES proctab.c $O.maketab
 YFLAGS=-S -d -v
 
 proctab.c: $O.maketab
-    ./$O.maketab >proctab.c
+	./$O.maketab >proctab.c
 
 maketab.$O: maketab.c
-    $CC $CFLAGS maketab.c
+	$CC $CFLAGS maketab.c
 
 $O.maketab:V: y.tab.h maketab.$O
-    $LD -o $O.maketab maketab.$O
+	$LD -o $O.maketab maketab.$O
