@@ -86,7 +86,9 @@ runconfig(char *file, Config *config)
 		}
 		line = estrdup(s);
 		i = getfields(s, flds, MaxArgs + 1, 1, " \t\r");
-		if(i == 2 && strcmp(flds[0], "isect") == 0){
+		if(i > 0 && strcmp(flds[0], "mgr") == 0){
+			/* do nothing */
+		}else if(i == 2 && strcmp(flds[0], "isect") == 0){
 			sv = MKN(ISect*, config->nsects + 1);
 			for(i = 0; i < config->nsects; i++)
 				sv[i] = config->sects[i];
