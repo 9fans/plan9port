@@ -162,18 +162,6 @@ vtlogremove(char *name)
 	qunlock(&vl.lk);
 }
 
-static int
-timefmt(Fmt *fmt)
-{
-	static uvlong t0;
-	uvlong t;
-
-	if(t0 == 0)
-		t0 = nsec();
-	t = nsec()-t0;
-	return fmtprint(fmt, "T+%d.%04d", (uint)(t/1000000000), (uint)(t%1000000000)/100000);
-}
-
 void
 vtlogvprint(VtLog *l, char *fmt, va_list arg)
 {
@@ -184,13 +172,7 @@ vtlogvprint(VtLog *l, char *fmt, va_list arg)
 
 	if(l == nil)
 		return;
-		
-	if(first){
-		fmtinstall('T', timefmt);
-		first = 0;
-	}
-		
-	
+
 	qlock(&l->lk);
 	c = l->w;
 	n = c->ep - c->wp;
