@@ -60,7 +60,8 @@ verifyarena(char *name, vlong len)
 	u32int bs;
 	u8int score[VtScoreSize];
 
-	fprint(2, "%T verify %s\n", name);
+	if(verbose)
+		fprint(2, "%T verify %s\n", name);
 
 	memset(&arena, 0, sizeof arena);
 	memset(&s, 0, sizeof s);
@@ -140,16 +141,19 @@ verifyarena(char *name, vlong len)
 	/*
 	 * check for no checksum or the same
 	 */
-	if(scorecmp(score, arena.score) == 0)
-		fprint(2, "%T %s: verified score\n", name);
-	else if(scorecmp(zeroscore, arena.score) == 0)
-		fprint(2, "%T %s: unsealed\n", name);
-	else{
+	if(scorecmp(score, arena.score) == 0) {
+		if(verbose)
+			fprint(2, "%T %s: verified score\n", name);
+	} else if(scorecmp(zeroscore, arena.score) == 0) {
+		if(verbose || arena.diskstats.used > 0)
+			fprint(2, "%T %s: unsealed %,lld bytes\n", name, arena.diskstats.used);
+	} else{
 		fprint(2, "%T %s: mismatch checksum - found=%V calculated=%V\n",
 			name, arena.score, score);
 		return;
 	}
-	printarena(2, &arena);
+	if(verbose > 1)
+		printarena(2, &arena);
 }
 
 static int
@@ -196,7 +200,10 @@ threadmain(int argc, char *argv[])
 		break;
 	}ARGEND
 
-	data = vtmalloc(blocksize);
+	data = vtmalloc(MaxIo + blocksize);
+	if((uintptr)data % MaxIo)
+		data += MaxIo - (uintptr)data%MaxIo;
+
 	if(argc == 0){
 		fd = 0;
 		verifyarena("<stdin>", 0);
@@ -212,8 +219,9 @@ threadmain(int argc, char *argv[])
 		sysfatal("read arena part header: %r");
 	if(unpackarenapart(&ap, data) < 0)
 		sysfatal("corrupted arena part header: %r");
-	fprint(2, "%T # arena part version=%d blocksize=%d arenabase=%d\n",
-		ap.version, ap.blocksize, ap.arenabase);
+	if(verbose)
+		fprint(2, "%T # arena part version=%d blocksize=%d arenabase=%d\n",
+			ap.version, ap.blocksize, ap.arenabase);
 	ap.tabbase = (PartBlank+HeadSize+ap.blocksize-1)&~(ap.blocksize-1);
 	ap.tabsize = ap.arenabase - ap.tabbase;
 	table = malloc(ap.tabsize+1);
