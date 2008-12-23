@@ -141,10 +141,13 @@ initpart(char *name, int mode)
 	}
 	if(dir->length == 0){
 		free(dir);
-		freepart(part);
-		seterr(EOk, "can't determine size of partition %s", file);
-		free(file);
-		return nil;
+		dir = dirstat(file);
+		if(dir == nil || dir->length == 0) {
+			freepart(part);
+			seterr(EOk, "can't determine size of partition %s", file);
+			free(file);
+			return nil;
+		}
 	}
 	if(dir->length < hi || dir->length < lo){
 		freepart(part);
@@ -159,7 +162,7 @@ initpart(char *name, int mode)
 #ifdef CANBLOCKSIZE
 	{
 		struct statfs sfs;
-		if(fstatfs(part->fd, &sfs) >= 0)
+		if(fstatfs(part->fd, &sfs) >= 0 && sfs.f_bsize > 512)
 			part->fsblocksize = sfs.f_bsize;
 	}
 #endif
@@ -229,7 +232,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 	char *op;
 	u8int *buf, *freetmp, *dst;
 	u32int icount, opsize;
-	int r;
+	int r, count1;
 
 
 #ifndef PLAN9PORT
@@ -286,6 +289,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 			dst = tmp;
 			offset = offset-delta;
 			op = "read";
+			count1 = blocksize;
 			goto Error;
 		}
 		c = min(count, blocksize-delta);
@@ -298,6 +302,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 				dst = tmp;
 				offset = offset-delta;
 				op = "read";
+				count1 = blocksize;
 				goto Error;
 			}
 		}
@@ -323,6 +328,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 		if(isread){
 			if((r=pread(fd, dst, opsize, offset))<=0 || r%blocksize){
 				op = "read";
+				count1 = opsize;
 				goto Error;
 			}
 			if(dst == tmp){
@@ -335,6 +341,7 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 				memmove(dst, buf, blocksize);
 			}
 			if((r=pwrite(fd, dst, opsize, offset))<=0 || r%blocksize){
+				count1 = opsize;
 				op = "write";
 				goto Error;
 			}
@@ -362,14 +369,16 @@ prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u3
 print("FAILED isread=%d r=%d count=%d blocksize=%d\n", isread, r, count, blocksize);
 			dst = tmp;
 			op = "read";
+			count1 = blocksize;
 			goto Error;
 		}
 		if(isread)
 			memmove(buf, tmp, count);
 		else{
 			memmove(tmp, buf, count);
-			if(pwrite(fd, tmp, opsize, offset) != blocksize){
+			if(pwrite(fd, tmp, blocksize, offset) != blocksize){
 				dst = tmp;
+				count1 = blocksize;
 				op = "write";
 				goto Error;
 			}
@@ -382,7 +391,7 @@ print("FAILED isread=%d r=%d count=%d blocksize=%d\n", isread, r, count, blocksi
 
 Error:
 	seterr(EAdmin, "%s %s offset 0x%llux count %ud buf %p returned %d: %r",
-		op, name, offset, opsize, dst, r);
+		op, name, offset, count1, dst, r);
 	if(freetmp)
 		free(freetmp);
 	return -1;
