@@ -34,9 +34,11 @@ usage(void)
 }
 
 char *tagged;
+char *tagname;
+int tagindx;
 
 void
-tag(char *fmt, ...)
+tag(int indx, char *name, char *fmt, ...)
 {
 	va_list arg;
 	
@@ -44,15 +46,71 @@ tag(char *fmt, ...)
 		free(tagged);
 		tagged = nil;
 	}
+	tagindx = indx;
+	tagname = name;
 	va_start(arg, fmt);
 	tagged = vsmprint(fmt, arg);
 	va_end(arg);
+}
+
+enum 
+{
+	Sealed = 1,
+	Mirrored = 2,
+	Empty = 4,
+};
+
+void
+setstatus(int bits)
+{
+	static int startindx = -1, endindx;
+	static char *startname, *endname;
+	static int lastbits;
+	char buf[100];
+
+	if(bits != lastbits) {
+		if(startindx >= 0) {
+			switch(lastbits) {
+			case Sealed:
+				snprint(buf, sizeof buf, "sealed");
+				break;
+			case Mirrored:
+				snprint(buf, sizeof buf, "mirrored");
+				break;
+			case Sealed+Mirrored:
+				snprint(buf, sizeof buf, "mirrored sealed");
+				break;
+			case Empty:
+				snprint(buf, sizeof buf, "empty");
+				break;
+			default:
+				snprint(buf, sizeof buf, "%d", bits);
+				break;
+			}
+			print("%T %s-%s %s\n", startname, endname, buf);
+		}
+		lastbits = bits;
+		startindx = tagindx;
+		endindx = tagindx;
+		startname = tagname;
+		endname = tagname;
+	} else {
+		endindx = tagindx;
+		endname = tagname;
+	}
+	if(bits < 0) {
+		startindx = -1;
+		endindx = -1;
+		return;
+	}	
 }
 
 void
 chat(char *fmt, ...)
 {
 	va_list arg;
+
+	setstatus(-1);
 
 	if(tagged){
 		write(1, tagged, strlen(tagged));
@@ -113,12 +171,24 @@ copy(uvlong start, uvlong end, char *what, DigestState *ds)
 {
 	int i, n;
 	uvlong o;
-	static uchar tmp[2][1024*1024];
+	enum {
+		Chunk = 1024*1024
+	};
+	static uchar tmpbuf[2*Chunk+MaxIo];
+	static uchar *tmp[2];
+	uchar *p;
 	Write w[2];
 	
 	assert(start <= end);
 	assert(astart <= start && start < aend);
 	assert(astart <= end && end <= aend);
+
+	// align the buffers so readpart/writepart can do big transfers
+	p = tmpbuf;
+	if((uintptr)p%MaxIo)
+		p += MaxIo - (uintptr)p%MaxIo;
+	tmp[0] = p;
+	tmp[1] = p + Chunk;
 
 	if(verbose && start != end)
 		chat("%T   copy %,llud-%,llud %s\n", start, end, what);
@@ -128,7 +198,7 @@ copy(uvlong start, uvlong end, char *what, DigestState *ds)
 	for(o=start; o<end; o+=n){
 		if(w[i].error)
 			goto error;
-		n = sizeof tmp[i];
+		n = Chunk;
 		if(o+n > end)
 			n = end - o;
 		if(ereadpart(src, o, tmp[i], n) < 0)
@@ -235,7 +305,7 @@ rup(uvlong a, int b)
 }
 
 void
-mirror(Arena *sa, Arena *da)
+mirror(int indx, Arena *sa, Arena *da)
 {
 	vlong v, si, di, end;
 	int clumpmax, blocksize, sealed;
@@ -251,7 +321,7 @@ mirror(Arena *sa, Arena *da)
 	astart = base - blocksize;
 	aend = end + blocksize;
 
-	tag("%T %s (%,llud-%,llud)\n", sa->name, astart, aend);
+	tag(indx, sa->name, "%T %s (%,llud-%,llud)\n", sa->name, astart, aend);
 	
 	if(force){
 		copy(astart, aend, "all", nil);
@@ -260,7 +330,8 @@ mirror(Arena *sa, Arena *da)
 
 	if(sa->diskstats.sealed && da->diskstats.sealed && scorecmp(da->score, zeroscore) != 0){
 		if(scorecmp(sa->score, da->score) == 0){
-			if(verbose)
+			setstatus(Sealed+Mirrored);
+			if(verbose > 1)
 				chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
 			return;
 		}
@@ -378,7 +449,8 @@ mirror(Arena *sa, Arena *da)
 			memset(buf, 0, VtScoreSize);
 			sha1(buf, VtScoreSize, da->score, ds);
 			if(scorecmp(sa->score, da->score) == 0){
-				if(verbose)
+				setstatus(Sealed+Mirrored);
+				if(verbose > 1)
 					chat("%T %s: %V sealed mirrored\n", sa->name, sa->score);
 				if(ewritepart(dst, end+blocksize-VtScoreSize, da->score, VtScoreSize) < 0)
 					return;
@@ -391,14 +463,21 @@ mirror(Arena *sa, Arena *da)
 				status = "errors";
 			}
 		}else{
-			if(verbose)
+			setstatus(Mirrored);
+			if(verbose > 1)
 				chat("%T %s: %V mirrored\n", sa->name, sa->score);
 			if(ewritepart(dst, end+blocksize-VtScoreSize, sa->score, VtScoreSize) < 0)
 				return;
 		}
 	}else{
-		chat("%T %s: %,lld used mirrored\n",
-			sa->name, sa->diskstats.used);
+		if(sa->diskstats.used > 0 || verbose > 1) {
+			chat("%T %s: %,lld used mirrored\n",
+				sa->name, sa->diskstats.used);
+		}
+		if(sa->diskstats.used > 0)
+			setstatus(Mirrored);
+		else
+			setstatus(Empty);
 	}
 }
 
@@ -413,8 +492,9 @@ mirrormany(ArenaPart *sp, ArenaPart *dp, char *range)
 		for(i=0; i<sp->narenas; i++){
 			sa = sp->arenas[i];
 			da = dp->arenas[i];
-			mirror(sa, da);
+			mirror(i, sa, da);
 		}
+		setstatus(-1);
 		return;
 	}
 	if(strcmp(range, "none") == 0)
@@ -445,8 +525,9 @@ mirrormany(ArenaPart *sp, ArenaPart *dp, char *range)
 		for(i=lo; i<=hi; i++){
 			sa = sp->arenas[i];
 			da = dp->arenas[i];
-			mirror(sa, da);
+			mirror(i, sa, da);
 		}
+		setstatus(-1);
 	}	
 }
 
