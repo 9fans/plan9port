@@ -168,7 +168,6 @@ vtlogvprint(VtLog *l, char *fmt, va_list arg)
 	int n;
 	char *p;
 	VtLogChunk *c;
-	static int first = 1;
 
 	if(l == nil)
 		return;
