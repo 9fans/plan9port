@@ -75,17 +75,43 @@ fprint(2, "no mem\n");
 	blocksize = ix->blocksize;
 	for(i = 0; i < ix->nsects; i++){
 		is = sects[i];
-		if(namecmp(ix->name, is->index) != 0
-		|| is->blocksize != blocksize
-		|| is->tabsize != tabsize
-		|| namecmp(is->name, ix->smap[i].name) != 0
-		|| is->start != ix->smap[i].start
-		|| is->stop != ix->smap[i].stop
-		|| last != is->start
-		|| is->start > is->stop){
-			seterr(ECorrupt, "inconsistent index sections in %s", ix->name);
+		if(namecmp(is->index, ix->name) != 0) {
+			seterr(ECorrupt, "%s: index name is %s, not %s",
+				sects[i]->part->name, is->index, ix->name);
+		bad:
 			freeindex(ix);
 			return nil;
+		}
+		if(is->blocksize != blocksize) {
+			seterr(ECorrupt, "%s: blocksize is %d, not %d",
+				sects[i]->part->name, (int)is->blocksize, (int)blocksize);
+			goto bad;
+		}
+		if(is->tabsize != tabsize) {
+			seterr(ECorrupt, "%s: tabsize is %d, not %d",
+				sects[i]->part->name, (int)is->tabsize, (int)tabsize);
+			goto bad;
+		}
+		if(namecmp(is->name, ix->smap[i].name) != 0) {
+			seterr(ECorrupt, "%s: name is %s, not %s",
+				sects[i]->part->name, is->name, ix->smap[i].name);
+			goto bad;
+		}
+		if(is->start != ix->smap[i].start || is->stop != ix->smap[i].stop) {
+			seterr(ECorrupt, "%s: range is %lld,%lld, not %lld,%lld",
+				sects[i]->part->name, is->start, is->stop,
+				ix->smap[i].start, ix->smap[i].stop);
+			goto bad;
+		}
+		if(is->start > is->stop) {
+			seterr(ECorrupt, "%s: invalid range %lld,%lld",
+				sects[i]->part->name, is->start, is->stop);
+			goto bad;
+		}
+		if(is->start != last || is->start > is->stop) {
+			seterr(ECorrupt, "%s: range %lld-%lld, but last section ended at %lld",
+				sects[i]->part->name, is->start, is->stop, last);
+			goto bad;
 		}
 		last = is->stop;
 	}
@@ -272,11 +298,15 @@ newindex(char *name, ISect **sects, int n)
 			return nil;
 		}
 		if(blocksize != sects[i]->blocksize){
-			seterr(EOk, "mismatched block sizes in index sections");
+			seterr(EOk, "%s has block size %d, but %s has %d",
+				sects[0]->part->name, (int)blocksize,
+				sects[i]->part->name, (int)sects[i]->blocksize);
 			return nil;
 		}
 		if(tabsize != sects[i]->tabsize){
-			seterr(EOk, "mismatched config table sizes in index sections");
+			seterr(EOk, "%s has table size %d, but %s has %d",
+				sects[0]->part->name, (int)tabsize,
+				sects[i]->part->name, (int)sects[i]->tabsize);
 			return nil;
 		}
 		nb += sects[i]->blocks;
@@ -288,7 +318,10 @@ newindex(char *name, ISect **sects, int n)
 	for(i = 0; i < n; i++){
 		for(j = i + 1; j < n; j++){
 			if(namecmp(sects[i]->name, sects[j]->name) == 0){
-				seterr(EOk, "duplicate section name %s for index %s", sects[i]->name, name);
+				seterr(EOk, "%s and %s both have section name %s",
+					sects[i]->part->name,
+					sects[j]->part->name,
+					sects[i]->name);
 				return nil;
 			}
 		}
