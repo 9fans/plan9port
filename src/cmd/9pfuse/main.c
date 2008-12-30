@@ -577,6 +577,13 @@ _fuseopen(FuseMsg *m, int isdir)
 	openmode = flags&3;
 	flags &= ~3;
 	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_CLOEXEC);
+	/*
+	 * Discarding O_APPEND here is not completely wrong,
+	 * because the host kernel will rewrite the offsets
+	 * of write system calls for us.  That's the best we
+	 * can do on Unix anyway.
+	 */
+	flags &= ~O_APPEND;
 	if(flags & O_TRUNC){
 		openmode |= OTRUNC;
 		flags &= ~O_TRUNC;
@@ -585,7 +592,6 @@ _fuseopen(FuseMsg *m, int isdir)
 	 * Could translate but not standard 9P:
 	 *	O_DIRECT -> ODIRECT
 	 *	O_NONBLOCK -> ONONBLOCK
-	 *	O_APPEND -> OAPPEND
 	 */
 	if(flags){
 		fprint(2, "unexpected open flags %#uo", (uint)in->flags);
@@ -702,6 +708,7 @@ fusecreate(FuseMsg *m)
 	openmode = in->flags&3;
 	flags &= ~3;
 	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE);
+	flags &= ~O_APPEND;	/* see comment in _fuseopen */
 	flags &= ~(O_CREAT|O_TRUNC);	/* huh? */
 	if(flags){
 		fprint(2, "bad mode %#uo\n", in->flags);
