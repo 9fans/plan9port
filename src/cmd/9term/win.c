@@ -93,15 +93,6 @@ usage(void)
 	threadexitsall("usage");
 }
 
-int
-nopipes(void *v, char *msg)
-{
-	USED(v);
-	if(strcmp(msg, "sys: write on closed pipe") == 0)
-		return 1;
-	return 0;
-}
-
 void
 waitthread(void *v)
 {
@@ -157,7 +148,15 @@ threadmain(int argc, char **argv)
 		}
 	}
 
-	notedisable("sys: write on closed pipe");
+	/*
+	 * notedisable("sys: write on closed pipe");
+	 * not okay to disable the note, because that
+	 * gets inherited by the subshell, so that something
+	 * as simple as "yes | sed 10q" never exits.
+	 * call notifyoff instead.  (is notedisable ever safe?)
+	 */
+	notifyoff("sys: write on closed pipe");
+
 	noteenable("sys: child");
 	notify(hangupnote);
 
