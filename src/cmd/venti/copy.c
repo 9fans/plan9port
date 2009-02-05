@@ -55,7 +55,8 @@ walk(uchar score[VtScoreSize], uint type, int base)
 		}
 		walk(root.score, VtDirType, 0);
 		walk(root.prev, VtRootType, 0);
-		vtrootpack(&root, buf);	/* walk might have changed score */
+		if(rewrite)
+			vtrootpack(&root, buf);	/* walk might have changed score */
 		break;
 
 	case VtDirType:
@@ -67,7 +68,8 @@ walk(uchar score[VtScoreSize], uint type, int base)
 			if(!(e.flags & VtEntryActive))
 				continue;
 			walk(e.score, e.type, e.type&VtTypeBaseMask);
-			vtentrypack(&e, buf, i);
+			if(rewrite)
+				vtentrypack(&e, buf, i);
 		}
 		break;
 
