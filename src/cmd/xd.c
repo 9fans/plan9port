@@ -288,7 +288,7 @@ void
 fmt1(char *f)
 {
 	int i;
-	for(i=0; i<ndata; i+=sizeof(unsigned short))
+	for(i=0; i<ndata; i+=2)
 		xprint(f, (data[i]<<8)|data[i+1]);
 }
 
@@ -296,7 +296,7 @@ void
 fmt2(char *f)
 {
 	int i;
-	for(i=0; i<ndata; i+=sizeof(unsigned long))
+	for(i=0; i<ndata; i+=4)
 		xprint(f, (u32int)((data[i]<<24)|(data[i+1]<<16)|(data[i+2]<<8)|data[i+3]));
 }
 
@@ -305,7 +305,7 @@ fmt3(char *f)
 {
 	int i;
 	unsigned long long v;
-	for(i=0; i<ndata; i+=sizeof(unsigned long long)){
+	for(i=0; i<ndata; i+=8){
 		v = (data[i]<<24)|(data[i+1]<<16)|(data[i+2]<<8)|data[i+3];
 		v <<= 32;
 		v |= (data[i+4]<<24)|(data[i+1+4]<<16)|(data[i+2+4]<<8)|data[i+3+4];
