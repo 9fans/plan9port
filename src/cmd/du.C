@@ -162,7 +162,7 @@ seen(Dir *dir)
 			return 1;
 	if(c->n == c->max){
 		c->cache = realloc(c->cache, (c->max+=20)*sizeof(Dir));
-		if(cache == 0)
+		if(c->cache == 0)
 			err("malloc failure");
 	}
 	c->cache[c->n++] = *dir;
