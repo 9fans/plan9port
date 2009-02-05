@@ -994,7 +994,7 @@ match(Reprog *pattern, Rune *buf)
 		return 0;
 	subexp[0].s.rsp = buf; 
 	subexp[0].e.rep = 0;
-	if (rregexec(pattern, linebuf, subexp, MAXSUB)) {
+	if (rregexec(pattern, linebuf, subexp, MAXSUB) > 0) {
 		loc1 = subexp[0].s.rsp;
 		loc2 = subexp[0].e.rep;
 		return 1;
