@@ -707,7 +707,7 @@ fusecreate(FuseMsg *m)
 	flags = in->flags;
 	openmode = in->flags&3;
 	flags &= ~3;
-	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE);
+	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_EXCL);
 	flags &= ~O_APPEND;	/* see comment in _fuseopen */
 	flags &= ~(O_CREAT|O_TRUNC);	/* huh? */
 	if(flags){
