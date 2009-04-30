@@ -90,7 +90,7 @@
           /usr/local/plan9/install.log
                logged output from the last run of INSTALL
 
-          /usr/local/plan9/install.isum
+          /usr/local/plan9/install.sum
                a summary of install.log
 
      SEE ALSO
