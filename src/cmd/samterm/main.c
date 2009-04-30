@@ -494,6 +494,9 @@ flushtyping(int clearesc)
 #define	PAGEUP	Kpgup
 #define	RIGHTARROW	Kright
 #define	SCROLLKEY	Kdown
+#define	CUT	(Kcmd+'x')
+#define	COPY	(Kcmd+'c')
+#define	PASTE	(Kcmd+'v')
 
 int
 nontypingkey(int c)
@@ -511,6 +514,8 @@ nontypingkey(int c)
 	case SCROLLKEY:
 		return 1;
 	}
+	if(c >= Kcmd)
+		return 1;
 	return 0;
 }
 
@@ -673,6 +678,20 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 		for(l=t->l; l<&t->l[NL]; l++)
 			if(l->textfn)
 				flsetselect(l, l->p0, l->p1);
+		switch(c) {
+		case CUT:
+			flushtyping(0);
+			cut(t, t->front, 1, 1);
+			break;
+		case COPY:
+			flushtyping(0);
+			snarf(t, t->front);
+			break;
+		case PASTE:
+			flushtyping(0);
+			paste(t, t->front);
+			break;
+		}
 	}
 }
 

@@ -45,8 +45,17 @@ _displayconnect(Display *d)
 		 * The NOLIBTHREADDAEMONIZE keeps devdraw from
 		 * forking before threadmain. OS X hates it when
 		 * guis fork.
+		 *
+		 * If client didn't use ARGBEGIN, argv0 == nil.
+		 * Can't send nil through because OS X expects
+		 * argv[0] to be non-nil.  Also, OS X apparently
+		 * expects argv[0] to be a valid executable name,
+		 * so "(argv0)" is not okay.  Use "devdraw"
+		 * instead.
 		 */
 		putenv("NOLIBTHREADDAEMONIZE", "1");
+		if(argv0 == nil)
+			argv0 = "devdraw";
 		execl("devdraw", argv0, argv0, "(devdraw)", nil);
 		sysfatal("exec devdraw: %r");
 	}

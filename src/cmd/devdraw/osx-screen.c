@@ -2,7 +2,6 @@
 #define Rect OSXRect
 #define Cursor OSXCursor
 #include <Carbon/Carbon.h>
-#include <QuickTime/QuickTime.h> // for full screen
 #undef Rect
 #undef Point
 #undef Cursor
@@ -23,7 +22,6 @@
 #include "glendapng.h"
 
 AUTOFRAMEWORK(Carbon)
-AUTOFRAMEWORK(QuickTime)
 
 #define panic sysfatal
 
@@ -52,6 +50,8 @@ struct {
 	PasteboardRef snarf;
 	int needflush;
 	QLock flushlock;
+	int active;
+	int infullscreen;
 } osx;
 
 enum
@@ -66,8 +66,9 @@ enum
 
 static void screenproc(void*);
 static void eresized(int);
-static void fullscreen(void);
+static void fullscreen(int);
 static void seticon(void);
+static void activated(int);
 
 static OSStatus quithandler(EventHandlerCallRef, EventRef, void*);
 static OSStatus eventhandler(EventHandlerCallRef, EventRef, void*);
@@ -159,7 +160,9 @@ _screeninit(void)
 	const EventTypeSpec cmds[] = {
 		{ kEventClassWindow, kEventWindowClosed },
 		{ kEventClassWindow, kEventWindowBoundsChanged },
-		{ kEventClassCommand, kEventCommandProcess }
+		{ kEventClassCommand, kEventCommandProcess },
+		{ kEventClassWindow, kEventWindowActivated },
+		{ kEventClassWindow, kEventWindowDeactivated },
 	};
 	const EventTypeSpec events[] = {
 		{ kEventClassKeyboard, kEventRawKeyDown },
@@ -256,7 +259,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			exit(0);
 		
 		case CmdFullScreen:
-			fullscreen();
+			fullscreen(1);
 			break;
 		
 		default:
@@ -273,6 +276,14 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			eresized(1);
 			break;
 		
+		case kEventWindowActivated:
+			activated(1);
+			return eventNotHandledErr;
+					
+		case kEventWindowDeactivated:
+			activated(0);
+			return eventNotHandledErr;
+
 		default:
 			return eventNotHandledErr;
 		}
@@ -419,7 +430,22 @@ kbdevent(EventRef event)
 		if(mod == cmdKey){
 			if(ch == 'F' || ch == 'f'){
 				if(osx.isfullscreen && msec() - osx.fullscreentime > 500)
-					fullscreen();
+					fullscreen(0);
+				return noErr;
+			}
+			
+			// Pass most Cmd keys through as Kcmd + ch.
+			// OS X interprets a few no matter what we do,
+			// so it is useless to pass them through as keystrokes too.
+			switch(ch) {
+			case 'm':	// minimize window
+			case 'h':	// hide window
+			case 'H':	// hide others
+			case 'q':	// quit
+				return eventNotHandledErr;
+			}
+			if(' ' <= ch && ch <= '~') {
+				keystroke(Kcmd + ch);
 				return noErr;
 			}
 			return eventNotHandledErr;
@@ -472,7 +498,7 @@ eresized(int new)
 	CGDataProviderRef provider;
 	CGImageRef image;
 	CGColorSpaceRef cspace;
-	
+
 	GetWindowBounds(osx.window, kWindowContentRgn, &or);
 	r = Rect(or.left, or.top, or.right, or.bottom);
 	if(Dx(r) == Dx(osx.screenr) && Dy(r) == Dy(osx.screenr)){
@@ -561,38 +587,51 @@ _flushmemscreen(Rectangle r)
 }
 
 void
-fullscreen(void)
+activated(int active)
 {
-	static Ptr restore;
-	static WindowRef oldwindow;
-	GDHandle device;
-
-	qlock(&osx.flushlock);
-	if(osx.isfullscreen){
-		if(osx.windowctx){
-			QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
-			osx.windowctx = nil;
-		}
-		EndFullScreen(restore, 0);
-		osx.window = oldwindow;
-		ShowWindow(osx.window);
-		osx.isfullscreen = 0;
-	}else{
-		if(osx.windowctx){
-			QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
-			osx.windowctx = nil;
-		}
-		HideWindow(osx.window);
-		oldwindow = osx.window;
-		GetWindowGreatestAreaDevice(osx.window, kWindowTitleBarRgn, &device, nil);
-		BeginFullScreen(&restore, device, 0, 0, &osx.window, 0, 0);
-		osx.isfullscreen = 1;
-		osx.fullscreentime = msec();
-	}
-	qunlock(&osx.flushlock);
-	eresized(1);
+	osx.active = active;
 }
 
+void
+fullscreen(int wascmd)
+{
+	static OSXRect oldrect;
+	GDHandle device;
+	OSXRect dr;
+
+	if(!wascmd)
+		return;
+	
+	if(!osx.isfullscreen){
+		GetWindowGreatestAreaDevice(osx.window,
+			kWindowTitleBarRgn, &device, nil);
+		dr = (*device)->gdRect;
+		if(dr.top == 0 && dr.left == 0)
+			HideMenuBar();
+		GetWindowBounds(osx.window, kWindowContentRgn, &oldrect);
+		ChangeWindowAttributes(osx.window,
+			kWindowNoTitleBarAttribute,
+			kWindowResizableAttribute);
+		MoveWindow(osx.window, 0, 0, 1);
+		MoveWindow(osx.window, dr.left, dr.top, 0);
+		SizeWindow(osx.window,
+			dr.right - dr.left,
+			dr.bottom - dr.top, 0);
+		osx.isfullscreen = 1;
+	}else{
+		ShowMenuBar();
+		ChangeWindowAttributes(osx.window,
+			kWindowResizableAttribute,
+			kWindowNoTitleBarAttribute);
+		SizeWindow(osx.window,
+			oldrect.right - oldrect.left,
+			oldrect.bottom - oldrect.top, 0);
+		MoveWindow(osx.window, oldrect.left, oldrect.top, 0);
+		osx.isfullscreen = 0;
+	}
+	eresized(1);
+}
+		
 void
 setmouse(Point p)
 {

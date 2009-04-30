@@ -10,22 +10,34 @@ static int	tablesbuilt;
 #define RGB2K(r,g,b)	((156763*(r)+307758*(g)+59769*(b))>>19)
 
 /*
- * for 0 ≤ x ≤ 255*255, (x*0x0101+0x100)>>16 is a perfect approximation.
- * for 0 ≤ x < (1<<16), x/255 = ((x+1)*0x0101)>>16 is a perfect approximation.
- * the last one is perfect for all up to 1<<16, avoids a multiply, but requires a rathole.
+ * For 16-bit values, x / 255 == (t = x+1, (t+(t>>8)) >> 8).
+ * We add another 127 to round to the nearest value rather
+ * than truncate.
+ *
+ * CALCxy does x bytewise calculations on y input images (x=1,4; y=1,2).
+ * CALC2x does two parallel 16-bit calculations on y input images (y=1,2).
  */
-/* #define DIV255(x) (((x)*257+256)>>16)  */
-#define DIV255(x) ((((x)+1)*257)>>16)
-/* #define DIV255(x) (tmp=(x)+1, (tmp+(tmp>>8))>>8) */
+#define CALC11(a, v, tmp) \
+	(tmp=(a)*(v)+128, (tmp+(tmp>>8))>>8)
 
-#define MUL(x, y, t)	(t = (x)*(y)+128, (t+(t>>8))>>8)
-#define MASK13	0xFF00FF00
-#define MASK02	0x00FF00FF
-#define MUL13(a, x, t)		(t = (a)*(((x)&MASK13)>>8)+128, ((t+((t>>8)&MASK02))>>8)&MASK02)
-#define MUL02(a, x, t)		(t = (a)*(((x)&MASK02)>>0)+128, ((t+((t>>8)&MASK02))>>8)&MASK02)
-#define MUL0123(a, x, s, t)	((MUL13(a, x, s)<<8)|MUL02(a, x, t))
+#define CALC12(a1, v1, a2, v2, tmp) \
+	(tmp=(a1)*(v1)+(a2)*(v2)+128, (tmp+(tmp>>8))>>8)
 
-#define MUL2(u, v, x, y)	(t = (u)*(v)+(x)*(y)+256, (t+(t>>8))>>8)
+#define MASK 0xFF00FF
+
+#define CALC21(a, vvuu, tmp) \
+	(tmp=(a)*(vvuu)+0x00800080, ((tmp+((tmp>>8)&MASK))>>8)&MASK)
+
+#define CALC41(a, rgba, tmp1, tmp2) \
+	(CALC21(a, rgba & MASK, tmp1) | \
+	 (CALC21(a, (rgba>>8)&MASK, tmp2)<<8))
+
+#define CALC22(a1, vvuu1, a2, vvuu2, tmp) \
+	(tmp=(a1)*(vvuu1)+(a2)*(vvuu2)+0x00800080, ((tmp+((tmp>>8)&MASK))>>8)&MASK)
+
+#define CALC42(a1, rgba1, a2, rgba2, tmp1, tmp2) \
+	(CALC22(a1, rgba1 & MASK, a2, rgba2 & MASK, tmp1) | \
+	 (CALC22(a1, (rgba1>>8) & MASK, a2, (rgba2>>8) & MASK, tmp2)<<8))
 
 static void mktables(void);
 typedef int Subdraw(Memdrawparam*);
@@ -786,41 +798,85 @@ alphacalc0(Buffer bdst, Buffer b1, Buffer b2, int dx, int grey, int op)
 	return bdst;
 }
 
+/*
+ * Do the channels in the buffers match enough
+ * that we can do word-at-a-time operations
+ * on the pixels?
+ */
+static int
+chanmatch(Buffer *bdst, Buffer *bsrc)
+{
+	uchar *drgb, *srgb;
+	
+	/*
+	 * first, r, g, b must be in the same place
+	 * in the rgba word.
+	 */
+	drgb = (uchar*)bdst->rgba;
+	srgb = (uchar*)bsrc->rgba;
+	if(bdst->red - drgb != bsrc->red - srgb
+	|| bdst->blu - drgb != bsrc->blu - srgb
+	|| bdst->grn - drgb != bsrc->grn - srgb)
+		return 0;
+	
+	/*
+	 * that implies alpha is in the same place,
+	 * if it is there at all (it might be == &ones).
+	 * if the destination is &ones, we can scribble
+	 * over the rgba slot just fine.
+	 */
+	if(bdst->alpha == &ones)
+		return 1;
+	
+	/*
+	 * if the destination is not ones but the src is,
+	 * then the simultaneous calculation will use
+	 * bogus bytes from the src's rgba.  no good.
+	 */
+	if(bsrc->alpha == &ones)
+		return 0;
+	
+	/*
+	 * otherwise, alphas are in the same place.
+	 */
+	return 1;
+}
+
 static Buffer
 alphacalc14(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 {
 	Buffer obdst;
 	int fd, sadelta;
 	int i, sa, ma, q;
-	u32int s, t;
+	u32int t, t1;
 
 	obdst = bdst;
 	sadelta = bsrc.alpha == &ones ? 0 : bsrc.delta;
-	q = bsrc.delta == 4 && bdst.delta == 4;
+	q = bsrc.delta == 4 && bdst.delta == 4 && chanmatch(&bdst, &bsrc);
 
 	for(i=0; i<dx; i++){
 		sa = *bsrc.alpha;
 		ma = *bmask.alpha;
-		fd = MUL(sa, ma, t);
+		fd = CALC11(sa, ma, t);
 		if(op == DoutS)
 			fd = 255-fd;
 
 		if(grey){
-			*bdst.grey = MUL(fd, *bdst.grey, t);
+			*bdst.grey = CALC11(fd, *bdst.grey, t);
 			bsrc.grey += bsrc.delta;
 			bdst.grey += bdst.delta;
 		}else{
 			if(q){
-				*bdst.rgba = MUL0123(fd, *bdst.rgba, s, t);
+				*bdst.rgba = CALC41(fd, *bdst.rgba, t, t1);
 				bsrc.rgba++;
 				bdst.rgba++;
 				bsrc.alpha += sadelta;
 				bmask.alpha += bmask.delta;
 				continue;
 			}
-			*bdst.red = MUL(fd, *bdst.red, t);
-			*bdst.grn = MUL(fd, *bdst.grn, t);
-			*bdst.blu = MUL(fd, *bdst.blu, t);
+			*bdst.red = CALC11(fd, *bdst.red, t);
+			*bdst.grn = CALC11(fd, *bdst.grn, t);
+			*bdst.blu = CALC11(fd, *bdst.blu, t);
 			bsrc.red += bsrc.delta;
 			bsrc.blu += bsrc.delta;
 			bsrc.grn += bsrc.delta;
@@ -829,7 +885,7 @@ alphacalc14(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 			bdst.grn += bdst.delta;
 		}
 		if(bdst.alpha != &ones){
-			*bdst.alpha = MUL(fd, *bdst.alpha, t);
+			*bdst.alpha = CALC11(fd, *bdst.alpha, t);
 			bdst.alpha += bdst.delta;
 		}
 		bmask.alpha += bmask.delta;
@@ -844,11 +900,11 @@ alphacalc2810(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 	Buffer obdst;
 	int fs, sadelta;
 	int i, ma, da, q;
-	u32int s, t;
+	u32int t, t1;
 
 	obdst = bdst;
 	sadelta = bsrc.alpha == &ones ? 0 : bsrc.delta;
-	q = bsrc.delta == 4 && bdst.delta == 4;
+	q = bsrc.delta == 4 && bdst.delta == 4 && chanmatch(&bdst, &bsrc);
 
 	for(i=0; i<dx; i++){
 		ma = *bmask.alpha;
@@ -857,24 +913,24 @@ alphacalc2810(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 			da = 255-da;
 		fs = ma;
 		if(op != S)
-			fs = MUL(fs, da, t);
+			fs = CALC11(fs, da, t);
 
 		if(grey){
-			*bdst.grey = MUL(fs, *bsrc.grey, t);
+			*bdst.grey = CALC11(fs, *bsrc.grey, t);
 			bsrc.grey += bsrc.delta;
 			bdst.grey += bdst.delta;
 		}else{
 			if(q){
-				*bdst.rgba = MUL0123(fs, *bsrc.rgba, s, t);
+				*bdst.rgba = CALC41(fs, *bsrc.rgba, t, t1);
 				bsrc.rgba++;
 				bdst.rgba++;
 				bmask.alpha += bmask.delta;
 				bdst.alpha += bdst.delta;
 				continue;
 			}
-			*bdst.red = MUL(fs, *bsrc.red, t);
-			*bdst.grn = MUL(fs, *bsrc.grn, t);
-			*bdst.blu = MUL(fs, *bsrc.blu, t);
+			*bdst.red = CALC11(fs, *bsrc.red, t);
+			*bdst.grn = CALC11(fs, *bsrc.grn, t);
+			*bdst.blu = CALC11(fs, *bsrc.blu, t);
 			bsrc.red += bsrc.delta;
 			bsrc.blu += bsrc.delta;
 			bsrc.grn += bsrc.delta;
@@ -883,7 +939,7 @@ alphacalc2810(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 			bdst.grn += bdst.delta;
 		}
 		if(bdst.alpha != &ones){
-			*bdst.alpha = MUL(fs, *bsrc.alpha, t);
+			*bdst.alpha = CALC11(fs, *bsrc.alpha, t);
 			bdst.alpha += bdst.delta;
 		}
 		bmask.alpha += bmask.delta;
@@ -898,35 +954,35 @@ alphacalc3679(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 	Buffer obdst;
 	int fs, fd, sadelta;
 	int i, sa, ma, da, q;
-	u32int s, t, u, v;
+	u32int t, t1;
 
 	obdst = bdst;
 	sadelta = bsrc.alpha == &ones ? 0 : bsrc.delta;
-	q = bsrc.delta == 4 && bdst.delta == 4;
+	q = bsrc.delta == 4 && bdst.delta == 4 && chanmatch(&bdst, &bsrc);
 
 	for(i=0; i<dx; i++){
 		sa = *bsrc.alpha;
 		ma = *bmask.alpha;
 		da = *bdst.alpha;
 		if(op == SatopD)
-			fs = MUL(ma, da, t);
+			fs = CALC11(ma, da, t);
 		else
-			fs = MUL(ma, 255-da, t);
+			fs = CALC11(ma, 255-da, t);
 		if(op == DoverS)
 			fd = 255;
 		else{
-			fd = MUL(sa, ma, t);
+			fd = CALC11(sa, ma, t);
 			if(op != DatopS)
 				fd = 255-fd;
 		}
 
 		if(grey){
-			*bdst.grey = MUL(fs, *bsrc.grey, s)+MUL(fd, *bdst.grey, t);
+			*bdst.grey = CALC12(fs, *bsrc.grey, fd, *bdst.grey, t);
 			bsrc.grey += bsrc.delta;
 			bdst.grey += bdst.delta;
 		}else{
 			if(q){
-				*bdst.rgba = MUL0123(fs, *bsrc.rgba, s, t)+MUL0123(fd, *bdst.rgba, u, v);
+				*bdst.rgba = CALC42(fs, *bsrc.rgba, fd, *bdst.rgba, t, t1);
 				bsrc.rgba++;
 				bdst.rgba++;
 				bsrc.alpha += sadelta;
@@ -934,9 +990,9 @@ alphacalc3679(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 				bdst.alpha += bdst.delta;
 				continue;
 			}
-			*bdst.red = MUL(fs, *bsrc.red, s)+MUL(fd, *bdst.red, t);
-			*bdst.grn = MUL(fs, *bsrc.grn, s)+MUL(fd, *bdst.grn, t);
-			*bdst.blu = MUL(fs, *bsrc.blu, s)+MUL(fd, *bdst.blu, t);
+			*bdst.red = CALC12(fs, *bsrc.red, fd, *bdst.red, t);
+			*bdst.grn = CALC12(fs, *bsrc.grn, fd, *bdst.grn, t);
+			*bdst.blu = CALC12(fs, *bsrc.blu, fd, *bdst.blu, t);
 			bsrc.red += bsrc.delta;
 			bsrc.blu += bsrc.delta;
 			bsrc.grn += bsrc.delta;
@@ -945,7 +1001,7 @@ alphacalc3679(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 			bdst.grn += bdst.delta;
 		}
 		if(bdst.alpha != &ones){
-			*bdst.alpha = MUL(fs, sa, s)+MUL(fd, da, t);
+			*bdst.alpha = CALC12(fs, sa, fd, da, t);
 			bdst.alpha += bdst.delta;
 		}
 		bmask.alpha += bmask.delta;
@@ -969,34 +1025,34 @@ alphacalc11(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 	Buffer obdst;
 	int fd, sadelta;
 	int i, sa, ma, q;
-	u32int s, t, u, v;
+	u32int t, t1;
 
 	USED(op);
 	obdst = bdst;
 	sadelta = bsrc.alpha == &ones ? 0 : bsrc.delta;
-	q = bsrc.delta == 4 && bdst.delta == 4;
+	q = bsrc.delta == 4 && bdst.delta == 4 && chanmatch(&bdst, &bsrc);
 
 	for(i=0; i<dx; i++){
 		sa = *bsrc.alpha;
 		ma = *bmask.alpha;
-		fd = 255-MUL(sa, ma, t);
+		fd = 255-CALC11(sa, ma, t);
 
 		if(grey){
-			*bdst.grey = MUL(ma, *bsrc.grey, s)+MUL(fd, *bdst.grey, t);
+			*bdst.grey = CALC12(ma, *bsrc.grey, fd, *bdst.grey, t);
 			bsrc.grey += bsrc.delta;
 			bdst.grey += bdst.delta;
 		}else{
 			if(q){
-				*bdst.rgba = MUL0123(ma, *bsrc.rgba, s, t)+MUL0123(fd, *bdst.rgba, u, v);
+				*bdst.rgba = CALC42(ma, *bsrc.rgba, fd, *bdst.rgba, t, t1);
 				bsrc.rgba++;
 				bdst.rgba++;
 				bsrc.alpha += sadelta;
 				bmask.alpha += bmask.delta;
 				continue;
 			}
-			*bdst.red = MUL(ma, *bsrc.red, s)+MUL(fd, *bdst.red, t);
-			*bdst.grn = MUL(ma, *bsrc.grn, s)+MUL(fd, *bdst.grn, t);
-			*bdst.blu = MUL(ma, *bsrc.blu, s)+MUL(fd, *bdst.blu, t);
+			*bdst.red = CALC12(ma, *bsrc.red, fd, *bdst.red, t);
+			*bdst.grn = CALC12(ma, *bsrc.grn, fd, *bdst.grn, t);
+			*bdst.blu = CALC12(ma, *bsrc.blu, fd, *bdst.blu, t);
 			bsrc.red += bsrc.delta;
 			bsrc.blu += bsrc.delta;
 			bsrc.grn += bsrc.delta;
@@ -1005,7 +1061,7 @@ alphacalc11(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 			bdst.grn += bdst.delta;
 		}
 		if(bdst.alpha != &ones){
-			*bdst.alpha = MUL(ma, sa, s)+MUL(fd, *bdst.alpha, t);
+			*bdst.alpha = CALC12(ma, sa, fd, *bdst.alpha, t);
 			bdst.alpha += bdst.delta;
 		}
 		bmask.alpha += bmask.delta;
@@ -1061,7 +1117,7 @@ alphacalcS(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 	Buffer obdst;
 	int fd;
 	int i, ma;
-	u32int s, t;
+	u32int t;
 
 	USED(op);
 	obdst = bdst;
@@ -1071,13 +1127,13 @@ alphacalcS(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 		fd = 255-ma;
 
 		if(grey){
-			*bdst.grey = MUL(ma, *bsrc.grey, s)+MUL(fd, *bdst.grey, t);
+			*bdst.grey = CALC12(ma, *bsrc.grey, fd, *bdst.grey, t);
 			bsrc.grey += bsrc.delta;
 			bdst.grey += bdst.delta;
 		}else{
-			*bdst.red = MUL(ma, *bsrc.red, s)+MUL(fd, *bdst.red, t);
-			*bdst.grn = MUL(ma, *bsrc.grn, s)+MUL(fd, *bdst.grn, t);
-			*bdst.blu = MUL(ma, *bsrc.blu, s)+MUL(fd, *bdst.blu, t);
+			*bdst.red = CALC12(ma, *bsrc.red, fd, *bdst.red, t);
+			*bdst.grn = CALC12(ma, *bsrc.grn, fd, *bdst.grn, t);
+			*bdst.blu = CALC12(ma, *bsrc.blu, fd, *bdst.blu, t);
 			bsrc.red += bsrc.delta;
 			bsrc.blu += bsrc.delta;
 			bsrc.grn += bsrc.delta;
@@ -1086,7 +1142,7 @@ alphacalcS(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 			bdst.grn += bdst.delta;
 		}
 		if(bdst.alpha != &ones){
-			*bdst.alpha = ma+MUL(fd, *bdst.alpha, t);
+			*bdst.alpha = ma+CALC11(fd, *bdst.alpha, t);
 			bdst.alpha += bdst.delta;
 		}
 		bmask.alpha += bmask.delta;
@@ -1133,7 +1189,7 @@ boolcalc236789(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 	Buffer obdst;
 	int fs, fd;
 	int i, ma, da, zero;
-	u32int s, t;
+	u32int t;
 
 	obdst = bdst;
 	zero = !(op&1);
@@ -1150,16 +1206,16 @@ boolcalc236789(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 
 		if(grey){
 			if(ma)
-				*bdst.grey = MUL(fs, *bsrc.grey, s)+MUL(fd, *bdst.grey, t);
+				*bdst.grey = CALC12(fs, *bsrc.grey, fd, *bdst.grey, t);
 			else if(zero)
 				*bdst.grey = 0;
 			bsrc.grey += bsrc.delta;
 			bdst.grey += bdst.delta;
 		}else{
 			if(ma){
-				*bdst.red = MUL(fs, *bsrc.red, s)+MUL(fd, *bdst.red, t);
-				*bdst.grn = MUL(fs, *bsrc.grn, s)+MUL(fd, *bdst.grn, t);
-				*bdst.blu = MUL(fs, *bsrc.blu, s)+MUL(fd, *bdst.blu, t);
+				*bdst.red = CALC12(fs, *bsrc.red, fd, *bdst.red, t);
+				*bdst.grn = CALC12(fs, *bsrc.grn, fd, *bdst.grn, t);
+				*bdst.blu = CALC12(fs, *bsrc.blu, fd, *bdst.blu, t);
 			}
 			else if(zero)
 				*bdst.red = *bdst.grn = *bdst.blu = 0;
@@ -1173,7 +1229,7 @@ boolcalc236789(Buffer bdst, Buffer bsrc, Buffer bmask, int dx, int grey, int op)
 		bmask.alpha += bmask.delta;
 		if(bdst.alpha != &ones){
 			if(ma)
-				*bdst.alpha = fs+MUL(fd, da, t);
+				*bdst.alpha = fs+CALC11(fd, da, t);
 			else if(zero)
 				*bdst.alpha = 0;
 			bdst.alpha += bdst.delta;

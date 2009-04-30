@@ -734,6 +734,11 @@ texttype(Text *t, Rune r)
 			q0++;
 		textshow(t, q0, q0, TRUE);
 		return;
+	case Kcmd+'c':	/* %C: copy */
+		typecommit(t);
+		cut(t, t, nil, TRUE, FALSE, nil, 0);
+		return;
+
 	Tagdown:
 		/* expand tag to show all text */
 		if(!t->w->tagexpand){
@@ -754,6 +759,27 @@ texttype(Text *t, Rune r)
 	if(t->what == Body){
 		seq++;
 		filemark(t->file);
+	}
+	/* cut/paste must be done after the seq++/filemark */
+	switch(r){
+	case Kcmd+'x':	/* %X: cut */
+		typecommit(t);
+		if(t->what == Body){
+			seq++;
+			filemark(t->file);
+		}
+		cut(t, t, nil, TRUE, TRUE, nil, 0);
+		textshow(t, t->q0, t->q0, 1);
+		return;
+	case Kcmd+'v':	/* %V: paste */
+		typecommit(t);
+		if(t->what == Body){
+			seq++;
+			filemark(t->file);
+		}
+		paste(t, t, nil, TRUE, FALSE, nil, 0);
+		textshow(t, t->q0, t->q1, 1);
+		return;
 	}
 	if(t->q1 > t->q0){
 		if(t->ncache != 0)

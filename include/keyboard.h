@@ -32,7 +32,9 @@ enum {
 
 	Kalt=		KF|0x15,
 	Kshift=	KF|0x16,
-	Kctl=		KF|0x17
+	Kctl=		KF|0x17,
+	
+	Kcmd=	0xF100	/* Rune: beginning of Cmd+'a', Cmd+'A', etc on Mac */
 };
 
 #if defined(__cplusplus)
