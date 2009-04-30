@@ -1091,7 +1091,7 @@ dostat(SmugFid *sf, Qid *qid, Dir *dir)
 		dir->muid = estrdup9p("muid");
 		mode |= q.type<<24;
 		if(mode & DMDIR)
-			mode |= 0555;
+			mode |= 0755;
 		dir->mode = mode;
 		dir->uid = estrdup9p(uid);
 		dir->gid = estrdup9p("smugfs");
