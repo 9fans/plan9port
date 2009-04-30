@@ -90,7 +90,7 @@ struct	Header
 	float	xi;
 	float	eta;
 };
-typedef	long	Type;
+typedef	int32	Type;
 
 typedef struct	Image	Image;
 struct	Image

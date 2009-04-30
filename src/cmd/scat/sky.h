@@ -1,3 +1,5 @@
+typedef s32int int32;
+
 #define DIR	"#9/sky"
 /*
  *	This code reflects many years of changes.  There remain residues
@@ -135,9 +137,9 @@ enum
 #define	NPlanet			20
 
 typedef float	Angle;	/* in radians */
-typedef long	DAngle;	/* on disk: in units of milliarcsec */
+typedef int32	DAngle;	/* on disk: in units of milliarcsec */
 typedef short	Mag;	/* multiplied by 10 */
-typedef long	Key;	/* known to be 4 bytes, unfortunately */
+typedef int32	Key;	/* known to be 4 bytes, unfortunately */
 
 /*
  * All integers are stored in little-endian order.
@@ -203,7 +205,7 @@ struct SAOrec{
 	char	compid[2];
 	char	hdcode;
 	char	pad1;
-	long	hd;		/* HD catalog number */
+	int32	hd;		/* HD catalog number */
 	char	name[3];	/* name[0]=alpha name[1]=2 name[3]=ori */
 	char	nname;		/* number of prose names */
 	/* 36 bytes to here */
@@ -218,7 +220,7 @@ struct Mindexrec{	/* code knows the bit patterns in here; this is a long */
 
 typedef struct Bayerec Bayerec;
 struct Bayerec{
-	long	sao;
+	int32	sao;
 	char	name[3];
 	char	pad;
 };
@@ -234,22 +236,22 @@ struct Namedrec{
 
 typedef struct Namerec Namerec;
 struct Namerec{
-	long	sao;
-	long	ngc;
-	long	abell;
+	int32	sao;
+	int32	ngc;
+	int32	abell;
 	char	name[36];	/* null terminated */
 };
 
 typedef struct Patchrec Patchrec;
 struct Patchrec{
 	int	nkey;
-	long	key[60];
+	int32	key[60];
 };
 
 typedef struct Record Record;
 struct Record{
 	Type	type;
-	long	index;
+	int32	index;
 	union{
 		SAOrec	sao;
 		NGCrec	ngc;
@@ -287,7 +289,7 @@ struct	Header
 	float	xi;
 	float	eta;
 };
-typedef	long	Pix;
+typedef	int32	Pix;
 
 typedef struct	Img Img;
 struct	Img
@@ -340,7 +342,7 @@ extern	char	*progname;
 extern	char	*desctab[][2];
 extern	Name	names[];
 extern	Record	*rec;
-extern	long		nrec;
+extern	int32		nrec;
 extern	Planetrec	*planet;
 /* for bbox: */
 extern	int		folded;
@@ -365,8 +367,8 @@ extern int equal(char*, char*);
 extern int parsename(char*);
 extern void radec(int, int*, int*, int*);
 extern int btag(short);
-extern long patcha(Angle, Angle);
-extern long patch(int, int, int);
+extern int32 patcha(Angle, Angle);
+extern int32 patch(int, int, int);
 extern char*hms(Angle);
 extern char*dms(Angle);
 extern char*ms(Angle);
@@ -374,7 +376,7 @@ extern char*hm(Angle);
 extern char*dm(Angle);
 extern char*deg(Angle);
 extern char*hm5(Angle);
-extern long dangle(Angle);
+extern int32 dangle(Angle);
 extern Angle angle(DAngle);
 extern void prdesc(char*, char*(*)[2], short*);
 extern double	xsqrt(double);
@@ -406,7 +408,7 @@ extern void	astro(char*, int);
 extern char*	alpha(char*, char*);
 extern char*	skipbl(char*);
 extern void	flatten(void);
-extern int		bbox(long, long, int);
+extern int		bbox(int32, int32, int);
 extern int		inbbox(DAngle, DAngle);
 extern char*	nameof(Record*);
 

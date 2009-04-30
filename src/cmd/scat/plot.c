@@ -10,8 +10,8 @@
 #include "sky.h"
 
 	/* convert to milliarcsec */
-static long	c = MILLIARCSEC;	/* 1 degree */
-static long	m5 = 1250*60*60;	/* 5 minutes of ra */
+static int32	c = MILLIARCSEC;	/* 1 degree */
+static int32	m5 = 1250*60*60;	/* 5 minutes of ra */
 
 DAngle	ramin;
 DAngle	ramax;
@@ -40,8 +40,8 @@ Image	*cometcolor;
 
 Planetrec	*planet;
 
-long	mapx0, mapy0;
-long	mapra, mapdec;
+int32	mapx0, mapy0;
+int32	mapra, mapdec;
 double	mylat, mylon, mysid;
 double	mapscale;
 double	maps;
@@ -235,7 +235,7 @@ heavens(double zlatdeg, double zlondeg, double clatdeg, double clondeg))(struct 
 }
 
 int
-maptoxy(long ra, long dec, double *x, double *y)
+maptoxy(int32 ra, int32 dec, double *x, double *y)
 {
 	double lat, lon;
 	struct place pl;
@@ -255,7 +255,7 @@ maptoxy(long ra, long dec, double *x, double *y)
 /* end of 'heavens' section */
 
 int
-setmap(long ramin, long ramax, long decmin, long decmax, Rectangle r, int zenithup)
+setmap(int32 ramin, int32 ramax, int32 decmin, int32 decmax, Rectangle r, int zenithup)
 {
 	int c;
 	double minx, maxx, miny, maxy;
@@ -298,7 +298,7 @@ setmap(long ramin, long ramax, long decmin, long decmax, Rectangle r, int zenith
 }
 
 Point
-map(long ra, long dec)
+map(int32 ra, int32 dec)
 {
 	double x, y;
 	Point p;
@@ -456,7 +456,7 @@ tolast(char *name)
 }
 
 int
-bbox(long extrara, long extradec, int quantize)
+bbox(int32 extrara, int32 extradec, int quantize)
 {
 	int i;
 	Record *r;
@@ -566,7 +566,7 @@ inbbox(DAngle ra, DAngle dec)
 }
 
 int
-gridra(long mapdec)
+gridra(int32 mapdec)
 {
 	mapdec = abs(mapdec)+c/2;
 	mapdec /= c;
@@ -586,7 +586,7 @@ plot(char *flags)
 {
 	int i, j, k;
 	char *t;
-	long x, y;
+	int32 x, y;
 	int ra, dec;
 	int m;
 	Point p, pts[10];

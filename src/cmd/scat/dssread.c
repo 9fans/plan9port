@@ -4,7 +4,7 @@
 #include	"sky.h"
 
 static	void	dodecode(Biobuf*, Pix*, int, int, uchar*);
-static	long	getlong(uchar*);
+static	int32	getlong(uchar*);
 int	debug;
 
 Img*
@@ -107,7 +107,7 @@ dodecode(Biobuf *infile, Pix  *a, int nx, int ny, uchar *nbitplanes)
 }
 
 static
-long	getlong(uchar *p)
+int32	getlong(uchar *p)
 {
 	return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
