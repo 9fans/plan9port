@@ -78,7 +78,7 @@ if(~ $get aesget && ~ $#* 0){
 
 user=`{whoami}
 cd /tmp || exit $status
-tmp=`{df | awk '$1=="tmpfs" {print $NF}'}
+tmp=`{df | grep -v /lib/init | awk '$1=="tmpfs" {print $NF}'}
 if(! ~ $#tmp 0)
 	cd $tmp(1) || exit $status
 mkdir -p ipso.$user
