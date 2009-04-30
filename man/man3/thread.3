@@ -3,7 +3,6 @@
 alt,
 chancreate,
 chanfree,
-chaninit,
 chanprint,
 chansetname,
 mainstacksize,
@@ -105,7 +104,6 @@ char*	threadgetname(void)
 void**	threaddata(void)
 void**	procdata(void)
 .XX
-int	chaninit(Channel *c, int elsize, int nel)
 Channel*	chancreate(int elsize, int nel)
 void	chanfree(Channel *c)
 .XX
@@ -449,9 +447,8 @@ operation blocks until the corresponding
 .I recv
 operation occurs and
 .IR "vice versa" .
-.I Chaninit
-initializes a 
-.B Channel
+.IR Chancreate
+allocates a new channel 
 for messages of size
 .I elsize 
 and with a buffer holding
@@ -460,8 +457,6 @@ messages.
 If
 .I nel
 is zero, the channel is unbuffered.
-.IR Chancreate
-allocates a new channel and initializes it.
 .I Chanfree
 frees a channel that is no longer used.
 .I Chanfree

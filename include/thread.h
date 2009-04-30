@@ -107,7 +107,6 @@ struct Channel
 int		chanalt(Alt *alts);
 Channel*	chancreate(int elemsize, int elemcnt);
 void		chanfree(Channel *c);
-int		chaninit(Channel *c, int elemsize, int elemcnt);
 int		channbrecv(Channel *c, void *v);
 void*		channbrecvp(Channel *c);
 ulong		channbrecvul(Channel *c);
