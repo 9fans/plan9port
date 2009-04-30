@@ -1132,6 +1132,8 @@ mkprecode(Huff *tab, ulong *count, int n, int maxbits, ulong *bitcount)
 	Chain *c;
 	int i, m, em, bits;
 
+	memset(&cs, 0, sizeof cs);
+
 	/*
 	 * set up the sorted list of leaves
 	 */
