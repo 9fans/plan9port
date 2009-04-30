@@ -26,7 +26,7 @@ displaypic(Picture *pic)
 		dup(p[0], 0);
 		close(p[0]);
 	/*	execl("/bin/page", "page", "-w", 0); */
-		execlp("img", "img", 0);
+		execlp("img", "img", nil);
 		fprint(2, "exec failed: %r\n");
 		exits("exec");
 
@@ -43,7 +43,7 @@ displaypic(Picture *pic)
 				i = n;
 			if(write(p[1], a, i)!=i)
 				fprint(2, "write error: %r\n");
-		/*	if(i == 8192)	/* page aligned */ */
+		/*	if(i == 8192)	/* page aligned */
 		/*		segfree(a, i); */
 			n -= i;
 			a += i;
@@ -73,7 +73,7 @@ displayimage(Image *im)
 		close(p[1]);
 		dup(p[0], 0);
 		close(p[0]);
-		execlp("img", "img", 0);
+		execlp("img", "img", nil);
 	/*	execl("/bin/page", "page", "-w", 0); */
 		fprint(2, "exec failed: %r\n");
 		exits("exec");
