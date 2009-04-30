@@ -1,3 +1,6 @@
+
+
+
 /*
     This file defines the kernel interface of FUSE
     Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
@@ -61,13 +64,13 @@ struct fuse_attr {
 	__u64	atime;
 	__u64	mtime;
 	__u64	ctime;
-#if (__FreeBSD__ >= 10)
+#if (__FreeBSD__ >= 10 && __OSX_VERSION__ >= 100500)
 	__u64	crtime;
 #endif /* __FreeBSD__ >= 10 */
 	__u32	atimensec;
 	__u32	mtimensec;
 	__u32	ctimensec;
-#if (__FreeBSD__ >= 10)
+#if (__FreeBSD__ >= 10 && __OSX_VERSION__ >= 100500)
 	__u32	crtimensec;
 #endif /* __FreeBSD__ >= 10 */
 	__u32	mode;
@@ -77,6 +80,9 @@ struct fuse_attr {
 	__u32	rdev;
 #if (__FreeBSD__ >= 10)
 	__u32	flags; /* file flags; see chflags(2) */
+#if __OSX_VERSION__ < 100500
+	__u32	padding;
+#endif /* __OSX_VERSION__ < 100500 */
 #endif /* __FreeBSD__ >= 10 */
 };
 

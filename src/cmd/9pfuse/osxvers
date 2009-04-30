@@ -1,0 +1,7 @@
+#!/bin/sh
+
+u=`uname`
+case "$u" in
+Darwin)
+	sw_vers | awk '$1 == "ProductVersion:" {print $2}' | awk -F. '{printf("CFLAGS=$CFLAGS -DOSX_VERSION=%d%02d%02d\n", $1, $2, $3)}'
+esac
