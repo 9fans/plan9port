@@ -394,9 +394,9 @@
 2022  bu          •	bullet
 203D  !? ?!       ‽	interrobang
 2070  s0          ⁰	superscript digit zero
-2071  s1          ⁱ	superscript digit one
-2072  s2          ⁲	superscript digit two
-2073  s3          ⁳	superscript digit three
+00B9  s1          ⁱ	superscript digit one
+00B2  s2          ⁲	superscript digit two
+00B3  s3          ⁳	superscript digit three
 2074  s4          ⁴	superscript digit four
 2075  s5          ⁵	superscript digit five
 2076  s6          ⁶	superscript digit six
