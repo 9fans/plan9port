@@ -80,6 +80,7 @@ enum
 };
 
 void screeninit(void);
+void _flushmemscreen(Rectangle r);
 
 Memimage*
 attachscreen(char *label, char *winsize)
@@ -126,7 +127,7 @@ _screeninit(void)
 		CFSTR("Full Screen"), 0, CmdFullScreen, &ix);
 	SetMenuItemCommandKey(osx.vmenu, ix, 0, 'F');
 	AppendMenuItemTextWithCFString(osx.vmenu,
-		CFSTR("Ctl-Opt exits full screen"),
+		CFSTR("Cmd-F exits full screen"),
 		kMenuItemAttrDisabled, CmdFullScreen, &ix);
 	InsertMenu(osx.vmenu, GetMenuID(osx.wmenu));
 	DrawMenuBar();
@@ -165,6 +166,7 @@ _screeninit(void)
 		{ kEventClassWindow, kEventWindowDeactivated },
 	};
 	const EventTypeSpec events[] = {
+		{ kEventClassApplication, kEventAppShown },
 		{ kEventClassKeyboard, kEventRawKeyDown },
 		{ kEventClassKeyboard, kEventRawKeyModifiersChanged },
 		{ kEventClassKeyboard, kEventRawKeyRepeat },
@@ -244,6 +246,11 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 	result = CallNextEventHandler(next, event);
 
 	switch(GetEventClass(event)){
+	case kEventClassApplication:;
+		Rectangle r = Rect(0, 0, Dx(osx.screenr), Dy(osx.screenr));
+		_flushmemscreen(r);
+		return eventNotHandledErr;
+
 	case kEventClassKeyboard:
 		return kbdevent(event);
 	
@@ -267,7 +274,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 		}
 		break;
 	
-	case kEventClassWindow:;
+	case kEventClassWindow:
 		switch(GetEventKind(event)){
 		case kEventWindowClosed:
 			exit(0);
