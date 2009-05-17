@@ -1,5 +1,5 @@
 <$PLAN9/src/mkhdr
-<|osxvers
+<|./osxvers
 
 TARG=9pfuse
 
