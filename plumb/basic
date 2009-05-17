@@ -95,10 +95,10 @@ attr add	addr=$3
 plumb to edit
 plumb client $editor
 
-# .m files are looked up in /sys/module and passed to edit
+# .m files are looked up in /usr/inferno/module and passed to edit
 type is text
 data matches '([a-zA-Z¡-￿0-9/_\-]+\.m)('$addr')?'
-arg isfile	/sys/module/$1
+arg isfile	/usr/inferno/module/$1
 data set	$file
 attr add	addr=$3
 plumb to edit
