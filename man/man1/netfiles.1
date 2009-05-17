@@ -125,3 +125,11 @@ plumb client Netfiles
 .IR acme (4),
 .IR factotum (4),
 .HR http://v9fs.sf.net
+.SH BUGS
+.I Netfiles
+depends on
+.IR sftpcache (1),
+which only works with OpenSSH versions 4.3 and earlier;
+later versions do not print the
+.B sftp>
+prompt frequently enough.
