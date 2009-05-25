@@ -5,6 +5,12 @@
 #include <libsec.h>
 #include <thread.h>
 
+enum
+{
+	// XXX What to do here?
+	VtMaxLumpSize = 65536,
+};
+
 VtConn *z;
 char *host;
 

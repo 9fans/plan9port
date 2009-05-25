@@ -6,11 +6,35 @@
 static int
 checksize(int n)
 {
-	if(n < 256 || n > VtMaxLumpSize) {
+	if(n < 256) {
 		werrstr("bad block size %#ux", n);
 		return -1;
 	}
 	return 0;
+}
+
+// _VtEntryBig integer format is floating-point:
+// (n>>5) << (n&31).
+// Convert this number; must be exact or return -1.
+int
+vttobig(ulong n)
+{
+	int shift;
+	ulong n0;
+	
+	n0 = n;
+	shift = 0;
+	while(n >= (1<<(16 - 5))) {
+		if(n & 1)
+			return -1;
+		shift++;
+		n >>= 1;
+	}
+	
+	n = (n<<5) | shift;
+	if(((n>>5)<<(n&31)) != n0)
+		sysfatal("vttobig %#lux => %#lux failed", n0, n);
+	return n;
 }
 
 void
@@ -20,21 +44,31 @@ vtentrypack(VtEntry *e, uchar *p, int index)
 	int flags;
 	uchar *op;
 	int depth;
+	int psize, dsize;
 
 	p += index * VtEntrySize;
 	op = p;
 
-	U32PUT(p, e->gen);
-	p += 4;
-	U16PUT(p, e->psize);
-	p += 2;
-	U16PUT(p, e->dsize);
-	p += 2;
 	depth = e->type&VtTypeDepthMask;
 	flags = (e->flags&~(_VtEntryDir|_VtEntryDepthMask));
 	flags |= depth << _VtEntryDepthShift;
 	if(e->type - depth == VtDirType)
 		flags |= _VtEntryDir;
+	U32PUT(p, e->gen);
+	p += 4;
+	psize = e->psize;
+	dsize = e->dsize;
+	if(psize >= (1<<16) || dsize >= (1<<16)) {
+		flags |= _VtEntryBig;
+		psize = vttobig(psize);
+		dsize = vttobig(dsize);
+		if(psize < 0 || dsize < 0)
+			sysfatal("invalid entry psize/dsize: %d/%d", e->psize, e->dsize);
+	}
+	U16PUT(p, psize);
+	p += 2;
+	U16PUT(p, dsize);
+	p += 2;
 	U8PUT(p, flags);
 	p++;
 	memset(p, 0, 5);
@@ -62,10 +96,14 @@ vtentryunpack(VtEntry *e, uchar *p, int index)
 	e->dsize = U16GET(p);
 	p += 2;
 	e->flags = U8GET(p);
+	p++;
+	if(e->flags & _VtEntryBig) {
+		e->psize = (e->psize>>5)<<(e->psize & 31);
+		e->dsize = (e->dsize>>5)<<(e->dsize & 31);
+	}
 	e->type = (e->flags&_VtEntryDir) ? VtDirType : VtDataType;
 	e->type += (e->flags & _VtEntryDepthMask) >> _VtEntryDepthShift;
-	e->flags &= ~(_VtEntryDir|_VtEntryDepthMask);
-	p++;
+	e->flags &= ~(_VtEntryDir|_VtEntryDepthMask|_VtEntryBig);
 	p += 5;
 	e->size = U48GET(p);
 	p += 6;

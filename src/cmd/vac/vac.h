@@ -97,9 +97,9 @@ struct VacFs
 	VtCache	*cache;
 };
 
-VacFs	*vacfsopen(VtConn *z, char *file, int mode, int ncache);
-VacFs	*vacfsopenscore(VtConn *z, u8int *score, int mode, int ncache);
-VacFs	*vacfscreate(VtConn *z, int bsize, int ncache);
+VacFs	*vacfsopen(VtConn *z, char *file, int mode, ulong cachemem);
+VacFs	*vacfsopenscore(VtConn *z, u8int *score, int mode, ulong cachemem);
+VacFs	*vacfscreate(VtConn *z, int bsize, ulong cachemem);
 void		vacfsclose(VacFs *fs);
 int		vacfssync(VacFs *fs);
 int		vacfssnapshot(VacFs *fs, char *src, char *dst);

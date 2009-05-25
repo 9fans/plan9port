@@ -32,7 +32,6 @@ struct VtCache
 {
 	QLock	lk;
 	VtConn	*z;
-	u32int	blocksize;
 	u32int	now;		/* ticks for usage time stamps */
 	VtBlock	**hash;	/* hash table for finding addresses */
 	int		nhash;
@@ -40,41 +39,45 @@ struct VtCache
 	int		nheap;
 	VtBlock	*block;	/* all allocated blocks */
 	int		nblock;
-	uchar	*mem;	/* memory for all blocks and data */
 	int		(*write)(VtConn*, uchar[VtScoreSize], uint, uchar*, int);
+	VtBlock	*dead;	/* blocks we don't have memory for */
+	ulong	mem;
+	ulong	maxmem;
 };
 
 static void cachecheck(VtCache*);
 
 VtCache*
-vtcachealloc(VtConn *z, int blocksize, ulong nblock)
+vtcachealloc(VtConn *z, ulong maxmem)
 {
-	uchar *p;
 	VtCache *c;
 	int i;
+	int nblock;
 	VtBlock *b;
+	ulong maxmem0;
 
+	maxmem0 = maxmem;
 	c = vtmallocz(sizeof(VtCache));
-
+	nblock = maxmem/100/(sizeof(VtBlock)+2*sizeof(VtBlock*));
 	c->z = z;
-	c->blocksize = (blocksize + 127) & ~127;
 	c->nblock = nblock;
 	c->nhash = nblock;
 	c->hash = vtmallocz(nblock*sizeof(VtBlock*));
 	c->heap = vtmallocz(nblock*sizeof(VtBlock*));
 	c->block = vtmallocz(nblock*sizeof(VtBlock));
-	c->mem = vtmallocz(nblock*c->blocksize);
 	c->write = vtwrite;
+	maxmem -= nblock*(sizeof(VtBlock) + 2*sizeof(VtBlock*));
+	maxmem -= sizeof(VtCache);
+	if((long)maxmem < 0)
+		sysfatal("cache size far too small: %lud", maxmem0);
+	c->mem = maxmem;
 
-	p = c->mem;
 	for(i=0; i<nblock; i++){
 		b = &c->block[i];
 		b->addr = NilBlock;
 		b->c = c;
-		b->data = p;
 		b->heap = i;
 		c->heap[i] = b;
-		p += c->blocksize;
 	}
 	c->nheap = nblock;
 	cachecheck(c);
@@ -102,13 +105,14 @@ vtcachefree(VtCache *c)
 	qlock(&c->lk);
 
 	cachecheck(c);
-	for(i=0; i<c->nblock; i++)
+	for(i=0; i<c->nblock; i++) {
 		assert(c->block[i].ref == 0);
+		vtfree(c->block[i].data);
+	}
 
 	vtfree(c->hash);
 	vtfree(c->heap);
 	vtfree(c->block);
-	vtfree(c->mem);
 	vtfree(c);
 }
 
@@ -128,11 +132,10 @@ vtcachedump(VtCache *c)
 static void
 cachecheck(VtCache *c)
 {
-	u32int size, now;
+	u32int now;
 	int i, k, refed;
 	VtBlock *b;
 
-	size = c->blocksize;
 	now = c->now;
 
 	for(i = 0; i < c->nheap; i++){
@@ -151,8 +154,6 @@ cachecheck(VtCache *c)
 	refed = 0;
 	for(i = 0; i < c->nblock; i++){
 		b = &c->block[i];
-		if(b->data != &c->mem[i * size])
-			sysfatal("mis-blocked at %d", i);
 		if(b->ref && b->heap == BadHeap)
 			refed++;
 		else if(b->addr != NilBlock)
@@ -299,6 +300,57 @@ if(0)fprint(2, "droping %x:%V\n", b->addr, b->score);
 }
 
 /*
+ * evict blocks until there is enough memory for size bytes.
+ */
+static VtBlock*
+vtcacheevict(VtCache *c, ulong size)
+{
+	VtBlock *b;
+	
+	/*
+	 * If we were out of memory and put some blocks
+	 * to the side but now we have memory, grab one.
+	 */
+	if(c->mem >= size && c->dead) {
+		b = c->dead;
+		c->dead = b->next;
+		b->next = nil;
+		goto alloc;
+	}
+	
+	/*
+	 * Otherwise, evict until we have memory.
+	 */
+	for(;;) {
+		b = vtcachebumpblock(c);
+		if(c->mem+b->size >= size)
+			break;
+		/*
+		 * chain b onto dead list
+		 */
+		free(b->data);
+		b->data = nil;
+		c->mem += b->size;
+		b->size = 0;
+		b->next = c->dead;
+		c->dead = b;
+	}
+
+	/*
+	 * Allocate memory for block.
+	 */
+alloc:
+	if(size > b->size || size <= b->size/2) {
+		free(b->data);
+		c->mem += b->size;
+		c->mem -= size;
+		b->size = size;
+		b->data = vtmalloc(size);
+	}
+	return b;
+}
+
+/*
  * fetch a local block from the memory cache.
  * if it's not there, load it, bumping some other Block.
  * if we're out of free blocks, we're screwed.
@@ -332,16 +384,16 @@ vtcachelocal(VtCache *c, u32int addr, int type)
 }
 
 VtBlock*
-vtcacheallocblock(VtCache *c, int type)
+vtcacheallocblock(VtCache *c, int type, ulong size)
 {
 	VtBlock *b;
 
 	qlock(&c->lk);
-	b = vtcachebumpblock(c);
+	b = vtcacheevict(c, size);
 	b->iostate = BioLocal;
 	b->type = type;
 	b->addr = (b - c->block)+1;
-	vtzeroextend(type, b->data, 0, c->blocksize);
+	vtzeroextend(type, b->data, 0, size);
 	vtlocaltoglobal(b->addr, b->score);
 	qunlock(&c->lk);
 
@@ -356,7 +408,7 @@ vtcacheallocblock(VtCache *c, int type)
  * if it's not there, load it, bumping some other block.
  */
 VtBlock*
-vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
+vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type, ulong size)
 {
 	VtBlock *b;
 	ulong h;
@@ -409,7 +461,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	/*
 	 * not found
 	 */
-	b = vtcachebumpblock(c);
+	b = vtcacheevict(c, size);
 	b->addr = NilBlock;
 	b->type = type;
 	memmove(b->score, score, VtScoreSize);
@@ -435,7 +487,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 	qunlock(&c->lk);
 
 	vtcachenread++;
-	n = vtread(c->z, score, type, b->data, c->blocksize);
+	n = vtread(c->z, score, type, b->data, size);
 	if(n < 0){
 		if(chattyventi)
 			fprint(2, "read %V: %r\n", score);
@@ -445,7 +497,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type)
 		vtblockput(b);
 		return nil;
 	}
-	vtzeroextend(type, b->data, n, c->blocksize);
+	vtzeroextend(type, b->data, n, size);
 	b->iostate = BioVenti;
 	b->nlock = 1;
 	if(vttracelevel)
@@ -534,7 +586,7 @@ vtblockwrite(VtBlock *b)
 	}
 
 	c = b->c;
-	n = vtzerotruncate(b->type, b->data, c->blocksize);
+	n = vtzerotruncate(b->type, b->data, b->size);
 	vtcachenwrite++;
 	if(c->write(c->z, score, b->type, b->data, n) < 0)
 		return -1;
@@ -554,24 +606,18 @@ vtblockwrite(VtBlock *b)
 	return 0;
 }
 
-uint
-vtcacheblocksize(VtCache *c)
-{
-	return c->blocksize;
-}
-
 VtBlock*
 vtblockcopy(VtBlock *b)
 {
 	VtBlock *bb;
 
 	vtcachencopy++;
-	bb = vtcacheallocblock(b->c, b->type);
+	bb = vtcacheallocblock(b->c, b->type, b->size);
 	if(bb == nil){
 		vtblockput(b);
 		return nil;
 	}
-	memmove(bb->data, b->data, b->c->blocksize);
+	memmove(bb->data, b->data, b->size);
 	vtblockput(b);
 	bb->pc = getcallerpc(&b);
 	return bb;

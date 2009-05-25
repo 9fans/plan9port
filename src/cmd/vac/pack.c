@@ -77,7 +77,7 @@ mbunpack(MetaBlock *mb, uchar *p, int n)
 
 	magic = U32GET(p);
 	if(magic != MetaMagic && magic != MetaMagic+1) {
-		werrstr("bad meta block magic");
+		werrstr("bad meta block magic %#08ux", magic);
 		return -1;
 	}
 	mb->size = U16GET(p+4);

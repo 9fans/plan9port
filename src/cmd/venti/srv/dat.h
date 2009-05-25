@@ -37,6 +37,12 @@ typedef struct Bloom	Bloom;
 
 enum
 {
+	/*
+	 * formerly fundamental constant,
+	 * now a server-imposed limitation.
+	 */
+	VtMaxLumpSize	= 56*1024,
+
 	ABlockLog		= 9,		/* log2(512), the quantum for reading arenas */
 	ANameSize		= 64,
 	MaxDiskBlock		= 64*1024,	/* max. allowed size for a disk block */

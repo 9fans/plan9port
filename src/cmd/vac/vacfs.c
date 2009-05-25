@@ -118,6 +118,31 @@ notifyf(void *a, char *s)
 	noted(NDFLT);
 }
 
+#define TWID64 ~(u64int)0
+static u64int
+unittoull(char *s)
+{
+	char *es;
+	u64int n;
+
+	if(s == nil)
+		return TWID64;
+	n = strtoul(s, &es, 0);
+	if(*es == 'k' || *es == 'K'){
+		n *= 1024;
+		es++;
+	}else if(*es == 'm' || *es == 'M'){
+		n *= 1024*1024;
+		es++;
+	}else if(*es == 'g' || *es == 'G'){
+		n *= 1024*1024*1024;
+		es++;
+	}
+	if(*es != '\0')
+		return TWID64;
+	return n;
+}
+
 void
 threadmain(int argc, char *argv[])
 {
@@ -125,10 +150,10 @@ threadmain(int argc, char *argv[])
 	int p[2], fd;
 	int stdio;
 	char *host = nil;
-	long ncache;
+	ulong mem;
 
+	mem = 16<<20;
 	stdio = 0;
-	ncache = 256;
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
@@ -139,9 +164,6 @@ threadmain(int argc, char *argv[])
 	case 'd':
 		fmtinstall('F', fcallfmt);
 		dflag = 1;
-		break;
-	case 'c':
-		ncache = atoi(EARGF(usage()));
 		break;
 	case 'i':
 		defmnt = nil;
@@ -157,6 +179,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 's':
 		defsrv = "vacfs";
+		break;
+	case 'M':
+		mem = unittoull(EARGF(usage()));
 		break;
 	case 'm':
 		defmnt = EARGF(usage());
@@ -206,7 +231,7 @@ threadmain(int argc, char *argv[])
 	if(vtconnect(conn) < 0)
 		sysfatal("vtconnect: %r");
 
-	fs = vacfsopen(conn, argv[0], VtOREAD, ncache);
+	fs = vacfsopen(conn, argv[0], VtOREAD, mem);
 	if(fs == nil)
 		sysfatal("vacfsopen: %r");
 

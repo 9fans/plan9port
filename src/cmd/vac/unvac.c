@@ -94,7 +94,7 @@ threadmain(int argc, char *argv[])
 	if(vtconnect(conn) < 0)
 		sysfatal("vtconnect: %r");
 
-	fs = vacfsopen(conn, argv[0], VtOREAD, 128);
+	fs = vacfsopen(conn, argv[0], VtOREAD, 4<<20);
 	if(fs == nil)
 		sysfatal("vacfsopen: %r");
 

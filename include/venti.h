@@ -86,7 +86,6 @@ enum
 {
 	VtScoreSize = 20,
 	VtMaxStringSize = 1024,
-	VtMaxLumpSize	= 56*1024,
 	VtPointerDepth	= 7
 };
 #define VtMaxFileSize ((1ULL<<48)-1)
@@ -137,7 +136,8 @@ enum
 	_VtEntryDir = 1<<1,		/* a directory */
 	_VtEntryDepthShift = 2,		/* shift for pointer depth */
 	_VtEntryDepthMask = 7<<2,	/* mask for pointer depth */
-	VtEntryLocal = 1<<5		/* for local storage only */
+	VtEntryLocal = 1<<5,		/* for local storage only */
+	_VtEntryBig = 1<<6,
 };
 enum
 {
@@ -146,8 +146,8 @@ enum
 struct VtEntry
 {
 	ulong gen;			/* generation number */
-	ushort psize;			/* pointer block size */
-	ushort dsize;			/* data block size */
+	ulong psize;			/* pointer block size */
+	ulong dsize;			/* data block size */
 	uchar type;
 	uchar flags;
 	uvlong size;
@@ -162,14 +162,15 @@ struct VtRoot
 	char name[128];
 	char type[128];
 	uchar score[VtScoreSize];	/* to a Dir block */
-	ushort blocksize;		/* maximum block size */
+	ulong blocksize;		/* maximum block size */
 	uchar prev[VtScoreSize];	/* last root block */
 };
 
 enum
 {
 	VtRootSize = 300,
-	VtRootVersion = 2
+	VtRootVersion = 2,
+	_VtRootVersionBig = 1<<15,
 };
 
 void vtrootpack(VtRoot*, uchar*);
@@ -394,7 +395,8 @@ struct VtBlock
 
 	uchar	*data;
 	uchar	score[VtScoreSize];
-	uchar	type;	/* BtXXX */
+	uchar	type;	/* VtXXX */
+	ulong	size;
 
 	/* internal to cache */
 	int		nlock;
@@ -412,14 +414,13 @@ struct VtBlock
 u32int vtglobaltolocal(uchar[VtScoreSize]);
 void vtlocaltoglobal(u32int, uchar[VtScoreSize]);
 
-VtCache *vtcachealloc(VtConn*, int blocksize, ulong nblocks);
+VtCache *vtcachealloc(VtConn*, ulong maxmem);
 void vtcachefree(VtCache*);
 VtBlock *vtcachelocal(VtCache*, u32int addr, int type);
-VtBlock *vtcacheglobal(VtCache*, uchar[VtScoreSize], int type);
-VtBlock *vtcacheallocblock(VtCache*, int type);
+VtBlock *vtcacheglobal(VtCache*, uchar[VtScoreSize], int type, ulong size);
+VtBlock *vtcacheallocblock(VtCache*, int type, ulong size);
 void vtcachesetwrite(VtCache*, int(*)(VtConn*,uchar[VtScoreSize],uint,uchar*,int));
 void vtblockput(VtBlock*);
-u32int vtcacheblocksize(VtCache*);
 int vtblockwrite(VtBlock*);
 VtBlock *vtblockcopy(VtBlock*);
 void vtblockduplock(VtBlock*);
@@ -438,6 +439,7 @@ struct VtFile
 	int local;
 	VtBlock *b;			/* block containing this file */
 	uchar score[VtScoreSize];	/* score of block containing this file */
+	int bsize;				/* size of block */
 
 /* immutable */
 	VtCache *c;

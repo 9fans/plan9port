@@ -1730,7 +1730,7 @@ Err1:
 static char EBadVacFormat[] = "bad format for vac file";
 
 static VacFs *
-vacfsalloc(VtConn *z, int bsize, int ncache, int mode)
+vacfsalloc(VtConn *z, int bsize, ulong cachemem, int mode)
 {
 	VacFs *fs;
 
@@ -1738,7 +1738,7 @@ vacfsalloc(VtConn *z, int bsize, int ncache, int mode)
 	fs->z = z;
 	fs->bsize = bsize;
 	fs->mode = mode;
-	fs->cache = vtcachealloc(z, bsize, ncache);
+	fs->cache = vtcachealloc(z, cachemem);
 	return fs;
 }
 
@@ -1767,7 +1767,7 @@ readscore(int fd, uchar score[VtScoreSize])
 }
 
 VacFs*
-vacfsopen(VtConn *z, char *file, int mode, int ncache)
+vacfsopen(VtConn *z, char *file, int mode, ulong cachemem)
 {
 	int fd;
 	uchar score[VtScoreSize];
@@ -1788,11 +1788,11 @@ vacfsopen(VtConn *z, char *file, int mode, int ncache)
 		}
 		close(fd);
 	}
-	return vacfsopenscore(z, score, mode, ncache);
+	return vacfsopenscore(z, score, mode, cachemem);
 }
 
 VacFs*
-vacfsopenscore(VtConn *z, u8int *score, int mode, int ncache)
+vacfsopenscore(VtConn *z, u8int *score, int mode, ulong cachemem)
 {
 	VacFs *fs;
 	int n;
@@ -1818,13 +1818,19 @@ vacfsopenscore(VtConn *z, u8int *score, int mode, int ncache)
 		return nil;
 	}
 
-	fs = vacfsalloc(z, rt.blocksize, ncache, mode);
+	fs = vacfsalloc(z, rt.blocksize, cachemem, mode);
 	memmove(fs->score, score, VtScoreSize);
 	fs->mode = mode;
 
 	memmove(e.score, rt.score, VtScoreSize);
 	e.gen = 0;
+	
+	// Don't waste cache memory on directories
+	// when rt.blocksize is large.
 	e.psize = (rt.blocksize/VtEntrySize)*VtEntrySize;
+	if(e.psize > 60000)
+		e.psize = (60000/VtEntrySize)*VtEntrySize;
+
 	e.dsize = rt.blocksize;
 	e.type = VtDirType;
 	e.flags = VtEntryActive;
@@ -1925,7 +1931,7 @@ vacfsclose(VacFs *fs)
  * Create a fresh vac fs.
  */
 VacFs *
-vacfscreate(VtConn *z, int bsize, int ncache)
+vacfscreate(VtConn *z, int bsize, ulong cachemem)
 {
 	VacFs *fs;
 	VtFile *f;
@@ -1937,18 +1943,24 @@ vacfscreate(VtConn *z, int bsize, int ncache)
 	MetaEntry me;
 	int psize;
 	
-	if((fs = vacfsalloc(z, bsize, ncache, VtORDWR)) == nil)
+	if((fs = vacfsalloc(z, bsize, cachemem, VtORDWR)) == nil)
 		return nil;
-	
+
 	/*
 	 * Fake up an empty vac fs.
 	 */
 	psize = bsize/VtEntrySize*VtEntrySize;
+	if(psize > 60000)
+		psize = 60000/VtEntrySize*VtEntrySize;
+fprint(2, "create bsize %d psize %d\n", bsize, psize);
+
 	f = vtfilecreateroot(fs->cache, psize, bsize, VtDirType);
+	if(f == nil)
+		sysfatal("vtfilecreateroot: %r");
 	vtfilelock(f, VtORDWR);
-	
+
 	/* Write metablock containing root directory VacDir. */
-	b = vtcacheallocblock(fs->cache, VtDataType);
+	b = vtcacheallocblock(fs->cache, VtDataType, bsize);
 	mbinit(&mb, b->data, bsize, bsize/BytesPerEntry);
 	memset(&vd, 0, sizeof vd);
 	vd.elem = "/";

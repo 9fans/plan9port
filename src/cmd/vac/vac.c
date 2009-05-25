@@ -100,8 +100,6 @@ threadmain(int argc, char **argv)
 		u = unittoull(EARGF(usage()));
 		if(u < 512)
 			u = 512;
-		if(u > VtMaxLumpSize)
-			u = VtMaxLumpSize;
 		blocksize = u;
 		break;
 	case 'd':
@@ -170,10 +168,10 @@ threadmain(int argc, char **argv)
 			if((outfd = create(archivefile, OWRITE, 0666)) < 0)
 				sysfatal("create %s: %r", archivefile);
 			atexit(removevacfile);	// because it is new
-			if((fs = vacfscreate(z, blocksize, 512)) == nil)
+			if((fs = vacfscreate(z, blocksize, 4<<20)) == nil)
 				sysfatal("vacfscreate: %r");
 		}else{
-			if((fs = vacfsopen(z, archivefile, VtORDWR, 512)) == nil)
+			if((fs = vacfsopen(z, archivefile, VtORDWR, 4<<20)) == nil)
 				sysfatal("vacfsopen %s: %r", archivefile);
 			if((fdiff = recentarchive(fs, oldpath)) != nil){
 				if(verbose)
@@ -213,7 +211,7 @@ threadmain(int argc, char **argv)
 		else if((outfd = create(vacfile, OWRITE, 0666)) < 0)
 			sysfatal("create %s: %r", vacfile);
 		atexit(removevacfile);
-		if((fs = vacfscreate(z, blocksize, 512)) == nil)
+		if((fs = vacfscreate(z, blocksize, 4<<20)) == nil)
 			sysfatal("vacfscreate: %r");
 		f = vacfsgetroot(fs);
 
@@ -450,7 +448,7 @@ void
 vac(VacFile *fp, VacFile *diffp, char *name, Dir *d)
 {
 	char *elem, *s;
-	static char buf[65536];
+	static char *buf;
 	int fd, i, n, bsize;
 	vlong off;
 	Dir *dk;	// kids
@@ -541,6 +539,8 @@ vac(VacFile *fp, VacFile *diffp, char *name, Dir *d)
 	}else{
 		off = 0;
 		bsize = fs->bsize;
+		if(buf == nil)
+			buf = vtmallocz(bsize);
 		if(fdiff){
 			/*
 			 * Copy fdiff's contents into f by moving the score.
@@ -708,7 +708,7 @@ vacmerge(VacFile *fp, char *name)
 
 	if(strlen(name) < 4 || strcmp(name+strlen(name)-4, ".vac") != 0)
 		return -1;
-	if((mfs = vacfsopen(z, name, VtOREAD, 100)) == nil)
+	if((mfs = vacfsopen(z, name, VtOREAD, 4<<20)) == nil)
 		return -1;
 	if(verbose)
 		fprint(2, "merging %s\n", name);

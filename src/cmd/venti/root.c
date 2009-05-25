@@ -38,7 +38,7 @@ threadmain(int argc, char *argv[])
 	if(argc == 0)
 		usage();
 
-	buf = vtmallocz(VtMaxLumpSize);
+	buf = vtmallocz(8192);
 
 	z = vtdial(host);
 	if(z == nil)
@@ -52,7 +52,7 @@ threadmain(int argc, char *argv[])
 			fprint(2, "cannot parse score '%s': %r\n", argv[i]);
 			continue;
 		}
-		n = vtread(z, score, VtRootType, buf, VtMaxLumpSize);
+		n = vtread(z, score, VtRootType, buf, 8192);
 		if(n < 0){
 			fprint(2, "could not read block %V: %r\n", score);
 			continue;

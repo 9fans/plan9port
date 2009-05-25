@@ -96,13 +96,13 @@ _vtfileblock(VtCache *c, VtEntry *e, u32int bn)
 	}
 
 /*fprint(2, "vtread %V\n", e->score); */
-	b = vtcacheglobal(c, e->score, e->type);
+	b = vtcacheglobal(c, e->score, e->type, d == 0 ? e->dsize : e->psize);
 	for(i=d-1; i>=0 && b; i--){
 		t = VtDataType+i;
 /*fprint(2, "vtread %V\n", b->data+index[i]*VtScoreSize); */
 		memmove(score, b->data+index[i]*VtScoreSize, VtScoreSize);
 		vtblockput(b);
-		b = vtcacheglobal(c, score, t);
+		b = vtcacheglobal(c, score, t, i == 0 ? e->dsize : e->psize);
 	}
 	return b;
 }
@@ -122,7 +122,7 @@ diskopenventi(VtCache *c, uchar score[VtScoreSize])
 	VtRoot root;
 	VtBlock *b;
 
-	if((b = vtcacheglobal(c, score, VtRootType)) == nil)
+	if((b = vtcacheglobal(c, score, VtRootType, VtRootSize)) == nil)
 		goto Err;
 	if(vtrootunpack(&root, b->data) < 0)
 		goto Err;
@@ -132,7 +132,7 @@ diskopenventi(VtCache *c, uchar score[VtScoreSize])
 	}
 	vtblockput(b);
 
-	if((b = vtcacheglobal(c, root.score, VtDirType)) == nil)
+	if((b = vtcacheglobal(c, root.score, VtDirType, VtEntrySize)) == nil)
 		goto Err;
 	if(vtentryunpack(&e, b->data, 0) < 0)
 		goto Err;

@@ -6,19 +6,30 @@
 static int
 checksize(int n)
 {
-	if(n < 256 || n > VtMaxLumpSize) {
+	if(n < 256) {
 		werrstr("bad block size");
 		return -1;
 	}
 	return 0;
 }
 
+extern int vttobig(ulong);
+
 void
 vtrootpack(VtRoot *r, uchar *p)
 {
 	uchar *op = p;
+	int vers, bsize;
 
-	U16PUT(p, VtRootVersion);
+	vers = VtRootVersion;
+	bsize = r->blocksize;
+	if(bsize >= (1<<16)) {
+		vers |= _VtRootVersionBig;
+		bsize = vttobig(bsize);
+		if(bsize < 0)
+			sysfatal("invalid root blocksize: %#x", r->blocksize);
+	}
+	U16PUT(p, vers);
 	p += 2;
 	memmove(p, r->name, sizeof(r->name));
 	p += sizeof(r->name);
@@ -26,7 +37,7 @@ vtrootpack(VtRoot *r, uchar *p)
 	p += sizeof(r->type);
 	memmove(p, r->score, VtScoreSize);
 	p +=  VtScoreSize;
-	U16PUT(p, r->blocksize);
+	U16PUT(p, bsize);
 	p += 2;
 	memmove(p, r->prev, VtScoreSize);
 	p += VtScoreSize;
@@ -42,7 +53,7 @@ vtrootunpack(VtRoot *r, uchar *p)
 	memset(r, 0, sizeof(*r));
 
 	vers = U16GET(p);
-	if(vers != VtRootVersion) {
+	if((vers&~_VtRootVersionBig) != VtRootVersion) {
 		werrstr("unknown root version");
 		return -1;
 	}
@@ -56,6 +67,8 @@ vtrootunpack(VtRoot *r, uchar *p)
 	memmove(r->score, p, VtScoreSize);
 	p +=  VtScoreSize;
 	r->blocksize = U16GET(p);
+	if(vers & _VtRootVersionBig)
+		r->blocksize = (r->blocksize >> 5) << (r->blocksize & 31);
 	if(checksize(r->blocksize) < 0)
 		return -1;
 	p += 2;
