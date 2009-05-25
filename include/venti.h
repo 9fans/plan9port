@@ -292,7 +292,7 @@ struct VtFcall
 	uint	nauth;		/* TauthX, RauthX */
 	uchar	score[VtScoreSize];	/* Tread, Rwrite */
 	uchar	blocktype;		/* Tread, Twrite */
-	ushort	count;		/* Tread */
+	uint	count;		/* Tread */
 	Packet	*data;		/* Rread, Twrite */
 };
 

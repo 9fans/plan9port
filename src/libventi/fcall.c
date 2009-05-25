@@ -5,7 +5,7 @@
 Packet*
 vtfcallpack(VtFcall *f)
 {
-	uchar buf[4];
+	uchar buf[10];
 	Packet *p;
 
 	p = packetalloc();
@@ -60,9 +60,17 @@ vtfcallpack(VtFcall *f)
 		if(~buf[0] == 0)
 			goto Err;
 		buf[1] = 0;
-		buf[2] = f->count >> 8;
-		buf[3] = f->count;
-		packetappend(p, buf, 4);
+		if(f->count >= (1<<16)) {
+			buf[2] = f->count >> 24;
+			buf[3] = f->count >> 16;
+			buf[4] = f->count >> 8;
+			buf[5] = f->count;
+			packetappend(p, buf, 6);
+		} else {
+			buf[2] = f->count >> 8;
+			buf[3] = f->count;
+			packetappend(p, buf, 4);
+		}
 		break;
 
 	case VtRread:
@@ -163,12 +171,25 @@ vtfcallunpack(VtFcall *f, Packet *p)
 
 	case VtTread:
 		if(packetconsume(p, f->score, VtScoreSize) < 0
-		|| packetconsume(p, buf, 4) < 0)
+		|| packetconsume(p, buf, 2) < 0)
 			goto Err;
 		f->blocktype = vtfromdisktype(buf[0]);
 		if(~f->blocktype == 0)
 			goto Err;
-		f->count = (buf[2] << 8) | buf[3];
+		switch(packetsize(p)) {
+		default:
+			goto Err;
+		case 2:
+			if(packetconsume(p, buf, 2) < 0)
+				goto Err;
+			f->count = (buf[2] << 8) | buf[3];
+			break;
+		case 4:
+			if(packetconsume(p, buf, 4) < 0)
+				goto Err;
+			f->count = (buf[0]<<24) | (buf[1]<<16) | (buf[2]<<8) | buf[3];
+			break;
+		}
 		break;
 
 	case VtRread:

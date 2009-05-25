@@ -65,6 +65,10 @@ vtreadpacket(VtConn *z, uchar score[VtScoreSize], uint type, int n)
 	if(memcmp(score, vtzeroscore, VtScoreSize) == 0)
 		return packetalloc();
 
+	if(z->version[1] == '2' && n >= (1<<16)) {
+		werrstr("read count too large for protocol");
+		return nil;
+	}
 	memset(&tx, 0, sizeof tx);
 	tx.msgtype = VtTread;
 	tx.blocktype = type;

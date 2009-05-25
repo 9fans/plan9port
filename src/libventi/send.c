@@ -11,7 +11,7 @@ _vtsend(VtConn *z, Packet *p)
 {
 	IOchunk ioc;
 	int n, tot;
-	uchar buf[2];
+	uchar buf[4];
 
 	if(z->state != VtStateConnected) {
 		werrstr("session not connected");
@@ -20,15 +20,24 @@ _vtsend(VtConn *z, Packet *p)
 
 	/* add framing */
 	n = packetsize(p);
-	if(n >= (1<<16)) {
-		werrstr("packet too large");
-		packetfree(p);
-		return -1;
+	if(z->version[1] == '2') {
+		if(n >= (1<<16)) {
+			werrstr("packet too large");
+			packetfree(p);
+			return -1;
+		}
+		buf[0] = n>>8;
+		buf[1] = n;
+		packetprefix(p, buf, 2);
+		ventisendbytes += n+2;
+	} else {
+		buf[0] = n>>24;
+		buf[1] = n>>16;
+		buf[2] = n>>8;
+		buf[3] = n;
+		packetprefix(p, buf, 4);
+		ventisendbytes += n+4;
 	}
-	buf[0] = n>>8;
-	buf[1] = n;
-	packetprefix(p, buf, 2);
-	ventisendbytes += n+2;
 	ventisendpackets++;
 
 	tot = 0;
@@ -63,7 +72,7 @@ static Packet*
 _vtrecv(VtConn *z)
 {
 	uchar buf[10], *b;
-	int n;
+	int n, need;
 	Packet *p;
 	int size, len;
 
@@ -75,11 +84,12 @@ _vtrecv(VtConn *z)
 	p = z->part;
 	/* get enough for head size */
 	size = packetsize(p);
-	while(size < 2) {
-		b = packettrailer(p, 2);
+	need = z->version[1] - '0';	// 2 or 4
+	while(size < need) {
+		b = packettrailer(p, need);
 		assert(b != nil);
 		if(0) fprint(2, "%d read hdr\n", getpid());
-		n = read(z->infd, b, 2);
+		n = read(z->infd, b, need);
 		if(0) fprint(2, "%d got %d (%r)\n", getpid(), n);
 		if(n==0 || (n<0 && !interrupted()))
 			goto Err;
@@ -87,10 +97,15 @@ _vtrecv(VtConn *z)
 		packettrim(p, 0, size);
 	}
 
-	if(packetconsume(p, buf, 2) < 0)
+	if(packetconsume(p, buf, need) < 0)
 		goto Err;
-	len = (buf[0] << 8) | buf[1];
-	size -= 2;
+	if(z->version[1] == '2') {
+		len = (buf[0] << 8) | buf[1];
+		size -= 2;
+	} else {
+		len = (buf[0]<<24) | (buf[1]<<16) | (buf[2]<<8) | buf[3];
+		size -= 4;
+	}
 
 	while(size < len) {
 		n = len - size;

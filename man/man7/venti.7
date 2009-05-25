@@ -441,6 +441,21 @@ message ends a session.  There is no
 upon receiving the
 .BR VtTgoodbye
 message, the server terminates up the connection.
+.PP
+Version
+.B 04
+of the Venti protocol is similar to version
+.B 02
+(described above)
+but has two changes to accomodates larger payloads.
+First, it replaces the leading 2-byte packet size with
+a 4-byte size.
+Second, the
+.I count
+in the
+.B VtTread
+packet may be either 2 or 4 bytes;
+the total packet length distinguishes the two cases.
 .SH SEE ALSO
 .IR venti (1),
 .IR venti (3),

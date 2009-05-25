@@ -3,6 +3,7 @@
 #include <venti.h>
 
 static char *okvers[] = {
+	"04",
 	"02",
 	nil,
 };
