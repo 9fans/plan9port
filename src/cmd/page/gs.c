@@ -115,10 +115,11 @@ spawngs(GSInfo *g, char *safer)
 	nargs = 0;
 	args[nargs++] = "gs";
 	args[nargs++] = "-dNOPAUSE";
+	args[nargs++] = "-dNOPROMPT";
 	args[nargs++] = "-dDELAYSAFER";
+	args[nargs++] = "-dQUIET";
 	args[nargs++] = "-sDEVICE=bmp16m";
 	args[nargs++] = "-sOutputFile=/dev/fd/3";
-	args[nargs++] = "-dQUIET";
 	args[nargs++] = "-r100";
 	sprint(tb, "-dTextAlphaBits=%d", textbits);
 	sprint(gb, "-dGraphicsAlphaBits=%d", gfxbits);
@@ -126,7 +127,6 @@ spawngs(GSInfo *g, char *safer)
 		args[nargs++] = tb;
 	if(gfxbits)
 		args[nargs++] = gb;
-	args[nargs++] = "-";
 	args[nargs] = nil;
 
 	gspid = fork();
@@ -153,7 +153,7 @@ spawngs(GSInfo *g, char *safer)
 
 		dup(stdinp[0], 0);
 		dup(errout[1], 1);
-		dup(errout[1], devnull);	/* never anything useful */
+		dup(devnull, 2);	/* never anything useful */
 		dup(dataout[1], 3);
 		dup(stdoutp[1], 4);
 		for(i=5; i<20; i++)
