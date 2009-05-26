@@ -38,7 +38,7 @@ displaypic(Picture *pic)
 		/* release the memory as we hand it off; this could be a big piece of data */
 		a = pic->data;
 		while(n > 0){
-			i = 8192 - (((int)a)&8191);
+			i = 8192 - (((uintptr)a)&8191);
 			if(i > n)
 				i = n;
 			if(write(p[1], a, i)!=i)
