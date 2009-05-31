@@ -1,5 +1,6 @@
 #include "e.h"
 
+#define getline p9getline
 #undef inline
 #define inline _einline
 

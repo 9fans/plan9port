@@ -1,3 +1,5 @@
+#define getline p9getline
+
 /*
  * other
  */
