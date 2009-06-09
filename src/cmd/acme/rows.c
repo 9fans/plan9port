@@ -513,7 +513,8 @@ rowload(Row *row, char *file, int initing)
 	double percent;
 	Biobuf *b, *bout;
 	char *buf, *l, *t, *fontname;
-	Rune *r, rune, *fontr;
+	Rune *r, *fontr;
+	int rune;
 	Column *c, *c1, *c2;
 	uint q0, q1;
 	Rectangle r1, r2;
@@ -739,7 +740,7 @@ rowload(Row *row, char *file, int initing)
 				rune = Bgetrune(b);
 				if(rune == '\n')
 					line++;
-				if(rune == (Rune)Beof){
+				if(rune == Beof){
 					free(r);
 					Bterm(bout);
 					free(bout);

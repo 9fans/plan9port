@@ -52,6 +52,7 @@ struct {
 	QLock flushlock;
 	int active;
 	int infullscreen;
+	int kalting;		// last keystroke was Kalt
 } osx;
 
 enum
@@ -346,8 +347,14 @@ mouseevent(EventRef event)
 		// (Modifiers typed while holding the button go into kbuttons,
 		// but this one does not.)
 		if(but == 1){
-			if(mod & optionKey)
+			if(mod & optionKey) {
+				// Take the ALT away from the keyboard handler.
+				if(osx.kalting) {
+					osx.kalting = 0;
+					keystroke(Kalt);
+				}
 				but = 2;
+			}
 			else if(mod & cmdKey)
 				but = 4;
 		}
@@ -434,6 +441,7 @@ kbdevent(EventRef event)
 	switch(GetEventKind(event)){
 	case kEventRawKeyDown:
 	case kEventRawKeyRepeat:
+		osx.kalting = 0;
 		if(mod == cmdKey){
 			if(ch == 'F' || ch == 'f'){
 				if(osx.isfullscreen && msec() - osx.fullscreentime > 500)
@@ -475,8 +483,10 @@ kbdevent(EventRef event)
 
 	case kEventRawKeyModifiersChanged:
 		if(!osx.buttons && !osx.kbuttons){
-			if(mod == optionKey)
+			if(mod == optionKey) {
+				osx.kalting = 1;
 				keystroke(Kalt);
+			}
 			break;
 		}
 		
@@ -813,7 +823,7 @@ setlabel(char *label)
 {
 	CFStringRef cs;
 
-	cs = CFStringCreateWithBytes(nil, (uchar*)osx.label, strlen(osx.label), kCFStringEncodingUTF8, false);
+	cs = CFStringCreateWithBytes(nil, (uchar*)label, strlen(label), kCFStringEncodingUTF8, false);
 	SetWindowTitleWithCFString(osx.window, cs);
 	CFRelease(cs);
 }

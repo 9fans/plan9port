@@ -77,10 +77,10 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	 */
 	notifyoff("sys: window size change");
 
+	putenv("TERM", "9term");
 	pid = fork();
 	switch(pid){
 	case 0:
-		putenv("TERM", "9term");
 		sfd = childpty(fd, slave);
 		dup(sfd, 0);
 		dup(sfd, 1);

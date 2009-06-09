@@ -238,27 +238,27 @@ void
 xcpu(int first)
 {
 	static int stathz;
-	ulong x[20];
-	struct clockinfo *ci;
+	union {
+		ulong x[20];
+		struct clockinfo ci;
+	} u;
 	int n;
 
 	if(first){
-		if(rsys("kern.clockrate", (char*)&x, sizeof x) < sizeof ci)
+		if(rsys("kern.clockrate", (char*)u.x, sizeof u.x) < sizeof u.ci)
 			stathz = 128;
-		else{
-			ci = (struct clockinfo*)x;
-			stathz = ci->stathz;
-		}
+		else
+			stathz = u.ci.stathz;
 		return;
 	}
 
-	if((n=rsys("kern.cp_time", (char*)x, sizeof x)) < 5*sizeof(ulong))
+	if((n=rsys("kern.cp_time", (char*)u.x, sizeof u.x)) < 5*sizeof(ulong))
 		return;
 
-	Bprint(&bout, "user %lud %d\n", x[CP_USER]+x[CP_NICE], stathz);
-	Bprint(&bout, "sys %lud %d\n", x[CP_SYS], stathz);
-	Bprint(&bout, "cpu %lud %d\n", x[CP_USER]+x[CP_NICE]+x[CP_SYS], stathz);
-	Bprint(&bout, "idle %lud %d\n", x[CP_IDLE], stathz);
+	Bprint(&bout, "user %lud %d\n", u.x[CP_USER]+u.x[CP_NICE], stathz);
+	Bprint(&bout, "sys %lud %d\n", u.x[CP_SYS], stathz);
+	Bprint(&bout, "cpu %lud %d\n", u.x[CP_USER]+u.x[CP_NICE]+u.x[CP_SYS], stathz);
+	Bprint(&bout, "idle %lud %d\n", u.x[CP_IDLE], stathz);
 }
 
 void
