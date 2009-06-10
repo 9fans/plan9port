@@ -189,7 +189,7 @@ threadmain(int argc, char **argv)
 
 	if(verbose)
 		fprint(2, "cache %d blocks\n", csize);
-	c = vtcachealloc(z, bsize, csize);
+	c = vtcachealloc(z, bsize*csize);
 	zcache = c;
 
 	/*
@@ -211,7 +211,7 @@ threadmain(int argc, char **argv)
 			sysfatal("bad score: %r");
 		if(pref!=nil && strcmp(pref, fsys->type) != 0)
 			sysfatal("score is %s but fsys is %s", pref, fsys->type);
-		b = vtcacheglobal(c, score, VtRootType);
+		b = vtcacheglobal(c, score, VtRootType, VtRootSize);
 		if(b){
 			if(vtrootunpack(&root, b->data) < 0)
 				sysfatal("bad root: %r");
@@ -221,7 +221,7 @@ threadmain(int argc, char **argv)
 			memmove(score, root.score, VtScoreSize);
 			vtblockput(b);
 		}
-		b = vtcacheglobal(c, score, VtDirType);
+		b = vtcacheglobal(c, score, VtDirType, VtEntrySize);
 		if(b == nil)
 			sysfatal("vtcacheglobal %V: %r", score);
 		if(vtentryunpack(&e, b->data, 0) < 0)
@@ -330,7 +330,7 @@ threadmain(int argc, char **argv)
 	vtfileunlock(vfile);
 	vtfileclose(vfile);
 
-	b = vtcacheallocblock(c, VtDirType);
+	b = vtcacheallocblock(c, VtDirType, VtEntrySize);
 	if(b == nil)
 		sysfatal("vtcacheallocblock: %r");
 	vtentrypack(&e, b->data, 0);
@@ -345,7 +345,7 @@ threadmain(int argc, char **argv)
 	memmove(root.prev, prev, VtScoreSize);
 	vtblockput(b);
 
-	b = vtcacheallocblock(c, VtRootType);
+	b = vtcacheallocblock(c, VtRootType, VtRootSize);
 	if(b == nil)
 		sysfatal("vtcacheallocblock: %r");
 	vtrootpack(&root, b->data);
