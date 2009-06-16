@@ -106,7 +106,7 @@ vtcachefree(VtCache *c)
 
 	cachecheck(c);
 	for(i=0; i<c->nblock; i++) {
-		assert(c->block[i].ref == 0);
+		assert(c->block[i].data == nil || c->block[i].ref == 0);
 		vtfree(c->block[i].data);
 	}
 
