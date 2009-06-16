@@ -143,7 +143,7 @@ threadmain(int argc, char **argv)
 		sysfatal("vtdial: %r");
 	if(vtconnect(z) < 0)
 		sysfatal("vtconnect: %r");
-	if((vcache = vtcachealloc(z, blocksize, cachesize)) == nil)
+	if((vcache = vtcachealloc(z, blocksize*cachesize)) == nil)
 		sysfatal("vtcache: %r");
 
 	configfile = argv[0];
