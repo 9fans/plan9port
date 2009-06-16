@@ -29,7 +29,9 @@ extern Rectangle mouserect;
 
 struct {
 	char *label;
+	int newlabel;
 	char *winsize;
+	QLock labellock;
 
 	Rectangle fullscreenr;
 	Rectangle screenr;
@@ -88,7 +90,7 @@ attachscreen(char *label, char *winsize)
 {
 	if(label == nil)
 		label = "gnot a label";
-	osx.label = label;
+	osx.label = strdup(label);
 	osx.winsize = winsize;
 	if(osx.screenimage == nil){
 		screeninit();
@@ -243,6 +245,14 @@ static OSStatus
 eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 {
 	OSStatus result;
+
+	if(osx.newlabel) {
+		// dummy message so we update the label
+		qlock(&osx.labellock);
+		setlabel(osx.label);
+		osx.newlabel = 0;
+		qunlock(&osx.labellock);
+	}
 
 	result = CallNextEventHandler(next, event);
 
@@ -826,6 +836,36 @@ setlabel(char *label)
 	cs = CFStringCreateWithBytes(nil, (uchar*)label, strlen(label), kCFStringEncodingUTF8, false);
 	SetWindowTitleWithCFString(osx.window, cs);
 	CFRelease(cs);
+}
+
+void
+kicklabel(char *label)
+{
+	char *p;
+
+	p = strdup(label);
+	if(p == nil)
+		return;
+	qlock(&osx.labellock);
+	free(osx.label);
+	osx.newlabel = 1;
+	osx.label = p;
+	qunlock(&osx.labellock);
+	
+	// TODO(rsc): It would be great to send an OS X event to the
+	// event handling loop to force the update of the label,
+	// but I cannot manage to do this.
+	//	int i;
+	//	EventRef ev;
+	/*
+	ev = 0;
+	i = CreateEvent(nil, kEventClassApplication, 0, 0, 0, &ev);
+	if(i != 0)
+		fprint(2, "CreateEvent: %d\n", i);
+	i = SendEventToEventTarget(ev, GetUserFocusEventTarget());
+	if(i != 0)
+		fprint(2, "SendEventToEventTarget %p: %d\n", ev, i);
+	*/
 }
 
 static void

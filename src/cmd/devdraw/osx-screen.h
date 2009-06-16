@@ -12,6 +12,7 @@ void	putsnarf(char*);
 
 void	mousetrack(int, int, int, int);
 void	keystroke(int);
+void	kicklabel(char*);
 
 extern	Rectangle mouserect;
 extern	int	mouseresized;

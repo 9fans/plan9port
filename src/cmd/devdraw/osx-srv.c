@@ -238,7 +238,7 @@ runmsg(Wsysmsg *m)
 		break;
 
 	case Tlabel:
-		setlabel(m->label);
+		kicklabel(m->label);
 		replymsg(m);
 		break;
 
