@@ -29,7 +29,6 @@ extern Rectangle mouserect;
 
 struct {
 	char *label;
-	int newlabel;
 	char *winsize;
 	QLock labellock;
 
@@ -65,6 +64,11 @@ enum
 		kWindowResizableAttribute |
 		kWindowStandardHandlerAttribute |
 		kWindowFullZoomAttribute
+};
+
+enum
+{
+	P9PEventLabelUpdate = 1
 };
 
 static void screenproc(void*);
@@ -178,6 +182,7 @@ _screeninit(void)
 		{ kEventClassMouse, kEventMouseMoved },
 		{ kEventClassMouse, kEventMouseDragged },
 		{ kEventClassMouse, kEventMouseWheelMoved },
+		{ 'P9PE', P9PEventLabelUpdate}
 	};
 
 	InstallApplicationEventHandler(
@@ -246,17 +251,19 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 {
 	OSStatus result;
 
-	if(osx.newlabel) {
-		// dummy message so we update the label
-		qlock(&osx.labellock);
-		setlabel(osx.label);
-		osx.newlabel = 0;
-		qunlock(&osx.labellock);
-	}
-
 	result = CallNextEventHandler(next, event);
 
 	switch(GetEventClass(event)){
+
+	case 'P9PE':
+		if (GetEventKind(event) == P9PEventLabelUpdate) {
+			qlock(&osx.labellock);
+			setlabel(osx.label);
+			qunlock(&osx.labellock);
+			return noErr;
+		} else
+			return eventNotHandledErr;
+
 	case kEventClassApplication:;
 		Rectangle r = Rect(0, 0, Dx(osx.screenr), Dy(osx.screenr));
 		_flushmemscreen(r);
@@ -842,30 +849,19 @@ void
 kicklabel(char *label)
 {
 	char *p;
+	EventRef e;
 
 	p = strdup(label);
 	if(p == nil)
 		return;
 	qlock(&osx.labellock);
 	free(osx.label);
-	osx.newlabel = 1;
 	osx.label = p;
 	qunlock(&osx.labellock);
 	
-	// TODO(rsc): It would be great to send an OS X event to the
-	// event handling loop to force the update of the label,
-	// but I cannot manage to do this.
-	//	int i;
-	//	EventRef ev;
-	/*
-	ev = 0;
-	i = CreateEvent(nil, kEventClassApplication, 0, 0, 0, &ev);
-	if(i != 0)
-		fprint(2, "CreateEvent: %d\n", i);
-	i = SendEventToEventTarget(ev, GetUserFocusEventTarget());
-	if(i != 0)
-		fprint(2, "SendEventToEventTarget %p: %d\n", ev, i);
-	*/
+	CreateEvent(nil, 'P9PE', P9PEventLabelUpdate, 0, kEventAttributeUserEvent, &e);
+	PostEventToQueue(GetMainEventQueue(), e, kEventPriorityStandard);
+	
 }
 
 static void
