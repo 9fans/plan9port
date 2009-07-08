@@ -392,11 +392,14 @@
 2020  dg          †	dagger
 2021  dd          ‡	double dagger
 2022  bu          •	bullet
+2024  1.          ․ one dot leader
+2025  2.          ‥ two dot leader
+2026  3.          … horizontal ellipsis
 203D  !? ?!       ‽	interrobang
 2070  s0          ⁰	superscript digit zero
-00B9  s1          ⁱ	superscript digit one
-00B2  s2          ⁲	superscript digit two
-00B3  s3          ⁳	superscript digit three
+00B9  s1          ¹	superscript digit one
+00B2  s2          ²	superscript digit two
+00B3  s3          ³	superscript digit three
 2074  s4          ⁴	superscript digit four
 2075  s5          ⁵	superscript digit five
 2076  s6          ⁶	superscript digit six
@@ -408,9 +411,10 @@
 207C  s=          ⁼	superscript equals sign
 207D  s(          ⁽	superscript opening parenthesis
 207E  s)          ⁾	superscript closing parenthesis
+2071  si          ⁱ	superscript latin small letter i
 207F  sn          ⁿ	superscript latin small letter n
 2013  en          –	en dash
-2014  em          –	em dash
+2014  em          —	em dash
 2080  b0          ₀	subscript digit zero
 2081  b1          ₁	subscript digit one
 2082  b2          ₂	subscript digit two
@@ -541,6 +545,7 @@
 22E7  >!~         ⋧	greater than but not equivalent to
 22EF  el          ⋯	midline horizontal ellipsis
 2423              ␣	open box, visible space
+2639  :(          ☹ sad face
 263A  :)          ☺ smiley face
 2654  wk          ♔	white chess king
 2655  wq          ♕	white chess queen
