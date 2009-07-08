@@ -194,7 +194,7 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 			if(strlen(a) > EVENTSIZE){	/* too big; too bad */
 				free(aa);
 				free(a);
-				warning(nil, "`argument string too long\n");
+				warning(nil, "argument string too long\n");
 				return;
 			}
 			f |= 8;

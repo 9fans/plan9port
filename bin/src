@@ -49,7 +49,7 @@ if(~ $#* 0) usage
 ifs='
 '
 for(i){
-	wi=`{which $i >[2]/dev/null}
+	wi=`{whatis $i >[2]/dev/null}
 	if(test -f $i) go $i
 	if not if(~ $#wi 1 && test -f $wi) go $wi
 	if not echo 'src: can''t find '$i
