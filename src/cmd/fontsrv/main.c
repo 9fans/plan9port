@@ -483,9 +483,10 @@ fontcmp(const void *va, const void *vb)
 void
 main(int argc, char **argv)
 {
-	char *mtpt;
-	
-	mtpt = unsharp("#9/font/mnt");
+	char *mtpt, *srvname;
+
+	mtpt = nil;
+	srvname = "font";
 
 	ARGBEGIN{
 	case 'D':
@@ -496,6 +497,9 @@ main(int argc, char **argv)
 		break;
 	case 'm':
 		mtpt = EARGF(usage());
+		break;
+	case 's':
+		srvname = EARGF(usage());
 		break;
 	case 'p':
 		pflag++;
@@ -536,7 +540,7 @@ main(int argc, char **argv)
 		sysfatal("mountpoint %s does not exist", mtpt);
 
 	xsrv.foreground = 1;
-	threadpostmountsrv(&xsrv, "font", mtpt, 0);
+	threadpostmountsrv(&xsrv, srvname, mtpt, 0);
 }
 
 /*
