@@ -206,6 +206,7 @@ struct Srv {
 	int		leavefdsopen;	/* magic for acme win */
 	int		dotu;
 	int		foreground;	/* run in foreground */
+	int		fake;
 
 /* below is implementation-specific; don't use */
 	Fidpool*	fpool;

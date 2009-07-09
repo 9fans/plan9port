@@ -1,0 +1,126 @@
+.TH FONTSRV 4
+.SH NAME
+fontsrv \- file system access to host fonts
+.SH SYNOPSIS
+.B fontsrv
+[
+.B -m
+.I mtpt
+]
+.PP
+.B fontsrv
+.B -p
+.I path
+.SH DESCRIPTION
+.I Fontsrv
+presents the host window system's fonts
+in the standard Plan 9 format
+(see
+.IR font (7)).
+It serves a virtual directory tree mounted at
+.I mtpt
+(if the
+.B -m
+option is given)
+and posted at
+.I srvname 
+(default
+.IR font ).
+.PP
+The 
+.B -p
+option changes 
+.I fontsrv 's
+behavior: rather than serve a file system,
+.I fontsrv
+prints to standard output the contents of the named 
+.IR path .
+If
+.I path
+names a directory in the served file system,
+.I fontsrv
+lists the directory's contents.
+.PP
+The fonts are arranged in a two-level tree.
+The root contains directories named for each system font.
+Each font directory contains subdirectories named for
+a point size and whether the subfonts are anti-aliased:
+.B 10
+(bitmap)
+.BR 10a
+(anti-aliased greyscale)
+.BR 12 ,
+.BR 12a ,
+and so on.
+The font directory will synthesize additional sizes on
+demand: looking up
+.B 19a
+will synthesize the 19-point anti-aliased size
+if possible.
+Each size directory contains a
+.B font
+file and subfont files
+named
+.BR x0000.bit ,
+.BR x0100.bit ,
+and so on
+representing 256-character Unicode ranges.
+.PP
+.I Openfont
+(see
+.IR graphics (3))
+recognizes font paths beginning with 
+.B /mnt/font
+and implements them by invoking
+.IR fontsrv ;
+it need not be running already.
+.SH EXAMPLES
+List the fonts on the system:
+.IP
+.EX
+% fontsrv &
+% 9p ls font
+.EE
+.LP
+or:
+.IP
+.EX
+% fontsrv -p .
+.EE
+.LP
+Run 
+.IR acme (1)
+using the operating system's Monaco as the fixed-width font:
+.IP
+.EX
+% acme -F /mnt/font/Monaco/13a/font
+.EE
+.LP
+Run
+.IR sam (1)
+using the same font:
+.IP
+.EX
+font=/mnt/font/Monaco/13a/font sam
+.EE
+.SH SOURCE
+.B \*9/src/cmd/fontsrv
+.SH SEE ALSO
+.IR font (7)
+.SH BUGS
+.PP
+Due to OS X restrictions,
+.I fontsrv
+does not fork itself into the background
+when serving a user-level file system.
+.PP
+.I Fontsrv
+has no support for X11 fonts;
+on X11 systems, it will serve an empty top-level directory.
+.PP
+On OS X, the anti-aliased bitmaps are not perfect.
+For example, the lower case r in the subfont
+.B Times-Roman/14a/x0000.bit
+appears truncated on the right and
+too light overall.
+

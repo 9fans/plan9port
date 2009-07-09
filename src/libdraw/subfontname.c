@@ -43,7 +43,7 @@ subfontname(char *cfname, char *fname, int maxdepth)
 	}
 
 	/* try default */
-	if(access(t, AREAD) == 0)
+	if(strncmp(t, "/mnt/font/", 10) == 0 || access(t, AREAD) == 0)
 		return t;
 
 	return nil;

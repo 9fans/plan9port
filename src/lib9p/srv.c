@@ -794,6 +794,9 @@ respond(Req *r, char *error)
 	if(r->error)
 		setfcallerror(&r->ofcall, r->error);
 
+	if(srv->fake)
+		return;
+
 if(chatty9p)
 	fprint(2, "-%d-> %F\n", srv->outfd, &r->ofcall);
 

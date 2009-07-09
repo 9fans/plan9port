@@ -6,6 +6,8 @@
  * Default version: treat as file name
  */
 
+int _fontpipe(char*);
+
 Subfont*
 _getsubfont(Display *d, char *name)
 {
@@ -13,7 +15,9 @@ _getsubfont(Display *d, char *name)
 	Subfont *f;
 
 	fd = open(name, OREAD);
-		
+	if(fd < 0 && strncmp(name, "/mnt/font/", 10) == 0)
+		fd = _fontpipe(name+10);
+
 	if(fd < 0){
 		fprint(2, "getsubfont: can't open %s: %r\n", name);
 		return 0;

@@ -1,0 +1,14 @@
+<|sh ../devdraw/mkwsysrules.sh
+<$PLAN9/src/mkhdr
+
+TARG=fontsrv
+
+HFILES=a.h
+
+OFILES=\
+	main.$O\
+	$WSYSTYPE.$O\
+
+<$PLAN9/src/mkone
+
+
