@@ -1,9 +1,0 @@
-<$PLAN9/src/mkhdr
-
-TARG=getflags
-OFILES=\
-	getflags.$O\
-	funcgetflags.$O\
-
-<$PLAN9/src/mkone
-

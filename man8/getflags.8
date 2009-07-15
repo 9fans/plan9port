@@ -1,0 +1,77 @@
+.TH GETFLAGS 8
+.SH NAME
+getflags, usage \- command-line parsing for shell scripts
+.SH SYNOPSIS
+.B getflags $*
+.PP
+.B usage [ progname ]
+.SH DESCRIPTION
+.I Getflags
+parses the options in its command-line arguments
+according to the environment variable
+.BR $flagfmt .
+This variable should be a list of comma-separated options.
+Each option can be a single letter, indicating that it does
+not take arguments, or a letter followed by the space-separated
+names of its arguments.
+.I Getflags 
+prints an 
+.IR rc (1)
+script on standard output which initializes the
+environment variable
+.BI $flag x
+for every option mentioned in 
+.BR $flagfmt .
+If the option is not present on the command-line, the script
+sets that option's flag variable to an empty list.
+Otherwise, the script sets that option's flag variable with
+a list containing the option's arguments or, 
+if the option takes no arguments,
+with the string
+.BR 1 .
+The script also sets the variable
+.B $*
+to the list of arguments following the options.
+The final line in the script sets the
+.B $status
+variable, to the empty string on success
+and to the string
+.B usage
+when there is an error parsing the command line.
+.PP
+.I Usage
+prints a usage message to standard error.
+It creates the message using
+.BR $flagfmt ,
+as described above,
+.BR $args ,
+which should contain the string to be printed explaining
+non-option arguments,
+and
+.BR $0 ,
+the program name
+(see
+.IR rc (1)).
+If run under 
+.IR sh (1),
+which does not set
+.BR $0 ,
+the program name must be given explicitly on the command line.
+.SH EXAMPLE
+Parse the arguments for
+.IR leak (1):
+.IP
+.EX
+flagfmt='b,s,f binary,r res,x width'
+args='name | pid list'
+if(! ifs=() eval `{getflags $*} || ~ $#* 0){
+	usage
+	exit usage
+}
+.EE
+.SH SOURCE
+.B \*9/src/cmd/getflags.c
+.br
+.B \*9/src/cmd/usage.c
+.SH SEE ALSO
+.IR arg (3)
