@@ -7,6 +7,83 @@ doautolib=true
 doautoframework=true
 verbose=false
 
+nmflags=""
+extralibs="-lm"
+tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
+case "$tag" in
+*FreeBSD*)
+	ld=gcc
+	userpath=true
+	extralibs="$extralibs -lutil"
+	case "`uname -r`" in
+	5.2.*)
+		extralibs="$extralibs -lkse"
+		;;
+	[5-9].*)
+		extralibs="$extralibs -lpthread"
+		;;
+	esac
+	;;
+*BSD*)
+	ld=gcc
+	userpath=true
+	extralibs="$extralibs -lutil"
+	;;
+*OSF1*)
+	ld=cc
+	userpath=true
+	extralibs="$extralibs -lutil"
+	nmflags="-B"
+	;;
+*Linux*)
+	ld=gcc
+	userpath=true
+	extralibs="$extralibs -lutil"
+	case "${SYSVERSION:-`uname -r`}" in
+	2.6.*)
+		extralibs="$extralibs -lpthread"
+		;;
+	esac
+	;;
+*Darwin*)
+	ld=gcc
+	;;
+*SunOS*)
+	ld="${CC9:-cc} -g"
+	extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
+	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH 
+	for i in "$libsl $@"
+	do
+		case "$i" in
+		-L*)
+			s=`echo $i | sed 's/-L/-R/'`
+			extralibs="$extralibs $s"
+			;;
+		esac
+	done
+	case "${SYSVERSION:-`uname -r`}" in
+	5.[67])
+		echo do not know how to link right thread library on "$tag" 1>&2
+		;;
+	5.8)
+		# Some trickery is needed to force use of
+		# alternate thread lib from /usr/lib/lwp
+		# Likely, this only works with sun cc,
+		# for other compiler/loader we would need other flags.
+		ld="$ld -i"
+		extralibs="$extralibs /usr/lib/lwp/libthread.so -R/usr/lib/lwp:/usr/lib"
+		;;
+	esac
+	;;
+*AIX*)
+	ld=gcc
+	nmflags="-B"
+	;;
+*)
+	echo do not know how to link on "$tag" 1>&2
+	exit 1
+esac
+
 if [ "x$1" = "x-l" ]
 then
 	shift
@@ -50,7 +127,7 @@ then
 	if [ "x$ofiles" != "x" ]
 	then
 		a=`
-			nm $ofiles |
+			nm $nmflags $ofiles |
 			grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
 			sed 's/.*__p9l_autolib_//' |
 			sort -u
@@ -241,72 +318,6 @@ then
 		frameworks="-framework $i $frameworks"
 	done
 fi
-
-extralibs="-lm"
-tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
-case "$tag" in
-*FreeBSD*)
-	ld=gcc
-	userpath=true
-	extralibs="$extralibs -lutil"
-	case "`uname -r`" in
-	5.2.*)
-		extralibs="$extralibs -lkse"
-		;;
-	[5-9].*)
-		extralibs="$extralibs -lpthread"
-		;;
-	esac
-	;;
-*BSD*)
-	ld=gcc
-	userpath=true
-	extralibs="$extralibs -lutil"
-	;;
-*Linux*)
-	ld=gcc
-	userpath=true
-	extralibs="$extralibs -lutil"
-	case "${SYSVERSION:-`uname -r`}" in
-	2.6.*)
-		extralibs="$extralibs -lpthread"
-		;;
-	esac
-	;;
-*Darwin*)
-	ld=gcc
-	;;
-*SunOS*)
-	ld="${CC9:-cc} -g"
-	extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
-	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH 
-	for i in "$libsl $@"
-	do
-		case "$i" in
-		-L*)
-			s=`echo $i | sed 's/-L/-R/'`
-			extralibs="$extralibs $s"
-			;;
-		esac
-	done
-	case "${SYSVERSION:-`uname -r`}" in
-	5.[67])
-		echo do not know how to link right thread library on "$tag" 1>&2
-		;;
-	5.8)
-		# Some trickery is needed to force use of
-		# alternate thread lib from /usr/lib/lwp
-		# Likely, this only works with sun cc,
-		# for other compiler/loader we would need other flags.
-		ld="$ld -i"
-		extralibs="$extralibs /usr/lib/lwp/libthread.so -R/usr/lib/lwp:/usr/lib"
-		;;
-	esac
-	;;
-*)
-	echo do not know how to link on "$tag" 1>&2
-	exit 1
-esac
 
 case "$userpath" in
 true)
