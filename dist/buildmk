@@ -7,11 +7,12 @@ OBJTYPE=`uname -p | sed '
 	s;i86pc;386;;
 	s;amd64;x86_64;;
 	s;/.*;;; s; ;;g;
-	s;armv4l;arm;g;
+	s;armv.*;arm;g;
 	s;powerpc;power;g;
+	s;PowerMacintosh;power;g;
 	s;macppc;power;g;
 	s;ppc64;power;g;
 	s;ppc;power;g;
-	'` export OBJTYPE
+'` export OBJTYPE
 sh -x mkmk.sh
 
