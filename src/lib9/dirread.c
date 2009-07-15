@@ -31,6 +31,12 @@ mygetdents(int fd, struct dirent *buf, int n)
 {
 	return getdents(fd, (void*)buf, n);
 }
+#elif defined(__AIX__)
+static int
+mygetdents(int fd, struct dirent *buf, int n)
+{
+	return getdirent(fd, (void*)buf, n);
+}
 #endif
 
 static int

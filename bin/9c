@@ -58,6 +58,9 @@ case "$tag" in
 		cflags="$ngflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
+*AIX*)		usegcc
+		cflags="$ngflags -g -D__AIX__"
+		;;
 *)
 	echo 9c does not know how to compile on "$tag" 1>&2
 	exit 1

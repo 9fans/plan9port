@@ -2,13 +2,13 @@
 
 # run this in the src directory
 SYSNAME=`uname` export SYSNAME
-OBJTYPE=`uname -m | sed '
+OBJTYPE=`uname -p | sed '
 	s;i.86;386;;
 	s;i86pc;386;;
 	s;amd64;x86_64;;
 	s;/.*;;; s; ;;g;
 	s;armv4l;arm;g;
-	s;PowerMacintosh;power;g;
+	s;powerpc;power;g;
 	s;macppc;power;g;
 	s;ppc64;power;g;
 	s;ppc;power;g;

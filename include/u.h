@@ -29,6 +29,9 @@ extern "C" {
 #	undef __LONG_LONG_SUPPORTED
 #	define __LONG_LONG_SUPPORTED
 #endif
+#if defined(__AIX__)
+#	define _XOPEN_SOURCE 1
+#endif
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 

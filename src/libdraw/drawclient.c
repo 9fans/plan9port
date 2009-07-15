@@ -34,6 +34,7 @@ _displayconnect(Display *d)
 		return -1;
 	}
 	if(pid == 0){
+		char *devdraw;
 		close(p[0]);
 		dup(p[1], 0);
 		dup(p[1], 1);
@@ -54,9 +55,12 @@ _displayconnect(Display *d)
 		 * instead.
 		 */
 		putenv("NOLIBTHREADDAEMONIZE", "1");
+		devdraw = getenv("DEVDRAW");
+		if(devdraw == nil)
+			devdraw = "devdraw";
 		if(argv0 == nil)
-			argv0 = "devdraw";
-		execl("devdraw", argv0, argv0, "(devdraw)", nil);
+			argv0 = devdraw;
+		execl(devdraw, argv0, argv0, "(devdraw)", nil);
 		sysfatal("exec devdraw: %r");
 	}
 	close(p[1]);

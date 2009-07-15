@@ -269,6 +269,9 @@ rowtype(Row *row, Rune r, Point p)
 	Window *w;
 	Text *t;
 
+	if(r == 0)
+		r = Runeerror;
+
 	clearmouse();
 	qlock(&row->lk);
 	if(bartflag)

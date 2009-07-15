@@ -17,3 +17,4 @@ y.tab.[ch]$
 ^log/
 ^dict/
 ^postscript/font/
+\.orig$
