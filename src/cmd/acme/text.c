@@ -46,7 +46,8 @@ textredraw(Text *t, Rectangle r, Font *f, Image *b, int odx)
 	frinit(&t->fr, r, f, b, t->fr.cols);
 	rr = t->fr.r;
 	rr.min.x -= Scrollwid+Scrollgap;	/* back fill to scroll bar */
-	draw(t->fr.b, rr, t->fr.cols[BACK], nil, ZP);
+	if(!t->fr.noredraw)
+		draw(t->fr.b, rr, t->fr.cols[BACK], nil, ZP);
 	/* use no wider than 3-space tabs in a directory */
 	maxt = maxtab;
 	if(t->what == Body){
@@ -85,7 +86,7 @@ textresize(Text *t, Rectangle r, int keepextra)
 	r.min.x += Scrollwid+Scrollgap;
 	frclear(&t->fr, 0);
 	textredraw(t, r, t->fr.font, t->fr.b, odx);
-	if(keepextra && t->fr.r.max.y < t->all.max.y){
+	if(keepextra && t->fr.r.max.y < t->all.max.y && !t->fr.noredraw){
 		/* draw background in bottom fringe of window */
 		r.min.x -= Scrollgap;
 		r.min.y = t->fr.r.max.y;

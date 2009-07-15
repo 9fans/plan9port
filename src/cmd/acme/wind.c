@@ -190,7 +190,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 	/* If needed, resize & redraw body. */
 	r1 = r;
 	r1.min.y = y;
-	if(tagresized || !safe || !eqrect(w->body.all, r1)){
+	if(!safe || !eqrect(w->body.all, r1)){
 		oy = y;
 		if(y+1+w->body.fr.font->height <= r.max.y){	/* room for one line */
 			r1.min.y = y;
