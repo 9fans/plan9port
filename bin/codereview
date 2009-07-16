@@ -1,0 +1,2 @@
+#!/bin/sh
+$PLAN9/bin/codereview.py -r rsc --cc codebot --send_mail "$@"
