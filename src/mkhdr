@@ -11,6 +11,7 @@ OBJTYPE=`uname -m -p | sed '
 	s;.*macppc.*;power;g;
 	s;.*ppc64.*;power;g;
 	s;.*ppc.*;power;g;
+	s;.*alpha.*;alpha;g;
 '`
 
 BIN=$PLAN9/bin
