@@ -246,7 +246,7 @@ threadmain(int argc, char *argv[])
 #ifdef PLAN9PORT
 	USED(fd);
 	proccreate(srv, 0, 32 * 1024);
-	if(post9pservice(p[1], defsrv, defmnt) < 0)
+	if(!stdio && post9pservice(p[1], defsrv, defmnt) < 0)
 		sysfatal("post9pservice");
 #else
 	procrfork(srv, 0, 32 * 1024, RFFDG|RFNAMEG|RFNOTEG);
