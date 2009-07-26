@@ -1381,6 +1381,10 @@ textdoubleclick(Text *t, uint *q0, uint *q1)
 			return;
 		}
 	}
+	
+	if(textclickhtmlmatch(t, q0, q1))
+		return;
+	
 	/* try filling out word to right */
 	while(*q1<t->file->b.nc && isalnum(textreadc(t, *q1)))
 		(*q1)++;
@@ -1415,6 +1419,112 @@ textclickmatch(Text *t, int cl, int cr, int dir, uint *q)
 			nest++;
 	}
 	return cl=='\n' && nest==1;
+}
+
+// Is the text starting at location q an html tag?
+// Return 1 for <a>, -1 for </a>, 0 for no tag or <a />.
+// Set *q1, if non-nil, to the location after the tag.
+static int
+ishtmlstart(Text *t, uint q, uint *q1)
+{
+	int c, c1, c2;
+
+	if(q+2 > t->file->b.nc)
+		return 0;
+	if(textreadc(t, q++) != '<')
+		return 0;
+	c = textreadc(t, q++);
+	c1 = c;
+	c2 = c;
+	while(c != '>') {
+		if(q >= t->file->b.nc)
+			return 0;
+		c2 = c;
+		c = textreadc(t, q++);
+	}
+	if(q1)
+		*q1 = q;
+	if(c1 == '/')	// closing tag
+		return -1;
+	if(c2 == '/' || c2 == '!')	// open + close tag or comment
+		return 0;
+	return 1;
+}
+
+// Is the text ending at location q an html tag?
+// Return 1 for <a>, -1 for </a>, 0 for no tag or <a />.
+// Set *q0, if non-nil, to the start of the tag.
+static int
+ishtmlend(Text *t, uint q, uint *q0)
+{
+	int c, c1, c2;
+	
+	if(q < 2)
+		return 0;
+	if(textreadc(t, --q) != '>')
+		return 0;
+	c = textreadc(t, --q);
+	c1 = c;
+	c2 = c;
+	while(c != '<') {
+		if(q == 0)
+			return 0;
+		c1 = c;
+		c = textreadc(t, --q);
+	}
+	if(q0)
+		*q0 = q;
+	if(c1 == '/')	// closing tag
+		return -1;
+	if(c2 == '/' || c2 == '!')	// open + close tag or comment
+		return 0;
+	return 1;
+}
+
+int
+textclickhtmlmatch(Text *t, uint *q0, uint *q1)
+{
+	int depth, n;
+	uint q, nq;
+	
+	q = *q0;
+	// after opening tag?  scan forward for closing tag
+	if(ishtmlend(t, q, nil) == 1) {
+		depth = 1;
+		while(q < t->file->b.nc) {
+			n = ishtmlstart(t, q, &nq);
+			if(n != 0) {
+				depth += n;
+				if(depth == 0) {
+					*q1 = q;
+					return 1;
+				}
+				q = nq;
+				continue;
+			}
+			q++;
+		}
+	}
+
+	// before closing tag?  scan backward for opening tag
+	if(ishtmlstart(t, q, nil) == -1) {
+		depth = -1;
+		while(q > 0) {
+			n = ishtmlend(t, q, &nq);
+			if(n != 0) {
+				depth += n;
+				if(depth == 0) {
+					*q0 = q;
+					return 1;
+				}
+				q = nq;
+				continue;
+			}
+			q--;
+		}
+	}
+	
+	return 0;
 }
 
 uint
