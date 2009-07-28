@@ -54,12 +54,9 @@ pow10(int n)
 
 	neg = 0;
 	if(n < 0){
-		if(n < DBL_MIN_10_EXP)
-			return 0.;
 		neg = 1;
 		n = -n;
-	}else if(n > DBL_MAX_10_EXP)
-		return HUGE_VAL;
+	}
 
 	if(n < npows10)
 		d = pows10[n];
