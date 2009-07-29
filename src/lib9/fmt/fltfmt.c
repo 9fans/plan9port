@@ -243,7 +243,7 @@ xdtoa(double f, char *s, int *exp, int *neg, int *ns)
 	 * adjust conversion until strtod(s) == f exactly.
 	 */
 	for(i=0; i<10; i++) {
-		g = strtod(s, nil);
+		g = fmtstrtod(s, nil);
 		if(f > g) {
 			if(xadd1(s, NSIGNIF)) {
 				/* gained a digit */
@@ -274,7 +274,7 @@ xdtoa(double f, char *s, int *exp, int *neg, int *ns)
 		c = s[i];
 		if(c != '9') {
 			s[i] = '9';
-			g = strtod(s, nil);
+			g = fmtstrtod(s, nil);
 			if(g != f) {
 				s[i] = c;
 				break;
@@ -292,7 +292,7 @@ xdtoa(double f, char *s, int *exp, int *neg, int *ns)
 			ee--;
 			xfmtexp(tmp+NSIGNIF, ee, 0);
 		}
-		g = strtod(tmp, nil);
+		g = fmtstrtod(tmp, nil);
 		if(g == f) {
 			strcpy(s, tmp);
 			e = ee;
@@ -306,7 +306,7 @@ xdtoa(double f, char *s, int *exp, int *neg, int *ns)
 		c = s[i];
 		if(c != '0') {
 			s[i] = '0';
-			g = strtod(s, nil);
+			g = fmtstrtod(s, nil);
 			if(g != f) {
 				s[i] = c;
 				break;
