@@ -3,7 +3,7 @@
 #include <draw.h>
 #include <memdraw.h>
 
-#define	CHUNK	8000
+#define	CHUNK	16000
 
 #define	HSHIFT	3	/* HSHIFT==5 runs slightly faster, but hash table is 64x bigger */
 #define	NHASH	(1<<(HSHIFT*NMATCH))
