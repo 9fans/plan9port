@@ -22,6 +22,10 @@ esac
 PLAN9=`pwd` export PLAN9
 PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 
+echo "+ Mailing list: http://groups.google.com/group/plan9port-dev"
+echo "+ Issue tracker: http://code.swtch.com/plan9port/issues/"
+echo "+ Submitting changes: http://swtch.com/go/codereview"
+echo " "
 echo "* Resetting $PLAN9/config"
 rm -f config
 
