@@ -132,7 +132,6 @@ void
 closeupload(Upload *u)
 {
 	lock(&u->lk);
-fprint(2, "close %p from %p: %d\n", u, getcallerpc(&u), u->ref);
 	if(--u->ref > 0){
 		unlock(&u->lk);
 		return;
@@ -179,7 +178,6 @@ getuploadindex(SmugFid *sf, int *index)
 		if(u->ref > 0 && !u->uploaded && u->album == sf->album && (*index)-- == 0){
 			qunlock(&uploadlock);
 			u->ref++;
-fprint(2, "bump %p from %p: %d\n", u, getcallerpc(&sf), u->ref);
 			unlock(&u->lk);
 			return u;
 		}
@@ -202,7 +200,6 @@ getuploadname(SmugFid *sf, char *name)
 		if(u->ref > 0 && !u->uploaded && u->album == sf->album && strcmp(name, u->name) == 0){
 			qunlock(&uploadlock);
 			u->ref++;
-fprint(2, "bump %p from %p: %d\n", u, getcallerpc(&sf), u->ref);
 			unlock(&u->lk);
 			return u;
 		}
@@ -232,7 +229,6 @@ uploader(void *v)
 				qunlock(&uploadlock);
 				doupload(u);
 				closeupload(u);
-fprint(2, "done %d\n", u->ref);
 				did = 1;
 				qlock(&uploadlock);
 			}else
@@ -254,7 +250,6 @@ kickupload(Upload *u)
 	close(u->fd);
 	u->fd = -1;
 	u->ref++;
-fprint(2, "kick %p from %p: %d\n", u, getcallerpc(&u), u->ref);
 	u->ready = 1;
 	unlock(&u->lk);
 	qlock(&uploadlock);
