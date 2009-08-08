@@ -1,0 +1,71 @@
+.TH CODEREVIEW 1
+.SH NAME
+codereview \- review of submitted changes (experimental)
+.SH SYNOPSIS
+.B hg
+.B diff
+.I path ...
+.PP
+.B codereview
+.I path ...
+.PP
+.B codereview
+.B -i
+.I issue
+.I path ...
+.SH DESCRIPTION
+.I Codereview
+uploads suggested changes to the code review server
+.I codereview.appspot.com
+and sends email to reviewers.
+It must be used from within a Plan 9 from User Space tree
+checked out via Mercurial
+(see
+.IR hg (1)).
+.PP
+A developer makes changes to a local copy of the tree
+and reviews them locally using 
+.I hg
+.I diff .
+When the changes are ready for external review, the 
+developer creates a review issue by running
+.I codereview
+naming the files to be reviewed.
+.I Codereview
+prompts for a Google Accounts user name
+and password to log in to 
+.I http://codereview.appspot.com/
+and create a new review issue.
+Once created, it prints a line like
+.EX
+Issue created. URL: http://codereview.appspot.com/96161
+.EE
+among other output.
+.PP
+The reviewer will likely respond with comments
+and suggestions for improving the submission.
+After making the changes, reupload by repeating
+the 
+.I codereview
+command with the
+.B -i
+option to specify the issue number
+(in the above example, 96161).
+.PP
+Once the reviewer accepts the changes, they will be applied
+automatically using the patch uploaded to the review server.
+To update the local tree, run 
+.I hg
+.I pull
+with the
+.B -u
+option.
+.SH SEE ALSO
+.HR http://codereview.appspot.com/
+.SH BUGS
+The
+.I codereview
+command should be replaced by a proper Mercurial extension.
+.PP
+Making changes to the repository via patches
+discards the executable bit on new shell scripts.
