@@ -28,6 +28,7 @@ enum
 
 enum
 {
+	V80211,
 	Vbattery,
 	Vcontext,
 	Vcpu,
@@ -51,6 +52,7 @@ enum
 char*
 labels[Nvalue] = 
 {
+	"802.11",
 	"battery",
 	"context",
 	"cpu",
@@ -109,7 +111,7 @@ Machine	*mach;
 Font		*mediumfont;
 char		*fontname;
 char		*mysysname;
-char		argchars[] = "bcCeEfiIlmnsw";
+char		argchars[] = "8bcCeEfiIlmnsw";
 int		pids[1024];
 int 		parity;	/* toggled to avoid patterns in textured background */
 int		nmach;
@@ -748,6 +750,9 @@ threadmain(int argc, char *argv[])
 	default:
 		fprint(2, "stats: internal error: unknown arg %c\n", args[i]);
 		usage();
+	case '8':
+		addgraph(V80211);
+		break;
 	case 'b':
 		addgraph(Vbattery);
 		break;

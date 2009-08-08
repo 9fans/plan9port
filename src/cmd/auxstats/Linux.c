@@ -8,6 +8,8 @@ void xloadavg(int);
 void xmeminfo(int);
 void xnet(int);
 void xstat(int);
+void xvmstat(int);
+void xwireless(int);
 
 void (*statfn[])(int) =
 {
@@ -16,6 +18,8 @@ void (*statfn[])(int) =
 	xmeminfo,
 	xnet,
 	xstat,
+	xvmstat,
+	xwireless,
 	0
 };
 
@@ -77,6 +81,7 @@ xmeminfo(int first)
 	int i;
 	vlong tot, used;
 	vlong mtot, mfree;
+	vlong stot, sfree;
 	static int fd = -1;
 
 	if(first){
@@ -86,6 +91,9 @@ xmeminfo(int first)
 
 	readfile(fd);
 	mtot = 0;
+	stot = 0;
+	mfree = 0;
+	sfree = 0;
 	for(i=0; i<nline; i++){
 		tokens(i);
 		if(ntok < 3)
@@ -98,11 +106,22 @@ xmeminfo(int first)
 			Bprint(&bout, "swap =%lld %lld\n", used/1024, tot/1024);
 		else if(strcmp(tok[0], "MemTotal:") == 0)
 			mtot = atoll(tok[1]);	/* kb */
-		else if(strcmp(tok[0], "MemFree:") == 0){
-			mfree = atoll(tok[1]);
+		else if(strcmp(tok[0], "MemFree:") == 0)
+			mfree += atoll(tok[1]);
+		else if(strcmp(tok[0], "Buffers:") == 0)
+			mfree += atoll(tok[1]);
+		else if(strcmp(tok[0], "Cached:") == 0){
+			mfree += atoll(tok[1]);
 			if(mtot < mfree)
 				continue;
 			Bprint(&bout, "mem =%lld %lld\n", mtot-mfree, mtot);
+		}else if(strcmp(tok[0], "SwapTotal:") == 0)
+			stot = atoll(tok[1]);	/* kb */
+		else if(strcmp(tok[0], "SwapFree:") == 0){
+			sfree = atoll(tok[1]);
+			if(stot < sfree)
+				continue;
+			Bprint(&bout, "swap =%lld %lld\n", stot-sfree, stot);
 		}
 	}
 }
@@ -135,7 +154,7 @@ xnet(int first)
 		tokens(i);
 		if(ntok < 8+8)
 			continue;
-		if(strncmp(tok[0], "eth", 3) != 0)
+		if(strncmp(tok[0], "eth", 3) != 0 && strncmp(tok[0], "wlan", 4) != 0)
 			continue;
 		inb = atoll(tok[1]);
 		oub = atoll(tok[9]);
@@ -182,7 +201,7 @@ xstat(int first)
 			Bprint(&bout, "user %lld 100\n", atoll(tok[1]));
 			Bprint(&bout, "sys %lld 100\n", atoll(tok[3]));
 			Bprint(&bout, "cpu %lld 100\n", atoll(tok[1])+atoll(tok[3]));
-			Bprint(&bout, "idle %lld\n", atoll(tok[4]));
+			Bprint(&bout, "idle %lld 100\n", atoll(tok[4]));
 		}
 	/*
 		if(strcmp(tok[0], "page") == 0 && ntok >= 3){
@@ -197,11 +216,52 @@ xstat(int first)
 		}
 	*/
 		if(strcmp(tok[0], "intr") == 0)
-			Bprint(&bout, "interrupt %lld 1000\n", atoll(tok[1]));
+			Bprint(&bout, "intr %lld 1000\n", atoll(tok[1]));
 		if(strcmp(tok[0], "ctxt") == 0)
-			Bprint(&bout, "context %lld 1000\n", atoll(tok[1]));
+			Bprint(&bout, "context %lld 10000\n", atoll(tok[1]));
 		if(strcmp(tok[0], "processes") == 0)
 			Bprint(&bout, "fork %lld 1000\n", atoll(tok[1]));
 	}
 }
 
+void
+xvmstat(int first)
+{
+	static int fd = -1;
+	int i;
+
+	if(first){
+		fd = open("/proc/vmstat", OREAD);
+		return;
+	}
+
+	readfile(fd);
+	for(i=0; i<nline; i++){
+		tokens(i);
+		if(ntok < 2)
+			continue;
+		if(strcmp(tok[0], "pgfault") == 0)
+			Bprint(&bout, "fault %lld 100000\n", atoll(tok[1]));
+	}
+}
+
+void
+xwireless(int first)
+{
+	static int fd = -1;
+	int i;
+	
+	if(first){
+		fd = open("/proc/net/wireless", OREAD);
+		return;
+	}
+
+	readfile(fd);
+	for(i=0; i<nline; i++){
+		tokens(i);
+		if(ntok < 3)
+			continue;
+		if(strcmp(tok[0], "wlan0:") == 0)
+			Bprint(&bout, "802.11 =%lld 100\n", atoll(tok[2]));
+	}
+}
