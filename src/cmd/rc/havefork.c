@@ -110,6 +110,7 @@ Xpipe(void)
 void
 Xbackq(void)
 {
+	struct thread *p = runq;
 	char wd[8193];
 	int c;
 	char *s, *ewd=&wd[8192], *stop;
@@ -164,7 +165,7 @@ Xbackq(void)
 			runq->argv->words = v;
 			v = nextv;
 		}
-		runq->pc = runq->code[runq->pc].i;
+		p->pc = p->code[p->pc].i;
 		return;
 	}
 }
