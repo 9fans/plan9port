@@ -4,6 +4,7 @@ TARG=page
 
 HFILES=page.h
 OFILES=\
+	cache.$O\
 	filter.$O\
 	gfx.$O\
 	gs.$O\

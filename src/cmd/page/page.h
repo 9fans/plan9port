@@ -96,6 +96,8 @@ void	wexits(char*);
 Image*	xallocimage(Display*, Rectangle, ulong, int, ulong);
 int	bell(void*, char*);
 Image*	convert(Graphic *g);
+Image*	cachedpage(Document*, int, int);
+void	cacheflush(void);
 
 extern int stdinfd;
 extern int truecolor;

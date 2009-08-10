@@ -115,55 +115,17 @@ menugen(int n)
 void
 showpage(int page, Menu *m)
 {
-	Image *tmp;
-
 	if(doc->fwdonly)
 		m->lasthit = 0;	/* this page */
 	else
 		m->lasthit = reverse ? doc->npage-1-page : page;
 	
 	setcursor(mc, &reading);
-	freeimage(im);
-	if((page < 0 || page >= doc->npage) && !doc->fwdonly){
-		im = nil;
-		return;
-	}
-	im = doc->drawpage(doc, page);
-	if(im == nil) {
-		if(doc->fwdonly)	/* this is how we know we're out of pages */
-			wexits(0);
-
-		im = xallocimage(display, Rect(0,0,50,50), GREY1, 1, DBlack);
-		if(im == nil) {
-			fprint(2, "out of memory: %r\n");
-			wexits("memory");
-		}
-		string(im, ZP, display->white, ZP, display->defaultfont, "?");
-	}else if(resizing){
+	im = cachedpage(doc, angle, page);
+	if(im == nil)
+		wexits(0);
+	if(resizing)
 		resize(Dx(im->r), Dy(im->r));
-	}
-	if(im->r.min.x > 0 || im->r.min.y > 0) {
-		tmp = xallocimage(display, Rect(0, 0, Dx(im->r), Dy(im->r)), im->chan, 0, DNofill);
-		if(tmp == nil) {
-			fprint(2, "out of memory during showpage: %r\n");
-			wexits("memory");
-		}
-		drawop(tmp, tmp->r, im, nil, im->r.min, S);
-		freeimage(im);
-		im = tmp;
-	}
-
-	switch(angle){
-	case 90:
-		im = rot90(im);
-		break;
-	case 180:
-		rot180(im);
-		break;
-	case 270:
-		im = rot270(im);
-		break;
-	}
 
 	setcursor(mc, nil);
 	if(showbottom){
@@ -268,7 +230,7 @@ void
 viewer(Document *dd)
 {
 	int i, fd, n, oldpage;
-	int nxt;
+	int nxt, a;
 	Channel *cp;
 	Menu menu, midmenu;
 	Mouse m;
@@ -372,7 +334,10 @@ viewer(Document *dd)
 		 * a fair amount.  we don't care about doc->npage anymore, and
 		 * all that can be done is select the next page.
 		 */
-		switch(alt(alts)) {
+		unlockdisplay(display);
+		a = alt(alts);
+		lockdisplay(display);
+		switch(a) {
 		case CKeyboard:
 			if(run <= 0xFF && isdigit(run)) {
 				nxt = nxt*10+run-'0';
@@ -622,22 +587,12 @@ viewer(Document *dd)
 						break;
 					}
 				case Rot:	/* rotate 90 */
-					setcursor(mc, &reading);
-					im = rot90(im);
-					setcursor(mc, nil);
 					angle = (angle+90) % 360;
-					redraw(screen);
-					flushimage(display, 1);
+					showpage(page, &menu);
 					break;
 				case Upside: 	/* upside-down */
-					if(im==nil)
-						break;
-					setcursor(mc, &reading);
-					rot180(im);
-					setcursor(mc, nil);
 					angle = (angle+180) % 360;
-					redraw(screen);
-					flushimage(display, 1);
+					showpage(page, &menu);
 					break;
 				case Restore:	/* restore */
 					showpage(page, &menu);
