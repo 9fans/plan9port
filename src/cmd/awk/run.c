@@ -30,6 +30,7 @@ THIS SOFTWARE.
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <utf.h>
 #include "awk.h"
 #include "y.tab.h"
 
@@ -1194,10 +1195,9 @@ Cell *dopa2(Node **a, int n)	/* a[0], a[1] { a[2] } */
 Cell *split(Node **a, int nnn)	/* split(a[0], a[1], a[2]); a[3] is type */
 {
 	Cell *x = 0, *y, *ap;
-	char *s;
-	int sep;
-	char *t, temp, num[50], *fs = 0;
-	int n, arg3type;
+	char *s, *t, *fs = 0;
+	char temp, num[50];
+	int n, nb, sep, arg3type;
 
 	y = execute(a[0]);	/* source string */
 	s = getsval(y);
@@ -1279,12 +1279,15 @@ Cell *split(Node **a, int nnn)	/* split(a[0], a[1], a[2]); a[3] is type */
 				s++;
 		}
 	} else if (sep == 0) {	/* new: split(s, a, "") => 1 char/elem */
-		for (n = 0; *s != 0; s++) {
-			char buf[2];
+		for (n = 0; *s != 0; s += nb) {
+			Rune r;
+			char buf[UTFmax+1];
+
 			n++;
-			sprintf(num, "%d", n);
-			buf[0] = *s;
-			buf[1] = 0;
+			snprintf(num, sizeof num, "%d", n);
+			nb = chartorune(&r, s);
+			memmove(buf, s, nb);
+			buf[nb] = '\0';
 			if (isdigit(buf[0]))
 				setsymtab(num, buf, atof(buf), STR|NUM, (Array *) ap->sval);
 			else
@@ -1451,14 +1454,20 @@ Cell *bltin(Node **a, int n)	/* builtin functions. a[0] is type, a[1] is arg lis
 	char mbc[50];
 	Node *nextarg;
 	FILE *fp;
+	void flush_all(void);
 
 	t = ptoi(a[0]);
 	x = execute(a[1]);
 	nextarg = a[1]->nnext;
 	switch (t) {
 	case FLENGTH:
-		p = getsval(x);
-		u = (Awkfloat) countposn(p, strlen(p)); break;
+		if (isarr(x))
+			u = ((Array *) x->sval)->nelem;	/* GROT. should be function*/
+		else {
+			p = getsval(x);
+			u = (Awkfloat) countposn(p, strlen(p));
+		}
+		break;
 	case FLOG:
 		u = errcheck(log(getfval(x)), "log"); break;
 	case FINT:
@@ -1515,7 +1524,10 @@ Cell *bltin(Node **a, int n)	/* builtin functions. a[0] is type, a[1] is arg lis
 		free(buf);
 		return x;
 	case FFLUSH:
-		if ((fp = openfile(FFLUSH, getsval(x))) == NULL)
+		if (isrec(x) || strlen(getsval(x)) == 0) {
+			flush_all();	/* fflush() or fflush("") -> all */
+			u = 0;
+		} else if ((fp = openfile(FFLUSH, getsval(x))) == NULL)
 			u = EOF;
 		else
 			u = fflush(fp);
@@ -1708,6 +1720,15 @@ void closeall(void)
 			if (stat == EOF)
 				WARNING( "i/o error occurred while closing %s", files[i].fname );
 		}
+}
+
+void flush_all(void)
+{
+	int i;
+
+	for (i = 0; i < FOPEN_MAX; i++)
+		if (files[i].fp)
+			fflush(files[i].fp);
 }
 
 void backsub(char **pb_ptr, char **sptr_ptr);
