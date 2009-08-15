@@ -18,6 +18,7 @@
 Document *doc;
 Mousectl *mc;
 Image *im;
+Image *tofree;
 int page;
 int angle = 0;
 int showbottom = 0;		/* on the next showpage, move the image so the bottom is visible. */
@@ -61,6 +62,16 @@ enum {
 
 	RMenu = 3,
 };
+
+static void
+delayfreeimage(Image *m)
+{
+	if(m == tofree)
+		return;
+	if(tofree)
+		freeimage(tofree);
+	tofree = m;
+}
 
 void
 unhide(void)
@@ -121,6 +132,7 @@ showpage(int page, Menu *m)
 		m->lasthit = reverse ? doc->npage-1-page : page;
 	
 	setcursor(mc, &reading);
+	delayfreeimage(nil);
 	im = cachedpage(doc, angle, page);
 	if(im == nil)
 		wexits(0);
@@ -553,8 +565,8 @@ viewer(Document *dd)
 							wexits("memory");
 						}
 						resample(im, tmp);
-						freeimage(im);
 						im = tmp;
+						delayfreeimage(tmp);
 						setcursor(mc, nil);
 						ul = screen->r.min;
 						redraw(screen);
@@ -578,8 +590,8 @@ viewer(Document *dd)
 							wexits("memory");
 						}
 						resample(im, tmp);
-						freeimage(im);
 						im = tmp;
+						delayfreeimage(tmp);
 						setcursor(mc, nil);
 						ul = screen->r.min;
 						redraw(screen);
