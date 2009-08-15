@@ -1,3 +1,5 @@
+/* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
+
 /*
  * 64-bit IEEE not-a-number routines.
  * This is big/little-endian portable assuming that 
