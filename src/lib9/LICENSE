@@ -9,6 +9,7 @@ and do not derive from the Plan 9 from Bell Labs distribution.
 	_p9dir.c
 	_p9translate.c
 	announce.c
+	argv0.c
 	atoi.c
 	atol.c
 	atoll.c

@@ -1,3 +1,5 @@
+// See ../src/libmach/LICENSE
+
 #ifndef _MACH_H_
 #define _MACH_H_ 1
 #if defined(__cplusplus)
