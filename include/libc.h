@@ -1,3 +1,7 @@
+// This file originated as Plan 9's /sys/include/libc.h.
+// The plan9port-specific changes may be distributed
+// using the license in ../src/lib9/LICENSE.
+
 /*
  * Lib9 is miscellany from the Plan 9 C library that doesn't
  * fit into libutf or into libfmt, but is still missing from traditional

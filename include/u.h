@@ -1,3 +1,5 @@
+// See ../src/lib9/LICENSE
+
 #ifndef _U_H_
 #define _U_H_ 1
 #if defined(__cplusplus)

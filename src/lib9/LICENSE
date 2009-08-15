@@ -4,6 +4,8 @@ terms of the simpler MIT-style license at the bottom of this file.
 The files listed below were written from scrach for plan9port
 and do not derive from the Plan 9 from Bell Labs distribution.
 
+	../../include/u.h
+	non-Plan 9 code in ../../include/libc.h
 	_exits.c
 	_p9dialparse.c
 	_p9dir.c
