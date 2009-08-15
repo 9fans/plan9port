@@ -46,6 +46,11 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 		free(buf);
 		return -1;
 	}
+	if(host == 0){
+		werrstr("invalid dial address 0.0.0.0 (aka *)");
+		free(buf);
+		return -1;
+	}
 
 	if(strcmp(net, "tcp") == 0)
 		proto = SOCK_STREAM;
