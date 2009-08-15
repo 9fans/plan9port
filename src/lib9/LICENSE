@@ -1,0 +1,94 @@
+The files listed below may be redistributed either under the
+terms of the Lucent Public License version 1.02 or under the
+terms of the simpler MIT-style license at the bottom of this file.
+The files listed below were written from scrach for plan9port
+and do not derive from the Plan 9 from Bell Labs distribution.
+
+	_exits.c
+	_p9dialparse.c
+	_p9dir.c
+	_p9translate.c
+	announce.c
+	atoi.c
+	atol.c
+	atoll.c
+	await.c
+	create.c
+	debugmalloc.c
+	dial.c
+	dirfstat.c
+	dirfwstat.c
+	dirstat.c
+	dirwstat.c
+	dup.c
+	errstr.c
+	exec.c
+	execl.c
+	exitcode.c
+	fmtlock2.c
+	fork.c
+	get9root.c
+	getcallerpc-386.c
+	getcallerpc-arm.c
+	getcallerpc-power.c
+	getcallerpc-sun4u.s
+	getcallerpc-x86_64.c
+	getenv.c
+	getnetconn.c
+	getns.c
+	getuser.c
+	getwd.c
+	jmp.c
+	lock.c
+	main.c
+	malloc.c
+	malloctag.c
+	mallocz.c
+	nan.c
+	needstack.c
+	notify.c
+	open.c
+	opentemp.c
+	pin.c
+	pipe.c
+	post9p.c
+	postnote.c
+	priv.c
+	qlock.c
+	readcons.c
+	rfork.c
+	searchpath.c
+	seek.c
+	sendfd.c
+	sleep.c
+	strdup.c
+	sysfatal.c
+	sysname.c
+	time.c
+	truerand.c
+	udp.c
+	unsharp.c	
+
+The other source files in this directory do derive from Plan 9 and
+are distributed only under the terms of the  Lucent Public License
+version 1.02, as detailed in ../../LICENSE.
+
+Copyright 2001-2007 Russ Cox.  All Rights Reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
