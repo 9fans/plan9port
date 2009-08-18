@@ -155,6 +155,10 @@ _threadcreate(Proc *p, void (*fn)(void*), void *arg, uint stack)
 {
 	_Thread *t;
 
+	/* defend against bad C libraries */
+	if(stack < (256<<10))
+		stack = 256<<10;
+	
 	t = threadalloc(fn, arg, stack);
 	t->proc = p;
 	addthreadinproc(p, t);

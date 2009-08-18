@@ -62,6 +62,7 @@ _threadspawn(int fd[3], char *cmd, char *argv[])
 	int i, n, p[2], pid;
 	char exitstr[100];
 
+	notifyoff("sys: child");	/* do not let child note kill us */
 	if(pipe(p) < 0)
 		return -1;
 	if(fcntl(p[0], F_SETFD, 1) < 0 || fcntl(p[1], F_SETFD, 1) < 0){
