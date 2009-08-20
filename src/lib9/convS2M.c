@@ -74,6 +74,8 @@ sizeS2Mu(Fcall *f, int dotu)
 		n += BIT32SZ;
 		n += stringsz(f->uname);
 		n += stringsz(f->aname);
+		if(dotu)
+			n += BIT32SZ;
 		break;
 
 	case Tattach:
@@ -81,6 +83,8 @@ sizeS2Mu(Fcall *f, int dotu)
 		n += BIT32SZ;
 		n += stringsz(f->uname);
 		n += stringsz(f->aname);
+		if(dotu)
+			n += BIT32SZ;
 		break;
 
 	case Twalk:
@@ -144,7 +148,7 @@ sizeS2Mu(Fcall *f, int dotu)
 	case Rerror:
 		n += stringsz(f->ename);
 		if(dotu)
-			n += BIT16SZ;
+			n += BIT32SZ;
 		break;
 
 	case Rflush:
@@ -249,6 +253,11 @@ convS2Mu(Fcall *f, uchar *ap, uint nap, int dotu)
 		p += BIT32SZ;
 		p  = pstring(p, f->uname);
 		p  = pstring(p, f->aname);
+		if(dotu){
+			f->uidnum = NOUID;
+			PBIT32(p, f->uidnum);
+			p += BIT32SZ;
+		}
 		break;
 
 	case Tattach:
@@ -258,6 +267,11 @@ convS2Mu(Fcall *f, uchar *ap, uint nap, int dotu)
 		p += BIT32SZ;
 		p  = pstring(p, f->uname);
 		p  = pstring(p, f->aname);
+		if(dotu){
+			f->uidnum = NOUID;
+			PBIT32(p, f->uidnum);
+			p += BIT32SZ;
+		}
 		break;
 
 	case Twalk:
@@ -344,8 +358,8 @@ convS2Mu(Fcall *f, uchar *ap, uint nap, int dotu)
 	case Rerror:
 		p = pstring(p, f->ename);
 		if(dotu){
-			PBIT16(p, f->errornum);
-			p += BIT16SZ;
+			PBIT32(p, f->errornum);
+			p += BIT32SZ;
 		}
 		break;
 

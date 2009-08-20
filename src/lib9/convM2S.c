@@ -100,6 +100,13 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		p = gstring(p, ep, &f->aname);
 		if(p == nil)
 			break;
+		f->uidnum = NOUID;
+		if(dotu){
+			if(p+BIT32SZ > ep)
+				return 0;
+			f->uidnum = GBIT32(p);
+			p += BIT32SZ;
+		}
 		break;
 
 	case Tattach:
@@ -117,6 +124,13 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		p = gstring(p, ep, &f->aname);
 		if(p == nil)
 			break;
+		f->uidnum = NOUID;
+		if(dotu){
+			if(p+BIT32SZ > ep)
+				return 0;
+			f->uidnum = GBIT32(p);
+			p += BIT32SZ;
+		}
 		break;
 
 	case Twalk:
@@ -233,10 +247,10 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		p = gstring(p, ep, &f->ename);
 		f->errornum = 0;
 		if(dotu){
-			if(p+BIT16SZ > ep)
+			if(p+BIT32SZ > ep)
 				return 0;
-			f->errornum = GBIT16(p);
-			p += BIT16SZ;
+			f->errornum = GBIT32(p);
+			p += BIT32SZ;
 		}
 		break;
 

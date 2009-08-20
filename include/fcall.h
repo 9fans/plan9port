@@ -44,6 +44,7 @@ struct	Fcall
 	
 	/* 9P2000.u extensions */
 	int	errornum;	/* Rerror */
+	int	uidnum;		/* Tattach, Tauth */
 	char	*extension;	/* Tcreate */
 } Fcall;
 
@@ -73,6 +74,7 @@ struct	Fcall
 
 #define	NOTAG		(ushort)~0U	/* Dummy tag */
 #define	NOFID		(u32int)~0U	/* Dummy fid */
+#define	NOUID		(-1)	/* Dummy uid */
 #define	IOHDRSZ		24	/* ample room for Twrite/Rread header (iounit) */
 
 enum
