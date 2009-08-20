@@ -50,12 +50,11 @@ spooltodisk(uchar *ibuf, int in, char **name)
 {
 	uchar buf[8192];
 	int fd, n;
-	char temp[40];
-
-	strcpy(temp, "/tmp/pagespoolXXXXXXXXX");
-	fd = opentemp(temp, ORDWR|ORCLOSE);
+	
+	strcpy(tempfile, "/tmp/pagespoolXXXXXXXXX");
+	fd = opentemp(tempfile, ORDWR);
 	if(name)
-		*name = estrdup(temp);
+		*name = estrdup(tempfile);
 
 	if(write(fd, ibuf, in) != in){
 		fprint(2, "error writing temporary file\n");

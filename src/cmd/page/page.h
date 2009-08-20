@@ -99,8 +99,11 @@ Image*	convert(Graphic *g);
 Image*	cachedpage(Document*, int, int);
 void	cacheflush(void);
 
+extern char tempfile[40];
+
 extern int stdinfd;
 extern int truecolor;
+
 
 /* BUG BUG BUG BUG BUG: cannot use new draw operations in drawterm,
  * or in vncs, and there is a bug in the kernel for copying images

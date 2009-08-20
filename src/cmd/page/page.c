@@ -21,6 +21,7 @@ int truecolor;
 int imagemode;
 int notewatcher;
 int notegp;
+char tempfile[40];
 
 int
 watcher(void *v, char *x)
@@ -81,6 +82,12 @@ usage(void)
 {
 	fprint(2, "usage: page [-biRrw] [-p ppi] file...\n");
 	wexits("usage");
+}
+
+void
+cleanup(void)
+{
+	remove(tempfile);
 }
 
 void
@@ -173,6 +180,8 @@ threadmain(int argc, char **argv)
 			fprint(2, "page: short read reading %s\n", argv[0]);
 			wexits("read");
 		}
+		
+		atexit(cleanup);
 	}else if(argc != 0){
 		if(!(b = Bopen(argv[0], OREAD))) {
 			fprint(2, "page: cannot open \"%s\"\n", argv[0]);
