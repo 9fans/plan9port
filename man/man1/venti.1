@@ -28,7 +28,7 @@ read, write, copy \- simple Venti clients
 .br
 .B venti/copy
 [
-.B -fir
+.B -fimrVv
 ]
 [
 .B -t
@@ -99,14 +99,35 @@ the root block from the server
 to the server
 .IR dsthost .
 .PP
+Venti's blocks are arranged in a directed acyclic graph (see venti(6)); 
+there may be multiple paths from a root score to an 
+interior block (for example, if the same file contents are stored
+under multiple names in an archive).
+.I Copy
+runs more efficiently if it does not copy blocks 
+(and all their children) multiple times.
 The
 .B -f
 option causes
 .I copy
-to run in `fast' mode,
-assuming that if a block already exists on the
-destination Venti server, all its children also
-exist and need not be checked.
+to assume that if a block already exists on the destination
+Venti server, all its children also exist and need not be considered.
+The
+.B -m
+option causes
+.I copy
+to maintain an in-memory list of blocks it has copied
+and avoid considering the same block multiple times.
+The
+.B -f
+option is only useful if the destination Venti server is
+known not to have lost any blocks due to disk corruption
+or other failures.
+The
+.B -m
+option is only useful if enough memory is available to
+hold the block list, which typically requires about 1%
+of the total number of bytes being copied.
 .PP
 The
 .B -i
@@ -135,6 +156,14 @@ option is given,
 replaces pointers to unreadable blocks with
 pointers to the zero block.
 It writes the new root score to standard output.
+The
+.B -v
+option prints scores as it copies them, total writes, and other
+debugging information.
+The
+.B -V
+option prints debugging information about the Venti protocol
+messages send/received.
 .SH SOURCE
 .B \*9/src/cmd/venti
 .SH SEE ALSO
