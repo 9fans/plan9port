@@ -1,6 +1,6 @@
 .TH PAGE 1
 .SH NAME
-img, psv \- view 
+page \- view 
 FAX, 
 image, graphic, PostScript, PDF, and
 typesetter output
@@ -8,67 +8,265 @@ files
 .SH SYNOPSIS
 .B page
 [
+.B -abirPRvVw
+]
+[
+.B -p
+.I ppi
+]
+[
 .IR file ...
 ]
-.PP
-.B img
-.I file.bit
-.PP
-.B psv
-.I file.ps
-.PP
-.B psv
-.I file.pdf
 .SH DESCRIPTION
-Plan 9's
-.IR page (1)
-is not ported.
-Instead, 
+.I Page
+is a general purpose document viewer.
+It can be used to display the individual pages
+of a
+PostScript,
+PDF,
+or 
+.IR troff (1)
+or 
+Unix's \fItex\fR(1)
+device-independent output
+file.
+.I Troff
+or 
+.I tex
+output is simply converted to PostScript in order to be viewed.
+It can also be used to view any number of
+graphics files
+(such as a 
+FAX
+page, 
+a Plan 9
+.IR image (7)
+file, an Inferno bitmap file, or other common format).
+.I Page
+displays these
+in sequence.
+In the absence of named files,
 .I page
-is a script that invokes
-.IR qiv (1)
-to view graphic files
+reads one from standard input.
+.PP
+By default,
+.I page
+runs in the window in which it is started
+and leaves the window unchanged.
+The 
+.B -R
+option causes 
+.I page 
+to grow the window if necessary
+to display the page being viewed.
+The
+.B -w
+option causes 
+.I page 
+to create a new window for itself.
+The newly created window will grow as under the
+.B -R
+option.
+If being used to display 
+multipage documents,
+only one file may be specified on the command line.
+.PP
+The 
+.B -p 
+option sets the resolution for PostScript and PDF
+files, in pixels per inch.
+The default is 100 ppi.
+The
+.B -r
+option reverses the order in which pages are displayed.
+.PP
+When viewing a document,
+.I page
+will try to guess the true bounding box, usually rounding up from
+the file's bounding box to
+8½×11 or A4 size.
+The 
+.B -b
+option causes it to respect the bounding box given in the file.
+As a more general problem,
+some PostScript files claim to conform to Adobe's
+Document Structuring Conventions but do not.
+The 
+.B -P
+option enables a slightly slower and slightly more
+skeptical version of the PostScript processing code.
+Unfortunately, there are PostScript documents
+that can only be viewed with the
+.B -P
+option, and there are PostScript documents that
+can only be viewed without it.
+.PP
+When viewing images with 
+.IR page ,
+it listens to the 
+.B image
+plumbing channel
+(see 
+.IR plumber (4))
+for more images to display.
+The 
+.B -i
+option causes 
+.I page
+to not load any graphics files nor to read 
+from standard input but rather to listen
+for ones to load from the plumbing channel.
+.PP
+The 
+.B -v
+option turns on extra debugging output, and
+the
+.B -V
+option turns on even more debugging output.
+The 
+.B -a
+option causes 
+.I page
+to call
+Unix's \fIabort\fR(3)
+rather than exit cleanly on errors,
+to facilitate debugging.
+.PP
+Pressing and holding button 1 permits panning about the page.
+.PP
+Button 2 raises a menu of operations on the current image or the
+entire set.  The image transformations are non-destructive and are
+valid only for the currently displayed image.  They are lost as soon
+as another image is displayed.
+The button 2 menu operations are:
+.TF Resize
+.TP
+.B Orig size
+Restores the image to the original. All modifications are lost.
+.TP
+.B Zoom
+Prompts the user to sweep a rectangle on the image which is 
+expanded proportionally to the rectangle.
+.TP
+.B Fit window
+Resizes the image so that it fits in the current window.
+.TP
+.B Rotate 90
+Rotates the image 90 degrees clockwise
+.TP
+.B Upside down
+Toggles whether images are displayed upside-down.
+.TP
+.B Next
+Displays the next page.
+.TP
+.B Prev
+Displays the previous page.
+.TP
+.B Zerox
+Displays the current image in a new page window. 
+Useful for selecting important pages from large documents.
+.TP
+.B Reverse
+Reverses the order in which pages are displayed.
+.TP
+.B Write
+Writes the image to file.
+.PD
+.PP
+Button 3 raises a menu of the
+pages
+to be selected for viewing in any order.
+.PP
+Typing a
+.B q
 or
-.I psv
-to view PostScript and PDF.
-On Mac OS X,
-.I page
-invokes Preview to handle all files.
+control-D exits the program.
+Typing a
+.B u
+toggles whether images are displayed upside-down.
+(This is useful in the common case of mistransmitted upside-down faxes).
+Typing a
+.B r
+reverses the order in which pages are displayed.
+Typing a 
+.B w
+will write the currently viewed page to a new file as a compressed
+.IR image (7)
+file.
+When possible, the filename is of the form
+.IR basename . pagenum . bit .
+Typing a 
+.B d
+removes an image from the working set.
 .PP
-.I Img
-is a simple image viewer for Plan 9 images
-(see
-.IR image (7)).
+To go to a specific page, one can type its number followed by enter.
+Typing left arrow, backspace, or minus displays the previous page.
+Typing right arrow, space, or enter displays the next page.
+The up and down arrow pan up and down one half screen height,
+changing pages when panning off the top or bottom of the page.
 .PP
-.I Psv
-is a PostScript and PDF viewer.
-It is a streamlined interface to
-.IR gv (1).
-.PP
-To view troff output, use
-.IR proof (1).
+.I Page
+calls
+Unix's \fIgs\fR(1)
+to draw each page of PostScript
+and
+PDF
+.IR files .
+It also calls a variety of conversion programs, such as those described in
+.IR jpg (1),
+to convert the various raster graphics formats
+into Inferno bitmap files.
+Pages are converted ``on the fly,'' as needed.
+.SH EXAMPLES
+.TP
+.L
+page /sys/src/cmd/gs/examples/tiger.eps
+Display a color PostScript file.
+.TP
+.L
+page /usr/inferno/icons/*.bit
+Browse the Inferno bitmap library.
+.TP
+.L
+man -t page | page -w
+Preview this manual in a new window.
 .SH "SEE ALSO
 .IR gs (1),
-.IR gv (1),
 .IR jpg (1),
 .IR proof (1),
 .IR tex (1),
 .IR troff (1)
 .SH SOURCE
-.B \*9/src/cmd/draw/img.c
-.br
-.B \*9/bin/psv
-.SH BUGS
-When using Preview on Mac OS X,
+.B \*9/src/cmd/page
+.SH DIAGNOSTICS
+The mouse cursor changes to an arrow and ellipsis
+when
 .I page
-leaves temporary files in
-.BR /var/tmp ,
-since it has no way to know when the viewer has exited.
-.PP
+is reading or writing a file.
+.SH BUGS
 .I Page
-does not handle
-Plan 9 
-.IR image (7)
-files; use
-.I img
-explicitly.
+supports reading of only one document
+file at a time, and
+the user interface is clumsy when viewing very large documents.
+.PP
+When viewing multipage PostScript files that do not contain
+.RB `` %%Page ''
+comments, the button 3 menu only contains
+``this page'' and ``next page'':
+correctly determining 
+page boundaries in Postscript code is not computable
+in the general case.
+.PP
+If
+.I page
+has trouble viewing a Postscript file,
+it might not be exactly conforming: try viewing it with the 
+.B -P
+option.
+.PP
+The interface to the plumber is unsatisfactory.  In particular,
+document references cannot be sent 
+via plumbing messages.
+.PP
+There are too many keyboard commands and menu items.
