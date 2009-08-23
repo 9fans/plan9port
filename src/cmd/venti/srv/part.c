@@ -94,6 +94,8 @@ parsepart(char *name, char **file, char **subpart, u64int *lo, u64int *hi)
 	return 0;
 }
 
+#undef min
+#define min(a, b) ((a) < (b) ? (a) : (b))
 Part*
 initpart(char *name, int mode)
 {
@@ -166,6 +168,9 @@ initpart(char *name, int mode)
 			part->fsblocksize = sfs.f_bsize;
 	}
 #endif
+
+	part->fsblocksize = min(part->fsblocksize, MaxIo);
+
 	if(subname && findsubpart(part, subname) < 0){
 		werrstr("cannot find subpartition %s", subname);
 		freepart(part);
@@ -224,8 +229,6 @@ partblocksize(Part *part, u32int blocksize)
  * body of the loop: up to MaxIo bytes at a time.  If everything isn't aligned properly,
  * we work one block at a time.
  */
-#undef min
-#define min(a, b) ((a) < (b) ? (a) : (b))
 int
 prwb(char *name, int fd, int isread, u64int offset, void *vbuf, u32int count, u32int blocksize)
 {
