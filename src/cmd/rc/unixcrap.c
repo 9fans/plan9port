@@ -222,8 +222,11 @@ readnb(int fd, char *buf, long cnt)
 	int flgs;
 
 	didreset = 0;
-	while((n = read(fd, buf, cnt)) == -1)
-		if(!didreset && errno == EAGAIN){
+again:
+	n = read(fd, buf, cnt);
+	if(n == -1)
+	if(errno == EAGAIN){
+		if(!didreset){
 			if((flgs = fcntl(fd, F_GETFL, 0)) == -1)
 				return -1;
 			flgs &= ~O_NONBLOCK;
@@ -231,6 +234,8 @@ readnb(int fd, char *buf, long cnt)
 				return -1;
 			didreset = 1;
 		}
+		goto again;
+	}
 
 	return n;
 }
