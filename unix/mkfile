@@ -58,7 +58,7 @@ mk-with-libs.tgz:V:
 	mkdir zot
 	mv libutf libfmt libbio libregexp mk zot
 	mv zot mk
-	cp Makefile mk/Makefile
+	cp make/Makefile.all mk/Makefile
 	tar cf - mk | gzip > $target
 	rm -r mk
 
