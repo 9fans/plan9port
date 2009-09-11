@@ -71,7 +71,7 @@ int
 inputc(void)
 {
 	int n, nbuf;
-	char buf[3];
+	char buf[UTFmax];
 	Rune r;
 
     Again:

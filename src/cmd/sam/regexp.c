@@ -494,7 +494,7 @@ bldcclass(void)
 			exprp++;	/* eat '-' */
 			if((c2 = nextrec()) == ']')
 				goto Error;
-			classp[n+0] = 0xFFFF;
+			classp[n+0] = Runemax;
 			classp[n+1] = c1;
 			classp[n+2] = c2;
 			n += 3;
@@ -516,7 +516,7 @@ classmatch(int classno, int c, int negate)
 
 	p = class[classno];
 	while(*p){
-		if(*p == 0xFFFF){
+		if(*p == Runemax){
 			if(p[1]<=c && c<=p[2])
 				return !negate;
 			p += 3;

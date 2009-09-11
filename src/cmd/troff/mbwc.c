@@ -152,9 +152,9 @@ wcstombs(char *s, const wchar_t *pwcs, size_t n)
 		if(p+d <= pe+3) {
 			*p++ = buf[0];
 			if(d > 1) {
-				*p++ = buf[2];
+				*p++ = buf[1];
 				if(d > 2)
-					*p++ = buf[3];
+					*p++ = buf[2];
 			}
 		}
 		if(c == 0)

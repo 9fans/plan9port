@@ -4,14 +4,15 @@
 extern "C" { 
 #endif
 
-typedef unsigned short Rune;	/* 16 bits */
+typedef unsigned int Rune;	/* 32 bits */
 
 enum
 {
-	UTFmax		= 3,		/* maximum bytes per rune */
+	UTFmax		= 4,		/* maximum bytes per rune */
 	Runesync	= 0x80,		/* cannot represent part of a UTF sequence (<) */
 	Runeself	= 0x80,		/* rune and UTF sequences are the same (<) */
-	Runeerror	= 0xFFFD		/* decoding error in UTF */
+	Runeerror	= 0xFFFD,	/* decoding error in UTF */
+	Runemax = 0x10FFFF	/* maximum rune value */
 };
 
 /* Edit .+1,/^$/ | cfn $PLAN9/src/lib9/utf/?*.c | grep -v static |grep -v __ */

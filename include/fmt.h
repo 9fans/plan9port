@@ -30,7 +30,7 @@ struct Fmt{
 	void	*farg;			/* to make flush a closure */
 	int	nfmt;			/* num chars formatted so far */
 	va_list	args;			/* args passed to dofmt */
-	int	r;			/* % format Rune */
+	Rune	r;			/* % format Rune */
 	int	width;
 	int	prec;
 	unsigned long	flags;

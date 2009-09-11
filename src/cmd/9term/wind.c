@@ -193,7 +193,7 @@ winctl(void *arg)
 	Rune *rp, *bp, *up, *kbdr;
 	uint qh;
 	int nr, nb, c, wid, i, npart, initial, lastb;
-	char *s, *t, part[3];
+	char *s, *t, part[UTFmax];
 	Window *w;
 	Mousestate *mp, m;
 	enum { WKey, WMouse, WMouseread, WCtl, WCwrite, WCread, WWread, NWALT };
