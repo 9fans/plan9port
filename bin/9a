@@ -5,5 +5,11 @@ if [ $# != 1 ]; then
 	exit 1
 fi
 
+aflags=""
+case "`uname`" in
+Darwin)
+	aflags="-arch i386"
+esac
+
 out=`echo $1 | sed 's/\.s$//;s/$/.o/'`
-exec as -o $out $1
+exec as $aflags -o $out $1

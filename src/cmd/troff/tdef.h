@@ -68,6 +68,8 @@ typedef	struct	Tbuf	Tbuf;
 #define	oputs(a)	OUT "%s", a PUT
 #define	oput(c)		( *obufp++ = (c), obufp > obuf+BUFSIZ ? flusho() : 1 )
 
+#undef	sprintf	/* Snow Leopard */
+
 extern	char	errbuf[];
 #define	ERROR	sprintf(errbuf,
 #define	WARN	), errprint()

@@ -46,7 +46,7 @@ case "$tag" in
 	esac
 	;;
 *Darwin*)
-	ld=gcc
+	ld="gcc -m32"
 	;;
 *SunOS*)
 	ld="${CC9:-cc} -g"

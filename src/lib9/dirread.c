@@ -1,3 +1,7 @@
+#if defined(__APPLE__)
+#define _DARWIN_NO_64_BIT_INODE	/* Snow Leopard */
+#endif
+
 #include <u.h>
 #define NOPLAN9DEFINES
 #include <libc.h>

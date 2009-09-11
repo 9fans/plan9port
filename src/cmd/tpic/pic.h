@@ -12,6 +12,9 @@
 #define	dprintf	if(dbg)printf
 
 extern	char	errbuf[200];
+
+#undef	sprintf	/* Snow Leopard */
+
 #define	ERROR	sprintf(errbuf,
 #define	FATAL	), yyerror(errbuf), exit(1)
 #define	WARNING	), yyerror(errbuf)

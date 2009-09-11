@@ -18,6 +18,8 @@ extern int class[LAST][LAST];
 #define	max(x,y)	(((x) >= (y)) ? (x) : (y))	/* beware of side effects */
 #define	min(x,y)	(((x) <= (y)) ? (x) : (y))
 
+#undef	sprintf	/* Snow Leopard */
+
 extern	char	errbuf[200];
 extern	char	*cmdname;
 #define	ERROR	sprintf(errbuf,

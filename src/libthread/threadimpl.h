@@ -6,6 +6,9 @@
 #include <sched.h>
 #include <signal.h>
 #if !defined(__OpenBSD__)
+#	if defined(__APPLE__)
+#		define _XOPEN_SOURCE 	/* for Snow Leopard */
+#	endif
 #	include <ucontext.h>
 #endif
 #include <sys/utsname.h>
