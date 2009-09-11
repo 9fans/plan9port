@@ -1350,6 +1350,9 @@ textdoubleclick(Text *t, uint *q0, uint *q1)
 	Rune *r, *l, *p;
 	uint q;
 
+	if(textclickhtmlmatch(t, q0, q1))
+		return;
+	
 	for(i=0; left[i]!=nil; i++){
 		q = *q0;
 		l = left[i];
@@ -1381,9 +1384,6 @@ textdoubleclick(Text *t, uint *q0, uint *q1)
 			return;
 		}
 	}
-	
-	if(textclickhtmlmatch(t, q0, q1))
-		return;
 	
 	/* try filling out word to right */
 	while(*q1<t->file->b.nc && isalnum(textreadc(t, *q1)))
