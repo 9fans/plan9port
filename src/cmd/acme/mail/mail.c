@@ -84,9 +84,12 @@ threadmain(int argc, char *argv[])
 	quotefmtinstall();
 
 	/* open these early so we won't miss notification of new mail messages while we read mbox */
-	plumbsendfd = plumbopenfid("send", OWRITE|OCEXEC);
-	plumbseemailfd = plumbopenfid("seemail", OREAD|OCEXEC);
-	plumbshowmailfd = plumbopenfid("showmail", OREAD|OCEXEC);
+	if((plumbsendfd = plumbopenfid("send", OWRITE|OCEXEC)) == nil)
+		fprint(2, "warning: open plumb/send: %r\n");
+	if((plumbseemailfd = plumbopenfid("seemail", OREAD|OCEXEC)) == nil)
+		fprint(2, "warning: open plumb/seemail: %r\n");
+	if((plumbshowmailfd = plumbopenfid("showmail", OREAD|OCEXEC)) == nil)
+		fprint(2, "warning: open plumb/showmail: %r\n");
 
 	shortmenu = 0;
 	srvname = "mail";

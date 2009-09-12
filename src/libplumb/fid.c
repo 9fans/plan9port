@@ -138,6 +138,10 @@ plumbrecvfid(CFid *fid)
 	Plumbmsg *m;
 	int n, more;
 
+	if(fid == nil){
+		werrstr("invalid fid");
+		return nil;
+	}
 	buf = malloc(8192);
 	if(buf == nil)
 		return nil;
