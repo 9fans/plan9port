@@ -732,7 +732,7 @@ struct {
 char*
 getsnarf(void)
 {
-	char *s, *t;
+	char *s;
 	CFArrayRef flavors;
 	CFDataRef data;
 	CFIndex nflavor, ndata, j;
@@ -741,6 +741,9 @@ getsnarf(void)
 	PasteboardItemID id;
 	PasteboardSyncFlags flags;
 	UInt32 i;
+	u16int *u;
+	Fmt fmt;
+	Rune r;
 
 /*	fprint(2, "applegetsnarf\n"); */
 	qlock(&clip.lk);
@@ -775,15 +778,26 @@ getsnarf(void)
 				continue;
 			if(PasteboardCopyItemFlavorData(clip.apple, id, type, &data) != noErr)
 				continue;
-			ndata = CFDataGetLength(data);
 			qunlock(&clip.lk);
-			s = smprint("%.*S", ndata/2, (Rune*)CFDataGetBytePtr(data));
+			ndata = CFDataGetLength(data)/2;
+			u = (u16int*)CFDataGetBytePtr(data);
+			fmtstrinit(&fmt);
+			// decode utf-16.  what was apple thinking?
+			for(i=0; i<ndata; i++) {
+				r = u[i];
+				if(0xd800 <= r && r < 0xdc00 && i+1 < ndata && 0xdc00 <= u[i+1] && u[i+1] < 0xe000) {
+					r = (((r - 0xd800)<<10) |  (u[i+1] - 0xdc00)) + 0x10000;
+					i++;
+				}
+				else if(0xd800 <= r && r < 0xe000)
+					r = Runeerror;
+				if(r == '\r')
+					r = '\n';
+				fmtrune(&fmt, r);
+			}
 			CFRelease(flavors);
 			CFRelease(data);
-			for(t=s; *t; t++)
-				if(*t == '\r')
-					*t = '\n';
-			return s;
+			return fmtstrflush(&fmt);
 		}
 		CFRelease(flavors);
 	}
@@ -796,6 +810,9 @@ putsnarf(char *s)
 {
 	CFDataRef cfdata;
 	PasteboardSyncFlags flags;
+	u16int *u, *p;
+	Rune r;
+	int i;
 
 /*	fprint(2, "appleputsnarf\n"); */
 
@@ -816,9 +833,23 @@ putsnarf(char *s)
 		qunlock(&clip.lk);
 		return;
 	}
-	assert(sizeof(clip.rbuf[0]) == 2);
+	u = malloc(runestrlen(clip.rbuf)*4);
+	p = u;
+	for(i=0; clip.rbuf[i]; i++) {
+		r = clip.rbuf[i];
+		// convert to utf-16
+		if(0xd800 <= r && r < 0xe000)
+			r = Runeerror;
+		if(r >= 0x10000) {
+			r -= 0x10000;
+			*p++ = 0xd800 + (r>>10);
+			*p++ = 0xdc00 + (r & ((1<<10)-1));
+		} else
+			*p++ = r;
+	}
 	cfdata = CFDataCreate(kCFAllocatorDefault, 
-		(uchar*)clip.rbuf, runestrlen(clip.rbuf)*2);
+		(uchar*)u, (p-u)*2);
+	free(u);
 	if(cfdata == nil){
 		fprint(2, "apple pasteboard cfdatacreate failed\n");
 		qunlock(&clip.lk);
