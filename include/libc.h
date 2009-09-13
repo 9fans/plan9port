@@ -70,10 +70,11 @@ extern	int	tokenize(char*, char**, int);
 /*
 enum
 {
-	UTFmax		= 3,
+	UTFmax		= 4,
 	Runesync	= 0x80,
 	Runeself	= 0x80,
-	Runeerror	= 0x80,
+	Runeerror	= 0xFFFD,
+	Runemax	= 0x10FFFF,
 };
 */
 
