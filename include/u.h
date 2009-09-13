@@ -34,6 +34,9 @@ extern "C" {
 #if defined(__AIX__)
 #	define _XOPEN_SOURCE 1
 #endif
+#if defined(__APPLE__)
+#	define _DARWIN_NO_64_BIT_INODE	/* Snow Leopard */
+#endif
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 
