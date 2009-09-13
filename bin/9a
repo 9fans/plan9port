@@ -8,7 +8,7 @@ fi
 aflags=""
 case "`uname`" in
 Darwin)
-	aflags="-arch i386"
+	aflags="-arch `arch`"
 esac
 
 out=`echo $1 | sed 's/\.s$//;s/$/.o/'`
