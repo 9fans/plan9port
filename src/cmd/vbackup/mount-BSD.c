@@ -9,8 +9,13 @@
 #include <rpc/rpc.h>
 #include <rpc/pmap_clnt.h>
 #include <rpc/pmap_prot.h>
+#if defined(__FreeBSD_version) && __FreeBSD_version >= 800000
+#include <fs/nfs/rpcv2.h>
+#include <fs/nfs/nfsproto.h>
+# else
 #include <nfs/rpcv2.h>
 #include <nfs/nfsproto.h>
+#endif
 #if defined(__FreeBSD_version) && __FreeBSD_version >= 500000
 #	include <nfsclient/nfs.h>
 #	ifndef MNT_NODEV
