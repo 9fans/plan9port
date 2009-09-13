@@ -97,7 +97,6 @@ lockopen(char *file)
 		fd = open(file, OLOCK|ORDWR);
 		if(fd >= 0)
 			return fd;
-print("open %s: %r\n", file);
 		errstr(err, sizeof err);
 		if(strstr(err, "lock")){
 			/* wait for other process to let go of lock */
@@ -297,8 +296,6 @@ idtobinding(char *id, Info *iip, int ping)
 		}
 	}
 
-print("looking for old for %I\n", iip->ipnet);
-
 	/*
 	 *  look for oldest binding that we think is unused
 	 */
@@ -306,7 +303,6 @@ print("looking for old for %I\n", iip->ipnet);
 		oldest = nil;
 		oldesttime = 0;
 		for(b = bcache; b; b = b->next){
-print("tried %d now %d lease %d exp %d %I\n", b->tried, now, b->lease, b->expoffer, b->ip);
 			if(b->tried != now)
 			if(b->lease < now && b->expoffer < now && samenet(b->ip, iip))
 			if(oldest == nil || b->lasttouched < oldesttime){
@@ -315,7 +311,6 @@ print("tried %d now %d lease %d exp %d %I\n", b->tried, now, b->lease, b->expoff
 				if(b->lease < now && b->expoffer < now && samenet(b->ip, iip))
 				if(oldest == nil || b->lasttouched < oldesttime){
 					oldest = b;
-print("have oldest\n");
 					oldesttime = b->lasttouched;
 				}
 			}
@@ -325,7 +320,6 @@ print("have oldest\n");
 
 		/* make sure noone is still using it */
 		oldest->tried = now;
-print("return oldest\n");
 		if(ping == 0 || icmpecho(oldest->ip) == 0)
 			return oldest;
 
@@ -378,11 +372,9 @@ idtooffer(char *id, Info *iip)
 
 	/* look for an offer to this id */
 	for(b = bcache; b; b = b->next){
-print("%I %I ? offeredto %s id %s\n", b->ip, iip->ipnet, b->offeredto, id);
 		if(b->offeredto && strcmp(b->offeredto, id) == 0 && samenet(b->ip, iip)){
 			/* make sure some other system hasn't stolen it */
 			syncbinding(b, 0);
-print("b->lease %d now %d boundto %s offered %s\n", b->lease, now, b->boundto, b->offeredto);
 			if(b->lease < now
 			|| (b->boundto && strcmp(b->boundto, b->offeredto) == 0))
 				return b;

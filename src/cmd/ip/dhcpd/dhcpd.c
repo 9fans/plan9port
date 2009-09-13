@@ -294,8 +294,10 @@ main(int argc, char **argv)
 	fd = openlisten(net);
 	wfd = fd;
 	bwfd = fd;
+#ifdef SO_BINDTODEVICE
 	if(setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, "eth0", 5) < 0)
 		print("setsockopt: %r\n");
+#endif
 
 	for(;;){
 		memset(&r, 0, sizeof(r));
@@ -752,7 +754,6 @@ sendoffer(Req *rp, uchar *ip, int offer)
 	 *  send
 	 */
 	n = rp->p - rp->buf;
-print("OFFER: %I %I %d %d\n", rp->up->laddr, rp->up->raddr, nhgets(rp->up->lport), nhgets(rp->up->rport));
 	if(!mute && udpwrite(fd, rp->up, rp->buf, n) != n)
 		warning(0, "offer: write failed: %r");
 }
