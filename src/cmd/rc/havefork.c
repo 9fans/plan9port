@@ -177,18 +177,33 @@ Xpipefd(void)
 	int pc = p->pc, pid;
 	char name[40];
 	int pfd[2];
-	int sidefd, mainfd;
-	if(pipe(pfd)<0){
-		Xerror("can't get pipe");
-		return;
+	struct { int sidefd, mainfd; } fd[2], *r, *w;
+
+	r = &fd[0];
+	w = &fd[1];
+	switch(p->code[pc].i){
+	case READ:
+		w = nil;
+		break;
+	case WRITE:
+		r = nil;
 	}
-	if(p->code[pc].i==READ){
-		sidefd = pfd[PWR];
-		mainfd = pfd[PRD];
+
+	if(r){
+		if(pipe(pfd)<0){
+			Xerror("can't get pipe");
+			return;
+		}
+ 		r->sidefd = pfd[PWR];
+ 		r->mainfd = pfd[PRD];
 	}
-	else{
-		sidefd = pfd[PRD];
-		mainfd = pfd[PWR];
+	if(w){
+		if(pipe(pfd)<0){
+			Xerror("can't get pipe");
+			return;
+		}
+ 		w->sidefd = pfd[PRD];
+ 		w->mainfd = pfd[PWR];
 	}
 	switch(pid = fork()){
 	case -1:
@@ -197,17 +212,32 @@ Xpipefd(void)
 	case 0:
 		clearwaitpids();
 		start(p->code, pc+2, runq->local);
-		close(mainfd);
-		pushredir(ROPEN, sidefd, p->code[pc].i==READ?1:0);
+		if(r){
+			close(r->mainfd);
+			pushredir(ROPEN, r->sidefd, 1);
+		}
+		if(w){
+			close(w->mainfd);
+			pushredir(ROPEN, w->sidefd, 0);
+		}
 		runq->ret = 0;
 		break;
 	default:
 		addwaitpid(pid);
-		close(sidefd);
-		pushredir(ROPEN, mainfd, mainfd);	/* isn't this a noop? */
-		strcpy(name, Fdprefix);
-		inttoascii(name+strlen(name), mainfd);
-		pushword(name);
+		if(w){
+			close(w->sidefd);
+			pushredir(ROPEN, w->mainfd, w->mainfd);	/* so that Xpopredir can close it later */
+			strcpy(name, Fdprefix);
+			inttoascii(name+strlen(name), w->mainfd);
+			pushword(name);
+		}
+		if(r){
+			close(r->sidefd);
+			pushredir(ROPEN, r->mainfd, r->mainfd);
+			strcpy(name, Fdprefix);
+			inttoascii(name+strlen(name), r->mainfd);
+			pushword(name);
+		}
 		p->pc = p->code[pc+1].i;
 		break;
 	}

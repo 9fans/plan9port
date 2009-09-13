@@ -264,6 +264,20 @@ to compare their outputs
 	cmp <{old} <{new}
 .EE
 .HP
+.BI <>{ command }
+.br
+The
+.I command
+is executed asynchronously with its standard input and
+output each connected to a pipe.  The value of the argument
+is a pair of file names referring to the two other ends
+of the pipes, in the order corresponding to the symbols
+.B <
+and
+.B >
+(first the pipe connected to the command's standard output,
+then the pipe connected to its standard input).
+.HP
 .IB argument ^ argument
 .br
 The
