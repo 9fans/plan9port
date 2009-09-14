@@ -830,6 +830,23 @@ long _p9keysym2ucs(KeySym keysym)
     int max = sizeof(keysymtab) / sizeof(struct codepair) - 1;
     int mid;
 
+    switch(keysym){
+    case 0xfe53: /*dead tilde*/
+        keysym = 0x007e; /*asciitilde*/
+        break;
+    case 0xfe52: /*dead_circumflex*/
+        keysym = 0x005e; /*asciicircum*/
+        break;
+    case 0xfe51: /*dead_acute*/
+        keysym = 0x0027; /*apostrophe*/
+        break;
+    case 0xfe50: /*dead_grave*/
+        keysym = 0x0060; /*grave*/
+        break;
+    default:
+        break;
+    }
+
     /* first check for Latin-1 characters (1:1 mapping) */
     if ((keysym >= 0x0020 && keysym <= 0x007e) ||
         (keysym >= 0x00a0 && keysym <= 0x00ff))
