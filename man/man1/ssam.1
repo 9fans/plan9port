@@ -1,0 +1,72 @@
+.TH SSAM 1
+.SH NAME
+ssam \- stream interface to sam
+.SH SYNOPSIS
+.B ssam
+[
+.B -n
+]
+[
+.B -e
+.I script
+]
+[
+.B -f
+.I sfile
+]
+[
+.I file ...
+]
+.SH DESCRIPTION
+.I Ssam
+copies the named
+.I files
+(standard input default) to the standard output, edited by a script of
+.IR sam
+commands (q.v.).
+When the script starts, the entire input is selected.
+The
+.B -f
+option causes the script to be taken from file
+.IR sfile .
+If there is a
+.B -e
+option and no
+.BR -f ,
+the flag
+.B -e
+may be omitted. 
+The
+.B -n
+option suppresses the default output.
+.ne 4
+.SH EXAMPLES
+.TP
+.B ssam -n ,10p file
+Print first 10 lines of file.
+.TP
+.B ssam 'y/[a-zA-Z]+/ c/\en/' *.ms
+Print one word per line.
+.TP
+.B ssam 's/\en\en+/\en/g'
+Delete empty lines from standard input.
+.TP
+.B ssam 's/UNIX/& system/g'
+Replace every instance of 
+.L UNIX
+by
+.LR "UNIX system" .
+.TP
+.B ssam 'y/[a-zA-Z]+/ c/\en/' | grep . | sort | uniq -c
+Count frequency of words read from standard input.
+.SH SOURCE
+.B \*9/bin/ssam
+.SH SEE ALSO
+.IR sed (1), 
+.IR sam (1),
+.IR regexp (7)
+.PP
+Rob Pike,
+``The text editor sam''.
+.SH BUGS
+Ssam consumes all of standard input before running the script.
