@@ -19,7 +19,8 @@ void	keyboardthread(void*);
 void	waitthread(void*);
 void	xfidallocthread(void*);
 void	newwindowthread(void*);
-void plumbproc(void*);
+void	plumbproc(void*);
+int	timefmt(Fmt*);
 
 Reffont	**fontcache;
 int		nfontcache;
@@ -127,6 +128,8 @@ threadmain(int argc, char *argv[])
 	fontnames[1] = estrdup(fontnames[1]);
 
 	quotefmtinstall();
+	fmtinstall('t', timefmt);
+
 	cputype = getenv("cputype");
 	objtype = getenv("objtype");
 	home = getenv("HOME");
@@ -1067,3 +1070,14 @@ ismtpt(char *file)
 	n = strlen(mtpt);
 	return strncmp(file, mtpt, n) == 0 && ((n > 0 && mtpt[n-1] == '/') || file[n] == '/' || file[n] == 0);
 }
+
+int
+timefmt(Fmt *f)
+{
+	Tm *tm;
+
+	tm = localtime(va_arg(f->args, ulong));
+	return fmtprint(f, "%04d/%02d/%02d %02d:%02d:%02d",
+		tm->year+1900, tm->mon+1, tm->mday, tm->hour, tm->min, tm->sec);
+}
+

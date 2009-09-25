@@ -644,14 +644,14 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	d = dirstat(name);
 	if(d!=nil && runeeq(namer, nname, f->name, f->nname)){
 		/* f->mtime+1 because when talking over NFS it's often off by a second */
-		if(f->dev!=d->dev || f->qidpath!=d->qid.path || f->mtime+1<d->mtime){
-			f->dev = d->dev;
-			f->qidpath = d->qid.path;
-			f->mtime = d->mtime;
+		if(f->dev!=d->dev || f->qidpath!=d->qid.path || abs(f->mtime-d->mtime) > 1){
 			if(f->unread)
 				warning(nil, "%s not written; file already exists\n", name);
 			else
-				warning(nil, "%s modified%s%s since last read\n", name, d->muid[0]?" by ":"", d->muid);
+				warning(nil, "%s modified%s%s since last read\n\twas %t; now %t\n", name, d->muid[0]?" by ":"", d->muid, f->mtime, d->mtime);
+			f->dev = d->dev;
+			f->qidpath = d->qid.path;
+			f->mtime = d->mtime;
 			goto Rescue1;
 		}
 	}

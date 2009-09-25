@@ -188,7 +188,7 @@ textcolumnate(Text *t, Dirlist **dlp, int ndl)
 	}
 }
 
-uint
+int
 textload(Text *t, uint q0, char *file, int setqid)
 {
 	Rune *rp;
@@ -203,16 +203,16 @@ textload(Text *t, uint q0, char *file, int setqid)
 		error("text.load");
 	if(t->w->isdir && t->file->nname==0){
 		warning(nil, "empty directory name");
-		return 0;
+		return -1;
 	}
 	if(ismtpt(file)){
 		warning(nil, "will not open self mount point %s\n", file);
-		return 0;
+		return -1;
 	}
 	fd = open(file, OREAD);
 	if(fd < 0){
 		warning(nil, "can't open %s: %r\n", file);
-		return 0;
+		return -1;
 	}
 	d = dirfstat(fd);
 	if(d == nil){
@@ -303,7 +303,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 
     Rescue:
 	close(fd);
-	return 0;
+	return -1;
 }
 
 uint

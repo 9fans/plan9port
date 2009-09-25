@@ -134,7 +134,7 @@ struct File
 	Rune		*name;	/* name of associated file */
 	int		nname;	/* size of name */
 	uvlong	qidpath;	/* of file when read */
-	uint		mtime;	/* of file when read */
+	ulong		mtime;	/* of file when read */
 	int		dev;		/* of file when read */
 	int		unread;	/* file has not been read from disk */
 	int		editclean;	/* mark clean after edit command */
@@ -210,7 +210,7 @@ void		textfill(Text*);
 void		textframescroll(Text*, int);
 void		textinit(Text*, File*, Rectangle, Reffont*, Image**);
 void		textinsert(Text*, uint, Rune*, uint, int);
-uint		textload(Text*, uint, char*, int);
+int		textload(Text*, uint, char*, int);
 Rune		textreadc(Text*, uint);
 void		textredraw(Text*, Rectangle, Font*, Image*, int);
 void		textreset(Text*);

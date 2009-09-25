@@ -754,7 +754,8 @@ openfile(Text *t, Expand *e)
 		w = makenewwindow(t);
 		t = &w->body;
 		winsetname(w, e->name, e->nname);
-		textload(t, 0, e->bname, 1);
+		if(textload(t, 0, e->bname, 1) >= 0)
+			t->file->unread = FALSE;
 		t->file->mod = FALSE;
 		t->w->dirty = FALSE;
 		winsettag(t->w);
