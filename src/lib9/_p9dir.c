@@ -189,7 +189,14 @@ _p9dir(struct stat *lst, struct stat *st, char *name, Dir *d, char **str, char *
 		d->type = 'M';
 
 		d->muid = "";
-		d->qid.path = ((uvlong)st->st_dev<<32) | st->st_ino;
+		d->qid.path = st->st_ino;
+		/*
+		 * do not include st->st_dev in path, because
+		 * automounters give the same file system different
+		 * st_dev values for successive mounts, causing
+		 * spurious write warnings in acme and sam.
+		d->qid.path |= (uvlong)st->st_dev<<32;
+		 */
 #ifdef _HAVESTGEN
 		d->qid.vers = st->st_gen;
 #endif
