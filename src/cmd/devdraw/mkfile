@@ -7,7 +7,7 @@ WSYSOFILES=\
 	latin1.$O\
 	mouseswap.$O\
 	winsize.$O\
-	
+
 <|sh ./mkwsysrules.sh
 
 OFILES=$WSYSOFILES
@@ -32,3 +32,12 @@ latin1.h: $PLAN9/lib/keyboard $O.mklatinkbd
 	./$O.mklatinkbd -r $PLAN9/lib/keyboard | sed 's/, }/ }/' >$target
 
 CLEANFILES=latin1.h $O.mklatinkbd
+
+# Still in progress: Cocoa/Objective C version of devdraw
+
+%-objc.$O: %.m
+	$CC $CFLAGS -o $target $stem.m
+
+devdraw-cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-screen-objc.o osx-draw.o osx-srv-objc.o osx-delegate-objc.o
+	$LD -o $target $prereq
+
