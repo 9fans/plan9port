@@ -1,0 +1,41 @@
+#!/usr/local/plan9/bin/rc
+# ssam - stream interface to sam
+
+flagfmt='n,e script,f sfile'
+args='[ file ... ]'
+if(! ifs=() eval `{getflags $*}){
+	usage
+	exit usage
+}
+
+if(~ $#flage 0 && ~ $#flagf 0) {
+	if(~ $#* 0) {
+		usage
+		exit usage
+	}
+	flage=$1
+	shift
+}
+
+if(~ $#TMPDIR 0)
+	TMPDIR=/tmp
+tmp=$TMPDIR/ssam.tmp.$USER.$pid
+cat $* >$tmp
+
+{
+	# select entire file
+	echo ',{'
+	echo k
+	echo '}'
+	echo 0k
+
+	# run scripts, print
+	if(! ~ $#flagf 0)
+		cat $flagf
+	if(! ~ $#flage 0)
+		echo $flage
+	if(~ $#flagn 0)
+		echo ,
+} | sam -d $tmp >[2]/dev/null
+
+rm -f $tmp
