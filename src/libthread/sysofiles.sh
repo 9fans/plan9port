@@ -4,6 +4,9 @@ test -f $PLAN9/config && . $PLAN9/config
 
 tag="$OBJTYPE-$SYSNAME-${SYSVERSION:-`uname -r`}-${CC9:-cc}"
 case "$tag" in
+arm-Linux-*)
+	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o
+	;;	
 *-Linux-2.6.*)
 	echo pthread.o
 	;;
@@ -35,6 +38,10 @@ sparc64-Linux)
 	# Debian glibc doesn't supply swapcontext, makecontext
 	# so we supply our own copy from the latest glibc.
 	echo Linux-sparc64-context.o Linux-sparc64-swapcontext.o
+	;;
+arm-Linux)
+	# ARM doesn't supply them either.
+	echo Linux-arm-context.o Linux-arm-swapcontext.o
 	;;
 esac
 
