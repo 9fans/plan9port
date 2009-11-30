@@ -485,7 +485,9 @@ kbdevent(EventRef event)
 		k = ch;
 		if(code < nelem(keycvt) && keycvt[code])
 			k = keycvt[code];
-		if(k >= 0)
+		if(k == 0)
+			return noErr;
+		else if(k > 0)
 			keystroke(k);
 		else{
 			UniChar uc;
