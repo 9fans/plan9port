@@ -631,6 +631,8 @@ rowload(Row *row, char *file, int initing)
 		}
 	}
 	for(;;){
+		if(l == nil)
+			break;
 		dumpid = 0;
 		switch(l[0]){
 		case 'e':
@@ -775,8 +777,6 @@ rowload(Row *row, char *file, int initing)
 		w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));
 Nextline:
 		l = rdline(b, &line);
-		if(l == nil)
-			break;
 	}
 	Bterm(b);
 	fbuffree(buf);
