@@ -139,7 +139,7 @@ loginsert(File *f, uint p0, Rune *s, uint ns)
 
 	if(merge.f != f
 	|| p0-(merge.p0+merge.n)>Maxmerge			/* too far */
-	|| merge.nbuf+((p0+ns)-(merge.p0+merge.n))>RBUFSIZE)	/* too long */
+	|| merge.nbuf+((p0+ns)-(merge.p0+merge.n))>=RBUFSIZE)	/* too long */
 		flushmerge();
 
 	if(ns>=RBUFSIZE){
@@ -178,7 +178,7 @@ logdelete(File *f, uint p0, uint p1)
 
 	if(merge.f != f
 	|| p0-(merge.p0+merge.n)>Maxmerge			/* too far */
-	|| merge.nbuf+(p0-(merge.p0+merge.n))>RBUFSIZE){	/* too long */
+	|| merge.nbuf+(p0-(merge.p0+merge.n))>=RBUFSIZE){	/* too long */
 		flushmerge();
 		merge.f = f;
 		merge.p0 = p0;
