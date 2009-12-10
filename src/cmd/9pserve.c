@@ -132,8 +132,6 @@ int timefmt(Fmt*);
 void dorootstat(void);
 int stripudirread(Msg*);
 int cvtustat(Fcall*, uchar**, int);
-void cvtuauthattach(Fcall*, uchar**);
-void cvtucreate(Fcall*, uchar**);
 
 void
 usage(void)
@@ -151,6 +149,7 @@ threadmain(int argc, char **argv)
 	char *file, *x, *addr;
 	int fd;
 
+	rfork(RFNOTEG);
 	x = getenv("verbose9pserve");
 	if(x){
 		verbose = atoi(x);
@@ -441,8 +440,6 @@ connthread(void *arg)
 				m->tx.uname = getuser();	/* what srv.c used */
 				repack(&m->tx, &m->tpkt, c->dotu);
 			}
-			if(dotu && !c->dotu)
-				cvtuauthattach(&m->tx, &m->tpkt);
 			break;
 		case Twalk:
 			if((m->fid = gethash(c->fid, m->tx.fid)) == nil){
@@ -477,16 +474,12 @@ connthread(void *arg)
 				continue;
 			}
 			m->afid->ref++;
-			if(dotu && !c->dotu)
-				cvtuauthattach(&m->tx, &m->tpkt);
 			break;
 		case Tcreate:
 			if(dotu && !c->dotu && (m->tx.perm&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET))){
 				err(m, "unsupported file type");
 				continue;
 			}
-			if(dotu && !c->dotu)
-				cvtucreate(&m->tx, &m->tpkt);
 			goto caseTopen;
 		case Topenfd:
 			if(m->tx.mode&~(OTRUNC|3)){
@@ -1540,48 +1533,3 @@ stripudirread(Msg* msg)
 	return 0;
 }
 
-void*
-updateptr(uchar *p0, uchar *p0old, void *p)
-{
-	return p0 + ((uchar*)p - p0old);
-}
-
-uchar*
-growpkt(uchar **ppkt, int sz)
-{
-	int n;
-	uchar *ap, *pkt;
-
-	pkt = *ppkt;
-	n = GBIT32(pkt);
-	pkt = erealloc(pkt, n+sz);
-	PBIT32(pkt, n+sz);
-	ap = &pkt[n];
-	memset(ap, 0, sz);
-	*ppkt = pkt;
-	return ap;	
-}
-void
-cvtuauthattach(Fcall *f, uchar **ppkt)
-{
-	uchar *opkt, *ap;
-	
-	opkt = *ppkt;
-	ap = growpkt(ppkt, BIT32SZ);
-	PBIT32(ap, NOUID);
-
-	if(*ppkt != opkt){
-		f->uname = updateptr(*ppkt, opkt, f->uname);
-		f->aname = updateptr(*ppkt, opkt, f->aname);
-	}
-}
-void
-cvtucreate(Fcall *f, uchar **ppkt)
-{
-	uchar *opkt;
-
-	opkt = *ppkt;
-	growpkt(ppkt, BIT16SZ);	/* add an empty `extension' */
-	if(*ppkt != opkt)
-		f->name = updateptr(*ppkt, opkt, f->name);
-}
