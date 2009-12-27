@@ -189,7 +189,8 @@ char *DWBhome(void)
 	    if ( (home = DWBHOME) == NULL || *home == '\0' || *home == ' ' )
 		home = NULL;
 	}   /* End if */
-	home = unsharp(home);
+	if ( home != NULL )
+	    home = unsharp(home);
     }	/* End if */
 
     while (home && *home == '/' && *(home +1) == '/')	/* remove extra slashes */
