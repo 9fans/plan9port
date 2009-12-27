@@ -1,6 +1,6 @@
 .TH HG 1
 .SH NAME 
-hg \- introduction to using plan9port Mercurial repository
+hg, cvs \- introduction to using plan9port Mercurial repository
 .SH SYNOPSIS
 .B hg
 .B clone
@@ -34,8 +34,6 @@ The master source tree for Plan 9 from User Space is maintained
 using the source control system Mercurial
 as a substitute for Plan 9's
 \fIreplica\fR(8) and dump file system.
-(It is maintained simultaneously using CVS; see
-.IR cvs (1).)
 .PP
 The first argument to
 .I hg
@@ -101,8 +99,7 @@ directory containing Mercurial local repository
 .B .hgignore
 list of files and wildcards to exclude from Mercurial operations
 .SH SEE ALSO
-.IR codereview (1),
-.IR cvs (1)
+.IR codereview (1)
 .PP
 Unix's
 \fIhg\fR(1),
@@ -110,7 +107,5 @@ Unix's
 .PP
 .HR http://code.swtch.com/plan9port/
 .SH BUGS
-The use of Mercurial for accessing Plan 9 from User Space
-should be considered experimental.
-People uncomfortable with Mercurial should continue to use
-.IR cvs (1).
+Plan 9 from User Space is no longer accessible using CVS;
+you must use Mercurial.

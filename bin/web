@@ -90,6 +90,9 @@ plumbunix()
 		$BROWSER -remote 'openURL('"$@"',new-tab)' ||
 		$BROWSER "$@"
 		;;
+	*google-chrome*)
+		$BROWSER "$@"
+		;;
 	esac
 }
 

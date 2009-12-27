@@ -1,9 +1,10 @@
+getflags getflags.8
+usage getflags.8
 listen1 listen1.8
 vbackup vbackup.8
 vcat vbackup.8
 vftp vbackup.8
 vmount vbackup.8
-vmount0 vbackup.8
 vnfs vbackup.8
 rdarena venti-backup.8
 venti-backup venti-backup.8
@@ -13,6 +14,7 @@ checkarenas venti-fmt.8
 checkindex venti-fmt.8
 conf venti-fmt.8
 fmtarenas venti-fmt.8
+fmtbloom venti-fmt.8
 fmtindex venti-fmt.8
 fmtisect venti-fmt.8
 syncindex venti-fmt.8

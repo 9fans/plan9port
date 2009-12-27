@@ -4,10 +4,12 @@ color color.7
 face face.7
 font font.7
 subfont font.7
+htmlroff htmlroff.7
 image image.7
 keyboard keyboard.7
 man man.7
 map map.7
+mhtml mhtml.7
 mpictures mpictures.7
 ms ms.7
 ndb ndb.7
