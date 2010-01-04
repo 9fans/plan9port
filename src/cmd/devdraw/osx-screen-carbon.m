@@ -22,6 +22,11 @@
 #include "glendapng.h"
 
 AUTOFRAMEWORK(Carbon)
+AUTOFRAMEWORK(Cocoa)
+
+#ifdef MULTITOUCH
+AUTOFRAMEWORK(MultiTouchSupport)
+#endif
 
 #define panic sysfatal
 
@@ -54,7 +59,189 @@ struct {
 	int active;
 	int infullscreen;
 	int kalting;		// last keystroke was Kalt
+	int touched;		// last mouse event was touchCallback
+	NSMutableArray* devicelist;
 } osx;
+
+/* 
+ These structs are required, in order to handle some parameters returned from the 
+ Support.framework 
+ */ 
+typedef struct { 
+	float x; 
+	float y; 
+}mtPoint; 
+
+typedef struct { 
+	mtPoint position; 
+	mtPoint velocity; 
+}mtReadout; 
+
+/* 
+ Some reversed engineered informations from MultiTouchSupport.framework 
+ */ 
+typedef struct 
+{ 
+	int frame; //the current frame 
+	double timestamp; //event timestamp 
+	int identifier; //identifier guaranteed unique for life of touch per device 
+	int state; //the current state (not sure what the values mean) 
+	int unknown1; //no idea what this does 
+	int unknown2; //no idea what this does either 
+	mtReadout normalized; //the normalized position and vector of the touch (0,0 to 1,1) 
+	float size; //the size of the touch (the area of your finger being tracked) 
+	int unknown3; //no idea what this does 
+	float angle; //the angle of the touch -| 
+	float majorAxis; //the major axis of the touch -|-- an ellipsoid. you can track the angle of each finger! 
+	float minorAxis; //the minor axis of the touch -| 
+	mtReadout unknown4; //not sure what this is for 
+	int unknown5[2]; //no clue 
+	float unknown6; //no clue 
+}Touch; 
+
+//a reference pointer for the multitouch device 
+typedef void *MTDeviceRef; 
+
+//the prototype for the callback function 
+typedef int (*MTContactCallbackFunction)(int,Touch*,int,double,int); 
+
+//returns a pointer to the default device (the trackpad?) 
+MTDeviceRef MTDeviceCreateDefault(void); 
+
+//returns a CFMutableArrayRef array of all multitouch devices 
+CFMutableArrayRef MTDeviceCreateList(void); 
+
+//registers a device's frame callback to your callback function 
+void MTRegisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction); 
+
+//start sending events 
+void MTDeviceStart(MTDeviceRef, int); 
+void MTDeviceStop(MTDeviceRef); 
+
+#define kNTracks 10
+struct TouchTrack {
+	int id;
+	float firstThreshTime;
+	mtPoint pos;
+} tracks[kNTracks];
+
+#define kSizeSensitivity 1.25f
+#define kTimeSensitivity 0.03f /* seconds */
+#define kButtonLimit 0.6f /* percentage from base of pad */
+
+int
+findTrack(int id)
+{
+	int i;
+	for(i = 0; i < kNTracks; ++i)
+		if(tracks[i].id == id)
+			return i;
+	return -1;
+}
+
+#define kMoveSensitivity 0.05f
+
+int
+moved(mtPoint a, mtPoint b)
+{
+	if(fabs(a.x - b.x) > kMoveSensitivity)
+		return 1;
+	if(fabs(a.y - b.y) > kMoveSensitivity)
+		return 1;
+	return 0;
+}
+
+int
+classifyTouch(Touch *t)
+{
+	mtPoint p;
+	int i;
+
+	p = t->normalized.position;
+
+	i = findTrack(t->identifier);
+	if(i == -1) {
+		i = findTrack(-1);
+		if(i == -1)
+			return 0;	// No empty tracks.
+		tracks[i].id = t->identifier;
+		tracks[i].firstThreshTime = t->timestamp;
+		tracks[i].pos = p;
+		// we don't have a touch yet - we wait kTimeSensitivity before reporting it.
+		return 0;
+	}
+		
+	if(t->size == 0) { // lost touch
+		tracks[i].id = -1;
+		return 0;
+	}
+	if(t->size < kSizeSensitivity) {
+		tracks[i].firstThreshTime = t->timestamp;
+	}
+	if((t->timestamp - tracks[i].firstThreshTime) < kTimeSensitivity) {
+		return 0;
+	}
+	if(p.y > kButtonLimit && t->size > kSizeSensitivity ) {
+		if(p.x < 0.35)
+			return 1;
+		if(p.x > 0.65)
+			return 4;
+		if(p.x > 0.35 && p.x < 0.65)
+			return 2;
+	}
+	return 0;
+}
+
+static ulong msec(void);
+
+int
+touchCallback(int device, Touch *data, int nFingers, double timestamp, int frame)
+{
+#ifdef MULTITOUCH
+	int buttons, delta, i;
+	static int obuttons;
+	CGPoint p;
+	CGEventRef e;
+
+	osx.touched = 1;
+	buttons = 0;
+	for(i = 0; i < nFingers; ++i)
+		buttons |= classifyTouch(data+i);
+	delta = buttons ^ obuttons;
+	obuttons = buttons;
+	p.x = osx.xy.x+osx.screenr.min.x;
+	p.y = osx.xy.y+osx.screenr.min.y;
+	if(delta & 1) {
+		e = CGEventCreateMouseEvent(NULL, 
+			(buttons & 1) ? kCGEventOtherMouseDown : kCGEventOtherMouseUp, 
+			p,
+			29);
+		CGEventPost(kCGSessionEventTap, e);
+		CFRelease(e);
+	}
+	if(delta & 2) {
+		e = CGEventCreateMouseEvent(NULL,
+			(buttons & 2) ? kCGEventOtherMouseDown : kCGEventOtherMouseUp, 
+			p,
+			30);
+		CGEventPost(kCGSessionEventTap, e);
+		CFRelease(e);
+	}
+	if(delta & 4){
+		e = CGEventCreateMouseEvent(NULL, 
+			(buttons & 4) ? kCGEventOtherMouseDown : kCGEventOtherMouseUp, 
+			p,
+			31);
+		CGEventPost(kCGSessionEventTap, e);
+		CFRelease(e);
+	}
+	return delta != 0;
+#else
+	return 0;
+#endif
+}
+
+extern int multitouch;
 
 enum
 {
@@ -89,6 +276,29 @@ enum
 void screeninit(void);
 void _flushmemscreen(Rectangle r);
 
+
+static void
+InitMultiTouch(void)
+{
+#ifdef MULTITOUCH
+	int i;
+
+	/*
+	 * Setup multitouch queues
+	 */
+	if(!multitouch)
+		return;
+
+	for(i = 0; i<kNTracks; ++i)
+		tracks[i].id = -1;
+
+	osx.devicelist = (NSMutableArray*)MTDeviceCreateList(); //grab our device list 
+	for(i = 0; i<[osx.devicelist count]; i++) { //iterate available devices 
+		MTRegisterContactFrameCallback([osx.devicelist objectAtIndex:i], touchCallback); //assign callback for device 
+	}
+#endif
+}
+
 Memimage*
 attachscreen(char *label, char *winsize)
 {
@@ -103,6 +313,8 @@ attachscreen(char *label, char *winsize)
 	}
 	return osx.screenimage;
 }
+
+extern int multitouch;
 
 void
 _screeninit(void)
@@ -202,6 +414,9 @@ _screeninit(void)
 	ShowMenuBar();
 	eresized(0);
 	SelectWindow(osx.window);
+
+	if(multitouch)
+		InitMultiTouch();
 	
 	InitCursor();
 }
@@ -256,7 +471,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 	switch(GetEventClass(event)){
 
 	case 'P9PE':
-		if (GetEventKind(event) == P9PEventLabelUpdate) {
+		if(GetEventKind(event) == P9PEventLabelUpdate) {
 			qlock(&osx.labellock);
 			setlabel(osx.label);
 			qunlock(&osx.labellock);
@@ -341,10 +556,18 @@ mouseevent(EventRef event)
 		SInt32 delta;
 		GetEventParameter(event, kEventParamMouseWheelDelta,
 			typeSInt32, 0, sizeof delta, 0, &delta);
-		if(delta > 0)
-			wheel = 8;
-		else
-			wheel = 16;
+		
+		// if I have any active touches in my region, I need to ignore the wheel motion.
+		//int i;
+		//for(i = 0; i < kNTracks; ++i) {
+		//	if(tracks[i].id != -1 && tracks[i].pos.y > kButtonLimit) break;
+		//}
+		//if(i == kNTracks) { // No active touches, go ahead and scroll.
+			if(delta > 0)
+				wheel = 8;
+			else
+				wheel = 16;
+		//}
 		break;
 	
 	case kEventMouseDown:
@@ -355,11 +578,20 @@ mouseevent(EventRef event)
 		GetEventParameter(event, kEventParamKeyModifiers,
 			typeUInt32, 0, sizeof mod, 0, &mod);
 		
-		// OS X swaps button 2 and 3
-		but = (but & ~6) | ((but & 4)>>1) | ((but&2)<<1);
+		if(osx.touched) {
+			// in multitouch we use the clicks down to enable our 
+			// virtual buttons.
+			if(but & 0x3)
+				but = but >> 29;
+			else 
+				but = 0;
+			osx.touched = 0;
+		} else {
+			// OS X swaps button 2 and 3
+			but = (but & ~6) | ((but & 4)>>1) | ((but&2)<<1);
+			but = mouseswap(but);
+		}
 
-		but = mouseswap(but);
-		
 		// Apply keyboard modifiers and pretend it was a real mouse button.
 		// (Modifiers typed while holding the button go into kbuttons,
 		// but this one does not.)
@@ -487,7 +719,7 @@ kbdevent(EventRef event)
 			k = keycvt[code];
 		if(k == 0)
 			return noErr;
-		else if(k > 0)
+		if(k > 0)
 			keystroke(k);
 		else{
 			UniChar uc;
@@ -625,6 +857,21 @@ _flushmemscreen(Rectangle r)
 void
 activated(int active)
 {
+#ifdef MULTITOUCH
+	int i;
+	if(active) {
+		for(i = 0; i<[osx.devicelist count]; i++) { //iterate available devices 
+			MTDeviceStart([osx.devicelist objectAtIndex:i], 0); //start sending events 
+		} 
+	} else {
+		for(i = 0; i<[osx.devicelist count]; i++) { //iterate available devices 
+			MTDeviceStop([osx.devicelist objectAtIndex:i]); //stop sending events 
+		} 
+		for(i = 0; i<kNTracks; ++i) {
+			tracks[i].id = -1;
+		}
+	}
+#endif
 	osx.active = active;
 }
 
@@ -676,6 +923,7 @@ setmouse(Point p)
 	cgp.x = p.x + osx.screenr.min.x;
 	cgp.y = p.y + osx.screenr.min.y;
 	CGWarpMouseCursorPosition(cgp);
+	osx.xy = p;
 }
 
 void
