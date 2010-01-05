@@ -60,6 +60,7 @@ struct {
 	int infullscreen;
 	int kalting;		// last keystroke was Kalt
 	int touched;		// last mouse event was touchCallback
+	int collapsed;		// parked in dock
 	NSMutableArray* devicelist;
 } osx;
 
@@ -383,6 +384,8 @@ _screeninit(void)
 		{ kEventClassCommand, kEventCommandProcess },
 		{ kEventClassWindow, kEventWindowActivated },
 		{ kEventClassWindow, kEventWindowDeactivated },
+		{ kEventClassWindow, kEventWindowCollapsed },
+		{ kEventClassWindow, kEventWindowExpanded },
 	};
 	const EventTypeSpec events[] = {
 		{ kEventClassApplication, kEventAppShown },
@@ -517,11 +520,22 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			break;
 		
 		case kEventWindowActivated:
-			activated(1);
+			if(!osx.collapsed)
+				activated(1);
 			return eventNotHandledErr;
 					
 		case kEventWindowDeactivated:
 			activated(0);
+			return eventNotHandledErr;
+
+		case kEventWindowCollapsed:
+			osx.collapsed = 1;
+			activated(0);
+			return eventNotHandledErr;
+
+		case kEventWindowExpanded:
+			osx.collapsed = 0;
+			activated(1);
 			return eventNotHandledErr;
 
 		default:
