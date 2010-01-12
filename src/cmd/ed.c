@@ -829,33 +829,37 @@ putfile(void)
 int
 append(int (*f)(void), int *a)
 {
-	int *a1, *a2, *rdot, nline, tl;
+	int *a1, *a2, *rdot, nline, d;
 
 	nline = 0;
 	dot = a;
 	while((*f)() == 0) {
 		if((dol-zero) >= nlall) {
 			nlall += 512;
-			a1 = realloc(zero, (nlall+5)*sizeof(int*));
+			a1 = realloc(zero, (nlall+50)*sizeof(int*));
 			if(a1 == 0) {
 				error("MEM?");
 				rescue();
 			}
-			tl = a1 - zero;	/* relocate pointers */
-			zero += tl;
-			addr1 += tl;
-			addr2 += tl;
-			dol += tl;
-			dot += tl;
+			/* relocate pointers; avoid wraparound if sizeof(int) < sizeof(int*) */
+			d = addr1 - zero;
+			addr1 = a1 + d;
+			d = addr2 - zero;
+			addr2 = a1 + d;
+			d = dol - zero;
+			dol = a1 + d;
+			d = dot - zero;
+			dot = a1 + d;
+			zero = a1;
 		}
-		tl = putline();
+		d = putline();
 		nline++;
 		a1 = ++dol;
 		a2 = a1+1;
 		rdot = ++dot;
 		while(a1 > rdot)
 			*--a2 = *--a1;
-		*rdot = tl;
+		*rdot = d;
 	}
 	return nline;
 }
