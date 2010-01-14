@@ -381,6 +381,7 @@ _screeninit(void)
 	const EventTypeSpec cmds[] = {
 		{ kEventClassWindow, kEventWindowClosed },
 		{ kEventClassWindow, kEventWindowBoundsChanged },
+		{ kEventClassWindow, kEventWindowDrawContent },
 		{ kEventClassCommand, kEventCommandProcess },
 		{ kEventClassWindow, kEventWindowActivated },
 		{ kEventClassWindow, kEventWindowDeactivated },
@@ -519,6 +520,13 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			eresized(1);
 			break;
 		
+		case kEventWindowDrawContent:;
+			// The update says what rectangle needs drawing,
+			// but just draw everything.
+			Rectangle r = Rect(0, 0, Dx(osx.screenr), Dy(osx.screenr));
+			_flushmemscreen(r);
+			break;
+
 		case kEventWindowActivated:
 			if(!osx.collapsed)
 				activated(1);
