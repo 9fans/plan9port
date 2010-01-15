@@ -204,14 +204,16 @@ touchCallback(int device, Touch *data, int nFingers, double timestamp, int frame
 	CGPoint p;
 	CGEventRef e;
 
+	p.x = osx.xy.x+osx.screenr.min.x;
+	p.y = osx.xy.y+osx.screenr.min.y;
+	if(!ptinrect(Pt(p.x, p.y), osx.screenr))
+		return 0;
 	osx.touched = 1;
 	buttons = 0;
 	for(i = 0; i < nFingers; ++i)
 		buttons |= classifyTouch(data+i);
 	delta = buttons ^ obuttons;
 	obuttons = buttons;
-	p.x = osx.xy.x+osx.screenr.min.x;
-	p.y = osx.xy.y+osx.screenr.min.y;
 	if(delta & 1) {
 		e = CGEventCreateMouseEvent(NULL, 
 			(buttons & 1) ? kCGEventOtherMouseDown : kCGEventOtherMouseUp, 
@@ -886,6 +888,7 @@ activated(int active)
 			MTDeviceStart([osx.devicelist objectAtIndex:i], 0); //start sending events 
 		} 
 	} else {
+		osx.xy.x = -10000;
 		for(i = 0; i<[osx.devicelist count]; i++) { //iterate available devices 
 			MTDeviceStop([osx.devicelist objectAtIndex:i]); //stop sending events 
 		} 
