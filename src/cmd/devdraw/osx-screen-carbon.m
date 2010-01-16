@@ -279,7 +279,6 @@ enum
 void screeninit(void);
 void _flushmemscreen(Rectangle r);
 
-
 static void
 InitMultiTouch(void)
 {
@@ -522,11 +521,14 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			eresized(1);
 			break;
 		
-		case kEventWindowDrawContent:;
-			// The update says what rectangle needs drawing,
-			// but just draw everything.
-			Rectangle r = Rect(0, 0, Dx(osx.screenr), Dy(osx.screenr));
-			_flushmemscreen(r);
+		case kEventWindowDrawContent:
+			// Tried using just flushmemimage here, but
+			// it causes an odd artifact in which making a window
+			// bigger in both width and height can then only draw
+			// on the new border: it's like the old window is stuck
+			// floating on top.  Doing a full "get a new window"
+			// seems to solve the problem.
+			eresized(1);
 			break;
 
 		case kEventWindowActivated:
@@ -793,7 +795,7 @@ eresized(int new)
 
 	GetWindowBounds(osx.window, kWindowContentRgn, &or);
 	r = Rect(or.left, or.top, or.right, or.bottom);
-	if(Dx(r) == Dx(osx.screenr) && Dy(r) == Dy(osx.screenr)){
+	if(Dx(r) == Dx(osx.screenr) && Dy(r) == Dy(osx.screenr) && !new){
 		// No need to make new image.
 		osx.screenr = r;
 		return;
