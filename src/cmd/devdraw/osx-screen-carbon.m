@@ -25,7 +25,7 @@ AUTOFRAMEWORK(Carbon)
 AUTOFRAMEWORK(Cocoa)
 
 #ifdef MULTITOUCH
-AUTOFRAMEWORK(MultiTouchSupport)
+AUTOFRAMEWORK(MultitouchSupport)
 #endif
 
 #define panic sysfatal
