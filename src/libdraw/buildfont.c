@@ -70,7 +70,7 @@ buildfont(Display *d, char *buf, char *name)
 		}
 		max = strtol(s, &s, 0);
 		s = skip(s);
-		if(*s==0 || min>=65536 || max>=65536 || min>max){
+		if(*s==0 || min>Runemax || max>Runemax || min>max){
 			werrstr("illegal subfont range");
     Err3:
 			freefont(fnt);
