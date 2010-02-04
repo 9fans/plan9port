@@ -145,8 +145,12 @@ showpage(int page, Menu *m)
 		showbottom = 0;
 	}
 
-	redraw(screen);
-	flushimage(display, 1);
+	if((doc->type == Tgfx) && fitwin)
+		fit();
+	else{
+		redraw(screen);
+	 	flushimage(display, 1);
+	}
 }
 
 char*
@@ -252,6 +256,8 @@ viewer(Document *dd)
 	Rectangle r;
 	int size[2];
 	Image *tmp;
+	PDFInfo *pdf;
+	PSInfo *ps;
 	static char *fwditems[] = { "this page", "next page", "exit", 0 };
  	static char *miditems[] = {
  		"orig size",
@@ -281,7 +287,7 @@ viewer(Document *dd)
 	};
 	Alt alts[CN+1];
 	Plumbmsg *pm;
-
+	
 	cp = chancreate(sizeof pm, 0);
 	assert(cp);
 
@@ -542,7 +548,25 @@ viewer(Document *dd)
 					zerox();
 					break;
 				case Zin:	/* zoom in */
-					{
+					if (dd->type == Tpdf){		/* pdf */
+						pdf = (PDFInfo *) dd->extra;
+						if (pdf != nil){
+							ppi+= 50;
+							setdim(&pdf->gs, Rect(0,0,0,0), ppi, 0);
+							showpage(page, &menu);
+						}
+						break;
+					}
+					if (dd->type == Tps){		/* ps */
+						ps = (PSInfo *) dd->extra;
+						if (ps != nil){
+							ppi+= 50;
+							setdim(&ps->gs, Rect(0,0,0,0), ppi, 0);
+							showpage(page, &menu);
+						}
+						break;
+					}				
+					else{ 	/* image */
 						double delta;
 						Rectangle r;
 
@@ -574,30 +598,12 @@ viewer(Document *dd)
 						break;
 					}
 				case Fit:	/* fit */
-					{
-						double delta;
-						Rectangle r;
-						
-						delta = (double)Dx(screen->r)/(double)Dx(im->r);
-						if((double)Dy(im->r)*delta > Dy(screen->r))
-							delta = (double)Dy(screen->r)/(double)Dy(im->r);
-
-						r = Rect(0, 0, (int)((double)Dx(im->r)*delta), (int)((double)Dy(im->r)*delta));
-						setcursor(mc, &reading);
-						tmp = xallocimage(display, r, im->chan, 0, DBlack);
-						if(tmp == nil) {
-							fprint(2, "out of memory during fit: %r\n");
-							wexits("memory");
-						}
-						resample(im, tmp);
-						im = tmp;
-						delayfreeimage(tmp);
-						setcursor(mc, nil);
-						ul = screen->r.min;
-						redraw(screen);
-						flushimage(display, 1);
-						break;
+					/* no op if pdf or ps*/
+					if (dd->type == Tgfx){
+						fitwin = 1;
+						fit();
 					}
+					break;
 				case Rot:	/* rotate 90 */
 					angle = (angle+90) % 360;
 					showpage(page, &menu);
@@ -607,6 +613,25 @@ viewer(Document *dd)
 					showpage(page, &menu);
 					break;
 				case Restore:	/* restore */
+					if (dd->type == Tpdf){		/* pdf */
+						pdf = (PDFInfo *) dd->extra;
+						if (pdf != nil){
+							ppi = 100;
+							setdim(&pdf->gs, Rect(0,0,0,0), ppi, 0);
+						}
+						showpage(page, &menu);
+						break;
+					}
+					if (dd->type == Tps){		/* ps */
+						ps = (PSInfo *) dd->extra;
+						if (ps != nil){
+							ppi = 100;
+							setdim(&ps->gs, Rect(0,0,0,0), ppi, 0);
+						}
+						showpage(page, &menu);
+						break;
+					}
+					fitwin = 0;
 					showpage(page, &menu);
 					break;
 				case Reverse:	/* reverse */
@@ -1018,4 +1043,30 @@ zerox(void)
 
 	writeimage(pfd[1], im, 0);
 	close(pfd[1]);
+}
+
+void
+fit()
+{
+	double delta;
+	Rectangle r;
+	Image* tmp;
+
+	delta = (double)Dx(screen->r)/(double)Dx(im->r);
+	if((double)Dy(im->r)*delta > Dy(screen->r))
+		delta = (double)Dy(screen->r)/(double)Dy(im->r);
+	r = Rect(0, 0, (int)((double)Dx(im->r)*delta), (int)((double)Dy(im->r)*delta));
+	setcursor(mc, &reading);
+	tmp = xallocimage(display, r, im->chan, 0, DBlack);
+	if(tmp == nil) {
+		fprint(2, "out of memory during fit: %r\n");
+		wexits("memory");
+	}
+	resample(im, tmp);
+	im = tmp;
+	delayfreeimage(tmp);
+	setcursor(mc, nil);
+	ul = screen->r.min;
+	redraw(screen);
+	flushimage(display, 1);
 }

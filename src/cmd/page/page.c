@@ -21,6 +21,7 @@ int truecolor;
 int imagemode;
 int notewatcher;
 int notegp;
+int fitwin;
 char tempfile[40];
 
 int
@@ -80,7 +81,7 @@ afmt(Fmt *fmt)
 void
 usage(void)
 {
-	fprint(2, "usage: page [-biRrw] [-p ppi] file...\n");
+	fprint(2, "usage: page [-biRrwf] [-p ppi] file...\n"); 
 	wexits("usage");
 }
 
@@ -142,6 +143,9 @@ threadmain(int argc, char **argv)
 	case 'W':
 		winsize = EARGF(usage());
 		break;
+	case 'f':
+		fitwin = 1;
+		break; 
 	default:
 		usage();
 	}ARGEND;

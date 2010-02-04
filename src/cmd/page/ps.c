@@ -13,24 +13,6 @@
 #include <ctype.h>
 #include "page.h"
 
-typedef struct PSInfo	PSInfo;
-typedef struct Page	Page;
-	
-struct Page {
-	char *name;
-	int offset;			/* offset of page beginning within file */
-};
-
-struct PSInfo {
-	GSInfo gs;
-	Rectangle bbox;	/* default bounding box */
-	Page *page;
-	int npage;
-	int clueless;	/* don't know where page boundaries are */
-	long psoff;	/* location of %! in file */
-	char ctm[256];
-};
-
 static int	pswritepage(Document *d, int fd, int page);
 static Image*	psdrawpage(Document *d, int page);
 static char*	pspagename(Document*, int);
@@ -348,6 +330,11 @@ Keepreading:
 
 	d->fwdonly = ps->clueless = dumb;
 	d->docname = argv[0];
+	/*
+	 * "tag" the doc as an image for now since there still is the "blank page"
+	 * problem for ps files.
+	 */
+	d->type = Tgfx;
 
 	if(spawngs(&ps->gs, "-dSAFER") < 0)
 		return nil;

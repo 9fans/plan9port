@@ -85,6 +85,7 @@ initgfx(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	doc->rmpage = rmpage;
 	doc->extra = gfx;
 	doc->fwdonly = 0;
+	doc->type = Tgfx;
 
 	fprint(2, "reading through graphics...\n");
 	if(argc==0 && buf)

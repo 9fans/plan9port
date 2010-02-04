@@ -17,6 +17,7 @@ struct Cached
 	int page;
 	int angle;
 	Image *im;
+	int ppi;
 };
 
 static Cached cache[5];
@@ -57,14 +58,28 @@ _cachedpage(Document *doc, int angle, int page, char *ra)
 	int i;
 	Cached *c, old;
 	Image *im, *tmp;
+	int ppi = 100;
+	PDFInfo *pdf;
+	PSInfo *ps;
 
 	if((page < 0 || page >= doc->npage) && !doc->fwdonly)
 		return nil;
 
+	if (doc->type == Tpdf){
+		pdf = (PDFInfo *) doc->extra;
+		ppi = pdf->gs.ppi;
+	}
+	else{
+		if (doc->type == Tps){
+			ps = (PSInfo *) doc->extra;
+			ppi = ps->gs.ppi;
+		}
+	}
+
 Again:
 	for(i=0; i<nelem(cache); i++){
 		c = &cache[i];
-		if(c->doc == doc && c->angle == angle && c->page == page){
+		if(c->doc == doc && c->angle == angle && c->page == page && c->ppi == ppi){
 			if(chatty) fprint(2, "cache%s hit %d\n", ra, page);
 			goto Found;
 		}
@@ -80,6 +95,7 @@ Again:
 	c->im = nil;
 	c->doc = nil;
 	c->page = -1;
+	c->ppi = -1;
 
 	if(chatty) fprint(2, "cache%s load %d\n", ra, page);
 	im = doc->drawpage(doc, page);
@@ -129,6 +145,7 @@ Again:
 	c->page = page;
 	c->angle = angle;
 	c->im = im;
+	c->ppi = ppi;
 
 Found:
 	if(chatty) fprint(2, "cache%s mtf %d @%d:", ra, c->page, i);

@@ -12,6 +12,7 @@ struct Document {
 	int	(*rmpage)(Document*, int);
 	Biobuf *b;
 	void *extra;
+	int type;
 };
 
 typedef struct Graphic	Graphic;
@@ -37,6 +38,12 @@ enum {
 	Ibmp,
 };
 
+enum {
+	Tgfx,
+	Tpdf,
+	Tps,
+}
+;
 
 void *emalloc(int);
 void *erealloc(void*, int);
@@ -65,6 +72,7 @@ extern int truetoboundingbox;
 extern int wctlfd;
 extern int resizing;
 extern int mknewwindow;
+extern int fitwin;
 
 void rot180(Image*);
 Image *rot90(Image*);
@@ -73,6 +81,9 @@ Image *resample(Image*, Image*);
 
 /* ghostscript interface shared by ps, pdf */
 typedef struct GSInfo	GSInfo;
+typedef struct PDFInfo	PDFInfo;
+typedef struct Page	Page;
+typedef struct PSInfo	PSInfo;
 struct GSInfo {
 	Graphic g;
 	int gsfd;
@@ -80,6 +91,24 @@ struct GSInfo {
 	int gspid;
 	int ppi;
 };
+struct PDFInfo {
+	GSInfo gs;
+	Rectangle *pagebbox;
+};
+struct Page {
+	char *name;
+	int offset;			/* offset of page beginning within file */
+};
+struct PSInfo {
+	GSInfo gs;
+	Rectangle bbox;	/* default bounding box */
+	Page *page;
+	int npage;
+	int clueless;	/* don't know where page boundaries are */
+	long psoff;	/* location of %! in file */
+	char ctm[256];
+};
+
 void	waitgs(GSInfo*);
 int	gscmd(GSInfo*, char*, ...);
 int	spawngs(GSInfo*, char*);
@@ -98,6 +127,7 @@ int	bell(void*, char*);
 Image*	convert(Graphic *g);
 Image*	cachedpage(Document*, int, int);
 void	cacheflush(void);
+void   fit(void);
 
 extern char tempfile[40];
 

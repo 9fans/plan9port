@@ -12,12 +12,6 @@
 #include <bio.h>
 #include "page.h"
 
-typedef struct PDFInfo	PDFInfo;
-struct PDFInfo {
-	GSInfo gs;
-	Rectangle *pagebbox;
-};
-
 static Image*	pdfdrawpage(Document *d, int page);
 static char*	pdfpagename(Document*, int);
 
@@ -97,6 +91,7 @@ initpdf(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	d->drawpage = pdfdrawpage;
 	d->pagename = pdfpagename;
 	d->fwdonly = 0;
+	d->type = Tpdf;
 
 	if(spawngs(&pdf->gs, "-dDELAYSAFER") < 0)
 		return nil;
