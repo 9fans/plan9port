@@ -182,7 +182,7 @@ classifyTouch(Touch *t)
 	if((t->timestamp - tracks[i].firstThreshTime) < kTimeSensitivity) {
 		return 0;
 	}
-	if(p.y > kButtonLimit && t->size > kSizeSensitivity ) {
+	if(p.y > kButtonLimit && t->size > kSizeSensitivity) {
 		if(p.x < 0.35)
 			return 1;
 		if(p.x > 0.65)
@@ -604,18 +604,18 @@ mouseevent(EventRef event)
 		GetEventParameter(event, kEventParamKeyModifiers,
 			typeUInt32, 0, sizeof mod, 0, &mod);
 		
+		// OS X swaps button 2 and 3
+		but = (but & ~6) | ((but & 4)>>1) | ((but&2)<<1);
+		but = (but & ~((1<<10)-1)) | mouseswap(but & ((1<<10)-1));
 		if(osx.touched) {
 			// in multitouch we use the clicks down to enable our 
 			// virtual buttons.
-			if(but & 0x3)
-				but = but >> 29;
-			else 
+			if(but & 0x7) {
+				if(but>>29)
+					but = but >> 29;
+			} else 
 				but = 0;
 			osx.touched = 0;
-		} else {
-			// OS X swaps button 2 and 3
-			but = (but & ~6) | ((but & 4)>>1) | ((but&2)<<1);
-			but = mouseswap(but);
 		}
 
 		// Apply keyboard modifiers and pretend it was a real mouse button.
