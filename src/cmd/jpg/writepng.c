@@ -31,11 +31,11 @@ typedef struct ZlibW{
 	uchar *e;	/* past end of buf */
 } ZlibW;
 
-static ulong *crctab;
+static uint32 *crctab;
 static uchar PNGmagic[] = {137,80,78,71,13,10,26,10};
 
 static void
-put4(uchar *a, ulong v)
+put4(uchar *a, uint32 v)
 {
 	a[0] = v>>24;
 	a[1] = v>>16;
@@ -47,7 +47,7 @@ static void
 chunk(Biobuf *bo, char *type, uchar *d, int n)
 {
 	uchar buf[4];
-	ulong crc = 0;
+	uint32 crc = 0;
 
 	if(strlen(type) != 4)
 		return;

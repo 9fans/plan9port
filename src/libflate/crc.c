@@ -2,11 +2,11 @@
 #include <libc.h>
 #include <flate.h>
 
-ulong*
-mkcrctab(ulong poly)
+uint32*
+mkcrctab(uint32 poly)
 {
-	ulong *crctab;
-	ulong crc;
+	uint32 *crctab;
+	uint32 crc;
 	int i, j;
 
 	crctab = malloc(256 * sizeof(ulong));
@@ -26,8 +26,8 @@ mkcrctab(ulong poly)
 	return crctab;
 }
 
-ulong
-blockcrc(ulong *crctab, ulong crc, void *vbuf, int n)
+uint32
+blockcrc(uint32 *crctab, uint32 crc, void *vbuf, int n)
 {
 	uchar *buf, *ebuf;
 

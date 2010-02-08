@@ -1,4 +1,3 @@
-typedef s32int int32;
 
 #define DIR	"#9/sky"
 /*

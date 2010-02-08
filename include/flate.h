@@ -42,10 +42,10 @@ int	deflatezlibblock(uchar *dst, int dsize, uchar *src, int ssize, int level, in
 
 char	*flateerr(int err);
 
-ulong	*mkcrctab(ulong);
-ulong	blockcrc(ulong *tab, ulong crc, void *buf, int n);
+uint32	*mkcrctab(uint32);
+uint32	blockcrc(uint32 *tab, uint32 crc, void *buf, int n);
 
-ulong	adler32(ulong adler, void *buf, int n);
+uint32	adler32(uint32 adler, void *buf, int n);
 #if defined(__cplusplus)
 }
 #endif

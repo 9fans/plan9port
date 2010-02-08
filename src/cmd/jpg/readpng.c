@@ -44,11 +44,11 @@ typedef struct ZlibR{
 	ZlibW *w;
 } ZlibR;
 
-static ulong *crctab;
+static uint32 *crctab;
 static uchar PNGmagic[] = {137,80,78,71,13,10,26,10};
 static char memerr[] = "ReadPNG: malloc failed: %r";
 
-static ulong
+static uint32
 get4(uchar *a)
 {
 	return (a[0]<<24) | (a[1]<<16) | (a[2]<<8) | a[3];
@@ -87,7 +87,7 @@ static int
 getchunk(Biobuf *b, char *type, uchar *d, int m)
 {
 	uchar buf[8];
-	ulong crc = 0, crc2;
+	uint32 crc = 0, crc2;
 	int n, nr;
 
 	if(Bread(b, buf, 8) != 8)
