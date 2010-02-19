@@ -17,7 +17,7 @@ enum
 	GrabAltAny
 };
 
-static int tabcode = 0x17;
+/*static int tabcode = 0x17; */
 /*static int altcode = 0x40; */
 /*static int pgupcode = 0x63; */
 /*static int pgdowncode = 0x69; */
@@ -28,6 +28,7 @@ void
 keysetup(void)
 {
 	int i;
+	int tabcode = XKeysymToKeycode(dpy, XK_Tab);
 
 	for(i=0; i<num_screens; i++){
 		XGrabKey(dpy, tabcode, Mod1Mask, screens[i].root, 0, GrabModeSync, GrabModeAsync);
@@ -44,8 +45,8 @@ keypress(XKeyEvent *e)
 	/*
 	 * process key press here
 	 */
-	if(0)
-	if(e->keycode == tabcode)
+	int tabcode = XKeysymToKeycode(dpy, XK_Tab);
+	if(e->keycode == tabcode && (e->state&Mod1Mask) == (1<<3))
 		alttab(e->state&ShiftMask);
 	XAllowEvents(dpy, SyncKeyboard, e->time);
 }

@@ -257,15 +257,15 @@ shuffle(int up)
 	
 	if(clients == 0 || clients->next == 0)
 		return;
-	if(up){
+	if(!up){
+		c = 0;
 		/*for(c=clients; c->next; c=c->next) */
 		/*	; */
 		for(l=&clients; (*l)->next; l=&(*l)->next)
-			;
-		c = *l;
-		*l = 0;
-		c->next = clients;
-		clients = c;
+			if ((*l)->state == 1)
+				c = *l;
+		if (c == 0)
+			return;
 		XMapRaised(dpy, c->parent);
 		top(c);
 		active(c);
