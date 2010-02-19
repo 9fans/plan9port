@@ -653,7 +653,7 @@ hsetsnarf(int nc)
 	if(n >= 0){
 		if(!s1)
 			n = 0;
-		if(n > 65535){
+		if(n > SNARFSIZE){
 			s1 = strdup("<snarf too long>");
 			if (!s1)
 				panic("strdup");
