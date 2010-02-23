@@ -40,6 +40,21 @@ saferead(uchar *buf, int n)
 	exits("read error");
 }
 
+uchar *copy;
+int ncopy;
+
+void
+safecopy(uchar *buf, int n)
+{
+	copy = realloc(copy, ncopy+n);
+	if(copy == nil) {
+		fprint(2, "out of memory\n");
+		exits("memory");
+	}
+	memmove(copy+ncopy, buf, n);
+	ncopy += n;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -116,40 +131,27 @@ main(int argc, char **argv)
 		safewrite(buf, SHA1dlen);
 	}else{ /* decrypt */
 		saferead(buf, AESbsize);
-		if(memcmp(buf, v2hdr, AESbsize) == 0){
-			saferead(buf, 2*AESbsize);  /* read IV and random initial plaintext */
-			setupAESstate(&aes, key, nkey, buf);
-			dstate = hmac_sha1(buf+AESbsize, AESbsize, key2, MD5dlen, 0, 0);
-			aesCBCdecrypt(buf+AESbsize, AESbsize, &aes);
-			saferead(buf, SHA1dlen);
-			while((n = Bread(&bin, buf+SHA1dlen, BUF)) > 0){
-				dstate = hmac_sha1(buf, n, key2, MD5dlen, 0, dstate);
-				aesCBCdecrypt(buf, n, &aes);
-				safewrite(buf, n);
-				memmove(buf, buf+n, SHA1dlen);  /* these bytes are not yet decrypted */
-			}
-			hmac_sha1(0, 0, key2, MD5dlen, buf+SHA1dlen, dstate);
-			if(memcmp(buf, buf+SHA1dlen, SHA1dlen) != 0){
-				fprint(2,"decrypted file failed to authenticate\n");
-				exits("decrypted file failed to authenticate");
-			}
-		}else{ /* compatibility with past mistake */
-			/* if file was encrypted with bad aescbc use this: */
-			/*         memset(key, 0, AESmaxkey); */
-			/*    else assume we're decrypting secstore files */
-			setupAESstate(&aes, key, AESbsize, buf);
-			saferead(buf, CHK);
-			aesCBCdecrypt(buf, CHK, &aes);
-			while((n = Bread(&bin, buf+CHK, BUF)) > 0){
-				aesCBCdecrypt(buf+CHK, n, &aes);
-				safewrite(buf, n);
-				memmove(buf, buf+n, CHK);
-			}
-			if(memcmp(buf, "XXXXXXXXXXXXXXXX", CHK) != 0){
-				fprint(2,"decrypted file failed to authenticate\n");
-				exits("decrypted file failed to authenticate");
-			}
+		if(memcmp(buf, v2hdr, AESbsize) != 0){
+			fprint(2, "not an aescbc file\n");
+			exits("aescbc file");
 		}
+		saferead(buf, 2*AESbsize);  /* read IV and random initial plaintext */
+		setupAESstate(&aes, key, nkey, buf);
+		dstate = hmac_sha1(buf+AESbsize, AESbsize, key2, MD5dlen, 0, 0);
+		aesCBCdecrypt(buf+AESbsize, AESbsize, &aes);
+		saferead(buf, SHA1dlen);
+		while((n = Bread(&bin, buf+SHA1dlen, BUF)) > 0){
+			dstate = hmac_sha1(buf, n, key2, MD5dlen, 0, dstate);
+			aesCBCdecrypt(buf, n, &aes);
+			safecopy(buf, n);
+			memmove(buf, buf+n, SHA1dlen);  /* these bytes are not yet decrypted */
+		}
+		hmac_sha1(0, 0, key2, MD5dlen, buf+SHA1dlen, dstate);
+		if(memcmp(buf, buf+SHA1dlen, SHA1dlen) != 0){
+			fprint(2,"decrypted file failed to authenticate\n");
+			exits("decrypted file failed to authenticate");
+		}
+		safewrite(copy, ncopy);
 	}
 	exits("");
 	return 1;	/* gcc */
