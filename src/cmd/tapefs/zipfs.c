@@ -29,7 +29,7 @@ struct Block{
 };
 
 static Biobuf *bin;
-static ulong *crctab;
+static u32int *crctab;
 static ulong crc;
 
 static int findCDir(Biobuf *);

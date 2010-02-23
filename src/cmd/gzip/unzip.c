@@ -15,7 +15,7 @@ static	int	crcwrite(void *ofd, void *buf, int n);
 static	int	findCDir(Biobuf *bin, char *file);
 static	int	get1(Biobuf *b);
 static	int	get2(Biobuf *b);
-static	ulong	get4(Biobuf *b);
+static	u32int	get4(Biobuf *b);
 static	char	*getname(Biobuf *b, int len);
 static	int	header(Biobuf *bin, ZipHead *zh);
 static	long	msdos2time(int time, int date);
@@ -27,24 +27,24 @@ static	int	unzipEntry(Biobuf *bin, ZipHead *czh);
 static	int	unztable(Biobuf *bin, char *file);
 static	int	wantFile(char *file);
 
-static	void	*emalloc(ulong);
+static	void	*emalloc(u32int);
 static	void	error(char*, ...);
 /* #pragma	varargck	argpos	error	1 */
 
 static	Biobuf	bin;
-static	ulong	crc;
-static	ulong	*crctab;
+static	u32int	crc;
+static	u32int	*crctab;
 static	int	debug;
 static	char	*delfile;
 static	int	lower;
 static	int	nwant;
-static	ulong	rlen;
+static	u32int	rlen;
 static	int	settimes;
 static	int	stdout;
 static	int	verbose;
 static	char	**want;
 static	int	wbad;
-static	ulong	wlen;
+static	u32int	wlen;
 static	jmp_buf	zjmp;
 
 static void
@@ -190,7 +190,7 @@ sunztable(Biobuf *bin)
 {
 	ZipHead zh;
 	vlong off;
-	ulong hcrc, hcsize, huncsize;
+	u32int hcrc, hcsize, huncsize;
 	int ok, err;
 
 	ok = 1;
@@ -545,7 +545,7 @@ findCDir(Biobuf *bin, char *file)
 static int
 cheader(Biobuf *bin, ZipHead *zh)
 {
-	ulong v;
+	u32int v;
 	int flen, xlen, fclen;
 
 	v = get4(bin);
@@ -587,7 +587,7 @@ cheader(Biobuf *bin, ZipHead *zh)
 static int
 header(Biobuf *bin, ZipHead *zh)
 {
-	ulong v;
+	u32int v;
 	int flen, xlen;
 
 	v = get4(bin);
@@ -679,10 +679,10 @@ copyout(int ofd, Biobuf *bin, long len)
 	return 1;
 }
 
-static ulong
+static u32int
 get4(Biobuf *b)
 {
-	ulong v;
+	u32int v;
 	int i, c;
 
 	v = 0;
@@ -739,7 +739,7 @@ msdos2time(int time, int date)
 }
 
 static void*
-emalloc(ulong n)
+emalloc(u32int n)
 {
 	void *p;
 

@@ -8,13 +8,13 @@ typedef struct	GZHead	GZHead;
 
 struct GZHead
 {
-	ulong	mtime;
+	u32int	mtime;
 	char	*file;
 };
 
 static	int	crcwrite(void *bout, void *buf, int n);
 static	int	get1(Biobuf *b);
-static	ulong	get4(Biobuf *b);
+static	u32int	get4(Biobuf *b);
 static	int	gunzipf(char *file, int stdout);
 static	int	gunzip(int ofd, char *ofile, Biobuf *bin);
 static	void	header(Biobuf *bin, GZHead *h);
@@ -23,8 +23,8 @@ static	void	error(char*, ...);
 /* #pragma	varargck	argpos	error	1 */
 
 static	Biobuf	bin;
-static	ulong	crc;
-static	ulong	*crctab;
+static	u32int	crc;
+static	u32int	*crctab;
 static	int	debug;
 static	char	*delfile;
 static	vlong	gzok;
@@ -33,7 +33,7 @@ static	int	settimes;
 static	int	table;
 static	int	verbose;
 static	int	wbad;
-static	ulong	wlen;
+static	u32int	wlen;
 static	jmp_buf	zjmp;
 
 void
@@ -277,7 +277,7 @@ header(Biobuf *bin, GZHead *h)
 static void
 trailer(Biobuf *bin, long wlen)
 {
-	ulong tcrc;
+	u32int tcrc;
 	long len;
 
 	tcrc = get4(bin);
@@ -290,10 +290,10 @@ trailer(Biobuf *bin, long wlen)
 		error("bad output length: expected %lud got %lud", wlen, len);
 }
 
-static ulong
+static u32int
 get4(Biobuf *b)
 {
-	ulong v;
+	u32int v;
 	int i, c;
 
 	v = 0;

@@ -30,7 +30,7 @@ struct ZlibW
 	uchar *e;
 };
 
-static ulong *crctab;
+static u32int *crctab;
 static uchar PNGmagic[] = { 137, 'P', 'N', 'G', '\r', '\n', 26, '\n'};
 
 static void

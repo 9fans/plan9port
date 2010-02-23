@@ -10,12 +10,12 @@ static	int	crcread(void *fd, void *buf, int n);
 static	int	gzwrite(void *bout, void *buf, int n);
 
 static	Biobuf	bout;
-static	ulong	crc;
-static	ulong	*crctab;
+static	u32int	crc;
+static	u32int	*crctab;
 static	int	debug;
 static	int	eof;
 static	int	level;
-static	ulong	totr;
+static	u32int	totr;
 static	int	verbose;
 
 void

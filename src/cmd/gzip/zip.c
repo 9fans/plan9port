@@ -13,7 +13,7 @@ static	void	zip(Biobuf *bout, char *file, int stdout);
 static	void	zipDir(Biobuf *bout, int fd, ZipHead *zh, int stdout);
 static	int	crcread(void *fd, void *buf, int n);
 static	int	zwrite(void *bout, void *buf, int n);
-static	void	put4(Biobuf *b, ulong v);
+static	void	put4(Biobuf *b, u32int v);
 static	void	put2(Biobuf *b, int v);
 static	void	put1(Biobuf *b, int v);
 static	void	header(Biobuf *bout, ZipHead *zh);
@@ -24,14 +24,14 @@ static	void	error(char*, ...);
 /* #pragma	varargck	argpos	error	1 */
 
 static	Biobuf	bout;
-static	ulong	crc;
-static	ulong	*crctab;
+static	u32int	crc;
+static	u32int	*crctab;
 static	int	debug;
 static	int	eof;
 static	int	level;
 static	int	nzheads;
-static	ulong	totr;
-static	ulong	totw;
+static	u32int	totr;
+static	u32int	totw;
 static	int	verbose;
 static	int	zhalloc;
 static	ZipHead	*zheads;
@@ -353,7 +353,7 @@ zwrite(void *bout, void *buf, int n)
 }
 
 static void
-put4(Biobuf *b, ulong v)
+put4(Biobuf *b, u32int v)
 {
 	int i;
 
