@@ -12,7 +12,7 @@ extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
 *FreeBSD*)
-	ld=gcc
+	ld=${CC9:-gcc}
 	userpath=true
 	extralibs="$extralibs -lutil"
 	case "`uname -r`" in
@@ -25,18 +25,18 @@ case "$tag" in
 	esac
 	;;
 *BSD*)
-	ld=gcc
+	ld=${CC9:-gcc}
 	userpath=true
 	extralibs="$extralibs -lutil"
 	;;
 *OSF1*)
-	ld=cc
+	ld=${CC9:-cc}
 	userpath=true
 	extralibs="$extralibs -lutil"
 	nmflags="-B"
 	;;
 *Linux*)
-	ld=gcc
+	ld=${CC9:-gcc}
 	userpath=true
 	extralibs="$extralibs -lutil"
 	case "${SYSVERSION:-`uname -r`}" in
@@ -46,7 +46,7 @@ case "$tag" in
 	esac
 	;;
 *Darwin*)
-	ld="gcc -m32"
+	ld="${CC9:-gcc} -m32"
 	;;
 *SunOS*)
 	ld="${CC9:-cc} -g"
@@ -76,7 +76,7 @@ case "$tag" in
 	esac
 	;;
 *AIX*)
-	ld=gcc
+	ld=${CC9:-gcc}
 	nmflags="-B"
 	;;
 *)

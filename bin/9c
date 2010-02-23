@@ -3,7 +3,7 @@
 test -f $PLAN9/config && . $PLAN9/config
 usegcc()
 {
-	cc=gcc
+	cc=${CC9:-gcc}
 	ngflags=" \
 		-O2 \
 		-c \
@@ -21,12 +21,58 @@ usegcc()
 	cflags="$ngflags -ggdb"
 }
 
+quiet()
+{
+	# The uniq at the end is for gcc's strcmp/etc. built-in nonsense,
+	# which multiplies single errors as a result of its expansion.
+	# The "Cursor. is deprecated" kills off warnings from Apple
+	# about using SetCursor/InitCursor.  (Okay, they're deprecated,
+	# but you could at least tell us what to use instead, Apple!)
+
+	ignore=': error: .Each undeclared identifier'
+	ignore=$ignore'|: error: for each function it appears'
+	ignore=$ignore'|is dangerous, better use'
+	ignore=$ignore'|is almost always misused'
+	ignore=$ignore'|: In function '
+	ignore=$ignore'|: At top level:'
+	ignore=$ignore'|support .long long.'
+	ignore=$ignore'|In file included from'
+	ignore=$ignore'|        from'
+	ignore=$ignore'|use of C99 long long'
+	ignore=$ignore'|ISO C forbids conversion'
+	ignore=$ignore'|is deprecated'
+	ignore=$ignore'|warn_unused_result'
+
+	grep -v '__p9l_autolib_' $1 |
+	egrep -v "$ignore" |
+	sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' |
+	uniq 1>&2
+}
+
+useclang()
+{
+	cc=${CC9:-clang}
+	ngflags=" \
+		-O2 \
+		-c \
+		-Wall \
+		-Wno-comment \
+		-Wno-empty-body \
+		-Wno-parentheses \
+		-Wno-unknown-pragmas \
+		-Wno-unused-value \
+	"
+	cflags="$ngflags -g"
+}
+
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
+*FreeBSD*gcc*)	usegcc ;;
+*FreeBSD*clang*)	useclang ;;
 *BSD*)	usegcc ;;
 *Darwin*)	usegcc 
 		cflags="$ngflags -g3 -no-cpp-precomp -m32" ;;
-*HP-UX*)	cc=cc; cflags="-g -O -c -Ae" ;;
+*HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc 
 		case "${CC9:-gcc}" in
 		tcc)
@@ -43,7 +89,7 @@ case "$tag" in
 			;;
 		esac
 		;;
-*OSF1*)		cc=cc; cflags="-g -O -c" ;;
+*OSF1*)		cc=${CC9:-cc}; cflags="-g -O -c" ;;
 *SunOS*-cc)	cc=cc;
 		cflags="-mt -g -O -c -xCC -D__sun__" 
 		u=`uname`
@@ -67,17 +113,9 @@ case "$tag" in
 esac
 
 # N.B. Must use temp file to avoid pipe; pipe loses status.
-# The uniq at the end is for gcc's strcmp/etc. built-in nonsense,
-# which multiplies single errors as a result of its expansion.
-# The "Cursor. is deprecated" kills off warnings from Apple
-# about using SetCursor/InitCursor.  (Okay, they're deprecated,
-# but you could at least tell us what to use instead, Apple!)
 xtmp=/tmp/9c.$$.$USER.out
 $cc -DPLAN9PORT -I$PLAN9/include $cflags "$@" 2>$xtmp
 status=$?
-grep -v '__p9l_autolib_' $xtmp |
-egrep -v ': error: .Each undeclared identifier|: error: for each function it appears|is dangerous, better use|is almost always misused|: In function |: At top level:|support .long long.|In file included from|        from|use of C99 long long|ISO C forbids conversion|is deprecated|warn_unused_result' |
-sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' |
-uniq 1>&2
-rm -f $xtmp $xtmp.status
+quiet $xtmp
+rm -f $xtmp
 exit $status
