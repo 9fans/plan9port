@@ -422,7 +422,13 @@ _screeninit(void)
 
 	if(multitouch)
 		InitMultiTouch();
-	
+
+	// CoreGraphics pins mouse events to the destination point of a
+	// CGWarpMouseCursorPosition (see setmouse) for an interval of time
+	// following the move. Disable this by setting the interval to zero
+	// seconds.
+	CGSetLocalEventsSuppressionInterval(0.0);
+
 	InitCursor();
 }
 
