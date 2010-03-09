@@ -71,7 +71,10 @@ If the input is not exactly in
 .SM UTF
 format,
 .I chartorune
-will convert to 0x80 and return 1.
+will convert to
+.B Runeerror
+(0xFFFD)
+and return 1.
 .PP
 .I Runelen
 returns the number of bytes
