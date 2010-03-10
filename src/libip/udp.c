@@ -46,8 +46,8 @@ udpwrite(int fd, Udphdr *hdr, void *buf, long n)
 
 	memset(&sin, 0, sizeof sin);
 	sin.sin_family = AF_INET;
-	*(u32int*)&sin.sin_addr = *(u32int*)(hdr->raddr+12);
-	*(u16int*)&sin.sin_port = *(u16int*)hdr->rport;
+	memmove(&sin.sin_addr, hdr->raddr+12, 4);
+	memmove(&sin.sin_port, hdr->rport, 2);
 	return sendto(fd, buf, n, 0, (struct sockaddr*)&sin, sizeof sin);
 }
 

@@ -83,6 +83,6 @@ recvfd(int s)
 		return -1;
 	}
 	cmsg = CMSG_FIRSTHDR(&msg);
-	fd = *(int*)CMSG_DATA(cmsg);
+	memmove(&fd, CMSG_DATA(cmsg), sizeof(int));
 	return fd;
 }
