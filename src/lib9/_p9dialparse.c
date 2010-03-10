@@ -71,7 +71,7 @@ parseip(char *host, u32int *pip)
 			return -1;
 		break;
 	}
-	*pip = *(u32int*)addr;
+	memmove(pip, addr, 4);
 	return 0;
 }
 

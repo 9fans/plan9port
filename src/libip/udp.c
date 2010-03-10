@@ -21,8 +21,8 @@ udpread(int fd, Udphdr *hdr, void *buf, long n)
 	}
 	memset(hdr, 0, sizeof *hdr);
 	memmove(hdr->laddr, v4prefix, IPaddrlen);
-	*(u32int*)(hdr->laddr+12) = *(u32int*)&sin.sin_addr;
-	*(u16int*)hdr->lport = *(u16int*)&sin.sin_port;
+	memmove(hdr->laddr+12, &sin.sin_addr, sizeof(u32int));
+	memmove(hdr->lport, &sin.sin_port, sizeof(u16int));
 
 	len = sizeof sin;
 	n = recvfrom(fd, buf, n, 0, (struct sockaddr*)&sin, &len);
@@ -33,8 +33,8 @@ udpread(int fd, Udphdr *hdr, void *buf, long n)
 		return -1;
 	}
 	memmove(hdr->raddr, v4prefix, IPaddrlen);
-	*(u32int*)(hdr->raddr+12) = *(u32int*)&sin.sin_addr;
-	*(u16int*)hdr->rport = *(u16int*)&sin.sin_port;
+	memmove(hdr->raddr+12, &sin.sin_addr, sizeof(u32int));
+	memmove(hdr->rport, &sin.sin_port, sizeof(u16int));
 
 	return n;
 }

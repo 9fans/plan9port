@@ -211,6 +211,7 @@ _deleteavl(Avl **tp, Avl *p, Avl *rx, int(*cmp)(Avl*,Avl*), Avl **del,
 	return -(ob != 0 && (*tp)->bal == 0);
 }
 
+/*
 static void
 checkparents(Avl *a, Avl *p)
 {
@@ -221,6 +222,7 @@ checkparents(Avl *a, Avl *p)
 	checkparents(a->n[0], a);
 	checkparents(a->n[1], a);
 }
+*/
 
 struct Avltree
 {
@@ -403,6 +405,7 @@ endwalk(Avlwalk *w)
 	free(w);
 }
 
+/*
 static void
 walkavl(Avl *t, void (*f)(Avl*, void*), void *v)
 {
@@ -412,3 +415,4 @@ walkavl(Avl *t, void (*f)(Avl*, void*), void *v)
 	f(t, v);
 	walkavl(t->n[1], f, v);
 }
+*/

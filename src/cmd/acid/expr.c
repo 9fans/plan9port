@@ -855,11 +855,12 @@ ocand(Node *n, Node *res)
 {
 	Node l, r;
 
-	res->store.fmt = l.store.fmt;
+	res->store.fmt = 'D';
 	res->op = OCONST;
 	res->type = TINT;
 	res->store.u.ival = 0;
 	expr(n->left, &l);
+	res->store.fmt = l.store.fmt;
 	if(bool(&l) == 0)
 		return;
 	expr(n->right, &r);

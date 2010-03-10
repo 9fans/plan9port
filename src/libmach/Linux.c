@@ -146,7 +146,7 @@ ptracerw(int type, int xtype, int isr, int pid, ulong addr, void *v, uint n)
 			if(n-i >= 4)
 				*(u32int*)((char*)v+i) = u;
 			else{
-				*(u32int*)buf = u;
+				memmove(buf, &u, 4);
 				memmove((char*)v+i, buf, n-i);
 			}
 		}else{
@@ -157,9 +157,9 @@ ptracerw(int type, int xtype, int isr, int pid, ulong addr, void *v, uint n)
 				u = ptrace(xtype, pid, addr+i, 0);
 				if(errno)
 					return -1;
-				*(u32int*)buf = u;
+				memmove(buf, &u, 4);
 				memmove(buf, (char*)v+i, n-i);
-				u = *(u32int*)buf;
+				memmove(&u, buf, 4);
 			}
 			if(ptrace(type, pid, addr+i, u) < 0)
 				goto ptraceerr;

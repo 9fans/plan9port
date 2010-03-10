@@ -2109,6 +2109,7 @@ memoptdraw(Memdrawparam *par)
 {
 	int m, y, dy, dx, op;
 	u32int v;
+	u16int u16;
 	Memimage *src;
 	Memimage *dst;
 
@@ -2198,7 +2199,8 @@ DBG print("dp %p v %lux lm %ux (v ^ *dp) & lm %lux\n", dp, v, lm, (v^*dp)&lm);
 		case 16:
 			p[0] = v;		/* make little endian */
 			p[1] = v>>8;
-			v = *(ushort*)p;
+			memmove(&u16, p, 2);
+			v = u16;
 DBG print("dp=%p; dx=%d; for(y=0; y<%d; y++, dp+=%d)\nmemsets(dp, v, dx);\n",
 	dp, dx, dy, dwid);
 			for(y=0; y<dy; y++, dp+=dwid)
@@ -2213,7 +2215,7 @@ DBG print("dp=%p; dx=%d; for(y=0; y<%d; y++, dp+=%d)\nmemsets(dp, v, dx);\n",
 			p[1] = v>>8;
 			p[2] = v>>16;
 			p[3] = v>>24;
-			v = *(u32int*)p;
+			memmove(&v, p, 4);
 			for(y=0; y<dy; y++, dp+=dwid)
 				memsetl(dp, v, dx);
 			return 1;
@@ -2371,6 +2373,13 @@ chardraw(Memdrawparam *par)
 	uchar sp[4];
 	Rectangle r, mr;
 	Memimage *mask, *src, *dst;
+	union {
+		// black box to hide pointer conversions from gcc.
+		// we'll see how long this works.
+		uchar *u8;
+		u16int *u16;
+		u32int *u32;
+	} gcc_black_box;
 
 if(0) if(drawdebug) iprint("chardraw? mf %lux md %d sf %lux dxs %d dys %d dd %d ddat %p sdat %p\n",
 		par->mask->flags, par->mask->depth, par->src->flags, 
@@ -2443,8 +2452,10 @@ DBG print("bits %lux sh %d...", bits, i);
 			}
 			break;
 		case 16:
-			ws = (ushort*)wp;
-			v = *(ushort*)sp;
+			gcc_black_box.u8 = wp;
+			ws = gcc_black_box.u16;
+			gcc_black_box.u8 = sp;
+			v = *gcc_black_box.u16;
 			for(x=bx; x>ex; x--, ws++){
 				i = x&7;
 				if(i == 8-1)
@@ -2469,8 +2480,10 @@ DBG print("bits %lux sh %d...", bits, i);
 			}
 			break;
 		case 32:
-			wl = (u32int*)wp;
-			v = *(u32int*)sp;
+			gcc_black_box.u8 = wp;
+			wl = gcc_black_box.u32;
+			gcc_black_box.u8 = sp;
+			v = *gcc_black_box.u32;
 			for(x=bx; x>ex; x--, wl++){
 				i = x&7;
 				if(i == 8-1)
@@ -2537,7 +2550,7 @@ _memfillcolor(Memimage *i, u32int val)
 		p[1] = bits>>8;
 		p[2] = bits>>16;
 		p[3] = bits>>24;
-		bits = *(u32int*)p;
+		memmove(&bits, p, 4);
 		memsetl(wordaddr(i, i->r.min), bits, i->width*Dy(i->r));
 		break;
 	}

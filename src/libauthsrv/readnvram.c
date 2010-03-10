@@ -76,8 +76,6 @@ readnvram(Nvrsafe *safep, int flag)
 	if(strcmp(cputype, "386")==0 || strcmp(cputype, "alpha")==0)
 		cputype = "pc";
 
-	safe = (Nvrsafe*)buf;
-
 	fd = -1;
 	safeoff = -1;
 	safelen = -1;
@@ -140,7 +138,7 @@ readnvram(Nvrsafe *safep, int flag)
 		memset(safep, 0, sizeof(*safep));
 		safe = safep;
 	}else{
-		*safep = *safe;
+		memmove(safep, buf, sizeof *safep);
 		safe = safep;
 
 		err |= check(safe->machkey, DESKEYLEN, safe->machsum, "bad nvram key");
@@ -163,7 +161,7 @@ readnvram(Nvrsafe *safep, int flag)
 		safe->configsum = nvcsum(safe->config, CONFIGLEN);
 		safe->authidsum = nvcsum(safe->authid, sizeof(safe->authid));
 		safe->authdomsum = nvcsum(safe->authdom, sizeof(safe->authdom));
-		*(Nvrsafe*)buf = *safe;
+		memmove(buf, safe, sizeof *safe);
 		if(seek(fd, safeoff, 0) < 0
 		|| write(fd, buf, safelen) != safelen){
 			fprint(2, "can't write key to nvram: %r\n");

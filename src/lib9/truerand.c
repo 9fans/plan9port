@@ -6,6 +6,7 @@ truerand(void)
 {
 	int i, n;
 	uchar buf[sizeof(ulong)];
+	ulong x;
 	static int randfd = -1;
 	static char *randfile;
 
@@ -21,5 +22,6 @@ truerand(void)
 	for(i=0; i<sizeof(buf); i += n)
 		if((n = readn(randfd, buf+i, sizeof(buf)-i)) < 0)
 			sysfatal("can't read %s: %r", randfile);
-	return *((ulong*)buf);
+	memmove(&x, buf, sizeof x);
+	return x;
 }

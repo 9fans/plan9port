@@ -60,7 +60,7 @@ exform(int fcount, int prt, char *ifp, Map *map, int literal, int firstpass)
 	char	*fp;
 	char	c, modifier;
 	int	i;
-	ushort sh, *sp;
+	ushort sh;
 	uchar ch, *cp;
 	Symbol s;
 	char buf[512];
@@ -205,7 +205,8 @@ exform(int fcount, int prt, char *ifp, Map *map, int literal, int firstpass)
 
 		case 'R':
 			if (literal) {
-				sp = (u16int*)(void*)&dot;
+				u16int sp[2];
+				memmove(&sp, &dot, 4);
 				dprint("%C%C", sp[0], sp[1]);
 				endline();
 				dotinc = 4;

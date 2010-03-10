@@ -322,10 +322,14 @@ cryptinit(void)
 {
 	uchar key[32], ivec[AESbsize];
 	int i;
+	u32int u32;
 	
-	*(u32int*)sessid = truerand();
-	for(i=0; i<nelem(key); i+=4)
-		*(u32int*)&key[i] = truerand();
+	u32 = truerand();
+	memmove(sessid, &u32, 4);
+	for(i=0; i<nelem(key); i+=4) {
+		u32 = truerand();
+		memmove(key+i, &u32, 4);
+	}
 	for(i=0; i<nelem(ivec); i++)
 		ivec[i] = fastrand();
 	setupAESstate(&aesstate, key, sizeof key, ivec);
@@ -793,6 +797,8 @@ cnodelookup(Ctree *t, Cnode **np, char *name)
 Nfs3Status
 cnodegetattr(Cnode *n, Nfs3Attr *attr)
 {
+	uint64 u64;
+
 	memset(attr, 0, sizeof *attr);
 	if(n->read){
 		attr->type = Nfs3FileReg;
@@ -805,7 +811,8 @@ cnodegetattr(Cnode *n, Nfs3Attr *attr)
 		attr->size = 1024;
 		attr->nlink = 10;
 	}
-	attr->fileid = *(u64int*)n->handle;
+	memmove(&u64, n->handle, 8);
+	attr->fileid = u64;
 	attr->atime.sec = n->mtime;
 	attr->mtime.sec = n->mtime;
 	attr->ctime.sec = n->mtime;
@@ -817,6 +824,7 @@ cnodereaddir(Cnode *n, u32int count, u64int cookie, uchar **pdata, u32int *pcoun
 {
 	uchar *data, *p, *ep, *np;
 	u64int c;
+	u64int u64;
 	Nfs3Entry ne;
 	
 	n = n->kidlist;
@@ -842,7 +850,8 @@ cnodereaddir(Cnode *n, u32int count, u64int cookie, uchar **pdata, u32int *pcoun
 		ne.name = n->name;
 		ne.namelen = strlen(n->name);
 		ne.cookie = ++cookie;
-		ne.fileid = *(u64int*)n->handle;
+		memmove(&u64, n->handle, 8);
+		ne.fileid = u64;
 		if(nfs3entrypack(p, ep, &np, &ne) < 0)
 			break;
 		p = np;
