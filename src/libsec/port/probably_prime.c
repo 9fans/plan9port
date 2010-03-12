@@ -9,7 +9,7 @@
 int
 probably_prime(mpint *n, int nrep)
 {
-	int j, k, rep, nbits, isprime = 1;
+	int j, k, rep, nbits, isprime;
 	mpint *nm1, *q, *x, *y, *r;
 
 	if(n->sign < 0)
@@ -49,32 +49,37 @@ probably_prime(mpint *n, int nrep)
 	mpright(nm1, k, q);	/* q = (n-1)/2**k */
 
 	for(rep = 0; rep < nrep; rep++){
-		
-		/* x = random in [2, n-2] */
-		r = mprand(nbits, prng, nil);
-		mpmod(r, nm1, x);
-		mpfree(r);
-		if(mpcmp(x, mpone) <= 0)
-			continue;
+		for(;;){
+			/* find x = random in [2, n-2] */
+			r = mprand(nbits, prng, nil);
+			mpmod(r, nm1, x);
+			mpfree(r);
+			if(mpcmp(x, mpone) > 0)
+				break;
+		}
 
 		/* y = x**q mod n */
 		mpexp(x, q, n, y);
 
 		if(mpcmp(y, mpone) == 0 || mpcmp(y, nm1) == 0)
-			goto done;
+			continue;
 
-		for(j = 1; j < k; j++){
+		for(j = 1;; j++){
+			if(j >= k) {
+				isprime = 0;
+				goto done;
+			}
 			mpmul(y, y, x);
 			mpmod(x, n, y);	/* y = y*y mod n */
 			if(mpcmp(y, nm1) == 0)
-				goto done;
+				break;
 			if(mpcmp(y, mpone) == 0){
 				isprime = 0;
 				goto done;
 			}
 		}
-		isprime = 0;
 	}
+	isprime = 1;
 done:
 	mpfree(y);
 	mpfree(x);
