@@ -56,7 +56,7 @@ crop(Memimage *m, ulong c)
 		m = n;
 	}
 	wpl = wordsperline(m->r, m->depth);
-	bpl = wpl*sizeof(ulong);
+	bpl = wpl*sizeof(uint32);
 	buf = malloc(bpl);
 	if(buf == nil)
 		sysfatal("can't allocate buffer: %r");
