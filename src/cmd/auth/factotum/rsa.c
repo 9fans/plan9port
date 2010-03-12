@@ -199,6 +199,10 @@ readrsapriv(Key *k)
 	|| (priv->q=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
+	if(!probably_prime(priv->p, 20) || !probably_prime(priv->q, 20)) {
+		werrstr("rsa: p or q not prime");
+		goto Error;
+	}
 	if((a=strfindattr(k->privattr, "!kp"))==nil 
 	|| (priv->kp=strtomp(a, nil, 16, nil))==nil)
 		goto Error;

@@ -86,6 +86,10 @@ readdsapriv(Key *k)
 	|| (priv->pub.q=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
+	if(!probably_prime(priv->pub.p, 20) && !probably_prime(priv->pub.q, 20)) {
+		werrstr("dsa: p or q not prime");
+		goto Error;
+	}
 	if((a=strfindattr(k->attr, "alpha"))==nil 
 	|| (priv->pub.alpha=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
