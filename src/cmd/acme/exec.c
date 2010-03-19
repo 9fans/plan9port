@@ -687,6 +687,19 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			w->dirty = TRUE;
 			f->unread = TRUE;
 		}else{
+			// In case the file is on NFS, reopen the fd
+			// before dirfstat to cause the attribute cache
+			// to be updated (otherwise the mtime in the
+			// dirfstat below will be stale and not match
+			// what NFS sees).  The file is already written,
+			// so this should be a no-op when not on NFS.
+			// Opening for OWRITE (but no truncation)
+			// in case we don't have read permission.
+			// (The create above worked, so we probably
+			// still have write permission.)
+			close(fd);
+			fd = open(name, OWRITE);
+
 			d1 = dirfstat(fd);
 			if(d1 != nil){
 				free(d);
