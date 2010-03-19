@@ -535,6 +535,9 @@ stdoutproc(void *v)
 			}
 			if(fswrite(dfd, buf, n) != n)
 				error("stdout writing body");
+			/* Make sure acme scrolls to the end of the above write. */
+			if(fswrite(dfd, nil, 0) != 0)
+				error("stdout flushing body");
 			q.p += nrunes(buf, n);
 			qunlock(&q.lk);
 			memmove(buf, hold, npart);
