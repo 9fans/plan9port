@@ -61,6 +61,7 @@ struct {
 	int kalting;		// last keystroke was Kalt
 	int touched;		// last mouse event was touchCallback
 	int collapsed;		// parked in dock
+	int flushing;		// flushproc has started
 	NSMutableArray* devicelist;
 } osx;
 
@@ -871,7 +872,10 @@ _flushmemscreen(Rectangle r)
 	qlock(&osx.flushlock);
 	if(osx.windowctx == nil){
 		QDBeginCGContext(GetWindowPort(osx.window), &osx.windowctx);
-		proccreate(flushproc, nil, 256*1024);
+		if(!osx.flushing) {
+			proccreate(flushproc, nil, 256*1024);
+			osx.flushing = 1;
+		}
 	}
 	
 	cgr.origin.x = r.min.x;
