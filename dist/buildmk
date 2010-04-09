@@ -14,5 +14,6 @@ OBJTYPE=`uname -m -p | sed '
 	s;.*ppc64.*;power;g;
 	s;.*ppc.*;power;g;
 	s;.*alpha.*;alpha;g;
+	s;.*sun4u.*;sun4u;g;
 '` export OBJTYPE
 sh -x mkmk.sh

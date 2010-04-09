@@ -21,6 +21,14 @@ esac
 
 PLAN9=`pwd` export PLAN9
 PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
+case `uname` in
+SunOS)
+	awk=nawk
+	;;
+*)
+	awk=awk
+	;;
+esac
 
 echo "+ Mailing list: http://groups.google.com/group/plan9port-dev"
 echo "+ Issue tracker: http://code.swtch.com/plan9port/issues/"
@@ -123,5 +131,5 @@ if $doinstall; then
 	echo "	PLAN9=$PLAN9 export PLAN9"
 	echo '	PATH=$PATH:$PLAN9/bin export PATH'
 fi
-) 2>&1 | tee install.log | awk -f $PLAN9/dist/isum.awk -v 'copy='install.sum
+) 2>&1 | tee install.log | $awk -f $PLAN9/dist/isum.awk -v 'copy='install.sum
 
