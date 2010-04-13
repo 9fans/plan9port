@@ -15,6 +15,7 @@ usage(void)
 enum
 {
 	BlockSize = 8*1024,
+	CacheSize = 4<<20,
 };
 
 struct
@@ -168,10 +169,10 @@ threadmain(int argc, char **argv)
 			if((outfd = create(archivefile, OWRITE, 0666)) < 0)
 				sysfatal("create %s: %r", archivefile);
 			atexit(removevacfile);	// because it is new
-			if((fs = vacfscreate(z, blocksize, 4<<20)) == nil)
+			if((fs = vacfscreate(z, blocksize, CacheSize)) == nil)
 				sysfatal("vacfscreate: %r");
 		}else{
-			if((fs = vacfsopen(z, archivefile, VtORDWR, 4<<20)) == nil)
+			if((fs = vacfsopen(z, archivefile, VtORDWR, CacheSize)) == nil)
 				sysfatal("vacfsopen %s: %r", archivefile);
 			if((fdiff = recentarchive(fs, oldpath)) != nil){
 				if(verbose)
@@ -211,13 +212,13 @@ threadmain(int argc, char **argv)
 		else if((outfd = create(vacfile, OWRITE, 0666)) < 0)
 			sysfatal("create %s: %r", vacfile);
 		atexit(removevacfile);
-		if((fs = vacfscreate(z, blocksize, 4<<20)) == nil)
+		if((fs = vacfscreate(z, blocksize, CacheSize)) == nil)
 			sysfatal("vacfscreate: %r");
 		f = vacfsgetroot(fs);
 
 		fdiff = nil;
 		if(diffvac){
-			if((fsdiff = vacfsopen(z, diffvac, VtOREAD, 128)) == nil)
+			if((fsdiff = vacfsopen(z, diffvac, VtOREAD, CacheSize)) == nil)
 				warn("vacfsopen %s: %r", diffvac);
 			else
 				fdiff = vacfsgetroot(fsdiff);
@@ -708,7 +709,7 @@ vacmerge(VacFile *fp, char *name)
 
 	if(strlen(name) < 4 || strcmp(name+strlen(name)-4, ".vac") != 0)
 		return -1;
-	if((mfs = vacfsopen(z, name, VtOREAD, 4<<20)) == nil)
+	if((mfs = vacfsopen(z, name, VtOREAD, CacheSize)) == nil)
 		return -1;
 	if(verbose)
 		fprint(2, "merging %s\n", name);
