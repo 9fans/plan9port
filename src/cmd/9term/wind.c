@@ -667,6 +667,22 @@ wkeyctl(Window *w, Rune r)
 		waddraw(w, &r, 1);
 		return;
 	}
+	if(r == Kcmd+'x'){
+		wsnarf(w);
+		wcut(w);
+		wscrdraw(w);
+		return;
+	}
+	if(r == Kcmd+'c'){
+		wsnarf(w);
+		return;
+	}
+	if(r == Kcmd+'v'){
+		riogetsnarf();
+		wpaste(w);
+		wscrdraw(w);
+		return;
+	}
 	if(r != 0x7F){
 		wsnarf(w);
 		wcut(w);
