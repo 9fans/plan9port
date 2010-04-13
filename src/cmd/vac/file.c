@@ -1788,7 +1788,7 @@ vacfsopen(VtConn *z, char *file, int mode, ulong cachemem)
 		}
 		close(fd);
 	}
-fprint(2, "vacfsopen %V\n", score);
+if(debug) fprint(2, "vacfsopen %V\n", score);
 	return vacfsopenscore(z, score, mode, cachemem);
 }
 
@@ -1805,22 +1805,22 @@ vacfsopenscore(VtConn *z, u8int *score, int mode, ulong cachemem)
 
 	n = vtread(z, score, VtRootType, buf, VtRootSize);
 	if(n < 0) {
-fprint(2, "read %r\n");
+if(debug) fprint(2, "read %r\n");
 		return nil;
 	}
 	if(n != VtRootSize){
 		werrstr("vtread on root too short");
-fprint(2, "size %d\n", n);
+if(debug) fprint(2, "size %d\n", n);
 		return nil;
 	}
 
 	if(vtrootunpack(&rt, buf) < 0) {
-fprint(2, "unpack: %r\n");
+if(debug) fprint(2, "unpack: %r\n");
 		return nil;
 	}
 
 	if(strcmp(rt.type, "vac") != 0) {
-fprint(2, "bad type %s\n", rt.type);
+if(debug) fprint(2, "bad type %s\n", rt.type);
 		werrstr("not a vac root");
 		return nil;
 	}
@@ -1839,7 +1839,7 @@ fprint(2, "bad type %s\n", rt.type);
 		e.psize = (60000/VtEntrySize)*VtEntrySize;
 
 	e.dsize = rt.blocksize;
-fprint(2, "openscore %d psize %d dsize %d\n", (int)rt.blocksize, (int)e.psize, (int)e.dsize);
+if(debug) fprint(2, "openscore %d psize %d dsize %d\n", (int)rt.blocksize, (int)e.psize, (int)e.dsize);
 	e.type = VtDirType;
 	e.flags = VtEntryActive;
 	e.size = 3*VtEntrySize;
@@ -1960,7 +1960,7 @@ vacfscreate(VtConn *z, int bsize, ulong cachemem)
 	psize = bsize/VtScoreSize*VtScoreSize;
 	if(psize > 60000)
 		psize = 60000/VtScoreSize*VtScoreSize;
-fprint(2, "create bsize %d psize %d\n", bsize, psize);
+if(debug) fprint(2, "create bsize %d psize %d\n", bsize, psize);
 
 	f = vtfilecreateroot(fs->cache, psize, bsize, VtDirType);
 	if(f == nil)
