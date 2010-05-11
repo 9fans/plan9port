@@ -755,7 +755,8 @@ imapdial(char *server, int mode)
 		fd[1] = dup(p[0], -1);
 		fd[2] = dup(2, -1);
 		tmp = esmprint("%s:993", server);
-		if(threadspawnl(fd, "/usr/sbin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0
+		if(threadspawnl(fd, "tlsclient", "tlsclient", tmp, nil) < 0
+		    && threadspawnl(fd, "/usr/sbin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0
 		    && threadspawnl(fd, "/usr/bin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0){
 			free(tmp);
 			close(p[0]);
