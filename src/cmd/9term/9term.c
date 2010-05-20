@@ -38,6 +38,7 @@ void resizethread(void*);
 void	servedevtext(void);
 
 int errorshouldabort = 0;
+int cooked;
 
 void
 usage(void)
@@ -68,6 +69,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 's':
 		scrolling = TRUE;
+		break;
+	case 'c':
+		cooked = TRUE;
 		break;
 	case 'w':	/* started from rio or 9wm */
 		use9wm = TRUE;
@@ -277,7 +281,6 @@ new(Image *i, int hideit, int scrollit, int pid, char *dir, char *cmd, char **ar
 /*
  * Button 2 menu.  Extra entry for always cook
  */
-int cooked;
 
 enum
 {
