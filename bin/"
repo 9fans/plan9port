@@ -21,11 +21,7 @@ switch($#*) {
 case 0
 	cmds | tail -1
 case *
-	cmds | grep '^	'^$"* | {echo; cat} |
-		pr -t -n | sort -nr | sort -u +1 | sort -n |
-		sed 's/^ *[0-9]+	//' | grep .
+	cmds | grep -n '^	'^$"* | tail -r |
+		sort -u +1 | sort -n |
+		sed 's/^[0-9]+: //'
 }
-
-# the silly {echo; cat} gets around pr printing "empty file" when
-# presented with no input.
-

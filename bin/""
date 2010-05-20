@@ -1,19 +1,10 @@
 #!/usr/local/plan9/bin/rc
 
-PROMPT='[^ 	]*[%;$#][ 	]+'
-
-" $* | 
-	grep -v '^'$PROMPT'""' | 
-	tail -1 | 
-	tee >{wc -l >/tmp/qq.$pid} | 
-	tee /dev/stderr | 
-	9 sed 's/^	'$PROMPT'//' | 
-	rc
-
-if(~ `{cat /tmp/qq.$pid} 0){
-	rm /tmp/qq.$pid
-	echo no such command found
+cmd = `{" $* | tail -1}
+if (~ $#cmd 0) {
+	echo no such command found >[1=2]
 	exit notfound
 }
-rm /tmp/qq.$pid
-exit 0
+
+echo '	' $cmd >[1=2]
+rc -c $"cmd
