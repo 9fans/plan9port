@@ -476,6 +476,21 @@ dircmp(const void *va, const void *vb)
 	return strcmp(a->name, b->name);
 }
 
+static int
+timecmp(const void *va, const void *vb)
+{
+	Dir *a, *b;
+	
+	a = (Dir*)va;
+	b = (Dir*)vb;
+	if(a->mtime < b->mtime)
+		return -1;
+	else if(a->mtime > b->mtime)
+		return 1;
+	else
+		return 0;
+}
+
 char *dot[] = { "." };
 
 void
@@ -483,14 +498,14 @@ xls(int argc, char **argv)
 {
 	char *err, *name, *xname, *f[4], buf[4096];
 	int nf, i, j, l, sort;
-	int lflag, dflag, n, len[4];
+	int lflag, dflag, tflag, n, len[4];
 	Dir *d;
 	CFid *fid;
 	CFsys *fs;
 
 	err = nil;
-	sort = 0;
-	lflag = dflag = 0;
+	sort = 1;
+	lflag = dflag = tflag = 0;
 	ARGBEGIN{
 	case 'n':
 		sort = 0;
@@ -500,6 +515,9 @@ xls(int argc, char **argv)
 		break;
 	case 'd':
 		dflag = 1;
+		break;
+	case 't':
+		tflag = 1;
 		break;
 	}ARGEND
 	
@@ -538,8 +556,12 @@ xls(int argc, char **argv)
 				err = "errors";
 				continue;
 			}
-			if(sort)
-				qsort(d, n, sizeof d[0], dircmp);
+			if(sort){
+				if(tflag)
+					qsort(d, n, sizeof d[0], timecmp);
+				else
+					qsort(d, n, sizeof d[0], dircmp);
+			}
 			for(j=0; j<4; j++)
 				len[j] = 0;
 			for(i=0; i<n; i++){
