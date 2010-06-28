@@ -187,17 +187,19 @@ swab2(char *b, int n)
 void
 unicode_in(int fd, long *notused, struct convert *out)
 {
+	u16int ubuf[N];
 	Rune buf[N];
-	int n;
+	int i, n;
 	int swabme;
 
 	USED(notused);
-	if(read(fd, (char *)buf, 2) != 2)
+	if(read(fd, (char *)ubuf, 2) != 2)
 		return;
 	ninput += 2;
-	switch(buf[0])
+	switch(ubuf[0])
 	{
 	default:
+		buf[0] = ubuf[0];
 		OUT(out, buf, 1);
 	case 0xFEFF:
 		swabme = 0;
@@ -206,10 +208,12 @@ unicode_in(int fd, long *notused, struct convert *out)
 		swabme = 1;
 		break;
 	}
-	while((n = read(fd, (char *)buf, 2*N)) > 0){
+	while((n = read(fd, (char *)ubuf, 2*N)) > 0){
 		ninput += n;
 		if(swabme)
-			swab2((char *)buf, n);
+			swab2((char *)ubuf, n);
+		for(i=0; i<n/2; i++)
+			buf[i] = ubuf[i];
 		if(n&1){
 			if(squawk)
 				EPR "%s: odd byte count in %s\n", argv0, file);
@@ -227,13 +231,14 @@ void
 unicode_in_be(int fd, long *notused, struct convert *out)
 {
 	int i, n;
+	u16int ubuf[N];
 	Rune buf[N], r;
 	uchar *p;
 
 	USED(notused);
-	while((n = read(fd, (char *)buf, 2*N)) > 0){
+	while((n = read(fd, (char *)ubuf, 2*N)) > 0){
 		ninput += n;
-		p = (uchar*)buf;
+		p = (uchar*)ubuf;
 		for(i=0; i<n/2; i++){
 			r = *p++<<8;
 			r |= *p++;
@@ -257,13 +262,14 @@ void
 unicode_in_le(int fd, long *notused, struct convert *out)
 {
 	int i, n;
+	u16int ubuf[N];
 	Rune buf[N], r;
 	uchar *p;
 
 	USED(notused);
-	while((n = read(fd, (char *)buf, 2*N)) > 0){
+	while((n = read(fd, (char *)ubuf, 2*N)) > 0){
 		ninput += n;
-		p = (uchar*)buf;
+		p = (uchar*)ubuf;
 		for(i=0; i<n/2; i++){
 			r = *p++;
 			r |= *p++<<8;
@@ -287,17 +293,21 @@ void
 unicode_out(Rune *base, int n, long *notused)
 {
 	static int first = 1;
+	u16int buf[N];
+	int i;
 
 	USED(notused);
 	nrunes += n;
 	if(first){
-		unsigned short x = 0xFEFF;
+		u16int x = 0xFEFF;
 		noutput += 2;
 		write(1, (char *)&x, 2);
 		first = 0;
 	}
 	noutput += 2*n;
-	write(1, (char *)base, 2*n);
+	for(i=0; i<n; i++)
+		buf[i] = base[i];
+	write(1, (char *)buf, 2*n);
 }
 
 void
