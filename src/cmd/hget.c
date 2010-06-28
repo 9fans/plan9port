@@ -387,13 +387,23 @@ dohttp(URL *u, URL *px, Range *r, Out *out, long mtime)
 				dfprint(fd,	"Authorization: Basic %s\r\n",
 						u->cred);
 		} else {
-			dfprint(fd,	"POST %s HTTP/1.0\r\n"
-					"Host: %s\r\n"
-					"Content-type: application/x-www-form-urlencoded\r\n"
-					"Content-length: %d\r\n"
-					"User-agent: Plan9/hget\r\n"
-					"\r\n",
-					u->page, u->host, strlen(u->postbody));
+			if(px->host == nil){
+				dfprint(fd,	"POST %s HTTP/1.0\r\n"
+						"Host: %s\r\n"
+						"Content-type: application/x-www-form-urlencoded\r\n"
+						"Content-length: %d\r\n"
+						"User-agent: Plan9/hget\r\n"
+						"\r\n",
+						u->page, u->host, strlen(u->postbody));
+			} else {
+				dfprint(fd, "POST http://%s%s HTTP/1.0\r\n"
+						"Host: %s\r\n"
+						"Content-type: application/x-www-form-urlencoded\r\n"
+						"Content-length: %d\r\n"
+						"User-agent: Plan9/hget\r\n"
+						"\r\n",
+						u->host, u->page, u->host, strlen(u->postbody));
+			}
 			dfprint(fd,	"%s", u->postbody);
 		}
 		if(r->start != 0){
