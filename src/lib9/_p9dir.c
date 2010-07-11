@@ -44,6 +44,7 @@ disksize(int fd, struct stat *st)
 #define _HAVESTGEN
 #include <sys/disklabel.h>
 #include <sys/ioctl.h>
+#include <sys/dkio.h>
 static vlong
 disksize(int fd, struct stat *st)
 {
