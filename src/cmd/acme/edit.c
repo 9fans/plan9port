@@ -164,7 +164,7 @@ editcmd(Text *ct, Rune *r, uint n)
 		free(cmdstartp);
 	cmdstartp = runemalloc(n+2);
 	runemove(cmdstartp, r, n);
-	if(r[n] != '\n')
+	if(r[n-1] != '\n')
 		cmdstartp[n++] = '\n';
 	cmdstartp[n] = '\0';
 	cmdendp = cmdstartp+n;
@@ -195,7 +195,7 @@ editcmd(Text *ct, Rune *r, uint n)
 int
 getch(void)
 {
-	if(*cmdp == *cmdendp)
+	if(cmdp == cmdendp)
 		return -1;
 	return *cmdp++;
 }
@@ -203,7 +203,7 @@ getch(void)
 int
 nextc(void)
 {
-	if(*cmdp == *cmdendp)
+	if(cmdp == cmdendp)
 		return -1;
 	return *cmdp;
 }
