@@ -20,7 +20,7 @@ Rune		*lastregexp;
 typedef struct Inst Inst;
 struct Inst
 {
-	uint	type;	/* < 0x10000 ==> literal, otherwise action */
+	uint	type;	/* < OPERATOR ==> literal, otherwise action */
 	union {
 		int sid;
 		int subid;
@@ -58,28 +58,30 @@ static	Rangeset sempty;
 /*
  * Actions and Tokens
  *
- *	0x100xx are operators, value == precedence
- *	0x200xx are tokens, i.e. operands for operators
+ *	0x10000xx are operators, value == precedence
+ *	0x20000xx are tokens, i.e. operands for operators
  */
-#define	OPERATOR	0x10000	/* Bitmask of all operators */
-#define	START		0x10000	/* Start, used for marker on stack */
-#define	RBRA		0x10001	/* Right bracket, ) */
-#define	LBRA		0x10002	/* Left bracket, ( */
-#define	OR		0x10003	/* Alternation, | */
-#define	CAT		0x10004	/* Concatentation, implicit operator */
-#define	STAR		0x10005	/* Closure, * */
-#define	PLUS		0x10006	/* a+ == aa* */
-#define	QUEST		0x10007	/* a? == a|nothing, i.e. 0 or 1 a's */
-#define	ANY		0x20000	/* Any character but newline, . */
-#define	NOP		0x20001	/* No operation, internal use only */
-#define	BOL		0x20002	/* Beginning of line, ^ */
-#define	EOL		0x20003	/* End of line, $ */
-#define	CCLASS		0x20004	/* Character class, [] */
-#define	NCCLASS		0x20005	/* Negated character class, [^] */
-#define	END		0x20077	/* Terminate: match found */
+#define	OPERATOR	0x1000000	/* Bit set in all operators */
+#define	START		(OPERATOR+0)	/* Start, used for marker on stack */
+#define	RBRA		(OPERATOR+1)	/* Right bracket, ) */
+#define	LBRA		(OPERATOR+2)	/* Left bracket, ( */
+#define	OR		(OPERATOR+3)	/* Alternation, | */
+#define	CAT		(OPERATOR+4)	/* Concatentation, implicit operator */
+#define	STAR		(OPERATOR+5)	/* Closure, * */
+#define	PLUS		(OPERATOR+6)	/* a+ == aa* */
+#define	QUEST		(OPERATOR+7)	/* a? == a|nothing, i.e. 0 or 1 a's */
+#define	ANY		0x2000000	/* Any character but newline, . */
+#define	NOP		(ANY+1)	/* No operation, internal use only */
+#define	BOL		(ANY+2)	/* Beginning of line, ^ */
+#define	EOL		(ANY+3)	/* End of line, $ */
+#define	CCLASS		(ANY+4)	/* Character class, [] */
+#define	NCCLASS		(ANY+5)	/* Negated character class, [^] */
+#define	END		(ANY+0x77)	/* Terminate: match found */
 
-#define	ISATOR		0x10000
-#define	ISAND		0x20000
+#define	ISATOR		OPERATOR
+#define	ISAND		ANY
+
+#define	QUOTED	0x4000000	/* Bit set for \-ed lex characters */
 
 /*
  * Parser Information
@@ -453,7 +455,7 @@ nextrec(void)
 			exprp++;
 			return '\n';
 		}
-		return *exprp++|0x10000;
+		return *exprp++|QUOTED;
 	}
 	return *exprp++;
 }
@@ -493,7 +495,7 @@ bldcclass(void)
 			classp[n+2] = c2;
 			n += 3;
 		}else
-			classp[n++] = c1;
+			classp[n++] = c1 & ~QUOTED;
 	}
 	classp[n] = 0;
 	if(nclass == Nclass){
