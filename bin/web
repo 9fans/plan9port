@@ -2,7 +2,14 @@
 
 plumbapple()
 {
-	open "$@"
+	case ${BROWSER:-none} in
+	none)
+		open "$@"
+		;;
+	*)
+		open -a "$BROWSER" "$@"
+		;;
+	esac
 }
 
 plumbunix()
