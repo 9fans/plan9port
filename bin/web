@@ -1,74 +1,8 @@
 #!/bin/sh
 
-plumbfirefox()
-{
-	echo '
-		tell application "Firefox"
-		activate
-		tell application "System Events"
-		tell process "firefox"
-		keystroke "t" using {command down}
-		end tell
-		end tell
-		Get URL "'$1'"
-		end tell
-	' | osascript
-}
-
-plumbsafari()
-{
-	echo '
-		tell application "Safari"
-		activate
-		tell application "System Events"
-		tell process "safari"
-		keystroke "t" using {command down}
-		end tell
-		end tell
-		open location "'$1'"
-		end tell
-	' | osascript
-}
-
-plumbcamino()
-{
-	echo '
-		tell application "Camino"
-		activate
-		tell application "System Events"
-		tell process "camino"
-		keystroke "t" using {command down}
-		end tell
-		end tell
-		Get URL "'$1'"
-		end tell
-	' | osascript
-}
-
 plumbapple()
 {
-	case ${BROWSER:-none} in
-	firefox)
-		plumbfirefox "$@"
-		;;
-	safari)
-		plumbsafari "$@"
-		;;
-	camino)
-		plumbcamino "$@"
-		;;
-	none)
-		if [ -d /Applications/Camino.app ]
-		then
-			plumbcamino "$@"
-		elif [ -d /Applications/Firefox.app ]
-		then
-			plumbfirefox "$@"
-		else
-			plumbsafari "$@"
-		fi
-		;;
-	esac
+	open "$@"
 }
 
 plumbunix()
