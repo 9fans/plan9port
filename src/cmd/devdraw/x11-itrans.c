@@ -518,17 +518,16 @@ _xselect(XEvent *e)
 
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
-if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
-	xe->target, xe->requestor, xe->property, xe->selection);
+if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof atom=%d)\n",
+	xe->target, xe->requestor, xe->property, xe->selection, sizeof a[0]);
 	r.xselection.property = xe->property;
 	if(xe->target == _x.targets){
 		a[0] = _x.utf8string;
 		a[1] = XA_STRING;
 		a[2] = _x.text;
 		a[3] = _x.compoundtext;
-
-		XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
-			8*sizeof(a[0]), PropModeReplace, (uchar*)a, nelem(a));
+		XChangeProperty(_x.display, xe->requestor, xe->property, XA_ATOM,
+			32, PropModeReplace, (uchar*)a, nelem(a));
 	}else if(xe->target == XA_STRING 
 	|| xe->target == _x.utf8string 
 	|| xe->target == _x.text 
