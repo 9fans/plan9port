@@ -160,7 +160,7 @@ struct File
 	String		name;		/* name of associated file */
 	uvlong		qidpath;	/* of file when read */
 	uint		mtime;		/* of file when read */
-	int		dev;		/* of file when read */
+	ulong	dev;		/* of file when read */
 	int		unread;		/* file has not been read from disk */
 
 	long		seq;		/* if seq==0, File acts like Buffer */
