@@ -54,6 +54,12 @@ except:
 	from mercurial.version import version as v
 	hgversion = v.get_version()
 
+try:
+	from mercurial.discovery import findcommonincoming
+except:
+	def findcommonincoming(repo, remote):
+		return repo.findcommonincoming(remote)
+
 oldMessage = """
 The code review extension requires Mercurial 1.3 or newer.
 
@@ -77,6 +83,15 @@ if hgversion < '1.3':
 		msg += linuxMessage
 	raise util.Abort(msg)
 
+def promptyesno(ui, msg):
+	# Arguments to ui.prompt changed between 1.3 and 1.3.1.
+	# Even so, some 1.3.1 distributions seem to have the old prompt!?!?
+	# What a terrible way to maintain software.
+	try:
+		return ui.promptchoice(msg, ["&yes", "&no"], 0) == 0
+	except AttributeError:
+		return ui.prompt(msg, ["&yes", "&no"], "y") != "n"
+
 # To experiment with Mercurial in the python interpreter:
 #    >>> repo = hg.repository(ui.ui(), path = ".")
 
@@ -92,6 +107,7 @@ if __name__ == "__main__":
 server = "codereview.appspot.com"
 server_url_base = None
 defaultcc = None
+contributors = {}
 
 #######################################################################
 # Change list parsing.
@@ -331,7 +347,7 @@ def ParseCL(text, name):
 	if sections['Mailed'] != 'False':
 		# Odd default, but avoids spurious mailings when
 		# reading old CLs that do not have a Mailed: line.
-		# CLs created with this update will always have 
+		# CLs created with this update will always have
 		# Mailed: False on disk.
 		cl.mailed = True
 	if cl.desc == '<enter description here>':
@@ -339,7 +355,10 @@ def ParseCL(text, name):
 	return cl, 0, ''
 
 def SplitCommaSpace(s):
-	return re.sub(", *", ",", s).split(",")
+	s = s.strip()
+	if s == "":
+		return []
+	return re.split(", *", s)
 
 def CutDomain(s):
 	i = s.find('@')
@@ -521,11 +540,18 @@ _change_prolog = """# Change list.
 #######################################################################
 # Mercurial helper functions
 
+# Get effective change nodes taking into account applied MQ patches
+def effective_revpair(repo):
+    try:
+	return cmdutil.revpair(repo, ['qparent'])
+    except:
+	return cmdutil.revpair(repo, None)
+
 # Return list of changed files in repository that match pats.
 def ChangedFiles(ui, repo, pats, opts):
 	# Find list of files being operated on.
 	matcher = cmdutil.match(repo, pats, opts)
-	node1, node2 = cmdutil.revpair(repo, None)
+	node1, node2 = effective_revpair(repo)
 	modified, added, removed = repo.status(node1, node2, matcher)[:3]
 	l = modified + added + removed
 	l.sort()
@@ -534,7 +560,7 @@ def ChangedFiles(ui, repo, pats, opts):
 # Return list of changed files in repository that match pats and still exist.
 def ChangedExistingFiles(ui, repo, pats, opts):
 	matcher = cmdutil.match(repo, pats, opts)
-	node1, node2 = cmdutil.revpair(repo, None)
+	node1, node2 = effective_revpair(repo)
 	modified, added, _ = repo.status(node1, node2, matcher)[:3]
 	l = modified + added
 	l.sort()
@@ -571,14 +597,18 @@ def getremote(ui, repo, opts):
 	# save $http_proxy; creating the HTTP repo object will
 	# delete it in an attempt to "help"
 	proxy = os.environ.get('http_proxy')
-	source, _, _ = hg.parseurl(ui.expandpath("default"), None)
-	other = hg.repository(cmdutil.remoteui(repo, opts), source)
+	source = hg.parseurl(ui.expandpath("default"), None)[0]
+	try:
+		remoteui = hg.remoteui # hg 1.6
+        except:
+		remoteui = cmdutil.remoteui
+	other = hg.repository(remoteui(repo, opts), source)
 	if proxy is not None:
 		os.environ['http_proxy'] = proxy
 	return other
 
 def Incoming(ui, repo, opts):
-	_, incoming, _ = repo.findcommonincoming(getremote(ui, repo, opts))
+	_, incoming, _ = findcommonincoming(repo, getremote(ui, repo, opts))
 	return incoming
 
 def EditCL(ui, repo, cl):
@@ -587,7 +617,7 @@ def EditCL(ui, repo, cl):
 		s = ui.edit(s, ui.username())
 		clx, line, err = ParseCL(s, cl.name)
 		if err != '':
-			if ui.prompt("error parsing change list: line %d: %s\nre-edit (y/n)?" % (line, err), ["&yes", "&no"], "y") == "n":
+			if not promptyesno(ui, "error parsing change list: line %d: %s\nre-edit (y/n)?" % (line, err)):
 				return "change list not modified"
 			continue
 		cl.desc = clx.desc;
@@ -595,7 +625,7 @@ def EditCL(ui, repo, cl):
 		cl.cc = clx.cc
 		cl.files = clx.files
 		if cl.desc == '':
-			if ui.prompt("change list should have description\nre-edit (y/n)?", ["&yes", "&no"], "y") != "n":
+			if promptyesno(ui, "change list should have description\nre-edit (y/n)?"):
 				continue
 		break
 	return ""
@@ -640,6 +670,7 @@ original_match = None
 def ReplacementForCmdutilMatch(repo, pats=[], opts={}, globbed=False, default='relpath'):
 	taken = []
 	files = []
+        pats = pats or []
 	for p in pats:
 		if p.startswith('@'):
 			taken.append(p)
@@ -652,7 +683,7 @@ def ReplacementForCmdutilMatch(repo, pats=[], opts={}, globbed=False, default='r
 			if cl.files == None:
 				raise util.Abort("no files in CL " + clname)
 			files = Add(files, cl.files)
-	pats = Sub(pats, taken)	+ ['path:'+f for f in files]
+	pats = Sub(pats, taken) + ['path:'+f for f in files]
 	return original_match(repo, pats=pats, opts=opts, globbed=globbed, default=default)
 
 def RelativePath(path, cwd):
@@ -669,6 +700,8 @@ def CheckGofmt(ui, repo, files, just_warn=False):
 	cwd = os.getcwd()
 	files = [RelativePath(repo.root + '/' + f, cwd) for f in files]
 	files = [f for f in files if os.access(f, 0)]
+	if not files:
+		return
 	try:
 		cmd = subprocess.Popen(["gofmt", "-l"] + files, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
 		cmd.stdin.close()
@@ -700,9 +733,9 @@ def CheckGofmt(ui, repo, files, just_warn=False):
 #
 
 def change(ui, repo, *pats, **opts):
-	"""create or edit a change list
+	"""create, edit or delete a change list
 
-	Create or edit a change list.
+	Create, edit or delete a change list.
 	A change list is a group of files to be reviewed and submitted together,
 	plus a textual description of the change.
 	Change lists are referred to by simple alphanumeric names.
@@ -818,6 +851,8 @@ def clpatch(ui, repo, clname, **opts):
 	"""
 	cl, patch, err = DownloadCL(ui, repo, clname)
 	argv = ["hgpatch"]
+	if opts["fuzzy"]:
+		argv += ["--fuzzy"]
 	if opts["no_incoming"]:
 		argv += ["--checksync=false"]
 	if err != "":
@@ -948,8 +983,16 @@ def mail(ui, repo, *pats, **opts):
 	if err != "":
 		return err
 	cl.Upload(ui, repo, gofmt_just_warn=True)
-	if not cl.reviewer and not cl.cc:
-		return "no reviewers listed in CL"
+	if not cl.reviewer:
+		# If no reviewer is listed, assign the review to defaultcc.
+		# This makes sure that it appears in the
+		# codereview.appspot.com/user/defaultcc
+		# page, so that it doesn't get dropped on the floor.
+		if not defaultcc:
+			return "no reviewers listed in CL"
+		cl.cc = Sub(cl.cc, defaultcc)
+		cl.reviewer = defaultcc
+		cl.Flush(ui, repo)
 	cl.Mail(ui, repo)
 
 def nocommit(ui, repo, *pats, **opts):
@@ -993,22 +1036,17 @@ def CheckContributor(ui, repo, user=None):
 	return userline
 
 def FindContributor(ui, repo, user, warn=True):
-	try:
-		f = open(repo.root + '/CONTRIBUTORS', 'r')
-	except:
-		raise util.Abort("cannot open %s: %s" % (repo.root+'/CONTRIBUTORS', ExceptionDetail()))
-	for line in f.readlines():
-		line = line.rstrip()
-		if line.startswith('#'):
-			continue
-		match = re.match(r"(.*) <(.*)>", line)
-		if not match:
-			continue
-		if line == user or match.group(2).lower() == user.lower():
-			return match.group(2), line
-	if warn:
-		ui.warn("warning: cannot find %s in CONTRIBUTORS\n" % (user,))
-	return None, None
+	m = re.match(r".*<(.*)>", user)
+	if m:
+		user = m.group(1).lower()
+
+	if user not in contributors:
+		if warn:
+			ui.warn("warning: cannot find %s in CONTRIBUTORS\n" % (user,))
+		return None, None
+	
+	user, email = contributors[user]
+	return email, "%s <%s>" % (user, email)
 
 def submit(ui, repo, *pats, **opts):
 	"""submit change to remote repository
@@ -1246,6 +1284,7 @@ cmdtable = {
 		[
 			('', 'ignore_hgpatch_failure', None, 'create CL metadata even if hgpatch fails'),
 			('', 'no_incoming', None, 'disable check for incoming changes'),
+			('', 'fuzzy', None, 'attempt to adjust patch line numbers'),
 		],
 		"change#"
 	),
@@ -1572,7 +1611,7 @@ def PostMessage(ui, issue, message, reviewers=None, cc=None, send_mail=True, sub
 	if subject is not None:
 		form_fields['subject'] = subject
 	form_fields['message'] = message
-	
+
 	form_fields['message_only'] = '1'	# Don't include draft comments
 	if reviewers is not None or cc is not None:
 		form_fields['message_only'] = ''	# Must set '' in order to override cc/reviewer
@@ -1587,7 +1626,7 @@ class opt(object):
 	pass
 
 def RietveldSetup(ui, repo):
-	global defaultcc, upload_options, rpc, server, server_url_base, force_google_account, verbosity
+	global defaultcc, upload_options, rpc, server, server_url_base, force_google_account, verbosity, contributors
 
 	# Read repository-specific options from lib/codereview/codereview.cfg
 	try:
@@ -1596,7 +1635,31 @@ def RietveldSetup(ui, repo):
 			if line.startswith('defaultcc: '):
 				defaultcc = SplitCommaSpace(line[10:])
 	except:
-		pass
+		# If there are no options, chances are good this is not
+		# a code review repository; stop now before we foul
+		# things up even worse.  Might also be that repo doesn't
+		# even have a root.  See issue 959.
+		return
+
+	try:
+		f = open(repo.root + '/CONTRIBUTORS', 'r')
+	except:
+		raise util.Abort("cannot open %s: %s" % (repo.root+'/CONTRIBUTORS', ExceptionDetail()))
+	for line in f:
+		# CONTRIBUTORS is a list of lines like:
+		#	Person <email>
+		#	Person <email> <alt-email>
+		# The first email address is the one used in commit logs.
+		if line.startswith('#'):
+			continue
+		m = re.match(r"([^<>]+\S)\s+(<[^<>\s]+>)((\s+<[^<>\s]+>)*)\s*$", line)
+		if m:
+			name = m.group(1)
+			email = m.group(2)[1:-1]
+			contributors[email.lower()] = (name, email)
+			for extra in m.group(3).split():
+				contributors[extra[1:-1].lower()] = (name, email)
+	
 
 	# TODO(rsc): If the repository config has no codereview section,
 	# do not enable the extension.  This allows users to
@@ -2808,8 +2871,11 @@ class MercurialVCS(VersionControlSystem):
     if self.options.revision:
       self.base_rev = self.options.revision
     else:
-      self.base_rev = RunShell(["hg", "parent", "-q"]).split(':')[1].strip()
-
+      mqparent, err = RunShellWithReturnCode(['hg', 'log', '--rev', 'qparent', '--template={node}'])
+      if not err:
+        self.base_rev = mqparent
+      else:
+        self.base_rev = RunShell(["hg", "parents", "-q"]).split(':')[1].strip()
   def _GetRelPath(self, filename):
     """Get relative path of a file according to the current directory,
     given its logical path in the repo."""
@@ -2869,13 +2935,10 @@ class MercurialVCS(VersionControlSystem):
     # the working copy
     if out[0].startswith('%s: ' % relpath):
       out = out[1:]
-    if len(out) > 1:
-      # Moved/copied => considered as modified, use old filename to
-      # retrieve base contents
+    status, what = out[0].split(' ', 1)
+    if len(out) > 1 and status == "A" and what == relpath:
       oldrelpath = out[1].strip()
       status = "M"
-    else:
-      status, _ = out[0].split(' ', 1)
     if ":" in self.base_rev:
       base_rev = self.base_rev.split(":", 1)[0]
     else:
