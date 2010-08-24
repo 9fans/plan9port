@@ -102,12 +102,14 @@ rowadd(Row *row, Column *c, int x)
 void
 rowresize(Row *row, Rectangle r)
 {
-	int i, dx, odx;
-	Rectangle r1, r2;
+	int i, dx, odx, deltax;
+	Rectangle or, r1, r2;
 	Column *c;
 
 	dx = Dx(r);
 	odx = Dx(row->r);
+	or = row->r;
+	deltax = r.min.x - or.min.x;
 	row->r = r;
 	r1 = r;
 	r1.max.y = r1.min.y + font->height;
@@ -121,10 +123,11 @@ rowresize(Row *row, Rectangle r)
 	for(i=0; i<row->ncol; i++){
 		c = row->col[i];
 		r1.min.x = r1.max.x;
+		/* the test should not be necessary, but guarantee we don't lose a pixel */
 		if(i == row->ncol-1)
 			r1.max.x = r.max.x;
 		else
-			r1.max.x = r1.min.x+Dx(c->r)*dx/odx;
+			r1.max.x = (c->r.max.x-or.min.x)*Dx(r)/Dx(or) + deltax;
 		if(i > 0){
 			r2 = r1;
 			r2.max.x = r2.min.x+Border;
