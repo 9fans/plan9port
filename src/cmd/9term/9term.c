@@ -22,7 +22,6 @@ int plumbfd;
 int rcpid;
 int rcfd;
 int sfd;
-int noecho;
 Window *w;
 char *fontname;
 
@@ -412,6 +411,9 @@ rcoutputproc(void *arg)
 				fprint(2, "9term: rc read error: %r\n");
 			threadexitsall("eof on rc output");
 		}
+		n = echocancel(data+cnt, n);
+		if(n == 0)
+			continue;
 		cnt += n;
 		r = runemalloc(cnt);
 		cvttorunes(data, cnt-UTFmax, r, &nb, &nr, nil);
@@ -428,7 +430,7 @@ rcoutputproc(void *arg)
 		nr = label(r, nr);
 		if(nr == 0)
 			continue;
-
+		
 		recv(w->conswrite, &cwm);
 		pair.s = r;
 		pair.ns = nr;
@@ -499,7 +501,6 @@ void
 rcinputproc(void *arg)
 {
 	static char data[9000];
-	int s;
 	Consreadmesg crm;
 	Channel *c1, *c2;
 	Stringpair pair;
@@ -513,12 +514,11 @@ rcinputproc(void *arg)
 		pair.ns = sizeof data;
 		send(c1, &pair);
 		recv(c2, &pair);
-		
-		s = setecho(sfd, 0);
+
+		if(isecho(sfd))
+			echoed(pair.s, pair.ns);
 		if(write(rcfd, pair.s, pair.ns) < 0)
 			threadexitsall(nil);
-		if(s)
-			setecho(sfd, s);
 	}
 }
 

@@ -5,7 +5,6 @@
 #include <9pclient.h>
 #include "term.h"
 
-int noecho = 1;
 
 #define	EVENTSIZE	256
 #define	STACK	32768
@@ -71,6 +70,7 @@ void	sende(Event*, int, CFid*, CFid*, CFid*, int);
 char	*onestring(int, char**);
 int	delete(Event*);
 void	deltype(uint, uint);
+void	sendbs(int, int);
 void	runproc(void*);
 
 int
@@ -349,6 +349,7 @@ stdinproc(void *v)
 	CFid *afd = addrfd;
 	int fd0 = rcfd;
 	Event e, e2, e3, e4;
+	int n;
 
 	USED(v);
 
@@ -411,7 +412,10 @@ stdinproc(void *v)
 				break;
 
 			case 'D':
-				q.p -= delete(&e);
+				n = delete(&e);
+				q.p -= n;
+				if(!isecho(fd0))
+					sendbs(fd0, n);
 				break;
 
 			case 'x':
@@ -491,6 +495,14 @@ stdoutproc(void *v)
 		n = read(fd1, buf+npart, 8192);
 		if(n <= 0)
 			error(nil);
+		
+		n = echocancel(buf+npart, n);
+		if(n == 0)
+			continue;
+		
+		n = dropcrnl(buf+npart, n);
+		if(n == 0)
+			continue;
 
 		/* squash NULs */
 		s = memchr(buf+npart, 0, n);
@@ -525,8 +537,10 @@ stdoutproc(void *v)
 			qlock(&q.lk);
 			m = sprint(x, "#%d", q.p);
 			if(fswrite(afd, x, m) != m){
-				fprint(2, "stdout writing address: %r; resetting\n");
-				fswrite(afd, "$", 1);
+				fprint(2, "stdout writing address %s: %r; resetting\n", x);
+				if(fswrite(afd, "$", 1) < 0)
+					fprint(2, "reset: %r\n");
+				fsseek(afd, 0, 0);
 				m = fsread(afd, x, sizeof x-1);
 				if(m >= 0){
 					x[m] = 0;
@@ -660,13 +674,18 @@ addtype(int c, uint p0, char *b, int nb, int nr)
 void
 sendtype(int fd0)
 {
-	int i, n, nr;
-
-	while(ntypebreak){
+	int i, n, nr, raw;
+	
+	raw = !isecho(fd0);
+	while(ntypebreak || (raw && ntypeb > 0)){
 		for(i=0; i<ntypeb; i++)
-			if(typing[i]=='\n' || typing[i]==0x04){
+			if(typing[i]=='\n' || typing[i]==0x04 || (i==ntypeb-1 && raw)){
+				if((typing[i] == '\n' || typing[i] == 0x04) && ntypebreak > 0)
+					ntypebreak--;
 				n = i+1;
 				i++;
+				if(isecho(fd0))
+					echoed(typing, n);
 				if(write(fd0, typing, n) != n)
 					error("sending to program");
 				nr = nrunes(typing, i);
@@ -674,12 +693,27 @@ sendtype(int fd0)
 				ntyper -= nr;
 				ntypeb -= i;
 				memmove(typing, typing+i, ntypeb);
-				ntypebreak--;
 				goto cont2;
 			}
 		print("no breakchar\n");
 		ntypebreak = 0;
 cont2:;
+	}
+}
+
+void
+sendbs(int fd0, int n)
+{
+	char buf[128];
+	int m;
+
+	memset(buf, 0x08, sizeof buf);
+	while(n > 0) {
+		m = sizeof buf;
+		if(m > n)
+			m = n;
+		n -= m;
+		write(fd0, buf, m);
 	}
 }
 
@@ -737,6 +771,12 @@ type(Event *e, int fd0, CFid *afd, CFid *dfd)
 			addtype(e->c1, m-q.p, buf, n, nr);
 			m += nr;
 		}
+	}
+	if(!isecho(fd0)) {
+		n = sprint(buf, "#%d,#%d", e->q0, e->q1);
+		fswrite(afd, buf, n);
+		fswrite(dfd, "", 0);
+		q.p -= e->q1 - e->q0;
 	}
 	sendtype(fd0);
 }

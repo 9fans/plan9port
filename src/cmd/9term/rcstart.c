@@ -87,8 +87,6 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 		dup(sfd, 2);
 		sys("stty tabs -onlcr icanon echo erase '^h' intr '^?'", 0);
 		sys("stty onocr", 1);	/* not available on mac */
-		if(noecho)
-			sys("stty -echo", 0);
 		for(i=3; i<100; i++)
 			close(i);
 		signal(SIGINT, SIG_DFL);
@@ -111,3 +109,73 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	return pid;
 }
 
+struct {
+	Lock l;
+	char buf[1<<20];
+	int r, w;
+} echo;
+
+void
+echoed(char *p, int n)
+{
+	lock(&echo.l);
+	if(echo.r > 0) {
+		memmove(echo.buf, echo.buf+echo.r, echo.w-echo.r);
+		echo.w -= echo.r;
+		echo.r = 0;
+	}
+	if(echo.w+n > sizeof echo.buf)
+		echo.r = echo.w = 0;
+	if(echo.w+n > sizeof echo.buf)
+		n = 0;
+	memmove(echo.buf+echo.w, p, n);
+	echo.w += n;	
+	unlock(&echo.l);
+}
+
+int
+echocancel(char *p, int n)
+{
+	int i;
+
+	lock(&echo.l);
+	for(i=0; i<n; i++) {
+		if(echo.r < echo.w) {
+			if(echo.buf[echo.r] == p[i]) {
+				echo.r++;
+				continue;
+			}
+			if(echo.buf[echo.r] == '\n' && p[i] == '\r')
+				continue;
+			if(p[i] == 0x08) {
+				if(i+2 <= n && p[i+1] == ' ' && p[i+2] == 0x08)
+					i += 2;
+				continue;
+			}
+		}
+		echo.r = echo.w;
+		break;
+	}
+	unlock(&echo.l);
+	if(i > 0)
+		memmove(p, p+i, n-i);
+	return n-i;
+}
+
+int
+dropcrnl(char *p, int n)
+{
+	char *r, *w;
+
+	for(r=w=p; r<p+n; r++) {
+		if(r+1<p+n && *r == '\r' && *(r+1) == '\n')
+			continue;
+		if(*r == 0x08) {
+			if(r+2<=p+n && *(r+1) == ' ' && *(r+2) == 0x08)
+				r += 2;
+			continue;
+		}
+		*w++ = *r;
+	}
+	return w-p;
+}

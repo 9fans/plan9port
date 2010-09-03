@@ -78,25 +78,6 @@ isecho(int fd)
 }
 
 int
-setecho(int fd, int newe)
-{
-	int old;
-
-	if(tcgetattr(fd, &ttmode) < 0)
-		fprint(2, "tcgetattr: %r\n");
-	old = (ttmode.c_lflag&ECHO)==ECHO;
-	if(old != newe){
-		if(newe)
-			ttmode.c_lflag |= ECHO;
-		else
-			ttmode.c_lflag &= ~ECHO;
-		if(tcsetattr(fd, TCSANOW, &ttmode) < 0)
-			fprint(2, "tcsetattr: %r\n");
-	}
-	return old;
-}
-
-int
 getintr(int fd)
 {
 	if(tcgetattr(fd, &ttmode) < 0)
