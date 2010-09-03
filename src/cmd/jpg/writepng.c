@@ -228,7 +228,7 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 	/* image chunks */
 	zr.nrow = nrow;
 	zr.ncol = ncol;
-	zr.width = rgb->width * sizeof(ulong);
+	zr.width = rgb->width * sizeof(uint32);
 	zr.data = rgb->data->bdata;
 	zr.row = zr.col = 0;
 	zr.pixwid = chantodepth(rgb->chan)/8;
