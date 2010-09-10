@@ -54,6 +54,7 @@ int	ntyper;
 int	ntypebreak;
 int	debug;
 int	rcfd;
+int	cook;
 
 char *name;
 
@@ -178,7 +179,7 @@ threadmain(int argc, char **argv)
 	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
 	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
-	write(fd, " Send Noscroll", 1+4+1+8);
+	write(fd, " Send Nocook Noscroll", 1+4+1+6+1+8);
 	close(fd);
 	sprint(buf, "%d/event", id);
 	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
@@ -414,7 +415,7 @@ stdinproc(void *v)
 			case 'D':
 				n = delete(&e);
 				q.p -= n;
-				if(!isecho(fd0))
+				if(!cook && !isecho(fd0))
 					sendbs(fd0, n);
 				break;
 
@@ -443,6 +444,14 @@ stdinproc(void *v)
 				}
 				if(cistrcmp(buf, "noscroll") == 0) {
 					fsprint(ctlfd, "noscroll");
+					break;
+				}
+				if(cistrcmp(buf, "cook") == 0) {
+					cook = 1;
+					break;
+				}
+				if(cistrcmp(buf, "nocook") == 0) {
+					cook = 0;
 					break;
 				}
 				if(e.flag & 8){
@@ -676,7 +685,7 @@ sendtype(int fd0)
 {
 	int i, n, nr, raw;
 	
-	raw = !isecho(fd0);
+	raw = !cook && !isecho(fd0);
 	while(ntypebreak || (raw && ntypeb > 0)){
 		for(i=0; i<ntypeb; i++)
 			if(typing[i]=='\n' || typing[i]==0x04 || (i==ntypeb-1 && raw)){
@@ -684,7 +693,7 @@ sendtype(int fd0)
 					ntypebreak--;
 				n = i+1;
 				i++;
-				if(isecho(fd0))
+				if(!raw)
 					echoed(typing, n);
 				if(write(fd0, typing, n) != n)
 					error("sending to program");
@@ -772,7 +781,7 @@ type(Event *e, int fd0, CFid *afd, CFid *dfd)
 			m += nr;
 		}
 	}
-	if(!isecho(fd0)) {
+	if(!cook && !isecho(fd0)) {
 		n = sprint(buf, "#%d,#%d", e->q0, e->q1);
 		fswrite(afd, buf, n);
 		fswrite(dfd, "", 0);
