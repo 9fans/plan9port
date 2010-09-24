@@ -71,6 +71,9 @@ elfnm: elfnm.o $LIBDIR/$LIB
 demangler: demangler.o $LIBDIR/$LIB
 	$LD -o $target $prereq -l9
 
+machodump: machodump.o $LIBDIR/$LIB
+	$LD -o $target $prereq -l9
+
 
 SunOS.$O: nosys.c
 Darwin.$O: nosys.c

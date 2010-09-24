@@ -115,8 +115,8 @@ crackmacho(int fd, Fhdr *fp)
 		if(m->cmd[i].type == MachoCmdSymtab)
 			break;
 	if(i < m->ncmd){
-		fp->stabs.stabbase = load(fp->fd, m->cmd[i].sym.symoff, m->cmd[i].sym.nsyms*16);
-		fp->stabs.stabsize = m->cmd[i].sym.nsyms*16;
+		fp->stabs.stabbase = load(fp->fd, m->cmd[i].sym.symoff, m->cmd[i].sym.nsym*16);
+		fp->stabs.stabsize = m->cmd[i].sym.nsym*16;
 		fp->stabs.strbase = (char*)load(fp->fd, m->cmd[i].sym.stroff, m->cmd[i].sym.strsize);
 		if(fp->stabs.stabbase == nil || fp->stabs.strbase == nil){
 			fp->stabs.stabbase = nil;
