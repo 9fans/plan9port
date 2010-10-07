@@ -574,10 +574,12 @@ fsysattach(Fcall *t, uchar *buf, Fid *f)
 {
 	Fcall out;
 
+/*
 	if(strcmp(t->uname, user) != 0){
 		fsysrespond(&out, buf, Eperm);
 		return t;
 	}
+*/
 	f->busy = 1;
 	f->open = 0;
 	f->qid.type = QTDIR;
