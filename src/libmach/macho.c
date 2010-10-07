@@ -6,27 +6,6 @@
 /*
 http://www.channelu.com/NeXT/NeXTStep/3.3/nd/DevTools/14_MachO/MachO.htmld/ 
 */
-static long
-preadn(int fd, void *vdata, uint32 ulen, uint64 offset)
-{
-	long n;
-	uchar *data;
-	long len;
-
-	len = ulen;
-	data = vdata;
-/*	fprint(2, "readn 0x%llux 0x%ux\n", offset, ulen); */
-	while(len > 0){
-		n = pread(fd, data, len, offset);
-		if(n <= 0)
-			break;
-		data += n;
-		offset += n;
-		len -= n;
-	}
-	return data-(uchar*)vdata;
-}
-
 
 Macho*
 machoopen(char *name)
