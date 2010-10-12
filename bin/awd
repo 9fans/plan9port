@@ -15,7 +15,7 @@ case $# in
 	;;
 0)
 	# hostname -s sets the hostname to "-s" on Solaris
-	sys=`hostname |sed 's/\..*//'`
+	sys=${sysname:-$(hostname |sed 's/\..*//')}
 	;;
 *)
 	usage
