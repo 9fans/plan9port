@@ -54,7 +54,9 @@ int	ntyper;
 int	ntypebreak;
 int	debug;
 int	rcfd;
-int	cook;
+int	cook = 1;
+int	password;
+int	israw(int);
 
 char *name;
 
@@ -179,7 +181,7 @@ threadmain(int argc, char **argv)
 	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
 	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
-	write(fd, " Send Nocook Noscroll", 1+4+1+6+1+8);
+	write(fd, " Send Noscroll", 1+4+1+8);
 	close(fd);
 	sprint(buf, "%d/event", id);
 	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
@@ -415,7 +417,7 @@ stdinproc(void *v)
 			case 'D':
 				n = delete(&e);
 				q.p -= n;
-				if(!cook && !isecho(fd0))
+				if(israw(fd0) && e.q1 >= q.p+n)
 					sendbs(fd0, n);
 				break;
 
@@ -543,6 +545,19 @@ stdoutproc(void *v)
 			buf[n] = 0;
 			n = label(buf, n);
 			buf[n] = 0;
+			
+			// clumsy but effective: notice password
+			// prompts so we can disable echo.
+			password = 0;
+			if(cistrstr(buf, "password")) {
+				int i;
+				
+				i = n;
+				while(i > 0 && buf[i-1] == ' ')
+					i--;
+				password = i > 0 && buf[i-1] == ':';
+			}
+
 			qlock(&q.lk);
 			m = sprint(x, "#%d", q.p);
 			if(fswrite(afd, x, m) != m){
@@ -680,12 +695,18 @@ addtype(int c, uint p0, char *b, int nb, int nr)
 	ntyper += nr;
 }
 
+int
+israw(int fd0)
+{
+	return (!cook || password) && !isecho(fd0);
+}
+
 void
 sendtype(int fd0)
 {
 	int i, n, nr, raw;
 	
-	raw = !cook && !isecho(fd0);
+	raw = israw(fd0);
 	while(ntypebreak || (raw && ntypeb > 0)){
 		for(i=0; i<ntypeb; i++)
 			if(typing[i]=='\n' || typing[i]==0x04 || (i==ntypeb-1 && raw)){
@@ -781,13 +802,15 @@ type(Event *e, int fd0, CFid *afd, CFid *dfd)
 			m += nr;
 		}
 	}
-	if(!cook && !isecho(fd0)) {
+	if(israw(fd0)) {
 		n = sprint(buf, "#%d,#%d", e->q0, e->q1);
 		fswrite(afd, buf, n);
 		fswrite(dfd, "", 0);
 		q.p -= e->q1 - e->q0;
 	}
 	sendtype(fd0);
+	if(e->nb > 0 && e->b[e->nb-1] == '\n')
+		cook = 1;
 }
 
 void
