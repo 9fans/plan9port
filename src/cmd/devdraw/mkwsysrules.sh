@@ -52,7 +52,7 @@ elif [ $WSYSTYPE = osx ]; then
 		echo 'LDFLAGS=$LDFLAGS -F/System/Library/PrivateFrameworks'
 	fi
 	echo 'WSYSOFILES=$WSYSOFILES osx-screen-carbon-objc.o osx-draw.o osx-srv.o'
-	echo 'install: install-macargv'
+	echo 'MACARGV=install-macargv'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi

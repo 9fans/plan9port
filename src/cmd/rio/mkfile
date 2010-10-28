@@ -40,7 +40,3 @@ error.$O: showevent/ShowEvent.c
 
 $O.xshove: xshove.$O
 	$LD -o $O.xshove xshove.$O -lX11
-
-# bug in reusing mksysrules.sh
-install-macargv:
-	true
