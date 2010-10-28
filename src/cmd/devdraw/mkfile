@@ -41,3 +41,8 @@ CLEANFILES=latin1.h $O.mklatinkbd
 devdraw-cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-screen-objc.o osx-draw.o osx-srv-objc.o osx-delegate-objc.o
 	$LD -o $target $prereq
 
+install-macargv: $O.macargv
+	install $O.macargv $PLAN9/bin/macargv
+
+$O.macargv: macargv.$O
+	$LD -o $target $prereq

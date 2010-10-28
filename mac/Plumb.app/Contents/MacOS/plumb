@@ -1,0 +1,4 @@
+#!/bin/bash
+. ~/.bashrc
+PLAN9=${PLAN9:-/usr/local/plan9}
+$PLAN9/bin/plumb $($PLAN9/bin/macargv)
