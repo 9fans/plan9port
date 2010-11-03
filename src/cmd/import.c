@@ -262,6 +262,7 @@ shuffle(void *arg)
 		if(write(fd[1], buf, n) != n)
 			break;
 	}
+	threadexitsall(0);
 }
 
 void
