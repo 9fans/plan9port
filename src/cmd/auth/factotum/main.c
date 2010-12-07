@@ -26,8 +26,6 @@ threadmain(int argc, char *argv[])
 	char *mtpt;
 	char err[ERRMAX];
 
-	rfork(RFNOTEG);
-
 /*	mtpt = "/mnt"; */
 	mtpt = nil;
 	owner = getuser();
@@ -71,6 +69,8 @@ threadmain(int argc, char *argv[])
 
 	if(argc != 0)
 		usage();
+
+	rfork(RFNOTEG);
 
 	if(trysecstore && havesecstore()){
 		while(secstorefetch() < 0){
