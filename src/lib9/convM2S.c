@@ -48,7 +48,7 @@ gqid(uchar *p, uchar *ep, Qid *q)
  * to test at end of routine.
  */
 uint
-convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
+convM2S(uchar *ap, uint nap, Fcall *f)
 {
 	uchar *p, *ep;
 	uint i, size;
@@ -101,12 +101,6 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		if(p == nil)
 			break;
 		f->uidnum = NOUID;
-		if(dotu){
-			if(p+BIT32SZ > ep)
-				return 0;
-			f->uidnum = GBIT32(p);
-			p += BIT32SZ;
-		}
 		break;
 
 	case Tattach:
@@ -125,12 +119,6 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		if(p == nil)
 			break;
 		f->uidnum = NOUID;
-		if(dotu){
-			if(p+BIT32SZ > ep)
-				return 0;
-			f->uidnum = GBIT32(p);
-			p += BIT32SZ;
-		}
 		break;
 
 	case Twalk:
@@ -175,8 +163,6 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 		p += BIT32SZ;
 		f->mode = GBIT8(p);
 		p += BIT8SZ;
-		if(dotu)
-			p = gstring(p, ep, &f->extension);
 		break;
 
 	case Tread:
@@ -246,12 +232,6 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 	case Rerror:
 		p = gstring(p, ep, &f->ename);
 		f->errornum = 0;
-		if(dotu){
-			if(p+BIT32SZ > ep)
-				return 0;
-			f->errornum = GBIT32(p);
-			p += BIT32SZ;
-		}
 		break;
 
 	case Rflush:
@@ -343,10 +323,4 @@ convM2Su(uchar *ap, uint nap, Fcall *f, int dotu)
 	if(ap+size == p)
 		return size;
 	return 0;
-}
-
-uint
-convM2S(uchar *ap, uint nap, Fcall *f)
-{
-	return convM2Su(ap, nap, f, 0);
 }

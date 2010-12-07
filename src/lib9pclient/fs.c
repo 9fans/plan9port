@@ -49,14 +49,12 @@ fsinit(int fd)
 	fs->iosend = ioproc();
 	muxinit(&fs->mux);
 	
-	strcpy(fs->version, "9P2000.u");
+	strcpy(fs->version, "9P2000");
 	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
 		werrstr("fsversion: %r");
 		_fsunmount(fs);
 		return nil;
 	}
-	if(strcmp(fs->version, "9P2000.u") == 0)
-		fs->dotu = 1;
 	fs->msize = n;
 	return fs;
 }
@@ -208,7 +206,7 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 	int n, nn;
 	void *tpkt, *rpkt;
 
-	n = sizeS2Mu(tx, fs->dotu);
+	n = sizeS2M(tx);
 	tpkt = malloc(n);
 	if(freep)
 		*freep = nil;
@@ -217,7 +215,7 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 	tx->tag = 0;
 	if(chatty9pclient)
 		fprint(2, "<- %F\n", tx);
-	nn = convS2Mu(tx, tpkt, n, fs->dotu);
+	nn = convS2M(tx, tpkt, n);
 	if(nn != n){
 		free(tpkt);
 		werrstr("lib9pclient: sizeS2M convS2M mismatch");
@@ -231,7 +229,7 @@ _fsrpc(CFsys *fs, Fcall *tx, Fcall *rx, void **freep)
 		return -1;
 	}
 	n = GBIT32((uchar*)rpkt);
-	nn = convM2Su(rpkt, n, rx, fs->dotu);
+	nn = convM2S(rpkt, n, rx);
 	if(nn != n){
 		free(rpkt);
 		werrstr("lib9pclient: convM2S packet size mismatch %d %d", n, nn);

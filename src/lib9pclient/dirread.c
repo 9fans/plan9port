@@ -7,7 +7,7 @@
 #include "fsimpl.h"
 
 static long
-dirpackage(uchar *buf, long ts, Dir **d, int dotu)
+dirpackage(uchar *buf, long ts, Dir **d)
 {
 	char *s;
 	long ss, i, n, nn, m;
@@ -23,7 +23,7 @@ dirpackage(uchar *buf, long ts, Dir **d, int dotu)
 	n = 0;
 	for(i = 0; i < ts; i += m){
 		m = BIT16SZ + GBIT16(&buf[i]);
-		if(statchecku(&buf[i], m, dotu) < 0)
+		if(statcheck(&buf[i], m) < 0)
 			break;
 		ss += m;
 		n++;
@@ -43,7 +43,7 @@ dirpackage(uchar *buf, long ts, Dir **d, int dotu)
 	nn = 0;
 	for(i = 0; i < ts; i += m){
 		m = BIT16SZ + GBIT16((uchar*)&buf[i]);
-		if(nn >= n || convM2Du(&buf[i], m, *d + nn, s, dotu) != m){
+		if(nn >= n || convM2D(&buf[i], m, *d + nn, s) != m){
 			free(*d);
 			*d = nil;
 			return -1;
@@ -66,7 +66,7 @@ fsdirread(CFid *fid, Dir **d)
 		return -1;
 	ts = fsread(fid, buf, DIRMAX);
 	if(ts >= 0)
-		ts = dirpackage(buf, ts, d, fid->fs->dotu);
+		ts = dirpackage(buf, ts, d);
 	free(buf);
 	return ts;
 }
@@ -92,9 +92,9 @@ fsdirreadall(CFid *fid, Dir **d)
 		ts += n;
 	}
 	if(ts >= 0){
-		ts = dirpackage(buf, ts, d, fid->fs->dotu);
+		ts = dirpackage(buf, ts, d);
 		if(ts < 0)
-			werrstr("malformed directory contents [dotu=%d]", fid->fs->dotu);
+			werrstr("malformed directory contents");
 	}
 	free(buf);
 	if(ts == 0 && n < 0)

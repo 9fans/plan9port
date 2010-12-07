@@ -24,7 +24,7 @@ dirread9p(Req *r, Dirgen *gen, void *aux)
 		memset(&d, 0, sizeof d);
 		if((*gen)(start, &d, aux) < 0)
 			break;
-		rv = convD2Mu(&d, p, ep-p, r->srv->dotu);
+		rv = convD2M(&d, p, ep-p);
 		free(d.name);
 		free(d.muid);
 		free(d.uid);

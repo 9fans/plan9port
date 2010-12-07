@@ -75,7 +75,6 @@ struct Conn
 	Queue *outq;
 	Queue *inq;
 	Channel *outqdead;
-	int dotu;
 };
 
 char *xaname;
@@ -91,13 +90,12 @@ int msize = 8192;
 u32int xafid = NOFID;
 int attached;
 int versioned;
-int dotu;
 int noauth;
 
 void *gethash(Hash**, uint);
 int puthash(Hash**, uint, void*);
 int delhash(Hash**, uint, void*);
-Msg *mread9p(Ioproc*, int, int);
+Msg *mread9p(Ioproc*, int);
 int mwrite9p(Ioproc*, int, uchar*);
 uchar *read9ppkt(Ioproc*, int);
 int write9ppkt(int, uchar*);
@@ -119,7 +117,7 @@ void listenthread(void*);
 void outputthread(void*);
 void inputthread(void*);
 void rewritehdr(Fcall*, uchar*);
-void repack(Fcall*, uchar**, int);
+void repack(Fcall*, uchar**);
 int tlisten(char*, char*);
 int taccept(int, char*);
 int iolisten(Ioproc*, char*, char*);
@@ -130,8 +128,6 @@ void mainproc(void*);
 int ignorepipe(void*, char*);
 int timefmt(Fmt*);
 void dorootstat(void);
-int stripudirread(Msg*);
-int cvtustat(Fcall*, uchar**, int);
 
 void
 usage(void)
@@ -237,7 +233,7 @@ mainproc(void *v)
 
 	if(!versioned){
 		f.type = Tversion;
-		f.version = "9P2000.u";
+		f.version = "9P2000";
 		f.msize = msize;
 		f.tag = NOTAG;
 		n = convS2M(&f, vbuf, sizeof vbuf);
@@ -255,7 +251,6 @@ mainproc(void *v)
 		if(f.msize < msize)
 			msize = f.msize;
 		if(verbose > 1) fprint(2, "%T * -> %F\n", &f);
-		dotu = strncmp(f.version, "9P2000.u", 8) == 0;
 	}
 
 	threadcreate(inputthread, nil, STACK);
@@ -315,13 +310,13 @@ send9pmsg(Msg *m)
 {
 	int n, nn;
 
-	n = sizeS2Mu(&m->rx, m->c->dotu);
+	n = sizeS2M(&m->rx);
 	m->rpkt = emalloc(n);
-	nn = convS2Mu(&m->rx, m->rpkt, n, m->c->dotu);
+	nn = convS2M(&m->rx, m->rpkt, n);
 	if(nn <= BIT16SZ)
-		sysfatal("convS2Mu conversion error");
+		sysfatal("convS2M conversion error");
 	if(nn != n)
-		sysfatal("sizeS2Mu and convS2Mu disagree");
+		sysfatal("sizeS2M and convS2M disagree");
 	sendq(m->c->outq, m);
 }
 
@@ -330,13 +325,13 @@ sendomsg(Msg *m)
 {
 	int n, nn;
 
-	n = sizeS2Mu(&m->tx, m->c->dotu);
+	n = sizeS2M(&m->tx);
 	m->tpkt = emalloc(n);
-	nn = convS2Mu(&m->tx, m->tpkt, n, m->c->dotu);
+	nn = convS2M(&m->tx, m->tpkt, n);
 	if(nn <= BIT16SZ)
-		sysfatal("convS2Mu conversion error");
+		sysfatal("convS2M conversion error");
 	if(nn != n)
-		sysfatal("sizeS2Mu and convS2Mu disagree");
+		sysfatal("sizeS2M and convS2M disagree");
 	sendq(outq, m);
 }
 
@@ -380,7 +375,7 @@ connthread(void *arg)
 	close(c->fd);
 	c->fd = fd;
 	threadcreate(connoutthread, c, STACK);
-	while((m = mread9p(io, c->fd, c->dotu)) != nil){
+	while((m = mread9p(io, c->fd)) != nil){
 		if(verbose > 1) fprint(2, "%T fd#%d -> %F\n", c->fd, &m->tx);
 		m->c = c;
 		m->ctag = m->tx.tag;
@@ -398,11 +393,6 @@ connthread(void *arg)
 			if(m->rx.msize > msize)
 				m->rx.msize = msize;
 			m->rx.version = "9P2000";
-			c->dotu = 0;
-			if(dotu && strncmp(m->tx.version, "9P2000.u", 8) == 0){
-				m->rx.version = "9P2000.u";
-				c->dotu = 1;
-			}
 			m->rx.type = Rversion;
 			send9pmsg(m);
 			continue;
@@ -438,7 +428,7 @@ connthread(void *arg)
 				m->tx.afid = xafid;
 				m->tx.aname = xaname;
 				m->tx.uname = getuser();	/* what srv.c used */
-				repack(&m->tx, &m->tpkt, c->dotu);
+				repack(&m->tx, &m->tpkt);
 			}
 			break;
 		case Twalk:
@@ -476,7 +466,7 @@ connthread(void *arg)
 			m->afid->ref++;
 			break;
 		case Tcreate:
-			if(dotu && !c->dotu && (m->tx.perm&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET))){
+			if(m->tx.perm&(DMSYMLINK|DMDEVICE|DMNAMEDPIPE|DMSOCKET)){
 				err(m, "unsupported file type");
 				continue;
 			}
@@ -503,18 +493,6 @@ connthread(void *arg)
 				continue;
 			}
 			m->fid->ref++;
-			if(m->tx.type==Twstat && dotu && !c->dotu){
-				if(cvtustat(&m->tx, &m->tpkt, 1) < 0){
-					err(m, "cannot convert stat buffer");
-					continue;
-				}
-			}
-			if(m->tx.type==Tread && m->fid->isdir && dotu && !c->dotu){
-				if(m->tx.offset = m->fid->coffset)
-					m->tx.offset = m->fid->offset;
-				else
-					m->fid->offset = m->fid->coffset;
-			}
 			break;
 		}
 
@@ -798,7 +776,6 @@ xopenfd(Msg *m)
 void
 connoutthread(void *arg)
 {
-	char *ename;
 	int err;
 	Conn *c;
 	Msg *m, *om;
@@ -844,27 +821,13 @@ connoutthread(void *arg)
 					fidput(m->newfid);
 			break;
 		case Tread:
-			if(!err && m->fid->isdir && dotu && !m->c->dotu){
-				m->fid->offset += m->rx.count;
-				stripudirread(m);
-				m->fid->coffset += m->rx.count;
-			}
 			break;
 		case Tstat:
-			if(!err && dotu && !m->c->dotu)
-				cvtustat(&m->rx, &m->rpkt, 0);
 			break;
 		case Topen:
 		case Tcreate:
 			m->fid->isdir = (m->rx.qid.type & QTDIR);
 			break;
-		}
-		if(m->rx.type==Rerror && dotu && !c->dotu){
-			ename = estrdup(m->rx.ename);
-			m->rx.ename = ename;
-			repack(&m->rx, &m->rpkt, c->dotu);
-			free(ename);
-			m->rx.ename = "XXX";
 		}
 		if(delhash(m->c->tag, m->ctag, m) == 0)
 			msgput(m);
@@ -933,7 +896,7 @@ inputthread(void *arg)
 			free(pkt);
 			continue;
 		}
-		if((nn = convM2Su(pkt, n, &m->rx, dotu)) != n){
+		if((nn = convM2S(pkt, n, &m->rx)) != n){
 			fprint(2, "%T bad packet - convM2S %d but %d\n", nn, n);
 			free(pkt);
 			msgput(m);
@@ -1270,7 +1233,7 @@ read9ppkt(Ioproc *io, int fd)
 }
 
 Msg*
-mread9p(Ioproc *io, int fd, int dotu)
+mread9p(Ioproc *io, int fd)
 {
 	int n, nn;
 	uchar *pkt;
@@ -1282,7 +1245,7 @@ mread9p(Ioproc *io, int fd, int dotu)
 	m = msgnew(0);
 	m->tpkt = pkt;
 	n = GBIT32(pkt);
-	nn = convM2Su(pkt, n, &m->tx, dotu);
+	nn = convM2S(pkt, n, &m->tx);
 	if(nn != n){
 		fprint(2, "%T read bad packet from %d\n", fd);
 		return nil;
@@ -1327,24 +1290,24 @@ restring(uchar *pkt, int pn, char *s)
 }
 
 void
-repack(Fcall *f, uchar **ppkt, int dotu)
+repack(Fcall *f, uchar **ppkt)
 {
 	uint n, nn;
 	uchar *pkt;
 	
 	pkt = *ppkt;
 	n = GBIT32(pkt);
-	nn = sizeS2Mu(f, dotu);
+	nn = sizeS2M(f);
 	if(nn > n){
 		free(pkt);
 		pkt = emalloc(nn);
 		*ppkt = pkt;
 	}
-	n = convS2Mu(f, pkt, nn, dotu);	
+	n = convS2M(f, pkt, nn);	
 	if(n <= BIT16SZ)
 		sysfatal("convS2M conversion error");
 	if(n != nn)
-		sysfatal("convS2Mu and sizeS2Mu disagree");
+		sysfatal("convS2M and sizeS2M disagree");
 }
 
 void
@@ -1446,90 +1409,3 @@ timefmt(Fmt *fmt)
 		mon[tm.mon], tm.mday, tm.hour, tm.min, tm.sec,
 		(int)(ns%1000000000)/1000000);
 }
-
-int
-cvtustat(Fcall *f, uchar **fpkt, int tounix)
-{
-	int n;
-	uchar *buf;
-	char *str;
-	Dir dir;
-
-	str = emalloc(f->nstat);
-	n = convM2Du(f->stat, f->nstat, &dir, str, !tounix);
-	if(n <= BIT16SZ){
-		free(str);
-		return -1;
-	}
-
-	n = sizeD2Mu(&dir, tounix);
-	buf = emalloc(n);
-	if(convD2Mu(&dir, buf, n, tounix) != n)
-		sysfatal("convD2Mu conversion error");
-	f->nstat = n;
-	f->stat = buf;
-
-	repack(f, fpkt, dotu);
-	free(buf);
-	f->stat = nil;	/* is this okay ??? */
-	free(str);
-
-	return 0;
-}
-
-int
-stripudirread(Msg* msg)
-{
-	char *str;
-	int i, m, n, nn;
-	uchar *buf;
-	Dir d;
-	Fcall* rx;
-
-	buf = nil;
-	str = nil;
-	rx = &msg->rx;
-	n = 0;
-	nn = 0;
-	for(i = 0; i < rx->count; i += m){
-		m = BIT16SZ + GBIT16(&rx->data[i]);
-		if(statchecku((uchar*)&rx->data[i], m, 1) < 0)
-			return -1;
-		if(nn < m)
-			nn = m;
-		n++;
-	}
-
-	str = emalloc(nn);
-	buf = emalloc(rx->count);
-
-	nn = 0;
-	for(i = 0; i < rx->count; i += m){
-		m = BIT16SZ + GBIT16(&rx->data[i]);
-		if(convM2Du((uchar*)&rx->data[i], m, &d, str, 1) != m){
-			free(buf);
-			free(str);
-			return -1;
-		}
-
-		n = convD2M(&d, &buf[nn], rx->count - nn);
-		if(n <= BIT16SZ){
-			free(buf);
-			free(str);
-			return -1;
-		}
-
-		nn += n;
-	}
-
-	rx->count = nn;
-	rx->data = (char*)buf;
-
-	repack(&msg->rx, &msg->rpkt, 0);
-	free(str);
-	free(buf);
-	rx->data = nil;	/* is this okay ??? */
-
-	return 0;
-}
-

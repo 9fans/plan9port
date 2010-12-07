@@ -2,13 +2,6 @@
 #include <fcall.h>
 #include "vac.h"
 
-#ifndef PLAN9PORT
-#define convM2Su(a, b, c, d) convM2S(a, b, c)
-#define convS2Mu(a, b, c, d) convS2M(a, b, c)
-#define convM2Du(a, b, c, d) convM2D(a, b, c)
-#define convD2Mu(a, b, c, d) convD2M(a, b, c)
-#endif
-
 typedef struct Fid Fid;
 
 enum
@@ -50,7 +43,6 @@ Fcall	thdr;
 VacFs	*fs;
 VtConn  *conn;
 int	noperm;
-int	dotu;
 char *defmnt;
 
 Fid *	newfid(int);
@@ -306,10 +298,6 @@ rversion(Fid *unused)
 	if(strncmp(rhdr.version, "9P2000", 6) != 0)
 		return vtstrdup("unrecognized 9P version");
 	thdr.version = "9P2000";
-	if(strncmp(rhdr.version, "9P2000.u", 8) == 0){
-		dotu = 1;
-		thdr.version = "9P2000.u";
-	}
 	return nil;
 }
 
@@ -719,7 +707,7 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 	dir.gidnum = atoi(vd->gid);
 #endif
 
-	ret = convD2Mu(&dir, p, np, dotu);
+	ret = convD2M(&dir, p, np);
 #ifdef PLAN9PORT
 	free(ext);
 #endif
@@ -796,7 +784,7 @@ io(void)
 		n = read9pmsg(mfd[0], mdata, sizeof mdata);
 		if(n <= 0)
 			break;
-		if(convM2Su(mdata, n, &rhdr, dotu) != n)
+		if(convM2S(mdata, n, &rhdr) != n)
 			sysfatal("convM2S conversion error");
 
 		if(dflag)
@@ -820,9 +808,9 @@ io(void)
 		thdr.tag = rhdr.tag;
 		if(dflag)
 			fprint(2, "vacfs:->%F\n", &thdr);
-		n = convS2Mu(&thdr, mdata, messagesize, dotu);
+		n = convS2M(&thdr, mdata, messagesize);
 		if(n <= BIT16SZ)
-			sysfatal("convS2Mu conversion error");
+			sysfatal("convS2M conversion error");
 		if(err)
 			vtfree(err);
 

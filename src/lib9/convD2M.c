@@ -3,7 +3,7 @@
 #include	<fcall.h>
 
 uint
-sizeD2Mu(Dir *d, int dotu)
+sizeD2M(Dir *d)
 {
 	char *sv[5];
 	int i, ns, nstr, fixlen;
@@ -15,11 +15,6 @@ sizeD2Mu(Dir *d, int dotu)
 	
 	fixlen = STATFIXLEN;
 	nstr = 4;
-	if(dotu){
-		fixlen = STATFIXLENU;
-		sv[4] = d->ext;
-		nstr = 5;
-	}
 	
 	ns = 0;
 	for(i = 0; i < nstr; i++)
@@ -30,13 +25,7 @@ sizeD2Mu(Dir *d, int dotu)
 }
 
 uint
-sizeD2M(Dir *d)
-{
-	return sizeD2Mu(d, 0);
-}
-
-uint
-convD2Mu(Dir *d, uchar *buf, uint nbuf, int dotu)
+convD2M(Dir *d, uchar *buf, uint nbuf)
 {
 	uchar *p, *ebuf;
 	char *sv[5];
@@ -55,11 +44,6 @@ convD2Mu(Dir *d, uchar *buf, uint nbuf, int dotu)
 
 	fixlen = STATFIXLEN;
 	nstr = 4;
-	if(dotu){
-		fixlen = STATFIXLENU;
-		sv[4] = d->ext;
-		nstr = 5;
-	}
 	
 	ns = 0;
 	for(i = 0; i < nstr; i++){
@@ -110,23 +94,8 @@ convD2Mu(Dir *d, uchar *buf, uint nbuf, int dotu)
 		p += ns;
 	}
 	
-	if(dotu){
-		PBIT32(p, d->uidnum);
-		p += BIT32SZ;
-		PBIT32(p, d->gidnum);
-		p += BIT32SZ;
-		PBIT32(p, d->muidnum);
-		p += BIT32SZ;
-	}
-
 	if(ss != p - buf)
 		return 0;
 
 	return p - buf;
-}
-
-uint
-convD2M(Dir *d, uchar *buf, uint nbuf)
-{
-	return convD2Mu(d, buf, nbuf, 0);
 }

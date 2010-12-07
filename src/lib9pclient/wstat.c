@@ -28,11 +28,11 @@ fsdirfwstat(CFid *fid, Dir *d)
 	int n, nn;
 	Fcall tx, rx;
 
-	n = sizeD2Mu(d, fid->fs->dotu);
+	n = sizeD2M(d);
 	a = malloc(n);
 	if(a == nil)
 		return -1;
-	nn = convD2Mu(d, a, n, fid->fs->dotu);
+	nn = convD2M(d, a, n);
 	if(n != nn){
 		werrstr("convD2M and sizeD2M disagree");
 		free(a);

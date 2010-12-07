@@ -42,7 +42,7 @@ fsdirfstat(CFid *fid)
 		free(freep);
 		return nil;
 	}
-	n = convM2Du(rx.stat, rx.nstat, d, (char*)&d[1], fs->dotu);
+	n = convM2D(rx.stat, rx.nstat, d, (char*)&d[1]);
 	free(freep);
 	if(n != rx.nstat){
 		free(d);

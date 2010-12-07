@@ -204,7 +204,6 @@ struct Srv {
 	int		nopipe;
 	int		srvfd;
 	int		leavefdsopen;	/* magic for acme win */
-	int		dotu;
 	int		foreground;	/* run in foreground */
 	int		fake;
 
