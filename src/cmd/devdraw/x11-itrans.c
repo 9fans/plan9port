@@ -37,7 +37,7 @@ __xtoplan9kbd(XEvent *e)
 	needstack(64*1024);	/* X has some *huge* buffers in openobject */
 		/* and they're even bigger on SuSE */
 	XLookupString((XKeyEvent*)e,NULL,0,&k,NULL);
-	if(k == XK_Multi_key || k == NoSymbol)
+	if(k == k == NoSymbol)
 		return -1;
 
 	if(k&0xFF00){
@@ -113,6 +113,7 @@ __xtoplan9kbd(XEvent *e)
 		case XK_Meta_L:	/* Shift Alt on PCs */
 		case XK_Alt_R:
 		case XK_Meta_R:	/* Shift Alt on PCs */
+		case XK_Multi_key:
 			k = Kalt;
 			break;
 		default:		/* not ISO-1 or tty control */

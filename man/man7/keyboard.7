@@ -171,6 +171,57 @@ yields £.
 .PP
 Note the difference between ß (ss) and µ (micron) and
 the Greek β and μ.
+.SS "X WINDOWS
+Under X Windows, both the Alt key and the ``Multi key''
+can begin a compose sequence in a Plan 9 program.
+.PP
+It is also possible to configure X Windows to use the
+same keystroke mappings as the Plan 9 programs.
+First, generate an XCompose sequence list by using
+.IR mklatinkbd :
+.IP
+.EX
+mklatinkbd -x $PLAN9/lib/keyboard >$HOME/.XCompose
+.EE
+.LP
+Second, configure a ``Multi key'' by running
+.IP
+.EX
+xmodmap -e 'keysym Super_L = Multi_key'
+.EE
+.LP
+(The name
+.L Super_L
+typically denotes the Windows key on recent keyboards.)
+.PP
+Third, set these environment variables so that GTK- and QT-based programs
+will use the compose sequences:
+.IP
+.EX
+export GTK_IM_MODULE=xim
+export QT_IM_MODULE=xim
+.EE
+.LP
+Finally, start a new GTK- or QT-based program:
+.IP
+.EX
+gnome-terminal &
+.EE
+.LP
+In that terminal, typing the key sequence
+.RB ` Windows
+.B *
+.BR a '
+should be interpreted as the Greek letter
+.LR α .
+.PP
+If using the GNOME Window Manager, put the
+.B xmodmap
+and
+.B export
+commands into the file
+.B $HOME/.gnomerc
+to run them automatically at startup.
 .SH FILES
 .TP
 .B \*9/lib/keyboard
