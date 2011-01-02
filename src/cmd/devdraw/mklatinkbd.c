@@ -301,6 +301,7 @@ struct {
 	'|',  "bar",
 	'}',  "braceright",
 	'~',  "asciitilde",
+	0, 0
 };
 
 int
