@@ -112,13 +112,14 @@ Xbackq(void)
 {
 	struct thread *p = runq;
 	char wd[8193];
-	int c;
-	char *s, *ewd=&wd[8192], *stop;
+	int c, n;
+	char *s, *ewd=&wd[8192], *stop, *q;
 	struct io *f;
 	var *ifs = vlook("ifs");
 	word *v, *nextv;
 	int pfd[2];
 	int pid;
+	Rune r;
 	stop = ifs->val?ifs->val->word:"";
 	if(pipe(pfd)<0){
 		Xerror("can't make pipe");
@@ -143,14 +144,21 @@ Xbackq(void)
 		s = wd;
 		v = 0;
 		while((c = rchr(f))!=EOF){
-			if(strchr(stop, c) || s==ewd){
-				if(s!=wd){
-					*s='\0';
-					v = newword(wd, v);
-					s = wd;
+			if(s != ewd) {
+				*s++ = c;
+				for(q=stop; *q; q+=n) {
+					n = chartorune(&r, q);
+					if(s-wd >= n && memcmp(s-n, q, n) == 0) {
+						s -= n;
+						goto stop;
+					}
 				}
+				continue;
 			}
-			else *s++=c;
+		stop:
+			*s = '\0';
+			v = newword(wd, v);
+			s = wd;
 		}
 		if(s!=wd){
 			*s='\0';
