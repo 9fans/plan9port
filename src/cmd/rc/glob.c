@@ -125,6 +125,17 @@ equtf(char *p, char *q)
 			return 1;	/* broken code at end of string! */
 		return p[2]==q[2];
 	}
+	if(fourbyte(*p)){
+		if(p[1]!=q[1])
+			return 0;
+		if(p[1]=='\0')
+			return 1;
+		if(p[2]!=q[2])
+			return 0;
+		if(p[2]=='\0')
+			return 1;
+		return p[3]==q[3];
+	}
 	return 1;
 }
 /*
@@ -137,6 +148,7 @@ nextutf(char *p)
 {
 	if(twobyte(*p)) return p[1]=='\0'?p+1:p+2;
 	if(threebyte(*p)) return p[1]=='\0'?p+1:p[2]=='\0'?p+2:p+3;
+	if(fourbyte(*p)) return p[1]=='\0'?p+1:p[2]=='\0'?p+2:p[3]=='\0'?p+3:p+4;
 	return p+1;
 }
 /*
@@ -149,6 +161,7 @@ unicode(char *p)
 	int u=*p&0xff;
 	if(twobyte(u)) return ((u&0x1f)<<6)|(p[1]&0x3f);
 	if(threebyte(u)) return (u<<12)|((p[1]&0x3f)<<6)|(p[2]&0x3f);
+	if(fourbyte(u)) return (u<<18)|((p[1]&0x3f)<<12)|((p[2]&0x3f)<<6)|(p[3]&0x3f);
 	return u;
 }
 /*

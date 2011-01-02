@@ -121,6 +121,8 @@ int mypid;
 #define	onebyte(c)	((c&0x80)==0x00)
 #define	twobyte(c)	((c&0xe0)==0xc0)
 #define	threebyte(c)	((c&0xf0)==0xe0)
+#define	fourbyte(c)	((c&0xf8)==0xf0)
+
 char **argp;
 char **args;
 int nerror;		/* number of errors encountered during compilation */

@@ -173,6 +173,11 @@ addutf(char *p, int c)
 		p = addtok(p, advance());
 		return addtok(p, advance());
 	}
+	if(fourbyte(c)){	/* 4-byte escape */
+		p = addtok(p, advance());
+		p = addtok(p, advance());
+		return addtok(p, advance());
+	}
 	return p;
 }
 int lastdol;	/* was the last token read '$' or '$#' or '"'? */
