@@ -82,14 +82,17 @@ to type a single rune with the value represented by
 the typed number.
 There are shorthands for many characters, comprising
 the compose key followed by a two- or three-character sequence.
-There are several rules guiding the design of the sequences, as
-illustrated by the following examples.
 The full list is too long to repeat here, but is contained in the file
 .L \*9/lib/keyboard
 in a format suitable for
 .IR grep (1)
 or
 .IR look (1).
+To add a sequence, edit that file and then rebuild
+.IR devdraw (1).
+.PP
+There are several rules guiding the design of the sequences, as
+illustrated by the following examples.
 .IP
 A repeated symbol gives a variant of that symbol, e.g.,
 .B ??
