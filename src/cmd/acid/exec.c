@@ -205,7 +205,7 @@ convflt(Node *r, char *flt)
 void
 indir(Map *m, ulong addr, char fmt, Node *r)
 {
-	int i, j, k;
+	int i;
 	u32int ival;
 	u64int vval;
 	int ret;
@@ -285,7 +285,6 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 			ret = get4(m, addr, &ival);
 			if (ret < 0)
 				error("indir: %r");
-			rval = ival;
 			memmove(buf+i, &ival, 4);
 			addr += 4;
 			if(ival == 0)
