@@ -205,7 +205,7 @@ convflt(Node *r, char *flt)
 void
 indir(Map *m, ulong addr, char fmt, Node *r)
 {
-	int i;
+	int i, j, k;
 	u32int ival;
 	u64int vval;
 	int ret;
@@ -280,16 +280,19 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 		break;
 	case 'R':
 		r->type = TSTRING;
-		for(i = 0; i < sizeof(buf)-2; i += 2) {
-			ret = get1(m, addr, (uchar*)&buf[i], 2);
+		assert(sizeof(Rune) == 4);
+		for(i = 0; i < sizeof(buf)-4; i += 4) {
+			ret = get4(m, addr, &ival);
 			if (ret < 0)
 				error("indir: %r");
-			addr += 2;
-			if(buf[i] == 0 && buf[i+1] == 0)
+			rval = ival;
+			memmove(buf+i, &ival, 4);
+			addr += 4;
+			if(ival == 0)
 				break;
 		}
-		buf[i++] = 0;
-		buf[i] = 0;
+		ival = 0;
+		memmove(buf+i, &ival, 4);
 		r->store.u.string = runenode((Rune*)buf);
 		break;
 	case 'i':
