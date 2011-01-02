@@ -245,6 +245,8 @@ convneedkey(Conv *c, Attr *a)
 	 */
 	if(convgetrpc(c, -1) == nil)
 		return -1;
+	if(conv->proto)
+		a = addattrs(parseattr(c->proto->keyprompt), a);
 	flog("convneedkey %A", a);
 	rpcrespond(c, "needkey %A", a);
 	if(convgetrpc(c, -1) == nil)
