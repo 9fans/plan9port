@@ -525,7 +525,7 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 			exit(0);
 		
 		case kEventWindowBoundsChanged:
-			eresized(1);
+			eresized(0);
 			break;
 		
 		case kEventWindowDrawContent:

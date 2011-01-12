@@ -121,7 +121,7 @@ main(int argc, char **argv)
 {
 	NSAutoreleasePool *pool = nil;
 	NSApplication *application = nil;
-
+	DevdrawDelegate *app = nil;
 	/*
 	 * Move the protocol off stdin/stdout so that
 	 * any inadvertent prints don't screw things up.
@@ -152,9 +152,11 @@ main(int argc, char **argv)
 
 	pool = [[NSAutoreleasePool alloc] init];
 	application = [NSApplication sharedApplication];
-	[application setDelegate:[[DevdrawDelegate alloc] init]];
+	app = [[DevdrawDelegate alloc] init];
+	[application setDelegate:app];
 	[application run];
 	[application setDelegate:nil];
+	[app release];
 	[pool release];
 	return 0;
 }
