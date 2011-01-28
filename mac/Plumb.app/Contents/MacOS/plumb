@@ -1,4 +1,12 @@
 #!/bin/bash
 . ~/.bashrc
 PLAN9=${PLAN9:-/usr/local/plan9}
-$PLAN9/bin/plumb $($PLAN9/bin/macargv)
+filename="$($PLAN9/bin/macargv)"
+# Blank are problematic in the file name.  Make them go away but keep the content.
+if echo "$filename" | grep -q " "
+then
+	base=$(basename "$filename" | sed 's/ /_/g')
+	cat "$filename" | plumb -i -d edit -a "action=showdata filename=/BadName/$base"
+else
+	$PLAN9/bin/plumb -d edit "$filename"
+fi
