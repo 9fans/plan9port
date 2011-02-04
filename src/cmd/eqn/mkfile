@@ -15,6 +15,7 @@ OFILES=main.$O\
 	lookup.$O\
 	mark.$O\
 	matrix.$O\
+	mbwc.$O\
 	move.$O\
 	over.$O\
 	paren.$O\
