@@ -4263,3 +4263,11 @@ As low as possible isn't a number yet - Ron Minnich
 Tip: Save time by hitting the return key instead of clicking on "search".
 ./home/gri/go1/doc/test.go:3:1: expected declaration, found 'IDENT' notwithstanding
 rm: remove write-protected regular empty file `some_random_file'?
+exception: <type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'exception'
+what bug does this fix that you think you've fixed that addresses this particular bug?  - erik quanstrom
+With functional programming languages, you can never make small mistakes, only very large ones. - Kedar Namjoshi
+Subject: Departs: 7:00 PM Thu Dec 02 2010 Washington, DC - Union Station (WAS) Station News Arrives: 9:16 PM Thu Dec 02 2010 Metropark- Iselin, NJ  (MET) Metropark-Iselin, NJ Metropark-Iselin (MET) Station News PT2H16M Duration: 2 hr, 16 min (Internal Document ITD-10-49997V)
+complete SoC on a chip  - Tilera
+There is no application installed for executable files. Do you want to search for an application to open this file?
+There's no 'I' in team, but there's a 'u' in suck.
+i dont understand the physical processes that will produce a 40 year fifo.  -ken, after receiving the Japan Prize in 2011
