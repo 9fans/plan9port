@@ -156,8 +156,10 @@ Xbackq(void)
 				continue;
 			}
 		stop:
-			*s = '\0';
-			v = newword(wd, v);
+			if(s != wd) {
+				*s = '\0';
+				v = newword(wd, v);
+			}
 			s = wd;
 		}
 		if(s!=wd){
