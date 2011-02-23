@@ -239,7 +239,7 @@ unvac(VacFile *f, char *name, VacDir *vdir)
 		if(!table && !tostdout && vdir){
 			// create directory
 			if((dp = dirstat(name)) == nil){
-				if((fd = create(name, OREAD, DMDIR|(mode&0777))) < 0){
+				if((fd = create(name, OREAD, DMDIR|0700|(mode&0777))) < 0){
 					fprint(2, "mkdir %s: %r\n", name);
 					vdeclose(vde);
 				}
