@@ -4264,7 +4264,6 @@ Tip: Save time by hitting the return key instead of clicking on "search".
 ./home/gri/go1/doc/test.go:3:1: expected declaration, found 'IDENT' notwithstanding
 rm: remove write-protected regular empty file `some_random_file'?
 !factotum protocol botch 0 ok bad authentication failed
-Tip: Save time by hitting the return key instead of clicking on "search".
 exception: <type 'exceptions.AttributeError'>: 'NoneType' object has no attribute 'exception'
 what bug does this fix that you think you've fixed that addresses this particular bug?  - erik quanstrom
 With functional programming languages, you can never make small mistakes, only very large ones. - Kedar Namjoshi
