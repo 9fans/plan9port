@@ -31,7 +31,7 @@ char *head = ""
 typedef struct Trie	Trie;
 struct Trie {
 	int n; /* of characters r */
-	char seq[MAXLD+1];
+	char seq[MAXLD+1+1];
 	Rune r[256];
 	Trie *link[256];
 };
