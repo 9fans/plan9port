@@ -6,7 +6,7 @@ int	whide(Window*);
 int	wunhide(int);
 void	freescrtemps(void);
 int	parsewctl(char**, Rectangle, Rectangle*, int*, int*, int*, int*, char**, char*, char*);
-Window *new(Image*, int, int, int, char*, char*, char**);
+Window *new(Image*, int, int, char*, char*, char**);
 void	riosetcursor(Cursor*, int);
 int	min(int, int);
 int	max(int, int);

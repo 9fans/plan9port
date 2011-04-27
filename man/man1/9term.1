@@ -30,8 +30,9 @@ Otherwise button 2 brings up a menu, described below.
 .PP
 The
 .B -s
-option initializes the window so that text scrolls;
-the default is not to scroll.
+option has no effect.  It formerly set the scrolling mode,
+and is recognized to avoid breaking scripts that create new windows.
+See below for a description of scrolling behavior.
 .PP
 The
 .B -c
@@ -205,10 +206,9 @@ always treats the DEL keystroke as an interrupt request.
 In response it sends the terminal's current interrupt character
 (which need not be DEL).
 .PP
-Normally, written output to a window blocks when
-the text reaches the end of the screen and the terminal
-buffer fills;
-a button 2 menu item toggles scrolling.
+Written output to a window is appended to the end of the window.
+The window scrolls to display the new output only if the
+end of the window was visible before the write.
 .PP
 .I 9term
 changes behavior according to

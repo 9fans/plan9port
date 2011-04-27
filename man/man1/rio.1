@@ -73,13 +73,11 @@ and then to fall back to
 .IR xterm (1).
 The
 .B \-s
-option causes
-.I rio
-to add
-.B -s
-to
-.IR 9term 's
-command-line, starting the window in scrolling mode.
+option has no effect.  It formerly set the scrolling mode for
+new windows and is recognized to avoid breaking scripts.
+See
+.IR 9term (1)
+for a description of scrolling behavior.
 .PP
 The
 .B \-version

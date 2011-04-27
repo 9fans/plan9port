@@ -646,13 +646,17 @@ window and runs a
 (default
 .BR $SHELL )
 in it, turning the window into something analogous to an
-.IR rio (1)
+.IR 9term (1)
 window.
 Executing text in a
 .I win
 window with button
 2 is similar to using
 .BR Send .
+.I Win
+windows follow the same scrolling heuristic as in
+.IR 9term (1):
+the window scrolls on output only if the window is displaying the end of the buffer.
 .PP
 .I Awd
 loads the tag line of its window with the directory in which it's running, suffixed

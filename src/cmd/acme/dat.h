@@ -243,7 +243,6 @@ struct Window
 	Range	limit;
 	uchar	nopen[QMAX];
 	uchar	nomark;
-	uchar	noscroll;
 	Range	wrselrange;
 	int		rdselfd;
 	Column	*col;

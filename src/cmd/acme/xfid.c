@@ -510,8 +510,8 @@ xfidwrite(Xfid *x)
 		if(tq1 >= q0)
 			tq1 += nr;
 		textsetselect(t, tq0, tq1);
-		if(!t->w->noscroll)
-			textshow(t, q0, q0+nr, 0);
+		if(t->org <= q0 && q0 <= t->org+t->fr.nchars)
+			textshow(t, q0+nr, q0+nr, 0);
 		textscrdraw(t);
 		winsettag(w);
 		free(r);
@@ -568,7 +568,7 @@ xfidwrite(Xfid *x)
 				}
 				q0 = textbsinsert(t, q0, r, nr, TRUE, &nr);
 				textsetselect(t, t->q0, t->q1);	/* insert could leave it somewhere else */
-				if(qid!=QWwrsel && !t->w->noscroll)
+				if(qid!=QWwrsel && t->org <= q0 && q0 < t->org+t->fr.nchars)
 					textshow(t, q0+nr, q0+nr, 1);
 				textscrdraw(t);
 			}
@@ -768,18 +768,10 @@ out:
 			w->filemenu = TRUE;
 			m = 4;
 		}else
-		if(strncmp(p, "noscroll", 8) == 0){	/* turn off automatic scrolling */
-			w->noscroll = TRUE;
-			m = 8;
-		}else
 		if(strncmp(p, "cleartag", 8) == 0){	/* wipe tag right of bar */
 			wincleartag(w);
 			settag = TRUE;
 			m = 8;
-		}else
-		if(strncmp(p, "scroll", 6) == 0){	/* turn on automatic scrolling (writes to body only) */
-			w->noscroll = FALSE;
-			m = 6;
 		}else{
 			err = Ebadctl;
 			break;

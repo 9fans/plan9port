@@ -181,7 +181,7 @@ threadmain(int argc, char **argv)
 	putenv("winid", buf);
 	sprint(buf, "%d/tag", id);
 	fd = fsopenfd(fs, buf, OWRITE|OCEXEC);
-	write(fd, " Send Noscroll", 1+4+1+8);
+	write(fd, " Send", 1+4);
 	close(fd);
 	sprint(buf, "%d/event", id);
 	eventfd = fsopen(fs, buf, ORDWR|OCEXEC);
@@ -440,14 +440,6 @@ stdinproc(void *v)
 				}
 				char buf[100];
 				snprint(buf, sizeof buf, "%.*S", e.nr, e.r);
-				if(cistrcmp(buf, "scroll") == 0) {
-					fsprint(ctlfd, "scroll\nshow");
-					break;
-				}
-				if(cistrcmp(buf, "noscroll") == 0) {
-					fsprint(ctlfd, "noscroll");
-					break;
-				}
 				if(cistrcmp(buf, "cook") == 0) {
 					cook = 1;
 					break;

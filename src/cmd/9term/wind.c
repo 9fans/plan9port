@@ -36,7 +36,7 @@ static	Image	*lightholdcol;
 static	Image	*paleholdcol;
 
 Window*
-wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
+wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl)
 {
 	Window *w;
 	Rectangle r;
@@ -77,7 +77,6 @@ wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 	w->topped = ++topped;
 	w->id = ++id;
 	w->notefd = -1;
-	w->scrolling = scrolling;
 	w->dir = estrdup(startdir);
 	w->label = estrdup("<unnamed>");
 	r = insetrect(w->i->r, Selborder);
@@ -192,7 +191,7 @@ winctl(void *arg)
 {
 	Rune *rp, *bp, *up, *kbdr;
 	uint qh;
-	int nr, nb, c, wid, i, npart, initial, lastb;
+	int nr, nb, c, wid, i, npart, initial, lastb, scrolling;
 	char *s, *t, part[UTFmax];
 	Window *w;
 	Mousestate *mp, m;
@@ -248,10 +247,7 @@ winctl(void *arg)
 			alts[WMouseread].op = CHANSND;
 		else
 			alts[WMouseread].op = CHANNOP;
-		if(!w->scrolling && !w->mouseopen && w->qh>w->org+w->f.nchars)
-			alts[WCwrite].op = CHANNOP;
-		else
-			alts[WCwrite].op = CHANSND;
+		alts[WCwrite].op = CHANSND;
 		if(w->deleted || !w->wctlready)
 			alts[WWread].op = CHANNOP;
 		else
@@ -369,8 +365,9 @@ winctl(void *arg)
 				w->qh = qh;
 			}
 			nr = up - rp;
+			scrolling = w->org <= w->qh && w->qh <= w->org + w->f.nchars;
 			w->qh = winsert(w, rp, nr, w->qh)+nr;
-			if(w->scrolling || w->mouseopen)
+			if(scrolling)
 				wshow(w, w->qh);
 			wsetselect(w, w->q0, w->q1);
 			wscrdraw(w);

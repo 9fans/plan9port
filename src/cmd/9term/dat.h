@@ -131,7 +131,6 @@ struct Window
 	Rectangle		lastsr;
 	int			topped;
 	int			notefd;
-	uchar		scrolling;
 	Cursor		cursor;
 	Cursor		*cursorp;
 	uchar		holding;
@@ -149,7 +148,7 @@ int		winborder(Window*, Point);
 void		winctl(void*);
 void		winshell(void*);
 Window*	wlookid(int);
-Window*	wmk(Image*, Mousectl*, Channel*, Channel*, int);
+Window*	wmk(Image*, Mousectl*, Channel*, Channel*);
 Window*	wpointto(Point);
 Window*	wtop(Point);
 void		wtopme(Window*);

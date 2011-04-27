@@ -67,7 +67,7 @@ threadmain(int argc, char *argv[])
 		fontname = EARGF(usage());
 		break;
 	case 's':
-		scrolling = TRUE;
+		/* no-op */
 		break;
 	case 'c':
 		cooked = TRUE;
@@ -114,7 +114,7 @@ threadmain(int argc, char *argv[])
 	timerinit();
 	servedevtext();
 	rcpid = rcstart(argc, argv, &rcfd, &sfd);
-	w = new(screen, FALSE, scrolling, rcpid, ".", nil, nil);
+	w = new(screen, FALSE, rcpid, ".", nil, nil);
 
 	threadcreate(keyboardthread, nil, STACK);
 	threadcreate(mousethread, nil, STACK);
@@ -241,7 +241,7 @@ wpointto(Point pt)
 }
 
 Window*
-new(Image *i, int hideit, int scrollit, int pid, char *dir, char *cmd, char **argv)
+new(Image *i, int hideit, int pid, char *dir, char *cmd, char **argv)
 {
 	Window *w;
 	Mousectl *mc;
@@ -258,7 +258,7 @@ new(Image *i, int hideit, int scrollit, int pid, char *dir, char *cmd, char **ar
 	*mc = *mousectl;
 /*	mc->image = i; */
 	mc->c = cm;
-	w = wmk(i, mc, ck, cctl, scrollit);
+	w = wmk(i, mc, ck, cctl);
 	free(mc);	/* wmk copies *mc */
 	window = erealloc(window, ++nwindow*sizeof(Window*));
 	window[nwindow-1] = w;
@@ -288,7 +288,6 @@ enum
 	Snarf,
 	Plumb,
 	Send,
-	Scroll,
 	Cook
 };
 
@@ -298,7 +297,6 @@ char		*menu2str[] = {
 	"snarf",
 	"plumb",
 	"send",
-	"scroll",
 	"cook",
 	nil
 };
@@ -317,10 +315,6 @@ button2menu(Window *w)
 	if(w->deleted)
 		return;
 	incref(&w->ref);
-	if(w->scrolling)
-		menu2str[Scroll] = "noscroll";
-	else
-		menu2str[Scroll] = "scroll";
 	if(cooked)
 		menu2str[Cook] = "nocook";
 	else
@@ -363,11 +357,6 @@ button2menu(Window *w)
 		}
 		wsetselect(w, w->nr, w->nr);
 		wshow(w, w->nr);
-		break;
-
-	case Scroll:
-		if(w->scrolling ^= 1)
-			wshow(w, w->nr);
 		break;
 	
 	case Cook:

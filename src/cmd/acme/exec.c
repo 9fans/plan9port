@@ -960,6 +960,7 @@ sendx(Text *et, Text *t, Text *_0, int _1, int _2, Rune *_3, int _4)
 	if(textreadc(t, t->file->b.nc-1) != '\n'){
 		textinsert(t, t->file->b.nc, Lnl, 1, TRUE);
 		textsetselect(t, t->file->b.nc, t->file->b.nc);
+		textshow(t, t->q1, t->q1, 1);
 	}
 }
 
