@@ -18,6 +18,9 @@ p9rfork(int flags)
 	int n;
 	char buf[128], *q;
 	extern char **environ;
+	struct sigaction oldchld;
+
+	memset(&oldchld, 0, sizeof oldchld);
 
 	if((flags&(RFPROC|RFFDG|RFMEM)) == (RFPROC|RFFDG)){
 		/* check other flags before we commit */
@@ -28,12 +31,7 @@ p9rfork(int flags)
 			return -1;
 		}
 		if(flags&RFNOWAIT){
-			/*
-			 * BUG - should put the signal handler back after we
-			 * finish, but I just don't care.  If a program calls with
-			 * NOWAIT once, they're not likely to want child notes
-			 * after that.
-			 */
+			sigaction(SIGCHLD, nil, &oldchld);
 			signal(SIGCHLD, nop);
 			if(pipe(p) < 0)
 				return -1;
@@ -97,6 +95,7 @@ p9rfork(int flags)
 					close(p[1]);
 				}
 			}
+			sigaction(SIGCHLD, &oldchld, nil);
 		}
 		if(pid != 0)
 			return pid;
