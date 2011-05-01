@@ -35,12 +35,12 @@ getint(char *s)
 }
 
 Rectangle
-crop(Memimage *m, ulong c)
+crop(Memimage *m, uint32 c)
 {
 	Memimage *n;
 	int x, y, bpl, wpl;
 	int left, right, top, bottom;
-	ulong *buf;
+	uint32 *buf;
 
 	left = m->r.max.x;
 	right = m->r.min.x;
@@ -90,7 +90,7 @@ main(int argc, char *argv[])
 	Point t;
 	Memimage *m, *new;
 	char *file;
-	ulong bg, cropval;
+	uint32 bg, cropval;
 	long dw;
 
 	memimageinit();
