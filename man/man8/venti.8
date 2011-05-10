@@ -37,7 +37,8 @@ venti  \- archival storage server
 .I webroot
 ]
 .SH DESCRIPTION
-Venti is a SHA1-addressed archival storage server.
+.I Venti
+is a SHA1-addressed archival storage server.
 See 
 .IR venti (7)
 for a full introduction to the system.
@@ -222,11 +223,13 @@ the venti protocol as described in
 .IR venti (7),
 and one serving HTTP
 (conventionally TCP port 
-.BR venti ,
+.BR http ,
 80).
 .PP
 The venti web server provides the following 
 URLs for accessing status information:
+.TF "\fL/storage"
+.PD
 .TP
 .B /index
 A summary of the usage of the arenas and index sections.
@@ -317,6 +320,8 @@ The configuration file consists of lines in the form described below.
 Lines starting with
 .B #
 are comments.
+.TF "\fLindex\fI name "
+.PD
 .TP
 .BI index " name
 Names the index for the system.
@@ -350,7 +355,7 @@ flag to update the index.
 The configuration file also holds configuration parameters
 for the venti server itself.
 These are:
-.TF httpaddr netaddr
+.TF "\fLhttpaddr\fI netaddr "
 .TP
 .BI mem " size
 lump cache size
@@ -376,8 +381,9 @@ queue writes in memory
 (default is not to queue)
 .TP
 .BI webroot " dir
-directory tree containing files for HTTP server
-to consult for unrecognized URLs
+directory tree containing files for
+.IR venti 's
+internal HTTP server to consult for unrecognized URLs
 .PD
 .PP
 The units for the various cache sizes above can be specified by appending a
@@ -415,6 +421,8 @@ can be specified in the configuration file.
 The command line options override those found in a
 configuration file.
 Additional options are:
+.TF "\fL-c\fI config"
+.PD
 .TP
 .BI -c " config
 The server configuration file
@@ -452,12 +460,13 @@ icmem 30M
 % 
 .EE
 .PP
-Format the index sections, the arena partition, and 
+Format the index sections, the arena partition,
+the bloom filter, and
 finally the main index:
 .IP
 .EX
-% venti/fmtisect isect0. /tmp/disks/isect0 &
-% venti/fmtisect isect1. /tmp/disks/isect1 &
+% venti/fmtisect isect0. /tmp/disks/isect0
+% venti/fmtisect isect1. /tmp/disks/isect1
 % venti/fmtarenas arenas0. /tmp/disks/arenas &
 % venti/fmtbloom /tmp/disks/bloom &
 % wait

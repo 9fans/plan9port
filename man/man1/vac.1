@@ -105,7 +105,7 @@ of 512 bytes to 52k.
 Reduce the number of blocks written to Venti by comparing the files to be stored with
 the contents of an existing
 .I vac
-file tree given by
+file tree whose score is stored in
 .IR oldvacfile .
 .TP
 .BI -e " exclude
@@ -122,7 +122,7 @@ matches any sequence of characters including slashes.
 .BI -f " vacfile
 The results of 
 .I vac
-are place in
+are placed in
 .IR vacfile ,
 or the standard output if no file is given.
 .TP
