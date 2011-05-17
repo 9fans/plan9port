@@ -239,7 +239,7 @@ addalpha(Rawimage *i)
  * r is used only for reference; the image is already in c.
  */
 void
-whiteout(Rawimage *r, Rawimage *c)
+blackout(Rawimage *r, Rawimage *c)
 {
 	int i, trindex;
 	uchar *rp, *cp;
@@ -251,9 +251,9 @@ whiteout(Rawimage *r, Rawimage *c)
 		for(i=0; i<r->chanlen; i++){
 			if(*rp == trindex){
 				*cp++ = 0x00;
-				*cp++ = 0xFF;
-				*cp++ = 0xFF;
-				*cp++ = 0xFF;
+				*cp++ = 0x00;
+				*cp++ = 0x00;
+				*cp++ = 0x00;
 			}else{
 				*cp++ = 0xFF;
 				cp += 3;
@@ -264,7 +264,7 @@ whiteout(Rawimage *r, Rawimage *c)
 		for(i=0; i<r->chanlen; i++){
 			if(*rp == trindex){
 				*cp++ = 0x00;
-				*cp++ = 0xFF;
+				*cp++ = 0x00;
 			}else{
 				*cp++ = 0xFF;
 				cp++;
@@ -390,7 +390,7 @@ show(int fd, char *name)
 	if(nineflag){
 		if(images[0]->gifflags&TRANSP){
 			addalpha(rgbv[0]);
-			whiteout(images[0], rgbv[0]);
+			blackout(images[0], rgbv[0]);
 		}
 		chantostr(buf, outchan);
 		print("%11s %11d %11d %11d %11d ", buf,
@@ -402,7 +402,7 @@ show(int fd, char *name)
 	}else if(cflag){
 		if(images[0]->gifflags&TRANSP){
 			addalpha(rgbv[0]);
-			whiteout(images[0], rgbv[0]);
+			blackout(images[0], rgbv[0]);
 		}
 		if(writerawimage(1, rgbv[0]) < 0){
 			fprint(2, "gif: %s: write error: %r\n", name);
