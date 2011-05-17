@@ -158,8 +158,8 @@ _sha1block:
 
 	BODY0(0,FN1,0x5a827999,%eax,TMP1(%esp),%ecx,%edx,%esi)
 	addl $4, %ebx
-	MOVL %ebx, DATA(%esp)	/* data */
-	MOVL TMP1(%esp),%ebx
+	movl %ebx, DATA(%esp)	/* data */
+	movl TMP1(%esp),%ebx
 
 	BODY(4,FN1,0x5a827999,%esi,%eax,%ebx,%ecx,%edx)
 	BODY(8,FN1,0x5a827999,%edx,%esi,%eax,%ebx,%ecx)

@@ -1324,21 +1324,21 @@ lookup(char *s, int doreset)
 
 char *ngctypes[] =
 {
-[Galaxy] 		"Gx",
-[PlanetaryN]	"Pl",
-[OpenCl]		"OC",
-[GlobularCl]	"Gb",
-[DiffuseN]		"Nb",
-[NebularCl]	"C+N",
-[Asterism]		"Ast",
-[Knot]		"Kt",
-[Triple]		"***",
-[Double]		"D*",
-[Single]		"*",
-[Uncertain]	"?",
-[Nonexistent]	"-",
-[Unknown]	" ",
-[PlateDefect]	"PD"
+[Galaxy] 		= "Gx",
+[PlanetaryN] 	= "Pl",
+[OpenCl] 		= "OC",
+[GlobularCl] 	= "Gb",
+[DiffuseN]		= "Nb",
+[NebularCl] 	= "C+N",
+[Asterism]		= "Ast",
+[Knot] 		= "Kt",
+[Triple]		= "***",
+[Double]		= "D*",
+[Single]		= "*",
+[Uncertain]	= "?",
+[Nonexistent]	= "-",
+[Unknown]	= " ",
+[PlateDefect]	= "PD"
 };
 
 char*

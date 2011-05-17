@@ -46,7 +46,7 @@ quiet()
 	grep -v '__p9l_autolib_' $1 |
 	egrep -v "$ignore" |
 	sed 's/ .first use in this function.$//; s/\"\([^\"][^\"]*\)\", line \([0-9][0-9]*\)/\1:\2/g' |
-	uniq 1>&2
+	$(which uniq) 1>&2  # avoid built-in uniq on SunOS
 }
 
 useclang()
