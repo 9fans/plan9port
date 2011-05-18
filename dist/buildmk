@@ -2,7 +2,7 @@
 
 # run this in the src directory
 SYSNAME=`uname` export SYSNAME
-OBJTYPE=`uname -m -p | sed '
+OBJTYPE=`(uname -m -p 2>/dev/null || uname -m) | sed '
 	s;.*i[3-6]86.*;386;;
 	s;.*i86pc.*;386;;
 	s;.*amd64.*;x86_64;;
