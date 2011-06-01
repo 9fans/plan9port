@@ -17,7 +17,6 @@ newwindow(void)
 	if(w->ctl == nil || fsread(w->ctl, buf, 12)!=12)
 		error("can't open window ctl file: %r");
 
-	ctlprint(w->ctl, "noscroll\n");
 	w->id = atoi(buf);
 	w->event = winopenfile(w, "event");
 	w->addr = nil;	/* will be opened when needed */
