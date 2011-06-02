@@ -251,7 +251,6 @@ icachewritecoord(void *v)
 		as = icachestate();
 		if(as.arena==iwrite.as.arena && as.aa==iwrite.as.aa){
 			/* will not be able to do anything more than last flush - kick disk */
-			fprint(2, "icache: nothing to do - kick dcache\n");
 			trace(TraceProc, "icachewritecoord kick dcache");
 			kickdcache();
 			trace(TraceProc, "icachewritecoord kicked dcache");

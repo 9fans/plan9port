@@ -728,9 +728,12 @@ okarena(Arena *arena)
 		logerr(ECorrupt, "arena %s uncompressed size inconsistent with used space %lld %d %lld", arena->name, arena->diskstats.uncsize, arena->diskstats.clumps, arena->diskstats.used);
 	 */
 
+	/*
+	 * this happens; it's harmless.
+	 *
 	if(arena->ctime > arena->wtime)
 		logerr(ECorrupt, "arena %s creation time after last write time", arena->name);
-
+	 */
 	return ok;
 }
 

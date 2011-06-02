@@ -93,7 +93,7 @@ threadmain(int argc, char *argv[])
 
 	file = argv[0];
 	if(strscore(argv[1], score) < 0)
-		sysfatal("bad score %s\n", argv[1]);
+		sysfatal("bad score %s", argv[1]);
 
 	part = initpart(file, OREAD|ODIRECT);
 	if(part == nil)

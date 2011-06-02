@@ -82,11 +82,11 @@ threadmain(int argc, char *argv[])
 			arenas[n] = ap->arenas[j];
 			if(n < ix->narenas){
 				if(arenas[n] != ix->arenas[n])
-					sysfatal("mismatched arenas %s and %s at slot %d\n",
+					sysfatal("mismatched arenas %s and %s at slot %d",
 						arenas[n]->name, ix->arenas[n]->name, n);
 				amap[n] = ix->amap[n];
 				if(amap[n].start != addr)
-					sysfatal("mis-located arena %s in index %s\n", arenas[n]->name, ix->name);
+					sysfatal("mis-located arena %s in index %s", arenas[n]->name, ix->name);
 				addr = amap[n].stop;
 			}else{
 				amap[n].start = addr;

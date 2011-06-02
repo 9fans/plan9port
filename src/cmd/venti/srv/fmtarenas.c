@@ -105,7 +105,7 @@ threadmain(int argc, char *argv[])
 		if(limit >= ap->size || ap->size - limit < MinArenaSize){
 			limit = ap->size;
 			if(limit - addr < MinArenaSize)
-				sysfatal("bad arena set math: runt arena at %lld,%lld %lld\n", addr, limit, ap->size);
+				sysfatal("bad arena set math: runt arena at %lld,%lld %lld", addr, limit, ap->size);
 		}
 
 		snprint(aname, ANameSize, "%s%d", name, i);

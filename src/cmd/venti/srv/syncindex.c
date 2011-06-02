@@ -56,7 +56,7 @@ threadmain(int argc, char *argv[])
 	if(verbose)
 		printindex(2, mainindex);
 	if(syncindex(mainindex) < 0)
-		sysfatal("failed to sync index=%s: %r\n", mainindex->name);
+		sysfatal("failed to sync index=%s: %r", mainindex->name);
 	flushicache();
 	flushdcache();
 

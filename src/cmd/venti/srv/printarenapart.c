@@ -26,7 +26,7 @@ rdarena(Arena *arena, u64int offset)
 	e = arena->base + arena->size;
 	if(offset != ~(u64int)0) {
 		if(offset >= e-a)
-			sysfatal("bad offset %llud >= %llud\n",
+			sysfatal("bad offset %llud >= %llud",
 				offset, e-a);
 		aa = offset;
 	} else

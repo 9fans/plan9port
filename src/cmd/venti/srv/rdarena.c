@@ -2,7 +2,7 @@
 #include "dat.h"
 #include "fns.h"
 
-static int	verbose;
+static int verbose, quiet;
 
 void
 usage(void)
@@ -18,8 +18,10 @@ rdarena(Arena *arena)
 	u64int a, e;
 	u32int bs;
 
-	fprint(2, "copying %s to standard output\n", arena->name);
-	printarena(2, arena);
+	if (!quiet) {
+		fprint(2, "copying %s to standard output\n", arena->name);
+		printarena(2, arena);
+	}
 
 	bs = MaxIoSize;
 	if(bs < arena->blocksize)
@@ -51,6 +53,9 @@ threadmain(int argc, char *argv[])
 	statsinit();
 
 	ARGBEGIN{
+	case 'q':
+		quiet++;
+		break;
 	case 'v':
 		verbose++;
 		break;
@@ -87,5 +92,5 @@ threadmain(int argc, char *argv[])
 		}
 	}
 
-	sysfatal("couldn't find arena %s\n", aname);
+	sysfatal("couldn't find arena %s", aname);
 }

@@ -328,16 +328,20 @@ newindex(char *name, ISect **sects, int n)
 	}
 
 	if(nb >= ((u64int)1 << 32)){
-		seterr(EBug, "index too large");
-		return nil;
+		fprint(2, "%s: index is 2^32 blocks or more; ignoring some of it\n",
+			argv0);
+		nb = ((u64int)1 << 32) - 1;
 	}
 
 	div = (((u64int)1 << 32) + nb - 1) / nb;
-	ub = (((u64int)1 << 32) - 1) / div + 1;
 	if(div < 100){
-		seterr(EBug, "index divisor too coarse [%lld buckets]", nb);
-		return nil;
+		fprint(2, "%s: index divisor %d too coarse; "
+			"index larger than needed, ignoring some of it\n",
+			argv0, div);
+		div = 100;
+		nb = (((u64int)1 << 32) - 1) / (100 - 1);
 	}
+	ub = (((u64int)1 << 32) - 1) / div + 1;
 	if(ub > nb){
 		seterr(EBug, "index initialization math wrong");
 		return nil;

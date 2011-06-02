@@ -54,6 +54,7 @@ enum
 	MaxIo			= 64*1024,	/* max size of a single read or write operation */
 	ICacheBits		= 16,		/* default bits for indexing icache */
 	MaxAMap			= 31*1024,	/* max. allowed arenas in an address mapping; must be < 32*1024 */
+	Unspecified		= TWID32,
 
 	/*
 	 * return codes from syncarena
@@ -750,6 +751,7 @@ extern	int		l1quantum;
 extern	int		ignorebloom;
 extern	int		icacheprefetch;
 extern	int		syncwrites;
+extern	int		debugarena; /* print in arena error msgs; -1==unknown */
 
 extern	Stats	*stathist;
 extern	int	nstathist;

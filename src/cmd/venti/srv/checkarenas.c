@@ -128,8 +128,10 @@ threadmain(int argc, char *argv[])
 	initdcache(8 * MaxDiskBlock);
 
 	for(i = 0; i < ap->narenas; i++)
-		if(should(ap->arenas[i]->name, argc, argv))
+		if(should(ap->arenas[i]->name, argc, argv)) {
+			debugarena = i;
 			checkarena(ap->arenas[i], scan, fix);
+		}
 
 	if(verbose > 1)
 		printstats();

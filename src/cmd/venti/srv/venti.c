@@ -109,6 +109,9 @@ threadmain(int argc, char *argv[])
 	fprint(2, "conf...");
 	if(initventi(configfile, &config) < 0)
 		sysfatal("can't init server: %r");
+	/*
+	 * load bloom filter
+	 */
 	if(mainindex->bloom && loadbloom(mainindex->bloom) < 0)
 		sysfatal("can't load bloom filter: %r");
 
@@ -139,15 +142,22 @@ threadmain(int argc, char *argv[])
 
 	if(mem == 0xffffffffUL)
 		mem = 1 * 1024 * 1024;
+
+	/*
+	 * lump cache
+	 */
 	if(0) fprint(2, "initialize %d bytes of lump cache for %d lumps\n",
 		mem, mem / (8 * 1024));
 	initlumpcache(mem, mem / (8 * 1024));
 
+	/*
+	 * index cache
+	 */
 	initicache(icmem);
 	initicachewrite();
 
 	/*
-	 * need a block for every arena and every process
+	 * block cache: need a block for every arena and every process
 	 */
 	minbcmem = maxblocksize * 
 		(mainindex->narenas + mainindex->nsects*4 + 16);
@@ -186,6 +196,8 @@ threadmain(int argc, char *argv[])
 		ventiserver(nil);
 	else
 		vtproc(ventiserver, nil);
+
+	threadexits(nil);
 }
 
 static void

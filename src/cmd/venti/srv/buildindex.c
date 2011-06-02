@@ -50,18 +50,19 @@ static void	arenapartproc(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: buildindex [-bd] [-i isect]... [-M imem] venti.conf\n");
+	fprint(2, "usage: buildindex [-b] [-i isect]... [-M imem] venti.conf\n");
 	threadexitsall("usage");
 }
 
 void
 threadmain(int argc, char *argv[])
 {
-	int fd, i, napart;
+	int fd, i, napart, nfinish, maxdisks;
 	u32int bcmem, imem;
 	Config conf;
 	Part *p;
 	
+	maxdisks = 100000;
 	ventifmtinstall();
 	imem = 256*1024*1024;
 	ARGBEGIN{
@@ -77,6 +78,9 @@ threadmain(int argc, char *argv[])
 		break;
 	case 'M':
 		imem = unittoull(EARGF(usage()));
+		break;
+	case 'm':	/* temporary - might go away */
+		maxdisks = atoi(EARGF(usage()));
 		break;
 	default:
 		usage();
@@ -146,17 +150,21 @@ threadmain(int argc, char *argv[])
 	/* start arena procs */
 	p = nil;
 	napart = 0;
+	nfinish = 0;
 	arenadonechan = chancreate(sizeof(void*), 0);
 	for(i=0; i<ix->narenas; i++){
 		if(ix->arenas[i]->part != p){
 			p = ix->arenas[i]->part;
 			vtproc(arenapartproc, p);
-			napart++;
+			if(++napart >= maxdisks){
+				recvp(arenadonechan);
+				nfinish++;
+			}
 		}
 	}
 
 	/* wait for arena procs to finish */
-	for(i=0; i<napart; i++)
+	for(nfinish=0; nfinish<napart; nfinish++)
 		recvp(arenadonechan);
 
 	/* tell index procs to finish */
@@ -844,6 +852,11 @@ isectproc(void *v)
 			sysfatal("not enough memory");
 		nminibuf = nbuf;
 	}
+	if (nbuf == 0) {
+		fprint(2, "%s: brand-new index, no work to do\n", argv0);
+		threadexitsall(nil);
+	}
+
 	/* size buffer to use extra memory */
 	bufsize = MinBufSize;
 	while(bufsize*2*nbuf <= isectmem && bufsize < MaxBufSize)

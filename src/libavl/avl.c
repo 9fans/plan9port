@@ -97,6 +97,16 @@ balance(Avl **tp, Avl *p)
 }
 
 static int
+canoncmp(int cmp)
+{
+	if(cmp < 0)
+		return -1;
+	else if(cmp > 0)
+		return 1;
+	return 0;
+}
+
+static int
 _insertavl(Avl **tp, Avl *p, Avl *r, int (*cmp)(Avl*,Avl*), Avl **rfree)
 {
 	int i, ob;
@@ -110,7 +120,7 @@ _insertavl(Avl **tp, Avl *p, Avl *r, int (*cmp)(Avl*,Avl*), Avl **rfree)
 		return 1;
 	}
 	ob = (*tp)->bal;
-	if((i = cmp(r, *tp)) != 0){
+	if((i = canoncmp(cmp(r, *tp))) != 0){
 		(*tp)->bal += i * _insertavl(&(*tp)->n[(i+1)/2], *tp, r, cmp,
 			rfree);
 		balance(tp, p);
@@ -127,23 +137,6 @@ _insertavl(Avl **tp, Avl *p, Avl *r, int (*cmp)(Avl*,Avl*), Avl **rfree)
 		r->n[1]->p = r;
 
 	return 0;
-}
-
-static Avl*
-_lookupavl(Avl *t, Avl *r, int (*cmp)(Avl*,Avl*))
-{
-	int i;
-	Avl *p;
-
-	p = nil;
-	while(t != nil){
-		assert(t->p == p);
-		if((i = cmp(r, t)) == 0)
-			return t;
-		p = t;
-		t = t->n[(i+1)/2];
-	}
-	return nil;
 }
 
 static int
@@ -175,7 +168,7 @@ _deleteavl(Avl **tp, Avl *p, Avl *rx, int(*cmp)(Avl*,Avl*), Avl **del,
 		return 0;
 
 	ob = (*tp)->bal;
-	if((i=cmp(rx, *tp)) != 0){
+	if((i=canoncmp(cmp(rx, *tp))) != 0){
 		(*tp)->bal += i * _deleteavl(&(*tp)->n[(i+1)/2], *tp, rx, cmp,
 			del, predel, arg);
 		balance(tp, p);
@@ -259,12 +252,6 @@ insertavl(Avltree *t, Avl *new, Avl **oldp)
 	_insertavl(&t->root, nil, new, t->cmp, oldp);
 }
 
-Avl*
-lookupavl(Avltree *t, Avl *key)
-{
-	return _lookupavl(t->root, key, t->cmp);
-}
-
 static Avl*
 findpredecessor(Avl *a)
 {
@@ -301,6 +288,41 @@ findsuccessor(Avl *a)
 			a = a->p;
 		return a->p;
 	}
+}
+
+static Avl*
+_lookupavl(Avl *t, Avl *r, int (*cmp)(Avl*,Avl*), int neighbor)
+{
+	int i;
+	Avl *p;
+
+	p = nil;
+	if(t == nil)
+		return nil;
+	do{
+		assert(t->p == p);
+		if((i = canoncmp(cmp(r, t))) == 0)
+			return t;
+		p = t;
+		t = t->n[(i+1)/2];
+	}while(t);
+	if(neighbor == 0)
+		return nil;
+	if(neighbor < 0)
+		return i > 0 ? p : findpredecessor(p);
+	return i < 0 ? p : findsuccessor(p);
+}
+
+Avl*
+searchavl(Avltree *t, Avl *key, int neighbor)
+{
+	return _lookupavl(t->root, key, t->cmp, neighbor);
+}
+
+Avl*
+lookupavl(Avltree *t, Avl *key)
+{
+	return _lookupavl(t->root, key, t->cmp, 0);
 }
 
 static void
