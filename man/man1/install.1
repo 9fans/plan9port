@@ -8,6 +8,9 @@ cd \*9; ./INSTALL
 .B -b
 |
 .B -c
+] [
+.B -r
+.I path
 ]
 .SH DESCRIPTION
 To obtain the Plan 9 tree, use Mercurial
@@ -56,6 +59,13 @@ flag,
 performs only the second step.
 The first step can be done with the tree in a temporary work directory,
 but the second step must be done once the tree is in its final location.
+If you want to build the project in one location and then install into
+another location, use
+.B -r
+.I path
+to specify the
+.I final
+location of Plan9 tree.
 These flags are only necessary when trying to conform to the
 expectations of certain package management systems.
 .PP

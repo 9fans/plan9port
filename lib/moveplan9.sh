@@ -12,7 +12,9 @@ case $# in
 	exit 1
 esac
 
-new=`cleanname $PLAN9`
+[ -z "$PLAN9_TARGET" ] && PLAN9_TARGET="$PLAN9"
+new=`cleanname $PLAN9_TARGET`
+
 if [ X"$new" = X"" ]
 then
 	echo cleanname failed 1>&2

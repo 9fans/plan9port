@@ -14,8 +14,12 @@ x-c)
 	dobuild=false
 	doinstall=true
 	;;
+x-r)
+    shift
+    PLAN9_TARGET=$1 export PLAN9_TARGET
+    ;;
 *)
-	echo 'usage: INSTALL [-b | -c]' 1>&2
+	echo 'usage: INSTALL [-b | -c] [-r path]' 1>&2
 	exit 1
 esac
 
