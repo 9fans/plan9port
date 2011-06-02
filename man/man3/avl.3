@@ -24,6 +24,7 @@ void	deleteavl(Avltree *tree, Avl *key, Avl **oldp);
 void	endwalk(Avlwalk *walk);
 void	insertavl(Avltree *tree, Avl *new, Avl **oldp);
 Avl	*lookupavl(Avltree *tree, Avl *key);
+Avl	*searchavl(Avltree *tree, Avl *key, int neighbor);
 Avltree	*mkavltree(int(*cmp)(Avl*, Avl*));
 .EE
 .SH DESCRIPTION
@@ -60,6 +61,32 @@ comparison function,
 or
 .B nil
 if none.
+.PP
+.I Searchavl
+returns the
+.I tree
+node that matches
+.I key
+by
+.IR tree 's
+comparison function, if it exists.
+If it does not, and
+.I neighbor
+is positive, it returns the nearest node whose
+.I key
+is greater or
+.B nil
+if there is none and, if
+.I neighbor
+is negative, it returns the nearest node whose
+.I key
+is less or
+.B nil
+if there is none.
+It is an error to set
+.I neighbor
+to values other than \-1, 0, or +1.
+.PP
 .I Deleteavl
 removes the node matching
 .I key
