@@ -100,7 +100,7 @@ callmx(DS *ds, char *dest, char *domain)
 	}
 	/* dial each one in turn */
 	for(i = 0; i < nmx; i++){
-		snprint(addr, sizeof(addr), "%s/%s!%s!%s", ds->netdir, ds->proto,
+		snprint(addr, sizeof(addr), "%s!%s!%s", ds->proto,
 			mx[i].host, ds->service);
 		if(debug)
 			fprint(2, "mxdial trying %s (%d)\n", addr, i);
