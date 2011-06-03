@@ -1,10 +1,12 @@
 .TH VENTI 8
 .SH NAME
-venti  \- archival storage server
+venti \- archival storage server
 .SH SYNOPSIS
+.in +0.25i
+.ti -0.25i
 .B venti/venti
 [
-.B -Ldsw
+.B -Ldrs
 ]
 [
 .B -a
@@ -18,8 +20,6 @@ venti  \- archival storage server
 .B -c
 .I config
 ]
-.PP
-.B "    "
 [
 .B -C
 .I lumpcachesize
@@ -437,6 +437,9 @@ Implies
 .B -L
 Enable logging.  By default all logging is disabled.
 Logging slows server operation considerably.
+.TP
+.B -r
+Allow only read access to the venti data.
 .TP
 .B -s
 Do not run in the background.
