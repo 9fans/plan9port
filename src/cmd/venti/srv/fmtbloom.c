@@ -7,7 +7,7 @@ Bloom b;
 void
 usage(void)
 {
-	fprint(2, "usage: fmtbloom [-s size] [-n nblocks | -N nhash] file\n");
+	fprint(2, "usage: fmtbloom [-n nblocks | -N nhash] [-s size] file\n");
 	threadexitsall(0);
 }
 

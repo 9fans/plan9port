@@ -50,7 +50,7 @@ static void	arenapartproc(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: buildindex [-b] [-i isect]... [-M imem] venti.conf\n");
+	fprint(2, "usage: buildindex [-bd] [-i isect]... [-M imem] venti.conf\n");
 	threadexitsall("usage");
 }
 

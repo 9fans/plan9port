@@ -5,7 +5,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: fmtarenas [-Z] [-b blocksize] [-a arenasize] name file\n");
+	fprint(2, "usage: fmtarenas [-4Z] [-a arenasize] [-b blocksize] name file\n");
 	threadexitsall(0);
 }
 

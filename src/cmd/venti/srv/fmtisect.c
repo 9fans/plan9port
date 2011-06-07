@@ -5,7 +5,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: fmtisect [-Z] [-b blocksize] name file\n");
+	fprint(2, "usage: fmtisect [-1Z] [-b blocksize] name file\n");
 	threadexitsall(0);
 }
 

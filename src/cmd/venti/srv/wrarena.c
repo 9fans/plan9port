@@ -24,7 +24,7 @@ struct ZClump
 void
 usage(void)
 {
-	fprint(2, "usage: wrarena [-h host] arenafile [offset]\n");
+	fprint(2, "usage: wrarena [-o fileoffset] [-h host] arenafile [clumpoffset]\n");
 	threadexitsall("usage");
 }
 

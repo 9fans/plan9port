@@ -18,8 +18,8 @@ static void	ventiserver(void*);
 void
 usage(void)
 {
-	fprint(2, "usage: venti [-Ldrsw] [-a ventiaddr] [-c config] "
-"[-h httpaddr] [-B blockcachesize] [-C cachesize] [-I icachesize] [-W webroot]\n");
+	fprint(2, "usage: venti [-Ldrs] [-a address] [-B blockcachesize] [-c config] "
+"[-C lumpcachesize] [-h httpaddress] [-I indexcachesize] [-W webroot]\n");
 	threadexitsall("usage");
 }
 void
