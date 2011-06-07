@@ -7,7 +7,7 @@ static int verbose, quiet;
 void
 usage(void)
 {
-	fprint(2, "usage: rdarena [-v] arenapart arena\n");
+	fprint(2, "usage: rdarena [-qv] arenapart arena\n");
 	threadexitsall(0);
 }
 
