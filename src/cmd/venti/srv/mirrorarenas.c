@@ -122,7 +122,7 @@ chat(char *fmt, ...)
 	va_end(arg);
 }
 
-#pragma varargck argpos tag 1
+#pragma varargck argpos tag 3
 #pragma varargck argpos chat 1
 
 
