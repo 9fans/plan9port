@@ -274,7 +274,7 @@ srv(void *a)
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-sd] [-h host] [-c ncache] [-m mountpoint] vacfile\n", argv0);
+	fprint(2, "usage: %s [-sd] [-h host] [-m mountpoint] [-M mem] vacfile\n", argv0);
 	threadexitsall("usage");
 }
 

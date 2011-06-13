@@ -7,10 +7,6 @@ vacfs \- a Venti-based file system
 .B -dip
 ]
 [
-.B -c
-.I cachesize
-]
-[
 .B -h
 .I host
 ]
@@ -21,6 +17,10 @@ vacfs \- a Venti-based file system
 [
 .B -s
 .I srvname
+]
+[
+.B -M
+.I mem
 ]
 .I vacfile
 .SH DESCRIPTION
@@ -40,9 +40,6 @@ These restrictions should eventually be removed.
 Options to 
 .I vacfs
 are:
-.TP
-.BI -c " cachesize
-The number of file system blocks to cache in memory. The default is 1000 blocks.
 .TP
 .B -d
 Print debugging information to standard error.
@@ -77,6 +74,9 @@ is
 without any directory name or
 .L .vac
 extension.
+.TP
+.BI -M " mem
+The amount of memory, in bytes, allocated to the block cache. The default is 16M.
 .PD
 .SH SOURCE
 .B \*9/src/cmd/vac
