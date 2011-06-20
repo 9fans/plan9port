@@ -524,8 +524,14 @@ eventhandler(EventHandlerCallRef next, EventRef event, void *arg)
 		case kEventWindowClosed:
 			exit(0);
 		
-		case kEventWindowBoundsChanged:
-			eresized(0);
+		case kEventWindowBoundsChanged:;
+			// We see kEventWindowDrawContent
+			// if we grow a window but not if we shrink it.
+			UInt32 flags;
+			GetEventParameter(event, kEventParamAttributes,
+				typeUInt32, 0, sizeof flags, 0, &flags);
+			int new = (flags & kWindowBoundsChangeSizeChanged) != 0;
+			eresized(new);
 			break;
 		
 		case kEventWindowDrawContent:
@@ -839,13 +845,12 @@ eresized(int new)
 	osx.screenimage = m;
 	osx.screenr = r;
 	
-	// I'm not 100% sure why this is necessary
-	// but otherwise some resizes (esp. vertical ones)
-	// stop updating the screen.
-	qlock(&osx.flushlock);
-	QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
-	osx.windowctx = nil;
-	qunlock(&osx.flushlock);
+	if(new){
+		qlock(&osx.flushlock);
+		QDEndCGContext(GetWindowPort(osx.window), &osx.windowctx);
+		osx.windowctx = nil;
+		qunlock(&osx.flushlock);
+	}
 }
 
 void
