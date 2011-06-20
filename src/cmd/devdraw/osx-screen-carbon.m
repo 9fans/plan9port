@@ -2,6 +2,10 @@
 #define Rect OSXRect
 #define Cursor OSXCursor
 #include <Carbon/Carbon.h>
+#ifdef MULTITOUCH
+#include <IOKit/IOKitLib.h>
+#include <IOKit/hidsystem/IOHIDShared.h>
+#endif
 #undef Rect
 #undef Point
 #undef Cursor
@@ -26,6 +30,7 @@ AUTOFRAMEWORK(Cocoa)
 
 #ifdef MULTITOUCH
 AUTOFRAMEWORK(MultitouchSupport)
+AUTOFRAMEWORK(IOKit)
 #endif
 
 #define panic sysfatal
@@ -115,10 +120,14 @@ CFMutableArrayRef MTDeviceCreateList(void);
 
 //registers a device's frame callback to your callback function 
 void MTRegisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction); 
+void MTUnregisterContactFrameCallback(MTDeviceRef, MTContactCallbackFunction); 
 
 //start sending events 
 void MTDeviceStart(MTDeviceRef, int); 
 void MTDeviceStop(MTDeviceRef); 
+
+MTDeviceRef MTDeviceCreateFromService(io_service_t);
+io_service_t MTDeviceGetService(MTDeviceRef);
 
 #define kNTracks 10
 struct TouchTrack {
@@ -280,25 +289,114 @@ enum
 void screeninit(void);
 void _flushmemscreen(Rectangle r);
 
+#ifdef MULTITOUCH
 static void
-InitMultiTouch(void)
+RegisterMultitouch(void *ctx, io_iterator_t iter)
+{
+	io_object_t io;
+	MTDeviceRef dev;
+
+	while((io = IOIteratorNext(iter)) != 0){
+		dev = MTDeviceCreateFromService(io);
+		if (dev != nil){
+			MTRegisterContactFrameCallback(dev, touchCallback);
+			[osx.devicelist addObject:dev];
+			if(osx.active)
+				MTDeviceStart(dev, 0);
+		}
+		
+		IOObjectRelease(io);
+	}
+}
+
+static void
+UnregisterMultitouch(void *ctx, io_iterator_t iter)
+{
+	io_object_t io;
+	MTDeviceRef dev;
+	int i;
+	
+	while((io = IOIteratorNext(iter)) != 0){
+		for(i = 0; i < [osx.devicelist count]; i++){
+			dev = [osx.devicelist objectAtIndex:i];
+			if(IOObjectIsEqualTo(MTDeviceGetService(dev), io)){
+				if(osx.active)
+					MTDeviceStop(dev);
+				MTUnregisterContactFrameCallback(dev, touchCallback);
+				[osx.devicelist removeObjectAtIndex:i];
+				break;
+			}
+		}
+
+		IOObjectRelease(io);
+	}
+}
+
+#endif /*MULTITOUCH*/
+
+static void
+InitMultiTouch()
 {
 #ifdef MULTITOUCH
+	IONotificationPortRef port;
+	CFRunLoopSourceRef source;
+	io_iterator_t iter;
+	kern_return_t kr;
+	io_object_t obj;
 	int i;
 
-	/*
-	 * Setup multitouch queues
-	 */
 	if(!multitouch)
 		return;
 
-	for(i = 0; i<kNTracks; ++i)
+	osx.devicelist = [[NSMutableArray alloc] init];
+
+	for(i = 0; i < kNTracks; ++i)
 		tracks[i].id = -1;
 
-	osx.devicelist = (NSMutableArray*)MTDeviceCreateList(); //grab our device list 
-	for(i = 0; i<[osx.devicelist count]; i++) { //iterate available devices 
-		MTRegisterContactFrameCallback([osx.devicelist objectAtIndex:i], touchCallback); //assign callback for device 
+	port = IONotificationPortCreate(kIOMasterPortDefault);
+	if(port == nil){
+		fprint(2, "failed to get an IO notification port\n");
+		return;
 	}
+
+	source = IONotificationPortGetRunLoopSource(port);
+	if(source == nil){
+		fprint(2, "failed to get loop source for port");
+		return;
+	}
+
+	CFRunLoopAddSource(
+		(CFRunLoopRef)GetCFRunLoopFromEventLoop(GetMainEventLoop()), 
+		source, 
+		kCFRunLoopDefaultMode);
+
+	kr = IOServiceAddMatchingNotification(
+		port, kIOTerminatedNotification,
+		IOServiceMatching("AppleMultitouchDevice"), 
+		&UnregisterMultitouch,
+		nil, &iter);
+
+	if(kr != KERN_SUCCESS){
+		fprint(2, "failed to add termination notification\n");
+		return;
+	}
+
+	/* Arm the notification */
+	while((obj = IOIteratorNext(iter)) != 0)
+		IOObjectRelease(obj);
+
+	kr = IOServiceAddMatchingNotification(
+		port, kIOMatchedNotification,
+		IOServiceMatching("AppleMultitouchDevice"),
+		&RegisterMultitouch,
+		nil, &iter);
+
+	if(kr != KERN_SUCCESS){
+		fprint(2, "failed to add matching notification\n");
+		return;
+	}
+
+	RegisterMultitouch(nil, iter);
 #endif
 }
 
