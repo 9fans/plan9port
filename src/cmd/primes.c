@@ -1,5 +1,6 @@
 #include	<u.h>
 #include	<libc.h>
+#include	<bio.h>
 
 #define	ptsiz	(sizeof(pt)/sizeof(pt[0]))
 #define	whsiz	(sizeof(wheel)/sizeof(wheel[0]))
@@ -32,12 +33,15 @@ uchar	bittab[] =
 
 void	mark(double nn, long k);
 void	ouch(void);
+Biobuf bout;
 
 void
 main(int argc, char *argp[])
 {
 	int i;
 	double k, temp, v, limit, nn;
+
+	Binit(&bout, 1, OWRITE);
 
 	if(argc <= 1) {
 		fprint(2, "usage: primes starting [ending]\n");
@@ -101,7 +105,7 @@ main(int argc, char *argp[])
 			temp = nn + i;
 			if(temp > limit)
 				exits(0);
-			print("%.0f\n", temp);
+			Bprint(&bout, "%lld\n", (long long)temp);
 			if(limit >= big)
 				exits(0);
 		}
