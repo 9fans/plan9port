@@ -114,8 +114,14 @@ loop:
 		break;
 
 	case Tend:
-		if(c == '\n')
-			matched = 1;
+		if(c == '\n') {
+			if(r->next == 0) {
+				matched = 1;
+				break;
+			}
+			r = r->next;
+			goto loop;
+		}
 		break;
 
 	case Tclass:
