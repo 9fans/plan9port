@@ -27,7 +27,7 @@ enum
 int
 isaddrc(int r)
 {
-	if(r && utfrune("0123456789+-/$.#,;", r)!=nil)
+	if(r && utfrune("0123456789+-/$.#,;?", r)!=nil)
 		return TRUE;
 	return FALSE;
 }
