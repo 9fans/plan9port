@@ -776,6 +776,10 @@ openfile(Text *t, Expand *e)
 	else{
 		eval = TRUE;
 		r = address(TRUE, t, range(-1,-1), range(t->q0, t->q1), e->u.at, e->a0, e->a1, e->agetc, &eval, &dummy);
+		if(r.q0 > r.q1) {
+			eval = FALSE;
+			warning(nil, "addresses out of order\n");
+		}
 		if(eval == FALSE)
 			e->jump = FALSE;	/* don't jump if invalid address */
 	}
