@@ -189,6 +189,7 @@ main(int argc, char *argv[])
 		if(ntrap)
 			dotrap();
 	}
+	return 0;  /* not reached; silence OS X Lion gcc */
 }
 /*
  * Opcode routines
