@@ -70,6 +70,8 @@ case "$tag" in
 *FreeBSD*gcc*)	usegcc ;;
 *FreeBSD*clang*)	useclang ;;
 *BSD*)	usegcc ;;
+*Darwin-x86_64*) usegcc
+		cflags="$ngflags -g3 -no-cpp-precomp -m64" ;;
 *Darwin*)	usegcc 
 		cflags="$ngflags -g3 -no-cpp-precomp -m32" ;;
 *HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;

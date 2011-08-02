@@ -80,6 +80,7 @@ threadmain(int argc, char **argv)
 	mk(countthread, c, STACK);
 	mk(filterthread, c, STACK);
 	recvp(chancreate(sizeof(void*), 0));
+	threadexitsall(0);
 }
 
 void

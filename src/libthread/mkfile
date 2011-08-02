@@ -52,6 +52,4 @@ test:V: tprimes tspawn
 	echo tspawn should take 3 seconds, not 6
 	$PLAN9/bin/time ./tspawn sleep 3 >/dev/null
 
-CLEANFILES=p1.txt p2.txt tp1.txt tp2.txt
-
-
+CLEANFILES=p1.txt p2.txt tp1.txt tp2.txt test/*.$O

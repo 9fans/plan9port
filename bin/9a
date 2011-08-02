@@ -5,10 +5,16 @@ if [ $# != 1 ]; then
 	exit 1
 fi
 
+test -f $PLAN9/config && . $PLAN9/config
+
 aflags=""
-case "`uname`" in
-Darwin)
-	aflags="-arch `arch`"
+case "`uname`-${OBJTYPE:-`uname -m`}" in
+Darwin-*386*)
+	aflags="-arch i386"
+	;;
+Darwin-*x86_64*)
+	aflags="-arch x86_64"
+	;;
 esac
 
 out=`echo $1 | sed 's/\.s$//;s/$/.o/'`

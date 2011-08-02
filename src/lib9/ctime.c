@@ -130,7 +130,7 @@ gmtime(long tim)
 char*
 asctime(Tm *t)
 {
-	char *ncp;
+	const char *ncp;
 	static char cbuf[30];
 
 	strcpy(cbuf, "Thu Jan 01 00:00:00 GMT 1970\n");

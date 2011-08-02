@@ -24,7 +24,7 @@ extern	int		swapcontext(ucontext_t*, ucontext_t*);
 extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__x86_64__)
 	/*
 	 * OS X before 10.5 (Leopard) does not provide
 	 * swapcontext nor makecontext, so we have to use our own.
@@ -40,8 +40,10 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #	define makecontext libthread_makecontext
 #	if defined(__i386__)
 #		include "386-ucontext.h"
-#	else
+#	elif defined(__power__)
 #		include "power-ucontext.h"
+#	else
+#		error "unknown architecture"
 #	endif
 #endif
 
@@ -99,6 +101,15 @@ enum
 struct Context
 {
 	ucontext_t	uc;
+#ifdef __APPLE__
+	/*
+	 * On Snow Leopard, etc., the context routines exist,
+	 * so we use them, but apparently they write past the
+	 * end of the ucontext_t.  Sigh.  We put some extra
+	 * scratch space here for them.
+	 */
+	uchar	buf[512];
+#endif
 };
 
 struct Execjob
@@ -116,12 +127,12 @@ struct _Thread
 	_Thread	*allnext;
 	_Thread	*allprev;
 	Context	context;
+	void	(*startfn)(void*);
+	void	*startarg;
 	uint	id;
 	uchar	*stk;
 	uint	stksize;
 	int		exiting;
-	void	(*startfn)(void*);
-	void	*startarg;
 	Proc	*proc;
 	char	name[256];
 	char	state[256];

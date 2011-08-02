@@ -91,7 +91,7 @@ threadstart(uint y, uint x)
 	z |= y;
 	t = (_Thread*)z;
 
-/*print("threadstart %p\n", v); */
+//print("threadstart sp=%p arg=%p startfn=%p t=%p\n", &t, t, t->startfn, t->startarg);
 	t->startfn(t->startarg);
 /*print("threadexits %p\n", v); */
 	threadexits(nil);
@@ -114,17 +114,21 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	t->stk = (uchar*)(t+1);
 	t->stksize = stack;
 	t->id = incref(&threadidref);
+//print("fn=%p arg=%p\n", fn, arg);
 	t->startfn = fn;
 	t->startarg = arg;
+//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 
 	/* do a reasonable initialization */
 	memset(&t->context.uc, 0, sizeof t->context.uc);
 	sigemptyset(&zero);
 	sigprocmask(SIG_BLOCK, &zero, &t->context.uc.uc_sigmask);
+//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 
 	/* must initialize with current context */
 	if(getcontext(&t->context.uc) < 0)
 		sysfatal("threadalloc getcontext: %r");
+//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 
 	/* call makecontext to do the real work. */
 	/* leave a few words open on both ends */
@@ -141,6 +145,7 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	 * function that takes some number of word-sized variables,
 	 * and on 64-bit machines pointers are bigger than words.
 	 */
+//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 	z = (ulong)t;
 	y = z;
 	z >>= 16;	/* hide undefined 32-bit shift from 32-bit compilers */

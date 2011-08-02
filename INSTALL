@@ -54,11 +54,29 @@ if [ `uname` = Linux ]; then
 	if ./a.out >/dev/null
 	then	
 		echo "	NPTL found."
-		echo "SYSVERSION=2.6.x" >$PLAN9/config
+		echo "SYSVERSION=2.6.x" >>$PLAN9/config
 	else
 		echo "	NPTL not found."
-		echo "SYSVERSION=2.4.x" >$PLAN9/config
+		echo "SYSVERSION=2.4.x" >>$PLAN9/config
 	fi
+	rm -f ./a.out
+fi
+
+if [ `uname` = Darwin ]; then
+	# On Darwin, uname -m -p cannot be trusted.
+	echo "* Running on Darwin: checking architecture..."
+	rm -f ./a.out
+	gcc lib/darwin-main.c >/dev/null 2>&1
+	case "$(file ./a.out 2>/dev/null)" in
+	*x86_64*)
+		echo "	x86-64 found."
+		echo "OBJTYPE=x86_64" >>$PLAN9/config
+		;;
+	*i386*)
+		echo "	i386 found."
+		echo "OBJTYPE=386" >>$PLAN9/config
+		;;
+	esac
 	rm -f ./a.out
 fi
 

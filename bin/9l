@@ -45,6 +45,9 @@ case "$tag" in
 		;;
 	esac
 	;;
+*Darwin*x86_64*)
+	ld="${CC9:-gcc} -m64"
+	;;
 *Darwin*)
 	ld="${CC9:-gcc} -m32"
 	;;

@@ -38,5 +38,6 @@ YFLAGS=-d
 LIB=
 SHORTLIB=9
 
+<|cat $PLAN9/config 2>/dev/null || true
 <|cat $PLAN9/src/mk.$SYSNAME-$OBJTYPE 2>/dev/null || true
 
