@@ -395,6 +395,14 @@ xfidread(Xfid *x)
 	winunlock(w);
 }
 
+static int
+shouldscroll(Text *t, uint q0, int qid)
+{
+	if(qid == Qcons)
+		return TRUE;
+	return t->org <= q0 && q0 <= t->org+t->fr.nchars;
+}
+
 void
 xfidwrite(Xfid *x)
 {
@@ -510,7 +518,7 @@ xfidwrite(Xfid *x)
 		if(tq1 >= q0)
 			tq1 += nr;
 		textsetselect(t, tq0, tq1);
-		if(t->org <= q0 && q0 <= t->org+t->fr.nchars)
+		if(shouldscroll(t, q0, qid))
 			textshow(t, q0+nr, q0+nr, 0);
 		textscrdraw(t);
 		winsettag(w);
@@ -568,7 +576,7 @@ xfidwrite(Xfid *x)
 				}
 				q0 = textbsinsert(t, q0, r, nr, TRUE, &nr);
 				textsetselect(t, t->q0, t->q1);	/* insert could leave it somewhere else */
-				if(qid!=QWwrsel && t->org <= q0 && q0 < t->org+t->fr.nchars)
+				if(qid!=QWwrsel && shouldscroll(t, q0, qid))
 					textshow(t, q0+nr, q0+nr, 1);
 				textscrdraw(t);
 			}

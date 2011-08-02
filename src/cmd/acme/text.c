@@ -379,6 +379,8 @@ textinsert(Text *t, uint q0, Rune *r, uint n, int tofile)
 			}
 					
 	}
+	if(q0 < t->iq1)
+		t->iq1 += n;
 	if(q0 < t->q1)
 		t->q1 += n;
 	if(q0 < t->q0)
@@ -472,6 +474,8 @@ textdelete(Text *t, uint q0, uint q1, int tofile)
 				}
 			}
 	}
+	if(t->iq1 < t->q0)
+		t->iq1 -= min(n, t->iq1-q0);
 	if(q0 < t->q0)
 		t->q0 -= min(n, t->q0-q0);
 	if(q0 < t->q1)
@@ -714,11 +718,19 @@ texttype(Text *t, Rune r)
 		return;
 	case Khome:
 		typecommit(t);
-		textshow(t, 0, 0, FALSE);
+		if(t->org > t->iq1) {
+			q0 = textbacknl(t, t->iq1, 1);
+			textsetorigin(t, q0, TRUE);
+		} else
+			textshow(t, 0, 0, FALSE);
 		return;
 	case Kend:
 		typecommit(t);
-		textshow(t, t->file->b.nc, t->file->b.nc, FALSE);
+		if(t->iq1 > t->org+t->fr.nchars) {
+			q0 = textbacknl(t, t->iq1, 1);
+			textsetorigin(t, q0, TRUE);
+		} else
+			textshow(t, t->file->b.nc, t->file->b.nc, FALSE);
 		return;
 	case 0x01:	/* ^A: beginning of line */
 		typecommit(t);
@@ -771,6 +783,7 @@ texttype(Text *t, Rune r)
 		}
 		cut(t, t, nil, TRUE, TRUE, nil, 0);
 		textshow(t, t->q0, t->q0, 1);
+		t->iq1 = t->q0;
 		return;
 	case Kcmd+'v':	/* %V: paste */
 		typecommit(t);
@@ -780,6 +793,7 @@ texttype(Text *t, Rune r)
 		}
 		paste(t, t, nil, TRUE, FALSE, nil, 0);
 		textshow(t, t->q0, t->q1, 1);
+		t->iq1 = t->q1;
 		return;
 	}
 	if(t->q1 > t->q0){
@@ -802,6 +816,7 @@ texttype(Text *t, Rune r)
 			textsetselect(t, t->eq0, t->q0);
 		if(t->ncache > 0)
 			typecommit(t);
+		t->iq1 = t->q0;
 		return;
 	case 0x08:	/* ^H: erase character */
 	case 0x15:	/* ^U: erase line */
@@ -844,6 +859,7 @@ texttype(Text *t, Rune r)
 		}
 		for(i=0; i<t->file->ntext; i++)
 			textfill(t->file->text[i]);
+		t->iq1 = t->q0;
 		return;
 	case '\n':
 		if(t->w->autoindent){
@@ -895,6 +911,7 @@ texttype(Text *t, Rune r)
 	textsetselect(t, t->q0+nr, t->q0+nr);
 	if(r=='\n' && t->w!=nil)
 		wincommit(t->w, t);
+	t->iq1 = t->q0;
 }
 
 void
