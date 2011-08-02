@@ -474,7 +474,7 @@ textdelete(Text *t, uint q0, uint q1, int tofile)
 				}
 			}
 	}
-	if(t->iq1 < t->q0)
+	if(q0 < t->iq1)
 		t->iq1 -= min(n, t->iq1-q0);
 	if(q0 < t->q0)
 		t->q0 -= min(n, t->q0-q0);
