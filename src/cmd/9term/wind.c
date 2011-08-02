@@ -623,10 +623,18 @@ wkeyctl(Window *w, Rune r)
 			}
 			return;
 		case Khome:
-			wshow(w, 0);
+			if(w->org > w->iq1) {
+				q0 = wbacknl(w, w->iq1, 1);
+				wsetorigin(w, q0, TRUE);
+			} else
+				wshow(w, 0);
 			return;
 		case Kend:
-			wshow(w, w->nr);
+			if(w->iq1 > w->org+w->f.nchars) {
+				q0 = wbacknl(w, w->iq1, 1);
+				wsetorigin(w, q0, TRUE);
+			} else
+				wshow(w, w->nr);
 			return;
 		case 0x01:	/* ^A: beginning of line */
 			if(w->q0==0 || w->q0==w->qh || w->r[w->q0-1]=='\n')
@@ -689,6 +697,7 @@ wkeyctl(Window *w, Rune r)
 		w->qh = w->nr;
 		wshow(w, w->qh);
 		winterrupt(w);
+		w->iq1 = w->q0;
 		return;
 	case 0x06:	/* ^F: file name completion */
 	case Kins:		/* Insert: file name completion */
@@ -699,6 +708,7 @@ wkeyctl(Window *w, Rune r)
 		q0 = w->q0;
 		q0 = winsert(w, rp, nr, q0);
 		wshow(w, q0+nr);
+		w->iq1 = w->q0;
 		free(rp);
 		return;
 	case 0x08:	/* ^H: erase character */
@@ -717,12 +727,14 @@ wkeyctl(Window *w, Rune r)
 			wdelete(w, q0, q0+nb);
 			wsetselect(w, q0, q0);
 		}
+		w->iq1 = w->q0;
 		return;
 	}
 	/* otherwise ordinary character; just insert */
 	q0 = w->q0;
 	q0 = winsert(w, &r, 1, q0);
 	wshow(w, q0+1);
+	w->iq1 = w->q0;
 }
 
 void
@@ -921,6 +933,8 @@ wdelete(Window *w, uint q0, uint q1)
 		return;
 	runemove(w->r+q0, w->r+q1, w->nr-q1);
 	w->nr -= n;
+	if(q0 < w->iq1)
+		w->iq1 -= min(n, w->iq1-q0);
 	if(q0 < w->q0)
 		w->q0 -= min(n, w->q0-q0);
 	if(q0 < w->q1)
@@ -1609,6 +1623,8 @@ winsert(Window *w, Rune *r, int n, uint q0)
 		w->qh += n;
 	if(q0 < w->org)
 		w->org += n;
+	if(q0 < w->iq1)
+		w->iq1 += n;
 	else if(q0 <= w->org+w->f.nchars)
 		frinsert(&w->f, r, r+n, q0-w->org);
 	return q0;

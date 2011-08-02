@@ -117,6 +117,7 @@ struct Window
 	uint			q0;
 	uint			q1;
 	uint			qh;
+	uint			iq1;			/* last input position */
 	int			id;
 	char			name[32];
 	uint			namecount;
