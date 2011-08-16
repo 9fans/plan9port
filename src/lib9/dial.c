@@ -85,7 +85,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 			goto badlocal;
 		}
 		memset(&sal, 0, sizeof sal);
-		memmove(&sal.sin_addr, &local, 4);
+		memmove(&sal.sin_addr, &host, 4);
 		sal.sin_family = AF_INET;
 		sal.sin_port = htons(port);
 		sn = sizeof n;
