@@ -1,0 +1,198 @@
+.TH DD 1
+.SH NAME
+dd \- convert and copy a file
+.SH SYNOPSIS
+.B dd
+[
+.I option value
+]
+\&...
+.SH DESCRIPTION
+.I Dd\^
+copies the specified input file
+to the specified output with
+possible conversions.
+The standard input and output are used by default.
+The input and output block size may be
+specified to take advantage of raw physical I/O.
+The options are
+.TF "quiet\ \ \fIn
+.PD
+.TP
+.BI -if\  f
+Open file
+.I f
+for input.
+.TP
+.BI -of\  f
+Open file
+.I f
+for output.
+.TP
+.BI -ibs\  n\^
+Set input block size to
+.I n\^
+bytes (default 512).
+.TP
+.BI -obs\  n\^
+Set output block size (default 512).
+.TP
+.BI -bs\  n\^
+Set both input and output block size,
+superseding
+.I ibs\^
+and
+.IR obs .
+If no conversion is specified,
+preserve the input block size instead of packing short blocks
+into the output buffer.
+This is particularly efficient since no in-core copy need be done.
+.TP
+.BI -cbs\  n\^
+Set conversion buffer size.
+.TP
+.BI -skip\  n\^
+Skip
+.I n
+input records before copying.
+.TP
+.BI -iseek\  n\^
+Seek
+.I n
+records forward on input file
+before copying.
+.TP
+.BI -files\  n\^
+Catenate
+.I n 
+input files (useful only for magnetic tape or similar input device).
+.TP
+.BI -oseek\  n\^
+Seek
+.I n\^
+records from beginning of output file before copying.
+.TP
+.BI -count\  n\^
+Copy only
+.I n
+input records.
+.TP
+.BI -trunc\  n\^
+By default,
+.I dd
+truncates the output file when it opens it;
+.B -trunc
+.B 0
+opens it without truncation.
+.TP
+.BI -quiet\  n\^
+By default,
+.I dd
+prints the number of blocks read and written
+once it is finished.
+.B -quiet
+.B 1
+silences this summary.
+.HP
+\fL-conv\ ascii\ \ \ \ \fRConvert
+.SM EBCDIC
+to
+.SM ASCII.
+.PD0
+.RS "\w'\fLconv\ \fP'u"
+.TP "\w'\fLunblock\ \ \fP'u"
+.B ebcdic
+Convert
+.SM ASCII
+to
+.SM EBCDIC.
+.TP
+.B ibm
+Like
+.B ebcdic
+but with a slightly different character map.
+.TP
+.B block
+Convert variable length
+.SM ASCII
+records to fixed length.
+.TP
+.B unblock
+Convert fixed length
+.SM ASCII
+records to variable length.
+.TP
+.B lcase
+Map alphabetics to lower case.
+.TP
+.B ucase
+Map alphabetics to upper case.
+.TP
+.B swab
+Swap every pair of bytes.
+.TP
+.B noerror
+Do not stop processing on an error.
+.TP
+.B sync
+Pad every input record to
+.I  ibs\^
+bytes.
+.RE
+.PD
+.PP
+.fi
+Where sizes are specified,
+a number of bytes is expected.
+A number may end with
+.L k
+or
+.LR b
+to specify multiplication by
+1024 or 512 respectively;
+a pair of numbers may be separated by
+.L x
+to indicate a product.
+Multiple conversions may be specified in the style:
+.LR "-conv ebcdic,ucase" .
+.PP
+.L Cbs\^
+is used only if
+.LR ascii\^ ,
+.LR unblock\^ ,
+.LR ebcdic\^ ,
+.LR ibm\^ ,
+or
+.L block\^
+conversion is specified.
+In the first two cases,
+.I n
+characters are copied into the conversion buffer, any specified
+character mapping is done,
+trailing blanks are trimmed and new-line is added
+before sending the line to the output.
+In the latter three cases, characters are read into the
+conversion buffer and blanks are added to make up an
+output record of size
+.IR n .
+If
+.L cbs\^
+is unspecified or zero, the
+.LR ascii\^ ,
+.LR ebcdic\^ ,
+and
+.L ibm\^
+options convert the character set without changing the block
+structure of the input file; the
+.L unblock\^
+and
+.L block\^
+options become a simple file copy.
+.SH SOURCE
+.B \*9/src/cmd/dd.c
+.SH "SEE ALSO"
+.IR cp (1)
+.SH DIAGNOSTICS
+.I Dd
+reports the number of full + partial input and output
+blocks handled.
