@@ -209,3 +209,10 @@ is in the current directory.
 .B \*9/src/cmd/test.c
 .SH "SEE ALSO"
 .IR rc (1) 
+.SH BUGS
+Won't complain about extraneous arguments
+since there may be arguments left unprocessed by
+short-circuit evaluation of
+.B -a
+or
+.BR -o .

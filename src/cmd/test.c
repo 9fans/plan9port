@@ -230,92 +230,77 @@ tio(char *a, int f)
 	return access (a, f) >= 0;
 }
 
-/* copy to local memory; clear names for safety */
-int
-localstat(char *f, Dir *dir)
-{
-	Dir *d;
-
-	d = dirstat(f);
-	if(d == nil)
-		return(-1);
-	*dir = *d;
-	free(d);
-	dir->name = 0;
-	dir->uid = 0;
-	dir->gid = 0;
-	dir->muid = 0;
-	return 0;
-}
-
-/* copy to local memory; clear names for safety */
-int
-localfstat(int f, Dir *dir)
-{
-	Dir *d;
-
-	d = dirfstat(f);
-	if(d == nil)
-		return(-1);
-	*dir = *d;
-	free(d);
-	dir->name = 0;
-	dir->uid = 0;
-	dir->gid = 0;
-	dir->muid = 0;
-	return 0;
-}
+/*
+ * note that the name strings pointed to by Dir members are
+ * allocated with the Dir itself (by the same call to malloc),
+ * but are not included in sizeof(Dir), so copying a Dir won't
+ * copy the strings it points to.
+ */
 
 int
 hasmode(char *f, ulong m)
 {
-	Dir dir;
+	int r;
+	Dir *dir;
 
-	if(localstat(f,&dir)<0)
-		return(0);
-	return(dir.mode&m);
+	dir = dirstat(f);
+	if (dir == nil)
+		return 0;
+	r = (dir->mode & m) != 0;
+	free(dir);
+	return r;
 }
 
 int
 isdir(char *f)
 {
-	Dir dir;
-
-	if(localstat(f,&dir)<0)
-		return(0);
-	return(dir.mode&DMDIR);
+	return hasmode(f, DMDIR);
 }
 
 int
 isreg(char *f)
 {
-	Dir dir;
+	int r;
+	Dir *dir;
 
-	if(localstat(f,&dir)<0)
-		return(0);
-	return(!(dir.mode&DMDIR));
+	dir = dirstat(f);
+	if (dir == nil)
+		return 0;
+	r = (dir->mode & DMDIR) == 0;
+	free(dir);
+	return r;
 }
 
 int
 isatty(int fd)
 {
-	Dir d1, d2;
+	int r;
+	Dir *d1, *d2;
 
-	if(localfstat(fd, &d1) < 0)
-		return 0;
-	if(localstat("/dev/cons", &d2) < 0)
-		return 0;
-	return d1.type==d2.type && d1.dev==d2.dev && d1.qid.path==d2.qid.path;
+	d1 = dirfstat(fd);
+	d2 = dirstat("/dev/cons");
+	if (d1 == nil || d2 == nil)
+		r = 0;
+	else
+		r = d1->type == d2->type && d1->dev == d2->dev &&
+			d1->qid.path == d2->qid.path;
+	free(d1);
+	free(d2);
+	return r;
 }
 
 int
 fsizep(char *f)
 {
-	Dir dir;
+	int r;
+	Dir *dir;
 
-	if(localstat(f,&dir)<0)
-		return(0);
-	return(dir.length>0);
+	dir = dirstat(f);
+	if (dir == nil)
+		return 0;
+	r = dir->length > 0;
+	free(dir);
+	return r;
 }
 
 void
@@ -344,12 +329,14 @@ isint(char *s, int *pans)
 int
 isolder(char *pin, char *f)
 {
-	char *p = pin;
+	int r;
 	ulong n, m;
-	Dir dir;
+	char *p = pin;
+	Dir *dir;
 
-	if(localstat(f,&dir)<0)
-		return(0);
+	dir = dirstat(f);
+	if (dir == nil)
+		return 0;
 
 	/* parse time */
 	n = 0;
@@ -383,29 +370,41 @@ isolder(char *pin, char *f)
 		}
 	}
 
-	return(dir.mtime+n < time(0));
+	r = dir->mtime + n < time(0);
+	free(dir);
+	return r;
 }
 
 int
 isolderthan(char *a, char *b)
 {
-	Dir ad, bd;
+	int r;
+	Dir *ad, *bd;
 
-	if(localstat(a, &ad)<0)
-		return(0);
-	if(localstat(b, &bd)<0)
-		return(0);
-	return ad.mtime > bd.mtime;
+	ad = dirstat(a);
+	bd = dirstat(b);
+	if (ad == nil || bd == nil)
+		r = 0;
+	else
+		r = ad->mtime > bd->mtime;
+	free(ad);
+	free(bd);
+	return r;
 }
 
 int
 isnewerthan(char *a, char *b)
 {
-	Dir ad, bd;
+	int r;
+	Dir *ad, *bd;
 
-	if(localstat(a, &ad)<0)
-		return(0);
-	if(localstat(b, &bd)<0)
-		return(0);
-	return ad.mtime < bd.mtime;
+	ad = dirstat(a);
+	bd = dirstat(b);
+	if (ad == nil || bd == nil)
+		r = 0;
+	else
+		r = ad->mtime < bd->mtime;
+	free(ad);
+	free(bd);
+	return r;
 }
