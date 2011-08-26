@@ -541,7 +541,7 @@ stdoutproc(void *v)
 			// clumsy but effective: notice password
 			// prompts so we can disable echo.
 			password = 0;
-			if(cistrstr(buf, "password")) {
+			if(cistrstr(buf, "password") || cistrstr(buf, "passphrase")) {
 				int i;
 				
 				i = n;
