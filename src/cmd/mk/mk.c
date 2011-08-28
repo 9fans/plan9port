@@ -199,7 +199,7 @@ pcmp(char *prog, char *p, char *q, Shell *sh, Word *shcmd)
 
 	Bflush(&bout);
 	snprint(buf, sizeof buf, "%s '%s' '%s'\n", prog, p, q);
-	pid = pipecmd(buf, 0, 0, sh, shcmd);
+	pid = pipecmd(buf, envy, 0, sh, shcmd);
 	while(waitup(-3, &pid) >= 0)
 		;
 	return(pid? 2:1);
