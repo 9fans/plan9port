@@ -395,10 +395,10 @@ doauth(char *methods)
 
 	if(user != nil)
 		p = auth_getuserpasswd(nil,
-	  	  "proto=pass service=smtp server=%q user=%q", ds.host, user);
+	  	  "proto=pass service=smtp role=client server=%q user=%q", ds.host, user);
 	else
 		p = auth_getuserpasswd(nil,
-	  	  "proto=pass service=smtp server=%q", ds.host);
+	  	  "proto=pass service=smtp role=client server=%q", ds.host);
 	if (p == nil)
 		return Giveup;
 

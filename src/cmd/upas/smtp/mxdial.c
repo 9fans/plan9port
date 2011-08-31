@@ -124,6 +124,7 @@ mxlookup(DS *ds, char *domain)
 	int i, n, nmx;
 	Ndbtuple *t, *tmx, *tpref, *tip;
 	
+	strcpy(domain, ds->host);
 	ds->netdir = "/net";
 	nmx = 0;
 	if((t = dnsquery(nil, ds->host, "mx")) != nil){
