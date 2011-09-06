@@ -38,6 +38,9 @@ CLEANFILES=latin1.h $O.mklatinkbd
 %-objc.$O: %.m
 	$CC $CFLAGS -o $target $stem.m
 
+cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-draw.o cocoa-screen-objc.o cocoa-srv.o cocoa-thread.o
+	$LD -o $target $prereq
+
 devdraw-cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-screen-objc.o osx-draw.o osx-srv-objc.o osx-delegate-objc.o
 	$LD -o $target $prereq
 

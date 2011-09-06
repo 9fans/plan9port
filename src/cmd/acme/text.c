@@ -751,6 +751,10 @@ texttype(Text *t, Rune r)
 		typecommit(t);
 		cut(t, t, nil, TRUE, FALSE, nil, 0);
 		return;
+	case Kcmd+'z':	/* %Z: undo */
+	 	typecommit(t);
+		undo(t, nil, nil, TRUE, 0, nil, 0);
+		return;
 
 	Tagdown:
 		/* expand tag to show all text */
