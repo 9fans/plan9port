@@ -1621,10 +1621,10 @@ winsert(Window *w, Rune *r, int n, uint q0)
 		w->q0 += n;
 	if(q0 < w->qh)
 		w->qh += n;
-	if(q0 < w->org)
-		w->org += n;
 	if(q0 < w->iq1)
 		w->iq1 += n;
+	if(q0 < w->org)
+		w->org += n;
 	else if(q0 <= w->org+w->f.nchars)
 		frinsert(&w->f, r, r+n, q0-w->org);
 	return q0;
