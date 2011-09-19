@@ -298,6 +298,8 @@ loop:
 	c &= 0377;
 	(*conv)(c);
 	goto loop;
+
+	return 0;  // shut up apple gcc
 }
 
 void
