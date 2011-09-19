@@ -23,32 +23,3 @@ qunlock(QLock *q)
 {
 	pthread_mutex_unlock(&q->m);
 }
-
-static void
-rinit(Rendez *r)
-{
-	pthread_mutex_lock(&initlock);
-	if(r->init == 0){
-		pthread_cond_init(&r->c, nil);
-		r->init = 1;
-	}
-	pthread_mutex_unlock(&initlock);
-}
-
-void
-rsleep(Rendez *r)
-{
-	if(r->init == 0)
-		rinit(r);
-	pthread_cond_wait(&r->c, &r->l->m);
-}
-
-int
-rwakeup(Rendez *r)
-{
-	if(r->init == 0)
-		rinit(r);
-	pthread_cond_signal(&r->c);
-
-	return 0;
-}

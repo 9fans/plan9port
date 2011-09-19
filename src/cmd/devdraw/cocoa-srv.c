@@ -308,7 +308,7 @@ matchmouse(void)
 }
 
 void
-mousetrack(int x, int y, int b, int ms)
+mousetrack(int x, int y, int b, uint ms)
 {
 	Mouse *m;
 	
