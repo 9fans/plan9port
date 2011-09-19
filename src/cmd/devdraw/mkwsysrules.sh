@@ -22,7 +22,12 @@ fi
 
 if [ "x$WSYSTYPE" = "x" ]; then
 	if [ "x`uname`" = "xDarwin" ]; then
-		WSYSTYPE=osx
+		if sw_vers | grep 'ProductVersion:	10\.[0-6]\.' >/dev/null; then
+			WSYSTYPE=osx
+		else
+			echo 1>&2 'WARNING: OS X Lion is not working.  Copy binaries from a Snow Leopard system.'
+			WSYSTYPE=osx-cocoa
+		fi
 	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
@@ -52,6 +57,9 @@ elif [ $WSYSTYPE = osx ]; then
 		echo 'LDFLAGS=$LDFLAGS -F/System/Library/PrivateFrameworks'
 	fi
 	echo 'WSYSOFILES=$WSYSOFILES osx-screen-carbon-objc.o osx-draw.o osx-srv.o'
+	echo 'MACARGV=install-macargv'
+elif [ $WSYSTYPE = osx-cocoa ]; then
+	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-objc.o cocoa-srv.o cocoa-thread.o'
 	echo 'MACARGV=install-macargv'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
