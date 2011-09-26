@@ -60,7 +60,7 @@ main(int argc, char **argv)
 	open("/dev/null", OREAD);
 	open("/dev/null", OWRITE);
 
-	// Libdraw don't permit arguments currently.
+	// Libdraw doesn't permit arguments currently.
 
 	ARGBEGIN{
 	case 'D':		// only for good ps -a listings
@@ -80,13 +80,14 @@ main(int argc, char **argv)
 }
 
 struct {
+	NSWindow		*std;
+	NSWindow		*ofs;
 	NSWindow		*p;
 	NSView			*content;
 	Cursor			*cursor;
 	NSString			*title;
 	QLock			titlel;
 	char				*rectstr;
-	NSRect			lastrect;
 	NSBitmapImageRep	*img;
 	NSRect			flushrect;
 	int				needflush;
@@ -94,7 +95,6 @@ struct {
 
 static void drawimg(void);
 static void flushwin(void);
-static void fullscreen(void);
 static void getmousepos(void);
 static void makeicon(void);
 static void makemenu(void);
@@ -102,6 +102,7 @@ static void makewin(void);
 static void resize(void);
 static void sendmouse(int);
 static void setcursor0(void);
+static void togglefs(void);
 
 @implementation appdelegate
 - (void)applicationDidFinishLaunching:(id)arg
@@ -135,6 +136,16 @@ static void setcursor0(void);
 {
 	resize();
 }
+- (void)windowDidChangeScreenProfile:(id)arg
+{
+	resize();
+}
+- (void)windowDidChangeScreen:(id)arg
+{
+	[win.ofs setFrame:[[win.p screen] frame] display:YES];
+
+	resize();
+}
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(id)arg
 {
 	return YES;
@@ -146,9 +157,9 @@ static void setcursor0(void);
 }
 + (void)calldrawimg:(id)arg{ drawimg();}
 + (void)callflushwin:(id)arg{ flushwin();}
-- (void)callfullscreen:(id)arg{ fullscreen();}
 + (void)callmakewin:(id)arg{ makewin();}
 + (void)callsetcursor0:(id)arg{ setcursor0();}
+- (void)calltogglefs:(id)arg{ togglefs();}
 @end
 
 static Memimage* makeimg(void);
@@ -191,6 +202,10 @@ attachscreen(char *label, char *winsize)
 {
 	return 0;
 }
+- (BOOL)canBecomeKeyWindow
+{
+	return YES;	// else no keyboard focus with NSBorderlessWindowMask
+}
 @end
 
 enum
@@ -205,46 +220,50 @@ static void
 makewin(void)
 {
 	NSRect r, sr;
-	NSView *v;
-	NSWindow *w;
 	Rectangle wr;
 	char *s;
 	int set;
 
 	s = win.rectstr;
+	sr = [[NSScreen mainScreen] frame];
 
 	if(s && *s){
 		if(parsewinsize(s, &wr, &set) < 0)
 			sysfatal("%r");
 	}else{
-		sr = [[NSScreen mainScreen] frame];
 		wr = Rect(0, 0, sr.size.width*2/3, sr.size.height*2/3);
 		set = 0;
 	}
 //	The origin is the left-bottom corner with Cocoa.
 	r = NSMakeRect(wr.min.x, r.size.height-wr.min.y, Dx(wr), Dy(wr));
 
-	v = [appview new];
-	[v setAcceptsTouchEvents:YES];
-
-	w = [[appwin alloc]
+	win.std = [[appwin alloc]
 		initWithContentRect:r
 		styleMask:Winstyle
-		backing:NSBackingStoreBuffered
-		defer:NO];
+		backing:NSBackingStoreBuffered defer:NO];
 	if(!set)
-		[w center];
+		[win.std center];
 #if OSX_VERSION >= 100700
-	[w setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+	[win.std setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
+#else
+	[win.std setShowsResizeIndicator:YES];
 #endif
-	[w setAcceptsMouseMovedEvents:YES];
-	[w setContentView:v];
-	[w setDelegate:[NSApp delegate]];
-	[w setMinSize:NSMakeSize(128,128)];
-	[w makeKeyAndOrderFront:nil];
+	[win.std setMinSize:NSMakeSize(128,128)];
+	[win.std setAcceptsMouseMovedEvents:YES];
+	[win.std setDelegate:[NSApp delegate]];
 
-	win.content = v;
-	win.p = w;
+	win.ofs = [[appwin alloc]
+		initWithContentRect:sr
+		styleMask:NSBorderlessWindowMask
+		backing:NSBackingStoreBuffered defer:NO];
+	[win.ofs setAcceptsMouseMovedEvents:YES];
+	[win.ofs setDelegate:[NSApp delegate]];
+
+	win.content = [appview new];
+	[win.content setAcceptsTouchEvents:YES];
+	win.p = win.std;
+	[win.p setContentView:win.content];
+	[win.p makeKeyAndOrderFront:nil];
 }
 
 static Memimage*
@@ -592,7 +611,7 @@ getgesture(NSEvent *e)
 
 	case NSEventTypeMagnify:
 //		if(fabs([e magnification]) > 0.025)
-			fullscreen();
+			togglefs();
 		break;
 
 	case NSEventTypeSwipe:
@@ -740,7 +759,7 @@ Return:
 		[toucha[i] release];
 		toucha[i] = nil;
 	}
-	for(i=0; i<3; i++){
+	for(i=0; i<ntouch; i++){
 		assert(toucha[i] == nil);
 		assert(touchb[i] == nil);
 	}
@@ -845,7 +864,7 @@ setmouse(Point p)
 }
 
 static void
-fullscreen(void)
+togglefs(void)
 {
 #if OSX_VERSION >= 100700
 	if(useoldfullscreen == 0){
@@ -857,30 +876,23 @@ fullscreen(void)
 	int opt;
 
 	screen = [win.p screen];
-
+	[win.content retain];
+	[win.p orderOut:nil];
+	[win.p setContentView:nil];
 	if(NSEqualRects([win.p frame], [screen frame])){
 		opt = NSApplicationPresentationDefault;
 		[NSApp setPresentationOptions:opt];
-		[win.p setStyleMask:Winstyle];
-		[win.p setFrame:win.lastrect display:YES];
+		win.p = win.std;
 	}else{
-		win.lastrect = [win.p frame];
 		opt = NSApplicationPresentationAutoHideDock
 			| NSApplicationPresentationAutoHideMenuBar;
 		[NSApp setPresentationOptions:opt];
-		[win.p setStyleMask:NSBorderlessWindowMask];
-		[win.p setFrame:[screen frame] display:YES];
+		win.p = win.ofs;
 	}
-//	On OS X Lion, after "setStyleMask", window is activated (the gesture work for example), but no keyboard input until mouse or trackpad pressed
-//	What I tried without success on OS X Lion:
-//		[NSApp activateIgnoringOtherApps:YES];
-//		[win.p makeKeyAndOrderFront:nil];
-//		implementing canBecomeKeyWindow
-//		implementing canBecomeMainWindow
-//		saving/restoring [win.content nextResponder]
-//		using enterFullScreenMode instead
-//	What I didn't try:
-//		using 2 windows instead: one for each mode
+	[win.p setContentView:win.content];
+	[win.p makeKeyAndOrderFront:nil];
+	[win.content release];
+	resize();
 
 	qlock(&win.titlel);
 	[win.p setTitle:win.title];
@@ -907,7 +919,7 @@ makemenu(void)
 	title = @"Full Screen";
 	item = [[NSMenuItem alloc]
 		initWithTitle:title
-		action:@selector(callfullscreen:) keyEquivalent:@"f"];
+		action:@selector(calltogglefs:) keyEquivalent:@"f"];
 	[menu addItem:item];
 	[item release];
 
