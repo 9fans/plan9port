@@ -22,7 +22,7 @@ fi
 
 if [ "x$WSYSTYPE" = "x" ]; then
 	if [ "x`uname`" = "xDarwin" ]; then
-		if sw_vers | grep 'ProductVersion:	10\.[0-6]\.' >/dev/null; then
+		if sw_vers | grep 'ProductVersion:	10\.[0-5]\.' >/dev/null; then
 			WSYSTYPE=osx
 		else
 			echo 1>&2 'WARNING: OS X Lion is not working.  Copy binaries from a Snow Leopard system.'
