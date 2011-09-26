@@ -25,7 +25,7 @@ if [ "x$WSYSTYPE" = "x" ]; then
 		if sw_vers | grep 'ProductVersion:	10\.[0-5]\.' >/dev/null; then
 			WSYSTYPE=osx
 		else
-			echo 1>&2 'WARNING: OS X Lion is not working.  Copy binaries from a Snow Leopard system.'
+			#echo 1>&2 'WARNING: OS X Lion is not working.  Copy binaries from a Snow Leopard system.'
 			WSYSTYPE=osx-cocoa
 		fi
 	elif [ -d "$X11" ]; then
