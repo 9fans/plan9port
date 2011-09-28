@@ -137,12 +137,20 @@ __xtoplan9kbd(XEvent *e)
 	return k+0;
 }
 
+int alting;
+
+void
+abortcompose(void)
+{
+	alting = 0;
+}
+
 extern int _latin1(Rune*, int);
 static Rune*
 xtoplan9latin1(XEvent *e)
 {
 	static Rune k[10];
-	static int alting, nk;
+	static int nk;
 	int n;
 	int r;
 

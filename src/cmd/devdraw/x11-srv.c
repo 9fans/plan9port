@@ -36,7 +36,7 @@
 	Button2MotionMask|\
 	Button3MotionMask)
 
-#define Mask MouseMask|ExposureMask|StructureNotifyMask|KeyPressMask|EnterWindowMask|LeaveWindowMask
+#define Mask MouseMask|ExposureMask|StructureNotifyMask|KeyPressMask|EnterWindowMask|LeaveWindowMask|FocusChangeMask
 
 typedef struct Kbdbuf Kbdbuf;
 typedef struct Mousebuf Mousebuf;
@@ -547,6 +547,10 @@ runxevent(XEvent *xev)
 		if(kbd.ri == kbd.wi)
 			kbd.stall = 1;
 		matchkbd();
+		break;
+	
+	case FocusOut:
+		abortcompose();
 		break;
 	
 	case SelectionRequest:
