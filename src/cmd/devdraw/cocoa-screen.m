@@ -72,6 +72,9 @@ main(int argc, char **argv)
 	if(usecopygesture)
 		reimplementswipe = 1;
 
+	if(OSX_VERSION < 100700)
+		[NSAutoreleasePool new];
+
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 	[NSApp setDelegate:[appdelegate new]];
@@ -81,18 +84,17 @@ main(int argc, char **argv)
 
 struct {
 	NSWindow		*std;
-	NSWindow		*ofs;
+	NSWindow		*ofs;			/* old fullscreen */
 	NSWindow		*p;
 	NSView			*content;
 	Cursor			*cursor;
-	NSString			*title;
-	QLock			titlel;
 	char				*rectstr;
 	NSBitmapImageRep	*img;
 	NSRect			flushrect;
 	int				needflush;
 } win;
 
+static void autohide(int);
 static void drawimg(void);
 static void flushwin(void);
 static void getmousepos(void);
@@ -100,7 +102,7 @@ static void makeicon(void);
 static void makemenu(void);
 static void makewin(void);
 static void resize(void);
-static void sendmouse(int);
+static void sendmouse(void);
 static void setcursor0(void);
 static void togglefs(void);
 
@@ -116,12 +118,12 @@ static void togglefs(void);
 - (void)windowDidBecomeKey:(id)arg
 {
 	getmousepos();
-	sendmouse(0);
+	sendmouse();
 }
 - (void)windowDidResize:(id)arg
 {
 	getmousepos();
-	sendmouse(0);
+	sendmouse();
 
 	if([win.p inLiveResize])
 		return;
@@ -142,8 +144,9 @@ static void togglefs(void);
 }
 - (void)windowDidChangeScreen:(id)arg
 {
+	if(win.p == win.ofs)
+		autohide(1);
 	[win.ofs setFrame:[[win.p screen] frame] display:YES];
-
 	resize();
 }
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(id)arg
@@ -204,6 +207,7 @@ attachscreen(char *label, char *winsize)
 }
 - (BOOL)canBecomeKeyWindow
 {
+	// just keyboard? or all inputs?
 	return YES;	// else no keyboard focus with NSBorderlessWindowMask
 }
 @end
@@ -245,8 +249,6 @@ makewin(void)
 		[win.std center];
 #if OSX_VERSION >= 100700
 	[win.std setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
-#else
-	[win.std setShowsResizeIndicator:YES];
 #endif
 	[win.std setMinSize:NSMakeSize(128,128)];
 	[win.std setAcceptsMouseMovedEvents:YES];
@@ -266,6 +268,7 @@ makewin(void)
 	[win.p makeKeyAndOrderFront:nil];
 }
 
+// explain the bottom-corner bug here (osx-screen-carbon.m:/^eresized)
 static Memimage*
 makeimg(void)
 {
@@ -315,7 +318,9 @@ static void
 resize(void)
 {
 	makeimg();
-	sendmouse(1);
+
+	mouseresized = 1;
+	sendmouse();
 }
 
 void
@@ -331,6 +336,8 @@ _flushmemscreen(Rectangle r)
 		withObject:nil
 		waitUntilDone:YES];
 }
+
+static void drawresizehandle(void);
 
 static void
 drawimg(void)
@@ -352,6 +359,10 @@ drawimg(void)
 		[win.img drawInRect:dr fromRect:sr
 			operation:NSCompositeCopy fraction:1
 			respectFlipped:YES hints:nil];
+
+		if(OSX_VERSION<100700 && win.p==win.std)
+			drawresizehandle();
+
 		[win.content unlockFocus];
 		win.needflush = 1;
 	}
@@ -364,6 +375,49 @@ flushwin(void)
 		[win.p flushWindow];
 		win.needflush = 0;
 	}
+}
+
+enum
+{
+	Pixel = 1,
+	Handlesize = 16*Pixel,
+};
+
+static void
+drawresizehandle(void)
+{
+	NSBezierPath *p;
+	NSRect r;
+	NSSize size;
+	Point o;
+
+	size = [win.img size];
+	o = Pt(size.width+1-Handlesize, size.height+1-Handlesize);
+	r = NSMakeRect(o.x, o.y, Handlesize, Handlesize);
+	if(NSIntersectsRect(r, win.flushrect) == 0)
+		return;
+
+	[[NSColor whiteColor] setFill];
+	[[NSColor lightGrayColor] setStroke];
+
+	[NSBezierPath fillRect:r];
+	[NSBezierPath strokeRect:r];
+
+
+	[[NSColor darkGrayColor] setStroke];
+
+	p = [NSBezierPath bezierPath];
+
+	[p moveToPoint:NSMakePoint(o.x+4, o.y+13)];
+	[p lineToPoint:NSMakePoint(o.x+13, o.y+4)];
+
+	[p moveToPoint:NSMakePoint(o.x+8, o.y+13)];
+	[p lineToPoint:NSMakePoint(o.x+13, o.y+8)];
+
+	[p moveToPoint:NSMakePoint(o.x+12, o.y+13)];
+	[p lineToPoint:NSMakePoint(o.x+13, o.y+12)];
+
+	[p stroke];
 }
 
 static void getgesture(NSEvent*);
@@ -519,7 +573,7 @@ getkeyboard(NSEvent *e)
 				in.kbuttons |= 2;
 			if(m & NSCommandKeyMask)
 				in.kbuttons |= 4;
-			sendmouse(0);
+			sendmouse();
 		}else
 		if(m & NSAlternateKeyMask){
 			in.kalting = 1;
@@ -599,7 +653,7 @@ getmouse(NSEvent *e)
 	default:
 		panic("getmouse: unexpected event type");
 	}
-	sendmouse(0);
+	sendmouse();
 }
 
 static void sendswipe(int, int);
@@ -803,32 +857,29 @@ static void
 sendclick(int b)
 {
 	in.mbuttons = b;
-	sendmouse(0);
+	sendmouse();
 	in.mbuttons = 0;
-	sendmouse(0);
+	sendmouse();
 }
 
 static void
 sendchord(int b1, int b2)
 {
 	in.mbuttons = b1;
-	sendmouse(0);
+	sendmouse();
 	in.mbuttons |= b2;
-	sendmouse(0);
+	sendmouse();
 	in.mbuttons = 0;
-	sendmouse(0);
+	sendmouse();
 }
 
 static void
-sendmouse(int resized)
+sendmouse(void)
 {
 	NSSize size;
 	int b;
 
 	size = [win.img size];
-
-	if(resized)
-		mouseresized = 1;
 	mouserect = Rect(0, 0, size.width, size.height);
 
 	b = in.kbuttons | in.mbuttons | in.mscroll;
@@ -859,8 +910,6 @@ setmouse(Point p)
 
 //	race condition
 	in.mpos = p;
-
-//NSLog(@"setmouse %d %d", p.x, p.y);
 }
 
 static void
@@ -873,31 +922,47 @@ togglefs(void)
 	}
 #endif
 	NSScreen *screen;
-	int opt;
+	int willfs;
 
 	screen = [win.p screen];
+
+	willfs = !NSEqualRects([win.p frame], [screen frame]);
+
+	autohide(willfs);
+
 	[win.content retain];
 	[win.p orderOut:nil];
 	[win.p setContentView:nil];
-	if(NSEqualRects([win.p frame], [screen frame])){
-		opt = NSApplicationPresentationDefault;
-		[NSApp setPresentationOptions:opt];
-		win.p = win.std;
-	}else{
-		opt = NSApplicationPresentationAutoHideDock
-			| NSApplicationPresentationAutoHideMenuBar;
-		[NSApp setPresentationOptions:opt];
+
+	if(willfs)
 		win.p = win.ofs;
-	}
+	else
+		win.p = win.std;
+
 	[win.p setContentView:win.content];
 	[win.p makeKeyAndOrderFront:nil];
 	[win.content release];
-	resize();
 
-	qlock(&win.titlel);
-	[win.p setTitle:win.title];
-	qunlock(&win.titlel);
-}	
+	resize();
+}
+
+static void
+autohide(int set)
+{
+	NSScreen *s,*s0;
+	int opt;
+
+	s = [win.p screen];
+	s0 = [[NSScreen screens] objectAtIndex:0];
+
+	if(set && s==s0)
+		opt = NSApplicationPresentationAutoHideDock
+			| NSApplicationPresentationAutoHideMenuBar;
+	else
+		opt = NSApplicationPresentationDefault;
+
+	[NSApp setPresentationOptions:opt];
+}
 
 //	Rewrite this function
 //	See ./osx-delegate.m implementation (NSLocalizedString)
@@ -962,26 +1027,14 @@ getsnarf(void)
 
 	pb = [NSPasteboard generalPasteboard];
 
-//	use NSPasteboardTypeString instead of NSStringPboardType
 	qlock(&snarfl);
-	s = [pb stringForType:NSStringPboardType];
+	s = [pb stringForType:NSPasteboardTypeString];
 	qunlock(&snarfl);
-
-//	change the pastebuffer here to see if s is
-//	altered. Move the lock accordingly.
 
 	if(s)
 		return strdup((char*)[s UTF8String]);		
 	else
 		return nil;
-
-//	"you should periodically drain and create
-//	autorelease pools (like the Application Kit does
-//	on the main thread); otherwise, autoreleased
-//	objects accumulate and your memory footprint
-//	grows."
-//	Should we do it here?
-//	Verify that we need it before.
 }
 
 void
@@ -990,7 +1043,6 @@ putsnarf(char *s)
 	NSArray *t;
 	NSPasteboard *pb;
 	NSString *str;
-	int r;
 
 	if(strlen(s) >= SnarfSize)
 		return;
@@ -1001,26 +1053,25 @@ putsnarf(char *s)
 
 	qlock(&snarfl);
 	[pb declareTypes:t owner:nil];
-	r = [pb setString:str forType:NSPasteboardTypeString];
+	[pb setString:str forType:NSPasteboardTypeString];
 	qunlock(&snarfl);
 
-	if(!r)
-		NSLog(@"putsnarf: setString failed");
+	[str release];
 }
 
 void
 kicklabel(char *label)
 {
+	NSString *s;
+
 	if(label == nil)
 		return;
 
-	qlock(&win.titlel);
-	if(win.title)
-		[win.title release];
-	win.title = [[NSString alloc] initWithUTF8String:label];
-	[win.p setTitle:win.title];
-	[[NSApp dockTile] setBadgeLabel:win.title];
-	qunlock(&win.titlel);
+	s = [[NSString alloc] initWithUTF8String:label];
+	[win.std setTitle:s];
+	[win.ofs setTitle:s];
+	[[NSApp dockTile] setBadgeLabel:s];
+	[s release];
 }
 
 void
@@ -1028,7 +1079,7 @@ setcursor(Cursor *cursor)
 {
 	win.cursor = cursor;
 
-//	cursor change only if main thread
+//	no cursor change unless in main thread
 	[appdelegate
 		performSelectorOnMainThread:@selector(callsetcursor0:)
 		withObject:nil
