@@ -105,7 +105,7 @@ if $dobuild; then
 		echo "* Warning: not all binaries built successfully."
 	fi
 	echo "* Installing everything in $PLAN9/bin..."
-	mk install || exit 1
+	mk -k install || exit 1
 	if [ ! -x $PLAN9/bin/cleanname -o ! -x $PLAN9/bin/acme -o ! -x $PLAN9/bin/sam ]; then
 		echo " "
 		echo "* Warning: not all binaries built successfully."
