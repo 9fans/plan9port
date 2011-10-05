@@ -90,7 +90,7 @@ main(int argc, char **argv)
 		while(buf[n-1] == '\n')
 			buf[--n] = 0;
 	}else{
-		pass = readcons("aescbc key", nil, 1);
+		pass = readcons("aescbc password", nil, 1);
 		n = strlen(pass);
 		if(n >= BUF)
 			exits("key too long");
