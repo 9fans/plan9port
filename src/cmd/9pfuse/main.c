@@ -577,6 +577,13 @@ _fuseopen(FuseMsg *m, int isdir)
 	openmode = flags&3;
 	flags &= ~3;
 	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_CLOEXEC);
+#ifdef O_NOFOLLOW
+	flags &= ~O_NOFOLLOW
+#endif
+#ifdef O_LARGEFILE
+	flags &= ~O_LARGEFILE
+#endif
+
 	/*
 	 * Discarding O_APPEND here is not completely wrong,
 	 * because the host kernel will rewrite the offsets
@@ -594,7 +601,7 @@ _fuseopen(FuseMsg *m, int isdir)
 	 *	O_NONBLOCK -> ONONBLOCK
 	 */
 	if(flags){
-		fprint(2, "unexpected open flags %#uo", (uint)in->flags);
+		fprint(2, "unexpected open flags %#uo\n", (uint)in->flags);
 		replyfuseerrno(m, EACCES);
 		return;
 	}
