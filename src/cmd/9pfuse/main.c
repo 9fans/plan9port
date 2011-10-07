@@ -578,10 +578,10 @@ _fuseopen(FuseMsg *m, int isdir)
 	flags &= ~3;
 	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_CLOEXEC);
 #ifdef O_NOFOLLOW
-	flags &= ~O_NOFOLLOW
+	flags &= ~O_NOFOLLOW;
 #endif
 #ifdef O_LARGEFILE
-	flags &= ~O_LARGEFILE
+	flags &= ~O_LARGEFILE;
 #endif
 
 	/*
