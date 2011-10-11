@@ -598,20 +598,22 @@ label(char *sr, int n)
 		return n;
 
 	*r = 0;
-	/*
-	 * add /-sysname if not present
-	 */
-	snprint(wdir, sizeof wdir, "name %s", sl+3);
-	p = strrchr(wdir, '/');
-	if(p==nil || *(p+1) != '-'){
-		p = wdir+strlen(wdir);
-		if(*(p-1) != '/')
-			*p++ = '/';
-		*p++ = '-';
-		strcpy(p, name);
+	if(strcmp(sl+3, "*9term-hold+") != 0) {
+		/*
+		 * add /-sysname if not present
+		 */
+		snprint(wdir, sizeof wdir, "name %s", sl+3);
+		p = strrchr(wdir, '/');
+		if(p==nil || *(p+1) != '-'){
+			p = wdir+strlen(wdir);
+			if(*(p-1) != '/')
+				*p++ = '/';
+			*p++ = '-';
+			strcpy(p, name);
+		}
+		strcat(wdir, "\n0\n");
+		fswrite(ctlfd, wdir, strlen(wdir));
 	}
-	strcat(wdir, "\n0\n");
-	fswrite(ctlfd, wdir, strlen(wdir));
 
 	memmove(sl, el, er-el);
 	n -= (el-sl);

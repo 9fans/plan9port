@@ -468,9 +468,14 @@ label(Rune *sr, int n)
 
 	dir = smprint("%.*S", (el-1)-(sl+3), sl+3);
 	if(dir){
-		drawsetlabel(dir);
-		free(w->dir);
-		w->dir = dir;
+		if(strcmp(dir, "*9term-hold+") == 0) {
+			w->holding = 1;
+			wrepaint(w);
+		} else {
+			drawsetlabel(dir);
+			free(w->dir);
+			w->dir = dir;
+		}
 	}
 
 	/* remove trailing /-sysname if present */
