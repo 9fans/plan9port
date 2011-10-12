@@ -32,24 +32,20 @@ latin1.$O: latin1.h
 latin1.h: $PLAN9/lib/keyboard $O.mklatinkbd
 	./$O.mklatinkbd -r $PLAN9/lib/keyboard | sed 's/, }/ }/' >$target
 
-CLEANFILES=latin1.h $O.mklatinkbd
-
-# Still in progress: Cocoa/Objective C version of devdraw
+$O.macargv: $MACARGV
+	$LD -o $target $prereq
 
 %-objc.$O: %.m
 	$CC $CFLAGS -o $target $stem.m
 
-cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-draw.o cocoa-screen-objc.o cocoa-srv.o cocoa-thread.o
-	$LD -o $target $prereq
+CLEANFILES=$O.macargv $O.mklatinkbd latin1.h
 
+# old attempt
 devdraw-cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-screen-objc.o osx-draw.o osx-srv-objc.o osx-delegate-objc.o
 	$LD -o $target $prereq
 
-install-macargv: $O.macargv
-	install $O.macargv $PLAN9/bin/macargv
-
-$O.macargv: macargv.$O
-	$LD -o $target $prereq
-
-install: $MACARGV
 install: mklatinkbd.install
+install:Q: 
+	if [ $MACARGV ]; then
+		mk $MKFLAGS macargv.install
+	fi

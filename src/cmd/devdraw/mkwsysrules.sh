@@ -57,10 +57,10 @@ elif [ $WSYSTYPE = osx ]; then
 		echo 'LDFLAGS=$LDFLAGS -F/System/Library/PrivateFrameworks'
 	fi
 	echo 'WSYSOFILES=$WSYSOFILES osx-screen-carbon-objc.o osx-draw.o osx-srv.o'
-	echo 'MACARGV=install-macargv'
+	echo 'MACARGV=macargv.o'
 elif [ $WSYSTYPE = osx-cocoa ]; then
 	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-objc.o cocoa-srv.o cocoa-thread.o'
-	echo 'MACARGV=install-macargv'
+	echo 'MACARGV=macargv-objc.o'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi
