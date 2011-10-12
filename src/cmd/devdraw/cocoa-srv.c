@@ -78,8 +78,6 @@ servep9p(void)
 
 	fmtinstall('W', drawfcallfmt);
 	
-//	notify(bell);
-
 	mbuf = nil;
 	nmbuf = 0;
 	while((n = read(3, buf, 4)) == 4){

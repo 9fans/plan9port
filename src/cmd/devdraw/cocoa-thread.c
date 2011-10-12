@@ -2,6 +2,8 @@
 #include <libc.h>
 #include "cocoa-thread.h"
 
+#ifndef TRY_LIBTHREAD
+
 static pthread_mutex_t initlock = PTHREAD_MUTEX_INITIALIZER;
 
 void
@@ -23,3 +25,4 @@ qunlock(QLock *q)
 {
 	pthread_mutex_unlock(&q->m);
 }
+#endif
