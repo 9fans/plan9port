@@ -17,7 +17,7 @@
 
 enum
 {
-	HiWater	= 640000,	/* max size of history */
+	HiWater	= 64000000,	/* max size of history */
 	LoWater	= 400000,	/* min size of history after max'ed */
 	MinWater	= 20000	/* room to leave available when reallocating */
 };
@@ -36,7 +36,7 @@ static	Image	*lightholdcol;
 static	Image	*paleholdcol;
 
 Window*
-wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl)
+wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 {
 	Window *w;
 	Rectangle r;
@@ -77,6 +77,7 @@ wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl)
 	w->topped = ++topped;
 	w->id = ++id;
 	w->notefd = -1;
+	w->scrolling = scrolling;
 	w->dir = estrdup(startdir);
 	w->label = estrdup("<unnamed>");
 	r = insetrect(w->i->r, Selborder);
@@ -247,6 +248,9 @@ winctl(void *arg)
 			alts[WMouseread].op = CHANSND;
 		else
 			alts[WMouseread].op = CHANNOP;
+		//	if(!w->scrolling && !w->mouseopen && w->qh>w->org+w->f.nchars)
+		//		alts[WCwrite].op = CHANNOP;
+		//	else
 		alts[WCwrite].op = CHANSND;
 		if(w->deleted || !w->wctlready)
 			alts[WWread].op = CHANNOP;
@@ -365,7 +369,7 @@ winctl(void *arg)
 				w->qh = qh;
 			}
 			nr = up - rp;
-			scrolling = w->org <= w->qh && w->qh <= w->org + w->f.nchars;
+			scrolling = w->scrolling && w->org <= w->qh && w->qh <= w->org + w->f.nchars;
 			w->qh = winsert(w, rp, nr, w->qh)+nr;
 			if(scrolling)
 				wshow(w, w->qh);
