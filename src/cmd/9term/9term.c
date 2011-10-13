@@ -481,6 +481,7 @@ label(Rune *sr, int n)
 		if(strcmp(dir, "*9term-hold+") == 0) {
 			w->holding = 1;
 			wrepaint(w);
+			flushimage(display, 1);
 		} else {
 			drawsetlabel(dir);
 			free(w->dir);
