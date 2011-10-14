@@ -86,6 +86,7 @@ threadstart(uint y, uint x)
 	_Thread *t;
 	ulong z;
 
+//print("threadstart\n");
 	z = (ulong)x << 16;	/* hide undefined 32-bit shift from 32-bit compilers */
 	z <<= 16;
 	z |= y;
@@ -317,7 +318,7 @@ procscheduler(Proc *p)
 
 	setproc(p);
 	_threaddebug("scheduler enter");
-/*	print("s %p\n", p); */
+//print("s %p\n", p);
 	lock(&p->lock);
 	for(;;){
 		if((t = p->pinthread) != nil){
@@ -354,6 +355,7 @@ procscheduler(Proc *p)
 		p->thread = t;
 		p->nswitch++;
 		_threaddebug("run %d (%s)", t->id, t->name);
+//print("run %p %p %p %p\n", t, *(uintptr*)(t->context.uc.mc.sp), t->context.uc.mc.di, t->context.uc.mc.si);
 		contextswitch(&p->schedcontext, &t->context);
 /*print("back in scheduler\n"); */
 		p->thread = nil;

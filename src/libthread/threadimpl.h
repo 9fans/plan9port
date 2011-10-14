@@ -24,7 +24,7 @@ extern	int		swapcontext(ucontext_t*, ucontext_t*);
 extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #endif
 
-#if defined(__APPLE__) && !defined(__x86_64__)
+#if defined(__APPLE__)
 	/*
 	 * OS X before 10.5 (Leopard) does not provide
 	 * swapcontext nor makecontext, so we have to use our own.
@@ -40,6 +40,8 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #	define makecontext libthread_makecontext
 #	if defined(__i386__)
 #		include "386-ucontext.h"
+#	elif defined(__x86_64__)
+#		include "x86_64-ucontext.h"
 #	elif defined(__power__)
 #		include "power-ucontext.h"
 #	else
@@ -108,7 +110,7 @@ struct Context
 	 * end of the ucontext_t.  Sigh.  We put some extra
 	 * scratch space here for them.
 	 */
-	uchar	buf[512];
+	uchar	buf[1024];
 #endif
 };
 

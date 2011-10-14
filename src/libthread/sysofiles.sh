@@ -34,5 +34,8 @@ arm-Linux)
 	# ARM doesn't supply them either.
 	echo Linux-arm-context.o Linux-arm-swapcontext.o
 	;;
+x86_64-Darwin)
+	echo Darwin-x86_64-asm.o Darwin-x86_64-swapcontext.o
+	;;
 esac
 
