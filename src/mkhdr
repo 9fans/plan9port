@@ -8,6 +8,7 @@ OBJTYPE=`(uname -m -p 2>/dev/null || uname -m) | sed '
 	s;.*armv.*;arm;g;
 	s;.*powerpc.*;power;g;
 	s;.*PowerMacintosh.*;power;g;
+	s;.*Power.Macintosh.*;power;g;
 	s;.*macppc.*;power;g;
 	s;.*ppc64.*;power;g;
 	s;.*ppc.*;power;g;

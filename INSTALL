@@ -76,6 +76,10 @@ if [ `uname` = Darwin ]; then
 		echo "	i386 found."
 		echo "OBJTYPE=386" >>$PLAN9/config
 		;;
+	*ppc*)
+		echo "  power found."
+		echo "OBJTYPE=power" >>$PLAN9/config
+		;;
 	esac
 	rm -f ./a.out
 fi

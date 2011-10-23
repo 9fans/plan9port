@@ -2,6 +2,7 @@
 #define Rect OSXRect
 #define Cursor OSXCursor
 #include <Carbon/Carbon.h>
+#import <Foundation/Foundation.h>
 #ifdef MULTITOUCH
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hidsystem/IOHIDShared.h>

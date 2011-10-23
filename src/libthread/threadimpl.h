@@ -42,7 +42,7 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #		include "386-ucontext.h"
 #	elif defined(__x86_64__)
 #		include "x86_64-ucontext.h"
-#	elif defined(__power__)
+#	elif defined(__ppc__) || defined(__power__)
 #		include "power-ucontext.h"
 #	else
 #		error "unknown architecture"
