@@ -30,6 +30,11 @@ AUTOFRAMEWORK(Cocoa)
 
 int usegestures = 0;
 int useoldfullscreen = 0;
+int usebigarrow = 0;
+
+extern Cursor bigarrow;
+
+void setcursor0(Cursor *c);
 
 void
 usage(void)
@@ -64,12 +69,20 @@ threadmain(int argc, char **argv)
 	case 'g':
 		usegestures = 1;
 		break;
+	case 'b':
+		usebigarrow = 1;
+		break;
 	default:
 		usage();
 	}ARGEND
 
 	if(OSX_VERSION < 100700)
 		[NSAutoreleasePool new];
+
+	// Reset cursor to ensure we start
+	// with bigarrow.
+	if(usebigarrow)
+		setcursor0(nil);
 
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
@@ -163,6 +176,7 @@ static void togglefs(void);
 + (void)calldrawimg:(id)arg{ drawimg();}
 + (void)callflushwin:(id)arg{ flushwin();}
 + (void)callmakewin:(id)arg{ makewin();}
++ (void)callsetcursor0:(id)arg{ setcursor0([[arg autorelease] pointerValue]);}
 - (void)calltogglefs:(id)arg{ togglefs();}
 @end
 
@@ -453,13 +467,15 @@ static void gettouch(NSEvent*, int);
 {
 	NSCursor *c;
 
+	[super resetCursorRects];
+
 	qlock(&win.cursorl);
 
 	c = win.cursor;
 	if(c == nil)
 		c = [NSCursor arrowCursor];
-	[self addCursorRect:[self bounds] cursor:c];
 
+	[self addCursorRect:[self bounds] cursor:c];
 	qunlock(&win.cursorl);
 }
 - (BOOL)isFlipped
@@ -1128,7 +1144,16 @@ kicklabel(char *label)
 }
 
 void
-setcursor(Cursor *c)
+setcursor(Cursor *cursor)
+{
+	[appdelegate
+		performSelectorOnMainThread:@selector(callsetcursor0:)
+		withObject:[[NSValue valueWithPointer:cursor] retain]
+		waitUntilDone:YES];
+}
+
+void
+setcursor0(Cursor *c)
 {
 	NSBitmapImageRep *r;
 	NSImage *i;
@@ -1142,6 +1167,10 @@ setcursor(Cursor *c)
 		[win.cursor release];
 		win.cursor = nil;
 	}
+
+	if(c == nil && usebigarrow)
+		c = &bigarrow;
+
 	if(c){
 		r = [[NSBitmapImageRep alloc]
 			initWithBitmapDataPlanes:nil
@@ -1167,9 +1196,11 @@ setcursor(Cursor *c)
 
 		win.cursor = [[NSCursor alloc] initWithImage:i hotSpot:p];
 
+		[win.cursor set];
 		[i release];
 		[r release];
 	}
+
 	qunlock(&win.cursorl);
 	[WIN invalidateCursorRectsForView:win.content];
 }
