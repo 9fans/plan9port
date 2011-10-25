@@ -103,6 +103,14 @@ initpdf(Biobuf *b, int argc, char **argv, uchar *buf, int nbuf)
 	gscmd(&pdf->gs, "(%s) (r) file { DELAYSAFER { .setsafe } if } stopped pop pdfopen begin\n", fn);
 	gscmd(&pdf->gs, "pdfpagecount PAGE==\n");
 	p = Brdline(&pdf->gs.gsrd, '\n');
+	if(p == nil) {
+		if(Blinelen(&pdf->gs.gsrd) > 0) {
+			fprint(2, "unexpected output (too long) from gs\n");
+			return nil;
+		}
+		fprint(2, "early EOF from gs - is ghostscript installed?\n");
+		return nil;
+	}
 	npage = atoi(p);
 	if(npage < 1) {
 		fprint(2, "no pages?\n");
