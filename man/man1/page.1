@@ -270,3 +270,31 @@ document references cannot be sent
 via plumbing messages.
 .PP
 There are too many keyboard commands and menu items.
+.PP
+Displaying a PostScript or PDF file depends both on having
+GhostScript
+(see
+.IR gs (1))
+installed and on the underlying operating system
+providing a file descriptor device tree at
+.BR /dev/fd .
+.PP
+Some FreeBSD installations
+do not provide file descriptors greater than 2
+in
+.BR /dev/fd .
+To fix this, add
+.IP
+.EX
+/fdescfs    /dev/fd    fdescfs    rw    0    0
+.EE
+.LP
+to
+.BR /etc/fstab ,
+and then
+.B mount
+.BR /dev/fd .
+(Adding the line to
+.B fstab
+ensures causes FreeBSD to mount the file system
+automatically at boot time.)
