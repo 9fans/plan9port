@@ -7,7 +7,6 @@ vtblockput,
 vtblockwrite,
 vtcachealloc,
 vtcacheallocblock,
-vtcacheblocksize,
 vtcachefree,
 vtcacheglobal,
 vtcachelocal,
@@ -36,13 +35,10 @@ typedef struct VtBlock
 .ta +\w'\fLVtBlock* 'u +\w'\fLxxxxxxxx'u
 .PP
 .B
-VtCache*	vtcachealloc(VtConn *z, int blocksize, ulong nblocks);
+VtCache*	vtcachealloc(VtConn *z, ulong maxmem);
 .PP
 .B
 void	vtcachefree(VtCache *c);
-.PP
-.B
-u32int	vtcacheblocksize(VtCache *c);
 .PP
 .B
 u32int	vtglobaltolocal(uchar score[VtScoreSize])
@@ -51,13 +47,13 @@ u32int	vtglobaltolocal(uchar score[VtScoreSize])
 void	vtlocaltoglobal(u32int local, uchar score[VtScoreSize])
 .PP
 .B
-VtBlock*	vtcacheallocblock(VtCache *c, int type);
+VtBlock*	vtcacheallocblock(VtCache *c, int type, ulong size);
 .PP
 .B
 VtBlock*	vtcachelocal(VtCache *c, u32int addr, int type);
 .PP
 .B
-VtBlock*	vtcacheglobal(VtCache *c, uchar[VtScoreSize], int type);
+VtBlock*	vtcacheglobal(VtCache *c, uchar[VtScoreSize], int type, ulong size);
 .PP
 .B
 void	vtblockput(VtBlock *b);
@@ -119,16 +115,12 @@ allocates a new cache using the client connection
 .IR venti-conn (3)
 and
 .IR venti-client (3)),
-with room for
-.I nblocks
-of maximum block size
-.I blocksize .
+with
+.I maxmem
+bytes of memory.
 .PP
 .I Vtcachefree
 frees a cache and all the associated blocks.
-.PP
-.I Vtcacheblocksize
-returns the cache's maximum block size.
 .PP
 .I Vtglobaltolocal
 returns the local address corresponding to the given
@@ -147,7 +139,9 @@ to the local score for the cache address
 .PP
 .I Vtcacheallocblock
 allocates a new local block with the given
-.IR type .
+.I type 
+and
+.IR size .
 .PP
 .I Vtcachelocal
 retrieves the local block at address
@@ -160,9 +154,10 @@ must match the type of the block found at
 .PP
 .I Vtcacheglobal
 retrieves the block with the given
-.I score
-and
+.IR score ,
 .I dtype
+and
+.I size
 from the cache, consulting the Venti server
 if necessary.
 If passed a local score,
