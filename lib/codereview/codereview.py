@@ -38,7 +38,7 @@ For example, if change 123456 contains the files x.go and y.go,
 "hg diff @123456" is equivalent to"hg diff x.go y.go".
 '''
 
-from mercurial import cmdutil, commands, hg, util, error, match
+from mercurial import cmdutil, commands, hg, util, error, match, discovery
 from mercurial.node import nullrev, hex, nullid, short
 import os, re, time
 import stat
@@ -69,11 +69,11 @@ except:
 	from mercurial.version import version as v
 	hgversion = v.get_version()
 
-try:
-	from mercurial.discovery import findcommonincoming
-except:
-	def findcommonincoming(repo, remote):
-		return repo.findcommonincoming(remote)
+# in Mercurial 1.9 the cmdutil.match and cmdutil.revpair moved to scmutil
+if hgversion >= '1.9':
+    from mercurial import scmutil
+else:
+    scmutil = cmdutil
 
 oldMessage = """
 The code review extension requires Mercurial 1.3 or newer.
@@ -106,6 +106,22 @@ def promptyesno(ui, msg):
 		return ui.promptchoice(msg, ["&yes", "&no"], 0) == 0
 	except AttributeError:
 		return ui.prompt(msg, ["&yes", "&no"], "y") != "n"
+
+def incoming(repo, other):
+	fui = FakeMercurialUI()
+	ret = commands.incoming(fui, repo, *[other.path], **{'bundle': '', 'force': False})
+	if ret and ret != 1:
+		raise util.Abort(ret)
+	out = fui.output
+	return out
+
+def outgoing(repo):
+	fui = FakeMercurialUI()
+	ret = commands.outgoing(fui, repo, *[], **{})
+	if ret and ret != 1:
+		raise util.Abort(ret)
+	out = fui.output
+	return out
 
 # To experiment with Mercurial in the python interpreter:
 #    >>> repo = hg.repository(ui.ui(), path = ".")
@@ -176,7 +192,9 @@ set_mercurial_encoding_to_utf8()
 # encoding for all of Python to 'utf-8', not 'ascii'.
 def default_to_utf8():
 	import sys
+	stdout, __stdout__ = sys.stdout, sys.__stdout__
 	reload(sys)  # site.py deleted setdefaultencoding; get it back
+	sys.stdout, sys.__stdout__ = stdout, __stdout__
 	sys.setdefaultencoding('utf-8')
 
 default_to_utf8()
@@ -212,6 +230,7 @@ class CL(object):
 		self.copied_from = None	# None means current user
 		self.mailed = False
 		self.private = False
+		self.lgtm = []
 
 	def DiskText(self):
 		cl = self
@@ -264,6 +283,8 @@ class CL(object):
 		if cl.copied_from:
 			s += "\tAuthor: " + cl.copied_from + "\n"
 		s += "\tReviewer: " + JoinComma(cl.reviewer) + "\n"
+		for (who, line) in cl.lgtm:
+			s += "\t\t" + who + ": " + line + "\n"
 		s += "\tCC: " + JoinComma(cl.cc) + "\n"
 		s += "\tFiles:\n"
 		for f in cl.files:
@@ -536,6 +557,13 @@ def LoadCL(ui, repo, name, web=True):
 		cl.url = server_url_base + name
 		cl.web = True
 		cl.private = d.get('private', False) != False
+		cl.lgtm = []
+		for m in d.get('messages', []):
+			if m.get('approval', False) == True:
+				who = re.sub('@.*', '', m.get('sender', ''))
+				text = re.sub("\n(.|\n)*", '', m.get('text', ''))
+				cl.lgtm.append((who, text))
+
 	set_status("loaded CL " + name)
 	return cl, ''
 
@@ -713,14 +741,14 @@ _change_prolog = """# Change list.
 # Get effective change nodes taking into account applied MQ patches
 def effective_revpair(repo):
     try:
-	return cmdutil.revpair(repo, ['qparent'])
+	return scmutil.revpair(repo, ['qparent'])
     except:
-	return cmdutil.revpair(repo, None)
+	return scmutil.revpair(repo, None)
 
 # Return list of changed files in repository that match pats.
 # Warn about patterns that did not match.
 def matchpats(ui, repo, pats, opts):
-	matcher = cmdutil.match(repo, pats, opts)
+	matcher = scmutil.match(repo, pats, opts)
 	node1, node2 = effective_revpair(repo)
 	modified, added, removed, deleted, unknown, ignored, clean = repo.status(node1, node2, matcher, ignored=True, clean=True, unknown=True)
 	return (modified, added, removed, deleted, unknown, ignored, clean)
@@ -802,10 +830,6 @@ def getremote(ui, repo, opts):
 		os.environ['http_proxy'] = proxy
 	return other
 
-def Incoming(ui, repo, opts):
-	_, incoming, _ = findcommonincoming(repo, getremote(ui, repo, opts))
-	return incoming
-
 desc_re = '^(.+: |(tag )?(release|weekly)\.|fix build|undo CL)'
 
 desc_msg = '''Your CL description appears not to use the standard form.
@@ -827,7 +851,6 @@ Examples:
 
 '''
 
-	
 
 def promptremove(ui, repo, f):
 	if promptyesno(ui, "hg remove %s (y/n)?" % (f,)):
@@ -844,6 +867,18 @@ def EditCL(ui, repo, cl):
 	s = cl.EditorText()
 	while True:
 		s = ui.edit(s, ui.username())
+		
+		# We can't trust Mercurial + Python not to die before making the change,
+		# so, by popular demand, just scribble the most recent CL edit into
+		# $(hg root)/last-change so that if Mercurial does die, people
+		# can look there for their work.
+		try:
+			f = open(repo.root+"/last-change", "w")
+			f.write(s)
+			f.close()
+		except:
+			pass
+
 		clx, line, err = ParseCL(s, cl.name)
 		if err != '':
 			if not promptyesno(ui, "error parsing change list: line %d: %s\nre-edit (y/n)?" % (line, err)):
@@ -941,25 +976,35 @@ def CommandLineCL(ui, repo, pats, opts, defaultcc=None):
 # which expands the syntax @clnumber to mean the files
 # in that CL.
 original_match = None
-def ReplacementForCmdutilMatch(repo, pats=None, opts=None, globbed=False, default='relpath'):
+global_repo = None
+global_ui = None
+def ReplacementForCmdutilMatch(ctx, pats=None, opts=None, globbed=False, default='relpath'):
 	taken = []
 	files = []
 	pats = pats or []
 	opts = opts or {}
+	
 	for p in pats:
 		if p.startswith('@'):
 			taken.append(p)
 			clname = p[1:]
-			if not GoodCLName(clname):
-				raise util.Abort("invalid CL name " + clname)
-			cl, err = LoadCL(repo.ui, repo, clname, web=False)
-			if err != '':
-				raise util.Abort("loading CL " + clname + ": " + err)
-			if not cl.files:
-				raise util.Abort("no files in CL " + clname)
-			files = Add(files, cl.files)
+			if clname == "default":
+				files = DefaultFiles(global_ui, global_repo, [], opts)
+			else:
+				if not GoodCLName(clname):
+					raise util.Abort("invalid CL name " + clname)
+				cl, err = LoadCL(global_repo.ui, global_repo, clname, web=False)
+				if err != '':
+					raise util.Abort("loading CL " + clname + ": " + err)
+				if not cl.files:
+					raise util.Abort("no files in CL " + clname)
+				files = Add(files, cl.files)
 	pats = Sub(pats, taken) + ['path:'+f for f in files]
-	return original_match(repo, pats=pats, opts=opts, globbed=globbed, default=default)
+
+	# work-around for http://selenic.com/hg/rev/785bbc8634f8
+	if hgversion >= '1.9' and not hasattr(ctx, 'match'):
+		ctx = ctx[None]
+	return original_match(ctx, pats=pats, opts=opts, globbed=globbed, default=default)
 
 def RelativePath(path, cwd):
 	n = len(cwd)
@@ -1292,7 +1337,7 @@ def clpatch_or_undo(ui, repo, clname, opts, mode):
 		# sequence numbers get to be 7 digits long.
 		if re.match('^[0-9]{7,}$', clname):
 			found = False
-			matchfn = cmdutil.match(repo, [], {'rev': None})
+			matchfn = scmutil.match(repo, [], {'rev': None})
 			def prep(ctx, fns):
 				pass
 			for ctx in cmdutil.walkchangerevs(repo, matchfn, {'rev': None}, prep):
@@ -1606,9 +1651,12 @@ def pending(ui, repo, *pats, **opts):
 def reposetup(ui, repo):
 	global original_match
 	if original_match is None:
+		global global_repo, global_ui
+		global_repo = repo
+		global_ui = ui
 		start_status_thread()
-		original_match = cmdutil.match
-		cmdutil.match = ReplacementForCmdutilMatch
+		original_match = scmutil.match
+		scmutil.match = ReplacementForCmdutilMatch
 		RietveldSetup(ui, repo)
 
 def CheckContributor(ui, repo, user=None):
@@ -1648,8 +1696,9 @@ def submit(ui, repo, *pats, **opts):
 	# We already called this on startup but sometimes Mercurial forgets.
 	set_mercurial_encoding_to_utf8()
 
+	other = getremote(ui, repo, opts)
 	repo.ui.quiet = True
-	if not opts["no_incoming"] and Incoming(ui, repo, opts):
+	if not opts["no_incoming"] and incoming(repo, other):
 		return "local repository out of date; must sync before submit"
 
 	cl, err = CommandLineCL(ui, repo, pats, opts, defaultcc=defaultcc)
@@ -1712,6 +1761,12 @@ def submit(ui, repo, *pats, **opts):
 		print Indent('\n'.join(cl.files), "\t")
 		return "dry run; not submitted"
 
+	set_status("pushing " + cl.name + " to remote server")
+
+	other = getremote(ui, repo, opts)
+	if outgoing(repo):
+		raise util.Abort("local repository corrupt or out-of-phase with remote: found outgoing changes")
+
 	m = match.exact(repo.root, repo.getcwd(), cl.files)
 	node = repo.commit(ustr(opts['message']), ustr(userline), opts.get('date'), m)
 	if not node:
@@ -1732,7 +1787,6 @@ def submit(ui, repo, *pats, **opts):
 		# push changes to remote.
 		# if it works, we're committed.
 		# if not, roll back
-		other = getremote(ui, repo, opts)
 		r = repo.push(other, False, None)
 		if r == 0:
 			raise util.Abort("local repository out of date; must sync before submit")
@@ -1828,7 +1882,7 @@ def sync_changes(ui, repo):
 				break
 			Rev(rev)
 	else:
-		matchfn = cmdutil.match(repo, [], {'rev': None})
+		matchfn = scmutil.match(repo, [], {'rev': None})
 		def prep(ctx, fns):
 			pass
 		for ctx in cmdutil.walkchangerevs(repo, matchfn, {'rev': None}, prep):
@@ -3087,6 +3141,7 @@ class VersionControlSystem(object):
 			return False
 		return not mimetype.startswith("text/")
 
+
 class FakeMercurialUI(object):
 	def __init__(self):
 		self.quiet = True
@@ -3094,6 +3149,19 @@ class FakeMercurialUI(object):
 	
 	def write(self, *args, **opts):
 		self.output += ' '.join(args)
+	def copy(self):
+		return self
+	def status(self, *args, **opts):
+		pass
+	
+	def readconfig(self, *args, **opts):
+		pass
+	def expandpath(self, *args, **opts):
+		return global_ui.expandpath(*args, **opts)
+	def configitems(self, *args, **opts):
+		return global_ui.configitems(*args, **opts)
+	def config(self, *args, **opts):
+		return global_ui.config(*args, **opts)
 
 use_hg_shell = False	# set to True to shell out to hg always; slower
 
@@ -3104,6 +3172,7 @@ class MercurialVCS(VersionControlSystem):
 		super(MercurialVCS, self).__init__(options)
 		self.ui = ui
 		self.repo = repo
+		self.status = None
 		# Absolute path to repository (we can be in a subdir)
 		self.repo_dir = os.path.normpath(repo.root)
 		# Compute the subdir
@@ -3162,6 +3231,33 @@ class MercurialVCS(VersionControlSystem):
 				unknown_files.append(fn)
 		return unknown_files
 
+	def get_hg_status(self, rev, path):
+		# We'd like to use 'hg status -C path', but that is buggy
+		# (see http://mercurial.selenic.com/bts/issue3023).
+		# Instead, run 'hg status -C' without a path
+		# and skim the output for the path we want.
+		if self.status is None:
+			if use_hg_shell:
+				out = RunShell(["hg", "status", "-C", "--rev", rev])
+			else:
+				fui = FakeMercurialUI()
+				ret = commands.status(fui, self.repo, *[], **{'rev': [rev], 'copies': True})
+				if ret:
+					raise util.Abort(ret)
+				out = fui.output
+			self.status = out.splitlines()
+		for i in range(len(self.status)):
+			# line is
+			#	A path
+			#	M path
+			# etc
+			line = self.status[i].replace('\\', '/')
+			if line[2:] == path:
+				if i+1 < len(self.status) and self.status[i+1][:2] == '  ':
+					return self.status[i:i+2]
+				return self.status[i:i+1]
+		raise util.Abort("no status for " + path)
+	
 	def GetBaseFile(self, filename):
 		set_status("inspecting " + filename)
 		# "hg status" and "hg cat" both take a path relative to the current subdir
@@ -3171,20 +3267,7 @@ class MercurialVCS(VersionControlSystem):
 		new_content = None
 		is_binary = False
 		oldrelpath = relpath = self._GetRelPath(filename)
-		# "hg status -C" returns two lines for moved/copied files, one otherwise
-		if use_hg_shell:
-			out = RunShell(["hg", "status", "-C", "--rev", self.base_rev, relpath])
-		else:
-			fui = FakeMercurialUI()
-			ret = commands.status(fui, self.repo, *[relpath], **{'rev': [self.base_rev], 'copies': True})
-			if ret:
-				raise util.Abort(ret)
-			out = fui.output
-		out = out.splitlines()
-		# HACK: strip error message about missing file/directory if it isn't in
-		# the working copy
-		if out[0].startswith('%s: ' % relpath):
-			out = out[1:]
+		out = self.get_hg_status(self.base_rev, relpath)
 		status, what = out[0].split(' ', 1)
 		if len(out) > 1 and status == "A" and what == relpath:
 			oldrelpath = out[1].strip()
