@@ -23,3 +23,21 @@ vtdial(char *addr)
 		strecpy(z->addr, z->addr+sizeof z->addr, na);
 	return z;
 }
+
+int
+vtredial(VtConn *z, char *addr)
+{
+	char *na;
+	int fd;
+
+	if(addr == nil)
+		addr = getenv("venti");
+	if(addr == nil)
+		addr = "$venti";
+
+	na = netmkaddr(addr, "tcp", "venti");
+	if((fd = dial(na, nil, nil, nil)) < 0)
+		return fd;
+
+	return vtreconn(z, fd, fd);
+}

@@ -27,6 +27,28 @@ vtconn(int infd, int outfd)
 	return z;
 }
 
+int
+vtreconn(VtConn *z, int infd, int outfd)
+{
+	NetConnInfo *nci;
+
+	z->state = VtStateAlloc;
+	if(z->infd >= 0)
+		close(z->infd);
+	z->infd = infd;
+	if(z->outfd >= 0)
+		close(z->outfd);
+	z->outfd = outfd;
+	nci = getnetconninfo(nil, infd);
+	if(nci == nil)
+		snprint(z->addr, sizeof z->addr, "/dev/fd/%d", infd);
+	else{
+		strecpy(z->addr, z->addr+sizeof z->addr, nci->raddr);
+		freenetconninfo(nci);
+	}
+	return 0;
+}
+
 void
 vtfreeconn(VtConn *z)
 {

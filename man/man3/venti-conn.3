@@ -28,7 +28,13 @@ typedef struct VtConn {
 VtConn*	vtconn(int infd, int outfd)
 .PP
 .B
+int	vtreconn(VtConn *z, int infd, int outfd)
+.PP
+.B
 VtConn*	vtdial(char *addr)
+.PP
+.B
+int	vtredial(VtConn *z, char *addr)
 .PP
 .B
 int	vtversion(VtConn *z)

@@ -335,7 +335,9 @@ struct VtConn
 };
 
 VtConn*	vtconn(int infd, int outfd);
+int	vtreconn(VtConn*, int, int);
 VtConn*	vtdial(char*);
+int	vtredial(VtConn*, char *);
 void	vtfreeconn(VtConn*);
 int	vtsend(VtConn*, Packet*);
 Packet*	vtrecv(VtConn*);
