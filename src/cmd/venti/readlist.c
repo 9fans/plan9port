@@ -4,6 +4,12 @@
 #include <venti.h>
 #include <bio.h>
 
+enum
+{
+	// XXX What to do here?
+	VtMaxLumpSize = 65536,
+};
+
 char *host;
 Biobuf b;
 VtConn *z;

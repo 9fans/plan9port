@@ -4,6 +4,12 @@
 #include <libsec.h>
 #include <thread.h>
 
+enum
+{
+	// XXX What to do here?
+	VtMaxLumpSize = 65536,
+};
+
 int chatty;
 
 void
@@ -92,7 +98,7 @@ threadmain(int argc, char *argv[])
 		sysfatal("not a single file");
 
 	// open and read file
-	c = vtcachealloc(z, root.blocksize, 32);
+	c = vtcachealloc(z, root.blocksize*32);
 	if(c == nil)
 		sysfatal("vtcachealloc: %r");
 	f = vtfileopenroot(c, &e);

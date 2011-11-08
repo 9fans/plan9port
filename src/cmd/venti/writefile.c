@@ -65,7 +65,7 @@ threadmain(int argc, char *argv[])
 		sysfatal("vtconnect: %r");
 
 	// write file
-	c = vtcachealloc(z, Blocksize, 32);
+	c = vtcachealloc(z, Blocksize*32);
 	if(c == nil)
 		sysfatal("vtcachealloc: %r");
 	f = vtfilecreateroot(c, Blocksize, Blocksize, VtDataType);
