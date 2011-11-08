@@ -22,6 +22,7 @@ usage(void)
 "[-C lumpcachesize] [-h httpaddress] [-I indexcachesize] [-W webroot]\n");
 	threadexitsall("usage");
 }
+
 void
 threadmain(int argc, char *argv[])
 {
@@ -137,7 +138,6 @@ threadmain(int argc, char *argv[])
 		if(httpdinit(haddr, webroot) < 0)
 			fprint(2, "warning: can't start http server: %r");
 	}
-
 	fprint(2, "init...");
 
 	if(mem == 0xffffffffUL)
@@ -163,7 +163,6 @@ threadmain(int argc, char *argv[])
 		(mainindex->narenas + mainindex->nsects*4 + 16);
 	if(bcmem < minbcmem)
 		bcmem = minbcmem;
-
 	if(0) fprint(2, "initialize %d bytes of disk block cache\n", bcmem);
 	initdcache(bcmem);
 

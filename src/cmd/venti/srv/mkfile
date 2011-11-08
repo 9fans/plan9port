@@ -46,6 +46,8 @@ LIB=$SLIB $LIBDIR/libventi.a
 HFILES=	dat.h\
 	fns.h\
 	stdinc.h\
+	$PLAN9/include/venti.h\
+	$PLAN9/include/httpd.h\
 
 TARG=\
 	venti\
@@ -61,6 +63,7 @@ TARG=\
 	fmtisect\
 	mirrorarenas\
 	printarena\
+	printarenapart\
 	rdarena\
 	syncindex\
 	verifyarena\

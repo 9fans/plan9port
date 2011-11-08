@@ -5,6 +5,7 @@ DIRS=srv
 TARG=\
 	copy\
 	read\
+	ro\
 	sync\
 	write\
 	dump\
