@@ -139,6 +139,7 @@ enum
 	_VtEntryDepthMask = 7<<2,	/* mask for pointer depth */
 	VtEntryLocal = 1<<5,		/* for local storage only */
 	_VtEntryBig = 1<<6,
+	VtEntryNoArchive = 1<<7,	/* for local storage only */
 };
 enum
 {
