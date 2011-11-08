@@ -63,7 +63,7 @@ vtentrypack(VtEntry *e, uchar *p, int index)
 		psize = vttobig(psize);
 		dsize = vttobig(dsize);
 		if(psize < 0 || dsize < 0)
-			sysfatal("invalid entry psize/dsize: %d/%d", e->psize, e->dsize);
+			sysfatal("invalid entry psize/dsize: %ld/%ld", e->psize, e->dsize);
 	}
 	U16PUT(p, psize);
 	p += 2;

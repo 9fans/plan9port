@@ -27,7 +27,7 @@ vtrootpack(VtRoot *r, uchar *p)
 		vers |= _VtRootVersionBig;
 		bsize = vttobig(bsize);
 		if(bsize < 0)
-			sysfatal("invalid root blocksize: %#x", r->blocksize);
+			sysfatal("invalid root blocksize: %#lx", r->blocksize);
 	}
 	U16PUT(p, vers);
 	p += 2;

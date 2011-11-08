@@ -50,7 +50,7 @@ dump(int indent, uchar *score, int type)
 			Bprint(&bout, "%.*serror unpacking root %V: %r\n", indent*4, spaces, score);
 			goto out;
 		}
-		Bprint(&bout, "%.*s%V root name=%s type=%s prev=%V bsize=%d\n",
+		Bprint(&bout, "%.*s%V root name=%s type=%s prev=%V bsize=%ld\n",
 			indent*4, spaces, score, root.name, root.type, root.prev, root.blocksize);
 		dump(indent+1, root.score, VtDirType);
 		break;
@@ -62,7 +62,7 @@ dump(int indent, uchar *score, int type)
 				Bprint(&bout, "%.*s%d: cannot unpack\n", indent+1, spaces, i);
 				continue;
 			}
-			Bprint(&bout, "%.*s%d: gen=%#lux psize=%d dsize=%d type=%d flags=%#x size=%llud score=%V\n",
+			Bprint(&bout, "%.*s%d: gen=%#lux psize=%ld dsize=%ld type=%d flags=%#x size=%llud score=%V\n",
 				(indent+1)*4, spaces, i, e.gen, e.psize, e.dsize, e.type, e.flags, e.size, e.score);
 			dump(indent+2, e.score, e.type);
 		}
