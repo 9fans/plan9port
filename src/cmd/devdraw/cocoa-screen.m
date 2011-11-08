@@ -97,6 +97,7 @@ struct
 {
 	NSWindow	*ofs[2];	/* ofs[1] for old fullscreen; ofs[0] else */
 	int			isofs;
+	int			isnfs;
 	NSView		*content;
 	char			*rectstr;
 	NSBitmapImageRep	*img;
@@ -117,7 +118,7 @@ struct
 	int		touchevent;
 } in;
 
-static void autohide(int);
+static void hidebars(int);
 static void drawimg(void);
 static void flushwin(void);
 static void followzoombutton(NSRect);
@@ -139,6 +140,9 @@ static void togglefs(void);
 }
 - (void)windowDidBecomeKey:(id)arg
 {
+	if(win.isnfs || win.isofs)
+		hidebars(1);
+
 	in.touchevent = 0;
 
 	getmousepos();
@@ -155,8 +159,8 @@ static void togglefs(void);
 }
 - (void)windowDidChangeScreen:(id)arg
 {
-	if(win.isofs)
-		autohide(1);
+	if(win.isnfs || win.isofs)
+		hidebars(1);
 	[win.ofs[1] setFrame:[[WIN screen] frame] display:YES];
 }
 - (BOOL)windowShouldZoom:(id)arg toFrame:(NSRect)r
@@ -168,6 +172,20 @@ static void togglefs(void);
 {
 	return YES;
 }
+- (void)windowDidEnterFullScreen:(id)arg{ win.isnfs = 1; hidebars(1);}
+- (void)windowWillExitFullScreen:(id)arg{ win.isnfs = 0; hidebars(0);}
+- (void)windowDidExitFullScreen:(id)arg
+{
+	NSButton *b;
+
+	b = [WIN standardWindowButton:NSWindowMiniaturizeButton];
+
+	if([b isEnabled] == 0){
+		[b setEnabled:YES];
+		hidebars(0);
+	}
+}
+
 + (void)callservep9p:(id)arg
 {
 	servep9p();
@@ -994,48 +1012,62 @@ followzoombutton(NSRect r)
 static void
 togglefs(void)
 {
+	uint opt, tmp;
+
 #if OSX_VERSION >= 100700
-	if(useoldfullscreen == 0){
+	if(useoldfullscreen==0 || win.isnfs){
 		[WIN toggleFullScreen:nil];
 		return;
 	}
 #endif
-	NSScreen *screen;
-	int willfs;
-
-	screen = [WIN screen];
-
-	willfs = !NSEqualRects([WIN frame], [screen frame]);
-
-	autohide(willfs);
-
 	[win.content retain];
 	[WIN orderOut:nil];
 	[WIN setContentView:nil];
 
-	win.isofs = willfs;
+	win.isofs = ! win.isofs;
+	hidebars(win.isofs);
 
+	/*
+	 * If we move the window from one space to another,
+	 * ofs[0] and ofs[1] can be on different spaces.
+	 * This "setCollectionBehavior" trick moves the
+	 * window to the active space.
+	 */
+	opt = [WIN collectionBehavior];
+	tmp = opt | NSWindowCollectionBehaviorCanJoinAllSpaces;
 	[WIN setContentView:win.content];
+	[WIN setCollectionBehavior:tmp];
 	[WIN makeKeyAndOrderFront:nil];
+	[WIN setCollectionBehavior:opt];
 	[win.content release];
 }
 
+enum
+{
+	Autohiddenbars = NSApplicationPresentationAutoHideDock
+		| NSApplicationPresentationAutoHideMenuBar,
+
+	Hiddenbars = NSApplicationPresentationHideDock
+		| NSApplicationPresentationHideMenuBar,
+};
+
 static void
-autohide(int set)
+hidebars(int set)
 {
 	NSScreen *s,*s0;
-	int opt;
+	uint old, opt;
 
 	s = [WIN screen];
 	s0 = [[NSScreen screens] objectAtIndex:0];
+	old = [NSApp presentationOptions];
 
 	if(set && s==s0)
-		opt = NSApplicationPresentationAutoHideDock
-			| NSApplicationPresentationAutoHideMenuBar;
+		opt = (old & ~Autohiddenbars) | Hiddenbars;
 	else
-		opt = NSApplicationPresentationDefault;
+		opt = old & ~(Autohiddenbars | Hiddenbars);
 
-	[NSApp setPresentationOptions:opt];
+	if(opt != old)
+		[NSApp setPresentationOptions:opt];
 }
 
 static void
