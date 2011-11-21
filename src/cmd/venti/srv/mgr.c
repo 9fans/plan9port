@@ -10,6 +10,11 @@
 #include "dat.h"
 #include "fns.h"
 
+#ifdef PLAN9PORT
+#define sp s.sp
+#define ep e.ep
+#endif
+
 void sendmail(char *content, char *subject, char *msg);
 #define TIME "[0-9]+/[0-9]+ [0-9]+:[0-9]+:[0-9]+"
 
@@ -18,9 +23,16 @@ char *mirrorregexp =
 		"([^ ]+ \\([0-9,]+-[0-9,]+\\))"
 		"|(  copy [0-9,]+-[0-9,]+ (data|hole|directory|tail))"
 		"|(  sha1 [0-9,]+-[0-9,]+)"
+		"|([^ ]+: [0-9,]+ used mirrored)"
 		"|([^ \\-]+-[^ \\-]+( mirrored| sealed| empty)+)"
 	")$";
 Reprog *mirrorprog;
+
+char *verifyregexp =
+	"^" TIME " ("
+		"([^ ]+: unsealed [0-9,]+ bytes)"
+	")$";
+Reprog *verifyprog;
 
 #undef pipe
 enum
@@ -99,7 +111,6 @@ rdconf(char *file, Conf *conf)
 	memset(conf, 0, sizeof *conf);
 	ok = -1;
 	line = nil;
-	s = nil;
 	for(;;){
 		s = ifileline(&f);
 		if(s == nil){
@@ -272,31 +283,6 @@ hsettext(HConnect *c)
 {
 	return hsettype(c, "text/plain; charset=utf-8");
 }
-
-static int
-herror(HConnect *c)
-{
-	int n;
-	Hio *hout;
-	
-	hout = &c->hout;
-	n = snprint(c->xferbuf, HBufSize, "<html><head><title>Error</title></head>\n<body><h1>Error</h1>\n<pre>%r</pre>\n</body></html>");
-	hprint(hout, "%s %s\r\n", hversion, "400 Bad Request");
-	hprint(hout, "Date: %D\r\n", time(nil));
-	hprint(hout, "Server: Venti\r\n");
-	hprint(hout, "Content-Type: text/html\r\n");
-	hprint(hout, "Content-Length: %d\r\n", n);
-	if(c->head.closeit)
-		hprint(hout, "Connection: close\r\n");
-	else if(!http11(c))
-		hprint(hout, "Connection: Keep-Alive\r\n");
-	hprint(hout, "\r\n");
-
-	if(c->req.meth == nil || strcmp(c->req.meth, "HEAD") != 0)
-		hwrite(hout, c->xferbuf, n);
-
-	return hflush(hout);
-}
 	
 int
 hnotfound(HConnect *c)
@@ -445,7 +431,7 @@ httpdproc(void *vaddress)
 	}
 }
 
-void
+static void
 httpproc(void *v)
 {
 	HConnect *c;
@@ -575,11 +561,8 @@ hmanager(HConnect *c)
 	int r;
 	int i, k;
 	Job *j;
-	vlong now;
 	VtLog *l;
 	VtLogChunk *ch;
-	
-	now = time(0) - time0;
 
 	r = hsethtml(c);
 	if(r < 0)
@@ -693,28 +676,39 @@ kickjob(Job *j)
 }
 
 int
-verifyok(char *output)
-{
-	return strlen(output) == 0;
-}
-
-int
 getline(Resub *text, Resub *line)
 {
 	char *p;
 
-	if(text->s.sp >= text->e.ep)
+	if(text->sp >= text->ep)
 		return -1;
-	line->s.sp = text->s.sp;
-	p = memchr(text->s.sp, '\n', text->e.ep - text->s.sp);
+	line->sp = text->sp;
+	p = memchr(text->sp, '\n', text->ep - text->sp);
 	if(p == nil) {
-		line->e.ep = text->e.ep;
-		text->s.sp = text->e.ep;
+		line->ep = text->ep;
+		text->sp = text->ep;
 	} else {
-		line->e.ep = p;
-		text->s.sp = p+1;
+		line->ep = p;
+		text->sp = p+1;
 	}
-	return 0;		
+	return 0;
+}
+
+int
+verifyok(char *output)
+{
+	Resub text, line, m;
+
+	text.sp = output;
+	text.ep = output+strlen(output);
+	while(getline(&text, &line) >= 0) {
+		*line.ep = 0;
+		memset(&m, 0, sizeof m);
+		if(!regexec(verifyprog, line.sp, nil, 0))
+			return 0;
+		*line.ep = '\n';
+	}
+	return 1;
 }
 
 int
@@ -722,14 +716,14 @@ mirrorok(char *output)
 {
 	Resub text, line, m;
 
-	text.s.sp = output;
-	text.e.ep = output+strlen(output);
+	text.sp = output;
+	text.ep = output+strlen(output);
 	while(getline(&text, &line) >= 0) {
-		*line.e.ep = 0;
+		*line.ep = 0;
 		memset(&m, 0, sizeof m);
-		if(!regexec(mirrorprog, line.s.sp, nil, 0))
+		if(!regexec(mirrorprog, line.sp, nil, 0))
 			return 0;
-		*line.e.ep = '\n';
+		*line.ep = '\n';
 	}
 	return 1;
 }
@@ -750,8 +744,8 @@ mkjob(Job *j, ...)
 			sysfatal("job argv size too small");
 	}
 	j->argv[i] = nil;
-	j->oldlog = vtlogopen(smprint("log%d.0", j-job), LogSize);
-	j->newlog = vtlogopen(smprint("log%d.1", j-job), LogSize);
+	j->oldlog = vtlogopen(smprint("log%ld.0", j-job), LogSize);
+	j->newlog = vtlogopen(smprint("log%ld.1", j-job), LogSize);
 	va_end(arg);
 }
 
@@ -762,6 +756,7 @@ manager(void *v)
 	Job *j;
 	vlong now;
 
+	USED(v);
 	for(;; sleep(1000)) {
 		for(i=0; i<njob; i++) {
 			now = time(0) - time0;
@@ -816,7 +811,11 @@ threadmain(int argc, char **argv)
 	
 	ventilogging = 1;
 	ventifmtinstall();
+#ifdef PLAN9PORT
 	bin = unsharp("#9/bin/venti");
+#else
+	bin = "/bin/venti";
+#endif
 	nofork = 0;
 	ARGBEGIN{
 	case 'b':
@@ -840,7 +839,9 @@ threadmain(int argc, char **argv)
 	if(conf.smtp != nil && conf.mailto == nil)
 		sysfatal("config has smtp but no mailto");
 	if((mirrorprog = regcomp(mirrorregexp)) == nil)
-		sysfatal("mirrorregexp did not comple");
+		sysfatal("mirrorregexp did not complete");
+	if((verifyprog = regcomp(verifyregexp)) == nil)
+		sysfatal("verifyregexp did not complete");
 	if(conf.nverify > 0 && conf.verifyfreq == 0)
 		sysfatal("config has no verifyfreq");
 	if(conf.nmirror > 0 && conf.mirrorfreq == 0)
@@ -858,7 +859,7 @@ threadmain(int argc, char **argv)
 		// job: /bin/venti/mirrorarenas -v src dst
 		// filter output
 		j = &job[njob++];
-		mkjob(j, prog, "-v", conf.mirror[i].src, conf.mirror[i].dst);
+		mkjob(j, prog, "-v", conf.mirror[i].src, conf.mirror[i].dst, nil);
 		j->name = smprint("mirror %s %s", conf.mirror[i].src, conf.mirror[i].dst);
 		j->ok = mirrorok;
 		j->freq = conf.mirrorfreq;	// 4 hours	// TODO: put in config
@@ -870,7 +871,7 @@ threadmain(int argc, char **argv)
 		// job: /bin/venti/verifyarena -b 64M -s 1000 -v arena
 		// filter output
 		j = &job[njob++];
-		mkjob(j, prog, "-b64M", "-s1000", conf.verify[i]);
+		mkjob(j, prog, "-b64M", "-s1000", conf.verify[i], nil);
 		j->name = smprint("verify %s", conf.verify[i]);
 		j->ok = verifyok;
 		j->freq = conf.verifyfreq;
@@ -1005,7 +1006,7 @@ sendmail(char *content, char *subject, char *msg)
 	Bprint(bout, "MIME-Version: 1.0\n");
 	Bprint(bout, "Content-Type: %s; charset=\"UTF-8\"\n", content);
 	Bprint(bout, "Content-Transfer-Encoding: quoted-printable\n");
-	Bprint(bout, "Message-ID: %08llux%08llux@venti.swtch.com\n", fastrand(), fastrand());
+	Bprint(bout, "Message-ID: %08lux%08lux@venti.swtch.com\n", fastrand(), fastrand());
 	Bprint(bout, "\n");
 	qp(bout, msg);
 	Bprint(bout, ".\n");
