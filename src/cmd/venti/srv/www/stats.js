@@ -363,7 +363,7 @@ function setof(name, val, list) {
 function loglinks(list) {
 	var s = ""
 	for(var i=0; i<list.length; i++){
-		s = s+" <a href=\"/log/"+list[i]+"\">"+list[i]+"</a>"
+		s = s+" <a href=\"/log?log="+list[i]+"\">"+list[i]+"</a>"
 	}
 	return s
 }
