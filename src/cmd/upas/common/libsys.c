@@ -465,6 +465,9 @@ sysnames_read(void)
 		return namev;
 
 	h = gethostbyname(alt_sysname_read());
+	if(h == nil)
+		return 0;
+
 	for(p=h->h_aliases; *p; p++)
 		;
 	
@@ -491,7 +494,7 @@ domainname_read(void)
 	char **namev, *p;
 	Ndbtuple *t;
 
-	for(namev = sysnames_read(); *namev; namev++){
+	for(namev = sysnames_read(); namev && *namev; namev++){
 		if(strchr(*namev, '.')){
 			for(p=*namev-1; p && *++p; p=strchr(p, '.')){
 				if((t = dnsquery(nil, p, "mx")) != nil){
