@@ -6,6 +6,7 @@
 #include <fcall.h>
 #include <plumb.h>
 #include <9p.h>
+#include <ctype.h>
 
 enum
 {
@@ -44,3 +45,5 @@ extern Imap *imap;
 #define erealloc realloc
 #define estrdup strdup
 
+#pragma varargck type "$" Sx*
+#pragma varargck type "Z" char*

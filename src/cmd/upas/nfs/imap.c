@@ -754,12 +754,16 @@ imapdial(char *server, int mode)
 		fd[0] = dup(p[0], -1);
 		fd[1] = dup(p[0], -1);
 		fd[2] = dup(2, -1);
+#ifdef PLAN9PORT
 		tmp = esmprint("%s:993", server);
-		if(threadspawnl(fd, "tlsclient", "tlsclient", tmp, nil) < 0
-		    && threadspawnl(fd, "/usr/sbin/stunnel3", "stunnel3", "-c", "-r", tmp, nil) < 0
+		if(threadspawnl(fd, "/usr/sbin/stunnel3", "stunnel3", "-c", "-r", tmp, nil) < 0
 		    && threadspawnl(fd, "/usr/bin/stunnel3", "stunnel3", "-c", "-r", tmp, nil) < 0
 		    && threadspawnl(fd, "/usr/sbin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0
 		    && threadspawnl(fd, "/usr/bin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0){
+#else
+		tmp = esmprint("tcp!%s!993", server);
+		if(threadspawnl(fd, "/bin/tlsclient", "tlsclient", tmp, nil) < 0){
+#endif
 			free(tmp);
 			close(p[0]);
 			close(p[1]);
@@ -1300,6 +1304,8 @@ xexists(Imap *z, Sx *sx)
 static void
 xflags(Imap *z, Sx *sx)
 {
+	USED(z);
+	USED(sx);
 	/*
 	 * This response contains in sx->sx[2] the list of flags
 	 * that can be validly attached to messages in z->box.
@@ -1311,6 +1317,7 @@ xflags(Imap *z, Sx *sx)
 static void
 xbye(Imap *z, Sx *sx)
 {
+	USED(sx);
 	close(z->fd);
 	z->fd = -1;
 	z->connected = 0;
@@ -1496,6 +1503,7 @@ copyaddrs(Sx *v)
 static void
 xmsgenvelope(Msg *msg, Sx *k, Sx *v)
 {
+	USED(k);
 	hdrfree(msg->part[0]->hdr);
 	msg->part[0]->hdr = parseenvelope(v);
 	msgplumb(msg, 0);
@@ -1601,6 +1609,7 @@ parsestructure(Part *part, Sx *v)
 static void
 xmsgbody(Msg *msg, Sx *k, Sx *v)
 {
+	USED(k);
 	if(v->type != SxList){
 		warn("bad body: %$", v);
 		return;
@@ -1742,24 +1751,32 @@ xokuidvalidity(Imap *z, Sx *sx)
 static void
 xokpermflags(Imap *z, Sx *sx)
 {
+	USED(z);
+	USED(sx);
 /*	z->permflags = parseflags(sx); */
 }
 
 static void
 xokunseen(Imap *z, Sx *sx)
 {
+	USED(z);
+	USED(sx);
 /*	z->unseen = sx->number; */
 }
 
 static void
 xokreadwrite(Imap *z, Sx *sx)
 {
+	USED(z);
+	USED(sx);
 /*	z->boxmode = ORDWR; */
 }
 
 static void
 xokreadonly(Imap *z, Sx *sx)
 {
+	USED(z);
+	USED(sx);
 /*	z->boxmode = OREAD; */
 }
 

@@ -24,6 +24,7 @@ mailproc(void *v)
 {
 	New n;
 	
+	USED(v);
 	while(recv(mailthreadchan, &n) == 1)
 		threadcreate(n.fn, n.arg, STACK);
 }

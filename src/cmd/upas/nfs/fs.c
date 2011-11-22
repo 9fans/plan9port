@@ -93,6 +93,7 @@ Srv fs;
 Qid rootqid;
 ulong t0;
 
+#ifdef PLAN9PORT
 void
 responderror(Req *r)
 {
@@ -101,6 +102,7 @@ responderror(Req *r)
 	rerrstr(e, sizeof e);
 	respond(r, e);
 }
+#endif
 
 int
 qtype(Qid q)
@@ -378,7 +380,8 @@ mkbody(Part *p, Qid q)
 {
 	char *t;
 	int len;
-	
+
+	USED(q);
 	if(p->msg->part[0] == p)
 		t = p->rawbody;
 	else
@@ -571,7 +574,7 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 		fmtstrinit(&fmt);
 		if(part == msg->part[0]){
 			if(msg->date)
-				fmtprint(&fmt, "unixdate %lud %s", msg->date, ctime(msg->date));
+				fmtprint(&fmt, "unixdate %ud %s", msg->date, ctime(msg->date));
 			if(msg->flags){
 				filedata(Qflags, box, msg, part, pp, nil, freeme, 0, ZQ);
 				fmtprint(&fmt, "flags %s\n", buf);
@@ -1202,7 +1205,8 @@ static void
 fsrecv(void *v)
 {
 	Req *r;
-	
+
+	USED(v);
 	while((r = recvp(fsreqchan)) != nil){
 		switch(r->ifcall.type){
 		case Tattach:

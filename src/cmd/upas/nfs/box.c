@@ -208,7 +208,11 @@ msgplumb(Msg *m, int delete)
 	a[ai].next = nil;
 	
 	p.attr = a;
+#ifdef PLAN9PORT
 	snprint(buf, sizeof buf, "Mail/%s/%ud", m->box->name, m->id);
+#else
+	snprint(buf, sizeof buf, "/mail/fs/%s/%ud", m->box->name, m->id);
+#endif
 	p.ndata = strlen(buf);
 	p.data = buf;
 	

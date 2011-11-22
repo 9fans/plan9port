@@ -1,4 +1,5 @@
 typedef struct Imap Imap;
+#pragma incomplete Imap
 
 void		imapcheckbox(Imap *z, Box *b);
 Imap*		imapconnect(char *server, int mode, char *root);
