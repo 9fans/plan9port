@@ -1,6 +1,8 @@
 #!/bin/bash
 
-. ~/.bashrc
+if [ -e ~/.bashrc ] ; then
+	. ~/.bashrc
+fi
 PLAN9=${PLAN9:-/usr/local/plan9}
 
 bin=$PLAN9/bin
