@@ -22,14 +22,14 @@ Imap *imap;
 void
 usage(void)
 {
-	fprint(2, "usage: mailfs [-DVtx] [-m mtpt] [-s srvname] [-r root] server\n");
+	fprint(2, "usage: mailfs [-DVtx] [-m mtpt] [-s srvname] [-r root] [-u user] server\n");
 	threadexitsall("usage");
 }
 
 void
 threadmain(int argc, char **argv)
 {
-	char *server, *srvname, *root;
+	char *server, *srvname, *root, *user;
 	int mode;
 	char *mtpt;
 
@@ -37,6 +37,7 @@ threadmain(int argc, char **argv)
 	root = "";
 	mode = Unencrypted;
 	mtpt = nil;
+	user = nil;
 	ARGBEGIN{
 	default:
 		usage();
@@ -54,6 +55,9 @@ threadmain(int argc, char **argv)
 		break;
 	case 't':
 		mode = Tls;
+		break;
+	case 'u':
+		user = EARGF(usage());
 		break;
 	case 'x':
 		mode = Cmd;
@@ -74,7 +78,7 @@ threadmain(int argc, char **argv)
 	boxinit();
 	fsinit0();
 
-	if((imap = imapconnect(server, mode, root)) == nil)
+	if((imap = imapconnect(server, mode, root, user)) == nil)
 		sysfatal("imapconnect: %r");
 	threadpostmountsrv(&fs, srvname, mtpt, 0);
 }

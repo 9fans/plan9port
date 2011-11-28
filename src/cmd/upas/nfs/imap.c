@@ -18,6 +18,7 @@ struct Imap
 	int		ticks;	/* until boom! */
 	char*	server;
 	char*	root;
+	char*	user;
 	int		mode;
 	int		fd;
 	Biobuf	b;
@@ -91,7 +92,7 @@ static Sx*		zBrdsx(Imap*);
  */
 
 Imap*
-imapconnect(char *server, int mode, char *root)
+imapconnect(char *server, int mode, char *root, char *user)
 {
 	Imap *z;
 
@@ -101,6 +102,7 @@ imapconnect(char *server, int mode, char *root)
 	z = emalloc(sizeof *z);
 	z->server = estrdup(server);
 	z->mode = mode;
+	z->user = user;
 	if(root)
 		if(root[0] != 0 && root[strlen(root)-1] != '/')
 			z->root = smprint("%s/", root);
@@ -200,7 +202,11 @@ imaplogin(Imap *z)
 	Sx *sx;
 	UserPasswd *up;
 
-	if((up = auth_getuserpasswd(auth_getkey, "proto=pass role=client service=imap server=%q", z->server)) == nil){
+	if(z->user != nil)
+		up = auth_getuserpasswd(auth_getkey, "proto=pass role=client service=imap server=%q user=%q", z->server, z->user);
+	else
+		up = auth_getuserpasswd(auth_getkey, "proto=pass role=client service=imap server=%q", z->server);
+	if(up == nil){
 		werrstr("getuserpasswd - %r");
 		return -1;
 	}
