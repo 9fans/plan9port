@@ -1774,7 +1774,7 @@ vacfsopen(VtConn *z, char *file, int mode, ulong cachemem)
 	char *prefix;
 	
 	if(vtparsescore(file, &prefix, score) >= 0){
-		if(strcmp(prefix, "vac") != 0){
+		if(prefix == nil || strcmp(prefix, "vac") != 0){
 			werrstr("not a vac file");
 			return nil;
 		}
