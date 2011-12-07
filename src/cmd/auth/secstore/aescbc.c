@@ -1,8 +1,9 @@
-/* encrypt file by writing
+/*
+encrypt file by writing
 	v2hdr,
 	16byte initialization vector,
 	AES-CBC(key, random | file),
-    HMAC_SHA1(md5(key), AES-CBC(random | file))
+HMAC_SHA1(md5(key), AES-CBC(random | file))
 */
 #include <u.h>
 #include <libc.h>
@@ -91,6 +92,8 @@ main(int argc, char **argv)
 			buf[--n] = 0;
 	}else{
 		pass = readcons("aescbc password", nil, 1);
+		if(pass == nil)
+			exits("readcons");
 		n = strlen(pass);
 		if(n >= BUF)
 			exits("key too long");
