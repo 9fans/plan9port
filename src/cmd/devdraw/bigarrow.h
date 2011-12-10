@@ -1,8 +1,3 @@
-#include <u.h>
-#include <libc.h>
-#include <draw.h>
-#include <cursor.h>
-
 Cursor bigarrow = {
 	{0, 0},
 	{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFC, 

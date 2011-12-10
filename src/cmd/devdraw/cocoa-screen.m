@@ -22,6 +22,7 @@
 #include "cocoa-screen.h"
 #include "osx-keycodes.h"
 #include "devdraw.h"
+#include "bigarrow.h"
 #include "glendapng.h"
 
 AUTOFRAMEWORK(Cocoa)
@@ -32,10 +33,6 @@ int usegestures = 0;
 int useoldfullscreen = 0;
 int usebigarrow = 0;
 
-extern Cursor bigarrow;
-
-void setcursor0(Cursor *c);
-
 void
 usage(void)
 {
@@ -43,8 +40,7 @@ usage(void)
 	threadexitsall("usage");
 }
 
-@interface appdelegate : NSObject
-@end
+@interface appdelegate : NSObject @end
 
 void
 threadmain(int argc, char **argv)
@@ -79,11 +75,6 @@ threadmain(int argc, char **argv)
 	if(OSX_VERSION < 100700)
 		[NSAutoreleasePool new];
 
-	// Reset cursor to ensure we start
-	// with bigarrow.
-	if(usebigarrow)
-		setcursor0(nil);
-
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 	[NSApp setDelegate:[appdelegate new]];
@@ -99,39 +90,41 @@ struct
 	int			isofs;
 	int			isnfs;
 	NSView		*content;
-	char			*rectstr;
 	NSBitmapImageRep	*img;
-	NSRect		flushrect;
 	int			needflush;
 	NSCursor		*cursor;
-	QLock		cursorl;
 } win;
 
 struct
 {
+	NSCursor	*bigarrow;
 	int		kalting;
 	int		kbuttons;
 	int		mbuttons;
-	Point		mpos;
+	NSPoint	mpos;
 	int		mscroll;
 	int		undo;
 	int		touchevent;
 } in;
 
 static void hidebars(int);
-static void drawimg(void);
+static void drawimg(NSRect);
 static void flushwin(void);
 static void followzoombutton(NSRect);
 static void getmousepos(void);
 static void makeicon(void);
 static void makemenu(void);
-static void makewin(void);
+static void makewin(char*);
 static void sendmouse(void);
+static void setcursor0(Cursor*);
 static void togglefs(void);
+
+static NSCursor* makecursor(Cursor*);
 
 @implementation appdelegate
 - (void)applicationDidFinishLaunching:(id)arg
 {
+	in.bigarrow = makecursor(&bigarrow);
 	makeicon();
 	makemenu();
 	[NSApplication
@@ -191,11 +184,12 @@ static void togglefs(void);
 	servep9p();
 	[NSApp terminate:self];
 }
-+ (void)calldrawimg:(id)arg{ drawimg();}
 + (void)callflushwin:(id)arg{ flushwin();}
-+ (void)callmakewin:(id)arg{ makewin();}
-+ (void)callsetcursor0:(id)arg{ setcursor0([[arg autorelease] pointerValue]);}
 - (void)calltogglefs:(id)arg{ togglefs();}
+
++ (void)calldrawimg:(NSValue*)v{ drawimg([v rectValue]);}
++ (void)callmakewin:(NSValue*)v{ makewin([v pointerValue]);}
++ (void)callsetcursor0:(NSValue*)v{ setcursor0([v pointerValue]);}
 @end
 
 static Memimage* initimg(void);
@@ -213,27 +207,22 @@ attachscreen(char *label, char *winsize)
 	if(label == nil)
 		label = "gnot a label";
 
-	win.rectstr = strdup(winsize);
-
 	/*
 	 * Create window in main thread, else no cursor
 	 * change while resizing.
 	 */
 	[appdelegate
 		performSelectorOnMainThread:@selector(callmakewin:)
-		withObject:nil
+		withObject:[NSValue valueWithPointer:winsize]
 		waitUntilDone:YES];
-//	makewin();
+//	makewin(winsize);
 
 	kicklabel(label);
 	return initimg();
 }
 
-@interface appview : NSView
-@end
-
-@interface appwin : NSWindow
-@end
+@interface appwin : NSWindow @end
+@interface contentview : NSView @end
 
 @implementation appwin
 - (NSTimeInterval)animationResizeTime:(NSRect)r
@@ -242,7 +231,7 @@ attachscreen(char *label, char *winsize)
 }
 - (BOOL)canBecomeKeyWindow
 {
-	return YES;	/* else no keyboard with old fullscreen */
+	return YES;	/* else no keyboard for old fullscreen */
 }
 @end
 
@@ -255,15 +244,13 @@ enum
 };
 
 static void
-makewin(void)
+makewin(char *s)
 {
 	NSRect r, sr;
 	NSWindow *w;
 	Rectangle wr;
-	char *s;
 	int i, set;
 
-	s = win.rectstr;
 	sr = [[NSScreen mainScreen] frame];
 
 	if(s && *s){
@@ -305,8 +292,7 @@ makewin(void)
 		[win.ofs[i] setDisplaysWhenScreenProfileChanges:NO];
 	}
 	win.isofs = 0;
-	win.content = [appview new];
-	[win.content setAcceptsTouchEvents:YES];
+	win.content = [contentview new];
 	[WIN setContentView:win.content];
 	[WIN makeKeyAndOrderFront:nil];
 }
@@ -345,7 +331,9 @@ initimg(void)
 void
 _flushmemscreen(Rectangle r)
 {
-	win.flushrect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
+	NSRect rect;
+
+	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 
 	/*
 	 * Call "lockFocusIfCanDraw" from main thread, else
@@ -357,17 +345,17 @@ _flushmemscreen(Rectangle r)
 	 */
 	[appdelegate
 		performSelectorOnMainThread:@selector(calldrawimg:)
-		withObject:nil
+		withObject:[NSValue valueWithRect:rect]
 		waitUntilDone:YES];
 }
 
-static void drawresizehandle(void);
+static void drawresizehandle(NSRect);
 
 static void
-drawimg(void)
+drawimg(NSRect dr)
 {
 	static int first = 1;
-	NSRect dr, sr;
+	NSRect sr;
 
 	if(first){
 		[NSTimer scheduledTimerWithTimeInterval:0.033
@@ -376,7 +364,6 @@ drawimg(void)
 			repeats:YES];
 		first = 0;
 	}
-	dr = win.flushrect;
 	sr =  [win.content convertRect:dr fromView:nil];
 
 	if([win.content lockFocusIfCanDraw]){
@@ -394,7 +381,7 @@ drawimg(void)
 			respectFlipped:YES hints:nil];
 
 		if(OSX_VERSION<100700 && win.isofs==0)
-			drawresizehandle();
+			drawresizehandle(dr);
 
 		[win.content unlockFocus];
 		win.needflush = 1;
@@ -418,7 +405,7 @@ enum
 };
 
 static void
-drawresizehandle(void)
+drawresizehandle(NSRect dr)
 {
 	NSColor *color[Barsize];
 	NSPoint a,b;
@@ -431,7 +418,7 @@ drawresizehandle(void)
 	c = Pt(size.width, size.height);
 	r = NSMakeRect(0, 0, Handlesize, Handlesize);
 	r.origin = NSMakePoint(c.x-Handlesize, c.y-Handlesize);
-	if(NSIntersectsRect(r, win.flushrect) == 0)
+	if(NSIntersectsRect(r,dr) == 0)
 		return;
 
 	[[WIN graphicsContext] setShouldAntialias:NO];
@@ -464,8 +451,9 @@ static void getgesture(NSEvent*);
 static void getkeyboard(NSEvent*);
 static void getmouse(NSEvent*);
 static void gettouch(NSEvent*, int);
+static void updatecursor(void);
 
-@implementation appview
+@implementation contentview
 
 - (void)drawRect:(NSRect)r
 {
@@ -481,29 +469,22 @@ static void gettouch(NSEvent*, int);
 
 	/* We should wait for P9P's image here. */
 }
-- (void)resetCursorRects
-{
-	NSCursor *c;
-
-	[super resetCursorRects];
-
-	qlock(&win.cursorl);
-
-	c = win.cursor;
-	if(c == nil)
-		c = [NSCursor arrowCursor];
-
-	[self addCursorRect:[self bounds] cursor:c];
-	qunlock(&win.cursorl);
-}
 - (BOOL)isFlipped
 {
-	return YES;	/* to have the origin at top left */
+	return YES;	/* to make the content's origin top left */
 }
 - (BOOL)acceptsFirstResponder
 {
-	return YES;	/* to receive mouseMoved events */
-}	
+	return YES;	/* else no keyboard */
+}
+- (id)initWithFrame:(NSRect)r
+{
+	[super initWithFrame:r];
+	[self setAcceptsTouchEvents:YES];
+	return self;
+}
+- (void)cursorUpdate:(NSEvent*)e{ updatecursor();}
+
 - (void)mouseMoved:(NSEvent*)e{ getmouse(e);}
 - (void)mouseDown:(NSEvent*)e{ getmouse(e);}
 - (void)mouseDragged:(NSEvent*)e{ getmouse(e);}
@@ -644,6 +625,37 @@ getkeyboard(NSEvent *e)
 	}
 }
 
+/*
+ * Devdraw does not use NSTrackingArea, that often
+ * forgets to update the cursor on entering and on
+ * leaving the area, and that sometimes stops sending
+ * us MouseMove events, at least on OS X Lion.
+ */
+static void
+updatecursor(void)
+{
+	NSCursor *c;
+	int isdown, isinside;
+
+	isinside = NSPointInRect(in.mpos, [win.content bounds]);
+	isdown = (in.mbuttons || in.kbuttons);
+
+	if(win.cursor && (isinside || isdown))
+		c = win.cursor;
+	else if(isinside && usebigarrow)
+		c = in.bigarrow;
+	else
+		c = [NSCursor arrowCursor];
+	[c set];
+
+	/*
+	 * Without this trick, we can come back from the dock
+	 * with a resize cursor.
+	 */
+	if(OSX_VERSION >= 100700)
+		[NSCursor unhide];
+}
+
 static void
 getmousepos(void)
 {
@@ -651,7 +663,10 @@ getmousepos(void)
 
 	p = [WIN mouseLocationOutsideOfEventStream];
 	p = [win.content convertPoint:p fromView:nil];
-	in.mpos = Pt(p.x, p.y);
+	in.mpos.x = round(p.x);
+	in.mpos.y = round(p.y);
+
+	updatecursor();
 }
 
 static void
@@ -659,6 +674,9 @@ getmouse(NSEvent *e)
 {
 	float d;
 	int b, m;
+
+	if([WIN isKeyWindow] == 0)
+		return;
 
 	getmousepos();
 
@@ -977,21 +995,23 @@ setmouse(Point p)
 	NSPoint q;
 	NSRect r;
 
+	if([NSApp isActive] == 0)
+		return;
+
 	if(first){
 		/* Try to move Acme's scrollbars without that! */
 		CGSetLocalEventsSuppressionInterval(0);
 		first = 0;
 	}
+	in.mpos = NSMakePoint(p.x, p.y);	// race condition
+
 	r = [[WIN screen] frame];
 
-	q = NSMakePoint(p.x, p.y);
-	q = [win.content convertPoint:q toView:nil];
+	q = [win.content convertPoint:in.mpos toView:nil];
 	q = [WIN convertBaseToScreen:q];
 	q.y = r.size.height - q.y;
 
 	CGWarpMouseCursorPosition(NSPointToCGPoint(q));
-
-	in.mpos = p;	// race condition
 }
 
 static void
@@ -1004,6 +1024,7 @@ followzoombutton(NSRect r)
 	wr.origin.y += wr.size.height;
 	r.origin.y += r.size.height;
 
+	getmousepos();
 	p.x = (r.origin.x - wr.origin.x) + in.mpos.x;
 	p.y = -(r.origin.y - wr.origin.y) + in.mpos.y;
 	setmouse(p);
@@ -1176,63 +1197,69 @@ kicklabel(char *label)
 }
 
 void
-setcursor(Cursor *cursor)
+setcursor(Cursor *c)
 {
+	/*
+	 * No cursor change unless in main thread.
+	 */
 	[appdelegate
 		performSelectorOnMainThread:@selector(callsetcursor0:)
-		withObject:[[NSValue valueWithPointer:cursor] retain]
+		withObject:[NSValue valueWithPointer:c]
 		waitUntilDone:YES];
 }
 
-void
+static void
 setcursor0(Cursor *c)
 {
+	NSCursor *d;
+
+	d = win.cursor;
+
+	if(c)
+		win.cursor = makecursor(c);
+	else
+		win.cursor = nil;
+
+	updatecursor();
+
+	if(d)
+		[d release];
+}
+
+static NSCursor*
+makecursor(Cursor *c)
+{
 	NSBitmapImageRep *r;
+	NSCursor *d;
 	NSImage *i;
 	NSPoint p;
 	int b;
 	uchar *plane[5];
 
-	qlock(&win.cursorl);
+	r = [[NSBitmapImageRep alloc]
+		initWithBitmapDataPlanes:nil
+		pixelsWide:16
+		pixelsHigh:16
+		bitsPerSample:1
+		samplesPerPixel:2
+		hasAlpha:YES
+		isPlanar:YES
+		colorSpaceName:NSDeviceBlackColorSpace
+		bytesPerRow:2
+		bitsPerPixel:1];
 
-	if(win.cursor){
-		[win.cursor release];
-		win.cursor = nil;
+	[r getBitmapDataPlanes:plane];
+
+	for(b=0; b<2*16; b++){
+		plane[0][b] = c->set[b];
+		plane[1][b] = c->clr[b];
 	}
+	p = NSMakePoint(-c->offset.x, -c->offset.y);
+	i = [NSImage new];
+	[i addRepresentation:r];
+	[r release];
 
-	if(c == nil && usebigarrow)
-		c = &bigarrow;
-
-	if(c){
-		r = [[NSBitmapImageRep alloc]
-			initWithBitmapDataPlanes:nil
-			pixelsWide:16
-			pixelsHigh:16
-			bitsPerSample:1
-			samplesPerPixel:2
-			hasAlpha:YES
-			isPlanar:YES
-			colorSpaceName:NSDeviceBlackColorSpace
-			bytesPerRow:2
-			bitsPerPixel:1];
-
-		[r getBitmapDataPlanes:plane];
-
-		for(b=0; b<2*16; b++){
-			plane[0][b] = c->set[b];
-			plane[1][b] = c->clr[b];
-		}
-		p = NSMakePoint(-c->offset.x, -c->offset.y);
-		i = [NSImage new];
-		[i addRepresentation:r];
-
-		win.cursor = [[NSCursor alloc] initWithImage:i hotSpot:p];
-
-		[win.cursor set];
-		[i release];
-		[r release];
-	}
-
-	qunlock(&win.cursorl);
-	[WIN invalidateCursorRectsForView:win.content];
+	d = [[NSCursor alloc] initWithImage:i hotSpot:p];
+	[i release];
+	return d;
 }
