@@ -65,6 +65,11 @@ vtreadpacket(VtConn *z, uchar score[VtScoreSize], uint type, int n)
 	if(memcmp(score, vtzeroscore, VtScoreSize) == 0)
 		return packetalloc();
 
+	if(z == nil){
+		werrstr("not connected");
+		return nil;
+	}
+
 	if(z->version[1] == '2' && n >= (1<<16)) {
 		werrstr("read count too large for protocol");
 		return nil;
