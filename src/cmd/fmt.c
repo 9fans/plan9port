@@ -166,23 +166,6 @@ printindent(int w)
 	}
 }
 
-/* give extra space if word ends with period, etc. */
-int
-nspaceafter(char *s)
-{
-	int n;
-
-	n = strlen(s);
-	if(n < 2)
-		return 1;
-	if(isupper((uchar)s[0]) && n < 4)
-		return 1;
-	if(strchr(".!?", s[n-1]) != nil)
-		return 2;
-	return 1;
-}
-	
-
 void
 printwords(Word **w, int nw)
 {
@@ -207,7 +190,7 @@ printwords(Word **w, int nw)
 				break;	/* out of words */
 			if(w[i]->indent != w[i-1]->indent)
 				break;	/* indent change */
-			nsp = nspaceafter(w[i-1]->text);
+			nsp = 1;
 			if(col+nsp+utflen(w[i]->text) > extraindent+length)
 				break;	/* fold line */
 			if(!join && w[i]->bol)
