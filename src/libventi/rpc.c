@@ -37,6 +37,12 @@ _vtrpc(VtConn *z, Packet *p, VtFcall *tx)
 	uchar tag, buf[2], *top;
 	Rwait *r, *rr;
 
+	if(z == nil){
+		werrstr("not connected");
+		packetfree(p);
+		return nil;
+	}
+
 	/* must malloc because stack could be private */
 	r = vtmallocz(sizeof(Rwait));
 
