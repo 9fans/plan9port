@@ -358,15 +358,25 @@ kputc(int c)
 	zunlock();
 }
 
+static int alting;
+
+void
+abortcompose(void)
+{
+	if(alting)
+		keystroke(Kalt);
+}
+
 void
 keystroke(int c)
 {
 	static Rune k[10];
-	static int alting, nk;
+	static int nk;
 	int i;
 
 	if(c == Kalt){
 		alting = !alting;
+		nk = 0;
 		return;
 	}
 	if(!alting){

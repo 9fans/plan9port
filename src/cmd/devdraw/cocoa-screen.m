@@ -98,7 +98,6 @@ struct
 struct
 {
 	NSCursor	*bigarrow;
-	int		kalting;
 	int		kbuttons;
 	int		mbuttons;
 	NSPoint	mpos;
@@ -593,6 +592,7 @@ interpretdeadkey(NSEvent *e)
 static void
 getkeyboard(NSEvent *e)
 {
+	static int omod;
 	NSString *s;
 	char c;
 	int k, m;
@@ -602,8 +602,6 @@ getkeyboard(NSEvent *e)
 
 	switch([e type]){
 	case NSKeyDown:
-		in.kalting = 0;
-
 		s = [e characters];
 		c = [s UTF8String][0];
 
@@ -635,15 +633,14 @@ getkeyboard(NSEvent *e)
 				in.kbuttons |= 4;
 			sendmouse();
 		}else
-		if(m & NSAlternateKeyMask){
-			in.kalting = 1;
+		if(m&NSAlternateKeyMask && (omod&NSAlternateKeyMask)==0)
 			keystroke(Kalt);
-		}
 		break;
 
 	default:
 		panic("getkey: unexpected event type");
 	}
+	omod = m;
 }
 
 /*
@@ -715,12 +712,8 @@ getmouse(NSEvent *e)
 		if(b == 1){
 			m = [e modifierFlags];
 			if(m & NSAlternateKeyMask){
+				abortcompose();
 				b = 2;
-				// Take the ALT away from the keyboard handler.
-				if(in.kalting){
-					in.kalting = 0;
-					keystroke(Kalt);
-				}
 			}else
 			if(m & NSCommandKeyMask)
 				b = 4;
