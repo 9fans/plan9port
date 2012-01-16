@@ -36,9 +36,9 @@ int	ioopen(Ioproc *io, char *file, int omode);
 long	ioread(Ioproc *io, int fd, void *a, long n);
 int	ioread9pmsg(Ioproc *io, int fd, void *a, uint n);
 long	ioreadn(Ioproc *io, int fd, void *a, long n);
-int	iorecvfd(int socket);
-int	iosendfd(int socket, int fd);
-int	iosleep(int milli);
+int	iorecvfd(Ioproc *io, int socket);
+int	iosendfd(Ioproc *io, int socket, int fd);
+int	iosleep(Ioproc *io, long milli);
 long	iowrite(Ioproc *io, int fd, void *a, long n);
 .XX
 void	iointerrupt(Ioproc *io);
