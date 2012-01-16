@@ -133,9 +133,6 @@ static NSCursor* makecursor(Cursor*);
 }
 - (void)windowDidBecomeKey:(id)arg
 {
-	if(win.isnfs || win.isofs)
-		hidebars(1);
-
 	in.touchevent = 0;
 
 	getmousepos();
@@ -685,6 +682,9 @@ getmousepos(void)
 	in.mpos.y = round(p.y);
 
 	updatecursor();
+
+	if(win.isnfs || win.isofs)
+		hidebars(1);
 }
 
 static void
@@ -1095,6 +1095,12 @@ hidebars(int set)
 	s = [WIN screen];
 	s0 = [[NSScreen screens] objectAtIndex:0];
 	old = [NSApp presentationOptions];
+
+#if OSX_VERSION >= 100700
+	/* This bit can get lost, resulting in dreadful bugs. */
+	if(win.isnfs)
+		old |= NSApplicationPresentationFullScreen;
+#endif
 
 	if(set && s==s0)
 		opt = (old & ~Autohiddenbars) | Hiddenbars;
