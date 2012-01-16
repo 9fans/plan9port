@@ -46,6 +46,8 @@ graphname = new Array(
 		"icache lookup time",
 	"arg=icacheprefetch&graph=diff",
 		"icache prefetches/second",
+	"arg=scacheprefetch&graph=diff",
+		"scache prefetches/second",
 	"arg=icachewrite&graph=diff",
 		"icache writes/second",
 
