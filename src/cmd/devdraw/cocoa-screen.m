@@ -182,6 +182,12 @@ static NSCursor* makecursor(Cursor*);
 	servep9p();
 	[NSApp terminate:self];
 }
+- (void)plumbmanual:(id)arg
+{
+	if(fork() != 0)
+		return;
+	execl("plumb", "plumb", "devdraw(1)", nil);
+}
 + (void)callflushwin:(id)arg{ flushwin();}
 - (void)calltogglefs:(id)arg{ togglefs();}
 
@@ -1115,30 +1121,32 @@ static void
 makemenu(void)
 {
 	NSMenu *m;
-	NSMenuItem *i,*i0;
+	NSMenuItem *i0,*i1;
 
 	m = [NSMenu new];
-	i0 = [NSMenuItem new];
-	[m addItem:i0];
+	i0 = [m addItemWithTitle:@"app" action:NULL keyEquivalent:@""];
+	i1 = [m addItemWithTitle:@"help" action:NULL keyEquivalent:@""];
 	[NSApp setMainMenu:m];
 	[m release];
 
-	m = [NSMenu new];
-
-	i = [[NSMenuItem alloc] initWithTitle:@"Full Screen"
+	m = [[NSMenu alloc] initWithTitle:@"app"];
+	[m addItemWithTitle:@"Full Screen"
 		action:@selector(calltogglefs:)
 		keyEquivalent:@"f"];
-	[m addItem:i];
-	[i release];
-
-	i = [[NSMenuItem alloc] initWithTitle:@"Quit"
+	[m addItemWithTitle:@"Hide"
+		action:@selector(hide:)
+		keyEquivalent:@"h"];
+	[m addItemWithTitle:@"Quit"
 		action:@selector(terminate:)
 		keyEquivalent:@"q"];
-	[m addItem:i];
-	[i release];
-
 	[i0 setSubmenu:m];
-	[i0 release];
+	[m release];
+
+	m = [[NSMenu alloc] initWithTitle:@"help"];
+	[m addItemWithTitle:@"Plumb devdraw(1)"
+		action:@selector(plumbmanual:)
+		keyEquivalent:@""];
+	[i1 setSubmenu:m];
 	[m release];
 }
 
