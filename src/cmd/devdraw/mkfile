@@ -40,10 +40,6 @@ $O.macargv: $MACARGV
 
 CLEANFILES=$O.macargv $O.mklatinkbd latin1.h
 
-# old attempt
-devdraw-cocoa: devdraw.o latin1.o mouseswap.o winsize.o osx-screen-objc.o osx-draw.o osx-srv-objc.o osx-delegate-objc.o
-	$LD -o $target $prereq
-
 install: mklatinkbd.install
 install:Q: 
 	if [ $MACARGV ]; then
