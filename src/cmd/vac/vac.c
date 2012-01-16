@@ -501,12 +501,17 @@ vac(VacFile *fp, VacFile *diffp, char *name, Dir *d)
 
 	if(vacfilesetdir(f, &vd) < 0)
 		warn("vacfilesetdir %s: %r", name);
-	
+
+	bsize = fs->bsize;
+	if(buf == nil)
+		buf = vtmallocz(bsize);
+
 #ifdef PLAN9PORT
 	if(d->mode&(DMSOCKET|DMNAMEDPIPE)){
 		/* don't write anything */
 	}
 	else if(d->mode&DMSYMLINK){
+		memset(buf, 0, sizeof buf);
 		n = readlink(name, buf, sizeof buf);
 		if(n > 0 && vacfilewrite(f, buf, n, 0) < 0){
 			warn("venti write %s: %r", name);
@@ -539,9 +544,6 @@ vac(VacFile *fp, VacFile *diffp, char *name, Dir *d)
 		}
 	}else{
 		off = 0;
-		bsize = fs->bsize;
-		if(buf == nil)
-			buf = vtmallocz(bsize);
 		if(fdiff){
 			/*
 			 * Copy fdiff's contents into f by moving the score.
