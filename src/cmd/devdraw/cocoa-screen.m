@@ -571,6 +571,23 @@ static int keycvt[] =
 	[QZ_KP9] '9',
 };
 
+@interface apptext : NSTextView @end
+
+@implementation apptext
+- (void)doCommandBySelector:(SEL)s{}	/* Esc key beeps otherwise */
+- (void)insertText:(id)arg{}	/* to avoid a latency after some time */
+@end
+
+static void
+interpretdeadkey(NSEvent *e)
+{
+	static apptext *t;
+
+	if(t == nil)
+		t = [apptext new];
+	[t interpretKeyEvents:[NSArray arrayWithObject:e]];
+}
+
 static void
 getkeyboard(NSEvent *e)
 {
@@ -587,6 +604,8 @@ getkeyboard(NSEvent *e)
 
 		s = [e characters];
 		c = [s UTF8String][0];
+
+		interpretdeadkey(e);
 
 		if(m & NSCommandKeyMask){
 			if(' '<=c && c<='~')
