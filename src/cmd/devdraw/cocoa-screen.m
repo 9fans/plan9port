@@ -105,6 +105,7 @@ struct
 	int		mscroll;
 	int		undo;
 	int		touchevent;
+	int		willactivate;
 } in;
 
 static void hidebars(int);
@@ -165,6 +166,7 @@ static NSCursor* makecursor(Cursor*);
 {
 	return YES;
 }
+- (void)applicationDidBecomeActive:(id)arg{ in.willactivate = 0;}
 - (void)windowDidEnterFullScreen:(id)arg{ win.isnfs = 1; hidebars(1);}
 - (void)windowWillExitFullScreen:(id)arg{ win.isnfs = 0; hidebars(0);}
 - (void)windowDidExitFullScreen:(id)arg
@@ -1014,7 +1016,7 @@ setmouse(Point p)
 	NSPoint q;
 	NSRect r;
 
-	if([NSApp isActive] == 0)
+	if([NSApp isActive]==0 && in.willactivate==0)
 		return;
 
 	if(first){
@@ -1281,4 +1283,16 @@ makecursor(Cursor *c)
 	d = [[NSCursor alloc] initWithImage:i hotSpot:p];
 	[i release];
 	return d;
+}
+
+void
+topwin(void)
+{
+	[WIN performSelectorOnMainThread:
+		@selector(makeKeyAndOrderFront:)
+		withObject:nil
+		waitUntilDone:NO];
+
+	in.willactivate = 1;
+	[NSApp activateIgnoringOtherApps:YES];
 }

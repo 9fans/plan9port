@@ -6,6 +6,7 @@ void	setcursor(Cursor*);
 void	setlabel(char*);
 char*	getsnarf(void);
 void	putsnarf(char*);
+void	topwin(void);
 
 void	mousetrack(int, int, int, uint);
 void	keystroke(int);

@@ -212,7 +212,7 @@ runmsg(Wsysmsg *m)
 		break;
 	
 	case Ttop:
-	//	_xtopwindow();
+		topwin();
 		replymsg(m);
 		break;
 	
