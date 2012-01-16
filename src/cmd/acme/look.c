@@ -255,10 +255,10 @@ plumblook(Plumbmsg *m)
 		e.u.ar = bytetorune(addr, &e.a1);
 		e.agetc = plumbgetc;
 	}
+	drawtopwindow();
 	openfile(nil, &e);
 	free(e.name);
 	free(e.u.at);
-	drawtopwindow();
 }
 
 void
@@ -270,6 +270,7 @@ plumbshow(Plumbmsg *m)
 	Runestr rs;
 	char *name, *p, namebuf[16];
 
+	drawtopwindow();
 	w = makenewwindow(nil);
 	name = plumblookup(m->attr, "filename");
 	if(name == nil){
@@ -297,7 +298,6 @@ plumbshow(Plumbmsg *m)
 	winsettag(w);
 	textscrdraw(&w->body);
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
-	drawtopwindow();
 }
 
 int
