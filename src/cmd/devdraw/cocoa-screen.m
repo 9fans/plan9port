@@ -118,6 +118,7 @@ static void makewin(char*);
 static void sendmouse(void);
 static void setcursor0(Cursor*);
 static void togglefs(void);
+static void acceptresizing(int);
 
 static NSCursor* makecursor(Cursor*);
 
@@ -163,6 +164,7 @@ static NSCursor* makecursor(Cursor*);
 	return YES;
 }
 - (void)applicationDidBecomeActive:(id)arg{ in.willactivate = 0;}
+- (void)windowWillEnterFullScreen:(id)arg{ acceptresizing(1);}
 - (void)windowDidEnterFullScreen:(id)arg{ win.isnfs = 1; hidebars(1);}
 - (void)windowWillExitFullScreen:(id)arg{ win.isnfs = 0; hidebars(0);}
 - (void)windowDidExitFullScreen:(id)arg
@@ -678,19 +680,44 @@ updatecursor(void)
 }
 
 static void
+acceptresizing(int set)
+{
+	uint old, style;
+
+	old = [WIN styleMask];
+
+	if((old | NSResizableWindowMask) != Winstyle)
+		return;	/* when entering new fullscreen */
+
+	if(set)
+		style = Winstyle;
+	else
+		style = Winstyle & ~NSResizableWindowMask;
+
+	if(style != old)
+		[WIN setStyleMask:style];
+}
+
+static void
 getmousepos(void)
 {
-	NSPoint p;
+	NSPoint p, q;
 
 	p = [WIN mouseLocationOutsideOfEventStream];
-	p = [win.content convertPoint:p fromView:nil];
-	in.mpos.x = round(p.x);
-	in.mpos.y = round(p.y);
+	q = [win.content convertPoint:p fromView:nil];
+	in.mpos.x = round(q.x);
+	in.mpos.y = round(q.y);
 
 	updatecursor();
 
 	if(win.isnfs || win.isofs)
 		hidebars(1);
+	else if(OSX_VERSION>=100700 && [WIN inLiveResize]==0){
+		if(p.x<12 && p.y<12 && p.x>2 && p.y>2)
+			acceptresizing(0);
+		else
+			acceptresizing(1);
+	}
 }
 
 static void
