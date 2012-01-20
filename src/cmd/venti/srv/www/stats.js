@@ -395,5 +395,5 @@ function set(name, value) {
 	eval(name+"= \""+value+"\"")
 	redrawsettings()
 	// Works in FireFox, not in Safari
-	parent.hidden.location.href = "/set/"+name+"/"+value
+	parent.hidden.location.href = "/set?name="+name+"&value="+value
 }
