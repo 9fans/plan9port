@@ -381,6 +381,10 @@ int	vtwritepacket(VtConn*, uchar score[VtScoreSize], uint type, Packet *p);
 int	vtsync(VtConn*);
 int	vtping(VtConn*);
 
+/* sha1 */
+void	vtsha1(uchar score[VtScoreSize], uchar*, int);
+int	vtsha1check(uchar score[VtScoreSize], uchar*, int);
+
 /*
  * Data blocks and block cache.
  */

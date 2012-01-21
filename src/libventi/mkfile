@@ -24,6 +24,7 @@ OFILES=\
 	scorefmt.$O\
 	send.$O\
 	server.$O\
+	sha1.$O\
 	srvhello.$O\
 	strdup.$O\
 	string.$O\
