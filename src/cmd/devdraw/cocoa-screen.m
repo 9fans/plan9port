@@ -102,8 +102,6 @@ struct
 	int		mbuttons;
 	NSPoint	mpos;
 	int		mscroll;
-	int		undo;
-	int		touchevent;
 	int		willactivate;
 } in;
 
@@ -134,8 +132,6 @@ static NSCursor* makecursor(Cursor*);
 }
 - (void)windowDidBecomeKey:(id)arg
 {
-	in.touchevent = 0;
-
 	getmousepos();
 	sendmouse();
 }
@@ -506,7 +502,6 @@ static void updatecursor(void);
 - (void)keyDown:(NSEvent*)e{ getkeyboard(e);}
 - (void)flagsChanged:(NSEvent*)e{ getkeyboard(e);}
 
-- (void)swipeWithEvent:(NSEvent*)e{ getgesture(e);}
 - (void)magnifyWithEvent:(NSEvent*)e{ getgesture(e);}
 
 - (void)touchesBeganWithEvent:(NSEvent*)e
@@ -779,57 +774,20 @@ getmouse(NSEvent *e)
 	sendmouse();
 }
 
-#define Minpinch	0.050
-
-enum
-{
-	Left		= -1,
-	Right	= +1,
-	Up		= +2,
-	Down	= -2,
-};
-
-static int
-getdir(int dx, int dy)
-{
-	return dx + 2*dy;
-}
-
-static void interpretswipe(int);
+#define Minpinch	0.02
 
 static void
 getgesture(NSEvent *e)
 {
-	static float sum;
-	int dir;
-
-	if(usegestures == 0)
-		return;
-
 	switch([e type]){
-
 	case NSEventTypeMagnify:
-		sum += [e magnification];
-		if(fabs(sum) > Minpinch){
+		if(fabs([e magnification]) > Minpinch)
 			togglefs();
-			sum = 0;
-		}
-		break;
-
-	case NSEventTypeSwipe:
-		dir = getdir(-[e deltaX], [e deltaY]);
-
-		if(in.touchevent)
-			if(dir==Up || dir==Down)
-				break;
-		interpretswipe(dir);
 		break;
 	}
 }
 
 static void sendclick(int);
-static void sendchord(int, int);
-static void sendcmd(int);
 
 static uint
 msec(void)
@@ -837,43 +795,16 @@ msec(void)
 	return nsec()/1000000;
 }
 
-#define Inch		72
-#define Cm		Inch/2.54
-
-#define Mindelta	0.0*Cm
-#define Xminswipe	0.5*Cm
-#define Yminswipe	0.1*Cm
-
-enum
-{
-	Finger = 1,
-	Msec = 1,
-
-	Maxtap = 400*Msec,
-	Maxtouch = 3*Finger,
-};
-
 static void
 gettouch(NSEvent *e, int type)
 {
-	static NSPoint delta;
-	static NSTouch *toucha[Maxtouch];
-	static NSTouch *touchb[Maxtouch];
-	static int done, ntouch, odir, tapping;
+	static int tapping;
 	static uint taptime;
-	NSArray *a;
-	NSPoint d;
 	NSSet *set;
-	NSSize s;
-	int dir, i, p;
-
-	if(usegestures == 0)
-		return;
+	int p;
 
 	switch(type){
-
 	case NSTouchPhaseBegan:
-		in.touchevent = 1;
 		p = NSTouchPhaseTouching;
 		set = [e touchesMatchingPhase:p inView:nil];
 		if(set.count == 3){
@@ -882,80 +813,19 @@ gettouch(NSEvent *e, int type)
 		}else
 		if(set.count > 3)
 			tapping = 0;
-		return;
+		break;
 
 	case NSTouchPhaseMoved:
-		p = NSTouchPhaseMoved;
-		set = [e touchesMatchingPhase:p inView:nil];
-		a = [set allObjects];
-		if(set.count > Maxtouch)
-			return;
-		if(ntouch==0){
-			ntouch = set.count;
-			for(i=0; i<ntouch; i++){
-//				assert(toucha[i] == nil);
-				toucha[i] = [[a objectAtIndex:i] retain];
-			}
-			return;
-		}
-		if(ntouch != set.count)
-			break;
-		if(done)
-			return;
-
-		d = NSMakePoint(0,0);
-		for(i=0; i<ntouch; i++){
-//			assert(touchb[i] == nil);
-			touchb[i] = [a objectAtIndex:i];
-			d.x += touchb[i].normalizedPosition.x;
-			d.y += touchb[i].normalizedPosition.y;
-			d.x -= toucha[i].normalizedPosition.x;
-			d.y -= toucha[i].normalizedPosition.y;
-		}
-		s = toucha[0].deviceSize;
-		d.x = d.x/ntouch * s.width;
-		d.y = d.y/ntouch * s.height;
-		if(fabs(d.x)>Mindelta || fabs(d.y)>Mindelta){
-			tapping = 0;
-			if(ntouch != 3){
-				done = 1;
-				goto Return;
-			}
-			delta = NSMakePoint(delta.x+d.x, delta.y+d.y);
-			d = NSMakePoint(fabs(delta.x), fabs(delta.y));
-			if(d.x>Xminswipe || d.y>Yminswipe){
-				if(d.x > d.y)
-					dir = delta.x>0? Right : Left;
-				else
-					dir = delta.y>0? Up : Down;
-				if(dir != odir){
-//					if(ntouch == 3)
-						if(dir==Up || dir==Down)
-							interpretswipe(dir);
-					odir = dir;
-				}
-				goto Return;
-			}
-			for(i=0; i<ntouch; i++){
-				[toucha[i] release];
-				toucha[i] = [touchb[i] retain];
-			}
-		}
-Return:
-		for(i=0; i<ntouch; i++)
-			touchb[i] = nil;
-		return;
+		tapping = 0;
+		break;
 
 	case NSTouchPhaseEnded:
 		p = NSTouchPhaseTouching;
 		set = [e touchesMatchingPhase:p inView:nil];
 		if(set.count == 0){
-			if(tapping && msec()-taptime<Maxtap)
+			if(tapping && msec()-taptime<400)
 				sendclick(2);
-			odir = 0;
 			tapping = 0;
-			in.undo = 0;
-			in.touchevent = 0;
 		}
 		break;
 
@@ -965,57 +835,12 @@ Return:
 	default:
 		panic("gettouch: unexpected event type");
 	}
-	for(i=0; i<ntouch; i++){
-		[toucha[i] release];
-		toucha[i] = nil;
-	}
-	delta = NSMakePoint(0,0);
-	done = 0;
-	ntouch = 0;
-}
-
-static void
-interpretswipe(int dir)
-{
-	if(dir == Left)
-		sendcmd('x');
-	else
-	if(dir == Right)
-		sendcmd('v');
-	else
-	if(dir == Up)
-		sendcmd('c');
-	else
-	if(dir == Down)
-		sendchord(2,1);
-}
-
-static void
-sendcmd(int c)
-{
-	if(in.touchevent && (c=='x' || c=='v')){
-		if(in.undo)
-			c = 'z';
-		in.undo = ! in.undo;
-	}
-	keystroke(Kcmd+c);
 }
 
 static void
 sendclick(int b)
 {
 	in.mbuttons = b;
-	sendmouse();
-	in.mbuttons = 0;
-	sendmouse();
-}
-
-static void
-sendchord(int b1, int b2)
-{
-	in.mbuttons = b1;
-	sendmouse();
-	in.mbuttons |= b2;
 	sendmouse();
 	in.mbuttons = 0;
 	sendmouse();
