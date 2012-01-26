@@ -1,0 +1,67 @@
+#!/usr/local/plan9/bin/rc
+
+# the venti configuration is stored at the 248kB offset in the first index
+# partition and extends for at most 8 kB.
+
+rfork e
+fn usage {
+	echo 'usage: venti/conf [-w] /dev/sdC0/v.arenas' >[1=2]
+	exit usage
+}
+
+wflag=no
+while(! ~ $#* 0 && ~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -w
+		wflag=yes
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+
+if(~ $wflag no && ! ~ $#* 1)
+	usage
+if(~ $wflag yes && ! ~ $#* 1 2)
+	usage
+
+disk=$1
+if(! 9 test -f $disk){
+	echo 'unknown disk' $1 >[1=2]
+	exit nodisk
+}
+
+fn sigexit {
+	#rm -f /tmp/venticonf.$pid
+}
+
+if(~ $wflag yes){
+	{echo venti config; cat $2} >/tmp/venticonf.$pid || exit oops
+	if(! 9 test -s /tmp/venticonf.$pid){
+		echo 'config is empty; will not install' >[1=2]
+		exit emptyconfig
+	}
+	if(9 test `{9 ls -l /tmp/venticonf.$pid | awk '{print $6}'} -gt 8192){
+		echo 'config is too long; max is a little less than eight kilobytes' >[1=2]
+		exit toolong
+	}
+	9 dd -quiet 1 -bs 1024 -count 8 -if $disk -iseek 248 \
+		>/tmp/_venticonf.old || exit backup
+	9 dd -quiet 1 -count 2 </dev/zero >> /tmp/venticonf.$pid || exit dd
+	9 dd -quiet 1 -bs 1024 -count 8 -if /tmp/venticonf.$pid \
+		-of $disk -trunc 0 -oseek 248 || exit dd2
+	exit 0
+}
+
+9 dd -quiet 1 -bs 1024 -count 8 -if $disk -iseek 248 |
+	zerotrunc >/tmp/venticonf.$pid
+
+if(! cmp <{sed 1q /tmp/venticonf.$pid} <{echo venti config}){
+	echo 'config has bad header' >[1=2]
+	exit badconfig
+}
+
+sed 1d /tmp/venticonf.$pid
+exit ''
