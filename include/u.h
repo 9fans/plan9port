@@ -146,16 +146,16 @@ typedef signed char schar;
 typedef unsigned long long uvlong;
 typedef long long vlong;
 
-typedef uint64_t u64int;
-typedef int64_t s64int;
+typedef uvlong u64int;
+typedef vlong s64int;
 typedef uint8_t u8int;
 typedef int8_t s8int;
 typedef uint16_t u16int;
 typedef int16_t s16int;
 typedef uintptr_t uintptr;
 typedef intptr_t intptr;
-typedef uint32_t u32int;
-typedef int32_t s32int;
+typedef uint u32int;
+typedef int s32int;
 
 typedef u32int uint32;
 typedef s32int int32;

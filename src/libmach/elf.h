@@ -54,6 +54,7 @@ enum
 	ElfMachAlpha,		/* Digital Alpha */
 	ElfMachSH,		/* Hitachi SH */
 	ElfMachSparc9,		/* SPARC V9 */
+	ElfMachAmd64 = 62,	/* x86-64 */
 	/* and the list goes on... */
 
 	ElfAbiNone = 0,
@@ -138,9 +139,9 @@ struct ElfHdr
 	uchar	abiversion;
 	u32int	type;
 	u32int	machine;
-	u32int	entry;
-	u32int	phoff;
-	u32int	shoff;
+	u64int	entry;
+	u64int	phoff;
+	u64int	shoff;
 	u32int	flags;
 	u32int	ehsize;
 	u32int	phentsize;
@@ -157,27 +158,27 @@ struct ElfSect
 {
 	char		*name;
 	u32int	type;
-	u32int	flags;
-	u32int	addr;
-	u32int	offset;
-	u32int	size;
+	u64int	flags;
+	u64int	addr;
+	u64int	offset;
+	u64int	size;
 	u32int	link;
 	u32int	info;
-	u32int	align;
-	u32int	entsize;
+	u64int	align;
+	u64int	entsize;
 	uchar	*base;
 };
 
 struct ElfProg
 {
 	u32int	type;
-	u32int	offset;
-	u32int	vaddr;
-	u32int	paddr;
-	u32int	filesz;
-	u32int	memsz;
+	u64int	offset;
+	u64int	vaddr;
+	u64int	paddr;
+	u64int	filesz;
+	u64int	memsz;
 	u32int	flags;
-	u32int	align;
+	u64int	align;
 };
 
 struct ElfNote
@@ -193,8 +194,8 @@ struct ElfNote
 struct ElfSym
 {
 	char*	name;
-	u32int	value;
-	u32int	size;
+	u64int	value;
+	u64int	size;
 	uchar	bind;
 	uchar	type;
 	uchar	other;
@@ -234,4 +235,6 @@ int	elfmap(Elf*, ElfSect*);
 
 struct Fhdr;
 void	elfcorelinux386(struct Fhdr*, Elf*, ElfNote*);
+void	elfcorefreebsd386(struct Fhdr*, Elf*, ElfNote*);
+void	elfcorefreebsdamd64(struct Fhdr*, Elf*, ElfNote*);
 void	elfdl386mapdl(int);

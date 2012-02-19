@@ -70,7 +70,7 @@ lget1(Map *map, Regs *regs, Loc loc, uchar *a, uint n)
 int
 lget2(Map *map, Regs *regs, Loc loc, u16int *u)
 {
-	ulong ul;
+	u64int ul;
 
 	if(locsimplify(map, regs, loc, &loc) < 0)
 		return -1;
@@ -93,7 +93,7 @@ lget2(Map *map, Regs *regs, Loc loc, u16int *u)
 int
 lget4(Map *map, Regs *regs, Loc loc, u32int *u)
 {
-	ulong ul;
+	u64int ul;
 
 	if(locsimplify(map, regs, loc, &loc) < 0)
 		return -1;
@@ -114,9 +114,22 @@ lget4(Map *map, Regs *regs, Loc loc, u32int *u)
 }
 
 int
+lgeta(Map *map, Regs *regs, Loc loc, u64int *u)
+{
+	u32int v;
+
+	if(machcpu == &machamd64)
+		return lget8(map, regs, loc, u);
+	if(lget4(map, regs, loc, &v) < 0)
+		return -1;
+	*u = v;
+	return 4;
+}
+
+int
 lget8(Map *map, Regs *regs, Loc loc, u64int *u)
 {
-	ulong ul;
+	u64int ul;
 
 	if(locsimplify(map, regs, loc, &loc) < 0)
 		return -1;
@@ -190,7 +203,7 @@ lput8(Map *map, Regs *regs, Loc loc, u64int u)
 static Loc zl;
 
 Loc
-locaddr(ulong addr)
+locaddr(u64int addr)
 {
 	Loc l;
 
@@ -214,7 +227,7 @@ locindir(char *reg, long offset)
 }
 
 Loc
-locconst(ulong con)
+locconst(u64int con)
 {
 	Loc l;
 
@@ -248,7 +261,7 @@ locreg(char *reg)
 int
 locsimplify(Map *map, Regs *regs, Loc loc, Loc *newloc)
 {
-	ulong u;
+	u64int u;
 
 	if(loc.type == LOFFSET){
 		if(rget(regs, loc.reg, &u) < 0)

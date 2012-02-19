@@ -9,11 +9,11 @@ struct LocRegs
 	Regs r;
 	Regs *oldregs;
 	Map *map;
-	ulong *val;
+	u64int *val;
 };
 
 static int
-locregrw(Regs *regs, char *name, ulong *val, int isr)
+locregrw(Regs *regs, char *name, u64int *val, int isr)
 {
 	int i;
 	LocRegs *lr;
@@ -36,8 +36,8 @@ stacktrace(Map *map, Regs *regs, Tracer trace)
 {
 	char *rname;
 	int i, ipc, ret;
-	ulong nextpc, pc, v;
-	ulong *cur, *next;
+	u64int nextpc, pc, v;
+	u64int *cur, *next;
 	LocRegs lr;
 	Symbol s, *sp;
 

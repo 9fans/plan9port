@@ -1,0 +1,247 @@
+// 386 support
+
+defn acidinit()			// Called after all the init modules are loaded
+{
+	bplist = {};
+	bpfmt = 'b';
+
+	srcpath = {
+		"./",
+		"/sys/src/libc/port/",
+		"/sys/src/libc/9sys/",
+		"/sys/src/libc/amd64/"
+	};
+
+	srcfiles = {};			// list of loaded files
+	srctext = {};			// the text of the files
+}
+
+defn linkreg(addr)
+{
+	return {};
+}
+
+defn stk()				// trace
+{
+	_stk({"PC", *PC, "SP", *SP}, 0);
+}
+
+defn lstk()				// trace with locals
+{
+	_stk({"PC", *PC, "SP", *SP}, 1);
+}
+
+defn gpr()		// print general(hah hah!) purpose registers
+{
+	print("AX\t", *AX, " BX\t", *BX, " CX\t", *CX, " DX\t", *DX, "\n");
+	print("DI\t", *DI, " SI\t", *SI, " BP\t", *BP, "\n");
+	print("R8\t", *R8, " R9\t", *R9, " R10\t", *R10, " R11\t", *R11, "\n");
+	print("R12\t", *R12, " R13\t", *R13, " R14\t", *R14, " R15\t", *R15, "\n");
+}
+
+defn spr()				// print special processor registers
+{
+	local pc;
+	local cause;
+
+	pc = *PC;
+	print("PC\t", pc, " ", fmt(pc, 'a'), "  ");
+	pfl(pc);
+	print("SP\t", *SP, " FLAGS ", *FLAGS, "\n");
+	print("CS\t", *CS, " DS\t ", *DS, " SS\t", *SS, "\n");
+	print("GS\t", *GS, " FS\t ", *FS, " ES\t", *ES, "\n");
+	
+	cause = *TRAP;
+	print("TRAP\t", cause, " ", reason(cause), "\n");
+}
+
+defn regs()				// print all registers
+{
+	spr();
+	gpr();
+}
+
+defn mmregs()
+{
+	print("MM0\t", *MM0, " MM1\t", *MM1, "\n");
+	print("MM2\t", *MM2, " MM3\t", *MM3, "\n");
+	print("MM4\t", *MM4, " MM5\t", *MM5, "\n");
+	print("MM6\t", *MM6, " MM7\t", *MM7, "\n");
+}
+
+defn pfixstop(pid)
+{
+	if *fmt(*PC-1, 'b') == 0xCC then {
+		// Linux stops us after the breakpoint, not at it
+		*PC = *PC-1;
+	}
+}
+
+
+defn pstop(pid)
+{
+	local l;
+	local pc;
+	local why;
+
+	pc = *PC;
+
+	// FIgure out why we stopped.
+	if *fmt(pc, 'b') == 0xCC then {
+		why = "breakpoint";
+		
+		// fix up instruction for print; will put back later
+		*pc = @pc;
+	} else if *(pc-2\x) == 0x80CD then {
+		pc = pc-2;
+		why = "system call";
+	} else
+		why = "stopped";
+
+	if printstopped then {
+		print(pid,": ", why, "\t");
+		print(fmt(pc, 'a'), "\t", *fmt(pc, 'i'), "\n");
+	}
+	
+	if why == "breakpoint" then
+		*fmt(pc, bpfmt) = bpinst;
+	
+	if printstopped && notes then {
+		if notes[0] != "sys: breakpoint" then {
+			print("Notes pending:\n");
+			l = notes;
+			while l do {
+				print("\t", head l, "\n");
+				l = tail l;
+			}
+		}
+	}
+}
+
+aggr Ureg
+{
+	'Y' 0 ax;
+	'Y' 8 bx;
+	'Y' 16 cx;
+	'Y' 24 dx;
+	'Y' 32 si;
+	'Y' 40 di;
+	'Y' 48 bp;
+	'Y' 56 r8;
+	'Y' 64 r9;
+	'Y' 72 r10;
+	'Y' 80 r11;
+	'Y' 88 r12;
+	'Y' 96 r13;
+	'Y' 104 r14;
+	'Y' 112 r15;
+
+	'u' 120 ds;
+	'u' 122 es;
+	'u' 124 fs;
+	'u' 126 gs;
+	
+	'Y' 128 type;
+	'Y' 136 error;
+	'Y' 144 pc;
+	'Y' 152 cs;
+	'Y' 160 flags;
+	'Y' 168 sp;
+	'Y' 176 ss;
+};
+
+defn
+Ureg(addr) {
+	complex Ureg addr;
+	print("	ax	", addr.ax, "\n");
+	print("	bx	", addr.bx, "\n");
+	print("	cx	", addr.cx, "\n");
+	print("	dx	", addr.dx, "\n");
+	print("	si	", addr.si, "\n");
+	print("	di	", addr.di, "\n");
+	print("	bp	", addr.bp, "\n");
+	print("	r8	", addr.r8, "\n");
+	print("	r9	", addr.r9, "\n");
+	print("	r10	", addr.r10, "\n");
+	print("	r11	", addr.r11, "\n");
+	print("	r12	", addr.r12, "\n");
+	print("	r13	", addr.r13, "\n");
+	print("	r14	", addr.r14, "\n");
+	print("	r15	", addr.r15, "\n");
+	print("	ds	", addr.ds, "\n");
+	print("	es	", addr.es, "\n");
+	print("	fs	", addr.fs, "\n");
+	print("	gs	", addr.gs, "\n");
+	print("	type	", addr.type, "\n");
+	print("	error	", addr.error, "\n");
+	print("	pc	", addr.pc, "\n");
+	print("	cs	", addr.cs, "\n");
+	print("	flags	", addr.flags, "\n");
+	print("	sp	", addr.sp, "\n");
+	print("	ss	", addr.ss, "\n");
+};
+sizeofUreg = 184;
+
+// aggr Linkdebug
+// {
+// 	'X' 0 version;
+// 	'X' 4 map;
+// };
+// 
+// aggr Linkmap
+// {
+// 	'X' 0 addr;
+// 	'X' 4 name;
+// 	'X' 8 dynsect;
+// 	'X' 12 next;
+// 	'X' 16 prev;
+// };
+// 
+// defn
+// linkdebug()
+// {
+// 	local a;
+// 
+// 	if !havesymbol("_DYNAMIC") then
+// 		return 0;
+// 	
+// 	a = _DYNAMIC;
+// 	while *a != 0 do {
+// 		if *a == 21 then // 21 == DT_DEBUG
+// 			return *(a+4);
+// 		a = a+8;
+// 	}
+// 	return 0;
+// }
+// 
+// defn
+// dynamicmap()
+// {
+// 	if systype == "linux"  || systype == "freebsd" then {
+// 		local r, m, n;
+// 	
+// 		r = linkdebug();
+// 		if r then {
+// 			complex Linkdebug r;
+// 			m = r.map;
+// 			n = 0;
+// 			while m != 0 && n < 100 do {
+// 				complex Linkmap m;
+// 				if m.name && *(m.name\b) && access(*(m.name\s)) then
+// 					print("textfile({\"", *(m.name\s), "\", ", m.addr\X, "});\n");
+// 				m = m.next;
+// 				n = n+1;
+// 			}
+// 		}
+// 	}
+// }
+// */
+
+defn
+acidmap()
+{
+//	dynamicmap();
+	acidtypes();
+}
+
+print(acidfile);

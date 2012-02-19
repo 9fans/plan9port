@@ -6,14 +6,14 @@
 #include "dwarf.h"
 
 static void	dwarfsymclose(Fhdr*);
-static int	dwarfpc2file(Fhdr*, ulong, char*, uint, ulong*);
-static int	dwarfline2pc(Fhdr*, ulong, ulong, ulong*);
+static int	dwarfpc2file(Fhdr*, u64int, char*, uint, ulong*);
+static int	dwarfline2pc(Fhdr*, u64int, ulong, u64int*);
 static int	dwarflookuplsym(Fhdr*, Symbol*, char*, Symbol*);
 static int	dwarfindexlsym(Fhdr*, Symbol*, uint, Symbol*);
 static int	dwarffindlsym(Fhdr*, Symbol*, Loc, Symbol*);
 static void	dwarfsyminit(Fhdr*);
 static int	dwarftosym(Fhdr*, Dwarf*, DwarfSym*, Symbol*, int);
-static int	_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next, Symbol*);
+static int	_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, u64int *next, Symbol*);
 
 int
 symdwarf(Fhdr *hdr)
@@ -43,7 +43,7 @@ dwarfsymclose(Fhdr *hdr)
 }
 
 static int
-dwarfpc2file(Fhdr *fhdr, ulong pc, char *buf, uint nbuf, ulong *line)
+dwarfpc2file(Fhdr *fhdr, u64int pc, char *buf, uint nbuf, ulong *line)
 {
 	char *cdir, *dir, *file;
 
@@ -61,7 +61,7 @@ dwarfpc2file(Fhdr *fhdr, ulong pc, char *buf, uint nbuf, ulong *line)
 }
 
 static int
-dwarfline2pc(Fhdr *fhdr, ulong basepc, ulong line, ulong *pc)
+dwarfline2pc(Fhdr *fhdr, u64int basepc, ulong line, u64int *pc)
 {
 	werrstr("dwarf line2pc not implemented");
 	return -1;
@@ -323,11 +323,11 @@ dwarftosym(Fhdr *fp, Dwarf *d, DwarfSym *ds, Symbol *s, int infn)
 }
 
 static int
-dwarfeval(Dwarf *d, Map *map, Regs *regs, ulong cfa, int rno, DwarfExpr e, ulong *u)
+dwarfeval(Dwarf *d, Map *map, Regs *regs, ulong cfa, int rno, DwarfExpr e, u64int *u)
 {
 	int i;
 	u32int u4;
-	ulong uu;
+	u64int uu;
 
 	switch(e.type){
 	case RuleUndef:
@@ -396,11 +396,11 @@ dwarfexprfmt(Fmt *fmt)
 #endif
 
 static int
-_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, ulong *next, Symbol *sym)
+_dwarfunwind(Fhdr *fhdr, Map *map, Regs *regs, u64int *next, Symbol *sym)
 {
 	char *name;
 	int i, j;
-	ulong cfa, pc, u;
+	u64int cfa, pc, u;
 	Dwarf *d;
 	DwarfExpr *e, epc, ecfa;
 

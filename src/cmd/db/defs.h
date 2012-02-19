@@ -11,7 +11,7 @@
 #include <mach.h>
 
 typedef long WORD;
-typedef ulong ADDR;
+typedef u64int ADDR;
 
 #define	HUGEINT	0x7fffffff	/* enormous WORD */
 

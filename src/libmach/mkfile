@@ -20,6 +20,7 @@ OFILES=\
 	elf.$O\
 	elfdl386.$O\
 	elfcorefreebsd386.$O\
+	elfcorefreebsdamd64.$O\
 	elfcorelinux386.$O\
 	frame.$O\
 	fpformat.$O\
@@ -28,6 +29,7 @@ OFILES=\
 	loc.$O\
 	localaddr.$O\
 	mach386.$O\
+	machamd64.$O\
 	macho.$O\
 	machocorepower.$O\
 	machpower.$O\

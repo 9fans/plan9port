@@ -354,7 +354,7 @@ indir(Map *m, ulong addr, char fmt, Node *r)
 void
 indirreg(Regs *regs, char *name, char fmt, Node *r)
 {
-	ulong val;
+	u64int val;
 
 	if(regs == 0)
 		error("no register set for *%s=", name);

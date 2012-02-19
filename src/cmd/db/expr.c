@@ -166,7 +166,7 @@ item(int a)
 {	/* name [ . local ] | number | . | ^  | <register | 'x | | */
 	char	*base;
 	char	savc;
-	ulong u;
+	u64int u;
 	Symbol s;
 	char gsym[MAXSYM], lsym[MAXSYM];
 
@@ -388,7 +388,7 @@ dbround(long a, long b)
 ulong
 dbrget(Map *map, char *name)
 {
-	ulong u;
+	u64int u;
 
 	USED(map);
 	if(rget(correg, name, &u) < 0)

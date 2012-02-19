@@ -11,10 +11,9 @@ AUTOLIB(mach)
 /*
  * Architecture-dependent application data.
  * 
- * The code assumes that ulong is big enough to hold
+ * The code assumes that u64int is big enough to hold
  * an address on any system of interest as well as any
- * register.  Debugging 64-bit code on 32-bit machines
- * will be interesting.
+ * register.
  *
  * Supported architectures:
  *
@@ -39,7 +38,7 @@ typedef struct Seg Seg;
 typedef struct Symbol Symbol;
 typedef struct Symtype Symtype;
 
-typedef int (*Tracer)(Map*, Regs*, ulong, ulong, Symbol*, int);
+typedef int (*Tracer)(Map*, Regs*, u64int, u64int, Symbol*, int);
 
 extern	Mach	*mach;
 extern	Mach	*machcpu;
@@ -84,10 +83,10 @@ struct Seg
 	uchar	*p;
 	int		fd;
 	int		pid;
-	ulong	base;
-	ulong	size;
-	ulong	offset;
-	int		(*rw)(Map*, Seg*, ulong, void*, uint, int);
+	u64int	base;
+	u64int	size;
+	u64int	offset;
+	int		(*rw)(Map*, Seg*, u64int, void*, uint, int);
 };
 
 struct Map
@@ -98,7 +97,7 @@ struct Map
 
 struct Regs
 {
-	int		(*rw)(Regs*, char*, ulong*, int);
+	int		(*rw)(Regs*, char*, u64int*, int);
 };
 
 typedef struct UregRegs UregRegs;
@@ -107,7 +106,7 @@ struct UregRegs
 	Regs		r;
 	uchar	*ureg;
 };
-int		_uregrw(Regs*, char*, ulong*, int);
+int		_uregrw(Regs*, char*, u64int*, int);
 
 typedef struct PidRegs PidRegs;
 struct PidRegs
@@ -119,23 +118,24 @@ struct PidRegs
 Map*	allocmap(void);
 int		addseg(Map *map, Seg seg);
 int		findseg(Map *map, char *name, char *file);
-int		addrtoseg(Map *map, ulong addr, Seg *seg);
-int		addrtosegafter(Map *map, ulong addr, Seg *seg);
+int		addrtoseg(Map *map, u64int addr, Seg *seg);
+int		addrtosegafter(Map *map, u64int addr, Seg *seg);
 void		removeseg(Map *map, int i);
 void		freemap(Map*);
 
-int		get1(Map *map, ulong addr, uchar *a, uint n);
-int		get2(Map *map, ulong addr, u16int *u);
-int		get4(Map *map, ulong addr, u32int *u);
-int		get8(Map *map, ulong addr, u64int *u);
+int		get1(Map *map, u64int addr, uchar *a, uint n);
+int		get2(Map *map, u64int addr, u16int *u);
+int		get4(Map *map, u64int addr, u32int *u);
+int		get8(Map *map, u64int addr, u64int *u);
+int		geta(Map *map, u64int addr, u64int *u);
 
-int		put1(Map *map, ulong addr, uchar *a, uint n);
-int		put2(Map *map, ulong addr, u16int u);
-int		put4(Map *map, ulong addr, u32int u);
-int		put8(Map *map, ulong addr, u64int u);
+int		put1(Map *map, u64int addr, uchar *a, uint n);
+int		put2(Map *map, u64int addr, u16int u);
+int		put4(Map *map, u64int addr, u32int u);
+int		put8(Map *map, u64int addr, u64int u);
 
-int		rget(Regs*, char*, ulong*);
-int		rput(Regs*, char*, ulong);
+int		rget(Regs*, char*, u64int*);
+int		rput(Regs*, char*, u64int);
 
 /* 
  * A location is either a memory address or a register.
@@ -163,7 +163,7 @@ struct Loc
 {
 	uint type;		/* LNONE, ... */
 	char *reg;		/* LREG */
-	ulong addr;	/* LADDR, CONST */
+	u64int addr;	/* LADDR, CONST */
 	long offset;	/* LOFFSET */
 };
 
@@ -171,6 +171,7 @@ int		lget1(Map *map, Regs *regs, Loc loc, uchar *a, uint n);
 int		lget2(Map *map, Regs *regs, Loc loc, u16int *v);
 int		lget4(Map *map, Regs *regs, Loc loc, u32int *v);
 int		lget8(Map *map, Regs *regs, Loc loc, u64int *v);
+int		lgeta(Map *map, Regs *regs, Loc loc, u64int *v);
 
 int		lput1(Map *map, Regs *regs, Loc loc, uchar *a, uint n);
 int		lput2(Map *map, Regs *regs, Loc loc, u16int v);
@@ -178,8 +179,8 @@ int		lput4(Map *map, Regs *regs, Loc loc, u32int v);
 int		lput8(Map *map, Regs *regs, Loc loc, u64int v);
 
 Loc		locnone(void);
-Loc		locaddr(ulong addr);
-Loc		locconst(ulong con);
+Loc		locaddr(u64int addr);
+Loc		locconst(u64int con);
 Loc		locreg(char*);
 Loc		locindir(char*, long);
 
@@ -242,20 +243,20 @@ struct Fhdr
 	uint		atype;		/* abi type ALINUX, ... */
 
 	ulong	magic;		/* magic number */
-	ulong	txtaddr;		/* text address */
-	ulong	entry;		/* entry point */
-	ulong	txtsz;		/* text size */
-	ulong	txtoff;		/* text offset in file */
-	ulong	dataddr;		/* data address */
-	ulong	datsz;		/* data size */
-	ulong	datoff;		/* data offset in file */
-	ulong	bsssz;		/* bss size */
-	ulong	symsz;		/* symbol table size */
-	ulong	symoff;		/* symbol table offset in file */
-	ulong	sppcsz;		/* size of sp-pc table */
-	ulong	sppcoff;		/* offset of sp-pc table in file */
-	ulong	lnpcsz;		/* size of line number-pc table */
-	ulong	lnpcoff;		/* size of line number-pc table */
+	u64int	txtaddr;		/* text address */
+	u64int	entry;		/* entry point */
+	u64int	txtsz;		/* text size */
+	u64int	txtoff;		/* text offset in file */
+	u64int	dataddr;		/* data address */
+	u64int	datsz;		/* data size */
+	u64int	datoff;		/* data offset in file */
+	u64int	bsssz;		/* bss size */
+	u64int	symsz;		/* symbol table size */
+	u64int	symoff;		/* symbol table offset in file */
+	u64int	sppcsz;		/* size of sp-pc table */
+	u64int	sppcoff;		/* offset of sp-pc table in file */
+	u64int	lnpcsz;		/* size of line number-pc table */
+	u64int	lnpcoff;		/* size of line number-pc table */
 	void		*elf;			/* handle to elf image */
 	void		*dwarf;		/* handle to dwarf image */
 	void		*macho;		/* handle to mach-o image */
@@ -280,21 +281,21 @@ struct Fhdr
 	Fhdr		*next;		/* link to next fhdr (internal) */
 
 	/* file mapping */
-	int		(*map)(Fhdr*, ulong, Map*, Regs**);
+	int		(*map)(Fhdr*, u64int, Map*, Regs**);
 
 	/* debugging symbol access; see below */
 	int		(*syminit)(Fhdr*);
 	void		(*symclose)(Fhdr*);
 
-	int		(*pc2file)(Fhdr*, ulong, char*, uint, ulong*);
-	int		(*file2pc)(Fhdr*, char*, ulong, ulong*);
-	int		(*line2pc)(Fhdr*, ulong, ulong, ulong*);
+	int		(*pc2file)(Fhdr*, u64int, char*, uint, ulong*);
+	int		(*file2pc)(Fhdr*, char*, u64int, u64int*);
+	int		(*line2pc)(Fhdr*, u64int, ulong, u64int*);
 
 	int		(*lookuplsym)(Fhdr*, Symbol*, char*, Symbol*);
 	int		(*indexlsym)(Fhdr*, Symbol*, uint, Symbol*);
 	int		(*findlsym)(Fhdr*, Symbol*, Loc, Symbol*);
 
-	int		(*unwind)(Fhdr*, Map*, Regs*, ulong*, Symbol*);
+	int		(*unwind)(Fhdr*, Map*, Regs*, u64int*, Symbol*);
 };
 
 Fhdr*	crackhdr(char *file, int mode);
@@ -310,7 +311,7 @@ int		symstabs(Fhdr*);
 int		symmacho(Fhdr*);
 void		symclose(Fhdr*);
 
-int		mapfile(Fhdr *fp, ulong base, Map *map, Regs **regs);
+int		mapfile(Fhdr *fp, u64int base, Map *map, Regs **regs);
 void		unmapfile(Fhdr *fp, Map *map);
 
 /*
@@ -385,6 +386,7 @@ enum
 	MARM,		/* ARM */
 	MPOWER,		/* PowerPC */
 	MALPHA,		/* DEC/Compaq Alpha */
+	MAMD64,		/* AMD64 */
 	NMTYPE
 };
 
@@ -402,8 +404,8 @@ struct Mach
 	char		*sbreg;		/* name of static base */
 	ulong	sb;			/* value of static base */
 	uint		pgsize;		/* page size */
-	ulong	kbase;		/* kernel base address for Plan 9 */
-	ulong	ktmask;		/* ktzero = kbase & ~ktmask */
+	u64int	kbase;		/* kernel base address for Plan 9 */
+	u64int	ktmask;		/* ktzero = kbase & ~ktmask */
 	uint		pcquant;		/* pc quantum */
 	uint		szaddr;		/* size of pointer in bytes */
 	uint		szreg;		/* size of integer register */
@@ -415,9 +417,9 @@ struct Mach
 	uchar	bpinst[4];		/* break point instruction */
 	uint		bpsize;		/* size of bp instruction */
 
-	int		(*foll)(Map*, Regs*, ulong, ulong*);	/* follow set */
+	int		(*foll)(Map*, Regs*, u64int, u64int*);	/* follow set */
 	char*	(*exc)(Map*, Regs*);		/* last exception */
-	int		(*unwind)(Map*, Regs*, ulong*, Symbol*);
+	int		(*unwind)(Map*, Regs*, u64int*, Symbol*);
 
 	/* cvt to local byte order */
 	u16int	(*swap2)(u16int);
@@ -428,11 +430,11 @@ struct Mach
 	int		(*ftoa80)(char*, uint, void*);
 
 	/* disassembly */
-	int		(*das)(Map*, ulong, char, char*, int);	/* symbolic */
-	int		(*kendas)(Map*, ulong, char, char*, int);	/* symbolic */
-	int		(*codas)(Map*, ulong, char, char*, int);
-	int		(*hexinst)(Map*, ulong, char*, int);	/* hex */
-	int		(*instsize)(Map*, ulong);	/* instruction size */
+	int		(*das)(Map*, u64int, char, char*, int);	/* symbolic */
+	int		(*kendas)(Map*, u64int, char, char*, int);	/* symbolic */
+	int		(*codas)(Map*, u64int, char, char*, int);
+	int		(*hexinst)(Map*, u64int, char*, int);	/* hex */
+	int		(*instsize)(Map*, u64int);	/* instruction size */
 };
 
 Mach	*machbyname(char*);
@@ -442,6 +444,7 @@ extern	Mach	mach386;
 extern	Mach	machsparc;
 extern	Mach	machmips;
 extern	Mach	machpower;
+extern	Mach	machamd64;
 
 /*
  * Debugging symbols and type information.
@@ -494,12 +497,12 @@ struct Symbol
 };
 
 /* look through all currently cracked Fhdrs calling their fns */
-int		pc2file(ulong pc, char *file, uint nfile, ulong *line);
-int		file2pc(char *file, ulong line, ulong *addr);
-int		line2pc(ulong basepc, ulong line, ulong *pc);
-int		fnbound(ulong pc, ulong *bounds);
-int		fileline(ulong pc, char *a, uint n);
-int		pc2line(ulong pc, ulong *line);
+int		pc2file(u64int pc, char *file, uint nfile, ulong *line);
+int		file2pc(char *file, ulong line, u64int *addr);
+int		line2pc(u64int basepc, ulong line, u64int *pc);
+int		fnbound(u64int pc, u64int *bounds);
+int		fileline(u64int pc, char *a, uint n);
+int		pc2line(u64int pc, ulong *line);
 
 int		lookupsym(char *fn, char *var, Symbol *s);
 int		indexsym(uint ndx, Symbol *s);
@@ -509,8 +512,8 @@ int		findexsym(Fhdr*, uint, Symbol*);
 int		lookuplsym(Symbol *s1, char *name, Symbol *s2);
 int		indexlsym(Symbol *s1, uint ndx, Symbol *s2);
 int		findlsym(Symbol *s1, Loc loc, Symbol *s);
-int		symoff(char *a, uint n, ulong addr, uint class);
-int		unwindframe(Map *map, Regs *regs, ulong *next, Symbol*);
+int		symoff(char *a, uint n, u64int addr, uint class);
+int		unwindframe(Map *map, Regs *regs, u64int *next, Symbol*);
 
 void		_addhdr(Fhdr*);
 void		_delhdr(Fhdr*);
@@ -536,9 +539,9 @@ Loc*		windreglocs(void);
 /*
  * Debugger help.
  */
-int		localaddr(Map *map, Regs *regs, char *fn, char *var, ulong *val);
+int		localaddr(Map *map, Regs *regs, char *fn, char *var, u64int *val);
 int		fpformat(Map *map, Regdesc *reg, char *a, uint n, uint code);
-char*	_hexify(char*, ulong, int);
+char*	_hexify(char*, u64int, int);
 int		locfmt(Fmt*);
 int		loccmp(Loc*, Loc*);
 int		locsimplify(Map *map, Regs *regs, Loc loc, Loc *newloc);

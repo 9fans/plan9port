@@ -3,7 +3,7 @@
 #include <mach.h>
 #include "macho.h"
 
-static int mapmacho(Fhdr *fp, ulong base, Map *map, Regs**);
+static int mapmacho(Fhdr *fp, u64int base, Map *map, Regs**);
 
 static struct
 {
@@ -136,7 +136,7 @@ err:
 }
 
 static int
-mapmacho(Fhdr *fp, ulong base, Map *map, Regs **rp)
+mapmacho(Fhdr *fp, u64int base, Map *map, Regs **rp)
 {
 	int i, n;
 	uchar *u;

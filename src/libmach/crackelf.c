@@ -4,7 +4,7 @@
 #include "elf.h"
 #include "dwarf.h"
 
-static int mapelf(Fhdr *fp, ulong base, Map *map, Regs**);
+static int mapelf(Fhdr *fp, u64int base, Map *map, Regs**);
 static int unpacknote(Elf *elf, uchar *a, uchar *ea, ElfNote *note, uchar **pa);
 
 static struct
@@ -21,6 +21,7 @@ static struct
 	ElfMachArm,		MARM,		nil,		"arm",
 	ElfMachPower,	MPOWER,		nil,		"powerpc",
 	ElfMachPower64,	MNONE,		nil,		"powerpc64",
+	ElfMachAmd64,	MAMD64,	&machamd64,	"amd64",
 };
 
 static struct
@@ -44,7 +45,8 @@ static struct
 {	/* Font Tab 4 */
 	M386,		ALINUX,		elfcorelinux386,
 	M386,		ANONE,		elfcorelinux386,	/* [sic] */
-/*	M386,		AFREEBSD,	elfcorefreebsd386, */
+//	M386,		AFREEBSD,	elfcorefreebsd386,
+	MAMD64,		AFREEBSD,	elfcorefreebsdamd64,
 };
 
 int
@@ -202,13 +204,13 @@ err:
 }
 
 static int
-mapelf(Fhdr *fp, ulong base, Map *map, Regs **regs)
+mapelf(Fhdr *fp, u64int base, Map *map, Regs **regs)
 {
 	int i;
 	Elf *elf;
 	ElfProg *p;
-	ulong sz;
-	ulong lim;
+	u64int sz;
+	u64int lim;
 	Seg s;
 
 	elf = fp->elf;

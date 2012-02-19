@@ -13,7 +13,7 @@ printregs(int c)
 {
 	Regdesc *rp;
 	int i;
-	ulong u;
+	ADDR u;
 
 	if(correg == nil){
 		dprint("registers not mapped\n");

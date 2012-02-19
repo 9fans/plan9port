@@ -453,7 +453,7 @@ follow(Node *r, Node *args)
 {
 	int n, i;
 	Node res;
-	ulong f[10];
+	u64int f[10];
 	List **tail, *l;
 
 	if(args == 0)
@@ -480,7 +480,7 @@ funcbound(Node *r, Node *args)
 {
 	int n;
 	Node res;
-	ulong bounds[2];
+	u64int bounds[2];
 	List *l;
 
 	if(args == 0)
@@ -523,7 +523,7 @@ filepc(Node *r, Node *args)
 	int i;
 	Node res;
 	char *p, c;
-	ulong v;
+	u64int v;
 
 	if(args == 0)
 		error("filepc(filename:line): arg count");
@@ -1035,7 +1035,7 @@ static struct
 static int nsregs;
 
 static int
-straceregrw(Regs *regs, char *name, ulong *val, int isr)
+straceregrw(Regs *regs, char *name, u64int *val, int isr)
 {
 	int i;
 

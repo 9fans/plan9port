@@ -69,7 +69,7 @@ findhdr(char *name)
 }
 
 int
-pc2file(ulong pc, char *file, uint nfile, ulong *line)
+pc2file(u64int pc, char *file, uint nfile, ulong *line)
 {
 	Fhdr *p;
 
@@ -81,14 +81,14 @@ pc2file(ulong pc, char *file, uint nfile, ulong *line)
 }
 
 int
-pc2line(ulong pc, ulong *line)
+pc2line(u64int pc, ulong *line)
 {
 	char tmp[10];	/* just in case */
 	return pc2file(pc, tmp, sizeof tmp, line);
 }
 
 int
-file2pc(char *file, ulong line, ulong *addr)
+file2pc(char *file, ulong line, u64int *addr)
 {
 	Fhdr *p;
 
@@ -102,7 +102,7 @@ file2pc(char *file, ulong line, ulong *addr)
 }
 
 int
-line2pc(ulong basepc, ulong line, ulong *pc)
+line2pc(u64int basepc, ulong line, u64int *pc)
 {
 	Fhdr *p;
 
@@ -116,7 +116,7 @@ line2pc(ulong basepc, ulong line, ulong *pc)
 }
 
 int
-fnbound(ulong pc, ulong *bounds)
+fnbound(u64int pc, u64int *bounds)
 {
 	Fhdr *p;
 	Loc l;
@@ -143,7 +143,7 @@ fnbound(ulong pc, ulong *bounds)
 }
 
 int
-fileline(ulong pc, char *a, uint n)
+fileline(u64int pc, char *a, uint n)
 {
 	ulong line;
 
@@ -408,7 +408,7 @@ findlsym(Symbol *s1, Loc loc, Symbol *s2)
 }
 
 int
-unwindframe(Map *map, Regs *regs, ulong *next, Symbol *sym)
+unwindframe(Map *map, Regs *regs, u64int *next, Symbol *sym)
 {
 	Fhdr *p;
 
@@ -421,7 +421,7 @@ unwindframe(Map *map, Regs *regs, ulong *next, Symbol *sym)
 }
 
 int
-symoff(char *a, uint n, ulong addr, uint class)
+symoff(char *a, uint n, u64int addr, uint class)
 {
 	Loc l;
 	Symbol s;

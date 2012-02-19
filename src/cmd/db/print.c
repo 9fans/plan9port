@@ -22,7 +22,7 @@ static void	printfp(Map*, int);
  *	callback on stack trace
  */
 static int
-ptrace(Map *map, Regs *regs, ulong pc, ulong nextpc, Symbol *sym, int depth)
+ptrace(Map *map, Regs *regs, u64int pc, u64int nextpc, Symbol *sym, int depth)
 {
 	char buf[512];
 
@@ -48,7 +48,7 @@ ptrace(Map *map, Regs *regs, ulong pc, ulong nextpc, Symbol *sym, int depth)
 static ulong *adrregvals;
 
 static int
-adrrw(Regs *regs, char *name, ulong *val, int isr)
+adrrw(Regs *regs, char *name, u64int *val, int isr)
 {
 	int i;
 
@@ -215,6 +215,7 @@ printdollar(int modif)
 	default:
 		error("bad `$' command");
 	}
+	USED(r);
 
 }
 
@@ -359,7 +360,7 @@ void
 printpc(void)
 {
 	char buf[512];
-	ulong u;
+	u64int u;
 
 	if(rget(correg, mach->pc, &u) < 0)
 		error("%r");

@@ -192,7 +192,7 @@ struct String
 	int	len;
 };
 
-int	acidregsrw(Regs*, char*, ulong*, int);
+int	acidregsrw(Regs*, char*, u64int*, int);
 List*	addlist(List*, List*);
 void	addvarsym(Fhdr*);
 List*	al(int);
@@ -263,7 +263,7 @@ String*	strnode(char*);
 String*	strnodlen(char*, int);
 #define system acidsystem
 char*	system(void);
-int	trlist(Map*, Regs*, ulong, ulong, Symbol*, int);
+int	trlist(Map*, Regs*, u64int, u64int, Symbol*, int);
 void	unwind(void);
 void	userinit(void);
 void	varreg(void);

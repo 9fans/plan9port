@@ -208,7 +208,7 @@ void
 runstep(ulong loc, int keepnote)
 {
 	int nfoll;
-	ulong foll[3];
+	ADDR foll[3];
 	BKPT bkpt[3];
 	int i;
 

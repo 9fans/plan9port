@@ -619,6 +619,9 @@ gccname(char **ps, char **pp)
 		break;
 	}
 
+	USED(p1);
+	USED(p0);
+
 out:	
 	*ps = s;
 	*pp = p;

@@ -6,10 +6,10 @@
 #include <bio.h>
 #include <mach.h>
 
-static int fdrw(Map*, Seg*, ulong, void*, uint, int);
-static int zerorw(Map*, Seg*, ulong, void*, uint, int);
-static int mrw(Map*, ulong, void*, uint, int);
-static int datarw(Map*, Seg*, ulong, void*, uint, int);
+static int fdrw(Map*, Seg*, u64int, void*, uint, int);
+static int zerorw(Map*, Seg*, u64int, void*, uint, int);
+static int mrw(Map*, u64int, void*, uint, int);
+static int datarw(Map*, Seg*, u64int, void*, uint, int);
 
 Map*
 allocmap(void)
@@ -71,7 +71,7 @@ findseg(Map *map, char *name, char *file)
 }
 
 int
-addrtoseg(Map *map, ulong addr, Seg *sp)
+addrtoseg(Map *map, u64int addr, Seg *sp)
 {
 	int i;
 	Seg *s;
@@ -93,7 +93,7 @@ addrtoseg(Map *map, ulong addr, Seg *sp)
 }
 
 int
-addrtosegafter(Map *map, ulong addr, Seg *sp)
+addrtosegafter(Map *map, u64int addr, Seg *sp)
 {
 	int i;
 	Seg *s, *best;
@@ -142,13 +142,13 @@ removeseg(Map *map, int i)
 }
 
 int
-get1(Map *map, ulong addr, uchar *a, uint n)
+get1(Map *map, u64int addr, uchar *a, uint n)
 {
 	return mrw(map, addr, a, n, 1);
 }
 
 int
-get2(Map *map, ulong addr, u16int *u)
+get2(Map *map, u64int addr, u16int *u)
 {
 	u16int v;
 
@@ -159,7 +159,7 @@ get2(Map *map, ulong addr, u16int *u)
 }
 
 int
-get4(Map *map, ulong addr, u32int *u)
+get4(Map *map, u64int addr, u32int *u)
 {
 	u32int v;
 
@@ -170,7 +170,7 @@ get4(Map *map, ulong addr, u32int *u)
 }
 
 int
-get8(Map *map, ulong addr, u64int *u)
+get8(Map *map, u64int addr, u64int *u)
 {
 	u64int v;
 
@@ -181,34 +181,47 @@ get8(Map *map, ulong addr, u64int *u)
 }
 
 int
-put1(Map *map, ulong addr, uchar *a, uint n)
+geta(Map *map, u64int addr, u64int *u)
+{
+	u32int v;
+
+	if(machcpu == &machamd64)
+		return get8(map, addr, u);
+	if(get4(map, addr, &v) < 0)
+		return -1;
+	*u = v;
+	return 4;
+}
+
+int
+put1(Map *map, u64int addr, uchar *a, uint n)
 {
 	return mrw(map, addr, a, n, 0);
 }
 
 int
-put2(Map *map, ulong addr, u16int u)
+put2(Map *map, u64int addr, u16int u)
 {
 	u = mach->swap2(u);
 	return mrw(map, addr, &u, 2, 0);
 }
 
 int
-put4(Map *map, ulong addr, u32int u)
+put4(Map *map, u64int addr, u32int u)
 {
 	u = mach->swap4(u);
 	return mrw(map, addr, &u, 4, 0);
 }
 
 int
-put8(Map *map, ulong addr, u64int u)
+put8(Map *map, u64int addr, u64int u)
 {
 	u = mach->swap8(u);
 	return mrw(map, addr, &u, 8, 0);
 }
 
 static Seg*
-reloc(Map *map, ulong addr, uint n, ulong *off, uint *nn)
+reloc(Map *map, u64int addr, uint n, u64int *off, uint *nn)
 {
 	int i;
 	ulong o;
@@ -236,12 +249,12 @@ reloc(Map *map, ulong addr, uint n, ulong *off, uint *nn)
 }
 
 static int
-mrw(Map *map, ulong addr, void *a, uint n, int r)
+mrw(Map *map, u64int addr, void *a, uint n, int r)
 {
 	uint nn;
 	uint tot;
 	Seg *s;
-	ulong off;
+	u64int off;
 
 	for(tot=0; tot<n; tot+=nn){
 		s = reloc(map, addr+tot, n-tot, &off, &nn);
@@ -254,7 +267,7 @@ mrw(Map *map, ulong addr, void *a, uint n, int r)
 }
 
 static int
-fdrw(Map *map, Seg *seg, ulong addr, void *a, uint n, int r)
+fdrw(Map *map, Seg *seg, u64int addr, void *a, uint n, int r)
 {
 	int nn;
 	uint tot;
@@ -279,7 +292,7 @@ fdrw(Map *map, Seg *seg, ulong addr, void *a, uint n, int r)
 }
 
 static int
-zerorw(Map *map, Seg *seg, ulong addr, void *a, uint n, int r)
+zerorw(Map *map, Seg *seg, u64int addr, void *a, uint n, int r)
 {
 	USED(map);
 	USED(seg);
@@ -294,7 +307,7 @@ zerorw(Map *map, Seg *seg, ulong addr, void *a, uint n, int r)
 }
 
 static int
-datarw(Map *map, Seg *seg, ulong addr, void *a, uint n, int r)
+datarw(Map *map, Seg *seg, u64int addr, void *a, uint n, int r)
 {
 	USED(map);
 

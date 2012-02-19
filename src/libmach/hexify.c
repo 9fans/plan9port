@@ -4,7 +4,7 @@
 #include <mach.h>
 
 char *
-_hexify(char *buf, ulong p, int zeros)
+_hexify(char *buf, u64int p, int zeros)
 {
 	ulong d;
 

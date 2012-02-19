@@ -196,7 +196,7 @@ listregisters(Map *map, Regs *regs)
 {
 	List **tail, *l2, *l;
 	Regdesc *rp;
-	ulong v;
+	u64int v;
 
 	l2 = 0;
 	tail = &l2;
@@ -255,7 +255,7 @@ listautos(Map *map, Regs *regs, Symbol *fn)
 }
 
 int
-trlist(Map *map, Regs *regs, ulong pc, ulong callerpc, Symbol *sym, int depth)
+trlist(Map *map, Regs *regs, u64int pc, u64int callerpc, Symbol *sym, int depth)
 {
 	List *q, *l;
 	static List **tail;

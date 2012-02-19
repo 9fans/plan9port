@@ -14,10 +14,10 @@
  */
 
 static	char	*powerexcep(Map*, Regs*);
-static	int	powerfoll(Map*, Regs*, ulong, ulong*);
-static	int	powerdas(Map*, ulong, char, char*, int);
-static	int	powerinstlen(Map*, ulong);
-static	int	powerhexinst(Map*, ulong, char*, int);
+static	int	powerfoll(Map*, Regs*, u64int, u64int*);
+static	int	powerdas(Map*, u64int, char, char*, int);
+static	int	powerinstlen(Map*, u64int);
+static	int	powerhexinst(Map*, u64int, char*, int);
 
 static char *excname[] =
 {
@@ -59,7 +59,7 @@ static char *excname[] =
 static char*
 powerexcep(Map *map, Regs *regs)
 {
-	ulong c;
+	u64int c;
 	static char buf[32];
 
 	if(rget(regs, "CAUSE", &c) < 0)
@@ -130,7 +130,7 @@ typedef struct {
 	long	immediate;
 	long w0;
 	long w1;
-	ulong	addr;		/* pc of instruction */
+	u64int	addr;		/* pc of instruction */
 	short	target;
 	char	*curr;		/* current fill level in output buffer */
 	char	*end;		/* end of buffer */
@@ -1155,14 +1155,14 @@ printins(Map *map, ulong pc, char *buf, int n)
 }
 
 static int
-powerdas(Map *map, ulong pc, char modifier, char *buf, int n)
+powerdas(Map *map, u64int pc, char modifier, char *buf, int n)
 {
 	USED(modifier);
 	return printins(map, pc, buf, n);
 }
 
 static int
-powerhexinst(Map *map, ulong pc, char *buf, int n)
+powerhexinst(Map *map, u64int pc, char *buf, int n)
 {
 	Instr instr;
 
@@ -1183,7 +1183,7 @@ powerhexinst(Map *map, ulong pc, char *buf, int n)
 }
 
 static int
-powerinstlen(Map *map, ulong pc)
+powerinstlen(Map *map, u64int pc)
 {
 	Instr i;
 
@@ -1194,7 +1194,7 @@ powerinstlen(Map *map, ulong pc)
 }
 
 static int
-powerfoll(Map *map, Regs *regs, ulong pc, ulong *foll)
+powerfoll(Map *map, Regs *regs, u64int pc, u64int *foll)
 {
 	char *reg;
 	Instr i;
@@ -1337,7 +1337,7 @@ static char *powerwindregs[] =
 };
 
 static int
-powerunwind(Map *map, Regs *regs, ulong *next, Symbol *sym)
+powerunwind(Map *map, Regs *regs, u64int *next, Symbol *sym)
 {
 	/*
 	 * This is tremendously hard.  The best we're going to

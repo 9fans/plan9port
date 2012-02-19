@@ -14,7 +14,7 @@ regdesc(char *name)
 }
 
 int
-rput(Regs *regs, char *name, ulong u)
+rput(Regs *regs, char *name, u64int u)
 {
 	if(regs == nil){
 		werrstr("registers not mapped");
@@ -24,7 +24,7 @@ rput(Regs *regs, char *name, ulong u)
 }
 
 int
-rget(Regs *regs, char *name, ulong *u)
+rget(Regs *regs, char *name, u64int *u)
 {
 	if(regs == nil){
 		*u = ~(ulong)0;
@@ -35,7 +35,7 @@ rget(Regs *regs, char *name, ulong *u)
 }
 
 int
-_uregrw(Regs *regs, char *name, ulong *u, int isr)
+_uregrw(Regs *regs, char *name, u64int *u, int isr)
 {
 	Regdesc *r;
 	uchar *ureg;

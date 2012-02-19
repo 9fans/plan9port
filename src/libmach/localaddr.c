@@ -18,9 +18,9 @@ static struct {
 } rock;
 
 static int
-ltrace(Map *map, Regs *regs, ulong pc, ulong nextpc, Symbol *sym, int depth)
+ltrace(Map *map, Regs *regs, u64int pc, u64int nextpc, Symbol *sym, int depth)
 {
-	ulong v;
+	u64int v;
 	Symbol s1;
 
 	USED(pc);
@@ -49,7 +49,7 @@ ltrace(Map *map, Regs *regs, ulong pc, ulong nextpc, Symbol *sym, int depth)
 }
 
 int
-localaddr(Map *map, Regs *regs, char *fn, char *var, ulong *val)
+localaddr(Map *map, Regs *regs, char *fn, char *var, u64int *val)
 {
 	Regdesc *rp;
 

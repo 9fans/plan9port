@@ -36,8 +36,8 @@ struct PtraceRegs
 	int pid;
 };
 
-static int ptracesegrw(Map*, Seg*, ulong, void*, uint, int);
-static int ptraceregrw(Regs*, char*, ulong*, int);
+static int ptracesegrw(Map*, Seg*, u64int, void*, uint, int);
+static int ptraceregrw(Regs*, char*, u64int*, int);
 
 static int attachedpids[1000];
 static int nattached;
@@ -173,7 +173,7 @@ ptraceerr:
 }
 
 static int
-ptracesegrw(Map *map, Seg *seg, ulong addr, void *v, uint n, int isr)
+ptracesegrw(Map *map, Seg *seg, u64int addr, void *v, uint n, int isr)
 {
 	addr += seg->base;
 	return ptracerw(isr ? PTRACE_PEEKDATA : PTRACE_POKEDATA, PTRACE_PEEKDATA,
@@ -212,7 +212,7 @@ reg2linux(char *reg)
 }
 
 static int
-ptraceregrw(Regs *regs, char *name, ulong *val, int isr)
+ptraceregrw(Regs *regs, char *name, u64int *val, int isr)
 {
 	int pid;
 	ulong addr;

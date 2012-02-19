@@ -168,7 +168,7 @@ oframe(Node *n, Node *res)
 {
 	char *p;
 	Node *lp;
-	ulong ival;
+	u64int ival;
 	Frtype *f;
 
 	p = n->sym->name;
@@ -1070,12 +1070,12 @@ initexpr(void)
 }
 
 int
-acidregsrw(Regs *r, char *name, ulong *u, int isr)
+acidregsrw(Regs *r, char *name, u64int *u, int isr)
 {
 	Lsym *l;
 	Value *v;
 	Node *n;
-	ulong addr;
+	u64int addr;
 	u32int u32;
 
 	if(!isr){

@@ -93,7 +93,7 @@ uncrackhdr(Fhdr *hdr)
 }
 
 int
-mapfile(Fhdr *fp, ulong base, Map *map, Regs **regs)
+mapfile(Fhdr *fp, u64int base, Map *map, Regs **regs)
 {
 	if(fp == nil){
 		werrstr("no file");

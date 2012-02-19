@@ -254,6 +254,7 @@ stabssyminit(Fhdr *fp)
 			break;
 		}
 	}
+	USED(locals);
 	free(inc);
 	return 0;
 
@@ -263,7 +264,7 @@ err:
 }
 
 static int
-stabspc2file(Fhdr *fhdr, ulong pc, char *buf, uint nbuf, ulong *pline)
+stabspc2file(Fhdr *fhdr, u64int pc, char *buf, uint nbuf, ulong *pline)
 {
 	int i;
 	Symbol *s;
@@ -298,7 +299,7 @@ stabspc2file(Fhdr *fhdr, ulong pc, char *buf, uint nbuf, ulong *pline)
 }
 
 static int
-stabsline2pc(Fhdr *fhdr, ulong startpc, ulong line, ulong *pc)
+stabsline2pc(Fhdr *fhdr, u64int startpc, ulong line, u64int *pc)
 {
 	int i, trigger;
 	Symbol *s;
