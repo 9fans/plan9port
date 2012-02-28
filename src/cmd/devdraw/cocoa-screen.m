@@ -908,7 +908,12 @@ togglefs(void)
 	uint opt, tmp;
 
 #if OSX_VERSION >= 100700
-	if(useoldfullscreen==0 || win.isnfs){
+	NSScreen *s, *s0;
+	
+	s = [WIN screen];
+	s0 = [[NSScreen screens] objectAtIndex:0];
+	
+	if((s==s0 && useoldfullscreen==0) || win.isnfs) {
 		[WIN toggleFullScreen:nil];
 		return;
 	}
