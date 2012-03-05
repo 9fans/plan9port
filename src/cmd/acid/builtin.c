@@ -866,7 +866,7 @@ cvtatoi(Node *r, Node *args)
 
 	r->op = OCONST;
 	r->type = TINT;
-	r->store.u.ival = strtoul(res.store.u.string->string, 0, 0);
+	r->store.u.ival = strtoull(res.store.u.string->string, 0, 0);
 	r->store.fmt = 'D';
 }
 
@@ -875,7 +875,7 @@ cvtitoa(Node *r, Node *args)
 {
 	Node res;
 	Node *av[Maxarg];
-	int ival;
+	s64int ival;
 	char buf[128], *fmt;
 
 	if(args == 0)
@@ -1030,7 +1030,7 @@ flatten(Node **av, Node *n)
 static struct
 {
 	char *name;
-	ulong val;
+	u64int val;
 } sregs[Maxarg/2];
 static int nsregs;
 

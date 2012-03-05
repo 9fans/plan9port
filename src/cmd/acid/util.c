@@ -73,7 +73,7 @@ addvarsym(Fhdr *fp)
 	Symbol s;
 	Lsym *l;
 	String *file;
-	ulong v;
+	u64int v;
 	char buf[65536];	/* Some of those C++ names are really big */
 	List *list, **tail, *tl;
 

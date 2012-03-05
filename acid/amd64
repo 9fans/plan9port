@@ -182,6 +182,119 @@ Ureg(addr) {
 };
 sizeofUreg = 184;
 
+aggr freebsd_amd64_siginfo
+{
+	'X' 0 signo;
+	'X' 4 errno;
+	'X' 8 code;
+	'X' 12 pid;
+	'X' 16 uid;
+	'X' 20 status;
+	'Y' 24 addr;
+	'Y' 32 sigval;
+	's' 40 reason;
+};
+
+defn
+freebsd_amd64_siginfo(addr) {
+	complex freebsd_amd64_siginfo addr;
+	print("	signo	", addr.signo, "\n");
+	print("	errno	", addr.errno, "\n");
+	print("	code	", addr.code, "\n");
+	print("	pid	", addr.pid, "\n");
+	print("	uid	", addr.uid, "\n");
+	print("	status	", addr.status, "\n");
+	print("	addr	", addr.addr, "\n");
+	print("	sigval	", addr.sigval, "\n");
+};
+
+aggr freebsd_amd64_ucontext
+{
+	'X' 0 sigmask0;
+	'X' 4 sigmask1;
+	'X' 8 sigmask2;
+	'X' 12 sigmask3;
+	'Y' 16 onstack;
+	'Y' 24 rdi;
+	'Y' 32 rsi;
+	'Y' 40 rdx;
+	'Y' 48 rcx;
+	'Y' 56 r8;
+	'Y' 64 r9;
+	'Y' 72 rax;
+	'Y' 80 rbx;
+	'Y' 88 rbp;
+	'Y' 96 r10;
+	'Y' 104 r11;
+	'Y' 112 r12;
+	'Y' 120 r13;
+	'Y' 128 r14;
+	'Y' 136 r15;
+	'X' 144 trapno;
+	'x' 148 fs;
+	'x' 150 gs;
+	'Y' 152 addr;
+	'X' 160 flags;
+	'x' 164 es;
+	'x' 166 ds;
+	'Y' 168 err;
+	'Y' 176 rip;
+	'Y' 184 cs;
+	'Y' 192 rflags;
+	'Y' 200 rsp;
+	'Y' 208 ss;
+	'Y' 216 len;
+	'Y' 224 fpformat;
+	'Y' 232 ownedfp;
+	'Y' 240 fpstate0;
+	'Y' 752 fsbase;
+	'Y' 760 gsbase;
+};
+
+defn
+freebsd_amd64_ucontext(addr) {
+	complex freebsd_amd64_ucontext addr;
+	print("	sigmask0	", addr.sigmask0, "\n");
+	print("	sigmask1	", addr.sigmask1, "\n");
+	print("	sigmask2	", addr.sigmask2, "\n");
+	print("	sigmask3	", addr.sigmask3, "\n");
+	print("	onstack	", addr.onstack, "\n");
+	print("	rdi	", addr.rdi, "\n");
+	print("	rsi	", addr.rsi, "\n");
+	print("	rdx	", addr.rdx, "\n");
+	print("	rcx	", addr.rcx, "\n");
+	print("	r8	", addr.r8, "\n");
+	print("	r9	", addr.r9, "\n");
+	print("	rax	", addr.rax, "\n");
+	print("	rbx	", addr.rbx, "\n");
+	print("	rbp	", addr.rbp, "\n");
+	print("	r10	", addr.r10, "\n");
+	print("	r11	", addr.r11, "\n");
+	print("	r12	", addr.r12, "\n");
+	print("	r13	", addr.r13, "\n");
+	print("	r14	", addr.r14, "\n");
+	print("	r15	", addr.r15, "\n");
+	print("	trapno	", addr.trapno, "\n");
+	print("	fs	", addr.fs, "\n");
+	print("	gs	", addr.gs, "\n");
+	print("	addr	", addr.addr, "\n");
+	print("	flags	", addr.flags, "\n");
+	print("	es	", addr.es, "\n");
+	print("	ds	", addr.ds, "\n");
+	print("	err	", addr.err, "\n");
+	print("	rip	", addr.rip, "\n");
+	print("	cs	", addr.cs, "\n");
+	print("	rflags	", addr.rflags, "\n");
+	print("	rsp	", addr.rsp, "\n");
+	print("	ss	", addr.ss, "\n");
+	print("	len	", addr.len, "\n");
+	print("	fpformat	", addr.fpformat, "\n");
+	print("	ownedfp	", addr.ownedfp, "\n");
+	print("	fpstate0	", addr.fpstate0, "\n");
+	print("	fsbase	", addr.fsbase, "\n");
+	print("	gsbase	", addr.gsbase, "\n");
+}
+
 // aggr Linkdebug
 // {
 // 	'X' 0 version;

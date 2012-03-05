@@ -588,9 +588,9 @@ numsym(char first)
 		}
 
 		if(isbin)
-			yylval.ival = strtoul(symbol+2, 0, 2);
+			yylval.ival = strtoull(symbol+2, 0, 2);
 		else
-			yylval.ival = strtoul(symbol, 0, 0);
+			yylval.ival = strtoll(symbol, 0, 0);
 		return Tconst;
 	}
 

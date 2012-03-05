@@ -1114,9 +1114,8 @@ acidregsrw(Regs *r, char *name, u64int *u, int isr)
 		}
 		addr = v->store.u.ival;
 		/* XXX should use format to determine size */
-		if(get4(cormap, addr, &u32) < 0)
+		if(geta(cormap, addr, u) < 0)
 			return -1;
-		*u = u32;
 		return 0;
 	}
 }

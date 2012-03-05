@@ -27,7 +27,7 @@ int
 rget(Regs *regs, char *name, u64int *u)
 {
 	if(regs == nil){
-		*u = ~(ulong)0;
+		*u = ~(u64int)0;
 		werrstr("registers not mapped");
 		return -1;
 	}
@@ -53,6 +53,9 @@ _uregrw(Regs *regs, char *name, u64int *u, int isr)
 	default:
 	case 'X':
 		*u = mach->swap4(*(u32int*)ureg);
+		return 0;
+	case 'Y':
+		*u = mach->swap8(*(u64int*)ureg);
 		return 0;
 	}
 }

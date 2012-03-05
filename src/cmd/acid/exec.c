@@ -203,7 +203,7 @@ convflt(Node *r, char *flt)
 }
 
 void
-indir(Map *m, ulong addr, char fmt, Node *r)
+indir(Map *m, u64int addr, char fmt, Node *r)
 {
 	int i;
 	u32int ival;

@@ -365,7 +365,7 @@ al(int t)
 }
 
 Node*
-con(int v)
+con(s64int v)
 {
 	Node *n;
 
