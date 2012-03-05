@@ -237,6 +237,12 @@ attachscreen(char *label, char *winsize)
 }
 @end
 
+double
+min(double a, double b)
+{
+	return a<b? a : b;
+}
+
 enum
 {
 	Winstyle = NSTitledWindowMask
@@ -254,6 +260,7 @@ makewin(char *s)
 	int i, set;
 
 	sr = [[NSScreen mainScreen] frame];
+	r = [[NSScreen mainScreen] visibleFrame];
 
 	if(s && *s){
 		if(parsewinsize(s, &wr, &set) < 0)
@@ -263,11 +270,10 @@ makewin(char *s)
 		set = 0;
 	}
 
-	/*
-	 * The origin is the left bottom corner for Cocoa.
-	 */
-	r.origin.y = sr.size.height-wr.max.y;
-	r = NSMakeRect(wr.min.x, r.origin.y, Dx(wr), Dy(wr));
+	r.origin.x = wr.min.x;
+	r.origin.y = sr.size.height-wr.max.y;	/* winsize is top-left-based */
+	r.size.width = min(Dx(wr), r.size.width);
+	r.size.height = min(Dy(wr), r.size.height);
 	r = [NSWindow contentRectForFrameRect:r
 		styleMask:Winstyle];
 
