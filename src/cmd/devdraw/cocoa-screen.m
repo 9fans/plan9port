@@ -1,5 +1,8 @@
 /*
  * Cocoa's event loop must be in main thread.
+ *
+ * Unless otherwise stated, all coordinate systems
+ * are bottom-left-based.
  */
 
 #define Cursor OSXCursor
@@ -27,9 +30,11 @@
 
 AUTOFRAMEWORK(Cocoa)
 
-#define panic sysfatal
+#define LOG	if(0)NSLog
+#define panic	sysfatal
 
 int usegestures = 0;
+int useliveresizing = 0;
 int useoldfullscreen = 0;
 int usebigarrow = 0;
 
@@ -91,7 +96,8 @@ struct
 	int			isnfs;
 	NSView		*content;
 	NSBitmapImageRep	*img;
-	int			needflush;
+	int			needimg;
+	int			deferflush;
 	NSCursor		*cursor;
 } win;
 
@@ -106,7 +112,8 @@ struct
 } in;
 
 static void hidebars(int);
-static void drawimg(NSRect);
+static void flushimg(NSRect);
+static void autoflushwin(int);
 static void flushwin(void);
 static void followzoombutton(NSRect);
 static void getmousepos(void);
@@ -140,9 +147,15 @@ static NSCursor* makecursor(Cursor*);
 	getmousepos();
 	sendmouse();
 }
+- (void)windowWillStartLiveResize:(id)arg
+{
+	if(useliveresizing == 0)
+		[win.content setHidden:YES];
+}
 - (void)windowDidEndLiveResize:(id)arg
 {
-	[win.content display];
+	if(useliveresizing == 0)
+		[win.content setHidden:NO];
 }
 - (void)windowDidChangeScreen:(id)arg
 {
@@ -174,6 +187,10 @@ static NSCursor* makecursor(Cursor*);
 		hidebars(0);
 	}
 }
+- (void)windowWillClose:(id)arg
+{
+	autoflushwin(0);	/* can crash otherwise */
+}
 
 + (void)callservep9p:(id)arg
 {
@@ -189,7 +206,7 @@ static NSCursor* makecursor(Cursor*);
 + (void)callflushwin:(id)arg{ flushwin();}
 - (void)calltogglefs:(id)arg{ togglefs();}
 
-+ (void)calldrawimg:(NSValue*)v{ drawimg([v rectValue]);}
++ (void)callflushimg:(NSValue*)v{ flushimg([v rectValue]);}
 + (void)callmakewin:(NSValue*)v{ makewin([v pointerValue]);}
 + (void)callsetcursor0:(NSValue*)v{ setcursor0([v pointerValue]);}
 @end
@@ -208,6 +225,8 @@ attachscreen(char *label, char *winsize)
 
 	if(label == nil)
 		label = "gnot a label";
+	if(strcmp(label, "page") == 0)
+		useliveresizing = 1;
 
 	/*
 	 * Create window in main thread, else no cursor
@@ -234,6 +253,28 @@ attachscreen(char *label, char *winsize)
 - (BOOL)canBecomeKeyWindow
 {
 	return YES;	/* else no keyboard for old fullscreen */
+}
+- (void)makeKeyAndOrderFront:(id)arg
+{
+	LOG(@"makeKeyAndOrderFront");
+
+	autoflushwin(1);
+	[win.content setHidden:NO];
+	[super makeKeyAndOrderFront:arg];
+}
+- (void)miniaturize:(id)arg
+{
+	[super miniaturize:arg];
+	[NSApp hide:nil];
+
+	[win.content setHidden:YES];
+	autoflushwin(0);
+}
+- (void)deminiaturize:(id)arg
+{
+	autoflushwin(1);
+	[win.content setHidden:NO];
+	[super deminiaturize:arg];
 }
 @end
 
@@ -302,7 +343,6 @@ makewin(char *s)
 	win.isofs = 0;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
-	[WIN makeKeyAndOrderFront:nil];
 }
 
 static Memimage*
@@ -313,6 +353,7 @@ initimg(void)
 	Rectangle r;
 
 	size = [win.content bounds].size;
+	LOG(@"initimg %.0f %.0f", size.width, size.height);
 
 	r = Rect(0, 0, size.width, size.height);
 	i = allocmemimage(r, XBGR32);
@@ -332,102 +373,204 @@ initimg(void)
 		colorSpaceName:NSDeviceRGBColorSpace
 		bytesPerRow:bytesperline(r, 32)
 		bitsPerPixel:32];
-
 	return i;
+}
+
+static void
+resizeimg()
+{
+	[win.img release];
+	_drawreplacescreenimage(initimg());
+
+	mouseresized = 1;
+	sendmouse();
+}
+
+static void
+waitimg(int msec)
+{
+	NSDate *limit;
+	int n;
+
+	win.needimg = 1;
+	win.deferflush = 0;
+
+	n = 0;
+	limit = [NSDate dateWithTimeIntervalSinceNow:msec/1000.0];
+	do{
+		[[NSRunLoop currentRunLoop]
+			runMode:@"waiting image"
+			beforeDate:limit];
+		n++;
+	}while(win.needimg && [(NSDate*)[NSDate date] compare:limit]<0);
+
+	win.deferflush = win.needimg;
+
+	LOG(@"waitimg %s (%d loop)", win.needimg?"defer":"ok", n);
 }
 
 void
 _flushmemscreen(Rectangle r)
 {
+	static int n;
 	NSRect rect;
 
-	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
+	LOG(@"_flushmemscreen");
 
-	/*
-	 * Call "lockFocusIfCanDraw" from main thread, else
-	 * we deadlock while synchronizing both threads with
-	 * qlock(): main thread must apparently be idle while
-	 * we call it.  (This is also why Devdraw shows
-	 * occasionally an empty window: I found no
-	 * satisfactory way to wait for P9P's image.)
-	 */
+	if(n==0){
+		n++;
+		return;	/* to skip useless white init rect */
+	}else
+	if(n==1){
+		[WIN performSelectorOnMainThread:
+			@selector(makeKeyAndOrderFront:)
+			withObject:nil
+			waitUntilDone:NO];
+		n++;
+	}else
+	if([win.content canDraw] == 0)
+		return;
+
+	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 	[appdelegate
-		performSelectorOnMainThread:@selector(calldrawimg:)
+		performSelectorOnMainThread:@selector(callflushimg:)
 		withObject:[NSValue valueWithRect:rect]
-		waitUntilDone:YES];
+		waitUntilDone:YES
+		modes:[NSArray arrayWithObjects:
+			NSRunLoopCommonModes,
+			@"waiting image", nil]];
 }
 
-static void drawresizehandle(NSRect);
+static void drawimg(NSRect, uint);
+static void drawresizehandle(void);
+
+enum
+{
+	Pixel = 1,
+	Barsize = 4*Pixel,
+	Cornersize = 3*Pixel,
+	Handlesize = 3*Barsize + 1*Pixel,
+};
 
 static void
-drawimg(NSRect dr)
+flushimg(NSRect rect)
 {
-	static int first = 1;
-	NSRect sr;
+	NSRect dr, r;
 
-	if(first){
-		[NSTimer scheduledTimerWithTimeInterval:0.033
+	if([win.content lockFocusIfCanDraw] == 0)
+		return;
+
+	if(win.needimg){
+		if(!NSEqualSizes(rect.size, [win.img size])){
+			LOG(@"flushimg reject %.0f %.0f",
+				rect.size.width, rect.size.height);
+			[win.content unlockFocus];
+			return;
+		}
+		win.needimg = 0;
+	}else
+		win.deferflush = 1;
+
+	LOG(@"flushimg ok %.0f %.0f", rect.size.width, rect.size.height);
+
+	/*
+	 * Unless we are inside "drawRect", we have to round
+	 * the corners ourselves, if this is the custom.
+	 * "NSCompositeSourceIn" can do that, but we don't
+	 * apply it to the whole rectangle, because this
+	 * slows down trackpad scrolling considerably in
+	 * Acme.
+	 */
+	r = [win.content bounds];
+	r.size.height -= Cornersize;
+	dr = NSIntersectionRect(r, rect);
+	drawimg(dr, NSCompositeCopy);
+
+	r.origin.y = r.size.height;
+	r.size = NSMakeSize(Cornersize, Cornersize);
+	dr = NSIntersectionRect(r, rect);
+	drawimg(dr, NSCompositeSourceIn);
+
+	r.origin.x = [win.img size].width - Cornersize;
+	dr = NSIntersectionRect(r, rect);
+	drawimg(dr, NSCompositeSourceIn);
+
+	r.size.width = r.origin.x - Cornersize;
+	r.origin.x -= r.size.width;
+	dr = NSIntersectionRect(r, rect);
+	drawimg(dr, NSCompositeCopy);
+
+	if(OSX_VERSION<100700 && win.isofs==0){
+		r.origin.x = [win.img size].width - Handlesize;
+		r.origin.y = [win.img size].height - Handlesize;
+		r.size = NSMakeSize(Handlesize, Handlesize);
+		if(NSIntersectsRect(r, rect))
+			drawresizehandle();
+	}
+	[win.content unlockFocus];
+}
+
+static void
+autoflushwin(int set)
+{
+	static NSTimer *t;
+
+	if(set){
+		if(t)
+			return;
+		/*
+		 * We need "NSRunLoopCommonModes", otherwise the
+		 * timer will not fire during live resizing.
+		 */
+		t = [NSTimer
+			timerWithTimeInterval:0.033
 			target:[appdelegate class]
 			selector:@selector(callflushwin:) userInfo:nil
 			repeats:YES];
-		first = 0;
-	}
-	sr =  [win.content convertRect:dr fromView:nil];
-
-	if([win.content lockFocusIfCanDraw]){
-
-		/*
-		 * To round the window's bottom corners, we can use
-		 * "NSCompositeSourceIn", but this slows down
-		 * trackpad scrolling considerably in Acme.  Else we
-		 * can use "bezierPathWithRoundedRect" with "addClip",
-		 * but it's still too slow for wide Acme windows.
-		 */
-		[win.img drawInRect:dr fromRect:sr
-//			operation:NSCompositeSourceIn fraction:1
-			operation:NSCompositeCopy fraction:1
-			respectFlipped:YES hints:nil];
-
-		if(OSX_VERSION<100700 && win.isofs==0)
-			drawresizehandle(dr);
-
-		[win.content unlockFocus];
-		win.needflush = 1;
+		[[NSRunLoop currentRunLoop] addTimer:t
+			forMode:NSRunLoopCommonModes];
+	}else{
+		[t invalidate];
+		t = nil;
+		win.deferflush = 0;
 	}
 }
 
 static void
 flushwin(void)
 {
-	if(win.needflush){
+	if(win.deferflush && win.needimg==0){
 		[WIN flushWindow];
-		win.needflush = 0;
+		win.deferflush = 0;
 	}
 }
 
-enum
+static void
+drawimg(NSRect dr, uint op)
 {
-	Pixel = 1,
-	Barsize = 4*Pixel,
-	Handlesize = 3*Barsize + 1*Pixel,
-};
+	NSRect sr;
+
+	if(NSIsEmptyRect(dr))
+		return;
+
+	sr =  [win.content convertRect:dr fromView:nil];
+
+	[win.img drawInRect:dr fromRect:sr
+		operation:op fraction:1
+		respectFlipped:YES hints:nil];
+
+//	NSFrameRect(dr);
+}
 
 static void
-drawresizehandle(NSRect dr)
+drawresizehandle(void)
 {
 	NSColor *color[Barsize];
 	NSPoint a,b;
-	NSRect r;
-	NSSize size;
 	Point c;
 	int i,j;
 
-	size = [win.img size];
-	c = Pt(size.width, size.height);
-	r = NSMakeRect(0, 0, Handlesize, Handlesize);
-	r.origin = NSMakePoint(c.x-Handlesize, c.y-Handlesize);
-	if(NSIntersectsRect(r,dr) == 0)
-		return;
+	c = Pt([win.img size].width, [win.img size].height);
 
 	[[WIN graphicsContext] setShouldAntialias:NO];
 
@@ -446,15 +589,6 @@ drawresizehandle(NSRect dr)
 		}
 }
 
-static void
-resizeimg()
-{
-	[win.img release];
-	_drawreplacescreenimage(initimg());
-	mouseresized = 1;
-	sendmouse();
-}
-
 static void getgesture(NSEvent*);
 static void getkeyboard(NSEvent*);
 static void getmouse(NSEvent*);
@@ -462,20 +596,28 @@ static void gettouch(NSEvent*, int);
 static void updatecursor(void);
 
 @implementation contentview
-
+/*
+ * "drawRect" is called each time Cocoa needs an
+ * image, and each time we call "display".  It is
+ * preceded by background painting, and followed by
+ * "flushWindow".
+ */
 - (void)drawRect:(NSRect)r
 {
 	static int first = 1;
 
-	if([WIN inLiveResize])
-		return;
+	LOG(@"drawrect %.0f %.0f %.0f %.0f",
+		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
 	if(first)
 		first = 0;
 	else
 		resizeimg();
 
-	/* We should wait for P9P's image here. */
+	if([WIN inLiveResize])
+		waitimg(100);
+	else
+		waitimg(500);
 }
 - (BOOL)isFlipped
 {
@@ -489,7 +631,14 @@ static void updatecursor(void);
 {
 	[super initWithFrame:r];
 	[self setAcceptsTouchEvents:YES];
+	[self setHidden:YES];		/* to avoid early "drawRect" call */
 	return self;
+}
+- (void)setHidden:(BOOL)set
+{
+	if(!set)
+		[WIN makeFirstResponder:self];	/* for keyboard focus */
+	[super setHidden:set];
 }
 - (void)cursorUpdate:(NSEvent*)e{ updatecursor();}
 
@@ -881,6 +1030,9 @@ setmouse(Point p)
 		CGSetLocalEventsSuppressionInterval(0);
 		first = 0;
 	}
+	if([WIN inLiveResize])
+		return;
+
 	in.mpos = NSMakePoint(p.x, p.y);	// race condition
 
 	r = [[WIN screen] frame];
