@@ -1035,11 +1035,11 @@ setmouse(Point p)
 
 	in.mpos = NSMakePoint(p.x, p.y);	// race condition
 
-	r = [[WIN screen] frame];
-
 	q = [win.content convertPoint:in.mpos toView:nil];
 	q = [WIN convertBaseToScreen:q];
-	q.y = r.size.height - q.y;
+
+	r = [[[NSScreen screens] objectAtIndex:0] frame];
+	q.y = r.size.height - q.y;	/* Quartz is top-left-based here */
 
 	CGWarpMouseCursorPosition(NSPointToCGPoint(q));
 }
