@@ -701,11 +701,6 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 	dir.uid = vd->uid;
 	dir.gid = vd->gid;
 	dir.muid = vd->mid;
-#ifdef PLAN9PORT
-	dir.ext = ext;
-	dir.uidnum = atoi(vd->uid);
-	dir.gidnum = atoi(vd->gid);
-#endif
 
 	ret = convD2M(&dir, p, np);
 #ifdef PLAN9PORT
