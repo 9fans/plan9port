@@ -131,6 +131,7 @@ threadmain(int argc, char *argv[])
 	int i;
 	char *file;
 	Arena *arena;
+	ArenaPart *ap;
 	u64int offset, aoffset;
 	Part *part;
 	uchar buf[8192];
@@ -180,6 +181,14 @@ threadmain(int argc, char *argv[])
 	part = initpart(file, OREAD);
 	if(part == nil)
 		sysfatal("can't open file %s: %r", file);
+	initdcache(8 * MaxDiskBlock);
+
+	// Try as arena partition.
+	arena = nil;
+	ap = initarenapart(part);
+	if(ap == nil)
+		goto loaded;
+
 	if(readpart(part, aoffset, buf, sizeof buf) < 0)
 		sysfatal("can't read file %s: %r", file);
 
@@ -191,12 +200,12 @@ threadmain(int argc, char *argv[])
 			head.size, part->size);
 
 	partblocksize(part, head.blocksize);
-	initdcache(8 * MaxDiskBlock);
 
 	arena = initarena(part, aoffset, head.size, head.blocksize);
 	if(arena == nil)
 		sysfatal("initarena: %r");
 
+loaded:
 	z = nil;
 	if(host==nil || strcmp(host, "/dev/null") != 0){
 		z = vtdial(host);
@@ -211,7 +220,12 @@ threadmain(int argc, char *argv[])
 	for(i=0; i<12; i++)
 		vtproc(vtsendthread, nil);
 
-	rdarena(arena, offset);
+	if(ap != nil) {
+		for(i=0 i<ap->narenas; i++)
+			rdarena(ap->arenas[i], 0);
+	} else
+		rdarena(arena, offset);
+
 	memset(&zerocl, 0, sizeof zerocl);
 	for(i=0; i<12; i++)
 		send(c, &zerocl);
