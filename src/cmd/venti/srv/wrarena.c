@@ -221,7 +221,7 @@ loaded:
 		vtproc(vtsendthread, nil);
 
 	if(ap != nil) {
-		for(i=0 i<ap->narenas; i++)
+		for(i=0; i<ap->narenas; i++)
 			rdarena(ap->arenas[i], 0);
 	} else
 		rdarena(arena, offset);
