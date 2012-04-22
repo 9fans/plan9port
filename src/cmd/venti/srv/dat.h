@@ -740,6 +740,7 @@ extern	Stats		stats;
 extern	u8int		zeroscore[VtScoreSize];
 extern	int		compressblocks;
 extern	int		writestodevnull;	/* dangerous - for performance debugging */
+extern	int		bootstrap;		/* writes but does not index - cannot read */
 extern	int		collectstats;
 extern	QLock	memdrawlock;
 extern	int		icachesleeptime;

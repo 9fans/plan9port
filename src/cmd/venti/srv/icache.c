@@ -387,6 +387,9 @@ icachelookup(u8int score[VtScoreSize], int type, IAddr *ia)
 {
 	IEntry *ie;
 
+	if(bootstrap)
+		return -1;
+
 	qlock(&icache.lock);
 	addstat(StatIcacheLookup, 1);
 	if((ie = ihashlookup(icache.hash, score, type)) != nil){
@@ -416,6 +419,9 @@ int
 insertscore(u8int score[VtScoreSize], IAddr *ia, int state, AState *as)
 {
 	ISum *toload;
+
+	if(bootstrap)
+		return -1;
 
 	qlock(&icache.lock);
 	icacheinsert(score, ia, state);

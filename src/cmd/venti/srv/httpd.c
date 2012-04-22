@@ -396,6 +396,7 @@ static struct
 	"ignorebloom",	&ignorebloom,
 	"syncwrites",	&syncwrites,
 	"icacheprefetch",	&icacheprefetch,
+	"bootstrap",	&bootstrap,
 	0
 };
 

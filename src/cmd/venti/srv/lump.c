@@ -2,6 +2,7 @@
 #include "dat.h"
 #include "fns.h"
 
+int			bootstrap = 0;
 int			syncwrites = 0;
 int			queuewrites = 0;
 int			writestodevnull = 0;
