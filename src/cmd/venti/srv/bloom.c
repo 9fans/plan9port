@@ -267,6 +267,6 @@ void
 startbloomproc(Bloom *b)
 {
 	b->writechan = chancreate(sizeof(void*), 0);
-	b->writedonechan = chancreate(sizeof(void*), 0);
+	b->writedonechan = chancreate(sizeof(ulong), 0);
 	vtproc(bloomwriteproc, b);	
 }
