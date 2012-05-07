@@ -20,8 +20,6 @@ graphname = new Array(
 		"bloom hit %",
 	"arg=bloommiss&graph=pctdiff&arg2=bloomlookup&max=100",
 		"bloom miss %",
-	"arg=bloomlookuptime&graph=divdiff&arg2=bloomlookup",
-		"bloom lookup time",
 	"arg=bloomones&graph=pct&arg2=bloombits&max=100",
 		"bloom usage %",
 
@@ -158,7 +156,6 @@ column2 = new Array(
 	"arg=lumpstall",
 	
 	"!timings",
-	"arg=bloomlookuptime&graph=divdiff&arg2=bloomlookup",
 	"arg=icachelookuptime&graph=divdiff&arg2=icachelookup",
 	"arg=lcachelookuptime&graph=divdiff&arg2=lcachelookup",
 	"arg=dcachelookuptime&graph=divdiff&arg2=dcachelookup",
