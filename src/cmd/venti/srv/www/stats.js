@@ -15,8 +15,10 @@ graphname = new Array(
 		"arena write bytes/second",
 
 	"arg=bloomfalsemiss&graph=pctdiff&arg2=bloomlookup&max=100",
-		"bloom false hit %",
+		"bloom false miss %",
 	"arg=bloomhit&graph=pctdiff&arg2=bloomlookup&max=100",
+		"bloom hit %",
+	"arg=bloommiss&graph=pctdiff&arg2=bloomlookup&max=100",
 		"bloom miss %",
 	"arg=bloomlookuptime&graph=divdiff&arg2=bloomlookup",
 		"bloom lookup time",
@@ -115,6 +117,7 @@ column0 = new Array(
 	
 	"!bloom filter",
 	"arg=bloomhit&graph=pctdiff&arg2=bloomlookup&max=100",
+	"arg=bloommiss&graph=pctdiff&arg2=bloomlookup&max=100",
 	"arg=bloomfalsemiss&graph=pctdiff&arg2=bloomlookup&max=100",
 	"arg=bloomones&graph=pct&arg2=bloombits&max=100",
 	
