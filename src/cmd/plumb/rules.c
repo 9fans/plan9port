@@ -746,7 +746,6 @@ morerules(uchar *text, int done)
 		;
 	while((rs=readruleset()) != nil){
 		rules = erealloc(rules, (n+2)*sizeof(Ruleset*));
-		fprint(2, "initialize rules %d %d\n", n, n+1);
 		rules[n++] = rs;
 		rules[n] = nil;
 	}
