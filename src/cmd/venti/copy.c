@@ -9,7 +9,7 @@
 enum
 {
 	// XXX What to do here?
-	VtMaxLumpSize = 65536,
+	VtMaxLumpSize = 65535,
 };
 
 int changes;
