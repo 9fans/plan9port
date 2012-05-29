@@ -1076,7 +1076,6 @@ acidregsrw(Regs *r, char *name, u64int *u, int isr)
 	Value *v;
 	Node *n;
 	u64int addr;
-	u32int u32;
 
 	if(!isr){
 		werrstr("cannot write registers");

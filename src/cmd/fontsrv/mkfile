@@ -11,4 +11,4 @@ OFILES=\
 
 <$PLAN9/src/mkone
 
-
+osx-cocoa.$O: osx.c

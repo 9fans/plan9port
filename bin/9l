@@ -268,12 +268,17 @@ then
 		then
 			X11=/usr/X11R6
 		fi
+		# Don't say -L with a non-existent directory: Xcode complains.
 		# x86_64 seems to put its 64-bit libraries in lib64.
-		if [ "${OBJTYPE:-`uname -m`}" = "x86_64" ]
+		if [ "${OBJTYPE:-`uname -m`}" = "x86_64" -a -d "$X11/lib64" ]
 		then
 			libsl="$libsl -L$X11/lib64"
 		fi
-		libsl="$libsl -L$X11/lib -lX11"
+		if [ -d "$X11/lib" ]
+		then
+			libsl="$libsl -L$X11/lib"
+		fi
+		libsl="$libsl -lX11"
 	fi
 fi
 if $doautoframework

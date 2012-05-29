@@ -16,7 +16,6 @@ libs-%:V:
 	do
 		(cd $i; echo cd `pwd`';' mk $MKFLAGS $stem; mk $MKFLAGS $stem)
 	done
-	[ "$SYSNAME" != Darwin ] || ranlib ../lib/*.a
 
 MKDIRS=\
 	libbio\

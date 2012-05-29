@@ -11,7 +11,8 @@ usage(void)
 	threadexitsall("usage");
 }
 
-static void
+/* unused */
+void
 rdarena(Arena *arena, u64int offset)
 {
 	u64int a, aa, e;
