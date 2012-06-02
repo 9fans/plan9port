@@ -19,18 +19,29 @@
 #undef unix
 #define unix xunix
 
+static int
+isany(struct sockaddr_storage *ss)
+{
+	switch(ss->ss_family){
+	case AF_INET:
+		return (((struct sockaddr_in*)ss)->sin_addr.s_addr == INADDR_ANY);
+	case AF_INET6:
+		return (memcmp(((struct sockaddr_in6*)ss)->sin6_addr.s6_addr,
+			in6addr_any.s6_addr, sizeof (struct in6_addr)) == 0);
+	}
+	return 0;
+}
+
 int
 p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 {
 	char *buf;
 	char *net, *unix;
-	u32int host;
 	int port;
 	int proto;
 	socklen_t sn;
 	int n;
-	struct sockaddr_in sa, sal;	
-	struct sockaddr_un su;
+	struct sockaddr_storage ss, ssl;
 	int s;
 
 	if(dummy2 || dummy3){
@@ -42,11 +53,11 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 	if(buf == nil)
 		return -1;
 
-	if(p9dialparse(buf, &net, &unix, &host, &port) < 0){
+	if(p9dialparse(buf, &net, &unix, &ss, &port) < 0){
 		free(buf);
 		return -1;
 	}
-	if(strcmp(net, "unix") != 0 && host == 0){
+	if(strcmp(net, "unix") != 0 && isany(&ss)){
 		werrstr("invalid dial address 0.0.0.0 (aka *)");
 		free(buf);
 		return -1;
@@ -65,7 +76,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 	}
 	free(buf);
 
-	if((s = socket(AF_INET, proto, 0)) < 0)
+	if((s = socket(ss.ss_family, proto, 0)) < 0)
 		return -1;
 		
 	if(local){
@@ -74,7 +85,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 			close(s);
 			return -1;
 		}
-		if(p9dialparse(buf, &net, &unix, &host, &port) < 0){
+		if(p9dialparse(buf, &net, &unix, &ss, &port) < 0){
 		badlocal:
 			free(buf);
 			close(s);
@@ -84,29 +95,21 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 			werrstr("bad local address %s for dial %s", local, addr);
 			goto badlocal;
 		}
-		memset(&sal, 0, sizeof sal);
-		memmove(&sal.sin_addr, &host, 4);
-		sal.sin_family = AF_INET;
-		sal.sin_port = htons(port);
 		sn = sizeof n;
 		if(port && getsockopt(s, SOL_SOCKET, SO_TYPE, (void*)&n, &sn) >= 0
 		&& n == SOCK_STREAM){
 			n = 1;
 			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof n);
 		}
-		if(bind(s, (struct sockaddr*)&sal, sizeof sal) < 0)
+		if(bind(s, (struct sockaddr*)&ssl, sizeof ssl) < 0)
 			goto badlocal;
 		free(buf);
 	}
 
 	n = 1;
 	setsockopt(s, SOL_SOCKET, SO_BROADCAST, &n, sizeof n);
-	if(host != 0){
-		memset(&sa, 0, sizeof sa);
-		memmove(&sa.sin_addr, &host, 4);
-		sa.sin_family = AF_INET;
-		sa.sin_port = htons(port);
-		if(connect(s, (struct sockaddr*)&sa, sizeof sa) < 0){
+	if(!isany(&ss)){
+		if(connect(s, (struct sockaddr*)&ss, sizeof ss) < 0){
 			close(s);
 			return -1;
 		}
@@ -126,21 +129,13 @@ Unix:
 	/* Allow regular files in addition to Unix sockets. */
 	if((s = open(unix, ORDWR)) >= 0)
 		return s;
-	memset(&su, 0, sizeof su);
-	su.sun_family = AF_UNIX;
-	if(strlen(unix)+1 > sizeof su.sun_path){
-		werrstr("unix socket name too long");
-		free(buf);
-		return -1;
-	}
-	strcpy(su.sun_path, unix);
 	free(buf);
-	if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0){
+	if((s = socket(ss.ss_family, SOCK_STREAM, 0)) < 0){
 		werrstr("socket: %r");
 		return -1;
 	}
-	if(connect(s, (struct sockaddr*)&su, sizeof su) < 0){
-		werrstr("connect %s: %r", su.sun_path);
+	if(connect(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) < 0){
+		werrstr("connect %s: %r", ((struct sockaddr_un*)&ss)->sun_path);
 		close(s);
 		return -1;
 	}

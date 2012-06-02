@@ -1,6 +1,7 @@
 #include <u.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <libc.h>
 #include "mountnfs.h"
 
@@ -22,7 +23,7 @@ void
 main(int argc, char **argv)
 {
 	char *p, *net, *unx;
-	u32int host;
+	char host[INET_ADDRSTRLEN];
 	int n, port, proto, verbose;
 	struct sockaddr_in sa;
 
@@ -52,12 +53,17 @@ main(int argc, char **argv)
 		usage();
 
 	p = p9netmkaddr(argv[0], "udp", "nfs");
-	if(p9dialparse(strdup(p), &net, &unx, &host, &port) < 0)
+	if(p9dialparse(strdup(p), &net, &unx, &sa, &port) < 0)
 		sysfatal("bad address '%s'", p);
 
+	if(sa.sin_family != AF_INET)
+		sysfatal("only IPv4 is supported");
+
+	inet_ntop(AF_INET, &(sa.sin_addr), host, INET_ADDRSTRLEN);
+
 	if(verbose)
-		print("nfs server is net=%s addr=%d.%d.%d.%d port=%d\n",
-			net, host&0xFF, (host>>8)&0xFF, (host>>16)&0xFF, host>>24, port);
+		print("nfs server is net=%s addr=%s port=%d\n",
+			net, host, port);
 
 	proto = 0;
 	if(strcmp(net, "tcp") == 0)
@@ -66,11 +72,6 @@ main(int argc, char **argv)
 		proto = SOCK_DGRAM;
 	else
 		sysfatal("bad proto %s: can only handle tcp and udp", net);
-
-	memset(&sa, 0, sizeof sa);
-	memmove(&sa.sin_addr, &host, 4);
-	sa.sin_family = AF_INET;
-	sa.sin_port = htons(port);
 
 	mountnfs(proto, &sa, handle, handlelen, argv[1]);
 	exits(0);

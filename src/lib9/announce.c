@@ -39,18 +39,16 @@ p9announce(char *addr, char *dir)
 	int proto;
 	char *buf, *unix;
 	char *net;
-	u32int host;
 	int port, s;
 	int n;
 	socklen_t sn;
-	struct sockaddr_in sa;
-	struct sockaddr_un sun;
+	struct sockaddr_storage ss;
 
 	buf = strdup(addr);
 	if(buf == nil)
 		return -1;
 
-	if(p9dialparse(buf, &net, &unix, &host, &port) < 0){
+	if(p9dialparse(buf, &net, &unix, &ss, &port) < 0){
 		free(buf);
 		return -1;
 	}
@@ -67,11 +65,7 @@ p9announce(char *addr, char *dir)
 	}
 	free(buf);
 
-	memset(&sa, 0, sizeof sa);
-	memmove(&sa.sin_addr, &host, 4);
-	sa.sin_family = AF_INET;
-	sa.sin_port = htons(port);
-	if((s = socket(AF_INET, proto, 0)) < 0)
+	if((s = socket(ss.ss_family, proto, 0)) < 0)
 		return -1;
 	sn = sizeof n;
 	if(port && getsockopt(s, SOL_SOCKET, SO_TYPE, (void*)&n, &sn) >= 0
@@ -79,7 +73,7 @@ p9announce(char *addr, char *dir)
 		n = 1;
 		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof n);
 	}
-	if(bind(s, (struct sockaddr*)&sa, sizeof sa) < 0){
+	if(bind(s, (struct sockaddr*)&ss, sizeof ss) < 0){
 		close(s);
 		return -1;
 	}
@@ -90,22 +84,18 @@ p9announce(char *addr, char *dir)
 	return s;
 
 Unix:
-	memset(&sun, 0, sizeof sun);
-	sun.sun_family = AF_UNIX;
-	strcpy(sun.sun_path, unix);
-	if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+	if((s = socket(ss.ss_family, SOCK_STREAM, 0)) < 0)
 		return -1;
-	sn = sizeof sun;
-	if(bind(s, (struct sockaddr*)&sun, sizeof sun) < 0){
+	if(bind(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) < 0){
 		if(errno == EADDRINUSE
-		&& connect(s, (struct sockaddr*)&sun, sizeof sun) < 0
+		&& connect(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) < 0
 		&& errno == ECONNREFUSED){
 			/* dead socket, so remove it */
 			remove(unix);
 			close(s);
-			if((s = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+			if((s = socket(ss.ss_family, SOCK_STREAM, 0)) < 0)
 				return -1;
-			if(bind(s, (struct sockaddr*)&sun, sizeof sun) >= 0)
+			if(bind(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) >= 0)
 				goto Success;
 		}
 		close(s);
