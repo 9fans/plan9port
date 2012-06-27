@@ -22,7 +22,7 @@ mygetdents(int fd, struct dirent *buf, int n)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
-	long off;
+	off_t off;
 	return getdirentries(fd, (void*)buf, n, &off);
 }
 #elif defined(__sun__) || defined(__NetBSD__)
