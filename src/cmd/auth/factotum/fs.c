@@ -419,8 +419,9 @@ fswrite(Req *r)
 static void
 fsflush(Req *r)
 {
-	confirmflush(r);
-	logflush(r);
+	confirmflush(r->oldreq);
+	logflush(r->oldreq);
+	respond(r, nil);
 }
 
 static void
