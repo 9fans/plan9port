@@ -16,7 +16,7 @@ OFILES=\
 <$PLAN9/src/mksyslib
 
 HFILES=thread.h threadimpl.h
-OpenBSD.$O FreeBSD.$O: BSD.c
+FreeBSD.$O: BSD.c
 NetBSD.$O: Linux.c
 
 tprimes: test/tprimes.$O

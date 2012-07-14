@@ -56,6 +56,8 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #	define ucontext_t libthread_ucontext_t
 #	if defined __i386__
 #		include "386-ucontext.h"
+#	elif defined __amd64__
+#		include "x86_64-ucontext.h"
 #	else
 #		include "power-ucontext.h"
 #	endif

@@ -1,6 +1,3 @@
-#include <sys/syscall.h>
-#include <machine/asm.h>
-
 ENTRY(_tas)
 	li	%r0, 0
 	mr	%r4, %r3
@@ -89,37 +86,3 @@ ENTRY(_setmcontext)
 
 	lwz	%r3,	6*4(%r3)
 	blr
-
-ENTRY(rfork_thread)
-	/* sanity check */
-	cmpwi	%r4, 0
-	beq	1f
-	cmpwi	%r5, 0
-	beq	1f
-	
-	mr	%r7,%r4
-	
-	/* call rfork */
-	li	%r0, SYS_rfork
-	sc
-	cmpwi	%r0, 0
-	bne	2f
-	
-	/* check if we are parent or child */
-	cmpwi	%r3, 0
-	bnelr
-	
-	/* child */
-	mtlr	%r5	/* fp */
-	mr	%r3, %r6	/* arg */
-	mr	%r1, %r7	/* new sp */
-	blrl
-	
-	/* child returned, call _exit */
-	li	%r0, SYS_exit
-	sc
-1:
-	li	%r3, -1
-2:
-	b PIC_PLT(_C_LABEL(__cerror))
-

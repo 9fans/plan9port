@@ -116,6 +116,8 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDULONG
 #elif defined(__OpenBSD__)
 #	include <sys/types.h>
+#	include <pthread.h>
+#	define PLAN9PORT_USING_PTHREADS 1
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
