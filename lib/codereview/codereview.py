@@ -895,7 +895,7 @@ def CheckFormat(ui, repo, files, just_warn=False):
 
 # Check that gofmt run on the list of files does not change them
 def CheckGofmt(ui, repo, files, just_warn):
-	files = [f for f in files if (not f.startswith('test/') or f.startswith('test/bench/')) and f.endswith('.go')]
+	files = gofmt_required(files)
 	if not files:
 		return
 	cwd = os.getcwd()
@@ -925,7 +925,7 @@ def CheckGofmt(ui, repo, files, just_warn):
 
 # Check that *.[chys] files indent using tabs.
 def CheckTabfmt(ui, repo, files, just_warn):
-	files = [f for f in files if f.startswith('src/') and re.search(r"\.[chys]$", f)]
+	files = [f for f in files if f.startswith('src/') and re.search(r"\.[chys]$", f) and not re.search(r"\.tab\.[ch]$", f)]
 	if not files:
 		return
 	cwd = os.getcwd()
@@ -955,16 +955,26 @@ def CheckTabfmt(ui, repo, files, just_warn):
 #######################################################################
 # CONTRIBUTORS file parsing
 
-contributors = {}
+contributorsCache = None
+contributorsURL = None
 
 def ReadContributors(ui, repo):
-	global contributors
+	global contributorsCache
+	if contributorsCache is not None:
+		return contributorsCache
+
 	try:
-		f = open(repo.root + '/CONTRIBUTORS', 'r')
+		if contributorsURL is not None:
+			opening = contributorsURL
+			f = urllib2.urlopen(contributorsURL)
+		else:
+			opening = repo.root + '/CONTRIBUTORS'
+			f = open(repo.root + '/CONTRIBUTORS', 'r')
 	except:
-		ui.write("warning: cannot open %s: %s\n" % (repo.root+'/CONTRIBUTORS', ExceptionDetail()))
+		ui.write("warning: cannot open %s: %s\n" % (opening, ExceptionDetail()))
 		return
 
+	contributors = {}
 	for line in f:
 		# CONTRIBUTORS is a list of lines like:
 		#	Person <email>
@@ -979,6 +989,9 @@ def ReadContributors(ui, repo):
 			contributors[email.lower()] = (name, email)
 			for extra in m.group(3).split():
 				contributors[extra[1:-1].lower()] = (name, email)
+
+	contributorsCache = contributors
+	return contributors
 
 def CheckContributor(ui, repo, user=None):
 	set_status("checking CONTRIBUTORS file")
@@ -997,6 +1010,7 @@ def FindContributor(ui, repo, user=None, warn=True):
 	if m:
 		user = m.group(1)
 
+	contributors = ReadContributors(ui, repo)
 	if user not in contributors:
 		if warn:
 			ui.warn("warning: cannot find %s in CONTRIBUTORS\n" % (user,))
@@ -1093,9 +1107,7 @@ def hg_matchPattern(ui, repo, *pats, **opts):
 
 def hg_heads(ui, repo):
 	w = uiwrap(ui)
-	ret = hg_commands.heads(ui, repo)
-	if ret:
-		raise hg_util.Abort(ret)
+	hg_commands.heads(ui, repo)
 	return w.output()
 
 noise = [
@@ -1235,9 +1247,29 @@ def MatchAt(ctx, pats=None, opts=None, globbed=False, default='relpath'):
 #######################################################################
 # Commands added by code review extension.
 
+# As of Mercurial 2.1 the commands are all required to return integer
+# exit codes, whereas earlier versions allowed returning arbitrary strings
+# to be printed as errors.  We wrap the old functions to make sure we
+# always return integer exit codes now.  Otherwise Mercurial dies
+# with a TypeError traceback (unsupported operand type(s) for &: 'str' and 'int').
+# Introduce a Python decorator to convert old functions to the new
+# stricter convention.
+
+def hgcommand(f):
+	def wrapped(ui, repo, *pats, **opts):
+		err = f(ui, repo, *pats, **opts)
+		if type(err) is int:
+			return err
+		if not err:
+			return 0
+		raise hg_util.Abort(err)
+	wrapped.__doc__ = f.__doc__
+	return wrapped
+
 #######################################################################
 # hg change
 
+@hgcommand
 def change(ui, repo, *pats, **opts):
 	"""create, edit or delete a change list
 
@@ -1278,7 +1310,7 @@ def change(ui, repo, *pats, **opts):
 		name = "new"
 		cl = CL("new")
 		if repo[None].branch() != "default":
-			return "cannot create CL outside default branch"
+			return "cannot create CL outside default branch; switch with 'hg update default'"
 		dirty[cl] = True
 		files = ChangedFiles(ui, repo, pats, taken=Taken(ui, repo))
 
@@ -1351,6 +1383,7 @@ def change(ui, repo, *pats, **opts):
 #######################################################################
 # hg code-login (broken?)
 
+@hgcommand
 def code_login(ui, repo, **opts):
 	"""log in to code review server
 
@@ -1366,6 +1399,7 @@ def code_login(ui, repo, **opts):
 # hg clpatch / undo / release-apply / download
 # All concerned with applying or unapplying patches to the repository.
 
+@hgcommand
 def clpatch(ui, repo, clname, **opts):
 	"""import a patch from the code review server
 
@@ -1380,6 +1414,7 @@ def clpatch(ui, repo, clname, **opts):
 		return "cannot run hg clpatch outside default branch"
 	return clpatch_or_undo(ui, repo, clname, opts, mode="clpatch")
 
+@hgcommand
 def undo(ui, repo, clname, **opts):
 	"""undo the effect of a CL
 	
@@ -1391,6 +1426,7 @@ def undo(ui, repo, clname, **opts):
 		return "cannot run hg undo outside default branch"
 	return clpatch_or_undo(ui, repo, clname, opts, mode="undo")
 
+@hgcommand
 def release_apply(ui, repo, clname, **opts):
 	"""apply a CL to the release branch
 
@@ -1560,7 +1596,7 @@ def clpatch_or_undo(ui, repo, clname, opts, mode):
 	try:
 		cmd = subprocess.Popen(argv, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None, close_fds=sys.platform != "win32")
 	except:
-		return "hgpatch: " + ExceptionDetail()
+		return "hgpatch: " + ExceptionDetail() + "\nInstall hgpatch with:\n$ go get code.google.com/p/go.codereview/cmd/hgpatch\n"
 
 	out, err = cmd.communicate(patch)
 	if cmd.returncode != 0 and not opts["ignore_hgpatch_failure"]:
@@ -1643,6 +1679,7 @@ def lineDelta(deltas, n, len):
 		d = newdelta
 	return d, ""
 
+@hgcommand
 def download(ui, repo, clname, **opts):
 	"""download a change from the code review server
 
@@ -1662,6 +1699,7 @@ def download(ui, repo, clname, **opts):
 #######################################################################
 # hg file
 
+@hgcommand
 def file(ui, repo, clname, pat, *pats, **opts):
 	"""assign files to or remove files from a change list
 
@@ -1727,6 +1765,7 @@ def file(ui, repo, clname, pat, *pats, **opts):
 #######################################################################
 # hg gofmt
 
+@hgcommand
 def gofmt(ui, repo, *pats, **opts):
 	"""apply gofmt to modified files
 
@@ -1737,7 +1776,7 @@ def gofmt(ui, repo, *pats, **opts):
 		return codereview_disabled
 
 	files = ChangedExistingFiles(ui, repo, pats, opts)
-	files = [f for f in files if f.endswith(".go")]
+	files = gofmt_required(files)
 	if not files:
 		return "no modified go files"
 	cwd = os.getcwd()
@@ -1754,9 +1793,13 @@ def gofmt(ui, repo, *pats, **opts):
 		raise hg_util.Abort("gofmt: " + ExceptionDetail())
 	return
 
+def gofmt_required(files):
+	return [f for f in files if (not f.startswith('test/') or f.startswith('test/bench/')) and f.endswith('.go')]
+
 #######################################################################
 # hg mail
 
+@hgcommand
 def mail(ui, repo, *pats, **opts):
 	"""mail a change for review
 
@@ -1789,18 +1832,21 @@ def mail(ui, repo, *pats, **opts):
 #######################################################################
 # hg p / hg pq / hg ps / hg pending
 
+@hgcommand
 def ps(ui, repo, *pats, **opts):
 	"""alias for hg p --short
 	"""
 	opts['short'] = True
 	return pending(ui, repo, *pats, **opts)
 
+@hgcommand
 def pq(ui, repo, *pats, **opts):
 	"""alias for hg p --quick
 	"""
 	opts['quick'] = True
 	return pending(ui, repo, *pats, **opts)
 
+@hgcommand
 def pending(ui, repo, *pats, **opts):
 	"""show pending changes
 
@@ -1836,6 +1882,7 @@ def pending(ui, repo, *pats, **opts):
 def need_sync():
 	raise hg_util.Abort("local repository out of date; must sync before submit")
 
+@hgcommand
 def submit(ui, repo, *pats, **opts):
 	"""submit change to remote repository
 
@@ -1915,7 +1962,7 @@ def submit(ui, repo, *pats, **opts):
 	# push to remote; if it fails for any reason, roll back
 	try:
 		new_heads = len(hg_heads(ui, repo).split())
-		if old_heads != new_heads:
+		if old_heads != new_heads and not (old_heads == 0 and new_heads == 1):
 			# Created new head, so we weren't up to date.
 			need_sync()
 
@@ -1934,9 +1981,17 @@ def submit(ui, repo, *pats, **opts):
 	# We're committed. Upload final patch, close review, add commit message.
 	changeURL = hg_node.short(node)
 	url = ui.expandpath("default")
-	m = re.match("^https?://([^@/]+@)?([^.]+)\.googlecode\.com/hg/?", url)
+	m = re.match("(^https?://([^@/]+@)?([^.]+)\.googlecode\.com/hg/?)" + "|" +
+		"(^https?://([^@/]+@)?code\.google\.com/p/([^/.]+)(\.[^./]+)?/?)", url)
 	if m:
-		changeURL = "http://code.google.com/p/%s/source/detail?r=%s" % (m.group(2), changeURL)
+		if m.group(1): # prj.googlecode.com/hg/ case
+			changeURL = "http://code.google.com/p/%s/source/detail?r=%s" % (m.group(3), changeURL)
+		elif m.group(4) and m.group(7): # code.google.com/p/prj.subrepo/ case
+			changeURL = "http://code.google.com/p/%s/source/detail?r=%s&repo=%s" % (m.group(6), changeURL, m.group(7)[1:])
+		elif m.group(4): # code.google.com/p/prj/ case
+			changeURL = "http://code.google.com/p/%s/source/detail?r=%s" % (m.group(6), changeURL)
+		else:
+			print >>sys.stderr, "URL: ", url
 	else:
 		print >>sys.stderr, "URL: ", url
 	pmsg = "*** Submitted as " + changeURL + " ***\n\n" + message
@@ -1960,6 +2015,7 @@ def submit(ui, repo, *pats, **opts):
 #######################################################################
 # hg sync
 
+@hgcommand
 def sync(ui, repo, **opts):
 	"""synchronize with remote repository
 
@@ -2013,6 +2069,7 @@ def sync_changes(ui, repo):
 #######################################################################
 # hg upload
 
+@hgcommand
 def upload(ui, repo, name, **opts):
 	"""upload diffs to the code review server
 
@@ -2159,31 +2216,53 @@ def norollback(*pats, **opts):
 	"""(disabled when using this extension)"""
 	raise hg_util.Abort("codereview extension enabled; use undo instead of rollback")
 
+codereview_init = False
+
 def reposetup(ui, repo):
 	global codereview_disabled
 	global defaultcc
 	
-	repo_config_path = ''
-	# Read repository-specific options from lib/codereview/codereview.cfg
+	# reposetup gets called both for the local repository
+	# and also for any repository we are pulling or pushing to.
+	# Only initialize the first time.
+	global codereview_init
+	if codereview_init:
+		return
+	codereview_init = True
+
+	# Read repository-specific options from lib/codereview/codereview.cfg or codereview.cfg.
+	root = ''
 	try:
-		repo_config_path = repo.root + '/lib/codereview/codereview.cfg'
+		root = repo.root
+	except:
+		# Yes, repo might not have root; see issue 959.
+		codereview_disabled = 'codereview disabled: repository has no root'
+		return
+	
+	repo_config_path = ''
+	p1 = root + '/lib/codereview/codereview.cfg'
+	p2 = root + '/codereview.cfg'
+	if os.access(p1, os.F_OK):
+		repo_config_path = p1
+	else:
+		repo_config_path = p2
+	try:
 		f = open(repo_config_path)
 		for line in f:
-			if line.startswith('defaultcc: '):
-				defaultcc = SplitCommaSpace(line[10:])
+			if line.startswith('defaultcc:'):
+				defaultcc = SplitCommaSpace(line[len('defaultcc:'):])
+			if line.startswith('contributors:'):
+				global contributorsURL
+				contributorsURL = line[len('contributors:'):].strip()
 	except:
-		# If there are no options, chances are good this is not
-		# a code review repository; stop now before we foul
-		# things up even worse.  Might also be that repo doesn't
-		# even have a root.  See issue 959.
-		if repo_config_path == '':
-			codereview_disabled = 'codereview disabled: repository has no root'
-		else:
-			codereview_disabled = 'codereview disabled: cannot open ' + repo_config_path
+		codereview_disabled = 'codereview disabled: cannot open ' + repo_config_path
 		return
 
+	remote = ui.config("paths", "default", "")
+	if remote.find("://") < 0:
+		raise hg_util.Abort("codereview: default path '%s' is not a URL" % (remote,))
+
 	InstallMatch(ui, repo)
-	ReadContributors(ui, repo)
 	RietveldSetup(ui, repo)
 
 	# Disable the Mercurial commands that might change the repository.
@@ -2531,15 +2610,14 @@ def RietveldSetup(ui, repo):
 	
 	global releaseBranch
 	tags = repo.branchtags().keys()
-	if 'release-branch.r100' in tags:
+	if 'release-branch.go10' in tags:
 		# NOTE(rsc): This tags.sort is going to get the wrong
-		# answer when comparing release-branch.r99 with
-		# release-branch.r100.  If we do ten releases a year
-		# that gives us 4 years before we have to worry about this.
-		raise hg_util.Abort('tags.sort needs to be fixed for release-branch.r100')
+		# answer when comparing release-branch.go9 with
+		# release-branch.go10.  It will be a while before we care.
+		raise hg_util.Abort('tags.sort needs to be fixed for release-branch.go10')
 	tags.sort()
 	for t in tags:
-		if t.startswith('release-branch.'):
+		if t.startswith('release-branch.go'):
 			releaseBranch = t			
 
 #######################################################################
@@ -3265,6 +3343,10 @@ class FakeMercurialUI(object):
 		return self
 	def status(self, *args, **opts):
 		pass
+
+	def formatter(self, topic, opts):
+		from mercurial.formatter import plainformatter
+		return plainformatter(self, topic, opts)
 	
 	def readconfig(self, *args, **opts):
 		pass
@@ -3298,7 +3380,11 @@ class MercurialVCS(VersionControlSystem):
 			if not err and mqparent != "":
 				self.base_rev = mqparent
 			else:
-				self.base_rev = RunShell(["hg", "parents", "-q"]).split(':')[1].strip()
+				out = RunShell(["hg", "parents", "-q"], silent_ok=True).strip()
+				if not out:
+					# No revisions; use 0 to mean a repository with nothing.
+					out = "0:0"
+				self.base_rev = out.split(':')[1].strip()
 	def _GetRelPath(self, filename):
 		"""Get relative path of a file according to the current directory,
 		given its logical path in the repo."""
