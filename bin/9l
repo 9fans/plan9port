@@ -40,7 +40,7 @@ case "$tag" in
 	userpath=true
 	extralibs="$extralibs -lutil"
 	case "${SYSVERSION:-`uname -r`}" in
-	2.6.*)
+	2.6.* | 3.*)
 		extralibs="$extralibs -lpthread"
 		;;
 	esac
@@ -297,6 +297,7 @@ then
 	autoframeworks=""
 	if [ "x$ofiles" != "x" ]
 	then
+echo >&2 ofiles $ofiles
 		a=`
 			nm $ofiles |
 			grep '__p9l_autoframework_[a-zA-Z0-9+-]*$' |
