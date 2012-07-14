@@ -241,9 +241,8 @@ An XML version of
 .B /storage
 Brief storage totals.
 .TP
-.BI /set/ variable
-The current integer value of
-.IR variable .
+.BI /set
+Disable the values of all variables.
 Variables are:
 .BR compress ,
 whether or not to compress blocks
@@ -263,7 +262,11 @@ they exist to provide more experience with their effects.
 The other variables exist only for debugging and
 performance measurement.
 .TP
-.BI /set/ variable / value
+.BI /set?name= variable
+Show the current setting of
+.IR variable .
+.TP
+.BI /set?name= variable &value= value
 Set
 .I variable
 to
