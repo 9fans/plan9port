@@ -113,7 +113,6 @@ elfcorefreebsdamd64(Fhdr *fp, Elf *elf, ElfNote *note)
 		u->flags = l->rflags;
 		u->sp = l->rsp;
 		u->ss = l->ss;
-print("core PC=%#llux SP=%#llux\n", u->ip, u->sp);
 
 		if((fp->thread = realloc(fp->thread, (1+fp->nthread)*sizeof(fp->thread[0]))) == nil){
 			fprint(2, "warning: out of memory saving thread info\n");
