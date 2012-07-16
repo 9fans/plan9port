@@ -297,7 +297,6 @@ then
 	autoframeworks=""
 	if [ "x$ofiles" != "x" ]
 	then
-echo >&2 ofiles $ofiles
 		a=`
 			nm $ofiles |
 			grep '__p9l_autoframework_[a-zA-Z0-9+-]*$' |
