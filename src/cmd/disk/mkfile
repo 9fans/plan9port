@@ -1,0 +1,11 @@
+<$PLAN9/src/mkhdr
+
+TARG=\
+	mkext\
+	mkfs\
+
+BIN=$BIN/disk
+
+<$PLAN9/src/mkmany
+
+

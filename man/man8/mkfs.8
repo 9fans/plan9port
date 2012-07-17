@@ -1,0 +1,187 @@
+.TH MKFS 8
+.SH NAME
+mkfs, mkext \- archive or update a file system
+.SH SYNOPSIS
+.B disk/mkfs
+.RB [ -aprvxU ]
+.RB [ -d
+.IR root ]
+.RB [ -n
+.IR name ]
+.RB [ -s
+.IR source ]
+.RB [ -u
+.IR users ]
+.RB [ -z
+.IR n ]
+.I proto ...
+.PP
+.B disk/mkext
+.RB [ -d
+.IR name ]
+.RB [ -u ]
+.RB [ -h ]
+.RB [ -v ]
+.RB [ -x ]
+.RB [ -T ]
+.I file ...
+.SH DESCRIPTION
+.I Mkfs
+copies files from the file tree
+.I source
+(default
+.BR / )
+to a
+.B kfs
+file system (see
+.IR kfs (4)).
+The kfs service is mounted on
+.I root
+(default
+.BR /n/kfs ),
+and
+.B /adm/users
+is copied to
+.IB root /adm/users\f1.
+The
+.I proto
+files are read
+(see
+.IR proto (2)
+for their format)
+and any files specified in them that are out of date are copied to
+.BR /n/kfs .
+.PP
+.I Mkfs
+copies only those files that are out of date.
+Such a file is first copied into a temporary
+file in the appropriate destination directory
+and then moved to the destination file.
+Files in the
+.I kfs
+file system that are not specified in the
+.I proto
+file
+are not updated and not removed.
+.PP
+The options to
+.I mkfs
+are:
+.TF "s source"
+.TP
+.B a
+Instead of writing to a
+.B kfs
+file system, write an archive file to standard output, suitable for
+.IR mkext .
+All files in
+.IR proto ,
+not just those out of date, are archived.
+.TP
+.B x
+For use with
+.BR -a ,
+this option writes a list of file names, dates, and sizes to standard output
+rather than producing an archive file.
+.TP
+.BI "d " root
+Copy files into the tree rooted at
+.I root 
+(default
+.BR /n/kfs ).
+This option suppresses setting the
+.B uid
+and
+.B gid
+fields when copying files.
+Use
+.B -U
+to reenable it. 
+.TP
+.BI "n " name
+Use
+.RI kfs. name
+as the name of the kfs service (default
+.BR kfs ).
+.TP
+.B p
+Update the permissions of a file even if it is up to date.
+.TP
+.B r
+Copy all files.
+.TP
+.BI "s " source
+Copy from files rooted at the tree
+.IR source .
+.TP
+.BI "u " users
+Copy file
+.I users
+into
+.B /adm/users
+in the new system.
+.TP
+.B v
+Print the names of all of the files as they are copied.
+.TP
+.BI "z " n
+Copy files assuming kfs block
+.I n
+(default 1024)
+bytes long.
+If a block contains only 0-valued bytes, it is not copied.
+.PD
+.PP
+.I Mkext
+unpacks archive files made by the
+.B -a
+option of
+.IR mkfs .
+Each file on the command line is unpacked in one pass through the archive.
+If the file is a directory,
+all files and subdirectories of that directory are also unpacked.
+When a file is unpacked, the entire path is created if it
+does not exist.
+If no files are specified, the entire archive is unpacked;
+in this case, missing intermediate directories are not created.
+The options are:
+.TP
+.B d
+specifies a directory (default
+.BR / )
+to serve as the root of the unpacked file system.
+.TP
+.B u
+sets the owners of the files created to correspond to
+those in the archive and restores the modification times of the files.
+.TP
+.B T
+restores only the modification times of the files.
+.TP
+.B v
+prints the names and sizes of files as they are extracted.
+.TP
+.B h
+prints headers for the files on standard output
+instead of unpacking the files.
+.PD
+.SH EXAMPLES
+.PP
+Make an archive to establish a new file system:
+.IP
+.EX
+disk/mkfs -a -u files/adm.users -s dist proto > arch
+.EE
+.PP
+Unpack that archive onto a new file system:
+.IP
+.EX
+disk/mkext -u -d /n/newfs < arch
+.EE
+.SH SOURCE
+.B \*9/src/cmd/disk/mkfs.c
+.br
+.B \*9/src/cmd/disk/mkext.c
+.SH "SEE ALSO"
+.IR prep (8),
+.IR tar (1)
