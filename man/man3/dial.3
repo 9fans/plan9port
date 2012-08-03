@@ -37,7 +37,7 @@ void freenetconninfo(NetConnINfo*)
 int   dialparse(char *addr, char **net, char **unix,
 .br
 .B
-          u32int *host, int *port)
+          void *host, int *port)
 .SH DESCRIPTION
 For these routines,
 .I addr
@@ -181,7 +181,7 @@ will return
 .I Dialparse
 parses a network address as described above
 into a network name, a Unix domain socket address,
-an IPv4 host address, and an IPv4 port number.
+an IP host address, and an IP port number.
 .PP
 .I Getnetconninfo
 returns a structure containing information about a
@@ -198,8 +198,8 @@ network connection.  The structure is:
 	char	*lserv;		/* local service */
 	char	*rsys;		/* remote system */
 	char	*rserv;		/* remote service */
-	char *laddr;		/* local address */
-	char *raddr;		/* remote address */
+	char	*laddr;		/* local address */
+	char	*raddr;		/* remote address */
   };
 .EE
 .PP
