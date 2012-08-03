@@ -95,10 +95,10 @@ struct
 	int			isofs;
 	int			isnfs;
 	NSView		*content;
+	NSBitmapImageRep	*img;
 	int			needimg;
 	int			deferflush;
 	NSCursor		*cursor;
-        Memimage *memimage;
 } win;
 
 struct
@@ -348,6 +348,7 @@ makewin(char *s)
 static Memimage*
 initimg(void)
 {
+	Memimage *i;
 	NSSize size;
 	Rectangle r;
 
@@ -355,19 +356,32 @@ initimg(void)
 	LOG(@"initimg %.0f %.0f", size.width, size.height);
 
 	r = Rect(0, 0, size.width, size.height);
-	win.memimage = allocmemimage(r, XBGR32);
-	if(win.memimage == nil)
+	i = allocmemimage(r, XBGR32);
+	if(i == nil)
 		panic("allocmemimage: %r");
-	if(win.memimage->data == nil)
+	if(i->data == nil)
 		panic("i->data == nil");
 
-	return win.memimage;
+	win.img = [[NSBitmapImageRep alloc]
+		initWithBitmapDataPlanes:&i->data->bdata
+		pixelsWide:Dx(r)
+		pixelsHigh:Dy(r)
+		bitsPerSample:8
+		samplesPerPixel:3
+		hasAlpha:NO
+		isPlanar:NO
+		colorSpaceName:NSDeviceRGBColorSpace
+		bytesPerRow:bytesperline(r, 32)
+		bitsPerPixel:32];
+	return i;
 }
 
 static void
 resizeimg()
 {
+	[win.img release];
 	_drawreplacescreenimage(initimg());
+
 	mouseresized = 1;
 	sendmouse();
 }
@@ -427,7 +441,7 @@ _flushmemscreen(Rectangle r)
 			@"waiting image", nil]];
 }
 
-static void drawimg(NSBitmapImageRep*, NSRect, uint);
+static void drawimg(NSRect, uint);
 static void drawresizehandle(void);
 
 enum
@@ -442,17 +456,12 @@ static void
 flushimg(NSRect rect)
 {
 	NSRect dr, r;
-	NSBitmapImageRep *image;
-	Rectangle rrect;
-	NSSize size;
 
 	if([win.content lockFocusIfCanDraw] == 0)
 		return;
 
 	if(win.needimg){
-	  size.width = win.memimage->r.max.x - win.memimage->r.min.x;
-	  size.height = win.memimage->r.max.y - win.memimage->r.min.y;
-		if(!NSEqualSizes(rect.size, size)){
+		if(!NSEqualSizes(rect.size, [win.img size])){
 			LOG(@"flushimg reject %.0f %.0f",
 				rect.size.width, rect.size.height);
 			[win.content unlockFocus];
@@ -463,24 +472,6 @@ flushimg(NSRect rect)
 		win.deferflush = 1;
 
 	LOG(@"flushimg ok %.0f %.0f", rect.size.width, rect.size.height);
-
-
-	size = [win.content bounds].size;
-	LOG(@"initimg %.0f %.0f", size.width, size.height);
-	rrect = Rect(0, 0, size.width, size.height);
-
-	// FIXME: It is possible that we could do a smaller pixel copy here.
-	image = [[NSBitmapImageRep alloc]
-		initWithBitmapDataPlanes:&win.memimage->data->bdata
-		pixelsWide:Dx(rrect)
-		pixelsHigh:Dy(rrect)
-		bitsPerSample:8
-		samplesPerPixel:3
-		hasAlpha:NO
-		isPlanar:NO
-		colorSpaceName:NSDeviceRGBColorSpace
-		bytesPerRow:bytesperline(rrect, 32)
-		bitsPerPixel:32];
 
 	/*
 	 * Unless we are inside "drawRect", we have to round
@@ -493,25 +484,25 @@ flushimg(NSRect rect)
 	r = [win.content bounds];
 	r.size.height -= Cornersize;
 	dr = NSIntersectionRect(r, rect);
-	drawimg(image, dr, NSCompositeCopy);
+	drawimg(dr, NSCompositeCopy);
 
 	r.origin.y = r.size.height;
 	r.size = NSMakeSize(Cornersize, Cornersize);
 	dr = NSIntersectionRect(r, rect);
-	drawimg(image, dr, NSCompositeSourceIn);
+	drawimg(dr, NSCompositeSourceIn);
 
-	r.origin.x = size.width - Cornersize;
+	r.origin.x = [win.img size].width - Cornersize;
 	dr = NSIntersectionRect(r, rect);
-	drawimg(image, dr, NSCompositeSourceIn);
+	drawimg(dr, NSCompositeSourceIn);
 
 	r.size.width = r.origin.x - Cornersize;
 	r.origin.x -= r.size.width;
 	dr = NSIntersectionRect(r, rect);
-	drawimg(image, dr, NSCompositeCopy);
+	drawimg(dr, NSCompositeCopy);
 
 	if(OSX_VERSION<100700 && win.isofs==0){
-		r.origin.x = size.width - Handlesize;
-		r.origin.y = size.height - Handlesize;
+		r.origin.x = [win.img size].width - Handlesize;
+		r.origin.y = [win.img size].height - Handlesize;
 		r.size = NSMakeSize(Handlesize, Handlesize);
 		if(NSIntersectsRect(r, rect))
 			drawresizehandle();
@@ -555,8 +546,10 @@ flushwin(void)
 }
 
 static void
-drawimg(NSBitmapImageRep* image, NSRect dr, uint op)
+drawimg(NSRect dr, uint op)
 {
+	CGContextRef c;
+	CGImageRef i;
 	NSRect sr;
 
 	if(NSIsEmptyRect(dr))
@@ -564,10 +557,24 @@ drawimg(NSBitmapImageRep* image, NSRect dr, uint op)
 
 	sr =  [win.content convertRect:dr fromView:nil];
 
-	[image drawInRect:dr fromRect:sr
-		operation:op fraction:1
-		respectFlipped:YES hints:nil];
+	if(OSX_VERSION >= 100800){
+		i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(dr));
+		c = [[WIN graphicsContext] graphicsPort];
 
+		CGContextSaveGState(c);
+		if(op == NSCompositeSourceIn)
+			CGContextSetBlendMode(c, kCGBlendModeSourceIn);
+		CGContextTranslateCTM(c, 0, [win.img size].height);
+		CGContextScaleCTM(c, 1, -1);
+		CGContextDrawImage(c, NSRectToCGRect(sr), i);
+		CGContextRestoreGState(c);
+
+		CGImageRelease(i);
+	}else{
+		[win.img drawInRect:dr fromRect:sr
+			operation:op fraction:1
+			respectFlipped:YES hints:nil];
+	}
 //	NSFrameRect(dr);
 }
 
@@ -579,7 +586,7 @@ drawresizehandle(void)
 	Point c;
 	int i,j;
 
-	c = Pt(win.memimage->r.max.x - win.memimage->r.min.x, win.memimage->r.max.y - win.memimage->r.min.y);
+	c = Pt([win.img size].width, [win.img size].height);
 
 	[[WIN graphicsContext] setShouldAntialias:NO];
 
