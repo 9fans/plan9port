@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <arpa/inet.h>
 #include <sys/un.h>
 #include <errno.h>
 
@@ -20,6 +21,7 @@ convert(int s, struct sockaddr *sa, char **lsys, char **lserv, char **laddr)
 {
 	struct sockaddr_un *sun;
 	struct sockaddr_in *sin;
+	struct sockaddr_in6 *sin6;
 	uchar *ip;
 	u32int ipl;
 	socklen_t sn;
@@ -36,6 +38,30 @@ convert(int s, struct sockaddr *sa, char **lsys, char **lserv, char **laddr)
 		else
 			*lsys = smprint("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
 		*lserv = smprint("%d", ntohs(sin->sin_port));
+		sn = sizeof n;
+		if(getsockopt(s, SOL_SOCKET, SO_TYPE, (void*)&n, &sn) < 0)
+			return -1;
+		if(n == SOCK_STREAM)
+			net = "tcp";
+		else if(n == SOCK_DGRAM)
+			net = "udp";
+		else{
+			werrstr("unknown network type");
+			return -1;
+		}
+		*laddr = smprint("%s!%s!%s", net, *lsys, *lserv);
+		if(*lsys == nil || *lserv == nil || *laddr == nil)
+			return -1;
+		return 0;
+	case AF_INET6:
+		sin6 = (void*)sa;
+		if (memcmp(&sin6->sin6_addr, &in6addr_any, sizeof(in6addr_any)) == 0)
+			*lsys = strdup("*");
+		else{
+			*lsys = malloc(INET6_ADDRSTRLEN);
+			inet_ntop(AF_INET6, &sin6->sin6_addr, *lsys, INET6_ADDRSTRLEN);
+		}
+		*lserv = smprint("%d", ntohs(sin6->sin6_port));
 		sn = sizeof n;
 		if(getsockopt(s, SOL_SOCKET, SO_TYPE, (void*)&n, &sn) < 0)
 			return -1;
@@ -72,6 +98,7 @@ getnetconninfo(char *dir, int fd)
 	union {
 		struct sockaddr sa;
 		struct sockaddr_in sin;
+		struct sockaddr_in6 sin6;
 		struct sockaddr_un sun;
 	} u;
 	NetConnInfo *nci;
