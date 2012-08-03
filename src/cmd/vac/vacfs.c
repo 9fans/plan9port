@@ -233,6 +233,17 @@ threadmain(int argc, char *argv[])
 		mfd[0] = p[0];
 		mfd[1] = p[0];
 		srvfd = p[1];
+#ifndef PLAN9PORT
+		if(defsrv){
+			srvname = smprint("/srv/%s", defsrv);
+			fd = create(srvname, OWRITE|ORCLOSE, 0666);
+			if(fd < 0)
+				sysfatal("create %s: %r", srvname);
+			if(fprint(fd, "%d", srvfd) < 0)
+				sysfatal("write %s: %r", srvname);
+			free(srvname);
+		}
+#endif
 	}
 
 #ifdef PLAN9PORT
@@ -245,15 +256,6 @@ threadmain(int argc, char *argv[])
 
 	if(!stdio){
 		close(p[0]);
-		if(defsrv){
-			srvname = smprint("/srv/%s", defsrv);
-			fd = create(srvname, OWRITE|ORCLOSE, 0666);
-			if(fd < 0)
-				sysfatal("create %s: %r", srvname);
-			if(fprint(fd, "%d", srvfd) < 0)
-				sysfatal("write %s: %r", srvname);
-			free(srvname);
-		}
 		if(defmnt){
 			if(mount(srvfd, -1, defmnt, MREPL|MCREATE, "") < 0)
 				sysfatal("mount %s: %r", defmnt);
