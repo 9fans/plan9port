@@ -90,7 +90,7 @@ handling authentication:
 .IP
 .EX
 srv -a sources.cs.bell-labs.com sources
-sudo mount -t 9P -o user=$USER,uid=`id -u`,gid=`id -g`,proto=unix
+sudo mount -t 9p -o trans=unix,uname=$USER,dfltuid=`id -u`,dfltgid=`id -g`
            `namespace`/sources /n/sources
 .EE
 .SH SOURCE

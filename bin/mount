@@ -8,8 +8,8 @@ switch(`{uname}){
 case Linux
 	if(9 grep -si '	9p(2000)?$' /proc/filesystems){
 		if(u test -S $1)
-			exec u mount -t 9p -o proto'='unix,name'='$USER $1 $2
-		exec u mount -t 9p -o proto'='tcp,name'='$USER $1 $2
+			exec u mount -t 9p -o trans'='unix,uname'='$USER $1 $2
+		exec u mount -t 9p -o trans'='tcp,uname'='$USER $1 $2
 	}
 	if(9 grep -si '	fuse$' /proc/filesystems)
 		exec 9pfuse $1 $2
