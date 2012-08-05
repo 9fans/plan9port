@@ -3,6 +3,7 @@
 #include <auth.h>
 #include <bio.h>
 
+#define mkdir plan9mkdir
 #define getmode plan9_getmode
 #define setuid plan9_setuid
 

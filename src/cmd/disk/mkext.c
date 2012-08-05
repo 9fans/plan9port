@@ -2,6 +2,8 @@
 #include <libc.h>
 #include <bio.h>
 
+#define mkdir plan9mkdir
+
 enum{
 	LEN	= 8*1024,
 	NFLDS	= 6,		/* filename, modes, uid, gid, mtime, bytes */
