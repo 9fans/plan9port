@@ -33,6 +33,20 @@ putfd(char *dir, int fd)
 #undef unix
 #define unix sockunix
 
+static int
+addrlen(struct sockaddr_storage *ss)
+{
+	switch(ss->ss_family){
+	case AF_INET:
+		return sizeof(struct sockaddr_in);
+	case AF_INET6:
+		return sizeof(struct sockaddr_in6);
+	case AF_UNIX:
+		return sizeof(struct sockaddr_un);
+	}
+	return 0;
+}
+
 int
 p9announce(char *addr, char *dir)
 {
@@ -73,7 +87,7 @@ p9announce(char *addr, char *dir)
 		n = 1;
 		setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof n);
 	}
-	if(bind(s, (struct sockaddr*)&ss, sizeof ss) < 0){
+	if(bind(s, (struct sockaddr*)&ss, addrlen(&ss)) < 0){
 		close(s);
 		return -1;
 	}
@@ -86,16 +100,16 @@ p9announce(char *addr, char *dir)
 Unix:
 	if((s = socket(ss.ss_family, SOCK_STREAM, 0)) < 0)
 		return -1;
-	if(bind(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) < 0){
+	if(bind(s, (struct sockaddr*)&ss, addrlen(&ss)) < 0){
 		if(errno == EADDRINUSE
-		&& connect(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) < 0
+		&& connect(s, (struct sockaddr*)&ss, addrlen(&ss)) < 0
 		&& errno == ECONNREFUSED){
 			/* dead socket, so remove it */
 			remove(unix);
 			close(s);
 			if((s = socket(ss.ss_family, SOCK_STREAM, 0)) < 0)
 				return -1;
-			if(bind(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) >= 0)
+			if(bind(s, (struct sockaddr*)&ss, addrlen(&ss)) >= 0)
 				goto Success;
 		}
 		close(s);

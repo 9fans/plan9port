@@ -32,6 +32,20 @@ isany(struct sockaddr_storage *ss)
 	return 0;
 }
 
+static int
+addrlen(struct sockaddr_storage *ss)
+{
+	switch(ss->ss_family){
+	case AF_INET:
+		return sizeof(struct sockaddr_in);
+	case AF_INET6:
+		return sizeof(struct sockaddr_in6);
+	case AF_UNIX:
+		return sizeof(struct sockaddr_un);
+	}
+	return 0;
+}
+
 int
 p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 {
@@ -101,7 +115,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 			n = 1;
 			setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char*)&n, sizeof n);
 		}
-		if(bind(s, (struct sockaddr*)&ssl, sizeof ssl) < 0)
+		if(bind(s, (struct sockaddr*)&ssl, addrlen(&ssl)) < 0)
 			goto badlocal;
 		free(buf);
 	}
@@ -109,7 +123,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 	n = 1;
 	setsockopt(s, SOL_SOCKET, SO_BROADCAST, &n, sizeof n);
 	if(!isany(&ss)){
-		if(connect(s, (struct sockaddr*)&ss, sizeof ss) < 0){
+		if(connect(s, (struct sockaddr*)&ss, addrlen(&ss)) < 0){
 			close(s);
 			return -1;
 		}
@@ -134,7 +148,7 @@ Unix:
 		werrstr("socket: %r");
 		return -1;
 	}
-	if(connect(s, (struct sockaddr*)&ss, sizeof (struct sockaddr_un)) < 0){
+	if(connect(s, (struct sockaddr*)&ss, addrlen(&ss)) < 0){
 		werrstr("connect %s: %r", ((struct sockaddr_un*)&ss)->sun_path);
 		close(s);
 		return -1;
