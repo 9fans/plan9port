@@ -675,7 +675,7 @@ fusefmt(Fmt *fmt)
 				break;
 			}
 			case FUSE_SETXATTR: {
-				fmtprint(fmt, "(Serxattr)");
+				fmtprint(fmt, "(Setxattr)");
 				break;
 			}
 			case FUSE_GETXATTR: {
@@ -798,11 +798,13 @@ mountfuse(char *mtpt)
 	int i, pid, fd, r;
 	char buf[20];
 	struct vfsconf vfs;
-	char *f;
+	char *f, *v;
 	
-	if(getvfsbyname("fusefs", &vfs) < 0){
-		if(access(f="/System/Library/Extensions/fusefs.kext"
-			"/Contents/Resources/load_fusefs", 0) < 0 &&
+	if(getvfsbyname(v="osxfusefs", &vfs) < 0 && getvfsbyname(v="fusefs", &vfs) < 0){
+		if(access((v="osxfusefs", f="/Library/Filesystems/osxfusefs.fs"
+			"/Support/load_osxfusefs"), 0) < 0 &&
+		   access((v="fusefs", f="/System/Library/Extensions/fusefs.kext"
+			"/Contents/Resources/load_fusefs"), 0) < 0 &&
 		   access(f="/Library/Extensions/fusefs.kext"
 		   	"/Contents/Resources/load_fusefs", 0) < 0 &&
 		   access(f="/Library/Filesystems"
@@ -820,15 +822,15 @@ mountfuse(char *mtpt)
 			werrstr("load_fusefs failed: exit %d", r);
 			return -1;
 		}
-		if(getvfsbyname("fusefs", &vfs) < 0){
-			werrstr("getvfsbyname fusefs: %r");
+		if(getvfsbyname(v, &vfs) < 0){
+			werrstr("getvfsbyname %s: %r", v);
 			return -1;
 		}
 	}
 	
 	/* Look for available FUSE device. */
 	for(i=0;; i++){
-		snprint(buf, sizeof buf, "/dev/fuse%d", i);
+		snprint(buf, sizeof buf, "/dev/%.*s%d", strlen(v)-2, v, i);
 		if(access(buf, 0) < 0){
 			werrstr("no available fuse devices");
 			return -1;
@@ -848,6 +850,12 @@ mountfuse(char *mtpt)
 		 * mount_fusefs binary in different places.
 		 * Try all.
 		 */
+		/* Lion OSXFUSE location */
+		putenv("MOUNT_FUSEFS_DAEMON_PATH",
+			   "/Library/Filesystems/osxfusefs.fs/Support/mount_osxfusefs");
+		execl("/Library/Filesystems/osxfusefs.fs/Support/mount_osxfusefs",
+			  "mount_osxfusefs", buf, mtpt, nil);
+
 		/* Leopard location */
 		putenv("MOUNT_FUSEFS_DAEMON_PATH",
 			   "/Library/Filesystems/fusefs.fs/Support/mount_fusefs");
