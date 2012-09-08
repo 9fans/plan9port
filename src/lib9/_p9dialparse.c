@@ -108,17 +108,14 @@ p9dialparse(char *addr, char **pnet, char **punix, void *phost, int *pport)
 	/* translate host */
 	if(strcmp(host, "*") == 0){
 		ss->ss_family = AF_INET6;
-		ss->ss_len = sizeof(struct sockaddr_in6);
 		((struct sockaddr_in6*)ss)->sin6_addr = in6addr_any;
 	}else if((he = gethostbyname(host)) != nil){
 		ss->ss_family = he->h_addrtype;
 		switch(ss->ss_family){
 		case AF_INET:
-			ss->ss_len = sizeof(struct sockaddr_in);
 			((struct sockaddr_in*)ss)->sin_addr = *(struct in_addr*) *(he->h_addr_list);
 			break;
 		case AF_INET6:
-			ss->ss_len = sizeof(struct sockaddr_in6);
 			((struct sockaddr_in6*)ss)->sin6_addr = *(struct in6_addr*) *(he->h_addr_list);
 			break;
 		default:
