@@ -109,7 +109,7 @@ p9dialparse(char *addr, char **pnet, char **punix, void *phost, int *pport)
 	if(strcmp(host, "*") == 0){
 		ss->ss_family = AF_INET6;
 		((struct sockaddr_in6*)ss)->sin6_addr = in6addr_any;
-	}else if((he = gethostbyname(host)) != nil){
+	}else if((he = gethostbyname(host)) != nil && he->h_addr_list[0] != nil){
 		ss->ss_family = he->h_addrtype;
 		switch(ss->ss_family){
 		case AF_INET:
