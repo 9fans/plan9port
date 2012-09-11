@@ -1,7 +1,6 @@
 fn newwindow {
 	winctl=`{9p read acme/new/ctl}
 	winid=$winctl(1)
-	winctl noscroll
 }
 
 fn winctl {	
