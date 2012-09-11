@@ -257,6 +257,7 @@ allocfh(CFid *fid)
 {
 	return _alloc(fid, 0);
 }
+
 uvlong
 allocnodeid(CFid *fid)
 {
@@ -412,6 +413,7 @@ fuseforget(FuseMsg *m)
 		fprint(2, "bad count in forget\n");
 	ff->ref = 1;
 	freefusefid(ff);
+	freefusemsg(m);
 }
 
 /*
@@ -1255,8 +1257,15 @@ fusedispatch(void *v)
 		fusehandlers[fuselist[i].op] = fuselist[i].fn;
 	}
 
-	while((m = recvp(fusechan)) != nil)
-		threadcreate(fusethread, m, STACK);
+	while((m = recvp(fusechan)) != nil) {
+		switch(m->hdr->opcode) {
+		case FUSE_FORGET:
+		 	fusehandlers[m->hdr->opcode](m);
+			break;
+		default: 
+			threadcreate(fusethread, m, STACK);
+		}
+	}
 }
 
 void*
