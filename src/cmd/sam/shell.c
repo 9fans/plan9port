@@ -17,6 +17,7 @@ setname(File *f)
 	else
 		buf[0] = 0;
 	putenv("samfile", buf);
+	putenv("%", buf); // like acme
 }
 
 int
