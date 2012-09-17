@@ -9,6 +9,7 @@
 
 typedef struct	Slave Slave;
 typedef struct	Ebuf Ebuf;
+extern Mouse _drawmouse;
 
 struct Slave
 {
@@ -331,6 +332,7 @@ extract(int canblock)
 			if(finishrpc(eslave[i].rpc, &w)){
 				eslave[i].rpc = nil;
 				eb = newebuf(&eslave[i], sizeof(Mouse));
+				_drawmouse = w.mouse;
 				eb->u.mouse = w.mouse;
 				if(w.resized)
 					eresized(1);

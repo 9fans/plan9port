@@ -9,6 +9,7 @@
 #include <drawfcall.h>
 #include <mux.h>
 
+extern Mouse _drawmouse;
 int chattydrawclient = 0;
 
 static int	drawgettag(Mux *mux, void *vmsg);
@@ -259,6 +260,7 @@ _displayrdmouse(Display *d, Mouse *m, int *resized)
 	tx.type = Trdmouse;
 	if(displayrpc(d, &tx, &rx, nil) < 0)
 		return -1;
+	_drawmouse = rx.mouse;
 	*m = rx.mouse;
 	*resized = rx.resized;
 	return 0;
@@ -283,7 +285,10 @@ _displaymoveto(Display *d, Point p)
 
 	tx.type = Tmoveto;
 	tx.mouse.xy = p;
-	return displayrpc(d, &tx, &rx, nil);
+	if(displayrpc(d, &tx, &rx, nil) < 0)
+		return -1;
+	_drawmouse.xy = p;
+	return flushimage(d, 1);
 }
 
 int

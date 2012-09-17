@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include <mouse.h>
 
 Display	*display;
 Font	*font;
@@ -12,6 +13,11 @@ Screen	*_screen;
 
 int		debuglockdisplay = 1;
 char	*winsize;
+
+int		visibleclicks = 0;
+Image	*mousebuttons;
+Image	*mousesave;
+Mouse	_drawmouse;
 
 /*
 static void
@@ -31,7 +37,7 @@ int
 geninitdraw(char *devdir, void(*error)(Display*, char*), char *fontname, char *label, char *windir, int ref)
 {
 	Subfont *df;
-	char buf[128];
+	char buf[128], *p;
 
 	if(label == nil)
 		label = argv0;
@@ -86,6 +92,22 @@ geninitdraw(char *devdir, void(*error)(Display*, char*), char *fontname, char *l
 	display->screenimage = screen;
 	draw(screen, screen->r, display->white, nil, ZP);
 	flushimage(display, 1);
+
+	p = getenv("visibleclicks");
+	visibleclicks = p != nil && *p == '1';
+	if(visibleclicks) {
+		Font *f;
+		
+		f = display->defaultfont;
+		mousebuttons = allocimage(display, Rect(0,0,64,22), screen->chan, 0, DWhite);
+		border(mousebuttons, mousebuttons->r, 1, display->black, ZP);
+		border(mousebuttons, Rect(0, 0, 22, 22), 1, display->black, ZP);
+		border(mousebuttons, Rect(42, 0, 64, 22), 1, display->black, ZP);
+		string(mousebuttons, Pt(10-stringwidth(display->defaultfont, "1")/2, 11-f->height/2), display->black, ZP, display->defaultfont, "1");
+		string(mousebuttons, Pt(21+10-stringwidth(display->defaultfont, "2")/2, 11-f->height/2), display->black, ZP, display->defaultfont, "2");
+		string(mousebuttons, Pt(42+10-stringwidth(display->defaultfont, "3")/2, 11-f->height/2), display->black, ZP, display->defaultfont, "3");
+		mousesave = allocimage(display, Rect(0,0,64,22), screen->chan, 0, 0);
+	}
 
 	/*
 	 * I don't see any reason to go away gracefully,
@@ -346,6 +368,29 @@ doflush(Display *d)
 int
 flushimage(Display *d, int visible)
 {
+	if(visible == 1 && visibleclicks && mousebuttons && _drawmouse.buttons) {
+		Rectangle r, r1;
+		int ret;
+
+		r = mousebuttons->r;
+		r = rectaddpt(r, _drawmouse.xy);
+		r = rectaddpt(r, Pt(-Dx(mousebuttons->r)/2, -Dy(mousebuttons->r)-3));
+		drawop(mousesave, mousesave->r, screen, nil, r.min, S);
+		
+		r1 = rectaddpt(Rect(0, 0, 22, 22), r.min);
+		if(_drawmouse.buttons & 1)
+			drawop(screen, r1, mousebuttons, nil, ZP, S);
+		r1 = rectaddpt(r1, Pt(21, 0));
+		if(_drawmouse.buttons & 2)
+			drawop(screen, r1, mousebuttons, nil, Pt(21, 0), S);
+		r1 = rectaddpt(r1, Pt(21, 0));
+		if(_drawmouse.buttons & 4)
+			drawop(screen, r1, mousebuttons, nil, Pt(42, 0), S);
+		ret = flushimage(d, 2);
+		drawop(screen, r, mousesave, nil, ZP, S);
+		return ret;
+	}
+	
 	if(visible){
 		*d->bufp++ = 'v';	/* five bytes always reserved for this */
 		if(d->_isnewdisplay){
