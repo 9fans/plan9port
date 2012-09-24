@@ -239,6 +239,7 @@ struct Window
 	uchar	filemenu;
 	uchar	dirty;
 	uchar	autoindent;
+	uchar	showdel;
 	int		id;
 	Range	addr;
 	Range	limit;

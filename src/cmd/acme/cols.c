@@ -157,7 +157,7 @@ void
 colclose(Column *c, Window *w, int dofree)
 {
 	Rectangle r;
-	int i;
+	int i, didmouse, up;
 
 	/* w is locked */
 	if(!c->safe)
@@ -171,7 +171,7 @@ colclose(Column *c, Window *w, int dofree)
 	w->tag.col = nil;
 	w->body.col = nil;
 	w->col = nil;
-	restoremouse(w);
+	didmouse = restoremouse(w);
 	if(dofree){
 		windelete(w);
 		winclose(w);
@@ -183,17 +183,24 @@ colclose(Column *c, Window *w, int dofree)
 		draw(screen, r, display->white, nil, ZP);
 		return;
 	}
+	up = 0;
 	if(i == c->nw){		/* extend last window down */
 		w = c->w[i-1];
 		r.min.y = w->r.min.y;
 		r.max.y = c->r.max.y;
 	}else{			/* extend next window up */
+		up = 1;
 		w = c->w[i];
 		r.max.y = w->r.max.y;
 	}
 	draw(screen, r, textcols[BACK], nil, ZP);
-	if(c->safe)
+	if(c->safe) {
+		if(!didmouse && up)
+			w->showdel = TRUE;
 		winresize(w, r, FALSE, TRUE);
+		if(!didmouse && up)
+			movetodel(w);
+	}
 }
 
 void
@@ -535,7 +542,7 @@ coldragwin(Column *c, Window *w, int but)
 		r.max.y = c->w[i+1]->r.min.y-Border;
 	winresize(w, r, c->safe, TRUE);
 	c->safe = TRUE;
-    	winmousebut(w);
+	winmousebut(w);
 }
 
 Text*

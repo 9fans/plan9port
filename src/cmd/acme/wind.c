@@ -106,6 +106,34 @@ windrawbutton(Window *w)
 	draw(screen, br, b, nil, b->r.min);
 }
 
+int
+delrunepos(Window *w)
+{
+	int n;
+	Rune rune;
+	
+	for(n=0; n<w->tag.file->b.nc; n++) {
+		bufread(&w->tag.file->b, n, &rune, 1);
+		if(rune == ' ')
+			break;
+	}
+	n += 2;
+	if(n >= w->tag.file->b.nc)
+		return -1;
+	return n;
+}
+
+void
+movetodel(Window *w)
+{
+	int n;
+	
+	n = delrunepos(w);
+	if(n < 0)
+		return;
+	moveto(mousectl, addpt(frptofchar(&w->tag.fr, n), Pt(4, w->tag.fr.font->height-4)));
+}
+
 /*
  * Compute number of tag lines required
  * to display entire tag text.
@@ -115,14 +143,25 @@ wintaglines(Window *w, Rectangle r)
 {
 	int n;
 	Rune rune;
+	Point p;
 
-	if(!w->tagexpand)
+	if(!w->tagexpand && !w->showdel)
 		return 1;
+	w->showdel = FALSE;
 	w->tag.fr.noredraw = 1;
 	textresize(&w->tag, r, TRUE);
 	w->tag.fr.noredraw = 0;
 	w->tagsafe = FALSE;
 	
+	if(!w->tagexpand) {
+		/* use just as many lines as needed to show the Del */
+		n = delrunepos(w);
+		if(n < 0)
+			return 1;
+		p = subpt(frptofchar(&w->tag.fr, n), w->tag.fr.r.min);
+		return 1 + p.y / w->tag.fr.font->height;
+	}
+		
 	/* can't use more than we have */
 	if(w->tag.fr.nlines >= w->tag.fr.maxlines)
 		return w->tag.fr.maxlines;
