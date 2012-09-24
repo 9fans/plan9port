@@ -1,0 +1,79 @@
+.TH 9IMPORT 4
+.SH NAME
+9import \- import a name space from a remote system
+.SH SYNOPSIS
+.B 9import
+[
+.I options
+]
+.I system
+.I file
+[
+.I mountpoint
+]
+.SH DESCRIPTION
+The
+.I 9import
+tool allows an arbitrary
+.I file
+on a remote
+.I system,
+with the capability of running the Plan 9
+.IR exportfs (4)
+service,
+to be imported into the local name space.
+Usually
+.I file
+is a directory, so the complete
+file tree under the directory is made available.
+.PP
+A process is started on the
+remote machine, with authority of the user of
+.IR 9import ,
+to perform work for the local machine using the
+.IR exportfs (4)
+service.
+The default port used is TCP 17007.
+If
+.I mountpoint
+is omitted, then
+.I 9import
+uses the name of the remote
+.I file
+as the local mount point.
+.PP
+The options are:
+.TF "-s namexxx"
+.PD
+.TP
+.B -A
+Skip the authentication protocol.
+This is useful for connecting to foreign systems like Inferno.
+.TP
+.B -k \fIkeypattern
+Use
+.I keypattern
+to select a key to authenticate to the remote side
+(see
+.IR auth (2)).
+.TP
+.B -p
+Push the
+.IR aan (8)
+filter onto the connection to protect against
+temporary network outages.
+.TP
+.B -s \fIname
+Post the connection's mountable file descriptor as
+.BI /srv/ name\fR.
+.SH SOURCE
+.B \*9/src/cmd/9import.c
+.SH SEE ALSO
+.IR srv (4),
+.IR aan (8),
+.IR listen1 (8),
+.B cs
+in
+.IR ndb (7)
+.SH BUGS
+Encryption is not implemented.
