@@ -98,6 +98,12 @@ _xattach(char *label, char *winsize)
 	/* 
 	 * Figure out underlying screen format.
 	 */
+	if(XMatchVisualInfo(_x.display, xrootid, 24, TrueColor, &xvi)
+	|| XMatchVisualInfo(_x.display, xrootid, 24, DirectColor, &xvi)){
+		_x.vis = xvi.visual;
+		_x.depth = 24;
+	}
+	else
 	if(XMatchVisualInfo(_x.display, xrootid, 16, TrueColor, &xvi)
 	|| XMatchVisualInfo(_x.display, xrootid, 16, DirectColor, &xvi)){
 		_x.vis = xvi.visual;
@@ -108,12 +114,6 @@ _xattach(char *label, char *winsize)
 	|| XMatchVisualInfo(_x.display, xrootid, 15, DirectColor, &xvi)){
 		_x.vis = xvi.visual;
 		_x.depth = 15;
-	}
-	else
-	if(XMatchVisualInfo(_x.display, xrootid, 24, TrueColor, &xvi)
-	|| XMatchVisualInfo(_x.display, xrootid, 24, DirectColor, &xvi)){
-		_x.vis = xvi.visual;
-		_x.depth = 24;
 	}
 	else
 	if(XMatchVisualInfo(_x.display, xrootid, 8, PseudoColor, &xvi)
