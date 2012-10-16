@@ -38,6 +38,12 @@ int useliveresizing = 0;
 int useoldfullscreen = 0;
 int usebigarrow = 0;
 
+/*
+ * By default, devdraw ignores retina displays. A non-zero evironment variable
+ * |devdrawretina| will override this.
+ */
+int devdrawretina = 0;
+
 void
 usage(void)
 {
@@ -50,6 +56,8 @@ usage(void)
 void
 threadmain(int argc, char **argv)
 {
+	char *envvar;
+
 	/*
 	 * Move the protocol off stdin/stdout so that
 	 * any inadvertent prints don't screw things up.
@@ -77,6 +85,9 @@ threadmain(int argc, char **argv)
 		usage();
 	}ARGEND
 
+	if (envvar = getenv("devdrawretina"))
+		devdrawretina = atoi(envvar) > 0;
+
 	if(OSX_VERSION < 100700)
 		[NSAutoreleasePool new];
 
@@ -99,6 +110,8 @@ struct
 	int			needimg;
 	int			deferflush;
 	NSCursor		*cursor;
+	CGFloat		topointscale;
+	CGFloat		topixelscale;
 } win;
 
 struct
@@ -126,6 +139,12 @@ static void togglefs(void);
 static void acceptresizing(int);
 
 static NSCursor* makecursor(Cursor*);
+
+static NSSize winsizepixels();
+static NSSize winsizepoints();
+static NSRect scalerect(NSRect, CGFloat);
+static NSPoint scalepoint(NSPoint, CGFloat);
+static NSRect dilate(NSRect);
 
 @implementation appdelegate
 - (void)applicationDidFinishLaunching:(id)arg
@@ -349,10 +368,10 @@ static Memimage*
 initimg(void)
 {
 	Memimage *i;
-	NSSize size;
+	NSSize size, ptsize;
 	Rectangle r;
 
-	size = [win.content bounds].size;
+	size = winsizepixels();
 	LOG(@"initimg %.0f %.0f", size.width, size.height);
 
 	r = Rect(0, 0, size.width, size.height);
@@ -373,6 +392,10 @@ initimg(void)
 		colorSpaceName:NSDeviceRGBColorSpace
 		bytesPerRow:bytesperline(r, 32)
 		bitsPerPixel:32];
+	ptsize = winsizepoints();
+	[win.img setSize: ptsize];
+	win.topixelscale = size.width / ptsize.width;
+	win.topointscale = 1.0f / win.topixelscale;
 	return i;
 }
 
@@ -452,6 +475,9 @@ enum
 	Handlesize = 3*Barsize + 1*Pixel,
 };
 
+/*
+ * |rect| is in pixel coordinates.
+ */
 static void
 flushimg(NSRect rect)
 {
@@ -461,7 +487,7 @@ flushimg(NSRect rect)
 		return;
 
 	if(win.needimg){
-		if(!NSEqualSizes(rect.size, [win.img size])){
+		if(!NSEqualSizes(scalerect(rect, win.topointscale).size, [win.img size])){
 			LOG(@"flushimg reject %.0f %.0f",
 				rect.size.width, rect.size.height);
 			[win.content unlockFocus];
@@ -482,8 +508,12 @@ flushimg(NSRect rect)
 	 * Acme.
 	 */
 	r = [win.content bounds];
+	rect = dilate(scalerect(rect, win.topointscale));
 	r.size.height -= Cornersize;
 	dr = NSIntersectionRect(r, rect);
+	LOG(@"r %.0f %.0f", r.origin.x, r.origin.y, rect.size.width, rect.size.height);
+	LOG(@"rect in points %f %f %.0f %.0f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+	LOG(@"dr in points %f %f %.0f %.0f", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
 	drawimg(dr, NSCompositeCopy);
 
 	r.origin.y = r.size.height;
@@ -545,6 +575,9 @@ flushwin(void)
 	}
 }
 
+/*
+ * |dr| is sized in points. What if I make it pixels?
+ */
 static void
 drawimg(NSRect dr, uint op)
 {
@@ -556,7 +589,14 @@ drawimg(NSRect dr, uint op)
 		return;
 
 	sr =  [win.content convertRect:dr fromView:nil];
+	LOG(@"before dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
+	LOG(@"before sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
+	dr = scalerect(dr, win.topixelscale);
+	sr = scalerect(sr, win.topixelscale);
+
+	LOG(@"dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
+	LOG(@"sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 	if(OSX_VERSION >= 100800){
 		i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(dr));
 		c = [[WIN graphicsContext] graphicsPort];
@@ -564,8 +604,9 @@ drawimg(NSRect dr, uint op)
 		CGContextSaveGState(c);
 		if(op == NSCompositeSourceIn)
 			CGContextSetBlendMode(c, kCGBlendModeSourceIn);
+                        LOG(@"wim.img size %f %f\n", [win.img size].width, [win.img size].height);
 		CGContextTranslateCTM(c, 0, [win.img size].height);
-		CGContextScaleCTM(c, 1, -1);
+		CGContextScaleCTM(c, win.topointscale, -win.topointscale);
 		CGContextDrawImage(c, NSRectToCGRect(sr), i);
 		CGContextRestoreGState(c);
 
@@ -871,6 +912,10 @@ getmousepos(void)
 
 	p = [WIN mouseLocationOutsideOfEventStream];
 	q = [win.content convertPoint:p fromView:nil];
+
+	/* q is in point coordinates. in.mpos is in pixels. */
+	q = scalepoint(q, win.topixelscale);
+
 	in.mpos.x = round(q.x);
 	in.mpos.y = round(q.y);
 
@@ -1023,7 +1068,7 @@ sendmouse(void)
 	NSSize size;
 	int b;
 
-	size = [win.content bounds].size;
+	size = winsizepixels();
 	mouserect = Rect(0, 0, size.width, size.height);
 
 	b = in.kbuttons | in.mbuttons | in.mscroll;
@@ -1031,6 +1076,9 @@ sendmouse(void)
 	in.mscroll = 0;
 }
 
+/*
+ * |p| is in pixels.
+ */
 void
 setmouse(Point p)
 {
@@ -1049,7 +1097,7 @@ setmouse(Point p)
 	if([WIN inLiveResize])
 		return;
 
-	in.mpos = NSMakePoint(p.x, p.y);	// race condition
+	in.mpos = scalepoint(NSMakePoint(p.x, p.y), win.topointscale);	// race condition
 
 	q = [win.content convertPoint:in.mpos toView:nil];
 	q = [WIN convertBaseToScreen:q];
@@ -1060,19 +1108,31 @@ setmouse(Point p)
 	CGWarpMouseCursorPosition(NSPointToCGPoint(q));
 }
 
+/*
+ *  |r| is in points.
+ */
 static void
 followzoombutton(NSRect r)
 {
 	NSRect wr;
 	Point p;
+	NSPoint pt;
 
 	wr = [WIN frame];
 	wr.origin.y += wr.size.height;
 	r.origin.y += r.size.height;
 
 	getmousepos();
-	p.x = (r.origin.x - wr.origin.x) + in.mpos.x;
-	p.y = -(r.origin.y - wr.origin.y) + in.mpos.y;
+	pt.x = in.mpos.x;
+	pt.y = in.mpos.y;
+	pt = scalepoint(pt, win.topointscale);
+	pt.x = (r.origin.x - wr.origin.x) + pt.x;
+	pt.y = -(r.origin.y - wr.origin.y) + pt.y;
+	pt = scalepoint(pt, win.topixelscale);
+
+	p.x = pt.x;
+	p.y = pt.y;
+
 	setmouse(p);
 }
 
@@ -1181,6 +1241,7 @@ makemenu(void)
 	[m release];
 }
 
+// FIXME: Introduce a high-resolution Glenda image.
 static void
 makeicon(void)
 {
@@ -1285,6 +1346,9 @@ setcursor0(Cursor *c)
 		[d release];
 }
 
+/*
+ * Cursors will be scaled on retina display.
+ */
 static NSCursor*
 makecursor(Cursor *c)
 {
@@ -1333,4 +1397,53 @@ topwin(void)
 
 	in.willactivate = 1;
 	[NSApp activateIgnoringOtherApps:YES];
+}
+
+static NSSize
+winsizepoints()
+{
+    return [win.content bounds].size;
+}
+
+static NSSize
+winsizepixels()
+{
+	if (OSX_VERSION >= 100700 && devdrawretina)
+		return [win.content convertSizeToBacking: winsizepoints()];
+	else
+		return winsizepoints();
+}
+
+static NSRect
+scalerect(NSRect r, CGFloat scale)
+{
+	r.origin.x *= scale;
+	r.origin.y *= scale;
+	r.size.width *= scale;
+	 r.size.height *= scale;
+	 return r;
+}
+
+/*
+ * Expands rectangle |r|'s bounds to more inclusive integer bounds to
+ * eliminate 1 pixel gaps.
+ */
+static NSRect
+dilate(NSRect r)
+{
+	if(win.topixelscale > 1.0f){
+		r.origin.x = floorf(r.origin.x);
+		r.origin.y = floorf(r.origin.y);
+		r.size.width = ceilf(r.size.width + 0.5);
+		r.size.height = ceilf(r.size.height + 0.5);
+	}
+	return r;
+}
+
+static NSPoint
+scalepoint(NSPoint pt, CGFloat scale)
+{
+    pt.x *= scale;
+    pt.y *= scale;
+    return pt;
 }
