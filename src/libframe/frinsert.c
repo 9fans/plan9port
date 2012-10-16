@@ -101,7 +101,7 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 	Frbox *b;
 	int n, n0, nn0, y;
 	ulong cn0;
-	Image *col;
+	Image *col, *tcol;
 	Rectangle r;
 	static struct{
 		Point pt0, pt1;
@@ -245,10 +245,13 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 			if(r.max.x >= f->r.max.x)
 				r.max.x = f->r.max.x;
 			cn0--;
-			if(f->p0<=cn0 && cn0<f->p1)	/* b is inside selection */
+			if(f->p0<=cn0 && cn0<f->p1){ /* b is inside selection */
 				col = f->cols[HIGH];
-			else
+				tcol = f->cols[HTEXT];
+			}else{
 				col = f->cols[BACK];
+				tcol = f->cols[TEXT];
+			}
 			draw(f->b, r, col, nil, r.min);
 			y = 0;
 			if(pt.x == f->r.min.x)
@@ -256,12 +259,15 @@ frinsert(Frame *f, Rune *sp, Rune *ep, ulong p0)
 		}
 	}
 	/* insertion can extend the selection, so the condition here is different */
-	if(f->p0<p0 && p0<=f->p1)
+	if(f->p0<p0 && p0<=f->p1){
 		col = f->cols[HIGH];
-	else
+		tcol = f->cols[HTEXT];
+	}else{
 		col = f->cols[BACK];
+		tcol = f->cols[TEXT];
+	}
 	frselectpaint(f, ppt0, ppt1, col);
-	_frdrawtext(&frame, ppt0, f->cols[TEXT], col);
+	_frdrawtext(&frame, ppt0, tcol, col);
 	_fraddbox(f, nn0, frame.nbox);
 	for(n=0; n<frame.nbox; n++)
 		f->box[nn0+n] = frame.box[n];
