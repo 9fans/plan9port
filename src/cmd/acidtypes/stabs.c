@@ -603,14 +603,13 @@ int
 stabs2acid(Stab *stabs, Biobuf *b)
 {
 	volatile int fno, i;
-	char c, *file, *desc, *p;
+	char c, *desc, *p;
 	char *volatile dir, *volatile fn, *volatile name;
 	Ftypes *f;
 	Type *t, *tt;
 	StabSym sym;
 
 	dir = nil;
-	file = nil;
 	fno = 0;
 	fn = nil;
 	for(i=0; stabsym(stabs, i, &sym)>=0; i++){
@@ -621,8 +620,6 @@ stabs2acid(Stab *stabs, Biobuf *b)
 			if(sym.name){
 				if(sym.name[0] && sym.name[strlen(sym.name)-1] == '/')
 					dir = sym.name;
-				else
-					file = sym.name;
 			}
 			denumber();
 			fstack = nil;

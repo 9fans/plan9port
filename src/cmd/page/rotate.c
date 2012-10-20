@@ -85,21 +85,18 @@ void
 interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
 {
 	Point p0, p1;
-	Rectangle r0, r1;
+	Rectangle r0;
 
 	r0 = im->r;
-	r1 = im->r;
 	switch(axis) {
 	case Xaxis:
 		r0.max.x = n;
-		r1.min.x = n;
 		p0 = (Point){gran, 0};
 		p1 = (Point){-gran, 0};
 		break;
 	case Yaxis:
 	default:
 		r0.max.y = n;
-		r1.min.y = n;
 		p0 = (Point){0, gran};
 		p1 = (Point){0, -gran};
 		break;

@@ -102,12 +102,10 @@ rowadd(Row *row, Column *c, int x)
 void
 rowresize(Row *row, Rectangle r)
 {
-	int i, dx, odx, deltax;
+	int i, deltax;
 	Rectangle or, r1, r2;
 	Column *c;
 
-	dx = Dx(r);
-	odx = Dx(row->r);
 	or = row->r;
 	deltax = r.min.x - or.min.x;
 	row->r = r;

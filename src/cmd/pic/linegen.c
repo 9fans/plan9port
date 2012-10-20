@@ -20,7 +20,7 @@ obj *linegen(int type)
 	double dx[500], dy[500];
 	int ndxy;
 	double nx, ny;
-	Attr *ap, *chop_ap[4];
+	Attr *ap;
 
 	nx = curx;
 	ny = cury;
@@ -133,7 +133,6 @@ obj *linegen(int type)
 				else
 					chop2 = ap->a_val.f;
 			}
-			chop_ap[chop++] = ap;
 			break;
 		case FILL:
 			battr |= FILLBIT;

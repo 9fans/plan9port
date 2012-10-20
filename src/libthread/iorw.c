@@ -164,12 +164,11 @@ _ioread9pmsg(va_list *arg)
 	int fd;
 	void *a;
 	int n;
-	int r;
 
 	fd = va_arg(*arg, int);
 	a = va_arg(*arg, void*);
 	n = va_arg(*arg, int);
-	r = read9pmsg(fd, a, n);
+	read9pmsg(fd, a, n);
 	return n;
 }
 int

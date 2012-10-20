@@ -181,7 +181,7 @@ wintaglines(Window *w, Rectangle r)
 int
 winresize(Window *w, Rectangle r, int safe, int keepextra)
 {
-	int oy, y, mouseintag, mouseinbody, tagresized;
+	int oy, y, mouseintag, mouseinbody;
 	Point p;
 	Rectangle r1;
 
@@ -203,9 +203,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 
 	/* If needed, resize & redraw tag. */
 	y = r1.max.y;
-	tagresized = 0;
 	if(!safe || !w->tagsafe || !eqrect(w->tag.all, r1)){
-		tagresized = 1;
 		textresize(&w->tag, r1, TRUE);
 		y = w->tag.fr.r.max.y;
 		windrawbutton(w);

@@ -462,8 +462,6 @@ getactivity(Request *req)
 void
 putactivity(void)
 {
-	static ulong lastclean;
-
 	if(traceactivity) syslog(0, "dns", "put %d by %d.%d", dnvars.active, getpid(), threadid());
 	lock(&dnvars.lk);
 	dnvars.active--;
@@ -490,7 +488,6 @@ putactivity(void)
 	dnageall(0);
 
 	/* let others back in */
-	lastclean = now;
 	needrefresh = 0;
 	dnvars.mutex = 0;
 }

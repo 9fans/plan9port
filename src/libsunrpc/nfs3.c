@@ -78,7 +78,7 @@ nfs3statusstr(Nfs3Status x)
 }
 
 static struct {
-	SunStatus status;
+	Nfs3Status status;
 	char *msg;
 } etab[] = {
 	Nfs3ErrNotOwner,	"not owner",

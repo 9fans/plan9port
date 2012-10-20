@@ -82,13 +82,11 @@ sunudpread(void *v)
 static void
 sunudpwrite(void *v)
 {
-	uchar *buf;
 	Arg arg = *(Arg*)v;
 	SunMsgUdp *msg;
 
 	sendp(arg.csync, 0);
 
-	buf = emalloc(UdpMaxRead);
 	while((msg = recvp(arg.creply)) != nil){
 		if(udpwrite(arg.fd, &msg->udp, msg->msg.data, msg->msg.count) != msg->msg.count)
 			fprint(2, "udpwrite: %r\n");

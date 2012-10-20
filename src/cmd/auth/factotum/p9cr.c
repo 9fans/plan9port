@@ -156,7 +156,6 @@ p9crserver(Conv *c)
 		astype = AuthChal;
 		challen = NETCHLEN;
 	}else if(c->proto == &vnc){
-		astype = AuthVNC;
 		challen = MAXCHAL;
 	}else{
 		werrstr("bad proto");

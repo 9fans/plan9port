@@ -56,7 +56,7 @@ _xgetxdata(Memimage *m, Rectangle r)
 void
 _xputxdata(Memimage *m, Rectangle r)
 {
-	int offset, x, y;
+	int x, y;
 	uchar *p;
 	Point tp, xdelta, delta;
 	Xmem *xm;
@@ -69,10 +69,6 @@ _xputxdata(Memimage *m, Rectangle r)
 
 	xi = xm->xi;
 	gc = m->chan==GREY1 ? _x.gccopy0 : _x.gccopy;
-	if(m->depth == 24)
-		offset = r.min.x & 3;
-	else
-		offset = r.min.x & (31/m->depth);
 
 	delta = subpt(r.min, m->r.min);
 

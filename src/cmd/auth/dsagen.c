@@ -14,11 +14,9 @@ void
 main(int argc, char **argv)
 {
 	char *s;
-	int bits;
 	char *tag;
 	DSApriv *key;
 
-	bits = 1024;
 	tag = nil;
 	key = nil;
 	fmtinstall('B', mpfmt);

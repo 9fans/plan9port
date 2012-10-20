@@ -63,7 +63,7 @@ enum
 void
 setstatus(int bits)
 {
-	static int startindx = -1, endindx;
+	static int startindx = -1;
 	static char *startname, *endname;
 	static int lastbits;
 	char buf[100];
@@ -91,16 +91,13 @@ setstatus(int bits)
 		}
 		lastbits = bits;
 		startindx = tagindx;
-		endindx = tagindx;
 		startname = tagname;
 		endname = tagname;
 	} else {
-		endindx = tagindx;
 		endname = tagname;
 	}
 	if(bits < 0) {
 		startindx = -1;
-		endindx = -1;
 		return;
 	}	
 }
