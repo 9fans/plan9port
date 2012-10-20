@@ -8,6 +8,8 @@ BEGIN {
 	statuslen = 0
 	debug = 0
 	updates = "/dev/stderr"
+	if(ENVIRON["winid"] != "") # running in acme window
+		updates = ""
 }
 
 function myflush(f)
