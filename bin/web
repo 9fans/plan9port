@@ -6,6 +6,9 @@ plumbapple()
 	none)
 		open "$@"
 		;;
+	*google-chrome*)
+		open -a "Google Chrome" "$@"
+		;;
 	*)
 		open -a "$BROWSER" "$@"
 		;;
