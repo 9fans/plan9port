@@ -172,6 +172,7 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	}ARGEND
+	USED(defmnt);
 
 	if(pipe(p) < 0)
 		error("pipe failed");

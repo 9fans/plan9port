@@ -171,6 +171,8 @@ readpsfontdesc(char *fontname, int trindex) {
 			startchar = RUNEGETCHAR(start);
 			endfont = RUNEGETGROUP(end);
 			endchar = RUNEGETCHAR(end);
+			USED(startchar);
+			USED(endchar);
 			pfid = findpfn(psfontnam, 1);
 			if (startfont != endfont) {
 				error(WARNING, "font descriptions must not cross 256 glyph block boundary\n");

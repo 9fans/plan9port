@@ -217,11 +217,15 @@ void xbits(Tchar i, int bitf)
 
 Tchar t_setch(int c)
 {
+#ifndef UNICODE
 	int j;
+#endif
 	char temp[50];
 	char *s;
 
+#ifndef UNICODE
 	j = 0;
+#endif
 	s = temp;
 	if (c == '(') {	/* \(xx */
 		if ((*s++ = getach()) == 0 || (*s++ = getach()) == 0)
@@ -711,9 +715,8 @@ char *strdupl(const char *s)	/* make a copy of s */
 int
 setfp(int pos, int f, char *truename, int print)	/* mount font f at position pos[0...nfonts] */
 {
-	char pathname[NS], shortname[NS], *sl;
+	char pathname[NS], shortname[NS];
 
-	sl = (char*)0;
 	zapwcache(0);
 	if (truename)
 		strcpy(shortname, truename);

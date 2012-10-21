@@ -65,6 +65,7 @@ p9crclient(Conv *c)
 	res = nil;
 	ret = -1;
 	attr = c->attr;
+	astype = -1;
 
 	if(c->proto == &p9cr){
 		astype = AuthChal;
@@ -131,6 +132,7 @@ p9crclient(Conv *c)
 	ret = 0;
 
 out:
+	USED(astype);
 	keyclose(k);
 	if(c->attr != attr)
 		freeattr(attr);

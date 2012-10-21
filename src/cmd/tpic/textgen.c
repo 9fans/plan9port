@@ -8,8 +8,6 @@ textgen(void)
 	int i, sub, nstr, at, with, hset;
 	double xwith, ywith, h, w, x0, y0, x1, y1;
 	obj *p, *ppos;
-	static double prevh = 0;
-	static double prevw = 0;
 	Attr *ap;
 
 	at = with = nstr = hset = 0;
@@ -90,8 +88,6 @@ textgen(void)
 		cury = y1;
 	else
 		cury = y0;
-	prevh = h;
-	prevw = w;
 	return(p);
 }
 

@@ -682,6 +682,7 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 		if(ext == nil)
 			return 0;
 		n = vacfileread(vf, ext, size, 0);
+		USED(n);
 		ext[size] = 0;
 		vacfiledecref(vf);
 		if(vd->mode & ModeLink){

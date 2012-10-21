@@ -163,7 +163,7 @@ void n_setwd(void)
 	int	delim, emsz, k;
 	int	savhp, savapts, savapts1, savfont, savfont1, savpts, savpts1;
 
-	base = numtabp[ST].val = numtabp[ST].val = wid = numtabp[CT].val = 0;
+	base = numtabp[ST].val = numtabp[SB].val = wid = numtabp[CT].val = 0;
 	if (ismot(i = getch()))
 		return;
 	delim = cbits(i);

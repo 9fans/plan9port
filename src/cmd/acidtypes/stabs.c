@@ -337,6 +337,7 @@ parsedefn(char *p, Type *t, char **pp)
 			oops();
 		sign = (*p == 's');
 		p++;
+		ischar = 0;
 		if(*p == 'c'){
 			ischar = 1;
 			p++;
@@ -353,6 +354,8 @@ parsedefn(char *p, Type *t, char **pp)
 			t->printfmt = 'd';
 		else
 			t->printfmt = 'x';
+		USED(bits);
+		USED(ischar);
 		break;
 	case 'R':	/* fp type */
 		n = parseint(&p);

@@ -497,7 +497,7 @@ void
 xls(int argc, char **argv)
 {
 	char *err, *name, *xname, *f[4], buf[4096];
-	int nf, i, j, l, sort;
+	int i, j, l, sort;
 	int lflag, dflag, tflag, n, len[4];
 	Dir *d;
 	CFid *fid;
@@ -569,7 +569,7 @@ xls(int argc, char **argv)
 				d[i].dev = 0;
 				snprint(buf, sizeof buf, "%d %s %s %lld",
 					d[i].dev, d[i].uid, d[i].gid, d[i].length);
-				nf = getfields(buf, f, 4, 0, " ");
+				getfields(buf, f, 4, 0, " ");
 				for(j=0; j<4; j++){
 					l = strlen(f[j]);
 					if(l > len[j])

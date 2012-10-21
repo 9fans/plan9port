@@ -973,6 +973,7 @@ runmsg(Aconn *a)
 
 	case SSH_AGENTC_RSA_CHALLENGE:
 		n = get4(&m);
+		USED(n);
 		ek = getmp(&m);
 		mod = getmp(&m);
 		chal = getmp(&m);

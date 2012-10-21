@@ -120,7 +120,7 @@ nfs3errstr(Nfs3Status status)
 	int i;
 
 	for(i=0; i<nelem(etab); i++){
-		if(etab[i].status == status){
+		if((int)etab[i].status == (int)status){
 			werrstr(etab[i].msg);
 			return;
 		}

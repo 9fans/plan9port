@@ -4536,6 +4536,7 @@ validptr(void* p)
 	static char c;
 
 	c = *((char*)p);
+	USED(c);
 	return 1;
 }
 

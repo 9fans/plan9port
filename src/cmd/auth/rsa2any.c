@@ -164,7 +164,6 @@ getdsakey(int argc, char **argv, int needprivate, Attr **pa)
 	char *file, *s, *p;
 	DSApriv *key;
 	Biobuf *b;
-	int regen;
 	Attr *a;
 
 	if(argc == 0)
@@ -190,7 +189,6 @@ getdsakey(int argc, char **argv, int needprivate, Attr **pa)
 		return nil;
 	}
 
-	regen = 0;
 	a = _parseattr(s+4);
 	if(a == nil){
 		werrstr("empty key");
