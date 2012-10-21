@@ -1358,6 +1358,7 @@ runproc(void *argvp)
 	char *rcarg[4];
 	void **argv;
 	CFsys *fs;
+	char *shell;
 
 	threadsetname("runproc");
 
@@ -1467,6 +1468,8 @@ runproc(void *argvp)
 
 	if(argaddr)
 		putenv("acmeaddr", argaddr);
+	if(acmeshell != nil)
+		goto Hard;
 	if(strlen(t) > sizeof buf-10)	/* may need to print into stack */
 		goto Hard;
 	inarg = FALSE;
@@ -1576,7 +1579,10 @@ Hard:
 		chdir(dir);	/* ignore error: probably app. window */
 		free(dir);
 	}
-	rcarg[0] = "rc";
+	shell = acmeshell;
+	if(shell == nil)
+		shell = "rc";
+	rcarg[0] = shell;
 	rcarg[1] = "-c";
 	rcarg[2] = t;
 	rcarg[3] = nil;
@@ -1590,7 +1596,7 @@ Hard:
 			sendul(cpid, ret);
 		threadexits(nil);
 	}
-	warning(nil, "exec rc: %r\n");
+	warning(nil, "exec %s: %r\n", shell);
 
    Fail:
 	/* threadexec hasn't happened, so send a zero */
