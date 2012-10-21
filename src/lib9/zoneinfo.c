@@ -36,7 +36,7 @@ readtzfile(char *file)
 	fd = open(file, OREAD);
 	if (fd<0)
 		return nil;
-        d = dirfstat(fd);
+	d = dirfstat(fd);
 	if (d==nil)
 		return nil;
 	p = malloc(d->length);
@@ -118,21 +118,19 @@ readtimezone(void)
 	char *tmp;
 
 	z.timecnt = 0;
-	switch (zonefile==nil) {
-	default:
+	if(zonefile==nil) {
 		if ((tmp=getenv("timezone"))!=nil) {
 			tzdata = readtzfile(tmp);
 			free(tmp);
-			break;
+			goto havedata;
 		}
 		zonefile = "/etc/localtime";
-		/* fall through */
-	case 0:
-		tzdata = readtzfile(zonefile);
 	}
+	tzdata = readtzfile(zonefile);
 	if (tzdata==nil)
 		return;
 
+havedata:
 	if (strncmp("TZif", (char*)tzdata, 4)!=0)
 		goto errfree;
 

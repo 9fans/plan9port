@@ -105,8 +105,10 @@ draw(Biobuf *Bp) {
 	r = Bgetrune(Bp);
 	switch(r) {
 	case 'l':
-		if (Bgetfield(Bp, 'd', &x1, 0)<=0 || Bgetfield(Bp, 'd', &y1, 0)<=0 || Bgetfield(Bp, 'r', &i, 0)<=0)
+		if (Bgetfield(Bp, 'd', &x1, 0)<=0 || Bgetfield(Bp, 'd', &y1, 0)<=0 || Bgetfield(Bp, 'r', &i, 0)<=0) {
 			error(FATAL, "draw line function, destination coordinates not found.\n");
+			return;
+		}
 
 		endstring();
 		if (pageon())
@@ -115,8 +117,10 @@ draw(Biobuf *Bp) {
 		vpos += y1;
 		break;
 	case 'c':
-		if (Bgetfield(Bp, 'd', &d1, 0)<=0)
+		if (Bgetfield(Bp, 'd', &d1, 0)<=0) {
 			error(FATAL, "draw circle function, diameter coordinates not found.\n");
+			return;
+		}
 
 		endstring();
 		if (pageon())
@@ -124,8 +128,10 @@ draw(Biobuf *Bp) {
 		hpos += d1;
 		break;
 	case 'e':
-		if (Bgetfield(Bp, 'd', &d1, 0)<=0 || Bgetfield(Bp, 'd', &d2, 0)<=0)
+		if (Bgetfield(Bp, 'd', &d1, 0)<=0 || Bgetfield(Bp, 'd', &d2, 0)<=0) {
 			error(FATAL, "draw ellipse function, diameter coordinates not found.\n");
+			return;
+		}
 
 		endstring();
 		if (pageon())
@@ -133,8 +139,10 @@ draw(Biobuf *Bp) {
 		hpos += d1;
 		break;
 	case 'a':
-		if (Bgetfield(Bp, 'd', &x1, 0)<=0 || Bgetfield(Bp, 'd', &y1, 0)<=0 || Bgetfield(Bp, 'd', &x2, 0)<=0 || Bgetfield(Bp, 'd', &y2, 0)<=0)
+		if (Bgetfield(Bp, 'd', &x1, 0)<=0 || Bgetfield(Bp, 'd', &y1, 0)<=0 || Bgetfield(Bp, 'd', &x2, 0)<=0 || Bgetfield(Bp, 'd', &y2, 0)<=0) {
 			error(FATAL, "draw arc function, coordinates not found.\n");
+			return;
+		}
 
 		endstring();
 		if (pageon())
@@ -150,7 +158,7 @@ draw(Biobuf *Bp) {
 		break;
 	default:
 		error(FATAL, "unknown draw function <%c>\n", r);
-		break;
+		return;
 	}
 }
 

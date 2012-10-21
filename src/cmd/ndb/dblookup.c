@@ -103,6 +103,7 @@ dblookup(char *name, int class, int type, int auth, int ttl)
 	}
 
 	lock(&dblock);
+	rp = nil;
 	dp = dnlookup(name, class, 1);
 	if(opendatabase() < 0)
 		goto out;

@@ -511,7 +511,6 @@ vac(VacFile *fp, VacFile *diffp, char *name, Dir *d)
 		/* don't write anything */
 	}
 	else if(d->mode&DMSYMLINK){
-		memset(buf, 0, sizeof buf);
 		n = readlink(name, buf, sizeof buf);
 		if(n > 0 && vacfilewrite(f, buf, n, 0) < 0){
 			warn("venti write %s: %r", name);

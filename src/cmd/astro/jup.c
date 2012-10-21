@@ -16,8 +16,6 @@ jup(void)
 	anom = 225.22165 + .0830912*eday - .0484*capt;
 	motion = 299.1284/3600.;
 
-
-	anom = anom;
 	incl *= radian;
 	node *= radian;
 	argp *= radian;

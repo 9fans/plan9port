@@ -146,6 +146,7 @@ start:
 		fmtprint(&fmt, "%s\n", p);
 	}
 	sysfatal("did not find end of message");
+	return; // silence clang warning
 
 end:
 	text = fmtstrflush(&fmt);

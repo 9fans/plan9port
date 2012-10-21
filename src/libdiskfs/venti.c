@@ -30,7 +30,6 @@ vtfileindices(VtEntry *e, u32int bn, int *index)
 	memset(index, 0, VtPointerDepth*sizeof(int));
 
 	np = e->psize/VtScoreSize;
-	memset(index, 0, sizeof(index));
 	for(i=0; bn > 0; i++){
 		if(i >= VtPointerDepth){
 			werrstr("bad block number %lud", (ulong)bn);

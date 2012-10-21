@@ -37,7 +37,7 @@ __xtoplan9kbd(XEvent *e)
 	needstack(64*1024);	/* X has some *huge* buffers in openobject */
 		/* and they're even bigger on SuSE */
 	XLookupString((XKeyEvent*)e,NULL,0,&k,NULL);
-	if(k == k == NoSymbol)
+	if(k == NoSymbol)
 		return -1;
 
 	if(k&0xFF00){

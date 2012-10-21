@@ -216,7 +216,7 @@ sunmsgreplyerror(SunMsg *m, SunStatus error)
 	bp = emalloc(n);
 	ep = bp+n;
 	p = bp;
-	if(sunrpcpack(p, ep, &p, &m->rpc) < 0){
+	if((int32)sunrpcpack(p, ep, &p, &m->rpc) < 0){
 		fprint(2, "sunrpcpack failed\n");
 		sunmsgdrop(m);
 		return 0;

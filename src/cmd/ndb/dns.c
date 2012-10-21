@@ -517,10 +517,6 @@ rwalk(Job *job, Mfile *mf)
 
 	if(job->request.newfid != job->request.fid){
 		/* clone fid */
-		if(job->request.newfid<0){
-			err = "clone newfid out of range";
-			goto send;
-		}
 		nmf = copyfid(mf, job->request.newfid);
 		if(nmf == nil){
 			err = "clone bad newfid";

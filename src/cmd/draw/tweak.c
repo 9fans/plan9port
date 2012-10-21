@@ -1211,7 +1211,7 @@ cntledit(char *tag)
 	}
 	if(strcmp(tag, "but1")==0
 	|| strcmp(tag, "but2")==0){
-		if(buf[0]<'0' || '9'<buf[0] || (l=atoi(buf))<0 || l>255){
+		if(buf[0]<'0' || '9'<buf[0] || (long)(l=atoi(buf))<0 || l>255){
 			mesg("illegal value");
 			return;
 		}
@@ -1855,7 +1855,7 @@ tchar(Thing *t)
 	c -= t->off;
 	d -= t->off;
 	while(c <= d){
-		if(c<0 || c>=t->s->n){
+		if((long)c<0 || c>=t->s->n){
 			mesg("0x%lux not in font %s", c+t->off, t->name);
 			return;
 		}

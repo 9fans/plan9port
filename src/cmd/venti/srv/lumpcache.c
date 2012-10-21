@@ -413,7 +413,7 @@ checklumpcache(void)
 	}
 	if(lumpcache.avail != lumpcache.allowed - size){
 		fprint(2, "mismatched available=%d and allowed=%d - used=%d space", lumpcache.avail, lumpcache.allowed, size);
-		*(int*)0=0;
+		*(volatile int*)0=0;
 	}
 
 	nfree = 0;

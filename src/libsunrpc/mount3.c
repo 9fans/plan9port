@@ -131,7 +131,6 @@ nfsmount3rmntsize(NfsMount3RMnt *x)
 		a = a + 4 + 4 * x->nauth;
 		break;
 	}
-	a = a;
 	return a;
 }
 uint

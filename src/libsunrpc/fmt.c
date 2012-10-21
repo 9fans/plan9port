@@ -52,7 +52,7 @@ suncallfmt(Fmt *f)
 		p = fmtProg[i];
 		if(p->prog == c->rpc.prog && p->vers == c->rpc.vers){
 			runlock(&fmtLock);
-			if(c->type < 0 || c->type >= p->nproc || (fmt=p->proc[c->type].fmt) == nil)
+			if((int32)c->type < 0 || c->type >= p->nproc || (fmt=p->proc[c->type].fmt) == nil)
 				return fmtprint(f, "unknown proc %c%d", "TR"[c->type&1], c->type>>1);
 			(*fmt)(f, c);
 			return 0;

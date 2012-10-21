@@ -1541,7 +1541,7 @@ Cell *bltin(Node **a, int n)	/* builtin functions. a[0] is type, a[1] is arg lis
 		return x;
 	default:	/* can't happen */
 		FATAL("illegal function type %d", t);
-		break;
+		return(NULL);
 	}
 	tempfree(x);
 	x = gettemp();
@@ -1584,8 +1584,6 @@ Cell *printstat(Node **a, int n)	/* print a[0] */
 
 Cell *nullproc(Node **a, int n)
 {
-	n = n;
-	a = a;
 	return 0;
 }
 
@@ -1683,7 +1681,6 @@ Cell *closefile(Node **a, int n)
 	Cell *x;
 	int i, stat;
 
-	n = n;
 	x = execute(a[0]);
 	getsval(x);
 	for (i = 0; i < FOPEN_MAX; i++)

@@ -471,7 +471,7 @@ sread(Srv *srv, Req *r)
 		respond(r, Eunknownfid);
 		return;
 	}
-	if(r->ifcall.count < 0){
+	if((int32)r->ifcall.count < 0){
 		respond(r, Ebotch);
 		return;
 	}
@@ -518,7 +518,7 @@ swrite(Srv *srv, Req *r)
 		respond(r, Eunknownfid);
 		return;
 	}
-	if(r->ifcall.count < 0){
+	if((int32)r->ifcall.count < 0){
 		respond(r, Ebotch);
 		return;
 	}

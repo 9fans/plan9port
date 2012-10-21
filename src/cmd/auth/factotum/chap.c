@@ -122,6 +122,7 @@ chapclient(Conv *c)
 	chal = nil;
 	k = nil;
 	attr = c->attr;
+	res = nil;
 
 	if(c->proto == &chap){
 		astype = AuthChap;

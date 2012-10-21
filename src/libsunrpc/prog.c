@@ -11,7 +11,7 @@ suncallpack(SunProg *prog, uchar *a, uchar *ea, uchar **pa, SunCall *c)
 
 	if(pa == nil)
 		pa = &x;
-	if(c->type < 0 || c->type >= prog->nproc || (pack=prog->proc[c->type].pack) == nil)
+	if((int32)c->type < 0 || c->type >= prog->nproc || (pack=prog->proc[c->type].pack) == nil)
 		return SunProcUnavail;
 	if((*pack)(a, ea, pa, c) < 0)
 		return SunGarbageArgs;
@@ -26,7 +26,7 @@ suncallunpack(SunProg *prog, uchar *a, uchar *ea, uchar **pa, SunCall *c)
 
 	if(pa == nil)
 		pa = &x;
-	if(c->type < 0 || c->type >= prog->nproc || (unpack=prog->proc[c->type].unpack) == nil)
+	if((int32)c->type < 0 || c->type >= prog->nproc || (unpack=prog->proc[c->type].unpack) == nil)
 		return SunProcUnavail;
 	if((*unpack)(a, ea, pa, c) < 0){
 		fprint(2, "%ud %d: '%.*H' unpack failed\n", prog->prog, c->type, (int)(ea-a), a);
@@ -45,7 +45,7 @@ suncallunpackalloc(SunProg *prog, SunCallType type, uchar *a, uchar *ea, uchar *
 
 	if(pa == nil)
 		pa = &x;
-	if(type < 0 || type >= prog->nproc || (unpack=prog->proc[type].unpack) == nil)
+	if((int32)type < 0 || type >= prog->nproc || (unpack=prog->proc[type].unpack) == nil)
 		return SunProcUnavail;
 	size = prog->proc[type].sizeoftype;
 	if(size == 0)
@@ -68,7 +68,7 @@ suncallsize(SunProg *prog, SunCall *c)
 {
 	uint (*size)(SunCall*);
 
-	if(c->type < 0 || c->type >= prog->nproc || (size=prog->proc[c->type].size) == nil)
+	if((int32)c->type < 0 || c->type >= prog->nproc || (size=prog->proc[c->type].size) == nil)
 		return ~0;
 	return (*size)(c);
 }

@@ -130,7 +130,7 @@ loginsert(File *f, uint p0, Rune *s, uint ns)
 		return;
 	if(ns == 0)
 		return;
-	if(ns<0 || ns>STRSIZE)
+	if(ns>STRSIZE)
 		panic("loginsert");
 	if(f->seq < seq)
 		filemark(f);

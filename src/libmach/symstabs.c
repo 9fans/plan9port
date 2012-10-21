@@ -230,7 +230,7 @@ stabssyminit(Fhdr *fp)
 							fun->u.stabs.framesize = sym.value - 4;
 						}
 					}else if(sym.type == N_LSYM){
-						if(sym.value >= 0){
+						if((int32)sym.value >= 0){
 							fun->u.stabs.frameptr = 0;
 							if(params)
 								fun->u.stabs.framesize = 8 - 4;
