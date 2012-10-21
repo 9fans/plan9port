@@ -11,6 +11,10 @@ struct XFont
 	int unit;
 	double height;
 	double originy;
+
+	// fontconfig workarround, as FC_FULLNAME does not work for matching fonts.
+	char *fontfile;
+	int  index;
 };
 
 void	loadfonts(void);
