@@ -65,7 +65,10 @@ useclang()
 		-Wno-unknown-pragmas \
 		-Wno-empty-body \
 		-Wno-unused-value \
+		-Wno-array-bounds \
+		-Wno-gnu-designator \
 		-fsigned-char \
+		-fno-caret-diagnostics \
 	"
 	cflags="$ngflags -g"
 }
@@ -75,8 +78,16 @@ case "$tag" in
 *FreeBSD*gcc*)	usegcc ;;
 *FreeBSD*clang*)	useclang ;;
 *BSD*)	usegcc ;;
+*Darwin-x86_64*clang*)
+		useclang
+		cflags="$ngflags -g3 -m64"
+		;;
 *Darwin-x86_64*) usegcc
 		cflags="$ngflags -g3 -no-cpp-precomp -m64" ;;
+*Darwin*clang*)
+		useclang
+		cflags="$ngflags -g3 -m32"
+		;;
 *Darwin*)	usegcc 
 		cflags="$ngflags -g3 -no-cpp-precomp -m32" ;;
 *HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;
