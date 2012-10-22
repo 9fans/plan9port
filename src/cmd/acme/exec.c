@@ -1352,7 +1352,6 @@ runproc(void *argvp)
 	int sfd[3];
 	int pipechar;
 	char buf[512];
-	int olddir;
 	int ret;
 	/*static void *parg[2]; */
 	char *rcarg[4];
@@ -1507,24 +1506,11 @@ runproc(void *argvp)
 	av[ac] = nil;
 	c->av = av;
 
-	/*
-	 * clumsy -- we're not running in a separate thread
-	 * so we have to save the current directory and put
-	 * it back when we're done.  if this gets to be a regular
-	 * thing we could change threadexec to take a directory too.
-	 */
-	olddir = -1;
-	if(rdir != nil){
-		olddir = open(".", OREAD);
+	dir = nil;
+	if(rdir != nil)
 		dir = runetobyte(rdir, ndir);
-		chdir(dir);	/* ignore error: probably app. window */
-		free(dir);
-	}
-	ret = threadspawn(sfd, av[0], av);
-	if(olddir >= 0){
-		fchdir(olddir);
-		close(olddir);
-	}
+	ret = threadspawnd(sfd, av[0], av, dir);
+	free(dir);
 	if(ret >= 0){
 		if(cpid)
 			sendul(cpid, ret);
@@ -1572,13 +1558,9 @@ Hard:
 			c->text = news;
 		}
 	}
-	olddir = -1;
-	if(rdir != nil){
-		olddir = open(".", OREAD);
+	dir = nil;
+	if(rdir != nil)
 		dir = runetobyte(rdir, ndir);
-		chdir(dir);	/* ignore error: probably app. window */
-		free(dir);
-	}
 	shell = acmeshell;
 	if(shell == nil)
 		shell = "rc";
@@ -1586,11 +1568,8 @@ Hard:
 	rcarg[1] = "-c";
 	rcarg[2] = t;
 	rcarg[3] = nil;
-	ret = threadspawn(sfd, rcarg[0], rcarg);
-	if(olddir >= 0){
-		fchdir(olddir);
-		close(olddir);
-	}
+	ret = threadspawnd(sfd, rcarg[0], rcarg, dir);
+	free(dir);
 	if(ret >= 0){
 		if(cpid)
 			sendul(cpid, ret);
