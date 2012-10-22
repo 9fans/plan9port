@@ -12,7 +12,7 @@ execproc(void *v)
 	Waitmsg *w;
 
 	e = v;
-	pid = _threadspawn(e->fd, e->cmd, e->argv);
+	pid = _threadspawn(e->fd, e->cmd, e->argv, e->dir);
 	sendul(e->c, pid);
 	if(pid > 0){
 		w = waitfor(pid);
@@ -25,7 +25,7 @@ execproc(void *v)
 }
 
 int
-_runthreadspawn(int *fd, char *cmd, char **argv)
+_runthreadspawn(int *fd, char *cmd, char **argv, char *dir)
 {
 	int pid;
 	Execjob e;
@@ -33,6 +33,7 @@ _runthreadspawn(int *fd, char *cmd, char **argv)
 	e.fd = fd;
 	e.cmd = cmd;
 	e.argv = argv;
+	e.dir = dir;
 	e.c = chancreate(sizeof(void*), 0);
 	proccreate(execproc, &e, 65536);
 	pid = recvul(e.c);
@@ -57,7 +58,7 @@ threadwaitchan(void)
 }
 
 int
-_threadspawn(int fd[3], char *cmd, char *argv[])
+_threadspawn(int fd[3], char *cmd, char *argv[], char *dir)
 {
 	int i, n, p[2], pid;
 	char exitstr[100];
@@ -77,6 +78,8 @@ _threadspawn(int fd[3], char *cmd, char *argv[])
 		return -1;
 	case 0:
 		/* can't RFNOTEG - will lose tty */
+		if(dir != nil )
+			chdir(dir); /* best effort */
 		dup2(fd[0], 0);
 		dup2(fd[1], 1);
 		dup2(fd[2], 2);
@@ -112,7 +115,13 @@ _threadspawn(int fd[3], char *cmd, char *argv[])
 int
 threadspawn(int fd[3], char *cmd, char *argv[])
 {
-	return _runthreadspawn(fd, cmd, argv);
+	return _runthreadspawn(fd, cmd, argv, nil);
+}
+
+int
+threadspawnd(int fd[3], char *cmd, char *argv[], char *dir)
+{
+	return _runthreadspawn(fd, cmd, argv, dir);
 }
 
 int

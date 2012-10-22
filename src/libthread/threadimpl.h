@@ -121,6 +121,7 @@ struct Execjob
 	int *fd;
 	char *cmd;
 	char **argv;
+	char *dir;
 	Channel *c;
 };
 
@@ -203,8 +204,8 @@ extern void _threadsetproc(Proc*);
 extern int _threadlock(Lock*, int, ulong);
 extern void _threadunlock(Lock*, ulong);
 extern void _pthreadinit(void);
-extern int _threadspawn(int*, char*, char**);
-extern int _runthreadspawn(int*, char*, char**);
+extern int _threadspawn(int*, char*, char**, char*);
+extern int _runthreadspawn(int*, char*, char**, char*);
 extern void _threadsetupdaemonize(void);
 extern void _threaddodaemonize(char*);
 extern void _threadpexit(void);

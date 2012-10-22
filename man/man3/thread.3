@@ -42,6 +42,7 @@ threadsetgrp,
 threadsetname,
 threadsetstate,
 threadspawn,
+threadspawnd,
 threadspawnl,
 threadwaitchan,
 yield \- thread and proc management
@@ -124,6 +125,7 @@ int	chanprint(Channel *c, char *fmt, ...)
 .XX
 int	threadspawnl(int fd[3], char *file, ...)
 int	threadspawn(int fd[3], char *file, char *args[])
+int	threadspawnd(int fd[3], char *file, char *args[], char *dir)
 int	threadexecl(Channel *cpid, int fd[3], char *file, ...)
 int	threadexec(Channel *cpid, int fd[3], char *file, char *args[])
 Channel*	threadwaitchan(void)
@@ -240,6 +242,8 @@ Calls that do this are
 .IR threadexecl ,
 .IR threadexits ,
 .IR threadspawn ,
+.IR threadspawnd ,
+.IR threadspawnl ,
 .IR alt ,
 .IR send ,
 and
@@ -419,6 +423,13 @@ and
 but do not replace the current thread.
 They return the pid of the invoked program on success, or
 \-1 on error.
+.I Threadspawnd
+is like
+.I threadspawn
+but takes as its final argument the directory in which to run the invoked program.
+The child will attempt to change into that directory before running the program,
+but it is only best effort: failure to change into the directory does not
+stop the running of the program.
 .PP
 .I Threadwaitchan
 returns a channel of pointers to
