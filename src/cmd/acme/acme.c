@@ -142,7 +142,7 @@ threadmain(int argc, char *argv[])
 		free(p);
 	}
 	if(maxtab == 0)
-		maxtab = 4; 
+		maxtab = 4;
 	if(loadfile)
 		rowloadfonts(loadfile);
 	putenv("font", fontnames[0]);
@@ -333,7 +333,7 @@ shutdown(void *v, char *msg)
 	for(i=0; ignotes[i]; i++)
 		if(strncmp(ignotes[i], msg, strlen(ignotes[i])) == 0)
 			return 1;
-	
+
 	killprocs();
 	if(!dumping && strcmp(msg, "kill")!=0 && strcmp(msg, "exit")!=0 && getpid()==mainpid){
 		dumping = TRUE;
@@ -534,7 +534,7 @@ mousethread(void *v)
 	if(cplumb == nil)
 		alts[MPlumb].op = CHANNOP;
 	alts[NMALT].op = CHANEND;
-	
+
 	for(;;){
 		qlock(&row.lk);
 		flushwarnings();
@@ -545,6 +545,7 @@ mousethread(void *v)
 			if(getwindow(display, Refnone) < 0)
 				error("attach to window");
 			draw(screen, screen->r, display->white, nil, ZP);
+			iconinit();
 			scrlresize();
 			rowresize(&row, screen->clipr);
 			break;
@@ -959,19 +960,25 @@ iconinit(void)
 	Rectangle r;
 	Image *tmp;
 
-	/* Blue */
-	tagcols[BACK] = allocimagemix(display, DPalebluegreen, DWhite);
-	tagcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPalegreygreen);
-	tagcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPurpleblue);
-	tagcols[TEXT] = display->black;
-	tagcols[HTEXT] = display->black;
-
-	/* Yellow */
-	textcols[BACK] = allocimagemix(display, DPaleyellow, DWhite);
-	textcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DDarkyellow);
-	textcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DYellowgreen);
-	textcols[TEXT] = display->black;
-	textcols[HTEXT] = display->black;
+	if(tagcols[BACK] == nil) {
+		/* Blue */
+		tagcols[BACK] = allocimagemix(display, DPalebluegreen, DWhite);
+		tagcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPalegreygreen);
+		tagcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPurpleblue);
+		tagcols[TEXT] = display->black;
+		tagcols[HTEXT] = display->black;
+	
+		/* Yellow */
+		textcols[BACK] = allocimagemix(display, DPaleyellow, DWhite);
+		textcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DDarkyellow);
+		textcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DYellowgreen);
+		textcols[TEXT] = display->black;
+		textcols[HTEXT] = display->black;
+	}
+	
+	r = Rect(0, 0, Scrollwid+ButtonBorder, font->height+1);
+	if(button && eqrect(r, button->r))
+		return;
 
 	if(button){
 		freeimage(button);
@@ -979,18 +986,17 @@ iconinit(void)
 		freeimage(colbutton);
 	}
 
-	r = Rect(0, 0, Scrollwid+2, font->height+1);
 	button = allocimage(display, r, screen->chan, 0, DNofill);
 	draw(button, r, tagcols[BACK], nil, r.min);
-	r.max.x -= 2;
-	border(button, r, 2, tagcols[BORD], ZP);
+	r.max.x -= ButtonBorder;
+	border(button, r, ButtonBorder, tagcols[BORD], ZP);
 
 	r = button->r;
 	modbutton = allocimage(display, r, screen->chan, 0, DNofill);
 	draw(modbutton, r, tagcols[BACK], nil, r.min);
-	r.max.x -= 2;
-	border(modbutton, r, 2, tagcols[BORD], ZP);
-	r = insetrect(r, 2);
+	r.max.x -= ButtonBorder;
+	border(modbutton, r, ButtonBorder, tagcols[BORD], ZP);
+	r = insetrect(r, ButtonBorder);
 	tmp = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DMedblue);
 	draw(modbutton, r, tmp, nil, ZP);
 	freeimage(tmp);
