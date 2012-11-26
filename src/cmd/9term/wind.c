@@ -35,6 +35,14 @@ static	Image	*holdcol;
 static	Image	*lightholdcol;
 static	Image	*paleholdcol;
 
+static int
+wscale(Window *w, int n)
+{
+	if(w == nil || w->i == nil)
+		return n;
+	return scalesize(w->i->display, n);
+}
+
 Window*
 wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 {
@@ -58,7 +66,7 @@ wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 	}
 	w = emalloc(sizeof(Window));
 	w->screenr = i->r;
-	r = insetrect(i->r, Selborder+1);
+	r = insetrect(i->r, wscale(w, Selborder)+wscale(w, 1));
 	w->i = i;
 	w->mc = *mc;
 	w->ck = ck;
@@ -69,9 +77,9 @@ wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 	w->mouseread =  chancreate(sizeof(Mousereadmesg), 0);
 	w->wctlread =  chancreate(sizeof(Consreadmesg), 0);
 	w->scrollr = r;
-	w->scrollr.max.x = r.min.x+Scrollwid;
+	w->scrollr.max.x = r.min.x+wscale(w, Scrollwid);
 	w->lastsr = ZR;
-	r.min.x += Scrollwid+Scrollgap;
+	r.min.x += wscale(w, Scrollwid)+wscale(w, Scrollgap);
 	frinit(&w->f, r, font, i, cols);
 	w->f.maxtab = maxtab*stringwidth(font, "0");
 	w->topped = ++topped;
@@ -80,9 +88,9 @@ wmk(Image *i, Mousectl *mc, Channel *ck, Channel *cctl, int scrolling)
 	w->scrolling = scrolling;
 	w->dir = estrdup(startdir);
 	w->label = estrdup("<unnamed>");
-	r = insetrect(w->i->r, Selborder);
+	r = insetrect(w->i->r, wscale(w, Selborder));
 	draw(w->i, r, cols[BACK], nil, w->f.entire.min);
-	wborder(w, Selborder);
+	wborder(w, wscale(w, Selborder));
 	wscrdraw(w);
 	incref(&w->ref);	/* ref will be removed after mounting; avoids delete before ready to be deleted */
 	return w;
@@ -123,11 +131,11 @@ fprint(2, "res %p %p\n", w->i, i);
 	}
 /*	wsetname(w); */
 /*XXX	w->mc.image = i; */
-	r = insetrect(i->r, Selborder+1);
+	r = insetrect(i->r, wscale(w, Selborder)+wscale(w, 1));
 	w->scrollr = r;
-	w->scrollr.max.x = r.min.x+Scrollwid;
+	w->scrollr.max.x = r.min.x+wscale(w, Scrollwid);
 	w->lastsr = ZR;
-	r.min.x += Scrollwid+Scrollgap;
+	r.min.x += wscale(w, Scrollwid)+wscale(w, Scrollgap);
 	if(move)
 		frsetrects(&w->f, r, w->i);
 	else{
@@ -135,13 +143,13 @@ fprint(2, "res %p %p\n", w->i, i);
 		frinit(&w->f, r, w->f.font, w->i, cols);
 		wsetcols(w);
 		w->f.maxtab = maxtab*stringwidth(w->f.font, "0");
-		r = insetrect(w->i->r, Selborder);
+		r = insetrect(w->i->r, wscale(w, Selborder));
 		draw(w->i, r, cols[BACK], nil, w->f.entire.min);
 		wfill(w);
 		wsetselect(w, w->q0, w->q1);
 		wscrdraw(w);
 	}
-	wborder(w, Selborder);
+	wborder(w, wscale(w, Selborder));
 	w->topped = ++topped;
 	w->resized = TRUE;
 	w->mouse.counter++;
@@ -154,9 +162,9 @@ wrefresh(Window *w, Rectangle r)
 
 	/* BUG: rectangle is ignored */
 	if(w == input)
-		wborder(w, Selborder);
+		wborder(w, wscale(w, Selborder));
 	else
-		wborder(w, Unselborder);
+		wborder(w, wscale(w, Unselborder));
 	if(w->mouseopen)
 		return;
 	draw(w->i, insetrect(w->i->r, Borderwidth), w->f.cols[BACK], nil, w->i->r.min);
@@ -764,10 +772,10 @@ wrepaint(Window *w)
 		frredraw(&w->f);
 	}
 	if(w == input){
-		wborder(w, Selborder);
+		wborder(w, wscale(w, Selborder));
 		wsetcursor(w, 0);
 	}else
-		wborder(w, Unselborder);
+		wborder(w, wscale(w, Unselborder));
 }
 
 int
@@ -890,7 +898,7 @@ wplumb(Window *w)
 int
 winborder(Window *w, Point xy)
 {
-	return ptinrect(xy, w->screenr) && !ptinrect(xy, insetrect(w->screenr, Selborder));
+	return ptinrect(xy, w->screenr) && !ptinrect(xy, insetrect(w->screenr, wscale(w, Selborder)));
 }
 
 void
