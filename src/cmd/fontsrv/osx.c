@@ -183,10 +183,10 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 	x = (int)(bbox.size.width * size / unit + 0.99999999);
 	y = bbox.size.height * size/unit + 0.99999999;
 	y0 = (int)(-bbox.origin.y * size/unit + 0.99999999);
-	m = allocmemimage(Rect(0, 0, x*(hi+1-lo), y), GREY8);
+	m = allocmemimage(Rect(0, 0, x*(hi+1-lo)+1, y+1), GREY8);
 	if(m == nil)
 		return nil;
-	mc = allocmemimage(Rect(0, 0, x, y), GREY8);
+	mc = allocmemimage(Rect(0, 0, x+1, y+1), GREY8);
 	if(mc == nil)
 		return nil;
 	memfillcolor(m, DBlack);
@@ -272,6 +272,10 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 	// round up to 32-bit boundary
 	// so that in-memory data is same
 	// layout as in-file data.
+	if(x == 0)
+		x = 1;
+	if(y == 0)
+		y = 1;
 	if(antialias)
 		x += -x & 3;
 	else
