@@ -1408,9 +1408,11 @@ winsizepoints()
 static NSSize
 winsizepixels()
 {
+#if DOSX_VERSION >= 100700
 	if (OSX_VERSION >= 100700 && devdrawretina)
 		return [win.content convertSizeToBacking: winsizepoints()];
 	else
+#endif
 		return winsizepoints();
 }
 
