@@ -65,9 +65,9 @@ flrect(Flayer *l, Rectangle r)
 {
 	rectclip(&r, lDrect);
 	l->entire = r;
-	l->scroll = insetrect(r, FLMARGIN);
+	l->scroll = insetrect(r, FLMARGIN(l));
 	r.min.x =
-	 l->scroll.max.x = r.min.x+FLMARGIN+FLSCROLLWID+(FLGAP-FLMARGIN);
+	 l->scroll.max.x = r.min.x+FLMARGIN(l)+FLSCROLLWID(l)+(FLGAP(l)-FLMARGIN(l));
 	return r;
 }
 
@@ -78,7 +78,8 @@ flinit(Flayer *l, Rectangle r, Font *ft, Image **cols)
 	llinsert(l);
 	l->visible = All;
 	l->origin = l->p0 = l->p1 = 0;
-	frinit(&l->f, insetrect(flrect(l, r), FLMARGIN), ft, screen, cols);
+	l->f.display = display; // for FLMARGIN
+	frinit(&l->f, insetrect(flrect(l, r), FLMARGIN(l)), ft, screen, cols);
 	l->f.maxtab = maxtab*stringwidth(ft, "0");
 	newvisibilities(1);
 	draw(screen, l->entire, l->f.cols[BACK], nil, ZP);
@@ -111,8 +112,8 @@ void
 flborder(Flayer *l, int wide)
 {
 	if(flprepare(l)){
-		border(l->f.b, l->entire, FLMARGIN, l->f.cols[BACK], ZP);
-		border(l->f.b, l->entire, wide? FLMARGIN : 1, l->f.cols[BORD], ZP);
+		border(l->f.b, l->entire, FLMARGIN(l), l->f.cols[BACK], ZP);
+		border(l->f.b, l->entire, wide? FLMARGIN(l) : 1, l->f.cols[BORD], ZP);
 		if(l->visible==Some)
 			flrefresh(l, l->entire, 0);
 	}
@@ -392,13 +393,13 @@ flresize(Rectangle dr)
 			r.min.x = dr.min.x;
 		if(r.max.x-r.min.x<100)
 			r.max.x = dr.max.x;
-		if(r.max.y-r.min.y<2*FLMARGIN+f->font->height)
+		if(r.max.y-r.min.y<2*FLMARGIN(l)+f->font->height)
 			r.min.y = dr.min.y;
-		if(r.max.y-r.min.y<2*FLMARGIN+f->font->height)
+		if(r.max.y-r.min.y<2*FLMARGIN(l)+f->font->height)
 			r.max.y = dr.max.y;
 		if(!move)
 			l->visible = None;
-		frsetrects(f, insetrect(flrect(l, r), FLMARGIN), f->b);
+		frsetrects(f, insetrect(flrect(l, r), FLMARGIN(l)), f->b);
 		if(!move && f->b)
 			scrdraw(l, scrtotal(l));
 	}
@@ -422,7 +423,7 @@ flprepare(Flayer *l)
 		else if((f->b = allocimage(display, l->entire, screen->chan, 0, 0))==0)
 			return 0;
 		draw(f->b, l->entire, f->cols[BACK], nil, ZP);
-		border(f->b, l->entire, l==llist[0]? FLMARGIN : 1, f->cols[BORD], ZP);
+		border(f->b, l->entire, l==llist[0]? FLMARGIN(l) : 1, f->cols[BORD], ZP);
 		n = f->nchars;
 		frinit(f, f->entire, f->font, f->b, 0);
 		f->maxtab = maxtab*stringwidth(f->font, "0");
@@ -495,4 +496,12 @@ flrefresh(Flayer *l, Rectangle r, int i)
 		/* remaining piece of r is blocked by t; forget about it */
 		someinvis = 1;
 	}
+}
+
+int
+flscale(Flayer *l, int n)
+{
+	if(l == nil)
+		return n;
+	return scalesize(l->f.display, n);
 }

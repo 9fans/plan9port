@@ -41,10 +41,11 @@ void	flsetselect(Flayer*, long, long);
 void	flstart(Rectangle);
 void	flupfront(Flayer*);
 Flayer	*flwhich(Point);
+int	flscale(Flayer*, int);
 
-#define	FLMARGIN	4
-#define	FLSCROLLWID	12
-#define	FLGAP		4
+#define	FLMARGIN(l)	flscale(l, 4)
+#define	FLSCROLLWID(l)	flscale(l, 12)
+#define	FLGAP(l)		flscale(l, 4)
 
 extern	Image	*maincols[NCOL];
 extern	Image	*cmdcols[NCOL];

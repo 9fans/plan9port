@@ -107,7 +107,7 @@ scroll(Flayer *l, int but)
 	long p0;
 
 	s = l->scroll;
-	x = s.min.x+FLSCROLLWID/2;
+	x = s.min.x+FLSCROLLWID(l)/2;
 	scr = scrpos(l->scroll, l->origin, l->origin+l->f.nchars, tot);
 	r = scr;
 	y = scr.min.y;
@@ -115,7 +115,7 @@ scroll(Flayer *l, int but)
 	draw(scrback, Rect(0,0,Dx(l->scroll), Dy(l->scroll)), l->f.b, nil, l->scroll.min);
 	do{
 		oin = in;
-		in = abs(x-mousep->xy.x)<=FLSCROLLWID/2;
+		in = abs(x-mousep->xy.x)<=FLSCROLLWID(l)/2;
 		if(oin && !in)
 			scrunmark(l, r);
 		if(in){
