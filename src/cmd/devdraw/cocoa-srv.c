@@ -381,7 +381,7 @@ keystroke(int c)
 		nk = 0;
 		return;
 	}
-	if(c == KF+3) {
+	if(c == Kcmd+'r') {
 		if(forcedpi)
 			forcedpi = 0;
 		else if(displaydpi >= 200)
