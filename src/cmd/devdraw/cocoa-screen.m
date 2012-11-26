@@ -396,6 +396,14 @@ initimg(void)
 	[win.img setSize: ptsize];
 	win.topixelscale = size.width / ptsize.width;
 	win.topointscale = 1.0f / win.topixelscale;
+	
+	// NOTE: This is not really the display DPI.
+	// On retina, topixelscale is 2; otherwise it is 1.
+	// This formula gives us 220 for retina, 110 otherwise.
+	// That's not quite right but it's close to correct.
+	// http://en.wikipedia.org/wiki/List_of_displays_by_pixel_density#Apple
+	displaydpi = win.topixelscale * 110;
+
 	return i;
 }
 
