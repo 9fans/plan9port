@@ -428,3 +428,10 @@ bufimage(Display *d, int n)
 	return p;
 }
 
+int
+scalesize(Display *d, int n)
+{
+	if(d == nil || d->dpi <= DefaultDPI)
+		return n;
+	return (n*d->dpi+DefaultDPI/2)/DefaultDPI;
+}

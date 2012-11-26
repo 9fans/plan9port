@@ -351,6 +351,7 @@ extern Image*	namedimage(Display*, char*);
 extern int	nameimage(Image*, char*, int);
 extern Image* allocimagemix(Display*, u32int, u32int);
 extern int	drawsetlabel(char*);
+extern int	scalesize(Display*, int);
 
 /*
  * Colors

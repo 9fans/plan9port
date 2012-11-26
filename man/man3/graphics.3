@@ -62,6 +62,9 @@ int	gengetwindow(Display *d, char *winname,
 	   Image **ip, Screen **sp, int ref)
 .PP
 .B
+int	scalesize(Display *d, int n)
+.PP
+.B
 void	cursorswitch(Cursor *curs)
 .PP
 .B
@@ -501,6 +504,19 @@ file and pointers to be overwritten with the values of the `global'
 and
 .B Screen
 variables for the new window.
+.PP
+Historically, Plan 9 graphics programs have used fixed-size graphics features that assume a narrow range of display densities, around 100 dpi: pixels (or dots) per inch.
+The new field
+.B display->dpi
+contains the display's actual density if known, or else
+.B DefaultDPI
+(100).
+.I Scalesize
+scales the fixed pixel count
+.I n
+by
+.BR display->dpi / DefaultDPI ,
+rounding appropriately.
 .PP
 The mouse cursor is always displayed.
 The initial cursor is an arrow.
