@@ -11,6 +11,7 @@
 #include "devdraw.h"
 
 extern void _flushmemscreen(Rectangle);
+int displaydpi = 100;
 
 #define NHASH (1<<5)
 #define HASHMASK (NHASH-1)
@@ -776,6 +777,7 @@ _drawmsgwrite(void *v, int n)
 	DName *dn;
 	DScreen *dscrn;
 	FChar *fc;
+	Fmt fmt;
 	Memimage *dst, *i, *l, **lp, *mask, *src;
 	Memscreen *scrn;
 	Point p, *pp, q, sp;
@@ -1083,7 +1085,31 @@ _drawmsgwrite(void *v, int n)
 			memmove(client->readdata, ibuf, ni);
 			client->nreaddata = ni;
 			client->infoid = -1;
-			continue;	
+			continue;
+		
+		/* query: 'Q' n[1] queryspec[n] */
+		case 'q':
+			if(n < 2)
+				goto Eshortdraw;
+			m = 1+1+a[1];
+			if(n < m)
+				goto Eshortdraw;
+			fmtstrinit(&fmt);
+			for(c=0; c<a[1]; c++) {
+				switch(a[2+c]) {
+				default:
+					err = "unknown query";
+					goto error;
+				case 'd':	/* dpi */
+					fmtprint(&fmt, "%11d ", displaydpi);
+					break;
+				}
+			}
+			client->readdata = (uchar*)fmtstrflush(&fmt);
+			if(client->readdata == nil)
+				goto Enomem;
+			client->nreaddata = strlen((char*)client->readdata);
+			continue;
 
 		/* load character: 'l' fontid[4] srcid[4] index[2] R[4*4] P[2*4] left[1] width[1] */
 		case 'l':

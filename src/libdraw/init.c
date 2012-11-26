@@ -179,6 +179,15 @@ getimage0(Display *d, Image *image)
 	image->clipr.min.y = atoi(info+9*12);
 	image->clipr.max.x = atoi(info+10*12);
 	image->clipr.max.y = atoi(info+11*12);
+	
+	a = bufimage(d, 3);
+	a[0] = 'q';
+	a[1] = 1;
+	a[2] = 'd';
+	d->dpi = 100;
+	if(flushimage(d, 0) >= 0 && _displayrddraw(d, info, 12) == 12)
+		d->dpi = atoi(info);
+
 	return image;
 }
 

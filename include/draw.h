@@ -204,6 +204,7 @@ struct Display
 	int		_isnewdisplay;
 	struct Mux	*mux;
 	int		srvfd;
+	int		dpi;
 };
 
 struct Image

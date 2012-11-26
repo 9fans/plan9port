@@ -6,4 +6,4 @@ int parsewinsize(char*, Rectangle*, int*);
 int mouseswap(int);
 void abortcompose(void);
 
-
+extern int displaydpi;
