@@ -11,6 +11,7 @@
 #include "devdraw.h"
 
 extern void _flushmemscreen(Rectangle);
+int forcedpi = 0;
 int displaydpi = 100;
 
 #define NHASH (1<<5)
@@ -1101,7 +1102,10 @@ _drawmsgwrite(void *v, int n)
 					err = "unknown query";
 					goto error;
 				case 'd':	/* dpi */
-					fmtprint(&fmt, "%11d ", displaydpi);
+					if(forcedpi)
+						fmtprint(&fmt, "%11d ", forcedpi);
+					else
+						fmtprint(&fmt, "%11d ", displaydpi);
 					break;
 				}
 			}

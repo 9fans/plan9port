@@ -7,3 +7,4 @@ int mouseswap(int);
 void abortcompose(void);
 
 extern int displaydpi;
+extern int forcedpi;

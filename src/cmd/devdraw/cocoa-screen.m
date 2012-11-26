@@ -399,8 +399,8 @@ initimg(void)
 	return i;
 }
 
-static void
-resizeimg()
+void
+resizeimg(void)
 {
 	[win.img release];
 	_drawreplacescreenimage(initimg());

@@ -367,6 +367,8 @@ abortcompose(void)
 		keystroke(Kalt);
 }
 
+void resizeimg(void);
+
 void
 keystroke(int c)
 {
@@ -377,6 +379,16 @@ keystroke(int c)
 	if(c == Kalt){
 		alting = !alting;
 		nk = 0;
+		return;
+	}
+	if(c == KF+3) {
+		if(forcedpi)
+			forcedpi = 0;
+		else if(displaydpi >= 200)
+			forcedpi = 100;
+		else
+			forcedpi = 225;
+		resizeimg();
 		return;
 	}
 	if(!alting){
