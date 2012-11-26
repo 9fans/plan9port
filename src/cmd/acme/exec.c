@@ -1421,6 +1421,7 @@ runproc(void *argvp)
 
 		if(filename){
 			putenv("%", filename);
+			putenv("samfile", filename);
 			free(filename);
 		}
 		c->md = fsysmount(rdir, ndir, incl, nincl);
