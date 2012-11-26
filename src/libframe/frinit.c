@@ -31,11 +31,14 @@ frinittick(Frame *f)
 	Image *b;
 	Font *ft;
 
+	if(f->cols[BACK] == nil || f->display == nil)
+		return;
+	f->tickscale = scalesize(f->display, 1);
 	b = f->display->screenimage;
 	ft = f->font;
 	if(f->tick)
 		freeimage(f->tick);
-	f->tick = allocimage(f->display, Rect(0, 0, FRTICKW, ft->height), b->chan, 0, DWhite);
+	f->tick = allocimage(f->display, Rect(0, 0, f->tickscale*FRTICKW, ft->height), b->chan, 0, DWhite);
 	if(f->tick == nil)
 		return;
 	if(f->tickback)
@@ -49,10 +52,10 @@ frinittick(Frame *f)
 	/* background color */
 	draw(f->tick, f->tick->r, f->cols[BACK], nil, ZP);
 	/* vertical line */
-	draw(f->tick, Rect(FRTICKW/2, 0, FRTICKW/2+1, ft->height), f->display->black, nil, ZP);
+	draw(f->tick, Rect(f->tickscale*(FRTICKW/2), 0, f->tickscale*(FRTICKW/2+1), ft->height), f->display->black, nil, ZP);
 	/* box on each end */
-	draw(f->tick, Rect(0, 0, FRTICKW, FRTICKW), f->cols[TEXT], nil, ZP);
-	draw(f->tick, Rect(0, ft->height-FRTICKW, FRTICKW, ft->height), f->cols[TEXT], nil, ZP);
+	draw(f->tick, Rect(0, 0, f->tickscale*FRTICKW, f->tickscale*FRTICKW), f->cols[TEXT], nil, ZP);
+	draw(f->tick, Rect(0, ft->height-f->tickscale*FRTICKW, f->tickscale*FRTICKW, ft->height), f->cols[TEXT], nil, ZP);
 }
 
 void

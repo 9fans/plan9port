@@ -1,7 +1,7 @@
 #ifndef _FRAME_H_
 #define _FRAME_H_ 1
 #if defined(__cplusplus)
-extern "C" { 
+extern "C" {
 #endif
 
 AUTOLIB(frame)
@@ -19,7 +19,6 @@ enum{
 };
 
 #define	FRTICKW	3
-
 struct Frbox
 {
 	long		wid;		/* in pixels */
@@ -51,6 +50,7 @@ struct Frame
 	Image		*tickback;	/* saved image under tick */
 	int			ticked;	/* flag: is tick onscreen? */
 	int			noredraw;	/* don't draw on the screen */
+	int			tickscale;	/* tick scaling factor */
 };
 
 ulong	frcharofpt(Frame*, Point);

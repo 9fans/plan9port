@@ -137,15 +137,15 @@ frredraw(Frame *f)
 	pt = frdrawsel0(f, pt, f->p1, f->nchars, f->cols[BACK], f->cols[TEXT]);
 }
 
-void
-frtick(Frame *f, Point pt, int ticked)
+static void
+_frtick(Frame *f, Point pt, int ticked)
 {
 	Rectangle r;
 
 	if(f->ticked==ticked || f->tick==0 || !ptinrect(pt, f->r))
 		return;
-	pt.x--;	/* looks best just left of where requested */
-	r = Rect(pt.x, pt.y, pt.x+FRTICKW, pt.y+f->font->height);
+	pt.x -= f->tickscale;	/* looks best just left of where requested */
+	r = Rect(pt.x, pt.y, pt.x+FRTICKW*f->tickscale, pt.y+f->font->height);
 	/* can go into left border but not right */
 	if(r.max.x > f->r.max.x)
 		r.max.x = f->r.max.x;
@@ -155,6 +155,17 @@ frtick(Frame *f, Point pt, int ticked)
 	}else
 		draw(f->b, r, f->tickback, nil, ZP);
 	f->ticked = ticked;
+}
+
+void
+frtick(Frame *f, Point pt, int ticked)
+{
+	if(f->tickscale != scalesize(f->display, 1)) {
+		if(f->ticked)
+			_frtick(f, pt, 0);
+		frinittick(f);
+	}
+	_frtick(f, pt, ticked);
 }
 
 Point
