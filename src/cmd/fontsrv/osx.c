@@ -241,18 +241,10 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 		if(g[0] == 0 || !CGFontGetGlyphBBoxes(font, g, n, r)) {
 		None:
 			fc->width = 0;
+			fc->left = 0;
 			if(i == 0) {
-				Point p;
-				Fontchar *i;
-				p = Pt(x, y0);
-				// memimagestring(m, p, memwhite, ZP, defont, peterface);
-				i = defont->info + 0;
-				memdraw(m, Rect(p.x+i->left, p.y+i->top, p.x+i->left+(i[1].x-i[0].x), p.y+i->bottom),
-					memwhite, ZP, defont->bits, Pt(i->x, i->top), S);
-				p.x += i->width;
-				fc->left = i->left;
-				fc->width = i->width;
-				x = p.x;
+				drawpjw(m, fc, x, (int)(bbox.size.width * size / unit + 0.99999999), y, y - y0);
+				x += fc->width;
 			}	
 			continue;
 		}

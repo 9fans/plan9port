@@ -25,3 +25,5 @@ extern XFont *xfont;
 extern int nxfont;
 void *emalloc9p(ulong);
 extern Memsubfont *defont;
+
+void	drawpjw(Memimage*, Fontchar*, int, int, int, int);
