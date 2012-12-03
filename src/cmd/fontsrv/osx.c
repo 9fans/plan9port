@@ -18,6 +18,18 @@
 
 extern void CGFontGetGlyphsForUnichars(CGFontRef, const UniChar[], const CGGlyph[], size_t);
 
+int
+mapUnicode(int i)
+{
+	switch(i) {
+	case '\'':
+		return 0x2019;
+	case '`':
+		return 0x2018;
+	}
+	return i;
+}
+
 char*
 mac2c(CFStringRef s)
 {
@@ -89,7 +101,7 @@ subfontbbox(CGFontRef font, int lo, int hi)
 		CGGlyph g;
 		CGRect r;
 
-		u = i;
+		u = mapUnicode(i);
 		CGFontGetGlyphsForUnichars(font, &u, &g, 1);
 		if(g == 0 || !CGFontGetGlyphBBoxes(font, &g, 1, &r))
 			continue;
@@ -144,7 +156,7 @@ load(XFont *f)
 	// figure out where the letters are
 	for(i=0; i<0xffff; i+=0x100) {
 		for(j=0; j<0x100; j++) {
-			u[j] = i+j;
+			u[j] = mapUnicode(i+j);
 			g[j] = 0;
 		}
 		CGFontGetGlyphsForUnichars(font, u, g, 256);
@@ -233,7 +245,7 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 		fc->bottom = Dy(m->r);
 
 		n = 0;
-		u[n++] = i;
+		u[n++] = mapUnicode(i);
 		if(0)	// debugging
 			u[n++] = '|';
 		g[0] = 0;
