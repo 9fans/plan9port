@@ -70,8 +70,6 @@ threadmain(int argc, char *argv[])
 	if(argc != 0)
 		usage();
 
-	rfork(RFNOTEG);
-
 	if(trysecstore && havesecstore()){
 		while(secstorefetch() < 0){
 			rerrstr(err, sizeof err);
@@ -81,7 +79,9 @@ threadmain(int argc, char *argv[])
 			fprint(2, "Enter an empty password to quit.\n");
 		}
 	}
-	
+
+	rfork(RFNOTEG);
+
 	fsinit0();
 	threadpostmountsrv(&fs, service, mtpt, MBEFORE);
 	threadexits(nil);
