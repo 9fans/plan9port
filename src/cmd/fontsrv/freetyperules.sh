@@ -1,7 +1,12 @@
 #!/bin/sh
 
 if [ "x$1" = "xx11" ]; then
-	echo 'CFLAGS=$CFLAGS -I/usr/include/freetype2' 
+	if [ "x$2" = "x" ]; then
+		i=/usr/include
+	else
+		i=$2
+	fi
+	echo 'CFLAGS=$CFLAGS '$i'/freetype2' 
         echo 'LDFLAGS=$LDFLAGS -lfontconfig -lfreetype -lz'
 fi
 

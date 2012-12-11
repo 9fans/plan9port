@@ -45,6 +45,7 @@ fi
 	
 echo 'WSYSTYPE='$WSYSTYPE
 echo 'X11='$X11
+echo 'X11H='$X11H
 
 if [ $WSYSTYPE = x11 ]; then
 	echo 'CFLAGS=$CFLAGS '$X11H

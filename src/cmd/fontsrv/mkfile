@@ -1,6 +1,6 @@
 <$PLAN9/src/mkhdr
 <|sh ../devdraw/mkwsysrules.sh
-<|sh freetyperules.sh $WSYSTYPE
+<|sh freetyperules.sh $WSYSTYPE $X11H
 
 TARG=fontsrv
 
