@@ -181,12 +181,11 @@ threadmain(int argc, char *argv[])
 	part = initpart(file, OREAD);
 	if(part == nil)
 		sysfatal("can't open file %s: %r", file);
-	initdcache(8 * MaxDiskBlock);
 
 	// Try as arena partition.
 	arena = nil;
 	ap = initarenapart(part);
-	if(ap == nil)
+	if(ap != nil)
 		goto loaded;
 
 	if(readpart(part, aoffset, buf, sizeof buf) < 0)
@@ -214,11 +213,13 @@ loaded:
 		if(vtconnect(z) < 0)
 			sysfatal("vtconnect: %r");
 	}
-	
+
 	print("%T starting to send data\n");
 	c = chancreate(sizeof(ZClump), 0);
 	for(i=0; i<12; i++)
 		vtproc(vtsendthread, nil);
+
+	initdcache(8 * MaxDiskBlock);
 
 	if(ap != nil) {
 		for(i=0; i<ap->narenas; i++)
