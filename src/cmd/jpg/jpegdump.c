@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 /* subroutines done by macros */
 #define min(A,B)	((A)<(B) ? (A) : (B))
@@ -90,7 +91,7 @@ int get2 (void) {
 }
 
 void eatmarker (int kind) {
-	int l, c;
+	int l;
 	l = get2();
 	printf ("%02x len=%d\n", kind, l);
 	for (l -= 2; l > 0; l--)
@@ -198,7 +199,7 @@ int get1dqt (void) {
 		tab[i] = p ? get2() : get1();
 	if (toption) {
 		for (i = 0; i < 64; i++)
-			printf ("\t%q[%02d] = %d\n", i, tab[i]);
+			printf ("\t%%q[%02d] = %d\n", i, tab[i]);
 	}
 	return p ? 65 : 129;
 }
@@ -211,7 +212,7 @@ void get_dqt (int kind) {
 }
 
 int get1dht (void) {
-	int l, tcth, p, i, j, v[16], vv[16][256];
+	int l, tcth, i, j, v[16], vv[16][256];
 	tcth = get1();
 	printf ("DHT:\tclass = %d, table = %d\n", tcth >> 4, tcth & 0xf);
 	for (i = 0; i < 16; i++)
@@ -224,10 +225,10 @@ int get1dht (void) {
 		}
 	if (toption) {
 		for (i = 0; i < 16; i++)
-			printf ("\t%l[%02d] = %d\n", i+1, v[i]);
+			printf ("\t%%l[%02d] = %d\n", i+1, v[i]);
 		for (i = 0; i < 16; i++)
 			for (j = 0; j < v[i]; j++)
-				printf ("\t%v[%02d,%02d] = %d\n", i+1, j+1, vv[i][j]);
+				printf ("\t%%v[%02d,%02d] = %d\n", i+1, j+1, vv[i][j]);
 	}
 	return l;
 }
@@ -255,8 +256,8 @@ void get_sos (int kind) {
 	printf ("\tah = %d, al = %d\n", ahal >> 4, ahal &0xf);
 }
 
-main (int argc, char *argv[]) {
-	int l, stuff, i, j, c;
+int main (int argc, char *argv[]) {
+	int l, stuff, c;
 	while (argc > 1 && argv[1][0] == '-') {
 		switch (argv[1][1]) {
 		case 't':
