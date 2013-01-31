@@ -194,6 +194,7 @@ dwarfpctoline(Dwarf *d, ulong pc, char **cdir, char **dir, char **file, ulong *l
 					newf = realloc(f, (nf+1)*sizeof(f[0]));
 					if(newf == nil)
 						goto out;
+					f = newf;
 					f[nf++] = b.p;
 					s = dwarfgetstring(&b);
 					dwarfget128(&b);
