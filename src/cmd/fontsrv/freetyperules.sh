@@ -2,7 +2,7 @@
 
 if [ "x$1" = "xx11" ]; then
 	if [ "x$2" = "x" ]; then
-		i=/usr/include
+		i="-I/usr/include"
 	else
 		i=$2
 	fi
