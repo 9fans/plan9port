@@ -74,7 +74,9 @@ xdraw(Memdrawparam *par)
 	 * If no source alpha and an opaque mask, we can just copy
 	 * the source onto the destination.  If the channels are the
 	 * same and the source is not replicated, XCopyArea works.
-	 */
+	 * This is disabled because Ubuntu Precise seems to ship with
+	 * a buggy X server that sometimes drops the XCopyArea
+	 * requests on the floor.
 	m = Simplemask|Fullmask;
 	if((state&(m|Replsrc))==m && src->chan==dst->chan && src->X){
 		xdst = dst->X;
@@ -85,9 +87,10 @@ xdraw(Memdrawparam *par)
 
 		XCopyArea(_x.display, xsrc->pixmap, xdst->pixmap, gc,
 			sp.x, sp.y, Dx(r), Dy(r), dp.x, dp.y);
-	/*	xdirtyxdata(dst, r); */
+	/*	xdirtyxdata(dst, r); * /
 		return 1;
 	}
+	 */
 
 	/*
 	 * If no source alpha, a 1-bit mask, and a simple source,
