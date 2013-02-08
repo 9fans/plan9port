@@ -45,9 +45,9 @@ xdraw(Memdrawparam *par)
 	u32int sdval;
 	uint m, state;
 	Memimage *src, *dst, *mask;
-	Point dp, mp, sp;
+	Point dp, mp;
 	Rectangle r;
-	Xmem *xdst, *xmask, *xsrc;
+	Xmem *xdst, *xmask;
 	XGC gc;
 
 	if(par->dst->X == nil)
@@ -74,11 +74,15 @@ xdraw(Memdrawparam *par)
 	 * If no source alpha and an opaque mask, we can just copy
 	 * the source onto the destination.  If the channels are the
 	 * same and the source is not replicated, XCopyArea works.
+	 *
 	 * This is disabled because Ubuntu Precise seems to ship with
 	 * a buggy X server that sometimes drops the XCopyArea
 	 * requests on the floor.
 	m = Simplemask|Fullmask;
 	if((state&(m|Replsrc))==m && src->chan==dst->chan && src->X){
+		Xmem *xsrc;
+		Point sp;
+
 		xdst = dst->X;
 		xsrc = src->X;
 		dp = subpt(r.min,       dst->r.min);
