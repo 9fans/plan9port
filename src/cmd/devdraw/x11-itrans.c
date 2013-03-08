@@ -114,8 +114,7 @@ __xtoplan9kbd(XEvent *e)
 		case XK_Alt_R:
 		case XK_Meta_R:	/* Shift Alt on PCs */
 		case XK_Multi_key:
-			k = Kalt;
-			break;
+			return -1;
 		default:		/* not ISO-1 or tty control */
 			if(k>0xff) {
 				k = _p9keysym2ucs(k);
@@ -128,7 +127,7 @@ __xtoplan9kbd(XEvent *e)
 	if(k == XK_hyphen)
 		k = XK_minus;
 	/* Do control mapping ourselves if translator doesn't */
-	if(e->xkey.state&ControlMask && k != Kalt)
+	if(e->xkey.state&ControlMask)
 		k &= 0x9f;
 	if(k == NoSymbol) {
 		return -1;
@@ -145,18 +144,33 @@ abortcompose(void)
 	alting = 0;
 }
 
+static Rune* sendrune(Rune);
+
 extern int _latin1(Rune*, int);
 static Rune*
 xtoplan9latin1(XEvent *e)
 {
-	static Rune k[10];
-	static int nk;
-	int n;
-	int r;
+	Rune r;
 
 	r = __xtoplan9kbd(e);
 	if(r < 0)
 		return nil;
+	return sendrune(r);
+}
+
+void
+sendalt(void)
+{
+	sendrune(Kalt);
+}
+
+static Rune*
+sendrune(Rune r)
+{
+	static Rune k[10];
+	static int nk;
+	int n;
+
 	if(alting){
 		/*
 		 * Kludge for Mac's X11 3-button emulation.
@@ -228,6 +242,7 @@ _xtoplan9mouse(XEvent *e, Mouse *m)
 	switch(e->type){
 	case ButtonPress:
 		be = (XButtonEvent*)e;
+
 		/* 
 		 * Fake message, just sent to make us announce snarf.
 		 * Apparently state and button are 16 and 8 bits on
@@ -292,7 +307,7 @@ _xtoplan9mouse(XEvent *e, Mouse *m)
 		m->xy.x = me->x;
 		m->xy.y = me->y;
 		m->msec = me->time;
-		break;
+		return 0; // do not set buttons
 
 	default:
 		return -1;

@@ -36,7 +36,7 @@
 	Button2MotionMask|\
 	Button3MotionMask)
 
-#define Mask MouseMask|ExposureMask|StructureNotifyMask|KeyPressMask|EnterWindowMask|LeaveWindowMask|FocusChangeMask
+#define Mask MouseMask|ExposureMask|StructureNotifyMask|KeyPressMask|KeyReleaseMask|EnterWindowMask|LeaveWindowMask|FocusChangeMask
 
 typedef struct Kbdbuf Kbdbuf;
 typedef struct Mousebuf Mousebuf;
@@ -463,6 +463,28 @@ matchmouse(void)
 	}
 }
 
+static int kbuttons;
+static int altdown;
+static int kstate;
+
+static void
+sendmouse(Mouse m)
+{
+	m.buttons |= kbuttons;
+	mouse.m[mouse.wi] = m;
+	mouse.wi++;
+	if(mouse.wi == nelem(mouse.m))
+		mouse.wi = 0;
+	if(mouse.wi == mouse.ri){
+		mouse.stall = 1;
+		mouse.ri = 0;
+		mouse.wi = 1;
+		mouse.m[0] = m;
+		/* fprint(2, "mouse stall\n"); */
+	}
+	matchmouse();
+}
+
 /*
  * Handle an incoming X event.
  */
@@ -472,6 +494,8 @@ runxevent(XEvent *xev)
 	int c;
 	KeySym k;
 	static Mouse m;
+	XButtonEvent *be;
+	XKeyEvent *ke;
 
 #ifdef SHOWEVENT
 	static int first = 1;
@@ -504,41 +528,86 @@ runxevent(XEvent *xev)
 		if(_xconfigure(xev)){
 			mouse.resized = 1;
 			_xreplacescreenimage();
-			goto addmouse;
+			sendmouse(m);
 		}
 		break;
 
 	case ButtonPress:
+		be = (XButtonEvent*)xev;
+		if(be->button == 1) {
+			if(kstate & ControlMask)
+				be->button = 2;
+			else if(kstate & Mod1Mask)
+				be->button = 3;
+		}
+		// fall through
 	case ButtonRelease:
+		altdown = 0;
+		// fall through
 	case MotionNotify:
 		if(mouse.stall)
 			return;
 		if(_xtoplan9mouse(xev, &m) < 0)
 			return;
-	addmouse:
-		mouse.m[mouse.wi] = m;
-		mouse.wi++;
-		if(mouse.wi == nelem(mouse.m))
-			mouse.wi = 0;
-		if(mouse.wi == mouse.ri){
-			mouse.stall = 1;
-			mouse.ri = 0;
-			mouse.wi = 1;
-			mouse.m[0] = m;
-			/* fprint(2, "mouse stall\n"); */
-		}
-		matchmouse();
+		sendmouse(m);
 		break;
 	
+	case KeyRelease:
 	case KeyPress:
-		if(kbd.stall)
-			return;
-		XLookupString((XKeyEvent*)xev, NULL, 0, &k, NULL);
+		ke = (XKeyEvent*)xev;
+		XLookupString(ke, NULL, 0, &k, NULL);
+		c = ke->state;
+		switch(k) {
+		case XK_Alt_L:
+		case XK_Meta_L:	/* Shift Alt on PCs */
+		case XK_Alt_R:
+		case XK_Meta_R:	/* Shift Alt on PCs */
+		case XK_Multi_key:
+			if(xev->type == KeyPress)
+				altdown = 1;
+			else if(altdown) {
+				altdown = 0;
+				sendalt();
+			}
+			break;
+		}
+
+		switch(k) {
+		case XK_Control_L:
+			if(xev->type == KeyPress)
+				c |= ControlMask;
+			else
+				c &= ~ControlMask;
+			goto kbutton;
+		case XK_Alt_L:
+		case XK_Shift_L:
+			if(xev->type == KeyPress)
+				c |= Mod1Mask;
+			else
+				c &= ~Mod1Mask;
+		kbutton:
+			kstate = c;
+			if(m.buttons || kbuttons) {
+				altdown = 0; // used alt
+				kbuttons = 0;
+				if(c & ControlMask)
+					kbuttons |= 2;
+				if(c & Mod1Mask)
+					kbuttons |= 4;
+				sendmouse(m);
+				break;
+			}
+		}
+
+		if(xev->type != KeyPress)
+			break;
 		if(k == XK_F11){
 			fullscreen = !fullscreen;
 			_xmovewindow(fullscreen ? screenrect : windowrect);
 			return;
 		}
+		if(kbd.stall)
+			return;
 		if((c = _xtoplan9kbd(xev)) < 0)
 			return;
 		kbd.r[kbd.wi++] = c;
