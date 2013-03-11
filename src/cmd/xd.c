@@ -8,6 +8,7 @@ int		ndata;
 unsigned long	addr;
 int		repeats;
 int		swizzle;
+int		swizzle8;
 int		flush;
 int		abase=2;
 int		xd(char *, int);
@@ -79,6 +80,12 @@ main(int argc, char *argv[])
 		}
 		if(argv[0][0] == 's'){
 			swizzle = 1;
+			if(argv[0][1])
+				goto Usage;
+			continue;
+		}
+		if(argv[0][0] == 'S'){
+			swizzle8 = 1;
 			if(argv[0][1])
 				goto Usage;
 			continue;
@@ -215,6 +222,8 @@ xd(char *name, int title)
 				data[i] = 0;
 		if(swizzle)
 			swizz();
+		if(swizzle8)
+			swizz8();
 		if(ndata==16 && repeats){
 			if(addr>0 && data[0]==odata[0]){
 				for(i=1; i<16; i++)
@@ -273,6 +282,33 @@ swizz(void)
 		p[3] = q[0];
 		p += 4;
 		q += 4;
+	}
+}
+
+void
+swizz8(void)
+{
+	uchar *p, *q;
+	int i;
+	uchar swdata[16];
+
+	p = data;
+	q = swdata;
+	for(i=0; i<16; i++)
+		*q++ = *p++;
+	p = data;
+	q = swdata;
+	for(i=0; i<8; i++){
+		p[0] = q[7];
+		p[1] = q[6];
+		p[2] = q[5];
+		p[3] = q[4];
+		p[4] = q[3];
+		p[5] = q[2];
+		p[6] = q[1];
+		p[7] = q[0];
+		p += 8;
+		q += 8;
 	}
 }
 
