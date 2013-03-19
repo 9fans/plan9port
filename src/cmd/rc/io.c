@@ -1,3 +1,4 @@
+#include <limits.h>
 #include "rc.h"
 #include "exec.h"
 #include "io.h"
@@ -119,14 +120,13 @@ void
 pdec(io *f, int n)
 {
 	if(n<0){
-		n=-n;
-		if(n>=0){
+		if(n!=INT_MIN){
 			pchr(f, '-');
-			pdec(f, n);
+			pdec(f, -n);
 			return;
 		}
 		/* n is two's complement minimum integer */
-		n = 1-n;
+		n = -(INT_MIN+1);
 		pchr(f, '-');
 		pdec(f, n/10);
 		pchr(f, n%10+'1');
