@@ -2077,8 +2077,7 @@ digest_certinfo(Bytes *cert, DigestFun digestfun, uchar *digest)
 	if(tag_decode(&p, pend, &tag, &isconstr) != ASN_OK ||
 	   tag.class != Universal || tag.num != SEQUENCE ||
 	   length_decode(&p, pend, &length) != ASN_OK ||
-	   p+length > pend ||
-	   p+length < p)
+	   length > pend - p)
 		return;
 	info = p;
 	if(ber_decode(&p, pend, &elem) != ASN_OK || elem.tag.num != SEQUENCE)
