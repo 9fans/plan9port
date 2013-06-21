@@ -153,7 +153,7 @@ xtoplan9latin1(XEvent *e)
 	Rune r;
 
 	r = __xtoplan9kbd(e);
-	if(r < 0)
+	if(r == -1)
 		return nil;
 	return sendrune(r);
 }
