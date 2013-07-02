@@ -27,7 +27,7 @@ regsub(char *sp,	/* source string */
 			case '8':
 			case '9':
 				i = *sp-'0';
-				if(mp[i].s.sp != 0 && mp!=0 && ms>i)
+				if(mp!=0 && mp[i].s.sp != 0 && ms>i)
 					for(ssp = mp[i].s.sp;
 					     ssp < mp[i].e.ep;
 					     ssp++)
@@ -46,9 +46,8 @@ regsub(char *sp,	/* source string */
 					*dp++ = *sp;
 				break;
 			}
-		}else if(*sp == '&'){				
-			if(mp[0].s.sp != 0 && mp!=0 && ms>0)
-			if(mp[0].s.sp != 0)
+		}else if(*sp == '&'){
+			if(mp!=0 && mp[0].s.sp != 0 && ms>0)
 				for(ssp = mp[0].s.sp;
 				     ssp < mp[0].e.ep; ssp++)
 					if(dp < ep)

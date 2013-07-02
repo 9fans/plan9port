@@ -22,16 +22,15 @@ struct x t[] = {
 	{ 0, 0, 0 },
 };
 
+int
 main(int ac, char **av)
 {
 	Resub rs[10];
 	char dst[128];
-	int n;
 	struct x *tp;
 
 	for(tp = t; tp->re; tp++)
 		tp->p = regcomp(tp->re);
-
 
 	for(tp = t; tp->re; tp++){
 		print("%s VIA %s", av[1], tp->re);

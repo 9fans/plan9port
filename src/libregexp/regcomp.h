@@ -12,13 +12,6 @@ struct	Resublist
 	Resub	m[NSUBEXP];
 };
 
-/* max character classes per program */
-extern Reprog	RePrOg;
-#define	NCLASS	(sizeof(RePrOg.class)/sizeof(Reclass))
-
-/* max rune ranges per character class */
-#define NCCRUNE	(sizeof(Reclass)/sizeof(Rune))
-
 /*
  * Actions and Tokens (Reinst types)
  *
@@ -48,7 +41,7 @@ extern Reprog	RePrOg;
  *  regexec execution lists
  */
 #define LISTSIZE	10
-#define BIGLISTSIZE	(10*LISTSIZE)
+#define BIGLISTSIZE	(25*LISTSIZE)
 typedef struct Relist	Relist;
 struct Relist
 {
