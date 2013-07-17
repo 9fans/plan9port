@@ -619,6 +619,12 @@ runxevent(XEvent *xev)
 		break;
 	
 	case FocusOut:
+		/*
+		 * Some key combinations (e.g. Alt-Tab) can cause us
+		 * to see the key down event without the key up event,
+		 * so clear out the keyboard state when we lose the focus.
+		 */
+		kstate = 0;
 		abortcompose();
 		break;
 	
