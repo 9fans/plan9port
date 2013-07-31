@@ -77,6 +77,8 @@ number(uint showerr, Text *t, Range r, int line, int dir, int size, int *evalp)
 			if(textreadc(t, q1++) == '\n' || q1==t->file->b.nc)
 				if(--line > 0)
 					q0 = q1;
+		if(line==1 && q1==t->file->b.nc) // 6 goes to end of 5-line file
+			break;
 		if(line > 0)
 			goto Rescue;
 		break;
