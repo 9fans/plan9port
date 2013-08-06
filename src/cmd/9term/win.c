@@ -5,6 +5,7 @@
 #include <9pclient.h>
 #include "term.h"
 
+const char *termprog = "win";
 
 #define	EVENTSIZE	256
 #define	STACK	32768

@@ -15,6 +15,7 @@
 #include "fns.h"
 #include "term.h"
 
+const char *termprog = "9term";
 int use9wm;
 int mainpid;
 int mousepid;
