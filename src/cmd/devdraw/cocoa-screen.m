@@ -38,6 +38,8 @@ int useliveresizing = 0;
 int useoldfullscreen = 0;
 int usebigarrow = 0;
 
+static void setprocname(const char*);
+
 /*
  * By default, devdraw ignores retina displays. A non-zero evironment variable
  * |devdrawretina| will override this.
@@ -84,6 +86,8 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
+	
+	setprocname(argv0);
 
 	if (envvar = getenv("devdrawretina"))
 		devdrawretina = atoi(envvar) > 0;
@@ -1456,4 +1460,120 @@ scalepoint(NSPoint pt, CGFloat scale)
     pt.x *= scale;
     pt.y *= scale;
     return pt;
+}
+
+static void
+setprocname(const char *s)
+{
+  CFStringRef process_name;
+  
+  process_name = CFStringCreateWithBytes(nil, (uchar*)s, strlen(s), kCFStringEncodingUTF8, false);
+
+  // Adapted from Chrome's mac_util.mm.
+  // http://src.chromium.org/viewvc/chrome/trunk/src/base/mac/mac_util.mm
+  //
+  // Copyright (c) 2012 The Chromium Authors. All rights reserved.
+  //
+  // Redistribution and use in source and binary forms, with or without
+  // modification, are permitted provided that the following conditions are
+  // met:
+  //
+  //    * Redistributions of source code must retain the above copyright
+  // notice, this list of conditions and the following disclaimer.
+  //    * Redistributions in binary form must reproduce the above
+  // copyright notice, this list of conditions and the following disclaimer
+  // in the documentation and/or other materials provided with the
+  // distribution.
+  //    * Neither the name of Google Inc. nor the names of its
+  // contributors may be used to endorse or promote products derived from
+  // this software without specific prior written permission.
+  //
+  // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  // "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  // LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  // A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  // OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  // SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  // LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  // DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  // THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  // Warning: here be dragons! This is SPI reverse-engineered from WebKit's
+  // plugin host, and could break at any time (although realistically it's only
+  // likely to break in a new major release).
+  // When 10.7 is available, check that this still works, and update this
+  // comment for 10.8.
+
+  // Private CFType used in these LaunchServices calls.
+  typedef CFTypeRef PrivateLSASN;
+  typedef PrivateLSASN (*LSGetCurrentApplicationASNType)();
+  typedef OSStatus (*LSSetApplicationInformationItemType)(int, PrivateLSASN,
+                                                          CFStringRef,
+                                                          CFStringRef,
+                                                          CFDictionaryRef*);
+
+  static LSGetCurrentApplicationASNType ls_get_current_application_asn_func =
+      NULL;
+  static LSSetApplicationInformationItemType
+      ls_set_application_information_item_func = NULL;
+  static CFStringRef ls_display_name_key = NULL;
+
+  static bool did_symbol_lookup = false;
+  if (!did_symbol_lookup) {
+    did_symbol_lookup = true;
+    CFBundleRef launch_services_bundle =
+        CFBundleGetBundleWithIdentifier(CFSTR("com.apple.LaunchServices"));
+    if (!launch_services_bundle) {
+      fprint(2, "Failed to look up LaunchServices bundle\n");
+      return;
+    }
+
+    ls_get_current_application_asn_func =
+        (LSGetCurrentApplicationASNType)(
+            CFBundleGetFunctionPointerForName(
+                launch_services_bundle, CFSTR("_LSGetCurrentApplicationASN")));
+    if (!ls_get_current_application_asn_func)
+      fprint(2, "Could not find _LSGetCurrentApplicationASN\n");
+
+    ls_set_application_information_item_func =
+        (LSSetApplicationInformationItemType)(
+            CFBundleGetFunctionPointerForName(
+                launch_services_bundle,
+                CFSTR("_LSSetApplicationInformationItem")));
+    if (!ls_set_application_information_item_func)
+      fprint(2, "Could not find _LSSetApplicationInformationItem\n");
+
+    CFStringRef* key_pointer = (CFStringRef*)(
+        CFBundleGetDataPointerForName(launch_services_bundle,
+                                      CFSTR("_kLSDisplayNameKey")));
+    ls_display_name_key = key_pointer ? *key_pointer : NULL;
+    if (!ls_display_name_key)
+      fprint(2, "Could not find _kLSDisplayNameKey\n");
+
+    // Internally, this call relies on the Mach ports that are started up by the
+    // Carbon Process Manager.  In debug builds this usually happens due to how
+    // the logging layers are started up; but in release, it isn't started in as
+    // much of a defined order.  So if the symbols had to be loaded, go ahead
+    // and force a call to make sure the manager has been initialized and hence
+    // the ports are opened.
+    ProcessSerialNumber psn;
+    GetCurrentProcess(&psn);
+  }
+  if (!ls_get_current_application_asn_func ||
+      !ls_set_application_information_item_func ||
+      !ls_display_name_key) {
+    return;
+  }
+
+  PrivateLSASN asn = ls_get_current_application_asn_func();
+  // Constant used by WebKit; what exactly it means is unknown.
+  const int magic_session_constant = -2;
+  OSErr err =
+      ls_set_application_information_item_func(magic_session_constant, asn,
+                                               ls_display_name_key,
+                                               process_name,
+                                               NULL /* optional out param */);
+  if(err != noErr)
+    fprint(2, "Call to set process name failed\n");
 }
