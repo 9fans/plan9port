@@ -23,7 +23,7 @@ if(! ~ $#cflag 0){
 	exit $status
 }
 if(flag i){
-	if(~ $TERM 9term){
+	if(~ $termprog 9term || ~ $termprog win){
 		fn cd {
 			# builtin cd $1 && flag i && awd
 			# is not sufficient when running in a subshell
