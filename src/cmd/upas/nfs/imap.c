@@ -34,6 +34,8 @@ struct Imap
 	/* SEARCH results */
 	uint		*uid;
 	uint		nuid;
+
+	uint		reply;
 };
 
 static struct {
@@ -66,10 +68,11 @@ static int		getbox(Imap*, Box*);
 static int		getboxes(Imap*);
 static char*	gsub(char*, char*, char*);
 static int		imapcmd(Imap*, Box*, char*, ...);
+static Sx*		imapcmdsxlit(Imap*, Box*, char*, ...);
 static Sx*		imapcmdsx(Imap*, Box*, char*, ...);
 static Sx*		imapcmdsx0(Imap*, char*, ...);
-static Sx*		imapvcmdsx(Imap*, Box*, char*, va_list);
-static Sx*		imapvcmdsx0(Imap*, char*, va_list);
+static Sx*		imapvcmdsx(Imap*, Box*, char*, va_list, int);
+static Sx*		imapvcmdsx0(Imap*, char*, va_list, int);
 static int		imapdial(char*, int);
 static int		imaplogin(Imap*);
 static int		imapquote(Fmt*);
@@ -338,7 +341,7 @@ imaprefreshthread(void *v)
  * Run a single command and return the Sx.  Does NOT redial.
  */
 static Sx*
-imapvcmdsx0(Imap *z, char *fmt, va_list arg)
+imapvcmdsx0(Imap *z, char *fmt, va_list arg, int dotag)
 {
 	char *s;
 	Fmt f;
@@ -353,7 +356,8 @@ imapvcmdsx0(Imap *z, char *fmt, va_list arg)
 
 	prefix = strlen(tag)+1;
 	fmtstrinit(&f);
-	fmtprint(&f, "%s ", tag);
+	if(dotag)
+		fmtprint(&f, "%s ", tag);
 	fmtvprint(&f, fmt, arg);
 	fmtprint(&f, "\r\n");
 	s = fmtstrflush(&f);
@@ -379,7 +383,7 @@ imapcmdsx0(Imap *z, char *fmt, ...)
 	Sx *sx;
 	
 	va_start(arg, fmt);
-	sx = imapvcmdsx0(z, fmt, arg);
+	sx = imapvcmdsx0(z, fmt, arg, 1);
 	va_end(arg);
 	return sx;
 }
@@ -388,7 +392,7 @@ imapcmdsx0(Imap *z, char *fmt, ...)
  * Run a single command on box b.  Does redial.
  */
 static Sx*
-imapvcmdsx(Imap *z, Box *b, char *fmt, va_list arg)
+imapvcmdsx(Imap *z, Box *b, char *fmt, va_list arg, int dotag)
 {
 	int tries;
 	Sx *sx;
@@ -419,7 +423,7 @@ reconnect:
 		freesx(sx);
 	}
 
-	if((sx=imapvcmdsx0(z, fmt, arg)) == nil){
+	if((sx=imapvcmdsx0(z, fmt, arg, dotag)) == nil){
 		if(tries++ == 0 && (z->fd < 0 || !z->connected))
 			goto reconnect;
 		return nil;
@@ -434,7 +438,7 @@ imapcmd(Imap *z, Box *b, char *fmt, ...)
 	va_list arg;
 
 	va_start(arg, fmt);
-	sx = imapvcmdsx(z, b, fmt, arg);
+	sx = imapvcmdsx(z, b, fmt, arg, 1);
 	va_end(arg);
 	if(sx == nil)
 		return -1;
@@ -454,7 +458,19 @@ imapcmdsx(Imap *z, Box *b, char *fmt, ...)
 	va_list arg;
 
 	va_start(arg, fmt);
-	sx = imapvcmdsx(z, b, fmt, arg);
+	sx = imapvcmdsx(z, b, fmt, arg, 1);
+	va_end(arg);
+	return sx;
+}
+
+static Sx*
+imapcmdsxlit(Imap *z, Box *b, char *fmt, ...)
+{
+	Sx *sx;
+	va_list arg;
+
+	va_start(arg, fmt);
+	sx = imapvcmdsx(z, b, fmt, arg, 0);
 	va_end(arg);
 	return sx;
 }
@@ -469,6 +485,10 @@ imapwaitsx(Imap *z)
 			fprint(2, "<| %#$\n", sx);
 		if(sx->nsx >= 1 && sx->sx[0]->type == SxAtom && cistrcmp(sx->sx[0]->data, tag) == 0)
 			return sx;
+		if(sx->nsx >= 1 && sx->sx[0]->type == SxAtom && cistrcmp(sx->sx[0]->data, "+") == 0){
+			z->reply = 1;
+			return sx;
+		}
 		if(sx->nsx >= 1 && sx->sx[0]->type == SxAtom && strcmp(sx->sx[0]->data, "*") == 0)
 			unexpected(z, sx);
 		if(sx->type == SxList && sx->nsx == 0){
@@ -651,17 +671,32 @@ imapsearchbox(Imap *z, Box *b, char *search, Msg ***mm)
 	int i, nuid;
 	Msg **m;
 	int nm;
+	Sx *sx;
 
 	qlock(&z->lk);
-	if(imapcmd(z, b, "UID SEARCH CHARSET UTF-8 TEXT %Z", search) < 0){
+	sx = imapcmdsx(z, b, "UID SEARCH CHARSET UTF-8 TEXT {%d}", strlen(search));
+	freesx(sx);
+	if(!z->reply){
 		qunlock(&z->lk);
 		return -1;
 	}
+	if((sx = imapcmdsxlit(z, b, "%s", search)) == nil){
+		qunlock(&z->lk);
+		return -1;
+	}
+	if(sx->nsx < 2 || !isatom(sx->sx[1], "OK")){
+		werrstr("%$", sx);
+		freesx(sx);
+		qunlock(&z->lk);
+		return -1;
+	}
+	freesx(sx);
 
 	uid = z->uid;
 	nuid = z->nuid;
 	z->uid = nil;
 	z->nuid = 0;
+	z->reply = 0;
 	qunlock(&z->lk);
 
 	m = emalloc(nuid*sizeof m[0]);
