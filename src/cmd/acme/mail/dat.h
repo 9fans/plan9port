@@ -142,6 +142,7 @@ extern	Message*	mesglookupfile(Message*, char*, char*);
 extern	void		mesgfreeparts(Message*);
 extern	int		mesgcommand(Message*, char*);
 
+extern	char*	info(Message*, int, int);
 extern	char*	readfile(char*, char*, int*);
 extern	char*	readbody(char*, char*, int*);
 extern	void		ctlprint(CFid*, char*, ...);

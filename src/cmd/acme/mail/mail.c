@@ -395,9 +395,11 @@ int
 mboxcommand(Window *w, char *s)
 {
 	char *args[10], **targs, *save;
+	Window *sbox;
 	Message *m, *next;
 	int ok, nargs, i, j;
-	char buf[128];
+	CFid *searchfd;
+	char buf[128], *res;
 
 	nargs = tokenize(s, args, nelem(args));
 	if(nargs == 0)
@@ -413,6 +415,10 @@ mboxcommand(Window *w, char *s)
 		if(mbox.dirty){
 			mbox.dirty = 0;
 			fprint(2, "mail: mailbox not written\n");
+			return 1;
+		}
+		if(w != mbox.w){
+			windel(w, 1);
 			return 1;
 		}
 		ok = 1;
@@ -473,6 +479,61 @@ mboxcommand(Window *w, char *s)
 		}
 		free(s);
 		free(targs);
+		return 1;
+	}
+	if(strcmp(s, "Search") == 0){
+		if(nargs <= 1)
+			return 1;
+		s = estrstrdup(mboxname, "/search");
+		searchfd = fsopen(mailfs, s, ORDWR);
+		if(searchfd == nil)
+			return 1;
+		save = estrdup(args[1]);
+		for(i=2; i<nargs; i++)
+			save = eappend(save, " ", args[i]);
+		fswrite(searchfd, save, strlen(save));
+		fsseek(searchfd, 0, 0);
+		j = fsread(searchfd, buf, sizeof buf - 1);
+ 		if(j == 0){
+			fprint(2, "[%s] search %s: no results found\n", mboxname, save);
+			fsclose(searchfd);
+			free(save);
+			return 1;
+		}
+		free(save);
+		buf[j] = '\0';
+		res = estrdup(buf);
+		j = fsread(searchfd, buf, sizeof buf - 1);
+		for(; j != 0; j = fsread(searchfd, buf, sizeof buf - 1), buf[j] = '\0')
+			res = eappend(res, "", buf);
+		fsclose(searchfd);
+
+		sbox = newwindow();
+		winname(sbox, s);
+		free(s);
+		threadcreate(mainctl, sbox, STACK);
+		winopenbody(sbox, OWRITE);
+
+		/* show results in reverse order */
+		m = mbox.tail;
+		save = nil;
+		for(s=strrchr(res, ' '); s!=nil || save!=res; s=strrchr(res, ' ')){
+			if(s != nil){
+				save = s+1;
+				*s = '\0';
+			}
+			else save = res;
+			save = estrstrdup(save, "/");
+			for(; m && strcmp(save, m->name) != 0; m=m->prev);
+			free(save);
+			if(m == nil)
+				break;
+			fsprint(sbox->body, "%s%s\n", m->name, info(m, 0, 0));
+			m = m->prev;
+		}
+		free(res);
+		winclean(sbox);
+		winclosebody(sbox);
 		return 1;
 	}
 	return 0;
