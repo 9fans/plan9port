@@ -105,7 +105,22 @@ wintagwrite(Window *w, char *s, int n)
 void
 winname(Window *w, char *s)
 {
-	ctlprint(w->ctl, "name %s\n", s);
+	int len;
+	char *ns, *sp;
+	Rune r = L'␣';	/* visible space */
+
+	len = 0;
+	ns = emalloc(strlen(s)*runelen(r) + 1);
+	for(sp = s; *sp != '\0'; sp++, len++){
+		if(isspace(*sp)){
+			len += runetochar(ns+len, &r)-1;
+			continue;
+		}
+		*(ns+len) = *sp;
+	}
+	ctlprint(w->ctl, "name %s\n", ns);
+	free(ns);
+	return;
 }
 
 void
