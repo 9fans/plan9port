@@ -1479,7 +1479,7 @@ runproc(void *argvp)
 			continue;
 		if(r < ' ')
 			goto Hard;
-		if(utfrune("#;&|^$=`'{}()<>[]*?^~`", r))
+		if(utfrune("#;&|^$=`'{}()<>[]*?^~`/", r))
 			goto Hard;
 		inarg = TRUE;
 	}
