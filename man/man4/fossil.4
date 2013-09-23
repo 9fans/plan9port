@@ -1,0 +1,514 @@
+.TH FOSSIL 4
+.SH NAME
+fossil, flchk, flfmt \- archival file server
+.SH SYNOPSIS
+.B fossil/fossil
+[
+.B -Dt
+]
+[
+.B -c
+.I cmd
+]...
+[
+.B -f
+.I file
+]
+[
+.B -m
+.I free-memory-percent
+]
+.PP
+.B fossil/flchk
+[
+.B -f
+]
+[
+.B -c
+.I ncache
+]
+[
+.B -h
+.I host
+]
+.I file
+.PP
+.B fossil/flfmt
+[
+.B -y
+]
+[
+.B -b
+.I blocksize
+]
+[
+.B -h
+.I host
+]
+[
+.B -l
+.I label
+]
+[
+.B -v
+.I score
+]
+.I file
+.PP
+.B fossil/conf
+[
+.B -w
+]
+.I file
+[
+.I config
+]
+.PP
+.B fossil/last
+.I file
+.SH DESCRIPTION
+.I Fossil
+is the main file system for Plan 9.
+Unlike the Plan 9 file servers of old,
+.I fossil
+is a collection of user-space programs that run on a standard Plan 9 kernel.
+The name of the main fossil file server at Murray Hill is
+.BR pie .
+The Plan 9 distribution file server,
+.BR sources ,
+is also a fossil server.
+.PP
+.I Fossil
+is structured as a magnetic disk write buffer
+optionally backed by a Venti server for archival storage.
+It serves the Plan 9 protocol via TCP.
+A
+.I fossil
+file server conventionally presents
+three trees in the root directory of each file system:
+.BR active ,
+.BR archive ,
+and
+.BR snapshot .
+.B /active
+is the root of a conventional file system
+whose blocks are stored in a disk file.
+In a typical configuration, the file server periodically
+marks the entire file system copy-on-write, effectively
+taking a snapshot of the file system at that moment.
+This snapshot is made available in a name
+created from the date and time of the snapshot:
+.BI /snapshot/ yyyy / mmdd / hhmm \fR,
+where
+.I yyyy
+is the full year,
+.I mm
+is the month number,
+.I dd
+is the day number,
+.I hh
+is the hour,
+and
+.I mm
+is the minute.
+The snapshots in
+.B /snapshot
+are ephemeral: eventually they are deleted
+to reclaim the disk space they occupy.
+Long-lasting snapshots stored on a Venti server
+are kept in 
+.B /archive
+and also named from the date (though not the time) of the snapshot:
+.BI /archive/ yyyy / mmdds \fR,
+where
+.IR yyyy ,
+.IR mm ,
+and
+.I dd
+are year, month, and day as before,
+and
+.I s
+is a sequence number if more than one
+archival snapshot is done in a day.
+For the first snapshot,
+.I s
+is null.
+For the subsequent snapshots,
+.I s
+is
+.BR .1 ,
+.BR .2 ,
+.BR .3 ,
+etc.
+The root of the main file system that is frozen
+for the first archival snapshot of December 15, 2002
+will be named
+.BR /archive/2002/1215/ .
+.PP
+The attach name used in
+.I mount
+(see
+.IR bind (1),
+.IR bind (2)
+and
+.IR attach (5))
+selects a file system to be served
+and optionally a subtree,
+in the format
+.IB fs \fR[\fB/ dir \fR].
+An empty attach name selects
+.BR main/active .
+.PP
+.I Fossil
+normally requires all users except
+.L none
+to provide authentication tickets on each
+.IR attach (5).
+To keep just anyone from connecting,
+.L none
+is only allowed to attach after another user
+has successfully attached on the same
+connection.
+The other user effectively acts as a chaperone
+for
+.LR none .
+Authentication can be disabled using the
+.B -A
+flag to
+.B open
+or
+.B srv
+(see
+.IR fossilcons (8)).
+.PP
+The groups called
+.B noworld
+and
+.B write
+are special on the file server.
+Any user belonging to
+.B noworld
+has attenuated access privileges.
+Specifically, when checking such a user's access to files,
+the file's permission bits are first ANDed
+with 0770 for normal files and 0771 for directories.
+The effect is to deny world access permissions to
+.B noworld
+users, except when walking into directories.
+If the
+.B write
+group exists, then the file system appears read-only
+to users not in the group.
+This is used to make the Plan 9 distribution file server
+.RI ( sources.cs.bell-labs.com )
+readable by the world but writable only to the developers.
+.PP
+.I Fossil
+starts a new instance of the fossil file server.
+It is configured mainly through console commands,
+documented in
+.IR fossilcons (8).
+.PP
+The options are:
+.TF "-c\fI cmd
+.PD
+.TP
+.B -D
+Toggle the debugging flag, which is initially off.
+When the flag is set, information about authentication
+and all protocol messages are written to standard error.
+.TP
+.B -t
+Start a file server console on
+.BR /dev/cons .
+If this option is given,
+.I fossil
+does not fork itself into the background.
+.TP
+.BI -c " cmd
+Execute the console command
+.IR cmd .
+This option may be repeated to give multiple
+commands.
+Typically the only commands given on the
+command line are
+.RB `` ".\fI file" ,''
+which executes a file containing commands,
+and
+.RB `` "srv -p" \fIcons \fR,''
+which starts a file server console on
+.BI /srv/ cons \fR.
+See
+.IR fossilcons (8)
+for more information.
+.TP
+.BI -f " file
+Read and execute console commands stored in the Fossil disk 
+.IR file .
+.I Conf
+.RI ( q.v. )
+reads and writes the command set stored in the disk.
+.TP
+.B -m
+Allocate
+.I free-memory-percent
+percent of the available free RAM for buffers.
+This overrides all other memory sizing parameters,
+notably the
+.B -c
+option to
+.BR open .
+30% is a reasonable choice.
+.PD
+.PP
+.I Flchk
+checks the fossil file system stored in
+.I file
+for inconsistencies.
+.I Flchk
+is deprecated in favor of the console
+.B check
+command (see
+.IR fossilcons (8)).
+.I Flchk
+prints
+.I fossil
+console commands that may be
+executed to take care of
+bad pointers
+.RB ( clrp ),
+bad entries
+.RB ( clre ),
+bad directory entries
+.RB ( clri ),
+unreachable blocks
+.RB ( bfree ).
+Console commands are interspersed with
+more detailed commentary on the file system.
+The commands are distinguished by being prefixed with
+sharp signs.
+Note that all proposed fixes are rather drastic: offending
+pieces of file system are simply chopped off.
+.PP
+.I Flchk
+does
+.I not
+modify the file system, so it is safe to
+run concurrently with
+.IR fossil ,
+though in this case
+the list of unreachable
+blocks and any inconsistencies involving the active file system
+should be taken with a grain of salt.
+.PP
+The options are:
+.TF "-h\fI host
+.PD
+.TP
+.B -f
+Fast mode.
+By default,
+.I flchk
+checks the entire file system image for consistency,
+which includes all the archives to Venti
+and can take a very long time.
+In fast mode,
+.I flchk
+avoids walking in Venti blocks
+whenever possible.
+.TP
+.BI -c " ncache
+Keep a cache of
+.I ncache
+(by default, 1000)
+file system blocks in memory during the check.
+.TP
+.BI -h " host
+Use
+.I host
+as the Venti server.
+.PD
+.PP
+.I Flfmt
+prepares
+.I file
+as a new fossil file system.
+The file system is initialized with three empty directories
+.BR active ,
+.BR archive ,
+and
+.BR snapshot ,
+as described above.
+The options are:
+.TF "-b\fI blocksize
+.PD
+.TP
+.B -y
+Yes mode.
+By default,
+.I flfmt
+will prompt for confirmation before formatting
+a file that already contains a fossil file system,
+and before formatting a file that is not served
+directly by a kernel device.
+If the
+.B -y
+flag is given, no such checks are made.
+.TP
+.BI -b " blocksize
+Set the file system block size (by default, 8192).
+.TP
+.BI -h " host
+Use
+.I host
+as the Venti server.
+.TP
+.BI -l " label
+Set the textual label on the file system to
+.IR label .
+The label is only a comment.
+.TP
+.BI -v " score
+Initialize the file system using the vac file
+system stored on Venti at
+.IR score .
+The score should have been generated by
+.I fossil
+rather than by
+.IR vac (1),
+so that the appropriate snapshot metadata is present.
+.PD
+.PP
+.I Conf
+reads or writes the configuration branded on the Fossil disk
+.IR file .
+By default, it reads the configuration from the disk and prints it to
+standard output.
+If the
+.B -w
+flag is given,
+.I conf
+reads a new configuration from 
+.I config
+(or else from standard input)
+and writes it to the disk.
+Inside the configuration file, the argument
+.L *
+may be used to stand in for the name of the disk holding the configuration.
+The Plan 9 kernel boot process runs
+.RB `` fossil
+.B -f
+.IR disk ''
+to start a Fossil file server.
+The disk is just a convenient place to store configuration
+information.
+.PP
+.I Last
+prints the vac score that resulted after the most recent archival snapshot 
+of the fossil in
+.I file.
+.SH EXAMPLES
+.PP
+Place the root of the archive file system on
+.B /n/dump
+and show the modified times of the MIPS C compiler
+over all dumps in December 2002:
+.IP
+.EX
+9fs dump
+ls -l /n/dump/2002/12*/mips/bin/vc
+.EE
+.PP
+To get only one line of output for each version of the compiler:
+.IP
+.EX
+ls -lp /n/dump/2002/12*/mips/bin/vc | uniq
+.EE
+.ne 14
+.PP
+Initialize a new file system, start the server with permission
+checking turned off, create a users file, and mount the server:
+.IP
+.EX
+fossil/flfmt /dev/sdC0/fossil
+fossil/conf -w /dev/sdC0/fossil <<EOF
+fsys main config
+fsys main open -AWP
+fsys main
+create /active/adm adm sys d775
+create /active/adm/users adm sys 664
+users -w
+srv -p fscons
+srv fossil
+EOF
+fossil/fossil -f /dev/sdC0/fossil
+mount /srv/fossil /n/fossil
+.EE
+.LP
+See the discussion of the
+.B users
+and
+.B uname
+commands in
+.IR fossilcons (8)
+for more about the user table.
+.ne 3
+.PP
+Perhaps because the disk has been corrupted or replaced,
+format a new file system using the last archive score printed
+on the console:
+.IP
+.EX
+fossil/flfmt -v b9b3...5559 /dev/sdC0/fossil
+.EE
+.LP
+Note that while
+.B /snapshot
+will be lost,
+.B /active
+and
+.B /archive
+will be restored to their contents at the time of the
+last archival snapshot.
+.ne 3
+.PP
+Blindly accept the changes prescribed by
+.I flchk
+(not recommended):
+.IP
+.EX
+fossil/flchk /dev/sdC0/fossil | sed -n 's/^# //p' >>/srv/fscons
+.EE
+.LP
+A better strategy is to vet the output,
+filter out any suggestions you're not comfortable with,
+and then use the
+.I sed
+command to prepare the script.
+.SH SOURCE
+.B /sys/src/cmd/fossil
+.SH SEE ALSO
+.IR yesterday (1),
+.IR fs (3),
+.IR fs (4),
+.IR srv (4),
+.IR fossilcons (8),
+.IR loadfossil (8),
+.IR venti (8)
+.SH BUGS
+It is possible that the disk format (but not the Venti format)
+will change in the future, to make the disk a full cache
+rather than just a write buffer.
+Changing to the new format will require reformatting
+the disk as in the example above,
+but note that this will preserve most of the file system
+(all but
+.BR /snapshot )
+with little effort.
+.PP
+The
+.B -m
+option currently assumes a block size of 8K bytes,
+and a single file system per
+.I fossil
+instance.

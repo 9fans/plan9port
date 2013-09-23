@@ -1,0 +1,1207 @@
+.TH FOSSILCONS 8
+.SH NAME
+fossilcons \- fossil console commands
+.SH SYNOPSIS
+.B
+con /srv/fscons
+.PP
+.PD 0.1
+.B .
+.I file
+.PP
+.B 9p
+.I T-message
+...
+.PP
+.B bind
+[
+.B -b|-a|-c|-bc|-ac
+]
+.I new
+.I old
+.PP
+.B dflag
+.PP
+.B echo
+[
+.B -n
+]
+[
+.I arg
+...
+]
+.PP
+.B listen
+[
+.B -INd
+]
+[
+.I address
+]
+.PP
+.B msg
+[
+.B -m
+.I nmsg
+]
+[
+.B -p
+.I nproc
+]
+.PP
+.B printconfig
+.PP
+.B srv
+[
+.B -APWdp
+]
+.I name
+.PP
+.B uname
+.I name
+[
+.I id
+|
+.BI : id
+|
+.BI % newname
+|
+.BI = leader
+|
+.BI + member
+|
+.BI - member
+]
+.PP
+.B users
+[
+.B -d
+|
+.B -r
+.I file
+]
+[
+.B -w
+]
+.PP
+.B who
+.sp
+.PP
+.B fsys
+.I name
+.PP
+.B fsys
+.I name
+.B config
+[
+.I device
+]
+.PP
+.B fsys
+.I name
+.B venti
+[
+.I host
+]
+.PP
+.B fsys
+.I name
+.B open
+[
+.B -APVWar
+]
+[
+.B -c
+.I ncache
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B close
+.PP
+.B fsys
+.I name
+.B unconfig
+.sp
+.PP
+[
+.B fsys
+.I name
+]
+.B bfree
+.I addr
+.PP
+[
+.B fsys
+.I name
+]
+.B block
+.I addr
+.I offset
+[
+.I count
+[
+.I data
+]]
+.PP
+.in +1i
+.ti -1i
+[
+.B fsys
+.I name
+]
+.B check
+[
+.B pblock
+] [
+.B pdir
+] [
+.B pfile
+] [
+.B bclose
+] [
+.B clri
+] [
+.B clre
+] [
+.B clrp
+] [
+.B fix
+] [
+.B venti
+] [
+.B snapshot
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B clre
+.I addr
+.I offsets
+\&...
+.PP
+[
+.B fsys
+.I name
+]
+.B clri
+.I files
+\&...
+.PP
+[
+.B fsys
+.I name
+]
+.B clrp
+.I addr
+.I offset
+\&...
+.PP
+[
+.B fsys
+.I name
+]
+.B create
+.I path
+.I uid
+.I gid
+.I perm
+.PP
+[
+.B fsys
+.I name
+]
+.B df
+.PP
+[
+.B fsys
+.I name
+]
+.B epoch
+[[
+.B -ry
+]
+.I n
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B halt
+.PP
+[
+.B fsys
+.I name
+]
+.B label
+.I addr
+[
+.I type
+.I state
+.I epoch
+.I epochclose
+.I tag
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B remove
+.I files
+\&...
+.PP
+[
+.B fsys
+.I name
+]
+.B snap
+[
+.B -a
+]
+[
+.B -s
+.I src
+]
+[
+.B -d
+.I dst
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B snapclean
+[
+.I timeout
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B snaptime
+[
+.B -a
+.I hhmm
+]
+[
+.B -s
+.I interval
+]
+[
+.B -t
+.I timeout
+]
+.PP
+[
+.B fsys
+.I name
+]
+.B stat
+.IR files ...
+.PP
+[
+.B fsys
+.I name
+]
+.B sync
+.PP
+[
+.B fsys
+.I name
+]
+.B unhalt
+.PP
+[
+.B fsys
+.I name
+]
+.B vac
+.I dir
+.PP
+[
+.B fsys
+.I name
+]
+.B wstat
+.I file
+.I elem
+.I uid
+.I gid
+.I perm
+.I length
+.SH DESCRIPTION
+These are configuration and maintenance commands
+executed at the console of a 
+.IR fossil (4)
+file server.
+The commands are split into three groups above:
+file server configuration,
+file system configuration,
+and file system maintenance.
+This manual page is split in the same way.
+.SS File server configuration
+.PP
+The
+dot
+.RI ( . )
+command
+reads
+.IR file ,
+treating each line as a command to be executed.
+Blank lines and lines beginning with a 
+.L #
+character are ignored.
+Errors during execution are printed but do not stop the script.
+Note that
+.I file
+is a file in the name space in which
+.I fossil
+was started,
+.I not
+a file in any file system served by
+.IR fossil .
+.PP
+.I 9p
+executes a 9P transaction; the arguments
+are in the same format used by
+.IR 9pcon (8).
+.PP
+.I Bind
+behaves similarly to
+.IR bind (1).
+It is useful when fossil
+is started without devices it needs configured
+into its namespace.
+.PP
+.I Dflag
+toggles the debug flag and prints the new setting.
+When the debug flag is set, all protocol messages
+and information about authentication is printed to
+standard error.
+.PP
+.I Echo
+behaves identically to
+.IR echo (1),
+writing to the console.
+.PP
+.I Listen
+manages the network addresses at which
+fossil is listening.
+With no arguments,
+.I listen
+prints the current list of addresses and their network directories.
+With one argument, listen
+.I address
+starts a new listener at
+.IR address ;
+the
+.B -d
+flag causes 
+.I listen
+to remove the listener
+at the given address.
+By default, the user
+.I none
+is only allowed to attach on a connection after
+at least one other user has successfully attached.
+The
+.B -N
+flag allows connections from
+.I none
+at any time.
+The
+.B -I
+flag causes
+.I fossil
+to check the IP address of incoming connections
+against
+.BR /mnt/ipok ,
+rejecting attaches from disallowed addresses.
+This mechanism is not intended for general use.
+The server
+.I sources.cs.bell-labs.com
+uses it to comply with U.S. crytography
+export regulations.
+.PP
+.I Msg
+prints the maximum internal 9P message queue size
+and the maximum number of 9P processes to
+allocate for serving the queue.
+The
+.B -m
+and
+.B -p
+options set the two variables.
+.PP
+.I Printconfig
+prints the
+.B config
+line for each configured file system
+and prints the
+.B venti
+line, if any, used to configure this file server.
+.PP
+.I Srv
+behaves like listen but uses
+.BI /srv/ name
+rather than a network address.
+With the
+.B -p
+flag, 
+.I srv 
+edits a list of console services rather than 9P services.
+With no arguments,
+.I srv
+prints the current list of services.
+With one argument, srv
+.I name
+starts a new service at
+.IR /srv/name ;
+the
+.B -d
+flag causes 
+.I srv
+to remove the named service.
+See the
+.I [fsys] open
+command below for a description of the
+.B -APW
+options.
+.PP
+.I Uname
+manipulates entries in the user table.
+There is no distinction between users and groups:
+a user is a group with one member.
+For each user, the user table records:
+.TF \fImembers
+.PD
+.TP
+.I id
+the string used to represent this user in the on-disk structures
+.TP
+.I name
+the string used to represent this user in the 9P protocol
+.TP
+.I leader
+the group's leader (see
+.IR stat (5)
+for a description of the special privileges held by a group leader)
+.TP
+.I members
+a comma-separated list of members in this group
+.PP
+The
+.I id
+and
+.I name
+are usually the same string, but need not be.
+Once an
+.I id
+is used in file system structures archived to Venti,
+it is impossible to change those disk structures,
+and thus impossible to rename the
+.IR id .
+The translation from
+.I name
+to
+.I id
+allows the appearance of renaming the user even
+though the on-disk structures still record the old name.
+(In a conventional Unix file system, the
+.I id
+is stored as a small integer rather than a string.)
+.I Leader
+and
+.I members
+are names, not ids.
+.PP
+The first argument to
+.I uname
+is the
+.I name
+of a user.
+The second argument is a verb, one of:
+.TF \fI%newname
+.PD
+.TP
+.I id
+create a user with name
+.RI ` name '
+and id
+.RI ` id ;'
+also create a home directory
+.BI /active/usr/ uname \fR
+.TP
+.BI : id
+create a user with name
+.RI ` name '
+and id
+.RI ` id ,'
+but do not create a home directory
+.TP
+.BI % newname
+rename user
+.RI ` name '
+to
+.RI ` newname ,'
+throughout the user table
+.TP
+.BI = leader
+set
+.IR name 's
+group leader
+to
+.IR leader .
+.TP
+.BI =
+remove
+.IR name 's
+group leader; then all members will be
+considered leaders
+.TP
+.BI + member
+add
+.I member
+to
+.IR name 's
+list of members
+.TP
+.BI - member
+remove
+.I member
+from
+.IR name 's
+list of members
+.LP
+If the verb is omitted, the entire entry for
+.I name
+is printed, in the form
+`\fIid\fL:\fIname\fL:\fIleader\fL:\fImembers\fR.'
+.LP
+The end of this manual page gives examples.
+.PP
+.I Users
+manipulates the user table.
+The user table is a list of lines in the form printed
+by the
+.I uname
+command.
+The
+.B -d
+flag resets the user table with the default:
+.IP
+.EX
+adm:adm:adm:sys
+none:none::
+noworld:noworld::
+sys:sys::
+glenda:glenda:glenda:
+.EE
+.PP
+Except
+.BR glenda ,
+these users are mandatory: they must appear in all user
+files and cannot be renamed.
+.PP
+The
+.B -r
+flag reads a user table from the named
+.I file
+in file system
+.BR main .
+The
+.B -w
+flag writes the table to
+.B /active/adm/users
+on the file system
+.BR main .
+.B /active/adm
+and
+.B /active/adm/users
+will be created if they do not exist.
+.PP
+.I Users
+.B -r
+.B /active/adm/users
+is automatically executed when the file system
+.B main
+is opened.
+.PP
+.I Users
+.B -w
+is automatically executed after each change to the user
+table by the
+.I uname
+command.
+.PP
+.I Who
+prints a list of users attached to each active connection.
+.SS File system configuration
+.I Fsys
+sets the current file system to
+.IR name ,
+which must be configured and open (q.v.).
+The current file system name is
+displayed as the file server prompt.
+The special name
+.B all
+stands for all file systems;
+commands applied to
+.B all
+are applied to each file system in turn.
+The commands
+.BR config ,
+.BR open ,
+.BR venti ,
+and
+.B close
+cannot be applied to
+.BR all .
+.PP
+.I Fsys
+takes as an optional argument
+(after
+.BR name )
+a command to execute on the named file system.
+Most commands require that the named file system
+be configured and open; these commands can be invoked
+without the
+.BI fsys " name
+prefix, in which case the current file system is used.
+A few commands
+.RB ( config ,
+.BR open ,
+and
+.BR unconfig )
+operate on unopened file systems; they require the prefix.
+.PP
+.I Config
+creates a new file system named
+.I name
+using disk file
+.IR device .
+This just adds an entry to fossil's internal table.
+If
+.I device
+is missing,
+the
+.I file
+argument to
+.IR fossil 's
+.B -f
+option will be used instead;
+this allows the
+.I fossil
+configuration file to avoid naming the partition that it is embedded in,
+making it more portable.
+.PP
+.I Venti
+establishes a connection to the Venti server
+.I host
+(by default, the environment variable
+.B $venti
+or the network variable
+.BR $venti )
+for use by the named file system.
+If no
+.I venti
+command is issued before
+.IR open ,
+the default Venti server will be used.
+If the file system is open,
+and was not opened with the
+.B -V
+flag,
+the command redials the Venti server.
+This can be used to reestablish broken connections.
+It is not a good idea to use the command to switch
+between Venti servers, since Fossil does not keep track
+of which blocks are stored on which servers.
+.PP
+.I Open
+opens the file system, reading the
+root and super blocks and allocating an in-memory
+cache for disk and Venti blocks.
+The options are:
+.TF "-c\fI ncache
+.PD
+.TP
+.B -A
+run with no authentication
+.TP
+.B -P
+run with no permission checking
+.TP
+.B -V
+do not attempt to connect to a Venti server
+.TP
+.B -W
+allow wstat to make arbitrary changes to the user and group fields
+.TP
+.B -a
+do not update file access times;
+primarily to avoid wear on flash memories
+.TP
+.B -r
+open the file system read-only
+.TP
+.BI -c " ncache
+allocate an in-memory cache of 
+.I ncache
+(by default, 1000)
+blocks
+.PP
+The
+.I -APW
+settings can be overridden on a per-connection basis
+by the
+.I srv
+command above.
+.PP
+.I Close
+flushes all dirty file system blocks to disk
+and then closes the device file.
+.PP
+.I Unconfig
+removes the named file system (which must be closed)
+from fossil's internal table.
+.br
+.ne 3
+.SS File system maintenance
+.I Bfree
+marks the block at disk address
+.I addr
+as available for allocation.
+Before doing so, it prints a
+.I label
+command (q.v.)
+that can be used to restore the block to its previous state.
+.PP
+.I Block
+displays (in hexadecimal)
+the contents of the block at disk address
+.IR addr ,
+starting at
+.I offset
+and continuing for
+.I count
+bytes or until the end of the block.
+If 
+.I data
+(also hexadecimal)
+is given, the contents in that range are
+replaced with data.
+When writing to a block,
+.I block
+prints the old and new contents,
+so that the change is easily undone.
+Editing blocks is discouraged.
+.PP
+.I Clre
+zeros an entry from a disk block.
+Before doing so, it prints a
+.I block
+command that can be used 
+to restore the entry.
+.PP
+.I Clri
+removes the internal directory entry
+and abandons storage associated with
+.IR files .
+It ignores the usual rules for sanity, such as checking against
+removing a non-empty directory.
+A subsequent
+.I flchk
+(see
+.IR fossil (4))
+will identify the abandoned storage so it can be reclaimed with
+.I bfree
+commands.
+.PP
+.I Clrp
+zeros a pointer in a disk block.
+Before doing so, it prints a 
+.I block
+command that can be used to restore the entry.
+.PP
+.I Check
+checks the file system for various inconsistencies.
+If the file system is not already halted, it is halted for
+the duration of the check.
+If the archiver is currently sending a snapshot to Venti,
+the check will refuse to run; the only recourse is to wait
+for the archiver to finish.
+.PP
+A list of keyword options control the check.
+The
+.BR pblock ,
+.BR pdir ,
+and
+.B pfile
+options cause 
+.I check
+to print the name of each block, directory, or file encountered.
+.PP
+By default,
+.I check
+reports errors but does not fix them.
+The
+.BR bclose ,
+.BR clri ,
+.BR clre ,
+and
+.B clrp
+options specify correcting actions that may be taken:
+closing leaked blocks, clearing bad file directory entries,
+clearing bad pointers, and clearing bad entries.
+The
+.B fix
+option enables all of these; it is equivalent to
+.B bclose
+.B clri
+.B clre
+.BR clrp .
+.PP
+By default,
+.I check
+scans the portion of the active file system held in the write buffer,
+avoiding blocks stored on Venti or used only in snapshots.
+The
+.B venti
+option causes
+.I check
+to scan the portion of the file system stored on Venti,
+and the
+.B snapshot
+option causes
+.I check
+to scan old snapshots.
+Specifying
+.B snapshot
+causes
+.I check
+to take a long time;
+specifying
+.B venti
+or
+(worse)
+.B venti
+.B snapshot
+causes
+.I check
+to take a very long time.
+.PP
+.I Create
+creates a file on the current file system.
+.I Uid
+and
+.I gid
+are uids
+.RI ( not
+unames;
+see the discussion above, in the description
+of the 
+.I uname
+command).
+.I Perm
+is the low 9 bits of the permission mode of the file,
+in octal.
+The 
+.BR a ,
+.BR d ,
+and
+.B l
+mode prefixes
+set the append-only, directory, and lock bits.
+The
+.I perm
+is formatted as described in the
+.I stat
+command;
+creating files or directories with the
+.BR snapshot (s)
+bit set is not allowed.
+.PP
+.I Df
+prints the amount of used disk space in the write buffer.
+.PP
+.I Epoch
+sets the low file system epoch.
+Snapshots in the file system are given increasing epoch numbers.
+The file system maintains a low and a high epoch number,
+and only allows access to snapshots in that range.
+The low epoch number can be moved forward to discard old snapshots
+and reclaim the disk space they occupy.
+(The high epoch number is always the epoch of the currently
+active file system.)
+.PP
+With no argument
+.I epoch
+reports the current low and high epoch numbers.
+The command
+``\fLepoch\fI n''\fR
+is used to propose changing the low epoch to
+.IR n .
+In response, 
+.I fossil
+scans
+.B /archive
+and
+.B /snapshot
+for snapshots that would be discarded, printing their
+epoch numbers and the
+.I clri
+commands necessary to remove them.
+The epoch is changed only if no such paths are found.
+The usual sequence of commands is (1) run epoch to
+print the snapshots and their epochs, (2) clri some snapshots,
+(3) run epoch again.
+If the file system is completely full (there are no free blocks),
+.I clri
+may fail because it needs to allocate blocks.
+For this situation,
+the
+.B -y
+flag to epoch forces the epoch change even when
+it means discarding currently accessible snapshots.
+Note that when there are still snapshots in
+.BR /archive ,
+the archiver should take care
+of those snapshots (moving the blocks from disk to Venti)
+if you give it more time.
+.PP
+The
+.B -r
+flag to epoch causes it to remove any now-inaccessible
+snapshot directories once it has changed the epoch.
+This flag only makes sense in conjunction with the
+.B -y
+flag.
+.PP
+.I Epoch
+is a very low-level way to retire snapshots.
+The preferred way is by setting an automatic timer
+with
+.IR snaptime .
+.PP
+.I Halt
+suspends all file system activity;
+.I unhalt
+resumes activity.
+.PP
+.I Label
+displays and edits the label associated with a block.
+When editing, a parameter of
+.B -
+means leave that field unchanged.
+Editing labels is discouraged.
+.PP
+.I Remove
+removes
+.IR files .
+.PP
+.I Snap
+takes a temporary snapshot of the current file system,
+recording it in 
+.BI /snapshot/ yyyy / mmdd / hhmm \fR,
+as described in 
+.IR fossil (4).
+The
+.B -a
+flag causes 
+.I snap
+to take an archival snapshot, recording it in
+.BI /archive/ yyyy / mmdd \fR,
+also described in
+.IR fossil (4).
+By default the snapshot is taken of
+.BR /active ,
+the root of the active file system.
+The 
+.B -s
+flag specifies a different source path.
+The
+.B -d
+flag specifies a different destination path.
+These  two flags are useful together for moving snapshots into
+the archive tree.
+.PP
+.I Snapclean
+immediately discards all snapshots that are more than
+.I timeout
+minutes old.
+The default timeout is the one set by the
+.I snaptime
+command.
+The discarding is a one-time event rather than
+a recurring event as in
+.IR snaptime .
+.PP
+.I Snaptime
+displays and edits the times at which snapshots are automatically
+taken.
+An archival snapshot is taken once a day, at
+.IR hhmm ,
+while temporary snapshots are taken at multiples of
+.I interval
+minutes.
+Temporary snapshots are discarded after they are
+.I timeout
+minutes old.
+The snapshot cleanup runs every
+.I timeout
+minutes or once a day, whichever is more frequent,
+so snapshots may grow to an age of almost twice the timeout
+before actually being discarded.
+With no arguments,
+.I snaptime
+prints the current snapshot times.
+The
+.B -a
+and
+.B -s
+options set the archive and snapshot times.
+An
+.I hhmm
+or
+.I interval
+of
+.L none
+can be used to disable that kind of automatic snapshot.
+The
+.B -t
+option sets the snapshot timeout.
+If
+.I timeout
+is
+.LR none ,
+temporary snapshots are not automatically discarded.
+By default, all three times are set to
+.LR none .
+.PP
+.I Stat
+displays metadata for each of the named
+.IR files ,
+in the form:
+.IP
+.EX
+stat \fIfile elem uid gid perm length
+.EE
+.LP
+(Replacing
+.B stat
+with
+.B wstat
+yields a valid command.)
+The
+.I perm
+is an octal number less than or equal to 777,
+prefixed with any of the following letters
+to indicate additional bits.
+.IP
+.EX
+.ta +4n
+a	\fRappend only
+d	\fRdirectory
+l	\fRexclusive use
+s	\fRis the root of a snapshot
+t	\fRtemporary bit
+A	\fRMS-DOS archive bit
+G	\fRsetgid
+H	\fRMS-DOS hidden bit
+L	\fRsymbolic link
+S	\fRMS-DOS system bit
+U	\fRsetuid
+Y	\fRsticky
+.EE
+.PP
+The bits denoted by capital letters are included
+to support non-Plan 9 systems.
+They are not made visible by the 9P protocol.
+.PP
+.I Sync
+writes dirty blocks in memory to the disk.
+.PP
+.I Vac
+prints the Venti score for a
+.IR vac (1)
+archive containing the tree rooted
+at
+.IR dir ,
+which must already be archived to Venti
+(typically
+.IR dir
+is a directory in the
+.B /archive
+tree).
+.PP
+.I Wstat
+changes the metadata of the named
+.IR file .
+Specifying
+.B -
+for any of the fields means ``don't change.''
+Attempts to change the
+.B d
+or
+.B s
+bits in the
+.I perm
+are silently ignored.
+.SH EXAMPLES
+.IR Sources ,
+the Plan 9 distribution file server,
+uses the following configuration file:
+.IP
+.EX
+srv -p fscons.sources
+srv -p fscons.sources.adduserd
+srv sources
+fsys main config /dev/sdC0/fossil.outside
+fsys main open -c 25600
+fsys main
+users /active/adm/users
+listen tcp!*!564
+msg -m 40 -p 10
+snaptime -a 0000 -s 15
+.EE
+.LP
+The second console is used by the daemon
+that creates new accounts.
+.PP
+To add a new user with
+.I name
+and
+.I id
+.B rob
+and create his home directory:
+.IP
+.EX
+uname rob rob
+.EE
+.PP
+To create a new group
+.B sys
+(with no home directory)
+and add
+.B rob
+to it:
+.IP
+.EX
+uname sys :sys
+uname sys +rob
+.EE
+.PP
+To save an old (but not yet discarded) snapshot into the archive tree:
+.IP
+.EX
+snap -a -s /snapshot/2003/1220/0700 -d /archive/2003/1220
+.EE
