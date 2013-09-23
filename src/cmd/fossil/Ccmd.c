@@ -3,7 +3,7 @@
 #include "9.h"
 
 static struct {
-	VtLock*	lock;
+	QLock	lock;
 
 	Con*	con;
 	int	confd[2];
@@ -53,7 +53,7 @@ cmd9pTwstat(Fcall* f, int, char **argv)
 	f->stat = buf;
 	f->nstat = convD2M(&d, buf, sizeof buf);
 	if(f->nstat < BIT16SZ){
-		vtSetError("Twstat: convD2M failed (internal error)");
+		werrstr("Twstat: convD2M failed (internal error)");
 		return 0;
 	}
 
@@ -131,14 +131,14 @@ cmd9pTwalk(Fcall* f, int argc, char** argv)
 	int i;
 
 	if(argc < 2){
-		vtSetError("usage: Twalk tag fid newfid [name...]");
+		werrstr("usage: Twalk tag fid newfid [name...]");
 		return 0;
 	}
 	f->fid = strtol(argv[0], 0, 0);
 	f->newfid = strtol(argv[1], 0, 0);
 	f->nwname = argc-2;
 	if(f->nwname > MAXWELEM){
-		vtSetError("Twalk: too many names");
+		werrstr("Twalk: too many names");
 		return 0;
 	}
 	for(i = 0; i < argc-2; i++)
@@ -181,7 +181,7 @@ cmd9pTversion(Fcall* f, int, char** argv)
 {
 	f->msize = strtoul(argv[0], 0, 0);
 	if(f->msize > cbox.con->msize){
-		vtSetError("msize too big");
+		werrstr("msize too big");
 		return 0;
 	}
 	f->version = argv[1];
@@ -242,7 +242,7 @@ cmd9p(int argc, char* argv[])
 	argc--;
 	argv++;
 	if(cmd9pTmsg[i].argc && argc != cmd9pTmsg[i].argc){
-		vtSetError("usage: %s %s",
+		werrstr("usage: %s %s",
 			cmd9pTmsg[i].name, cmd9pTmsg[i].usage);
 		return 0;
 	}
@@ -256,33 +256,33 @@ cmd9p(int argc, char* argv[])
 	msize = cbox.con->msize;
 	if(!cmd9pTmsg[i].f(&t, argc, argv))
 		return 0;
-	buf = vtMemAlloc(msize);
+	buf = vtmalloc(msize);
 	n = convS2M(&t, buf, msize);
 	if(n <= BIT16SZ){
-		vtSetError("%s: convS2M error", cmd9pTmsg[i].name);
-		vtMemFree(buf);
+		werrstr("%s: convS2M error", cmd9pTmsg[i].name);
+		vtfree(buf);
 		return 0;
 	}
 	if(write(cbox.confd[0], buf, n) != n){
-		vtSetError("%s: write error: %r", cmd9pTmsg[i].name);
-		vtMemFree(buf);
+		werrstr("%s: write error: %r", cmd9pTmsg[i].name);
+		vtfree(buf);
 		return 0;
 	}
 	consPrint("\t-> %F\n", &t);
 
 	if((n = read9pmsg(cbox.confd[0], buf, msize)) <= 0){
-		vtSetError("%s: read error: %r", cmd9pTmsg[i].name);
-		vtMemFree(buf);
+		werrstr("%s: read error: %r", cmd9pTmsg[i].name);
+		vtfree(buf);
 		return 0;
 	}
 	if(convM2S(buf, n, &f) == 0){
-		vtSetError("%s: convM2S error", cmd9pTmsg[i].name);
-		vtMemFree(buf);
+		werrstr("%s: convM2S error", cmd9pTmsg[i].name);
+		vtfree(buf);
 		return 0;
 	}
 	consPrint("\t<- %F\n", &f);
 
-	vtMemFree(buf);
+	vtfree(buf);
 	return 1;
 }
 
@@ -316,9 +316,9 @@ cmdDot(int argc, char* argv[])
 		 */
 		if((fd = open(argv[0], OREAD)) < 0)
 			return cliError(". open %s: %r", argv[0]);
-		f = vtMemAlloc(dir->length+1);
+		f = vtmalloc(dir->length+1);
 		if((l = read(fd, f, length)) < 0){
-			vtMemFree(f);
+			vtfree(f);
 			close(fd);
 			return cliError(". read %s: %r", argv[0]);
 		}
@@ -333,16 +333,16 @@ cmdDot(int argc, char* argv[])
 				*p = '\0';
 				if(cliExec(s) == 0){
 					r = 0;
-					consPrint("%s: %R\n", s);
+					consPrint("%s: %r\n", s);
 				}
 				s = p+1;
 			}
 		}
-		vtMemFree(f);
+		vtfree(f);
 	}
 
 	if(r == 0)
-		vtSetError("errors in . %#q", argv[0]);
+		werrstr("errors in . %#q", argv[0]);
 	return r;
 }
 
@@ -435,7 +435,6 @@ cmdBind(int argc, char* argv[])
 int
 cmdInit(void)
 {
-	cbox.lock = vtLockAlloc();
 	cbox.confd[0] = cbox.confd[1] = -1;
 
 	cliAddCmd(".", cmdDot);

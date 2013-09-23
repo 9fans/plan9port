@@ -35,12 +35,12 @@ int
 headerUnpack(Header *h, uchar *p)
 {
 	if(U32GET(p) != HeaderMagic){
-		vtSetError("vac header bad magic");
+		werrstr("vac header bad magic");
 		return 0;
 	}
 	h->version = U16GET(p+4);
 	if(h->version != HeaderVersion){
-		vtSetError("vac header bad version");
+		werrstr("vac header bad version");
 		return 0;
 	}
 	h->blockSize = U16GET(p+6);
@@ -74,7 +74,7 @@ labelUnpack(Label *l, uchar *p, int i)
 
 	if(l->type > BtMax){
 Bad:
-		vtSetError(EBadLabel);
+		werrstr(EBadLabel);
 		fprint(2, "%s: labelUnpack: bad label: 0x%.2ux 0x%.2ux 0x%.8ux "
 			"0x%.8ux 0x%.8ux\n", argv0, l->state, l->type, l->epoch,
 			l->epochClose, l->tag);
@@ -124,7 +124,7 @@ entryPack(Entry *e, uchar *p, int index)
 	U32PUT(p, e->gen);
 	U16PUT(p+4, e->psize);
 	U16PUT(p+6, e->dsize);
-	flags = e->flags | ((e->depth << VtEntryDepthShift) & VtEntryDepthMask);
+	flags = e->flags | ((e->depth << _VtEntryDepthShift) & _VtEntryDepthMask);
 	U8PUT(p+8, flags);
 	memset(p+9, 0, 5);
 	U48PUT(p+14, e->size, t32);
@@ -150,8 +150,8 @@ entryUnpack(Entry *e, uchar *p, int index)
 	e->psize = U16GET(p+4);
 	e->dsize = U16GET(p+6);
 	e->flags = U8GET(p+8);
-	e->depth = (e->flags & VtEntryDepthMask) >> VtEntryDepthShift;
-	e->flags &= ~VtEntryDepthMask;
+	e->depth = (e->flags & _VtEntryDepthMask) >> _VtEntryDepthShift;
+	e->flags &= ~_VtEntryDepthMask;
 	e->size = U48GET(p+14);
 
 	if(e->flags & VtEntryLocal){
@@ -173,7 +173,7 @@ entryUnpack(Entry *e, uchar *p, int index)
 int
 entryType(Entry *e)
 {
-	return (((e->flags & VtEntryDir) != 0) << 3) | e->depth;
+	return (((e->flags & _VtEntryDir) != 0) << 3) | e->depth;
 }
 
 
@@ -219,7 +219,7 @@ superUnpack(Super *s, uchar *p)
 	return 1;
 Err:
 	memset(s, 0, sizeof(*s));
-	vtSetError(EBadSuper);
+	werrstr(EBadSuper);
 	return 0;
 }
 

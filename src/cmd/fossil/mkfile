@@ -1,7 +1,7 @@
 </$objtype/mkfile
 BIN=/$objtype/bin/fossil
 
-TARG=fossil flchk flfmt conf last
+TARG=fossil flchk flfmt conf last view
 
 LIBFILES=\
 	9p\
@@ -37,7 +37,7 @@ LIBOFILES=${LIBFILES:%=%.$O}
 LIB=libfs.a$O
 
 HFILES=\
-	/sys/include/oventi.h\
+	/sys/include/venti.h\
 	stdinc.h\
 	vac.h\
 	dat.h\

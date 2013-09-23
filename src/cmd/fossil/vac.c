@@ -45,7 +45,7 @@ stringUnpack(char **s, uchar **p, int *n)
 	*n -= 2;
 	if(nn > *n)
 		return 0;
-	*s = vtMemAlloc(nn+1);
+	*s = vtmalloc(nn+1);
 	memmove(*s, *p, nn);
 	(*s)[nn] = 0;
 	*p += nn;
@@ -99,7 +99,7 @@ if(0)fprint(2, "mbSearch %s\n", elem);
 	*ri = b;	/* b is the index to insert this entry */
 	memset(me, 0, sizeof(*me));
 
-	vtSetError(ENoFile);
+	werrstr(ENoFile);
 	return 0;
 }
 
@@ -164,7 +164,7 @@ mbUnpack(MetaBlock *mb, uchar *p, int n)
 
 	return 1;
 Err:
-	vtSetError(EBadMeta);
+	werrstr(EBadMeta);
 	return 0;
 }
 
@@ -375,7 +375,7 @@ metaChunks(MetaBlock *mb)
 	int oo, o, n, i;
 	uchar *p;
 
-	mc = vtMemAlloc(mb->nindex*sizeof(MetaChunk));
+	mc = vtmalloc(mb->nindex*sizeof(MetaChunk));
 	p = mb->buf + MetaHeaderSize;
 	for(i = 0; i<mb->nindex; i++){
 		mc[i].offset = U16GET(p);
@@ -411,8 +411,8 @@ fprint(2, "\t%d: %d %d\n", i, mc[i].offset, mc[i].offset + mc[i].size);
 oo += mc[i].size;
 }
 fprint(2, "\tused=%d size=%d free=%d free2=%d\n", oo, mb->size, mb->free, mb->size - oo);
-	vtSetError(EBadMeta);
-	vtMemFree(mc);
+	werrstr(EBadMeta);
+	vtfree(mc);
 	return nil;
 }
 
@@ -461,23 +461,23 @@ fprint(2, "mbAlloc: metaChunks failed: %r\n");
 	o = MetaHeaderSize + mb->maxindex*MetaIndexSize;
 	for(i=0; i<mb->nindex; i++){
 		if(mc[i].offset - o >= n){
-			vtMemFree(mc);
+			vtfree(mc);
 			return mb->buf + o;
 		}
 		o = mc[i].offset + mc[i].size;
 	}
 
 	if(mb->maxsize - o >= n){
-		vtMemFree(mc);
+		vtfree(mc);
 		return mb->buf + o;
 	}
 
 	/* compact and return off the end */
 	mbCompact(mb, mc);
-	vtMemFree(mc);
+	vtfree(mc);
 
 	if(mb->maxsize - mb->size < n){
-		vtSetError(EBadMeta);
+		werrstr(EBadMeta);
 		return nil;
 	}
 	return mb->buf + mb->size;
@@ -717,7 +717,7 @@ if(0)print("deUnpack: correct size\n");
 	return 1;
 Err:
 if(0)print("deUnpack: XXXXXXXXXXXX EBadMeta\n");
-	vtSetError(EBadMeta);
+	werrstr(EBadMeta);
 	deCleanup(dir);
 	return 0;
 }
@@ -725,13 +725,13 @@ if(0)print("deUnpack: XXXXXXXXXXXX EBadMeta\n");
 void
 deCleanup(DirEntry *dir)
 {
-	vtMemFree(dir->elem);
+	vtfree(dir->elem);
 	dir->elem = nil;
-	vtMemFree(dir->uid);
+	vtfree(dir->uid);
 	dir->uid = nil;
-	vtMemFree(dir->gid);
+	vtfree(dir->gid);
 	dir->gid = nil;
-	vtMemFree(dir->mid);
+	vtfree(dir->mid);
 	dir->mid = nil;
 }
 
@@ -739,8 +739,8 @@ void
 deCopy(DirEntry *dst, DirEntry *src)
 {
 	*dst = *src;
-	dst->elem = vtStrDup(src->elem);
-	dst->uid = vtStrDup(src->uid);
-	dst->gid = vtStrDup(src->gid);
-	dst->mid = vtStrDup(src->mid);
+	dst->elem = vtstrdup(src->elem);
+	dst->uid = vtstrdup(src->uid);
+	dst->gid = vtstrdup(src->gid);
+	dst->mid = vtstrdup(src->mid);
 }

@@ -4,7 +4,7 @@
 #include "error.h"
 
 struct Periodic {
-	VtLock *lk;
+	QLock lk;
 	int die;		/* flag: quit if set */
 	void (*f)(void*);	/* call this each period */
 	void *a;		/* argument to f */
@@ -18,15 +18,14 @@ periodicAlloc(void (*f)(void*), void *a, int msec)
 {
 	Periodic *p;
 
-	p = vtMemAllocZ(sizeof(Periodic));
-	p->lk = vtLockAlloc();
+	p = vtmallocz(sizeof(Periodic));
 	p->f = f;
 	p->a = a;
 	p->msec = msec;
 	if(p->msec < 10)
 		p->msec = 10;
 
-	vtThread(periodicThread, p);
+	proccreate(periodicThread, p, STACK);
 	return p;
 }
 
@@ -35,16 +34,15 @@ periodicKill(Periodic *p)
 {
 	if(p == nil)
 		return;
-	vtLock(p->lk);
+	qlock(&p->lk);
 	p->die = 1;
-	vtUnlock(p->lk);
+	qunlock(&p->lk);
 }
 
 static void
 periodicFree(Periodic *p)
 {
-	vtLockFree(p->lk);
-	vtMemFree(p);
+	vtfree(p);
 }
 
 static void
@@ -53,7 +51,7 @@ periodicThread(void *a)
 	Periodic *p = a;
 	vlong t, ct, ts;		/* times in ms. */
 
-	vtThreadSetName("periodic");
+	threadsetname("periodic");
 
 	ct = nsec() / 1000000;
 	t = ct + p->msec;		/* call p->f at or after this time */
@@ -65,9 +63,9 @@ periodicThread(void *a)
 		if(ts > 0)
 			sleep(ts);	/* wait for cycle's start */
 
-		vtLock(p->lk);
+		qlock(&p->lk);
 		if(p->die){
-			vtUnlock(p->lk);
+			qunlock(&p->lk);
 			break;
 		}
 		ct = nsec() / 1000000;
@@ -77,7 +75,7 @@ periodicThread(void *a)
 			while(t <= ct)	/* advance t to future cycle start */
 				t += p->msec;
 		}
-		vtUnlock(p->lk);
+		qunlock(&p->lk);
 	}
 	periodicFree(p);
 }

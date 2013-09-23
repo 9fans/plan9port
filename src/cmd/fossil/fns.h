@@ -18,7 +18,7 @@ int	sourceTruncate(Source*);
 void	sourceUnlock(Source*);
 
 Block*	cacheAllocBlock(Cache*, int, u32int, u32int, u32int);
-Cache*	cacheAlloc(Disk*, VtSession*, ulong, int);
+Cache*	cacheAlloc(Disk*, VtConn*, ulong, int);
 void	cacheCountUsed(Cache*, u32int, u32int*, u32int*, u32int*);
 int	cacheDirty(Cache*);
 void	cacheFlush(Cache*, int);
@@ -81,11 +81,11 @@ int	fileGetSources(File*, Entry*, Entry*);
 File*	fileRoot(Source*);
 int	fileSnapshot(File*, File*, u32int, int);
 int	fsNextQid(Fs*, u64int*);
-int	mkVac(VtSession*, uint, Entry*, Entry*, DirEntry*, uchar[VtScoreSize]);
+int	mkVac(VtConn*, uint, Entry*, Entry*, DirEntry*, uchar[VtScoreSize]);
 Block*	superGet(Cache*, Super*);
 
 void	archFree(Arch*);
-Arch*	archInit(Cache*, Disk*, Fs*, VtSession*);
+Arch*	archInit(Cache*, Disk*, Fs*, VtConn*);
 void	archKick(Arch*);
 
 void	bwatchDependency(Block*);

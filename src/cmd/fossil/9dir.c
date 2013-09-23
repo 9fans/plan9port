@@ -14,11 +14,11 @@ dirBufAlloc(File* file)
 {
 	DirBuf *db;
 
-	db = vtMemAllocZ(sizeof(DirBuf));
+	db = vtmallocz(sizeof(DirBuf));
 	db->dee = deeOpen(file);
 	if(db->dee == nil){
 		/* can happen if dir is removed from under us */
-		vtMemFree(db);
+		vtfree(db);
 		return nil;
 	}
 	return db;
@@ -33,7 +33,7 @@ dirBufFree(DirBuf* db)
 	if(db->valid)
 		deCleanup(&db->de);
 	deeClose(db->dee);
-	vtMemFree(db);
+	vtfree(db);
 }
 
 int
@@ -82,9 +82,9 @@ dirDe2M(DirEntry* de, uchar* p, int np)
 
 	n = convD2M(&dir, p, np);
 
-	vtMemFree(dir.muid);
-	vtMemFree(dir.gid);
-	vtMemFree(dir.uid);
+	vtfree(dir.muid);
+	vtfree(dir.gid);
+	vtfree(dir.uid);
 
 	return n;
 }

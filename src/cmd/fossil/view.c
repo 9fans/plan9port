@@ -52,9 +52,10 @@ Tnode *initxdatablock(Block*, uint);
 Tnode *initxroot(char *name, uchar[VtScoreSize]);
 
 int fd;
+int mainstacksize = STACK;
 Header h;
 Super super;
-VtSession *z;
+VtConn *z;
 VtRoot vac;
 int showinactive;
 
@@ -107,7 +108,6 @@ btStr(int type)
 		return bttab[type];
 	return "unknown";
 }
-#pragma varargck argpos stringnode 1
 
 Block*
 allocBlock(void)
@@ -197,21 +197,21 @@ readBlock(int part, u32int addr)
 
 int vtType[BtMax] = {
 	VtDataType,		/* BtData | 0  */
-	VtPointerType0,		/* BtData | 1  */
-	VtPointerType1,		/* BtData | 2  */
-	VtPointerType2,		/* BtData | 3  */
-	VtPointerType3,		/* BtData | 4  */
-	VtPointerType4,		/* BtData | 5  */
-	VtPointerType5,		/* BtData | 6  */
-	VtPointerType6,		/* BtData | 7  */
+	VtDataType+1,		/* BtData | 1  */
+	VtDataType+2,		/* BtData | 2  */
+	VtDataType+3,		/* BtData | 3  */
+	VtDataType+4,		/* BtData | 4  */
+	VtDataType+5,		/* BtData | 5  */
+	VtDataType+6,		/* BtData | 6  */
+	VtDataType+7,		/* BtData | 7  */
 	VtDirType,		/* BtDir | 0  */
-	VtPointerType0,		/* BtDir | 1  */
-	VtPointerType1,		/* BtDir | 2  */
-	VtPointerType2,		/* BtDir | 3  */
-	VtPointerType3,		/* BtDir | 4  */
-	VtPointerType4,		/* BtDir | 5  */
-	VtPointerType5,		/* BtDir | 6  */
-	VtPointerType6,		/* BtDir | 7  */
+	VtDirType+1,		/* BtDir | 1  */
+	VtDirType+2,		/* BtDir | 2  */
+	VtDirType+3,		/* BtDir | 3  */
+	VtDirType+4,		/* BtDir | 4  */
+	VtDirType+5,		/* BtDir | 5  */
+	VtDirType+6,		/* BtDir | 6  */
+	VtDirType+7,		/* BtDir | 7  */
 };
 
 Block*
@@ -224,13 +224,13 @@ ventiBlock(uchar score[VtScoreSize], uint type)
 	memmove(b->score, score, VtScoreSize);
 	b->addr = NilBlock;
 
-	n = vtRead(z, b->score, vtType[type], b->data, h.blockSize);
+	n = vtread(z, b->score, vtType[type], b->data, h.blockSize);
 	if(n < 0){
-		fprint(2, "vtRead returns %d: %R\n", n);
+		fprint(2, "vtread returns %d: %r\n", n);
 		blockPut(b);
 		return nil;
 	}
-	vtZeroExtend(vtType[type], b->data, n, h.blockSize);
+	vtzeroextend(vtType[type], b->data, n, h.blockSize);
 	b->l.type = type;
 	b->l.state = 0;
 	b->l.tag = 0;
@@ -255,7 +255,7 @@ dataBlock(uchar score[VtScoreSize], uint type, uint tag)
 	if(bl == nil)
 		return nil;
 	if(!labelUnpack(&l, bl->data, addr%lpb)){
-		werrstr("%R");
+		werrstr("%r");
 		blockPut(bl);
 		return nil;
 	}
@@ -363,7 +363,7 @@ initxheader(void)
 	if(pread(fd, buf, HeaderSize, HeaderOffset) < HeaderSize)
 		return stringnode("error reading header: %r");
 	if(!headerUnpack(&h, buf))
-		return stringnode("error unpacking header: %R");
+		return stringnode("error unpacking header: %r");
 
 	t = stringnode("header "
 		"version=%#ux (%d) "
@@ -403,7 +403,7 @@ initxsuper(void)
 		return stringnode("reading super: %r");
 	if(!superUnpack(&super, b->data)){
 		blockPut(b);
-		return stringnode("unpacking super: %R");
+		return stringnode("unpacking super: %r");
 	}
 	blockPut(b);
 	t = stringnode("super "
@@ -440,15 +440,15 @@ initxvacroot(uchar score[VtScoreSize])
 	uchar buf[VtRootSize];
 	int n;
 
-	if((n = vtRead(z, score, VtRootType, buf, VtRootSize)) < 0)
-		return stringnode("reading root %V: %R", score);
+	if((n = vtread(z, score, VtRootType, buf, VtRootSize)) < 0)
+		return stringnode("reading root %V: %r", score);
 
-	if(!vtRootUnpack(&vac, buf))
-		return stringnode("unpack %d-byte root: %R", n);
+	if(vtrootunpack(&vac, buf) < 0)
+		return stringnode("unpack %d-byte root: %r", n);
 
-	h.blockSize = vac.blockSize;
-	t = stringnode("vac version=%#ux name=%s type=%s blockSize=%ud score=%V prev=%V",
-		vac.version, vac.name, vac.type, vac.blockSize, vac.score, vac.prev);
+	h.blockSize = vac.blocksize;
+	t = stringnode("vac version=%#ux name=%s type=%s blocksize=%lud score=%V prev=%V",
+		VtRootVersion, vac.name, vac.type, vac.blocksize, vac.score, vac.prev);
 	t->expand = xvacrootexpand;
 	return t;
 }
@@ -603,7 +603,7 @@ ptrgen(void *v, Block *b, int o, Tnode **tp)
 	e = *ed;
 	e.depth--;
 	memmove(e.score, b->data+o*VtScoreSize, VtScoreSize);
-	if(memcmp(e.score, vtZeroScore, VtScoreSize) == 0)
+	if(memcmp(e.score, vtzeroscore, VtScoreSize) == 0)
 		return 0;
 	*tp = initxsource(e, 0);
 	return 1;
@@ -614,7 +614,7 @@ etype(int flags, int depth)
 {
 	uint t;
 
-	if(flags&VtEntryDir)
+	if(flags&_VtEntryDir)
 		t = BtDir;
 	else
 		t = BtData;
@@ -635,12 +635,12 @@ initxsource(Entry e, int dowrap)
 		return stringnode("inactive Entry");
 
 	if(e.depth == 0){
-		if(e.flags & VtEntryDir)
+		if(e.flags & _VtEntryDir)
 			tt = initxentryblock(b, copyEntry(e));
 		else
 			tt = initxdatablock(b, e.dsize);
 	}else{
-		tt = initxblock(b, smprint("%s+%d pointer", (e.flags & VtEntryDir) ? "BtDir" : "BtData", e.depth),
+		tt = initxblock(b, smprint("%s+%d pointer", (e.flags & _VtEntryDir) ? "BtDir" : "BtData", e.depth),
 			ptrgen, copyEntry(e));
 	}
 
@@ -679,7 +679,7 @@ initxlocalroot(char *name, u32int addr)
 	localToGlobal(addr, score);
 	b = dataBlock(score, BtDir, RootTag);
 	if(b == nil)
-		return stringnode("read data block %#ux: %R", addr);
+		return stringnode("read data block %#ux: %r", addr);
 	return initxblock(b, smprint("'%s' fs root", name), xlocalrootgen, nil);
 }
 
@@ -702,7 +702,7 @@ initxroot(char *name, uchar score[VtScoreSize])
 
 	b = dataBlock(score, BtDir, RootTag);
 	if(b == nil)
-		return stringnode("read data block %V: %R", score);
+		return stringnode("read data block %V: %r", score);
 	return initxblock(b, smprint("'%s' fs root", name), xvacrootgen, nil);
 }
 Tnode*
@@ -712,7 +712,7 @@ initxdirentry(MetaEntry *me)
 	Tnode *t;
 
 	if(!deUnpack(&dir, me))
-		return stringnode("deUnpack: %R");
+		return stringnode("deUnpack: %r");
 
 	t = stringnode("dirEntry elem=%s size=%llud data=%#lux/%#lux meta=%#lux/%#lux", dir.elem, dir.size, dir.entry, dir.gen, dir.mentry, dir.mgen);
 	t->nkid = 1;
@@ -845,16 +845,13 @@ atreeinit(char *arg)
 	Atree *a;
 	uchar score[VtScoreSize];
 
-	vtAttach();
-
 	fmtinstall('V', scoreFmt);
-	fmtinstall('R', vtErrFmt);
 
-	z = vtDial(nil, 1);
+	z = vtdial(nil);
 	if(z == nil)
-		fprint(2, "warning: cannot dial venti: %R\n");
-	if(!vtConnect(z, 0)){
-		fprint(2, "warning: cannot connect to venti: %R\n");
+		fprint(2, "warning: cannot dial venti: %r\n");
+	else if(vtconnect(z) < 0){
+		fprint(2, "warning: cannot connect to venti: %r\n");
 		z = nil;
 	}
 	a = mallocz(sizeof(Atree), 1);
@@ -999,8 +996,8 @@ findnode(Tnode *t, Point p)
 void
 usage(void)
 {
-	fprint(2, "usage: vtree /dev/sdC0/fossil\n");
-	exits("usage");
+	fprint(2, "usage: fossil/view /dev/sdC0/fossil\n");
+	threadexitsall("usage");
 }
 
 Tree t;
@@ -1030,7 +1027,7 @@ enum { IExit, };
 Menu menu;
 
 void
-main(int argc, char **argv)
+threadmain(int argc, char **argv)
 {
 	int n;
 	char *dir;
@@ -1106,7 +1103,7 @@ main(int argc, char **argv)
 					break;
 				switch(n){
 				case IExit:
-					exits(nil);
+					threadexitsall(nil);
 				}
 				break;
 			case Right:

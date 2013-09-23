@@ -8,44 +8,44 @@ authRead(Fid* afid, void* data, int count)
 	AuthRpc *rpc;
 
 	if((rpc = afid->rpc) == nil){
-		vtSetError("not an auth fid");
+		werrstr("not an auth fid");
 		return -1;
 	}
 
 	switch(auth_rpc(rpc, "read", nil, 0)){
 	default:
-		vtSetError("fossil authRead: auth protocol not finished");
+		werrstr("fossil authRead: auth protocol not finished");
 		return -1;
 	case ARdone:
 		if((ai = auth_getinfo(rpc)) == nil){
-			vtSetError("%r");
+			werrstr("%r");
 			break;
 		}
 		if(ai->cuid == nil || *ai->cuid == '\0'){
-			vtSetError("auth with no cuid");
+			werrstr("auth with no cuid");
 			auth_freeAI(ai);
 			break;
 		}
 		assert(afid->cuname == nil);
-		afid->cuname = vtStrDup(ai->cuid);
+		afid->cuname = vtstrdup(ai->cuid);
 		auth_freeAI(ai);
 		if(Dflag)
 			fprint(2, "authRead cuname %s\n", afid->cuname);
 		assert(afid->uid == nil);
 		if((afid->uid = uidByUname(afid->cuname)) == nil){
-			vtSetError("unknown user %#q", afid->cuname);
+			werrstr("unknown user %#q", afid->cuname);
 			break;
 		}
 		return 0;
 	case ARok:
 		if(count < rpc->narg){
-			vtSetError("not enough data in auth read");
+			werrstr("not enough data in auth read");
 			break;
 		}
 		memmove(data, rpc->arg, rpc->narg);
 		return rpc->narg;
 	case ARphase:
-		vtSetError("%r");
+		werrstr("%r");
 		break;
 	}
 	return -1;
@@ -82,7 +82,7 @@ authCheck(Fcall* t, Fid* fid, Fsys* fsys)
 		 * The console is allowed to attach without
 		 * authentication.
 		 */
-		vtRLock(con->alock);
+		rlock(&con->alock);
 		if(con->isconsole){
 			/* anything goes */
 		}else if((con->flags&ConNoneAllow) || con->aok){
@@ -91,21 +91,21 @@ authCheck(Fcall* t, Fid* fid, Fsys* fsys)
 			if(noneprint++ < 10)
 				consPrint("attach %s as %s: allowing as none\n",
 					fsysGetName(fsys), fid->uname);
-			vtMemFree(fid->uname);
-			fid->uname = vtStrDup(unamenone);
+			vtfree(fid->uname);
+			fid->uname = vtstrdup(unamenone);
 		}else{
-			vtRUnlock(con->alock);
+			runlock(&con->alock);
 			consPrint("attach %s as %s: connection not authenticated, not console\n",
 				fsysGetName(fsys), fid->uname);
-			vtSetError("cannot attach as none before authentication");
+			werrstr("cannot attach as none before authentication");
 			return 0;
 		}
-		vtRUnlock(con->alock);
+		runlock(&con->alock);
 
 		if((fid->uid = uidByUname(fid->uname)) == nil){
 			consPrint("attach %s as %s: unknown uname\n",
 				fsysGetName(fsys), fid->uname);
-			vtSetError("unknown user");
+			werrstr("unknown user");
 			return 0;
 		}
 		return 1;
@@ -114,7 +114,7 @@ authCheck(Fcall* t, Fid* fid, Fsys* fsys)
 	if((afid = fidGet(con, t->afid, 0)) == nil){
 		consPrint("attach %s as %s: bad afid\n",
 			fsysGetName(fsys), fid->uname);
-		vtSetError("bad authentication fid");
+		werrstr("bad authentication fid");
 		return 0;
 	}
 
@@ -126,7 +126,7 @@ authCheck(Fcall* t, Fid* fid, Fsys* fsys)
 		consPrint("attach %s as %s: afid not an auth file\n",
 			fsysGetName(fsys), fid->uname);
 		fidPut(afid);
-		vtSetError("bad authentication fid");
+		werrstr("bad authentication fid");
 		return 0;
 	}
 	if(strcmp(afid->uname, fid->uname) != 0 || afid->fsys != fsys){
@@ -134,42 +134,42 @@ authCheck(Fcall* t, Fid* fid, Fsys* fsys)
 			fsysGetName(fsys), fid->uname,
 			fsysGetName(afid->fsys), afid->uname);
 		fidPut(afid);
-		vtSetError("attach/auth mismatch");
+		werrstr("attach/auth mismatch");
 		return 0;
 	}
 
-	vtLock(afid->alock);
+	qlock(&afid->alock);
 	if(afid->cuname == nil){
 		if(authRead(afid, buf, 0) != 0 || afid->cuname == nil){
-			vtUnlock(afid->alock);
-			consPrint("attach %s as %s: %R\n",
+			qunlock(&afid->alock);
+			consPrint("attach %s as %s: %r\n",
 				fsysGetName(fsys), fid->uname);
 			fidPut(afid);
-			vtSetError("fossil authCheck: auth protocol not finished");
+			werrstr("fossil authCheck: auth protocol not finished");
 			return 0;
 		}
 	}
-	vtUnlock(afid->alock);
+	qunlock(&afid->alock);
 
 	assert(fid->uid == nil);
 	if((fid->uid = uidByUname(afid->cuname)) == nil){
 		consPrint("attach %s as %s: unknown cuname %s\n",
 			fsysGetName(fsys), fid->uname, afid->cuname);
 		fidPut(afid);
-		vtSetError("unknown user");
+		werrstr("unknown user");
 		return 0;
 	}
 
-	vtMemFree(fid->uname);
-	fid->uname = vtStrDup(afid->cuname);
+	vtfree(fid->uname);
+	fid->uname = vtstrdup(afid->cuname);
 	fidPut(afid);
 
 	/*
 	 * Allow "none" once the connection has been authenticated.
 	 */
-	vtLock(con->alock);
+	wlock(&con->alock);
 	con->aok = 1;
-	vtUnlock(con->alock);
+	wunlock(&con->alock);
 
 	return 1;
 }

@@ -26,7 +26,7 @@ struct File {
 	File	*next;		/* sibling */
 
 	/* data for file */
-	VtLock	*lk;		/* lock for the following */
+	RWLock	lk;		/* lock for the following */
 	Source	*source;
 	Source	*msource;	/* for directories: meta data for children */
 	File	*down;		/* children */
@@ -51,8 +51,7 @@ fileAlloc(Fs *fs)
 {
 	File *f;
 
-	f = vtMemAllocZ(sizeof(File));
-	f->lk = vtLockAlloc();
+	f = vtmallocz(sizeof(File));
 	f->ref = 1;
 	f->fs = fs;
 	f->boff = NilBlock;
@@ -64,12 +63,11 @@ static void
 fileFree(File *f)
 {
 	sourceClose(f->source);
-	vtLockFree(f->lk);
 	sourceClose(f->msource);
 	deCleanup(&f->dir);
 
 	memset(f, ~0, sizeof(File));
-	vtMemFree(f);
+	vtfree(f);
 }
 
 /*
@@ -115,7 +113,7 @@ dirLookup(File *f, char *elem)
 		blockPut(b);
 		b = nil;
 	}
-	vtSetError(ENoFile);
+	werrstr(ENoFile);
 	/* fall through */
 Err:
 	sourceUnlock(meta);
@@ -216,7 +214,7 @@ fileOpenSource(File *f, u32int offset, u32int gen, int dir, uint mode,
 	if(r == nil)
 		return nil;
 	if(r->gen != gen){
-		vtSetError(ERemoved);
+		werrstr(ERemoved);
 		goto Err;
 	}
 	if(r->dir != dir && r->mode != -1){
@@ -229,7 +227,7 @@ fileOpenSource(File *f, u32int offset, u32int gen, int dir, uint mode,
 		free(rname);
 		free(fname);
 
-		vtSetError(EBadMeta);
+		werrstr(EBadMeta);
 		goto Err;
 	}
 	return r;
@@ -246,12 +244,12 @@ _fileWalk(File *f, char *elem, int partial)
 	fileRAccess(f);
 
 	if(elem[0] == 0){
-		vtSetError(EBadPath);
+		werrstr(EBadPath);
 		return nil;
 	}
 
 	if(!fileIsDir(f)){
-		vtSetError(ENotDir);
+		werrstr(ENotDir);
 		return nil;
 	}
 
@@ -347,14 +345,14 @@ _fileOpen(Fs *fs, char *path, int partial)
 		n = p - path;
 		if(n > 0){
 			if(n > VtMaxStringSize){
-				vtSetError("%s: element too long", EBadPath);
+				werrstr("%s: element too long", EBadPath);
 				goto Err;
 			}
 			memmove(elem, path, n);
 			elem[n] = 0;
 			ff = _fileWalk(f, elem, partial && *p=='\0');
 			if(ff == nil){
-				vtSetError("%.*s: %R", utfnlen(opath, p-opath),
+				werrstr("%.*s: %r", utfnlen(opath, p-opath),
 					opath);
 				goto Err;
 			}
@@ -422,20 +420,20 @@ fileCreate(File *f, char *elem, ulong mode, char *uid)
 	for(ff = f->down; ff; ff=ff->next){
 		if(strcmp(elem, ff->dir.elem) == 0 && !ff->removed){
 			ff = nil;
-			vtSetError(EExists);
+			werrstr(EExists);
 			goto Err1;
 		}
 	}
 
 	ff = dirLookup(f, elem);
 	if(ff != nil){
-		vtSetError(EExists);
+		werrstr(EExists);
 		goto Err1;
 	}
 
 	pr = f->source;
 	if(pr->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		goto Err1;
 	}
 
@@ -455,7 +453,7 @@ fileCreate(File *f, char *elem, ulong mode, char *uid)
 	}
 
 	dir = &ff->dir;
-	dir->elem = vtStrDup(elem);
+	dir->elem = vtstrdup(elem);
 	dir->entry = r->offset;
 	dir->gen = r->gen;
 	if(isdir){
@@ -465,9 +463,9 @@ fileCreate(File *f, char *elem, ulong mode, char *uid)
 	dir->size = 0;
 	if(!fsNextQid(f->fs, &dir->qid))
 		goto Err;
-	dir->uid = vtStrDup(uid);
-	dir->gid = vtStrDup(f->dir.gid);
-	dir->mid = vtStrDup(uid);
+	dir->uid = vtstrdup(uid);
+	dir->gid = vtstrdup(f->dir.gid);
+	dir->mid = vtstrdup(uid);
 	dir->mtime = time(0L);
 	dir->mcount = 0;
 	dir->ctime = dir->mtime;
@@ -541,7 +539,7 @@ if(0)fprint(2, "fileRead: %s %d, %lld\n", f->dir.elem, cnt, offset);
 		return -1;
 
 	if(offset < 0){
-		vtSetError(EBadOffset);
+		werrstr(EBadOffset);
 		goto Err1;
 	}
 
@@ -607,12 +605,12 @@ fileMapBlock(File *f, ulong bn, uchar score[VtScoreSize], ulong tag)
 
 	s = nil;
 	if(f->dir.mode & ModeDir){
-		vtSetError(ENotFile);
+		werrstr(ENotFile);
 		goto Err;
 	}
 
 	if(f->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		goto Err;
 	}
 
@@ -656,11 +654,11 @@ fileSetSize(File *f, uvlong size)
 		return 0;
 	r = 0;
 	if(f->dir.mode & ModeDir){
-		vtSetError(ENotFile);
+		werrstr(ENotFile);
 		goto Err;
 	}
 	if(f->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		goto Err;
 	}
 	if(!sourceLock(f->source, -1))
@@ -689,16 +687,16 @@ if(0)fprint(2, "fileWrite: %s %d, %lld\n", f->dir.elem, cnt, offset);
 
 	s = nil;
 	if(f->dir.mode & ModeDir){
-		vtSetError(ENotFile);
+		werrstr(ENotFile);
 		goto Err;
 	}
 
 	if(f->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		goto Err;
 	}
 	if(offset < 0){
-		vtSetError(EBadOffset);
+		werrstr(EBadOffset);
 		goto Err;
 	}
 
@@ -773,7 +771,7 @@ int
 fileTruncate(File *f, char *uid)
 {
 	if(fileIsDir(f)){
-		vtSetError(ENotFile);
+		werrstr(ENotFile);
 		return 0;
 	}
 
@@ -781,7 +779,7 @@ fileTruncate(File *f, char *uid)
 		return 0;
 
 	if(f->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		fileUnlock(f);
 		return 0;
 	}
@@ -812,7 +810,7 @@ fileSetDir(File *f, DirEntry *dir, char *uid)
 
 	/* can not set permissions for the root */
 	if(fileIsRoot(f)){
-		vtSetError(ERoot);
+		werrstr(ERoot);
 		return 0;
 	}
 
@@ -820,7 +818,7 @@ fileSetDir(File *f, DirEntry *dir, char *uid)
 		return 0;
 
 	if(f->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		fileUnlock(f);
 		return 0;
 	}
@@ -831,7 +829,7 @@ fileSetDir(File *f, DirEntry *dir, char *uid)
 	if(strcmp(f->dir.elem, dir->elem) != 0){
 		for(ff = f->up->down; ff; ff=ff->next){
 			if(strcmp(dir->elem, ff->dir.elem) == 0 && !ff->removed){
-				vtSetError(EExists);
+				werrstr(EExists);
 				goto Err;
 			}
 		}
@@ -839,7 +837,7 @@ fileSetDir(File *f, DirEntry *dir, char *uid)
 		ff = dirLookup(f->up, dir->elem);
 		if(ff != nil){
 			fileDecRef(ff);
-			vtSetError(EExists);
+			werrstr(EExists);
 			goto Err;
 		}
 	}
@@ -868,17 +866,17 @@ fileSetDir(File *f, DirEntry *dir, char *uid)
 	oelem = nil;
 	if(strcmp(f->dir.elem, dir->elem) != 0){
 		oelem = f->dir.elem;
-		f->dir.elem = vtStrDup(dir->elem);
+		f->dir.elem = vtstrdup(dir->elem);
 	}
 
 	if(strcmp(f->dir.uid, dir->uid) != 0){
-		vtMemFree(f->dir.uid);
-		f->dir.uid = vtStrDup(dir->uid);
+		vtfree(f->dir.uid);
+		f->dir.uid = vtstrdup(dir->uid);
 	}
 
 	if(strcmp(f->dir.gid, dir->gid) != 0){
-		vtMemFree(f->dir.gid);
-		f->dir.gid = vtStrDup(dir->gid);
+		vtfree(f->dir.gid);
+		f->dir.gid = vtstrdup(dir->gid);
 	}
 
 	f->dir.mtime = dir->mtime;
@@ -892,7 +890,7 @@ fileSetDir(File *f, DirEntry *dir, char *uid)
 //fprint(2, "->%x\n", f->dir.mode);
 
 	fileMetaFlush2(f, oelem);
-	vtMemFree(oelem);
+	vtfree(oelem);
 
 	fileMetaUnlock(f);
 	fileUnlock(f);
@@ -1025,7 +1023,7 @@ fileMetaFlush(File *f, int rec)
 	nkids = 0;
 	for(p=f->down; p; p=p->next)
 		nkids++;
-	kids = vtMemAlloc(nkids*sizeof(File*));
+	kids = vtmalloc(nkids*sizeof(File*));
 	i = 0;
 	for(p=f->down; p; p=p->next){
 		kids[i++] = p;
@@ -1037,7 +1035,7 @@ fileMetaFlush(File *f, int rec)
 		rv |= fileMetaFlush(kids[i], 1);
 		fileDecRef(kids[i]);
 	}
-	vtMemFree(kids);
+	vtfree(kids);
 	return rv;
 }
 
@@ -1204,7 +1202,7 @@ fileCheckEmpty(File *f)
 		if(!mbUnpack(&mb, b->data, r->dsize))
 			goto Err;
 		if(mb.nindex > 0){
-			vtSetError(ENotEmpty);
+			werrstr(ENotEmpty);
 			goto Err;
 		}
 		blockPut(b);
@@ -1222,7 +1220,7 @@ fileRemove(File *f, char *uid)
 
 	/* can not remove the root */
 	if(fileIsRoot(f)){
-		vtSetError(ERoot);
+		werrstr(ERoot);
 		return 0;
 	}
 
@@ -1230,7 +1228,7 @@ fileRemove(File *f, char *uid)
 		return 0;
 
 	if(f->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		goto Err1;
 	}
 	if(!sourceLock2(f->source, f->msource, -1))
@@ -1273,7 +1271,7 @@ clri(File *f, char *uid)
 	if(f == nil)
 		return 0;
 	if(f->up->source->mode != OReadWrite){
-		vtSetError(EReadOnly);
+		werrstr(EReadOnly);
 		fileDecRef(f);
 		return 0;
 	}
@@ -1359,7 +1357,7 @@ deeOpen(File *f)
 	File *p;
 
 	if(!fileIsDir(f)){
-		vtSetError(ENotDir);
+		werrstr(ENotDir);
 		fileDecRef(f);
 		return nil;
 	}
@@ -1371,7 +1369,7 @@ deeOpen(File *f)
 		fileMetaFlush2(p, nil);
 	fileUnlock(f);
 
-	dee = vtMemAllocZ(sizeof(DirEntryEnum));
+	dee = vtmallocz(sizeof(DirEntryEnum));
 	dee->file = fileIncRef(f);
 
 	return dee;
@@ -1422,7 +1420,7 @@ deeFill(DirEntryEnum *dee)
 	/* clean up first */
 	for(i=dee->i; i<dee->n; i++)
 		deCleanup(dee->buf+i);
-	vtMemFree(dee->buf);
+	vtfree(dee->buf);
 	dee->buf = nil;
 	dee->i = 0;
 	dee->n = 0;
@@ -1439,7 +1437,7 @@ deeFill(DirEntryEnum *dee)
 		goto Err;
 
 	n = mb.nindex;
-	dee->buf = vtMemAlloc(n * sizeof(DirEntry));
+	dee->buf = vtmalloc(n * sizeof(DirEntry));
 
 	for(i=0; i<n; i++){
 		de = dee->buf + i;
@@ -1467,7 +1465,7 @@ deeRead(DirEntryEnum *dee, DirEntry *de)
 	u32int nb;
 
 	if(dee == nil){
-		vtSetError("cannot happen in deeRead");
+		werrstr("cannot happen in deeRead");
 		return -1;
 	}
 
@@ -1517,9 +1515,9 @@ deeClose(DirEntryEnum *dee)
 		return;
 	for(i=dee->i; i<dee->n; i++)
 		deCleanup(dee->buf+i);
-	vtMemFree(dee->buf);
+	vtfree(dee->buf);
 	fileDecRef(dee->file);
-	vtMemFree(dee);
+	vtfree(dee);
 }
 
 /*
@@ -1574,7 +1572,7 @@ fileMetaAlloc(File *f, DirEntry *dir, u32int start)
 		/* mbAlloc might have changed block */
 		mbPack(&mb);
 		blockDirty(b);
-		vtSetError(EBadMeta);
+		werrstr(EBadMeta);
 		goto Err;
 	}
 
@@ -1617,7 +1615,7 @@ chkSource(File *f)
 		return 1;
 
 	if(f->source == nil || (f->dir.mode & ModeDir) && f->msource == nil){
-		vtSetError(ERemoved);
+		werrstr(ERemoved);
 		return 0;
 	}
 	return 1;
@@ -1626,8 +1624,8 @@ chkSource(File *f)
 static int
 fileRLock(File *f)
 {
-	assert(!vtCanLock(f->fs->elk));
-	vtRLock(f->lk);
+	assert(!canwlock(&f->fs->elk));
+	rlock(&f->lk);
 	if(!chkSource(f)){
 		fileRUnlock(f);
 		return 0;
@@ -1638,14 +1636,14 @@ fileRLock(File *f)
 static void
 fileRUnlock(File *f)
 {
-	vtRUnlock(f->lk);
+	runlock(&f->lk);
 }
 
 static int
 fileLock(File *f)
 {
-	assert(!vtCanLock(f->fs->elk));
-	vtLock(f->lk);
+	assert(!canwlock(&f->fs->elk));
+	wlock(&f->lk);
 	if(!chkSource(f)){
 		fileUnlock(f);
 		return 0;
@@ -1656,7 +1654,7 @@ fileLock(File *f)
 static void
 fileUnlock(File *f)
 {
-	vtUnlock(f->lk);
+	wunlock(&f->lk);
 }
 
 /*
@@ -1670,14 +1668,14 @@ fileMetaLock(File *f)
 if(f->up == nil)
 fprint(2, "f->elem = %s\n", f->dir.elem);
 	assert(f->up != nil);
-	assert(!vtCanLock(f->fs->elk));
-	vtLock(f->up->lk);
+	assert(!canwlock(&f->fs->elk));
+	wlock(&f->up->lk);
 }
 
 static void
 fileMetaUnlock(File *f)
 {
-	vtUnlock(f->up->lk);
+	wunlock(&f->up->lk);
 }
 
 /*
@@ -1709,8 +1707,8 @@ fileWAccess(File* f, char *mid)
 	fileMetaLock(f);
 	f->dir.atime = f->dir.mtime = time(0L);
 	if(strcmp(f->dir.mid, mid) != 0){
-		vtMemFree(f->dir.mid);
-		f->dir.mid = vtStrDup(mid);
+		vtfree(f->dir.mid);
+		f->dir.mid = vtstrdup(mid);
 	}
 	f->dir.mcount++;
 	f->dirty = 1;
@@ -1842,11 +1840,11 @@ fileName(File *f)
 	static char root[] = "/";
 
 	if (f == nil)
-		return vtStrDup("/**GOK**");
+		return vtstrdup("/**GOK**");
 
 	p = fileGetParent(f);
 	if (p == f)
-		name = vtStrDup(root);
+		name = vtstrdup(root);
 	else {
 		pname = fileName(p);
 		if (strcmp(pname, root) == 0)

@@ -83,12 +83,12 @@ sourceAlloc(Fs *fs, Block *b, Source *p, u32int offset, int mode, int issnapshot
 	epoch = b->l.epoch;
 	if(mode == OReadWrite){
 		if(e.snap != 0){
-			vtSetError(ESnapRO);
+			werrstr(ESnapRO);
 			return nil;
 		}
 	}else if(e.snap != 0){
 		if(e.snap < fs->elo){
-			vtSetError(ESnapOld);
+			werrstr(ESnapOld);
 			return nil;
 		}
 		if(e.snap >= fs->ehi)
@@ -96,21 +96,20 @@ sourceAlloc(Fs *fs, Block *b, Source *p, u32int offset, int mode, int issnapshot
 		epoch = e.snap;
 	}
 
-	r = vtMemAllocZ(sizeof(Source));
+	r = vtmallocz(sizeof(Source));
 	r->fs = fs;
 	r->mode = mode;
 	r->issnapshot = issnapshot;
 	r->dsize = e.dsize;
 	r->gen = e.gen;
-	r->dir = (e.flags & VtEntryDir) != 0;
-	r->lk = vtLockAlloc();
+	r->dir = (e.flags & _VtEntryDir) != 0;
 	r->ref = 1;
 	r->parent = p;
 	if(p){
-		vtLock(p->lk);
+		qlock(&p->lk);
 		assert(mode == OReadOnly || p->mode == OReadWrite);
 		p->ref++;
-		vtUnlock(p->lk);
+		qunlock(&p->lk);
 	}
 	r->epoch = epoch;
 //	consPrint("sourceAlloc: have %V be.%d fse.%d %s\n", b->score,
@@ -126,7 +125,7 @@ sourceAlloc(Fs *fs, Block *b, Source *p, u32int offset, int mode, int issnapshot
 	return r;
 Bad:
 	free(pname);
-	vtSetError(EBadEntry);
+	werrstr(EBadEntry);
 	return nil;
 }
 
@@ -144,7 +143,7 @@ sourceRoot(Fs *fs, u32int addr, int mode)
 		consPrint("sourceRoot: fs->ehi = %ud, b->l = %L\n",
 			fs->ehi, &b->l);
 		blockPut(b);
-		vtSetError(EBadRoot);
+		werrstr(EBadRoot);
 		return nil;
 	}
 
@@ -163,7 +162,7 @@ sourceOpen(Source *r, ulong offset, int mode, int issnapshot)
 	if(r->mode == OReadWrite)
 		assert(r->epoch == r->b->l.epoch);
 	if(!r->dir){
-		vtSetError(ENotDir);
+		werrstr(ENotDir);
 		return nil;
 	}
 
@@ -189,7 +188,7 @@ sourceCreate(Source *r, int dsize, int dir, u32int offset)
 	assert(sourceIsLocked(r));
 
 	if(!r->dir){
-		vtSetError(ENotDir);
+		werrstr(ENotDir);
 		return nil;
 	}
 
@@ -219,7 +218,7 @@ sourceCreate(Source *r, int dsize, int dir, u32int offset)
 		blockPut(b);
 		if(offset == size){
 			fprint(2, "sourceCreate: cannot happen\n");
-			vtSetError("sourceCreate: cannot happen");
+			werrstr("sourceCreate: cannot happen");
 			return nil;
 		}
 		offset = size;
@@ -232,10 +231,10 @@ Found:
 	assert(psize && dsize);
 	e.flags = VtEntryActive;
 	if(dir)
-		e.flags |= VtEntryDir;
+		e.flags |= _VtEntryDir;
 	e.depth = 0;
 	e.size = 0;
-	memmove(e.score, vtZeroScore, VtScoreSize);
+	memmove(e.score, vtzeroscore, VtScoreSize);
 	e.tag = 0;
 	e.snap = 0;
 	e.archive = 0;
@@ -294,7 +293,7 @@ sourceKill(Source *r, int doremove)
 	e.depth = 0;
 	e.size = 0;
 	e.tag = 0;
-	memmove(e.score, vtZeroScore, VtScoreSize);
+	memmove(e.score, vtzeroscore, VtScoreSize);
 	entryPack(&e, b->data, r->offset % r->epb);
 	blockDirty(b);
 	if(addr != NilBlock)
@@ -370,7 +369,7 @@ sourceShrinkSize(Source *r, Entry *e, uvlong size)
 		i = (size+ptrsz-1)/ptrsz;
 		for(; i<ppb; i++){
 			addr = globalToLocal(b->data+i*VtScoreSize);
-			memmove(b->data+i*VtScoreSize, vtZeroScore, VtScoreSize);
+			memmove(b->data+i*VtScoreSize, vtzeroscore, VtScoreSize);
 			blockDirty(b);
 			if(addr != NilBlock)
 				blockRemoveLink(b, addr, type-1, e->tag, 1);
@@ -420,7 +419,7 @@ sourceSetSize(Source *r, uvlong size)
 		return sourceTruncate(r);
 
 	if(size > VtMaxFileSize || size > ((uvlong)MaxBlock)*r->dsize){
-		vtSetError(ETooBig);
+		werrstr(ETooBig);
 		return 0;
 	}
 
@@ -637,7 +636,7 @@ sourceGrowDepth(Source *r, Block *p, Entry *e, int depth)
 		type++;
 		e->tag = tag;
 		e->flags |= VtEntryLocal;
-		blockDependency(bb, b, 0, vtZeroScore, nil);
+		blockDependency(bb, b, 0, vtzeroscore, nil);
 		blockPut(b);
 		b = bb;
 		blockDirty(b);
@@ -718,7 +717,7 @@ sourceShrinkDepth(Source *r, Block *p, Entry *e, int depth)
 	blockDirty(p);
 
 	/* (ii) */
-	memmove(ob->data, vtZeroScore, VtScoreSize);
+	memmove(ob->data, vtzeroscore, VtScoreSize);
 	blockDependency(ob, p, 0, b->score, nil);
 	blockDirty(ob);
 
@@ -761,7 +760,7 @@ _sourceBlock(Source *r, ulong bn, int mode, int early, ulong tag)
 		return nil;
 	if(r->issnapshot && (e.flags & VtEntryNoArchive)){
 		blockPut(b);
-		vtSetError(ENotArchived);
+		werrstr(ENotArchived);
 		return nil;
 	}
 
@@ -770,7 +769,7 @@ _sourceBlock(Source *r, ulong bn, int mode, int early, ulong tag)
 			e.tag = tag;
 		else if(e.tag != tag){
 			fprint(2, "tag mismatch\n");
-			vtSetError("tag mismatch");
+			werrstr("tag mismatch");
 			goto Err;
 		}
 	}
@@ -779,7 +778,7 @@ _sourceBlock(Source *r, ulong bn, int mode, int early, ulong tag)
 	memset(index, 0, sizeof(index));
 	for(i=0; bn > 0; i++){
 		if(i >= VtPointerDepth){
-			vtSetError(EBadAddr);
+			werrstr(EBadAddr);
 			goto Err;
 		}
 		index[i] = bn % np;
@@ -788,7 +787,7 @@ _sourceBlock(Source *r, ulong bn, int mode, int early, ulong tag)
 
 	if(i > e.depth){
 		if(mode == OReadOnly){
-			vtSetError(EBadAddr);
+			werrstr(EBadAddr);
 			goto Err;
 		}
 		if(!sourceGrowDepth(r, b, &e, i))
@@ -827,19 +826,18 @@ sourceClose(Source *r)
 {
 	if(r == nil)
 		return;
-	vtLock(r->lk);
+	qlock(&r->lk);
 	r->ref--;
 	if(r->ref){
-		vtUnlock(r->lk);
+		qunlock(&r->lk);
 		return;
 	}
 	assert(r->ref == 0);
-	vtUnlock(r->lk);
+	qunlock(&r->lk);
 	if(r->parent)
 		sourceClose(r->parent);
-	vtLockFree(r->lk);
 	memset(r, ~0, sizeof(*r));
-	vtMemFree(r);
+	vtfree(r);
 }
 
 /*
@@ -858,6 +856,7 @@ sourceLoadBlock(Source *r, int mode)
 {
 	u32int addr;
 	Block *b;
+	char e[ERRMAX];
 
 	switch(r->mode){
 	default:
@@ -912,7 +911,8 @@ sourceLoadBlock(Source *r, int mode)
 		 * a snapshot.  (Or else the file system is read-only, but then
 		 * the archiver isn't going around deleting blocks.)
 		 */
-		if(strcmp(vtGetError(), ELabelMismatch) == 0){
+		rerrstr(e, sizeof e);
+		if(strcmp(e, ELabelMismatch) == 0){
 			if(!sourceLock(r->parent, OReadOnly))
 				return nil;
 			b = sourceBlock(r->parent, r->offset/r->epb, OReadOnly);
@@ -1027,7 +1027,7 @@ sourceLoad(Source *r, Entry *e)
 	if(!entryUnpack(e, b->data, r->offset % r->epb))
 		return nil;
 	if(e->gen != r->gen){
-		vtSetError(ERemoved);
+		werrstr(ERemoved);
 		return nil;
 	}
 	blockDupLock(b);

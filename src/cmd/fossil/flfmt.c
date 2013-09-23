@@ -18,7 +18,7 @@ static u32int rootInit(Entry *e);
 static void topLevel(char *name);
 static int parseScore(uchar[VtScoreSize], char*);
 static u32int ventiRoot(char*, char*);
-static VtSession *z;
+static VtConn *z;
 
 #define TWID64	((u64int)~(u64int)0)
 
@@ -46,7 +46,7 @@ confirm(char *msg)
 }
 
 void
-main(int argc, char *argv[])
+threadmain(int argc, char *argv[])
 {
 	int fd, force;
 	Header h;
@@ -96,28 +96,25 @@ main(int argc, char *argv[])
 		usage();
 
 	if(iso9660file && score)
-		vtFatal("cannot use -i with -v");
-
-	vtAttach();
+		sysfatal("cannot use -i with -v");
 
 	fmtinstall('V', scoreFmt);
-	fmtinstall('R', vtErrFmt);
 	fmtinstall('L', labelFmt);
 
 	fd = open(argv[0], ORDWR);
 	if(fd < 0)
-		vtFatal("could not open file: %s: %r", argv[0]);
+		sysfatal("could not open file: %s: %r", argv[0]);
 
-	buf = vtMemAllocZ(bsize);
+	buf = vtmallocz(bsize);
 	if(pread(fd, buf, bsize, HeaderOffset) != bsize)
-		vtFatal("could not read fs header block: %r");
+		sysfatal("could not read fs header block: %r");
 
 	if(headerUnpack(&h, buf) && !force
 	&& !confirm("fs header block already exists; are you sure?"))
 		goto Out;
 
 	if((d = dirfstat(fd)) == nil)
-		vtFatal("dirfstat: %r");
+		sysfatal("dirfstat: %r");
 
 	if(d->type == 'M' && !force
 	&& !confirm("fs file is mounted via devmnt (is not a kernel device); are you sure?"))
@@ -126,11 +123,11 @@ main(int argc, char *argv[])
 	partition(fd, bsize, &h);
 	headerPack(&h, buf);
 	if(pwrite(fd, buf, bsize, HeaderOffset) < bsize)
-		vtFatal("could not write fs header: %r");
+		sysfatal("could not write fs header: %r");
 
 	disk = diskAlloc(fd);
 	if(disk == nil)
-		vtFatal("could not open disk: %r");
+		sysfatal("could not open disk: %r");
 
 	if(iso9660file)
 		iso9660init(fd, &h, iso9660file, iso9660off);
@@ -150,15 +147,14 @@ main(int argc, char *argv[])
 		root = rootInit(&e);
 	}
 
-	superInit(label, root, vtZeroScore);
+	superInit(label, root, vtzeroscore);
 	diskFree(disk);
 
 	if(score == nil)
 		topLevel(argv[0]);
 
 Out:
-	vtDetach();
-	exits(0);
+	threadexitsall(0);
 }
 
 static u64int
@@ -169,7 +165,7 @@ fdsize(int fd)
 
 	dir = dirfstat(fd);
 	if(dir == nil)
-		vtFatal("could not stat file: %r");
+		sysfatal("could not stat file: %r");
 	size = dir->length;
 	free(dir);
 	return size;
@@ -180,7 +176,7 @@ usage(void)
 {
 	fprint(2, "usage: %s [-b blocksize] [-h host] [-i file offset] "
 		"[-l label] [-v score] [-y] file\n", argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 static void
@@ -203,7 +199,7 @@ partition(int fd, int bsize, Header *h)
 
 	/* sanity check */
 	if(nblock < (HeaderOffset*10)/bsize)
-		vtFatal("file too small");
+		sysfatal("file too small");
 
 	h->super = (HeaderOffset + 2*bsize)/bsize;
 	h->label = h->super + 1;
@@ -236,7 +232,7 @@ entryInit(Entry *e)
 	e->flags = VtEntryActive;
 	e->depth = 0;
 	e->size = 0;
-	memmove(e->score, vtZeroScore, VtScoreSize);
+	memmove(e->score, vtzeroscore, VtScoreSize);
 	e->tag = tagGen();
 	e->snap = 0;
 	e->archive = 0;
@@ -252,16 +248,16 @@ rootMetaInit(Entry *e)
 	MetaEntry me;
 
 	memset(&de, 0, sizeof(de));
-	de.elem = vtStrDup("root");
+	de.elem = vtstrdup("root");
 	de.entry = 0;
 	de.gen = 0;
 	de.mentry = 1;
 	de.mgen = 0;
 	de.size = 0;
 	de.qid = qid++;
-	de.uid = vtStrDup("adm");
-	de.gid = vtStrDup("adm");
-	de.mid = vtStrDup("adm");
+	de.uid = vtstrdup("adm");
+	de.gid = vtstrdup("adm");
+	de.mid = vtstrdup("adm");
 	de.mtime = time(0);
 	de.mcount = 0;
 	de.ctime = time(0);
@@ -306,7 +302,7 @@ rootInit(Entry *e)
 	entryPack(e, buf, 2);
 
 	entryInit(e);
-	e->flags |= VtEntryDir;
+	e->flags |= _VtEntryDir;
 	entryPack(e, buf, 0);
 
 	entryInit(e);
@@ -315,7 +311,7 @@ rootInit(Entry *e)
 	blockWrite(PartData, addr);
 
 	entryInit(e);
-	e->flags |= VtEntryLocal|VtEntryDir;
+	e->flags |= VtEntryLocal|_VtEntryDir;
  	e->size = VtEntrySize*3;
 	e->tag = tag;
 	localToGlobal(addr, e->score);
@@ -341,9 +337,9 @@ blockAlloc(int type, u32int tag)
 
 	blockRead(PartLabel, addr/lpb);
 	if(!labelUnpack(&l, buf, addr % lpb))
-		vtFatal("bad label: %r");
+		sysfatal("bad label: %r");
 	if(l.state != BsFree)
-		vtFatal("want to allocate block already in use");
+		sysfatal("want to allocate block already in use");
 	l.epoch = 1;
 	l.epochClose = ~(u32int)0;
 	l.type = type;
@@ -403,14 +399,14 @@ static void
 blockRead(int part, u32int addr)
 {
 	if(!diskReadRaw(disk, part, addr, buf))
-		vtFatal("read failed: %r");
+		sysfatal("read failed: %r");
 }
 
 static void
 blockWrite(int part, u32int addr)
 {
 	if(!diskWriteRaw(disk, part, addr, buf))
-		vtFatal("write failed: %r");
+		sysfatal("write failed: %r");
 }
 
 static void
@@ -420,7 +416,7 @@ addFile(File *root, char *name, uint mode)
 
 	f = fileCreate(root, name, mode | ModeDir, "adm");
 	if(f == nil)
-		vtFatal("could not create file: %s: %r", name);
+		sysfatal("could not create file: %s: %r", name);
 	fileDecRef(f);
 }
 
@@ -433,18 +429,18 @@ topLevel(char *name)
 	/* ok, now we can open as a fs */
 	fs = fsOpen(name, z, 100, OReadWrite);
 	if(fs == nil)
-		vtFatal("could not open file system: %r");
-	vtRLock(fs->elk);
+		sysfatal("could not open file system: %r");
+	rlock(&fs->elk);
 	root = fsGetRoot(fs);
 	if(root == nil)
-		vtFatal("could not open root: %r");
+		sysfatal("could not open root: %r");
 	addFile(root, "active", 0555);
 	addFile(root, "archive", 0555);
 	addFile(root, "snapshot", 0555);
 	fileDecRef(root);
 	if(iso9660file)
 		iso9660copy(fs);
-	vtRUnlock(fs->elk);
+	runlock(&fs->elk);
 	fsClose(fs);
 }
 
@@ -453,10 +449,10 @@ ventiRead(uchar score[VtScoreSize], int type)
 {
 	int n;
 
-	n = vtRead(z, score, type, buf, bsize);
+	n = vtread(z, score, type, buf, bsize);
 	if(n < 0)
-		vtFatal("ventiRead %V (%d) failed: %R", score, type);
-	vtZeroExtend(type, buf, n, bsize);
+		sysfatal("ventiRead %V (%d) failed: %r", score, type);
+	vtzeroextend(type, buf, n, bsize);
 	return n;
 }
 
@@ -473,18 +469,18 @@ ventiRoot(char *host, char *s)
 	VtRoot root;
 
 	if(!parseScore(score, s))
-		vtFatal("bad score '%s'", s);
+		sysfatal("bad score '%s'", s);
 
-	if((z = vtDial(host, 0)) == nil
-	|| !vtConnect(z, nil))
-		vtFatal("connect to venti: %R");
+	if((z = vtdial(host)) == nil
+	|| vtconnect(z) < 0)
+		sysfatal("connect to venti: %r");
 
 	tag = tagGen();
 	addr = blockAlloc(BtDir, tag);
 
 	ventiRead(score, VtRootType);
-	if(!vtRootUnpack(&root, buf))
-		vtFatal("corrupted root: vtRootUnpack");
+	if(vtrootunpack(&root, buf) < 0)
+		sysfatal("corrupted root: vtrootunpack");
 	n = ventiRead(root.score, VtDirType);
 
 	/*
@@ -493,7 +489,7 @@ ventiRoot(char *host, char *s)
 	 */
 	if(n <= 2*VtEntrySize){
 		if(!entryUnpack(&e, buf, 0))
-			vtFatal("bad root: top entry");
+			sysfatal("bad root: top entry");
 		n = ventiRead(e.score, VtDirType);
 	}
 
@@ -505,11 +501,11 @@ ventiRoot(char *host, char *s)
 		|| !(e.flags&VtEntryActive)
 		|| e.psize < 256
 		|| e.dsize < 256)
-			vtFatal("bad root: entry %d", i);
+			sysfatal("bad root: entry %d", i);
 		fprint(2, "%V\n", e.score);
 	}
 	if(n > 3*VtEntrySize)
-		vtFatal("bad root: entry count");
+		sysfatal("bad root: entry count");
 
 	blockWrite(PartData, addr);
 
@@ -518,19 +514,19 @@ ventiRoot(char *host, char *s)
 	 */
 	ventiRead(e.score, VtDataType);
 	if(!mbUnpack(&mb, buf, bsize))
-		vtFatal("bad root: mbUnpack");
+		sysfatal("bad root: mbUnpack");
 	meUnpack(&me, &mb, 0);
 	if(!deUnpack(&de, &me))
-		vtFatal("bad root: dirUnpack");
+		sysfatal("bad root: dirUnpack");
 	if(!de.qidSpace)
-		vtFatal("bad root: no qidSpace");
+		sysfatal("bad root: no qidSpace");
 	qid = de.qidMax;
 
 	/*
 	 * Recreate the top layer of source.
 	 */
 	entryInit(&e);
-	e.flags |= VtEntryLocal|VtEntryDir;
+	e.flags |= VtEntryLocal|_VtEntryDir;
 	e.size = VtEntrySize*3;
 	e.tag = tag;
 	localToGlobal(addr, e.score);

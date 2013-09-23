@@ -12,18 +12,18 @@ enum {
 };
 
 static struct {
-	VtLock*	alock;			/* alloc */
+	QLock	alock;			/* alloc */
 	Msg*	ahead;
-	VtRendez* arendez;
+	Rendez	arendez;
 
 	int	maxmsg;
 	int	nmsg;
 	int	nmsgstarve;
 
-	VtLock*	rlock;			/* read */
+	QLock	rlock;			/* read */
 	Msg*	rhead;
 	Msg*	rtail;
-	VtRendez* rrendez;
+	Rendez	rrendez;
 
 	int	maxproc;
 	int	nproc;
@@ -33,11 +33,11 @@ static struct {
 } mbox;
 
 static struct {
-	VtLock*	alock;			/* alloc */
+	QLock	alock;			/* alloc */
 	Con*	ahead;
-	VtRendez* arendez;
+	Rendez	arendez;
 
-	VtLock*	clock;
+	RWLock	clock;
 	Con*	chead;
 	Con*	ctail;
 
@@ -66,7 +66,7 @@ conFree(Con* con)
 	con->flags = 0;
 	con->isconsole = 0;
 
-	vtLock(cbox.alock);
+	qlock(&cbox.alock);
 	if(con->cprev != nil)
 		con->cprev->cnext = con->cnext;
 	else
@@ -79,25 +79,18 @@ conFree(Con* con)
 
 	if(cbox.ncon > cbox.maxcon){
 		if(con->name != nil)
-			vtMemFree(con->name);
-		vtLockFree(con->fidlock);
-		vtMemFree(con->data);
-		vtRendezFree(con->wrendez);
-		vtLockFree(con->wlock);
-		vtRendezFree(con->mrendez);
-		vtLockFree(con->mlock);
-		vtRendezFree(con->rendez);
-		vtLockFree(con->lock);
-		vtMemFree(con);
+			vtfree(con->name);
+		vtfree(con->data);
+		vtfree(con);
 		cbox.ncon--;
-		vtUnlock(cbox.alock);
+		qunlock(&cbox.alock);
 		return;
 	}
 	con->anext = cbox.ahead;
 	cbox.ahead = con;
 	if(con->anext == nil)
-		vtWakeup(cbox.arendez);
-	vtUnlock(cbox.alock);
+		rwakeup(&cbox.arendez);
+	qunlock(&cbox.alock);
 }
 
 static void
@@ -106,19 +99,19 @@ msgFree(Msg* m)
 	assert(m->rwnext == nil);
 	assert(m->flush == nil);
 
-	vtLock(mbox.alock);
+	qlock(&mbox.alock);
 	if(mbox.nmsg > mbox.maxmsg){
-		vtMemFree(m->data);
-		vtMemFree(m);
+		vtfree(m->data);
+		vtfree(m);
 		mbox.nmsg--;
-		vtUnlock(mbox.alock);
+		qunlock(&mbox.alock);
 		return;
 	}
 	m->anext = mbox.ahead;
 	mbox.ahead = m;
 	if(m->anext == nil)
-		vtWakeup(mbox.arendez);
-	vtUnlock(mbox.alock);
+		rwakeup(&mbox.arendez);
+	qunlock(&mbox.alock);
 }
 
 static Msg*
@@ -126,15 +119,15 @@ msgAlloc(Con* con)
 {
 	Msg *m;
 
-	vtLock(mbox.alock);
+	qlock(&mbox.alock);
 	while(mbox.ahead == nil){
 		if(mbox.nmsg >= mbox.maxmsg){
 			mbox.nmsgstarve++;
-			vtSleep(mbox.arendez);
+			rsleep(&mbox.arendez);
 			continue;
 		}
-		m = vtMemAllocZ(sizeof(Msg));
-		m->data = vtMemAlloc(mbox.msize);
+		m = vtmallocz(sizeof(Msg));
+		m->data = vtmalloc(mbox.msize);
 		m->msize = mbox.msize;
 		mbox.nmsg++;
 		mbox.ahead = m;
@@ -143,7 +136,7 @@ msgAlloc(Con* con)
 	m = mbox.ahead;
 	mbox.ahead = m->anext;
 	m->anext = nil;
-	vtUnlock(mbox.alock);
+	qunlock(&mbox.alock);
 
 	m->con = con;
 	m->state = MsgR;
@@ -188,9 +181,9 @@ msgFlush(Msg* m)
 	 * If it's not found must assume Elvis has already
 	 * left the building and reply normally.
 	 */
-	vtLock(con->mlock);
+	qlock(&con->mlock);
 	if(m->state == MsgF){
-		vtUnlock(con->mlock);
+		qunlock(&con->mlock);
 		return;
 	}
 	for(old = con->mhead; old != nil; old = old->mnext)
@@ -199,7 +192,7 @@ msgFlush(Msg* m)
 	if(old == nil){
 		if(Dflag)
 			fprint(2, "msgFlush: cannot find %d\n", m->t.oldtag);
-		vtUnlock(con->mlock);
+		qunlock(&con->mlock);
 		return;
 	}
 
@@ -253,17 +246,17 @@ msgFlush(Msg* m)
 	if(Dflag)
 		fprint(2, "msgFlush: add %d to %d queue\n",
 			m->t.tag, old->t.tag);
-	vtUnlock(con->mlock);
+	qunlock(&con->mlock);
 }
 
 static void
 msgProc(void*)
 {
 	Msg *m;
-	char *e;
+	char e[ERRMAX];
 	Con *con;
 
-	vtThreadSetName("msgProc");
+	threadsetname("msgProc");
 
 	for(;;){
 		/*
@@ -271,64 +264,64 @@ msgProc(void*)
 		 * If not, wait for and pull a message off
 		 * the read queue.
 		 */
-		vtLock(mbox.rlock);
+		qlock(&mbox.rlock);
 		if(mbox.nproc > mbox.maxproc){
 			mbox.nproc--;
-			vtUnlock(mbox.rlock);
+			qunlock(&mbox.rlock);
 			break;
 		}
 		while(mbox.rhead == nil)
-			vtSleep(mbox.rrendez);
+			rsleep(&mbox.rrendez);
 		m = mbox.rhead;
 		mbox.rhead = m->rwnext;
 		m->rwnext = nil;
-		vtUnlock(mbox.rlock);
+		qunlock(&mbox.rlock);
 
 		con = m->con;
-		e = nil;
+		*e = 0;
 
 		/*
 		 * If the message has been flushed before
 		 * any 9P processing has started, mark it so
 		 * none will be attempted.
 		 */
-		vtLock(con->mlock);
+		qlock(&con->mlock);
 		if(m->state == MsgF)
-			e = "flushed";
+			strcpy(e, "flushed");
 		else
 			m->state = Msg9;
-		vtUnlock(con->mlock);
+		qunlock(&con->mlock);
 
-		if(e == nil){
+		if(*e == 0){
 			/*
 			 * explain this
 			 */
-			vtLock(con->lock);
+			qlock(&con->lock);
 			if(m->t.type == Tversion){
 				con->version = m;
 				con->state = ConDown;
 				while(con->mhead != m)
-					vtSleep(con->rendez);
+					rsleep(&con->rendez);
 				assert(con->state == ConDown);
 				if(con->version == m){
 					con->version = nil;
 					con->state = ConInit;
 				}
 				else
-					e = "Tversion aborted";
+					strcpy(e, "Tversion aborted");
 			}
 			else if(con->state != ConUp)
-				e = "connection not ready";
-			vtUnlock(con->lock);
+				strcpy(e, "connection not ready");
+			qunlock(&con->lock);
 		}
 
 		/*
 		 * Dispatch if not error already.
 		 */
 		m->r.tag = m->t.tag;
-		if(e == nil && !(*rFcall[m->t.type])(m))
-			e = vtGetError();
-		if(e != nil){
+		if(*e == 0 && !(*rFcall[m->t.type])(m))
+			rerrstr(e, sizeof e);
+		if(*e != 0){
 			m->r.type = Rerror;
 			m->r.ename = e;
 		}
@@ -340,14 +333,14 @@ msgProc(void*)
 		 * write queue and wakeup the write process.
 		 */
 		if(!m->nowq){
-			vtLock(con->wlock);
+			qlock(&con->wlock);
 			if(con->whead == nil)
 				con->whead = m;
 			else
 				con->wtail->rwnext = m;
 			con->wtail = m;
-			vtWakeup(con->wrendez);
-			vtUnlock(con->wlock);
+			rwakeup(&con->wrendez);
+			qunlock(&con->wlock);
 		}
 	}
 }
@@ -359,7 +352,7 @@ msgRead(void* v)
 	Con *con;
 	int eof, fd, n;
 
-	vtThreadSetName("msgRead");
+	threadsetname("msgRead");
 
 	con = v;
 	fd = con->fd;
@@ -388,7 +381,7 @@ msgRead(void* v)
 		if(Dflag)
 			fprint(2, "msgRead %p: t %F\n", con, &m->t);
 
-		vtLock(con->mlock);
+		qlock(&con->mlock);
 		if(con->mtail != nil){
 			m->mprev = con->mtail;
 			con->mtail->mnext = m;
@@ -398,14 +391,14 @@ msgRead(void* v)
 			m->mprev = nil;
 		}
 		con->mtail = m;
-		vtUnlock(con->mlock);
+		qunlock(&con->mlock);
 
-		vtLock(mbox.rlock);
+		qlock(&mbox.rlock);
 		if(mbox.rhead == nil){
 			mbox.rhead = m;
-			if(!vtWakeup(mbox.rrendez)){
+			if(!rwakeup(&mbox.rrendez)){
 				if(mbox.nproc < mbox.maxproc){
-					if(vtThread(msgProc, nil) > 0)
+					if(proccreate(msgProc, nil, STACK) > 0)
 						mbox.nproc++;
 				}
 				else
@@ -413,13 +406,13 @@ msgRead(void* v)
 			}
 			/*
 			 * don't need this surely?
-			vtWakeup(mbox.rrendez);
+			rwakeup(&mbox.rrendez);
 			 */
 		}
 		else
 			mbox.rtail->rwnext = m;
 		mbox.rtail = m;
-		vtUnlock(mbox.rlock);
+		qunlock(&mbox.rlock);
 	}
 }
 
@@ -430,10 +423,10 @@ msgWrite(void* v)
 	int eof, n;
 	Msg *flush, *m;
 
-	vtThreadSetName("msgWrite");
+	threadsetname("msgWrite");
 
 	con = v;
-	if(vtThread(msgRead, con) < 0){
+	if(proccreate(msgRead, con, STACK) < 0){
 		conFree(con);
 		return;
 	}
@@ -442,14 +435,14 @@ msgWrite(void* v)
 		/*
 		 * Wait for and pull a message off the write queue.
 		 */
-		vtLock(con->wlock);
+		qlock(&con->wlock);
 		while(con->whead == nil)
-			vtSleep(con->wrendez);
+			rsleep(&con->wrendez);
 		m = con->whead;
 		con->whead = m->rwnext;
 		m->rwnext = nil;
 		assert(!m->nowq);
-		vtUnlock(con->wlock);
+		qunlock(&con->wlock);
 
 		eof = 0;
 
@@ -457,7 +450,7 @@ msgWrite(void* v)
 		 * Write each message (if it hasn't been flushed)
 		 * followed by any messages waiting for it to complete.
 		 */
-		vtLock(con->mlock);
+		qlock(&con->mlock);
 		while(m != nil){
 			msgMunlink(m);
 
@@ -467,13 +460,13 @@ msgWrite(void* v)
 
 			if(m->state != MsgF){
 				m->state = MsgW;
-				vtUnlock(con->mlock);
+				qunlock(&con->mlock);
 
 				n = convS2M(&m->r, con->data, con->msize);
 				if(write(con->fd, con->data, n) != n)
 					eof = 1;
 
-				vtLock(con->mlock);
+				qlock(&con->mlock);
 			}
 
 			if((flush = m->flush) != nil){
@@ -483,21 +476,21 @@ msgWrite(void* v)
 			msgFree(m);
 			m = flush;
 		}
-		vtUnlock(con->mlock);
+		qunlock(&con->mlock);
 
-		vtLock(con->lock);
+		qlock(&con->lock);
 		if(eof && con->fd >= 0){
 			close(con->fd);
 			con->fd = -1;
 		}
 		if(con->state == ConDown)
-			vtWakeup(con->rendez);
+			rwakeup(&con->rendez);
 		if(con->state == ConMoribund && con->mhead == nil){
-			vtUnlock(con->lock);
+			qunlock(&con->lock);
 			conFree(con);
 			break;
 		}
-		vtUnlock(con->lock);
+		qunlock(&con->lock);
 	}
 }
 
@@ -508,24 +501,19 @@ conAlloc(int fd, char* name, int flags)
 	char buf[128], *p;
 	int rfd, n;
 
-	vtLock(cbox.alock);
+	qlock(&cbox.alock);
 	while(cbox.ahead == nil){
 		if(cbox.ncon >= cbox.maxcon){
 			cbox.nconstarve++;
-			vtSleep(cbox.arendez);
+			rsleep(&cbox.arendez);
 			continue;
 		}
-		con = vtMemAllocZ(sizeof(Con));
-		con->lock = vtLockAlloc();
-		con->rendez = vtRendezAlloc(con->lock);
-		con->data = vtMemAlloc(cbox.msize);
+		con = vtmallocz(sizeof(Con));
+		con->rendez.l = &con->lock;
+		con->data = vtmalloc(cbox.msize);
 		con->msize = cbox.msize;
-		con->alock = vtLockAlloc();
-		con->mlock = vtLockAlloc();
-		con->mrendez = vtRendezAlloc(con->mlock);
-		con->wlock = vtLockAlloc();
-		con->wrendez = vtRendezAlloc(con->wlock);
-		con->fidlock = vtLockAlloc();
+		con->mrendez.l = &con->mlock;
+		con->wrendez.l = &con->wlock;
 
 		cbox.ncon++;
 		cbox.ahead = con;
@@ -553,13 +541,13 @@ conAlloc(int fd, char* name, int flags)
 	con->state = ConNew;
 	con->fd = fd;
 	if(con->name != nil){
-		vtMemFree(con->name);
+		vtfree(con->name);
 		con->name = nil;
 	}
 	if(name != nil)
-		con->name = vtStrDup(name);
+		con->name = vtstrdup(name);
 	else
-		con->name = vtStrDup("unknown");
+		con->name = vtstrdup("unknown");
 	con->remote[0] = 0;
 	snprint(buf, sizeof buf, "%s/remote", con->name);
 	if((rfd = open(buf, OREAD)) >= 0){
@@ -574,9 +562,9 @@ conAlloc(int fd, char* name, int flags)
 	}
 	con->flags = flags;
 	con->isconsole = 0;
-	vtUnlock(cbox.alock);
+	qunlock(&cbox.alock);
 
-	if(vtThread(msgWrite, con) < 0){
+	if(proccreate(msgWrite, con, STACK) < 0){
 		conFree(con);
 		return nil;
 	}
@@ -616,21 +604,21 @@ cmdMsg(int argc, char* argv[])
 	if(argc)
 		return cliError(usage);
 
-	vtLock(mbox.alock);
+	qlock(&mbox.alock);
 	if(maxmsg)
 		mbox.maxmsg = maxmsg;
 	maxmsg = mbox.maxmsg;
 	nmsg = mbox.nmsg;
 	nmsgstarve = mbox.nmsgstarve;
-	vtUnlock(mbox.alock);
+	qunlock(&mbox.alock);
 
-	vtLock(mbox.rlock);
+	qlock(&mbox.rlock);
 	if(maxproc)
 		mbox.maxproc = maxproc;
 	maxproc = mbox.maxproc;
 	nproc = mbox.nproc;
 	nprocstarve = mbox.nprocstarve;
-	vtUnlock(mbox.rlock);
+	qunlock(&mbox.rlock);
 
 	consPrint("\tmsg -m %d -p %d\n", maxmsg, maxproc);
 	consPrint("\tnmsg %d nmsgstarve %d nproc %d nprocstarve %d\n",
@@ -717,7 +705,7 @@ cmdWho(int argc, char* argv[])
 	if(argc > 0)
 		return cliError(usage);
 
-	vtRLock(cbox.clock);
+	rlock(&cbox.clock);
 	l1 = 0;
 	l2 = 0;
 	for(con=cbox.chead; con; con=con->cnext){
@@ -728,7 +716,7 @@ cmdWho(int argc, char* argv[])
 	}
 	for(con=cbox.chead; con; con=con->cnext){
 		consPrint("\t%-*s %-*s", l1, con->name, l2, con->remote);
-		vtLock(con->fidlock);
+		qlock(&con->fidlock);
 		last = nil;
 		for(i=0; i<NFidHash; i++)
 			for(fid=con->fidhash[i]; fid; fid=fid->hash)
@@ -741,21 +729,19 @@ cmdWho(int argc, char* argv[])
 		for(; fid; last=fid, fid=fid->sort)
 			if(last==nil || strcmp(fid->uname, last->uname) != 0)
 				consPrint(" %q", fid->uname);
-		vtUnlock(con->fidlock);
+		qunlock(&con->fidlock);
 		consPrint("\n");
 	}
-	vtRUnlock(cbox.clock);
+	runlock(&cbox.clock);
 	return 1;
 }
 
 void
 msgInit(void)
 {
-	mbox.alock = vtLockAlloc();
-	mbox.arendez = vtRendezAlloc(mbox.alock);
+	mbox.arendez.l = &mbox.alock;
 
-	mbox.rlock = vtLockAlloc();
-	mbox.rrendez = vtRendezAlloc(mbox.rlock);
+	mbox.rrendez.l = &mbox.rlock;
 
 	mbox.maxmsg = NMsgInit;
 	mbox.maxproc = NMsgProcInit;
@@ -789,22 +775,22 @@ cmdCon(int argc, char* argv[])
 	if(argc)
 		return cliError(usage);
 
-	vtLock(cbox.clock);
+	wlock(&cbox.clock);
 	if(maxcon)
 		cbox.maxcon = maxcon;
 	maxcon = cbox.maxcon;
 	ncon = cbox.ncon;
 	nconstarve = cbox.nconstarve;
-	vtUnlock(cbox.clock);
+	wunlock(&cbox.clock);
 
 	consPrint("\tcon -m %d\n", maxcon);
 	consPrint("\tncon %d nconstarve %d\n", ncon, nconstarve);
 
-	vtRLock(cbox.clock);
+	rlock(&cbox.clock);
 	for(con = cbox.chead; con != nil; con = con->cnext){
 		consPrint("\t%s\n", con->name);
 	}
-	vtRUnlock(cbox.clock);
+	runlock(&cbox.clock);
 
 	return 1;
 }
@@ -812,10 +798,7 @@ cmdCon(int argc, char* argv[])
 void
 conInit(void)
 {
-	cbox.alock = vtLockAlloc();
-	cbox.arendez = vtRendezAlloc(cbox.alock);
-
-	cbox.clock = vtLockAlloc();
+	cbox.arendez.l = &cbox.alock;
 
 	cbox.maxcon = NConInit;
 	cbox.msize = NMsizeInit;

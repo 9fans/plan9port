@@ -57,31 +57,31 @@ struct Con {
 	int	isconsole;		/* immutable */
 	int	flags;			/* immutable */
 	char	remote[128];		/* immutable */
-	VtLock*	lock;
+	QLock	lock;
 	int	state;
 	int	fd;
 	Msg*	version;
 	u32int	msize;			/* negotiated with Tversion */
-	VtRendez* rendez;
+	Rendez	rendez;
 
 	Con*	anext;			/* alloc */
 	Con*	cnext;			/* in use */
 	Con*	cprev;
 
-	VtLock*	alock;
+	RWLock	alock;
 	int	aok;			/* authentication done */
 
-	VtLock*	mlock;
+	QLock	mlock;
 	Msg*	mhead;			/* all Msgs on this connection */
 	Msg*	mtail;
-	VtRendez* mrendez;
+	Rendez	mrendez;
 
-	VtLock*	wlock;
+	QLock	wlock;
 	Msg*	whead;			/* write queue */
 	Msg*	wtail;
-	VtRendez* wrendez;
+	Rendez	wrendez;
 
-	VtLock*	fidlock;		/* */
+	QLock	fidlock;		/* */
 	Fid*	fidhash[NFidHash];
 	Fid*	fhead;
 	Fid*	ftail;
@@ -98,7 +98,7 @@ enum {
 };
 
 struct Fid {
-	VtLock*	lock;
+	RWLock	lock;
 	Con*	con;
 	u32int	fidno;
 	int	ref;			/* inc/dec under Con.fidlock */
@@ -113,7 +113,7 @@ struct Fid {
 	DirBuf*	db;
 	Excl*	excl;
 
-	VtLock*	alock;			/* Tauth/Tattach */
+	QLock	alock;			/* Tauth/Tattach */
 	AuthRpc* rpc;
 	char*	cuname;
 

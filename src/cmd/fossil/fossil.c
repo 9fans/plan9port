@@ -12,7 +12,7 @@ static void
 usage(void)
 {
 	fprint(2, "usage: %s [-Dt] [-c cmd] [-f partition] [-m %%]\n", argv0);
-	exits("usage");
+	threadexitsall("usage");
 }
 
 static void
@@ -44,7 +44,7 @@ readCmdPart(char *file, char ***pcmd, int *pncmd)
 	for(i=0; i<nf; i++){
 		if(f[i][0] == '#')
 			continue;
-		cmd = vtMemRealloc(cmd, (ncmd+1)*sizeof(char*));
+		cmd = vtrealloc(cmd, (ncmd+1)*sizeof(char*));
 		/* expand argument '*' to mean current file */
 		if((p = strchr(f[i], '*')) && (p==f[i]||isspace(p[-1])) && (p[1]==0||isspace(p[1]))){
 			memmove(tbuf, f[i], p-f[i]);
@@ -52,7 +52,7 @@ readCmdPart(char *file, char ***pcmd, int *pncmd)
 			strecpy(tbuf+strlen(tbuf), tbuf+sizeof tbuf, p+1);
 			f[i] = tbuf;
 		}
-		cmd[ncmd++] = vtStrDup(f[i]);
+		cmd[ncmd++] = vtstrdup(f[i]);
 	}
 	close(fd);
 	*pcmd = cmd;
@@ -60,7 +60,7 @@ readCmdPart(char *file, char ***pcmd, int *pncmd)
 }
 
 void
-main(int argc, char* argv[])
+threadmain(int argc, char* argv[])
 {
 	char **cmd, *p;
 	int i, ncmd, tflag;
@@ -84,8 +84,6 @@ main(int argc, char* argv[])
 	cmd = nil;
 	ncmd = tflag = 0;
 
-	vtAttach();
-
 	ARGBEGIN{
 	case '?':
 	default:
@@ -94,7 +92,7 @@ main(int argc, char* argv[])
 	case 'c':
 		p = EARGF(usage());
 		currfsysname = p;
-		cmd = vtMemRealloc(cmd, (ncmd+1)*sizeof(char*));
+		cmd = vtrealloc(cmd, (ncmd+1)*sizeof(char*));
 		cmd[ncmd++] = p;
 		break;
 	case 'D':
@@ -132,12 +130,11 @@ main(int argc, char* argv[])
 
 	for(i = 0; i < ncmd; i++)
 		if(cliExec(cmd[i]) == 0)
-			fprint(2, "%s: %R\n", cmd[i]);
-	vtMemFree(cmd);
+			fprint(2, "%s: %r\n", cmd[i]);
+	vtfree(cmd);
 
 	if(tflag && consTTY() == 0)
-		consPrint("%s\n", vtGetError());
+		consPrint("%r\n");
 
-	vtDetach();
-	exits(0);
+	threadexits(0);
 }

@@ -28,7 +28,7 @@ enum{
 #pragma varargck type "L" uchar*
 #pragma varargck type "B" uchar*
 #pragma varargck type "N" uchar*
-#pragma varargck type "T" uchar*
+#pragma varargck type "C" uchar*
 #pragma varargck type "D" uchar*
 
 typedef struct Voldesc Voldesc;
@@ -73,8 +73,8 @@ dumpbootvol(void *a)
 	if(v->magic[0] == 0xFF)
 		return;
 
-	print("system %.32T\n", v->systemid);
-	print("volume %.32T\n", v->volumeid);
+	print("system %.32C\n", v->systemid);
+	print("volume %.32C\n", v->volumeid);
 	print("volume size %.4N\n", v->volsize);
 	print("charset %.2ux %.2ux %.2ux %.2ux %.2ux %.2ux %.2ux %.2ux\n",
 		v->charset[0], v->charset[1], v->charset[2], v->charset[3],
@@ -88,13 +88,13 @@ dumpbootvol(void *a)
 	print("mpath loc %.4B\n", v->mpathloc);
 	print("opt mpath loc %.4B\n", v->ompathloc);
 	print("rootdir %D\n", v->rootdir);
-	print("volume set identifier %.128T\n", v->volsetid);
-	print("publisher %.128T\n", v->publisher);
-	print("preparer %.128T\n", v->prepid);
-	print("application %.128T\n", v->applid);
-	print("notice %.37T\n", v->notice);
-	print("abstract %.37T\n", v->abstract);
-	print("biblio %.37T\n", v->biblio);
+	print("volume set identifier %.128C\n", v->volsetid);
+	print("publisher %.128C\n", v->publisher);
+	print("preparer %.128C\n", v->prepid);
+	print("application %.128C\n", v->applid);
+	print("notice %.37C\n", v->notice);
+	print("abstract %.37C\n", v->abstract);
+	print("biblio %.37C\n", v->biblio);
 	print("creation date %.17s\n", v->cdate);
 	print("modification date %.17s\n", v->mdate);
 	print("expiration date %.17s\n", v->xdate);
@@ -129,7 +129,7 @@ Dfmt(Fmt *fmt)
 		snprint(buf, sizeof buf, ".%s dloc %.4N dlen %.4N",
 			c->name[0] ? "." : "", c->dloc, c->dlen);
 	} else {
-		snprint(buf, sizeof buf, "%.*T dloc %.4N dlen %.4N", c->namelen, c->name,
+		snprint(buf, sizeof buf, "%.*C dloc %.4N dlen %.4N", c->namelen, c->name,
 			c->dloc, c->dlen);
 	}
 	fmtstrcpy(fmt, buf);
@@ -239,7 +239,7 @@ asciiTfmt(Fmt *fmt)
 static void
 ascii(void)
 {
-	fmtinstall('T', asciiTfmt);
+	fmtinstall('C', asciiTfmt);
 }
 
 static int
@@ -299,35 +299,35 @@ iso9660init(int xfd, Header *xh, char *xfile9660, int xoff9660)
 	off9660 = xoff9660;
 
 	if((b = Bopen(file9660, OREAD)) == nil)
-		vtFatal("Bopen %s: %r", file9660);
+		sysfatal("Bopen %s: %r", file9660);
 
 	getsect(root, 16);
 	ascii();
 
 	v = (Voldesc*)root;
 	if(memcmp(v->magic, "\x01CD001\x01\x00", 8) != 0)
-		vtFatal("%s not a cd image", file9660);
+		sysfatal("%s not a cd image", file9660);
 
 	startoff = iso9660start((Cdir*)v->rootdir)*Blocksize;
 	endoff = little(v->volsize, 4);	/* already in bytes */
 
 	fsoff = off9660 + h->data*h->blockSize;
 	if(fsoff > startoff)
-		vtFatal("fossil data starts after cd data");
+		sysfatal("fossil data starts after cd data");
 	if(off9660 + (vlong)h->end*h->blockSize < endoff)
-		vtFatal("fossil data ends before cd data");
+		sysfatal("fossil data ends before cd data");
 	if(fsoff%h->blockSize)
-		vtFatal("cd offset not a multiple of fossil block size");
+		sysfatal("cd offset not a multiple of fossil block size");
 
 	/* Read "same" block via CD image and via Fossil image */
 	getsect(sect, startoff/Blocksize);
 	if(seek(fd, startoff-off9660, 0) < 0)
-		vtFatal("cannot seek to first data sector on cd via fossil");
+		sysfatal("cannot seek to first data sector on cd via fossil");
 fprint(2, "look for %lud at %lud\n", startoff, startoff-off9660);
 	if(readn(fd, sect2, Blocksize) != Blocksize)
-		vtFatal("cannot read first data sector on cd via fossil");
+		sysfatal("cannot read first data sector on cd via fossil");
 	if(memcmp(sect, sect2, Blocksize) != 0)
-		vtFatal("iso9660 offset is a lie %08ux %08ux", *(long*)sect, *(long*)sect2);
+		sysfatal("iso9660 offset is a lie %08lux %08lux", *(long*)sect, *(long*)sect2);
 }
 
 void
@@ -339,10 +339,10 @@ iso9660labels(Disk *disk, uchar *buf, void (*write)(int, u32int))
 	uchar sect[Blocksize];
 
 	if(!diskReadRaw(disk, PartData, (startoff-fsoff)/h->blockSize, buf))
-		vtFatal("disk read failed: %r");
+		sysfatal("disk read failed: %r");
 	getsect(sect, startoff/Blocksize);
 	if(memcmp(buf, sect, Blocksize) != 0)
-		vtFatal("fsoff is wrong");
+		sysfatal("fsoff is wrong");
 
 	sb = (startoff-fsoff)/h->blockSize;
 	eb = (endoff-fsoff+h->blockSize-1)/h->blockSize;
@@ -378,10 +378,10 @@ iso9660copy(Fs *fs)
 	root = fileOpen(fs, "/active");
 	iso9660copydir(fs, root, (Cdir*)v->rootdir);
 	fileDecRef(root);
-	vtRUnlock(fs->elk);
+	runlock(&fs->elk);
 	if(!fsSnapshot(fs, nil, nil, 0))
-		vtFatal("snapshot failed: %R");
-	vtRLock(fs->elk);
+		sysfatal("snapshot failed: %r");
+	rlock(&fs->elk);
 }
 
 /*
@@ -400,7 +400,7 @@ iso9660start(Cdir *c)
 		c = (Cdir*)((uchar*)c+c->len);	/* skip dotdot */
 		/* oops: might happen if leftmost directory is empty or leftmost file is zero length! */
 		if(little(c->dloc, 4) == 0)
-			vtFatal("error parsing cd image or unfortunate cd image");	
+			sysfatal("error parsing cd image or unfortunate cd image");	
 	}
 	return little(c->dloc, 4);
 }
@@ -519,7 +519,7 @@ iso9660copyfile(Fs *fs, File *dir, Cdir *c)
 		p++;
 	sysl = (uchar*)c + c->len - p;
 	if(sysl <= 0)
-		vtFatal("missing plan9 directory entry on %d/%d/%.*s", c->namelen, c->name[0], c->namelen, c->name);
+		sysfatal("missing plan9 directory entry on %d/%d/%.*s", c->namelen, c->name[0], c->namelen, c->name);
 	d.name = getname(&p);
 	d.uid = getname(&p);
 	d.gid = getname(&p);
@@ -537,7 +537,7 @@ if(d.mode&DMDIR)	print("%*scopy %s %s %s %luo\n", ind*2, "", d.name, d.uid, d.gi
 	if(d.mode&DMDIR)
 		mode |= ModeDir;
 	if((f = fileCreate(dir, d.name, mode, d.uid)) == nil)
-		vtFatal("could not create file '%s': %r", d.name);
+		sysfatal("could not create file '%s': %r", d.name);
 	if(d.mode&DMDIR)
 		iso9660copydir(fs, f, c);
 	else{
@@ -546,20 +546,20 @@ if(d.mode&DMDIR)	print("%*scopy %s %s %s %luo\n", ind*2, "", d.name, d.uid, d.gi
 		for(foff=0; foff<len; foff+=h->blockSize){
 			localToGlobal((off+foff-fsoff)/h->blockSize, score);
 			if(!fileMapBlock(f, foff/h->blockSize, score, Tag))
-				vtFatal("fileMapBlock: %R");
+				sysfatal("fileMapBlock: %r");
 		}
 		if(!fileSetSize(f, len))
-			vtFatal("fileSetSize: %R");
+			sysfatal("fileSetSize: %r");
 	}
 	if(!fileGetDir(f, &de))
-		vtFatal("fileGetDir: %R");
+		sysfatal("fileGetDir: %r");
 	de.uid = d.uid;
 	de.gid = d.gid;
 	de.mtime = d.mtime;
 	de.atime = d.atime;
 	de.mode = d.mode&0777;
 	if(!fileSetDir(f, &de, "sys"))
-		vtFatal("fileSetDir: %R");
+		sysfatal("fileSetDir: %r");
 	fileDecRef(f);
 	ind--;
 }

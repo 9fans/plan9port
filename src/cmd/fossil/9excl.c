@@ -3,7 +3,7 @@
 #include "9.h"
 
 static struct {
-	VtLock*	lock;
+	QLock	lock;
 
 	Excl*	head;
 	Excl*	tail;
@@ -31,7 +31,7 @@ exclAlloc(Fid* fid)
 	assert(fid->excl == nil);
 
 	t = time(0L);
-	vtLock(ebox.lock);
+	qlock(&ebox.lock);
 	for(excl = ebox.head; excl != nil; excl = excl->next){
 		if(excl->fsys != fid->fsys || excl->path != fid->qid.path)
 			continue;
@@ -44,8 +44,8 @@ exclAlloc(Fid* fid)
 		 * a new one.
 		 */
 		if(excl->time >= t){
-			vtUnlock(ebox.lock);
-			vtSetError("exclusive lock");
+			qunlock(&ebox.lock);
+			werrstr("exclusive lock");
 			return 0;
 		}
 		excl->fsys = nil;
@@ -55,7 +55,7 @@ exclAlloc(Fid* fid)
 	 * Not found or timed-out.
 	 * Alloc a new one and initialise.
 	 */
-	excl = vtMemAllocZ(sizeof(Excl));
+	excl = vtmallocz(sizeof(Excl));
 	excl->fsys = fid->fsys;
 	excl->path = fid->qid.path;
 	excl->time = t+LifeTime;
@@ -69,7 +69,7 @@ exclAlloc(Fid* fid)
 	}
 	ebox.tail = excl;
 	excl->next = nil;
-	vtUnlock(ebox.lock);
+	qunlock(&ebox.lock);
 
 	fid->excl = excl;
 	return 1;
@@ -84,14 +84,14 @@ exclUpdate(Fid* fid)
 	excl = fid->excl;
 
 	t = time(0L);
-	vtLock(ebox.lock);
+	qlock(&ebox.lock);
 	if(excl->time < t || excl->fsys != fid->fsys){
-		vtUnlock(ebox.lock);
-		vtSetError("exclusive lock broken");
+		qunlock(&ebox.lock);
+		werrstr("exclusive lock broken");
 		return 0;
 	}
 	excl->time = t+LifeTime;
-	vtUnlock(ebox.lock);
+	qunlock(&ebox.lock);
 
 	return 1;
 }
@@ -105,7 +105,7 @@ exclFree(Fid* fid)
 		return;
 	fid->excl = nil;
 
-	vtLock(ebox.lock);
+	qlock(&ebox.lock);
 	if(excl->prev != nil)
 		excl->prev->next = excl->next;
 	else
@@ -114,13 +114,12 @@ exclFree(Fid* fid)
 		excl->next->prev = excl->prev;
 	else
 		ebox.tail = excl->prev;
-	vtUnlock(ebox.lock);
+	qunlock(&ebox.lock);
 
-	vtMemFree(excl);
+	vtfree(excl);
 }
 
 void
 exclInit(void)
 {
-	ebox.lock = vtLockAlloc();
 }

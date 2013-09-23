@@ -6,6 +6,17 @@ typedef struct DirEntryEnum DirEntryEnum;
 #pragma incomplete File
 #pragma incomplete DirEntryEnum
 
+enum
+{
+	STACK = 32*1024,
+};
+
+enum
+{
+	// XXX What to do here?
+	VtMaxLumpSize = 65536,
+};
+
 /* modes */
 
 enum {
@@ -21,7 +32,7 @@ void	fsClose(Fs*);
 int	fsEpochLow(Fs*, u32int);
 File	*fsGetRoot(Fs*);
 int	fsHalt(Fs*);
-Fs	*fsOpen(char*, VtSession*, long, int);
+Fs	*fsOpen(char*, VtConn*, long, int);
 int	fsRedial(Fs*, char*);
 void	fsSnapshotCleanup(Fs*, u32int);
 int	fsSnapshot(Fs*, char*, char*, int);

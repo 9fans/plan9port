@@ -35,11 +35,11 @@ permFile(File* file, Fid* fid, int perm)
 		 */
 		if((u = unameByUid(de.uid)) != nil){
 			if(strcmp(fid->uname, u) == 0 && ((perm<<6) & de.mode)){
-				vtMemFree(u);
+				vtfree(u);
 				deCleanup(&de);
 				return 1;
 			}
-			vtMemFree(u);
+			vtfree(u);
 		}
 		if(groupMember(de.gid, fid->uname) && ((perm<<3) & de.mode)){
 			deCleanup(&de);
@@ -60,7 +60,7 @@ permFile(File* file, Fid* fid, int perm)
 		deCleanup(&de);
 		return 1;
 	}
-	vtSetError(EPermission);
+	werrstr(EPermission);
 
 	deCleanup(&de);
 	return 0;
@@ -91,19 +91,19 @@ validFileName(char* name)
 	char *p;
 
 	if(name == nil || name[0] == '\0'){
-		vtSetError("no file name");
+		werrstr("no file name");
 		return 0;
 	}
 	if(name[0] == '.'){
 		if(name[1] == '\0' || (name[1] == '.' && name[2] == '\0')){
-			vtSetError(". and .. illegal as file name");
+			werrstr(". and .. illegal as file name");
 			return 0;
 		}
 	}
 
 	for(p = name; *p != '\0'; p++){
 		if((*p & 0xFF) < 040){
-			vtSetError("bad character in file name");
+			werrstr("bad character in file name");
 			return 0;
 		}
 	}
@@ -128,20 +128,20 @@ rTwstat(Msg* m)
 	retval = 0;
 
 	if(strcmp(fid->uname, unamenone) == 0 || (fid->qid.type & QTAUTH)){
-		vtSetError(EPermission);
+		werrstr(EPermission);
 		goto error0;
 	}
 	if(fileIsRoFs(fid->file) || !groupWriteMember(fid->uname)){
-		vtSetError("read-only filesystem");
+		werrstr("read-only filesystem");
 		goto error0;
 	}
 
 	if(!fileGetDir(fid->file, &de))
 		goto error0;
 
-	strs = vtMemAlloc(m->t.nstat);
+	strs = vtmalloc(m->t.nstat);
 	if(convM2D(m->t.stat, m->t.nstat, &dir, strs) == 0){
-		vtSetError("wstat -- protocol botch");
+		werrstr("wstat -- protocol botch");
 		goto error;
 	}
 
@@ -160,28 +160,28 @@ rTwstat(Msg* m)
 	tsync = 1;
 	if(dir.qid.path != ~0){
 		if(dir.qid.path != de.qid){
-			vtSetError("wstat -- attempt to change qid.path");
+			werrstr("wstat -- attempt to change qid.path");
 			goto error;
 		}
 		tsync = 0;
 	}
 	if(dir.qid.vers != ~0){
 		if(dir.qid.vers != de.mcount){
-			vtSetError("wstat -- attempt to change qid.vers");
+			werrstr("wstat -- attempt to change qid.vers");
 			goto error;
 		}
 		tsync = 0;
 	}
 	if(dir.muid != nil && *dir.muid != '\0'){
 		if((uid = uidByUname(dir.muid)) == nil){
-			vtSetError("wstat -- unknown muid");
+			werrstr("wstat -- unknown muid");
 			goto error;
 		}
 		if(strcmp(uid, de.mid) != 0){
-			vtSetError("wstat -- attempt to change muid");
+			werrstr("wstat -- attempt to change muid");
 			goto error;
 		}
-		vtMemFree(uid);
+		vtfree(uid);
 		uid = nil;
 		tsync = 0;
 	}
@@ -191,7 +191,7 @@ rTwstat(Msg* m)
 	 */
 	if(dir.qid.type != (uchar)~0 && dir.mode != ~0){
 		if(dir.qid.type != ((dir.mode>>24) & 0xFF)){
-			vtSetError("wstat -- qid.type/mode mismatch");
+			werrstr("wstat -- qid.type/mode mismatch");
 			goto error;
 		}
 	}
@@ -206,7 +206,7 @@ rTwstat(Msg* m)
 		if(dir.mode == ~0)
 			dir.mode = (dir.qid.type<<24)|(de.mode & 0777);
 		if(dir.mode & ~(DMDIR|DMAPPEND|DMEXCL|DMTMP|0777)){
-			vtSetError("wstat -- unknown bits in qid.type/mode");
+			werrstr("wstat -- unknown bits in qid.type/mode");
 			goto error;
 		}
 
@@ -224,7 +224,7 @@ rTwstat(Msg* m)
 			mode |= ModeTemporary;
 
 		if((de.mode^mode) & ModeDir){
-			vtSetError("wstat -- attempt to change directory bit");
+			werrstr("wstat -- attempt to change directory bit");
 			goto error;
 		}
 
@@ -251,11 +251,11 @@ rTwstat(Msg* m)
 			 * If we're changing the append bit, it's okay.
 			 */
 			if(de.mode & oldmode & ModeAppend){
-				vtSetError("wstat -- attempt to change length of append-only file");
+				werrstr("wstat -- attempt to change length of append-only file");
 				goto error;
 			}
 			if(de.mode & ModeDir){
-				vtSetError("wstat -- attempt to change length of directory");
+				werrstr("wstat -- attempt to change length of directory");
 				goto error;
 			}
 			de.size = dir.length;
@@ -271,13 +271,13 @@ rTwstat(Msg* m)
 	 */
 	if(dir.gid != nil && *dir.gid != '\0'){
 		if((gid = uidByUname(dir.gid)) == nil){
-			vtSetError("wstat -- unknown gid");
+			werrstr("wstat -- unknown gid");
 			goto error;
 		}
 		tsync = 0;
 	}
 	else
-		gid = vtStrDup(de.gid);
+		gid = vtstrdup(de.gid);
 
 	wstatallow = (fsysWstatAllow(fid->fsys) || (m->con->flags&ConWstatAllow));
 
@@ -289,7 +289,7 @@ rTwstat(Msg* m)
 
 	if(op && !wstatallow){
 		if(strcmp(fid->uid, de.uid) != 0 && !gl){
-			vtSetError("wstat -- not owner or group leader");
+			werrstr("wstat -- not owner or group leader");
 			goto error;
 		}
 	}
@@ -303,10 +303,10 @@ rTwstat(Msg* m)
 		if(!wstatallow
 		&& !(strcmp(fid->uid, de.uid) == 0 && groupMember(gid, fid->uname))
 		&& !(gl == 2)){
-			vtSetError("wstat -- not owner and not group leaders");
+			werrstr("wstat -- not owner and not group leaders");
 			goto error;
 		}
-		vtMemFree(de.gid);
+		vtfree(de.gid);
 		de.gid = gid;
 		gid = nil;
 		op = 1;
@@ -324,8 +324,8 @@ rTwstat(Msg* m)
 		if(strcmp(dir.name, de.elem) != 0){
 			if(permParent(fid, PermW) <= 0)
 				goto error;
-			vtMemFree(de.elem);
-			de.elem = vtStrDup(dir.name);
+			vtfree(de.elem);
+			de.elem = vtstrdup(dir.name);
 			op = 1;
 		}
 		tsync = 0;
@@ -336,19 +336,19 @@ rTwstat(Msg* m)
 	 */
 	if(dir.uid != nil && *dir.uid != '\0'){
 		if((uid = uidByUname(dir.uid)) == nil){
-			vtSetError("wstat -- unknown uid");
+			werrstr("wstat -- unknown uid");
 			goto error;
 		}
 		if(strcmp(uid, de.uid) != 0){
 			if(!wstatallow){
-				vtSetError("wstat -- not owner");
+				werrstr("wstat -- not owner");
 				goto error;
 			}
 			if(strcmp(uid, uidnoworld) == 0){
-				vtSetError(EPermission);
+				werrstr(EPermission);
 				goto error;
 			}
-			vtMemFree(de.uid);
+			vtfree(de.uid);
 			de.uid = uid;
 			uid = nil;
 			op = 1;
@@ -372,11 +372,11 @@ rTwstat(Msg* m)
 
 error:
 	deCleanup(&de);
-	vtMemFree(strs);
+	vtfree(strs);
 	if(gid != nil)
-		vtMemFree(gid);
+		vtfree(gid);
 	if(uid != nil)
-		vtMemFree(uid);
+		vtfree(uid);
 error0:
 	fidPut(fid);
 	return retval;
@@ -404,7 +404,7 @@ rTstat(Msg* m)
 		dir.muid = fid->uname;
 
 		if((m->r.nstat = convD2M(&dir, m->data, m->con->msize)) == 0){
-			vtSetError("stat QTAUTH botch");
+			werrstr("stat QTAUTH botch");
 			fidPut(fid);
 			return 0;
 		}
@@ -479,24 +479,24 @@ rTwrite(Msg* m)
 	if((fid = fidGet(m->con, m->t.fid, 0)) == nil)
 		return 0;
 	if(!(fid->open & FidOWrite)){
-		vtSetError("fid not open for write");
+		werrstr("fid not open for write");
 		goto error;
 	}
 
 	count = m->t.count;
 	if(count < 0 || count > m->con->msize-IOHDRSZ){
-		vtSetError("write count too big");
+		werrstr("write count too big");
 		goto error;
 	}
 	if(m->t.offset < 0){
-		vtSetError("write offset negative");
+		werrstr("write offset negative");
 		goto error;
 	}
 	if(fid->excl != nil && !exclUpdate(fid))
 		goto error;
 
 	if(fid->qid.type & QTDIR){
-		vtSetError("is a directory");
+		werrstr("is a directory");
 		goto error;
 	}
 	else if(fid->qid.type & QTAUTH)
@@ -527,17 +527,17 @@ rTread(Msg* m)
 	if((fid = fidGet(m->con, m->t.fid, 0)) == nil)
 		return 0;
 	if(!(fid->open & FidORead)){
-		vtSetError("fid not open for read");
+		werrstr("fid not open for read");
 		goto error;
 	}
 
 	count = m->t.count;
 	if(count < 0 || count > m->con->msize-IOHDRSZ){
-		vtSetError("read count too big");
+		werrstr("read count too big");
 		goto error;
 	}
 	if(m->t.offset < 0){
-		vtSetError("read offset negative");
+		werrstr("read offset negative");
 		goto error;
 	}
 	if(fid->excl != nil && !exclUpdate(fid))
@@ -579,15 +579,15 @@ rTcreate(Msg* m)
 	if((fid = fidGet(m->con, m->t.fid, FidFWlock)) == nil)
 		return 0;
 	if(fid->open){
-		vtSetError("fid open for I/O");
+		werrstr("fid open for I/O");
 		goto error;
 	}
 	if(fileIsRoFs(fid->file) || !groupWriteMember(fid->uname)){
-		vtSetError("read-only filesystem");
+		werrstr("read-only filesystem");
 		goto error;
 	}
 	if(!fileIsDir(fid->file)){
-		vtSetError("not a directory");
+		werrstr("not a directory");
 		goto error;
 	}
 	if(permFid(fid, PermW) <= 0)
@@ -595,7 +595,7 @@ rTcreate(Msg* m)
 	if(!validFileName(m->t.name))
 		goto error;
 	if(strcmp(fid->uid, uidnoworld) == 0){
-		vtSetError(EPermission);
+		werrstr(EPermission);
 		goto error;
 	}
 
@@ -607,16 +607,16 @@ rTcreate(Msg* m)
 	if(omode == OWRITE || omode == ORDWR)
 		open |= FidOWrite;
 	if((open & (FidOWrite|FidORead)) == 0){
-		vtSetError("unknown mode");
+		werrstr("unknown mode");
 		goto error;
 	}
 	if(m->t.perm & DMDIR){
 		if((m->t.mode & (ORCLOSE|OTRUNC)) || (open & FidOWrite)){
-			vtSetError("illegal mode");
+			werrstr("illegal mode");
 			goto error;
 		}
 		if(m->t.perm & DMAPPEND){
-			vtSetError("illegal perm");
+			werrstr("illegal perm");
 			goto error;
 		}
 	}
@@ -681,7 +681,7 @@ rTopen(Msg* m)
 	if((fid = fidGet(m->con, m->t.fid, FidFWlock)) == nil)
 		return 0;
 	if(fid->open){
-		vtSetError("fid open for I/O");
+		werrstr("fid open for I/O");
 		goto error;
 	}
 
@@ -691,11 +691,11 @@ rTopen(Msg* m)
 
 	if(m->t.mode & ORCLOSE){
 		if(isdir){
-			vtSetError("is a directory");
+			werrstr("is a directory");
 			goto error;
 		}
 		if(rofs){
-			vtSetError("read-only filesystem");
+			werrstr("read-only filesystem");
 			goto error;
 		}
 		if(permParent(fid, PermW) <= 0)
@@ -712,11 +712,11 @@ rTopen(Msg* m)
 	}
 	if(omode == OWRITE || omode == ORDWR || (m->t.mode & OTRUNC)){
 		if(isdir){
-			vtSetError("is a directory");
+			werrstr("is a directory");
 			goto error;
 		}
 		if(rofs){
-			vtSetError("read-only filesystem");
+			werrstr("read-only filesystem");
 			goto error;
 		}
 		if(permFid(fid, PermW) <= 0)
@@ -725,7 +725,7 @@ rTopen(Msg* m)
 	}
 	if(omode == OEXEC){
 		if(isdir){
-			vtSetError("is a directory");
+			werrstr("is a directory");
 			goto error;
 		}
 		if(permFid(fid, PermX) <= 0)
@@ -733,7 +733,7 @@ rTopen(Msg* m)
 		open |= FidORead;
 	}
 	if((open & (FidOWrite|FidORead)) == 0){
-		vtSetError("unknown mode");
+		werrstr("unknown mode");
 		goto error;
 	}
 
@@ -792,7 +792,7 @@ rTwalk(Msg* m)
 	if((ofid = fidGet(m->con, t->fid, wlock)) == nil)
 		return 0;
 	if(ofid->open){
-		vtSetError("file open for I/O");
+		werrstr("file open for I/O");
 		fidPut(ofid);
 		return 0;
 	}
@@ -808,7 +808,7 @@ rTwalk(Msg* m)
 	if(t->fid != t->newfid){
 		nfid = fidGet(m->con, t->newfid, FidFWlock|FidFCreate);
 		if(nfid == nil){
-			vtSetError("%s: walk: newfid 0x%ud in use",
+			werrstr("%s: walk: newfid 0x%ud in use",
 				argv0, t->newfid);
 			fidPut(ofid);
 			return 0;
@@ -816,8 +816,8 @@ rTwalk(Msg* m)
 		nfid->open = ofid->open & ~FidORclose;
 		nfid->file = fileIncRef(ofid->file);
 		nfid->qid = ofid->qid;
-		nfid->uid = vtStrDup(ofid->uid);
-		nfid->uname = vtStrDup(ofid->uname);
+		nfid->uid = vtstrdup(ofid->uid);
+		nfid->uname = vtstrdup(ofid->uname);
 		nfid->fsys = fsysIncRef(ofid->fsys);
 		fid = nfid;
 	}
@@ -848,7 +848,7 @@ rTwalk(Msg* m)
 		 * to walk out of it.
 		 */
 		if(!(qid.type & QTDIR)){
-			vtSetError("not a directory");
+			werrstr("not a directory");
 			break;
 		}
 		switch(permFile(file, fid, PermX)){
@@ -925,9 +925,9 @@ parseAname(char *aname, char **fsname, char **path)
 	char *s;
 
 	if(aname && aname[0])
-		s = vtStrDup(aname);
+		s = vtstrdup(aname);
 	else
-		s = vtStrDup("main/active");
+		s = vtstrdup("main/active");
 	*fsname = s;
 	if((*path = strchr(s, '/')) != nil)
 		*(*path)++ = '\0';
@@ -949,7 +949,7 @@ conIPCheck(Con* con)
 
 	if(con->flags&ConIPCheck){
 		if(con->remote[0] == 0){
-			vtSetError("cannot verify unknown remote address");
+			werrstr("cannot verify unknown remote address");
 			return 0;
 		}
 		if(access("/mnt/ipok/ok", AEXIST) < 0){
@@ -958,7 +958,7 @@ conIPCheck(Con* con)
 			&& mount(fd, -1, "/mnt/ipok", MREPL, "") < 0)
 				close(fd);
 			if(access("/mnt/ipok/ok", AEXIST) < 0){
-				vtSetError("cannot verify remote address");
+				werrstr("cannot verify remote address");
 				return 0;
 			}
 		}
@@ -966,7 +966,7 @@ conIPCheck(Con* con)
 		if((p = strchr(ok, '!')) != nil)
 			*p = 0;
 		if(access(ok, AEXIST) < 0){
-			vtSetError("restricted remote address");
+			werrstr("restricted remote address");
 			return 0;
 		}
 	}
@@ -986,29 +986,29 @@ rTattach(Msg* m)
 	parseAname(m->t.aname, &fsname, &path);
 	if((fsys = fsysGet(fsname)) == nil){
 		fidClunk(fid);
-		vtMemFree(fsname);
+		vtfree(fsname);
 		return 0;
 	}
 	fid->fsys = fsys;
 
 	if(m->t.uname[0] != '\0')
-		fid->uname = vtStrDup(m->t.uname);
+		fid->uname = vtstrdup(m->t.uname);
 	else
-		fid->uname = vtStrDup(unamenone);
+		fid->uname = vtstrdup(unamenone);
 
 	if((fid->con->flags&ConIPCheck) && !conIPCheck(fid->con)){
-		consPrint("reject %s from %s: %R\n", fid->uname, fid->con->remote);
+		consPrint("reject %s from %s: %r\n", fid->uname, fid->con->remote);
 		fidClunk(fid);
-		vtMemFree(fsname);
+		vtfree(fsname);
 		return 0;
 	}
 	if(fsysNoAuthCheck(fsys) || (m->con->flags&ConNoAuthCheck)){
 		if((fid->uid = uidByUname(fid->uname)) == nil)
-			fid->uid = vtStrDup(unamenone);
+			fid->uid = vtstrdup(unamenone);
 	}
 	else if(!authCheck(&m->t, fid, fsys)){
 		fidClunk(fid);
-		vtMemFree(fsname);
+		vtfree(fsname);
 		return 0;
 	}
 
@@ -1016,11 +1016,11 @@ rTattach(Msg* m)
 	if((fid->file = fsysGetRoot(fsys, path)) == nil){
 		fsysFsRUnlock(fsys);
 		fidClunk(fid);
-		vtMemFree(fsname);
+		vtfree(fsname);
 		return 0;
 	}
 	fsysFsRUnlock(fsys);
-	vtMemFree(fsname);
+	vtfree(fsname);
 
 	fid->qid = (Qid){fileGetId(fid->file), 0, QTDIR};
 	m->r.qid = fid->qid;
@@ -1040,19 +1040,19 @@ rTauth(Msg* m)
 
 	parseAname(m->t.aname, &fsname, &path);
 	if((fsys = fsysGet(fsname)) == nil){
-		vtMemFree(fsname);
+		vtfree(fsname);
 		return 0;
 	}
-	vtMemFree(fsname);
+	vtfree(fsname);
 
 	if(fsysNoAuthCheck(fsys) || (m->con->flags&ConNoAuthCheck)){
 		m->con->aok = 1;
-		vtSetError("authentication disabled");
+		werrstr("authentication disabled");
 		fsysPut(fsys);
 		return 0;
 	}
 	if(strcmp(m->t.uname, unamenone) == 0){
-		vtSetError("user 'none' requires no authentication");
+		werrstr("user 'none' requires no authentication");
 		fsysPut(fsys);
 		return 0;
 	}
@@ -1065,18 +1065,18 @@ rTauth(Msg* m)
 	afid->fsys = fsys;
 
 	if((afd = open("/mnt/factotum/rpc", ORDWR)) < 0){
-		vtSetError("can't open \"/mnt/factotum/rpc\"");
+		werrstr("can't open \"/mnt/factotum/rpc\"");
 		fidClunk(afid);
 		return 0;
 	}
 	if((afid->rpc = auth_allocrpc(afd)) == nil){
 		close(afd);
-		vtSetError("can't auth_allocrpc");
+		werrstr("can't auth_allocrpc");
 		fidClunk(afid);
 		return 0;
 	}
 	if(auth_rpc(afid->rpc, "start", "proto=p9any role=server", 23) != ARok){
-		vtSetError("can't auth_rpc");
+		werrstr("can't auth_rpc");
 		fidClunk(afid);
 		return 0;
 	}
@@ -1084,7 +1084,7 @@ rTauth(Msg* m)
 	afid->open = FidOWrite|FidORead;
 	afid->qid.type = QTAUTH;
 	afid->qid.path = m->t.afid;
-	afid->uname = vtStrDup(m->t.uname);
+	afid->uname = vtstrdup(m->t.uname);
 
 	m->r.qid = afid->qid;
 
@@ -1103,10 +1103,10 @@ rTversion(Msg* m)
 	r = &m->r;
 	con = m->con;
 
-	vtLock(con->lock);
+	qlock(&con->lock);
 	if(con->state != ConInit){
-		vtUnlock(con->lock);
-		vtSetError("Tversion: down");
+		qunlock(&con->lock);
+		werrstr("Tversion: down");
 		return 0;
 	}
 	con->state = ConNew;
@@ -1119,14 +1119,14 @@ rTversion(Msg* m)
 	fidClunkAll(con);
 
 	if(t->tag != NOTAG){
-		vtUnlock(con->lock);
-		vtSetError("Tversion: invalid tag");
+		qunlock(&con->lock);
+		werrstr("Tversion: invalid tag");
 		return 0;
 	}
 
 	if(t->msize < 256){
-		vtUnlock(con->lock);
-		vtSetError("Tversion: message size too small");
+		qunlock(&con->lock);
+		werrstr("Tversion: message size too small");
 		return 0;
 	}
 	if(t->msize < con->msize)
@@ -1159,7 +1159,7 @@ rTversion(Msg* m)
 			m->state = MsgF;
 		}
 	}
-	vtUnlock(con->lock);
+	qunlock(&con->lock);
 
 	return 1;
 }
