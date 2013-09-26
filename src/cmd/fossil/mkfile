@@ -1,5 +1,4 @@
 <$PLAN9/src/mkhdr
-MKSHELL=$PLAN9/bin/rc
 BIN=$BIN/fossil
 
 TARG=fossil flchk flfmt conf last view
@@ -57,75 +56,15 @@ UPDATE=\
 
 default:V: all
 
-test:V: all
-	rm -f /srv/test.fossil /srv/test.fscons
-	slay 8.flfmt | rc
-	slay 8.fossil | rc
-	unmount /n/fossil || status=''
-	{syscall seek 1 6400000000 0; echo} >>/tmp/fossil
-	8.flfmt -y /tmp/fossil
-	8.conf -w /tmp/fossil flproto
-	8.fossil -f /tmp/fossil
-	cat /srv/test.fscons &
-	echo fsys main >>/srv/test.fscons
-	mount /srv/test.fossil /n/fossil
-	cd /n/fossil/tmp
-	dd -bs 1048576 -count 256 -if /dev/zero -of a
-	rm a
-	echo sync >>/srv/test.fscons
-	echo sync >>/srv/test.fscons
-	echo sync >>/srv/test.fscons
-	sleep 1
-	echo sync >>/srv/test.fscons
-	sleep 1
-	echo sync >>/srv/test.fscons
-	sleep 1
-	echo sync >>/srv/test.fscons
-	echo check >>/srv/test.fscons
-	echo check >>/srv/test.fscons
-	echo check >>/srv/test.fscons
-
-#	cp /env/timezone /n/fossil/tmp
-#	cp /lib/words /n/fossil/tmp
-#	dircp /n/sources/plan9/sys/src/cmd/aux /n/fossil/tmp
-#	>/n/fossil/tmp/lis
-#	chmod +t /n/fossil/tmp/lis
-#	echo SHOULD NOT SEE THIS >>/n/fossil/tmp/lis
-#	echo snap >>/srv/test.fscons
-#	sleep 2
-#	mount /srv/test.fossil /n/dump main/archive
-#	cat /n/dump/*/*/tmp/lis
-#	@{cd /n/fossil/tmp && time tar xTf /sys/src/cmd/fossil/test.tar}
-#	unmount /n/fossil
-#	rm /srv/fossil
-
 <$PLAN9/src/mkmany
 
 $LIB(%.$O):N: %.$O
 $LIB:	${LIBOFILES:%=$LIB(%)}
-	names = `{echo $newprereq |sed 's/ /\n/g' |9 sed -n 's/'$LIB'\(([^)]+)\)/\1/gp'}
-	$AR rsc $LIB $names
-#	rm $names
+	$AR rsc $LIB $newmember
 
 $O.flfmt: flfmt9660.$O
 
 flfmt%.$O: flfmt9660.h
-
-%.page:V: %.ps
-	page -w $stem.ps
-
-%.ps:D: %.ms
-	tbl $stem.ms | pic | eqn | troff -ms | lp -dstdout >$target
-
-bundle:V:
-	rfork n
-	ramfs -m /n/kremvax >[2]/dev/null
-	bind -a /n/kremvax .
-	cp /sys/doc/fossil.ms /sys/doc/fossil.ps /n/kremvax
-	cp /sys/man/4/fossil /n/kremvax/fossil.4.man
-	cp /sys/man/8/fossilcons /n/kremvax/fossilcons.8.man
-	x=`{ls |grep -v 'TODO|test.tar|fossil.tar.gz'}
-	tar c $x | gzip > fossil.tar.gz
 
 $O.conf:D: conf.rc
 	{
