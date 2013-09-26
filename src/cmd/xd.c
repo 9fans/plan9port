@@ -13,7 +13,7 @@ int		flush;
 int		abase=2;
 int		xd(char *, int);
 void		xprint(char *, ulong);
-void		initarg(void), swizz(void);
+void		initarg(void), swizz(void), swizz8(void);
 enum{
 	Narg=10
 };
