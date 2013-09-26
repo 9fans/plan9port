@@ -1,0 +1,68 @@
+#!/usr/local/plan9/bin/rc
+
+# the fossil configuration is stored at the 127kB offset in the disk
+# and extends for at most 1 kB.
+
+rfork e
+fn usage {
+	echo 'usage: fossil/conf [-w] /dev/sdC0/fossil [config]' >[1=2]
+	exit usage
+}
+
+wflag=no
+while(! ~ $#* 0 && ~ $1 -* && ! ~ $1 --){
+	switch($1){
+	case -w
+		wflag=yes
+	case *
+		usage
+	}
+	shift
+}
+if(~ $1 --)
+	shift
+
+if(~ $wflag no && ! ~ $#* 1)
+	usage
+if(~ $wflag yes && ! ~ $#* 1 2)
+	usage
+
+disk=$1
+if(! 9 test -f $disk){
+	echo 'unknown disk' $1 >[1=2]
+	exit nodisk
+}
+
+fn sigexit {
+	rm -f /tmp/fossilconf.$pid
+}
+
+if(~ $wflag yes){
+	{echo fossil config; cat $2} >/tmp/fossilconf.$pid || exit oops
+	if(! 9 test -s /tmp/fossilconf.$pid){
+		echo 'config is empty; will not install' >[1=2]
+		exit emptyconfig
+	}
+	if(9 test `{9 ls -l /tmp/fossilconf.$pid | awk '{print $6}'} -gt 1024){
+		echo 'config is too long; max is a little less than a kilobyte' >[1=2]
+		exit toolong
+	}
+	9 dd -quiet 1 -bs 1024 -count 1 -if $disk -iseek 127 \
+		>/tmp/_fossilconf.old || exit backup
+	9 dd -quiet 1 -count 2 </dev/zero >>/tmp/fossilconf.$pid || exit dd
+	9 dd -quiet 1 -bs 1024 -count 1 -if /tmp/fossilconf.$pid \
+		-trunc 0 -of $disk -oseek 127 || exit dd2
+	exit 0
+}
+
+9 dd -quiet 1 -bs 1024 -count 1 -if $disk -iseek 127 |
+	zerotrunc >/tmp/fossilconf.$pid
+
+if(! cmp -s <{sed 1q /tmp/fossilconf.$pid} <{echo fossil config}){
+	echo 'config has bad header' >[1=2]
+	exit badconfig
+}
+
+sed 1d /tmp/fossilconf.$pid
+exit 0
+
