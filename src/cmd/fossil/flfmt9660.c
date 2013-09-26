@@ -62,46 +62,6 @@ struct Voldesc {
 	uchar	fsvers;		/* file system version = 1 */
 };
 
-static void
-dumpbootvol(void *a)
-{
-	Voldesc *v;
-
-	v = a;
-	print("magic %.2ux %.5s %.2ux %2ux\n",
-		v->magic[0], v->magic+1, v->magic[6], v->magic[7]);
-	if(v->magic[0] == 0xFF)
-		return;
-
-	print("system %.32C\n", v->systemid);
-	print("volume %.32C\n", v->volumeid);
-	print("volume size %.4N\n", v->volsize);
-	print("charset %.2ux %.2ux %.2ux %.2ux %.2ux %.2ux %.2ux %.2ux\n",
-		v->charset[0], v->charset[1], v->charset[2], v->charset[3],
-		v->charset[4], v->charset[5], v->charset[6], v->charset[7]);
-	print("volume set size %.2N\n", v->volsetsize);
-	print("volume sequence number %.2N\n", v->volseqnum);
-	print("logical block size %.2N\n", v->blocksize);
-	print("path size %.4L\n", v->pathsize);
-	print("lpath loc %.4L\n", v->lpathloc);
-	print("opt lpath loc %.4L\n", v->olpathloc);
-	print("mpath loc %.4B\n", v->mpathloc);
-	print("opt mpath loc %.4B\n", v->ompathloc);
-	print("rootdir %D\n", v->rootdir);
-	print("volume set identifier %.128C\n", v->volsetid);
-	print("publisher %.128C\n", v->publisher);
-	print("preparer %.128C\n", v->prepid);
-	print("application %.128C\n", v->applid);
-	print("notice %.37C\n", v->notice);
-	print("abstract %.37C\n", v->abstract);
-	print("biblio %.37C\n", v->biblio);
-	print("creation date %.17s\n", v->cdate);
-	print("modification date %.17s\n", v->mdate);
-	print("expiration date %.17s\n", v->xdate);
-	print("effective date %.17s\n", v->edate);
-	print("fs version %d\n", v->fsvers);
-}
-
 typedef struct Cdir Cdir;
 struct Cdir {
 	uchar	len;
@@ -134,19 +94,6 @@ Dfmt(Fmt *fmt)
 	}
 	fmtstrcpy(fmt, buf);
 	return 0;
-}
-
-char longc, shortc;
-static void
-bigend(void)
-{
-	longc = 'B';
-}
-
-static void
-littleend(void)
-{
-	longc = 'L';
 }
 
 static ulong
@@ -240,24 +187,6 @@ static void
 ascii(void)
 {
 	fmtinstall('C', asciiTfmt);
-}
-
-static int
-runeTfmt(Fmt *fmt)
-{
-	Rune buf[256], *r;
-	int i;
-	uchar *p;
-
-	p = va_arg(fmt->args, uchar*);
-	for(i=0; i*2+2<=fmt->prec; i++, p+=2)
-		buf[i] = (p[0]<<8)|p[1];
-	buf[i] = L'\0';
-	for(r=buf+i; r>buf && r[-1]==L' '; r--)
-		;
-	r[0] = L'\0';
-	fmt->flags &= ~FmtPrec;
-	return fmtprint(fmt, "%S", buf);
 }
 
 static void

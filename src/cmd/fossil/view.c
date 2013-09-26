@@ -1007,8 +1007,6 @@ Tree t;
 void
 eresized(int new)
 {
-	Rectangle r;
-	r = screen->r;
 	if(new && getwindow(display, Refnone) < 0)
 		fprint(2,"can't reattach to window");
 	drawtree(&t, screen, screen->r);

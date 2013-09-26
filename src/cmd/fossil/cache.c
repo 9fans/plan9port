@@ -283,7 +283,6 @@ cacheCheck(Cache *c)
 {
 	u32int size, now;
 	int i, k, refed;
-	static uchar zero[VtScoreSize];
 	Block *b;
 
 	size = c->size;
@@ -459,11 +458,6 @@ _cacheLocalLookup(Cache *c, int part, u32int addr, u32int vers,
 		}
 	}
 	/* NOT REACHED */
-}
-static Block*
-cacheLocalLookup(Cache *c, int part, u32int addr, u32int vers)
-{
-	return _cacheLocalLookup(c, part, addr, vers, Waitlock, 0);
 }
 
 
@@ -977,9 +971,7 @@ int
 blockSetLabel(Block *b, Label *l, int allocating)
 {
 	Block *lb;
-	Label oldl;
 
-	oldl = b->l;
 	lb = _blockSetLabel(b, l);
 	if(lb == nil)
 		return 0;

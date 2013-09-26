@@ -751,7 +751,6 @@ error(Fsck *chk, char *fmt, ...)
 {
 	char buf[256];
 	va_list arg;
-	static int nerr;
 
 	va_start(arg, fmt);
 	vseprint(buf, buf+sizeof buf, fmt, arg);
@@ -768,7 +767,6 @@ warn(Fsck *chk, char *fmt, ...)
 {
 	char buf[256];
 	va_list arg;
-	static int nerr;
 
 	va_start(arg, fmt);
 	vseprint(buf, buf+sizeof buf, fmt, arg);
