@@ -165,7 +165,7 @@ rTwstat(Msg* m)
 		}
 		tsync = 0;
 	}
-	if(dir.qid.vers != ~0){
+	if(dir.qid.vers != (u32int)~0){
 		if(dir.qid.vers != de.mcount){
 			werrstr("wstat -- attempt to change qid.vers");
 			goto error;
@@ -189,7 +189,7 @@ rTwstat(Msg* m)
 	/*
 	 * Check .qid.type and .mode agree if neither is defaulted.
 	 */
-	if(dir.qid.type != (uchar)~0 && dir.mode != ~0){
+	if(dir.qid.type != (uchar)~0 && dir.mode != (u32int)~0){
 		if(dir.qid.type != ((dir.mode>>24) & 0xFF)){
 			werrstr("wstat -- qid.type/mode mismatch");
 			goto error;
@@ -199,7 +199,7 @@ rTwstat(Msg* m)
 	op = 0;
 
 	oldmode = de.mode;
-	if(dir.qid.type != (uchar)~0 || dir.mode != ~0){
+	if(dir.qid.type != (uchar)~0 || dir.mode != (u32int)~0){
 		/*
 		 * .qid.type or .mode isn't defaulted, check for unknown bits.
 		 */
@@ -236,7 +236,7 @@ rTwstat(Msg* m)
 		tsync = 0;
 	}
 
-	if(dir.mtime != ~0){
+	if(dir.mtime != (u32int)~0){
 		if(dir.mtime != de.mtime){
 			de.mtime = dir.mtime;
 			op = 1;
