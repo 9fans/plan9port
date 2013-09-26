@@ -2,10 +2,9 @@
 #include <libc.h>
 #include <libsec.h>
 #include <thread.h>
-
-typedef uvlong	u64int;
-typedef	uchar	u8int;
-typedef ushort	u16int;
+#ifdef PLAN9PORT
+#include <9pclient.h>
+#endif
 
 #include "venti.h"
 #include "vac.h"

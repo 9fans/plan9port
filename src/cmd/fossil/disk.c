@@ -288,8 +288,10 @@ disk2file(Disk *disk)
 {
 	static char buf[256];
 
+#ifndef PLAN9PORT
 	if (fd2path(disk->fd, buf, sizeof buf) < 0)
 		strncpy(buf, "GOK", sizeof buf);
+#endif
 	return buf;
 }
 

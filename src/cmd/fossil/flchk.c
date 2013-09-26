@@ -28,26 +28,33 @@ flprint(char *fmt, ...)
 }
 
 static void
-flclre(Fsck*, Block *b, int o)
+flclre(Fsck *chk, Block *b, int o)
 {
+	USED(chk);
 	Bprint(&bout, "# clre 0x%ux %d\n", b->addr, o);
 }
 
 static void
-flclrp(Fsck*, Block *b, int o)
+flclrp(Fsck *chk, Block *b, int o)
 {
+	USED(chk);
 	Bprint(&bout, "# clrp 0x%ux %d\n", b->addr, o);
 }
 
 static void
-flclri(Fsck*, char *name, MetaBlock*, int, Block*)
+flclri(Fsck *chk, char *name, MetaBlock *mb, int i, Block *b)
 {
+	USED(chk);
+	USED(mb);
+	USED(i);
+	USED(b);
 	Bprint(&bout, "# clri %s\n", name);
 }
 
 static void
-flclose(Fsck*, Block *b, u32int epoch)
+flclose(Fsck *chk, Block *b, u32int epoch)
 {
+	USED(chk);
 	Bprint(&bout, "# bclose 0x%ux %ud\n", b->addr, epoch);
 }
 

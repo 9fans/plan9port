@@ -778,22 +778,34 @@ warn(Fsck *chk, char *fmt, ...)
 }
 
 static void
-clrenop(Fsck*, Block*, int)
+clrenop(Fsck *chk, Block *b, int i)
 {
+	USED(chk);
+	USED(b);
+	USED(i);
 }
 
 static void
-closenop(Fsck*, Block*, u32int)
+closenop(Fsck *chk, Block *b, u32int i)
 {
+	USED(chk);
+	USED(b);
+	USED(i);
 }
 
 static void
-clrinop(Fsck*, char*, MetaBlock*, int, Block*)
+clrinop(Fsck *chk, char *c, MetaBlock *mb, int i, Block *b)
 {
+	USED(chk);
+	USED(c);
+	USED(mb);
+	USED(i);
+	USED(b);
 }
 
 static int
-printnop(char*, ...)
+printnop(char *c, ...)
 {
+	USED(c);
 	return 0;
 }

@@ -27,19 +27,22 @@ cmd9pStrtoull(char* s)
 }
 
 static int
-cmd9pTag(Fcall*, int, char **argv)
+cmd9pTag(Fcall* f, int i, char **argv)
 {
+	USED(f);
+	USED(i);
 	cbox.tag = strtoul(argv[0], 0, 0)-1;
 
 	return 1;
 }
 
 static int
-cmd9pTwstat(Fcall* f, int, char **argv)
+cmd9pTwstat(Fcall* f, int i, char **argv)
 {
 	Dir d;
 	static uchar buf[DIRMAX];
 
+	USED(i);
 	memset(&d, 0, sizeof d);
 	nulldir(&d);
 	d.name = argv[1];
@@ -61,32 +64,36 @@ cmd9pTwstat(Fcall* f, int, char **argv)
 }
 
 static int
-cmd9pTstat(Fcall* f, int, char** argv)
+cmd9pTstat(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 
 	return 1;
 }
 
 static int
-cmd9pTremove(Fcall* f, int, char** argv)
+cmd9pTremove(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 
 	return 1;
 }
 
 static int
-cmd9pTclunk(Fcall* f, int, char** argv)
+cmd9pTclunk(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 
 	return 1;
 }
 
 static int
-cmd9pTwrite(Fcall* f, int, char** argv)
+cmd9pTwrite(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 	f->offset = strtoll(argv[1], 0, 0);
 	f->data = argv[2];
@@ -96,8 +103,9 @@ cmd9pTwrite(Fcall* f, int, char** argv)
 }
 
 static int
-cmd9pTread(Fcall* f, int, char** argv)
+cmd9pTread(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 	f->offset = strtoll(argv[1], 0, 0);
 	f->count = strtol(argv[2], 0, 0);
@@ -106,8 +114,9 @@ cmd9pTread(Fcall* f, int, char** argv)
 }
 
 static int
-cmd9pTcreate(Fcall* f, int, char** argv)
+cmd9pTcreate(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 	f->name = argv[1];
 	f->perm = strtol(argv[2], 0, 8);
@@ -117,8 +126,9 @@ cmd9pTcreate(Fcall* f, int, char** argv)
 }
 
 static int
-cmd9pTopen(Fcall* f, int, char** argv)
+cmd9pTopen(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 	f->mode = strtol(argv[1], 0, 0);
 
@@ -148,16 +158,18 @@ cmd9pTwalk(Fcall* f, int argc, char** argv)
 }
 
 static int
-cmd9pTflush(Fcall* f, int, char** argv)
+cmd9pTflush(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->oldtag = strtol(argv[0], 0, 0);
 
 	return 1;
 }
 
 static int
-cmd9pTattach(Fcall* f, int, char** argv)
+cmd9pTattach(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->fid = strtol(argv[0], 0, 0);
 	f->afid = strtol(argv[1], 0, 0);
 	f->uname = argv[2];
@@ -167,8 +179,9 @@ cmd9pTattach(Fcall* f, int, char** argv)
 }
 
 static int
-cmd9pTauth(Fcall* f, int, char** argv)
+cmd9pTauth(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->afid = strtol(argv[0], 0, 0);
 	f->uname = argv[1];
 	f->aname = argv[2];
@@ -177,8 +190,9 @@ cmd9pTauth(Fcall* f, int, char** argv)
 }
 
 static int
-cmd9pTversion(Fcall* f, int, char** argv)
+cmd9pTversion(Fcall* f, int i, char** argv)
 {
+	USED(i);
 	f->msize = strtoul(argv[0], 0, 0);
 	if(f->msize > cbox.con->msize){
 		werrstr("msize too big");
@@ -420,6 +434,7 @@ cmdBind(int argc, char* argv[])
 	if(argc != 2 || (flag&MAFTER)&&(flag&MBEFORE))
 		return cliError(usage);
 
+#ifndef PLAN9PORT
 	if(bind(argv[0], argv[1], flag) < 0){
 		/* try to give a less confusing error than the default */
 		if(access(argv[0], 0) < 0)
@@ -429,6 +444,7 @@ cmdBind(int argc, char* argv[])
 		else
 			return cliError("bind %s %s: %r", argv[0], argv[1]);
 	}
+#endif
 	return 1;
 }
 

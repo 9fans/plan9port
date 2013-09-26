@@ -338,7 +338,11 @@ int
 validUserName(char* name)
 {
 	Rune *r;
+#ifdef PLAN9PORT
+	static Rune invalid[] = {'#', ':', ',', '(', ')', '\0'};
+#else
 	static Rune invalid[] = L"#:,()";
+#endif
 
 	for(r = invalid; *r != '\0'; r++){
 		if(utfrune(name, *r))

@@ -328,4 +328,4 @@ enum {
 	PartVenti,	/* fake partition */
 };
 
-extern vtType[BtMax];
+extern int vtType[BtMax];

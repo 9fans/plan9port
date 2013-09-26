@@ -221,8 +221,9 @@ qAlloc(void)
 }
 
 static void
-consProc(void*)
+consProc(void* v)
 {
+	USED(v);
 	Q *q;
 	int argc, i, n, r;
 	char *argv[20], buf[Nq], *lp, *wbuf;
@@ -345,13 +346,21 @@ consTTY(void)
 
 	name = "/dev/cons";
 	if((fd = open(name, ORDWR)) < 0){
+#ifdef PLAN9PORT
+		name = "/dev/tty";
+#else
 		name = "#c/cons";
+#endif
 		if((fd = open(name, ORDWR)) < 0){
 			werrstr("consTTY: open %s: %r", name);
 			return 0;
 		}
 	}
 
+#ifdef PLAN9PORT
+	USED(p);
+	ctl = 0;
+#else
 	p = smprint("%sctl", name);
 	if((ctl = open(p, OWRITE)) < 0){
 		close(fd);
@@ -367,6 +376,7 @@ consTTY(void)
 		return 0;
 	}
 	free(p);
+#endif
 
 	if(consOpen(fd, fd, ctl) == 0){
 		close(ctl);

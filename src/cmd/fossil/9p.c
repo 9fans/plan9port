@@ -935,6 +935,7 @@ parseAname(char *aname, char **fsname, char **path)
 		*path = "";
 }
 
+#ifndef PLAN9PORT
 /*
  * Check remote IP address against /mnt/ipok.
  * Sources.cs.bell-labs.com uses this to disallow
@@ -972,6 +973,7 @@ conIPCheck(Con* con)
 	}
 	return 1;
 }
+#endif
 
 static int
 rTattach(Msg* m)
@@ -996,12 +998,14 @@ rTattach(Msg* m)
 	else
 		fid->uname = vtstrdup(unamenone);
 
+#ifndef PLAN9PORT
 	if((fid->con->flags&ConIPCheck) && !conIPCheck(fid->con)){
 		consPrint("reject %s from %s: %r\n", fid->uname, fid->con->remote);
 		fidClunk(fid);
 		vtfree(fsname);
 		return 0;
 	}
+#endif
 	if(fsysNoAuthCheck(fsys) || (m->con->flags&ConNoAuthCheck)){
 		if((fid->uid = uidByUname(fid->uname)) == nil)
 			fid->uid = vtstrdup(unamenone);
@@ -1032,7 +1036,9 @@ rTattach(Msg* m)
 static int
 rTauth(Msg* m)
 {
+#ifndef PLAN9PORT
 	int afd;
+#endif
 	Con *con;
 	Fid *afid;
 	Fsys *fsys;
@@ -1064,13 +1070,20 @@ rTauth(Msg* m)
 	}
 	afid->fsys = fsys;
 
+#ifndef PLAN9PORT
 	if((afd = open("/mnt/factotum/rpc", ORDWR)) < 0){
 		werrstr("can't open \"/mnt/factotum/rpc\"");
 		fidClunk(afid);
 		return 0;
 	}
+#endif
+
+#ifdef PLAN9PORT
+	if((afid->rpc = auth_allocrpc()) == nil){
+#else
 	if((afid->rpc = auth_allocrpc(afd)) == nil){
 		close(afd);
+#endif
 		werrstr("can't auth_allocrpc");
 		fidClunk(afid);
 		return 0;

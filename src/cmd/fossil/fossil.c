@@ -73,7 +73,11 @@ threadmain(int argc, char* argv[])
 	/*
 	 * Insulate from the invoker's environment.
 	 */
+#ifdef PLAN9PORT
+	if(rfork(RFNAMEG) < 0)
+#else
 	if(rfork(RFREND|RFNOTEG|RFNAMEG) < 0)
+#endif
 		sysfatal("rfork: %r");
 
 	close(0);

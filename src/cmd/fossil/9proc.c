@@ -250,12 +250,13 @@ msgFlush(Msg* m)
 }
 
 static void
-msgProc(void*)
+msgProc(void* v)
 {
 	Msg *m;
 	char e[ERRMAX];
 	Con *con;
 
+	USED(v);
 	threadsetname("msgProc");
 
 	for(;;){

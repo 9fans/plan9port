@@ -20,6 +20,7 @@ static struct {
 	Srv*	tail;
 } sbox;
 
+#ifndef PLAN9PORT
 static int
 srvFd(char* name, int mode, int fd, char** mntpnt)
 {
@@ -54,6 +55,7 @@ srvFd(char* name, int mode, int fd, char** mntpnt)
 
 	return srvfd;
 }
+#endif
 
 static void
 srvFree(Srv* srv)
@@ -100,7 +102,12 @@ srvAlloc(char* service, int mode, int fd)
 		break;
 	}
 
+#ifdef PLAN9PORT
+	mntpnt = nil;
+	if((srvfd = post9pservice(fd, service, mntpnt)) < 0){
+#else
 	if((srvfd = srvFd(service, mode, fd, &mntpnt)) < 0){
+#endif
 		wunlock(&sbox.lock);
 		return nil;
 	}
@@ -202,6 +209,11 @@ cmdSrv(int argc, char* argv[])
 
 		return 1;
 	}
+
+#ifdef PLAN9PORT	/* fossilcons unsupported */
+	if(pflag)
+		return 1;
+#endif
 
 	if(pipe(fd) < 0){
 		werrstr("srv pipe: %r");

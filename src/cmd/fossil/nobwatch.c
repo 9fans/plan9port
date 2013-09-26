@@ -15,8 +15,9 @@ bwatchInit(void)
 }
 
 void
-bwatchSetBlockSize(uint)
+bwatchSetBlockSize(uint i)
 {
+	USED(i);
 }
 
 void
