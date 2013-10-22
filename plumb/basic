@@ -59,9 +59,18 @@ arg isfile	$0
 plumb to openoffice
 plumb start openoffice $file
 
-# existing files tagged by line number:columnumber or linenumber.columnumber, go to editor
+# existing files tagged by line number:columnumber or linenumber.columnumber, twice, go to editor
 type is text
-data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])'$twocolonaddr'
+data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])':$twocolonaddr,$twocolonaddr
+arg isfile     $1
+data set       $file
+attr add       addr=$2-#1+#$3,$4-#1+#$5
+plumb to edit
+plumb client $editor
+
+# existing files tagged by line number:columnumber or linenumber.columnumber, twice, go to editor
+type is text
+data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])':$twocolonaddr
 arg isfile     $1
 data set       $file
 attr add       addr=$2-#1+#$3

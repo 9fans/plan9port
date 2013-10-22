@@ -808,6 +808,7 @@ texttype(Text *t, Rune r)
 	switch(r){
 	case 0x06:	/* ^F: complete */
 	case Kins:
+		typecommit(t);
 		rp = textcomplete(t);
 		if(rp == nil)
 			return;
@@ -1079,6 +1080,8 @@ textshow(Text *t, uint q0, uint q1, int doselect)
 {
 	int qe;
 	int nl;
+	int tsd;
+	int nc;
 	uint q;
 
 	if(t->what != Body){
@@ -1091,7 +1094,20 @@ textshow(Text *t, uint q0, uint q1, int doselect)
 	if(doselect)
 		textsetselect(t, q0, q1);
 	qe = t->org+t->fr.nchars;
-	if(t->org<=q0 && (q0<qe || (q0==qe && qe==t->file->b.nc+t->ncache)))
+	tsd = FALSE;	/* do we call textscrdraw? */
+	nc = t->file->b.nc+t->ncache;
+	if(t->org <= q0){
+		if(nc==0 || q0<qe)
+			tsd = TRUE;
+		else if(q0==qe && qe==nc){
+			if(textreadc(t, nc-1) == '\n'){
+				if(t->fr.nlines<t->fr.maxlines)
+					tsd = TRUE;
+			}else
+				tsd = TRUE;
+		}
+	}
+	if(tsd)
 		textscrdraw(t);
 	else{
 		if(t->w->nopen[QWevent] > 0)
