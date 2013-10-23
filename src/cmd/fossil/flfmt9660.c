@@ -234,7 +234,7 @@ iso9660init(int xfd, Header *xh, char *xfile9660, int xoff9660)
 	ascii();
 
 	v = (Voldesc*)root;
-	if(memcmp(v->magic, "\x01CD001\x01\x00", 8) != 0)
+	if(memcmp(v->magic, "\001CD001\001\000", 8) != 0)
 		sysfatal("%s not a cd image", file9660);
 
 	startoff = iso9660start((Cdir*)v->rootdir)*Blocksize;
@@ -256,7 +256,7 @@ fprint(2, "look for %lud at %lud\n", startoff, startoff-off9660);
 	if(readn(fd, sect2, Blocksize) != Blocksize)
 		sysfatal("cannot read first data sector on cd via fossil");
 	if(memcmp(sect, sect2, Blocksize) != 0)
-		sysfatal("iso9660 offset is a lie %08lux %08lux", *(long*)sect, *(long*)sect2);
+		sysfatal("iso9660 offset is a lie");
 }
 
 void

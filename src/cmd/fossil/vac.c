@@ -28,7 +28,7 @@ static char ENoFile[] = "file does not exist";
 
 #define	U8PUT(p,v)	(p)[0]=(v)
 #define	U16PUT(p,v)	(p)[0]=(v)>>8;(p)[1]=(v)
-#define	U32PUT(p,v)	(p)[0]=(v)>>24;(p)[1]=(v)>>16;(p)[2]=(v)>>8;(p)[3]=(v)
+#define	U32PUT(p,v)	(p)[0]=((v)>>24)&0xFF;(p)[1]=((v)>>16)&0xFF;(p)[2]=((v)>>8)&0xFF;(p)[3]=(v)&0xFF
 #define	U48PUT(p,v,t32)	t32=(v)>>32;U16PUT(p,t32);t32=(v);U32PUT((p)+2,t32)
 #define	U64PUT(p,v,t32)	t32=(v)>>32;U32PUT(p,t32);t32=(v);U32PUT((p)+4,t32)
 
@@ -355,12 +355,12 @@ meCmpOld(MetaEntry *me, char *s)
 }
 
 static int
-offsetCmp(void *s0, void *s1)
+offsetCmp(const void *s0, const void *s1)
 {
 	MetaChunk *mc0, *mc1;
 
-	mc0 = s0;
-	mc1 = s1;
+	mc0 = (MetaChunk*)s0;
+	mc1 = (MetaChunk*)s1;
 	if(mc0->offset < mc1->offset)
 		return -1;
 	if(mc0->offset > mc1->offset)

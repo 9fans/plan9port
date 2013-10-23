@@ -446,12 +446,12 @@ struct MetaChunk {
 };
 
 static int
-offsetCmp(void *s0, void *s1)
+offsetCmp(const void *s0, const void *s1)
 {
 	MetaChunk *mc0, *mc1;
 
-	mc0 = s0;
-	mc1 = s1;
+	mc0 = (MetaChunk*)s0;
+	mc1 = (MetaChunk*)s1;
 	if(mc0->offset < mc1->offset)
 		return -1;
 	if(mc0->offset > mc1->offset)
