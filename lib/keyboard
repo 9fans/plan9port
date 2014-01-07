@@ -385,6 +385,8 @@
 044E  @yu         ю	cyrillic small letter iu
 044F  @ya         я	cyrillic small letter ia
 0451  @yo         ё	cyrillic small letter io
+1E3E  'M          Ḿ latin capital letter m with acute
+1E3F  'm          ḿ latin small letter m with acute
 2018  l'          ‘	single turned comma quotation mark
 2019  r'          ’	single comma quotation mark
 201C  l"          “	double turned comma quotation mark
@@ -486,10 +488,12 @@
 2211  su          ∑	n-ary summation
 2213  -+          ∓	minus-or-plus sign
 2217  **          ∗	asterisk operator
+2218  co          ∘	composition operator
 221A  sr          √	square root
 221D  pt          ∝	proportional to
 221E  if          ∞	infinity
 2220  an          ∠	angle
+2225  pp          ∥	parallel to
 2227  l&          ∧	logical and
 2228  l|          ∨	logical or
 2229  ca          ∩	intersection
@@ -534,16 +538,23 @@
 229C  =O O=       ⊜	circled equals
 22A2  tu          ⊢	right tack
 22A8  Tu          ⊨	true
+22B2  ld          ⊲ normal subgroup of
+22B3  rd          ⊳ contains as normal subgroup
 22C0  L&          ⋀	n-ary logical and
 22C1  L|          ⋁	n-ary logical or
 22C2  CA          ⋂	n-ary intersection
 22C3  CU          ⋃	n-ary union
 22C4  lz          ⋄	diamond operator
+22C8  bt          ⋈ bowtie operator
 22DC  =<          ⋜	equal to or less than
 22DD  =>          ⋝	equal to or greater than
 22E6  <!~         ⋦	less than but not equivalent to
 22E7  >!~         ⋧	greater than but not equivalent to
 22EF  el          ⋯	midline horizontal ellipsis
+230A  lf          ⌊ left floor
+230B  rf          ⌋ right floor
+2329  </          〈 left angle bracket
+232a  />          〉 right angle bracket
 2423              ␣	open box, visible space
 2639  :(          ☹ sad face
 263A  :)          ☺ smiley face
@@ -564,6 +575,8 @@
 266d  Mb          ♭	music flat
 266e  M#          ♮	music natural
 266f  Ms          ♯	music sharp
+300a  <+          《	left double angle bracket
+300b  +>          》	right double angle bracket
 F015  ZA          	raw alt (plan 9 specific)
 F016  ZS          	raw shift (plan 9 specific)
 F017  ZC          	raw ctl (plan 9 specific)
