@@ -625,6 +625,7 @@ runxevent(XEvent *xev)
 		 * so clear out the keyboard state when we lose the focus.
 		 */
 		kstate = 0;
+		altdown = 0;
 		abortcompose();
 		break;
 	
