@@ -23,7 +23,20 @@
 	<key>CFBundleSignature</key>
 	<string>Plumb1</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
+	<key>CFBundleURLName</key>
+	<string>Plan9 Plumber</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Run plumber URL</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>plumb</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
