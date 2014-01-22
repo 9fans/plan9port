@@ -76,7 +76,11 @@ if [ `uname` = Darwin ]; then
 	# On Darwin, uname -m -p cannot be trusted.
 	echo "* Running on Darwin: checking architecture..."
 	rm -f ./a.out
-	gcc lib/darwin-main.c >/dev/null 2>&1
+	if ! gcc lib/darwin-main.c >/dev/null 2>&1; then
+		echo "Cannot find gcc. You may need to install the command-line tools using Xcode." >&2
+		echo "See http://swtch.com/go/xcodegcc for details." >&2
+		exit 1
+	fi
 	case "$(file ./a.out 2>/dev/null)" in
 	*x86_64*)
 		echo "	x86-64 found."
