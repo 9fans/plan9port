@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <auth.h>
 #include <fcall.h>
+#include <errno.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -38,7 +39,6 @@ Fcall *rep;
 uchar mdata[Maxiosize];
 char fdata[Maxfdata];
 uchar statbuf[STATMAX];
-int errno;
 
 
 extern Xfsub	*xsublist[];

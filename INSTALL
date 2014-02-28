@@ -50,6 +50,12 @@ if [ `uname` = FreeBSD ]; then
        echo "LDFLAGS='-L/usr/local/lib'" >> $PLAN9/config
 fi
 
+if [ `uname` = DragonFly ]; then
+       echo "* Running on DragonFly BSD, adjusting linker flags"
+       echo "LDFLAGS='-L/usr/local/lib -pthread'" >> $PLAN9/config
+       echo "CFLAGS='-pthread'" >> $PLAN9/config
+fi
+
 if [ `uname` = OpenBSD ]; then
        echo "* Running on OpenBSD, adjusting linker flags"
        echo "LDFLAGS='-L/usr/X11R6/lib -pthread'" >> $PLAN9/config

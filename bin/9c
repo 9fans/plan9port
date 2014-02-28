@@ -77,7 +77,7 @@ tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
 *FreeBSD*gcc*)	usegcc ;;
 *FreeBSD*clang*)	useclang ;;
-*BSD*)	usegcc ;;
+*DragonFly*|*BSD*)	usegcc ;;
 *Darwin-x86_64*clang*)
 		useclang
 		cflags="$ngflags -g3 -m64"

@@ -24,7 +24,7 @@ case "$tag" in
 		;;
 	esac
 	;;
-*BSD*)
+*DragonFly*|*BSD*)
 	ld=${CC9:-gcc}
 	userpath=true
 	extralibs="$extralibs -lutil"

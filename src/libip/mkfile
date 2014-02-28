@@ -20,7 +20,7 @@ HFILES=\
 
 <$PLAN9/src/mksyslib
 
-Darwin.$O FreeBSD.$O: BSD.c
+Darwin.$O FreeBSD.$O DragonFly.$O: BSD.c
 
 testreadipifc: testreadipifc.o $LIBDIR/$LIB
 	$LD -o testreadipifc testreadipifc.o

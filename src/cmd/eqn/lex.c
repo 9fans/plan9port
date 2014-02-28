@@ -1,6 +1,7 @@
 #include "e.h"
 #include "y.tab.h"
 #include <ctype.h>
+#include <errno.h>
 
 #define	SSIZE	1000
 char	token[SSIZE];
@@ -19,7 +20,7 @@ yylex(void)
 	register int c;
 	tbl *tp;
 
-  begin:
+begin:
 	while ((c = input()) == ' ' || c == '\n' || c == '\t')
 		;
 	yylval = c;
@@ -236,7 +237,6 @@ void include(void)
 	char name[100];
 	FILE *fin;
 	int c;
-	extern int errno;
 
 	while ((c = input()) == ' ')
 		;
@@ -260,7 +260,7 @@ void delim(void)
 		ERROR "Bizarre delimiters" FATAL;
 	lefteq = token[0];
 	righteq = token[1];
-        if (!isprint(lefteq) || !isprint(righteq))
+	if (!isprint(lefteq) || !isprint(righteq))
 		ERROR "Bizarre delimiters" FATAL;
 	if (lefteq == 'o' && righteq == 'f')
 		lefteq = righteq = '\0';

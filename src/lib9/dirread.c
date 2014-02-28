@@ -25,7 +25,7 @@ mygetdents(int fd, struct dirent *buf, int n)
 	long off;
 	return getdirentries(fd, (void*)buf, n, &off);
 }
-#elif defined(__FreeBSD__) || defined(__OpenBSD__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
@@ -46,6 +46,12 @@ mygetdents(int fd, struct dirent *buf, int n)
 }
 #endif
 
+#if defined(__DragonFly__)
+static inline int d_reclen(struct dirent *de) { return _DIRENT_DIRSIZ(de); }
+#else
+static inline int d_reclen(struct dirent *de) { return de->d_reclen; }
+#endif
+
 static int
 countde(char *p, int n)
 {
@@ -57,14 +63,14 @@ countde(char *p, int n)
 	m = 0;
 	while(p < e){
 		de = (struct dirent*)p;
-		if(de->d_reclen <= 4+2+2+1 || p+de->d_reclen > e)
+		if(d_reclen(de) <= 4+2+2+1 || p+d_reclen(de) > e)
 			break;
 		if(de->d_name[0]=='.' && de->d_name[1]==0)
 			de->d_name[0] = 0;
 		else if(de->d_name[0]=='.' && de->d_name[1]=='.' && de->d_name[2]==0)
 			de->d_name[0] = 0;
 		m++;
-		p += de->d_reclen;
+		p += d_reclen(de);
 	}
 	return m;
 }
@@ -104,7 +110,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 				stat(de->d_name, &st);
 			nstr += _p9dir(&lst, &st, de->d_name, nil, nil, nil);
 		}
-		p += de->d_reclen;
+		p += d_reclen(de);
 	}
 
 	d = malloc(sizeof(Dir)*n+nstr);
@@ -126,7 +132,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 				stat(de->d_name, &st);
 			_p9dir(&lst, &st, de->d_name, &d[m++], &str, estr);
 		}
-		p += de->d_reclen;
+		p += d_reclen(de);
 	}
 
 	fchdir(oldwd);
