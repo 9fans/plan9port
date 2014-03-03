@@ -113,7 +113,7 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 	int i;
 	Fontchar *fc, *fc0;
 	Memsubfont *sf;
-	Point rect_points[4];
+	//Point rect_points[4];
 
 	xf = nil;
 	for(xfp=xfont, xfe=xfont+nxfont; xfp != xfe; xfp++) {

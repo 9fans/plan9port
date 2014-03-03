@@ -10,7 +10,7 @@
 #define comp() runecmp(ppi[F1][j1],ppi[F2][j2])
 FILE *f[2];
 Rune buf[2][BUFSIZ];	/*input lines */
-Rune *ppi[2][NFLD+1];	/* pointers to fields in lines */
+Rune *ppi[4][NFLD+1];	/* pointers to fields in lines */
 Rune *s1,*s2;
 #define j1 joinj1
 #define j2 joinj2

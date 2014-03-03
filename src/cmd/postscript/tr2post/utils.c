@@ -242,9 +242,8 @@ runeout(Rune rune) {
 void
 specialout(char *stoken) {
 	Rune rune;
-	int i;
 
-	i = chartorune(&rune, stoken);
+	chartorune(&rune, stoken);
 	glyphout(rune, stoken, TRUE);
 }
 

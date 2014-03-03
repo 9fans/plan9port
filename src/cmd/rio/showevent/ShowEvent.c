@@ -761,7 +761,7 @@ void ShowEvent(XEvent *eev)
 	printf("type=%s%s", GetType((XEvent*)ev), sep);
 	printf("serial=%ld%s", ev->serial, sep);
 	printf("send_event=%s%s", TorF(ev->send_event), sep);
-	printf("display=0x%x%s", (unsigned)ev->display, sep);
+	printf("display=0x%p%s", ev->display, sep);
 
 	switch (ev->type) {
 	case MotionNotify:
