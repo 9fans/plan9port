@@ -463,7 +463,7 @@ initxlabel(Label l)
 typedef struct Xblock Xblock;
 struct Xblock
 {
-	Tnode *t;
+	Tnode t;
 	Block *b;
 	int (*gen)(void*, Block*, int, Tnode**);
 	void *arg;
@@ -478,27 +478,27 @@ xblockexpand(Tnode *tt)
 	Xblock *t = (Xblock*)tt;
 	Tnode *nn;
 
-	if(t->t->nkid >= 0)
+	if(t->t.nkid >= 0)
 		return;
 
 	j = 0;
 	if(t->printlabel){
-		t->t->kid = mallocz(Q*sizeof(t->t->kid[0]), 1);
-		t->t->kid[0] = initxlabel(t->b->l);
+		t->t.kid = mallocz(Q*sizeof(t->t.kid[0]), 1);
+		t->t.kid[0] = initxlabel(t->b->l);
 		j = 1;
 	}
 
 	for(i=0;; i++){
 		switch((*t->gen)(t->arg, t->b, i, &nn)){
 		case -1:
-			t->t->nkid = j;
+			t->t.nkid = j;
 			return;
 		case 0:
 			break;
 		case 1:
 			if(j%Q == 0)
-				t->t->kid = realloc(t->t->kid, (j+Q)*sizeof(t->t->kid[0]));
-			t->t->kid[j++] = nn;
+				t->t.kid = realloc(t->t.kid, (j+Q)*sizeof(t->t.kid[0]));
+			t->t.kid[j++] = nn;
 			break;
 		}
 	}
@@ -518,18 +518,17 @@ initxblock(Block *b, char *s, int (*gen)(void *v, Block *b, int o, Tnode **tp), 
 	if(gen == nil)
 		gen = nilgen;
 	t = mallocz(sizeof(Xblock), 1);
-	t->t = mallocz(sizeof(Tnode), 1);
 	t->b = b;
 	t->gen = gen;
 	t->arg = arg;
 	if(b->addr == NilBlock)
-		t->t->str = smprint("Block %V: %s", b->score, s);
+		t->t.str = smprint("Block %V: %s", b->score, s);
 	else
-		t->t->str = smprint("Block %#ux: %s", b->addr, s);
+		t->t.str = smprint("Block %#ux: %s", b->addr, s);
 	t->printlabel = 1;
-	t->t->nkid = -1;
-	t->t->expand = xblockexpand;
-	return t->t;
+	t->t.nkid = -1;
+	t->t.expand = xblockexpand;
+	return (Tnode*)t;
 }
 
 int
@@ -558,7 +557,7 @@ initxentryblock(Block *b, Entry *ed)
 typedef struct Xentry Xentry;
 struct Xentry 
 {
-	Tnode *t;
+	Tnode t;
 	Entry e;
 };
 
@@ -567,12 +566,12 @@ xentryexpand(Tnode *tt)
 {
 	Xentry *t = (Xentry*)tt;
 
-	if(t->t->nkid >= 0)
+	if(t->t.nkid >= 0)
 		return;
 
-	t->t->nkid = 1;
-	t->t->kid = mallocz(sizeof(t->t->kid[0])*t->t->nkid, 1);
-	t->t->kid[0] = initxsource(t->e, 1);
+	t->t.nkid = 1;
+	t->t.kid = mallocz(sizeof(t->t.kid[0])*t->t.nkid, 1);
+	t->t.kid[0] = initxsource(t->e, 1);
 }
 
 Tnode*
@@ -581,15 +580,14 @@ initxentry(Entry e)
 	Xentry *t;
 
 	t = mallocz(sizeof *t, 1);
-	t->t = mallocz(sizeof(Tnode), 1);
-	t->t->nkid = -1;
-	t->t->str = smprint("Entry gen=%#ux psize=%d dsize=%d depth=%d flags=%#ux size=%lld score=%V",
+	t->t.nkid = -1;
+	t->t.str = smprint("Entry gen=%#ux psize=%d dsize=%d depth=%d flags=%#ux size=%lld score=%V",
 		e.gen, e.psize, e.dsize, e.depth, e.flags, e.size, e.score);
 	if(e.flags & VtEntryLocal)
-		t->t->str = smprint("%s archive=%d snap=%d tag=%#ux", t->t->str, e.archive, e.snap, e.tag);
-	t->t->expand = xentryexpand;
+		t->t.str = smprint("%s archive=%d snap=%d tag=%#ux", t->t.str, e.archive, e.snap, e.tag);
+	t->t.expand = xentryexpand;
 	t->e = e;
-	return t->t;	
+	return (Tnode*)t;
 }
 
 int
@@ -767,11 +765,11 @@ metablockgen(void *v, Block *b, int o, Tnode **tp)
 	/* hack: reuse initxblock as a generic iterator */
 	mb = v;
 	t = (Xblock*)initxblock(b, "", metaentrygen, mb);
-	t->t->str = smprint("MetaBlock %d/%d space used, %d add'l free %d/%d table used%s",
+	t->t.str = smprint("MetaBlock %d/%d space used, %d add'l free %d/%d table used%s",
 		mb->size, mb->maxsize, mb->free, mb->nindex, mb->maxindex,
 		mb->botch ? " [BOTCH]" : "");
 	t->printlabel = 0;
-	*tp = t->t;
+	*tp = (Tnode*)t;
 	return 1;
 }
 
@@ -1055,7 +1053,11 @@ threadmain(int argc, char **argv)
 	}
 
 	fs = atreeinit(dir);
+#ifdef PLAN9PORT
+	initdraw(0, "/lib/font/bit/lucsans/unicode.8.font", "tree");
+#else
 	initdraw(0, "/lib/font/bit/lucidasans/unicode.8.font", "tree");
+#endif
 	t.root = fs->root;
 	t.offset = ZP;
 	t.clipr = allocimage(display, Rect(0,0,1,1), GREY1, 1, DOpaque);
