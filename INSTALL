@@ -78,6 +78,27 @@ if [ `uname` = Linux ]; then
 	rm -f ./a.out
 fi
 
+if [ `uname` = SunOS ]; then
+	# On Solaris x86, uname -p cannot be trusted.
+  echo "* Running on Solaris: checking architecture..."
+  case "$(isainfo -n)" in
+	*amd64*)
+		echo "	x86-64 found."
+		echo "OBJTYPE=x86_64" >>$PLAN9/config
+		echo "CC9=gcc" >>$PLAN9/config # defaults to gcc on Solaris/amd64
+		;;
+	*i386*)
+		echo "	i386 found."
+		echo "OBJTYPE=386" >>$PLAN9/config
+		echo "CC9=gcc" >>$PLAN9/config # defaults to gcc on Solaris/i386
+		;;
+  *sparc*)
+		echo "	Sparc found."
+		echo "OBJTYPE=sparc" >>$PLAN9/config
+		;;
+	esac
+fi
+
 if [ `uname` = Darwin ]; then
 	# On Darwin, uname -m -p cannot be trusted.
 	echo "* Running on Darwin: checking architecture..."
