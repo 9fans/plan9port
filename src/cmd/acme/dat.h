@@ -69,7 +69,7 @@ struct Range
 
 struct Block
 {
-	uint		addr;	/* disk address in bytes */
+	vlong		addr;	/* disk address in bytes */
 	union
 	{
 		uint	n;		/* number of used runes in block */
@@ -80,7 +80,7 @@ struct Block
 struct Disk
 {
 	int		fd;
-	uint		addr;	/* length of temp file */
+	vlong		addr;	/* length of temp file */
 	Block	*free[Maxblock/Blockincr+1];
 };
 
