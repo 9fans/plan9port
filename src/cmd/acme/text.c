@@ -228,7 +228,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 		}
 		t->w->isdir = TRUE;
 		t->w->filemenu = FALSE;
-		if(t->file->name[t->file->nname-1] != '/'){
+		if(t->file->nname > 0 && t->file->name[t->file->nname-1] != '/'){
 			rp = runemalloc(t->file->nname+1);
 			runemove(rp, t->file->name, t->file->nname);
 			rp[t->file->nname] = '/';
