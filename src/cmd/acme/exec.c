@@ -1,5 +1,6 @@
 #include <u.h>
 #include <libc.h>
+#include <bio.h>
 #include <draw.h>
 #include <thread.h>
 #include <cursor.h>
@@ -633,6 +634,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 {
 	uint n, m;
 	Rune *r;
+	Biobuf *b;
 	char *s, *name;
 	int i, fd, q;
 	Dir *d, *d1;
@@ -660,6 +662,8 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		warning(nil, "can't create file %s: %r\n", name);
 		goto Rescue1;
 	}
+	b = emalloc(sizeof *b);
+	Binit(b, fd, OWRITE);
 	r = fbufalloc();
 	s = fbufalloc();
 	free(d);
@@ -676,11 +680,18 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			n = BUFSIZE/UTFmax;
 		bufread(&f->b, q, r, n);
 		m = snprint(s, BUFSIZE+1, "%.*S", n, r);
-		if(write(fd, s, m) != m){
+		if(Bwrite(b, s, m) != m){
 			warning(nil, "can't write file %s: %r\n", name);
 			goto Rescue2;
 		}
 	}
+	if(Bflush(b) < 0) {
+		warning(nil, "can't write file %s: %r\n", name);
+		goto Rescue2;
+	}
+	Bterm(b);
+	free(b);
+	b = nil;
 	if(runeeq(namer, nname, f->name, f->nname)){
 		if(q0!=0 || q1!=f->b.nc){
 			f->mod = TRUE;
@@ -727,6 +738,10 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	return;
 
     Rescue2:
+	if(b != nil) {
+		Bterm(b);
+		free(b);
+	}
 	fbuffree(s);
 	fbuffree(r);
 	close(fd);
