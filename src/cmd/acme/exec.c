@@ -662,6 +662,11 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		warning(nil, "can't create file %s: %r\n", name);
 		goto Rescue1;
 	}
+	// Use bio in order to force the writes to be large and
+	// block-aligned (bio's default is 8K). This is not strictly
+	// necessary; it works around some buggy underlying
+	// file systems that mishandle unaligned writes.
+	// https://codereview.appspot.com/89550043/
 	b = emalloc(sizeof *b);
 	Binit(b, fd, OWRITE);
 	r = fbufalloc();
