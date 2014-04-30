@@ -73,7 +73,7 @@ was run.
 The window is created if necessary, but not until text is actually written.
 .TP
 .B consctl
-Is an empty unwritable file present only for compatibility; there is no way
+is an empty unwritable file present only for compatibility; there is no way
 to turn off `echo', for example, under
 .IR acme .
 .TP
@@ -95,8 +95,32 @@ file.
 is an empty file, writable without effect, present only for compatibility with
 .BR rio .
 .TP
+.B log
+reports a log of window operations since the opening of the
+.B log
+file.
+Each line describes a single operation using three fields separated by single spaces:
+the decimal window ID, the operation, and the window name.
+Reading from
+.B log
+blocks until there is an operation to report, so reading the file
+can be used to monitor editor activity and react to changes.
+The reported operations are
+.L new
+(window creation),
+.L zerox
+(window creation via zerox),
+.LR get ,
+.LR put ,
+and
+.LR del
+(window deletion).
+The window name can be the empty string; in particular it is empty in
+.L new
+log entries corresponding to windows created by external programs.
+.TP
 .B new
-A directory analogous to the numbered directories
+is a directory analogous to the numbered directories
 .RI ( q.v. ).
 Accessing any
 file in

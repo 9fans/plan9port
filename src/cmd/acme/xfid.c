@@ -63,6 +63,8 @@ xfidflush(Xfid *x)
 	Column *c;
 	Xfid *wx;
 
+	xfidlogflush(x);
+
 	/* search windows for matching tag */
 	qlock(&row.lk);
 	for(j=0; j<row.ncol; j++){
@@ -186,6 +188,9 @@ xfidopen(Xfid *x)
 	}
 	else{
 		switch(q){
+		case Qlog:
+			xfidlogopen(x);
+			break;
 		case Qeditout:
 			if(!canqlock(&editoutlk)){
 				respond(x, &fc, Einuse);
@@ -299,6 +304,9 @@ xfidread(Xfid *x)
 			break;
 		case Qindex:
 			xfidindexread(x);
+			return;
+		case Qlog:
+			xfidlogread(x);
 			return;
 		default:
 			warning(nil, "unknown qid %d\n", q);

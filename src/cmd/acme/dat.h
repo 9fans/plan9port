@@ -8,6 +8,7 @@ enum
 	Qeditout,
 	Qindex,
 	Qlabel,
+	Qlog,
 	Qnew,
 
 	QWaddr,
@@ -391,6 +392,7 @@ struct Fid
 	Mntdir	*mntdir;
 	int		nrpart;
 	uchar	rpart[UTFmax];
+	vlong	logoff;	// for putlog
 };
 
 
@@ -403,7 +405,6 @@ struct Xfid
 	Fid	*f;
 	uchar	*buf;
 	int	flushed;
-
 };
 
 void		xfidctl(void *);
@@ -418,6 +419,10 @@ void		xfideventwrite(Xfid*, Window*);
 void		xfidindexread(Xfid*);
 void		xfidutfread(Xfid*, Text*, uint, int);
 int		xfidruneread(Xfid*, Text*, uint, uint);
+void		xfidlogopen(Xfid*);
+void		xfidlogread(Xfid*);
+void		xfidlogflush(Xfid*);
+void		xfidlog(Window*, char*);
 
 struct Reffont
 {

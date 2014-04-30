@@ -303,6 +303,7 @@ readfile(Column *c, char *s)
 	winresize(w, w->r, FALSE, TRUE);
 	textscrdraw(&w->body);
 	textsetselect(&w->tag, w->tag.file->b.nc, w->tag.file->b.nc);
+	xfidlog(w, "new");
 }
 
 char *ignotes[] = {
@@ -866,6 +867,7 @@ newwindowthread(void *v)
 		recvp(cnewwindow);
 		w = makenewwindow(nil);
 		winsettag(w);
+		xfidlog(w, "new");
 		sendp(cnewwindow, w);
 	}
 }

@@ -320,6 +320,7 @@ winclose(Window *w)
 	int i;
 
 	if(decref(&w->ref) == 0){
+		xfidlog(w, "del");
 		windirfree(w);
 		textclose(&w->tag);
 		textclose(&w->body);
@@ -644,7 +645,7 @@ Rescue:
 }
 
 int
-winclean(Window *w, int conservative)	/* as it stands, conservative is always TRUE */
+winclean(Window *w, int conservative)
 {
 	if(w->isscratch || w->isdir)	/* don't whine if it's a guide file, error window, etc. */
 		return TRUE;

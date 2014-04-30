@@ -776,6 +776,7 @@ rowload(Row *row, char *file, int initing)
 			q0 = q1 = 0;
 		textshow(&w->body, q0, q1, 1);
 		w->maxlines = min(w->body.fr.nlines, max(w->maxlines, w->body.fr.maxlines));
+		xfidlog(w, "new");
 Nextline:
 		l = rdline(b, &line);
 	}

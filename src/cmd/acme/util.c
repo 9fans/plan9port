@@ -97,6 +97,7 @@ errorwin1(Rune *dir, int ndir, Rune **incl, int nincl)
 		w = coladd(row.col[row.ncol-1], nil, nil, -1);
 		w->filemenu = FALSE;
 		winsetname(w, r, n);
+		xfidlog(w, "new");
 	}
 	free(r);
 	for(i=nincl; --i>=0; ){

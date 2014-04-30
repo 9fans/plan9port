@@ -71,6 +71,7 @@ Dirtab dirtab[]=
 	{ "editout",	QTFILE,	Qeditout,	0200 },
 	{ "index",		QTFILE,	Qindex,	0400 },
 	{ "label",		QTFILE,	Qlabel,	0600 },
+	{ "log",		QTFILE,	Qlog,	0400 },
 	{ "new",		QTDIR,	Qnew,	0500|DMDIR },
 	{ nil, }
 };
