@@ -100,7 +100,6 @@ xfidlogread(Xfid *x)
 
 	if(x->flushed) {
 		qunlock(&eventlog.lk);
-		respond(x, &fc, "read cancelled");
 		return;
 	}
 
@@ -124,8 +123,10 @@ xfidlogflush(Xfid *x)
 	qlock(&eventlog.lk);
 	for(i=0; i<eventlog.nread; i++) {
 		rx = eventlog.read[i];
-		if(rx->fcall.tag == x->fcall.oldtag)
+		if(rx->fcall.tag == x->fcall.oldtag) {
 			rx->flushed = TRUE;
+			rwakeupall(&eventlog.r);
+		}
 	}
 	qunlock(&eventlog.lk);
 }
