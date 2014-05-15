@@ -9,6 +9,8 @@
 #include <ndb.h>
 #include "ndbhf.h"
 
+AUTOLIB(resolv)
+
 static void nstrcpy(char*, char*, int);
 static void mkptrname(char*, char*, int);
 static Ndbtuple *doquery(char*, char*);
