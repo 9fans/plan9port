@@ -1183,7 +1183,7 @@ waitforsubprocs(void)
 		err = w->msg;
 	if(pid >= 0 && (w=procwait(pid)) && w->msg[0])
 		err = w->msg;
-	return nil;
+	return err;
 }
 
 int
