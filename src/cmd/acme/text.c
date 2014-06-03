@@ -725,6 +725,10 @@ texttype(Text *t, Rune r)
 	case Kend:
 		typecommit(t);
 		if(t->iq1 > t->org+t->fr.nchars) {
+			if(t->iq1 > t->file->b.nc) {
+				// should not happen, but does. and it will crash textbacknl.
+				t->iq1 = t->file->b.nc;
+			}
 			q0 = textbacknl(t, t->iq1, 1);
 			textsetorigin(t, q0, TRUE);
 		} else
