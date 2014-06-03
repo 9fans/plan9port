@@ -50,7 +50,7 @@ timerproc(void *v)
 	nt = 0;
 	old = msec();
 	for(;;){
-		sleep(1);	/* will sleep minimum incr */
+		sleep(10);	/* longer sleeps here delay recv on ctimer, but 10ms should not be noticeable */
 		new = msec();
 		dt = new-old;
 		old = new;
