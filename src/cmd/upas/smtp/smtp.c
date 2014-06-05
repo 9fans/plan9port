@@ -229,7 +229,7 @@ threadmain(int argc, char **argv)
 	for(i = 0; i < argc; i++){
 		if((trv = rcptto(argv[i])) != 0){
 			/* remember worst error */
-			if(strcmp(rv, Giveup) != 0)
+			if(rv != nil && strcmp(rv, Giveup) != 0)
 				rv = trv;
 			errs[rcvrs] = strdup(s_to_c(reply));
 			removenewline(errs[rcvrs]);
@@ -241,7 +241,7 @@ threadmain(int argc, char **argv)
 	}
 
 	/* if no ok rcvrs or worst error is retry, give up */
-	if(ok == 0 || strcmp(rv, Retry) == 0)
+	if(ok == 0 || (rv != nil && strcmp(rv, Retry) == 0))
 		goto error;
 
 	if(ping){
