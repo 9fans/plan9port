@@ -297,7 +297,7 @@ getwidth(void)
 		return;
 	}
 
-	if((p = getenv("TERM")) != nil && strcmp(p, "9term") == 0)
+	if((p = getenv("termprog")) != nil && strcmp(p, "9term") == 0)
 	if((p = getenv("font")) != nil)
 		font = openfont(nil, p);
 
