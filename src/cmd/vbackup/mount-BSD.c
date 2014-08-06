@@ -63,6 +63,10 @@ mountnfs(int proto, struct sockaddr_in *sa,
 	na.acdirmax = 600;
 #endif
 	mflag = MNT_RDONLY|MNT_NOSUID|MNT_NOATIME|MNT_NODEV;
+#ifdef __NetBSD__
+	if(mount("nfs", mtpt, mflag, &na, sizeof(na)) < 0)
+#else
 	if(mount("nfs", mtpt, mflag, &na) < 0)
+#endif
 		sysfatal("mount: %r");
 }
