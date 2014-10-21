@@ -67,6 +67,8 @@ useclang()
 		-Wno-unused-value \
 		-Wno-array-bounds \
 		-Wno-gnu-designator \
+		-Wno-array-bounds \
+		-Wno-unneeded-internal-declaration \
 		-fsigned-char \
 		-fno-caret-diagnostics \
 	"

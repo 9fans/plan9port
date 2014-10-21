@@ -34,11 +34,11 @@ struct Disk {
 
 /* keep in sync with Part* enum in dat.h */
 static char *partname[] = {
-	[PartError]	"error",
-	[PartSuper]	"super",
-	[PartLabel]	"label",
-	[PartData]	"data",
-	[PartVenti]	"venti",
+	[PartError]	= "error",
+	[PartSuper]	= "super",
+	[PartLabel]	= "label",
+	[PartData]	= "data",
+	[PartVenti]	= "venti",
 };
 
 Disk *

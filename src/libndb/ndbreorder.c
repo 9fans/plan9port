@@ -38,7 +38,7 @@ ndbreorder(Ndbtuple *t, Ndbtuple *x)
 	if(x != last->line){
 
 		/* find entry before x */
-		for(prev = last; prev->line != x; prev = prev->line);
+		for(prev = last; prev->line != x; prev = prev->line)
 			;
 
 		/* detach line */
