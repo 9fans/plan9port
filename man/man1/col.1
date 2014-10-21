@@ -1,0 +1,57 @@
+.TH COL 1
+.SH NAME
+col \- column alignment
+.SH SYNOPSIS
+.B col
+[
+.B -bfx 
+]
+.SH DESCRIPTION
+.I Col
+overlays lines to expunge reverse line feeds
+(ESC-7)
+and half line feeds (ESC-9 and ESC-8)
+as produced by
+.I nroff
+for .2C in
+.IR ms (6)
+or
+.IR man (6)
+and for 
+.IR tbl (1).
+.I Col
+is a pure filter.
+It normally emits only full line feeds;
+option 
+.B -f
+(fine) allows half line feeds too.
+Option 
+.B -b
+removes backspaces, printing just one of each pile of overstruck
+characters.
+.I Col
+normally converts white space to tabs;
+option
+.B -x
+overrides this feature.
+Other escaped characters and non-printing characters are ignored.
+.SH EXAMPLES
+.TP
+.L
+tbl file | nroff -ms | col | p
+Format some tables for printing on typewriters;
+use
+.I col
+to remove reverse line feeds, and 
+paginate the output.
+.SH SOURCE
+.B \*9/src/cmd/col.c
+.SH SEE ALSO
+.IR pr (1)
+.SH BUGS
+.I Col
+can't back up more than 128 lines or
+handle more than 800 characters per line,
+and understands
+.L VT
+(013) as reverse line feed.
