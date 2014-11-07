@@ -170,9 +170,9 @@ if $dobuild; then
 		echo " "
 		echo "* Warning: not all binaries built successfully."
 	fi
-	if [ -f bin/quote1 ]; then
-		cp bin/quote1 'bin/"'
-		cp bin/quote2 'bin/""'
+	if [ -f $PLAN9/bin/quote1 ]; then
+		cp $PLAN9/bin/quote1 $PLAN9/bin/'"'
+		cp $PLAN9/bin/quote2 $PLAN9/bin/'""'
 	fi
 	echo "* Cleaning up..."
 	mk clean
