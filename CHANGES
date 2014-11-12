@@ -3,9 +3,8 @@
 # the problem.
 
 # For entries more recent than January 30, 2008,
-# see the Mercurial repository history at 
-# http://hg.pdos.csail.mit.edu/hg/plan9/shortlog
-# (or if you have checked out the Mercurial tree, run hg view).
+# see the Git repository history at 
+# https://github.com/9fans/plan9port/.
 
 January 30, 2008
 	acme: fix regexp match choice bug
