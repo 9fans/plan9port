@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dad0c711_614a1675",
+        "filename": "INSTALL",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2014-11-13T03:42:36Z",
+      "side": 1,
+      "message": "please delete",
+      "revId": "9f834bf1d7f8945cf134af81dadae12d82e23f96",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
