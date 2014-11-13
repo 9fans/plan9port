@@ -34,4 +34,5 @@ for details on using cvs.
 
 * Contact
 
+plan9port-dev@googlegroups.com
 Russ Cox <rsc@swtch.com>

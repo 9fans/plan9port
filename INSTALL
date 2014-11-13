@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# XXX
+
 dobuild=true
 doinstall=true
 
