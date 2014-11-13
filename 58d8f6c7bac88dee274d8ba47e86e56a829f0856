@@ -1,0 +1,6 @@
+Code-Review+2: Andrew Gerrand <adg@golang.org>
+Submitted-by: Russ Cox <rsc@google.com>
+Submitted-at: Thu, 13 Nov 2014 00:28:17 +0000
+Reviewed-on: https://plan9port-review.googlesource.com/1001
+Project: plan9
+Branch: refs/heads/master
