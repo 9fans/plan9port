@@ -1,2 +1,22 @@
-#!/bin/sh
-$PLAN9/bin/codereview.py -r rsc --cc codebot --send_mail "$@"
+#!/usr/local/plan9/bin/rc
+
+git=git
+
+fn gitshow {
+	echo '%' git $*
+	git $*
+}
+
+if(! ~ $#* 0 && ~ $1 -v) {
+	git=gitshow
+}
+	
+if(~ $#* 0) {
+	echo 'usage: codereview <command> <args>' >[1=2]
+	exit usage
+}
+
+switch($1) {
+case list:
+	$git branch --list
+case 

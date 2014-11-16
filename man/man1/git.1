@@ -1,42 +1,34 @@
 .TH HG 1
 .SH NAME 
-hg, cvs \- introduction to using plan9port Mercurial repository
+git, hg, cvs \- introduction to using plan9port Git repository
 .SH SYNOPSIS
-.B hg
+.B git
 .B clone
 .B http://code.swtch.com/plan9port
 .B plan9
 .PP
-.B hg
+.B git
 .B pull
-.B -u
 .PP
-.B hg
+.B git
 .B diff
-[
-.B -r
 .I revision
-]
 [
 .I path ...
 ]
 .PP
-.B hg 
-.B serve
-.PP
-.B hg 
-.B view
+.B gitk 
 .PP
 .B web
 .B http://code.swtch.com/plan9port
 .SH DESCRIPTION
 The master source tree for Plan 9 from User Space is maintained
-using the source control system Mercurial
+using the source control system Git
 as a substitute for Plan 9's
 \fIreplica\fR(8) and dump file system.
 .PP
 The first argument to
-.I hg
+.I git
 is a command, which determines the form of the rest of the command line.
 .PP
 The
@@ -45,67 +37,53 @@ command downloads a copy of the tree into the directory
 .BR plan9 ,
 which it will create.
 After
-.B hg
+.B git
 .BR clone ,
 the other commands listed 
 should be run within the
 .B plan9
 directory tree.
 .PP
-Unlike CVS, Mercurial downloads the entire revision history
+Git downloads the entire revision history
 of Plan 9 from User Space 
 in addition to the current tree.
 .PP
-.I Hg
+.I Git
 .I pull
 incorporates changes from the master repository
-into the local revision history.
-The 
-.B -u
-flag applies these changes to the current file tree.
+into the local revision history and applies them to the
+current file tree.
 .PP
-.I Hg
+.I Git
 .I diff
 runs Unix's
 .IR diff (1)
 to compare the files in the local tree with the corresponding
 files in the revision history.
-By default it compares against the version that was most recently
-incorporated into the local tree.
-The
-.B -r
-flag specifies an alternate version to compare against.
 The special revision
-.B tip
-refers to the most recent version on the server.
+.B HEAD
+refers to the most recent version in the version history.
 .PP
-.I Hg
-.I serve
-starts an HTTP server serving information about
-the local repository at the address
-.BR http://localhost:8000/ .
-.PP
-.I Hg
-.I view
+.I Gitk
 starts an interactive history viewer.
 .PP
-The Mercurial tree can be inspected on the web at
+The Git tree can be inspected on the web at
 .HR http://code.swtch.com/plan9port/ "" .
 .SH FILES
 .TP
-.B \*9/.hg
+.B \*9/.git
 directory containing Mercurial local repository
 .TP
-.B .hgignore
-list of files and wildcards to exclude from Mercurial operations
+.B .gitignore
+list of files and wildcards to exclude from Git operations
 .SH SEE ALSO
 .IR codereview (1)
 .PP
 Unix's
-\fIhg\fR(1),
-.HR http://www.selenic.com/mercurial/wiki/
+\fIgit\fR(1),
+.HR http://git-scm.com/doc
 .PP
 .HR http://code.swtch.com/plan9port/
 .SH BUGS
-Plan 9 from User Space is no longer accessible using CVS;
-you must use Mercurial.
+Plan 9 from User Space is no longer accessible using CVS or Mercurial;
+you must use Git.
