@@ -98,7 +98,6 @@ threadmain(int argc, char **argv)
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 	[NSApp setDelegate:[appdelegate new]];
-	[NSApp activateIgnoringOtherApps:YES];
 	[NSApp run];
 }
 
@@ -345,6 +344,8 @@ makewin(char *s)
 		initWithContentRect:r
 		styleMask:Winstyle
 		backing:NSBackingStoreBuffered defer:NO];
+	[w setTitle:@"devdraw"];
+
 	if(!set)
 		[w center];
 #if OSX_VERSION >= 100700
@@ -366,6 +367,8 @@ makewin(char *s)
 	win.isofs = 0;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
+
+	topwin();
 }
 
 static Memimage*
