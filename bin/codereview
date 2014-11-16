@@ -1,2 +1,99 @@
-#!/bin/sh
-$PLAN9/bin/codereview.py -r rsc --cc codebot --send_mail "$@"
+#!/usr/local/plan9/bin/rc
+
+git=git
+show=false
+fn gitshow {
+	echo '%' git $*
+	git $*
+}
+if(! ~ $#* 0 && ~ $1 -v) {
+	git=gitshow
+	show=true
+	shift
+}
+	
+if(~ $#* 0) {
+	echo 'usage: codereview <command> <args>' >[1=2]
+	exit usage
+}
+
+if(~ $#PLAN9 0) {
+	PLAN9=/usr/local/plan9
+}
+if(! test -d $PLAN9/lib/git) {
+	echo 'codereview: cannot find $PLAN9/lib/git' >[1=2]
+	exit git
+}
+
+if(! test -e $PLAN9/.git/hooks/commit-msg) {
+	if($show) {
+		echo '% ln -s ../../lib/git/commit-msg.hook $PLAN9/.git/hooks/commit-msg'
+	}
+	ln -s ../../lib/git/commit-msg.hook $PLAN9/.git/hooks/commit-msg
+}
+
+switch($1) {
+case help
+	9 man 1 codereview
+
+case pending
+	$git branch --list
+
+case create
+	shift
+	if(! ~ $#* 1) {
+		echo 'usage: codereview create branchname' >[1=2]
+		exit usage
+	}
+	branch=$1
+	if(! git branch -l | 9 grep '\* master') {
+		echo 'codereview: create not on master branch' >[1=2]
+		exit master
+	}
+	if($show) {
+		echo '% git branch '$branch' && git commit || git branch -d '$branch >[1=2]
+	}
+	git branch $branch && git commit $* || git branch -d $branch
+
+case commit
+	shift
+	if(git branch -l | 9 grep '\* master') {
+		echo 'codereview: commit on master branch' >[1=2]
+		exit master
+	}
+	if(~ `{git merge-base HEAD HEAD} `{git merge-base HEAD master}) {
+		# first commit on branch, somehow.
+		$git commit $*
+		exit $status
+	}
+	$git commit --amend $*
+	exit $status
+
+case upload
+	if(git branch -l | 9 grep '\* master') {
+		echo 'codereview: upload on master branch' >[1=2]
+		exit master
+	}
+	if(~ `{git merge-base HEAD HEAD} `{git merge-base HEAD master}) {
+		# no commit on branch
+		echo 'codereview: no commits yet on this feature branch' >[1=2]
+		exit commit
+	}
+	if(! 9 grep 'machine plan9port-review.googlesource.com' $HOME/.netrc >/dev/null >[2=1]) {
+		echo 'codereview: warning: cannot find plan9port-review in netrc' >[1=2]
+	}
+	$git push https://plan9port-review.googlesource.com/plan9 HEAD:refs/for/master >[2=1] | 9 sed 's/.*//'
+
+case sync
+	shift
+	if(! ~ $#* 0) {
+		echo 'usage: codereview sync' >[1=2]
+		exit usage
+	}
+	$git fetch -q
+	$git rebase -q origin/master
+
+case *
+	echo 'codereview: unrecognized command '$1 >[1=2]
+	exit usage
+}
