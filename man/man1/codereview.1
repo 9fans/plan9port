@@ -2,70 +2,154 @@
 .SH NAME
 codereview \- review of submitted changes (experimental)
 .SH SYNOPSIS
-.B hg
+.B git
 .B diff
+.B HEAD
 .I path ...
 .PP
 .B codereview
-.I path ...
+[
+.B -v
+]
+.B create
+.I name
+[
+.B -a
+]
 .PP
 .B codereview
-.B -i
-.I issue
-.I path ...
+[
+.B -v
+]
+.B commit
+[
+.B -a
+]
+.PP
+.B codereview
+[
+.B -v
+]
+.B upload
+.PP
+.B codereview
+[
+.B -v
+]
+.B pending
+.PP
+.B codereview
+[
+.B -v
+]
+.B sync
 .SH DESCRIPTION
 .I Codereview
-uploads suggested changes to the code review server
-.I codereview.appspot.com
-and sends email to reviewers.
+manages the review and submission of changes to the Plan 9 from User Space project.
 It must be used from within a Plan 9 from User Space tree
-checked out via Mercurial
+checked out via Git
 (see
-.IR hg (1)).
+.IR git (1)).
 .PP
-A developer makes changes to a local copy of the tree
-and reviews them locally using 
-.I hg
-.I diff .
-When the changes are ready for external review, the 
-developer creates a review issue by running
+A developer makes changes to a local copy of the tree,
+reviews them by using
+.I git
+.I diff
+.IR HEAD 
+and then commits them to a ``feature branch''
+using
 .I codereview
-naming the files to be reviewed.
-.I Codereview
-prompts for a Google Accounts user name
-and password to log in to 
-.I http://codereview.appspot.com/
-and create a new review issue.
-Once created, it prints a line like
-.EX
-Issue created. URL: http://codereview.appspot.com/96161
-.EE
-among other output.
-.PP
-The reviewer will likely respond with comments
-and suggestions for improving the submission.
-After making the changes, reupload by repeating
-the 
+.IR create .
+.I Git
+requires that changes be added to a ``staging area'' before the initial commit,
+using commands such as
+.I git
+.I add
+and
+.I git
+.IR rm .
+The 
+.B -a
+option causes
 .I codereview
-command with the
-.B -i
-option to specify the issue number
-(in the above example, 96161).
+.I create
+to add all local modifications to the staging area as part of the initial commit.
 .PP
-Once the reviewer accepts the changes, they will be applied
-automatically using the patch uploaded to the review server.
-To update the local tree, run 
-.I hg
-.I pull
-with the
-.B -u
-option.
-.SH SEE ALSO
-.HR http://codereview.appspot.com/
-.SH BUGS
+Once a feature branch is created, files can still be edited, but they must then be
+incorporated into the change by using
+.I codereview
+.IR commit .
+.PP
+If other changes have been committed since the feature branch was created,
+.I codereview
+.I sync
+will update it to be based on the most recent copy of the repository.
+.PP
+When the code is ready for review,
+.I codereview
+.I upload
+uploads the change to 
+.HR https://plan9port-review.googlesource.com/
+for review.
+In order to upload, 
+.I git
+must have access to a 
+.I $HOME/.netrc
+that contains a password obtained from
+.HR https://plan9port-review.googlesource.com/#/settings/http-password .
+.PP
+The most likely initial result of a code review is suggestions for
+improving the code.
+After making those changes, repeat the
+.I codereview
+.I commit
+and 
+.I codereview
+.I upload
+steps.
+.PP
+Once the code is ready, it will be submitted by the reviewer using the web interface.
+At that point,
+.I codereview
+.I sync
+.PP
 The
 .I codereview
-command should be replaced by a proper Mercurial extension.
+.I pending
+command lists the active feature branches.
 .PP
-Making changes to the repository via patches
-discards the executable bit on new shell scripts.
+All the
+.I codereview
+commands take a leading
+.B -v
+option, which causes them to print
+.I git
+commands being executed.
+This can be useful for debugging
+.IR codereview .
+.PP
+The
+.I codereview
+command depends on a 
+.I git
+``commit hook''
+script being in place to add
+.L Change-Id
+lines to the commit messages.
+.I Codereview
+installs the hook at startup, if necessary,
+by adding a symbolic link from
+.B $PLAN9/.git/hooks/commit-msg
+to
+.BR $PLAN9/lib/git/commit-msg.hook .
+.SH SEE ALSO
+.IR git (1),
+.HR http://plan9port-review.googlesource.com/
+.SH BUGS
+.I Git
+is too complicated to use.
+The 
+.I codereview
+script helps, but a working understanding of
+.I git
+is still required.
