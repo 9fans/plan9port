@@ -5,6 +5,7 @@ bin/9.rc
 bin/9fs
 bin/Getdir
 bin/adict
+bin/codereview
 bin/doctype
 bin/ipso
 bin/lookman
