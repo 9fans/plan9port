@@ -46,23 +46,24 @@ case pending
 
 case create
 	shift
-	if(! ~ $#* 1) {
+	if(~ $#* 0) {
 		echo 'usage: codereview create branchname' >[1=2]
 		exit usage
 	}
 	branch=$1
-	if(! git branch -l | 9 grep '\* master$') {
+	shift
+	if(! git branch -l | 9 grep '\* master$' >/dev/null) {
 		echo 'codereview: create not on master branch; use codereview commit' >[1=2]
 		exit master
 	}
 	if($show) {
 		echo '% git branch '$branch' && git commit || git branch -d '$branch >[1=2]
 	}
-	git branch $branch && git commit $* || git branch -d $branch
+	git branch $branch && git checkout $branch && git commit $* || git branch -d $branch
 
 case commit
 	shift
-	if(git branch -l | 9 grep '\* master$') {
+	if(git branch -l | 9 grep '\* master$' >/dev/null) {
 		echo 'codereview: commit on master branch; use codereview create <branchname>' >[1=2]
 		exit master
 	}
@@ -75,7 +76,7 @@ case commit
 	exit $status
 
 case upload
-	if(git branch -l | 9 grep '\* master$') {
+	if(git branch -l | 9 grep '\* master$' >/dev/null) {
 		echo 'codereview: upload on master branch' >[1=2]
 		exit master
 	}
@@ -110,7 +111,7 @@ case sync
 	}
 
 	# Exactly this commit in master. Fast-forward from master and delete this branch.
-	if(git branch -r --contains HEAD | 9 grep '^ *origin/master$') {
+	if(git branch -r --contains HEAD | 9 grep '^ *origin/master$' >/dev/null) {
 		$git checkout -q master
 		$git merge -q --ff-only origin/master
 		$git branch -q -d $branch
@@ -123,7 +124,7 @@ case sync
 		exit changeid
 	}
 
-	if(git log --grep 'Change-Id: '$changeid origin/master | 9 grep .) {
+	if(git log --grep 'Change-Id: '$changeid origin/master | 9 grep . >/dev/null) {
 		# Something like this got submitted.
 		$git checkout -q master
 		$git merge -q --ff-only origin/master
@@ -132,7 +133,7 @@ case sync
 		exit 1
 	}
 	
-	if(git branch -r --contains master | 9 grep '^ *origin/master$')
+	if(git branch -r --contains master | 9 grep '^ *origin/master$' >/dev/null)
 		$git branch -f master origin/master
 	$git rebase -q origin/master
 
