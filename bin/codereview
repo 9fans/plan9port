@@ -59,7 +59,7 @@ case create
 	if($show) {
 		echo '% git branch '$branch' && git commit || git branch -d '$branch >[1=2]
 	}
-	git branch $branch && git checkout $branch && git commit $* || git branch -d $branch
+	git branch $branch && git checkout $branch && git commit -a $* || git branch -d $branch
 
 case commit
 	shift
@@ -72,7 +72,7 @@ case commit
 		$git commit $*
 		exit $status
 	}
-	$git commit --amend $*
+	$git commit --amend -a $*
 	exit $status
 
 case upload
@@ -87,6 +87,10 @@ case upload
 	}
 	if(! 9 grep 'machine plan9port-review.googlesource.com' $HOME/.netrc >/dev/null >[2=1]) {
 		echo 'codereview: warning: cannot find plan9port-review in netrc' >[1=2]
+	}
+	if(! git status | 9 grep 'nothing to commit, working directory clean' >/dev/null) {
+		echo 'codereview: warning: local changes not yet committed' >[1=2]
+		git status
 	}
 	$git push https://plan9port-review.googlesource.com/plan9 HEAD:refs/for/master >[2=1] | 9 sed 's/.*//'
 
