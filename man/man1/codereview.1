@@ -13,18 +13,12 @@ codereview \- review of submitted changes (experimental)
 ]
 .B create
 .I name
-[
-.B -a
-]
 .PP
 .B codereview
 [
 .B -v
 ]
 .B commit
-[
-.B -a
-]
 .PP
 .B codereview
 [
@@ -60,6 +54,10 @@ and then commits them to a ``feature branch''
 using
 .I codereview
 .IR create .
+Once a feature branch is created, files can still be edited, but they must then be
+incorporated into the change by using
+.I codereview
+.IR commit .
 .I Git
 requires that changes be added to a ``staging area'' before the initial commit,
 using commands such as
@@ -69,16 +67,18 @@ and
 .I git
 .IR rm .
 The 
-.B -a
-option causes
 .I codereview
 .I create
-to add all local modifications to the staging area as part of the initial commit.
-.PP
-Once a feature branch is created, files can still be edited, but they must then be
-incorporated into the change by using
+and
 .I codereview
-.IR commit .
+.I commit
+commands
+automatically move all local modifications to the staging area
+as part of the commit,
+using
+.I git
+.I commit
+.IR -a .
 .PP
 If other changes have been committed since the feature branch was created,
 .I codereview
