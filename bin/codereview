@@ -42,7 +42,7 @@ case pending
 		echo 'usage: codereview pending' >[1=2]
 		exit usage
 	}
-	$git branch --list
+	$git branch -v
 
 case create
 	shift
