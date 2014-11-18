@@ -46,7 +46,7 @@ rregexec1(Reprog *progp,	/* program to run */
 			switch(j->starttype) {
 			case RUNE:
 				p = runestrchr(s, j->startchar);
-				if(p == 0 || p == j->reol)
+				if(p == 0 || s == j->reol)
 					return match;
 				s = p;
 				break;
