@@ -34,8 +34,11 @@
  * 0100000 in the kernel) at each file open. FUSE is all too
  * happy to pass the flag onto us, where we'd have no idea what
  * to do with it if we trusted glibc.
+ *
+ * On ARM however, the O_LARGEFILE is set correctly.
  */
-#if defined(__linux__)
+
+#if defined(__linux__) && !defined(__arm__)
 #  undef O_LARGEFILE
 #  define O_LARGEFILE 0100000
 #endif
