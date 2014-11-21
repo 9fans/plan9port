@@ -5,6 +5,7 @@
  */
 
 #define _BSD_SOURCE 1	/* popen */
+#define _DEFAULT_SOURCE 1	/* _BSD_SOURCE in glibc >= 2.19 */
 #include "tdef.h"
 #include "fns.h"
 #include "ext.h"

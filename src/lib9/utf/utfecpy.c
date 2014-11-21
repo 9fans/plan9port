@@ -12,6 +12,7 @@
  * OF THIS SOFTWARE OR ITS FITNESS FOR ANY PARTICULAR PURPOSE.
  */
 #define _BSD_SOURCE 1	/* memccpy */
+#define _DEFAULT_SOURCE 1	/* _BSD_SOURCE in glibc >= 2.19 */
 #include <stdarg.h>
 #include <string.h>
 #include "plan9.h"
