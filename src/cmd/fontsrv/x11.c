@@ -182,7 +182,7 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 
 		memfillcolor(mc, DBlack);
 
-		e = FT_Load_Char(face, i, FT_LOAD_RENDER|(antialias ? 0:FT_LOAD_TARGET_MONO));
+		e = FT_Load_Char(face, i, FT_LOAD_RENDER|FT_LOAD_NO_HINTING|(antialias ? 0:FT_LOAD_TARGET_MONO));
 		if(e){
 			fprint(2, "FT_Load_Char failed for %d\n", i);
 			//mempoly(mc, rect_points, 4, Endsquare, Endsquare, 0, memopaque, ZP, S);
