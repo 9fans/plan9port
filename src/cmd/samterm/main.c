@@ -40,6 +40,7 @@ void
 threadmain(int argc, char *argv[])
 {
 	int i, got, scr, w;
+	char *fontname = nil;
 	Text *t;
 	Rectangle r;
 	Flayer *nwhich;
@@ -72,6 +73,10 @@ threadmain(int argc, char *argv[])
 	nscralloc = 100;
 	r = screen->r;
 	r.max.y = r.min.y+Dy(r)/5;
+	fontname = getenv("font");
+	if(fontname != nil)
+		font = openfont(display, fontname);
+
 	if(protodebug) print("flstart\n");
 	flstart(screen->clipr);
 	rinit(&cmd.rasp);
