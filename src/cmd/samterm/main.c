@@ -142,11 +142,13 @@ threadmain(int argc, char *argv[])
 					scroll(which, 2);
 				else
 					menu2hit();
-			}else if((mousep->buttons&4)){
+			}else if(mousep->buttons&4){
 				if(scr)
 					scroll(which, 3);
 				else
 					menu3hit();
+			} else if(mousep->buttons&(8|16)) {
+				scroll(which, (mousep->buttons&8) ? 4 : 5);
 			}
 			mouseunblock();
 		}
