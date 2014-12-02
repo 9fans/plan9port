@@ -62,6 +62,9 @@ frdrawsel0(Frame *f, Point pt, ulong p0, ulong p1, Image *back, Image *text)
 	Point qt;
 	uint p;
 	char *ptr;
+	
+	if(p0 > p1)
+		sysfatal("libframe: frdrawsel0 p0=%lud > p1=%lud", p0, p1);
 
 	p = 0;
 	b = f->box;
