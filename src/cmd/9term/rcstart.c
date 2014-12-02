@@ -26,6 +26,7 @@ sys(char *buf, int devnull)
 		_exit(2);
 	default:
 		waitpid();
+		noteenable("sys: child");
 	}
 }
 
