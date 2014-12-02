@@ -1,98 +1,219 @@
 
-     INSTALL(1)                                             INSTALL(1)
+     INTRO(1)                                                 INTRO(1)
 
      NAME
-          install - notes about Plan 9 from User Space installation
-
-     SYNOPSIS
-          cd /usr/local/plan9; ./INSTALL [ -b | -c ]
+          intro - introduction to Plan 9 from User Space
 
      DESCRIPTION
-          To obtain the Plan 9 tree, use CVS (see cvs(1)) or download
-          a tar file from http://swtch.com/plan9port.
+          Plan 9 is a distributed computing environment built at Bell
+          Labs starting in the late 1980s.  The system can be obtained
+          from Bell Labs at http://plan9.bell-labs.com/plan9 and runs
+          on PCs and a variety of other platforms.  Plan 9 became a
+          convenient platform for experimenting with new ideas, appli-
+          cations, and services.
 
-          The tree can be unpacked anywhere, but the usual place is
-          /usr/local/plan9.  In the root of the tree, run ./INSTALL.
-          This script builds the Plan 9 build program mk(1) if neces-
-          sary, cleans all previously built object files and libraries
-          out of the tree, rebuilds and installs everything, and then
-          cleans up.
+          Plan 9 from User Space provides many of the ideas, applica-
+          tions, and services from Plan 9 on Unix-like systems.  It
+          runs on FreeBSD (x86, x86-64), Linux (x86, x86-64, PowerPC
+          and ARM), Mac OS X (x86, x86-64, and PowerPC), NetBSD (x86
+          and PowerPC), OpenBSD (x86 and PowerPC), Dragonfly BSD
+          (x86-64), and SunOS (x86-64 and Sparc).
 
-          There are a few files in tree which have the root hard-coded
-          in them.  After the build, INSTALL edits these files to
-          replace the string /usr/local/plan9 with the name of the
-          root of the current tree.
+        Commands
+          Plan 9 from User Space expects its own directory tree, con-
+          ventionally /usr/local/plan9.  When programs need to access
+          files in the tree, they expect the $PLAN9 environment vari-
+          able to contain the name of the root of the tree.  See
+          install(1) for details about installation.
 
-          Finally, INSTALL builds an HTML version of the manual and
-          installs it in /usr/local/plan9/man.
+          Many of the familiar Unix commands, for example cat(1),
+          ls(1), and wc(1), are present, but in their Plan 9 forms:
+          cat takes no options, ls does not columnate its output when
+          printing to a terminal, and wc counts UTF characters.  In
+          some cases, the differences are quite noticeable: grep(1)
+          and sed(1) expect Plan 9 regular expressions (see
+          regexp(7)), which are closest to what Unix calls extended
+          regular expressions.  Because of these differences, it is
+          not recommended to put $PLAN9/bin before the usual system
+          bin directories in your search path.  Instead, put it at the
+          end of your path and use the 9(1) script when you want to
+          invoke the Plan 9 version of a traditional Unix command.
 
-          The installation can be thought of as two steps: build all
-          the binaries, and then edit files as necessary to fix the
-          references to the installation root.  If necessary, these
-          can be run separately.  Given the -b flag, INSTALL performs
-          only the first step.  Given the -c flag, INSTALL performs
-          only the second step.  The first step can be done with the
-          tree in a temporary work directory, but the second step must
-          be done once the tree is in its final location.  These flags
-          are only necessary when trying to conform to the expecta-
-          tions of certain package management systems.
+          Occasionally the Plan 9 programs have been changed to adapt
+          to Unix.  Mk(1) now allows mkfiles to choose their own
+          shell, and rc(1) has a ulimit builtin and manages $PATH.
 
-          At the end of the installation, INSTALL prints suggested
-          settings for the environment variables $PLAN9 and $PATH.
+          Many of the graphical programs from Plan 9 are present,
+          including sam(1) and acme(1). An X11 window manager rio(1)
+          mimics Plan 9's window system, with command windows imple-
+          mented by the external program 9term(1). Following the style
+          of X Windows, these programs run in new windows rather than
+          the one in which they are invoked.  They all take a -W
+          option to specify the size and placement of the new window.
+          The argument is one of widthxheight, widthxheight@xmin,xmax,
 
-          Plan 9 from User Space uses different threading implementa-
-          tions on Linux 2.6 and later kernels than on 2.4 and ear-
-          lier; and on FreeBSD 5 and later kernels than on FreeBSD 4
-          and earlier.  Running binaries from one class on another
-          will not work.
+     Page 1                       Plan 9             (printed 12/1/14)
 
-          Some Linux 2.6 systems (e.g., Gentoo) do not use the new
-          NPTL pthread library even though the kernel supports them.
-          On these systems, plan9port must fall back on the threading
-          code intended for Linux 2.4.  To accomplish this, INSTALL
-          checks whether the running system uses NPTL and sets
-          SYSVERSION in /usr/local/plan9/config accordingly.  The file
-          /usr/local/plan9/LOCAL.config is appended to config after
-          this auto-detection and can be used to override the choices.
-          If LOCAL.config contains a line WSYSTYPE=nowsys then the
-          system is built without using X11.
+     INTRO(1)                                                 INTRO(1)
 
-          On most Linux systems, the X11 header packages need to be
-          installed to build using X11.  On Debian. the required pack-
-          ages are libx11-dev, libxext-dev, and libxt-dev.  On Ubuntu,
-          it suffices to install xorg-dev.
+          or xmin,ymin,xmax,ymax.
 
-          INSTALL can safely be repeated to rebuild the system from
-          scratch.
+          The plumber(4) helps to connect the various Plan 9 programs
+          together, and fittings like web(1) connect it to external
+          programs such as web browsers; one can click on a URL in
+          acme and see the page load in Firefox.
 
-          Once the system is built for the first time, it can be main-
-          tained and rebuilt using mk(1). To rebuild individual com-
-          mands or libraries, run mk install and mk clean in the
-          appropriate source directory (see src(1)).
+        User-level file servers
+          In Plan 9, user-level file servers present file trees via
+          the Plan 9 file protocol, 9P.  Processes can mount arbitrary
+          file servers and customize their own name spaces.  These
+          facilities are used to connect programs.  Clients interact
+          with file servers by reading and writing files.
 
-     FILES
-          /usr/local/plan9/lib/moveplan9.files
-               the list of files that need to have /usr/local/plan9
-               edited out of them
+          This cannot be done directly on Unix.  Instead the servers
+          listen for 9P connections on Unix domain sockets; clients
+          connect to these sockets and speak 9P directly using the
+          9pclient(3) library.  Intro(4) tells more of the story.  The
+          effect is not as clean as on Plan 9, but it gets the job
+          done and still provides a uniform and easy-to-understand
+          mechanism.  The 9p(1) client can be used in shell scripts or
+          by hand to carry out simple interactions with servers.
+          Netfiles(1) is an experimental client for acme.
 
-          /usr/local/plan9/lib/moveplan9.sh
-               the script that edits the files
+        External databases
+          Some programs rely on large databases that would be cumber-
+          some to include in every release.  Scripts are provided that
+          download these databases separately.  These databases can be
+          downloaded separately. See $PLAN9/dict/README and
+          $PLAN9/sky/README.
 
-          /usr/local/plan9/src/mkmk.sh
-               the shell script used to build mk(1)
+        Programming
+          The shell scripts 9c and 9l (see 9c(1)) provide a simple
+          interface to the underlying system compiler and linker, sim-
+          ilar to the 2c and 2l families on Plan 9.  9c compiles
+          source files, and 9l links object files into executables.
+          When using Plan 9 libraries, 9l infers the correct set of
+          libraries from the object files, so that no -l options are
+          needed.
 
-          /usr/local/plan9/dist/manweb
-               the shell script that builds the HTML manual
+          The only way to write multithreaded programs is to use the
+          thread(3) library.  Rfork(3) exists but is not as capable as
+          on Plan 9.  There are many unfortunate by necessary prepro-
+          cessor diversions to make Plan 9 and Unix libraries coexist.
+          See intro(3) for details.
 
-          /usr/local/plan9/man/index.html
-               the top-level page in the HTML version of the manual
+          The debuggers acid(1) and db(1) and the debugging library
+          mach(3) are works in progress.  They are platform-
+          independent, so that x86 Linux core dumps can be inspected
+          on PowerPC Mac OS X machines, but they are also fairly
+          incomplete.  The x86 target is the most mature; initial Pow-
+          erPC support exists; and other targets are unimplemented.
 
-          /usr/local/plan9/install.log
-               logged output from the last run of INSTALL
+     Page 2                       Plan 9             (printed 12/1/14)
 
-          /usr/local/plan9/install.sum
-               a summary of install.log
+     INTRO(1)                                                 INTRO(1)
+
+          The debuggers can only inspect, not manipulate, target pro-
+          cesses.  Support for operating system threads and for 64-bit
+          architectures needs to be rethought.  On x86 Linux systems,
+          acid and db can be relied upon to produce reasonable stack
+          traces (often in cases when GNU gdb cannot) and dump data
+          structures, but that it is the extent to which they have
+          been developed and exercised.
+
+        Porting programs
+          The vast majority of the familiar Plan 9 programs have been
+          ported, including the Unicode-aware troff(1).
+
+          Of the more recent additions to Plan 9, factotum(4),
+          secstore(1), and secstored(1), vac(1), vacfs(4), and
+          venti(8) are all ported.
+
+          A backup system providing a dump file system built atop
+          Venti is in progress; see vbackup(8).
+
+        Porting to new systems
+          Porting the tree to new operating systems or architectures
+          should be straightforward, as system-specific code has been
+          kept to a minimum. The largest pieces of system-specific
+          code are <u.h>, which must include the right system files
+          and set up the right integer type definitions, and
+          libthread, which must implement spin locks, operating system
+          thread creation, and context switching routines.  Portable
+          implementations of these using <pthread.h> and <ucontext.h>
+          already exist.  If your system supports them, you may not
+          need to write any system specific code at all.
+
+          There are other smaller system dependencies, such as the
+          terminal handling code in 9term(1) and the implementation of
+          getcallerpc(3), but these are usually simple and are not on
+          the critical path for getting the system up and running.
 
      SEE ALSO
-          intro(1), cvs(1)
+          The rest of this manual describes Plan 9 from User Space.
+          Many of the man pages have been brought from Plan 9, but
+          they have been updated, and others have been written from
+          scratch.
+
+          The manual pages are in a Unix style tree, with names like
+          $PLAN9/man/man1/cat.1 instead of Plan 9's simpler
+          $PLAN9/man/1/cat, so that the Unix man(1) utility can handle
+          it.  Some systems, for example Debian Linux, deduce the man
+          page locations from the search path, so that adding
+          $PLAN9/bin to your path is sufficient to cause $PLAN9/man to
+          be consulted for manual pages using the system man. On other
+          systems, or to look at manual pages with the same name as a
+          system page, invoke the Plan 9 man directly, as in 9 man
+          cat.
+
+     Page 3                       Plan 9             (printed 12/1/14)
+
+     INTRO(1)                                                 INTRO(1)
+
+          The manual sections follow the Unix numbering conventions,
+          not the Plan 9 ones.
+
+          Section (1) describes general publicly accessible commands.
+
+          Section (3) describes C library functions.
+
+          Section (4) describes user-level file servers.
+
+          Section (7) describes file formats and protocols.  (On Unix,
+          section (5) is technically for file formats but seems now to
+          be used for describing specific files.)
+
+          Section (8) describes commands used for system administra-
+          tion.
+
+          Section (9p) describes the Plan 9 file protocol 9P.
+
+          These pages describe parts of the system that are new or
+          different from Plan 9 from Bell Labs:
+
+               9(1), 9c(1), 9p(1), 9term(1), acidtypes in acid(1),
+               dial(1), git(1), label(1), the MKSHELL variable in
+               mk(1), namespace(1), netfiles(1), page(1), psfonts(1),
+               rio(1), web(1), wintext(1)
+
+               intro(3), 9pclient(3), the unix network in dial(3),
+               exits(3), get9root(3), getns(3), notify(3),
+               post9pservice(3), rfork(3), searchpath(3), sendfd(3),
+               udpread(3), venti(3), wait(3), wctl(3)
+
+               intro(4), 9pserve(4), import(4),
+
+               vbackup(8)
+
+               openfd(9p)
+
+     DIAGNOSTICS
+          In Plan 9, a program's exit status is an arbitrary text
+          string, while on Unix it is an integer.  Section (1) of this
+          manual describes commands as though they exit with string
+          statuses.  In fact, exiting with an empty status corresponds
+          to exiting with status 0, and exiting with any non-empty
+          string corresponds to exiting with status 1.  See exits(3).
+
+     Page 4                       Plan 9             (printed 12/1/14)
 
