@@ -8,7 +8,7 @@
           cd /usr/local/plan9; ./INSTALL [ -b | -c ]
 
      DESCRIPTION
-          To obtain the Plan 9 tree, use CVS (see cvs(1)) or download
+          To obtain the Plan 9 tree, use Git (see git(1)) or download
           a tar file from http://swtch.com/plan9port.
 
           The tree can be unpacked anywhere, but the usual place is
@@ -94,5 +94,5 @@
                a summary of install.log
 
      SEE ALSO
-          intro(1), cvs(1)
+          intro(1), git(1)
 
