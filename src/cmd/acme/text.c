@@ -819,8 +819,12 @@ texttype(Text *t, Rune r)
 		nr = runestrlen(rp);
 		break;	/* fall through to normal insertion case */
 	case 0x1B:
-		if(t->eq0 != ~0)
-			textsetselect(t, t->eq0, t->q0);
+		if(t->eq0 != ~0) {
+			if(t->eq0 <= t->q0)
+				textsetselect(t, t->eq0, t->q0);
+			else
+				textsetselect(t, t->q0, t->eq0);
+		}
 		if(t->ncache > 0)
 			typecommit(t);
 		t->iq1 = t->q0;
@@ -1173,7 +1177,7 @@ void
 textsetselect(Text *t, uint q0, uint q1)
 {
 	int p0, p1, ticked;
-
+	
 	/* t->fr.p0 and t->fr.p1 are always right; t->q0 and t->q1 may be off */
 	t->q0 = q0;
 	t->q1 = q1;
@@ -1198,6 +1202,8 @@ textsetselect(Text *t, uint q0, uint q1)
 			frtick(&t->fr, frptofchar(&t->fr, p0), ticked);
 		return;
 	}
+	if(p0 > p1)
+		sysfatal("acme: textsetselect p0=%d p1=%d q0=%ud q1=%ud t->org=%d nchars=%d", p0, p1, q0, q1, (int)t->org, (int)t->fr.nchars);
 	/* screen disagrees with desired selection */
 	if(t->fr.p1<=p0 || p1<=t->fr.p0 || p0==p1 || t->fr.p1==t->fr.p0){
 		/* no overlap or too easy to bother trying */

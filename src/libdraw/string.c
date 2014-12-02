@@ -67,6 +67,9 @@ _string(Image *dst, Point pt, Image *src, Point sp, Font *f, char *s, Rune *r, i
 	Font *def;
 	Subfont *sf;
 
+	if(len < 0)
+		sysfatal("libdraw: _string len=%d", len);
+
 	if(s == nil){
 		s = "";
 		sptr = nil;
