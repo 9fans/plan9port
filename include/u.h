@@ -19,6 +19,7 @@ extern "C" {
 #define _BSD_SOURCE 1
 #define _NETBSD_SOURCE 1	/* NetBSD */
 #define _SVID_SOURCE 1
+#define _DEFAULT_SOURCE 1	/* glibc has deprecated _BSD and _SVID in favour of _DEFAULT */
 #if !defined(__APPLE__) && !defined(__OpenBSD__)
 #	define _XOPEN_SOURCE 1000
 #	define _XOPEN_SOURCE_EXTENDED 1
