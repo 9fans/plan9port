@@ -121,7 +121,9 @@ cmdexec(Text *t, Cmd *cp)
 	default:
 		if(i < 0)
 			editerror("unknown command %c in cmdexec", cp->cmdc);
-		i = (*cmdtab[i].fn)(t, cp);
+		if (i = (*cmdtab[i].fn)(t, cp)) {
+			textshow(t, t->q0, t->q1, 0);
+		}
 		return i;
 	}
 	return 1;
