@@ -159,6 +159,7 @@ static NSRect dilate(NSRect);
 		detachDrawingThread:@selector(callservep9p:)
 		toTarget:[self class] withObject:nil];
 }
+
 - (void)windowDidBecomeKey:(id)arg
 {
 	getmousepos();
@@ -298,6 +299,41 @@ attachscreen(char *label, char *winsize)
 	[win.content setHidden:NO];
 	[super deminiaturize:arg];
 }
+
+- (NSDragOperation)draggingEntered:(id)arg
+{
+	NSPasteboard *b;
+	NSDragOperation op;
+	
+	op = [arg draggingSourceOperationMask];
+	b = [arg draggingPasteboard];
+	
+	if([[b types] containsObject:NSFilenamesPboardType])
+	if(op&NSDragOperationLink)
+		return NSDragOperationLink;
+	
+	return NSDragOperationNone;
+}
+
+- (BOOL)performDragOperation:(id)arg
+{
+	NSPasteboard *b;
+	NSArray *files;
+	int i, n;
+
+	b = [arg draggingPasteboard];
+	if(![[b types] containsObject:NSFilenamesPboardType])
+		return NO;
+
+	files = [b propertyListForType:NSFilenamesPboardType];
+	n = [files count];
+	for(i=0; i<n; i++)
+	if(fork() == 0)
+		execl("macedit", "macedit", [[files objectAtIndex:i] UTF8String], nil);
+
+	return YES;
+}
+
 @end
 
 double
@@ -353,6 +389,9 @@ makewin(char *s)
 		NSWindowCollectionBehaviorFullScreenPrimary];
 #endif
 	[w setContentMinSize:NSMakeSize(128,128)];
+
+	[w registerForDraggedTypes:[NSArray arrayWithObjects: 
+		NSFilenamesPboardType, nil]];
 
 	win.ofs[0] = w;
 	win.ofs[1] = [[appwin alloc]
