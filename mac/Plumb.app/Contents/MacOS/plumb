@@ -10,14 +10,5 @@ IFS=$'\n'
 
 for file in $($bin/macargv)
 do
-	# Blanks are problematic in filenames: just plumb
-	# the file's content.
-	if echo "$file" | grep -q " "
-	then
-		base=$(basename "$file" | sed 's/ /_/g')
-		attr="action=showdata filename=/BadName/$base"
-		cat $file | "$bin/plumb" -i -d edit -a "$attr"
-	else
-		"$bin/plumb" -d edit "$file"
-	fi
+	$bin/macedit "$file"
 done
