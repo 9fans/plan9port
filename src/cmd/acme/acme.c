@@ -571,6 +571,12 @@ mousethread(void *v)
 			m = mousectl->m;
 			qlock(&row.lk);
 			t = rowwhich(&row, m.xy);
+
+			if((t!=mousetext && t!=nil && t->w!=nil) &&
+				(mousetext==nil || mousetext->w==nil || t->w->id!=mousetext->w->id)) {
+				xfidlog(t->w, "focus");
+			}
+
 			if(t!=mousetext && mousetext!=nil && mousetext->w!=nil){
 				winlock(mousetext->w, 'M');
 				mousetext->eq0 = ~0;
