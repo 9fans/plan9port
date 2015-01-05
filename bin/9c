@@ -16,6 +16,7 @@ usegcc()
 		-Wno-unknown-pragmas \
 		-fno-omit-frame-pointer \
 		-fsigned-char \
+		-fplan9-extensions \
 	"
 	# want to put -fno-optimize-sibling-calls here but
 	# that option only works with gcc3+ it seems
