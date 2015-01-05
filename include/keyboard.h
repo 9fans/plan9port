@@ -33,7 +33,12 @@ enum {
 	Kalt=		KF|0x15,
 	Kshift=	KF|0x16,
 	Kctl=		KF|0x17,
-	
+
+	Kbs=	0x08,
+	Kdel=	0x7f,
+	Kesc=	0x1b,
+	Keof=	0x04,
+
 	Kcmd=	0xF100	/* Rune: beginning of Cmd+'a', Cmd+'A', etc on Mac */
 };
 
