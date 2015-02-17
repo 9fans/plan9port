@@ -130,7 +130,7 @@ _string(Image *dst, Point pt, Image *src, Point sp, Font *f, char *s, Rune *r, i
 		}
 		if(subfontname){
 			freesubfont(sf);
-			if((sf=_getsubfont(f->display, subfontname)) == 0){
+			if((sf=_getsubfont(f->display, f, subfontname)) == 0){
 				def = f->display ? f->display->defaultfont : nil;
 				if(def && f!=def)
 					f = def;

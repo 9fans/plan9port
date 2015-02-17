@@ -9,10 +9,15 @@ Font*
 openfont(Display *d, char *name)
 {
 	Font *fnt;
-	int fd, i, n;
+	int fd, i, n, scale;
 	char *buf, *nambuf;
 
 	nambuf = 0;
+	scale = 1;
+	if('1' <= name[0] && name[0] <= '9' && name[1] == '*') {
+		scale = name[0] - '0';
+		name += 2;
+	}
 	fd = open(name, OREAD);
 
 	if(fd < 0 && strncmp(name, "/lib/font/bit/", 14) == 0){
@@ -54,6 +59,12 @@ openfont(Display *d, char *name)
 	fnt = buildfont(d, buf, name);
 	free(buf);
 	free(nambuf);
+	if(scale != 1) {
+		fnt->scale = scale;
+		fnt->height *= scale;
+		fnt->ascent *= scale;
+		fnt->width *= scale;
+	}
 	return fnt;
 }
 

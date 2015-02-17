@@ -25,6 +25,7 @@ buildfont(Display *d, char *buf, char *name)
 	if(fnt == 0)
 		return 0;
 	memset(fnt, 0, sizeof(Font));
+	fnt->scale = 1;
 	fnt->display = d;
 	fnt->name = strdup(name);
 	fnt->ncache = NFCACHE+NFLOOK;
