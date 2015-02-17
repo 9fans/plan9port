@@ -41,10 +41,10 @@ int usebigarrow = 0;
 static void setprocname(const char*);
 
 /*
- * By default, devdraw ignores retina displays. A non-zero evironment variable
- * |devdrawretina| will override this.
+ * By default, devdraw uses retina displays.
+ * Set devdrawretina=0 in the environment to override.
  */
-int devdrawretina = 0;
+int devdrawretina = 1;
 
 void
 usage(void)
