@@ -199,6 +199,7 @@ int
 getwindow(Display *d, int ref)
 {
 	Image *i, *oi;
+	Font *f;
 	
 	/* XXX check for destroyed? */
 	
@@ -219,6 +220,17 @@ getwindow(Display *d, int ref)
 	_freeimage1(screen);
 	screen = _allocwindow(screen, _screen, i->r, ref, DWhite);
 	d->screenimage = screen;
+
+
+	if(d->dpi >= DefaultDPI*3/2) {
+		for(f=d->firstfont; f != nil; f=f->next)
+			loadhidpi(f);
+	} else {
+		for(f=d->firstfont; f != nil; f=f->next)
+			if(f->lodpi != nil && f->lodpi != f)
+				swapfont(f, &f->hidpi, &f->lodpi);
+	}
+
 	return 0;
 }
 

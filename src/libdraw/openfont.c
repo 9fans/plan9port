@@ -5,23 +5,41 @@
 extern vlong _drawflength(int);
 int _fontpipe(char*);
 
+int
+parsefontscale(char *name, char **base)
+{
+	char *p;
+	int scale;
+	
+	p = name;
+	scale = 0;
+	while('0' <= *p && *p <= '9') {
+		scale = scale*10 + *p - '0';
+		p++;
+	}
+	if(*p == '*' && scale > 0)
+		*base = p+1;
+	else {
+		*base = name;
+		scale = 1;
+	}
+	return scale;
+}	
+
 Font*
-openfont(Display *d, char *name)
+openfont1(Display *d, char *name)
 {
 	Font *fnt;
 	int fd, i, n, scale;
-	char *buf, *nambuf;
+	char *buf, *nambuf, *fname, *freename;
 
 	nambuf = 0;
-	scale = 1;
-	if('1' <= name[0] && name[0] <= '9' && name[1] == '*') {
-		scale = name[0] - '0';
-		name += 2;
-	}
-	fd = open(name, OREAD);
+	freename = nil;
+	scale = parsefontscale(name, &fname);
 
-	if(fd < 0 && strncmp(name, "/lib/font/bit/", 14) == 0){
-		nambuf = smprint("#9/font/%s", name+14);
+	fd = open(fname, OREAD);
+	if(fd < 0 && strncmp(fname, "/lib/font/bit/", 14) == 0){
+		nambuf = smprint("#9/font/%s", fname+14);
 		if(nambuf == nil)
 			return 0;
 		nambuf = unsharp(nambuf);
@@ -31,12 +49,18 @@ openfont(Display *d, char *name)
 			free(nambuf);
 			return 0;
 		}
-		name = nambuf;
+		fname = nambuf;
+		if(scale > 1) {
+			name = smprint("%d*%s", scale, fname);
+			freename = name;
+		} else {
+			name = fname;
+		}
 	}
 	if(fd >= 0)
 		n = _drawflength(fd);
-	if(fd < 0 && strncmp(name, "/mnt/font/", 10) == 0) {
-		fd = _fontpipe(name+10);
+	if(fd < 0 && strncmp(fname, "/mnt/font/", 10) == 0) {
+		fd = _fontpipe(fname+10);
 		n = 8192;
 	}
 	if(fd < 0)
@@ -59,6 +83,7 @@ openfont(Display *d, char *name)
 	fnt = buildfont(d, buf, name);
 	free(buf);
 	free(nambuf);
+	free(freename);
 	if(scale != 1) {
 		fnt->scale = scale;
 		fnt->height *= scale;
@@ -66,6 +91,120 @@ openfont(Display *d, char *name)
 		fnt->width *= scale;
 	}
 	return fnt;
+}
+
+void
+swapfont(Font *targ, Font **oldp, Font **newp)
+{
+	Font f, *old, *new;
+
+	if(targ != *oldp)
+		sysfatal("bad swapfont %p %p %p", targ, *oldp, *newp);
+	
+	old = *oldp;
+	new = *newp;
+
+	f.name = old->name;
+	f.display = old->display;
+	f.height = old->height;
+	f.ascent = old->ascent;
+	f.width = old->width;
+	f.nsub = old->nsub;
+	f.age = old->age;
+	f.maxdepth = old->maxdepth;
+	f.ncache = old->ncache;
+	f.nsubf = old->nsubf;
+	f.scale = old->scale;
+	f.cache = old->cache;
+	f.subf = old->subf;
+	f.sub = old->sub;
+	f.cacheimage = old->cacheimage;
+
+	old->name = new->name;
+	old->display = new->display;
+	old->height = new->height;
+	old->ascent = new->ascent;
+	old->width = new->width;
+	old->nsub = new->nsub;
+	old->age = new->age;
+	old->maxdepth = new->maxdepth;
+	old->ncache = new->ncache;
+	old->nsubf = new->nsubf;
+	old->scale = new->scale;
+	old->cache = new->cache;
+	old->subf = new->subf;
+	old->sub = new->sub;
+	old->cacheimage = new->cacheimage;
+
+	new->name = f.name;
+	new->display = f.display;
+	new->height = f.height;
+	new->ascent = f.ascent;
+	new->width = f.width;
+	new->nsub = f.nsub;
+	new->age = f.age;
+	new->maxdepth = f.maxdepth;
+	new->ncache = f.ncache;
+	new->nsubf = f.nsubf;
+	new->scale = f.scale;
+	new->cache = f.cache;
+	new->subf = f.subf;
+	new->sub = f.sub;
+	new->cacheimage = f.cacheimage;
+
+	*oldp = new;
+	*newp = old;
+}
+
+void
+loadhidpi(Font *f)
+{
+	char *name;
+	Font *fnew;
+
+	if(f->hidpi == f)
+		return;
+	if(f->hidpi != nil) {
+		swapfont(f, &f->lodpi, &f->hidpi);
+		return;
+	}
+	
+	name = smprint("%d*%s", f->scale*2, f->name);
+	fnew = openfont1(f->display, name);
+	if(fnew == nil)
+		return;
+	f->hidpi = fnew;
+	free(name);
+
+	swapfont(f, &f->lodpi, &f->hidpi);
+}
+
+Font*
+openfont(Display *d, char *name)
+{
+	Font *f;
+	
+	f = openfont1(d, name);
+	f->lodpi = f;
+	
+	/* add to display list for when dpi changes */
+	/* d can be nil when invoked from mc. */
+	if(d != nil) {
+		f->ondisplaylist = 1;
+		f->prev = d->lastfont;
+		f->next = nil;
+		if(f->prev)
+			f->prev->next = f;
+		else
+			d->firstfont = f;
+		d->lastfont = f;
+	
+		/* if this is a hi-dpi display, find hi-dpi version and swap */
+		if(d->dpi >= DefaultDPI*3/2)
+			loadhidpi(f);
+	}
+
+	return f;
 }
 
 int

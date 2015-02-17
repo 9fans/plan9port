@@ -11,17 +11,20 @@ int _fontpipe(char*);
 static void scalesubfont(Subfont*, int);
 
 Subfont*
-_getsubfont(Display *d, Font *ff, char *name)
+_getsubfont(Display *d, char *name)
 {
 	int fd;
 	Subfont *f;
-
-	fd = open(name, OREAD);
-	if(fd < 0 && strncmp(name, "/mnt/font/", 10) == 0)
-		fd = _fontpipe(name+10);
+	int scale;
+	char *fname;
+	
+	scale = parsefontscale(name, &fname);
+	fd = open(fname, OREAD);
+	if(fd < 0 && strncmp(fname, "/mnt/font/", 10) == 0)
+		fd = _fontpipe(fname+10);
 
 	if(fd < 0){
-		fprint(2, "getsubfont: can't open %s: %r\n", name);
+		fprint(2, "getsubfont: can't open %s: %r\n", fname);
 		return 0;
 	}
 	/*
@@ -38,8 +41,8 @@ _getsubfont(Display *d, Font *ff, char *name)
 	if(f == 0)
 		fprint(2, "getsubfont: can't read %s: %r\n", name);
 	close(fd);
-	if(ff->scale != 1 && ff->scale != 0)
-		scalesubfont(f, ff->scale);
+	if(scale > 1)
+		scalesubfont(f, scale);
 	return f;
 }
 

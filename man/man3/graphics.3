@@ -487,6 +487,21 @@ point to the portion of the window inside the border;
 sophisticated clients may use
 .B _screen
 to make further subwindows.
+If
+.I getwindow
+is being called due to a resizing of the window,
+the resize may be accompanied by a change in screen pixel density (DPI),
+in which case the value of the
+.BR Display 's
+.B dpi
+field and any open
+.BR Font 's
+.B height
+and
+.B ascent
+fields may be updated during the call to
+.IR getwindow .
+Programs should discard any cached information about display or font sizes.
 .\" Programs desiring multiple independent windows
 .\" may use the mechanisms of
 .\" .IR rio (4)
