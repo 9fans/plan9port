@@ -156,6 +156,34 @@ swapfont(Font *targ, Font **oldp, Font **newp)
 	*newp = old;
 }
 
+static char*
+hidpiname(Font *f)
+{
+	char *p, *q;
+	int size;
+	
+	// If font name has form x,y return y.
+	p = strchr(f->namespec, ',');
+	if(p != nil)
+		return strdup(p+1);
+	
+	// If font name is /mnt/font/Name/Size/font, scale Size.
+	if(strncmp(f->name, "/mnt/font/", 10) == 0) {
+		p = strchr(f->name+10, '/');
+		if(p == nil || *++p < '0' || *p > '9')
+			goto scale;
+		q = p;
+		size = 0;
+		while('0' <= *q && *q <= '9')
+			size = size*10 + *q++ - '0';
+		return smprint("%.*s%d%s", utfnlen(f->name, p-f->name), f->name, size*2, q);
+	}		
+
+	// Otherwise use pixel doubling.	
+scale:
+	return smprint("%d*%s", f->scale*2, f->name);
+}
+
 void
 loadhidpi(Font *f)
 {
@@ -169,7 +197,7 @@ loadhidpi(Font *f)
 		return;
 	}
 	
-	name = smprint("%d*%s", f->scale*2, f->name);
+	name = hidpiname(f);
 	fnew = openfont1(f->display, name);
 	if(fnew == nil)
 		return;
@@ -183,9 +211,18 @@ Font*
 openfont(Display *d, char *name)
 {
 	Font *f;
+	char *p;
+	char *namespec;
 	
+	// If font name has form x,y use x for lodpi, y for hidpi.
+	name = strdup(name);
+	namespec = strdup(name);
+	if((p = strchr(name, ',')) != nil)
+		*p = '\0';
+
 	f = openfont1(d, name);
 	f->lodpi = f;
+	f->namespec = namespec;
 	
 	/* add to display list for when dpi changes */
 	/* d can be nil when invoked from mc. */
@@ -203,6 +240,8 @@ openfont(Display *d, char *name)
 		if(d->dpi >= DefaultDPI*3/2)
 			loadhidpi(f);
 	}
+	
+	free(name);
 
 	return f;
 }
