@@ -7,7 +7,7 @@ font, subfont \- external format for fonts and subfonts
 Fonts and subfonts are described in
 .IR cachechars (3).
 .PP
-External fonts are described by a plain text file that can be read using
+External bitmap fonts are described by a plain text file that can be read using
 .IR openfont .
 The format of the file is a header followed by any number of
 subfont range specifications.
@@ -75,6 +75,109 @@ characters of zero width (see
 .IR draw (3))
 means that fonts should have, as their zeroth character,
 one with non-zero width.
+.SS "Font Names
+.PP
+Font names in Plan 9 from User Space are
+a small language describing a font.
+The most basic form is the name of an existing bitmap font file,
+following the convention:
+.IP
+.B /lib/font/bit/\fIname\fP/\fIrange\fP.\fIsize\fP.font
+.PD
+.PP
+where
+.I size
+is approximately the height in pixels of the lower case letters
+(without ascenders or descenders).
+.I Range
+gives some indication of which characters will be available: for example
+.BR ascii ,
+.BR latin1 ,
+.BR euro ,
+or
+.BR unicode .
+.B Euro
+includes most European languages, punctuation marks, the International Phonetic
+Alphabet, etc., but no Oriental languages.
+.B Unicode
+includes every character for which appropriate-sized images exist on the system.
+.PP
+In Plan 9 from User Space, the font files are rooted in
+.B $PLAN9/font
+instead of
+.BR /lib/font/bit ,
+but to keep old references working, paths beginning with
+.B /lib/font/bit
+are interpreted as references to the actual font directory.
+.PP
+Fonts need not be stored on disk in the Plan 9 format.
+If the font name has the form
+.BR /mnt/font/\fIname\fP/\fIsize\fP/font ,
+.I fontsrv
+is invoked to synthesize a bitmap font from the operating system's installed vector fonts.
+The command
+.B fontsrv
+.B -p
+.B .
+lists the available fonts.
+See
+.IR fontsrv (4)
+for more.
+.PP
+If the font name has the form
+.BR \fIscale\fP*\fIfontname\fP ,
+where
+.I scale
+is a small decimal integer, the 
+.I fontname
+is loaded and then scaled by pixel repetition.
+.PP
+The Plan 9 bitmap fonts were designed for screens with pixel density around 100 DPI.
+When used on screens with pixel density above 200 DPI,
+the bitmap fonts are automatically pixel doubled.
+Similarly, fonts loaded from
+.IR fontsrv (4)
+are automatically doubled in size by varying the effective
+.I size
+path element.
+In both cases, the effect is that a single font name
+can be used on both low- and high-density displays (or even in a window moved between differing displays)
+while keeping roughly the same effective size.
+.PP
+For more control over the fonts used on low- and high-density displays,
+if the font name has the form
+.BR \fIlowfont\fP,\fIhighfont\fP ,
+.I lowfont
+is used on low-density displays and
+.I highfont
+on high-density displays.
+In effect, the behavior described above is that the font name
+.IP
+.B /lib/font/bit/lucsans/euro.8.font
+.PD
+.PP
+really means
+.IP
+.B /lib/font/bit/lucsans/euro.8.font,2*/lib/font/bit/lucsans/euro.8.font
+.PD
+.PP
+and similarly
+.IP
+.B /mnt/font/LucidaGrande/15a/font
+.PD
+.PP
+really means
+.IP
+.B /mnt/font/LucidaGrande/15a/font,/mnt/font/LucidaGrande/30a/font
+.PD
+.PP
+Using an explicit comma-separated font pair allows finer control, such as
+using a Plan 9 bitmap font on low-density displays but switching to
+a system-installed vector font on high-density displays:
+.IP
+.B /lib/font/bit/lucsans/euro.8.font,/mnt/font/LucidaGrande/30a/font
+.PD
+.PP
 .SH FILES
 .TF \*9/font/*
 .TP
