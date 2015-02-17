@@ -15,7 +15,6 @@
 #include <memdraw.h>
 #include "a.h"
 
-
 extern void CGFontGetGlyphsForUnichars(CGFontRef, const UniChar[], const CGGlyph[], size_t);
 
 int
@@ -84,35 +83,73 @@ loadfonts(void)
 	}
 }
 
-CGRect
-subfontbbox(CGFontRef font, int lo, int hi)
+// Some representative text to try to discern line heights.
+static char *lines[] = {
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+	"abcdefghijklmnopqrstuvwxyz",
+	"g",
+	"ὕαλον ϕαγεῖν δύναμαι· τοῦτο οὔ με βλάπτει.",
+	"私はガラスを食べられます。それは私を傷つけません。",
+	"Aš galiu valgyti stiklą ir jis manęs nežeidžia",
+	"Môžem jesť sklo. Nezraní ma.",
+};
+
+static void
+fontheight(XFont *f, int size, int *height, int *ascent)
 {
-	int i, first;
+	int i;
+	CFStringRef s;
 	CGRect bbox;
+	CTFontRef font;
+	CTFontDescriptorRef desc;
+	CGContextRef ctxt;
+	CGColorSpaceRef color;
 
-	bbox.origin.x = 0;
-	bbox.origin.y = 0;
-	bbox.size.height = 0;
-	bbox.size.width = 0;
+	s = c2mac(f->name);
+	desc = CTFontDescriptorCreateWithNameAndSize(s, size);
+	CFRelease(s);
+	if(desc == nil)
+		return;
+	font = CTFontCreateWithFontDescriptor(desc, 0, nil);
+	CFRelease(desc);
+	if(font == nil)
+		return;
 
-	first = 1;
-	for(i=lo; i<=hi; i++) {
-		UniChar u;
-		CGGlyph g;
+	color = CGColorSpaceCreateWithName(kCGColorSpaceGenericGray);
+	ctxt = CGBitmapContextCreate(nil, 1, 1, 8, 1, color, kCGImageAlphaNone);
+	CGColorSpaceRelease(color);
+	CGContextSetTextPosition(ctxt, 0, 0);
+
+	for(i=0; i<nelem(lines); i++) {
+		CFStringRef keys[] = { kCTFontAttributeName };
+		CFTypeRef values[] = { font };
+		CFStringRef str;
+		CFDictionaryRef attrs;
+		CFAttributedStringRef attrString;
 		CGRect r;
+		CTLineRef line;
 
-		u = mapUnicode(i);
-		CGFontGetGlyphsForUnichars(font, &u, &g, 1);
-		if(g == 0 || !CGFontGetGlyphBBoxes(font, &g, 1, &r))
-			continue;
+ 		str = c2mac(lines[i]);
+ 		
+ 		// See https://developer.apple.com/library/ios/documentation/StringsTextFonts/Conceptual/CoreText_Programming/LayoutOperations/LayoutOperations.html#//apple_ref/doc/uid/TP40005533-CH12-SW2
+ 		attrs = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys,
+			(const void**)&values, sizeof(keys) / sizeof(keys[0]),
+			&kCFTypeDictionaryKeyCallBacks,
+			&kCFTypeDictionaryValueCallBacks);
+		attrString = CFAttributedStringCreate(kCFAllocatorDefault, str, attrs);
+		CFRelease(str);
+		CFRelease(attrs);
 
+		line = CTLineCreateWithAttributedString(attrString);
+		r = CTLineGetImageBounds(line, ctxt);
 		r.size.width += r.origin.x;
 		r.size.height += r.origin.y;
-		if(first) {
+		CFRelease(line);
+		
+//	fprint(2, "%s: %g %g %g %g\n", lines[i], r.origin.x, r.origin.y, r.size.width, r.size.height);
+		
+		if(i == 0)
 			bbox = r;
-			first = 0;
-			continue;
-		}
 		if(bbox.origin.x > r.origin.x)
 			bbox.origin.x = r.origin.x;	
 		if(bbox.origin.y > r.origin.y)
@@ -122,79 +159,71 @@ subfontbbox(CGFontRef font, int lo, int hi)
 		if(bbox.size.height < r.size.height)
 			bbox.size.height = r.size.height;
 	}
-	
+
 	bbox.size.width -= bbox.origin.x;
 	bbox.size.height -= bbox.origin.y;
-	return bbox;
+
+	*height = bbox.size.height + 0.999999;
+	*ascent = *height - (-bbox.origin.y + 0.999999);
+		
+	CGContextRelease(ctxt);
+	CFRelease(font);
 }
 
 void
 load(XFont *f)
 {
-	int i, j;
-	CGFontRef font;
-	CFStringRef s;
-	UniChar u[256];
-	CGGlyph g[256];
-	CGRect bbox;
+	int i;
 
 	if(f->loaded)
 		return;
 	f->loaded = 1;
-	s = c2mac(f->name);
-	font = CGFontCreateWithFontName(s);
-	CFRelease(s);
-	if(font == nil)
-		return;
-	
-	// assume bbox gives latin1 is height/ascent for all
-	bbox = subfontbbox(font, 0x00, 0xff);
-	f->unit = CGFontGetUnitsPerEm(font);
-	f->height = bbox.size.height;
-	f->originy = bbox.origin.y;
 
-	// figure out where the letters are
-	for(i=0; i<0xffff; i+=0x100) {
-		for(j=0; j<0x100; j++) {
-			u[j] = mapUnicode(i+j);
-			g[j] = 0;
-		}
-		CGFontGetGlyphsForUnichars(font, u, g, 256);
-		for(j=0; j<0x100; j++) {
-			if(g[j] != 0) {
-				f->range[i>>8] = 1;
-				f->nrange++;
-				break;
-			}
-		}
+	// compute height and ascent for each size on demand
+	f->loadheight = fontheight;
+
+	// enable all Unicode ranges
+	for(i=0; i<nelem(f->range); i++) {
+		f->range[i] = 1;
+		f->nrange++;
 	}
-	CFRelease(font);
 }
 
 Memsubfont*
-mksubfont(char *name, int lo, int hi, int size, int antialias)
+mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 {
 	CFStringRef s;
 	CGColorSpaceRef color;
 	CGContextRef ctxt;
-	CGFontRef font;
+	CTFontRef font;
+	CTFontDescriptorRef desc;
 	CGRect bbox;
 	Memimage *m, *mc, *m1;
 	int x, y, y0;
-	int i, unit;
+	int i, height, ascent;
 	Fontchar *fc, *fc0;
 	Memsubfont *sf;
+	CGFloat whitef[] = { 1.0, 1.0 };
+	CGColorRef white;
 
 	s = c2mac(name);
-	font = CGFontCreateWithFontName(s);
+	desc = CTFontDescriptorCreateWithNameAndSize(s, size);
 	CFRelease(s);
+	if(desc == nil)
+		return nil;
+	font = CTFontCreateWithFontDescriptor(desc, 0, nil);
+	CFRelease(desc);
 	if(font == nil)
 		return nil;
-	bbox = subfontbbox(font, lo, hi);
-	unit = CGFontGetUnitsPerEm(font);
-	x = (int)(bbox.size.width * size / unit + 0.99999999);
-	y = bbox.size.height * size/unit + 0.99999999;
-	y0 = (int)(-bbox.origin.y * size/unit + 0.99999999);
+	
+	
+	bbox = CTFontGetBoundingBox(font);
+	x = (int)(bbox.size.width + 0.99999999);
+
+	fontheight(f, size, &height, &ascent);
+	y = height;
+	y0 = height - ascent;
+
 	m = allocmemimage(Rect(0, 0, x*(hi+1-lo)+1, y+1), GREY8);
 	if(m == nil)
 		return nil;
@@ -217,6 +246,7 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 	color = CGColorSpaceCreateWithName(kCGColorSpaceGenericGray);
 	ctxt = CGBitmapContextCreate(byteaddr(mc, mc->r.min), Dx(mc->r), Dy(mc->r), 8,
 		mc->width*sizeof(u32int), color, kCGImageAlphaNone);
+	white = CGColorCreate(color, whitef);
 	CGColorSpaceRelease(color);
 	if(ctxt == nil) {
 		freememimage(m);
@@ -226,46 +256,56 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 		return nil;
 	}
 
-	CGContextSetFont(ctxt, font);
-	CGContextSetFontSize(ctxt, size);
 	CGContextSetAllowsAntialiasing(ctxt, antialias);
-	CGContextSetRGBFillColor(ctxt, 1, 1, 1, 1);
 	CGContextSetTextPosition(ctxt, 0, 0);	// XXX
 
 	x = 0;
 	for(i=lo; i<=hi; i++, fc++) {
-		UniChar u[2];
-		CGGlyph g[2];
-		CGRect r[2];
+		char buf[20];
+		CFStringRef str;
+		CFDictionaryRef attrs;
+		CFAttributedStringRef attrString;
+		CTLineRef line;
+		CGRect r;
 		CGPoint p1;
-		int n;
+		CFStringRef keys[] = { kCTFontAttributeName, kCTForegroundColorAttributeName };
+		CFTypeRef values[] = { font, white };
+
+		sprint(buf, "%C", (Rune)mapUnicode(i));
+ 		str = c2mac(buf);
+ 		
+ 		// See https://developer.apple.com/library/ios/documentation/StringsTextFonts/Conceptual/CoreText_Programming/LayoutOperations/LayoutOperations.html#//apple_ref/doc/uid/TP40005533-CH12-SW2
+ 		attrs = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys,
+			(const void**)&values, sizeof(keys) / sizeof(keys[0]),
+			&kCFTypeDictionaryKeyCallBacks,
+			&kCFTypeDictionaryValueCallBacks);
+		attrString = CFAttributedStringCreate(kCFAllocatorDefault, str, attrs);
+		CFRelease(str);
+		CFRelease(attrs);
+
+		line = CTLineCreateWithAttributedString(attrString);
+		CGContextSetTextPosition(ctxt, 0, y0);
+		r = CTLineGetImageBounds(line, ctxt);
+		memfillcolor(mc, DBlack);
+		CTLineDraw(line, ctxt);		
+		CFRelease(line);
 
 		fc->x = x;
 		fc->top = 0;
 		fc->bottom = Dy(m->r);
 
-		n = 0;
-		u[n++] = mapUnicode(i);
-		if(0)	// debugging
-			u[n++] = '|';
-		g[0] = 0;
-		CGFontGetGlyphsForUnichars(font, u, g, n);
-		if(g[0] == 0 || !CGFontGetGlyphBBoxes(font, g, n, r)) {
-		None:
+//		fprint(2, "printed %#x: %g %g\n", mapUnicode(i), p1.x, p1.y);
+		p1 = CGContextGetTextPosition(ctxt);
+		if(p1.x <= 0 || mapUnicode(i) == 0xfffd) {
 			fc->width = 0;
 			fc->left = 0;
 			if(i == 0) {
-				drawpjw(m, fc, x, (int)(bbox.size.width * size / unit + 0.99999999), y, y - y0);
+				drawpjw(m, fc, x, (int)(bbox.size.width + 0.99999999), y, y - y0);
 				x += fc->width;
 			}	
 			continue;
 		}
-		memfillcolor(mc, DBlack);
-		CGContextSetTextPosition(ctxt, 0, y0);
-		CGContextShowGlyphs(ctxt, g, n);
-		p1 = CGContextGetTextPosition(ctxt);
-		if(p1.x <= 0)
-			goto None;
+
 		memimagedraw(m, Rect(x, 0, x + p1.x, y), mc, ZP, memopaque, ZP, S);
 		fc->width = p1.x;
 		fc->left = 0;
@@ -297,4 +337,3 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 	
 	return sf;
 }
-

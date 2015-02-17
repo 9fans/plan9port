@@ -11,6 +11,7 @@ struct XFont
 	int unit;
 	double height;
 	double originy;
+	void (*loadheight)(XFont*, int, int*, int*);
 
 	// fontconfig workarround, as FC_FULLNAME does not work for matching fonts.
 	char *fontfile;
@@ -19,7 +20,7 @@ struct XFont
 
 void	loadfonts(void);
 void	load(XFont*);
-Memsubfont*	mksubfont(char*, int, int, int, int);
+Memsubfont*	mksubfont(XFont*, char*, int, int, int, int);
 
 extern XFont *xfont;
 extern int nxfont;
