@@ -44,3 +44,14 @@ is printed separately.
 .I lc
 in
 .IR ls (1)
+.SH BUGS
+On systems with high-DPI screens,
+.I 9term
+and
+.I acme
+do not have one current font.
+They have a pair of current fonts, one font used when the window
+on a low-DPI screen and one used when the window is on a 
+high-DPI screen.
+.I Mc
+always uses the low-DPI font for columnation decisions.

@@ -228,30 +228,14 @@ pointer that can be used by
 to draw characters from the font.
 .I Openfont
 does the same, but reads the description
-from the named file.
+from the named font.
 .I Freefont
 frees a font.
-The convention for naming font files is:
-.IP
-.B /lib/font/bit/\fIname\fP/\fIrange\fP.\fIsize\fP.font
-.PD
-.PP
-where
-.I size
-is approximately the height in pixels of the lower case letters
-(without ascenders or descenders).
-.I Range
-gives some indication of which characters will be available: for example
-.BR ascii ,
-.BR latin1 ,
-.BR euro ,
-or
-.BR unicode .
-.B Euro
-includes most European languages, punctuation marks, the International Phonetic
-Alphabet, etc., but no Oriental languages.
-.B Unicode
-includes every character for which appropriate-sized images exist on the system.
+In contrast to Plan 9, font names in Plan 9 from User Space are
+a small language describing the desired font.
+See
+.IR font (7)
+for details.
 .PP
 A
 .I Cursor
@@ -319,6 +303,9 @@ if
 .B $font
 is not set, it imports the default (usually minimal)
 font from the operating system.
+(See
+.IR font (7)
+for a full discussion of font syntaxes.)
 The global
 .I font
 will be set to point to the resulting
