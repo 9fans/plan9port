@@ -314,6 +314,7 @@ struct Font
 	int		maxdepth;	/* maximum depth of all loaded subfonts */
 	int		ncache;	/* size of cache */
 	int		nsubf;	/* size of subfont list */
+	int		scale;	/* pixel scaling to apply */
 	Cacheinfo	*cache;
 	Cachesubf	*subf;
 	Cachefont	**sub;	/* as read from file */
@@ -482,7 +483,7 @@ extern int	runestringnwidth(Font*, Rune*, int);
 extern Point	strsubfontwidth(Subfont*, char*);
 extern int	loadchar(Font*, Rune, Cacheinfo*, int, int, char**);
 extern char*	subfontname(char*, char*, int);
-extern Subfont*	_getsubfont(Display*, char*);
+extern Subfont*	_getsubfont(Display*, Font*, char*);
 extern Subfont*	getdefont(Display*);
 extern void		lockdisplay(Display*);
 extern void	unlockdisplay(Display*);
