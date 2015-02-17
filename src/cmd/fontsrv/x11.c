@@ -102,7 +102,7 @@ load(XFont *f)
 }
 
 Memsubfont*
-mksubfont(char *name, int lo, int hi, int size, int antialias)
+mksubfont(XFont *xf, char *name, int lo, int hi, int size, int antialias)
 {
 	XFont *xf, *xfp, *xfe;
 	FT_Face face;
@@ -114,17 +114,6 @@ mksubfont(char *name, int lo, int hi, int size, int antialias)
 	Fontchar *fc, *fc0;
 	Memsubfont *sf;
 	//Point rect_points[4];
-
-	xf = nil;
-	for(xfp=xfont, xfe=xfont+nxfont; xfp != xfe; xfp++) {
-		if(strcmp(xfp->name, name) == 0) {
-			xf = xfp;
-			break;
-		}
-	}
-
-	if(!xf)
-		return nil;
 
 	e = FT_New_Face(lib, xf->fontfile, xf->index, &face);
 

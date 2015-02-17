@@ -15,7 +15,7 @@ load(XFont *f)
 }
 
 Memsubfont*
-mksubfont(char *name, int lo, int hi, int size, int antialias)
+mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 {
 	return nil;
 }

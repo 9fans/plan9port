@@ -144,7 +144,7 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 	switch(QTYPE(path)) {
 	default:
 	NotFound:
-		return "file not  found";
+		return "file not found";
 
 	case Qroot:
 		if(dotdot)
@@ -313,10 +313,18 @@ xread(Req *r)
 		fmtstrinit(&fmt);
 		f = &xfont[QFONT(path)];
 		load(f);
-		if(f->unit == 0)
+		if(f->unit == 0 && f->loadheight == nil) {
+			readstr(r, "font missing\n");
 			break;
-		height = f->height * (int)QSIZE(path)/f->unit + 0.99999999;
-		ascent = height - (int)(-f->originy * (int)QSIZE(path)/f->unit + 0.99999999);
+		}
+		height = 0;
+		ascent = 0;
+		if(f->unit > 0) {
+			height = f->height * (int)QSIZE(path)/f->unit + 0.99999999;
+			ascent = height - (int)(-f->originy * (int)QSIZE(path)/f->unit + 0.99999999);
+		}
+		if(f->loadheight != nil)
+			f->loadheight(f, QSIZE(path), &height, &ascent);
 		fmtprint(&fmt, "%11d %11d\n", height, ascent);
 		for(i=0; i<nelem(f->range); i++) {
 			if(f->range[i] == 0)
@@ -331,7 +339,7 @@ xread(Req *r)
 		f = &xfont[QFONT(path)];
 		load(f);
 		if(r->fid->aux == nil) {
-			r->fid->aux = mksubfont(f->name, QRANGE(path)<<8, (QRANGE(path)<<8)+0xFF, QSIZE(path), QANTIALIAS(path));
+			r->fid->aux = mksubfont(f, f->name, QRANGE(path)<<8, (QRANGE(path)<<8)+0xFF, QSIZE(path), QANTIALIAS(path));
 			if(r->fid->aux == nil) {
 				responderrstr(r);
 				return;
