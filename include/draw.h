@@ -308,6 +308,7 @@ struct Cachesubf
 struct Font
 {
 	char		*name;
+	char		*namespec;
 	Display		*display;
 	short		height;	/* max height of image, interline spacing */
 	short		ascent;	/* top of image to baseline */
