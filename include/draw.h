@@ -206,6 +206,9 @@ struct Display
 	struct Mux	*mux;
 	int		srvfd;
 	int		dpi;
+	
+	Font	*firstfont;
+	Font	*lastfont;
 };
 
 struct Image
@@ -319,6 +322,15 @@ struct Font
 	Cachesubf	*subf;
 	Cachefont	**sub;	/* as read from file */
 	Image		*cacheimage;
+	
+	/* doubly linked list of fonts known to display */
+	int ondisplaylist;
+	Font *next;
+	Font *prev;
+	
+	/* on hi-dpi systems, one of these is set to f and the other is the other-dpi version of f */
+	Font	*lodpi;
+	Font	*hidpi;
 };
 
 #define	Dx(r)	((r).max.x-(r).min.x)
@@ -460,6 +472,7 @@ extern void	borderop(Image*, Rectangle, int, Image*, Point, Drawop);
  * Font management
  */
 extern Font*	openfont(Display*, char*);
+extern int	parsefontscale(char*, char**);
 extern Font*	buildfont(Display*, char*, char*);
 extern void	freefont(Font*);
 extern Font*	mkfont(Subfont*, Rune);
@@ -483,11 +496,13 @@ extern int	runestringnwidth(Font*, Rune*, int);
 extern Point	strsubfontwidth(Subfont*, char*);
 extern int	loadchar(Font*, Rune, Cacheinfo*, int, int, char**);
 extern char*	subfontname(char*, char*, int);
-extern Subfont*	_getsubfont(Display*, Font*, char*);
+extern Subfont*	_getsubfont(Display*, char*);
 extern Subfont*	getdefont(Display*);
 extern void		lockdisplay(Display*);
 extern void	unlockdisplay(Display*);
 extern int		drawlsetrefresh(u32int, int, void*, void*);
+extern void	loadhidpi(Font*);
+extern void	swapfont(Font*, Font**, Font**);
 
 /*
  * Predefined 
