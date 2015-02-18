@@ -104,7 +104,6 @@ load(XFont *f)
 Memsubfont*
 mksubfont(XFont *xf, char *name, int lo, int hi, int size, int antialias)
 {
-	XFont *xf, *xfp, *xfe;
 	FT_Face face;
 	FT_Error e;
 	Memimage *m, *mc, *m1;
