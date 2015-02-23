@@ -61,6 +61,12 @@ if [ `uname` = OpenBSD ]; then
        echo "LDFLAGS='-L/usr/X11R6/lib -pthread'" >> $PLAN9/config
 fi
 
+if [ `uname` = NetBSD ]; then
+       echo "* Running on NetBSD, adjusting linker flags"
+       echo "LDFLAGS='-L/usr/X11R7/lib -pthread'" >> $PLAN9/config
+       echo "CFLAGS='-I/usr/X11R7/include/ -I/usr/X11R7/include/freetype2'" >> $PLAN9/config
+fi
+
 if [ `uname` = Linux ]; then
 	# On Linux, we use the kernel version to decide whether
 	# to use pthreads or not.  On 2.6 versions that aren't
@@ -128,7 +134,7 @@ fi
 if [ `uname` != Darwin ]; then
 	# Determine whether fontsrv X11 files are available.
 	rm -f a.out
-	gcc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1
+gcc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/X11R7/include/ -I/usr/X11R7/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1
 	if [ -f a.out ]; then
 		echo "	fontsrv dependencies found."
 		echo "FONTSRV=fontsrv" >>$PLAN9/config
