@@ -12,6 +12,7 @@ OBJTYPE=`(uname -m -p 2>/dev/null || uname -m) | sed '
 	s;.*PowerMacintosh.*;power;g;
 	s;.*Power.Macintosh.*;power;g;
 	s;.*macppc.*;power;g;
+	s;.*mips.*;mips;g;
 	s;.*ppc64.*;power;g;
 	s;.*ppc.*;power;g;
 	s;.*alpha.*;alpha;g;
