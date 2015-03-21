@@ -221,6 +221,8 @@ openfont(Display *d, char *name)
 		*p = '\0';
 
 	f = openfont1(d, name);
+	if(!f)
+		return nil;
 	f->lodpi = f;
 	f->namespec = namespec;
 	
