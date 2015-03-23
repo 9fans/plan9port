@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4665f4c2_3a2b617c",
+        "filename": "src/lib9/getcallerpc-arm64.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2015-03-23T21:33:42Z",
+      "side": 1,
+      "message": "again, this doesn\u0027t seem right....\nalthough probably we don\u0027t care.\n\nI think we should probably change getcallerpc to a\nmacro that uses __builtin_return_address(0).\n\nRuss?",
+      "range": {
+        "startLine": 6,
+        "startChar": 20,
+        "endLine": 6,
+        "endChar": 22
+      },
+      "revId": "ddb2b47f887c20a5addc8752af64f512b04a5c79",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
