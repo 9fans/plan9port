@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4665f4c2_ba1e9162",
+        "filename": "INSTALL",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2015-03-23T21:30:54Z",
+      "side": 1,
+      "message": "why remove the leading tab?\n\nuse $CFLAGS defined in $PLAN9/config here?",
+      "revId": "604ee6373a8f1e5476243d6c1418844f4558bd73",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
