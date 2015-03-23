@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4665f4c2_bac5b13e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5075
+      },
+      "writtenOn": "2015-03-23T21:36:15Z",
+      "side": 1,
+      "message": "use:\n9c: remove deprecated gcc flags for Darwin\n\nnotes:\n1. prefix \"9c:\"\n2. don\u0027t capitalize the sentence\n3. no trailing period",
+      "revId": "9efcf29ffef3c2f8dc11173c8beed34aa8450645",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
