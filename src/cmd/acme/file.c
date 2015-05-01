@@ -163,11 +163,11 @@ fileunsetname(File *f, Buffer *delta)
 }
 
 uint
-fileload(File *f, uint p0, int fd, int *nulls)
+fileload(File *f, uint p0, int fd, int *nulls, uint32 *crc)
 {
 	if(f->seq > 0)
 		error("undo in file.load unimplemented");
-	return bufload(&f->b, p0, fd, nulls);
+	return bufload(&f->b, p0, fd, nulls, crc);
 }
 
 /* return sequence number of pending redo */

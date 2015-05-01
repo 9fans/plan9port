@@ -10,6 +10,7 @@
 #include <fcall.h>
 #include <plumb.h>
 #include <9pclient.h>
+#include <flate.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -635,6 +636,29 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 	xfidlog(w, "get");
 }
 
+static uint32
+readcrc(char *name)
+{
+	int fd, n;
+	char *buf;
+	uint32 crc;
+
+	enum {
+		BufSize = 8192,
+	};
+	
+	fd = open(name, OREAD);
+	if(fd < 0)
+		return 0;
+	buf = emalloc(BufSize);
+	crc = 0;
+	while((n = read(fd, buf, BufSize)) > 0)
+		crc = blockcrc(crctab, crc, buf, n);
+	close(fd);
+	free(buf);
+	return crc;
+}
+
 void
 putfile(File *f, int q0, int q1, Rune *namer, int nname)
 {
@@ -646,13 +670,20 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	Dir *d, *d1;
 	Window *w;
 	int isapp;
+	uint32 crc;
 
 	w = f->curtext->w;
 	name = runetobyte(namer, nname);
 	d = dirstat(name);
 	if(d!=nil && runeeq(namer, nname, f->name, f->nname)){
-		/* f->mtime+1 because when talking over NFS it's often off by a second */
-		if(f->dev!=d->dev || f->qidpath!=d->qid.path || abs(f->mtime-d->mtime) > 1){
+		// Check for file updated underfoot.
+		// If dev/qidpath/mtime are all the same, we're okay.
+		// Otherwise, fall back to checking length and crc of content
+		// before declaring a problem.
+		// The content check handles drifting mtimes on NFS
+		// and also programs like git modifying and then unmodifying files.
+		if((f->dev!=d->dev || f->qidpath!=d->qid.path || f->mtime!=d->mtime) &&
+		   (f->unread || d->length != f->length || readcrc(name) != f->crc)) {
 			if(f->unread)
 				warning(nil, "%s not written; file already exists\n", name);
 			else

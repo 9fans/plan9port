@@ -8,6 +8,7 @@
 #include <frame.h>
 #include <fcall.h>
 #include <plumb.h>
+#include <flate.h>
 #include "dat.h"
 #include "fns.h"
 	/* for generating syms in mkfile only: */
@@ -30,6 +31,7 @@ int		snarffd = -1;
 int		mainpid;
 int		swapscrollbuttons = FALSE;
 char		*mtpt;
+uint32	*crctab;
 
 enum{
 	NSnarf = 1000	/* less than 1024, I/O buffer size */
@@ -129,7 +131,8 @@ threadmain(int argc, char *argv[])
 
 	quotefmtinstall();
 	fmtinstall('t', timefmt);
-
+	
+	crctab = mkcrctab(0xedb88320);
 	cputype = getenv("cputype");
 	objtype = getenv("objtype");
 	home = getenv("HOME");

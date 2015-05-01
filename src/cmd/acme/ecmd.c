@@ -5,6 +5,7 @@
 #include <cursor.h>
 #include <mouse.h>
 #include <keyboard.h>
+
 #include <frame.h>
 #include <fcall.h>
 #include <plumb.h>
@@ -301,6 +302,7 @@ e_cmd(Text *t, Cmd *cp)
 	int i, isdir, q0, q1, fd, nulls, samename, allreplaced;
 	char *s, tmp[128];
 	Dir *d;
+	uint32 crc;
 
 	f = t->file;
 	q0 = addr.r.q0;
@@ -336,7 +338,8 @@ e_cmd(Text *t, Cmd *cp)
 	}
 	elogdelete(f, q0, q1);
 	nulls = 0;
-	loadfile(fd, q1, &nulls, readloader, f);
+	crc = 0;
+	loadfile(fd, q1, &nulls, &crc, readloader, f);
 	free(s);
 	close(fd);
 	if(nulls)

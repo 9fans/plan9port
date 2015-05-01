@@ -105,7 +105,7 @@ struct Buffer
 };
 void		bufinsert(Buffer*, uint, Rune*, uint);
 void		bufdelete(Buffer*, uint, uint);
-uint		bufload(Buffer*, uint, int, int*);
+uint		bufload(Buffer*, uint, int, int*, uint32*);
 void		bufread(Buffer*, uint, Rune*, uint);
 void		bufclose(Buffer*);
 void		bufreset(Buffer*);
@@ -137,6 +137,8 @@ struct File
 	uvlong	qidpath;	/* of file when read */
 	ulong		mtime;	/* of file when read */
 	int		dev;		/* of file when read */
+	uvlong	length;	/* of file when read */
+	uint32	crc;		/* of file when read */
 	int		unread;	/* file has not been read from disk */
 	int		editclean;	/* mark clean after edit command */
 
@@ -152,7 +154,7 @@ void		fileclose(File*);
 void		filedelete(File*, uint, uint);
 void		filedeltext(File*, Text*);
 void		fileinsert(File*, uint, Rune*, uint);
-uint		fileload(File*, uint, int, int*);
+uint		fileload(File*, uint, int, int*, uint32*);
 void		filemark(File*);
 void		filereset(File*);
 void		filesetname(File*, Rune*, int);
@@ -553,6 +555,7 @@ int			messagesize;		/* negotiated in 9P version setup */
 int			globalautoindent;
 int			dodollarsigns;
 char*		mtpt;
+uint32*		crctab;
 
 enum
 {

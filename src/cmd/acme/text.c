@@ -195,6 +195,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 	Dirlist *dl, **dlp;
 	int fd, i, j, n, ndl, nulls;
 	uint q, q1;
+	uint32 crc;
 	Dir *d, *dbuf;
 	char *tmp;
 	Text *u;
@@ -220,6 +221,7 @@ textload(Text *t, uint q0, char *file, int setqid)
 		goto Rescue;
 	}
 	nulls = FALSE;
+	crc = 0;
 	if(d->qid.type & QTDIR){
 		/* this is checked in get() but it's possible the file changed underfoot */
 		if(t->file->ntext > 1){
@@ -264,12 +266,14 @@ textload(Text *t, uint q0, char *file, int setqid)
 	}else{
 		t->w->isdir = FALSE;
 		t->w->filemenu = TRUE;
-		q1 = q0 + fileload(t->file, q0, fd, &nulls);
+		q1 = q0 + fileload(t->file, q0, fd, &nulls, &crc);
 	}
 	if(setqid){
 		t->file->dev = d->dev;
 		t->file->mtime = d->mtime;
 		t->file->qidpath = d->qid.path;
+		t->file->length = d->length;
+		t->file->crc = crc;
 	}
 	close(fd);
 	rp = fbufalloc();
