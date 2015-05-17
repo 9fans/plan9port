@@ -32,7 +32,8 @@ extern "C" {
 #	define __LONG_LONG_SUPPORTED
 #endif
 #if defined(__AIX__)
-#	define _XOPEN_SOURCE 1
+#	define _XOPEN_SOURCE 1000
+#	define _XOPEN_SOURCE_EXTENDED 1
 #endif
 #if defined(__APPLE__)
 #	define _DARWIN_NO_64_BIT_INODE	/* Snow Leopard */
@@ -121,6 +122,10 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
+#elif defined(__AIX__)
+#	include <sys/types.h>
+#	include <pthread.h>
+#	define PLAN9PORT_USING_PTHREADS 1
 #else
 	/* No idea what system this is -- try some defaults */
 #	include <pthread.h>

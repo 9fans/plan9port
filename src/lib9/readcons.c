@@ -2,7 +2,9 @@
 #define NOPLAN9DEFINES
 #include <libc.h>
 #include <termios.h>
+#if !defined(__AIX__)
 #include <sys/termios.h>
+#endif
 
 static int
 rawx(int fd, int echoing)

@@ -7,9 +7,16 @@
  *	-t suppresses expanding multiple blanks into tabs
  *
  */
+#if defined(__AIX__)
+#define _ALL_SOURCE
+#endif
 #include	<u.h>
 #include	<sys/ioctl.h>
+#if defined(__AIX__)
+#include	<termios.h>
+#else
 #include	<sys/termios.h>
+#endif
 #include	<libc.h>
 #include	<draw.h>
 #include	<bio.h>

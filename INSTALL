@@ -43,7 +43,11 @@ rm -f config
 
 (
 echo "* Compiler version:"
-9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
+if [ `uname` = AIX ]; then
+	9c -qversion | grep Version | awk '{print $2}'
+else
+	9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
+fi
 
 if [ `uname` = FreeBSD ]; then
        echo "* Running on FreeBSD, adjusting linker flags"
@@ -125,7 +129,14 @@ if [ `uname` = Darwin ]; then
 	rm -f ./a.out
 fi
 
-if [ `uname` != Darwin ]; then
+if [ `uname` = AIX ]; then
+	echo "* Running on AIX"
+	echo "OBJTYPE=power" >>$PLAN9/config
+	echo "* Use installbsd on AIX"
+	echo "INSTALL=installbsd" >>$PLAN9/config
+fi
+
+if [ `uname` != Darwin -a `uname` != AIX ]; then
 	# Determine whether fontsrv X11 files are available.
 	rm -f a.out
 	gcc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1

@@ -75,6 +75,22 @@ useclang()
 	cflags="$ngflags -g"
 }
 
+usexlc()
+{
+	cc=${CC9:-xlc_r}
+	ngflags=" \
+		-c \
+		-O2 \
+		-qmaxmem=-1 \
+		-qsuppress=1506-236 \
+		-qsuppress=1506-358 \
+		-qsuppress=1500-010 \
+		-qsuppress=1506-224 \
+		-qsuppress=1506-1300 \
+	"
+	cflags="$ngflags -g"
+}
+
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
 *FreeBSD*gcc*)	usegcc ;;
@@ -124,7 +140,7 @@ case "$tag" in
 		cflags="$ngflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
-*AIX*)		usegcc
+*AIX*)		usexlc
 		cflags="$ngflags -g -D__AIX__"
 		;;
 *)

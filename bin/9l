@@ -79,8 +79,9 @@ case "$tag" in
 	esac
 	;;
 *AIX*)
-	ld=${CC9:-gcc}
-	nmflags="-B"
+	ld="${CC9:-xlc_r} -g"
+	nmflags="-A -B"
+	extralibs="$extralibs -lpthread"
 	;;
 *)
 	echo do not know how to link on "$tag" 1>&2
@@ -131,8 +132,8 @@ then
 	then
 		a=`
 			nm $nmflags $ofiles |
-			grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
-			sed 's/.*__p9l_autolib_//' |
+			grep '__p9l_autolib_[a-zA-Z0-9+-]*' |
+			sed -e 's/.*__p9l_autolib_//' -e 's/:.*//' |
 			sort -u
 		`
 		for i in $a
@@ -161,9 +162,9 @@ then
 			for lpath in $lpaths
 			do
 				b=`
-					nm $lpath/lib$i.a 2>/dev/null |
-					grep '__p9l_autolib_[a-zA-Z0-9+-]*$' |
-					sed 's/.*__p9l_autolib_//' |
+					nm $nmflags $lpath/lib$i.a 2>/dev/null |
+					grep '__p9l_autolib_[a-zA-Z0-9+-]*' |
+					sed -e 's/.*__p9l_autolib_//' -e 's/:.*//' |
 					sort -u |
 					egrep -v '^(thread|draw)$'
 				`
