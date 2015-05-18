@@ -4,7 +4,7 @@ TARG=mk
 
 OFILES=\
 	arc.$O\
-	archive.$O\
+	$SYSNAME.$O\
 	bufblock.$O\
 	env.$O\
 	file.$O\
