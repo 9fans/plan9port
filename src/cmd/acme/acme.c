@@ -256,15 +256,16 @@ threadmain(int argc, char *argv[])
 		c = row.col[row.ncol-1];
 		if(argc == 0)
 			readfile(c, wdir);
-		else
-			for(i=0; i<argc; i++){
-				p = utfrrune(argv[i], '/');
-				if((p!=nil && strcmp(p, "/guide")==0) || i/WPERCOL>=row.ncol)
-					readfile(c, argv[i]);
-				else
-					readfile(row.col[i/WPERCOL], argv[i]);
-			}
 	}
+
+	for(i=0; i<argc; i++){
+		p = utfrrune(argv[i], '/');
+		if((p!=nil && strcmp(p, "/guide")==0) || i/WPERCOL>=row.ncol)
+			readfile(c, argv[i]);
+		else
+			readfile(row.col[i/WPERCOL], argv[i]);
+	}
+
 	flushimage(display, 1);
 
 	acmeerrorinit();
