@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99a8345d_2e5a087c",
+        "filename": "src/cmd/draw/mc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5000
+      },
+      "writtenOn": "2015-06-03T15:38:52Z",
+      "side": 1,
+      "message": "It seems like this should be in u.h instead of sprinked into multiple programs. Is there a reason not to put it in u.h?",
+      "revId": "d5d3c44429b96e0e44bb9cb5972f38e0c9d7d34f",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
