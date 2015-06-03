@@ -16,6 +16,24 @@
       "revId": "604ee6373a8f1e5476243d6c1418844f4558bd73",
       "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99a8345d_ae76f8fc",
+        "filename": "INSTALL",
+        "patchSetId": 1
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5000
+      },
+      "writtenOn": "2015-06-03T15:37:05Z",
+      "side": 1,
+      "message": "How about:\n\n(. $PLAN9/config; gcc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include $CFLAGS src/cmd/fontsrv/x11.c \u003e/dev/null 2\u003e\u00261)",
+      "parentUuid": "4665f4c2_ba1e9162",
+      "revId": "604ee6373a8f1e5476243d6c1418844f4558bd73",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
     }
   ]
 }
