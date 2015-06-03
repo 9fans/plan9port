@@ -16,6 +16,24 @@
       "revId": "d5d3c44429b96e0e44bb9cb5972f38e0c9d7d34f",
       "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d96c6c17_8b92bdd8",
+        "filename": "src/cmd/draw/mc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5155
+      },
+      "writtenOn": "2015-06-03T22:38:26Z",
+      "side": 1,
+      "message": "Most things in the tree don\u0027t need it.  I don\u0027t disagree with your comment, but I had tried it in u.h first, and it broke more than it fixed.  If you\u0027d prefer though, we could put this in u.h and work to fix the other things...",
+      "parentUuid": "99a8345d_2e5a087c",
+      "revId": "d5d3c44429b96e0e44bb9cb5972f38e0c9d7d34f",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
     }
   ]
 }
