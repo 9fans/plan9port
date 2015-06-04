@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99fbd485_c0012ec3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5130
+      },
+      "writtenOn": "2015-06-04T12:33:58Z",
+      "side": 1,
+      "message": "use  searchpath() from lib9, pointed out by sqweek E.\nthanks",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 0
+      },
+      "revId": "6d56455633618180ba45d73afb5e2d4b7a66b536",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
