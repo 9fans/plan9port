@@ -779,6 +779,7 @@ imapdial(char *server, int mode)
 	int p[2];
 	int fd[3];
 	char *tmp;
+	char *fpath;
 	
 	switch(mode){
 	default:
@@ -797,10 +798,12 @@ imapdial(char *server, int mode)
 		fd[2] = dup(2, -1);
 #ifdef PLAN9PORT
 		tmp = esmprint("%s:993", server);
-		if(threadspawnl(fd, "/usr/sbin/stunnel3", "stunnel3", "-c", "-r", tmp, nil) < 0
-		    && threadspawnl(fd, "/usr/bin/stunnel3", "stunnel3", "-c", "-r", tmp, nil) < 0
-		    && threadspawnl(fd, "/usr/sbin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0
-		    && threadspawnl(fd, "/usr/bin/stunnel", "stunnel", "-c", "-r", tmp, nil) < 0){
+		fpath = searchpath("stunnel3");
+		if (!fpath) {
+			werrstr("stunnel not found. it is required for tls support.");
+			return -1;
+		}
+		if(threadspawnl(fd, fpath, "stunnel", "-c", "-r", tmp, nil) < 0) {
 #else
 		tmp = esmprint("tcp!%s!993", server);
 		if(threadspawnl(fd, "/bin/tlsclient", "tlsclient", tmp, nil) < 0){
