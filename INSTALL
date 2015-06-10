@@ -128,7 +128,8 @@ fi
 if [ `uname` != Darwin ]; then
 	# Determine whether fontsrv X11 files are available.
 	rm -f a.out
-	gcc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1
+	gcc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 \
+	    -I/usr/X11R6/include -I/usr/X11R6/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1
 	if [ -f a.out ]; then
 		echo "	fontsrv dependencies found."
 		echo "FONTSRV=fontsrv" >>$PLAN9/config
