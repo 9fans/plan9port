@@ -54,7 +54,7 @@ enum
 #define QFONT(p) (((p) >> 4) & 0xFFFF)
 #define QSIZE(p) (((p) >> 20) & 0xFF)
 #define QANTIALIAS(p) (((p) >> 28) & 0x1)
-#define QRANGE(p) (((p) >> 29) & 0xFF)
+#define QRANGE(p) (((p) >> 29) & SubfontMask)
 static int sizes[] = { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24, 28 };
 
 static vlong
@@ -109,7 +109,7 @@ dostat(vlong path, Qid *qid, Dir *dir)
 		break;
 
 	case Qsubfontfile:
-		snprint(buf, sizeof buf, "x%02llx00.bit", QRANGE(path));
+		snprint(buf, sizeof buf, "x%04x.bit", (int)QRANGE(path)*SubfontSize);
 		name = buf;
 		break;
 	}
@@ -191,9 +191,9 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 			goto NotFound;
 		p++;
 		n = strtoul(p, &p, 16);
-		if(p != name+5 || (n&0xFF) != 0 || strcmp(p, ".bit") != 0 || !f->range[(n>>8) & 0xFF])
+		if(p != name+5 || n%SubfontSize != 0 || strcmp(p, ".bit") != 0 || !f->range[(n/SubfontSize) & SubfontMask])
 			goto NotFound;
-		path += Qsubfontfile - Qsizedir + qpath(0, 0, 0, 0, (n>>8) & 0xFF);
+		path += Qsubfontfile - Qsizedir + qpath(0, 0, 0, 0, (n/SubfontSize) & SubfontMask);
 		break;
 	}
 Found:
@@ -329,7 +329,7 @@ xread(Req *r)
 		for(i=0; i<nelem(f->range); i++) {
 			if(f->range[i] == 0)
 				continue;
-			fmtprint(&fmt, "0x%04x 0x%04x x%04x.bit\n", i<<8, (i<<8) + 0xFF, i<<8);
+			fmtprint(&fmt, "0x%04x 0x%04x x%04x.bit\n", i*SubfontSize, ((i+1)*SubfontSize) - 1, i*SubfontSize);
 		}
 		data = fmtstrflush(&fmt);
 		readstr(r, data);
@@ -339,7 +339,7 @@ xread(Req *r)
 		f = &xfont[QFONT(path)];
 		load(f);
 		if(r->fid->aux == nil) {
-			r->fid->aux = mksubfont(f, f->name, QRANGE(path)<<8, (QRANGE(path)<<8)+0xFF, QSIZE(path), QANTIALIAS(path));
+			r->fid->aux = mksubfont(f, f->name, QRANGE(path)*SubfontSize, ((QRANGE(path)+1)*SubfontSize)-1, QSIZE(path), QANTIALIAS(path));
 			if(r->fid->aux == nil) {
 				responderrstr(r);
 				return;

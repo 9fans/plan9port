@@ -2,11 +2,16 @@ typedef struct XFont XFont;
 XFont *xfont;
 int nxfont;
 
+enum {
+	SubfontSize = 32,
+	SubfontMask = (1<<16)/SubfontSize - 1,
+};
+
 struct XFont
 {
 	char *name;
 	int loaded;
-	uchar range[256];	// range[i] == whether to have subfont i<<8 to (i+1)<<8.
+	uchar range[(1<<16)/SubfontSize];	// range[i] == whether to have subfont i*SubfontSize to (i+1)*SubfontSize - 1.
 	int nrange;
 	int unit;
 	double height;
