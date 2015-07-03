@@ -86,7 +86,7 @@ load(XFont *f)
 	for(charcode=FT_Get_First_Char(face, &glyph_index); glyph_index != 0;
 		charcode=FT_Get_Next_Char(face, charcode, &glyph_index)) {
 
-		int idx = charcode>>8;
+		int idx = charcode/SubfontSize;
 
 		if(charcode > 0xffff)
 			break;
