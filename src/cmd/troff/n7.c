@@ -1,4 +1,4 @@
-#define _BSD_SOURCE 1	/* isascii */
+#define _DEFAULT_SOURCE 1	/* isascii */
 #include "tdef.h"
 #include "fns.h"
 #include "ext.h"

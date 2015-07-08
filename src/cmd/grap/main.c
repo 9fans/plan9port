@@ -1,4 +1,4 @@
-#define _BSD_SOURCE 1	/* strdup, mkstemp */
+#define _DEFAULT_SOURCE 1	/* strdup, mkstemp */
 #include <stdio.h>
 #include <signal.h>
 #include <math.h>
