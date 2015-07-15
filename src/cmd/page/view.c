@@ -987,7 +987,7 @@ plumbproc(void *c)
 		threadexits("plumber");
 	}
 	for(;;) {
-		send(cp, plumbrecvfid(fd));
+		sendp(cp, plumbrecvfid(fd));
 	}
 }
 
