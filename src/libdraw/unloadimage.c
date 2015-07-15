@@ -28,7 +28,7 @@ unloadimage(Image *i, Rectangle r, uchar *data, int ndata)
 			werrstr("unloadimage: %r");
 			return -1;
 		}
-		dy = 8000/bpl;
+		dy = d->bufsize/bpl;
 		if(dy <= 0){
 			werrstr("unloadimage: image too wide");
 			return -1;
