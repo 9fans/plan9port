@@ -8,7 +8,7 @@
 
 int debug;
 
-enum{  IDATSIZE=1000000,
+enum{  IDATSIZE=8*1024*1024,
 	/* filtering algorithms, supposedly increase compression */
 	FilterNone =	0,	/* new[x][y] = buf[x][y] */
 	FilterSub	=	1,	/* new[x][y] = buf[x][y] + new[x-1][y] */ 
