@@ -171,7 +171,7 @@ regexec2(Reprog *progp,	/* program to run */
 		return -1;
 	relist1 = malloc(BIGLISTSIZE*sizeof(Relist));
 	if(relist1 == nil){
-		free(relist1);
+		free(relist0);
 		return -1;
 	}
 	j->relist[0] = relist0;
