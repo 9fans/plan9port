@@ -112,7 +112,7 @@ regerr2(char *s, int c)
 	while(*s)
 		*cp++ = *s++;
 	*cp++ = c;
-	*cp = '\0'; 
+	*cp = '\0';
 	rcerror(buf);
 }
 
@@ -120,7 +120,7 @@ static	void
 cant(char *s)
 {
 	char buf[100];
-	strcpy(buf, "can't happen: ");
+	strncpy(buf, "can't happen: ", sizeof(buf));
 	strcat(buf, s);
 	rcerror(buf);
 }
