@@ -7,7 +7,7 @@
 AUTOFRAMEWORK(Foundation)
 AUTOFRAMEWORK(Cocoa)
 
-@interface appdelegate : NSObject @end
+@interface appdelegate : NSObject<NSApplicationDelegate> @end
 
 void
 main(void)
@@ -32,7 +32,7 @@ main(void)
 	int i,n;
 	NSString *s;
 
-	n = [file count];
+	n = (int)[file count];
 	for(i=0; i<n; i++){
 		s = [file objectAtIndex:i];
 		print("%s\n", [s UTF8String]);
