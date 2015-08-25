@@ -109,6 +109,7 @@ typedef struct Node
 #define		NORECIPE	0x0400
 #define		DELETE		0x0800
 #define		NOMINUSE	0x1000
+#define		ONLIST		0x2000
 
 typedef struct Job
 {
