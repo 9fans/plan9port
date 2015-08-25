@@ -70,10 +70,15 @@ dorecipe(Node *node)
 			ww->next = newword(buf);
 			ww = ww->next;
 			if(n == node) continue;
+			if((n->flags&ONLIST) != 0)
+				continue;
+			n->flags |= ONLIST;
 			n->next = node->next;
 			node->next = n;
 		}
 	}
+	for(n = node->next; n; n = n->next)
+		n->flags &= ~ONLIST;
 	for(n = node; n; n = n->next)
 		if((n->flags&READY) == 0)
 			return(did);
