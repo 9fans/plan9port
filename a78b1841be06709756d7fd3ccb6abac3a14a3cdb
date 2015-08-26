@@ -1,0 +1,7 @@
+Code-Review+1: Nigel Tao <nigeltao@golang.org>
+Code-Review+2: Russ Cox <rsc@swtch.com>
+Submitted-by: Russ Cox <rsc@swtch.com>
+Submitted-at: Wed, 26 Aug 2015 00:51:07 +0000
+Reviewed-on: https://plan9port-review.googlesource.com/1351
+Project: plan9
+Branch: refs/heads/master
