@@ -5,6 +5,7 @@
 #include <cursor.h>
 #include <event.h>
 #include <mux.h>
+#include <ime.h>
 #include <drawfcall.h>
 
 typedef struct	Slave Slave;

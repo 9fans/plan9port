@@ -10,6 +10,7 @@
 #include <keyboard.h>
 #include <mouse.h>
 #include <cursor.h>
+#include <ime.h>
 #include <drawfcall.h>
 #include "cocoa-screen.h"
 #include "devdraw.h"
@@ -218,6 +219,9 @@ runmsg(Wsysmsg *m)
 	
 	case Tresize:
 	//	_xresizewindow(m->rect);
+		replymsg(m);
+		break;
+	case Timespot:
 		replymsg(m);
 		break;
 	}

@@ -52,6 +52,7 @@ extern "C" {
 #include <stddef.h>
 #include <math.h>
 #include <ctype.h>	/* for tolower */
+#include <locale.h>
 
 /*
  * OS-specific crap

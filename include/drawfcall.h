@@ -42,6 +42,9 @@ tag[1] Rtop
 
 tag[1] Tresize rect[4*4]
 tag[1] Rresize 
+
+tag[1] Timespot x[4] y[4]
+tag[1] Rimespot
 */
 
 
@@ -89,6 +92,8 @@ enum {
 	Rtop,
 	Tresize = 26,
 	Rresize,
+	Timespot = 28,
+	Rimespot,
 	Tmax,
 };
 
@@ -113,6 +118,7 @@ struct Wsysmsg
 	uchar *data;
 	uint count;
 	Rectangle rect;
+	Ime ime;
 };
 
 uint	convW2M(Wsysmsg*, uchar*, uint);

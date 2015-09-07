@@ -11,12 +11,14 @@
 #include <cursor.h>
 #include "x11-memdraw.h"
 #include "devdraw.h"
+#include "x11-ime.h"
 
 static void	plan9cmap(void);
 static int	setupcmap(XWindow);
 static XGC	xgc(XDrawable, int, int);
 
 Xprivate _x;
+int usingime;
 
 static int
 xerror(XDisplay *d, XErrorEvent *e)
@@ -71,6 +73,11 @@ _xattach(char *label, char *winsize)
 	XWindowAttributes wattr;
 	XWMHints hint;
 	Atom atoms[2];
+
+	if(setlocale(LC_ALL, "") == NULL){
+		fprint(2, "setlocale failed\n");
+		return nil;
+	}
 
 	/*
 	if(XInitThreads() == 0){
@@ -333,6 +340,10 @@ _xattach(char *label, char *winsize)
 		&hint,		/* XA_WM_HINTS */
 		&classhint	/* XA_WM_CLASSHINTS */
 	);
+	if(imeinit(_x.display, _x.drawable) == 0)
+		usingime = 1;
+	else
+		fprint(2, "imeinit failed\n");
 	XFlush(_x.display);
 
 	if(havemin){
@@ -411,6 +422,7 @@ err0:
 	/*
 	 * Should do a better job of cleaning up here.
 	 */
+	imecleanup();
 	XCloseDisplay(_x.display);
 	return nil;
 }

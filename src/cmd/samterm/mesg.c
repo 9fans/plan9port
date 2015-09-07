@@ -6,6 +6,7 @@
 #include <cursor.h>
 #include <keyboard.h>
 #include <frame.h>
+#include <ime.h>
 #include <plumb.h>
 #include "flayer.h"
 #include "samterm.h"

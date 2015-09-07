@@ -22,9 +22,11 @@
 #include <keyboard.h>
 #include <mouse.h>
 #include <cursor.h>
+#include <ime.h>
 #include <drawfcall.h>
 #include "x11-memdraw.h"
 #include "devdraw.h"
+#include "x11-ime.h"
 
 #undef time
 
@@ -40,6 +42,7 @@
 
 typedef struct Kbdbuf Kbdbuf;
 typedef struct Mousebuf Mousebuf;
+typedef struct Imebuf Imebuf;
 typedef struct Fdbuf Fdbuf;
 typedef struct Tagbuf Tagbuf;
 
@@ -81,6 +84,7 @@ Fdbuf fdin;
 Fdbuf fdout;
 Tagbuf kbdtags;
 Tagbuf mousetags;
+Rune *imerunes;
 
 void fdslide(Fdbuf*);
 void runmsg(Wsysmsg*);
@@ -88,6 +92,7 @@ void replymsg(Wsysmsg*);
 void runxevent(XEvent*);
 void matchkbd(void);
 void matchmouse(void);
+int matchimeres(Rune*);
 int fdnoblock(int);
 
 int chatty;
@@ -239,6 +244,11 @@ main(int argc, char **argv)
 			/* slide data to beginning of buf */
 			fdslide(&fdout);
 		}
+		if(usingime && imerunes != NULL && *imerunes){
+			imerunes += matchimeres(imerunes);
+			matchkbd();
+			continue;
+		}
 		{
 			/*
 			 * Read an X message if we can.
@@ -249,6 +259,8 @@ main(int argc, char **argv)
 			 */
 			while(XPending(_x.display)){
 				XNextEvent(_x.display, &event);
+				if(XFilterEvent(&event, None))
+					continue;
 				runxevent(&event);
 			}
 		}
@@ -314,6 +326,14 @@ runmsg(Wsysmsg *m)
 		/* fprint(2, "mouse unstall\n"); */
 		mouse.stall = 0;
 		matchmouse();
+		break;
+
+	case Timespot:
+		if(!usingime)
+			;
+		else if(imesetspot(m->ime.x, m->ime.y) != 0)
+			fprint(2, "imesetspot failed\n");
+		replymsg(m);
 		break;
 
 	case Trdkbd:
@@ -463,6 +483,32 @@ matchmouse(void)
 	}
 }
 
+static
+int
+kbddist()
+{
+	int d = kbd.ri - kbd.wi;
+	if(d == 0)
+		d = nelem(kbd.r);
+	else if(d < 0)
+		d += nelem(kbd.r);
+	return d;
+}
+
+int
+matchimeres(Rune *s)
+{
+	Rune *b = s;
+	int d;
+
+	for(d = kbddist(); d > 1 && *s; d = kbddist(), ++s){
+		kbd.r[kbd.wi++] = *s;
+		if(kbd.wi == nelem(kbd.r))
+			kbd.wi = 0;
+	}
+	return s - b;
+}
+
 static int kbuttons;
 static int altdown;
 static int kstate;
@@ -608,8 +654,15 @@ runxevent(XEvent *xev)
 		}
 		if(kbd.stall)
 			return;
-		if((c = _xtoplan9kbd(xev)) < 0)
+		if((c = _xtoplan9kbd(xev)) < 0) {
+			if(!usingime)
+				return;
+			imerunes = imestr((XKeyPressedEvent *)xev);
+			if(imerunes == NULL)
+				return;
+			matchkbd();
 			return;
+		}
 		kbd.r[kbd.wi++] = c;
 		if(kbd.wi == nelem(kbd.r))
 			kbd.wi = 0;

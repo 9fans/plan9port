@@ -4,6 +4,7 @@
 #include <thread.h>
 #include <mouse.h>
 #include <cursor.h>
+#include <ime.h>
 #include <keyboard.h>
 #include <frame.h>
 #include "flayer.h"

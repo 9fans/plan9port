@@ -33,3 +33,5 @@
 #undef Window
 
 void	sendalt(void);
+
+extern int	usingime;

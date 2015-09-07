@@ -6,6 +6,7 @@
 #include <draw.h>
 #include <mouse.h>
 #include <cursor.h>
+#include <ime.h>
 #include <drawfcall.h>
 #include <mux.h>
 
@@ -264,6 +265,18 @@ _displayrdmouse(Display *d, Mouse *m, int *resized)
 	*m = rx.mouse;
 	*resized = rx.resized;
 	return 0;
+}
+
+int
+_displayimemovespot(Display *d, Point pt)
+{
+	Wsysmsg tx, rx;
+
+	tx.type = Timespot;
+	tx.ime.x = pt.x;
+	tx.ime.y = pt.y;
+	USED(&rx);
+	return displayrpc(d, &tx, &tx, nil);
 }
 
 int

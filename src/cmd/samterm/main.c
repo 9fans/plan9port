@@ -5,6 +5,7 @@
 #include <mouse.h>
 #include <cursor.h>
 #include <keyboard.h>
+#include <ime.h>
 #include <frame.h>
 #include "flayer.h"
 #include "samterm.h"
@@ -34,6 +35,16 @@ notifyf(void *a, char *msg)
 	if(strcmp(msg, "interrupt") == 0)
 		noted(NCONT);
 	noted(NDFLT);
+}
+
+void
+resetimespot(Flayer *l)
+{
+	if(l){
+		Point pt = frptofchar(&l->f, l->p0);
+		pt.y += l->f.font->height;
+		moveimespot(pt);
+	}
 }
 
 void
@@ -82,6 +93,7 @@ threadmain(int argc, char *argv[])
 	cmd.tag = Untagged;
 	outTs(Tversion, VERSION);
 	startnewfile(Tstartcmdfile, &cmd);
+	resetimespot(which);
 
 	got = 0;
 	if(protodebug) print("loop\n");
@@ -158,6 +170,7 @@ threadmain(int argc, char *argv[])
 				}
 			}
 		}
+		resetimespot(which);
 	}
 }
 
@@ -586,6 +599,7 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 		if(c=='\n' || typeend-typestart>100)
 			flushtyping(0);
 		onethird(l, a);
+		resetimespot(l);
 	}
 	if(c==SCROLLKEY || c==PAGEDOWN){
 		flushtyping(0);

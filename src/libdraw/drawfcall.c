@@ -3,6 +3,7 @@
 #include <draw.h>
 #include <mouse.h>
 #include <cursor.h>
+#include <ime.h>
 #include <drawfcall.h>
 
 static int
@@ -56,6 +57,7 @@ sizeW2M(Wsysmsg *m)
 	case Ttop:
 	case Rtop:
 	case Rresize:
+	case Rimespot:
 		return 4+1+1;
 	case Rrdmouse:
 		return 4+1+1+4+4+4+4+1;
@@ -86,6 +88,8 @@ sizeW2M(Wsysmsg *m)
 		return 4+1+1+4;
 	case Tresize:
 		return 4+1+1+4*4;
+	case Timespot:
+		return 4+1+1+4+4;
 	}
 }
 
@@ -116,6 +120,7 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 	case Ttop:
 	case Rtop:
 	case Rresize:
+	case Rimespot:
 		break;
 	case Rerror:
 		PUTSTRING(p+6, m->error);
@@ -173,6 +178,10 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 		PUT(p+14, m->rect.max.x);
 		PUT(p+18, m->rect.max.y);
 		break;
+	case Timespot:
+		PUT(p+6, m->ime.x);
+		PUT(p+10, m->ime.y);
+		break;	
 	}		
 	return nn;
 }
@@ -204,6 +213,7 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 	case Ttop:
 	case Rtop:
 	case Rresize:
+	case Rimespot:
 		break;
 	case Rerror:
 		GETSTRING(p+6, &m->error);
@@ -260,6 +270,10 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 		GET(p+10, m->rect.min.y);
 		GET(p+14, m->rect.max.x);
 		GET(p+18, m->rect.max.y);
+		break;
+	case Timespot:
+		GET(p+6, m->ime.x);
+		GET(p+10, m->ime.y);
 		break;
 	}	
 	return nn;
@@ -349,5 +363,9 @@ drawfcallfmt(Fmt *fmt)
 		return fmtprint(fmt, "Tresize %R", m->rect);
 	case Rresize:
 		return fmtprint(fmt, "Rresize");
+	case Timespot:
+		return fmtprint(fmt, "Timespot x=%d y=%d", m->ime.x, m->ime.y);
+	case Rimespot:
+		return fmtprint(fmt, "Rimespot");
 	}
 }

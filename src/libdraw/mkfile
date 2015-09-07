@@ -31,6 +31,7 @@ OFILES=\
 	getsubfont.$O\
 	icossin.$O\
 	icossin2.$O\
+	ime.$O\
 	init.$O\
 	iprint.$O\
 	keyboard.$O\
@@ -70,6 +71,7 @@ HFILES=\
 	$PLAN9/include/cursor.h\
 	$PLAN9/include/mouse.h\
 	$PLAN9/include/keyboard.h\
+	$PLAN9/include/ime.h\
 
 <$PLAN9/src/mksyslib
 
