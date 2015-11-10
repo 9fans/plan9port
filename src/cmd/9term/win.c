@@ -479,6 +479,32 @@ stdinproc(void *v)
 	}
 }
 
+int
+dropcr(char *p, int n)
+{
+	int i;
+	char *w, *r;
+	
+	r = p;
+	w = p;
+	for(i=0; i<n; i++) {
+		switch(*r) {
+		case '\b':
+			if(w > p)
+				w--;
+			break;
+		case '\r':
+			*w++ = '\n';
+			break;
+		default:
+			*w++ = *r;
+			break;
+		}
+		r++;
+	}
+	return w-p;
+}
+
 void
 stdoutproc(void *v)
 {
@@ -505,6 +531,10 @@ stdoutproc(void *v)
 			continue;
 		
 		n = dropcrnl(buf+npart, n);
+		if(n == 0)
+			continue;
+		
+		n = dropcr(buf+npart, n);
 		if(n == 0)
 			continue;
 

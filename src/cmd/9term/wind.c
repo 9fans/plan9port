@@ -361,7 +361,7 @@ winctl(void *arg)
 						if(up == rp)
 							initial = wbswidth(w, '\r');
 					}else if(i == nr-1)
-						*up = '\n';
+						*up++ = '\n';
 					break;
 				default:
 					*up++ = *bp;
