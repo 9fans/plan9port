@@ -483,7 +483,7 @@ int
 dropcr(char *p, int n)
 {
 	int i;
-	char *w, *r;
+	char *w, *r, *q;
 	
 	r = p;
 	w = p;
@@ -494,6 +494,19 @@ dropcr(char *p, int n)
 				w--;
 			break;
 		case '\r':
+			while(i<n-1 && *(r+1) == '\r') {
+				r++;
+				i++;
+			}
+			if(i<n && *(r+1) != '\n') {
+				q = r;
+				while(q>p && *(q-1) != '\n')
+					q--;
+				if(q > p) {
+					w = q;
+					break;
+				}
+			}
 			*w++ = '\n';
 			break;
 		default:
