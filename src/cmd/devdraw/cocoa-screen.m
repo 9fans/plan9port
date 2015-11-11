@@ -137,6 +137,7 @@ static void makeicon(void);
 static void makemenu(void);
 static void makewin(char*);
 static void sendmouse(void);
+static void kicklabel0(char*);
 static void setcursor0(Cursor*);
 static void togglefs(void);
 static void acceptresizing(int);
@@ -232,6 +233,7 @@ static NSRect dilate(NSRect);
 + (void)callflushimg:(NSValue*)v{ flushimg([v rectValue]);}
 + (void)callmakewin:(NSValue*)v{ makewin([v pointerValue]);}
 + (void)callsetcursor0:(NSValue*)v{ setcursor0([v pointerValue]);}
++ (void)callkicklabel0:(NSValue*)v{ kicklabel0([v pointerValue]);}
 @end
 
 static Memimage* initimg(void);
@@ -1358,10 +1360,18 @@ putsnarf(char *s)
 void
 kicklabel(char *label)
 {
-	NSString *s;
-
 	if(label == nil)
 		return;
+
+	[appdelegate
+		performSelectorOnMainThread:@selector(callkicklabel0:)
+		withObject:[NSValue valueWithPointer:label]
+		waitUntilDone:YES];
+}
+
+static void
+kicklabel0(char *label) {
+	NSString *s;
 
 	s = [[NSString alloc] initWithUTF8String:label];
 	[win.ofs[0] setTitle:s];
