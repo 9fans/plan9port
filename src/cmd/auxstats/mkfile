@@ -12,6 +12,6 @@ HFILES=\
 
 <$PLAN9/src/mkone
 
-KVM=`{if uname |egrep 'BSD' >/dev/null; then echo -lkvm; fi}
+KVM=`{if uname |egrep 'BSD' | egrep -v 'OpenBSD' >/dev/null; then echo -lkvm; fi}
 LDFLAGS=$LDFLAGS $KVM
 
