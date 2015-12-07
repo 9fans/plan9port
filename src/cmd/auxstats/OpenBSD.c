@@ -1,14 +1,12 @@
 #include <u.h>
-#include <kvm.h>
-#include <nlist.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/sched.h>
 #include <sys/socket.h>
+#include <ifaddrs.h>
 #include <sys/sysctl.h>
 #include <sys/time.h>
 #include <net/if.h>
-#include <net/if_var.h>
 #include <machine/apmvar.h>
 #include <sys/ioctl.h>
 #include <uvm/uvm_param.h>
@@ -24,25 +22,15 @@ void xcpu(int);
 void xswap(int);
 void xsysctl(int);
 void xnet(int);
-void xkvm(int);
 
 void (*statfn[])(int) =
 {
-	xkvm,
 	xapm,
 	xloadavg,
 	xcpu,
 	xsysctl,
 	xnet,
 	0
-};
-
-static kvm_t *kvm;
-
-static struct nlist nl[] = {
-	{ "_ifnet" },
-	{ "_cp_time" },
-	{ "" }
 };
 
 void
@@ -76,78 +64,37 @@ xapm(int first)
 		Bprint(&bout, "battery =%d 100\n", ai.battery_life);
 }
 
-
-void
-kvminit(void)
-{
-	char buf[_POSIX2_LINE_MAX];
-
-	if(kvm)
-		return;
-	kvm = kvm_openfiles(nil, nil, nil, O_RDONLY, buf);
-	if(kvm == nil) {
-		fprint(2, "kvm open error\n%s", buf);
-		return;
-	}
-	if(kvm_nlist(kvm, nl) < 0 || nl[0].n_type == 0){
-		kvm = nil;
-		return;
-	}
-}
-
-void
-xkvm(int first)
-{
-	if(first)
-		kvminit();
-}
-
-int
-kread(ulong addr, char *buf, int size)
-{
-	if(kvm_read(kvm, addr, buf, size) != size){
-		memset(buf, 0, size);
-		return -1;
-	}
-	return size;
-}
-
 void
 xnet(int first)
 {
 	ulong out, in, outb, inb, err;
-	static ulong ifnetaddr;
-	ulong addr;
-	struct ifnet ifnet;
-	struct ifnet_head ifnethead;
-	char name[16];
+	struct ifaddrs *ifa, *ifap;
+	struct if_data *ifd = NULL;
 
-	if(first)
-		return;
-
-	if(ifnetaddr == 0){
-		ifnetaddr = nl[0].n_value;
-		if(ifnetaddr == 0)
-			return;
-	}
-
-	if(kread(ifnetaddr, (char*)&ifnethead, sizeof ifnethead) < 0)
+	if (first)
 		return;
 
 	out = in = outb = inb = err = 0;
-	addr = (ulong)TAILQ_FIRST(&ifnethead);
-	while(addr){
-		if(kread(addr, (char*)&ifnet, sizeof ifnet) < 0
-		|| kread((ulong)ifnet.if_xname, name, 16) < 0)
-			return;
-		name[15] = 0;
-		addr = (ulong)TAILQ_NEXT(&ifnet, if_list);
-		out += ifnet.if_opackets;
-		in += ifnet.if_ipackets;
-		outb += ifnet.if_obytes;
-		inb += ifnet.if_ibytes;
-		err += ifnet.if_oerrors+ifnet.if_ierrors;
+
+	if (getifaddrs(&ifap) == -1)
+		return;
+
+	for (ifa = ifap; ifa != NULL; ifa = ifa->ifa_next) {
+		if (ifa->ifa_addr == NULL ||
+		    ifa->ifa_addr->sa_family != AF_LINK)
+			continue;
+
+		ifd = ifa->ifa_data;
+
+		if (ifd != NULL) {
+			out += ifd->ifi_opackets;
+			in += ifd->ifi_ipackets;
+			outb += ifd->ifi_obytes;
+			inb += ifd->ifi_ibytes;
+			err += ifd->ifi_ierrors;
+		}
 	}
+
 	Bprint(&bout, "etherin %lud 1000\n", in);
 	Bprint(&bout, "etherout %lud 1000\n", out);
 	Bprint(&bout, "etherinb %lud 1000000\n", inb);
@@ -155,6 +102,8 @@ xnet(int first)
 	Bprint(&bout, "ethererr %lud 1000\n", err);
 	Bprint(&bout, "ether %lud 1000\n", in+out);
 	Bprint(&bout, "etherb %lud 1000000\n", inb+outb);
+
+	freeifaddrs(ifap);
 }
 
 void
