@@ -42,6 +42,7 @@ quiet()
 	ignore=$ignore'|use of C99 long long'
 	ignore=$ignore'|ISO C forbids conversion'
 	ignore=$ignore'|is deprecated'
+	ignore=$ignore'|are deprecated'
 	ignore=$ignore'|warn_unused_result'
 
 	grep -v '__p9l_autolib_' $1 |
