@@ -1,0 +1,6 @@
+Code-Review+2: Russ Cox <rsc@swtch.com>
+Submitted-by: Russ Cox <rsc@swtch.com>
+Submitted-at: Fri, 22 Jan 2016 11:52:34 +0000
+Reviewed-on: https://plan9port-review.googlesource.com/1430
+Project: plan9
+Branch: refs/heads/master
