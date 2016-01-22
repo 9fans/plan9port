@@ -26,6 +26,8 @@ mapUnicode(int i)
 	case '`':
 		return 0x2018;
 	}
+	if(0xd800 <= i && i < 0xe0000) // surrogate pairs, will crash OS X libraries!
+		return 0xfffd;
 	return i;
 }
 
