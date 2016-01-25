@@ -47,7 +47,7 @@ echo "* Compiler version:"
 
 if [ `uname` = FreeBSD ]; then
        echo "* Running on FreeBSD, adjusting linker flags"
-       echo "LDFLAGS='-L/usr/local/lib'" >> $PLAN9/config
+       echo "LDFLAGS='-L/usr/local/lib -lpthread'" >> $PLAN9/config
 fi
 
 if [ `uname` = DragonFly ]; then
