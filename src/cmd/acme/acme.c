@@ -42,6 +42,8 @@ char		*fontnames[2] =
 	"/lib/font/bit/lucm/unicode.9.font"
 };
 
+char		*title = "acme";
+
 Command *command;
 
 void	shutdownthread(void*);
@@ -113,6 +115,11 @@ threadmain(int argc, char *argv[])
 	case 'r':
 		swapscrollbuttons = TRUE;
 		break;
+	case 't':
+		title = ARGF();
+		if(title == nil)
+			goto Usage;
+		break;
 	case 'W':
 		winsize = ARGF();
 		if(winsize == nil)
@@ -120,7 +127,7 @@ threadmain(int argc, char *argv[])
 		break;
 	default:
 	Usage:
-		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile -W winsize\n");
+		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile -t title -W winsize\n");
 		threadexitsall("usage");
 	}ARGEND
 
@@ -157,12 +164,12 @@ threadmain(int argc, char *argv[])
 	getwd(wdir, sizeof wdir);
 
 /*
-	if(geninitdraw(nil, derror, fontnames[0], "acme", nil, Refnone) < 0){
+	if(geninitdraw(nil, derror, fontnames[0], title, nil, Refnone) < 0){
 		fprint(2, "acme: can't open display: %r\n");
 		threadexitsall("geninitdraw");
 	}
 */
-	if(initdraw(derror, fontnames[0], "acme") < 0){
+	if(initdraw(derror, fontnames[0], title) < 0){
 		fprint(2, "acme: can't open display: %r\n");
 		threadexitsall("initdraw");
 	}
