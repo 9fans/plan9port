@@ -23,10 +23,11 @@ formathtml(char *body, int *np)
 	e->p[1] = p[1];
 	e->q[0] = q[0];
 	e->q[1] = q[1];
-	e->argv = emalloc(3*sizeof(char*));
+	e->argv = emalloc(4*sizeof(char*));
 	e->argv[0] = estrdup("htmlfmt");
 	e->argv[1] = estrdup("-cutf-8");
-	e->argv[2] = nil;
+	e->argv[2] = estrdup("-a");
+	e->argv[3] = nil;
 	e->prog = "htmlfmt";
 	sync = chancreate(sizeof(int), 0);
 	e->sync = sync;

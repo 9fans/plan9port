@@ -463,6 +463,11 @@ mesgmenu(Window *w, Message *mbox)
 	winopenbody(w, OWRITE);
 	mesgmenu0(w, mbox, mbox->name, "", 0, w->body, 0, !shortmenu);
 	winclosebody(w);
+	/* make sure dot is visible */
+	winsetaddr(w, "0", 1);
+	ctlprint(w->ctl, "dot=addr\n");
+	ctlprint(w->ctl, "show\n");
+
 }
 
 /* one new message has arrived, as mbox->tail */
@@ -1346,6 +1351,10 @@ mesgopen(Message *mbox, char *dir, char *s, Message *mesg, int plumbed, char *di
 		/* sleep(100); */
 		winclean(m->w);
 		m->opened = 1;
+		/* make sure dot is visible */
+		winsetaddr(m->w, "0", 1);
+		ctlprint(m->w->ctl, "dot=addr\n");
+		ctlprint(m->w->ctl, "show\n");
 		if(ndirelem == 1){
 			free(u);
 			return 1;
