@@ -56,7 +56,7 @@ xioerror(XDisplay *d)
 Memimage*
 _xattach(char *label, char *winsize)
 {
-	char *argv[2], *disp;
+	char *argv[2], *disp, *dpi;
 	int i, havemin, height, mask, n, width, x, xrootid, y;
 	Rectangle r;
 	XClassHint classhint;
@@ -71,6 +71,7 @@ _xattach(char *label, char *winsize)
 	XWindowAttributes wattr;
 	XWMHints hint;
 	Atom atoms[2];
+	double xres, yres;
 
 	/*
 	if(XInitThreads() == 0){
@@ -94,6 +95,28 @@ _xattach(char *label, char *winsize)
 	XSetIOErrorHandler(xioerror);
 	xrootid = DefaultScreen(_x.display);
 	xrootwin = DefaultRootWindow(_x.display);
+
+	/*
+	 * Users that can't get their X server to report correct info to compute
+	 * the resolution can set the DPI environment variable.
+	 */
+	if((dpi=getenv("DPI")) == nil || (displaydpi=atoi(dpi)) == 0){
+		/*
+		 * This comment and the computation of xres/yres are derived from xdpyinfo.c
+		 * (ftp://ftp.x.org/pub/X11R7.7/src/app/xdpyinfo-1.3.0.tar.gz).
+		 *
+		 * there are 2.54 centimeters to an inch; so there are 25.4 millimeters.
+		 *
+		 *     dpi = N pixels / (M millimeters / (25.4 millimeters / 1 inch))
+		 *         = N pixels / (M inch / 25.4)
+		 *         = N * 25.4 pixels / M inch
+		 */
+		xres = ((((double) DisplayWidth(_x.display, DefaultScreen(_x.display))) * 25.4) /
+			((double) DisplayWidthMM(_x.display, DefaultScreen(_x.display))));
+		yres = ((((double) DisplayHeight(_x.display, DefaultScreen(_x.display))) * 25.4) /
+			((double) DisplayHeightMM(_x.display, DefaultScreen(_x.display))));
+		displaydpi = (int)((xres + yres) / 2.0);
+	}
 
 	/* 
 	 * Figure out underlying screen format.

@@ -1,4 +1,4 @@
-#!/usr/local/plan9/bin/rc
+#!/home/pcanning/share/plan9port/bin/rc
 # Usage: sig key ...
 #	prints out function signatures by grepping the manual
 

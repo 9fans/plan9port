@@ -1,4 +1,4 @@
-#!/usr/local/plan9/bin/rc
+#!/home/pcanning/share/plan9port/bin/rc
 
 . 9.rc
 . $PLAN9/lib/acme.rc
