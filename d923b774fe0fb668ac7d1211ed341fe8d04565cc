@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a220812e_dce381f2",
+        "filename": "src/cmd/devdraw/x11-init.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5245
+      },
+      "writtenOn": "2016-02-24T14:12:49Z",
+      "side": 1,
+      "message": "Note that chromium, firefox and others have tried this and then switched to using the Xft.dpi X resource, see e.g. https://code.google.com/p/chromium/codesearch#chromium/src/chrome/browser/ui/libgtk2ui/gtk2_ui.cc and especially http://sources.debian.net/src/gnome-settings-daemon/3.18.2-1/plugins/xsettings/gsd-xsettings-manager.c/?hl\u003d824#L80 for some anecdata about why this approach doesn’t work out.\n\nThe Xft.dpi resource is being set accurately by desktop environments (GNOME, KDE, …) and can easily be changed by users of niche window managers by editing ~/.Xresources.\n\nI suggest we check only Xft.dpi, without considering the DPI environment variable or the monitor width/height.",
+      "range": {
+        "startLine": 114,
+        "startChar": 2,
+        "endLine": 114,
+        "endChar": 6
+      },
+      "revId": "d923b774fe0fb668ac7d1211ed341fe8d04565cc",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    }
+  ]
+}
