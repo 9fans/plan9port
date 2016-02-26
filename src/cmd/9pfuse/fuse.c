@@ -285,11 +285,19 @@ initfuse(char *mtpt)
 
 	fusemtpt = mtpt;
 
+#ifdef __APPLE__
+	/*
+	 * By inspection on darwin 15.3.0 (aka El Capitan), osxfuse
+	 * has write payloads up to 64kB.
+	 */
+	fusemaxwrite = 1<<16;
+#else
+	fusemaxwrite = getpagesize();
+#endif
 	/*
 	 * The 4096 is for the message headers.
 	 * It's a lot, but it's what the FUSE libraries ask for.
 	 */
-	fusemaxwrite = getpagesize();
 	fusebufsize = 4096 + fusemaxwrite;
 
 	if((fusefd = mountfuse(mtpt)) < 0)
