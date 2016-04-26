@@ -222,16 +222,14 @@ loadchar(Font *f, Rune r, Cacheinfo *c, int h, int noflush, char **subfontname)
 			subf->age = 0;
 		}else{				/* too recent; grow instead */
 			of = f->subf;
-			f->subf = malloc((f->nsubf+DSUBF)*sizeof *subf);
+			f->subf = realloc(of, (f->nsubf+DSUBF)*sizeof *subf);
 			if(f->subf == nil){
 				f->subf = of;
 				goto Toss;
 			}
-			memmove(f->subf, of, (f->nsubf+DSUBF)*sizeof *subf);
 			memset(f->subf+f->nsubf, 0, DSUBF*sizeof *subf);
 			subf = &f->subf[f->nsubf];
 			f->nsubf += DSUBF;
-			free(of);
 		}
 	}
 	subf->age = 0;
