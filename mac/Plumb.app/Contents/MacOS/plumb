@@ -3,7 +3,7 @@
 if [ -e ~/.bashrc ] ; then
 	. ~/.bashrc
 fi
-PLAN9=${PLAN9:-/usr/local/plan9}
+PLAN9=${PLAN9:-/home/djc/plan9port}
 
 bin=$PLAN9/bin
 IFS=$'\n'
