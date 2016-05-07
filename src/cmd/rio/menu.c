@@ -4,6 +4,7 @@
 
 /* Copyright (c) 1994-1996 David Hogan, see README for licence details */
 #define _SVID_SOURCE 1	/* putenv in glibc */
+#define _DEFAULT_SOURCE 1
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
