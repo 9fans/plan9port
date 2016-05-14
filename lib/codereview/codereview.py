@@ -2694,7 +2694,7 @@ def RietveldSetup(ui, repo):
 #######################################################################
 # http://codereview.appspot.com/static/upload.py, heavily edited.
 
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright 2007 Google Inc.
 #
