@@ -634,7 +634,7 @@ label(char *sr, int n)
 
 	el = r+1;
 	if(el-sr > sizeof wdir - strlen(name) - 20)
-		sr = el - sizeof wdir - strlen(name) - 20;
+		sr = el - (sizeof wdir - strlen(name) - 20);
 	for(sl=el-3; sl>=sr; sl--)
 		if(sl[0]=='\033' && sl[1]==']' && sl[2]==';')
 			break;
