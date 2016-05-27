@@ -212,7 +212,7 @@ char*	ytabc = OFILE;	/* name of y.tab.c */
 
 	/* grammar rule information */
 
-int	mem0[MEMSIZE] ;		/* production storage */
+int	mem0[MEMSIZE];		/* production storage */
 int*	mem = mem0;
 int	nprod = 1;		/* number of productions */
 int*	prdptr[NPROD];		/* pointers to descriptions of productions */
@@ -956,7 +956,13 @@ stagen(void)
 	 * accept that if pointers don't fit in integers, there is a problem...
 	 */
 
-	pstate[0] = pstate[1] = (Item*)mem;
+	// Item members are pointers and mem is int-aligned,
+	// so we realign mem to the next pointer-sized border here.
+	enum { alig = sizeof(int*)-1 };
+	// Warning: assuming the usual pointer implementation:
+	// uintptr_t conversion after arithmetic might be undefined by the C spec.
+	pstate[0] = pstate[1] = (Item*)((uintptr_t)mem+alig & ~alig);
+
 	aryfil(clset.lset, tbitset, 0);
 	putitem(prdptr[0]+1, &clset);
 	tystate[0] = MUSTDO;
