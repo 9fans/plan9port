@@ -143,7 +143,7 @@ output(void)
 	char buf[4096];
 	char *s;
 
-	if(!nflag)
+	if(!nflag && dirbuf!=0)
 		qsort(dirbuf, ndir, sizeof dirbuf[0], (int (*)(const void*, const void*))compar);
 	for(i=0; i<ndir; i++)
 		dowidths(dirbuf[i].d);
