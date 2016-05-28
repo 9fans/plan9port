@@ -474,9 +474,9 @@ winsettag1(Window *w)
 
 	/* compute the text for the whole tag, replacing current only if it differs */
 	new = runemalloc(w->body.file->nname+100);
-	i = 0;
-	runemove(new+i, w->body.file->name, w->body.file->nname);
-	i += w->body.file->nname;
+	if(w->body.file->nname != 0)
+		runemove(new, w->body.file->name, w->body.file->nname);
+	i = w->body.file->nname;
 	runemove(new+i, Ldelsnarf, 10);
 	i += 10;
 	if(w->filemenu){
