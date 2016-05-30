@@ -52,7 +52,7 @@
           option to specify the size and placement of the new window.
           The argument is one of widthxheight, widthxheight@xmin,xmax,
 
-     Page 1                       Plan 9             (printed 12/1/14)
+     Page 1                       Plan 9             (printed 5/30/16)
 
      INTRO(1)                                                 INTRO(1)
 
@@ -98,7 +98,7 @@
 
           The only way to write multithreaded programs is to use the
           thread(3) library.  Rfork(3) exists but is not as capable as
-          on Plan 9.  There are many unfortunate by necessary prepro-
+          on Plan 9.  There are many unfortunate but necessary prepro-
           cessor diversions to make Plan 9 and Unix libraries coexist.
           See intro(3) for details.
 
@@ -109,7 +109,7 @@
           incomplete.  The x86 target is the most mature; initial Pow-
           erPC support exists; and other targets are unimplemented.
 
-     Page 2                       Plan 9             (printed 12/1/14)
+     Page 2                       Plan 9             (printed 5/30/16)
 
      INTRO(1)                                                 INTRO(1)
 
@@ -166,7 +166,7 @@
           system page, invoke the Plan 9 man directly, as in 9 man
           cat.
 
-     Page 3                       Plan 9             (printed 12/1/14)
+     Page 3                       Plan 9             (printed 5/30/16)
 
      INTRO(1)                                                 INTRO(1)
 
@@ -215,5 +215,5 @@
           to exiting with status 0, and exiting with any non-empty
           string corresponds to exiting with status 1.  See exits(3).
 
-     Page 4                       Plan 9             (printed 12/1/14)
+     Page 4                       Plan 9             (printed 5/30/16)
 
