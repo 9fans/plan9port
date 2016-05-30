@@ -1,7 +1,7 @@
 #include	"mk.h"
 
 #define	NHASH	4099
-#define	HASHMUL	79L	/* this is a good value */
+#define	HASHMUL	79UL	/* this is a good value */
 static Symtab *hash[NHASH];
 
 void
@@ -21,14 +21,12 @@ syminit(void)
 Symtab *
 symlook(char *sym, int space, void *install)
 {
-	long h;
+	ulong h;
 	char *p;
 	Symtab *s;
 
 	for(p = sym, h = space; *p; h += *p++)
 		h *= HASHMUL;
-	if(h < 0)
-		h = ~h;
 	h %= NHASH;
 	for(s = hash[h]; s; s = s->next)
 		if((s->space == space) && (strcmp(s->name, sym) == 0))
@@ -47,7 +45,7 @@ symlook(char *sym, int space, void *install)
 void
 symdel(char *sym, int space)
 {
-	long h;
+	ulong h;
 	char *p;
 	Symtab *s, *ls;
 
@@ -55,8 +53,6 @@ symdel(char *sym, int space)
 
 	for(p = sym, h = space; *p; h += *p++)
 		h *= HASHMUL;
-	if(h < 0)
-		h = ~h;
 	h %= NHASH;
 	for(s = hash[h], ls = 0; s; ls = s, s = s->next)
 		if((s->space == space) && (strcmp(s->name, sym) == 0)){
