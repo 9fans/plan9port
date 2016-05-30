@@ -71,7 +71,6 @@ void	shprint(char*, Envy*, Bufblock*, Shell*);
 Word	*stow(char*);
 void	subst(char*, char*, char*);
 void	symdel(char*, int);
-void	syminit(void);
 Symtab	*symlook(char*, int, void*);
 void	symstat(void);
 void	symtraverse(int, void(*)(Symtab*));
