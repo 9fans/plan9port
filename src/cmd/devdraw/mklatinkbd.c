@@ -216,6 +216,7 @@ readfile(char *fname)
 			}
 		}
 	}
+	Bterm(b);
 }
 
 void
