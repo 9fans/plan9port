@@ -83,8 +83,8 @@ getreq(Srv *s)
 		r->type = 0;
 		r->srv = s;
 		r->pool = nil;
-if(chatty9p)
-	fprint(2, "<-%d- %F: dup tag\n", s->infd, &f);
+		if(chatty9p)
+			fprint(2, "<-%d- %F: dup tag\n", s->infd, &f);
 		return r;
 	}
 
@@ -95,11 +95,11 @@ if(chatty9p)
 	memset(&r->ofcall, 0, sizeof r->ofcall);
 	r->type = r->ifcall.type;
 
-if(chatty9p)
-	if(r->error)
-		fprint(2, "<-%d- %F: %s\n", s->infd, &r->ifcall, r->error);
-	else	
-		fprint(2, "<-%d- %F\n", s->infd, &r->ifcall);
+	if(chatty9p)
+		if(r->error)
+			fprint(2, "<-%d- %F: %s\n", s->infd, &r->ifcall, r->error);
+		else	
+			fprint(2, "<-%d- %F\n", s->infd, &r->ifcall);
 
 	return r;
 }
@@ -321,13 +321,13 @@ swalk(Srv *srv, Req *r)
 			return;
 		}
 		r->newfid->uid = estrdup9p(r->fid->uid);
-	}else{
+	} else{
 		incref(&r->fid->ref);
 		r->newfid = r->fid;
 	}
 	if(r->fid->file){
 		filewalk(r);
-	}else if(srv->walk1)
+	} else if(srv->walk1)
 		walkandclone(r, oldwalk1, oldclone, srv);
 	else if(srv->walk)
 		srv->walk(r);
@@ -343,13 +343,13 @@ rwalk(Req *r, char *error)
 		if (r->ofcall.nwqid==0){
 			if(error==nil && r->ifcall.nwname!=0)
 				r->error = Enotfound;
-		}else
+		} else
 			r->error = nil;	/* No error on partial walks */
-	}else{
+	} else{
 		if(r->ofcall.nwqid == 0){
 			/* Just a clone */
 			r->newfid->qid = r->fid->qid;
-		}else{
+		} else{
 			/* if file trees are in use, filewalk took care of the rest */
 			r->newfid->qid = r->ofcall.wqid[r->ofcall.nwqid-1];
 		}
@@ -378,7 +378,7 @@ sopen(Srv *srv, Req *r)
 	default:
 		assert(0);
 	case OREAD:
-		p = AREAD;	
+		p = AREAD;
 		break;
 	case OWRITE:
 		p = AWRITE;
@@ -387,7 +387,7 @@ sopen(Srv *srv, Req *r)
 		p = AREAD|AWRITE;
 		break;
 	case OEXEC:
-		p = AEXEC;	
+		p = AEXEC;
 		break;
 	}
 	if(r->ifcall.mode&OTRUNC)
@@ -401,15 +401,15 @@ sopen(Srv *srv, Req *r)
 			respond(r, Eperm);
 			return;
 		}
-	/* BUG RACE */
+		/* BUG RACE */
 		if((r->ifcall.mode&ORCLOSE)
-		&& !hasperm(r->fid->file->parent, r->fid->uid, AWRITE)){
+		    && !hasperm(r->fid->file->parent, r->fid->uid, AWRITE)){
 			respond(r, Eperm);
 			return;
 		}
 		r->ofcall.qid = r->fid->file->dir.qid;
 		if((r->ofcall.qid.type&QTDIR)
-		&& (r->fid->rdir = opendirfile(r->fid->file)) == nil){
+		    && (r->fid->rdir = opendirfile(r->fid->file)) == nil){
 			respond(r, "opendirfile failed");
 			return;
 		}
@@ -476,7 +476,7 @@ sread(Srv *srv, Req *r)
 		return;
 	}
 	if(r->ifcall.offset < 0
-	|| ((r->fid->qid.type&QTDIR) && r->ifcall.offset != 0 && r->ifcall.offset != r->fid->diroffset)){
+	    || ((r->fid->qid.type&QTDIR) && r->ifcall.offset != 0 && r->ifcall.offset != r->fid->diroffset)){
 		respond(r, Ebadoffset);
 		return;
 	}
@@ -537,7 +537,7 @@ swrite(Srv *srv, Req *r)
 	if(srv->write){
 		r->ifcall.data[r->ifcall.count] = 0;	/* enough room - see getreq */
 		srv->write(r);
-	}else
+	} else
 		respond(r, "no srv->write");
 }
 static void
@@ -589,7 +589,7 @@ rremove(Req *r, char *error, char *errbuf)
 	if(r->fid->file){
 		if(removefile(r->fid->file) < 0){
 			snprint(errbuf, ERRMAX, "remove %s: %r", 
-				r->fid->file->dir.name);
+			    r->fid->file->dir.name);
 			r->error = errbuf;
 		}
 		r->fid->file = nil;
@@ -614,8 +614,8 @@ sstat(Srv *srv, Req *r)
 		if(r->d.muid)
 			r->d.muid = estrdup9p(r->d.muid);
 	}
-	if(srv->stat)	
-		srv->stat(r);	
+	if(srv->stat)
+		srv->stat(r);
 	else if(r->fid->file)
 		respond(r, nil);
 	else
@@ -720,25 +720,51 @@ srv(Srv *srv)
 	while(r = getreq(srv)){
 		if(r->error){
 			respond(r, r->error);
-			continue;	
+			continue;
 		}
 		switch(r->ifcall.type){
 		default:
 			respond(r, "unknown message");
 			break;
-		case Tversion:	sversion(srv, r);	break;
-		case Tauth:	sauth(srv, r);	break;
-		case Tattach:	sattach(srv, r);	break;
-		case Tflush:	sflush(srv, r);	break;
-		case Twalk:	swalk(srv, r);	break;
-		case Topen:	sopen(srv, r);	break;
-		case Tcreate:	screate(srv, r);	break;
-		case Tread:	sread(srv, r);	break;
-		case Twrite:	swrite(srv, r);	break;
-		case Tclunk:	sclunk(srv, r);	break;
-		case Tremove:	sremove(srv, r);	break;
-		case Tstat:	sstat(srv, r);	break;
-		case Twstat:	swstat(srv, r);	break;
+		case Tversion:	
+			sversion(srv, r);	
+			break;
+		case Tauth:	
+			sauth(srv, r);	
+			break;
+		case Tattach:	
+			sattach(srv, r);	
+			break;
+		case Tflush:	
+			sflush(srv, r);	
+			break;
+		case Twalk:	
+			swalk(srv, r);	
+			break;
+		case Topen:	
+			sopen(srv, r);	
+			break;
+		case Tcreate:	
+			screate(srv, r);	
+			break;
+		case Tread:	
+			sread(srv, r);	
+			break;
+		case Twrite:	
+			swrite(srv, r);	
+			break;
+		case Tclunk:	
+			sclunk(srv, r);	
+			break;
+		case Tremove:	
+			sremove(srv, r);	
+			break;
+		case Tstat:	
+			sstat(srv, r);	
+			break;
+		case Twstat:	
+			swstat(srv, r);	
+			break;
 		}
 	}
 
@@ -760,7 +786,7 @@ respond(Req *r, char *error)
 		assert(r->pool);
 		goto free;
 	}
-		
+
 	assert(r->responded == 0);
 	r->error = error;
 
@@ -776,18 +802,42 @@ respond(Req *r, char *error)
 		if(rflush(r, error)<0)
 			return;
 		break;
-	case Tversion:	rversion(r, error);	break;
-	case Tauth:	rauth(r, error);	break;
-	case Tattach:	rattach(r, error);	break;
-	case Twalk:	rwalk(r, error);	break;
-	case Topen:	ropen(r, error);	break;
-	case Tcreate:	rcreate(r, error);	break;
-	case Tread:	rread(r, error);	break;
-	case Twrite:	rwrite(r, error);	break;
-	case Tclunk:	rclunk(r, error);	break;
-	case Tremove:	rremove(r, error, errbuf);	break;
-	case Tstat:	rstat(r, error);	break;
-	case Twstat:	rwstat(r, error);	break;
+	case Tversion:	
+		rversion(r, error);	
+		break;
+	case Tauth:	
+		rauth(r, error);	
+		break;
+	case Tattach:	
+		rattach(r, error);	
+		break;
+	case Twalk:	
+		rwalk(r, error);	
+		break;
+	case Topen:	
+		ropen(r, error);	
+		break;
+	case Tcreate:	
+		rcreate(r, error);	
+		break;
+	case Tread:	
+		rread(r, error);	
+		break;
+	case Twrite:	
+		rwrite(r, error);	
+		break;
+	case Tclunk:	
+		rclunk(r, error);	
+		break;
+	case Tremove:	
+		rremove(r, error, errbuf);	
+		break;
+	case Tstat:	
+		rstat(r, error);	
+		break;
+	case Twstat:	
+		rwstat(r, error);	
+		break;
 	}
 
 	r->ofcall.tag = r->ifcall.tag;
@@ -798,8 +848,8 @@ respond(Req *r, char *error)
 	if(srv->fake)
 		return;
 
-if(chatty9p)
-	fprint(2, "-%d-> %F\n", srv->outfd, &r->ofcall);
+	if(chatty9p)
+		fprint(2, "-%d-> %F\n", srv->outfd, &r->ofcall);
 
 	qlock(&srv->wlock);
 	n = convS2M(&r->ofcall, srv->wbuf, srv->msize);
@@ -827,8 +877,8 @@ if(chatty9p)
 	qlock(&r->lk);
 	r->responded = 1;
 	if(r->pool)
-	if(r->ref.ref == 1+r->nflush)
-	if(r->fid){
+		if(r->ref.ref == 1+r->nflush)
+			if(r->fid){
 		/*
 		 * There are no references other than in our r->flush array,
 		 * so no one else should be accessing r concurrently.
@@ -847,9 +897,9 @@ if(chatty9p)
 		 * so that a handful of transactions can happen including a Tclunk
 		 * and a Topen, and the original fid will still not be destroyed.
 		 */
-		closefid(r->fid);
-		r->fid = nil;
-	}
+				closefid(r->fid);
+				r->fid = nil;
+			}
 	qunlock(&r->lk);
 	m = write(srv->outfd, srv->wbuf, n);
 	if(m != n)

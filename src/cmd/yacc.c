@@ -2130,11 +2130,10 @@ swt:
 				c = Bgetrune(finput);
 				if(c == '\n')
 					lineno++;
-			} else
-				if(c == match)
-					goto lcopy;
-				if(c == '\n')
-					error("newline in string or char. const.");
+			} else if(c == match) {
+				goto lcopy;
+			} else if(c == '\n')
+				error("newline in string or char. const.");
 			Bputrune(faction, c);
 		}
 		error("EOF in string or character constant");
