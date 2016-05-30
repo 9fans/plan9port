@@ -118,7 +118,6 @@ main(int argc, char **argv)
 	if(aflag)
 		iflag = 1;
 	usage();
-	syminit();
 	initshell();
 	initenv();
 	usage();
