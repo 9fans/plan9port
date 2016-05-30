@@ -10,7 +10,7 @@ parsefontscale(char *name, char **base)
 {
 	char *p;
 	int scale;
-	
+
 	p = name;
 	scale = 0;
 	while('0' <= *p && *p <= '9') {
@@ -24,7 +24,7 @@ parsefontscale(char *name, char **base)
 		scale = 1;
 	}
 	return scale;
-}	
+}
 
 Font*
 openfont1(Display *d, char *name)
@@ -100,7 +100,7 @@ swapfont(Font *targ, Font **oldp, Font **newp)
 
 	if(targ != *oldp)
 		sysfatal("bad swapfont %p %p %p", targ, *oldp, *newp);
-	
+
 	old = *oldp;
 	new = *newp;
 
@@ -161,12 +161,12 @@ hidpiname(Font *f)
 {
 	char *p, *q;
 	int size;
-	
+
 	// If font name has form x,y return y.
 	p = strchr(f->namespec, ',');
 	if(p != nil)
 		return strdup(p+1);
-	
+
 	// If font name is /mnt/font/Name/Size/font, scale Size.
 	if(strncmp(f->name, "/mnt/font/", 10) == 0) {
 		p = strchr(f->name+10, '/');
@@ -177,7 +177,7 @@ hidpiname(Font *f)
 		while('0' <= *q && *q <= '9')
 			size = size*10 + *q++ - '0';
 		return smprint("%.*s%d%s", utfnlen(f->name, p-f->name), f->name, size*2, q);
-	}		
+	}
 
 	// Otherwise use pixel doubling.	
 scale:
@@ -196,7 +196,7 @@ loadhidpi(Font *f)
 		swapfont(f, &f->lodpi, &f->hidpi);
 		return;
 	}
-	
+
 	name = hidpiname(f);
 	fnew = openfont1(f->display, name);
 	if(fnew == nil)
@@ -213,7 +213,7 @@ openfont(Display *d, char *name)
 	Font *f;
 	char *p;
 	char *namespec;
-	
+
 	// If font name has form x,y use x for lodpi, y for hidpi.
 	name = strdup(name);
 	namespec = strdup(name);
@@ -225,7 +225,7 @@ openfont(Display *d, char *name)
 		return nil;
 	f->lodpi = f;
 	f->namespec = namespec;
-	
+
 	/* add to display list for when dpi changes */
 	/* d can be nil when invoked from mc. */
 	if(d != nil) {
@@ -237,12 +237,12 @@ openfont(Display *d, char *name)
 		else
 			d->firstfont = f;
 		d->lastfont = f;
-	
+
 		/* if this is a hi-dpi display, find hi-dpi version and swap */
 		if(d->dpi >= DefaultDPI*3/2)
 			loadhidpi(f);
 	}
-	
+
 	free(name);
 
 	return f;
@@ -255,7 +255,7 @@ _fontpipe(char *name)
 	char c;
 	char buf[1024], *argv[10];
 	int nbuf, pid;
-	
+
 	if(pipe(p) < 0)
 		return -1;
 	pid = rfork(RFNOWAIT|RFFDG|RFPROC);
@@ -279,7 +279,7 @@ _fontpipe(char *name)
 		_exit(0);
 	}
 	close(p[1]);
-	
+
 	// success marked with leading \001.
 	// otherwise an error happened.
 	for(nbuf=0; nbuf<sizeof buf-1; nbuf++) {
