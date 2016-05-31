@@ -29,7 +29,7 @@ main(int argc, char *argv[])
 			maxleng -= (maxleng + 5)/10;
 			continue;
 		default:
-			fprint(2, "cb: illegal option %c\n", *argv[1]);
+			fprint(2, "cb: illegal option %c\n", (*argv)[1]);
 			exits("boom");
 		}
 	}
@@ -354,7 +354,7 @@ work(void){
 					continue;
 				}
 			}
-			else if (lbegin == 0 || p > string) 
+			else if (lbegin == 0 || p > string)
 				if(strict)
 					putch(c,NO);
 				else putch(c,YES);
@@ -969,7 +969,7 @@ cont:
 					if(nlct++ > 2)goto done;
 			}
 			puttmp(c,1);
-	star:
+star:
 			if(puttmp((c=Bgetc(input)),1) == '/'){
 				beg = tp;
 				puttmp((c=Bgetc(input)),1);
