@@ -117,16 +117,17 @@ fmtfmt(int c)
 {
 	Convfmt *p, *ep;
 
+	__fmtlock();
 	ep = &fmtalloc.fmt[fmtalloc.nfmt];
 	for(p=fmtalloc.fmt; p<ep; p++)
 		if(p->c == c){
+			__fmtunlock();
 			while(p->fmt == nil)	/* loop until value is updated */
 				;
 			return p->fmt;
 		}
 
 	/* is this a predefined format char? */
-	__fmtlock();
 	for(p=knownfmt; p->c; p++)
 		if(p->c == c){
 			__fmtinstall(p->c, p->fmt);
