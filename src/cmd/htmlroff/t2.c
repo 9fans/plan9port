@@ -26,7 +26,7 @@ getqarg(void)
 	Rune *p, *e;
 	
 	p = buf;
-	e = p+sizeof buf-1;
+	e = p + sizeof(buf)/sizeof(Rune) - 1;
 	
 	if(getrune() != '\'')
 		return nil;
