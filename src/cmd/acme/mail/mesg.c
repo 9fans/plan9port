@@ -23,7 +23,7 @@ struct{
 	char	*port;
 	char *suffix;
 } ports[] = {
-	"text/",			"edit",	".txt", /* must be first for plumbport() */
+	"text/",		"edit",		".txt", /* must be first for plumbport() */
 	"image/gif",		"image",	".gif",
 	"image/jpeg",		"image",	".jpg",
 	"image/jpeg",		"image",	".jpeg",
@@ -32,7 +32,7 @@ struct{
 	"application/pdf",	"postscript",	".pdf",
 	"application/msword",	"msword",	".doc",
 	"application/rtf",	"msword",	".rtf",
-	nil,	nil
+	nil,			nil,		nil
 };
 
 char *goodtypes[] = {

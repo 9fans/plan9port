@@ -354,6 +354,8 @@ Proto p9sk1 = {
 
 Proto p9sk2 = {
 	"p9sk2",
-	p9sk2roles
+	p9sk2roles,
+	"",
+	0,
+	0
 };
-

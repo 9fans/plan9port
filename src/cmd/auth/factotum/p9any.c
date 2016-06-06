@@ -267,6 +267,8 @@ p9anyroles[] =
 
 Proto p9any = {
 	"p9any",
-	p9anyroles
+	p9anyroles,
+	"",
+	0,
+	0
 };
-

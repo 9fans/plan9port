@@ -81,7 +81,7 @@ enum
 	NDIR	= 50,
 	Nhash	= 16,
 
-	Qdir		= 0,
+	Qdir	= 0,
 	Qrules	= 1,
 	Qsend	= 2,
 	Qport	= 3,
@@ -90,9 +90,9 @@ enum
 
 static Dirtab dir[NDIR] =
 {
-	{ ".",			QTDIR,	Qdir,			0500|DMDIR },
-	{ "rules",		QTFILE,	Qrules,		0600 },
-	{ "send",		QTFILE,	Qsend,		0200 }
+	{ ".",		QTDIR,	Qdir,	0500|DMDIR,	0,0,0,0,0 },
+	{ "rules",	QTFILE,	Qrules,	0600,		0,0,0,0,0 },
+	{ "send",	QTFILE,	Qsend,	0200,		0,0,0,0,0 }
 };
 static int	ndir = NQID;
 

@@ -1,6 +1,6 @@
 #include "sam.h"
 
-List	file = { 'p' };
+List	file = { 'p', 0, 0, 0 };
 ushort	tag;
 
 File *

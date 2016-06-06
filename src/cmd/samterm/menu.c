@@ -62,9 +62,9 @@ char	*menu3str[] = {
 	"write"
 };
 
-Menu	menu2 =	{0, genmenu2};
-Menu	menu2c ={0, genmenu2c};
-Menu	menu3 =	{0, genmenu3};
+Menu	menu2 =	{0, genmenu2, 0};
+Menu	menu2c ={0, genmenu2c, 0};
+Menu	menu3 =	{0, genmenu3, 0};
 
 void
 menu2hit(void)

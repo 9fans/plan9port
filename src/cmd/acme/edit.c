@@ -49,7 +49,7 @@ struct cmdtab cmdtab[]={
 	'q',	0,	0,	0,	0,	aNo,	0,	0,	q_cmd,
 	'!',	0,	0,	0,	0,	aNo,	0,	linex,	plan9_cmd,
  */
-	0,	0,	0,	0,	0,	0,	0,	0
+	0,	0,	0,	0,	0,	0,	0,	0,	0
 };
 
 Cmd	*parsecmd(int);

@@ -307,7 +307,7 @@ char		*menu2str[] = {
 
 Menu menu2 =
 {
-	menu2str
+	menu2str,	0,	0
 };
 
 Rune newline[] = { '\n' };

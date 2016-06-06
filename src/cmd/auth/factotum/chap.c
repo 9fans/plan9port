@@ -415,14 +415,14 @@ Proto chap = {
 	"chap",
 	chaproles,
 	"user? !password?",
-	chapcheck
+	chapcheck,
+	0
 };
 
 Proto mschap = {
 	"mschap",
 	chaproles,
 	"user? !password?",
-	chapcheck
+	chapcheck,
+	0
 };
-
-

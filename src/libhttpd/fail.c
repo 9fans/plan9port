@@ -40,7 +40,7 @@ Error errormsg[] =
 		"This server does not know how to respond to http version %s."},
 	/* HBadCont */	{"501 Not Implemented", "Impossible format",
 		"This server cannot produce %s in any of the formats your client accepts."},
-	/* HOK */		{"200 OK", "everything is fine"},
+	/* HOK */		{"200 OK", "everything is fine", ""},
 };
 
 /*

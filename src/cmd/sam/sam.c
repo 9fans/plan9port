@@ -14,7 +14,7 @@ File	*curfile;
 File	*flist;
 File	*cmd;
 jmp_buf	mainloop;
-List	tempfile = { 'p' };
+List	tempfile = { 'p', 0, 0, 0 };
 int	quitok = TRUE;
 int	downloaded;
 int	dflag;

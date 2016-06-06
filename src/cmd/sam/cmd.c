@@ -37,7 +37,7 @@ struct cmdtab cmdtab[]={
 	'|',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd,
 	'=',	0,	0,	0,	0,	aDot,	0,	linex,	eq_cmd,
 	'c'|0x100,0,	0,	0,	0,	aNo,	0,	wordx,	cd_cmd,
-	0,	0,	0,	0,	0,	0,	0,	0
+	0,	0,	0,	0,	0,	0,	0,	0,	0
 };
 Cmd	*parsecmd(int);
 Addr	*compoundaddr(void);
@@ -51,10 +51,10 @@ Rune	*linep = line;
 Rune	*terminp = termline;
 Rune	*termoutp = termline;
 
-List	cmdlist = { 'p' };
-List	addrlist = { 'p' };
-List	relist = { 'p' };
-List	stringlist = { 'p' };
+List	cmdlist =	{ 'p', 0, 0, 0 };
+List	addrlist =	{ 'p', 0, 0, 0 };
+List	relist =	{ 'p', 0, 0, 0 };
+List	stringlist =	{ 'p', 0, 0, 0 };
 
 int	eof;
 
