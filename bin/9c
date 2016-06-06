@@ -15,6 +15,7 @@ usegcc()
 		-Wno-sign-compare \
 		-Wno-unknown-pragmas \
 		-fno-omit-frame-pointer \
+		-fno-strict-aliasing \
 		-fsigned-char \
 	"
 	# want to put -fno-optimize-sibling-calls here but
@@ -71,8 +72,9 @@ useclang()
 		-Wno-gnu-designator \
 		-Wno-array-bounds \
 		-Wno-unneeded-internal-declaration \
-		-fsigned-char \
 		-fno-caret-diagnostics \
+		-fno-strict-aliasing \
+		-fsigned-char \
 	"
 	cflags="$ngflags -g"
 }
