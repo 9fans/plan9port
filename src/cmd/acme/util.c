@@ -417,7 +417,7 @@ estrdup(char *s)
 }
 
 void*
-emalloc(uint n)
+emalloc(size_t n)
 {
 	void *p;
 
@@ -430,7 +430,7 @@ emalloc(uint n)
 }
 
 void*
-erealloc(void *p, uint n)
+erealloc(void *p, size_t n)
 {
 	p = realloc(p, n);
 	if(p == nil)
