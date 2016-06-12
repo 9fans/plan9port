@@ -3,5 +3,5 @@
 ulong
 getcallerpc(void *x)
 {
-	return (((ulong*)(x))[-1]);
+	return 0xfaefefedbcccbecc;
 }
