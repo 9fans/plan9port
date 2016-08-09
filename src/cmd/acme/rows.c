@@ -312,6 +312,23 @@ rowclean(Row *row)
 	return clean;
 }
 
+void save_tag(Biobuf *b, Rune *r, uint n)
+{
+	char *s, *base64;
+	int l;
+
+
+	s = runetobyte(r, n);
+	l = strlen(s) * 2;
+	base64 = (char*)malloc(l);
+	enc64(base64, l, s, strlen(s));
+
+	Bprint(b, "%s\n", base64);
+
+	free(base64);
+	free(s);
+}
+
 void
 rowdump(Row *row, char *file)
 {
@@ -432,10 +449,7 @@ rowdump(Row *row, char *file)
 			Bwrite(b, buf, strlen(buf));
 			m = min(RBUFSIZE, w->tag.file->b.nc);
 			bufread(&w->tag.file->b, 0, r, m);
-			n = 0;
-			while(n<m && r[n]!='\n')
-				n++;
-			Bprint(b, "%.*S\n", n, r);
+			save_tag(b, r, m);
 			if(dumped){
 				q0 = 0;
 				q1 = t->file->b.nc;
@@ -508,6 +522,23 @@ rowloadfonts(char *file)
 	}
     Return:
 	Bterm(b);
+}
+
+Rune* load_tag(char *s, int *nr)
+{
+	Rune *r;
+	char *str;
+	int n, l;
+
+
+	l = strlen(s);
+	str = (char*)malloc(l);
+	n = dec64(str, l, s, l);
+	str[n] = 0;
+	r = bytetorune(str, nr);
+	free(str);
+
+	return r;
 }
 
 int
@@ -716,7 +747,7 @@ rowload(Row *row, char *file, int initing)
 		if(l == nil)
 			goto Rescue2;
 		l[Blinelen(b)-1] = 0;
-		r = bytetorune(l+5*12, &nr);
+		r = load_tag(l+5*12, &nr);
 		ns = -1;
 		for(n=0; n<nr; n++){
 			if(r[n] == '/')
