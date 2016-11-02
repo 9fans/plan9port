@@ -238,7 +238,7 @@ optimize(Reprog *pp)
 	int size;
 	Reprog *npp;
 	Reclass *cl;
-	int diff;
+	ptrdiff_t diff;
 
 	/*
 	 *  get rid of NOOP chains
