@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0b4b539d_dc364dfc",
+        "filename": "src/cmd/acme/rows.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5130
+      },
+      "writtenOn": "2016-11-06T01:11:25Z",
+      "side": 1,
+      "message": "\u003e Seems you are allocating dynamic memory and not checking against\n \u003e failure.\n \u003e Apart from that, code looks right.\n \u003e It fixes crashes on loading an acme.dump file with some tag\n \u003e containing multiline. I\u0027ve tested and works.\n\nbeing more specific about segfault fix:\nFor reproduce just add a blank line in first line of multiline tag, Dump and so try to load.",
+      "parentUuid": "0b4b539d_1c21d5bb",
+      "range": {
+        "startLine": 323,
+        "startChar": 23,
+        "endLine": 323,
+        "endChar": 24
+      },
+      "revId": "d283f60656ef19b18dd83362e3a67aba4dc913ed",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b4b539d_7c2619d5",
         "filename": "src/cmd/acme/rows.c",
         "patchSetId": 1
