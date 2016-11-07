@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "0b4b539d_dcddad54",
+        "filename": "src/cmd/acme/rows.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-11-07T18:52:35Z",
+      "side": 1,
+      "message": "Doesn\u0027t match the style of the surrounding code:\n\nvoid\nsavetag(Biobuf *b, Rune *r, uint n)\n{",
+      "revId": "d283f60656ef19b18dd83362e3a67aba4dc913ed",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b4b539d_3c5491de",
+        "filename": "src/cmd/acme/rows.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-11-07T18:52:35Z",
+      "side": 1,
+      "message": "Two blank lines here; use one.",
+      "revId": "d283f60656ef19b18dd83362e3a67aba4dc913ed",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b4b539d_1c21d5bb",
         "filename": "src/cmd/acme/rows.c",
         "patchSetId": 1
@@ -37,6 +71,30 @@
       "side": 1,
       "message": "\u003e Seems you are allocating dynamic memory and not checking against\n \u003e failure.\n \u003e Apart from that, code looks right.\n \u003e It fixes crashes on loading an acme.dump file with some tag\n \u003e containing multiline. I\u0027ve tested and works.\n\nbeing more specific about segfault fix:\nFor reproduce just add a blank line in first line of multiline tag, Dump and so try to load.",
       "parentUuid": "0b4b539d_1c21d5bb",
+      "range": {
+        "startLine": 323,
+        "startChar": 23,
+        "endLine": 323,
+        "endChar": 24
+      },
+      "revId": "d283f60656ef19b18dd83362e3a67aba4dc913ed",
+      "serverId": "2f88dca6-2ae6-3b81-af5e-949fc1843134",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b4b539d_1c59d514",
+        "filename": "src/cmd/acme/rows.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2016-11-07T18:52:35Z",
+      "side": 1,
+      "message": "Use emalloc.",
+      "parentUuid": "0b4b539d_dc364dfc",
       "range": {
         "startLine": 323,
         "startChar": 23,
