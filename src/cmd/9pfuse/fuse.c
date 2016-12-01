@@ -799,10 +799,14 @@ mountfuse(char *mtpt)
 	char buf[20];
 	struct vfsconf vfs;
 	char *f, *v;
-	
-	if(getvfsbyname(v="osxfusefs", &vfs) < 0 && getvfsbyname(v="fusefs", &vfs) < 0){
+
+	if(getvfsbyname(v="osxfusefs", &vfs) < 0 &&
+	   getvfsbyname(v="osxfuse", &vfs) < 0 &&
+	   getvfsbyname(v="fusefs", &vfs) < 0){
 		if(access((v="osxfusefs", f="/Library/Filesystems/osxfusefs.fs"
 			"/Support/load_osxfusefs"), 0) < 0 &&
+		   access((v="osxfuse", f="/Library/Filesystems/osxfuse.fs"
+			"/Contents/Resources/load_osxfuse"), 0) < 0 &&
 		   access((v="fusefs", f="/System/Library/Extensions/fusefs.kext"
 			"/Contents/Resources/load_fusefs"), 0) < 0 &&
 		   access(f="/Library/Extensions/fusefs.kext"
@@ -827,10 +831,20 @@ mountfuse(char *mtpt)
 			return -1;
 		}
 	}
-	
+
 	/* Look for available FUSE device. */
+	/*
+	 * We need to truncate `fs` from the end of the vfs name if
+	 * it's present
+	 */
+	int len;
+	if (strcmp(v, "osxfuse") == 0) {
+		len = strlen(v);
+	} else {
+		len = strlen(v)-2;
+	}
 	for(i=0;; i++){
-		snprint(buf, sizeof buf, "/dev/%.*s%d", strlen(v)-2, v, i);
+		snprint(buf, sizeof buf, "/dev/%.*s%d", len, v, i);
 		if(access(buf, 0) < 0){
 			werrstr("no available fuse devices");
 			return -1;
@@ -844,12 +858,19 @@ mountfuse(char *mtpt)
 		return -1;
 	if(pid == 0){
 		snprint(buf, sizeof buf, "%d", fd);
+		/* OSXFUSE >=3.3 changed the name of the environment variable, set both */
 		putenv("MOUNT_FUSEFS_CALL_BY_LIB", "");
+		putenv("MOUNT_OSXFUSE_CALL_BY_LIB", "");
 		/*
-		 * Different versions of MacFUSE put the
-		 * mount_fusefs binary in different places.
-		 * Try all.
+		 * Different versions of OSXFUSE and MacFUSE put the
+		 * mount_fusefs binary in different places.  Try all.
 		 */
+		/*  OSXFUSE >=3.3  greater location */
+		putenv("MOUNT_OSXFUSE_DAEMON_PATH",
+			   "/Library/Filesystems/osxfuse.fs/Contents/Resources/mount_osxfuse");
+		execl("/Library/Filesystems/osxfuse.fs/Contents/Resources/mount_osxfuse",
+			  "mount_osxfuse", buf, mtpt, nil);
+
 		/* Lion OSXFUSE location */
 		putenv("MOUNT_FUSEFS_DAEMON_PATH",
 			   "/Library/Filesystems/osxfusefs.fs/Support/mount_osxfusefs");
