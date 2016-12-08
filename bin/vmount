@@ -1,4 +1,4 @@
-#!/usr/local/plan9/bin/rc
+#!/Users/jin/pkg/plan9port/bin/rc
 
 if(! ~ $#* 2){
 	echo 'usage: vmount server mtpt' >[1=2]

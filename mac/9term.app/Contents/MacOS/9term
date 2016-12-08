@@ -1,5 +1,5 @@
 #!/bin/bash
 cd $HOME
 . ~/.bashrc
-PLAN9=${PLAN9:-/usr/local/plan9}
+PLAN9=${PLAN9:-/Users/jin/pkg/plan9port}
 $PLAN9/bin/9term -W600x800 &

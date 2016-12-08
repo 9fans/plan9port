@@ -5,7 +5,7 @@ usegcc()
 {
 	cc=${CC9:-gcc}
 	ngflags=" \
-		-O2 \
+		-O2 -march=native \
 		-c \
 		-Wall \
 		-Wno-parentheses \

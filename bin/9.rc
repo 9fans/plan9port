@@ -1,7 +1,7 @@
-#!/usr/local/plan9/bin/rc
+#!/Users/jin/pkg/plan9port/bin/rc
 
 if(~ $#PLAN9 0)
-	PLAN9=/usr/local/plan9
+	PLAN9=/Users/jin/pkg/plan9port
 if(! ~ $path(1) $PLAN9/bin)
 	path=($PLAN9/bin $path)
 
