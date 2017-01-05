@@ -271,6 +271,7 @@ getwidth(void)
 	char buf[500], *p, *f[10];
 	int fd, n, nf;
 	struct winsize ws;
+	int w;
 
 	if((p = getenv("winid")) != nil){
 		fs = nsmount("acme", "");
@@ -307,6 +308,12 @@ getwidth(void)
 		font = nil;
 	if(font){
 		mintab = stringwidth(font, "0");
+		// Figure out if we are scaling the font for teensy pixels.
+		// If so, scale down the linewidth.
+		w = ws.ws_xpixel / ws.ws_col;
+		if (w > mintab) {
+			ws.ws_xpixel = (ws.ws_xpixel * mintab) / w;
+		}
 		if((p = getenv("tabstop")) != nil)
 			tabwid = atoi(p)*mintab;
 		else
