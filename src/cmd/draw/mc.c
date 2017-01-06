@@ -268,9 +268,10 @@ void
 getwidth(void)
 {
 	CFsys *fs;
-	char buf[500], *p, *f[10];
+	char buf[500], *p, *q, *f[10];
 	int fd, n, nf;
 	struct winsize ws;
+	Font *f1;
 
 	if((p = getenv("winid")) != nil){
 		fs = nsmount("acme", "");
@@ -306,6 +307,22 @@ getwidth(void)
 	if(ws.ws_xpixel == 0)
 		font = nil;
 	if(font){
+		// 9term leaves "is this a hidpi display" in the low bit of the ypixel height.
+		if(ws.ws_ypixel&1) {
+			// need hidpi font.
+			// loadhifpi creates a font that crashes in stringwidth,
+			// for reasons i don't understand.
+			// do it ourselves
+			p = getenv("font");
+			q = strchr(p, ',');
+			f1 = nil;
+			if(q != nil)
+				f1 = openfont(nil, q+1);
+			if(f1 != nil)
+				font = f1;
+			else
+				ws.ws_xpixel /= 2;
+		}
 		mintab = stringwidth(font, "0");
 		if((p = getenv("tabstop")) != nil)
 			tabwid = atoi(p)*mintab;
