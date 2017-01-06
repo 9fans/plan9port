@@ -28,6 +28,30 @@
 #include "bigarrow.h"
 #include "glendapng.h"
 
+// Use non-deprecated names.
+#define NSKeyDown NSEventTypeKeyDown
+#define NSAlternateKeyMask NSEventModifierFlagOption
+#define NSCommandKeyMask NSEventModifierFlagCommand
+#define NSResizableWindowMask NSWindowStyleMaskResizable
+#define NSLeftMouseDown NSEventTypeLeftMouseDown
+#define NSLeftMouseUp NSEventTypeLeftMouseUp
+#define NSRightMouseDown NSEventTypeRightMouseDown
+#define NSRightMouseUp NSEventTypeRightMouseUp
+#define NSOtherMouseDown NSEventTypeOtherMouseDown
+#define NSOtherMouseUp NSEventTypeOtherMouseUp
+#define NSScrollWheel NSEventTypeScrollWheel
+#define NSMouseMoved NSEventTypeMouseMoved
+#define NSLeftMouseDragged NSEventTypeLeftMouseDragged
+#define NSRightMouseDragged NSEventTypeRightMouseDragged
+#define NSOtherMouseDragged NSEventTypeOtherMouseDragged
+#define NSCompositeCopy NSCompositingOperationCopy
+#define NSCompositeSourceIn NSCompositingOperationSourceIn
+#define NSFlagsChanged NSEventTypeFlagsChanged
+#define NSTitledWindowMask NSWindowStyleMaskTitled
+#define NSClosableWindowMask NSWindowStyleMaskClosable
+#define NSMiniaturizableWindowMask NSWindowStyleMaskMiniaturizable
+#define NSBorderlessWindowMask NSWindowStyleMaskBorderless
+
 AUTOFRAMEWORK(Cocoa)
 
 #define LOG	if(0)NSLog
@@ -53,7 +77,9 @@ usage(void)
 	threadexitsall("usage");
 }
 
-@interface appdelegate : NSObject @end
+@interface appdelegate : NSObject<NSApplicationDelegate,NSWindowDelegate> @end
+
+NSObject<NSApplicationDelegate,NSWindowDelegate> *myApp;
 
 void
 threadmain(int argc, char **argv)
@@ -97,7 +123,8 @@ threadmain(int argc, char **argv)
 
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-	[NSApp setDelegate:[appdelegate new]];
+	myApp = [appdelegate new];
+	[NSApp setDelegate:myApp];
 	[NSApp run];
 }
 
@@ -402,7 +429,7 @@ makewin(char *s)
 		backing:NSBackingStoreBuffered defer:YES];
 	for(i=0; i<2; i++){
 		[win.ofs[i] setAcceptsMouseMovedEvents:YES];
-		[win.ofs[i] setDelegate:[NSApp delegate]];
+		[win.ofs[i] setDelegate:myApp];
 		[win.ofs[i] setDisplaysWhenScreenProfileChanges:NO];
 	}
 	win.isofs = 0;
@@ -567,7 +594,7 @@ flushimg(NSRect rect)
 	rect = dilate(scalerect(rect, win.topointscale));
 	r.size.height -= Cornersize;
 	dr = NSIntersectionRect(r, rect);
-	LOG(@"r %.0f %.0f", r.origin.x, r.origin.y, rect.size.width, rect.size.height);
+	LOG(@"r %.0f %.0f %.0f %.0f", r.origin.x, r.origin.y, rect.size.width, rect.size.height);
 	LOG(@"rect in points %f %f %.0f %.0f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 	LOG(@"dr in points %f %f %.0f %.0f", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
 	drawimg(dr, NSCompositeCopy);
@@ -792,52 +819,52 @@ static void updatecursor(void);
 
 static int keycvt[] =
 {
-	[QZ_IBOOK_ENTER] '\n',
-	[QZ_RETURN] '\n',
-	[QZ_ESCAPE] 27,
-	[QZ_BACKSPACE] '\b',
-	[QZ_LALT] Kalt,
-	[QZ_LCTRL] Kctl,
-	[QZ_LSHIFT] Kshift,
-	[QZ_F1] KF+1,
-	[QZ_F2] KF+2,
-	[QZ_F3] KF+3,
-	[QZ_F4] KF+4,
-	[QZ_F5] KF+5,
-	[QZ_F6] KF+6,
-	[QZ_F7] KF+7,
-	[QZ_F8] KF+8,
-	[QZ_F9] KF+9,
-	[QZ_F10] KF+10,
-	[QZ_F11] KF+11,
-	[QZ_F12] KF+12,
-	[QZ_INSERT] Kins,
-	[QZ_DELETE] 0x7F,
-	[QZ_HOME] Khome,
-	[QZ_END] Kend,
-	[QZ_KP_PLUS] '+',
-	[QZ_KP_MINUS] '-',
-	[QZ_TAB] '\t',
-	[QZ_PAGEUP] Kpgup,
-	[QZ_PAGEDOWN] Kpgdown,
-	[QZ_UP] Kup,
-	[QZ_DOWN] Kdown,
-	[QZ_LEFT] Kleft,
-	[QZ_RIGHT] Kright,
-	[QZ_KP_MULTIPLY] '*',
-	[QZ_KP_DIVIDE] '/',
-	[QZ_KP_ENTER] '\n',
-	[QZ_KP_PERIOD] '.',
-	[QZ_KP0] '0',
-	[QZ_KP1] '1',
-	[QZ_KP2] '2',
-	[QZ_KP3] '3',
-	[QZ_KP4] '4',
-	[QZ_KP5] '5',
-	[QZ_KP6] '6',
-	[QZ_KP7] '7',
-	[QZ_KP8] '8',
-	[QZ_KP9] '9',
+	[QZ_IBOOK_ENTER]= '\n',
+	[QZ_RETURN]= '\n',
+	[QZ_ESCAPE]= 27,
+	[QZ_BACKSPACE]= '\b',
+	[QZ_LALT]= Kalt,
+	[QZ_LCTRL]= Kctl,
+	[QZ_LSHIFT]= Kshift,
+	[QZ_F1]= KF+1,
+	[QZ_F2]= KF+2,
+	[QZ_F3]= KF+3,
+	[QZ_F4]= KF+4,
+	[QZ_F5]= KF+5,
+	[QZ_F6]= KF+6,
+	[QZ_F7]= KF+7,
+	[QZ_F8]= KF+8,
+	[QZ_F9]= KF+9,
+	[QZ_F10]= KF+10,
+	[QZ_F11]= KF+11,
+	[QZ_F12]= KF+12,
+	[QZ_INSERT]= Kins,
+	[QZ_DELETE]= 0x7F,
+	[QZ_HOME]= Khome,
+	[QZ_END]= Kend,
+	[QZ_KP_PLUS]= '+',
+	[QZ_KP_MINUS]= '-',
+	[QZ_TAB]= '\t',
+	[QZ_PAGEUP]= Kpgup,
+	[QZ_PAGEDOWN]= Kpgdown,
+	[QZ_UP]= Kup,
+	[QZ_DOWN]= Kdown,
+	[QZ_LEFT]= Kleft,
+	[QZ_RIGHT]= Kright,
+	[QZ_KP_MULTIPLY]= '*',
+	[QZ_KP_DIVIDE]= '/',
+	[QZ_KP_ENTER]= '\n',
+	[QZ_KP_PERIOD]= '.',
+	[QZ_KP0]= '0',
+	[QZ_KP1]= '1',
+	[QZ_KP2]= '2',
+	[QZ_KP3]= '3',
+	[QZ_KP4]= '4',
+	[QZ_KP5]= '5',
+	[QZ_KP6]= '6',
+	[QZ_KP7]= '7',
+	[QZ_KP8]= '8',
+	[QZ_KP9]= '9',
 };
 
 @interface apptext : NSTextView @end
@@ -1138,30 +1165,25 @@ sendmouse(void)
 void
 setmouse(Point p)
 {
-	static int first = 1;
 	NSPoint q;
 	NSRect r;
 
 	if([NSApp isActive]==0 && in.willactivate==0)
 		return;
 
-	if(first){
-		/* Try to move Acme's scrollbars without that! */
-		CGSetLocalEventsSuppressionInterval(0);
-		first = 0;
-	}
 	if([WIN inLiveResize])
 		return;
 
 	in.mpos = scalepoint(NSMakePoint(p.x, p.y), win.topointscale);	// race condition
 
 	q = [win.content convertPoint:in.mpos toView:nil];
-	q = [WIN convertBaseToScreen:q];
+	q = [WIN convertRectToScreen:NSMakeRect(q.x, q.y, 0, 0)].origin;
 
 	r = [[[NSScreen screens] objectAtIndex:0] frame];
 	q.y = r.size.height - q.y;	/* Quartz is top-left-based here */
 
 	CGWarpMouseCursorPosition(NSPointToCGPoint(q));
+	CGAssociateMouseAndMouseCursorPosition(true);
 }
 
 /*
@@ -1431,14 +1453,14 @@ makecursor(Cursor *c)
 		samplesPerPixel:2
 		hasAlpha:YES
 		isPlanar:YES
-		colorSpaceName:NSDeviceBlackColorSpace
+		colorSpaceName:NSDeviceWhiteColorSpace
 		bytesPerRow:2
 		bitsPerPixel:1];
 
 	[r getBitmapDataPlanes:plane];
 
 	for(b=0; b<2*16; b++){
-		plane[0][b] = c->set[b];
+		plane[0][b] = ~c->set[b];
 		plane[1][b] = c->clr[b];
 	}
 	p = NSMakePoint(-c->offset.x, -c->offset.y);

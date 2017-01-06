@@ -9,7 +9,7 @@ static int
 Xperspective(struct place *place, double *x, double *y)
 {
 	double r;
-	if(viewpt<=1+FUZZ && fabs(place->nlat.s<=viewpt+.01))
+	if(viewpt<=1+FUZZ && fabs(place->nlat.s)<=viewpt+.01)
 		return(-1);
 	r = place->nlat.c*(viewpt - 1.)/(viewpt - place->nlat.s);
 	*x = - r*place->wlon.s;

@@ -138,7 +138,7 @@ typedef struct {
 	char	*err;		/* errmsg */
 } Instr;
 
-#define	IBF(v,a,b) (((ulong)(v)>>(32-(b)-1)) & ~(~0L<<(((b)-(a)+1))))
+#define	IBF(v,a,b) (((ulong)(v)>>(32-(b)-1)) & ~(~0UL<<(((b)-(a)+1))))
 #define	IB(v,b) IBF((v),(b),(b))
 
 static void
@@ -165,7 +165,7 @@ decode(ulong pc, Instr *i)
 	i->crbb = IBF(w, 16, 20);
 	i->bd = IBF(w, 16, 29)<<2;
 	if(i->bd & 0x8000)
-		i->bd |= ~0L<<16;
+		i->bd |= ~0UL<<16;
 	i->crfd = IBF(w, 6, 8);
 	i->crfs = IBF(w, 11, 13);
 	i->bi = IBF(w, 11, 15);
@@ -181,7 +181,7 @@ decode(ulong pc, Instr *i)
 	i->crm = IBF(w, 12, 19);
 	i->li = IBF(w, 6, 29)<<2;
 	if(IB(w, 6))
-		i->li |= ~0<<25;
+		i->li |= ~0UL<<25;
 	i->lk = IB(w, 31);
 	i->mb = IBF(w, 21, 25);
 	i->me = IBF(w, 26, 30);

@@ -219,13 +219,12 @@ main(int argc, char *argv[])
 		fprint(2, "dd: counts: cannot be zero\n");
 		exits("counts");
 	}
-	ibuf = sbrk(ibs);
+	ibuf = malloc(ibs);
 	if(fflag)
 		obuf = ibuf;
 	else
-		obuf = sbrk(obs);
-	sbrk(64);	/* For good measure */
-	if(ibuf == (char *)-1 || obuf == (char *)-1) {
+		obuf = malloc(obs);
+	if(ibuf == (char *)0 || obuf == (char *)0) {
 		fprint(2, "dd: not enough memory: %r\n");
 		exits("memory");
 	}

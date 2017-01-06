@@ -46,8 +46,8 @@ iobuf_init(void)
 
 	n = nclust*sizeof(Ioclust) +
 		nclust*BUFPERCLUST*(sizeof(Iobuf)+Sectorsize);
-	mem = sbrk(n);
-	if(mem == (void*)-1)
+	mem = malloc(n);
+	if(mem == (void*)0)
 		panic(0, "iobuf_init");
 	memset(mem, 0, n);
 
