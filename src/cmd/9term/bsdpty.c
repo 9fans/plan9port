@@ -77,10 +77,10 @@ updatewinsize(int row, int col, int dx, int dy)
 	ws.ws_col = col;
 	ws.ws_xpixel = dx;
 
-
+	needdisplay(); // in case this is 'win' and not 9term
 	// Leave "is this a hidpi display" in the low bit of the ypixel height for mc.
 	dy &= ~1;
-	if(display->dpi >= DefaultDPI*3/2)
+	if(display != nil && display->dpi >= DefaultDPI*3/2)
 		dy |= 1;
 	ws.ws_ypixel = dy;
 

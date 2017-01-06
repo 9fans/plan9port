@@ -525,6 +525,8 @@ extern	int	_drawdebug;	/* set to 1 to see errors from flushimage */
 extern	void	_setdrawop(Display*, Drawop);
 extern	Display	*_initdisplay(void(*)(Display*,char*), char*);
 
+extern	void	needdisplay(void); /* call instead of initdraw to get (null) variable linked in */
+
 #define	BGSHORT(p)		(((p)[0]<<0) | ((p)[1]<<8))
 #define	BGLONG(p)		((BGSHORT(p)<<0) | (BGSHORT(p+2)<<16))
 #define	BPSHORT(p, v)		((p)[0]=(v), (p)[1]=((v)>>8))

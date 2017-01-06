@@ -19,6 +19,11 @@ Image	*mousebuttons;
 Image	*mousesave;
 Mouse	_drawmouse;
 
+void
+needdisplay(void)
+{
+}
+
 /*
 static void
 drawshutdown(void)
