@@ -41,8 +41,10 @@ quiet()
 	ignore=$ignore'|        from'
 	ignore=$ignore'|use of C99 long long'
 	ignore=$ignore'|ISO C forbids conversion'
+	ignore=$ignore'|marked deprecated'
 	ignore=$ignore'|is deprecated'
 	ignore=$ignore'|warn_unused_result'
+	ignore=$ignore'|expanded from macro'
 
 	grep -v '__p9l_autolib_' $1 |
 	egrep -v "$ignore" |
@@ -80,12 +82,10 @@ case "$tag" in
 *FreeBSD*gcc*)	usegcc ;;
 *FreeBSD*clang*)	useclang ;;
 *DragonFly*|*BSD*)	usegcc ;;
-*Darwin-x86_64*clang*)
+*Darwin-x86_64*)
 		useclang
 		cflags="$ngflags -g3 -m64"
 		;;
-*Darwin-x86_64*) usegcc
-		cflags="$ngflags -g3 -no-cpp-precomp -m64" ;;
 *Darwin*clang*)
 		useclang
 		cflags="$ngflags -g3 -m32"

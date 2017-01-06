@@ -154,7 +154,7 @@ statgraph(Graph *g)
 
 	qlock(&memdrawlock);
 	ginit();
-	if(smallfont==nil || black==nil || blue==nil || red==nil || hifill==nil || lofill==nil){
+	if(smallfont==nil || black==nil || blue==nil || red==nil || hifill[0]==nil || lofill[0]==nil){
 		werrstr("graphics initialization failed: %r");
 		qunlock(&memdrawlock);
 		return nil;

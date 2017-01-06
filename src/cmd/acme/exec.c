@@ -652,7 +652,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	d = dirstat(name);
 	if(d!=nil && runeeq(namer, nname, f->name, f->nname)){
 		/* f->mtime+1 because when talking over NFS it's often off by a second */
-		if(f->dev!=d->dev || f->qidpath!=d->qid.path || abs(f->mtime-d->mtime) > 1){
+		if(f->dev!=d->dev || f->qidpath!=d->qid.path || labs((long)(f->mtime-d->mtime)) > 1){
 			if(f->unread)
 				warning(nil, "%s not written; file already exists\n", name);
 			else

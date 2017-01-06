@@ -10,11 +10,11 @@ mal(int n)
 	n = (n+3) & ~3;
 	if(m < n) {
 		if(n > Nhunk) {
-			v = sbrk(n);
+			v = malloc(n);
 			memset(v, 0, n);
 			return v;
 		}
-		s = sbrk(Nhunk);
+		s = malloc(Nhunk);
 		m = Nhunk;
 	}
 	v = s;
