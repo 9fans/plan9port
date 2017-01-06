@@ -11,6 +11,7 @@
 #endif
 #include <fcntl.h>
 #include <libc.h>
+#include <draw.h>
 #include "term.h"
 
 #define debug 0
@@ -75,7 +76,14 @@ updatewinsize(int row, int col, int dx, int dy)
 	ws.ws_row = row;
 	ws.ws_col = col;
 	ws.ws_xpixel = dx;
+
+
+	// Leave "is this a hidpi display" in the low bit of the ypixel height for mc.
+	dy &= ~1;
+	if(display->dpi >= DefaultDPI*3/2)
+		dy |= 1;
 	ws.ws_ypixel = dy;
+
 	if(ws.ws_row != ows.ws_row || ws.ws_col != ows.ws_col){
 		if(ioctl(rcfd, TIOCSWINSZ, &ws) < 0)
 			fprint(2, "ioctl: %r\n");
