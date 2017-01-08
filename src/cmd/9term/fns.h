@@ -31,6 +31,7 @@ void	timerinit(void);
 int	goodrect(Rectangle);
 int	rawon(void);
 void	winterrupt(Window*);
+int	intrc();
 
 #define	runemalloc(n)		malloc((n)*sizeof(Rune))
 #define	runerealloc(a, n)	realloc(a, (n)*sizeof(Rune))

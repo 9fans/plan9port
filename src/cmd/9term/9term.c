@@ -448,6 +448,11 @@ winterrupt(Window *w)
 	write(rcfd, rubout, 1);
 }
 
+int
+intrc() {
+	return getintr(sfd);
+}
+
 /*
  * Process in-band messages about window title changes.
  * The messages are of the form:
