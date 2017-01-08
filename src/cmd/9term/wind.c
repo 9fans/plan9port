@@ -705,6 +705,11 @@ wkeyctl(Window *w, Rune r)
 		wcut(w);
 	}
 	switch(r){
+	case 0x03:		/* maybe send interrupt */
+		/* since ^C is so commonly used as interrupt, special case it */
+		if (intrc() != 0x03)
+			break;
+		/* fall through */
 	case 0x7F:		/* send interrupt */
 		w->qh = w->nr;
 		wshow(w, w->qh);
