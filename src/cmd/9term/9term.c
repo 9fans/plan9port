@@ -449,7 +449,8 @@ winterrupt(Window *w)
 }
 
 int
-intrc() {
+intrc(void)
+{
 	return getintr(sfd);
 }
 
