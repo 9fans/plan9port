@@ -40,7 +40,7 @@ Contact
 -------
 
 * Mailing list: http://groups.google.com/group/plan9port-dev
-* Issue tracker: http://code.swtch.com/plan9port/issues/
-* Submitting changes: http://swtch.com/go/codereview
+* Issue tracker: https://github.com/9fans/plan9port/issues
+* Submitting changes: https://github.com/9fans/plan9port
 
 * Russ Cox <rsc@swtch.com>
