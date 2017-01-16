@@ -35,8 +35,8 @@ SunOS)
 esac
 
 echo "+ Mailing list: http://groups.google.com/group/plan9port-dev"
-echo "+ Issue tracker: http://code.swtch.com/plan9port/issues/"
-echo "+ Submitting changes: http://swtch.com/go/codereview"
+echo "+ Issue tracker: https://github.com/9fans/plan9port/issues"
+echo "+ Submitting changes: https://github.com/9fans/plan9port"
 echo " "
 echo "* Resetting $PLAN9/config"
 rm -f config
@@ -105,7 +105,7 @@ if [ `uname` = Darwin ]; then
 	rm -f ./a.out
 	if ! gcc lib/darwin-main.c >/dev/null 2>&1; then
 		echo "Cannot find gcc. You may need to install the command-line tools using Xcode." >&2
-		echo "See http://swtch.com/go/xcodegcc for details." >&2
+		echo "On Snow Leopard or newer, xcode-select --install will install required command line tools" >&2
 		exit 1
 	fi
 	case "$(file ./a.out 2>/dev/null)" in
