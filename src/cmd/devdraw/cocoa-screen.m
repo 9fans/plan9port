@@ -28,29 +28,31 @@
 #include "bigarrow.h"
 #include "glendapng.h"
 
+/* these #defines break the OSX build, at least on 10.11.6 El Capitan.
 // Use non-deprecated names.
-#define NSKeyDown NSEventTypeKeyDown
-#define NSAlternateKeyMask NSEventModifierFlagOption
-#define NSCommandKeyMask NSEventModifierFlagCommand
-#define NSResizableWindowMask NSWindowStyleMaskResizable
-#define NSLeftMouseDown NSEventTypeLeftMouseDown
-#define NSLeftMouseUp NSEventTypeLeftMouseUp
-#define NSRightMouseDown NSEventTypeRightMouseDown
-#define NSRightMouseUp NSEventTypeRightMouseUp
-#define NSOtherMouseDown NSEventTypeOtherMouseDown
-#define NSOtherMouseUp NSEventTypeOtherMouseUp
-#define NSScrollWheel NSEventTypeScrollWheel
-#define NSMouseMoved NSEventTypeMouseMoved
-#define NSLeftMouseDragged NSEventTypeLeftMouseDragged
-#define NSRightMouseDragged NSEventTypeRightMouseDragged
-#define NSOtherMouseDragged NSEventTypeOtherMouseDragged
-#define NSCompositeCopy NSCompositingOperationCopy
-#define NSCompositeSourceIn NSCompositingOperationSourceIn
-#define NSFlagsChanged NSEventTypeFlagsChanged
-#define NSTitledWindowMask NSWindowStyleMaskTitled
-#define NSClosableWindowMask NSWindowStyleMaskClosable
-#define NSMiniaturizableWindowMask NSWindowStyleMaskMiniaturizable
-#define NSBorderlessWindowMask NSWindowStyleMaskBorderless
+define NSKeyDown NSEventTypeKeyDown
+define NSAlternateKeyMask NSEventModifierFlagOption
+define NSCommandKeyMask NSEventModifierFlagCommand
+define NSResizableWindowMask NSWindowStyleMaskResizable
+define NSLeftMouseDown NSEventTypeLeftMouseDown
+define NSLeftMouseUp NSEventTypeLeftMouseUp
+define NSRightMouseDown NSEventTypeRightMouseDown
+define NSRightMouseUp NSEventTypeRightMouseUp
+define NSOtherMouseDown NSEventTypeOtherMouseDown
+define NSOtherMouseUp NSEventTypeOtherMouseUp
+define NSScrollWheel NSEventTypeScrollWheel
+define NSMouseMoved NSEventTypeMouseMoved
+define NSLeftMouseDragged NSEventTypeLeftMouseDragged
+define NSRightMouseDragged NSEventTypeRightMouseDragged
+define NSOtherMouseDragged NSEventTypeOtherMouseDragged
+define NSCompositeCopy NSCompositingOperationCopy
+define NSCompositeSourceIn NSCompositingOperationSourceIn
+define NSFlagsChanged NSEventTypeFlagsChanged
+define NSTitledWindowMask NSWindowStyleMaskTitled
+define NSClosableWindowMask NSWindowStyleMaskClosable
+define NSMiniaturizableWindowMask NSWindowStyleMaskMiniaturizable
+define NSBorderlessWindowMask NSWindowStyleMaskBorderless
+*/
 
 AUTOFRAMEWORK(Cocoa)
 
