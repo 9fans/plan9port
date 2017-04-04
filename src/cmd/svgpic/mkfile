@@ -1,0 +1,36 @@
+<$PLAN9/src/mkhdr
+
+TARG=svgpic
+OFILES=picy.$O\
+	picl.$O\
+	main.$O\
+	print.$O\
+	misc.$O\
+	symtab.$O\
+	blockgen.$O\
+	boxgen.$O\
+	circgen.$O\
+	arcgen.$O\
+	linegen.$O\
+	movegen.$O\
+	textgen.$O\
+	input.$O\
+	for.$O\
+	plsvg.$O\
+
+HFILES=pic.h\
+	y.tab.h\
+
+YFILES=picy.y\
+
+<$PLAN9/src/mkone
+YFLAGS=-S -d
+
+picy.c:	y.tab.c
+	mv $prereq $target
+
+picl.c:D: picl.lx
+	$LEX -t $prereq > $target
+
+clean:V:
+	rm -f *.[$OS] [$OS].out y.tab.? y.debug $TARG picy.c picl.c

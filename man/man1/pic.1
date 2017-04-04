@@ -23,6 +23,11 @@ pic, tpic \- troff and tex preprocessors for drawing pictures
 [
 .I files
 ]
+.PP
+.B svgpic
+[
+.I files
+]
 .SH DESCRIPTION
 .I Pic
 is a
@@ -306,6 +311,12 @@ The box may be output this way:
 .IP
 .L
 \ecenterline{\ebox\egraph}
+.PP
+.I Svgpic
+accepts
+.IR pic
+language and produces a Scalable Vector Graphics (SVG) image
+suitable for use in HTML documents.
 .SH EXAMPLES
 .EX
 arrow "input" above; box "process"; arrow "output" above
@@ -342,3 +353,7 @@ B. W. Kernighan,
 .I
 Unix Research System Programmer's Manual,
 Tenth Edition, Volume 2
+.SH BUGS
+.I Svgpic
+is only lightly tested.
+It should handle troff commands in text output.
