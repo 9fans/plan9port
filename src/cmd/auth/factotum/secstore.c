@@ -181,7 +181,7 @@ SC_read(SConn *conn, uchar *buf, int n)
 	uchar count[2], digest[SHA1dlen];
 	int len, nr;
 
-	if(read(ss->fd, count, 2) != 2 || count[0]&0x80 == 0){
+	if(read(ss->fd, count, 2) != 2 || (count[0]&0x80) == 0){
 		werrstr("!SC_read invalid count");
 		return -1;
 	}
