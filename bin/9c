@@ -43,6 +43,7 @@ quiet()
 	ignore=$ignore'|ISO C forbids conversion'
 	ignore=$ignore'|marked deprecated'
 	ignore=$ignore'|is deprecated'
+	ignore=$ignore'|are deprecated'
 	ignore=$ignore'|warn_unused_result'
 	ignore=$ignore'|expanded from macro'
 
