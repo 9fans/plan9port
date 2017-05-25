@@ -40,6 +40,7 @@ void
 threadmain(int argc, char *argv[])
 {
 	int i, got, scr, w;
+	char *fontname = nil;
 	Text *t;
 	Rectangle r;
 	Flayer *nwhich;
@@ -72,6 +73,10 @@ threadmain(int argc, char *argv[])
 	nscralloc = 100;
 	r = screen->r;
 	r.max.y = r.min.y+Dy(r)/5;
+	fontname = getenv("font");
+	if(fontname != nil)
+		font = openfont(display, fontname);
+
 	if(protodebug) print("flstart\n");
 	flstart(screen->clipr);
 	rinit(&cmd.rasp);
@@ -137,11 +142,13 @@ threadmain(int argc, char *argv[])
 					scroll(which, 2);
 				else
 					menu2hit();
-			}else if((mousep->buttons&4)){
+			}else if(mousep->buttons&4){
 				if(scr)
 					scroll(which, 3);
 				else
 					menu3hit();
+			} else if(mousep->buttons&(8|16)) {
+				scroll(which, (mousep->buttons&8) ? 4 : 5);
 			}
 			mouseunblock();
 		}
@@ -494,6 +501,7 @@ flushtyping(int clearesc)
 #define	PAGEUP	Kpgup
 #define	RIGHTARROW	Kright
 #define	SCROLLKEY	Kdown
+#define	CMDKEY		0x14
 #define	CUT	(Kcmd+'x')
 #define	COPY	(Kcmd+'c')
 #define	PASTE	(Kcmd+'v')
@@ -512,6 +520,7 @@ nontypingkey(int c)
 	case PAGEUP:
 	case RIGHTARROW:
 	case SCROLLKEY:
+	case CMDKEY:
 		return 1;
 	}
 	if(c >= Kcmd)
@@ -546,7 +555,7 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 	backspacing = 0;
 	while((c = kbdchar())>0){
 		if(res == RKeyboard){
-			if(nontypingkey(c) || c==ESC)
+			if(nontypingkey(c) || c==ESC || c==0x14)
 				break;
 			/* backspace, ctrl-u, ctrl-w, del */
 			if(c=='\b' || c==0x15 || c==0x17 || c==0x7F){
@@ -590,6 +599,12 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 	if(c==SCROLLKEY || c==PAGEDOWN){
 		flushtyping(0);
 		center(l, l->origin+l->f.nchars+1);
+	}else if(c==CMDKEY) {
+		flushtyping(0);
+		if(which == &cmd.l[0])
+			current(work);
+		else
+			current(&cmd.l[0]);
 	}else if(c==BACKSCROLLKEY || c==PAGEUP){
 		flushtyping(0);
 		a0 = l->origin-l->f.nchars;
