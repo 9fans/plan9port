@@ -645,6 +645,24 @@ environment variable
 .B $acmeaddr
 is created that holds, in the form interpreted by button 3,
 the fully-qualified address of the extra argument.
+.SS "Simulated buttons
+For systems without a three-button mouse, the keyboard modifier
+keys can be used to modify the effect of the main mouse button.
+On Unix systems, the Control key changes the main button to button 2,
+and the Alt key changes it to button 3.
+On Mac systems, the Option key changes the main button to button 2,
+and the Command key changes it to button 3.
+Pressing the key after the button is held down adds the button to form
+a chord, so that for example on Macs selecting text with the trackpad
+button and then typing Option without letting go of the button will
+cause a 1-2 chord, cutting the selection.
+On Mac systems, the usual keyboard shortcuts
+Command-C, -V, -X, and -Z invoke
+copy, paste, cut, and undo, 
+and Command-Shift-Z invokes redo,
+as in other programs.
+Especially on Mac laptops, these keyboard shortcuts are
+typically much less awkward than the equivalent chords.
 .SS "Support programs
 .I Win
 creates a new
