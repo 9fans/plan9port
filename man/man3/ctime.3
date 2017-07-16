@@ -1,6 +1,6 @@
 .TH CTIME 3
 .SH NAME
-ctime, localtime, gmtime, asctime, tm2sec, timezone \- convert date and time
+ctime, localtime, gmtime, asctime, tm2sec \- convert date and time
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -81,9 +81,9 @@ if
 is not
 .BR GMT .
 .SH SOURCE
-.B \*9/src/lib9/date.c
-.br
 .B \*9/src/lib9/ctime.c
+.br
+.B \*9/src/lib9/tm2sec.c
 .SH "SEE ALSO"
 .IR date (1),
 .IR time (3)

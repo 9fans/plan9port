@@ -34,18 +34,6 @@ and
 .I putsnarf
 will convert as necessary.
 .SH SOURCE
-.B \*9/src/libdraw/x11-itrans.c
+.B \*9/src/libdraw/snarf.c
 .SH SEE ALSO
 .IR snarfer (1)
-.SH BUGS
-On OS X, there are two snarf buffers: the Carbon snarf buffer
-used by native OS X applications, and the X11 snarf buffer,
-used by X11 applications.
-Whenever new text is written to the Carbon snarf buffer, the OS X X11
-implementation automatically copies that text to the X11 snarf buffer.
-The reverse is not done automatically, arguably a bug in the X11 server.
-To work around this,
-.I putsnarf
-writes to both the Carbon snarf buffer and the X11 snarf buffer.
-To work around this bug in remote or non-Plan 9 X11 clients, run
-.IR snarfer (1).

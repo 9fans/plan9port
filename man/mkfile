@@ -3,7 +3,7 @@ LIB=$PLAN9/lib
 indices:V:
 	for i in man*
 	do
-		rc ./secindex $i > $i/INDEX
+		9 rc ./secindex $i > $i/INDEX
 	done
 
 lookman.index:V:

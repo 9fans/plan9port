@@ -1,10 +1,14 @@
 0intro 0intro.4
 intro 0intro.4
+9import 9import.4
 9pfuse 9pfuse.4
 9pserve 9pserve.4
 acme acme.4
 factotum factotum.4
 fontsrv fontsrv.4
+flchk fossil.4
+flfmt fossil.4
+fossil fossil.4
 import import.4
 plumber plumber.4
 ramfs ramfs.4
