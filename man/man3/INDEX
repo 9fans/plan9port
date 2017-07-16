@@ -301,7 +301,6 @@ asctime ctime.3
 ctime ctime.3
 gmtime ctime.3
 localtime ctime.3
-timezone ctime.3
 tm2sec ctime.3
 
 block_cipher des.3
@@ -1238,6 +1237,7 @@ threadsetgrp thread.3
 threadsetname thread.3
 threadsetstate thread.3
 threadspawn thread.3
+threadspawnd thread.3
 threadspawnl thread.3
 threadunpin thread.3
 threadwaitchan thread.3
@@ -1255,7 +1255,6 @@ vtblockput venti-cache.3
 vtblockwrite venti-cache.3
 vtcachealloc venti-cache.3
 vtcacheallocblock venti-cache.3
-vtcacheblocksize venti-cache.3
 vtcachefree venti-cache.3
 vtcacheglobal venti-cache.3
 vtcachelocal venti-cache.3

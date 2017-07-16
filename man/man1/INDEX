@@ -34,6 +34,7 @@ auxclog clog.1
 clog clog.1
 cmp cmp.1
 codereview codereview.1
+col col.1
 cmapcube colors.1
 colors colors.1
 comm comm.1
@@ -44,6 +45,7 @@ date date.1
 db db.1
 stack db.1
 dc dc.1
+dd dd.1
 delatex deroff.1
 deroff deroff.1
 devdraw devdraw.1
@@ -63,6 +65,9 @@ fortune fortune.1
 freq freq.1
 fsize fsize.1
 mtime fsize.1
+cvs git.1
+git git.1
+hg git.1
 grap grap.1
 graph graph.1
 g grep.1
@@ -75,8 +80,6 @@ gunzip gzip.1
 gzip gzip.1
 unzip gzip.1
 zip gzip.1
-cvs hg.1
-hg hg.1
 hget hget.1
 hist hist.1
 history hist.1

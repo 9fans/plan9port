@@ -1,6 +1,9 @@
+fossilcons fossilcons.8
 getflags getflags.8
 usage getflags.8
 listen1 listen1.8
+mkext mkfs.8
+mkfs mkfs.8
 vbackup vbackup.8
 vcat vbackup.8
 vftp vbackup.8

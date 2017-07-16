@@ -50,9 +50,9 @@ like
 The X Window library implementation of
 .I XLookupString
 allocates some very large buffers on the stack, so
-.B \*9/src/libdraw/x11-itrans.c
+.B \*9/src/cmd/devdraw/x11-itrans.c
 calls
-.B needstack(20*1024)
+.B needstack(64*1024)
 before making calls to
 .IR XLookupString .
 If a thread (in this case, the keyboard-reading thread used
