@@ -821,6 +821,17 @@ dot is the null string, as if it were typed to the command window.
 Saves the sent text in the snarf buffer.
 (Command window only.) 
 .PD
+.SS Simulated buttons
+For systems without a three-button mouse, the keyboard modifier
+keys can be used to modify the effect of the main mouse button.
+On Unix systems, the Control key changes the main button to button 2,
+and the Alt key changes it to button 3.
+On Mac systems, the Option key changes the main button to button 2,
+and the Command key changes it to button 3.
+Also on Mac systems, the usual keyboard shortcuts
+Command-C, -V, and -X invoke
+copy, paste, and cut,
+as in other programs.
 .SS External communication
 .I Sam
 listens to the
