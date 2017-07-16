@@ -30,6 +30,7 @@
 
 // Use non-deprecated names.
 #define NSKeyDown NSEventTypeKeyDown
+#define NSShiftKeyMask NSEventModifierFlagShift
 #define NSAlternateKeyMask NSEventModifierFlagOption
 #define NSCommandKeyMask NSEventModifierFlagCommand
 #define NSResizableWindowMask NSWindowStyleMaskResizable
@@ -903,6 +904,8 @@ getkeyboard(NSEvent *e)
 		interpretdeadkey(e);
 
 		if(m & NSCommandKeyMask){
+			if((m & NSShiftKeyMask) && 'a' <= c && c <= 'z')
+				c += 'A' - 'a';
 			if(' '<=c && c<='~')
 				keystroke(Kcmd+c);
 			break;
