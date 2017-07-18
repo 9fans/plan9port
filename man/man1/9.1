@@ -125,3 +125,18 @@ $ 9 rc
 .B \*9/bin/u.rc
 .SH SEE ALSO
 .IR intro (1)
+.SH BUGS
+Some shell configurations
+(notably, oh-my-zsh)
+define
+.B 9
+as an alias for
+.B cd
+.BR \-9 ,
+which makes the
+.I 9
+command described here inaccessible.
+In such shells, it is necessary to
+.B unalias
+.B 9
+in your initialization scripts.
