@@ -212,7 +212,7 @@ writepng(Hio *io, Memimage *m)
 	/* image data */
 	zr.dx = Dx(m->r);
 	zr.dy = Dy(m->r);
-	zr.width = rgb->width * sizeof(ulong);
+	zr.width = rgb->width * sizeof(u32int);
 	zr.data = rgb->data->bdata;
 	zr.x = 0;
 	zr.y = 0;
