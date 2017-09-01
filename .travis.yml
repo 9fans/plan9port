@@ -1,5 +1,9 @@
 language: c
 
+os:
+  - linux
+  - osx
+
 env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
@@ -17,6 +21,10 @@ addons:
     notification_email: 0intro@gmail.com
     build_command: "./INSTALL"
     branch_pattern: master
+
+before_script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask install Caskroom/cask/osxfuse; fi
 
 script:
   - ./INSTALL
