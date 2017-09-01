@@ -102,6 +102,7 @@ LIB9OFILES=\
 	execl.$O\
 	exitcode.$O\
 	fcallfmt.$O\
+	frand.$O\
 	get9root.$O\
 	getcallerpc-$OBJTYPE.$O\
 	getenv.$O\
