@@ -36,6 +36,13 @@ You can use Git to keep your local copy up-to-date as we make
 changes and fix bugs.  See the git(1) man page here ("9 man git")
 for details on using Git.
 
+Status
+------
+
+[![Build Status](https://travis-ci.org/9fans/plan9port.svg?branch=master)](https://travis-ci.org/9fans/plan9port)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/plan-9-from-user-space/badge.svg)](https://scan.coverity.com/projects/plan-9-from-user-space)
+
+
 Contact
 -------
 
