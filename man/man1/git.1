@@ -1,10 +1,10 @@
 .TH GIT 1
 .SH NAME 
-git, hg, cvs \- introduction to using plan9port Git repository
+git, hg, cvs, codereview \- introduction to using plan9port Git repository
 .SH SYNOPSIS
 .B git
 .B clone
-.B http://code.swtch.com/plan9port
+.B https://9fans.github.io/plan9port
 .B plan9
 .PP
 .B git
@@ -20,12 +20,10 @@ git, hg, cvs \- introduction to using plan9port Git repository
 .B gitk 
 .PP
 .B web
-.B http://code.swtch.com/plan9port
+.B https://9fans.github.io/plan9port
 .SH DESCRIPTION
 The master source tree for Plan 9 from User Space is maintained
-using the source control system Git
-as a substitute for Plan 9's
-\fIreplica\fR(8) and dump file system.
+using the source control system Git.
 .PP
 The first argument to
 .I git
@@ -68,7 +66,7 @@ refers to the most recent version in the version history.
 starts an interactive history viewer.
 .PP
 The Git tree can be inspected on the web at
-.HR http://code.swtch.com/plan9port/ "" .
+.HR https://github.com/9fans/plan9port "" .
 .SH FILES
 .TP
 .B \*9/.git
@@ -77,13 +75,11 @@ directory containing Git local repository
 .B .gitignore
 list of files and wildcards to exclude from Git operations
 .SH SEE ALSO
-.IR codereview (1)
-.PP
 Unix's
 \fIgit\fR(1),
 .HR http://git-scm.com/doc
 .PP
-.HR http://code.swtch.com/plan9port/
+.HR https://9fans.github.io/plan9port/
 .SH BUGS
 Plan 9 from User Space is no longer accessible using CVS or Mercurial;
 you must use Git.

@@ -34,9 +34,9 @@ SunOS)
 	;;
 esac
 
-echo "+ Mailing list: http://groups.google.com/group/plan9port-dev"
-echo "+ Issue tracker: http://code.swtch.com/plan9port/issues/"
-echo "+ Submitting changes: http://swtch.com/go/codereview"
+echo "+ Mailing list: https://groups.google.com/group/plan9port-dev"
+echo "+ Issue tracker: https://github.com/9fans/plan9port/issues/"
+echo "+ Submitting changes: https://github.com/9fans/plan9port/pulls"
 echo " "
 echo "* Resetting $PLAN9/config"
 rm -f config

@@ -1,0 +1,7 @@
+#!/usr/local/plan9/bin/rc
+
+echo '<pre>'
+echo '<a href="/plan9port">Plan 9 from User Space</a> '$2
+echo
+@{cd $1; 9 ls -lF} | 9 sed 's!^(.-......... M 0 )[^ ]+ [^ ]+ (.*) (.*[^*])!\1 glenda sys \2 <a href='\3'>\3</a>!'
+echo '</pre>'

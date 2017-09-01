@@ -24,7 +24,7 @@ for($i=0; $i<@ARGV; $i++){
 	}
 
 	$text =~ s!../man(.)/([^.]*)\.html!$2$1.html!g;
-	$text =~ s!(http://swtch.com/plan9port/unix)!<a href="\1">\1</a>!g;
+	$text =~ s!(https://9fans.github.io/plan9port/unix)!<a href="\1">\1</a>!g;
 
 	open(OUT, ">$ARGV[$i]") || die "open $ARGV[$i]: $!";
 	print OUT $text;

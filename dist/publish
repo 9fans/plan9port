@@ -1,0 +1,29 @@
+#!/usr/local/plan9/bin/rc
+
+dir=$9fansweb
+if (~ $#dir 0) {
+	dir=$home^/pub/9fans.github.io
+	9fansweb=$dir
+}
+
+root=$dir/plan9port
+if (! test -d $root) {
+	echo $root does not exist >[1=2]
+	exit bad
+}
+
+rm -rf $root/man
+cp -a ../man $root/man
+mkdir -p $root/unix
+cp unix.html $root/unix/index.html
+cp main.html $root/index.html
+cp ss.html $root/screenshots/index.html
+@{cd ../unix/man && mk push}
+@{cd ../unix && mk push}
+
+rm -rf $root/../usr/local/plan9
+mkdir -p $root/../usr/local/plan9
+git archive HEAD | @{cd $root/../usr/local/plan9 && u tar xf -}
+for(d in `{find $root/../usr/local/plan9 -type d}) {
+	9 rc ./mkdirlist $d `{echo $d | sed 's;.*/usr;/usr;'} >t1 && mv t1 $d/index.html
+}

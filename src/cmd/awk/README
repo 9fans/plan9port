@@ -6,7 +6,7 @@ as such, it's copyright is held by Lucent Technologies and distributed under the
 Lucent Public License version 1.02 [http://www.opensource.org/licenses/lucent1.02.php].
 
 Modifications were made by Jeff Sickel in order to build using Plan 9 from User
-Space [http://swtch.com/plan9port/] to the following files:
+Space [https://9fans.github.io/plan9port/] to the following files:
 
     mkfile
     re.c

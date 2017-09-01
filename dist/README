@@ -7,5 +7,6 @@ mk man
 	recreates the HTML version of the man pages
 
 mk push
-	copies the HTML pages to swtch.com
+	copies the HTML pages to 9fans.github.io
+
 
