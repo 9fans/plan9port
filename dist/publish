@@ -23,7 +23,7 @@ cp ss.html $root/screenshots/index.html
 
 rm -rf $root/../usr/local/plan9
 mkdir -p $root/../usr/local/plan9
-git archive HEAD | @{cd $root/../usr/local/plan9 && u tar xf -}
+@{cd ..; git archive HEAD} | @{cd $root/../usr/local/plan9 && u tar xf -}
 for(d in `{find $root/../usr/local/plan9 -type d}) {
 	9 rc ./mkdirlist $d `{echo $d | sed 's;.*/usr;/usr;'} >t1 && mv t1 $d/index.html
 }
