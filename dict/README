@@ -2,12 +2,8 @@
 # and modifying dict to handle it.
 # This is the Project Gutenberg original Webster's dictionary
 
-hget http://pdos.lcs.mit.edu/~rsc/software/plan9/pgw.tar.bz2|
-	bunzip2|
-	tar xf -
+wget --no-check-certificate -O- https://pdos.lcs.mit.edu/~rsc/software/plan9/pgw.tar.bz2 | bunzip2 | tar xf -
 
 # This is the Project Gutenberg original Roget's thesaurus
 
-hget http://pdos.lcs.mit.edu/~rsc/software/plan9/roget.tar.bz2|
-	bunzip2|
-	tar xf -
+wget --no-check-certificate -O- https://pdos.lcs.mit.edu/~rsc/software/plan9/roget.tar.bz2 | bunzip2 | tar xf -

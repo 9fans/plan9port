@@ -1,2 +1,2 @@
-wget -O- http://pdos.lcs.mit.edu/~rsc/scat.tgz | gunzip | tar xf -
+wget --no-check-certificate -O- https://pdos.lcs.mit.edu/~rsc/scat.tgz | gunzip | tar xf -
 cp here.sample here
