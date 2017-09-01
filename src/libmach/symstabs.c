@@ -309,7 +309,8 @@ stabsline2pc(Fhdr *fhdr, u64int startpc, ulong line, u64int *pc)
 
 	l.type = LADDR;
 	l.addr = startpc;
-	if((s = ffindsym(fhdr, l, CTEXT)) == nil)
+	if((s = ffindsym(fhdr, l, CTEXT)) == nil
+	|| stabsym(&fhdr->stabs, s->u.stabs.i, &ss) < 0)
 		return -1;
 
 	trigger = 0;
