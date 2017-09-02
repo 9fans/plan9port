@@ -29,6 +29,7 @@
 #include "glendapng.h"
 
 // Use non-deprecated names.
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 101200
 #define NSKeyDown NSEventTypeKeyDown
 #define NSShiftKeyMask NSEventModifierFlagShift
 #define NSAlternateKeyMask NSEventModifierFlagOption
@@ -52,6 +53,7 @@
 #define NSClosableWindowMask NSWindowStyleMaskClosable
 #define NSMiniaturizableWindowMask NSWindowStyleMaskMiniaturizable
 #define NSBorderlessWindowMask NSWindowStyleMaskBorderless
+#endif
 
 AUTOFRAMEWORK(Cocoa)
 
