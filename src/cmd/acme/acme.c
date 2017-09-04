@@ -130,6 +130,12 @@ threadmain(int argc, char *argv[])
 	quotefmtinstall();
 	fmtinstall('t', timefmt);
 
+	p = getenv("replacespace");
+	replacespace = L'␣';
+	if(p != nil){
+		chartorune(&replacespace, p);
+	}
+
 	cputype = getenv("cputype");
 	objtype = getenv("objtype");
 	home = getenv("HOME");

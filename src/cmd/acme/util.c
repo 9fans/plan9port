@@ -492,3 +492,15 @@ makenewwindow(Text *t)
 		colgrow(w->col, w, 1);
 	return w;
 }
+
+void
+runetr(Rune *r, int nr, Rune from, Rune to)
+{
+	int i;
+	if (from == to)
+		return;
+
+	for (i = 0; i < nr; i++)
+		if (r[i] == from)
+			r[i] = to;
+}
