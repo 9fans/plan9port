@@ -20,6 +20,7 @@ OFILES=\
 	drawclient.$O\
 	drawfcall.$O\
 	drawrepl.$O\
+	eenter.$O\
 	egetrect.$O\
 	ellipse.$O\
 	emenuhit.$O\

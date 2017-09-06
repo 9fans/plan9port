@@ -67,6 +67,7 @@ extern Rectangle	egetrect(int, Mouse*);
 extern void		edrawgetrect(Rectangle, int);
 extern int		ereadmouse(Mouse*);
 extern int		eatomouse(Mouse*, char*, int);
+extern int		eenter(char*, char*, int, Mouse*);
 
 #if defined(__cplusplus)
 }
