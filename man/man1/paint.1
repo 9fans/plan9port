@@ -1,0 +1,85 @@
+.TH PAINT 1
+.CT 1 graphics
+.SH NAME
+paint \- create image files by drawing with a mouse or other pointing device
+.SH SYNOPSIS
+.B paint
+[
+.I file
+]
+.SH DESCRIPTION
+.I Paint
+displays a canvas upon which can be drawn lines using the mouse holding
+down buttons 1 or 2 for foreground or background color.  The canvas
+may be moved with button 3.  Colors and brush sizes may be selected by
+clicking on the palette at the bottom of the screen with buttons 1 or 2.
+.PP
+If the optional
+.I file
+argument is specified, then it is read and used as the canvas.
+.I Paint
+only recognizes Plan 9 bitmap format (see
+.IR image (6)).
+.PP
+A number of immediate keyboard commands are recognized:
+.TP
+.B u
+Undos the previous action.
+.TP
+.B c
+Clears the canvas with the background color.
+.TP
+.B 1-9
+Select brush size.
+.TP
+.B f
+Select flood fill brush.
+.TP
+.B +
+Doubles magnification.
+.TP
+.B -
+Halves magnification.
+.TP
+.B esc
+Centers the canvas and resets magnification.
+.PP
+Hitting any other key on the keyboard shows a command prompt
+where the following commands may be entered:
+.TP
+.BI r file
+Reads the canvas from
+.I file.
+.TP
+.BI w file
+Writes the canvas to
+.I file.
+.TP
+.BI < command
+Executes
+.I command
+and reads the canvas from its standard output.
+.TP
+.BI > command
+Executes
+.I command
+and writes the canvas to its standard input.
+.TP
+.BI | command
+Transforms the canvas by piping it thru
+.I command.
+.TP
+.B q
+Quits the program.
+.SH SOURCE
+.B /sys/src/cmd/paint.c
+.SH "SEE ALSO"
+.IR resample (1),
+.IR rotate (1),
+.IR crop (1),
+.IR jpg (1),
+.IR page (1),
+.IR image (6)
+.SH HISTORY
+.I Paint
+first appeared in 9front (October, 2011).
