@@ -7,12 +7,12 @@ To install, run ./INSTALL.  It builds mk and then uses mk to
 run the rest of the installation.  
 
 For more details, see install(1), at install.txt in this directory
-and at http://swtch.com/plan9port/man/man1/install.html.
+and at https://9fans.github.io/plan9port/man/man1/install.html.
 
 Documentation
 -------------
 
-See http://swtch.com/plan9port/man/ for more documentation.
+See https://9fans.github.io/plan9port/man/ for more documentation.
 (Documentation is also in this tree, but you need to run
 a successful install first.  After that, "9 man 1 intro".)
 
@@ -26,8 +26,6 @@ If you'd like to help out, great!  The TODO file contains a small list.
 
 If you port this code to other architectures, please share your changes
 so others can benefit.
-
-Please use codereview(1) to prepare patches.
 
 Git
 ---
@@ -46,8 +44,8 @@ Status
 Contact
 -------
 
-* Mailing list: http://groups.google.com/group/plan9port-dev
-* Issue tracker: http://code.swtch.com/plan9port/issues/
-* Submitting changes: http://swtch.com/go/codereview
+* Mailing list: https://groups.google.com/group/plan9port-dev
+* Issue tracker: https://github.com/9fans/plan9port/issues
+* Submitting changes: https://github.com/9fans/plan9port/pulls
 
 * Russ Cox <rsc@swtch.com>
