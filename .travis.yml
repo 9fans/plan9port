@@ -1,29 +1,37 @@
 language: c
 
-os:
-  - linux
-
-env:
-  global:
-   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
-   #   via the "travis encrypt" command using the project repo's public key
-   - secure: "LYlCyAVaHBfd607667VbXInW6/tryXaCIolXNlbnoJuuJ7eHWSgdJi1/MNsxC53TJqGJ1CXtvL/b3BV0WSIMuyJ2YYg01fDcbt3OlIeWCHmWJFrK2J/F9M25vWKz7setzSijbV5cvG68QAI8vyYGG/f6ge8ePomXvyQoV/Hsa1D9i4P2dunneejWVnG1IxalNsca077q72is2MUPFGBreMEirqyLrEYv6jc1y51ihedOVBhsk89Ar4Oc75vIwMDCWlSdyaVgg2Z+8nKGLHncHDaRKDA4HIMPA3dyCRSanS7sMrLj1+VaxixqEA5uFp9c++Z2ZWCcrlNCgdRSbBErnIToiL2koDUBvIA5gQ56xrQ3Li9g2jrLDbCNp46ey3r9T9UJRgoG/DwZFt7BVTyb1Qrz44iNGAtOly90wKTLFzMA1HYa5NcysVYWUOmTS7cFVPevddHH59O841sycvPO0bJDFHCx5LqI6RialRWZi//BVnh+u3JAe4lGGPCV0V2o3Jsj1LDmYW8+LaO/M8d+pxRUgnpuL0qESOJx/TuJOVbWnFCquBUaiToO3HgkT5ZAFAhfViNQBJsddGFDg4yu04R2SobO9/dj59zdgmibJaQoyd0aG7/1OXmXy6dF5xee8cmMJI5WCqITloV1SxUDQ8FG96jsnAIwRbL74LI4BSc="
-
-before_install:
-  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
-
-addons:
-  coverity_scan:
-    project:
-      name: "9fans/plan9port"
-      description: "Build submitted via Travis CI"
-    notification_email: 0intro@gmail.com
-    build_command: "./INSTALL"
-    branch_pattern: master
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9
+    - os: osx
+      osx_image: xcode8.3
+    - os: osx
+      osx_image: xcode8.2
+    - os: osx
+      osx_image: xcode8.1
+    - os: osx
+      osx_image: xcode8
+    - os: osx
+      osx_image: xcode7.3
+    - os: osx
+      osx_image: xcode6.4
+    - os: linux
+      env:
+        - secure: "LYlCyAVaHBfd607667VbXInW6/tryXaCIolXNlbnoJuuJ7eHWSgdJi1/MNsxC53TJqGJ1CXtvL/b3BV0WSIMuyJ2YYg01fDcbt3OlIeWCHmWJFrK2J/F9M25vWKz7setzSijbV5cvG68QAI8vyYGG/f6ge8ePomXvyQoV/Hsa1D9i4P2dunneejWVnG1IxalNsca077q72is2MUPFGBreMEirqyLrEYv6jc1y51ihedOVBhsk89Ar4Oc75vIwMDCWlSdyaVgg2Z+8nKGLHncHDaRKDA4HIMPA3dyCRSanS7sMrLj1+VaxixqEA5uFp9c++Z2ZWCcrlNCgdRSbBErnIToiL2koDUBvIA5gQ56xrQ3Li9g2jrLDbCNp46ey3r9T9UJRgoG/DwZFt7BVTyb1Qrz44iNGAtOly90wKTLFzMA1HYa5NcysVYWUOmTS7cFVPevddHH59O841sycvPO0bJDFHCx5LqI6RialRWZi//BVnh+u3JAe4lGGPCV0V2o3Jsj1LDmYW8+LaO/M8d+pxRUgnpuL0qESOJx/TuJOVbWnFCquBUaiToO3HgkT5ZAFAhfViNQBJsddGFDg4yu04R2SobO9/dj59zdgmibJaQoyd0aG7/1OXmXy6dF5xee8cmMJI5WCqITloV1SxUDQ8FG96jsnAIwRbL74LI4BSc="
+      addons:
+        coverity_scan:
+          project:
+            name: "9fans/plan9port"
+            description: "Build submitted via Travis CI"
+          notification_email: 0intro@gmail.com
+          build_command: "./INSTALL"
+          branch_pattern: master
 
 before_script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cask install Caskroom/cask/osxfuse; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-; fi
 
 script:
   - ./INSTALL
