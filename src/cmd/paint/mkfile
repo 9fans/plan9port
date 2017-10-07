@@ -1,0 +1,11 @@
+<$PLAN9/src/mkhdr
+
+TARG=paint
+
+OFILES=\
+	eenter.$O\
+	paint.$O\
+
+HFILES=paint.h\
+
+<$PLAN9/src/mkone

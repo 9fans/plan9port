@@ -28,6 +28,9 @@ SOFTWARE.
 #include <event.h>
 #include <keyboard.h>
 
+/* additional libdraw function needed - defined here to avoid API change */
+extern int             eenter(char*, char*, int, Mouse*);
+
 char *filename;
 int zoom = 1;
 int brush = 1;

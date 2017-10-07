@@ -28,6 +28,15 @@ SOFTWARE.
 #include <event.h>
 #include <keyboard.h>
 
+/* additional keyboard codes needed - defined here to avoid API change */
+enum {
+	Spec=   0xF800,
+	Knack=  0x15,
+	Ksoh=   0x01,
+	Kenq=   0x05,
+	Ketb=   0x17
+};
+
 int
 eenter(char *ask, char *buf, int len, Mouse *m)
 {
