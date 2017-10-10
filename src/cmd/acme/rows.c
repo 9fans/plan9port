@@ -9,6 +9,7 @@
 #include <fcall.h>
 #include <bio.h>
 #include <plumb.h>
+#include <libsec.h>
 #include "dat.h"
 #include "fns.h"
 

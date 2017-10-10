@@ -10,6 +10,7 @@
 #include <regexp.h>
 #include <9pclient.h>
 #include <plumb.h>
+#include <libsec.h>
 #include "dat.h"
 #include "fns.h"
 

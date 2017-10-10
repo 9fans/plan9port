@@ -25,7 +25,7 @@ void	savemouse(Window*);
 int	restoremouse(Window*);
 void	clearmouse(void);
 void	allwindows(void(*)(Window*, void*), void*);
-uint loadfile(int, uint, int*, int(*)(void*, uint, Rune*, int), void*);
+uint loadfile(int, uint, int*, int(*)(void*, uint, Rune*, int), void*, DigestState*);
 void	movetodel(Window*);
 
 Window*	errorwin(Mntdir*, int);

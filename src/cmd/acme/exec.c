@@ -9,6 +9,7 @@
 #include <frame.h>
 #include <fcall.h>
 #include <plumb.h>
+#include <libsec.h>
 #include <9pclient.h>
 #include "dat.h"
 #include "fns.h"
@@ -635,6 +636,30 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 	xfidlog(w, "get");
 }
 
+static void
+checksha1(char *name, File *f, Dir *d)
+{
+	int fd, n;
+	DigestState *h;
+	uchar out[20];
+	uchar *buf;
+	
+	fd = open(name, OREAD);
+	if(fd < 0)
+		return;
+	h = sha1(nil, 0, nil, nil);
+	buf = emalloc(8192);
+	while((n = read(fd, buf, 8192)) > 0)
+		sha1(buf, n, nil, h);
+	close(fd);
+	sha1(nil, 0, out, h);
+	if(memcmp(out, f->sha1, sizeof out) == 0) {
+		f->dev = d->dev;
+		f->qidpath = d->qid.path;
+		f->mtime = d->mtime;
+	}
+}	
+
 void
 putfile(File *f, int q0, int q1, Rune *namer, int nname)
 {
@@ -646,13 +671,15 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	Dir *d, *d1;
 	Window *w;
 	int isapp;
+	DigestState *h;
 
 	w = f->curtext->w;
 	name = runetobyte(namer, nname);
 	d = dirstat(name);
 	if(d!=nil && runeeq(namer, nname, f->name, f->nname)){
-		/* f->mtime+1 because when talking over NFS it's often off by a second */
-		if(f->dev!=d->dev || f->qidpath!=d->qid.path || labs((long)(f->mtime-d->mtime)) > 1){
+		if(f->dev!=d->dev || f->qidpath!=d->qid.path || f->mtime != d->mtime)
+			checksha1(name, f, d);
+		if(f->dev!=d->dev || f->qidpath!=d->qid.path || f->mtime != d->mtime) {
 			if(f->unread)
 				warning(nil, "%s not written; file already exists\n", name);
 			else
@@ -679,6 +706,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	s = fbufalloc();
 	free(d);
 	d = dirfstat(fd);
+	h = sha1(nil, 0, nil, nil);
 	isapp = (d!=nil && d->length>0 && (d->qid.type&QTAPPEND));
 	if(isapp){
 		warning(nil, "%s not written; file is append only\n", name);
@@ -691,6 +719,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			n = BUFSIZE/UTFmax;
 		bufread(&f->b, q, r, n);
 		m = snprint(s, BUFSIZE+1, "%.*S", n, r);
+		sha1((uchar*)s, m, nil, h);
 		if(Bwrite(b, s, m) != m){
 			warning(nil, "can't write file %s: %r\n", name);
 			goto Rescue2;
@@ -730,6 +759,8 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			f->qidpath = d->qid.path;
 			f->dev = d->dev;
 			f->mtime = d->mtime;
+			sha1(nil, 0, f->sha1, h);
+			h = nil;
 			f->mod = FALSE;
 			w->dirty = FALSE;
 			f->unread = FALSE;
@@ -741,6 +772,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	}
 	fbuffree(s);
 	fbuffree(r);
+	free(h);
 	free(d);
 	free(namer);
 	free(name);
@@ -753,6 +785,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		Bterm(b);
 		free(b);
 	}
+	free(h);
 	fbuffree(s);
 	fbuffree(r);
 	close(fd);

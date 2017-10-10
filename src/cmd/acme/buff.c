@@ -8,6 +8,7 @@
 #include <frame.h>
 #include <fcall.h>
 #include <plumb.h>
+#include <libsec.h>
 #include "dat.h"
 #include "fns.h"
 
@@ -231,7 +232,7 @@ bufloader(void *v, uint q0, Rune *r, int nr)
 }
 
 uint
-loadfile(int fd, uint q0, int *nulls, int(*f)(void*, uint, Rune*, int), void *arg)
+loadfile(int fd, uint q0, int *nulls, int(*f)(void*, uint, Rune*, int), void *arg, DigestState *h)
 {
 	char *p;
 	Rune *r;
@@ -253,6 +254,8 @@ loadfile(int fd, uint q0, int *nulls, int(*f)(void*, uint, Rune*, int), void *ar
 			warning(nil, "read error in Buffer.load");
 			break;
 		}
+		if(h != nil)
+			sha1((uchar*)p+m, n, nil, h);
 		m += n;
 		p[m] = 0;
 		l = m;
@@ -269,11 +272,11 @@ loadfile(int fd, uint q0, int *nulls, int(*f)(void*, uint, Rune*, int), void *ar
 }
 
 uint
-bufload(Buffer *b, uint q0, int fd, int *nulls)
+bufload(Buffer *b, uint q0, int fd, int *nulls, DigestState *h)
 {
 	if(q0 > b->nc)
 		error("internal error: bufload");
-	return loadfile(fd, q0, nulls, bufloader, b);
+	return loadfile(fd, q0, nulls, bufloader, b, h);
 }
 
 void

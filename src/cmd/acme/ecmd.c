@@ -8,6 +8,7 @@
 #include <frame.h>
 #include <fcall.h>
 #include <plumb.h>
+#include <libsec.h>
 #include "dat.h"
 #include "edit.h"
 #include "fns.h"
@@ -336,7 +337,7 @@ e_cmd(Text *t, Cmd *cp)
 	}
 	elogdelete(f, q0, q1);
 	nulls = 0;
-	loadfile(fd, q1, &nulls, readloader, f);
+	loadfile(fd, q1, &nulls, readloader, f, nil);
 	free(s);
 	close(fd);
 	if(nulls)
