@@ -40,7 +40,7 @@ case "$tag" in
 	userpath=true
 	extralibs="$extralibs -lutil -lresolv"
 	case "${SYSVERSION:-`uname -r`}" in
-	2.6.* | 3.*)
+	2.6.* | 3.* | 4.*)
 		extralibs="$extralibs -lpthread"
 		;;
 	esac
