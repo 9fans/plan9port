@@ -143,7 +143,6 @@ tcs(char *charset, char *s)
 	int fd[3], p[2], pp[2];
 	uchar *us;
 	char *t, *u;
-	char *argv[4];
 	Rune r;
 	Writeargs *w;
 
@@ -173,11 +172,6 @@ latin1:
 	goto latin1;
 
 tcs:
-	argv[0] = "tcs";
-	argv[1] = "-f";
-	argv[2] = charset;
-	argv[3] = nil;
-	
 	if(pipe(p) < 0 || pipe(pp) < 0)
 		sysfatal("pipe: %r");
 	fd[0] = p[0];

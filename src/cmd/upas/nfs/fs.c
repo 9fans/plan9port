@@ -950,7 +950,7 @@ mkmsglist(Box *box, char **f, int nf, Msg ***mm)
 static void
 fswrite(Req *r)
 {
-	int i, j, c, type, flag, unflag, flagset, f, reset;
+	int i, j, c, type, flag, unflag, flagset, f;
 	Box *box;
 	Msg *msg;
 	Part *part;
@@ -1076,7 +1076,6 @@ fswrite(Req *r)
 		flag = 0;
 		unflag = 0;
 		flagset = 0;
-		reset = 0;
 		for(i=0; i<cb->nf; i++){
 			f = 0;
 			c = cb->f[i][0];

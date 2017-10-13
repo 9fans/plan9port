@@ -345,7 +345,7 @@ imapvcmdsx0(Imap *z, char *fmt, va_list arg, int dotag)
 {
 	char *s;
 	Fmt f;
-	int prefix, len;
+	int len;
 	Sx *sx;
 	
 	if(canqlock(&z->lk))
@@ -354,7 +354,6 @@ imapvcmdsx0(Imap *z, char *fmt, va_list arg, int dotag)
 	if(z->fd < 0 || !z->connected)
 		return nil;
 
-	prefix = strlen(tag)+1;
 	fmtstrinit(&f);
 	if(dotag)
 		fmtprint(&f, "%s ", tag);
