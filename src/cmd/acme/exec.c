@@ -651,6 +651,7 @@ checksha1(char *name, File *f, Dir *d)
 	buf = emalloc(8192);
 	while((n = read(fd, buf, 8192)) > 0)
 		sha1(buf, n, nil, h);
+	free(buf);
 	close(fd);
 	sha1(nil, 0, out, h);
 	if(memcmp(out, f->sha1, sizeof out) == 0) {
