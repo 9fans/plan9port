@@ -34,7 +34,7 @@ plumbunix()
 		$BROWSER -remote 'openURL('"$@"',new-tab)' ||
 		$BROWSER "$@"
 		;;
-	*chrome*|*chromium*)
+	*)
 		$BROWSER "$@"
 		;;
 	esac
