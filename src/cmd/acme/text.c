@@ -1615,7 +1615,7 @@ textsetorigin(Text *t, uint org, int exact)
 	Rune *r;
 	uint n;
 
-	if(org>0 && !exact){
+	if(org>0 && !exact && textreadc(t, org-1) != '\n'){
 		/* org is an estimate of the char posn; find a newline */
 		/* don't try harder than 256 chars */
 		for(i=0; i<256 && org<t->file->b.nc; i++){
