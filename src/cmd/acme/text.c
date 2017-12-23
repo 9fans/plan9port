@@ -564,6 +564,25 @@ textbswidth(Text *t, Rune c)
 }
 
 int
+textfswidth(Text *t, Rune c)
+{
+	uint q;
+	Rune r;
+
+	/* there is known to be at least one character to erase */
+	if(c == 0x04 || c == Kdel)	/* ^D: erase character forward */
+		return 1;
+	q = t->q0;
+	while(q < t->file->b.nc){	/* skip until newline */
+		r = textreadc(t, q);
+		if(c == 0x0b && r == '\n')
+			break;
+		q++;
+	}
+	return q-t->q0;
+}
+
+int
 textfilewidth(Text *t, uint q0, int oneelement)
 {
 	uint q;
@@ -903,6 +922,47 @@ texttype(Text *t, Rune r)
 					n = nb;
 				u->ncache -= n;
 				textdelete(u, q1-n, q1, FALSE);
+				nb -= n;
+			}
+			if(u->eq0==q1 || u->eq0==~0)
+				u->eq0 = q0;
+			if(nb && u==t)
+				textdelete(u, q0, q0+nb, TRUE);
+			if(u != t)
+				textsetselect(u, u->q0, u->q1);
+			else
+				textsetselect(t, q0, q0);
+			u->nofill = FALSE;
+		}
+		for(i=0; i<t->file->ntext; i++)
+			textfill(t->file->text[i]);
+		t->iq1 = t->q0;
+		return;
+	case Kdel:
+	case 0x04:	/* ^D: erase character forward */
+	case 0x0b:	/* ^K: erase to the end of line */
+		if(t->q0 == t->file->b.nc)	/* nothing to erase */
+			return;
+		nnb = textfswidth(t, r);
+		q0 = t->q0;
+		q1 = t->q0+nnb;
+		/* if selection is at the end of the window, avoid deleting invisible text */
+		if(q1 > t->org+t->fr.nchars){
+			q1 = t->org+t->fr.nchars;
+			nnb = q1-q0;
+		}
+		for(i=0; i<t->file->ntext; i++){
+			u = t->file->text[i];
+			u->nofill = TRUE;
+			nb = nnb;
+			n = u->ncache;
+			if(n > 0){
+				if(q1 != u->cq0+n)
+					error("text.type delete");
+				if(n > nb)
+					n = nb;
+				u->ncache -= n;
+				textdelete(u, q0, q0+n, FALSE);
 				nb -= n;
 			}
 			if(u->eq0==q1 || u->eq0==~0)
