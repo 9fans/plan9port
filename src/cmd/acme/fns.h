@@ -19,6 +19,7 @@ Font*	getfont(int, int, char*);
 char*	getarg(Text*, int, int, Rune**, int*);
 char*	getbytearg(Text*, int, int, char**);
 void	new(Text*, Text*, Text*, int, int, Rune*, int);
+void	newcol(Text*, Text*, Text*, int, int, Rune*, int);
 void	undo(Text*, Text*, Text*, int, int, Rune*, int);
 void	scrsleep(uint);
 void	savemouse(Window*);
@@ -57,6 +58,8 @@ void	get(Text*, Text*, Text*, int, int, Rune*, int);
 void	put(Text*, Text*, Text*, int, int, Rune*, int);
 void	putfile(File*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
+void	del(Text*, Text*, Text*, int, int, Rune*, int);
+void	delcol(Text*, Text*, Text*, int, int, Rune*, int);
 #undef isalnum
 #define isalnum acmeisalnum
 int	isalnum(Rune);

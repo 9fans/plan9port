@@ -764,6 +764,26 @@ texttype(Text *t, Rune r)
 		typecommit(t);
 		cut(t, t, nil, TRUE, FALSE, nil, 0);
 		return;
+	case Kcmd+'n':	/* %N: new */
+		typecommit(t);
+		new(t, nil, nil, XXX, XXX, nil, 0);
+		return;
+	case Kcmd+'N':	/* %-shift-N: newcol */
+		typecommit(t);
+		newcol(t, nil, nil, XXX, XXX, nil, 0);
+		return;
+	case Kcmd+'s':	/* %S: put */
+		typecommit(t);
+		put(t, nil, nil, XXX, XXX, nil, 0);
+		return;
+	case Kcmd+'w':	/* %W: del */
+		typecommit(t);
+		del(t, nil, nil, FALSE, XXX, nil, 0);
+		return;
+	case Kcmd+'W':	/* %-shift-W: delcol */
+		typecommit(t);
+		delcol(t, nil, nil, XXX, XXX, nil, 0);
+		return;
 	case Kcmd+'z':	/* %Z: undo */
 	 	typecommit(t);
 		undo(t, nil, nil, TRUE, 0, nil, 0);

@@ -488,7 +488,7 @@ keyboardthread(void *v)
 			t = typetext;
 			if(t!=nil && t->col!=nil && !(r==Kdown || r==Kleft || r==Kright))	/* scrolling doesn't change activecol */
 				activecol = t->col;
-			if(t!=nil && t->w!=nil)
+			if(t!=nil && t->w!=nil && t->w->body.file)
 				t->w->body.file->curtext = &t->w->body;
 			if(timer != nil)
 				timercancel(timer);
