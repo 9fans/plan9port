@@ -760,6 +760,14 @@ texttype(Text *t, Rune r)
 			q0++;
 		textshow(t, q0, q0, TRUE);
 		return;
+	case 0x0c:	/* ^L: clear selection */
+		typecommit(t);
+		textshow(t, t->q0, t->q0, TRUE);
+		return;
+	case Kcmd+'a': /* %A: select all */
+		typecommit(t);
+		textshow(t, 0, t->file->b.nc, TRUE);
+		return;
 	case Kcmd+'c':	/* %C: copy */
 		typecommit(t);
 		cut(t, t, nil, TRUE, FALSE, nil, 0);
