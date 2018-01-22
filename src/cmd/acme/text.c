@@ -593,7 +593,7 @@ textcomplete(Text *t)
 	char *s, *dirs;
 	Runestr dir;
 
-	/* control-f: filename completion; works back to white space or / */
+	/* filename completion; works back to white space or / */
 	if(t->q0<t->file->b.nc && textreadc(t, t->q0)>' ')	/* must be at end of word */
 		return nil;
 	nstr = textfilewidth(t, t->q0, TRUE);
@@ -681,16 +681,19 @@ texttype(Text *t, Rune r)
 	nr = 1;
 	rp = &r;
 	switch(r){
+	case 0x02:	/* ^B: move left */
 	case Kleft:
 		typecommit(t);
 		if(t->q0 > 0)
 			textshow(t, t->q0-1, t->q0-1, TRUE);
 		return;
+	case 0x06:	/* ^F: move right */
 	case Kright:
 		typecommit(t);
 		if(t->q1 < t->file->b.nc)
 			textshow(t, t->q1+1, t->q1+1, TRUE);
 		return;
+	case 0x0e:	/* ^N: move down */
 	case Kdown:
 		if(t->what == Tag)
 			goto Tagdown;
@@ -709,6 +712,7 @@ texttype(Text *t, Rune r)
 		q0 = t->org+frcharofpt(&t->fr, Pt(t->fr.r.min.x, t->fr.r.min.y+n*t->fr.font->height));
 		textsetorigin(t, q0, TRUE);
 		return;
+	case 0x10:	/* ^P: move up */
 	case Kup:
 		if(t->what == Tag)
 			goto Tagup;
@@ -853,7 +857,7 @@ texttype(Text *t, Rune r)
 	}
 	textshow(t, t->q0, t->q0, 1);
 	switch(r){
-	case 0x06:	/* ^F: complete */
+	case Kcmd+'/':	/* %/: complete */
 	case Kins:
 		typecommit(t);
 		rp = textcomplete(t);
