@@ -79,12 +79,10 @@ number(uint showerr, Text *t, Range r, int line, int dir, int size, int *evalp)
 		if(dir == Fore)
 			line = r.q1+line;
 		else if(dir == Back){
-			if(r.q0==0 && line>0)
+			if(r.q0==0 && r.q1==0 && line>0)
 				r.q0 = t->file->b.nc;
 			line = r.q0 - line;
 		}
-		if(line<0 || line>t->file->b.nc)
-			goto Rescue;
 		*evalp = TRUE;
 		return range(line, line);
 	}
