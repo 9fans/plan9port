@@ -34,18 +34,20 @@ int
 rcstart(int argc, char **argv, int *pfd, int *tfd)
 {
 	int fd[2], i, pid;
-	char *cmd, *xargv[3];
+	char *cmd, *xargv[10], *xargv0;
 	char slave[256];
 	int sfd;
 
 	if(argc == 0){
-		argc = 2;
+		xargv0 = getenv("SHELL");
+		if(xargv0 == 0){
+			argc = 1;
+			xargv[0] = "rc";
+		}else
+			argc = getfields(xargv0, xargv, nelem(xargv)-2, 1, "\t\r\n ");
 		argv = xargv;
-		argv[0] = getenv("SHELL");
-		if(argv[0] == 0)
-			argv[0] = "rc";
-		argv[1] = "-i";
-		argv[2] = 0;
+		argv[argc++] = "-i";
+		argv[argc++] = 0;
 	}
 	cmd = argv[0];
 	if(loginshell){
