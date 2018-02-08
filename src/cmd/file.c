@@ -519,10 +519,10 @@ Filemagic long0tab[] = {
 	0x32636170,	0xFFFF00FF,	"pac4 audio file\n",	OCTET,
 	0xBA010000,	0xFFFFFFFF,	"mpeg system stream\n",	OCTET,
 	0x30800CC0,	0xFFFFFFFF,	"inferno .dis executable\n", OCTET,
-	0x04034B50,	0xFFFFFFFF,	"zip archive\n", "application/zip",
+	0x04034B50,	0xFFFFFFFF,	"zip archive\n", "application/zip\n",
 	070707,		0xFFFF,		"cpio archive\n", OCTET,
-	0x2F7,		0xFFFF,		"tex dvi\n", "application/dvi",
-	0xfffa0000,	0xfffe0000,	"mp3 audio",	"audio/mpeg",
+	0x2F7,		0xFFFF,		"tex dvi\n", "application/dvi\n",
+	0xfffa0000,	0xfffe0000,	"mp3 audio\n",	"audio/mpeg\n",
 };
 
 int
