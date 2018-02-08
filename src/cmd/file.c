@@ -523,6 +523,9 @@ Filemagic long0tab[] = {
 	070707,		0xFFFF,		"cpio archive\n", OCTET,
 	0x2F7,		0xFFFF,		"tex dvi\n", "application/dvi\n",
 	0xfffa0000,	0xfffe0000,	"mp3 audio\n",	"audio/mpeg\n",
+	0xcafebabe,	0xFFFFFFFF,	"Mach-O fat executable\n",	"application/x-mach-binary\n",
+	0xfeedface,	0xFFFFFFFE,	"Mach-O executable\n",	"application/x-mach-binary\n",
+	0xbebafeca,	0xFFFFFFFF,	"Java class\n",	"application/x-java-applet\n",
 };
 
 int
