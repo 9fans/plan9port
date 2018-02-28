@@ -475,6 +475,8 @@
 2194  ab          ↔	left right arrow
 21D0  V=          ⇐	left double arrow
 21D2  =V          ⇒	right double arrow
+21E4  |<          ⇤	left arrow to bar
+21E5  >|          ⇥	right arrow to bar
 2200  fa          ∀	for all
 2202  pd          ∂	partial differential
 2203  te          ∃	there exists
