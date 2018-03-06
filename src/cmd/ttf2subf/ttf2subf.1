@@ -1,0 +1,64 @@
+.TH TTF2SUBF 1
+.SH NAME
+ttf2subf \- convert glyphs in a TTF file to Subfont format
+.SH SYNOPSIS
+.B ttf2subf
+.B -f
+.I file
+.B -s
+.I size
+[
+.B -n
+name
+]
+[
+.B -m
+.I mode
+]
+[
+.B -r
+.I type
+]
+.SH DESCRIPTION
+.I Tt2subf
+parses a TTF (true type font) file to generate an internal structure describing each
+glyph for the given point size. Options
+.B -f
+and
+.B -s
+determine the file and point size to use. The font name is the file name or
+.I name
+when
+.B -n
+is given. The rendering mode can be specified with
+.B -m
+and is one of
+.B mono,
+.B antialias,
+and
+.B subpixel.
+THe LCD display type can be specified with
+.B -r
+and is one of
+.B rbg,
+.B bgr,
+.B vrgb,
+and
+.B vbgr.
+.SH EXAMPLE
+To generate the
+.B arialuni
+subfont with point size 14, using RGB and subpixel mode:
+
+.EX
+; ttf2subf -f arialuni.ttf -s 14 -n arialuni -m subpixel -r rgb
+; font=arialuni/arialuni.14.font
+.EE
+.SH SOURCE
+.B /sys/src/cmd/freetype-2.1.4
+.SH "SEE ALSO"
+.IR bdf2subf (1) subfont (2) cachechars (2)
+.IR font (6) utf (6)
+.SH BUGS
+Send bugs and fixes to
+.L devel@freetype.org
