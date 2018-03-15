@@ -48,7 +48,6 @@ readfusemsg(void)
 	int n, nn;
 	
 	m = allocfusemsg();
-	errno = 0;
 	/*
 	 * The FUSE kernel device apparently guarantees
 	 * that this read will return exactly one message.
@@ -57,7 +56,11 @@ readfusemsg(void)
 	 * FUSE returns an ENODEV error, not EOF,
 	 * when the connection is unmounted.
 	 */
-	if((n = read(fusefd, m->buf, fusebufsize)) < 0){
+	do{
+		errno = 0;
+		n = read(fusefd, m->buf, fusebufsize);
+	}while(n < 0 && errno == EINTR);
+	if(n < 0){
 		if(errno != ENODEV)
 			sysfatal("readfusemsg: %r");
 	}
