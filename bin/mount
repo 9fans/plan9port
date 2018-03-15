@@ -24,6 +24,7 @@ case Darwin
 	   sysctl osxfuse.version.number >[2]/dev/null |9 grep -si 'fuse.version' ||
 	   test -d /System/Library/Extensions/fusefs.kext ||
 	   test -d /Library/Filesystems/osxfusefs.fs/Support/osxfusefs.kext ||
+	   test -d /opt/local/Library/Filesystems/osxfuse.fs ||
 	   test -d /Library/Filesystems/fusefs.fs/Support/fusefs.kext)
 		exec 9pfuse $1 $2
 	echo 'don''t know how to mount (no fuse)' >[1=2]
