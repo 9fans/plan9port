@@ -22,6 +22,12 @@ static Rune Lcolhdr[] = {
 	0
 };
 
+/*
+ * Use a character from the Unicode Private Use Area to escape newlines
+ * within multi-line tags.
+ */
+#define PMASK(x) (0XF000^x)
+
 void
 rowinit(Row *row, Rectangle r)
 {
@@ -433,10 +439,10 @@ rowdump(Row *row, char *file)
 			Bwrite(b, buf, strlen(buf));
 			m = min(RBUFSIZE, w->tag.file->b.nc);
 			bufread(&w->tag.file->b, 0, r, m);
-			n = 0;
-			while(n<m && r[n]!='\n')
-				n++;
-			Bprint(b, "%.*S\n", n, r);
+			for(n=0; n<m; n++)
+				if(r[n] == '\n')
+					r[n] = PMASK('\n');
+			Bprint(b, "%.*S\n", m, r);
 			if(dumped){
 				q0 = 0;
 				q1 = t->file->b.nc;
@@ -731,6 +737,9 @@ rowload(Row *row, char *file, int initing)
 			if(r[n] == '|')
 				break;
 		wincleartag(w);
+		for(i=n; i<nr; i++)
+			if(r[i] == PMASK('\n'))
+				r[i] = '\n';
 		textinsert(&w->tag, w->tag.file->b.nc, r+n+1, nr-(n+1), TRUE);
 		if(ndumped >= 0){
 			/* simplest thing is to put it in a file and load that */
