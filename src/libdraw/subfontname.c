@@ -47,6 +47,7 @@ subfontname(char *cfname, char *fname, int maxdepth)
 			}
 			return tmp2;
 		}
+		free(tmp2);
 	}
 
 	/* try default */

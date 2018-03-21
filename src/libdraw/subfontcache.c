@@ -34,6 +34,7 @@ void
 uninstallsubfont(Subfont *subfont)
 {
 	if(subfont == lastsubfont){
+		free(lastname);
 		lastname = 0;
 		lastsubfont = 0;
 	}

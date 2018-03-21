@@ -31,7 +31,7 @@ openfont1(Display *d, char *name)
 {
 	Font *fnt;
 	int fd, i, n, scale;
-	char *buf, *nambuf, *fname, *freename;
+	char *buf, *nambuf, *nambuf0, *fname, *freename;
 
 	nambuf = 0;
 	freename = nil;
@@ -42,19 +42,21 @@ openfont1(Display *d, char *name)
 		nambuf = smprint("#9/font/%s", fname+14);
 		if(nambuf == nil)
 			return 0;
-		nambuf = unsharp(nambuf);
+		*nambuf0 = unsharp(nambuf);
+		if(nambuf0 != nambuf)
+			free(nambuf);
+		nambuf = nambuf0;
 		if(nambuf == nil)
 			return 0;
 		if((fd = open(nambuf, OREAD)) < 0){
 			free(nambuf);
 			return 0;
 		}
-		fname = nambuf;
 		if(scale > 1) {
-			name = smprint("%d*%s", scale, fname);
+			name = smprint("%d*%s", scale, nambuf);
 			freename = name;
 		} else {
-			name = fname;
+			name = nambuf;
 		}
 	}
 	if(fd >= 0)
@@ -63,13 +65,17 @@ openfont1(Display *d, char *name)
 		fd = _fontpipe(fname+10);
 		n = 128*1024;
 	}
-	if(fd < 0)
+	if(fd < 0){
+		free(nambuf);
+		free(freename);
 		return 0;
+	}
 
 	buf = malloc(n+1);
 	if(buf == 0){
 		close(fd);
 		free(nambuf);
+		free(freename);
 		return 0;
 	}
 	i = readn(fd, buf, n);
@@ -77,6 +83,7 @@ openfont1(Display *d, char *name)
 	if(i <= 0){
 		free(buf);
 		free(nambuf);
+		free(freename);
 		return 0;
 	}
 	buf[i] = 0;
@@ -224,6 +231,7 @@ openfont(Display *d, char *name)
 	if(!f)
 		return nil;
 	f->lodpi = f;
+	free(f->namespec);
 	f->namespec = namespec;
 	
 	/* add to display list for when dpi changes */

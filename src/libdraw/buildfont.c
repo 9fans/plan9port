@@ -36,6 +36,7 @@ buildfont(Display *d, char *buf, char *name)
 	if(fnt->name==0 || fnt->cache==0 || fnt->subf==0){
     Err2:
 		free(fnt->name);
+		free(fnt->namespec);
 		free(fnt->cache);
 		free(fnt->subf);
 		free(fnt->sub);
