@@ -12,6 +12,7 @@ freesubfont(Subfont *f)
 		return;
 	uninstallsubfont(f);
 	free(f->info);	/* note: f->info must have been malloc'ed! */
+	free(f->name);
 	freeimage(f->bits);
 	free(f);
 }
