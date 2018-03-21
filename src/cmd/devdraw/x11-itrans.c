@@ -431,8 +431,10 @@ _xgetsnarffrom(XWindow w, Atom clipboard, Atom target, int timeout0, int timeout
 		usleep(10*1000);
 		XGetWindowProperty(_x.display, _x.drawable, prop, 0, 0, 0, AnyPropertyType,
 			&type, &fmt, &dummy, &len, &xdata);
-		if(lastlen == len && len > 0)
+		if(lastlen == len && len > 0){
+			XFree(xdata);
 			break;
+		}
 		lastlen = len;
 		XFree(xdata);
 	}
