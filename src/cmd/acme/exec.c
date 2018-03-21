@@ -194,6 +194,7 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 		aa = getbytearg(argt, TRUE, TRUE, &a);
 		if(a){	
 			if(strlen(a) > EVENTSIZE){	/* too big; too bad */
+				free(r);
 				free(aa);
 				free(a);
 				warning(nil, "argument string too long\n");
