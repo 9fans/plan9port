@@ -245,8 +245,10 @@ mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 	if(m == nil)
 		return nil;
 	mc = allocmemimage(Rect(0, 0, x+1, y+1), GREY8);
-	if(mc == nil)
+	if(mc == nil){
+		freememimage(m);
 		return nil;
+	}
 	memfillcolor(m, DBlack);
 	memfillcolor(mc, DBlack);
 	fc = malloc((hi+2 - lo) * sizeof fc[0]);
