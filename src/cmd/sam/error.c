@@ -138,7 +138,7 @@ termwrite(char *s)
 		else
 			Strinsert(&cmdstr, p, cmdstr.n);
 		cmdptadv += p->n;
-		free(p);
+		freetmpstr(p);
 	}else
 		Write(2, s, strlen(s));
 }
