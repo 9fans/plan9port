@@ -53,8 +53,10 @@ getscreen(int argc, char **argv)
 		threadexitsall("init");
 	}
 	t = getenv("tabstop");
-	if(t != nil)
+	if(t != nil){
 		maxtab = strtoul(t, nil, 0);
+		free(t);
+	}
 	draw(screen, screen->clipr, display->white, nil, ZP);
 }
 
@@ -149,10 +151,13 @@ extstart(void)
 	if(user == nil)
 		return;
 	disp = getenv("DISPLAY");
-	if(disp)
+	if(disp){
 		exname = smprint("/tmp/.sam.%s.%s", user, disp);
+		free(disp);
+	}
 	else
 		exname = smprint("/tmp/.sam.%s", user);
+	free(user);
 	if(exname == nil){
 		fprint(2, "not posting for B: out of memory\n");
 		return;
