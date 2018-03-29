@@ -467,6 +467,7 @@ hello(char *me, int encrypted)
 		}
 
 	ehlo = 1;
+	encrypted = 1;
   Again:
 	if(ehlo)
 		dBprint("EHLO %s\r\n", me);
