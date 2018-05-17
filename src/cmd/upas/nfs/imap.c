@@ -214,7 +214,7 @@ imaplogin(Imap *z)
 		return -1;
 	}
 
-	sx = imapcmdsx(z, nil, "LOGIN %Z %Z", up->user, up->passwd);
+	sx = imapcmdsx(z, nil, "LOGIN %#Z %#Z", up->user, up->passwd);
 	freeup(up);
 	if(sx == nil)
 		return -1;
