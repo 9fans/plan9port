@@ -40,7 +40,7 @@ loadfonts(void)
 		int index;
 		FcPattern *pat = sysfonts->fonts[i];
 
-		if(FcPatternGetString(pat, FC_FULLNAME, 0, &fullname) != FcResultMatch ||
+		if(FcPatternGetString(pat, FC_POSTSCRIPT_NAME, 0, &fullname) != FcResultMatch ||
 		   FcPatternGetString(pat, FC_FILE, 0, &fontfile) != FcResultMatch     ||
 		   FcPatternGetInteger(pat, FC_INDEX, 0, &index) != FcResultMatch)
 			continue;
