@@ -209,16 +209,16 @@ int clrim_id(Image* clr)
 	int i;
 	for (i=0; clrtab[i].im!=clr; i++)
 		if (clrtab[i].c==DNofill)
-			exits("bad image color");
+			sysfatal("bad image color");
 	return i;
 }
 
-int clr_id(int clr)
+int clr_id(ulong clr)
 {
 	int i;
 	for (i=0; clrtab[i].c!=clr; i++)
 		if (clrtab[i].c==DNofill)
-			exits("bad color");
+			sysfatal("bad color %#x", clr);
 	return i;
 }
 
@@ -1995,7 +1995,7 @@ void main(int argc, char *argv[])
 	} ARGEND
 
 	if(initdraw(0, 0, "gview") < 0)
-		exits("initdraw");
+		sysfatal("initdraw");
 	einit(Emouse|Ekeyboard);
 
 	e = doinput(*argv ? *argv : "-");

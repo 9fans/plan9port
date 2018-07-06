@@ -93,6 +93,8 @@ Rune*	findbl(Rune*, int, int*);
 char*	edittext(Window*, int, Rune*, int);
 void		flushwarnings(void);
 void		startplumbing(void);
+long	nlcount(Text*, long, long, long*);
+long	nlcounttopos(Text*, long, long, long);
 
 Runestr	runestr(Rune*, uint);
 Range range(int, int);

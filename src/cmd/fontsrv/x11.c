@@ -236,6 +236,7 @@ mksubfont(XFont *xf, char *name, int lo, int hi, int size, int antialias)
 	m1 = allocmemimage(Rect(0, 0, x, y), antialias ? GREY8 : GREY1);
 	memimagedraw(m1, m1->r, m, m->r.min, memopaque, ZP, S);
 	freememimage(m);
+	freememimage(mc);
 
 	sf->name = nil;
 	sf->n = hi+1 - lo;

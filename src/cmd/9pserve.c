@@ -1248,6 +1248,8 @@ mread9p(Ioproc *io, int fd)
 	nn = convM2S(pkt, n, &m->tx);
 	if(nn != n){
 		fprint(2, "%T read bad packet from %d\n", fd);
+		free(m->tpkt);
+		free(m);
 		return nil;
 	}
 	return m;

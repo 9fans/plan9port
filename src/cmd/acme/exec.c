@@ -194,6 +194,7 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 		aa = getbytearg(argt, TRUE, TRUE, &a);
 		if(a){	
 			if(strlen(a) > EVENTSIZE){	/* too big; too bad */
+				free(r);
 				free(aa);
 				free(a);
 				warning(nil, "argument string too long\n");
@@ -573,15 +574,27 @@ zeroxx(Text *et, Text *t, Text *_1, int _2, int _3, Rune *_4, int _5)
 		winunlock(t->w);
 }
 
+typedef struct TextAddr TextAddr;
+struct TextAddr {
+	long lorigin; // line+rune for origin
+	long rorigin;
+	long lq0; // line+rune for q0
+	long rq0;
+	long lq1; // line+rune for q1
+	long rq1;
+};
+
 void
 get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 {
 	char *name;
 	Rune *r;
 	int i, n, dirty, samename, isdir;
+	TextAddr *addr, *a;
 	Window *w;
 	Text *u;
 	Dir *d;
+	long q0, q1;
 
 	USED(_0);
 
@@ -605,6 +618,14 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 			warning(nil, "%s is a directory; can't read with multiple windows on it\n", name);
 			return;
 		}
+	}
+	addr = emalloc((t->file->ntext)*sizeof(TextAddr));
+	for(i=0; i<t->file->ntext; i++) {
+		a = &addr[i];
+		u = t->file->text[i];
+		a->lorigin = nlcount(u, 0, u->org, &a->rorigin);
+		a->lq0 = nlcount(u, 0, u->q0, &a->rq0);
+		a->lq1 = nlcount(u, u->q0, u->q1, &a->rq1);
 	}
 	r = bytetorune(name, &n);
 	for(i=0; i<t->file->ntext; i++){
@@ -631,8 +652,18 @@ get(Text *et, Text *t, Text *argt, int flag1, int _0, Rune *arg, int narg)
 	for(i=0; i<t->file->ntext; i++){
 		u = t->file->text[i];
 		textsetselect(&u->w->tag, u->w->tag.file->b.nc, u->w->tag.file->b.nc);
+		if(samename) {
+			a = &addr[i];
+			// warning(nil, "%d %d %d %d %d %d\n", a->lorigin, a->rorigin, a->lq0, a->rq0, a->lq1, a->rq1);
+			q0 = nlcounttopos(u, 0, a->lq0, a->rq0);
+			q1 = nlcounttopos(u, q0, a->lq1, a->rq1);
+			textsetselect(u, q0, q1);
+			q0 = nlcounttopos(u, 0, a->lorigin, a->rorigin);
+			textsetorigin(u, q0, FALSE);
+		}
 		textscrdraw(u);
 	}
+	free(addr);
 	xfidlog(w, "get");
 }
 

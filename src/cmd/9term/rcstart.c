@@ -26,6 +26,7 @@ sys(char *buf, int devnull)
 		_exit(2);
 	default:
 		waitpid();
+		noteenable("sys: child");
 	}
 }
 
@@ -86,6 +87,7 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	// Set $termprog to 9term or win for those who care about what kind of
 	// dumb terminal this is.
 	putenv("termprog", (char*)termprog);
+	putenv("TERM_PROGRAM", (char*)termprog);
 
 	pid = fork();
 	switch(pid){

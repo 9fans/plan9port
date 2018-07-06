@@ -268,8 +268,8 @@ void
 getwidth(void)
 {
 	CFsys *fs;
-	char buf[500], *p, *q, *f[10];
-	int fd, n, nf;
+	char buf[500], *p, *q, *f[10], *fname;
+	int fd, n, nf, scale;
 	struct winsize ws;
 	Font *f1;
 
@@ -285,15 +285,19 @@ getwidth(void)
 		buf[n] = 0;
 		if((nf=tokenize(buf, f, nelem(f))) < 7)
 			return;
+		// hidpi font in stringwidth(3) will call scalesubfont,
+		// which aborts in bytesperline, due to unknow depth,
+		// without initdraw.  We scale by ourselves.
+		scale = parsefontscale(f[6], &fname);
 		tabwid = 0;
-		if(nf >= 8 && (tabwid = atoi(f[7])) == 0)
+		if(nf >= 8 && (tabwid = atoi(f[7])/scale) == 0)
 			return;
-		if((font = openfont(nil, f[6])) == nil)
+		if((font = openfont(nil, fname)) == nil)
 			return;
 		mintab = stringwidth(font, "0");
 		if(tabwid == 0)
 			tabwid = mintab*4;
-		linewidth = atoi(f[5]);
+		linewidth = atoi(f[5]) / scale;
 		tabflag = 1;
 		return;
 	}

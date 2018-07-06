@@ -176,6 +176,7 @@ _xattach(char *label, char *winsize)
 			}
 		}
 	}
+	XFree(pfmt);
 	if(_x.chan == 0){
 		werrstr("could not determine screen pixel format");
 		goto err0;
@@ -232,6 +233,7 @@ _xattach(char *label, char *winsize)
 		geom = smprint("%s.geometry", label);
 		if(geom && XrmGetResource(database, geom, nil, &geomrestype, &geomres))
 			mask = XParseGeometry(geomres.addr, &x, &y, (uint*)&width, (uint*)&height);
+		XrmDestroyDatabase(database);
 		free(geom);
 
 		if((mask & WidthValue) && (mask & HeightValue)){

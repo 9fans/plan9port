@@ -505,7 +505,9 @@ fusesetattr(FuseMsg *m)
 	if(in->valid&FATTR_MTIME)
 		d.mtime = in->mtime;
 	if(in->valid&FATTR_MODE)
-		d.mode = in->mode;
+		d.mode = in->mode & 0777;
+	if((in->mode&S_IFMT) == S_IFDIR)
+		d.mode |= DMDIR;
 	if((in->valid&FATTR_UID) || (in->valid&FATTR_GID)){
 		/*
 		 * I can't be bothered with these yet.
