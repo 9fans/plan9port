@@ -1,3 +1,3 @@
-%:
+all:
 	@sh -c "./INSTALL"
 
