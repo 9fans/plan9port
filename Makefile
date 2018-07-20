@@ -1,3 +1,3 @@
 %:
-	@echo read the README file
+	@sh -c "./INSTALL"
 
