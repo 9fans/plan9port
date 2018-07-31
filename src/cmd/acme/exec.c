@@ -690,12 +690,44 @@ checksha1(char *name, File *f, Dir *d)
 		f->qidpath = d->qid.path;
 		f->mtime = d->mtime;
 	}
-}	
+}
+
+static uint
+trimspaces(Rune *r, uint *np, int eof)
+{
+	uint i, w, nonspace, n;
+	Rune c;
+
+	nonspace = 0;
+	w = 0;
+	n = *np;	
+	for(i=0; i<n; i++) {
+		c = r[i];
+		if(c == '\n')
+			w = nonspace;
+		r[w++] = c;
+		if(c != ' ' && c != '\t')
+			nonspace = w;
+	}
+	if(nonspace > 0 && nonspace < w) {
+		// Trailing spaces at end of buffer.
+		// Tell caller to reread them with what follows,
+		// so we can determine whether they need trimming.
+		// Unless the trailing spaces are the entire buffer,
+		// in which case let them through to avoid an infinite loop
+		// if an entire buffer fills with spaces.
+		// At EOF, just consume the spaces.
+		if(!eof)
+			*np = n - (w - nonspace);
+		w = nonspace;
+	}
+	return w;
+}
 
 void
 putfile(File *f, int q0, int q1, Rune *namer, int nname)
 {
-	uint n, m;
+	uint n, nn, m;
 	Rune *r;
 	Biobuf *b;
 	char *s, *name;
@@ -750,7 +782,10 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		if(n > BUFSIZE/UTFmax)
 			n = BUFSIZE/UTFmax;
 		bufread(&f->b, q, r, n);
-		m = snprint(s, BUFSIZE+1, "%.*S", n, r);
+		nn = n;
+		if(w->autoindent)
+			nn = trimspaces(r, &n, q+n==q1);
+		m = snprint(s, BUFSIZE+1, "%.*S", nn, r);
 		sha1((uchar*)s, m, nil, h);
 		if(Bwrite(b, s, m) != m){
 			warning(nil, "can't write file %s: %r\n", name);
