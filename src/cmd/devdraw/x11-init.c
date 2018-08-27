@@ -208,9 +208,9 @@ _xattach(char *label, char *winsize)
 		 * Parse the various X resources.  Thanks to Peter Canning.
 		 */
 		char *screen_resources, *display_resources, *geom, 
-			*geomrestype, *home, *file;
+			*geomrestype, *home, *file, *dpitype;
 		XrmDatabase database;
-		XrmValue geomres;
+		XrmValue geomres, dpires;
 
 		database = XrmGetDatabase(_x.display);
 		screen_resources = XScreenResourceString(xscreen);
@@ -230,6 +230,11 @@ _xattach(char *label, char *winsize)
 		}else
 			XrmCombineDatabase(XrmGetStringDatabase(display_resources), &database, False);
 
+		if (XrmGetResource(database, "Xft.dpi", "String", &dpitype, &dpires) == True) {
+			if (dpires.addr) {
+				displaydpi=atoi(dpires.addr);
+			}
+		}
 		geom = smprint("%s.geometry", label);
 		if(geom && XrmGetResource(database, geom, nil, &geomrestype, &geomres))
 			mask = XParseGeometry(geomres.addr, &x, &y, (uint*)&width, (uint*)&height);
