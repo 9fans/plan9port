@@ -240,12 +240,12 @@ address(uint showerr, Text *t, Range lim, Range ar, void *a, uint q0, uint q1, i
 		case '5': case '6': case '7': case '8': case '9':
 			n = c -'0';
 			while(q<q1){
-				c = (*getc)(a, q++);
-				if(c<'0' || '9'<c){
+				nc = (*getc)(a, q++);
+				if(nc<'0' || '9'<nc){
 					q--;
 					break;
 				}
-				n = n*10+(c-'0');
+				n = n*10+(nc-'0');
 			}
 			if(*evalp)
 				r = number(showerr, t, r, n, dir, size, evalp);
