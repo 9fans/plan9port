@@ -9,7 +9,7 @@ plumb to showmail
 
 # relative files as file: urls get made into absolute paths
 type is text
-data matches 'file:([.a-zA-Z¡-￿0-9_\-]([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-]))?'
+data matches 'file:([.a-zA-Z¡-￿0-9_\-]('$path'))?'
 arg isfile	$1
 data set	file://$file
 plumb to web
@@ -23,8 +23,8 @@ plumb start web $0
 
 # doc and rtf files go to wdoc2txt
 type is text
-data matches '[a-zA-Z¡-￿0-9_\-./]+'
-data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(doc|rtf)'
+data matches $path
+data matches '('$path')\.(doc|rtf)'
 arg isfile	$0
 plumb to msword
 plumb start wdoc2txt $file
@@ -37,8 +37,8 @@ plumb start wdoc2txt $file
 
 # image files go to page
 type is text
-data matches '[a-zA-Z¡-￿0-9_\-./]+'
-data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
+data matches $path
+data matches '('$path')\.(jpe?g|JPE?G|gif|GIF|tiff?|TIFF?|ppm|bit|png|PNG)'
 arg isfile	$0
 plumb to image
 plumb start 9 page $file
@@ -46,22 +46,22 @@ plumb start 9 page $file
 # postscript/pdf/dvi go to page but not over the a plumb port
 # the port is here for reference but is unused
 type is text
-data matches '[a-zA-Z¡-￿0-9_\-./]+'
-data matches '([a-zA-Z¡-￿0-9_\-./]+)\.(ps|PS|eps|EPS|pdf|PDF|dvi|DVI)'
+data matches $path
+data matches '('$path')\.(ps|PS|eps|EPS|pdf|PDF|dvi|DVI)'
 arg isfile	$0
 plumb to postscript
 plumb start 9 page $file
 
 # open office - s[xt][cdigmw], doc, xls, ppt
-data matches '[a-zA-Z¡-￿0-9_\-./]+'
-data matches '([a-zA-Z¡-￿0-9_\-./]+)\.([Ss][XxTt][CcDdIiGgMmWw]|[Dd][Oo][Cc]|[Xx][Ll][Ss]|[Pp][Pp][Tt])'
+data matches $path
+data matches '('$path')\.([Ss][XxTt][CcDdIiGgMmWw]|[Dd][Oo][Cc]|[Xx][Ll][Ss]|[Pp][Pp][Tt])'
 arg isfile	$0
 plumb to openoffice
 plumb start openoffice $file
 
 # existing files tagged by line number:columnumber or linenumber.columnumber, twice, go to editor
 type is text
-data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])':$twocolonaddr,$twocolonaddr
+data matches '('$path')':$twocolonaddr,$twocolonaddr
 arg isfile     $1
 data set       $file
 attr add       addr=$2-#1+#$3,$4-#1+#$5
@@ -70,7 +70,7 @@ plumb client $editor
 
 # existing files tagged by line number:columnumber or linenumber.columnumber, twice, go to editor
 type is text
-data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])':$twocolonaddr
+data matches '('$path')':$twocolonaddr
 arg isfile     $1
 data set       $file
 attr add       addr=$2-#1+#$3
@@ -79,7 +79,7 @@ plumb client $editor
 
 # existing files, possibly tagged by line number, go to editor
 type is text
-data matches '([.a-zA-Z¡-￿0-9_/\-]*[a-zA-Z¡-￿0-9_/\-])('$addr')?'
+data matches '('$path')('$addr')?'
 arg isfile	$1
 data set	$file
 attr add	addr=$3
@@ -88,7 +88,7 @@ plumb client $editor
 
 # .h files are looked up in /usr/include and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9/_\-]+\.h)('$addr')?'
+data matches '('$path'\.h)('$addr')?'
 arg isfile	/usr/include/$1
 data set	$file
 attr add	addr=$3
@@ -97,7 +97,7 @@ plumb client $editor
 
 # .h files are looked up in /usr/local/include and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9/_\-]+\.h)('$addr')?'
+data matches '('$path'\.h)('$addr')?'
 arg isfile	/usr/local/include/$1
 data set	$file
 attr add	addr=$3
@@ -106,7 +106,7 @@ plumb client $editor
 
 # .h files are looked up in $plan9/include and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9/_\-]+\.h)('$addr')?'
+data matches '('$path'\.h)('$addr')?'
 arg isfile	$plan9/include/$1
 data set	$file
 attr add	addr=$3
@@ -115,7 +115,7 @@ plumb client $editor
 
 # .m files are looked up in /usr/inferno/module and passed to edit
 type is text
-data matches '([a-zA-Z¡-￿0-9/_\-]+\.m)('$addr')?'
+data matches '('$path'\.m)('$addr')?'
 arg isfile	/usr/inferno/module/$1
 data set	$file
 attr add	addr=$3
@@ -124,7 +124,7 @@ plumb client window $editor
 
 # faces -> new mail window for message
 type	is	text
-data	matches	'[a-zA-Z¡-￿0-9_\-./]+'
+data	matches	$path
 data	matches	'/mail/fs/[a-zA-Z¡-￿0-9/]+/[0-9]+'
 plumb	to	showmail
 plumb	start	window -r 4 120 750 600 upas/nedmail -s $0
@@ -138,7 +138,7 @@ plumb start wmail $0
 
 # man index entries are synthesized
 type is text
-data matches '([a-zA-Z¡-￿0-9_\-./]+)\(([1-8])\)'
+data matches '('$path')\(([1-8])\)'
 plumb start rc -c 'man '$2' '$1' >[2=1] | nobs | plumb -i -d edit -a ''action=showdata filename=/man/'$1'('$2')'''
 
 # start rule for images without known suffixes
