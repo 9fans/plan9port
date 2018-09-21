@@ -378,7 +378,7 @@ search(Text *ct, Rune *r, uint n)
 int
 isfilec(Rune r)
 {
-	static Rune Lx[] = { '.', '-', '+', '/', ':', 0 };
+	static Rune Lx[] = { '.', '-', '+', '/', ':', '@', 0 };
 	if(isalnum(r))
 		return TRUE;
 	if(runestrchr(Lx, r))
