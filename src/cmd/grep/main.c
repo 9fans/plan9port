@@ -31,7 +31,7 @@ main(int argc, char *argv[])
 	case 'e':
 		flags['e']++;
 		lineno = 0;
-		str2top(ARGF());
+		str2top(EARGF(usage()));
 		break;
 
 	case 'f':
