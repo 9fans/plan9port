@@ -13,6 +13,7 @@ void
 main(int argc, char *argv[])
 {
 	int i, status;
+	char* arge;
 
 	ARGBEGIN {
 	default:
@@ -29,9 +30,12 @@ main(int argc, char *argv[])
 		break;
 
 	case 'e':
+		arge = ARGF();
+		if(arge == nil)
+			usage();
 		flags['e']++;
 		lineno = 0;
-		str2top(ARGF());
+		str2top(arge);
 		break;
 
 	case 'f':
