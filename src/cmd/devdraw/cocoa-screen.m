@@ -175,7 +175,6 @@ static NSSize winsizepixels();
 static NSSize winsizepoints();
 static NSRect scalerect(NSRect, CGFloat);
 static NSPoint scalepoint(NSPoint, CGFloat);
-static NSRect dilate(NSRect);
 
 @implementation appdelegate
 - (void)applicationDidFinishLaunching:(id)arg
@@ -533,9 +532,7 @@ _flushmemscreen(Rectangle r)
 			withObject:nil
 			waitUntilDone:NO];
 		n++;
-	}else
-	if([win.content canDraw] == 0)
-		return;
+	}
 
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 	[appdelegate
@@ -546,8 +543,6 @@ _flushmemscreen(Rectangle r)
 			NSRunLoopCommonModes,
 			@"waiting image", nil]];
 }
-
-static void drawimg(NSRect, uint);
 
 enum
 {
@@ -563,8 +558,6 @@ enum
 static void
 flushimg(NSRect rect)
 {
-	NSRect dr, r;
-
 	if(win.needimg){
 		if(!NSEqualSizes(scalerect(rect, win.topointscale).size, [win.img size])){
 			LOG(@"flushimg reject %.0f %.0f",
@@ -574,42 +567,8 @@ flushimg(NSRect rect)
 		win.needimg = 0;
 	}else
 		win.deferflush = 1;
-	return;
 
 	LOG(@"flushimg ok %.0f %.0f", rect.size.width, rect.size.height);
-
-	/*
-	 * Unless we are inside "drawRect", we have to round
-	 * the corners ourselves, if this is the custom.
-	 * "NSCompositeSourceIn" can do that, but we don't
-	 * apply it to the whole rectangle, because this
-	 * slows down trackpad scrolling considerably in
-	 * Acme.
-	 */
-	r = [win.content bounds];
-	rect = dilate(scalerect(rect, win.topointscale));
-	r.size.height -= Cornersize;
-	dr = NSIntersectionRect(r, rect);
-	LOG(@"r %.0f %.0f %.0f %.0f", r.origin.x, r.origin.y, rect.size.width, rect.size.height);
-	LOG(@"rect in points %f %f %.0f %.0f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-	LOG(@"dr in points %f %f %.0f %.0f", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
-	drawimg(dr, NSCompositeCopy);
-
-	r.origin.y = r.size.height;
-	r.size = NSMakeSize(Cornersize, Cornersize);
-	dr = NSIntersectionRect(r, rect);
-	drawimg(dr, NSCompositeSourceIn);
-
-	r.origin.x = [win.img size].width - Cornersize;
-	dr = NSIntersectionRect(r, rect);
-	drawimg(dr, NSCompositeSourceIn);
-
-	r.size.width = r.origin.x - Cornersize;
-	r.origin.x -= r.size.width;
-	dr = NSIntersectionRect(r, rect);
-	drawimg(dr, NSCompositeCopy);
-
-	[win.content unlockFocus];
 }
 
 static void
@@ -645,50 +604,6 @@ flushwin(void)
 		win.content.needsDisplay = YES;
 		win.deferflush = 0;
 	}
-}
-
-/*
- * |dr| is sized in points. What if I make it pixels?
- */
-static void
-drawimg(NSRect dr, uint op)
-{
-	CGContextRef c;
-	CGImageRef i;
-	NSRect sr;
-
-	if(NSIsEmptyRect(dr))
-		return;
-
-	sr =  [win.content convertRect:dr fromView:nil];
-	LOG(@"before dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
-	LOG(@"before sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
-
-	dr = scalerect(dr, win.topixelscale);
-	sr = scalerect(sr, win.topixelscale);
-
-	LOG(@"dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
-	LOG(@"sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
-	if(0 && OSX_VERSION >= 100800){
-		i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(dr));
-		c = [[NSGraphicsContext currentContext] CGContext];
-
-		CGContextSaveGState(c);
-		if(op == NSCompositeSourceIn)
-			CGContextSetBlendMode(c, kCGBlendModeSourceIn);
-                        LOG(@"wim.img size %f %f\n", [win.img size].width, [win.img size].height);
-		CGContextTranslateCTM(c, 0, [win.img size].height);
-		CGContextScaleCTM(c, win.topointscale, -win.topointscale);
-		CGContextDrawImage(c, NSRectToCGRect(sr), i);
-		CGContextRestoreGState(c);
-
-		CGImageRelease(i);
-	}else{
-		[win.img drawInRect:dr fromRect:sr
-			operation:op fraction:1
-			respectFlipped:YES hints:nil];
-	}
-//	NSFrameRect(dr);
 }
 
 static void getgesture(NSEvent*);
@@ -1470,22 +1385,6 @@ scalerect(NSRect r, CGFloat scale)
 	r.size.width *= scale;
 	 r.size.height *= scale;
 	 return r;
-}
-
-/*
- * Expands rectangle |r|'s bounds to more inclusive integer bounds to
- * eliminate 1 pixel gaps.
- */
-static NSRect
-dilate(NSRect r)
-{
-	if(win.topixelscale > 1.0f){
-		r.origin.x = floorf(r.origin.x);
-		r.origin.y = floorf(r.origin.y);
-		r.size.width = ceilf(r.size.width + 0.5);
-		r.size.height = ceilf(r.size.height + 0.5);
-	}
-	return r;
 }
 
 static NSPoint
