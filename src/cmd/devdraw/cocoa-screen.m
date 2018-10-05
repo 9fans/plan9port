@@ -121,9 +121,6 @@ threadmain(int argc, char **argv)
 	if (envvar = getenv("devdrawretina"))
 		devdrawretina = atoi(envvar) > 0;
 
-	if(OSX_VERSION < 100700)
-		[NSAutoreleasePool new];
-
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 	myApp = [appdelegate new];
@@ -135,16 +132,25 @@ threadmain(int argc, char **argv)
 
 struct
 {
+	/*
+	 * these fields belong to the main (cocoa) thread
+	 */
 	NSWindow	*ofs[2];	/* ofs[1] for old fullscreen; ofs[0] else */
 	int			isofs;
 	int			isnfs;
 	NSView		*content;
-	NSBitmapImageRep	*img;
-	int			needimg;
-	int			deferflush;
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
+	Memimage	*imgcocoa;
+	QLock		imgcocoalock;
+	int		needsinitimg;
+
+	/*
+	 * imgdevdraw is allocated on the main thread but all other access is on the
+	 * devdraw thread. The devdraw thread is also responsible for freeing it.
+	 */
+	Memimage	*imgdevdraw;
 } win;
 
 struct
@@ -159,8 +165,7 @@ struct
 
 static void hidebars(int);
 static void flushimg(NSRect);
-static void autoflushwin(int);
-static void flushwin(void);
+void resizeimg(void);
 static void followzoombutton(NSRect);
 static void getmousepos(void);
 static void makeicon(void);
@@ -200,6 +205,7 @@ static NSRect dilate(NSRect);
 {
 	getmousepos();
 	sendmouse();
+	win.needsinitimg = 1;
 }
 - (void)windowWillStartLiveResize:(id)arg
 {
@@ -210,6 +216,7 @@ static NSRect dilate(NSRect);
 {
 	if(useliveresizing == 0)
 		[win.content setHidden:NO];
+	resizeimg();
 }
 - (void)windowDidChangeScreen:(id)arg
 {
@@ -243,7 +250,6 @@ static NSRect dilate(NSRect);
 }
 - (void)windowWillClose:(id)arg
 {
-	autoflushwin(0);	/* can crash otherwise */
 }
 
 + (void)callservep9p:(id)arg
@@ -257,7 +263,6 @@ static NSRect dilate(NSRect);
 		return;
 	execl("plumb", "plumb", "devdraw(1)", nil);
 }
-+ (void)callflushwin:(id)arg{ flushwin();}
 - (void)calltogglefs:(id)arg{ togglefs();}
 
 + (void)callflushimg:(NSValue*)v{ flushimg([v rectValue]);}
@@ -291,7 +296,6 @@ attachscreen(char *label, char *winsize)
 		performSelectorOnMainThread:@selector(callmakewin:)
 		withObject:[NSValue valueWithPointer:winsize]
 		waitUntilDone:YES];
-//	makewin(winsize);
 
 	kicklabel(label);
 	return initimg();
@@ -313,7 +317,6 @@ attachscreen(char *label, char *winsize)
 {
 	LOG(@"makeKeyAndOrderFront");
 
-	autoflushwin(1);
 	[win.content setHidden:NO];
 	[super makeKeyAndOrderFront:arg];
 }
@@ -323,11 +326,9 @@ attachscreen(char *label, char *winsize)
 	[NSApp hide:nil];
 
 	[win.content setHidden:YES];
-	autoflushwin(0);
 }
 - (void)deminiaturize:(id)arg
 {
-	autoflushwin(1);
 	[win.content setHidden:NO];
 	[super deminiaturize:arg];
 }
@@ -416,10 +417,10 @@ makewin(char *s)
 
 	if(!set)
 		[w center];
-#if OSX_VERSION >= 100700
+
 	[w setCollectionBehavior:
 		NSWindowCollectionBehaviorFullScreenPrimary];
-#endif
+
 	[w setContentMinSize:NSMakeSize(128,128)];
 
 	[w registerForDraggedTypes:[NSArray arrayWithObjects: 
@@ -436,31 +437,26 @@ makewin(char *s)
 		[win.ofs[i] setDisplaysWhenScreenProfileChanges:NO];
 	}
 	win.isofs = 0;
+	win.imgcocoa = nil;
+	win.needsinitimg = 1;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
 
 	topwin();
 }
 
-static Memimage*
-initimg(void)
+static NSBitmapImageRep*
+createdrawer(Memimage* img)
 {
-	Memimage *i;
-	NSSize size, ptsize;
+	NSBitmapImageRep *imagerep;
+	NSSize size;
 	Rectangle r;
 
 	size = winsizepixels();
-	LOG(@"initimg %.0f %.0f", size.width, size.height);
-
 	r = Rect(0, 0, size.width, size.height);
-	i = allocmemimage(r, XBGR32);
-	if(i == nil)
-		panic("allocmemimage: %r");
-	if(i->data == nil)
-		panic("i->data == nil");
 
-	win.img = [[NSBitmapImageRep alloc]
-		initWithBitmapDataPlanes:&i->data->bdata
+	imagerep = [[NSBitmapImageRep alloc]
+		initWithBitmapDataPlanes:&img->data->bdata
 		pixelsWide:Dx(r)
 		pixelsHigh:Dy(r)
 		bitsPerSample:8
@@ -468,10 +464,42 @@ initimg(void)
 		hasAlpha:NO
 		isPlanar:NO
 		colorSpaceName:NSDeviceRGBColorSpace
-		bytesPerRow:bytesperline(r, 32)
+		bytesPerRow:bytesperline(r,  32)
 		bitsPerPixel:32];
+	[imagerep setSize: winsizepoints()];
+
+	return imagerep;
+}
+
+static Memimage*
+initimg(void)
+{
+	NSSize size, ptsize;
+	Rectangle r;
+
+	size = winsizepixels();
+	LOG(@"initimg %.0f %.0f", size.width, size.height);
+
+	r = Rect(0, 0, size.width, size.height);
+
+	win.imgdevdraw = allocmemimage(r, XBGR32);
+	if(win.imgdevdraw == nil)
+		panic("allocmemimage: %r");
+	if(win.imgdevdraw->data == nil)
+		panic("win.imgdevdraw->data == nil");
+
+	qlock(&win.imgcocoalock);
+	if(win.imgcocoa != nil){
+		freememimage(win.imgcocoa);
+	}
+	win.imgcocoa = allocmemimage(r, XBGR32);
+	if(win.imgcocoa == nil)
+		panic("allocmemimage: %r");
+	if(win.imgcocoa->data == nil)
+		panic("win.imgcocoa->data == nil");
+	qunlock(&win.imgcocoalock);
+
 	ptsize = winsizepoints();
-	[win.img setSize: ptsize];
 	win.topixelscale = size.width / ptsize.width;
 	win.topointscale = 1.0f / win.topixelscale;
 	
@@ -482,40 +510,18 @@ initimg(void)
 	// http://en.wikipedia.org/wiki/List_of_displays_by_pixel_density#Apple
 	displaydpi = win.topixelscale * 110;
 
-	return i;
+	win.needsinitimg = 0;
+	return win.imgdevdraw;
 }
 
 void
 resizeimg(void)
 {
-	[win.img release];
+	LOG(@"resizeimg\n");
 	_drawreplacescreenimage(initimg());
 
 	mouseresized = 1;
 	sendmouse();
-}
-
-static void
-waitimg(int msec)
-{
-	NSDate *limit;
-	int n;
-
-	win.needimg = 1;
-	win.deferflush = 0;
-
-	n = 0;
-	limit = [NSDate dateWithTimeIntervalSinceNow:msec/1000.0];
-	do{
-		[[NSRunLoop currentRunLoop]
-			runMode:@"waiting image"
-			beforeDate:limit];
-		n++;
-	}while(win.needimg && [(NSDate*)[NSDate date] compare:limit]<0);
-
-	win.deferflush = win.needimg;
-
-	LOG(@"waitimg %s (%d loop)", win.needimg?"defer":"ok", n);
 }
 
 void
@@ -524,7 +530,7 @@ _flushmemscreen(Rectangle r)
 	static int n;
 	NSRect rect;
 
-	LOG(@"_flushmemscreen");
+	LOG(@"_flushmemscreen %d %d %d %d\n", r.min.x, r.min.y, Dx(r), Dy(r));
 
 	if(n==0){
 		n++;
@@ -536,200 +542,47 @@ _flushmemscreen(Rectangle r)
 			withObject:nil
 			waitUntilDone:NO];
 		n++;
-	}else
-	if([win.content canDraw] == 0)
-		return;
+	}
 
+	/*
+	 * Propagate r to main thread image buffer
+	 */
+	qlock(&win.imgcocoalock);
+	memimagedraw(win.imgcocoa, r, win.imgdevdraw, r.min, nil, r.min, SoverD);
+	qunlock(&win.imgcocoalock);
+
+	/*
+	 * Notify main thread of dirty rectangle
+	 */
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 	[appdelegate
 		performSelectorOnMainThread:@selector(callflushimg:)
 		withObject:[NSValue valueWithRect:rect]
-		waitUntilDone:YES
+		waitUntilDone:NO
 		modes:[NSArray arrayWithObjects:
 			NSRunLoopCommonModes,
 			@"waiting image", nil]];
 }
 
-static void drawimg(NSRect, uint);
-static void drawresizehandle(void);
-
-enum
-{
-	Pixel = 1,
-	Barsize = 4*Pixel,
-	Cornersize = 3*Pixel,
-	Handlesize = 3*Barsize + 1*Pixel,
-};
-
 /*
- * |rect| is in pixel coordinates.
+ * Notifies Cocoa of a dirty rectangle. Converts dirty rectangle to drawRect coordinates.
+ * |rect| is in devdraw pixel coordinates.
  */
 static void
 flushimg(NSRect rect)
 {
-	NSRect dr, r;
+	NSRect sr, bounds;
 
-	if([win.content lockFocusIfCanDraw] == 0)
-		return;
+	bounds = [win.content bounds];
+	LOG(@"flushimg view bounds: %.0f %.0f  %.0f %.0f",
+				bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
+	LOG(@"flushimg in: %.0f %.0f  %.0f %.0f",
+				rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 
-	if(win.needimg){
-		if(!NSEqualSizes(scalerect(rect, win.topointscale).size, [win.img size])){
-			LOG(@"flushimg reject %.0f %.0f",
-				rect.size.width, rect.size.height);
-			[win.content unlockFocus];
-			return;
-		}
-		win.needimg = 0;
-	}else
-		win.deferflush = 1;
-
-	LOG(@"flushimg ok %.0f %.0f", rect.size.width, rect.size.height);
-
-	/*
-	 * Unless we are inside "drawRect", we have to round
-	 * the corners ourselves, if this is the custom.
-	 * "NSCompositeSourceIn" can do that, but we don't
-	 * apply it to the whole rectangle, because this
-	 * slows down trackpad scrolling considerably in
-	 * Acme.
-	 */
-	r = [win.content bounds];
-	rect = dilate(scalerect(rect, win.topointscale));
-	r.size.height -= Cornersize;
-	dr = NSIntersectionRect(r, rect);
-	LOG(@"r %.0f %.0f %.0f %.0f", r.origin.x, r.origin.y, rect.size.width, rect.size.height);
-	LOG(@"rect in points %f %f %.0f %.0f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-	LOG(@"dr in points %f %f %.0f %.0f", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
-	drawimg(dr, NSCompositeCopy);
-
-	r.origin.y = r.size.height;
-	r.size = NSMakeSize(Cornersize, Cornersize);
-	dr = NSIntersectionRect(r, rect);
-	drawimg(dr, NSCompositeSourceIn);
-
-	r.origin.x = [win.img size].width - Cornersize;
-	dr = NSIntersectionRect(r, rect);
-	drawimg(dr, NSCompositeSourceIn);
-
-	r.size.width = r.origin.x - Cornersize;
-	r.origin.x -= r.size.width;
-	dr = NSIntersectionRect(r, rect);
-	drawimg(dr, NSCompositeCopy);
-
-	if(OSX_VERSION<100700 && win.isofs==0){
-		r.origin.x = [win.img size].width - Handlesize;
-		r.origin.y = [win.img size].height - Handlesize;
-		r.size = NSMakeSize(Handlesize, Handlesize);
-		if(NSIntersectsRect(r, rect))
-			drawresizehandle();
-	}
-	[win.content unlockFocus];
-}
-
-static void
-autoflushwin(int set)
-{
-	static NSTimer *t;
-
-	if(set){
-		if(t)
-			return;
-		/*
-		 * We need "NSRunLoopCommonModes", otherwise the
-		 * timer will not fire during live resizing.
-		 */
-		t = [NSTimer
-			timerWithTimeInterval:0.033
-			target:[appdelegate class]
-			selector:@selector(callflushwin:) userInfo:nil
-			repeats:YES];
-		[[NSRunLoop currentRunLoop] addTimer:t
-			forMode:NSRunLoopCommonModes];
-	}else{
-		[t invalidate];
-		t = nil;
-		win.deferflush = 0;
-	}
-}
-
-static void
-flushwin(void)
-{
-	if(win.deferflush && win.needimg==0){
-		[WIN flushWindow];
-		win.deferflush = 0;
-	}
-}
-
-/*
- * |dr| is sized in points. What if I make it pixels?
- */
-static void
-drawimg(NSRect dr, uint op)
-{
-	CGContextRef c;
-	CGImageRef i;
-	NSRect sr;
-
-	if(NSIsEmptyRect(dr))
-		return;
-
-	sr =  [win.content convertRect:dr fromView:nil];
-	LOG(@"before dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
-	LOG(@"before sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
-
-	dr = scalerect(dr, win.topixelscale);
-	sr = scalerect(sr, win.topixelscale);
-
-	LOG(@"dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
-	LOG(@"sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
-	if(OSX_VERSION >= 100800){
-		i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(dr));
-		c = [[WIN graphicsContext] graphicsPort];
-
-		CGContextSaveGState(c);
-		if(op == NSCompositeSourceIn)
-			CGContextSetBlendMode(c, kCGBlendModeSourceIn);
-                        LOG(@"wim.img size %f %f\n", [win.img size].width, [win.img size].height);
-		CGContextTranslateCTM(c, 0, [win.img size].height);
-		CGContextScaleCTM(c, win.topointscale, -win.topointscale);
-		CGContextDrawImage(c, NSRectToCGRect(sr), i);
-		CGContextRestoreGState(c);
-
-		CGImageRelease(i);
-	}else{
-		[win.img drawInRect:dr fromRect:sr
-			operation:op fraction:1
-			respectFlipped:YES hints:nil];
-	}
-//	NSFrameRect(dr);
-}
-
-static void
-drawresizehandle(void)
-{
-	NSColor *color[Barsize];
-	NSPoint a,b;
-	Point c;
-	int i,j;
-
-	c = Pt([win.img size].width, [win.img size].height);
-
-	[[WIN graphicsContext] setShouldAntialias:NO];
-
-	color[0] = [NSColor clearColor];
-	color[1] = [NSColor darkGrayColor];
-	color[2] = [NSColor lightGrayColor];
-	color[3] = [NSColor whiteColor];
-
-	for(i=1; i+Barsize <= Handlesize; )
-		for(j=0; j<Barsize; j++){
-			[color[j] setStroke];
-			i++;
-			a = NSMakePoint(c.x-i, c.y-1);
-			b = NSMakePoint(c.x-2, c.y+1-i);
-			[NSBezierPath strokeLineFromPoint:a toPoint:b];
-		}
+	sr = dilate(scalerect(rect, win.topointscale));
+	LOG(@"flushimg out: %.0f %.0f  %.0f %.0f",
+				sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
+	[win.content setNeedsDisplayInRect:sr];
 }
 
 static void getgesture(NSEvent*);
@@ -739,29 +592,49 @@ static void gettouch(NSEvent*, int);
 static void updatecursor(void);
 
 @implementation contentview
+
 /*
  * "drawRect" is called each time Cocoa needs an
- * image, and each time we call "display".  It is
- * preceded by background painting, and followed by
- * "flushWindow".
+ * image, or after we call setNeedsDisplayInRect.
  */
 - (void)drawRect:(NSRect)r
 {
-	static int first = 1;
+	NSRect sr;
+	NSBitmapImageRep *drawer;
 
-	LOG(@"drawrect %.0f %.0f %.0f %.0f",
+	if(win.needsinitimg){
+		return;
+	}
+
+	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
-	if(first)
-		first = 0;
-	else
-		resizeimg();
+	sr = [win.content convertRect:r fromView:nil];
+	LOG(@"drawrect from rect: %.0f %.0f %.0f %.0f",
+		sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
-	if([WIN inLiveResize])
-		waitimg(100);
-	else
-		waitimg(500);
+	qlock(&win.imgcocoalock);
+
+	if(win.imgcocoa == nil){
+		qunlock(&win.imgcocoalock);
+		return;
+	}
+		
+	/*
+	 * We can only use drawer once because Cocoa caches the image somewhere.
+	 * Future calls to drawInRect will not see changes to win.imgcocoa.
+	 */
+	drawer = createdrawer(win.imgcocoa);
+	[drawer drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
+	[drawer release];
+
+	qunlock(&win.imgcocoalock);
+
+	/* Useful for debugging: red boxes around rects hit by drawRect */
+	// [[NSColor systemRedColor] set];
+	// NSFrameRect(r);
 }
+
 - (BOOL)isFlipped
 {
 	return YES;	/* to make the content's origin top left */
@@ -970,8 +843,7 @@ updatecursor(void)
 	 * Without this trick, we can come back from the dock
 	 * with a resize cursor.
 	 */
-	if(OSX_VERSION >= 100700)
-		[NSCursor unhide];
+	[NSCursor unhide];
 }
 
 static void
@@ -1011,7 +883,7 @@ getmousepos(void)
 
 	if(win.isnfs || win.isofs)
 		hidebars(1);
-	else if(OSX_VERSION>=100700 && [WIN inLiveResize]==0){
+	else if([WIN inLiveResize]==0){
 		if(p.x<12 && p.y<12 && p.x>2 && p.y>2)
 			acceptresizing(0);
 		else
@@ -1054,11 +926,8 @@ getmouse(NSEvent *e)
 		break;
 
 	case NSScrollWheel:
-#if OSX_VERSION >= 100700
 		d = [e scrollingDeltaY];
-#else
-		d = [e deltaY];
-#endif
+
 		if(d>0)
 			in.mscroll = 8;
 		else
@@ -1224,7 +1093,6 @@ togglefs(void)
 {
 	uint opt, tmp;
 
-#if OSX_VERSION >= 100700
 	NSScreen *s, *s0;
 	
 	s = [WIN screen];
@@ -1234,7 +1102,7 @@ togglefs(void)
 		[WIN toggleFullScreen:nil];
 		return;
 	}
-#endif
+
 	[win.content retain];
 	[WIN orderOut:nil];
 	[WIN setContentView:nil];
@@ -1276,11 +1144,9 @@ hidebars(int set)
 	s0 = [[NSScreen screens] objectAtIndex:0];
 	old = [NSApp presentationOptions];
 
-#if OSX_VERSION >= 100700
 	/* This bit can get lost, resulting in dreadful bugs. */
 	if(win.isnfs)
 		old |= NSApplicationPresentationFullScreen;
-#endif
 
 	if(set && s==s0)
 		opt = (old & ~Autohiddenbars) | Hiddenbars;
@@ -1499,11 +1365,9 @@ winsizepoints()
 static NSSize
 winsizepixels()
 {
-#if OSX_VERSION >= 100700
-	if (OSX_VERSION >= 100700 && devdrawretina)
+	if (devdrawretina)
 		return [win.content convertSizeToBacking: winsizepoints()];
 	else
-#endif
 		return winsizepoints();
 }
 
