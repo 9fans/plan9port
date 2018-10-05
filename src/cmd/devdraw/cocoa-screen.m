@@ -760,9 +760,10 @@ static void updatecursor(void);
 		waitimg(500);
 
 	if(win.needimg == 0){
-		[win.img drawInRect: r];
+		[win.img drawInRect:r fromRect:NSZeroRect operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
 	}
 }
+
 - (BOOL)isFlipped
 {
 	return YES;	/* to make the content's origin top left */
