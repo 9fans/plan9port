@@ -57,7 +57,7 @@
 
 AUTOFRAMEWORK(Cocoa)
 
-#define LOG	if(0)NSLog
+#define LOG	if(1)NSLog
 #define panic	sysfatal
 
 int usegestures = 0;
@@ -569,19 +569,16 @@ flushimg(NSRect rect)
 {
 	NSRect dr, r;
 
-	if([win.content lockFocusIfCanDraw] == 0)
-		return;
-
 	if(win.needimg){
 		if(!NSEqualSizes(scalerect(rect, win.topointscale).size, [win.img size])){
 			LOG(@"flushimg reject %.0f %.0f",
 				rect.size.width, rect.size.height);
-			[win.content unlockFocus];
 			return;
 		}
 		win.needimg = 0;
 	}else
 		win.deferflush = 1;
+	return;
 
 	LOG(@"flushimg ok %.0f %.0f", rect.size.width, rect.size.height);
 
@@ -656,7 +653,7 @@ static void
 flushwin(void)
 {
 	if(win.deferflush && win.needimg==0){
-		[WIN flushWindow];
+		win.content.needsDisplay = YES;
 		win.deferflush = 0;
 	}
 }
@@ -683,9 +680,9 @@ drawimg(NSRect dr, uint op)
 
 	LOG(@"dr: %f %f %f %f\n", dr.origin.x, dr.origin.y, dr.size.width, dr.size.height);
 	LOG(@"sr: %f %f %f %f\n", sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
-	if(OSX_VERSION >= 100800){
+	if(0 && OSX_VERSION >= 100800){
 		i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(dr));
-		c = [[WIN graphicsContext] graphicsPort];
+		c = [[NSGraphicsContext currentContext] CGContext];
 
 		CGContextSaveGState(c);
 		if(op == NSCompositeSourceIn)
@@ -761,6 +758,10 @@ static void updatecursor(void);
 		waitimg(100);
 	else
 		waitimg(500);
+
+	if(win.needimg == 0){
+		[win.img drawInRect: r];
+	}
 }
 - (BOOL)isFlipped
 {
