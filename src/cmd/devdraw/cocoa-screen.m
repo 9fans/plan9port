@@ -121,9 +121,6 @@ threadmain(int argc, char **argv)
 	if (envvar = getenv("devdrawretina"))
 		devdrawretina = atoi(envvar) > 0;
 
-	if(OSX_VERSION < 100700)
-		[NSAutoreleasePool new];
-
 	[NSApplication sharedApplication];
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 	myApp = [appdelegate new];
@@ -416,10 +413,10 @@ makewin(char *s)
 
 	if(!set)
 		[w center];
-#if OSX_VERSION >= 100700
+
 	[w setCollectionBehavior:
 		NSWindowCollectionBehaviorFullScreenPrimary];
-#endif
+
 	[w setContentMinSize:NSMakeSize(128,128)];
 
 	[w registerForDraggedTypes:[NSArray arrayWithObjects: 
@@ -551,7 +548,6 @@ _flushmemscreen(Rectangle r)
 }
 
 static void drawimg(NSRect, uint);
-static void drawresizehandle(void);
 
 enum
 {
@@ -613,13 +609,6 @@ flushimg(NSRect rect)
 	dr = NSIntersectionRect(r, rect);
 	drawimg(dr, NSCompositeCopy);
 
-	if(OSX_VERSION<100700 && win.isofs==0){
-		r.origin.x = [win.img size].width - Handlesize;
-		r.origin.y = [win.img size].height - Handlesize;
-		r.size = NSMakeSize(Handlesize, Handlesize);
-		if(NSIntersectsRect(r, rect))
-			drawresizehandle();
-	}
 	[win.content unlockFocus];
 }
 
@@ -700,33 +689,6 @@ drawimg(NSRect dr, uint op)
 			respectFlipped:YES hints:nil];
 	}
 //	NSFrameRect(dr);
-}
-
-static void
-drawresizehandle(void)
-{
-	NSColor *color[Barsize];
-	NSPoint a,b;
-	Point c;
-	int i,j;
-
-	c = Pt([win.img size].width, [win.img size].height);
-
-	[[WIN graphicsContext] setShouldAntialias:NO];
-
-	color[0] = [NSColor clearColor];
-	color[1] = [NSColor darkGrayColor];
-	color[2] = [NSColor lightGrayColor];
-	color[3] = [NSColor whiteColor];
-
-	for(i=1; i+Barsize <= Handlesize; )
-		for(j=0; j<Barsize; j++){
-			[color[j] setStroke];
-			i++;
-			a = NSMakePoint(c.x-i, c.y-1);
-			b = NSMakePoint(c.x-2, c.y+1-i);
-			[NSBezierPath strokeLineFromPoint:a toPoint:b];
-		}
 }
 
 static void getgesture(NSEvent*);
@@ -972,8 +934,7 @@ updatecursor(void)
 	 * Without this trick, we can come back from the dock
 	 * with a resize cursor.
 	 */
-	if(OSX_VERSION >= 100700)
-		[NSCursor unhide];
+	[NSCursor unhide];
 }
 
 static void
@@ -1013,7 +974,7 @@ getmousepos(void)
 
 	if(win.isnfs || win.isofs)
 		hidebars(1);
-	else if(OSX_VERSION>=100700 && [WIN inLiveResize]==0){
+	else if([WIN inLiveResize]==0){
 		if(p.x<12 && p.y<12 && p.x>2 && p.y>2)
 			acceptresizing(0);
 		else
@@ -1056,11 +1017,8 @@ getmouse(NSEvent *e)
 		break;
 
 	case NSScrollWheel:
-#if OSX_VERSION >= 100700
 		d = [e scrollingDeltaY];
-#else
-		d = [e deltaY];
-#endif
+
 		if(d>0)
 			in.mscroll = 8;
 		else
@@ -1226,7 +1184,6 @@ togglefs(void)
 {
 	uint opt, tmp;
 
-#if OSX_VERSION >= 100700
 	NSScreen *s, *s0;
 	
 	s = [WIN screen];
@@ -1236,7 +1193,7 @@ togglefs(void)
 		[WIN toggleFullScreen:nil];
 		return;
 	}
-#endif
+
 	[win.content retain];
 	[WIN orderOut:nil];
 	[WIN setContentView:nil];
@@ -1278,11 +1235,9 @@ hidebars(int set)
 	s0 = [[NSScreen screens] objectAtIndex:0];
 	old = [NSApp presentationOptions];
 
-#if OSX_VERSION >= 100700
 	/* This bit can get lost, resulting in dreadful bugs. */
 	if(win.isnfs)
 		old |= NSApplicationPresentationFullScreen;
-#endif
 
 	if(set && s==s0)
 		opt = (old & ~Autohiddenbars) | Hiddenbars;
@@ -1501,11 +1456,9 @@ winsizepoints()
 static NSSize
 winsizepixels()
 {
-#if OSX_VERSION >= 100700
-	if (OSX_VERSION >= 100700 && devdrawretina)
+	if (devdrawretina)
 		return [win.content convertSizeToBacking: winsizepoints()];
 	else
-#endif
 		return winsizepoints();
 }
 
