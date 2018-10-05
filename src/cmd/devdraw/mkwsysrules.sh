@@ -23,7 +23,8 @@ fi
 if [ "x$WSYSTYPE" = "x" ]; then
 	if [ "x`uname`" = "xDarwin" ]; then
 		if sw_vers | grep 'ProductVersion:	10\.[0-5]\.' >/dev/null; then
-			WSYSTYPE=osx
+			echo 1>&2 'OS X 10.5 and older are not supported'
+			exit 1
 		else
 			#echo 1>&2 'WARNING: OS X Lion is not working.  Copy binaries from a Snow Leopard system.'
 			WSYSTYPE=osx-cocoa
@@ -52,13 +53,6 @@ if [ $WSYSTYPE = x11 ]; then
 	echo 'HFILES=$HFILES $XHFILES'
 	XO=`ls x11-*.c 2>/dev/null | sed 's/\.c$/.o/'`
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
-elif [ $WSYSTYPE = osx ]; then
-	if [ -d /System/Library/PrivateFrameworks/MultitouchSupport.framework ]; then
-		echo 'CFLAGS=$CFLAGS -DMULTITOUCH'
-		echo 'LDFLAGS=$LDFLAGS -F/System/Library/PrivateFrameworks'
-	fi
-	echo 'WSYSOFILES=$WSYSOFILES osx-screen-carbon-objc.o osx-draw.o osx-srv.o'
-	echo 'MACARGV=macargv.o'
 elif [ $WSYSTYPE = osx-cocoa ]; then
 	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-objc.o cocoa-srv.o cocoa-thread.o'
 	echo 'MACARGV=macargv-objc.o'
