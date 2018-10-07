@@ -142,6 +142,9 @@ struct
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
+	Memimage	*imgDevdraw;
+	Memimage	*imgCocoa;
+	QLock		imgCocoaLk;
 } win;
 
 struct
@@ -156,6 +159,7 @@ struct
 
 static void hidebars(int);
 static void flushimg(NSRect);
+void resizeimg(void);
 static void autoflushwin(int);
 static void flushwin(void);
 static void followzoombutton(NSRect);
@@ -175,6 +179,7 @@ static NSSize winsizepixels();
 static NSSize winsizepoints();
 static NSRect scalerect(NSRect, CGFloat);
 static NSPoint scalepoint(NSPoint, CGFloat);
+static NSRect dilate(NSRect);
 
 @implementation appdelegate
 - (void)applicationDidFinishLaunching:(id)arg
@@ -196,6 +201,7 @@ static NSPoint scalepoint(NSPoint, CGFloat);
 {
 	getmousepos();
 	sendmouse();
+	resizeimg();
 }
 - (void)windowWillStartLiveResize:(id)arg
 {
@@ -206,6 +212,7 @@ static NSPoint scalepoint(NSPoint, CGFloat);
 {
 	if(useliveresizing == 0)
 		[win.content setHidden:NO];
+	resizeimg();
 }
 - (void)windowDidChangeScreen:(id)arg
 {
@@ -441,7 +448,6 @@ makewin(char *s)
 static Memimage*
 initimg(void)
 {
-	Memimage *i;
 	NSSize size, ptsize;
 	Rectangle r;
 
@@ -449,14 +455,22 @@ initimg(void)
 	LOG(@"initimg %.0f %.0f", size.width, size.height);
 
 	r = Rect(0, 0, size.width, size.height);
-	i = allocmemimage(r, XBGR32);
-	if(i == nil)
+
+	win.imgDevdraw = allocmemimage(r, XBGR32);
+	if(win.imgDevdraw == nil)
 		panic("allocmemimage: %r");
-	if(i->data == nil)
-		panic("i->data == nil");
+	if(win.imgDevdraw->data == nil)
+		panic("win.imgDevdraw->data == nil");
+
+	qlock(&win.imgCocoaLk);
+	win.imgCocoa = allocmemimage(r, XBGR32);
+	if(win.imgCocoa == nil)
+		panic("allocmemimage: %r");
+	if(win.imgCocoa->data == nil)
+		panic("win.imgCocoa->data == nil");
 
 	win.img = [[NSBitmapImageRep alloc]
-		initWithBitmapDataPlanes:&i->data->bdata
+		initWithBitmapDataPlanes:&win.imgCocoa->data->bdata
 		pixelsWide:Dx(r)
 		pixelsHigh:Dy(r)
 		bitsPerSample:8
@@ -466,6 +480,7 @@ initimg(void)
 		colorSpaceName:NSDeviceRGBColorSpace
 		bytesPerRow:bytesperline(r, 32)
 		bitsPerPixel:32];
+	qunlock(&win.imgCocoaLk);
 	ptsize = winsizepoints();
 	[win.img setSize: ptsize];
 	win.topixelscale = size.width / ptsize.width;
@@ -478,12 +493,13 @@ initimg(void)
 	// http://en.wikipedia.org/wiki/List_of_displays_by_pixel_density#Apple
 	displaydpi = win.topixelscale * 110;
 
-	return i;
+	return win.imgDevdraw;
 }
 
 void
 resizeimg(void)
 {
+	LOG(@"resizeimg\n");
 	[win.img release];
 	_drawreplacescreenimage(initimg());
 
@@ -520,7 +536,7 @@ _flushmemscreen(Rectangle r)
 	static int n;
 	NSRect rect;
 
-	LOG(@"_flushmemscreen");
+	LOG(@"_flushmemscreen %d %d %d %d\n", r.min.x, r.min.y, Dx(r), Dy(r));
 
 	if(n==0){
 		n++;
@@ -533,6 +549,10 @@ _flushmemscreen(Rectangle r)
 			waitUntilDone:NO];
 		n++;
 	}
+
+	qlock(&win.imgCocoaLk);
+	memimagedraw(win.imgCocoa, r, win.imgDevdraw, r.min, nil, r.min, SoverD);
+	qunlock(&win.imgCocoaLk);
 
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 	[appdelegate
@@ -553,22 +573,24 @@ enum
 };
 
 /*
- * |rect| is in pixel coordinates.
+ * Notifies Cocoa of a dirty rectangle. Converts dirty rectangle to drawRect coordinates.
+ * |rect| is in devdraw pixel coordinates.
  */
 static void
 flushimg(NSRect rect)
 {
-	if(win.needimg){
-		if(!NSEqualSizes(scalerect(rect, win.topointscale).size, [win.img size])){
-			LOG(@"flushimg reject %.0f %.0f",
-				rect.size.width, rect.size.height);
-			return;
-		}
-		win.needimg = 0;
-	}else
-		win.deferflush = 1;
+	NSRect sr, bounds;
 
-	LOG(@"flushimg ok %.0f %.0f", rect.size.width, rect.size.height);
+	bounds = [win.content bounds];
+	LOG(@"flushimg view bounds: %.0f %.0f  %.0f %.0f",
+				bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
+	LOG(@"flushimg in: %.0f %.0f  %.0f %.0f",
+				rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+	sr = [win.content convertRect:dilate(scalerect(rect, win.topointscale)) fromView:nil];
+	LOG(@"flushimg out: %.0f %.0f  %.0f %.0f",
+				sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
+	[win.content setNeedsDisplayInRect:sr];
+	//win.content.needsDisplay = YES;
 }
 
 static void
@@ -600,10 +622,8 @@ autoflushwin(int set)
 static void
 flushwin(void)
 {
-	if(win.deferflush && win.needimg==0){
-		win.content.needsDisplay = YES;
-		win.deferflush = 0;
-	}
+	//win.content.needsDisplay = YES;
+	//[win.content displayIfNeeded];
 }
 
 static void getgesture(NSEvent*);
@@ -621,24 +641,20 @@ static void updatecursor(void);
  */
 - (void)drawRect:(NSRect)r
 {
-	static int first = 1;
 
-	LOG(@"drawrect %.0f %.0f %.0f %.0f",
+	NSRect sr;
+
+	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
-	if(first)
-		first = 0;
-	else
-		resizeimg();
+	sr = [win.content convertRect:scalerect(r, win.topixelscale) fromView:nil];
+	LOG(@"drawrect from rect: %.0f %.0f %.0f %.0f",
+		sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
-	if([WIN inLiveResize])
-		waitimg(100);
-	else
-		waitimg(500);
+	[win.img drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
 
-	if(win.needimg == 0){
-		[win.img drawInRect:r fromRect:NSZeroRect operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
-	}
+	[[NSColor systemRedColor] set];
+	NSFrameRect(r);
 }
 
 - (BOOL)isFlipped
@@ -1385,6 +1401,22 @@ scalerect(NSRect r, CGFloat scale)
 	r.size.width *= scale;
 	 r.size.height *= scale;
 	 return r;
+}
+
+/*
+ * Expands rectangle |r|'s bounds to more inclusive integer bounds to
+ * eliminate 1 pixel gaps.
+ */
+static NSRect
+dilate(NSRect r)
+{
+	if(win.topixelscale > 1.0f){
+		r.origin.x = floorf(r.origin.x);
+		r.origin.y = floorf(r.origin.y);
+		r.size.width = ceilf(r.size.width + 0.5);
+		r.size.height = ceilf(r.size.height + 0.5);
+	}
+	return r;
 }
 
 static NSPoint
