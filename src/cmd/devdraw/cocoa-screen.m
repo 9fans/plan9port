@@ -602,7 +602,7 @@ static void updatecursor(void);
 	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
-	sr = [win.content convertRect:scalerect(r, win.topixelscale) fromView:nil];
+	sr = [win.content convertRect:r fromView:nil];
 	LOG(@"drawrect from rect: %.0f %.0f %.0f %.0f",
 		sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
