@@ -142,6 +142,7 @@ struct
 	Memimage	*imgDevdraw;
 	Memimage	*imgCocoa;
 	QLock		imgCocoaLk;
+	int		didresize;
 } win;
 
 struct
@@ -196,7 +197,7 @@ static NSRect dilate(NSRect);
 {
 	getmousepos();
 	sendmouse();
-	resizeimg();
+	win.didresize = 1;
 }
 - (void)windowWillStartLiveResize:(id)arg
 {
@@ -429,6 +430,7 @@ makewin(char *s)
 	}
 	win.isofs = 0;
 	win.imgCocoa = nil;
+	win.didresize = 1;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
 
@@ -595,10 +597,9 @@ static void updatecursor(void);
 {
 	NSRect sr;
 	NSBitmapImageRep *drawer;
-	static int first = 1;
 
-	if(first){
-		first = 0;
+	if(win.didresize){
+		win.didresize = 0;
 		return;
 	}
 
