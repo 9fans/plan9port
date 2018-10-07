@@ -132,6 +132,9 @@ threadmain(int argc, char **argv)
 
 struct
 {
+	/*
+	 * these fields belong to the main (cocoa) thread
+	 */
 	NSWindow	*ofs[2];	/* ofs[1] for old fullscreen; ofs[0] else */
 	int			isofs;
 	int			isnfs;
@@ -139,10 +142,14 @@ struct
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
-	Memimage	*imgdevdraw;	/* belongs to devdraw thread */
 	Memimage	*imgcocoa;	/* belongs to cocoa (main) thread */
 	QLock		imgcocoalock;
 	int		needsinitimg;
+
+	/*
+	 * this field belongs to the devdraw thread
+	 */
+	Memimage	*imgdevdraw;
 } win;
 
 struct
@@ -586,11 +593,10 @@ static void gettouch(NSEvent*, int);
 static void updatecursor(void);
 
 @implementation contentview
+
 /*
  * "drawRect" is called each time Cocoa needs an
- * image, and each time we call "display".  It is
- * preceded by background painting, and followed by
- * "flushWindow".
+ * image, or after we call setNeedsDisplayInRect.
  */
 - (void)drawRect:(NSRect)r
 {
