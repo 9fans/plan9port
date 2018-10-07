@@ -136,9 +136,6 @@ struct
 	int			isofs;
 	int			isnfs;
 	NSView		*content;
-	NSBitmapImageRep	*img;
-	int			needimg;
-	int			deferflush;
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
