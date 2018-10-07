@@ -598,6 +598,12 @@ static void updatecursor(void);
 {
 	NSRect sr;
 	NSBitmapImageRep *drawer;
+	static int first = 1;
+
+	if(first){
+		first = 0;
+		return;
+	}
 
 	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
