@@ -445,6 +445,32 @@ makewin(char *s)
 	topwin();
 }
 
+static NSBitmapImageRep*
+createImageRep(Memimage* img)
+{
+	NSBitmapImageRep *imagerep;
+	NSSize size;
+	Rectangle r;
+
+	size = winsizepixels();
+	r = Rect(0, 0, size.width, size.height);
+
+	imagerep = [[NSBitmapImageRep alloc]
+		initWithBitmapDataPlanes:&img->data->bdata
+		pixelsWide:Dx(r)
+		pixelsHigh:Dy(r)
+		bitsPerSample:8
+		samplesPerPixel:3
+		hasAlpha:NO
+		isPlanar:NO
+		colorSpaceName:NSDeviceRGBColorSpace
+		bytesPerRow:bytesperline(r,  32)
+		bitsPerPixel:32];
+	LOG(@"imagerep %p", imagerep);
+	[imagerep setSize: winsizepoints()];
+	return imagerep;
+}
+
 static Memimage*
 initimg(void)
 {
@@ -480,9 +506,11 @@ initimg(void)
 		colorSpaceName:NSDeviceRGBColorSpace
 		bytesPerRow:bytesperline(r, 32)
 		bitsPerPixel:32];
+	//win.img = createImageRep(win.imgCocoa);
+
 	qunlock(&win.imgCocoaLk);
 	ptsize = winsizepoints();
-	[win.img setSize: ptsize];
+	win.img.size = ptsize;
 	win.topixelscale = size.width / ptsize.width;
 	win.topointscale = 1.0f / win.topixelscale;
 	
@@ -547,11 +575,13 @@ _flushmemscreen(Rectangle r)
 			@selector(makeKeyAndOrderFront:)
 			withObject:nil
 			waitUntilDone:NO];
-		n++;
 	}
+	n++;
 
 	qlock(&win.imgCocoaLk);
 	memimagedraw(win.imgCocoa, r, win.imgDevdraw, r.min, nil, r.min, SoverD);
+	// NSString *debugPng = [[NSString alloc] initWithFormat:@"devdraw.%04d.png", n];
+	// [[win.img representationUsingType: NSPNGFileType properties: nil] writeToFile:debugPng atomically:NO];
 	qunlock(&win.imgCocoaLk);
 
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
@@ -586,11 +616,12 @@ flushimg(NSRect rect)
 				bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
 	LOG(@"flushimg in: %.0f %.0f  %.0f %.0f",
 				rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-	sr = [win.content convertRect:dilate(scalerect(rect, win.topointscale)) fromView:nil];
+	//sr = [win.content convertRect:dilate(scalerect(rect, win.topointscale)) fromView:nil];
+	sr = dilate(scalerect(rect, win.topointscale));
 	LOG(@"flushimg out: %.0f %.0f  %.0f %.0f",
 				sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 	[win.content setNeedsDisplayInRect:sr];
-	//win.content.needsDisplay = YES;
+	// win.content.needsDisplay = YES;
 }
 
 static void
@@ -641,17 +672,31 @@ static void updatecursor(void);
  */
 - (void)drawRect:(NSRect)r
 {
-
 	NSRect sr;
+	//CGImageRef i;
+	//CGContextRef c;
 
 	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
+	sr = NSMakeRect(r.origin.x, [self bounds].size.height - r.origin.y, r.size.width, r.size.height);
 	sr = [win.content convertRect:scalerect(r, win.topixelscale) fromView:nil];
 	LOG(@"drawrect from rect: %.0f %.0f %.0f %.0f",
 		sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
-	[win.img drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
+	//c = [[NSGraphicsContext currentContext] CGContext];
+	qlock(&win.imgCocoaLk);
+	if(win.imgCocoa == nil){
+		qunlock(&win.imgCocoaLk);
+		return;
+	}
+		
+	//i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(r));
+	//CGContextDrawImage(c, NSRectToCGRect(sr), i);
+
+	[createImageRep(win.imgCocoa) drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
+	//[win.img drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
+	qunlock(&win.imgCocoaLk);
 
 	[[NSColor systemRedColor] set];
 	NSFrameRect(r);
