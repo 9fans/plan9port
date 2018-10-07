@@ -139,8 +139,8 @@ struct
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
-	Memimage	*imgdevdraw;
-	Memimage	*imgcocoa;
+	Memimage	*imgdevdraw;	/* belongs to devdraw thread */
+	Memimage	*imgcocoa;	/* belongs to cocoa (main) thread */
 	QLock		imgcocoalock;
 	int		didresize;
 } win;
@@ -532,8 +532,8 @@ _flushmemscreen(Rectangle r)
 			@selector(makeKeyAndOrderFront:)
 			withObject:nil
 			waitUntilDone:NO];
+		n++;
 	}
-	n++;
 
 	qlock(&win.imgcocoalock);
 	memimagedraw(win.imgcocoa, r, win.imgdevdraw, r.min, nil, r.min, SoverD);
