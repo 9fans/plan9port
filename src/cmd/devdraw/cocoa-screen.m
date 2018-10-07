@@ -142,7 +142,7 @@ struct
 	Memimage	*imgdevdraw;	/* belongs to devdraw thread */
 	Memimage	*imgcocoa;	/* belongs to cocoa (main) thread */
 	QLock		imgcocoalock;
-	int		didresize;
+	int		needsinitimg;
 } win;
 
 struct
@@ -197,7 +197,7 @@ static NSRect dilate(NSRect);
 {
 	getmousepos();
 	sendmouse();
-	win.didresize = 1;
+	win.needsinitimg = 1;
 }
 - (void)windowWillStartLiveResize:(id)arg
 {
@@ -430,7 +430,7 @@ makewin(char *s)
 	}
 	win.isofs = 0;
 	win.imgcocoa = nil;
-	win.didresize = 1;
+	win.needsinitimg = 1;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
 
@@ -502,6 +502,7 @@ initimg(void)
 	// http://en.wikipedia.org/wiki/List_of_displays_by_pixel_density#Apple
 	displaydpi = win.topixelscale * 110;
 
+	win.needsinitimg = 0;
 	return win.imgdevdraw;
 }
 
@@ -596,8 +597,7 @@ static void updatecursor(void);
 	NSRect sr;
 	NSBitmapImageRep *drawer;
 
-	if(win.didresize){
-		win.didresize = 0;
+	if(win.needsinitimg){
 		return;
 	}
 
