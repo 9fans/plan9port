@@ -139,9 +139,9 @@ struct
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
-	Memimage	*imgDevdraw;
-	Memimage	*imgCocoa;
-	QLock		imgCocoaLk;
+	Memimage	*imgdevdraw;
+	Memimage	*imgcocoa;
+	QLock		imgcocoalock;
 	int		didresize;
 } win;
 
@@ -429,7 +429,7 @@ makewin(char *s)
 		[win.ofs[i] setDisplaysWhenScreenProfileChanges:NO];
 	}
 	win.isofs = 0;
-	win.imgCocoa = nil;
+	win.imgcocoa = nil;
 	win.didresize = 1;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
@@ -474,22 +474,22 @@ initimg(void)
 
 	r = Rect(0, 0, size.width, size.height);
 
-	win.imgDevdraw = allocmemimage(r, XBGR32);
-	if(win.imgDevdraw == nil)
+	win.imgdevdraw = allocmemimage(r, XBGR32);
+	if(win.imgdevdraw == nil)
 		panic("allocmemimage: %r");
-	if(win.imgDevdraw->data == nil)
-		panic("win.imgDevdraw->data == nil");
+	if(win.imgdevdraw->data == nil)
+		panic("win.imgdevdraw->data == nil");
 
-	qlock(&win.imgCocoaLk);
-	if(win.imgCocoa != nil){
-		freememimage(win.imgCocoa);
+	qlock(&win.imgcocoalock);
+	if(win.imgcocoa != nil){
+		freememimage(win.imgcocoa);
 	}
-	win.imgCocoa = allocmemimage(r, XBGR32);
-	if(win.imgCocoa == nil)
+	win.imgcocoa = allocmemimage(r, XBGR32);
+	if(win.imgcocoa == nil)
 		panic("allocmemimage: %r");
-	if(win.imgCocoa->data == nil)
-		panic("win.imgCocoa->data == nil");
-	qunlock(&win.imgCocoaLk);
+	if(win.imgcocoa->data == nil)
+		panic("win.imgcocoa->data == nil");
+	qunlock(&win.imgcocoalock);
 
 	ptsize = winsizepoints();
 	win.topixelscale = size.width / ptsize.width;
@@ -502,7 +502,7 @@ initimg(void)
 	// http://en.wikipedia.org/wiki/List_of_displays_by_pixel_density#Apple
 	displaydpi = win.topixelscale * 110;
 
-	return win.imgDevdraw;
+	return win.imgdevdraw;
 }
 
 void
@@ -535,11 +535,9 @@ _flushmemscreen(Rectangle r)
 	}
 	n++;
 
-	qlock(&win.imgCocoaLk);
-	memimagedraw(win.imgCocoa, r, win.imgDevdraw, r.min, nil, r.min, SoverD);
-	// NSString *debugPng = [[NSString alloc] initWithFormat:@"devdraw.%04d.png", n];
-	// [[win.img representationUsingType: NSPNGFileType properties: nil] writeToFile:debugPng atomically:NO];
-	qunlock(&win.imgCocoaLk);
+	qlock(&win.imgcocoalock);
+	memimagedraw(win.imgcocoa, r, win.imgdevdraw, r.min, nil, r.min, SoverD);
+	qunlock(&win.imgcocoalock);
 
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 	[appdelegate
@@ -610,19 +608,20 @@ static void updatecursor(void);
 	LOG(@"drawrect from rect: %.0f %.0f %.0f %.0f",
 		sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
-	qlock(&win.imgCocoaLk);
+	qlock(&win.imgcocoalock);
 
-	if(win.imgCocoa == nil){
-		qunlock(&win.imgCocoaLk);
+	if(win.imgcocoa == nil){
+		qunlock(&win.imgcocoalock);
 		return;
 	}
 		
-	drawer = createImageRep(win.imgCocoa);
+	drawer = createImageRep(win.imgcocoa);
 	[drawer drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
 	[drawer release];
 
-	qunlock(&win.imgCocoaLk);
+	qunlock(&win.imgcocoalock);
 
+	/* Useful for debugging: red boxes around rects hit by drawRect */
 	// [[NSColor systemRedColor] set];
 	// NSFrameRect(r);
 }
