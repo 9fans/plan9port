@@ -57,7 +57,7 @@
 
 AUTOFRAMEWORK(Cocoa)
 
-#define LOG	if(1)NSLog
+#define LOG	if(0)NSLog
 #define panic	sysfatal
 
 int usegestures = 0;
@@ -160,8 +160,6 @@ struct
 static void hidebars(int);
 static void flushimg(NSRect);
 void resizeimg(void);
-static void autoflushwin(int);
-static void flushwin(void);
 static void followzoombutton(NSRect);
 static void getmousepos(void);
 static void makeicon(void);
@@ -246,7 +244,6 @@ static NSRect dilate(NSRect);
 }
 - (void)windowWillClose:(id)arg
 {
-	autoflushwin(0);	/* can crash otherwise */
 }
 
 + (void)callservep9p:(id)arg
@@ -260,7 +257,6 @@ static NSRect dilate(NSRect);
 		return;
 	execl("plumb", "plumb", "devdraw(1)", nil);
 }
-+ (void)callflushwin:(id)arg{ flushwin();}
 - (void)calltogglefs:(id)arg{ togglefs();}
 
 + (void)callflushimg:(NSValue*)v{ flushimg([v rectValue]);}
@@ -294,7 +290,6 @@ attachscreen(char *label, char *winsize)
 		performSelectorOnMainThread:@selector(callmakewin:)
 		withObject:[NSValue valueWithPointer:winsize]
 		waitUntilDone:YES];
-//	makewin(winsize);
 
 	kicklabel(label);
 	return initimg();
@@ -316,7 +311,6 @@ attachscreen(char *label, char *winsize)
 {
 	LOG(@"makeKeyAndOrderFront");
 
-	autoflushwin(1);
 	[win.content setHidden:NO];
 	[super makeKeyAndOrderFront:arg];
 }
@@ -326,11 +320,9 @@ attachscreen(char *label, char *winsize)
 	[NSApp hide:nil];
 
 	[win.content setHidden:YES];
-	autoflushwin(0);
 }
 - (void)deminiaturize:(id)arg
 {
-	autoflushwin(1);
 	[win.content setHidden:NO];
 	[super deminiaturize:arg];
 }
@@ -439,6 +431,7 @@ makewin(char *s)
 		[win.ofs[i] setDisplaysWhenScreenProfileChanges:NO];
 	}
 	win.isofs = 0;
+	win.imgCocoa = nil;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
 
@@ -466,8 +459,8 @@ createImageRep(Memimage* img)
 		colorSpaceName:NSDeviceRGBColorSpace
 		bytesPerRow:bytesperline(r,  32)
 		bitsPerPixel:32];
-	LOG(@"imagerep %p", imagerep);
 	[imagerep setSize: winsizepoints()];
+
 	return imagerep;
 }
 
@@ -489,28 +482,17 @@ initimg(void)
 		panic("win.imgDevdraw->data == nil");
 
 	qlock(&win.imgCocoaLk);
+	if(win.imgCocoa != nil){
+		freememimage(win.imgCocoa);
+	}
 	win.imgCocoa = allocmemimage(r, XBGR32);
 	if(win.imgCocoa == nil)
 		panic("allocmemimage: %r");
 	if(win.imgCocoa->data == nil)
 		panic("win.imgCocoa->data == nil");
-
-	win.img = [[NSBitmapImageRep alloc]
-		initWithBitmapDataPlanes:&win.imgCocoa->data->bdata
-		pixelsWide:Dx(r)
-		pixelsHigh:Dy(r)
-		bitsPerSample:8
-		samplesPerPixel:3
-		hasAlpha:NO
-		isPlanar:NO
-		colorSpaceName:NSDeviceRGBColorSpace
-		bytesPerRow:bytesperline(r, 32)
-		bitsPerPixel:32];
-	//win.img = createImageRep(win.imgCocoa);
-
 	qunlock(&win.imgCocoaLk);
+
 	ptsize = winsizepoints();
-	win.img.size = ptsize;
 	win.topixelscale = size.width / ptsize.width;
 	win.topointscale = 1.0f / win.topixelscale;
 	
@@ -528,34 +510,10 @@ void
 resizeimg(void)
 {
 	LOG(@"resizeimg\n");
-	[win.img release];
 	_drawreplacescreenimage(initimg());
 
 	mouseresized = 1;
 	sendmouse();
-}
-
-static void
-waitimg(int msec)
-{
-	NSDate *limit;
-	int n;
-
-	win.needimg = 1;
-	win.deferflush = 0;
-
-	n = 0;
-	limit = [NSDate dateWithTimeIntervalSinceNow:msec/1000.0];
-	do{
-		[[NSRunLoop currentRunLoop]
-			runMode:@"waiting image"
-			beforeDate:limit];
-		n++;
-	}while(win.needimg && [(NSDate*)[NSDate date] compare:limit]<0);
-
-	win.deferflush = win.needimg;
-
-	LOG(@"waitimg %s (%d loop)", win.needimg?"defer":"ok", n);
 }
 
 void
@@ -616,45 +574,11 @@ flushimg(NSRect rect)
 				bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
 	LOG(@"flushimg in: %.0f %.0f  %.0f %.0f",
 				rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-	//sr = [win.content convertRect:dilate(scalerect(rect, win.topointscale)) fromView:nil];
+
 	sr = dilate(scalerect(rect, win.topointscale));
 	LOG(@"flushimg out: %.0f %.0f  %.0f %.0f",
 				sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 	[win.content setNeedsDisplayInRect:sr];
-	// win.content.needsDisplay = YES;
-}
-
-static void
-autoflushwin(int set)
-{
-	static NSTimer *t;
-
-	if(set){
-		if(t)
-			return;
-		/*
-		 * We need "NSRunLoopCommonModes", otherwise the
-		 * timer will not fire during live resizing.
-		 */
-		t = [NSTimer
-			timerWithTimeInterval:0.033
-			target:[appdelegate class]
-			selector:@selector(callflushwin:) userInfo:nil
-			repeats:YES];
-		[[NSRunLoop currentRunLoop] addTimer:t
-			forMode:NSRunLoopCommonModes];
-	}else{
-		[t invalidate];
-		t = nil;
-		win.deferflush = 0;
-	}
-}
-
-static void
-flushwin(void)
-{
-	//win.content.needsDisplay = YES;
-	//[win.content displayIfNeeded];
 }
 
 static void getgesture(NSEvent*);
@@ -673,33 +597,30 @@ static void updatecursor(void);
 - (void)drawRect:(NSRect)r
 {
 	NSRect sr;
-	//CGImageRef i;
-	//CGContextRef c;
+	NSBitmapImageRep *drawer;
 
 	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
-	sr = NSMakeRect(r.origin.x, [self bounds].size.height - r.origin.y, r.size.width, r.size.height);
 	sr = [win.content convertRect:scalerect(r, win.topixelscale) fromView:nil];
 	LOG(@"drawrect from rect: %.0f %.0f %.0f %.0f",
 		sr.origin.x, sr.origin.y, sr.size.width, sr.size.height);
 
-	//c = [[NSGraphicsContext currentContext] CGContext];
 	qlock(&win.imgCocoaLk);
+
 	if(win.imgCocoa == nil){
 		qunlock(&win.imgCocoaLk);
 		return;
 	}
 		
-	//i = CGImageCreateWithImageInRect([win.img CGImage], NSRectToCGRect(r));
-	//CGContextDrawImage(c, NSRectToCGRect(sr), i);
+	drawer = createImageRep(win.imgCocoa);
+	[drawer drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
+	[drawer release];
 
-	[createImageRep(win.imgCocoa) drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
-	//[win.img drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
 	qunlock(&win.imgCocoaLk);
 
-	[[NSColor systemRedColor] set];
-	NSFrameRect(r);
+	// [[NSColor systemRedColor] set];
+	// NSFrameRect(r);
 }
 
 - (BOOL)isFlipped
