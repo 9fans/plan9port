@@ -142,12 +142,13 @@ struct
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
-	Memimage	*imgcocoa;	/* belongs to cocoa (main) thread */
+	Memimage	*imgcocoa;
 	QLock		imgcocoalock;
 	int		needsinitimg;
 
 	/*
-	 * this field belongs to the devdraw thread
+	 * imgdevdraw is allocated on the main thread but all other access is on the
+	 * devdraw thread. The devdraw thread is also responsible for freeing it.
 	 */
 	Memimage	*imgdevdraw;
 } win;
@@ -445,7 +446,7 @@ makewin(char *s)
 }
 
 static NSBitmapImageRep*
-createImageRep(Memimage* img)
+createdrawer(Memimage* img)
 {
 	NSBitmapImageRep *imagerep;
 	NSSize size;
@@ -543,10 +544,16 @@ _flushmemscreen(Rectangle r)
 		n++;
 	}
 
+	/*
+	 * Propagate r to main thread image buffer
+	 */
 	qlock(&win.imgcocoalock);
 	memimagedraw(win.imgcocoa, r, win.imgdevdraw, r.min, nil, r.min, SoverD);
 	qunlock(&win.imgcocoalock);
 
+	/*
+	 * Notify main thread of dirty rectangle
+	 */
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 	[appdelegate
 		performSelectorOnMainThread:@selector(callflushimg:)
@@ -556,14 +563,6 @@ _flushmemscreen(Rectangle r)
 			NSRunLoopCommonModes,
 			@"waiting image", nil]];
 }
-
-enum
-{
-	Pixel = 1,
-	Barsize = 4*Pixel,
-	Cornersize = 3*Pixel,
-	Handlesize = 3*Barsize + 1*Pixel,
-};
 
 /*
  * Notifies Cocoa of a dirty rectangle. Converts dirty rectangle to drawRect coordinates.
@@ -621,7 +620,11 @@ static void updatecursor(void);
 		return;
 	}
 		
-	drawer = createImageRep(win.imgcocoa);
+	/*
+	 * We can only use drawer once because Cocoa caches the image somewhere.
+	 * Future calls to drawInRect will not see changes to win.imgcocoa.
+	 */
+	drawer = createdrawer(win.imgcocoa);
 	[drawer drawInRect:r fromRect:sr operation:NSCompositeCopy fraction:1 respectFlipped:YES hints:nil];
 	[drawer release];
 
