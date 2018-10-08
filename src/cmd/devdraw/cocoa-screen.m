@@ -558,7 +558,7 @@ _flushmemscreen(Rectangle r)
 	[appdelegate
 		performSelectorOnMainThread:@selector(callflushimg:)
 		withObject:[NSValue valueWithRect:rect]
-		waitUntilDone:YES
+		waitUntilDone:NO
 		modes:[NSArray arrayWithObjects:
 			NSRunLoopCommonModes,
 			@"waiting image", nil]];
