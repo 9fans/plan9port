@@ -92,6 +92,7 @@ static Rune LRedo[] = { 'R', 'e', 'd', 'o', 0 };
 static Rune LSend[] = { 'S', 'e', 'n', 'd', 0 };
 static Rune LSnarf[] = { 'S', 'n', 'a', 'r', 'f', 0 };
 static Rune LSort[] = { 'S', 'o', 'r', 't', 0 };
+static Rune LSpaces[] = { 'S', 'p', 'a', 'c', 'e', 's', 0 };
 static Rune LTab[] = { 'T', 'a', 'b', 0 };
 static Rune LUndo[] = { 'U', 'n', 'd', 'o', 0 };
 static Rune LZerox[] = { 'Z', 'e', 'r', 'o', 'x', 0 };
@@ -109,7 +110,7 @@ Exectab exectab[] = {
 	{ LGet,		get,		FALSE,	TRUE,	XXX		},
 	{ LID,		id,		FALSE,	XXX,		XXX		},
 	{ LIncl,		incl,		FALSE,	XXX,		XXX		},
-	{ LIndent,		indent,	FALSE,	XXX,		XXX		},
+	{ LIndent,	indent,		FALSE,	AUTOINDENT,		XXX		},
 	{ LKill,		xkill,		FALSE,	XXX,		XXX		},
 	{ LLoad,		dump,	FALSE,	FALSE,	XXX		},
 	{ LLocal,		local,	FALSE,	XXX,		XXX		},
@@ -123,6 +124,7 @@ Exectab exectab[] = {
 	{ LSend,		sendx,	TRUE,	XXX,		XXX		},
 	{ LSnarf,		cut,		FALSE,	TRUE,	FALSE	},
 	{ LSort,		sort,		FALSE,	XXX,		XXX		},
+	{ LSpaces,	indent,		FALSE,	SPACESINDENT,	XXX		},
 	{ LTab,		tab,		FALSE,	XXX,		XXX		},
 	{ LUndo,		undo,	FALSE,	TRUE,	XXX		},
 	{ LZerox,		zeroxx,	FALSE,	XXX,		XXX		},
@@ -1321,66 +1323,75 @@ incl(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 static Rune LON[] = { 'O', 'N', 0 };
 static Rune LOFF[] = { 'O', 'F', 'F', 0 };
 static Rune Lon[] = { 'o', 'n', 0 };
+static Rune Loff[] = { 'o', 'f', 'f', 0 };
 
 enum {
 	IGlobal = -2,
 	IError = -1,
-	Ion = 0,
-	Ioff = 1
 };
 
 static int
-indentval(Rune *s, int n)
+indentval(Rune *s, int n, int type)
 {
+	static char *strs[] = {
+		[SPACESINDENT] "Spaces",
+		[AUTOINDENT] "Indent",
+	};
+
 	if(n < 2)
 		return IError;
 	if(runestrncmp(s, LON, n) == 0){
-		globalautoindent = TRUE;
-		warning(nil, "Indent ON\n");
+		globalindent[type] = TRUE;
+		warning(nil, "%s ON\n", strs[type]);
 		return IGlobal;
 	}
 	if(runestrncmp(s, LOFF, n) == 0){
-		globalautoindent = FALSE;
-		warning(nil, "Indent OFF\n");
+		globalindent[type] = FALSE;
+		warning(nil, "%s OFF\n", strs[type]);
 		return IGlobal;
 	}
-	return runestrncmp(s, Lon, n) == 0;
+	if(runestrncmp(s, Lon, n) == 0)
+		return TRUE;
+	if(runestrncmp(s, Loff, n) == 0)
+		return FALSE;
+	return IError;
 }
 
 static void
 fixindent(Window *w, void *arg)
 {
-	USED(arg);
-	w->autoindent = globalautoindent;
+	int t;
+
+	t = (int)arg;
+	w->indent[t] = globalindent[t];
 }
 
 void
-indent(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
+indent(Text *et, Text* _0, Text *argt, int type, int _1, Rune *arg, int narg)
 {
 	Rune *a, *r;
 	Window *w;
-	int na, len, autoindent;
+	int na, len, ival;
 
 	USED(_0);
 	USED(_1);
-	USED(_2);
 
 	w = nil;
 	if(et!=nil && et->w!=nil)
 		w = et->w;
-	autoindent = IError;
+	ival = IError;
 	getarg(argt, FALSE, TRUE, &r, &len);
 	if(r!=nil && len>0)
-		autoindent = indentval(r, len);
+		ival = indentval(r, len, type);
 	else{
 		a = findbl(arg, narg, &na);
 		if(a != arg)
-			autoindent = indentval(arg, narg-na);
+			ival = indentval(arg, narg-na, type);
 	}
-	if(autoindent == IGlobal)
-		allwindows(fixindent, nil);
-	else if(w != nil && autoindent >= 0)
-		w->autoindent = autoindent;
+	if(ival == IGlobal)
+		allwindows(fixindent, (void*)type);
+	else if(w != nil && ival >= 0)
+		w->indent[type] = ival;
 }
 
 void

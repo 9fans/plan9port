@@ -4,7 +4,7 @@ acme, win, awd \- interactive text windows
 .SH SYNOPSIS
 .B acme
 [
-.B -abr
+.B -aibr
 ]
 [
 .B -f
@@ -198,6 +198,16 @@ The option
 .B -a
 causes each window to start in 
 autoindent mode.
+.PP
+When a window is in spacesindent mode
+(see the
+.B Spaces
+command below) and a tab character is typed,
+acme indents the line with spaces equal to the current
+tabstop for the window. The option
+.B -i
+causes each window to start in spacesindent
+mode.
 .SS "Directory context
 Each window's tag names a directory: explicitly if the window
 holds a directory; implicitly if it holds a regular file
@@ -463,6 +473,17 @@ Place selected text in snarf buffer.
 .B Sort
 Arrange the windows in the column from top to bottom in lexicographical
 order based on their names.
+.TP
+.B Spaces
+Set the spacesindent mode according to the argument:
+.B on
+and
+.B off
+set the mode for the current window;
+.B ON
+and
+.B OFF
+set the mode for all existing and future windows.
 .TP
 .B Tab
 Set the width of tab stops for this window to the value of the argument, in units of widths of the zero
