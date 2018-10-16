@@ -142,9 +142,13 @@ struct
 	NSCursor		*cursor;
 	CGFloat		topointscale;
 	CGFloat		topixelscale;
-	Memimage	*imgcocoa;
+
+	/*
+	 * The following fields are guarded by imgcocoalock
+	 */
 	QLock		imgcocoalock;
-	int		needsinitimg;
+	Memimage	*imgcocoa;
+	int		needsflushmem;
 
 	/*
 	 * imgdevdraw is allocated on the main thread but all other access is on the
@@ -205,7 +209,10 @@ static NSRect dilate(NSRect);
 {
 	getmousepos();
 	sendmouse();
-	win.needsinitimg = 1;
+
+	qlock(&win.imgcocoalock);
+	win.needsflushmem = 1;
+	qunlock(&win.imgcocoalock);
 }
 - (void)windowWillStartLiveResize:(id)arg
 {
@@ -438,7 +445,6 @@ makewin(char *s)
 	}
 	win.isofs = 0;
 	win.imgcocoa = nil;
-	win.needsinitimg = 1;
 	win.content = [contentview new];
 	[WIN setContentView:win.content];
 
@@ -497,6 +503,7 @@ initimg(void)
 		panic("allocmemimage: %r");
 	if(win.imgcocoa->data == nil)
 		panic("win.imgcocoa->data == nil");
+	win.needsflushmem = 1;
 	qunlock(&win.imgcocoalock);
 
 	ptsize = winsizepoints();
@@ -510,7 +517,6 @@ initimg(void)
 	// http://en.wikipedia.org/wiki/List_of_displays_by_pixel_density#Apple
 	displaydpi = win.topixelscale * 110;
 
-	win.needsinitimg = 0;
 	return win.imgdevdraw;
 }
 
@@ -549,6 +555,7 @@ _flushmemscreen(Rectangle r)
 	 */
 	qlock(&win.imgcocoalock);
 	memimagedraw(win.imgcocoa, r, win.imgdevdraw, r.min, nil, r.min, SoverD);
+	win.needsflushmem = 0;
 	qunlock(&win.imgcocoalock);
 
 	/*
@@ -602,10 +609,6 @@ static void updatecursor(void);
 	NSRect sr;
 	NSBitmapImageRep *drawer;
 
-	if(win.needsinitimg){
-		return;
-	}
-
 	LOG(@"drawrect in rect: %.0f %.0f %.0f %.0f",
 		r.origin.x, r.origin.y, r.size.width, r.size.height);
 
@@ -615,7 +618,7 @@ static void updatecursor(void);
 
 	qlock(&win.imgcocoalock);
 
-	if(win.imgcocoa == nil){
+	if(win.needsflushmem || win.imgcocoa == nil){
 		qunlock(&win.imgcocoalock);
 		return;
 	}
