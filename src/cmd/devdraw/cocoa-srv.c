@@ -21,7 +21,7 @@ typedef struct Tagbuf Tagbuf;
 
 struct Kbdbuf
 {
-	Rune r[32];
+	Rune r[256];
 	int ri;
 	int wi;
 	int stall;
@@ -29,7 +29,7 @@ struct Kbdbuf
 
 struct Mousebuf
 {
-	Mouse m[32];
+	Mouse m[256];
 	Mouse last;
 	int ri;
 	int wi;
@@ -38,7 +38,7 @@ struct Mousebuf
 
 struct Tagbuf
 {
-	int t[32];
+	int t[256];
 	int ri;
 	int wi;
 };
@@ -97,7 +97,7 @@ servep9p(void)
 		/* pick off messages one by one */
 		if(convM2W(mbuf, nn+4, &m) <= 0)
 			sysfatal("cannot convert message");
-		if(trace) fprint(2, "<- %W\n", &m);
+		if(trace) fprint(2, "%ud [%d] <- %W\n", nsec()/1000000, threadid(), &m);
 		runmsg(&m);
 	}
 }
@@ -191,6 +191,7 @@ runmsg(Wsysmsg *m)
 		break;
 
 	case Trddraw:
+		zlock();
 		n = m->count;
 		if(n > sizeof buf)
 			n = sizeof buf;
@@ -202,13 +203,16 @@ runmsg(Wsysmsg *m)
 			m->data = buf;
 			replymsg(m);
 		}
+		zunlock();
 		break;
 
 	case Twrdraw:
+		zlock();
 		if(_drawmsgwrite(m->data, m->count) < 0)
 			replyerror(m);
 		else
 			replymsg(m);
+		zunlock();
 		break;
 	
 	case Ttop:
@@ -217,7 +221,9 @@ runmsg(Wsysmsg *m)
 		break;
 	
 	case Tresize:
-	//	_xresizewindow(m->rect);
+#if OSX_VERSION >= 101400
+		resizewindow(m->rect);
+#endif
 		replymsg(m);
 		break;
 	}
@@ -238,7 +244,7 @@ replymsg(Wsysmsg *m)
 	if(m->type%2 == 0)
 		m->type++;
 		
-	if(trace) fprint(2, "-> %W\n", m);
+	if(trace) fprint(2, "%ud [%d] -> %W\n", nsec()/1000000, threadid(), m);
 	/* copy to output buffer */
 	n = sizeW2M(m);
 
@@ -293,11 +299,11 @@ matchmouse(void)
 			mousetags.ri = 0;
 		m.mouse = mouse.m[mouse.ri];
 		m.resized = mouseresized;
+		mouseresized = 0;
 		/*
 		if(m.resized)
 			fprint(2, "sending resize\n");
 		*/
-		mouseresized = 0;
 		mouse.ri++;
 		if(mouse.ri == nelem(mouse.m))
 			mouse.ri = 0;
@@ -366,8 +372,6 @@ abortcompose(void)
 	if(alting)
 		keystroke(Kalt);
 }
-
-void resizeimg(void);
 
 void
 keystroke(int c)
