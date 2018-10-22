@@ -30,4 +30,5 @@
 
 	void	qlock(QLock*);
 	void	qunlock(QLock*);
+	int threadid(void);
 #endif

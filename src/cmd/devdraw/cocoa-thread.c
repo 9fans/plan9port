@@ -25,4 +25,11 @@ qunlock(QLock *q)
 {
 	pthread_mutex_unlock(&q->m);
 }
+
+int
+threadid(void)
+{
+	return pthread_mach_thread_np(pthread_self());
+}
+
 #endif

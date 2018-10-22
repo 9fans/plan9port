@@ -35,6 +35,9 @@ latin1.h: $PLAN9/lib/keyboard $O.mklatinkbd
 $O.macargv: $MACARGV
 	$LD -o $target $prereq
 
+cocoa-screen-metal-objc.$O: cocoa-screen-metal.m
+	$CC $CFLAGS $OBJCFLAGS -o $target cocoa-screen-metal.m
+
 %-objc.$O: %.m
 	$CC $CFLAGS -o $target $stem.m
 
