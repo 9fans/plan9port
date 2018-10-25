@@ -1,4 +1,5 @@
 <$PLAN9/src/mkhdr
+<|osxvers
 <|sh ../devdraw/mkwsysrules.sh
 <|sh freetyperules.sh $WSYSTYPE $X11H
 
