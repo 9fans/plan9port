@@ -6,4 +6,4 @@ if ! [[ :$PATH: =~ :$PLAN9/bin: ]]
 then
 	PATH=$PATH:$PLAN9/bin
 fi
-$PLAN9/bin/9term -W600x800 &
+$PLAN9/bin/9term -l -W600x800 &
