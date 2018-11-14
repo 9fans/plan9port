@@ -77,7 +77,7 @@ load(XFont *f)
 		return;
 	}
 	f->unit = face->units_per_EM;
-	f->height = (int)((face->ascender - face->descender) * 1.2);
+	f->height = (int)((face->ascender - face->descender) * 1.35);
 	f->originy = face->descender; // bbox.yMin (or descender)  is negative, becase the baseline is y-coord 0
 
 	for(charcode=FT_Get_First_Char(face, &glyph_index); glyph_index != 0;
