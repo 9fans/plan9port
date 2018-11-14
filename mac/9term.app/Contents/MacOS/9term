@@ -2,4 +2,8 @@
 cd $HOME
 . ~/.bashrc
 PLAN9=${PLAN9:-/usr/local/plan9}
+if ! [[ :$PATH: =~ :$PLAN9/bin: ]]
+then
+	PATH=$PATH:$PLAN9/bin
+fi
 $PLAN9/bin/9term -W600x800 &
