@@ -15,9 +15,9 @@ x-c)
 	doinstall=true
 	;;
 x-r)
-    shift
-    PLAN9_TARGET=$1 export PLAN9_TARGET
-    ;;
+	shift
+	PLAN9_TARGET=$1 export PLAN9_TARGET
+	;;
 *)
 	echo 'usage: INSTALL [-b | -c] [-r path]' 1>&2
 	exit 1
@@ -42,23 +42,27 @@ echo "* Resetting $PLAN9/config"
 rm -f config
 
 (
-echo "* Compiler version:"
-9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
-
 if [ `uname` = FreeBSD ]; then
-       echo "* Running on FreeBSD, adjusting linker flags"
-       echo "LDFLAGS='-L/usr/local/lib'" >> $PLAN9/config
+	case `cc -v 2>&1` in
+	*clang*)
+		echo "CC9=clang" >> $PLAN9/config
+		;;
+	*)
+		;;
+	esac
+	echo "* Running on FreeBSD, adjusting linker flags"
+	echo "LDFLAGS='-L/usr/local/lib'" >> $PLAN9/config
 fi
 
 if [ `uname` = DragonFly ]; then
-       echo "* Running on DragonFly BSD, adjusting linker flags"
-       echo "LDFLAGS='-L/usr/local/lib -pthread'" >> $PLAN9/config
-       echo "CFLAGS='-pthread'" >> $PLAN9/config
+	echo "* Running on DragonFly BSD, adjusting linker flags"
+	echo "LDFLAGS='-L/usr/local/lib -pthread'" >> $PLAN9/config
+	echo "CFLAGS='-pthread'" >> $PLAN9/config
 fi
 
 if [ `uname` = OpenBSD ]; then
-       echo "* Running on OpenBSD, adjusting linker flags"
-       echo "LDFLAGS='-L/usr/X11R6/lib -pthread'" >> $PLAN9/config
+	echo "* Running on OpenBSD, adjusting linker flags"
+	echo "LDFLAGS='-L/usr/X11R6/lib -pthread'" >> $PLAN9/config
 fi
 
 if [ `uname` = Linux ]; then
@@ -80,8 +84,8 @@ fi
 
 if [ `uname` = SunOS ]; then
 	# On Solaris x86, uname -p cannot be trusted.
-  echo "* Running on Solaris: checking architecture..."
-  case "$(isainfo -n)" in
+	echo "* Running on Solaris: checking architecture..."
+	case "$(isainfo -n)" in
 	*amd64*)
 		echo "	x86-64 found."
 		echo "OBJTYPE=x86_64" >>$PLAN9/config
@@ -92,7 +96,7 @@ if [ `uname` = SunOS ]; then
 		echo "OBJTYPE=386" >>$PLAN9/config
 		echo "CC9=gcc" >>$PLAN9/config # defaults to gcc on Solaris/i386
 		;;
-  *sparc*)
+	*sparc*)
 		echo "	Sparc found."
 		echo "OBJTYPE=sparc" >>$PLAN9/config
 		;;
@@ -118,7 +122,7 @@ if [ `uname` = Darwin ]; then
 		echo "OBJTYPE=386" >>$PLAN9/config
 		;;
 	*ppc*)
-		echo "  power found."
+		echo "	power found."
 		echo "OBJTYPE=power" >>$PLAN9/config
 		;;
 	esac
@@ -146,6 +150,9 @@ if [ -f LOCAL.config ]; then
 	sed 's/^/	/' LOCAL.config
 	cat LOCAL.config >>config
 fi
+
+echo "* Compiler version:"
+9c -v 2>&1 | grep -v 'Configured with:' | grep -i version | sed 's/^/	/'
 
 cd src
 if $dobuild; then
