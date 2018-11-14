@@ -2,6 +2,7 @@
 #include <ndb.h>
 #include "smtp.h"	/* to publish dial_string_parse */
 #include <ip.h>
+#include <thread.h>
 
 enum
 {
@@ -26,6 +27,45 @@ static int	compar(const void*, const void*);
 static int	callmx(DS*, char*, char*);
 static void expand_meta(DS *ds);
 extern int	cistrcmp(char*, char*);
+
+/* Taken from imapdial, replaces tlsclient call with stunnel */
+static int
+smtpdial(char *server)
+{
+	int p[2];
+	int fd[3];
+	char *tmp;
+	char *fpath;
+
+	if(pipe(p) < 0)
+		return -1;
+	fd[0] = dup(p[0], -1);
+	fd[1] = dup(p[0], -1);
+	fd[2] = dup(2, -1);
+#ifdef PLAN9PORT
+	tmp = smprint("%s:587", server);
+	fpath = searchpath("stunnel3");
+	if (!fpath) {
+		werrstr("stunnel not found. it is required for tls support.");
+		return -1;
+	}
+	if(threadspawnl(fd, fpath, "stunnel", "-n", "smtp" , "-c", "-r", tmp, nil) < 0) {
+#else
+	tmp = smprint("tcp!%s!587", server);
+	if(threadspawnl(fd, "/bin/tlsclient", "tlsclient", tmp, nil) < 0){
+#endif
+		free(tmp);
+		close(p[0]);
+		close(p[1]);
+		close(fd[0]);
+		close(fd[1]);
+		close(fd[2]);
+		return -1;
+	}
+	free(tmp);
+	close(p[0]);
+	return p[1];
+}
 
 int
 mxdial(char *addr, char *ddomain, char *gdomain)
@@ -100,13 +140,21 @@ callmx(DS *ds, char *dest, char *domain)
 	}
 	/* dial each one in turn */
 	for(i = 0; i < nmx; i++){
+#ifdef PLAN9PORT
+		snprint(addr, sizeof(addr), "%s", mx[i].host);
+#else
 		snprint(addr, sizeof(addr), "%s!%s!%s", ds->proto,
 			mx[i].host, ds->service);
+#endif
 		if(debug)
 			fprint(2, "mxdial trying %s (%d)\n", addr, i);
 		atnotify(timeout, 1);
 		alarm(10*1000);
+#ifdef PLAN9PORT
+		fd = smtpdial(addr);
+#else
 		fd = dial(addr, 0, 0, 0);
+#endif
 		alarm(0);
 		atnotify(timeout, 0);
 		if(fd >= 0)
