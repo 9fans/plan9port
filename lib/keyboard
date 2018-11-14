@@ -553,6 +553,8 @@
 22E6  <!~         ⋦	less than but not equivalent to
 22E7  >!~         ⋧	greater than but not equivalent to
 22EF  el          ⋯	midline horizontal ellipsis
+2308  lc          ⌈ left ceiling
+2309  rc          ⌉ right ceiling
 230A  lf          ⌊ left floor
 230B  rf          ⌋ right floor
 2329  </          〈 left angle bracket
