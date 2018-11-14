@@ -277,6 +277,9 @@ mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 
 	CGContextSetAllowsAntialiasing(ctxt, antialias);
 	CGContextSetTextPosition(ctxt, 0, 0);	// XXX
+#if OSX_VERSION >= 101400
+	CGContextSetAllowsFontSmoothing(ctxt, false);
+#endif
 
 	x = 0;
 	for(i=lo; i<=hi; i++, fc++) {
