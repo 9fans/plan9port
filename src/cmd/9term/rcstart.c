@@ -34,7 +34,7 @@ int
 rcstart(int argc, char **argv, int *pfd, int *tfd)
 {
 	int fd[2], i, pid;
-	char *cmd, *xargv[3];
+	char *cmd, *xargv[4];
 	char slave[256];
 	int sfd;
 
@@ -46,6 +46,11 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 			argv[0] = "rc";
 		argv[1] = "-i";
 		argv[2] = 0;
+		if(loginshell){
+			argv[2] = "-l";
+			argv[3] = 0;
+			argc = 3;
+		}
 	}
 	cmd = argv[0];
 	if(loginshell){
