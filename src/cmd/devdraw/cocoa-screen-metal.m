@@ -841,7 +841,6 @@ keycvt(uint code)
 {
 	switch(code){
 	case '\r': return '\n';
-	case '\b': return 127;
 	case 127: return '\b';
 	case NSUpArrowFunctionKey: return Kup;
 	case NSDownArrowFunctionKey: return Kdown;
