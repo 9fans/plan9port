@@ -3,6 +3,8 @@
 
 TARG=devdraw
 
+SHORTLIB=draw memdraw
+
 WSYSOFILES=\
 	devdraw.$O\
 	latin1.$O\

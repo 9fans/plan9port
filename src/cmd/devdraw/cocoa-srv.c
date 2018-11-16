@@ -163,9 +163,9 @@ runmsg(Wsysmsg *m)
 
 	case Tcursor:
 		if(m->arrowcursor)
-			setcursor(nil);
+			setcursor(nil, nil);
 		else
-			setcursor(&m->cursor);
+			setcursor(&m->cursor, &m->cursor2);
 		replymsg(m);
 		break;
 			
@@ -221,9 +221,7 @@ runmsg(Wsysmsg *m)
 		break;
 	
 	case Tresize:
-#if OSX_VERSION >= 101400
 		resizewindow(m->rect);
-#endif
 		replymsg(m);
 		break;
 	}

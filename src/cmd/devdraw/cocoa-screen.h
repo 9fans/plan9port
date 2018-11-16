@@ -2,7 +2,7 @@
 
 Memimage *attachscreen(char*, char*);
 void	setmouse(Point);
-void	setcursor(Cursor*);
+void	setcursor(Cursor*, Cursor2*);
 void	setlabel(char*);
 char*	getsnarf(void);
 void	putsnarf(char*);

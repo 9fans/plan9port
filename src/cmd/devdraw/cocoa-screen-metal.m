@@ -252,21 +252,30 @@ threadmain(int argc, char **argv)
 	[myContent enlargeLastInputRect:r];
 }
 
+typedef struct Cursors Cursors;
+struct Cursors {
+	Cursor *c;
+	Cursor2 *c2;
+};
+
 + (void)callsetcursor:(NSValue *)v
 {
+	Cursors *cs;
 	Cursor *c;
+	Cursor2 *c2;
 	NSBitmapImageRep *r, *r2;
 	NSImage *i;
 	NSPoint p;
-	uint b, x, y, a;
 	uchar *plane[5], *plane2[5];
-	uchar pu, pb, pl, pr, pc;  // upper, bottom, left, right, center
-	uchar pul, pur, pbl, pbr;
-	uchar ful, fur, fbl, fbr;
+	int b;
 
-	c = [v pointerValue];
+	cs = [v pointerValue];
+	c = cs->c;
 	if(!c)
 		c = &bigarrow;
+	c2 = cs->c2;
+	if(!c2)
+		c2 = &bigarrow2;
 
 	r = [[NSBitmapImageRep alloc]
 		initWithBitmapDataPlanes:nil
@@ -280,7 +289,7 @@ threadmain(int argc, char **argv)
 		bytesPerRow:2
 		bitsPerPixel:0];
 	[r getBitmapDataPlanes:plane];
-	for(b=0; b<2*16; b++){
+	for(b=0; b<nelem(c->set); b++){
 		plane[0][b] = ~c->set[b] & c->clr[b];
 		plane[1][b] = c->set[b] | c->clr[b];
 	}
@@ -297,33 +306,9 @@ threadmain(int argc, char **argv)
 		bytesPerRow:4
 		bitsPerPixel:0];
 	[r2 getBitmapDataPlanes:plane2];
-	// https://en.wikipedia.org/wiki/Pixel-art_scaling_algorithms#EPX/Scale2×/AdvMAME2×
-	for(a=0; a<2; a++){
-		for(y=0; y<16; y++){
-			for(x=0; x<2; x++){
-				pc = plane[a][x+2*y];
-				pu = y==0 ? pc : plane[a][x+2*(y-1)];
-				pb = y==15 ? pc : plane[a][x+2*(y+1)];
-				pl = (pc>>1) | (x==0 ? pc&0x80 : (plane[a][x-1+2*y]&1)<<7);
-				pr = (pc<<1) | (x==1 ? pc&1 : (plane[a][x+1+2*y]&0x80)>>7);
-				ful = ~(pl^pu) & (pl^pb) & (pu^pr);
-				pul = (ful & pu) | (~ful & pc);
-				fur = ~(pu^pr) & (pu^pl) & (pr^pb);
-				pur = (fur & pr) | (~fur & pc);
-				fbl = ~(pb^pl) & (pb^pr) & (pl^pu);
-				pbl = (fbl & pl) | (~fbl & pc);
-				fbr = ~(pr^pb) & (pr^pu) & (pb^pl);
-				pbr = (fbr & pb) | (~fbr & pc);
-				plane2[a][2*x+4*2*y] = (pul&0x80) | ((pul&0x40)>>1)  | ((pul&0x20)>>2) | ((pul&0x10)>>3)
-					| ((pur&0x80)>>1) | ((pur&0x40)>>2)  | ((pur&0x20)>>3) | ((pur&0x10)>>4);
-				plane2[a][2*x+1+4*2*y] = ((pul&0x8)<<4) | ((pul&0x4)<<3)  | ((pul&0x2)<<2) | ((pul&0x1)<<1)
-					| ((pur&0x8)<<3) | ((pur&0x4)<<2)  | ((pur&0x2)<<1) | (pur&0x1);
-				plane2[a][2*x+4*(2*y+1)] =  (pbl&0x80) | ((pbl&0x40)>>1)  | ((pbl&0x20)>>2) | ((pbl&0x10)>>3)
-					| ((pbr&0x80)>>1) | ((pbr&0x40)>>2)  | ((pbr&0x20)>>3) | ((pbr&0x10)>>4);
-				plane2[a][2*x+1+4*(2*y+1)] = ((pbl&0x8)<<4) | ((pbl&0x4)<<3)  | ((pbl&0x2)<<2) | ((pbl&0x1)<<1)
-					| ((pbr&0x8)<<3) | ((pbr&0x4)<<2)  | ((pbr&0x2)<<1) | (pbr&0x1);
-			}
-		}
+	for(b=0; b<nelem(c2->set); b++){
+		plane2[0][b] = ~c2->set[b] & c2->clr[b];
+		plane2[1][b] = c2->set[b] | c2->clr[b];
 	}
 
 	// For checking out the cursor bitmap image
@@ -943,7 +928,7 @@ attachscreen(char *label, char *winsize)
 		withObject:[NSValue valueWithPointer:winsize]
 		waitUntilDone:YES];
 	kicklabel(label);
-	setcursor(nil);
+	setcursor(nil, nil);
 	mouseresized = 0;
 	return initimg();
 }
@@ -1099,11 +1084,16 @@ kicklabel(char *label)
 }
 
 void
-setcursor(Cursor *c)
+setcursor(Cursor *c, Cursor2 *c2)
 {
+	Cursors cs;
+	
+	cs.c = c;
+	cs.c2 = c2;
+
 	[AppDelegate
 		performSelectorOnMainThread:@selector(callsetcursor:)
-		withObject:[NSValue valueWithPointer:c]
+		withObject:[NSValue valueWithPointer:&cs]
 		waitUntilDone:YES];
 }
 
