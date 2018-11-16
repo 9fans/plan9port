@@ -148,7 +148,7 @@ rowdragcol(Row *row, Column *c, int _0)
 	USED(_0);
 
 	clearmouse();
-	setcursor(mousectl, &boxcursor);
+	setcursor2(mousectl, &boxcursor, &boxcursor2);
 	b = mouse->buttons;
 	op = mouse->xy;
 	while(mouse->buttons == b)

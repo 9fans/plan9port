@@ -477,7 +477,7 @@ coldragwin(Column *c, Window *w, int but)
 	Column *nc;
 
 	clearmouse();
-	setcursor(mousectl, &boxcursor);
+	setcursor2(mousectl, &boxcursor, &boxcursor2);
 	b = mouse->buttons;
 	op = mouse->xy;
 	while(mouse->buttons == b)

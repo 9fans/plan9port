@@ -525,6 +525,7 @@ Image		*button;
 Image		*but2col;
 Image		*but3col;
 Cursor		boxcursor;
+Cursor2		boxcursor2;
 Row			row;
 int			timerpid;
 Disk			*disk;
