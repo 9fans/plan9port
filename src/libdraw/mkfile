@@ -14,6 +14,7 @@ OFILES=\
 	cloadimage.$O\
 	computil.$O\
 	creadimage.$O\
+	cursor.$O\
 	debug.$O\
 	defont.$O\
 	draw.$O\

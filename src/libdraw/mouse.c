@@ -85,6 +85,12 @@ initmouse(char *file, Image *i)
 void
 setcursor(Mousectl *mc, Cursor *c)
 {
-	_displaycursor(mc->display, c);
+	_displaycursor(mc->display, c, nil);
+}
+
+void
+setcursor2(Mousectl *mc, Cursor *c, Cursor2 *c2)
+{
+	_displaycursor(mc->display, c, c2);
 }
 

@@ -568,9 +568,10 @@ int	mousescrollsize(int);
  */
 struct Mouse;
 struct Cursor;
+struct Cursor2;
 int		_displaybouncemouse(Display *d, struct Mouse *m);
 int		_displayconnect(Display *d);
-int		_displaycursor(Display *d, struct Cursor *c);
+int		_displaycursor(Display *d, struct Cursor *c, struct Cursor2 *c2);
 int		_displayinit(Display *d, char *label, char *winsize);
 int		_displaylabel(Display *d, char *label);
 int		_displaymoveto(Display *d, Point p);

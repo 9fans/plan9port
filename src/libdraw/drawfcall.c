@@ -64,7 +64,7 @@ sizeW2M(Wsysmsg *m)
 	case Tmoveto:
 		return 4+1+1+4+4;
 	case Tcursor:
-		return 4+1+1+4+4+2*16+2*16+1;
+		return 4+1+1+4+4+2*16+2*16+4+4+4*32+4*32+1;
 	case Rerror:
 		return 4+1+1+_stringsize(m->error);
 	case Rrdkbd:
@@ -141,7 +141,11 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 		PUT(p+10, m->cursor.offset.y);
 		memmove(p+14, m->cursor.clr, sizeof m->cursor.clr);
 		memmove(p+46, m->cursor.set, sizeof m->cursor.set);
-		p[78] = m->arrowcursor;
+		PUT(p+78, m->cursor2.offset.x);
+		PUT(p+82, m->cursor2.offset.y);
+		memmove(p+86, m->cursor2.clr, sizeof m->cursor2.clr);
+		memmove(p+214, m->cursor2.set, sizeof m->cursor2.set);
+		p[342] = m->arrowcursor;
 		break;
 	case Rrdkbd:
 		PUT2(p+6, m->rune);
@@ -229,7 +233,11 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 		GET(p+10, m->cursor.offset.y);
 		memmove(m->cursor.clr, p+14, sizeof m->cursor.clr);
 		memmove(m->cursor.set, p+46, sizeof m->cursor.set);
-		m->arrowcursor = p[78];
+		GET(p+78, m->cursor2.offset.x);
+		GET(p+82, m->cursor2.offset.y);
+		memmove(m->cursor2.clr, p+86, sizeof m->cursor2.clr);
+		memmove(m->cursor2.set, p+214, sizeof m->cursor2.set);
+		m->arrowcursor = p[342];
 		break;
 	case Rrdkbd:
 		GET2(p+6, m->rune);

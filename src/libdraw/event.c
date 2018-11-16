@@ -416,7 +416,13 @@ emoveto(Point pt)
 void
 esetcursor(Cursor *c)
 {
-	_displaycursor(display, c);
+	_displaycursor(display, c, nil);
+}
+
+void
+esetcursor2(Cursor *c, Cursor2 *c2)
+{
+	_displaycursor(display, c, c2);
 }
 
 int

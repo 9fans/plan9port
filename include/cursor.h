@@ -12,6 +12,16 @@ struct	Cursor
 	uchar	set[2*16];
 };
 
+typedef struct Cursor2 Cursor2;
+struct	Cursor2
+{
+	Point	offset;
+	uchar	clr[4*32];
+	uchar	set[4*32];
+};
+
+void	scalecursor(Cursor2*, Cursor*);
+
 #if defined(__cplusplus)
 }
 #endif

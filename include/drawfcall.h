@@ -13,6 +13,9 @@ tag[1] Rmoveto
 tag[1] Tcursor cursor[]
 tag[1] Rcursor
 
+tag[1] Tcursor2 cursor[]
+tag[1] Rcursor2
+
 tag[1] Tbouncemouse x[4] y[4] button[4]
 tag[1] Rbouncemouse
 
@@ -89,6 +92,8 @@ enum {
 	Rtop,
 	Tresize = 26,
 	Rresize,
+	Tcursor2 = 28,
+	Rcursor2,
 	Tmax,
 };
 
@@ -104,6 +109,7 @@ struct Wsysmsg
 	Mouse mouse;
 	int resized;
 	Cursor cursor;
+	Cursor2 cursor2;
 	int arrowcursor;
 	Rune rune;
 	char *winsize;

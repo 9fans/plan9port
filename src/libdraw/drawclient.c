@@ -292,17 +292,22 @@ _displaymoveto(Display *d, Point p)
 }
 
 int
-_displaycursor(Display *d, Cursor *c)
+_displaycursor(Display *d, Cursor *c, Cursor2 *c2)
 {
 	Wsysmsg tx, rx;
 	
 	tx.type = Tcursor;
 	if(c == nil){
 		memset(&tx.cursor, 0, sizeof tx.cursor);
+		memset(&tx.cursor2, 0, sizeof tx.cursor2);
 		tx.arrowcursor = 1;
 	}else{
 		tx.arrowcursor = 0;
 		tx.cursor = *c;
+		if(c2 != nil)
+			tx.cursor2 = *c2;
+		else
+			scalecursor(&tx.cursor2, c);
 	}
 	return displayrpc(d, &tx, &rx, nil);
 }
