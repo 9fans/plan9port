@@ -58,3 +58,19 @@ readsubfont(Display*d, char *name, int fd, int dolock)
 {
 	return readsubfonti(d, name, fd, nil, dolock);
 }
+
+void
+_unpackinfo(Fontchar *fc, uchar *p, int n)
+{
+	int j;
+
+	for(j=0;  j<=n;  j++){
+		fc->x = p[0]|(p[1]<<8);
+		fc->top = p[2];
+		fc->bottom = p[3];
+		fc->left = p[4];
+		fc->width = p[5];
+		fc++;
+		p += 6;
+	}
+}

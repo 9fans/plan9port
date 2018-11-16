@@ -1,6 +1,6 @@
 .TH GRAPHICS 3
 .SH NAME
-Display, Point, Rectangle, Cursor, initdraw, geninitdraw, drawerror, initdisplay, closedisplay, getdefont, getwindow, gengetwindow, flushimage, bufimage, lockdisplay, unlockdisplay, cursorswitch, cursorset, openfont, buildfont, freefont, Pfmt, Rfmt, strtochan, chantostr, chantodepth \- interactive graphics
+Display, Point, Rectangle, Cursor, initdraw, geninitdraw, drawerror, initdisplay, closedisplay, getwindow, gengetwindow, flushimage, bufimage, lockdisplay, unlockdisplay, cursorswitch, cursorset, openfont, buildfont, freefont, Pfmt, Rfmt, strtochan, chantostr, chantodepth \- interactive graphics
 .SH SYNOPSIS
 .nf
 .PP
@@ -36,9 +36,6 @@ Display*	initdisplay(char *devdir, char *win, void(*errfun)(Display*, char*))
 .PP
 .B
 void	closedisplay(Display *d)
-.PP
-.B
-Font*	getdefont(Display *d)
 .PP
 .B
 int	flushimage(Display *d, int vis)
@@ -398,11 +395,7 @@ names the directory, default
 in which the files associated with the window reside.
 .I Closedisplay
 disconnects the display and frees the associated data structures.
-.I Getdefont
-builds a
-.B Font
-structure from in-core data describing a default font.
-None of these routines is needed by most programs, since
+Neither of these routines is needed by most programs, since
 .I initdraw
 calls them as needed.
 .PP

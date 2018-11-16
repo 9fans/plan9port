@@ -178,7 +178,6 @@ extern Memsubfont*	allocmemsubfont(char*, int, int, int, Fontchar*, Memimage*);
 extern Memsubfont*	openmemsubfont(char*);
 extern void		freememsubfont(Memsubfont*);
 extern Point		memsubfontwidth(Memsubfont*, char*);
-extern Memsubfont*	getmemdefont(void);
 
 /*
  * Predefined 

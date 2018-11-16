@@ -10,7 +10,6 @@ OFILES=\
 	cload-stub.$O\
 	cmap.$O\
 	cread.$O\
-	defont.$O\
 	draw.$O\
 	draw-stub.$O\
 	ellipse.$O\

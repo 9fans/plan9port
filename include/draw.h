@@ -199,7 +199,6 @@ struct Display
 	int		obufsize;
 	uchar		*obufp;
 	Font		*defaultfont;
-	Subfont		*defaultsubfont;
 	Image		*windows;
 	Image		*screenimage;
 	int		_isnewdisplay;
@@ -498,7 +497,6 @@ extern Point	strsubfontwidth(Subfont*, char*);
 extern int	loadchar(Font*, Rune, Cacheinfo*, int, int, char**);
 extern char*	subfontname(char*, char*, int);
 extern Subfont*	_getsubfont(Display*, char*);
-extern Subfont*	getdefont(Display*);
 extern void		lockdisplay(Display*);
 extern void	unlockdisplay(Display*);
 extern int		drawlsetrefresh(u32int, int, void*, void*);
@@ -508,8 +506,6 @@ extern void	swapfont(Font*, Font**, Font**);
 /*
  * Predefined 
  */
-extern	uchar	defontdata[];
-extern	int		sizeofdefont;
 extern	Point		ZP;
 extern	Rectangle	ZR;
 

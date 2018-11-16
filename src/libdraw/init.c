@@ -8,7 +8,6 @@ Font	*font;
 Image	*screen;
 int	_drawdebug;
 
-static char deffontname[] = "*default*";
 Screen	*_screen;
 
 int		debuglockdisplay = 1;
@@ -41,8 +40,7 @@ drawshutdown(void)
 int
 geninitdraw(char *devdir, void(*error)(Display*, char*), char *fontname, char *label, char *windir, int ref)
 {
-	Subfont *df;
-	char buf[128], *p;
+	char *p;
 
 	if(label == nil)
 		label = argv0;
@@ -53,9 +51,7 @@ geninitdraw(char *devdir, void(*error)(Display*, char*), char *fontname, char *l
 	/*
 	 * Set up default font
 	 */
-	df = getdefont(display);
-	display->defaultsubfont = df;
-	if(df == nil){
+	if(openfont(display, "*default*") == 0) {
 		fprint(2, "imageinit: can't open default subfont: %r\n");
     Error:
 		closedisplay(display);
@@ -69,21 +65,13 @@ geninitdraw(char *devdir, void(*error)(Display*, char*), char *fontname, char *l
 	 * Build fonts with caches==depth of screen, for speed.
 	 * If conversion were faster, we'd use 0 and save memory.
 	 */
-	if(fontname == nil){
-		snprint(buf, sizeof buf, "%d %d\n0 %d\t%s\n", df->height, df->ascent,
-			df->n-1, deffontname);
-//BUG: Need something better for this	installsubfont("*default*", df);
-		font = buildfont(display, buf, deffontname);
-		if(font == nil){
-			fprint(2, "imageinit: can't open default font: %r\n");
-			goto Error;
-		}
-	}else{
-		font = openfont(display, fontname);	/* BUG: grey fonts */
-		if(font == nil){
-			fprint(2, "imageinit: can't open font %s: %r\n", fontname);
-			goto Error;
-		}
+	if(fontname == nil)
+		fontname = strdup("*default*");
+
+	font = openfont(display, fontname);
+	if(font == nil){
+		fprint(2, "imageinit: can't open font %s: %r\n", fontname);
+		goto Error;
 	}
 	display->defaultfont = font;
 
@@ -306,7 +294,7 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 
 /*
  * Call with d unlocked.
- * Note that disp->defaultfont and defaultsubfont are not freed here.
+ * Note that disp->defaultfont is not freed here.
  */
 void
 closedisplay(Display *disp)

@@ -1,12 +1,14 @@
 #include <u.h>
 #include <libc.h>
 #include <draw.h>
+#include "defont.h"
 
 /*
  * Default version: treat as file name
  */
 
 int _fontpipe(char*);
+static int defaultpipe(void);
 
 static void scalesubfont(Subfont*, int);
 
@@ -17,12 +19,14 @@ _getsubfont(Display *d, char *name)
 	Subfont *f;
 	int scale;
 	char *fname;
-	
+
 	scale = parsefontscale(name, &fname);
-	fd = open(fname, OREAD);
+	if(strcmp(fname, "*default*") == 0)
+		fd = defaultpipe();
+	else
+		fd = open(fname, OREAD);
 	if(fd < 0 && strncmp(fname, "/mnt/font/", 10) == 0)
 		fd = _fontpipe(fname+10);
-
 	if(fd < 0){
 		fprint(2, "getsubfont: can't open %s: %r\n", fname);
 		return 0;
@@ -44,6 +48,21 @@ _getsubfont(Display *d, char *name)
 	if(scale > 1)
 		scalesubfont(f, scale);
 	return f;
+}
+
+static int
+defaultpipe(void)
+{
+	int p[2];
+
+	// assuming defontdata (<5k) fits in pipe buffer.
+	// especially reasonable since p9pipe is actually
+	// a socket pair.
+	if(pipe(p) < 0)
+		return -1;
+	write(p[1], defontdata, sizeof defontdata);
+	close(p[1]);
+	return p[0];
 }
 
 static void
@@ -69,8 +88,10 @@ scalesubfont(Subfont *f, int scale)
 	i = allocimage(f->bits->display, r2, f->bits->chan, 0, DBlack);
 	for(y=r.min.y; y < r.max.y; y++) {
 		n = unloadimage(f->bits, Rect(r.min.x, y, r.max.x, y+1), src, srcn);
-		if(n != srcn)
-			sysfatal("scalesubfont: bad unload: %d < %d: %r", n, srcn);
+		if(n != srcn) {
+			abort();
+			sysfatal("scalesubfont: bad unload %R %R: %d < %d: %r", f->bits->r, Rect(r.min.x, y, r.max.x, y+1), n, srcn);
+		}
 		memset(dst, 0, dstn+1);
 		pack = 8 / f->bits->depth;
 		mask = (1<<f->bits->depth) - 1;

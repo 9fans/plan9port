@@ -13,8 +13,6 @@
 
 #include "a.h"
 
-Memsubfont *defont;
-
 void
 usage(void)
 {
@@ -526,7 +524,6 @@ main(int argc, char **argv)
 	fmtinstall('R', Rfmt);
 	fmtinstall('P', Pfmt);
 	memimageinit();
-	defont = getmemdefont();
 	loadfonts();
 	qsort(xfont, nxfont, sizeof xfont[0], fontcmp);
 	

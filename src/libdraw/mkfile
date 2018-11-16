@@ -16,7 +16,6 @@ OFILES=\
 	creadimage.$O\
 	cursor.$O\
 	debug.$O\
-	defont.$O\
 	draw.$O\
 	drawclient.$O\
 	drawfcall.$O\
@@ -27,7 +26,6 @@ OFILES=\
 	event.$O\
 	font.$O\
 	freesubfont.$O\
-	getdefont.$O\
 	getrect.$O\
 	getsubfont.$O\
 	icossin.$O\
@@ -71,6 +69,8 @@ HFILES=\
 	$PLAN9/include/cursor.h\
 	$PLAN9/include/mouse.h\
 	$PLAN9/include/keyboard.h\
+
+getsubfont.$O: defont.h
 
 <$PLAN9/src/mksyslib
 

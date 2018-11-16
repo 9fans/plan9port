@@ -15,8 +15,13 @@ subfontname(char *cfname, char *fname, int maxdepth)
 	scale = parsefontscale(fname, &base);
 
 	t = strdup(cfname);  /* t is the return string */
-	if(strcmp(cfname, "*default*") == 0)
+	if(strcmp(cfname, "*default*") == 0) {
+		if(scale > 1) {
+			free(t);
+			return smprint("%d*%s", scale, cfname);
+		}
 		return t;
+	}
 	if(t[0] != '/'){
 		tmp2 = strdup(base);
 		u = utfrrune(tmp2, '/');

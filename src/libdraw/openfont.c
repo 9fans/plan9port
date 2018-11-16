@@ -26,6 +26,8 @@ parsefontscale(char *name, char **base)
 	return scale;
 }	
 
+extern char _defontfile[];
+
 Font*
 openfont1(Display *d, char *name)
 {
@@ -37,6 +39,10 @@ openfont1(Display *d, char *name)
 	freename = nil;
 	scale = parsefontscale(name, &fname);
 
+	if(strcmp(fname, "*default*") == 0) {
+		buf = strdup(_defontfile);
+		goto build;
+	}
 	fd = open(fname, OREAD);
 	if(fd < 0 && strncmp(fname, "/lib/font/bit/", 14) == 0){
 		nambuf = smprint("#9/font/%s", fname+14);
@@ -87,6 +93,7 @@ openfont1(Display *d, char *name)
 		return 0;
 	}
 	buf[i] = 0;
+build:
 	fnt = buildfont(d, buf, name);
 	free(buf);
 	free(nambuf);

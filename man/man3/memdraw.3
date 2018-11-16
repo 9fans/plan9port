@@ -152,7 +152,6 @@ Memsubfont*	allocmemsubfont(char *name, int n, int height,
 Memsubfont*	openmemsubfont(char *name)
 void	freememsubfont(Memsubfont *f)
 Point	memsubfontwidth(Memsubfont *f, char *s)
-Memsubfont*	getmemdefont(void)
 Point	memimagestring(Memimage *dst, Point p, Memimage *color,
 	    Point cp, Memsubfont *f, char *cs, Drawop op)
 .PP
@@ -354,7 +353,6 @@ Similarly,
 .IR openmemsubfont ,
 .IR freememsubfont ,
 .IR memsubfontwidth ,
-.IR getmemdefont ,
 and
 .I memimagestring
 are the 
@@ -364,7 +362,6 @@ analogues of
 .IR openfont ,
 .IR freesubfont ,
 .IR strsubfontwidth ,
-.IR getdefont ,
 and
 .B string
 (see 
