@@ -132,7 +132,7 @@ errors != 0 {
 	next
 }
 
-/(up to date|nothing to see|assuming it will be|loop not entered)/ {
+/(up to date|nothing to see|assuming it will be|loop not entered|# WSYSTYPE)/ {
 	next
 }
 
