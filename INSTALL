@@ -116,6 +116,7 @@ if [ `uname` = Darwin ]; then
 	*x86_64*)
 		echo "	x86-64 found."
 		echo "OBJTYPE=x86_64" >>$PLAN9/config
+		echo "CC9='xcrun --sdk macosx clang'" >>$PLAN9/config
 		;;
 	*i386*)
 		echo "	i386 found."
