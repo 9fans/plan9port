@@ -38,15 +38,15 @@ test-%:V:
 
 lib%.tgz:V:
 	mk new-$stem
-	tar c lib$stem | gzip > $target
+	tar cf /dev/stdout lib$stem | gzip > $target
 
 libregexp9.tgz:V:
 	mk new-regexp
-	tar c libregexp | gzip >$target
+	tar cf /dev/stdout libregexp | gzip >$target
 
 mk.tgz:V:
 	mk new-mk
-	tar c mk | gzip > $target
+	tar cf /dev/stdout mk | gzip > $target
 
 mk-with-libs.tgz:V:
 	mk new-utf 
@@ -59,7 +59,7 @@ mk-with-libs.tgz:V:
 	mv libutf libfmt libbio libregexp mk zot
 	mv zot mk
 	cp make/Makefile.all mk/Makefile
-	tar c mk | gzip > $target
+	tar cf /dev/stdout mk | gzip > $target
 	rm -r mk
 
 tgz:V: libutf.tgz libfmt.tgz libregexp9.tgz libbio.tgz mk.tgz mk-with-libs.tgz
