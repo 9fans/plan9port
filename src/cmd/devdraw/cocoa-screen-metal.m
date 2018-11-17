@@ -197,6 +197,7 @@ threadmain(int argc, char **argv)
 	[win setContentView:myContent];
 	[myContent setWantsLayer:YES];
 	[myContent setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
+	[[NSNotificationCenter defaultCenter] addObserver:myContent selector:@selector(windowDidEnterFullScreen:) name:NSWindowDidEnterFullScreenNotification object:nil];
 
 	device = MTLCreateSystemDefaultDevice();
 	commandQueue = [device newCommandQueue];
@@ -371,6 +372,12 @@ struct Cursors {
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
 	return YES;
+}
+
+- (void)windowWillClose:(NSNotification *)notification
+{
+	//Remove window observer
+	[[NSNotificationCenter defaultCenter] removeObserver:[[notification object] contentView]];
 }
 
 @end
@@ -556,6 +563,11 @@ struct Cursors {
 - (void)resetCursorRects {
 	[super resetCursorRects];
 	[self addCursorRect:self.bounds cursor:currentCursor];
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification *)notification
+{
+	resizeimg();
 }
 
 - (void)viewDidEndLiveResize
