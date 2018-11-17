@@ -384,6 +384,13 @@ struct Cursors {
 	return YES;
 }
 
+- (void)windowDidResize:(NSNotification *)notification
+{
+	if(![myContent inLiveResize] && img) {
+		resizeimg();
+	}
+}
+
 - (void)windowDidBecomeKey:(id)arg
 {
         [myContent sendmouse:0];
@@ -1148,7 +1155,6 @@ resizewindow(Rectangle r)
 
 		s = [myContent convertSizeFromBacking:NSMakeSize(Dx(r), Dy(r))];
 		[win setContentSize:s];
-		resizeimg();
 	});
 }
 
