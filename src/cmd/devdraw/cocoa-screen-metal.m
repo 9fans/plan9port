@@ -198,6 +198,7 @@ threadmain(int argc, char **argv)
 	[win setContentView:myContent];
 	[myContent setWantsLayer:YES];
 	[myContent setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
+	[myContent addSubview:[[NSTextView alloc] initWithFrame:NSMakeRect(0,0,0.1,0.1)]];
 	
 	device = nil;
 	allDevices = MTLCopyAllDevices();
@@ -209,7 +210,7 @@ threadmain(int argc, char **argv)
 	}
 	if(!device)
 		device = MTLCreateSystemDefaultDevice();
-	
+
 	commandQueue = [device newCommandQueue];
 
 	layer = (DrawLayer *)[myContent layer];
