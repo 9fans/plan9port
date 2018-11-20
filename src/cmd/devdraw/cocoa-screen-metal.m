@@ -189,7 +189,7 @@ threadmain(int argc, char **argv)
 		[win center];
 	[win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
 	[win setContentMinSize:NSMakeSize(64,64)];
-
+	[win setOpaque:YES];
 	[win setRestorable:NO];
 	[win setAcceptsMouseMovedEvents:YES];
 	[win setDelegate:myApp];
@@ -287,7 +287,7 @@ struct Cursors {
 	NSImage *i;
 	NSPoint p;
 	uchar *plane[5], *plane2[5];
-	int b;
+	uint b;
 
 	cs = [v pointerValue];
 	c = cs->c;
@@ -586,13 +586,15 @@ struct Cursors {
 - (void)viewDidEndLiveResize
 {
 	[super viewDidEndLiveResize];
-	resizeimg();
+	if(img)
+		resizeimg();
 }
 
 - (void)viewDidChangeBackingProperties
 {
 	[super viewDidChangeBackingProperties];
-	resizeimg();
+	if(img)
+		resizeimg();
 }
 
 // conforms to protocol NSTextInputClient
