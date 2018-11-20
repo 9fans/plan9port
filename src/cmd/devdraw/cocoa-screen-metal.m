@@ -198,7 +198,6 @@ threadmain(int argc, char **argv)
 	[win setContentView:myContent];
 	[myContent setWantsLayer:YES];
 	[myContent setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
-	[myContent addSubview:[[NSTextView alloc] initWithFrame:NSMakeRect(0,0,0.1,0.1)]];
 	
 	device = nil;
 	allDevices = MTLCopyAllDevices();
@@ -238,6 +237,15 @@ threadmain(int argc, char **argv)
 	pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
 	if(!pipelineState)
 		sysfatal((char *)[[error localizedDescription] UTF8String]);
+
+	// We use a default transparent layer on top of the CAMetalLayer.
+	// This seems to make fullscreen applications behave.
+	{
+		CALayer *stub = [CALayer layer];
+		stub.frame = CGRectMake(0, 0, 1, 1);
+		[stub setNeedsDisplay];
+		[layer addSublayer:stub];
+	}
 
 	[NSEvent setMouseCoalescingEnabled:NO];
 
