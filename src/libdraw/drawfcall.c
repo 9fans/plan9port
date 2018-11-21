@@ -48,6 +48,7 @@ sizeW2M(Wsysmsg *m)
 	case Rbouncemouse:
 	case Rmoveto:
 	case Rcursor:
+	case Rcursor2:
 	case Trdkbd:
 	case Rlabel:
 	case Rinit:
@@ -64,6 +65,8 @@ sizeW2M(Wsysmsg *m)
 	case Tmoveto:
 		return 4+1+1+4+4;
 	case Tcursor:
+		return 4+1+1+4+4+2*16+2*16+1;
+	case Tcursor2:
 		return 4+1+1+4+4+2*16+2*16+4+4+4*32+4*32+1;
 	case Rerror:
 		return 4+1+1+_stringsize(m->error);
@@ -108,6 +111,7 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 	case Rbouncemouse:
 	case Rmoveto:
 	case Rcursor:
+	case Rcursor2:
 	case Trdkbd:
 	case Rlabel:
 	case Rinit:
@@ -137,6 +141,13 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 		PUT(p+10, m->mouse.xy.y);
 		break;
 	case Tcursor:
+		PUT(p+6, m->cursor.offset.x);
+		PUT(p+10, m->cursor.offset.y);
+		memmove(p+14, m->cursor.clr, sizeof m->cursor.clr);
+		memmove(p+46, m->cursor.set, sizeof m->cursor.set);
+		p[78] = m->arrowcursor;
+		break;
+	case Tcursor2:
 		PUT(p+6, m->cursor.offset.x);
 		PUT(p+10, m->cursor.offset.y);
 		memmove(p+14, m->cursor.clr, sizeof m->cursor.clr);
@@ -200,6 +211,7 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 	case Rbouncemouse:
 	case Rmoveto:
 	case Rcursor:
+	case Rcursor2:
 	case Trdkbd:
 	case Rlabel:
 	case Rinit:
@@ -229,6 +241,13 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 		GET(p+10, m->mouse.xy.y);
 		break;
 	case Tcursor:
+		GET(p+6, m->cursor.offset.x);
+		GET(p+10, m->cursor.offset.y);
+		memmove(m->cursor.clr, p+14, sizeof m->cursor.clr);
+		memmove(m->cursor.set, p+46, sizeof m->cursor.set);
+		m->arrowcursor = p[78];
+		break;
+	case Tcursor2:
 		GET(p+6, m->cursor.offset.x);
 		GET(p+10, m->cursor.offset.y);
 		memmove(m->cursor.clr, p+14, sizeof m->cursor.clr);
@@ -319,8 +338,12 @@ drawfcallfmt(Fmt *fmt)
 		return fmtprint(fmt, "Rmoveto");
 	case Tcursor:
 		return fmtprint(fmt, "Tcursor arrow=%d", m->arrowcursor);
+	case Tcursor2:
+		return fmtprint(fmt, "Tcursor2 arrow=%d", m->arrowcursor);
 	case Rcursor:
 		return fmtprint(fmt, "Rcursor");
+	case Rcursor2:
+		return fmtprint(fmt, "Rcursor2");
 	case Trdkbd:
 		return fmtprint(fmt, "Trdkbd");
 	case Rrdkbd:

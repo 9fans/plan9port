@@ -332,6 +332,7 @@ runmsg(Wsysmsg *m)
 		break;
 
 	case Tcursor:
+	case Tcursor2:
 		if(m->arrowcursor)
 			_xsetcursor(nil);
 		else
