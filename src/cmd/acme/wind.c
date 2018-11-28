@@ -29,8 +29,6 @@ wininit(Window *w, Window *clone, Rectangle r)
 	w->body.w = w;
 	w->id = ++winid;
 	incref(&w->ref);
-	if(globalincref)
-		incref(&w->ref);
 	w->ctlfid = ~0;
 	w->utflastqid = -1;
 	r1 = r;

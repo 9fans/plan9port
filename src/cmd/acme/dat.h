@@ -508,7 +508,6 @@ enum	/* editing */
 	Collecting
 };
 
-uint		globalincref;
 uint		seq;
 uint		maxtab;	/* size of a tab, in units of the '0' character */
 
