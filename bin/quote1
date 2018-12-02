@@ -7,6 +7,8 @@ fn text {
 		9p read acme/$winid/body
 	if not if(~ $text9term unix!*)
 		dial -e $text9term </dev/null
+	if not if(~ $TMUX ?*)
+		tmux capture-pane -p
 	if not
 		status=''
 }
