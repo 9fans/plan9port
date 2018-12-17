@@ -108,7 +108,7 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	ulong z;
 
 	/* allocate the task and stack together */
-	t = malloc(sizeof *t+stack);
+	t = stkalloc(sizeof *t+stack);
 	if(t == nil)
 		sysfatal("threadalloc malloc: %r");
 	memset(t, 0, sizeof *t);
@@ -364,7 +364,7 @@ procscheduler(Proc *p)
 			delthreadinproc(p, t);
 			p->nthread--;
 /*print("nthread %d\n", p->nthread); */
-			free(t);
+			stkfree(t);
 		}
 	}
 

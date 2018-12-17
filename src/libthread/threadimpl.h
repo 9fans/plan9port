@@ -62,6 +62,11 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 #		include "power-ucontext.h"
 #	endif
 extern pid_t rfork_thread(int, void*, int(*)(void*), void*);
+extern void* stkalloc(ulong);
+extern void stkfree(void*);
+#else
+#	define stkalloc malloc
+#	define stkfree free
 #endif
 
 /* THIS DOES NOT WORK!  Don't do this!
