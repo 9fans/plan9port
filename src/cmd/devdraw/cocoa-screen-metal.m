@@ -153,6 +153,7 @@ threadmain(int argc, char **argv)
 	id<MTLLibrary> library;
 	MTLRenderPipelineDescriptor *pipelineDesc;
 	NSError *error;
+	NSArray *allDevices;
 
 	const NSWindowStyleMask Winstyle = NSWindowStyleMaskTitled
 		| NSWindowStyleMaskClosable
@@ -197,8 +198,18 @@ threadmain(int argc, char **argv)
 	[win setContentView:myContent];
 	[myContent setWantsLayer:YES];
 	[myContent setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
-
-	device = MTLCreateSystemDefaultDevice();
+	
+	device = nil;
+	allDevices = MTLCopyAllDevices();
+	for(id mtlDevice in allDevices) {
+		if ([mtlDevice isLowPower] && ![mtlDevice isRemovable]) {
+			device = mtlDevice;
+			break;
+		}
+	}
+	if(!device)
+		device = MTLCreateSystemDefaultDevice();
+	
 	commandQueue = [device newCommandQueue];
 
 	layer = (DrawLayer *)[myContent layer];
