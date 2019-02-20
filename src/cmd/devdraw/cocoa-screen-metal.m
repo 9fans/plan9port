@@ -373,6 +373,11 @@ struct Cursors {
 	return YES;
 }
 
+- (void)windowDidBecomeKey:(id)arg
+{
+        [myContent sendmouse:0];
+}
+
 @end
 
 @implementation DevDrawView
