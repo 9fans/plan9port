@@ -353,7 +353,7 @@ Keepreading:
 	}
 
 	if(dumb) {
-		fprint(ps->gs.gsfd, "(%s) run\n", argv[0]);
+		fprint(ps->gs.gsfd, "(%s) run PAGEFLUSH\n", argv[0]);
 		fprint(ps->gs.gsfd, "(/dev/fd/3) (w) file dup (THIS IS NOT A PLAN9 BITMAP 01234567890123456789012345678901234567890123456789\\n) writestring flushfile\n");
 	}
 
@@ -420,6 +420,7 @@ psdrawpage(Document *d, int page)
 	 * so send one to avoid deadlock.
 	 */
 	write(ps->gs.gsfd, "\n", 1);
+	fprint(ps->gs.gsfd, "\nPAGEFLUSH\n");
 	im = convert(&ps->gs.g);
 	if(im == nil) {
 		fprint(2, "fatal: readimage error %r\n");

@@ -186,6 +186,10 @@ spawngs(GSInfo *g, char *safer)
 
 	Binit(&g->gsrd, stdoutp[0], OREAD);
 
+	gscmd(g, "/PAGEDIDSHOWPAGE false def\n");
+	gscmd(g, "/showpage { /PAGEDIDSHOWPAGE true def showpage } bind def\n");
+	gscmd(g, "/PAGEFLUSH { PAGEDIDSHOWPAGE not {showpage} if /PAGEDIDSHOWPAGE false def } def\n");
+
 	gscmd(g, "/PAGEOUT (/dev/fd/4) (w) file def\n");
 	if(!strcmp(safer, "-dSAFER"))
 		gscmd(g, ".setsafe\n");
