@@ -25,10 +25,20 @@ static char *exname;
 
 #define STACK 16384
 
+// void
+// indentcfg(int argc, char **argv)
+// {
+// 	for (int i = 0; i < argc - 1; ++i) {
+// 		char *arg = argv[i];
+// 		if (!strcmp("-i", arg))
+// 			indentsz = atoi(argv[i + 1]);
+// 	}
+// }
+
 void
 usage(void)
 {
-	fprint(2, "usage: samterm -a -W winsize\n");
+	fprint(2, "usage: samterm -a -W winsize [-i indent]\n");
 	threadexitsall("usage");
 }
 
@@ -36,6 +46,7 @@ void
 getscreen(int argc, char **argv)
 {
 	char *t;
+	char *iarg;
 
 	ARGBEGIN{
 	case 'a':
@@ -43,6 +54,12 @@ getscreen(int argc, char **argv)
 		break;
 	case 'W':
 		winsize = EARGF(usage());
+		break;
+	case 'i':
+		iarg = EARGF(usage());
+		indentsz = atoi(iarg);
+		if (indentsz <= 0)
+			usage();
 		break;
 	default:
 		usage();

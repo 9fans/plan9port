@@ -89,6 +89,7 @@ extern int	plumbfd;
 extern int	hostfd[2];
 extern int	exiting;
 extern int	autoindent;
+extern int indentsz;
 
 #define gettext sam_gettext	/* stupid gcc built-in functions */
 Rune	*gettext(Flayer*, long, ulong*);

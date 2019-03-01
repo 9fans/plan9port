@@ -43,7 +43,9 @@ main(int _argc, char **_argv)
 	volatile int i, argc;
 	char **volatile argv;
 	String *t;
-	char *termargs[10], **ap;
+	char *termargs[32], **ap;
+	char *p;
+	int ilen;
 	
 	argc = _argc;
 	argv = _argv;
@@ -75,6 +77,14 @@ main(int _argc, char **_argv)
 	case 'W':
 		*ap++ = "-W";
 		*ap++ = EARGF(usage());
+		break;
+	case 'i':
+		p = EARGF(usage());
+		ilen = atoi(p);
+		if ((ilen <= 0) || (ilen > 99))
+			usage();
+		*ap++ = "-i";
+		*ap++ = p;
 		break;
 	}ARGEND
 	*ap = nil;
@@ -119,7 +129,7 @@ main(int _argc, char **_argv)
 void
 usage(void)
 {
-	dprint("usage: sam [-d] [-t samterm] [-s sam name] [-r machine] [file ...]\n");
+	dprint("usage: sam [-d] [-t samterm] [-s sam name] [-r machine] [-i nspaces] [file ...]\n");
 	exits("usage");
 }
 

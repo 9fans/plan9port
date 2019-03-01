@@ -26,6 +26,9 @@ int	maxtab = 8;
 int	chord;
 int	autoindent;
 
+int indentsz = 0;
+
+
 #define chording 0	/* code here for reference but it causes deadlocks */
 
 void
@@ -34,6 +37,16 @@ notifyf(void *a, char *msg)
 	if(strcmp(msg, "interrupt") == 0)
 		noted(NCONT);
 	noted(NDFLT);
+}
+
+void
+indentcfg(int argc, char **argv)
+{
+	for (int i = 0; i < argc - 1; ++i) {
+		char *arg = argv[i];
+		if (!strcmp("-i", arg))
+			indentsz = atoi(argv[i + 1]);
+	}
 }
 
 void
@@ -60,6 +73,8 @@ threadmain(int argc, char *argv[])
 		open("/dev/null", OWRITE);
 
 	notify(notifyf);
+	
+	indentcfg(argc, argv);
 
 	if(protodebug) print("getscreen\n");
 	getscreen(argc, argv);
@@ -298,7 +313,7 @@ snarf(Text *t, int w)
 	Flayer *l = &t->l[w];
 
 	if(l->p1>l->p0){
-		snarflen = l->p1-l->p0;
+		snarflen = l->p1 - l->p0;
 		outTsll(Tsnarf, t->tag, l->p0, l->p1);
 	}
 }
@@ -548,15 +563,28 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 		if(res == RKeyboard){
 			if(nontypingkey(c) || c==ESC)
 				break;
-			/* backspace, ctrl-u, ctrl-w, del */
-			if(c=='\b' || c==0x15 || c==0x17 || c==0x7F){
+			/* backspace, ctrl-u, ctrl-w */
+			if(c=='\b' || c==0x15 || c==0x17){
+				backspacing = 1;
+				break;
+			}
+			/* del... doesn't need its own block for now */
+			if(c==0x7F){
 				backspacing = 1;
 				break;
 			}
 		}
-		*p++ = c;
-		if(autoindent)
-		if(c == '\n'){
+
+		/* space indenting */
+		if ((indentsz > 0) && (c == '\t')) {
+			int i = indentsz;
+			while (i--)
+				*p++ = ' ';
+		} else {
+			*p++ = c;
+		}
+		
+		if(autoindent && (c == '\n')){
 			/* autoindent */
 			int cursor, ch;
 			cursor = ctlu(&t->rasp, 0, a+(p-buf)-1);
@@ -568,6 +596,7 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 					break;
 			}
 		}
+		
 		if(c == '\n' || p >= buf+nelem(buf))
 			break;
 	}
@@ -611,11 +640,33 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 		flsetselect(l, a0, a0);
 		center(l, a0);
 	}else if(c == HOMEKEY){
+		char rc;
+		int atindent = 1;
 		flushtyping(0);
-		center(l, 0);
+		a0 = l->p0;
+		while(a0 > 0 && (rc = raspc(&t->rasp, a0-1))!='\n'){
+			if(rc != ' ' && rc != '\t')
+				atindent = 0;
+			a0--; /* a0 to line begin */
+		}
+		if(!atindent){
+			rc = raspc(&t->rasp, a0);
+			while(a0 < t->rasp.nrunes && (rc == ' ' || rc == '\t')){
+				a0++; /* a0 to first non-indent char*/
+				rc = raspc(&t->rasp, a0);
+			}
+		}
+		flsetselect(l, a0, a0);
+		center(l, a0);
+		
 	}else if(c == ENDKEY){
 		flushtyping(0);
-		center(l, t->rasp.nrunes);
+		a0 = l->p0;
+		while(a0 < t->rasp.nrunes && raspc(&t->rasp, a0)!='\n')
+			a0++;
+		flsetselect(l, a0, a0);
+		center(l, a0);
+		
 	}else if(c == LINESTART || c == LINEEND){
 		flushtyping(1);
 		if(c == LINESTART)
@@ -632,8 +683,11 @@ type(Flayer *l, int res)	/* what a bloody mess this is */
 		/* backspacing immediately after outcmd(): sorry */
 		if(l->f.p0>0 && a>0){
 			switch(c){
-			case '\b':
 			case 0x7F:	/* del */
+				if(a < t->rasp.nrunes)
+					a += 1;
+				break;
+			case '\b':
 				l->p0 = a-1;
 				break;
 			case 0x15:	/* ctrl-u */
