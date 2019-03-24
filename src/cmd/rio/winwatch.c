@@ -8,8 +8,7 @@ so as to deal with memory leaks and certain X errors */
 #include <event.h>
 #include <regexp.h>
 #include <stdio.h>
-/* adapt for your own situation */
-#include "devdraw/x11-inc.h"
+#include "../devdraw/x11-inc.h"
 
 AUTOLIB(X11);
 
@@ -37,9 +36,6 @@ Image *lightblue;
 
 XErrorHandler oldxerrorhandler;
 
-
-
-
 enum {
     PAD = 3,
     MARGIN = 5
@@ -47,7 +43,8 @@ enum {
 
 static jmp_buf savebuf;
 
-int winwatchxerrorhandler(XDisplay * disp, XErrorEvent * xe)
+int 
+winwatchxerrorhandler(XDisplay *disp, XErrorEvent *xe)
 {
     char buf[100];
 
@@ -60,8 +57,8 @@ int winwatchxerrorhandler(XDisplay * disp, XErrorEvent * xe)
     longjmp(savebuf, 1);
 }
 
-
-void *erealloc(void *v, ulong n)
+void*
+erealloc(void *v, ulong n)
 {
     v = realloc(v, n);
     if (v == nil)
@@ -69,8 +66,8 @@ void *erealloc(void *v, ulong n)
     return v;
 }
 
-
-char *estrdup(char *s)
+char*
+estrdup(char *s)
 {
     s = strdup(s);
     if (s == nil)
@@ -78,8 +75,8 @@ char *estrdup(char *s)
     return s;
 }
 
-
-char *getproperty(XWindow w, Atom a)
+char*
+getproperty(XWindow w, Atom a)
 {
     uchar *p;
     int fmt;
@@ -106,8 +103,8 @@ char *getproperty(XWindow w, Atom a)
     }
 }
 
-
-XWindow findname(XWindow w)
+XWindow 
+findname(XWindow w)
 {
     int i;
     uint nxwin;
@@ -154,15 +151,16 @@ XWindow findname(XWindow w)
     return 0;
 }
 
-
-int wcmp(const void *w1, const void *w2)
+int 
+wcmp(const void *w1, const void *w2)
 {
     return *(XWindow *) w1 - *(XWindow *) w2;
 }
 
 /* unicode-aware case-insensitive strcmp,  taken from golang’s gc/subr.c */
 
-int _cistrcmp(char *p, char *q)
+int 
+_cistrcmp(char *p, char *q)
 {
     Rune rp, rq;
 
@@ -183,21 +181,16 @@ int _cistrcmp(char *p, char *q)
     return 0;
 }
 
-int winlabelcmp(const void *w1, const void *w2)
+int 
+winlabelcmp(const void *w1, const void *w2)
 {
     const Win *p1 = (Win *) w1;
     const Win *p2 = (Win *) w2;
-    int rc;
-    if ((rc = _cistrcmp(p1->label, p2->label)) < 0)
-        return -1;
-    else if (rc > 0)
-        return 1;
-    else
-        return 0;
+    return _cistrcmp(p1->label, p2->label);
 }
 
-
-void refreshwin(void)
+void 
+refreshwin(void)
 {
     XWindow dw1, dw2, *xwin;
     XClassHint class;
@@ -318,8 +311,8 @@ void refreshwin(void)
     return;
 }
 
-
-void drawnowin(int i)
+void 
+drawnowin(int i)
 {
     Rectangle r;
 
@@ -333,8 +326,8 @@ void drawnowin(int i)
     draw(screen, insetrect(r, -1), lightblue, nil, ZP);
 }
 
-
-void drawwin(int i)
+void 
+drawwin(int i)
 {
     draw(screen, win[i].r, lightblue, nil, ZP);
     _string(screen, addpt(win[i].r.min, Pt(2, 0)), display->black, ZP,
@@ -344,8 +337,8 @@ void drawwin(int i)
     win[i].dirty = 0;
 }
 
-
-int geometry(void)
+int 
+geometry(void)
 {
     int i, ncols, z;
     Rectangle r;
@@ -373,8 +366,8 @@ int geometry(void)
     return z;
 }
 
-
-void redraw(Image * screen, int all)
+void 
+redraw(Image *screen, int all)
 {
     int i;
 
@@ -391,8 +384,8 @@ void redraw(Image * screen, int all)
     onwin = nwin;
 }
 
-
-void eresized(int new)
+void 
+eresized(int new)
 {
     if (new && getwindow(display, Refmesg) < 0)
         fprint(2, "can't reattach to window");
@@ -401,7 +394,8 @@ void eresized(int new)
 }
 
 
-void selectwin(XWindow win)
+void 
+selectwin(XWindow win)
 {
     XEvent ev;
     long mask;
@@ -421,7 +415,8 @@ void selectwin(XWindow win)
 }
 
 
-void click(Mouse m)
+void 
+click(Mouse m)
 {
     int i, j;
 
@@ -454,16 +449,16 @@ void click(Mouse m)
     selectwin(win[i].n);
 }
 
-
-void usage(void)
+void 
+usage(void)
 {
     fprint(2,
            "usage: winwatch [-e exclude] [-W winsize] [-f font] [-n] [-s]\n");
     exits("usage");
 }
 
-
-void main(int argc, char **argv)
+void 
+main(int argc, char **argv)
 {
     char *fontname;
     int Etimer;
