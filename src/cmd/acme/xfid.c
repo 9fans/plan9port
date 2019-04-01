@@ -790,10 +790,12 @@ out:
 		}else
 		if(strncmp(p, "nomenu", 6) == 0){	/* turn off automatic menu */
 			w->filemenu = FALSE;
+			settag = TRUE;
 			m = 6;
 		}else
 		if(strncmp(p, "menu", 4) == 0){	/* enable automatic menu */
 			w->filemenu = TRUE;
+			settag = TRUE;
 			m = 4;
 		}else
 		if(strncmp(p, "cleartag", 8) == 0){	/* wipe tag right of bar */
