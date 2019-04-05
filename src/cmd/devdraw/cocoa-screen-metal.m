@@ -987,6 +987,10 @@ void
 _flushmemscreen(Rectangle r)
 {
 	LOG(@"_flushmemscreen(%d,%d,%d,%d)", r.min.x, r.min.y, Dx(r), Dy(r));
+	if(!rectinrect(r, Rect(0, 0, texture.width, texture.height))){
+		LOG(@"Rectangle is out of bounds, return.");
+		return;
+	}
 
 	@autoreleasepool{
 		[texture
