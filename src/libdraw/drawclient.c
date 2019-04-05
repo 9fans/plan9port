@@ -296,7 +296,7 @@ _displaycursor(Display *d, Cursor *c, Cursor2 *c2)
 {
 	Wsysmsg tx, rx;
 	
-	tx.type = Tcursor;
+	tx.type = Tcursor2;
 	if(c == nil){
 		memset(&tx.cursor, 0, sizeof tx.cursor);
 		memset(&tx.cursor2, 0, sizeof tx.cursor2);
