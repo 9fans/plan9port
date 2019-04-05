@@ -541,6 +541,11 @@ _flushmemscreen(Rectangle r)
 		return;
 
 	rect = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
+
+	// This can get blocked behind responding to mouse events,
+	// which need to acquire the zlock, so let go of it during
+	// the flush. Perhaps the waitUntilDone:YES is wrong?
+	zunlock();
 	[appdelegate
 		performSelectorOnMainThread:@selector(callflushimg:)
 		withObject:[NSValue valueWithRect:rect]
@@ -548,6 +553,7 @@ _flushmemscreen(Rectangle r)
 		modes:[NSArray arrayWithObjects:
 			NSRunLoopCommonModes,
 			@"waiting image", nil]];
+	zlock();
 }
 
 static void drawimg(NSRect, uint);
