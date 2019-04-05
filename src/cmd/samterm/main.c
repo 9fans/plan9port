@@ -512,10 +512,11 @@ nontypingkey(int c)
 	case PAGEUP:
 	case RIGHTARROW:
 	case SCROLLKEY:
+	case CUT:
+	case COPY:
+	case PASTE:    
 		return 1;
 	}
-	if(c >= Kcmd)
-		return 1;
 	return 0;
 }
 
