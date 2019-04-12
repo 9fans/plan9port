@@ -176,7 +176,7 @@ mksubfont(XFont *xf, char *name, int lo, int hi, int size, int antialias)
 		e = 1;
 		k = FT_Get_Char_Index(face, i);
 		if(k != 0) {
-			e = FT_Load_Glyph(face, k, FT_LOAD_RENDER|FT_LOAD_NO_HINTING|(antialias ? 0:FT_LOAD_TARGET_MONO));
+			e = FT_Load_Glyph(face, k, FT_LOAD_RENDER|FT_LOAD_NO_AUTOHINT|(antialias ? 0:FT_LOAD_TARGET_MONO));
 		}
 		if(e || face->glyph->advance.x <= 0) {
 			fc->width = 0;
