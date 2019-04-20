@@ -192,7 +192,7 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 			f |= 2;
 		}
 		aa = getbytearg(argt, TRUE, TRUE, &a);
-		if(a){	
+		if(a){
 			if(strlen(a) > EVENTSIZE){	/* too big; too bad */
 				free(r);
 				free(aa);
@@ -674,7 +674,7 @@ checksha1(char *name, File *f, Dir *d)
 	DigestState *h;
 	uchar out[20];
 	uchar *buf;
-	
+
 	fd = open(name, OREAD);
 	if(fd < 0)
 		return;
@@ -700,7 +700,7 @@ trimspaces(Rune *r, uint *np, int eof)
 
 	nonspace = 0;
 	w = 0;
-	n = *np;	
+	n = *np;
 	for(i=0; i<n; i++) {
 		c = r[i];
 		if(c == '\n')
@@ -783,7 +783,11 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			n = BUFSIZE/UTFmax;
 		bufread(&f->b, q, r, n);
 		nn = n;
-		if(w->autoindent)
+		// An attempt at automatically trimming trailing spaces.
+		// Breaks programs that inspect body file and think it will match on-disk file
+		// when window is clean. Should apply the changes to the actual window instead.
+		// Later.
+		if(0 && w->autoindent)
 			nn = trimspaces(r, &n, q+n==q1);
 		m = snprint(s, BUFSIZE+1, "%.*S", nn, r);
 		sha1((uchar*)s, m, nil, h);
