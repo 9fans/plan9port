@@ -692,42 +692,10 @@ checksha1(char *name, File *f, Dir *d)
 	}
 }
 
-static uint
-trimspaces(Rune *r, uint *np, int eof)
-{
-	uint i, w, nonspace, n;
-	Rune c;
-
-	nonspace = 0;
-	w = 0;
-	n = *np;
-	for(i=0; i<n; i++) {
-		c = r[i];
-		if(c == '\n')
-			w = nonspace;
-		r[w++] = c;
-		if(c != ' ' && c != '\t')
-			nonspace = w;
-	}
-	if(nonspace > 0 && nonspace < w) {
-		// Trailing spaces at end of buffer.
-		// Tell caller to reread them with what follows,
-		// so we can determine whether they need trimming.
-		// Unless the trailing spaces are the entire buffer,
-		// in which case let them through to avoid an infinite loop
-		// if an entire buffer fills with spaces.
-		// At EOF, just consume the spaces.
-		if(!eof)
-			*np = n - (w - nonspace);
-		w = nonspace;
-	}
-	return w;
-}
-
 void
 putfile(File *f, int q0, int q1, Rune *namer, int nname)
 {
-	uint n, nn, m;
+	uint n, m;
 	Rune *r;
 	Biobuf *b;
 	char *s, *name;
@@ -754,6 +722,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			goto Rescue1;
 		}
 	}
+
 	fd = create(name, OWRITE, 0666);
 	if(fd < 0){
 		warning(nil, "can't create file %s: %r\n", name);
@@ -782,14 +751,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		if(n > BUFSIZE/UTFmax)
 			n = BUFSIZE/UTFmax;
 		bufread(&f->b, q, r, n);
-		nn = n;
-		// An attempt at automatically trimming trailing spaces.
-		// Breaks programs that inspect body file and think it will match on-disk file
-		// when window is clean. Should apply the changes to the actual window instead.
-		// Later.
-		if(0 && w->autoindent)
-			nn = trimspaces(r, &n, q+n==q1);
-		m = snprint(s, BUFSIZE+1, "%.*S", nn, r);
+		m = snprint(s, BUFSIZE+1, "%.*S", n, r);
 		sha1((uchar*)s, m, nil, h);
 		if(Bwrite(b, s, m) != m){
 			warning(nil, "can't write file %s: %r\n", name);
@@ -868,6 +830,65 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	free(name);
 }
 
+static void
+trimspaces(Text *et)
+{
+	File *f;
+	Rune *r;
+	Text *t;
+	uint q0, n, delstart;
+	int c, i, marked;
+
+	t = &et->w->body;
+	f = t->file;
+	marked = 0;
+
+	if(t->w!=nil && et->w!=t->w){
+		/* can this happen when t == &et->w->body? */
+		c = 'M';
+		if(et->w)
+			c = et->w->owner;
+		winlock(t->w, c);
+	}
+
+	r = fbufalloc();
+	q0 = f->b.nc;
+	delstart = q0; /* end of current space run, or 0 if no active run; = q0 to delete spaces before EOF */
+	while(q0 > 0) {
+		n = RBUFSIZE;
+		if(n > q0)
+			n = q0;
+		q0 -= n;
+		bufread(&f->b, q0, r, n);
+		for(i=n; ; i--) {
+			if(i == 0 || (r[i-1] != ' ' && r[i-1] != '\t')) {
+				// Found non-space or start of buffer. Delete active space run.
+				if(q0+i < delstart) {
+					if(!marked) {
+						marked = 1;
+						seq++;
+						filemark(f);
+					}
+					textdelete(t, q0+i, delstart, TRUE);
+				}
+				if(i == 0) {
+					/* keep run active into tail of next buffer */
+					if(delstart > 0)
+						delstart = q0;
+					break;
+				}
+				delstart = 0;
+				if(r[i-1] == '\n')
+					delstart = q0+i-1; /* delete spaces before this newline */
+			}
+		}
+	}
+	fbuffree(r);
+
+	if(t->w!=nil && et->w!=t->w)
+		winunlock(t->w);
+}
+
 void
 put(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 {
@@ -890,6 +911,8 @@ put(Text *et, Text *_0, Text *argt, int _1, int _2, Rune *arg, int narg)
 		warning(nil, "no file name\n");
 		return;
 	}
+	if(w->autoindent)
+		trimspaces(et);
 	namer = bytetorune(name, &nname);
 	putfile(f, 0, f->b.nc, namer, nname);
 	xfidlog(w, "put");
