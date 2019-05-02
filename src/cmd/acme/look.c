@@ -78,6 +78,36 @@ startplumbing(void)
 	threadcreate(plumbthread, nil, STACK);
 }
 
+void
+addinclattr(Window *w, Plumbattr *attr){
+	int i, size=0;
+	Rune *dirs=0;
+	char *s, *a;
+	Plumbattr *p;
+
+	if(w == nil || w->nincl <= 0) return;
+	for(i=0; i<w->nincl; i++){
+		int n;
+		Rune *d, *r;
+
+		r = w->incl[i];
+		n = runestrlen(r);
+		dirs = runerealloc(dirs, size+n+1);
+		d = dirs+size;
+		runemove(d, r, n);
+		d[n] = '|';
+		size+=n+1;
+	}
+	dirs = runerealloc(dirs, size+1);
+	dirs[size] = '\0';
+	s = runetobyte(dirs, size);
+	a = emalloc(strlen(s)+sizeof("incl="));
+	sprint(a, "incl=%s", s);
+	free(s);
+	p = plumbunpackattr(a);
+	free(a);
+	plumbaddattr(attr, p);
+}
 
 void
 look3(Text *t, uint q0, uint q1, int external)
@@ -184,6 +214,7 @@ look3(Text *t, uint q0, uint q1, int external)
 		m->data = runetobyte(r, q1-q0);
 		m->ndata = strlen(m->data);
 		free(r);
+		addinclattr(t->w, m->attr);
 		if(m->ndata<messagesize-1024 && plumbsendtofid(plumbsendfid, m) >= 0){
 			plumbfree(m);
 			goto Return;
@@ -232,10 +263,33 @@ plumbgetc(void *a, uint n)
 }
 
 void
+plumbincl(Window *w, char *incl){
+	Rune *dirs, *dir, *r;
+	int n;
+
+	if(incl == nil || w == nil) return;
+
+	dirs = bytetorune(incl, &n);
+	if(dirs[0] == '\0') return;
+	for(r=dir=dirs; r<dirs+n; r++){
+		/* Picked a random character that wasn't in isfilec*/
+		if(*r=='|'){
+			int len = r-dir;
+			Rune *tmp = runemalloc(len);
+			runemove(tmp, dir, len);
+			winaddincl(w, tmp, len);
+			dir = r+1;
+		}
+	}
+}
+
+void
 plumblook(Plumbmsg *m)
 {
 	Expand e;
+	Window *w;
 	char *addr;
+	char *incl;
 
 	if(m->ndata >= BUFSIZE){
 		warning(nil, "insanely long file name (%d bytes) in plumb message (%.32s...)\n", m->ndata, m->data);
@@ -257,7 +311,9 @@ plumblook(Plumbmsg *m)
 		e.agetc = plumbgetc;
 	}
 	drawtopwindow();
-	openfile(nil, &e);
+	w = openfile(nil, &e);
+	incl = plumblookup(m->attr, "incl");
+	plumbincl(w, incl);
 	free(e.name);
 	free(e.u.at);
 }
