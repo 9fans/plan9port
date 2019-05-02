@@ -79,13 +79,15 @@ startplumbing(void)
 }
 
 void
-addinclattr(Window *w, Plumbattr *attr){
+addinclattr(Window *w, Plumbattr *attr)
+{
 	int i, size=0;
 	Rune *dirs=0;
 	char *s, *a;
 	Plumbattr *p;
 
-	if(w == nil || w->nincl <= 0) return;
+	if(w == nil || w->nincl <= 0)
+		return;
 	for(i=0; i<w->nincl; i++){
 		int n;
 		Rune *d, *r;
@@ -263,12 +265,13 @@ plumbgetc(void *a, uint n)
 }
 
 void
-plumbincl(Window *w, char *incl){
+plumbincl(Window *w, char *incl)
+{
 	Rune *dirs, *dir, *r;
 	int n;
 
-	if(incl == nil || w == nil) return;
-
+	if(incl == nil || w == nil)
+		return;
 	dirs = bytetorune(incl, &n);
 	if(dirs[0] == '\0') return;
 	for(r=dir=dirs; r<dirs+n; r++){
