@@ -88,7 +88,7 @@ journal(int out, char *s)
 	static int fd = 0;
 
 	if(fd <= 0)
-		fd = create("/tmp/sam.out", 1, 0666L);
+		fd = create("/tmp/sam.out", OWRITE, 0666L);
 	fprint(fd, "%s%s\n", out? "out: " : "in:  ", s);
 }
 

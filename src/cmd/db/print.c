@@ -276,11 +276,11 @@ redirin(int stack, char *file)
 		return;
 	}
 	iclose(stack, 0);
-	if ((infile = open(file, 0)) < 0) {
+	if ((infile = open(file, OREAD)) < 0) {
 		strcpy(pfile, Ipath);
 		strcat(pfile, "/");
 		strcat(pfile, file);
-		if ((infile = open(pfile, 0)) < 0) {
+		if ((infile = open(pfile, OREAD)) < 0) {
 			infile = STDIN;
 			error("cannot open");
 		}

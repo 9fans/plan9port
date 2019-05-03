@@ -146,7 +146,7 @@ loadfont(int n, int s)
 			for (deep = drawlog2[screen->depth]; deep >= 0; deep--){
 				sprint(file, "%s/%s%d.%d", libfont, try[t], i, deep);
 				dprint(2, "trying %s for %d\n", file, i);
-				if ((fd = open(file, 0)) >= 0){
+				if ((fd = open(file, OREAD)) >= 0){
 					f = readsubfont(display, file, fd, 0);
 					if (f == 0) {
 						fprint(2, "can't rdsubfontfile %s: %r\n", file);

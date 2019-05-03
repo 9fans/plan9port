@@ -166,10 +166,10 @@ main(int argc, char **argv)
 
 	if(f == files){
 		if(access(MKFILE, 4) == 0)
-			parse(MKFILE, open(MKFILE, 0), 0);
+			parse(MKFILE, open(MKFILE, OREAD), 0);
 	} else
 		for(ff = files; ff < f; ff++)
-			parse(*ff, open(*ff, 0), 0);
+			parse(*ff, open(*ff, OREAD), 0);
 	if(DEBUG(D_PARSE)){
 		dumpw("default targets", target1);
 		dumpr("rules", rules);

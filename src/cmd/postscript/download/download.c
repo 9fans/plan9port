@@ -265,7 +265,7 @@ readmap(void)
 	sprintf(path, "%s/%s%s", hostfontdir, mapname, suffix);
     } else path = mapname;
 
-    if ( (fd = open(path, 0)) != -1 ) {
+    if ( (fd = open(path, OREAD)) != -1 ) {
 	if ( fstat(fd, &sbuf) == -1 )
 	    error(FATAL, "can't fstat %s", path);
 	if ( (stringspace = (char *)malloc(sbuf.st_size + 2)) == NULL )

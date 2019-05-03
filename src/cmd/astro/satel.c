@@ -36,7 +36,7 @@ satels(void)
 loop:
 	if(*satp == 0)
 		return;
-	f = open(*satp, 0);
+	f = open(*satp, OREAD);
 	if(f < 0) {
 		fprint(2, "cannot open %s\n", *satp);
 		satp += 2;
