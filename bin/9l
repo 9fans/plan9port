@@ -27,6 +27,11 @@ case "$tag" in
 	userpath=true
 	extralibs="$extralibs -lutil -lresolv -lpthread"
 	;;
+*GNU*)
+	ld=${CC9:-gcc}
+	userpath=true
+	extralibs="$extralibs -lpthread -lutil"
+	;;
 *Darwin*)
 	ld="${CC9:-gcc} -m64 $CC9FLAGS"
 	;;

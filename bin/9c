@@ -105,6 +105,7 @@ usexlc()
 
 tag="${SYSNAME:-`uname`}-${CC9:-cc}"
 case "$tag" in
+*GNU*)  usegcc ;;
 *DragonFly*gcc*|*BSD*gcc*)	usegcc ;;
 *DragonFly*clang|*BSD*clang*)	useclang ;;
 *Darwin*)
