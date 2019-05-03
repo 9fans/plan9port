@@ -81,4 +81,4 @@ SunOS.$O: nosys.c
 Darwin.$O: nosys.c
 OpenBSD.$O: nosys.c
 NetBSD.$O: nosys.c
-
+GNU.$0: nosys.c

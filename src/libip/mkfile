@@ -21,6 +21,7 @@ HFILES=\
 <$PLAN9/src/mksyslib
 
 Darwin.$O FreeBSD.$O DragonFly.$O: BSD.c
+GNU.$0: GNU.c
 
 testreadipifc: testreadipifc.o $LIBDIR/$LIB
 	$LD -o testreadipifc testreadipifc.o
