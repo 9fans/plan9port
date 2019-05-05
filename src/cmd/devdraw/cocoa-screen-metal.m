@@ -217,6 +217,7 @@ threadmain(int argc, char **argv)
 	layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	layer.framebufferOnly = YES;
 	layer.opaque = YES;
+	layer.colorspace = CGColorSpaceCreateWithName((__bridge CFStringRef)NSDeviceWhiteColorSpace);
 
 	renderPass = [MTLRenderPassDescriptor renderPassDescriptor];
 	renderPass.colorAttachments[0].loadAction = MTLLoadActionDontCare;
