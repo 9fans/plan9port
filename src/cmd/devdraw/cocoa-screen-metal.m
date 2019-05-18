@@ -64,41 +64,13 @@ static NSWindow *win = NULL;
 static NSCursor *currentCursor = NULL;
 
 static DrawLayer *layer;
-static MTLRenderPassDescriptor *renderPass;
 static id<MTLDevice> device;
-static id<MTLRenderPipelineState> pipelineState;
 static id<MTLCommandQueue> commandQueue;
 static id<MTLTexture> texture;
 
 static Memimage *img = NULL;
 
 static QLock snarfl;
-
-static NSString *const metal =
-@"#include<metal_stdlib>\n"
-"using namespace metal;\n"
-"typedef struct {\n"
-"	float4 rCoord [[position]];\n"
-"	float2 tCoord;\n"
-"} VertexOut;\n"
-"vertex VertexOut\n"
-"renderVertex(unsigned int vid [[ vertex_id ]])\n"
-"{\n"
-"	const VertexOut fixedV[] = {\n"
-"		{{ -1.0f, -1.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},\n"
-"		{{  1.0f, -1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},\n"
-"		{{ -1.0f,  1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }},\n"
-"		{{  1.0f,  1.0f, 0.0f, 1.0f }, { 1.0f, 0.0f }},\n"
-"	};\n"
-"	return fixedV[vid];\n"
-"}\n"
-"fragment half4\n"
-"renderFragment(VertexOut in [[ stage_in ]],\n"
-"		texture2d<half> texture [[ texture(0) ]]) {\n"
-"	constexpr sampler s;\n"
-"	return texture.sample(s, in.tCoord);\n"
-"}";
-
 
 void
 threadmain(int argc, char **argv)
@@ -150,9 +122,6 @@ threadmain(int argc, char **argv)
 	Rectangle wr;
 	int set;
 	char *s;
-	id<MTLLibrary> library;
-	MTLRenderPipelineDescriptor *pipelineDesc;
-	NSError *error;
 	NSArray *allDevices;
 
 	const NSWindowStyleMask Winstyle = NSWindowStyleMaskTitled
@@ -189,7 +158,7 @@ threadmain(int argc, char **argv)
 		[win center];
 	[win setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary];
 	[win setContentMinSize:NSMakeSize(64,64)];
-
+	[win setOpaque:YES];
 	[win setRestorable:NO];
 	[win setAcceptsMouseMovedEvents:YES];
 	[win setDelegate:myApp];
@@ -209,7 +178,7 @@ threadmain(int argc, char **argv)
 	}
 	if(!device)
 		device = MTLCreateSystemDefaultDevice();
-	
+
 	commandQueue = [device newCommandQueue];
 
 	layer = (DrawLayer *)[myContent layer];
@@ -218,25 +187,14 @@ threadmain(int argc, char **argv)
 	layer.framebufferOnly = YES;
 	layer.opaque = YES;
 
-	renderPass = [MTLRenderPassDescriptor renderPassDescriptor];
-	renderPass.colorAttachments[0].loadAction = MTLLoadActionDontCare;
-	renderPass.colorAttachments[0].storeAction = MTLStoreActionDontCare;
-
-	library = [device newLibraryWithSource:metal options:nil error:&error];
-	if(!library)
-		sysfatal((char *)[[error localizedDescription] UTF8String]);
-
-	pipelineDesc = [MTLRenderPipelineDescriptor new];
-	pipelineDesc.alphaToOneEnabled = YES;
-	pipelineDesc.inputPrimitiveTopology = MTLPrimitiveTopologyClassTriangle;
-	pipelineDesc.rasterSampleCount = 1;
-	pipelineDesc.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-	[pipelineDesc setVertexFunction: [library newFunctionWithName: @"renderVertex"]];
-	[pipelineDesc setFragmentFunction: [library newFunctionWithName: @"renderFragment"]];
-
-	pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineDesc error:&error];
-	if(!pipelineState)
-		sysfatal((char *)[[error localizedDescription] UTF8String]);
+	// We use a default transparent layer on top of the CAMetalLayer.
+	// This seems to make fullscreen applications behave.
+	{
+		CALayer *stub = [CALayer layer];
+		stub.frame = CGRectMake(0, 0, 1, 1);
+		[stub setNeedsDisplay];
+		[layer addSublayer:stub];
+	}
 
 	[NSEvent setMouseCoalescingEnabled:NO];
 
@@ -278,7 +236,7 @@ struct Cursors {
 	NSImage *i;
 	NSPoint p;
 	uchar *plane[5], *plane2[5];
-	int b;
+	uint b;
 
 	cs = [v pointerValue];
 	c = cs->c;
@@ -577,13 +535,15 @@ struct Cursors {
 - (void)viewDidEndLiveResize
 {
 	[super viewDidEndLiveResize];
-	resizeimg();
+	if(img)
+		resizeimg();
 }
 
 - (void)viewDidChangeBackingProperties
 {
 	[super viewDidChangeBackingProperties];
-	resizeimg();
+	if(img)
+		resizeimg();
 }
 
 // conforms to protocol NSTextInputClient
@@ -801,7 +761,7 @@ struct Cursors {
 - (void)display
 {
 	id<MTLCommandBuffer> cbuf;
-	id<MTLRenderCommandEncoder> cmd;
+	id<MTLBlitCommandEncoder> blit;
 
 	LOG(@"display");
 
@@ -821,13 +781,17 @@ struct Cursors {
 
 	LOG(@"display got drawable");
 
-	renderPass.colorAttachments[0].texture = drawable.texture;
-
-	cmd = [cbuf renderCommandEncoderWithDescriptor:renderPass];
-	[cmd setRenderPipelineState:pipelineState];
-	[cmd setFragmentTexture:texture atIndex:0];
-	[cmd drawPrimitives:MTLPrimitiveTypeTriangleStrip vertexStart:0 vertexCount:4];
-	[cmd endEncoding];
+	blit = [cbuf blitCommandEncoder];
+	[blit copyFromTexture:texture
+		sourceSlice:0
+		sourceLevel:0
+		sourceOrigin:MTLOriginMake(0, 0, 0)
+		sourceSize:MTLSizeMake(texture.width, texture.height, texture.depth)
+		toTexture:drawable.texture
+		destinationSlice:0
+		destinationLevel:0
+		destinationOrigin:MTLOriginMake(0, 0, 0)];
+	[blit endEncoding];
 
 	[cbuf presentDrawable:drawable];
 	drawable = nil;

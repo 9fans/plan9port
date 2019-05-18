@@ -3,6 +3,10 @@ language: c
 matrix:
   include:
     - os: osx
+      osx_image: xcode10.2
+    - os: osx
+      osx_image: xcode9.4
+    - os: osx
       osx_image: xcode9
     - os: osx
       osx_image: xcode8.3
