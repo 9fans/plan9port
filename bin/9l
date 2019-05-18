@@ -40,7 +40,9 @@ case "$tag" in
 	userpath=true
 	extralibs="$extralibs -lutil -lresolv"
 	case "${SYSVERSION:-`uname -r`}" in
-	2.6.* | 3.* | 4.*)
+	# Assuming that versions change more often than the name of
+	# the threading library, this should save some future updates.
+	2.6.* | [3-9].* | [1-9][0-9].*)
 		extralibs="$extralibs -lpthread"
 		;;
 	esac
