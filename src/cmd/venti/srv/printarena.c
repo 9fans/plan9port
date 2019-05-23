@@ -5,7 +5,7 @@
 void
 usage(void)
 {
-	fprint(2, "usage: printarena arenafile [offset]\n");
+	fprint(2, "usage: printarena [-o aoffset] arenafile [offset]\n");
 	threadexitsall("usage");
 }
 

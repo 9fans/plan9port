@@ -272,12 +272,30 @@ Set
 to
 .IR value .
 .TP
-.BI /graph/ name / param / param / \fR...
-A PNG image graphing the named run-time statistic over time.
-The details of names and parameters are undocumented;
-see
+.BI /graph?arg= name [&arg2= name] &graph= type &param= value \fR...
+A PNG image graphing the
+.IT name
+run-time statistic over time.
+The details of names and parameters are mostly undocumented;
+see the
+.BR graphname
+array in 
 .B httpd.c
-in the venti sources.
+in the venti code for a list of possible statistics. The
+.IR type
+of graph defaults to raw, see the
+.BR xgraph
+function for a list of types. Possible
+.IR param
+include the timeframe 
+.BR (t0
+and
+.BR t1)
+, the y limits 
+.BR (min
+and
+.BR max)
+ etc.
 .TP
 .B /log
 A list of all debugging logs present in the server's memory.
@@ -376,8 +394,7 @@ network address to announce venti service
 .TP
 .BI httpaddr " netaddr
 network address to announce HTTP service
-(default
-.BR tcp!*!http )
+(default is not to start the service)
 .TP
 .B queuewrites
 queue writes in memory
