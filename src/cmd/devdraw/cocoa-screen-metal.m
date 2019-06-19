@@ -220,7 +220,7 @@ threadmain(int argc, char **argv)
 	LOG(@"setNeedsDisplayInRect(%g, %g, %g, %g)", r.origin.x, r.origin.y, r.size.width, r.size.height);
 	[layer setNeedsDisplayInRect:r];
 
-	time = dispatch_time(DISPATCH_TIME_NOW, 8 * NSEC_PER_MSEC);
+	time = dispatch_time(DISPATCH_TIME_NOW, 16 * NSEC_PER_MSEC);
 	dispatch_after(time, dispatch_get_main_queue(), ^(void){
 		[layer setNeedsDisplayInRect:r];
 	});
