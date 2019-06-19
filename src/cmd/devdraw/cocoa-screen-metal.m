@@ -212,12 +212,19 @@ threadmain(int argc, char **argv)
 + (void)callsetNeedsDisplayInRect:(NSValue *)v
 {
 	NSRect r;
+	dispatch_time_t time;
 
 	r = [v rectValue];
 	LOG(@"callsetNeedsDisplayInRect(%g, %g, %g, %g)", r.origin.x, r.origin.y, r.size.width, r.size.height);
 	r = [win convertRectFromBacking:r];
 	LOG(@"setNeedsDisplayInRect(%g, %g, %g, %g)", r.origin.x, r.origin.y, r.size.width, r.size.height);
 	[layer setNeedsDisplayInRect:r];
+
+	time = dispatch_time(DISPATCH_TIME_NOW, 8 * NSEC_PER_MSEC);
+	dispatch_after(time, dispatch_get_main_queue(), ^(void){
+		[layer setNeedsDisplayInRect:r];
+	});
+
 	[myContent enlargeLastInputRect:r];
 }
 
