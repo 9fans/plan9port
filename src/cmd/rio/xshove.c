@@ -27,6 +27,7 @@ struct Win
 	int y;
 	int dx;
 	int dy;
+	char *idstr;
 	char *class;
 	char *instance;
 	char *name;
@@ -143,6 +144,9 @@ getinfo(void)
 		if(attr.width <= 0 || attr.override_redirect || attr.map_state != IsViewable)
 			continue;
 		ww->xw = xwin[i];
+		char idstr[9];
+		snprint(idstr, sizeof(idstr), "%08x", (uint)ww->xw);
+		ww->idstr = strdup(idstr);
 		ww->x = attr.x;
 		ww->y = attr.y;
 		ww->dx = attr.width;
@@ -196,7 +200,8 @@ shove(char *name, char *geom)
 	for(i=0; i<nw; i++){
 		Win *ww = &w[i];
 		if(ww->instance && strstr(ww->instance, name)
-		   || ww->class && strstr(ww->class, name)){
+		   || ww->class && strstr(ww->class, name)
+		   || ww->idstr && strstr(ww->idstr, name)){
 			int value_mask;
 			XWindowChanges e;
 
