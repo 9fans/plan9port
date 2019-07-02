@@ -56,6 +56,7 @@
 #endif
 
 AUTOFRAMEWORK(Cocoa)
+AUTOFRAMEWORK(CoreFoundation)
 
 #define LOG	if(0)NSLog
 #define panic	sysfatal
