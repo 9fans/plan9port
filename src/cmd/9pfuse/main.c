@@ -938,17 +938,11 @@ Dir*
 dotdirs(CFid *f)
 {
 	Dir *d;
-	CFid *f1;
 
 	d = emalloc(2*sizeof *d);
 	d[0].name = ".";
 	d[0].qid = fsqid(f);
 	d[1].name = "..";
-	f1 = fswalk(f, "..");
-	if(f1){
-		d[1].qid = fsqid(f1);
-		fsclose(f1);
-	}
 	return d;
 }
 
