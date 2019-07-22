@@ -51,6 +51,14 @@
 #  endif
 #endif
 
+#ifndef FMODE_EXEC
+#  if defined(__linux__)
+#    define FMODE_EXEC 040
+#  else
+#    define FMODE_EXEC 0
+#  endif
+#endif
+
 int debug;
 char *argv0;
 char *aname = "";
@@ -583,7 +591,7 @@ _fuseopen(FuseMsg *m, int isdir)
 	flags = in->flags;
 	openmode = flags&3;
 	flags &= ~3;
-	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_CLOEXEC);
+	flags &= ~(O_DIRECTORY|O_NONBLOCK|O_LARGEFILE|O_CLOEXEC|FMODE_EXEC);
 #ifdef O_NOFOLLOW
 	flags &= ~O_NOFOLLOW;
 #endif
@@ -602,13 +610,14 @@ _fuseopen(FuseMsg *m, int isdir)
 		openmode |= OTRUNC;
 		flags &= ~O_TRUNC;
 	}
+
 	/*
 	 * Could translate but not standard 9P:
 	 *	O_DIRECT -> ODIRECT
 	 *	O_NONBLOCK -> ONONBLOCK
 	 */
 	if(flags){
-		fprint(2, "unexpected open flags %#uo\n", (uint)in->flags);
+		fprint(2, "unexpected open flags requested=%#uo unhandled=%#uo\n", (uint)in->flags, (uint)flags);
 		replyfuseerrno(m, EACCES);
 		return;
 	}
