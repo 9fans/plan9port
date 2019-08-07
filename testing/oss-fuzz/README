@@ -1,0 +1,5 @@
+The files "build.sh", "Dockerfile", and "project.yaml" are to live in
+the https://github.com/google/oss-fuzz Git repository, in the
+"projects/plan9port" directory.
+
+"build.sh" in oss-fuzz executes buildFuzz.sh in this repository.

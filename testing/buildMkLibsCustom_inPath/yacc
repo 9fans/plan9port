@@ -1,0 +1,3 @@
+#! /bin/sh
+printf 'fake yacc: not implemented\n' 1>&2
+exit 1

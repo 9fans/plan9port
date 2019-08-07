@@ -1,0 +1,5 @@
+The directory hierarchy rooted in this directory contains files related
+to fuzzing and other kinds of testing. The fuzz targets are meant to be
+used by oss-fuzz, and are also used from regressionTestCorpora.sh.  In
+the latter case no fuzzing is done, the fuzzing corpora are merely used
+to test for regressions.

@@ -1,0 +1,5 @@
+homepage: "https://github.com/9fans/plan9port"
+primary_contact: "rsc@swtch.com"
+auto_ccs:
+    - "0intro@gmail.com"
+    - "nsajko@gmail.com"

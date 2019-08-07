@@ -374,6 +374,7 @@ void	aoutput(void);
 void	arout(char*, int*, int);
 int	gtnm(void);
 
+#ifndef PLAN9_NOMAIN
 void
 main(int argc, char *argv[])
 {
@@ -396,6 +397,7 @@ LateErr:
 	cleantmp();
 	exits("error");
 }
+#endif
 
 /*
  * put out other arrays, copy the parsers

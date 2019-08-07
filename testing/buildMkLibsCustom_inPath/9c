@@ -1,0 +1,13 @@
+#! /bin/sh
+set -eu
+: "$CC_REAL $CFLAGS_REAL"
+
+# Fail if not given enough arguments.
+case "$#" in
+0)
+	printf 'fake 9c: not enough arguments\n' 1>&2
+	exit 1
+	;;
+esac
+
+"$CC_REAL" -c $CFLAGS_REAL "$@"
