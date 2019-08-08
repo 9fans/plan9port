@@ -67,7 +67,7 @@ struct builtin{
 };
 extern struct builtin Builtin[];
 int eflagok;			/* kludge flag so that -e doesn't exit in startup */
-int havefork;
+extern int havefork;
 
 void execcd(void), execwhatis(void), execeval(void), execexec(void);
 int execforkexec(void);
