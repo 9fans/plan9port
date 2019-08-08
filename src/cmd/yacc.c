@@ -2760,6 +2760,8 @@ callopt(void)
 	/* write out the output appropriate to the language */
 	aoutput();
 	osummary();
+
+	Bterm(finput);
 	ZAPFILE(tempname);
 }
 
