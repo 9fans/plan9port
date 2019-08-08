@@ -71,7 +71,6 @@ union code{
 	char *s;
 };
 char *promptstr;
-int doprompt;
 #define	NTOK	8192
 char tok[NTOK];
 #define	APPEND	1
@@ -126,7 +125,7 @@ int mypid;
 char **argp;
 char **args;
 int nerror;		/* number of errors encountered during compilation */
-int doprompt;		/* is it time for a prompt? */
+extern int doprompt;		/* is it time for a prompt? */
 /*
  * Which fds are the reading/writing end of a pipe?
  * Unfortunately, this can vary from system to system.
