@@ -69,6 +69,7 @@ crackhdr(char *name, int mode)
 			return hdr;
 		}
 	werrstr("unknown file type: %r");
+	free(hdr->filename);
 	free(hdr);
 	close(fd);
 	return nil;
@@ -89,6 +90,7 @@ uncrackhdr(Fhdr *hdr)
 	for(i=0; i<hdr->nthread; i++)
 		free(hdr->thread[i].ureg);
 	free(hdr->thread);
+	free(hdr->filename);
 	free(hdr);
 }
 
