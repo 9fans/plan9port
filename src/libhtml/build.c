@@ -2447,6 +2447,9 @@ addtext(Pstate* ps, Rune* s)
 				free(s);
 			}
 		}
+		else {
+			free(s);
+		}
 	}
 	else {	/* not literal mode */
 		if((ps->curstate&IFbrk) || ps->lastit == ps->items)
