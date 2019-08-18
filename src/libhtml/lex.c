@@ -540,8 +540,11 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 	if(dbglex)
 		fprint(2, "lex: returning %d tokens\n", ai);
 	*plen = ai;
-	if(ai == 0) 
+	free(ts);
+	if(ai == 0) {
+		free(a);
 		return nil;
+	}
 	return a;
 }
 
@@ -603,15 +606,18 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 }
 
 /* Return concatenation of s and buf[0:j] */
+/* Frees s. */
 static Rune*
 buftostr(Rune* s, Rune* buf, int j)
 {
+	Rune *tmp;
 	buf[j] = 0;
 	if(s == nil)
-		s = _Strndup(buf, j);
+		tmp = _Strndup(buf, j);
 	else 
-		s = _Strdup2(s, buf);
-	return s;
+		tmp = _Strdup2(s, buf);
+	free(s);
+	return tmp;
 }
 
 /* Gather data up to next start-of-tag or end-of-buffer. */
