@@ -2819,8 +2819,9 @@ stin(int i)
 	for(n = -maxoff; n < ACTSIZE; n++) {
 		flag = 0;
 		for(r = q1; r < q2; r += 2) {
-			if((s = *r + n + amem) < amem)
+			if(*r + n < 0)
 				goto nextn;
+			s = *r + n + amem;
 			if(*s == 0)
 				flag++;
 			else
