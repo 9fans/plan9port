@@ -1177,19 +1177,23 @@ setup(int argc, char *argv[])
 {
 	long c, t;
 	int i, j, fd, lev, ty, ytab, *p;
-	int vflag, dflag, stem;
+	int vflag, dflag, fdflag, stem;
 	char actnm[8], *stemc, *s, dirbuf[128];
 	Biobuf *fout;
 
 	ytab = 0;
 	vflag = 0;
 	dflag = 0;
+	fdflag = 0 != 0;
 	stem = 0;
 	stemc = "y";
 	foutput = 0;
 	fdefine = 0;
 	fdebug = 0;
 	ARGBEGIN{
+	case 'f':
+		fdflag = 0 == 0;
+		break;
 	case 'v':
 	case 'V':
 		vflag++;
@@ -1238,16 +1242,23 @@ setup(int argc, char *argv[])
 	if(argc < 1)
 		error("no input file");
 	infile = argv[0];
-	if(infile[0] != '/' && getwd(dirbuf, sizeof dirbuf)!=nil){
-		i = strlen(infile)+1+strlen(dirbuf)+1+10;
-		s = malloc(i);
-		if(s != nil){
-			snprint(s, i, "%s/%s", dirbuf, infile);
-			cleanname(s);
-			infile = s;
+	if (!fdflag) {
+		if(infile[0] != '/' && getwd(dirbuf, sizeof dirbuf)!=nil){
+			i = strlen(infile)+1+strlen(dirbuf)+1+10;
+			s = malloc(i);
+			if(s != nil){
+				snprint(s, i, "%s/%s", dirbuf, infile);
+				cleanname(s);
+				infile = s;
+			}
 		}
+		finput = Bopen(infile, OREAD);
+	} else {
+		for (fd = 0, i = 0; infile[i] != '\0'; i++) {
+			fd = fd*10 + infile[i] - '0';
+		}
+		finput = Bfdopen(fd, OREAD);
 	}
-	finput = Bopen(infile, OREAD);
 	if(finput == 0)
 		error("cannot open '%s'", argv[0]);
 	cnamp = cnames;
