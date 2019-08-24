@@ -141,8 +141,10 @@ Unix:
 		return -1;
 	}
 	/* Allow regular files in addition to Unix sockets. */
-	if((s = open(unix, ORDWR)) >= 0)
+	if((s = open(unix, ORDWR)) >= 0){
+		free(buf);
 		return s;
+	}
 	free(buf);
 	if((s = socket(ss.ss_family, SOCK_STREAM, 0)) < 0){
 		werrstr("socket: %r");
