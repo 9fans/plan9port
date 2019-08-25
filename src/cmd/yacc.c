@@ -2422,7 +2422,7 @@ swt:
 
 	string:
 		Bputrune(faction, c);
-		while(c = Bgetrune(finput)) {
+		while((c = Bgetrune(finput)) >= 0) {
 			if(c == '\\') {
 				Bputrune(faction, c);
 				c = Bgetrune(finput);
