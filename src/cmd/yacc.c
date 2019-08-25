@@ -2071,6 +2071,8 @@ begin:
 			}
 		} else
 			return c;
+		if(c == Beof)
+			return ENDFILE;
 		Bungetrune(finput);
 	}
 	tokname[i] = 0;
