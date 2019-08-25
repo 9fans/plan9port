@@ -126,7 +126,7 @@ enum
 
 	/* command to clobber tempfiles after use */
 
-#define	ZAPFILE(x)	if(x) remove(x)
+#define	ZAPFILE(x)	if(x) { remove(x); free(x); (x) = nil; }
 
 	/* I/O descriptors */
 
@@ -341,6 +341,7 @@ int	stagen(void);
 int	closure(int);
 Lkset*	flset(Lkset*);
 void	cleantmp(void);
+int	maketemp(char*, char**);
 int	setup(int, char**);
 void	finact(void);
 int	defin(int, char*);
@@ -1229,6 +1230,37 @@ cleantmp(void)
 	ZAPFILE(tempname);
 }
 
+int
+maketemp(char *name, char **finalname) {
+	char *tmpdir = getenv("TMPDIR");
+	if (tmpdir == nil)
+		tmpdir = "/tmp";
+	size_t tmpdirlen = strlen(tmpdir);
+	size_t baselen = strlen(name);
+	char *mkstempname = malloc(tmpdirlen + sizeof(char) + baselen + sizeof(""));
+	memcpy(mkstempname, tmpdir, tmpdirlen);
+	mkstempname[tmpdirlen] = '/';
+	memcpy(&mkstempname[tmpdirlen + sizeof(char)], name, baselen);
+	mkstempname[tmpdirlen + sizeof(char) + baselen] = '\0';
+	int fd = mkstemp(mkstempname);
+	if (fd >= 0)
+		goto OUT;
+
+	/* If we did not succed in tmpdir, try in the current directory. */
+	free(mkstempname);
+	mkstempname = strdup(name);
+	fd = mkstemp(mkstempname);
+	if (fd >= 0)
+		goto OUT;
+
+	free(mkstempname);
+	return -1;
+
+OUT:
+	*finalname = mkstempname;
+	return fd;
+}
+
 /*
  * initialize and read productions
  *
@@ -1302,24 +1334,22 @@ setup(int argc, char *argv[])
 		Bprint(ftable, "#define\tYYARG\t1\n\n");
 	}
 
-	fd = mkstemp(ttempname);
+	fd = maketemp(ttempname, &tempname);
 	if (fd < 0) {
 		error("can not create temp file tempname");
 		return 0 == 0;
 	}
-	tempname = ttempname;
 	ftemp = Bfdopen(fd, OWRITE);
 	if (ftemp == nil) {
 		error("can not open temp file tempname");
 		return 0 == 0;
 	}
 
-	fd = mkstemp(tactname);
+	fd = maketemp(tactname, &actname);
 	if (fd < 0) {
 		error("can not create temp file actname");
 		return 0 == 0;
 	}
-	actname = tactname;
 	faction = Bfdopen(fd, OWRITE);
 	if (faction == nil) {
 		error("can not open temp file  actname");
