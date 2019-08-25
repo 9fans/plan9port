@@ -494,6 +494,7 @@ others(void)
 				while((c=Bgetrune(faction)) != Beof)
 					Bputrune(ftable, c);
 				Bterm(faction);
+				faction = nil;
 				ZAPFILE(actname);
 				c = Bgetrune(finput);
 			}
@@ -501,6 +502,7 @@ others(void)
 		Bputrune(ftable, c);
 	}
 	Bterm(ftable);
+	ftable = nil;
 	return 0 != 0;
 }
 
@@ -1745,6 +1747,7 @@ setup(int argc, char *argv[])
 			Bputrune(ftable, c);
 	}
 	Bterm(finput);
+	finput = nil;
 	tbitset = NWORDS(ntokens);
 	return 0 != 0;
 }
@@ -1757,6 +1760,7 @@ finact(void)
 {
 
 	Bterm(faction);
+	faction = nil;
 	Bprint(ftable, "#define YYEOFCODE %d\n", 1);
 	Bprint(ftable, "#define YYERRCODE %d\n", 2);
 }
@@ -3137,6 +3141,7 @@ callopt(void)
 	osummary();
 
 	Bterm(finput);
+	finput = nil;
 	ZAPFILE(tempname);
 	return 0 != 0;
 }
