@@ -349,6 +349,7 @@ void	finact(void);
 int	defin(int, char*);
 void	defout(int);
 char*	cstash(char*);
+int	isvalidchar(long);
 long	gettok(void);
 int	fdtype(int);
 int	chfind(int, char*);
@@ -1680,6 +1681,12 @@ cstash(char *s)
 	return temp;
 }
 
+int
+isvalidchar(long i)
+{
+	return (i & ~0xffUL) == 0;
+}
+
 long
 gettok(void)
 {
@@ -1774,6 +1781,8 @@ begin:
 
 	default:
 		/* number */
+		if(!isvalidchar(c))
+			return c;
 		if(isdigit(c)) {
 			numbval = c-'0';
 			base = (c=='0')? 8: 10;
@@ -1784,8 +1793,8 @@ begin:
 		}
 		if(islower(c) || isupper(c) || c=='_' || c=='.' || c=='$')  {
 			i = 0;
-			while(islower(c) || isupper(c) || isdigit(c) ||
-			    c == '-' || c=='_' || c=='.' || c=='$') {
+			while(isvalidchar(c) && (islower(c) || isupper(c) || isdigit(c) ||
+			    c == '-' || c=='_' || c=='.' || c=='$')) {
 				if(reserve && isupper(c))
 					c += 'a'-'A';
 				rune = c;
@@ -2028,7 +2037,7 @@ swt:
 			s = -s;
 			c = Bgetrune(finput);
 		}
-		if(isdigit(c)) {
+		if(isvalidchar(c) && isdigit(c)) {
 			j = 0;
 			while(isdigit(c)) {
 				j = j*10 + (c-'0');
@@ -2052,7 +2061,7 @@ swt:
 			}
 			goto loop;
 		}
-		if(isupper(c) || islower(c) || c == '_' || c == '.') {
+		if(isvalidchar(c) && (isupper(c) || islower(c) || c == '_' || c == '.')) {
 			int tok; /* tok used oustide for type info */
 
 			/* look for $name */
@@ -2963,7 +2972,7 @@ gtnm(void)
 	sign = 0;
 	val = 0;
 	while((c=Bgetrune(finput)) != Beof) {
-		if(isdigit(c)) {
+		if(isvalidchar(c) && isdigit(c)) {
 			val = val*10 + c-'0';
 			continue;
 		}
