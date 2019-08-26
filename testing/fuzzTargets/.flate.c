@@ -7,7 +7,6 @@ typedef struct {
 	size_t cap;
 } slice;
 
-
 static
 int
 get(void *s) {
