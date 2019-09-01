@@ -495,10 +495,8 @@ winsettag1(Window *w)
 			i += 4;
 		}
 	}
-	if(w->isdir){
-		runemove(new+i, Lget, 4);
-		i += 4;
-	}
+	runemove(new+i, Lget, 4);
+	i += 4;
 	runemove(new+i, Lpipe, 2);
 	i += 2;
 	r = runestrchr(old, '|');
