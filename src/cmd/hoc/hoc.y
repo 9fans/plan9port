@@ -215,8 +215,8 @@ yylex(void)		/* hoc6 */
 		return STRING;
 	}
 	switch (c) {
-	case '+':	return follow('+', INC, follow('=', ADDEQ, '+'));
-	case '-':	return follow('-', DEC, follow('=', SUBEQ, '-'));
+	case '+':	return follow('+', INC, '+') == INC ? INC : follow('=', ADDEQ, '+');
+	case '-':	return follow('-', DEC, '-') == DEC ? DEC : follow('=', SUBEQ, '-');
 	case '*':	return follow('=', MULEQ, '*');
 	case '/':	return follow('=', DIVEQ, '/');
 	case '%':	return follow('=', MODEQ, '%');
