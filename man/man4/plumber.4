@@ -4,6 +4,9 @@ plumber \- file system for interprocess messaging
 .SH SYNOPSIS
 .B plumber
 [
+.B -f
+]
+[
 .B -p
 .I plumbing
 ]
@@ -23,7 +26,7 @@ in the format of
 Its services are posted via
 .IR 9pserve (4)
 as
-.BR plumb .
+.BR plumb ,
 and consist of two
 pre-defined files,
 .B plumb/send
@@ -95,6 +98,10 @@ Thus the rule set may be edited dynamically with a traditional text editor.
 However, ports are never deleted dynamically; if a new set of rules does not
 include a port that was defined in earlier rules, that port will still exist (although
 no new messages will be delivered there).
+.PP
+The
+.B -f
+option causes the process to run in the foreground.
 .SH FILES
 .TF $HOME/lib/plumbing
 .TP

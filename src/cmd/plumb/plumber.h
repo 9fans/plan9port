@@ -72,7 +72,7 @@ void*	emalloc(long);
 void*	erealloc(void*, long);
 char*	estrdup(char*);
 Ruleset**	readrules(char*, int);
-void		startfsys(void);
+void		startfsys(int);
 Exec*	matchruleset(Plumbmsg*, Ruleset*);
 void		freeexec(Exec*);
 char*	startup(Ruleset*, Exec*);
