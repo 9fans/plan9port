@@ -1468,6 +1468,7 @@ haveuid:
 			if(isatom(sx->sx[i], msgtab[j].name))
 				msgtab[j].fn(msg, sx->sx[i], sx->sx[i+1]);
 	}
+	msgplumb(msg, 0);
 }
 
 static void
@@ -1549,7 +1550,6 @@ xmsgenvelope(Msg *msg, Sx *k, Sx *v)
 	USED(k);
 	hdrfree(msg->part[0]->hdr);
 	msg->part[0]->hdr = parseenvelope(v);
-	msgplumb(msg, 0);
 }
 
 static struct {
