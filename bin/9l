@@ -19,7 +19,7 @@ case "$tag" in
 	5.2.*)
 		extralibs="$extralibs -lkse"
 		;;
-	[5-9].*|1[0-1].*)
+	[5-9].*|1[0-9].*)
 		extralibs="$extralibs -lpthread"
 		;;
 	esac
