@@ -29,6 +29,7 @@ THIS SOFTWARE.
 #include <errno.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <utf.h>
 #include "awk.h"
 #include "y.tab.h"
 
@@ -293,15 +294,19 @@ void fldbld(void)	/* create fields from current record */
 		}
 		*fr = 0;
 	} else if ((sep = *inputFS) == 0) {		/* new: FS="" => 1 char/field */
-		for (i = 0; *r != 0; r++) {
-			char buf[2];
+		int nb;
+		for (i = 0; *r != 0; r += nb) {
+			Rune rr;
+			char buf[UTFmax+1];
+
 			i++;
 			if (i > nfields)
 				growfldtab(i);
 			if (freeable(fldtab[i]))
 				xfree(fldtab[i]->sval);
-			buf[0] = *r;
-			buf[1] = 0;
+			nb = chartorune(&rr, r);
+			memmove(buf, r, nb);
+			buf[nb] = '\0';
 			fldtab[i]->sval = tostring(buf);
 			fldtab[i]->tval = FLD | STR;
 		}
