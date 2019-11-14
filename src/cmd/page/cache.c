@@ -168,7 +168,12 @@ raproc(void *a)
 	
 	c = a;
 	lockdisplay(display);
-	_cachedpage(c->doc, c->angle, c->page, "-ra");
+	/*
+	 * If there is only one page in a fwdonly file, we may reach EOF
+	 * while doing readahead and page will exit without showing anything.
+	 */
+	if(!c->doc->fwdonly)
+		_cachedpage(c->doc, c->angle, c->page, "-ra");
 	rabusy = 0;
 	unlockdisplay(display);
 	free(c);
