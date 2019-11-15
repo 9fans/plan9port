@@ -16,5 +16,4 @@
 "  } if\n"
 "} bind def\n"
 "\n"
-"GS_PDF_ProcSet begin\n"
-"pdfdict begin\n"
+"runpdfbegin\n"
