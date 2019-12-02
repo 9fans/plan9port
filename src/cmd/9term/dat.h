@@ -177,6 +177,7 @@ void		wmousectl(Window*);
 void		wmovemouse(Window*, Point);
 void		wpaste(Window*);
 void		wplumb(Window*);
+void		wlook(Window*);
 void		wrefresh(Window*, Rectangle);
 void		wrepaint(Window*);
 void		wresize(Window*, Image*, int);

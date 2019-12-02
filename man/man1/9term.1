@@ -285,6 +285,13 @@ containing the selection (typing cursor).
 A typical use of this feature is to tell the editor to find the source of an error
 by plumbing the file and line information in a compiler's diagnostic.
 .PP
+The
+.B look
+menu item searches forward for the contents of the selection within
+the window. If a match is found, it becomes the new selection and the
+window scrolls to display it. The search wraps around to the beginning
+of the windows if the end of the window is reached.
+.PP
 For systems without a three-button mouse, the keyboard modifier
 keys can be used to modify the effect of the main mouse button.
 On Unix systems, the Control key changes the main button to button 2,

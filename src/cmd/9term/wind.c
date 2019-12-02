@@ -907,6 +907,31 @@ winborder(Window *w, Point xy)
 }
 
 void
+wlook(Window *w)
+{
+	int i, n, e;
+
+	i = w->q1;
+	n = i - w->q0;
+	e = w->nr - n;
+	if(n <= 0 || e < n)
+		return;
+
+	if(i > e)
+		i = 0;
+
+	while(runestrncmp(w->r+w->q0, w->r+i, n) != 0){
+		if(i < e)
+			i++;
+		else
+			i = 0;
+	}
+
+	wsetselect(w, i, i+n);
+	wshow(w, i);
+}
+
+void
 wmousectl(Window *w)
 {
 	int but;
