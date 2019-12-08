@@ -1050,7 +1050,7 @@ putline(void)
 		}
 	}
 	nl = tline;
-	tline += ((lp-linebuf) + 03) & 077776;
+	tline += ((lp-linebuf) + 03) & (NBLK-1);
 	return nl;
 }
 
