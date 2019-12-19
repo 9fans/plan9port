@@ -141,13 +141,15 @@ Bopen(char *name, int mode)
 int
 Bterm(Biobuf *bp)
 {
+	int ret;
 
 	deinstall(bp);
-	Bflush(bp);
+	ret = Bflush(bp);
 	if(bp->flag == Bmagic) {
 		bp->flag = 0;
-		close(bp->fid);
+		if(close(bp->fid) < 0)
+			ret = -1;
 		free(bp);
 	}
-	return 0;
+	return ret;
 }
