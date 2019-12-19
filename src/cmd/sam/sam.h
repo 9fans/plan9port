@@ -237,6 +237,7 @@ int	Read(int, void*, int);
 void	Seek(int, long, int);
 int	plan9(File*, int, String*, int);
 int	Write(int, void*, int);
+void	Close(int);
 int	bexecute(File*, Posn);
 void	cd(String*);
 void	closefiles(File*, String*);

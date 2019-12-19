@@ -166,7 +166,7 @@ writeio(File *f)
 void
 closeio(Posn p)
 {
-	close(io);
+	Close(io);
 	io = 0;
 	if(p >= 0)
 		dprint("#%lud\n", p);

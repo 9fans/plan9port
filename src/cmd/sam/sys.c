@@ -58,3 +58,10 @@ Seek(int f, long n, int w)
 	if(seek(f, n, w)==-1)
 		syserror("seek");
 }
+
+void
+Close(int f)
+{
+	if(close(f) < 0)
+		syserror("close");
+}
