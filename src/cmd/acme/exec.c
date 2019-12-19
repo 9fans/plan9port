@@ -699,7 +699,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	Rune *r;
 	Biobuf *b;
 	char *s, *name;
-	int i, fd, q;
+	int i, fd, q, ret;
 	Dir *d, *d1;
 	Window *w;
 	int isapp;
@@ -762,9 +762,13 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		warning(nil, "can't write file %s: %r\n", name);
 		goto Rescue2;
 	}
-	Bterm(b);
+	ret = Bterm(b);
 	free(b);
 	b = nil;
+	if(ret < 0) {
+		warning(nil, "can't write file %s: %r\n", name);
+		goto Rescue2; // flush or close failed
+	}
 	if(runeeq(namer, nname, f->name, f->nname)){
 		if(q0!=0 || q1!=f->b.nc){
 			f->mod = TRUE;
