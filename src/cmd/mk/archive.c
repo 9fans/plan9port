@@ -1,6 +1,6 @@
 #include	"mk.h"
 #define	ARMAG	"!<arch>\n"
-#define	SARMAG	8
+#define	SARMAG	(sizeof(ARMAG) - sizeof(""))
 
 #define	ARFMAG	"`\n"
 #define SARNAME	16
@@ -102,7 +102,7 @@ atouch(char *name)
 		LSEEK(fd, SARMAG, 0);
 		while(read(fd, (char *)&h, sizeof(h)) == sizeof(h)){
 			for(i = SARNAME-1; i > 0 && h.name[i] == ' '; i--)
-					;
+				;
 			h.name[i+1]=0;
 			if(strcmp(member, h.name) == 0){
 				t = SARNAME-sizeof(h);	/* ughgghh */
@@ -116,6 +116,18 @@ atouch(char *name)
 		}
 	}
 	close(fd);
+}
+
+static int
+allspaces(char *a, int n)
+{
+	int i;
+	for (i = 0; i < n; i++) {
+		if (a[i] != ' ') {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 static void
@@ -151,11 +163,13 @@ atimes(char *ar)
 			if(readn(fd, name, namelen) != namelen)
 				break;
 			name[namelen] = 0;
-		}else if(memcmp(h.name, "// ", 2) == 0){ /* GNU */
+		}else if(memcmp(h.name, "// ", 3) == 0){ /* GNU */
 			/* date, uid, gid, mode all ' ' */
-			for(i=2; i<16+12+6+6+8; i++)
-				if(h.name[i] != ' ')
-					goto skip;
+			if(!allspaces(&h.name[3], sizeof(h.name) - 3) ||
+			   !allspaces(h.date, sizeof(h.date)) || !allspaces(h.uid, sizeof(h.uid)) ||
+			   !allspaces(h.gid, sizeof(h.gid)) || !allspaces(h.mode, sizeof(h.mode))){
+				goto skip;
+			}
 			t = atol(h.size);
 			if(t&01)
 				t++;
@@ -189,7 +203,7 @@ atimes(char *ar)
 		}else{
 			strncpy(name, h.name, sizeof(h.name));
 			for(i = sizeof(h.name)-1; i > 0 && name[i] == ' '; i--)
-					;
+				;
 			if(name[i] == '/')		/* system V bug */
 				i--;
 			name[i+1]=0;
