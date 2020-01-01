@@ -187,7 +187,7 @@ vtfcallunpack(VtFcall *f, Packet *p)
 		case 4:
 			if(packetconsume(p, buf, 4) < 0)
 				goto Err;
-			f->count = (buf[0]<<24) | (buf[1]<<16) | (buf[2]<<8) | buf[3];
+			f->count = ((u32int)buf[0]<<24) | (buf[1]<<16) | (buf[2]<<8) | buf[3];
 			break;
 		}
 		break;

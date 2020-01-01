@@ -174,7 +174,7 @@ little(void *a, int n)
 	p = a;
 	v = 0;
 	for(i=0; i<n; i++)
-		v |= (*p++<<(i*8));
+		v |= ((u32int)*p++<<(i*8));
 	return v;
 }
 

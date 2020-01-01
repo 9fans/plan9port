@@ -103,7 +103,7 @@ _vtrecv(VtConn *z)
 		len = (buf[0] << 8) | buf[1];
 		size -= 2;
 	} else {
-		len = (buf[0]<<24) | (buf[1]<<16) | (buf[2]<<8) | buf[3];
+		len = ((u32int)buf[0]<<24) | (buf[1]<<16) | (buf[2]<<8) | buf[3];
 		size -= 4;
 	}
 

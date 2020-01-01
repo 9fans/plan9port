@@ -577,7 +577,7 @@ int_decode(uchar** pp, uchar* pend, int count, int unsgned, int* pint)
 			if(!unsgned && count > 0 && count < 4 && (*p&0x80))
 				num = -1;		/* set all bits, initially */
 			while(count--)
-				num = (num << 8)|(*p++);
+				num = ((uint)num << 8)|(*p++);
 		}
 	}
 	else

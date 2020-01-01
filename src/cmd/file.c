@@ -7,7 +7,7 @@
 /*
  * file - determine type of file
  */
-#define	LENDIAN(p)	((p)[0] | ((p)[1]<<8) | ((p)[2]<<16) | ((p)[3]<<24))
+#define	LENDIAN(p)	((p)[0] | ((p)[1]<<8) | ((p)[2]<<16) | ((u32int)(p)[3]<<24))
 
 uchar	buf[6001];
 short	cfreq[140];

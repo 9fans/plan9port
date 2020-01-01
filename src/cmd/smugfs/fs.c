@@ -1084,7 +1084,7 @@ dostat(SmugFid *sf, Qid *qid, Dir *dir)
 		memset(dir, 0, sizeof *dir);
 		dir->name = estrdup9p(name);
 		dir->muid = estrdup9p("muid");
-		mode |= q.type<<24;
+		mode |= (u32int)q.type<<24;
 		if(mode & DMDIR)
 			mode |= 0755;
 		dir->mode = mode;

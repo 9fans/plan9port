@@ -489,7 +489,7 @@ hashbits(u8int *sc, int bits)
 {
 	u32int v;
 
-	v = (sc[0] << 24) | (sc[1] << 16) | (sc[2] << 8) | sc[3];
+	v = ((u32int)sc[0] << 24) | (sc[1] << 16) | (sc[2] << 8) | sc[3];
 	if(bits < 32)
 		 v >>= (32 - bits);
 	return v;

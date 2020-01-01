@@ -223,7 +223,7 @@ get4(Msg *m)
 	uint x;
 	if(m->p+4 > m->ep)
 		return 0;
-	x = (m->p[0]<<24)|(m->p[1]<<16)|(m->p[2]<<8)|m->p[3];
+	x = ((uint)m->p[0]<<24)|(m->p[1]<<16)|(m->p[2]<<8)|m->p[3];
 	m->p += 4;
 	return x;
 }
@@ -938,7 +938,7 @@ runmsg(Aconn *a)
 
 	if(a->ndata < 4)
 		return 0;
-	len = (a->data[0]<<24)|(a->data[1]<<16)|(a->data[2]<<8)|a->data[3];
+	len = ((uint)a->data[0]<<24)|(a->data[1]<<16)|(a->data[2]<<8)|a->data[3];
 	if(a->ndata < 4+len)
 		return 0;
 	m.p = a->data+4;

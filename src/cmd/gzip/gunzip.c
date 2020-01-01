@@ -301,7 +301,7 @@ get4(Biobuf *b)
 		c = Bgetc(b);
 		if(c < 0)
 			error("unexpected eof reading file information");
-		v |= c << (i * 8);
+		v |= (u32int)c << (i * 8);
 	}
 	return v;
 }

@@ -204,7 +204,7 @@ rTwstat(Msg* m)
 		 * .qid.type or .mode isn't defaulted, check for unknown bits.
 		 */
 		if(dir.mode == ~0)
-			dir.mode = (dir.qid.type<<24)|(de.mode & 0777);
+			dir.mode = ((u32int)dir.qid.type<<24)|(de.mode & 0777);
 		if(dir.mode & ~(DMDIR|DMAPPEND|DMEXCL|DMTMP|0777)){
 			werrstr("wstat -- unknown bits in qid.type/mode");
 			goto error;

@@ -9,8 +9,8 @@
  * all these are 32 bit
  */
 #define TBITSET		((32+NTERMS)/32)	/* BOTCH?? +31 */
-#define BIT(a,i)	((a)[(i)>>5] & (1<<((i)&037)))
-#define SETBIT(a,i)	((a)[(i)>>5] |= (1<<((i)&037)))
+#define BIT(a,i)	((a)[(i)>>5] & (1U<<((i)&037)))
+#define SETBIT(a,i)	((a)[(i)>>5] |= (1U<<((i)&037)))
 #define NWORDS(n)	(((n)+32)/32)
 
 char *PARSER = "#9/lib/yaccpar";
