@@ -191,7 +191,7 @@ elfinit(int fd)
 		ElfHdrBytes h32;
 		ElfHdrBytes64 h64;
 	} hdrb;
-	void *p;
+	void *p = nil;
 	ElfSect *s;
 
 	e = mallocz(sizeof(Elf), 1);
@@ -234,6 +234,7 @@ elfinit(int fd)
 		unpackprog(h, &e->prog[i], p);
 	}
 	free(p);
+	p = nil;
 
 	e->nsect = h->shnum;
 	if(e->nsect == 0)
@@ -247,6 +248,7 @@ elfinit(int fd)
 		unpacksect(h, &e->sect[i], p);
 	}
 	free(p);
+	p = nil;
 
 	if(h->shstrndx >= e->nsect){
 		fprint(2, "warning: bad string section index %d >= %d", h->shstrndx, e->nsect);
@@ -287,6 +289,9 @@ nosects:
 	return e;
 
 err:
+	if (p != nil) {
+		free(p);
+	}
 	free(e->sect);
 	free(e->prog);
 	free(e->shstrtab);

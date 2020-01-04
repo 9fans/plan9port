@@ -122,6 +122,8 @@ newvar(char *name, var *next)
 	v->changefn = 0;
 	return v;
 }
+
+#ifndef PLAN9_NOMAIN
 /*
  * get command line flags, initialize keywords & traps.
  * get values from environment.
@@ -191,6 +193,7 @@ main(int argc, char *argv[])
 	}
 	return 0;  /* not reached; silence OS X Lion gcc */
 }
+#endif
 /*
  * Opcode routines
  * Arguments on stack (...)

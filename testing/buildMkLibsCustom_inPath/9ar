@@ -1,0 +1,15 @@
+#! /bin/sh
+set -eu
+: "$TARGET"
+
+# Fail if not given enough arguments.
+case "$#" in
+[012])
+	printf 'fake 9ar: not enough arguments\n' 1>&2
+	exit 1
+	;;
+esac
+
+shift 2
+
+mv "$@" "$TARGET"

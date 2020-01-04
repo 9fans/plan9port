@@ -1,0 +1,3 @@
+#! /bin/sh
+printf 'fake 9: not implemented\n' 1>&2
+exit 1

@@ -39,3 +39,4 @@ before_script:
 
 script:
   - ./INSTALL
+  - ./INSTALL -t

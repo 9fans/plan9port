@@ -23,3 +23,4 @@ install.sum
 last-change
 src/cmd/awk/y.output
 src/cmd/devdraw/latin1.h
+testingOut

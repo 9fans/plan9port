@@ -2,6 +2,7 @@
 
 dobuild=true
 doinstall=true
+dotest=false
 
 case "x$1" in
 x)
@@ -9,14 +10,21 @@ x)
 x-b)
 	dobuild=true
 	doinstall=false
+	dotest=false
 	;;
 x-c)
 	dobuild=false
 	doinstall=true
+	dotest=false
 	;;
 x-r)
 	shift
 	PLAN9_TARGET=$1 export PLAN9_TARGET
+	;;
+x-t)
+	dobuild=false
+	doinstall=false
+	dotest=true
 	;;
 *)
 	echo 'usage: INSTALL [-b | -c] [-r path]' 1>&2
@@ -40,6 +48,9 @@ echo "+ Submitting changes: https://github.com/9fans/plan9port/pulls"
 echo " "
 echo "* Resetting $PLAN9/config"
 rm -f config
+
+export EXISTS_IF_FAILED
+EXISTS_IF_FAILED="${TMPDIR:-/tmp}/plan9portInstallFailed-$$"
 
 (
 if [ `uname` = FreeBSD ]; then
@@ -227,5 +238,19 @@ if $doinstall; then
 	echo "	PLAN9=$PLAN9 export PLAN9"
 	echo '	PATH=$PATH:$PLAN9/bin export PATH'
 fi
+
+if $dotest; then
+	export OUT WORK CC CXX CFLAGS CXXFLAGS
+	OUT="$PLAN9/testingOut"
+	WORK="$PLAN9/testingWork"
+	mkdir "$OUT" "$WORK" 2>/dev/null
+	: "${CFLAGS=-g -O1 -fsanitize=address} ${CC=gcc} ${CXX=g++}"
+	CXXFLAGS="$CFLAGS"
+	../testing/regressionTestCorpora.sh || touch "$EXISTS_IF_FAILED"
+fi
 ) 2>&1 | tee install.log | $awk -f $PLAN9/dist/isum.awk -v 'copy='install.sum
 
+if test -e "$EXISTS_IF_FAILED"; then
+	rm "$EXISTS_IF_FAILED"
+	exit 1
+fi

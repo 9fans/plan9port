@@ -540,8 +540,11 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 	if(dbglex)
 		fprint(2, "lex: returning %d tokens\n", ai);
 	*plen = ai;
-	if(ai == 0) 
+	free(ts);
+	if(ai == 0) {
+		free(a);
 		return nil;
+	}
 	return a;
 }
 
@@ -554,7 +557,7 @@ _gettoks(uchar* data, int datalen, int chset, int mtype, int* plen)
 static int
 getplaindata(TokenSource* ts, Token* a, int* pai)
 {
-	Rune*	s;
+	Rune 	*s, *tmpS;
 	int	j;
 	int	starti;
 	int	c;
@@ -584,14 +587,22 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 		if(c != 0){
 			buf[j++] = c;
 			if(j == sizeof(buf)-1){
+				tmpS = s;
 				s = buftostr(s, buf, j);
+				if (tmpS != nil) {
+					free(tmpS);
+				}
 				j = 0;
 			}
 		}
 		if(c == '\n')
 			break;
 	}
+	tmpS = s;
 	s = buftostr(s, buf, j);
+	if (tmpS != nil) {
+		free(tmpS);
+	}
 	if(s == nil)
 		return -1;
 	tok = &a[(*pai)++];
@@ -622,7 +633,7 @@ buftostr(Rune* s, Rune* buf, int j)
 static int
 getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 {
-	Rune*	s;
+	Rune 	*s, *tmpS;
 	int	j;
 	int	c;
 	Token*	tok;
@@ -663,13 +674,21 @@ getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 		if(c != 0){
 			buf[j++] = c;
 			if(j == BIGBUFSIZE-1){
+				tmpS = s;
 				s = buftostr(s, buf, j);
+				if (tmpS != nil) {
+					free(tmpS);
+				}
 				j = 0;
 			}
 		}
 		c = getchar(ts);
 	}
+	tmpS = s;
 	s = buftostr(s, buf, j);
+	if (tmpS != nil) {
+		free(tmpS);
+	}
 	if(s == nil)
 		return -1;
 	tok = &a[(*pai)++];
@@ -685,7 +704,7 @@ getdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 static int
 getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 {
-	Rune*	s;
+	Rune 	*s, *tmpS;
 	int	j;
 	int	tstarti;
 	int	savei;
@@ -734,7 +753,11 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 		if(c != 0){
 			buf[j++] = c;
 			if(j == BIGBUFSIZE-1){
+				tmpS = s;
 				s = buftostr(s, buf, j);
+				if (tmpS != nil) {
+					free(tmpS);
+				}
 				j = 0;
 			}
 		}
@@ -742,7 +765,11 @@ getscriptdata(TokenSource* ts, int firstc, int starti, Token* a, int* pai)
 		c = getchar(ts);
 	}
 	if(done || ts->i == ts->edata){
+		tmpS = s;
 		s = buftostr(s, buf, j);
+		if (tmpS != nil) {
+			free(tmpS);
+		}
 		tok = &a[(*pai)++];
 		tok->tag = Data;
 		tok->text = s;
@@ -773,7 +800,7 @@ gettag(TokenSource* ts, int starti, Token* a, int* pai)
 	int	afnd;
 	int	attid;
 	int	quote;
-	Rune*	val;
+	Rune	*val, *tmpVal;
 	int	nv;
 	int	i;
 	int	tag;
@@ -930,7 +957,11 @@ valloop_continue:
 							backup(ts, ti);
 							buf[nv++] = '>';
 							if(nv == BIGBUFSIZE-1){
+								tmpVal = val;
 								val = buftostr(val, buf, nv);
+								if (tmpVal != nil) {
+									free(tmpVal);
+								}
 								nv = 0;
 							}
 							c = getchar(ts);
@@ -973,14 +1004,22 @@ valloop_continue:
 			}
 			buf[nv++] = c;
 			if(nv == BIGBUFSIZE-1){
+				tmpVal = val;
 				val = buftostr(val, buf, nv);
+				if (tmpVal != nil) {
+					free(tmpVal);
+				}
 				nv = 0;
 			}
 			c = getchar(ts);
 		}
 valloop_done:
 		if(afnd){
+			tmpVal = val;
 			val = buftostr(val, buf, nv);
+			if (tmpVal != nil) {
+				free(tmpVal);
+			}
 			al = newattr(attid, val, al);
 		}
 	}

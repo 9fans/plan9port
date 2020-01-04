@@ -1,0 +1,7 @@
+POST /test HTTP/1.1
+Host: foo.example
+Coe
+Content-Type: appww-form-urleed
+Content-Length: 27
+
+f1ei=lvdalue1&field2=value2

@@ -2127,6 +2127,9 @@ getitems(ItemSource* is, uchar* data, int datalen)
 	outerps = lastps(ps);
 	ans = outerps->items->next;
 	/* note: ans may be nil and di->kids not nil, if there's a frameset! */
+	if (outerps->items != nil) {
+		freeitem(outerps->items);
+	}
 	outerps->items = newispacer(ISPnull);
 	outerps->lastit = outerps->items;
 	is->psstk = ps;
@@ -2134,6 +2137,7 @@ getitems(ItemSource* is, uchar* data, int datalen)
 		/* TODO evalscript(nil); */
 		;
 	}
+	freeitems(outerps->items);
 
 return_ans:
 	if(dbgbuild) {
@@ -2143,6 +2147,7 @@ return_ans:
 		else
 			printitems(ans, "getitems returning:");
 	}
+	_freetokens(toks, tokslen);
 	return ans;
 }
 
@@ -2441,6 +2446,9 @@ addtext(Pstate* ps, Rune* s)
 				additem(ps, textit(ps, _Strndup(s+j, i-j)), nil);
 				free(s);
 			}
+		}
+		else {
+			free(s);
 		}
 	}
 	else {	/* not literal mode */
