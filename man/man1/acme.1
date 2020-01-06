@@ -129,7 +129,7 @@ hold button 3 down near the top of the scroll bar.  Moving the mouse
 down the scroll bar speeds up the rate of scrolling.
 (The experimental option
 .B -r
-reverses the scrolling behavior of buttons 1 and 3, to behave 
+reverses the scrolling behavior of buttons 1 and 3, to behave
 more like
 .IR xterm (1).)
 .SS Layout
@@ -193,10 +193,15 @@ When a window is in autoindent mode
 (see the
 .B Indent
 command below) and a newline character is typed,
-acme copies leading white space on the current line to the new line.
+.I acme
+copies leading white space on the current line to the new line,
+and when a window is
+.BR Put ,
+.I acme
+removes all trailing end-of-line white space before writing the file.
 The option
 .B -a
-causes each window to start in 
+causes each window to start in
 autoindent mode.
 .SS "Directory context
 Each window's tag names a directory: explicitly if the window
@@ -406,7 +411,7 @@ command.
 .B Local
 In the Plan 9
 .IR acme ,
-this prefix causes a command to be run in 
+this prefix causes a command to be run in
 .IR acme 's own
 file name space and environment variable group.
 On Unix this is impossible.
@@ -540,7 +545,7 @@ The environment variable
 .B $acmeshell
 determines which shell is used to execute such commands; the
 .IR rc (1)
-shell is used by default. 
+shell is used by default.
 .SS "Mouse button 3
 Pointing at text with button 3 instructs
 .I acme
@@ -658,7 +663,7 @@ button and then typing Option without letting go of the button will
 cause a 1-2 chord, cutting the selection.
 On Mac systems, the usual keyboard shortcuts
 Command-C, -V, -X, and -Z invoke
-copy, paste, cut, and undo, 
+copy, paste, cut, and undo,
 and Command-Shift-Z invokes redo,
 as in other programs.
 Especially on Mac laptops, these keyboard shortcuts are
