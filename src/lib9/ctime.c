@@ -58,7 +58,7 @@ localtime(long tim)
 
 	if (zonelookuptinfo(&ti, tim)!=-1) {
 		ct = gmtime(tim+ti.tzoff);
-		strncpy(ct->zone, ti.zone, sizeof ct->zone);
+		strncpy(ct->zone, ti.zone, sizeof ct->zone - 1);
 		ct->zone[sizeof ct->zone-1] = 0;
 		ct->tzoff = ti.tzoff;
 		return ct;

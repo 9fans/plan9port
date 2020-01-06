@@ -84,7 +84,7 @@ mkptrname(char *ip, char *rip, int rlen)
 static void
 nstrcpy(char *to, char *from, int len)
 {
-	strncpy(to, from, len);
+	strncpy(to, from, len-1);
 	to[len-1] = 0;
 }
 
