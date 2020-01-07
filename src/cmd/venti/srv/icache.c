@@ -68,8 +68,8 @@ mkihash(int size1)
 		size <<= 1;
 	}
 
-	ih = vtmallocz(sizeof(IHash)+size*sizeof(ih->table[0]));
-	ih->table = (IEntry**)(ih+1);
+	ih = vtmallocz(sizeof(IHash));
+	ih->table = vtmallocz(size * sizeof(ih->table[0]));
 	ih->bits = bits;
 	ih->size = size;
 	return ih;
