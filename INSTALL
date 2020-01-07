@@ -29,6 +29,30 @@ case `uname` in
 SunOS)
 	awk=nawk
 	;;
+DragonFly|*BSD)
+	case `cc -v 2>&1` in
+	*clang*)
+		echo "CC9=clang" >> $PLAN9/config
+		;;
+	*gcc*)
+		echo "CC9=gcc" >> $PLAN9/config
+		;;
+	esac
+	echo "* Running on" `uname`", adjusting linker flags"
+	case `uname` in
+	OpenBSD)
+		echo "LDFLAGS='-L/usr/X11R6/lib -pthread'" >> $PLAN9/config
+		;;
+	NetBSD)
+		echo "LDFLAGS='-L/usr/X11R7/lib -pthread'" >> $PLAN9/config
+		;;
+	*)
+		echo "LDFLAGS='-L/usr/local/lib -pthread'" >> $PLAN9/config
+		;;
+	esac
+	echo "CFLAGS='-pthread'" >> $PLAN9/config
+	awk=awk
+	;;
 *)
 	awk=awk
 	;;
@@ -42,29 +66,6 @@ echo "* Resetting $PLAN9/config"
 rm -f config
 
 (
-if [ `uname` = FreeBSD ]; then
-	case `cc -v 2>&1` in
-	*clang*)
-		echo "CC9=clang" >> $PLAN9/config
-		;;
-	*)
-		;;
-	esac
-	echo "* Running on FreeBSD, adjusting linker flags"
-	echo "LDFLAGS='-L/usr/local/lib'" >> $PLAN9/config
-fi
-
-if [ `uname` = DragonFly ]; then
-	echo "* Running on DragonFly BSD, adjusting linker flags"
-	echo "LDFLAGS='-L/usr/local/lib -pthread'" >> $PLAN9/config
-	echo "CFLAGS='-pthread'" >> $PLAN9/config
-fi
-
-if [ `uname` = OpenBSD ]; then
-	echo "* Running on OpenBSD, adjusting linker flags"
-	echo "LDFLAGS='-L/usr/X11R6/lib -pthread'" >> $PLAN9/config
-fi
-
 if [ `uname` = Linux ]; then
 	# On Linux, we use the kernel version to decide whether
 	# to use pthreads or not.  On 2.6 versions that aren't
@@ -135,6 +136,7 @@ if [ `uname` != Darwin ]; then
 	# Determine whether fontsrv X11 files are available.
 	rm -f a.out
 	cc -o a.out -c -Iinclude -I/usr/include -I/usr/local/include -I/usr/include/freetype2 -I/usr/local/include/freetype2 \
+	    -I/usr/X11R7/include -I/usr/X11R7/include/freetype2 \
 	    -I/usr/X11R6/include -I/usr/X11R6/include/freetype2 src/cmd/fontsrv/x11.c >/dev/null 2>&1
 	if [ -f a.out ]; then
 		echo "	fontsrv dependencies found."
