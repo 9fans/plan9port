@@ -11,13 +11,13 @@
 #define _LIBC_H_ 1
 #if defined(__cplusplus)
 extern "C" {
-#endif                                                                
+#endif
 
 #include <utf.h>
 #include <fmt.h>
 
 /*
- * Begin usual libc.h 
+ * Begin usual libc.h
  */
 
 #ifndef nil
@@ -361,7 +361,7 @@ enum
 extern	int	p9atexit(void(*)(void));
 extern	void	p9atexitdont(void(*)(void));
 extern	int	atnotify(int(*)(void*, char*), int);
-/* 
+/*
  * <stdlib.h>
 extern	double	atof(char*); <stdlib.h>
  */
@@ -385,6 +385,9 @@ extern	int	exitcode(char*);
 extern	void	exits(char*);
 extern	double	frexp(double, int*);
 extern	ulong	getcallerpc(void*);
+#if defined(__GNUC__) || defined(__clang__)
+#define getcallerpc(x) ((ulong)__builtin_return_address(0))
+#endif
 extern	char*	p9getenv(char*);
 extern	int	p9putenv(char*, char*);
 extern	int	getfields(char*, char**, int, int, char*);
@@ -479,7 +482,7 @@ extern	void	lock(Lock*);
 extern	void	unlock(Lock*);
 extern	int	canlock(Lock*);
 extern	int	(*_lock)(Lock*, int, ulong);
-extern	void	(*_unlock)(Lock*, ulong);	
+extern	void	(*_unlock)(Lock*, ulong);
 
 typedef struct QLock QLock;
 struct QLock
@@ -670,15 +673,15 @@ extern	void		freenetconninfo(NetConnInfo*);
 
 enum
 {
-	RFNAMEG		= (1<<0), 
-	RFENVG		= (1<<1), 
+	RFNAMEG		= (1<<0),
+	RFENVG		= (1<<1),
 	RFFDG		= (1<<2),
 	RFNOTEG		= (1<<3),
 	RFPROC		= (1<<4),
 	RFMEM		= (1<<5),
 	RFNOWAIT	= (1<<6),
-	RFCNAMEG	= (1<<10), 
-	RFCENVG		= (1<<11), 
+	RFCNAMEG	= (1<<10),
+	RFCENVG		= (1<<11),
 	RFCFDG		= (1<<12)
 /*	RFREND		= (1<<13), */
 /*	RFNOMNT		= (1<<14) */
@@ -707,7 +710,7 @@ struct Dir {
 	char	*uid;	/* owner name */
 	char	*gid;	/* group name */
 	char	*muid;	/* last modifier name */
-	
+
 	/* 9P2000.u extensions */
 	uint	uidnum;		/* numeric uid */
 	uint	gidnum;		/* numeric gid */
@@ -750,7 +753,7 @@ extern	int	p9exec(char*, char*[]);
 extern	int	p9execl(char*, ...);
 /* extern	int	p9fork(void); */
 extern	int	p9rfork(int);
-/* not implemented 
+/* not implemented
 extern	int	fauth(int, char*);
 extern	int	fstat(int, uchar*, int);
 extern	int	fwstat(int, uchar*, int);
@@ -767,7 +770,7 @@ extern	int	notifyoff(char*);
 extern	int	p9open(char*, int);
 extern	int	fd2path(int, char*, int);
 extern	int	p9pipe(int*);
-/* 
+/*
  * use defs from <unistd.h>
 extern	long	pread(int, void*, long, vlong);
 extern	long	preadv(int, IOchunk*, int, vlong);

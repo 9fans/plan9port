@@ -104,7 +104,7 @@ LIB9OFILES=\
 	fcallfmt.$O\
 	frand.$O\
 	get9root.$O\
-	getcallerpc-$OBJTYPE.$O\
+	getcallerpc.$O\
 	getenv.$O\
 	getfields.$O\
 	getnetconn.$O\
