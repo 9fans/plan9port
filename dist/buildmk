@@ -1,21 +1,6 @@
 #!/bin/sh
 
 # run this in the src directory
-SYSNAME=`uname` export SYSNAME
-OBJTYPE=`(uname -m -p 2>/dev/null || uname -m) | sed '
-	s;.*i[3-6]86.*;386;;
-	s;.*i86pc.*;386;;
-	s;.*amd64.*;x86_64;;
-	s;.*x86_64.*;x86_64;;
-	s;.*armv.*;arm;g;
-	s;.*powerpc.*;power;g;
-	s;.*PowerMacintosh.*;power;g;
-	s;.*Power.Macintosh.*;power;g;
-	s;.*macppc.*;power;g;
-	s;.*mips.*;mips;g;
-	s;.*ppc64.*;power;g;
-	s;.*ppc.*;power;g;
-	s;.*alpha.*;alpha;g;
-	s;.*sun4u.*;sun4u;g;
-'` export OBJTYPE
+export SYSNAME OBJTYPE
+. ../buildEnvironmentVariables
 sh -x mkmk.sh
