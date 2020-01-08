@@ -122,11 +122,11 @@ static int
 allspaces(char *a, int n)
 {
 	int i;
-	for (i = 0; i < n; i++) {
-		if (a[i] != ' ') {
+
+	for(i=0; i<n; i++)
+		if(a[i] != ' ')
 			return 0;
-		}
-	}
+
 	return 1;
 }
 
@@ -166,10 +166,11 @@ atimes(char *ar)
 		}else if(memcmp(h.name, "// ", 3) == 0){ /* GNU */
 			/* date, uid, gid, mode all ' ' */
 			if(!allspaces(&h.name[3], sizeof(h.name) - 3) ||
-			   !allspaces(h.date, sizeof(h.date)) || !allspaces(h.uid, sizeof(h.uid)) ||
-			   !allspaces(h.gid, sizeof(h.gid)) || !allspaces(h.mode, sizeof(h.mode))){
+			   !allspaces(h.date, sizeof(h.date)) ||
+			   !allspaces(h.uid, sizeof(h.uid)) ||
+			   !allspaces(h.gid, sizeof(h.gid)) ||
+			   !allspaces(h.mode, sizeof(h.mode)))
 				goto skip;
-			}
 			t = atol(h.size);
 			if(t&01)
 				t++;
