@@ -522,7 +522,6 @@ genrandom genrandom.3
 prng genrandom.3
 get9root get9root.3
 unsharp get9root.3
-getcallerpc getcallerpc.3
 getenv getenv.3
 putenv getenv.3
 getfields getfields.3

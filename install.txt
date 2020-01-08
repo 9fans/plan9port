@@ -146,8 +146,8 @@
 
           There are other smaller system dependencies, such as the
           terminal handling code in 9term(1) and the implementation of
-          getcallerpc(3), but these are usually simple and are not on
-          the critical path for getting the system up and running.
+          but these are usually simple and are not on the critical
+          path for getting the system up and running.
 
      SEE ALSO
           The rest of this manual describes Plan 9 from User Space.

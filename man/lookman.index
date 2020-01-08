@@ -64,7 +64,6 @@
 512x512x24	/usr/local/plan9/man/man7/face.7
 512x512x8	/usr/local/plan9/man/man7/face.7
 8fe472d31b360a8303cd29f92bd734813cbd923c	/usr/local/plan9/man/man7/thumbprint.7
-8lux	/usr/local/plan9/man/man3/getcallerpc.3
 9.rc	/usr/local/plan9/man/man1/9.1
 9660srv	/usr/local/plan9/man/man1/mk9660.1
 9ar	/usr/local/plan9/man/man1/9c.1
@@ -1234,7 +1233,6 @@ arg	/usr/local/plan9/man/man1/time.1
 arg	/usr/local/plan9/man/man3/9p.3
 arg	/usr/local/plan9/man/man3/arg.3
 arg	/usr/local/plan9/man/man3/fmtinstall.3
-arg	/usr/local/plan9/man/man3/getcallerpc.3
 arg	/usr/local/plan9/man/man3/getfields.3
 arg	/usr/local/plan9/man/man3/ioproc.3
 arg	/usr/local/plan9/man/man3/memlayer.3
@@ -1254,7 +1252,6 @@ argc	/usr/local/plan9/man/man1/db.1
 argc	/usr/local/plan9/man/man1/yacc.1
 argc	/usr/local/plan9/man/man3/arg.3
 argc	/usr/local/plan9/man/man3/exec.3
-argc	/usr/local/plan9/man/man3/getcallerpc.3
 argc	/usr/local/plan9/man/man3/mach-cmd.3
 argc	/usr/local/plan9/man/man3/thread.3
 argend	/usr/local/plan9/man/man3/arg.3
@@ -1274,7 +1271,6 @@ argv	/usr/local/plan9/man/man1/acid.1
 argv	/usr/local/plan9/man/man1/yacc.1
 argv	/usr/local/plan9/man/man3/arg.3
 argv	/usr/local/plan9/man/man3/exec.3
-argv	/usr/local/plan9/man/man3/getcallerpc.3
 argv	/usr/local/plan9/man/man3/mach-cmd.3
 argv	/usr/local/plan9/man/man3/thread.3
 argv0	/usr/local/plan9/man/man1/acid.1
@@ -2644,7 +2640,6 @@ bugs	/usr/local/plan9/man/man3/event.3
 bugs	/usr/local/plan9/man/man3/exec.3
 bugs	/usr/local/plan9/man/man3/exits.3
 bugs	/usr/local/plan9/man/man3/get9root.3
-bugs	/usr/local/plan9/man/man3/getcallerpc.3
 bugs	/usr/local/plan9/man/man3/getenv.3
 bugs	/usr/local/plan9/man/man3/getwd.3
 bugs	/usr/local/plan9/man/man3/graphics.3
@@ -3259,7 +3254,6 @@ char	/usr/local/plan9/man/man3/fcall.3
 char	/usr/local/plan9/man/man3/flate.3
 char	/usr/local/plan9/man/man3/fmtinstall.3
 char	/usr/local/plan9/man/man3/get9root.3
-char	/usr/local/plan9/man/man3/getcallerpc.3
 char	/usr/local/plan9/man/man3/getenv.3
 char	/usr/local/plan9/man/man3/getfields.3
 char	/usr/local/plan9/man/man3/getns.3
@@ -5436,7 +5430,6 @@ current	/usr/local/plan9/man/man3/cachechars.3
 current	/usr/local/plan9/man/man3/event.3
 current	/usr/local/plan9/man/man3/exec.3
 current	/usr/local/plan9/man/man3/fmtinstall.3
-current	/usr/local/plan9/man/man3/getcallerpc.3
 current	/usr/local/plan9/man/man3/getns.3
 current	/usr/local/plan9/man/man3/getsnarf.3
 current	/usr/local/plan9/man/man3/getuser.3
@@ -7024,7 +7017,6 @@ disconnected	/usr/local/plan9/man/man1/graph.1
 disconnects	/usr/local/plan9/man/man3/graphics.3
 discouraged	/usr/local/plan9/man/man3/lock.3
 discover	/usr/local/plan9/man/man1/scat.1
-discover	/usr/local/plan9/man/man3/getcallerpc.3
 discover	/usr/local/plan9/man/man3/window.3
 discovered	/usr/local/plan9/man/man1/grep.1
 discovered	/usr/local/plan9/man/man1/sort.1
@@ -9441,7 +9433,6 @@ ferrying	/usr/local/plan9/man/man3/9pclient.3
 fetch	/usr/local/plan9/man/man1/db.1
 fetch	/usr/local/plan9/man/man1/secstore.1
 fetch	/usr/local/plan9/man/man3/fmtinstall.3
-fetch	/usr/local/plan9/man/man3/getcallerpc.3
 fetch	/usr/local/plan9/man/man3/proto.3
 fetched	/usr/local/plan9/man/man1/db.1
 fetches	/usr/local/plan9/man/man3/getenv.3
@@ -10003,7 +9994,6 @@ firefox	/usr/local/plan9/man/man1/0intro.1
 firefox	/usr/local/plan9/man/man1/web.1
 firefox.app	/usr/local/plan9/man/man1/web.1
 fires	/usr/local/plan9/man/man7/plumb.7
-firstarg	/usr/local/plan9/man/man3/getcallerpc.3
 firstly	/usr/local/plan9/man/man7/face.7
 fisheye	/usr/local/plan9/man/man1/map.1
 fit	/usr/local/plan9/man/man1/gview.1
@@ -10930,9 +10920,6 @@ get8	/usr/local/plan9/man/man3/mach-map.3
 get9root	/usr/local/plan9/man/man1/0intro.1
 get9root	/usr/local/plan9/man/man3/get9root.3
 get9root	/usr/local/plan9/man/man7/plumb.7
-getcallerpc	/usr/local/plan9/man/man1/0intro.1
-getcallerpc	/usr/local/plan9/man/man3/getcallerpc.3
-getcallerpc	/usr/local/plan9/man/man3/malloc.3
 getdefont	/usr/local/plan9/man/man3/graphics.3
 getdefont	/usr/local/plan9/man/man3/memdraw.3
 getenv	/usr/local/plan9/man/man3/exec.3
@@ -12029,7 +12016,6 @@ include	/usr/local/plan9/man/man3/fmtinstall.3
 include	/usr/local/plan9/man/man3/frame.3
 include	/usr/local/plan9/man/man3/genrandom.3
 include	/usr/local/plan9/man/man3/get9root.3
-include	/usr/local/plan9/man/man3/getcallerpc.3
 include	/usr/local/plan9/man/man3/getenv.3
 include	/usr/local/plan9/man/man3/getfields.3
 include	/usr/local/plan9/man/man3/getns.3
@@ -12664,7 +12650,6 @@ int	/usr/local/plan9/man/man3/flate.3
 int	/usr/local/plan9/man/man3/fmtinstall.3
 int	/usr/local/plan9/man/man3/frame.3
 int	/usr/local/plan9/man/man3/genrandom.3
-int	/usr/local/plan9/man/man3/getcallerpc.3
 int	/usr/local/plan9/man/man3/getenv.3
 int	/usr/local/plan9/man/man3/getfields.3
 int	/usr/local/plan9/man/man3/getwd.3
@@ -13891,7 +13876,6 @@ lib9	/usr/local/plan9/man/man3/exits.3
 lib9	/usr/local/plan9/man/man3/fcall.3
 lib9	/usr/local/plan9/man/man3/fmtinstall.3
 lib9	/usr/local/plan9/man/man3/get9root.3
-lib9	/usr/local/plan9/man/man3/getcallerpc.3
 lib9	/usr/local/plan9/man/man3/getenv.3
 lib9	/usr/local/plan9/man/man3/getfields.3
 lib9	/usr/local/plan9/man/man3/getns.3
@@ -13980,7 +13964,6 @@ libc.h	/usr/local/plan9/man/man3/fmtinstall.3
 libc.h	/usr/local/plan9/man/man3/frame.3
 libc.h	/usr/local/plan9/man/man3/genrandom.3
 libc.h	/usr/local/plan9/man/man3/get9root.3
-libc.h	/usr/local/plan9/man/man3/getcallerpc.3
 libc.h	/usr/local/plan9/man/man3/getenv.3
 libc.h	/usr/local/plan9/man/man3/getfields.3
 libc.h	/usr/local/plan9/man/man3/getns.3
@@ -14871,7 +14854,6 @@ main	/usr/local/plan9/man/man3/arg.3
 main	/usr/local/plan9/man/man3/exec.3
 main	/usr/local/plan9/man/man3/exits.3
 main	/usr/local/plan9/man/man3/fmtinstall.3
-main	/usr/local/plan9/man/man3/getcallerpc.3
 main	/usr/local/plan9/man/man3/mach-cmd.3
 main	/usr/local/plan9/man/man3/memlayer.3
 main	/usr/local/plan9/man/man3/print.3
@@ -16360,7 +16342,6 @@ necessary	/usr/local/plan9/man/man3/dirread.3
 necessary	/usr/local/plan9/man/man3/draw.3
 necessary	/usr/local/plan9/man/man3/fcall.3
 necessary	/usr/local/plan9/man/man3/frame.3
-necessary	/usr/local/plan9/man/man3/getcallerpc.3
 necessary	/usr/local/plan9/man/man3/getsnarf.3
 necessary	/usr/local/plan9/man/man3/mach-file.3
 necessary	/usr/local/plan9/man/man3/mach-map.3
@@ -18076,7 +18057,6 @@ parameter	/usr/local/plan9/man/man3/9p.3
 parameter	/usr/local/plan9/man/man3/bio.3
 parameter	/usr/local/plan9/man/man3/draw.3
 parameter	/usr/local/plan9/man/man3/event.3
-parameter	/usr/local/plan9/man/man3/getcallerpc.3
 parameter	/usr/local/plan9/man/man3/ioproc.3
 parameter	/usr/local/plan9/man/man3/mach-stack.3
 parameter	/usr/local/plan9/man/man3/mach-symbol.3
@@ -18333,7 +18313,6 @@ pbit64	/usr/local/plan9/man/man3/fcall.3
 pbit8	/usr/local/plan9/man/man3/fcall.3
 pc	/usr/local/plan9/man/man1/db.1
 pc	/usr/local/plan9/man/man1/tcs.1
-pc	/usr/local/plan9/man/man3/getcallerpc.3
 pc	/usr/local/plan9/man/man3/mach-stack.3
 pc	/usr/local/plan9/man/man3/mach-symbol.3
 pc	/usr/local/plan9/man/man3/malloc.3
@@ -18897,7 +18876,6 @@ pointer	/usr/local/plan9/man/man3/fcall.3
 pointer	/usr/local/plan9/man/man3/fmtinstall.3
 pointer	/usr/local/plan9/man/man3/frame.3
 pointer	/usr/local/plan9/man/man3/get9root.3
-pointer	/usr/local/plan9/man/man3/getcallerpc.3
 pointer	/usr/local/plan9/man/man3/getenv.3
 pointer	/usr/local/plan9/man/man3/getns.3
 pointer	/usr/local/plan9/man/man3/getsnarf.3
@@ -19053,7 +19031,6 @@ portability	/usr/local/plan9/man/man7/color.7
 portability	/usr/local/plan9/man/man7/map.7
 portable	/usr/local/plan9/man/man1/0intro.1
 portable	/usr/local/plan9/man/man1/9c.1
-portable	/usr/local/plan9/man/man3/getcallerpc.3
 portable	/usr/local/plan9/man/man3/memory.3
 portable	/usr/local/plan9/man/man3/mp.3
 ported	/usr/local/plan9/man/man1/0intro.1
@@ -19488,7 +19465,6 @@ print	/usr/local/plan9/man/man3/bio.3
 print	/usr/local/plan9/man/man3/encode.3
 print	/usr/local/plan9/man/man3/errstr.3
 print	/usr/local/plan9/man/man3/fmtinstall.3
-print	/usr/local/plan9/man/man3/getcallerpc.3
 print	/usr/local/plan9/man/man3/graphics.3
 print	/usr/local/plan9/man/man3/html.3
 print	/usr/local/plan9/man/man3/ip.3
@@ -19570,7 +19546,6 @@ printing	/usr/local/plan9/man/man1/xd.1
 printing	/usr/local/plan9/man/man3/fmtinstall.3
 printing	/usr/local/plan9/man/man3/graphics.3
 printitems	/usr/local/plan9/man/man3/html.3
-printpc	/usr/local/plan9/man/man3/getcallerpc.3
 prints	/usr/local/plan9/man/man1/acid.1
 prints	/usr/local/plan9/man/man1/acme.1
 prints	/usr/local/plan9/man/man1/acmeevent.1
@@ -21993,7 +21968,6 @@ return	/usr/local/plan9/man/man3/fcall.3
 return	/usr/local/plan9/man/man3/flate.3
 return	/usr/local/plan9/man/man3/fmtinstall.3
 return	/usr/local/plan9/man/man3/frame.3
-return	/usr/local/plan9/man/man3/getcallerpc.3
 return	/usr/local/plan9/man/man3/graphics.3
 return	/usr/local/plan9/man/man3/html.3
 return	/usr/local/plan9/man/man3/ioproc.3
@@ -24278,7 +24252,6 @@ source	/usr/local/plan9/man/man3/fmtinstall.3
 source	/usr/local/plan9/man/man3/frame.3
 source	/usr/local/plan9/man/man3/genrandom.3
 source	/usr/local/plan9/man/man3/get9root.3
-source	/usr/local/plan9/man/man3/getcallerpc.3
 source	/usr/local/plan9/man/man3/getenv.3
 source	/usr/local/plan9/man/man3/getfields.3
 source	/usr/local/plan9/man/man3/getns.3
@@ -24781,7 +24754,6 @@ src	/usr/local/plan9/man/man3/fmtinstall.3
 src	/usr/local/plan9/man/man3/frame.3
 src	/usr/local/plan9/man/man3/genrandom.3
 src	/usr/local/plan9/man/man3/get9root.3
-src	/usr/local/plan9/man/man3/getcallerpc.3
 src	/usr/local/plan9/man/man3/getenv.3
 src	/usr/local/plan9/man/man3/getfields.3
 src	/usr/local/plan9/man/man3/getns.3
@@ -27554,7 +27526,6 @@ u.h	/usr/local/plan9/man/man3/fmtinstall.3
 u.h	/usr/local/plan9/man/man3/frame.3
 u.h	/usr/local/plan9/man/man3/genrandom.3
 u.h	/usr/local/plan9/man/man3/get9root.3
-u.h	/usr/local/plan9/man/man3/getcallerpc.3
 u.h	/usr/local/plan9/man/man3/getenv.3
 u.h	/usr/local/plan9/man/man3/getfields.3
 u.h	/usr/local/plan9/man/man3/getns.3
@@ -27721,7 +27692,6 @@ ulong	/usr/local/plan9/man/man3/fcall.3
 ulong	/usr/local/plan9/man/man3/flate.3
 ulong	/usr/local/plan9/man/man3/fmtinstall.3
 ulong	/usr/local/plan9/man/man3/frame.3
-ulong	/usr/local/plan9/man/man3/getcallerpc.3
 ulong	/usr/local/plan9/man/man3/graphics.3
 ulong	/usr/local/plan9/man/man3/ip.3
 ulong	/usr/local/plan9/man/man3/mach-file.3
@@ -29038,7 +29008,6 @@ void	/usr/local/plan9/man/man3/fmtinstall.3
 void	/usr/local/plan9/man/man3/frame.3
 void	/usr/local/plan9/man/man3/genrandom.3
 void	/usr/local/plan9/man/man3/get9root.3
-void	/usr/local/plan9/man/man3/getcallerpc.3
 void	/usr/local/plan9/man/man3/getns.3
 void	/usr/local/plan9/man/man3/getsnarf.3
 void	/usr/local/plan9/man/man3/getuser.3

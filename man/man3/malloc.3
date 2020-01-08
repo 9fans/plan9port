@@ -119,9 +119,7 @@ and
 these tags will be set properly.
 If a custom allocator wrapper is used,
 the allocator wrapper can set the tags
-itself (usually by passing the result of
-.IR getcallerpc (3) 
-to 
+itself to 
 .IR setmalloctag )
 to provide more useful information about
 the source of allocation.
@@ -133,7 +131,6 @@ the source of allocation.
 .I trump
 (in
 .IR acid (1)),
-.IR getcallerpc (3)
 .SH DIAGNOSTICS
 .I Malloc, realloc
 and
