@@ -767,7 +767,8 @@ waitthread(void *v)
 				if(strncmp(w->msg, "libthread", 9) != 0){
 					p = emalloc(sizeof(Pid));
 					p->pid = pid;
-					strncpy(p->msg, w->msg, sizeof(p->msg));
+					strncpy(p->msg, w->msg, sizeof(p->msg) - 1);
+					p->msg[sizeof(p->msg) - 1] = 0;
 					p->next = pids;
 					pids = p;
 				}
