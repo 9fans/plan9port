@@ -43,35 +43,34 @@ usage(void)
 	threadexitsall("usage");
 }
 
-
-@interface AppDelegate : NSObject<NSApplicationDelegate,NSWindowDelegate>
+@interface DrawLayer : CAMetalLayer
+@end
+@interface AppDelegate : NSObject<NSApplicationDelegate>
 + (void)makewin:(NSValue *)v;
 + (void)callkicklabel:(NSString *)v;
 + (void)callsetNeedsDisplayInRect:(NSValue *)v;
 + (void)callsetcursor:(NSValue *)v;
 @end
-@interface DevDrawView : NSView<NSTextInputClient>
-@property (nonatomic) Client *client;
+
+@interface DevDrawView : NSView<NSTextInputClient,NSWindowDelegate>
+@property (nonatomic, assign) Client *client;
+@property (nonatomic, assign) DrawLayer *dlayer;
+@property (nonatomic, assign) NSWindow *win;
+@property (nonatomic, assign) NSCursor *currentCursor;
+@property (nonatomic, assign) Memimage *img;
+
 - (void)clearInput;
 - (void)getmouse:(NSEvent *)e;
 - (void)sendmouse:(NSUInteger)b;
 - (void)resetLastInputRect;
 - (void)enlargeLastInputRect:(NSRect)r;
 @end
-@interface DrawLayer : CAMetalLayer
-@end
 
 static AppDelegate *myApp = NULL;
-static DevDrawView *myContent = NULL;
-static NSWindow *win = NULL;
-static NSCursor *currentCursor = NULL;
 
-static DrawLayer *layer;
 static id<MTLDevice> device;
 static id<MTLCommandQueue> commandQueue;
 static id<MTLTexture> texture;
-
-static Memimage *img = NULL;
 
 static QLock snarfl;
 
@@ -164,7 +163,7 @@ callservep9p(void *v)
 	r.size.height = fmin(Dy(wr), r.size.height);
 	r = [NSWindow contentRectForFrameRect:r styleMask:Winstyle];
 
-	win = [[NSWindow alloc]
+	NSWindow *win = [[NSWindow alloc]
 		initWithContentRect:r
 		styleMask:Winstyle
 		backing:NSBackingStoreBuffered defer:NO];
@@ -177,13 +176,16 @@ callservep9p(void *v)
 	[win setOpaque:YES];
 	[win setRestorable:NO];
 	[win setAcceptsMouseMovedEvents:YES];
-	[win setDelegate:myApp];
 
-	myContent = [DevDrawView new];
-	myContent.client = client0;
-	[win setContentView:myContent];
-	[myContent setWantsLayer:YES];
-	[myContent setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
+	DevDrawView *view = [DevDrawView new];
+	client0->view = view;
+	view.client = client0;
+	view.win = win;
+	view.currentCursor = nil;
+	[win setContentView:view];
+	[win setDelegate:view];
+	[view setWantsLayer:YES];
+	[view setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
 	
 	device = nil;
 	allDevices = MTLCopyAllDevices();
@@ -198,7 +200,8 @@ callservep9p(void *v)
 
 	commandQueue = [device newCommandQueue];
 
-	layer = (DrawLayer *)[myContent layer];
+	DrawLayer *layer = (DrawLayer *)[view layer];
+	view.dlayer = layer;
 	layer.device = device;
 	layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 	layer.framebufferOnly = YES;
@@ -220,8 +223,10 @@ callservep9p(void *v)
 
 + (void)callkicklabel:(NSString *)s
 {
+	DevDrawView *view = client0->view;
+	
 	LOG(@"callkicklabel(%@)", s);
-	[win setTitle:s];
+	[view.win setTitle:s];
 	[[NSApp dockTile] setBadgeLabel:s];
 }
 
@@ -230,19 +235,20 @@ callservep9p(void *v)
 {
 	NSRect r;
 	dispatch_time_t time;
+	DevDrawView *view = client0->view;
 
 	r = [v rectValue];
 	LOG(@"callsetNeedsDisplayInRect(%g, %g, %g, %g)", r.origin.x, r.origin.y, r.size.width, r.size.height);
-	r = [win convertRectFromBacking:r];
+	r = [view.win convertRectFromBacking:r];
 	LOG(@"setNeedsDisplayInRect(%g, %g, %g, %g)", r.origin.x, r.origin.y, r.size.width, r.size.height);
-	[layer setNeedsDisplayInRect:r];
+	[view.dlayer setNeedsDisplayInRect:r];
 
 	time = dispatch_time(DISPATCH_TIME_NOW, 16 * NSEC_PER_MSEC);
 	dispatch_after(time, dispatch_get_main_queue(), ^(void){
-		[layer setNeedsDisplayInRect:r];
+		[view.dlayer setNeedsDisplayInRect:r];
 	});
 
-	[myContent enlargeLastInputRect:r];
+	[view enlargeLastInputRect:r];
 }
 
 typedef struct Cursors Cursors;
@@ -261,6 +267,7 @@ struct Cursors {
 	NSPoint p;
 	uchar *plane[5], *plane2[5];
 	uint b;
+	DevDrawView *view = client0->view;
 
 	cs = [v pointerValue];
 	c = cs->c;
@@ -321,9 +328,9 @@ struct Cursors {
 	[i addRepresentation:r];
 
 	p = NSMakePoint(-c->offset.x, -c->offset.y);
-	currentCursor = [[NSCursor alloc] initWithImage:i hotSpot:p];
+	view.currentCursor = [[NSCursor alloc] initWithImage:i hotSpot:p];
 
-	[win invalidateCursorRectsForView:myContent];
+	[view.win invalidateCursorRectsForView:view];
 }
 
 - (void)applicationDidFinishLaunching:(id)arg
@@ -363,19 +370,6 @@ struct Cursors {
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
 	return YES;
 }
-
-- (void)windowDidResize:(NSNotification *)notification
-{
-	if(![myContent inLiveResize] && img) {
-		resizeimg(myContent.client);
-	}
-}
-
-- (void)windowDidBecomeKey:(id)arg
-{
-        [myContent sendmouse:0];
-}
-
 @end
 
 @implementation DevDrawView
@@ -398,6 +392,18 @@ struct Cursors {
 	_markedRange = NSMakeRange(NSNotFound, 0);
 	_selectedRange = NSMakeRange(0, 0);
 	return self;
+}
+
+- (void)windowDidResize:(NSNotification *)notification
+{
+	if(![self inLiveResize] && self.img) {
+		resizeimg(self.client);
+	}
+}
+
+- (void)windowDidBecomeKey:(id)arg
+{
+        [self sendmouse:0];
 }
 
 - (CALayer *)makeBackingLayer
@@ -558,20 +564,20 @@ struct Cursors {
 
 - (void)resetCursorRects {
 	[super resetCursorRects];
-	[self addCursorRect:self.bounds cursor:currentCursor];
+	[self addCursorRect:self.bounds cursor:self.currentCursor];
 }
 
 - (void)viewDidEndLiveResize
 {
 	[super viewDidEndLiveResize];
-	if(img)
+	if(self.img)
 		resizeimg(self.client);
 }
 
 - (void)viewDidChangeBackingProperties
 {
 	[super viewDidChangeBackingProperties];
-	if(img)
+	if(self.img)
 		resizeimg(self.client);
 }
 
@@ -801,8 +807,9 @@ struct Cursors {
 
 @autoreleasepool{
 	id<CAMetalDrawable> drawable;
+	DevDrawView *view = client0->view;
 
-	drawable = [layer nextDrawable];
+	drawable = [view.dlayer nextDrawable];
 	if(!drawable){
 		LOG(@"display couldn't get drawable");
 		[self setNeedsDisplay];
@@ -945,20 +952,22 @@ attachscreen(Client *c, char *label, char *winsize)
 static Memimage*
 initimg(Client *c)
 {
+	DevDrawView *view = c->view;
+
 @autoreleasepool{
 	CGFloat scale;
 	NSSize size;
 	MTLTextureDescriptor *textureDesc;
 
-	size = [myContent convertSizeToBacking:[myContent bounds].size];
+	size = [view convertSizeToBacking:[view bounds].size];
 	c->mouserect = Rect(0, 0, size.width, size.height);
 
 	LOG(@"initimg %.0f %.0f", size.width, size.height);
 
-	img = allocmemimage(c->mouserect, XRGB32);
-	if(img == nil)
+	view.img = allocmemimage(c->mouserect, XRGB32);
+	if(view.img == nil)
 		panic("allocmemimage: %r");
-	if(img->data == nil)
+	if(view.img->data == nil)
 		panic("img->data == nil");
 
 	textureDesc = [MTLTextureDescriptor
@@ -971,9 +980,9 @@ initimg(Client *c)
 	textureDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 	texture = [device newTextureWithDescriptor:textureDesc];
 
-	scale = [win backingScaleFactor];
-	[layer setDrawableSize:size];
-	[layer setContentsScale:scale];
+	scale = [view.win backingScaleFactor];
+	[view.dlayer setDrawableSize:size];
+	[view.dlayer setContentsScale:scale];
 
 	// NOTE: This is not really the display DPI.
 	// On retina, scale is 2; otherwise it is 1.
@@ -984,12 +993,14 @@ initimg(Client *c)
 }
 	LOG(@"initimg return");
 
-	return img;
+	return view.img;
 }
 
 void
 _flushmemscreen(Rectangle r)
 {
+	DevDrawView *view = client0->view;
+
 	LOG(@"_flushmemscreen(%d,%d,%d,%d)", r.min.x, r.min.y, Dx(r), Dy(r));
 	if(!rectinrect(r, Rect(0, 0, texture.width, texture.height))){
 		LOG(@"Rectangle is out of bounds, return.");
@@ -1000,8 +1011,8 @@ _flushmemscreen(Rectangle r)
 		[texture
 			replaceRegion:MTLRegionMake2D(r.min.x, r.min.y, Dx(r), Dy(r))
 			mipmapLevel:0
-			withBytes:byteaddr(img, Pt(r.min.x, r.min.y))
-			bytesPerRow:img->width*sizeof(u32int)];
+			withBytes:byteaddr(view.img, Pt(r.min.x, r.min.y))
+			bytesPerRow:view.img->width*sizeof(u32int)];
 		[AppDelegate
 			performSelectorOnMainThread:@selector(callsetNeedsDisplayInRect:)
 			withObject:[NSValue valueWithRect:NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r))]
@@ -1012,15 +1023,17 @@ _flushmemscreen(Rectangle r)
 void
 setmouse(Point p)
 {
+	DevDrawView *view = client0->view;
+
 	@autoreleasepool{
 		NSPoint q;
 
 		LOG(@"setmouse(%d,%d)", p.x, p.y);
-		q = [win convertPointFromBacking:NSMakePoint(p.x, p.y)];
+		q = [view.win convertPointFromBacking:NSMakePoint(p.x, p.y)];
 		LOG(@"(%g, %g) <- fromBacking", q.x, q.y);
-		q = [myContent convertPoint:q toView:nil];
+		q = [view convertPoint:q toView:nil];
 		LOG(@"(%g, %g) <- toWindow", q.x, q.y);
-		q = [win convertPointToScreen:q];
+		q = [view.win convertPointToScreen:q];
 		LOG(@"(%g, %g) <- toScreen", q.x, q.y);
 		// Quartz has the origin of the "global display
 		// coordinate space" at the top left of the primary
@@ -1113,7 +1126,9 @@ setcursor(Cursor *c, Cursor2 *c2)
 void
 topwin(void)
 {
-	[win
+	DevDrawView *view = client0->view;
+
+	[view.win
 		performSelectorOnMainThread:
 		@selector(makeKeyAndOrderFront:)
 		withObject:nil
@@ -1125,19 +1140,23 @@ topwin(void)
 void
 resizeimg(Client *c)
 {
+	DevDrawView *view = c->view;
+
 	_drawreplacescreenimage(c, initimg(c));
-	[myContent sendmouse:0];
+	[view sendmouse:0];
 }
 
 void
 resizewindow(Rectangle r)
 {
+	DevDrawView *view = client0->view;
+
 	LOG(@"resizewindow %d %d %d %d", r.min.x, r.min.y, Dx(r), Dy(r));
 	dispatch_async(dispatch_get_main_queue(), ^(void){
 		NSSize s;
 
-		s = [myContent convertSizeFromBacking:NSMakeSize(Dx(r), Dy(r))];
-		[win setContentSize:s];
+		s = [view convertSizeFromBacking:NSMakeSize(Dx(r), Dy(r))];
+		[view.win setContentSize:s];
 	});
 }
 

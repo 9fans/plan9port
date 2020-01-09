@@ -53,7 +53,6 @@ if [ $WSYSTYPE = x11 ]; then
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
 	echo 'WSYSHFILES=x11-inc.h x11-keysym2ucs.h x11-memdraw.h'
 elif [ $WSYSTYPE = mac ]; then
-	echo 'OBJCFLAGS=$OBJCFLAGS -fobjc-arc'
 	echo 'WSYSOFILES=$WSYSOFILES mac-draw.o mac-screen.o mac-srv.o'
 	echo 'WSYSHFILES=mac-screen.h'
 	echo 'MACARGV=macargv.o'

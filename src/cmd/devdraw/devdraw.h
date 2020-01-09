@@ -75,6 +75,7 @@ struct Client
 
 	int		rfd;
 	int		wfd;
+	void*		view;
 	
 	QLock inputlk;
 	Kbdbuf kbd;
