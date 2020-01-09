@@ -383,7 +383,7 @@ extern	int	encodefmt(Fmt*);
 extern	int	dirmodefmt(Fmt*);
 extern	int	exitcode(char*);
 extern	void	exits(char*);
-extern	double	frexp(double, int*);
+extern	double	p9frexp(double, int*);
 extern	ulong	getcallerpc(void*);
 #if defined(__GNUC__) || defined(__clang__)
 #define getcallerpc(x) ((ulong)__builtin_return_address(0))
@@ -436,6 +436,8 @@ extern	void	(*_unpin)(void);
 #define atoll		p9atoll
 #define encrypt		p9encrypt
 #define decrypt		p9decrypt
+#undef frexp
+#define frexp		p9frexp
 #define getenv		p9getenv
 #define	getwd		p9getwd
 #define	longjmp		p9longjmp
