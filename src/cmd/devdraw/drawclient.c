@@ -4,7 +4,7 @@
 #include <draw.h>
 #include <mouse.h>
 #include <cursor.h>
-#include <drawsrv.h>
+#include <drawfcall.h>
 
 typedef struct Cmd Cmd;
 struct Cmd {
@@ -29,7 +29,7 @@ startsrv(void)
 		close(p[0]);
 		dup(p[1], 0);
 		dup(p[1], 1);
-		execl("o.drawsrv", "o.drawsrv", "-D", nil);
+		execl("./o.devdraw", "o.devdraw", "-D", nil);
 		sysfatal("exec: %r");
 	}
 	close(p[1]);
@@ -47,7 +47,7 @@ fprint(2, "write %d to %d\n", n, fd);
 	n = readwsysmsg(fd, buf, sizeof buf);
 	nn = convM2W(buf, n, m);
 	assert(nn == n);
-	if(m->op == Rerror)
+	if(m->type == Rerror)
 		return -1;
 	return 0;
 }
@@ -58,10 +58,9 @@ cmdinit(int argc, char **argv)
 	Wsysmsg m;
 
 	memset(&m, 0, sizeof m);
-	m.op = Tinit;
+	m.type = Tinit;
 	m.winsize = "100x100";
 	m.label = "label";
-	m.font = "";
 	if(domsg(&m) < 0)
 		sysfatal("domsg");
 }
@@ -72,7 +71,7 @@ cmdmouse(int argc, char **argv)
 	Wsysmsg m;
 
 	memset(&m, 0, sizeof m);
-	m.op = Trdmouse;
+	m.type = Trdmouse;
 	if(domsg(&m) < 0)
 		sysfatal("domsg");
 	print("%c %d %d %d\n",
@@ -88,10 +87,10 @@ cmdkbd(int argc, char **argv)
 	Wsysmsg m;
 
 	memset(&m, 0, sizeof m);
-	m.op = Trdkbd;
+	m.type = Trdkbd;
 	if(domsg(&m) < 0)
 		sysfatal("domsg");
-	print("%s\n", m.runes);
+	print("%d\n", m.rune);
 }
 
 Cmd cmdtab[] = {
