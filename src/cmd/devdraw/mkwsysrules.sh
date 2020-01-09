@@ -26,7 +26,7 @@ if [ "x$WSYSTYPE" = "x" ]; then
 			echo 1>&2 'OS X 10.12 and older are not supported'
 			exit 1
 		fi
-		WSYSTYPE=osx-cocoa
+		WSYSTYPE=mac
 	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
@@ -51,9 +51,9 @@ if [ $WSYSTYPE = x11 ]; then
 	echo 'HFILES=$HFILES $XHFILES'
 	XO=`ls x11-*.c 2>/dev/null | sed 's/\.c$/.o/'`
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
-elif [ $WSYSTYPE = osx-cocoa ]; then
+elif [ $WSYSTYPE = mac ]; then
 	echo 'OBJCFLAGS=$OBJCFLAGS -fobjc-arc'
-	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen.o cocoa-srv.o'
+	echo 'WSYSOFILES=$WSYSOFILES mac-draw.o mac-screen.o mac-srv.o'
 	echo 'MACARGV=macargv.o'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'

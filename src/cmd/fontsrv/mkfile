@@ -14,8 +14,6 @@ OFILES=\
 
 <$PLAN9/src/mkone
 
-osx-cocoa.$O: osx.c
-
 showpjw: showpjw.c
 	9c showpjw.c
 	9l -o showpjw showpjw.o

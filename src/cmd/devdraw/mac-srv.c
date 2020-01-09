@@ -11,7 +11,7 @@
 #include <mouse.h>
 #include <cursor.h>
 #include <drawfcall.h>
-#include "cocoa-screen.h"
+#include "mac-screen.h"
 #include "devdraw.h"
 
 typedef struct Kbdbuf Kbdbuf;

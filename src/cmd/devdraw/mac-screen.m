@@ -17,8 +17,7 @@
 #include <memdraw.h>
 #include <keyboard.h>
 #include <cursor.h>
-#include "cocoa-screen.h"
-#include "osx-keycodes.h"
+#include "mac-screen.h"
 #include "devdraw.h"
 #include "bigarrow.h"
 #include "glendapng.h"

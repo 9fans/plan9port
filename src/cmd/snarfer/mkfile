@@ -9,4 +9,4 @@ HFILES=
 <$PLAN9/src/mkone
 
 x11-snarfer.$O: snarfer.c
-osx-snarfer.$O: snarfer.c
+mac-snarfer.$O: snarfer.c
