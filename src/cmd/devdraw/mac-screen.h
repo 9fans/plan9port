@@ -1,6 +1,6 @@
 #define setcursor dsetcursor
 
-Memimage *attachscreen(char*, char*);
+Memimage *attachscreen(Client*, char*, char*);
 void	setmouse(Point);
 void	setcursor(Cursor*, Cursor2*);
 void	setlabel(char*);
@@ -8,17 +8,12 @@ char*	getsnarf(void);
 void	putsnarf(char*);
 void	topwin(void);
 
-void	mousetrack(int, int, int, uint);
-void	keystroke(int);
+void	mousetrack(Client*, int, int, int, uint);
+void	keystroke(Client*, int);
 void	kicklabel(char*);
 
-void	servep9p(void);
-void	zlock(void);
-void	zunlock(void);
+void	servep9p(Client*);
 
-void resizeimg(void);
+void resizeimg(Client*);
 
-Rectangle mouserect;
-
-int mouseresized;
 void resizewindow(Rectangle);

@@ -16,7 +16,11 @@ WSYSOFILES=\
 OFILES=$WSYSOFILES
 
 HFILES=\
+	bigarrow.h\
 	devdraw.h\
+	glendapng.h\
+	latin1.h\
+	$WSYSHFILES\
 
 <$PLAN9/src/mkone
 
@@ -40,7 +44,7 @@ $O.macargv: $MACARGV
 %.$O: %.m
 	$CC $CFLAGS $OBJCFLAGS -o $target $stem.m
 
-CLEANFILES=$O.devdraw $O.macargv $O.mklatinkbd latin1.h
+CLEANFILES=$O.devdraw $O.macargv $O.drawclient $O.mklatinkbd latin1.h
 
 install: mklatinkbd.install
 install:Q: 

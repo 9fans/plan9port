@@ -15,10 +15,13 @@
 #include <thread.h>
 #include <draw.h>
 #include <memdraw.h>
-#include <keyboard.h>
+#include <memlayer.h>
+#include <mouse.h>
 #include <cursor.h>
-#include "mac-screen.h"
+#include <keyboard.h>
+#include <drawfcall.h>
 #include "devdraw.h"
+#include "mac-screen.h"
 #include "bigarrow.h"
 #include "glendapng.h"
 
@@ -31,7 +34,7 @@ AUTOFRAMEWORK(QuartzCore)
 static void setprocname(const char*);
 static uint keycvt(uint);
 static uint msec(void);
-static Memimage* initimg(void);
+static Memimage* initimg(Client*);
 
 void
 usage(void)
@@ -48,6 +51,7 @@ usage(void)
 + (void)callsetcursor:(NSValue *)v;
 @end
 @interface DevDrawView : NSView<NSTextInputClient>
+@property (nonatomic) Client *client;
 - (void)clearInput;
 - (void)getmouse:(NSEvent *)e;
 - (void)sendmouse:(NSUInteger)b;
@@ -96,6 +100,13 @@ threadmain(int argc, char **argv)
 		usage();
 	}ARGEND
 
+	client0 = mallocz(sizeof(Client), 1);
+	client0->displaydpi = 100;
+	if(client0 == nil){
+		fprint(2, "initdraw: allocating client0: out of memory");
+		abort();
+	}
+
 	setprocname(argv0);
 
 	@autoreleasepool{
@@ -113,7 +124,9 @@ callservep9p(void *v)
 {
 	USED(v);
 
-	servep9p();
+	client0->rfd = 3;
+	client0->wfd = 4;
+	servep9p(client0);
 	[NSApp terminate:myApp];
 }
 
@@ -167,6 +180,7 @@ callservep9p(void *v)
 	[win setDelegate:myApp];
 
 	myContent = [DevDrawView new];
+	myContent.client = client0;
 	[win setContentView:myContent];
 	[myContent setWantsLayer:YES];
 	[myContent setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
@@ -353,7 +367,7 @@ struct Cursors {
 - (void)windowDidResize:(NSNotification *)notification
 {
 	if(![myContent inLiveResize] && img) {
-		resizeimg();
+		resizeimg(myContent.client);
 	}
 }
 
@@ -463,7 +477,7 @@ struct Cursors {
 			b |= 4;
 		[self sendmouse:b];
 	}else if(m & ~omod & NSEventModifierFlagOption)
-		keystroke(Kalt);
+		keystroke(self.client, Kalt);
 
 	omod = m;
 }
@@ -520,7 +534,7 @@ struct Cursors {
 	if(b == 1){
 		m = [e modifierFlags];
 		if(m & NSEventModifierFlagOption){
-			abortcompose();
+			abortcompose(self.client);
 			b = 2;
 		}else
 		if(m & NSEventModifierFlagCommand)
@@ -535,9 +549,9 @@ struct Cursors {
 
 	p = [self.window convertPointToBacking:
 		[self.window mouseLocationOutsideOfEventStream]];
-	p.y = Dy(mouserect) - p.y;
+	p.y = Dy(self.client->mouserect) - p.y;
 	// LOG(@"(%g, %g) <- sendmouse(%d)", p.x, p.y, (uint)b);
-	mousetrack(p.x, p.y, b, msec());
+	mousetrack(self.client, p.x, p.y, b, msec());
 	if(b && _lastInputRect.size.width && _lastInputRect.size.height)
 		[self resetLastInputRect];
 }
@@ -551,14 +565,14 @@ struct Cursors {
 {
 	[super viewDidEndLiveResize];
 	if(img)
-		resizeimg();
+		resizeimg(self.client);
 }
 
 - (void)viewDidChangeBackingProperties
 {
 	[super viewDidChangeBackingProperties];
 	if(img)
-		resizeimg();
+		resizeimg(self.client);
 }
 
 // conforms to protocol NSTextInputClient
@@ -617,24 +631,24 @@ struct Cursors {
 		LOG(@"text length %ld", _tmpText.length);
 		for(i = 0; i <= _tmpText.length; ++i){
 			if(i == _markedRange.location)
-				keystroke('[');
+				keystroke(self.client, '[');
 			if(_selectedRange.length){
 				if(i == _selectedRange.location)
-					keystroke('{');
+					keystroke(self.client, '{');
 				if(i == NSMaxRange(_selectedRange))
-					keystroke('}');
+					keystroke(self.client, '}');
 				}
 			if(i == NSMaxRange(_markedRange))
-				keystroke(']');
+				keystroke(self.client, ']');
 			if(i < _tmpText.length)
-				keystroke([_tmpText characterAtIndex:i]);
+				keystroke(self.client, [_tmpText characterAtIndex:i]);
 		}
 		int l;
 		l = 1 + _tmpText.length - NSMaxRange(_selectedRange)
 			+ (_selectedRange.length > 0);
 		LOG(@"move left %d", l);
 		for(i = 0; i < l; ++i)
-			keystroke(Kleft);
+			keystroke(self.client, Kleft);
 	}
 
 	LOG(@"text: \"%@\"  (%ld,%ld)  (%ld,%ld)", _tmpText,
@@ -649,7 +663,7 @@ struct Cursors {
 	LOG(@"unmarkText");
 	len = [_tmpText length];
 	//for(i = 0; i < len; ++i)
-	//	keystroke([_tmpText characterAtIndex:i]);
+	//	keystroke(self.client, [_tmpText characterAtIndex:i]);
 	[_tmpText deleteCharactersInRange:NSMakeRange(0, len)];
 	_markedRange = NSMakeRange(NSNotFound, 0);
 	_selectedRange = NSMakeRange(0, 0);
@@ -691,7 +705,7 @@ struct Cursors {
 
 	len = [s length];
 	for(i = 0; i < len; ++i)
-		keystroke([s characterAtIndex:i]);
+		keystroke(self.client, [s characterAtIndex:i]);
 	[_tmpText deleteCharactersInRange:NSMakeRange(0, _tmpText.length)];
 	_markedRange = NSMakeRange(NSNotFound, 0);
 	_selectedRange = NSMakeRange(0, 0);
@@ -731,7 +745,7 @@ struct Cursors {
 			k += Kcmd;
 	}
 	if(k>0)
-		keystroke(k);
+		keystroke(self.client, k);
 }
 
 // Helper for managing input rect approximately
@@ -762,11 +776,11 @@ struct Cursors {
 			+ (_selectedRange.length > 0);
 		LOG(@"move right %d", l);
 		for(i = 0; i < l; ++i)
-			keystroke(Kright);
+			keystroke(self.client, Kright);
 		l = _tmpText.length+2+2*(_selectedRange.length > 0);
 		LOG(@"backspace %d", l);
 		for(uint i = 0; i < l; ++i)
-			keystroke(Kbs);
+			keystroke(self.client, Kbs);
 	}
 }
 
@@ -915,7 +929,7 @@ keycvt(uint code)
 }
 
 Memimage*
-attachscreen(char *label, char *winsize)
+attachscreen(Client *c, char *label, char *winsize)
 {
 	LOG(@"attachscreen(%s, %s)", label, winsize);
 	[AppDelegate
@@ -924,12 +938,12 @@ attachscreen(char *label, char *winsize)
 		waitUntilDone:YES];
 	kicklabel(label);
 	setcursor(nil, nil);
-	mouseresized = 0;
-	return initimg();
+	c->mouse.resized = 0;
+	return initimg(c);
 }
 
 static Memimage*
-initimg(void)
+initimg(Client *c)
 {
 @autoreleasepool{
 	CGFloat scale;
@@ -937,11 +951,11 @@ initimg(void)
 	MTLTextureDescriptor *textureDesc;
 
 	size = [myContent convertSizeToBacking:[myContent bounds].size];
-	mouserect = Rect(0, 0, size.width, size.height);
+	c->mouserect = Rect(0, 0, size.width, size.height);
 
 	LOG(@"initimg %.0f %.0f", size.width, size.height);
 
-	img = allocmemimage(mouserect, XRGB32);
+	img = allocmemimage(c->mouserect, XRGB32);
 	if(img == nil)
 		panic("allocmemimage: %r");
 	if(img->data == nil)
@@ -966,7 +980,7 @@ initimg(void)
 	// This formula gives us 220 for retina, 110 otherwise.
 	// That's not quite right but it's close to correct.
 	// https://en.wikipedia.org/wiki/Retina_display#Models
-	displaydpi = scale * 110;
+	c->displaydpi = scale * 110;
 }
 	LOG(@"initimg return");
 
@@ -1109,13 +1123,9 @@ topwin(void)
 }
 
 void
-resizeimg(void)
+resizeimg(Client *c)
 {
-	zlock();
-	_drawreplacescreenimage(initimg());
-
-	mouseresized = 1;
-	zunlock();
+	_drawreplacescreenimage(c, initimg(c));
 	[myContent sendmouse:0];
 }
 

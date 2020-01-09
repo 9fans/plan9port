@@ -8,154 +8,32 @@
 #include <draw.h>
 #include <memdraw.h>
 #include <memlayer.h>
+#include <mouse.h>
+#include <cursor.h>
+#include <keyboard.h>
+#include <drawfcall.h>
 #include "devdraw.h"
 
 extern void _flushmemscreen(Rectangle);
-int forcedpi = 0;
-int displaydpi = 100;
-
-#define NHASH (1<<5)
-#define HASHMASK (NHASH-1)
-
-typedef struct Client Client;
-typedef struct Draw Draw;
-typedef struct DImage DImage;
-typedef struct DScreen DScreen;
-typedef struct CScreen CScreen;
-typedef struct FChar FChar;
-typedef struct Refresh Refresh;
-typedef struct Refx Refx;
-typedef struct DName DName;
-
-struct Draw
-{
-	QLock		lk;
-	int		clientid;
-	int		nclient;
-	Client*		client[1];
-	int		nname;
-	DName*		name;
-	int		vers;
-	int		softscreen;
-};
-
-struct Client
-{
-	/*Ref		r;*/
-	DImage*		dimage[NHASH];
-	CScreen*	cscreen;
-	Refresh*	refresh;
-	Rendez		refrend;
-	uchar*		readdata;
-	int		nreaddata;
-	int		busy;
-	int		clientid;
-	int		slot;
-	int		refreshme;
-	int		infoid;
-	int		op;
-};
-
-struct Refresh
-{
-	DImage*		dimage;
-	Rectangle	r;
-	Refresh*	next;
-};
-
-struct Refx
-{
-	Client*		client;
-	DImage*		dimage;
-};
-
-struct DName
-{
-	char			*name;
-	Client	*client;
-	DImage*		dimage;
-	int			vers;
-};
-
-struct FChar
-{
-	int		minx;	/* left edge of bits */
-	int		maxx;	/* right edge of bits */
-	uchar		miny;	/* first non-zero scan-line */
-	uchar		maxy;	/* last non-zero scan-line + 1 */
-	schar		left;	/* offset of baseline */
-	uchar		width;	/* width of baseline */
-};
-
-/*
- * Reference counts in DImages:
- *	one per open by original client
- *	one per screen image or fill
- * 	one per image derived from this one by name
- */
-struct DImage
-{
-	int		id;
-	int		ref;
-	char		*name;
-	int		vers;
-	Memimage*	image;
-	int		ascent;
-	int		nfchar;
-	FChar*		fchar;
-	DScreen*	dscreen;	/* 0 if not a window */
-	DImage*	fromname;	/* image this one is derived from, by name */
-	DImage*		next;
-};
-
-struct CScreen
-{
-	DScreen*	dscreen;
-	CScreen*	next;
-};
-
-struct DScreen
-{
-	int		id;
-	int		public;
-	int		ref;
-	DImage	*dimage;
-	DImage	*dfill;
-	Memscreen*	screen;
-	Client*		owner;
-	DScreen*	next;
-};
 
 static	Draw		sdraw;
-static	Client		*client0;
-static	Memimage	*screenimage;
-static	Rectangle	flushrect;
-static	int		waste;
-static	DScreen*	dscreen;
+Client		*client0;
 static	int		drawuninstall(Client*, int);
 static	Memimage*	drawinstall(Client*, int, Memimage*, DScreen*);
-static	void		drawfreedimage(DImage*);
+static	void		drawfreedimage(Client*, DImage*);
 
 void
-_initdisplaymemimage(Memimage *m)
+_initdisplaymemimage(Client *c, Memimage *m)
 {
-	screenimage = m;
+	c->screenimage = m;
 	m->screenref = 1;
-	client0 = mallocz(sizeof(Client), 1);
-	if(client0 == nil){
-		fprint(2, "initdraw: allocating client0: out of memory");
-		abort();
-	}
-	client0->slot = 0;
-	client0->clientid = ++sdraw.clientid;
-	client0->op = SoverD;
-	sdraw.client[0] = client0;
-	sdraw.nclient = 1;
-	sdraw.softscreen = 1;
+	c->slot = 0;
+	c->clientid = 1;
+	c->op = SoverD;
 }
 
 void
-_drawreplacescreenimage(Memimage *m)
+_drawreplacescreenimage(Client *c, Memimage *m)
 {
 	/*
 	 * Replace the screen image because the screen
@@ -171,14 +49,17 @@ _drawreplacescreenimage(Memimage *m)
 	 */
 	Memimage *om;
 
+	qlock(&c->inputlk);
 	qlock(&sdraw.lk);
-	om = screenimage;
-	screenimage = m;
+	om = c->screenimage;
+	c->screenimage = m;
 	m->screenref = 1;
+	c->mouse.resized = 1;
 	if(om && --om->screenref == 0){
 		_freememimage(om);
 	}
 	qunlock(&sdraw.lk);
+	qunlock(&c->inputlk);
 }
 
 static
@@ -222,57 +103,57 @@ drawrefresh(Memimage *m, Rectangle r, void *v)
 }
 
 static void
-addflush(Rectangle r)
+addflush(Client *c, Rectangle r)
 {
 	int abb, ar, anbb;
 	Rectangle nbb;
 
-	if(sdraw.softscreen==0 || !rectclip(&r, screenimage->r))
+	if(/*sdraw.softscreen==0 ||*/ !rectclip(&r, c->screenimage->r))
 		return;
 
-	if(flushrect.min.x >= flushrect.max.x){
-		flushrect = r;
-		waste = 0;
+	if(c->flushrect.min.x >= c->flushrect.max.x){
+		c->flushrect = r;
+		c->waste = 0;
 		return;
 	}
-	nbb = flushrect;
+	nbb = c->flushrect;
 	combinerect(&nbb, r);
 	ar = Dx(r)*Dy(r);
-	abb = Dx(flushrect)*Dy(flushrect);
+	abb = Dx(c->flushrect)*Dy(c->flushrect);
 	anbb = Dx(nbb)*Dy(nbb);
 	/*
 	 * Area of new waste is area of new bb minus area of old bb,
 	 * less the area of the new segment, which we assume is not waste.
 	 * This could be negative, but that's OK.
 	 */
-	waste += anbb-abb - ar;
-	if(waste < 0)
-		waste = 0;
+	c->waste += anbb-abb - ar;
+	if(c->waste < 0)
+		c->waste = 0;
 	/*
 	 * absorb if:
 	 *	total area is small
 	 *	waste is less than half total area
 	 * 	rectangles touch
 	 */
-	if(anbb<=1024 || waste*2<anbb || rectXrect(flushrect, r)){
-		flushrect = nbb;
+	if(anbb<=1024 || c->waste*2<anbb || rectXrect(c->flushrect, r)){
+		c->flushrect = nbb;
 		return;
 	}
 	/* emit current state */
-	if(flushrect.min.x < flushrect.max.x)
-		_flushmemscreen(flushrect);
-	flushrect = r;
-	waste = 0;
+	if(c->flushrect.min.x < c->flushrect.max.x)
+		_flushmemscreen(c->flushrect);
+	c->flushrect = r;
+	c->waste = 0;
 }
 
 static
 void
-dstflush(int dstid, Memimage *dst, Rectangle r)
+dstflush(Client *c, int dstid, Memimage *dst, Rectangle r)
 {
 	Memlayer *l;
 
 	if(dstid == 0){
-		combinerect(&flushrect, r);
+		combinerect(&c->flushrect, r);
 		return;
 	}
 	/* how can this happen? -rsc, dec 12 2002 */
@@ -284,21 +165,21 @@ dstflush(int dstid, Memimage *dst, Rectangle r)
 	if(l == nil)
 		return;
 	do{
-		if(l->screen->image->data != screenimage->data)
+		if(l->screen->image->data != c->screenimage->data)
 			return;
 		r = rectaddpt(r, l->delta);
 		l = l->screen->image->layer;
 	}while(l);
-	addflush(r);
+	addflush(c, r);
 }
 
 static
 void
-drawflush(void)
+drawflush(Client *c)
 {
-	if(flushrect.min.x < flushrect.max.x)
-		_flushmemscreen(flushrect);
-	flushrect = Rect(10000, 10000, -10000, -10000);
+	if(c->flushrect.min.x < c->flushrect.max.x)
+		_flushmemscreen(c->flushrect);
+	c->flushrect = Rect(10000, 10000, -10000, -10000);
 }
 
 static
@@ -312,12 +193,12 @@ drawcmp(char *a, char *b, int n)
 
 static
 DName*
-drawlookupname(int n, char *str)
+drawlookupname(Client *client, int n, char *str)
 {
 	DName *name, *ename;
 
-	name = sdraw.name;
-	ename = &name[sdraw.nname];
+	name = client->name;
+	ename = &name[client->nname];
 	for(; name<ename; name++)
 		if(drawcmp(name->name, str, n) == 0)
 			return name;
@@ -326,18 +207,18 @@ drawlookupname(int n, char *str)
 
 static
 int
-drawgoodname(DImage *d)
+drawgoodname(Client *client, DImage *d)
 {
 	DName *n;
 
 	/* if window, validate the screen's own images */
 	if(d->dscreen)
-		if(drawgoodname(d->dscreen->dimage) == 0
-		|| drawgoodname(d->dscreen->dfill) == 0)
+		if(drawgoodname(client, d->dscreen->dimage) == 0
+		|| drawgoodname(client, d->dscreen->dfill) == 0)
 			return 0;
 	if(d->name == nil)
 		return 1;
-	n = drawlookupname(strlen(d->name), d->name);
+	n = drawlookupname(client, strlen(d->name), d->name);
 	if(n==nil || n->vers!=d->vers)
 		return 0;
 	return 1;
@@ -356,7 +237,7 @@ drawlookup(Client *client, int id, int checkname)
 			 * BUG: should error out but too hard.
 			 * Return 0 instead.
 			 */
-			if(checkname && !drawgoodname(d))
+			if(checkname && !drawgoodname(client, d))
 				return 0;
 			return d;
 		}
@@ -367,11 +248,11 @@ drawlookup(Client *client, int id, int checkname)
 
 static
 DScreen*
-drawlookupdscreen(int id)
+drawlookupdscreen(Client *c, int id)
 {
 	DScreen *s;
 
-	s = dscreen;
+	s = c->dscreen;
 	while(s){
 		if(s->id == id)
 			return s;
@@ -466,9 +347,9 @@ drawinstallscreen(Client *client, DScreen *d, int id, DImage *dimage, DImage *df
 		d->id = id;
 		d->screen = s;
 		d->public = public;
-		d->next = dscreen;
+		d->next = client->dscreen;
 		d->owner = client;
-		dscreen = d;
+		client->dscreen = d;
 	}
 	c->dscreen = d;
 	d->ref++;
@@ -479,18 +360,18 @@ drawinstallscreen(Client *client, DScreen *d, int id, DImage *dimage, DImage *df
 
 static
 void
-drawdelname(DName *name)
+drawdelname(Client *client, DName *name)
 {
 	int i;
 
-	i = name-sdraw.name;
-	memmove(name, name+1, (sdraw.nname-(i+1))*sizeof(DName));
-	sdraw.nname--;
+	i = name-client->name;
+	memmove(name, name+1, (client->nname-(i+1))*sizeof(DName));
+	client->nname--;
 }
 
 static
 void
-drawfreedscreen(DScreen *this)
+drawfreedscreen(Client *client, DScreen *this)
 {
 	DScreen *ds, *next;
 
@@ -499,9 +380,9 @@ drawfreedscreen(DScreen *this)
 		fprint(2, "negative ref in drawfreedscreen\n");
 	if(this->ref > 0)
 		return;
-	ds = dscreen;
+	ds = client->dscreen;
 	if(ds == this){
-		dscreen = this->next;
+		client->dscreen = this->next;
 		goto Found;
 	}
 	while(next = ds->next){	/* assign = */
@@ -518,16 +399,16 @@ drawfreedscreen(DScreen *this)
 
     Found:
 	if(this->dimage)
-		drawfreedimage(this->dimage);
+		drawfreedimage(client, this->dimage);
 	if(this->dfill)
-		drawfreedimage(this->dfill);
+		drawfreedimage(client, this->dfill);
 	free(this->screen);
 	free(this);
 }
 
 static
 void
-drawfreedimage(DImage *dimage)
+drawfreedimage(Client *client, DImage *dimage)
 {
 	int i;
 	Memimage *l;
@@ -540,13 +421,13 @@ drawfreedimage(DImage *dimage)
 		return;
 
 	/* any names? */
-	for(i=0; i<sdraw.nname; )
-		if(sdraw.name[i].dimage == dimage)
-			drawdelname(sdraw.name+i);
+	for(i=0; i<client->nname; )
+		if(client->name[i].dimage == dimage)
+			drawdelname(client, client->name+i);
 		else
 			i++;
 	if(dimage->fromname){	/* acquired by name; owned by someone else*/
-		drawfreedimage(dimage->fromname);
+		drawfreedimage(client, dimage->fromname);
 		goto Return;
 	}
 	ds = dimage->dscreen;
@@ -554,16 +435,16 @@ drawfreedimage(DImage *dimage)
 	dimage->dscreen = nil;	/* paranoia */
 	dimage->image = nil;
 	if(ds){
-		if(l->data == screenimage->data)
-			addflush(l->layer->screenr);
+		if(l->data == client->screenimage->data)
+			addflush(client, l->layer->screenr);
 		if(l->layer->refreshfn == drawrefresh)	/* else true owner will clean up */
 			free(l->layer->refreshptr);
 		l->layer->refreshptr = nil;
-		if(drawgoodname(dimage))
+		if(drawgoodname(client, dimage))
 			memldelete(l);
 		else
 			memlfree(l);
-		drawfreedscreen(ds);
+		drawfreedscreen(client, ds);
 	}else{
 		if(l->screenref==0)
 			freememimage(l);
@@ -584,14 +465,14 @@ drawuninstallscreen(Client *client, CScreen *this)
 	cs = client->cscreen;
 	if(cs == this){
 		client->cscreen = this->next;
-		drawfreedscreen(this->dscreen);
+		drawfreedscreen(client, this->dscreen);
 		free(this);
 		return;
 	}
 	while(next = cs->next){	/* assign = */
 		if(next == this){
 			cs->next = this->next;
-			drawfreedscreen(this->dscreen);
+			drawfreedscreen(client, this->dscreen);
 			free(this);
 			return;
 		}
@@ -608,7 +489,7 @@ drawuninstall(Client *client, int id)
 	for(l=&client->dimage[id&HASHMASK]; (d=*l) != nil; l=&d->next){
 		if(d->id == id){
 			*l = d->next;
-			drawfreedimage(d);
+			drawfreedimage(client, d);
 			return 0;
 		}
 	}
@@ -622,14 +503,14 @@ drawaddname(Client *client, DImage *di, int n, char *str, char **err)
 	DName *name, *ename, *new, *t;
 	char *ns;
 
-	name = sdraw.name;
-	ename = &name[sdraw.nname];
+	name = client->name;
+	ename = &name[client->nname];
 	for(; name<ename; name++)
 		if(drawcmp(name->name, str, n) == 0){
 			*err = "image name in use";
 			return -1;
 		}
-	t = mallocz((sdraw.nname+1)*sizeof(DName), 1);
+	t = mallocz((client->nname+1)*sizeof(DName), 1);
 	ns = malloc(n+1);
 	if(t == nil || ns == nil){
 		free(t);
@@ -637,16 +518,16 @@ drawaddname(Client *client, DImage *di, int n, char *str, char **err)
 		*err = "out of memory";
 		return -1;
 	}
-	memmove(t, sdraw.name, sdraw.nname*sizeof(DName));
-	free(sdraw.name);
-	sdraw.name = t;
-	new = &sdraw.name[sdraw.nname++];
+	memmove(t, client->name, client->nname*sizeof(DName));
+	free(client->name);
+	client->name = t;
+	new = &client->name[client->nname++];
 	new->name = ns;
 	memmove(new->name, str, n);
 	new->name[n] = 0;
 	new->dimage = di;
 	new->client = client;
-	new->vers = ++sdraw.vers;
+	new->vers = ++client->namevers;
 	return 0;
 }
 
@@ -738,12 +619,9 @@ drawcoord(uchar *p, uchar *maxp, int oldx, int *newx)
 }
 
 int
-_drawmsgread(void *a, int n)
+_drawmsgread(Client *cl, void *a, int n)
 {
-	Client *cl;
-
 	qlock(&sdraw.lk);
-	cl = client0;
 	if(cl->readdata == nil){
 		werrstr("no draw data");
 		goto err;
@@ -765,14 +643,13 @@ err:
 }
 
 int
-_drawmsgwrite(void *v, int n)
+_drawmsgwrite(Client *client, void *v, int n)
 {
 	char cbuf[40], *err, ibuf[12*12+1], *s;
 	int c, ci, doflush, dstid, e0, e1, esize, j, m;
 	int ni, nw, oesize, oldn, op, ox, oy, repl, scrnid, y;
 	uchar *a, refresh, *u;
 	u32int chan, value;
-	Client *client;
 	CScreen *cs;
 	DImage *di, *ddst, *dsrc, *font, *ll;
 	DName *dn;
@@ -790,7 +667,6 @@ _drawmsgwrite(void *v, int n)
 	a = v;
 	m = 0;
 	oldn = n;
-	client = client0;
 
 	while((n-=m) > 0){
 		a += m;
@@ -844,7 +720,7 @@ _drawmsgwrite(void *v, int n)
 				l = memlalloc(scrn, r, reffn, 0, value);
 				if(l == 0)
 					goto Edrawmem;
-				addflush(l->layer->screenr);
+				addflush(client, l->layer->screenr);
 				l->clipr = clipr;
 				rectclip(&l->clipr, r);
 				if(drawinstall(client, dstid, l, dscrn) == 0){
@@ -891,7 +767,7 @@ _drawmsgwrite(void *v, int n)
 			dstid = BGLONG(a+1);
 			if(dstid == 0)
 				goto Ebadarg;
-			if(drawlookupdscreen(dstid))
+			if(drawlookupdscreen(client, dstid))
 				goto Escreenexists;
 			ddst = drawlookup(client, BGLONG(a+5), 1);
 			dsrc = drawlookup(client, BGLONG(a+9), 1);
@@ -935,7 +811,7 @@ _drawmsgwrite(void *v, int n)
 			drawpoint(&q, a+37);
 			op = drawclientop(client);
 			memdraw(dst, r, src, p, mask, q, op);
-			dstflush(dstid, dst, r);
+			dstflush(client, dstid, dst, r);
 			continue;
 
 		/* toggle debugging: 'D' val[1] */
@@ -984,7 +860,7 @@ _drawmsgwrite(void *v, int n)
 				memarc(dst, p, e0, e1, c, src, sp, ox, oy, op);
 			}else
 				memellipse(dst, p, e0, e1, c, src, sp, op);
-			dstflush(dstid, dst, Rect(p.x-e0-j, p.y-e1-j, p.x+e0+j+1, p.y+e1+j+1));
+			dstflush(client, dstid, dst, Rect(p.x-e0-j, p.y-e1-j, p.x+e0+j+1, p.y+e1+j+1));
 			continue;
 
 		/* free: 'f' id[4] */
@@ -1049,7 +925,7 @@ _drawmsgwrite(void *v, int n)
 				goto Eshortdraw;
 			if(drawlookup(client, 0, 0))
 				goto Eimageexists;
-			drawinstall(client, 0, screenimage, 0);
+			drawinstall(client, 0, client->screenimage, 0);
 			client->infoid = 0;
 			continue;
 
@@ -1061,7 +937,7 @@ _drawmsgwrite(void *v, int n)
 			if(client->infoid < 0)
 				goto Enodrawimage;
 			if(client->infoid == 0){
-				i = screenimage;
+				i = client->screenimage;
 				if(i == nil)
 					goto Enodrawimage;
 			}else{
@@ -1102,10 +978,10 @@ _drawmsgwrite(void *v, int n)
 					err = "unknown query";
 					goto error;
 				case 'd':	/* dpi */
-					if(forcedpi)
-						fmtprint(&fmt, "%11d ", forcedpi);
+					if(client->forcedpi)
+						fmtprint(&fmt, "%11d ", client->forcedpi);
 					else
-						fmtprint(&fmt, "%11d ", displaydpi);
+						fmtprint(&fmt, "%11d ", client->displaydpi);
 					break;
 				}
 			}
@@ -1169,7 +1045,7 @@ _drawmsgwrite(void *v, int n)
 			if(dstid==0 || dst->layer!=nil){
 				/* BUG: this is terribly inefficient: update maximal containing rect*/
 				r = memlinebbox(p, q, e0, e1, j);
-				dstflush(dstid, dst, insetrect(r, -(1+1+j)));
+				dstflush(client, dstid, dst, insetrect(r, -(1+1+j)));
 			}
 			continue;
 
@@ -1198,7 +1074,7 @@ _drawmsgwrite(void *v, int n)
 			dstid = BGLONG(a+1);
 			if(drawlookup(client, dstid, 0))
 				goto Eimageexists;
-			dn = drawlookupname(j, (char*)a+6);
+			dn = drawlookupname(client, j, (char*)a+6);
 			if(dn == nil)
 				goto Enoname;
 			s = malloc(j+1);
@@ -1239,12 +1115,12 @@ _drawmsgwrite(void *v, int n)
 				if(drawaddname(client, di, j, (char*)a+7, &err) < 0)
 					goto error;
 			else{
-				dn = drawlookupname(j, (char*)a+7);
+				dn = drawlookupname(client, j, (char*)a+7);
 				if(dn == nil)
 					goto Enoname;
 				if(dn->dimage != di)
 					goto Ewrongname;
-				drawdelname(dn);
+				drawdelname(client, dn);
 			}
 			continue;
 
@@ -1266,8 +1142,8 @@ _drawmsgwrite(void *v, int n)
 					goto error;
 				}
 				if(ni > 0){
-					addflush(r);
-					addflush(dst->layer->screenr);
+					addflush(client, r);
+					addflush(client, dst->layer->screenr);
 					ll = drawlookup(client, BGLONG(a+1), 1);
 					drawrefreshscreen(ll, client);
 				}
@@ -1316,7 +1192,7 @@ _drawmsgwrite(void *v, int n)
 			if(pp == nil)
 				goto Enomem;
 			doflush = 0;
-			if(dstid==0 || (dst->layer && dst->layer->screen->image->data == screenimage->data))
+			if(dstid==0 || (dst->layer && dst->layer->screen->image->data == client->screenimage->data))
 				doflush = 1;	/* simplify test in loop */
 			ox = oy = 0;
 			esize = 0;
@@ -1353,12 +1229,12 @@ _drawmsgwrite(void *v, int n)
 						combinerect(&r, Rect(p.x-esize, p.y-esize, p.x+esize+1, p.y+esize+1));
 					}
 					if(rectclip(&r, dst->clipr))		/* should perhaps be an arg to dstflush */
-						dstflush(dstid, dst, r);
+						dstflush(client, dstid, dst, r);
 				}
 				pp[y] = p;
 			}
 			if(y == 1)
-				dstflush(dstid, dst, Rect(p.x-esize, p.y-esize, p.x+esize+1, p.y+esize+1));
+				dstflush(client, dstid, dst, Rect(p.x-esize, p.y-esize, p.x+esize+1, p.y+esize+1));
 			op = drawclientop(client);
 			if(*a == 'p')
 				mempoly(dst, pp, ni, e0, e1, j, src, sp, op);
@@ -1462,7 +1338,7 @@ _drawmsgwrite(void *v, int n)
 			}
 			dst->clipr = clipr;
 			p.y -= font->ascent;
-			dstflush(dstid, dst, Rect(p.x, p.y, q.x, p.y+Dy(font->image->r)));
+			dstflush(client, dstid, dst, Rect(p.x, p.y, q.x, p.y+Dy(font->image->r)));
 			continue;
 
 		/* use public screen: 'S' id[4] chan[4] */
@@ -1473,7 +1349,7 @@ _drawmsgwrite(void *v, int n)
 			dstid = BGLONG(a+1);
 			if(dstid == 0)
 				goto Ebadarg;
-			dscrn = drawlookupdscreen(dstid);
+			dscrn = drawlookupdscreen(client, dstid);
 			if(dscrn==0 || (dscrn->public==0 && dscrn->owner!=client))
 				goto Enodrawscreen;
 			if(dscrn->screen->image->chan != BGLONG(a+5)){
@@ -1522,9 +1398,9 @@ _drawmsgwrite(void *v, int n)
 				memltofrontn(lp, nw);
 			else
 				memltorearn(lp, nw);
-			if(lp[0]->layer->screen->image->data == screenimage->data)
+			if(lp[0]->layer->screen->image->data == client->screenimage->data)
 				for(j=0; j<nw; j++)
-					addflush(lp[j]->layer->screenr);
+					addflush(client, lp[j]->layer->screenr);
 			free(lp);
 			ll = drawlookup(client, BGLONG(a+1+1+2), 1);
 			drawrefreshscreen(ll, client);
@@ -1533,7 +1409,7 @@ _drawmsgwrite(void *v, int n)
 		/* visible: 'v' */
 		case 'v':
 			m = 1;
-			drawflush();
+			drawflush(client);
 			continue;
 
 		/* write: 'y' id[4] R[4*4] data[x*1] */
@@ -1555,7 +1431,7 @@ _drawmsgwrite(void *v, int n)
 				err = "bad writeimage call";
 				goto error;
 			}
-			dstflush(dstid, dst, r);
+			dstflush(client, dstid, dst, r);
 			m += y;
 			continue;
 		}

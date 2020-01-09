@@ -2,6 +2,11 @@
 #include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
+#include <memlayer.h>
+#include <mouse.h>
+#include <cursor.h>
+#include <keyboard.h>
+#include <drawfcall.h>
 #include "devdraw.h"
 
 int

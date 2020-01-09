@@ -6,6 +6,7 @@
 #include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
+#include <memlayer.h>
 #include <keyboard.h>
 #include <mouse.h>
 #include <cursor.h>
@@ -232,7 +233,7 @@ _xattach(char *label, char *winsize)
 
 		if (XrmGetResource(database, "Xft.dpi", "String", &dpitype, &dpires) == True) {
 			if (dpires.addr) {
-				displaydpi=atoi(dpires.addr);
+				client0->displaydpi = atoi(dpires.addr);
 			}
 		}
 		geom = smprint("%s.geometry", label);

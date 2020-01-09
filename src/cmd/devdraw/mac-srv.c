@@ -7,70 +7,23 @@
 #include <thread.h>
 #include <draw.h>
 #include <memdraw.h>
+#include <memlayer.h>
 #include <keyboard.h>
 #include <mouse.h>
 #include <cursor.h>
 #include <drawfcall.h>
-#include "mac-screen.h"
 #include "devdraw.h"
+#include "mac-screen.h"
 
-typedef struct Kbdbuf Kbdbuf;
-typedef struct Mousebuf Mousebuf;
-typedef struct Fdbuf Fdbuf;
-typedef struct Tagbuf Tagbuf;
-
-struct Kbdbuf
-{
-	Rune r[256];
-	int ri;
-	int wi;
-	int stall;
-};
-
-struct Mousebuf
-{
-	Mouse m[256];
-	Mouse last;
-	int ri;
-	int wi;
-	int stall;
-};
-
-struct Tagbuf
-{
-	int t[256];
-	int ri;
-	int wi;
-};
-
-Kbdbuf kbd;
-Mousebuf mouse;
-Tagbuf kbdtags;
-Tagbuf mousetags;
-
-void runmsg(Wsysmsg*);
-void replymsg(Wsysmsg*);
-void matchkbd(void);
-void matchmouse(void);
-
-
-QLock lk;
-void
-zlock(void)
-{
-	qlock(&lk);
-}
-
-void
-zunlock(void)
-{
-	qunlock(&lk);
-}
+void runmsg(Client*, Wsysmsg*);
+void replymsg(Client*, Wsysmsg*);
+void matchkbd(Client*);
+void matchmouse(Client*);
 
 int trace = 0;
 
 void
-servep9p(void)
+servep9p(Client *c)
 {
 	uchar buf[4], *mbuf;
 	int nmbuf, n, nn;
@@ -80,7 +33,7 @@ servep9p(void)
 
 	mbuf = nil;
 	nmbuf = 0;
-	while((n = read(3, buf, 4)) == 4){
+	while((n = read(c->rfd, buf, 4)) == 4){
 		GET(buf, n);
 		if(n > nmbuf){
 			free(mbuf);
@@ -90,7 +43,7 @@ servep9p(void)
 			nmbuf = n;
 		}
 		memmove(mbuf, buf, 4);
-		nn = readn(3, mbuf+4, n-4);
+		nn = readn(c->rfd, mbuf+4, n-4);
 		if(nn != n-4)
 			sysfatal("eof during message");
 
@@ -98,19 +51,19 @@ servep9p(void)
 		if(convM2W(mbuf, nn+4, &m) <= 0)
 			sysfatal("cannot convert message");
 		if(trace) fprint(2, "%ud [%d] <- %W\n", nsec()/1000000, threadid(), &m);
-		runmsg(&m);
+		runmsg(c, &m);
 	}
 }
 
 void
-replyerror(Wsysmsg *m)
+replyerror(Client *c, Wsysmsg *m)
 {
 	char err[256];
 
 	rerrstr(err, sizeof err);
 	m->type = Rerror;
 	m->error = err;
-	replymsg(m);
+	replymsg(c, m);
 }
 
 /*
@@ -118,7 +71,7 @@ replyerror(Wsysmsg *m)
  * Might queue for later (kbd, mouse read)
  */
 void
-runmsg(Wsysmsg *m)
+runmsg(Client *c, Wsysmsg *m)
 {
 	static uchar buf[65536];
 	int n;
@@ -127,38 +80,38 @@ runmsg(Wsysmsg *m)
 	switch(m->type){
 	case Tinit:
 		memimageinit();
-		i = attachscreen(m->label, m->winsize);
-		_initdisplaymemimage(i);
-		replymsg(m);
+		i = attachscreen(c, m->label, m->winsize);
+		_initdisplaymemimage(c, i);
+		replymsg(c, m);
 		break;
 
 	case Trdmouse:
-		zlock();
-		mousetags.t[mousetags.wi++] = m->tag;
-		if(mousetags.wi == nelem(mousetags.t))
-			mousetags.wi = 0;
-		if(mousetags.wi == mousetags.ri)
+		qlock(&c->inputlk);
+		c->mousetags.t[c->mousetags.wi++] = m->tag;
+		if(c->mousetags.wi == nelem(c->mousetags.t))
+			c->mousetags.wi = 0;
+		if(c->mousetags.wi == c->mousetags.ri)
 			sysfatal("too many queued mouse reads");
-		mouse.stall = 0;
-		matchmouse();
-		zunlock();
+		c->mouse.stall = 0;
+		matchmouse(c);
+		qunlock(&c->inputlk);
 		break;
 
 	case Trdkbd:
-		zlock();
-		kbdtags.t[kbdtags.wi++] = m->tag;
-		if(kbdtags.wi == nelem(kbdtags.t))
-			kbdtags.wi = 0;
-		if(kbdtags.wi == kbdtags.ri)
+		qlock(&c->inputlk);
+		c->kbdtags.t[c->kbdtags.wi++] = m->tag;
+		if(c->kbdtags.wi == nelem(c->kbdtags.t))
+			c->kbdtags.wi = 0;
+		if(c->kbdtags.wi == c->kbdtags.ri)
 			sysfatal("too many queued keyboard reads");
-		kbd.stall = 0;
-		matchkbd();
-		zunlock();
+		c->kbd.stall = 0;
+		matchkbd(c);
+		qunlock(&c->inputlk);
 		break;
 
 	case Tmoveto:
 		setmouse(m->mouse.xy);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Tcursor:
@@ -166,7 +119,7 @@ runmsg(Wsysmsg *m)
 			setcursor(nil, nil);
 		else
 			setcursor(&m->cursor, nil);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Tcursor2:
@@ -174,63 +127,63 @@ runmsg(Wsysmsg *m)
 			setcursor(nil, nil);
 		else
 			setcursor(&m->cursor, &m->cursor2);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Tbouncemouse:
 	//	_xbouncemouse(&m->mouse);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Tlabel:
 		kicklabel(m->label);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Trdsnarf:
 		m->snarf = getsnarf();
-		replymsg(m);
+		replymsg(c, m);
 		free(m->snarf);
 		break;
 
 	case Twrsnarf:
 		putsnarf(m->snarf);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Trddraw:
-		zlock();
+		qlock(&c->inputlk);
 		n = m->count;
 		if(n > sizeof buf)
 			n = sizeof buf;
-		n = _drawmsgread(buf, n);
+		n = _drawmsgread(c, buf, n);
 		if(n < 0)
-			replyerror(m);
+			replyerror(c, m);
 		else{
 			m->count = n;
 			m->data = buf;
-			replymsg(m);
+			replymsg(c, m);
 		}
-		zunlock();
+		qunlock(&c->inputlk);
 		break;
 
 	case Twrdraw:
-		zlock();
-		if(_drawmsgwrite(m->data, m->count) < 0)
-			replyerror(m);
+		qlock(&c->inputlk);
+		if(_drawmsgwrite(c, m->data, m->count) < 0)
+			replyerror(c, m);
 		else
-			replymsg(m);
-		zunlock();
+			replymsg(c, m);
+		qunlock(&c->inputlk);
 		break;
 
 	case Ttop:
 		topwin();
-		replymsg(m);
+		replymsg(c, m);
 		break;
 
 	case Tresize:
 		resizewindow(m->rect);
-		replymsg(m);
+		replymsg(c, m);
 		break;
 	}
 }
@@ -240,7 +193,7 @@ runmsg(Wsysmsg *m)
  */
 QLock replylock;
 void
-replymsg(Wsysmsg *m)
+replymsg(Client *c, Wsysmsg *m)
 {
 	int n;
 	static uchar *mbuf;
@@ -263,7 +216,7 @@ replymsg(Wsysmsg *m)
 		nmbuf = n;
 	}
 	convW2M(m, mbuf, n);
-	if(write(4, mbuf, n) != n)
+	if(write(c->wfd, mbuf, n) != n)
 		sysfatal("write: %r");
 	qunlock(&replylock);
 }
@@ -272,21 +225,21 @@ replymsg(Wsysmsg *m)
  * Match queued kbd reads with queued kbd characters.
  */
 void
-matchkbd(void)
+matchkbd(Client *c)
 {
 	Wsysmsg m;
 
-	if(kbd.stall)
+	if(c->kbd.stall)
 		return;
-	while(kbd.ri != kbd.wi && kbdtags.ri != kbdtags.wi){
+	while(c->kbd.ri != c->kbd.wi && c->kbdtags.ri != c->kbdtags.wi){
 		m.type = Rrdkbd;
-		m.tag = kbdtags.t[kbdtags.ri++];
-		if(kbdtags.ri == nelem(kbdtags.t))
-			kbdtags.ri = 0;
-		m.rune = kbd.r[kbd.ri++];
-		if(kbd.ri == nelem(kbd.r))
-			kbd.ri = 0;
-		replymsg(&m);
+		m.tag = c->kbdtags.t[c->kbdtags.ri++];
+		if(c->kbdtags.ri == nelem(c->kbdtags.t))
+			c->kbdtags.ri = 0;
+		m.rune = c->kbd.r[c->kbd.ri++];
+		if(c->kbd.ri == nelem(c->kbd.r))
+			c->kbd.ri = 0;
+		replymsg(c, &m);
 	}
 }
 
@@ -294,131 +247,129 @@ matchkbd(void)
  * Match queued mouse reads with queued mouse events.
  */
 void
-matchmouse(void)
+matchmouse(Client *c)
 {
 	Wsysmsg m;
 
-	while(mouse.ri != mouse.wi && mousetags.ri != mousetags.wi){
+	while(c->mouse.ri != c->mouse.wi && c->mousetags.ri != c->mousetags.wi){
 		m.type = Rrdmouse;
-		m.tag = mousetags.t[mousetags.ri++];
-		if(mousetags.ri == nelem(mousetags.t))
-			mousetags.ri = 0;
-		m.mouse = mouse.m[mouse.ri];
-		m.resized = mouseresized;
-		mouseresized = 0;
+		m.tag = c->mousetags.t[c->mousetags.ri++];
+		if(c->mousetags.ri == nelem(c->mousetags.t))
+			c->mousetags.ri = 0;
+		m.mouse = c->mouse.m[c->mouse.ri];
+		m.resized = c->mouse.resized;
+		c->mouse.resized = 0;
 		/*
 		if(m.resized)
 			fprint(2, "sending resize\n");
 		*/
-		mouse.ri++;
-		if(mouse.ri == nelem(mouse.m))
-			mouse.ri = 0;
-		replymsg(&m);
+		c->mouse.ri++;
+		if(c->mouse.ri == nelem(c->mouse.m))
+			c->mouse.ri = 0;
+		replymsg(c, &m);
 	}
 }
 
 void
-mousetrack(int x, int y, int b, uint ms)
+mousetrack(Client *c, int x, int y, int b, uint ms)
 {
 	Mouse *m;
 
-	if(x < mouserect.min.x)
-		x = mouserect.min.x;
-	if(x > mouserect.max.x)
-		x = mouserect.max.x;
-	if(y < mouserect.min.y)
-		y = mouserect.min.y;
-	if(y > mouserect.max.y)
-		y = mouserect.max.y;
+	if(x < c->mouserect.min.x)
+		x = c->mouserect.min.x;
+	if(x > c->mouserect.max.x)
+		x = c->mouserect.max.x;
+	if(y < c->mouserect.min.y)
+		y = c->mouserect.min.y;
+	if(y > c->mouserect.max.y)
+		y = c->mouserect.max.y;
 
-	zlock();
+	qlock(&c->inputlk);
 	// If reader has stopped reading, don't bother.
 	// If reader is completely caught up, definitely queue.
 	// Otherwise, queue only button change events.
-	if(!mouse.stall)
-	if(mouse.wi == mouse.ri || mouse.last.buttons != b){
-		m = &mouse.last;
+	if(!c->mouse.stall)
+	if(c->mouse.wi == c->mouse.ri || c->mouse.last.buttons != b){
+		m = &c->mouse.last;
 		m->xy.x = x;
 		m->xy.y = y;
 		m->buttons = b;
 		m->msec = ms;
 
-		mouse.m[mouse.wi] = *m;
-		if(++mouse.wi == nelem(mouse.m))
-			mouse.wi = 0;
-		if(mouse.wi == mouse.ri){
-			mouse.stall = 1;
-			mouse.ri = 0;
-			mouse.wi = 1;
-			mouse.m[0] = *m;
+		c->mouse.m[c->mouse.wi] = *m;
+		if(++c->mouse.wi == nelem(c->mouse.m))
+			c->mouse.wi = 0;
+		if(c->mouse.wi == c->mouse.ri){
+			c->mouse.stall = 1;
+			c->mouse.ri = 0;
+			c->mouse.wi = 1;
+			c->mouse.m[0] = *m;
 		}
-		matchmouse();
+		matchmouse(c);
 	}
-	zunlock();
+	qunlock(&c->inputlk);
 }
 
 void
-kputc(int c)
+kputc(Client *c, int ch)
 {
-	zlock();
-	kbd.r[kbd.wi++] = c;
-	if(kbd.wi == nelem(kbd.r))
-		kbd.wi = 0;
-	if(kbd.ri == kbd.wi)
-		kbd.stall = 1;
-	matchkbd();
-	zunlock();
+	qlock(&c->inputlk);
+	c->kbd.r[c->kbd.wi++] = ch;
+	if(c->kbd.wi == nelem(c->kbd.r))
+		c->kbd.wi = 0;
+	if(c->kbd.ri == c->kbd.wi)
+		c->kbd.stall = 1;
+	matchkbd(c);
+	qunlock(&c->inputlk);
 }
 
-static int alting;
-
 void
-abortcompose(void)
+abortcompose(Client *c)
 {
-	if(alting)
-		keystroke(Kalt);
+	if(c->kbd.alting)
+		keystroke(c, Kalt);
 }
 
 void
-keystroke(int c)
+keystroke(Client *c, int ch)
 {
 	static Rune k[10];
 	static int nk;
 	int i;
 
-	if(c == Kalt){
-		alting = !alting;
+	if(ch == Kalt){
+		c->kbd.alting = !c->kbd.alting;
 		nk = 0;
 		return;
 	}
-	if(c == Kcmd+'r') {
-		if(forcedpi)
-			forcedpi = 0;
-		else if(displaydpi >= 200)
-			forcedpi = 100;
+	if(ch == Kcmd+'r') {
+		if(c->forcedpi)
+			c->forcedpi = 0;
+		else if(c->displaydpi >= 200)
+			c->forcedpi = 100;
 		else
-			forcedpi = 225;
-		resizeimg();
+			c->forcedpi = 225;
+		resizeimg(c);
 		return;
 	}
-	if(!alting){
-		kputc(c);
+	if(!c->kbd.alting){
+		kputc(c, ch);
 		return;
 	}
 	if(nk >= nelem(k))      // should not happen
 		nk = 0;
-	k[nk++] = c;
-	c = _latin1(k, nk);
-	if(c > 0){
-		alting = 0;
-		kputc(c);
+	k[nk++] = ch;
+	ch = _latin1(k, nk);
+	if(ch > 0){
+		c->kbd.alting = 0;
+		kputc(c, ch);
 		nk = 0;
 		return;
 	}
-	if(c == -1){
-		alting = 0;
+	if(ch == -1){
+		c->kbd.alting = 0;
 		for(i=0; i<nk; i++)
-			kputc(k[i]);
+			kputc(c, k[i]);
 		nk = 0;
 		return;
 	}
