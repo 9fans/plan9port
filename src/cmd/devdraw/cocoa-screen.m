@@ -12,7 +12,7 @@
 
 #include <u.h>
 #include <libc.h>
-#include  "cocoa-thread.h"
+#include <thread.h>
 #include <draw.h>
 #include <memdraw.h>
 #include <keyboard.h>
@@ -41,8 +41,8 @@ usage(void)
 	threadexitsall("usage");
 }
 
+
 @interface AppDelegate : NSObject<NSApplicationDelegate,NSWindowDelegate>
-+ (void)callservep9p:(id)arg;
 + (void)makewin:(NSValue *)v;
 + (void)callkicklabel:(NSString *)v;
 + (void)callsetNeedsDisplayInRect:(NSValue *)v;
@@ -108,13 +108,17 @@ threadmain(int argc, char **argv)
 	}
 }
 
-@implementation AppDelegate
 
-+ (void)callservep9p:(id)arg
+void
+callservep9p(void *v)
 {
+	USED(v);
+
 	servep9p();
-	[NSApp terminate:self];
+	[NSApp terminate:myApp];
 }
+
+@implementation AppDelegate
 
 + (void)makewin:(NSValue *)v
 {
@@ -331,9 +335,7 @@ struct Cursors {
 	[NSApp setApplicationIconImage:i];
 	[[NSApp dockTile] display];
 
-	[NSThread
-		detachNewThreadSelector:@selector(callservep9p:)
-		toTarget:[self class] withObject:nil];
+	proccreate(callservep9p, nil, 0);
 }
 
 - (NSApplicationPresentationOptions)window:(id)arg
@@ -671,6 +673,7 @@ struct Cursors {
 	if(actualRange)
 		*actualRange = sr;
 	LOG(@"use range: %ld, %ld", sr.location, sr.length);
+	s = nil;
 	if(sr.length)
 		s = [[NSAttributedString alloc]
 			initWithString:[_tmpText substringWithRange:sr]];

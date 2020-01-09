@@ -4,7 +4,7 @@
 
 #include <u.h>
 #include <libc.h>
-#include "cocoa-thread.h"
+#include <thread.h>
 #include <draw.h>
 #include <memdraw.h>
 #include <keyboard.h>
