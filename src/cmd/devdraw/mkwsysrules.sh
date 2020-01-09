@@ -22,13 +22,11 @@ fi
 
 if [ "x$WSYSTYPE" = "x" ]; then
 	if [ "x`uname`" = "xDarwin" ]; then
-		if sw_vers | grep 'ProductVersion:	10\.[0-5]\.' >/dev/null; then
-			echo 1>&2 'OS X 10.5 and older are not supported'
+		if sw_vers | egrep 'ProductVersion:	(10\.[0-9]\.|10\.1[012])$' >/dev/null; then
+			echo 1>&2 'OS X 10.12 and older are not supported'
 			exit 1
-		else
-			#echo 1>&2 'WARNING: OS X Lion is not working.  Copy binaries from a Snow Leopard system.'
-			WSYSTYPE=osx-cocoa
 		fi
+		WSYSTYPE=osx-cocoa
 	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
@@ -54,12 +52,8 @@ if [ $WSYSTYPE = x11 ]; then
 	XO=`ls x11-*.c 2>/dev/null | sed 's/\.c$/.o/'`
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
 elif [ $WSYSTYPE = osx-cocoa ]; then
-	if sw_vers|awk '/ProductVersion/{split($2,a,".");exit(a[2]<14)}' >/dev/null; then	# 0 is true in sh.
-		echo 'OBJCFLAGS=$OBJCFLAGS -fobjc-arc'
-		echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-metal-objc.o cocoa-srv.o cocoa-thread.o'
-	else
-		echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-objc.o cocoa-srv.o cocoa-thread.o'
-	fi
+	echo 'OBJCFLAGS=$OBJCFLAGS -fobjc-arc'
+	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-metal-objc.o cocoa-srv.o cocoa-thread.o'
 	echo 'MACARGV=macargv-objc.o'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'

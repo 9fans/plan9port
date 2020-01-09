@@ -12,9 +12,6 @@ AUTOFRAMEWORK(Cocoa)
 void
 main(void)
 {
-	if(OSX_VERSION < 100700)
-		[NSAutoreleasePool new];
-
 	[NSApplication sharedApplication];
 	NSObject<NSApplicationDelegate> *delegate = [appdelegate new];
 	[NSApp setDelegate:delegate];
