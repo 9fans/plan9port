@@ -70,7 +70,6 @@ HFILES=\
 	$PLAN9/include/mouse.h\
 	$PLAN9/include/keyboard.h\
 
-getsubfont.$O: defont.h
-
 <$PLAN9/src/mksyslib
 
+getsubfont.$O: defont.h
