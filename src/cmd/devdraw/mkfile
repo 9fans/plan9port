@@ -37,13 +37,10 @@ latin1.h: $PLAN9/lib/keyboard $O.mklatinkbd
 $O.macargv: $MACARGV
 	$LD -o $target $prereq
 
-cocoa-screen-metal-objc.$O: cocoa-screen-metal.m
-	$CC $CFLAGS $OBJCFLAGS -o $target cocoa-screen-metal.m
+%.$O: %.m
+	$CC $CFLAGS $OBJCFLAGS -o $target $stem.m
 
-%-objc.$O: %.m
-	$CC $CFLAGS -o $target $stem.m
-
-CLEANFILES=$O.macargv $O.mklatinkbd latin1.h
+CLEANFILES=$O.devdraw $O.macargv $O.mklatinkbd latin1.h
 
 install: mklatinkbd.install
 install:Q: 

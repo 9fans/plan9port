@@ -53,8 +53,8 @@ if [ $WSYSTYPE = x11 ]; then
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
 elif [ $WSYSTYPE = osx-cocoa ]; then
 	echo 'OBJCFLAGS=$OBJCFLAGS -fobjc-arc'
-	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen-metal-objc.o cocoa-srv.o cocoa-thread.o'
-	echo 'MACARGV=macargv-objc.o'
+	echo 'WSYSOFILES=$WSYSOFILES osx-draw.o cocoa-screen.o cocoa-srv.o cocoa-thread.o'
+	echo 'MACARGV=macargv.o'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi
