@@ -8,7 +8,7 @@ execproc(void *v)
 	int i, fd[3];
 	char buf[100], *args[3];
 
-	i = (int)v;
+	i = (int)(uintptr)v;
 	sprint(buf, "%d", i);
 	fd[0] = dup(0, -1);
 	fd[1] = dup(1, -1);
@@ -33,7 +33,7 @@ threadmain(int argc, char **argv)
 
 	c = threadwaitchan();
 	for(i=0;; i++){
-		proccreate(execproc, (void*)i, 16384);
+		proccreate(execproc, (void*)(uintptr)i, 16384);
 		w = recvp(c);
 		if(w == nil)
 			sysfatal("exec/recvp failed: %r");

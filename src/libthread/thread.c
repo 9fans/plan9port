@@ -16,6 +16,7 @@ static	int		onlist(_Threadlist*, _Thread*);
 static	void		addthreadinproc(Proc*, _Thread*);
 static	void		delthreadinproc(Proc*, _Thread*);
 static	void		contextswitch(Context *from, Context *to);
+static	void		procmain(Proc*);
 static	void		procscheduler(Proc*);
 static	int		threadinfo(void*, char*);
 
@@ -112,8 +113,6 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	if(t == nil)
 		sysfatal("threadalloc malloc: %r");
 	memset(t, 0, sizeof *t);
-	t->stk = (uchar*)(t+1);
-	t->stksize = stack;
 	t->id = incref(&threadidref);
 //print("fn=%p arg=%p\n", fn, arg);
 	t->startfn = fn;
@@ -121,6 +120,10 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 //print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 
 	/* do a reasonable initialization */
+	if(stack == 0)
+		return t;
+	t->stk = (uchar*)(t+1);
+	t->stksize = stack;
 	memset(&t->context.uc, 0, sizeof t->context.uc);
 	sigemptyset(&zero);
 	sigprocmask(SIG_BLOCK, &zero, &t->context.uc.uc_sigmask);
@@ -165,6 +168,8 @@ _threadcreate(Proc *p, void (*fn)(void*), void *arg, uint stack)
 	if(stack < (256<<10))
 		stack = 256<<10;
 
+	if(p->nthread == 0)
+		stack = 0; // not using it
 	t = threadalloc(fn, arg, stack);
 	t->proc = p;
 	addthreadinproc(p, t);
@@ -192,7 +197,7 @@ proccreate(void (*fn)(void*), void *arg, uint stack)
 	p = procalloc();
 	t = _threadcreate(p, fn, arg, stack);
 	id = t->id;	/* t might be freed after _procstart */
-	_procstart(p, procscheduler);
+	_procstart(p, procmain);
 	return id;
 }
 
@@ -204,7 +209,10 @@ _threadswitch(void)
 	needstack(0);
 	p = proc();
 /*print("threadswtch %p\n", p); */
-	contextswitch(&p->thread->context, &p->schedcontext);
+	if(p->thread->stk == nil)
+		procscheduler(p);
+	else
+		contextswitch(&p->thread->context, &p->schedcontext);
 }
 
 void
@@ -312,14 +320,42 @@ contextswitch(Context *from, Context *to)
 }
 
 static void
+procmain(Proc *p)
+{
+	_Thread *t;
+
+	_threadsetproc(p);
+
+	/* take out first thread to run on system stack */
+	t = p->runqueue.head;
+	delthread(&p->runqueue, t);
+	memset(&t->context.uc, 0, sizeof t->context.uc);
+
+	/* run it */
+	p->thread = t;
+	t->startfn(t->startarg);
+	if(p->nthread != 0)
+		threadexits(nil);
+}
+
+static void
 procscheduler(Proc *p)
 {
 	_Thread *t;
 
-	setproc(p);
 	_threaddebug("scheduler enter");
 //print("s %p\n", p);
+Top:
 	lock(&p->lock);
+	t = p->thread;
+	p->thread = nil;
+	if(t->exiting){
+		delthreadinproc(p, t);
+		p->nthread--;
+/*print("nthread %d\n", p->nthread); */
+		free(t);
+	}
+
 	for(;;){
 		if((t = p->pinthread) != nil){
 			while(!onlist(&p->runqueue, t)){
@@ -356,16 +392,11 @@ procscheduler(Proc *p)
 		p->nswitch++;
 		_threaddebug("run %d (%s)", t->id, t->name);
 //print("run %p %p %p %p\n", t, *(uintptr*)(t->context.uc.mc.sp), t->context.uc.mc.di, t->context.uc.mc.si);
+		if(t->stk == nil)
+			return;
 		contextswitch(&p->schedcontext, &t->context);
 /*print("back in scheduler\n"); */
-		p->thread = nil;
-		lock(&p->lock);
-		if(t->exiting){
-			delthreadinproc(p, t);
-			p->nthread--;
-/*print("nthread %d\n", p->nthread); */
-			free(t);
-		}
+		goto Top;
 	}
 
 Out:
@@ -749,7 +780,7 @@ main(int argc, char **argv)
 		mainstacksize = 256*1024;
 	atnotify(threadinfo, 1);
 	_threadcreate(p, threadmainstart, nil, mainstacksize);
-	procscheduler(p);
+	procmain(p);
 	sysfatal("procscheduler returned in threadmain!");
 	/* does not return */
 	return 0;

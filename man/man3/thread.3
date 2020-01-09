@@ -169,6 +169,14 @@ initialized to the desired value
 .B mainstacksize
 .B =
 .BR 1024 ).
+When using the
+.I pthread
+library, 
+.B mainstacksize
+is ignored, as is the stack size argument to
+.BR proccreate :
+the first thread in each proc
+runs on the native system stack.
 .PP
 .I Threadcreate
 creates a new thread in the calling proc, returning a unique integer

@@ -187,7 +187,6 @@ struct Proc
 };
 
 #define proc() _threadproc()
-#define setproc(p) _threadsetproc(p)
 
 extern Proc *_threadprocs;
 extern Lock _threadprocslock;
