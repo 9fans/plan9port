@@ -14,8 +14,6 @@
 #include <drawfcall.h>
 #include "devdraw.h"
 
-extern void _flushmemscreen(Rectangle);
-
 static	Draw		sdraw;
 Client		*client0;
 static	int		drawuninstall(Client*, int);
@@ -32,6 +30,8 @@ _initdisplaymemimage(Client *c, Memimage *m)
 	c->op = SoverD;
 }
 
+// _drawreplacescreen replaces c's screen image with m.
+// It is called by the host driver on the main host thread.
 void
 _drawreplacescreenimage(Client *c, Memimage *m)
 {
@@ -141,7 +141,7 @@ addflush(Client *c, Rectangle r)
 	}
 	/* emit current state */
 	if(c->flushrect.min.x < c->flushrect.max.x)
-		_flushmemscreen(c->flushrect);
+		rpc_flushmemscreen(c, c->flushrect);
 	c->flushrect = r;
 	c->waste = 0;
 }
@@ -178,7 +178,7 @@ void
 drawflush(Client *c)
 {
 	if(c->flushrect.min.x < c->flushrect.max.x)
-		_flushmemscreen(c->flushrect);
+		rpc_flushmemscreen(c, c->flushrect);
 	c->flushrect = Rect(10000, 10000, -10000, -10000);
 }
 

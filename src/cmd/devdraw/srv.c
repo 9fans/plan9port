@@ -13,12 +13,11 @@
 #include <cursor.h>
 #include <drawfcall.h>
 #include "devdraw.h"
-#include "mac-screen.h"
 
-void runmsg(Client*, Wsysmsg*);
-void replymsg(Client*, Wsysmsg*);
-void matchkbd(Client*);
-void matchmouse(Client*);
+static void runmsg(Client*, Wsysmsg*);
+static void replymsg(Client*, Wsysmsg*);
+static void matchkbd(Client*);
+static void matchmouse(Client*);
 
 int trace = 0;
 
@@ -55,7 +54,7 @@ servep9p(Client *c)
 	}
 }
 
-void
+static void
 replyerror(Client *c, Wsysmsg *m)
 {
 	char err[256];
@@ -70,7 +69,7 @@ replyerror(Client *c, Wsysmsg *m)
  * Handle a single wsysmsg.
  * Might queue for later (kbd, mouse read)
  */
-void
+static void
 runmsg(Client *c, Wsysmsg *m)
 {
 	static uchar buf[65536];
@@ -80,7 +79,7 @@ runmsg(Client *c, Wsysmsg *m)
 	switch(m->type){
 	case Tinit:
 		memimageinit();
-		i = attachscreen(c, m->label, m->winsize);
+		i = rpc_attachscreen(c, m->label, m->winsize);
 		_initdisplaymemimage(c, i);
 		replymsg(c, m);
 		break;
@@ -110,23 +109,25 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tmoveto:
-		setmouse(m->mouse.xy);
+		rpc_setmouse(c, m->mouse.xy);
 		replymsg(c, m);
 		break;
 
 	case Tcursor:
 		if(m->arrowcursor)
-			setcursor(nil, nil);
-		else
-			setcursor(&m->cursor, nil);
+			rpc_setcursor(c, nil, nil);
+		else {
+			scalecursor(&m->cursor2, &m->cursor);
+			rpc_setcursor(c, &m->cursor, &m->cursor2);
+		}
 		replymsg(c, m);
 		break;
 
 	case Tcursor2:
 		if(m->arrowcursor)
-			setcursor(nil, nil);
+			rpc_setcursor(c, nil, nil);
 		else
-			setcursor(&m->cursor, &m->cursor2);
+			rpc_setcursor(c, &m->cursor, &m->cursor2);
 		replymsg(c, m);
 		break;
 
@@ -136,12 +137,12 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tlabel:
-		kicklabel(m->label);
+		rpc_setlabel(c, m->label);
 		replymsg(c, m);
 		break;
 
 	case Trdsnarf:
-		m->snarf = getsnarf();
+		m->snarf = rpc_getsnarf();
 		replymsg(c, m);
 		free(m->snarf);
 		break;
@@ -177,12 +178,12 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Ttop:
-		topwin();
+		rpc_topwin(c);
 		replymsg(c, m);
 		break;
 
 	case Tresize:
-		resizewindow(m->rect);
+		rpc_resizewindow(c, m->rect);
 		replymsg(c, m);
 		break;
 	}
@@ -192,7 +193,7 @@ runmsg(Client *c, Wsysmsg *m)
  * Reply to m.
  */
 QLock replylock;
-void
+static void
 replymsg(Client *c, Wsysmsg *m)
 {
 	int n;
@@ -224,7 +225,7 @@ replymsg(Client *c, Wsysmsg *m)
 /*
  * Match queued kbd reads with queued kbd characters.
  */
-void
+static void
 matchkbd(Client *c)
 {
 	Wsysmsg m;
@@ -243,13 +244,17 @@ matchkbd(Client *c)
 	}
 }
 
-/*
- * Match queued mouse reads with queued mouse events.
- */
-void
+// matchmouse matches queued mouse reads with queued mouse events.
+// It must be called with c->inputlk held.
+static void
 matchmouse(Client *c)
 {
 	Wsysmsg m;
+
+	if(canqlock(&c->inputlk)) {
+		fprint(2, "misuse of matchmouse\n");
+		abort();
+	}
 
 	while(c->mouse.ri != c->mouse.wi && c->mousetags.ri != c->mousetags.wi){
 		m.type = Rrdmouse;
@@ -271,10 +276,11 @@ matchmouse(Client *c)
 }
 
 void
-mousetrack(Client *c, int x, int y, int b, uint ms)
+gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 {
 	Mouse *m;
 
+	qlock(&c->inputlk);
 	if(x < c->mouserect.min.x)
 		x = c->mouserect.min.x;
 	if(x > c->mouserect.max.x)
@@ -284,7 +290,6 @@ mousetrack(Client *c, int x, int y, int b, uint ms)
 	if(y > c->mouserect.max.y)
 		y = c->mouserect.max.y;
 
-	qlock(&c->inputlk);
 	// If reader has stopped reading, don't bother.
 	// If reader is completely caught up, definitely queue.
 	// Otherwise, queue only button change events.
@@ -310,36 +315,50 @@ mousetrack(Client *c, int x, int y, int b, uint ms)
 	qunlock(&c->inputlk);
 }
 
-void
+// kputc adds ch to the keyboard buffer.
+// It must be called with c->inputlk held.
+static void
 kputc(Client *c, int ch)
 {
-	qlock(&c->inputlk);
+	if(canqlock(&c->inputlk)) {
+		fprint(2, "misuse of kputc\n");
+		abort();
+	}
+
 	c->kbd.r[c->kbd.wi++] = ch;
 	if(c->kbd.wi == nelem(c->kbd.r))
 		c->kbd.wi = 0;
 	if(c->kbd.ri == c->kbd.wi)
 		c->kbd.stall = 1;
 	matchkbd(c);
+}
+
+// gfx_abortcompose stops any pending compose sequence,
+// because a mouse button has been clicked.
+// It is called from the graphics thread with no locks held.
+void
+gfx_abortcompose(Client *c)
+{
+	qlock(&c->inputlk);
+	if(c->kbd.alting) {
+		c->kbd.alting = 0;
+		c->kbd.nk = 0;
+	}
 	qunlock(&c->inputlk);
 }
 
+// gfx_keystroke records a single-rune keystroke.
+// It is called from the graphics thread with no locks held.
 void
-abortcompose(Client *c)
+gfx_keystroke(Client *c, int ch)
 {
-	if(c->kbd.alting)
-		keystroke(c, Kalt);
-}
-
-void
-keystroke(Client *c, int ch)
-{
-	static Rune k[10];
-	static int nk;
 	int i;
 
+	qlock(&c->inputlk);
 	if(ch == Kalt){
 		c->kbd.alting = !c->kbd.alting;
-		nk = 0;
+		c->kbd.nk = 0;
+		qunlock(&c->inputlk);
 		return;
 	}
 	if(ch == Kcmd+'r') {
@@ -349,30 +368,35 @@ keystroke(Client *c, int ch)
 			c->forcedpi = 100;
 		else
 			c->forcedpi = 225;
-		resizeimg(c);
+		qunlock(&c->inputlk);
+		rpc_resizeimg(c);
 		return;
 	}
 	if(!c->kbd.alting){
 		kputc(c, ch);
+		qunlock(&c->inputlk);
 		return;
 	}
-	if(nk >= nelem(k))      // should not happen
-		nk = 0;
-	k[nk++] = ch;
-	ch = _latin1(k, nk);
+	if(c->kbd.nk >= nelem(c->kbd.k))      // should not happen
+		c->kbd.nk = 0;
+	c->kbd.k[c->kbd.nk++] = ch;
+	ch = _latin1(c->kbd.k, c->kbd.nk);
 	if(ch > 0){
 		c->kbd.alting = 0;
 		kputc(c, ch);
-		nk = 0;
+		c->kbd.nk = 0;
+		qunlock(&c->inputlk);
 		return;
 	}
 	if(ch == -1){
 		c->kbd.alting = 0;
-		for(i=0; i<nk; i++)
-			kputc(c, k[i]);
-		nk = 0;
+		for(i=0; i<c->kbd.nk; i++)
+			kputc(c, c->kbd.k[i]);
+		c->kbd.nk = 0;
+		qunlock(&c->inputlk);
 		return;
 	}
 	// need more input
+	qunlock(&c->inputlk);
 	return;
 }

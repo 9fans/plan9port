@@ -9,6 +9,7 @@ WSYSOFILES=\
 	devdraw.$O\
 	latin1.$O\
 	mouseswap.$O\
+	srv.$O\
 	winsize.$O\
 
 <|sh ./mkwsysrules.sh
@@ -42,7 +43,7 @@ $O.macargv: $MACARGV
 	$LD -o $target $prereq
 
 %.$O: %.m
-	$CC $CFLAGS $OBJCFLAGS -o $target $stem.m
+	$CC $CFLAGS $OBJCFLAGS -fobjc-arc -o $target $stem.m
 
 CLEANFILES=$O.devdraw $O.macargv $O.drawclient $O.mklatinkbd latin1.h
 

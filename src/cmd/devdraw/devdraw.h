@@ -28,6 +28,8 @@ struct Kbdbuf
 	int wi;
 	int stall;
 	int alting;
+	Rune k[10];
+	int nk;
 };
 
 struct Mousebuf
@@ -75,7 +77,7 @@ struct Client
 
 	int		rfd;
 	int		wfd;
-	void*		view;
+	const void*		view;
 	
 	QLock inputlk;
 	Kbdbuf kbd;
@@ -163,6 +165,22 @@ void	_drawreplacescreenimage(Client*, Memimage*);
 int _latin1(Rune*, int);
 int parsewinsize(char*, Rectangle*, int*);
 int mouseswap(int);
-void abortcompose(Client*);
+
+void	gfx_abortcompose(Client*);
+void	gfx_keystroke(Client*, int);
+void	gfx_mousetrack(Client*, int, int, int, uint);
+
+void	rpc_setmouse(Client*, Point);
+void	rpc_setcursor(Client*, Cursor*, Cursor2*);
+void	rpc_setlabel(Client*, char*);
+void	rpc_resizeimg(Client*);
+void	rpc_resizewindow(Client*, Rectangle);
+void	rpc_topwin(Client*);
+char*	rpc_getsnarf(void);
+void	rpc_putsnarf(char*);
+Memimage *rpc_attachscreen(Client*, char*, char*);
+void	rpc_flushmemscreen(Client*, Rectangle);
 
 extern Client *client0;
+
+void	servep9p(Client*);
