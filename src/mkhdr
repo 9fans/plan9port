@@ -1,4 +1,4 @@
-<$PLAN9/buildEnvironmentVariables
+<$PLAN9/src/mkenv
 
 BIN=$PLAN9/bin
 LIBDIR=$PLAN9/lib

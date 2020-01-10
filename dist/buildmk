@@ -1,6 +1,6 @@
 #!/bin/sh
 
 # run this in the src directory
+. ../src/mkenv
 export SYSNAME OBJTYPE
-. ../buildEnvironmentVariables
 sh -x mkmk.sh

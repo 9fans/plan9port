@@ -1,3 +1,6 @@
+# This file must be valid mk input for mkhdr
+# and also valid shell input for ../dist/buildmk
+
 SYSNAME=`uname`
 OBJTYPE=`(uname -m -p 2>/dev/null || uname -m) | sed '
 	s;.*i[3-6]86.*;386;;
