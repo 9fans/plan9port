@@ -14,14 +14,12 @@
 #include <drawfcall.h>
 #include "devdraw.h"
 
-static	Draw		sdraw;
-Client		*client0;
 static	int		drawuninstall(Client*, int);
 static	Memimage*	drawinstall(Client*, int, Memimage*, DScreen*);
 static	void		drawfreedimage(Client*, DImage*);
 
 void
-_initdisplaymemimage(Client *c, Memimage *m)
+draw_initdisplaymemimage(Client *c, Memimage *m)
 {
 	c->screenimage = m;
 	m->screenref = 1;
@@ -30,10 +28,10 @@ _initdisplaymemimage(Client *c, Memimage *m)
 	c->op = SoverD;
 }
 
-// _drawreplacescreen replaces c's screen image with m.
+// gfx_replacescreenimage replaces c's screen image with m.
 // It is called by the host driver on the main host thread.
 void
-_drawreplacescreenimage(Client *c, Memimage *m)
+gfx_replacescreenimage(Client *c, Memimage *m)
 {
 	/*
 	 * Replace the screen image because the screen
@@ -49,21 +47,21 @@ _drawreplacescreenimage(Client *c, Memimage *m)
 	 */
 	Memimage *om;
 
-	qlock(&c->inputlk);
-	qlock(&sdraw.lk);
+	qlock(&c->drawlk);
 	om = c->screenimage;
 	c->screenimage = m;
 	m->screenref = 1;
-	c->mouse.resized = 1;
 	if(om && --om->screenref == 0){
 		_freememimage(om);
 	}
-	qunlock(&sdraw.lk);
-	qunlock(&c->inputlk);
+	qunlock(&c->drawlk);
+
+	qlock(&c->eventlk);
+	c->mouse.resized = 1;
+	qunlock(&c->eventlk);
 }
 
-static
-void
+static void
 drawrefreshscreen(DImage *l, Client *client)
 {
 	while(l != nil && l->dscreen == nil)
@@ -72,8 +70,7 @@ drawrefreshscreen(DImage *l, Client *client)
 		l->dscreen->owner->refreshme = 1;
 }
 
-static
-void
+static void
 drawrefresh(Memimage *m, Rectangle r, void *v)
 {
 	Refx *x;
@@ -106,7 +103,7 @@ static void
 addflush(Client *c, Rectangle r)
 {
 	int abb, ar, anbb;
-	Rectangle nbb;
+	Rectangle nbb, fr;
 
 	if(/*sdraw.softscreen==0 ||*/ !rectclip(&r, c->screenimage->r))
 		return;
@@ -140,14 +137,20 @@ addflush(Client *c, Rectangle r)
 		return;
 	}
 	/* emit current state */
-	if(c->flushrect.min.x < c->flushrect.max.x)
-		rpc_flushmemscreen(c, c->flushrect);
+	fr = c->flushrect;
 	c->flushrect = r;
 	c->waste = 0;
+	if(fr.min.x < fr.max.x) {
+		// Unlock drawlk because rpc_flush may want to run on gfx thread,
+		// and gfx thread might be blocked on drawlk trying to install a new screen
+		// during a resize.
+		qunlock(&c->drawlk);
+		rpc_flush(c, fr);
+		qlock(&c->drawlk);
+	}
 }
 
-static
-void
+static void
 dstflush(Client *c, int dstid, Memimage *dst, Rectangle r)
 {
 	Memlayer *l;
@@ -173,17 +176,24 @@ dstflush(Client *c, int dstid, Memimage *dst, Rectangle r)
 	addflush(c, r);
 }
 
-static
-void
+static void
 drawflush(Client *c)
 {
-	if(c->flushrect.min.x < c->flushrect.max.x)
-		rpc_flushmemscreen(c, c->flushrect);
+	Rectangle r;
+
+	r = c->flushrect;
 	c->flushrect = Rect(10000, 10000, -10000, -10000);
+	if(r.min.x < r.max.x) {
+		// Unlock drawlk because rpc_flush may want to run on gfx thread,
+		// and gfx thread might be blocked on drawlk trying to install a new screen
+		// during a resize.
+		qunlock(&c->drawlk);
+		rpc_flush(c, r);
+		qlock(&c->drawlk);
+	}
 }
 
-static
-int
+static int
 drawcmp(char *a, char *b, int n)
 {
 	if(strlen(a) != n)
@@ -191,8 +201,7 @@ drawcmp(char *a, char *b, int n)
 	return memcmp(a, b, n);
 }
 
-static
-DName*
+static DName*
 drawlookupname(Client *client, int n, char *str)
 {
 	DName *name, *ename;
@@ -205,8 +214,7 @@ drawlookupname(Client *client, int n, char *str)
 	return 0;
 }
 
-static
-int
+static int
 drawgoodname(Client *client, DImage *d)
 {
 	DName *n;
@@ -224,8 +232,7 @@ drawgoodname(Client *client, DImage *d)
 	return 1;
 }
 
-static
-DImage*
+static DImage*
 drawlookup(Client *client, int id, int checkname)
 {
 	DImage *d;
@@ -246,8 +253,7 @@ drawlookup(Client *client, int id, int checkname)
 	return 0;
 }
 
-static
-DScreen*
+static DScreen*
 drawlookupdscreen(Client *c, int id)
 {
 	DScreen *s;
@@ -261,8 +267,7 @@ drawlookupdscreen(Client *c, int id)
 	return 0;
 }
 
-static
-DScreen*
+static DScreen*
 drawlookupscreen(Client *client, int id, CScreen **cs)
 {
 	CScreen *s;
@@ -279,8 +284,7 @@ drawlookupscreen(Client *client, int id, CScreen **cs)
 	return 0;
 }
 
-static
-Memimage*
+static Memimage*
 drawinstall(Client *client, int id, Memimage *i, DScreen *dscreen)
 {
 	DImage *d;
@@ -304,8 +308,7 @@ drawinstall(Client *client, int id, Memimage *i, DScreen *dscreen)
 	return i;
 }
 
-static
-Memscreen*
+static Memscreen*
 drawinstallscreen(Client *client, DScreen *d, int id, DImage *dimage, DImage *dfill, int public)
 {
 	Memscreen *s;
@@ -358,8 +361,7 @@ drawinstallscreen(Client *client, DScreen *d, int id, DImage *dimage, DImage *df
 	return d->screen;
 }
 
-static
-void
+static void
 drawdelname(Client *client, DName *name)
 {
 	int i;
@@ -369,8 +371,7 @@ drawdelname(Client *client, DName *name)
 	client->nname--;
 }
 
-static
-void
+static void
 drawfreedscreen(Client *client, DScreen *this)
 {
 	DScreen *ds, *next;
@@ -406,8 +407,7 @@ drawfreedscreen(Client *client, DScreen *this)
 	free(this);
 }
 
-static
-void
+static void
 drawfreedimage(Client *client, DImage *dimage)
 {
 	int i;
@@ -456,8 +456,7 @@ drawfreedimage(Client *client, DImage *dimage)
 	free(dimage);
 }
 
-static
-void
+static void
 drawuninstallscreen(Client *client, CScreen *this)
 {
 	CScreen *cs, *next;
@@ -480,8 +479,7 @@ drawuninstallscreen(Client *client, CScreen *this)
 	}
 }
 
-static
-int
+static int
 drawuninstall(Client *client, int id)
 {
 	DImage *d, **l;
@@ -496,8 +494,7 @@ drawuninstall(Client *client, int id)
 	return -1;
 }
 
-static
-int
+static int
 drawaddname(Client *client, DImage *di, int n, char *str, char **err)
 {
 	DName *name, *ename, *new, *t;
@@ -541,8 +538,7 @@ drawclientop(Client *cl)
 	return op;
 }
 
-static
-Memimage*
+static Memimage*
 drawimage(Client *client, uchar *a)
 {
 	DImage *d;
@@ -553,8 +549,7 @@ drawimage(Client *client, uchar *a)
 	return d->image;
 }
 
-static
-void
+static void
 drawrectangle(Rectangle *r, uchar *a)
 {
 	r->min.x = BGLONG(a+0*4);
@@ -563,16 +558,14 @@ drawrectangle(Rectangle *r, uchar *a)
 	r->max.y = BGLONG(a+3*4);
 }
 
-static
-void
+static void
 drawpoint(Point *p, uchar *a)
 {
 	p->x = BGLONG(a+0*4);
 	p->y = BGLONG(a+1*4);
 }
 
-static
-Point
+static Point
 drawchar(Memimage *dst, Point p, Memimage *src, Point *sp, DImage *font, int index, int op)
 {
 	FChar *fc;
@@ -592,8 +585,7 @@ drawchar(Memimage *dst, Point p, Memimage *src, Point *sp, DImage *font, int ind
 	return p;
 }
 
-static
-uchar*
+static uchar*
 drawcoord(uchar *p, uchar *maxp, int oldx, int *newx)
 {
 	int b, x;
@@ -619,9 +611,9 @@ drawcoord(uchar *p, uchar *maxp, int oldx, int *newx)
 }
 
 int
-_drawmsgread(Client *cl, void *a, int n)
+draw_dataread(Client *cl, void *a, int n)
 {
-	qlock(&sdraw.lk);
+	qlock(&cl->drawlk);
 	if(cl->readdata == nil){
 		werrstr("no draw data");
 		goto err;
@@ -634,16 +626,16 @@ _drawmsgread(Client *cl, void *a, int n)
 	memmove(a, cl->readdata, cl->nreaddata);
 	free(cl->readdata);
 	cl->readdata = nil;
-	qunlock(&sdraw.lk);
+	qunlock(&cl->drawlk);
 	return n;
 
 err:
-	qunlock(&sdraw.lk);
+	qunlock(&cl->drawlk);
 	return -1;
 }
 
 int
-_drawmsgwrite(Client *client, void *v, int n)
+draw_datawrite(Client *client, void *v, int n)
 {
 	char cbuf[40], *err, ibuf[12*12+1], *s;
 	int c, ci, doflush, dstid, e0, e1, esize, j, m;
@@ -663,7 +655,7 @@ _drawmsgwrite(Client *client, void *v, int n)
 	Refreshfn reffn;
 	Refx *refx;
 
-	qlock(&sdraw.lk);
+	qlock(&client->drawlk);
 	a = v;
 	m = 0;
 	oldn = n;
@@ -1436,7 +1428,7 @@ _drawmsgwrite(Client *client, void *v, int n)
 			continue;
 		}
 	}
-	qunlock(&sdraw.lk);
+	qunlock(&client->drawlk);
 	return oldn - n;
 
 Enodrawimage:
@@ -1506,6 +1498,6 @@ Ebadarg:
 
 error:
 	werrstr("%s", err);
-	qunlock(&sdraw.lk);
+	qunlock(&client->drawlk);
 	return -1;
 }

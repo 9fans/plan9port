@@ -46,7 +46,7 @@ unicode(Rune *k)
  * is minus the required n.
  */
 int
-_latin1(Rune *k, int n)
+latin1(Rune *k, int n)
 {
 	struct cvlist *l;
 	int c;

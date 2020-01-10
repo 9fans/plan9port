@@ -18,18 +18,72 @@ static void runmsg(Client*, Wsysmsg*);
 static void replymsg(Client*, Wsysmsg*);
 static void matchkbd(Client*);
 static void matchmouse(Client*);
+static void serve(void*);
+static Client *client0;
 
 int trace = 0;
 
-void
-servep9p(Client *c)
+static void
+usage(void)
 {
+	fprint(2, "usage: devdraw (don't run directly)\n");
+	threadexitsall("usage");
+}
+
+void
+threadmain(int argc, char **argv)
+{
+	/*
+	 * Move the protocol off stdin/stdout so that
+	 * any inadvertent prints don't screw things up.
+	 */
+	dup(0,3);
+	dup(1,4);
+	close(0);
+	close(1);
+	open("/dev/null", OREAD);
+	open("/dev/null", OWRITE);
+
+	ARGBEGIN{
+	case 'D':		/* for good ps -a listings */
+		break;
+	case 'f':		/* fall through for backward compatibility */
+	case 'g':
+	case 'b':
+		break;
+	default:
+		usage();
+	}ARGEND
+
+	fmtinstall('W', drawfcallfmt);
+
+	client0 = mallocz(sizeof(Client), 1);
+	if(client0 == nil){
+		fprint(2, "initdraw: allocating client0: out of memory");
+		abort();
+	}
+	client0->displaydpi = 100;
+	client0->rfd = 3;
+	client0->wfd = 4;
+
+	gfx_main();
+}
+
+void
+gfx_started(void)
+{
+	proccreate(serve, client0, 0);
+}
+
+static void
+serve(void *v)
+{
+	Client *c;
 	uchar buf[4], *mbuf;
 	int nmbuf, n, nn;
 	Wsysmsg m;
 
-	fmtinstall('W', drawfcallfmt);
-
+	c = v;
 	mbuf = nil;
 	nmbuf = 0;
 	while((n = read(c->rfd, buf, 4)) == 4){
@@ -52,6 +106,9 @@ servep9p(Client *c)
 		if(trace) fprint(2, "%ud [%d] <- %W\n", nsec()/1000000, threadid(), &m);
 		runmsg(c, &m);
 	}
+
+	rpc_shutdown();
+	threadexitsall(nil);
 }
 
 static void
@@ -79,13 +136,13 @@ runmsg(Client *c, Wsysmsg *m)
 	switch(m->type){
 	case Tinit:
 		memimageinit();
-		i = rpc_attachscreen(c, m->label, m->winsize);
-		_initdisplaymemimage(c, i);
+		i = rpc_attach(c, m->label, m->winsize);
+		draw_initdisplaymemimage(c, i);
 		replymsg(c, m);
 		break;
 
 	case Trdmouse:
-		qlock(&c->inputlk);
+		qlock(&c->eventlk);
 		c->mousetags.t[c->mousetags.wi++] = m->tag;
 		if(c->mousetags.wi == nelem(c->mousetags.t))
 			c->mousetags.wi = 0;
@@ -93,11 +150,11 @@ runmsg(Client *c, Wsysmsg *m)
 			sysfatal("too many queued mouse reads");
 		c->mouse.stall = 0;
 		matchmouse(c);
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		break;
 
 	case Trdkbd:
-		qlock(&c->inputlk);
+		qlock(&c->eventlk);
 		c->kbdtags.t[c->kbdtags.wi++] = m->tag;
 		if(c->kbdtags.wi == nelem(c->kbdtags.t))
 			c->kbdtags.wi = 0;
@@ -105,7 +162,7 @@ runmsg(Client *c, Wsysmsg *m)
 			sysfatal("too many queued keyboard reads");
 		c->kbd.stall = 0;
 		matchkbd(c);
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		break;
 
 	case Tmoveto:
@@ -148,16 +205,15 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Twrsnarf:
-		putsnarf(m->snarf);
+		rpc_putsnarf(m->snarf);
 		replymsg(c, m);
 		break;
 
 	case Trddraw:
-		qlock(&c->inputlk);
 		n = m->count;
 		if(n > sizeof buf)
 			n = sizeof buf;
-		n = _drawmsgread(c, buf, n);
+		n = draw_dataread(c, buf, n);
 		if(n < 0)
 			replyerror(c, m);
 		else{
@@ -165,16 +221,13 @@ runmsg(Client *c, Wsysmsg *m)
 			m->data = buf;
 			replymsg(c, m);
 		}
-		qunlock(&c->inputlk);
 		break;
 
 	case Twrdraw:
-		qlock(&c->inputlk);
-		if(_drawmsgwrite(c, m->data, m->count) < 0)
+		if(draw_datawrite(c, m->data, m->count) < 0)
 			replyerror(c, m);
 		else
 			replymsg(c, m);
-		qunlock(&c->inputlk);
 		break;
 
 	case Ttop:
@@ -192,13 +245,10 @@ runmsg(Client *c, Wsysmsg *m)
 /*
  * Reply to m.
  */
-QLock replylock;
 static void
 replymsg(Client *c, Wsysmsg *m)
 {
 	int n;
-	static uchar *mbuf;
-	static int nmbuf;
 
 	/* T -> R msg */
 	if(m->type%2 == 0)
@@ -208,18 +258,18 @@ replymsg(Client *c, Wsysmsg *m)
 	/* copy to output buffer */
 	n = sizeW2M(m);
 
-	qlock(&replylock);
-	if(n > nmbuf){
-		free(mbuf);
-		mbuf = malloc(n);
-		if(mbuf == nil)
+	qlock(&c->wfdlk);
+	if(n > c->nmbuf){
+		free(c->mbuf);
+		c->mbuf = malloc(n);
+		if(c->mbuf == nil)
 			sysfatal("out of memory");
-		nmbuf = n;
+		c->nmbuf = n;
 	}
-	convW2M(m, mbuf, n);
-	if(write(c->wfd, mbuf, n) != n)
+	convW2M(m, c->mbuf, n);
+	if(write(c->wfd, c->mbuf, n) != n)
 		sysfatal("write: %r");
-	qunlock(&replylock);
+	qunlock(&c->wfdlk);
 }
 
 /*
@@ -245,13 +295,13 @@ matchkbd(Client *c)
 }
 
 // matchmouse matches queued mouse reads with queued mouse events.
-// It must be called with c->inputlk held.
+// It must be called with c->eventlk held.
 static void
 matchmouse(Client *c)
 {
 	Wsysmsg m;
 
-	if(canqlock(&c->inputlk)) {
+	if(canqlock(&c->eventlk)) {
 		fprint(2, "misuse of matchmouse\n");
 		abort();
 	}
@@ -280,7 +330,7 @@ gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 {
 	Mouse *m;
 
-	qlock(&c->inputlk);
+	qlock(&c->eventlk);
 	if(x < c->mouserect.min.x)
 		x = c->mouserect.min.x;
 	if(x > c->mouserect.max.x)
@@ -312,15 +362,15 @@ gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 		}
 		matchmouse(c);
 	}
-	qunlock(&c->inputlk);
+	qunlock(&c->eventlk);
 }
 
 // kputc adds ch to the keyboard buffer.
-// It must be called with c->inputlk held.
+// It must be called with c->eventlk held.
 static void
 kputc(Client *c, int ch)
 {
-	if(canqlock(&c->inputlk)) {
+	if(canqlock(&c->eventlk)) {
 		fprint(2, "misuse of kputc\n");
 		abort();
 	}
@@ -339,12 +389,12 @@ kputc(Client *c, int ch)
 void
 gfx_abortcompose(Client *c)
 {
-	qlock(&c->inputlk);
+	qlock(&c->eventlk);
 	if(c->kbd.alting) {
 		c->kbd.alting = 0;
 		c->kbd.nk = 0;
 	}
-	qunlock(&c->inputlk);
+	qunlock(&c->eventlk);
 }
 
 // gfx_keystroke records a single-rune keystroke.
@@ -354,11 +404,11 @@ gfx_keystroke(Client *c, int ch)
 {
 	int i;
 
-	qlock(&c->inputlk);
+	qlock(&c->eventlk);
 	if(ch == Kalt){
 		c->kbd.alting = !c->kbd.alting;
 		c->kbd.nk = 0;
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		return;
 	}
 	if(ch == Kcmd+'r') {
@@ -368,24 +418,24 @@ gfx_keystroke(Client *c, int ch)
 			c->forcedpi = 100;
 		else
 			c->forcedpi = 225;
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		rpc_resizeimg(c);
 		return;
 	}
 	if(!c->kbd.alting){
 		kputc(c, ch);
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		return;
 	}
 	if(c->kbd.nk >= nelem(c->kbd.k))      // should not happen
 		c->kbd.nk = 0;
 	c->kbd.k[c->kbd.nk++] = ch;
-	ch = _latin1(c->kbd.k, c->kbd.nk);
+	ch = latin1(c->kbd.k, c->kbd.nk);
 	if(ch > 0){
 		c->kbd.alting = 0;
 		kputc(c, ch);
 		c->kbd.nk = 0;
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		return;
 	}
 	if(ch == -1){
@@ -393,10 +443,10 @@ gfx_keystroke(Client *c, int ch)
 		for(i=0; i<c->kbd.nk; i++)
 			kputc(c, c->kbd.k[i]);
 		c->kbd.nk = 0;
-		qunlock(&c->inputlk);
+		qunlock(&c->eventlk);
 		return;
 	}
 	// need more input
-	qunlock(&c->inputlk);
+	qunlock(&c->eventlk);
 	return;
 }

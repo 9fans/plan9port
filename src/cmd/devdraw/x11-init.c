@@ -733,6 +733,6 @@ _xreplacescreenimage(void)
 		XFreePixmap(_x.display, _x.nextscreenpm);
 	_x.nextscreenpm = pixmap;
 	_x.screenr = r;
-	_drawreplacescreenimage(m);
+	gfx_replacescreenimage(m);
 	return 1;
 }

@@ -7,7 +7,6 @@ typedef struct Mousebuf Mousebuf;
 typedef struct Tagbuf Tagbuf;
 
 typedef struct Client Client;
-typedef struct Draw Draw;
 typedef struct DImage DImage;
 typedef struct DScreen DScreen;
 typedef struct CScreen CScreen;
@@ -15,11 +14,6 @@ typedef struct FChar FChar;
 typedef struct Refresh Refresh;
 typedef struct Refx Refx;
 typedef struct DName DName;
-
-struct Draw
-{
-	QLock		lk;
-};
 
 struct Kbdbuf
 {
@@ -51,6 +45,19 @@ struct Tagbuf
 
 struct Client
 {
+	int		rfd;
+
+	// wfdlk protects writes to wfd, which can be issued from either
+	// the RPC thread or the graphics thread.
+	QLock	wfdlk;
+	int		wfd;
+	uchar*	mbuf;
+	int		nmbuf;
+
+	// drawlk protects the draw data structures.
+	// It can be acquired by an RPC thread or a graphics thread
+	// but must not be held on one thread while waiting for the other.
+	QLock	drawlk;
 	/*Ref		r;*/
 	DImage*		dimage[NHASH];
 	CScreen*	cscreen;
@@ -64,7 +71,6 @@ struct Client
 	int		refreshme;
 	int		infoid;
 	int		op;
-
 	int		displaydpi;
 	int		forcedpi;
 	int		waste;
@@ -75,11 +81,11 @@ struct Client
 	DName*		name;
 	int		namevers;
 
-	int		rfd;
-	int		wfd;
+	// Only accessed/modified by the graphics thread.
 	const void*		view;
 	
-	QLock inputlk;
+	// eventlk protects the keyboard and mouse events.
+	QLock eventlk;
 	Kbdbuf kbd;
 	Mousebuf mouse;
 	Tagbuf kbdtags;
@@ -157,30 +163,59 @@ struct DScreen
 	DScreen*	next;
 };
 
-int _drawmsgread(Client*, void*, int);
-int _drawmsgwrite(Client*, void*, int);
-void _initdisplaymemimage(Client*, Memimage*);
-void	_drawreplacescreenimage(Client*, Memimage*);
+// For the most part, the graphics driver-specific code in files
+// like mac-screen.m runs in the graphics library's main thread,
+// while the RPC service code in srv.c runs on the RPC service thread.
+// The exceptions in each file, which are called by the other,
+// are marked with special prefixes: gfx_* indicates code that
+// is in srv.c but nonetheless runs on the main graphics thread,
+// while rpc_* indicates code that is in, say, mac-screen.m but
+// nonetheless runs on the RPC service thread.
+//
+// The gfx_* and rpc_* calls typically synchronize with the other
+// code in the file by acquiring a lock (or running a callback on the
+// target thread, which amounts to the same thing).
+// To avoid deadlock, callers of those routines must not hold any locks.
 
-int _latin1(Rune*, int);
-int parsewinsize(char*, Rectangle*, int*);
-int mouseswap(int);
-
+// gfx_* routines are called on the graphics thread,
+// invoked from graphics driver callbacks to do RPC work.
+// No locks are held on entry.
 void	gfx_abortcompose(Client*);
 void	gfx_keystroke(Client*, int);
+void	gfx_main(void);
 void	gfx_mousetrack(Client*, int, int, int, uint);
+void	gfx_replacescreenimage(Client*, Memimage*);
+void	gfx_started(void);
 
-void	rpc_setmouse(Client*, Point);
-void	rpc_setcursor(Client*, Cursor*, Cursor2*);
-void	rpc_setlabel(Client*, char*);
-void	rpc_resizeimg(Client*);
-void	rpc_resizewindow(Client*, Rectangle);
-void	rpc_topwin(Client*);
+// rpc_* routines are called on the RPC thread,
+// invoked by the RPC server code to do graphics work.
+// No locks are held on entry.
+Memimage *rpc_attach(Client*, char*, char*);
 char*	rpc_getsnarf(void);
 void	rpc_putsnarf(char*);
-Memimage *rpc_attachscreen(Client*, char*, char*);
-void	rpc_flushmemscreen(Client*, Rectangle);
+void	rpc_resizeimg(Client*);
+void	rpc_resizewindow(Client*, Rectangle);
+void	rpc_serve(Client*);
+void	rpc_setcursor(Client*, Cursor*, Cursor2*);
+void	rpc_setlabel(Client*, char*);
+void	rpc_setmouse(Client*, Point);
+void	rpc_shutdown(void);
+void	rpc_topwin(Client*);
+void	rpc_main(void);
 
-extern Client *client0;
+// TODO: rpc_flush is called from draw_datawrite,
+// which holds c->drawlk. Is this OK?
+void	rpc_flush(Client*, Rectangle);
 
-void	servep9p(Client*);
+// draw* routines are called on the RPC thread,
+// invoked by the RPC server to do pixel pushing.
+// c->drawlk is held on entry.
+int draw_dataread(Client*, void*, int);
+int draw_datawrite(Client*, void*, int);
+void draw_initdisplaymemimage(Client*, Memimage*);
+
+// utility routines
+int latin1(Rune*, int);
+int mouseswap(int);
+int parsewinsize(char*, Rectangle*, int*);
+

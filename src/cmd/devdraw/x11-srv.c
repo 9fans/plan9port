@@ -365,7 +365,7 @@ runmsg(Wsysmsg *m)
 		n = m->count;
 		if(n > sizeof buf)
 			n = sizeof buf;
-		n = _drawmsgread(buf, n);
+		n = draw_dataread(buf, n);
 		if(n < 0)
 			replyerror(m);
 		else{
@@ -376,7 +376,7 @@ runmsg(Wsysmsg *m)
 		break;
 
 	case Twrdraw:
-		if(_drawmsgwrite(m->data, m->count) < 0)
+		if(draw_datawrite(m->data, m->count) < 0)
 			replyerror(m);
 		else
 			replymsg(m);

@@ -146,7 +146,7 @@ abortcompose(void)
 
 static Rune* sendrune(Rune);
 
-extern int _latin1(Rune*, int);
+extern int latin1(Rune*, int);
 static Rune*
 xtoplan9latin1(XEvent *e)
 {
@@ -182,7 +182,7 @@ sendrune(Rune r)
 			return nil;
 		}
 		k[nk++] = r;
-		n = _latin1(k, nk);
+		n = latin1(k, nk);
 		if(n > 0){
 			alting = 0;
 			k[0] = n;

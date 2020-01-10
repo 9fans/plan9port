@@ -34,13 +34,6 @@ static void setprocname(const char*);
 static uint keycvt(uint);
 static uint msec(void);
 
-void
-usage(void)
-{
-	fprint(2, "usage: devdraw (don't run directly)\n");
-	threadexitsall("usage");
-}
-
 @class DrawView;
 @class DrawLayer;
 
@@ -49,43 +42,9 @@ usage(void)
 
 static AppDelegate *myApp = NULL;
 
-
-static QLock snarfl;
-
 void
-threadmain(int argc, char **argv)
+gfx_main(void)
 {
-	/*
-	 * Move the protocol off stdin/stdout so that
-	 * any inadvertent prints don't screw things up.
-	 */
-	dup(0,3);
-	dup(1,4);
-	close(0);
-	close(1);
-	open("/dev/null", OREAD);
-	open("/dev/null", OWRITE);
-
-	ARGBEGIN{
-	case 'D':		/* for good ps -a listings */
-		break;
-	case 'f':		/* fall through for backward compatibility */
-	case 'g':
-	case 'b':
-		break;
-	default:
-		usage();
-	}ARGEND
-
-	client0 = mallocz(sizeof(Client), 1);
-	if(client0 == nil){
-		fprint(2, "initdraw: allocating client0: out of memory");
-		abort();
-	}
-	client0->displaydpi = 100;
-	client0->rfd = 3;
-	client0->wfd = 4;
-
 	setprocname(argv0);
 
 	@autoreleasepool{
@@ -97,12 +56,10 @@ threadmain(int argc, char **argv)
 	}
 }
 
-void
-callservep9p(void *v)
-{
-	USED(v);
 
-	servep9p(client0);
+void
+rpc_shutdown(void)
+{
 	[NSApp terminate:myApp];
 }
 
@@ -128,8 +85,8 @@ callservep9p(void *v)
 	i = [[NSImage alloc] initWithData:d];
 	[NSApp setApplicationIconImage:i];
 	[[NSApp dockTile] display];
-
-	proccreate(callservep9p, nil, 0);
+	
+	gfx_started();
 }
 
 - (NSApplicationPresentationOptions)window:(id)arg
@@ -242,10 +199,10 @@ callservep9p(void *v)
 - (BOOL)isFlipped { return YES; }
 - (BOOL)acceptsFirstResponder { return YES; }
 
-// rpc_attachscreen allocates a new screen window with the given label and size
+// rpc_attach allocates a new screen window with the given label and size
 // and attaches it to client c (by setting c->view).
 Memimage*
-rpc_attachscreen(Client *c, char *label, char *winsize)
+rpc_attach(Client *c, char *label, char *winsize)
 {
 	LOG(@"attachscreen(%s, %s)", label, winsize);
 	
@@ -468,71 +425,73 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 }
 
 - (void)initimg {
-@autoreleasepool{
-	CGFloat scale;
-	NSSize size;
-	MTLTextureDescriptor *textureDesc;
-
-	size = [self convertSizeToBacking:[self bounds].size];
-	self.client->mouserect = Rect(0, 0, size.width, size.height);
-
-	LOG(@"initimg %.0f %.0f", size.width, size.height);
-
-	self.img = allocmemimage(self.client->mouserect, XRGB32);
-	if(self.img == nil)
-		panic("allocmemimage: %r");
-	if(self.img->data == nil)
-		panic("img->data == nil");
-
-	textureDesc = [MTLTextureDescriptor
-		texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
-		width:size.width
-		height:size.height
-		mipmapped:NO];
-	textureDesc.allowGPUOptimizedContents = YES;
-	textureDesc.usage = MTLTextureUsageShaderRead;
-	textureDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-	self.dlayer.texture = [self.dlayer.device newTextureWithDescriptor:textureDesc];
-
-	scale = [self.win backingScaleFactor];
-	[self.dlayer setDrawableSize:size];
-	[self.dlayer setContentsScale:scale];
-
-	// NOTE: This is not really the display DPI.
-	// On retina, scale is 2; otherwise it is 1.
-	// This formula gives us 220 for retina, 110 otherwise.
-	// That's not quite right but it's close to correct.
-	// https://en.wikipedia.org/wiki/Retina_display#Models
-	self.client->displaydpi = scale * 110;
+	@autoreleasepool {
+		CGFloat scale;
+		NSSize size;
+		MTLTextureDescriptor *textureDesc;
+	
+		size = [self convertSizeToBacking:[self bounds].size];
+		self.client->mouserect = Rect(0, 0, size.width, size.height);
+	
+		LOG(@"initimg %.0f %.0f", size.width, size.height);
+	
+		self.img = allocmemimage(self.client->mouserect, XRGB32);
+		if(self.img == nil)
+			panic("allocmemimage: %r");
+		if(self.img->data == nil)
+			panic("img->data == nil");
+	
+		textureDesc = [MTLTextureDescriptor
+			texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+			width:size.width
+			height:size.height
+			mipmapped:NO];
+		textureDesc.allowGPUOptimizedContents = YES;
+		textureDesc.usage = MTLTextureUsageShaderRead;
+		textureDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+		self.dlayer.texture = [self.dlayer.device newTextureWithDescriptor:textureDesc];
+	
+		scale = [self.win backingScaleFactor];
+		[self.dlayer setDrawableSize:size];
+		[self.dlayer setContentsScale:scale];
+	
+		// NOTE: This is not really the display DPI.
+		// On retina, scale is 2; otherwise it is 1.
+		// This formula gives us 220 for retina, 110 otherwise.
+		// That's not quite right but it's close to correct.
+		// https://en.wikipedia.org/wiki/Retina_display#Models
+		self.client->displaydpi = scale * 110;
+	}
 }
-	LOG(@"initimg return");
-}
 
-// rpc_flushmemscreen flushes changes to view.img's rectangle r
+// rpc_flush flushes changes to view.img's rectangle r
 // to the on-screen window, making them visible.
 // Called from an RPC thread with no client lock held.
 void
-rpc_flushmemscreen(Client *client, Rectangle r)
+rpc_flush(Client *client, Rectangle r)
 {
 	DrawView *view = (__bridge DrawView*)client->view;
 	dispatch_async(dispatch_get_main_queue(), ^(void){
-		[view flushmemscreen:r];
+		[view flush:r];
 	});
 }
 
-- (void)flushmemscreen:(Rectangle)r {
-	LOG(@"flushmemscreen(%d,%d,%d,%d)", r.min.x, r.min.y, Dx(r), Dy(r));
-	if(!rectinrect(r, Rect(0, 0, self.dlayer.texture.width, self.dlayer.texture.height))){
-		LOG(@"Rectangle is out of bounds, return.");
-		return;
-	}
-
+- (void)flush:(Rectangle)r {
 	@autoreleasepool{
+		if(!rectclip(&r, Rect(0, 0, self.dlayer.texture.width, self.dlayer.texture.height)) || !rectclip(&r, self.img->r))
+			return;
+		
+		// self.client->drawlk protects the pixel data in self.img.
+		// In addition to avoiding a technical data race,
+		// the lock avoids drawing partial updates, which makes
+		// animations like sweeping windows much less flickery.
+		qlock(&self.client->drawlk);
 		[self.dlayer.texture
 			replaceRegion:MTLRegionMake2D(r.min.x, r.min.y, Dx(r), Dy(r))
 			mipmapLevel:0
 			withBytes:byteaddr(self.img, Pt(r.min.x, r.min.y))
 			bytesPerRow:self.img->width*sizeof(u32int)];
+		qunlock(&self.client->drawlk);
 
 		NSRect nr = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 		dispatch_time_t time;
@@ -565,7 +524,7 @@ rpc_resizeimg(Client *c)
 
 - (void)resizeimg {
 	[self initimg];
-	_drawreplacescreenimage(self.client, self.img);
+	gfx_replacescreenimage(self.client, self.img);
 	[self sendmouse:0];
 }
 
@@ -750,7 +709,7 @@ rpc_setmouse(Client *c, Point p)
 	});
 }
 
--(void)setmouse:(Point)p {
+- (void)setmouse:(Point)p {
 	@autoreleasepool{
 		NSPoint q;
 
@@ -782,21 +741,10 @@ rpc_setmouse(Client *c, Point p)
 }
 
 // conforms to protocol NSTextInputClient
-- (BOOL)hasMarkedText
-{
-	LOG(@"hasMarkedText");
-	return _markedRange.location != NSNotFound;
-}
-- (NSRange)markedRange
-{
-	LOG(@"markedRange");
-	return _markedRange;
-}
-- (NSRange)selectedRange
-{
-	LOG(@"selectedRange");
-	return _selectedRange;
-}
+- (BOOL)hasMarkedText { return _markedRange.location != NSNotFound; }
+- (NSRange)markedRange { return _markedRange; }
+- (NSRange)selectedRange { return _selectedRange; }
+
 - (void)setMarkedText:(id)string
 	selectedRange:(NSRange)sRange
 	replacementRange:(NSRange)rRange
@@ -861,8 +809,8 @@ rpc_setmouse(Client *c, Point p)
 		_markedRange.location, _markedRange.length,
 		_selectedRange.location, _selectedRange.length);
 }
-- (void)unmarkText
-{
+
+- (void)unmarkText {
 	//NSUInteger i;
 	NSUInteger len;
 
@@ -874,12 +822,13 @@ rpc_setmouse(Client *c, Point p)
 	_markedRange = NSMakeRange(NSNotFound, 0);
 	_selectedRange = NSMakeRange(0, 0);
 }
-- (NSArray<NSAttributedStringKey> *)validAttributesForMarkedText
-{
+
+- (NSArray<NSAttributedStringKey>*)validAttributesForMarkedText {
 	LOG(@"validAttributesForMarkedText");
 	return @[];
 }
-- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)r
+
+- (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)r
 	actualRange:(NSRangePointer)actualRange
 {
 	NSRange sr;
@@ -899,9 +848,8 @@ rpc_setmouse(Client *c, Point p)
 	LOG(@"	return %@", s);
 	return s;
 }
-- (void)insertText:(id)s
-	replacementRange:(NSRange)r
-{
+
+- (void)insertText:(id)s replacementRange:(NSRange)r {
 	NSUInteger i;
 	NSUInteger len;
 
@@ -916,22 +864,22 @@ rpc_setmouse(Client *c, Point p)
 	_markedRange = NSMakeRange(NSNotFound, 0);
 	_selectedRange = NSMakeRange(0, 0);
 }
+
 - (NSUInteger)characterIndexForPoint:(NSPoint)point
 {
 	LOG(@"characterIndexForPoint: %g, %g", point.x, point.y);
 	return 0;
 }
-- (NSRect)firstRectForCharacterRange:(NSRange)r
-	actualRange:(NSRangePointer)actualRange
-{
+
+- (NSRect)firstRectForCharacterRange:(NSRange)r actualRange:(NSRangePointer)actualRange {
 	LOG(@"firstRectForCharacterRange: (%ld, %ld) (%ld, %ld)",
 		r.location, r.length, actualRange->location, actualRange->length);
 	if(actualRange)
 		*actualRange = r;
 	return [[self window] convertRectToScreen:_lastInputRect];
 }
-- (void)doCommandBySelector:(SEL)s
-{
+
+- (void)doCommandBySelector:(SEL)s {
 	NSEvent *e;
 	NSEventModifierFlags m;
 	uint c, k;
@@ -955,8 +903,7 @@ rpc_setmouse(Client *c, Point p)
 }
 
 // Helper for managing input rect approximately
-- (void)resetLastInputRect
-{
+- (void)resetLastInputRect {
 	LOG(@"resetLastInputRect");
 	_lastInputRect.origin.x = 0.0;
 	_lastInputRect.origin.y = 0.0;
@@ -964,8 +911,7 @@ rpc_setmouse(Client *c, Point p)
 	_lastInputRect.size.height = 0.0;
 }
 
-- (void)enlargeLastInputRect:(NSRect)r
-{
+- (void)enlargeLastInputRect:(NSRect)r {
 	r.origin.y = [self bounds].size.height - r.origin.y - r.size.height;
 	_lastInputRect = NSUnionRect(_lastInputRect, r);
 	LOG(@"update last input rect (%g, %g, %g, %g)",
@@ -973,8 +919,7 @@ rpc_setmouse(Client *c, Point p)
 		_lastInputRect.size.width, _lastInputRect.size.height);
 }
 
-- (void)clearInput
-{
+- (void)clearInput {
 	if(_tmpText.length){
 		uint i;
 		int l;
@@ -1079,48 +1024,42 @@ keycvt(uint code)
 	}
 }
 
-// TODO
+// rpc_getsnarf reads the current pasteboard as a plain text string.
+// Called from an RPC thread with no client lock held.
 char*
 rpc_getsnarf(void)
 {
-	NSPasteboard *pb;
-	NSString *s;
-
-	@autoreleasepool{
-		pb = [NSPasteboard generalPasteboard];
-
-		qlock(&snarfl);
-		s = [pb stringForType:NSPasteboardTypeString];
-		qunlock(&snarfl);
-
-		if(s)
-			return strdup((char *)[s UTF8String]);
-		else
-			return nil;
-	}
+	char __block *ret;
+	
+	ret = nil;
+	dispatch_sync(dispatch_get_main_queue(), ^(void) {
+		@autoreleasepool {
+			NSPasteboard *pb = [NSPasteboard generalPasteboard];
+			NSString *s = [pb stringForType:NSPasteboardTypeString];
+			if(s)
+				ret = strdup((char*)[s UTF8String]);
+		}
+	});
+	return ret;
 }
 
-// TODO
+// rpc_putsnarf writes the given text to the pasteboard.
+// Called from an RPC thread with no client lock held.
 void
 rpc_putsnarf(char *s)
 {
-	NSArray *t;
-	NSPasteboard *pb;
-	NSString *str;
-
-	if(strlen(s) >= SnarfSize)
+	if(s == nil || strlen(s) >= SnarfSize)
 		return;
 
-	@autoreleasepool{
-		t = [NSArray arrayWithObject:NSPasteboardTypeString];
-		pb = [NSPasteboard generalPasteboard];
-		str = [[NSString alloc] initWithUTF8String:s];
-
-		qlock(&snarfl);
-		[pb declareTypes:t owner:nil];
-		[pb setString:str forType:NSPasteboardTypeString];
-		qunlock(&snarfl);
-	}
+	dispatch_sync(dispatch_get_main_queue(), ^(void) {
+		@autoreleasepool{
+			NSArray *t = [NSArray arrayWithObject:NSPasteboardTypeString];
+			NSPasteboard *pb = [NSPasteboard generalPasteboard];
+			NSString *str = [[NSString alloc] initWithUTF8String:s];
+			[pb declareTypes:t owner:nil];
+			[pb setString:str forType:NSPasteboardTypeString];
+		}
+	});
 }
 
 static void
