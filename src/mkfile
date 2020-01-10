@@ -38,7 +38,6 @@ mkmk.sh:VD:
 		s/'$SYSNAME'/$SYSNAME/g
 		s/'$OBJTYPE'/$OBJTYPE/g
 		s;'$PLAN9';$PLAN9;g
-		s/9[ac] *getcallerpc-.*/9c getcallerpc-$OBJTYPE.c || 9a getcallerpc-$OBJTYPE.s/
 		s/^9[ac] *tas-.*/9a tas-$OBJTYPE.s || 9c tas-$OBJTYPE.c/
 	' >$target
 
