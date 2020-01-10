@@ -446,7 +446,7 @@ winsettag1(Window *w)
 	int i, j, k, n, bar, dirty, resize;
 	Rune *new, *old, *r;
 	uint q0, q1;
-	static Rune Ldelsnarf[] = { ' ', 'D', 'e', 'l', ' ',
+	static Rune Ldelsnarf[] = { '\t', 'D', 'e', 'l', ' ',
 		'S', 'n', 'a', 'r', 'f', 0 };
 	static Rune Lundo[] = { ' ', 'U', 'n', 'd', 'o', 0 };
 	static Rune Lredo[] = { ' ', 'R', 'e', 'd', 'o', 0 };
@@ -587,7 +587,7 @@ wincommit(Window *w, Text *t)
 	r = runemalloc(w->tag.file->b.nc);
 	bufread(&w->tag.file->b, 0, r, w->tag.file->b.nc);
 	for(i=0; i<w->tag.file->b.nc; i++)
-		if(r[i]==' ' || r[i]=='\t')
+		if (r[i]=='\t')
 			break;
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;

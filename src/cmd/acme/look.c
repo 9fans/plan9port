@@ -497,7 +497,7 @@ dirname(Text *t, Rune *r, int n)
 		c = b[m];
 		if(c == '/')
 			slash = m;
-		if(c==' ' || c=='\t')
+		if(c=='\t')
 			break;
 	}
 	if(slash < 0)
@@ -612,7 +612,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	if(nname == -1)
 		nname = n;
 	for(i=0; i<nname; i++)
-		if(!isfilec(r[i]))
+		if(!isfilec(r[i]) && r[i] != ' ')
 			goto Isntfile;
 	/*
 	 * See if it's a file name in <>, and turn that into an include
