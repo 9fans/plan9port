@@ -3,7 +3,7 @@
 #include <diskfs.h>
 
 /*
- * Disk cache.  Caches by offset, so higher levels have 
+ * Disk cache.  Caches by offset, so higher levels have
  * to deal with alignment issues (if we get asked for the
  * blocks at offsets 0 and 1, we'll do two reads).
  */
@@ -43,7 +43,7 @@ addtohash(DiskCache *d, DiskCacheBlock *b, u64int offset)
 
 	if(b->offset != ~(u64int)0){
 		fprint(2, "bad offset in addtohash\n");
-		return;	
+		return;
 	}
 	b->offset = offset;
 	h = offset % d->nhash;
@@ -227,8 +227,8 @@ diskcacheread(Disk *dd, u32int len, u64int offset)
 	return b;
 }
 
-/* 
- * It's okay to remove these from the hash table. 
+/*
+ * It's okay to remove these from the hash table.
  * Either the block is in use by someone or it is on
  * the lru list.  If it's in use it will get put on the lru
  * list once the refs go away.
@@ -264,7 +264,7 @@ diskcacheclose(Disk *dd)
 		blockput(b->subblock);
 	free(d);
 }
-		
+
 /* needn't be fast */
 static int
 isprime(int n)

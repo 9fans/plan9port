@@ -458,4 +458,3 @@ int dwarfgetinfounit(Dwarf*, ulong, DwarfBlock*);
 extern int dwarf386nregs;
 extern char *dwarf386regs[];
 extern char *dwarf386fp;
-

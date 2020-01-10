@@ -17,4 +17,3 @@ opentemp(char *template, int mode)
 	close(fd);
 	return fd1;
 }
-

@@ -816,7 +816,7 @@ static Assoc spectab[] = {
 	bbc1		single chem bond below
 	bbc2		double chem bond below
 	bbl1		chem bond like /
-	bbl2		chem bond like // 
+	bbl2		chem bond like //
 	bbr1		chem bond like \
 	bbr2		chem bond \\
 	bcop1		copper symbol. Cf copper
@@ -1253,7 +1253,7 @@ static char *prkey1 =
 "tʃ ...  chop (tʃɒp), ditch (dɪtʃ)\n"
 "ʒ  ...  vision (ˈvɪʒən), déjeuner (deʒøne)\n"
 ;
-static char *prkey2 = 
+static char *prkey2 =
 "dʒ ...  judge (dʒʌdʒ)\n"
 "ŋ  ...  singing (ˈsɪŋɪŋ), think (θiŋk)\n"
 "ŋg ...  finger (ˈfiŋgə(r))\n"
@@ -1268,7 +1268,7 @@ static char *prkey2 =
 "ɥ  ...  Fr. cuisine (kɥizin)\n"
 "\n"
 ;
-static char *prkey3 = 
+static char *prkey3 =
 "II. VOWELS AND DIPTHONGS\n"
 "\n"
 "Short\n"
@@ -1308,7 +1308,7 @@ static char *prkey4 =
 "yː ...  Ger. grün (gryːn)\n"
 "\n"
 ;
-static char *prkey5 = 
+static char *prkey5 =
 "Nasal\n"
 "ɛ˜, æ˜ as in Fr. fin (fɛ˜, fæ˜)\n"
 "ã  ...  Fr. franc (frã)\n"
@@ -1327,7 +1327,7 @@ static char *prkey5 =
 "ɔə ...  boar (bɔə(r))\n"
 "\n"
 ;
-static char *prkey6 = 
+static char *prkey6 =
 "III. STRESS\n"
 "\n"
 "Main stress: ˈ preceding stressed syllable\n"

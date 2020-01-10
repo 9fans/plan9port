@@ -43,11 +43,11 @@ setcelen(Cdimg *cd, ulong woffset, ulong len)
  * Rock Ridge data is put into little blockettes, which can be
  * at most 256 bytes including a one-byte length.  Some number
  * of blockettes get packed together into a normal 2048-byte block.
- * Blockettes cannot cross block boundaries. 
+ * Blockettes cannot cross block boundaries.
  *
- * A Cbuf is a blockette buffer.  Len contains 
+ * A Cbuf is a blockette buffer.  Len contains
  * the length of the buffer written so far, and we can
- * write up to 254-28.  
+ * write up to 254-28.
  *
  * We only have one active Cbuf at a time; cdimg.rrcontin is the byte
  * offset of the beginning of that Cbuf.
@@ -94,7 +94,7 @@ ensurespace(Cdimg *cd, int n, Cbuf *co, Cbuf *cn, int dowrite)
 
 	/*
 	 * the current blockette is full; update cd->rrcontin and then
- 	 * write a CE record to finish it.  Unfortunately we need to 
+ 	 * write a CE record to finish it.  Unfortunately we need to
 	 * figure out which block will be next before we write the CE.
 	 */
 	end = Cwoffset(cd)+28;
@@ -134,13 +134,13 @@ ensurespace(Cdimg *cd, int n, Cbuf *co, Cbuf *cn, int dowrite)
 
 	return cn;
 }
-	
+
 /*
  * Put down the name, but we might need to break it
  * into chunks so that each chunk fits in 254-28-5 bytes.
  * What a crock.
  *
- * The new Plan 9 format uses strings of this form too, 
+ * The new Plan 9 format uses strings of this form too,
  * since they're already there.
  */
 Cbuf*
@@ -211,7 +211,7 @@ Cputsysuse(Cdimg *cd, Direc *d, int dot, int dowrite, int initlen)
 		what |= RR_SL;
 
 	m = CputsuspRR(cd, what, 0);
-	cp = ensurespace(cd, m, cp, &cn, dowrite);	
+	cp = ensurespace(cd, m, cp, &cn, dowrite);
 	CputsuspRR(cd, what, dowrite);
 
 	if(what & RR_PX) {
@@ -235,7 +235,7 @@ Cputsysuse(Cdimg *cd, Direc *d, int dot, int dowrite, int initlen)
 
 	/*
 	 * Put down the symbolic link.  This is even more of a crock.
-	 * Not only are the individual elements potentially split, 
+	 * Not only are the individual elements potentially split,
 	 * but the whole path itself can be split across SL blocks.
 	 * To keep the code simple as possible (really), we write
 	 * only one element per SL block, wasting 6 bytes per element.
@@ -382,7 +382,7 @@ CputsuspSP(Cdimg *cd, int dowrite)
 {
 	assert(cd!=0);
 
-	if(dowrite) { 
+	if(dowrite) {
 chat("writing SUSP SP record\n");
 		Cputc(cd, 'S');           /* SP field marker */
 		Cputc(cd, 'P');
@@ -406,7 +406,7 @@ CputsuspST(Cdimg *cd, int dowrite)
 		Cputc(cd, 'S');           /* ST field marker */
 		Cputc(cd, 'T');
 		Cputc(cd, 4);             /* Length          */
-		Cputc(cd, 1);             /* Version         */	
+		Cputc(cd, 1);             /* Version         */
 	}
 	return 4;
 }
@@ -484,7 +484,7 @@ CputrripPX(Cdimg *cd, Direc *d, int dot, int dowrite)
 		Cputc(cd, 'X');
 		Cputc(cd, 36);              /* Length          */
 		Cputc(cd, 1);               /* Version         */
-	
+
 		Cputn(cd, mode(d, dot), 4); /* POSIX File mode */
 		Cputn(cd, nlink(d), 4);     /* POSIX st_nlink  */
 		Cputn(cd, d?d->uidno:0, 4);  /* POSIX st_uid    */
@@ -514,7 +514,7 @@ CputrripTF(Cdimg *cd, Direc *d, int type, int dowrite)
 		Cputc(cd, 5+7*length);		/* Length		 */
 		Cputc(cd, 1);				/* Version		 */
 		Cputc(cd, type);					/* Flags (types)	 */
-	
+
 		if (type & TFcreation)
 			Cputdate(cd, d?d->ctime:0);
 		if (type & TFmodify)
@@ -523,7 +523,7 @@ CputrripTF(Cdimg *cd, Direc *d, int type, int dowrite)
 			Cputdate(cd, d?d->atime:0);
 		if (type & TFattributes)
 			Cputdate(cd, d?d->ctime:0);
-	
+
 	/*	if (type & TFbackup) */
 	/*		Cputdate(cd, 0); */
 	/*	if (type & TFexpiration) */
@@ -566,7 +566,7 @@ static long
 mode(Direc *d, int dot)
 {
 	long mode;
-	
+
 	if (!d)
 		return 0;
 
@@ -582,13 +582,13 @@ mode(Direc *d, int dot)
 		mode = S_IFDIR | (0755);
 
 	mode &= POSIXMODEMASK;
-		
+
 	/* Botch: not all POSIX types supported yet */
 	assert(mode & (S_IFDIR|S_IFREG));
 
-chat("writing PX record mode field %ulo with dot %d and name \"%s\"\n", mode, dot, d->name); 
+chat("writing PX record mode field %ulo with dot %d and name \"%s\"\n", mode, dot, d->name);
 
-	return mode;		
+	return mode;
 }
 
 static long
@@ -610,4 +610,3 @@ nlink(Direc *d)   /* Trump up the nlink field for POSIX compliance */
 
 	return n;
 }
-

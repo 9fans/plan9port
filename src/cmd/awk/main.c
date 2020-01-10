@@ -195,4 +195,3 @@ char *cursource(void)	/* current source file name */
 	else
 		return NULL;
 }
-

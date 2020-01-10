@@ -34,7 +34,7 @@ lambert(double par0, double par1)
 	}
 	deg2rad(par0, &stdp0);
 	deg2rad(par1, &stdp1);
-	if(fabs(par1+par0)<.1) 
+	if(fabs(par1+par0)<.1)
 		return(mercator());
 	if(fabs(par1-par0)<.1)
 		return(perspective(-1.));

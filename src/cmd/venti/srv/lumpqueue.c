@@ -127,7 +127,7 @@ flushqueue(void)
 		qunlock(&q->lock);
 	}
 }
-	
+
 static void
 queueproc(void *vq)
 {

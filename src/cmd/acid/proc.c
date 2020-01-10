@@ -29,7 +29,7 @@ sproc(int xpid)
 		free(correg);
 		correg = regs;
 	}else{
-		/* XXX should only change register set here if cormap already mapped */		
+		/* XXX should only change register set here if cormap already mapped */
 		if(xpid <= 0)
 			error("bad pid");
 		unmapproc(cormap);
@@ -245,4 +245,3 @@ getstatus(int pid)
 {
 	return "unknown";
 }
-

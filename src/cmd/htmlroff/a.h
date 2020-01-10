@@ -23,13 +23,13 @@ enum
 
 	UPI = 720,	/* units per inch */
 	UPX = 10,	/* units per pixel */
-	
+
 	/* special input modes */
 	CopyMode = 1<<1,
 	ExpandMode = 1<<2,
 	ArgMode = 1<<3,
 	HtmlMode = 1<<4,
-	
+
 	MaxLine = 1024
 };
 

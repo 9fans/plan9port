@@ -6,4 +6,3 @@ atoll(char *s)
 {
 	return strtoll(s, 0, 0);
 }
-

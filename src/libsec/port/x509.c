@@ -2123,7 +2123,7 @@ verify_signature(Bytes* signature, RSApub *pk, uchar *edigest, Elem **psigalg)
 		return nil;
 	return "digests did not match";
 }
-	
+
 RSApub*
 X509toRSApub(uchar *cert, int ncert, char *name, int nname)
 {

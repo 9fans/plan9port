@@ -11,7 +11,7 @@
 
 /*
  * troff8.c
- * 
+ *
  * hyphenation
  */
 
@@ -59,7 +59,7 @@ void hyphen(Tchar *wp)
 
 	/* this appears to sort hyphenation points into increasing order */
 	*hyp++ = 0;
-	if (*hyptr) 
+	if (*hyptr)
 		for (j = 1; j; ) {
 			j = 0;
 			for (hyp = hyptr + 1; *hyp != 0; hyp++) {
@@ -194,7 +194,7 @@ int exword(void)
 			return(0);
 		w = wdstart;
 		while (*e && w <= hyend && (*e & 0177) == maplow(cbits(*w))) {
-			e++; 
+			e++;
 			w++;
 		}
 		if (!*e) {
@@ -209,10 +209,10 @@ int exword(void)
 				}
 				return(1);
 			} else {
-				e++; 
+				e++;
 				continue;
 			}
-		} else 
+		} else
 			while (*e++)
 				;
 	}
@@ -249,7 +249,7 @@ again:
 	}
 	s = s0 + i - 1;
 	w = hyend;
-	if (*s0 & HY_BIT) 
+	if (*s0 & HY_BIT)
 		goto mark;
 	while (s > s0) {
 		w--;
@@ -273,7 +273,7 @@ mark:
 int
 maplow(int i)
 {
-	if (isupper(i)) 
+	if (isupper(i))
 		i = tolower(i);
 	return(i);
 }
@@ -327,7 +327,7 @@ again:
 			val *= dilook('a', cbits(*w), bxh);
 		else if (w == wdstart + 1)
 			val *= dilook(cbits(*(w-1)), cbits(*w), bxxh);
-		else 
+		else
 			val *= dilook(cbits(*(w-1)), cbits(*w), xxh);
 		val *= dilook(cbits(*w), cbits(*(w+1)), xhx);
 		val *= dilook(cbits(*(w+1)), cbits(*(w+2)), hxx);

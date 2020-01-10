@@ -939,7 +939,7 @@ parseAname(char *aname, char **fsname, char **path)
 /*
  * Check remote IP address against /mnt/ipok.
  * Sources.cs.bell-labs.com uses this to disallow
- * network connections from Sudan, Libya, etc., 
+ * network connections from Sudan, Libya, etc.,
  * following U.S. cryptography export regulations.
  */
 static int
@@ -955,7 +955,7 @@ conIPCheck(Con* con)
 		}
 		if(access("/mnt/ipok/ok", AEXIST) < 0){
 			/* mount closes the fd on success */
-			if((fd = open("/srv/ipok", ORDWR)) >= 0 
+			if((fd = open("/srv/ipok", ORDWR)) >= 0
 			&& mount(fd, -1, "/mnt/ipok", MREPL, "") < 0)
 				close(fd);
 			if(access("/mnt/ipok/ok", AEXIST) < 0){

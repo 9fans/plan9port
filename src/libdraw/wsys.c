@@ -27,4 +27,3 @@ drawresizewindow(Rectangle r)
 {
 	_displayresize(display, r);
 }
-

@@ -23,7 +23,7 @@ rogetprintentry(Entry e, int cmd)
 		while(strncmp(p, " -- ", 4) != 0 && p < e.end){
 			while(isspace((uchar)*p) && p < e.end)
 				p++;
-			if (*p == '[' || *p == '{'){	
+			if (*p == '[' || *p == '{'){
 				c = (*p == '[')? ']': '}';
 				while(*p != c && p < e.end)
 					p++;
@@ -49,7 +49,7 @@ rogetprintentry(Entry e, int cmd)
 				outchar(*p++);
 		}
 		return;
-	}	
+	}
 
 	while(p < e.end && !isspace((uchar)*p))
 		p++;
@@ -62,7 +62,7 @@ rogetprintentry(Entry e, int cmd)
 			p += 4;
 			spc = 0;
 		}
-			
+
 		if (p < e.end -2 && strncmp(p, "[ ", 4) == 0){		/* twiddle layout */
 			outchars(" [");
 			continue;

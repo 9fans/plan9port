@@ -22,7 +22,7 @@ Bskipws(Biobuf *bp) {
 	do {
 		r = Bgetrune(bp);
 		if (r == '\n') inputlineno++;
-		sindex++;	
+		sindex++;
 	} while (r>=0 && isspace(r));
 	if (r<0) {
 		return(-1);
@@ -49,7 +49,7 @@ asc2dig(char c, int base) {
 }
 
 /* get a string of type: "d" for decimal integer, "u" for unsigned,
- * "s" for string", "c" for char, 
+ * "s" for string", "c" for char,
  * return the number of characters gotten for the field.  If nothing
  * was gotten and the end of file was reached, a negative value
  * from the Bgetrune is returned.
@@ -86,7 +86,7 @@ Bgetfield(Biobuf *bp, int type, void *thing, int size) {
 				case '0':
 					base = 8;
 					continue;
-				default:	
+				default:
 					break;
 				}
 				break;
@@ -96,7 +96,7 @@ Bgetfield(Biobuf *bp, int type, void *thing, int size) {
 					continue;
 				}
 			}
-			if ((dig = asc2dig(r, base)) == -1) bailout = TRUE;						
+			if ((dig = asc2dig(r, base)) == -1) bailout = TRUE;
 			else n = dig + (n * base);
 		}
 		if (r < 0) return(-1);
@@ -118,7 +118,7 @@ Bgetfield(Biobuf *bp, int type, void *thing, int size) {
 					continue;
 				}
 			}
-			if ((dig = asc2dig(r, base)) == -1) bailout = TRUE;						
+			if ((dig = asc2dig(r, base)) == -1) bailout = TRUE;
 			else u = dig + (n * base);
 		}
 		*(int *)thing = u;

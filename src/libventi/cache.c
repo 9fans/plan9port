@@ -176,7 +176,7 @@ upheap(int i, VtBlock *b)
 	u32int now;
 	int p;
 	VtCache *c;
-	
+
 	c = b->c;
 	now = c->now;
 	for(; i != 0; i = p){
@@ -200,7 +200,7 @@ downheap(int i, VtBlock *b)
 	u32int now;
 	int k;
 	VtCache *c;
-	
+
 	c = b->c;
 	now = c->now;
 	for(; ; i = k){
@@ -291,7 +291,7 @@ vtcachebumpblock(VtCache *c)
 		b->prev = nil;
 	}
 
- 	
+
 if(0)fprint(2, "droping %x:%V\n", b->addr, b->score);
 	/* set vtBlock to a reasonable state */
 	b->ref = 1;
@@ -306,7 +306,7 @@ static VtBlock*
 vtcacheevict(VtCache *c, ulong size)
 {
 	VtBlock *b;
-	
+
 	/*
 	 * If we were out of memory and put some blocks
 	 * to the side but now we have memory, grab one.
@@ -317,7 +317,7 @@ vtcacheevict(VtCache *c, ulong size)
 		b->next = nil;
 		goto alloc;
 	}
-	
+
 	/*
 	 * Otherwise, evict until we have memory.
 	 */
@@ -474,7 +474,7 @@ vtcacheglobal(VtCache *c, uchar score[VtScoreSize], int type, ulong size)
 
 	/*
 	 * Lock b before unlocking c, so that others wait while we read.
-	 * 
+	 *
 	 * You might think there is a race between this qlock(b) before qunlock(c)
 	 * and the qlock(c) while holding a qlock(b) in vtblockwrite.  However,
 	 * the block here can never be the block in a vtblockwrite, so we're safe.
@@ -542,7 +542,7 @@ if(0)fprint(2, "vtblockput: %d: %x %d %d\n", getpid(), b->addr, c->nheap, b->ios
 	 * b->nlock should probably stay at zero while
 	 * the vtBlock is unlocked, but diskThread and vtSleep
 	 * conspire to assume that they can just qlock(&b->lk); vtblockput(b),
-	 * so we have to keep b->nlock set to 1 even 
+	 * so we have to keep b->nlock set to 1 even
 	 * when the vtBlock is unlocked.
 	 */
 	assert(b->nlock == 0);
@@ -642,4 +642,3 @@ vtglobaltolocal(uchar score[VtScoreSize])
 		return NilBlock;
 	return (score[16]<<24)|(score[17]<<16)|(score[18]<<8)|score[19];
 }
-

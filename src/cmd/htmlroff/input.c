@@ -65,7 +65,7 @@ _inputfile(Rune *s, void (*push)(Istack*))
 	Istack *is;
 	Biobuf *b;
 	char *t;
-	
+
 	t = esmprint("%S", s);
 	if((b = Bopen(t, OREAD)) == nil){
 		free(t);
@@ -95,7 +95,7 @@ queueinputfile(Rune *s)
 
 int
 _inputstdin(void (*push)(Istack*))
-{	
+{
 	Biobuf *b;
 	Istack *is;
 
@@ -128,7 +128,7 @@ void
 _inputstring(Rune *s, void (*push)(Istack*))
 {
 	Istack *is;
-	
+
 	is = emalloc(sizeof *is);
 	is->s = erunestrdup(s);
 	is->p = is->s;
@@ -176,7 +176,7 @@ getrune(void)
 {
 	Rune r;
 	int c;
-	
+
 top:
 	if(istack == nil)
 		return -1;
@@ -199,7 +199,7 @@ top:
 		sysfatal("getrune - can't happen");
 	}
 	if(r == '\n')
-		istack->lineno++;	
+		istack->lineno++;
 	return r;
 }
 
@@ -215,7 +215,7 @@ int
 linefmt(Fmt *f)
 {
 	Istack *is;
-	
+
 	for(is=istack; is && !is->b; is=is->next)
 		;
 	if(is)
@@ -228,7 +228,7 @@ void
 setlinenumber(Rune *s, int n)
 {
 	Istack *is;
-	
+
 	for(is=istack; is && !is->name; is=is->next)
 		;
 	if(is){

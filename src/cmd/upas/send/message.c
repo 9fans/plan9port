@@ -224,7 +224,7 @@ rfc822cruft(message *mp)
 				if(p->addr){
 					cp = skipequiv(s_to_c(p->s));
 					s_append(body, cp);
-				} else 
+				} else
 					s_append(body, s_to_c(p->s));
 			}else{
 				s_putc(body, p->c);
@@ -494,7 +494,7 @@ int
 isutf8(String *s)
 {
 	char *p;
-	
+
 	for(p = s_to_c(s);  *p; p++)
 		if(*p&0x80)
 			return 1;

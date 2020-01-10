@@ -114,4 +114,3 @@ X		function return variable
 */
 
 int stabsym(Stab*, int, StabSym*);
-

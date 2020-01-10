@@ -127,12 +127,12 @@ verifyarena(char *name, vlong len)
 	scorecp(arena.score, &data[arena.blocksize - VtScoreSize]);
 
 	if(namecmp(arena.name, head.name) != 0){
-		fprint(2, "%T %s: wrong name in trailer: %s vs. %s\n", 
+		fprint(2, "%T %s: wrong name in trailer: %s vs. %s\n",
 			name, head.name, arena.name);
 		return;
 	}
 	if(arena.version != head.version){
-		fprint(2, "%T %s: wrong version in trailer: %d vs. %d\n", 
+		fprint(2, "%T %s: wrong version in trailer: %d vs. %d\n",
 			name, head.version, arena.version);
 		return;
 	}
@@ -160,7 +160,7 @@ static int
 shouldcheck(char *name, char **s, int n)
 {
 	int i;
-	
+
 	if(n == 0)
 		return 1;
 
@@ -209,7 +209,7 @@ threadmain(int argc, char *argv[])
 		verifyarena("<stdin>", 0);
 		threadexitsall(nil);
 	}
-	
+
 	if((part = initpart(argv[0], OREAD)) == nil)
 		sysfatal("open partition %s: %r", argv[0]);
 	fd = part->fd;
@@ -228,7 +228,7 @@ threadmain(int argc, char *argv[])
 	if(preadblock((uchar*)table, ap.tabsize, ap.tabbase) < 0)
 		sysfatal("reading arena part directory: %r");
 	table[ap.tabsize] = 0;
-	
+
 	nline = atoi(table);
 	p = strchr(table, '\n');
 	if(p)

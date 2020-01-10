@@ -159,4 +159,3 @@ Err:
 	_nfilereads_darwin_sucks();  /* force Darwin ld to pull in file.o */
 	return nil;
 }
-

@@ -105,7 +105,7 @@ rdconf(char *file, Conf *conf)
 	char *s, *line, *flds[10];
 	int i, ok;
 	IFile f;
-	
+
 	if(readifile(&f, file) < 0)
 		return -1;
 	memset(conf, 0, sizeof *conf);
@@ -132,7 +132,7 @@ rdconf(char *file, Conf *conf)
 		}else if(i == 3 && strcmp(flds[1], "verify") == 0) {
 			if(conf->nverify%64 == 0)
 				conf->verify = vtrealloc(conf->verify, (conf->nverify+64)*sizeof(conf->verify[0]));
-			conf->verify[conf->nverify++] = vtstrdup(flds[2]);	
+			conf->verify[conf->nverify++] = vtstrdup(flds[2]);
 		}else if(i == 3 && strcmp(flds[1], "verifyfreq") == 0) {
 			conf->verifyfreq = atoi(flds[2]);
 		}else if(i == 3 && strcmp(flds[1], "httpaddr") == 0){
@@ -186,7 +186,7 @@ logtext(VtLog *l)
 	int i;
 	char *p;
 	VtLogChunk *c;
-	
+
 	p = logbuf;
 	c = l->w;
 	for(i=0; i<l->nchunk; i++) {
@@ -283,7 +283,7 @@ hsettext(HConnect *c)
 {
 	return hsettype(c, "text/plain; charset=utf-8");
 }
-	
+
 int
 hnotfound(HConnect *c)
 {
@@ -316,12 +316,12 @@ vtloghlist(Hio *h)
 {
 	char **p;
 	int i, n;
-	
+
 	hprint(h, "<html><head>\n");
 	hprint(h, "<title>Venti Server Logs</title>\n");
 	hprint(h, "</head><body>\n");
 	hprint(h, "<b>Venti Server Logs</b>\n<p>\n");
-	
+
 	p = vtlognames(&n);
 	qsort(p, n, sizeof(p[0]), strpcmp);
 	for(i=0; i<n; i++)
@@ -336,14 +336,14 @@ vtloghdump(Hio *h, VtLog *l)
 	int i;
 	VtLogChunk *c;
 	char *name;
-	
+
 	name = l ? l->name : "&lt;nil&gt;";
 
 	hprint(h, "<html><head>\n");
 	hprint(h, "<title>Venti Server Log: %s</title>\n", name);
 	hprint(h, "</head><body>\n");
 	hprint(h, "<b>Venti Server Log: %s</b>\n<p>\n", name);
-	
+
 	if(l){
 		c = l->w;
 		for(i=0; i<l->nchunk; i++){
@@ -360,7 +360,7 @@ char*
 hargstr(HConnect *c, char *name, char *def)
 {
 	HSPairs *p;
-	
+
 	for(p=c->req.searchpairs; p; p=p->next)
 		if(strcmp(p->s, name) == 0)
 			return p->t;
@@ -446,7 +446,7 @@ httpproc(void *v)
 		 */
 		if(hparsereq(c, 0) < 0)
 			break;
-		
+
 		for(i = 0; i < MaxObjs && objs[i].name[0]; i++){
 			n = strlen(objs[i].name);
 			if((objs[i].name[n-1] == '/' && strncmp(c->req.uri, objs[i].name, n) == 0)
@@ -508,7 +508,7 @@ fromwebdir(HConnect *c)
 	char buf[4096], *p, *ext, *type;
 	int i, fd, n, defaulted;
 	Dir *d;
-	
+
 	if(conf.webroot == nil || strstr(c->req.uri, ".."))
 		return hnotfound(c);
 	snprint(buf, sizeof buf-20, "%s/%s", conf.webroot, c->req.uri+1);
@@ -614,7 +614,7 @@ piper(void *v)
 	int fd;
 	char *p;
 	int ok;
-	
+
 	j = v;
 	fd = j->pipe;
 	l = j->newlog;
@@ -625,7 +625,7 @@ piper(void *v)
 	}
 	qlock(&loglk);
 	p = logtext(l);
-	ok = j->ok(p);	
+	ok = j->ok(p);
 	qunlock(&loglk);
 	j->newok = ok;
 	close(fd);
@@ -808,7 +808,7 @@ threadmain(int argc, char **argv)
 	int nofork;
 	char *prog;
 	Job *j;
-	
+
 	ventilogging = 1;
 	ventifmtinstall();
 #ifdef PLAN9PORT
@@ -893,8 +893,8 @@ void
 qp(Biobuf *b, char *p)
 {
 	int n, nspace;
-	
-	nspace = 0;	
+
+	nspace = 0;
 	n = 0;
 	for(; *p; p++) {
 		if(*p == '\n') {
@@ -934,7 +934,7 @@ smtpread(Biobuf *b, int code)
 {
 	char *p, *q;
 	int n;
-	
+
 	while((p = Brdstr(b, '\n', 1)) != nil) {
 		n = strtol(p, &q, 10);
 		if(n == 0 || q != p+3) {
@@ -957,13 +957,13 @@ smtpread(Biobuf *b, int code)
 	return -1;
 }
 
-		
+
 void
 sendmail(char *content, char *subject, char *msg)
 {
 	int fd;
 	Biobuf *bin, *bout;
-	
+
 	if((fd = dial(conf.smtp, 0, 0, 0)) < 0) {
 		vtlogprint(errlog, "dial %s: %r\n", conf.smtp);
 		return;
@@ -979,7 +979,7 @@ sendmail(char *content, char *subject, char *msg)
 		Bterm(bout);
 		return;
 	}
-	
+
 	Bprint(bout, "HELO venti-mgr\n");
 	Bflush(bout);
 	if(smtpread(bin, 250) < 0)
@@ -994,12 +994,12 @@ sendmail(char *content, char *subject, char *msg)
 	Bflush(bout);
 	if(smtpread(bin, 250) < 0)
 		goto error;
-	
+
 	Bprint(bout, "DATA\n");
 	Bflush(bout);
 	if(smtpread(bin, 354) < 0)
 		goto error;
-	
+
 	Bprint(bout, "From: \"venti mgr\" <%s>\n", conf.mailfrom);
 	Bprint(bout, "To: <%s>\n", conf.mailto);
 	Bprint(bout, "Subject: %s\n", subject);
@@ -1013,7 +1013,7 @@ sendmail(char *content, char *subject, char *msg)
 	Bflush(bout);
 	if(smtpread(bin, 250) < 0)
 		goto error;
-	
+
 	Bprint(bout, "QUIT\n");
 	Bflush(bout);
 	Bterm(bin);

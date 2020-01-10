@@ -39,4 +39,3 @@ int	intrc(void);
 
 void rioputsnarf(void);
 void riogetsnarf(void);
-

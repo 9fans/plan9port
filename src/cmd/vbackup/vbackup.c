@@ -13,7 +13,7 @@
  *	-s	print status updates
  *	-v	print debugging trace
  *	-w	write parallelism
- * 
+ *
  * If score is given on the command line, it should be the
  * score from a previous vbackup on this fspartition.
  * In this mode, only the new blocks are stored to Venti.
@@ -24,12 +24,12 @@
  * by buffered queues:
  *
  * 	fsysproc | cmpproc | ventiproc
- * 
+ *
  * Fsysproc reads the disk and queues the blocks.
  * Cmpproc compares the blocks against the SHA1 hashes
  * in the old image, if any.  It discards the unchanged blocks
  * and queues the changed ones.  Ventiproc writes blocks to Venti.
- * 
+ *
  * There is a fourth proc, statusproc, which prints status
  * updates about how the various procs are progressing.
  */
@@ -259,14 +259,14 @@ threadmain(int argc, char **argv)
 		tmpnam = smprint("%s/vbackup.XXXXXX", tmp);
 		if(tmpnam == nil)
 			sysfatal("smprint: %r");
-	
+
 		if((fd = opentemp(tmpnam, ORDWR|ORCLOSE)) < 0)
 			sysfatal("opentemp %s: %r", tmpnam);
 		if(statustime)
 			print("# %T reading scores into %s\n", tmpnam);
 		if(verbose)
 			fprint(2, "read scores into %s...\n", tmpnam);
-	
+
 		Binit(&bscores, fd, OWRITE);
 		for(i=0; i<fsys->nblock; i++){
 			if(vtfileblockscore(vfile, i, score) < 0)
@@ -276,7 +276,7 @@ threadmain(int argc, char **argv)
 		}
 		Bterm(&bscores);
 		vtfileunlock(vfile);
-	
+
 		/*
 		 * prep scores for rereading
 		 */
@@ -285,7 +285,7 @@ threadmain(int argc, char **argv)
 	}
 
 	/*
-	 * start the main processes 
+	 * start the main processes
 	 */
 	if(statustime)
 		print("# %T starting procs\n");
@@ -307,7 +307,7 @@ threadmain(int argc, char **argv)
 	 * wait for processes to finish
 	 */
 	wlock(&endlk);
-	
+
 	qfree(qcmp);
 	qfree(qventi);
 
@@ -358,7 +358,7 @@ threadmain(int argc, char **argv)
 	if(mountplace == nil)
 		mountplace = guessmountplace(argv[0]);
 	print("mount /%s/%d/%02d%02d%s %s:%V %d/%02d%02d/%02d%02d\n",
-		mountname, tm.year, tm.mon, tm.mday, 
+		mountname, tm.year, tm.mon, tm.mday,
 		mountplace,
 		root.type, b->score,
 		tm.year, tm.mon, tm.mday, tm.hour, tm.min);
@@ -370,7 +370,7 @@ threadmain(int argc, char **argv)
 		sysfatal("vtsync: %r");
 	if(statustime)
 		print("# %T synced\n");
-	
+
 	fsysclose(fsys);
 	diskclose(disk);
 	vtcachefree(zcache);
@@ -468,7 +468,7 @@ writethread(void *v)
 		nrecv++;
 		if(wr.p == nil)
 			break;
-		
+
 		if(fastwrites && vtread(z, wr.score, wr.type, nil, 0) < 0){
 			rerrstr(err, sizeof err);
 			if(strstr(err, "read too small")){	/* already exists */
@@ -581,7 +581,7 @@ timefmt(Fmt *fmt)
 	Tm tm;
 	ns = nsec();
 	tm = *localtime(time(0));
-	return fmtprint(fmt, "%04d/%02d%02d %02d:%02d:%02d.%03d", 
+	return fmtprint(fmt, "%04d/%02d%02d %02d:%02d:%02d.%03d",
 		tm.year+1900, tm.mon+1, tm.mday, tm.hour, tm.min, tm.sec,
 		(int)(ns%1000000000)/1000000);
 }
@@ -592,7 +592,7 @@ guessmountplace(char *dev)
 	char *cmd, *q;
 	int p[2], fd[3], n;
 	char buf[100];
-	
+
 	if(pipe(p) < 0)
 		sysfatal("pipe: %r");
 
@@ -617,4 +617,3 @@ guessmountplace(char *dev)
 		*--q = 0;
 	return strdup(buf);
 }
-

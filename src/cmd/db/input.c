@@ -144,7 +144,7 @@ getformat(char *deformat)
  *
  *	we handle this case specially because we have to look ahead
  *	at the token after the colon to decide if it is a file reference
- *	or a colon-command with a symbol name prefix. 
+ *	or a colon-command with a symbol name prefix.
  */
 
 int

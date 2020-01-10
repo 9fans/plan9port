@@ -4,7 +4,7 @@
 
 /*
  * troff10.c
- * 
+ *
  * typesetter interface
  */
 
@@ -169,7 +169,7 @@ int ptout0(Tchar *pi)
 			j = -j;
 		if (isvmot(i))
 			lead += j;
-		else 
+		else
 			esc += j;
 		return(outsize);
 	}
@@ -191,7 +191,7 @@ int ptout0(Tchar *pi)
 	if (sfbits(i) == oldbits) {
 		xfont = pfont;
 		xpts = ppts;
-	} else 
+	} else
 		xbits(i, 2);
 	if (k == XON) {
 		extern int xon;
@@ -232,8 +232,8 @@ int ptout0(Tchar *pi)
 		}
 		if (iszbit(i)) {
 			if (cs)
-				w = -j; 
-			else 
+				w = -j;
+			else
 				w = 0;
 			z = 1;
 		}

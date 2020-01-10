@@ -9,7 +9,7 @@
  * Add the requisite path tables to the CD image.
  * They get put on the end once everything else is done.
  * We use the path table itself as a queue in the breadth-first
- * traversal of the tree.  
+ * traversal of the tree.
  *
  * The only problem with this is that the path table does not
  * store the lengths of the directories.  So we keep an explicit

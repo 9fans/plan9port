@@ -12,7 +12,7 @@ static struct
 	Mach *mach;
 	char *name;
 	int (*coreregs)(Macho*, uchar**);
-} mtab[] = 
+} mtab[] =
 {
 	MachoCpuPower,	MPOWER,		&machpower, 		"powerpc",	coreregsmachopower,
 };
@@ -190,7 +190,7 @@ mapmacho(Fhdr *fp, u64int base, Map *map, Regs **rp)
 		if((r = mallocz(sizeof *r, 1)) == nil)
 			return -1;
 		r->r.rw = _uregrw;
-		r->ureg = u;	
+		r->ureg = u;
 		*rp = &r->r;
 	}
 noregs:

@@ -13,7 +13,7 @@ typedef struct VacDirEnum VacDirEnum;
  */
 enum
 {
-	ModeOtherExec = (1<<0),		
+	ModeOtherExec = (1<<0),
 	ModeOtherWrite = (1<<1),
 	ModeOtherRead = (1<<2),
 	ModeGroupExec = (1<<3),
@@ -64,7 +64,7 @@ struct VacDir
 	ulong mgen;		/* generation of meta entry */
 	uvlong size;		/* size of file */
 	uvlong qid;		/* unique file id */
-	
+
 	char *uid;		/* owner id */
 	char *gid;		/* group id */
 	char *mid;		/* last modified by */
@@ -144,4 +144,3 @@ int	vdeunread(VacDirEnum*);
 
 int	vacfiledsize(VacFile *f);
 int	sha1matches(VacFile *f, ulong b, uchar *buf, int n);
-

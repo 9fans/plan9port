@@ -22,7 +22,7 @@ closingtag(Rune *s)
 {
 	Rune *t;
 	Rune *p0, *p;
-	
+
 	t = runemalloc(sizeof(Rune));
 	if(s == nil)
 		return t;
@@ -44,7 +44,7 @@ closingtag(Rune *s)
 			runemove(t+2, p0, p-p0);
 			t[2+(p-p0)] = Ugt;
 		}
-		
+
 		if(*p == Ugt && p>s && *(p-1) == '/'){
 		close:
 			for(p0=t+1; *p0 && *p0 != Ult; p0++)
@@ -52,7 +52,7 @@ closingtag(Rune *s)
 			runemove(t, p0, runestrlen(p0)+1);
 		}
 	}
-	return t;	
+	return t;
 }
 
 void
@@ -108,7 +108,7 @@ void
 closehtml(void)
 {
 	Tag *t, *next;
-	
+
 	br();
 	hideihtml();
 	for(t=tagstack; t; t=next){
@@ -230,7 +230,7 @@ void
 r_html(Rune *name)
 {
 	Rune *id, *line, *p;
-	
+
 	id = copyarg();
 	line = readline(HtmlMode);
 	for(p=line; *p; p++){
@@ -281,7 +281,6 @@ htmlinit(void)
 	addesc('`', e_btick, CopyMode);
 	addesc('-', e_minus, CopyMode);
 	addesc('@', e_at, CopyMode);
-	
+
 	ds(L("font"), L(defaultfont));
 }
-

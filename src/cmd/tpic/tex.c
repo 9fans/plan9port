@@ -20,7 +20,7 @@ devarc(double x1, double y1, double x2, double y2, double xc, double yc, int r)
 }
 
 void
-box(double x0, double y0, double x1, double y1) 
+box(double x0, double y0, double x1, double y1)
 {
 	fprintf(TEXFILE,"    \\special{pa %d %d}",TRX(x0),TRY(y0));
 	fprintf(TEXFILE,"\\special{pa %d %d}",TRX(x1),TRY(y0));
@@ -104,16 +104,16 @@ frame(double xs, double ys, double xf, double yf)
 }
 
 void
-line(double x0, double y0, double x1, double y1) 
+line(double x0, double y0, double x1, double y1)
 {
 	move(x0, y0);
 	vec(x1, y1);
 }
 
 void
-move(double xx, double yy) 
+move(double xx, double yy)
 {
-	e1->copyx = xx; 
+	e1->copyx = xx;
 	e1->copyy = yy;
 }
 
@@ -136,7 +136,7 @@ FILE *TEXFILE;
 
 void
 openpl(void)
-{ 
+{
 	TEXFILE = stdout;
 
 	space(xmin, ymin, xmax, ymax);
@@ -152,7 +152,7 @@ openpl(void)
 }
 
 void
-range(double x0, double y0, double x1, double y1) 
+range(double x0, double y0, double x1, double y1)
 {
 	e1->xmin = x0;
 	e1->ymin = y0;
@@ -165,30 +165,30 @@ range(double x0, double y0, double x1, double y1)
 }
 
 void
-rmove(double xx, double yy) 
+rmove(double xx, double yy)
 {
 	e1->copyx += xx;
 	e1->copyy += yy;
 }
 
 void
-rvec(double xx, double yy)  
+rvec(double xx, double yy)
 {
 	vec(xx+e1->copyx, yy+e1->copyy);
 }
 
 void
-sbox(double x0, double y0, double x1, double y1) 
+sbox(double x0, double y0, double x1, double y1)
 {
 	fprintf(TEXFILE,"    \\special{bk}%%\n");
 	box(x0, y0, x1, y1);
 }
 
 void
-vec(double xx, double yy) 
+vec(double xx, double yy)
 {
 	fprintf(TEXFILE,"    \\special{pa %d %d}",TRX(e1->copyx),TRY(e1->copyy));
-	e1->copyx = xx; 
+	e1->copyx = xx;
 	e1->copyy = yy;
 	fprintf(TEXFILE,"\\special{pa %d %d}",TRX(xx),TRY(yy));
 	switch(e1->pen){

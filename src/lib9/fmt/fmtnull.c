@@ -30,4 +30,3 @@ fmtnullinit(Fmt *f)
 	fmtlocaleinit(f, nil, nil, nil);
 	return 0;
 }
-

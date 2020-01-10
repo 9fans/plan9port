@@ -108,7 +108,7 @@ lookupip(uchar *ipaddr, Info *iip, int gate)
 	t = ndbipinfo(db, "ip", ip, attrs, p - attrs);
 	if(t == nil)
 		return -1;
-	
+
 	for(nt = t; nt != nil; nt = nt->entry){
 		if(strcmp(nt->attr, "ip") == 0)
 			setipaddr(iip->ipaddr, nt->val);

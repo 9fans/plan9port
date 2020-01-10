@@ -15,7 +15,7 @@ fsdirwstat(CFsys *fs, char *name, Dir *d)
 
 	if((fid = fswalk(fs->root, name)) == nil)
 		return -1;
-	
+
 	n = fsdirfwstat(fid, d);
 	fsclose(fid);
 	return n;

@@ -20,7 +20,7 @@ void
 startsrv(void)
 {
 	int pid, p[2];
-	
+
 	if(pipe(p) < 0)
 		sysfatal("pipe");
 	if((pid=fork()) < 0)
@@ -56,7 +56,7 @@ void
 cmdinit(int argc, char **argv)
 {
 	Wsysmsg m;
-	
+
 	memset(&m, 0, sizeof m);
 	m.op = Tinit;
 	m.winsize = "100x100";
@@ -70,7 +70,7 @@ void
 cmdmouse(int argc, char **argv)
 {
 	Wsysmsg m;
-	
+
 	memset(&m, 0, sizeof m);
 	m.op = Trdmouse;
 	if(domsg(&m) < 0)
@@ -86,7 +86,7 @@ void
 cmdkbd(int argc, char **argv)
 {
 	Wsysmsg m;
-	
+
 	memset(&m, 0, sizeof m);
 	m.op = Trdkbd;
 	if(domsg(&m) < 0)
@@ -125,4 +125,3 @@ fprint(2, "%s...\n", p);
 	}
 	exits(0);
 }
-

@@ -22,7 +22,7 @@
  *			The BB field is a dreg, and correct only for SAO and NGC.
  *			IC(n) is just NGC(n+7840)
  *		Others should be self-explanatory.
- *	
+ *
  *	Records:
  *
  *	Star is an SAOrec

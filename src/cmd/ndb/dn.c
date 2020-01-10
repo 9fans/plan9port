@@ -67,7 +67,7 @@ char *rrtname[Tall+2] =
 	"cert",
 	nil,
 	nil,
-	
+
 /* 40 */	nil, nil, nil, nil, nil, nil, nil, nil,
 /* 48 */	nil, nil, nil, nil, nil, nil, nil, nil,
 /* 56 */	nil, nil, nil, nil, nil, nil, nil, nil,
@@ -94,7 +94,7 @@ char *rrtname[Tall+2] =
 /* 224 */	nil, nil, nil, nil, nil, nil, nil, nil,
 /* 232 */	nil, nil, nil, nil, nil, nil, nil, nil,
 /* 240 */	nil, nil, nil, nil, nil, nil, nil, nil,
-/* 248 */	nil, nil, nil, 
+/* 248 */	nil, nil, nil,
 
 	"ixfr",
 	"axfr",
@@ -1318,7 +1318,7 @@ randomize(RR *rp)
 		if(x->type != Ta && x->type != Tmx && x->type != Tns)
 			return rp;
 
-	base = rp; 
+	base = rp;
 
 	n = rand();
 	last = first = nil;
@@ -1564,7 +1564,7 @@ copyserverlist(Server *s)
 {
 	Server *ns;
 
-	
+
 	for(ns = nil; s != nil; s = s->next)
 		addserver(&ns, s->name);
 	return ns;

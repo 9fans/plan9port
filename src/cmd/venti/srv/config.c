@@ -201,7 +201,7 @@ configisect(char *file)
 {
 	Part *part;
 	ISect *is;
-	
+
 	if(0) fprint(2, "configure index section in %s\n", file);
 
 	part = initpart(file, ORDWR|ODIRECT);
@@ -252,4 +252,3 @@ void
 needmainindex(void)
 {
 }
-

@@ -32,7 +32,7 @@
  *	done [haveai] - authentication is done [haveai: you can get an ai with authinfo]
  */
 
-char *rpcname[] = 
+char *rpcname[] =
 {
 	"unknown",
 	"authinfo",
@@ -196,7 +196,7 @@ rpcexec(Conv *c)
 			rpcrespond(c, "error conversation not successful");
 		else{
 			/* make up an auth info using the attr */
-			p = convAI2M((uchar*)c->reply+3, sizeof c->reply-3, 
+			p = convAI2M((uchar*)c->reply+3, sizeof c->reply-3,
 				strfindattr(c->attr, "cuid"),
 				strfindattr(c->attr, "suid"),
 				strfindattr(c->attr, "cap"),
@@ -341,4 +341,3 @@ convAI2M(uchar *p, int n, char *cuid, char *suid, char *cap, char *hex)
 		werrstr("authinfo too big");
 	return p;
 }
-

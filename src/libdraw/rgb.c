@@ -11,7 +11,7 @@
  * over the color map looking for the nearest point in RGB
  * space.  There is no visual psychology reason for that
  * criterion, but it's easy to implement and the results are
- * far more pleasing. 
+ * far more pleasing.
  *
 int
 rgb2cmap(int cr, int cg, int cb)

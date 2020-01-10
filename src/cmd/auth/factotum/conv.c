@@ -268,4 +268,3 @@ convbadkey(Conv *c, Key *k, char *msg, Attr *a)
 		return -1;
 	return 0;
 }
-

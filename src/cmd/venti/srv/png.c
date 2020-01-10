@@ -99,7 +99,7 @@ zread(void *va, void *buf, int n)
 					b[2] = (b[2]*255)/a;
 				}
 			}
-		}else	
+		}else
 			b += pixwid*pixels;
 
 		z->x += pixels;
@@ -148,7 +148,7 @@ memRGBA(Memimage *i)
 	Memimage *ni;
 	char buf[32];
 	ulong dst;
-	
+
 	/*
 	 * [A]BGR because we want R,G,B,[A] in big-endian order.  Sigh.
 	 */
@@ -157,7 +157,7 @@ memRGBA(Memimage *i)
 		dst = ABGR32;
 	else
 		dst = BGR24;
-		
+
 	if(i->chan == dst)
 		return i;
 
@@ -194,7 +194,7 @@ writepng(Hio *io, Memimage *m)
 		return -1;
 
 	hwrite(io, PNGmagic, sizeof PNGmagic);
-	
+
 	/* IHDR chunk */
 	h = buf;
 	put4(h, Dx(m->r)); h += 4;

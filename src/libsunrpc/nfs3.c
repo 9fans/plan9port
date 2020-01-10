@@ -3377,7 +3377,7 @@ countEntryPlus(uchar *a, uchar *ea, uchar **pa, u32int *n)
 	*pa = a;
 	return 0;
 }
-		
+
 int
 nfs3rreaddirplusunpack(uchar *a, uchar *ea, uchar **pa, Nfs3RReadDirPlus *x)
 {
@@ -4042,7 +4042,7 @@ static SunProc proc[] = {
 	(P)nfs3rcommitpack, (P)nfs3rcommitunpack, (S)nfs3rcommitsize, (F)nfs3rcommitprint, sizeof(Nfs3RCommit)
 };
 
-SunProg nfs3prog = 
+SunProg nfs3prog =
 {
 	Nfs3Program,
 	Nfs3Version,

@@ -343,7 +343,7 @@ unpackhdr(ElfHdr *h, void *v)
 	h->e2 = e2;
 	h->e4 = e4;
 	h->e8 = e8;
-	
+
 	if(h->class == ElfClass64)
 		goto b64;
 
@@ -388,7 +388,7 @@ unpackprog(ElfHdr *h, ElfProg *p, void *v)
 
 	if(h->class == ElfClass32) {
 		ElfProgBytes *b;
-		
+
 		b = v;
 		e4 = h->e4;
 		p->type = e4(b->type);
@@ -401,7 +401,7 @@ unpackprog(ElfHdr *h, ElfProg *p, void *v)
 		p->align = e4(b->align);
 	} else {
 		ElfProgBytes64 *b;
-		
+
 		b = v;
 		e4 = h->e4;
 		e8 = h->e8;
@@ -424,7 +424,7 @@ unpacksect(ElfHdr *h, ElfSect *s, void *v)
 
 	if(h->class == ElfClass32) {
 		ElfSectBytes *b;
-		
+
 		b = v;
 		e4 = h->e4;
 		s->name = (char*)(uintptr)e4(b->name);
@@ -439,7 +439,7 @@ unpacksect(ElfHdr *h, ElfSect *s, void *v)
 		s->entsize = e4(b->entsize);
 	} else {
 		ElfSectBytes64 *b;
-		
+
 		b = v;
 		e4 = h->e4;
 		e8 = h->e8;
@@ -554,4 +554,3 @@ elfsym(Elf *elf, int i, ElfSym *sym)
 	werrstr("symbol index out of range");
 	return -1;
 }
-

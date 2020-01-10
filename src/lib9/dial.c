@@ -92,7 +92,7 @@ p9dial(char *addr, char *local, char *dummy2, int *dummy3)
 
 	if((s = socket(ss.ss_family, proto, 0)) < 0)
 		return -1;
-		
+
 	if(local){
 		buf = strdup(local);
 		if(buf == nil){
@@ -155,4 +155,3 @@ Unix:
 	}
 	return s;
 }
-

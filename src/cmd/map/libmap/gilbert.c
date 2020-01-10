@@ -47,5 +47,3 @@ gilbert(void)
    use standard formula: tan x/2 = (1-cos x)/sin x = sin x/(1+cos x)
    to show that the right side of the last equation is tan(n/2)
 */
-
-

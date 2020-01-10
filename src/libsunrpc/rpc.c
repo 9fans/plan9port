@@ -78,7 +78,7 @@ sunrpcpack(uchar *a, uchar *ea, uchar **pa, SunRpc *rpc)
 				goto Err;
 			break;
 		}
-	
+
 		switch(rpc->status){
 		case SunSuccess:
 			if(sunuint32pack(a, ea, &a, (x=MsgSuccess, &x)) < 0
@@ -538,4 +538,3 @@ Err:
 	*pa = ea;
 	return -1;
 }
-

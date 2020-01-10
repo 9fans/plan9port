@@ -161,7 +161,7 @@ keyreplace(Conv *c, Key *k, char *fmt, ...)
 		sysfatal("out of memory");
 	va_end(arg);
 
-	/* replace prompted values with prompts */	
+	/* replace prompted values with prompts */
 	a = copyattr(k->attr);
 	bp = parseattr(k->proto->keyprompt);
 	for(b=bp; b; b=b->next){
@@ -204,7 +204,7 @@ keyevict(Conv *c, Key *k, char *fmt, ...)
 		sysfatal("out of memory");
 	va_end(arg);
 
-	/* replace prompted values with prompts */	
+	/* replace prompted values with prompts */
 	a = copyattr(k->attr);
 	bp = parseattr(k->proto->keyprompt);
 	for(b=bp; b; b=b->next){

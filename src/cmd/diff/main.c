@@ -22,7 +22,7 @@ rmtmpfiles(void)
 	}
 }
 
-void	
+void
 done(int status)
 {
 	rmtmpfiles();
@@ -72,7 +72,7 @@ mkpathname(char *pathname, char *path, char *name)
 	sprint(pathname, "%s/%s", path, name);
 	return 0;
 }
-	
+
 static char *
 mktmpfile(int input, Dir **sb)
 {
@@ -184,7 +184,7 @@ main(int argc, char *argv[])
 	int i;
 	Dir *fsb, *tsb;
 	extern int _p9usepwlibrary;
-	
+
 	_p9usepwlibrary = 0;
 	Binit(&stdout, 1, OWRITE);
 	progname = *argv;
@@ -214,7 +214,7 @@ main(int argc, char *argv[])
 				break;
 
 			case 'm':
-				mflag = 1;	
+				mflag = 1;
 				break;
 
 			case 'h':

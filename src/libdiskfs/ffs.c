@@ -124,8 +124,8 @@ okay:
 	fs->nfrag = fsblk->nfrag;
 	fs->ndfrag = fsblk->ndfrag;
 	/*
-	 * used to use 
-	 *	fs->blockspergroup = (u64int)fsblk->_cylspergroup * 
+	 * used to use
+	 *	fs->blockspergroup = (u64int)fsblk->_cylspergroup *
 	 *		fsblk->secspercyl * BYTESPERSEC / fsblk->blocksize;
 	 * for UFS1, but this should work for both UFS1 and UFS2
 	 */
@@ -190,7 +190,7 @@ ffsclose(Fsys *fsys)
 	free(fs);
 	free(fsys);
 }
-	
+
 static int
 checkfsblk(Fsblk *super)
 {
@@ -311,7 +311,7 @@ ffsdatablock(Ffs *fs, u64int bno, int size)
 		blockput(b);
 		return nil;
 	}
-	
+
 	return b;
 }
 
@@ -319,7 +319,7 @@ static u64int
 ifetch(Ffs *fs, u64int bno, u32int off)
 {
 	Block *b;
-	
+
 	if(bno == BADBNO)
 		return BADBNO;
 	b = ffsdatablock(fs, bno, fs->blocksize);
@@ -352,10 +352,10 @@ ffsfileblockno(Ffs *fs, Inode *ino, u64int bno)
 	if(bno < ppb*ppb)
 		return ifetch(fs, ifetch(fs, ino->ib[1], bno/ppb), bno%ppb);
 	bno -= ppb*ppb;
-	
+
 	if(bno/ppb/ppb/ppb == 0)	/* bno < ppb*ppb*ppb w/o overflow */
 		return ifetch(fs, ifetch(fs, ifetch(fs, ino->ib[2], bno/ppb/ppb), (bno/ppb)%ppb), bno%ppb);
-	
+
 	fprint(2, "ffsfileblock %llud: way too big\n", bno+NDADDR+ppb+ppb*ppb);
 	return BADBNO;
 }
@@ -364,7 +364,7 @@ static Block*
 ffsfileblock(Ffs *fs, Inode *ino, u64int bno, int size)
 {
 	u64int b;
-	
+
 	b = ffsfileblockno(fs, ino, bno);
 	if(b == ~0)
 		return nil;
@@ -396,7 +396,7 @@ static void
 inode1to2(Inode1 *i1, Inode *i2)
 {
 	int i;
-	
+
 	memset(i2, 0, sizeof *i2);
 	i2->mode = i1->mode;
 	i2->nlink = i1->nlink;
@@ -777,7 +777,7 @@ ffsxfileblock(Fsys *fsys, Nfs3Handle *h, u64int offset)
 	Inode ino;
 	Nfs3Status ok;
 	Ffs *fs;
-	
+
 	fs = fsys->priv;
 	if((ok = handle2ino(fs, h, nil, &ino)) != Nfs3Ok){
 		nfs3errstr(ok);

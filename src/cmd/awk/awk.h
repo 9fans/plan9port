@@ -134,7 +134,7 @@ extern Node	*nullnode;
 #define CCOPY	6
 #define CCON	5
 #define CTEMP	4
-#define CNAME	3 
+#define CNAME	3
 #define CVAR	2
 #define CFLD	1
 #define	CUNK	0
@@ -182,4 +182,3 @@ extern	int	pairstack[], paircnt;
 #define freeable(p)	( ((p)->tval & (STR|DONTFREE)) == STR )
 
 #include "proto.h"
-

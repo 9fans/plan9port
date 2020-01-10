@@ -104,7 +104,7 @@ indentof(char **linep)
 			ind -= ind%maxtab;
 			break;
 		}
-			
+
 	/* plain white space doesn't change the indent */
 	*linep = "";
 	return indent;

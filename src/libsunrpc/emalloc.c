@@ -30,5 +30,3 @@ abort();
 	setrealloctag(v, getcallerpc(&n));
 	return v;
 }
-
-

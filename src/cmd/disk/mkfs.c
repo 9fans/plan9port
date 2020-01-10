@@ -151,7 +151,7 @@ main(int argc, char **argv)
 		usage();
 	}ARGEND
 
-	if(!argc)	
+	if(!argc)
 		usage();
 
 	buf = emalloc(buflen);
@@ -514,7 +514,7 @@ setnames(File *f)
 			strcpy(oldfile, f->old);
 	}else
 		sprint(oldfile, "%s%s", oldroot, f->new);
-	if(strlen(newfile) >= sizeof newfile 
+	if(strlen(newfile) >= sizeof newfile
 	|| strlen(oldfile) >= sizeof oldfile)
 		error("name overfile");
 }

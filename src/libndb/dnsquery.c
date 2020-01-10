@@ -119,11 +119,11 @@ doquery(int fd, char *dn, char *type)
 	snprint(buf, sizeof(buf), "!%s %s", dn, type);
 	if(write(fd, buf, strlen(buf)) < 0)
 		return nil;
-		
+
 	seek(fd, 0, 0);
 
 	first = last = nil;
-	
+
 	for(;;){
 		n = read(fd, buf, sizeof(buf)-2);
 		if(n <= 0)

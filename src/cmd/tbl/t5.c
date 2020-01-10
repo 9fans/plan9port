@@ -28,7 +28,7 @@ gettbl(void)
 			while (*cstore++)
 				;
 			continue;
-		} else 
+		} else
 			instead[nlin] = 0;
 		if (nodata(nlin)) {
 			if (ch = oneh(nlin))
@@ -46,11 +46,11 @@ gettbl(void)
 		table[nlin] = (struct colstr *) alocv((ncol + 2) * sizeof(table[0][0]));
 		if (cstore[1] == 0)
 			switch (cstore[0]) {
-			case '_': 
-				fullbot[nlin] = '-'; 
+			case '_':
+				fullbot[nlin] = '-';
 				continue;
-			case '=': 
-				fullbot[nlin] = '='; 
+			case '=':
+				fullbot[nlin] = '=';
 				continue;
 			}
 		stynum[nlin] = nslin;
@@ -60,7 +60,7 @@ gettbl(void)
 			table[nlin][icol].rcol = 0;
 			ch = 1;
 			if (match(cstore, "T{")) { /* text follows */
-				table[nlin][icol].col = 
+				table[nlin][icol].col =
 				    (char *)(uintptr)gettext(cstore, nlin, icol,
 				    font[icol][stynum[nlin]],
 				    csize[icol][stynum[nlin]]);
@@ -81,7 +81,7 @@ gettbl(void)
 			}
 			while (ctype(nlin, icol + 1) == 's') /* spanning */
 				table[nlin][++icol].col = "";
-			if (ch == '\0') 
+			if (ch == '\0')
 				break;
 		}
 		while (++icol < ncol + 2) {
@@ -95,7 +95,7 @@ gettbl(void)
 	}
 	last = cstore;
 	permute();
-	if (textflg) 
+	if (textflg)
 		untext();
 	return;
 }
@@ -108,11 +108,11 @@ nodata(int il)
 
 	for (c = 0; c < ncol; c++) {
 		switch (ctype(il, c)) {
-		case 'c': 
-		case 'n': 
-		case 'r': 
-		case 'l': 
-		case 's': 
+		case 'c':
+		case 'n':
+		case 'r':
+		case 'l':
+		case 's':
 		case 'a':
 			return(0);
 		}
@@ -169,17 +169,17 @@ permute(void)
 int
 vspand(int ir, int ij, int ifform)
 {
-	if (ir < 0) 
+	if (ir < 0)
 		return(0);
 	if (ir >= nlin)
 		return(0);
-	if (instead[ir]) 
+	if (instead[ir])
 		return(0);
-	if (ifform == 0 && ctype(ir, ij) == '^') 
+	if (ifform == 0 && ctype(ir, ij) == '^')
 		return(1);
-	if (table[ir][ij].rcol != 0) 
+	if (table[ir][ij].rcol != 0)
 		return(0);
-	if (fullbot[ir]) 
+	if (fullbot[ir])
 		return(0);
 	return(vspen(table[ir][ij].col));
 }
@@ -188,11 +188,9 @@ vspand(int ir, int ij, int ifform)
 int
 vspen(char *s)
 {
-	if (s == 0) 
+	if (s == 0)
 		return(0);
-	if (!point(s)) 
+	if (!point(s))
 		return(0);
 	return(match(s, SPAN));
 }
-
-

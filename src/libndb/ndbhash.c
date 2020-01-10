@@ -198,7 +198,7 @@ ndbsnext(Ndbs *s, char *attr, char *val)
 			ndbfree(t);
 		} else if(s->type == Cptr){
 			if(Bseek(&db->b, s->ptr, 0) < 0)
-				break; 
+				break;
 			s->ptr = s->ptr1;
 			s->type = Cptr1;
 			t = ndbparse(db);
@@ -218,7 +218,7 @@ ndbsnext(Ndbs *s, char *attr, char *val)
 				s->type = Cptr;
 			} else {		/* end of hash chain */
 				if(Bseek(&db->b, s->ptr, 0) < 0)
-					break; 
+					break;
 				s->ptr = NDBNAP;
 				t = ndbparse(db);
 				if(t == 0)

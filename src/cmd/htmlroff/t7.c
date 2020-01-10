@@ -36,7 +36,7 @@ runmacro(int dot, int argc, Rune **argv)
 	Rune *p;
 	int i;
 	Mac *m;
-	
+
 if(verbose && isupperrune(argv[0][0])) fprint(2, "run: %S\n", argv[0]);
 	p = getds(argv[0]);
 	if(p == nil){
@@ -71,7 +71,7 @@ popmacro(void)
 {
 	int i;
 	Mac *m;
-	
+
 	if(--nmstack < 0){
 		fprint(2, "%L: macro stack underflow\n");
 		return;
@@ -94,7 +94,7 @@ runmacro1(Rune *name)
 {
 	Rune *argv[2];
 	int obol;
-	
+
 if(verbose) fprint(2, "outcb %p\n", outcb);
 	obol = bol;
 	argv[0] = name;
@@ -134,7 +134,7 @@ popmacro1(void)
 /*
  * diversions
  *
- *	processed output diverted 
+ *	processed output diverted
  *	dn dl registers vertical and horizontal size of last diversion
  *	.z - current diversion name
  */
@@ -195,7 +195,7 @@ void
 r_ch(int argc, Rune **argv)
 {
 	int i;
-	
+
 	if(argc == 2){
 		if(trap0 && runestrcmp(argv[1], trap0) == 0){
 			free(trap0);
@@ -244,7 +244,7 @@ r_de(int argc, Rune **argv)
 		fmtrunestrcpy(&fmt, p);
 	len = runestrlen(end);
 	while((p = readline(CopyMode)) != nil){
-		if(runestrncmp(p, end, len) == 0 
+		if(runestrncmp(p, end, len) == 0
 		&& (p[len]==' ' || p[len]==0 || p[len]=='\t'
 			|| (p[len]=='\\' && p[len+1]=='}'))){
 			free(p);
@@ -270,7 +270,7 @@ void
 r_ds(Rune *cmd)
 {
 	Rune *name, *line, *p;
-	
+
 	name = copyarg();
 	line = readline(CopyMode);
 	if(name == nil || line == nil){
@@ -335,7 +335,7 @@ flushdi(void)
 {
 	int n;
 	Rune *p;
-	
+
 	if(ndi == 0 || difmtinit == 0)
 		return;
 	fmtrune(&difmt, Uunformatted);
@@ -448,7 +448,7 @@ void
 r_em(int argc, Rune **argv)
 {
 	Rune buf[20];
-	
+
 	USED(argc);
 	runesnprint(buf, nelem(buf), ".%S\n", argv[1]);
 	as(L("eof"), buf);
@@ -458,7 +458,7 @@ int
 e_star(void)
 {
 	Rune *p;
-	
+
 	p = getds(getname());
 	if(p)
 		pushinputstring(p);
@@ -514,7 +514,7 @@ e_dollar(void)
 
 void
 t7init(void)
-{	
+{
 	addreq(L("de"), r_de, -1);
 	addreq(L("am"), r_de, -1);
 	addreq(L("ig"), r_de, -1);
@@ -529,15 +529,14 @@ t7init(void)
 	addreq(L("wh"), r_wh, -1);
 	addreq(L("ch"), r_ch, -1);
 	addreq(L("dt"), r_dt, -1);
-	
+
 	addesc('$', e_dollar, CopyMode|ArgMode|HtmlMode);
 	addesc('*', e_star, CopyMode|ArgMode|HtmlMode);
 	addesc('t', e_t, CopyMode|ArgMode);
 	addesc('a', e_a, CopyMode|ArgMode);
 	addesc('\\', e_backslash, ArgMode|CopyMode);
 	addesc('.', e_dot, CopyMode|ArgMode);
-	
+
 	ds(L("eof"), L(".sp 0.5i\n"));
 	ds(L(".."), L(""));
 }
-

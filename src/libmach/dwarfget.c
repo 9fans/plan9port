@@ -215,4 +215,3 @@ dwarfget128s(DwarfBuf *b)
 	}
 	return v;
 }
-

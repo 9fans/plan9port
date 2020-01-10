@@ -12,4 +12,3 @@ _drawflength(int fd)
 		return -1;
 	return s.st_size;
 }
-

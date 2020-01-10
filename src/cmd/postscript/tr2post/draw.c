@@ -220,7 +220,7 @@ drawpath(char *buf, int copy) {
  * was expected to be legitimate PostScript that manipulated the current path.
  * The old escape sequence will be supported for a while (for Ravi), and always
  * call this routine with copy set to TRUE.
- * 
+ *
  *
  */
 

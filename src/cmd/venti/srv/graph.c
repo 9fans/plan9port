@@ -36,7 +36,7 @@ Memimage*
 allocrepl(ulong color)
 {
 	Memimage *m;
-	
+
 	m = allocmemimage(Rect(0,0,1,1), RGB24);
 	memfillcolor(m, color);
 	m->flags |= Frepl;
@@ -49,10 +49,10 @@ ginit(void)
 {
 	static int first = 1;
 	int i;
-	
+
 	if(!first)
 		return;
-		
+
 	first = 0;
 	memimageinit();
 #ifdef PLAN9PORT
@@ -90,7 +90,7 @@ drawlabel(Memimage *m, Point p, int n)
 {
 	char buf[30];
 	Point w;
-	
+
 	mklabel(buf, n);
 	w = memsubfontwidth(smallfont, buf);
 	memimagestring(m, Pt(p.x-5-w.x, p.y), memblack, ZP, smallfont, buf);
@@ -117,7 +117,7 @@ statgraph(Graph *g)
 	Statbin *b, bin[2000];	/* 32 kB, but whack is worse */
 
 	needstack(8192);	/* double check that bin didn't kill us */
-	
+
 	if(g->wid <= MinWidth)
 		g->wid = DefaultWidth;
 	if(g->ht <= MinHeight)
@@ -128,7 +128,7 @@ statgraph(Graph *g)
 		g->fill = ((uint)(uintptr)g->arg>>8)%nelem(lofill);
 	if(g->fill > nelem(lofill))
 		g->fill %= nelem(lofill);
-	
+
 	nbin = g->wid - (Left+Right);
 	binstats(g->fn, g->arg, g->t0, g->t1, bin, nbin);
 
@@ -168,7 +168,7 @@ statgraph(Graph *g)
 	}
 	r = Rect(Left, Top, g->wid-Right, g->ht-Bottom);
 	memfillcolor(m, DTransparent);
-	
+
 	/* x axis */
 	memimagedraw(m, Rect(r.min.x, r.max.y, r.max.x, r.max.y+1), black, ZP, memopaque, ZP, S);
 
@@ -176,7 +176,7 @@ statgraph(Graph *g)
 	drawlabel(m, r.min, max);
 	if(min != 0)
 		drawlabel(m, Pt(r.min.x, r.max.y-smallfont->height), min);
-	
+
 	/* actual data */
 	for(i=0; i<nbin; i++){
 		b = &bin[i];

@@ -18,7 +18,7 @@ instream(void)
 		return 0;
 	}
 	rv->fp = &rv->bb;
-	rv->fd = pfd[0];	
+	rv->fd = pfd[0];
 	return rv;
 }
 

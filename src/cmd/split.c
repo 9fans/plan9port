@@ -97,7 +97,7 @@ main(int argc, char *argv[])
 		}
 
 		/*
-		 * in case we didn't end with a newline, tack whatever's 
+		 * in case we didn't end with a newline, tack whatever's
 		 * left onto the last file
 		 */
 		while((n = Bread(b, buf, sizeof(buf))) > 0)
@@ -119,7 +119,7 @@ nextfile(void)
 	} else {
 		strcpy(name, stem);
 		strcat(name, suff);
-		if(++suff[1] > 'z') 
+		if(++suff[1] > 'z')
 			suff[1] = 'a', ++suff[0];
 		openf();
 	}
@@ -135,7 +135,7 @@ matchfile(Resub *match)
 		strcpy(name+len, suffix);
 		openf();
 		return 1;
-	} 
+	}
 	return nextfile();
 }
 

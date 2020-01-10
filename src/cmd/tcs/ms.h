@@ -5,10 +5,10 @@
 for(i in $*){
 	j=`{echo $i | sed 's;.*./;cp;'}
 	echo long tab$j'[256] = {'
-	hget http://www.microsoft.com/globaldev/reference/$i.mspx | htmlfmt | 
+	hget http://www.microsoft.com/globaldev/reference/$i.mspx | htmlfmt |
 		9 grep '^.. = U\+....:' | 9 sed 's/= U\+/ 0x/; s/:.*.//' | awk '
 			{ t[$1] = $2 }
-			END { 
+			END {
 				for(i=0; i<256; i++) {
 					s = sprintf("%.2X", i);
 					if(s in t)

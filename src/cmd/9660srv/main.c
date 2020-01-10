@@ -138,13 +138,13 @@ main(int argc, char **argv)
 		open("/dev/null", OWRITE);
 		if(pipe(pipefd) < 0)
 			panic(1, "pipe");
-		
+
 		if(post9pservice(pipefd[0], srvname, mtpt) < 0)
 			sysfatal("post9pservice: %r");
 		close(pipefd[0]);
 	}
 	srvfd = pipefd[1];
-	
+
 	switch(rfork(RFNOWAIT|RFNOTEG|RFFDG|RFPROC)){
 	case -1:
 		panic(1, "fork");

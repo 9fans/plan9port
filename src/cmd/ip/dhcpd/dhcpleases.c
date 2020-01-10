@@ -39,5 +39,5 @@ main(void)
 			continue;
 		if(b.lease > now)
 			print("%I leased by %s until %s", b.ip, b.boundto, ctime(b.lease));
-	}		
+	}
 }

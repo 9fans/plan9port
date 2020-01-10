@@ -93,7 +93,7 @@ static int
 p_seprint(Msg *m)
 {
 	Hdr h;
-	
+
 	memset(&h, 0, sizeof h);
 	if(unpackhdr(m->ps, m->pe, &h) < 0)
 		return -1;

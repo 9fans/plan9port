@@ -39,7 +39,7 @@ void print(void)	/* arrange final output */
 	for (p = objlist; p; p = p->next) {
 		dprintf("print: name = <%s>, type = %d\n", p->name, p->type);
 		if (p->type == NAME) {
-			Point pt, pt1;	
+			Point pt, pt1;
 			pt = p->pt;
 			pt1 = p->pt1;
 			fprintf(tfd, "\t# %s %g .. %g, %g .. %g\n",
@@ -78,7 +78,7 @@ void print(void)	/* arrange final output */
 					p->pt1.y = pow(10.0, pt1.y);
 				}
 				dfp = setauto();
-			}		
+			}
 			dx = pt1.x - pt.x;
 			dy = pt1.y - pt.y;
 			xfac = dx > 0 ? frame_wid/dx : frame_wid/2;
@@ -184,7 +184,7 @@ void do_first(void)	/* done at first .G1:  definitions, etc. */
 	FILE *fp;
 
 	snprintf(buf, sizeof buf, "define pid /%d/\n", getpid());
-	pbstr(buf);	
+	pbstr(buf);
 	if (lib != 0) {
 		if ((fp = fopen(lib_defines, "r")) != NULL) {
 			snprintf(buf1, sizeof buf, "copy \"%s\"\n", lib_defines);

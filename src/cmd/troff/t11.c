@@ -50,7 +50,7 @@ getdesc(char *name)
 				chadd(s, Troffchar, Install);
 			break;
 		}
-		/* else 
+		/* else
 			just skip anything else */
 		skipline(fin);
 	}
@@ -83,7 +83,7 @@ static int checkfont(char *name)
 	}
 	fclose(fp);
 	return status;
-	
+
 }
 
 int

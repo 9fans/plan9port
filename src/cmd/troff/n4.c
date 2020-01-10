@@ -123,7 +123,7 @@ void setn(void)
 			i = ls;
 			break;
 		case 'R':	/* maximal # of regs that can be addressed */
-			i = 255*256 - regcnt; 
+			i = 255*256 - regcnt;
 			break;
 		case 'z':
 			p = unpair(dip->curd);
@@ -137,7 +137,7 @@ void setn(void)
 			cpushback(cfname[ifi]);
 			return;
  		case 'S':
- 			buf[0] = j = 0;	
+ 			buf[0] = j = 0;
  			for( i = 0; tabtab[i] != 0 && i < NTAB; i++) {
  				if (i > 0)
  					buf[j++] = ' ';

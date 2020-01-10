@@ -464,7 +464,7 @@ flushtyping(int clearesc)
 	ulong n;
 
 	if(clearesc)
-		typeesc = -1;	
+		typeesc = -1;
 	if(typestart == typeend) {
 		modified = 0;
 		return;
@@ -514,7 +514,7 @@ nontypingkey(int c)
 	case SCROLLKEY:
 	case CUT:
 	case COPY:
-	case PASTE:    
+	case PASTE:
 		return 1;
 	}
 	return 0;

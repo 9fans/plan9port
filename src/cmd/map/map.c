@@ -123,7 +123,7 @@ void	windlim(void);
 void	realcut(void);
 
 int
-option(char *s) 
+option(char *s)
 {
 
 	if(s[0]=='-' && (s[1]<'0'||s[1]>'9'))
@@ -157,7 +157,7 @@ main(int argc, char *argv[])
 	s = getenv("MAPDIR");
 	if(s)
 		mapdir = s;
-	if(argc<=1) 
+	if(argc<=1)
 		error("usage: map projection params options");
 	for(k=0;index[k].name;k++) {
 		s = index[k].name;
@@ -305,7 +305,7 @@ found:
 			argc -= i;
 			break;
 		case 'c':
-			for(i=0;i<3&&argc>i&&!option(argv[i]);i++) 
+			for(i=0;i<3&&argc>i&&!option(argv[i]);i++)
 				center[i] = atof(argv[i]);
 			argc -= i;
 			argv += i;
@@ -315,7 +315,7 @@ found:
 				position[i] = atof(argv[i]);
 			argc -= i;
 			argv += i;
-			if(i!=3||position[2]<=0) 
+			if(i!=3||position[2]<=0)
 				error("incomplete positioning");
 			break;
 		case 'y':
@@ -445,7 +445,7 @@ found:
 	crot.l = center[2]*RAD;
 	sincos(&crot);
 	scaling *= HALFWIDTH*0.9;
-	if(symbolfile) 
+	if(symbolfile)
 		getsyms(symbolfile);
 	if(!s2flag) {
 		openpl();
@@ -457,11 +457,11 @@ found:
 	pen(DOTTED);
 	if(grid[0]>0.)
 		for(lat=ceil(lolat/grid[0])*grid[0];
-		    lat<=hilat;lat+=grid[0]) 
+		    lat<=hilat;lat+=grid[0])
 			dogrid(lat,lat,lolon,hilon);
 	if(grid[1]>0.)
 		for(lon=ceil(lolon/grid[1])*grid[1];
-		    lon<=hilon;lon+=grid[1]) 
+		    lon<=hilon;lon+=grid[1])
 			dogrid(lolat,hilat,lon,lon);
 	comment("border","");
 	colorx(bordcolor);
@@ -520,7 +520,7 @@ normproj(double lat, double lon, double *x, double *y)
 	if(!inwindow(&geog))
 		return(-1);
 	i = fixproj(&geog,x,y);
-	if(rflag) 
+	if(rflag)
 		*x = -*x;
 /*
 	printp(&geog);
@@ -537,7 +537,7 @@ posproj(double lat, double lon, double *x, double *y)
 	latlon(lat,lon,&geog);
 	normalize(&geog);
 	i = fixproj(&geog,x,y);
-	if(rflag) 
+	if(rflag)
 		*x = -*x;
 	return(i);
 }
@@ -1167,7 +1167,7 @@ clipinit(void)
 		nvert = 4;
 		v[2] = v[1];
 		v[1].x=v[0].x, v[1].y=v[2].y, v[3].x=v[2].x, v[3].y=v[0].y;
-	}	
+	}
 	v[nvert] = v[0];
 	v[nvert+1] = v[1];
 	s = 0;
@@ -1208,7 +1208,7 @@ realcut(void)
 {
 	struct place g;
 	double lat;
-	
+
 	if(cut != picut)	/* punt on unusual cuts */
 		return;
 	for(lat=window[0]; lat<=window[1]; lat+=grid[2]) {

@@ -94,4 +94,3 @@ initThumbprints(char *ok, char *crl)
 	free(crltab);
 	return table;
 }
-

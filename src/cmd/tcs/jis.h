@@ -104,4 +104,3 @@
  *	Returns 1 if they are, or 0 otherwise.
  */
 #define CANJ2S(_h, _l)	(CANJ2SB(_h) && CANJ2SB(_l))
-

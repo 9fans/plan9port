@@ -31,7 +31,7 @@ dump(int indent, uchar *score, int type)
 	uchar *buf;
 	VtEntry e;
 	VtRoot root;
-	
+
 	if(spaces[0] == 0)
 		memset(spaces, ' ', sizeof spaces-1);
 
@@ -54,7 +54,7 @@ dump(int indent, uchar *score, int type)
 			indent*4, spaces, score, root.name, root.type, root.prev, root.blocksize);
 		dump(indent+1, root.score, VtDirType);
 		break;
-	
+
 	case VtDirType:
 		Bprint(&bout, "%.*s%V dir n=%d\n", indent*4, spaces, score, n);
 		for(i=0; i*VtEntrySize<n; i++){
@@ -67,7 +67,7 @@ dump(int indent, uchar *score, int type)
 			dump(indent+2, e.score, e.type);
 		}
 		break;
-	
+
 	case VtDataType:
 		Bprint(&bout, "%.*s%V data n=%d", indent*4, spaces, score, n);
 		for(i=0; i<n; i++){
@@ -88,7 +88,7 @@ dump(int indent, uchar *score, int type)
 		break;
 	}
 out:
-	free(buf);		
+	free(buf);
 }
 
 

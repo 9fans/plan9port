@@ -198,7 +198,7 @@ trylock(char *path)
 		free(l);
 		return 0;
 	}
-	
+
 	/* fork process to keep lock alive */
 	switch(l->pid = rfork(RFPROC)){
 	default:
@@ -470,7 +470,7 @@ sysnames_read(void)
 
 	for(p=h->h_aliases; *p; p++)
 		;
-	
+
 	namev = malloc((2+p-h->h_aliases)*sizeof namev[0]);
 	if(namev == 0)
 		return 0;
@@ -709,7 +709,7 @@ mboxpath(char *path, char *user, String *to, int dot)
 {
 	char *dir;
 	String *s;
-	
+
 	if (dot || *path=='/' || strncmp(path, "./", 2) == 0
 			      || strncmp(path, "../", 3) == 0) {
 		to = s_append(to, path);
@@ -801,7 +801,7 @@ remoteaddr(int fd, char *dir)
 {
 	char *raddr;
 	NetConnInfo *nci;
-	
+
 	if((nci = getnetconninfo(dir, fd)) == nil)
 		return nil;
 	raddr = strdup(nci->raddr);

@@ -14,7 +14,7 @@ void
 upasconfig(void)
 {
 	static int did;
-	
+
 	if(did)
 		return;
 	did = 1;

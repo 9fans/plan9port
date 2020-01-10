@@ -64,4 +64,3 @@ readcertchain(char *filename)
 	chp = decodepemchain(chfile, "CERTIFICATE");
 	return chp;
 }
-

@@ -46,7 +46,7 @@ char	*b2items[NUMVIRTUALS+1] =
 	0
 };
 
-Menu b2menu = 
+Menu b2menu =
 {
 	b2items
 };
@@ -116,7 +116,7 @@ button(XButtonEvent *e)
 				e->x, e->y);
 		XTranslateCoordinates(dpy, e->window, s->root, e->x, e->y,
 				&e->x, &e->y, &dw);
-	}		
+	}
 	switch (e->button){
 	case Button1:
 		if(c){
@@ -132,7 +132,7 @@ button(XButtonEvent *e)
 			XAllowEvents (dpy, ReplayPointer, curtime);
 		} else if((e->state&(ShiftMask|ControlMask))==(ShiftMask|ControlMask)){
 			menuhit(e, &egg);
-		} else if(numvirtuals > 1 && (n = menuhit(e, &b2menu)) > -1) 
+		} else if(numvirtuals > 1 && (n = menuhit(e, &b2menu)) > -1)
 				button2(n);
 		return;
 	case Button3:
@@ -389,7 +389,7 @@ switch_to_c(int n, Client *c)
 		int i;
 
 		for(i = 0; i < numhidden; i++)
-			if(c == hiddenc[i]) 
+			if(c == hiddenc[i])
 				break;
 
 		if(i == numhidden){
@@ -397,7 +397,7 @@ switch_to_c(int n, Client *c)
 			XMapWindow(dpy, c->parent);
 			setstate(c, NormalState);
 			if(currents[virt] == c)
-				active(c); 
+				active(c);
 		}
 	}
 }
@@ -421,6 +421,6 @@ switch_to(int n)
 
 void
 initb2menu(int n)
-{ 
+{
 	b2items[n] = 0;
 }

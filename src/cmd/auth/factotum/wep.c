@@ -11,11 +11,11 @@ wepclient(Conv *c)
 	char *dev, buf[128], *p, *kp;
 	Key *k;
 	int ret, fd, cfd;
-	
+
 	fd = cfd = -1;
 	ret = -1;
 	dev = nil;
-	
+
 	if((k = keylookup("%A !key1?", c->attr)) == nil
 	&& (k = keylookup("%A !key2?", c->attr)) == nil
 	&& (k = keylookup("%A !key3?", c->attr)) == nil){
@@ -73,7 +73,7 @@ static Role weproles[] = {
 	0
 };
 
-Proto wep = 
+Proto wep =
 {
 	"wep",
 	weproles,

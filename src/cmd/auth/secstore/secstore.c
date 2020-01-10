@@ -85,7 +85,7 @@ getfile(SConn *conn, char *gf, uchar **buf, ulong *buflen, uchar *key, int nkey)
 		return 0;
 	}
 
-	/* conn is already encrypted against wiretappers, 
+	/* conn is already encrypted against wiretappers,
 		but gf is also encrypted against server breakin. */
 	if(buf == nil && (fd =create(gf, OWRITE, 0600)) < 0){
 		fprint(2, "can't open %s: %r\n", gf);
@@ -197,7 +197,7 @@ putfile(SConn *conn, char *pf, uchar *buf, ulong len, uchar *key, int nkey)
 				return -1;
 			}
 		}else{
-			if((n = len - bufi) > Maxmsg-ivo)	
+			if((n = len - bufi) > Maxmsg-ivo)
 				n = Maxmsg-ivo;
 			memcpy(b+ivo, buf+bufi, n);
 			bufi += n;
@@ -578,4 +578,3 @@ main(int argc, char **argv)
 	exits("");
 	return 0;
 }
-

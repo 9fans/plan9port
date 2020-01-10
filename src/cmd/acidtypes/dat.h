@@ -9,7 +9,7 @@ enum
 	Base,
 	Enum,
 	Aggr,
-	Function,	
+	Function,
 	Pointer,
 	Array,
 	Range,
@@ -92,4 +92,3 @@ int Bfmt(Fmt*);
 #ifdef VARARGCK
 #pragma varargck type "B" char*
 #endif
-

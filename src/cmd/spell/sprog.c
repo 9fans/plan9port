@@ -580,7 +580,7 @@ main(int argc, char *argv[])
 				print("-");
 			else if(!vflag)
 				print("+");
-			else 
+			else
 				print("%c",'0' + (suffcount>0) +
 				   (prefcount>4? 8: 2*prefcount));
 		} else if(!h || Set(h,STOP)) {
@@ -1122,7 +1122,7 @@ dict(char* bp, char* ep)
 
 loop:
 	if(bp >= ep) {
-		if(xflag) 
+		if(xflag)
 			fprint(2, "=%.*s\n", utfnlen(w, n), w);
 		return 0;
 	}

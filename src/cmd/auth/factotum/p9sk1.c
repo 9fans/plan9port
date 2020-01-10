@@ -93,7 +93,7 @@ p9skclient(Conv *c)
 		k = keyfetch(c, "%A", a);
 		if(k == nil)
 			goto out;
-		
+
 		/* relay ticket request to auth server, get tickets */
 		strcpy(tr.hostid, strfindattr(k->attr, "user"));
 		if(speakfor)
@@ -329,7 +329,7 @@ p9sk1close(Key *k)
 }
 
 static Role
-p9sk1roles[] = 
+p9sk1roles[] =
 {
 	"client",	p9skclient,
 	"server",	p9skserver,
@@ -337,7 +337,7 @@ p9sk1roles[] =
 };
 
 static Role
-p9sk2roles[] = 
+p9sk2roles[] =
 {
 	"client",	p9skclient,
 	"server",	p9skserver,
@@ -356,4 +356,3 @@ Proto p9sk2 = {
 	"p9sk2",
 	p9sk2roles
 };
-

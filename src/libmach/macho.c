@@ -4,7 +4,7 @@
 #include "macho.h"
 
 /*
-http://www.channelu.com/NeXT/NeXTStep/3.3/nd/DevTools/14_MachO/MachO.htmld/ 
+http://www.channelu.com/NeXT/NeXTStep/3.3/nd/DevTools/14_MachO/MachO.htmld/
 */
 
 Macho*
@@ -144,7 +144,7 @@ macholoadrel(Macho *m, MachoSect *sect)
 	uchar *buf, *p;
 	int i, n;
 	uint32 v;
-	
+
 	if(sect->rel != nil || sect->nreloc == 0)
 		return 0;
 	rel = mallocz(sect->nreloc * sizeof r[0], 1);
@@ -165,7 +165,7 @@ macholoadrel(Macho *m, MachoSect *sect)
 		r = &rel[i];
 		p = buf+i*8;
 		r->addr = m->e4(p);
-		
+
 		// TODO(rsc): Wrong interpretation for big-endian bitfields?
 		v = m->e4(p+4);
 		r->symnum = v & 0xFFFFFF;
@@ -183,7 +183,7 @@ macholoadrel(Macho *m, MachoSect *sect)
 	return 0;
 }
 
-int 
+int
 macholoadsym(Macho *m, MachoSymtab *symtab)
 {
 	char *strbuf;
@@ -202,7 +202,7 @@ macholoadsym(Macho *m, MachoSymtab *symtab)
 		free(strbuf);
 		return -1;
 	}
-	
+
 	symsize = 12;
 	if(m->is64)
 		symsize = 16;

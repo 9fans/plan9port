@@ -169,7 +169,7 @@ iget(int ino)
 	if ((flags&V6FMT)==V6IFDIR)
 		f.mode |= DMDIR;
 	f.uid = dp->uid;
-	f.gid = dp->gid;	
+	f.gid = dp->gid;
 	f.mdate = (dp->mtime[2]<<0) + (dp->mtime[3]<<8)
 	     +(dp->mtime[0]<<16) + (dp->mtime[1]<<24);
 	return f;

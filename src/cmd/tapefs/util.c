@@ -34,7 +34,7 @@ getpass(char *file)
 		up[nid].id = atoi(line[2]);
 		up[nid].name = strdup(line[0]);
 		nid++;
-	}		
+	}
 	Bterm(bp);
 	up[nid].name = 0;
 	return up;

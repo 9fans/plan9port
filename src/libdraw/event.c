@@ -187,7 +187,7 @@ static Ebuf*
 newebuf(Slave *s, int n)
 {
 	Ebuf *eb;
-	
+
 	eb = malloc(sizeof(*eb) - sizeof(eb->u.buf) + n);
 	if(eb == nil)
 		drawerror(display, "events: out of memory");
@@ -205,7 +205,7 @@ startrpc(int type)
 {
 	uchar buf[100];
 	Wsysmsg w;
-	
+
 	w.type = type;
 	convW2M(&w, buf, sizeof buf);
 	return muxrpcstart(display->mux, buf);
@@ -217,7 +217,7 @@ finishrpc(Muxrpc *r, Wsysmsg *w)
 	uchar *p;
 	void *v;
 	int n;
-	
+
 	if(!muxrpccanfinish(r, &v))
 		return 0;
 	p = v;
@@ -245,9 +245,9 @@ extract(int canblock)
 	 * Also make sure that we don't interfere with app-specific locking.
 	 */
 	if(display->locking){
-		/* 
-		 * if locking is being done by program, 
-		 * this means it can't depend on automatic 
+		/*
+		 * if locking is being done by program,
+		 * this means it can't depend on automatic
 		 * flush in emouse() etc.
 		 */
 		if(canqlock(&display->qlock)){
@@ -311,7 +311,7 @@ extract(int canblock)
 				max = eslave[i].fd;
 		}
 	}
-	
+
 	if(!canblock){
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
@@ -437,4 +437,3 @@ ereadmouse(Mouse *m)
 		eresized(1);
 	return 1;
 }
-

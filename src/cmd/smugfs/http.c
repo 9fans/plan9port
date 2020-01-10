@@ -21,7 +21,7 @@ parseheader(char *buf, int n, HTTPHeader *hdr)
 {
 	int nline;
 	char *data, *ebuf, *p, *q, *next;
-	
+
 	memset(hdr, 0, sizeof *hdr);
 	ebuf = buf+n;
 	data = haveheader(buf, n);
@@ -78,7 +78,7 @@ parseheader(char *buf, int n, HTTPHeader *hdr)
 				q++;
 			strncpy(hdr->codedesc, q, sizeof hdr->codedesc);
 			hdr->codedesc[sizeof hdr->codedesc-1] = 0;
-			continue;				
+			continue;
 		}
 		q = strchr(p, ':');
 		if(q == nil)
@@ -103,7 +103,7 @@ parseheader(char *buf, int n, HTTPHeader *hdr)
 
 	memmove(buf, data, ebuf - data);
 	return ebuf - data;
-} 
+}
 
 static char*
 genhttp(Protocol *proto, char *host, char *req, HTTPHeader *hdr, int wfd, int rfd, vlong rtotal)
@@ -131,7 +131,7 @@ genhttp(Protocol *proto, char *host, char *req, HTTPHeader *hdr, int wfd, int rf
 		proto->close(fd);
 		return nil;
 	}
-	
+
 	if(rfd >= 0){
 		while(rtotal > 0){
 			m = sizeof buf;

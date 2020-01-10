@@ -28,7 +28,7 @@ extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
 	/*
 	 * OS X before 10.5 (Leopard) does not provide
 	 * swapcontext nor makecontext, so we have to use our own.
-	 * In theory, Leopard does provide them, but when we use 
+	 * In theory, Leopard does provide them, but when we use
 	 * them, they seg fault.  Maybe we're using them wrong.
 	 * So just use our own versions, even on Leopard.
 	 */

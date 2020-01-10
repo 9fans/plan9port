@@ -124,7 +124,7 @@ _bwatchResetParent(uchar *score)
 	}
 }
 /*
- * and child 
+ * and child
  */
 static void
 _bwatchResetChild(uchar *score)
@@ -417,4 +417,3 @@ bwatchUnlock(Block *b)
 	}else
 		w->b[i] = w->b[--w->nb];
 }
-

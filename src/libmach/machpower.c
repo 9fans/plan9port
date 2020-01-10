@@ -960,7 +960,7 @@ static	Spr	sprname[] = {
 	{26, "SRR0"},
 	{27, "SRR1"},
 	{284, "TBLW"},
-	{285, "TBUW"},	
+	{285, "TBUW"},
 	{22, "DEC"},
 	{282, "EAR"},
 	{1008, "HID0"},
@@ -1213,7 +1213,7 @@ powerfoll(Map *map, Regs *regs, u64int pc, u64int *foll)
 		if(!i.aa)
 			foll[0] += pc;
 		break;
-			
+
 	case 16:	/* conditional branch */
 		foll[0] = i.bd;
 		if(!i.aa)
@@ -1246,7 +1246,7 @@ powerfoll(Map *map, Regs *regs, u64int pc, u64int *foll)
 #define FP_REG(x)	(R31+4+8*(x))
 
 #define	REGSIZE		sizeof(struct Ureg)
-#define	FPREGSIZE	(8*33)	
+#define	FPREGSIZE	(8*33)
 
 Regdesc powerreglist[] =
 {
@@ -1328,7 +1328,7 @@ Regdesc powerreglist[] =
 	{  0 }
 };
 
-static char *powerwindregs[] = 
+static char *powerwindregs[] =
 {
 	"PC",
 	"SP",
@@ -1404,4 +1404,3 @@ Mach machpower =
 	powerhexinst,		/* print instruction */
 	powerinstlen,		/* instruction size calculation */
 };
-

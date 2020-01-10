@@ -56,7 +56,7 @@ main(int argc, char **argv)
 	if(s_read_line(&in, firstline) == nil)
 		sysfatal("reading input: %r");
 
-	/* read up to the first 128k of the message.  more is redculous. 
+	/* read up to the first 128k of the message.  more is redculous.
 	     Not if word documents are distributed.  Upped it to 2MB (pb) */
 	if(s_read(&in, msg, 2*1024*1024) <= 0)
 		sysfatal("reading input: %r");

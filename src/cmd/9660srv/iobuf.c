@@ -14,7 +14,7 @@
  * tarring up a Plan 9 distribution CD, we now use 16 128kb
  * buffers.  This works for ISO9660 because data is required
  * to be laid out contiguously; effectively we're doing agressive
- * readahead.  Because the buffers are so big and the typical 
+ * readahead.  Because the buffers are so big and the typical
  * disk accesses so concentrated, it's okay that we have so few
  * of them.
  *

@@ -15,7 +15,7 @@ _setdrawop(Display *d, Drawop op)
 		a[1] = op;
 	}
 }
-		
+
 static void
 draw1(Image *dst, Rectangle *r, Image *src, Point *p0, Image *mask, Point *p1, Drawop op)
 {

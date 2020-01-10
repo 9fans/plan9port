@@ -293,4 +293,3 @@ lockfile(char *s)
 	close(fd);
 	atexit(killtickle);
 }
-

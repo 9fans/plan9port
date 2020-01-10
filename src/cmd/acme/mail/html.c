@@ -67,7 +67,7 @@ char*
 readbody(char *type, char *dir, int *np)
 {
 	char *body;
-	
+
 	body = readfile(dir, "body", np);
 	if(body != nil && strcmp(type, "text/html") == 0)
 		return formathtml(body, np);

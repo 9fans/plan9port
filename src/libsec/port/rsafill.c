@@ -58,4 +58,3 @@ rsafill(mpint *n, mpint *e, mpint *d, mpint *p, mpint *q)
 
 	return rsa;
 }
-

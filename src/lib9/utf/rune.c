@@ -155,7 +155,7 @@ runetochar(char *str, Rune *rune)
 		str[2] = Tx |  (c & Maskx);
 		return 3;
 	}
-	
+
 	/*
 	 * four character sequence
 	 *	010000-1FFFFF => T4 Tx Tx Tx

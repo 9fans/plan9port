@@ -102,7 +102,7 @@ extern	char	errbuf[];
 /* 0 and 040 don't have any graphic or other function.
 /* The few that do have a purpose (e.g., \n, \b, \t, ...
 /* are avoided by the ad hoc choices here.
-/* See ifilt[] in n1.c for others -- 1, 2, 3, 5, 6, 7, 010, 011, 012 
+/* See ifilt[] in n1.c for others -- 1, 2, 3, 5, 6, 7, 010, 011, 012
 */
 
 #define	LEADER	001
@@ -189,7 +189,7 @@ extern	char	errbuf[];
 			/* 128 for parochial USA 7-bit ascii, */
 			/* 256 for "European" mode with e.g., Latin-1 */
 
-	/* NCHARS must be greater than 
+	/* NCHARS must be greater than
 		ALPHABET (ascii stuff) + total number of distinct char names
 		from all fonts that will be run in this job (including
 		unnamed ones and \N's)
@@ -303,13 +303,13 @@ extern	Spnames	spnames[];
 	error.  In this version, the array is represented by a list of blocks,
 	pointed to by blist[].bp.  Each block is of size BLK Tchars, and BLK
 	MUST be a power of 2 for the macros below to work.
-	
+
 	The blocks associated with a particular string or macro are chained
 	together in the array blist[].  Each blist[i].nextoff contains the
 	Offset associated with the next block in the giant array, or -1 if
 	this is the last block in the chain.  If .nextoff is 0, the block is
 	free.
-	
+
 	To find the right index in blist for an Offset, divide by BLK.
 */
 

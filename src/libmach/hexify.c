@@ -17,4 +17,3 @@ _hexify(char *buf, u64int p, int zeros)
 	*buf++ = "0123456789abcdef"[p&0x0f];
 	return buf;
 }
-

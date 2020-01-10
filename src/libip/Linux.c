@@ -16,7 +16,7 @@
  * Thanks to Erik Quanstrom.
  */
 static int
-netlinkrequest(int fd, int type, int (*fn)(struct nlmsghdr *h, Ipifc**, int), 
+netlinkrequest(int fd, int type, int (*fn)(struct nlmsghdr *h, Ipifc**, int),
 	Ipifc **ifc, int index)
 {
 	char buf[1024];
@@ -64,7 +64,7 @@ devsocket(void)
 	/* we couldn't care less which one; just want to talk to the kernel! */
 	static int dumb[3] = { AF_INET, AF_PACKET, AF_INET6 };
 	int i, fd;
-	
+
 	for(i=0; i<nelem(dumb); i++)
 		if((fd = socket(dumb[i], SOCK_DGRAM, 0)) >= 0)
 			return fd;
@@ -76,7 +76,7 @@ parsertattr(struct rtattr **dst, int ndst, struct nlmsghdr *h, int type, int ski
 {
 	struct rtattr *src;
 	int len;
-	
+
 	len = h->nlmsg_len - NLMSG_LENGTH(skip);
 	if(len < 0 || h->nlmsg_type != type){
 		werrstr("attrs too short");
@@ -95,7 +95,7 @@ static void
 rta2ip(int af, uchar *ip, struct rtattr *rta)
 {
 	memset(ip, 0, IPaddrlen);
-	
+
 	switch(af){
 	case AF_INET:
 		memmove(ip, v4prefix, IPv4off);
@@ -115,7 +115,7 @@ getlink(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 	struct rtattr *attr[IFLA_MAX+1];
 	struct ifinfomsg *ifi;
 	Ipifc *ifc;
-	
+
 	ifi = (struct ifinfomsg*)NLMSG_DATA(h);
 	if(index >= 0 && ifi->ifi_index != index)
 		return 0;
@@ -172,7 +172,7 @@ getlink(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 		if(ioctl(fd, SIOCGIFHWADDR, &ifr) >= 0
 		&& ifr.ifr_hwaddr.sa_family == ARPHRD_ETHER)
 			memmove(ifc->ether, ifr.ifr_hwaddr.sa_data, 6);
-		
+
 		close(fd);
 	}
 	return 0;
@@ -186,7 +186,7 @@ getaddr(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 	Iplifc *lifc, **l;
 	struct ifaddrmsg *ifa;
 	struct rtattr *attr[IFA_MAX+1];
-	
+
 	USED(index);
 
 	ifa = (struct ifaddrmsg*)NLMSG_DATA(h);
@@ -197,7 +197,7 @@ getaddr(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 		return 0;
 	if(parsertattr(attr, nelem(attr), h, RTM_NEWADDR, sizeof(struct ifaddrmsg)) < 0)
 		return -1;
-	
+
 	lifc = mallocz(sizeof *lifc, 1);
 	if(lifc == nil)
 		return -1;
@@ -211,13 +211,13 @@ getaddr(struct nlmsghdr *h, Ipifc **ipifclist, int index)
 		return 0;
 
 	rta2ip(ifa->ifa_family, lifc->ip, attr[IFA_ADDRESS]);
-	
+
 	mask = ifa->ifa_prefixlen/8;
 	if(ifa->ifa_family == AF_INET)
 		mask += IPv4off;
 	memset(lifc->mask, 0xFF, mask);
 	memmove(lifc->net, lifc->ip, mask);
-	
+
 	if(attr[IFA_CACHEINFO]){
 		struct ifa_cacheinfo *ci;
 
@@ -236,7 +236,7 @@ readipifc(char *net, Ipifc *ifc, int index)
 	USED(net);
 	freeipifc(ifc);
 	ifc = nil;
-	
+
 	fd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 	if(fd < 0)
 		return nil;
@@ -250,4 +250,3 @@ readipifc(char *net, Ipifc *ifc, int index)
 	close(fd);
 	return ifc;
 }
-

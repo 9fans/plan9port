@@ -1,6 +1,6 @@
 /*
  * ps.c
- * 
+ *
  * provide postscript file reading support for page
  */
 
@@ -245,10 +245,10 @@ Keepreading:
 		if(!prefix(p, "%%Page:"))
 			continue;
 
-		/* 
+		/*
 		 * figure out of the %%Page: line contains a page number
 		 * or some other page description to use in the menu bar.
-		 * 
+		 *
 		 * lines look like %%Page: x y or %%Page: x
 		 * we prefer just x, and will generate our
 		 * own if necessary.

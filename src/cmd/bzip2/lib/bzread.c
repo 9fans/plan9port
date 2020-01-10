@@ -19,16 +19,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must 
-     not claim that you wrote the original software.  If you use this 
-     software in a product, an acknowledgment in the product 
+  2. The origin of this software must not be misrepresented; you must
+     not claim that you wrote the original software.  If you use this
+     software in a product, an acknowledgment in the product
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote 
-     products derived from this software without specific prior written 
+  4. The name of the author may not be used to endorse or promote
+     products derived from this software without specific prior written
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -82,9 +82,9 @@
 #include "bzlib_stdio_private.h"
 
 /*---------------------------------------------------*/
-BZFILE* BZ_API(BZ2_bzReadOpen) 
-                   ( int*  bzerror, 
-                     FILE* f, 
+BZFILE* BZ_API(BZ2_bzReadOpen)
+                   ( int*  bzerror,
+                     FILE* f,
                      int   verbosity,
                      int   small,
                      void* unused,
@@ -95,7 +95,7 @@ BZFILE* BZ_API(BZ2_bzReadOpen)
 
    BZ_SETERR(BZ_OK);
 
-   if (f == NULL || 
+   if (f == NULL ||
        (small != 0 && small != 1) ||
        (verbosity < 0 || verbosity > 4) ||
        (unused == NULL && nUnused != 0) ||
@@ -106,7 +106,7 @@ BZFILE* BZ_API(BZ2_bzReadOpen)
       { BZ_SETERR(BZ_IO_ERROR); return NULL; };
 
    bzf = malloc ( sizeof(bzFile) );
-   if (bzf == NULL) 
+   if (bzf == NULL)
       { BZ_SETERR(BZ_MEM_ERROR); return NULL; };
 
    BZ_SETERR(BZ_OK);
@@ -118,7 +118,7 @@ BZFILE* BZ_API(BZ2_bzReadOpen)
    bzf->strm.bzalloc  = NULL;
    bzf->strm.bzfree   = NULL;
    bzf->strm.opaque   = NULL;
-   
+
    while (nUnused > 0) {
       bzf->buf[bzf->bufN] = *((UChar*)(unused)); bzf->bufN++;
       unused = ((void*)( 1 + ((UChar*)(unused))  ));
@@ -133,7 +133,7 @@ BZFILE* BZ_API(BZ2_bzReadOpen)
    bzf->strm.next_in  = bzf->buf;
 
    bzf->initialisedOk = True;
-   return bzf;   
+   return bzf;
 }
 
 
@@ -156,10 +156,10 @@ void BZ_API(BZ2_bzReadClose) ( int *bzerror, BZFILE *b )
 
 
 /*---------------------------------------------------*/
-int BZ_API(BZ2_bzRead) 
-           ( int*    bzerror, 
-             BZFILE* b, 
-             void*   buf, 
+int BZ_API(BZ2_bzRead)
+           ( int*    bzerror,
+             BZFILE* b,
+             void*   buf,
              int     len )
 {
    Int32   n, ret;
@@ -181,11 +181,11 @@ int BZ_API(BZ2_bzRead)
 
    while (True) {
 
-      if (ferror(bzf->handle)) 
+      if (ferror(bzf->handle))
          { BZ_SETERR(BZ_IO_ERROR); return 0; };
 
       if (bzf->strm.avail_in == 0 && !bz_feof(bzf->handle)) {
-         n = fread ( bzf->buf, sizeof(UChar), 
+         n = fread ( bzf->buf, sizeof(UChar),
                      BZ_MAX_UNUSED, bzf->handle );
          if (ferror(bzf->handle))
             { BZ_SETERR(BZ_IO_ERROR); return 0; };
@@ -199,7 +199,7 @@ int BZ_API(BZ2_bzRead)
       if (ret != BZ_OK && ret != BZ_STREAM_END)
          { BZ_SETERR(ret); return 0; };
 
-      if (ret == BZ_OK && bz_feof(bzf->handle) && 
+      if (ret == BZ_OK && bz_feof(bzf->handle) &&
           bzf->strm.avail_in == 0 && bzf->strm.avail_out > 0)
          { BZ_SETERR(BZ_UNEXPECTED_EOF); return 0; };
 
@@ -208,7 +208,7 @@ int BZ_API(BZ2_bzRead)
            return len - bzf->strm.avail_out; };
       if (bzf->strm.avail_out == 0)
          { BZ_SETERR(BZ_OK); return len; };
-      
+
    }
 
   /*  return 0; not reached*/
@@ -216,10 +216,10 @@ int BZ_API(BZ2_bzRead)
 
 
 /*---------------------------------------------------*/
-void BZ_API(BZ2_bzReadGetUnused) 
-                     ( int*    bzerror, 
-                       BZFILE* b, 
-                       void**  unused, 
+void BZ_API(BZ2_bzReadGetUnused)
+                     ( int*    bzerror,
+                       BZFILE* b,
+                       void**  unused,
                        int*    nUnused )
 {
    bzFile* bzf = (bzFile*)b;

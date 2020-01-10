@@ -6,4 +6,3 @@ exitcode(char *s)
 {
 	return 1;
 }
-

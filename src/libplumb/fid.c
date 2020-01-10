@@ -161,4 +161,3 @@ plumbrecvfid(CFid *fid)
 	free(buf);
 	return m;
 }
-

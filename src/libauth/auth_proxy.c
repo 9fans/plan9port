@@ -5,7 +5,7 @@
 #include <9pclient.h>
 #include "authlocal.h"
 
-enum { 
+enum {
 	ARgiveup = 100
 };
 
@@ -291,4 +291,3 @@ fsauth_proxy(CFid *fid, AuthGetkey *getkey, char *fmt, ...)
 	auth_freerpc(rpc);
 	return ai;
 }
-

@@ -23,7 +23,7 @@ readenv(void)
 	Word *w;
 
 	for(p = environ; *p; p++){
-/* rsc 5/5/2004 -- This misparses fn#cd={whatever} 
+/* rsc 5/5/2004 -- This misparses fn#cd={whatever}
 		s = shname(*p);
 		if(*s == '=') {
 			*s = 0;
@@ -111,7 +111,7 @@ shargv(Word *cmd, int extra, char ***pargv)
 	n = 0;
 	for(w=cmd; w; w=w->next)
 		n++;
-	
+
 	argv = Malloc((n+extra+1)*sizeof(argv[0]));
 	i = 0;
 	for(w=cmd; w; w=w->next)
@@ -119,7 +119,7 @@ shargv(Word *cmd, int extra, char ***pargv)
 	argv[n] = 0;
 	*pargv = argv;
 	return n;
-}	
+}
 
 int
 execsh(char *args, char *cmd, Bufblock *buf, Envy *e, Shell *sh, Word *shellcmd)

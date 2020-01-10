@@ -109,7 +109,7 @@ regerr2(char *s, int c)
 	while(*s)
 		*cp++ = *s++;
 	*cp++ = c;
-	*cp = '\0'; 
+	*cp = '\0';
 	rcerror(buf);
 }
 

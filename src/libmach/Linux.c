@@ -1,6 +1,6 @@
 /*
  * process interface for Linux.
- * 
+ *
  * Uses ptrace for registers and data,
  * /proc for some process status.
  * There's not much point to worrying about
@@ -59,7 +59,7 @@ ptraceattach(int pid)
 		werrstr("ptrace attach %d: %r", pid);
 		return -1;
 	}
-	
+
 	if(ctlproc(pid, "waitstop") < 0){
 		fprint(2, "waitstop: %r");
 		ptrace(PTRACE_DETACH, pid, 0, 0);
@@ -79,7 +79,7 @@ unmapproc(Map *map)
 	for(i=0; i<map->nseg; i++)
 		while(i<map->nseg && map->seg[i].pid){
 			map->nseg--;
-			memmove(&map->seg[i], &map->seg[i+1], 
+			memmove(&map->seg[i], &map->seg[i+1],
 				(map->nseg-i)*sizeof(map->seg[0]));
 		}
 }
@@ -272,7 +272,7 @@ isstopped(int pid)
 	return *p == 'T';
 }
 
-/* /proc/pid/stat contains 
+/* /proc/pid/stat contains
 	pid
 	command in parens
 	0. state
@@ -456,4 +456,3 @@ proctextfile(int pid)
 		return pbuf;
 	return nil;
 }
-

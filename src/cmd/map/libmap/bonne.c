@@ -15,7 +15,7 @@ Xbonne(struct place *place, double *x, double *y)
 			alpha = place->wlon.l;
 		else if(fabs(place->nlat.c)==0)
 			alpha = 0;
-		else 
+		else
 			alpha = place->wlon.l/(1+
 				stdpar.c*stdpar.c*stdpar.c/place->nlat.c/3);
 	else

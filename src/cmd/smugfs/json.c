@@ -22,7 +22,7 @@ static Json*
 newjval(int type)
 {
 	Json *v;
-	
+
 	v = emalloc(sizeof *v);
 	v->ref = 1;
 	v->type = type;
@@ -142,7 +142,7 @@ parsenumber(char **pp)
 	double d;
 	Json *v;
 
-	/* -?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))?([Ee][-+]?[0-9]+) */	
+	/* -?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))?([Ee][-+]?[0-9]+) */
 	p = wskip(*pp);
 	q = p;
 	if(*q == '-')
@@ -171,7 +171,7 @@ parsenumber(char **pp)
 		while('0' <= *q && *q <= '9')
 			q++;
 	}
-	
+
 	t = emalloc(q-p+1);
 	memmove(t, p, q-p);
 	t[q-p] = 0;
@@ -185,7 +185,7 @@ parsenumber(char **pp)
 	v = newjval(Jnumber);
 	v->number = d;
 	*pp = q;
-	return v;			
+	return v;
 }
 
 static Json*
@@ -335,7 +335,7 @@ Json*
 parsejson(char *text)
 {
 	Json *v;
-	
+
 	v = parsevalue(&text);
 	if(v && text && *wskip(text) != 0){
 		jclose(v);
@@ -417,7 +417,7 @@ printjval(Json *v)
 {
 	Fmt fmt;
 	char buf[256];
-	
+
 	fmtfdinit(&fmt, 1, buf, sizeof buf);
 	_printjval(&fmt, v, 0);
 	fmtprint(&fmt, "\n");
@@ -429,7 +429,7 @@ int
 jsonfmt(Fmt *fmt)
 {
 	Json *v;
-	
+
 	v = va_arg(fmt->args, Json*);
 	if(fmt->flags&FmtSharp)
 		_printjval(fmt, v, 0);
@@ -484,7 +484,7 @@ Json*
 jlookup(Json *v, char *name)
 {
 	int i;
-	
+
 	if(v->type != Jobject)
 		return nil;
 	for(i=0; i<v->len; i++)
@@ -498,7 +498,7 @@ jwalk(Json *v, char *path)
 {
 	char elem[128], *p, *next;
 	int n;
-	
+
 	for(p=path; *p && v; p=next){
 		next = strchr(p, '/');
 		if(next == nil)
@@ -547,7 +547,7 @@ int
 jstrcmp(Json *jv, char *s)
 {
 	char *t;
-	
+
 	t = jstring(jv);
 	if(t == nil)
 		return -2;

@@ -46,7 +46,7 @@ blockput(Block *b)
 		return;
 	if(!b->_close){
 		fprint(2, "no blockPut\n");
-		abort();	
+		abort();
 	}
 	(*b->_close)(b);
 }

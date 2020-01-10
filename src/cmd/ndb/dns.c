@@ -170,7 +170,7 @@ threadmain(int argc, char *argv[])
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc)
 		usage();
 	if(serveudp && servetcp)

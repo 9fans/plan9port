@@ -32,7 +32,7 @@ enum parmtypes {
 	PL,	// distance of physical page bottom from page top (Page Length)
 	MF,	// minimum fullness required for padding
 	CT,	// tolerance for division into two columns
-	WARN,	// warnings to stderr?	
+	WARN,	// warnings to stderr?
 	DBG	// debugging flag
 };
 

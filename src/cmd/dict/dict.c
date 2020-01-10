@@ -678,7 +678,7 @@ setdotprev(void)
 
 /*
  * find the specified file and return a path.
- * default location is #9/dict, but can be 
+ * default location is #9/dict, but can be
  * in $dictdir instead.
  */
 char*
@@ -686,12 +686,12 @@ dictfile(char *f)
 {
 	static char *dict;
 	static int did;
-	
+
 	if(!did){
 		dict = getenv("dictpath");
 		did = 1;
 	}
-	
+
 	if(dict)
 		return smprint("%s/%s", dict, f);
 	return unsharp(smprint("#9/dict/%s", f));

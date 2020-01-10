@@ -1,8 +1,8 @@
 /* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
 /*
- * Plan 9 port version must include libc.h in order to 
+ * Plan 9 port version must include libc.h in order to
  * get Plan 9 debugging malloc, which sometimes returns
- * different pointers than the standard malloc. 
+ * different pointers than the standard malloc.
  */
 #ifdef PLAN9PORT
 #include <u.h>

@@ -8,7 +8,7 @@
  * Regular expression for matching.
  */
 
-char *ignore[] = 
+char *ignore[] =
 {
 	/* HTML that isn't A, IMG, or FONT */
 	/* Must have a space somewhere to avoid catching <email@address> */
@@ -122,7 +122,7 @@ buildre(Dreprog *re[3])
 	static char buf[16384], *s;
 
 	re[0] = dregcomp("^From ");
-	
+
 	s = buf;
 	for(i=0; i<nelem(keywords); i++){
 		if(i != 0)
@@ -172,5 +172,3 @@ main(int argc, char **argv)
 	Bprintdfa(&b, re[2]);
 	exits(0);
 }
-
-	

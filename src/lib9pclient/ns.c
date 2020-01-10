@@ -65,4 +65,3 @@ nsopen(char *name, char *aname, char *fname, int mode)
 	fsunmount(fs);
 	return fid;
 }
-

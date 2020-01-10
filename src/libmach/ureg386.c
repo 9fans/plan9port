@@ -48,4 +48,3 @@ ureg2linux386(Ureg *u, UregLinux386 *l)
 	l->esp = u->sp;
 	l->xss = u->ss;
 }
-

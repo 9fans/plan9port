@@ -6,7 +6,7 @@
  *
  * The rule here (hopefully followed!) is that block corruption
  * only ever has a local effect -- there are no blocks that you
- * can wipe out that will cause large portions of 
+ * can wipe out that will cause large portions of
  * uncorrupted data blocks to be useless.
  */
 
@@ -26,7 +26,7 @@ enum
 	K = 1024,
 	M = 1024*1024,
 	G = 1024*1024*1024,
-	
+
 	Block = 4096,
 };
 
@@ -64,7 +64,7 @@ static int
 zfmt(Fmt *fmt)
 {
 	vlong x;
-	
+
 	x = va_arg(fmt->args, vlong);
 	if(x == 0)
 		return fmtstrcpy(fmt, "0");
@@ -85,7 +85,7 @@ tfmt(Fmt *fmt)
 {
 	uint t;
 	char buf[30];
-	
+
 	t = va_arg(fmt->args, uint);
 	strcpy(buf, ctime(t));
 	buf[28] = 0;
@@ -133,7 +133,7 @@ readdisk(uchar *buf, vlong offset, int len)
 		memset(buf, 0xFB, len);
 		return buf;
 	}
-	
+
 	if(offset+len > partend){
 		memset(buf, 0xFB, len);
 		len = partend - offset;
@@ -141,7 +141,7 @@ readdisk(uchar *buf, vlong offset, int len)
 
 	if(readpart(part, offset, buf, len) >= 0)
 		return buf;
-	
+
 	/*
 	 * The read failed.  Clear the buffer to nonsense, and
 	 * then try reading in smaller pieces.  If that fails,
@@ -191,7 +191,7 @@ void
 sbdebug(Shabuf *sb, char *file)
 {
 	int fd;
-	
+
 	if(sb->fd > 0){
 		close(sb->fd);
 		sb->fd = 0;
@@ -234,7 +234,7 @@ sbupdate(Shabuf *sb, uchar *p, vlong offset, int len)
 		len -= x;
 	}
 	assert(sb->offset == offset);
-	
+
 	if(sb->fd > 0)
 		pwrite(sb->fd, p, len, offset - sb->r0);
 
@@ -243,7 +243,7 @@ sbupdate(Shabuf *sb, uchar *p, vlong offset, int len)
 		sb->offset += len;
 		return;
 	}
-	
+
 	/* save state every 4M so we can roll back quickly */
 	o = offset - sb->r0;
 	while(len > 0){
@@ -265,7 +265,7 @@ sbupdate(Shabuf *sb, uchar *p, vlong offset, int len)
 			}
 			sb->hist[x] = sb->state;
 		}
-	}		
+	}
 }
 
 void
@@ -273,7 +273,7 @@ sbdiskhash(Shabuf *sb, vlong eoffset)
 {
 	static uchar dbuf[4*M];
 	int n;
-	
+
 	while(sb->offset < eoffset){
 		n = sizeof dbuf;
 		if(sb->offset+n > eoffset)
@@ -289,7 +289,7 @@ sbrollback(Shabuf *sb, vlong offset)
 	int x;
 	vlong o;
 	Dir d;
-	
+
 	if(!sb->rollback || !sb->r0){
 		print("cannot rollback sha\n");
 		return;
@@ -305,7 +305,7 @@ sbrollback(Shabuf *sb, vlong offset)
 	sb->state = sb->hist[x];
 	sb->offset = sb->r0 + x*4*M;
 	assert(sb->offset <= offset);
-	
+
 	if(sb->fd > 0){
 		nulldir(&d);
 		d.length = sb->offset - sb->r0;
@@ -325,7 +325,7 @@ sbscore(Shabuf *sb, uchar *score)
 
 /*
  * If we're fixing arenas, then editing this memory edits the disk!
- * It will be written back out as new data is paged in. 
+ * It will be written back out as new data is paged in.
  */
 uchar buf[4*M];
 uchar sbuf[4*M];
@@ -341,7 +341,7 @@ pagein(vlong offset, int len)
 		memset(buf, 0xFB, sizeof buf);
 		return buf;
 	}
-	
+
 	if(offset+len > partend){
 		memset(buf, 0xFB, sizeof buf);
 		len = partend - offset;
@@ -373,16 +373,16 @@ zerorange(vlong offset, int len)
 	vlong ooff;
 	int olen;
 	enum { MinBlock = 4*K, MaxBlock = 8*K };
-	
+
 	if(0)
 	if(bufoffset <= offset && offset+len <= bufoffset+buflen){
 		memset(buf+(offset-bufoffset), 0, len);
 		return;
 	}
-	
+
 	ooff = bufoffset;
 	olen = buflen;
-	
+
 	i = offset%MinBlock;
 	if(i+len < MaxBlock){
 		pagein(offset-i, (len+MinBlock-1)&~(MinBlock-1));
@@ -455,7 +455,7 @@ static int
 vlongcmp(const void *va, const void *vb)
 {
 	vlong a, b;
-	
+
 	a = *(vlong*)va;
 	b = *(vlong*)vb;
 	if(a < b)
@@ -524,7 +524,7 @@ Info tailinfo4[] = {
 	1,	"sealed",
 	0
 };
-	
+
 Info tailinfo4a[] = {
 	/* tailinfo 4 */
 	4,	"magic",
@@ -547,7 +547,7 @@ Info tailinfo4a[] = {
 	1,	"mem.sealed",
 	0
 };
-	
+
 Info tailinfo5[] = {
 	4,	"magic",
 	D|4,	"version",
@@ -586,12 +586,12 @@ Info tailinfo5a[] = {
 	1,	"mem.sealed",
 	0
 };
-	
+
 void
 showdiffs(uchar *want, uchar *have, int len, Info *info)
 {
 	int n;
-	
+
 	while(len > 0 && (n=info->len&N) > 0){
 		if(memcmp(have, want, n) != 0){
 			switch(info->len){
@@ -625,7 +625,7 @@ showdiffs(uchar *want, uchar *have, int len, Info *info)
 				break;
 			case S|ANameSize:
 				print("\t%s: correct=%s disk=%.*s\n",
-					info->name, (char*)want, 
+					info->name, (char*)want,
 					utfnlen((char*)have, ANameSize-1),
 					(char*)have);
 				break;
@@ -672,7 +672,7 @@ guessgeometry(void)
 	uchar *p, *ep, *sp;
 	u64int diff[100], head[20], tail[20];
 	u64int offset, bestdiff;
-	
+
 	ap.version = ArenaPartVersion;
 
 	if(arenasize == 0 || ap.blocksize == 0){
@@ -705,8 +705,8 @@ guessgeometry(void)
 		}
 		if(nhead < 3 && ntail < 3)
 			sysfatal("too few intact arenas: %d heads, %d tails", nhead, ntail);
-	
-		/* 
+
+		/*
 		 * Arena size is likely the most common
 		 * inter-head or inter-tail spacing.
 		 */
@@ -816,7 +816,7 @@ guessgeometry(void)
 		}
 	}
 	p = pagein(ap.arenabase, Block);
-	print("arena base likely %z%s\n", (vlong)ap.arenabase, 
+	print("arena base likely %z%s\n", (vlong)ap.arenabase,
 		u32(p)!=ArenaHeadMagic ? " (but no arena head there)" : "");
 
 	ap.tabsize = ap.arenabase - ap.tabbase;
@@ -893,7 +893,7 @@ isclump(uchar *p, Clump *cl, u32int *pmagic)
 	uchar score[VtScoreSize], *bp;
 	Unwhack uw;
 	uchar ubuf[70*1024];
-	
+
 	bp = p;
 	magic = u32(p);
 	if(magic == 0)
@@ -942,7 +942,7 @@ isclump(uchar *p, Clump *cl, u32int *pmagic)
 		return 0;
 	}
 	p += cl->info.size;
-	
+
 	/* it all worked out in the end */
 	*pmagic = magic;
 	return p - bp;
@@ -975,7 +975,7 @@ int*
 ltreewalk(int *p, uchar *score)
 {
 	int i;
-	
+
 	for(;;){
 		if(*p == -1)
 			return p;
@@ -993,7 +993,7 @@ void
 addcibuf(ClumpInfo *ci, vlong corrupt)
 {
 	Cit *cit;
-	
+
 	if(ncibuf == mcibuf){
 		mcibuf += 131072;
 		cibuf = vtrealloc(cibuf, mcibuf*sizeof cibuf[0]);
@@ -1012,7 +1012,7 @@ void
 addcicorrupt(vlong len)
 {
 	static ClumpInfo zci;
-	
+
 	addcibuf(&zci, len);
 }
 
@@ -1021,7 +1021,7 @@ haveclump(uchar *score)
 {
 	int i;
 	int p;
-	
+
 	p = ciroot;
 	for(;;){
 		if(p == -1)
@@ -1054,7 +1054,7 @@ int
 sealedarena(uchar *p, int blocksize)
 {
 	int v, n;
-	
+
 	v = u32(p+4);
 	switch(v){
 	default:
@@ -1085,13 +1085,13 @@ int
 okayname(char *name, int n)
 {
 	char buf[20];
-	
+
 	if(nameok(name) < 0)
 		return 0;
 	sprint(buf, "%d", n);
 	if(n == 0)
 		buf[0] = 0;
-	if(strlen(name) < strlen(buf) 
+	if(strlen(name) < strlen(buf)
 	|| strcmp(name+strlen(name)-strlen(buf), buf) != 0)
 		return 0;
 	return 1;
@@ -1115,7 +1115,7 @@ loadci(vlong offset, Arena *arena, int nci)
 	int i, j, per;
 	uchar *p, *sp;
 	ClumpInfo *bci, *ci;
-	
+
 	per = arena->blocksize/ClumpInfoSize;
 	bci = vtmalloc(nci*sizeof bci[0]);
 	ci = bci;
@@ -1139,7 +1139,7 @@ writeci(vlong offset, Arena *arena, ClumpInfo *ci, int nci)
 {
 	int i, j, per;
 	uchar *p, *sp;
-	
+
 	per = arena->blocksize/ClumpInfoSize;
 	offset += arena->size - arena->blocksize;
 	p = sp = nil;
@@ -1177,11 +1177,11 @@ loadarenabasics(vlong offset0, int anum, ArenaHead *head, Arena *arena)
 	if(offset0+arena->size > partend)
 		arena->size = partend - offset0;
 	head->size = arena->size;
-	
+
 	arena->blocksize = ap.blocksize;
 	head->blocksize = arena->blocksize;
-	
-	/* 
+
+	/*
 	 * Look for clump magic and name in head/tail blocks.
 	 * All the other info we will reconstruct just in case.
 	 */
@@ -1194,7 +1194,7 @@ loadarenabasics(vlong offset0, int anum, ArenaHead *head, Arena *arena)
 			strcpy(head->name, ohead.name);
 	}
 
-	p = pagein(offset0+arena->size-arena->blocksize, 
+	p = pagein(offset0+arena->size-arena->blocksize,
 		arena->blocksize);
 	memset(&oarena, 0, sizeof oarena);
 	if(unpackarena(&oarena, p) >= 0){
@@ -1228,7 +1228,7 @@ print("old arena: sealed=%d\n", oarena.diskstats.sealed);
 	strcpy(lastbase, arena->name);
 	sprint(dname, "%d", anum);
 	lastbase[strlen(lastbase)-strlen(dname)] = 0;
-	
+
 	/* Was working in arena, now copy to head. */
 	head->version = arena->version;
 	memmove(head->name, arena->name, sizeof head->name);
@@ -1240,7 +1240,7 @@ void
 shahead(Shabuf *sb, vlong offset0, ArenaHead *head)
 {
 	uchar headbuf[MaxDiskBlock];
-	
+
 	sb->offset = offset0;
 	memset(headbuf, 0, sizeof headbuf);
 	packarenahead(head, headbuf);
@@ -1251,7 +1251,7 @@ u32int
 newclumpmagic(int version)
 {
 	u32int m;
-	
+
 	if(version == ArenaVersion4)
 		return _ClumpMagic;
 	do{
@@ -1279,7 +1279,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	ClumpInfo *bci, *ci, *eci, *xci;
 	Cit *bcit, *cit, *ecit;
 	Shabuf oldsha, newsha;
-	
+
 	/*
 	 * We expect to find an arena, with data, between offset
 	 * and offset+arenasize.  With any luck, the data starts at
@@ -1314,7 +1314,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	loadarenabasics(offset0, anum, head, arena);
 
 	/* start the clump hunt */
-	
+
 	clumps = 0;
 	totalcorrupt = 0;
 	sealing = 1;
@@ -1424,7 +1424,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 			 * grow clump info blocks if needed.
 			 */
 			if(verbose > 1)
-				print("\tclump %d: %d %V at %#llux+%#ux (%d)\n", 
+				print("\tclump %d: %d %V at %#llux+%#ux (%d)\n",
 					clumps, cl.info.type, cl.info.score, offset, n, n);
 			addcibuf(&cl.info, 0);
 			if(minclumps%ncib == 0)
@@ -1435,7 +1435,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 				arena->diskstats.cclumps++;
 			arena->diskstats.uncsize += cl.info.uncsize;
 			arena->wtime = cl.time;
-			
+
 			/*
 			 * Move to next clump.
 			 */
@@ -1470,7 +1470,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	pageout();
 
 	if(verbose)
-		print("readable clumps: %d; min. directory entries: %d\n", 
+		print("readable clumps: %d; min. directory entries: %d\n",
 			clumps, minclumps);
 	arena->diskstats.used = lastclumpend - boffset;
 	leaked = eoffset - lastclumpend;
@@ -1488,10 +1488,10 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 		sbupdate(&oldsha, dbuf, toffset, arena->blocksize);
 		sbscore(&oldsha, oldscore);
 	}
-	
+
 	/*
 	 * If we still don't know the clump magic, the arena
-	 * must be empty.  It still needs a value, so make 
+	 * must be empty.  It still needs a value, so make
 	 * something up.
 	 */
 	if(arena->version == 0)
@@ -1537,7 +1537,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 		v = offset0 + arena->size - arena->blocksize;
 		clumps = (v-lastclumpend)/arena->blocksize * ncib;
 	}
-	
+
 	if(clumps < minclumps)
 		print("cannot happen?\n");
 
@@ -1546,7 +1546,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	 * The tricky part is handling the corrupt sections of arena.
 	 * If possible, we remark just the affected directory entries
 	 * rather than slide everything down.
-	 * 
+	 *
 	 * Allocate clumps+1 blocks and check that we don't need
 	 * the last one at the end.
 	 */
@@ -1554,7 +1554,7 @@ guessarena(vlong offset0, int anum, ArenaHead *head, Arena *arena,
 	eci = bci+clumps+1;
 	bcit = cibuf;
 	ecit = cibuf+ncibuf;
-	
+
 	smart = 0;	/* Somehow the smart code doesn't do corrupt clumps right. */
 Again:
 	nbad = 0;
@@ -1614,11 +1614,11 @@ Again:
 		if(clumpinfocmp(&cit->ci, ci) != 0){
 			if(verbose && (smart || verbose>1)){
 				print("clumpinfo %d\n", (int)(ci-bci));
-				print("\twant: %d %d %d %V\n", 
+				print("\twant: %d %d %d %V\n",
 					cit->ci.type, cit->ci.size,
 					cit->ci.uncsize, cit->ci.score);
-				print("\thave: %d %d %d %V\n", 
-					ci->type, ci->size, 
+				print("\thave: %d %d %d %V\n",
+					ci->type, ci->size,
 					ci->uncsize, ci->score);
 			}
 			*ci = cit->ci;
@@ -1633,7 +1633,7 @@ Again:
 		smart = 0;
 		goto Again;
 	}
-	
+
 	assert(ci <= eci);
 	arena->diskstats.clumps = ci-bci;
 	eoffset = writeci(offset0, arena, bci, ci-bci);
@@ -1661,7 +1661,7 @@ Nocib:
 	arena->memstats = arena->diskstats;
 	if(sealing && fix){
 		uchar tbuf[MaxDiskBlock];
-		
+
 		sbdiskhash(&newsha, toffset);
 		memset(tbuf, 0, sizeof tbuf);
 		packarena(arena, tbuf);
@@ -1676,7 +1676,7 @@ dumparena(vlong offset, int anum, Arena *arena)
 	char buf[1000];
 	vlong o, e;
 	int fd, n;
-	
+
 	snprint(buf, sizeof buf, "%s.%d", dumpbase, anum);
 	if((fd = create(buf, OWRITE, 0666)) < 0){
 		fprint(2, "create %s: %r\n", buf);
@@ -1703,7 +1703,7 @@ checkarena(vlong offset, int anum)
 	ArenaHead head;
 	Info *fmt, *fmta;
 	int sz;
-	
+
 	print("# arena %d: offset %#llux\n", anum, offset);
 
 	if(offset >= partend){
@@ -1737,11 +1737,11 @@ checkarena(vlong offset, int anum)
 	p = pagein(offset, arena.blocksize);
 	if(memcmp(dbuf, p, arena.blocksize) != 0){
 		print("on-disk arena header incorrect\n");
-		showdiffs(dbuf, p, arena.blocksize, 
+		showdiffs(dbuf, p, arena.blocksize,
 			arena.version==ArenaVersion4 ? headinfo4 : headinfo5);
 	}
 	memmove(p, dbuf, arena.blocksize);
-	
+
 	memset(dbuf, 0, sizeof dbuf);
 	packarena(&arena, dbuf);
 	if(arena.diskstats.sealed)
@@ -1781,14 +1781,14 @@ checkarena(vlong offset, int anum)
 			print("\t   disk=%V\n", p+arena.blocksize-VtScoreSize);
 		}
 		if(fix && scorecmp(p+arena.blocksize-VtScoreSize, score) != 0){
-			print("%ssealing arena%s: %V\n", 
+			print("%ssealing arena%s: %V\n",
 				oarena.diskstats.sealed ? "re" : "",
-				scorecmp(oldscore, score) == 0 ? 
+				scorecmp(oldscore, score) == 0 ?
 					"" : " after changes", score);
 		}
 	}
 	memmove(p, dbuf, arena.blocksize);
-	
+
 	pageout();
 }
 
@@ -1800,7 +1800,7 @@ buildamap(void)
 	ArenaHead h;
 	AMapN *an;
 	AMap *m;
-	
+
 	an = vtmallocz(sizeof *an);
 	for(o=ap.arenabase; o<partend; o+=arenasize){
 		p = pagein(o, Block);
@@ -1812,7 +1812,7 @@ buildamap(void)
 			strcpy(m->name, h.name);
 		}
 	}
-	return an;	
+	return an;
 }
 
 void
@@ -1823,7 +1823,7 @@ checkmap(void)
 	int i, len;
 	AMapN *an;
 	Fmt fmt;
-	
+
 	an = buildamap();
 	fmtstrinit(&fmt);
 	fmtprint(&fmt, "%ud\n", an->n);
@@ -1837,7 +1837,7 @@ checkmap(void)
 			(vlong)len, (vlong)ap.tabsize);
 		len = ap.tabsize;
 	}
-	
+
 	if(ap.tabsize >= 4*M){	/* can't happen - max arenas is 2000 */
 		print("arena partition map *way* too long\n");
 		return;
@@ -1857,9 +1857,9 @@ void
 threadmain(int argc, char **argv)
 {
 	int mode;
-	
+
 	mode = OREAD;
-	readonly = 1;	
+	readonly = 1;
 	ARGBEGIN{
 	case 'U':
 		unseal = 1;
@@ -1887,22 +1887,22 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 1 && argc != 2)
 		usage();
 
 	file = argv[0];
-	
+
 	ventifmtinstall();
 	fmtinstall('z', zfmt);
 	fmtinstall('t', tfmt);
 	quotefmtinstall();
-	
+
 	part = initpart(file, mode|ODIRECT);
 	if(part == nil)
 		sysfatal("can't open %s: %r", file);
 	partend = part->size;
-	
+
 	if(isonearena()){
 		checkarena(0, -1);
 		threadexitsall(nil);
@@ -1911,4 +1911,3 @@ threadmain(int argc, char **argv)
 	checkmap();
 	threadexitsall(nil);
 }
-

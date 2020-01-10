@@ -27,7 +27,7 @@ ndbreorder(Ndbtuple *t, Ndbtuple *x)
 		for(nt = t; nt->entry != last->line; nt = nt->entry)
 			;
 		nt->entry = nil;
-	
+
 		/* switch */
 		for(nt = last; nt->entry != nil; nt = nt->entry)
 			;

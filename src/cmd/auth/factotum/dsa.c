@@ -3,7 +3,7 @@
 
 /*
  * DSA signing and verification
- * 
+ *
  * Sign:
  *	start p=xxx q=xxx alpha=xxx key=xxx
  *	write msg
@@ -14,10 +14,10 @@
  *	write msg
  *	write signature(msg)
  *	read ok or fail
- * 
+ *
  * all numbers are hexadecimal bigints parsable with strtomp.
  */
- 
+
 static int
 xdsasign(Conv *c)
 {
@@ -58,7 +58,7 @@ xdsasign(Conv *c)
 }
 
 /*
- * convert to canonical form (lower case) 
+ * convert to canonical form (lower case)
  * for use in attribute matches.
  */
 static void
@@ -78,11 +78,11 @@ readdsapriv(Key *k)
 
 	priv = dsaprivalloc();
 
-	if((a=strfindattr(k->attr, "p"))==nil 
+	if((a=strfindattr(k->attr, "p"))==nil
 	|| (priv->pub.p=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->attr, "q"))==nil 
+	if((a=strfindattr(k->attr, "q"))==nil
 	|| (priv->pub.q=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
@@ -90,15 +90,15 @@ readdsapriv(Key *k)
 		werrstr("dsa: p or q not prime");
 		goto Error;
 	}
-	if((a=strfindattr(k->attr, "alpha"))==nil 
+	if((a=strfindattr(k->attr, "alpha"))==nil
 	|| (priv->pub.alpha=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->attr, "key"))==nil 
+	if((a=strfindattr(k->attr, "key"))==nil
 	|| (priv->pub.key=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "!secret"))==nil 
+	if((a=strfindattr(k->privattr, "!secret"))==nil
 	|| (priv->secret=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
@@ -113,7 +113,7 @@ static int
 dsacheck(Key *k)
 {
 	static int first = 1;
-	
+
 	if(first){
 		fmtinstall('B', mpfmt);
 		first = 0;
@@ -134,7 +134,7 @@ dsaclose(Key *k)
 }
 
 static Role
-dsaroles[] = 
+dsaroles[] =
 {
 	"sign",	xdsasign,
 	0
@@ -147,4 +147,3 @@ Proto dsa = {
 	dsacheck,
 	dsaclose
 };
-

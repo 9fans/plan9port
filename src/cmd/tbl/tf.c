@@ -70,5 +70,3 @@ cleanfc(void)
 {
 	Bprint(&tabout, ".fc\n");
 }
-
-

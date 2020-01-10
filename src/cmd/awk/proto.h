@@ -177,4 +177,3 @@ extern	Cell	*gsub(Node **, int);
 
 extern	FILE	*popen(const char *, const char *);
 extern	int	pclose(FILE *);
-

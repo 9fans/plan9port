@@ -22,28 +22,28 @@ bcolor(char *s){
 			return(DBlack);
 		case 'r':
 			return(DRed);
-		case 'g': 
+		case 'g':
 			return(DGreen);
-		case 'b': 
+		case 'b':
 			return(DBlue);
-		case 'm': 
+		case 'm':
 			return(DMagenta);
-		case 'y': 
+		case 'y':
 			return(DYellow);
-		case 'c': 
+		case 'c':
 			return(DCyan);
-		case 'w': 
+		case 'w':
 			return(DWhite);
-		case 'R': 
+		case 'R':
 			return(atoi(s + 1));
-		case 'G': 
-			e1->pgap = atof(s + 1); 
+		case 'G':
+			e1->pgap = atof(s + 1);
 			return(-1);
-		case 'A': 
-			e1->pslant = (180. - atof(s + 1)) / RADIAN; 
+		case 'A':
+			e1->pslant = (180. - atof(s + 1)) / RADIAN;
 			return(-1);
 		}
-		while (*++s != 0) 
+		while (*++s != 0)
 			if (*s == '/') {
 				s++;
 				break;
@@ -52,20 +52,20 @@ bcolor(char *s){
 	return DBlack;
 }
 void sscpy(struct penvir *a, struct penvir *b){ /* copy 'a' onto 'b' */
-	b->left = a->left; 
-	b->bottom = a->bottom; 
-	b->xmin = a->xmin; 
+	b->left = a->left;
+	b->bottom = a->bottom;
+	b->xmin = a->xmin;
 	b->ymin = a->ymin;
-	b->scalex = a->scalex; 
+	b->scalex = a->scalex;
 	b->scaley = a->scaley;
-	b->sidex = a->sidex; 
+	b->sidex = a->sidex;
 	b->sidey = a->sidey;
-	b->copyx = a->copyx; 
+	b->copyx = a->copyx;
 	b->copyy = a->copyy;
 	b->quantum = a->quantum;
 	b->grade = a->grade;
-	b->pmode = a->pmode; 
-	b->foregr = a->foregr; 
+	b->pmode = a->pmode;
+	b->foregr = a->foregr;
 	b->backgr = a->backgr;
 }
 void idle(void){}

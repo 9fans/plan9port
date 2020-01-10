@@ -506,7 +506,7 @@ Cell *awkdelete(Node **a, int n)	/* a[0] is symtab, a[1] is list of subscripts *
 			s = getsval(y);
 			if (!adjbuf(&buf, &bufsz, strlen(buf)+strlen(s)+nsub+1, recsize, 0, 0))
 				FATAL("out of memory deleting %s[%s...]", x->nval, buf);
-			strcat(buf, s);	
+			strcat(buf, s);
 			if (np->nnext)
 				strcat(buf, *SUBSEP);
 			tempfree(y);
@@ -1914,4 +1914,3 @@ void backsub(char **pb_ptr, char **sptr_ptr)	/* handle \\& variations */
 	*pb_ptr = pb;
 	*sptr_ptr = sptr;
 }
-

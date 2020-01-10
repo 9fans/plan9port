@@ -103,7 +103,7 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	if(bno != vbno)
 		return nil;
 
-/*	
+/*
 	if(bno < fs->firstblock)
 		return diskread(fs->disk, fs->blocksize, (u64int)bno*fs->blocksize);
 */
@@ -142,7 +142,7 @@ ext2blockread(Fsys *fsys, u64int vbno)
 	if((bits[boff>>3] & (1<<(boff&7))) == 0){
 		if(debug)
 			fprint(2, "block %d not allocated in group %d: bitblock %d/%lld bits[%d] = %#x\n",
-				boff, bno/fs->blockspergroup, 
+				boff, bno/fs->blockspergroup,
 				(int)bitblock,
 				bitpos,
 				boff>>3,
@@ -174,7 +174,7 @@ ext2fileblock(Ext2 *fs, Inode *ino, u32int bno, int size)
 	obno = bno;
 	if(bno < NDIRBLOCKS){
 		if(debug)
-			fprint(2, "fileblock %d -> %d...", 
+			fprint(2, "fileblock %d -> %d...",
 				bno, ino->block[bno]);
 		return ext2datablock(fs, ino->block[bno], size);
 	}
@@ -592,7 +592,7 @@ ext2readdir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int coo
 	if((ok = inoperm(&ino, au, AREAD)) != Nfs3Ok)
 		return ok;
 
-	if(debug) print("readdir cookie %#llux ino.size %#llux\n", 
+	if(debug) print("readdir cookie %#llux ino.size %#llux\n",
 		(u64int)cookie, (u64int)ino.size);
 
 	if(cookie >= ino.size){

@@ -134,7 +134,7 @@ attachargs(int argc, char **argv, int omode, int verbose)
 		mapfile(symhdr, 0, cormap, nil);
 	}
 
-	if(corpid)	
+	if(corpid)
 		attachproc(corpid);
 	if(corhdr)
 		attachcore(corhdr);
@@ -200,4 +200,3 @@ attachdynamic(int verbose)
 		elfdl386mapdl(verbose);
 	return 0;
 }
-

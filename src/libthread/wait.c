@@ -29,11 +29,11 @@ procwait(int pid)
 	Waiter me;
 	Waitmsg *msg;
 	int i;
-	
+
 	memset(&me, 0, sizeof me);
 	me.pid = pid;
 	me.r.l = &waiting.lk;
-	
+
 	qlock(&waiting.lk);
 	for(i=0; i<waiting.nmsg; i++){
 		if(waiting.msg[i]->pid == pid){

@@ -20,16 +20,16 @@ maktab(void)			/* define the tab stops of the table */
 				Bprint(&tabout, ".%2s\n.rm %2s\n", reg(icol, CRIGHT),
 				    reg(icol, CRIGHT));
 			for (ilin = 0; ilin < nlin; ilin++) {
-				if (instead[ilin] || fullbot[ilin]) 
+				if (instead[ilin] || fullbot[ilin])
 					continue;
 				vforml = ilin;
 				for (il = prev(ilin); il >= 0 && vspen(table[il][icol].col); il = prev(il))
 					vforml = il;
-				if (fspan(vforml, icol)) 
+				if (fspan(vforml, icol))
 					continue;
-				if (filler(table[ilin][icol].col)) 
+				if (filler(table[ilin][icol].col))
 					continue;
-				if ((flags[icol][stynum[ilin]] & ZEROW) != 0) 
+				if ((flags[icol][stynum[ilin]] & ZEROW) != 0)
 					continue;
 				switch (ctype(vforml, icol)) {
 				case 'a':
@@ -52,10 +52,10 @@ maktab(void)			/* define the tab stops of the table */
 						doubled[icol] = 1;
 						if (real(ss = table[ilin][icol].col) && !vspen(ss)) {
 							s = (int)(uintptr)ss;
-							if (tx(s) != text) 
+							if (tx(s) != text)
 								continue;
 							Bprint(&tabout, ".nr %d ", TMP);
-							wide(ss, FN(vforml, icol), SZ(vforml, icol)); 
+							wide(ss, FN(vforml, icol), SZ(vforml, icol));
 							Bprint(&tabout, "\n");
 							Bprint(&tabout, ".if \\n(%d<\\n(%d .nr %d \\n(%d\n",
 							    S1, TMP, S1, TMP);
@@ -73,10 +73,10 @@ maktab(void)			/* define the tab stops of the table */
 				case 'l':
 					if (real(ss = table[ilin][icol].col) && !vspen(ss)) {
 						s = (int)(uintptr)ss;
-						if (tx(s) != text) 
+						if (tx(s) != text)
 							continue;
 						Bprint(&tabout, ".nr %d ", TMP);
-						wide(ss, FN(vforml, icol), SZ(vforml, icol)); 
+						wide(ss, FN(vforml, icol), SZ(vforml, icol));
 						Bprint(&tabout, "\n");
 						Bprint(&tabout, ".if \\n(%2s<\\n(%d .nr %2s \\n(%d\n",
 						     reg(icol, CRIGHT), TMP, reg(icol, CRIGHT), TMP);
@@ -85,7 +85,7 @@ maktab(void)			/* define the tab stops of the table */
 			}
 		}
 		if (acase[icol]) {
-			Bprint(&tabout, ".if \\n(%d>=\\n(%2s .nr %2s \\n(%du+2n\n", 
+			Bprint(&tabout, ".if \\n(%d>=\\n(%2s .nr %2s \\n(%du+2n\n",
 			     S2, reg(icol, CRIGHT), reg(icol, CRIGHT), S2);
 		}
 		if (doubled[icol]) {
@@ -104,13 +104,13 @@ maktab(void)			/* define the tab stops of the table */
 		for (ilin = 0; ilin < nlin; ilin++)
 			if (k = lspan(ilin, icol)) {
 				ss = table[ilin][icol-k].col;
-				if (!real(ss) || barent(ss) || vspen(ss) ) 
+				if (!real(ss) || barent(ss) || vspen(ss) )
 					continue;
 				Bprint(&tabout, ".nr %d ", TMP);
 				wide(table[ilin][icol-k].col, FN(ilin, icol - k), SZ(ilin, icol - k));
 				for (ik = k; ik >= 0; ik--) {
 					Bprint(&tabout, "-\\n(%2s", reg(icol - ik, CRIGHT));
-					if (!expflg && ik > 0) 
+					if (!expflg && ik > 0)
 						Bprint(&tabout, "-%dn", sep[icol-ik]);
 				}
 				Bprint(&tabout, "\n");
@@ -126,13 +126,13 @@ maktab(void)			/* define the tab stops of the table */
 				}
 			}
 	}
-	if (textflg) 
+	if (textflg)
 		untext();
 				/* if even requested, make all columns widest width */
 	if (evenflg) {
 		Bprint(&tabout, ".nr %d 0\n", TMP);
 		for (icol = 0; icol < ncol; icol++) {
-			if (evenup[icol] == 0) 
+			if (evenup[icol] == 0)
 				continue;
 			Bprint(&tabout, ".if \\n(%2s>\\n(%d .nr %d \\n(%2s\n",
 			    reg(icol, CRIGHT), TMP, TMP, reg(icol, CRIGHT));
@@ -169,7 +169,7 @@ maktab(void)			/* define the tab stops of the table */
 		Bprint(&tabout, ".nr %d 1n\n", TMP);
 	Bprint(&tabout, ".nr %2s 0\n", reg(-1, CRIGHT));
 	tsep = (boxflg || allflg || dboxflg || left1flg) ? 2 : 0;
-	if (sep[-1] >= 0) 
+	if (sep[-1] >= 0)
 		tsep = sep[-1];
 	for (icol = 0; icol < ncol; icol++) {
 		Bprint(&tabout, ".nr %2s \\n(%2s+((%d*\\n(%d)/2)\n", reg(icol, CLEFT),
@@ -202,14 +202,14 @@ wide(char *s, char *fn, char *size)
 {
 	if (point(s)) {
 		Bprint(&tabout, "\\w%c", F1);
-		if (*fn > 0) 
+		if (*fn > 0)
 			putfont(fn);
-		if (*size) 
+		if (*size)
 			putsize(size);
 		Bprint(&tabout, "%s", s);
-		if (*fn > 0) 
+		if (*fn > 0)
 			putfont("P");
-		if (*size) 
+		if (*size)
 			putsize("0");
 		Bprint(&tabout, "%c", F1);
 	} else
@@ -222,5 +222,3 @@ filler(char *s)
 {
 	return (point(s) && s[0] == '\\' && s[1] == 'R');
 }
-
-

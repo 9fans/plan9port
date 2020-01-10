@@ -120,7 +120,7 @@ double setvar(Obj *p, double f)	/* set value of variable to f */
 Point makepoint(Obj *s, double x, double y)	/* make a Point */
 {
 	Point p;
-	
+
 	dprintf("makepoint: %s, %g,%g\n", s->name, x, y);
 	p.obj = s;
 	p.x = x;

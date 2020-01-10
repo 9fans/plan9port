@@ -89,19 +89,19 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		/*
 		 * figure out where to split v to make room for w
 		 */
-		
+
 		/* new window stops where next window begins */
 		if(i < c->nw)
 			ymax = c->w[i]->r.min.y-Border;
 		else
 			ymax = c->r.max.y;
-		
+
 		/* new window must start after v's tag ends */
 		y = max(y, v->tagtop.max.y+Border);
-		
+
 		/* new window must start early enough to end before ymax */
 		y = min(y, ymax - minht);
-		
+
 		/* if y is too small, too many windows in column */
 		if(y < v->tagtop.max.y+Border)
 			buggered = 1;
@@ -118,7 +118,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 		r1.min.y = winresize(v, r1, FALSE, FALSE);
 		r1.max.y = r1.min.y+Border;
 		draw(screen, r1, display->black, nil, ZP);
-		
+
 		/*
 		 * leave r with w's coordinates
 		 */
@@ -142,7 +142,7 @@ coladd(Column *c, Window *w, Window *clone, int y)
 	c->nw++;
 	c->w[i] = w;
 	c->safe = TRUE;
-	
+
 	/* if there were too many windows, redraw the whole column */
 	if(buggered)
 		colresize(c, c->r);

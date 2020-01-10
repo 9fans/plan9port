@@ -9,7 +9,7 @@
  *	C->S: proto dom NUL
  *	[negotiated proto continues]
  */
- 
+
 extern Proto p9sk1, p9sk2, p9cr;
 
 static Proto* okproto[] =
@@ -111,7 +111,7 @@ p9anyserver(Conv *c)
 	}
 
 	ret = 0;
-	
+
 out:
 	free(s);
 	freeattr(attr);
@@ -222,7 +222,7 @@ found:
 	/* f[i] is the chosen protocol, q the chosen domain */
 	attr = addattr(attr, "proto=%q dom=%q", f[i], q);
 	c->state = "write choice";
-	
+
 	/* have a key: go for it */
 	choice = estrappend(nil, "%q %q", f[i], q);
 	if(convwrite(c, choice, strlen(choice)+1) < 0){
@@ -258,7 +258,7 @@ out:
 }
 
 static Role
-p9anyroles[] = 
+p9anyroles[] =
 {
 	"client",	p9anyclient,
 	"server",	p9anyserver,
@@ -269,4 +269,3 @@ Proto p9any = {
 	"p9any",
 	p9anyroles
 };
-

@@ -203,4 +203,3 @@ Shell shshell = {
 	shcopyq,
 	shmatchname
 };
-

@@ -5,4 +5,3 @@
 #include <math.h>
 #include <errno.h>
 #include <ctype.h>
-

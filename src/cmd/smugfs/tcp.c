@@ -47,4 +47,3 @@ Protocol http = {
 	httpwrite,
 	httpclose,
 };
-

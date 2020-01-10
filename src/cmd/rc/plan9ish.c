@@ -343,7 +343,7 @@ char **mkenv(){
 	}
 	*ep=0;
 	qsort((char *)env, nvar, sizeof ep[0], cmpenv);
-	return env;	
+	return env;
 }
 void Updenv(void){}
 void Execute(word *args, word *path)
@@ -556,7 +556,7 @@ int
 exitcode(char *msg)
 {
 	int n;
-	
+
 	n = atoi(msg);
 	if(n == 0)
 		n = 1;
@@ -579,7 +579,7 @@ void
 delwaitpid(int pid)
 {
 	int r, w;
-	
+
 	for(r=w=0; r<nwaitpids; r++)
 		if(waitpids[r] != pid)
 			waitpids[w++] = waitpids[r];
@@ -596,7 +596,7 @@ int
 havewaitpid(int pid)
 {
 	int i;
-	
+
 	for(i=0; i<nwaitpids; i++)
 		if(waitpids[i] == pid)
 			return 1;

@@ -206,4 +206,3 @@ dnudpserver(void *v)
 	for(i=0; i<Maxactive; i++)
 		proccreate(udpproc, (void*)(uintptr)fd, STACK);
 }
-

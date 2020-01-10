@@ -178,7 +178,7 @@ writeqlump(Lump *u, Packet *p, int creator, uint ms)
 		insertlump(u, p);
 	else
 		packetfree(p);
-	
+
 	if(syncwrites){
 		flushdcache();
 		flushicache();

@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 	case 'l':
 		length = atoi(ARGF());
 		break;
-	case 'b':	
+	case 'b':
 		block = atoi(ARGF());
 		break;
 	case 'u':
@@ -92,7 +92,7 @@ main(int argc, char *argv[])
 
 	fprint(2, "count = %d\n", count(r, 1));
 	fprint(2, "total time = %ld\n", time(0)-t);
-	
+
 	fsClose(fs);
 	vtDetach();
 	exits(0);
@@ -119,7 +119,7 @@ new(Source *s, int trace, int depth)
 	int i, n;
 	Source *ss;
 	Entry e;
-	
+
 	if(depth > maxdepth)
 		maxdepth = depth;
 
@@ -174,7 +174,7 @@ delete(Source *s)
 	}
 	if(i == n)
 		return 0;
-		
+
 	for(;;){
 		ss = sourceOpen(s, nrand(n), OReadWrite);
 		if(ss == nil)

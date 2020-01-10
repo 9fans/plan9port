@@ -196,7 +196,7 @@ wingeter(Window *w, char *buf, int *nb)
 		while(!fullrune(buf, n))
 			buf[n++] = wingetec(w);
 		chartorune(&r, buf);
-	} 
+	}
 	*nb = n;
 	return r;
 }

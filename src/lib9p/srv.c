@@ -98,7 +98,7 @@ if(chatty9p)
 if(chatty9p)
 	if(r->error)
 		fprint(2, "<-%d- %F: %s\n", s->infd, &r->ifcall, r->error);
-	else	
+	else
 		fprint(2, "<-%d- %F\n", s->infd, &r->ifcall);
 
 	return r;
@@ -378,7 +378,7 @@ sopen(Srv *srv, Req *r)
 	default:
 		assert(0);
 	case OREAD:
-		p = AREAD;	
+		p = AREAD;
 		break;
 	case OWRITE:
 		p = AWRITE;
@@ -387,7 +387,7 @@ sopen(Srv *srv, Req *r)
 		p = AREAD|AWRITE;
 		break;
 	case OEXEC:
-		p = AEXEC;	
+		p = AEXEC;
 		break;
 	}
 	if(r->ifcall.mode&OTRUNC)
@@ -588,7 +588,7 @@ rremove(Req *r, char *error, char *errbuf)
 		return;
 	if(r->fid->file){
 		if(removefile(r->fid->file) < 0){
-			snprint(errbuf, ERRMAX, "remove %s: %r", 
+			snprint(errbuf, ERRMAX, "remove %s: %r",
 				r->fid->file->dir.name);
 			r->error = errbuf;
 		}
@@ -614,8 +614,8 @@ sstat(Srv *srv, Req *r)
 		if(r->d.muid)
 			r->d.muid = estrdup9p(r->d.muid);
 	}
-	if(srv->stat)	
-		srv->stat(r);	
+	if(srv->stat)
+		srv->stat(r);
 	else if(r->fid->file)
 		respond(r, nil);
 	else
@@ -720,7 +720,7 @@ srv(Srv *srv)
 	while(r = getreq(srv)){
 		if(r->error){
 			respond(r, r->error);
-			continue;	
+			continue;
 		}
 		switch(r->ifcall.type){
 		default:
@@ -760,7 +760,7 @@ respond(Req *r, char *error)
 		assert(r->pool);
 		goto free;
 	}
-		
+
 	assert(r->responded == 0);
 	r->error = error;
 
@@ -812,8 +812,8 @@ if(chatty9p)
 	 * There is a race here - we must remove the entry before
 	 * the write, so that if the client is very fast and reuses the
 	 * tag, the read loop won't think it is still in use.
-	 * 
-	 * By removing the entry before the write, we open up a 
+	 *
+	 * By removing the entry before the write, we open up a
 	 * race with incoming Tflush messages.  Specifically, an
 	 * incoming Tflush might not see r even though it has not
 	 * yet been responded to.  It would then send an Rflush
@@ -833,12 +833,12 @@ if(chatty9p)
 		 * There are no references other than in our r->flush array,
 		 * so no one else should be accessing r concurrently.
 		 * Close the fid now, before responding to the message.
-		 * 
+		 *
 		 * If the client is behaving (there are no outstanding T-messages
 		 * that reference r->fid) and the message is a Tclunk or Tremove,
-		 * then this closefid will call destroyfid.  
-		 * 
-		 * This means destroyfid can't piddle around 
+		 * then this closefid will call destroyfid.
+		 *
+		 * This means destroyfid can't piddle around
 		 * indefinitely (we're holding srv->wlock!), but it provides
 		 * for tighter semantics as to when destroyfid is called.
 		 *
@@ -899,4 +899,3 @@ postfd(char *name, int pfd)
 		fprint(2, "postfd successful\n");
 	return 0;
 }
-

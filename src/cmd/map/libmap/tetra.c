@@ -66,7 +66,7 @@ static struct tproj {
 {/*30*/	{0.,	-45.,	45.,	-150.},
  /*31*/ {0.,	-135.,	135.,	-30.},
  /*32*/	{-90.,	0.,	0.,	90.},
- /*33*/ {0.} 
+ /*33*/ {0.}
 }};
 static double tx[4] = {	/*where to move facet after final rotation*/
 	0.,	0.,	-1.,	1.	/*-1,1 to be sqrt(3)*/
@@ -136,7 +136,7 @@ Xtetra(struct place *place, double *x, double *y)
 			return 0;
 		vr = fpir - vr;
 		vi = fpii - vi;
-	} else 
+	} else
 		if(!elco2(br,bi,tk,1.,1.,&vr,&vi))
 			return 0;
 	if(si>=0) {
@@ -158,7 +158,7 @@ int
 tetracut(struct place *g, struct place *og, double *cutlon)
 {
 	int i,j,k;
-	if((g->nlat.s<=-rt3inv&&og->nlat.s<=-rt3inv) && 
+	if((g->nlat.s<=-rt3inv&&og->nlat.s<=-rt3inv) &&
 	   (ckcut(g,og,*cutlon=0.)==2||ckcut(g,og,*cutlon=PI)==2))
 		return(2);
 	twhichp(g,&i,&k);
@@ -203,4 +203,3 @@ tetra(void)
 	}
 	return(Xtetra);
 }
-

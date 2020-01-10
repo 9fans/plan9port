@@ -55,7 +55,7 @@ _stringnwidth(Font *f, char *s, Rune *r, int len)
 					else
 						break;
 				}
-				/* 
+				/*
 				 * must not free sf until cachechars has found it in the cache
 				 * and picked up its own reference.
 				 */

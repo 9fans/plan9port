@@ -97,7 +97,7 @@ strokedraw(Image *dst, Rectangle r, Image *ink, int brush)
  * mp and sp get aligned with bot.min.
  */
 static void
-gendrawdiff(Image *dst, Rectangle bot, Rectangle top, 
+gendrawdiff(Image *dst, Rectangle bot, Rectangle top,
 	Image *src, Point sp, Image *mask, Point mp, int op)
 {
 	Rectangle r;
@@ -482,7 +482,7 @@ center(void)
 {
 	cpos = ZP;
 	if(canvas)
-		cpos = addpt(canvas->r.min, 
+		cpos = addpt(canvas->r.min,
 			divpt(subpt(canvas->r.max, canvas->r.min), 2));
 	spos = addpt(screen->r.min,
 		divpt(subpt(screen->r.max, screen->r.min), 2));
@@ -633,7 +633,7 @@ main(int argc, char *argv[])
 	if(argc == 1)
 		filename = strdup(argv[0]);
 	else if(argc != 0)
-		usage();	
+		usage();
 
 	if(initdraw(0, 0, "paint") < 0)
 		sysfatal("initdraw: %r");

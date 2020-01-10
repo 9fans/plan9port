@@ -15,7 +15,7 @@ Tchar	gettch(void);
 
 /*
  * troff7.c
- * 
+ *
  * text
  */
 
@@ -73,8 +73,8 @@ void tbreak(void)
 	horiz(un);
 	if (NROFF) {
 		if (adrem % t.Adj)
-			resol = t.Hor; 
-		else 
+			resol = t.Hor;
+		else
 			resol = t.Adj;
 	} else
 		resol = HOR;
@@ -113,7 +113,7 @@ void tbreak(void)
 	}
 	if (icf)
 		icf++;
-	else 
+	else
 		ic = 0;
 	ne = nwd = 0;
 	un = in;
@@ -168,7 +168,7 @@ void text(void)
 	nflush++;
 	numtabp[HP].val = 0;
 	if ((dip == d) && (numtabp[NL].val == -1)) {
-		newline(1); 
+		newline(1);
 		return;
 	}
 	setnel();
@@ -180,8 +180,8 @@ void text(void)
 		goto t4;
 	if (pendt)
 		if (spcnt)
-			goto t2; 
-		else 
+			goto t2;
+		else
 			goto t3;
 	pendt++;
 	if (spcnt)
@@ -226,8 +226,8 @@ t5:
 	adsp = adrem = 0;
 	if (ad) {
 		if (nwd == 1)
-			adsp = nel; 
-		else 
+			adsp = nel;
+		else
 			adsp = nel / (nwd - 1);
 		adsp = (adsp / HOR) * HOR;
 		adrem = nel - adsp*(nwd-1);
@@ -300,8 +300,8 @@ void callsp(void)
 	int i;
 
 	if (flss)
-		i = flss; 
-	else 
+		i = flss;
+	else
 		i = lss;
 	flss = 0;
 	casesp1(i);
@@ -379,7 +379,7 @@ void newline(int a)
 		}
 		if (dip->ditrap && !dip->ditf && dip->dnl >= dip->ditrap && dip->dimac)
 			if (control(dip->dimac, 0)) {
-				trap++; 
+				trap++;
 				dip->ditf++;
 			}
 		return;
@@ -514,7 +514,7 @@ findt1(void)
 
 	if (dip != d)
 		i = dip->dnl;
-	else 
+	else
 		i = numtabp[NL].val;
 	return(findt(i));
 }
@@ -529,7 +529,7 @@ void eject(Stack *a)
 	ejf++;
 	if (a)
 		ejl = a;
-	else 
+	else
 		ejl = frame;
 	if (trap)
 		return;

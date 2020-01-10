@@ -52,7 +52,7 @@ struct
 	"common",	Fword,
 	"con",		Lword,
 	"data",		Fword,
-	"dimension",	Fword,	
+	"dimension",	Fword,
 	"double",	Cword,
 	"extern",	Cword,
 	"bio",		I2,
@@ -86,7 +86,7 @@ struct
 enum	{
 		Normal	= 0,
 		First,		/* first entry for language spanning several ranges */
-		Multi,		/* later entries "   "       "  ... */ 
+		Multi,		/* later entries "   "       "  ... */
 		Shared,		/* codes used in several languages */
 	};
 
@@ -97,7 +97,7 @@ struct
 	int	low;
 	int	high;
 	char	*name;
-	
+
 } language[] =
 {
 	Normal, 0,	0x0080, 0x0080,	"Extended Latin",
@@ -127,8 +127,8 @@ struct
 	Shared,	0,	0x4e00,	0x9fff,	"CJK",
 	Normal,	0,	0,	0,	0,		/* terminal entry */
 };
-	
-	
+
+
 enum
 {
 	Fascii,		/* printable ascii */
@@ -342,7 +342,7 @@ filetype(int fd)
 	 * lookup dictionary words
 	 */
 	memset(wfreq, 0, sizeof(wfreq));
-	if(guess == Fascii || guess == Flatin || guess == Futf) 
+	if(guess == Fascii || guess == Flatin || guess == Futf)
 		wordfreq();
 	/*
 	 * call individual classify routines
@@ -540,7 +540,7 @@ filemagic(Filemagic *tab, int ntab, ulong x)
 		}
 	return 0;
 }
-	
+
 int
 long0(void)
 {
@@ -876,7 +876,7 @@ yes:
 	}
 	if(wfreq[Alword] > 0)
 		print("alef program\n");
-	else 
+	else
 		print("c program\n");
 	return 1;
 }
@@ -1042,7 +1042,7 @@ depthof(char *s, int *newp)
 		s++;	/* skip letter */
 		d += strtoul(s, &s, 10);
 	}
-	
+
 	switch(d){
 	case 32:
 	case 24:

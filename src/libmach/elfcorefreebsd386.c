@@ -117,4 +117,3 @@ corecmdfreebsd386(Elf *elf, ElfNote *note, char **pp)
 	*pp = t;
 	return 0;
 }
-

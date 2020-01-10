@@ -18,7 +18,7 @@ enum
 	Elemlen= 28,
 	Errlen=	128,
 	Pathlen= 256,
-	
+
 	RetryCode = 2
 };
 
@@ -76,5 +76,3 @@ extern process	*proc_start(char*, stream*, stream*, stream*, int, char*);
 extern int	proc_wait(process*);
 extern int	proc_free(process*);
 extern int	proc_kill(process*);
-
-

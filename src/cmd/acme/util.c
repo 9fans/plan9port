@@ -132,7 +132,7 @@ errorwin(Mntdir *md, int owner)
 }
 
 /*
- * Incoming window should be locked. 
+ * Incoming window should be locked.
  * It will be unlocked and returned window
  * will be locked in its place.
  */
@@ -189,7 +189,7 @@ void
 addwarningtext(Mntdir *md, Rune *r, int nr)
 {
 	Warning *warn;
-	
+
 	for(warn = warnings; warn; warn=warn->next){
 		if(warn->md == md){
 			bufinsert(&warn->buf, warn->buf.nc, r, nr);

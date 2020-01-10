@@ -146,7 +146,7 @@ threadmain(int argc, char **argv)
 		else
 			p = seprint(p, e, "%s", t);
 		u.postbody = postbody;
-		
+
 		break;
 	default:
 		usage();
@@ -162,7 +162,7 @@ threadmain(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
-	
+
 	out.fd = 1;
 	out.written = 0;
 	out.offset = 0;
@@ -278,7 +278,7 @@ crackurl(URL *u, char *s)
 	if(p = strchr(u->host, ':')) {
 		*p++ = 0;
 		u->port = p;
-	} else 
+	} else
 		u->port = method[u->method].name;
 
 	if(*(u->host) == 0){
@@ -429,7 +429,7 @@ dohttp(URL *u, URL *px, Range *r, Out *out, long mtime)
 				cfd = -1;
 			}
 		}
-			
+
 		dfprint(fd, "\r\n", u->host);
 
 		auth = 0;
@@ -498,7 +498,7 @@ dohttp(URL *u, URL *px, Range *r, Out *out, long mtime)
 
 		case 503:	/* Service unavailable */
 			sysfatal("Service unavailable");
-		
+
 		default:
 			sysfatal("Unknown response code %d", code);
 		}
@@ -681,7 +681,7 @@ void
 hhetag(char *p, URL *u, Range *r)
 {
 	USED(r);
-	
+
 	if(u->etag != nil){
 		if(strcmp(u->etag, p) != 0)
 			sysfatal("file changed underfoot");
@@ -700,7 +700,7 @@ hhmtime(char *p, URL *u, Range *r)
 	int i;
 
 	USED(r);
-	
+
 	i = getfields(p, fields, 6, 1, " \t");
 	if(i < 5)
 		return;
@@ -764,7 +764,7 @@ void
 hhclen(char *p, URL *u, Range *r)
 {
 	USED(u);
-	
+
 	r->end = atoi(p);
 }
 
@@ -791,7 +791,7 @@ void
 hhuri(char *p, URL *u, Range *r)
 {
 	USED(r);
-	
+
 	if(*p != '<')
 		return;
 	u->redirect = strdup(p+1);
@@ -804,7 +804,7 @@ void
 hhlocation(char *p, URL *u, Range *r)
 {
 	USED(r);
-	
+
 	u->redirect = strdup(p);
 }
 
@@ -814,7 +814,7 @@ hhauth(char *p, URL *u, Range *r)
 	char *f[4];
 	UserPasswd *up;
 	char *s, cred[64];
-	
+
 	USED(r);
 
 	if (cistrncmp(p, "basic ", 6) != 0)
@@ -898,7 +898,7 @@ doftp(URL *u, URL *px, Range *r, Out *out, long mtime)
 		close(ctl);
 		return Eof;
 	}
-		
+
 	/* first try passive mode, then active */
 	data = passive(ctl, u);
 	if(data < 0){
@@ -1215,7 +1215,7 @@ active(int ctl, URL *u)
 	}
 	close(afd);
 	close(lcfd);
-	
+
 	return dfd;
 }
 
@@ -1420,7 +1420,7 @@ DigestState*
 md5dup(DigestState *state)
 {
 	DigestState *s2;
-	
+
 	s2 = malloc(sizeof(DigestState));
 	if(s2 == nil)
 		sysfatal("malloc: %r");
@@ -1486,4 +1486,3 @@ output(Out *out, char *buf, int nb)
 	}
 	return n + d;
 }
-

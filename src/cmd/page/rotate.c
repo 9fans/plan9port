@@ -1,12 +1,12 @@
 /*
  * rotate an image 180° in O(log Dx + log Dy) /dev/draw writes,
  * using an extra buffer same size as the image.
- * 
+ *
  * the basic concept is that you can invert an array by inverting
  * the top half, inverting the bottom half, and then swapping them.
  * the code does this slightly backwards to ensure O(log n) runtime.
  * (If you do it wrong, you can get O(log² n) runtime.)
- * 
+ *
  * This is usually overkill, but it speeds up slow remote
  * connections quite a bit.
  */
@@ -37,7 +37,7 @@ writefile(char *name, Image *im, int gran)
 	snprint(buf, sizeof buf, "%d%s%d", c++, name, gran);
 	fd = create(buf, OWRITE, 0666);
 	if(fd < 0)
-		return;	
+		return;
 	writeimage(fd, im, 0);
 	close(fd);
 }
@@ -109,7 +109,7 @@ interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
 
 /*
  * Halve the grating period in the mask.
- * The grating currently looks like 
+ * The grating currently looks like
  * ####____####____####____####____
  * where #### is opacity.
  *
@@ -117,7 +117,7 @@ interlace(Image *im, Image *tmp, int axis, int n, Image *mask, int gran)
  * ##__##__##__##__##__##__##__##__
  * which is achieved by shifting the mask
  * and drawing on itself through itself.
- * Draw doesn't actually allow this, so 
+ * Draw doesn't actually allow this, so
  * we have to copy it first.
  *
  *     ####____####____####____####____ (dst)
@@ -151,7 +151,7 @@ shuffle(Image *im, Image *tmp, int axis, int n, Image *mask, int gran,
 
 	interlace(im, tmp, axis, nn, mask, gran);
 //	writefile("interlace", im, gran);
-	
+
 	gran = nextmask(mask, axis, gran);
 	shuffle(im, tmp, axis, n, mask, gran, nn);
 //	writefile("shuffle", im, gran);
@@ -288,7 +288,7 @@ fac(int L)
 	return f;
 }
 
-/* 
+/*
  * i0(x) is the modified Bessel function, Σ (x/2)^2L / (L!)²
  * There are faster ways to calculate this, but we precompute
  * into a table so let's keep it simple.

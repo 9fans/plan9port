@@ -12,31 +12,31 @@ void rarc(double x1, double y1, double x2, double y2, double xc, double yc, doub
 	dx = x1 - xc;
 	dy = y1 - yc;
 	rd = sqrt(dx * dx + dy * dy);
-	if (rd / e1->quantum < 1.0) { 
-		move(xc, yc); 
-		vec(xc, yc); 
+	if (rd / e1->quantum < 1.0) {
+		move(xc, yc);
+		vec(xc, yc);
 		return;
 	}
 	dph = acos(1.0 - (e1->quantum / rd));
-	if (dph > PI4) 
+	if (dph > PI4)
 		dph = PI4;
 	ph=atan2((y2-yc),(x2 - xc)) - atan2(dy, dx);
-	if (ph < 0) 
-		ph += 6.2832; 
-	if (rr < 0) 
+	if (ph < 0)
+		ph += 6.2832;
+	if (rr < 0)
 		ph = 6.2832 - ph;
-	if (ph < dph) 
+	if (ph < dph)
 		plotline(x1, y1, x2, y2);
 	else {
-		n = ph / dph; 
-		a = cos(dph); 
-		b = sin(dph); 
-		if (rr < 0) 
+		n = ph / dph;
+		a = cos(dph);
+		b = sin(dph);
+		if (rr < 0)
 			b = -b;
 		move(x1, y1);
 		while ((n--) >= 0) {
-			xnext = dx * a - dy * b; 
-			dy = dx * b + dy * a; 
+			xnext = dx * a - dy * b;
+			dy = dx * b + dy * a;
 			dx = xnext;
 			vec(dx + xc, dy + yc);
 		}

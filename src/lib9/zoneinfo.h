@@ -16,4 +16,3 @@ struct Tinfo
 extern	int	zonelookuptinfo(Tinfo*, tlong);
 extern	int	zonetinfo(Tinfo*, int);
 extern	void	zonedump(int fd);
-

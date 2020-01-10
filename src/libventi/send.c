@@ -126,14 +126,14 @@ _vtrecv(VtConn *z)
 	p = packetsplit(p, len);
 	vtlog(VtServerLog, "<font size=-1>%T %s:</font> read packet %p len %d<br>\n", z->addr, p, len);
 	return p;
-Err:	
+Err:
 	vtlog(VtServerLog, "<font size=-1>%T %s:</font> error reading packet: %r<br>\n", z->addr);
-	return nil;	
+	return nil;
 }
 
 /*
  * If you fork off two procs running vtrecvproc and vtsendproc,
- * then vtrecv/vtsend (and thus vtrpc) will never block except on 
+ * then vtrecv/vtsend (and thus vtrpc) will never block except on
  * rendevouses, which is nice when it's running in one thread of many.
  */
 void
@@ -258,9 +258,8 @@ vtsend(VtConn *z, Packet *p)
 	if(_vtsend(z, p) < 0){
 		qunlock(&z->outlk);
 		vthangup(z);
-		return -1;	
+		return -1;
 	}
 	qunlock(&z->outlk);
 	return 0;
 }
-

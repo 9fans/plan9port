@@ -93,4 +93,3 @@ setcursor2(Mousectl *mc, Cursor *c, Cursor2 *c2)
 {
 	_displaycursor(mc->display, c, c2);
 }
-

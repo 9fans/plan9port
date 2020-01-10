@@ -96,7 +96,7 @@ refresh_areas(Area *s)
 {
 	Waitmsg *w;
 	char *argv[3];
-	
+
 	argv[0] = zonerefreshprogram;
 	argv[1] = "XXX";
 	argv[2] = nil;
@@ -115,4 +115,3 @@ refresh_areas(Area *s)
 		free(w);
 	}
 }
-

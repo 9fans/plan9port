@@ -94,7 +94,7 @@ newupload(SmugFid *sf, char *name)
 	Upload *u;
 	int fd, i;
 	char tmp[] = "/var/tmp/smugfs.XXXXXX";
-	
+
 	if((fd = opentemp(tmp, ORDWR)) < 0)
 		return nil;
 	qlock(&uploadlock);
@@ -192,7 +192,7 @@ getuploadname(SmugFid *sf, char *name)
 {
 	int i;
 	Upload *u;
-	
+
 	qlock(&uploadlock);
 	for(i=0; i<nup; i++){
 		u = up[i];
@@ -280,7 +280,7 @@ doupload(Upload *u)
 	}
 	datalen = d->length;
 	free(d);
-	
+
 	memset(&ds, 0, sizeof ds);
 	seek(u->fd, 0, 0);
 	total = 0;
@@ -306,7 +306,7 @@ doupload(Upload *u)
 	fmtprint(&fmt, "X-Smug-FileName: %s\r\n", u->name);
 	fmtprint(&fmt, "\r\n");
 	req = fmtstrflush(&fmt);
-	
+
 	seek(u->fd, 0, 0);
 	jv = jsonupload(&http, UPLOAD_HOST, req, u->fd, datalen);
 	free(req);
@@ -330,7 +330,7 @@ nickindex(char *name)
 {
 	int i;
 	Json *v;
-	
+
 	for(i=0; i<nnick; i++)
 		if(strcmp(nick[i], name) == 0)
 			return i;
@@ -354,7 +354,7 @@ void
 responderrstr(Req *r)
 {
 	char err[ERRMAX];
-	
+
 	rerrstr(err, sizeof err);
 	respond(r, err);
 }
@@ -363,7 +363,7 @@ static char*
 xclone(Fid *oldfid, Fid *newfid)
 {
 	SmugFid *sf;
-	
+
 	if(oldfid->aux == nil)
 		return nil;
 
@@ -402,7 +402,7 @@ static Json*
 getcategories(SmugFid *sf)
 {
 	Json *v, *w;
-	
+
 	v = smug("smugmug.categories.get", "NickName", nickname(sf->nickid), nil);
 	w = jincref(jwalk(v, "Categories"));
 	jclose(v);
@@ -413,7 +413,7 @@ static Json*
 getcategorytree(SmugFid *sf)
 {
 	Json *v, *w;
-	
+
 	v = smug("smugmug.users.getTree", "NickName", nickname(sf->nickid), nil);
 	w = jincref(jwalk(v, "Categories"));
 	jclose(v);
@@ -425,7 +425,7 @@ getcategory(SmugFid *sf, vlong id)
 {
 	int i;
 	Json *v, *w;
-	
+
 	v = getcategorytree(sf);
 	if(v == nil)
 		return nil;
@@ -446,7 +446,7 @@ getcategoryid(SmugFid *sf, char *name)
 	int i;
 	vlong id;
 	Json *v;
-	
+
 	v = getcategories(sf);
 	if(v == nil)
 		return -1;
@@ -470,7 +470,7 @@ getcategoryindex(SmugFid *sf, int i)
 {
 	Json *v;
 	vlong id;
-	
+
 	v = getcategories(sf);
 	if(v == nil)
 		return -1;
@@ -510,7 +510,7 @@ getalbums(SmugFid *sf)
 			"NickName", nickname(sf->nickid), nil);
 	w = jincref(jwalk(v, "Albums"));
 	jclose(v);
-	return w;	
+	return w;
 }
 
 static vlong
@@ -520,7 +520,7 @@ getalbumid(SmugFid *sf, char *name, char **keyp)
 	vlong id;
 	Json *v;
 	char *key;
-	
+
 	v = getalbums(sf);
 	if(v == nil)
 		return -1;
@@ -548,7 +548,7 @@ getalbumindex(SmugFid *sf, int i, char **keyp)
 	vlong id;
 	Json *v;
 	char *key;
-	
+
 	v = getalbums(sf);
 	if(v == nil)
 		return -1;
@@ -591,7 +591,7 @@ getimageid(SmugFid *sf, char *name, char **keyp)
 	Json *v;
 	char *p;
 	char *key;
-	
+
 	id = strtol(name, &p, 10);
 	if(*p != 0 || *name == 0)
 		return -1;
@@ -652,7 +652,7 @@ getimageindex(SmugFid *sf, int i, char **keyp)
 	vlong id;
 	Json *v;
 	char *key;
-	
+
 	v = getimages(sf, sf->album, sf->albumkey);
 	if(v == nil)
 		return -1;
@@ -677,7 +677,7 @@ categoryname(SmugFid *sf)
 {
 	Json *v;
 	char *s;
-	
+
 	v = getcategory(sf, sf->category);
 	s = jstring(jwalk(v, "Name"));
 	if(s)
@@ -691,7 +691,7 @@ albumname(SmugFid *sf)
 {
 	Json *v;
 	char *s;
-	
+
 	v = getalbum(sf, sf->album, sf->albumkey);
 	s = jstring(jwalk(v, "Title"));
 	if(s)
@@ -705,7 +705,7 @@ imagename(SmugFid *sf)
 {
 	char *s;
 	Json *v;
-	
+
 	v = getimageinfo(sf, sf->image, sf->imagekey);
 	s = jstring(jwalk(v, "FileName"));
 	if(s && s[0])
@@ -721,7 +721,7 @@ imagelength(SmugFid *sf)
 {
 	vlong length;
 	Json *v;
-	
+
 	v = getimageinfo(sf, sf->image, sf->imagekey);
 	length = jint(jwalk(v, "Size"));
 	jclose(v);
@@ -763,7 +763,7 @@ imageurl(SmugFid *sf)
 	return nil;
 }
 
-static char* imagestrings[] = 
+static char* imagestrings[] =
 {
 	"Caption",
 	"LastUpdated",
@@ -786,7 +786,7 @@ static char* imagestrings[] =
 	"Album",
 };
 
-static char* albumbools[] = 
+static char* albumbools[] =
 {
 	"Public",
 	"Printable",
@@ -810,7 +810,7 @@ static char* albumbools[] =
 	"X3Larges",
 };
 
-static char* albumstrings[] = 
+static char* albumstrings[] =
 {
 	"Description"
 	"Keywords",
@@ -866,7 +866,7 @@ readctl(SmugFid *sf)
 	case Qimagectl:
 		v = getimageinfo(sf, sf->image, sf->imagekey);
 		break;
-	
+
 	case Qimageurl:
 		v = getimageinfo(sf, sf->image, sf->imagekey);
 		fmtstrinit(&fmt);
@@ -875,11 +875,11 @@ readctl(SmugFid *sf)
 				fmtprint(&fmt, "%s %s\n", urls[i].name, s);
 		jclose(v);
 		return fmtstrflush(&fmt);
-	
+
 	case Qimageexif:
 		v = getimageexif(sf, sf->image, sf->imagekey);
 		break;
-	
+
 	case Qalbumsettings:
 		v = getalbum(sf, sf->album, sf->albumkey);
 		fmtstrinit(&fmt);
@@ -946,7 +946,7 @@ dostat(SmugFid *sf, Qid *qid, Dir *dir)
 	char *uid;
 	char *s;
 	vlong length;
-	
+
 	memset(&q, 0, sizeof q);
 	name = nil;
 	freename = 0;
@@ -1106,7 +1106,7 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 	SmugFid *sf;
 	char *x;
 	Upload *u;
-	
+
 	dotdot = strcmp(name, "..") == 0;
 	sf = fid->aux;
 	switch(sf->type){
@@ -1157,7 +1157,7 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 			break;
 		}
 		goto NotFound;
-	
+
 	case Qalbums:
 	case Qcategory:
 		if(dotdot){
@@ -1208,7 +1208,7 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 			break;
 		}
 		goto NotFound;
-	
+
 	case Qimage:
 		if(dotdot){
 			free(sf->imagekey);
@@ -1279,7 +1279,7 @@ dodirgen(int i, Dir *d, void *v)
 		xsf.nickid = i;
 		dostat(&xsf, nil, d);
 		return 0;
-	
+
 	case Qnick:
 		if(i-- == 0){
 			xsf.type = Qalbums;
@@ -1292,7 +1292,7 @@ dodirgen(int i, Dir *d, void *v)
 		xsf.category = id;
 		dostat(&xsf, nil, d);
 		return 0;
-	
+
 	case Qalbums:
 	case Qcategory:
 		if((id = getalbumindex(sf, i, &key)) < 0)
@@ -1303,7 +1303,7 @@ dodirgen(int i, Dir *d, void *v)
 		dostat(&xsf, nil, d);
 		free(key);
 		return 0;
-	
+
 	case Qalbum:
 		if(i-- == 0){
 			xsf.type = Qalbumsettings;
@@ -1325,7 +1325,7 @@ dodirgen(int i, Dir *d, void *v)
 		dostat(&xsf, nil, d);
 		free(key);
 		return 0;
-	
+
 	case Qimage:
 		if(i-- == 0){
 			xsf.type = Qimagefile;
@@ -1394,13 +1394,13 @@ xwstat(Req *r)
 		}
 	}
 	respond(r, "invalid wstat");
-}			
+}
 
 static void
 xattach(Req *r)
 {
 	SmugFid *sf;
-	
+
 	sf = emalloc(sizeof *sf);
 	r->fid->aux = sf;
 	sf->type = Qroot;
@@ -1430,7 +1430,7 @@ xopen(Req *r)
 	case Qalbumsettings:
 	case Qimagesettings:
 		break;
-	
+
 	case Quploadfile:
 		if(r->ifcall.mode != OREAD){
 			lock(&sf->upload->lk);
@@ -1444,7 +1444,7 @@ xopen(Req *r)
 			unlock(&sf->upload->lk);
 		}
 		break;
-	
+
 	default:
 		if(r->ifcall.mode != OREAD){
 			respond(r, "permission denied");
@@ -1492,7 +1492,7 @@ xcreate(Req *r)
 		dostat(sf, &r->ofcall.qid, nil);
 		respond(r, nil);
 		return;
-		
+
 	case Qcategory:
 		// Create new album.
 		if(!(r->ifcall.perm&DMDIR))
@@ -1500,7 +1500,7 @@ xcreate(Req *r)
 		snprint(strid, sizeof strid, "%lld", sf->category);
 		// Start with most restrictive settings.
 		v = ncsmug("smugmug.albums.create",
-			"Title", r->ifcall.name, 
+			"Title", r->ifcall.name,
 			"CategoryID", strid,
 			"Public", "0",
 			"WorldSearchable", "0",
@@ -1526,7 +1526,7 @@ xcreate(Req *r)
 		dostat(sf, &r->ofcall.qid, nil);
 		respond(r, nil);
 		return;
-		
+
 	case Qalbum:
 		// Upload image to album.
 		if(r->ifcall.perm&DMDIR)
@@ -1543,14 +1543,14 @@ xcreate(Req *r)
 		respond(r, nil);
 		return;
 	}
-	respond(r, "permission denied");	
+	respond(r, "permission denied");
 }
 
 static int
 writetofd(Req *r, int fd)
 {
 	int total, n;
-	
+
 	total = 0;
 	while(total < r->ifcall.count){
 		n = pwrite(fd, (char*)r->ifcall.data+total, r->ifcall.count-total, r->ifcall.offset+total);
@@ -1580,7 +1580,7 @@ xread(Req *r)
 	int fd;
 	HTTPHeader hdr;
 	char *url;
-	
+
 	sf = r->fid->aux;
 	r->ofcall.count = 0;
 	switch(sf->type){
@@ -1640,7 +1640,7 @@ xwrite(Req *r)
 	Json *v;
 	char strid[50];
 	SmugFid *sf;
-	
+
 	sf = r->fid->aux;
 	r->ofcall.count = r->ifcall.count;
 	sync = (r->ifcall.count==4 && memcmp(r->ifcall.data, "sync", 4) == 0);
@@ -1660,7 +1660,7 @@ xwrite(Req *r)
 			respond(r, nil);
 			return;
 		}
-		break;		
+		break;
 	case Qalbumsctl:
 	case Qcategoryctl:
 		jcacheflush("smugmug.categories.get");
@@ -1740,7 +1740,7 @@ xwrite(Req *r)
 	}
 	respond(r, "invalid control message");
 	return;
-}	
+}
 
 void
 xremove(Req *r)
@@ -1803,7 +1803,7 @@ xremove(Req *r)
 			respond(r, nil);
 		}
 		return;
-		
+
 	case Qimage:
 		snprint(id, sizeof id, "%lld", sf->image);
 		v = ncsmug("smugmug.images.delete",
@@ -1832,7 +1832,7 @@ Srv xsrv;
 
 void
 xinit(void)
-{	
+{
 	xsrv.attach = xattach;
 	xsrv.open = xopen;
 	xsrv.create = xcreate;

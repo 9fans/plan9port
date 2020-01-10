@@ -7,7 +7,7 @@ makeline(int i, int c, int lintype)
 	int	cr, type, shortl;
 
 	type = thish(i, c);
-	if (type == 0) 
+	if (type == 0)
 		return;
 	shortl = (table[i][c].col[0] == '\\');
 	if (c > 0 && !shortl && thish(i, c - 1) == type)
@@ -55,17 +55,17 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 	lcount = 0;
 	exhr = exhl = "";
 	switch (lintype) {
-	case '-': 
+	case '-':
 		lcount = 1;
 		break;
-	case '=': 
-		lcount = pr1403 ? 1 : 2; 
+	case '=':
+		lcount = pr1403 ? 1 : 2;
 		break;
-	case SHORTLINE: 
-		lcount = 1; 
+	case SHORTLINE:
+		lcount = 1;
 		break;
 	}
-	if (lcount <= 0) 
+	if (lcount <= 0)
 		return;
 	nodata = cr - cl >= ncol || noheight || allh(i);
 	if (!nodata)
@@ -79,26 +79,26 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 			tohcol(cl);
 			if (lcount > 1) {
 				switch (interv(i, cl)) {
-				case TOP: 
-					exhl = ln == 0 ? "1p" : "-1p"; 
+				case TOP:
+					exhl = ln == 0 ? "1p" : "-1p";
 					break;
-				case BOT: 
-					exhl = ln == 1 ? "1p" : "-1p"; 
+				case BOT:
+					exhl = ln == 1 ? "1p" : "-1p";
 					break;
-				case THRU: 
-					exhl = "1p"; 
+				case THRU:
+					exhl = "1p";
 					break;
 				}
 				if (exhl[0])
 					Bprint(&tabout, "\\h'%s'", exhl);
 			} else if (lcount == 1) {
 				switch (interv(i, cl)) {
-				case TOP: 
-				case BOT: 
-					exhl = "-1p"; 
+				case TOP:
+				case BOT:
+					exhl = "-1p";
 					break;
-				case THRU: 
-					exhl = "1p"; 
+				case THRU:
+					exhl = "1p";
 					break;
 				}
 				if (exhl[0])
@@ -106,24 +106,24 @@ drawline(int i, int cl, int cr, int lintype, int noheight, int shortl)
 			}
 			if (lcount > 1) {
 				switch (interv(i, cr + 1)) {
-				case TOP: 
-					exhr = ln == 0 ? "-1p" : "+1p"; 
+				case TOP:
+					exhr = ln == 0 ? "-1p" : "+1p";
 					break;
-				case BOT: 
-					exhr = ln == 1 ? "-1p" : "+1p"; 
+				case BOT:
+					exhr = ln == 1 ? "-1p" : "+1p";
 					break;
-				case THRU: 
-					exhr = "-1p"; 
+				case THRU:
+					exhr = "-1p";
 					break;
 				}
 			} else if (lcount == 1) {
 				switch (interv(i, cr + 1)) {
-				case TOP: 
-				case BOT: 
-					exhr = "+1p"; 
+				case TOP:
+				case BOT:
+					exhr = "+1p";
 					break;
-				case THRU: 
-					exhr = "-1p"; 
+				case THRU:
+					exhr = "-1p";
 					break;
 				}
 			}
@@ -183,18 +183,18 @@ left(int i, int c, int *lwidp)
 					/* returns number of line where it starts */
 					/* stores into lwid the kind of line */
 	*lwidp = 0;
-	if (i < 0) 
+	if (i < 0)
 		return(-1);
 	kind = lefdata(i, c);
-	if (kind == 0) 
+	if (kind == 0)
 		return(-1);
 	if (i + 1 < nlin)
-		if (lefdata(next(i), c) == kind) 
+		if (lefdata(next(i), c) == kind)
 			return(-1);
 	li = i;
 	while (i >= 0 && lefdata(i, c) == kind)
 		i = prev(li = i);
-	if (prev(li) == -1) 
+	if (prev(li) == -1)
 		li = 0;
 	*lwidp = kind;
 	for (lj = i + 1; lj < li; lj++)
@@ -212,7 +212,7 @@ lefdata(int i, int c)
 {
 	int	ck;
 
-	if (i >= nlin) 
+	if (i >= nlin)
 		i = nlin - 1;
 	if (ctype(i, c) == 's') {
 		for (ck = c; ctype(i, ck) == 's'; ck--)
@@ -222,13 +222,13 @@ lefdata(int i, int c)
 	}
 	i = stynum[i];
 	i = lefline[c][i];
-	if (i > 0) 
+	if (i > 0)
 		return(i);
-	if (dboxflg && c == 0) 
+	if (dboxflg && c == 0)
 		return(2);
 	if (allflg)
 		return(1);
-	if (boxflg && c == 0) 
+	if (boxflg && c == 0)
 		return(1);
 	return(0);
 }
@@ -239,7 +239,7 @@ next(int i)
 {
 	while (i + 1 < nlin) {
 		i++;
-		if (!fullbot[i] && !instead[i]) 
+		if (!fullbot[i] && !instead[i])
 			break;
 	}
 	return(i);
@@ -253,5 +253,3 @@ prev(int i)
 		;
 	return(i);
 }
-
-

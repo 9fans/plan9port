@@ -67,7 +67,7 @@ int	pptponly;	/* only answer request that came from the pptp server */
 int	mute;
 int	minlease = MinLease;
 
-ulong	start;	
+ulong	start;
 
 /* option magic */
 char plan9opt[4] = { 'p', '9', ' ', ' ' };
@@ -502,7 +502,7 @@ rcvrequest(Req *rp)
 				sendnak(rp, "no offer for you");
 			return;
 		}
-	
+
 		/* if not for me, retract offer */
 		if(!forme(rp->server)){
 			b->expoffer = 0;
@@ -1040,7 +1040,7 @@ parseoptions(Req *rp)
 		p += n;
 		if(p > rp->e)
 			return;
-		
+
 		switch(code){
 		case ODipaddr:	/* requested ip address */
 			if(n == IPv4addrlen)
@@ -1506,7 +1506,7 @@ arpenter(uchar *ip, uchar *ether)
 {
 	int pid;
 	char xip[100], xether[100];
-	
+
 	switch(pid=fork()){
 	case -1:
 		break;

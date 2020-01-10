@@ -31,7 +31,7 @@ struct Win
 	Channel *c;	/* chan(Event) */
 	Win *next;
 	Win *prev;
-	
+
 	/* events */
 	int nbuf;
 	char name[1024];

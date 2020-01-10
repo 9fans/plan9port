@@ -241,4 +241,3 @@ userinput(char *buf, int blen)
 			exits("input too large");
 	}
 }
-

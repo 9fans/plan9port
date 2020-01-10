@@ -170,7 +170,7 @@ again:
 		goto again;
 	}
 	got |= 1<<type;
-	return got; 
+	return got;
 }
 
 int

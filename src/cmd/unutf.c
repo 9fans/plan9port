@@ -1,5 +1,5 @@
 /*
- * stupid little program to pipe unicode chars through 
+ * stupid little program to pipe unicode chars through
  * when converting to non-utf compilers.
  */
 #include <u.h>

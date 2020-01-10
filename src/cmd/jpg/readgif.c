@@ -166,7 +166,7 @@ readarray(Header *h)
 	nimages = 0;
 	array[0] = nil;
 	h->array = array;
-		
+
 	for(;;){
 		switch(c = Bgetc(h->fd)){
 		case Beof:

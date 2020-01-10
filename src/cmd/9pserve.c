@@ -185,7 +185,7 @@ threadmain(int argc, char **argv)
 		logging++;
 		break;
 	}ARGEND
-	
+
 	if(attached && !versioned){
 		fprint(2, "-A must be used with -M\n");
 		usage();
@@ -258,7 +258,7 @@ mainproc(void *v)
 
 /*	if(rootfid) */
 /*		dorootstat(); */
-	
+
 	threadcreate(listenthread, nil, STACK);
 	threadexits(0);
 }
@@ -302,7 +302,7 @@ listenthread(void *arg)
 		c->outqdead = chancreate(sizeof(void*), 0);
 		if(verbose) fprint(2, "%T incoming call on %s\n", c->dir);
 		threadcreate(connthread, c, STACK);
-	}	
+	}
 }
 
 void
@@ -348,7 +348,7 @@ char*
 estrdup(char *s)
 {
 	char *t;
-	
+
 	t = emalloc(strlen(s)+1);
 	strcpy(t, s);
 	return t;
@@ -713,7 +713,7 @@ openfdthread(void *v)
 	chanfree(c->internal);
 	c->internal = 0;
 	free(c);
-}			
+}
 
 int
 xopenfd(Msg *m)
@@ -868,7 +868,7 @@ outputthread(void *arg)
 	closeioproc(io);
 	fprint(2, "%T output eof\n");
 	threadexitsall(0);
-}	
+}
 
 void
 inputthread(void *arg)
@@ -1041,7 +1041,7 @@ msgnew(int x)
  * Clear data associated with connections, so that
  * if all msgs have been msgcleared, the connection
  * can be freed.  Note that this does *not* free the tpkt
- * and rpkt; they are freed in msgput with the msg itself. 
+ * and rpkt; they are freed in msgput with the msg itself.
  * The io write thread might still be holding a ref to msg
  * even once the connection has finished with it.
  */
@@ -1080,7 +1080,7 @@ msgput(Msg *m)
 	if(m == nil)
 		return;
 
-	if(verbose > 1) fprint(2, "%T msgput 0x%lux %p tag %d/%d ref %d\n", 
+	if(verbose > 1) fprint(2, "%T msgput 0x%lux %p tag %d/%d ref %d\n",
 		getcallerpc(&m), m, m->tag, m->ctag, m->ref);
 	assert(m->ref > 0);
 	if(--m->ref > 0)
@@ -1296,7 +1296,7 @@ repack(Fcall *f, uchar **ppkt)
 {
 	uint n, nn;
 	uchar *pkt;
-	
+
 	pkt = *ppkt;
 	n = GBIT32(pkt);
 	nn = sizeS2M(f);
@@ -1305,7 +1305,7 @@ repack(Fcall *f, uchar **ppkt)
 		pkt = emalloc(nn);
 		*ppkt = pkt;
 	}
-	n = convS2M(f, pkt, nn);	
+	n = convS2M(f, pkt, nn);
 	if(n <= BIT16SZ)
 		sysfatal("convS2M conversion error");
 	if(n != nn)
@@ -1401,13 +1401,13 @@ ioaccept(Ioproc *io, int fd, char *dir)
 int
 timefmt(Fmt *fmt)
 {
-	static char *mon[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	static char *mon[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	vlong ns;
 	Tm tm;
 	ns = nsec();
 	tm = *localtime(time(0));
-	return fmtprint(fmt, "%s %2d %02d:%02d:%02d.%03d", 
+	return fmtprint(fmt, "%s %2d %02d:%02d:%02d.%03d",
 		mon[tm.mon], tm.mday, tm.hour, tm.min, tm.sec,
 		(int)(ns%1000000000)/1000000);
 }

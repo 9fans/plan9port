@@ -11,7 +11,7 @@ subfontname(char *cfname, char *fname, int maxdepth)
 {
 	char *t, *u, *tmp1, *tmp2, *base;
 	int i, scale;
-	
+
 	scale = parsefontscale(fname, &base);
 
 	t = strdup(cfname);  /* t is the return string */

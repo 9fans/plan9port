@@ -11,7 +11,7 @@ enum {
 	MAXREJECTS = 100
 };
 
-	
+
 typedef struct Link Link;
 typedef struct List List;
 

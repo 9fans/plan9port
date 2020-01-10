@@ -33,7 +33,7 @@ extern void	interrupt(int);
 extern int	cat(char*);
 extern void	concat(double*);
 
-/* 
+/*
  * extern char	*tempnam(char*,char*);
  * extern char	*malloc();
  * extern char	*calloc();

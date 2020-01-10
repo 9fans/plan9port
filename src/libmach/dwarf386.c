@@ -5,7 +5,7 @@
 #include "dwarf.h"
 
 char*
-dwarf386regs[] = 
+dwarf386regs[] =
 {
 	"AX",
 	"CX",
@@ -18,5 +18,3 @@ dwarf386regs[] =
 };
 
 int dwarf386nregs = nelem(dwarf386regs);
-
-

@@ -13,7 +13,7 @@ void*
 p9malloc(ulong n)
 {
 	void *v;
-	
+
 	if(n == 0)
 		n++;
 	lock(&malloclock);
@@ -36,7 +36,7 @@ void*
 p9calloc(ulong a, ulong b)
 {
 	void *v;
-	
+
 	if(a*b == 0)
 		a = b = 1;
 

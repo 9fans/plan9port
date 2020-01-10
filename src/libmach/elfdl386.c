@@ -131,4 +131,3 @@ elfdl386mapdl(int verbose)
 			fprint(2, "syminit %s: %r\n", buf);
 	}
 }
-

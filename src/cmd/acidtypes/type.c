@@ -95,7 +95,7 @@ typebynum(uint n1, uint n2)
 	t->n2 = n2;
 	addhash(t);
 	return t;
-}	
+}
 
 Type*
 newtype(void)
@@ -251,10 +251,10 @@ cleanstl(char *name)
 {
 	char *b, *p;
 	static char buf[65536];	/* These can be huge. */
-	
+
 	if(strchr(name, '<') == nil)
 		return nonempty(name);
-	
+
 	b = buf;
 	for(p = name; *p != 0; p++){
 		switch(*p){
@@ -443,7 +443,7 @@ char*
 mkname(char *prefix, char *name)
 {
 	static char buf[65536];
-	
+
 	snprint(buf, sizeof buf, "%s%s", prefix, name);
 	return buf;
 }
@@ -630,7 +630,7 @@ ttt=ttt->sub;
 		if(nprint == 0)
 			Bprint(b, "\t'X' 0 __dummy;\n");
 		Bprint(b, "};\n\n");
-	
+
 		name = nameof(t, 1);	/* might have smashed it */
 		Bprint(b, "defn %B(addr) { %B(addr, \"\"); }\n", name, mkname("indent_", name));
 		Bprint(b, "defn %B(addr, indent) {\n", mkname("indent_", name));
@@ -675,13 +675,13 @@ ttt=ttt->sub;
 		}
 		Bprint(b, "};\n\n");
 		break;
-	
+
 	case Enum:
 		name = nameof(t, 1);
 		Bprint(b, "// enum %s\n", name);
 		for(j=0; j<t->n; j++)
 			Bprint(b, "%B = %ld;\n", fixname(t->tname[j]), t->val[j]);
-	
+
 		Bprint(b, "%B = {\n", mkname("vals_", name));
 		for(j=0; j<t->n; j++)
 			Bprint(b, "\t%lud,\n", t->val[j]);
@@ -738,7 +738,7 @@ printtypes(Biobuf *b)
 	 * only take one type of a given name; acid is going to do this anyway,
 	 * and this will reduce the amount of code we output considerably.
 	 * we could run a DFA equivalence relaxation sort of algorithm
-	 * to find the actual equivalence classes, and then rename types 
+	 * to find the actual equivalence classes, and then rename types
 	 * appropriately, but this will do for now.
 	 */
 	all = emalloc(n*sizeof(all[0]));

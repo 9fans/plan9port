@@ -5,10 +5,10 @@
  * You have to put locks in all the channels and all the Alt
  * structures.  At the beginning of an alt you have to lock all
  * the channels, but then to try to actually exec an op you
- * have to lock the other guy's alt structure, so that other 
+ * have to lock the other guy's alt structure, so that other
  * people aren't trying to use him in some other op at the
  * same time.
- * 
+ *
  * For Plan 9 apps, it's just not worth the extra effort.
  */
 static QLock chanlock;
@@ -415,4 +415,3 @@ channbrecvul(Channel *c)
 		return val;
 	return -1;
 }
-

@@ -43,7 +43,7 @@ unmapproc(Map *map)
 	for(i=0; i<map->nseg; i++)
 		while(i<map->nseg && map->seg[i].pid){
 			map->nseg--;
-			memmove(&map->seg[i], &map->seg[i+1], 
+			memmove(&map->seg[i], &map->seg[i+1],
 				(map->nseg-i)*sizeof(map->seg[0]));
 		}
 }

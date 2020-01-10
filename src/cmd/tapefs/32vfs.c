@@ -177,7 +177,7 @@ iget(int ino)
 	if ((flags&VFMT)==VIFDIR)
 		f.mode |= DMDIR;
 	f.uid = g2byte(dp->uid);
-	f.gid = g2byte(dp->gid);	
+	f.gid = g2byte(dp->gid);
 	f.mdate = g4byte(dp->mtime);
 	return f;
 }

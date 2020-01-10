@@ -81,7 +81,7 @@ dnserver(DNSmsg *reqp, DNSmsg *repp, Request *req)
 			nsdp = dnlookup(cp, repp->qd->owner->class, 0);
 			if(nsdp == 0)
 				continue;
-	
+
 			repp->ns = rrlookup(nsdp, Tns, OKneg);
 			if(repp->ns){
 				/* don't pass on anything we know is wrong */
@@ -91,7 +91,7 @@ dnserver(DNSmsg *reqp, DNSmsg *repp, Request *req)
 				}
 				break;
 			}
-	
+
 			repp->ns = dblookup(cp, repp->qd->owner->class, Tns, 0, 0);
 			if(repp->ns)
 				break;

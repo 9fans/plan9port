@@ -33,7 +33,7 @@ lspan(int i, int c)
 {
 	int	k;
 
-	if (ctype(i, c) != 's') 
+	if (ctype(i, c) != 's')
 		return(0);
 	c++;
 	if (c < ncol && ctype(i, c) == 's')
@@ -73,15 +73,15 @@ allh(int i)
 				/* also at least one must be horizontl */
 	int	c, one, k;
 
-	if (fullbot[i]) 
+	if (fullbot[i])
 		return(1);
-	if (i >= nlin) 
+	if (i >= nlin)
 		return(dboxflg || boxflg);
 	for (one = c = 0; c < ncol; c++) {
 		k = thish(i, c);
-		if (k == 0) 
+		if (k == 0)
 			return(0);
-		if (k == 1) 
+		if (k == 1)
 			continue;
 		one = 1;
 	}
@@ -98,30 +98,28 @@ thish(int i, int c)
 
 	if (c < 0)
 		return(0);
-	if (i < 0) 
+	if (i < 0)
 		return(0);
 	t = ctype(i, c);
 	if (t == '_' || t == '-')
 		return('-');
 	if (t == '=')
 		return('=');
-	if (t == '^') 
+	if (t == '^')
 		return(1);
 	if (fullbot[i] )
 		return(fullbot[i]);
-	if (t == 's') 
+	if (t == 's')
 		return(thish(i, c - 1));
-	if (t == 0) 
+	if (t == 0)
 		return(1);
 	pc = &table[i][c];
 	s = (t == 'a' ? pc->rcol : pc->col);
 	if (s == 0 || (point(s) && *s == 0))
 		return(1);
-	if (vspen(s)) 
+	if (vspen(s))
 		return(1);
 	if (t = barent( s))
 		return(t);
 	return(0);
 }
-
-

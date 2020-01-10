@@ -96,7 +96,7 @@ drawpjw(Memimage *m, Fontchar *fc, int x, int width, int height, int ascent)
 	Memimage *pm, *pm1, *pm2;
 	Rectangle r;
 	int margin;
-	
+
 	w = width;
 
 	// assume margin below baseline is
@@ -116,7 +116,7 @@ drawpjw(Memimage *m, Fontchar *fc, int x, int width, int height, int ascent)
 	close(p[0]);
 	if(pm == nil)
 		goto Error;
-	
+
 	pm1 = allocmemimage(pm->r, GREY8);
 	memimagedraw(pm1, pm1->r, pm, pm->r.min, nil, ZP, S);
 	pm2 = resample(w, w, pm1);
@@ -216,7 +216,7 @@ fac(int L)
 	return f;
 }
 
-/* 
+/*
  * i0(x) is the modified Bessel function, Σ (x/2)^2L / (L!)²
  * There are faster ways to calculate this, but we precompute
  * into a table so let's keep it simple.

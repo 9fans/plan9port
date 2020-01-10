@@ -89,7 +89,7 @@ fsysopenhfs(Disk *disk)
 	fsys->_readdir = hfsreaddir;
 	fsys->_close = hfsclose;
 	fsys->disk = disk;
-	
+
 	if(hfswrapper(fsys) < 0 || hfssync(fsys) < 0)
 		goto error;
 
@@ -130,7 +130,7 @@ hfswrapper(Fsys *fsys)
 	int magic, hfsstart, subsig, substart, subnblocks;
 	u32int hfsblocksize;
 	u64int offset, size;
-	
+
 	fs = fsys->priv;
 	disk = fsys->disk;
 	if((b = diskread(disk, 162, 1024)) == nil)
@@ -143,12 +143,12 @@ hfswrapper(Fsys *fsys)
 	substart = get16(mdb+126);
 	subnblocks = get16(mdb+128);
 	blockput(b);
-	
+
 	if(magic != Hfssig)
 		return 0;
 	if(subsig != Hfsplussig && subsig != Hfsxsig)
 		return 0;
-	
+
 	offset = hfsstart*512 + substart*hfsblocksize;
 	size = subnblocks*hfsblocksize;
 
@@ -748,7 +748,7 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 	if(ino.u.nentries>>31)
 		return Nfs3ErrIo;
 	nentries = ino.u.nentries*2;	/* even data, odd resource */
-	
+
 	i = cookie>>32;
 	cnid = cookie&0xFFFFFFFF;
 	if(debug) print("readdir %ud %ud %ud...", cnid, i, nentries);
@@ -784,7 +784,7 @@ hfsreaddir(Fsys *fsys, SunAuthUnix *au, Nfs3Handle *h, u32int count,
 			goto badparent;
 		i++;
 	}
-	
+
 	memset(&e, 0, sizeof e);
 	for(; i<nentries; i++){
 		rsrc = i&1;

@@ -33,7 +33,7 @@ freereqpool(Reqpool *p)
 {
 	freemap(p->map, (void(*)(void*))p->destroy);
 	free(p);
-}	
+}
 
 Req*
 allocreq(Reqpool *pool, ulong tag)

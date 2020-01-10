@@ -26,7 +26,7 @@ static Keyword options[] = {
 	"norelay",		NORELAY,
 	"verifysenderdom",	DNSVERIFY,
 	"saveblockedmsg",	SAVEBLOCK,
-	"defaultdomain",	DOMNAME,	
+	"defaultdomain",	DOMNAME,
 	"ournets",		OURNETS,
 	"ourdomains",		OURDOMS,
 	0,			NONE
@@ -84,7 +84,7 @@ getaction(char *s, char *type)
 		return ACCEPT;
 
 	for(k = actions; k->name != 0; k++){
-		snprint(buf, sizeof buf, "%s/mail/ratify/%s/%s/%s", 
+		snprint(buf, sizeof buf, "%s/mail/ratify/%s/%s/%s",
 			get9root(), k->name, type, s);
 		if(access(buf,0) >= 0)
 			return k->code;
@@ -435,7 +435,7 @@ cidrcheck(char *cp)
 		if((v4peerip&m) == a)
 			return 1;
 		cp += strlen(cp)+1;
-	}		
+	}
 	return 0;
 }
 
@@ -508,7 +508,7 @@ recipok(char *user)
 	int pid;
 	Waitmsg *w;
 	static int beenhere;
-	
+
 	if(!beenhere){
 		beenhere++;
 		validator = unsharp(validator);

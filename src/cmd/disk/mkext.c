@@ -64,7 +64,7 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	Binits(&bin, 0, OREAD, binbuf, sizeof binbuf);
 	while(p = Brdline(&bin, '\n')){
 		p[Blinelen(&bin)-1] = '\0';

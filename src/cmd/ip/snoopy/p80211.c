@@ -1,4 +1,4 @@
-/* 
+/*
  * IEEE 802.11.
  */
 
@@ -29,7 +29,7 @@ enum
 	NodataCfAck,
 	NodataCfPoll,
 	NodataCfAckPoll,
-	
+
 	FlagTods = 0x1,
 	FlagFromds = 0x2,
 	FlagMoreflag = 0x4,
@@ -38,7 +38,7 @@ enum
 	FlagMoreData = 0x20,
 	FlagWep = 0x40,
 	FlagOrder = 0x80,
-	
+
 	ProtoNone = 0,
 	ProtoLlc,
 };
@@ -85,7 +85,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 
 	if(h->vers != 0)
 		return 0;
-	
+
 	switch(h->type){
 	case Tmgmt:
 		// fc dur da sa bssid seq
@@ -98,7 +98,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 		memmove(h->bssid, p+16, 6);
 		h->seq = LittleS(p+22);
 		break;
-	
+
 	case Tctl:
 		switch(h->subtype){
 		case CtlPoll:
@@ -110,7 +110,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 			memmove(h->bssid, p+4, 6);
 			memmove(h->ta, p+10, 6);
 			break;
-		
+
 		case CtlRts:
 			// fc dur ra ta
 			if(p+2+2+6+6 > ep)
@@ -120,7 +120,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 			memmove(h->ra, p+4, 6);
 			memmove(h->ta, p+10, 6);
 			break;
-		
+
 		case CtlCts:
 		case CtlAck:
 			// fc dur ra
@@ -130,7 +130,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 			h->dur = LittleS(p+2);
 			memmove(h->ra, p+4, 6);
 			break;
-		
+
 		case CtlCfEnd:
 		case CtlCfEndAck:
 			// fc dur ra bssid
@@ -143,7 +143,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 			break;
 		}
 		break;
-	
+
 	case Tdata:
 		if(p+24 > ep)
 			return -1;
@@ -183,7 +183,7 @@ unpackhdr(uchar *p, uchar *ep, Hdr *h)
 			h->proto = ProtoLlc;
 		break;
 	}
-	return 0;	
+	return 0;
 }
 
 enum
@@ -284,7 +284,7 @@ static int
 p_seprint(Msg *m)
 {
 	Hdr h;
-	
+
 	memset(&h, 0, sizeof h);
 	if(unpackhdr(m->ps, m->pe, &h) < 0)
 		return -1;

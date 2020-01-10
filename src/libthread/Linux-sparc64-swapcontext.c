@@ -47,4 +47,3 @@ __swapcontext_ret:					\n\
 	 clr	%o0					\n\
 	.size	__swapcontext_ret, .-__swapcontext_ret	\n\
      ");
-

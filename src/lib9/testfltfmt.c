@@ -142,9 +142,9 @@ doit(int just, int plus, int alt, int zero, int width, int prec, int spec)
 		&& !numclose(ref, buf)) {
 			d1 = fmtstrtod(ref, 0);
 			d2 = fmtstrtod(buf, 0);
-			fprintf(stderr, "%s: ref='%s'%s fmt='%s'%s\n", 
-				format, 
-				ref, d1==fmtvals[i] ? "" : " (ref is inexact!)", 
+			fprintf(stderr, "%s: ref='%s'%s fmt='%s'%s\n",
+				format,
+				ref, d1==fmtvals[i] ? "" : " (ref is inexact!)",
 				buf, d2==fmtvals[i] ? "" : " (fmt is inexact!)");
 		//	exits("oops");
 		}
@@ -156,9 +156,9 @@ doit(int just, int plus, int alt, int zero, int width, int prec, int spec)
 		&& !numclose(ref, buf)) {
 			d1 = fmtstrtod(ref, 0);
 			d2 = fmtstrtod(buf, 0);
-			fprintf(stderr, "%s: ref='%s'%s fmt='%s'%s\n", 
-				format, 
-				ref, d1==fmtvals[i] ? "" : " (ref is inexact!)", 
+			fprintf(stderr, "%s: ref='%s'%s fmt='%s'%s\n",
+				format,
+				ref, d1==fmtvals[i] ? "" : " (ref is inexact!)",
 				buf, d2==fmtvals[i] ? "" : " (fmt is inexact!)");
 		//	exits("oops");
 		}

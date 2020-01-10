@@ -96,7 +96,7 @@ runxevent(XEvent *xev)
 	case Expose:
 		_xexpose(xev);
 		break;
-	
+
 	case DestroyNotify:
 		if(_xdestroy(xev))
 			exits(0);
@@ -107,4 +107,3 @@ runxevent(XEvent *xev)
 		break;
 	}
 }
-

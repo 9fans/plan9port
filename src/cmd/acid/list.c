@@ -54,7 +54,7 @@ build(Node *n)
 		l = al(res.type);
 		l->store = res.store;
 		*tail = l;
-		tail = &l->next;	
+		tail = &l->next;
 	}
 }
 

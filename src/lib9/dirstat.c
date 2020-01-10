@@ -29,4 +29,3 @@ dirstat(char *file)
 	_p9dir(&lst, &st, file, d, &str, str+nstr);
 	return d;
 }
-

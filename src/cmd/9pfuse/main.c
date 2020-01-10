@@ -14,7 +14,7 @@
  * writing the 9P connection.  Thus the many threads in the
  * request proc can do 9P interactions without blocking.
  */
- 
+
 #define _GNU_SOURCE 1	/* for O_DIRECTORY on Linux */
 #include "a.h"
 
@@ -165,16 +165,16 @@ init9p(char *addr, char *spec)
 /*
  * FUSE uses nodeids to refer to active "struct inodes"
  * (9P's unopened fids).  FUSE uses fhs to refer to active
- * "struct fuse_files" (9P's opened fids).  The choice of 
+ * "struct fuse_files" (9P's opened fids).  The choice of
  * numbers is up to us except that nodeid 1 is the root directory.
- * We use the same number space for both and call the 
+ * We use the same number space for both and call the
  * bookkeeping structure a FuseFid.
  *
- * FUSE requires nodeids to have associated generation 
- * numbers.  If we reuse a nodeid, we have to bump the 
+ * FUSE requires nodeids to have associated generation
+ * numbers.  If we reuse a nodeid, we have to bump the
  * generation number to guarantee that the nodeid,gen
  * combination is never reused.
- * 
+ *
  * There are also inode numbers returned in directory reads
  * and file attributes, but these do NOT need to match the nodeids.
  * We use a combination of qid.path and qid.type as the inode
@@ -192,7 +192,7 @@ struct Fusefid
 	int id;
 	int gen;
 	int isnodeid;
-	
+
 	/* directory read state */
 	Dir *d0;
 	Dir *d;
@@ -208,7 +208,7 @@ Fusefid*
 allocfusefid(void)
 {
 	Fusefid *f;
-	
+
 	if((f = freefusefidlist) == nil){
 		f = emalloc(sizeof *f);
 		fusefid = erealloc(fusefid, (nfusefid+1)*sizeof *fusefid);
@@ -247,7 +247,7 @@ uvlong
 _alloc(CFid *fid, int isnodeid)
 {
 	Fusefid *ff;
-	
+
 	ff = allocfusefid();
 	ff->fid = fid;
 	ff->isnodeid = isnodeid;
@@ -283,7 +283,7 @@ CFid*
 _lookupcfid(uvlong id, int isnodeid)
 {
 	Fusefid *ff;
-	
+
 	if((ff = lookupfusefid(id, isnodeid)) == nil)
 		return nil;
 	return ff->fid;
@@ -360,7 +360,7 @@ fuselookup(FuseMsg *m)
 	CFid *fid, *newfid;
 	Dir *d;
 	struct fuse_entry_out out;
-	
+
 	name = m->tx;
 	if((fid = nodeid2fid(m->hdr->nodeid)) == nil){
 		replyfuseerrno(m, ESTALE);
@@ -392,7 +392,7 @@ fuselookup(FuseMsg *m)
 /*
  * Forget.  Reference-counted clunk for nodeids.
  * Does not send a reply.
- * Each lookup response gives the kernel an additional reference 
+ * Each lookup response gives the kernel an additional reference
  * to the returned nodeid.  Forget says "drop this many references
  * to this nodeid".  Our fuselookup, when presented with the same query,
  * does not return the same results (it allocates a new nodeid for each
@@ -423,7 +423,7 @@ fuseforget(FuseMsg *m)
  * Getattr.
  * Replies with a fuse_attr_out structure giving the
  * attr for the requested nodeid in out.attr.
- * Out.attr_valid and out.attr_valid_nsec give 
+ * Out.attr_valid and out.attr_valid_nsec give
  * the amount of time that the attributes can
  * be cached.
  *
@@ -479,7 +479,7 @@ fusesetattr(FuseMsg *m)
 		/*
 		 * Special case: Linux issues a size change to
 		 * truncate a file before opening it OTRUNC.
-		 * Synthetic file servers (e.g., plumber) honor 
+		 * Synthetic file servers (e.g., plumber) honor
 		 * open(OTRUNC) but not wstat.
 		 */
 		if(in->valid == FATTR_SIZE && in->size == 0){
@@ -554,7 +554,7 @@ _fuseopenfid(uvlong nodeid, int isdir, int openmode, int *err)
 		*err = errstr2errno();
 		return nil;
 	}
-		
+
 	if(fsfopen(newfid, openmode) < 0){
 		*err = errstr2errno();
 		fsclose(newfid);
@@ -617,7 +617,7 @@ _fuseopen(FuseMsg *m, int isdir)
 		return;
 	}
 	out.fh = allocfh(fid);
-	out.open_flags = FOPEN_DIRECT_IO;	/* no page cache */	
+	out.open_flags = FOPEN_DIRECT_IO;	/* no page cache */
 	replyfuse(m, &out, sizeof out);
 }
 
@@ -696,7 +696,7 @@ fusemkdir(FuseMsg *m)
 	CFid *fid;
 	int err;
 	char *name;
-	
+
 	in = m->tx;
 	name = (char*)(in+1);
 	if((fid = _fusecreate(m->hdr->nodeid, name, in->mode, 1, OREAD, &out, &err)) == nil){
@@ -716,7 +716,7 @@ fusecreate(FuseMsg *m)
 	CFid *fid;
 	int err, openmode, flags;
 	char *name;
-	
+
 	in = m->tx;
 	flags = in->flags;
 	openmode = in->flags&3;
@@ -740,7 +740,7 @@ fusecreate(FuseMsg *m)
 }
 
 /*
- * Access.  
+ * Access.
  * Lib9pclient implements this just as Plan 9 does,
  * by opening the file (or not) and then closing it.
  */
@@ -760,7 +760,7 @@ fuseaccess(FuseMsg *m)
 		ORDWR,
 		ORDWR
 	};
-	
+
 	in = m->tx;
 	if(in->mask >= nelem(a2o)){
 		replyfuseerrno(m, EINVAL);
@@ -791,7 +791,7 @@ fuserelease(FuseMsg *m)
 {
 	struct fuse_release_in *in;
 	Fusefid *ff;
-	
+
 	in = m->tx;
 	if((ff = lookupfusefid(in->fh, 0)) != nil)
 		freefusefid(ff);
@@ -864,7 +864,7 @@ fusereadlink(FuseMsg *m)
 	return;
 }
 
-/* 
+/*
  * Readdir.
  * Read from file handle in->fh at offset in->offset for size in->size.
  * We truncate size to maxwrite just to keep the buffer reasonable.
@@ -884,12 +884,12 @@ fusereaddir(FuseMsg *m)
 	uchar *buf, *p, *ep;
 	int n;
 	Fusefid *ff;
-	
+
 	in = m->tx;
 	if((ff = lookupfusefid(in->fh, 0)) == nil){
 		replyfuseerrno(m, ESTALE);
 		return;
-	}	
+	}
 	if(in->offset == 0){
 		fsseek(ff->fid, 0, 0);
 		free(ff->d0);
@@ -922,7 +922,7 @@ fusereaddir(FuseMsg *m)
 			break;
 		ff->d = ff->d0;
 	}
-out:			
+out:
 	replyfuse(m, buf, p - buf);
 	free(buf);
 }
@@ -958,7 +958,7 @@ canpack(Dir *d, uvlong off, uchar **pp, uchar *ep)
 	uchar *p;
 	struct fuse_dirent *de;
 	int pad, size;
-	
+
 	p = *pp;
 	size = FUSE_NAME_OFFSET + strlen(d->name);
 	pad = 0;
@@ -981,7 +981,7 @@ canpack(Dir *d, uvlong off, uchar **pp, uchar *ep)
  * Write.
  * Write from file handle in->fh at offset in->offset for size in->size.
  * Don't know what in->write_flags means.
- * 
+ *
  * Apparently implementations are allowed to buffer these writes
  * and wait until Flush is sent, but FUSE docs say flush may be
  * called zero, one, or even more times per close.  So better do the
@@ -996,7 +996,7 @@ fusewrite(FuseMsg *m)
 	void *a;
 	CFid *fid;
 	int n;
-	
+
 	in = m->tx;
 	a = in+1;
 	if((fid = fh2fid(in->fh)) == nil){
@@ -1018,7 +1018,7 @@ fusewrite(FuseMsg *m)
 
 /*
  * Flush.  Supposed to flush any buffered writes.  Don't use this.
- * 
+ *
  * Flush is a total crock.  It gets called on close() of a file descriptor
  * associated with this open file.  Some open files have multiple file
  * descriptors and thus multiple closes of those file descriptors.
@@ -1027,7 +1027,7 @@ fusewrite(FuseMsg *m)
  * closed explicitly.  For those files, Flush is never called.
  * Even more amusing, Flush gets called before close() of read-only
  * file descriptors too!
- * 
+ *
  * This is just a bad idea.
  */
 void
@@ -1044,7 +1044,7 @@ _fuseremove(FuseMsg *m, int isdir)
 {
 	char *name;
 	CFid *fid, *newfid;
-	
+
 	name = m->tx;
 	if((fid = nodeid2fid(m->hdr->nodeid)) == nil){
 		replyfuseerrno(m, ESTALE);
@@ -1105,7 +1105,7 @@ fuserename(FuseMsg *m)
 	char *before, *after;
 	CFid *fid, *newfid;
 	Dir d;
-	
+
 	in = m->tx;
 	if(in->newdir != m->hdr->nodeid){
 		replyfuseerrno(m, EXDEV);
@@ -1146,7 +1146,7 @@ fusefsync(FuseMsg *m)
 	struct fuse_fsync_in *in;
 	CFid *fid;
 	Dir d;
-	
+
 	in = m->tx;
 	if((fid = fh2fid(in->fh)) == nil){
 		replyfuseerrno(m, ESTALE);
@@ -1181,7 +1181,7 @@ void
 fusestatfs(FuseMsg *m)
 {
 	struct fuse_statfs_out out;
-	
+
 	memset(&out, 0, sizeof out);
 	replyfuse(m, &out, sizeof out);
 }
@@ -1215,7 +1215,7 @@ struct {
 	{ FUSE_FSYNC,		fusefsync },
 	/*
 	 * FUSE_SETXATTR, FUSE_GETXATTR, FUSE_LISTXATTR, and
-	 * FUSE_REMOVEXATTR are unimplemented. 
+	 * FUSE_REMOVEXATTR are unimplemented.
 	 * FUSE will stop sending these requests after getting
 	 * an -ENOSYS reply (see dispatch below).
 	 */
@@ -1237,7 +1237,7 @@ fusethread(void *v)
 	FuseMsg *m;
 
 	m = v;
-	if((uint)m->hdr->opcode >= nelem(fusehandlers) 
+	if((uint)m->hdr->opcode >= nelem(fusehandlers)
 	|| !fusehandlers[m->hdr->opcode]){
 		replyfuseerrno(m, ENOSYS);
 		return;
@@ -1267,7 +1267,7 @@ fusedispatch(void *v)
 		case FUSE_FORGET:
 		 	fusehandlers[m->hdr->opcode](m);
 			break;
-		default: 
+		default:
 			threadcreate(fusethread, m, STACK);
 		}
 	}

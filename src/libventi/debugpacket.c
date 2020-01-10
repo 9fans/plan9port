@@ -19,7 +19,7 @@ Packet*
 packetalloc(void)
 {
 	Packet *p;
-	
+
 	p = vtmallocz(sizeof *p);
 	p->free = vtfree;
 	p->arg = nil;
@@ -52,7 +52,7 @@ int
 packetcmp(Packet *p, Packet *q)
 {
 	int i, len;
-	
+
 	NOTFREE(p);
 	NOTFREE(q);
 	len = p->len;
@@ -129,7 +129,7 @@ Packet*
 packetforeign(uchar *buf, int n, void (*free)(void*), void *a)
 {
 	Packet *p;
-	
+
 	if(n < 0)
 		abort();
 	p = packetalloc();
@@ -224,7 +224,7 @@ Packet*
 packetsplit(Packet *p, int n)
 {
 	Packet *q;
-	
+
 	NOTFREE(p);
 	q = packetalloc();
 	q->data = vtmalloc(n);
@@ -262,4 +262,3 @@ packettrim(Packet *p, int offset, int n)
 	p->len -= n;
 	return 0;
 }
-

@@ -218,4 +218,3 @@ void	henter(ulong, char*, Qid, Message*, Mailbox*);
 void	hfree(ulong, char*);
 
 ulong msgallocd, msgfreed;
-

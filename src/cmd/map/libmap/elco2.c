@@ -76,7 +76,7 @@ elco2(double x, double y, double kc, double a, double b, double *u, double *v)
 
 		cmul(c,dn2,1+e1*m2,e2*m2,&f1,&f2);
 		cdiv(d*x,d*y,f1,f2,&d1[i],&d2[i]);
-		if(k<=CC) 
+		if(k<=CC)
 			break;
 		kc = sqrt(m*kc);
 		f = m2;

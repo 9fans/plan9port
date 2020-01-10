@@ -40,7 +40,7 @@ unique(char *buf, Symbol *s)
 	if(l == 0)
 		l = enter(buf, Tid);
 	s->aux = l;
-	return l;	
+	return l;
 }
 
 void
@@ -122,22 +122,22 @@ addvarsym(Fhdr *fp)
 			tl->store.u.l = list;
 			list->store.u.string = strnode(buf);
 			list->store.fmt = 's';
-			
+
 			list->next = al(TINT);
 			list = list->next;
 			list->store.fmt = 'c';
 			list->store.u.ival = s.type;
-			
+
 			list->next = al(TINT);
 			list = list->next;
 			list->store.fmt = 'X';
 			list->store.u.ival = v;
-			
+
 			list->next = al(TSTRING);
 			list = list->next;
 			list->store.fmt = 's';
 			list->store.u.string = file;
-			
+
 			list->next = al(TSTRING);
 			list = list->next;
 			list->store.fmt = 's';

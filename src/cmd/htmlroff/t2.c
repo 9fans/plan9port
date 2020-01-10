@@ -3,14 +3,14 @@
 /*
  * Section 2 - Font and character size control.
  */
- 
+
 /* 2.1 - Character set */
 /* XXX
  *
  * \C'name' - character named name
  * \N'n' - character number
  * \(xx - two-letter character
- * \- 
+ * \-
  * \`
  * \'
  * `
@@ -24,10 +24,10 @@ getqarg(void)
 	static Rune buf[MaxLine];
 	int c;
 	Rune *p, *e;
-	
+
 	p = buf;
 	e = p + nelem(buf) - 1;
-	
+
 	if(getrune() != '\'')
 		return nil;
 	while(p < e){
@@ -60,7 +60,7 @@ e_paren(void)
 {
 	int c, cc;
 	Rune buf[2], r;
-	
+
 	if((c = getrune()) < 0 || c == '\n')
 		goto error;
 	if((cc = getrune()) < 0 || cc == '\n')
@@ -71,7 +71,7 @@ e_paren(void)
  	if(r == Runeerror)
 		warn("unknown char %C(%C%C", backslash, c, cc);
 	return r;
-	
+
 error:
 	warn("malformed %C(xx", backslash);
 	return 0;
@@ -92,7 +92,7 @@ ft(Rune *f)
 {
 	int i;
 	int fn;
-	
+
 	if(f && runestrcmp(f, L("P")) == 0)
 		f = nil;
 	if(f == nil)
@@ -131,7 +131,7 @@ fp(int i, Rune *f)
 	}
 	runestrecpy(fonttab[i], fonttab[i]+sizeof fonttab[i], f);
 }
-	
+
 int
 e_f(void)
 {
@@ -177,7 +177,7 @@ void
 r_ps(int argc, Rune **argv)
 {
 	Rune *p;
-	
+
 	if(argc == 1 || argv[1][0] == 0)
 		ps(0);
 	else{
@@ -195,7 +195,7 @@ int
 e_s(void)
 {
 	int c, cc, ccc, n, twodigit;
-	
+
 	c = getnext();
 	if(c < 0)
 		return 0;
@@ -253,7 +253,7 @@ t2init(void)
 	fp(3, L("B"));
 	fp(4, L("BI"));
 	fp(5, L("CW"));
-	
+
 	nr(L(".s"), 10);
 	nr(L(".s0"), 10);
 
@@ -271,4 +271,3 @@ t2init(void)
 	addesc('N', e_N, 0);
 	/* \- \' \` are handled in html.c */
 }
-

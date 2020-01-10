@@ -20,4 +20,3 @@ drawrepl(Rectangle r, Point p)
 	p.y = drawreplxy(r.min.y, r.max.y, p.y);
 	return p;
 }
-

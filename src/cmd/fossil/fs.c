@@ -529,7 +529,7 @@ fsSnapshot(Fs *fs, char *srcpath, char *dstpath, int doarchive)
 	 * It is important that we maintain the invariant that:
 	 *	if both b and bb are marked as Active with start epoch e
 	 *	and b points at bb, then no other pointers to bb exist.
-	 * 
+	 *
 	 * When bb is unlinked from b, its close epoch is set to b's epoch.
 	 * A block with epoch == close epoch is
 	 * treated as free by cacheAllocBlock; this aggressively
@@ -1095,4 +1095,3 @@ snapClose(Snap *s)
 	periodicKill(s->tick);
 	vtfree(s);
 }
-

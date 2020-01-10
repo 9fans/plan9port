@@ -132,7 +132,7 @@ enum
 	Ot,	/* type */
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"s",	Fv6ip,	Os,	"source address",	} ,
 	{"d",	Fv6ip,	Od,	"destination address",	} ,
@@ -167,7 +167,7 @@ v6hdrlen(Hdr *h)
 	int pktlen = IP6HDR + NetS(h->length);
 	uchar nexthdr = h->proto;
 	uchar *pkt = (uchar*) h;
-	
+
 	pkt += len;
 	plen = len;
 
@@ -176,7 +176,7 @@ v6hdrlen(Hdr *h)
 
 		if (nexthdr == FRAG_HDR)
 			len = FRAG_HSZ;
-		else 
+		else
 			len = ( ((int) *(pkt+1)) + 1) * 8;
 
 		if (plen + len > pktlen)
@@ -226,7 +226,7 @@ v6hdr_seprint(Msg *m)
 	int pktlen = IP6HDR + NetS(h->length);
 	uchar nexthdr = h->proto;
 	int plen;
-	
+
 	pkt += len;
 	plen = len;
 

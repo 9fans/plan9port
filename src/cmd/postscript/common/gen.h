@@ -66,4 +66,3 @@ extern	char*	safe_tempnam(char*, char*);
 #define ABS(A)		((A) >= 0 ? (A) : -(A))
 #define MIN(A, B)	((A) < (B) ? (A) : (B))
 #define MAX(A, B)	((A) > (B) ? (A) : (B))
-

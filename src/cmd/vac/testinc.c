@@ -14,13 +14,13 @@ threadmain(int argc, char **argv)
 	default:
 		goto usage;
 	}ARGEND
-	
+
 	if(argc != 1){
 	usage:
 		fprint(2, "usage: testinc includefile\n");
 		threadexitsall("usage");
 	}
-	
+
 	loadexcludefile(argv[0]);
 	Binit(&b, 0, OREAD);
 	while((p = Brdline(&b, '\n')) != nil){

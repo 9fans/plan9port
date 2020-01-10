@@ -28,4 +28,3 @@ void	freesx(Sx*);
 int	oksx(Sx*);
 int	sxfmt(Fmt*);
 int	sxwalk(Sx*);
-

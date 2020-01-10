@@ -181,4 +181,3 @@ void	outshort(int);
 void	outlong(long);
 void	outvlong(vlong);
 void	outsend(void);
-

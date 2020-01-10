@@ -59,7 +59,7 @@ void
 addraw(Rune *name, void (*f)(Rune*))
 {
 	Raw *r;
-	
+
 	if(nraw >= nelem(raw)){
 		fprint(2, "too many raw requets\n");
 		return;
@@ -73,7 +73,7 @@ void
 delraw(Rune *name)
 {
 	int i;
-	
+
 	for(i=0; i<nraw; i++){
 		if(runestrcmp(raw[i].name, name) == 0){
 			if(i != --nraw){
@@ -89,7 +89,7 @@ void
 renraw(Rune *from, Rune *to)
 {
 	int i;
-	
+
 	delraw(to);
 	for(i=0; i<nraw; i++)
 		if(runestrcmp(raw[i].name, from) == 0){
@@ -135,7 +135,7 @@ void
 renreq(Rune *from, Rune *to)
 {
 	int i;
-	
+
 	delreq(to);
 	for(i=0; i<nreq; i++)
 		if(runestrcmp(req[i].name, from) == 0){
@@ -149,7 +149,7 @@ void
 addesc(Rune r, int (*f)(void), int mode)
 {
 	Esc *e;
-	
+
 	if(nesc >= nelem(esc)){
 		fprint(2, "too many escapes\n");
 		return;
@@ -256,7 +256,7 @@ copyarg(void)
 	static Rune buf[MaxLine];
 	int c;
 	Rune *r;
-	
+
 	if(_readx(buf, sizeof buf, ArgMode, 0) < 0)
 		return nil;
 	r = runestrstr(buf, L("\\\""));
@@ -266,7 +266,7 @@ copyarg(void)
 			;
 		ungetrune('\n');
 	}
-	r = erunestrdup(buf);	
+	r = erunestrdup(buf);
 	return r;
 }
 
@@ -322,7 +322,7 @@ parseargs(Rune *p, Rune **argv)
 						*w++ = *p;
 				}
 				*w = 0;
-			}	
+			}
 		}else{
 			/* unquoted argument - need to watch out for \" comment */
 			for(; *p; p++){
@@ -369,7 +369,7 @@ dotline(int dot)
 			raw[i].f(raw[i].name);
 			free(a);
 			return;
-		}	
+		}
 	}
 
 	/*
@@ -515,7 +515,7 @@ void
 runinput(void)
 {
 	int c;
-	
+
 	bol = 1;
 	for(;;){
 		c = getnext();
@@ -573,7 +573,7 @@ run(void)
 	t20init();
 	htmlinit();
 	hideihtml();
-	
+
 	addreq(L("margin"), r_margin, 1);
 	nr(L(".margin"), 1);
 	nr(L(".paragraph"), 1);
@@ -603,7 +603,7 @@ void
 inroman(Rune r)
 {
 	int f;
-	
+
 	f = getnr(L(".f"));
 	nr(L(".f"), 1);
 	runmacro1(L("font"));
@@ -631,7 +631,7 @@ void
 outhtml(Rune *s)
 {
 	Rune r;
-	
+
 	for(; *s; s++){
 		switch(r = *s){
 		case '<':

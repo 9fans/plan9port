@@ -7,7 +7,7 @@ Brdsx(Biobuf *b)
 {
 	Sx **sx, *x;
 	int nsx;
-	
+
 	nsx = 0;
 	sx = nil;
 	while((x = Brdsx1(b)) != nil){
@@ -21,11 +21,11 @@ Brdsx(Biobuf *b)
 	return x;
 }
 
-int 
+int
 sxwalk(Sx *sx)
 {
 	int i, n;
-	
+
 	if(sx == nil)
 		return 1;
 	switch(sx->type){
@@ -46,7 +46,7 @@ void
 freesx(Sx *sx)
 {
 	int i;
-	
+
 	if(sx == nil)
 		return;
 	switch(sx->type){
@@ -70,7 +70,7 @@ Brdsx1(Biobuf *b)
 	char *s;
 	vlong n;
 	Sx *x;
-	
+
 	c = Bgetc(b);
 	if(c == ' ')
 		c = Bgetc(b);
@@ -144,7 +144,7 @@ Brdsx1(Biobuf *b)
 	s = emalloc(1);
 	s[0] = c;
 	nbr = 0;
-	while((c = Bgetc(b)) >= 0 && c > ' ' && !strchr("(){}", c)){ 
+	while((c = Bgetc(b)) >= 0 && c > ' ' && !strchr("(){}", c)){
 		/* allow embedded brackets as in BODY[] */
 		if(c == '['){
 			if(s[0] == '[')
@@ -169,7 +169,7 @@ Brdsx1(Biobuf *b)
 	x->type = SxAtom;
 	x->data = s;
 	x->ndata = len;
-	return x;		
+	return x;
 }
 
 int
@@ -177,7 +177,7 @@ sxfmt(Fmt *fmt)
 {
 	int i, paren;
 	Sx *sx;
-	
+
 	sx = va_arg(fmt->args, Sx*);
 	if(sx == nil)
 		return 0;
@@ -211,7 +211,7 @@ sxfmt(Fmt *fmt)
 int
 oksx(Sx *sx)
 {
-	return sx->nsx >= 2 
-		&& sx->sx[1]->type == SxAtom 
+	return sx->nsx >= 2
+		&& sx->sx[1]->type == SxAtom
 		&& cistrcmp(sx->sx[1]->data, "OK") == 0;
 }

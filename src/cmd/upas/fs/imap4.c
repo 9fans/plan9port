@@ -136,7 +136,7 @@ imapgrow(Imap *imap, int n)
 	int i;
 
 	if(imap->data == nil){
-		imap->base = emalloc(n+1);	
+		imap->base = emalloc(n+1);
 		imap->data = imap->base;
 		imap->size = n+1;
 	}
@@ -165,7 +165,7 @@ imap4resp(Imap *imap)
 		ep = p+Blinelen(&imap->bin);
 		while(ep > p && (ep[-1]=='\n' || ep[-1]=='\r'))
 			*--ep = '\0';
-		
+
 		if(imap->debug)
 			fprint(2, "<- %s\n", p);
 		strupr(p);
@@ -186,7 +186,7 @@ imap4resp(Imap *imap)
 			if(*p==' ')
 				p++;
 			verb = p;
-			
+
 			if(p = strchr(verb, ' '))
 				p++;
 			else
@@ -221,7 +221,7 @@ imap4resp(Imap *imap)
 				/* <3031 bytes of data> */
  				/* ) */
 				if(strstr(p, "RFC822.SIZE") && strstr(p, "BODY[]")){
-					if((q = strchr(p, '{')) 
+					if((q = strchr(p, '{'))
 					&& (n=strtol(q+1, &en, 0), *en=='}')){
 						if(imap->data == nil || n >= imap->size)
 							imapgrow(imap, n);
@@ -268,7 +268,7 @@ imap4resp(Imap *imap)
  				/* ) */
 				/* * 1 FETCH (UID 1 RFC822.HEADER "data") */
 				if(strstr(p, "RFC822.HEADER") || strstr(p, "RFC822.TEXT")){
-					if((q = strchr(p, '{')) 
+					if((q = strchr(p, '{'))
 					&& (n=strtol(q+1, &en, 0), *en=='}')){
 						if(imap->data == nil || n >= imap->size)
 							imapgrow(imap, n);

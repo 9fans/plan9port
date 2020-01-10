@@ -1,5 +1,5 @@
 #include "a.h"
- 
+
 /*
  * Section 1 - General Explanation.
  */
@@ -10,7 +10,7 @@ int
 scale2units(char c)
 {
 	int x;
-	
+
 	switch(c){
 	case 'i':	/* inch */
 		return UPI;
@@ -49,7 +49,7 @@ long
 runestrtol(Rune *a, Rune **p)
 {
 	long n;
-	
+
 	n = 0;
 	while('0' <= *a && *a <= '9'){
 		n = n*10 + *a-'0';
@@ -111,7 +111,7 @@ eval0(Rune **pline, int scale, int recur)
 		*pline = p;
 		return x;
 	}
-	
+
 	while(*p){
 		switch(*p++) {
 		case '+':
@@ -176,11 +176,10 @@ void
 t1init(void)
 {
 	Tm tm;
-	
+
 	tm = *localtime(time(0));
 	nr(L("dw"), tm.wday+1);
 	nr(L("dy"), tm.mday);
 	nr(L("mo"), tm.mon);
 	nr(L("yr"), tm.year%100);
 }
-

@@ -281,7 +281,7 @@ fdrw(Map *map, Seg *seg, u64int addr, void *a, uint n, int r)
 		else
 			nn = pwrite(seg->fd, a, n-tot, off+tot);
 		if(nn < 0)
-			return -1;	
+			return -1;
 		if(nn == 0){
 			werrstr("partial %s at address 0x%lux in %s",
 				r ? "read" : "write", off+tot, seg->file);

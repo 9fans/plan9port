@@ -132,4 +132,3 @@ fsreaddir(SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int cookie, uchar **d
 {
 	return fsysreaddir(fsys, au, h, count, cookie, data, pcount, peof);
 }
-

@@ -478,7 +478,7 @@ __ifmt(Fmt *f)
 			if(fl & FmtApost)
 				__needsep(&ndig, &grouping);
 		}
-		
+
 		/*
 		 * Zero values don't get 0x.
 		 */

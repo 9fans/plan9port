@@ -633,8 +633,8 @@ runpipe(Text *t, int cmd, Rune *cr, int ncr, int state)
 	/*
 	 * The editoutlk exists only so that we can tell when
 	 * the editout file has been closed.  It can get closed *after*
-	 * the process exits because, since the process cannot be 
-	 * connected directly to editout (no 9P kernel support), 
+	 * the process exits because, since the process cannot be
+	 * connected directly to editout (no 9P kernel support),
 	 * the process is actually connected to a pipe to another
 	 * process (arranged via 9pserve) that reads from the pipe
 	 * and then writes the data in the pipe to editout using
@@ -704,7 +704,7 @@ printposn(Text *t, int mode)
 
 	if (t != nil && t->file != nil && t->file->name != nil)
 		warning(nil, "%.*S:", t->file->nname, t->file->name);
-	
+
 	switch(mode) {
 	case PosnChars:
 		warning(nil, "#%d", addr.r.q0);
@@ -712,7 +712,7 @@ printposn(Text *t, int mode)
 			warning(nil, ",#%d", addr.r.q1);
 		warning(nil, "\n");
 		return;
-	
+
 	default:
 	case PosnLine:
 		l1 = 1+nlcount(t, 0, addr.r.q0, nil);

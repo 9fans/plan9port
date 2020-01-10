@@ -20,7 +20,7 @@ struct Log
 	Rendez r;
 
 	vlong start; // msg[0] corresponds to 'start' in the global sequence of events
-	
+
 	// queued events (nev=entries in ev, mev=capacity of p)
 	char **ev;
 	int nev;
@@ -30,7 +30,7 @@ struct Log
 	Fid **f;
 	int nf;
 	int mf;
-	
+
 	// active (blocked) reads waiting for events
 	Xfid **read;
 	int nread;
@@ -43,7 +43,7 @@ void
 xfidlogopen(Xfid *x)
 {
 	qlock(&eventlog.lk);
-	if(eventlog.nf >= eventlog.mf) {	
+	if(eventlog.nf >= eventlog.mf) {
 		eventlog.mf = eventlog.mf*2;
 		if(eventlog.mf == 0)
 			eventlog.mf = 8;
@@ -78,20 +78,20 @@ xfidlogread(Xfid *x)
 	Fcall fc;
 
 	qlock(&eventlog.lk);
-	if(eventlog.nread >= eventlog.mread) {	
+	if(eventlog.nread >= eventlog.mread) {
 		eventlog.mread = eventlog.mread*2;
 		if(eventlog.mread == 0)
 			eventlog.mread = 8;
 		eventlog.read = erealloc(eventlog.read, eventlog.mread*sizeof eventlog.read[0]);
 	}
 	eventlog.read[eventlog.nread++] = x;
-	
+
 	if(eventlog.r.l == nil)
 		eventlog.r.l = &eventlog.lk;
 	x->flushed = FALSE;
 	while(x->f->logoff >= eventlog.start+eventlog.nev && !x->flushed)
 		rsleep(&eventlog.r);
-		
+
 	for(i=0; i<eventlog.nread; i++) {
 		if(eventlog.read[i] == x) {
 			eventlog.read[i] = eventlog.read[--eventlog.nread];
@@ -112,7 +112,7 @@ xfidlogread(Xfid *x)
 	fc.data = p;
 	fc.count = strlen(p);
 	respond(x, &fc, nil);
-	free(p);	
+	free(p);
 }
 
 void
@@ -177,7 +177,7 @@ xfidlog(Window *w, char *op)
 			eventlog.start += n;
 			memmove(eventlog.ev, eventlog.ev+n, eventlog.nev*sizeof eventlog.ev[0]);
 		}
-		
+
 		// Otherwise grow.
 		if(eventlog.nev >= eventlog.mev) {
 			eventlog.mev = eventlog.mev*2;

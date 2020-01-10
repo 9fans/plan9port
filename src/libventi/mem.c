@@ -62,7 +62,7 @@ vtbrk(int n)
 		align = IdealAlignment;
 	else if(n > 8)
 		align = 8;
-	else	
+	else
 		align = 4;
 
 	lock(&lk);
@@ -74,8 +74,8 @@ vtbrk(int n)
 		nchunk++;
 	}
 
-	assert(n + pad <= nbuf);	
-	
+	assert(n + pad <= nbuf);
+
 	p = buf + pad;
 	buf += pad + n;
 	nbuf -= pad + n;
@@ -83,4 +83,3 @@ vtbrk(int n)
 
 	return p;
 }
-

@@ -22,7 +22,7 @@ struct Ospfpkt
 	uchar	auth[8];
 	uchar	data[1];
 };
-#define OSPF_HDRSIZE	24	
+#define OSPF_HDRSIZE	24
 
 enum
 {
@@ -62,15 +62,15 @@ ospfauth(Ospfpkt *ospf)
 	case 0:
 		return "no authentication";
 	case 1:
-		sprint(auth, "password(%8.8ux %8.8ux)", NetL(ospf->auth),	
+		sprint(auth, "password(%8.8ux %8.8ux)", NetL(ospf->auth),
 			NetL(ospf->auth+4));
 		break;
 	case 2:
-		sprint(auth, "crypto(plen %d id %d dlen %d)", NetS(ospf->auth),	
+		sprint(auth, "crypto(plen %d id %d dlen %d)", NetS(ospf->auth),
 			ospf->auth[2], ospf->auth[3]);
 		break;
 	default:
-		sprint(auth, "auth%d(%8.8ux %8.8ux)", NetS(ospf->autype), NetL(ospf->auth),	
+		sprint(auth, "auth%d(%8.8ux %8.8ux)", NetS(ospf->autype), NetL(ospf->auth),
 			NetL(ospf->auth+4));
 	}
 	return auth;
@@ -156,7 +156,7 @@ struct Ospfrt {
 	uchar	typ;
 	uchar	numtos;
 	uchar	metric[2];
-	
+
 };
 
 struct OspfrtLSA {
@@ -348,7 +348,7 @@ p_seprint(Msg *m)
 	x -= OSPF_HDRSIZE;
 
 	p = seprint(p, e, "ver=%d type=%d len=%d r=%V a=%V c=%4.4ux %s ",
-		ospf->version, ospf->type, x, 
+		ospf->version, ospf->type, x,
 		ospf->router, ospf->area, NetS(ospf->sum),
 		ospfauth(ospf));
 

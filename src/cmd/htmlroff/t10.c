@@ -58,7 +58,7 @@ int
 e_bang(void)
 {
 	Rune *line;
-	
+
 	line = readline(CopyMode);
 	out(line);
 	outrune('\n');
@@ -70,7 +70,7 @@ int
 e_X(void)
 {
 	int c, c1;
-	
+
 	c1 = getrune();
 	if(c1 < 0 || c1 == '\n') {
 		c = c1;
@@ -119,7 +119,7 @@ void
 r_comment(Rune *name)
 {
 	int c;
-	
+
 	USED(name);
 	while((c = getrune()) >= 0 && c != '\n')
 		;
@@ -136,11 +136,10 @@ t10init(void)
 	addreq(L("tr"), r_warn, -1);
 	addreq(L("ul"), r_nop, -1);
 	addraw(L("\\\""), r_comment);
-	
+
 	addesc('!', e_bang, 0);
 	addesc('X', e_X, 0);
 	addesc('\"', e_quote, CopyMode|ArgMode);
 	addesc('\n', e_newline, CopyMode|ArgMode|HtmlMode);
 	addesc('e', e_e, 0);
 }
-

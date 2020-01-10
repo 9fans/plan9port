@@ -302,8 +302,8 @@ readpage(void)
 static void
 spline(Image *b, int n, Point *pp)
 {
-	long w, t1, t2, t3, fac=1000; 
-	int i, j, steps=10; 
+	long w, t1, t2, t3, fac=1000;
+	int i, j, steps=10;
 	Point p, q;
 
 	for (i = n; i > 0; i--)
@@ -321,9 +321,9 @@ spline(Image *b, int n, Point *pp)
 			t2 = 3*fac/4 - w * w / fac;
 			w = w - fac/2;
 			t3 = w * w / (2*fac);
-			q.x = (t1*pp[i+2].x + t2*pp[i+1].x + 
+			q.x = (t1*pp[i+2].x + t2*pp[i+1].x +
 				t3*pp[i].x + fac/2) / fac;
-			q.y = (t1*pp[i+2].y + t2*pp[i+1].y + 
+			q.y = (t1*pp[i+2].y + t2*pp[i+1].y +
 				t3*pp[i].y + fac/2) / fac;
 			line(b, p, q, 0, 0, 0, display->black, ZP);
 			p = q;

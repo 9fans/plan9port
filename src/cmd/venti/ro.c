@@ -32,7 +32,7 @@ readthread(void *v)
 	VtReq *r;
 	uchar *buf;
 	int n;
-	
+
 	r = v;
 	buf = vtmalloc(r->tx.count);
 	if((n=vtread(z, r->tx.score, r->tx.blocktype, buf, r->tx.count)) < 0){
@@ -57,10 +57,10 @@ threadmain(int argc, char **argv)
 
 	fmtinstall('F', vtfcallfmt);
 	fmtinstall('V', vtscorefmt);
-	
+
 	address = "tcp!*!venti";
 	ventiaddress = nil;
-	
+
 	ARGBEGIN{
 	case 'v':
 		verbose++;
@@ -109,4 +109,3 @@ threadmain(int argc, char **argv)
 	}
 	threadexitsall(nil);
 }
-

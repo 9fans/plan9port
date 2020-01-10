@@ -61,5 +61,5 @@ auth_respond(void *chal, uint nchal, char *user, uint nuser, void *resp, uint nr
 
 	_freeattr(a);
 	auth_freerpc(rpc);
-	return nresp;	
+	return nresp;
 }

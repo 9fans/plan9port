@@ -271,4 +271,3 @@ locsimplify(Map *map, Regs *regs, Loc loc, Loc *newloc)
 		*newloc = loc;
 	return 0;
 }
-

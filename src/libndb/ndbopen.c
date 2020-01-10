@@ -77,7 +77,7 @@ doopen(char *file, char *rel)
 	 * Unrooted paths are taken relative to db we opened.
 	 */
 	if(file[0]!='/' && rel && (p=strrchr(rel, '/'))!=nil)
-		snprint(db->file, sizeof(db->file), "%.*s/%s", 
+		snprint(db->file, sizeof(db->file), "%.*s/%s",
 			utfnlen(rel, p-rel), rel, file);
 	else
 		strncpy(db->file, file, sizeof(db->file)-1);

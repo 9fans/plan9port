@@ -31,7 +31,7 @@ isostring(uchar *buf, int len)
 	return q;
 }
 
-int 
+int
 isisofrog(char c)
 {
 	if(c >= '0' && c <= '9')
@@ -85,7 +85,7 @@ isbadiso9660(char *s)
 
 /*
  * ISO9660 name comparison
- * 
+ *
  * The standard algorithm is as follows:
  *   Take the filenames without extensions, pad the shorter with 0x20s (spaces),
  *   and do strcmp.  If they are equal, go on.
@@ -169,7 +169,7 @@ Cputisopvd(Cdimg *cd, Cdinfo info)
 		strcat(buf, "iso9660");
 	else
 		strcat(buf, "utf8");
-	
+
 	struprcpy(buf, buf);
 	Cputs(cd, buf, 32);
 

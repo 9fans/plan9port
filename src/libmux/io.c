@@ -7,7 +7,7 @@
 
 /*
  * If you fork off two procs running muxrecvproc and muxsendproc,
- * then muxrecv/muxsend (and thus muxrpc) will never block except on 
+ * then muxrecv/muxsend (and thus muxrpc) will never block except on
  * rendevouses, which is nice when it's running in one thread of many.
  */
 void
@@ -137,9 +137,8 @@ _muxsend(Mux *mux, void *p)
 	if(mux->send(mux, p) < 0){
 		qunlock(&mux->outlk);
 		/* vthangup(mux); */
-		return -1;	
+		return -1;
 	}
 	qunlock(&mux->outlk);
 	return 0;
 }
-

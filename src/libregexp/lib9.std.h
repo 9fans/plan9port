@@ -8,4 +8,3 @@
 #define	exits(x)	exit(x && *x ? 1 : 0)
 
 #define	nil	0
-

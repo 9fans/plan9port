@@ -23,7 +23,7 @@ _xfillcolor(Memimage *m, Rectangle r, u32int v)
 	Point p;
 	Xmem *xm;
 	XGC gc;
-	
+
 	xm = m->X;
 	assert(xm != nil);
 
@@ -52,5 +52,3 @@ _xfillcolor(Memimage *m, Rectangle r, u32int v)
 	p = subpt(r.min, m->r.min);
 	XFillRectangle(_x.display, xm->pixmap, gc, p.x, p.y, Dx(r), Dy(r));
 }
-
-

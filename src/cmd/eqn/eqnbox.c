@@ -8,7 +8,7 @@ void eqnbox(int p1, int p2, int lu)
 
 	yyval = p1;
 	b = max(ebase[p1], ebase[p2]);
-	eht[yyval] = h = b + max(eht[p1]-ebase[p1], 
+	eht[yyval] = h = b + max(eht[p1]-ebase[p1],
 		eht[p2]-ebase[p2]);
 	ebase[yyval] = b;
 	dprintf(".\tS%d <- %d %d; b=%g, h=%g\n", (int)yyval, p1, p2, b, h);

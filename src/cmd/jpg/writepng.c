@@ -70,7 +70,7 @@ zread(void *va, void *buf, int n)
 	uchar *b = buf, *e = b+n, *img;
 	int pixels;  /* number of pixels in row that can be sent now */
 	int i, a, pixwid;
-	
+
 	pixwid = z->pixwid;
 	while(b+pixwid <= e){ /* loop over image rows */
 		if(z->row >= nrow)
@@ -103,7 +103,7 @@ zread(void *va, void *buf, int n)
 					b[2] = (b[2]*255)/a;
 				}
 			}
-		}else	
+		}else
 			b += pixwid*pixels;
 
 		z->col += pixels;
@@ -148,7 +148,7 @@ memRGBA(Memimage *i)
 	Memimage *ni;
 	char buf[32];
 	ulong dst;
-	
+
 	/*
 	 * [A]BGR because we want R,G,B,[A] in big-endian order.  Sigh.
 	 */
@@ -157,7 +157,7 @@ memRGBA(Memimage *i)
 		dst = ABGR32;
 	else
 		dst = BGR24;
-		
+
 	if(i->chan == dst)
 		return i;
 
@@ -211,7 +211,7 @@ memwritepng(Biobuf *bo, Memimage *r, ImageInfo *II)
 	*h++ = tm->min;
 	*h++ = tm->sec;
 	chunk(bo, "tIME", buf, h-buf);
-	
+
 	if(II->fields_set & II_GAMMA){
 		vgamma = II->gamma*100000;
 		put4(buf, vgamma);

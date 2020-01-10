@@ -97,7 +97,7 @@ __xtoplan9kbd(XEvent *e)
 		case XK_KP_End:
 			k = Kend;
 			break;
-		case XK_Page_Up:	
+		case XK_Page_Up:
 		case XK_KP_Page_Up:
 			k = Kpgup;
 			break;
@@ -243,7 +243,7 @@ _xtoplan9mouse(XEvent *e, Mouse *m)
 	case ButtonPress:
 		be = (XButtonEvent*)e;
 
-		/* 
+		/*
 		 * Fake message, just sent to make us announce snarf.
 		 * Apparently state and button are 16 and 8 bits on
 		 * the wire, since they are truncated by the time they
@@ -443,7 +443,7 @@ _xgetsnarffrom(XWindow w, Atom clipboard, Atom target, int timeout0, int timeout
 
 	/* get the property */
 	xdata = nil;
-	XGetWindowProperty(_x.display, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0, 
+	XGetWindowProperty(_x.display, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0,
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
 	if((type != target && type != XA_STRING && type != _x.utf8string) || len == 0){
 		if(xdata)
@@ -500,7 +500,7 @@ _xgetsnarf(void)
 		data = nil;
 		goto out;
 	}
-		
+
 	if((data = _xgetsnarffrom(w, clipboard, _x.utf8string, 10, 100)) == nil)
 	if((data = _xgetsnarffrom(w, clipboard, XA_STRING, 10, 100)) == nil){
 		/* nothing left to do */
@@ -554,9 +554,9 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof
 		a[3] = _x.compoundtext;
 		XChangeProperty(_x.display, xe->requestor, xe->property, XA_ATOM,
 			32, PropModeReplace, (uchar*)a, nelem(a));
-	}else if(xe->target == XA_STRING 
-	|| xe->target == _x.utf8string 
-	|| xe->target == _x.text 
+	}else if(xe->target == XA_STRING
+	|| xe->target == _x.utf8string
+	|| xe->target == _x.text
 	|| xe->target == _x.compoundtext
 	|| ((name = XGetAtomName(_x.display, xe->target)) && strcmp(name, "text/plain;charset=UTF-8") == 0)){
 		/* text/plain;charset=UTF-8 seems nonstandard but is used by Synergy */
@@ -643,7 +643,7 @@ _applegetsnarf(void)
 		CFRelease(flavors);
 	}
 	qunlock(&clip.lk);
-	return nil;		
+	return nil;
 }
 
 void
@@ -677,7 +677,7 @@ _appleputsnarf(char *s)
 		qunlock(&clip.lk);
 		return;
 	}
-	cfdata = CFDataCreate(kCFAllocatorDefault, 
+	cfdata = CFDataCreate(kCFAllocatorDefault,
 		(uchar*)clip.rbuf, runestrlen(clip.rbuf)*2);
 	if(cfdata == nil){
 		fprint(2, "apple pasteboard cfdatacreate failed\n");

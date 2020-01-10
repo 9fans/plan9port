@@ -71,13 +71,13 @@ dnresolve(char *name, int class, int type, Request *req, RR **cn, int depth, int
 				rp = nil;
 				break;
 			}
-	
+
 			name = rp->host->name;
 			if(cn)
 				rrcat(cn, rp);
 			else
 				rrfreelist(rp);
-	
+
 			rp = dnresolve1(name, class, type, req, depth, recurse);
 		}
 	}
@@ -126,7 +126,7 @@ dnresolve1(char *name, int class, int type, Request *req, int depth, int recurse
 	rrfreelist(rp);
 
 	/*
-	 * try the cache for a canonical name. if found punt 
+	 * try the cache for a canonical name. if found punt
 	 * since we'll find it during the canonical name search
 	 * in dnresolve().
 	 */
@@ -242,7 +242,7 @@ walkup(char *name)
 }
 
 /*
- *  Get a udpport for requests and replies. 
+ *  Get a udpport for requests and replies.
  */
 int
 udpport(void)
@@ -310,7 +310,7 @@ readreply(int fd, DN *dp, int type, ushort req,
 		len = udpreadtimeout(fd, (Udphdr*)ibuf, ibuf+Udphdrsize, Maxudpin, (endtime-now)*1000);
 		if(len < 0)
 			return -1;	/* timed out */
-		
+
 		/* convert into internal format  */
 		memset(mp, 0, sizeof(*mp));
 		err = convM2DNS(&ibuf[Udphdrsize], len, mp);
@@ -357,13 +357,13 @@ udpreadtimeout(int fd, Udphdr *h, void *data, int n, int ms)
 {
 	fd_set rd;
 	struct timeval tv;
-	
+
 	FD_ZERO(&rd);
 	FD_SET(fd, &rd);
-	
+
 	tv.tv_sec = ms/1000;
 	tv.tv_usec = (ms%1000)*1000;
-	
+
 	if(select(fd+1, &rd, 0, 0, &tv) != 1)
 		return -1;
 	return udpread(fd, h, data, n);
@@ -512,7 +512,7 @@ cacheneg(DN *dp, int type, int rcode, RR *soarr)
 			soarr->next = nil;
 		}
 		soaowner = soarr->owner;
-	} else 
+	} else
 		soaowner = nil;
 
 	/* the attach can cause soarr to be freed so mine it now */

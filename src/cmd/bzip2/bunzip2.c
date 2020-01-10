@@ -151,7 +151,7 @@ bunzip(int ofd, char *ofile, Biobuf *bin)
 		if(!done && strm.avail_in < sizeof buf) {
 			if(strm.avail_in)
 				memmove(buf, strm.next_in, strm.avail_in);
-			
+
 			n = Bread(bin, buf+strm.avail_in, sizeof(buf)-strm.avail_in);
 			if(n <= 0)
 				done = 1;

@@ -83,7 +83,7 @@ elfcorefreebsdamd64(Fhdr *fp, Elf *elf, ElfNote *note)
 		}
 		l = &s->reg;
 		u = malloc(sizeof(Ureg));
-	
+
 		/* no byte order problems - just copying and rearranging */
 		u->ax = l->rax;
 		u->bx = l->rbx;
@@ -100,12 +100,12 @@ elfcorefreebsdamd64(Fhdr *fp, Elf *elf, ElfNote *note)
 		u->r13 = l->r13;
 		u->r14 = l->r14;
 		u->r15 = l->r15;
-		
+
 		u->ds = l->ds;
 		u->es = l->es;
 		u->fs = l->fs;
 		u->gs = l->gs;
-		
+
 		u->type = l->trapno;
 		u->error = l->err;
 		u->ip = l->rip;
@@ -147,4 +147,3 @@ corecmdfreebsd386(Elf *elf, ElfNote *note, char **pp)
 	*pp = t;
 	return 0;
 }
-

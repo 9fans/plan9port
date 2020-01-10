@@ -30,7 +30,7 @@ mptole(mpint *b, uchar *p, uint n, uchar **pp)
 		else
 			return 0;
 	}
-		
+
 	s = p;
 	e = s+n;
 	for(i = 0; i < b->top-1; i++){

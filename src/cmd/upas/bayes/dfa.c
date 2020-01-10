@@ -268,7 +268,7 @@ set(Deter *d, u32int **tab, Rune r)
 }
 
 /*
- * Compute the list of important characters. 
+ * Compute the list of important characters.
  * Other characters behave like the ones that surround them.
  */
 static void
@@ -672,7 +672,7 @@ main(int argc, char **argv)
 		dp = dregcvt(p);
 		print("=== dfa\n");
 		dump(dp);
-	
+
 	for(i=2; i<argc; i++)
 		print("match %d\n", dregexec(dp, argv[i], 0));
 	exits(0);

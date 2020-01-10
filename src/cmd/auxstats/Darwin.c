@@ -79,7 +79,7 @@ void
 sampleinit(void)
 {
 	mach_timebase_info_data_t info;
-	
+
 	if(stat_port)
 		return;
 
@@ -115,7 +115,7 @@ samplenet(void)
 		sample.net_obytes = 0;
 		sample.net_errors = 0;
 		sample.net_ifaces = 0;
-		
+
 		for(ifa=ifa_list; ifa; ifa=ifa->ifa_next){
 			if(ifa->ifa_addr->sa_family != AF_LINK)
 				continue;
@@ -125,7 +125,7 @@ samplenet(void)
 				continue;
 			if(strncmp(ifa->ifa_name, "lo", 2) == 0)	/* loopback */
 				continue;
-			
+
 			if_data = (struct if_data*)ifa->ifa_data;
 			sample.net_ipackets += if_data->ifi_ipackets;
 			sample.net_opackets += if_data->ifi_opackets;
@@ -144,7 +144,7 @@ samplenet(void)
  * all the other stat monitoring apps get set:
  *
  * -rwsr-xr-x   1 root  wheel  83088 Mar 20  2005 /usr/bin/top
- * -rwsrwxr-x   1 root  admin  54048 Mar 20  2005 
+ * -rwsrwxr-x   1 root  admin  54048 Mar 20  2005
  *	/Applications/Utilities/Activity Monitor.app/Contents/Resources/pmTool
  *
  * If Darwin eventually encompases more into sysctl then this
@@ -165,7 +165,7 @@ sampleevents(void)
 			mach_error_string(error));
 		return;
 	}
-	
+
 	sample.p_syscalls_mach = sample.syscalls_mach;
 	sample.p_syscalls_unix = sample.syscalls_unix;
 	sample.p_csw = sample.csw;
@@ -173,7 +173,7 @@ sampleevents(void)
 	sample.syscalls_mach = 0;
 	sample.syscalls_unix = 0;
 	sample.csw = 0;
-	
+
 	for(i=0; i<pcnt; i++){
 		if((error=host_processor_set_priv(stat_port, psets[i], &pset)) != KERN_SUCCESS){
 			Bprint(&bout, "host_processor_set_priv: %s\n", mach_error_string(error));
@@ -190,24 +190,24 @@ sampleevents(void)
 				sample.syscalls_unix += events.syscalls_unix;
 				sample.csw += events.csw;
 			}
-			
+
 			if(tasks[j] != mach_task_self())
 				mach_port_deallocate(mach_task_self(), tasks[j]);
 		}
-		
-		if((error = vm_deallocate((vm_map_t)mach_task_self(), 
+
+		if((error = vm_deallocate((vm_map_t)mach_task_self(),
 				(vm_address_t)tasks, tcnt*sizeof(task_t))) != KERN_SUCCESS){
 			Bprint(&bout, "vm_deallocate: %s\n", mach_error_string(error));
 			return;
 		}
-		
+
 		if((error = mach_port_deallocate(mach_task_self(), pset)) != KERN_SUCCESS
 		|| (error = mach_port_deallocate(mach_task_self(), psets[i])) != KERN_SUCCESS){
 			Bprint(&bout, "mach_port_deallocate: %s\n", mach_error_string(error));
 			return;
 		}
 	}
-	
+
 	if((error = vm_deallocate((vm_map_t)mach_task_self(), (vm_address_t)psets,
 			pcnt*sizeof(processor_set_t))) != KERN_SUCCESS){
 		Bprint(&bout, "vm_deallocate: %s\n", mach_error_string(error));
@@ -221,12 +221,12 @@ xsample(int first)
 	int mib[2];
 	mach_msg_type_number_t count;
 	size_t len;
-	
+
 	if(first){
 		sampleinit();
 		return;
 	}
-	
+
 	sample.seq++;
 	sample.p_time = sample.time;
 	sample.time = mach_absolute_time();
@@ -234,7 +234,7 @@ xsample(int first)
 	sample.p_vm_stat = sample.vm_stat;
 	count = sizeof(sample.vm_stat) / sizeof(natural_t);
 	host_statistics(stat_port, HOST_VM_INFO, (host_info_t)&sample.vm_stat, &count);
-	
+
 	if(sample.seq == 1)
 		sample.p_vm_stat = sample.vm_stat;
 
@@ -267,7 +267,7 @@ xapm(int first)
 
 	if(first)
 		return;
-		
+
 	src = IOPSCopyPowerSourcesInfo();
 	array = IOPSCopyPowerSourcesList(src);
 
@@ -294,14 +294,14 @@ xnet(int first)
 {
 	uint n;
 	ulong err, in, inb, out, outb;
-	
+
 	n = sample.net_ifaces;
 	in = sample.net_ipackets - sample.p_net_ipackets;
 	out = sample.net_opackets - sample.p_net_opackets;
 	inb = sample.net_ibytes - sample.p_net_ibytes;
 	outb = sample.net_obytes - sample.p_net_obytes;
 	err = sample.net_errors - sample.p_net_errors;
-	
+
        Bprint(&bout, "etherb %lud %d\n", inb+outb, n*1000000);
        Bprint(&bout, "ether %lud %d\n", in+out, n*1000);
        Bprint(&bout, "ethererr %lud %d\n", err, n*1000);
@@ -347,7 +347,7 @@ xvm(int first)
 		+ sample.vm_stat.active_count
 		+ sample.vm_stat.inactive_count
 		+ sample.vm_stat.wire_count;
-	
+
 	active = sample.vm_stat.active_count
 		+ sample.vm_stat.inactive_count
 		+ sample.vm_stat.wire_count;
@@ -357,10 +357,10 @@ xvm(int first)
 
 	Bprint(&bout, "context %lld 1000\n", (vlong)sample.csw);
 	Bprint(&bout, "syscall %lld 1000\n", (vlong)sample.syscalls_mach+sample.syscalls_unix);
-	Bprint(&bout, "intr %lld 1000\n", 
+	Bprint(&bout, "intr %lld 1000\n",
 		isys("vm.stats.sys.v_intr")
 		+isys("vm.stats.sys.v_trap"));
-	
+
 	Bprint(&bout, "fault %lld 1000\n", sample.vm_stat.faults);
 	Bprint(&bout, "fork %lld 1000\n",
 		isys("vm.stats.vm.v_rforks")
@@ -388,7 +388,7 @@ xcpu(int first)
 		sample.p_cpu.cpu_ticks[CPU_STATE_USER];
 	nice = sample.cpu.cpu_ticks[CPU_STATE_NICE] -
 		sample.p_cpu.cpu_ticks[CPU_STATE_NICE];
-	
+
 	t = sys+idle+user+nice;
 
 	Bprint(&bout, "user =%lud %lud\n", user, t);
@@ -418,8 +418,8 @@ xswap(int first)
 
 #ifdef VM_SWAPUSAGE
 	if(sample.xsu_valid)
-		Bprint(&bout, "swap %lld %lld\n", 
-			(vlong)sample.xsu.xsu_used, 
+		Bprint(&bout, "swap %lld %lld\n",
+			(vlong)sample.xsu.xsu_used,
 			(vlong)sample.xsu.xsu_total);
 #endif
 }

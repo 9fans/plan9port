@@ -60,7 +60,7 @@ void
 usage(void)
 {
 	fprint(2, "usage: smtp [-adips] [-uuser] [-hhost] [.domain] net!host[!service] sender rcpt-list\n");
-	threadexitsall(Giveup); 
+	threadexitsall(Giveup);
 }
 
 int
@@ -656,7 +656,7 @@ data(String *from, Biobuf *b)
 		nbytes += Bprint(&bout, "Message-ID: <%s@%s>\r\n", id, hostdomain);
 		if(debug)
 			Bprint(&berr, "Message-ID: <%s@%s>\r\n", id, hostdomain);
-	}	
+	}
 
 	if(originator==0){
 		nbytes += Bprint(&bout, "From: %s\r\n", s_to_c(fromline));
@@ -687,7 +687,7 @@ data(String *from, Biobuf *b)
 	/*
 	 *  send body
 	 */
-		
+
 	putcrnl(uneaten, buf+n - uneaten);
 	nbytes += buf+n - uneaten;
 	if(eof == 0){
@@ -1109,14 +1109,14 @@ dBputc(int x)
 	return Bputc(&bout, x);
 }
 
-char* 
+char*
 expand_addr(char *addr)
 {
 	static char buf[256];
 	char *p, *q, *name, *sys;
 	Ndbtuple *t;
 	Ndb *db;
-	
+
 	p = strchr(addr, '!');
 	if(p){
 		q = strchr(p+1, '!');
@@ -1131,7 +1131,7 @@ expand_addr(char *addr)
 	name++;
 	if(q)
 		*q = 0;
-		
+
 	sys = sysname();
 	db = ndbopen(0);
 	t = ndbipinfo(db, "sys", sys, &name, 1);
@@ -1141,7 +1141,7 @@ expand_addr(char *addr)
 			*q = '!';
 		return addr;
 	}
-	
+
 	*(name-1) = 0;
 	if(q)
 		*q = '!';

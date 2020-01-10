@@ -60,7 +60,7 @@ struct Msg
 	char	*e;	/* buffer end */
 
 	int	needroot;	/* pr is root, need to see in expression */
-	Proto	*pr;	/* current/next protocol */	
+	Proto	*pr;	/* current/next protocol */
 };
 
 enum

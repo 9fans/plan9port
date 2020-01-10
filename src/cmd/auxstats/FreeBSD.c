@@ -203,8 +203,8 @@ xsysctl(int first)
 			pgsize = 4096;
 	}
 
-	Bprint(&bout, "mem =%lld %lld\n", 
-		isys("vm.stats.vm.v_active_count")*pgsize, 
+	Bprint(&bout, "mem =%lld %lld\n",
+		isys("vm.stats.vm.v_active_count")*pgsize,
 		isys("vm.stats.vm.v_page_count")*pgsize);
 	Bprint(&bout, "context %lld 1000\n", isys("vm.stats.sys.v_swtch"));
 	Bprint(&bout, "syscall %lld 1000\n", isys("vm.stats.sys.v_syscall"));
@@ -284,4 +284,3 @@ xswap(int first)
 
 	Bprint(&bout, "swap =%lld %lld\n", s.ksw_used*(vlong)pgsize, s.ksw_total*(vlong)pgsize);
 }
-

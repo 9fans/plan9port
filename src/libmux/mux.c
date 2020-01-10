@@ -30,7 +30,7 @@ static Muxrpc*
 allocmuxrpc(Mux *mux)
 {
 	Muxrpc *r;
-	
+
 	/* must malloc because stack could be private */
 	r = mallocz(sizeof(Muxrpc), 1);
 	if(r == nil){
@@ -40,7 +40,7 @@ allocmuxrpc(Mux *mux)
 	r->mux = mux;
 	r->r.l = &mux->lk;
 	r->waiting = 1;
-	
+
 	return r;
 }
 
@@ -49,7 +49,7 @@ tagmuxrpc(Muxrpc *r, void *tx)
 {
 	int tag;
 	Mux *mux;
-	
+
 	mux = r->mux;
 	/* assign the tag, add selves to response queue */
 	qlock(&mux->lk);
@@ -91,7 +91,7 @@ muxmsgandqlock(Mux *mux, void *p)
 		fprint(2, "%s: bad rpc tag %ux (no one waiting on that tag)\n", argv0, tag);
 		/* must leak packet! don't know how to free it! */
 		return;
-	}	
+	}
 	r2->p = p;
 	dequeue(mux, r2);
 	rwakeup(&r2->r);
@@ -222,7 +222,7 @@ dequeue(Mux *mux, Muxrpc *r)
 	r->next = nil;
 }
 
-static int 
+static int
 gettag(Mux *mux, Muxrpc *r)
 {
 	int i, mw;

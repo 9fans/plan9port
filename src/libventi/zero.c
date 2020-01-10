@@ -23,7 +23,7 @@ vtzeroextend(int type, uchar *buf, uint n, uint nn)
 	}
 }
 
-uint 
+uint
 vtzerotruncate(int type, uchar *buf, uint n)
 {
 	uchar *p;

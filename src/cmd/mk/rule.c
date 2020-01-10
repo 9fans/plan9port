@@ -76,7 +76,7 @@ dumpr(char *s, Rule *r)
 {
 	if(r == nil)
 		return;
-	Bprint(&bout, "%s: start=%ld shelltype=%s shellcmd=%s\n", 
+	Bprint(&bout, "%s: start=%ld shelltype=%s shellcmd=%s\n",
 		s, r, r->shellt->name, wtos(r->shellcmd, ' '));
 	for(; r; r = r->next){
 		Bprint(&bout, "\tRule %ld: %s[%d] attr=%x next=%ld chain=%ld alltarget='%s'",

@@ -12,10 +12,10 @@ sizeD2M(Dir *d)
 	sv[1] = d->uid;
 	sv[2] = d->gid;
 	sv[3] = d->muid;
-	
+
 	fixlen = STATFIXLEN;
 	nstr = 4;
-	
+
 	ns = 0;
 	for(i = 0; i < nstr; i++)
 		if(sv[i])
@@ -44,7 +44,7 @@ convD2M(Dir *d, uchar *buf, uint nbuf)
 
 	fixlen = STATFIXLEN;
 	nstr = 4;
-	
+
 	ns = 0;
 	for(i = 0; i < nstr; i++){
 		if(sv[i])
@@ -93,7 +93,7 @@ convD2M(Dir *d, uchar *buf, uint nbuf)
 			memmove(p, sv[i], ns);
 		p += ns;
 	}
-	
+
 	if(ss != p - buf)
 		return 0;
 

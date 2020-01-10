@@ -38,7 +38,7 @@ convM2D(uchar *buf, uint nbuf, Dir *d, char *strs)
 	int i, ns, nstr;
 
 	if(nbuf < STATFIXLEN)
-		return 0; 
+		return 0;
 
 	p = buf;
 	ebuf = buf + nbuf;
@@ -93,6 +93,6 @@ convM2D(uchar *buf, uint nbuf, Dir *d, char *strs)
 		d->muid = nullstring;
 		d->ext = nullstring;
 	}
-	
+
 	return p - buf;
 }

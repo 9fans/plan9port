@@ -21,7 +21,7 @@ vttobig(ulong n)
 {
 	int shift;
 	ulong n0;
-	
+
 	n0 = n;
 	shift = 0;
 	while(n >= (1<<(16 - 5))) {
@@ -30,7 +30,7 @@ vttobig(ulong n)
 		shift++;
 		n >>= 1;
 	}
-	
+
 	n = (n<<5) | shift;
 	if(((n>>5)<<(n&31)) != n0)
 		sysfatal("vttobig %#lux => %#lux failed", n0, n);
@@ -111,11 +111,11 @@ vtentryunpack(VtEntry *e, uchar *p, int index)
 	p += VtScoreSize;
 
 	assert(p-op == VtEntrySize);
-	
+
 	if(!(e->flags & VtEntryActive))
 		return 0;
 
-	/* 
+	/*
 	 * Some old vac files use psize==0 and dsize==0 when the
 	 * file itself has size 0 or is zeros.  Just to make programs not
 	 * have to figure out what block sizes of 0 means, rewrite them.
@@ -130,4 +130,3 @@ vtentryunpack(VtEntry *e, uchar *p, int index)
 
 	return 0;
 }
-

@@ -50,7 +50,7 @@ spooltodisk(uchar *ibuf, int in, char **name)
 {
 	uchar buf[8192];
 	int fd, n;
-	
+
 	strcpy(tempfile, "/tmp/pagespoolXXXXXXXXX");
 	fd = opentemp(tempfile, ORDWR);
 	if(name)
@@ -94,7 +94,7 @@ _stdinpipe(void *a)
 	arg = a;
 
 	if(pipe(p) < 0){
-		fprint(2, "pipe fails: %r\n");	
+		fprint(2, "pipe fails: %r\n");
 		wexits("pipe");
 	}
 
@@ -103,7 +103,7 @@ _stdinpipe(void *a)
 	write(p[1], arg->ibuf, arg->in);
 	while((n = read(stdinfd, buf, sizeof buf)) > 0)
 		write(p[1], buf, n);
-	
+
 	close(p[1]);
 	threadexits(0);
 }

@@ -192,7 +192,7 @@ parsenum(char *p, int *n1, int *n2, char **pp)
 /*
 	attr ::= '@' text ';'
 
-	text is 
+	text is
 		'a' integer (alignment)
 		'p' integer (pointer class)
 		'P' (packed type)
@@ -237,7 +237,7 @@ static Basic baseints[] =
 /*13*/	8, 'f',		/* double */
 /*14*/	10, 'f',	/* long double */
 /*15*/	4, 'd',	/* int32 */
-/*16*/	4, 'd',	/* bool32 */	
+/*16*/	4, 'd',	/* bool32 */
 /*17*/	2, 'f',		/* short real */
 /*18*/	4, 'f',		/* real */
 /*19*/	4, 'x',	/* stringptr */
@@ -391,7 +391,7 @@ parsedefn(char *p, Type *t, char **pp)
 		t->ty = Pointer;
 		t->sub = parseinfo(p+1, &p);
 		break;
-	case 'a':	/* array */		
+	case 'a':	/* array */
 	case 'P':	/* packed array */
 		t->ty = Pointer;
 		tt = newtype();
@@ -422,7 +422,7 @@ parsedefn(char *p, Type *t, char **pp)
 		}
 		semi(&p);
 		break;
-		
+
 	case 's':	/* struct */
 	case 'u':	/* union */
 		p++;
@@ -532,7 +532,7 @@ parsedefn(char *p, Type *t, char **pp)
 }
 
 /*
-	bound ::= 
+	bound ::=
 		'A' offset			(bound is on stack by ref at offset offset from arg list)
 		| 'T' offset			(bound is on stack by val at offset offset from arg list)
 		| 'a' regnum		(bound passed by reference in register)
@@ -642,7 +642,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 			fno++;
 			if((f = findftypes(dir, sym.name)) == nil){
 				static int cannotprint;
-				
+
 				if(cannotprint++ == 0)
 					fprint(2, "cannot find remembered %s\n", sym.name);
 				continue;
@@ -673,7 +673,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 			}
 			if(setjmp(kaboom)){
 				static int cannotparse;
-				
+
 				if(cannotparse++ == 0)
 					fprint(2, "cannot parse %s\n", name);
 				continue;
@@ -683,7 +683,7 @@ stabs2acid(Stab *stabs, Biobuf *b)
 				continue;
 			if(*p != 0){
 				static int extradesc;
-				
+
 				if(extradesc++ == 0)
 					fprint(2, "extra desc '%s' in '%s'\n", p, desc);
 			}

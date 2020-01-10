@@ -6,7 +6,7 @@ double
 cubrt(double a)
 {
 	double x,y,x1;
-	if(a==0) 
+	if(a==0)
 		return(0.);
 	y = 1;
 	if(a<0) {

@@ -32,7 +32,7 @@ enum
 	/* query types (all RR types are also queries) */
 	Tixfr=	251,	/* incremental zone transfer */
 	Taxfr=	252,	/* zone transfer */
-	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */	
+	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */
 	Tall=	255,	/* all records */
 
 	/* classes */
@@ -87,7 +87,7 @@ getstr(uchar **pp, int *len, uchar *ep)
 {
 	uchar *p;
 	int n;
-	
+
 	p = *pp;
 	n = *p++;
 	if(p+n > ep)
@@ -215,7 +215,7 @@ cname(int class)
 
 	if(class == Cin)
 		return "";
-	
+
 	snprint(buf, sizeof buf, "class=%d", class);
 	return buf;
 }
@@ -236,7 +236,7 @@ p_seprint(Msg *m)
 	char *sym1, *sym2, *sep;
 	int type;
 	static int first = 1;
-	
+
 	if(first){
 		first = 0;
 		quotefmtinstall();
@@ -388,7 +388,7 @@ p_seprint(Msg *m)
 				NetS(p), p[3], p[4], rlen-4, p+4);
 			p += rlen;
 			break;
- 
+
 		case Tsig:
 			if(rlen < 18)
 				goto error;
@@ -408,7 +408,7 @@ p_seprint(Msg *m)
 		}
 		if(p != ep)
 			goto error;
-	}	
+	}
 	return 0;
 
 error:

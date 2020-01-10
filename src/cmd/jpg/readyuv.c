@@ -29,7 +29,7 @@ enum {
 
 static int lsbtab[] = { 6, 4, 2, 0};
 
-static int 
+static int
 clip(int x)
 {
 	x >>= 18;
@@ -186,5 +186,3 @@ readyuv(int fd, int colorspace)
 	Bterm(&b);
 	return a;
 }
-
-

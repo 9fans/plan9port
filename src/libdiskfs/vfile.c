@@ -31,5 +31,3 @@ diskVentiRead(Disk *dd, u32int len, u64int offset)
 	walk down blocks
 	return the one
 }
-
-

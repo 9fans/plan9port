@@ -41,34 +41,34 @@ void pile(int oct)
 	printf(".nr %d \\n(%d\n", (int)yyval, lp[p1]);
 	for (i = p1+1; i < p2; i++) {
 		nrwid(lp[i], ps, lp[i]);
-		printf(".if \\n(%d>\\n(%d .nr %d \\n(%d\n", 
+		printf(".if \\n(%d>\\n(%d .nr %d \\n(%d\n",
 			lp[i], (int)yyval, (int)yyval, lp[i]);
 	}
-	printf(".ds %d \\v'%gm'\\h'%du*\\n(%du'\\\n", (int)yyval, REL(ebase[yyval],ps), 
+	printf(".ds %d \\v'%gm'\\h'%du*\\n(%du'\\\n", (int)yyval, REL(ebase[yyval],ps),
 		type==RCOL ? 1 : 0, (int)yyval);
 	sb = 0;		/* sum of box hts */
 	for (i = p2-1; i >= p1; i--) {
 		bi = sb + ebase[lp[i]];
 		switch (type) {
 		case LCOL:
-			printf("\\v'%gm'\\*(%d\\h'-\\n(%du'\\v'%gm'\\\n", 
+			printf("\\v'%gm'\\*(%d\\h'-\\n(%du'\\v'%gm'\\\n",
 				REL(-bi,ps), lp[i], lp[i], REL(bi,ps));
 			break;
 		case RCOL:
-			printf("\\v'%gm'\\h'-\\n(%du'\\*(%d\\v'%gm'\\\n", 
+			printf("\\v'%gm'\\h'-\\n(%du'\\*(%d\\v'%gm'\\\n",
 				REL(-bi,ps), lp[i], lp[i], REL(bi,ps));
 			break;
 		case CCOL:
 		case COL:
-			printf("\\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d", 
+			printf("\\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d",
 				REL(-bi,ps), (int)yyval, lp[i], lp[i]);
-			printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\\n", 
+			printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\\n",
 				(int)yyval, lp[i], REL(bi,ps));
 			break;
 		}
 		sb += eht[lp[i]] + gap;
 	}
-	printf("\\v'%gm'\\h'%du*\\n(%du'\n", REL(-ebase[yyval],ps), 
+	printf("\\v'%gm'\\h'%du*\\n(%du'\n", REL(-ebase[yyval],ps),
 		type!=RCOL ? 1 : 0, (int)yyval);
 	for (i = p1; i < p2; i++)
 		sfree(lp[i]);

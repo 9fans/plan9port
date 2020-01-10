@@ -39,7 +39,7 @@ atom(char *str)
 {
 	uint h;
 	Stringtab *tab;
-	
+
 	h = hash(str) % nelem(stab);
 	for(tab=stab[h]; tab; tab=tab->link)
 		if(strcmp(str, tab->str) == 0)

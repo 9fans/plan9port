@@ -1815,7 +1815,7 @@ getitems(ItemSource* is, uchar* data, int datalen)
 				tab = newtable(++is->ntables,
 						aalign(tok),
 						adimen(tok, Awidth),
-						aflagval(tok, Aborder), 
+						aflagval(tok, Aborder),
 						auintval(tok, Acellspacing, TABSP),
 						auintval(tok, Acellpadding, TABPAD),
 						makebackground(nil, acolorval(tok, Abgcolor, ps->curbg.color)),
@@ -1916,8 +1916,8 @@ getitems(ItemSource* is, uchar* data, int datalen)
 					flags |= TFisth;
 				c = newtablecell(curtab->cells==nil? 1 : curtab->cells->cellid+1,
 						auintval(tok, Arowspan, 1),
-						auintval(tok, Acolspan, 1), 
-						aalign(tok), 
+						auintval(tok, Acolspan, 1),
+						aalign(tok),
 						adimen(tok, Awidth),
 						auintval(tok, Aheight, 0),
 						makebackground(nil, acolorval(tok, Abgcolor, tr->background.color)),
@@ -4440,7 +4440,7 @@ validtable(Table* t)
 	/* only when parsing is done is t->nrow set > 0 */
 	if(ok && t->nrow > 0 && t->ncol > 0) {
 		/* table is "finished" */
-		for(i = 0; i < t->nrow && ok; i++) 
+		for(i = 0; i < t->nrow && ok; i++)
 			ok = validtablerow(t->rows+i);
 		for(j = 0; j < t->ncol && ok; j++)
 			ok = validtablecol(t->cols+j);

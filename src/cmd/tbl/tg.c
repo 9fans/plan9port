@@ -10,7 +10,7 @@ gettext(char *sp, int ilin, int icol, char *fn, char *sz)
 	char	*vs;
 
 	startline = iline;
-	if (texname == 0) 
+	if (texname == 0)
 		error("Too many text block diversions");
 	if (textflg == 0) {
 		Bprint(&tabout, ".nr %d \\n(.lu\n", SL); /* remember old line length */
@@ -21,13 +21,13 @@ gettext(char *sp, int ilin, int icol, char *fn, char *sz)
 	Bprint(&tabout, ".br\n");
 	Bprint(&tabout, ".di %c+\n", texname);
 	rstofill();
-	if (fn && *fn) 
+	if (fn && *fn)
 		Bprint(&tabout, ".nr %d \\n(.f\n.ft %s\n", S1, fn);
 	Bprint(&tabout, ".ft \\n(.f\n"); /* protect font */
 	vs = vsize[icol][stynum[ilin]];
 	if ((sz && *sz) || (vs && *vs)) {
 		Bprint(&tabout, ".nr %d \\n(.v\n", S9);
-		if (vs == 0 || *vs == 0) 
+		if (vs == 0 || *vs == 0)
 			vs = "\\n(.s+2";
 		if (sz && *sz)
 			Bprint(&tabout, ".ps %s\n", sz);
@@ -48,15 +48,15 @@ gettext(char *sp, int ilin, int icol, char *fn, char *sz)
 			iline = startline;
 			error("missing closing T}");
 		}
-		if (line[0] == 'T' && line[1] == '}' && line[2] == tab) 
+		if (line[0] == 'T' && line[1] == '}' && line[2] == tab)
 			break;
-		if (match("T}", line)) 
+		if (match("T}", line))
 			break;
 		Bprint(&tabout, "%s\n", line);
 	}
-	if (fn && *fn) 
+	if (fn && *fn)
 		Bprint(&tabout, ".ft \\n(%d\n", S1);
-	if (sz && *sz) 
+	if (sz && *sz)
 		Bprint(&tabout, ".br\n.ps\n.vs\n");
 	Bprint(&tabout, ".br\n");
 	Bprint(&tabout, ".di\n");
@@ -82,5 +82,3 @@ untext(void)
 	Bprint(&tabout, ".nf\n");
 	Bprint(&tabout, ".ll \\n(%du\n", SL);
 }
-
-

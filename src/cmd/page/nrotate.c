@@ -6,7 +6,7 @@
  * The basic concept is that you can invert an array by
  * inverting the top half, inverting the bottom half, and
  * then swapping them.
- * 
+ *
  * This is usually overkill, but it speeds up slow remote
  * connections quite a bit.
  */
@@ -132,7 +132,7 @@ shuffle(Image *img, Image *tmp, int axis, int imgdim, Image *mask, int maskdim)
 
 /*
  * Halve the grating period in the mask.
- * The grating currently looks like 
+ * The grating currently looks like
  * ####____####____####____####____
  * where #### is opacity.
  *
@@ -140,7 +140,7 @@ shuffle(Image *img, Image *tmp, int axis, int imgdim, Image *mask, int maskdim)
  * ##__##__##__##__##__##__##__##__
  * which is achieved by shifting the mask
  * and drawing on itself through itself.
- * Draw doesn't actually allow this, so 
+ * Draw doesn't actually allow this, so
  * we have to copy it first.
  *
  *     ####____####____####____####____ (dst)
@@ -229,7 +229,7 @@ swapadjacent(Image *img, Image *tmp, int axis, int imgdim, Image *mask, int mask
 	/*
 	 * r0 is the lower rectangle, while r1 is the upper one.
 	 */
-	draw(tmp, tmp->r, img, nil, 
+	draw(tmp, tmp->r, img, nil,
 }
 
 void
@@ -271,8 +271,7 @@ writefile(char *name, Image *im, int gran)
 	snprint(buf, sizeof buf, "%d%s%d", c++, name, gran);
 	fd = create(buf, OWRITE, 0666);
 	if(fd < 0)
-		return;	
+		return;
 	writeimage(fd, im, 0);
 	close(fd);
 }
-

@@ -900,4 +900,3 @@ usage(void)
 	fprint(2, "usage: %s [-is] [-m mountpoint]\n", argv0);
 	exits("usage");
 }
-

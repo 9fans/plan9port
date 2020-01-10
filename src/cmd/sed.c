@@ -81,7 +81,7 @@ typedef struct	SEDCOM {
 #define	YCOM	026
 #define XCOM	033
 
-	
+
 typedef struct label {			/* Label symbol table */
 	Rune	asc[9];			/* Label name */
 	SedCom	*chain;
@@ -632,7 +632,7 @@ compsub(Rune *rhs, Rune *end)
 		}
 		if (rhs < end)
 			*rhs++ = r;
-		else	
+		else
 			return 0;
 
 	}
@@ -725,7 +725,7 @@ getrune(void)
 				c = '\n';	/* fake an end-of-line */
 				prog.pctl.curr = 0;
 			}
-		} else 
+		} else
 			c = -1;
 	} else if ((c = Bgetrune(prog.pctl.bp)) < 0)
 			Bterm(prog.pctl.bp);
@@ -992,7 +992,7 @@ match(Reprog *pattern, Rune *buf)
 {
 	if (!pattern)
 		return 0;
-	subexp[0].s.rsp = buf; 
+	subexp[0].s.rsp = buf;
 	subexp[0].e.rep = 0;
 	if (rregexec(pattern, linebuf, subexp, MAXSUB) > 0) {
 		loc1 = subexp[0].s.rsp;

@@ -117,4 +117,3 @@ rpclog(char *fmt, ...)
 	lbvappend(&rpclogbuf, fmt, arg);
 	va_end(arg);
 }
-

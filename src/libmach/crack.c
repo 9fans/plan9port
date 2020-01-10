@@ -10,7 +10,7 @@ Mach *mach;
 extern Mach mach386;
 extern Mach machpower;
 
-static Mach *machs[] = 
+static Mach *machs[] =
 {
 	&mach386,
 	&machpower,
@@ -125,7 +125,7 @@ unmapfile(Fhdr *fp, Map *map)
 	for(i=0; i<map->nseg; i++){
 		while(i<map->nseg && map->seg[i].fd == fp->fd){
 			map->nseg--;
-			memmove(&map->seg[i], &map->seg[i+1], 
+			memmove(&map->seg[i], &map->seg[i+1],
 				(map->nseg-i)*sizeof(map->seg[0]));
 		}
 	}
@@ -149,4 +149,3 @@ coreregs(Fhdr *fp, uint id)
 	werrstr("thread not found");
 	return nil;
 }
-

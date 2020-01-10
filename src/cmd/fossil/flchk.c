@@ -64,7 +64,7 @@ threadmain(int argc, char *argv[])
 	int csize = 1000;
 	VtConn *z;
 	char *host = nil;
-	
+
 	fsck.useventi = 1;
 	Binit(&bout, 1, OWRITE);
 	ARGBEGIN{
@@ -119,4 +119,3 @@ threadmain(int argc, char *argv[])
 
 	threadexitsall(0);
 }
-

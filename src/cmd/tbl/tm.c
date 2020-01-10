@@ -15,8 +15,8 @@ maknew(char *str)
 	str = p;
 	if (ba == 0) {
 		for (dpoint = 0; *str; str++) {
-			if (*str == '.' && !ineqn(str, p) && 
-			    (str > p && digit(*(str - 1)) || 
+			if (*str == '.' && !ineqn(str, p) &&
+			    (str > p && digit(*(str - 1)) ||
 			    digit(*(str + 1))))
 				dpoint = str;
 		}
@@ -27,7 +27,7 @@ maknew(char *str)
 			}
 		if (!dpoint && p == str) /* not numerical, don't split */
 			return(0);
-		if (dpoint) 
+		if (dpoint)
 			str = dpoint;
 	} else
 		str = ba;
@@ -61,5 +61,3 @@ ineqn (char *s, char *p)
 	}
 	return(0);
 }
-
-

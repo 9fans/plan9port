@@ -61,7 +61,7 @@ waitthread(void *v)
 				wq[nwq++] = w;
 			}
 			break;
-		
+
 		case 1:
 			dprint("wait: req for pid %d chan %p\n", r.pid, r.c);
 			for(i=0; i<nwq; i++){
@@ -89,7 +89,7 @@ twaitfor(int pid)
 {
 	Waitreq r;
 	Waitmsg *w;
-	
+
 	r.pid = pid;
 	r.c = chancreate(sizeof(Waitmsg*), 1);
 	send(twaitchan, &r);
@@ -103,7 +103,7 @@ twait(int pid)
 {
 	int x;
 	Waitmsg *w;
-	
+
 	w = twaitfor(pid);
 	x = w->msg[0] != 0 ? -1 : 0;
 	free(w);
@@ -117,4 +117,3 @@ twaitinit(void)
 	twaitchan = chancreate(sizeof(Waitreq), 10);
 	threadcreate(waitthread, nil, 128*1024);
 }
-

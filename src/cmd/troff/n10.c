@@ -319,7 +319,7 @@ void ptout1(void)
 				j = -j;
 			if (isvmot(i))
 				lead += j;
-			else 
+			else
 				esc += j;
 			continue;
 		}
@@ -432,13 +432,13 @@ char *plot(char *x)
 		} else if (*k & 0200) {
 			if (*k & 0100) {
 				if (*k & 040)
-					j = t.up; 
-				else 
+					j = t.up;
+				else
 					j = t.down;
 			} else {
 				if (*k & 040)
-					j = t.left; 
-				else 
+					j = t.left;
+				else
 					j = t.right;
 			}
 			if ((i = *k & 037) == 0) {	/* 2nd 0200 turns it off */
@@ -447,7 +447,7 @@ char *plot(char *x)
 			}
 			while (i--)
 				oputs(j);
-		} else 
+		} else
 			oput(*k);
 	}
 	oputs(t.plotoff);
@@ -464,8 +464,8 @@ void move(void)
 
 	iesct = esct;
 	if (esct += esc)
-		i = "\0"; 
-	else 
+		i = "\0";
+	else
 		i = "\n\0";
 	j = t.hlf;
 	p = t.right;
@@ -492,10 +492,10 @@ void move(void)
 		} else { /* no half-line forward, not at line begining */
 			k = lead / t.Newline;
 			lead = lead % t.Newline;
-			if (k > 0) 
+			if (k > 0)
 				esc = esct;
 			i = "\n";
-			while (k--) 
+			while (k--)
 				oputs(i);
 		}
 	}

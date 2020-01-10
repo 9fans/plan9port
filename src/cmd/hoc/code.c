@@ -125,7 +125,7 @@ forcode(void)
 }
 
 void
-ifcode(void) 
+ifcode(void)
 {
 	Datum d;
 	Inst *savepc = pc;	/* then part */
@@ -133,7 +133,7 @@ ifcode(void)
 	execute(savepc+3);	/* condition */
 	d = pop();
 	if (d.val)
-		execute(*((Inst **)(savepc)));	
+		execute(*((Inst **)(savepc)));
 	else if (*((Inst **)(savepc+1))) /* else part? */
 		execute(*((Inst **)(savepc+1)));
 	if (!returning)
@@ -255,7 +255,7 @@ procret(void) 	/* return from a procedure */
 }
 
 void
-bltin(void) 
+bltin(void)
 {
 
 	Datum d;
@@ -611,7 +611,7 @@ prexpr(void)	/* print numeric value */
 }
 
 void
-prstr(void)		/* print string value */ 
+prstr(void)		/* print string value */
 {
 	print("%s", (char *) *pc++);
 }

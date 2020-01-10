@@ -80,7 +80,7 @@ struct Super
 	u32int	revlevel;		/* Revision level */
 	u16int	defresuid;		/* Default uid for reserved blocks */
 	u16int	defresgid;		/* Default gid for reserved blocks */
-	
+
 	/* the following are only available with revlevel = 1 */
 	u32int	firstino;		/* First non-reserved inode */
 	u16int	inosize;		/* size of inode structure */
@@ -161,4 +161,3 @@ struct Ext2
 	Disk *disk;
 	Fsys *fsys;
 };
-

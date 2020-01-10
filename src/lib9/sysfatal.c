@@ -18,4 +18,3 @@ sysfatal(char *fmt, ...)
 	fprint(2, "%s: %s\n", argv0 ? argv0 : "<prog>", buf);
 	exits("fatal");
 }
-

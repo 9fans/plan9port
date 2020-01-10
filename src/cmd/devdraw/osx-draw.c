@@ -56,4 +56,3 @@ unloadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 {
 	return _unloadmemimage(i, r, data, ndata);
 }
-

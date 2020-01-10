@@ -11,4 +11,3 @@ struct Ioproc
 	char err[ERRMAX];
 	Ioproc *next;
 };
-

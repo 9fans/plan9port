@@ -136,7 +136,7 @@ zip(Biobuf *bout, char *file, int stdout)
 	zh->madevers = (2 * 10) + 0;
 	zh->extos = ZDos;
 	zh->extvers = (2 * 10) + 0;
-	
+
 	t = localtime(dir->mtime);
 	zh->modtime = (t->hour<<11) | (t->min<<5) | (t->sec>>1);
 	zh->moddate = ((t->year-80)<<9) | ((t->mon+1)<<5) | t->mday;

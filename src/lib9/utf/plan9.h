@@ -26,4 +26,3 @@ typedef unsigned long		ulong;
 
 #undef	nelem
 #define	nelem(x)	(sizeof (x)/sizeof (x)[0])
-

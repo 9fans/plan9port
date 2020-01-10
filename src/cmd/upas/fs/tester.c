@@ -51,7 +51,7 @@ info(int indent, int mno, Message *m)
 		info(indent+1, i++, nm);
 	}
 }
-	
+
 
 void
 main(int argc, char **argv)

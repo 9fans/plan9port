@@ -71,7 +71,6 @@ t6init(void)
 	addreq(L("ll"), r_ll, -1);
 	addreq(L("in"), r_in, -1);
 	addreq(L("ti"), r_ti, 1);
-	
+
 	nr(L(".l"), eval(L("6.5i")));
 }
-

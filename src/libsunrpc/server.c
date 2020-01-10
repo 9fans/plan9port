@@ -194,7 +194,7 @@ sunrpcreplythread(void *v)
 	while((m = recvp(srv->creply)) != nil){
 		/* could record in cache here? */
 		sendp(m->creply, m);
-	}	
+	}
 }
 
 int
@@ -286,4 +286,3 @@ sunmsgdrop(SunMsg *m)
 	free(m);
 	return 0;
 }
-

@@ -9,7 +9,7 @@ xioproc(void)
 {
 	Ioproc *c;
 	int i;
-	
+
 	for(i=0; i<ncache; i++){
 		if(c = cache[i]){
 			cache[i] = nil;
@@ -162,4 +162,3 @@ xioasgetticket(int fd, char *trbuf, char *tbuf)
 		n = 0;
 	return n;
 }
-

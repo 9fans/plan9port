@@ -26,15 +26,15 @@ jolietstring(uchar *buf, int len)
 }
 
 /*
- * Joliet name validity check 
- * 
+ * Joliet name validity check
+ *
  * Joliet names have length at most 128 bytes (64 runes),
  * and cannot contain '*', '/', ':', ';', '?', or '\'.
  */
 int
 isjolietfrog(Rune r)
 {
-	return r=='*' || r=='/' || r==':' 
+	return r=='*' || r=='/' || r==':'
 		|| r==';' || r=='?' || r=='\\';
 }
 
@@ -58,7 +58,7 @@ isbadjoliet(char *s)
  * The standard algorithm is the ISO9660 algorithm but
  * on the encoded Runes.  Runes are encoded in big endian
  * format, so we can just use runecmp.
- * 
+ *
  * Padding is with zeros, but that still doesn't affect us.
  */
 
@@ -135,4 +135,3 @@ Cputjolietsvd(Cdimg *cd, Cdinfo info)
 	Cputc(cd, 1);				/* file structure version */
 	Cpadblock(cd);
 }
-

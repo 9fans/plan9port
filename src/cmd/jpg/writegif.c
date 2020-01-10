@@ -281,7 +281,7 @@ writegraphiccontrol(Biobuf *fd, int dt, int trans)
 		Bputc(fd, 0x01);
 	else
 		Bputc(fd, 0x00);
-	
+
 	/* Delay time, in centisec (argument is millisec for sanity) */
 	if(dt < 0)
 		dt = 0;
@@ -345,7 +345,7 @@ writedata(Biobuf *fd, Image *image, Memimage *memimage)
 	else
 		Bputc(fd, depth);
 
-	/* 
+	/*
 	 * Read image data into memory
 	 * potentially one extra byte on each end of each scan line
 	 */

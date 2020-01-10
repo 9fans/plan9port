@@ -23,4 +23,3 @@ typedef unsigned long long uvlong;
 
 #define seek(fd, offset, whence) lseek(fd, offset, whence)
 #define create(name, mode, perm) creat(name, perm)
-

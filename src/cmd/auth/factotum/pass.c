@@ -15,12 +15,12 @@ static int
 passproto(Conv *c)
 {
 	Key *k;
-	
+
 	k = keyfetch(c, "%A", c->attr);
 	if(k == nil)
 		return -1;
 	c->state = "write";
-	convprint(c, "%q %q", 
+	convprint(c, "%q %q",
 		strfindattr(k->attr, "user"),
 		strfindattr(k->privattr, "!password"));
 	return 0;

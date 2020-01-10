@@ -22,4 +22,3 @@ swapcontext(ucontext_t *oucp, ucontext_t *ucp)
 		setcontext(ucp);
 	return 0;
 }
-

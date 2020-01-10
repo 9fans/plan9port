@@ -15,4 +15,3 @@ enum
 {
 	MaxDataSize = 8192
 };
-

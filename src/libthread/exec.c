@@ -206,4 +206,3 @@ threadexecl(Channel *cpid, int fd[3], char *cmd, ...)
 	if(pid >= 0)
 		threadexits("threadexecl");
 }
-

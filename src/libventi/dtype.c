@@ -75,4 +75,3 @@ vtfromdisktype(uint n)
 		return VtCorruptType;
 	return fromdisk[n];
 }
-

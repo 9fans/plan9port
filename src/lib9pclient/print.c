@@ -65,4 +65,3 @@ fsvprint(CFid *fd, char *fmt, va_list args)
 		return -1;
 	return n;
 }
-

@@ -34,14 +34,14 @@ demanglegcc3(char *s, char *buf)
 {
 	char *p, *os;
 	Gccstate state;
-	
+
 	state.nname = 0;
 	os = s;
 	/* mangled names always start with _Z */
 	if(s[0] != '_' || s[1] != 'Z')
 		return s;
 	s += 2;
-	
+
 	p = buf;
 	if(!gccname(&s, &p, &state)){
 		if(strchr(os, '@') == nil)
@@ -138,7 +138,7 @@ static struct {
 	"rs",	">>",		"rsh",
 	"st",	"sizeof",	"sizeoftype",
 	"sz",	"sizeof",	"sizeofexpr",
-	
+
 	0,0,0
 };
 
@@ -153,7 +153,7 @@ gccname(char **ps, char **pp, Gccstate *state)
 	int i, n;
 	char *os, *s, *t, *p;
 	Gccstate nstate;
-	
+
 	s = *ps;
 	os = s;
 	p = *pp;
@@ -170,7 +170,7 @@ gccname(char **ps, char **pp, Gccstate *state)
 			goto suffix;
 		}
 	}
-	
+
 	/* basic types */
 	if((t = chartabsearch(typetab, *s)) != nil){
 		s++;
@@ -178,7 +178,7 @@ gccname(char **ps, char **pp, Gccstate *state)
 		p += strlen(t);
 		goto suffix;
 	}
-	
+
 	switch(*s){
 	default:
 	bad:
@@ -245,7 +245,7 @@ gccname(char **ps, char **pp, Gccstate *state)
 		p -= 2;
 		s++;
 		break;
-	
+
 	case 'P':	/* pointer to */
 		s++;
 		if(!gccname(&s, &p, state))
@@ -282,7 +282,7 @@ gccname(char **ps, char **pp, Gccstate *state)
 			s += 2;
 			break;
 		}
-		
+
 		/* standard name */
 		if(*s == 't'){
 			strcpy(p, "std::");
@@ -300,7 +300,7 @@ gccname(char **ps, char **pp, Gccstate *state)
 			*p++ = *s++;
 		}
 		break;
-	
+
 	case 'T':	/* previously-seen type??? T0_ also T_*/
 		t = s;
 		for(; *s != '_'; s++){
@@ -312,9 +312,9 @@ gccname(char **ps, char **pp, Gccstate *state)
 		s++;
 		memmove(p, t, s-t);
 		p += s-t;
-		break;		
+		break;
 	}
-	
+
 suffix:
 	if(*s == 'I'){
 		/* template suffix */
@@ -336,4 +336,3 @@ suffix:
 	*pp = p;
 	return 1;
 }
-

@@ -50,7 +50,7 @@ advance(void)
 }
 /*
  * read a character from the input stream
- */	
+ */
 
 int
 getnext(void)

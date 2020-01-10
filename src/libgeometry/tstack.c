@@ -1,6 +1,6 @@
 /*% cc -gpc %
  * These transformation routines maintain stacks of transformations
- * and their inverses.  
+ * and their inverses.
  * t=pushmat(t)		push matrix stack
  * t=popmat(t)		pop matrix stack
  * rot(t, a, axis)	multiply stack top by rotation

@@ -269,7 +269,7 @@ static int
 tcpannounce(char *mntpt)
 {
 	int fd;
-	
+
 	USED(mntpt);
 	if((fd=announce(tcpaddr, adir)) < 0)
 		warning("announce %s: %r", tcpaddr);

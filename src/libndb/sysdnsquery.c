@@ -20,11 +20,11 @@ Ndbtuple*
 dnsquery(char *net, char *val, char *type)
 {
 	static int init;
-	char rip[128];	
+	char rip[128];
 	Ndbtuple *t;
 
 	USED(net);
-	
+
 	if(!init){
 		init = 1;
 		fmtinstall('I', eipfmt);
@@ -32,17 +32,17 @@ dnsquery(char *net, char *val, char *type)
 	/* give up early on stupid questions - vwhois */
 	if(strcmp(val, "::") == 0 || strcmp(val, "0.0.0.0") == 0)
 		return nil;
-	
+
 	/* zero out the error string */
 	werrstr("");
-	
+
 	/* if this is a reverse lookup, first look up the domain name */
 	if(strcmp(type, "ptr") == 0){
 		mkptrname(val, rip, sizeof rip);
 		t = doquery(rip, "ptr");
 	}else
 		t = doquery(val, type);
-	
+
 	return t;
 }
 
@@ -123,7 +123,7 @@ enum
 	/* query types (all RR types are also queries) */
 	Tixfr=	251,	/* incremental zone transfer */
 	Taxfr=	252,	/* zone transfer */
-	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */	
+	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */
 	Tall=	255,	/* all records */
 
 	/* classes */
@@ -173,7 +173,7 @@ doquery(char *name, char *type)
 
 	qdcount = (buf[4]<<8)|buf[5];
 	ancount = (buf[6]<<8)|buf[7];
-	
+
 	p = buf+12;
 	p = skipquestion(buf, buf+n, p, qdcount);
 	p = unpack(buf, buf+n, p, &t, ancount);
@@ -215,7 +215,7 @@ static char*
 type2name(int t)
 {
 	int i;
-	
+
 	for(i=0; i<nelem(dnsnames); i++)
 		if(dnsnames[i].t == t)
 			return dnsnames[i].s;
@@ -226,7 +226,7 @@ static int
 name2type(char *name)
 {
 	int i;
-	
+
 	for(i=0; i<nelem(dnsnames); i++)
 		if(strcmp(name, dnsnames[i].s) == 0)
 			return dnsnames[i].t;
@@ -238,7 +238,7 @@ skipquestion(uchar *buf, uchar *ebuf, uchar *p, int n)
 {
 	int i, len;
 	char tmp[100];
-	
+
 	for(i=0; i<n; i++){
 		if((len = dn_expand(buf, ebuf, p, tmp, sizeof tmp)) <= 0)
 			return nil;
@@ -304,11 +304,11 @@ rrnext(uchar *buf, uchar *ebuf, uchar *p, Ndbtuple **tt)
 		return nil;
 	}
 	p += len;
-	
+
 	rrtype = G2(p);
 	rrlen = G2(p+8);
 	p += 10;
-	
+
 	if(rrtype == Tptr)
 		first = ndbnew("ptr", b);
 	else
@@ -363,19 +363,19 @@ rrnext(uchar *buf, uchar *ebuf, uchar *p, Ndbtuple **tt)
 		break;
 
 	case Tsoa:
-		t = rrunpack(buf, ebuf, &p, "NNLLLLL", "ns", "mbox", 
+		t = rrunpack(buf, ebuf, &p, "NNLLLLL", "ns", "mbox",
 			"serial", "refresh", "retry", "expire", "ttl");
 		break;
 
 	case Tkey:
 		t = rrunpack(buf, ebuf, &p, "SCCY", "flags", "proto", "alg", "key");
 		break;
-	
+
 	case Tsig:
 		t = rrunpack(buf, ebuf, &p, "SCCLLLSNY", "type", "alg", "labels",
 			"ttl", "exp", "incep", "tag", "signer", "sig");
 		break;
-	
+
 	case Tcert:
 		t = rrunpack(buf, ebuf, &p, "SSCY", "type", "tag", "alg", "cert");
 		break;
@@ -398,7 +398,7 @@ rrunpack(uchar *buf, uchar *ebuf, uchar **pp, char *fmt, ...)
 	va_list arg;
 	Ndbtuple *t, *first, *last;
 	char tmp[Ndbvlen];
-	
+
 	p = *pp;
 	va_start(arg, fmt);
 	first = nil;

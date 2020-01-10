@@ -67,7 +67,7 @@ class range {
 class vboxrange : public range {
 	int	dv;		// inherited from slug
 	int	base;		// inherited from slug
-	int	brk;		// 0 => ok to break after, 1 => no break 
+	int	brk;		// 0 => ok to break after, 1 => no break
   public:
 	vboxrange(slug *p) : range(p) { dv = p->dv; base = p->base; brk = p->parm; }
 	void	dump() {

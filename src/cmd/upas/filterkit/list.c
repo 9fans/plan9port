@@ -286,7 +286,7 @@ add(char *pp, int argc, char **argv)
 		s_free(s);
 	}
 	close(fd);
-	return nil;	
+	return nil;
 }
 
 void

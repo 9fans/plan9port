@@ -182,7 +182,7 @@ int
 vtgoodbye(VtConn *z)
 {
 	VtFcall tx, rx;
-	
+
 	tx.msgtype = VtTgoodbye;
 	vtfcallrpc(z, &tx, &rx);	/* always fails: no VtRgoodbye */
 	return 0;

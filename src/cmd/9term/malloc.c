@@ -13,7 +13,7 @@ void*
 p9malloc(ulong n)
 {
 	void *v;
-	
+
 	if(n == 0)
 		n++;
 	lock(&malloclock);
@@ -38,7 +38,7 @@ void*
 p9calloc(ulong a, ulong b)
 {
 	void *v;
-	
+
 	if(a*b == 0)
 		a = b = 1;
 
@@ -53,11 +53,10 @@ void*
 p9realloc(void *v, ulong n)
 {
 	void *vv;
-	
+
 	lock(&malloclock);
 	vv = realloc(v, n);
 	unlock(&malloclock);
 	print("p9realloc %p %lud => %p; pc %lux\n", v, n, vv, getcallerpc(&v));
 	return vv;
 }
-

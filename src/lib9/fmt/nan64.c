@@ -2,7 +2,7 @@
 
 /*
  * 64-bit IEEE not-a-number routines.
- * This is big/little-endian portable assuming that 
+ * This is big/little-endian portable assuming that
  * the 64-bit doubles and 64-bit integers have the
  * same byte ordering.
  */
@@ -51,7 +51,7 @@ int
 __isNaN(double d)
 {
 	uvlong x;
-	
+
 	x = d2u(d);
 	/* IEEE 754: exponent bits 0x7FF and non-zero mantissa */
 	return (x&uvinf) == uvinf && (x&~uvneginf) != 0;
@@ -67,7 +67,7 @@ int
 __isInf(double d, int sign)
 {
 	uvlong x;
-	
+
 	x = d2u(d);
 	if(sign == 0)
 		return x==uvinf || x==uvneginf;

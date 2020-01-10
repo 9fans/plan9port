@@ -55,7 +55,7 @@ static struct {
 	SIGUSR2,		"sys: usr2",
 	SIGPIPE,		"sys: write on closed pipe",
 };
-	
+
 char*
 _p9sigstr(int sig, char *tmp)
 {
@@ -134,4 +134,3 @@ awaitfor(int pid, char *str, int n)
 {
 	return _await(pid, str, n, 0);
 }
-

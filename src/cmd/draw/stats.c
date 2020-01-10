@@ -50,7 +50,7 @@ enum
 };
 
 char*
-labels[Nvalue] = 
+labels[Nvalue] =
 {
 	"802.11",
 	"battery",
@@ -70,7 +70,7 @@ labels[Nvalue] =
 	"sys",
 	"syscall",
 	"user"
-};	
+};
 
 struct Graph
 {
@@ -435,7 +435,7 @@ newvalue(Machine *m, int i, ulong *v, ulong *vmax)
 
 	if(m->last[i] == 0)
 		m->last[i] = m->val[i][0];
-		
+
 	if(i == Vload){
 		/*
 		 * Invert the ewma to obtain the 5s load statistics.
@@ -928,4 +928,3 @@ initmach(Machine *m, char *name)
 		*q = 0;
 	return 1;
 }
-

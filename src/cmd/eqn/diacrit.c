@@ -64,7 +64,7 @@ void diacrit(int p1, int type)
 	nrwid(c, ps, c);
 	if (lfont[p1] != ITAL)
 		printf(".nr %d 0\n", t);
-	printf(".as %d \\h'-\\n(%du-\\n(%du/2u+\\n(%du'\\v'0-\\n(10u'\\*(%d", 
+	printf(".as %d \\h'-\\n(%du-\\n(%du/2u+\\n(%du'\\v'0-\\n(10u'\\*(%d",
 		p1, p1, c, t, c);
 	printf("\\v'\\n(10u'\\h'-\\n(%du+\\n(%du/2u-\\n(%du'\n", c, p1, t);
 	if (type != UNDER && type != UTILDE)

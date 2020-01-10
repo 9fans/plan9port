@@ -19,7 +19,7 @@ threadmain(int argc, char *argv[])
 	vlong bits, size, size2;
 	int nhash;
 	vlong nblocks;
-	
+
 	ventifmtinstall();
 	statsinit();
 
@@ -62,7 +62,7 @@ threadmain(int argc, char *argv[])
 
 	if(size == 0)
 		size = part->size;
-	
+
 	if(size < 1024*1024)
 		sysfatal("bloom filter too small");
 
@@ -93,7 +93,7 @@ threadmain(int argc, char *argv[])
 		}
 
 		/*
-		 * optimal is to use ln 2 times as many hash functions as we have bits per blocks.  
+		 * optimal is to use ln 2 times as many hash functions as we have bits per blocks.
 		 */
 		bits = (8*size)/nblocks;
 		nhash = bits*7/10;

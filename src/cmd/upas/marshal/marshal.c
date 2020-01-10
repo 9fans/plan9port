@@ -334,7 +334,7 @@ threadmain(int argc, char **argv)
 		close(fd);
 		threadexitsall(waitforsubprocs());
 	}
-	
+
 	if(Binit(&out, fd, OWRITE) < 0)
 		fatal("can't Binit 1: %r");
 
@@ -689,7 +689,7 @@ attachment(Attach *a, Biobuf *out)
 		free(f);
 		return;
 	}
-	
+
 	/* if it's not already mime encoded ... */
 	if(strcmp(a->type, "text/plain") != 0)
 		Bprint(out, "Content-Type: %s\n", a->type);
@@ -822,7 +822,7 @@ int
 mopen(char *file, int mode)
 {
 	int fd;
-	
+
 	if((fd = open(file, mode)) >= 0)
 		return fd;
 	if(strncmp(file, "Mail/", 5) == 0 && mountmail() >= 0 && (fd = fsopenfd(mailfs, file+5, mode)) >= 0)
@@ -890,7 +890,7 @@ mkattach(char *file, char *type, int inline)
 	a->type = "application/octet-stream";		/* safest default */
 	if(pipe(pfd) < 0)
 		return a;
-	
+
 	xfd[0] = mopen(file, OREAD);
 	xfd[1] = pfd[0];
 	xfd[2] = dup(2, -1);
@@ -955,7 +955,7 @@ static void
 teeproc(void *v)
 {
 	int *a;
-	
+
 	a = v;
 	tee(a[0], a[1], a[2]);
 	write(a[2], "\n", 1);
@@ -1094,7 +1094,7 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 
 	if(pipe(pfd) < 0)
 		fatal("pipe: %r");
-	
+
 	xfd[0] = pfd[0];
 	xfd[1] = dup(1, -1);
 	xfd[2] = dup(2, -1);
@@ -1122,7 +1122,7 @@ sendmail(Addr *to, Addr *cc, int *pid, char *rcvr)
 		proccreate(teeproc, targ, STACK);
 		sfd = pfd[1];
 	}
-	
+
 	return sfd;
 }
 
@@ -1348,7 +1348,7 @@ readaliases(void)
 			addr->next = 0;
 			*al = addr;
 			al = &addr->next;
-		} 
+		}
 		if(a->addr == nil || a->addr->next == nil){
 			freealias(a);
 			continue;
@@ -1592,7 +1592,7 @@ get822token(String **tok, char *p, char **pp)
 		type = Twords;
 		quoting = 0;
 		for(; *p && (quoting || (!ISWHITE(*p) && *p != '>' && *p != '<' && *p != ',')); p++) {
-			if(*p == '"') 
+			if(*p == '"')
 				quoting = !quoting;
 			if(*p == '\\') {
 				if(*(p+1) == '\0') {
@@ -1609,7 +1609,7 @@ get822token(String **tok, char *p, char **pp)
 		*pp = p;
 	*tok = s_copyn(op, p-op);
 	return type;
-}	
+}
 
 /* expand local aliases in an RFC822 mail line */
 /* add list of expanded addresses to to. */
@@ -1717,7 +1717,7 @@ expandline(String **s, Addr *to)
 			nto = nil;
 			werrstr("rfc822 syntax error");
 			rfc822syntaxerror = 1;
-			goto Break2;			
+			goto Break2;
 		}
 	}
 Break2:
@@ -1893,7 +1893,7 @@ hard:
 			fmtprint(fmt, "=%.2uX", (uchar)*p);
 		else
 			fmtrune(fmt, (uchar)*p);
-	}			
+	}
 	fmtprint(fmt, "?=");
 	return 0;
 }

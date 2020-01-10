@@ -97,7 +97,7 @@ windrawbutton(Window *w)
 {
 	Image *b;
 	Rectangle br;
-	
+
 	b = button;
 	if(!w->isdir && !w->isscratch && (w->body.file->mod || w->body.ncache))
 		b = modbutton;
@@ -112,7 +112,7 @@ delrunepos(Window *w)
 {
 	int n;
 	Rune rune;
-	
+
 	for(n=0; n<w->tag.file->b.nc; n++) {
 		bufread(&w->tag.file->b, n, &rune, 1);
 		if(rune == ' ')
@@ -128,7 +128,7 @@ void
 movetodel(Window *w)
 {
 	int n;
-	
+
 	n = delrunepos(w);
 	if(n < 0)
 		return;
@@ -153,7 +153,7 @@ wintaglines(Window *w, Rectangle r)
 	textresize(&w->tag, r, TRUE);
 	w->tag.fr.noredraw = 0;
 	w->tagsafe = FALSE;
-	
+
 	if(!w->tagexpand) {
 		/* use just as many lines as needed to show the Del */
 		n = delrunepos(w);
@@ -162,7 +162,7 @@ wintaglines(Window *w, Rectangle r)
 		p = subpt(frptofchar(&w->tag.fr, n), w->tag.fr.r.min);
 		return 1 + p.y / w->tag.fr.font->height;
 	}
-		
+
 	/* can't use more than we have */
 	if(w->tag.fr.nlines >= w->tag.fr.maxlines)
 		return w->tag.fr.maxlines;
@@ -224,7 +224,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 			moveto(mousectl, p);
 		}
 	}
-	
+
 	/* If needed, resize & redraw body. */
 	r1 = r;
 	r1.min.y = y;
@@ -293,7 +293,7 @@ winunlock(Window *w)
 void
 winmousebut(Window *w)
 {
-	moveto(mousectl, addpt(w->tag.scrollr.min, 
+	moveto(mousectl, addpt(w->tag.scrollr.min,
 		divpt(Pt(Dx(w->tag.scrollr), font->height), 2)));
 }
 
@@ -673,7 +673,7 @@ winctlprint(Window *w, char *buf, int fonts)
 	sprint(buf, "%11d %11d %11d %11d %11d ", w->id, w->tag.file->b.nc,
 		w->body.file->b.nc, w->isdir, w->dirty);
 	if(fonts)
-		return smprint("%s%11d %q %11d ", buf, Dx(w->body.fr.r), 
+		return smprint("%s%11d %q %11d ", buf, Dx(w->body.fr.r),
 			w->body.reffont->f->name, w->body.fr.maxtab);
 	return buf;
 }

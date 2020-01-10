@@ -31,7 +31,7 @@ struct Box
 
 	Msg**	msg;			/* array of messages (can have nils) */
 	uint		nmsg;
-	
+
 	char*	imapname;	/* name on IMAP server */
 	u32int	validity;		/* IMAP validity number */
 	uint		uidnext;		/* IMAP expected next uid */
@@ -73,7 +73,7 @@ struct Msg
 	uint		flags;		/* FlagDeleted etc. */
 	uint		date;			/* smtp envelope date */
 	uint		size;
-	
+
 	Part**	part;			/* message subparts - part[0] is root */
 	uint		npart;
 };
@@ -132,4 +132,3 @@ extern	Box**	boxes;
 extern	uint		nboxes;
 
 extern	Box*		rootbox;
-

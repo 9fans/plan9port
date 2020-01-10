@@ -73,14 +73,14 @@ scalesubfont(Subfont *f, int scale)
 	int y, x, x2, j;
 	uchar *src, *dst;
 	int srcn, dstn, n, mask, v, pack;
-	
+
 	r = f->bits->r;
 	r2 = r;
 	r2.min.x *= scale;
 	r2.min.y *= scale;
 	r2.max.x *= scale;
 	r2.max.y *= scale;
-	
+
 	srcn = bytesperline(r, f->bits->depth);
 	src = malloc(srcn);
 	dstn = bytesperline(r2, f->bits->depth);
@@ -111,7 +111,7 @@ scalesubfont(Subfont *f, int scale)
 	f->bits = i;
 	f->height *= scale;
 	f->ascent *= scale;
-	
+
 	for(j=0; j<f->n; j++) {
 		f->info[j].x *= scale;
 		f->info[j].top *= scale;

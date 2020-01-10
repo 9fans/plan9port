@@ -272,7 +272,7 @@ readtroffmetric(char *fontname, int trindex) {
 
 			if (*cp == 0) *cp = galloc(0, sizeof(struct charent), "readtroffmetric:charent");
 			(*cp)->postfontid = thisfont;
-			(*cp)->postcharid = thischar; 
+			(*cp)->postcharid = thischar;
 			(*cp)->troffcharwidth = ntoken;
 			(*cp)->name = galloc(0, 2, "readtroffmetric: char name");
 			(*cp)->next = 0;
@@ -283,7 +283,7 @@ readtroffmetric(char *fontname, int trindex) {
 			line++;
 			break;
 		}
-		if (!errorflg) {		
+		if (!errorflg) {
 			line++;
 		}
 	} while(!errorflg && rv>=0);
@@ -351,7 +351,7 @@ flush:
 			}
 		if (*cp == 0) *cp = galloc(0, sizeof(struct charent), "readtroffmetric:charent");
 		(*cp)->postfontid = RUNEGETGROUP(charnum);
-		(*cp)->postcharid = RUNEGETCHAR(charnum); 
+		(*cp)->postcharid = RUNEGETCHAR(charnum);
 		(*cp)->troffcharwidth = width;
 		(*cp)->name = galloc(0, strlen(stoken)+1, "readtroffmetric: char name");
 		(*cp)->next = 0;

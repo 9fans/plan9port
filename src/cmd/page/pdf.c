@@ -1,6 +1,6 @@
 /*
  * pdf.c
- * 
+ *
  * pdf file support for page
  */
 
@@ -15,7 +15,7 @@
 static Image*	pdfdrawpage(Document *d, int page);
 static char*	pdfpagename(Document*, int);
 
-char *pdfprolog = 
+char *pdfprolog =
 #include "pdfprolog.c"
 	;
 
@@ -25,7 +25,7 @@ pdfbbox(GSInfo *gs)
 	char *p;
 	char *f[4];
 	Rectangle r;
-	
+
 	r = Rect(0,0,0,0);
 	waitgs(gs);
 	gscmd(gs, "/CropBox knownoget {} {[0 0 0 0]} ifelse PAGE==\n");
@@ -152,7 +152,7 @@ static char*
 pdfpagename(Document *d, int page)
 {
 	static char str[15];
-	
+
 	USED(d);
 	sprint(str, "p %d", page+1);
 	return str;

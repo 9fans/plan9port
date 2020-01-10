@@ -55,4 +55,3 @@ p9time(long *tt)
 		*tt = t;
 	return t;
 }
-

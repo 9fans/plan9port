@@ -32,7 +32,7 @@ tokenize822(char *str, char **args, int max)
 	int intok = 0, inquote = 0;
 
 	if(max <= 0)
-		return 0;	
+		return 0;
 	for(na=0; ;str++)
 		switch(*str) {
 		case ' ':

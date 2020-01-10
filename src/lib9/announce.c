@@ -153,4 +153,3 @@ p9accept(int cfd, char *dir)
 	/* need to dup because the listen fd will be closed */
 	return dup(fd);
 }
-

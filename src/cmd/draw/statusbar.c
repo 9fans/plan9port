@@ -108,7 +108,7 @@ resize()
 
 	p.x = r.min.x+4;
 	p.y += display->defaultfont->height+4;
-	
+
 	q = subpt(r.max, Pt(4,4));
 	rbar = Rpt(p, q);
 	border(screen, rbar, -2, dark, ZP);
@@ -116,12 +116,12 @@ resize()
 	lastp = -1;
 
 	flushimage(display, 1);
-	drawbar();	
+	drawbar();
 }
 
 void
 keyboardthread(void *v)
-{	
+{
 	Rune r;
 
 	while(recv(kc->c , &r) == 1){
@@ -132,9 +132,9 @@ keyboardthread(void *v)
 
 void
 mousethread(void *v)
-{	
+{
 	USED(v);
-	
+
 	while(recv(mc->c, 0) == 1); /* to unblock mc->c */
 }
 
@@ -188,7 +188,7 @@ threadmain(int argc, char **argv)
 	int lfd;
 
 	p = "300x40@100,100";
-	
+
 	ARGBEGIN{
 	case 'W':
 		p = ARGF();
@@ -231,4 +231,3 @@ threadmain(int argc, char **argv)
 	}
 	proccreate(updateproc, nil, STACK);
 }
-

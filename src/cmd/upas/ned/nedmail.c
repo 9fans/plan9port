@@ -212,7 +212,7 @@ plural(int n)
 	if (n == 1)
 		return "";
 
-	return "s";		
+	return "s";
 }
 
 void
@@ -366,7 +366,7 @@ mkaddrs(char *t)
 	int i, nf, inquote;
 	char **f, *s;
 	Fmt fmt;
-	
+
 	inquote = 0;
 	nf = 2;
 	for(s=t; *s; s++){
@@ -402,7 +402,7 @@ file2message(Message *parent, char *name)
 	String *path;
 	char *f[30], *s, *t;
 	int i, nf;
-	
+
 	m = mallocz(sizeof(Message), 1);
 	if(m == nil)
 		return nil;
@@ -425,7 +425,7 @@ file2message(Message *parent, char *name)
 		if(t == nil)
 			continue;
 		*t++ = 0;
-		
+
 		if(strcmp(s, "from") == 0)
 			m->from = mkaddrs(t);
 		else if(strcmp(s, "to") == 0)
@@ -475,7 +475,7 @@ dir2message(Message *parent, int reverse)
 {
 	int i, n, highest, newmsgs;
 	CFid *fd;
-	
+
 	Dir *d;
 	Message *first, *last, *m;
 
@@ -972,7 +972,7 @@ parseaddr(char **pp, Message *first, Message *cur, Message *unspec, Message **mp
 			goto number;
 		}
 		*mp = unspec;
-		break;	
+		break;
 	case '0': case '1': case '2': case '3': case '4':
 	case '5': case '6': case '7': case '8': case '9':
 		n = strtoul(p, pp, 10);
@@ -1191,7 +1191,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 			free(prog);
 		}
 	} else {
-	
+
 		/* parse an address */
 		s = e = nil;
 		err = parseaddr(&p, first, cur, cur, &s);
@@ -1207,7 +1207,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 			err = parseaddr(&p, first, cur, last, &e);
 			if(err != nil)
 				return err;
-	
+
 			/* select all messages in the range */
 			for(; s != nil; s = s->next){
 				*l = s;
@@ -1258,7 +1258,7 @@ parsecmd(char *p, Cmd *cmd, Message *first, Message *cur)
 		}
 		cmd->f = cmdtab[i].f;
 	}
-	return nil; 
+	return nil;
 }
 
 /* inefficient read from standard input */
@@ -1511,7 +1511,7 @@ pcmd(Cmd *x, Message *m)
 		Bprint(&out, "\n!--- using plumber to display message of type %s\n", m->type);
 	else
 		Bprint(&out, "\n!--- cannot display messages of type %s\n", m->type);
-		
+
 	return m;
 }
 
@@ -1684,7 +1684,7 @@ Message*
 ycmd(Cmd *x, Message *m)
 {
 	USED(x);
-	
+
 	doflush = 1;
 
 	return icmd(nil, m);
@@ -1839,7 +1839,7 @@ tokenize822(char *str, char **args, int max)
 	int intok = 0, inquote = 0;
 
 	if(max <= 0)
-		return 0;	
+		return 0;
 	for(na=0; ;str++)
 		switch(*str) {
 		case ' ':
@@ -2452,9 +2452,9 @@ switchmb(char *file, char *singleton)
 		fd = open("/mail/fs/ctl", ORDWR);
 		if(fd < 0)
 			sysfatal("can't open /mail/fs/ctl: %r");
-	
+
 		path = s_new();
-	
+
 		/* get an absolute path to the mail box */
 		if(strncmp(file, "./", 2) == 0){
 			/* resolve path here since upas/fs doesn't know */
@@ -2468,7 +2468,7 @@ switchmb(char *file, char *singleton)
 		} else {
 			mboxpath(file, user, path, 0);
 		}
-	
+
 		/* make up a handle to use when talking to fs */
 		p = strrchr(file, '/');
 		if(p == nil){

@@ -40,7 +40,7 @@ enum
 	FSMAGIC = 0x011954,
 	FSMAGIC2 = 0x19540119,
 	FSCHECKSUM = 0x7c269d38,
-	
+
 	/* Fsblk.inodefmt */
 	FS42INODEFMT = -1,
 	FS44INODEFMT = 2,
@@ -341,4 +341,3 @@ struct Ffs
 
 	Disk		*disk;
 };
-

@@ -15,12 +15,12 @@ main(int argc, char **argv)
 	Display *dpy;
 	Window window;
 	XEvent event;
-	
+
 	if (!(dpy = XOpenDisplay(""))) {
 		printf("Failed to open display...\n");
 		exit(1);
 	}
-	
+
 	screen = DefaultScreen(dpy);
 
 	window = XCreateSimpleWindow(dpy, RootWindow(dpy, screen), 100, 100,
@@ -42,4 +42,3 @@ main(int argc, char **argv)
 		printevent(&event);
 	}
 }
-

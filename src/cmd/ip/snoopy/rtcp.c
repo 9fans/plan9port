@@ -55,7 +55,7 @@ p_seprint(Msg *m)
 				(NetS(h->len) + 1) * 4);
 
 	for(i = 0; i < rc; i++){
-		r = (Report*)m->ps;	
+		r = (Report*)m->ps;
 		m->ps += REPORTLEN;
 
 		frac = (int)(((float)r->lost[0] * 100.) / 256.);
@@ -64,7 +64,7 @@ p_seprint(Msg *m)
 
 		m->p = seprint(m->p, m->e, "\n\trr(csrc=%8ux frac=%3d%% cumu=%10d seqhi=%10ud jitter=%10d lsr=%8ux dlsr=%f)",
 				NetL(r->ssrc), frac, NetL(r->lost), NetL(r->seqhi),
-				NetL(r->jitter), NetL(r->lsr), 
+				NetL(r->jitter), NetL(r->lsr),
 				dlsr);
 	}
 	m->pr = nil;

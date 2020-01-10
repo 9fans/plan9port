@@ -39,12 +39,12 @@ xapm(int first)
 	readfile(fd);
 	tokens(0);
 	curr = atoi(tok[0]);
-			
+
 	if(curr != -1)
 		Bprint(&bout, "battery =%d 100\n", curr);
 
 }
-	
+
 void
 xloadavg(int first)
 {
@@ -236,7 +236,7 @@ xwireless(int first)
 {
 	static int fd = -1;
 	int i;
-	
+
 	if(first){
 		fd = open("/proc/net/wireless", OREAD);
 		return;

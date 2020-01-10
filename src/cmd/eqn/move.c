@@ -14,6 +14,6 @@ void move(int dir, int amt, int p)
 		printf("\\v'-%gm'\\*(%d\\v'%gm'\n", a, p, a);
 	else if (dir == DOWN)
 		printf("\\v'%gm'\\*(%d\\v'-%gm'\n", a, p, a);
-	dprintf(".\tmove %d dir %d amt %g; h=%g b=%g\n", 
+	dprintf(".\tmove %d dir %d amt %g; h=%g b=%g\n",
 		p, dir, a, eht[yyval], ebase[yyval]);
 }

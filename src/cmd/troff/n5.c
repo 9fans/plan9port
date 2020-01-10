@@ -1,6 +1,6 @@
 /*
  * troff5.c
- * 
+ *
  * misc processing requests
  */
 
@@ -30,16 +30,16 @@ void casead(void)
 	case 'c':	/*centered adj*/
 		admod = 1;
 		break;
-	case 'b': 
+	case 'b':
 	case 'n':
 		admod = 0;
 		break;
-	case '0': 
-	case '2': 
+	case '0':
+	case '2':
 	case '4':
 		ad = 0;
-	case '1': 
-	case '3': 
+	case '1':
+	case '3':
 	case '5':
 		admod = (i - '0') / 2;
 	}
@@ -87,7 +87,7 @@ chget(int c)
 	if (skip() || ismot(i = getch()) || cbits(i) == ' ' || cbits(i) == '\n') {
 		ch = i;
 		return(c);
-	} else 
+	} else
 		return cbits(i);	/* was (i & BYTEMASK) */
 }
 
@@ -148,7 +148,7 @@ max(int aa, int bb)
 {
 	if (aa > bb)
 		return(aa);
-	else 
+	else
 		return(bb);
 }
 
@@ -278,7 +278,7 @@ void casepl(void)
 	skip();
 	if ((i = vnumb(&pl)) == 0)
 		pl = 11 * INCH; /*11in*/
-	else 
+	else
 		pl = i;
 	if (numtabp[NL].val > pl)
 		numtabp[NL].val = pl;
@@ -321,7 +321,7 @@ void casech(void)
 	skip();
 	if (!(j = getrq()))
 		return;
-	else 
+	else
 		for (k = 0; k < NTRAP; k++)
 			if (mlist[k] == j)
 				break;
@@ -399,7 +399,7 @@ void casefm(void)
 		ERROR "fm: missing filename" WARN;
 		return;
 	}
-		
+
 	for (i = 0; i < 15 && fcache[i].fp != NULL; i++) {
 		if (strcmp(nextf, fcache[i].name) == 0)
 			break;
@@ -418,7 +418,7 @@ void casefm(void)
 	casetm1(0, fcache[i].fp);
 }
 
-void casetm1(int ab, FILE *out) 
+void casetm1(int ab, FILE *out)
 {
 	int i, j, c;
 	char *p;
@@ -444,7 +444,7 @@ void casetm1(int ab, FILE *out)
 			trace = savtrac;
 		}
 	} else
-		skip();	
+		skip();
 	for (i = 0; i < NTM - 2; ) {
 		if ((c = cbits(getch())) == '\n' || c == RIGHT)
 			break;
@@ -517,7 +517,7 @@ void casesp1(int a)
 		j = vnumb((int *)0);
 		if (nonumb)
 			j = lss;
-	} else 
+	} else
 		j = a;
 	if (j == 0)
 		return;
@@ -525,8 +525,8 @@ void casesp1(int a)
 		j = i;
 	savlss = lss;
 	if (dip != d)
-		i = dip->dnl; 
-	else 
+		i = dip->dnl;
+	else
 		i = numtabp[NL].val;
 	if ((i + j) < 0)
 		j = -i;
@@ -542,8 +542,8 @@ void casert(void)
 
 	skip();
 	if (dip != d)
-		p = &dip->dnl; 
-	else 
+		p = &dip->dnl;
+	else
 		p = &numtabp[NL].val;
 	a = vnumb(p);
 	if (nonumb)
@@ -594,7 +594,7 @@ e0:
 		ERROR "cannot do .ev %d", nxev WARN;
 		if (error)
 			done2(040);
-		else 
+		else
 			edone(040);
 		return;
 	}
@@ -840,7 +840,7 @@ rdtty(void)
 	if (read(0, &onechar, 1) == 1) {
 		if (onechar == '\n')
 			tty++;
-		else 
+		else
 			tty = 1;
 		if (tty != 3)
 			return(onechar);
@@ -878,7 +878,7 @@ void caseta(void)
 			j = TABMASK;
 		}
 		tabtab[i] = j & TABMASK;
-		if (!nonumb) 
+		if (!nonumb)
 			switch (cbits(ch)) {
 			case 'C':
 				tabtab[i] |= CTAB;
@@ -976,7 +976,7 @@ void caseuf(void)
 
 	if (skip() || !(i = getrq()) || i == 'S' ||  (j = findft(i))  == -1)
 		ulfont = ULFONT; /*default underline position*/
-	else 
+	else
 		ulfont = j;
 	if (NROFF && ulfont == FT)
 		ulfont = ULFONT;
@@ -1022,8 +1022,8 @@ void casemk(void)
 	int i, j;
 
 	if (dip != d)
-		j = dip->dnl; 
-	else 
+		j = dip->dnl;
+	else
 		j = numtabp[NL].val;
 	if (skip()) {
 		dip->mkline = j;

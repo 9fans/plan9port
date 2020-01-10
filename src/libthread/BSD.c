@@ -288,7 +288,7 @@ threadexitsall(char *msg)
 	if(msg == nil)
 		msg = "";
 
-	/* 
+	/*
 	 * Only one guy, ever, gets to run this.
 	 * If two guys do it, inevitably they end up
 	 * tripping over each other in the underlying
@@ -401,4 +401,3 @@ _threadpexit(void)
 {
 	_exit(0);
 }
-

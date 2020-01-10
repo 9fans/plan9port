@@ -30,5 +30,3 @@ main(int argc, char **argv)
 	write(1, buf, n);
 	print("\n");
 }
-
-	

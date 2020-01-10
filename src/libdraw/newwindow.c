@@ -24,4 +24,3 @@ newwindow(char *str)
 		strcpy(buf, "new");
 	return mount(fd, -1, "/dev", MBEFORE, buf);
 }
-

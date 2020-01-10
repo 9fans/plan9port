@@ -253,7 +253,7 @@ initscreen(ScreenInfo *s, int i, int background)
 	s->min_cmaps = MinCmapsOfScreen(ScreenOfDisplay(dpy, i));
 	s->depth = DefaultDepth(dpy, i);
 
-	/* 
+	/*
 	 * Figure out underlying screen format.
 	 */
 	if(XMatchVisualInfo(dpy, i, 16, TrueColor, &xvi)
@@ -288,7 +288,7 @@ initscreen(ScreenInfo *s, int i, int background)
 		s->vis = DefaultVisual(dpy, i);
 	}
 	if(DefaultDepth(dpy, i) != s->depth){
-		s->def_cmap = XCreateColormap(dpy, s->root, s->vis, AllocNone); 
+		s->def_cmap = XCreateColormap(dpy, s->root, s->vis, AllocNone);
 	}
 
 	ds = DisplayString(dpy);
@@ -344,7 +344,7 @@ initscreen(ScreenInfo *s, int i, int background)
 	attr.cursor = s->arrow;
 	attr.event_mask = SubstructureRedirectMask
 		| SubstructureNotifyMask | ColormapChangeMask
-		| ButtonPressMask | ButtonReleaseMask | PropertyChangeMask 
+		| ButtonPressMask | ButtonReleaseMask | PropertyChangeMask
 		| KeyPressMask | EnterWindowMask;
 	mask = CWCursor|CWEventMask;
 	XChangeWindowAttributes(dpy, s->root, mask, &attr);

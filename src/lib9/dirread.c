@@ -18,7 +18,7 @@ mygetdents(int fd, struct dirent *buf, int n)
 	nn = getdirentries(fd, (void*)buf, n, &off);
 	return nn;
 }
-#elif defined(__APPLE__) 
+#elif defined(__APPLE__)
 static int
 mygetdents(int fd, struct dirent *buf, int n)
 {
@@ -93,7 +93,7 @@ dirpackage(int fd, char *buf, int n, Dir **dp)
 		return -1;
 	if(fchdir(fd) < 0)
 		return -1;
-		
+
 	p = buf;
 	nstr = 0;
 

@@ -158,4 +158,3 @@ uksc_out(Rune *base, int n, long *notused)
 	if(p > obuf)
 		write(1, obuf, p-obuf);
 }
-

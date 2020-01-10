@@ -5,13 +5,13 @@ void parabola(double x0, double y0, double x1, double y1, double xb, double yb){
 	double	dt, d2, d1;
 	d1 = sqrt((xb - x0) * (xb - x0) + (yb - y0) * (yb - y0));
 	d2 = sqrt((xb - x1) * (xb - x1) + (yb - y1) * (yb - y1));
-	if (d1 <= e1->quantum || d2 <= e1->quantum) { 
-		plotline(x0, y0, x1, y1); 
-		return; 
+	if (d1 <= e1->quantum || d2 <= e1->quantum) {
+		plotline(x0, y0, x1, y1);
+		return;
 	}
-	c0x = x0 + x1 - 2. * xb; 
+	c0x = x0 + x1 - 2. * xb;
 	c1x = 2. * (xb - x0);
-	c0y = y0 + y1 - 2. * yb; 
+	c0y = y0 + y1 - 2. * yb;
 	c1y = 2. * (yb - y0);
 	move(x0, y0);
 	dt = e1->quantum / d1;

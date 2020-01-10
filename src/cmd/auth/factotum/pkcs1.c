@@ -12,7 +12,7 @@
  *
  * We sign hashes of messages instead of the messages
  * themselves.
- * 
+ *
  * The hashes are encoded in ASN.1 DER to identify
  * the signature type, and then prefixed with 0x01 PAD 0x00
  * where PAD is as many 0xFF bytes as desired.
@@ -138,7 +138,7 @@ mptoberjust(mpint *b, uchar *buf, uint len)
 #define O3(x)	\
 	(((x)>>14)&0x7F)|0x80, \
 	(((x)>>7)&0x7F)|0x80, \
-	((x)&0x7F)	
+	((x)&0x7F)
 uchar oidsha1[] = { O0(1, 3), 14, 3, 2, 26 };
 uchar oidmd2[] = { O0(1, 2), O2(840), O3(113549), 2, 2 };
 uchar oidmd5[] = { O0(1, 2), O2(840), O3(113549), 2, 5 };
@@ -174,11 +174,11 @@ mkasn1(uchar *asn1, DigestAlg *alg, uchar *d, uint dlen)
 		sysfatal("bad alg in mkasn1");
 		return -1;
 	}
-	
+
 	p = asn1;
 	*p++ = 0x30;	/* sequence */
 	p++;
-	
+
 	*p++ = 0x30;	/* another sequence */
 	p++;
 
@@ -186,12 +186,12 @@ mkasn1(uchar *asn1, DigestAlg *alg, uchar *d, uint dlen)
 	*p++ = olen;
 	memmove(p, obj, olen);
 	p += olen;
-	
+
 	*p++ = 0x05;	/* null */
 	*p++ = 0;
-	
+
 	asn1[3] = p - (asn1+4);	/* end of inner sequence */
-	
+
 	*p++ = 0x04;	/* octet string */
 	*p++ = dlen;
 	memmove(p, d, dlen);
@@ -200,4 +200,3 @@ mkasn1(uchar *asn1, DigestAlg *alg, uchar *d, uint dlen)
 	asn1[1] = p - (asn1+2);	/* end of outer sequence */
 	return p-asn1;
 }
-

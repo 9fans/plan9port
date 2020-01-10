@@ -55,7 +55,7 @@ errstr2errno(void)
 {
 	char e[ERRMAX];
 	int i, len;
-	
+
 	if(errno != EPLAN9)
 		return errno;
 
@@ -70,4 +70,3 @@ errstr2errno(void)
 			return errortab[i].err;
 	return ERANGE;	/* who knows - be blatantly wrong */
 }
-

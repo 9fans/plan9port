@@ -84,4 +84,3 @@ dirls(char *path)
 	free(dirbuf);
 	return list;
 }
-

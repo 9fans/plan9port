@@ -44,7 +44,7 @@ main(int _argc, char **_argv)
 	char **volatile argv;
 	String *t;
 	char *termargs[10], **ap;
-	
+
 	argc = _argc;
 	argv = _argv;
 	ap = termargs;

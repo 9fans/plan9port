@@ -17,7 +17,7 @@ desECBencrypt(uchar *p, int len, DESstate *s)
 		block_cipher(s->expanded, p, 0);
 		p += 8;
 	}
-	
+
 	if(len > 0){
 		for (i=0; i<8; i++)
 			tmp[i] = i;
@@ -37,7 +37,7 @@ desECBdecrypt(uchar *p, int len, DESstate *s)
 		block_cipher(s->expanded, p, 1);
 		p += 8;
 	}
-	
+
 	if(len > 0){
 		for (i=0; i<8; i++)
 			tmp[i] = i;

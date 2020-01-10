@@ -304,7 +304,7 @@ hello(String *himp, int extended)
 	if (extended) {
 		if(tlscert != nil)
 			reply("250-STARTTLS\r\n");
-		if (passwordinclear)		
+		if (passwordinclear)
 			reply("250 AUTH CRAM-MD5 PLAIN LOGIN\r\n");
 		else
 			reply("250 AUTH CRAM-MD5\r\n");
@@ -1101,7 +1101,7 @@ sendermxcheck(void)
 		 * Could add an option with the remote IP address
 		 * to allow validatesender to implement SPF eventually.
 		 */
-		execl(validate, "validatesender", 
+		execl(validate, "validatesender",
 			"-n", nci->root, senddom, user, nil);
 		threadexitsall("exec validatesender: %r");
 	default:
@@ -1165,7 +1165,7 @@ data(void)
 			reply("450 %s\r\n", errx);
 		for(l=rcvers.first; l; l=l->next)
 			syslog(0, "smtpd", "[%s/%s] %s -> %s sendercheck: %s",
-					him, nci->rsys, s_to_c(senders.first->p), 
+					him, nci->rsys, s_to_c(senders.first->p),
 					s_to_c(l->p), errx);
 		rejectcount++;
 		return;
@@ -1214,7 +1214,7 @@ data(void)
 			code = 554;
 		} else {
 			syslog(0, "smtpd", "++[%s/%s] %s %s %s%s%sreturned %#q %s", him, nci->rsys,
-				s_to_c(senders.first->p), s_to_c(cmd), 
+				s_to_c(senders.first->p), s_to_c(cmd),
 				piperror ? "error during pipemsg: " : "",
 				piperror ? piperror : "",
 				piperror ? "; " : "",

@@ -760,7 +760,7 @@ rwalk(Fid *f)
 	for(i = 0; i < thdr.nwname; i++){
 		rv = dowalk(f, thdr.wname[i]);
 		if(rv != nil){
-			if(nf != nil)	
+			if(nf != nil)
 				rclunk(nf);
 			break;
 		}
@@ -827,7 +827,7 @@ readtopdir(Fid* dummy, uchar *buf, long off, int cnt, int blen)
 		cnt -= m;
 	}
 	pos += m;
-		
+
 	for(mb = mbl; mb != nil; mb = mb->next){
 		mkstat(&d, mb, nil, Qmbox);
 		m = convD2M(&d, &buf[n], blen-n);
@@ -872,7 +872,7 @@ readmboxdir(Fid *f, uchar *buf, long off, int cnt, int blen)
 	} else {
 		msg = f->mb->root->part;
 		pos = 0;
-	} 
+	}
 
 	for(; cnt > 0 && msg != nil; msg = msg->next){
 		/* act like deleted files aren't there */
@@ -1301,7 +1301,7 @@ struct Ignorance
 Ignorance *ignorance;
 
 /*
- *  read the file of headers to ignore 
+ *  read the file of headers to ignore
  */
 void
 readignore(void)

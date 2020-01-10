@@ -102,4 +102,3 @@ int          __strfmt(Fmt *f);
 #	define VA_COPY(a,b) (a) = (b)
 #	define VA_END(a)
 #endif
-

@@ -36,7 +36,7 @@ sprintgre(void *a, char *buf, int len)
 	uchar *p = a;
 
 	chksum = offset = key = seq = ack = 0;
-	
+
 	flag = NetS(p);
 	prot = NetS(p+2);
 	p += 4; len -= 4;
@@ -78,6 +78,6 @@ sprintgre(void *a, char *buf, int len)
 		n += sprintppp(p, buf+n, len);
 	else
 		n += sprintx(p, buf+n, len);
-		
+
 	return n;
 }

@@ -26,4 +26,3 @@ dirfstat(int fd)
 	_p9dir(&st, &st, tmp, d, &str, str+nstr);
 	return d;
 }
-

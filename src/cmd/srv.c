@@ -30,7 +30,7 @@ threadmain(int argc, char **argv)
 
 	fmtinstall('F', fcallfmt);
 	fmtinstall('M', dirmodefmt);
-	
+
 	ARGBEGIN{
 	case 'D':
 		debug = 1;
@@ -51,7 +51,7 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 1 && argc != 2)
 		usage();
 
@@ -80,7 +80,7 @@ do9p(Fcall *tx, Fcall *rx)
 	static uchar buf[9000];
 	static char ebuf[200];
 	int n;
-	
+
 	n = convS2M(tx, buf, sizeof buf);
 	if(n == BIT16SZ){
 		werrstr("convS2M failed");
@@ -133,7 +133,7 @@ xauth(void)
 	if(rx.type == Rerror)
 		sysfatal("Tversion: %s", rx.ename);
 	msize = rx.msize;
-	
+
 	tx.type = Tauth;
 	tx.tag = 1;
 	tx.afid = afid;
@@ -154,7 +154,7 @@ int
 xread(void *buf, int n)
 {
 	Fcall tx, rx;
-	
+
 	tx.type = Tread;
 	tx.tag = 1;
 	tx.fid = 0;	/* afid above */
@@ -165,7 +165,7 @@ xread(void *buf, int n)
 		werrstr("%s", rx.ename);
 		return -1;
 	}
-	
+
 	if(rx.count > n){
 		werrstr("too much data returned");
 		return -1;
@@ -178,7 +178,7 @@ int
 xwrite(void *buf, int n)
 {
 	Fcall tx, rx;
-	
+
 	tx.type = Twrite;
 	tx.tag = 1;
 	tx.fid = 0;	/* afid above */
@@ -354,4 +354,3 @@ xauth_proxy(AuthGetkey *getkey, char *fmt, ...)
 	auth_freerpc(rpc);
 	return ai;
 }
-

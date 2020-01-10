@@ -418,7 +418,7 @@ pullcalc(Client *c, int x, int y, BorderOrient bl, int init)
 	c->dy = sy*(dy + 2*BORDER );
 	c->x = px;
 	c->y = py;
-	
+
 	/* compensate position for size changed due to size hints */
 	if(spx)
 		c->x -= c->dx - rdx;
@@ -444,7 +444,7 @@ drawbound(Client *c, int drawing)
 	ScreenInfo *s;
 
 	if(debug) fprintf(stderr, "drawbound %d %dx%d+%d+%d\n", drawing, c->dx, c->dy, c->x, c->y);
-	
+
 	s = c->screen;
 	x = c->x;
 	y = c->y;
@@ -466,7 +466,7 @@ drawbound(Client *c, int drawing)
 			XUnmapWindow(dpy, s->sweepwin);
 			return;
 		}
-		
+
 		x += BORDER;
 		y += BORDER;
 		dx -= 2*BORDER;

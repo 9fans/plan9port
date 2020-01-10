@@ -10,7 +10,7 @@
  *	qunit(q)	returns a unit quaternion parallel to q
  * The following only work on unit quaternions and rotation matrices:
  *	slerp(q, r, a)	returns q*(r*q^-1)^a
- *	qmid(q, r)	slerp(q, r, .5) 
+ *	qmid(q, r)	slerp(q, r, .5)
  *	qsqrt(q)	qmid(q, (Quaternion){1,0,0,0})
  *	qtom(m, q)	converts a unit quaternion q into a rotation matrix m
  *	mtoq(m)		returns a quaternion equivalent to a rotation matrix m
@@ -93,7 +93,7 @@ Quaternion mtoq(Matrix mat){
 	 */
 	Quaternion qu;
 	double tr, s;
-	
+
 	tr = mat[0][0] + mat[1][1] + mat[2][2];
 	if (tr >= 0.0) {
 		s = sqrt(tr + mat[3][3]);

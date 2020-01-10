@@ -26,7 +26,7 @@ fsinit(int fd)
 {
 	CFsys *fs;
 	int n;
-	
+
 	fmtinstall('F', fcallfmt);
 	fmtinstall('D', dirfmt);
 	fmtinstall('M', dirmodefmt);
@@ -48,7 +48,7 @@ fsinit(int fd)
 	fs->iorecv = ioproc();
 	fs->iosend = ioproc();
 	muxinit(&fs->mux);
-	
+
 	strcpy(fs->version, "9P2000");
 	if((n = fsversion(fs, 8192, fs->version, sizeof fs->version)) < 0){
 		werrstr("fsversion: %r");

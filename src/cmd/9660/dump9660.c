@@ -168,7 +168,7 @@ main(int argc, char **argv)
 			Cwseek(cd, cd->nextblock*Blocksize);
 			goto Dofix;
 		}
-	
+
 		dumpname = adddumpdir(&idumproot, now, &dir);
 		/* note that we assume all names are conforming and thus sorted */
 		if(cd->flags & CDjoliet) {
@@ -192,7 +192,7 @@ main(int argc, char **argv)
 		findbootimage(cd, &iroot);
 		Cupdatebootcat(cd);
 	}
-		
+
 	/* create Joliet tree */
 	if(cd->flags & CDjoliet)
 		copydirec(&jroot, &iroot);
@@ -235,14 +235,14 @@ main(int argc, char **argv)
 		 * Write incremental _conform.map block.
 		 */
 		wrconform(cd, cd->nconform, &cblock, &clength);
-	
+
 		/* jump here if we're just fixing up the cd */
 Dofix:
 		/*
-		 * Write null dump header block; everything after this will be 
+		 * Write null dump header block; everything after this will be
 		 * overwritten at the next dump.  Because of this, it needs to be
 		 * reconstructable.  We reconstruct the _conform.map and dump trees
-		 * from the header blocks in dump.c, and we reconstruct the path 
+		 * from the header blocks in dump.c, and we reconstruct the path
 		 * tables by walking the cd.
 		 */
 		newnull = Cputdumpblock(cd);
@@ -254,12 +254,12 @@ Dofix:
 	dir.mode = 0444;
 	if(cd->flags & (CDconform|CDjoliet)) {
 		if(!mk9660 && cd->nconform == 0){
-			block = cblock;	
+			block = cblock;
 			length = clength;
 		}else
 			wrconform(cd, 0, &block, &length);
 
-		if(mk9660) 
+		if(mk9660)
 {
 			idumproot = iroot;
 			jdumproot = jroot;
@@ -315,11 +315,11 @@ Dofix:
 				copybutname(r, &jroot);
 			}
 		}
-	
+
 		writedumpdirs(cd, &idumproot, Cputisodir);
 		if(cd->flags & CDjoliet)
 			writedumpdirs(cd, &jdumproot, Cputjolietdir);
-	
+
 		/*
 		 * Patch in new root directory entry.
 		 */
@@ -330,7 +330,7 @@ Dofix:
 			setvolsize(cd, cd->jolietsvd, cd->nextblock*Blocksize);
 		}
 	}
-	writepathtables(cd);	
+	writepathtables(cd);
 
 	if(!mk9660){
 		/*
@@ -341,16 +341,16 @@ Dofix:
 		if(cd->nulldump && maxsize && Cwoffset(cd) > maxsize){
 			fprint(2, "too big; writing old tree back\n");
 			status = "cd too big; aborted";
-	
+
 			rmdumpdir(&idumproot, dumpname);
 			rmdumpdir(&jdumproot, dumpname);
-	
+
 			cd->nextblock = cd->nulldump+1;
 			cd->nulldump = 0;
 			Cwseek(cd, cd->nextblock*Blocksize);
 			goto Dofix;
 		}
-	
+
 		/*
 		 * Write old null header block; this commits all our changes.
 		 */
@@ -399,4 +399,3 @@ addprotofile(char *new, char *old, Dir *d, void *a)
 		free(name);
 
 }
-

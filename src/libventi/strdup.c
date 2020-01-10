@@ -15,4 +15,3 @@ vtstrdup(char *s)
 	memmove(ss, s, n);
 	return ss;
 }
-

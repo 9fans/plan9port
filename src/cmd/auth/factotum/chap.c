@@ -1,6 +1,6 @@
 /*
  * CHAP, MSCHAP
- * 
+ *
  * The client does not authenticate the server, hence no CAI
  *
  * Protocol:
@@ -51,7 +51,7 @@ nthash(uchar hash[MShashlen], char *passwd)
 {
 	uchar buf[512];
 	int i;
-	
+
 	for(i=0; *passwd && i<sizeof(buf); passwd++) {
 		buf[i++] = *passwd;
 		buf[i++] = 0;
@@ -96,7 +96,7 @@ mschalresp(uchar resp[MSresplen], uchar hash[MShashlen], uchar chal[MSchallen])
 {
 	int i;
 	uchar buf[21];
-	
+
 	memset(buf, 0, sizeof(buf));
 	memcpy(buf, hash, MShashlen);
 
@@ -404,7 +404,7 @@ chapresp(ServerState *s, char *user, char *resp)
 }
 
 static Role
-chaproles[] = 
+chaproles[] =
 {
 	"client",	chapclient,
 	"server",	chapserver,
@@ -424,5 +424,3 @@ Proto mschap = {
 	"user? !password?",
 	chapcheck
 };
-
-

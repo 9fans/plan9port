@@ -39,10 +39,10 @@ opensslconnect(char *host)
 	sbio = BIO_new_ssl_connect(ctx);
 	BIO_get_ssl(sbio, &ssl);
 	SSL_set_mode(ssl, SSL_MODE_AUTO_RETRY);
-	
+
 	snprint(buf, sizeof buf, "%s:https", host);
 	BIO_set_conn_hostname(sbio, buf);
-	
+
 	if(BIO_do_connect(sbio) <= 0 || BIO_do_handshake(sbio) <= 0){
 		ERR_error_string_n(ERR_get_error(), buf, sizeof buf);
 		BIO_free_all(sbio);
@@ -69,7 +69,7 @@ opensslwrite(Pfd *pfd, void *v, int n)
 {
 	int m, total;
 	char *p;
-	
+
 	p = v;
 	total = 0;
 	while(total < n){
@@ -80,7 +80,7 @@ opensslwrite(Pfd *pfd, void *v, int n)
 		}
 		total += m;
 	}
-	return total;	
+	return total;
 }
 
 static int

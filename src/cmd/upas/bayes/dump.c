@@ -60,7 +60,7 @@ main(int argc, char **argv)
 		dp = dregcvt(p);
 		print("=== dfa\n");
 		dump(dp);
-	
+
 	for(i=2; i<argc; i++)
 		print("match %d\n", dregexec(dp, argv[i], 1));
 	exits(0);

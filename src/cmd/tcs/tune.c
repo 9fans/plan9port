@@ -30,7 +30,7 @@ static Tmap t1[] =
 
 static Rune t2[] =
 {
-	0x0bcd/*்*/, 
+	0x0bcd/*்*/,
 	0x0bcd/*்*/,	// filler
 	0x0bbe/*ா*/,
 	0x0bbf/*ி*/,
@@ -112,7 +112,7 @@ tune_in(int fd, long *x, struct convert *out)
 	Rune rbuf[N];
 	Rune *r, *er, tr;
 	int c, i;
-	
+
 	USED(x);
 	r = rbuf;
 	er = rbuf+N-3;
@@ -159,7 +159,7 @@ tune_in(int fd, long *x, struct convert *out)
 			case 0xe38d/**/:
 				*r++ = 0x0bb6/*ஶ*/; *r++ = 0x0bcd/*்*/; *r++ = 0x0bb0/*ர*/; *r++ = 0x0bc0/*ீ*/;
 				break;
-			default: 
+			default:
 				if(c >= 0xe200 && c <= 0xe3ff){
 					if(squawk)
 						EPR "%s: rune 0x%x not in output cs\n", argv0, c);

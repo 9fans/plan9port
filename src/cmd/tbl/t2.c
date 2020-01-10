@@ -21,5 +21,3 @@ tableput(void)
 	freearr();
 	restline();
 }
-
-

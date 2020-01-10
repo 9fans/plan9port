@@ -41,7 +41,7 @@ void
 readln(char *prompt, char *buf, int nbuf, int secret)
 {
 	char *p;
-	
+
 	p = readcons(prompt, nil, secret);
 	if(p == nil)
 		sysfatal("user terminated input");

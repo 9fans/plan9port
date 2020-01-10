@@ -10,7 +10,7 @@ allocimagemix(Display *d, u32int color1, u32int color3)
 
 	if(qmask == nil)
 		qmask = allocimage(d, Rect(0,0,1,1), GREY8, 1, 0x3F3F3FFF);
-		
+
 	if(d->screenimage->depth <= 8){	/* create a 2×2 texture */
 		t = allocimage(d, Rect(0,0,1,1), d->screenimage->chan, 0, color1);
 		if(t == nil)

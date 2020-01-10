@@ -41,7 +41,7 @@ okfile(char *cp, Biobuf *fp)
 
 	len = strlen(cp);
 	Bseek(fp, 0, 0);
-	
+
 	/* one iteration per system name in the file */
 	while(buf = Brdline(fp, '\n')) {
 		ep = &buf[Blinelen(fp)];

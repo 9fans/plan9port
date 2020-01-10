@@ -63,7 +63,7 @@ load(Image *image, Memimage *memimage)
 	dx = Dx(r);
 	dy = Dy(r);
 
-	/* 
+	/*
 	 * Read image data into memory
 	 * potentially one extra byte on each end of each scan line.
 	 */

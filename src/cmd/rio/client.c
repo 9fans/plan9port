@@ -19,7 +19,7 @@ setactive(Client *c, int on)
 
 	if(c->parent == c->screen->root)
 		return;
-	
+
 	if(on){
 		XUngrabButton(dpy, AnyButton, AnyModifier, c->parent);
 		XSetInputFocus(dpy, c->window, RevertToPointerRoot, timestamp());
@@ -254,7 +254,7 @@ void
 shuffle(int up)
 {
 	Client **l, *c;
-	
+
 	if(clients == 0 || clients->next == 0)
 		return;
 	if(!up){
@@ -282,4 +282,3 @@ shuffle(int up)
 /*	top(clients);	 */
 /*	active(clients); */
 }
-

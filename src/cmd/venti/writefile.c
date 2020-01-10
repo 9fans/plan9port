@@ -85,13 +85,13 @@ threadmain(int argc, char *argv[])
 	if(vtfilegetentry(f, &e) < 0)
 		sysfatal("vtfilegetentry: %r");
 	vtfileunlock(f);
-	
+
 	// write directory entry
 	memset(&root, 0, sizeof root);
 	vtentrypack(&e, buf, 0);
 	if(vtwrite(z, root.score, VtDirType, buf, VtEntrySize) < 0)
 		sysfatal("vtwrite dir: %r");
-	
+
 	// write root
 	strcpy(root.name, "data");
 	strcpy(root.type, "file");
@@ -99,8 +99,7 @@ threadmain(int argc, char *argv[])
 	vtrootpack(&root, buf);
 	if(vtwrite(z, score, VtRootType, buf, VtRootSize) < 0)
 		sysfatal("vtwrite root: %r");
-	
+
 	print("file:%V\n", score);
 	threadexitsall(0);
 }
-

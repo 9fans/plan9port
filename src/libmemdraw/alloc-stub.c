@@ -14,4 +14,3 @@ freememimage(Memimage *m)
 {
 	_freememimage(m);
 }
-

@@ -30,5 +30,3 @@ postnote(int who, int pid, char *msg)
 		return killpg(pid, sig);
 	}
 }
-
-		

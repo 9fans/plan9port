@@ -28,16 +28,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must 
-     not claim that you wrote the original software.  If you use this 
-     software in a product, an acknowledgment in the product 
+  2. The origin of this software must not be misrepresented; you must
+     not claim that you wrote the original software.  If you use this
+     software in a product, an acknowledgment in the product
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote 
-     products derived from this software without specific prior written 
+  4. The name of the author may not be used to endorse or promote
+     products derived from this software without specific prior written
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -89,30 +89,30 @@
 #include "bzlib_private.h"
 
 /*---------------------------------------------------*/
-int BZ_API(BZ2_bzBuffToBuffCompress) 
-                         ( char*         dest, 
+int BZ_API(BZ2_bzBuffToBuffCompress)
+                         ( char*         dest,
                            unsigned int* destLen,
-                           char*         source, 
+                           char*         source,
                            unsigned int  sourceLen,
-                           int           blockSize100k, 
-                           int           verbosity, 
+                           int           blockSize100k,
+                           int           verbosity,
                            int           workFactor )
 {
    bz_stream strm;
    int ret;
 
-   if (dest == NULL || destLen == NULL || 
+   if (dest == NULL || destLen == NULL ||
        source == NULL ||
        blockSize100k < 1 || blockSize100k > 9 ||
        verbosity < 0 || verbosity > 4 ||
-       workFactor < 0 || workFactor > 250) 
+       workFactor < 0 || workFactor > 250)
       return BZ_PARAM_ERROR;
 
    if (workFactor == 0) workFactor = 30;
    strm.bzalloc = NULL;
    strm.bzfree = NULL;
    strm.opaque = NULL;
-   ret = BZ2_bzCompressInit ( &strm, blockSize100k, 
+   ret = BZ2_bzCompressInit ( &strm, blockSize100k,
                               verbosity, workFactor );
    if (ret != BZ_OK) return ret;
 
@@ -126,7 +126,7 @@ int BZ_API(BZ2_bzBuffToBuffCompress)
    if (ret != BZ_STREAM_END) goto errhandler;
 
    /* normal termination */
-   *destLen -= strm.avail_out;   
+   *destLen -= strm.avail_out;
    BZ2_bzCompressEnd ( &strm );
    return BZ_OK;
 
@@ -138,4 +138,3 @@ int BZ_API(BZ2_bzBuffToBuffCompress)
    BZ2_bzCompressEnd ( &strm );
    return ret;
 }
-

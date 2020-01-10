@@ -33,7 +33,7 @@ threadmain(int argc, char **argv)
 
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
-	
+
 	address = "tcp!*!venti";
 
 	ARGBEGIN{
@@ -76,4 +76,3 @@ threadmain(int argc, char **argv)
 	}
 	threadexitsall(nil);
 }
-

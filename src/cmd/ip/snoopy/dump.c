@@ -55,7 +55,7 @@ p_seprint(Msg *m)
 		for(i = 0; i < n && p+1<e; i++){
 			c = ps[i];
 			*p++ = tohex[c>>4];
-			*p++ = tohex[c&0xf]; 
+			*p++ = tohex[c&0xf];
 		}
 	}
 

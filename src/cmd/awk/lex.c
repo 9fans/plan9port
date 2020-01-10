@@ -140,7 +140,7 @@ int gettok(char **pbuf, int *psz)	/* get next input token */
 			if (bp-buf >= sz)
 				if (!adjbuf(&buf, &sz, bp-buf+2, 100, &bp, 0))
 					FATAL( "out of space for number %.10s...", buf );
-			if (isdigit(c) || c == 'e' || c == 'E' 
+			if (isdigit(c) || c == 'e' || c == 'E'
 			  || c == '.' || c == '+' || c == '-')
 				*bp++ = c;
 			else {
@@ -191,7 +191,7 @@ int yylex(void)
 			/* should this also have STR set? */
 			RET(NUMBER);
 		}
-	
+
 		yylval.i = c;
 		switch (c) {
 		case '\n':	/* {EOL} */
@@ -220,7 +220,7 @@ int yylex(void)
 		case '&':
 			if (peek() == '&') {
 				input(); RET(AND);
-			} else 
+			} else
 				RET('&');
 		case '|':
 			if (peek() == '|') {
@@ -295,7 +295,7 @@ int yylex(void)
 				input(); yylval.i = POWEQ; RET(ASGNOP);
 			} else
 				RET(POWER);
-	
+
 		case '$':
 			/* BUG: awkward, if not wrong */
 			c = gettok(&buf, &bufsize);
@@ -313,7 +313,7 @@ int yylex(void)
 				unputstr(buf);
 				RET(INDIRECT);
 			}
-	
+
 		case '}':
 			if (--bracecnt < 0)
 				SYNTAX( "extra }" );
@@ -336,10 +336,10 @@ int yylex(void)
 		case '(':
 			parencnt++;
 			RET('(');
-	
+
 		case '"':
 			return string();	/* BUG: should be like tran.c ? */
-	
+
 		default:
 			RET(c);
 		}
@@ -369,7 +369,7 @@ int string(void)
 			c = input();
 			switch (c) {
 			case '"': *bp++ = '"'; break;
-			case 'n': *bp++ = '\n'; break;	
+			case 'n': *bp++ = '\n'; break;
 			case 't': *bp++ = '\t'; break;
 			case 'f': *bp++ = '\f'; break;
 			case 'r': *bp++ = '\r'; break;
@@ -406,7 +406,7 @@ int string(void)
 				break;
 			    }
 
-			default: 
+			default:
 				*bp++ = c;
 				break;
 			}
@@ -416,7 +416,7 @@ int string(void)
 			break;
 		}
 	}
-	*bp = 0; 
+	*bp = 0;
 	s = tostring(buf);
 	*bp++ = ' '; *bp++ = 0;
 	yylval.cp = setsymtab(buf, s, 0.0, CON|STR|DONTFREE, symtab);
@@ -442,7 +442,7 @@ int binsearch(char *w, Keyword *kp, int n)
 	return -1;
 }
 
-int word(char *w) 
+int word(char *w)
 {
 	Keyword *kp;
 	int c, n;
@@ -504,11 +504,11 @@ int regexpr(void)
 		if (!adjbuf(&buf, &bufsz, bp-buf+3, 500, &bp, 0))
 			FATAL("out of space for reg expr %.10s...", buf);
 		if (c == '\n') {
-			SYNTAX( "newline in regular expression %.10s...", buf ); 
+			SYNTAX( "newline in regular expression %.10s...", buf );
 			unput('\n');
 			break;
 		} else if (c == '\\') {
-			*bp++ = '\\'; 
+			*bp++ = '\\';
 			*bp++ = input();
 		} else {
 			*bp++ = c;
@@ -567,4 +567,3 @@ void unputstr(char *s)	/* put a string back on input */
 	for (i = strlen(s)-1; i >= 0; i--)
 		unput(s[i]);
 }
-

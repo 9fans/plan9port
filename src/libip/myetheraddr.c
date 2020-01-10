@@ -8,7 +8,7 @@ int
 myetheraddr(uchar *to, char *dev)
 {
 	Ipifc *ifclist, *ifc;
-	
+
 	ifclist = readipifc(nil, nil, -1);
 	for(ifc=ifclist; ifc; ifc=ifc->next){
 		if(dev && strcmp(ifc->dev, dev) != 0)
@@ -23,4 +23,3 @@ myetheraddr(uchar *to, char *dev)
 	werrstr("no ethernet devices");
 	return -1;
 }
-

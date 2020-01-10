@@ -69,15 +69,15 @@ rcstart(int argc, char **argv, int *pfd, int *tfd)
 	}
 	/*
 	 * notedisable("sys: window size change");
-	 * 
+	 *
 	 * Can't disable because will be inherited by other programs
 	 * like if you run an xterm from the prompt, and then xterm's
-	 * resizes won't get handled right.  Sigh.  
+	 * resizes won't get handled right.  Sigh.
 	 *
 	 * Can't not disable because when we stty below we'll get a
 	 * signal, which will drop us into the thread library note handler,
 	 * which will get all confused because we just forked and thus
-	 * have an unknown pid. 
+	 * have an unknown pid.
 	 *
 	 * So disable it internally.  ARGH!
 	 */
@@ -145,7 +145,7 @@ echoed(char *p, int n)
 	if(echo.w+n > sizeof echo.buf)
 		n = 0;
 	memmove(echo.buf+echo.w, p, n);
-	echo.w += n;	
+	echo.w += n;
 	unlock(&echo.l);
 }
 

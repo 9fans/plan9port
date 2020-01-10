@@ -19,7 +19,7 @@ enum
 	Infolines = 9,
 
 	HhmmTime = 18*60*60,	/* max age of face to display hh:mm time */
-	
+
 	STACK = 32768
 };
 
@@ -293,7 +293,7 @@ updatetimes(void)
 			continue;
 		if(((long)(now - f->time) <= HhmmTime) != f->recent)
 			drawface(f, i);
-	}	
+	}
 }
 
 void
@@ -610,7 +610,7 @@ click(int button, Mouse *m)
 			return;
 		}else{
 			for(i=first; i<last; i++)	/* clear vwhois faces */
-				if(ptinrect(p, facerect(i-first)) 
+				if(ptinrect(p, facerect(i-first))
 				&& strstr(faces[i]->str[Sshow], "/XXXvwhois")){
 					lockdisplay(display);
 					delface(i);

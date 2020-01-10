@@ -18,7 +18,7 @@ fac(int L)
 	return f;
 }
 
-/* 
+/*
  * i0(x) is the modified Bessel function, Σ (x/2)^2L / (L!)²
  * There are faster ways to calculate this, but we precompute
  * into a table so let's keep it simple.

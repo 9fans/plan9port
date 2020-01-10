@@ -30,7 +30,7 @@ writedata(Biobuf *fd, Image *image, Memimage *memimage)
 		chan = image->chan;
 	}
 
-	/* 
+	/*
 	 * Read image data into memory
 	 * potentially one extra byte on each end of each scan line
 	 */

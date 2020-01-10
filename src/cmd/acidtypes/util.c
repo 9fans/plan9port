@@ -68,7 +68,7 @@ Bfmt(Fmt *fmt)
 {
 	int i;
 	char *s, *t;
-	
+
 	if(!isBfrog['.']){
 		for(i=0; i<256; i++)
 			if(i != '_' && i != '$' && i < Runeself && !isalnum(i))

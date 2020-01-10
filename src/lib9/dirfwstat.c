@@ -54,4 +54,3 @@ dirfwstat(int fd, Dir *dir)
 	}
 	return ret;
 }
-

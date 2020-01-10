@@ -7,7 +7,7 @@ void
 memimagedraw(Memimage *dst, Rectangle r, Memimage *src, Point sp, Memimage *mask, Point mp, int op)
 {
 	Memdrawparam *par;
-	
+
 	if((par = _memimagedrawsetup(dst, r, src, sp, mask, mp, op)) == nil)
 		return;
 	_memimagedraw(par);
@@ -24,4 +24,3 @@ pixelbits(Memimage *m, Point p)
 {
 	return _pixelbits(m, p);
 }
-

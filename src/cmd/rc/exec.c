@@ -135,7 +135,7 @@ main(int argc, char *argv[])
 	code bootstrap[32];
 	char num[12], *rcmain;
 	int i;
-	
+
 	/* needed for rcmain later */
 	putenv("PLAN9", unsharp("#9"));
 
@@ -690,7 +690,7 @@ word*
 copynwords(word *a, word *tail, int n)
 {
 	word *v, **end;
-	
+
 	v = 0;
 	end = &v;
 	while(n-- > 0){

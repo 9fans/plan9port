@@ -6,13 +6,13 @@
 static int
 timefmt(Fmt *fmt)
 {
-	static char *mon[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	static char *mon[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	vlong ns;
 	Tm tm;
 	ns = nsec();
 	tm = *localtime(time(0));
-	return fmtprint(fmt, "%s %2d %02d:%02d:%02d.%03d", 
+	return fmtprint(fmt, "%s %2d %02d:%02d:%02d.%03d",
 		mon[tm.mon], tm.mday, tm.hour, tm.min, tm.sec,
 		(int)(ns%1000000000)/1000000);
 }
@@ -246,8 +246,8 @@ startprocfn(void *v)
 
 /*
  * indirect through here so that parent need not wait for child zombie
- * 
- * slight race - if child exits and then another process starts before we 
+ *
+ * slight race - if child exits and then another process starts before we
  * manage to exit, we'll be running on a freed stack.
  */
 static int
@@ -314,7 +314,7 @@ threadexitsall(char *msg)
 	if(msg == nil)
 		msg = "";
 
-	/* 
+	/*
 	 * Only one guy, ever, gets to run this.
 	 * If two guys do it, inevitably they end up
 	 * tripping over each other in the underlying
@@ -442,7 +442,7 @@ makecontext(ucontext_t *uc, void (*fn)(void), int argc, ...)
 {
 	int i, *sp;
 	va_list arg;
-	
+
 	sp = (int*)uc->uc_stack.ss_sp+uc->uc_stack.ss_size/4;
 	va_start(arg, argc);
 	for(i=0; i<4 && i<argc; i++)
@@ -460,4 +460,3 @@ swapcontext(ucontext_t *oucp, const ucontext_t *ucp)
 	return 0;
 }
 #endif
-

@@ -84,4 +84,3 @@ getintr(int fd)
 		return 0x7F;
 	return ttmode.c_cc[VINTR];
 }
-

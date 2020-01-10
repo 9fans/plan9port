@@ -92,7 +92,7 @@ main(int argc, char *argv[])
 	default:
 		usage();
 	}ARGEND
-	
+
 	USED(pid);
 
 	fmtinstall('Z', Zfmt);
@@ -198,7 +198,7 @@ attachfiles(int argc, char **argv)
 	pid = 0;
 	interactive = 0;
 	USED(pid);
-	
+
 	if(setjmp(err))
 		return -1;
 

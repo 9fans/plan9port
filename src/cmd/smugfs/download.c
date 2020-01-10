@@ -13,7 +13,7 @@ static void
 dfree(CEntry *ce)
 {
 	DEntry *d;
-	
+
 	d = (DEntry*)ce;
 	if(d->tmpfile){
 		remove(d->tmpfile);
@@ -61,7 +61,7 @@ download(char *url, HTTPHeader *hdr)
 	host = parseurl(url, &path);
 	if(host == nil)
 		return -1;
-	
+
 	d = (DEntry*)cachelookup(downloadcache, url, 1);
 	if(d->tmpfile){
 		free(host);
@@ -81,7 +81,7 @@ download(char *url, HTTPHeader *hdr)
 	fmtprint(&fmt, "User-Agent: " USER_AGENT "\r\n");
 	fmtprint(&fmt, "\r\n");
 	req = fmtstrflush(&fmt);
-	
+
 	fprint(2, "Get %s\n", url);
 
 	if(httptofile(&http, host, req, hdr, fd) < 0){

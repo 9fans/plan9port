@@ -4,7 +4,7 @@
 
 int
 iprint(char *fmt, ...)
-{	
+{
 	va_list arg;
 
 	va_start(arg, fmt);

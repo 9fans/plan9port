@@ -232,4 +232,3 @@ resizethread(void *v)
 	while(recv(mousectl->resizec, &x) >= 0)
 		eresized(1);
 }
-

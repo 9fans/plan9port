@@ -18,8 +18,8 @@
 #include "utf.h"
 
 Rune*
-runestrdup(Rune *s) 
-{  
+runestrdup(Rune *s)
+{
 	Rune *ns;
 
 	ns = malloc(sizeof(Rune)*(runestrlen(s) + 1));

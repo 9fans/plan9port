@@ -154,7 +154,7 @@ doread(Ram *r, vlong off, long cnt)
 		sysfatal("%d - unsupported compression method", zh.meth);
 		break;
 	}
-	
+
 	return buf;
 }
 
@@ -382,4 +382,3 @@ msdos2time(int time, int date)
 
 	return tm2sec(&tm);
 }
-

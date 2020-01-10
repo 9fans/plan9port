@@ -7,4 +7,3 @@ threadmain(int argc, char **argv)
 {
 	print("hello, world\n");
 }
-

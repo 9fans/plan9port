@@ -82,4 +82,3 @@ extern char	*blog;
 extern Ipifc	*ipifcs;
 extern long	now;
 extern char	*ndbfile;
-

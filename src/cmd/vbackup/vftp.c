@@ -34,7 +34,7 @@ struct Cmd
 	char *help;
 };
 
-Cmd cmdtab[] = 
+Cmd cmdtab[] =
 {
 	"cd", cmdcd, "cd dir - change directory",
 	"ls", cmdls, "ls [-d] path... - list file",
@@ -49,7 +49,7 @@ char*
 ebuf(void)
 {
 	static char buf[ERRMAX];
-	
+
 	rerrstr(buf, sizeof buf);
 	return buf;
 }
@@ -58,7 +58,7 @@ static char*
 estrdup(char *s)
 {
 	char *t;
-	
+
 	t = emalloc(strlen(s)+1);
 	strcpy(t, s);
 	return t;
@@ -70,7 +70,7 @@ walk(char *path, Nfs3Handle *ph)
 	char *p, *q;
 	Nfs3Handle h;
 	Nfs3Status ok;
-	
+
 	path = estrdup(path); /* writable */
 	if(path[0] == '/')
 		h = root;
@@ -99,7 +99,7 @@ char*
 cmdhelp(int argc, char **argv)
 {
 	int i;
-	
+
 	for(i=0; i<nelem(cmdtab); i++)
 		print("%s\n", cmdtab[i].help);
 	return nil;
@@ -112,10 +112,10 @@ cmdcd(int argc, char **argv)
 	Nfs3Attr attr;
 	Nfs3Status ok;
 	Nfs3Handle h;
-	
+
 	if(argc != 2)
 		return "usage: cd dir";
-	
+
 	if((err = walk(argv[1], &h)) != nil)
 		return err;
 	if((ok = fsysgetattr(fsys, auth, &h, &attr)) != Nfs3Ok){
@@ -152,7 +152,7 @@ void
 ls(char *dir, char *elem, Nfs3Attr *attr)
 {
 	char c;
-	
+
 	c = ' ';	/* use attr->type */
 	Bprint(&bout, "%s%s%s", dir ? dir : "", dir && elem ? "/" : "", elem ? elem : "");
 	Bprint(&bout, " %c%luo %1d %4d %4d", c, attr->mode, attr->nlink, attr->uid, attr->gid);
@@ -172,7 +172,7 @@ lsdir(char *dir, Nfs3Handle *h)
 	u1int eof;
 	Nfs3Status ok;
 	u64int cookie;
-	
+
 	cookie = 0;
 	for(;;){
 		ok = fsysreaddir(fsys, auth, h, 8192, cookie, &data, &count, &eof);
@@ -201,7 +201,7 @@ fprint(2, "got %d\n", count);
 				continue;
 			}
 			ls(dir, e.name, &attr);
-		}	
+		}
 		free(data);
 		if(eof)
 			break;
@@ -217,7 +217,7 @@ cmdls(int argc, char **argv)
 	Nfs3Handle h;
 	Nfs3Attr attr;
 	Nfs3Status ok;
-	
+
 	dflag = 0;
 	ARGBEGIN{
 	case 'd':
@@ -232,7 +232,7 @@ cmdls(int argc, char **argv)
 		Bflush(&bout);
 		return nil;
 	}
-	
+
 	for(i=0; i<argc; i++){
 		if((e = walk(argv[i], &h)) != nil){
 			fprint(2, "%s: %s\n", argv[i], e);
@@ -264,7 +264,7 @@ cmdget(int argc, char **argv)
 	Nfs3Attr attr;
 	Nfs3Status ok;
 	vlong o;
-	
+
 	dflag = 0;
 	ARGBEGIN{
 	default:
@@ -274,7 +274,7 @@ cmdget(int argc, char **argv)
 
 	if(argc != 1 && argc != 2)
 		goto usage;
-	
+
 	if((e = walk(argv[0], &h)) != nil){
 		fprint(2, "%s: %s\n", argv[0], e);
 		return nil;
@@ -319,12 +319,12 @@ cmdblock(int argc, char **argv)
 	char *e;
 	Nfs3Handle h;
 	u64int bno;
-	
+
 	ARGBEGIN{
 	default:
 		return "usage: block path offset";
 	}ARGEND
-	
+
 	if(argc != 2)
 		return "usage: block path offset";
 
@@ -347,19 +347,19 @@ cmddisk(int argc, char **argv)
 	int delta, count, i;
 	u64int offset;
 	uchar *p;
-	
+
 	ARGBEGIN{
 	default:
 		return "usage: disk offset count";
 	}ARGEND
-	
+
 	if(argc != 2)
 		return "usage: disk offset count";
 
 	offset = strtoull(argv[0], 0, 0);
 	count = atoi(argv[1]);
 	delta = offset%fsys->blocksize;
-	
+
 	b = diskread(disk, fsys->blocksize, offset-delta);
 	if(b == nil){
 		fprint(2, "diskread: %r\n");
@@ -396,7 +396,7 @@ threadmain(int argc, char **argv)
 	int i, nf;
 	uchar score[VtScoreSize];
 	Nfs3Status ok;
-	
+
 	allowall = 1;
 	ARGBEGIN{
 	case 'V':
@@ -405,14 +405,14 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 1)
 		usage();
 
 	fmtinstall('F', vtfcallfmt);
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
-	
+
 	if(access(argv[0], AEXIST) >= 0 || strchr(argv[0], '/')){
 		if((disk = diskopenfile(argv[0])) == nil)
 			sysfatal("diskopen: %r");
@@ -442,7 +442,7 @@ threadmain(int argc, char **argv)
 	cwd = root;
 	Binit(&bin, 0, OREAD);
 	Binit(&bout, 1, OWRITE);
-	
+
 	while(fprint(2, "vftp> "), (p = Brdstr(&bin, '\n', 1)) != nil){
 		if(p[0] == '#')
 			continue;
@@ -461,4 +461,3 @@ threadmain(int argc, char **argv)
 	}
 	threadexitsall(nil);
 }
-

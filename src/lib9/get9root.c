@@ -15,4 +15,3 @@ get9root(void)
 	s = "/usr/local/plan9";
 	return s;
 }
-

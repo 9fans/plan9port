@@ -136,7 +136,7 @@ void
 freetree(tree *p)
 {
 	if(p==0)
-		return;	
+		return;
 	freetree(p->child[0]);
 	freetree(p->child[1]);
 	freetree(p->child[2]);

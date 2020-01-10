@@ -56,10 +56,10 @@ void bshiftb(int p1, int dir, int p2)
 		sh1 = pad(n);
 		rclass[p1] = rclass[p2];	/* OTHER leaves too much after sup */
 	}
-	dprintf(".\tS%d <- %d shift %g %d; b=%g, h=%g, ps=%d, subps=%d\n", 
+	dprintf(".\tS%d <- %d shift %g %d; b=%g, h=%g, ps=%d, subps=%d\n",
 		(int)yyval, p1, shval, p2, ebase[yyval], eht[yyval], ps, subps);
 	sh2 = Sub2space;	/* was Sub2space; */
-	printf(".as %d \\v'%gm'%s%s\\*(%d%s%s\\v'%gm'\n", 
+	printf(".as %d \\v'%gm'%s%s\\*(%d%s%s\\v'%gm'\n",
 		(int)yyval, REL(shval,ps), DPS(ps,subps), sh1, p2,
 		DPS(subps,ps), sh2, REL(-shval,ps));
 	rfont[p1] = 0;
@@ -105,9 +105,9 @@ void shift2(int p1, int p2, int p3)
 	nrwid(p3, subps, p3);
 	printf(".nr %d \\n(%d\n", treg, p3);
 	printf(".if \\n(%d>\\n(%d .nr %d \\n(%d\n", p2, treg, treg, p2);
-	printf(".as %d %s\\v'%gm'\\*(%d\\v'%gm'\\h'-\\n(%du'\\\n", 
+	printf(".as %d %s\\v'%gm'\\*(%d\\v'%gm'\\h'-\\n(%du'\\\n",
 		p1, DPS(ps,subps), REL(subsh,subps), p2, REL(-subsh,subps), p2);
-	printf("\\v'%gm'\\*(%d\\v'%gm'\\h'-\\n(%du+\\n(%du'%s%s\n", 
+	printf("\\v'%gm'\\*(%d\\v'%gm'\\h'-\\n(%du+\\n(%du'%s%s\n",
 		REL(supsh,subps), p3, REL(-supsh,subps), p3, treg, DPS(subps,ps), Sub2space);
 	if (rfont[p2] == ITAL)
 		rfont[yyval] = 0;	/* lie */

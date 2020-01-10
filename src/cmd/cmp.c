@@ -88,7 +88,7 @@ main(int argc, char *argv[])
 					print("%6lld 0x%.2x 0x%.2x\n", nc+i, *p, *q);
 				}
 			}
-		}		
+		}
 		if(Lflag)
 			for(p = b1s; p < b1e;)
 				if(*p++ == '\n')

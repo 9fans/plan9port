@@ -75,4 +75,3 @@ _post3(Postcrud *p)
 		close(p->s->srvfd);
 	free(p);
 }
-

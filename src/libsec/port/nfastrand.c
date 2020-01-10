@@ -8,7 +8,7 @@ ulong
 nfastrand(ulong n)
 {
 	ulong m, r;
-	
+
 	/*
 	 * set m to the maximum multiple of n <= 2^31-1
 	 * so we want a random number < m.

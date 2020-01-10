@@ -147,12 +147,12 @@ main(int argc, char **argv)
 	/*
 	 * Ignore arguments.  They're only for good ps -a listings.
 	 */
-	
+
 	notify(bell);
 
 	fdin.rp = fdin.wp = fdin.buf;
 	fdin.ep = fdin.buf+sizeof fdin.buf;
-	
+
 	fdout.rp = fdout.wp = fdout.buf;
 	fdout.ep = fdout.buf+sizeof fdout.buf;
 
@@ -222,7 +222,7 @@ main(int argc, char **argv)
 				runmsg(&m);
 				fdin.rp += n;
 			}
-			
+
 			/* slide data to beginning of buf */
 			fdslide(&fdin);
 		}
@@ -277,7 +277,7 @@ void
 replyerror(Wsysmsg *m)
 {
 	char err[256];
-	
+
 	rerrstr(err, sizeof err);
 	m->type = Rerror;
 	m->error = err;
@@ -286,8 +286,8 @@ replyerror(Wsysmsg *m)
 
 
 
-/* 
- * Handle a single wsysmsg. 
+/*
+ * Handle a single wsysmsg.
  * Might queue for later (kbd, mouse read)
  */
 void
@@ -296,7 +296,7 @@ runmsg(Wsysmsg *m)
 	uchar buf[65536];
 	int n;
 	Memimage *i;
-	
+
 	switch(m->type){
 	case Tinit:
 		memimageinit();
@@ -339,7 +339,7 @@ runmsg(Wsysmsg *m)
 			_xsetcursor(&m->cursor);
 		replymsg(m);
 		break;
-			
+
 	case Tbouncemouse:
 		_xbouncemouse(&m->mouse);
 		replymsg(m);
@@ -381,12 +381,12 @@ runmsg(Wsysmsg *m)
 		else
 			replymsg(m);
 		break;
-	
+
 	case Ttop:
 		_xtopwindow();
 		replymsg(m);
 		break;
-	
+
 	case Tresize:
 		_xresizewindow(m->rect);
 		replymsg(m);
@@ -405,7 +405,7 @@ replymsg(Wsysmsg *m)
 	/* T -> R msg */
 	if(m->type%2 == 0)
 		m->type++;
-		
+
 	/* fprint(2, "-> %W\n", m); */
 	/* copy to output buffer */
 	n = sizeW2M(m);
@@ -422,7 +422,7 @@ void
 matchkbd(void)
 {
 	Wsysmsg m;
-	
+
 	if(kbd.stall)
 		return;
 	while(kbd.ri != kbd.wi && kbdtags.ri != kbdtags.wi){
@@ -444,7 +444,7 @@ void
 matchmouse(void)
 {
 	Wsysmsg m;
-	
+
 	while(mouse.ri != mouse.wi && mousetags.ri != mousetags.wi){
 		m.type = Rrdmouse;
 		m.tag = mousetags.t[mousetags.ri++];
@@ -519,7 +519,7 @@ runxevent(XEvent *xev)
 	case Expose:
 		_xexpose(xev);
 		break;
-	
+
 	case DestroyNotify:
 		if(_xdestroy(xev))
 			exits(0);
@@ -552,7 +552,7 @@ runxevent(XEvent *xev)
 			return;
 		sendmouse(m);
 		break;
-	
+
 	case KeyRelease:
 	case KeyPress:
 		ke = (XKeyEvent*)xev;
@@ -618,7 +618,7 @@ runxevent(XEvent *xev)
 			kbd.stall = 1;
 		matchkbd();
 		break;
-	
+
 	case FocusOut:
 		/*
 		 * Some key combinations (e.g. Alt-Tab) can cause us
@@ -629,10 +629,9 @@ runxevent(XEvent *xev)
 		altdown = 0;
 		abortcompose();
 		break;
-	
+
 	case SelectionRequest:
 		_xselect(xev);
 		break;
 	}
 }
-

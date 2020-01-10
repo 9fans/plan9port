@@ -615,7 +615,7 @@ vlong
 invlong(void)
 {
 	vlong v;
-	
+
 	v = (inp[7]<<24) | (inp[6]<<16) | (inp[5]<<8) | inp[4];
 	v = (v<<16) | (inp[3]<<8) | inp[2];
 	v = (v<<16) | (inp[1]<<8) | inp[0];
@@ -778,7 +778,7 @@ void
 outshort(int s)
 {
 	*outp++ = s;
-	*outp++ = s>>8; 
+	*outp++ = s>>8;
 }
 
 void

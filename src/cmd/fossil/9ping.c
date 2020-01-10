@@ -37,7 +37,7 @@ main(int argc, char *argv[])
 	int n = 1000, m;
 	int s = 1;
 	double *t, t0, t1;
-	uchar *buf;	
+	uchar *buf;
 	double a, d, max, min;
 
 	m = OREAD;
@@ -67,7 +67,7 @@ main(int argc, char *argv[])
 
 	buf = malloc(s);
 	t = malloc(n*sizeof(double));
-	
+
 	t0 = nsec();
 	for(i=0; i<n; i++){
 		if(m == OREAD){
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 	}
 
 	a /= n;
-	
+
 	for(i=0; i<n; i++)
 		d += (a - t[i]) * (a - t[i]);
 	d /= n;

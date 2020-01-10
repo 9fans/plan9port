@@ -213,7 +213,7 @@ part(Part *pp)
 			passnotheader();
 			return part(p);
 		} else {
-			/* 
+			/*
 			 * This is the meat.  This may be an executable.
 			 * if so, wrap it and change its type
 			 */
@@ -390,7 +390,7 @@ save(Part *p, char *file)
 	Bprint(&out, "\n");
 	Bterm(&out);
 	close(fd);
-	
+
 	memset(&out, 0, sizeof out);
 	Binit(&out, 1, OWRITE);
 	return 0;
@@ -404,7 +404,7 @@ savetmp(Part *p)
 {
 	char buf[40], *name;
 	int fd;
-	
+
 	strcpy(buf, "/var/tmp/vf.XXXXXXXXXXX");
 	if((fd = mkstemp(buf)) < 0){
 		fprint(2, "error creating temporary file: %r\n");
@@ -439,7 +439,7 @@ runchecker(Part *p)
 	char *name;
 	Waitmsg *w;
 	static char *val;
-	
+
 	if(val == nil)
 		val = unsharp("#9/mail/lib/validateattachment");
 	if(val == nil || access(val, AEXEC) < 0)
@@ -503,7 +503,7 @@ problemchild(Part *p)
 
 	if(justreject)
 		return p;
-		
+
 	syslog(0, "mail", "vf wrapped %s %s", p->type?s_to_c(p->type):"?",
 		p->filename?s_to_c(p->filename):"?");
 
@@ -591,7 +591,7 @@ isattribute(char **pp, char *attr)
 }
 
 /*
- *  parse content type header 
+ *  parse content type header
  */
 static void
 ctype(Part *p, Hdef *h, char *cp)
@@ -605,7 +605,7 @@ ctype(Part *p, Hdef *h, char *cp)
 	cp = getstring(cp, p->type, 1);
 	if(badtype(s_to_c(p->type)))
 		p->badtype = 1;
-	
+
 	while(*cp){
 		if(isattribute(&cp, "boundary")){
 			s = s_new();
@@ -627,13 +627,13 @@ ctype(Part *p, Hdef *h, char *cp)
 				p->charset = s_new();
 			cp = getstring(cp, s_reset(p->charset), 0);
 		}
-		
+
 		cp = skiptosemi(cp);
 	}
 }
 
 /*
- *  parse content encoding header 
+ *  parse content encoding header
  */
 static void
 cencoding(Part *m, Hdef *h, char *p)
@@ -647,7 +647,7 @@ cencoding(Part *m, Hdef *h, char *p)
 }
 
 /*
- *  parse content disposition header 
+ *  parse content disposition header
  */
 static void
 cdisposition(Part *p, Hdef *h, char *cp)
@@ -1006,7 +1006,7 @@ err:
 }
 
 /*
- *  decode quoted 
+ *  decode quoted
  */
 enum
 {

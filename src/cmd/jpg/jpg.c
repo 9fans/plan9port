@@ -225,7 +225,7 @@ vidmerge(Rawimage **aa1, Rawimage **aa2)
 			free(a2->cmap);
 		free(a1);
 		free(a2);
-	}	
+	}
 	if (aa2[i] != nil)
 		fprint(2, "jpg: vidmerge: unequal lengths\n");
 	free(aa1);

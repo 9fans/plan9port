@@ -130,4 +130,3 @@ forward_loop(char *addr, char *system)
 			return 1;
 	return 0;
 }
-

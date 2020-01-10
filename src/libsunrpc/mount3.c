@@ -709,7 +709,7 @@ static SunProc proc1[] = {
 	(P)nfsmount3rexportpack, (P)nfsmount3rexportunpack, (S)nfsmount3rexportsize, (F)nfsmount3rexportprint, sizeof(NfsMount3RExport),
 };
 
-SunProg nfsmount3prog = 
+SunProg nfsmount3prog =
 {
 	NfsMount3Program,
 	NfsMount3Version,

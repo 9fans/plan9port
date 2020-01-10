@@ -232,7 +232,7 @@ void arrow(double x0, double y0, double x1, double y1, double w, double h,
 		if(i == 1)
 			printf("M %.3f %.3f L %.3f %.3f", xconv(x1+dx), yconv(y1+dy), xconv(x1), yconv(y1));
 		else
-			printf(" L %.3f %.3f", xconv(x1+dx), yconv(y1+dy)); 
+			printf(" L %.3f %.3f", xconv(x1+dx), yconv(y1+dy));
 	}
 	if (nhead > 2)
 		printf(" Z");

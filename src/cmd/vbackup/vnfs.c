@@ -154,7 +154,7 @@ threadmain(int argc, char **argv)
 	nfschan = chancreate(sizeof(SunMsg*), 0);
 	mountchan = chancreate(sizeof(SunMsg*), 0);
 	timerchan = chancreate(sizeof(void*), 0);
-	
+
 	if(sunsrvudp(srv, addr) < 0)
 		sysfatal("starting server: %r");
 
@@ -162,7 +162,7 @@ threadmain(int argc, char **argv)
 	sunsrvthreadcreate(srv, mount3proc, mountchan);
 	sunsrvthreadcreate(srv, timerthread, nil);
 	proccreate(timerproc, nil, 32768);
-	
+
 	sunsrvprog(srv, &nfs3prog, nfschan);
 	sunsrvprog(srv, &nfsmount3prog, mountchan);
 
@@ -200,13 +200,13 @@ unittoull(char *s)
 
 /*
  * Handles.
- * 
+ *
  * We store all the state about which file a client is accessing in
  * the handle, so that we don't have to maintain any per-client state
- * ourselves.  In order to avoid leaking handles or letting clients 
+ * ourselves.  In order to avoid leaking handles or letting clients
  * create arbitrary handles, we sign and encrypt each handle with
  * AES using a key selected randomly when the server starts.
- * Thus, handles cannot be used across sessions.  
+ * Thus, handles cannot be used across sessions.
  *
  * The decrypted handles begin with the following header:
  *
@@ -215,7 +215,7 @@ unittoull(char *s)
  *
  * If we're pressed for space in the rest of the handle, we could
  * probably reduce the amount of sessid bytes.  Note that the sessid
- * bytes must be consistent during a run of vnfs, or else some 
+ * bytes must be consistent during a run of vnfs, or else some
  * clients (e.g., Linux 2.4) eventually notice that successive TLookups
  * return different handles, and they return "Stale NFS file handle"
  * errors to system calls in response (even though we never sent
@@ -231,9 +231,9 @@ unittoull(char *s)
  * and the handles need to be stable across changes in the config file
  * (though not across server restarts since encryption screws
  * that up nicely).
- * 
- * We encode each of the first two as a 10-byte hash that is 
- * the first half of a SHA1 hash.  
+ *
+ * We encode each of the first two as a 10-byte hash that is
+ * the first half of a SHA1 hash.
  */
 
 enum
@@ -291,7 +291,7 @@ static Nfs3Status
 hdecrypt(Nfs3Handle *h)
 {
 	AESstate aes;
-	
+
 	if(h->len == 1 && h->h[0] == 0){	/* single 0 byte is root */
 		*h = root;
 		return Nfs3Ok;
@@ -323,7 +323,7 @@ cryptinit(void)
 	uchar key[32], ivec[AESbsize];
 	int i;
 	u32int u32;
-	
+
 	u32 = truerand();
 	memmove(sessid, &u32, 4);
 	for(i=0; i<nelem(key); i+=4) {
@@ -371,12 +371,12 @@ struct Cnode
 	Cnode *nextsib;	/* in tree */
 	Cnode *kidlist;	/* in tree */
 	Cnode *nexthash;	/* in hash list */
-	
+
 	Nfs3Status (*read)(Cnode*, u32int, u64int, uchar**, u32int*, u1int*);	/* synthesized read fn */
 
 	uchar handle[VtScoreSize];	/* sha1(path to here) */
 	ulong mtime;	/* mtime for this directory entry */
-	
+
 	/* fsys overlay on this node */
 	Fsys *fsys;	/* cache of memory structure */
 	Nfs3Handle fsyshandle;
@@ -394,7 +394,7 @@ struct Cnode
 	char *fsysimage;	/* raw disk image */
 	Fsys *mfsys;	/* mounted file system (nil until walked) */
 	Nfs3Handle mfsyshandle;	/* handle to root of mounted fsys */
-	
+
 	int mark;	/* gc */
 };
 
@@ -409,7 +409,7 @@ mkcnode(Ctree *t, Cnode *parent, char *elem, uint elen, char *path, uint plen)
 {
 	uint h;
 	Cnode *n;
-	
+
 	n = emalloc(sizeof *n + elen+1);
 	n->name = (char*)(n+1);
 	memmove(n->name, elem, elen);
@@ -424,7 +424,7 @@ mkcnode(Ctree *t, Cnode *parent, char *elem, uint elen, char *path, uint plen)
 	h = dumbhash(n->handle);
 	n->nexthash = t->hash[h];
 	t->hash[h] = n;
-	
+
 	return n;
 }
 
@@ -446,7 +446,7 @@ refreshdisk(void)
 	int i;
 	Cnode *n;
 	Ctree *t;
-	
+
 	t = config.ctree;
 	for(i=0; i<nelem(t->hash); i++)
 		for(n=t->hash[i]; n; n=n->nexthash){
@@ -485,7 +485,7 @@ static Cnode*
 cnodewalk(Cnode *n, char *name, uint len, int markokay)
 {
 	Cnode *nn;
-	
+
 	for(nn=n->kidlist; nn; nn=nn->nextsib)
 		if(strncmp(nn->name, name, len) == 0 && nn->name[len] == 0)
 		if(!nn->mark || markokay)
@@ -498,7 +498,7 @@ ctreewalkpath(Ctree *t, char *name, ulong createmtime)
 {
 	Cnode *n, *nn;
 	char *p, *nextp;
-	
+
 	n = t->root;
 	p = name;
 	for(; *p; p=nextp){
@@ -526,10 +526,10 @@ Ctree*
 mkctree(void)
 {
 	Ctree *t;
-	
+
 	t = emalloc(sizeof *t);
 	t->root = mkcnode(t, nil, "", 0, "", 0);
-	
+
 	ctreewalkpath(t, "/+log", time(0))->read = logread;
 	ctreewalkpath(t, "/+refreshdisk", time(0))->read = refreshdiskread;
 	ctreewalkpath(t, "/+refreshconfig", time(0))->read = refreshconfigread;
@@ -541,7 +541,7 @@ Cnode*
 ctreemountfsys(Ctree *t, char *path, ulong time, uchar *score, char *file)
 {
 	Cnode *n;
-	
+
 	if(time == 0)
 		time = 1;
 	n = ctreewalkpath(t, path, time);
@@ -570,7 +570,7 @@ cnodebyhandle(Ctree *t, uchar *p)
 {
 	int h;
 	Cnode *n;
-	
+
 	h = dumbhash(p);
 	for(n=t->hash[h]; n; n=n->nexthash)
 		if(memcmp(n->handle, p, CnodeHandleSize) == 0)
@@ -582,7 +582,7 @@ static int
 parseipandmask(char *s, uchar *ip, uchar *mask)
 {
 	char *p, *q;
-	
+
 	p = strchr(s, '/');
 	if(p)
 		*p++ = 0;
@@ -609,14 +609,14 @@ parsetime(char *s, ulong *time)
 	char *p;
 	int i;
 	Tm tm;
-	
+
 	/* decimal integer is seconds since 1970 */
 	x = strtoul(s, &p, 10);
 	if(x > 0 && *p == 0){
 		*time = x;
 		return 0;
 	}
-	
+
 	/* otherwise expect yyyy/mmdd/hhmm */
 	if(strlen(s) != 14 || s[4] != '/' || s[9] != '/')
 		return -1;
@@ -629,7 +629,7 @@ parsetime(char *s, ulong *time)
 		return -1;
 	tm.mon = (s[5]-'0')*10+s[6]-'0' - 1;
 	if(tm.mon < 0 || tm.mon > 11)
-		return -1; 
+		return -1;
 	tm.mday = (s[7]-'0')*10+s[8]-'0';
 	if(tm.mday < 0 || tm.mday > 31)
 		return -1;
@@ -673,7 +673,7 @@ readconfigfile(Config *cp)
 	free(dir);
 	if((b = Bopen(name, OREAD)) == nil)
 		return -1;
-	
+
 	/*
 	 * Reuse old tree, garbage collecting entries that
 	 * are not mentioned in the new config file.
@@ -684,7 +684,7 @@ readconfigfile(Config *cp)
 	markctree(c.ctree);
 	c.ok = nil;
 	c.nok = 0;
-	
+
 	line = 0;
 	for(; (p=Brdstr(b, '\n', 1)) != nil; free(p)){
 		line++;
@@ -726,7 +726,7 @@ readconfigfile(Config *cp)
 		}
 		if(strcmp(f[0], "allow") == 0 || strcmp(f[0], "deny") == 0){
 			if(nf != 2){
-				werrstr("syntax error: allow|deny ip[/mask]"); 
+				werrstr("syntax error: allow|deny ip[/mask]");
 				goto badline;
 			}
 			c.ok = erealloc(c.ok, (c.nok+1)*sizeof(c.ok[0]));
@@ -755,8 +755,8 @@ ipokay(uchar *ip, ushort port)
 {
 	int i;
 	uchar ipx[IPaddrlen];
-	Ipokay *ok; 
-	
+	Ipokay *ok;
+
 	for(i=0; i<config.nok; i++){
 		ok = &config.ok[i];
 		maskip(ip, ok->mask, ipx);
@@ -775,7 +775,7 @@ Nfs3Status
 cnodelookup(Ctree *t, Cnode **np, char *name)
 {
 	Cnode *n, *nn;
-	
+
 	n = *np;
 	if(n->isblackhole)
 		return Nfs3Ok;
@@ -826,7 +826,7 @@ cnodereaddir(Cnode *n, u32int count, u64int cookie, uchar **pdata, u32int *pcoun
 	u64int c;
 	u64int u64;
 	Nfs3Entry ne;
-	
+
 	n = n->kidlist;
 	c = cookie;
 	for(; c && n; c--)
@@ -837,7 +837,7 @@ cnodereaddir(Cnode *n, u32int count, u64int cookie, uchar **pdata, u32int *pcoun
 		*peof = 1;
 		return Nfs3Ok;
 	}
-	
+
 	data = emalloc(count);
 	p = data;
 	ep = data+count;
@@ -882,7 +882,7 @@ timerthread(void *v)
 }
 
 /*
- * Actually serve the NFS requests.  Called from nfs3srv.c.  
+ * Actually serve the NFS requests.  Called from nfs3srv.c.
  * Each request runs in its own thread (coroutine).
  *
  * Decrypted handles have the form:
@@ -891,7 +891,7 @@ timerthread(void *v)
  *	glob[10] - SHA1 hash prefix identifying a glob state
  *	fsyshandle[<=10] - disk file system handle (usually 4 bytes)
  */
- 
+
 /*
  * A fid represents a point in the file tree.
  * There are three components, all derived from the handle:
@@ -933,7 +933,7 @@ handletofid(Nfs3Handle *eh, Fid *fid, int mode)
 	Fsys *fsys;
 	Nfs3Status ok;
 	Nfs3Handle h2, *h, *fh;
-	
+
 	memset(fid, 0, sizeof *fid);
 
 	domount = 1;
@@ -999,7 +999,7 @@ handletofid(Nfs3Handle *eh, Fid *fid, int mode)
 			n->mfsys = fsys;
 			fsysroot(fsys, &n->mfsyshandle);
 		}
-		
+
 		/*
 		 * Use inner handle.
 		 */
@@ -1010,7 +1010,7 @@ handletofid(Nfs3Handle *eh, Fid *fid, int mode)
 		 * Use fsys handle from tree or from handle.
 		 * This assumes that fsyshandle was set by fidtohandle
 		 * earlier, so it's not okay to reuse handles (except the root)
-		 * across sessions.  The encryption above makes and 
+		 * across sessions.  The encryption above makes and
 		 * enforces the same restriction, so this is okay.
 		 */
 		fid->fsys = n->fsys;
@@ -1035,7 +1035,7 @@ void
 _fidtohandle(Fid *fid, Nfs3Handle *h)
 {
 	Cnode *n;
-	
+
 	n = fid->cnode;
 	/*
 	 * Record fsys handle in n, don't bother sending it to client
@@ -1062,7 +1062,7 @@ void
 setrootfid(void)
 {
 	Fid fid;
-	
+
 	memset(&fid, 0, sizeof fid);
 	fid.cnode = config.ctree->root;
 	_fidtohandle(&fid, &root);
@@ -1101,7 +1101,7 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 	Nfs3Status ok;
 	Nfs3Handle xh;
 	int mode;
-	
+
 	trace("lookup %.*lH %s\n", h->len, h->h, name);
 
 	mode = HWalk;
@@ -1112,7 +1112,7 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 		trace("lookup: handletofid %r\n");
 		return ok;
 	}
-	
+
 	if(strcmp(name, ".") == 0){
 		fidtohandle(&fid, nh);
 		return Nfs3Ok;
@@ -1122,7 +1122,7 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 	 * Walk down file system and cnode simultaneously.
 	 * If dotdot and file system doesn't move, need to walk
 	 * up cnode.  Save the corresponding fsys handles in
-	 * the cnode as we walk down so that we'll have them 
+	 * the cnode as we walk down so that we'll have them
 	 * for dotdotting back up.
 	 */
 	n = fid.cnode;
@@ -1143,7 +1143,7 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 				return ok;
 			}
 			fid.fsyshandle = xh;
-		}		
+		}
 	}else{
 		/*
 		 * Walking dotdot.  Ick.
@@ -1162,7 +1162,7 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 
 			/*
 			 * Usually just go to n->parent.
-			 * 
+			 *
 			 * If we're in a subtree of the mounted file system that
 			 * isn't represented explicitly by the config tree (instead
 			 * the black hole node represents the entire file tree),
@@ -1176,7 +1176,7 @@ fslookup(SunAuthUnix *au, Nfs3Handle *h, char *name, Nfs3Handle *nh)
 					n->parent->fsyshandle.len, n->parent->fsyshandle.h,
 					xh.len, xh.h);
 			}
-			
+
 			if(n->isblackhole){
 				if(handlecmp(&n->parent->mfsyshandle, &xh) == 0)
 					n = n->parent;
@@ -1205,7 +1205,7 @@ fsaccess(SunAuthUnix *au, Nfs3Handle *h, u32int want, u32int *got, Nfs3Attr *att
 {
 	Fid fid;
 	Nfs3Status ok;
-	
+
 	trace("access %.*lH 0x%ux\n", h->len, h->h, want);
 	if((ok = handletofid(h, &fid, HAccess)) != Nfs3Ok)
 		return ok;
@@ -1220,7 +1220,7 @@ fsreadlink(SunAuthUnix *au, Nfs3Handle *h, char **link)
 {
 	Fid fid;
 	Nfs3Status ok;
-	
+
 	trace("readlink %.*lH\n", h->len, h->h);
 	if((ok = handletofid(h, &fid, HRead)) != Nfs3Ok)
 		return ok;
@@ -1235,7 +1235,7 @@ fsreadfile(SunAuthUnix *au, Nfs3Handle *h, u32int count, u64int offset, uchar **
 {
 	Fid fid;
 	Nfs3Status ok;
-	
+
 	trace("readfile %.*lH\n", h->len, h->h);
 	if((ok = handletofid(h, &fid, HRead)) != Nfs3Ok)
 		return ok;
@@ -1252,7 +1252,7 @@ fsreaddir(SunAuthUnix *au, Nfs3Handle *h, u32int len, u64int cookie, uchar **pda
 	Fid fid;
 	Nfs3Status ok;
 
-	trace("readdir %.*lH\n", h->len, h->h);	
+	trace("readdir %.*lH\n", h->len, h->h);
 	if((ok = handletofid(h, &fid, HRead)) != Nfs3Ok)
 		return ok;
 	if(fid.fsys)
@@ -1272,7 +1272,7 @@ Nfs3Status
 refreshdiskread(Cnode *n, u32int count, u64int offset, uchar **data, u32int *pcount, u1int *peof)
 {
 	char buf[128];
-	
+
 	if(offset != 0){
 		*pcount = 0;
 		*peof = 1;
@@ -1293,7 +1293,7 @@ Nfs3Status
 refreshconfigread(Cnode *n, u32int count, u64int offset, uchar **data, u32int *pcount, u1int *peof)
 {
 	char buf[128];
-	
+
 	if(offset != 0){
 		*pcount = 0;
 		*peof = 1;
@@ -1309,4 +1309,3 @@ refreshconfigread(Cnode *n, u32int count, u64int offset, uchar **data, u32int *p
 	*peof = 1;
 	return Nfs3Ok;
 }
-

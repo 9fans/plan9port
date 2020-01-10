@@ -78,7 +78,7 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 	Plumbattr *a;
 
 	quotereply = (label[0] == 'Q');
-	
+
 	if(quotereply && m && m->replywinid > 0){
 		snprint(buf, sizeof buf, "%d/body", m->replywinid);
 		if((fd = fsopen(acmefs, buf, OWRITE)) != nil){
@@ -88,7 +88,7 @@ mkreply(Message *m, char *label, char *to, Plumbattr *attr, char *quotetext)
 			return;
 		}
 	}
-	
+
 	r = emalloc(sizeof(Message));
 	r->isreply = 1;
 	if(m != nil)
@@ -212,7 +212,7 @@ execproc(void *v)
 	q[0] = e->q[0];
 	q[1] = e->q[1];
 	prog = e->prog;	/* known not to be malloc'ed */
-	
+
 	fd[0] = dup(p[0], -1);
 	if(q[0])
 		fd[1] = dup(q[1], -1);
@@ -224,7 +224,7 @@ execproc(void *v)
 	free(e->argv);
 	chanfree(e->sync);
 	free(e);
-	
+
 	threadexec(nil, fd, prog, argv);
 	close(fd[0]);
 	close(fd[1]);

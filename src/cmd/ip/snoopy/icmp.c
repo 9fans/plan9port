@@ -23,7 +23,7 @@ enum
 	Op,	/* next protocol */
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"t",		Fnum,	Ot,	"type",	} ,
 	{0}

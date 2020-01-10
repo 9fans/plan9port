@@ -22,7 +22,7 @@ static void
 sockaddr2ip(uchar *ip, struct sockaddr *sa)
 {
 	struct sockaddr_in *sin;
-	
+
 	sin = (struct sockaddr_in*)sa;
 	memmove(ip, v4prefix, IPaddrlen);
 	memmove(ip+IPv4off, &sin->sin_addr, 4);
@@ -59,7 +59,7 @@ readipifc(char *net, Ipifc *ifc, int index)
 	mib[3] = 0;
 	mib[4] = NET_RT_IFLIST;
 	mib[5] = 0;
-	
+
 	n = 0;
 	if(sysctl(mib, 6, nil, &n, nil, 0) < 0)
 		return nil;
@@ -115,7 +115,7 @@ readipifc(char *net, Ipifc *ifc, int index)
 						continue;
 					*lastlifc = lifc;
 					lastlifc = &lifc->next;
-				}	
+				}
 				sockaddr2ip(ip, sa);
 				switch(i){
 				case RTAX_IFA:

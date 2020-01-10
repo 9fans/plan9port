@@ -17,7 +17,7 @@ Statdesc statdesc[NStat] =
 	{ "rpc read cached time", },
 	{ "rpc read uncached", },
 	{ "rpc read uncached time "},
-	
+
 	{ "rpc writes", },
 	{ "rpc writes new", },
 	{ "rpc writes old", },
@@ -83,7 +83,7 @@ Statdesc statdesc[NStat] =
 
 	{ "sum reads", },
 	{ "sum read bytes", },
-	
+
 	{ "cig loads" },
 	{ "cig load time" },
 };
@@ -158,9 +158,9 @@ binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 	int i, j, lo, hi, m;
 	vlong tot;
 	Statbin *b;
-	
+
 	t = stats.now;
-	
+
 	/* negative times mean relative to now. */
 	if(t0 <= 0)
 		t0 += t;
@@ -170,7 +170,7 @@ binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 	if(t1 <= t0)
 		t0 = t1 - 60*10;
 	if(0) fprint(2, "stats %ld-%ld\n", t0, t1);
-	
+
 	/* binary search to find t0-1 or close */
 	lo = stattime;
 	hi = stattime+nstathist;
@@ -208,5 +208,5 @@ binstats(long (*fn)(Stats *s0, Stats *s1, void *arg), void *arg,
 			b->avg = tot / b->nsamp;
 		if(b->nsamp==0 && i>0)
 			*b = bin[i-1];
-	}	
+	}
 }

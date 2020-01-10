@@ -331,7 +331,7 @@ void
 preloadserveraddrs(void)
 {
 	RR *rp, **l, *first;
-	
+
 	l = &first;
 	for(rp = serveraddrs; rp != nil; rp = rp->next){
 		rrcopy(rp, l);

@@ -47,7 +47,7 @@ allocmemimaged(Rectangle r, u32int chan, Memdata *md, void *X)
 	i->X = X;
 	i->data = md;
 	i->zero = sizeof(u32int)*l*r.min.y;
-	
+
 	if(r.min.x >= 0)
 		i->zero += (r.min.x*d)/8;
 	else

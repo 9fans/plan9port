@@ -294,7 +294,7 @@ static int
 hnamecmp(const void *va, const void *vb)
 {
 	Hchar *a, *b;
-	
+
 	a = (Hchar*)va;
 	b = (Hchar*)vb;
 	return strcmp(a->s, b->s);
@@ -304,7 +304,7 @@ static int
 hrunecmp(const void *va, const void *vb)
 {
 	Hchar *a, *b;
-	
+
 	a = (Hchar*)va;
 	b = (Hchar*)vb;
 	return a->r - b->r;
@@ -315,12 +315,12 @@ html_init(void)
 {
 	static int init;
 	int i;
-	
+
 	if(init)
 		return;
 	init = 1;
 	memmove(byrune, byname, sizeof byrune);
-	
+
 	/* Eliminate names we aren't allowed to generate. */
 	for(i=0; i<nelem(byrune); i++){
 		if(byrune[i].s[0] == '_'){
@@ -328,7 +328,7 @@ html_init(void)
 			byname[i].s++;
 		}
 	}
-	
+
 	qsort(byname, nelem(byname), sizeof byname[0], hnamecmp);
 	qsort(byrune, nelem(byrune), sizeof byrune[0], hrunecmp);
 }
@@ -338,7 +338,7 @@ findbyname(char *s)
 {
 	Hchar *h;
 	int n, m, x;
-	
+
 	h = byname;
 	n = nelem(byname);
 	while(n > 0){
@@ -386,9 +386,9 @@ html_in(int fd, long *x, struct convert *out)
 	Rune rbuf[N];
 	Rune *r, *er;
 	int c, i;
-	
+
 	USED(x);
-	
+
 	html_init();
 	r = rbuf;
 	er = rbuf+N;
@@ -453,7 +453,7 @@ html_out(Rune *r, int n, long *x)
 	char *s;
 	Biobuf b;
 	Rune *er;
-	
+
 	USED(x);
 	html_init();
 	Binit(&b, 1, OWRITE);
@@ -468,4 +468,3 @@ html_out(Rune *r, int n, long *x)
 	}
 	Bflush(&b);
 }
-

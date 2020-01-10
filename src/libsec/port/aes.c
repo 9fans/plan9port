@@ -138,13 +138,13 @@ static int rijndaelKeySetup(u32 erk[/*4*(Nr + 1)*/], u32 drk[/*4*(Nr + 1)*/], co
 	 * invert the order of the round keys and
 	 * apply the inverse MixColumn transform to all round keys but the first and the last
 	 */
-	drk[0       ] = erk[4*Nr    ]; 
+	drk[0       ] = erk[4*Nr    ];
 	drk[1       ] = erk[4*Nr + 1];
-	drk[2       ] = erk[4*Nr + 2]; 
+	drk[2       ] = erk[4*Nr + 2];
 	drk[3       ] = erk[4*Nr + 3];
-	drk[4*Nr    ] = erk[0       ]; 
+	drk[4*Nr    ] = erk[0       ];
 	drk[4*Nr + 1] = erk[1       ];
-	drk[4*Nr + 2] = erk[2       ]; 
+	drk[4*Nr + 2] = erk[2       ];
 	drk[4*Nr + 3] = erk[3       ];
 	erk += 4 * Nr;
 	for (i = 1; i < Nr; i++) {
@@ -1443,7 +1443,7 @@ static void rijndaelEncryptRound(const u32 rk[/*4*(Nr + 1)*/], int Nr, u8 block[
     		(Te4[(s1 >>  8) & 0xff] <<  8) ^
     		(Te4[(s2      ) & 0xff]      ) ^
     		rk[3];
-		
+
 		s0 = t0;
 		s1 = t1;
 		s2 = t2;

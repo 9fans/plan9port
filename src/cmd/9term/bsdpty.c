@@ -20,7 +20,7 @@ static char *abc =
 	"abcdefghijklmnopqrstuvwxyz"
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"0123456789";
-static char *_123 = 
+static char *_123 =
 	"0123456789"
 	"abcdefghijklmnopqrstuvwxyz"
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -111,4 +111,3 @@ getintr(int fd)
 		return 0x7F;
 	return ttmode.c_cc[VINTR];
 }
-

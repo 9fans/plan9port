@@ -296,7 +296,7 @@ ffindsym(Fhdr *fhdr, Loc loc, uint class)
 	 * We want to find the largest index i such that
 	 * a[i] <= loc.  This cannot be done with a simple
 	 * binary search.  Instead we binary search to find
-	 * where the location should be. 
+	 * where the location should be.
 	 */
 	lo = 0;
 	hi = n;
@@ -529,7 +529,7 @@ symopen(Fhdr *hdr)
 			hdr->byname[i] = &hdr->sym[i];
 		qsort(hdr->byname, hdr->nsym, sizeof(hdr->byname[0]), bynamecmp);
 	}
-	
+
 	hdr->byxname = malloc(hdr->nsym*sizeof(hdr->byxname[0]));
 	if(hdr->byxname == nil){
 		fprint(2, "could not allocate table to sort by xname\n");
@@ -581,4 +581,3 @@ _addsym(Fhdr *fp, Symbol *sym)
 	*s = *sym;
 	return s;
 }
-

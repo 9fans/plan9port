@@ -23,7 +23,7 @@ uvtomp(uvlong v, mpint *b)
 	for(s = 0; s < VLDIGITS && v != 0; s++){
 		b->p[s] = v;
 	/* !@*$&!@$ gcc gives warnings about the >> here
-	 * when running on 64-bit machines, even though 
+	 * when running on 64-bit machines, even though
 	 * it's in dead code.  fake it out with two shifts.
 		if(sizeof(mpdigit) == sizeof(uvlong))
 			v = 0;

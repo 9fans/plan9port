@@ -28,16 +28,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must 
-     not claim that you wrote the original software.  If you use this 
-     software in a product, an acknowledgment in the product 
+  2. The origin of this software must not be misrepresented; you must
+     not claim that you wrote the original software.  If you use this
+     software in a product, an acknowledgment in the product
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote 
-     products derived from this software without specific prior written 
+  4. The name of the author may not be used to endorse or promote
+     products derived from this software without specific prior written
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -125,8 +125,8 @@ Bool isempty_RL ( EState* s )
 
 
 /*---------------------------------------------------*/
-int BZ_API(BZ2_bzCompressInit) 
-                    ( bz_stream* strm, 
+int BZ_API(BZ2_bzCompressInit)
+                    ( bz_stream* strm,
                      int        blockSize100k,
                      int        verbosity,
                      int        workFactor )
@@ -136,7 +136,7 @@ int BZ_API(BZ2_bzCompressInit)
 
    if (!bz_config_ok()) return BZ_CONFIG_ERROR;
 
-   if (strm == NULL || 
+   if (strm == NULL ||
        blockSize100k < 1 || blockSize100k > 9 ||
        workFactor < 0 || workFactor > 250)
      return BZ_PARAM_ERROR;
@@ -279,7 +279,7 @@ Bool copy_input_until_stop ( EState* s )
          /*-- no input? --*/
          if (s->strm->avail_in == 0) break;
          progress_in = True;
-         ADD_CHAR_TO_BLOCK ( s, (UInt32)(*((UChar*)(s->strm->next_in))) ); 
+         ADD_CHAR_TO_BLOCK ( s, (UInt32)(*((UChar*)(s->strm->next_in))) );
          s->strm->next_in++;
          s->strm->avail_in--;
          s->strm->total_in_lo32++;
@@ -297,7 +297,7 @@ Bool copy_input_until_stop ( EState* s )
          /*-- flush/finish end? --*/
          if (s->avail_in_expect == 0) break;
          progress_in = True;
-         ADD_CHAR_TO_BLOCK ( s, (UInt32)(*((UChar*)(s->strm->next_in))) ); 
+         ADD_CHAR_TO_BLOCK ( s, (UInt32)(*((UChar*)(s->strm->next_in))) );
          s->strm->next_in++;
          s->strm->avail_in--;
          s->strm->total_in_lo32++;
@@ -343,18 +343,18 @@ Bool handle_compress ( bz_stream* strm )
    Bool progress_in  = False;
    Bool progress_out = False;
    EState* s = strm->state;
-   
+
    while (True) {
 
       if (s->state == BZ_S_OUTPUT) {
          progress_out |= copy_output_until_stop ( s );
          if (s->state_out_pos < s->numZ) break;
-         if (s->mode == BZ_M_FINISHING && 
+         if (s->mode == BZ_M_FINISHING &&
              s->avail_in_expect == 0 &&
              isempty_RL(s)) break;
          prepare_new_block ( s );
          s->state = BZ_S_INPUT;
-         if (s->mode == BZ_M_FLUSHING && 
+         if (s->mode == BZ_M_FLUSHING &&
              s->avail_in_expect == 0 &&
              isempty_RL(s)) break;
       }
@@ -402,7 +402,7 @@ int BZ_API(BZ2_bzCompress) ( bz_stream *strm, int action )
          if (action == BZ_RUN) {
             progress = handle_compress ( strm );
             return progress ? BZ_RUN_OK : BZ_PARAM_ERROR;
-         } 
+         }
          else
 	 if (action == BZ_FLUSH) {
             s->avail_in_expect = strm->avail_in;
@@ -415,12 +415,12 @@ int BZ_API(BZ2_bzCompress) ( bz_stream *strm, int action )
             s->mode = BZ_M_FINISHING;
             goto preswitch;
          }
-         else 
+         else
             return BZ_PARAM_ERROR;
 
       case BZ_M_FLUSHING:
          if (action != BZ_FLUSH) return BZ_SEQUENCE_ERROR;
-         if (s->avail_in_expect != s->strm->avail_in) 
+         if (s->avail_in_expect != s->strm->avail_in)
             return BZ_SEQUENCE_ERROR;
          progress = handle_compress ( strm );
          if (!progress) return BZ_SEQUENCE_ERROR;	/*rsc added */
@@ -431,7 +431,7 @@ int BZ_API(BZ2_bzCompress) ( bz_stream *strm, int action )
 
       case BZ_M_FINISHING:
          if (action != BZ_FINISH) return BZ_SEQUENCE_ERROR;
-         if (s->avail_in_expect != s->strm->avail_in) 
+         if (s->avail_in_expect != s->strm->avail_in)
             return BZ_SEQUENCE_ERROR;
          progress = handle_compress ( strm );
          if (!progress) return BZ_SEQUENCE_ERROR;
@@ -458,8 +458,7 @@ int BZ_API(BZ2_bzCompressEnd)  ( bz_stream *strm )
    if (s->ftab != NULL) BZFREE(s->ftab);
    BZFREE(strm->state);
 
-   strm->state = NULL;   
+   strm->state = NULL;
 
    return BZ_OK;
 }
-

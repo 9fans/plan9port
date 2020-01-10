@@ -118,4 +118,3 @@ symelf(Fhdr *fhdr)
 		ret = 0;
 	return ret;
 }
-

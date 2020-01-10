@@ -8,4 +8,3 @@ loadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 {
 	return _loadmemimage(i, r, data, ndata);
 }
-

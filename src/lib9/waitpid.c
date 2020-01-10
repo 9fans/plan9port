@@ -17,4 +17,3 @@ waitpid(void)
 	}
 	return atoi(fld[0]);
 }
-

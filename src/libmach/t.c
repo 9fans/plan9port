@@ -97,7 +97,7 @@ printparams(Symbol *fn, Regs *regs)
 	int first = 0;
 	ulong pc, sp, bp;
 
-	if(0) print("pc=%lux sp=%lux bp=%lux ", 
+	if(0) print("pc=%lux sp=%lux bp=%lux ",
 		(rget(regs, "PC", &pc), pc),
 		(rget(regs, "SP", &sp), sp),
 		(rget(regs, "BP", &bp), bp));
@@ -180,7 +180,7 @@ main(int argc, char **argv)
 		if((e = td_thr_get_info(&ts[i], &info)) != TD_OK)
 			sysfatal("td_thr_get_info: %s", terr(e));
 		print("%d: startfunc=%lux stkbase=%lux pc=%lux sp=%lux lid=%d\n",
-			i, info.ti_startfunc, info.ti_stkbase, info.ti_pc, info.ti_sp, info.ti_lid);	
+			i, info.ti_startfunc, info.ti_stkbase, info.ti_pc, info.ti_sp, info.ti_lid);
 		if((e = td_thr_getgregs(&ts[i], regs)) != TD_OK)
 			sysfatal("td_thr_getregs: %s", terr(e));
 		print("%d: pc=%lux sp=%lux gs=%lux\n", i, regs[12], regs[15], regs[10]);
@@ -233,7 +233,7 @@ td_get_allthreads(td_thragent_t *ta, td_thrhandle_t **pall)
 	a.a = nil;
 	a.n = 0;
 	a.err = 0;
-	if((e = td_ta_thr_iter(ta, thritercb, &a, 
+	if((e = td_ta_thr_iter(ta, thritercb, &a,
 		TD_THR_ANY_STATE,
 		TD_THR_LOWEST_PRIORITY,
 		TD_SIGNO_MASK,
@@ -251,7 +251,7 @@ td_get_allthreads(td_thragent_t *ta, td_thrhandle_t **pall)
 	return a.n;
 }
 
-/* 
+/*
 td_err_e td_ta_map_id2thr(const td_thragent_t *ta_p, thread_t tid,td_thrhandle_t *th_p);
 */
 

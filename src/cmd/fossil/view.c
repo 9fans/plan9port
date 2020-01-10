@@ -298,7 +298,7 @@ copyMetaBlock(MetaBlock mb)
 }
 
 /*
- * visualizer 
+ * visualizer
  */
 
 #pragma	varargck	argpos	stringnode	1
@@ -555,7 +555,7 @@ initxentryblock(Block *b, Entry *ed)
 }
 
 typedef struct Xentry Xentry;
-struct Xentry 
+struct Xentry
 {
 	Tnode t;
 	Entry e;
@@ -813,7 +813,7 @@ parseScore(uchar *score, char *buf, int n)
 
 		if((i & 1) == 0)
 			c <<= 4;
-	
+
 		score[i>>1] |= c;
 	}
 	return 1;
@@ -912,7 +912,7 @@ drawnub(Image *m, Image *clipr, Point o, Tnode *t)
 	o.y += (display->defaultfont->height-Nubheight)/2;
 	draw(m, rectaddpt(Rect(0,0,1,Nubheight), o), display->black, clipr, ZP);
 	draw(m, rectaddpt(Rect(0,0,Nubwidth,1), o), display->black, clipr, o);
-	draw(m, rectaddpt(Rect(Nubwidth-1,0,Nubwidth,Nubheight), o), 
+	draw(m, rectaddpt(Rect(Nubwidth-1,0,Nubwidth,Nubheight), o),
 		display->black, clipr, addpt(o, Pt(Nubwidth-1, 0)));
 	draw(m, rectaddpt(Rect(0, Nubheight-1, Nubwidth, Nubheight), o),
 		display->black, clipr, addpt(o, Pt(0, Nubheight-1)));

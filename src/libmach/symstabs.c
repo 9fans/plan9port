@@ -112,7 +112,7 @@ stabcvtsym(StabSym *stab, Symbol *sym, char *dir, char *file, int i)
 		}
 		break;
 	}
-	return 0;	
+	return 0;
 }
 
 static int
@@ -209,15 +209,15 @@ stabssyminit(Fhdr *fp)
 				if(fun->u.stabs.frameptr == -1){
 					/*
 					 * Try to distinguish functions with a real frame pointer
-				 	 * from functions with a virtual frame pointer, based on 
+				 	 * from functions with a virtual frame pointer, based on
 					 * whether the first parameter is in the right location and
-					 * whether the autos have negative offsets.  
-					 * 
+					 * whether the autos have negative offsets.
+					 *
 					 * This heuristic works most of the time.  On the 386, we
 					 * cannot distinguish between a v. function with no autos
 					 * but a frame of size 4 and a f.p. function with no autos and
 					 * no frame.   Anything else we'll get right.
-					 * 
+					 *
 					 * Another way to go about this would be to have
 					 * mach-specific functions to inspect the function
 					 * prologues when we're not sure.  What we have

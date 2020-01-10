@@ -42,4 +42,3 @@ myipaddr(uchar *ip, char *net)
 	freeipifc(ifc);
 	return -1;
 }
-

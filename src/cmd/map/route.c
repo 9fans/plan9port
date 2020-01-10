@@ -117,7 +117,7 @@ doroute(double dir, double an, double aw, double bn, double bw)
 		dlat = fabs(an-bn);
 		printf("-o %.4f %.4f %.4f -w %.2f %.2f %.2f %.2f \n",
 		  pn,pw,theta, -0.3*cw1, .3*cw1, -.6*cw1, .6*cw1);
-		
+
 	} else {
 		cn1 = 0;
 		n = 1 + fabs(bw1-aw1)/.2;

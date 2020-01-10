@@ -11,9 +11,9 @@ int debug;
 enum{  IDATSIZE=1000000,
 	/* filtering algorithms, supposedly increase compression */
 	FilterNone =	0,	/* new[x][y] = buf[x][y] */
-	FilterSub	=	1,	/* new[x][y] = buf[x][y] + new[x-1][y] */ 
-	FilterUp	=	2,	/* new[x][y] = buf[x][y] + new[x][y-1] */ 
-	FilterAvg	=	3,	/* new[x][y] = buf[x][y] + (new[x-1][y]+new[x][y-1])/2 */ 
+	FilterSub	=	1,	/* new[x][y] = buf[x][y] + new[x-1][y] */
+	FilterUp	=	2,	/* new[x][y] = buf[x][y] + new[x][y-1] */
+	FilterAvg	=	3,	/* new[x][y] = buf[x][y] + (new[x-1][y]+new[x][y-1])/2 */
 	FilterPaeth=	4,	/* new[x][y] = buf[x][y] + paeth(new[x-1][y],new[x][y-1],new[x-1][y-1]) */
 	FilterLast	=	5,
 	PropertyBit =	1<<5
@@ -141,11 +141,11 @@ refill_buffer:
 	return *z->b++;
 }
 
-static uchar 
+static uchar
 paeth(uchar a, uchar b, uchar c)
 {
 	int p, pa, pb, pc;
-	
+
 	p = (int)a + (int)b - (int)c;
 	pa = abs(p - (int)a);
 	pb = abs(p - (int)b);
@@ -218,7 +218,7 @@ convertpix(ZlibW *z, uchar *pixel, uchar *r, uchar *g, uchar *b)
 		break;
 	default:
 		sysfatal("bad number of channels: %d", z->nchan);
-	} 
+	}
 }
 
 static void
@@ -234,7 +234,7 @@ scan(ZlibW *z)
 
 	unfilter(p[0], p+1, z->pscan+1, z->scanl-1, (nch*z->bpp+7)/8);
 /*
- *	Adam7 interlace order. 
+ *	Adam7 interlace order.
  *	1 6 4 6 2 6 4 6
  *	7 7 7 7 7 7 7 7
  *	5 6 5 6 5 6 5 6

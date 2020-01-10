@@ -29,7 +29,7 @@ void size(int p1, int p2)
 {
 		/* old size in p1, new in ps */
 	yyval = p2;
-	dprintf(".\tS%d <- \\s%d %d \\s%d; b=%g, h=%g\n", 
+	dprintf(".\tS%d <- \\s%d %d \\s%d; b=%g, h=%g\n",
 		(int)yyval, ps, p2, p1, ebase[yyval], eht[yyval]);
 	if (szstack[nszstack] != 0) {
 		printf(".ds %d %s\\*(%d\\s\\n(%d\n", (int)yyval, ABSPS(ps), p2, 99-nszstack);

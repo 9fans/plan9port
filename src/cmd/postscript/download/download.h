@@ -11,4 +11,3 @@ typedef struct map {
 } Map;
 
 Map	*allocate();
-

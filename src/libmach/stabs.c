@@ -51,4 +51,3 @@ stabsym(Stab *stabs, int i, StabSym *sym)
 	sym->value = stabs->e4(p+8);
 	return 0;
 }
-

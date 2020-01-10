@@ -43,4 +43,3 @@ _xmovewindow(Rectangle r)
 	XConfigureWindow(_x.display, _x.drawable, value_mask, &e);
 	XFlush(_x.display);
 }
-

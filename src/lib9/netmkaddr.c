@@ -25,7 +25,7 @@ netmkaddr(char *linear, char *defnet, char *defsrv)
 		}
 		/* allow host:service in deference to Unix convention */
 		if((cp = strchr(linear, ':')) != nil){
-			snprint(addr, sizeof(addr), "%s!%.*s!%s", 
+			snprint(addr, sizeof(addr), "%s!%.*s!%s",
 				defnet, utfnlen(linear, cp-linear),
 				linear, cp+1);
 			return addr;

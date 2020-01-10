@@ -47,4 +47,3 @@ symmacho(Fhdr *fp)
 	}
 	return ret;
 }
-

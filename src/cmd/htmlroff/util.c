@@ -4,7 +4,7 @@ void*
 emalloc(uint n)
 {
 	void *v;
-	
+
 	v = mallocz(n, 1);
 	if(v == nil)
 		sysfatal("out of memory");
@@ -15,7 +15,7 @@ char*
 estrdup(char *s)
 {
 	char *t;
-	
+
 	t = strdup(s);
 	if(t == nil)
 		sysfatal("out of memory");
@@ -38,7 +38,7 @@ void*
 erealloc(void *ov, uint n)
 {
 	void *v;
-	
+
 	v = realloc(ov, n);
 	if(v == nil)
 		sysfatal("out of memory");
@@ -50,7 +50,7 @@ erunesmprint(char *fmt, ...)
 {
 	Rune *s;
 	va_list arg;
-	
+
 	va_start(arg, fmt);
 	s = runevsmprint(fmt, arg);
 	va_end(arg);
@@ -64,7 +64,7 @@ esmprint(char *fmt, ...)
 {
 	char *s;
 	va_list arg;
-	
+
 	va_start(arg, fmt);
 	s = vsmprint(fmt, arg);
 	va_end(arg);
@@ -77,7 +77,7 @@ void
 warn(char *fmt, ...)
 {
 	va_list arg;
-	
+
 	fprint(2, "htmlroff: %L: ");
 	va_start(arg, fmt);
 	vfprint(2, fmt, arg);
@@ -120,4 +120,3 @@ L(char *s)
 	hash[h] = l;
 	return l->r;
 }
-

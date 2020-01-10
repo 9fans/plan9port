@@ -348,7 +348,7 @@ error(char *fmt, ...)
 		vfprint(2, fmt, arg);
 		va_end(arg);
 		fprint(2, "\n");
-	
+
 		if(delfile != nil){
 			fprint(2, "gunzip: removing output file %s\n", delfile);
 			remove(delfile);

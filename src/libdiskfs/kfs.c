@@ -8,4 +8,3 @@ fsysopenkfs(Disk *disk)
 	USED(disk);
 	return nil;
 }
-

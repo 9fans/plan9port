@@ -9,10 +9,10 @@ checkuse(void)
 	for (c = 0; c < ncol; c++) {
 		used[c] = lused[c] = rused[c] = 0;
 		for (i = 0; i < nlin; i++) {
-			if (instead[i] || fullbot[i]) 
+			if (instead[i] || fullbot[i])
 				continue;
 			k = ctype(i, c);
-			if (k == '-' || k == '=') 
+			if (k == '-' || k == '=')
 				continue;
 			if ((k == 'n' || k == 'a')) {
 				rused[c] |= real(table[i][c].rcol);
@@ -30,11 +30,11 @@ checkuse(void)
 int
 real(char *s)
 {
-	if (s == 0) 
+	if (s == 0)
 		return(0);
-	if (!point(s)) 
+	if (!point(s))
 		return(1);
-	if (*s == 0) 
+	if (*s == 0)
 		return(0);
 	return(1);
 }
@@ -97,5 +97,3 @@ release(void)
 	tpcount = -1;
 	exstore = 0;
 }
-
-

@@ -56,7 +56,7 @@ strtoullsuf(char *p, char **pp, int rad, u64int *u)
 	*u = v;
 	return 0;
 }
-	
+
 static int
 parsepart(char *name, char **file, char **subpart, u64int *lo, u64int *hi)
 {
@@ -221,11 +221,11 @@ partblocksize(Part *part, u32int blocksize)
  * Most Unix systems require that when accessing a block device directly,
  * the buffer, offset, and count are all multiples of the device block size,
  * making this a lot more complicated than it otherwise would be.
- * 
+ *
  * Most of our callers will make things easy on us, but for some callers it's best
  * if we just do the work here, with only one place to get it right (hopefully).
- * 
- * If everything is aligned properly, prwb will try to do big transfers in the main 
+ *
+ * If everything is aligned properly, prwb will try to do big transfers in the main
  * body of the loop: up to MaxIo bytes at a time.  If everything isn't aligned properly,
  * we work one block at a time.
  */
@@ -412,7 +412,7 @@ rwpart(Part *part, int isread, u64int offset, u8int *buf, u32int count)
 	int n, try;
 	u32int blocksize;
 
-	trace(TraceDisk, "%s %s %ud at 0x%llx", 
+	trace(TraceDisk, "%s %s %ud at 0x%llx",
 		isread ? "read" : "write", part->name, count, offset);
 	if(offset >= part->size || offset+count > part->size){
 		seterr(EStrange, "out of bounds %s offset 0x%llux count %ud to partition %s size 0x%llux",
@@ -491,7 +491,7 @@ readfile(char *name)
 
 /*
  * Search for the Plan 9 partition with the given name.
- * This lets you write things like /dev/ad4:arenas 
+ * This lets you write things like /dev/ad4:arenas
  * if you move a disk from a Plan 9 system to a FreeBSD system.
  *
  * God I hope I never write this code again.
@@ -566,7 +566,7 @@ findsubpart(Part *part, char *name)
 	/* See if this is a Plan 9 partition. */
 	if(tryplan9part(part, name) >= 0)
 		return 0;
-	
+
 	/* Otherwise try for an MBR and then narrow to Plan 9 partition. */
 	if(readpart(part, 0, buf, 512) != 512)
 		return -1;
@@ -587,8 +587,3 @@ findsubpart(Part *part, char *name)
 	}
 	return -1;
 }
-
-
-
-
-

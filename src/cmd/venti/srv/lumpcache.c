@@ -73,7 +73,7 @@ lookuplump(u8int *score, int type)
 
 	ms = 0;
 	trace(TraceLump, "lookuplump enter");
-	
+
 	h = hashbits(score, HashLog);
 
 	/*
@@ -426,4 +426,3 @@ checklumpcache(void)
 	if(lumpcache.nheap + nfree + refed != lumpcache.nblocks)
 		sysfatal("lc: missing blocks: %d %d %d %d", lumpcache.nheap, refed, nfree, lumpcache.nblocks);
 }
-

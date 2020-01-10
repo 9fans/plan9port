@@ -16,4 +16,3 @@ fsremove(CFsys *fs, char *name)
 		return -1;
 	return fsfremove(fid);
 }
-

@@ -60,7 +60,7 @@ _ndbparsetuple(char *cp, Ndbtuple **tp)
 }
 
 /*
- *  parse all tuples in a line.  we assume that the 
+ *  parse all tuples in a line.  we assume that the
  *  line ends in a '\n'.
  *
  *  the tuples are linked as a list using ->entry and

@@ -55,7 +55,7 @@ enum
 	Ot
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"ca",		Fv4ip,	Oca,	"client IP addr",	} ,
 	{"sa",		Fv4ip,	Osa,	"server IP addr",	} ,

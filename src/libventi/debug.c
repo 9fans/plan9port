@@ -14,4 +14,3 @@ vtdebug(VtConn *z, char *fmt, ...)
 	vfprint(2, fmt, arg);
 	va_end(arg);
 }
-

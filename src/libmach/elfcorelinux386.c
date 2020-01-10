@@ -12,8 +12,8 @@ typedef struct Status Status;
 typedef struct Psinfo Psinfo;
 
 /*
- * UregLinux386 is 64-bit aligned within status, so we shouldn't 
- * have any packing problems. 
+ * UregLinux386 is 64-bit aligned within status, so we shouldn't
+ * have any packing problems.
  */
 struct Status
 {
@@ -158,7 +158,7 @@ elfcorelinux386(Fhdr *fp, Elf *elf, ElfNote *note)
 			(uint)m->swap4(st->sighold));
 		dprint("pid=%ud ppid=%ud pgrp=%ud sid=%ud\n",
 			(uint)m->swap4(st->pid),
-			(uint)m->swap4(st->ppid),	
+			(uint)m->swap4(st->ppid),
 			(uint)m->swap4(st->pgrp),
 			(uint)m->swap4(st->sid));
 		dprint("utime=%ud.%06ud stime=%ud.%06ud cutime=%ud.%06ud cstime=%ud.%06ud\n",
@@ -199,4 +199,3 @@ elfcorelinux386(Fhdr *fp, Elf *elf, ElfNote *note)
 		dprint("note %d\n", note->type);
 	}
 }
-

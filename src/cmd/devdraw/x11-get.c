@@ -21,7 +21,7 @@ _xgetxdata(Memimage *m, Rectangle r)
 	uchar *p;
 	Point tp, xdelta, delta;
 	Xmem *xm;
-	
+
 	xm = m->X;
 	if(xm == nil)
 		return nil;
@@ -83,7 +83,7 @@ _xputxdata(Memimage *m, Rectangle r)
 
 	XPutImage(_x.display, xm->pixmap, gc, xi, xdelta.x, xdelta.y, delta.x, delta.y,
 		Dx(r), Dy(r));
-	
+
 	if(_x.usetable && m->chan==CMAP8){
 		for(y=r.min.y; y<r.max.y; y++)
 		for(x=r.min.x, p=byteaddr(m, Pt(x,y)); x<r.max.x; x++, p++)
@@ -103,6 +103,3 @@ _xdirtyxdata(Memimage *m, Rectangle r)
 	xm->dirty = 1;
 	addrect(&xm->dirtyr, r);
 }
-
-
-

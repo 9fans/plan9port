@@ -417,7 +417,7 @@ secureidcheck(char *user, char *response)
 			resp = nil;
 			continue;
 		}
-	
+
 		switch(resp->code){
 		case R_AccessAccept:
 			syslog(0, AUTHLOG, "%s accepted ruser=%s", dest, ruser);

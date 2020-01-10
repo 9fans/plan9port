@@ -13,7 +13,7 @@ static struct
 	uint mtype;
 	Mach *mach;
 	char *name;
-} mtab[] = 
+} mtab[] =
 {	/* Font Tab 4 */
 	ElfMachSparc,	MSPARC,		nil,		"sparc",
 	ElfMach386,		M386,		&mach386,	"386",
@@ -29,7 +29,7 @@ static struct
 	uint etype;
 	uint atype;
 	char *aname;
-} atab[] = 
+} atab[] =
 {	/* Font Tab 4 */
 	ElfAbiSystemV,	ALINUX,		"linux",	/* [sic] */
 	ElfAbiLinux,	ALINUX,		"linux",
@@ -41,7 +41,7 @@ static struct
 	uint mtype;
 	uint atype;
 	void (*elfcore)(Fhdr*, Elf*, ElfNote*);
-} ctab[] = 
+} ctab[] =
 {	/* Font Tab 4 */
 	M386,		ALINUX,		elfcorelinux386,
 	M386,		ANONE,		elfcorelinux386,	/* [sic] */
@@ -273,13 +273,13 @@ mapelf(Fhdr *fp, u64int base, Map *map, Regs **regs)
 				if(addseg(map, s) < 0)
 					return -1;
 			}
-		}			
+		}
 	}
 
 	if(fp->nthread && regs)
 		*regs = coreregs(fp, fp->thread[0].id);
 
-	return 0;	
+	return 0;
 }
 
 static int
@@ -301,4 +301,3 @@ unpacknote(Elf *elf, uchar *a, uchar *ea, ElfNote *note, uchar **pa)
 	*pa = a;
 	return 0;
 }
-

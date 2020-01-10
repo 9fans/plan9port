@@ -721,7 +721,7 @@ ctype(Message *m, Header *h, char *p)
 	p = skipwhite(p);
 
 	p = getstring(p, m->type, 1);
-	
+
 	while(*p){
 		if(isattribute(&p, "boundary")){
 			s = s_new();
@@ -741,7 +741,7 @@ ctype(Message *m, Header *h, char *p)
 		} else if(isattribute(&p, "charset")){
 			p = getstring(p, s_reset(m->charset), 0);
 		}
-		
+
 		p = skiptosemi(p);
 	}
 }
@@ -1598,4 +1598,3 @@ date822tounix(char *s)
 		*q = '\0';
 	return s_copy(p);
 }
-

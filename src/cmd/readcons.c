@@ -13,7 +13,7 @@ main(int argc, char **argv)
 {
 	char *def, *p;
 	int secret;
-	
+
 	def = nil;
 	secret = 0;
 	ARGBEGIN{
@@ -26,7 +26,7 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 1)
 		usage();
 
@@ -36,4 +36,3 @@ main(int argc, char **argv)
 	print("%s\n", p);
 	exits(0);
 }
-

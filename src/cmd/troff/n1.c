@@ -148,7 +148,7 @@ main(int argc, char *argv[])
 			save_tty();
 			break;
 		case 'V':
-			fprintf(stdout, "%croff: DWB %s\n", 
+			fprintf(stdout, "%croff: DWB %s\n",
 					TROFF ? 't' : 'n', DWBVERSION);
 			exit(0);
 		case 't':
@@ -436,12 +436,12 @@ g0:
 			return(k);
 		}
 		if (k == FLSS) {
-			copyf++; 
+			copyf++;
 			raw++;
 			i = getch0();
 			if (!fi)
 				flss = i;
-			copyf--; 
+			copyf--;
 			raw--;
 			goto g0;
 		}
@@ -456,8 +456,8 @@ g0:
 			}
 			if (k == fc || k == tabch || k == ldrch) {
 				if ((i = setfield(k)) == 0)
-					goto g0; 
-				else 
+					goto g0;
+				else
 					return(i);
 			}
 			if (k == '\b') {

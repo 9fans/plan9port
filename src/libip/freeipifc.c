@@ -17,4 +17,3 @@ freeipifc(Ipifc *i)
 		free(i);
 	}
 }
-

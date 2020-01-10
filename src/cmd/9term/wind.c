@@ -101,7 +101,7 @@ wsetname(Window *w)
 {
 	int i, n;
 	char err[ERRMAX];
-	
+
 	n = sprint(w->name, "window.%d.%d", w->id, w->namecount++);
 	for(i='A'; i<='Z'; i++){
 		if(nameimage(w->i, w->name, 1) > 0)
@@ -224,7 +224,7 @@ winctl(void *arg)
 	crm.c2 = chancreate(sizeof(Stringpair), 0);
 	cwrm.c1 = chancreate(sizeof(Stringpair), 0);
 	cwrm.c2 = chancreate(sizeof(Stringpair), 0);
-	
+
 
 	alts[WKey].c = w->ck;
 	alts[WKey].v = &kbdr;
@@ -803,7 +803,7 @@ wbswidth(Window *w, Rune c)
 		if(r == '\n'){		/* eat at most one more character */
 			if(q == w->q0 && c != '\r')	/* eat the newline */
 				--q;
-			break; 
+			break;
 		}
 		if(c == 0x17){
 			eq = isalnum(r);
@@ -1382,15 +1382,15 @@ wsetpid(Window *w, int pid, int dolabel)
 	}
 }
 
-static Rune left1[] =  { 
+static Rune left1[] =  {
 	'{', '[', '(', '<', 0xAB,
-	0x207d, 0x2329, 0x27e6, 0x27e8, 0x27ea, 
-	0xfe59, 0xfe5b, 0xfe5d, 0xff08, 0xff3b, 0xff5b, 
+	0x207d, 0x2329, 0x27e6, 0x27e8, 0x27ea,
+	0xfe59, 0xfe5b, 0xfe5d, 0xff08, 0xff3b, 0xff5b,
 	0
 };
 static Rune right1[] = {
 	'}', ']', ')', '>', 0xBB,
-	0x207e, 0x232a, 0x27e7, 0x27e9, 0x27eb, 
+	0x207e, 0x232a, 0x27e7, 0x27e9, 0x27eb,
 	0xfe5a, 0xfe5c, 0xfe5e, 0xff09, 0xff3d, 0xff5d,
 	0
 };

@@ -122,6 +122,6 @@ threadmain(int argc, char *argv[])
 	initdcache(bcmem);
 
 	clumpstats(mainindex);
-	
+
 	threadexitsall(0);
 }

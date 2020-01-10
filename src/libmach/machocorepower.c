@@ -170,4 +170,3 @@ coreregsmachopower(Macho *m, uchar **up)
 	*up = (uchar*)u;
 	return sizeof(*u);
 }
-

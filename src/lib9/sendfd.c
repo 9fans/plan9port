@@ -31,7 +31,7 @@ sendfd(int s, int fd)
 	struct cmsghdr *cmsg;
 	int n;
 	char cms[CMSG_SPACE(sizeof(int))];
-	
+
 	buf[0] = 0;
 	iov.iov_base = buf;
 	iov.iov_len = 1;

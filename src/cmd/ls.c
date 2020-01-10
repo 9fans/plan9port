@@ -249,7 +249,7 @@ growto(long n)
 	if(dirbuf == 0){
 		fprint(2, "ls: malloc fail\n");
 		exits("malloc fail");
-	}		
+	}
 }
 
 int
@@ -305,4 +305,3 @@ asciitime(long l)
 	buf[12] = 0;
 	return buf;
 }
-

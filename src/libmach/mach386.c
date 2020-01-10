@@ -128,10 +128,10 @@ Mach mach386 =
 };
 
 /*
- * The wrapper code around Linux system calls 
+ * The wrapper code around Linux system calls
  * saves AX on the stack before calling some calls
- * (at least, __libc_nanosleep), when running in 
- * threaded programs. 
+ * (at least, __libc_nanosleep), when running in
+ * threaded programs.
  */
 static void
 syscallhack(Map *map, Regs *regs, int *spoff)
@@ -146,7 +146,7 @@ syscallhack(Map *map, Regs *regs, int *spoff)
 		return;
 	if(i386das(map, pc+2, 0, buf, sizeof buf) != 3 || strcmp(buf, "XCHGL\tAX,0(SP)") != 0)
 		return;
-	*spoff += 4;	
+	*spoff += 4;
 }
 
 int
@@ -1968,14 +1968,14 @@ plocal(Instr *ip)
 	Symbol s;
 	char *name;
 	Loc l, li;
-	
+
 	l.type = LOFFSET;
 	l.offset = ip->disp;
 	if(ip->base == SP)
 		l.reg = "SP";
 	else
 		l.reg = "BP";
-	
+
 	li.type = LADDR;
 	li.addr = ip->addr;
 	if(findsym(li, CTEXT, &s) < 0)
@@ -1989,7 +1989,7 @@ plocal(Instr *ip)
 
 	if(name==nil && findlsym(&s, l, &s) >= 0)
 		name = s.name;
-	
+
 	if(name)
 		bprint(ip, "%s+", name);
 

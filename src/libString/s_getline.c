@@ -9,7 +9,7 @@
  * Leading whitespace and newlines are removed.
  *
  * Empty lines and lines starting with '#' are ignored.
- */ 
+ */
 extern char *
 s_getline(Biobuf *fp, String *to)
 {

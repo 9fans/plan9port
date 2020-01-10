@@ -1,6 +1,6 @@
 /*
  * RFC822 message tokenizer (really feature generator) for spam filter.
- * 
+ *
  * See Paul Graham's musings on spam filtering for theory.
  */
 
@@ -138,7 +138,7 @@ fprint(2, "«%s» %.2ux", p, p[0]);
 					p[i] += 'a' - 'A';
 */
 			if(tag){
-				i = strlen(tag);	
+				i = strlen(tag);
 				memmove(buf, tag, i);
 				memmove(buf+i, p, m[1]);
 				buf[i+m[1]] = 0;
@@ -242,5 +242,4 @@ trim(char *s)
 		return 0;
 	}
 	return -1;
-}		
-
+}

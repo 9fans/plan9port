@@ -110,7 +110,7 @@ main(int argc, char *argv[])
 			exits("open");
 		}
 		Binit(&bin, fd, OREAD);
-	} else 
+	} else
 		Binit(&bin, 0, OREAD);
 
 	*body = 0;

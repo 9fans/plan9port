@@ -20,7 +20,7 @@ threadmain(int argc, char *argv[])
 
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
-	
+
 	ARGBEGIN{
 	case 'h':
 		host = EARGF(usage());

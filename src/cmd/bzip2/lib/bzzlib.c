@@ -28,16 +28,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must 
-     not claim that you wrote the original software.  If you use this 
-     software in a product, an acknowledgment in the product 
+  2. The origin of this software must not be misrepresented; you must
+     not claim that you wrote the original software.  If you use this
+     software in a product, an acknowledgment in the product
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote 
-     products derived from this software without specific prior written 
+  4. The name of the author may not be used to endorse or promote
+     products derived from this software without specific prior written
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -128,7 +128,7 @@ BZFILE * bzopen_or_bzdopen
    int    verbosity     = 0;
    int    workFactor    = 30;
    int    smallMode     = 0;
-   int    nUnused       = 0; 
+   int    nUnused       = 0;
 
    if (mode == NULL) return NULL;
    while (*mode) {
@@ -168,7 +168,7 @@ BZFILE * bzopen_or_bzdopen
    if (writing) {
       /* Guard against total chaos and anarchy -- JRS */
       if (blockSize100k < 1) blockSize100k = 1;
-      if (blockSize100k > 9) blockSize100k = 9; 
+      if (blockSize100k > 9) blockSize100k = 9;
       bzfp = BZ2_bzWriteOpen(&bzerr,fp,blockSize100k,
                              verbosity,workFactor);
    } else {
@@ -247,7 +247,7 @@ void BZ_API(BZ2_bzclose) (BZFILE* b)
 {
    int bzerr;
    FILE *fp = ((bzFile *)b)->handle;
-   
+
    if (b==NULL) {return;}
    if(((bzFile*)b)->writing){
       BZ2_bzWriteClose(&bzerr,b,0,NULL,NULL);
@@ -265,7 +265,7 @@ void BZ_API(BZ2_bzclose) (BZFILE* b)
 
 /*---------------------------------------------------*/
 /*--
-   return last error code 
+   return last error code
 --*/
 static char *bzerrorstrings[] = {
        "OK"

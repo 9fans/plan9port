@@ -79,7 +79,7 @@ top:
 			name, unit, tref);
 		return 0;
 	}
-	
+
 	if(ds.attrs.have.bytesize)
 		return ds.attrs.bytesize;
 
@@ -230,7 +230,7 @@ dwarftosym(Fhdr *fp, Dwarf *d, DwarfSym *ds, Symbol *s, int infn)
 {
 	DwarfBuf buf;
 	DwarfBlock b;
-	
+
 	memset(s, 0, sizeof *s);
 	s->u.dwarf.uoff = ds->uoff;
 	s->u.dwarf.unit = ds->unit;
@@ -356,7 +356,7 @@ dwarfeval(Dwarf *d, Map *map, Regs *regs, ulong cfa, int rno, DwarfExpr e, u64in
 		if(rget(regs, regname(d, e.reg), &uu) < 0)
 			return -1;
 		if(get4(map, uu+e.offset, &u4) < 0)
-			return -1;	
+			return -1;
 		*u = u4;
 		return 0;
 	case RuleLocation:
@@ -465,4 +465,3 @@ err:
 	free(e);
 	return -1;
 }
-

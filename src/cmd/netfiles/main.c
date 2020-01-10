@@ -1,7 +1,7 @@
 /*
  * Remote file system editing client.
  * Only talks to acme - external programs do all the hard work.
- * 
+ *
  * If you add a plumbing rule:
 
 # /n/ paths go to simulator in acme
@@ -80,7 +80,7 @@ Arg*
 arg(char *file, char *addr, Channel *c)
 {
 	Arg *a;
-		
+
 	a = emalloc(sizeof *a);
 	a->file = estrdup(file);
 	a->addr = estrdup(addr);
@@ -92,7 +92,7 @@ Win*
 winbyid(int id)
 {
 	Win *w;
-	
+
 	for(w=windows; w; w=w->next)
 		if(w->id == id)
 			return w;
@@ -139,7 +139,7 @@ int
 lookup(char *s, char **list)
 {
 	int i;
-	
+
 	for(i=0; list[i]; i++)
 		if(strcmp(list[i], s) == 0)
 			return i;
@@ -174,7 +174,7 @@ char*
 expandarg(Win *w, Event *e)
 {
 	uint q0, q1;
-	
+
 	if(e->c2 == 'l')	/* in tag - no choice but to accept acme's expansion */
 		return estrdup(e->text);
 	winaddr(w, ",");
@@ -187,7 +187,7 @@ expandarg(Win *w, Event *e)
 	if(e->oq0 == e->oq1 && e->q0 != e->q1 && !isdot(w, e->q0, e->q1)){
 		winaddr(w, "#%ud+#1-/[^ \t\\n]*/,#%ud-#1+/[^ \t\\n]*/", e->q0, e->q1);
 		q0 = winreadaddr(w, &q1);
-		cprint("\tre-expand to %d-%d\n", q0, q1);	
+		cprint("\tre-expand to %d-%d\n", q0, q1);
 	}else
 		winaddr(w, "#%ud,#%ud", e->q0, e->q1);
 	return winmread(w, "xdata");
@@ -202,7 +202,7 @@ doplumb(void *vm)
 	char *addr;
 	Plumbmsg *m;
 	Win *w;
-	
+
 	m = vm;
 	if(m->ndata >= 1024){
 		fprint(2, "insanely long file name (%d bytes) in plumb message (%.32s...)\n",
@@ -210,7 +210,7 @@ doplumb(void *vm)
 		plumbfree(m);
 		return;
 	}
-	
+
 	addr = plumblookup(m->attr, "addr");
 	w = nametowin(m->data);
 	if(w == nil)
@@ -230,7 +230,7 @@ plumbthread(void *v)
 {
 	CFid *fid;
 	Plumbmsg *m;
-	
+
 	threadsetname("plumbthread");
 	fid = plumbopenfid("netfileedit", OREAD);
 	if(fid == nil){
@@ -249,7 +249,7 @@ int
 parsename(char *name, char **server, char **path)
 {
 	char *p, *nul;
-	
+
 	cleanname(name);
 	if(strncmp(name, "/n/", 3) != 0 && name[3] == 0)
 		return -1;
@@ -326,9 +326,9 @@ filethread(void *v)
 	winname(w, a->file);
 	winprint(w, "tag", "Get Put Look ");
 	c = wineventchan(w);
-	
+
 	goto caseGet;
-	
+
 	while((e=recvp(c)) != nil){
 		if(e->c1!='K')
 			dprint("acme %E\n", e);
@@ -352,7 +352,7 @@ filethread(void *v)
 					winaddr(w, ",");
 					winprint(w, "data", "[reading...]");
 					winaddr(w, ",");
-					cprint("9 netfileget %s%q %q\n", 
+					cprint("9 netfileget %s%q %q\n",
 						strcmp(type, "file") == 0 ? "" : "-d", server, path);
 					if(strcmp(type, "file")==0)
 						twait(pipetowin(w, "data", 2, "9 netfileget %q %q", server, path));
@@ -508,7 +508,7 @@ mkwin(char *name)
 	Arg *a;
 	Channel *c;
 	Win *w;
-	
+
 	c = chancreate(sizeof(void*), 0);
 	a = arg(name, nil, c);
 	threadcreate(filethread, a, STACK);
@@ -521,12 +521,12 @@ void
 loopthread(void *v)
 {
 	QLock lk;
-	
+
 	threadsetname("loopthread");
 	qlock(&lk);
 	qlock(&lk);
 }
-	
+
 void
 threadmain(int argc, char **argv)
 {
@@ -540,7 +540,7 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc)
 		usage();
 
@@ -551,10 +551,9 @@ threadmain(int argc, char **argv)
 	fmtinstall('E', eventfmt);
 	doquote = needsrcquote;
 	quotefmtinstall();
-	
+
 	twaitinit();
 	threadcreate(plumbthread, nil, STACK);
 	threadcreate(loopthread, nil, STACK);
 	threadexits(nil);
 }
-

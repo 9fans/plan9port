@@ -20,9 +20,9 @@ allocsubfont(char *name, int n, int height, int ascent, Fontchar *info, Image *i
 	f->ref = 1;
 	if(name){
 		/*
-		 * if already caching this subfont, leave older 
+		 * if already caching this subfont, leave older
 		 * (and hopefully more widely used) copy in cache.
-		 * this case should not happen -- we got called 
+		 * this case should not happen -- we got called
 		 * because cachechars needed this subfont and it
 		 * wasn't in the cache.
 		 */

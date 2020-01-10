@@ -83,24 +83,24 @@ step(State *s)
 	while(s->x < s->a) {
 		if(s->ee+s->b2x <= s->c1 ||	/* e(x+1,y-1/2) <= 0 */
 		   s->ee+s->a2y <= s->c2) {	/* e(x+1/2,y) <= 0 (rare) */
-			s->dxe += s->d2xe;	  
-			s->ee += s->dxe;	  
+			s->dxe += s->d2xe;
+			s->ee += s->dxe;
 			s->b2x += s->b2;
-			s->x++;	  
+			s->x++;
 			continue;
 		}
-		s->dye += s->d2ye;	  
-		s->ee += s->dye;	  
+		s->dye += s->d2ye;
+		s->ee += s->dye;
 		s->a2y -= s->a2;
 		if(s->ee-s->a2y <= s->c2) {	/* e(x+1/2,y-1) <= 0 */
-			s->dxe += s->d2xe;	  
-			s->ee += s->dxe;	  
+			s->dxe += s->d2xe;
+			s->ee += s->dxe;
 			s->b2x += s->b2;
 			return s->x++;
 		}
 		break;
 	}
-	return s->x;	  
+	return s->x;
 }
 
 void
@@ -132,7 +132,7 @@ memellipse(Memimage *dst, Point c, int a, int b, int t, Memimage *src, Point sp,
 	if(t < 0) {
 		inb = -1;
 		newstate(&out, a, y = b);
-	} else {	
+	} else {
 		inb = b - t;
 		newstate(&out, a+t, y = b+t);
 	}
@@ -229,7 +229,7 @@ epoint(int x, int y, Param *p)
 	memdraw(p->dst, r, p->src, addpt(p->sp, r.min), p->disc, p->disc->r.min, p->op);
 }
 
-/* 
+/*
  * a brushed horizontal or vertical line similarly specified
  */
 static

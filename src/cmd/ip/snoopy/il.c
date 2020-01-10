@@ -29,7 +29,7 @@ enum
 	Osd
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"s",		Fnum,	Os,	"source port",	} ,
 	{"d",		Fnum,	Od,	"dest port",	} ,
@@ -88,9 +88,9 @@ p_filter(Filter *f, Msg *m)
 	return 0;
 }
 
-char *pktnames[] = 
+char *pktnames[] =
 {
-	"Sync",	
+	"Sync",
 	"Data",
 	"Dataquery",
 	"Ack",
@@ -103,7 +103,7 @@ static char*
 pkttype(int t)
 {
 	static char b[10];
-	
+
 	if(t > 6){
 		sprint(b, "%d", t);
 		return b;

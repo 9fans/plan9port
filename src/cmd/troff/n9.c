@@ -4,7 +4,7 @@
 
 /*
  * troff9.c
- * 
+ *
  * misc functions
  */
 
@@ -115,7 +115,7 @@ void setov(void)
 				}
 			}
 		}
-	else 
+	else
 		return;
 	*pbp++ = makem(w[0] / 2);
 	for (k = 0; o[k]; k++)
@@ -187,7 +187,7 @@ void setvline(void)
 	}
 	if ((cbits(c = getch())) == delim) {
 		c = BOXRULE | chbits;	/*default box rule*/
-	} else 
+	} else
 		getch();
 	c |= ZBIT;
 	neg = 0;
@@ -342,9 +342,9 @@ Tchar setfield(int x)
 	static Tchar wbuf[] = { WORDSP, 0};
 
 	rchar = 0;
-	if (x == tabch) 
+	if (x == tabch)
 		rchar = tabc | chbits;
-	else if (x ==  ldrch) 
+	else if (x ==  ldrch)
 		rchar = dotc | chbits;
 	temp = npad = ws = 0;
 	savfc = fc;
@@ -381,7 +381,7 @@ Tchar setfield(int x)
 				if (pp > padptr + NPP - 1)
 					break;
 				goto s1;
-			} else if (j == savfc) 
+			} else if (j == savfc)
 				break;
 			else if (j == '\n') {
 				temp = j;
@@ -435,7 +435,7 @@ s1:
 		}
 		if (length)
 			jj = length | MOT;
-		else 
+		else
 			jj = getch0();
 		if (savepos > 0)
 			pushback(wbuf);
@@ -448,14 +448,14 @@ s1:
 			numtabp[HP].val += jj;
 			widthp = jj;
 			*fp++ = ii;
-			if (fp > fbuf + FBUFSZ - 3) 
+			if (fp > fbuf + FBUFSZ - 3)
 				break;
 		}
 		*fp++ = ii;
 		*fp = 0;
 		if (type == RTAB)
 			length -= ws;
-		else 
+		else
 			length -= ws / 2; /*CTAB*/
 		pushback(fbuf);
 		if ((j = width(rchar)) != 0 && length > 0) {

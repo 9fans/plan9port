@@ -171,7 +171,7 @@ mxlookup(DS *ds, char *domain)
 {
 	int i, n, nmx;
 	Ndbtuple *t, *tmx, *tpref, *tip;
-	
+
 	strcpy(domain, ds->host);
 	ds->netdir = "/net";
 	nmx = 0;
@@ -184,7 +184,7 @@ mxlookup(DS *ds, char *domain)
 					nmx++;
 					break;
 				}
-			}	
+			}
 		}
 		ndbfree(t);
 	}
@@ -216,14 +216,14 @@ mxlookup(DS *ds, char *domain)
 		strncpy(mx[i].ip, tip->val, sizeof(mx[i].ip)-1);
 		ndbfree(t);
 		continue;
-	
+
 	no:
 		/* remove mx[i] and go around again */
 		nmx--;
 		mx[i] = mx[nmx];
 		i--;
 	}
-	return nmx;		
+	return nmx;
 }
 
 static int

@@ -1,6 +1,6 @@
 /*
  * Dwarf pc to source line conversion.
- * 
+ *
  * Maybe should do the reverse here, but what should the interface look like?
  * One possibility is to use the Plan 9 line2addr interface:
  *

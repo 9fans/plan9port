@@ -337,4 +337,3 @@ getwidth(void)
 	}else
 		linewidth = ws.ws_col;
 }
-

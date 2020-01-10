@@ -23,7 +23,7 @@ int
 main(int argc, char *argv[])
 {
 	int i;
-	
+
 	sys = sysname();
 	if(strncmp(sys, "amsterdam", 9) == 0)	/* BUG */
 		sys = "am";

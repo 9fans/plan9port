@@ -67,13 +67,13 @@ threadmain(int argc, char **argv)
 		break;
 	}ARGEND
 
-	quotefmtinstall();	
+	quotefmtinstall();
 	fmtinstall('$', sxfmt);
 
 	if(argc != 1)
 		usage();
 	server = argv[0];
-	
+
 	mailthreadinit();
 	boxinit();
 	fsinit0();
@@ -82,4 +82,3 @@ threadmain(int argc, char **argv)
 		sysfatal("imapconnect: %r");
 	threadpostmountsrv(&fs, srvname, mtpt, 0);
 }
-

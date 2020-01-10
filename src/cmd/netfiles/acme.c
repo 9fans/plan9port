@@ -153,7 +153,7 @@ int
 winopenfd(Win *w, char *name, int mode)
 {
 	char buf[100];
-	
+
 	snprint(buf, sizeof buf, "%d/%s", w->id, name);
 	return fsopenfd(acmefs, buf, mode);
 }
@@ -230,7 +230,7 @@ winreadaddr(Win *w, uint *q1)
 	char buf[40], *p;
 	uint q0;
 	int n;
-	
+
 	n = fspread(wfid(w, "addr"), buf, sizeof buf-1, 0);
 	if(n <= 0)
 		return -1;
@@ -258,7 +258,7 @@ fsreadm(CFid *fid)
 {
 	char *buf;
 	int n, tot, m;
-	
+
 	m = 128;
 	buf = emalloc(m+1);
 	tot = 0;
@@ -288,7 +288,7 @@ winindex(void)
 {
 	CFid *fid;
 	char *s;
-	
+
 	mountacme();
 	if((fid = fsopen(acmefs, "index", OREAD)) == nil)
 		return nil;
@@ -595,7 +595,7 @@ eventreader(void *v)
 	Event e[2];
 	Win *w;
 	int i;
-	
+
 	w = v;
 	i = 0;
 	for(;;){
@@ -623,7 +623,7 @@ wingetname(Win *w)
 {
 	int n;
 	char *p;
-	
+
 	n = winread(w, "tag", w->name, sizeof w->name-1);
 	if(n <= 0)
 		return nil;
@@ -633,4 +633,3 @@ wingetname(Win *w)
 		*p = 0;
 	return w->name;
 }
-

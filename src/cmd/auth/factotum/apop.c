@@ -10,7 +10,7 @@
  *	S -> C:	ok
  *
  * Note that this is the protocol between factotum and the local
- * program, not between the two factotums.  The information 
+ * program, not between the two factotums.  The information
  * exchanged here is wrapped in the APOP protocol by the local
  * programs.
  *
@@ -42,7 +42,7 @@ apopclient(Conv *c)
 	Attr *attr;
 	DigestState *ds;
 	Key *k;
-	
+
 	chal = nil;
 	k = nil;
 	res = nil;
@@ -328,7 +328,7 @@ apopresp(ServerState *s, char *user, char *resp)
 }
 
 static Role
-apoproles[] = 
+apoproles[] =
 {
 	"client",	apopclient,
 	"server",	apopserver,
@@ -350,4 +350,3 @@ Proto cram = {
 	apopcheck,
 	nil
 };
-

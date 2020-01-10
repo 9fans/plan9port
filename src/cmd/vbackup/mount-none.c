@@ -9,4 +9,3 @@ mountnfs(int proto, struct sockaddr_in *addr, uchar *handle, int hlen, char *mtp
 {
 	sysfatal("mountnfs not implemented");
 }
-

@@ -15,7 +15,7 @@ disksched(void)
 	ulong t;
 	vlong cflush;
 	Stats *prev;
-	
+
 	/*
 	 * no locks because all the data accesses are atomic.
 	 */
@@ -40,22 +40,22 @@ disksched(void)
 
 			/* # entries written to index cache */
 			nwrite = stats.n[StatIcacheWrite] - prev->n[StatIcacheWrite];
-			
+
 			/* # dirty entries in index cache */
 			ndirty = stats.n[StatIcacheDirty] - prev->n[StatIcacheDirty];
-			
+
 			/* # entries flushed to disk */
 			nflush = nwrite - ndirty;
-			
+
 			/* want to stay around 70% dirty */
 			tdirty = (vlong)stats.n[StatIcacheSize]*700/1000;
-			
+
 			/* assume nflush*icachesleeptime is a constant */
 			cflush = (vlong)nflush*(icachesleeptime+1);
-			
+
 			/* computer number entries to write in next minute */
 			toflush = nwrite + (stats.n[StatIcacheDirty] - tdirty);
-			
+
 			/* schedule for  that many */
 			if(toflush <= 0 || cflush/toflush > 100000)
 				icachesleeptime = SleepForever;
@@ -86,4 +86,3 @@ diskaccess(int level)
 	}
 	lasttime[level] = time(0);
 }
-

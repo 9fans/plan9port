@@ -1,21 +1,21 @@
 /*
- * Index, mapping scores to log positions. 
+ * Index, mapping scores to log positions.
  *
  * The index is made up of some number of index sections, each of
- * which is typically stored on a different disk.  The blocks in all the 
- * index sections are logically numbered, with each index section 
+ * which is typically stored on a different disk.  The blocks in all the
+ * index sections are logically numbered, with each index section
  * responsible for a range of blocks.  Blocks are typically 8kB.
  *
  * The N index blocks are treated as a giant hash table.  The top 32 bits
  * of score are used as the key for a lookup.  Each index block holds
  * one hash bucket, which is responsible for ceil(2^32 / N) of the key space.
- * 
- * The index is sized so that a particular bucket is extraordinarily 
- * unlikely to overflow: assuming compressed data blocks are 4kB 
+ *
+ * The index is sized so that a particular bucket is extraordinarily
+ * unlikely to overflow: assuming compressed data blocks are 4kB
  * on disk, and assuming each block has a 40 byte index entry,
  * the index data will be 1% of the total data.  Since scores are essentially
  * random, all buckets should be about the same fullness.
- * A factor of 5 gives us a wide comfort boundary to account for 
+ * A factor of 5 gives us a wide comfort boundary to account for
  * random variation.  So the index disk space should be 5% of the arena disk space.
  */
 
@@ -500,7 +500,7 @@ initisect1(ISect *is)
 	v = is->part->size & ~(u64int)(is->blocksize - 1);
 	if(is->blockbase + (u64int)is->blocks * is->blocksize != v){
 		seterr(ECorrupt, "invalid blocks in index section %s", is->name);
-		/* ZZZ what to do? 
+		/* ZZZ what to do?
 		freeisect(is);
 		return nil;
 		*/
@@ -654,7 +654,7 @@ amapitoag(Index *ix, u64int a, u64int *gstart, u64int *glimit, int *g)
 {
 	u64int aa;
 	Arena *arena;
-	
+
 	arena = amapitoa(ix, a, &aa);
 	if(arena == nil)
 		return nil;
@@ -895,5 +895,3 @@ loadibucket(Index *ix, u8int *score, ISect **pis, u32int *pbuck, IBucket *ib)
 {
 	return loadibucket1(ix, score, pis, pbuck, ib);
 }
-
-

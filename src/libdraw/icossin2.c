@@ -3,7 +3,7 @@
 #include	<draw.h>
 
 /*
- * Sine and Cosine of arctangents, calculated by 
+ * Sine and Cosine of arctangents, calculated by
  *   (sin(atan(index/100.0))*1024.+0.5)
  *   (cos(atan(index/100.0))*1024.+0.5)
  * To use, get rational tangent between 0<=tan<=1, scale by 100,

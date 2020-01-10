@@ -20,9 +20,9 @@ Archive-name: showevent/part01
 
 
 There are times during debugging when it would be real useful to be able to
-print the fields of an event in a human readable form.  Too many times I found 
-myself scrounging around in section 8 of the Xlib manual looking for the valid 
-fields for the events I wanted to see, then adding printf's to display the 
+print the fields of an event in a human readable form.  Too many times I found
+myself scrounging around in section 8 of the Xlib manual looking for the valid
+fields for the events I wanted to see, then adding printf's to display the
 numeric values of the fields, and then scanning through X.h trying to decode
 the cryptic detail and state fields.  After playing with xev, I decided to
 write a couple of standard functions that I could keep in a library and call
@@ -35,9 +35,9 @@ spend the time writing functions like this, they just want to have them when
 they need them.
 
 A simple, sample program is included which does little else but to demonstrate
-the use of these two functions.  These functions have saved me many an hour 
+the use of these two functions.  These functions have saved me many an hour
 during debugging and I hope you find some benefit to these.  If you have any
-comments, suggestions, improvements, or if you find any blithering errors you 
+comments, suggestions, improvements, or if you find any blithering errors you
 can get it touch with me at the following location:
 
 			ken@richsun.UUCP
@@ -129,7 +129,7 @@ ServerTime(Time time)
 if(0)
     sprintf(buffer, "%lu day%s %02lu:%02lu:%02lu.%03lu",
       day, day == 1 ? "" : "(s)", hr, min, sec, msec);
-      
+
     sprintf(buffer, "%lud%luh%lum%lu.%03lds", day, hr, min, sec, msec);
     return (buffer);
 }
@@ -770,7 +770,7 @@ VerbVisibility(XVisibilityEvent *ev)
 char *eventtype(XEvent *ev)
 {
     static char buffer[20];
-    
+
     switch (ev->type) {
     case KeyPress:
 	return ("KeyPress");
@@ -983,4 +983,3 @@ void printevent(XEvent *e)
 	break;
     }
 }
-

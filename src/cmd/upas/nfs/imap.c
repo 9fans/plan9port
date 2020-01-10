@@ -41,7 +41,7 @@ struct Imap
 static struct {
 	char *name;
 	int flag;
-} flagstab[] = 
+} flagstab[] =
 {
 	"Junk",	FlagJunk,
 	"NonJunk",	FlagNonJunk,
@@ -116,20 +116,20 @@ imapconnect(char *server, int mode, char *root, char *user)
 	z->fd = -1;
 	z->autoreconnect = 0;
 	z->io = ioproc();
-	
+
 	qlock(&z->lk);
 	if(imapreconnect(z) < 0){
 		free(z);
 		return nil;
 	}
-	
+
 	z->r.l = &z->rlk;
 	z->autoreconnect = 1;
 	qunlock(&z->lk);
-	
+
 	proccreate(imaptimerproc, z, STACK);
 	mailthread(imaprefreshthread, z);
-	
+
 	return z;
 }
 
@@ -231,7 +231,7 @@ getboxes(Imap *z)
 {
 	int i;
 	Box **r, **w, **e;
-	
+
 	for(i=0; i<nboxes; i++){
 		boxes[i]->mark = 1;
 		boxes[i]->exists = 0;
@@ -260,10 +260,10 @@ getbox(Imap *z, Box *b)
 {
 	int i;
 	Msg **r, **w, **e;
-	
+
 	if(b == nil)
 		return 0;
-	
+
 	for(i=0; i<b->nmsg; i++)
 		b->msg[i]->imapid = 0;
 	if(imapcmd(z, b, "UID FETCH 1:* FLAGS") < 0)
@@ -294,7 +294,7 @@ static void
 imaptimerproc(void *v)
 {
 	Imap *z;
-	
+
 	z = v;
 	for(;;){
 		sleep(60*1000);
@@ -323,13 +323,13 @@ static void
 imaprefreshthread(void *v)
 {
 	Imap *z;
-	
+
 	z = v;
 	for(;;){
 		qlock(z->r.l);
 		rsleep(&z->r);
 		qunlock(z->r.l);
-		
+
 		qlock(&z->lk);
 		if(z->inbox)
 			checkbox(z, z->inbox);
@@ -347,7 +347,7 @@ imapvcmdsx0(Imap *z, char *fmt, va_list arg, int dotag)
 	Fmt f;
 	int len;
 	Sx *sx;
-	
+
 	if(canqlock(&z->lk))
 		abort();
 
@@ -380,7 +380,7 @@ imapcmdsx0(Imap *z, char *fmt, ...)
 {
 	va_list arg;
 	Sx *sx;
-	
+
 	va_start(arg, fmt);
 	sx = imapvcmdsx0(z, fmt, arg, 1);
 	va_end(arg);
@@ -395,7 +395,7 @@ imapvcmdsx(Imap *z, Box *b, char *fmt, va_list arg, int dotag)
 {
 	int tries;
 	Sx *sx;
-	
+
 	tries = 0;
 	z->nextbox = b;
 
@@ -478,7 +478,7 @@ static Sx*
 imapwaitsx(Imap *z)
 {
 	Sx *sx;
-	
+
 	while((sx = zBrdsx(z)) != nil){
 		if(chattyimap)
 			fprint(2, "<| %#$\n", sx);
@@ -534,7 +534,7 @@ static void
 fetch1(Imap *z, Part *p, char *s)
 {
 	qlock(&z->lk);
-	imapcmd(z, p->msg->box, "UID FETCH %d BODY[%s]", 
+	imapcmd(z, p->msg->box, "UID FETCH %d BODY[%s]",
 		p->msg->imapuid, bodyname(p, s));
 	qunlock(&z->lk);
 }
@@ -569,7 +569,7 @@ imaplistcmd(Imap *z, Box *box, char *before, Msg **m, uint nm, char *after)
 	int i, r;
 	char *cmd;
 	Fmt fmt;
-	
+
 	if(nm == 0)
 		return 0;
 
@@ -582,7 +582,7 @@ imaplistcmd(Imap *z, Box *box, char *before, Msg **m, uint nm, char *after)
 	}
 	fmtprint(&fmt, " %s", after);
 	cmd = fmtstrflush(&fmt);
-	
+
 	r = 0;
 	if(imapcmd(z, box, "%s", cmd) < 0)
 		 r = -1;
@@ -595,7 +595,7 @@ imapcopylist(Imap *z, char *nbox, Msg **m, uint nm)
 {
 	int rv;
 	char *name, *p;
-	
+
 	if(nm == 0)
 		return 0;
 
@@ -617,7 +617,7 @@ int
 imapremovelist(Imap *z, Msg **m, uint nm)
 {
 	int rv;
-	
+
 	if(nm == 0)
 		return 0;
 
@@ -636,7 +636,7 @@ imapflaglist(Imap *z, int op, int flag, Msg **m, uint nm)
 	char *mod, *s, *sep;
 	int i, rv;
 	Fmt fmt;
-	
+
 	if(op > 0)
 		mod = "+";
 	else if(op == 0)
@@ -655,7 +655,7 @@ imapflaglist(Imap *z, int op, int flag, Msg **m, uint nm)
 	}
 	fmtprint(&fmt, ")");
 	s = fmtstrflush(&fmt);
-	
+
 	qlock(&z->lk);
 	rv = imaplistcmd(z, m[0]->box, "UID STORE", m, nm, s);
 	qunlock(&z->lk);
@@ -726,7 +726,7 @@ _ioimapdial(va_list *arg)
 {
 	char *server;
 	int mode;
-	
+
 	server = va_arg(*arg, char*);
 	mode = va_arg(*arg, int);
 	return imapdial(server, mode);
@@ -742,7 +742,7 @@ _ioBrdsx(va_list *arg)
 {
 	Biobuf *b;
 	Sx **sx;
-	
+
 	b = va_arg(*arg, Biobuf*);
 	sx = va_arg(*arg, Sx**);
 	*sx = Brdsx(b);
@@ -779,12 +779,12 @@ imapdial(char *server, int mode)
 	int fd[3];
 	char *tmp;
 	char *fpath;
-	
+
 	switch(mode){
 	default:
 	case Unencrypted:
 		return dial(netmkaddr(server, "tcp", "143"), nil, nil, nil);
-		
+
 	case Starttls:
 		werrstr("starttls not supported");
 		return -1;
@@ -818,7 +818,7 @@ imapdial(char *server, int mode)
 		free(tmp);
 		close(p[0]);
 		return p[1];
-	
+
 	case Cmd:
 		if(pipe(p) < 0)
 			return -1;
@@ -912,7 +912,7 @@ static int
 sxmatch(Sx *sx, char *fmt)
 {
 	int i;
-	
+
 	for(i=0; fmt[i]; i++){
 		if(fmt[i] == '*')
 			fmt--;	/* like i-- but better */
@@ -994,7 +994,7 @@ static int
 isatom(Sx *v, char *name)
 {
 	int n;
-	
+
 	if(v == nil || v->type != SxAtom)
 		return 0;
 	n = strlen(name);
@@ -1021,7 +1021,7 @@ isnumber(Sx *sx)
 static int
 isnil(Sx *v)
 {
-	return v == nil || 
+	return v == nil ||
 		(v->type==SxList && v->nsx == 0) ||
 		(v->type==SxAtom && strcmp(v->data, "NIL") == 0);
 }
@@ -1036,7 +1036,7 @@ static uint
 parseflags(Sx *v)
 {
 	int f, i, j;
-	
+
 	if(v->type != SxList){
 		warn("malformed flags: %$", v);
 		return 0;
@@ -1051,13 +1051,13 @@ parseflags(Sx *v)
 	}
 	return f;
 }
-	
+
 static char months[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
 static int
 parsemon(char *s)
 {
 	int i;
-	
+
 	for(i=0; months[i]; i+=3)
 		if(memcmp(s, months+i, 3) == 0)
 			return i/3;
@@ -1071,13 +1071,13 @@ parsedate(Sx *v)
 	uint t;
 	int delta;
 	char *p;
-	
+
 	if(v->type != SxString || !stringmatch("01-Aaa-1111 01:11:11 +1111", v->data)){
 	bad:
 		warn("bad date: %$", v);
 		return 0;
 	}
-	
+
 	/* cannot use atoi because 09 is malformed octal! */
 	memset(&tm, 0, sizeof tm);
 	p = v->data;
@@ -1095,7 +1095,7 @@ parsedate(Sx *v)
 	delta = ((p[22]-'0')*10+p[23]-'0')*3600 + ((p[24]-'0')*10+p[25]-'0')*60;
 	if(p[21] == '-')
 		delta = -delta;
-	
+
 	t -= delta;
 	return t;
 }
@@ -1123,7 +1123,7 @@ parseenvelope(Sx *v)
 	Hdr *hdr;
 	uchar digest[16];
 	DigestState ds;
-	
+
 	if(v->type != SxList || !sxmatch(v, "SSLLLLLLSS")){
 		warn("bad envelope: %$", v);
 		return nil;
@@ -1140,7 +1140,7 @@ parseenvelope(Sx *v)
 	hdr->bcc = copyaddrs(v->sx[7]);
 	hdr->inreplyto = unrfc2047(nstring(v->sx[8]));
 	hdr->messageid = unrfc2047(nstring(v->sx[9]));
-	
+
 	memset(&ds, 0, sizeof ds);
 	hash(&ds, "date", hdr->date);
 	hash(&ds, "subject", hdr->subject);
@@ -1162,7 +1162,7 @@ static void
 strlwr(char *s)
 {
 	char *t;
-	
+
 	if(s == nil)
 		return;
 	for(t=s; *t; t++)
@@ -1174,7 +1174,7 @@ static void
 nocr(char *s)
 {
 	char *r, *w;
-	
+
 	if(s == nil)
 		return;
 	for(r=w=s; *r; r++)
@@ -1191,7 +1191,7 @@ gsub(char *s, char *a, char *b)
 {
 	char *p, *t, *w, *last;
 	int n;
-	
+
 	n = 0;
 	for(p=s; (p=strstr(p, a)) != nil; p+=strlen(a))
 		n++;
@@ -1256,7 +1256,7 @@ unexpected(Imap *z, Sx *sx)
 		name = sx->sx[1]->data;
 	}else
 		return;
-	
+
 	for(i=0; i<nelem(unextab); i++){
 		if(unextab[i].num == num && cistrcmp(unextab[i].name, name) == 0){
 			if(unextab[i].fmt && !sxmatch(sx, unextab[i].fmt)){
@@ -1304,9 +1304,9 @@ xlist(Imap *z, Sx *sx)
 		free(s);
 		s = t;
 	}
-	
-	/* 
-	 * Plan 9 calls the main mailbox mbox.  
+
+	/*
+	 * Plan 9 calls the main mailbox mbox.
 	 * Rename any existing mbox by appending a $.
 	 */
 	if(!inbox && strncmp(s, "mbox", 4) == 0 && alldollars(s+4)){
@@ -1352,7 +1352,7 @@ xflags(Imap *z, Sx *sx)
 	/*
 	 * This response contains in sx->sx[2] the list of flags
 	 * that can be validly attached to messages in z->box.
-	 * We don't have any use for this list, since we 
+	 * We don't have any use for this list, since we
 	 * use only the standard flags.
 	 */
 }
@@ -1396,7 +1396,7 @@ static void
 xsearch(Imap *z, Sx *sx)
 {
 	int i;
-	
+
 	free(z->uid);
 	z->uid = emalloc((sx->nsx-2)*sizeof z->uid[0]);
 	z->nuid = sx->nsx-2;
@@ -1404,7 +1404,7 @@ xsearch(Imap *z, Sx *sx)
 		z->uid[i] = sx->sx[i+2]->number;
 }
 
-/* 
+/*
  * Table-driven FETCH message info parser.
  */
 static void xmsgflags(Msg*, Sx*, Sx*);
@@ -1496,7 +1496,7 @@ static char*
 nstring(Sx *v)
 {
 	char *p;
-	
+
 	if(isnil(v))
 		return estrdup("");
 	p = v->data;
@@ -1511,7 +1511,7 @@ copyaddrs(Sx *v)
 	char *name, *email, *host, *mbox;
 	int i;
 	Fmt fmt;
-	
+
 	if(v->nsx == 0)
 		return nil;
 
@@ -1565,7 +1565,7 @@ parseparams(Part *part, Sx *v)
 {
 	int i, j;
 	char *s, *t, **p;
-	
+
 	if(isnil(v))
 		return;
 	if(v->nsx%2){
@@ -1586,7 +1586,7 @@ parseparams(Part *part, Sx *v)
 		}
 		free(s);
 		free(t);
-	}			
+	}
 }
 
 static void
@@ -1594,7 +1594,7 @@ parsestructure(Part *part, Sx *v)
 {
 	int i;
 	char *s, *t;
-	
+
 	if(isnil(v))
 		return;
 	if(v->type != SxList){
@@ -1627,7 +1627,7 @@ parsestructure(Part *part, Sx *v)
 	strlwr(t);
 	free(part->type);
 	part->type = esmprint("%s/%s", s, t);
-	if(v->nsx < 7 || !islist(v->sx[2]) || !isstring(v->sx[3]) 
+	if(v->nsx < 7 || !islist(v->sx[2]) || !isstring(v->sx[3])
 	|| !isstring(v->sx[4]) || !isstring(v->sx[5]) || !isnumber(v->sx[6]))
 		goto bad;
 	parseparams(part, v->sx[2]);
@@ -1676,13 +1676,13 @@ xmsgbodydata(Msg *msg, Sx *k, Sx *v)
 	int i;
 	char *name, *p;
 	Part *part;
-	
+
 	name = k->data;
 	name += 5;	/* body[ */
 	p = strchr(name, ']');
 	if(p)
 		*p = 0;
-	
+
 	/* now name is something like 1 or 3.2.MIME - walk down parts from root */
 	part = msg->part[0];
 
@@ -1777,7 +1777,7 @@ xokuidvalidity(Imap *z, Sx *sx)
 {
 	int i;
 	Box *b;
-	
+
 	if((b=z->box) == nil)
 		return;
 	if(b->validity != sx->number){
@@ -1822,4 +1822,3 @@ xokreadonly(Imap *z, Sx *sx)
 	USED(sx);
 /*	z->boxmode = OREAD; */
 }
-

@@ -30,4 +30,3 @@ Dreprog* dregcvt(Reprog*);
 int dregexec(Dreprog*, char*, int);
 Dreprog* Breaddfa(Biobuf *b);
 void Bprintdfa(Biobuf*, Dreprog*);
-

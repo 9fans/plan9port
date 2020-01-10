@@ -50,7 +50,7 @@ parsescore(uchar *score, char *buf, int n)
 
 		if((i & 1) == 0)
 			c <<= 4;
-	
+
 		score[i>>1] |= c;
 	}
 	return 0;

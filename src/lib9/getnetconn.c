@@ -27,7 +27,7 @@ convert(int s, struct sockaddr *sa, char **lsys, char **lserv, char **laddr)
 	socklen_t sn;
 	int n;
 	char *net;
-	
+
 	switch(sa->sa_family){
 	case AF_INET:
 		sin = (void*)sa;
@@ -158,4 +158,3 @@ freenetconninfo(NetConnInfo *nci)
 	xfree(nci->raddr);
 	free(nci);
 }
-

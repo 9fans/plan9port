@@ -43,7 +43,7 @@ main(int argc, char *argv[])
 {
 	char c;
 	int dotrack = 0;
-	
+
 	libfont = unsharp(libfont);
 	ARGBEGIN{
 	case 'm':	/* magnification */
@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 		loadfontname(c, "??");
 	mapscreen();
 	clearscreen();
-	readpage(); 
+	readpage();
 }
 
 /*

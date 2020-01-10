@@ -20,7 +20,7 @@ skipwhite(char *q)
 
 static char* months[] = {
 	"jan", "feb", "mar", "apr",
-	"may", "jun", "jul", "aug", 
+	"may", "jun", "jul", "aug",
 	"sep", "oct", "nov", "dec"
 };
 
@@ -81,7 +81,7 @@ strtotm(char *p, Tm *tmp)
 			continue;
 
 		/* look for time zone [A-Z][A-Z]T */
-		if(q-p==3 && 'A' <= p[0] && p[0] <= 'Z' 
+		if(q-p==3 && 'A' <= p[0] && p[0] <= 'Z'
 		&& 'A' <= p[1] && p[1] <= 'Z' && p[2] == 'T'){
 			strecpy(tm.zone, tm.zone+4, p);
 			continue;

@@ -99,7 +99,7 @@ main(int argc, char *argv[])
 	exits("");
 }
 
-char *months[] = 
+char *months[] =
 {
 	"january",
 	"february",
@@ -146,7 +146,7 @@ dates(Date **last, Tm *tm)
 	first = alloc(sizeof(Date));
 	if(*last)
 		(*last)->next = first;
-	first->p = regcomp(buf);	
+	first->p = regcomp(buf);
 
 	if (matchyear)
 		snprint(buf, sizeof buf,
@@ -159,7 +159,7 @@ dates(Date **last, Tm *tm)
 	if(debug)
 		print("%s\n", buf);
 	nd = alloc(sizeof(Date));
-	nd->p = regcomp(buf);	
+	nd->p = regcomp(buf);
 	nd->next = 0;
 	first->next = nd;
 	*last = nd;

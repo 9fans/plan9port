@@ -44,7 +44,7 @@ twocircles(double m, double p, double p1, double p2, double *x, double *y)
 		*y = (*x*a+t/2)/b;
 	}
 	return 1;
-}		
+}
 
 static int
 Xglobular(struct place *place, double *x, double *y)
@@ -52,7 +52,7 @@ Xglobular(struct place *place, double *x, double *y)
 	twocircles(-2*place->wlon.l/PI,
 		2*place->nlat.l/PI, place->nlat.c, place->nlat.s, x, y);
 	return 1;
-}	
+}
 
 proj
 globular(void)
@@ -68,7 +68,7 @@ Xvandergrinten(struct place *place, double *x, double *y)
 	double pval = abst>=1? 1: abst/(1+sqrt(1-t*t));
 	double p2 = 2*pval/(1+pval);
 	twocircles(-place->wlon.l/PI, pval, sqrt(1-p2*p2), p2, x, y);
-	if(t < 0) 
+	if(t < 0)
 		*y = -*y;
 	return 1;
 }

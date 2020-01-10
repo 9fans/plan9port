@@ -185,7 +185,7 @@ sendnotification(char *addr, char *listname, int rem)
 			fprint(pfd[1], "the word 'remove' in the subject or body.\n");
 		}
 		close(pfd[1]);
-	
+
 		/* wait for mailer to end */
 		while(w = wait()){
 			if(w->msg != nil && w->msg[0])

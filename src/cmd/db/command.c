@@ -76,26 +76,26 @@ command(char *buf, int defcom)
 			break;
 
 		case '>':
-			lastcom = savecom; 
+			lastcom = savecom;
 			savc=rdc();
 			if (reg=regname(savc))
 				rput(correg, reg, dot);
-			else	
+			else
 				error("bad variable");
 			break;
 
 		case '!':
 			lastcom=savecom;
-			shell(); 
+			shell();
 			break;
 
 		case '$':
 			lastcom=savecom;
-			printdollar(nextchar()); 
+			printdollar(nextchar());
 			break;
 
 		case ':':
-			if (!executing) { 
+			if (!executing) {
 				executing=TRUE;
 				subpcs(nextchar());
 				executing=FALSE;
@@ -107,7 +107,7 @@ command(char *buf, int defcom)
 			prints(DBNAME);
 			break;
 
-		default: 
+		default:
 			error("bad command");
 		}
 		flushbuf();
@@ -159,21 +159,21 @@ acommand(int pc)
 	{
 	case 'm':
 		if (eqcom)
-			error(BADEQ); 
+			error(BADEQ);
 		cmdmap(map);
 		break;
 
 	case 'L':
 	case 'l':
 		if (eqcom)
-			error(BADEQ); 
+			error(BADEQ);
 		cmdsrc(lastc, map);
 		break;
 
 	case 'W':
 	case 'w':
 		if (eqcom)
-			error(BADEQ); 
+			error(BADEQ);
 		cmdwrite(lastc, map);
 		break;
 
@@ -199,10 +199,10 @@ cmdsrc(int c, Map *map)
 	else
 		dotinc = 2;
 	savdot=dot;
-	expr(1); 
+	expr(1);
 	locval=expv;
 	if (expr(0))
-		locmsk=expv; 
+		locmsk=expv;
 	else
 		locmsk = ~0;
 	if (c == 'L')
@@ -211,8 +211,8 @@ cmdsrc(int c, Map *map)
 	else
 		while ((ret = get2(map, dot, &sh)) > 0 && (sh&locmsk) != locval)
 			dot = inkdot(dotinc);
-	if (ret < 0) { 
-		dot=savdot; 
+	if (ret < 0) {
+		dot=savdot;
 		error("%r");
 	}
 	symoff(buf, 512, dot, CANY);
@@ -235,7 +235,7 @@ cmdwrite(int wcom, Map *map)
 	expr(1);
 	pass = 0;
 	do {
-		pass++;  
+		pass++;
 		savdot=dot;
 		exform(1, 1, format, map, 0, pass);
 		dot=savdot;
@@ -247,7 +247,7 @@ cmdwrite(int wcom, Map *map)
 				error(badwrite);
 		}
 		savdot=dot;
-		dprint("=%8t"); 
+		dprint("=%8t");
 		exform(1, 0, format, map, 0, pass);
 		newline();
 	} while (expr(0));
@@ -305,7 +305,7 @@ shell(void)
 			}
 			break;
 		}
-		prints("!"); 
+		prints("!");
 		reread();
 	}
 }

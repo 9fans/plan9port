@@ -24,7 +24,7 @@ usage(void)
 static int
 getdir(SConn *conn, char *id)
 {
-	char *ls, *s; 
+	char *ls, *s;
 	uchar *msg;
 	int n, len;
 
@@ -417,4 +417,3 @@ main(int argc, char **argv)
 		}
 	}
 }
-

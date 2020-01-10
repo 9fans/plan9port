@@ -60,7 +60,7 @@ frdelete(Frame *f, ulong p0, ulong p1)
 			r.max.x += b->wid;
 			draw(f->b, r, f->b, nil, pt1);
 			cn1 += b->nrune;
-			
+
 			/* blank remainder of line */
 			r.min.x = r.max.x;
 			r.max.x += w0 - b->wid;

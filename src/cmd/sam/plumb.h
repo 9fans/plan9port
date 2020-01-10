@@ -14,4 +14,3 @@ char *plumbunpackattr(char*);
 char *plumbpack(Plumbmsg *, int *);
 int plumbfree(Plumbmsg *);
 char *cleanname(char*);
-

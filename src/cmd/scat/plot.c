@@ -407,22 +407,22 @@ drawplanet(Image *scr, Planetrec *p, Point pt)
 	}
 	if(strcmp(p->name, "saturn") == 0){
 		drawdisc(scr, p->semidiam, 1, saturncolor, pt, "S");
-		
+
 		return;
 	}
 	if(strcmp(p->name, "uranus") == 0){
 		drawdisc(scr, p->semidiam, 0, uranuscolor, pt, "U");
-		
+
 		return;
 	}
 	if(strcmp(p->name, "neptune") == 0){
 		drawdisc(scr, p->semidiam, 0, neptunecolor, pt, "N");
-		
+
 		return;
 	}
 	if(strcmp(p->name, "pluto") == 0){
 		drawdisc(scr, p->semidiam, 0, plutocolor, pt, "P");
-		
+
 		return;
 	}
 	if(strcmp(p->name, "comet") == 0){

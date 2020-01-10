@@ -273,14 +273,14 @@ if(0) fprint(2, "falling\n");
 					blockDirty(b);
 					/*
 					 * If b is in the active tree, then we need to note that we've
-					 * just removed addr from the active tree (replacing it with the 
+					 * just removed addr from the active tree (replacing it with the
 					 * copy we just stored to Venti).  If addr is in other snapshots,
 					 * this will close addr but not free it, since it has a non-empty
 					 * epoch range.
 					 *
 					 * If b is in the active tree but has been copied (this can happen
 					 * if we get killed at just the right moment), then we will
-					 * mistakenly leak its kids.  
+					 * mistakenly leak its kids.
 					 *
 					 * The children of an archive directory (e.g., /archive/2004/0604)
 					 * are not treated as in the active tree.

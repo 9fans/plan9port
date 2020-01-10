@@ -46,9 +46,9 @@ odot(Node *n, Node *r)
 		error("no tag for (expr).%s", s);
 
 	/* Propagate types */
-	if(t->type) 
+	if(t->type)
 		r->store.comt = t->type->lt;
-	
+
 	addr = res.store.u.ival+t->offset;
 	if(t->fmt == 'a') {
 		r->op = OCONST;
@@ -56,7 +56,7 @@ odot(Node *n, Node *r)
 		r->type = TINT;
 		r->store.u.ival = addr;
 	}
-	else 
+	else
 		indir(cormap, addr, t->fmt, r);
 
 }
@@ -74,7 +74,7 @@ buildtype(Node *m, int d)
 
 	switch(m->op) {
 	case OLIST:
-		buildtype(m->left, d);		
+		buildtype(m->left, d);
 		buildtype(m->right, d);
 		break;
 
@@ -90,7 +90,7 @@ buildtype(Node *m, int d)
 		t->offset = m->store.u.ival;
 		if(m->left) {
 			t->type = m->left->sym;
-			t->fmt = 'a';			
+			t->fmt = 'a';
 		}
 		else {
 			t->type = 0;
@@ -101,7 +101,7 @@ buildtype(Node *m, int d)
 
 		*tail = t;
 		tail = &t->next;
-	}			
+	}
 }
 
 void

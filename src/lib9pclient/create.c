@@ -26,7 +26,7 @@ fscreate(CFsys *fs, char *name, int mode, ulong perm)
 {
 	CFid *fid;
 	char *p, *dir, *elem;
-	
+
 	p = strrchr(name, '/');
 	if(p == nil){
 		dir = "";

@@ -41,7 +41,7 @@ watcherproc(void *v)
 	for(;;)
 		sleep(1000);
 }
-	
+
 int
 bell(void *u, char *x)
 {
@@ -81,7 +81,7 @@ afmt(Fmt *fmt)
 void
 usage(void)
 {
-	fprint(2, "usage: page [-biRrwf] [-p ppi] file...\n"); 
+	fprint(2, "usage: page [-biRrwf] [-p ppi] file...\n");
 	wexits("usage");
 }
 
@@ -145,7 +145,7 @@ threadmain(int argc, char **argv)
 		break;
 	case 'f':
 		fitwin = 1;
-		break; 
+		break;
 	default:
 		usage();
 	}ARGEND;
@@ -184,13 +184,13 @@ threadmain(int argc, char **argv)
 			fprint(2, "page: short read reading %s\n", argv[0]);
 			wexits("read");
 		}
-		
+
 		atexit(cleanup);
 	}else if(argc != 0){
 		if(!(b = Bopen(argv[0], OREAD))) {
 			fprint(2, "page: cannot open \"%s\"\n", argv[0]);
 			wexits("open");
-		}	
+		}
 
 		if(Bread(b, buf, Ninput) != Ninput) {
 			fprint(2, "page: short read reading %s\n", argv[0]);
@@ -242,7 +242,7 @@ threadmain(int argc, char **argv)
 		wexits("initdraw");
 	}
 	display->locking = 1;
-	
+
 	truecolor = screen->depth > 8;
 	viewer(doc);
 	wexits(0);

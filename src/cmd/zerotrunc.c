@@ -23,4 +23,3 @@ main(void)
 	}
 	exits(0);
 }
-

@@ -4,7 +4,7 @@ void plotdisc(double xc, double yc, double r){
 	int rad;
 	p.x=SCX(xc);
 	p.y=SCY(yc);
-	if (r < 0) 
+	if (r < 0)
 		rad=SCR(-r);
 	else
 		rad=SCR(r);

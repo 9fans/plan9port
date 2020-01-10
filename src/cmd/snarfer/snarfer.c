@@ -89,7 +89,7 @@ void
 main(int argc, char **argv)
 {
 	XEvent xevent;
-	
+
 	ARGBEGIN{
 	default:
 		usage();
@@ -100,14 +100,14 @@ main(int argc, char **argv)
 
 	if((xdisplay = XOpenDisplay(nil)) == nil)
 		sysfatal("XOpenDisplay: %r");
-	drawable = XCreateWindow(xdisplay, DefaultRootWindow(xdisplay), 
-		0, 0, 1, 1, 0, 0, 
-		InputOutput, DefaultVisual(xdisplay, DefaultScreen(xdisplay)), 
+	drawable = XCreateWindow(xdisplay, DefaultRootWindow(xdisplay),
+		0, 0, 1, 1, 0, 0,
+		InputOutput, DefaultVisual(xdisplay, DefaultScreen(xdisplay)),
 		0, 0);
 	if(drawable == None)
 		sysfatal("XCreateWindow: %r");
 	XFlush(xdisplay);
-	
+
 	xclipboard = XInternAtom(xdisplay, "CLIPBOARD", False);
 	xutf8string = XInternAtom(xdisplay, "UTF8_STRING", False);
 	xtargets = XInternAtom(xdisplay, "TARGETS", False);
@@ -122,7 +122,7 @@ main(int argc, char **argv)
 	xgetsnarf();
 	appleputsnarf();
 	xputsnarf();
-	
+
 	for(;;){
 		XNextEvent(xdisplay, &xevent);
 		switch(xevent.type){
@@ -150,9 +150,9 @@ xselectionrequest(XEvent *e)
 	XEvent r;
 	XSelectionRequestEvent *xe;
 	XDisplay *xd;
-	
+
 	xd = xdisplay;
-	
+
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
 if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
@@ -198,7 +198,7 @@ xgetsnarf(void)
 	int fmt, i;
 	XWindow w;
 	XDisplay *xd;
-	
+
 	xd = xdisplay;
 
 	w = None;
@@ -229,7 +229,7 @@ xgetsnarf(void)
 	 */
 	if(w == None)
 		return nil;
-		
+
 	/*
 	 * We should be waiting for SelectionNotify here, but it might never
 	 * come, and we have no way to time out.  Instead, we will clear
@@ -256,7 +256,7 @@ xgetsnarf(void)
 		return nil;
 	/* get the property */
 	data = nil;
-	XGetWindowProperty(xd, drawable, prop, 0, SnarfSize/sizeof(ulong), 0, 
+	XGetWindowProperty(xd, drawable, prop, 0, SnarfSize/sizeof(ulong), 0,
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
 	if(xdata == nil || (type != XA_STRING && type != xutf8string) || len == 0){
 		if(xdata)
@@ -297,7 +297,7 @@ appleputsnarf(void)
 		fprint(2, "apple pasteboard cannot assert ownership\n");
 		return;
 	}
-	cfdata = CFDataCreate(kCFAllocatorDefault, 
+	cfdata = CFDataCreate(kCFAllocatorDefault,
 		(uchar*)rsnarf, runestrlen(rsnarf)*2);
 	if(cfdata == nil){
 		fprint(2, "apple pasteboard cfdatacreate failed\n");
@@ -312,5 +312,3 @@ appleputsnarf(void)
 	CFRelease(cfdata);
 #endif
 }
-
-

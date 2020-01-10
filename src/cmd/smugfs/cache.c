@@ -78,14 +78,14 @@ static void
 movetofront(Cache *c, CEntry *e)
 {
 	popout(c, e);
-	insertfront(c, e);	
+	insertfront(c, e);
 }
 
 static CEntry*
 evict(Cache *c)
 {
 	CEntry *e;
-	
+
 	e = c->tail;
 	popout(c, e);
 	c->cefree(e);
@@ -101,7 +101,7 @@ cachelookup(Cache *c, char *name, int create)
 {
 	int h;
 	CEntry *e;
-	
+
 	h = hash(name) % c->nhash;
 	for(e=c->hash[h]; e; e=e->hash.next){
 		if(strcmp(name, e->name) == 0){
@@ -109,10 +109,10 @@ cachelookup(Cache *c, char *name, int create)
 			return e;
 		}
 	}
-	
+
 	if(!create)
 		return nil;
-	
+
 	if(c->nentry >= c->maxentry)
 		e = evict(c);
 	else{
@@ -124,7 +124,7 @@ cachelookup(Cache *c, char *name, int create)
 	h = hash(name) % c->nhash;
 	e->hash.next = c->hash[h];
 	c->hash[h] = e;
-	return e;	
+	return e;
 }
 
 void
@@ -132,7 +132,7 @@ cacheflush(Cache *c, char *substr)
 {
 	CEntry **l, *e;
 	int i;
-	
+
 	for(i=0; i<c->nhash; i++){
 		for(l=&c->hash[i]; (e=*l); ){
 			if(substr == nil || strstr(e->name, substr)){

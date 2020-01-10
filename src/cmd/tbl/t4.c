@@ -53,13 +53,13 @@ readspec(void)
 		case ' ': /* note this is also case tab */
 			continue;
 		case '\n':
-			if (sawchar == 0) 
+			if (sawchar == 0)
 				continue;
 		case ',':
 		case '.': /* end of table specification */
 			ncol = max(ncol, icol);
 			if (lefline[ncol][nclin] > 0) {
-				ncol++; 
+				ncol++;
 				rightl++;
 			};
 			if (sawchar)
@@ -85,24 +85,24 @@ readspec(void)
 			}
 			sawchar = 0;
 			continue;
-		case 'C': 
-		case 'S': 
-		case 'R': 
-		case 'N': 
-		case 'L':  
+		case 'C':
+		case 'S':
+		case 'R':
+		case 'N':
+		case 'L':
 		case 'A':
 			c += ('a' - 'A');
-		case '_': 
-			if (c == '_') 
+		case '_':
+			if (c == '_')
 				c = '-';
-		case '=': 
+		case '=':
 		case '-':
 		case '^':
-		case 'c': 
-		case 's': 
-		case 'n': 
-		case 'r': 
-		case 'l':  
+		case 'c':
+		case 's':
+		case 'n':
+		case 'r':
+		case 'l':
 		case 'a':
 			style[icol][nclin] = c;
 			if (c == 's' && icol <= 0)
@@ -122,30 +122,30 @@ readspec(void)
 				error("too many columns in table");
 			sawchar = 1;
 			continue;
-		case 'b': 
+		case 'b':
 		case 'i':
 			c += 'A' - 'a';
-		case 'B': 
+		case 'B':
 		case 'I':
-			if (icol == 0) 
+			if (icol == 0)
 				continue;
 			snp = font[icol-1][nclin];
 			snp[0] = (c == 'I' ? '2' : '3');
 			snp[1] = 0;
 			continue;
-		case 't': 
+		case 't':
 		case 'T':
 			if (icol > 0)
 				flags[icol-1][nclin] |= CTOP;
 			continue;
-		case 'd': 
+		case 'd':
 		case 'D':
 			if (icol > 0)
 				flags[icol-1][nclin] |= CDOWN;
 			continue;
-		case 'f': 
+		case 'f':
 		case 'F':
-			if (icol == 0) 
+			if (icol == 0)
 				continue;
 			snp = font[icol-1][nclin];
 			snp[0] = snp[1] = stopc = 0;
@@ -155,34 +155,34 @@ readspec(void)
 					stopc = ')';
 					c = get1char();
 				}
-				if (c == 0) 
+				if (c == 0)
 					break;
 				if (c == stopc) {
-					stopc = 0; 
+					stopc = 0;
 					break;
 				}
-				if (stopc == 0)  
-					if (c == ' ' || c == tab ) 
+				if (stopc == 0)
+					if (c == ' ' || c == tab )
 						break;
 				if (c == '\n' || c == '|') {
-					un1getc(c); 
+					un1getc(c);
 					break;
 				}
 				snp[i] = c;
-				if (c >= '0' && c <= '9') 
+				if (c >= '0' && c <= '9')
 					break;
 			}
-			if (stopc) 
+			if (stopc)
 				if (get1char() != stopc)
 					error("Nonterminated font name");
 			continue;
-		case 'P': 
+		case 'P':
 		case 'p':
-			if (icol <= 0) 
+			if (icol <= 0)
 				continue;
 			temp = snp = csize[icol-1][nclin];
 			while (c = get1char()) {
-				if (c == ' ' || c == tab || c == '\n') 
+				if (c == ' ' || c == tab || c == '\n')
 					break;
 				if (c == '-' || c == '+')
 					if (snp > temp)
@@ -191,7 +191,7 @@ readspec(void)
 						*snp++ = c;
 				else if (digit(c))
 					*snp++ = c;
-				else 
+				else
 					break;
 				if (snp - temp > 4)
 					error("point size too large");
@@ -201,13 +201,13 @@ readspec(void)
 				error("point size unreasonable");
 			un1getc (c);
 			continue;
-		case 'V': 
+		case 'V':
 		case 'v':
-			if (icol <= 0) 
+			if (icol <= 0)
 				continue;
 			temp = snp = vsize[icol-1][nclin];
 			while (c = get1char()) {
-				if (c == ' ' || c == tab || c == '\n') 
+				if (c == ' ' || c == tab || c == '\n')
 					break;
 				if (c == '-' || c == '+')
 					if (snp > temp)
@@ -216,7 +216,7 @@ readspec(void)
 						*snp++ = c;
 				else if (digit(c))
 					*snp++ = c;
-				else 
+				else
 					break;
 				if (snp - temp > 4)
 					error("vertical spacing value too large");
@@ -224,7 +224,7 @@ readspec(void)
 			*snp = 0;
 			un1getc(c);
 			continue;
-		case 'w': 
+		case 'w':
 		case 'W':
 			snp = cll [icol-1];
 			/* Dale Smith didn't like this check - possible to have two text blocks
@@ -253,34 +253,34 @@ readspec(void)
 			if (!stopc)
 				un1getc(c);
 			continue;
-		case 'e': 
+		case 'e':
 		case 'E':
-			if (icol < 1) 
+			if (icol < 1)
 				continue;
 			evenup[icol-1] = 1;
 			evenflg = 1;
 			continue;
-		case 'z': 
+		case 'z':
 		case 'Z': /* zero width-ignre width this item */
-			if (icol < 1) 
+			if (icol < 1)
 				continue;
 			flags[icol-1][nclin] |= ZEROW;
 			continue;
-		case 'u': 
+		case 'u':
 		case 'U': /* half line up */
-			if (icol < 1) 
+			if (icol < 1)
 				continue;
 			flags[icol-1][nclin] |= HALFUP;
 			continue;
-		case '0': 
-		case '1': 
-		case '2': 
-		case '3': 
+		case '0':
+		case '1':
+		case '2':
+		case '3':
 		case '4':
-		case '5': 
-		case '6': 
-		case '7': 
-		case '8': 
+		case '5':
+		case '6':
+		case '7':
+		case '8':
 		case '9':
 			sn[0] = c;
 			snp = sn + 1;
@@ -291,7 +291,7 @@ readspec(void)
 			continue;
 		case '|':
 			lefline[icol][nclin]++;
-			if (icol == 0) 
+			if (icol == 0)
 				left1flg = 1;
 			continue;
 		}
@@ -313,9 +313,9 @@ findcol(void)
 	if (c != '\n')
 		un1getc(c);
 	for (s = line; *s = c = get1char(); s++) {
-		if (c == ')') 
+		if (c == ')')
 			inpar = 0;
-		if (inpar) 
+		if (inpar)
 			continue;
 		if (c == '\n' || c == 0 || c == '.' || c == ',')
 			break;
@@ -326,20 +326,20 @@ findcol(void)
 	}
 	for (p = line; p < s; p++)
 		switch (*p) {
-		case 'l': 
-		case 'r': 
-		case 'c': 
-		case 'n': 
-		case 'a': 
+		case 'l':
+		case 'r':
+		case 'c':
+		case 'n':
+		case 'a':
 		case 's':
-		case 'L': 
-		case 'R': 
-		case 'C': 
-		case 'N': 
-		case 'A': 
+		case 'L':
+		case 'R':
+		case 'C':
+		case 'N':
+		case 'A':
 		case 'S':
-		case '-': 
-		case '=': 
+		case '-':
+		case '=':
 		case '_':
 			n++;
 		}
@@ -401,5 +401,3 @@ freearr(void)
 	free(acase);
 	free(topat);
 }
-
-

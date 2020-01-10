@@ -66,13 +66,13 @@ sigpass(int sig)
 		kill(sigpid, sig);
 }
 
-static int sigs[] = 
+static int sigs[] =
 {
 	SIGHUP, SIGINT, SIGQUIT, SIGILL,
 	SIGTRAP, SIGABRT, SIGBUS, SIGFPE,
 	SIGUSR1, SIGSEGV, SIGUSR2, SIGPIPE,
 	SIGALRM, SIGTERM, SIGCHLD, SIGSTOP,
-	/*SIGTSTP, SIGTTIN, SIGTTOU,*/ SIGURG, 
+	/*SIGTSTP, SIGTTIN, SIGTTOU,*/ SIGURG,
 	SIGXCPU, SIGXFSZ, SIGVTALRM, SIGPROF,
 #ifdef SIGWINCH
 	SIGWINCH,
@@ -84,7 +84,7 @@ static int sigs[] =
 	SIGEMT,
 #endif
 #ifdef SIGPWR
-	SIGPWR, 
+	SIGPWR,
 #endif
 #ifdef SIGINFO
 	SIGINFO,

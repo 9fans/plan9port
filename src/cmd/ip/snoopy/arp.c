@@ -34,7 +34,7 @@ enum
 	Opa
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"spa",		Fv4ip,	Ospa,	"protocol source",	} ,
 	{"tpa",		Fv4ip,	Otpa,	"protocol target",	} ,

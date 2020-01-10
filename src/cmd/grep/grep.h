@@ -36,7 +36,7 @@ struct	Re
 		{
 			Rune	lo;
 			Rune	hi;
-		} x;	
+		} x;
 		Rune	val;	/* char */
 	} u;
 	Re*	next;

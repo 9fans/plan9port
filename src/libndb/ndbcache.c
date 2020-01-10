@@ -9,7 +9,7 @@ struct Ndbcache
 	char		*attr;
 	char		*val;
 	Ndbs		s;
-	Ndbtuple	*t;	
+	Ndbtuple	*t;
 };
 
 enum

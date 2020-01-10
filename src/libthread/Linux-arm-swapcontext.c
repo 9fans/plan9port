@@ -22,5 +22,3 @@ swapcontext(ucontext_t *oucp, const ucontext_t *ucp)
 		setcontext(ucp);
 	return 0;
 }
-
-

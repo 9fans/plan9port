@@ -112,7 +112,7 @@ readfile(char *s)
 			continue;
 
 		/*
-		 * if it's less than 30 seconds since we read it, or it 
+		 * if it's less than 30 seconds since we read it, or it
 		 * hasn't changed, send back our copy
 		 */
 		if(time(0) - r->rdtime < 30)
@@ -215,7 +215,7 @@ tryfindpicture(char *dom, char *user, char *dir, char *dict)
 {
 	static char buf[1024];
 	char *file, *p, *nextp, *q;
-	
+
 	if((file = readfile(dict)) == nil)
 		return nil;
 
@@ -247,7 +247,7 @@ static char*
 estrstrdup(char *a, char *b)
 {
 	char *t;
-	
+
 	t = emalloc(strlen(a)+strlen(b)+1);
 	strcpy(t, a);
 	strcat(t, b);
@@ -261,7 +261,7 @@ tryfindfiledir(char *dom, char *user, char *dir)
 	int fd;
 	int i, n;
 	Dir *d;
-	
+
 	/*
 	 * If this directory has a .machinelist, use it.
 	 */
@@ -279,7 +279,7 @@ tryfindfiledir(char *dom, char *user, char *dir)
 		return x;
 	}
 	free(dict);
-	
+
 	/*
 	 * If not, recurse into subdirectories.
 	 * Ignore 48x48xN directories for now.
@@ -305,7 +305,7 @@ tryfindfiledir(char *dom, char *user, char *dir)
 		free(d);
 	}
 	close(fd);
-	
+
 	/*
 	 * Handle 48x48xN directories in the right order.
 	 */
@@ -398,7 +398,7 @@ freefacefile(Facefile *f)
 		return;
 	if(++nsaved > Nsave)
 		clearsaved();
-}	
+}
 
 static Image*
 myallocimage(ulong chan)
@@ -413,7 +413,7 @@ myallocimage(ulong chan)
 	}
 	return img;
 }
-		
+
 
 static Image*
 readbit(int fd, ulong chan)
@@ -527,14 +527,14 @@ readface(char *fn)
 			mask = myallocimage(GREY1);
 			if(mask == nil)
 				goto Done;
-			if(unloadimage(face, face->r, data, Facesize*Facesize) != Facesize*Facesize){	
+			if(unloadimage(face, face->r, data, Facesize*Facesize) != Facesize*Facesize){
 				freeimage(mask);
 				goto Done;
 			}
 			bits = 0;
 			p = mdata;
 			for(y=0; y<Facesize; y++){
-				for(x=0; x<Facesize; x++){	
+				for(x=0; x<Facesize; x++){
 					bits <<= 1;
 					if(data[Facesize*y+x] != 0xFF)
 						bits |= 1;

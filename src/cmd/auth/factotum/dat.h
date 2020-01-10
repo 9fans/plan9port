@@ -57,7 +57,7 @@ struct Conv
 	Req *req;				/* 9P call to read response */
 
 	Channel *keywait;	/* wait here for key confirmation */
-	
+
 };
 
 struct Key

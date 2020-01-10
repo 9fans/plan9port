@@ -7,7 +7,7 @@
 enum {
 	Charsperfont	= 157,
 	Void1b		= (0xC6-0xA2)*Charsperfont+0x3f,
-	Void1e		= (0xC9-0xA2)*Charsperfont - 1 
+	Void1e		= (0xC9-0xA2)*Charsperfont - 1
 };
 
 Bitmap *

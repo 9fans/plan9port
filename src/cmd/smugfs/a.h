@@ -187,4 +187,3 @@ enum
 };
 
 extern int printerrors;
-

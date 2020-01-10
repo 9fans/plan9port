@@ -333,4 +333,3 @@ xxxlrand(void)
 
 	return x;
 }
-

@@ -15,10 +15,10 @@ main(void)
 	Biobuf b, b1;
 	char *p, *encoding;
 	int e, len;
-	
+
 	Binit(&b, 0, OREAD);
 	Binit(&b1, 1, OWRITE);
-	
+
 	/* header */
 	encoding = nil;
 	while((p = Brdstr(&b, '\n', 1)) != nil){
@@ -58,7 +58,7 @@ main(void)
 }
 
 /*
- *  decode quoted 
+ *  decode quoted
  */
 enum
 {
@@ -153,4 +153,3 @@ decquoted(char *out, char *in, char *e)
 
 	return p - out;
 }
-

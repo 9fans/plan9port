@@ -1,8 +1,8 @@
 /*
  * Mail file system.
- * 
+ *
  * Serve the bulk of requests out of memory, so they can
- * be in the main loop (will never see their flushes). 
+ * be in the main loop (will never see their flushes).
  * Some requests do block and they get handled in
  * separate threads.  They're all okay to give up on
  * early, though, so we just respond saying interrupted
@@ -16,7 +16,7 @@ TO DO:
 	digest
 	disposition
 	filename
-	
+
 	ctl messages
 
 	fetch mail on demand
@@ -48,7 +48,7 @@ enum
 	Qbcc,
 	Qinreplyto,
 	Qmessageid,
-	
+
 	/* part data - same order as stuct Part */
 	Qtype,
 	Qidstr,
@@ -60,7 +60,7 @@ enum
 	Qrawheader,
 	Qrawbody,
 	Qmimeheader,
-	
+
 	/* part numbers - same order as struct Part */
 	Qsize,
 	Qlines,
@@ -75,7 +75,7 @@ enum
 	Qrawunix,
 	Qunixdate,
 	Qunixheader,
-	
+
 	Qfile0 = Qbody,
 	Qnfile = Qunixheader+1-Qfile0
 };
@@ -98,7 +98,7 @@ void
 responderror(Req *r)
 {
 	char e[ERRMAX];
-	
+
 	rerrstr(e, sizeof e);
 	respond(r, e);
 }
@@ -132,7 +132,7 @@ Qid
 qid(int ctl, Box *box, Msg *msg, Part *part)
 {
 	Qid q;
-	
+
 	q.type = 0;
 	if(ctl == Qroot || ctl == Qbox || ctl == Qmsg)
 		q.type = QTDIR;
@@ -150,7 +150,7 @@ parseqid(Qid q, Box **box, Msg **msg, Part **part)
 {
 	*msg = nil;
 	*part = nil;
-	
+
 	*box = boxbyid(qboxid(q));
 	if(*box){
 		*msg = msgbyid(*box, qmsgid(q));
@@ -198,7 +198,7 @@ char*
 nameoftype(int t)
 {
 	int i;
-	
+
 	for(i=0; i<nelem(typenames); i++)
 		if(typenames[i].type == t)
 			return typenames[i].name;
@@ -209,7 +209,7 @@ int
 typeofname(char *name)
 {
 	int i;
-	
+
 	for(i=0; i<nelem(typenames); i++)
 		if(strcmp(typenames[i].name, name) == 0)
 			return typenames[i].type;
@@ -246,7 +246,7 @@ fswalk1(Fid *fid, char *name, void *arg)
 	Part *p, *part;
 
 	USED(arg);
-	
+
 	switch(type = parseqid(fid->qid, &box, &msg, &part)){
 	case Qroot:
 		if(strcmp(name, "..") == 0)
@@ -347,7 +347,7 @@ addaddrs(Fmt *fmt, char *prefix, char *addrs)
 	char **f;
 	int i, nf, inquote;
 	char *p, *sep;
-	
+
 	if(addrs == nil)
 		return;
 	addrs = estrdup(addrs);
@@ -409,7 +409,7 @@ mkbody(Part *p, Qid q)
 }
 
 static Qid ZQ;
-	
+
 static int
 filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *freeme, int force, Qid q)
 {
@@ -444,7 +444,7 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 		}
 		*pp = ((char**)&part->hdr->date)[type-Qdate];
 		return 0;
-	
+
 	case Qunixdate:
 		strcpy(buf, ctime(msg->date));
 		*pp = buf;
@@ -630,7 +630,7 @@ filedata(int type, Box *box, Msg *msg, Part *part, char **pp, int *len, int *fre
 		if(part->hdr->from==nil
 		|| (part->hdr->sender && strcmp(part->hdr->sender, part->hdr->from) != 0))
 			addaddrs(&fmt, "Sender", part->hdr->sender);
-		if(part->hdr->from==nil 
+		if(part->hdr->from==nil
 		|| (part->hdr->replyto && strcmp(part->hdr->replyto, part->hdr->from) != 0))
 			addaddrs(&fmt, "Reply-To", part->hdr->replyto);
 		fmtprint(&fmt, "Subject: %s\n", part->hdr->subject);
@@ -681,7 +681,7 @@ filldir(Dir *d, int type, Box *box, Msg *msg, Part *part)
 	case Qsearch:
 		d->mode = 0666;
 		break;
-	
+
 	case Qflags:
 		d->mode = 0666;
 		goto msgfile;
@@ -736,7 +736,7 @@ filldir(Dir *d, int type, Box *box, Msg *msg, Part *part)
 	}
 	return 0;
 }
-	
+
 static void
 fsstat(Req *r)
 {
@@ -744,7 +744,7 @@ fsstat(Req *r)
 	Box *box;
 	Msg *msg;
 	Part *part;
-	
+
 	type = parseqid(r->fid->qid, &box, &msg, &part);
 	if(filldir(&r->d, type, box, msg, part) < 0)
 		responderror(r);
@@ -756,7 +756,7 @@ int
 rootgen(int i, Dir *d, void *aux)
 {
 	USED(aux);
-	
+
 	if(i == 0)
 		return filldir(d, Qctl, nil, nil, nil);
 	i--;
@@ -786,17 +786,17 @@ boxgen(int i, Dir *d, void *aux)
 }
 
 static int msgdir[] = {
-	Qtype, 
-	Qbody, Qbcc, Qcc, Qdate, Qflags, Qfrom, Qheader, Qinfo, 
-	Qinreplyto, Qlines, Qmimeheader, Qmessageid, 
+	Qtype,
+	Qbody, Qbcc, Qcc, Qdate, Qflags, Qfrom, Qheader, Qinfo,
+	Qinreplyto, Qlines, Qmimeheader, Qmessageid,
 	Qraw, Qrawunix, Qrawbody, Qrawheader,
 	Qreplyto, Qsender, Qsubject, Qto,
 	Qunixdate, Qunixheader
 };
 static int mimemsgdir[] = {
-	Qtype, 
-	Qbody, Qbcc, Qcc, Qdate, Qfrom, Qheader, Qinfo, 
-	Qinreplyto, Qlines, Qmimeheader, Qmessageid, 
+	Qtype,
+	Qbody, Qbcc, Qcc, Qdate, Qfrom, Qheader, Qinfo,
+	Qinreplyto, Qlines, Qmimeheader, Qmessageid,
 	Qraw, Qrawunix, Qrawbody, Qrawheader,
 	Qreplyto, Qsender, Qsubject, Qto
 };
@@ -808,14 +808,14 @@ static int mimedir[] = {
 	Qmimeheader,
 	Qraw
 };
-	
+
 int
 msggen(int i, Dir *d, void *aux)
 {
 	Box *box;
 	Msg *msg;
 	Part *part;
-	
+
 	part = aux;
 	msg = part->msg;
 	box = msg->box;
@@ -875,7 +875,7 @@ fsread(Req *r)
 	Box *box;
 	Msg *msg;
 	Part *part;
-	
+
 	switch(type = parseqid(r->fid->qid, &box, &msg, &part)){
 	case Qroot:
 		dirread9p(r, rootgen, nil);
@@ -906,7 +906,7 @@ fsread(Req *r)
 		dirread9p(r, msggen, part);
 		respond(r, nil);
 		return;
-	
+
 	case Qctl:
 	case Qboxctl:
 		respond(r, Egreg);
@@ -937,7 +937,7 @@ mkmsglist(Box *box, char **f, int nf, Msg ***mm)
 {
 	int i, nm;
 	Msg **m;
-	
+
 	m = emalloc(nf*sizeof m[0]);
 	nm = 0;
 	for(i=0; i<nf; i++)
@@ -1012,7 +1012,7 @@ fswrite(Req *r)
 				respond(r, nil);
 			free(m);
 			break;
-		
+
 		case CMjunk:
 			flag = FlagJunk;
 			goto flagit;
@@ -1188,7 +1188,7 @@ static void
 fsthread(void *v)
 {
 	Req *r;
-	
+
 	r = v;
 	switch(r->ifcall.type){
 	case Tread:
@@ -1255,10 +1255,9 @@ fsinit0(void)	/* bad planning - clash with lib9pclient */
 	fs.write = fssend;
 	fs.stat = fssend;
 	fs.destroyfid = fsdestroyfid;
-	
+
 	rootqid = qid(Qroot, nil, nil, nil);
-	
+
 	fsreqchan = chancreate(sizeof(void*), 0);
 	mailthread(fsrecv, nil);
 }
-

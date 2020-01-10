@@ -18,7 +18,7 @@ mktoken(char *key, long thetime)
 	uchar digest[SHA1dlen];
 	char token[64];
 	String *s;
-	
+
 	now = ctime(thetime);
 	memset(now+11, ':', 8);
 	hmac_sha1((uchar*)now, strlen(now), (uchar*)key, strlen(key), digest, nil);
@@ -45,7 +45,7 @@ check_token(char *key, char *file)
 	if(i < 0)
 		return "no match";
 	buf[i] = 0;
-	
+
 	now = time(0);
 
 	for(i = 0; i < 14; i++){

@@ -337,4 +337,3 @@ rdata(List *r, Posn p1, Posn n)
 	}
 	return rg;
 }
-

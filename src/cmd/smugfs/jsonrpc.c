@@ -17,7 +17,7 @@ static void
 jfree(CEntry *ce)
 {
 	JEntry *j;
-	
+
 	j = (JEntry*)ce;
 	jclose(j->reply);
 }
@@ -45,7 +45,7 @@ static char*
 makehttprequest(char *host, char *path, char *postdata)
 {
 	Fmt fmt;
-	
+
 	fmtstrinit(&fmt);
 	fmtprint(&fmt, "POST %s HTTP/1.0\r\n", path);
 	fmtprint(&fmt, "Host: %s\r\n", host);
@@ -87,7 +87,7 @@ dojsonhttp(Protocol *proto, char *host, char *request, int rfd, vlong rlength)
 {
 	char *data;
 	HTTPHeader hdr;
-	
+
 	data = httpreq(proto, host, request, &hdr, rfd, rlength);
 	if(data == nil){
 		fprint(2, "httpreq: %r\n");
@@ -184,7 +184,7 @@ ncsmug(char *method, char *name1, ...)
 {
 	Json *jv;
 	va_list arg;
-	
+
 	va_start(arg, name1);
 	// TODO: Could use https only for login.
 	jv = jsonrpc(&https, HOST, PATH, method, name1, arg, 0);
@@ -198,7 +198,7 @@ smug(char *method, char *name1, ...)
 {
 	Json *jv;
 	va_list arg;
-	
+
 	va_start(arg, name1);
 	jv = jsonrpc(&http, HOST, PATH, method, name1, arg, 1);
 	va_end(arg);
@@ -241,4 +241,3 @@ jsonupload(Protocol *proto, char *host, char *req, int rfd, vlong rlength)
 	jclose(jv);
 	return nil;
 }
-

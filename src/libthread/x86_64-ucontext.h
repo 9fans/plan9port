@@ -40,4 +40,3 @@ void makecontext(ucontext_t*, void(*)(void), int, ...);
 int swapcontext(ucontext_t*, ucontext_t*);
 int libthread_getmcontext(mcontext_t*);
 void libthread_setmcontext(mcontext_t*);
-

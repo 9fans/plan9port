@@ -211,4 +211,3 @@ readstr(SConn *conn, char *s)
 	}
 	return n;
 }
-

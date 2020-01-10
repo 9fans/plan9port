@@ -14,4 +14,3 @@ p9notejmp(void *x, p9jmp_buf buf, int val)
 	USED(x);
 	siglongjmp((void*)buf, val);
 }
-

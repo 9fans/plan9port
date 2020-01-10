@@ -120,4 +120,3 @@ tokens(int i)
 	}
 	ntok = tokenize(line[i], tok, nelem(tok));
 }
-

@@ -170,4 +170,3 @@ doubleclick(File *f, Posn p1)
 	while(--p >= 0 && alnum(filereadc(f, p)))
 		f->dot.r.p1--;
 }
-

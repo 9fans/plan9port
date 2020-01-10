@@ -14,4 +14,3 @@ strdup(char *s)
 	memmove(t, s, l+1);
 	return t;
 }
-

@@ -36,4 +36,3 @@ runecmp(Rune *s, Rune *t)
 		s++, t++;
 	return *s - *t;
 }
-

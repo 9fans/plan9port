@@ -95,7 +95,7 @@ _xattach(char *label, char *winsize)
 	xrootid = DefaultScreen(_x.display);
 	xrootwin = DefaultRootWindow(_x.display);
 
-	/* 
+	/*
 	 * Figure out underlying screen format.
 	 */
 	if(XMatchVisualInfo(_x.display, xrootid, 24, TrueColor, &xvi)
@@ -207,7 +207,7 @@ _xattach(char *label, char *winsize)
 		/*
 		 * Parse the various X resources.  Thanks to Peter Canning.
 		 */
-		char *screen_resources, *display_resources, *geom, 
+		char *screen_resources, *display_resources, *geom,
 			*geomrestype, *home, *file, *dpitype;
 		XrmDatabase database;
 		XrmValue geomres, dpires;
@@ -548,7 +548,7 @@ plan9cmap(void)
  * be the default depth.  On such "suboptimal" systems, we have to allocate an
  * empty color map anyway, according to Axel Belinfante.
  */
-static int 
+static int
 setupcmap(XWindow w)
 {
 	char buf[30];
@@ -561,16 +561,16 @@ setupcmap(XWindow w)
 
 	if(_x.depth >= 24) {
 		if(_x.usetable == 0)
-			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocNone); 
+			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocNone);
 
 		/*
 		 * The pixel value returned from XGetPixel needs to
 		 * be converted to RGB so we can call rgb2cmap()
 		 * to translate between 24 bit X and our color. Unfortunately,
-		 * the return value appears to be display server endian 
+		 * the return value appears to be display server endian
 		 * dependant. Therefore, we run some heuristics to later
 		 * determine how to mask the int value correctly.
-		 * Yeah, I know we can look at _x.vis->byte_order but 
+		 * Yeah, I know we can look at _x.vis->byte_order but
 		 * some displays say MSB even though they run on LSB.
 		 * Besides, this is more anal.
 		 */
@@ -611,7 +611,7 @@ setupcmap(XWindow w)
 			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocNone);
 	}else if(_x.vis->class == PseudoColor){
 		if(_x.usetable == 0){
-			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocAll); 
+			_x.cmap = XCreateColormap(_x.display, w, _x.vis, AllocAll);
 			XStoreColors(_x.display, _x.cmap, _x.map, 256);
 			for(i = 0; i < 256; i++){
 				_x.tox11[i] = i;

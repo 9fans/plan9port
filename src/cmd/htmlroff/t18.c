@@ -11,7 +11,7 @@ r_rd(int argc, Rune **argv)
 	Fmt fmt;
 	static int didstdin;
 	static Biobuf bstdin;
-	
+
 	/*
 	 * print prompt, then read until double newline,
 	 * then run the text just read as though it were
@@ -23,7 +23,7 @@ r_rd(int argc, Rune **argv)
 		else
 			fprint(2, "%c", 7/*BEL*/);
 	}
-	
+
 	if(!didstdin){
 		Binit(&bstdin, 0, OREAD);
 		didstdin = 1;
@@ -54,7 +54,7 @@ r_ex(int argc, Rune **argv)
 {
 	USED(argc);
 	USED(argv);
-	
+
 	while(popinput())
 		;
 }

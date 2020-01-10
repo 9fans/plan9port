@@ -49,4 +49,3 @@ udpwrite(int fd, Udphdr *hdr, void *buf, long n)
 	*(u16int*)&sin.sin_port = *(u16int*)hdr->rport;
 	return sendto(fd, buf, n, 0, (struct sockaddr*)&sin, sizeof sin);
 }
-

@@ -42,7 +42,7 @@ static int Xlune(struct place *place, double *x, double *y)
 	deny = w1y + w2y;
 	cdiv(numx, numy, denx, deny, x, y);
 	return 1;
-}	
+}
 
 proj
 lune(double lat, double theta)

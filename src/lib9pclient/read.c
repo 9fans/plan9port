@@ -43,7 +43,7 @@ fspread(CFid *fid, void *buf, long n, vlong offset)
 		}
 	}
 	free(freep);
-	
+
 	return rx.count;
 }
 
@@ -68,5 +68,3 @@ fsreadn(CFid *fid, void *buf, long n)
 	}
 	return tot;
 }
-			
-

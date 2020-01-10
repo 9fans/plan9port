@@ -183,4 +183,3 @@ ds2acid(Dwarf *d, DwarfSym *s, Biobuf *b, char *fn)
 		break;
 	}
 }
-

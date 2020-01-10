@@ -26,7 +26,7 @@ enum
 	Osetport
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"s",		Fnum,	Os,	"source port",	} ,
 	{"d",		Fnum,	Od,	"dest port",	} ,

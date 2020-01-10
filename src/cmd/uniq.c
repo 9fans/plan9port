@@ -160,10 +160,10 @@ skip(char *s)
 	while(nf++ < fields) {
 		while(*s == ' ' || *s == '\t')
 			s++;
-		while(!(*s == ' ' || *s == '\t' || *s == 0) ) 
+		while(!(*s == ' ' || *s == '\t' || *s == 0) )
 			s++;
 	}
-	while(nl++ < letters && *s != 0) 
+	while(nl++ < letters && *s != 0)
 			s++;
 	return s;
 }

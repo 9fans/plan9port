@@ -62,7 +62,7 @@ struct MachoSect
 	uint32 reloff;
 	uint32 nreloc;
 	uint32 flags;
-	
+
 	MachoRel *rel;
 };
 
@@ -82,7 +82,7 @@ struct MachoSymtab
 	uint32 nsym;
 	uint32 stroff;
 	uint32 strsize;
-	
+
 	char *str;
 	MachoSym *sym;
 };

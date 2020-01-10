@@ -51,7 +51,7 @@ void globfont(void)
 	} else if (strcmp(temp, "R") == 0 || strncmp(temp, "ro", 2) == 0) {
 		ft = ROM;
 		strcpy(temp, "1");
-	} else { 
+	} else {
 		ft = ROM;	/* assume it's a roman style */
 	}
 	ftstack[0].ft = ft;

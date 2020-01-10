@@ -9,10 +9,10 @@ main(void)
 	Biobuf b, bout;
 	char *p, *s;
 	char buf[100000];
-	
+
 	Binit(&b, 0, OREAD);
 	Binit(&bout, 1, OWRITE);
-	
+
 	while((p = Brdline(&b, '\n')) != nil){
 		p[Blinelen(&b)-1] = 0;
 		werrstr("no error");

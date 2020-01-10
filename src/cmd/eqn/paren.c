@@ -121,7 +121,7 @@ void paren(int leftc, int p1, int rightc)
 			printf("\\v'%gm'", -bv);
 	}
 	printf("\n");
-	dprintf(".\tcurly: h=%g b=%g n=%d v=%g l=%c, r=%c\n", 
+	dprintf(".\tcurly: h=%g b=%g n=%d v=%g l=%c, r=%c\n",
 		eht[yyval], ebase[yyval], n, v, leftc, rightc);
 }
 

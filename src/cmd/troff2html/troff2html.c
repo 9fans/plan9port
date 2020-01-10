@@ -299,7 +299,7 @@ emit(Rune r)
 {
 	emitul(r | attr, 0);
 	/*
-	 * Close man page references early, so that 
+	 * Close man page references early, so that
 	 * .IR proof (1),
 	 * doesn't make the comma part of the link.
 	 */

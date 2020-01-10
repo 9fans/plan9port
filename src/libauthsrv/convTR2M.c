@@ -24,4 +24,3 @@ convTR2M(Ticketreq *f, char *ap)
 	n = p - (uchar*)ap;
 	return n;
 }
-

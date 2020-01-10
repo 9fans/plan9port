@@ -63,7 +63,7 @@ static int passwordinclear;
 static int didtls;
 
 typedef struct Msg Msg;
-struct Msg 
+struct Msg
 {
 	int upasnum;
 	char digest[64];
@@ -575,7 +575,7 @@ stlscmd(char*)
 	Binit(&out, 1, OWRITE);
 	didtls = 1;
 	return 0;
-}		
+}
 
 static int
 topcmd(char *arg)
@@ -643,7 +643,7 @@ uidlcmd(char *arg)
 			return senderr("no such message");
 		sendok("%d %s", n+1, msg[n].digest);
 	}
-	return 0;	
+	return 0;
 }
 
 static char*
@@ -746,7 +746,7 @@ dologin(char *response)
 		if(tries++ >= 5){
 			senderr("authentication failed: %r; server exiting");
 			exits(nil);
-		}	
+		}
 		return senderr("authentication failed");
 	}
 
@@ -801,4 +801,3 @@ apopcmd(char *arg)
 		return -1;
 	return dologin(resp);
 }
-

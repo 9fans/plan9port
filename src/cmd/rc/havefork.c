@@ -37,11 +37,11 @@ Xasync(void)
 		 * ssh foo & will reopen /dev/tty, try to read a password,
 		 * get a signal, and repeat, in a tight loop, forever.
 		 * Arguably this is a bug in ssh (it behaves the same
-		 * way under bash as under rc) but I'm fixing it here 
+		 * way under bash as under rc) but I'm fixing it here
 		 * anyway.  If we dissociate the process from the tty,
 		 * then it won't be able to open /dev/tty ever again.
 		 * The SIG_IGN on SIGTTOU makes writing the tty
-		 * (via fd 1 or 2, for example) succeed even though 
+		 * (via fd 1 or 2, for example) succeed even though
 		 * our pgrp is not the terminal's controlling pgrp.
 		 */
 		if((tty = open("/dev/tty", OREAD)) >= 0){

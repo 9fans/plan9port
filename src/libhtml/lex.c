@@ -31,11 +31,11 @@ Rune **tagnames;
 char *_tagnames[] = {
 	" ",
 	"!",
-	"a", 
+	"a",
 	"abbr",
 	"acronym",
 	"address",
-	"applet", 
+	"applet",
 	"area",
 	"b",
 	"base",
@@ -614,7 +614,7 @@ buftostr(Rune* s, Rune* buf, int j)
 	buf[j] = 0;
 	if(s == nil)
 		tmp = _Strndup(buf, j);
-	else 
+	else
 		tmp = _Strdup2(s, buf);
 	free(s);
 	return tmp;

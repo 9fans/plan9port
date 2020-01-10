@@ -25,7 +25,7 @@ enum		/* agent protocol packet types */
 	SSH_AGENTC_ADD_RSA_IDENTITY,
 	SSH_AGENTC_REMOVE_RSA_IDENTITY,
 	SSH_AGENTC_REMOVE_ALL_RSA_IDENTITIES,
-	
+
 	SSH2_AGENTC_REQUEST_IDENTITIES = 11,
 	SSH2_AGENT_IDENTITIES_ANSWER,
 	SSH2_AGENTC_SIGN_REQUEST,
@@ -42,12 +42,12 @@ enum		/* agent protocol packet types */
 	SSH_AGENTC_ADD_RSA_ID_CONSTRAINED,
 	SSH2_AGENTC_ADD_ID_CONSTRAINED,
 	SSH_AGENTC_ADD_SMARTCARD_KEY_CONSTRAINED,
-	
+
 	SSH_AGENT_CONSTRAIN_LIFETIME = 1,
 	SSH_AGENT_CONSTRAIN_CONFIRM = 2,
 
 	SSH2_AGENT_FAILURE = 30,
-	
+
 	SSH_COM_AGENT2_FAILURE = 102,
 	SSH_AGENT_OLD_SIGNATURE = 0x01
 };
@@ -121,12 +121,12 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc > 1)
 		usage();
 	if(argc == 1)
 		factotum = argv[0];
-		
+
 	if(dotextlist)
 		listkeystext();
 
@@ -145,7 +145,7 @@ threadmain(int argc, char **argv)
 
 	if((afd = announce(addr, adir)) < 0)
 		sysfatal("announce %s: %r", addr);
-	
+
 	print("SSH_AUTH_SOCK=%s;\n", sock);
 	if(export)
 		print("export SSH_AUTH_SOCK;\n");
@@ -178,7 +178,7 @@ agentproc(void *v)
 {
 	Aconn *a;
 	int n;
-	
+
 	a = v;
 	a->fd = accept(a->ctl, a->dir);
 	close(a->ctl);
@@ -209,7 +209,7 @@ int
 get2(Msg *m)
 {
 	uint x;
-	
+
 	if(m->p+2 > m->ep)
 		return 0;
 	x = (m->p[0]<<8)|m->p[1];
@@ -232,7 +232,7 @@ uchar*
 getn(Msg *m, uint n)
 {
 	uchar *p;
-	
+
 	if(m->p+n > m->ep)
 		return nil;
 	p = m->p;
@@ -261,7 +261,7 @@ getmp(Msg *m)
 {
 	int n;
 	uchar *p;
-	
+
 	n = (get2(m)+7)/8;
 	if((p=getn(m, n)) == nil)
 		return nil;
@@ -273,7 +273,7 @@ getmp2(Msg *m)
 {
 	int n;
 	uchar *p;
-	
+
 	n = get4(m);
 	if((p = getn(m, n)) == nil)
 		return nil;
@@ -301,7 +301,7 @@ getm(Msg *m, Msg *mm)
 {
 	uint n;
 	uchar *p;
-	
+
 	n = get4(m);
 	if((p = getn(m, n)) == nil)
 		return nil;
@@ -347,7 +347,7 @@ void
 put4(Msg *m, uint n)
 {
 	uchar *p;
-	
+
 	p = ensure(m, 4);
 	p[0] = (n>>24)&0xFF;
 	p[1] = (n>>16)&0xFF;
@@ -359,7 +359,7 @@ void
 put2(Msg *m, uint n)
 {
 	uchar *p;
-	
+
 	p = ensure(m, 2);
 	p[0] = (n>>8)&0xFF;
 	p[1] = n&0xFF;
@@ -369,7 +369,7 @@ void
 put1(Msg *m, uint n)
 {
 	uchar *p;
-	
+
 	p = ensure(m, 1);
 	p[0] = n&0xFF;
 }
@@ -378,7 +378,7 @@ void
 putn(Msg *m, void *a, uint n)
 {
 	uchar *p;
-	
+
 	p = ensure(m, n);
 	memmove(p, a, n);
 }
@@ -388,7 +388,7 @@ putmp(Msg *m, mpint *b)
 {
 	int bits, n;
 	uchar *p;
-	
+
 	bits = mpsignif(b);
 	put2(m, bits);
 	n = (bits+7)/8;
@@ -401,7 +401,7 @@ putmp2(Msg *m, mpint *b)
 {
 	int bits, n;
 	uchar *p;
-	
+
 	if(mpcmp(b, mpzero) == 0){
 		put4(m, 0);
 		return;
@@ -421,7 +421,7 @@ void
 putstr(Msg *m, char *s)
 {
 	int n;
-	
+
 	n = strlen(s);
 	put4(m, n);
 	putn(m, s, n);
@@ -431,7 +431,7 @@ void
 putm(Msg *m, Msg *mm)
 {
 	uint n;
-	
+
 	n = mm->p - mm->bp;
 	put4(m, n);
 	putn(m, mm->bp, n);
@@ -450,7 +450,7 @@ reply(Aconn *a, Msg *m)
 {
 	uint n;
 	uchar *p;
-	
+
 	n = (m->p - m->bp) - 4;
 	p = m->bp;
 	p[0] = (n>>24)&0xFF;
@@ -513,7 +513,7 @@ void
 printattr(char **f, int nf)
 {
 	int i;
-	
+
 	print("#");
 	for(i=0; i<nf; i++)
 		print(" %s", f[i]);
@@ -571,7 +571,7 @@ RSApub*
 getrsapub(Msg *m)
 {
 	RSApub *k;
-	
+
 	k = rsapuballoc();
 	if(k == nil)
 		return nil;
@@ -624,7 +624,7 @@ putkey2(Msg *m, int (*put)(Msg*,char**,int), char **f, int nf)
 {
 	char *p;
 	Msg mm;
-	
+
 	newmsg(&mm);
 	if(put(&mm, f, nf) < 0)
 		return -1;
@@ -642,7 +642,7 @@ printkey(char *type, int (*put)(Msg*,char**,int), char **f, int nf)
 {
 	Msg m;
 	char *p;
-	
+
 	newmsg(&m);
 	if(put(&m, f, nf) < 0)
 		return -1;
@@ -660,7 +660,7 @@ DSApub*
 getdsapub(Msg *m)
 {
 	DSApub *k;
-	
+
 	k = dsapuballoc();
 	if(k == nil)
 		return nil;
@@ -825,7 +825,7 @@ dorsa(Aconn *a, mpint *mod, mpint *exp, mpint *chal, uchar chalbuf[32])
 		auth_freerpc(rpc);
 		return -1;
 	}
-	
+
 	p = mptoa(chal, 16, nil, 0);
 	if(p == nil){
 		fprint(2, "ssh-agent: dorsa: mptoa: %r\n");
@@ -874,7 +874,7 @@ keysign(Msg *mkey, Msg *mdata, Msg *msig)
 	DSApub *dsa;
 	char buf[4096];
 	uchar digest[SHA1dlen];
-	
+
 	s = getstr(mkey);
 	if(strcmp(s, "ssh-rsa") == 0){
 		rsa = getrsapub(mkey);
@@ -935,7 +935,7 @@ runmsg(Aconn *a)
 	uint len, flags;
 	DigestState *s;
 	Msg m, mkey, mdata, msig;
-	
+
 	if(a->ndata < 4)
 		return 0;
 	len = (a->data[0]<<24)|(a->data[1]<<16)|(a->data[2]<<8)|a->data[3];
@@ -993,7 +993,7 @@ runmsg(Aconn *a)
 			goto Failchal;
 		md5(sessid, 16, digest, s);
 		print("md5 %.*H %.*H => %.*H\n", 32, chalbuf, 16, sessid, MD5dlen, digest);
-		
+
 		newreply(&m, SSH_AGENT_RSA_RESPONSE);
 		putn(&m, digest, 16);
 		reply(a, &m);
@@ -1020,22 +1020,22 @@ runmsg(Aconn *a)
 		mreset(&msig);
 		reply(a, &m);
 		break;
-		
+
 	case SSH_AGENTC_ADD_RSA_IDENTITY:
 		/*
 			msg: n[4] mod[mp] pubexp[exp] privexp[mp]
 				p^-1 mod q[mp] p[mp] q[mp] comment[str]
 		 */
 		goto Failure;
-		
+
 	case SSH_AGENTC_REMOVE_RSA_IDENTITY:
 		/*
 			msg: n[4] mod[mp] pubexp[mp]
 		 */
 		goto Failure;
-		
+
 	}
-	
+
 	a->ndata -= 4+len;
 	memmove(a->data, a->data+4+len, a->ndata);
 	return 1;
@@ -1064,4 +1064,3 @@ erealloc(void *v, int n)
 	}
 	return v;
 }
-

@@ -30,4 +30,3 @@ main(int argc, char **argv)
 	print("%s\n", ns);
 	exits(0);
 }
-

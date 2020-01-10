@@ -3,7 +3,7 @@
 
 /*
  * RSA authentication.
- * 
+ *
  * Encrypt/Decrypt:
  *	start n=xxx ek=xxx
  *	write msg
@@ -13,7 +13,7 @@
  *	start n=xxx ek=xxx
  *	write hash(msg)
  *	read signature(hash(msg))
- * 
+ *
  * Verify:
  *	start n=xxx ek=xxx
  *	write hash(msg)
@@ -44,14 +44,14 @@ xrsadecrypt(Conv *c)
 	if(k == nil)
 		goto out;
 	key = k->priv;
-	
+
 	/* make sure have private half if needed */
 	role = strfindattr(c->attr, "role");
 	if(strcmp(role, "decrypt") == 0 && !key->c2){
 		werrstr("missing private half of key -- cannot decrypt");
 		goto out;
 	}
-	
+
 	/* read text */
 	c->state = "read";
 	if((n=convreadm(c, &txt)) < 0)
@@ -60,7 +60,7 @@ xrsadecrypt(Conv *c)
 		convprint(c, "data too short");
 		goto out;
 	}
-	
+
 	/* encrypt/decrypt */
 	m = betomp((uchar*)txt, n, nil);
 	if(m == nil)
@@ -72,7 +72,7 @@ xrsadecrypt(Conv *c)
 	if(mm == nil)
 		goto out;
 	n = mptobe(mm, (uchar*)buf, sizeof buf, nil);
-	
+
 	/* send response */
 	c->state = "write";
 	convwrite(c, buf, n);
@@ -98,7 +98,7 @@ xrsasign(Conv *c)
 	char *sig2;
 
 	ret = -1;
-	
+
 	/* fetch key */
 	c->state = "keylookup";
 	k = keylookup("%A", c->attr);
@@ -112,7 +112,7 @@ xrsasign(Conv *c)
 		werrstr("missing private half of key -- cannot sign");
 		goto out;
 	}
-	
+
 	/* get hash type from key */
 	hash = strfindattr(k->attr, "hash");
 	if(hash == nil)
@@ -144,7 +144,7 @@ xrsasign(Conv *c)
 		/* read signature */
 		if((n = convreadm(c, &sig2)) < 0)
 			goto out;
-			
+
 		/* verify */
 		if(rsaverify(&key->pub, hashfn, digest, dlen, (uchar*)sig2, n) == 0)
 			convprint(c, "ok");
@@ -160,7 +160,7 @@ out:
 }
 
 /*
- * convert to canonical form (lower case) 
+ * convert to canonical form (lower case)
  * for use in attribute matches.
  */
 static void
@@ -180,22 +180,22 @@ readrsapriv(Key *k)
 
 	priv = rsaprivalloc();
 
-	if((a=strfindattr(k->attr, "ek"))==nil 
+	if((a=strfindattr(k->attr, "ek"))==nil
 	|| (priv->pub.ek=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->attr, "n"))==nil 
+	if((a=strfindattr(k->attr, "n"))==nil
 	|| (priv->pub.n=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
 	if(k->privattr == nil)	/* only public half */
 		return priv;
 
-	if((a=strfindattr(k->privattr, "!p"))==nil 
+	if((a=strfindattr(k->privattr, "!p"))==nil
 	|| (priv->p=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "!q"))==nil 
+	if((a=strfindattr(k->privattr, "!q"))==nil
 	|| (priv->q=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
@@ -203,19 +203,19 @@ readrsapriv(Key *k)
 		werrstr("rsa: p or q not prime");
 		goto Error;
 	}
-	if((a=strfindattr(k->privattr, "!kp"))==nil 
+	if((a=strfindattr(k->privattr, "!kp"))==nil
 	|| (priv->kp=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "!kq"))==nil 
+	if((a=strfindattr(k->privattr, "!kq"))==nil
 	|| (priv->kq=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "!c2"))==nil 
+	if((a=strfindattr(k->privattr, "!c2"))==nil
 	|| (priv->c2=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
-	if((a=strfindattr(k->privattr, "!dk"))==nil 
+	if((a=strfindattr(k->privattr, "!dk"))==nil
 	|| (priv->dk=strtomp(a, nil, 16, nil))==nil)
 		goto Error;
 	strlwr(a);
@@ -230,7 +230,7 @@ static int
 rsacheck(Key *k)
 {
 	static int first = 1;
-	
+
 	if(first){
 		fmtinstall('B', mpfmt);
 		first = 0;
@@ -251,7 +251,7 @@ rsaclose(Key *k)
 }
 
 static Role
-rsaroles[] = 
+rsaroles[] =
 {
 	"sign",	xrsasign,
 	"verify",	xrsasign,	/* public operation */

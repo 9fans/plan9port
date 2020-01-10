@@ -29,7 +29,7 @@ questionmark(void)
 	static Image *im;
 
 	if(im)
-		return im;	
+		return im;
 	im = xallocimage(display, Rect(0,0,50,50), GREY1, 1, DBlack);
 	if(im == nil)
 		return nil;
@@ -165,7 +165,7 @@ static void
 raproc(void *a)
 {
 	Cached *c;
-	
+
 	c = a;
 	lockdisplay(display);
 	/*
@@ -187,7 +187,7 @@ cachedpage(Document *doc, int angle, int page)
 	Cached *c;
 	Image *im;
 	int ra;
-	
+
 	if(doc->npage < 1)
 		return display->white;
 

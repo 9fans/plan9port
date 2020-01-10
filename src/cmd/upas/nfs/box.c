@@ -30,7 +30,7 @@ Box*
 subbox(Box *b, char *elem)
 {
 	int i;
-	
+
 	for(i=0; i<b->nsub; i++)
 		if(b->sub[i] && strcmp(b->sub[i]->elem, elem) == 0)
 			return b->sub[i];
@@ -41,7 +41,7 @@ Box*
 boxbyid(uint id)
 {
 	int i;
-	
+
 	/* LATER: replace with binary search */
 	for(i=0; i<nboxes; i++)
 		if(boxes[i] && boxes[i]->id == id)
@@ -54,10 +54,10 @@ boxcreate(char *name)
 {
 	char *p;
 	Box *b, *bb;
-	
+
 	if((b = boxbyname(name)) != nil)
 		return b;
-	
+
 	b = emalloc(sizeof *b);
 	b->id = ++boxid;
 	b->time = time(0);
@@ -87,7 +87,7 @@ void
 boxfree(Box *b)
 {
 	int i;
-	
+
 	if(b == nil)
 		return;
 	for(i=0; i<b->nmsg; i++)
@@ -100,12 +100,12 @@ Part*
 partcreate(Msg *m, Part *pp)
 {
 	Part *p;
-	
+
 	if(m->npart%PartChunk == 0)
 		m->part = erealloc(m->part, (m->npart+PartChunk)*sizeof m->part[0]);
 	p = emalloc(sizeof *p);
 	p->msg = m;
-	p->ix = m->npart;	
+	p->ix = m->npart;
 	m->part[m->npart++] = p;
 	if(pp){
 		if(pp->nsub%PartSubChunk == 0)
@@ -121,7 +121,7 @@ void
 partfree(Part *p)
 {
 	int i;
-	
+
 	if(p == nil)
 		return;
 	for(i=0; i<p->nsub; i++)
@@ -145,7 +145,7 @@ void
 msgfree(Msg *m)
 {
 	int i;
-	
+
 	if(m == nil)
 		return;
 	for(i=0; i<m->npart; i++)
@@ -162,7 +162,7 @@ msgplumb(Msg *m, int delete)
 	Plumbattr a[10];
 	char buf[256], date[40];
 	int ai;
-	
+
 	if(m == nil || m->npart < 1 || m->part[0]->hdr == nil)
 		return;
 	if(m->box && strcmp(m->box->name, "mbox") != 0)
@@ -176,7 +176,7 @@ msgplumb(Msg *m, int delete)
 	ai = 0;
 	a[ai].name = "filetype";
 	a[ai].value = "mail";
-	
+
 	a[++ai].name = "mailtype";
 	a[ai].value = delete?"delete":"new";
 	a[ai-1].next = &a[ai];
@@ -198,15 +198,15 @@ msgplumb(Msg *m, int delete)
 		a[ai].value = m->part[0]->hdr->digest;
 		a[ai-1].next = &a[ai];
 	}
-	
+
 	strcpy(date, ctime(m->date));
 	date[strlen(date)-1] = 0;	/* newline */
 	a[++ai].name = "date";
 	a[ai].value = date;
 	a[ai-1].next = &a[ai];
-	
+
 	a[ai].next = nil;
-	
+
 	p.attr = a;
 #ifdef PLAN9PORT
 	snprint(buf, sizeof buf, "Mail/%s/%ud", m->box->name, m->id);
@@ -215,7 +215,7 @@ msgplumb(Msg *m, int delete)
 #endif
 	p.ndata = strlen(buf);
 	p.data = buf;
-	
+
 	if(fd < 0)
 		fd = plumbopen("send", OWRITE);
 	if(fd < 0)
@@ -229,7 +229,7 @@ Msg*
 msgcreate(Box *box)
 {
 	Msg *m;
-	
+
 	m = emalloc(sizeof *m);
 	m->box = box;
 	partcreate(m, nil);
@@ -319,4 +319,3 @@ boxinit(void)
 	rootbox->name = estrdup("");
 	rootbox->time = time(0);
 }
-

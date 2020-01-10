@@ -19,16 +19,16 @@
   1. Redistributions of source code must retain the above copyright
      notice, this list of conditions and the following disclaimer.
 
-  2. The origin of this software must not be misrepresented; you must 
-     not claim that you wrote the original software.  If you use this 
-     software in a product, an acknowledgment in the product 
+  2. The origin of this software must not be misrepresented; you must
+     not claim that you wrote the original software.  If you use this
+     software in a product, an acknowledgment in the product
      documentation would be appreciated but is not required.
 
   3. Altered source versions must be plainly marked as such, and must
      not be misrepresented as being the original software.
 
-  4. The name of the author may not be used to endorse or promote 
-     products derived from this software without specific prior written 
+  4. The name of the author may not be used to endorse or promote
+     products derived from this software without specific prior written
      permission.
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -82,10 +82,10 @@
 #include "bzlib_stdio_private.h"
 
 /*---------------------------------------------------*/
-BZFILE* BZ_API(BZ2_bzWriteOpen) 
-                    ( int*  bzerror,      
-                      FILE* f, 
-                      int   blockSize100k, 
+BZFILE* BZ_API(BZ2_bzWriteOpen)
+                    ( int*  bzerror,
+                      FILE* f,
+                      int   blockSize100k,
                       int   verbosity,
                       int   workFactor )
 {
@@ -117,23 +117,23 @@ BZFILE* BZ_API(BZ2_bzWriteOpen)
    bzf->strm.opaque   = NULL;
 
    if (workFactor == 0) workFactor = 30;
-   ret = BZ2_bzCompressInit ( &(bzf->strm), blockSize100k, 
+   ret = BZ2_bzCompressInit ( &(bzf->strm), blockSize100k,
                               verbosity, workFactor );
    if (ret != BZ_OK)
       { BZ_SETERR(ret); free(bzf); return NULL; };
 
    bzf->strm.avail_in = 0;
    bzf->initialisedOk = True;
-   return bzf;   
+   return bzf;
 }
 
 
 
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzWrite)
-             ( int*    bzerror, 
-               BZFILE* b, 
-               void*   buf, 
+             ( int*    bzerror,
+               BZFILE* b,
+               void*   buf,
                int     len )
 {
    Int32 n, n2, ret;
@@ -162,7 +162,7 @@ void BZ_API(BZ2_bzWrite)
 
       if (bzf->strm.avail_out < BZ_MAX_UNUSED) {
          n = BZ_MAX_UNUSED - bzf->strm.avail_out;
-         n2 = fwrite ( (void*)(bzf->buf), sizeof(UChar), 
+         n2 = fwrite ( (void*)(bzf->buf), sizeof(UChar),
                        n, bzf->handle );
          if (n != n2 || ferror(bzf->handle))
             { BZ_SETERR(BZ_IO_ERROR); return; };
@@ -176,20 +176,20 @@ void BZ_API(BZ2_bzWrite)
 
 /*---------------------------------------------------*/
 void BZ_API(BZ2_bzWriteClose)
-                  ( int*          bzerror, 
-                    BZFILE*       b, 
+                  ( int*          bzerror,
+                    BZFILE*       b,
                     int           abandon,
                     unsigned int* nbytes_in,
                     unsigned int* nbytes_out )
 {
-   BZ2_bzWriteClose64 ( bzerror, b, abandon, 
+   BZ2_bzWriteClose64 ( bzerror, b, abandon,
                         nbytes_in, NULL, nbytes_out, NULL );
 }
 
 
 void BZ_API(BZ2_bzWriteClose64)
-                  ( int*          bzerror, 
-                    BZFILE*       b, 
+                  ( int*          bzerror,
+                    BZFILE*       b,
                     int           abandon,
                     unsigned int* nbytes_in_lo32,
                     unsigned int* nbytes_in_hi32,
@@ -221,7 +221,7 @@ void BZ_API(BZ2_bzWriteClose64)
 
          if (bzf->strm.avail_out < BZ_MAX_UNUSED) {
             n = BZ_MAX_UNUSED - bzf->strm.avail_out;
-            n2 = fwrite ( (void*)(bzf->buf), sizeof(UChar), 
+            n2 = fwrite ( (void*)(bzf->buf), sizeof(UChar),
                           n, bzf->handle );
             if (n != n2 || ferror(bzf->handle))
                { BZ_SETERR(BZ_IO_ERROR); return; };
@@ -250,4 +250,3 @@ void BZ_API(BZ2_bzWriteClose64)
    BZ2_bzCompressEnd ( &(bzf->strm) );
    free ( bzf );
 }
-

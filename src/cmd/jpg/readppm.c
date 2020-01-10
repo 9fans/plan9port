@@ -21,7 +21,7 @@ Bgetch(Biobuf *b)
 		while((c = Bgetc(b)) != Beof && c != '\n')
 			;
 	}
-	return c;		
+	return c;
 }
 
 /*
@@ -40,7 +40,7 @@ Bgetint(Biobuf *b)
 		return -1;
 
 	i = 0;
-	do { 
+	do {
 		i = i*10 + (c-'0');
 	} while((c = Bgetch(b)) != Beof && isdigit(c));
 

@@ -4,7 +4,7 @@
  * The single point of truth for the info about the VtFiles themselves
  * is the block data.  Because of this, there is no explicit locking of
  * VtFile structures, and indeed there may be more than one VtFile
- * structure for a given Venti file.  They synchronize through the 
+ * structure for a given Venti file.  They synchronize through the
  * block cache.
  *
  * This is a bit simpler than fossil because there are no epochs
@@ -182,7 +182,7 @@ _vtfilecreate(VtFile *r, int o, int psize, int dsize, int type)
 	int epb;
 	VtFile *rr;
 	u32int offset;
-	
+
 	assert(ISLOCKED(r));
 	assert(type == VtDirType || type == VtDataType);
 
@@ -574,7 +574,7 @@ growdepth(VtFile *r, VtBlock *p, VtEntry *e, int depth)
 		if(bb == nil)
 			break;
 		memmove(bb->data, b->score, VtScoreSize);
-		memmove(e->score, bb->score, VtScoreSize);	
+		memmove(e->score, bb->score, VtScoreSize);
 		e->type++;
 		e->flags |= VtEntryLocal;
 		vtblockput(b);
@@ -671,7 +671,7 @@ mkindices(VtEntry *e, u32int bn, int *index)
 	}
 	return i;
 }
-	
+
 VtBlock *
 vtfileblock(VtFile *r, u32int bn, int mode)
 {
@@ -985,7 +985,7 @@ sizetodepth(uvlong s, int psize, int dsize)
 {
 	int np;
 	int d;
-	
+
 	/* determine pointer depth */
 	np = psize/VtScoreSize;
 	s = (s + dsize - 1)/dsize;
@@ -1125,7 +1125,7 @@ flushblock(VtCache *c, VtBlock *bb, uchar score[VtScoreSize], int ppb, int epb,
 			vtentrypack(&e, b->data, i);
 		}
 		break;
-	
+
 	default:	/* VtPointerTypeX */
 		for(i=0; i<ppb; i++){
 			if(flushblock(c, nil, b->data+VtScoreSize*i, ppb, epb, type-1) < 0)
@@ -1233,13 +1233,13 @@ vtfileflushbefore(VtFile *r, u64int offset)
 		}else{
 			/*
 			 * interior node: pointer blocks.
-			 * specifically, b = bi[i] is a block whose index[i-1]'th entry 
-			 * points at bi[i-1].  
+			 * specifically, b = bi[i] is a block whose index[i-1]'th entry
+			 * points at bi[i-1].
 			 */
 			b = bi[i];
 
 			/*
-			 * the index entries up to but not including index[i-1] point at 
+			 * the index entries up to but not including index[i-1] point at
 			 * finished blocks, so flush them for sure.
 			 */
 			for(j=0; j<index[i-1]; j++)

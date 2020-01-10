@@ -30,4 +30,3 @@ typedef long long		vlong;
 
 #undef	nelem
 #define	nelem	((void*)0)
-

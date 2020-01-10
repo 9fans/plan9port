@@ -17,7 +17,7 @@ cosadd(int n, ...)
 	int i;
 	double sum, a1, a2;
 	va_list arg;
-	
+
 	sum = 0;
 	cp = cacp;
 	va_start(arg, n);

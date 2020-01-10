@@ -1,4 +1,4 @@
-/* 
+/*
  * SNAP.
  */
 
@@ -12,7 +12,7 @@ enum
 {
 	Oorg,
 	Oet,
-	
+
 	OuiEther = 0,
 	OuiCisco = 0xc,
 	OuiCisco90 = 0xf8,

@@ -10,7 +10,7 @@ displaypic(Picture *pic)
 	int p[2];
 	int i, n;
 	uchar *a;
-	
+
 
 	if(pipe(p) < 0){
 		fprint(2, "pipe failed: %r\n");
@@ -58,7 +58,7 @@ displaypic(Picture *pic)
 void
 displayimage(Image *im)
 {
-	int p[2];	
+	int p[2];
 
 	if(pipe(p) < 0){
 		fprint(2, "pipe failed: %r\n");

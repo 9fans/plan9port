@@ -59,4 +59,3 @@ searchpath(char *name)
 	free(path);
 	return nil;
 }
-

@@ -13,13 +13,13 @@ findarg(char *flags, Rune r)
 {
 	char *p;
 	Rune rr;
-	
+
 	for(p=flags; p!=(char*)1; p=strchr(p, ',')+1){
 		chartorune(&rr, p);
 		if(rr == r)
 			return p;
 	}
-	return nil;	
+	return nil;
 }
 
 int
@@ -42,11 +42,11 @@ main(int argc, char *argv[])
 	char *flags, *p, buf[512];
 	int i, n;
 	Fmt fmt;
-	
-	doquote = needsrcquote;	
+
+	doquote = needsrcquote;
 	quotefmtinstall();
 	argv0 = argv[0];	/* for sysfatal */
-	
+
 	flags = getenv("flagfmt");
 	if(flags == nil){
 		fprint(2, "$flagfmt not set\n");
@@ -72,7 +72,7 @@ main(int argc, char *argv[])
 			fmtprint(&fmt, "%s%q", i ? " " : "", EARGF(usage()));
 		fmtprint(&fmt, ")\n");
 	}ARGEND
-	
+
 	fmtprint(&fmt, "*=(");
 	for(i=0; i<argc; i++)
 		fmtprint(&fmt, "%s%q", i ? " " : "", argv[i]);

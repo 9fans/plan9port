@@ -25,7 +25,7 @@ _ioproc(void *arg)
 {
 	Rune r;
 	Keyboardctl *kc;
-	
+
 	kc = arg;
 	threadsetname("kbdproc");
 	for(;;){
@@ -49,4 +49,3 @@ initkeyboard(char *file)
 	proccreate(_ioproc, kc, 32*1024);
 	return kc;
 }
-

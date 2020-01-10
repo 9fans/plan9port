@@ -47,7 +47,7 @@ hmot(int x) {
 		if (delta == troffontab[curtrofffontid].spacewidth*fontsize/10 && isinstring()) {
 			if (pageon()) runeout(' ');
 		} else {
-			if (pageon()) {	
+			if (pageon()) {
 				endstring();
 				/* Bprint(Bstdout, " %d 0 rmoveto ", delta); */
 /*				Bprint(Bstdout, " %d %d m ", hpos+x, vpos); */
@@ -160,7 +160,7 @@ if (debug) fprint(2, "	looking through special fonts: trying %s\n", troffontab[f
 			if (*cp != 0) goto foundit;
 		}
 	}
-	
+
 	if (*cp == 0) {
 		error(WARNING, "cannot find glyph, rune=0x%x stoken=<%s> troff font %s\n", rune, stoken,
 			troffontab[curtrofffontid].trfontid);
@@ -174,7 +174,7 @@ foundit:
 		Bprint(Bstderr, "runeout(0x%x)<%C> postfontid=0x%x postcharid=0x%x troffcharwidth=%d\n",
 			rune, rune, (*cp)->postfontid, (*cp)->postcharid, (*cp)->troffcharwidth);
 	}
-		
+
 	tfp = &(troffontab[fontid]);
 	for (i=0; i<tfp->psfmapsize; i++) {
 		psfp = &(tfp->psfmap[i]);

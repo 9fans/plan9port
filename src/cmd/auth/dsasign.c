@@ -30,10 +30,10 @@ threadmain(int argc, char **argv)
 	uchar digest[SHA1dlen];
 	AuthRpc *rpc;
 	Fmt fmt;
-	
+
 	fmtinstall('[', encodefmt);
 	fmtinstall('H', encodefmt);
-	
+
 	verify = 0;
 	id = "";
 	ARGBEGIN{
@@ -46,7 +46,7 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 1)
 		usage();
 	key = argv[0];
@@ -68,7 +68,7 @@ threadmain(int argc, char **argv)
 		auth_freerpc(rpc);
 		threadexits("rpc");
 	}
-	
+
 	print("+%s\n", id);
 
 	Binit(&b, 0, OREAD);
@@ -96,7 +96,7 @@ keytomp(Attr *a, char *name)
 {
 	char *p;
 	mpint *m;
-	
+
 	p = _strfindattr(a, name);
 	if(p == nil)
 		sysfatal("missing key attribute %s", name);
@@ -117,7 +117,7 @@ doVerify(void)
 	Attr *a;
 	DSAsig dsig;
 	DSApub dkey;
-	
+
 	a = _parseattr(key);
 	if(a == nil)
 		sysfatal("invalid key");
@@ -159,7 +159,7 @@ end:
 
 	if(dsaverify(&dkey, &dsig, betomp(digest, sizeof digest, nil)) < 0)
 		sysfatal("signature failed to verify: %r");
-	
+
 	write(1, text, strlen(text));
 	threadexitsall(0);
 }
@@ -169,7 +169,7 @@ getline(int *np)
 {
 	char *p;
 	int n;
-	
+
 	if((p = Brdline(&b, '\n')) == nil)
 		return nil;
 	n = Blinelen(&b);

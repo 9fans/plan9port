@@ -9,4 +9,3 @@ iprint(char *fmt,...)
 	USED(fmt);
 	return -1;
 }
-

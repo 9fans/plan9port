@@ -8,7 +8,7 @@ static void
 markboxes(int mark)
 {
 	Mailbox *b;
-	
+
 	for(i=0; i<nbox; i++)
 		if(box[i])
 			box[i]->mark = mark;
@@ -18,7 +18,7 @@ static void
 sweepboxes(void)
 {
 	Mailbox *b;
-	
+
 	for(i=0; i<nbox; i++)
 		if(box[i] && box[i]->mark){
 			freembox(box[i]);
@@ -30,7 +30,7 @@ static Mailbox*
 mboxbyname(char *name)
 {
 	int i;
-	
+
 	for(i=0; i<nbox; i++)
 		if(box[i] && strcmp(box[i]->name, name) == 0)
 			return box[i];
@@ -49,7 +49,7 @@ static Mailbox*
 mboxcreate(char *name)
 {
 	Mailbox *b;
-	
+
 	b = emalloc(sizeof *b);
 	b->name = estrdup(name);
 	if(nbox%64 == 0)

@@ -64,7 +64,7 @@ main(int argc, char **argv)
 			}
 			have = 1;
 		}
-		
+
 		if(!have){
 			Bprint(&b, "// no debugging symbols in %s\n\n", argv[i]);
 		/*	fprint(2, "no debugging symbols in %s\n", argv[i]); */
@@ -75,4 +75,3 @@ main(int argc, char **argv)
 	Bterm(&b);
 	exits(0);
 }
-

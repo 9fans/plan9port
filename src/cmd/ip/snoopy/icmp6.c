@@ -22,14 +22,14 @@ enum
 	Ot,	/* type */
 	Op,	/* next protocol */};
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"t",		Fnum,	Ot,	"type",	} ,
 	{0}
 };
 
 enum
-{	
+{
 	/* ICMPv6 types */
 	EchoReply	= 0,
 	UnreachableV6	= 1,
@@ -114,7 +114,7 @@ static char *parpcode[] =
 [2]	"unrecognized IPv6 option encountered",
 [3]	"icmp par prob: unknown code"
 };
-enum 
+enum
 {
 	sll	= 1,
 	tll	= 2,
@@ -123,7 +123,7 @@ enum
 	mtu	= 5
 };
 
-static char *icmp6opts[256] = 
+static char *icmp6opts[256] =
 {
 [0]	"unknown opt",
 [1]	"sll_addr",
@@ -206,7 +206,7 @@ opt_seprint(Msg *m)
 
 		case sll:
 		case tll:
-			if ((pktsz < osz) || (osz != 8)) { 
+			if ((pktsz < osz) || (osz != 8)) {
 				p = seprint(p, e, "\n	  option=%s bad size=%d", opt, osz);
 				m->pr = &dump;
 				return p;
@@ -217,7 +217,7 @@ opt_seprint(Msg *m)
 			break;
 
 		case pref:
-			if ((pktsz < osz) || (osz != 32)) { 
+			if ((pktsz < osz) || (osz != 32)) {
 				p = seprint(p, e, "\n	  option=%s: bad size=%d", opt, osz);
 				m->pr = &dump;
 				return p;
@@ -235,11 +235,11 @@ opt_seprint(Msg *m)
 				NetL(a+12)!=0);
 
 			pktsz -= osz;
-			a += osz;			
+			a += osz;
 			break;
 
 		case redir:
-			if (pktsz < osz) { 
+			if (pktsz < osz) {
 				p = seprint(p, e, "\n	  option=%s: bad size=%d", opt, osz);
 				m->pr = &dump;
 				return p;
@@ -248,11 +248,11 @@ opt_seprint(Msg *m)
 			p = seprint(p, e, "\n	  option=%s len %d", opt, osz);
 			a += osz;
 			m->ps = a;
-			return p;			
+			return p;
 			break;
 
 		case mtu:
-			if ((pktsz < osz) || (osz != 8)) { 
+			if ((pktsz < osz) || (osz != 8)) {
 				p = seprint(p, e, "\n	  option=%s: bad size=%d", opt, osz);
 				m->pr = &dump;
 				return p;

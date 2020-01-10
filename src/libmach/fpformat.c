@@ -35,7 +35,7 @@ fpformat(Map *map, Regdesc *rp, char *buf, uint n, uint modif)
 			if (rp->format == 'F')
 				return 1;
 			return 2;
-		}	
+		}
 			/* treat it like 'f' */
 		if (get1(map, rp->offset, (uchar *)reg, 4) < 0)
 			return -1;

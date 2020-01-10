@@ -42,7 +42,7 @@ _sha1block(uchar *p, ulong len, u32int *s)
 			a += ((b<<5) | (b>>27)) + wp[4];
 			a += 0x5a827999 + (((d^e)&c)^e);
 			c = (c<<30)|(c>>2);
-			
+
 			p += 20;
 		}
 

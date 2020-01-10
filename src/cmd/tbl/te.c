@@ -71,5 +71,3 @@ get1char(void)
 		iline++;
 	return(c);
 }
-
-

@@ -35,7 +35,7 @@ dec64(uchar *out, int lim, char *in, int n)
 	b24 = 0;
 	i = 0;
 	while(n-- > 0){
- 
+
 		c = t64d[*(uchar*)in++];
 		if(c == INVAL)
 			continue;

@@ -222,4 +222,3 @@ Err:
 	werrstr(EBadSuper);
 	return 0;
 }
-

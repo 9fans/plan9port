@@ -59,4 +59,3 @@ _uregrw(Regs *regs, char *name, u64int *u, int isr)
 		return 0;
 	}
 }
-

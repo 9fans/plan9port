@@ -85,7 +85,7 @@ mkaddrs(char *t, char **colon)
 	int i, nf, inquote;
 	char **f, *s;
 	Fmt fmt;
-	
+
 	inquote = 0;
 	nf = 2;
 	for(s=t; *s; s++){
@@ -127,7 +127,7 @@ loadinfo(Message *m, char *dir)
 	data = readfile(dir, "info", &n);
 	if(data == nil)
 		return 0;
-	
+
 	p = data;
 	while((s = line(p, &p)) != nil && *s != 0){
 		t = strchr(s, ' ');
@@ -282,7 +282,7 @@ mesgadd(Message *mbox, char *dir, Dir *d, char *digest)
 
 	if (m->level != 1){
 		m->recursed = 1;
-		readmbox(m, dir, m->name); 
+		readmbox(m, dir, m->name);
 	}
 	return 1;
 }
@@ -351,7 +351,7 @@ readfile(char *dir, char *name, int *np)
 		fsseek(fid, 0, 0);
 		free(d);
 		d = fsdirfstat(fid);
-	}	
+	}
 	free(file);
 	len = 0;
 	if(d != nil)
@@ -400,13 +400,13 @@ info(Message *m, int ind, int ogf)
 		i = estrdup(s);
 
 		return i;
-	} 
+	}
 
 	i = estrdup("");
 	i = eappend(i, "\t", p);
 	i = egrow(i, "\t", stripdate(m->date));
 	if(ind == 0){
-		if(strcmp(m->type, "text")!=0 && strncmp(m->type, "text/", 5)!=0 && 
+		if(strcmp(m->type, "text")!=0 && strncmp(m->type, "text/", 5)!=0 &&
 		   strncmp(m->type, "multipart/", 10)!=0)
 			i = egrow(i, "\t(", estrstrdup(m->type, ")"));
 	}else if(strncmp(m->type, "multipart/", 10) != 0)
@@ -647,7 +647,7 @@ mesgsave(Message *m, char *s, int save)
 		}
 		return 1;
 	}
-		
+
 	t = estrstrdup(mbox.name, m->name);
 	raw = readfile(t, "raw", &n);
 	unixheader = readfile(t, "unixheader", &k);
@@ -1160,7 +1160,7 @@ tokenizec(char *str, char **args, int max, char *splitc)
 
 	if(max <= 0)
 		return 0;
-		
+
 /*	if(strchr(str, ',') || strchr(str, '"') || strchr(str, '<') || strchr(str, '(')) */
 /*		splitc = ","; */
 	for(na=0; *str != '\0';str++){

@@ -23,4 +23,3 @@ extern int readstr(SConn*, char*);  /* call with buf of size Maxmsg+1 */
 extern void *emalloc(ulong); /* dies on failure; clears memory */
 extern void *erealloc(void *, ulong);
 extern char *estrdup(char *);
-

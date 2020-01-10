@@ -142,7 +142,7 @@ sendkey(Attr *attr)
 	int rv;
 	char buf[8192];
 	CFid *fid;
-	
+
 	fid = nsopen("factotum", nil, "ctl", OWRITE);
 	if(fid == nil)
 		sysfatal("opening factotum/ctl: %r");

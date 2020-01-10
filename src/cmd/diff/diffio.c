@@ -54,7 +54,7 @@ readline(Biobuf *bp, char *buf)
 /*
  * hashing has the effect of
  * arranging line in 7-bit bytes and then
- * summing 1-s complement in 16-bit hunks 
+ * summing 1-s complement in 16-bit hunks
  */
 static int
 readhash(Biobuf *bp, char *buf)
@@ -346,7 +346,7 @@ flushchanges(void)
 
 	if(nchanges == 0)
 		return;
-	
+
 	for(i=0; i<nchanges; ){
 		j = changeset(i);
 		a = changes[i].a-Lines;

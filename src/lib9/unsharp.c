@@ -3,7 +3,7 @@
 
 /*
  * I don't want too many of these,
- * but the ones we have are just too useful. 
+ * but the ones we have are just too useful.
  */
 static struct {
 	char *old;

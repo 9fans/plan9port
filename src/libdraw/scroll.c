@@ -25,5 +25,5 @@ mousescrollsize(int maxlines)
 
 	if(lines)
 		return lines;
-	return pcnt * maxlines/100.0;	
+	return pcnt * maxlines/100.0;
 }

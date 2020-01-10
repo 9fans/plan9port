@@ -2,7 +2,7 @@
  * HTTPDIGEST - MD5 challenge/response authentication (RFC 2617)
  *
  * Client protocol:
- *	write challenge: nonce method uri 
+ *	write challenge: nonce method uri
  *	read response: 2*MD5dlen hex digits
  *
  * Server protocol:
@@ -22,10 +22,10 @@ hdclient(Conv *c)
 	char *realm, *passwd, *user, *f[4], *s, resp[MD5dlen*2+1];
 	int ret;
 	Key *k;
-	
+
 	ret = -1;
 	s = nil;
-	
+
 	c->state = "keylookup";
 	k = keyfetch(c, "%A", c->attr);
 	if(k == nil)
@@ -45,7 +45,7 @@ hdclient(Conv *c)
 	digest(user, realm, passwd, f[0], f[1], f[2], resp);
 	convwrite(c, resp, strlen(resp));
 	ret = 0;
-	
+
 out:
 	free(s);
 	keyclose(k);
@@ -103,7 +103,7 @@ digest(char *user, char *realm, char *passwd,
 	strtolower(dig);
 }
 
-static Role hdroles[] = 
+static Role hdroles[] =
 {
 	"client",	hdclient,
 	0

@@ -44,7 +44,7 @@ void
 _vtqdecref(Queue *q)
 {
 	Qel *e;
-	
+
 	qlock(&q->lk);
 	if(--q->ref > 0){
 		qunlock(&q->lk);

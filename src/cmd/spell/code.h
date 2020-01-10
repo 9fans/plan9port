@@ -4,7 +4,7 @@
  */
 
 #define	ED		(1<<0)	/* +ed, +ing */
-#define	ADJ		(1<<1)	/* (nce)-t_ce, +ize,+al, +ness, -t+cy, +ity, +ly */	
+#define	ADJ		(1<<1)	/* (nce)-t_ce, +ize,+al, +ness, -t+cy, +ity, +ly */
 #define	NOUN		(1<<2)	/* +s (+es), +make, +hood, +ship +less  */
 #define PROP_COLLECT	(1<<3)	/* +'s,  +an, +ship(for -manship) +less */
 #define ACTOR		(1<<4)	/* +er  */
@@ -15,7 +15,7 @@
 #define	N_AFFIX		(1<<8) 	/* +ic, +ive, +ize, +like, +al, +ful, +ism, +ist, -t+cy, +c (maniac) */
 #define	V_AFFIX		(1<<9)	/* +able, +ive, +ity((bility), +ment */
 #define	V_IRREG		(1<<10)	/* +ing +es +s*/
-#define	VERB		(V_IRREG|ED) 
+#define	VERB		(V_IRREG|ED)
 #define MAN		(1<<11)	/* +man, +men, +women, +woman */
 #define	ADV		(1<<12)	/* +hood, +ness */
 #define STOP		(1<<14)	/* stop list */

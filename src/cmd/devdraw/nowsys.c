@@ -18,14 +18,14 @@ main(int argc, char **argv)
 	int n;
 	uchar buf[1024*1024];
 	Wsysmsg m;
-	
+
 	ARGBEGIN{
 	case 'D':
 		break;
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 0)
 		usage();
 

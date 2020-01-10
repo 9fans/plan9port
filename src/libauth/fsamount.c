@@ -11,7 +11,7 @@ fsamount(int fd, char *aname)
 	CFid *afid, *fid;
 	AuthInfo *ai;
 	CFsys *fs;
-	
+
 	fs = fsinit(fd);
 	if(fs == nil)
 		return nil;
@@ -30,4 +30,3 @@ noauth:
 	fssetroot(fs, fid);
 	return fs;
 }
-

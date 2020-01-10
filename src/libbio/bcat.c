@@ -14,7 +14,7 @@ bcat(Biobuf *b, char *name)
 			fprint(2, "writing during %s: %r\n", name);
 	}
 	if(n < 0)
-		fprint(2, "reading %s: %r\n", name);	
+		fprint(2, "reading %s: %r\n", name);
 }
 
 int

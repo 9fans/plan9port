@@ -387,4 +387,3 @@ void	(*ptpause)(void);
 void	(*setfont)(int a);
 void	(*setps)(void);
 void	(*setwd)(void);
-

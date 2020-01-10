@@ -42,4 +42,3 @@ colorpixel(Display *dpy, ScreenInfo *s, int depth, unsigned long rgb, unsigned l
 		return rgb;
 	}
 }
-

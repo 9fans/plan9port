@@ -1,11 +1,11 @@
 /*
  * Dwarf call frame unwinding.
  *
- * The call frame unwinding values are encoded using a state machine 
- * like the pc<->line mapping, but it's a different machine.  
- * The expressions to generate the old values are similar in function to the 
+ * The call frame unwinding values are encoded using a state machine
+ * like the pc<->line mapping, but it's a different machine.
+ * The expressions to generate the old values are similar in function to the
  * ``dwarf expressions'' used for locations in the code, but of course not
- * the same encoding.  
+ * the same encoding.
  */
 #include <u.h>
 #include <libc.h>
@@ -97,7 +97,7 @@ out:
 /*
  * XXX This turns out to be much more expensive than the actual
  * running of the machine in dexec.  It probably makes sense to
- * cache the last 10 or so fde's we've found, since stack traces 
+ * cache the last 10 or so fde's we've found, since stack traces
  * will keep asking for the same info over and over.
  */
 static int
@@ -167,7 +167,7 @@ findfde(Dwarf *d, ulong pc, State *s, DwarfBuf *fde)
 	}
 	werrstr("cannot find call frame information for pc 0x%lux", pc);
 	return -1;
-			
+
 }
 
 static int
@@ -209,7 +209,7 @@ dexec(DwarfBuf *b, State *s, int locstop)
 			if(locstop)
 				return 0;
 			continue;
-		
+
 		case 2:	/* offset rule */
 			arg1 = c&0x3F;
 			arg2 = dwarfget128(b);
@@ -331,12 +331,12 @@ dexec(DwarfBuf *b, State *s, int locstop)
 			s->cfa->offset = arg2;
 			continue;
 
-		case 0x0D:	/* def cfa register */	
+		case 0x0D:	/* def cfa register */
 			arg1 = dwarfget128(b);
 			if(trace) fprint(2, "cfa reg r%ld\n", arg1);
 			if(s->cfa->type != RuleRegOff){
 				werrstr("change CFA register but CFA not in register+offset form");
-				return -1;	
+				return -1;
 			}
 			if(checkreg(s, arg1) < 0)
 				return -1;
@@ -390,6 +390,5 @@ dexec(DwarfBuf *b, State *s, int locstop)
 			return -1;
 		}
 	}
-	/* not reached */		
+	/* not reached */
 }
-

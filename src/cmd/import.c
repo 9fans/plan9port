@@ -99,10 +99,10 @@ threadmain(int argc, char *argv[])
 		fmtinstall('F', fcallfmt);
 	}
 
-	
+
 	if(rem){
 		netfd[0] = 0;
-		netfd[1] = 1;	
+		netfd[1] = 1;
 		write(1, "OK", 2);
 	}else{
 		if(argc != 1)
@@ -115,7 +115,7 @@ threadmain(int argc, char *argv[])
 	fn = localside;
 	if(rem+export == 1)
 		fn = remoteside;
-	
+
 	if(rem || !dofork)
 		fn(nil);
 	else

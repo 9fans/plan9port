@@ -29,4 +29,3 @@ privmem(int i)
 	up = _p9uproc(0);
 	return &up->priv[i];
 }
-

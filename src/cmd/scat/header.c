@@ -244,4 +244,3 @@ dssmount(int dskno)
 	Bprint(&bout, "not mounting dss\n");
 	return "/n/dss";
 }
-

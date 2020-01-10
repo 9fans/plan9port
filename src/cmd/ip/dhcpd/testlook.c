@@ -188,7 +188,7 @@ ipinfo(Ndb *db, char *etherin, char *ipin, char *name, Ipinfo *iip)
 	recursesubnet(db, classmask[CLASS(iip->ipaddr)], iip, fsname, gwname, auname);
 
 	/* lookup fs's and gw's ip addresses */
-	
+
 	if(fsname[0])
 		lookupip(db, fsname, iip->fsip, iip);
 	if(gwname[0])

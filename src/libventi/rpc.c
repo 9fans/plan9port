@@ -1,9 +1,9 @@
 /*
- * Multiplexed Venti client.  It would be nice if we 
+ * Multiplexed Venti client.  It would be nice if we
  * could turn this into a generic library routine rather
  * than keep it Venti specific.  A user-level 9P client
  * could use something like this too.
- * 
+ *
  * (Actually it does - this should be replaced with libmux,
  * which should be renamed librpcmux.)
  *
@@ -125,7 +125,7 @@ vtrpc(VtConn *z, Packet *p)
 	return _vtrpc(z, p, nil);
 }
 
-static int 
+static int
 gettag(VtConn *z, Rwait *r)
 {
 	int i;
@@ -176,4 +176,3 @@ abort();
 	r->done = 1;
 	rwakeup(&r->r);
 }
-

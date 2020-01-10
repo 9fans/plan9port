@@ -463,7 +463,7 @@ fsyswalk(Xfid *x, Fid *f)
 			qunlock(&row.lk);
 			dir = dirtabw;
 			goto Accept;
-	
+
     Regular:
 			if(strcmp(x->fcall.wname[i], "new") == 0){
 				if(w)

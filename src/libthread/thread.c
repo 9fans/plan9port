@@ -137,7 +137,7 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 	t->context.uc.uc_stack.ss_size = t->stksize-64;
 #if defined(__sun__) && !defined(__MAKECONTEXT_V2_SOURCE)		/* sigh */
 	/* can avoid this with __MAKECONTEXT_V2_SOURCE but only on SunOS 5.9 */
-	t->context.uc.uc_stack.ss_sp = 
+	t->context.uc.uc_stack.ss_sp =
 		(char*)t->context.uc.uc_stack.ss_sp
 		+t->context.uc.uc_stack.ss_size;
 #endif
@@ -164,7 +164,7 @@ _threadcreate(Proc *p, void (*fn)(void*), void *arg, uint stack)
 	/* defend against bad C libraries */
 	if(stack < (256<<10))
 		stack = 256<<10;
-	
+
 	t = threadalloc(fn, arg, stack);
 	t->proc = p;
 	addthreadinproc(p, t);
@@ -228,7 +228,7 @@ threadidle(void)
 {
 	int n;
 	Proc *p;
-	
+
 	p = proc();
 	n = p->nswitch;
 	lock(&p->lock);
@@ -466,7 +466,7 @@ int
 threadid(void)
 {
 	_Thread *t;
-	
+
 	t = proc()->thread;
 	return t->id;
 }
@@ -534,7 +534,7 @@ static void
 threadqunlock(QLock *l, ulong pc)
 {
 	_Thread *ready;
-	
+
 	lock(&l->l);
 /*print("qlock unlock %p @%#x by %p (owner %p)\n", l, pc, (*threadnow)(), l->owner); */
 	if(l->owner == 0){
@@ -578,7 +578,7 @@ threadrlock(RWLock *l, int block, ulong pc)
 	addthread(&l->rwaiting, (*threadnow)());
 	unlock(&l->l);
 	_threadswitch();
-	return 1;	
+	return 1;
 }
 
 static int
@@ -677,7 +677,7 @@ threadrwakeup(Rendez *r, int all, ulong pc)
 		if((t = r->waiting.head) == nil)
 			break;
 		delthread(&r->waiting, t);
-		_threadready(t);	
+		_threadready(t);
 	}
 	return i;
 }
@@ -865,7 +865,7 @@ delproc(Proc *p)
 	unlock(&_threadprocslock);
 }
 
-/* 
+/*
  * notify - for now just use the usual mechanisms
  */
 void
@@ -901,14 +901,12 @@ threadinfo(void *v, char *s)
 		fprint(2, "proc %p %s%s\n", (void*)p->osprocid, p->msg,
 			p->sysproc ? " (sysproc)": "");
 		for(t=p->allthreads.head; t; t=t->allnext){
-			fprint(2, "\tthread %d %s: %s %s\n", 
-				t->id, 
-				t == p->thread ? "Running" : 
+			fprint(2, "\tthread %d %s: %s %s\n",
+				t->id,
+				t == p->thread ? "Running" :
 				onrunqueue(p, t) ? "Ready" : "Sleeping",
 				t->state, t->name);
 		}
 	}
 	return 1;
 }
-
-

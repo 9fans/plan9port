@@ -134,7 +134,7 @@ void get_sof (int kind) {
 		tab = get1();
 		printf ("\tcomponent %d: %d hsample, %d vsample, quantization table %d\n",
 			id, sf >> 4, sf & 0xf, tab);
-	}		
+	}
 }
 
 void get_com (int kind) {
@@ -301,10 +301,10 @@ marker:
 		case 0xd8:
 			printf ("SOI\n");
 			break;
-		case 0xe0: case 0xe1: case 0xe2: case 0xe3: 
-		case 0xe4: case 0xe5: case 0xe6: case 0xe7: 
-		case 0xe8: case 0xe9: case 0xea: case 0xeb: 
-		case 0xec: case 0xed: case 0xee: case 0xef: 
+		case 0xe0: case 0xe1: case 0xe2: case 0xe3:
+		case 0xe4: case 0xe5: case 0xe6: case 0xe7:
+		case 0xe8: case 0xe9: case 0xea: case 0xeb:
+		case 0xec: case 0xed: case 0xee: case 0xef:
 			get_app(c);
 			break;
 		case 0xda:

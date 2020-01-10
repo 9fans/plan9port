@@ -29,4 +29,3 @@
 #define FONTDIR		"#9/troff/font"
 #define POSTLIBDIR	"#9/postscript/prologues"
 #define TEMPDIR		"/var/tmp"
-

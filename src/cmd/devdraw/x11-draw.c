@@ -147,4 +147,3 @@ xdraw(Memdrawparam *par)
 	 */
 	return 0;
 }
-

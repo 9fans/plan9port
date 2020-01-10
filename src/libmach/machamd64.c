@@ -171,10 +171,10 @@ Mach machamd64=
 	4,			/* szreg */
 	4,			/* szfloat */
 	8,			/* szdouble */
-	
+
 	amd64windregs,	/* locations unwound in stack trace */
 	17,
-	
+
 	{0xCC, 0, 0, 0},	/* break point: INT 3 */
 	1,			/* break point size */
 

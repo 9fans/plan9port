@@ -26,4 +26,3 @@ execl(char *prog, ...)
 	free(argv);
 	return -1;
 }
-

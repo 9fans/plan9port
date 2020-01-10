@@ -98,7 +98,7 @@ typedef struct Hdr {
 	char	devmajor[8];
 	char	devminor[8];
 	char	prefix[Maxpfx]; /* if non-null, path= prefix "/" name */
-	
+
 	char pad[12];
 } Hdr;
 

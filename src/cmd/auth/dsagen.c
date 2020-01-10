@@ -43,6 +43,6 @@ main(int argc, char **argv)
 
 	if(write(1, s, strlen(s)) != strlen(s))
 		sysfatal("write: %r");
-	
+
 	exits(nil);
 }

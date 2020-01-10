@@ -26,7 +26,7 @@ enum
 	/* query types (all RR types are also queries) */
 	Tixfr=	251,	/* incremental zone transfer */
 	Taxfr=	252,	/* zone transfer */
-	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */	
+	Tmailb=	253,	/* { Tmb, Tmg, Tmr } */
 	Tall=	255,	/* all records */
 
 	/* classes */

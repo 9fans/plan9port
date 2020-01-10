@@ -90,7 +90,7 @@ geninitdraw(char *devdir, void(*error)(Display*, char*), char *fontname, char *l
 	visibleclicks = p != nil && *p == '1';
 	if(visibleclicks) {
 		Font *f;
-		
+
 		f = display->defaultfont;
 		mousebuttons = allocimage(display, Rect(0,0,64,22), screen->chan, 0, DWhite);
 		border(mousebuttons, mousebuttons->r, 1, display->black, ZP);
@@ -129,7 +129,7 @@ getimage0(Display *d, Image *image)
 
 	/*
 	 * If there's an old screen, it has id 0.  The 'J' request below
-	 * will try to install the new screen as id 0, so the old one 
+	 * will try to install the new screen as id 0, so the old one
 	 * must be freed first.
 	 */
 	if(image){
@@ -172,7 +172,7 @@ getimage0(Display *d, Image *image)
 	image->clipr.min.y = atoi(info+9*12);
 	image->clipr.max.x = atoi(info+10*12);
 	image->clipr.max.y = atoi(info+11*12);
-	
+
 	a = bufimage(d, 3);
 	a[0] = 'q';
 	a[1] = 1;
@@ -193,9 +193,9 @@ getwindow(Display *d, int ref)
 {
 	Image *i, *oi;
 	Font *f;
-	
+
 	/* XXX check for destroyed? */
-	
+
 	/*
 	 * Libdraw promises not to change the value of "screen",
 	 * so we have to reuse the image structure
@@ -262,7 +262,7 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 		free(disp->buf);
 		goto Error2;
 	}
-	
+
 	if(_displaymux(disp) < 0
 	|| _displayconnect(disp) < 0
 	|| _displayinit(disp, label, winsize) < 0)
@@ -276,7 +276,7 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 	image = getimage0(disp, nil);
 	if(image == nil)
 		goto Error4;
-	
+
 	disp->image = image;
 	disp->white = allocimage(disp, Rect(0, 0, 1, 1), GREY1, 1, DWhite);
 	disp->black = allocimage(disp, Rect(0, 0, 1, 1), GREY1, 1, DBlack);
@@ -285,7 +285,7 @@ _initdisplay(void (*error)(Display*, char*), char *label)
 		free(disp->black);
 		goto Error4;
 	}
-	
+
 	disp->opaque = disp->white;
 	disp->transparent = disp->black;
 
@@ -390,7 +390,7 @@ flushimage(Display *d, int visible)
 		r = rectaddpt(r, _drawmouse.xy);
 		r = rectaddpt(r, Pt(-Dx(mousebuttons->r)/2, -Dy(mousebuttons->r)-3));
 		drawop(mousesave, mousesave->r, screen, nil, r.min, S);
-		
+
 		r1 = rectaddpt(Rect(0, 0, 22, 22), r.min);
 		if(_drawmouse.buttons & 1)
 			drawop(screen, r1, mousebuttons, nil, ZP, S);
@@ -404,7 +404,7 @@ flushimage(Display *d, int visible)
 		drawop(screen, r, mousesave, nil, ZP, S);
 		return ret;
 	}
-	
+
 	if(visible){
 		*d->bufp++ = 'v';	/* five bytes always reserved for this */
 		if(d->_isnewdisplay){

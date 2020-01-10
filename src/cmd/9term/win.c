@@ -134,7 +134,7 @@ threadmain(int argc, char **argv)
 	char buf1[128];
 	CFsys *fs;
 	char *dump;
-	
+
 	dump = onestring(argc, argv);
 
 	ARGBEGIN{
@@ -215,7 +215,7 @@ threadmain(int argc, char **argv)
 	fswrite(ctlfd, buf, strlen(buf));
 	sprint(buf, "scroll");
 	fswrite(ctlfd, buf, strlen(buf));
-	
+
 	updatewinsize(25, 80, 0, 0);
 	proccreate(stdoutproc, nil, STACK);
 	stdinproc(nil);
@@ -225,7 +225,7 @@ void
 error(char *s, ...)
 {
 	va_list arg;
-	
+
 	if(s){
 		va_start(arg, s);
 		s = vsmprint(s, arg);
@@ -378,11 +378,11 @@ stdinproc(void *v)
 					fprint(2, "shift typing %d... ", e.q1-e.q0);
 				q.p += e.q1-e.q0;
 				break;
-			
+
 			case 'i':
 			case 'd':		/* tag */
 				break;
-			
+
 			default:
 				goto Unknown;
 			}
@@ -484,7 +484,7 @@ dropcr(char *p, int n)
 {
 	int i;
 	char *w, *r, *q;
-	
+
 	r = p;
 	w = p;
 	for(i=0; i<n; i++) {
@@ -538,15 +538,15 @@ stdoutproc(void *v)
 		n = read(fd1, buf+npart, 8192);
 		if(n <= 0)
 			error(nil);
-		
+
 		n = echocancel(buf+npart, n);
 		if(n == 0)
 			continue;
-		
+
 		n = dropcrnl(buf+npart, n);
 		if(n == 0)
 			continue;
-		
+
 		n = dropcr(buf+npart, n);
 		if(n == 0)
 			continue;
@@ -581,13 +581,13 @@ stdoutproc(void *v)
 			buf[n] = 0;
 			n = label(buf, n);
 			buf[n] = 0;
-			
+
 			// clumsy but effective: notice password
 			// prompts so we can disable echo.
 			password = 0;
 			if(cistrstr(buf, "password") || cistrstr(buf, "passphrase")) {
 				int i;
-				
+
 				i = n;
 				while(i > 0 && buf[i-1] == ' ')
 					i--;
@@ -743,7 +743,7 @@ void
 sendtype(int fd0)
 {
 	int i, n, nr, raw;
-	
+
 	raw = israw(fd0);
 	while(ntypebreak || (raw && ntypeb > 0)){
 		for(i=0; i<ntypeb; i++)

@@ -1062,10 +1062,10 @@ if(0)fprint(2, "%s: %d:%x:%d depends on %d:%x:%d\n", argv0, b->part, b->addr, b-
 
 /*
  * Mark an in-memory block as dirty.  If there are too many
- * dirty blocks, start writing some out to disk. 
- * 
+ * dirty blocks, start writing some out to disk.
+ *
  * If there were way too many dirty blocks, we used to
- * try to do some flushing ourselves, but it's just too dangerous -- 
+ * try to do some flushing ourselves, but it's just too dangerous --
  * it implies that the callers cannot have any of our priors locked,
  * but this is hard to avoid in some cases.
  */
@@ -1332,16 +1332,16 @@ if(0) fprint(2, "%s: iostate part=%d addr=%x %s->%s\n", argv0, b->part, b->addr,
 }
 
 /*
- * The active file system is a tree of blocks. 
+ * The active file system is a tree of blocks.
  * When we add snapshots to the mix, the entire file system
  * becomes a dag and thus requires a bit more care.
- * 
+ *
  * The life of the file system is divided into epochs.  A snapshot
  * ends one epoch and begins the next.  Each file system block
  * is marked with the epoch in which it was created (b.epoch).
  * When the block is unlinked from the file system (closed), it is marked
- * with the epoch in which it was removed (b.epochClose).  
- * Once we have discarded or archived all snapshots up to 
+ * with the epoch in which it was removed (b.epochClose).
+ * Once we have discarded or archived all snapshots up to
  * b.epochClose, we can reclaim the block.
  *
  * If a block was created in a past epoch but is not yet closed,
@@ -1359,7 +1359,7 @@ if(0) fprint(2, "%s: iostate part=%d addr=%x %s->%s\n", argv0, b->part, b->addr,
  * lbb (bb's label block).
  *
  * (2) We have to mark b as closed, but only after we switch
- * the pointer, so lb must be written out after p.  In fact, we 
+ * the pointer, so lb must be written out after p.  In fact, we
  * can't even update the in-memory copy, or the cache might
  * mistakenly give out b for reuse before p gets written.
  *
@@ -1369,7 +1369,7 @@ if(0) fprint(2, "%s: iostate part=%d addr=%x %s->%s\n", argv0, b->part, b->addr,
  * to arrange for (2) to happen once p is written.
  *
  * Until (2) happens, some pieces of the code (e.g., the archiver)
- * still need to know whether a block has been copied, so we 
+ * still need to know whether a block has been copied, so we
  * set the BsCopied bit in the label and force that to disk *before*
  * the copy gets written out.
  */
@@ -1436,7 +1436,7 @@ void
 blockRemoveLink(Block *b, u32int addr, int type, u32int tag, int recurse)
 {
 	BList *p, **pp, bl;
-	
+
 	/* remove bb from prior list */
 	for(pp=&b->prior; (p=*pp)!=nil; ){
 		if(p->part == PartData && p->addr == addr){
@@ -1479,7 +1479,7 @@ blockRemoveLink(Block *b, u32int addr, int type, u32int tag, int recurse)
 	b->utail = p;
 }
 
-/* 
+/*
  * Process removal of a single block and perhaps its children.
  */
 static void
@@ -1592,7 +1592,7 @@ blistAlloc(Block *b)
 		/*
 		 * No free BLists.  What are our options?
 		 */
-	
+
 		/* Block has no priors? Just write it. */
 		if(b->prior == nil){
 			qunlock(&c->lk);

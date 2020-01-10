@@ -5,9 +5,9 @@
  *
  * Stupid sftp bug: sftp invokes ssh, which always set O_NONBLOCK
  * on 0, 1, and 2.  Ssh inherits sftp's 2, so we can't use the output pipe
- * on fd 2, since it will get set O_NONBLOCK, sftp won't notice, and 
+ * on fd 2, since it will get set O_NONBLOCK, sftp won't notice, and
  * writes will be lost.  So instead we use a separate pipe for errors
- * and consult it after each command.  Assume the pipe buffer is 
+ * and consult it after each command.  Assume the pipe buffer is
  * big enough to hold the error output.
  */
 #include <u.h>
@@ -35,7 +35,7 @@ Brd(Biobuf *bin)
 {
 	static char buf[1000];
 	int c, tot;
-	
+
 	tot = 0;
 	while((c = Bgetc(bin)) >= 0 && tot<sizeof buf){
 		buf[tot++] = c;
@@ -59,7 +59,7 @@ int
 readstr(int fd, char *a, int n)
 {
 	int i;
-	
+
 	for(i=0; i<n; i++){
 		if(read(fd, a+i, 1) != 1)
 			return -1;
@@ -76,7 +76,7 @@ doerrors(int fd)
 {
 	char buf[100];
 	int n, first;
-	
+
 	first = 1;
 	while((n = read(sftperr, buf, sizeof buf)) > 0){
 		if(debug){
@@ -106,7 +106,7 @@ main(int argc, char **argv)
 	char buf[200], cmd[1000], *q, *s;
 	char dir[100], ndir[100];
 	int p[2], px[2], pe[2], pid, ctl, nctl, fd, n;
-	
+
 	notify(bell);
 	fmtinstall('H', encodefmt);
 
@@ -117,10 +117,10 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
-	
+
 	if(argc != 1)
 		usage();
-	
+
 	if(pipe(p) < 0 || pipe(px) < 0 || pipe(pe) < 0)
 		sysfatal("pipe: %r");
 	pid = fork();
@@ -169,7 +169,7 @@ main(int argc, char **argv)
 		sysfatal("fork");
 	if(pid != 0)
 		exits(nil);
-		
+
 	for(;;){
 		nctl = listen(dir, ndir);
 		if(nctl < 0)
@@ -215,4 +215,3 @@ main(int argc, char **argv)
 		close(fd);
 	}
 }
-

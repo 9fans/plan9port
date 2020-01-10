@@ -4,7 +4,7 @@ void*
 emalloc(int n)
 {
 	void *v;
-	
+
 	v = mallocz(n, 1);
 	if(v == nil)
 		sysfatal("out of memory");
@@ -34,9 +34,9 @@ timefmt(Fmt *f)
 {
 	Tm tm;
 	vlong ms;
-	
+
 	ms = nsec()/1000000;
-	
+
 	tm = *localtime(ms/1000);
 	fmtprint(f, "%02d:%02d:%02d.%03d",
 		tm.hour, tm.min, tm.sec,
@@ -64,7 +64,7 @@ urlencodefmt(Fmt *fmt)
 {
 	int x;
 	char *s;
-	
+
 	s = va_arg(fmt->args, char*);
 	for(; *s; s++){
 		x = (uchar)*s;
@@ -78,4 +78,3 @@ urlencodefmt(Fmt *fmt)
 	}
 	return 0;
 }
-

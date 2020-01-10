@@ -89,7 +89,7 @@ glob2regexp(char *glob)
 	*w++ = ')';
 	*w++ = '$';
 	*w = 0;
-	
+
 	re = regcomp(s);
 	if(re == nil){
 	syntax:
@@ -130,7 +130,7 @@ loadexcludefile(char *file)
 		case '#':
 			continue;
 		}
-		
+
 		inc = 0;
 		if(strncmp(p, "include ", 8) == 0){
 			inc = 1;
@@ -157,7 +157,7 @@ void
 excludepattern(char *p)
 {
 	Reprog *re;
-	
+
 	if((re = glob2regexp(p)) == nil)
 		sysfatal("bad glob pattern %s", p);
 
@@ -171,10 +171,9 @@ int
 includefile(char *file)
 {
 	Pattern *p, *ep;
-	
+
 	for(p=pattern, ep=p+npattern; p<ep; p++)
 		if(regexec(p->re, file, nil, 0))
 			return p->include;
 	return 1;
 }
-

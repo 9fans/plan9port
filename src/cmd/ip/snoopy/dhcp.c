@@ -61,7 +61,7 @@ enum
 	OBtcpka=		38,
 	OBtcpkag=		39,
 	OBnisdomain=		40,
-	OBniserver=		41,	
+	OBniserver=		41,
 	OBntpserver=		42,
 	OBvendorinfo=		43,	/* 0x2b */
 	OBnetbiosns=		44,
@@ -232,7 +232,7 @@ p_seprint(Msg *m)
 		ps += n;
 		if(ps > m->pe)
 			break;
-		
+
 		switch(code){
 		case ODipaddr:	/* requested ip address */
 			p = pserver(p, e, "ipaddr", o, n);
@@ -473,4 +473,3 @@ Proto dhcp =
 	nil,
 	defaultframer
 };
-

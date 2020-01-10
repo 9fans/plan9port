@@ -262,7 +262,7 @@ sortiebucks(IEBucks *ib)
 		if(n == TWID32)
 			return TWID64;
 		if(n != ib->bucks[i].total/IEntrySize)
-			fprint(2, "bucket %d changed count %d => %d\n", 
+			fprint(2, "bucket %d changed count %d => %d\n",
 				i, (int)(ib->bucks[i].total/IEntrySize), n);
 		tot += n;
 	}

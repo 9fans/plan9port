@@ -25,6 +25,6 @@ main(int argc, char *argv[])
 		print("%s", asctime(gmtime(now)));
 	else
 		print("%s", ctime(now));
-	
+
 	exits(0);
 }

@@ -15,4 +15,3 @@ loadmemimage(Memimage *i, Rectangle r, uchar *data, int ndata)
 		_xputxdata(i, r);
 	return n;
 }
-

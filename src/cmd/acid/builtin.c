@@ -635,7 +635,7 @@ includepipe(Node *r, Node *args)
 
 	if(pipe(pip) < 0)
 		error("pipe: %r");
-		
+
 	pid = fork();
 	switch(pid) {
 	case -1:
@@ -657,7 +657,7 @@ includepipe(Node *r, Node *args)
 
 	close(pip[1]);
 	pushfd(pip[0]);
-	
+
 	isave = interactive;
 	interactive = 0;
 	r->store.u.ival = yyparse();
@@ -746,7 +746,7 @@ doaccess(Node *r, Node *args)
 	r->op = OCONST;
 	r->type = TINT;
 	r->store.fmt = 'D';
-	r->store.u.ival = 0;		
+	r->store.u.ival = 0;
 	if(access(res.store.u.string->string, 4) == 0)
 		r->store.u.ival = 1;
 }
@@ -974,7 +974,7 @@ map(Node *r, Node *args)
 			i = findseg(m, nam, fil);
 		}
 		if(i < 0)
-			error("%s %s is not a map entry", nam, fil);	
+			error("%s %s is not a map entry", nam, fil);
 		l = l->next;
 		if(l->type != TINT)
 			error("map entry not int");
@@ -1008,7 +1008,7 @@ map(Node *r, Node *args)
 	}
 }
 
-void 
+void
 flatten(Node **av, Node *n)
 {
 	if(n == 0)
@@ -1086,7 +1086,7 @@ strace(Node *r, Node *args)
 		l = l->next;
 	}
 	regs.rw = straceregrw;
-	
+
 	tracelist = 0;
 	if(stacktrace(cormap, &regs, trlist) <= 0)
 		error("no stack frame");
@@ -1482,7 +1482,7 @@ pcfile(Node *r, Node *args)
 	if(p == 0)
 		error("pcfile(addr): funny file %s", buf);
 	*p = '\0';
-	r->store.u.string = strnode(buf);	
+	r->store.u.string = strnode(buf);
 }
 
 void
@@ -1507,7 +1507,7 @@ pcline(Node *r, Node *args)
 	p = strrchr(buf, ':');
 	if(p == 0)
 		error("pcline(addr): funny file %s", buf);
-	r->store.u.ival = atoi(p+1);	
+	r->store.u.ival = atoi(p+1);
 }
 
 void

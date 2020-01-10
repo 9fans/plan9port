@@ -24,5 +24,3 @@ reg(int col, int place)
 		error("Too many columns for registers");
 	return (nregs[qcol*place+col]);
 }
-
-

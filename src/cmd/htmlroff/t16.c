@@ -24,7 +24,7 @@ void
 startbody(void)
 {
 	int c;
-			
+
 	while((c = getrune()) == ' ' || c == '\t')
 		;
 	ungetrune(c);
@@ -52,7 +52,7 @@ ifeval(void)
 	int c, cc, neg, nc;
 	Rune line[MaxLine], *p, *e, *q;
 	Rune *a;
-	
+
 	while((c = getnext()) == ' ' || c == '\t')
 		;
 	neg = 0;
@@ -68,7 +68,7 @@ ifeval(void)
 		free(a);
 		return c;
 	}
-	
+
 	switch(c){
 	case ' ':
 	case '\n':
@@ -111,12 +111,12 @@ ifeval(void)
 	return (q-line == p-(q+1)
 		&& memcmp(line, q+1, (q-line)*sizeof(Rune))==0) ^ neg;
 }
-	
+
 void
 r_if(Rune *name)
 {
 	int n;
-	
+
 	n = ifeval();
 	if(runestrcmp(name, L("ie")) == 0){
 		if(niftrue >= nelem(iftrue))
@@ -133,7 +133,7 @@ void
 r_el(Rune *name)
 {
 	USED(name);
-	
+
 	if(niftrue <= 0){
 		warn("%Cel underflow", dot);
 		return;
@@ -150,7 +150,7 @@ t16init(void)
 	addraw(L("if"), r_if);
 	addraw(L("ie"), r_if);
 	addraw(L("el"), r_el);
-	
+
 	addesc('{', e_nop, HtmlMode|ArgMode);
 	addesc('}', e_nop, HtmlMode|ArgMode);
 }

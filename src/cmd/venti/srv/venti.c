@@ -159,7 +159,7 @@ threadmain(int argc, char *argv[])
 	/*
 	 * block cache: need a block for every arena and every process
 	 */
-	minbcmem = maxblocksize * 
+	minbcmem = maxblocksize *
 		(mainindex->narenas + mainindex->nsects*4 + 16);
 	if(bcmem < minbcmem)
 		bcmem = minbcmem;

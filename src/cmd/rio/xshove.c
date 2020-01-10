@@ -55,7 +55,7 @@ void
 main(int argc, char **argv)
 {
 	int screen;
-	
+
 	screen = 0;
 	ARGBEGIN{
 	case 's':
@@ -65,7 +65,7 @@ main(int argc, char **argv)
 		usage();
 		break;
 	}ARGEND
-	
+
 	dpy = XOpenDisplay("");
 	if(dpy == nil)
 		sysfatal("open display: %r");
@@ -93,7 +93,7 @@ getproperty(Window w, Atom a)
 
 	n = 100;
 	p = nil;
-	XGetWindowProperty(dpy, w, a, 0, 100L, 0, 
+	XGetWindowProperty(dpy, w, a, 0, 100L, 0,
 		AnyPropertyType, &type, &fmt,
 		&n, &dummy, &p);
 	if(p == nil || *p == 0)
@@ -132,7 +132,7 @@ getinfo(void)
 	w = mallocz(nxwin*sizeof w[0], 1);
 	if(w == 0)
 		sysfatal("malloc: %r");
-	
+
 	Win *ww = w;
 	for(i=0; i<nxwin; i++){
 		memset(&attr, 0, sizeof attr);
@@ -157,7 +157,7 @@ getinfo(void)
 		ww++;
 	}
 	nw = ww - w;
-}		
+}
 
 void
 listwindows(void)
@@ -169,7 +169,7 @@ listwindows(void)
 		char rect[50];
 		snprint(rect, sizeof rect, "%d,%d,%d,%d", ww->x, ww->y, ww->x+ww->dx, ww->y+ww->dy);
 		print("%08x %-20s %-10s %s\n",
-			(uint)ww->xw, 
+			(uint)ww->xw,
 			rect,
 			ww->instance,
 			ww->class);

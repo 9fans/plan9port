@@ -17,7 +17,7 @@ des3ECBencrypt(uchar *p, int len, DES3state *s)
 		triple_block_cipher(s->expanded, p, DES3EDE);
 		p += 8;
 	}
-	
+
 	if(len > 0){
 		for (i=0; i<8; i++)
 			tmp[i] = i;
@@ -37,7 +37,7 @@ des3ECBdecrypt(uchar *p, int len, DES3state *s)
 		triple_block_cipher(s->expanded, p, DES3DED);
 		p += 8;
 	}
-	
+
 	if(len > 0){
 		for (i=0; i<8; i++)
 			tmp[i] = i;

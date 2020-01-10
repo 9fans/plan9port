@@ -277,7 +277,7 @@ htmlchk(char **msg, char *end)
 	p = *msg;
 	if(ishtml == 0){
 		ishtml = htmlmatch(htmlcmds, p, end, &n);
-	
+
 		/* If not an HTML keyword, check if it's
 		 * an HTML comment (<!comment>).  if so,
 		 * skip over it; otherwise copy it in.
@@ -287,7 +287,7 @@ htmlchk(char **msg, char *end)
 
 	} else if(htmlmatch(hrefs, p, end, &n))	/* if special HTML string  */
 		return '<';			/* copy it */
-	
+
 	/*
 	 * this is an uninteresting HTML command; skip over it.
 	 */

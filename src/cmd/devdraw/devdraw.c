@@ -160,11 +160,11 @@ _drawreplacescreenimage(Memimage *m)
 	/*
 	 * Replace the screen image because the screen
 	 * was resized.
-	 * 
+	 *
 	 * In theory there should only be one reference
 	 * to the current screen image, and that's through
 	 * client0's image 0, installed a few lines above.
-	 * Once the client drops the image, the underlying backing 
+	 * Once the client drops the image, the underlying backing
 	 * store freed properly.  The client is being notified
 	 * about the resize through external means, so all we
 	 * need to do is this assignment.
@@ -769,7 +769,7 @@ _drawmsgwrite(void *v, int n)
 {
 	char cbuf[40], *err, ibuf[12*12+1], *s;
 	int c, ci, doflush, dstid, e0, e1, esize, j, m;
-	int ni, nw, oesize, oldn, op, ox, oy, repl, scrnid, y; 
+	int ni, nw, oesize, oldn, op, ox, oy, repl, scrnid, y;
 	uchar *a, refresh, *u;
 	u32int chan, value;
 	Client *client;
@@ -969,7 +969,7 @@ _drawmsgwrite(void *v, int n)
 				err = "negative ellipse thickness";
 				goto error;
 			}
-			
+
 			drawpoint(&sp, a+29);
 			c = j;
 			if(*a == 'E')
@@ -1073,11 +1073,11 @@ _drawmsgwrite(void *v, int n)
 			ni = sprint(ibuf, "%11d %11d %11s %11d %11d %11d %11d %11d"
 					" %11d %11d %11d %11d ",
 					client->clientid,
-					client->infoid,	
+					client->infoid,
 					chantostr(cbuf, i->chan),
 					(i->flags&Frepl)==Frepl,
 					i->r.min.x, i->r.min.y, i->r.max.x, i->r.max.y,
-					i->clipr.min.x, i->clipr.min.y, 
+					i->clipr.min.x, i->clipr.min.y,
 					i->clipr.max.x, i->clipr.max.y);
 			free(client->readdata);
 			client->readdata = malloc(ni);
@@ -1087,7 +1087,7 @@ _drawmsgwrite(void *v, int n)
 			client->nreaddata = ni;
 			client->infoid = -1;
 			continue;
-		
+
 		/* query: 'Q' n[1] queryspec[n] */
 		case 'q':
 			if(n < 2)
@@ -1633,5 +1633,3 @@ error:
 	qunlock(&sdraw.lk);
 	return -1;
 }
-
-

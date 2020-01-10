@@ -10,7 +10,7 @@
 #include "sam.h"
 
 Rune    samname[] = { '~', '~', 's', 'a', 'm', '~', '~', 0 };
- 
+
 static Rune l1[] = { '{', '[', '(', '<', 0253, 0};
 static Rune l2[] = { '\n', 0};
 static Rune l3[] = { '\'', '"', '`', 0};
@@ -85,15 +85,15 @@ getuser(void)
 	return user;
 }
 
-int     
-statfile(char *name, ulong *dev, uvlong *id, long *time, long *length, long *appendonly) 
+int
+statfile(char *name, ulong *dev, uvlong *id, long *time, long *length, long *appendonly)
 {
         struct stat dirb;
 
         if (stat(name, &dirb) == -1)
                 return -1;
         if (dev)
-                *dev = dirb.st_dev;   
+                *dev = dirb.st_dev;
         if (id)
                 *id = dirb.st_ino;
         if (time)
@@ -110,11 +110,11 @@ statfd(int fd, ulong *dev, uvlong *id, long *time, long *length, long *appendonl
 {
         struct stat dirb;
 
-        if (fstat(fd, &dirb) == -1)   
+        if (fstat(fd, &dirb) == -1)
                 return -1;
         if (dev)
                 *dev = dirb.st_dev;
-        if (id) 
+        if (id)
                 *id = dirb.st_ino;
         if (time)
                 *time = dirb.st_mtime;
@@ -174,11 +174,11 @@ tempdisk(void)
         int fd = temp_file(buf, sizeof buf);
         if (fd >= 0)
                 remove(buf);
-        return fd; 
+        return fd;
 }
 
 #undef waitfor
-int     
+int
 samwaitfor(int pid)
 {
 	int r;
@@ -218,5 +218,3 @@ erealloc(void *p, ulong n)
 		panic("realloc fails");
 	return p;
 }
-
-

@@ -211,4 +211,3 @@ quadrant(double x, double y)
 	else if( x> 0.0 && y<=0.0) return(4);
 	else			   return 0;	/* shut up lint */
 }
-

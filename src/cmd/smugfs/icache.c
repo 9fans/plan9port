@@ -30,7 +30,7 @@ icachefind(char *url)
 {
 	int h;
 	Icache *ic;
-	
+
 	h = hash(url) % NHASH;
 	for(ic=icache.hash[h]; ic; ic=ic->hash){
 		if(strcmp(ic->url, url) == 0){
@@ -82,7 +82,7 @@ icacheinsert(char *url, HTTPHeader *hdr, char *file, int fd)
 		ic = emalloc(sizeof *ic);
 		icache.n++;
 	}
-	
+
 	ic->url = estrdup(url);
 	ic->fd = dup(fd, -1);
 	ic->file = estrdup(file);
@@ -103,7 +103,7 @@ void
 icacheflush(char *substr)
 {
 	Icache **l, *ic;
-	
+
 	for(l=&icache.head; (ic=*l); ) {
 		if(substr == nil || strstr(ic->url, substr)) {
 			icache.n--;
@@ -116,7 +116,7 @@ icacheflush(char *substr)
 		}else
 			l = &ic->next;
 	}
-	
+
 	if(icache.head) {
 		icache.head->prev = nil;
 		for(ic=icache.head; ic; ic=ic->next){
@@ -168,4 +168,3 @@ urlfetch(char *url, HTTPHeader hdr)
 	icacheinsert(url, &hdr, buf, fd);
 	return fd;
 }
-

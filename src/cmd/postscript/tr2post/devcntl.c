@@ -175,4 +175,3 @@ devcntl(Biobuf *inp) {
 	while ((c = Bgetc(inp)) != '\n' && c != Beof);
 	inputlineno++;
 }
-

@@ -53,7 +53,7 @@ static int
 havevisited(uchar score[VtScoreSize], int type)
 {
 	ScoreTree a;
-	
+
 	if(scoretree == nil)
 		return 0;
 	memmove(a.score, score, VtScoreSize);
@@ -99,7 +99,7 @@ walk(uchar score[VtScoreSize], uint type, int base, int depth)
 
 	if(memcmp(score, vtzeroscore, VtScoreSize) == 0 || memcmp(score, zeroscore, VtScoreSize) == 0)
 		return;
-	
+
 	if(havevisited(score, type)){
 		nskip++;
 		return;
@@ -145,7 +145,7 @@ walk(uchar score[VtScoreSize], uint type, int base, int depth)
 				continue;
 			walk(e.score, e.type, e.type&VtTypeBaseMask, depth+1);
 			/*
-			 * Don't repack unless we're rewriting -- some old 
+			 * Don't repack unless we're rewriting -- some old
 			 * vac files have psize==0 and dsize==0, and these
 			 * get rewritten by vtentryunpack to have less strange
 			 * block sizes.  So vtentryunpack; vtentrypack does not
@@ -175,7 +175,7 @@ walk(uchar score[VtScoreSize], uint type, int base, int depth)
 		sysfatal("writing block %V (type %d): %r", score, type);
 	}
 	if(!rewrite && memcmp(score, nscore, VtScoreSize) != 0)
-		sysfatal("not rewriting: wrote %V got %V", score, nscore);	
+		sysfatal("not rewriting: wrote %V got %V", score, nscore);
 
 	if((type !=0 || base !=0) && verbose){
 		n = vtzerotruncate(type, buf, n);
@@ -185,7 +185,7 @@ walk(uchar score[VtScoreSize], uint type, int base, int depth)
 			fprint(2, " ");
 		fprint(2, "<- %V\n", score);
 	}
-	
+
 	markvisited(score, type);
 	free(buf);
 }

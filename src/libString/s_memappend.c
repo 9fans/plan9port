@@ -17,4 +17,3 @@ s_memappend(String *to, char *from, int n)
 	s_terminate(to);
 	return to;
 }
-

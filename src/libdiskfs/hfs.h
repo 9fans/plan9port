@@ -3,12 +3,12 @@
 	wrapper.
 
 	Apple technical note 1150 documents the file system:
-	
+
 	http://developer.apple.com/technotes/tn/tn1150.html
-	
+
 	Briefly an hfs file system comprises a volume header, an
 	optional journal, and a set of forks.
-	
+
 	Most fs metadata resides in forks including a block allocation
 	bitmap, a tree storing extents (q.v.) for forks and bad disk
 	blocks, and a tree storing catalog (file and directory)
@@ -52,11 +52,11 @@ enum
 
 	NAMELEN = 255,
 	UTFNAMELEN = NAMELEN*UTFmax,
-	
+
 	NEXTENTS = 8,
-	
+
 	Dfork = 0, Rfork = 255,
-	
+
 	/* fixed cnids */
 	RootpId = 1, RootId, ExtentsId, CatalogId,
 	BadblockId, AllocId, MinuserId = 16,
@@ -71,7 +71,7 @@ enum
 
 	/* values in Node.type */
 	LeafNode = -1, IndexNode, HeaderNode, MapNode,
-	
+
 	/* catalog record types */
 	Folder = 1, File, FolderThread, FileThread,
 
@@ -163,14 +163,14 @@ struct Treeref
 {
 	Tree	*tree;
 	u32int	cnid;		/* tree->fork->cnid, for debugging prints */
-	
+
 	Block	*block;		/* a node in the tree */
 	u32int	nno;
 	Node	node;
-	
+
 	int	rno;		/* a record in the node */
 	int	klen;
-	uchar	*key;	
+	uchar	*key;
 	int	dlen;
 	uchar	*data;
 };

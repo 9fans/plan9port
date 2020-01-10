@@ -139,7 +139,7 @@ main(int argc, char *argv[]) {
 	}
 	atexit(cleanup);
 	Bstdout = bstdout; /* &bstdout->Biobufhdr; */
-	
+
 	ARGBEGIN{
 		case 'a':			/* aspect ratio */
 			aspectratio = atof(ARGF());
@@ -239,7 +239,7 @@ main(int argc, char *argv[]) {
 		exits("read");
 	}
 	finish();
-		
+
 	exits("");
 	return 0;
 }

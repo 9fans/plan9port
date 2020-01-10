@@ -49,13 +49,13 @@ stacktrace(Map *map, Regs *regs, Tracer trace)
 	next = malloc(mach->nwindreg*sizeof(cur[0]));
 	if(cur==nil || next==nil)
 		goto out;
-	
+
 	/*
 	 * Initialize current registers using regs.
 	 */
 	if(rget(regs, mach->pc, &pc) < 0){
 		werrstr("cannot fetch initial pc: %r");
-		goto out;	
+		goto out;
 	}
 
 	for(i=0; i<mach->nwindreg; i++){

@@ -29,7 +29,7 @@ mptobe(mpint *b, uchar *p, uint n, uchar **pp)
 		else
 			return 1;
 	}
-		
+
 	s = p;
 	e = s+n;
 	suppress = 1;

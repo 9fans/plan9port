@@ -74,7 +74,7 @@ enum
 	OBtcpka=		38,
 	OBtcpkag=		39,
 	OBnisdomain=		40,
-	OBniserver=		41,	
+	OBniserver=		41,
 	OBntpserver=		42,
 	OBvendorinfo=		43,	/* 0x2b */
 	OBnetbiosns=		44,
@@ -127,7 +127,7 @@ enum {
 	Sbound,
 	Srenewing,
 	Srebinding
-};	
+};
 
 typedef struct Bootp	Bootp;
 struct Bootp

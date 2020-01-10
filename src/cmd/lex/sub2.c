@@ -51,7 +51,7 @@ cfoll(int v)
 		case CARAT:
 			cfoll(left[v]);
 			break;
-		case STAR: case PLUS: case QUEST: case RSCON: 
+		case STAR: case PLUS: case QUEST: case RSCON:
 			cfoll(left[v]);
 			break;
 		case BAR: case RCAT: case DIV: case RNEWE:
@@ -131,7 +131,7 @@ follow(int v)
 		case BAR: case QUEST: case RNEWE:
 			follow(p);
 			break;
-		case RCAT: case DIV: 
+		case RCAT: case DIV:
 			if(v == left[p]){
 				if(nullstr[right[p]])
 					follow(p);
@@ -139,7 +139,7 @@ follow(int v)
 			}
 			else follow(p);
 			break;
-		case RSCON: case CARAT: 
+		case RSCON: case CARAT:
 			follow(p);
 			break;
 # ifdef DEBUG
@@ -803,7 +803,7 @@ layout(void)
 	Bprint(&fout,"0,\t0,\t0};\n");
 
 	/* put out yymatch */
-	
+
 	Bprint(&fout,"struct yywork *yytop = yycrank+%d;\n",yytop);
 	Bprint(&fout,"struct yysvf *yybgin = yysvec+1;\n");
 	Bprint(&fout,"Uchar yymatch[] = {\n");

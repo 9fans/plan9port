@@ -89,7 +89,7 @@ out:
  * Leading whitespace and newlines are removed.
  * Lines starting with #include cause us to descend into the new file.
  * Empty lines and other lines starting with '#' are ignored.
- */ 
+ */
 extern char *
 s_rdinstack(Sinstack *sp, String *to)
 {

@@ -7,7 +7,7 @@ makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 	va_list arg;
 
 	tos = (ulong*)ucp->uc_stack.ss_sp+ucp->uc_stack.ss_size/sizeof(ulong);
-	sp = tos - 16;	
+	sp = tos - 16;
 	ucp->mc.pc = (long)func;
 	ucp->mc.sp = (long)sp;
 	va_start(arg, argc);
@@ -22,4 +22,3 @@ swapcontext(ucontext_t *oucp, ucontext_t *ucp)
 		setcontext(ucp);
 	return 0;
 }
-

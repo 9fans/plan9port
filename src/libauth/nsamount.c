@@ -11,7 +11,7 @@ nsamount(char *name, char *aname)
 	CFid *afid, *fid;
 	AuthInfo *ai;
 	CFsys *fs;
-	
+
 	fs = nsinit(name);
 	if(fs == nil)
 		return nil;
@@ -30,4 +30,3 @@ noauth:
 	fssetroot(fs, fid);
 	return fs;
 }
-

@@ -53,7 +53,7 @@ addattrs(Attr *a, Attr *b)
 			break;
 		}
 	}
-	return a;		
+	return a;
 }
 
 void
@@ -201,7 +201,7 @@ matchattr(Attr *pat, Attr *a0, Attr *a1)
 			break;
 		}
 	}
-	return 1;		
+	return 1;
 }
 
 Attr*

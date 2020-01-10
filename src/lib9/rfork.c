@@ -76,7 +76,7 @@ p9rfork(int flags)
 				pid = strtol(buf, &q, 0);
 			}else{
 				/*
-				 * Child - fork a new child whose wait message can't 
+				 * Child - fork a new child whose wait message can't
 				 * get back to the parent because we're going to exit!
 				 */
 				signal(SIGCHLD, SIG_IGN);

@@ -74,7 +74,7 @@ Rune*
 getdsnr(Rune *name, Reg *list)
 {
 	Reg *s;
-	
+
 	for(s=list; s; s=s->next)
 		if(runestrcmp(name, s->name) == 0)
 			return s->val;
@@ -91,7 +91,7 @@ void
 as(Rune *name, Rune *val)
 {
 	Rune *p, *q;
-	
+
 	p = getds(name);
 	if(p == nil)
 		p = L("");
@@ -113,7 +113,7 @@ printds(int t)
 {
 	int n, total;
 	Reg *s;
-	
+
 	total = 0;
 	for(s=dslist; s; s=s->next){
 		if(s->val)
@@ -131,7 +131,7 @@ void
 nr(Rune *name, int val)
 {
 	Rune buf[20];
-	
+
 	runesnprint(buf, nelem(buf), "%d", val);
 	_nr(name, buf);
 }
@@ -152,7 +152,7 @@ Rune*
 getaf(Rune *name)
 {
 	Reg *s;
-	
+
 	for(s=nrlist; s; s=s->next)
 		if(runestrcmp(s->name, name) == 0)
 			return s->fmt;
@@ -163,7 +163,7 @@ void
 printnr(void)
 {
 	Reg *r;
-	
+
 	for(r=nrlist; r; r=r->next)
 		fprint(2, "%S %S %d\n", r->name, r->val, r->inc);
 }
@@ -225,7 +225,7 @@ void
 r_af(int argc, Rune **argv)
 {
 	USED(argc);
-	
+
 	af(argv[1], argv[2]);
 }
 
@@ -234,7 +234,7 @@ void
 r_rr(int argc, Rune **argv)
 {
 	int i;
-	
+
 	for(i=1; i<argc; i++)
 		_nr(argv[i], nil);
 }
@@ -244,7 +244,7 @@ void
 alpha(Rune *buf, int n, int a)
 {
 	int i, v;
-	
+
 	i = 1;
 	for(v=n; v>0; v/=26)
 		i++;
@@ -284,7 +284,7 @@ roman(Rune *buf, int n, int upper)
 	Rune *p;
 	char *q;
 	struct romanv *r;
-	
+
 	if(upper)
 		upper = 'A' - 'a';
 	if(n >= 5000 || n <= 0){
@@ -309,7 +309,7 @@ getname(void)
 {
 	int i, c, cc;
 	static Rune buf[100];
-	
+
 	/* XXX add [name] syntax as in groff */
 	c = getnext();
 	if(c < 0)
@@ -359,7 +359,7 @@ e_n(void)
 	int inc, v, l;
 	Rune *name, *fmt, buf[100];
 	Reg *s;
-	
+
 	inc = getnext();
 	if(inc < 0)
 		return -1;
@@ -442,8 +442,7 @@ t8init(void)
 	addreq(L("af"), r_af, 2);
 	addreq(L("rr"), r_rr, -1);
 	addreq(L("pnr"), r_pnr, 0);
-	
+
 	addesc('n', e_n, CopyMode|ArgMode|HtmlMode);
 	addesc('g', e_g, 0);
 }
-

@@ -15,7 +15,7 @@ void
 mainloop(int shape_event)
 {
 	XEvent ev;
-	
+
 	for(;;){
 		getevent(&ev);
 
@@ -134,7 +134,7 @@ configurereq(XConfigureRequestEvent *e)
 			c->dy = e->height;
 		if(e->value_mask & CWBorderWidth)
 			c->border = e->border_width;
-	
+
 		if(c->dx >= c->screen->width && c->dy >= c->screen->height)
 			c->border = 0;
 		else

@@ -55,7 +55,7 @@
  *		NULL, xyzzy, sizeof(xyzzy),
  *		NULL, NULL, 0
  *	};
- *		
+ *
  * The last element must have NULL entries for the address and
  * value fields. The main() routine would then do,
  *
@@ -300,7 +300,7 @@ void DWBprefix( char *prog, char *path, int length)
  * not great, but should be good enough for now. Also probably should
  * have DWBhome() only do the lookup once, and remember the value if
  * called again.
- * 
+ *
  */
 
     if ( strncmp(path, DWBPREFIX, len) == 0 ) {
@@ -315,4 +315,3 @@ void DWBprefix( char *prog, char *path, int length)
 }   /* End of DWBprefix */
 
 /*****************************************************************************/
-

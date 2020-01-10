@@ -186,4 +186,3 @@ mplowbits0(mpint *n)
 	}
 	return k;
 }
-

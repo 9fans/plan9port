@@ -135,7 +135,7 @@ enum
 	Ot,	/* type */
 };
 
-static Field p_fields[] = 
+static Field p_fields[] =
 {
 	{"s",	Fv4ip,	Os,	"source address",	} ,
 	{"d",	Fv4ip,	Od,	"destination address",	} ,

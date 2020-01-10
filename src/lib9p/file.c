@@ -86,7 +86,7 @@ removefile(File *f)
 {
 	File *fp;
 	Filelist *fl;
-	
+
 	fp = f->parent;
 	if(fp == nil){
 		werrstr("no parent");
@@ -261,7 +261,7 @@ mkqid(vlong path, long vers, int type)
 	return q;
 }
 
-			
+
 Tree*
 alloctree(char *uid, char *gid, ulong mode, void (*destroy)(File*))
 {

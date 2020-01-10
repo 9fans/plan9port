@@ -109,4 +109,3 @@ t11init(void)
 	addesc('r', e_r, 0);
 	addesc('k', e_k, 0);
 }
-

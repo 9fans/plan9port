@@ -60,4 +60,3 @@ dwarfaddrtounit(Dwarf *d, ulong addr, ulong *unit)
 	werrstr("address 0x%lux is not listed in dwarf debugging symbols", addr);
 	return -1;
 }
-

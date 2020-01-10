@@ -9,7 +9,7 @@
  *	S -> C: ok or bad
  *
  * Note that this is the protocol between factotum and the local
- * program, not between the two factotums.  The information 
+ * program, not between the two factotums.  The information
  * exchanged here is wrapped in other protocols by the local
  * programs.
  */
@@ -317,7 +317,7 @@ p9crresp(ServerState *s, uchar *resp, int resplen)
 
 static int
 p9response(char *pw, uchar *chal, uchar *resp)
-{	
+{
 	char key[DESKEYLEN];
 	uchar buf[8];
 	ulong x;
@@ -338,7 +338,7 @@ static int
 vncresponse(char *pw, uchar *chal, uchar *resp)
 {
 	DESstate des;
-	
+
 	memmove(resp, chal, MAXCHAL);
 	setupDESstate(&des, 0, nil);  // XXX put key in for 0
 	desECBencrypt(resp, MAXCHAL, &des);

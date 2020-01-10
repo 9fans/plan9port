@@ -103,7 +103,7 @@ tm2sec(Tm *tm)
 			secs -= ti->tzoff;
 		}
 	}
-	
+
 	if(secs < 0)
 		secs = 0;
 	return secs;

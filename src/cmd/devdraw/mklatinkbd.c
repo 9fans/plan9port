@@ -132,7 +132,7 @@ printtrie(Biobuf *b, Trie *t)
 			printtrie(b, t->link[i]);
 	if(t->n == 0)
 		return;
-	
+
 	if(xflag) {
 		for(i=0; i<256; i++) {
 			if(t->r[i] == 0)
@@ -142,7 +142,7 @@ printtrie(Biobuf *b, Trie *t)
 				Bprint(b, " %k", *p);
 			Bprint(b, " %k : \"%C\" U%04X\n", i, t->r[i], t->r[i]);
 		}
-		return;			
+		return;
 	}
 
 	Bprint(b, "\t\"");
@@ -315,5 +315,3 @@ kfmt(Fmt *f)
 			return fmtprint(f, "<%s>", xkey[i].s);
 	return fmtprint(f, "<%c>", c);
 }
-
-

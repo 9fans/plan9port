@@ -65,7 +65,7 @@ rootdirgen(int n, Dir *dir, void *v)
 
 	if(n > 0)
 		return -1;
-	
+
 	fillstat(dir, factname, QTDIR, Qfactotum, DMDIR|0555);
 	return 0;
 }
@@ -224,7 +224,7 @@ convlist(int i, char *a, uint nn)
 	memmove(a, buf, n);
 	return n;
 }
-	
+
 static void
 fskickreply(Conv *c)
 {
@@ -250,7 +250,7 @@ fskickreply(Conv *c)
 	respond(r, nil);
 	c->nreply = 0;
 }
-		
+
 /*
  * Some of the file system work happens in the fs proc, but
  * fsopen, fsread, fswrite, fsdestroyfid, and fsflush happen in
@@ -305,7 +305,7 @@ fsopen(Req *r)
 		c->kickreply = fskickreply;
 		r->fid->aux = c;
 	}
-	
+
 	respond(r, nil);
 }
 
@@ -538,4 +538,3 @@ fsinit0(void)
 	fs.destroyfid = fssendclunk;
 	fs.start = fsstart;
 }
-

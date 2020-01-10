@@ -185,7 +185,7 @@ load_4C(Biobuf *b, long width, long height, Rgb* buf, Rgb* clut)
 						p = &buf[ix + iy * width];
 						if((1 == (val & 3)) || (2 == (val & 3)))
 							skip = 1;
-						else 
+						else
 							skip = 0;
 
 						while(val--) {
@@ -273,7 +273,7 @@ load_8C(Biobuf *b, long width, long height, Rgb* buf, Rgb* clut)
 						p = &buf[ix + iy * width];
 						if(val & 1)
 							skip = 1;
-						else 
+						else
 							skip = 0;
 
 						while(val--) {
@@ -488,7 +488,7 @@ ReadBMP(Biobuf *b, int *width, int *height)
 		num_coltab = 3;
 
 	if(num_coltab) {
-		int i; 
+		int i;
 		Bseek(b, bmih.size + sizeof(Infohdr), 0);
 
 		for(i = 0; i < num_coltab; i++) {
@@ -622,5 +622,3 @@ readbmp(int fd, int colorspace)
 	Bterm(&b);
 	return a;
 }
-
-

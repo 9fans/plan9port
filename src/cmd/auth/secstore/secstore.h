@@ -28,4 +28,3 @@ char *PAK_Hi(char *, char *, mpint *, mpint *);
 #define LOG "secstore"
 
 extern	char	*SECSTORE_DIR;
-

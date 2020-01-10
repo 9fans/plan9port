@@ -142,7 +142,7 @@ buildenv(Job *j, int slot)
 	for(i = 0; *p; i++, p++){
 		if((j->r->attr&REGEXP) && j->match[i])
 			envupd(*p, newword(j->match[i]));
-		else 
+		else
 			envupd(*p, newword(""));
 	}
 	return envy;

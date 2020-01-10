@@ -50,5 +50,3 @@ estrappend(char *s, char *fmt, ...)
 	free(t);
 	return s;
 }
-
-

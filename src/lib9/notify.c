@@ -1,7 +1,7 @@
 /*
- * Signal handling for Plan 9 programs. 
- * We stubbornly use the strings from Plan 9 instead 
- * of the enumerated Unix constants.  
+ * Signal handling for Plan 9 programs.
+ * We stubbornly use the strings from Plan 9 instead
+ * of the enumerated Unix constants.
  * There are some weird translations.  In particular,
  * a "kill" note is the same as SIGTERM in Unix.
  * There is no equivalent note to Unix's SIGKILL, since
@@ -110,7 +110,7 @@ Jmp *(*_notejmpbuf)(void) = getonejmp;
 static void noteinit(void);
 
 /*
- * Actual signal handler. 
+ * Actual signal handler.
  */
 
 static void (*notifyf)(void*, char*);	/* Plan 9 handler */
@@ -193,7 +193,7 @@ notesetenable(int sig, int enabled)
 	sigemptyset(&mask);
 	sigaddset(&mask, sig);
 	sigprocmask(enabled ? SIG_UNBLOCK : SIG_BLOCK, &mask, &omask);
-	return !sigismember(&omask, sig);	
+	return !sigismember(&omask, sig);
 }
 
 int
@@ -270,4 +270,3 @@ noteinit(void)
 		notifyseton(sig->sig, !(sig->flags&NoNotify));
 	}
 }
-

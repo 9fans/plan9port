@@ -78,7 +78,7 @@ pass(int from, int to)
 {
 	char buf[1024];
 	int ppid, cpid;
-	int n, tot = 0; 
+	int n, tot = 0;
 
 	while ((n=read(from, buf, sizeof(buf))) > 0) {
 		if (n==1 && tot==0 && *buf=='\0')

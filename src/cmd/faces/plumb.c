@@ -113,7 +113,7 @@ setname(Face *f, char *sender)
 
 static char* months[] = {
 	"jan", "feb", "mar", "apr",
-	"may", "jun", "jul", "aug", 
+	"may", "jun", "jul", "aug",
 	"sep", "oct", "nov", "dec"
 };
 

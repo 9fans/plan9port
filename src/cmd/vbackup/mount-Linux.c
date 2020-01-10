@@ -56,4 +56,3 @@ mountnfs(int proto, struct sockaddr_in *sa, uchar *handle, int nhandle, char *mt
 	if(mount("backup:/", mtpt, "nfs", mflag, &nfs) < 0)
 		sysfatal("mount: %r");
 }
-

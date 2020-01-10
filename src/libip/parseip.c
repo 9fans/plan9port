@@ -129,7 +129,7 @@ v4parsecidr(uchar *addr, uchar *mask, char *from)
 			*a++ = 0xff;
 		if(i > 0)
 			*a = ~((1<<(8-i))-1);
-	} else 
+	} else
 		memcpy(mask, defmask(addr), IPv4addrlen);
 	return p;
 }

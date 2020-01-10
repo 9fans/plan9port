@@ -11,7 +11,7 @@ void boverb(int p1, int p2)
 	d = EM(Overgap, ps);
 	h = eht[p1] + eht[p2] + d;
 	b = eht[p2] - d;
-	dprintf(".\tS%d <- %d over %d; b=%g, h=%g\n", 
+	dprintf(".\tS%d <- %d over %d; b=%g, h=%g\n",
 		(int)yyval, p1, p2, b, h);
 	nrwid(p1, ps, p1);
 	nrwid(p2, ps, p2);
@@ -19,12 +19,12 @@ void boverb(int p1, int p2)
 	printf(".if \\n(%d>\\n(%d .nr %d \\n(%d\n", p2, treg, treg, p2);
 	printf(".nr %d \\n(%d+%gm\n", treg, treg, Overwid);
 	d2 = eht[p2]-ebase[p2]-d;	/* denom */
-	printf(".ds %d \\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d\\v'%gm'\\\n", 
+	printf(".ds %d \\v'%gm'\\h'\\n(%du-\\n(%du/2u'\\*(%d\\v'%gm'\\\n",
 		(int)yyval, REL(d2,ps), treg, p2, p2, REL(-d2,ps));
 	d1 = 2 * d + ebase[p1];		/* num */
-	printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\*(%d\\v'%gm'\\\n", 
+	printf("\\h'-\\n(%du-\\n(%du/2u'\\v'%gm'\\*(%d\\v'%gm'\\\n",
 		p2, p1, REL(-d1,ps), p1, REL(d1,ps));
-	printf("\\h'-\\n(%du-\\n(%du/2u+%gm'\\v'%gm'\\l'\\n(%du-%gm'\\h'%gm'\\v'%gm'\n", 
+	printf("\\h'-\\n(%du-\\n(%du/2u+%gm'\\v'%gm'\\l'\\n(%du-%gm'\\h'%gm'\\v'%gm'\n",
 		treg, p1, Overline, REL(-d,ps),
 		treg, 2*Overline, Overline, REL(d,ps));
 	ebase[yyval] = b;

@@ -61,7 +61,7 @@ kinit(void)
 
 	initcmap();
 
-	for(i = 0; keywds[i].name; i++) 
+	for(i = 0; keywds[i].name; i++)
 		enter(keywds[i].name, keywds[i].terminal);
 }
 
@@ -415,7 +415,7 @@ loop:
 			return numsym('.');
 
 		return '.';
- 
+
 	case '(':
 	case ')':
 	case '[':
@@ -671,7 +671,7 @@ delsym(Lsym *s)
 	for(q = s->name; *q; q++)
 		h = h*3 + *q;
 	h %= Hashsize;
-	
+
 	if(hash[h] == s)
 		hash[h] = s->hash;
 	else{

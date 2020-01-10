@@ -506,7 +506,7 @@ pop3read(Pop *pop, Mailbox *mb, int doplumb)
 			(Qid){PATH(mb->id, Qmbox), mb->vers, QTDIR}, nil, mb);
 	}
 
-	return nil;	
+	return nil;
 }
 
 /* */
@@ -695,4 +695,3 @@ pop3mbox(Mailbox *mb, char *path)
 
 	return nil;
 }
-

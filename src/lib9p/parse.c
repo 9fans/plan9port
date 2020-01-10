@@ -70,7 +70,7 @@ respondcmderror(Req *r, Cmdbuf *cb, char *fmt, ...)
 	va_list arg;
 	char *p, *e;
 	char err[ERRMAX];
-	
+
 	e = err+ERRMAX-10;
 	va_start(arg, fmt);
 	p = vseprint(err, e, fmt, arg);

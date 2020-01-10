@@ -463,13 +463,13 @@ soarr(Ndbtuple *entry, Ndbtuple *pair)
 		rp->rmb = dnlookup(mailbox, Cin, 1);
 	}
 
-	/*  hang dns slaves off of the soa.  this is 
+	/*  hang dns slaves off of the soa.  this is
 	 *  for managing the area.
 	 */
 	for(t = entry; t != nil; t = t->entry)
 		if(strcmp(t->attr, "dnsslave") == 0)
 			addserver(&rp->soa->slaves, t->val);
-			
+
 	return rp;
 }
 
@@ -647,11 +647,11 @@ db2cache(int doit)
 			unlock(&dblock);
 			return;
 		}
-	
+
 		/* forget our area definition */
 		freearea(&owned);
 		freearea(&delegated);
-	
+
 		/* reopen all the files (to get oldest for time stamp) */
 		for(ndb = db; ndb; ndb = ndb->next)
 			ndbreopen(ndb);
@@ -659,14 +659,14 @@ db2cache(int doit)
 		if(cachedb){
 			/* mark all db records as timed out */
 			dnagedb();
-	
+
 			/* read in new entries */
 			for(ndb = db; ndb; ndb = ndb->next)
 				dbfile2cache(ndb);
-	
+
 			/* mark as authentic anything in our domain */
 			dnauthdb();
-	
+
 			/* remove old entries */
 			dnageall(1);
 		} else {
@@ -697,7 +697,7 @@ lookupinfo(char *attr)
 
 	snprint(buf, sizeof buf, "%I", ipaddr);
 	a[0] = attr;
-	
+
 	lock(&dblock);
 	if(opendatabase() < 0){
 		unlock(&dblock);

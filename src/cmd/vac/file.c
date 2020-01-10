@@ -8,21 +8,21 @@
 
 /*
  * Vac file system.  This is a simplified version of the same code in Fossil.
- * 
+ *
  * The locking order in the tree is upward: a thread can hold the lock
  * for a VacFile and then acquire the lock of f->up (the parent),
  * but not vice-versa.
- * 
+ *
  * A vac file is one or two venti files.  Plain data files are one venti file,
  * while directores are two: a venti data file containing traditional
- * directory entries, and a venti directory file containing venti 
+ * directory entries, and a venti directory file containing venti
  * directory entries.  The traditional directory entries in the data file
  * contain integers indexing into the venti directory entry file.
  * It's a little complicated, but it makes the data usable by standard
  * tools like venti/copy.
  *
  */
- 
+
 static int filemetaflush(VacFile*, char*);
 
 struct VacFile
@@ -45,7 +45,7 @@ struct VacFile
 	VtFile	*msource;	/* metadata for children in a directory */
 	VacFile	*down;	/* children */
 	int		mode;
-	
+
 	uvlong	qidoffset;	/* qid offset */
 };
 
@@ -215,7 +215,7 @@ vacfiledecref(VacFile *f)
 		filefree(f);
 		return 0;
 	}
-	
+
 	filemetalock(f);
 	f->ref--;
 	if(f->ref > 0){
@@ -256,12 +256,12 @@ vacfiledecref(VacFile *f)
 }
 
 
-/* 
- * Construct a vacfile for the root of a vac tree, given the 
- * venti file for the root information.  That venti file is a 
+/*
+ * Construct a vacfile for the root of a vac tree, given the
+ * venti file for the root information.  That venti file is a
  * directory file containing VtEntries for three more venti files:
- * the two venti files making up the root directory, and a 
- * third venti file that would be the metadata half of the 
+ * the two venti files making up the root directory, and a
+ * third venti file that would be the metadata half of the
  * "root's parent".
  *
  * Fossil generates slightly different vac files, due to a now
@@ -273,7 +273,7 @@ VacFile*
 _vacfileroot(VacFs *fs, VtFile *r)
 {
 	int redirected;
-	char err[ERRMAX];	
+	char err[ERRMAX];
 	VtBlock *b;
 	VtFile *r0, *r1, *r2;
 	MetaBlock mb;
@@ -374,7 +374,7 @@ Err1:
  * to look at every block to find a given name.
  * Dirlookup looks in f for an element name elem.
  * It returns a new VacFile with the dir, boff, and mode
- * filled in, but the sources (venti files) are not, and f is 
+ * filled in, but the sources (venti files) are not, and f is
  * not yet linked into the tree.  These details must be taken
  * care of by the caller.
  *
@@ -535,8 +535,8 @@ Err:
 	return nil;
 }
 
-/* 
- * Open a path in the vac file system: 
+/*
+ * Open a path in the vac file system:
  * just walk each element one at a time.
  */
 VacFile*
@@ -696,12 +696,12 @@ vacfilegetsize(VacFile *f, uvlong *size)
  * Directory reading.
  *
  * A VacDirEnum is a buffer containing directory entries.
- * Directory entries contain malloced strings and need to 
- * be cleaned up with vdcleanup.  The invariant in the 
+ * Directory entries contain malloced strings and need to
+ * be cleaned up with vdcleanup.  The invariant in the
  * VacDirEnum is that the directory entries between
  * vde->i and vde->n are owned by the vde and need to
  * be cleaned up if it is closed.  Those from 0 up to vde->i
- * have been handed to the reader, and the reader must 
+ * have been handed to the reader, and the reader must
  * take care of calling vdcleanup as appropriate.
  */
 VacDirEnum*
@@ -718,7 +718,7 @@ vdeopen(VacFile *f)
 	/*
 	 * There might be changes to this directory's children
 	 * that have not been flushed out into the cache yet.
-	 * Those changes are only available if we look at the 
+	 * Those changes are only available if we look at the
 	 * VacFile structures directory.  But the directory reader
 	 * is going to read the cache blocks directly, so update them.
 	 */
@@ -912,19 +912,19 @@ vdeclose(VacDirEnum *vde)
  * On to mutation.  If the vac file system has been opened
  * read-write, then the files and directories can all be edited.
  * Changes are kept in the in-memory cache until flushed out
- * to venti, so we must be careful to explicitly flush data 
+ * to venti, so we must be careful to explicitly flush data
  * that we're not likely to modify again.
  *
  * Each VacFile has its own copy of its VacDir directory entry
  * in f->dir, but otherwise the cache is the authoratative source
- * for data.  Thus, for the most part, it suffices if we just 
+ * for data.  Thus, for the most part, it suffices if we just
  * call vtfileflushbefore and vtfileflush when we modify things.
  * There are a few places where we have to remember to write
  * changed VacDirs back into the cache.  If f->dir *is* out of sync,
  * then f->dirty should be set.
  *
  * The metadata in a directory is, to venti, a plain data file,
- * but as mentioned above it is actually a sequence of 
+ * but as mentioned above it is actually a sequence of
  * MetaBlocks that contain sorted lists of VacDir entries.
  * The filemetaxxx routines manipulate that stream.
  */
@@ -949,10 +949,10 @@ filemetaalloc(VacFile *fp, VacDir *dir, u32int start)
 	int i, n;
 	MetaEntry me;
 	VtFile *ms;
-	
+
 	ms = fp->msource;
 	n = vdsize(dir, VacDirVersion);
-	
+
 	/* Look for a block with room for a new entry of size n. */
 	nb = (vtfilegetsize(ms)+ms->dsize-1)/ms->dsize;
 	if(start == NilBlock){
@@ -961,7 +961,7 @@ filemetaalloc(VacFile *fp, VacDir *dir, u32int start)
 		else
 			start = 0;
 	}
-	
+
 	if(start > nb)
 		start = nb;
 	for(bo=start; bo<nb; bo++){
@@ -1015,7 +1015,7 @@ Err:
 }
 
 /*
- * Update f's directory entry in the block cache. 
+ * Update f's directory entry in the block cache.
  * We look for the directory entry by name;
  * if we're trying to rename the file, oelem is the old name.
  *
@@ -1057,7 +1057,7 @@ filemetaflush(VacFile *f, char *oelem)
 		goto Err;
 
 	/*
-	 * Check whether we can resize the entry and keep it 
+	 * Check whether we can resize the entry and keep it
 	 * in this block.
 	 */
 	n = vdsize(&f->dir, VacDirVersion);
@@ -1076,20 +1076,20 @@ filemetaflush(VacFile *f, char *oelem)
 vdunpack(&f->dir, &me);
 		mbinsert(&mb, i, &me);
 		mbpack(&mb);
-		
+
 		/* Done */
 		vtblockput(b);
 		vtfileunlock(fp->msource);
 		f->dirty = 0;
 		return 0;
 	}
-	
+
 	/*
 	 * The entry must be moved to another block.
 	 * This can only really happen on renames that
 	 * make the name very long.
 	 */
-	
+
 	/* Allocate a spot in a new block. */
 	if((bo = filemetaalloc(fp, &f->dir, f->boff+1)) == NilBlock){
 		/* mbresize above might have modified block */
@@ -1175,7 +1175,7 @@ vacfileflush(VacFile *f, int recursive)
 	int ret;
 	VacFile **kids, *p;
 	int i, nkids;
-	
+
 	if(f->mode == VtOREAD)
 		return 0;
 
@@ -1218,7 +1218,7 @@ vacfileflush(VacFile *f, int recursive)
 
 	/*
 	 * Now we can flush our own data.
-	 */	
+	 */
 	vtfilelock(f->source, -1);
 	if(vtfileflush(f->source) < 0)
 		ret = -1;
@@ -1233,7 +1233,7 @@ vacfileflush(VacFile *f, int recursive)
 
 	return ret;
 }
-		
+
 /*
  * Create a new file named elem in fp with the given mode.
  * The mode can be changed later except for the ModeDir bit.
@@ -1339,7 +1339,7 @@ vacfilecreate(VacFile *fp, char *elem, ulong mode)
 	vacfileincref(fp);
 
 	fileunlock(fp);
-	
+
 	filelock(ff);
 	vtfilelock(ff->source, -1);
 	vtfileunlock(ff->source);
@@ -1375,7 +1375,7 @@ vacfilesetsize(VacFile *f, uvlong size)
 		werrstr(ENotFile);
 		return -1;
 	}
-	
+
 	if(filelock(f) < 0)
 		return -1;
 
@@ -1534,7 +1534,7 @@ vacfilesetdir(VacFile *f, VacDir *dir)
 	if(filelock(f) < 0)
 		return -1;
 	filemetalock(f);
-	
+
 	if(f->source->mode != VtORDWR){
 		werrstr(EReadOnly);
 		goto Err;
@@ -1777,7 +1777,7 @@ vacfsopen(VtConn *z, char *file, int mode, ulong cachemem)
 	int fd;
 	uchar score[VtScoreSize];
 	char *prefix;
-	
+
 	if(vtparsescore(file, &prefix, score) >= 0){
 		if(prefix == nil || strcmp(prefix, "vac") != 0){
 			werrstr("not a vac file");
@@ -1836,7 +1836,7 @@ if(debug) fprint(2, "bad type %s\n", rt.type);
 
 	memmove(e.score, rt.score, VtScoreSize);
 	e.gen = 0;
-	
+
 	// Don't waste cache memory on pointer blocks
 	// when rt.blocksize is large.
 	e.psize = (rt.blocksize/VtEntrySize)*VtEntrySize;
@@ -1918,7 +1918,7 @@ int
 vacfsgetmaxqid(VacFs *fs, uvlong *maxqid)
 {
 	VacDir vd;
-	
+
 	if(vacfilegetdir(fs->root, &vd) < 0)
 		return -1;
 	if(vd.qidspace)
@@ -1955,7 +1955,7 @@ vacfscreate(VtConn *z, int bsize, ulong cachemem)
 	VacDir vd;
 	MetaEntry me;
 	int psize;
-	
+
 	if((fs = vacfsalloc(z, bsize, cachemem, VtORDWR)) == nil)
 		return nil;
 
@@ -1989,7 +1989,7 @@ if(debug) fprint(2, "create bsize %d psize %d\n", bsize, psize);
 	vtblockwrite(b);
 	memmove(metascore, b->score, VtScoreSize);
 	vtblockput(b);
-	
+
 	/* First entry: empty venti directory stream. */
 	memset(&e, 0, sizeof e);
 	e.flags = VtEntryActive;
@@ -1999,7 +1999,7 @@ if(debug) fprint(2, "create bsize %d psize %d\n", bsize, psize);
 	memmove(e.score, vtzeroscore, VtScoreSize);
 	vtentrypack(&e, buf, 0);
 	vtfilewrite(f, buf, VtEntrySize, 0);
-	
+
 	/* Second entry: empty metadata stream. */
 	e.type = VtDataType;
 	vtentrypack(&e, buf, 0);
@@ -2013,7 +2013,7 @@ if(debug) fprint(2, "create bsize %d psize %d\n", bsize, psize);
 
 	vtfileflush(f);
 	vtfileunlock(f);
-	
+
 	/* Now open it as a vac fs. */
 	fs->root = _vacfileroot(fs, f);
 	if(fs->root == nil){
@@ -2105,7 +2105,7 @@ sha1matches(VacFile *f, ulong b, uchar *buf, int n)
 {
 	uchar fscore[VtScoreSize];
 	uchar bufscore[VtScoreSize];
-	
+
 	if(vacfileblockscore(f, b, fscore) < 0)
 		return 0;
 	n = vtzerotruncate(VtDataType, buf, n);
@@ -2114,4 +2114,3 @@ sha1matches(VacFile *f, ulong b, uchar *buf, int n)
 		return 1;
 	return 0;
 }
-

@@ -19,7 +19,7 @@ main(int argc, char **argv)
 {
 	RSApriv *k;
 	char *comment;
-	
+
 	fmtinstall('B', mpfmt);
 	fmtinstall('[', encodefmt);
 	comment = "";
@@ -42,7 +42,7 @@ main(int argc, char **argv)
 
 	if(ssh2){
 		uchar buf[8192], *p;
-		
+
 		p = buf;
 		p = put4(p, 7);
 		p = putn(p, "ssh-rsa", 7);

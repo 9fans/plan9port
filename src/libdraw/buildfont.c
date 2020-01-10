@@ -154,7 +154,7 @@ freefont(Font *f)
 			f->display->firstfont = f->next;
 	}
 
-	if(f->lodpi != f)	
+	if(f->lodpi != f)
 		freefont(f->lodpi);
 	if(f->hidpi != f)
 		freefont(f->hidpi);

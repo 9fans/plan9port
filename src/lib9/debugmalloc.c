@@ -74,7 +74,7 @@ mark(void *v, ulong pc, ulong n, ulong magic)
 		p = (char*)(u+4)+n;
 		memmove(p, END, 4);
 		return u+4;
-	}	
+	}
 }
 
 void
@@ -104,7 +104,7 @@ setrealloctag(void *v, ulong t)
 	u = mark(v, 0, 0, 0);
 	u[3] = t;
 }
-	
+
 void*
 p9malloc(ulong n)
 {

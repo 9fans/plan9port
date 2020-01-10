@@ -1,23 +1,23 @@
 /*
  * Disk cache.
- * 
+ *
  * Caches raw disk blocks.  Getdblock() gets a block, putdblock puts it back.
  * Getdblock has a mode parameter that determines i/o and access to a block:
  * if mode is OREAD or ORDWR, it is read from disk if not already in memory.
  * If mode is ORDWR or OWRITE, it is locked for exclusive use before being returned.
  * It is *not* marked dirty -- once changes have been made, they should be noted
- * by using dirtydblock() before putdblock().  
+ * by using dirtydblock() before putdblock().
  *
- * There is a global cache lock as well as a lock on each block. 
+ * There is a global cache lock as well as a lock on each block.
  * Within a thread, the cache lock can be acquired while holding a block lock,
  * but not vice versa; and a block cannot be locked if you already hold the lock
  * on another block.
- * 
+ *
  * The flush proc writes out dirty blocks in batches, one batch per dirty tag.
  * For example, the DirtyArena blocks are all written to disk before any of the
  * DirtyArenaCib blocks.
  *
- * This code used to be in charge of flushing the dirty index blocks out to 
+ * This code used to be in charge of flushing the dirty index blocks out to
  * disk, but updating the index turned out to benefit from extra care.
  * Now cached index blocks are never marked dirty.  The index.c code takes
  * care of updating them behind our back, and uses _getdblock to update any
@@ -134,7 +134,7 @@ DBlock*
 getdblock(Part *part, u64int addr, int mode)
 {
 	DBlock *b;
-	
+
 	b = _getdblock(part, addr, mode, 1);
 	if(mode == OREAD || mode == ORDWR)
 		addstat(StatDcacheRead, 1);
@@ -335,7 +335,7 @@ static void
 unchain(DBlock *b)
 {
 	ulong h;
-	
+
 	/*
 	 * unchain the block
 	 */
@@ -395,7 +395,7 @@ void
 emptydcache(void)
 {
 	DBlock *b;
-	
+
 	qlock(&dcache.lock);
 	while(dcache.nheap > 0){
 		b = dcache.heap[0];
@@ -575,7 +575,7 @@ parallelwrites(DBlock **b, DBlock **eb, int dirty)
 		assert(b<=p && p<eb);
 		recvp((*p)->writedonechan);
 	}
-	
+
 	/*
 	 * Flush the partitions that have been written to.
 	 */

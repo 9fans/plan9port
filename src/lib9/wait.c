@@ -51,4 +51,3 @@ waitfor(int pid)
 
 	return _wait(awaitfor(pid, buf, sizeof buf-1), buf);
 }
-

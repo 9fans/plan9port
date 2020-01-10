@@ -74,7 +74,7 @@ rumnt(SunMsg *m)
 	NfsMount3RUmnt rx;
 
 	/* ignore */
-	
+
 	memset(&rx, 0, sizeof rx);
 	return sunmsgreply(m, &rx.call);
 }
@@ -359,7 +359,7 @@ rrofs(SunMsg *m)
 	memset(buf, 0, sizeof buf);
 	return senderror(m, (SunCall*)buf, Nfs3ErrRoFs);
 }
-	
+
 
 static void
 rnfs3(void *v)
@@ -429,4 +429,3 @@ nfs3proc(void *v)
 	while((m = recvp(c)) != nil)
 		threadcreate(rnfs3, m, SunStackSize);
 }
-

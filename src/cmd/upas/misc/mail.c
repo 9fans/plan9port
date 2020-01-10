@@ -48,4 +48,3 @@ main (argc, argv)
 	perror (realprog);
 	exit (1);
 }
-

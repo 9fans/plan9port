@@ -149,7 +149,7 @@ threadmain(int argc, char *argv[])
 	fmtinstall('H', encodefmt);
 	fmtinstall('V', vtscorefmt);
 	fmtinstall('F', vtfcallfmt);
-	
+
 	defmnt = nil;
 	defsrv = nil;
 	ARGBEGIN{
@@ -620,7 +620,7 @@ rstat(Fid *f)
 	VacDir dir;
 	static uchar statbuf[1024];
 	VacFile *parent;
-	
+
 	if(!f->busy)
 		return vtstrdup(Enotexist);
 	parent = vacfilegetparent(f->file);
@@ -671,7 +671,7 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 		dir.qid.type |= QTDIR;
 		dir.mode |= DMDIR;
 	}
-	
+
 #ifdef PLAN9PORT
 	if(vd->mode & (ModeLink|ModeDevice|ModeNamedPipe)){
 		vf = vacfilewalk(parent, vd->elem);
@@ -695,7 +695,7 @@ vacstat(VacFile *parent, VacDir *vd, uchar *p, int np)
 			dir.mode |= DMNAMEDPIPE;
 	}
 #endif
-	
+
 	dir.atime = vd->atime;
 	dir.mtime = vd->mtime;
 	dir.length = vd->size;
@@ -862,4 +862,3 @@ vacshutdown(void)
 	vacfsclose(fs);
 	vthangup(conn);
 }
-

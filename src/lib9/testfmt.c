@@ -90,14 +90,14 @@ main(int argc, char **argv)
 	verify(smprint("%d", 23), "23");
 	verify(smprint("%i", 23), "23");
 	verify(smprint("%Zi", 1234, 23), "23");
-	
+
 	/* ANSI and their wacky corner cases */
 	verify(smprint("%.0d", 0), "");
 	verify(smprint("%.0o", 0), "");
 	verify(smprint("%.0x", 0), "");
 	verify(smprint("%#.0o", 0), "0");
 	verify(smprint("%#.0x", 0), "");
-	
+
 	/* difficult floating point tests that many libraries get wrong */
 	verify(smprint("%.100f", 1.0), "1.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
 	verify(smprint("%.100g", 1.0), "1");
@@ -112,7 +112,7 @@ main(int argc, char **argv)
 	verify(smprint("%3$d %4$*5$06d %2$d %1$d", 444, 333, 111, 222, 20), "111               000222 333 444");
 	verify(smprint("%3$hd %4$*5$06d %2$d %1$d", 444, 333, (short)111, 222, 20), "111               000222 333 444");
 	verify(smprint("%3$\xe2\x98\xba""d %5$06d %2$d %1$d", 444, 333, 555, 111, 222), "111 000222 333 444");
-	
+
 	/* test %'d formats */
 	verify(smprint("%'d %'d %'d", 1, 2222, 33333333), "1 2,222 33,333,333");
 	verify(smprint("%'019d", 0), "000,000,000,000,000");

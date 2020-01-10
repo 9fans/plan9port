@@ -81,7 +81,7 @@ nextchunk(Index *ix, ISect *is, IEntry **pie, u64int *paddr, uint *pnbuf)
 	*pnbuf = nbuf;
 	return iefirst;
 }
-	
+
 static int
 icachewritesect(Index *ix, ISect *is, u8int *buf)
 {
@@ -192,7 +192,7 @@ skipit:
 			err = -1;
 			continue;
 		}
-		
+
 		addstat(StatIsectWriteBytes, nbuf);
 		addstat(StatIsectWrite, 1);
 		icacheclean(chunk);
@@ -264,7 +264,7 @@ icachewritecoord(void *v)
 				send(ix->sects[i]->writechan, 0);
 			if(ix->bloom)
 				send(ix->bloom->writechan, 0);
-		
+
 			err = 0;
 			for(i=0; i<ix->nsects; i++)
 				err |= recvul(ix->sects[i]->writedonechan);
@@ -355,4 +355,3 @@ iesort(IEntry *ie)
 	*l = nil;
 	return sorted;
 }
-

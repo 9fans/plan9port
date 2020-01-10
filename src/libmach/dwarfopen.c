@@ -30,7 +30,7 @@ findsection(Elf *elf, char *name, ulong *off, ulong *len)
 	*len = s->size;
 	return s - elf->sect;
 }
-	
+
 static int
 loadsection(Elf *elf, char *name, DwarfBlock *b)
 {

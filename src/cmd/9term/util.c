@@ -146,4 +146,3 @@ runetobyte(Rune *r, int n, int *ip)
 	*ip = m;
 	return s;
 }
-

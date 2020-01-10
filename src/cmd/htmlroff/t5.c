@@ -49,7 +49,7 @@ sp(int v)
 {
 	Rune buf[100];
 	double fv;
-	
+
 	br();
 	fv = v * 1.0/UPI;
 	if(fv > 5)
@@ -93,7 +93,7 @@ r_rs(int argc, Rune **argv)
 
 void
 t5init(void)
-{	
+{
 	addreq(L("vs"), r_vs, -1);
 	addreq(L("ls"), r_ls, -1);
 	addreq(L("sp"), r_sp, -1);
@@ -107,4 +107,3 @@ t5init(void)
 	nr(L(".ls"), 1);
 	nr(L(".ls0"), 1);
 }
-

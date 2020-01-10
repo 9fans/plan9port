@@ -3,19 +3,19 @@
 #include <bio.h>
 #include <mach.h>
 
-static char *(*demanglers[])(char*, char*) = 
+static char *(*demanglers[])(char*, char*) =
 {
 	demanglegcc2,
 	demanglegcc3,
 };
-	
+
 char*
 demangle(char *s, char *buf, int strip)
 {
 	char *t;
 	char *r, *w;
 	int i, nangle, nparen;
-	
+
 	t = nil;
 	for(i=0; i<nelem(demanglers); i++){
 		t = demanglers[i](s, buf);

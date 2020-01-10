@@ -74,7 +74,7 @@ chklval(Node *lp)
 
 	if(lp->op == OCALL){
 		s = chklval(lp->left);
-		if(strcmp(s->name, "var") == 0	
+		if(strcmp(s->name, "var") == 0
 		&& (lp->builtin || s->proc == 0)){
 			if(lp->right == 0)
 				error("var(string): arg count");
@@ -85,7 +85,7 @@ chklval(Node *lp)
 		}
 	}
 	error("need l-value");
-	return nil;	
+	return nil;
 }
 
 void
@@ -177,7 +177,7 @@ oframe(Node *n, Node *res)
 	lp = n->left;
 	if(localaddr(cormap, acidregs, p, lp->sym->name, &ival) < 0)
 		error("colon: %r");
-		
+
 	res->store.u.ival = ival;
 	res->op = OCONST;
 	res->store.fmt = 'X';
@@ -397,7 +397,7 @@ oadd(Node *n, Node *res)
 		if(r.type == TSTRING) {
 			res->type = TSTRING;
 			res->store.fmt = 's';
-			res->store.u.string = stradd(l.store.u.string, r.store.u.string); 
+			res->store.u.string = stradd(l.store.u.string, r.store.u.string);
 			break;
 		}
 		error("bad rhs for +");
@@ -916,7 +916,7 @@ oeinc(Node *n, Node *res)
 			v->store.u.ival -= fmtsize(v);
 		else
 			v->store.u.ival += fmtsize(v);
-		break;			
+		break;
 	case TFLOAT:
 		if(n->op == OEDEC)
 			v->store.u.fval--;
@@ -944,7 +944,7 @@ opinc(Node *n, Node *res)
 			v->store.u.ival -= fmtsize(v);
 		else
 			v->store.u.ival += fmtsize(v);
-		break;			
+		break;
 	case TFLOAT:
 		if(n->op == OPDEC)
 			v->store.u.fval--;

@@ -34,7 +34,7 @@ curdir(void)	/* convert current dir (hvmode) to RIGHT, LEFT, etc. */
 	return 0;
 }
 
-double 
+double
 getcomp(obj *p, int t)	/* return component of a position */
 {
 	switch (t) {

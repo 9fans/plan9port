@@ -34,4 +34,3 @@ runproc(char *file, char **v, int devnull)
 	}
 	return runprocfd(file, v, fd);
 }
-

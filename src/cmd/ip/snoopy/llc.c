@@ -1,4 +1,4 @@
-/* 
+/*
  * LLC.  Only enough to dispatch to SNAP and IP.
  */
 
@@ -17,7 +17,7 @@ enum
 	UPoll = 0x10,
 	IsPoll = 0x100,
 	XidFi = 0x81,
-	
+
 	SapNull = 0,
 	SapGlobal = 0xff,
 	Sap8021BI = 0x02,
@@ -40,7 +40,7 @@ static Mux p_mux[] =
 // Linux gives llc -> snap not llc -> ip.
 // If we don't tell snoopy about llc -> ip, then the default patterns
 // like snoopy -h radiotap -f dns work better.
-//	{ "ip", SapIP },	
+//	{ "ip", SapIP },
 	{ "snap", SapSnap },
 	{ 0 }
 };
@@ -138,7 +138,7 @@ static int
 p_seprint(Msg *m)
 {
 	Hdr h;
-	
+
 	memset(&h, 0, sizeof h);
 	if(unpackhdr(m->ps, m->pe, &h) < 0)
 		return -1;
@@ -156,7 +156,7 @@ p_seprint(Msg *m)
 			m->pr = &snap;
 			break;
 		}
-	}	
+	}
 	return 0;
 }
 

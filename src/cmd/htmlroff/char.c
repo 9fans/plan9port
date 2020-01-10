@@ -12,7 +12,7 @@ rune2html(Rune r)
 	static Rune **tcscache[256];
 	int p[2];
 	char *q;
-	
+
 	if(r == '\n')
 		return L("\n");
 
@@ -79,7 +79,7 @@ troff2rune(Rune *rs)
 	char *file, *f[10], *p, s[3];
 	int i, nf;
 	Biobuf *b;
-	
+
 	if(rs[0] >= Runeself || rs[1] >= Runeself)
 		return Runeerror;
 	s[0] = rs[0];
@@ -103,14 +103,13 @@ troff2rune(Rune *rs)
 			}
 		}
 		Bterm(b);
-		
+
 		if(ntrtab >= nelem(trtab))
 			fprint(2, "%s: trtab too small\n", argv0);
 	}
-	
+
 	for(i=0; i<ntrtab; i++)
 		if(strcmp(s, trtab[i].t) == 0)
 			return trtab[i].r;
 	return Runeerror;
 }
-

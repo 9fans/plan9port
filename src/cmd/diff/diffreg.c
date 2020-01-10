@@ -19,7 +19,7 @@
 *	on the hash (called value). In particular, this
 *	collects the equivalence classes in file1 together.
 *	Subroutine equiv replaces the value of each line in
-*	file0 by the index of the first element of its 
+*	file0 by the index of the first element of its
 *	matching equivalence in (the reordered) file1.
 *	To save space equiv squeezes file1 into a single
 *	array member in which the equivalence classes
@@ -34,15 +34,15 @@
 *	of "k-candidates". At step i a k-candidate is a matched
 *	pair of lines x,y (x in file0 y in file1) such that
 *	there is a common subsequence of lenght k
-*	between the first i lines of file0 and the first y 
+*	between the first i lines of file0 and the first y
 *	lines of file1, but there is no such subsequence for
 *	any smaller y. x is the earliest possible mate to y
 *	that occurs in such a subsequence.
 *
 *	Whenever any of the members of the equivalence class of
-*	lines in file1 matable to a line in file0 has serial number 
-*	less than the y of some k-candidate, that k-candidate 
-*	with the smallest such y is replaced. The new 
+*	lines in file1 matable to a line in file0 has serial number
+*	less than the y of some k-candidate, that k-candidate
+*	with the smallest such y is replaced. The new
 *	k-candidate is chained (via pred) to the current
 *	k-1 candidate so that the actual subsequence can
 *	be recovered. When a member has serial number greater
@@ -64,7 +64,7 @@
 *	The core requirements for problems larger than somewhat
 *	are (in words) 2*length(file0) + length(file1) +
 *	3*(number of k-candidates installed),  typically about
-*	6n words for files of length n. 
+*	6n words for files of length n.
 */
 /* TIDY THIS UP */
 struct cand {
@@ -91,7 +91,7 @@ long *ixold;	/*will be overlaid on klist*/
 long *ixnew;	/*will be overlaid on file[1]*/
 /* END OF SOME TIDYING */
 
-static void	
+static void
 sort(struct line *a, int n)	/*shellsort CACM #201*/
 {
 	int m;
@@ -352,14 +352,14 @@ cmp(Biobuf* b1, Biobuf* b2)
 			break;
 		if(memcmp((void *)b1s, (void *)b2s, n) != 0){
 			return 1;
-		}		
+		}
 		nc += n;
 		b1s += n;
 		b2s += n;
 	}
 	if(b1e - b1s == b2e - b2s)
 		return 0;
-	return 1;	
+	return 1;
 }
 
 void

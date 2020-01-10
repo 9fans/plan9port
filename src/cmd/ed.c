@@ -203,7 +203,7 @@ commands(void)
 			a1 = dol;
 		if((addr2=a1) == 0) {
 			given = 0;
-			addr2 = dot;	
+			addr2 = dot;
 		} else
 			given = 1;
 		if(addr1 == 0)
@@ -726,7 +726,7 @@ getchr(void)
 		i++;
 		if(fullrune(s, i))
 			break;
-		
+
 	}
 	chartorune(&r, s);
 	lastc = r;
@@ -1072,7 +1072,7 @@ Rune*
 getblock(int atl, int iof)
 {
 	int bno, off;
-	
+
 	static uchar ibuff[BLKSIZE];
 	static uchar obuff[BLKSIZE];
 
@@ -1488,7 +1488,7 @@ match(int *addr)
 	}
 	loc1 = loc2 = 0;
 	return 0;
-	
+
 }
 
 void

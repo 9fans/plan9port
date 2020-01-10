@@ -285,4 +285,3 @@ void		yyerror(char *s);
 int		yyparse(void);
 
 #include "tex.h"
-

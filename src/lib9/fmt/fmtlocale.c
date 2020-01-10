@@ -37,7 +37,7 @@ int
 __needsep(int *ndig, char **grouping)
 {
 	int group;
-	
+
 	(*ndig)++;
 	group = *(unsigned char*)*grouping;
 	/* CHAR_MAX means no further grouping. \0 means we got the empty string */
@@ -52,4 +52,3 @@ __needsep(int *ndig, char **grouping)
 	}
 	return 0;
 }
-

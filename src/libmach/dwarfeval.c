@@ -59,4 +59,3 @@
 	OpCall4 = 0x99,	/* 4-byte offset of DIE */
 	OpCallRef = 0x9A,	/* 4- or 8- byte offset of DIE */
 	/* 0xE0-0xFF reserved for user-specific */
-

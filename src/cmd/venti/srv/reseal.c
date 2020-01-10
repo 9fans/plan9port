@@ -97,7 +97,7 @@ verify(Arena *arena, void *data, uchar *newscore)
 			bs = e - n;
 		sha1(data, bs, nil, &ds);
 	}
-	
+
 	/* last block */
 	if(preadblock(data, arena->blocksize, o + e) < 0){
 		werrstr("read: %r");
@@ -113,7 +113,7 @@ verify(Arena *arena, void *data, uchar *newscore)
 		}
 		fprint(2, "warning: score mismatch %V != %V\n", score, arena->score);
 	}
-	
+
 	/* prepare new last block */
 	memset(data, 0, arena->blocksize);
 	packarena(arena, data);
@@ -158,17 +158,17 @@ resealarena(char *name, vlong len)
 
 	if(loadheader(name, &head, &arena, off) < 0)
 		return;
-	
+
 	if(!arena.diskstats.sealed){
 		fprint(2, "%s: not sealed\n", name);
 		return;
 	}
-	
+
 	if(verify(&arena, data, newscore) < 0){
 		fprint(2, "%s: failed to verify before reseal: %r\n", name);
 		return;
 	}
-	
+
 	if(pwriteblock(data, arena.blocksize, arena.base + arena.size) < 0){
 		fprint(2, "%s: writing new tail: %r\n", name);
 		return;
@@ -188,7 +188,7 @@ static int
 shouldcheck(char *name, char **s, int n)
 {
 	int i;
-	
+
 	if(n == 0)
 		return 1;
 
@@ -205,7 +205,7 @@ char *
 readap(ArenaPart *ap)
 {
 	char *table;
-	
+
 	if(preadblock(data, 8192, PartBlank) < 0)
 		sysfatal("read arena part header: %r");
 	if(unpackarenapart(ap, data) < 0)
@@ -229,7 +229,7 @@ threadmain(int argc, char *argv[])
 	vlong start, stop;
 	ArenaPart ap;
 	Part *part;
-	
+
 	ventifmtinstall();
 	blocksize = MaxIoSize;
 	ARGBEGIN{

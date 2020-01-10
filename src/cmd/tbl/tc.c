@@ -12,9 +12,9 @@ choochar(void)
 		had[icol] = 0;
 	F1 = F2 = 0;
 	for (ilin = 0; ilin < nlin; ilin++) {
-		if (instead[ilin]) 
+		if (instead[ilin])
 			continue;
-		if (fullbot[ilin]) 
+		if (fullbot[ilin])
 			continue;
 		for (icol = 0; icol < ncol; icol++) {
 			k = ctype(ilin, icol);
@@ -32,7 +32,7 @@ choochar(void)
 	}
 				/* choose first funny character */
 	for (
-	    s = "\002\003\005\006\007!%&#/?,:;<=>@`^~_{}+-*ABCDEFGHIJKMNOPQRSTUVWXYZabcdefgjkoqrstwxyz"; 
+	    s = "\002\003\005\006\007!%&#/?,:;<=>@`^~_{}+-*ABCDEFGHIJKMNOPQRSTUVWXYZabcdefgjkoqrstwxyz";
 	    *s; s++) {
 		if (had[(unsigned char)*s] == 0) {
 			F1 = (unsigned char)*s;
@@ -42,7 +42,7 @@ choochar(void)
 	}
 				/* choose second funny character */
 	for (
-	    s = "\002\003\005\006\007:_~^`@;,<=>#%&!/?{}+-*ABCDEFGHIJKMNOPQRSTUVWXZabcdefgjkoqrstuwxyz"; 
+	    s = "\002\003\005\006\007:_~^`@;,<=>#%&!/?{}+-*ABCDEFGHIJKMNOPQRSTUVWXZabcdefgjkoqrstuwxyz";
 	    *s; s++) {
 		if (had[(unsigned char)*s] == 0) {
 			F2 = (unsigned char)*s;
@@ -61,5 +61,3 @@ point(char *ss)
 	int	s = (int)(uintptr)ss;
 	return(s >= 128 || s < 0);
 }
-
-

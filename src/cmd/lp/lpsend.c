@@ -154,7 +154,7 @@ pass(int inpfd, int outfd, int bsize)
 	alarm(0);
 	return(bcnt);
 }
-	
+
 /* get whatever stdin has and put it into the temporary file.
  * return the file size.
  */

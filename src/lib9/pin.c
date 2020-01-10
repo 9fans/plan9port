@@ -8,4 +8,3 @@ nop(void)
 
 void (*_pin)(void) = nop;
 void (*_unpin)(void) = nop;
-

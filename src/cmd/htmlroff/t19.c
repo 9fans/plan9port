@@ -17,7 +17,7 @@ void
 r_nx(int argc, Rune **argv)
 {
 	int n;
-	
+
 	if(argc == 1){
 		while(popinput())
 			;
@@ -74,7 +74,7 @@ r_inputpipe(Rune *name)
 	Rune *cmd, *stop, *line;
 	int n, pid, p[2], len;
 	Waitmsg *w;
-	
+
 	USED(name);
 	if(pipe(p) < 0){
 		warn("pipe: %r");
@@ -104,7 +104,7 @@ r_inputpipe(Rune *name)
 		fprint(p[1], ".ll 8i\n");
 		fprint(p[1], ".pl 30i\n");
 		while((line = readline(~0)) != nil){
-			if(runestrncmp(line, stop, len) == 0 
+			if(runestrncmp(line, stop, len) == 0
 			&& (line[len]==' ' || line[len]==0 || line[len]=='\t'
 				|| (line[len]=='\\' && line[len+1]=='}')))
 				break;
@@ -125,7 +125,7 @@ r_inputpipe(Rune *name)
 		free(cmd);
 		free(w);
 	}
-}	
+}
 
 void
 t19init(void)
@@ -136,7 +136,6 @@ t19init(void)
 	addraw(L("inputpipe"), r_inputpipe);
 	addraw(L("pi"), r_pi);
 	addreq(L("cf"), r_cf, 1);
-	
+
 	nr(L("$$"), getpid());
 }
-

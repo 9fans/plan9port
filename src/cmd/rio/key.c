@@ -64,4 +64,3 @@ alttab(int shift)
 	shuffle(shift);
 /*	fprintf(stderr, "%sTab\n", shift ? "Back" : ""); */
 }
-

@@ -91,7 +91,7 @@ readconfigfile(char *name, VtCache *vcache)
 
 	if((dir = dirstat(name)) == nil)
 		return nil;
-	
+
 	if((b = Bopen(name, OREAD)) == nil){
 		free(dir);
 		return nil;
@@ -142,7 +142,7 @@ readconfigfile(char *name, VtCache *vcache)
 		freeconfig(c);
 		return nil;
 	}
-	
+
 	return c;
 }
 

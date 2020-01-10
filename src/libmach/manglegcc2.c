@@ -63,7 +63,7 @@ static Chartab modifiertab[] =
 	'S',	"signed",		/* means static for member functions */
 	'U',	"unsigned",
 	'V',	"volatile",
-	
+
 	'G',	"garbage",	/* no idea what this is */
 	0, 0
 };
@@ -86,7 +86,7 @@ demanglegcc2(char *s, char *buf)
 {
 	char *name, *os, *p, *t;
 	int isfn, namelen;
-	
+
 
 	/*
 	 * Pick off some cases that seem not to fit the pattern.
@@ -119,22 +119,22 @@ demanglegcc2(char *s, char *buf)
 		isfn = 1;
 		name = gdestructor;
 		namelen = strlen(name);
-		s += 13;		
+		s += 13;
 	}else if(memcmp(s, "_GLOBAL_.D._", 12) == 0){
 		isfn = 0;
 		name = gdestructor;
 		namelen = strlen(name);
-		s += 12;		
+		s += 12;
 	}else if(memcmp(s, "_GLOBAL_.I.__", 13) == 0){
 		isfn = 1;
 		name = gconstructor;
 		namelen = strlen(name);
-		s += 13;		
+		s += 13;
 	}else if(memcmp(s, "_GLOBAL_.I._", 12) == 0){
 		isfn = 0;
 		name = gconstructor;
 		namelen = strlen(name);
-		s += 12;		
+		s += 12;
 	}else{
 		t = strstr(os, "__");
 		if(t == nil)
@@ -144,7 +144,7 @@ demanglegcc2(char *s, char *buf)
 			if(strchr(manglestarts, *(s+2)))
 				break;
 		}while((t = strstr(s+1, "__")) != nil);
-	
+
 		name = os;
 		namelen = s - os;
 		if(namelen == 0){
@@ -154,14 +154,14 @@ demanglegcc2(char *s, char *buf)
 		}
 		s += 2;
 	}
-	
+
 	/*
 	 * Now s points at the mangled crap (maybe).
 	 * and name is the final element of the name.
 	 */
 	if(strchr(manglestarts, *s) == nil)
 		return os;
-	
+
 	p = buf;
 	if(*s == 'F'){
 		/* global function, no extra name pieces, just types */
@@ -173,7 +173,7 @@ demanglegcc2(char *s, char *buf)
 				fprint(2, "parsename %s: %r\n", s);
 			return os;
 		}
-		
+
 		/* if we have a constructor or destructor, try to use the C++ name */
 		t = nil;
 		if(name == constructor || name == destructor){
@@ -197,7 +197,7 @@ demanglegcc2(char *s, char *buf)
 		p -= 2;
 	memmove(p, name, namelen);
 	p += namelen;
-	
+
 	if(*s == 'F'){
 		/* might be from above, or might follow name pieces */
 		s++;
@@ -219,8 +219,8 @@ demanglegcc2(char *s, char *buf)
 
 	if(*s == '_'){
 		/* return type (left over from H) */
-	}	
-	
+	}
+
 	*p = 0;
 	return buf;
 }
@@ -234,7 +234,7 @@ static char*
 demanglegcc2a(char *s, char *buf)
 {
 	char *p;
-	
+
 	if(*s != '_' || strchr(manglestarts, *(s+1)) == nil)
 		return nil;
 	p = buf;
@@ -259,7 +259,7 @@ demanglegcc2b(char *s, char *buf)
 {
 	char *p;
 	char *t;
-	
+
 	if(memcmp(s, "__ti", 4) == 0){
 		t = "$typeinfo";
 		s += 4;
@@ -325,7 +325,7 @@ gccnumber(char **ps, int *pn, int many)
 {
 	char *s;
 	int n, eatunderscore;
-	
+
 	s = *ps;
 	eatunderscore = 0;
 	if(!many && *s == '_'){
@@ -362,7 +362,7 @@ gccname(char **ps, char **pp)
 {
 	int i, n, m, val;
 	char *os, *s, *t, *p, *p0, *p1;
-	
+
 	s = *ps;
 	os = s;
 	p = *pp;
@@ -376,7 +376,7 @@ gccname(char **ps, char **pp)
 		p += strlen(t);
 		goto out;
 	}
-	
+
 	/* modifiers */
 	if((t = chartabsearch(modifiertab, *s)) != nil){
 		s++;
@@ -394,7 +394,7 @@ gccname(char **ps, char **pp)
 		*/
 		goto out;
 	}
-	
+
 	switch(*s){
 	default:
 	bad:
@@ -546,7 +546,7 @@ gccname(char **ps, char **pp)
 		if(!gccname(&s, &p))
 			return 0;
 		break;
-	
+
 	case 'Q':	/* qualified name */
 		s++;
 		if(!gccnumber(&s, &n, 0))
@@ -601,7 +601,7 @@ gccname(char **ps, char **pp)
 		}
 		*p++ = '>';
 		break;
-		
+
 	case 'T':	/* once-repeated type */
 		s++;
 		if(!gccnumber(&s, &n, 0))
@@ -609,7 +609,7 @@ gccname(char **ps, char **pp)
 		sprint(p, "T%d", n);
 		p += strlen(p);
 		break;
-	
+
 	case 'X':	/* type parameter in 'H' */
 		if(!isdigit((uchar)*(s+1)) || !isdigit((uchar)*(s+2)))
 			goto bad;
@@ -622,9 +622,8 @@ gccname(char **ps, char **pp)
 	USED(p1);
 	USED(p0);
 
-out:	
+out:
 	*ps = s;
 	*pp = p;
 	return 1;
 }
-

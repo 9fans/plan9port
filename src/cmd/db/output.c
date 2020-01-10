@@ -77,7 +77,7 @@ iclose(int stack, int err)
 		infile = STDIN;
 	} else {
 		if (infile) {
-			close(infile); 
+			close(infile);
 			infile=STDIN;
 		}
 		if (ifiledepth > 0) {

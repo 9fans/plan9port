@@ -122,7 +122,7 @@ main(int argc, char *argv[])
 
 	/*
 	 *  If this is a gateway, translate the sender address into a local
-	 *  address.  This only happens if mail to the local address is 
+	 *  address.  This only happens if mail to the local address is
 	 *  forwarded to the sender.
 	 */
 	gateway(mp);

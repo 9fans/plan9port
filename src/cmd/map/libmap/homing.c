@@ -94,7 +94,7 @@ hlimb(double *lat, double *lon, double res)
 		return 0;
 	}
 	*lat += res;
-	if(*lat <= 90) 
+	if(*lat <= 90)
 		return 1;
 	if(*lon == 90)
 		return -1;

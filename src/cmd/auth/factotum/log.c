@@ -118,4 +118,3 @@ flog(char *fmt, ...)
 	lbvappend(&logbuf, fmt, arg);
 	va_end(arg);
 }
-

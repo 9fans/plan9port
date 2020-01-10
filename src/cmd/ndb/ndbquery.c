@@ -67,7 +67,7 @@ main(int argc, char **argv)
 	default:
 		usage();
 	}
-	
+
 	db = ndbopen(dbfile);
 	if(db == 0){
 		fprint(2, "no db files\n");
