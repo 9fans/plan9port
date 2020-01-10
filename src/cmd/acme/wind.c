@@ -443,7 +443,7 @@ wincleartag(Window *w)
 void
 winsettag1(Window *w)
 {
-	int i, j, k, n, bar, dirty, resize;
+	int i, j, k, n, bar, dirty, resize, hastab;
 	Rune *new, *old, *r;
 	uint q0, q1;
 	static Rune Ldelsnarf[] = { '\t', 'D', 'e', 'l', ' ',
@@ -461,9 +461,20 @@ winsettag1(Window *w)
 	old = runemalloc(w->tag.file->b.nc+1);
 	bufread(&w->tag.file->b, 0, old, w->tag.file->b.nc);
 	old[w->tag.file->b.nc] = '\0';
+
+	hastab = FALSE;
 	for(i=0; i<w->tag.file->b.nc; i++)
-		if(old[i]==' ' || old[i]=='\t')
+		if (old[i]=='\t')
+			hastab = TRUE;
+
+	for(i=0; i<w->tag.file->b.nc; i++) {
+		if (!hastab && old[i] == ' ')
 			break;
+
+		if(old[i]=='\t' || old[i] == '|')
+			break;
+	}
+
 	if(runeeq(old, i, w->body.file->name, w->body.file->nname) == FALSE){
 		textdelete(&w->tag, 0, i, TRUE);
 		textinsert(&w->tag, 0, w->body.file->name, w->body.file->nname, TRUE);
@@ -480,6 +491,8 @@ winsettag1(Window *w)
 		runemove(new, w->body.file->name, w->body.file->nname);
 	i += w->body.file->nname;
 	runemove(new+i, Ldelsnarf, 10);
+	if (hastab)
+		new[i]='\t';
 	i += 10;
 	if(w->filemenu){
 		if(w->body.needundo || w->body.file->delta.nc>0 || w->body.ncache){
@@ -574,7 +587,7 @@ void
 wincommit(Window *w, Text *t)
 {
 	Rune *r;
-	int i;
+	int i, hastab;
 	File *f;
 
 	textcommit(t, TRUE);
@@ -586,9 +599,20 @@ wincommit(Window *w, Text *t)
 		return;
 	r = runemalloc(w->tag.file->b.nc);
 	bufread(&w->tag.file->b, 0, r, w->tag.file->b.nc);
+
+	/* See if this file name may be terminated by a tab character. If so, treat everything up to the tab as the file name */
+	hastab = FALSE;
 	for(i=0; i<w->tag.file->b.nc; i++)
 		if (r[i]=='\t')
+			hastab = TRUE;
+
+	for(i=0; i<w->tag.file->b.nc; i++) {
+		if (!hastab && r[i] == ' ')
 			break;
+		if (r[i]=='\t' || r[i] == '|')
+			break;
+	}
+
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;
 		filemark(w->body.file);
