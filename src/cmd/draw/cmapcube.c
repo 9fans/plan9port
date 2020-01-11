@@ -185,7 +185,8 @@ void main(int argc, char **argv){
 		break;
 	}ARGEND
 
-	initdraw(0,0,0);
+	if(initdraw(0,0,0) < 0)
+		sysfatal("initdraw: %r");
 	ncolor=256;
 	for(i=0;i!=ncolor;i++)
 		color[i] = allocimage(display, Rect(0, 0, 1, 1), CMAP8, 1, cmap2rgba(i));
