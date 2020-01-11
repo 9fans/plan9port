@@ -25,6 +25,9 @@ tag[1] Rrdkbd rune[2]
 tag[1] Tlabel label[s]
 tag[1] Rlabel 
 
+tag[1] Tctxt wsysid[s]
+tag[1] Rctxt
+
 tag[1] Tinit winsize[s] label[s] font[s]
 tag[1] Rinit
 
@@ -94,6 +97,8 @@ enum {
 	Rresize,
 	Tcursor2 = 28,
 	Rcursor2,
+	Tctxt = 30,
+	Rctxt,
 	Tmax,
 };
 
@@ -116,6 +121,7 @@ struct Wsysmsg
 	char *label;
 	char *snarf;
 	char *error;
+	char *id;
 	uchar *data;
 	uint count;
 	Rectangle rect;

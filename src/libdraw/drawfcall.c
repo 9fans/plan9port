@@ -51,6 +51,7 @@ sizeW2M(Wsysmsg *m)
 	case Rcursor2:
 	case Trdkbd:
 	case Rlabel:
+	case Rctxt:
 	case Rinit:
 	case Trdsnarf:
 	case Rwrsnarf:
@@ -74,6 +75,9 @@ sizeW2M(Wsysmsg *m)
 		return 4+1+1+2;
 	case Tlabel:
 		return 4+1+1+_stringsize(m->label);
+	case Tctxt:
+		return 4+1+1
+			+_stringsize(m->id);
 	case Tinit:
 		return 4+1+1
 			+_stringsize(m->winsize)
@@ -114,6 +118,7 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 	case Rcursor2:
 	case Trdkbd:
 	case Rlabel:
+	case Rctxt:
 	case Rinit:
 	case Trdsnarf:
 	case Rwrsnarf:
@@ -163,6 +168,9 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 		break;
 	case Tlabel:
 		PUTSTRING(p+6, m->label);
+		break;
+	case Tctxt:
+		PUTSTRING(p+6, m->id);
 		break;
 	case Tinit:
 		p += 6;
@@ -214,6 +222,7 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 	case Rcursor2:
 	case Trdkbd:
 	case Rlabel:
+	case Rctxt:
 	case Rinit:
 	case Trdsnarf:
 	case Rwrsnarf:
@@ -263,6 +272,9 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 		break;
 	case Tlabel:
 		GETSTRING(p+6, &m->label);
+		break;
+	case Tctxt:
+		GETSTRING(p+6, &m->id);
 		break;
 	case Tinit:
 		p += 6;
@@ -352,6 +364,10 @@ drawfcallfmt(Fmt *fmt)
 		return fmtprint(fmt, "Tlabel label='%s'", m->label);
 	case Rlabel:
 		return fmtprint(fmt, "Rlabel");
+	case Tctxt:
+		return fmtprint(fmt, "Tctxt id='%s'", m->id);
+	case Rctxt:
+		return fmtprint(fmt, "Rctxt");
 	case Tinit:
 		return fmtprint(fmt, "Tinit label='%s' winsize='%s'", m->label, m->winsize);
 	case Rinit:

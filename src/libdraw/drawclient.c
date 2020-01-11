@@ -22,10 +22,68 @@ static int canreadfd(int);
 int
 _displayconnect(Display *d)
 {
-	int pid, p[2];
+	int pid, p[2], fd, nbuf, n;
+	char *wsysid, *addr, *id;
+	uchar *buf;
+	Wsysmsg w;
 
 	fmtinstall('W', drawfcallfmt);
 	fmtinstall('H', encodefmt);
+
+	wsysid = getenv("wsysid");
+	if(wsysid != nil) {
+		// Connect to running devdraw service.
+		// wsysid=devdrawname/id
+		id = strchr(wsysid, '/');
+		if(id == nil) {
+			werrstr("invalid $wsysid");
+			return -1;
+		}
+		*id++ = '\0';
+		addr = smprint("unix!%s/%s", getns(), wsysid);
+		if(addr == nil)
+			return -1;
+		fd = dial(addr, 0, 0, 0);
+		free(addr);
+		if(fd < 0)
+			return -1;
+		nbuf = strlen(id) + 500;
+		buf = malloc(nbuf);
+		if(buf == nil) {
+			close(fd);
+			return -1;
+		}
+		memset(&w, 0, sizeof w);
+		w.type = Tctxt;
+		w.id = id;
+		n = convW2M(&w, buf, nbuf);
+		if(write(fd, buf, n) != n) {
+			close(fd);
+			werrstr("wsys short write: %r");
+			return -1;
+		}
+		n = readwsysmsg(fd, buf, nbuf);
+		if(n < 0) {
+			close(fd);
+			werrstr("wsys short read: %r");
+			return -1;
+		}
+		if(convM2W(buf, n, &w) <= 0) {
+			close(fd);
+			werrstr("wsys decode error");
+			return -1;
+		}
+		if(w.type != Rctxt) {
+			close(fd);
+			if(w.type == Rerror)
+				werrstr("%s", w.error);
+			else
+				werrstr("wsys rpc phase error (%d)", w.type);
+			return -1;
+		}
+		d->srvfd = fd;
+		return 0;
+	}
 
 	if(pipe(p) < 0)
 		return -1;
@@ -36,6 +94,10 @@ _displayconnect(Display *d)
 	}
 	if(pid == 0){
 		char *devdraw;
+
+		devdraw = getenv("DEVDRAW");
+		if(devdraw == nil)
+			devdraw = "devdraw";
 		close(p[0]);
 		dup(p[1], 0);
 		dup(p[1], 1);
