@@ -30,6 +30,8 @@ AUTOFRAMEWORK(QuartzCore)
 
 #define LOG	if(0)NSLog
 
+// TODO: Maintain list of views for dock menu.
+
 static void setprocname(const char*);
 static uint keycvt(uint);
 static uint msec(void);
@@ -45,7 +47,8 @@ static AppDelegate *myApp = NULL;
 void
 gfx_main(void)
 {
-	setprocname(argv0);
+	if(client0)
+		setprocname(argv0);
 
 	@autoreleasepool{
 		[NSApplication sharedApplication];
@@ -99,7 +102,7 @@ rpc_shutdown(void)
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
-	return YES;
+	return client0 != nil;
 }
 @end
 
@@ -232,10 +235,7 @@ rpc_attach(Client *c, char *label, char *winsize)
 	r = [[NSScreen mainScreen] visibleFrame];
 
 	LOG(@"makewin(%s)", s);
-	if(s && *s){
-		if(parsewinsize(s, &wr, &set) < 0)
-			sysfatal("%r");
-	}else{
+	if(s == nil || *s == '\0' || parsewinsize(s, &wr, &set) < 0) {
 		wr = Rect(0, 0, sr.size.width*2/3, sr.size.height*2/3);
 		set = 0;
 	}
@@ -344,7 +344,8 @@ rpc_setlabel(Client *client, char *label)
 	@autoreleasepool{
 		NSString *s = [[NSString alloc] initWithUTF8String:label];
 		[self.win setTitle:s];
-		[[NSApp dockTile] setBadgeLabel:s]; // TODO: Not with multiple windows
+		if(client0)
+			[[NSApp dockTile] setBadgeLabel:s];
 	}
 }
 

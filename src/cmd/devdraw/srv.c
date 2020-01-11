@@ -18,10 +18,14 @@ static void runmsg(Client*, Wsysmsg*);
 static void replymsg(Client*, Wsysmsg*);
 static void matchkbd(Client*);
 static void matchmouse(Client*);
-static void serve(void*);
-static Client *client0;
+static void serveproc(void*);
+static void listenproc(void*);
+Client *client0;
 
 int trace = 0;
+static char *srvname;
+static int afd;
+static char adir[40];
 
 static void
 usage(void)
@@ -33,17 +37,6 @@ usage(void)
 void
 threadmain(int argc, char **argv)
 {
-	/*
-	 * Move the protocol off stdin/stdout so that
-	 * any inadvertent prints don't screw things up.
-	 */
-	dup(0,3);
-	dup(1,4);
-	close(0);
-	close(1);
-	open("/dev/null", OREAD);
-	open("/dev/null", OWRITE);
-
 	ARGBEGIN{
 	case 'D':		/* for good ps -a listings */
 		break;
@@ -51,32 +44,89 @@ threadmain(int argc, char **argv)
 	case 'g':
 	case 'b':
 		break;
+	case 's':
+		// TODO: Update usage, man page.
+		srvname = EARGF(usage());
+		break;
 	default:
 		usage();
 	}ARGEND
 
-	fmtinstall('W', drawfcallfmt);
+	if(srvname == nil) {
+		client0 = mallocz(sizeof(Client), 1);
+		if(client0 == nil){
+			fprint(2, "initdraw: allocating client0: out of memory");
+			abort();
+		}
+		client0->displaydpi = 100;
+		client0->rfd = 3;
+		client0->wfd = 4;
 
-	client0 = mallocz(sizeof(Client), 1);
-	if(client0 == nil){
-		fprint(2, "initdraw: allocating client0: out of memory");
-		abort();
+		/*
+		 * Move the protocol off stdin/stdout so that
+		 * any inadvertent prints don't screw things up.
+		 */
+		dup(0,3);
+		dup(1,4);
+		close(0);
+		close(1);
+		open("/dev/null", OREAD);
+		open("/dev/null", OWRITE);
 	}
-	client0->displaydpi = 100;
-	client0->rfd = 3;
-	client0->wfd = 4;
 
+	fmtinstall('W', drawfcallfmt);
 	gfx_main();
 }
 
 void
 gfx_started(void)
 {
-	proccreate(serve, client0, 0);
+	char *addr;
+
+	if(srvname == nil) {
+		// Legacy mode: serving single client on pipes.
+		proccreate(serveproc, client0, 0);
+		return;
+	}
+
+	// Server mode.
+	addr = smprint("unix!%s/%s", getns(), srvname);
+	if(addr == nil)
+		sysfatal("out of memory");
+
+	if((afd = announce(addr, adir)) < 0)
+		sysfatal("announce %s: %r", addr);
+
+	proccreate(listenproc, nil, 0);
 }
 
 static void
-serve(void *v)
+listenproc(void *v)
+{
+	Client *c;
+	int fd;
+	char dir[40];
+
+	USED(v);
+
+	for(;;) {
+		fd = listen(adir, dir);
+		if(fd < 0)
+			sysfatal("listen: %r");
+		c = mallocz(sizeof(Client), 1);
+		if(c == nil){
+			fprint(2, "initdraw: allocating client0: out of memory");
+			abort();
+		}
+		c->displaydpi = 100;
+		c->rfd = fd;
+		c->wfd = fd;
+		proccreate(serveproc, c, 0);
+	}
+}
+
+static void
+serveproc(void *v)
 {
 	Client *c;
 	uchar buf[4], *mbuf;
@@ -92,23 +142,29 @@ serve(void *v)
 			free(mbuf);
 			mbuf = malloc(4+n);
 			if(mbuf == nil)
-				sysfatal("malloc: %r");
+				sysfatal("out of memory");
 			nmbuf = n;
 		}
 		memmove(mbuf, buf, 4);
 		nn = readn(c->rfd, mbuf+4, n-4);
-		if(nn != n-4)
-			sysfatal("eof during message");
+		if(nn != n-4) {
+			fprint(2, "serveproc: eof during message\n");
+			break;
+		}
 
 		/* pick off messages one by one */
-		if(convM2W(mbuf, nn+4, &m) <= 0)
-			sysfatal("cannot convert message");
+		if(convM2W(mbuf, nn+4, &m) <= 0) {
+			fprint(2, "serveproc: cannot convert message\n");
+			break;
+		}
 		if(trace) fprint(2, "%ud [%d] <- %W\n", nsec()/1000000, threadid(), &m);
 		runmsg(c, &m);
 	}
 
-	rpc_shutdown();
-	threadexitsall(nil);
+	if(c == client0) {
+		rpc_shutdown();
+		threadexitsall(nil);
+	}
 }
 
 static void
@@ -134,6 +190,11 @@ runmsg(Client *c, Wsysmsg *m)
 	Memimage *i;
 
 	switch(m->type){
+	case Tctxt:
+		c->wsysid = strdup(m->id);
+		replymsg(c, m);
+		break;
+
 	case Tinit:
 		memimageinit();
 		i = rpc_attach(c, m->label, m->winsize);
@@ -143,11 +204,15 @@ runmsg(Client *c, Wsysmsg *m)
 
 	case Trdmouse:
 		qlock(&c->eventlk);
+		if((c->mousetags.wi+1)%nelem(c->mousetags.t) == c->mousetags.ri) {
+			qunlock(&c->eventlk);
+			werrstr("too many queued mouse reads");
+			replyerror(c, m);
+			break;
+		}
 		c->mousetags.t[c->mousetags.wi++] = m->tag;
 		if(c->mousetags.wi == nelem(c->mousetags.t))
 			c->mousetags.wi = 0;
-		if(c->mousetags.wi == c->mousetags.ri)
-			sysfatal("too many queued mouse reads");
 		c->mouse.stall = 0;
 		matchmouse(c);
 		qunlock(&c->eventlk);
@@ -155,11 +220,15 @@ runmsg(Client *c, Wsysmsg *m)
 
 	case Trdkbd:
 		qlock(&c->eventlk);
+		if((c->kbdtags.wi+1)%nelem(c->kbdtags.t) == c->kbdtags.ri) {
+			qunlock(&c->eventlk);
+			werrstr("too many queued keyboard reads");
+			replyerror(c, m);
+			break;
+		}
 		c->kbdtags.t[c->kbdtags.wi++] = m->tag;
 		if(c->kbdtags.wi == nelem(c->kbdtags.t))
 			c->kbdtags.wi = 0;
-		if(c->kbdtags.wi == c->kbdtags.ri)
-			sysfatal("too many queued keyboard reads");
 		c->kbd.stall = 0;
 		matchkbd(c);
 		qunlock(&c->eventlk);
@@ -268,7 +337,7 @@ replymsg(Client *c, Wsysmsg *m)
 	}
 	convW2M(m, c->mbuf, n);
 	if(write(c->wfd, c->mbuf, n) != n)
-		sysfatal("write: %r");
+		fprint(2, "client write: %r\n");
 	qunlock(&c->wfdlk);
 }
 

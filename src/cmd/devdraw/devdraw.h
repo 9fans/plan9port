@@ -54,6 +54,8 @@ struct Client
 	uchar*	mbuf;
 	int		nmbuf;
 
+	char*	wsysid;
+
 	// drawlk protects the draw data structures.
 	// It can be acquired by an RPC thread or a graphics thread
 	// but must not be held on one thread while waiting for the other.
@@ -219,3 +221,4 @@ int latin1(Rune*, int);
 int mouseswap(int);
 int parsewinsize(char*, Rectangle*, int*);
 
+extern Client *client0; // set in single-client mode
