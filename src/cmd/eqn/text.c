@@ -257,7 +257,7 @@ trans(int c, char *p1)
 
 char *pad(int n)	/* return the padding as a string */
 {
-	static char buf[20];
+	static char buf[30];
 
 	buf[0] = 0;
 	if (n < 0) {

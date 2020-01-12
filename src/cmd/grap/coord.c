@@ -35,7 +35,7 @@ void coordlog(int n)	/* remember log scaling */
 
 void coord(Obj *p)	/* set coord range */
 {
-	static char buf[10];
+	static char buf[20];
 
 	ncoord++;
 	if (ncoord > 1 && strcmp(p->name, dflt_coord) == 0) {

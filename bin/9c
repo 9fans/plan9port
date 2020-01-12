@@ -14,6 +14,10 @@ usegcc()
 		-Wno-comment \
 		-Wno-sign-compare \
 		-Wno-unknown-pragmas \
+		-Wno-misleading-indentation \
+		-Wno-stringop-truncation \
+		-Wno-stringop-overflow \
+		-Wno-format-truncation \
 		-fno-omit-frame-pointer \
 		-fsigned-char \
 	"

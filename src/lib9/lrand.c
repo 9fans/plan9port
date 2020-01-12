@@ -63,17 +63,15 @@ p9lrand(void)
 
 	lock(&lk);
 
-	rng_tap--;
-	if(rng_tap < rng_vec) {
-		if(rng_feed == 0) {
+	if(rng_tap <= rng_vec) {
+		if(rng_feed == 0)
 			isrand(1);
-			rng_tap--;
-		}
 		rng_tap += LEN;
 	}
-	rng_feed--;
-	if(rng_feed < rng_vec)
+	rng_tap--;
+	if(rng_feed <= rng_vec)
 		rng_feed += LEN;
+	rng_feed--;
 	x = (*rng_feed + *rng_tap) & MASK;
 	*rng_feed = x;
 

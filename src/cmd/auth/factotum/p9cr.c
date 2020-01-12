@@ -290,6 +290,8 @@ p9crresp(ServerState *s, uchar *resp, int resplen)
 	Ticket t;
 	Ticketreq tr;
 
+	memset(&tr, 0, sizeof tr);	// TODO: what should tr be initialized to?
+
 	if(xiowrite(s->asfd, resp, resplen) != resplen)
 		return -1;
 

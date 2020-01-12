@@ -723,15 +723,15 @@ setfp(int pos, int f, char *truename, int print)	/* mount font f at position pos
 	else
 		strcpy(shortname, (char *) unpair(f));
 	if (truename && strrchr(truename, '/')) {	/* .fp 1 R dir/file: use verbatim */
-		sprintf(pathname, "%s", truename);
+		snprintf(pathname, NS, "%s", truename);
 		if (fonts[pos].truename)
 			free(fonts[pos].truename);
 		fonts[pos].truename = strdupl(truename);
 	} else if (truename) {			/* synonym: .fp 1 R Avant */
-		sprintf(pathname, "%s/dev%s/%s", fontdir, devname, truename);
+		snprintf(pathname, NS, "%s/dev%s/%s", fontdir, devname, truename);
 		truename = 0;	/* so doesn't get repeated by ptfpcmd */
 	} else					/* vanilla: .fp 5 XX */
-		sprintf(pathname, "%s/dev%s/%s", fontdir, devname, shortname);
+		snprintf(pathname, NS, "%s/dev%s/%s", fontdir, devname, shortname);
 	if (truename == 0 && fonts[pos].truename != 0) {
 		free(fonts[pos].truename);
 		fonts[pos].truename = 0;

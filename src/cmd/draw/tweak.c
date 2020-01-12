@@ -1142,7 +1142,7 @@ textedit(Thing *t, char *tag)
 		fc = f->info;
 		for(i=0; i<=w && i<=f->n; i++)
 			nfc[i] = fc[i];
-		if(w+1 < i)
+		if(i < w+1)
 			memset(nfc+i, 0, ((w+1)-i)*sizeof(Fontchar));
 		x = fc[f->n].x;
 		for(; i<=w; i++)

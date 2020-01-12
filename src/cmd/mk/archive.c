@@ -202,7 +202,7 @@ atimes(char *ar)
 			name[namelen] = 0;
 			namelen = 0;
 		}else{
-			strncpy(name, h.name, sizeof(h.name));
+			memmove(name, h.name, sizeof(h.name));
 			for(i = sizeof(h.name)-1; i > 0 && name[i] == ' '; i--)
 				;
 			if(name[i] == '/')		/* system V bug */

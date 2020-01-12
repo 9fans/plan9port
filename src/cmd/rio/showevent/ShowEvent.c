@@ -68,7 +68,7 @@ Time time;
 	unsigned long min;
 	unsigned long hr;
 	unsigned long day;
-	static char buffer[32];
+	static char buffer[50];
 
 	msec = time % 1000;
 	time /= 1000;

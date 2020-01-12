@@ -11,7 +11,7 @@
 
 #define	dprintf	if(dbg)printf
 
-extern	char	errbuf[200];
+extern	char	errbuf[1000];
 
 #undef	sprintf	/* Snow Leopard */
 

@@ -435,7 +435,7 @@ double errcheck(double x, char  *s)
 	return x;
 }
 
-char	errbuf[200];
+char	errbuf[1000];
 
 void	eprint(void);
 

@@ -78,6 +78,7 @@ eenter(char *ask, char *buf, int len, Mouse *m)
 	b = screen;
 	sc = b->clipr;
 	replclipr(b, 0, b->r);
+	t = ZP;
 
 	while(!done){
 		p = stringsize(font, buf ? buf : "");

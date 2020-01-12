@@ -72,7 +72,7 @@ p9dialparse(char *addr, char **pnet, char **punix, void *phost, int *pport)
 	if((port = strchr(host, '!')) == nil){
 		if(strcmp(net, "unix")==0 || strcmp(net, "net")==0){
 		Unix:
-			if(strlen(host)+1 > sizeof ((struct sockaddr_un*)&ss)->sun_path){
+			if(strlen(host)+1 > sizeof ((struct sockaddr_un*)ss)->sun_path){
 				werrstr("unix socket name too long");
 				return -1;
 			}
