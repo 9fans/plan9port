@@ -258,7 +258,7 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tbouncemouse:
-	//	_xbouncemouse(&m->mouse);
+		rpc_bouncemouse(c, m->mouse);
 		replymsg(c, m);
 		break;
 

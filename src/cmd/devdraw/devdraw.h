@@ -85,7 +85,7 @@ struct Client
 
 	// Only accessed/modified by the graphics thread.
 	const void*		view;
-	
+
 	// eventlk protects the keyboard and mouse events.
 	QLock eventlk;
 	Kbdbuf kbd;
@@ -204,14 +204,19 @@ void	rpc_setmouse(Client*, Point);
 void	rpc_shutdown(void);
 void	rpc_topwin(Client*);
 void	rpc_main(void);
-
-// TODO: rpc_flush is called from draw_datawrite,
-// which holds c->drawlk. Is this OK?
+void	rpc_bouncemouse(Client*, Mouse);
 void	rpc_flush(Client*, Rectangle);
+
+// rpc_gfxdrawlock and rpc_gfxdrawunlock
+// are called around drawing operations to lock and unlock
+// access to the graphics display, for systems where the
+// individual memdraw operations use the graphics display (X11, not macOS).
+void rpc_gfxdrawlock(void);
+void rpc_gfxdrawunlock(void);
 
 // draw* routines are called on the RPC thread,
 // invoked by the RPC server to do pixel pushing.
-// c->drawlk is held on entry.
+// No locks are held on entry.
 int draw_dataread(Client*, void*, int);
 int draw_datawrite(Client*, void*, int);
 void draw_initdisplaymemimage(Client*, Memimage*);

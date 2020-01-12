@@ -144,9 +144,11 @@ addflush(Client *c, Rectangle r)
 		// Unlock drawlk because rpc_flush may want to run on gfx thread,
 		// and gfx thread might be blocked on drawlk trying to install a new screen
 		// during a resize.
+		rpc_gfxdrawunlock();
 		qunlock(&c->drawlk);
 		rpc_flush(c, fr);
 		qlock(&c->drawlk);
+		rpc_gfxdrawlock();
 	}
 }
 
@@ -187,9 +189,11 @@ drawflush(Client *c)
 		// Unlock drawlk because rpc_flush may want to run on gfx thread,
 		// and gfx thread might be blocked on drawlk trying to install a new screen
 		// during a resize.
+		rpc_gfxdrawunlock();
 		qunlock(&c->drawlk);
 		rpc_flush(c, r);
 		qlock(&c->drawlk);
+		rpc_gfxdrawlock();
 	}
 }
 
@@ -656,6 +660,7 @@ draw_datawrite(Client *client, void *v, int n)
 	Refx *refx;
 
 	qlock(&client->drawlk);
+	rpc_gfxdrawlock();
 	a = v;
 	m = 0;
 	oldn = n;
@@ -1428,6 +1433,7 @@ draw_datawrite(Client *client, void *v, int n)
 			continue;
 		}
 	}
+	rpc_gfxdrawunlock();
 	qunlock(&client->drawlk);
 	return oldn - n;
 
@@ -1498,6 +1504,7 @@ Ebadarg:
 
 error:
 	werrstr("%s", err);
+	rpc_gfxdrawunlock();
 	qunlock(&client->drawlk);
 	return -1;
 }

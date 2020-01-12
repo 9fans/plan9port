@@ -31,5 +31,3 @@
 #undef Screen
 #undef Visual
 #undef Window
-
-void	sendalt(void);

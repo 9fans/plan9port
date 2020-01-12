@@ -88,7 +88,7 @@ rpc_shutdown(void)
 	i = [[NSImage alloc] initWithData:d];
 	[NSApp setApplicationIconImage:i];
 	[[NSApp dockTile] display];
-	
+
 	gfx_started();
 }
 
@@ -124,9 +124,9 @@ rpc_shutdown(void)
 			[self setNeedsDisplay];
 			return;
 		}
-	
+
 		LOG(@"display got drawable");
-	
+
 		id<MTLCommandBuffer> cbuf = [self.cmd commandBuffer];
 		id<MTLBlitCommandEncoder> blit = [cbuf blitCommandEncoder];
 		[blit copyFromTexture:self.texture
@@ -139,7 +139,7 @@ rpc_shutdown(void)
 			destinationLevel:0
 			destinationOrigin:MTLOriginMake(0, 0, 0)];
 		[blit endEncoding];
-	
+
 		[cbuf presentDrawable:drawable];
 		drawable = nil;
 		[cbuf addCompletedHandler:^(id<MTLCommandBuffer> cmdBuff){
@@ -208,7 +208,7 @@ Memimage*
 rpc_attach(Client *c, char *label, char *winsize)
 {
 	LOG(@"attachscreen(%s, %s)", label, winsize);
-	
+
 	dispatch_sync(dispatch_get_main_queue(), ^(void) {
 		@autoreleasepool {
 			DrawView *view = [[DrawView new] attach:c winsize:winsize label:label];
@@ -268,7 +268,7 @@ rpc_attach(Client *c, char *label, char *winsize)
 	[win setDelegate:self];
 	[self setWantsLayer:YES];
 	[self setLayerContentsRedrawPolicy:NSViewLayerContentsRedrawOnSetNeedsDisplay];
-	
+
 	id<MTLDevice> device = nil;
 	allDevices = MTLCopyAllDevices();
 	for(id mtlDevice in allDevices) {
@@ -304,7 +304,7 @@ rpc_attach(Client *c, char *label, char *winsize)
 	[self topwin];
 	[self setlabel:label];
 	[self setcursor:nil cursor2:nil];
-	
+
 	return self;
 }
 
@@ -430,18 +430,18 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 		CGFloat scale;
 		NSSize size;
 		MTLTextureDescriptor *textureDesc;
-	
+
 		size = [self convertSizeToBacking:[self bounds].size];
 		self.client->mouserect = Rect(0, 0, size.width, size.height);
-	
+
 		LOG(@"initimg %.0f %.0f", size.width, size.height);
-	
+
 		self.img = allocmemimage(self.client->mouserect, XRGB32);
 		if(self.img == nil)
 			panic("allocmemimage: %r");
 		if(self.img->data == nil)
 			panic("img->data == nil");
-	
+
 		textureDesc = [MTLTextureDescriptor
 			texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
 			width:size.width
@@ -451,11 +451,11 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 		textureDesc.usage = MTLTextureUsageShaderRead;
 		textureDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
 		self.dlayer.texture = [self.dlayer.device newTextureWithDescriptor:textureDesc];
-	
+
 		scale = [self.win backingScaleFactor];
 		[self.dlayer setDrawableSize:size];
 		[self.dlayer setContentsScale:scale];
-	
+
 		// NOTE: This is not really the display DPI.
 		// On retina, scale is 2; otherwise it is 1.
 		// This formula gives us 220 for retina, 110 otherwise.
@@ -481,7 +481,7 @@ rpc_flush(Client *client, Rectangle r)
 	@autoreleasepool{
 		if(!rectclip(&r, Rect(0, 0, self.dlayer.texture.width, self.dlayer.texture.height)) || !rectclip(&r, self.img->r))
 			return;
-		
+
 		// self.client->drawlk protects the pixel data in self.img.
 		// In addition to avoiding a technical data race,
 		// the lock avoids drawing partial updates, which makes
@@ -501,12 +501,12 @@ rpc_flush(Client *client, Rectangle r)
 		nr = [self.win convertRectFromBacking:nr];
 		LOG(@"setNeedsDisplayInRect(%g, %g, %g, %g)", nr.origin.x, nr.origin.y, nr.size.width, nr.size.height);
 		[self.dlayer setNeedsDisplayInRect:nr];
-	
+
 		time = dispatch_time(DISPATCH_TIME_NOW, 16 * NSEC_PER_MSEC);
 		dispatch_after(time, dispatch_get_main_queue(), ^(void){
 			[self.dlayer setNeedsDisplayInRect:nr];
 		});
-	
+
 		[self enlargeLastInputRect:nr];
 	}
 }
@@ -1031,7 +1031,7 @@ char*
 rpc_getsnarf(void)
 {
 	char __block *ret;
-	
+
 	ret = nil;
 	dispatch_sync(dispatch_get_main_queue(), ^(void) {
 		@autoreleasepool {
@@ -1061,6 +1061,26 @@ rpc_putsnarf(char *s)
 			[pb setString:str forType:NSPasteboardTypeString];
 		}
 	});
+}
+
+// rpc_bouncemouse is for sending a mouse event
+// back to the X11 window manager rio(1).
+// Does not apply here.
+void
+rpc_bouncemouse(Client *c, Mouse m)
+{
+}
+
+// We don't use the graphics thread state during memimagedraw,
+// so rpc_gfxdrawlock and rpc_gfxdrawunlock are no-ops.
+void
+rpc_gfxdrawlock(void)
+{
+}
+
+void
+rpc_gfxdrawunlock(void)
+{
 }
 
 static void

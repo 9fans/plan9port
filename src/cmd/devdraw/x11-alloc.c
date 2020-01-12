@@ -21,7 +21,7 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
 	m = _allocmemimage(r, chan);
 	if(chan != GREY1 && chan != _x.chan)
 		return m;
-	if(_x.display == 0)
+	if(_x.display == 0 || _x.windows == nil)
 		return m;
 
 	/*
@@ -49,7 +49,7 @@ _xallocmemimage(Rectangle r, u32int chan, int pixmap)
 	if(pixmap != PMundef)
 		xm->pixmap = pixmap;
 	else
-		xm->pixmap = XCreatePixmap(_x.display, _x.drawable, Dx(r), Dy(r), d);
+		xm->pixmap = XCreatePixmap(_x.display, _x.windows->drawable, Dx(r), Dy(r), d);
 
 	/*
 	 * We want to align pixels on word boundaries.
