@@ -438,7 +438,7 @@
 .if n \{\
 .	sp 2
 .	A1
-.	sp 
+.	sp
 .	ns
 .	I1
 .	if \\n(NA-1 .sp 2
@@ -557,7 +557,7 @@ ABSTRACT
 .ls 1
 .pn 2
 .WB
-.ls 
+.ls
 .sp 3v
 \\*(DY
 .sp |9i
@@ -991,7 +991,7 @@ Computing Science Technical Report No. \\*(MN
 .fi
 .if (\\n(nl+1v)>(\\n(.p-\\n(FM) \{\
 .	if \\n(NX>1 .RC
-.	if \\n(NX<1 .bp\}
+.	if \\n(NX<=1 .bp\}
 .nr TD 0
 ..
 .de KD
@@ -1039,7 +1039,7 @@ Computing Science Technical Report No. \\*(MN
 .if !\\n(dn .nr WF 0
 .if \\n(FC<=1 .if \\n(XX=0 \{\
 .	if \\n(NX>1 .RC
-.	if \\n(NX<1 'bp\}
+.	if \\n(NX<=1 'bp\}
 .nr FC -1
 .if \\n(ML>0 .ne \\n(MLu
 ..
@@ -1221,9 +1221,9 @@ Piscataway, New Jersey 08854
 .ps \\n(PS-2
 .vs \\n(.s+2p
 .ev
-.if !\\n(KG .nr FP 0 
+.if !\\n(KG .nr FP 0
 .if \\n(GA>1 .if \\n(KG=0 .nr GA 0 \" next UNIX must be flagged.
-.nr KG 0 
+.nr KG 0
 .if \\n(FP \{\
 .	FS
 .	FG
