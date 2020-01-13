@@ -5,11 +5,21 @@
 #include "fmtdef.h"
 
 void
-__fmtlock(void)
+__fmtrlock(void)
 {
 }
 
 void
-__fmtunlock(void)
+__fmtrunlock(void)
+{
+}
+
+void
+__fmtwlock(void)
+{
+}
+
+void
+__fmtwunlock(void)
 {
 }
