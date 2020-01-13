@@ -579,12 +579,14 @@ x_cmd(Text *t, Cmd *cp)
 	return TRUE;
 }
 
+static Window *Xorigwin = nil;
+
 int
 X_cmd(Text *t, Cmd *cp)
 {
-	USED(t);
-
+	Xorigwin = t->w;
 	filelooper(cp, cp->cmdc=='X');
+	Xorigwin = nil;
 	return TRUE;
 }
 
@@ -626,7 +628,11 @@ runpipe(Text *t, int cmd, Rune *cr, int ncr, int state)
 		incref(&t->w->ref);	/* run will decref */
 	run(w, runetobyte(s, n), dir.r, dir.nr, TRUE, nil, nil, TRUE);
 	free(s);
-	if(t!=nil && t->w!=nil)
+	/*
+	 * Only winunlock if we are in the window the command originated from.
+	 * With X and Y this is not automatically the case.
+	 */
+	if(t!=nil && t->w!=nil && (Xorigwin==nil || Xorigwin==t->w))
 		winunlock(t->w);
 	qunlock(&row.lk);
 	recvul(cedit);
@@ -649,7 +655,7 @@ runpipe(Text *t, int cmd, Rune *cr, int ncr, int state)
 	qunlock(q);
 	qlock(&row.lk);
 	editing = Inactive;
-	if(t!=nil && t->w!=nil)
+	if(t!=nil && t->w!=nil && (Xorigwin==nil || Xorigwin==t->w))
 		winlock(t->w, 'M');
 }
 
