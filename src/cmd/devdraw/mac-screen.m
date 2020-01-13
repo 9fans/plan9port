@@ -27,6 +27,7 @@
 AUTOFRAMEWORK(Cocoa)
 AUTOFRAMEWORK(Metal)
 AUTOFRAMEWORK(QuartzCore)
+AUTOFRAMEWORK(CoreFoundation)
 
 #define LOG	if(0)NSLog
 
