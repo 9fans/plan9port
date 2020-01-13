@@ -1,6 +1,6 @@
 .TH DATE 1
 .SH NAME
-date \- date and time
+date, clock \- date and time
 .SH SYNOPSIS
 .B date
 [
@@ -8,8 +8,8 @@ date \- date and time
 ] [
 .I seconds
 ]
-.\" .br
-.\" .B clock
+.br
+.B clock
 .SH DESCRIPTION
 Print the date, in the format
 .PP
@@ -34,6 +34,9 @@ If the optional argument
 .I seconds
 is present, it is used as the time to convert rather than
 the real time.
+.PP
+.I Clock
+draws a simple analog clock in its window.
 .\" .SH FILES
 .\" .TF /adm/timezone/local
 .\" .TP
@@ -54,5 +57,5 @@ the real time.
 .\" draws a simple analog clock in its window.
 .SH SOURCE
 .B \*9/src/cmd/date.c
-.\" .br
-.\" .B \*9/src/cmd/draw/clock.c
+.br
+.B \*9/src/cmd/draw/clock.c
