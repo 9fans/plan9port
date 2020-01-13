@@ -885,7 +885,7 @@ fusereadlink(FuseMsg *m)
  * are stored in m->d,nd,d0.
  */
 int canpack(Dir*, uvlong, uchar**, uchar*);
-Dir *dotdirs(CFid*);
+Dir *dotdir(CFid*);
 void
 fusereaddir(FuseMsg *m)
 {
@@ -902,8 +902,8 @@ fusereaddir(FuseMsg *m)
 	if(in->offset == 0){
 		fsseek(ff->fid, 0, 0);
 		free(ff->d0);
-		ff->d0 = ff->d = dotdirs(ff->fid);
-		ff->nd = 2;
+		ff->d0 = ff->d = dotdir(ff->fid);
+		ff->nd = 1;
 	}
 	n = in->size;
 	if(n > fusemaxwrite)
@@ -944,20 +944,13 @@ out:
  * We could add .. too, but it isn't necessary.
  */
 Dir*
-dotdirs(CFid *f)
+dotdir(CFid *f)
 {
 	Dir *d;
-	CFid *f1;
 
-	d = emalloc(2*sizeof *d);
+	d = emalloc(1*sizeof *d);
 	d[0].name = ".";
 	d[0].qid = fsqid(f);
-	d[1].name = "..";
-	f1 = fswalk(f, "..");
-	if(f1){
-		d[1].qid = fsqid(f1);
-		fsclose(f1);
-	}
 	return d;
 }
 
