@@ -397,7 +397,7 @@ chanrecvul(Channel *c)
 
 	if(_chanop(c, CHANRCV, &val, 1) > 0)
 		return val;
-	return -1;
+	return 0;
 }
 
 int
@@ -413,5 +413,5 @@ channbrecvul(Channel *c)
 
 	if(_chanop(c, CHANRCV, &val, 0) > 0)
 		return val;
-	return -1;
+	return 0;
 }
