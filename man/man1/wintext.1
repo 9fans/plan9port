@@ -3,17 +3,17 @@
 wintext, ", "" \- access text in current window
 .ds x \C'"'
 .ds xx \C'"'\^\^\^\^\C'"'
-.ds y \*x\ 
-.ds yy \*(xx\ 
+.ds y \*x\^
+.ds yy \*(xx\^
 .SH SYNOPSIS
 .B wintext
 .br
-.B \*x\ 
+.B \*y
 [
 .I prefix
 ]
 .br
-.B \*(xx\ 
+.B \*(yy
 [
 .I prefix
 ]
@@ -22,9 +22,11 @@ wintext, ", "" \- access text in current window
 prints the text of the current
 .I win
 (see
-.IR acme (1))
+.IR acme (1)),
+.IR 9term (1),
 or
-.IR 9term (1)
+(Unix's)
+.IR tmux (1)
 window to standard output.
 .PP
 .I \*y
@@ -40,7 +42,7 @@ prints the last command executed.
 .I \*(yy
 prints the last command that
 .I \*y
-would print and then executes it by piping it into 
+would print and then executes it by piping it into
 .IR rc (1).
 .PP
 Both
@@ -82,7 +84,7 @@ command again:
 % \*(xx lc
 	% lc r*
 ramfs   rc      read    rio     rm
-% 
+%
 .EE
 .SH SEE ALSO
 .IR 9term (1),

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 case "$winid" in
 [0-9]*)
@@ -9,6 +9,12 @@ esac
 case "$text9term" in
 unix!*)
 	dial -e $text9term </dev/null
+	exit 0
+esac
+
+case "$TMUX" in
+?*)
+	tmux capture-pane -p
 	exit 0
 esac
 

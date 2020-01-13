@@ -2,19 +2,10 @@
 
 . 9.rc
 
-fn text {
-	if(~ $winid [0-9]*)
-		9p read acme/$winid/body
-	if not if(~ $text9term unix!*)
-		dial -e $text9term </dev/null
-	if not
-		status=''
-}
-
 PROMPT='[^ 	]*[%;$#][ 	]+'
 
 fn cmds {
-	text | sed -n 's/^'$PROMPT'([^"])/	\1/p'
+	wintext | sed -n 's/^'$PROMPT'([^"])/	\1/p'
 }
 
 switch($#*) {
