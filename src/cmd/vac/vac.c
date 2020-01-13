@@ -15,7 +15,7 @@ usage(void)
 enum
 {
 	BlockSize = 8*1024,
-	CacheSize = 4<<20,
+	CacheSize = 128<<20,
 };
 
 struct
