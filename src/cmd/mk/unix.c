@@ -53,20 +53,26 @@ readenv(void)
 void
 exportenv(Envy *e, Shell *sh)
 {
-	int i;
+	int w, n;
 	char **p;
+	Envy *e1;
 	static char buf[16384];
 
-	p = 0;
-	for(i = 0; e->name; e++, i++) {
-		p = (char**) Realloc(p, (i+2)*sizeof(char*));
+	n = 0;
+	for(e1 = e; e1->name; e1++)
+		n++;
+	p = Malloc((n+1)*sizeof(char*));
+	w = 0;
+	for(; e->name; e++) {
+		if(sh == &rcshell && (e->values == 0 || e->values->s == 0 || e->values->s[0] == 0))
+			continue; /* do not write empty string for empty list */
 		if(e->values)
 			snprint(buf, sizeof buf, "%s=%s", e->name,  wtos(e->values, sh->iws));
 		else
 			snprint(buf, sizeof buf, "%s=", e->name);
-		p[i] = strdup(buf);
+		p[w++] = strdup(buf);
 	}
-	p[i] = 0;
+	p[w] = 0;
 	environ = p;
 }
 
