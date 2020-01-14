@@ -88,15 +88,15 @@ returns a structure through which one may access the mouse:
 typedef struct Mousectl Mousectl;
 struct Mousectl
 {
-	Mouse;
-	Channel	*c;	/* chan(Mouse)[16] */
+	Mouse	m;
+	Channel	*c;		/* chan(Mouse)[16] */
 	Channel	*resizec;	/* chan(int)[2] */
 
 	char	*file;
 	int	mfd;		/* to mouse file */
 	int	cfd;		/* to cursor file */
 	int	pid;		/* of slave proc */
-	Image*	image;	/* of associated window/display */
+	Image*	image;		/* of associated window/display */
 };
 .EE
 .PP
@@ -142,7 +142,9 @@ to reconnect to the window.
 .I Readmouse
 updates the
 .B Mouse
-structure held in the
+structure
+.B m
+held in the
 .BR Mousectl ,
 blocking if the state has not changed since the last
 .I readmouse
