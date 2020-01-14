@@ -490,7 +490,7 @@ dirname(Text *t, Rune *r, int n)
 		goto Rescue;
 	if(n>=1 && r[0]=='/')
 		goto Rescue;
-	b = parsetag(t->w, &i);
+	b = parsetag(t->w, n, &i);
 	slash = -1;
 	for(i--; i >= 0; i--){
 		if(b[i] == '/'){

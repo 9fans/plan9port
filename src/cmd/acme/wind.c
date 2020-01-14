@@ -113,7 +113,7 @@ delrunepos(Window *w)
 	Rune *r;
 	int i;
 
-	r = parsetag(w, &i);
+	r = parsetag(w, 0, &i);
 	free(r);
 	i += 2;
 	if(i >= w->tag.file->b.nc)
@@ -416,7 +416,7 @@ wincleartag(Window *w)
 
 	/* w must be committed */
 	n = w->tag.file->b.nc;
-	r = parsetag(w, &i);
+	r = parsetag(w, 0, &i);
 	for(; i<n; i++)
 		if(r[i] == '|')
 			break;
@@ -434,7 +434,7 @@ wincleartag(Window *w)
 }
 
 Rune*
-parsetag(Window *w, int *len)
+parsetag(Window *w, int extra, int *len)
 {
 	static Rune Ldelsnarf[] = { ' ', 'D', 'e', 'l', ' ', 'S', 'n', 'a', 'r', 'f', 0 };
 	static Rune Lspacepipe[] = { ' ', '|', 0 };
@@ -442,7 +442,7 @@ parsetag(Window *w, int *len)
 	int i;
 	Rune *r, *p, *pipe;
 
-	r = runemalloc(w->tag.file->b.nc+1);
+	r = runemalloc(w->tag.file->b.nc+extra+1);
 	bufread(&w->tag.file->b, 0, r, w->tag.file->b.nc);
 	r[w->tag.file->b.nc] = '\0';
 
@@ -483,7 +483,7 @@ winsettag1(Window *w)
 	/* there are races that get us here with stuff in the tag cache, so we take extra care to sync it */
 	if(w->tag.ncache!=0 || w->tag.file->mod)
 		wincommit(w, &w->tag);	/* check file name; also guarantees we can modify tag contents */
-	old = parsetag(w, &i);
+	old = parsetag(w, 0, &i);
 	if(runeeq(old, i, w->body.file->name, w->body.file->nname) == FALSE){
 		textdelete(&w->tag, 0, i, TRUE);
 		textinsert(&w->tag, 0, w->body.file->name, w->body.file->nname, TRUE);
@@ -604,7 +604,7 @@ wincommit(Window *w, Text *t)
 			textcommit(f->text[i], FALSE);	/* no-op for t */
 	if(t->what == Body)
 		return;
-	r = parsetag(w, &i);
+	r = parsetag(w, 0, &i);
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;
 		filemark(w->body.file);
