@@ -440,6 +440,23 @@ wincleartag(Window *w)
 	textsetselect(&w->tag, w->tag.q0, w->tag.q1);
 }
 
+Rune*
+parsetag(Window *w, int *len)
+{
+	int i;
+	Rune *r;
+
+	r = runemalloc(w->tag.file->b.nc+1);
+	bufread(&w->tag.file->b, 0, r, w->tag.file->b.nc);
+	r[w->tag.file->b.nc] = '\0';
+
+	for(i=0; i<w->tag.file->b.nc; i++)
+		if(r[i]==' ' || r[i]=='\t')
+			break;
+	*len = i;
+	return r;
+}
+
 void
 winsettag1(Window *w)
 {
@@ -458,12 +475,7 @@ winsettag1(Window *w)
 	/* there are races that get us here with stuff in the tag cache, so we take extra care to sync it */
 	if(w->tag.ncache!=0 || w->tag.file->mod)
 		wincommit(w, &w->tag);	/* check file name; also guarantees we can modify tag contents */
-	old = runemalloc(w->tag.file->b.nc+1);
-	bufread(&w->tag.file->b, 0, old, w->tag.file->b.nc);
-	old[w->tag.file->b.nc] = '\0';
-	for(i=0; i<w->tag.file->b.nc; i++)
-		if(old[i]==' ' || old[i]=='\t')
-			break;
+	old = parsetag(w, &i);
 	if(runeeq(old, i, w->body.file->name, w->body.file->nname) == FALSE){
 		textdelete(&w->tag, 0, i, TRUE);
 		textinsert(&w->tag, 0, w->body.file->name, w->body.file->nname, TRUE);
@@ -584,11 +596,7 @@ wincommit(Window *w, Text *t)
 			textcommit(f->text[i], FALSE);	/* no-op for t */
 	if(t->what == Body)
 		return;
-	r = runemalloc(w->tag.file->b.nc);
-	bufread(&w->tag.file->b, 0, r, w->tag.file->b.nc);
-	for(i=0; i<w->tag.file->b.nc; i++)
-		if(r[i]==' ' || r[i]=='\t')
-			break;
+	r = parsetag(w, &i);
 	if(runeeq(r, i, w->body.file->name, w->body.file->nname) == FALSE){
 		seq++;
 		filemark(w->body.file);
