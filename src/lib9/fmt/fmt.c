@@ -72,7 +72,7 @@ static Convfmt knownfmt[] = {
 int	(*fmtdoquote)(int);
 
 /*
- * __fmtwlock() must be set
+ * __fmtlock() must be set
  */
 static int
 __fmtinstall(int c, Fmts f)
@@ -106,43 +106,35 @@ fmtinstall(int c, int (*f)(Fmt*))
 {
 	int ret;
 
-	__fmtwlock();
+	__fmtlock();
 	ret = __fmtinstall(c, f);
-	__fmtwunlock();
+	__fmtunlock();
 	return ret;
 }
 
 static Fmts
 fmtfmt(int c)
 {
-	Convfmt *p, *ep, *kp;
+	Convfmt *p, *ep;
 
-	/* conflict-free check - common case */
-	__fmtrlock();
+	/* search for known format */
+	__fmtlock();
 	ep = &fmtalloc.fmt[fmtalloc.nfmt];
 	for(p=fmtalloc.fmt; p<ep; p++)
 		if(p->c == c){
-			__fmtrunlock();
+			__fmtunlock();
 			return p->fmt;
 		}
-	__fmtrunlock();
 
 	/* is this a predefined format char? */
-	for(kp=knownfmt; kp->c; kp++){
-		if(kp->c == c){
-			__fmtwlock();
-			/* double-check fmtinstall didn't happen */
-			for(p=fmtalloc.fmt; p<ep; p++){
-				if(p->c == c){
-					__fmtwunlock();
-					return p->fmt;
-				}
-			}
-			__fmtinstall(kp->c, kp->fmt);
-			__fmtwunlock();
-			return kp->fmt;
+	for(p=knownfmt; p->c; p++){
+		if(p->c == c){
+			__fmtinstall(p->c, p->fmt);
+			__fmtunlock();
+			return p->fmt;
 		}
 	}
+	__fmtunlock();
 
 	return __badfmt;
 }

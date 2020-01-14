@@ -1,28 +1,16 @@
 #include <u.h>
 #include <libc.h>
 
-static RWLock fmtlock;
+static Lock fmtlock;
 
 void
-__fmtrlock(void)
+__fmtlock(void)
 {
-	rlock(&fmtlock);
+	lock(&fmtlock);
 }
 
 void
-__fmtrunlock(void)
+__fmtunlock(void)
 {
-	runlock(&fmtlock);
-}
-
-void
-__fmtwlock(void)
-{
-	wlock(&fmtlock);
-}
-
-void
-__fmtwunlock(void)
-{
-	wunlock(&fmtlock);
+	unlock(&fmtlock);
 }
