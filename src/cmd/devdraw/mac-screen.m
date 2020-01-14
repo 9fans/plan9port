@@ -930,6 +930,13 @@ rpc_setmouse(Client *c, Point p)
 
 - (NSApplicationPresentationOptions)window:(id)arg
 		willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions {
+	// The default for full-screen is to auto-hide the dock and menu bar,
+	// but the menu bar in particular comes back when the cursor is just
+	// near the top of the screen, which makes acme's top tag line very difficult to use.
+	// Disable the menu bar entirely.
+	// In theory this code disables the dock entirely too, but if you drag the mouse
+	// down far enough off the bottom of the screen the dock still unhides.
+	// That's OK.
 	NSApplicationPresentationOptions o;
 	o = proposedOptions;
 	o &= ~(NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar);
@@ -938,16 +945,21 @@ rpc_setmouse(Client *c, Point p)
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification*)notification {
-	// TODO: This should only be done if the window
-	// is on the screen with the dock.
-	// But how can you tell which window has the dock?
+	// This is a heavier-weight way to make sure the menu bar and dock go away,
+	// but this affects all screens even though the app is running on full screen
+	// on only one screen, so it's not great. The behavior from the
+	// willUseFullScreenPresentationOptions seems to be enough for now.
+	/*
 	[[NSApplication sharedApplication]
 		setPresentationOptions:NSApplicationPresentationHideMenuBar | NSApplicationPresentationHideDock];
+	*/
 }
 
 - (void)windowDidExitFullScreen:(NSNotification*)notification {
+	/*
 	[[NSApplication sharedApplication]
 		setPresentationOptions:NSApplicationPresentationDefault];
+	*/
 }
 @end
 
