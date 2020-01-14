@@ -110,18 +110,15 @@ windrawbutton(Window *w)
 int
 delrunepos(Window *w)
 {
-	int n;
-	Rune rune;
+	Rune *r;
+	int i;
 
-	for(n=0; n<w->tag.file->b.nc; n++) {
-		bufread(&w->tag.file->b, n, &rune, 1);
-		if(rune == ' ')
-			break;
-	}
-	n += 2;
-	if(n >= w->tag.file->b.nc)
+	r = parsetag(w, &i);
+	free(r);
+	i += 2;
+	if(i >= w->tag.file->b.nc)
 		return -1;
-	return n;
+	return i;
 }
 
 void
@@ -441,7 +438,7 @@ parsetag(Window *w, int *len)
 {
 	static Rune Ldelsnarf[] = { ' ', 'D', 'e', 'l', ' ', 'S', 'n', 'a', 'r', 'f', 0 };
 	static Rune Lspacepipe[] = { ' ', '|', 0 };
-	static Rune Ltabpipe[] = { ' ', '|', 0 };
+	static Rune Ltabpipe[] = { '\t', '|', 0 };
 	int i;
 	Rune *r, *p, *pipe;
 
