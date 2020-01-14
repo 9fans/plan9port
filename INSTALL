@@ -23,6 +23,13 @@ x-r)
 	exit 1
 esac
 
+echo "+ Mailing list: https://groups.google.com/group/plan9port-dev"
+echo "+ Issue tracker: https://github.com/9fans/plan9port/issues/"
+echo "+ Submitting changes: https://github.com/9fans/plan9port/pulls"
+echo " "
+echo "* Resetting $PLAN9/config"
+rm -f config
+
 PLAN9=`pwd` export PLAN9
 PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
 case `uname` in
@@ -57,13 +64,6 @@ DragonFly|*BSD)
 	awk=awk
 	;;
 esac
-
-echo "+ Mailing list: https://groups.google.com/group/plan9port-dev"
-echo "+ Issue tracker: https://github.com/9fans/plan9port/issues/"
-echo "+ Submitting changes: https://github.com/9fans/plan9port/pulls"
-echo " "
-echo "* Resetting $PLAN9/config"
-rm -f config
 
 (
 if [ `uname` = Linux ]; then
