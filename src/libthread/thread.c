@@ -429,6 +429,7 @@ Out:
 	unlock(&p->lock);
 	_threadsetproc(nil);
 	free(p);
+	_threadpexit();
 }
 
 void

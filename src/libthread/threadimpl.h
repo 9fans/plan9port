@@ -197,7 +197,7 @@ extern Channel *_dowaitchan;
 
 extern void _procstart(Proc*, void (*fn)(Proc*));
 extern _Thread *_threadcreate(Proc*, void(*fn)(void*), void*, uint);
-extern void _threadexit(void);
+extern void _procexit(void);
 extern Proc *_threadproc(void);
 extern void _threadsetproc(Proc*);
 extern int _threadlock(Lock*, int, ulong);
