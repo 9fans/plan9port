@@ -439,16 +439,31 @@ wincleartag(Window *w)
 Rune*
 parsetag(Window *w, int *len)
 {
+	static Rune Ldelsnarf[] = { ' ', 'D', 'e', 'l', ' ', 'S', 'n', 'a', 'r', 'f', 0 };
+	static Rune Lspacepipe[] = { ' ', '|', 0 };
+	static Rune Ltabpipe[] = { ' ', '|', 0 };
 	int i;
-	Rune *r;
+	Rune *r, *p, *pipe;
 
 	r = runemalloc(w->tag.file->b.nc+1);
 	bufread(&w->tag.file->b, 0, r, w->tag.file->b.nc);
 	r[w->tag.file->b.nc] = '\0';
 
-	for(i=0; i<w->tag.file->b.nc; i++)
-		if(r[i]==' ' || r[i]=='\t')
-			break;
+	/*
+	 * " |" or "\t|" ends left half of tag
+	 * If we find " Del Snarf" in the left half of the tag
+	 * (before the pipe), that ends the file name.
+	 */
+	pipe = runestrstr(r, Lspacepipe);
+	if((p = runestrstr(r, Ltabpipe)) != nil && (pipe == nil || p < pipe))
+		pipe = p;
+	if((p = runestrstr(r, Ldelsnarf)) != nil && (pipe == nil || p < pipe))
+		i = p - r;
+	else {
+		for(i=0; i<w->tag.file->b.nc; i++)
+			if(r[i]==' ' || r[i]=='\t')
+				break;
+	}
 	*len = i;
 	return r;
 }
