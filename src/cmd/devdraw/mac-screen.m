@@ -93,15 +93,6 @@ rpc_shutdown(void)
 	gfx_started();
 }
 
-- (NSApplicationPresentationOptions)window:(id)arg
-		willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions {
-	NSApplicationPresentationOptions o;
-	o = proposedOptions;
-	o &= ~(NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar);
-	o |= NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
-	return o;
-}
-
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)theApplication {
 	return client0 != nil;
 }
@@ -935,6 +926,15 @@ rpc_setmouse(Client *c, Point p)
 		for(uint i = 0; i < l; ++i)
 			gfx_keystroke(self.client, Kbs);
 	}
+}
+
+- (NSApplicationPresentationOptions)window:(id)arg
+		willUseFullScreenPresentationOptions:(NSApplicationPresentationOptions)proposedOptions {
+	NSApplicationPresentationOptions o;
+	o = proposedOptions;
+	o &= ~(NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar);
+	o |= NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
+	return o;
 }
 @end
 
