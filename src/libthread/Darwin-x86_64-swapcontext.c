@@ -16,6 +16,14 @@ makecontext(ucontext_t *uc, void (*fn)(void), int argc, ...)
 	va_end(arg);
 
 	sp = (uintptr*)((char*)uc->uc_stack.ss_sp+uc->uc_stack.ss_size);
+	/*
+	 * Stack pointer at call instruction (before return address
+	 * gets pushed) must be 16-byte aligned.
+	 */
+	if((uintptr)sp%4)
+		abort();
+	while((uintptr)sp%16 != 0)
+		sp--;
 	*--sp = 0;  // fn's return address
 	*--sp = (uintptr)fn;  // return address of setcontext
 	uc->mc.sp = (uintptr)sp;
