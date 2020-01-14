@@ -52,8 +52,12 @@ _ioproc(void *arg)
 	one = 1;
 	resized = 0;
 	for(;;){
-		if(_displayrdmouse(mc->display, &m, &resized) < 0)
+		if(_displayrdmouse(mc->display, &m, &resized) < 0) {
+			if(postnote(PNPROC, getpid(), "hangup") < 0)
+				fprint(2, "postnote: %r\n");
+			sleep(10*1000);
 			threadexitsall("mouse read error");
+		}
 		if(resized)
 			send(mc->resizec, &one);
 		send(mc->c, &m);
