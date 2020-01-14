@@ -419,11 +419,7 @@ wincleartag(Window *w)
 
 	/* w must be committed */
 	n = w->tag.file->b.nc;
-	r = runemalloc(n);
-	bufread(&w->tag.file->b, 0, r, n);
-	for(i=0; i<n; i++)
-		if(r[i]==' ' || r[i]=='\t')
-			break;
+	r = parsetag(w, &i);
 	for(; i<n; i++)
 		if(r[i] == '|')
 			break;
