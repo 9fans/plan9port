@@ -610,7 +610,7 @@ expandfile(Text *t, uint q0, uint q1, Expand *e)
 	if(nname == -1)
 		nname = n;
 	for(i=0; i<nname; i++)
-		if(!isfilec(r[i]))
+		if(!isfilec(r[i]) && r[i] != ' ')
 			goto Isntfile;
 	/*
 	 * See if it's a file name in <>, and turn that into an include
