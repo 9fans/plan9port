@@ -179,7 +179,6 @@ static int
 push(int fd, char *cmd, int input, Pushstate *ps)
 {
 	int nfd, pifds[2];
-	String *s;
 
 	ps->open = 0;
 	ps->fd = fd;
@@ -197,11 +196,7 @@ push(int fd, char *cmd, int input, Pushstate *ps)
 			dup(pifds[Rd], Stdin);
 		close(pifds[input? Rd: Wr]);
 		dup(fd, (input? Stdin: Stdout));
-		s = s_new();
-		if (cmd[0] != '/')
-			s_append(s, "/bin/");
-		s_append(s, cmd);
-		execl(s_to_c(s), cmd, nil);
+		execl(cmd, cmd, nil);
 		sysfatal("can't exec %s: %r", cmd);
 	default:
 		nfd = pifds[input? Rd: Wr];
