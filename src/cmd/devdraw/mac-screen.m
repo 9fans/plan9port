@@ -936,6 +936,19 @@ rpc_setmouse(Client *c, Point p)
 	o |= NSApplicationPresentationHideDock | NSApplicationPresentationHideMenuBar;
 	return o;
 }
+
+- (void)windowWillEnterFullScreen:(NSNotification*)notification {
+	// TODO: This should only be done if the window
+	// is on the screen with the dock.
+	// But how can you tell which window has the dock?
+	[[NSApplication sharedApplication]
+		setPresentationOptions:NSApplicationPresentationHideMenuBar | NSApplicationPresentationHideDock];
+}
+
+- (void)windowDidExitFullScreen:(NSNotification*)notification {
+	[[NSApplication sharedApplication]
+		setPresentationOptions:NSApplicationPresentationDefault];
+}
 @end
 
 static uint
