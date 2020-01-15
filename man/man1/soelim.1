@@ -13,10 +13,9 @@ reads the specified files or the standard input and performs
 the textual inclusion implied by
 .IR troff (1)
 directives of the form
-.sp
-.ti +2m
+.TP
 .B "\&.so some_file
-.sp
+.PP
 when they appear at the beginning of input lines.  This is useful when
 using programs such as
 .IR tbl (1)
@@ -24,7 +23,7 @@ that do not normally do this, allowing
 placement of individual tables or other text objects in separate files
 to be run as a part of a large document.
 .SH SOURCE
-.B /rc/bin/soelim
+.B \*9/bin/soelim
 .SH "SEE ALSO"
 .IR deroff (1),
 .IR troff (1)
