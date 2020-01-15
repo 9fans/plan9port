@@ -1,0 +1,15 @@
+<$PLAN9/src/mkhdr
+
+TARG=\
+	compress \
+	zcat \
+	uncompress
+
+$O.uncompress:Q: $O.compress
+	cp $prereq $target
+
+$O.zcat:Q: $O.compress
+	cp $prereq $target
+
+<$PLAN9/src/mkmany
+
