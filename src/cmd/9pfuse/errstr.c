@@ -21,6 +21,7 @@ static Error errortab[] = {
 	{ "exist", ENOENT },
 	{ "no such", ENOENT },
 	{ "not found", ENOENT },
+	{ "not implemented", ENOSYS},
 	{ "input/output", EIO },
 	{ "timeout", ETIMEDOUT },
 	{ "timed out", ETIMEDOUT },
@@ -42,6 +43,7 @@ static Error errortab[] = {
 	{ "invalid", EINVAL },
 	{ "read-only", EROFS },
 	{ "read only", EROFS },
+	{ "stale ", ESTALE},
 #ifdef EPROTO
 	{ "proto", EPROTO },
 #else
