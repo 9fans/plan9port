@@ -37,6 +37,8 @@ usage(void)
 void
 threadmain(int argc, char **argv)
 {
+	char *p;
+
 	ARGBEGIN{
 	case 'D':		/* for good ps -a listings */
 		break;
@@ -51,6 +53,10 @@ threadmain(int argc, char **argv)
 	default:
 		usage();
 	}ARGEND
+
+	fmtinstall('H', encodefmt);
+	if((p = getenv("DEVDRAWTRACE")) != nil)
+		trace = atoi(p);
 
 	if(srvname == nil) {
 		client0 = mallocz(sizeof(Client), 1);
@@ -417,6 +423,7 @@ gfx_mousetrack(Client *c, int x, int y, int b, uint ms)
 		y = copy->xy.y;
 		b = copy->buttons;
 		ms = copy->msec;
+		c->mouse.resized = 1;
 	}
 	if(x < c->mouserect.min.x)
 		x = c->mouserect.min.x;
