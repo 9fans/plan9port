@@ -1042,7 +1042,9 @@ _xreplacescreenimage(Client *client)
 	w->nextscreenpm = pixmap;
 	w->screenr = r;
 	client->mouserect = r;
+	xunlock();
 	gfx_replacescreenimage(client, m);
+	xlock();
 	return 1;
 }
 

@@ -17,6 +17,7 @@
 #include <X11/IntrinsicP.h>
 #include <X11/StringDefs.h>
 #ifdef SHOWEVENT
+#include <stdio.h>
 #include "../rio/showevent/ShowEvent.c"
 #endif
 
