@@ -25,7 +25,6 @@ redraw(Image *screen)
 	static int rad;
 	int i;
 	int anghr, angmin;
-	static Tm tms;
 	static Tm ntms;
 
 	ntm = time(0);
@@ -36,7 +35,6 @@ redraw(Image *screen)
 	anghr = 90-(ntms.hour*5 + ntms.min/12)*6;
 	angmin = 90-ntms.min*6;
 	tm = ntm;
-	tms = ntms;
 	r = screen->r;
 	c = divpt(addpt(r.min, r.max), 2);
 	rad = Dx(r) < Dy(r) ? Dx(r) : Dy(r);
