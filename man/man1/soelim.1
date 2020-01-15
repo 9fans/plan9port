@@ -1,0 +1,30 @@
+.TH SOELIM 1
+.\" .so in the NAME line confuses the ptx machinery; sorry
+.SH NAME
+soelim \- preprocess so inclusion commands in troff input 
+.SH SYNOPSIS
+.B soelim
+[
+.I files ...
+]
+.SH DESCRIPTION
+.I Soelim
+reads the specified files or the standard input and performs
+the textual inclusion implied by
+.IR troff (1)
+directives of the form
+.sp
+.ti +2m
+.B "\&.so some_file
+.sp
+when they appear at the beginning of input lines.  This is useful when
+using programs such as
+.IR tbl (1)
+that do not normally do this, allowing
+placement of individual tables or other text objects in separate files
+to be run as a part of a large document.
+.SH SOURCE
+.B /rc/bin/soelim
+.SH "SEE ALSO"
+.IR deroff (1),
+.IR troff (1)
