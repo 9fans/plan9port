@@ -164,7 +164,7 @@ threadmain(int argc, char *argv[])
 	}
 
 	/* wait for arena procs to finish */
-	for(nfinish=0; nfinish<napart; nfinish++)
+	for(; nfinish<napart; nfinish++)
 		recvp(arenadonechan);
 
 	/* tell index procs to finish */
