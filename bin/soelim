@@ -1,0 +1,16 @@
+#!/usr/local/plan9/bin/rc
+# joyless reimplementation of soelim
+# the $0 recursion is a bit ugly
+
+# canonicalise troff commands first with sed into ". so file" form.
+# but the space after the dot has to come out; tbl can't cope with it.
+# friggin' html macros can be longer than two characters; grrr.
+sed '/^[.'']/{
+	s/([^\\])\\".*$/\1/
+#	s/^(.)[	 ]*([^	 \\][^	 \\])[	 ]*/\1 \2 /
+	s/^(.)[	 ]*([^	 \\][^	 \\])/\1 \2/
+}' $* | awk '	BEGIN { me = "'$0'" }
+		$1 !~ /^[.'']$/	{ print; next }
+		$2 == "so" { system(me " " $3) ; next }
+		$2 == "nx" { system(me " " $3) ; exit }
+		{ print }' | sed 's/^([.'']) /\1/'

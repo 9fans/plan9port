@@ -17,6 +17,7 @@ bin/netfilestat
 bin/quote1
 bin/quote2
 bin/sig
+bin/soelim
 bin/spell
 bin/src
 bin/ssam
