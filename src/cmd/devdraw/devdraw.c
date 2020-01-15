@@ -55,10 +55,7 @@ gfx_replacescreenimage(Client *c, Memimage *m)
 		_freememimage(om);
 	}
 	qunlock(&c->drawlk);
-
-	qlock(&c->eventlk);
-	c->mouse.resized = 1;
-	qunlock(&c->eventlk);
+	gfx_mouseresized(c);
 }
 
 static void

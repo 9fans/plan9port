@@ -518,7 +518,6 @@ rpc_resizeimg(Client *c)
 - (void)resizeimg {
 	[self initimg];
 	gfx_replacescreenimage(self.client, self.img);
-	[self sendmouse:0];
 }
 
 - (void)windowDidResize:(NSNotification *)notification {
