@@ -16,7 +16,7 @@ RIOFILES=\
 CFLAGS=$CFLAGS -DDEBUG
 HFILES=dat.h fns.h
 
-TARG=rio xshove
+TARG=rio winwatch xshove
 
 # need to add lib64 when it exists (on x86-64), but
 # Darwin complains about the nonexistant directory
