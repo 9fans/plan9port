@@ -128,17 +128,33 @@ needkeywrite(char *s)
 int
 needkey(Conv *c, Attr *a)
 {
+	ulong u;
+
 	if(c == nil || *needkeyinuse == 0)
 		return -1;
 
 	lbappend(&needkeybuf, "needkey tag=%lud %A", c->tag, a);
 	flog("needkey %A", a);
-	return nbrecvul(c->keywait);
+
+	// Note: This code used to "return nbrecvul(c->keywait)."
+	// In Jan 2020 we changed nbrecvul to match Plan 9 and
+	// the man page and return 0 on "no data available" instead
+	// of -1. This new code with an explicit nbrecv preserves the
+	// code's old semantics, distinguishing a sent 0 from "no data".
+	// That said, this code seems to return -1 unconditionally:
+	// the c->keywait channel is unbuffered, and the only sending
+	// to it is done with an nbsendul, which won't block waiting for
+	// a receiver. So there is no sender for nbrecv to find here.
+	if(nbrecv(c->keywait, &u) < 0)
+		return -1;
+	return u;
 }
 
 int
 badkey(Conv *c, Key *k, char *msg, Attr *a)
 {
+	ulong u;
+
 	if(c == nil || *needkeyinuse == 0)
 		return -1;
 
@@ -146,5 +162,17 @@ badkey(Conv *c, Key *k, char *msg, Attr *a)
 		c->tag, k->attr, k->privattr, msg, a);
 	flog("badkey %A / %N / %s / %A",
 		k->attr, k->privattr, msg, a);
-	return nbrecvul(c->keywait);
+
+	// Note: This code used to "return nbrecvul(c->keywait)."
+	// In Jan 2020 we changed nbrecvul to match Plan 9 and
+	// the man page and return 0 on "no data available" instead
+	// of -1. This new code with an explicit nbrecv preserves the
+	// code's old semantics, distinguishing a sent 0 from "no data".
+	// That said, this code seems to return -1 unconditionally:
+	// the c->keywait channel is unbuffered, and the only sending
+	// to it is done with an nbsendul, which won't block waiting for
+	// a receiver. So there is no sender for nbrecv to find here.
+	if(nbrecv(c->keywait, &u) < 0)
+		return -1;
+	return u;
 }
