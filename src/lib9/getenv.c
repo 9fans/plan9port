@@ -16,11 +16,5 @@ p9getenv(char *s)
 int
 p9putenv(char *s, char *v)
 {
-	char *t;
-
-	t = smprint("%s=%s", s, v);
-	if(t == nil)
-		return -1;
-	putenv(t);
-	return 0;
+	return setenv(s, v, 1);
 }
