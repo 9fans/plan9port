@@ -560,6 +560,10 @@ rpc_resizewindow(Client *c, Rectangle r)
         [self sendmouse:0];
 }
 
+- (void)windowDidResignKey:(id)arg {
+	gfx_abortcompose(self.client);
+}
+
 - (void)mouseMoved:(NSEvent*)e{ [self getmouse:e];}
 - (void)mouseDown:(NSEvent*)e{ [self getmouse:e];}
 - (void)mouseDragged:(NSEvent*)e{ [self getmouse:e];}
