@@ -19,10 +19,8 @@ fn srv1 {
 
 ns=`{namespace}
 switch($1){
-case tip
-	srv1 -a tip utumno.tip9ug.jp
 case sources
-	srv1 -n sources sources.cs.bell-labs.com
+	srv1 -n sources 9p.io
 case *
 	srv1 $1 $1
 }
