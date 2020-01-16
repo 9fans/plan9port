@@ -137,9 +137,8 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 //print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 
 	/* call makecontext to do the real work. */
-	/* leave a few words open on both ends */
-	t->context.uc.uc_stack.ss_sp = (void*)(t->stk+8);
-	t->context.uc.uc_stack.ss_size = t->stksize-64;
+	t->context.uc.uc_stack.ss_sp = t->stk;
+	t->context.uc.uc_stack.ss_size = t->stksize;
 #if defined(__sun__) && !defined(__MAKECONTEXT_V2_SOURCE)		/* sigh */
 	/* can avoid this with __MAKECONTEXT_V2_SOURCE but only on SunOS 5.9 */
 	t->context.uc.uc_stack.ss_sp =
