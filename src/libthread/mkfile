@@ -16,7 +16,6 @@ OFILES=\
 <$PLAN9/src/mksyslib
 
 HFILES=thread.h threadimpl.h
-NetBSD.$O: Linux.c
 
 tprimes: test/tprimes.$O
 	9l -o $target test/$target.$O
