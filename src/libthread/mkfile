@@ -24,6 +24,8 @@ tspawn: test/tspawn.$O
 tspawnloop: test/tspawnloop.$O
 	9l -o $target test/$target.$O
 
+tprimes tspawn tspawnloop: $PLAN9/lib/$LIB
+
 %.$O: %.c
 	$CC -o $target $CFLAGS -I. $stem.c
 
@@ -50,4 +52,5 @@ test:V: tprimes tspawn
 	echo tspawn should take 3 seconds, not 6
 	$PLAN9/bin/time ./tspawn sleep 3 >/dev/null
 
-CLEANFILES=p1.txt p2.txt tp1.txt tp2.txt test/*.$O
+CLEANFILES=p1.txt p2.txt tp1.txt tp2.txt test/*.$O tprimes tspawn
+
