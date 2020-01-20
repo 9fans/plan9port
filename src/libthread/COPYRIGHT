@@ -45,9 +45,9 @@ Contains parts of an earlier library that has:
 
 ===
 
-The above notices do *NOT* apply to Linux-sparc64-context.S 
-or to Linux-sparc64-swapcontext.c.  Those are functions from 
+The above notices do *NOT* apply to Linux-sparc64-context.S
+or to sparc64-ucontext.c.  Those are functions from
 the GNU C library and are provided for systems that use the GNU C
-library but somehow are missing those functions.  They are 
+library but somehow are missing those functions.  They are
 distributed under the Lesser GPL; see COPYING.SPARC64-CONTEXT.
 

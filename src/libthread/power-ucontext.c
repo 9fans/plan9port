@@ -6,12 +6,14 @@ makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 	ulong *sp, *tos;
 	va_list arg;
 
-	tos = (ulong*)ucp->uc_stack.ss_sp+ucp->uc_stack.ss_size/sizeof(ulong);
-	sp = (ulong*)((ulong)(tos-16) & ~15);
+	if(argc != 2)
+		sysfatal("libthread: makecontext misused");
+	sp = USPALIGN(ucp, 16);
 	ucp->mc.pc = (long)func;
 	ucp->mc.sp = (long)sp;
 	va_start(arg, argc);
 	ucp->mc.r3 = va_arg(arg, long);
+	ucp->mc.r4 = va_arg(arg, long);
 	va_end(arg);
 }
 

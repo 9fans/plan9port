@@ -5,7 +5,7 @@ makecontext(ucontext_t *ucp, void (*func)(void), int argc, ...)
 {
 	int *sp;
 
-	sp = (int*)ucp->uc_stack.ss_sp+ucp->uc_stack.ss_size/4;
+	sp = USPALIGN(ucp, 4);
 	sp -= argc;
 	memmove(sp, &argc+1, argc*sizeof(int));
 	*--sp = 0;		/* return address */

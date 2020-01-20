@@ -37,8 +37,8 @@ OpenBSD-%-asm.$O:	OpenBSD-%-asm.S
 Linux-sparc64-context.$O: Linux-sparc64-context.S
 	$CC -m64 -mcpu=v9 $CFLAGS Linux-sparc64-context.S
 
-Linux-sparc64-swapcontext.$O: Linux-sparc64-swapcontext.c
-	$CC -m64 -mcpu=v9 $CFLAGS Linux-sparc64-swapcontext.c
+sparc64-ucontext.$O: sparc64-ucontext.c
+	$CC -m64 -mcpu=v9 $CFLAGS sparc64-ucontext.c
 
 test:V: tprimes tspawn
 	primes 1 10007 >p1.txt

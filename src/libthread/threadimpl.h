@@ -188,3 +188,6 @@ extern void _threadpexit(void);
 extern void _threaddaemonize(void);
 extern void *_threadstkalloc(int);
 extern void _threadstkfree(void*, int);
+
+#define USPALIGN(ucp, align) \
+	(void*)((((uintptr)(ucp)->uc_stack.ss_sp+(ucp)->uc_stack.ss_size)-(align))&~((align)-1))

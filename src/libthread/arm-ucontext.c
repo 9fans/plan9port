@@ -6,7 +6,7 @@ makecontext(ucontext_t *uc, void (*fn)(void), int argc, ...)
 	int i, *sp;
 	va_list arg;
 
-	sp = (int*)uc->uc_stack.ss_sp+uc->uc_stack.ss_size/4;
+	sp = USPALIGN(uc, 4);
 	va_start(arg, argc);
 	for(i=0; i<4 && i<argc; i++)
 		(&uc->uc_mcontext.arm_r0)[i] = va_arg(arg, uint);
