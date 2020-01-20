@@ -15,15 +15,6 @@
 #include "libc.h"
 #include "thread.h"
 
-#if defined(__FreeBSD__) && __FreeBSD__ < 5
-extern	int		getmcontext(mcontext_t*);
-extern	void		setmcontext(mcontext_t*);
-#define	setcontext(u)	setmcontext(&(u)->uc_mcontext)
-#define	getcontext(u)	getmcontext(&(u)->uc_mcontext)
-extern	int		swapcontext(ucontext_t*, ucontext_t*);
-extern	void		makecontext(ucontext_t*, void(*)(), int, ...);
-#endif
-
 #if defined(__APPLE__)
 	/*
 	 * OS X before 10.5 (Leopard) does not provide
