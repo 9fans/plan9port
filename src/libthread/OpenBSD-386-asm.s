@@ -1,10 +1,3 @@
-.globl _tas
-_tas:
-	movl $0xCAFEBABE, %eax
-	movl 4(%esp), %ecx
-	xchgl %eax, 0(%ecx)
-	ret
-
 .globl getmcontext
 getmcontext:
 	movl	4(%esp), %eax
@@ -17,7 +10,7 @@ getmcontext:
 	movl	%esi, 24(%eax)
 	movl	%ebp, 28(%eax)
 	movl	%ebx, 36(%eax)
-	movl	%edx, 40(%eax)		 
+	movl	%edx, 40(%eax)
 	movl	%ecx, 44(%eax)
 
 	movl	$1, 48(%eax)	/* %eax */
