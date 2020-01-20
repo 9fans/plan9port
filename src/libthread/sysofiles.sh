@@ -7,9 +7,6 @@ case "$tag" in
 *-NetBSD-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o pthread.o stkmalloc.o
 	;;
-*-Darwin-10.[5-6].* | *-Darwin-[89].*)
-	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME-${OBJTYPE}.o pthread.o stkmalloc.o
-	;;
 *-OpenBSD-*)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o pthread.o stkmmap.o
 	;;
