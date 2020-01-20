@@ -2,12 +2,11 @@
 
 test -f $PLAN9/config && . $PLAN9/config
 
-tag="$OBJTYPE-$SYSNAME-${SYSVERSION:-`uname -r`}-${CC9:-cc}"
-case "$tag" in
-*-NetBSD-*)
+case "$SYSNAME" in
+NetBSD)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o pthread.o stkmalloc.o
 	;;
-*-OpenBSD-*)
+OpenBSD)
 	echo ${SYSNAME}-${OBJTYPE}-asm.o ${SYSNAME}-${OBJTYPE}.o pthread.o stkmmap.o
 	;;
 *)

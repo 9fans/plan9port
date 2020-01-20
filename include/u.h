@@ -66,10 +66,8 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 
 #if defined(__linux__)
 #	include <sys/types.h>
-#	if defined(__Linux26__)
-#		include <pthread.h>
-#		define PLAN9PORT_USING_PTHREADS 1
-#	endif
+#	include <pthread.h>
+#	define PLAN9PORT_USING_PTHREADS 1
 #	if defined(__USE_MISC)
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT

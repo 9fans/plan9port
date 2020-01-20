@@ -32,7 +32,7 @@ rebuilds and installs everything, and then cleans up.
 .PP
 There are a few files in tree which have the root
 hard-coded in them.
-After the build, 
+After the build,
 .I INSTALL
 edits these files to replace the string
 .B /usr/local/plan9
@@ -71,31 +71,20 @@ expectations of certain package management systems.
 .PP
 At the end of the installation,
 .I INSTALL
-prints suggested settings for the environment variables 
+prints suggested settings for the environment variables
 .B $PLAN9
 and
 .BR $PATH .
 .PP
-Plan 9 from User Space uses different threading implementations on Linux 2.6 and
-later kernels than on 2.4 and earlier;
-and on FreeBSD 5 and later kernels than on FreeBSD 4 and earlier.
-Running binaries from one class on another will not work.
-.PP
-Some Linux 2.6 systems (e.g., Gentoo) do not use the new NPTL pthread library
-even though the kernel supports them.  On these systems, plan9port must 
-fall back on the threading code intended for Linux 2.4.  To accomplish this,
 .I INSTALL
-checks whether the running system uses NPTL and sets
-.B SYSVERSION
-in
-.B \*9/config
-accordingly.
+writes various autodetected settings to
+.BR \*9/config .
 The file
 .B \*9/LOCAL.config
 is appended to
 .B config
 after this auto-detection and can be used to override the choices.
-If 
+If
 .B LOCAL.config
 contains a line
 .B WSYSTYPE=nowsys
@@ -110,7 +99,7 @@ On Ubuntu, it suffices to install xorg-dev.
 can safely be repeated to rebuild the system from scratch.
 .PP
 Once the system is built for the first time,
-it can be maintained and rebuilt using 
+it can be maintained and rebuilt using
 .IR mk (1).
 To rebuild individual commands or libraries,
 run

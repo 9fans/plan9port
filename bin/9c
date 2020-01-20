@@ -93,28 +93,20 @@ case "$tag" in
 		useclang
 		cflags="$ngflags -g3 -m32"
 		;;
-*Darwin*)	usegcc 
+*Darwin*)	usegcc
 		cflags="$ngflags -g3 -no-cpp-precomp -m32" ;;
 *HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;
-*Linux*)	usegcc 
+*Linux*)	usegcc
 		case "${CC9:-gcc}" in
 		tcc)
 			cc=tcc
 			cflags="-c -g"
 			;;
 		esac
-		case "${SYSVERSION:-`uname -r`}" in
-		2.4.*)
-			cflags="$cflags -D__Linux24__"
-			;;
-		2.6.*)
-			cflags="$cflags -D__Linux26__"
-			;;
-		esac
 		;;
 *OSF1*)		cc=${CC9:-cc}; cflags="-g -O -c" ;;
 *SunOS*-cc)	cc=cc;
-		cflags="-mt -g -O -c -xCC -D__sun__" 
+		cflags="-mt -g -O -c -xCC -D__sun__"
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`

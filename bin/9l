@@ -25,12 +25,7 @@ case "$tag" in
 *Linux*)
 	ld=${CC9:-gcc}
 	userpath=true
-	extralibs="$extralibs -lutil -lresolv"
-	case "${SYSVERSION:-`uname -r`}" in
-	2.6.* | [3-9].* | [1-9][0-9].*)
-		extralibs="$extralibs -lpthread"
-		;;
-	esac
+	extralibs="$extralibs -lutil -lresolv -lpthread"
 	;;
 *Darwin*x86_64*)
 	ld="${CC9:-gcc} -m64"
@@ -41,7 +36,7 @@ case "$tag" in
 *SunOS*)
 	ld="${CC9:-cc} -g"
 	extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
-	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH 
+	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH
 	for i in "$libsl $@"
 	do
 		case "$i" in
@@ -106,7 +101,7 @@ then
 			lpaths="$lpaths $l"
 		esac
 	done
-	
+
 	if $verbose
 	then
 		echo "ofiles $ofiles"
@@ -309,7 +304,7 @@ then
 
 	frameworks=""
 	for i in $autoframeworks
-	do	
+	do
 		frameworks="-framework $i $frameworks"
 	done
 fi
@@ -335,8 +330,8 @@ fi
 
 xtmp="${TMPDIR-/tmp}/9l.$$.$USER.out"
 xxout() {
-	sed 's/.*: In function `[^:]*: *//' $xtmp | egrep . | 
-	egrep -v 'is (often|almost always) misused|is dangerous, better use|text-based stub' 
+	sed 's/.*: In function `[^:]*: *//' $xtmp | egrep . |
+	egrep -v 'is (often|almost always) misused|is dangerous, better use|text-based stub'
 	rm -f $xtmp
 }
 
