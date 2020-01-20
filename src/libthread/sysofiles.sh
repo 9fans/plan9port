@@ -3,9 +3,6 @@
 test -f $PLAN9/config && . $PLAN9/config
 
 case "$SYSNAME" in
-NetBSD)
-	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o stkmalloc.o
-	;;
 OpenBSD)
 	echo pthread.o stkmmap.o
 	;;
