@@ -136,10 +136,16 @@ threadalloc(void (*fn)(void*), void *arg, uint stack)
 		sysfatal("threadalloc getcontext: %r");
 //print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
 
-	/* call makecontext to do the real work. */
-	/* leave a few words open on both ends */
-	t->context.uc.uc_stack.ss_sp = (void*)(t->stk+8);
-	t->context.uc.uc_stack.ss_size = t->stksize-64;
+	/*
+	 * Call makecontext to do the real work.
+	 * To avoid various mistakes on other system software,
+	 * debuggers, and so on, don't get too close to both
+	 * ends of the stack. Just staying away is much easier
+	 * than debugging everything (outside our control)
+	 * that has off-by-one errors.
+	 */
+	t->context.uc.uc_stack.ss_sp = (void*)(t->stk+64);
+	t->context.uc.uc_stack.ss_size = t->stksize-2*64;
 #if defined(__sun__) && !defined(__MAKECONTEXT_V2_SOURCE)		/* sigh */
 	/* can avoid this with __MAKECONTEXT_V2_SOURCE but only on SunOS 5.9 */
 	t->context.uc.uc_stack.ss_sp =
