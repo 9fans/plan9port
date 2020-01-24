@@ -699,7 +699,7 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	Rune *r;
 	Biobuf *b;
 	char *s, *name;
-	int i, fd, q, ret;
+	int i, fd, q, ret, retc;
 	Dir *d, *d1;
 	Window *w;
 	int isapp;
@@ -763,9 +763,10 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 		goto Rescue2;
 	}
 	ret = Bterm(b);
+	retc = close(fd);
 	free(b);
 	b = nil;
-	if(ret < 0) {
+	if(ret < 0 || retc < 0) {
 		warning(nil, "can't write file %s: %r\n", name);
 		goto Rescue2; // flush or close failed
 	}
@@ -785,10 +786,9 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 			// in case we don't have read permission.
 			// (The create above worked, so we probably
 			// still have write permission.)
-			close(fd);
 			fd = open(name, OWRITE);
-
 			d1 = dirfstat(fd);
+			close(fd);
 			if(d1 != nil){
 				free(d);
 				d = d1;
@@ -821,11 +821,11 @@ putfile(File *f, int q0, int q1, Rune *namer, int nname)
 	if(b != nil) {
 		Bterm(b);
 		free(b);
+		close(fd);
 	}
 	free(h);
 	fbuffree(s);
 	fbuffree(r);
-	close(fd);
 	/* fall through */
 
     Rescue1:
