@@ -14,6 +14,8 @@
 #include <drawfcall.h>
 #include "devdraw.h"
 
+QLock	drawlk;
+
 static	int		drawuninstall(Client*, int);
 static	Memimage*	drawinstall(Client*, int, Memimage*, DScreen*);
 static	void		drawfreedimage(Client*, DImage*);
@@ -47,14 +49,14 @@ gfx_replacescreenimage(Client *c, Memimage *m)
 	 */
 	Memimage *om;
 
-	qlock(&c->drawlk);
+	qlock(&drawlk);
 	om = c->screenimage;
 	c->screenimage = m;
 	m->screenref = 1;
 	if(om && --om->screenref == 0){
 		_freememimage(om);
 	}
-	qunlock(&c->drawlk);
+	qunlock(&drawlk);
 	gfx_mouseresized(c);
 }
 
@@ -142,9 +144,9 @@ addflush(Client *c, Rectangle r)
 		// and gfx thread might be blocked on drawlk trying to install a new screen
 		// during a resize.
 		rpc_gfxdrawunlock();
-		qunlock(&c->drawlk);
+		qunlock(&drawlk);
 		c->impl->rpc_flush(c, fr);
-		qlock(&c->drawlk);
+		qlock(&drawlk);
 		rpc_gfxdrawlock();
 	}
 }
@@ -187,9 +189,9 @@ drawflush(Client *c)
 		// and gfx thread might be blocked on drawlk trying to install a new screen
 		// during a resize.
 		rpc_gfxdrawunlock();
-		qunlock(&c->drawlk);
+		qunlock(&drawlk);
 		c->impl->rpc_flush(c, r);
-		qlock(&c->drawlk);
+		qlock(&drawlk);
 		rpc_gfxdrawlock();
 	}
 }
@@ -614,7 +616,7 @@ drawcoord(uchar *p, uchar *maxp, int oldx, int *newx)
 int
 draw_dataread(Client *cl, void *a, int n)
 {
-	qlock(&cl->drawlk);
+	qlock(&drawlk);
 	if(cl->readdata == nil){
 		werrstr("no draw data");
 		goto err;
@@ -627,11 +629,11 @@ draw_dataread(Client *cl, void *a, int n)
 	memmove(a, cl->readdata, cl->nreaddata);
 	free(cl->readdata);
 	cl->readdata = nil;
-	qunlock(&cl->drawlk);
+	qunlock(&drawlk);
 	return n;
 
 err:
-	qunlock(&cl->drawlk);
+	qunlock(&drawlk);
 	return -1;
 }
 
@@ -656,7 +658,7 @@ draw_datawrite(Client *client, void *v, int n)
 	Refreshfn reffn;
 	Refx *refx;
 
-	qlock(&client->drawlk);
+	qlock(&drawlk);
 	rpc_gfxdrawlock();
 	a = v;
 	m = 0;
@@ -1431,7 +1433,7 @@ draw_datawrite(Client *client, void *v, int n)
 		}
 	}
 	rpc_gfxdrawunlock();
-	qunlock(&client->drawlk);
+	qunlock(&drawlk);
 	return oldn - n;
 
 Enodrawimage:
@@ -1502,6 +1504,6 @@ Ebadarg:
 error:
 	werrstr("%s", err);
 	rpc_gfxdrawunlock();
-	qunlock(&client->drawlk);
+	qunlock(&drawlk);
 	return -1;
 }

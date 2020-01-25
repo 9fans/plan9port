@@ -56,6 +56,8 @@ struct ClientImpl
 	void (*rpc_flush)(Client*, Rectangle);
 };
 
+extern QLock drawlk;
+
 struct Client
 {
 	int		rfd;
@@ -69,10 +71,9 @@ struct Client
 
 	char*	wsysid;
 
-	// drawlk protects the draw data structures.
+	// drawlk protects the draw data structures for all clients.
 	// It can be acquired by an RPC thread or a graphics thread
 	// but must not be held on one thread while waiting for the other.
-	QLock	drawlk;
 	/*Ref		r;*/
 	DImage*		dimage[NHASH];
 	CScreen*	cscreen;

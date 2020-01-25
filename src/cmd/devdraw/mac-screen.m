@@ -39,7 +39,6 @@ static uint msec(void);
 
 static void	rpc_resizeimg(Client*);
 static void	rpc_resizewindow(Client*, Rectangle);
-static void	rpc_serve(Client*);
 static void	rpc_setcursor(Client*, Cursor*, Cursor2*);
 static void	rpc_setlabel(Client*, char*);
 static void	rpc_setmouse(Client*, Point);
@@ -496,17 +495,17 @@ rpc_flush(Client *client, Rectangle r)
 		if(!rectclip(&r, Rect(0, 0, self.dlayer.texture.width, self.dlayer.texture.height)) || !rectclip(&r, self.img->r))
 			return;
 
-		// self.client->drawlk protects the pixel data in self.img.
+		// drawlk protects the pixel data in self.img.
 		// In addition to avoiding a technical data race,
 		// the lock avoids drawing partial updates, which makes
 		// animations like sweeping windows much less flickery.
-		qlock(&self.client->drawlk);
+		qlock(&drawlk);
 		[self.dlayer.texture
 			replaceRegion:MTLRegionMake2D(r.min.x, r.min.y, Dx(r), Dy(r))
 			mipmapLevel:0
 			withBytes:byteaddr(self.img, Pt(r.min.x, r.min.y))
 			bytesPerRow:self.img->width*sizeof(u32int)];
-		qunlock(&self.client->drawlk);
+		qunlock(&drawlk);
 
 		NSRect nr = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 		dispatch_time_t time;
