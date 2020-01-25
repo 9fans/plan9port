@@ -7,6 +7,7 @@ typedef struct Mousebuf Mousebuf;
 typedef struct Tagbuf Tagbuf;
 
 typedef struct Client Client;
+typedef struct ClientImpl ClientImpl;
 typedef struct DImage DImage;
 typedef struct DScreen DScreen;
 typedef struct CScreen CScreen;
@@ -41,6 +42,18 @@ struct Tagbuf
 	int t[256];
 	int ri;
 	int wi;
+};
+
+struct ClientImpl
+{
+	void (*rpc_resizeimg)(Client*);
+	void (*rpc_resizewindow)(Client*, Rectangle);
+	void (*rpc_setcursor)(Client*, Cursor*, Cursor2*);
+	void (*rpc_setlabel)(Client*, char*);
+	void (*rpc_setmouse)(Client*, Point);
+	void (*rpc_topwin)(Client*);
+	void (*rpc_bouncemouse)(Client*, Mouse);
+	void (*rpc_flush)(Client*, Rectangle);
 };
 
 struct Client
@@ -82,6 +95,7 @@ struct Client
 	int		nname;
 	DName*		name;
 	int		namevers;
+	ClientImpl*	impl;
 
 	// Only accessed/modified by the graphics thread.
 	const void*		view;
@@ -196,17 +210,8 @@ void	gfx_started(void);
 Memimage *rpc_attach(Client*, char*, char*);
 char*	rpc_getsnarf(void);
 void	rpc_putsnarf(char*);
-void	rpc_resizeimg(Client*);
-void	rpc_resizewindow(Client*, Rectangle);
-void	rpc_serve(Client*);
-void	rpc_setcursor(Client*, Cursor*, Cursor2*);
-void	rpc_setlabel(Client*, char*);
-void	rpc_setmouse(Client*, Point);
 void	rpc_shutdown(void);
-void	rpc_topwin(Client*);
 void	rpc_main(void);
-void	rpc_bouncemouse(Client*, Mouse);
-void	rpc_flush(Client*, Rectangle);
 
 // rpc_gfxdrawlock and rpc_gfxdrawunlock
 // are called around drawing operations to lock and unlock

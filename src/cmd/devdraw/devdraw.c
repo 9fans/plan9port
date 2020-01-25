@@ -143,7 +143,7 @@ addflush(Client *c, Rectangle r)
 		// during a resize.
 		rpc_gfxdrawunlock();
 		qunlock(&c->drawlk);
-		rpc_flush(c, fr);
+		c->impl->rpc_flush(c, fr);
 		qlock(&c->drawlk);
 		rpc_gfxdrawlock();
 	}
@@ -188,7 +188,7 @@ drawflush(Client *c)
 		// during a resize.
 		rpc_gfxdrawunlock();
 		qunlock(&c->drawlk);
-		rpc_flush(c, r);
+		c->impl->rpc_flush(c, r);
 		qlock(&c->drawlk);
 		rpc_gfxdrawlock();
 	}
