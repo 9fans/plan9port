@@ -34,6 +34,7 @@ bin/upas/unspambox
 bin/venti/conf
 bin/vmount
 bin/vwhois
+bin/wintext
 bin/yesterday
 dist/debian/mkpkg
 dist/debian/mkrep

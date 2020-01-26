@@ -1,22 +1,14 @@
-#!/bin/bash
+#!/usr/local/plan9/bin/rc
 
-case "$winid" in
-[0-9]*)
+if(~ $winid [0-9]*)
 	9p read acme/$winid/body
-	exit 0
-esac
-
-case "$text9term" in
-unix!*)
+if not if(~ $text9term unix!*)
 	dial -e $text9term </dev/null
-	exit 0
-esac
-
-case "$TMUX" in
-?*)
+if not if(~ $#TMUX 1)
 	tmux capture-pane -p
-	exit 0
-esac
+if not {
+	echo 'no running window found' >[1=2]
+	exit nowindow
+}
 
-echo 'no running window found' 2>&1
-exit 1
+status=''
