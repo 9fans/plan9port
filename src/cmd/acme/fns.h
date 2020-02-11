@@ -57,6 +57,7 @@ void	get(Text*, Text*, Text*, int, int, Rune*, int);
 void	put(Text*, Text*, Text*, int, int, Rune*, int);
 void	putfile(File*, int, int, Rune*, int);
 void	fontx(Text*, Text*, Text*, int, int, Rune*, int);
+void	putall(Text*, Text*, Text*, int, int, Rune*, int);
 #undef isalnum
 #define isalnum acmeisalnum
 int	isalnum(Rune);

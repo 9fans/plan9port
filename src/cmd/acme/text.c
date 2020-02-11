@@ -760,6 +760,10 @@ texttype(Text *t, Rune r)
 			q0++;
 		textshow(t, q0, q0, TRUE);
 		return;
+	case 0x13:	/* ^S: Putall */
+		typecommit(t);
+		putall(0, 0, 0, 0, 0, 0, 0);
+		return;
 	case Kcmd+'c':	/* %C: copy */
 		typecommit(t);
 		cut(t, t, nil, TRUE, FALSE, nil, 0);
