@@ -30,5 +30,5 @@ THE SOFTWARE.
 ----
 
 This software is also made available under the Lucent Public License
-version 1.02; see http://plan9.bell-labs.com/plan9dist/license.html
+version 1.02; see http://9p.io/plan9/license.html
 
