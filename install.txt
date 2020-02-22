@@ -7,7 +7,7 @@
      DESCRIPTION
           Plan 9 is a distributed computing environment built at Bell
           Labs starting in the late 1980s.  The system can be obtained
-          from Bell Labs at http://plan9.bell-labs.com/plan9 and runs
+          from Bell Labs at http://9p.io/plan9 and runs
           on PCs and a variety of other platforms.  Plan 9 became a
           convenient platform for experimenting with new ideas, appli-
           cations, and services.
