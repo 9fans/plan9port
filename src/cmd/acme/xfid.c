@@ -407,8 +407,6 @@ xfidread(Xfid *x)
 static int
 shouldscroll(Text *t, uint q0, int qid)
 {
-	if(qid == Qcons)
-		return TRUE;
 	return t->org <= q0 && q0 <= t->org+t->fr.nchars;
 }
 
