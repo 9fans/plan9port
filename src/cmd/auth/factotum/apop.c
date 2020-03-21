@@ -129,6 +129,7 @@ apopclient(Conv *c)
 out:
 	keyclose(k);
 	free(chal);
+	free(res);
 	if(c->attr != attr)
 		freeattr(attr);
 	return ret;
