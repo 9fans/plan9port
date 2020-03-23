@@ -31,6 +31,12 @@ int		snarffd = -1;
 int		mainpid;
 int		swapscrollbuttons = FALSE;
 char		*mtpt;
+int		tag_col_back = 0xeaffffff, tag_col_high = 0x9eeeeeff,
+		tag_col_bord = 0x8888ccfd, tag_col_text = 0x000000ff,
+		tag_col_htext = 0x000000ff,
+		text_col_back = 0xffffeaff, text_col_high = 0xeeee9eff,
+		text_col_bord = 0x99994cff, text_col_text = 0x000000ff,
+		text_col_htext = 0x000000ff;
 
 enum{
 	NSnarf = 1000	/* less than 1024, I/O buffer size */
@@ -49,6 +55,7 @@ void	shutdownthread(void*);
 void	acmeerrorinit(void);
 void	readfile(Column*, char*);
 static int	shutdown(void*, char*);
+static void set_color_scheme(char*);
 
 void
 derror(Display *d, char *errorstr)
@@ -137,6 +144,11 @@ threadmain(int argc, char *argv[])
 	acmeshell = getenv("acmeshell");
 	if(acmeshell && *acmeshell == '\0')
 		acmeshell = nil;
+	p = getenv("acmecscheme");
+	if(p != nil){
+		set_color_scheme(p);
+		free(p);
+	}
 	p = getenv("tabstop");
 	if(p != nil){
 		maxtab = strtoul(p, nil, 0);
@@ -363,6 +375,63 @@ shutdownthread(void *v)
 		shutdown(nil, msg);
 }
 */
+
+static char* set_color_scheme_for_entity(int **ecols, char *csspec);
+
+/*
+ * Set acme color scheme from a textual specification csspec. spec format:
+ * ENTITY1=COLOR1.1:COLOR1.2:...;ENTITY2=COLOR2.1:COLOR2.2:...
+ * Any color can be empty(e.g. ENTITY1=COLOR1.1::COLOR1.3...).
+ */
+static void
+set_color_scheme(char *csspec)
+{
+	char *p;
+	int *tagc[] = {&tag_col_back, &tag_col_high, &tag_col_bord, &tag_col_text,
+	              &tag_col_htext, nil};
+	int *textc[] = {&text_col_back, &text_col_high, &text_col_bord, &text_col_text,
+	              &text_col_htext, nil};
+
+	for(p = csspec; p && *p; p = (p && *p) ? p + 1: p) {
+		if (strncmp("tag=", p, 4) == 0) {
+			p = set_color_scheme_for_entity(tagc, p + 4);
+		} else if (strncmp("text=", p, 5) == 0) {
+			p = set_color_scheme_for_entity(textc, p + 5);
+		} else {
+			fprint(2, "bad color scheme entity: %s\n", p);
+			return;
+		}
+	}
+}
+
+static char*
+set_color_scheme_for_entity(int **ecols, char *csspec)
+{
+	char *p = csspec;
+	int i = 0;
+
+	while(ecols[i] && *p && (*p != ';')) {
+		/* If a current value isn't empty, parse and save it */
+		if (*p != ':') {
+			*ecols[i] = strtol(p, &p, 0);
+			if (*p && (*p != ':') && (*p != ';'))
+				goto err;
+		}
+		if (*p == ':') {
+			p++;
+			i++;
+		}
+	}
+	if (!ecols[i] || ecols[i+1]) {
+		fprint(2, "color codes quantity is wrong: '%s'\n", csspec);
+		return nil;
+	}
+
+	return p;
+err:
+	fprint(2, "wrong color code in: '%s'\n", csspec);
+	return nil;
+}
 
 void
 killprocs(void)
@@ -1042,18 +1111,19 @@ iconinit(void)
 
 	if(tagcols[BACK] == nil) {
 		/* Blue */
-		tagcols[BACK] = allocimagemix(display, DPalebluegreen, DWhite);
-		tagcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPalegreygreen);
-		tagcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DPurpleblue);
-		tagcols[TEXT] = display->black;
-		tagcols[HTEXT] = display->black;
+		tagcols[BACK] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, tag_col_back);
+		tagcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, tag_col_high);
+		tagcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, tag_col_bord);
+		tagcols[TEXT] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, tag_col_text);
+		tagcols[HTEXT] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, tag_col_htext);
 
 		/* Yellow */
-		textcols[BACK] = allocimagemix(display, DPaleyellow, DWhite);
-		textcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DDarkyellow);
-		textcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, DYellowgreen);
-		textcols[TEXT] = display->black;
-		textcols[HTEXT] = display->black;
+		textcols[BACK] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, text_col_back);
+
+		textcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, text_col_high);
+		textcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, text_col_bord);
+		textcols[TEXT] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, text_col_text);
+		textcols[HTEXT] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, text_col_htext);
 	}
 
 	r = Rect(0, 0, Scrollwid+ButtonBorder, font->height+1);
