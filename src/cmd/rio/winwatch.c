@@ -448,13 +448,12 @@ usage(void)
 void
 main(int argc, char **argv)
 {
-	char *fontname;
+	char *fontname = nil;
 	int Etimer;
 	Event e;
 
 	sortlabels = 0;
 	showwmnames = 0;
-	fontname = "/lib/font/bit/lucsans/unicode.8.font";
 
 	ARGBEGIN {
 	case 'W':
@@ -492,13 +491,10 @@ main(int argc, char **argv)
 	root = DefaultRootWindow(dpy);
 	net_active_window = XInternAtom(dpy, "_NET_ACTIVE_WINDOW", False);
 
-	initdraw(0, 0, "winwatch");
+	initdraw(0, fontname, "winwatch");
 	lightblue = allocimagemix(display, DPalebluegreen, DWhite);
 	if(lightblue==nil)
 		sysfatal("allocimagemix: %r");
-	font = openfont(display, fontname);
-	if(font==nil)
-		sysfatal("font '%s' not found", fontname);
 
 	/* reentry point upon X server errors */
 	setjmp(savebuf);

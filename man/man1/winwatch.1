@@ -13,7 +13,7 @@ winwatch \- monitor rio windows
 .B -n
 ] [
 .B -s
-] 
+]
 .SH DESCRIPTION
 .I Winwatch
 displays the labels of all current
@@ -34,15 +34,25 @@ is given,
 windows matching the regular expression
 .I exclude
 are not shown.
-With the 
+With the
 .B -n
 option,
-the 
+the
 label is defined as the window’s name instead of its class,
 and with
 .B -s
 the labels are sorted by alphabet (case insensitive)
 instead of by order of appearance.
+The
+.B -f
+option can be used to customize the display font.
+If unset, the font choice is deferred to
+.I initdraw
+(see
+.IR graphics(3) ),
+which will try to use the environment variable
+.BR $font
+and fallback to the default font.
 Winwatch is unicode aware.
 .SH EXAMPLE
 Excluding winwatch and stats from being shown.
