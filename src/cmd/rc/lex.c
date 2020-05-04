@@ -188,7 +188,7 @@ yylex(void)
 {
 	int c, d = nextc();
 	char *w = tok;
-	struct tree *t;
+	tree *t;
 	yylval.tree = 0;
 	/*
 	 * Embarassing sneakiness:  if the last token read was a quoted or unquoted
@@ -331,6 +331,11 @@ yylex(void)
 		yylval.tree = t;
 		if(t->type==PIPE)
 			skipnl();
+		if(t->type==REDIR) {
+			skipwhite();
+			if(nextc() == '{')
+				t->type = REDIRW;
+		}
 		return t->type;
 	case '\'':
 		lastdol = 0;

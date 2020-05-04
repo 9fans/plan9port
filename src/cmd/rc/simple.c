@@ -322,6 +322,7 @@ execdot(void)
 	static int first = 1;
 	char file[512];
 	word *path;
+
 	if(first){
 		dotcmds[0].i = 1;
 		dotcmds[1].f = Xmark;

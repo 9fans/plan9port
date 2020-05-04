@@ -1,0 +1,14 @@
+#!/bin/bash
+
+files="$@"
+if [ $# = 0 ]; then
+	files=$(echo ./test.rc;
+		grep -l '^#!/usr/local/plan9/bin/rc' /usr/local/plan9/bin/{*,*/*} 2>/dev/null;
+		grep -l '^#!/bin/rc' $HOME/pub/plan9/rc/bin/{*,*/*} 2>/dev/null)
+fi
+
+for i in $files
+do
+	echo '#' $i
+	diff <(./o.rc -DY $i 2>&1) <(./o.rc -D $i 2>&1)
+done

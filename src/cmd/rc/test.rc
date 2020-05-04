@@ -1,0 +1,38 @@
+# test for parser
+
+{a; b; c}
+x=y a && b || c
+x=y a | b | c
+x=y for(i) a | b
+>x for(i) a | b
+>x a || b && c
+a >x || b && c
+a | for(i) b | c
+fn x {y; z} | b && c
+if (x) y
+if not z
+`{} >x >[1=2]y >[3=] z <w
+~ x y && z
+x | y && z
+x | y || z
+! x | y | z
+@ x | y | z
+x | ! y | z
+x | @y | z
+! x | if(y) z
+@ x | if(y) z
+x=1 y | if(z) w
+a'b' c
+a^'b'^ c
+a^'b' c
+$$x
+$x($y)
+$"x
+$#x
+$#$x
+-$x-
+`{a;b;c}
+<{a;b}
+x for in while if not ~ ! @ switch fn
+x not$y
+a;b;c

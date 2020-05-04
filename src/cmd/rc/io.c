@@ -44,7 +44,10 @@ pfmt(io *f, char *fmt, ...)
 			pstr(f, va_arg(ap, char *));
 			break;
 		case 't':
-			pcmd(f, va_arg(ap, struct tree *));
+			pcmd(f, va_arg(ap, tree *));
+			break;
+		case 'u':
+			pcmdu(f, va_arg(ap, tree *));
 			break;
 		case 'v':
 			pval(f, va_arg(ap, struct word *));
