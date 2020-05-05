@@ -74,3 +74,12 @@ OPTIONS=$OPTIONS' /axescount '^`{echo $1 | sed s/-a//}^' def'
 
 # bug in old printfont script - expected more free carats
 # OPTIONS=$OPTIONS' /axescount '`{echo $1 | sed s/-a//}' def'
+
+(x) = y
+x=y
+x = y
+
+# works now!
+# x y=z
+# x =y
+# x -flag=y

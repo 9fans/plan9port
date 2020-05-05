@@ -14,7 +14,7 @@ static int	iswordtok(int tok);
 static tree*	line(int tok, int *ptok);
 static tree*	paren(int tok);
 static tree*	yyredir(int tok, int *ptok);
-static tree*	yyword(int tok, int *ptok);
+static tree*	yyword(int tok, int *ptok, int eqok);
 static tree*	word1(int tok, int *ptok);
 static tree*	words(int tok, int *ptok);
 
@@ -186,7 +186,7 @@ yyredir(int tok, int *ptok)
 		break;
 	case REDIR:
 		r = yylval.tree;
-		w = yyword(yylex(), &tok);
+		w = yyword(yylex(), &tok, 1);
 		*ptok = dropsp(tok);
 		r = mung1(r, r->rtype==HERE?heredoc(w):w);
 		break;
@@ -276,7 +276,7 @@ cmd4(int tok, int *ptok)
 		tok = dropsp(yylex());
 		if(tok != '(')
 			syntax(tok);
-		t2 = yyword(yylex(), &tok);
+		t2 = yyword(yylex(), &tok, 1);
 		switch(tok) {
 		default:
 			syntax(tok);
@@ -305,7 +305,7 @@ cmd4(int tok, int *ptok)
 	case SWITCH:
 		// |	SWITCH word {skipnl();} brace
 		//		{$$=tree2(SWITCH, $2, $4);}
-		t1 = yyword(yylex(), &tok);
+		t1 = yyword(yylex(), &tok, 1);
 		tok = dropnl(tok); // doesn't work in yacc grammar but works here!
 		t2 = brace(tok);
 		*ptok = dropsp(yylex());
@@ -328,7 +328,7 @@ cmd4(int tok, int *ptok)
 	case TWIDDLE:
 		// |	TWIDDLE word words	{$$=mung2($1, $2, $3);}
 		t1 = yylval.tree;
-		t2 = yyword(yylex(), &tok);
+		t2 = yyword(yylex(), &tok, 1);
 		t3 = words(tok, ptok);
 		return mung2(t1, t2, t3);
 
@@ -369,11 +369,11 @@ cmd4(int tok, int *ptok)
 	// but all those keywords have been picked off in the switch above.
 	// Except NOT, but disallowing that in yacc was likely a mistake anyway:
 	// there's no ambiguity in not=1 or not x y z.
-	t1 = yyword(tok, &tok);
+	t1 = yyword(tok, &tok, 0);
 	if(tok == '=') {
 		// assignment
 		// Note: cmd3: {x=1 true | echo $x} echoes 1.
-		t1 = tree2('=', t1, yyword(yylex(), &tok));
+		t1 = tree2('=', t1, yyword(yylex(), &tok, 1));
 		t2 = cmd3(tok, ptok);
 		return mung3(t1, t1->child[0], t1->child[1], t2);
 	}
@@ -385,7 +385,7 @@ cmd4(int tok, int *ptok)
 		if(tok == REDIR || tok == DUP) {
 			t1 = tree2(ARGLIST, t1, yyredir(tok, &tok));
 		} else if(iswordtok(tok)) {
-			t1 = tree2(ARGLIST, t1, yyword(tok, &tok));
+			t1 = tree2(ARGLIST, t1, yyword(tok, &tok, 1));
 		} else {
 			break;
 		}
@@ -405,13 +405,13 @@ words(int tok, int *ptok)
 	t = nil;
 	tok = dropsp(tok);
 	while(iswordtok(tok))
-		t = tree2(WORDS, t, yyword(tok, &tok));
+		t = tree2(WORDS, t, yyword(tok, &tok, 1));
 	*ptok = tok;
 	return t;
 }
 
 static tree*
-yyword(int tok, int *ptok)
+yyword(int tok, int *ptok, int eqok)
 {
 	tree *t;
 
@@ -436,6 +436,8 @@ yyword(int tok, int *ptok)
 	// word1: keyword | comword
 
 	t = word1(tok, &tok);
+	if(tok == '=' && !eqok)
+		goto out;
 	for(;;) {
 		if(iswordtok(tok)) {
 			t = tree2('^', t, word1(tok, &tok));
@@ -448,6 +450,7 @@ yyword(int tok, int *ptok)
 		}
 		break;
 	}
+out:
 	*ptok = dropsp(tok);
 	return t;
 }
@@ -479,6 +482,10 @@ word1(int tok, int *ptok)
 		t->type = WORD;
 		*ptok = yylex();
 		return t;
+
+	case '=':
+		*ptok = yylex();
+		return token("=", WORD);
 
 	case '$':
 		// comword: '$' word1		{$$=tree1('$', $2);}
@@ -547,6 +554,7 @@ iswordtok(int tok)
 	case '`':
 	case '(':
 	case REDIRW:
+	case '=':
 		return 1;
 	}
 	return 0;
