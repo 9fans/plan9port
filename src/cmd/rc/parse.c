@@ -7,7 +7,6 @@ static tree*	brace(int tok);
 static tree*	cmd(int tok, int *ptok);
 static tree*	cmd2(int tok, int *ptok);
 static tree*	cmd3(int tok, int *ptok);
-static tree*	cmd4(int tok, int *ptok);
 static tree*	cmds(int tok, int *ptok, int nlok);
 static tree*	epilog(int tok, int *ptok);
 static int	iswordtok(int tok);
@@ -39,9 +38,8 @@ dropsp(int tok)
 static void
 syntax(int tok)
 {
-	char buf[100];
-	snprint(buf, sizeof buf, "syntax error %d", tok);
-	yyerror(buf);
+	USED(tok);
+	yyerror("syntax error");
 	longjmp(yyjmp, 1);
 }
 
@@ -197,27 +195,17 @@ yyredir(int tok, int *ptok)
 static tree*
 cmd(int tok, int *ptok)
 {
-	tok = dropsp(tok);
-	switch(tok) {
-	default:
-		return cmd2(tok, ptok);
-
-	}
-}
-
-static tree*
-cmd2(int tok, int *ptok)
-{
 	int op;
 	tree *t1, *t2;
 
 	// |	cmd ANDAND cmd		{$$=tree2(ANDAND, $1, $3);}
 	// |	cmd OROR cmd		{$$=tree2(OROR, $1, $3);}
 
-	t1 = cmd3(tok, &tok);
+	tok = dropsp(tok);
+	t1 = cmd2(tok, &tok);
 	while(tok == ANDAND || tok == OROR) {
 		op = tok;
-		t2 = cmd3(dropnl(yylex()), &tok);
+		t2 = cmd2(dropnl(yylex()), &tok);
 		t1 = tree2(op, t1, t2);
 	}
 	*ptok = tok;
@@ -225,15 +213,15 @@ cmd2(int tok, int *ptok)
 }
 
 static tree*
-cmd3(int tok, int *ptok)
+cmd2(int tok, int *ptok)
 {
 	tree *t1, *t2, *t3;
 
 	// |	cmd PIPE cmd		{$$=mung2($2, $1, $3);}
-	t1 = cmd4(tok, &tok);
+	t1 = cmd3(tok, &tok);
 	while(tok == PIPE) {
 		t2 = yylval.tree;
-		t3 = cmd4(dropnl(yylex()), &tok);
+		t3 = cmd3(dropnl(yylex()), &tok);
 		t1 = mung2(t2, t1, t3);
 	}
 	*ptok = tok;
@@ -241,7 +229,7 @@ cmd3(int tok, int *ptok)
 }
 
 static tree*
-cmd4(int tok, int *ptok)
+cmd3(int tok, int *ptok)
 {
 	tree *t1, *t2, *t3, *t4;
 
@@ -336,16 +324,16 @@ cmd4(int tok, int *ptok)
 	case SUBSHELL:
 		// |	BANG cmd		{$$=mung1($1, $2);}
 		// |	SUBSHELL cmd		{$$=mung1($1, $2);}
-		// Note: cmd3: ! x | y is !{x | y} not {!x} | y.
+		// Note: cmd2: ! x | y is !{x | y} not {!x} | y.
 		t1 = yylval.tree;
-		return mung1(t1, cmd3(yylex(), ptok));
+		return mung1(t1, cmd2(yylex(), ptok));
 
 	case REDIR:
 	case DUP:
 		// |	redir cmd  %prec BANG	{$$=mung2($1, $1->child[0], $2);}
-		// Note: cmd3: {>x echo a | tr a-z A-Z} writes A to x.
+		// Note: cmd2: {>x echo a | tr a-z A-Z} writes A to x.
 		t1 = yyredir(tok, &tok);
-		t2 = cmd3(tok, ptok);
+		t2 = cmd2(tok, ptok);
 		return mung2(t1, t1->child[0], t2);
 
 	case '{':
@@ -372,9 +360,9 @@ cmd4(int tok, int *ptok)
 	t1 = yyword(tok, &tok, 0);
 	if(tok == '=') {
 		// assignment
-		// Note: cmd3: {x=1 true | echo $x} echoes 1.
+		// Note: cmd2: {x=1 true | echo $x} echoes 1.
 		t1 = tree2('=', t1, yyword(yylex(), &tok, 1));
-		t2 = cmd3(tok, ptok);
+		t2 = cmd2(tok, ptok);
 		return mung3(t1, t1->child[0], t1->child[1], t2);
 	}
 
@@ -440,6 +428,9 @@ yyword(int tok, int *ptok, int eqok)
 		goto out;
 	for(;;) {
 		if(iswordtok(tok)) {
+			// No free carats around parens.
+			if(t->type == PAREN || tok == '(')
+				syntax(tok);
 			t = tree2('^', t, word1(tok, &tok));
 			continue;
 		}

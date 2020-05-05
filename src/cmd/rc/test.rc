@@ -83,3 +83,11 @@ x = y
 # x y=z
 # x =y
 # x -flag=y
+
+>z x | y
+
+# rejected now, was like parens were spaces before.
+# echo Formatting Venti arenas and indices (this takes a while).
+
+
+# echo $STATLINE(1)^$STATLINE(3)'	'$STATLINE(2)'	'$STATLINE(4)'	'$LSLINE(6)

@@ -206,7 +206,7 @@ yylex(void)
 		lastword = 0;
 		if(d=='('){
 			advance();
-			strcpy(tok, "( [SUB]");
+			strcpy(tok, "(");
 			return SUB;
 		}
 		if(wordchr(d) || d=='\'' || d=='`' || d=='$' || d=='"'){
