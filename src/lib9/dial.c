@@ -1,3 +1,7 @@
+#if defined(__AIX__)
+#define _ALL_SOURCE
+#endif
+
 #include <u.h>
 #include <libc.h>
 
