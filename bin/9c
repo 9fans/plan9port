@@ -82,6 +82,23 @@ useclang()
 	cflags="$ngflags -g"
 }
 
+usexlc()
+{
+        cc=${CC9:-xlc_r}
+        ngflags=" \
+                -c \
+                -O0 \
+                -qmaxmem=-1 \
+                -qsuppress=1506-236 \
+                -qsuppress=1506-358 \
+                -qsuppress=1500-010 \
+                -qsuppress=1506-224 \
+                -qsuppress=1506-1300 \
+                -qsuppress=1506-342 \
+        "
+        cflags="$ngflags -g -qfullpath"
+}
+
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
 case "$tag" in
 *DragonFly*gcc*|*BSD*gcc*)	usegcc ;;
@@ -120,7 +137,7 @@ case "$tag" in
 		cflags="$ngflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
-*AIX*)		usegcc
+*AIX*)		usexlc
 		cflags="$ngflags -g -D__AIX__"
 		;;
 *)

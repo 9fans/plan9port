@@ -20,7 +20,7 @@ extern "C" {
 #define _NETBSD_SOURCE 1	/* NetBSD */
 #define _SVID_SOURCE 1
 #define _DEFAULT_SOURCE 1
-#if !defined(__APPLE__) && !defined(__OpenBSD__)
+#if !defined(__APPLE__) && !defined(__OpenBSD__) && !defined(__AIX__)
 #	define _XOPEN_SOURCE 1000
 #	define _XOPEN_SOURCE_EXTENDED 1
 #endif
@@ -33,7 +33,7 @@ extern "C" {
 #	define __LONG_LONG_SUPPORTED
 #endif
 #if defined(__AIX__)
-#	define _XOPEN_SOURCE 1
+#	define _XOPEN_SOURCE 600
 #endif
 #if defined(__APPLE__)
 #	define _DARWIN_NO_64_BIT_INODE	/* Snow Leopard */
