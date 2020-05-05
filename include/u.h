@@ -6,6 +6,8 @@
 extern "C" {
 #endif
 
+#define HAS_SYS_TERMIOS 1
+
 #define __BSD_VISIBLE 1 /* FreeBSD 5.x */
 #if defined(__sun__)
 #	define __EXTENSIONS__ 1 /* SunOS */
@@ -34,6 +36,8 @@ extern "C" {
 #endif
 #if defined(__AIX__)
 #	define _XOPEN_SOURCE 600
+#	define _ALL_SOURCE
+#	undef HAS_SYS_TERMIOS
 #endif
 #if defined(__APPLE__)
 #	define _DARWIN_NO_64_BIT_INODE	/* Snow Leopard */

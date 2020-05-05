@@ -9,7 +9,10 @@
  */
 #include	<u.h>
 #include	<sys/ioctl.h>
+#include	<termios.h>
+#ifdef HAS_SYS_TERMIOS
 #include	<sys/termios.h>
+#endif
 #include	<libc.h>
 #include	<draw.h>
 #include	<bio.h>

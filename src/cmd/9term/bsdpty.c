@@ -5,7 +5,9 @@
 #include <errno.h>
 #include <grp.h>
 #include <termios.h>
+#ifdef HAS_SYS_TERMIOS
 #include <sys/termios.h>
+#endif
 #ifdef __linux__
 #include <pty.h>
 #endif
