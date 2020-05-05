@@ -1,9 +1,29 @@
 #!/bin/bash
-cd $HOME
-. ~/.bashrc
+fshell=$(finger $(whoami) | sed -n 's/.*Shell: //p' | sed 1q)
+SHELL=${fshell:-$SHELL}
 PLAN9=${PLAN9:-/usr/local/plan9}
+cd $HOME
+case "$SHELL" in
+*/rc)
+	echo '
+		if(! ~ $PLAN9/bin $path)
+			path=($path $PLAN9/bin)
+		$PLAN9/bin/9term -l -W600x800 &
+	' | $SHELL -l
+	exit 0
+	;;
+*/bash)
+	. ~/.bash_profile
+	;;
+*)
+	. ~/.profile
+	;;
+esac
+
 if ! [[ :$PATH: =~ :$PLAN9/bin: ]]
 then
 	PATH=$PATH:$PLAN9/bin
 fi
 $PLAN9/bin/9term -l -W600x800 &
+exit 0
+

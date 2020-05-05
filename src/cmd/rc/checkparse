@@ -1,0 +1,23 @@
+#!/bin/bash
+
+aflag=false
+if [ "$1" = -a ]; then
+	aflag=true
+	shift
+fi
+
+files="$@"
+if [ $# = 0 ]; then
+	files=$(echo ./test.rc;
+		grep -l '^#!/usr/local/plan9/bin/rc' /usr/local/plan9/bin/{*,*/*} 2>/dev/null;
+		grep -R -l '^#!/bin/rc' $HOME/pub/plan9 | egrep -v 'plan9/(lib/(oui|pci)|sys/man|sys/lib/man|sys/lib/scsicodes)' 2>/dev/null)
+fi
+
+for i in $files
+do
+	if ! diff <(./o.rc -DY $i 2>&1) <(./o.rc -D $i 2>&1); then
+		echo '^^^' $i
+		! $aflag && exit 1
+	fi
+done
+

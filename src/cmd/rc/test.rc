@@ -1,0 +1,93 @@
+# test for parser
+
+a
+a b
+a|b
+a | b
+{a; b; c}
+x=y a && b || c
+x=y a | b | c
+x=y for(i) a | b
+>x for(i) a | b
+>x a || b && c
+a >x || b && c
+a | for(i) b | c
+fn x {y; z} | b && c
+if (x) y
+if not z
+`{} >x >[1=2]y >[3=] z <w
+~ x y && z
+x | y && z
+x | y || z
+! x | y | z
+@ x | y | z
+x | ! y | z
+x | @y | z
+! x | if(y) z
+@ x | if(y) z
+x=1 y | if(z) w
+a'b' c
+a^'b'^ c
+a^'b' c
+$$x
+$x($y)
+$"x
+$#x
+$#$x
+-$x-
+`{a;b;c}
+<{a;b}
+x for in while if not ~ ! @ switch fn
+x not$y
+a;b;c
+if(x)
+y
+if(x)
+{
+y
+}
+if not
+z
+for(x)
+y
+for(x in y)
+z
+while(x)
+y
+# yacc doesn't accept a newline before the brace
+# even though the rule is written as if it would
+switch x {
+}
+switch (x) {
+}
+z
+x &&
+y
+x ||
+y
+x |
+y
+switch x {y} && z
+switch x {} | y
+
+OPTIONS=$OPTIONS' /axescount '^`{echo $1 | sed s/-a//}^' def'
+
+# bug in old printfont script - expected more free carats
+# OPTIONS=$OPTIONS' /axescount '`{echo $1 | sed s/-a//}' def'
+
+(x) = y
+x=y
+x = y
+
+# works now!
+# x y=z
+# x =y
+# x -flag=y
+
+>z x | y
+
+# rejected now, was like parens were spaces before.
+# echo Formatting Venti arenas and indices (this takes a while).
+
+
+# echo $STATLINE(1)^$STATLINE(3)'	'$STATLINE(2)'	'$STATLINE(4)'	'$LSLINE(6)

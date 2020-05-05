@@ -10,6 +10,7 @@ OFILES=\
 	here.$O\
 	io.$O\
 	lex.$O\
+	parse.$O\
 	pcmd.$O\
 	pfnc.$O\
 	simple.$O\

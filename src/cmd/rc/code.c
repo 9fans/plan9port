@@ -41,6 +41,16 @@ stuffdot(int a)
 int
 compile(tree *t)
 {
+	if(flag['D']) {
+		struct io *s;
+		s = openstr();
+		pfmt(s, "compile: %u\n", t);
+		write(2, s->strp, strlen(s->strp));
+		closeio(s);
+		if(eflagok) // made it out of rcmain - stop executing commands, just print them
+			t = nil;
+	}
+
 	ncode = 100;
 	codebuf = (code *)emalloc(ncode*sizeof codebuf[0]);
 	codep = 0;
