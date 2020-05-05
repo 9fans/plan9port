@@ -202,7 +202,7 @@ yylex(void)
 	 * if the next character is the first character of a simple or compound word,
 	 * we insert a `^' before it.
 	 */
-	if(lastword){
+	if(lastword && flag['Y']){
 		lastword = 0;
 		if(d=='('){
 			advance();
@@ -215,8 +215,8 @@ yylex(void)
 		}
 	}
 	inquote = 0;
-	if(skipwhite() && flag['Z'])
-		return SP;
+	if(skipwhite() && !flag['Y'])
+		return ' ';
 	switch(c = advance()){
 	case EOF:
 		lastdol = 0;

@@ -23,7 +23,15 @@ static jmp_buf yyjmp;
 static int
 dropnl(int tok)
 {
-	while(tok == '\n')
+	while(tok == ' ' || tok == '\n')
+		tok = yylex();
+	return tok;
+}
+
+static int
+dropsp(int tok)
+{
+	while(tok == ' ')
 		tok = yylex();
 	return tok;
 }
@@ -49,7 +57,7 @@ parse(void)
 	// rc:				{ return 1;}
 	// |	line '\n'		{return !compile($1);}
 
-	tok = yylex();
+	tok = dropsp(yylex());
 	if(tok == EOF)
 		return 1;
 	t = line(tok, &tok);
@@ -117,6 +125,7 @@ brace(int tok)
 
 	// brace:	'{' body '}'		{$$=tree1(BRACE, $2);}
 
+	tok = dropsp(tok);
 	if(tok != '{')
 		syntax(tok);
 	t = body(yylex(), &tok);
@@ -132,6 +141,7 @@ paren(int tok)
 
 	// paren:	'(' body ')'		{$$=tree1(PCMD, $2);}
 
+	tok = dropsp(tok);
 	if(tok != '(')
 		syntax(tok);
 	t = body(yylex(), &tok);
@@ -172,11 +182,12 @@ yyredir(int tok, int *ptok)
 		syntax(tok);
 	case DUP:
 		r = yylval.tree;
-		*ptok = yylex();
+		*ptok = dropsp(yylex());
 		break;
 	case REDIR:
 		r = yylval.tree;
-		w = yyword(yylex(), ptok);
+		w = yyword(yylex(), &tok);
+		*ptok = dropsp(tok);
 		r = mung1(r, r->rtype==HERE?heredoc(w):w);
 		break;
 	}
@@ -186,69 +197,11 @@ yyredir(int tok, int *ptok)
 static tree*
 cmd(int tok, int *ptok)
 {
-	tree *t1, *t2, *t3, *t4;
-
+	tok = dropsp(tok);
 	switch(tok) {
 	default:
 		return cmd2(tok, ptok);
 
-	case IF:
-		// |	IF paren {skipnl();} cmd	{$$=mung2($1, $2, $4);}
-		// |	IF NOT {skipnl();} cmd	{$$=mung1($2, $4);}
-		t1 = yylval.tree;
-		tok = yylex();
-		if(tok == NOT) {
-			t1 = yylval.tree;
-			t2 = cmd(dropnl(yylex()), ptok);
-			return mung1(t1, t2);
-		}
-		t2 = paren(tok);
-		t3 = cmd(dropnl(yylex()), ptok);
-		return mung2(t1, t2, t3);
-
-	case FOR:
-		// |	FOR '(' word IN words ')' {skipnl();} cmd
-		//		{$$=mung3($1, $3, $5 ? $5 : tree1(PAREN, $5), $8);}
-		// |	FOR '(' word ')' {skipnl();} cmd
-		//		{$$=mung3($1, $3, (tree *)0, $6);}
-		t1 = yylval.tree;
-		tok = yylex();
-		if(tok != '(')
-			syntax(tok);
-		t2 = yyword(yylex(), &tok);
-		switch(tok) {
-		default:
-			syntax(tok);
-		case ')':
-			t3 = nil;
-			break;
-		case IN:
-			t3 = words(yylex(), &tok);
-			if(t3 == nil)
-				t3 = tree1(PAREN, nil);
-			if(tok != ')')
-				syntax(tok);
-			break;
-		}
-		t4 = cmd(dropnl(yylex()), ptok);
-		return mung3(t1, t2, t3, t4);
-
-	case WHILE:
-		// |	WHILE paren {skipnl();} cmd
-		//		{$$=mung2($1, $2, $4);}
-		t1 = yylval.tree;
-		t2 = paren(yylex());
-		t3 = cmd(dropnl(yylex()), ptok);
-		return mung2(t1, t2, t3);
-
-	case SWITCH:
-		// |	SWITCH word {skipnl();} brace
-		//		{$$=tree2(SWITCH, $2, $4);}
-		t1 = yyword(yylex(), &tok);
-		tok = dropnl(tok); // doesn't work in yacc grammar but works here!
-		t2 = brace(tok);
-		*ptok = yylex();
-		return tree2(SWITCH, t1, t2);
 	}
 }
 
@@ -290,8 +243,9 @@ cmd3(int tok, int *ptok)
 static tree*
 cmd4(int tok, int *ptok)
 {
-	tree *t1, *t2, *t3;
+	tree *t1, *t2, *t3, *t4;
 
+	tok = dropsp(tok);
 	switch(tok) {
 	case ';':
 	case '&':
@@ -300,9 +254,62 @@ cmd4(int tok, int *ptok)
 		return nil;
 
 	case IF:
+		// |	IF paren {skipnl();} cmd	{$$=mung2($1, $2, $4);}
+		// |	IF NOT {skipnl();} cmd	{$$=mung1($2, $4);}
+		t1 = yylval.tree;
+		tok = dropsp(yylex());
+		if(tok == NOT) {
+			t1 = yylval.tree;
+			t2 = cmd(dropnl(yylex()), ptok);
+			return mung1(t1, t2);
+		}
+		t2 = paren(tok);
+		t3 = cmd(dropnl(yylex()), ptok);
+		return mung2(t1, t2, t3);
+
 	case FOR:
-	case SWITCH:
+		// |	FOR '(' word IN words ')' {skipnl();} cmd
+		//		{$$=mung3($1, $3, $5 ? $5 : tree1(PAREN, $5), $8);}
+		// |	FOR '(' word ')' {skipnl();} cmd
+		//		{$$=mung3($1, $3, (tree *)0, $6);}
+		t1 = yylval.tree;
+		tok = dropsp(yylex());
+		if(tok != '(')
+			syntax(tok);
+		t2 = yyword(yylex(), &tok);
+		switch(tok) {
+		default:
+			syntax(tok);
+		case ')':
+			t3 = nil;
+			break;
+		case IN:
+			t3 = words(yylex(), &tok);
+			if(t3 == nil)
+				t3 = tree1(PAREN, nil);
+			if(tok != ')')
+				syntax(tok);
+			break;
+		}
+		t4 = cmd(dropnl(yylex()), ptok);
+		return mung3(t1, t2, t3, t4);
+
 	case WHILE:
+		// |	WHILE paren {skipnl();} cmd
+		//		{$$=mung2($1, $2, $4);}
+		t1 = yylval.tree;
+		t2 = paren(yylex());
+		t3 = cmd(dropnl(yylex()), ptok);
+		return mung2(t1, t2, t3);
+
+	case SWITCH:
+		// |	SWITCH word {skipnl();} brace
+		//		{$$=tree2(SWITCH, $2, $4);}
+		t1 = yyword(yylex(), &tok);
+		tok = dropnl(tok); // doesn't work in yacc grammar but works here!
+		t2 = brace(tok);
+		*ptok = dropsp(yylex());
+		return tree2(SWITCH, t1, t2);
 		// Note: cmd: a && for(x) y && b is a && {for (x) {y && b}}.
 		return cmd(tok, ptok);
 
@@ -315,7 +322,7 @@ cmd4(int tok, int *ptok)
 			return tree1(FN, t1);
 		}
 		t2 = brace(tok);
-		*ptok = yylex();
+		*ptok = dropsp(yylex());
 		return tree2(FN, t1, t2);
 
 	case TWIDDLE:
@@ -344,7 +351,7 @@ cmd4(int tok, int *ptok)
 	case '{':
 		// |	brace epilog		{$$=epimung($1, $2);}
 		t1 = brace(tok);
-		tok = yylex();
+		tok = dropsp(yylex());
 		t2 = epilog(tok, ptok);
 		return epimung(t1, t2);
 	}
@@ -396,6 +403,7 @@ words(int tok, int *ptok)
 	// |	words word		{$$=tree2(WORDS, $1, $2);}
 
 	t = nil;
+	tok = dropsp(tok);
 	while(iswordtok(tok))
 		t = tree2(WORDS, t, yyword(tok, &tok));
 	*ptok = tok;
@@ -428,9 +436,19 @@ yyword(int tok, int *ptok)
 	// word1: keyword | comword
 
 	t = word1(tok, &tok);
-	while(tok == '^')
-		t = tree2('^', t, word1(yylex(), &tok));
-	*ptok = tok;
+	for(;;) {
+		if(iswordtok(tok)) {
+			t = tree2('^', t, word1(tok, &tok));
+			continue;
+		}
+		tok = dropsp(tok);
+		if(tok == '^') {
+			t = tree2('^', t, word1(yylex(), &tok));
+			continue;
+		}
+		break;
+	}
+	*ptok = dropsp(tok);
 	return t;
 }
 
@@ -439,6 +457,7 @@ word1(int tok, int *ptok)
 {
 	tree *w, *sub, *t;
 
+	tok = dropsp(tok);
 	switch(tok) {
 	default:
 		syntax(tok);
@@ -458,7 +477,6 @@ word1(int tok, int *ptok)
 		// keyword: FOR|IN|WHILE|IF|NOT|TWIDDLE|BANG|SUBSHELL|SWITCH|FN
 		t = yylval.tree;
 		t->type = WORD;
-		lastword = 1;
 		*ptok = yylex();
 		return t;
 
@@ -466,7 +484,7 @@ word1(int tok, int *ptok)
 		// comword: '$' word1		{$$=tree1('$', $2);}
 		// |	'$' word1 SUB words ')'	{$$=tree2(SUB, $2, $4);}
 		w = word1(yylex(), &tok);
-		if(tok == SUB) {
+		if(tok == '(') {
 			sub = words(yylex(), &tok);
 			if(tok != ')')
 				syntax(tok);

@@ -290,28 +290,10 @@ then one operand must have one component, and the other must be non-empty,
 and concatenation is distributive.
 .PD
 .SS Free Carets
-In most circumstances,
-.I rc
+.I Rc
 will insert the
 .B ^
 operator automatically between words that are not separated by white space.
-Whenever one of
-.B $
-.B '
-.B `
-follows a quoted or unquoted word or an unquoted word follows a quoted word
-with no intervening blanks or tabs,
-a
-.B ^
-is inserted between the two.
-If an unquoted word immediately follows a
-.BR $ 
-and contains a character other than an alphanumeric, underscore,
-or
-.BR * ,
-a
-.B ^
-is inserted before the first such character.
 Thus
 .IP
 .B cc -$flags $stem.c
@@ -367,7 +349,7 @@ or
 .I Fd1
 is a previously opened file descriptor and
 .I fd0
-becomes a new copy (in the sense of 
+becomes a new copy (in the sense of
 .IR dup (3))
 of it.
 A file descriptor may be closed by writing
@@ -477,7 +459,7 @@ is executed.
 The
 .I command
 is executed once for each
-.IR argument 
+.IR argument
 with that argument assigned to
 .IR name .
 If the argument list is omitted,
@@ -981,8 +963,6 @@ changes
 .BR $status .
 .PP
 Functions that use here documents don't work.
-.PP
-Free carets don't get inserted next to keywords.
 .PP
 The
 .BI <{ command }

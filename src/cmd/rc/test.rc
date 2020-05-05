@@ -1,5 +1,9 @@
 # test for parser
 
+a
+a b
+a|b
+a | b
 {a; b; c}
 x=y a && b || c
 x=y a | b | c
@@ -63,3 +67,10 @@ x ||
 y
 x |
 y
+switch x {y} && z
+switch x {} | y
+
+OPTIONS=$OPTIONS' /axescount '^`{echo $1 | sed s/-a//}^' def'
+
+# bug in old printfont script - expected more free carats
+# OPTIONS=$OPTIONS' /axescount '`{echo $1 | sed s/-a//}' def'
