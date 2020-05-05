@@ -5,7 +5,9 @@
 #include <errno.h>
 #include <grp.h>
 #include <termios.h>
+#if !defined(__AIX__)
 #include <sys/termios.h>
+#endif
 #ifdef __linux__
 #include <pty.h>
 #endif
