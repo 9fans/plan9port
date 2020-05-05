@@ -1,5 +1,9 @@
 #include	"mk.h"
+#if defined(__AIX__)
+#define ARMAG	"<bigaf>\n"
+#else
 #define	ARMAG	"!<arch>\n"
+#endif
 #define	SARMAG	(sizeof(ARMAG) - sizeof(""))
 
 #define	ARFMAG	"`\n"
