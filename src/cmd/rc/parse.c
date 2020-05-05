@@ -20,6 +20,14 @@ static tree*	words(int tok, int *ptok);
 
 static jmp_buf yyjmp;
 
+static int
+dropnl(int tok)
+{
+	while(tok == '\n')
+		tok = yylex();
+	return tok;
+}
+
 static void
 syntax(int tok)
 {
@@ -191,13 +199,11 @@ cmd(int tok, int *ptok)
 		tok = yylex();
 		if(tok == NOT) {
 			t1 = yylval.tree;
-			skipnl();
-			t2 = cmd(yylex(), ptok);
+			t2 = cmd(dropnl(yylex()), ptok);
 			return mung1(t1, t2);
 		}
 		t2 = paren(tok);
-		skipnl();
-		t3 = cmd(yylex(), ptok);
+		t3 = cmd(dropnl(yylex()), ptok);
 		return mung2(t1, t2, t3);
 
 	case FOR:
@@ -224,8 +230,7 @@ cmd(int tok, int *ptok)
 				syntax(tok);
 			break;
 		}
-		skipnl();
-		t4 = cmd(yylex(), ptok);
+		t4 = cmd(dropnl(yylex()), ptok);
 		return mung3(t1, t2, t3, t4);
 
 	case WHILE:
@@ -233,16 +238,14 @@ cmd(int tok, int *ptok)
 		//		{$$=mung2($1, $2, $4);}
 		t1 = yylval.tree;
 		t2 = paren(yylex());
-		skipnl();
-		t3 = cmd(yylex(), ptok);
+		t3 = cmd(dropnl(yylex()), ptok);
 		return mung2(t1, t2, t3);
 
 	case SWITCH:
 		// |	SWITCH word {skipnl();} brace
 		//		{$$=tree2(SWITCH, $2, $4);}
 		t1 = yyword(yylex(), &tok);
-		while(tok == '\n')
-			tok = yylex();
+		tok = dropnl(tok); // doesn't work in yacc grammar but works here!
 		t2 = brace(tok);
 		*ptok = yylex();
 		return tree2(SWITCH, t1, t2);
@@ -261,7 +264,7 @@ cmd2(int tok, int *ptok)
 	t1 = cmd3(tok, &tok);
 	while(tok == ANDAND || tok == OROR) {
 		op = tok;
-		t2 = cmd3(yylex(), &tok);
+		t2 = cmd3(dropnl(yylex()), &tok);
 		t1 = tree2(op, t1, t2);
 	}
 	*ptok = tok;
@@ -277,7 +280,7 @@ cmd3(int tok, int *ptok)
 	t1 = cmd4(tok, &tok);
 	while(tok == PIPE) {
 		t2 = yylval.tree;
-		t3 = cmd4(yylex(), &tok);
+		t3 = cmd4(dropnl(yylex()), &tok);
 		t1 = mung2(t2, t1, t3);
 	}
 	*ptok = tok;

@@ -9,6 +9,8 @@ fi
 
 for i in $files
 do
-	echo '#' $i
-	diff <(./o.rc -DY $i 2>&1) <(./o.rc -D $i 2>&1)
+	if ! diff <(./o.rc -DY $i 2>&1) <(./o.rc -D $i 2>&1); then
+		echo '#' $i
+		exit 1
+	fi
 done

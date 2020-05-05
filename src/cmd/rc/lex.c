@@ -102,15 +102,17 @@ pprompt(void)
 	doprompt = 0;
 }
 
-void
+int
 skipwhite(void)
 {
-	int c;
+	int c, skipped;
+	skipped = 0;
 	for(;;){
 		c = nextc();
 		/* Why did this used to be  if(!inquote && c=='#') ?? */
 		if(c=='#'){
 			incomm = 1;
+			skipped = 1;
 			for(;;){
 				c = nextc();
 				if(c=='\n' || c==EOF) {
@@ -120,9 +122,12 @@ skipwhite(void)
 				advance();
 			}
 		}
-		if(c==' ' || c=='\t')
+		if(c==' ' || c=='\t') {
+			skipped = 1;
 			advance();
-		else return;
+		}
+		else
+			return skipped;
 	}
 }
 
@@ -210,7 +215,8 @@ yylex(void)
 		}
 	}
 	inquote = 0;
-	skipwhite();
+	if(skipwhite() && flag['Z'])
+		return SP;
 	switch(c = advance()){
 	case EOF:
 		lastdol = 0;
@@ -231,7 +237,8 @@ yylex(void)
 	case '&':
 		lastdol = 0;
 		if(nextis('&')){
-			skipnl();
+			if(flag['Y'])
+				skipnl();
 			strcpy(tok, "&&");
 			return ANDAND;
 		}
@@ -240,7 +247,8 @@ yylex(void)
 	case '|':
 		lastdol = 0;
 		if(nextis(c)){
-			skipnl();
+			if(flag['Y'])
+				skipnl();
 			strcpy(tok, "||");
 			return OROR;
 		}
@@ -329,7 +337,7 @@ yylex(void)
 		}
 		*w='\0';
 		yylval.tree = t;
-		if(t->type==PIPE)
+		if(t->type==PIPE && flag['Y'])
 			skipnl();
 		if(t->type==REDIR) {
 			skipwhite();

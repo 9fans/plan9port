@@ -244,7 +244,10 @@ pcmdu(io *f, tree *t) /* unambiguous */
 				pfmt(f, "[%d]", t->fd0);
 			break;
 		}
-		pfmt(f, "%u %u)", c0, c1);
+		if(t->rtype == HERE)
+			pfmt(f, "HERE %u)", c1);
+		else
+			pfmt(f, "%u %u)", c0, c1);
 		break;
 	case '=':
 		pfmt(f, "(%u=%u %u)", c0, c1, c2);

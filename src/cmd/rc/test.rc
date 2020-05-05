@@ -36,3 +36,30 @@ $#$x
 x for in while if not ~ ! @ switch fn
 x not$y
 a;b;c
+if(x)
+y
+if(x)
+{
+y
+}
+if not
+z
+for(x)
+y
+for(x in y)
+z
+while(x)
+y
+# yacc doesn't accept a newline before the brace
+# even though the rule is written as if it would
+switch x {
+}
+switch (x) {
+}
+z
+x &&
+y
+x ||
+y
+x |
+y
