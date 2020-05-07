@@ -1,7 +1,28 @@
 /* Copyright (c) 2002-2006 Lucent Technologies; see LICENSE */
 #include <stdarg.h>
 #include <string.h>
+
+/*
+ * As of 2020, older systems like RHEL 6 and AIX still do not have C11 atomics.
+ * On those systems, make the code use volatile int accesses and hope for the best.
+ * (Most uses of fmtinstall are not actually racing with calls to print that lookup
+ * formats. The code used volatile here for years without too many problems,
+ * even though that's technically racy. A mutex is not OK, because we want to
+ * be able to call print from signal handlers.)
+ *
+ * RHEL is using an old GCC (atomics were added in GCC 4.8).
+ * AIX is using its own IBM compiler (XL C).
+ */
+#if __IBMC__ || !__clang__ && __GNUC__ && (__GNUC__ < 4 || (__GNUC__==4 && __GNUC_MINOR__<8))
+#warning not using C11 stdatomic on legacy system
+#define _Atomic volatile
+#define atomic_load(x) (*(x))
+#define atomic_store(x, y) (*(x)=(y))
+#define ATOMIC_VAR_INIT(x) (x)
+#else
 #include <stdatomic.h>
+#endif
+
 #include "plan9.h"
 #include "fmt.h"
 #include "fmtdef.h"
