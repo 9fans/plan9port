@@ -35,8 +35,11 @@ extern "C" {
 #	define __LONG_LONG_SUPPORTED
 #endif
 #if defined(__AIX__)
-#	define _XOPEN_SOURCE 600
-#	define _ALL_SOURCE
+#	if defined(NO_ALL_SOURCE)
+#		define _XOPEN_SOURCE 600
+#	else
+#		define _ALL_SOURCE
+#	endif
 #	undef HAS_SYS_TERMIOS
 #endif
 #if defined(__APPLE__)
