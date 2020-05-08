@@ -5,6 +5,7 @@
 		Hfsbadblock is untested.
 */
 
+#define NO_ALL_SOURCE
 #include <u.h>
 #include <libc.h>
 #include <thread.h>
