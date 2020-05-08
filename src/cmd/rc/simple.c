@@ -1,6 +1,7 @@
 /*
  * Maybe `simple' is a misnomer.
  */
+#define NO_ALL_SOURCE
 #include "rc.h"
 #include "getflags.h"
 #include "exec.h"

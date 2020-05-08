@@ -1,3 +1,4 @@
+#define NO_ALL_SOURCE
 #include <u.h>
 #include <signal.h>
 #if defined(PLAN9PORT) && defined(__sun__)

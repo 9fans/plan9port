@@ -1,3 +1,4 @@
+#define NO_ALL_SOURCE
 #include "rc.h"
 #include "exec.h"
 #include "fns.h"

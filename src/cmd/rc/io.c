@@ -1,5 +1,6 @@
-#include <limits.h>
+#define NO_ALL_SOURCE
 #include "rc.h"
+#include <limits.h>
 #include "exec.h"
 #include "io.h"
 #include "fns.h"

@@ -1,3 +1,4 @@
+#define NO_ALL_SOURCE
 #include <u.h>
 #include <sys/time.h>
 #include <sys/stat.h>

@@ -1,5 +1,6 @@
 /*% cyntax -DTEST % && cc -DTEST -go # %
  */
+#define NO_ALL_SOURCE
 #include "rc.h"
 #include "getflags.h"
 #include "fns.h"

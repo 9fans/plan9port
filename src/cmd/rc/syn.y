@@ -10,6 +10,7 @@
 %right '$' COUNT '"'
 %left SUB
 %{
+#define NO_ALL_SOURCE
 #include "rc.h"
 #include "fns.h"
 %}
