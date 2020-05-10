@@ -10,10 +10,10 @@
  * even though that's technically racy. A mutex is not OK, because we want to
  * be able to call print from signal handlers.)
  *
- * RHEL is using an old GCC (atomics were added in GCC 4.8).
+ * RHEL is using an old GCC (atomics were added in GCC 4.9).
  * AIX is using its own IBM compiler (XL C).
  */
-#if __IBMC__ || !__clang__ && __GNUC__ && (__GNUC__ < 4 || (__GNUC__==4 && __GNUC_MINOR__<8))
+#if __IBMC__ || !__clang__ && __GNUC__ && (__GNUC__ < 4 || (__GNUC__==4 && __GNUC_MINOR__<9))
 #warning not using C11 stdatomic on legacy system
 #define _Atomic volatile
 #define atomic_load(x) (*(x))
