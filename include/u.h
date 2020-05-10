@@ -35,7 +35,6 @@ extern "C" {
 #	define __LONG_LONG_SUPPORTED
 #endif
 #if defined(__AIX__)
-#	define _XOPEN_SOURCE 600
 #	define _ALL_SOURCE
 #	undef HAS_SYS_TERMIOS
 #endif
@@ -122,6 +121,28 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
+#elif defined(__AIX__)
+#	include <pthread.h>
+#	define PLAN9PORT_USING_PTHREADS 1
+#	undef IEXEC		/* these undefs for libdiskfs */
+#	undef IWRITE
+#	undef IREAD
+#	undef ISVTX
+#	undef ISGID
+#	undef ISUID
+#	undef IFMT
+#	undef IFIFO
+#	undef IFCHR
+#	undef IFDIR
+#	undef IFBLK
+#	undef IFREG
+#	undef IFLNK
+#	undef IFLNK
+#	undef IFSOCK
+#	undef IFWHT
+#	define class p9class	/* for acme and diff */
+#	define var p9var	/* for rc */
+#	define thread p9thread	/* for rc */
 #else
 	/* No idea what system this is -- try some defaults */
 #	include <pthread.h>
