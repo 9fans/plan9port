@@ -137,7 +137,7 @@ case "$tag" in
 		cflags="$ngflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
-*AIX*)	usexlc
+*AIX*)		usexlc
 		cflags="$ngflags -g -D__AIX__"
 		;;
 *)
