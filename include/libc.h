@@ -385,7 +385,7 @@ extern	int	exitcode(char*);
 extern	void	exits(char*);
 extern	double	p9frexp(double, int*);
 extern	ulong	getcallerpc(void*);
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__GNUC__) || defined(__clang__) || defined(__IBMC__)
 #define getcallerpc(x) ((ulong)__builtin_return_address(0))
 #endif
 extern	char*	p9getenv(char*);
