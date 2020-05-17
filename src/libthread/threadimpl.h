@@ -102,6 +102,17 @@ struct Execjob
 	Channel *c;
 };
 
+struct _Procrendez
+{
+	Lock		*l;
+	int		asleep;
+#ifdef PLAN9PORT_USING_PTHREADS
+	pthread_cond_t	cond;
+#else
+	int		pid;
+#endif
+};
+
 struct _Thread
 {
 	_Thread	*next;
@@ -112,6 +123,11 @@ struct _Thread
 	void	(*startfn)(void*);
 	void	*startarg;
 	uint	id;
+#ifdef PLAN9PORT_USING_PTHREADS
+	pthread_t	osprocid;
+#else
+	int		osprocid;
+#endif
 	uchar	*stk;
 	uint	stksize;
 	int		exiting;
@@ -120,17 +136,7 @@ struct _Thread
 	char	state[256];
 	void *udata;
 	Alt	*alt;
-};
-
-struct _Procrendez
-{
-	Lock		*l;
-	int		asleep;
-#ifdef PLAN9PORT_USING_PTHREADS
-	pthread_cond_t	cond;
-#else
-	int		pid;
-#endif
+	_Procrendez schedrend;
 };
 
 extern	void	_procsleep(_Procrendez*);
@@ -149,6 +155,7 @@ struct Proc
 #endif
 	Lock		lock;
 	int			nswitch;
+	_Thread		*thread0;
 	_Thread		*thread;
 	_Thread		*pinthread;
 	_Threadlist	runqueue;
@@ -157,6 +164,8 @@ struct Proc
 	uint		nthread;
 	uint		sysproc;
 	_Procrendez	runrend;
+	Lock		schedlock;
+	_Thread	*schedthread;
 	Context	schedcontext;
 	void		*udata;
 	Jmp		sigjmp;
@@ -188,6 +197,8 @@ extern void _threadpexit(void);
 extern void _threaddaemonize(void);
 extern void *_threadstkalloc(int);
 extern void _threadstkfree(void*, int);
+extern void _threadpthreadmain(Proc*, _Thread*);
+extern void _threadpthreadstart(Proc*, _Thread*);
 
 #define USPALIGN(ucp, align) \
 	(void*)((((uintptr)(ucp)->uc_stack.ss_sp+(ucp)->uc_stack.ss_size)-(align))&~((align)-1))

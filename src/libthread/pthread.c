@@ -99,6 +99,23 @@ startprocfn(void *v)
 	pthread_exit(0);
 }
 
+static void
+startpthreadfn(void *v)
+{
+	void **a;
+	Proc *p;
+	_Thread *t;
+
+	a = (void**)v;
+	p = a[0];
+	t = a[1];
+	free(a);
+	t->osprocid = pthread_self();
+	pthread_detach(t->osprocid);
+	_threadpthreadmain(p, t);
+	pthread_exit(0);
+}
+
 void
 _procstart(Proc *p, void (*fn)(Proc*))
 {
@@ -111,6 +128,22 @@ _procstart(Proc *p, void (*fn)(Proc*))
 	a[1] = p;
 
 	if(pthread_create(&p->osprocid, nil, (void*(*)(void*))startprocfn, (void*)a) < 0){
+		fprint(2, "pthread_create: %r\n");
+		abort();
+	}
+}
+
+void
+_threadpthreadstart(Proc *p, _Thread *t)
+{
+	void **a;
+
+	a = malloc(3*sizeof a[0]);
+	if(a == nil)
+		sysfatal("_pthreadstart malloc: %r");
+	a[0] = p;
+	a[1] = t;
+	if(pthread_create(&t->osprocid, nil, (void*(*)(void*))startpthreadfn, (void*)a) < 0){
 		fprint(2, "pthread_create: %r\n");
 		abort();
 	}
