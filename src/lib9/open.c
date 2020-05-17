@@ -129,6 +129,13 @@ p9open(char *name, int mode)
 	return fd;
 }
 
+int
+p9close(int fd)
+{
+	return close(fd);
+}
+
+
 extern int _p9dir(struct stat*, struct stat*, char*, Dir*, char**, char*);
 
 #if defined(__linux__)
