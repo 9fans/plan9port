@@ -129,12 +129,17 @@ p9open(char *name, int mode)
 	return fd;
 }
 
+vlong
+p9seek(int fd, vlong offset, int whence)
+{
+	return lseek(fd, offset, whence);
+}
+
 int
 p9close(int fd)
 {
 	return close(fd);
 }
-
 
 extern int _p9dir(struct stat*, struct stat*, char*, Dir*, char**, char*);
 

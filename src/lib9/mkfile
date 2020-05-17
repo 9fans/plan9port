@@ -139,7 +139,6 @@ LIB9OFILES=\
 	readn.$O\
 	rfork.$O\
 	searchpath.$O\
-	seek.$O\
 	sendfd.$O\
 	sleep.$O\
 	strdup.$O\
