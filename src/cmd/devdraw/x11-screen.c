@@ -40,6 +40,26 @@ static void _xmovewindow(Xwin *w, Rectangle r);
 static int _xtoplan9kbd(XEvent *e);
 static int _xselect(XEvent *e);
 
+static void	rpc_resizeimg(Client*);
+static void	rpc_resizewindow(Client*, Rectangle);
+static void	rpc_setcursor(Client*, Cursor*, Cursor2*);
+static void	rpc_setlabel(Client*, char*);
+static void	rpc_setmouse(Client*, Point);
+static void	rpc_topwin(Client*);
+static void	rpc_bouncemouse(Client*, Mouse);
+static void	rpc_flush(Client*, Rectangle);
+
+static ClientImpl x11impl = {
+	rpc_resizeimg,
+	rpc_resizewindow,
+	rpc_setcursor,
+	rpc_setlabel,
+	rpc_setmouse,
+	rpc_topwin,
+	rpc_bouncemouse,
+	rpc_flush
+};
+
 static Xwin*
 newxwin(Client *c)
 {
@@ -51,6 +71,7 @@ newxwin(Client *c)
 	w->client = c;
 	w->next = _x.windows;
 	_x.windows = w;
+	c->impl = &x11impl;
 	c->view = w;
 	return w;
 }
