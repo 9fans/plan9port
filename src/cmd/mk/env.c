@@ -123,7 +123,8 @@ buildenv(Job *j, int slot)
 			qp = strchr(cp+1, ')');
 			if(qp){
 				*qp = 0;
-				strcpy(w->s, cp+1);
+				/* strcpy, but might overlap */
+				memmove(w->s, cp+1, strlen(cp+1)+1);
 				l = &w->next;
 				w = w->next;
 				continue;
