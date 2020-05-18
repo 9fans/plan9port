@@ -318,7 +318,7 @@ dirreadmax(int fd, Dir **dp, int max)
 				return -1;
 			break;
 		}
-		if(de->d_name[de->d_namlen] != 0)
+		if(de->d_name[_D_EXACT_NAMLEN(de)] != 0)
 			sysfatal("bad readdir");
 		if(de->d_name[0]=='.' && de->d_name[1]==0)
 			continue;
