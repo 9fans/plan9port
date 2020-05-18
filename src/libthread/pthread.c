@@ -50,13 +50,15 @@ _threadunlock(Lock *lk, ulong pc)
 		abort();
 }
 
+/* note: _procsleep can have spurious wakeups, like pthread_cond_wait */
 void
 _procsleep(_Procrendez *r)
 {
 	/* r is protected by r->l, which we hold */
 	pthread_cond_init(&r->cond, 0);
 	r->asleep = 1;
-	pthread_cond_wait(&r->cond, &r->l->mutex);
+	if(pthread_cond_wait(&r->cond, &r->l->mutex) != 0)
+		sysfatal("pthread_cond_wait: %r");
 	pthread_cond_destroy(&r->cond);
 	r->asleep = 0;
 }

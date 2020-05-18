@@ -54,9 +54,9 @@ _threaddebug(char *fmt, ...)
 	va_end(arg);
 	t = proc()->thread;
 	if(t)
-		fprint(fd, "%d.%d: %s\n", getpid(), t->id, buf);
+		fprint(fd, "%p %d.%d: %s\n", proc(), getpid(), t->id, buf);
 	else
-		fprint(fd, "%d._: %s\n", getpid(), buf);
+		fprint(fd, "%p %d._: %s\n", proc(), getpid(), buf);
 }
 
 static _Thread*
@@ -219,20 +219,28 @@ proccreate(void (*fn)(void*), void *arg, uint stack)
 static void
 procswitch(Proc *p, _Thread *from, _Thread *to)
 {
-// fprint(2, "procswitch %p %d %d\n", p, from?from->id:-1, to?to->id:-1);
+	_threaddebug("procswitch %p %d %d", p, from?from->id:-1, to?to->id:-1);
 	lock(&p->schedlock);
 	from->schedrend.l = &p->schedlock;
 	if(to) {
 		p->schedthread = to;
 		to->schedrend.l = &p->schedlock;
+		_threaddebug("procswitch wakeup %p %d", p, to->id);
 		_procwakeup(&to->schedrend);
 	}
 	if(p->schedthread != from) {
 		if(from->exiting) {
 			unlock(&p->schedlock);
 			_threadpexit();
+			_threaddebug("procswitch exit wakeup!!!\n");
 		}
-		_procsleep(&from->schedrend);
+		while(p->schedthread != from) {
+			_threaddebug("procswitch sleep %p %d", p, from->id);
+			_procsleep(&from->schedrend);
+			_threaddebug("procswitch awake %p %d", p, from->id);
+		}
+		if(p->schedthread != from)
+			sysfatal("_procswitch %p %p oops", p->schedthread, from);
 	}
 	unlock(&p->schedlock);
 }
@@ -448,6 +456,7 @@ Top:
 			procswitch(p, p->thread0, t);
 		else
 			contextswitch(&p->schedcontext, &t->context);
+		_threaddebug("back in scheduler");
 /*print("back in scheduler\n"); */
 		goto Top;
 	}
@@ -589,6 +598,10 @@ threadqlock(QLock *l, int block, ulong pc)
 	if(l->owner == nil){
 		l->owner = (*threadnow)();
 /*print("qlock %p @%#x by %p\n", l, pc, l->owner); */
+		if(l->owner == nil) {
+			fprint(2, "%s: qlock uncontended owner=nil oops\n", argv0);
+			abort();
+		}
 		unlock(&l->l);
 		return 1;
 	}
@@ -613,6 +626,11 @@ threadqlock(QLock *l, int block, ulong pc)
 			argv0, pc, l->owner, (*threadnow)());
 		abort();
 	}
+	if(l->owner == nil) {
+		fprint(2, "%s: qlock threadswitch owner=nil oops\n", argv0);
+		abort();
+	}
+
 /*print("qlock wakeup %p @%#x by %p\n", l, pc, (*threadnow)()); */
 	return 1;
 }
@@ -818,7 +836,7 @@ main(int argc, char **argv)
 	// Easier to just run in pthread-per-thread mode.
 	pthreadperthread = 1;
 #endif
-	if(strstr(opts, "nodaemon") || getenv("NOLIBTHREADDAEMONIZE") == nil)
+	if(strstr(opts, "nodaemon") == nil && getenv("NOLIBTHREADDAEMONIZE") == nil)
 		_threadsetupdaemonize();
 
 	threadargc = argc;
