@@ -4,7 +4,7 @@ test -f $PLAN9/config && . $PLAN9/config
 usegcc()
 {
 	cc=${CC9:-gcc}
-	ngflags=" \
+	cflags=" \
 		-O2 \
 		-c \
 		-Wall \
@@ -24,7 +24,12 @@ usegcc()
 	"
 	# want to put -fno-optimize-sibling-calls here but
 	# that option only works with gcc3+ it seems
-	cflags="$ngflags -ggdb"
+	cflags="$cflags -ggdb"
+	cflags="$cflags $CC9FLAGS"
+	case "$cflags" in
+	*sanitize=address*)
+		cflags="$cflags -DPLAN9PORT_ASAN"
+	esac
 }
 
 quiet()
@@ -60,7 +65,7 @@ quiet()
 useclang()
 {
 	cc=${CC9:-clang}
-	ngflags=" \
+	cflags=" \
 		-O2 \
 		-c \
 		-Wall \
@@ -79,13 +84,19 @@ useclang()
 		-fsigned-char \
 		-fno-caret-diagnostics \
 	"
-	cflags="$ngflags -g"
+	cflags="$cflags -g"
+	cflags="$cflags $CC9FLAGS"
+
+	case "$cflags" in
+	*sanitize=address*)
+		cflags="$cflags -DPLAN9PORT_ASAN"
+	esac
 }
 
 usexlc()
 {
 	cc=${CC9:-xlc_r}
-	ngflags=" \
+	cflags=" \
 		-c \
 		-O0 \
 		-qmaxmem=-1 \
@@ -96,7 +107,8 @@ usexlc()
 		-qsuppress=1506-1300 \
 		-qsuppress=1506-342 \
 	"
-	cflags="$ngflags -g -qfullpath"
+	cflags="$cflags -g -qfullpath"
+	cflags="$cflags $CC9FLAGS"
 }
 
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
@@ -105,14 +117,14 @@ case "$tag" in
 *DragonFly*clang|*BSD*clang*)	useclang ;;
 *Darwin-x86_64*)
 		useclang
-		cflags="$ngflags -g3 -m64"
+		cflags="$cflags -g3 -m64"
 		;;
 *Darwin*clang*)
 		useclang
-		cflags="$ngflags -g3 -m32"
+		cflags="$cflags -g3 -m32"
 		;;
 *Darwin*)	usegcc
-		cflags="$ngflags -g3 -no-cpp-precomp -m32" ;;
+		cflags="$cflags -g3 -no-cpp-precomp -m32" ;;
 *HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc
 		case "${CC9:-gcc}" in
@@ -134,11 +146,11 @@ case "$tag" in
 		u=`uname`
 		v=`uname -r`
 		s=`echo $u$v | tr '. ' '__'`
-		cflags="$ngflags -g"
+		cflags="$cflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
 *AIX*)	usexlc
-		cflags="$ngflags -g -D__AIX__"
+		cflags="$cflags -g -D__AIX__"
 		;;
 *)
 	echo 9c does not know how to compile on "$tag" 1>&2

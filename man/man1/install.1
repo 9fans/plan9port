@@ -89,6 +89,15 @@ If
 contains a line
 .B WSYSTYPE=nowsys
 then the system is built without using X11.
+.B LOCAL.config
+may also list settings for
+.B CC9
+(the host C compiler)
+and
+.B CC9FLAGS
+(any additional flags to pass to the compiler).
+Values more complex than single words should be quoted
+with single quotes.
 .PP
 On most Linux systems, the X11 header packages need to be installed
 to build using X11.  On Debian. the required packages are
