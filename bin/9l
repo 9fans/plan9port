@@ -63,7 +63,6 @@ case "$tag" in
 *AIX*)
 	ld="${CC9:-xlc_r} -g -O0"
 	nmflags="-A -B"
-	extralibs="$extralibs -lpthread"
 	;;
 *)
 	echo do not know how to link on "$tag" 1>&2
