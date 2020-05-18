@@ -66,6 +66,9 @@
 *	3*(number of k-candidates installed),  typically about
 *	6n words for files of length n.
 */
+
+#define class diffclass
+
 /* TIDY THIS UP */
 struct cand {
 	int x;
