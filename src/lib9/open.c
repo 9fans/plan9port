@@ -1,15 +1,76 @@
 #define _GNU_SOURCE	/* for Linux O_DIRECT */
 #include <u.h>
-#define NOPLAN9DEFINES
-#include <sys/file.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <libc.h>
-#include <sys/stat.h>
 #include <dirent.h>
-#ifndef O_DIRECT
-#define O_DIRECT 0
-#endif
+#include <errno.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#define NOPLAN9DEFINES
+#include <libc.h>
+
+static struct {
+	Lock lk;
+	DIR **d;
+	int nd;
+} dirs;
+
+static int
+dirput(int fd, DIR *d)
+{
+	int i, nd;
+	DIR **dp;
+
+	if(fd < 0) {
+		werrstr("invalid fd");
+		return -1;
+	}
+	lock(&dirs.lk);
+	if(fd >= dirs.nd) {
+		nd = dirs.nd*2;
+		if(nd <= fd)
+			nd = fd+1;
+		dp = realloc(dirs.d, nd*sizeof dirs.d[0]);
+		if(dp == nil) {
+			werrstr("out of memory");
+			unlock(&dirs.lk);
+			return -1;
+		}
+		for(i=dirs.nd; i<nd; i++)
+			dp[i] = nil;
+		dirs.d = dp;
+		dirs.nd = nd;
+	}
+	dirs.d[fd] = d;
+	unlock(&dirs.lk);
+	return 0;
+}
+
+static DIR*
+dirget(int fd)
+{
+	DIR *d;
+
+	lock(&dirs.lk);
+	d = nil;
+	if(0 <= fd && fd < dirs.nd)
+		d = dirs.d[fd];
+	unlock(&dirs.lk);
+	return d;
+}
+
+static DIR*
+dirdel(int fd)
+{
+	DIR *d;
+
+	lock(&dirs.lk);
+	d = nil;
+	if(0 <= fd && fd < dirs.nd) {
+		d = dirs.d[fd];
+		dirs.d[fd] = nil;
+	}
+	unlock(&dirs.lk);
+	return d;
+}
 
 int
 p9create(char *path, int mode, ulong perm)
@@ -81,6 +142,8 @@ p9open(char *name, int mode)
 	int cexec, rclose;
 	int fd, umode, lock, rdwr;
 	struct flock fl;
+	struct stat st;
+	DIR *d;
 
 	rdwr = mode&3;
 	umode = rdwr;
@@ -123,6 +186,17 @@ p9open(char *name, int mode)
 		}
 		if(cexec)
 			fcntl(fd, F_SETFL, FD_CLOEXEC);
+		if(fstat(fd, &st) >= 0 && S_ISDIR(st.st_mode)) {
+			d = fdopendir(fd);
+			if(d == nil) {
+				close(fd);
+				return -1;
+			}
+			if(dirput(fd, d) < 0) {
+				closedir(d);
+				return -1;
+			}
+		}
 		if(rclose)
 			remove(name);
 	}
@@ -132,213 +206,143 @@ p9open(char *name, int mode)
 vlong
 p9seek(int fd, vlong offset, int whence)
 {
+	DIR *d;
+
+	if((d = dirget(fd)) != nil) {
+		if(whence == 1 && offset == 0)
+			return telldir(d);
+		if(whence == 0) {
+			seekdir(d, offset);
+			return 0;
+		}
+		werrstr("bad seek in directory");
+		return -1;
+	}
+
 	return lseek(fd, offset, whence);
 }
 
 int
 p9close(int fd)
 {
+	DIR *d;
+
+	if((d = dirdel(fd)) != nil)
+		return closedir(d);
 	return close(fd);
 }
 
+typedef struct DirBuild DirBuild;
+struct DirBuild {
+	Dir *d;
+	int nd;
+	int md;
+	char *str;
+	char *estr;
+};
+
 extern int _p9dir(struct stat*, struct stat*, char*, Dir*, char**, char*);
 
-#if defined(__linux__)
 static int
-mygetdents(int fd, struct dirent *buf, int n)
+dirbuild1(DirBuild *b, struct stat *lst, struct stat *st, char *name)
 {
-	off_t off;
-	int nn;
+	int i, nstr;
+	Dir *d;
+	int md, mstr;
+	char *lo, *hi, *newlo;
 
-	/* This doesn't match the man page, but it works in Debian with a 2.2 kernel */
-	off = p9seek(fd, 0, 1);
-	nn = getdirentries(fd, (void*)buf, n, &off);
-	return nn;
-}
-#elif defined(__APPLE__)
-static int
-mygetdents(int fd, struct dirent *buf, int n)
-{
-	long off;
-	return getdirentries(fd, (void*)buf, n, &off);
-}
-#elif defined(__FreeBSD__) || defined(__DragonFly__)
-static int
-mygetdents(int fd, struct dirent *buf, int n)
-{
-	off_t off;
-	return getdirentries(fd, (void*)buf, n, &off);
-}
-#elif defined(__sun__) || defined(__NetBSD__) || defined(__OpenBSD__)
-static int
-mygetdents(int fd, struct dirent *buf, int n)
-{
-	return getdents(fd, (void*)buf, n);
-}
-#elif defined(__AIX__)
-static int
-mygetdents(int fd, struct dirent *buf, int n)
-{
-	return getdirent(fd, (void*)buf, n);
-}
-#endif
-
-#if defined(__DragonFly__)
-static inline int d_reclen(struct dirent *de) { return _DIRENT_DIRSIZ(de); }
-#else
-static inline int d_reclen(struct dirent *de) { return de->d_reclen; }
-#endif
-
-static int
-countde(char *p, int n)
-{
-	char *e;
-	int m;
-	struct dirent *de;
-
-	e = p+n;
-	m = 0;
-	while(p < e){
-		de = (struct dirent*)p;
-		if(d_reclen(de) <= 4+2+2+1 || p+d_reclen(de) > e)
-			break;
-		if(de->d_name[0]=='.' && de->d_name[1]==0)
-			de->d_name[0] = 0;
-		else if(de->d_name[0]=='.' && de->d_name[1]=='.' && de->d_name[2]==0)
-			de->d_name[0] = 0;
-		m++;
-		p += d_reclen(de);
+	nstr = _p9dir(lst, st, name, nil, nil, nil);
+	if(b->md-b->nd < 1 || b->estr-b->str < nstr) {
+		// expand either d space or str space or both.
+		md = b->md;
+		if(b->md-b->nd < 1) {
+			md *= 2;
+			if(md < 16)
+				md = 16;
+		}
+		mstr = b->estr-(char*)&b->d[b->md];
+		if(b->estr-b->str < nstr) {
+			mstr += nstr;
+			mstr += mstr/2;
+		}
+		if(mstr < 512)
+			mstr = 512;
+		d = realloc(b->d, md*sizeof d[0] + mstr);
+		if(d == nil)
+			return -1;
+		// move strings and update pointers in Dirs
+		lo = (char*)&b->d[b->md];
+		newlo = (char*)&d[md];
+		hi = b->str;
+		memmove(newlo, lo+((char*)d-(char*)b->d), hi-lo);
+		for(i=0; i<b->nd; i++) {
+			if(lo <= d[i].name && d[i].name < hi)
+				d[i].name += newlo - lo;
+			if(lo <= d[i].uid && d[i].uid < hi)
+				d[i].uid += newlo - lo;
+			if(lo <= d[i].gid && d[i].gid < hi)
+				d[i].gid += newlo - lo;
+			if(lo <= d[i].muid && d[i].muid < hi)
+				d[i].muid += newlo - lo;
+		}
+		b->d = d;
+		b->md = md;
+		b->str += newlo - lo;
+		b->estr = newlo + mstr;
 	}
-	return m;
+	_p9dir(lst, st, name, &b->d[b->nd], &b->str, b->estr);
+	b->nd++;
+	return 0;
 }
 
-static int
-dirpackage(int fd, char *buf, int n, Dir **dp)
+static long
+dirreadmax(int fd, Dir **dp, int max)
 {
-	int oldwd;
-	char *p, *str, *estr;
-	int i, nstr, m;
+	int i;
+	DIR *dir;
+	DirBuild b;
 	struct dirent *de;
 	struct stat st, lst;
-	Dir *d;
 
-	n = countde(buf, n);
-	if(n <= 0)
-		return n;
-
-	if((oldwd = open(".", O_RDONLY)) < 0)
+	if((dir = dirget(fd)) == nil) {
+		werrstr("not a directory");
 		return -1;
-	if(fchdir(fd) < 0)
-		return -1;
+	}
 
-	p = buf;
-	nstr = 0;
-
-	for(i=0; i<n; i++){
-		de = (struct dirent*)p;
-		memset(&lst, 0, sizeof lst);
-		if(de->d_name[0] == 0)
-			/* nothing */ {}
-		else if(lstat(de->d_name, &lst) < 0)
-			de->d_name[0] = 0;
-		else{
-			st = lst;
-			if(S_ISLNK(lst.st_mode))
-				stat(de->d_name, &st);
-			nstr += _p9dir(&lst, &st, de->d_name, nil, nil, nil);
+	memset(&b, 0, sizeof b);
+	for(i=0; max == -1 || i<max; i++) { // max = not too many, not too few
+		errno = 0;
+		de = readdir(dir);
+		if(de == nil) {
+			if(b.nd == 0 && errno != 0)
+				return -1;
+			break;
 		}
-		p += d_reclen(de);
+		if(de->d_name[de->d_namlen] != 0)
+			sysfatal("bad readdir");
+		if(de->d_name[0]=='.' && de->d_name[1]==0)
+			continue;
+		if(de->d_name[0]=='.' && de->d_name[1]=='.' && de->d_name[2]==0)
+			continue;
+		if(fstatat(fd, de->d_name, &lst, AT_SYMLINK_NOFOLLOW) < 0)
+			continue;
+		st = lst;
+		if(S_ISLNK(lst.st_mode))
+			fstatat(fd, de->d_name, &st, 0);
+		dirbuild1(&b, &lst, &st, de->d_name);
 	}
-
-	d = malloc(sizeof(Dir)*n+nstr);
-	if(d == nil){
-		fchdir(oldwd);
-		close(oldwd);
-		return -1;
-	}
-	str = (char*)&d[n];
-	estr = str+nstr;
-
-	p = buf;
-	m = 0;
-	for(i=0; i<n; i++){
-		de = (struct dirent*)p;
-		if(de->d_name[0] != 0 && lstat(de->d_name, &lst) >= 0){
-			st = lst;
-			if((lst.st_mode&S_IFMT) == S_IFLNK)
-				stat(de->d_name, &st);
-			_p9dir(&lst, &st, de->d_name, &d[m++], &str, estr);
-		}
-		p += d_reclen(de);
-	}
-
-	fchdir(oldwd);
-	close(oldwd);
-	*dp = d;
-	return m;
+	*dp = b.d;
+	return b.nd;
 }
 
 long
 dirread(int fd, Dir **dp)
 {
-	char *buf;
-	struct stat st;
-	int n;
-
-	*dp = 0;
-
-	if(fstat(fd, &st) < 0)
-		return -1;
-
-	if(st.st_blksize < 8192)
-		st.st_blksize = 8192;
-
-	buf = malloc(st.st_blksize);
-	if(buf == nil)
-		return -1;
-
-	n = mygetdents(fd, (void*)buf, st.st_blksize);
-	if(n < 0){
-		free(buf);
-		return -1;
-	}
-	n = dirpackage(fd, buf, n, dp);
-	free(buf);
-	return n;
+	return dirreadmax(fd, dp, 10);
 }
 
-
 long
-dirreadall(int fd, Dir **d)
+dirreadall(int fd, Dir **dp)
 {
-	uchar *buf, *nbuf;
-	long n, ts;
-	struct stat st;
-
-	if(fstat(fd, &st) < 0)
-		return -1;
-
-	if(st.st_blksize < 8192)
-		st.st_blksize = 8192;
-
-	buf = nil;
-	ts = 0;
-	for(;;){
-		nbuf = realloc(buf, ts+st.st_blksize);
-		if(nbuf == nil){
-			free(buf);
-			return -1;
-		}
-		buf = nbuf;
-		n = mygetdents(fd, (void*)(buf+ts), st.st_blksize);
-		if(n <= 0)
-			break;
-		ts += n;
-	}
-	if(ts >= 0)
-		ts = dirpackage(fd, (char*)buf, ts, d);
-	free(buf);
-	if(ts == 0 && n < 0)
-		return -1;
-	return ts;
+	return dirreadmax(fd, dp, -1);
 }
