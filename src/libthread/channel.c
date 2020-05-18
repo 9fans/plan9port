@@ -141,7 +141,7 @@ altdequeue(Alt *a)
 			delarray(ar, i);
 			return;
 		}
-	fprint(2, "cannot find self in altdq\n");
+	fprint(2, "cannot find self in altdequeue\n");
 	abort();
 }
 

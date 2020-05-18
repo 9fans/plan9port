@@ -20,14 +20,12 @@ echo cd `pwd`
 9c  convM2D.c
 9c  convM2S.c
 9c  convS2M.c
-9c  create.c
 9c  crypt.c
 9c  ctime.c
 9c  dial.c
 9c  dirfstat.c
 9c  dirfwstat.c
 9c  dirmodefmt.c
-9c  dirread.c
 9c  dirstat.c
 9c  dirwstat.c
 9c  dup.c
@@ -75,7 +73,6 @@ echo cd `pwd`
 9c  readn.c
 9c  rfork.c
 9c  searchpath.c
-9c  seek.c
 9c  sendfd.c
 9c  sleep.c
 9c  strdup.c
@@ -109,6 +106,7 @@ echo cd `pwd`
 9c  -Ifmt fmt/fmtstr.c
 9c  -Ifmt fmt/fmtvprint.c
 9c  -Ifmt fmt/fprint.c
+9c  frexp.c
 9c  -Ifmt fmt/nan64.c
 9c  -Ifmt fmt/print.c
 9c  -Ifmt fmt/runefmtstr.c
@@ -150,7 +148,7 @@ echo cd `pwd`
 9c  utf/utfrrune.c
 9c  utf/utfrune.c
 9c  utf/utfutf.c
-9ar rsc $PLAN9/lib/lib9.a _exits.o _p9dialparse.o _p9dir.o announce.o argv0.o atexit.o atoi.o atol.o atoll.o atnotify.o await.o cistrcmp.o cistrncmp.o cistrstr.o cleanname.o convD2M.o convM2D.o convM2S.o convS2M.o create.o crypt.o ctime.o dial.o dirfstat.o dirfwstat.o dirmodefmt.o dirread.o dirstat.o dirwstat.o dup.o encodefmt.o errstr.o exec.o execl.o exitcode.o fcallfmt.o frand.o get9root.o getcallerpc.o getenv.o getfields.o getnetconn.o getns.o getuser.o getwd.o jmp.o lrand.o lnrand.o main.o malloc.o malloctag.o mallocz.o nan.o needsrcquote.o needstack.o netcrypt.o netmkaddr.o notify.o nrand.o nulldir.o open.o opentemp.o pin.o pipe.o post9p.o postnote.o qlock.o quote.o rand.o read9pmsg.o readcons.o readn.o rfork.o searchpath.o seek.o sendfd.o sleep.o strdup.o strecpy.o sysfatal.o syslog.o sysname.o time.o tm2sec.o tokenize.o truerand.o u16.o u32.o u64.o unsharp.o wait.o waitpid.o write.o zoneinfo.o dofmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlocale.o fmtlock2.o fmtnull.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
+9ar rsc $PLAN9/lib/lib9.a _exits.o _p9dialparse.o _p9dir.o announce.o argv0.o atexit.o atoi.o atol.o atoll.o atnotify.o await.o cistrcmp.o cistrncmp.o cistrstr.o cleanname.o convD2M.o convM2D.o convM2S.o convS2M.o crypt.o ctime.o dial.o dirfstat.o dirfwstat.o dirmodefmt.o dirstat.o dirwstat.o dup.o encodefmt.o errstr.o exec.o execl.o exitcode.o fcallfmt.o frand.o get9root.o getcallerpc.o getenv.o getfields.o getnetconn.o getns.o getuser.o getwd.o jmp.o lrand.o lnrand.o main.o malloc.o malloctag.o mallocz.o nan.o needsrcquote.o needstack.o netcrypt.o netmkaddr.o notify.o nrand.o nulldir.o open.o opentemp.o pin.o pipe.o post9p.o postnote.o qlock.o quote.o rand.o read9pmsg.o readcons.o readn.o rfork.o searchpath.o sendfd.o sleep.o strdup.o strecpy.o sysfatal.o syslog.o sysname.o time.o tm2sec.o tokenize.o truerand.o u16.o u32.o u64.o unsharp.o wait.o waitpid.o write.o zoneinfo.o dofmt.o fltfmt.o fmt.o fmtfd.o fmtfdflush.o fmtlocale.o fmtlock2.o fmtnull.o fmtprint.o fmtquote.o fmtrune.o fmtstr.o fmtvprint.o fprint.o frexp.o nan64.o print.o runefmtstr.o runeseprint.o runesmprint.o runesnprint.o runesprint.o runevseprint.o runevsmprint.o runevsnprint.o seprint.o smprint.o snprint.o sprint.o strtod.o vfprint.o vseprint.o vsmprint.o vsnprint.o charstod.o pow10.o rune.o runestrcat.o runestrchr.o runestrcmp.o runestrcpy.o runestrdup.o runestrlen.o runestrecpy.o runestrncat.o runestrncmp.o runestrncpy.o runestrrchr.o runestrstr.o runetype.o utfecpy.o utflen.o utfnlen.o utfrrune.o utfrune.o utfutf.o
 cd ..
 cd libbio
 echo cd `pwd`
@@ -211,9 +209,5 @@ echo cd `pwd`
 9c  word.c
 9c  unix.c
 9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rc.o rule.o run.o sh.o shell.o shprint.o symtab.o var.o varsub.o word.o unix.o 
-if [ `uname` = AIX ]; then
-        installbsd o.mk $PLAN9/bin/mk
-else
-        install o.mk $PLAN9/bin/mk
-fi
+install o.mk $PLAN9/bin/mk
 cd ..

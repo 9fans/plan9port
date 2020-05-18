@@ -38,9 +38,6 @@ extern "C" {
 #	define _ALL_SOURCE
 #	undef HAS_SYS_TERMIOS
 #endif
-#if defined(__APPLE__)
-#	define _DARWIN_NO_64_BIT_INODE	/* Snow Leopard */
-#endif
 #define _LARGEFILE64_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 

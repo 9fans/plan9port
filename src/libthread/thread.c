@@ -7,6 +7,7 @@ static	uint		threadnsysproc;
 static	Lock		threadnproclock;
 static	Ref		threadidref;
 static	Proc		*threadmainproc;
+static	int		pthreadperthread;
 
 static	void		addproc(Proc*);
 static	void		delproc(Proc*);
@@ -53,9 +54,9 @@ _threaddebug(char *fmt, ...)
 	va_end(arg);
 	t = proc()->thread;
 	if(t)
-		fprint(fd, "%d.%d: %s\n", getpid(), t->id, buf);
+		fprint(fd, "%p %d.%d: %s\n", proc(), getpid(), t->id, buf);
 	else
-		fprint(fd, "%d._: %s\n", getpid(), buf);
+		fprint(fd, "%p %d._: %s\n", proc(), getpid(), buf);
 }
 
 static _Thread*
@@ -176,12 +177,16 @@ _threadcreate(Proc *p, void (*fn)(void*), void *arg, uint stack)
 	if(stack < (256<<10))
 		stack = 256<<10;
 
-	if(p->nthread == 0)
+	if(p->nthread == 0 || pthreadperthread)
 		stack = 0; // not using it
 	t = threadalloc(fn, arg, stack);
 	t->proc = p;
-	addthreadinproc(p, t);
+	if(p->nthread == 0)
+		p->thread0 = t;
+	else if(pthreadperthread)
+		_threadpthreadstart(p, t);
 	p->nthread++;
+	addthreadinproc(p, t);
 	_threadready(t);
 	return t;
 }
@@ -209,6 +214,37 @@ proccreate(void (*fn)(void*), void *arg, uint stack)
 	return id;
 }
 
+// For pthreadperthread mode, procswitch flips
+// between the threads.
+static void
+procswitch(Proc *p, _Thread *from, _Thread *to)
+{
+	_threaddebug("procswitch %p %d %d", p, from?from->id:-1, to?to->id:-1);
+	lock(&p->schedlock);
+	from->schedrend.l = &p->schedlock;
+	if(to) {
+		p->schedthread = to;
+		to->schedrend.l = &p->schedlock;
+		_threaddebug("procswitch wakeup %p %d", p, to->id);
+		_procwakeup(&to->schedrend);
+	}
+	if(p->schedthread != from) {
+		if(from->exiting) {
+			unlock(&p->schedlock);
+			_threadpexit();
+			_threaddebug("procswitch exit wakeup!!!\n");
+		}
+		while(p->schedthread != from) {
+			_threaddebug("procswitch sleep %p %d", p, from->id);
+			_procsleep(&from->schedrend);
+			_threaddebug("procswitch awake %p %d", p, from->id);
+		}
+		if(p->schedthread != from)
+			sysfatal("_procswitch %p %p oops", p->schedthread, from);
+	}
+	unlock(&p->schedlock);
+}
+
 void
 _threadswitch(void)
 {
@@ -216,9 +252,13 @@ _threadswitch(void)
 
 	needstack(0);
 	p = proc();
+
 /*print("threadswtch %p\n", p); */
-	if(p->thread->stk == nil)
+
+	if(p->thread == p->thread0)
 		procscheduler(p);
+	else if(pthreadperthread)
+		procswitch(p, p->thread, p->thread0);
 	else
 		contextswitch(&p->thread->context, &p->schedcontext);
 }
@@ -346,6 +386,15 @@ procmain(Proc *p)
 		threadexits(nil);
 }
 
+void
+_threadpthreadmain(Proc *p, _Thread *t)
+{
+	_threadsetproc(p);
+	procswitch(p, t, nil);
+	t->startfn(t->startarg);
+	threadexits(nil);
+}
+
 static void
 procscheduler(Proc *p)
 {
@@ -401,9 +450,13 @@ Top:
 		p->nswitch++;
 		_threaddebug("run %d (%s)", t->id, t->name);
 //print("run %p %p %p %p\n", t, *(uintptr*)(t->context.uc.mc.sp), t->context.uc.mc.di, t->context.uc.mc.si);
-		if(t->stk == nil)
+		if(t == p->thread0)
 			return;
-		contextswitch(&p->schedcontext, &t->context);
+		if(pthreadperthread)
+			procswitch(p, p->thread0, t);
+		else
+			contextswitch(&p->schedcontext, &t->context);
+		_threaddebug("back in scheduler");
 /*print("back in scheduler\n"); */
 		goto Top;
 	}
@@ -545,6 +598,10 @@ threadqlock(QLock *l, int block, ulong pc)
 	if(l->owner == nil){
 		l->owner = (*threadnow)();
 /*print("qlock %p @%#x by %p\n", l, pc, l->owner); */
+		if(l->owner == nil) {
+			fprint(2, "%s: qlock uncontended owner=nil oops\n", argv0);
+			abort();
+		}
 		unlock(&l->l);
 		return 1;
 	}
@@ -569,6 +626,11 @@ threadqlock(QLock *l, int block, ulong pc)
 			argv0, pc, l->owner, (*threadnow)());
 		abort();
 	}
+	if(l->owner == nil) {
+		fprint(2, "%s: qlock threadswitch owner=nil oops\n", argv0);
+		abort();
+	}
+
 /*print("qlock wakeup %p @%#x by %p\n", l, pc, (*threadnow)()); */
 	return 1;
 }
@@ -757,10 +819,24 @@ int
 main(int argc, char **argv)
 {
 	Proc *p;
+	char *opts;
 
 	argv0 = argv[0];
 
-	if(getenv("NOLIBTHREADDAEMONIZE") == nil)
+	opts = getenv("LIBTHREAD");
+	if(opts == nil)
+		opts = "";
+
+	pthreadperthread = (strstr(opts, "pthreadperthread") != nil);
+#ifdef PLAN9PORT_ASAN
+	// ASAN can't deal with the coroutine stack switches.
+	// In theory it has support for informing it about stack switches,
+	// but even with those calls added it can't deal with things
+	// like fork or exit from a coroutine stack.
+	// Easier to just run in pthread-per-thread mode.
+	pthreadperthread = 1;
+#endif
+	if(strstr(opts, "nodaemon") == nil && getenv("NOLIBTHREADDAEMONIZE") == nil)
 		_threadsetupdaemonize();
 
 	threadargc = argc;

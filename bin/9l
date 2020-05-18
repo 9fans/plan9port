@@ -12,29 +12,29 @@ extralibs="-lm"
 tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}"
 case "$tag" in
 *DragonFly*|*BSD*)
-	ld=${CC9:-gcc}
+	ld="${CC9:-gcc} $CC9FLAGS"
 	userpath=true
 	extralibs="$extralibs -lutil"
 	;;
 *OSF1*)
-	ld=${CC9:-cc}
+	ld="${CC9:-cc} $CC9FLAGS"
 	userpath=true
 	extralibs="$extralibs -lutil"
 	nmflags="-B"
 	;;
 *Linux*)
-	ld=${CC9:-gcc}
+	ld="${CC9:-gcc} $CC9FLAGS"
 	userpath=true
 	extralibs="$extralibs -lutil -lresolv -lpthread"
 	;;
 *Darwin*x86_64*)
-	ld="${CC9:-gcc} -m64"
+	ld="${CC9:-gcc} -m64 $CC9FLAGS"
 	;;
 *Darwin*)
-	ld="${CC9:-gcc} -m32"
+	ld="${CC9:-gcc} -m32 $CC9FLAGS"
 	;;
 *SunOS*)
-	ld="${CC9:-cc} -g"
+	ld="${CC9:-cc} -g $CC9FLAGS"
 	extralibs="$extralibs -lrt -lpthread -lsocket -lnsl"
 	# Record paths to shared libraries to avoid needing LD_LIBRARY_PATH
 	for i in "$libsl $@"
@@ -61,7 +61,7 @@ case "$tag" in
 	esac
 	;;
 *AIX*)
-	ld="${CC9:-xlc_r} -g -O0"
+	ld="${CC9:-xlc_r} -g -O0 $CC9FLAGS"
 	nmflags="-A -B"
 	;;
 *)

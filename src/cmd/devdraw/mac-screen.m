@@ -37,6 +37,26 @@ static void setprocname(const char*);
 static uint keycvt(uint);
 static uint msec(void);
 
+static void	rpc_resizeimg(Client*);
+static void	rpc_resizewindow(Client*, Rectangle);
+static void	rpc_setcursor(Client*, Cursor*, Cursor2*);
+static void	rpc_setlabel(Client*, char*);
+static void	rpc_setmouse(Client*, Point);
+static void	rpc_topwin(Client*);
+static void	rpc_bouncemouse(Client*, Mouse);
+static void	rpc_flush(Client*, Rectangle);
+
+static ClientImpl macimpl = {
+	rpc_resizeimg,
+	rpc_resizewindow,
+	rpc_setcursor,
+	rpc_setlabel,
+	rpc_setmouse,
+	rpc_topwin,
+	rpc_bouncemouse,
+	rpc_flush
+};
+
 @class DrawView;
 @class DrawLayer;
 
@@ -201,6 +221,7 @@ rpc_attach(Client *c, char *label, char *winsize)
 {
 	LOG(@"attachscreen(%s, %s)", label, winsize);
 
+	c->impl = &macimpl;
 	dispatch_sync(dispatch_get_main_queue(), ^(void) {
 		@autoreleasepool {
 			DrawView *view = [[DrawView new] attach:c winsize:winsize label:label];
@@ -302,7 +323,7 @@ rpc_attach(Client *c, char *label, char *winsize)
 
 // rpc_topwin moves the window to the top of the desktop.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_topwin(Client *c)
 {
 	DrawView *view = (__bridge DrawView*)c->view;
@@ -319,7 +340,7 @@ rpc_topwin(Client *c)
 // rpc_setlabel updates the client window's label.
 // If label == nil, the call is a no-op.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_setlabel(Client *client, char *label)
 {
 	DrawView *view = (__bridge DrawView*)client->view;
@@ -344,7 +365,7 @@ rpc_setlabel(Client *client, char *label)
 // rpc_setcursor updates the client window's cursor image.
 // Either c and c2 are both non-nil, or they are both nil to use the default arrow.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 {
 	DrawView *view = (__bridge DrawView*)client->view;
@@ -460,7 +481,7 @@ rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 // rpc_flush flushes changes to view.img's rectangle r
 // to the on-screen window, making them visible.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_flush(Client *client, Rectangle r)
 {
 	DrawView *view = (__bridge DrawView*)client->view;
@@ -474,17 +495,17 @@ rpc_flush(Client *client, Rectangle r)
 		if(!rectclip(&r, Rect(0, 0, self.dlayer.texture.width, self.dlayer.texture.height)) || !rectclip(&r, self.img->r))
 			return;
 
-		// self.client->drawlk protects the pixel data in self.img.
+		// drawlk protects the pixel data in self.img.
 		// In addition to avoiding a technical data race,
 		// the lock avoids drawing partial updates, which makes
 		// animations like sweeping windows much less flickery.
-		qlock(&self.client->drawlk);
+		qlock(&drawlk);
 		[self.dlayer.texture
 			replaceRegion:MTLRegionMake2D(r.min.x, r.min.y, Dx(r), Dy(r))
 			mipmapLevel:0
 			withBytes:byteaddr(self.img, Pt(r.min.x, r.min.y))
 			bytesPerRow:self.img->width*sizeof(u32int)];
-		qunlock(&self.client->drawlk);
+		qunlock(&drawlk);
 
 		NSRect nr = NSMakeRect(r.min.x, r.min.y, Dx(r), Dy(r));
 		dispatch_time_t time;
@@ -506,7 +527,7 @@ rpc_flush(Client *client, Rectangle r)
 // rpc_resizeimg forces the client window to discard its current window and make a new one.
 // It is called when the user types Cmd-R to toggle whether retina mode is forced.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_resizeimg(Client *c)
 {
 	DrawView *view = (__bridge DrawView*)c->view;
@@ -541,7 +562,7 @@ rpc_resizeimg(Client *c)
 
 // rpc_resizewindow asks for the client window to be resized to size r.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_resizewindow(Client *c, Rectangle r)
 {
 	DrawView *view = (__bridge DrawView*)c->view;
@@ -696,7 +717,7 @@ rpc_resizewindow(Client *c, Rectangle r)
 
 // rpc_setmouse moves the mouse cursor.
 // Called from an RPC thread with no client lock held.
-void
+static void
 rpc_setmouse(Client *c, Point p)
 {
 	DrawView *view = (__bridge DrawView*)c->view;
@@ -1095,7 +1116,7 @@ rpc_putsnarf(char *s)
 // rpc_bouncemouse is for sending a mouse event
 // back to the X11 window manager rio(1).
 // Does not apply here.
-void
+static void
 rpc_bouncemouse(Client *c, Mouse m)
 {
 }

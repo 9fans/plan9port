@@ -54,6 +54,7 @@ threadmain(int argc, char **argv)
 		usage();
 	}ARGEND
 
+	memimageinit();
 	fmtinstall('H', encodefmt);
 	if((p = getenv("DEVDRAWTRACE")) != nil)
 		trace = atoi(p);
@@ -202,8 +203,11 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tinit:
-		memimageinit();
 		i = rpc_attach(c, m->label, m->winsize);
+		if(i == nil) {
+			replyerror(c, m);
+			break;
+		}
 		draw_initdisplaymemimage(c, i);
 		replymsg(c, m);
 		break;
@@ -241,35 +245,35 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Tmoveto:
-		rpc_setmouse(c, m->mouse.xy);
+		c->impl->rpc_setmouse(c, m->mouse.xy);
 		replymsg(c, m);
 		break;
 
 	case Tcursor:
 		if(m->arrowcursor)
-			rpc_setcursor(c, nil, nil);
+			c->impl->rpc_setcursor(c, nil, nil);
 		else {
 			scalecursor(&m->cursor2, &m->cursor);
-			rpc_setcursor(c, &m->cursor, &m->cursor2);
+			c->impl->rpc_setcursor(c, &m->cursor, &m->cursor2);
 		}
 		replymsg(c, m);
 		break;
 
 	case Tcursor2:
 		if(m->arrowcursor)
-			rpc_setcursor(c, nil, nil);
+			c->impl->rpc_setcursor(c, nil, nil);
 		else
-			rpc_setcursor(c, &m->cursor, &m->cursor2);
+			c->impl->rpc_setcursor(c, &m->cursor, &m->cursor2);
 		replymsg(c, m);
 		break;
 
 	case Tbouncemouse:
-		rpc_bouncemouse(c, m->mouse);
+		c->impl->rpc_bouncemouse(c, m->mouse);
 		replymsg(c, m);
 		break;
 
 	case Tlabel:
-		rpc_setlabel(c, m->label);
+		c->impl->rpc_setlabel(c, m->label);
 		replymsg(c, m);
 		break;
 
@@ -306,12 +310,12 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Ttop:
-		rpc_topwin(c);
+		c->impl->rpc_topwin(c);
 		replymsg(c, m);
 		break;
 
 	case Tresize:
-		rpc_resizewindow(c, m->rect);
+		c->impl->rpc_resizewindow(c, m->rect);
 		replymsg(c, m);
 		break;
 	}
@@ -513,7 +517,7 @@ gfx_keystroke(Client *c, int ch)
 		else
 			c->forcedpi = 225;
 		qunlock(&c->eventlk);
-		rpc_resizeimg(c);
+		c->impl->rpc_resizeimg(c);
 		return;
 	}
 	if(!c->kbd.alting){

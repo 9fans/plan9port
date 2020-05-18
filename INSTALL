@@ -143,10 +143,9 @@ echo "* Compiler version:"
 
 cd src
 if $dobuild; then
-	if [ ! -x ../bin/mk ]; then
-		echo "* Building mk..."
-		../dist/buildmk 2>&1 | sed 's/^[+] //'
-	fi
+	echo "* Building mk..."
+	../dist/buildmk 2>&1 | sed 's/^[+] //'
+
 	if [ ! -x ../bin/mk ]; then
 		echo "* Error: mk failed to build."
 		exit 1
