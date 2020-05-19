@@ -75,6 +75,23 @@ enum
 	/* catalog record types */
 	Folder = 1, File, FolderThread, FileThread,
 
+        /* some systems have these defined */
+        #undef IEXEC
+        #undef IWRITE
+        #undef IREAD
+        #undef ISVTX
+        #undef ISGID
+        #undef ISUID
+        #undef IFMT
+        #undef IFIFO
+        #undef IFCHR
+        #undef IFDIR
+        #undef IFBLK
+        #undef IFREG
+        #undef IFLNK
+        #undef IFSOCK
+        #undef IFWHT
+
 	/* permissions in Inode.mode */
 	IEXEC = 00100,
 	IWRITE = 0200,
