@@ -11,7 +11,6 @@ CC=9c
 LD=9l
 AS=9a
 AR=9ar
-INSTALL=install
 CFLAGS=
 LDFLAGS=
 AFLAGS=
@@ -24,5 +23,3 @@ LIB=
 SHORTLIB=9
 
 <|cat $PLAN9/config 2>/dev/null || true
-<|cat $PLAN9/src/mk.$SYSNAME-$OBJTYPE 2>/dev/null || true
-

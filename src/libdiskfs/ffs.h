@@ -72,6 +72,39 @@ enum
 	NDADDR = 12,
 	NIADDR = 3,
 
+	/* some systems have these defined */
+	#undef IEXEC
+	#undef IWRITE
+	#undef IREAD
+	#undef ISVTX
+	#undef ISGID
+	#undef ISUID
+	#undef IFMT
+	#undef IFIFO
+	#undef IFCHR
+	#undef IFDIR
+	#undef IFBLK
+	#undef IFREG
+	#undef IFLNK
+	#undef IFSOCK
+	#undef IFWHT
+
+	#define IEXEC	FFS_IEXEC
+	#define IWRITE	FFS_IWRITE
+	#define IREAD	FFS_IREAD
+	#define ISVTX	FFS_ISVTX
+	#define ISGID	FFS_ISGID
+	#define ISUID	FFS_ISUID
+	#define IFMT	FFS_IFMT
+	#define IFIFO	FFS_IFIFO
+	#define IFCHR	FFS_IFCHR
+	#define IFDIR	FFS_IFDIR
+	#define IFBLK	FFS_IFBLK
+	#define IFREG	FFS_IFREG
+	#define IFLNK	FFS_IFLNK
+	#define IFSOCK	FFS_IFSOCK
+	#define IFWHT	FFS_IFWHT
+
 	/* permissions in Inode.mode */
 	IEXEC = 00100,
 	IWRITE = 0200,

@@ -2,5 +2,5 @@
 
 # run this in the src directory
 . ../src/mkenv
-export SYSNAME OBJTYPE
+export SYSNAME OBJTYPE INSTALL
 sh -x mkmk.sh

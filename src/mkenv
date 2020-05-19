@@ -20,3 +20,4 @@ OBJTYPE=`(uname -m -p 2>/dev/null || uname -m) | sed '
 	s;.*aarch64.*;arm64;
 	s;.*arm64.*;arm64;
 '`
+INSTALL=`[ $(uname) = AIX ] && echo installbsd || echo install`
