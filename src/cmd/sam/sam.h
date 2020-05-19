@@ -9,6 +9,9 @@
 #undef warn
 #define warn samwarn
 
+#undef class
+#define class samclass
+
 /*
  * BLOCKSIZE is relatively small to keep memory consumption down.
  */
