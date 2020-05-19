@@ -209,5 +209,5 @@ echo cd `pwd`
 9c  word.c
 9c  unix.c
 9l -o o.mk arc.o archive.o bufblock.o env.o file.o graph.o job.o lex.o main.o match.o mk.o parse.o recipe.o rc.o rule.o run.o sh.o shell.o shprint.o symtab.o var.o varsub.o word.o unix.o 
-install o.mk $PLAN9/bin/mk
+$INSTALL o.mk $PLAN9/bin/mk
 cd ..
