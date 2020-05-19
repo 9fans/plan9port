@@ -33,6 +33,12 @@
 #undef pipe	/* so that /dev/fd works */
 #define searchpath rcsearchpath	/* avoid new libc function */
 
+/* some systems define a global "var", "thread" */
+#undef var
+#define var rcvar
+#undef thread
+#define thread rcthread
+
 typedef struct tree tree;
 typedef struct word word;
 typedef struct io io;
