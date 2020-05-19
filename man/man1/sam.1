@@ -1,7 +1,7 @@
 .TH SAM 1
 .ds a \fR*\ \fP
 .SH NAME
-sam, B, E, sam.save, samterm, samsave \- screen editor with structural regular expressions 
+sam, B, E, sam.save, samterm, samsave \- screen editor with structural regular expressions
 .SH SYNOPSIS
 .B sam
 [
@@ -43,7 +43,7 @@ The options are
 .TP
 .B -a
 Autoindent.  In this mode, when a newline character is typed
-in the terminal interface, 
+in the terminal interface,
 .I samterm
 copies leading white space on the current line to the new line.
 .TP
@@ -121,7 +121,7 @@ is the beginning of the file.
 .TP
 .BI ? regexp ?
 The substring that matches the regular expression,
-found by looking toward the end 
+found by looking toward the end
 .RB ( / )
 or beginning
 .RB ( ? )
@@ -248,7 +248,7 @@ or
 is reversed.
 .PP
 It is an error for a compound address to represent a malformed substring.
-Some useful idioms: 
+Some useful idioms:
 .IB a1 +-
 \%(\f2a1\fB-+\f1)
 selects the line containing
@@ -258,7 +258,7 @@ locates the first match of the expression in the file.
 (The form
 .B 0;//
 sets dot unnecessarily.)
-.BI ./ regexp /// 
+.BI ./ regexp ///
 finds the second following occurrence of the expression,
 and
 .BI .,/ regexp /
@@ -276,7 +276,7 @@ newline may not appear literally;
 .B \en
 may be typed for newline; and
 .B \e/
-quotes the delimiter, here 
+quotes the delimiter, here
 .LR / .
 Backslash is otherwise interpreted literally, except in
 .B s
@@ -284,7 +284,7 @@ commands.
 .PP
 Most commands may be prefixed by an address to indicate their range
 of operation.
-Those that may not are marked with a 
+Those that may not are marked with a
 .L *
 below.
 If a command takes
@@ -347,12 +347,12 @@ Substitute
 .I text
 for the first match to the regular expression in the range.
 Set dot to the modified range.
-In 
+In
 .I text
 the character
 .B &
 stands for the string
-that matched the expression. 
+that matched the expression.
 Backslash behaves as usual unless followed by
 a digit:
 .BI \e d
@@ -500,7 +500,7 @@ Plan 9 command.
 .BI \*acd " directory
 Change working directory.
 If no directory is specified,
-.B $home
+.B $HOME
 is used.
 .PD
 .PP
@@ -543,7 +543,7 @@ For each match of the regular expression in the range, run the command
 with dot set to the match.
 Set dot to the last match.
 If the regular
-expression and its slashes are omitted, 
+expression and its slashes are omitted,
 .L /.*\en/
 is assumed.
 Null string matches potentially occur before every character
@@ -652,7 +652,7 @@ If no address is specified (the
 command is a newline) dot is extended in either direction to
 line boundaries and printed.
 If dot is thereby unchanged, it is set to
-.B .+1 
+.B .+1
 and printed.
 .PD
 .SS Grouping and multiple changes
@@ -713,7 +713,7 @@ of a rectangle.
 from the command window or the whole screen, depending on
 where the null rectangle is.
 .TF resize
-.TP 
+.TP
 .B new
 Create a new, empty file.
 .TP
@@ -819,7 +819,7 @@ typed in a command.
 Send the text in dot, or the snarf buffer if
 dot is the null string, as if it were typed to the command window.
 Saves the sent text in the snarf buffer.
-(Command window only.) 
+(Command window only.)
 .PD
 .SS Simulated buttons
 For systems without a three-button mouse, the keyboard modifier

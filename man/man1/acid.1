@@ -48,7 +48,7 @@ is a programmable symbolic debugger.
 It can inspect one or more processes that share an address space.
 A program to be debugged may be specified by the process id of
 a running or defunct process,
-or by the name of the program's text file 
+or by the name of the program's text file
 .RB ( a.out
 by default).
 At the prompt,
@@ -63,7 +63,7 @@ Allow the textfile to be modified.
 Print variable renamings at startup.
 .TP
 .BI -l " library
-Load from 
+Load from
 .I library
 at startup; see below.
 .TP
@@ -84,8 +84,8 @@ obtains standard function definitions from the library file
 architecture-dependent functions from
 .BR \*9/acid/$objtype ,
 user-specified functions from
-.BR $home/lib/acid ,
-and further functions from 
+.BR $HOME/lib/acid ,
+and further functions from
 .B -l
 files.
 Definitions in any file may override previously defined functions.
@@ -106,7 +106,7 @@ to create
 .I acid
 functions for examining data structures.
 .SS Language
-Symbols of the program being debugged become integer 
+Symbols of the program being debugged become integer
 variables whose values are addresses.
 Contents of addresses are obtained by indirection.
 Local variables are qualified by
@@ -114,7 +114,7 @@ function name, for example
 .BR main:argv .
 When program symbols conflict with
 .I acid
-words, distinguishing 
+words, distinguishing
 .B $
 signs are prefixed.
 Such renamings are reported at startup; option
@@ -127,7 +127,7 @@ and formats are inferred from assignments.
 Truth values false/true are attributed to zero/nonzero
 integers or floats and to empty/nonempty lists or strings.
 Lists are sequences of expressions surrounded by
-.BR {\^} 
+.BR {\^}
 and separated by commas.
 .PP
 Expressions are much as in C,
@@ -219,7 +219,7 @@ Same as
 .BR spr();gpr() .
 .TP
 .BI fmt( expr , format )
-Expression 
+Expression
 .I expr
 with format given by the character value of expression
 .IR format .
@@ -243,7 +243,7 @@ List current source directories.
 Add a source directory to the list.
 .TP
 .BI filepc( where )
-Convert a string of the form 
+Convert a string of the form
 .IB sourcefile : linenumber
 to a machine address.
 .TP
@@ -288,7 +288,7 @@ interpreted according to a string of format codes.
 .BI dump( address , n , string\fP)
 Like
 .BR mem (),
-repeated for 
+repeated for
 .I n
 consecutive blocks.
 .TP
@@ -300,7 +300,7 @@ Start a new process with arguments given as a string
 and halt at the first instruction.
 .TP
 .B new()
-Like 
+Like
 .IR newproc (),
 but take arguments (except
 .BR argv[0] )
@@ -308,7 +308,7 @@ from string variable
 .BR progargs .
 .TP
 .B win()
-Like 
+Like
 .IR new (),
 but run the process in a separate window.
 .TP
@@ -337,7 +337,7 @@ When a pid or core file is specified on the command line,
 .I acid
 will, as part of its startup, determine the set of shared libraries
 in use by the process image and map those at appropriate locations.
-If 
+If
 .I acid
 is started without a pid or core file
 and is subsequently attached to a process via
@@ -414,7 +414,7 @@ acid: *argv0
 acid: bpset(ls)
 acid: cont()
 70094: breakpoint  ls	ADD	$-0x16c8,R29
-acid: 
+acid:
 .EE
 .PP
 Display elements of a linked list of structures:
@@ -499,7 +499,7 @@ acid: cont()
 .br
 .B \*9/acid/truss
 .br
-.B $home/lib/acid
+.B $HOME/lib/acid
 .SH SOURCE
 .B \*9/src/cmd/acid
 .SH "SEE ALSO"
