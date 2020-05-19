@@ -149,7 +149,7 @@ case "$tag" in
 		cflags="$cflags -g"
 		cflags="$cflags -D__sun__ -D__${s}__"
 		;;
-*AIX*)	usexlc
+*AIX*)		usexlc
 		cflags="$cflags -g -D__AIX__"
 		;;
 *)
