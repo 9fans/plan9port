@@ -35,7 +35,6 @@ extern "C" {
 #	define __LONG_LONG_SUPPORTED
 #endif
 #if defined(__AIX__)
-#	define _XOPEN_SOURCE 600
 #	define _ALL_SOURCE
 #	undef HAS_SYS_TERMIOS
 #endif
