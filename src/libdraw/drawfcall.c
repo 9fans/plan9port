@@ -50,6 +50,7 @@ sizeW2M(Wsysmsg *m)
 	case Rcursor:
 	case Rcursor2:
 	case Trdkbd:
+	case Trdkbd4:
 	case Rlabel:
 	case Rctxt:
 	case Rinit:
@@ -73,6 +74,8 @@ sizeW2M(Wsysmsg *m)
 		return 4+1+1+_stringsize(m->error);
 	case Rrdkbd:
 		return 4+1+1+2;
+	case Rrdkbd4:
+		return 4+1+1+4;
 	case Tlabel:
 		return 4+1+1+_stringsize(m->label);
 	case Tctxt:
@@ -117,6 +120,7 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 	case Rcursor:
 	case Rcursor2:
 	case Trdkbd:
+	case Trdkbd4:
 	case Rlabel:
 	case Rctxt:
 	case Rinit:
@@ -165,6 +169,9 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 		break;
 	case Rrdkbd:
 		PUT2(p+6, m->rune);
+		break;
+	case Rrdkbd4:
+		PUT(p+6, m->rune);
 		break;
 	case Tlabel:
 		PUTSTRING(p+6, m->label);
@@ -221,6 +228,7 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 	case Rcursor:
 	case Rcursor2:
 	case Trdkbd:
+	case Trdkbd4:
 	case Rlabel:
 	case Rctxt:
 	case Rinit:
@@ -269,6 +277,9 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 		break;
 	case Rrdkbd:
 		GET2(p+6, m->rune);
+		break;
+	case Rrdkbd4:
+		GET(p+6, m->rune);
 		break;
 	case Tlabel:
 		GETSTRING(p+6, &m->label);
@@ -360,6 +371,10 @@ drawfcallfmt(Fmt *fmt)
 		return fmtprint(fmt, "Trdkbd");
 	case Rrdkbd:
 		return fmtprint(fmt, "Rrdkbd rune=%C", m->rune);
+	case Trdkbd4:
+		return fmtprint(fmt, "Trdkbd4");
+	case Rrdkbd4:
+		return fmtprint(fmt, "Rrdkbd4 rune=%C", m->rune);
 	case Tlabel:
 		return fmtprint(fmt, "Tlabel label='%s'", m->label);
 	case Rlabel:

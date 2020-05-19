@@ -191,7 +191,7 @@ readfile(char *fname)
 
 		r = strtol(line, nil, 16);
 		p = strchr(line, ' ');
-		if(r == 0 || p != line+4 || p[0] != ' ' || p[1] != ' ') {
+		if(r == 0 || (p != line+4 && p != line+5) || p[0] != ' ' || (p == line+4 && p[1] != ' ')) {
 			fprint(2, "%s:%d: cannot parse line\n", fname, lineno);
 			continue;
 		}

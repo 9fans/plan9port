@@ -229,6 +229,7 @@ runmsg(Client *c, Wsysmsg *m)
 		break;
 
 	case Trdkbd:
+	case Trdkbd4:
 		qlock(&c->eventlk);
 		if((c->kbdtags.wi+1)%nelem(c->kbdtags.t) == c->kbdtags.ri) {
 			qunlock(&c->eventlk);
@@ -236,7 +237,7 @@ runmsg(Client *c, Wsysmsg *m)
 			replyerror(c, m);
 			break;
 		}
-		c->kbdtags.t[c->kbdtags.wi++] = m->tag;
+		c->kbdtags.t[c->kbdtags.wi++] = (m->tag<<1) | (m->type==Trdkbd4);
 		if(c->kbdtags.wi == nelem(c->kbdtags.t))
 			c->kbdtags.wi = 0;
 		c->kbd.stall = 0;
@@ -357,13 +358,17 @@ replymsg(Client *c, Wsysmsg *m)
 static void
 matchkbd(Client *c)
 {
+	int tag;
 	Wsysmsg m;
 
 	if(c->kbd.stall)
 		return;
 	while(c->kbd.ri != c->kbd.wi && c->kbdtags.ri != c->kbdtags.wi){
+		tag = c->kbdtags.t[c->kbdtags.ri++];
 		m.type = Rrdkbd;
-		m.tag = c->kbdtags.t[c->kbdtags.ri++];
+		if(tag&1)
+			m.type = Rrdkbd4;
+		m.tag = tag>>1;
 		if(c->kbdtags.ri == nelem(c->kbdtags.t))
 			c->kbdtags.ri = 0;
 		m.rune = c->kbd.r[c->kbd.ri++];

@@ -284,7 +284,7 @@ extract(int canblock)
 			}
 		}else if(i == Skeyboard){
 			if(eslave[i].rpc == nil)
-				eslave[i].rpc = startrpc(Trdkbd);
+				eslave[i].rpc = startrpc(Trdkbd4);
 			if(eslave[i].rpc){
 				/* if ready, don't block in select */
 				if(eslave[i].rpc->p)

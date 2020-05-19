@@ -333,7 +333,7 @@ _displayrdkbd(Display *d, Rune *r)
 {
 	Wsysmsg tx, rx;
 
-	tx.type = Trdkbd;
+	tx.type = Trdkbd4;
 	if(displayrpc(d, &tx, &rx, nil) < 0)
 		return -1;
 	*r = rx.rune;

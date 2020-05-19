@@ -22,8 +22,11 @@ tag[1] Rbouncemouse
 tag[1] Trdkbd
 tag[1] Rrdkbd rune[2]
 
+tag[1] Trdkbd4
+tag[1] Rrdkbd4 rune[4]
+
 tag[1] Tlabel label[s]
-tag[1] Rlabel 
+tag[1] Rlabel
 
 tag[1] Tctxt wsysid[s]
 tag[1] Rctxt
@@ -31,7 +34,7 @@ tag[1] Rctxt
 tag[1] Tinit winsize[s] label[s] font[s]
 tag[1] Rinit
 
-tag[1] Trdsnarf 
+tag[1] Trdsnarf
 tag[1] Rrdsnarf snarf[s]
 
 tag[1] Twrsnarf snarf[s]
@@ -47,7 +50,7 @@ tag[1] Ttop
 tag[1] Rtop
 
 tag[1] Tresize rect[4*4]
-tag[1] Rresize 
+tag[1] Rresize
 */
 
 
@@ -99,6 +102,8 @@ enum {
 	Rcursor2,
 	Tctxt = 30,
 	Rctxt,
+	Trdkbd4 = 32,
+	Rrdkbd4,
 	Tmax,
 };
 
