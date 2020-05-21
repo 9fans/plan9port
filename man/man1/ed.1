@@ -441,10 +441,18 @@ a backspace as
 .LR \eb ,
 backslashes as
 .LR \e\e ,
-and non-printing characters as
+and non-printing ASCII characters as
 a backslash, an
 .LR x ,
-and four hexadecimal digits.
+and two hexadecimal digits.
+non-ASCII characters in the Basic Multilingual Plane
+are printed as a backslash, a small
+.LR u ,
+and four hexadecimal digits; and characters above the
+Basic Multilingual Plane are printed as a backslash,
+a big
+.LR U ,
+and six hexadecimal digits.
 Long lines are folded,
 with the second and subsequent sub-lines indented one tab stop.
 If the last character in the line is a blank,
