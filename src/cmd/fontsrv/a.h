@@ -3,15 +3,15 @@ XFont *xfont;
 int nxfont;
 
 enum {
-	SubfontSize = 32,
-	SubfontMask = (1<<16)/SubfontSize - 1,
+	SubfontSize = 128,
+	MaxSubfont = (Runemax+1)/SubfontSize-1,
 };
 
 struct XFont
 {
 	char *name;
 	int loaded;
-	uchar range[(1<<16)/SubfontSize];	// range[i] == whether to have subfont i*SubfontSize to (i+1)*SubfontSize - 1.
+	uchar range[(Runemax+1)/SubfontSize];	// range[i] == whether to have subfont i*SubfontSize to (i+1)*SubfontSize - 1.
 	int nrange;
 	int unit;
 	double height;

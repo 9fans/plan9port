@@ -52,7 +52,7 @@ enum
 #define QFONT(p) (((p) >> 4) & 0xFFFF)
 #define QSIZE(p) (((p) >> 20) & 0xFF)
 #define QANTIALIAS(p) (((p) >> 28) & 0x1)
-#define QRANGE(p) (((p) >> 29) & SubfontMask)
+#define QRANGE(p) (((p) >> 29) > MaxSubfont ? 0 : ((p) >> 29))
 static int sizes[] = { 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 24, 28 };
 
 static vlong
@@ -189,9 +189,9 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 			goto NotFound;
 		p++;
 		n = strtoul(p, &p, 16);
-		if(p != name+5 || n%SubfontSize != 0 || strcmp(p, ".bit") != 0 || !f->range[(n/SubfontSize) & SubfontMask])
+		if((p != name+5 && p != name+6 && p != name+7) || n%SubfontSize != 0 || strcmp(p, ".bit") != 0 || n/SubfontSize > MaxSubfont || !f->range[n/SubfontSize])
 			goto NotFound;
-		path += Qsubfontfile - Qsizedir + qpath(0, 0, 0, 0, (n/SubfontSize) & SubfontMask);
+		path += Qsubfontfile - Qsizedir + qpath(0, 0, 0, 0, n/SubfontSize);
 		break;
 	}
 Found:

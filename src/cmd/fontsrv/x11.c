@@ -85,7 +85,7 @@ load(XFont *f)
 
 		int idx = charcode/SubfontSize;
 
-		if(charcode > 0xffff)
+		if(charcode > Runemax)
 			break;
 
 		if(!f->range[idx]) {
