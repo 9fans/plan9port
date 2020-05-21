@@ -312,7 +312,7 @@ struct Font
 	short		height;	/* max height of image, interline spacing */
 	short		ascent;	/* top of image to baseline */
 	short		width;	/* widest so far; used in caching only */	
-	short		nsub;	/* number of subfonts */
+	ushort		nsub;	/* number of subfonts */
 	u32int		age;	/* increasing counter; used for LRU */
 	int		maxdepth;	/* maximum depth of all loaded subfonts */
 	int		ncache;	/* size of cache */
