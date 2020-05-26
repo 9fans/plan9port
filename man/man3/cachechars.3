@@ -165,7 +165,7 @@ struct Font {
 	short	height;	/* max ht of image;interline space*/
 	short	ascent;	/* top of image to baseline */
 	short	width;	/* widest so far; used in caching */
-	short	nsub;	/* number of subfonts */
+	int	nsub;	/* number of subfonts */
 	ulong	age;	/* increasing counter; for LRU */
 	int	ncache;	/* size of cache */
 	int	nsubf;	/* size of subfont list */

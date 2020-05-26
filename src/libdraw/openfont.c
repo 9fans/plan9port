@@ -69,7 +69,7 @@ openfont1(Display *d, char *name)
 		n = _drawflength(fd);
 	if(fd < 0 && strncmp(fname, "/mnt/font/", 10) == 0) {
 		fd = _fontpipe(fname+10);
-		n = 128*1024;
+		n = 1024*1024;
 	}
 	if(fd < 0){
 		free(nambuf);
