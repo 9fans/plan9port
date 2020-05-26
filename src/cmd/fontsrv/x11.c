@@ -85,20 +85,23 @@ load(XFont *f)
 
 		int idx = charcode/SubfontSize;
 
-		if(charcode > 0xffff)
+		if(charcode > Runemax)
 			break;
 
-		if(!f->range[idx]) {
+		if(!f->range[idx])
 			f->range[idx] = 1;
-			f->nrange++;
-		}
-	}
-	// libdraw expects U+0000 to be present
-	if(!f->range[0]) {
-		f->range[0] = 1;
-		f->nrange++;
 	}
 	FT_Done_Face(face);
+
+	// libdraw expects U+0000 to be present
+	if(!f->range[0])
+		f->range[0] = 1;
+
+	// fix up file list
+	for(i=0; i<nelem(f->range); i++)
+		if(f->range[i])
+			f->file[f->nfile++] = i;
+
 	f->loaded = 1;
 }
 
