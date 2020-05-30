@@ -35,7 +35,7 @@ of character counts by
 .LR r ,
 and
 .L w
-commands and of the confirming 
+commands and of the confirming
 .L !
 by
 .L !
@@ -46,7 +46,7 @@ commands.
 Write all output to the standard error file except writing by
 .L w
 commands.
-If no 
+If no
 .I file
 is given, make
 .B /dev/stdout
@@ -62,7 +62,7 @@ in the buffer have no effect on the file until a
 (write)
 command is given.
 The copy of the text being edited resides
-in a temporary file called the 
+in a temporary file called the
 .IR buffer .
 .PP
 Commands to
@@ -78,7 +78,7 @@ These addresses specify one or more lines in the buffer.
 Missing addresses are supplied by default.
 .PP
 In general, only one command may appear on a line.
-Certain commands allow the 
+Certain commands allow the
 addition of text to the buffer.
 While
 .I ed
@@ -87,13 +87,13 @@ to be in
 .I  "input mode."
 In this mode, no commands are recognized;
 all input is merely collected.
-Input mode is left by typing a period 
+Input mode is left by typing a period
 .L .
 alone at the
 beginning of a line.
 .PP
 .I Ed
-supports the 
+supports the
 .I "regular expression"
 notation described in
 .IR regexp (7).
@@ -108,7 +108,7 @@ the regular expression metacharacters as an ordinary
 character, that character may be preceded by
 .RB ` \e '.
 This also applies to the character bounding the regular
-expression (often 
+expression (often
 .LR / )
 and to
 .L \e
@@ -132,7 +132,7 @@ customarily called `dot',
 addresses the current line.
 .TP
 2.
-The character 
+The character
 .L $
 addresses the last line of the buffer.
 .TP
@@ -163,7 +163,7 @@ If necessary the search wraps around to the beginning of the
 buffer.
 .TP
 6.
-A regular expression enclosed in queries 
+A regular expression enclosed in queries
 .L ?
 addresses
 the line found by searching backward from the current line
@@ -173,7 +173,7 @@ If necessary
 the search wraps around to the end of the buffer.
 .TP
 7.
-An address followed by a plus sign 
+An address followed by a plus sign
 .L +
 or a minus sign
 .L -
@@ -182,7 +182,7 @@ followed by a decimal number specifies that address plus
 The plus sign may be omitted.
 .TP
 8.
-An address followed by 
+An address followed by
 .L +
 (or
 .LR - )
@@ -190,20 +190,20 @@ followed by a
 regular expression enclosed in slashes specifies the first
 matching line following (or preceding) that address.
 The search wraps around if necessary.
-The 
+The
 .L +
 may be omitted, so
 .L 0/x/
 addresses the
 .I first
-line in the buffer with an 
+line in the buffer with an
 .LR x .
-Enclosing the regular expression in 
+Enclosing the regular expression in
 .L ?
 reverses the search direction.
 .TP
 9.
-If an address begins with 
+If an address begins with
 .L +
 or
 .L -
@@ -214,7 +214,7 @@ is understood to mean
 .LR .-5 .
 .TP
 10.
-If an address ends with 
+If an address ends with
 .L +
 or
 .LR - ,
@@ -236,9 +236,9 @@ line less 2.
 .TP
 11.
 To maintain compatibility with earlier versions of the editor,
-the character 
+the character
 .L ^
-in addresses is 
+in addresses is
 equivalent to
 .LR - .
 .PP
@@ -254,7 +254,7 @@ Addresses are separated from each other typically by a comma
 .LR , .
 They may also be separated by a semicolon
 .LR ; .
-In this case the current line 
+In this case the current line
 is set to
 the previous address before the next address is interpreted.
 If no address precedes a comma or semicolon, line 1 is assumed;
@@ -285,7 +285,7 @@ and append it after the addressed line.
 Dot is left
 on the last line input, if there
 were any, otherwise at the addressed line.
-Address 
+Address
 .L 0
 is legal for this command; text is placed
 at the beginning of the buffer.
@@ -293,7 +293,7 @@ at the beginning of the buffer.
 .RB (\|\fL.,.\fP\|) \|b [ +- ][\fIpagesize\fP][ pln\fR]
 Browse.
 Print a `page', normally 20 lines.
-The optional 
+The optional
 .L +
 (default) or
 .L -
@@ -305,11 +305,11 @@ is the number of lines in a page.
 The optional
 .LR p ,
 .LR n ,
-or 
+or
 .L l
 causes printing in the specified format, initially
 .LR p .
-Pagesize and format are remembered between 
+Pagesize and format are remembered between
 .L b
 commands.
 Dot is left at the last line displayed.
@@ -397,7 +397,7 @@ and
 .L v
 are not permitted in the command list.
 Any character other than space or newline may
-be used instead of 
+be used instead of
 .L /
 to delimit the regular expression.
 The second and third forms mean
@@ -452,7 +452,7 @@ and four hexadecimal digits; and characters above the
 Basic Multilingual Plane are printed as a backslash,
 a big
 .LR U ,
-and six hexadecimal digits.
+and eight hexadecimal digits.
 Long lines are folded,
 with the second and subsequent sub-lines indented one tab stop.
 If the last character in the line is a blank,
@@ -542,13 +542,13 @@ defaults to 1 if missing),
 the
 .IR n th
 matched string is replaced by the replacement specified.
-If the global replacement indicator 
+If the global replacement indicator
 .L g
 appears after the command,
 all subsequent matches on the line are also replaced.
 It is an error for the substitution to fail on all addressed lines.
 Any character other than space or newline
-may be used instead of 
+may be used instead of
 .L /
 to delimit the regular expression
 and the replacement.
@@ -560,7 +560,7 @@ The second
 may be omitted if the replacement is
 empty.
 .IP
-An ampersand 
+An ampersand
 .L &
 appearing in the replacement
 is replaced by the string matching the regular expression.
@@ -584,7 +584,7 @@ is determined by counting occurrences of
 .L (
 starting from the left.
 .IP
-A literal 
+A literal
 .LR & ,
 .LR / ,
 .L \e
@@ -594,7 +594,7 @@ by prefixing it with
 .TP
 .RB (\|\fL.,.\fP\|) \|t\|\fIa
 Transfer.
-Copy the addressed lines 
+Copy the addressed lines
 after the line addressed by
 .IR a .
 Dot is left at the last line of the copy.
@@ -622,7 +622,7 @@ it is created with mode 666 (readable and writable by everyone).
 If no
 .I filename
 is given, the remembered file name, if any, is used.
-The file name is remembered if there were no 
+The file name is remembered if there were no
 remembered file name already.
 Dot is unchanged.
 If the write is successful, the number of characters written is
@@ -638,7 +638,7 @@ Print the line number of the addressed line.
 Dot is unchanged.
 .TP
 .BI ! shell\ command
-Send the remainder of the line after the 
+Send the remainder of the line after the
 .L !
 to
 .IR rc (1)
@@ -647,7 +647,7 @@ Dot is unchanged.
 .TP
 .RB (\| .+1 )\|<newline>
 An address without a command is taken as a
-.L p 
+.L p
 command.
 A terminal
 .L /
@@ -657,11 +657,11 @@ A blank line alone is equivalent to
 it is useful
 for stepping through text.
 .PP
-If an interrupt signal 
+If an interrupt signal
 .SM (DEL)
 is sent,
 .I ed
-prints a 
+prints a
 .L ?
 and returns to its command level.
 .PP
@@ -679,7 +679,7 @@ and all characters after the last newline.
 .SH SOURCE
 .B \*9/src/cmd/ed.c
 .SH "SEE ALSO"
-.IR sam (1), 
+.IR sam (1),
 .IR sed (1),
 .IR regexp (7)
 .SH DIAGNOSTICS
