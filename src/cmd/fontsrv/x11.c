@@ -78,27 +78,30 @@ load(XFont *f)
 	}
 	f->unit = face->units_per_EM;
 	f->height = (int)((face->ascender - face->descender) * 1.35);
-	f->originy = face->descender; // bbox.yMin (or descender)  is negative, becase the baseline is y-coord 0
+	f->originy = face->descender * 1.35; // bbox.yMin (or descender)  is negative, because the baseline is y-coord 0
 
 	for(charcode=FT_Get_First_Char(face, &glyph_index); glyph_index != 0;
 		charcode=FT_Get_Next_Char(face, charcode, &glyph_index)) {
 
 		int idx = charcode/SubfontSize;
 
-		if(charcode > 0xffff)
+		if(charcode > Runemax)
 			break;
 
-		if(!f->range[idx]) {
+		if(!f->range[idx])
 			f->range[idx] = 1;
-			f->nrange++;
-		}
-	}
-	// libdraw expects U+0000 to be present
-	if(!f->range[0]) {
-		f->range[0] = 1;
-		f->nrange++;
 	}
 	FT_Done_Face(face);
+
+	// libdraw expects U+0000 to be present
+	if(!f->range[0])
+		f->range[0] = 1;
+
+	// fix up file list
+	for(i=0; i<nelem(f->range); i++)
+		if(f->range[i])
+			f->file[f->nfile++] = i;
+
 	f->loaded = 1;
 }
 

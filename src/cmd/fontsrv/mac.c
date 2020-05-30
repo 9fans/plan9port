@@ -200,9 +200,12 @@ load(XFont *f)
 	f->loadheight = fontheight;
 
 	// enable all Unicode ranges
+	if(nelem(f->file) > 0xffff)
+		sysfatal("too many subfiles"); // f->file holds ushorts
 	for(i=0; i<nelem(f->range); i++) {
 		f->range[i] = 1;
-		f->nrange++;
+		f->file[i] = i;
+		f->nfile++;
 	}
 }
 
@@ -232,7 +235,6 @@ mksubfont(XFont *f, char *name, int lo, int hi, int size, int antialias)
 	CFRelease(desc);
 	if(font == nil)
 		return nil;
-
 
 	bbox = CTFontGetBoundingBox(font);
 	x = (int)(bbox.size.width*2 + 0.99999999);

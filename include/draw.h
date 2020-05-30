@@ -311,8 +311,8 @@ struct Font
 	Display		*display;
 	short		height;	/* max height of image, interline spacing */
 	short		ascent;	/* top of image to baseline */
-	short		width;	/* widest so far; used in caching only */	
-	short		nsub;	/* number of subfonts */
+	short		width;	/* widest so far; used in caching only */
+	int		nsub;	/* number of subfonts */
 	u32int		age;	/* increasing counter; used for LRU */
 	int		maxdepth;	/* maximum depth of all loaded subfonts */
 	int		ncache;	/* size of cache */
@@ -516,6 +516,7 @@ extern	Display	*display;
 extern	Font		*font;
 extern	Image	*screen;
 extern	Screen	*_screen;
+extern	int	drawmousemask; /* set bits to disable receiving those buttons */
 extern	int	_cursorfd;
 extern	int	_drawdebug;	/* set to 1 to see errors from flushimage */
 extern	void	_setdrawop(Display*, Drawop);
