@@ -6,6 +6,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/Xft/Xft.h>
 #include "dat.h"
 #include "fns.h"
 

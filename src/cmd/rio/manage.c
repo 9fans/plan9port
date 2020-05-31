@@ -12,6 +12,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/shape.h>
+#include <X11/Xft/Xft.h>
 #include "dat.h"
 #include "fns.h"
 

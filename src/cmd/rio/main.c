@@ -9,6 +9,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <X11/Xft/Xft.h>
 #ifdef SHAPE
 #include <X11/extensions/shape.h>
 #endif
@@ -24,7 +25,6 @@ char	*version[] =
 Display 		*dpy;
 ScreenInfo	*screens;
 int 			initting;
-XFontStruct 	*font;
 int 			nostalgia;
 char			**myargv;
 char			*termprog;
@@ -89,7 +89,6 @@ main(int argc, char *argv[])
 
 	do_exit = do_restart = 0;
 	background = 0;
-	font = 0;
 	fname = 0;
 	for(i = 1; i < argc; i++)
 		if(strcmp(argv[i], "-nostalgia") == 0)
@@ -185,23 +184,6 @@ main(int argc, char *argv[])
 	wm_state = XInternAtom(dpy, "_NET_WM_STATE", False);
 	wm_state_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
 
-	if(fname != 0)
-		if((font = XLoadQueryFont(dpy, fname)) == 0)
-			fprintf(stderr, "rio: warning: can't load font %s\n", fname);
-
-	if(font == 0){
-		i = 0;
-		for(;;){
-			fname = fontlist[i++];
-			if(fname == 0){
-				fprintf(stderr, "rio: warning: can't find a font\n");
-				break;
-			}
-			font = XLoadQueryFont(dpy, fname);
-			if(font != 0)
-				break;
-		}
-	}
 	if(nostalgia){
 		_border--;
 		_inset--;
@@ -215,7 +197,7 @@ main(int argc, char *argv[])
 	screens = (ScreenInfo *)malloc(sizeof(ScreenInfo) * num_screens);
 
 	for(i = 0; i < num_screens; i++)
-		initscreen(&screens[i], i, background);
+		initscreen(&screens[i], i, background, fname);
 
 	initb2menu(numvirtuals);
 
@@ -237,12 +219,13 @@ main(int argc, char *argv[])
 }
 
 void
-initscreen(ScreenInfo *s, int i, int background)
+initscreen(ScreenInfo *s, int i, int background, char *fname)
 {
 	char *ds, *colon, *dot1;
 	unsigned long mask;
 	unsigned long gmask;
 	XGCValues gv;
+	XRenderColor xrendercolor;
 	XSetWindowAttributes attr;
 	XVisualInfo xvi;
 	XSetWindowAttributes attrs;
@@ -252,6 +235,25 @@ initscreen(ScreenInfo *s, int i, int background)
 	s->def_cmap = DefaultColormap(dpy, i);
 	s->min_cmaps = MinCmapsOfScreen(ScreenOfDisplay(dpy, i));
 	s->depth = DefaultDepth(dpy, i);
+
+	/* Load the font */
+	if(fname != 0)
+		if((s->font = XftFontOpenName(dpy, i, fname)) == 0)
+			fprintf(stderr, "rio: warning: can't load font %s\n", fname);
+
+	if(s->font == 0){
+		i = 0;
+		for(;;){
+			fname = fontlist[i++];
+			if(fname == 0){
+				fprintf(stderr, "rio: warning: can't find a font\n");
+				break;
+			}
+			s->font = XftFontOpenName(dpy, i, fname);
+			if(s->font != 0)
+				break;
+		}
+	}
 
 	/*
 	 * Figure out underlying screen format.
@@ -324,10 +326,7 @@ initscreen(ScreenInfo *s, int i, int background)
 	gv.subwindow_mode = IncludeInferiors;
 	gmask = GCForeground | GCBackground | GCFunction | GCLineWidth
 		| GCSubwindowMode;
-	if(font != 0){
-		gv.font = font->fid;
-		gmask |= GCFont;
-	}
+
 	s->gc = XCreateGC(dpy, s->root, gmask, &gv);
 
 	gv.function = GXcopy;
@@ -375,13 +374,16 @@ initscreen(ScreenInfo *s, int i, int background)
 	gv.foreground = colorpixel(dpy, s, s->depth, 0x448844, s->black);
 	s->gcmenubgs = XCreateGC(dpy, s->menuwin, gmask, &gv);
 
-	gv.foreground = s->black;
-	gv.background = colorpixel(dpy, s, s->depth, 0xE9FFE9, s->white);
-	s->gcmenufg = XCreateGC(dpy, s->menuwin, gmask, &gv);
+	xrendercolor.alpha = 0xFFFF;
+	xrendercolor.red = 0;
+	xrendercolor.green = 0;
+	xrendercolor.blue = 0;
+	XftColorAllocValue(dpy, s->vis, s->def_cmap, &xrendercolor, &s->menufg);
 
-	gv.foreground = colorpixel(dpy, s, s->depth, 0xE9FFE9, s->white);
-	gv.background = colorpixel(dpy, s, s->depth, 0x448844, s->black);
-	s->gcmenufgs = XCreateGC(dpy, s->menuwin, gmask, &gv);
+	xrendercolor.red = 0xE9E9;
+	xrendercolor.green = 0xFFFF;
+	xrendercolor.blue = 0xE9E9;
+	XftColorAllocValue(dpy, s->vis, s->def_cmap, &xrendercolor, &s->menufgs);
 
 	attrs.border_pixel =  s->red;
 	attrs.background_pixel =  colorpixel(dpy, s, s->depth, 0xEEEEEE, s->black);
