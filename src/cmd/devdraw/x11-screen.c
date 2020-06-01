@@ -39,6 +39,7 @@ static int _xtoplan9mouse(Xwin *w, XEvent *e, Mouse *m);
 static void _xmovewindow(Xwin *w, Rectangle r);
 static int _xtoplan9kbd(XEvent *e);
 static int _xselect(XEvent *e);
+static void _xunbounce(Client *c, Mouse m);
 
 static void	rpc_resizeimg(Client*);
 static void	rpc_resizewindow(Client*, Rectangle);
@@ -1744,6 +1745,45 @@ rpc_putsnarf(char *data)
 }
 
 /*
+ * Send a button release event back to the window which started the bounce.
+ * This needs to be done to let the client know that the bounce is done.
+ */
+static void
+_xunbounce(Client *c, Mouse m)
+{
+	Xwin *w = (Xwin*)c->view;
+	XButtonEvent e;
+	XWindow dw;
+
+	c->bouncing = 0;
+
+	xlock();
+	e.type = ButtonRelease;
+	e.state = 0;
+	e.button = 0;
+	if(m.buttons&1)
+		e.button = 1;
+	else if(m.buttons&2)
+		e.button = 2;
+	else if(m.buttons&4)
+		e.button = 3;
+	e.same_screen = 1;
+	XTranslateCoordinates(_x.display, w->drawable,
+		DefaultRootWindow(_x.display),
+		m.xy.x, m.xy.y, &e.x_root, &e.y_root, &dw);
+	e.root = DefaultRootWindow(_x.display);
+	e.window = w->drawable;
+	e.subwindow = None;
+	e.x = m.xy.x;
+	e.y = m.xy.y;
+#undef time
+	e.time = CurrentTime;
+	XSendEvent(_x.display, w->drawable, True, ButtonReleaseMask, (XEvent*)&e);
+	XFlush(_x.display);
+	xunlock();
+}
+
+/*
  * Send the mouse event back to the window manager.
  * So that 9term can tell rio to pop up its button3 menu.
  */
@@ -1753,6 +1793,13 @@ rpc_bouncemouse(Client *c, Mouse m)
 	Xwin *w = (Xwin*)c->view;
 	XButtonEvent e;
 	XWindow dw;
+
+	if(m.buttons && c->bouncing){
+		_xunbounce(c, m);
+		return;
+	}else if(m.buttons){
+		c->bouncing = 1;
+	}
 
 	xlock();
 	e.type = ButtonPress;
