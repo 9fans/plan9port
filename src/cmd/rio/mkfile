@@ -1,5 +1,6 @@
 <$PLAN9/src/mkhdr
 <|sh ../devdraw/mkwsysrules.sh	# for X11
+<|sh ../fontsrv/freetyperules.sh $WSYSTYPE $X11H
 
 RIOFILES=\
 	client.$O\
