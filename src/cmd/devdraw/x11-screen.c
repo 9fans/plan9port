@@ -1755,7 +1755,7 @@ rpc_bouncemouse(Client *c, Mouse m)
 	XWindow dw;
 
 	xlock();
-	e.type = ButtonPress;
+	e.type = ButtonRelease;
 	e.state = 0;
 	e.button = 0;
 	if(m.buttons&1)
@@ -1769,12 +1769,19 @@ rpc_bouncemouse(Client *c, Mouse m)
 		DefaultRootWindow(_x.display),
 		m.xy.x, m.xy.y, &e.x_root, &e.y_root, &dw);
 	e.root = DefaultRootWindow(_x.display);
-	e.window = e.root;
+	e.window = w->drawable;
 	e.subwindow = None;
-	e.x = e.x_root;
-	e.y = e.y_root;
+	e.x = m.xy.x;
+	e.y = m.xy.y;
 #undef time
 	e.time = CurrentTime;
+	XSendEvent(_x.display, w->drawable, True, ButtonReleaseMask, (XEvent*)&e);
+	XFlush(_x.display);
+
+	e.type = ButtonPress;
+	e.window = e.root;
+	e.x = e.x_root;
+	e.y = e.y_root;
 	XUngrabPointer(_x.display, m.msec);
 	XSendEvent(_x.display, e.root, True, ButtonPressMask, (XEvent*)&e);
 	XFlush(_x.display);
