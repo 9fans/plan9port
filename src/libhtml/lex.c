@@ -586,7 +586,7 @@ getplaindata(TokenSource* ts, Token* a, int* pai)
 		}
 		if(c != 0){
 			buf[j++] = c;
-			if(j == sizeof(buf)-1){
+			if(j == sizeof(buf)/sizeof(*buf)-1){
 				s = buftostr(s, buf, j);
 				j = 0;
 			}
