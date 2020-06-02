@@ -7,38 +7,13 @@
 #include <signal.h>
 #if !defined(__OpenBSD__)
 #	if defined(__APPLE__)
-#		define _XOPEN_SOURCE 	/* for Snow Leopard */
+#		define _XOPEN_SOURCE    /* for Snow Leopard */
 #	endif
 #	include <ucontext.h>
 #endif
 #include <sys/utsname.h>
 #include "libc.h"
 #include "thread.h"
-
-#if defined(__APPLE__)
-	/*
-	 * OS X before 10.5 (Leopard) does not provide
-	 * swapcontext nor makecontext, so we have to use our own.
-	 * In theory, Leopard does provide them, but when we use
-	 * them, they seg fault.  Maybe we're using them wrong.
-	 * So just use our own versions, even on Leopard.
-	 */
-#	define mcontext libthread_mcontext
-#	define mcontext_t libthread_mcontext_t
-#	define ucontext libthread_ucontext
-#	define ucontext_t libthread_ucontext_t
-#	define swapcontext libthread_swapcontext
-#	define makecontext libthread_makecontext
-#	if defined(__i386__)
-#		include "386-ucontext.h"
-#	elif defined(__x86_64__)
-#		include "x86_64-ucontext.h"
-#	elif defined(__ppc__) || defined(__power__)
-#		include "power-ucontext.h"
-#	else
-#		error "unknown architecture"
-#	endif
-#endif
 
 #if defined(__OpenBSD__)
 #	define mcontext libthread_mcontext
@@ -82,15 +57,6 @@ enum
 struct Context
 {
 	ucontext_t	uc;
-#ifdef __APPLE__
-	/*
-	 * On Snow Leopard, etc., the context routines exist,
-	 * so we use them, but apparently they write past the
-	 * end of the ucontext_t.  Sigh.  We put some extra
-	 * scratch space here for them.
-	 */
-	uchar	buf[1024];
-#endif
 };
 
 struct Execjob
