@@ -257,7 +257,7 @@ copyarg(void)
 	int c;
 	Rune *r;
 
-	if(_readx(buf, sizeof(buf)/sizeof(*buf), ArgMode, 0) < 0)
+	if(_readx(buf, nelem(buf), ArgMode, 0) < 0)
 		return nil;
 	r = runestrstr(buf, L("\\\""));
 	if(r){
@@ -280,7 +280,7 @@ readline(int m)
 	static Rune buf[MaxLine];
 	Rune *r;
 
-	if(_readx(buf, sizeof(buf)/sizeof(*buf), m, 1) < 0)
+	if(_readx(buf, nelem(buf), m, 1) < 0)
 		return nil;
 	r = erunestrdup(buf);
 	return r;
