@@ -61,6 +61,7 @@ load(XFont *f)
 	FT_Error e;
 	FT_ULong charcode;
 	FT_UInt glyph_index;
+	int i;
 
 	if(f->loaded)
 		return;
