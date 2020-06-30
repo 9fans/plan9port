@@ -576,6 +576,10 @@ void main(int argc, char* argv[]) {
 			break;
 
 		case Rsubpixel:
+			if(srgb == nil) {
+				print("no subpixel mode specified\n");
+				exits("rgb");
+			}
 			font.image_channels = RGB24;
 			if (strcmp(srgb, "rgb") == 0) {
 				font.rgb = Srgb;
