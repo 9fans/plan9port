@@ -168,8 +168,8 @@ gfx_main(void)
 	/*
 	 * Connect to X server.
 	 */
-        setlocale(LC_CTYPE, "");
-        XSetLocaleModifiers("");
+	setlocale(LC_CTYPE, "");
+	XSetLocaleModifiers("");
 	_x.display = XOpenDisplay(NULL);
 	if(_x.display == nil){
 		disp = getenv("DISPLAY");
@@ -317,7 +317,7 @@ xloop(void)
 		while(XPending(_x.display)) {
 			XNextEvent(_x.display, &event);
 			if (XFilterEvent(&event, None))
-				  continue;
+				continue;
 			runxevent(&event);
 		}
 	}
@@ -500,7 +500,6 @@ runxevent(XEvent *xev)
 
 		if((c = _xtoplan9kbd(xev)) < 0)
 			return;
-
 		gfx_keystroke(w->client, c);
 		break;
 
@@ -634,15 +633,14 @@ xattach(Client *client, char *label, char *winsize)
 	);
 
         /* input methods */
-        xim = XOpenIM(_x.display, 0, 0, 0);
-        spotlist = XVaCreateNestedList(0, XNSpotLocation, &spot,
-                                              NULL);
+	xim = XOpenIM(_x.display, 0, 0, 0);
+	spotlist = XVaCreateNestedList(0, XNSpotLocation, &spot, NULL);
 
-        if (xim)
-                xic = XCreateIC(xim, 
-				XNInputStyle, XIMPreeditNothing|XIMStatusNothing, 
-				XNClientWindow, w->drawable, 
-				NULL);
+	if (xim)
+	xic = XCreateIC(xim, 
+			XNInputStyle, XIMPreeditNothing|XIMStatusNothing, 
+			XNClientWindow, w->drawable, 
+			NULL);
 
 	/*
 	 * Label and other properties required by ICCCCM.
