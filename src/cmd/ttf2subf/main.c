@@ -488,13 +488,13 @@ usage(char *s)
 	fprint(2, "\nusage: %s <options>\n", s);
 	fprint(2, "\nwhere:\n", s);
 	fprint(2, 
-	"	-s size						- point size\n"
-	"	-h 							- this message\n"
-	"	-f fname					- ttf file name\n"
-	"	-n name						- font name\n"
+	"	-h 				- this message\n"
+	"	-s size				- point size\n"
+	"	-f fname			- ttf file name\n"
+	"	-n name				- font name\n"
 	"	-m mono|antialias|subpixel	- rendering mode\n"
 	"	-r rgb|bgr|vrgb|vbgr		- LCD display type\n\n");
-	exits("usage");
+	exits(0);
 }
 
 void main(int argc, char* argv[]) {
@@ -679,4 +679,5 @@ void main(int argc, char* argv[]) {
 
 	}
 	close(fd);
+	exits(0);
 }
