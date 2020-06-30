@@ -652,9 +652,11 @@ void main(int argc, char* argv[]) {
 		}
 	}
 
-	/*	font.height = font.ascent - font.descent; */
-	font.height = font.size;
-	font.ascent = font.height-3;
+	//adjust font height/ascent to get better rendering result.
+	font.height = font.size + (font.ascent - font.descent - font.size)/2;
+	font.ascent = font.height - (font.ascent - font.descent - font.size)/2 -1;
+
+	//print("size: %d ascent: %d descent: %d\n", font.size, font.ascent, font.descent, font.ascent);
 
 	/* do we have a directory created for this font? */
 	snprint(buf, sizeof(buf), "%s", font.name);
