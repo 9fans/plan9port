@@ -1,7 +1,9 @@
+#include <u.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <freetype/ftglyph.h>
 
+#include <libc.h>
 #include <draw.h>
 #include <memdraw.h>
 
@@ -210,12 +212,12 @@ FTmetrics getMetrics(FTfont* font, int c) {
 	return ret;
 }
 
-unsigned long getPixelMono(FTfont* , FT_Bitmap* bitmap, int x, int y) {
+unsigned long getPixelMono(FTfont* f, FT_Bitmap* bitmap, int x, int y) {
 	int g = ((bitmap->buffer[bitmap->pitch*y + x/8]) >> (7 - x%8) & 1) * 255;
 	return (g << 24) | (g << 16) | (g << 8) | 0xFF;
 }
 
-unsigned long getPixelAntialias(FTfont*, FT_Bitmap* bitmap, int x, int y) {
+unsigned long getPixelAntialias(FTfont* f, FT_Bitmap* bitmap, int x, int y) {
 	int g = bitmap->buffer[bitmap->pitch*y + x];
 	return (g << 24) | (g << 16) | (g << 8) | 0xFF;
 }

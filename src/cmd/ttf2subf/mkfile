@@ -1,0 +1,11 @@
+<$PLAN9/src/mkhdr
+<|osxvers
+<|sh ../devdraw/mkwsysrules.sh
+<|sh ../fontsrv/freetyperules.sh $WSYSTYPE $X11H
+
+TARG=ttf2subf
+
+OFILES=\
+        main.$O\
+
+<$PLAN9/src/mkone
