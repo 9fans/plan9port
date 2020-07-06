@@ -428,12 +428,25 @@ runxevent(XEvent *xev)
 	case KeyRelease:
 	case KeyPress:
 		ke = (XKeyEvent*)xev;
-		if (xic && xev->type == KeyPress) {
+		if(xic && xev->type == KeyPress){
 			bzero(buf, 64);
 			int len = Xutf8LookupString(xic, ke, buf, sizeof buf, &k, &status);
-			if(len > 0)
-				runesnprint(rbuf, 64, "%s", buf);
-		} else 
+			switch(status) {
+			case XLookupChars:
+				if(len > 0)
+					runesnprint(rbuf, 64, "%s", buf);
+				int i = 0;
+				while(i < runestrlen(rbuf)) {
+					gfx_keystroke(w->client, rbuf[i++]);
+				}
+				return;
+			case XLookupKeySym:
+			case XLookupBoth:
+				break;
+			default: /* XLookupNone, XBufferOverflow */
+				return;
+			}
+		}else 
 			XLookupString(ke, NULL, 0, &k, NULL);
 
 		c = ke->state;
@@ -486,16 +499,6 @@ runxevent(XEvent *xev)
 			w->fullscreen = !w->fullscreen;
 			_xmovewindow(w, w->fullscreen ? w->screenrect : w->windowrect);
 			return;
-		}
-
-		if(xic && xev->type == KeyPress) {
-			int nr = runestrlen(rbuf);
-			if (status == XLookupChars && nr > 0 ) {
-				int i = 0;
-				while(i < nr) {
-					gfx_keystroke(w->client, rbuf[i++]);
-				}
-			}
 		}
 
 		if((c = _xtoplan9kbd(xev)) < 0)
