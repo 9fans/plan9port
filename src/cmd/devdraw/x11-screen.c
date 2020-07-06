@@ -520,6 +520,19 @@ runxevent(XEvent *xev)
 	}
 }
 
+static void
+ximdestroy(XIM xim, XPointer client, XPointer call)
+{
+	xim = NULL;
+	XFree(spotlist);
+}
+
+static int
+xicdestroy(XIC xim, XPointer client, XPointer call)
+{
+	xic = NULL;
+	return 1;
+}
 
 static Memimage*
 xattach(Client *client, char *label, char *winsize)
@@ -633,14 +646,20 @@ xattach(Client *client, char *label, char *winsize)
 	);
 
         /* input methods */
-	xim = XOpenIM(_x.display, 0, 0, 0);
-	spotlist = XVaCreateNestedList(0, XNSpotLocation, &spot, NULL);
+	XIMCallback imdestroy = { .client_data = NULL, .callback = ximdestroy };
+	XICCallback icdestroy = { .client_data = NULL, .callback = xicdestroy };
 
-	if (xim)
-	xic = XCreateIC(xim, 
+	xim = XOpenIM(_x.display, 0, 0, 0);
+
+	if(xim){
+		XSetIMValues(xim, XNDestroyCallback, &imdestroy, NULL);
+		spotlist = XVaCreateNestedList(0, XNSpotLocation, &spot, NULL);
+		xic = XCreateIC(xim, 
 			XNInputStyle, XIMPreeditNothing|XIMStatusNothing, 
-			XNClientWindow, w->drawable, 
+			XNClientWindow, w->drawable,
+			XNDestroyCallback, &icdestroy,	
 			NULL);
+	}
 
 	/*
 	 * Label and other properties required by ICCCCM.
