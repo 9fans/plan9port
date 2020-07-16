@@ -287,6 +287,7 @@ xread(Req *r)
 	Fmt fmt;
 	XFont *f;
 	char *data;
+	char *buf;
 	Memsubfont *sf;
 	Memimage *m;
 
@@ -309,20 +310,24 @@ xread(Req *r)
 			readstr(r, "font missing\n");
 			break;
 		}
+		height = 0;
+		ascent = 0;
+		if(f->unit > 0) {
+			height = f->height * (int)QSIZE(path)/f->unit + 0.99999999;
+			ascent = height - (int)(-f->originy * (int)QSIZE(path)/f->unit + 0.99999999);
+		}
+		if(f->loadheight != nil)
+			f->loadheight(f, QSIZE(path), &height, &ascent);
+		fmtprint(&fmt, "%11d %11d\n", height, ascent);
 		if(f->fonttext == nil) {
-			height = 0;
-			ascent = 0;
-			if(f->unit > 0) {
-				height = f->height * (int)QSIZE(path)/f->unit + 0.99999999;
-				ascent = height - (int)(-f->originy * (int)QSIZE(path)/f->unit + 0.99999999);
-			}
-			if(f->loadheight != nil)
-				f->loadheight(f, QSIZE(path), &height, &ascent);
-			fmtprint(&fmt, "%11d %11d\n", height, ascent);
 			for(i=0; i<f->nfile; i++)
 				fmtprint(&fmt, "0x%04x 0x%04x x%04x.bit\n", f->file[i]*SubfontSize, ((f->file[i]+1)*SubfontSize) - 1, f->file[i]*SubfontSize);
 			f->fonttext = fmtstrflush(&fmt);
 			f->nfonttext = strlen(f->fonttext);
+		} else {
+			buf = fmtstrflush(&fmt);
+			strncpy(f->fonttext, buf, strlen(buf));  // Do not copy the null byte.
+			free(buf);
 		}
 		readbuf(r, f->fonttext, f->nfonttext);
 		break;
