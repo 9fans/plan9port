@@ -4,5 +4,7 @@ if(~ $#PLAN9 0)
 	PLAN9=/usr/local/plan9
 if(! ~ $path(1) $PLAN9/bin)
 	path=($PLAN9/bin $path)
+if(test -r $HOME/lib/profile)
+	. $HOME/lib/profile
 
 ~ $#* 0 || exec $*
