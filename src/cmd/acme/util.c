@@ -107,7 +107,7 @@ errorwin1(Rune *dir, int ndir, Rune **incl, int nincl)
 		runemove(r, incl[i], n);
 		winaddincl(w, r, n);
 	}
-	w->autoindent = globalautoindent;
+	w->indent = globalindent;
 	return w;
 }
 

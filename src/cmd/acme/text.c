@@ -532,6 +532,27 @@ textreadc(Text *t, uint q)
 	return r;
 }
 
+static int
+spacebswidth(Text *t)
+{
+	uint q, col;
+	Rune r;
+
+	col = textbswidth(t, 0x15);
+	q = t->q0;
+	while(q > 0){
+		r = textreadc(t, q-1);
+		if(r != ' ')
+			break;
+		q--;
+		if(--col % t->tabstop == 0)
+			break;
+	}
+	if(t->q0 == q)
+		return 1;
+	return t->q0-q;
+}
+
 int
 textbswidth(Text *t, Rune c)
 {
@@ -540,8 +561,11 @@ textbswidth(Text *t, Rune c)
 	int skipping;
 
 	/* there is known to be at least one character to erase */
-	if(c == 0x08)	/* ^H: erase character */
+	if(c == 0x08){	/* ^H: erase character */
+		if(t->what == Body && t->w->indent & IndentSpaces)
+			return spacebswidth(t);
 		return 1;
+	}
 	q = t->q0;
 	skipping = TRUE;
 	while(q > 0){
@@ -891,8 +915,20 @@ texttype(Text *t, Rune r)
 			textfill(t->file->text[i]);
 		t->iq1 = t->q0;
 		return;
+	case '\t':
+		if(t->what == Body && t->w->indent & IndentSpaces){
+			/* find beginning of previous line using backspace code */
+			nnb = textbswidth(t, 0x15); /* ^U case */
+			if(nnb == 1 && textreadc(t, t->q0-1) == '\n')
+				nnb = 0;
+			nnb = t->tabstop - nnb % t->tabstop;
+			rp = runemalloc(nnb);
+			for(nr = 0; nr < nnb; nr++)
+				rp[nr] = ' ';
+		}
+		break; /* fall through to normal code */
 	case '\n':
-		if(t->w->autoindent){
+		if(t->w->indent & IndentAuto){
 			/* find beginning of previous line using backspace code */
 			nnb = textbswidth(t, 0x15); /* ^U case */
 			rp = runemalloc(nnb + 1);

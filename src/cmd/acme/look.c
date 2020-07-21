@@ -797,9 +797,9 @@ openfile(Text *t, Expand *e)
 				runemove(rp, ow->incl[i], n);
 				winaddincl(w, rp, n);
 			}
-			w->autoindent = ow->autoindent;
+			w->indent = ow->indent;
 		}else
-			w->autoindent = globalautoindent;
+			w->indent = globalindent;
 		xfidlog(w, "new");
 	}
 	if(e->a1 == e->a0)
