@@ -4,7 +4,7 @@ acme, win, awd \- interactive text windows
 .SH SYNOPSIS
 .B acme
 [
-.B -abr
+.B -aibr
 ]
 [
 .B -f
@@ -203,6 +203,14 @@ The option
 .B -a
 causes each window to start in
 autoindent mode.
+.PP
+When a window is in spaces indent mode
+and a tab character is typed,
+acme indents the line with spaces equal to the current
+tabstop for the window. The option
+.B -i
+causes each window to start in spaces indent
+mode.
 .SS "Directory context
 Each window's tag names a directory: explicitly if the window
 holds a directory; implicitly if it holds a regular file
@@ -382,15 +390,23 @@ This command is largely superseded by plumbing
 .IR plumb (7)).
 .TP
 .B Indent
-Set the autoindent mode according to the argument:
+Set the indent mode according to the argument:
 .B on
 and
 .B off
-set the mode for the current window;
+set the autoindent mode for the current window;
+.B tab
+and
+.B space
+set the indent character for the current window;
+.B TAB
+and
+.B SPACE
+set the indent character for all existing and future windows;
 .B ON
 and
 .B OFF
-set the mode for all existing and future windows.
+set the autoindent mode for all existing and future windows.
 .TP
 .B Kill
 Send a

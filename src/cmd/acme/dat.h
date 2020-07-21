@@ -198,6 +198,13 @@ struct Text
 	int	needundo;
 };
 
+enum
+{
+  /* default is tab indent, i.e. b'0 */
+	IndentSpaces = 0x1,
+	IndentAuto   = 0x2
+};
+
 uint		textbacknl(Text*, uint, uint);
 uint		textbsinsert(Text*, uint, Rune*, uint, int, int*);
 int		textbswidth(Text*, Rune);
@@ -240,7 +247,7 @@ struct Window
 	uchar	isscratch;
 	uchar	filemenu;
 	uchar	dirty;
-	uchar	autoindent;
+	uchar	indent;
 	uchar	showdel;
 	int		id;
 	Range	addr;
@@ -552,7 +559,7 @@ extern char		wdir[]; /* must use extern because no dimension given */
 int			editing;
 int			erroutfd;
 int			messagesize;		/* negotiated in 9P version setup */
-int			globalautoindent;
+int			globalindent;
 int			dodollarsigns;
 char*		mtpt;
 
