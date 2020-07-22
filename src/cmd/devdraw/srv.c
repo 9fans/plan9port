@@ -88,7 +88,7 @@ threadmain(int argc, char **argv)
 void
 gfx_started(void)
 {
-	char *addr;
+	char *ns, *addr;
 
 	if(srvname == nil) {
 		// Legacy mode: serving single client on pipes.
@@ -97,7 +97,11 @@ gfx_started(void)
 	}
 
 	// Server mode.
-	addr = smprint("unix!%s/%s", getns(), srvname);
+	if((ns = getns()) == nil)
+		sysfatal("out of memory");
+
+	addr = smprint("unix!%s/%s", ns, srvname);
+	free(ns);
 	if(addr == nil)
 		sysfatal("out of memory");
 
