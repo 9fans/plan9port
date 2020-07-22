@@ -1,5 +1,5 @@
 
-![Plan9 Lab](https://github.com/1g0rb0hm/plan9labs/blob/devel/dist/GlendaLab.png?raw=true)
+![Plan9 Lab](https://github.com/1g0rb0hm/plan9labs/blob/branch/plab9lab-docs/dist/GlendaLab.png?raw=true)
 
 # Plan9 Labs
 
