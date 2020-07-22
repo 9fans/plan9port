@@ -41,7 +41,7 @@ _displayconnect(Display *d)
 		}
 		*id++ = '\0';
 		if((ns = getns()) == nil)
-				return -1;
+			return -1;
 		addr = smprint("unix!%s/%s", ns, wsysid);
 		free(ns);
 		if(addr == nil)
