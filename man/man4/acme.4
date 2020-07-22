@@ -20,7 +20,7 @@ serves a variety of files for reading, writing, and controlling
 windows.
 Some of them are virtual versions of system files for dealing
 with the virtual console; others control operations
-of 
+of
 .I acme
 itself.
 When a command is run under
@@ -233,6 +233,11 @@ Set the directory in which to run the command to recreate the window from a dump
 Equivalent to the
 .B Get
 interactive command with no arguments; accepts no arguments.
+.TP
+.BI font " path
+Equivalent to the
+.B Font
+interactive command with a single (required) argument.
 .TP
 .B limit=addr
 When the
