@@ -1,3 +1,17 @@
+
+![Plan9 Lab](https://github.com/1g0rb0hm/plan9labs/blob/devel/dist/GlendaLab.png?raw=true)
+
+# Plan9 Labs
+
+My Plan9 Laboratory where I am doing stuff that might cause mockery and other insults.
+
+Notable modifications:
+
+* **WTF**: 'Soft-Tabs' support for **ACME** (see feature/acme-soft-tabs branch)
+* **OMG**: Additional keyboard short-cuts for **ACME** (see feature/acme-mac-keyboard)
+
+# Plan9 Port
+
 This is a port of many Plan 9 libraries and programs to Unix.
 
 Installation
