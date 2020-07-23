@@ -31,13 +31,13 @@ and posted at
 (default
 .IR font ).
 .PP
-The 
+The
 .B -p
-option changes 
+option changes
 .IR fontsrv 's
 behavior: rather than serve a file system,
 .I fontsrv
-prints to standard output the contents of the named 
+prints to standard output the contents of the named
 .IR path .
 If
 .I path
@@ -66,19 +66,19 @@ Each size directory contains a
 file and subfont files
 named
 .BR x0000.bit ,
-.BR x0100.bit ,
+.BR x0020.bit ,
 and so on
-representing 256-character Unicode ranges.
+representing 32-character Unicode ranges.
 .PP
 .I Openfont
 (see
 .IR graphics (3))
-recognizes font paths beginning with 
+recognizes font paths beginning with
 .B /mnt/font
 and implements them by invoking
 .IR fontsrv ;
 it need not be running already.
-See 
+See
 .IR font (7)
 for a full discussion of font name syntaxes.
 .SH EXAMPLES
@@ -95,7 +95,7 @@ or:
 % fontsrv -p .
 .EE
 .LP
-Run 
+Run
 .IR acme (1)
 using the operating system's Monaco as the fixed-width font:
 .IP
