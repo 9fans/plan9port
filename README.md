@@ -1,5 +1,6 @@
-
+<div align="center">
 ![Plan9 Lab](https://github.com/1g0rb0hm/plan9labs/blob/branch/plan9lab-docs/dist/GlendaLab.png?raw=true)
+</div>
 
 # Plan9 Labs
 
