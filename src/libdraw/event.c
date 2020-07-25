@@ -203,7 +203,7 @@ newebuf(Slave *s, int n)
 static Muxrpc*
 startrpc(int type)
 {
-	uchar buf[100];
+	uchar buf[512];
 	Wsysmsg w;
 
 	w.type = type;
