@@ -207,7 +207,8 @@ startrpc(int type)
 	Wsysmsg w;
 
 	w.type = type;
-	convW2M(&w, buf, sizeof buf);
+	if(convW2M(&w, buf, sizeof buf) == 0)
+		return nil;
 	return muxrpcstart(display->mux, buf);
 }
 
