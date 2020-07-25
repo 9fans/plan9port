@@ -1,4 +1,10 @@
-![Plan9 Lab](https://github.com/1g0rb0hm/plan9labs/blob/branch/plan9lab-docs/dist/GlendaLab.png?raw=true)
+<!-- Please be careful editing the below HTML, as GitHub is quite finicky with anything that looks like an HTML tag in GitHub Flavored Markdown. -->
+<p align="center">
+  <img src="dist/GlendaLab.png" alt="Banner">
+</p>
+<p align="center">
+  <b>Plan 9 from User Space Lab</b>
+</p>
 
 # Plan9 Labs
 
@@ -6,8 +12,8 @@ My Plan9 Laboratory where I am doing stuff that might cause mockery and other in
 
 Notable modifications:
 
-* **WTF**: 'Soft-Tabs' support for **ACME** (see feature/acme-soft-tabs branch)
-* **OMG**: Additional keyboard short-cuts for **ACME** (see feature/acme-mac-keyboard)
+* **WTF**: 'Soft-Tabs' support for **ACME** (see [feature/acme-soft-tabs branch](https://github.com/1g0rb0hm/plan9labs/tree/feature/acme-soft-tabs))
+* **OMG**: Additional keyboard short-cuts for **ACME** (see [feature/acme-mac-keyboard](https://github.com/1g0rb0hm/plan9labs/tree/feature/acme-mac-keyboard))
 
 # Plan9 Port
 
