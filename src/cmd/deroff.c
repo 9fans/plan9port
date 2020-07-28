@@ -745,7 +745,7 @@ eqn(void)
 		}
 		if(c != '\n')
 			while(C1 != '\n') {
-				if(chars[c] == PUNCT)
+				if(charclass(c) == PUNCT)
 					last = c;
 				else
 				if(c != ' ')
