@@ -14,6 +14,7 @@ Notable modifications:
 
 * **WTF**: 'Soft-Tabs' support for **ACME** (see [feature/acme-soft-tabs branch](https://github.com/1g0rb0hm/plan9labs/tree/feature/acme-soft-tabs))
 * **OMG**: Additional keyboard short-cuts for **ACME** (see [feature/acme-mac-keyboard](https://github.com/1g0rb0hm/plan9labs/tree/feature/acme-mac-keyboard))
+* **WDYMBT**: macOS inertia/momentum scrolling support for **ACME** (see [feature/acme-scrolling-with-momentum](https://github.com/1g0rb0hm/plan9labs/tree/feature/acme-scrolling-with-momentum))
 
 # Plan9 Port
 
