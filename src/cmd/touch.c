@@ -54,7 +54,7 @@ touch(int nocreate, char *name)
 		fprint(2, "touch: %s: cannot wstat: %r\n", name);
 		return 1;
 	}
-	if((fd = create(name, OREAD, 0666)) < 0) {
+	if((fd = create(name, OWRITE, 0666)) < 0) {
 		fprint(2, "touch: %s: cannot create: %r\n", name);
 		return 1;
 	}
