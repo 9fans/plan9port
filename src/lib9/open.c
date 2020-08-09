@@ -95,7 +95,10 @@ p9create(char *path, int mode, ulong perm)
 			goto out;
 		fd = open(path, O_RDONLY);
 	}else{
-		umode = (mode&3)|O_CREAT|O_TRUNC;
+		if (mode == OREAD || mode == OEXEC)
+			umode = (mode&3)|O_CREAT;
+		else
+			umode = (mode&3)|O_CREAT|O_TRUNC;
 		mode &= ~(3|OTRUNC);
 		if(mode&ODIRECT){
 			umode |= O_DIRECT;
