@@ -43,18 +43,18 @@ it cannot be
 .PP
 .I Openfd
 is implemented by
-.IR 9pserve (4).
+.IM 9pserve (4) .
 9P servers that post their services using
-.IR 9pserve (4)
+.IM 9pserve (4)
 (or indirectly via
-.IR post9pservice (3))
+.IM post9pservice (3) )
 will never see a
 .B Topenfd
 message.
 .SH ENTRY POINTS
 .I Fsopenfd
 (see
-.IR 9pclient (3))
+.IM 9pclient (3) )
 generates an
 .B openfd
 message.

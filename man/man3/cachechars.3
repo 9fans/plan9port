@@ -30,7 +30,7 @@ A
 may contain too many characters to hold in memory
 simultaneously.
 The graphics library and draw device (see
-.IR draw (3))
+.IM draw (3) )
 cooperate to solve this problem by maintaining a cache of recently used
 character images.
 The details of this cooperation need not be known by most programs:
@@ -127,7 +127,7 @@ A
 .B Font
 consists of an overall height and ascent
 and a collection of subfonts together with the ranges of runes (see
-.IR utf (7))
+.IM utf (7) )
 they represent.
 Fonts are described by the following structures.
 .IP
@@ -181,7 +181,7 @@ The
 and
 .LR ascent
 fields of Font are described in
-.IR graphics (3).
+.IM graphics (3) .
 .L Sub
 contains
 .L nsub
@@ -302,12 +302,12 @@ for replacement when the cache is full.
 .SH SOURCE
 .B \*9/src/libdraw
 .SH SEE ALSO
-.IR graphics (3),
-.IR allocimage (3),
-.IR draw (3),
-.IR subfont (3),
-.IR image (7),
-.IR font (7)
+.IM graphics (3) ,
+.IM allocimage (3) ,
+.IM draw (3) ,
+.IM subfont (3) ,
+.IM image (7) ,
+.IM font (7)
 .SH DIAGNOSTICS
 All of the functions use the graphics error function (see
-.IR graphics (3)).
+.IM graphics (3) ).
