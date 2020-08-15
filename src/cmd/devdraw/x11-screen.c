@@ -1599,7 +1599,9 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof
 	|| ((name = XGetAtomName(_x.display, xe->target)) && strcmp(name, "text/plain;charset=UTF-8") == 0)){
 		/* text/plain;charset=UTF-8 seems nonstandard but is used by Synergy */
 		/* if the target is STRING we're supposed to reply with Latin1 XXX */
+		xunlock();
 		qlock(&clip.lk);
+		xlock();
 		XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
 			8, PropModeReplace, (uchar*)clip.buf, strlen(clip.buf));
 		qunlock(&clip.lk);
