@@ -53,13 +53,13 @@ Font*	mkfont(Subfont *f, Rune min)
 .SH DESCRIPTION
 Subfonts are the components of fonts that hold the character images.
 A font comprises an array of subfonts; see
-.IM cachechars (3) .
+.MR cachechars (3) .
 A new
 .B Subfont
 is allocated and initialized with
 .IR allocsubfont .
 See
-.IM cachechars (3)
+.MR cachechars (3)
 for the meaning of
 .IR n ,
 .IR height ,
@@ -81,7 +81,7 @@ The appropriate fields of the returned
 structure are set to
 the passed arguments, and the image is registered as a subfont
 with the graphics device
-.IM draw (3) .
+.MR draw (3) .
 .I Allocsubfont
 returns 0 on failure.
 .PP
@@ -97,7 +97,7 @@ on
 if
 .B f->info
 was not allocated by
-.IM malloc (3)
+.MR malloc (3)
 it should be zeroed before calling
 .IR subffree .
 .PP
@@ -150,7 +150,7 @@ Although it is principally a routine internal to the library,
 may be substituted by the application to provide a less file-oriented subfont naming scheme.
 .PP
 The format of a subfont file is described in
-.IM font (7) .
+.MR font (7) .
 Briefly, it contains a image with all the characters in it,
 followed by a subfont header, followed by character information.
 .I Readsubfont
@@ -181,13 +181,13 @@ the part of a subfont file that comes after the image.  It should be preceded by
 a call to
 .IR writeimage
 (see
-.IM allocimage (3) ).
+.MR allocimage (3) ).
 .PP
 .I Stringsubfont
 is analogous to
 .B string
 (see
-.IM draw (3) )
+.MR draw (3) )
 for subfonts.  Rather than use the underlying font caching primitives,
 it calls
 .B draw
@@ -224,12 +224,12 @@ bitmap font file tree
 .SH SOURCE
 .B \*9/src/libdraw
 .SH SEE ALSO
-.IM graphics (3) ,
-.IM allocimage (3) ,
-.IM draw (3) ,
-.IM cachechars (3) ,
-.IM image (7) ,
-.IM font (7)
+.MR graphics (3) ,
+.MR allocimage (3) ,
+.MR draw (3) ,
+.MR cachechars (3) ,
+.MR image (7) ,
+.MR font (7)
 .SH DIAGNOSTICS
 All of the functions use the graphics error function (see
-.IM graphics (3) ).
+.MR graphics (3) ).

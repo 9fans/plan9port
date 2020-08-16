@@ -73,9 +73,9 @@ enum{
 This library supports
 .I frames
 of editable text in a single font on raster displays, such as in
-.IM sam (1)
+.MR sam (1)
 and
-.IM 9term (1) .
+.MR 9term (1) .
 Frames may hold any character except NUL (0).
 Long lines are folded and tabs are at fixed intervals.
 .PP
@@ -239,7 +239,7 @@ If a
 .B Frame
 is being moved but not resized, that is, if the shape of its containing
 rectangle is unchanged, it is sufficient to use
-.IM draw (3)
+.MR draw (3)
 to copy the containing rectangle from the old to the new location and then call
 .I frsetrects
 to establish the new geometry.
@@ -357,6 +357,6 @@ and
 .SH SOURCE
 .B \*9/src/libframe
 .SH SEE ALSO
-.IM graphics (3) ,
-.IM draw (3) ,
-.IM cachechars (3) .
+.MR graphics (3) ,
+.MR draw (3) ,
+.MR cachechars (3) .

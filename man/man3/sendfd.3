@@ -20,14 +20,14 @@ and
 can be used to pass an open file descriptor over
 a Unix domain socket from one process to another.
 Since
-.IM pipe (3)
+.MR pipe (3)
 is implemented with
-.IM socketpair (2)
+.MR socketpair (2)
 instead of
-.IM pipe (2) ,
+.MR pipe (2) ,
 .I socket
 can be a file descriptor obtained from
-.IM pipe (3) .
+.MR pipe (3) .
 .PP
 .I Sendfd
 sends the file descriptor
@@ -51,7 +51,7 @@ will not.
 .SH SOURCE
 .B \*9/src/lib9/sendfd.c
 .SH SEE ALSO
-.IM socketpair (2) ,
+.MR socketpair (2) ,
 .I sendmsg
 in
-.IM send (2)
+.MR send (2)

@@ -168,7 +168,7 @@ type defines memory-resident rectangular pictures and the methods to draw upon t
 differ from
 .BR Image s
 (see
-.IM draw (3) )
+.MR draw (3) )
 in that they are manipulated directly in user memory rather than by
 RPCs to the
 .B /dev/draw
@@ -176,7 +176,7 @@ hierarchy.
 The
 .Bmemdraw
 library is the basis for the kernel
-.IM draw (3)
+.MR draw (3)
 driver and also used by a number of programs that must manipulate
 images without a display.
 .PP
@@ -273,7 +273,7 @@ images with a given rectangle and channel descriptor
 (see
 .B strtochan
 in
-.IM graphics (3) ),
+.MR graphics (3) ),
 creating a fresh
 .B Memdata
 structure and associated storage.
@@ -294,7 +294,7 @@ writes a compressed representation of
 to file descriptor
 .IR fd .
 For more on bitmap formats, see
-.IM image (7) .
+.MR image (7) .
 .I Freememimage
 frees images returned by any of these routines.
 The
@@ -326,7 +326,7 @@ and \-1 in case of an error.
 .I Memfillcolor
 fills an image with the given color, a 32-bit number as
 described in
-.IM color (3) .
+.MR color (3) .
 .PP
 .IR Memarc ,
 .IR mempoly ,
@@ -344,7 +344,7 @@ are identical to the
 and
 .IR gendraw ,
 routines described in
-.IM draw (3) ,
+.MR draw (3) ,
 except that they operate on
 .BR Memimage s
 rather than
@@ -366,9 +366,9 @@ analogues of
 and
 .B string
 (see
-.IM subfont (3)
+.MR subfont (3)
 and
-.IM graphics (3) ),
+.MR graphics (3) ),
 except that they operate
 only on
 .BR Memsubfont s
@@ -433,15 +433,15 @@ prints to a serial line rather than the screen, for obvious reasons.
 .SH SOURCE
 .B \*9/src/libmemdraw
 .SH SEE ALSO
-.IM addpt (3) ,
-.IM color (3) ,
-.IM draw (3) ,
-.IM graphics (3) ,
-.IM memlayer (3) ,
-.IM stringsize (3) ,
-.IM subfont (3) ,
-.IM color (7) ,
-.IM utf (7)
+.MR addpt (3) ,
+.MR color (3) ,
+.MR draw (3) ,
+.MR graphics (3) ,
+.MR memlayer (3) ,
+.MR stringsize (3) ,
+.MR subfont (3) ,
+.MR color (7) ,
+.MR utf (7)
 .SH BUGS
 .I Memimagestring
 is unusual in using a subfont rather than a font,
