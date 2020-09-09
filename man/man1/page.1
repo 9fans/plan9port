@@ -25,7 +25,7 @@ of a
 PostScript,
 PDF,
 or
-.IM troff (1)
+.MR troff (1)
 or
 Unix's
 .IR tex (1)
@@ -41,7 +41,7 @@ graphics files
 FAX
 page,
 a Plan 9
-.IM image (7)
+.MR image (7)
 file, an Inferno bitmap file, or other common format).
 .I Page
 displays these
@@ -108,7 +108,7 @@ it listens to the
 .B image
 plumbing channel
 (see
-.IM plumber (4) )
+.MR plumber (4) )
 for more images to display.
 The
 .B -i
@@ -194,7 +194,7 @@ reverses the order in which pages are displayed.
 Typing a
 .B w
 will write the currently viewed page to a new file as a compressed
-.IM image (7)
+.MR image (7)
 file.
 When possible, the filename is of the form
 .IR basename . pagenum . bit .
@@ -217,7 +217,7 @@ and
 PDF
 .IR files .
 It also calls a variety of conversion programs, such as those described in
-.IM jpg (1) ,
+.MR jpg (1) ,
 to convert the various raster graphics formats
 into Inferno bitmap files.
 Pages are converted ``on the fly,'' as needed.
@@ -235,11 +235,11 @@ Browse the Inferno bitmap library.
 man -t page | page -w
 Preview this manual in a new window.
 .SH "SEE ALSO
-.IM gs (1) ,
-.IM jpg (1) ,
-.IM proof (1) ,
-.IM tex (1) ,
-.IM troff (1)
+.MR gs (1) ,
+.MR jpg (1) ,
+.MR proof (1) ,
+.MR tex (1) ,
+.MR troff (1)
 .SH SOURCE
 .B \*9/src/cmd/page
 .SH DIAGNOSTICS
@@ -277,7 +277,7 @@ There are too many keyboard commands and menu items.
 Displaying a PostScript or PDF file depends both on having
 GhostScript
 (see
-.IM gs (1) )
+.MR gs (1) )
 installed and on the underlying operating system
 providing a file descriptor device tree at
 .BR /dev/fd .

@@ -15,7 +15,7 @@ cd \*9; ./INSTALL
 .SH DESCRIPTION
 To obtain the Plan 9 tree, use Git
 (see
-.IM git (1) )
+.MR git (1) )
 or download a tar file from
 .HR https://9fans.github.io/plan9port "" .
 .PP
@@ -25,7 +25,7 @@ usual place is
 In the root of the tree, run
 .BR ./INSTALL .
 This script builds the Plan 9 build program
-.IM mk (1)
+.MR mk (1)
 if necessary,
 cleans all previously built object files and libraries out of the tree,
 rebuilds and installs everything, and then cleans up.
@@ -109,7 +109,7 @@ can safely be repeated to rebuild the system from scratch.
 .PP
 Once the system is built for the first time,
 it can be maintained and rebuilt using
-.IM mk (1) .
+.MR mk (1) .
 To rebuild individual commands or libraries,
 run
 .B mk
@@ -119,7 +119,7 @@ and
 .B clean
 in the appropriate source directory
 (see
-.IM src (1) ).
+.MR src (1) ).
 .SH FILES
 .TP
 .B \*9/lib/moveplan9.files
@@ -132,7 +132,7 @@ the script that edits the files
 .TP
 .B \*9/src/mkmk.sh
 the shell script used to build
-.IM mk (1)
+.MR mk (1)
 .TP
 .B \*9/dist/manweb
 the shell script that builds the HTML manual
@@ -148,5 +148,5 @@ logged output from the last run of
 a summary of
 .B install.log
 .SH SEE ALSO
-.IM intro (1) ,
-.IM git (1)
+.MR intro (1) ,
+.MR git (1)

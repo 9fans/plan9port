@@ -20,7 +20,7 @@ fontsrv \- file system access to host fonts
 presents the host window system's fonts
 in the standard Plan 9 format
 (see
-.IM font (7) ).
+.MR font (7) ).
 It serves a virtual directory tree mounted at
 .I mtpt
 (if the
@@ -72,14 +72,14 @@ representing 32-character Unicode ranges.
 .PP
 .I Openfont
 (see
-.IM graphics (3) )
+.MR graphics (3) )
 recognizes font paths beginning with
 .B /mnt/font
 and implements them by invoking
 .IR fontsrv ;
 it need not be running already.
 See
-.IM font (7)
+.MR font (7)
 for a full discussion of font name syntaxes.
 .SH EXAMPLES
 List the fonts on the system:
@@ -96,7 +96,7 @@ or:
 .EE
 .LP
 Run
-.IM acme (1)
+.MR acme (1)
 using the operating system's Monaco as the fixed-width font:
 .IP
 .EX
@@ -104,7 +104,7 @@ using the operating system's Monaco as the fixed-width font:
 .EE
 .LP
 Run
-.IM sam (1)
+.MR sam (1)
 using the same font:
 .IP
 .EX
@@ -113,7 +113,7 @@ using the same font:
 .SH SOURCE
 .B \*9/src/cmd/fontsrv
 .SH SEE ALSO
-.IM font (7)
+.MR font (7)
 .SH BUGS
 .PP
 Due to OS X restrictions,

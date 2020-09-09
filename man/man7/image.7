@@ -5,9 +5,9 @@ image \- external format for images
 .B #include <draw.h>
 .SH DESCRIPTION
 Images are described in
-.IM graphics (3) ,
+.MR graphics (3) ,
 and the definition of pixel values is in
-.IM color (7) .
+.MR color (7) .
 Fonts and images are stored in external files
 in machine-independent formats.
 .PP
@@ -21,7 +21,7 @@ and
 and
 .B writememimage
 (see
-.IM memdraw (3) ).
+.MR memdraw (3) ).
 An uncompressed image file starts with 5
 strings:
 .BR chan ,
@@ -37,7 +37,7 @@ value is a textual string describing the pixel format
 (see
 .B strtochan
 in
-.IM graphics (3)
+.MR graphics (3)
 and the discussion of channel descriptors below),
 and the rectangle coordinates are decimal strings.
 The rest of the file contains the
@@ -73,7 +73,7 @@ The
 and
 .B unloadimage
 functions described in
-.IM allocimage (3)
+.MR allocimage (3)
 also deal with rows in this format, stored in user memory.
 .PP
 The channel format string is a sequence of two-character channel descriptions,
@@ -110,7 +110,7 @@ In particular
 .B 'r8g8b8'
 pixels have byte ordering blue, green, and red within the file.
 See
-.IM color (7)
+.MR color (7)
 for more details of the pixel format.
 .PP
 A venerable yet deprecated format replaces the channel string
@@ -179,7 +179,7 @@ as used by
 (see Plan 9's
 .IR faces (1)
 and
-.IM face (7) )
+.MR face (7) )
 and 16\(mu16
 cursors, can be stored textually, suitable for inclusion in C source.
 Each line of text represents one scan line as a
@@ -188,18 +188,18 @@ bytes, shorts, or words in C format.
 For cursors, each line defines a pair of bytes.
 (It takes two images to define a cursor; each must be stored separately
 to be processed by programs such as
-.IM tweak (1) .)
+.MR tweak (1) .)
 Face files of one bit per pixel are stored as a sequence of shorts,
 those of larger pixel sizes as a sequence of longs.
 Software that reads these files must deduce the image size from
 the input; there is no header.
 These formats reflect history rather than design.
 .SH "SEE ALSO"
-.IM jpg (1) ,
-.IM tweak (1) ,
-.IM graphics (3) ,
-.IM draw (3) ,
-.IM allocimage (3) ,
-.IM color (7) ,
-.IM face (7) ,
-.IM font (7)
+.MR jpg (1) ,
+.MR tweak (1) ,
+.MR graphics (3) ,
+.MR draw (3) ,
+.MR allocimage (3) ,
+.MR color (7) ,
+.MR face (7) ,
+.MR font (7)
