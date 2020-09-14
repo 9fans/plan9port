@@ -54,18 +54,17 @@ AUTOFRAMEWORK(Carbon)
 #undef time
 AUTOLIB(draw)	/* to cause link of X11 */
 
+#include "../devdraw/x11-memdraw.h"        /* for MODIFY_SELECTION macro */
+#include "../devdraw/x11-selection-mod.h"
+Xprivate _x;
+
 enum {
 	SnarfSize = 65536
 };
 char snarf[3*SnarfSize+1];
 Rune rsnarf[SnarfSize+1];
-XDisplay *xdisplay;
-XWindow drawable;
-Atom xclipboard;
-Atom xutf8string;
-Atom xtargets;
-Atom xtext;
-Atom xcompoundtext;
+
+Xprivate _x;
 
 void xselectionrequest(XEvent*);
 char *xgetsnarf(void);
@@ -98,21 +97,21 @@ main(int argc, char **argv)
 		break;
 	}ARGEND
 
-	if((xdisplay = XOpenDisplay(nil)) == nil)
+	if((_x.display = XOpenDisplay(nil)) == nil)
 		sysfatal("XOpenDisplay: %r");
-	drawable = XCreateWindow(xdisplay, DefaultRootWindow(xdisplay),
+	_x.drawable = XCreateWindow(_x.display, DefaultRootWindow(_x.display),
 		0, 0, 1, 1, 0, 0,
-		InputOutput, DefaultVisual(xdisplay, DefaultScreen(xdisplay)),
+		InputOutput, DefaultVisual(_x.display, DefaultScreen(_x.display)),
 		0, 0);
-	if(drawable == None)
+	if(_x.drawable == None)
 		sysfatal("XCreateWindow: %r");
-	XFlush(xdisplay);
+	XFlush(_x.display);
 
-	xclipboard = XInternAtom(xdisplay, "CLIPBOARD", False);
-	xutf8string = XInternAtom(xdisplay, "UTF8_STRING", False);
-	xtargets = XInternAtom(xdisplay, "TARGETS", False);
-	xtext = XInternAtom(xdisplay, "TEXT", False);
-	xcompoundtext = XInternAtom(xdisplay, "COMPOUND_TEXT", False);
+	_x.clipboard = XInternAtom(_x.display, "CLIPBOARD", False);
+	_x.utf8string = XInternAtom(_x.display, "UTF8_STRING", False);
+	_x.targets = XInternAtom(_x.display, "TARGETS", False);
+	_x.text = XInternAtom(_x.display, "TEXT", False);
+	_x.compoundtext = XInternAtom(_x.display, "COMPOUND_TEXT", False);
 
 #ifdef __APPLE__
 	if(PasteboardCreate(kPasteboardClipboard, &appleclip) != noErr)
@@ -124,7 +123,7 @@ main(int argc, char **argv)
 	xputsnarf();
 
 	for(;;){
-		XNextEvent(xdisplay, &xevent);
+		XNextEvent(_x.display, &xevent);
 		switch(xevent.type){
 		case DestroyNotify:
 			exits(0);
@@ -151,30 +150,19 @@ xselectionrequest(XEvent *e)
 	XSelectionRequestEvent *xe;
 	XDisplay *xd;
 
-	xd = xdisplay;
+	xd = _x.display;
 
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
 if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 	xe->target, xe->requestor, xe->property, xe->selection);
-	r.xselection.property = xe->property;
-	if(xe->target == xtargets){
-		a[0] = XA_STRING;
-		a[1] = xutf8string;
-		a[2] = xtext;
-		a[3] = xcompoundtext;
-
-		XChangeProperty(xd, xe->requestor, xe->property, xe->target,
-			8, PropModeReplace, (uchar*)a, sizeof a);
-	}else if(xe->target == XA_STRING || xe->target == xutf8string || xe->target == xtext || xe->target == xcompoundtext){
-		/* if the target is STRING we're supposed to reply with Latin1 XXX */
-		XChangeProperty(xd, xe->requestor, xe->property, xe->target,
-			8, PropModeReplace, (uchar*)snarf, strlen(snarf));
-	}else{
+         MODIFY_SELECTION(name, xe){
 		name = XGetAtomName(xd, xe->target);
 		if(strcmp(name, "TIMESTAMP") != 0)
-			fprint(2, "%s: cannot handle selection request for '%s' (%d)\n", argv0, name, (int)xe->target);
+		        fprint(2, "%s: cannot handle selection request for '%s' (%d)\n",
+		            argv0, name, (int)xe->target);
 		r.xselection.property = None;
+                  if (name) { XFree(name); name= 0x0; }
 	}
 
 	r.xselection.display = xe->display;
@@ -199,7 +187,7 @@ xgetsnarf(void)
 	XWindow w;
 	XDisplay *xd;
 
-	xd = xdisplay;
+	xd = _x.display;
 
 	w = None;
 	clipboard = None;
@@ -210,17 +198,17 @@ xgetsnarf(void)
 	if(0){
 		clipboard = XA_PRIMARY;
 		w = XGetSelectionOwner(xd, XA_PRIMARY);
-		if(w == drawable)
+		if(w == _x.drawable)
 			return snarf;
 	}
 
 	/*
 	 * If not, is there a clipboard selection?
 	 */
-	if(w == None && xclipboard != None){
-		clipboard = xclipboard;
-		w = XGetSelectionOwner(xd, xclipboard);
-		if(w == drawable)
+	if(w == None && _x.clipboard != None){
+		clipboard = _x.clipboard;
+		w = XGetSelectionOwner(xd, _x.clipboard);
+		if(w == _x.drawable)
 			return snarf;
 	}
 
@@ -240,13 +228,13 @@ xgetsnarf(void)
 	 * but that would add to the polling.
 	 */
 	prop = 1;
-	XChangeProperty(xd, drawable, prop, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
-	XConvertSelection(xd, clipboard, XA_STRING, prop, drawable, CurrentTime);
+	XChangeProperty(xd, _x.drawable, prop, XA_STRING, 8, PropModeReplace, (uchar*)"", 0);
+	XConvertSelection(xd, clipboard, XA_STRING, prop, _x.drawable, CurrentTime);
 	XFlush(xd);
 	lastlen = 0;
 	for(i=0; i<10 || (lastlen!=0 && i<30); i++){
 		sleep(100);
-		XGetWindowProperty(xd, drawable, prop, 0, 0, 0, AnyPropertyType,
+		XGetWindowProperty(xd, _x.drawable, prop, 0, 0, 0, AnyPropertyType,
 			&type, &fmt, &dummy, &len, &data);
 		if(lastlen == len && len > 0)
 			break;
@@ -256,9 +244,9 @@ xgetsnarf(void)
 		return nil;
 	/* get the property */
 	data = nil;
-	XGetWindowProperty(xd, drawable, prop, 0, SnarfSize/sizeof(ulong), 0,
+	XGetWindowProperty(xd, _x.drawable, prop, 0, SnarfSize/sizeof(ulong), 0,
 		AnyPropertyType, &type, &fmt, &len, &dummy, &xdata);
-	if(xdata == nil || (type != XA_STRING && type != xutf8string) || len == 0){
+	if(xdata == nil || (type != XA_STRING && type != _x.utf8string) || len == 0){
 		if(xdata)
 			XFree(xdata);
 		return nil;
@@ -274,10 +262,10 @@ xgetsnarf(void)
 void
 xputsnarf(void)
 {
-	if(0) XSetSelectionOwner(xdisplay, XA_PRIMARY, drawable, CurrentTime);
-	if(xclipboard != None)
-		XSetSelectionOwner(xdisplay, xclipboard, drawable, CurrentTime);
-	XFlush(xdisplay);
+	if(0) XSetSelectionOwner(_x.display, XA_PRIMARY, _x.drawable, CurrentTime);
+	if(_x.clipboard != None)
+		XSetSelectionOwner(_x.display, _x.clipboard, _x.drawable, CurrentTime);
+	XFlush(_x.display);
 }
 
 void

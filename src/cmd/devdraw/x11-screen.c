@@ -1,6 +1,7 @@
 #include <u.h>
 #include "x11-inc.h"
 #include "x11-keysym2ucs.h"
+#include "x11-selection-mod.h"
 #include <errno.h>
 #include <libc.h>
 #include <draw.h>
@@ -1584,31 +1585,14 @@ _xselect(XEvent *e)
 	xe = (XSelectionRequestEvent*)e;
 if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof atom=%d)\n",
 	xe->target, xe->requestor, xe->property, xe->selection, sizeof a[0]);
-	r.xselection.property = xe->property;
-	if(xe->target == _x.targets){
-		a[0] = _x.utf8string;
-		a[1] = XA_STRING;
-		a[2] = _x.text;
-		a[3] = _x.compoundtext;
-		XChangeProperty(_x.display, xe->requestor, xe->property, XA_ATOM,
-			32, PropModeReplace, (uchar*)a, nelem(a));
-	}else if(xe->target == XA_STRING
-	|| xe->target == _x.utf8string
-	|| xe->target == _x.text
-	|| xe->target == _x.compoundtext
-	|| ((name = XGetAtomName(_x.display, xe->target)) && strcmp(name, "text/plain;charset=UTF-8") == 0)){
-		/* text/plain;charset=UTF-8 seems nonstandard but is used by Synergy */
-		/* if the target is STRING we're supposed to reply with Latin1 XXX */
-		qlock(&clip.lk);
-		XChangeProperty(_x.display, xe->requestor, xe->property, xe->target,
-			8, PropModeReplace, (uchar*)clip.buf, strlen(clip.buf));
-		qunlock(&clip.lk);
-	}else{
+	MODIFY_SELECTION(name, xe) {
+		name = XGetAtomName(_x.display, xe->target);
 		if(strcmp(name, "TIMESTAMP") != 0)
-			fprint(2, "%s: cannot handle selection request for '%s' (%d)\n", argv0, name, (int)xe->target);
+		        fprint(2, "%s: cannot handle selection request for '%s' (%d)\n",
+		            argv0, name, (int)xe->target);
 		r.xselection.property = None;
 	}
-
+         if (name) XFree(name);
 	r.xselection.display = xe->display;
 	/* r.xselection.property filled above */
 	r.xselection.target = xe->target;
