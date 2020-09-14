@@ -144,27 +144,12 @@ main(int argc, char **argv)
 void
 xselectionrequest(XEvent *e)
 {
-	char *name;
-	Atom a[4];
 	XEvent r;
 	XSelectionRequestEvent *xe;
-	XDisplay *xd;
-
-	xd = _x.display;
 
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
-if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
-	xe->target, xe->requestor, xe->property, xe->selection);
-         MODIFY_SELECTION(name, xe){
-		name = XGetAtomName(xd, xe->target);
-		if(strcmp(name, "TIMESTAMP") != 0)
-		        fprint(2, "%s: cannot handle selection request for '%s' (%d)\n",
-		            argv0, name, (int)xe->target);
-		r.xselection.property = None;
-                  if (name) { XFree(name); name= 0x0; }
-	}
-
+         MODIFY_SELECTION(xe);
 	r.xselection.display = xe->display;
 	/* r.xselection.property filled above */
 	r.xselection.target = xe->target;
@@ -173,8 +158,8 @@ if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d\n",
 	r.xselection.time = xe->time;
 	r.xselection.send_event = True;
 	r.xselection.selection = xe->selection;
-	XSendEvent(xd, xe->requestor, False, 0, &r);
-	XFlush(xd);
+	XSendEvent(_x.display, xe->requestor, False, 0, &r);
+	XFlush(_x.display);
 }
 
 char*

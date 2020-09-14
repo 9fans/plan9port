@@ -1576,23 +1576,12 @@ __xputsnarf(char *data)
 static int
 _xselect(XEvent *e)
 {
-	char *name;
 	XEvent r;
 	XSelectionRequestEvent *xe;
-	Atom a[4];
 
 	memset(&r, 0, sizeof r);
 	xe = (XSelectionRequestEvent*)e;
-if(0) fprint(2, "xselect target=%d requestor=%d property=%d selection=%d (sizeof atom=%d)\n",
-	xe->target, xe->requestor, xe->property, xe->selection, sizeof a[0]);
-	MODIFY_SELECTION(name, xe) {
-		name = XGetAtomName(_x.display, xe->target);
-		if(strcmp(name, "TIMESTAMP") != 0)
-		        fprint(2, "%s: cannot handle selection request for '%s' (%d)\n",
-		            argv0, name, (int)xe->target);
-		r.xselection.property = None;
-	}
-         if (name) XFree(name);
+	MODIFY_SELECTION(xe);
 	r.xselection.display = xe->display;
 	/* r.xselection.property filled above */
 	r.xselection.target = xe->target;
