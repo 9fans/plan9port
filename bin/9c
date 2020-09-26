@@ -119,6 +119,10 @@ case "$tag" in
 		useclang
 		cflags="$cflags -g3 -m64"
 		;;
+*Darwin-arm64*)
+		useclang
+		cflags="$cflags -g3 -m64"
+		;;
 *Darwin*clang*)
 		useclang
 		cflags="$cflags -g3 -m32"
