@@ -19,6 +19,7 @@ usegcc()
 		-Wno-stringop-overflow \
 		-Wno-format-truncation \
 		-fno-omit-frame-pointer \
+		-fno-strict-aliasing \
 		-fsigned-char \
 		-fcommon \
 	"
@@ -81,8 +82,9 @@ useclang()
 		-Wno-gnu-designator \
 		-Wno-array-bounds \
 		-Wno-unneeded-internal-declaration \
-		-fsigned-char \
 		-fno-caret-diagnostics \
+		-fno-strict-aliasing \
+		-fsigned-char \
 	"
 	cflags="$cflags -g"
 	cflags="$cflags $CC9FLAGS"
