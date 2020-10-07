@@ -501,8 +501,13 @@ word1(int tok, int *ptok)
 		return tree1(COUNT, word1(yylex(), ptok));
 
 	case '`':
-		// |	'`' brace		{$$=tree1('`', $2);}
-		t = tree1('`', brace(yylex()));
+		// |	'`' brace		{$$=tree1('`', nil, $2);}
+		// |	'`' word brace		{$$=tree1('`', $2, $3);}
+		w = nil;
+		tok = yylex();
+		if(tok != '{')
+			w = yyword(tok, &tok, 1);
+		t = tree2('`', w, brace(tok));
 		*ptok = yylex();
 		return t;
 

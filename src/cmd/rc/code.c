@@ -141,10 +141,20 @@ outcode(tree *t, int eflag)
 		emitf(Xconc);
 		break;
 	case '`':
+		emitf(Xmark);
+		if(c0){
+			outcode(c0, 0);
+			emitf(Xglob);
+		}else{
+			emitf(Xmark);
+			emitf(Xword);
+			emits(strdup("ifs"));
+			emitf(Xdol);
+		}
 		emitf(Xbackq);
 		if(havefork){
 			p = emiti(0);
-			outcode(c0, 0);
+			outcode(c1, 0);
 			emitf(Xexit);
 			stuffdot(p);
 		} else
