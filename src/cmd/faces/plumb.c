@@ -211,6 +211,11 @@ nextface(void)
 			plumbfree(m);
 			continue;
 		}
+		t = value(m->attr, "srvname", srvname);
+		if(strcmp(t, srvname) != 0){
+			plumbfree(m);
+			continue;
+		}
 		data = m->data+5;
 		t = value(m->attr, "mailtype", "");
 		if(strcmp(t, "delete") == 0)

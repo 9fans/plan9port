@@ -46,6 +46,7 @@ extern char	*maildir;
 extern char	**maildirs;
 extern int	nmaildirs;
 extern CFsys	*mailfs;
+extern char	*srvname;
 
 Face*	nextface(void);
 void	findbit(Face*);
