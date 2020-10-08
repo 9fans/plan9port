@@ -174,8 +174,12 @@ msgplumb(Msg *m, int delete)
 	p.type = "text";
 
 	ai = 0;
-	a[ai].name = "filetype";
+	a[ai].name = "srvname";
+	a[ai].value = srvname;
+
+	a[++ai].name = "filetype";
 	a[ai].value = "mail";
+	a[ai-1].next = &a[ai];
 
 	a[++ai].name = "mailtype";
 	a[ai].value = delete?"delete":"new";

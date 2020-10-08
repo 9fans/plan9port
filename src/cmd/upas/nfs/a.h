@@ -36,6 +36,7 @@ char*	tcs(char*, char*);
 char*	unrfc2047(char*);
 
 extern Imap *imap;
+extern char *srvname;
 
 #undef isnumber
 #define isnumber	upas_isnumber

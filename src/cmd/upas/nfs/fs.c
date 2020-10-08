@@ -90,6 +90,7 @@ static char Ebadctl[] = "bad control message";
 
 Channel *fsreqchan;
 Srv fs;
+char *srvname;
 Qid rootqid;
 ulong t0;
 

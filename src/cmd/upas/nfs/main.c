@@ -29,7 +29,7 @@ usage(void)
 void
 threadmain(int argc, char **argv)
 {
-	char *server, *srvname, *root, *user;
+	char *server, *root, *user;
 	int mode;
 	char *mtpt;
 
