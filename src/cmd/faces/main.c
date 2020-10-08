@@ -77,6 +77,7 @@ int	ndown;
 char	date[64];
 Face	**faces;
 char	*maildir = "mbox";
+char	*srvname = "mail";
 ulong	now;
 
 Point	datep = { 8, 6 };
@@ -98,7 +99,7 @@ setdate(void)
 void
 init(void)
 {
-	mailfs = nsmount("mail", nil);
+	mailfs = nsmount(srvname, nil);
 	if(mailfs == nil)
 		sysfatal("mount mail: %r");
 	mousectl = initmouse(nil, screen);
@@ -664,7 +665,7 @@ killall(char *s)
 void
 usage(void)
 {
-	fprint(2, "usage: faces [-hi] [-m maildir] -W winsize\n");
+	fprint(2, "usage: faces [-hi] [-s srvname] [-m maildir] -W winsize\n");
 	threadexitsall("usage");
 }
 
@@ -685,6 +686,9 @@ threadmain(int argc, char *argv[])
 	case 'm':
 		addmaildir(EARGF(usage()));
 		maildir = nil;
+		break;
+	case 's':
+		srvname = EARGF(usage());
 		break;
 	case 'W':
 		winsize = EARGF(usage());
