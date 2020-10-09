@@ -362,9 +362,8 @@ msgRead(void* v)
 	while(!eof){
 		m = msgAlloc(con);
 
-		while((n = read9pmsg(fd, m->data, con->msize)) == 0)
-			;
-		if(n < 0){
+		n = read9pmsg(fd, m->data, con->msize);
+		if(n <= 0){
 			m->t.type = Tversion;
 			m->t.fid = NOFID;
 			m->t.tag = NOTAG;
