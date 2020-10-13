@@ -691,7 +691,7 @@ xfidctlwrite(Xfid *x, Window *w)
 				break;
 			}
 			for(i=0; i<nr; i++)
-				if(r[i] <= ' '){
+				if(r[i] < ' '){
 					err = "bad character in file name";
 					goto out;
 				}
