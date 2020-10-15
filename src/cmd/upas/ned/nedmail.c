@@ -189,7 +189,7 @@ CFsys *mailfs;
 void
 usage(void)
 {
-	fprint(2, "usage: %s [-nr] [-f mailfile] [-s mailfile]\n", argv0);
+	fprint(2, "usage: %s [-nr] [-S srvname] [-f mailfile] [-s mailfile]\n", argv0);
 	fprint(2, "       %s -c dir\n", argv0);
 	threadexitsall("usage");
 }
