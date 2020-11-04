@@ -298,8 +298,6 @@ cmd3(int tok, int *ptok)
 		t2 = brace(tok);
 		*ptok = dropsp(yylex());
 		return tree2(SWITCH, t1, t2);
-		// Note: cmd: a && for(x) y && b is a && {for (x) {y && b}}.
-		return cmd(tok, ptok);
 
 	case FN:
 		// |	FN words brace		{$$=tree2(FN, $2, $3);}
