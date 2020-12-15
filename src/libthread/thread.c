@@ -411,7 +411,14 @@ Top:
 		p->nthread--;
 /*print("nthread %d\n", p->nthread); */
 		_threadstkfree(t->stk, t->stksize);
-		free(t);
+		/*
+		 * Cannot free p->thread0 yet: it is used for the
+		 * context switches back to the scheduler.
+		 * Instead, we will free it at the end of this function.
+		 * But all the other threads can be freed now.
+		 */
+		if(t != p->thread0)
+			free(t);
 	}
 
 	for(;;){
@@ -490,6 +497,7 @@ Out:
 	unlock(&threadnproclock);
 	unlock(&p->lock);
 	_threadsetproc(nil);
+	free(p->thread0);
 	free(p);
 	_threadpexit();
 }
