@@ -26,10 +26,6 @@ usegcc()
 	# that option only works with gcc3+ it seems
 	cflags="$cflags -ggdb"
 	cflags="$cflags $CC9FLAGS"
-	case "$cflags" in
-	*sanitize=address*)
-		cflags="$cflags -DPLAN9PORT_ASAN"
-	esac
 }
 
 quiet()
@@ -87,11 +83,6 @@ useclang()
 	"
 	cflags="$cflags -g"
 	cflags="$cflags $CC9FLAGS"
-
-	case "$cflags" in
-	*sanitize=address*)
-		cflags="$cflags -DPLAN9PORT_ASAN"
-	esac
 }
 
 usexlc()
