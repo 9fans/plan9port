@@ -281,7 +281,7 @@ static void
 pthreadwakeupschedlocked(Proc *p, _Thread *self, _Thread *t)
 {
 	_threaddebug(self, "pthreadwakeupschedlocked %p %d", p, t->id);;
-	t->schedrend.l = &p->schedlock;
+	t->schedrend.l = &p->lock;
 	p->schedthread = t;
 	_procwakeup(&t->schedrend);
 }
