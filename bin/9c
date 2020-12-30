@@ -83,6 +83,7 @@ useclang()
 		-Wno-unneeded-internal-declaration \
 		-fsigned-char \
 		-fno-caret-diagnostics \
+		-fcommon \
 	"
 	cflags="$cflags -g"
 	cflags="$cflags $CC9FLAGS"
