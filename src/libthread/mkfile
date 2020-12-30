@@ -4,6 +4,7 @@ SYSOFILES=`{sh ./sysofiles.sh}
 LIB=libthread.a
 OFILES=\
 	$SYSOFILES\
+	bg.$O\
 	channel.$O\
 	daemonize.$O\
 	exec.$O\

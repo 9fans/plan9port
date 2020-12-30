@@ -1,7 +1,7 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_ 1
 #if defined(__cplusplus)
-extern "C" { 
+extern "C" {
 #endif
 
 AUTOLIB(thread)
@@ -15,6 +15,7 @@ void		threadexits(char *);
 void		threadexitsall(char *);
 void		threadsetname(char*, ...);
 void		threadsetstate(char*, ...);
+void		threadneedbackground(void);
 char		*threadgetname(void);
 int			threadyield(void);
 int			threadidle(void);
@@ -59,6 +60,8 @@ void		**threaddata(void);
  */
 void		threadmain(int argc, char *argv[]);
 extern	int	mainstacksize;
+
+int	threadmaybackground(void);
 
 /*
  * channel communication
@@ -180,7 +183,7 @@ int		threadspawnl(int[3], char*, ...);
 Channel*	threadwaitchan(void);
 
 /*
- * alternate interface to threadwaitchan - don't use both! 
+ * alternate interface to threadwaitchan - don't use both!
  */
 Waitmsg*	procwait(int pid);
 
