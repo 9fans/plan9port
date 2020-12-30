@@ -473,10 +473,8 @@ extern	_Thread	*(*threadnow)(void);
 typedef struct Lock Lock;
 struct Lock
 {
-#ifdef PLAN9PORT_USING_PTHREADS
 	int init;
 	pthread_mutex_t mutex;
-#endif
 	int held;
 };
 
