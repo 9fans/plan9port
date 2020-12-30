@@ -44,6 +44,12 @@ dither[16] =  {
 
 extern int chattydrawclient;
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 threadmain(int argc, char *argv[])
 {
