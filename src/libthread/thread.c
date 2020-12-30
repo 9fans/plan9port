@@ -844,7 +844,7 @@ main(int argc, char **argv)
 	// Easier to just run in pthread-per-thread mode.
 	pthreadperthread = 1;
 #endif
-	if(strstr(opts, "nodaemon") == nil && getenv("NOLIBTHREADDAEMONIZE") == nil)
+	if(threadmaybackground() && strstr(opts, "nodaemon") == nil && getenv("NOLIBTHREADDAEMONIZE") == nil)
 		_threadsetupdaemonize();
 
 	threadargc = argc;

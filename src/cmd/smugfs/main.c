@@ -51,6 +51,12 @@ smuglogin(void)
 	printerrors = 0;
 }
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 threadmain(int argc, char **argv)
 {

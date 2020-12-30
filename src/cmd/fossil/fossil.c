@@ -59,6 +59,12 @@ readCmdPart(char *file, char ***pcmd, int *pncmd)
 	*pncmd = ncmd;
 }
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 threadmain(int argc, char* argv[])
 {
