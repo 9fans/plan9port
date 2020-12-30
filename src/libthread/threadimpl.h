@@ -88,7 +88,6 @@ struct Proc
 	uint		nthread;
 	uint		sysproc;
 	_Procrendez	runrend;
-	Lock		schedlock;
 	_Thread	*schedthread;
 	void		*udata;
 	Jmp		sigjmp;
