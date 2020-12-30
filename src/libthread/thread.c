@@ -1,6 +1,6 @@
 #include "threadimpl.h"
 
-int	_threaddebuglevel;
+int	_threaddebuglevel = 0;
 
 static	uint		threadnproc;
 static	uint		threadnsysproc;
@@ -20,13 +20,16 @@ static	void		contextswitch(Context *from, Context *to);
 static	void		procmain(Proc*);
 static	void		procscheduler(Proc*);
 static	int		threadinfo(void*, char*);
+static 	void		pthreadscheduler(Proc *p);
+static	void		pthreadsleepschedlocked(Proc *p, _Thread *t);
+static	void		pthreadwakeupschedlocked(Proc *p, _Thread *self, _Thread *t);
+static	_Thread*	procnext(Proc*, _Thread*);
 
 static void
-_threaddebug(char *fmt, ...)
+_threaddebug(_Thread *t, char *fmt, ...)
 {
 	va_list arg;
 	char buf[128];
-	_Thread *t;
 	char *p;
 	static int fd = -1;
 
@@ -52,7 +55,8 @@ _threaddebug(char *fmt, ...)
 	va_start(arg, fmt);
 	vsnprint(buf, sizeof buf, fmt, arg);
 	va_end(arg);
-	t = proc()->thread;
+	if(t == nil)
+		t = proc()->thread;
 	if(t)
 		fprint(fd, "%p %d.%d: %s\n", proc(), getpid(), t->id, buf);
 	else
@@ -181,10 +185,15 @@ _threadcreate(Proc *p, void (*fn)(void*), void *arg, uint stack)
 		stack = 0; // not using it
 	t = threadalloc(fn, arg, stack);
 	t->proc = p;
-	if(p->nthread == 0)
-		p->thread0 = t;
-	else if(pthreadperthread)
-		_threadpthreadstart(p, t);
+	if(pthreadperthread) {
+		if(p->nthread != 0)
+			_threadpthreadstart(p, t);
+		else
+			t->mainthread = 1;
+	} else {
+		if(p->nthread == 0)
+			p->thread0 = t;
+	}
 	p->nthread++;
 	addthreadinproc(p, t);
 	_threadready(t);
@@ -197,6 +206,7 @@ threadcreate(void (*fn)(void*), void *arg, uint stack)
 	_Thread *t;
 
 	t = _threadcreate(proc(), fn, arg, stack);
+	_threaddebug(nil, "threadcreate %d", t->id);
 	return t->id;
 }
 
@@ -210,39 +220,9 @@ proccreate(void (*fn)(void*), void *arg, uint stack)
 	p = procalloc();
 	t = _threadcreate(p, fn, arg, stack);
 	id = t->id;	/* t might be freed after _procstart */
+	_threaddebug(t, "proccreate %p", p);
 	_procstart(p, procmain);
 	return id;
-}
-
-// For pthreadperthread mode, procswitch flips
-// between the threads.
-static void
-procswitch(Proc *p, _Thread *from, _Thread *to)
-{
-	_threaddebug("procswitch %p %d %d", p, from?from->id:-1, to?to->id:-1);
-	lock(&p->schedlock);
-	from->schedrend.l = &p->schedlock;
-	if(to) {
-		p->schedthread = to;
-		to->schedrend.l = &p->schedlock;
-		_threaddebug("procswitch wakeup %p %d", p, to->id);
-		_procwakeup(&to->schedrend);
-	}
-	if(p->schedthread != from) {
-		if(from->exiting) {
-			unlock(&p->schedlock);
-			_threadpexit();
-			_threaddebug("procswitch exit wakeup!!!\n");
-		}
-		while(p->schedthread != from) {
-			_threaddebug("procswitch sleep %p %d", p, from->id);
-			_procsleep(&from->schedrend);
-			_threaddebug("procswitch awake %p %d", p, from->id);
-		}
-		if(p->schedthread != from)
-			sysfatal("_procswitch %p %p oops", p->schedthread, from);
-	}
-	unlock(&p->schedlock);
 }
 
 void
@@ -255,10 +235,10 @@ _threadswitch(void)
 
 /*print("threadswtch %p\n", p); */
 
-	if(p->thread == p->thread0)
+	if(pthreadperthread)
+		pthreadscheduler(p);
+	else if(p->thread == p->thread0)
 		procscheduler(p);
-	else if(pthreadperthread)
-		procswitch(p, p->thread, p->thread0);
 	else
 		contextswitch(&p->thread->context, &p->schedcontext);
 }
@@ -390,7 +370,10 @@ void
 _threadpthreadmain(Proc *p, _Thread *t)
 {
 	_threadsetproc(p);
-	procswitch(p, t, nil);
+	lock(&p->lock);
+	pthreadsleepschedlocked(p, t);
+	unlock(&p->lock);
+	_threaddebug(nil, "startfn");
 	t->startfn(t->startarg);
 	threadexits(nil);
 }
@@ -400,76 +383,47 @@ procscheduler(Proc *p)
 {
 	_Thread *t;
 
-	_threaddebug("scheduler enter");
+	_threaddebug(nil, "scheduler enter");
 //print("s %p\n", p);
-Top:
-	lock(&p->lock);
-	t = p->thread;
-	p->thread = nil;
-	if(t->exiting){
-		delthreadinproc(p, t);
-		p->nthread--;
-/*print("nthread %d\n", p->nthread); */
-		_threadstkfree(t->stk, t->stksize);
-		/*
-		 * Cannot free p->thread0 yet: it is used for the
-		 * context switches back to the scheduler.
-		 * Instead, we will free it at the end of this function.
-		 * But all the other threads can be freed now.
-		 */
-		if(t != p->thread0)
-			free(t);
-	}
-
-	for(;;){
-		if((t = p->pinthread) != nil){
-			while(!onlist(&p->runqueue, t)){
-				p->runrend.l = &p->lock;
-				_threaddebug("scheduler sleep (pin)");
-				_procsleep(&p->runrend);
-				_threaddebug("scheduler wake (pin)");
-			}
-		}else
-		while((t = p->runqueue.head) == nil){
-			if(p->nthread == 0)
-				goto Out;
-			if((t = p->idlequeue.head) != nil){
-				/*
-				 * Run all the idling threads once.
-				 */
-				while((t = p->idlequeue.head) != nil){
-					delthread(&p->idlequeue, t);
-					addthread(&p->runqueue, t);
-				}
-				continue;
-			}
-			p->runrend.l = &p->lock;
-			_threaddebug("scheduler sleep");
-			_procsleep(&p->runrend);
-			_threaddebug("scheduler wake");
+	for(;;) {
+		/* Finish running current thread. */
+		lock(&p->lock);
+		t = p->thread;
+		p->thread = nil;
+		if(t->exiting){
+			delthreadinproc(p, t);
+			p->nthread--;
+	/*print("nthread %d\n", p->nthread); */
+			_threadstkfree(t->stk, t->stksize);
+			/*
+			 * Cannot free p->thread0 yet: it is used for the
+			 * context switches back to the scheduler.
+			 * Instead, we will free it at the end of this function.
+			 * But all the other threads can be freed now.
+			 */
+			if(t != p->thread0)
+				free(t);
 		}
-		if(p->pinthread && p->pinthread != t)
-			fprint(2, "p->pinthread %p t %p\n", p->pinthread, t);
-		assert(p->pinthread == nil || p->pinthread == t);
-		delthread(&p->runqueue, t);
+
+		/* Pick next thread. */
+		t = procnext(p, nil);
+		if(t == nil)
+			break;
+		_threaddebug(nil, "run %d (%s)", t->id, t->name);
+	//print("run %p %p %p %p\n", t, *(uintptr*)(t->context.uc.mc.sp), t->context.uc.mc.di, t->context.uc.mc.si);
 		unlock(&p->lock);
-		p->thread = t;
-		p->nswitch++;
-		_threaddebug("run %d (%s)", t->id, t->name);
-//print("run %p %p %p %p\n", t, *(uintptr*)(t->context.uc.mc.sp), t->context.uc.mc.di, t->context.uc.mc.si);
+
+		/* Switch to next thread. */
 		if(t == p->thread0)
 			return;
-		if(pthreadperthread)
-			procswitch(p, p->thread0, t);
-		else
-			contextswitch(&p->schedcontext, &t->context);
-		_threaddebug("back in scheduler");
-/*print("back in scheduler\n"); */
-		goto Top;
+		contextswitch(&p->schedcontext, &t->context);
+
+		_threaddebug(nil, "back in scheduler");
+	/*print("back in scheduler\n"); */
 	}
 
-Out:
-	_threaddebug("scheduler exit");
+	/* No more threads in proc. Clean up. */
+	_threaddebug(nil, "scheduler exit");
 	if(p->mainproc){
 		/*
 		 * Stupid bug - on Linux 2.6 and maybe elsewhere,
@@ -500,6 +454,125 @@ Out:
 	free(p->thread0);
 	free(p);
 	_threadpexit();
+}
+
+static void
+pthreadsleepschedlocked(Proc *p, _Thread *t)
+{
+	_threaddebug(t, "pthreadsleepsched %p %d", p, t->id);;
+	t->schedrend.l = &p->lock;
+	while(p->schedthread != t)
+		_procsleep(&t->schedrend);
+}
+
+static void
+pthreadwakeupschedlocked(Proc *p, _Thread *self, _Thread *t)
+{
+	_threaddebug(self, "pthreadwakeupschedlocked %p %d", p, t->id);;
+	t->schedrend.l = &p->schedlock;
+	p->schedthread = t;
+	_procwakeup(&t->schedrend);
+}
+
+static void
+pthreadscheduler(Proc *p)
+{
+	_Thread *self, *t;
+
+	_threaddebug(nil, "scheduler");
+	lock(&p->lock);
+	self = p->thread;
+	p->thread = nil;
+	_threaddebug(self, "pausing");
+
+	if(self->exiting) {
+		_threaddebug(self, "exiting");
+		delthreadinproc(p, self);
+		p->nthread--;
+	}
+
+	t = procnext(p, self);
+	if(t != nil) {
+		pthreadwakeupschedlocked(p, self, t);
+		if(!self->exiting) {
+			pthreadsleepschedlocked(p, self);
+			_threaddebug(nil, "resume %d", self->id);
+			unlock(&p->lock);
+			return;
+		}
+	}
+
+	if(t == nil) {
+		/* Tear down proc bookkeeping. Wait to free p. */
+		delproc(p);
+		lock(&threadnproclock);
+		if(p->sysproc)
+			--threadnsysproc;
+		if(--threadnproc == threadnsysproc)
+			threadexitsall(p->msg);
+		unlock(&threadnproclock);
+	}
+
+	/* Tear down pthread. */
+	if(self->mainthread && p->mainproc) {
+		_threaddaemonize();
+		_threaddebug(self, "sleeper");
+		unlock(&p->lock);
+		/*
+		 * Avoid bugs with main pthread exiting.
+		 * When all procs are gone, threadexitsall above will happen.
+		 */
+		for(;;)
+			sleep(60*60*1000);
+	}
+	_threadsetproc(nil);
+	free(self);
+	unlock(&p->lock);
+	if(t == nil)
+		free(p);
+	_threadpexit();
+}
+
+static _Thread*
+procnext(Proc *p, _Thread *self)
+{
+	_Thread *t;
+
+	if((t = p->pinthread) != nil){
+		while(!onlist(&p->runqueue, t)){
+			p->runrend.l = &p->lock;
+			_threaddebug(self, "scheduler sleep (pin)");
+			_procsleep(&p->runrend);
+			_threaddebug(self, "scheduler wake (pin)");
+		}
+	} else
+	while((t = p->runqueue.head) == nil){
+		if(p->nthread == 0)
+			return nil;
+		if((t = p->idlequeue.head) != nil){
+			/*
+			 * Run all the idling threads once.
+			 */
+			while((t = p->idlequeue.head) != nil){
+				delthread(&p->idlequeue, t);
+				addthread(&p->runqueue, t);
+			}
+			continue;
+		}
+		p->runrend.l = &p->lock;
+		_threaddebug(self, "scheduler sleep");
+		_procsleep(&p->runrend);
+		_threaddebug(self, "scheduler wake");
+	}
+
+	if(p->pinthread && p->pinthread != t)
+		fprint(2, "p->pinthread %p t %p\n", p->pinthread, t);
+	assert(p->pinthread == nil || p->pinthread == t);
+	delthread(&p->runqueue, t);
+
+	p->thread = t;
+	p->nswitch++;
+	return t;
 }
 
 void
@@ -784,14 +857,18 @@ threadrwakeup(Rendez *r, int all, ulong pc)
 	int i;
 	_Thread *t;
 
+	_threaddebug(nil, "rwakeup %p %d", r, all);
 	for(i=0;; i++){
 		if(i==1 && !all)
 			break;
 		if((t = r->waiting.head) == nil)
 			break;
+		_threaddebug(nil, "rwakeup %p %d -> wake %d", r, all, t->id);
 		delthread(&r->waiting, t);
 		_threadready(t);
+		_threaddebug(nil, "rwakeup %p %d -> loop", r, all);
 	}
+	_threaddebug(nil, "rwakeup %p %d -> total %d", r, all, i);
 	return i;
 }
 
@@ -827,6 +904,7 @@ int
 main(int argc, char **argv)
 {
 	Proc *p;
+	_Thread *t;
 	char *opts;
 
 	argv0 = argv[0];
@@ -875,7 +953,8 @@ main(int argc, char **argv)
 	if(mainstacksize == 0)
 		mainstacksize = 256*1024;
 	atnotify(threadinfo, 1);
-	_threadcreate(p, threadmainstart, nil, mainstacksize);
+	t = _threadcreate(p, threadmainstart, nil, mainstacksize);
+	t->mainthread = 1;
 	procmain(p);
 	sysfatal("procscheduler returned in threadmain!");
 	/* does not return */

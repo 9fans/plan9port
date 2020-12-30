@@ -97,6 +97,7 @@ struct _Thread
 	uchar	*stk;
 	uint	stksize;
 	int		exiting;
+	int		mainthread;
 	Proc	*proc;
 	char	name[256];
 	char	state[256];
