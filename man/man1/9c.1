@@ -1,6 +1,6 @@
 .TH 9C 1
 .SH NAME
-9c, 9a, 9l, 9ar \- C compiler, assembler, linker, archiver
+9c, 9l, 9ar \- C compiler, assembler, linker, archiver
 .SH SYNOPSIS
 .B 9c
 [
@@ -11,10 +11,6 @@
 .B -D
 .I name
 ]
-.I file
-\&...
-.PP
-.B 9a
 .I file
 \&...
 .PP
@@ -80,12 +76,6 @@ to the include path.
 also defines
 .B __sun__
 on SunOS systems.
-.PP
-.I 9a
-assembles the named files into object files for the current system.
-Unlike some system assemblers, it does
-.I not
-promise to run the C preprocessor on the source files.
 .PP
 .I 9l
 links the named object files and libraries to create the target executable.
@@ -201,10 +191,6 @@ rebuilt whenever the archive is modified.
 .L
 9c file1.c file2.c file3.c
 Compile three C source files.
-.TP
-.L
-9a file4.s
-Assemble one assembler source file.
 .TP
 .L
 9ar rvc lib.a file[12].o
