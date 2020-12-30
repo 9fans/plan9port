@@ -1,6 +1,7 @@
 *.a
 *.o
 *.orig
+LOCAL.config
 bin/"
 bin/""
 bin/9660srv
@@ -256,6 +257,7 @@ dict/
 install.log
 install.sum
 last-change
+lib/fortunes.index
 log/
 man/man?/*.html
 plan9-reverse.log
