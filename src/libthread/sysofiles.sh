@@ -2,15 +2,14 @@
 
 test -f $PLAN9/config && . $PLAN9/config
 
+echo pthread.o
+
 case "$SYSNAME" in
-NetBSD)
-	echo ${SYSNAME}-${OBJTYPE}-asm.o $SYSNAME.o stkmalloc.o
-	;;
 OpenBSD)
-	echo pthread.o stkmmap.o
+	echo stkmmap.o
 	;;
 *)
-	echo pthread.o stkmalloc.o
+	echo stkmalloc.o
 esac
 
 # Various libc don't supply swapcontext, makecontext, so we do.
