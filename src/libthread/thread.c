@@ -7,7 +7,7 @@ static	uint		threadnsysproc;
 static	Lock		threadnproclock;
 static	Ref		threadidref;
 static	Proc		*threadmainproc;
-static	int		pthreadperthread;
+static	int		pthreadperthread = 1;
 
 static	void		addproc(Proc*);
 static	void		delproc(Proc*);
