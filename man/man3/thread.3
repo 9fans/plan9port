@@ -158,27 +158,21 @@ by
 The thread library provides a
 .I main
 function that sets up a proc with a single thread executing
-.I threadmain
-on a stack of size
-.I mainstacksize
-(default eight kilobytes).
-To set
-.IR mainstacksize ,
-declare a global variable
-initialized to the desired value
-.RI ( e.g. ,
-.B int
-.B mainstacksize
-.B =
-.BR 1024 ).
-When using the
+.IR threadmain .
+.PP
+Every thread is backed by an operating system-provided
 .I pthread
-library,
-.B mainstacksize
-is ignored, as is the stack size argument to
-.BR proccreate :
-the first thread in each proc
-runs on the native system stack.
+and runs on its system-provided stack;
+.I mainstacksize
+and the the stack size arguments to
+.I proccreate
+and
+.I threadcreate
+are ignored.
+Although each thread is backed by a separate
+.IR pthread ,
+the threads in a proc are still scheduled non-preemptively
+as on Plan 9 and as described below.
 .PP
 .I Threadcreate
 creates a new thread in the calling proc, returning a unique integer
