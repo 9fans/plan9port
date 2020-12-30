@@ -7,7 +7,6 @@ static	uint		threadnsysproc;
 static	Lock		threadnproclock;
 static	Ref		threadidref;
 static	Proc		*threadmainproc;
-static	int		pthreadperthread = 1;
 
 static	void		addproc(Proc*);
 static	void		delproc(Proc*);
@@ -16,9 +15,7 @@ static	void		delthread(_Threadlist*, _Thread*);
 static	int		onlist(_Threadlist*, _Thread*);
 static	void		addthreadinproc(Proc*, _Thread*);
 static	void		delthreadinproc(Proc*, _Thread*);
-static	void		contextswitch(Context *from, Context *to);
 static	void		procmain(Proc*);
-static	void		procscheduler(Proc*);
 static	int		threadinfo(void*, char*);
 static 	void		pthreadscheduler(Proc *p);
 static	void		pthreadsleepschedlocked(Proc *p, _Thread *t);
@@ -86,114 +83,24 @@ procalloc(void)
 	return p;
 }
 
-static void
-threadstart(uint y, uint x)
-{
-	_Thread *t;
-	ulong z;
-
-//print("threadstart\n");
-	z = (ulong)x << 16;	/* hide undefined 32-bit shift from 32-bit compilers */
-	z <<= 16;
-	z |= y;
-	t = (_Thread*)z;
-
-//print("threadstart sp=%p arg=%p startfn=%p t=%p\n", &t, t, t->startfn, t->startarg);
-	t->startfn(t->startarg);
-/*print("threadexits %p\n", v); */
-	threadexits(nil);
-/*print("not reacehd\n"); */
-}
-
-static _Thread*
-threadalloc(void (*fn)(void*), void *arg, uint stack)
-{
-	_Thread *t;
-	sigset_t zero;
-	uint x, y;
-	ulong z;
-
-	/* allocate the task and stack together */
-	t = malloc(sizeof *t);
-	if(t == nil)
-		sysfatal("threadalloc malloc: %r");
-	memset(t, 0, sizeof *t);
-	t->id = incref(&threadidref);
-//print("fn=%p arg=%p\n", fn, arg);
-	t->startfn = fn;
-	t->startarg = arg;
-//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
-
-	/* do a reasonable initialization */
-	if(stack == 0)
-		return t;
-	t->stk = _threadstkalloc(stack);
-	if(t->stk == nil)
-		sysfatal("threadalloc malloc stack: %r");
-	t->stksize = stack;
-	memset(&t->context.uc, 0, sizeof t->context.uc);
-	sigemptyset(&zero);
-	sigprocmask(SIG_BLOCK, &zero, &t->context.uc.uc_sigmask);
-//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
-
-	/* must initialize with current context */
-	if(getcontext(&t->context.uc) < 0)
-		sysfatal("threadalloc getcontext: %r");
-//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
-
-	/*
-	 * Call makecontext to do the real work.
-	 * To avoid various mistakes on other system software,
-	 * debuggers, and so on, don't get too close to both
-	 * ends of the stack. Just staying away is much easier
-	 * than debugging everything (outside our control)
-	 * that has off-by-one errors.
-	 */
-	t->context.uc.uc_stack.ss_sp = (void*)(t->stk+64);
-	t->context.uc.uc_stack.ss_size = t->stksize-2*64;
-#if defined(__sun__) && !defined(__MAKECONTEXT_V2_SOURCE)		/* sigh */
-	/* can avoid this with __MAKECONTEXT_V2_SOURCE but only on SunOS 5.9 */
-	t->context.uc.uc_stack.ss_sp =
-		(char*)t->context.uc.uc_stack.ss_sp
-		+t->context.uc.uc_stack.ss_size;
-#endif
-	/*
-	 * All this magic is because you have to pass makecontext a
-	 * function that takes some number of word-sized variables,
-	 * and on 64-bit machines pointers are bigger than words.
-	 */
-//print("makecontext sp=%p t=%p startfn=%p\n", (char*)t->stk+t->stksize, t, t->startfn);
-	z = (ulong)t;
-	y = z;
-	z >>= 16;	/* hide undefined 32-bit shift from 32-bit compilers */
-	x = z>>16;
-	makecontext(&t->context.uc, (void(*)(void))threadstart, 2, y, x);
-
-	return t;
-}
-
 _Thread*
 _threadcreate(Proc *p, void (*fn)(void*), void *arg, uint stack)
 {
 	_Thread *t;
 
-	/* defend against bad C libraries */
-	if(stack < (256<<10))
-		stack = 256<<10;
-
-	if(p->nthread == 0 || pthreadperthread)
-		stack = 0; // not using it
-	t = threadalloc(fn, arg, stack);
+	USED(stack);
+	t = malloc(sizeof *t);
+	if(t == nil)
+		sysfatal("threadcreate malloc: %r");
+	memset(t, 0, sizeof *t);
+	t->id = incref(&threadidref);
+	t->startfn = fn;
+	t->startarg = arg;
 	t->proc = p;
-	if(pthreadperthread) {
-		if(p->nthread != 0)
-			_threadpthreadstart(p, t);
-		else
-			t->mainthread = 1;
-	} else {
-		if(p->nthread == 0)
-			p->thread0 = t;
-	}
+	if(p->nthread != 0)
+		_threadpthreadstart(p, t);
+	else
+		t->mainthread = 1;
 	p->nthread++;
 	addthreadinproc(p, t);
 	_threadready(t);
@@ -232,15 +139,8 @@ _threadswitch(void)
 
 	needstack(0);
 	p = proc();
-
 /*print("threadswtch %p\n", p); */
-
-	if(pthreadperthread)
-		pthreadscheduler(p);
-	else if(p->thread == p->thread0)
-		procscheduler(p);
-	else
-		contextswitch(&p->thread->context, &p->schedcontext);
+	pthreadscheduler(p);
 }
 
 void
@@ -339,15 +239,6 @@ threadsysfatal(char *fmt, va_list arg)
 }
 
 static void
-contextswitch(Context *from, Context *to)
-{
-	if(swapcontext(&from->uc, &to->uc) < 0){
-		fprint(2, "swapcontext failed: %r\n");
-		assert(0);
-	}
-}
-
-static void
 procmain(Proc *p)
 {
 	_Thread *t;
@@ -357,7 +248,6 @@ procmain(Proc *p)
 	/* take out first thread to run on system stack */
 	t = p->runqueue.head;
 	delthread(&p->runqueue, t);
-	memset(&t->context.uc, 0, sizeof t->context.uc);
 
 	/* run it */
 	p->thread = t;
@@ -376,84 +266,6 @@ _threadpthreadmain(Proc *p, _Thread *t)
 	_threaddebug(nil, "startfn");
 	t->startfn(t->startarg);
 	threadexits(nil);
-}
-
-static void
-procscheduler(Proc *p)
-{
-	_Thread *t;
-
-	_threaddebug(nil, "scheduler enter");
-//print("s %p\n", p);
-	for(;;) {
-		/* Finish running current thread. */
-		lock(&p->lock);
-		t = p->thread;
-		p->thread = nil;
-		if(t->exiting){
-			delthreadinproc(p, t);
-			p->nthread--;
-	/*print("nthread %d\n", p->nthread); */
-			_threadstkfree(t->stk, t->stksize);
-			/*
-			 * Cannot free p->thread0 yet: it is used for the
-			 * context switches back to the scheduler.
-			 * Instead, we will free it at the end of this function.
-			 * But all the other threads can be freed now.
-			 */
-			if(t != p->thread0)
-				free(t);
-		}
-
-		/* Pick next thread. */
-		t = procnext(p, nil);
-		if(t == nil)
-			break;
-		_threaddebug(nil, "run %d (%s)", t->id, t->name);
-	//print("run %p %p %p %p\n", t, *(uintptr*)(t->context.uc.mc.sp), t->context.uc.mc.di, t->context.uc.mc.si);
-		unlock(&p->lock);
-
-		/* Switch to next thread. */
-		if(t == p->thread0)
-			return;
-		contextswitch(&p->schedcontext, &t->context);
-
-		_threaddebug(nil, "back in scheduler");
-	/*print("back in scheduler\n"); */
-	}
-
-	/* No more threads in proc. Clean up. */
-	_threaddebug(nil, "scheduler exit");
-	if(p->mainproc){
-		/*
-		 * Stupid bug - on Linux 2.6 and maybe elsewhere,
-		 * if the main thread exits then the others keep running
-		 * but the process shows up as a zombie in ps and is not
-		 * attachable with ptrace.  We'll just sit around pretending
-		 * to be a system proc instead of exiting.
-		 */
-		_threaddaemonize();
-		lock(&threadnproclock);
-		if(++threadnsysproc == threadnproc)
-			threadexitsall(p->msg);
-		p->sysproc = 1;
-		unlock(&threadnproclock);
-		for(;;)
-		 	sleep(1000);
-	}
-
-	delproc(p);
-	lock(&threadnproclock);
-	if(p->sysproc)
-		--threadnsysproc;
-	if(--threadnproc == threadnsysproc)
-		threadexitsall(p->msg);
-	unlock(&threadnproclock);
-	unlock(&p->lock);
-	_threadsetproc(nil);
-	free(p->thread0);
-	free(p);
-	_threadpexit();
 }
 
 static void
@@ -913,15 +725,6 @@ main(int argc, char **argv)
 	if(opts == nil)
 		opts = "";
 
-	pthreadperthread = (strstr(opts, "pthreadperthread") != nil);
-#ifdef PLAN9PORT_ASAN
-	// ASAN can't deal with the coroutine stack switches.
-	// In theory it has support for informing it about stack switches,
-	// but even with those calls added it can't deal with things
-	// like fork or exit from a coroutine stack.
-	// Easier to just run in pthread-per-thread mode.
-	pthreadperthread = 1;
-#endif
 	if(threadmaybackground() && strstr(opts, "nodaemon") == nil && getenv("NOLIBTHREADDAEMONIZE") == nil)
 		_threadsetupdaemonize();
 
@@ -956,7 +759,7 @@ main(int argc, char **argv)
 	t = _threadcreate(p, threadmainstart, nil, mainstacksize);
 	t->mainthread = 1;
 	procmain(p);
-	sysfatal("procscheduler returned in threadmain!");
+	sysfatal("procmain returned in libthread");
 	/* does not return */
 	return 0;
 }
