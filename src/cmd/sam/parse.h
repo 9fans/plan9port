@@ -33,7 +33,8 @@ struct Cmd
 #define	ctext	g.text
 #define	caddr	g.addr
 
-extern struct cmdtab{
+typedef struct Cmdtab Cmdtab;
+struct Cmdtab {
 	ushort	cmdc;		/* command character */
 	uchar	text;		/* takes a textual argument? */
 	uchar	regexp;		/* takes a regular expression? */
@@ -43,7 +44,8 @@ extern struct cmdtab{
 	uchar	count;		/* takes a count e.g. s2/// */
 	char	*token;		/* takes text terminated by one of these */
 	int	(*fn)(File*, Cmd*);	/* function to call with parse tree */
-}cmdtab[];
+};
+extern Cmdtab cmdtab[];
 
 enum Defaddr{	/* default addresses */
 	aNo,
