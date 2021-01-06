@@ -700,11 +700,11 @@ bexecute(File *f, Posn startp)
 				break;
 			case 1:		/* expired; wrap to end */
 				if(sel.p[0].p1>=0)
-			case 3:
 					goto Return;
 				list[0][0].inst = list[1][0].inst = 0;
 				p = f->b.nc;
 				goto doloop;
+			case 3:
 			default:
 				goto Return;
 			}

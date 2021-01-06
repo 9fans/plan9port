@@ -635,9 +635,11 @@ simpleaddr(void)
 		case '.':
 		case '$':
 		case '\'':
-			if(addr.type!='"')
+			if(addr.type=='"')
+				break;
+			/* fall through */
 		case '"':
-				editerror("bad address syntax");
+			editerror("bad address syntax");
 			break;
 		case 'l':
 		case '#':

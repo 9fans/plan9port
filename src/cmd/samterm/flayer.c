@@ -169,8 +169,8 @@ newvisibilities(int redraw)
 			break;
 
 		case V(Some, Some):
-			if(l->f.b==0 && redraw)
 		case V(None, Some):
+			if(ov == None || (l->f.b==0 && redraw))
 				flprepare(l);
 			if(l->f.b && redraw){
 				flrefresh(l, l->entire, 0);
