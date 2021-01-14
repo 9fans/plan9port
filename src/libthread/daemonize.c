@@ -101,6 +101,13 @@ _threadsetupdaemonize(void)
 
 	sigpid = 1;
 
+	/*
+	 * We've been told this program is likely to background itself.
+	 * Put it in its own process group so that we don't get a SIGHUP
+	 * when the parent exits.
+	 */
+	setpgrp();
+
 	if(pipe(p) < 0)
 		sysfatal("passer pipe: %r");
 
