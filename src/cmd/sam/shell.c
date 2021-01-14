@@ -90,7 +90,7 @@ plan9(File *f, int type, String *s, int nest)
 						free(c);
 					}
 				}
-				exits(retcode? "error" : 0);
+				exits(0);
 			}
 			if(pid==-1){
 				fprint(2, "Can't fork?!\n");
