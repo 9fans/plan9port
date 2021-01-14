@@ -283,8 +283,8 @@ rterm(List *r, Posn p1)
 
 	for(p = 0,i = 0; i<r->nused && p+L(i)<=p1; p+=L(i++))
 		;
-	if(i==r->nused && (i==0 || !T(i-1)))
-		return 0;
+	if(i==r->nused)
+		return i > 0 && T(i-1);
 	return T(i);
 }
 
