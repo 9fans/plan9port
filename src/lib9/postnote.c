@@ -18,6 +18,11 @@ postnote(int who, int pid, char *msg)
 		return -1;
 	}
 
+	if(pid <= 0){
+		werrstr("bad pid in postnote");
+		return -1;
+	}
+
 	switch(who){
 	default:
 		werrstr("bad who in postnote");
