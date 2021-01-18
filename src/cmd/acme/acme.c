@@ -383,7 +383,7 @@ int erroutfd;
 void
 acmeerrorproc(void *v)
 {
-	char *buf, *s;
+	char *buf;
 	int n;
 
 	USED(v);
@@ -391,9 +391,7 @@ acmeerrorproc(void *v)
 	buf = emalloc(8192+1);
 	while((n=read(errorfd, buf, 8192)) >= 0){
 		buf[n] = '\0';
-		s = estrdup(buf);
-		sendp(cerr, s);
-		free(s);
+		sendp(cerr, estrdup(buf));
 	}
 	free(buf);
 }
