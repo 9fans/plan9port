@@ -106,7 +106,7 @@ _threadsetupdaemonize(void)
 	 * Put it in its own process group so that we don't get a SIGHUP
 	 * when the parent exits.
 	 */
-#if defined(__OpenBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(__NetBSD__)
 	setpgrp(0,0);
 #else
 	setpgrp();
