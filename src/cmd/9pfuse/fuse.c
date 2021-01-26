@@ -798,16 +798,19 @@ mountfuse(char *mtpt)
 	}
 	return fd;
 #elif defined(__APPLE__)
-	int i, pid, fd, r;
+	int i, pid, fd, r, p[2];
 	char buf[20];
 	struct vfsconf vfs;
 	char *f, *v;
 
 	if(getvfsbyname(v="osxfusefs", &vfs) < 0 &&
+	   getvfsbyname(v="macfuse", &vfs) < 0 &&
 	   getvfsbyname(v="osxfuse", &vfs) < 0 &&
 	   getvfsbyname(v="fusefs", &vfs) < 0){
 		if(access((v="osxfusefs", f="/Library/Filesystems/osxfusefs.fs"
 			"/Support/load_osxfusefs"), 0) < 0 &&
+		   access((v="macfuse", f="/Library/Filesystems/macfuse.fs"
+			"/Contents/Resources/load_macfuse"), 0) < 0 &&
 		   access((v="osxfuse", f="/Library/Filesystems/osxfuse.fs"
 			"/Contents/Resources/load_osxfuse"), 0) < 0 &&
 		   access((v="osxfuse", f="/opt/local/Library/Filesystems/osxfuse.fs"
@@ -835,6 +838,32 @@ mountfuse(char *mtpt)
 			werrstr("getvfsbyname %s: %r", v);
 			return -1;
 		}
+	}
+
+	/* MacFUSE >=4 dropped support for passing fd */
+	if (strcmp(v, "macfuse") == 0) {
+		if(socketpair(AF_UNIX, SOCK_STREAM, 0, p) < 0)
+			return -1;
+		pid = fork();
+		if(pid < 0)
+			return -1;
+		if(pid == 0){
+			close(p[1]);
+			snprint(buf, sizeof buf, "%d", p[0]);
+			putenv("_FUSE_COMMFD", buf);
+			putenv("_FUSE_COMMVERS", "2");
+			putenv("_FUSE_CALL_BY_LIB", "1");
+			putenv("_FUSE_DAEMON_PATH",
+				"/Library/Filesystems/macfuse.fs/Contents/Resources/mount_macfus");
+			execl("/Library/Filesystems/macfuse.fs/Contents/Resources/mount_macfuse",
+				"mount_macfuse", mtpt, nil);
+			fprint(2, "exec mount_macfuse: %r\n");
+			_exit(1);
+		}
+		close(p[0]);
+		fd = recvfd(p[1]);
+		close(p[1]);
+		return fd;
 	}
 
 	/* Look for available FUSE device. */
