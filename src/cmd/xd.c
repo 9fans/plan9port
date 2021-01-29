@@ -327,7 +327,7 @@ swizz8(void)
 		*q++ = *p++;
 	p = data;
 	q = swdata;
-	for(i=0; i<8; i++){
+	for(i=0; i<2; i++){
 		p[0] = q[7];
 		p[1] = q[6];
 		p[2] = q[5];
