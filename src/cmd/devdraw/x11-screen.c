@@ -419,7 +419,9 @@ runxevent(XEvent *xev)
 				_x.altdown = 1;
 			else if(_x.altdown) {
 				_x.altdown = 0;
+				xunlock();
 				gfx_keystroke(w->client, Kalt);
+				xlock();
 			}
 			break;
 		}
@@ -460,7 +462,9 @@ runxevent(XEvent *xev)
 		}
 		if((c = _xtoplan9kbd(xev)) < 0)
 			return;
+		xunlock();
 		gfx_keystroke(w->client, c);
+		xlock();
 		break;
 
 	case FocusOut:
@@ -1236,6 +1240,8 @@ _xtoplan9kbd(XEvent *e)
 	/* Do control mapping ourselves if translator doesn't */
 	if(e->xkey.state&ControlMask)
 		k &= 0x9f;
+	if((e->xkey.state&Mod4Mask) && ' ' <= k && k <= '~')
+		k += Kcmd;
 	if(k == NoSymbol) {
 		return -1;
 	}
