@@ -17,7 +17,7 @@
 enum {
 	TLSFinishedLen = 12,
 	SSL3FinishedLen = MD5dlen+SHA1dlen,
-	MaxKeyData = 104,	/* amount of secret we may need */
+	MaxKeyData = 136,	/* amount of secret we may need */
 	MaxChunk = 1<<14,
 	RandomSize = 32,
 	SidSize = 32,
@@ -116,7 +116,7 @@ typedef struct Msg{
 	} u;
 } Msg;
 
-struct TlsSec{
+typedef struct TlsSec{
 	char *server;	/* name of remote; nil for server */
 	int ok;	/* <0 killed; ==0 in progress; >0 reusable */
 	RSApub *rsapub;
@@ -130,7 +130,7 @@ struct TlsSec{
 	void (*prf)(uchar*, int, uchar*, int, char*, uchar*, int, uchar*, int);
 	void (*setFinished)(TlsSec*, MD5state, SHAstate, uchar*, int);
 	int nfin;
-};
+} TlsSec;
 
 
 enum {
@@ -242,6 +242,8 @@ static Algs cipherAlgs[] = {
 	{"rc4_128", "md5",	2 * (16 + MD5dlen), TLS_RSA_WITH_RC4_128_MD5},
 	{"rc4_128", "sha1",	2 * (16 + SHA1dlen), TLS_RSA_WITH_RC4_128_SHA},
 	{"3des_ede_cbc","sha1",2*(4*8+SHA1dlen), TLS_RSA_WITH_3DES_EDE_CBC_SHA},
+	{"aes_128_cbc", "sha1", 2*(16+16+SHA1dlen), TLS_RSA_WITH_AES_128_CBC_SHA},
+	{"aes_256_cbc", "sha1", 2*(32+16+SHA1dlen), TLS_RSA_WITH_AES_256_CBC_SHA}
 };
 
 static uchar compressors[] = {
@@ -256,7 +258,7 @@ static char* msgPrint(char *buf, int n, Msg *m);
 static int	msgRecv(TlsConnection *c, Msg *m);
 static int	msgSend(TlsConnection *c, Msg *m, int act);
 static void	tlsError(TlsConnection *c, int err, char *msg, ...);
-/* #pragma	varargck argpos	tlsError 3*/
+#pragma	varargck argpos	tlsError 3
 static int setVersion(TlsConnection *c, int version);
 static int finishedMatch(TlsConnection *c, Finished *f);
 static void tlsConnectionFree(TlsConnection *c);
@@ -273,7 +275,6 @@ static TlsSec*	tlsSecInitc(int cvers, uchar *crandom);
 static int	tlsSecSecretc(TlsSec *sec, uchar *sid, int nsid, uchar *srandom, uchar *cert, int ncert, int vers, uchar **epm, int *nepm, uchar *kd, int nkd);
 static int	tlsSecFinished(TlsSec *sec, MD5state md5, SHAstate sha1, uchar *fin, int nfin, int isclient);
 static void	tlsSecOk(TlsSec *sec);
-/* static void	tlsSecKill(TlsSec *sec); */
 static void	tlsSecClose(TlsSec *sec);
 static void	setMasterSecret(TlsSec *sec, Bytes *pm);
 static void	serverMasterSecret(TlsSec *sec, uchar *epm, int nepm);
@@ -296,14 +297,12 @@ static void* erealloc(void*, int);
 static void put32(uchar *p, u32int);
 static void put24(uchar *p, int);
 static void put16(uchar *p, int);
-/* static u32int get32(uchar *p); */
 static int get24(uchar *p);
 static int get16(uchar *p);
 static Bytes* newbytes(int len);
 static Bytes* makebytes(uchar* buf, int len);
 static void freebytes(Bytes* b);
 static Ints* newints(int len);
-/* static Ints* makeints(int* buf, int len); */
 static void freeints(Ints* b);
 
 /*================= client/server ======================== */
@@ -357,6 +356,8 @@ tlsServer(int fd, TLSconn *conn)
 	conn->sessionIDlen = tls->sid->len;
 	conn->sessionID = emalloc(conn->sessionIDlen);
 	memcpy(conn->sessionID, tls->sid->data, conn->sessionIDlen);
+	if(conn->sessionKey != nil && conn->sessionType != nil && strcmp(conn->sessionType, "ttls") == 0)
+		tls->sec->prf(conn->sessionKey, conn->sessionKeylen, tls->sec->sec, MasterSecretSize, conn->sessionConst,  tls->sec->crandom, RandomSize, tls->sec->srandom, RandomSize);
 	tlsConnectionFree(tls);
 	return data;
 }
@@ -408,6 +409,8 @@ tlsClient(int fd, TLSconn *conn)
 	conn->sessionIDlen = tls->sid->len;
 	conn->sessionID = emalloc(conn->sessionIDlen);
 	memcpy(conn->sessionID, tls->sid->data, conn->sessionIDlen);
+	if(conn->sessionKey != nil && conn->sessionType != nil && strcmp(conn->sessionType, "ttls") == 0)
+		tls->sec->prf(conn->sessionKey, conn->sessionKeylen, tls->sec->sec, MasterSecretSize, conn->sessionConst,  tls->sec->crandom, RandomSize, tls->sec->srandom, RandomSize);
 	tlsConnectionFree(tls);
 	return data;
 }
@@ -1131,18 +1134,23 @@ msgRecv(TlsConnection *c, Msg *m)
 		}
 		break;
 	case HCertificateRequest:
+		if(n < 1)
+			goto Short;
+		nn = p[0];
+		p += 1;
+		n -= 1;
+		if(nn < 1 || nn > n)
+			goto Short;
+		m->u.certificateRequest.types = makebytes(p, nn);
+		p += nn;
+		n -= nn;
 		if(n < 2)
 			goto Short;
 		nn = get16(p);
 		p += 2;
 		n -= 2;
-		if(nn < 1 || nn > n)
-			goto Short;
-		m->u.certificateRequest.types = makebytes(p, nn);
-		nn = get24(p);
-		p += 3;
-		n -= 3;
-		if(nn == 0 || n != nn)
+		/* nn == 0 can happen; yahoo's servers do it */
+		if(nn != n)
 			goto Short;
 		/* cas */
 		i = 0;
@@ -1155,7 +1163,8 @@ msgRecv(TlsConnection *c, Msg *m)
 			if(nn < 1 || nn > n)
 				goto Short;
 			m->u.certificateRequest.nca = i+1;
-			m->u.certificateRequest.cas = erealloc(m->u.certificateRequest.cas, (i+1)*sizeof(Bytes));
+			m->u.certificateRequest.cas = erealloc(
+				m->u.certificateRequest.cas, (i+1)*sizeof(Bytes));
 			m->u.certificateRequest.cas[i] = makebytes(p, nn);
 			p += nn;
 			n -= nn;
@@ -1196,8 +1205,10 @@ msgRecv(TlsConnection *c, Msg *m)
 		goto Short;
 Ok:
 	if(c->trace){
-		char buf[8000];
-		c->trace("recv %s", msgPrint(buf, sizeof buf, m));
+		char *buf;
+		buf = emalloc(8000);
+		c->trace("recv %s", msgPrint(buf, 8000, m));
+		free(buf);
 	}
 	return 1;
 Short:
@@ -1214,7 +1225,7 @@ msgClear(Msg *m)
 
 	switch(m->tag) {
 	default:
-		sysfatal("msgClear: unknown message type: %d\n", m->tag);
+		sysfatal("msgClear: unknown message type: %d", m->tag);
 	case HHelloRequest:
 		break;
 	case HClientHello:
@@ -1591,9 +1602,9 @@ factotum_rsa_open(uchar *cert, int certlen)
 	RSApub *rsapub;
 	AuthRpc *rpc;
 
-	if((rpc = auth_allocrpc()) == nil){
+	/* start talking to factotum */
+	if((rpc = auth_allocrpc()) == nil)
 		return nil;
-	}
 	s = "proto=rsa service=tls role=client";
 	if(auth_rpc(rpc, "start", s, strlen(s)) != ARok){
 		factotum_rsa_close(rpc);
@@ -1834,17 +1845,6 @@ tlsSecOk(TlsSec *sec)
 		sec->ok = 1;
 }
 
-/*
-static void
-tlsSecKill(TlsSec *sec)
-{
-	if(!sec)
-		return;
-	factotum_rsa_close(sec->rpc);
-	sec->ok = -1;
-}
-*/
-
 static void
 tlsSecClose(TlsSec *sec)
 {
@@ -2055,9 +2055,12 @@ mptobytes(mpint* big)
 	uchar *a;
 	Bytes* ans;
 
+	a = nil;
 	n = (mpsignif(big)+7)/8;
 	m = mptobe(big, nil, n, &a);
 	ans = makebytes(a, m);
+	if(a != nil)
+		free(a);
 	return ans;
 }
 
@@ -2217,14 +2220,6 @@ put16(uchar *p, int x)
 	p[1] = x;
 }
 
-/*
-static u32int
-get32(uchar *p)
-{
-	return (p[0]<<24)|(p[1]<<16)|(p[2]<<8)|p[3];
-}
-*/
-
 static int
 get24(uchar *p)
 {
@@ -2237,8 +2232,7 @@ get16(uchar *p)
 	return (p[0]<<8)|p[1];
 }
 
-/* ANSI offsetof() */
-#define OFFSET(x, s) ((intptr)(&(((s*)0)->x)))
+#define OFFSET(x, s) offsetof(s, x)
 
 /*
  * malloc and return a new Bytes structure capable of
@@ -2285,19 +2279,6 @@ newints(int len)
 	ans->len = len;
 	return ans;
 }
-
-/*
-static Ints*
-makeints(int* buf, int len)
-{
-	Ints* ans;
-
-	ans = newints(len);
-	if(len > 0)
-		memmove(ans->data, buf, len*sizeof(int));
-	return ans;
-}
-*/
 
 static void
 freeints(Ints* b)

@@ -1,6 +1,11 @@
 .TH SECHASH 3
 .SH NAME
-md4, md5, sha1, hmac_md5, hmac_sha1, md5pickle, md5unpickle, sha1pickle, sha1unpickle \- cryptographically secure hashes
+md4, md5,
+sha1, sha2_224, sha2_256, sha2_384, sha2_512,
+aes, hmac_x, hmac_md5,
+hmac_sha1, hmac_sha2_224, hmac_sha2_256, hmac_sha2_384, hmac_sha2_512,
+hmac_aes, md5pickle, md5unpickle,
+sha1pickle, sha1unpickle \- cryptographically secure hashes
 .SH SYNOPSIS
 .B #include <u.h>
 .br
@@ -35,7 +40,41 @@ DigestState*	sha1(uchar *data, ulong dlen, uchar *digest,
 char*		sha1pickle(MD5state *state)
 .PP
 .B
-MD5state*		sha1unpickle(char *p);
+SHA1state*		sha1unpickle(char *p);
+.PP
+.B
+DigestState*	sha2_224(uchar *data, ulong dlen, uchar *digest,
+.B
+			    DigestState *state)
+.PP
+.B
+DigestState*	sha2_256(uchar *data, ulong dlen, uchar *digest,
+.B
+			    DigestState *state)
+.PP
+.B
+DigestState*	sha2_384(uchar *data, ulong dlen, uchar *digest,
+.B
+			    DigestState *state)
+.PP
+.B
+DigestState*	sha2_512(uchar *data, ulong dlen, uchar *digest,
+.B
+			    DigestState *state)
+.PP
+.B
+DigestState*	aes(uchar *data, ulong dlen, uchar *digest,
+.B
+			    DigestState *state)
+.PP
+.B
+DigestState*	hmac_x(uchar *data, ulong dlen,
+.br
+.B
+			    uchar *key, ulong klen,
+.br
+.B
+			    uchar *digest, DigestState *state)
 .PP
 .B
 DigestState*	hmac_md5(uchar *data, ulong dlen,
@@ -54,10 +93,54 @@ DigestState*	hmac_sha1(uchar *data, ulong dlen,
 .br
 .B
 			    uchar *digest, DigestState *state)
+.PP
+.B
+DigestState*	hmac_sha2_224(uchar *data, ulong dlen,
+.br
+.B
+			    uchar *key, ulong klen,
+.br
+.B
+			    uchar *digest, DigestState *state)
+.PP
+.B
+DigestState*	hmac_sha2_256(uchar *data, ulong dlen,
+.br
+.B
+			    uchar *key, ulong klen,
+.br
+.B
+			    uchar *digest, DigestState *state)
+.PP
+.B
+DigestState*	hmac_sha2_384(uchar *data, ulong dlen,
+.br
+.B
+			    uchar *key, ulong klen,
+.br
+.B
+			    uchar *digest, DigestState *state)
+.PP
+.B
+DigestState*	hmac_sha2_512(uchar *data, ulong dlen,
+.br
+.B
+			    uchar *key, ulong klen,
+.br
+.B
+			    uchar *digest, DigestState *state)
+.PP
+.B
+DigestState*	hmac_sha2_aes(uchar *data, ulong dlen,
+.br
+.B
+			    uchar *key, ulong klen,
+.br
+.B
+			    uchar *digest, DigestState *state)
 .SH DESCRIPTION
 .PP
-These functions implement
-the cryptographic hash functions MD4, MD5, and SHA1.  The output of the
+We support several secure hash functions.  The output of a
 hash is called a
 .IR digest .
 A hash is secure if, given the hashed data and the digest,
@@ -71,14 +154,30 @@ The routines
 .IR md4 ,
 .IR md5 ,
 .IR sha1 ,
+.IR sha2_224 ,
+.IR sha2_256 ,
+.IR sha2_384 ,
+.IR sha2_512 ,
+.IR aes ,
 .IR hmac_md5 ,
+.IR hmac_sha1 ,
+.IR hmac_sha2_224 ,
+.IR hmac_sha2_256 ,
+.IR hmac_sha2_384 ,
+.IR hmac_sha2_512 ,
 and
-.I hmac_sha1
+.I hmac_aes
 differ only in the length of the resulting digest
-and in the security of the hash.  Usage for each is the same.
+and in the security of the hash.
+.I Sha2_*
+and
+.I hmac_sha2_*
+are the SHA-2 functions; the number after the final underscore
+is the number of bits in the resulting digest.
+Usage for each is the same.
 The first call to the routine should have
 .B nil
-as the 
+as the
 .I state
 parameter.  This call returns a state which can be used to chain
 subsequent calls.
@@ -113,20 +212,32 @@ bounded on each end by some secret:
 The constants
 .IR MD4dlen ,
 .IR MD5dlen ,
+.IR SHA1dlen ,
+.IR SHA2_224dlen ,
+.IR SHA2_256dlen ,
+.IR SHA2_384dlen,
+.IR SHA2_512dlen ,
 and
-.I SHA1dlen
+.I AESdlen
 define the lengths of the digests.
 .PP
-.I Hmac_md5
+.IR Hmac_md5 ,
+.IR hmac_sha1 ,
+.IR hmac_sha2_224 ,
+.IR hmac_sha2_256 ,
+.IR hmac_sha2_384 ,
+.IR hmac_sha2_512 ,
 and
-.I hmac_sha1
+.I hmac_aes
 are used slightly differently.  These hash algorithms are keyed and require
 a key to be specified on every call.
-The digest lengths for these hashes are
-.I MD5dlen
-and
-.I SHA1dlen
-respectively.
+The digest lengths for these hashes are the obvious ones from
+the above list of length constants.
+These routines all call
+.I hmac_x
+internally, but
+.I hmac_x
+is not intended for general use.
 .PP
 The functions
 .I md5pickle

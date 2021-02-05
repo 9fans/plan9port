@@ -1,7 +1,7 @@
 #ifndef _LIBSEC_H_
 #define _LIBSEC_H_ 1
 #if defined(__cplusplus)
-extern "C" { 
+extern "C" {
 #endif
 /*
 #pragma	lib	"libsec.a"
@@ -14,9 +14,9 @@ AUTOLIB(sec)
 typedef struct mpint mpint;
 #endif
 
-/*******************************************************/
-/* AES definitions */
-/*******************************************************/
+/*
+ * AES definitions
+ */
 
 enum
 {
@@ -31,19 +31,30 @@ struct AESstate
 	ulong	setup;
 	int	rounds;
 	int	keybytes;
+	uint	ctrsz;
 	uchar	key[AESmaxkey];		/* unexpanded key */
 	u32int	ekey[4*(AESmaxrounds + 1)];	/* encryption key */
 	u32int	dkey[4*(AESmaxrounds + 1)];	/* decryption key */
 	uchar	ivec[AESbsize];	/* initialization vector */
+	uchar	mackey[3 * AESbsize];		/* 3 XCBC mac 96 keys */
 };
+
+/* block ciphers */
+void	aes_encrypt(const u32int rk[], int Nr, const uchar pt[16], uchar ct[16]);
+void	aes_decrypt(const u32int rk[], int Nr, const uchar ct[16], uchar pt[16]);
 
 void	setupAESstate(AESstate *s, uchar key[], int keybytes, uchar *ivec);
 void	aesCBCencrypt(uchar *p, int len, AESstate *s);
 void	aesCBCdecrypt(uchar *p, int len, AESstate *s);
+void	aesCTRdecrypt(uchar *p, int len, AESstate *s);
+void	aesCTRencrypt(uchar *p, int len, AESstate *s);
 
-/*******************************************************/
-/* Blowfish Definitions */
-/*******************************************************/
+void	setupAESXCBCstate(AESstate *s);
+uchar*	aesXCBCmac(uchar *p, int len, AESstate *s);
+
+/*
+ * Blowfish Definitions
+ */
 
 enum
 {
@@ -70,9 +81,9 @@ void	bfCBCdecrypt(uchar*, int, BFstate*);
 void	bfECBencrypt(uchar*, int, BFstate*);
 void	bfECBdecrypt(uchar*, int, BFstate*);
 
-/*******************************************************/
-/* DES definitions */
-/*******************************************************/
+/*
+ * DES definitions
+ */
 
 enum
 {
@@ -128,51 +139,82 @@ void	des3CBCdecrypt(uchar*, int, DES3state*);
 void	des3ECBencrypt(uchar*, int, DES3state*);
 void	des3ECBdecrypt(uchar*, int, DES3state*);
 
-/*******************************************************/
-/* digests */
-/*******************************************************/
+/*
+ * digests
+ */
 
 enum
 {
 	SHA1dlen=	20,	/* SHA digest length */
+	SHA2_224dlen=	28,	/* SHA-224 digest length */
+	SHA2_256dlen=	32,	/* SHA-256 digest length */
+	SHA2_384dlen=	48,	/* SHA-384 digest length */
+	SHA2_512dlen=	64,	/* SHA-512 digest length */
 	MD4dlen=	16,	/* MD4 digest length */
-	MD5dlen=	16	/* MD5 digest length */
+	MD5dlen=	16,	/* MD5 digest length */
+	AESdlen=	16,	/* TODO: see rfc */
+
+	Hmacblksz	= 64,	/* in bytes; from rfc2104 */
 };
 
 typedef struct DigestState DigestState;
 struct DigestState
 {
-	ulong len;
-	u32int state[5];
-	uchar buf[128];
-	int blen;
-	char malloced;
-	char seeded;
+	uvlong	len;
+	union {
+		u32int	state[8];
+		u64int	bstate[8];
+	};
+	uchar	buf[256];
+	int	blen;
+	char	malloced;
+	char	seeded;
 };
 typedef struct DigestState SHAstate;	/* obsolete name */
 typedef struct DigestState SHA1state;
+typedef struct DigestState SHA2_224state;
+typedef struct DigestState SHA2_256state;
+typedef struct DigestState SHA2_384state;
+typedef struct DigestState SHA2_512state;
 typedef struct DigestState MD5state;
 typedef struct DigestState MD4state;
+typedef struct DigestState AEShstate;
 
-DigestState* md4(uchar*, ulong, uchar*, DigestState*);
-DigestState* md5(uchar*, ulong, uchar*, DigestState*);
-DigestState* sha1(uchar*, ulong, uchar*, DigestState*);
-DigestState* hmac_md5(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
-DigestState* hmac_sha1(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
-char* sha1pickle(SHA1state*);
-SHA1state* sha1unpickle(char*);
+DigestState*	md4(uchar*, ulong, uchar*, DigestState*);
+DigestState*	md5(uchar*, ulong, uchar*, DigestState*);
+DigestState*	sha1(uchar*, ulong, uchar*, DigestState*);
+DigestState*	sha2_224(uchar*, ulong, uchar*, DigestState*);
+DigestState*	sha2_256(uchar*, ulong, uchar*, DigestState*);
+DigestState*	sha2_384(uchar*, ulong, uchar*, DigestState*);
+DigestState*	sha2_512(uchar*, ulong, uchar*, DigestState*);
+DigestState*	aes(uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_x(uchar *p, ulong len, uchar *key, ulong klen,
+			uchar *digest, DigestState *s,
+			DigestState*(*x)(uchar*, ulong, uchar*, DigestState*),
+			int xlen);
+DigestState*	hmac_md5(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_sha1(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_sha2_224(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_sha2_256(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_sha2_384(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_sha2_512(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+DigestState*	hmac_aes(uchar*, ulong, uchar*, ulong, uchar*, DigestState*);
+char*		md5pickle(MD5state*);
+MD5state*	md5unpickle(char*);
+char*		sha1pickle(SHA1state*);
+SHA1state*	sha1unpickle(char*);
 
-/*******************************************************/
-/* random number generation */
-/*******************************************************/
+/*
+ * random number generation
+ */
 void	genrandom(uchar *buf, int nbytes);
 void	prng(uchar *buf, int nbytes);
 ulong	fastrand(void);
 ulong	nfastrand(ulong);
 
-/*******************************************************/
-/* primes */
-/*******************************************************/
+/*
+ * primes
+ */
 void	genprime(mpint *p, int n, int accuracy); /* generate an n bit probable prime */
 void	gensafeprime(mpint *p, mpint *alpha, int n, int accuracy);	/* prime and generator */
 void	genstrongprime(mpint *p, int n, int accuracy);	/* generate an n bit strong prime */
@@ -180,9 +222,9 @@ void	DSAprimes(mpint *q, mpint *p, uchar seed[SHA1dlen]);
 int	probably_prime(mpint *n, int nrep);	/* miller-rabin test */
 int	smallprimetest(mpint *p);		/* returns -1 if not prime, 0 otherwise */
 
-/*******************************************************/
-/* rc4 */
-/*******************************************************/
+/*
+ * rc4
+ */
 typedef struct RC4state RC4state;
 struct RC4state
 {
@@ -196,9 +238,9 @@ void	rc4(RC4state*, uchar*, int);
 void	rc4skip(RC4state*, int);
 void	rc4back(RC4state*, int);
 
-/*******************************************************/
-/* rsa */
-/*******************************************************/
+/*
+ * rsa
+ */
 typedef struct RSApub RSApub;
 typedef struct RSApriv RSApriv;
 typedef struct PEMChain PEMChain;
@@ -225,14 +267,14 @@ struct RSApriv
 	mpint	*c2;	/* (inv p) mod q */
 };
 
-struct PEMChain
-{
-	PEMChain *next;
-	uchar *pem;
-	int pemlen;
+struct PEMChain{
+	PEMChain*next;
+	uchar	*pem;
+	int	pemlen;
 };
 
 RSApriv*	rsagen(int nlen, int elen, int rounds);
+RSApriv*	rsafill(mpint *n, mpint *e, mpint *d, mpint *p, mpint *q);
 mpint*		rsaencrypt(RSApub *k, mpint *in, mpint *out);
 mpint*		rsadecrypt(RSApriv *k, mpint *in, mpint *out);
 RSApub*		rsapuballoc(void);
@@ -241,16 +283,20 @@ RSApriv*	rsaprivalloc(void);
 void		rsaprivfree(RSApriv*);
 RSApub*		rsaprivtopub(RSApriv*);
 RSApub*		X509toRSApub(uchar*, int, char*, int);
+uchar*		RSApubtoasn1(RSApub*, int*);
+RSApub*		asn1toRSApub(uchar*, int);
 RSApriv*	asn1toRSApriv(uchar*, int);
-uchar*		decodepem(char *s, char *type, int *len, char**);
+void		asn1dump(uchar *der, int len);
+uchar*		decodePEM(char *s, char *type, int *len, char**);
 PEMChain*	decodepemchain(char *s, char *type);
 uchar*		X509gen(RSApriv *priv, char *subj, ulong valid[2], int *certlen);
-RSApriv*	rsafill(mpint *n, mpint *ek, mpint *dk, mpint *p, mpint *q);
 uchar*	X509req(RSApriv *priv, char *subj, int *certlen);
+char*		X509verify(uchar *cert, int ncert, RSApub *pk);
+void		X509dump(uchar *cert, int ncert);
 
-/*******************************************************/
-/* elgamal */
-/*******************************************************/
+/*
+ * elgamal
+ */
 typedef struct EGpub EGpub;
 typedef struct EGpriv EGpriv;
 typedef struct EGsig EGsig;
@@ -289,9 +335,9 @@ EGsig*		egsigalloc(void);
 void		egsigfree(EGsig*);
 EGpub*		egprivtopub(EGpriv*);
 
-/*******************************************************/
-/* dsa */
-/*******************************************************/
+/*
+ * dsa
+ */
 typedef struct DSApub DSApub;
 typedef struct DSApriv DSApriv;
 typedef struct DSAsig DSAsig;
@@ -330,9 +376,9 @@ void		dsasigfree(DSAsig*);
 DSApub*		dsaprivtopub(DSApriv*);
 DSApriv*	asn1toDSApriv(uchar*, int);
 
-/*******************************************************/
-/* TLS */
-/*******************************************************/
+/*
+ * TLS
+ */
 typedef struct Thumbprint{
 	struct Thumbprint *next;
 	uchar sha1[SHA1dlen];
@@ -342,9 +388,14 @@ typedef struct TLSconn{
 	char dir[40];  /* connection directory */
 	uchar *cert;   /* certificate (local on input, remote on output) */
 	uchar *sessionID;
-	int certlen, sessionIDlen;
+	int	certlen;
+	int	sessionIDlen;
 	int (*trace)(char*fmt, ...);
 	PEMChain *chain;
+	char	*sessionType;
+	uchar	*sessionKey;
+	int	sessionKeylen;
+	char	*sessionConst;
 } TLSconn;
 
 /* tlshand.c */
