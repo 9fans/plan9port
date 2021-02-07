@@ -302,8 +302,10 @@ void
 xrdwr(int argc, char **argv)
 {
 	char buf[4096];
+	char *p;
 	int n;
 	CFid *fid;
+	Biobuf *b;
 
 	ARGBEGIN{
 	default:
@@ -313,6 +315,8 @@ xrdwr(int argc, char **argv)
 	if(argc != 1)
 		usage();
 
+	if((b = Bfdopen(0, OREAD)) == nil)
+		sysfatal("out of memory");
 	fid = xopen(argv[0], ORDWR);
 	for(;;){
 		fsseek(fid, 0, 0);
@@ -322,15 +326,15 @@ xrdwr(int argc, char **argv)
 			if(write(1, buf, n) < 0 || write(1, "\n", 1) < 0)
 				sysfatal("write error: %r");
 		}
-		n = read(0, buf, sizeof buf);
-		if(n <= 0)
+		if((p = Brdstr(b, '\n', 1)) == nil)
 			break;
-		if(buf[n-1] == '\n')
-			n--;
-		if(fswrite(fid, buf, n) != n)
+		n = strlen(p);
+		if(fswrite(fid, p, n) != n)
 			fprint(2, "write: %r\n");
+		free(p);
 	}
 	fsclose(fid);
+	Bterm(b);
 	threadexitsall(0);
 }
 

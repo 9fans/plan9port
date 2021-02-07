@@ -67,7 +67,6 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #if defined(__linux__)
 #	include <sys/types.h>
 #	include <pthread.h>
-#	define PLAN9PORT_USING_PTHREADS 1
 #	if defined(__USE_MISC)
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
@@ -76,7 +75,6 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #elif defined(__sun__)
 #	include <sys/types.h>
 #	include <pthread.h>
-#	define PLAN9PORT_USING_PTHREADS 1
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
@@ -84,7 +82,6 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #elif defined(__FreeBSD__)
 #	include <sys/types.h>
 #	include <osreldate.h>
-#	define PLAN9PORT_USING_PTHREADS 1
 #	include <pthread.h>
 #	if !defined(_POSIX_SOURCE)
 #		undef _NEEDUSHORT
@@ -93,7 +90,6 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #elif defined(__APPLE__)
 #	include <sys/types.h>
 #	include <pthread.h>
-#	define PLAN9PORT_USING_PTHREADS 1
 #	if __GNUC__ < 4
 #		undef _NEEDUSHORT
 #		undef _NEEDUINT
@@ -108,20 +104,19 @@ typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
 #elif defined(__NetBSD__)
 #	include <sched.h>
 #	include <sys/types.h>
+#	include <pthread.h>
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
 #elif defined(__OpenBSD__)
 #	include <sys/types.h>
 #	include <pthread.h>
-#	define PLAN9PORT_USING_PTHREADS 1
 #	undef _NEEDUSHORT
 #	undef _NEEDUINT
 #	undef _NEEDULONG
 #else
 	/* No idea what system this is -- try some defaults */
 #	include <pthread.h>
-#	define PLAN9PORT_USING_PTHREADS 1
 #endif
 
 #ifndef O_DIRECT

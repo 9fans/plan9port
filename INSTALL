@@ -71,18 +71,15 @@ if [ `uname` = SunOS ]; then
 	echo "* Running on Solaris: checking architecture..."
 	case "$(isainfo -n)" in
 	*amd64*)
-		echo "	x86-64 found."
-		echo "OBJTYPE=x86_64" >>$PLAN9/config
+		echo "	x86-64 found; using gcc."
 		echo "CC9=gcc" >>$PLAN9/config # defaults to gcc on Solaris/amd64
 		;;
 	*i386*)
-		echo "	i386 found."
-		echo "OBJTYPE=386" >>$PLAN9/config
+		echo "	i386 found; using gcc."
 		echo "CC9=gcc" >>$PLAN9/config # defaults to gcc on Solaris/i386
 		;;
 	*sparc*)
 		echo "	Sparc found."
-		echo "OBJTYPE=sparc" >>$PLAN9/config
 		;;
 	esac
 fi
@@ -90,28 +87,15 @@ fi
 if [ `uname` = Darwin ]; then
 	export NPROC=$(sysctl hw.ncpu | sed 's/hw.ncpu: //')
 	# On Darwin, uname -m -p cannot be trusted.
-	echo "* Running on Darwin: checking architecture..."
+	echo "* Running on Darwin..."
 	rm -f ./a.out
-	if ! gcc lib/darwin-main.c >/dev/null 2>&1; then
-		echo "Cannot find gcc. You may need to install the command-line tools using Xcode." >&2
+	if ! xcrun --sdk macosx clang lib/darwin-main.c >/dev/null 2>&1; then
+		echo "Cannot find 'xcrun --sdk macosx clang'." >&2
+		echo "You may need to install the command-line tools using Xcode." >&2
 		echo "See http://swtch.com/go/xcodegcc for details." >&2
 		exit 1
 	fi
-	case "$(file ./a.out 2>/dev/null)" in
-	*x86_64*)
-		echo "	x86-64 found."
-		echo "OBJTYPE=x86_64" >>$PLAN9/config
-		echo "CC9='xcrun --sdk macosx clang'" >>$PLAN9/config
-		;;
-	*i386*)
-		echo "	i386 found."
-		echo "OBJTYPE=386" >>$PLAN9/config
-		;;
-	*ppc*)
-		echo "	power found."
-		echo "OBJTYPE=power" >>$PLAN9/config
-		;;
-	esac
+	echo "CC9='xcrun --sdk macosx clang'" >>$PLAN9/config
 	rm -f ./a.out
 fi
 

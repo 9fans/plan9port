@@ -26,10 +26,6 @@ usegcc()
 	# that option only works with gcc3+ it seems
 	cflags="$cflags -ggdb"
 	cflags="$cflags $CC9FLAGS"
-	case "$cflags" in
-	*sanitize=address*)
-		cflags="$cflags -DPLAN9PORT_ASAN"
-	esac
 }
 
 quiet()
@@ -83,14 +79,10 @@ useclang()
 		-Wno-unneeded-internal-declaration \
 		-fsigned-char \
 		-fno-caret-diagnostics \
+		-fcommon \
 	"
 	cflags="$cflags -g"
 	cflags="$cflags $CC9FLAGS"
-
-	case "$cflags" in
-	*sanitize=address*)
-		cflags="$cflags -DPLAN9PORT_ASAN"
-	esac
 }
 
 usexlc()
@@ -111,24 +103,14 @@ usexlc()
 	cflags="$cflags $CC9FLAGS"
 }
 
-tag="${SYSNAME:-`uname`}-${OBJTYPE:-`uname -m`}-${CC9:-cc}"
+tag="${SYSNAME:-`uname`}-${CC9:-cc}"
 case "$tag" in
 *DragonFly*gcc*|*BSD*gcc*)	usegcc ;;
 *DragonFly*clang|*BSD*clang*)	useclang ;;
-*Darwin-x86_64*)
+*Darwin*)
 		useclang
 		cflags="$cflags -g3 -m64"
 		;;
-*Darwin-arm64*)
-		useclang
-		cflags="$cflags -g3 -m64"
-		;;
-*Darwin*clang*)
-		useclang
-		cflags="$cflags -g3 -m32"
-		;;
-*Darwin*)	usegcc
-		cflags="$cflags -g3 -no-cpp-precomp -m32" ;;
 *HP-UX*)	cc=${CC9:-cc}; cflags="-g -O -c -Ae" ;;
 *Linux*)	usegcc
 		case "${CC9:-gcc}" in

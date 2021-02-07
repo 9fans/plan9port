@@ -1,18 +1,16 @@
 
 # this works in gnu make
 SYSNAME:=${shell uname}
-OBJTYPE:=${shell uname -m | sed 's;i.86;386;; s;/.*;;; s; ;;g'}
 
 # this works in bsd make
 SYSNAME!=uname
-OBJTYPE!=uname -m | sed 's;i.86;386;; s;amd64;x864_64;; s;/.*;;; s; ;;g'
 
 # the gnu rules will mess up bsd but not vice versa,
 # hence the gnu rules come first.
 
 RANLIB=true
 
-include Make.$(SYSNAME)-$(OBJTYPE)
+include Make.$(SYSNAME)
 
 PREFIX=/usr/local
 
