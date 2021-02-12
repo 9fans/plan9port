@@ -231,8 +231,6 @@ mousethread(void *v)
 			goto Send;
 		}else if(mouse->buttons&2)
 			button2menu(w);
-		else
-			bouncemouse(mouse);
 	}
 }
 
