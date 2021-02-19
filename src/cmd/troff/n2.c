@@ -57,13 +57,12 @@ int pchar(Tchar i)
 		return 0;
 	}
 	switch (j = cbits(i)) {
+	case HX:
+		hx = 1; /* fall through */
 	case 0:
 	case IMP:
 	case RIGHT:
 	case LEFT:
-		return 0;
-	case HX:
-		hx = 1;
 		return 0;
 	case XON:
 		xon++;
@@ -237,7 +236,8 @@ void done(int x)
 	pendnf = 0;
 	if (donef == 1)
 		done1(0);
-	donef = 1;
+	else 
+		donef = 1;
 	ip = 0;
 	frame = stk;
 	nxf = frame + 1;

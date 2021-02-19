@@ -7,7 +7,6 @@ O=o
 OS=$O
 
 CC=9c
-#CC=9r
 LD=9l
 AS=no-9a
 AR=9ar
