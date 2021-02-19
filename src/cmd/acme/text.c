@@ -761,14 +761,17 @@ texttype(Text *t, Rune r)
 		textshow(t, q0, q0, TRUE);
 		return;
 	case Kcmd+'c':	/* %C: copy */
+	case 0x03:	/* ^C: copy */
 		typecommit(t);
 		cut(t, t, nil, TRUE, FALSE, nil, 0);
 		return;
 	case Kcmd+'z':	/* %Z: undo */
+	case 0x1a:	/* ^Z: undo */
 	 	typecommit(t);
 		undo(t, nil, nil, TRUE, 0, nil, 0);
 		return;
 	case Kcmd+'Z':	/* %-shift-Z: redo */
+	case 0x19:	/* ^Y: redo */
 	 	typecommit(t);
 		undo(t, nil, nil, FALSE, 0, nil, 0);
 		return;
@@ -797,6 +800,7 @@ texttype(Text *t, Rune r)
 	/* cut/paste must be done after the seq++/filemark */
 	switch(r){
 	case Kcmd+'x':	/* %X: cut */
+	case 0x18:	/* ^X: cut */
 		typecommit(t);
 		if(t->what == Body){
 			seq++;
@@ -807,6 +811,7 @@ texttype(Text *t, Rune r)
 		t->iq1 = t->q0;
 		return;
 	case Kcmd+'v':	/* %V: paste */
+	case 0x16:	/* ^V: paste */
 		typecommit(t);
 		if(t->what == Body){
 			seq++;
