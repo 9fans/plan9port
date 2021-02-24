@@ -70,6 +70,7 @@ lp/spooler/nospool
 lp/stat/generic
 lp/stat/lpd
 mac/9term.app/Contents/MacOS/9term
+mac/Acme.app/Contents/MacOS/acme
 mac/Plumb.app/Contents/MacOS/plumb
 mail/lib/qmail
 mail/lib/remotemail
