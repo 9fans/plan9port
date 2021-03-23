@@ -21,7 +21,7 @@ syminit(void)
 Symtab *
 symlook(char *sym, int space, void *install)
 {
-	ulong h;
+	unsigned long h;
 	char *p;
 	Symtab *s;
 
@@ -45,7 +45,7 @@ symlook(char *sym, int space, void *install)
 void
 symdel(char *sym, int space)
 {
-	ulong h;
+	unsigned long h;
 	char *p;
 	Symtab *s, *ls;
 
