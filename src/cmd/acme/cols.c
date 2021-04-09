@@ -254,8 +254,8 @@ colresize(Column *c, Rectangle r)
 			r1.max.y = r.max.y;
 		else{
 			r1.max.y = r1.min.y;
-			if(new > 0 && old > 0 && Dy(w->r) > Border+font->height){
-				r1.max.y += (Dy(w->r)-Border-font->height)*new/old + Border + font->height;
+			if(new > 0 && old > 0 && Dy(w->r) > font->height){
+				r1.max.y += (Dy(w->r)-font->height)*new/old + Border + font->height;
 			}
 		}
 		r1.max.y = max(r1.max.y, r1.min.y + Border+font->height);
