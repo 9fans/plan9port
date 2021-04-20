@@ -15,14 +15,14 @@ int rfork(int flags)
 is a partial implementation of the Plan 9 system call.
 It can be used to manipulate some process state and to create
 new processes a la 
-.IR fork (2).
+.MR fork (2) .
 It cannot be used to create shared-memory processes 
 (Plan 9's
 .B RFMEM
 flag); for that functionality use
 .I proccreate
 (see 
-.IR thread (3)).
+.MR thread (3) ).
 .PP
 The
 .I flags
@@ -45,7 +45,7 @@ If set, the child process will be dissociated from the parent. Upon
 exit the child will leave no
 .B Waitmsg
 (see
-.IR wait (3))
+.MR wait (3) )
 for the parent to collect.
 .\" .TP
 .\" .B RFNAMEG
@@ -81,9 +81,9 @@ for the parent to collect.
 Each process is a member of a group of processes that all
 receive notes when a note is sent to the group
 (see
-.IR postnote (3)
+.MR postnote (3)
 and
-.IR signal (2)).
+.MR signal (2) ).
 The group of a new process is by default the same as its parent, but if
 .B RFNOTEG
 is set (regardless of
@@ -154,7 +154,7 @@ will sleep, if necessary, until required process resources are available.
 Calling
 .B rfork(RFFDG|RFPROC)
 is equivalent to calling
-.IR fork (2).
+.MR fork (2) .
 .SH SOURCE
 .B \*9/src/lib9/rfork.c
 .SH DIAGNOSTICS

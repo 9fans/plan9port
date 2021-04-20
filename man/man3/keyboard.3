@@ -23,14 +23,14 @@ void			closekeyboard(Keyboard *kc)
 .SH DESCRIPTION
 These functions access and control a keyboard interface
 for character-at-a-time I/O in a multi-threaded environment, usually in combination with
-.IR mouse (3).
+.MR mouse (3) .
 They use the message-passing
 .B Channel
 interface in the threads library
 (see
-.IR thread (3));
+.MR thread (3) );
 programs that wish a more event-driven, single-threaded approach should use
-.IR event (3).
+.MR event (3) .
 .PP
 .I Initkeyboard
 opens a connection to the keyboard and returns a
@@ -86,10 +86,10 @@ structure.
 .SH SOURCE
 .B \*9/src/libdraw
 .SH SEE ALSO
-.IR graphics (3),
-.IR draw (3),
-.IR event (3),
-.IR thread (3).
+.MR graphics (3) ,
+.MR draw (3) ,
+.MR event (3) ,
+.MR thread (3) .
 .SH BUGS
 Because the interface delivers complete runes,
 there is no way to report lesser actions such as

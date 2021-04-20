@@ -8,7 +8,7 @@
 #undef wait
 
 static int sigpid;
-static int threadpassfd;
+static int threadpassfd = -1;
 static int gotsigchld;
 
 static void
@@ -101,6 +101,13 @@ _threadsetupdaemonize(void)
 
 	sigpid = 1;
 
+	/*
+	 * We've been told this program is likely to background itself.
+	 * Put it in its own process group so that we don't get a SIGHUP
+	 * when the parent exits.
+	 */
+	setpgrp();
+
 	if(pipe(p) < 0)
 		sysfatal("passer pipe: %r");
 
@@ -163,9 +170,9 @@ _threadsetupdaemonize(void)
 void
 _threaddaemonize(void)
 {
-	if(threadpassfd >= 0){
-		write(threadpassfd, "0", 1);
-		close(threadpassfd);
-		threadpassfd = -1;
-	}
+	if(threadpassfd < 0)
+		sysfatal("threads in main proc exited w/o threadmaybackground");
+	write(threadpassfd, "0", 1);
+	close(threadpassfd);
+	threadpassfd = -1;
 }

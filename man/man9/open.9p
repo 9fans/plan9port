@@ -160,7 +160,7 @@ in this case, the
 .I fscreate
 call
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 uses
 .B open
 with truncation.
@@ -209,7 +209,7 @@ again.
 and
 .I fscreate
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 both generate
 .B open
 messages; only

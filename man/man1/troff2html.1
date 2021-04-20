@@ -13,7 +13,7 @@ troff2html \- convert troff output into HTML
 .SH DESCRIPTION
 .I Troff2html
 reads the
-.IR troff (1)
+.MR troff (1)
 output in the named
 .IR files ,
 default standard input,
@@ -25,12 +25,13 @@ does a tolerable job with straight
 output, but it is helped by annotations, described below.
 Its main use is for
 .B man2html
-(see Plan 9's \fIhttpd\fR(8)),
+(see Plan 9's
+.IR httpd (8)),
 which converts
-.IR man (1)
+.MR man (1)
 pages into HTML
 and depends on a specially annotated set of
-.IR man (7)
+.MR man (7)
 macros, invoked by
 .B troff
 .BR -manhtml .
@@ -57,25 +58,25 @@ x X html manref end cp 1
 .EE
 .PP
 which are used to create HTML hyperlinks around text of the form
-.IR cp (1)
+.MR cp (1)
 pointing to
 .BR /magic/man2html/1/cp .
 .PP
 .I Troff2html
 is new and experimental; in time, it may improve and subsume
 Plan 9's
-\fIms2html\fR(1).
+.IR ms2html (1).
 On the one hand, because it uses the input,
 .B ms2html
 can handle
-.IR pic (1),
-.IR eqn (1),
+.MR pic (1) ,
+.MR eqn (1) ,
 etc., which
 .I troff2html
 does not handle at all; on the other hand,
 .B ms2html
 understands only
-.IR ms (7)
+.MR ms (7)
 documents and is easily confused by complex
 .B troff
 constructions.
@@ -83,13 +84,13 @@ constructions.
 has the reverse properties: it does not handle the preprocessors but its output
 is reliable and (modulo helper annotations) is independent of macro package.
 .SH SEE ALSO
-.IR troff (1),
+.MR troff (1) ,
 Plan 9's
-\fIms2html\fR(1),
+.IR ms2html (1),
 .I man2html
 in
 Plan 9's
-\fIhttpd\fR(8).
+.IR httpd (8).
 .SH BUGS
 .B Troff
 and HTML have different models, and they don't mesh well in all cases.

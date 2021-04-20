@@ -144,7 +144,7 @@ When creating new file references by copying pointers,
 call 
 .I incref
 (see
-.IR lock (3))
+.MR lock (3) )
 to update the reference count.
 To note the removal of a reference to a file, call
 .IR closefile .
@@ -218,6 +218,6 @@ return nf;
 .SH SOURCE
 .B \*9/src/lib9p/file.c
 .SH SEE ALSO
-.IR 9p (3)
+.MR 9p (3)
 .SH BUGS
 The reference counting is cumbersome.

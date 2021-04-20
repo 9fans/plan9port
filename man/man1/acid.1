@@ -70,7 +70,7 @@ at startup; see below.
 .BI -m " machine
 Assume instructions are for the given CPU type
 (see
-.IR mach (3))
+.MR mach (3) )
 instead of using the executable header to select
 the CPU type.
 .TP
@@ -145,7 +145,7 @@ subscripts counted from 0.
 .BI delete " list", " subscript
 .PP
 Format codes are the same as in
-.IR db (1).
+.MR db (1) .
 Formats may be attached to (unary) expressions with
 .BR \e ,
 e.g.
@@ -230,7 +230,7 @@ Print 10 lines of source around the program address.
 .BI Bsrc( address )
 Get the source line for the program address
 into a window of a running
-.IR sam (1)
+.MR sam (1)
 and select it.
 .TP
 .BI line( address )
@@ -323,7 +323,7 @@ Make the given process current.
 .TP
 .BI rc( string )
 Escape to the shell,
-.IR rc (1),
+.MR rc (1) ,
 to execute the command string.
 .TP
 .BI include( string )
@@ -449,7 +449,7 @@ notation)
 .BR *array .
 .PP
 Trace the system calls executed by
-.IR ls (1)
+.MR ls (1)
 (neither does this one):
 .IP
 .EX
@@ -503,8 +503,8 @@ acid: cont()
 .SH SOURCE
 .B \*9/src/cmd/acid
 .SH "SEE ALSO"
-.IR mk (1),
-.IR db (1)
+.MR mk (1) ,
+.MR db (1)
 .br
 Phil Winterbottom,
 ``Acid Manual''.

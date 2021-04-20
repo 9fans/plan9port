@@ -25,7 +25,7 @@ is available for reading from
 After the pipe has been established,
 cooperating processes
 created by subsequent
-.IR fork (2)
+.MR fork (2)
 calls may pass data through the
 pipe with
 .I read
@@ -53,14 +53,14 @@ calls.
 .\" .IR stat (3)).
 .PP
 When all the data has been read from a pipe and the writer has closed the pipe or exited,
-.IR read (3)
+.MR read (3)
 will return 0 bytes.  Writes to a pipe with no reader will generate a note
 .BR "sys: write on closed pipe" .
 .SH SOURCE
 .B \*9/src/lib9/pipe.c
 .SH SEE ALSO
-.IR intro (3),
-.IR read (3)
+.MR intro (3) ,
+.MR read (3)
 .SH DIAGNOSTICS
 Sets
 .IR errstr .
@@ -79,7 +79,7 @@ Unix pipes are not guaranteed to be bidirectional.
 In order to ensure a bidirectional channel,
 .I p9pipe
 creates Unix domain sockets via the
-.IR socketpair (2)
+.MR socketpair (2)
 instead of Unix pipes.
 .PP
 The implementation of pipes as Unix domain sockets
@@ -89,11 +89,11 @@ Unix's dup device.  If a Unix domain socket is open as file
 descriptor 0, some implementations disallow the opening of
 .BR /dev/fd/0 ;
 instead one must
-.IR connect (2)
+.MR connect (2)
 to it.
 If this functionality is important
 (as it is for
-.IR rc (1)),
+.MR rc (1) ),
 one must
 .B #undef
 .B pipe

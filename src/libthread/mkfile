@@ -1,14 +1,14 @@
 <$PLAN9/src/mkhdr
 
-SYSOFILES=`{sh ./sysofiles.sh}
 LIB=libthread.a
 OFILES=\
-	$SYSOFILES\
+	bg.$O\
 	channel.$O\
 	daemonize.$O\
 	exec.$O\
 	ioproc.$O\
 	iorw.$O\
+	pthread.$O\
 	ref.$O\
 	thread.$O\
 	wait.$O\

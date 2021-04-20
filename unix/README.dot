@@ -13,6 +13,9 @@ mk new-utf new-fmt new-bio new-regexp new-mk
 mk test-utf test-fmt test-bio test-regexp test-mk
 	create the directory, populate it, and run a test build
 
+mk test
+	run the above tests and then clean up
+
 mk libutf.tgz libfmt.tgz libbio.tgz libregexp9.tgz mk.tgz
 	create the directory, populate it, and build a tar file
 

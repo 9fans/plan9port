@@ -22,7 +22,7 @@ srv, 9fs \- start network file service
 dials the given address and initializes the connection to serve the 9P protocol.
 It then posts the resulting connection in the current name space 
 (see
-.IR intro (4))
+.MR intro (4) )
 as
 .I srvname 
 (default
@@ -70,7 +70,7 @@ available as service
 .IR sources .
 .I 9fs
 is an
-.IR rc (1)
+.MR rc (1)
 script; examine it to see what local conventions apply.
 .SH EXAMPLES
 List the root directory on 
@@ -98,6 +98,6 @@ sudo mount -t 9p -o trans=unix,uname=$USER,dfltuid=`id -u`,dfltgid=`id -g`
 .br
 .B \*9/bin/9fs
 .SH "SEE ALSO
-.IR dial (3),
-.IR intro (4),
-.IR netfiles (1)
+.MR dial (3) ,
+.MR intro (4) ,
+.MR netfiles (1)

@@ -45,11 +45,11 @@ specifies the memory image of a process.
 A 
 .I pid
 gives the id of an executing process to be accessed via
-.IR ptrace (2).
+.MR ptrace (2) .
 A
 .I corefile
 specifies the name of a core dump (see
-.IR core (5)
+.MR core (5)
 on your system of choice) containing the
 memory image of a terminated process.
 This manual refers to the memory image specified by
@@ -628,7 +628,7 @@ Dot is assigned to the variable or register named.
 .TP
 .B !
 The rest of the line is passed to
-.IR rc (1)
+.MR rc (1)
 for execution.
 .TP
 .BI $ modifier
@@ -969,8 +969,8 @@ is one the breakpoint will fire.
 Beware that local variables may be stored in registers; see the
 BUGS section.
 .SH "SEE ALSO"
-.IR acid (1),
-.IR core (1)
+.MR acid (1) ,
+.MR core (1)
 .SH SOURCE
 .B \*9/src/cmd/db
 .SH DIAGNOSTICS

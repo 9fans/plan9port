@@ -49,7 +49,7 @@ automatically, so it is rarely necessary to tell the loader
 which
 libraries a program needs;
 see
-.IR 9c (1).
+.MR 9c (1) .
 .PP
 The library to which a function belongs is defined by the
 header file that defines its interface.
@@ -121,7 +121,7 @@ and
 plus macros that define the layout of
 .IR jmp_buf
 (see
-.IR setjmp (3));
+.MR setjmp (3) );
 .\" definitions of the bits in the floating-point control register
 .\" as used by
 .\" .IR getfcr (2);
@@ -198,27 +198,27 @@ by
 or
 .I create
 (see
-.IR open (3)).
+.MR open (3) ).
 These calls return an integer called a
 .IR "file descriptor"
 which identifies the file
 to subsequent I/O calls,
 notably
-.IR read (3)
+.MR read (3)
 and
 .IR write .
 The system allocates the numbers by selecting the lowest unused descriptor.
 They are allocated dynamically; there is no visible limit to the number of file
 descriptors a process may have open.
 They may be reassigned using
-.IR dup (3).
+.MR dup (3) .
 File descriptors are indices into a
 kernel resident
 .IR "file descriptor table" .
 Each process has an associated file descriptor table.
 In threaded programs
 (see
-.IR thread (3)),
+.MR thread (3) ),
 the file descriptor table is shared by all the procs.
 .PP
 By convention,
@@ -236,22 +236,22 @@ Files are normally read or written in sequential order.
 The I/O position in the file is called the
 .IR "file offset"
 and may be set arbitrarily using the
-.IR seek (3)
+.MR seek (3)
 system call.
 .PP
 Directories may be opened like regular files.
 Instead of reading them with
-.IR read (3),
+.MR read (3) ,
 use the
 .B Dir
 structure-based
 routines described in
-.IR dirread (3).
+.MR dirread (3) .
 The entry
 corresponding to an arbitrary file can be retrieved by
 .IR dirstat
 (see
-.IR stat (3))
+.MR stat (3) )
 or
 .IR dirfstat ;
 .I dirwstat
@@ -262,9 +262,9 @@ write back entries, thus changing the properties of a file.
 New files are made with
 .I create
 (see
-.IR open (3))
+.MR open (3) )
 and deleted with
-.IR remove (3).
+.MR remove (3) .
 Directories may not directly be written;
 .IR create ,
 .IR remove ,
@@ -273,27 +273,27 @@ and
 .I fwstat
 alter them.
 .PP
-.IR Pipe (3)
+.MR Pipe (3)
 creates a connected pair of file descriptors,
 useful for bidirectional local communication.
 .SS "Process execution and control"
 A new process is created
 when an existing one calls
-.IR fork (2).
+.MR fork (2) .
 The new (child) process starts out with
 copies of the address space and most other attributes
 of the old (parent) process.
 In particular,
 the child starts out running
 the same program as the parent;
-.IR exec (3)
+.MR exec (3)
 will bring in a different one.
 .PP
 Each process has a unique integer process id;
 a set of open files, indexed by file descriptor;
 and a current working directory
 (changed by
-.IR chdir (2)).
+.MR chdir (2) ).
 .PP
 Each process has a set of attributes \(em memory, open files,
 name space, etc. \(em that may be shared or unique.
@@ -302,9 +302,9 @@ Flags to
 control the sharing of these attributes.
 .PP
 A process terminates by calling
-.IR exits (3).
+.MR exits (3) .
 A parent process may call
-.IR wait (3)
+.MR wait (3)
 to wait for some child to terminate.
 A bit of status information
 may be passed from
@@ -317,14 +317,14 @@ The Plan 9 interface persists here, although the functionality does not.
 Instead, empty strings are converted to exit status 0 and non-empty strings to 1.
 .PP
 A process can go to sleep for a specified time by calling
-.IR sleep (3).
+.MR sleep (3) .
 .PP
 There is a
 .I notification
 mechanism for telling a process about events such as address faults,
 floating point faults, and messages from other processes.
 A process uses
-.IR notify (3)
+.MR notify (3)
 to register the function to be called (the
 .IR "notification handler" )
 when such events occur.
@@ -334,12 +334,12 @@ the main C library works properly in multiprocess programs;
 .IR malloc ,
 .IR print ,
 and the other routines use locks (see
-.IR lock (3))
+.MR lock (3) )
 to synchronize access to their data structures.
 The graphics library defined in
 .B <draw.h>
 is also multi-process capable; details are in
-.IR graphics (3).
+.MR graphics (3) .
 In general, though, multiprocess programs should use some form of synchronization
 to protect shared data.
 .PP
@@ -365,12 +365,12 @@ Therefore, a program that shouldn't block unexpectedly will use a process
 to serve the I/O request, passing the result to the main processes
 over a channel when the request completes.
 For examples of this design, see
-.IR ioproc (3)
+.MR ioproc (3)
 or
-.IR mouse (3).
+.MR mouse (3) .
 .SH SEE ALSO
 .IR nm (1), 
-.IR 9c (1)
+.MR 9c (1)
 .SH DIAGNOSTICS
 Math functions in
 .I libc
@@ -378,14 +378,14 @@ return
 special values when the function is undefined for the
 given arguments or when the value is not representable
 (see
-.IR nan (3)).
+.MR nan (3) ).
 .PP
 Some of the functions in
 .I libc
 are system calls and many others employ system calls in their implementation.
 All system calls return integers,
 with \-1 indicating that an error occurred;
-.IR errstr (3)
+.MR errstr (3)
 recovers a string describing the error.
 Some user-level library functions also use the
 .I errstr

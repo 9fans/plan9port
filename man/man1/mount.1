@@ -15,7 +15,7 @@ mounts a 9P server's files into the file system.
 is typically 
 either the name of a Unix domain socket
 (see
-.IR namespace (1))
+.MR namespace (1) )
 or the name or IP address of a machine
 serving 9P over TCP port 564.
 .PP
@@ -29,7 +29,7 @@ On Linux,
 .I mount
 uses the native 9P kernel module when present.
 Otherwise it tries to use
-.IR 9pfuse (4)
+.MR 9pfuse (4)
 with the FUSE file system module.
 Using the 9P kernel module requires root access.
 FUSE can often be used by regular users.
@@ -45,7 +45,7 @@ should be invoked as
 .BR mount .
 .SH EXAMPLES
 Mount 
-.IR acme (4)
+.MR acme (4)
 onto 
 .B /mnt/acme :
 .IP
@@ -64,6 +64,6 @@ cat /mnt/plumb/rules
 .br
 .B \*9/bin/unmount
 .SH SEE ALSO
-.IR intro (4),
+.MR intro (4) ,
 .IR intro (9p),
-.IR 9pfuse (4)
+.MR 9pfuse (4)

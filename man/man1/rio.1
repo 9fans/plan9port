@@ -68,15 +68,15 @@ specifies an alternative program to run when the
 .I New
 menu item is selected.
 The default is to try
-.IR 9term (1)
+.MR 9term (1)
 and then to fall back to
-.IR xterm (1).
+.MR xterm (1) .
 The
 .B \-s
 option has no effect.  It formerly set the scrolling mode for
 new windows and is recognized to avoid breaking scripts.
 See
-.IR 9term (1)
+.MR 9term (1)
 for a description of scrolling behavior.
 .PP
 The
@@ -137,11 +137,11 @@ Very small windows may not be created.
 The new window is created running
 .IR termprog ,
 by default
-.IR 9term (1)
+.MR 9term (1)
 or, if 
 .I 9term
 is not available,
-.IR xterm (1).
+.MR xterm (1) .
 .TP
 .B Resize
 Change the size and location of a window.
@@ -165,7 +165,7 @@ Deleting a window causes a
 .L hangup
 note to be sent to all processes in the window's process group
 (see
-.IR notify (3)).
+.MR notify (3) ).
 .TP
 .B Hide
 Hide a window.  Click in the window to be hidden (gunsight cursor);
@@ -241,8 +241,8 @@ starts a particular program.)
 .PP
 There is a currently a compiled-in limit of 128 hidden windows.
 .SH "SEE ALSO"
-.IR 9term (1),
-.IR xterm (1)
+.MR 9term (1) ,
+.MR xterm (1)
 .PP
 As mentioned above,
 .I rio

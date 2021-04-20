@@ -19,7 +19,7 @@ name of the user who
 owns the current process.
 .I Getuser
 calls
-.IR getuid (2)
+.MR getuid (2)
 and then reads
 .B /etc/passwd
 to find the corresponding name.
@@ -33,7 +33,7 @@ looks first for an environment variable
 If there is no such variable,
 .I sysname
 calls
-.IR gethostname (2)
+.MR gethostname (2)
 and truncates the returned name at the first dot.
 If
 .I gethostname 

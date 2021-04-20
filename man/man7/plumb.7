@@ -6,7 +6,7 @@ plumb \- format of plumb messages and rules
 .SH DESCRIPTION
 .SS "Message format
 The messages formed by the
-.IR plumb (3)
+.MR plumb (3)
 library are formatted for transmission between
 processes into textual form, using newlines to separate
 the fields.
@@ -61,7 +61,7 @@ A missing field is represented by an empty line.
 The
 .B plumber
 (see
-.IR plumb (1))
+.MR plumb (1) )
 receives messages on its
 .B send
 port (applications
@@ -271,7 +271,7 @@ rule should be specified in a rule set.
 .RE
 .PP
 The arguments to all rules may contain quoted strings, exactly as in
-.IR rc (1).
+.MR rc (1) .
 They may also contain simple string variables, identified by a leading dollar sign
 .BR $ .
 Variables may be set, between rule sets, by assignment statements in the style of
@@ -341,7 +341,7 @@ field of the message.
 .B $plan9
 The root directory of the Plan 9 tree
 (see
-.IR get9root (3)).
+.MR get9root (3) ).
 .RE
 .SH EXAMPLE
 The following is a modest, representative file of plumbing rules.
@@ -403,7 +403,7 @@ default rules file.
 .TP
 .B plumb
 service name for
-.IR plumber (4).
+.MR plumber (4) .
 .TP
 .B \*9/plumb
 directory for
@@ -416,7 +416,7 @@ public macro definitions.
 .B \*9/plumb/basic
 basic rule set.
 .SH "SEE ALSO"
-.IR plumb (1),
-.IR plumb (3),
-.IR plumber (4),
-.IR regexp (7)
+.MR plumb (1) ,
+.MR plumb (3) ,
+.MR plumber (4) ,
+.MR regexp (7)

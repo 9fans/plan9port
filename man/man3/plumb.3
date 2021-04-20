@@ -68,7 +68,7 @@ Plumbmsg*	plumbrecvfid(CFid *fid)
 int	plumbsendtofid(CFid *fid, Plumbmsg *m)
 .SH DESCRIPTION
 These routines manipulate
-.IR plumb (7)
+.MR plumb (7)
 messages, transmitting them, receiving them, and
 converting them between text and these data structures:
 .IP
@@ -99,7 +99,7 @@ struct Plumbattr
 opens the named plumb
 .IR port ,
 using
-.IR open (3)
+.MR open (3)
 mode
 .IR omode .
 If
@@ -108,11 +108,11 @@ begins with a slash, it is taken as a literal file name;
 otherwise
 .I plumbopen
 searches for the location of the
-.IR plumber (4)
+.MR plumber (4)
 service and opens the port there.
 .PP
 For programs using the
-.IR event (3)
+.MR event (3)
 interface,
 .I eplumb
 registers, using the given
@@ -121,9 +121,9 @@ receipt of messages from the named
 .IR port .
 .PP
 The library mounts the 
-.IR plumber (4)
+.MR plumber (4)
 service on demand (using the
-.IR 9pclient (3))
+.MR 9pclient (3) )
 library and reuses the mount instance for future 
 calls to
 .IR plumbopen .
@@ -157,7 +157,7 @@ to
 frees all the data associated with the message
 .IR m ,
 all the components of which must therefore have been allocated with
-.IR malloc (3).
+.MR malloc (3) .
 .PP
 .I Plumbrecv
 returns the next message available on the file descriptor
@@ -259,7 +259,7 @@ The file descriptor returned by
 is created with
 .I fsopenfd
 (see
-.IR 9pclient (3)),
+.MR 9pclient (3) ),
 which masks information about read and write errors.
 This is acceptable for use in
 .I plumbrecv
@@ -276,10 +276,10 @@ that preserves the exact error details.
 .SH SOURCE
 .B \*9/src/libplumb
 .SH SEE ALSO
-.IR plumb (1),
-.IR event (3),
-.IR plumber (4),
-.IR plumb (7)
+.MR plumb (1) ,
+.MR event (3) ,
+.MR plumber (4) ,
+.MR plumb (7)
 .SH DIAGNOSTICS
 When appropriate, including when a
 .I plumbsend

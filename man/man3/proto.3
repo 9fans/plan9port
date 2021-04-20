@@ -24,7 +24,7 @@ int rdproto(char *proto, char *root, Protoenum *enm,
 .I Rdproto
 reads and interprets the named
 .I proto
-file relative to the 
+file relative to the
 root directory
 .IR root .
 .PP
@@ -45,9 +45,9 @@ The fifth field is the name of the file from which to copy;
 this file is read from the current name space,
 not the source file tree.
 All fields except the first are optional.
-Specifying 
+Specifying
 .B -
-for permissions, owner, or group 
+for permissions, owner, or group
 causes
 .I rdproto
 to fetch the corresponding information
@@ -92,29 +92,29 @@ Only the
 and
 .B length
 fields are guaranteed to be valid.
-The argument 
+The argument
 .I a
 is the same argument passed to
 .IR rdproto ;
 typically it points at some extra state
 used by the enumeration function.
 .PP
-When files or directories do not exist or 
-cannot be read by 
+When files or directories do not exist or
+cannot be read by
 .IR rdproto ,
-it formats a warning message, calls 
+it formats a warning message, calls
 .IR warn ,
-and continues processing; 
+and continues processing;
 if
 .I warn
-is nil, 
+is nil,
 .I rdproto
 prints the warning message to standard error.
 .PP
 .I Rdproto
 returns zero
 if
-.I proto 
+.I proto
 was processed, \-1 if it could not be opened.
 .SH FILES
 .TF /sys/lib/sysconfig/proto/portproto
@@ -127,5 +127,6 @@ generic prototype file.
 .SH SOURCE
 .B \*9/src/libdisk/proto.c
 .SH SEE ALSO
-.IR mk9660 (1),
-Plan 9's \fImkfs\fR(8)
+.MR mk9660 (1) ,
+Plan 9's
+.IR mkfs (8)

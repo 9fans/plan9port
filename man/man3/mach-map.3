@@ -133,10 +133,10 @@ via
 data structures that provides access to an address space
 and register set.
 The functions described in
-.IR mach-file (3)
+.MR mach-file (3)
 are typically used to construct these maps.
 Related library functions described in 
-.IR mach-symbol (3)
+.MR mach-symbol (3)
 provide similar access to symbol tables.
 .PP
 Each
@@ -178,7 +178,7 @@ The
 .B rw
 function is most commonly used to provide
 access to executing processes via
-.IR ptrace (2)
+.MR ptrace (2)
 and to zeroed segments.
 .PP
 .I Allocmap
@@ -346,7 +346,7 @@ such locations are useful for passing specific constants to
 functions expect locations, such as
 .I unwind
 (see
-.IR mach-stack (3)).
+.MR mach-stack (3) ).
 .PP
 .I Loccmp
 compares two locations, returning negative, zero, or positive
@@ -360,7 +360,7 @@ which are ordered before indirections.
 .PP
 .I Locfmt
 is a 
-.IR print (3)-verb
+.MR print (3) -verb
 that formats a
 .B Loc
 structure
@@ -371,7 +371,7 @@ Indirection locations are needed in some contexts (e.g., when
 using
 .I findlsym
 (see
-.IR mach-symbol (3))),
+.MR mach-symbol (3) )),
 but bothersome in most.
 .I Locsimplify
 rewrites indirections as absolute memory addresses, by evaluating
@@ -397,8 +397,8 @@ function families as necessary.
 .SH SOURCE
 .B \*9/src/libmach
 .SH "SEE ALSO"
-.IR mach (3),
-.IR mach-file (3)
+.MR mach (3) ,
+.MR mach-file (3)
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .

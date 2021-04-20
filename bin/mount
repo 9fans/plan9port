@@ -20,11 +20,14 @@ case FreeBSD
 	echo 'don''t know how to mount (no fuse)' >[1=2]
 case Darwin
 	version=`{sw_vers -productVersion|cut -d. -f1,2}
+	major_version = `{echo $version|cut -d. -f1}
 	if(sysctl fuse.version >[2]/dev/null |9 grep -si 'fuse.version' ||
 	   sysctl macfuse.version.number >[2]/dev/null |9 grep -si 'fuse.version' ||
 	   sysctl osxfuse.version.number >[2]/dev/null |9 grep -si 'fuse.version' ||
 	   test -d /System/Library/Extensions/fusefs.kext ||
 	   test -d /Library/Filesystems/osxfuse.fs/Contents/Extensions/$version/osxfuse.kext ||
+	   test -d /Library/Filesystems/macfuse.fs/Contents/Extensions/$version/macfuse.kext ||
+	   test -d /Library/Filesystems/macfuse.fs/Contents/Extensions/$major_version/macfuse.kext ||
 	   test -d /Library/Filesystems/osxfusefs.fs/Support/osxfusefs.kext ||
 	   test -d /opt/local/Library/Filesystems/osxfuse.fs ||
 	   test -d /Library/Filesystems/fusefs.fs/Support/fusefs.kext)

@@ -19,11 +19,11 @@ long dirreadall(int fd, Dir **buf)
 #define	DIRMAX	(sizeof(Dir)+STATMAX)
 .SH DESCRIPTION
 The data returned by a
-.IR read (3)
+.MR read (3)
 on a directory is a set of complete directory entries
 in a machine-independent format, exactly equivalent to
 the result of a
-.IR stat (3)
+.MR stat (3)
 on each file or subdirectory in the directory.
 .I Dirread
 decodes the directory entries into a machine-dependent form.
@@ -35,11 +35,11 @@ structures
 whose address is returned in
 .B *buf
 (see
-.IR stat (3)
+.MR stat (3)
 for the layout of a
 .BR Dir ).
 The array is allocated with
-.IR malloc (3)
+.MR malloc (3)
 each time
 .I dirread
 is called.
@@ -50,7 +50,7 @@ is like
 but reads in the entire directory; by contrast,
 .I dirread
 steps through a directory one
-.IR read (3)
+.MR read (3)
 at a time.
 .PP
 Directory entries have variable length.
@@ -85,9 +85,9 @@ The file offset is advanced by the number of bytes actually read.
 .SH SOURCE
 .B \*9/src/lib9/dirread.c
 .SH SEE ALSO
-.IR intro (3),
-.IR open (3),
-.IR read (3)
+.MR intro (3) ,
+.MR open (3) ,
+.MR read (3)
 .SH DIAGNOSTICS
 .I Dirread
 and

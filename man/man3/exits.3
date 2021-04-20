@@ -39,7 +39,7 @@ explanation of the reason for
 exiting, or a null pointer or empty string to indicate normal termination.
 The string is passed to the parent process, prefixed by the name and process
 id of the exiting process, when the parent does a
-.IR wait (3).
+.MR wait (3) .
 .PP
 Before calling
 .I _exits
@@ -85,8 +85,8 @@ cancels a previous registration of an exit function.
 .br
 .B \*9/src/lib9/_exits.c
 .SH "SEE ALSO"
-.IR fork (2),
-.IR wait (3)
+.MR fork (2) ,
+.MR wait (3)
 .SH BUGS
 Because of limitations of Unix, the exit status of a
 process can only be an 8-bit integer.
@@ -117,4 +117,4 @@ are preprocessor macros defined as
 and
 .IR p9atexitdont ;
 see
-.IR intro (3).
+.MR intro (3) .

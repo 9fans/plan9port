@@ -225,7 +225,7 @@ by a successful call to
 Another structure is
 .BR Dir ,
 used by the routines described in
-.IR stat (3).
+.MR stat (3) .
 .I ConvM2D
 converts the machine-independent form starting at
 .I ap
@@ -293,7 +293,7 @@ contain a validly formatted machine-independent
 entry suitable as an argument, for example, for the
 .B wstat
 (see
-.IR stat (3))
+.MR stat (3) )
 system call.
 It checks that the sizes of all the elements of the the entry sum to exactly
 .IR nbuf ,
@@ -321,7 +321,7 @@ for an incorrectly formatted entry.
 and
 .I dirmodefmt
 are formatting routines, suitable for
-.IR fmtinstall (3).
+.MR fmtinstall (3) .
 They convert
 .BR Dir* ,
 .BR Fcall* ,
@@ -343,7 +343,7 @@ with format letter
 .PP
 .I Read9pmsg
 calls
-.IR read (3)
+.MR read (3)
 multiple times, if necessary, to read an entire 9P message into
 .BR buf .
 The return value is 0 for end of file, or -1 for error; it does not return
@@ -351,7 +351,7 @@ partial messages.
 .SH SOURCE
 .B \*9/src/lib9
 .SH SEE ALSO
-.IR intro (3),
-.IR 9p (3),
-.IR stat (3),
+.MR intro (3) ,
+.MR 9p (3) ,
+.MR stat (3) ,
 .IR intro (9p)

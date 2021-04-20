@@ -46,7 +46,7 @@ TLS is nearly the same as SSL 3.0, and the software should interoperate
 with implementations of either standard.
 .PP
 To use just the record layer, as described in Plan 9's
-\fItls\fR(3),
+.IR tls (3),
 call
 .I pushtls
 to open the record layer device, connect to the communications channel
@@ -108,7 +108,7 @@ used by a client to resume a previously negotiated security association.
 On output, the connection directory is set, as with
 .B listen
 (see
-.IR dial (3)).
+.MR dial (3) ).
 The input
 .I cert
 is freed and a freshly allocated copy of the remote's certificate
@@ -149,7 +149,7 @@ The private key corresponding to
 .I cert.pem
 should have been previously loaded into factotum.
 (See
-.IR rsa (3)
+.MR rsa (3)
 .\" XXX should be rsa(8)
 for more about key generation.)
 By setting
@@ -164,10 +164,10 @@ known to the client.
 is not required for the ongoing conversation and may
 be freed by the application whenever convenient.
 .SH FILES
-.TP 
+.TP
 .B /sys/lib/tls
 thumbprints of trusted services
-.TP 
+.TP
 .B /sys/lib/ssl
 PEM certificate files
 .SH SOURCE
@@ -175,12 +175,12 @@ PEM certificate files
 .\" .br
 .B \*9/src/libsec/port
 .SH "SEE ALSO"
-.IR dial (3),
-.IR thumbprint (7);
+.MR dial (3) ,
+.MR thumbprint (7) ;
 Plan 9's
-\fIfactotum\fR(4)
+.IR factotum (4)
 and
-\fItls\fR(3)
+.IR tls (3)
 .SH DIAGNOSTICS
 return \-1 on failure.
 .SH BUGS

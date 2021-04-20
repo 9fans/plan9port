@@ -20,7 +20,7 @@ extern int class[LAST][LAST];
 
 #undef	sprintf	/* Snow Leopard */
 
-extern	char	errbuf[200];
+extern	char	errbuf[2000];
 extern	char	*cmdname;
 #define	ERROR	sprintf(errbuf,
 #define	FATAL	), error(1, errbuf)

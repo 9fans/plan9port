@@ -135,7 +135,7 @@ The
 field will have been set to the identifying number used by
 .B /dev/draw
 (see
-.IR draw (3)),
+.MR draw (3) ),
 and the
 .I cache
 field will be zero.
@@ -148,7 +148,7 @@ The
 field will be set to the number of bits per pixel specified
 by the channel descriptor
 (see
-.IR image (7)).
+.MR image (7) ).
 .I Allocimage
 returns 0 if the server has run out of image memory.
 .PP
@@ -191,7 +191,7 @@ These routines permit unrelated applications sharing a display to share an image
 for example they provide the mechanism behind
 .B getwindow
 (see
-.IR graphics (3)).
+.MR graphics (3) ).
 .PP
 The RGB values in a color are
 .I premultiplied
@@ -214,7 +214,7 @@ values between image and user space or external files.
 There is a fixed format for the exchange and storage of
 image data
 (see
-.IR image (7)).
+.MR image (7) ).
 .PP
 .I Unloadimage
 reads a rectangle of pixels from image
@@ -271,7 +271,7 @@ but for
 bytes of compressed image
 .I data
 (see
-.IR image (7)).
+.MR image (7) ).
 On each call to
 .IR cloadimage,
 the
@@ -289,7 +289,7 @@ return the number of bytes copied.
 .PP
 .I Readimage
 creates an image from data contained in an external file (see
-.IR image (7)
+.MR image (7)
 for the file format);
 .I fd
 is a file descriptor obtained by opening such a file for reading.
@@ -333,10 +333,10 @@ To allocate a single-pixel replicated image that may be used to paint a region r
 .SH SOURCE
 .B \*9/src/libdraw
 .SH "SEE ALSO"
-.IR graphics (3),
-.IR draw (3),
-.IR draw (3),
-.IR image (7)
+.MR graphics (3) ,
+.MR draw (3) ,
+.MR draw (3) ,
+.MR image (7)
 .SH DIAGNOSTICS
 These functions return pointer 0 or integer \-1 on failure, usually due to insufficient
 memory.

@@ -19,7 +19,7 @@ tool allows an arbitrary
 on a remote
 .I system,
 with the capability of running the Plan 9
-.IR exportfs (4)
+.MR exportfs (4)
 service,
 to be imported into the local name space.
 Usually
@@ -31,7 +31,7 @@ A process is started on the
 remote machine, with authority of the user of
 .IR 9import ,
 to perform work for the local machine using the
-.IR exportfs (4)
+.MR exportfs (4)
 service.
 The default port used is TCP 17007.
 If
@@ -55,11 +55,11 @@ Use
 .I keypattern
 to select a key to authenticate to the remote side
 (see
-.IR auth (2)).
+.MR auth (2) ).
 .TP
 .B -p
 Push the
-.IR aan (8)
+.MR aan (8)
 filter onto the connection to protect against
 temporary network outages.
 .TP
@@ -69,11 +69,11 @@ Post the connection's mountable file descriptor as
 .SH SOURCE
 .B \*9/src/cmd/9import.c
 .SH SEE ALSO
-.IR srv (4),
-.IR aan (8),
-.IR listen1 (8),
+.MR srv (4) ,
+.MR aan (8) ,
+.MR listen1 (8) ,
 .B cs
 in
-.IR ndb (7)
+.MR ndb (7)
 .SH BUGS
 Encryption is not implemented.

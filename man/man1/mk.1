@@ -29,7 +29,7 @@ contains a
 .I rule
 for each target that identifies the files and other
 targets upon which it depends and an
-.IR sh (1)
+.MR sh (1)
 script, a
 .IR recipe ,
 to update the target.
@@ -157,7 +157,7 @@ In the recipe of a meta-rule, the environment variable
 contains the string matched by the
 .BR % .
 For example, a meta-rule to compile a C program using
-.IR 9c (1)
+.MR 9c (1)
 might be:
 .IP
 .EX
@@ -207,7 +207,7 @@ References to variables are replaced by the variables' values.
 Special characters may be quoted using single quotes
 .BR \&''
 as in
-.IR sh (1).
+.MR sh (1) .
 .PP
 Assignments and rules are distinguished by
 the first unquoted occurrence of
@@ -246,7 +246,7 @@ A legal reference of the form
 or
 .B ${name}
 is expanded as in
-.IR sh (1).
+.MR sh (1) .
 A reference of the form
 .BI ${name: A % B = C\fL%\fID\fL}\fR,
 where
@@ -315,9 +315,9 @@ or
 .BR rcsh ,
 .I mk
 uses
-.IR rc (1)'s
+.MR rc (1) 's
 quoting rules; otherwise it uses
-.IR sh (1)'s.
+.MR sh (1) 's.
 The
 .B MKSHELL
 variable is consulted when the mkfile is read, not when it is executed,
@@ -523,7 +523,7 @@ of the aggregate
 Currently, the only aggregates supported are
 .I 9ar
 (see
-.IR 9c (1))
+.MR 9c (1) )
 archives.
 .SS Attributes
 The colon separating the target from the prerequisites
@@ -567,12 +567,12 @@ In the rule,
 .B %
 has no special meaning.
 The target is interpreted as a regular expression as defined in
-.IR regexp (7).
+.MR regexp (7) .
 The prerequisites may contain references
 to subexpressions in form
 .BI \e n\f1,
 as in the substitute command of
-.IR sed (1).
+.MR sed (1) .
 .TP
 .B U
 The targets are considered to have been updated
@@ -625,7 +625,7 @@ Regular expression meta-rules:
 .EE
 .PP
 A correct way to deal with
-.IR yacc (1)
+.MR yacc (1)
 grammars.
 The file
 .B lex.c
@@ -656,8 +656,8 @@ x.tab.h:Pcmp -s:	y.tab.h
 .SH SOURCE
 .B \*9/src/cmd/mk
 .SH SEE ALSO
-.IR sh (1),
-.IR regexp (7)
+.MR sh (1) ,
+.MR regexp (7)
 .PP
 A. Hume,
 ``Mk: a Successor to Make''

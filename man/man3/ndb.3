@@ -88,13 +88,13 @@ Ndbtuple*	ndbsubstitute(Ndbtuple *t, Ndbtuple *from, Ndbtuple *to);
 These routines are used by network administrative programs to search
 the network database.
 They operate on the database files described in
-.IR ndb (7).
+.MR ndb (7) .
 .PP
 .I Ndbopen
 opens the database
 .I file
 and calls
-.IR malloc (3)
+.MR malloc (3)
 to allocate a buffer for it.
 If
 .I file
@@ -128,7 +128,7 @@ is used to find each successive match.
 On a successful search both return a linked list of
 .I Ndbtuple
 structures acquired by
-.IR malloc (3)
+.MR malloc (3)
 that represent the attribute/value pairs in the
 entry.
 On failure they return zero.
@@ -450,8 +450,8 @@ directory of network database files
 .SH SOURCE
 .B \*9/src/libndb
 .SH SEE ALSO
-.IR ndb (1)
-.IR ndb (7)
+.MR ndb (1)
+.MR ndb (7)
 .SH DIAGNOSTICS
 .IR Ndbgetvalue
 and

@@ -71,11 +71,11 @@ the current directory).
 The
 .I proto
 file is formatted as described in
-.IR proto (3).
+.MR proto (3) .
 .PP
 The created CD image will be in ISO-9660
 format, but by default the file names will
-be stored in UTF-8 with no imposed length 
+be stored in UTF-8 with no imposed length
 or character restrictions.
 The
 .B -c
@@ -84,7 +84,7 @@ flag causes
 to use only file names in ``8.3'' form
 that use digits, letters, and underscore.
 File names that do not conform are changed
-to 
+to
 .BI D nnnnnn
 (for directories)
 or
@@ -122,7 +122,7 @@ and
 .B \e
 are allowed in Plan 9 file names but not in Joliet file names;
 non-conforming file names are translated
-and a 
+and a
 .B _CONFORM.MAP
 file written
 as in the case of the
@@ -133,7 +133,7 @@ If the
 .B -r
 flag is given, Rock Ridge extensions are written in the
 format of the system use sharing protocol;
-this format provides Posix-style file metadata and is 
+this format provides Posix-style file metadata and is
 common on Unix platforms.
 .PP
 The options
@@ -155,13 +155,13 @@ if unspecified, the base name of
 .I proto
 is used.
 .PP
-The 
+The
 .B -:
-flag causes 
+flag causes
 .B mk9660
 to replace colons in scanned file names with spaces;
 this is the inverse of the map applied by Plan 9's
-\fIdossrv\fR(4)
+.IR dossrv (4)
 and is useful for writing Joliet CDs containing data
 from FAT file systems.
 .PP
@@ -189,10 +189,11 @@ on standard error.
 is similar in specification to
 .I mk9660
 but creates and updates backup CD images in the style of
-the 
+the
 .I dump
 file system
-(see Plan 9's \fIfs\fR(4)).
+(see Plan 9's
+.IR fs (4)).
 The dump is file-based rather than block-based:
 if a file's contents have not changed since the last
 backup, only its directory entry will be rewritten.
@@ -202,7 +203,7 @@ The
 option specifies a time (in seconds since January 1, 1970)
 to be used for naming the dump directory.
 .PP
-The 
+The
 .B -m
 option specifies a maximum size for the image;
 if a backup would cause the image to grow larger than
@@ -212,7 +213,7 @@ it will not be written, and
 will exit with a non-empty status.
 .SH EXAMPLE
 .PP
-Create an image of the Plan 9 source tree, 
+Create an image of the Plan 9 source tree,
 including a conformant ISO-9660 directory tree,
 Plan 9 extensions in the system use fields, and
 a Joliet directory tree.
@@ -223,7 +224,7 @@ mk9660 -9cj -s /n/bootes -p srcproto cdimage
 .SH SOURCE
 \*9/src/cmd/9660
 .SH "SEE ALSO
-.IR proto (3)
+.MR proto (3)
 .\" .SH "SEE ALSO"
 .\" .I 9660srv
 .\" (in

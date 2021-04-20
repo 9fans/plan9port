@@ -15,12 +15,12 @@ acme \- control files for text windows
 \&... ]
 .SH DESCRIPTION
 The text window system
-.IR acme (1)
+.MR acme (1)
 serves a variety of files for reading, writing, and controlling
 windows.
 Some of them are virtual versions of system files for dealing
 with the virtual console; others control operations
-of 
+of
 .I acme
 itself.
 When a command is run under
@@ -28,12 +28,13 @@ When a command is run under
 a directory holding these files is posted as the 9P service
 .B acme
 (using
-.IR 9pserve (4)).
+.MR 9pserve (4) ).
 .PP
 Some of these files supply virtual versions of services available from the underlying
 environment, in particular the character terminal files in Plan 9's
-\fIcons\fR(3).
-(Unlike in Plan 9's \fIrio\fR(1),
+.IR cons (3).
+(Unlike in Plan 9's
+.IR rio (1),
 each command under
 .I acme
 sees the same set of files; there is not a distinct
@@ -46,7 +47,7 @@ Other files are unique to
 is a subdirectory used by
 .B win
 (see
-.IR acme (1))
+.MR acme (1) )
 as a mount point for the
 .I acme
 files associated with the window in which
@@ -233,6 +234,11 @@ Set the directory in which to run the command to recreate the window from a dump
 Equivalent to the
 .B Get
 interactive command with no arguments; accepts no arguments.
+.TP
+.BI font " path
+Equivalent to the
+.B Font
+interactive command with a single (required) argument.
 .TP
 .B limit=addr
 When the
@@ -430,5 +436,5 @@ except that reads stop at the end address.
 .SH SOURCE
 .B \*9/src/cmd/acme
 .SH SEE ALSO
-.IR rio (1),
-.IR acme (1)
+.MR rio (1) ,
+.MR acme (1)

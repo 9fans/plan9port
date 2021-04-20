@@ -23,7 +23,7 @@ int
 _displayconnect(Display *d)
 {
 	int pid, p[2], fd, nbuf, n;
-	char *wsysid, *addr, *id;
+	char *wsysid, *ns, *addr, *id;
 	uchar *buf;
 	Wsysmsg w;
 
@@ -40,7 +40,10 @@ _displayconnect(Display *d)
 			return -1;
 		}
 		*id++ = '\0';
-		addr = smprint("unix!%s/%s", getns(), wsysid);
+		if((ns = getns()) == nil)
+			return -1;
+		addr = smprint("unix!%s/%s", ns, wsysid);
+		free(ns);
 		if(addr == nil)
 			return -1;
 		fd = dial(addr, 0, 0, 0);

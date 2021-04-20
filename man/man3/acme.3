@@ -141,7 +141,7 @@ char*	evsmprint(char *fmt, va_list arg)
 .SH DESCRIPTION
 .I Libacme
 provides a simple C interface for interacting with
-.IR acme (1)
+.MR acme (1)
 windows.
 .PP
 A
@@ -168,7 +168,7 @@ Most of the library routines access files in the window's
 .I acme
 directory.
 See
-.IR acme (4)
+.MR acme (4)
 for details.
 Many library routines take a format string
 .I fmt
@@ -179,11 +179,11 @@ denotes the result of formatting the string and arguments
 using
 .I smprint
 (see
-.IR print (3)).
+.MR print (3) ).
 .PP
 .I Pipetowin
 runs the
-.IR rc (1)
+.MR rc (1)
 command line
 .I fmt\fR, \fP...
 with 
@@ -199,7 +199,7 @@ Otherwise the command inherits the caller's standard error.
 .PP
 .I Pipewinto
 runs the 
-.IR rc (1)
+.MR rc (1)
 command line
 .I fmt\fR, \fP...
 with the window's
@@ -300,7 +300,7 @@ to position
 relative to
 .I type
 (see
-.IR seek (3)).
+.MR seek (3) ).
 .PP
 .I Winwrite
 writes the
@@ -317,7 +317,7 @@ The fields correspond to the fields in
 .IR acme 's
 event messages.
 See 
-.IR acme (4)
+.MR acme (4)
 for detailed explanations.
 The fields are:
 .TP
@@ -384,7 +384,7 @@ that it should be handled internally.
 returns a pointer to a
 .B Channel
 (see
-.IR thread (3))
+.MR thread (3) )
 on which event structures (not pointers) can be read.
 The first call to
 .I wineventchan
@@ -404,20 +404,20 @@ after calling
 and
 .I evsmprint
 are like
-.IR malloc (3),
+.MR malloc (3) ,
 .IR realloc ,
 .IR strdup
 (see
-.IR strcat (3)),
+.MR strcat (3) ),
 and
 .IR vsmprint
 (see
-.IR print (3)),
+.MR print (3) ),
 but they call
-.IR sysfatal (3)
+.MR sysfatal (3)
 on error rather than returning nil.
 .SH SOURCE
 .B \*9/src/libacme
 .SH SEE ALSO
-.IR acme (1),
-.IR acme (4)
+.MR acme (1) ,
+.MR acme (4)

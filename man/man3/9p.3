@@ -110,13 +110,13 @@ and
 .B Fid
 structures are allocated one-to-one with uncompleted
 requests and active fids, and are described in
-.IR 9p-fid (3).
+.MR 9p-fid (3) .
 .PP
 The behavior of
 .I srv
 depends on whether there is a file tree
 (see
-.IR 9p-file (3))
+.MR 9p-file (3) )
 associated with the server, that is,
 whether the
 .B tree
@@ -178,11 +178,11 @@ as
 .BI /srv/ name .
 .IP
 Fork a child process via
-.IR rfork (3)
+.MR rfork (3)
 or
 .I procrfork
 (see
-.IR thread (3)),
+.MR thread (3) ),
 using the
 .BR RFFDG ,
 .RR RFNOTEG ,
@@ -214,7 +214,7 @@ The parent returns to the caller.
 .LP
 If any error occurs during
 this process, the entire process is terminated by calling
-.IR sysfatal (3).
+.MR sysfatal (3) .
 .SS Service functions
 The functions in a 
 .B Srv
@@ -332,7 +332,7 @@ where
 is the program name variable as set by
 .I ARGBEGIN
 (see
-.IR arg (3)).
+.MR arg (3) ).
 .TP
 .I Attach
 The
@@ -707,7 +707,7 @@ the service loop (which runs in a separate process
 from its caller) terminates using 
 .I _exits
 (see
-.IR exits (3)).
+.MR exits (3) ).
 .PD
 .PP
 If the 
@@ -752,6 +752,6 @@ or is maintained elsewhere.
 .SH SOURCE
 .B \*9/src/lib9p
 .SH SEE ALSO
-.IR 9p-fid (3),
-.IR 9p-file (3),
+.MR 9p-fid (3) ,
+.MR 9p-file (3) ,
 .IR intro (9p)

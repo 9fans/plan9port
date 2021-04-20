@@ -40,19 +40,19 @@ and
 .PP
 The input should be a Plan 9 image
 as described in 
-.IR image (7),
+.MR image (7) ,
 and the output will be a compressed 24-bit
 .B r8g8b8
 image.
 To uncompress the image or change the pixel format, use
 .I iconv
 (see
-.IR crop (1)).
+.MR crop (1) ).
 .PP
 .SH SOURCE
 .B \*9/src/cmd/resample.c
 .SH "SEE ALSO
-.IR crop (1),
-.IR image (7)
+.MR crop (1) ,
+.MR image (7)
 .SH BUGS
 Faster algorithms exist, but this implementation produces correct pictures.

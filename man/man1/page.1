@@ -1,7 +1,7 @@
 .TH PAGE 1
 .SH NAME
-page \- view 
-FAX, 
+page \- view
+FAX,
 image, graphic, PostScript, PDF, and
 typesetter output
 files
@@ -24,23 +24,24 @@ It can be used to display the individual pages
 of a
 PostScript,
 PDF,
-or 
-.IR troff (1)
-or 
-Unix's \fItex\fR(1)
+or
+.MR troff (1)
+or
+Unix's
+.IR tex (1)
 device-independent output
 file.
 .I Troff
-or 
+or
 .I tex
 output is simply converted to PostScript in order to be viewed.
 It can also be used to view any number of
 graphics files
-(such as a 
+(such as a
 FAX
-page, 
+page,
 a Plan 9
-.IR image (7)
+.MR image (7)
 file, an Inferno bitmap file, or other common format).
 .I Page
 displays these
@@ -53,26 +54,26 @@ By default,
 .I page
 runs in the window in which it is started
 and leaves the window unchanged.
-The 
+The
 .B -R
-option causes 
-.I page 
+option causes
+.I page
 to grow the window if necessary
 to display the page being viewed.
 The
 .B -w
-option causes 
-.I page 
+option causes
+.I page
 to create a new window for itself.
 The newly created window will grow as under the
 .B -R
 option.
-If being used to display 
+If being used to display
 multipage documents,
 only one file may be specified on the command line.
 .PP
-The 
-.B -p 
+The
+.B -p
 option sets the resolution for PostScript and PDF
 files, in pixels per inch.
 The default is 100 ppi.
@@ -85,13 +86,13 @@ When viewing a document,
 will try to guess the true bounding box, usually rounding up from
 the file's bounding box to
 8½×11 or A4 size.
-The 
+The
 .B -b
 option causes it to respect the bounding box given in the file.
 As a more general problem,
 some PostScript files claim to conform to Adobe's
 Document Structuring Conventions but do not.
-The 
+The
 .B -P
 option enables a slightly slower and slightly more
 skeptical version of the PostScript processing code.
@@ -101,34 +102,35 @@ that can only be viewed with the
 option, and there are PostScript documents that
 can only be viewed without it.
 .PP
-When viewing images with 
+When viewing images with
 .IR page ,
-it listens to the 
+it listens to the
 .B image
 plumbing channel
-(see 
-.IR plumber (4))
+(see
+.MR plumber (4) )
 for more images to display.
-The 
+The
 .B -i
-option causes 
+option causes
 .I page
-to not load any graphics files nor to read 
+to not load any graphics files nor to read
 from standard input but rather to listen
 for ones to load from the plumbing channel.
 .PP
-The 
+The
 .B -v
 option turns on extra debugging output, and
 the
 .B -V
 option turns on even more debugging output.
-The 
+The
 .B -a
-option causes 
+option causes
 .I page
 to call
-Unix's \fIabort\fR(3)
+Unix's
+.IR abort (3)
 rather than exit cleanly on errors,
 to facilitate debugging.
 .PP
@@ -145,7 +147,7 @@ The button 2 menu operations are:
 Restores the image to the original. All modifications are lost.
 .TP
 .B Zoom
-Prompts the user to sweep a rectangle on the image which is 
+Prompts the user to sweep a rectangle on the image which is
 expanded proportionally to the rectangle.
 .TP
 .B Fit window
@@ -164,7 +166,7 @@ Displays the next page.
 Displays the previous page.
 .TP
 .B Zerox
-Displays the current image in a new page window. 
+Displays the current image in a new page window.
 Useful for selecting important pages from large documents.
 .TP
 .B Reverse
@@ -189,14 +191,14 @@ toggles whether images are displayed upside-down.
 Typing a
 .B r
 reverses the order in which pages are displayed.
-Typing a 
+Typing a
 .B w
 will write the currently viewed page to a new file as a compressed
-.IR image (7)
+.MR image (7)
 file.
 When possible, the filename is of the form
 .IR basename . pagenum . bit .
-Typing a 
+Typing a
 .B d
 removes an image from the working set.
 .PP
@@ -208,13 +210,14 @@ changing pages when panning off the top or bottom of the page.
 .PP
 .I Page
 calls
-Unix's \fIgs\fR(1)
+Unix's
+.IR gs (1)
 to draw each page of PostScript
 and
 PDF
 .IR files .
 It also calls a variety of conversion programs, such as those described in
-.IR jpg (1),
+.MR jpg (1) ,
 to convert the various raster graphics formats
 into Inferno bitmap files.
 Pages are converted ``on the fly,'' as needed.
@@ -232,11 +235,11 @@ Browse the Inferno bitmap library.
 man -t page | page -w
 Preview this manual in a new window.
 .SH "SEE ALSO
-.IR gs (1),
-.IR jpg (1),
-.IR proof (1),
-.IR tex (1),
-.IR troff (1)
+.MR gs (1) ,
+.MR jpg (1) ,
+.MR proof (1) ,
+.MR tex (1) ,
+.MR troff (1)
 .SH SOURCE
 .B \*9/src/cmd/page
 .SH DIAGNOSTICS
@@ -254,19 +257,19 @@ When viewing multipage PostScript files that do not contain
 .RB `` %%Page ''
 comments, the button 3 menu only contains
 ``this page'' and ``next page'':
-correctly determining 
+correctly determining
 page boundaries in Postscript code is not computable
 in the general case.
 .PP
 If
 .I page
 has trouble viewing a Postscript file,
-it might not be exactly conforming: try viewing it with the 
+it might not be exactly conforming: try viewing it with the
 .B -P
 option.
 .PP
 The interface to the plumber is unsatisfactory.  In particular,
-document references cannot be sent 
+document references cannot be sent
 via plumbing messages.
 .PP
 There are too many keyboard commands and menu items.
@@ -274,7 +277,7 @@ There are too many keyboard commands and menu items.
 Displaying a PostScript or PDF file depends both on having
 GhostScript
 (see
-.IR gs (1))
+.MR gs (1) )
 installed and on the underlying operating system
 providing a file descriptor device tree at
 .BR /dev/fd .

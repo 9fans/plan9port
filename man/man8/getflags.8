@@ -16,7 +16,7 @@ not take arguments, or a letter followed by the space-separated
 names of its arguments.
 .I Getflags 
 prints an 
-.IR rc (1)
+.MR rc (1)
 script on standard output which initializes the
 environment variable
 .BI $flag x
@@ -51,15 +51,15 @@ and
 .BR $0 ,
 the program name
 (see
-.IR rc (1)).
+.MR rc (1) ).
 If run under 
-.IR sh (1),
+.MR sh (1) ,
 which does not set
 .BR $0 ,
 the program name must be given explicitly on the command line.
 .SH EXAMPLE
 Parse the arguments for Plan 9's
-.IR leak (1):
+.MR leak (1) :
 .IP
 .EX
 flagfmt='b,s,f binary,r res,x width'
@@ -74,4 +74,4 @@ if(! ifs=() eval `{getflags $*} || ~ $#* 0){
 .br
 .B \*9/src/cmd/usage.c
 .SH SEE ALSO
-.IR arg (3)
+.MR arg (3)

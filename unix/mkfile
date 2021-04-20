@@ -34,7 +34,12 @@ test-%:V:
 		if(! test -f `{echo $i | sed 's/.c$/.o/'})
 			echo XXX not building $i
 	cd ..
-	rm -r $td
+
+test:V: test-utf test-fmt test-bio test-regexp test-mk
+	mk test-clean
+
+test-clean:V:
+	rm -rf libutf libfmt libbio libregexp mk
 
 lib%.tgz:V:
 	mk new-$stem
@@ -49,7 +54,7 @@ mk.tgz:V:
 	tar cf /dev/stdout mk | gzip > $target
 
 mk-with-libs.tgz:V:
-	mk new-utf 
+	mk new-utf
 	mk new-fmt
 	mk new-bio
 	mk new-regexp
@@ -64,9 +69,6 @@ mk-with-libs.tgz:V:
 
 tgz:V: libutf.tgz libfmt.tgz libregexp9.tgz libbio.tgz mk.tgz mk-with-libs.tgz
 
+# run from 'mk push' in ../dist, which sets 9fansweb
 push:V:
-	rm -f *.sha1 *.md5 *.sha256
-	for (i in *.tgz)
-		sha1sum $i >$i.sha1
 	cp *.tgz $9fansweb/plan9port/unix
-	cp *.tgz.sha1 $9fansweb/plan9port/unix

@@ -45,7 +45,7 @@ so other fids typically remain usable.
 .SH ENTRY POINTS
 .I Fsremove
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 generates
 .B remove
 messages.

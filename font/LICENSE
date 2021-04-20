@@ -1,5 +1,6 @@
 Many of the fonts in this directory come from other sources
-and are distributed under licenses other than the Lucent Public License.
+and are distributed under licenses other than the MIT-style license
+that governs the main distribution.
 
 In particular, see:
 
@@ -13,4 +14,4 @@ In particular, see:
 	naga10/README
 	pelm/NOTICE
 	shinonome/README
-	
+

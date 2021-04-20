@@ -94,16 +94,16 @@ int	fmtrunestrcpy(Fmt *f, Rune *s);
 int	errfmt(Fmt *f);
 .SH DESCRIPTION
 The interface described here allows the construction of custom
-.IR print (3)
+.MR print (3)
 verbs and output routines.
 In essence, they provide access to the workings of the formatted print code.
 .PP
 The
-.IR print (3)
+.MR print (3)
 suite maintains its state with a data structure called
 .BR Fmt .
 A typical call to
-.IR print (3)
+.MR print (3)
 or its relatives initializes a
 .B Fmt
 structure, passes it to subsidiary routines to process the output,
@@ -154,7 +154,7 @@ to generate the output.
 These behave like
 .B fprint
 (see
-.IR print (3))
+.MR print (3) )
 or
 .B vfprint
 except that the characters are buffered until
@@ -207,7 +207,7 @@ In
 are the width and precision, and
 .IB fp ->flags
 the decoded flags for the verb (see
-.IR print (3)
+.MR print (3)
 for a description of these items).
 The standard flag values are:
 .B FmtSign
@@ -282,7 +282,7 @@ produced.
 .PP
 Some internal functions may be useful to format primitive types.
 They honor the width, precision and flags as described in
-.IR print (3).
+.MR print (3) .
 .I Fmtrune
 formats a single character
 .BR r .
@@ -307,7 +307,7 @@ regardless of whether the output is bytes or runes.
 This function prints an error message with a variable
 number of arguments and then quits.
 Compared to the corresponding example in
-.IR print (3),
+.MR print (3) ,
 this version uses a smaller buffer, will never truncate
 the output message, but might generate multiple
 .B write
@@ -364,9 +364,9 @@ main(...)
 .SH SOURCE
 .B \*9/src/lib9/fmt
 .SH SEE ALSO
-.IR print (3),
-.IR utf (7),
-.IR errstr (3)
+.MR print (3) ,
+.MR utf (7) ,
+.MR errstr (3)
 .SH DIAGNOSTICS
 These routines return negative numbers or nil for errors and set
 .IR errstr .

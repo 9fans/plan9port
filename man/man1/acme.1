@@ -45,7 +45,7 @@ The interactive interface uses the keyboard and mouse; external programs
 use a set of files served by
 .IR acme ;
 these are discussed in
-.IR acme (4).
+.MR acme (4) .
 .PP
 Any named
 .I files
@@ -86,7 +86,7 @@ The
 option instructs
 .I acme
 to use FUSE (see
-.IR 9pfuse (4))
+.MR 9pfuse (4) )
 to mount itself at
 .IR mtpt .
 (Experimental.)
@@ -98,10 +98,10 @@ windows are in two parts: a one-line
 above a multi-line
 .IR body .
 The body typically contains an image of a file, as in
-.IR sam (1),
+.MR sam (1) ,
 or the output of a
 program, as in an
-.IR rio (1)
+.MR rio (1)
 window.
 The tag contains a number of
 blank-separated words, followed by a vertical bar character, followed by anything.
@@ -118,9 +118,9 @@ a slash.
 .SS Scrolling
 Each window has a scroll bar to the left of the body.
 The scroll bar behaves much as in
-.IR sam (1)
+.MR sam (1)
 or
-.IR rio (1)
+.MR rio (1)
 except that scrolling occurs when the button is pressed, rather than released,
 and continues
 as long as the mouse button is held down in the scroll bar.
@@ -131,7 +131,7 @@ down the scroll bar speeds up the rate of scrolling.
 .B -r
 reverses the scrolling behavior of buttons 1 and 3, to behave
 more like
-.IR xterm (1).)
+.MR xterm (1) .)
 .SS Layout
 .I Acme
 windows are arranged in columns.  By default, it creates two columns when starting;
@@ -164,7 +164,7 @@ pre-loads them with useful commands.
 Also, the tag across the top maintains a list of executing long-running commands.
 .SS Typing
 The behavior of typed text is similar to that in
-.IR rio (1)
+.MR rio (1)
 except that the characters are delivered to the tag or body under the mouse; there is no
 `click to type'.
 (The experimental option
@@ -172,7 +172,7 @@ except that the characters are delivered to the tag or body under the mouse; the
 causes typing to go to the most recently clicked-at or made window.)
 The usual backspacing conventions apply.
 As in
-.IR sam (1)
+.MR sam (1)
 but not
 .IR rio ,
 the ESC key selects the text typed since the last mouse action,
@@ -249,7 +249,7 @@ is identified by the context of the command.
 These error windows are created when needed.
 .SS "Mouse button 1
 Mouse button 1 selects text just as in
-.IR sam (1)
+.MR sam (1)
 or
 .IR rio (1) ,
 including the usual double-clicking conventions.
@@ -305,7 +305,7 @@ by default.
 .TP
 .B Edit
 Treat the argument as a text editing command in the style of
-.IR sam (1).
+.MR sam (1) .
 The full
 .B Sam
 language is implemented except for the commands
@@ -379,7 +379,7 @@ With no arguments,
 prints the supplementary list.
 This command is largely superseded by plumbing
 (see
-.IR plumb (7)).
+.MR plumb (7) ).
 .TP
 .B Indent
 Set the autoindent mode according to the argument:
@@ -507,7 +507,7 @@ If the text indicated with button 2 is not a recognized built-in, it is executed
 a shell command.  For example, indicating
 .B date
 with button 2 runs
-.IR date (1).
+.MR date (1) .
 The standard
 and error outputs of commands are sent to the error window associated with
 the directory from which the command was run, which will be created if
@@ -525,7 +525,7 @@ in a window containing
 executing
 .B mk
 will run
-.IR mk (1)
+.MR mk (1)
 in
 .BR /home/rob/sam ,
 producing output in a window labeled
@@ -539,12 +539,12 @@ and
 .B $winid
 set to the window's id number
 (see
-.IR acme (4)).
+.MR acme (4) ).
 .PP
 The environment variable
 .B $acmeshell
 determines which shell is used to execute such commands; the
-.IR rc (1)
+.MR rc (1)
 shell is used by default.
 .SS "Mouse button 3
 Pointing at text with button 3 instructs
@@ -574,7 +574,7 @@ command adds directories to the standard list.)
 .PP
 If the text begins with a colon, it is taken to be an address, in
 the style of
-.IR sam (1),
+.MR sam (1) ,
 within the body of the window containing the text.
 The address is evaluated, the resulting text highlighted, and the mouse moved to it.
 Thus, in
@@ -644,7 +644,7 @@ then execute
 clicking button 1 while 2 is held down.
 .PP
 When an external command (e.g.
-.IR echo (1))
+.MR echo (1) )
 is executed this way, the extra argument is passed as expected and an
 environment variable
 .B $acmeaddr
@@ -677,7 +677,7 @@ window and runs a
 (default
 .BR $SHELL )
 in it, turning the window into something analogous to an
-.IR 9term (1)
+.MR 9term (1)
 window.
 Executing text in a
 .I win
@@ -686,7 +686,7 @@ window with button
 .BR Send .
 .I Win
 windows follow the same scrolling heuristic as in
-.IR 9term (1):
+.MR 9term (1) :
 the window scrolls on output only if the window is displaying the end of the buffer.
 .PP
 .I Awd
@@ -774,7 +774,7 @@ MIPS-specific binaries for applications
 .br
 .B \*9/bin/awd
 .SH SEE ALSO
-.IR acme (4)
+.MR acme (4)
 .br
 Rob Pike,
 .I

@@ -54,7 +54,8 @@ ALLOFILES=\
 	tlshand.$O\
 	x509.$O\
 
-OFILES=`{sh ./reduce $O $OBJTYPE $ALLOFILES}
+# OFILES=`{sh ./reduce $O $OBJTYPE $ALLOFILES}
+OFILES=$ALLOFILES
 HFILES=$PLAN9/include/libsec.h
 
 <$PLAN9/src/mksyslib

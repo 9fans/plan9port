@@ -80,14 +80,14 @@ and
 execute the
 similarly named library or system calls
 (see
-.IR close (2),
-.IR dial (3),
-.IR open (3),
-.IR read (3),
-.IR fcall (3),
-.IR sendfd (3),
+.MR close (2) ,
+.MR dial (3) ,
+.MR open (3) ,
+.MR read (3) ,
+.MR fcall (3) ,
+.MR sendfd (3) ,
 and
-.IR sleep (3))
+.MR sleep (3) )
 in the slave process associated with
 .IR io .
 It is an error to execute more than one call
@@ -187,10 +187,10 @@ ioread(Ioproc *io, int fd, void *a, long n)
 .SH SOURCE
 .B \*9/src/libthread
 .SH SEE ALSO
-.IR dial (3),
-.IR open (3),
-.IR read (3),
-.IR thread (3)
+.MR dial (3) ,
+.MR open (3) ,
+.MR read (3) ,
+.MR thread (3)
 .SH BUGS
 .I Iointerrupt
 is currently unimplemented.

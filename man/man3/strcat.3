@@ -222,7 +222,7 @@ is returned.
 returns a pointer to a distinct copy of the null-terminated string
 .I s
 in space obtained from
-.IR malloc (3)
+.MR malloc (3)
 or
 .L 0
 if no space can be obtained.
@@ -244,14 +244,14 @@ operates analogously, but ignores ASCII case differences when comparing strings.
 .SH SOURCE
 .B \*9/src/lib9
 .SH SEE ALSO
-.IR memory (3),
-.IR rune (3),
-.IR runestrcat (3)
+.MR memory (3) ,
+.MR rune (3) ,
+.MR runestrcat (3)
 .SH BUGS
 These routines know nothing about
 .SM UTF.
 Use the routines in
-.IR rune (3)
+.MR rune (3)
 as appropriate.
 Note, however, that the definition of
 .SM UTF
