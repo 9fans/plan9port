@@ -44,7 +44,7 @@ xdraw(Memdrawparam *par)
 {
 	u32int sdval;
 	uint m, state;
-	Memimage *dst, *mask;
+	Memimage *src, *dst, *mask;
 	Point dp, mp;
 	Rectangle r;
 	Xmem *xdst, *xmask;
@@ -56,6 +56,7 @@ xdraw(Memdrawparam *par)
 	dst   = par->dst;
 	mask  = par->mask;
 	r     = par->r;
+	src   = par->src;
 	state = par->state;
 
 	/*
