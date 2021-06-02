@@ -116,9 +116,10 @@ manage(Client *c, int mapped)
 		}
 
 		if(c->is9term && !(fixsize ? drag(c, Button3) : sweep(c, Button3))){
+			ScreenInfo *screen = c->screen;
 			XKillClient(dpy, c->window);
 			rmclient(c);
-			if(current && current->screen == c->screen)
+			if(current && current->screen == screen)
 				cmapfocus(current);
 			return 0;
 		}
