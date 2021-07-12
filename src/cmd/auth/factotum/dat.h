@@ -111,6 +111,7 @@ extern char	*owner;		/* main.c */
 extern Proto	*prototab[];	/* main.c */
 extern Ring	ring;			/* key.c */
 extern char	*rpcname[];	/* rpc.c */
+extern int		*loginuse;	/* fs.c */
 
 extern char	Easproto[];	/* err.c */
 
