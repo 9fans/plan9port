@@ -11,6 +11,12 @@ drawtopwindow(void)
 }
 
 int
+drawsetmode(int mode)
+{
+	return _displaymode(display, mode);
+}
+
+int
 drawsetlabel(char *label)
 {
 	return _displaylabel(display, label);

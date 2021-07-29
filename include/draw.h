@@ -364,6 +364,7 @@ extern Image*	namedimage(Display*, char*);
 extern int	nameimage(Image*, char*, int);
 extern Image* allocimagemix(Display*, u32int, u32int);
 extern int	drawsetlabel(char*);
+extern int	drawsetmode(int);
 extern int	scalesize(Display*, int);
 
 /*
@@ -571,6 +572,7 @@ int		_displayconnect(Display *d);
 int		_displaycursor(Display *d, struct Cursor *c, struct Cursor2 *c2);
 int		_displayinit(Display *d, char *label, char *winsize);
 int		_displaylabel(Display *d, char *label);
+int		_displaymode(Display *d, int mode);
 int		_displaymoveto(Display *d, Point p);
 int		_displaymux(Display *d);
 int		_displayrddraw(Display *d, void *v, int n);
