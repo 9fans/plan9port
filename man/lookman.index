@@ -19153,7 +19153,6 @@ posted	/usr/local/plan9/man/man4/plumber.4
 posted	/usr/local/plan9/man/man9/0intro.9p
 postfd	/usr/local/plan9/man/man3/9p.3
 postmark	/usr/local/plan9/man/man1/bundle.1
-postmountsrv	/usr/local/plan9/man/man3/9p.3
 postnote	/usr/local/plan9/man/man3/notify.3
 postnote	/usr/local/plan9/man/man3/postnote.3
 postnote	/usr/local/plan9/man/man3/rfork.3

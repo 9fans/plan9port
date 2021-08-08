@@ -6,7 +6,6 @@ emalloc9p,
 erealloc9p,
 estrdup9p,
 postfd,
-postmountsrv,
 readbuf,
 readstr,
 respond,
@@ -61,7 +60,6 @@ typedef struct Srv {
 .ft L
 .ta \w'\fLvoid* 'u
 int	srv(Srv *s)
-void	postmountsrv(Srv *s, char *name, char *mtpt, int flag)
 void	threadpostmountsrv(Srv *s, char *name, char *mtpt, int flag)
 int	postfd(char *srvname, int fd)
 void	respond(Req *r, char *error)
@@ -96,8 +94,6 @@ and
 writing the responses to
 .BR s->outfd .
 (Typically,
-.I postmountsrv
-or
 .I threadpostmountsrv
 initializes the
 .B infd
@@ -148,12 +144,10 @@ but abort the program if they run out of memory.
 If alternate behavior is desired, clients can link against
 alternate implementations of these functions.
 .PP
-.I Postmountsrv
-and
 .I threadpostmountsrv
-are wrappers that create a separate process in which to run
+is a wrapper that creates a separate process in which to run
 .IR srv .
-They do the following:
+It does the following:
 .IP
 If
 .IB s -> nopipe
@@ -296,9 +290,7 @@ the service functions.
 The service loop provided by
 .I srv
 (and indirectly by
-.I postmountsrv
-and
-.IR threadpostmountsrv )
+.I threadpostmountsrv )
 is single-threaded.
 If it is expected that some requests might
 block, arranging for alternate processes
