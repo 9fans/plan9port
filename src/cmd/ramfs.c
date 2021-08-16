@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <fcall.h>
+#include <9pdefs.h>
 
 /*
  * Rather than reading /adm/users, which is a lot of work for
@@ -396,26 +397,26 @@ ropen(Fid *f)
 			return Excl;
 	mode = thdr.mode;
 	if(r->qid.type & QTDIR){
-		if(mode != OREAD)
+		if(mode != OREAD_9P)
 			return Eperm;
 		rhdr.qid = r->qid;
 		return 0;
 	}
-	if(mode & ORCLOSE){
+	if(mode & ORCLOSE_9P){
 		/* can't remove root; must be able to write parent */
 		if(r->qid.path==0 || !perm(f, &ram[r->parent], Pwrite))
 			return Eperm;
 		f->rclose = 1;
 	}
-	trunc = mode & OTRUNC;
+	trunc = mode & OTRUNC_9P;
 	mode &= OPERM;
-	if(mode==OWRITE || mode==ORDWR || trunc)
+	if(mode==OWRITE_9P || mode==ORDWR_9P || trunc)
 		if(!perm(f, r, Pwrite))
 			return Eperm;
-	if(mode==OREAD || mode==ORDWR)
+	if(mode==OREAD_9P || mode==ORDWR_9P)
 		if(!perm(f, r, Pread))
 			return Eperm;
-	if(mode==OEXEC)
+	if(mode==OEXEC_9P)
 		if(!perm(f, r, Pexec))
 			return Eperm;
 	if(trunc && (r->perm&DMAPPEND)==0){
@@ -488,7 +489,7 @@ rcreate(Fid *f)
 	rhdr.qid = r->qid;
 	rhdr.iounit = messagesize-IOHDRSZ;
 	f->open = 1;
-	if(thdr.mode & ORCLOSE)
+	if(thdr.mode & ORCLOSE_9P)
 		f->rclose = 1;
 	r->open++;
 	return 0;

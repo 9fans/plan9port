@@ -4,6 +4,7 @@
 #include <thread.h>
 #include <plumb.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "dat.h"
 
 Window*
@@ -13,7 +14,7 @@ newwindow(void)
 	Window *w;
 
 	w = emalloc(sizeof(Window));
-	w->ctl = fsopen(acmefs, "new/ctl", ORDWR|OCEXEC);
+	w->ctl = fsopen(acmefs, "new/ctl", ORDWR_9P|OCEXEC_9P);
 	if(w->ctl == nil || fsread(w->ctl, buf, 12)!=12)
 		error("can't open window ctl file: %r");
 
@@ -79,7 +80,7 @@ winopenfile1(Window *w, char *f, int m)
 	CFid* fd;
 
 	sprint(buf, "%d/%s", w->id, f);
-	fd = fsopen(acmefs, buf, m|OCEXEC);
+	fd = fsopen(acmefs, buf, m|OCEXEC_9P);
 	if(fd == nil)
 		error("can't open window file %s: %r", f);
 	return fd;
@@ -88,7 +89,7 @@ winopenfile1(Window *w, char *f, int m)
 CFid*
 winopenfile(Window *w, char *f)
 {
-	return winopenfile1(w, f, ORDWR);
+	return winopenfile1(w, f, ORDWR_9P);
 }
 
 void
@@ -130,7 +131,7 @@ winopenbody(Window *w, int mode)
 	CFid* fid;
 
 	sprint(buf, "%d/body", w->id);
-	fid = fsopen(acmefs, buf, mode|OCEXEC);
+	fid = fsopen(acmefs, buf, mode|OCEXEC_9P);
 	w->body = fid;
 	if(w->body == nil)
 		error("can't open window body file: %r");
@@ -149,7 +150,7 @@ void
 winwritebody(Window *w, char *s, int n)
 {
 	if(w->body == nil)
-		winopenbody(w, OWRITE);
+		winopenbody(w, OWRITE_9P);
 	if(fswrite(w->body, s, n) != n)
 		error("write error to window: %r");
 }
@@ -332,7 +333,7 @@ winreadbody(Window *w, int *np)	/* can't use readfile because acme doesn't repor
 
 	if(w->body != nil)
 		winclosebody(w);
-	winopenbody(w, OREAD);
+	winopenbody(w, OREAD_9P);
 	s = nil;
 	na = 0;
 	n = 0;
@@ -360,7 +361,7 @@ winselection(Window *w)
 	char tmp[256];
 	CFid* fid;
 
-	fid = winopenfile1(w, "rdsel", OREAD);
+	fid = winopenfile1(w, "rdsel", OREAD_9P);
 	if(fid == nil)
 		error("can't open rdsel: %r");
 	n = 0;

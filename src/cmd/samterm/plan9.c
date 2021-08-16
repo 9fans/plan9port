@@ -17,6 +17,7 @@
 #undef Tversion
 #undef Twrite
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include "flayer.h"
 #include "samterm.h"
@@ -267,8 +268,8 @@ plumbstart(void)
 {
 	CFid *fid;
 
-	plumbfd = plumbopen("send", OWRITE|OCEXEC);	/* not open is ok */
-	fid = plumbopenfid("edit", OREAD|OCEXEC);
+	plumbfd = plumbopen("send", OWRITE_9P|OCEXEC_9P);	/* not open is ok */
+	fid = plumbopenfid("edit", OREAD_9P|OCEXEC_9P);
 	if(fid == nil)
 		return -1;
 	plumbc = chancreate(sizeof(int), 0);

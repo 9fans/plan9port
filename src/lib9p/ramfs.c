@@ -3,6 +3,7 @@
 #include <fcall.h>
 #include <thread.h>
 #include <9p.h>
+#include <9pdefs.h>
 
 static char Ebad[] = "something bad happened";
 static char Enomem[] = "no memory";
@@ -90,7 +91,7 @@ fsopen(Req *r)
 
 	rf = r->fid->file->aux;
 
-	if(rf && (r->ifcall.mode&OTRUNC)){
+	if(rf && (r->ifcall.mode&OTRUNC_9P)){
 		rf->ndata = 0;
 		r->fid->file->dir.length = 0;
 	}

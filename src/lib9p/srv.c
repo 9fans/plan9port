@@ -3,6 +3,7 @@
 #include <fcall.h>
 #include <thread.h>
 #include <9p.h>
+#include <9pdefs.h>
 
 int chatty9p;
 
@@ -369,7 +370,7 @@ sopen(Srv *srv, Req *r)
 		respond(r, Ebotch);
 		return;
 	}
-	if((r->fid->qid.type&QTDIR) && (r->ifcall.mode&~ORCLOSE) != OREAD){
+	if((r->fid->qid.type&QTDIR) && (r->ifcall.mode&~ORCLOSE_9P) != OREAD_9P){
 		respond(r, Eisdir);
 		return;
 	}
@@ -377,20 +378,20 @@ sopen(Srv *srv, Req *r)
 	switch(r->ifcall.mode&3){
 	default:
 		assert(0);
-	case OREAD:
+	case OREAD_9P:
 		p = AREAD;
 		break;
-	case OWRITE:
+	case OWRITE_9P:
 		p = AWRITE;
 		break;
-	case ORDWR:
+	case ORDWR_9P:
 		p = AREAD|AWRITE;
 		break;
-	case OEXEC:
+	case OEXEC_9P:
 		p = AEXEC;
 		break;
 	}
-	if(r->ifcall.mode&OTRUNC)
+	if(r->ifcall.mode&OTRUNC_9P)
 		p |= AWRITE;
 	if((r->fid->qid.type&QTDIR) && p!=AREAD){
 		respond(r, Eperm);
@@ -402,7 +403,7 @@ sopen(Srv *srv, Req *r)
 			return;
 		}
 	/* BUG RACE */
-		if((r->ifcall.mode&ORCLOSE)
+		if((r->ifcall.mode&ORCLOSE_9P)
 		&& !hasperm(r->fid->file->parent, r->fid->uid, AWRITE)){
 			respond(r, Eperm);
 			return;

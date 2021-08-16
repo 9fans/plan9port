@@ -1,3 +1,4 @@
+#include <9pdefs.h>
 #include "stdinc.h"
 
 #include "9.h"
@@ -602,16 +603,16 @@ rTcreate(Msg* m)
 	omode = m->t.mode & OMODE;
 	open = 0;
 
-	if(omode == OREAD || omode == ORDWR || omode == OEXEC)
+	if(omode == OREAD_9P || omode == ORDWR_9P || omode == OEXEC_9P)
 		open |= FidORead;
-	if(omode == OWRITE || omode == ORDWR)
+	if(omode == OWRITE_9P || omode == ORDWR_9P)
 		open |= FidOWrite;
 	if((open & (FidOWrite|FidORead)) == 0){
 		werrstr("unknown mode");
 		goto error;
 	}
 	if(m->t.perm & DMDIR){
-		if((m->t.mode & (ORCLOSE|OTRUNC)) || (open & FidOWrite)){
+		if((m->t.mode & (ORCLOSE_9P|OTRUNC_9P)) || (open & FidOWrite)){
 			werrstr("illegal mode");
 			goto error;
 		}
@@ -657,7 +658,7 @@ rTcreate(Msg* m)
 		fid->qid.type |= QTEXCL;
 		assert(exclAlloc(fid) != 0);
 	}
-	if(m->t.mode & ORCLOSE)
+	if(m->t.mode & ORCLOSE_9P)
 		open |= FidORclose;
 	fid->open = open;
 
@@ -689,7 +690,7 @@ rTopen(Msg* m)
 	open = 0;
 	rofs = fileIsRoFs(fid->file) || !groupWriteMember(fid->uname);
 
-	if(m->t.mode & ORCLOSE){
+	if(m->t.mode & ORCLOSE_9P){
 		if(isdir){
 			werrstr("is a directory");
 			goto error;
@@ -705,12 +706,12 @@ rTopen(Msg* m)
 	}
 
 	omode = m->t.mode & OMODE;
-	if(omode == OREAD || omode == ORDWR){
+	if(omode == OREAD_9P || omode == ORDWR_9P){
 		if(permFid(fid, PermR) <= 0)
 			goto error;
 		open |= FidORead;
 	}
-	if(omode == OWRITE || omode == ORDWR || (m->t.mode & OTRUNC)){
+	if(omode == OWRITE_9P || omode == ORDWR_9P || (m->t.mode & OTRUNC_9P)){
 		if(isdir){
 			werrstr("is a directory");
 			goto error;
@@ -723,7 +724,7 @@ rTopen(Msg* m)
 			goto error;
 		open |= FidOWrite;
 	}
-	if(omode == OEXEC){
+	if(omode == OEXEC_9P){
 		if(isdir){
 			werrstr("is a directory");
 			goto error;
@@ -744,7 +745,7 @@ rTopen(Msg* m)
 	/*
 	 * Everything checks out, try to commit any changes.
 	 */
-	if((m->t.mode & OTRUNC) && !(mode & ModeAppend))
+	if((m->t.mode & OTRUNC_9P) && !(mode & ModeAppend))
 		if(!fileTruncate(fid->file, fid->uid))
 			goto error;
 

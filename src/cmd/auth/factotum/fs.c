@@ -1,3 +1,4 @@
+#include <9pdefs.h>
 #include "std.h"
 #include "dat.h"
 
@@ -280,7 +281,7 @@ fsopen(Req *r)
 			break;
 		}
 
-	if((r->ifcall.mode&~(OMASK|OTRUNC))
+	if((r->ifcall.mode&~(OMASK|OTRUNC_9P))
 	|| (need[r->ifcall.mode&3] & ~perm)){
 		respond(r, "permission denied");
 		return;

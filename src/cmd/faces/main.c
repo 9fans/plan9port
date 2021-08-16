@@ -8,6 +8,7 @@
 #include <mouse.h>
 #include <cursor.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include "faces.h"
 
 int	history = 0;	/* use old interface, showing history of mailbox rather than current state */
@@ -373,7 +374,7 @@ loadmboxfaces(char *maildir)
 	Dir *d;
 	int i, n;
 
-	dirfd = fsopen(mailfs, maildir, OREAD);
+	dirfd = fsopen(mailfs, maildir, OREAD_9P);
 	if(dirfd != nil){
 		while((n = fsdirread(dirfd, &d)) > 0){
 			for(i=0; i<n; i++)

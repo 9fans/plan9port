@@ -1,5 +1,6 @@
 #include "stdinc.h"
 #include <fcall.h>
+#include <9pdefs.h>
 #include "vac.h"
 
 typedef struct Fid Fid;
@@ -443,7 +444,7 @@ ropen(Fid *f)
 	mode = rhdr.mode;
 	thdr.iounit = messagesize - IOHDRSZ;
 	if(f->qid.type & QTDIR){
-		if(mode != OREAD)
+		if(mode != OREAD_9P)
 			return vtstrdup(Eperm);
 		if(!perm(f, Pread))
 			return vtstrdup(Eperm);
@@ -452,17 +453,17 @@ ropen(Fid *f)
 		f->open = 1;
 		return 0;
 	}
-	if(mode & ORCLOSE)
+	if(mode & ORCLOSE_9P)
 		return vtstrdup(Erdonly);
-	trunc = mode & OTRUNC;
+	trunc = mode & OTRUNC_9P;
 	mode &= OPERM;
-	if(mode==OWRITE || mode==ORDWR || trunc)
+	if(mode==OWRITE_9P || mode==ORDWR_9P || trunc)
 		if(!perm(f, Pwrite))
 			return vtstrdup(Eperm);
-	if(mode==OREAD || mode==ORDWR)
+	if(mode==OREAD_9P || mode==ORDWR_9P)
 		if(!perm(f, Pread))
 			return vtstrdup(Eperm);
-	if(mode==OEXEC)
+	if(mode==OEXEC_9P)
 		if(!perm(f, Pexec))
 			return vtstrdup(Eperm);
 	thdr.qid = f->qid;
@@ -492,16 +493,16 @@ rcreate(Fid* fid)
 	mode = rhdr.perm & 0777;
 
 	if(rhdr.perm & DMDIR){
-		if((rhdr.mode & OTRUNC) || (rhdr.perm & DMAPPEND))
+		if((rhdr.mode & OTRUNC_9P) || (rhdr.perm & DMAPPEND))
 			return vtstrdup(Emode);
 		switch(rhdr.mode & OPERM){
 		default:
 			return vtstrdup(Emode);
-		case OEXEC:
-		case OREAD:
+		case OEXEC_9P:
+		case OREAD_9P:
 			break;
-		case OWRITE:
-		case ORDWR:
+		case OWRITE_9P:
+		case ORDWR_9P:
 			return vtstrdup(Eperm);
 		}
 		mode |= ModeDir;

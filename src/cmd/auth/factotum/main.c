@@ -1,6 +1,7 @@
 #include "std.h"
 #include "dat.h"
 #include <9pclient.h>
+#include <9pdefs.h>
 
 int extrafactotumdir;
 int debug;
@@ -149,7 +150,7 @@ sendkey(Attr *attr)
 	char buf[8192];
 	CFid *fid;
 
-	fid = nsopen("factotum", nil, "ctl", OWRITE);
+	fid = nsopen("factotum", nil, "ctl", OWRITE_9P);
 	if(fid == nil)
 		sysfatal("opening factotum/ctl: %r");
 	snprint(buf, sizeof buf, "key %A\n", attr);

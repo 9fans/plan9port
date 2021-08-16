@@ -9,6 +9,7 @@
 #include <fcall.h>
 #include <regexp.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include <libsec.h>
 #include "dat.h"
@@ -39,13 +40,13 @@ plumbthread(void *v)
 		 * Connect to plumber.
 		 */
 		plumbunmount();
-		while((fid = plumbopenfid("edit", OREAD|OCEXEC)) == nil){
+		while((fid = plumbopenfid("edit", OREAD_9P|OCEXEC_9P)) == nil){
 			t = timerstart(2000);
 			recv(t->c, nil);
 			timerstop(t);
 		}
 		plumbeditfid = fid;
-		plumbsendfid = plumbopenfid("send", OWRITE|OCEXEC);
+		plumbsendfid = plumbopenfid("send", OWRITE_9P|OCEXEC_9P);
 
 		/*
 		 * Relay messages.

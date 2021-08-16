@@ -2,6 +2,7 @@
 #include <libc.h>
 #include <authsrv.h>
 #include <fcall.h>
+#include <9pdefs.h>
 #include "tapefs.h"
 
 Fid	*fids;
@@ -305,22 +306,22 @@ ropen(Fid *f)
 			return Excl;
 	mode = rhdr.mode;
 	if(r->qid.type & QTDIR){
-		if(mode != OREAD)
+		if(mode != OREAD_9P)
 			return Eperm;
 		thdr.qid = r->qid;
 		return 0;
 	}
-	if(mode & ORCLOSE)
+	if(mode & ORCLOSE_9P)
 		return Eperm;
-	trunc = mode & OTRUNC;
+	trunc = mode & OTRUNC_9P;
 	mode &= OPERM;
-	if(mode==OWRITE || mode==ORDWR || trunc)
+	if(mode==OWRITE_9P || mode==ORDWR_9P || trunc)
 		if(!perm(Pwrite))
 			return Eperm;
-	if(mode==OREAD || mode==ORDWR)
+	if(mode==OREAD_9P || mode==ORDWR_9P)
 		if(!perm(Pread))
 			return Eperm;
-	if(mode==OEXEC)
+	if(mode==OEXEC_9P)
 		if(!perm(Pexec))
 			return Eperm;
 	if(trunc && (r->perm&DMAPPEND)==0){

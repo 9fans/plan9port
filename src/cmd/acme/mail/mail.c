@@ -3,6 +3,7 @@
 #include <bio.h>
 #include <thread.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include <ctype.h>
 #include "dat.h"
@@ -84,11 +85,11 @@ threadmain(int argc, char *argv[])
 	quotefmtinstall();
 
 	/* open these early so we won't miss notification of new mail messages while we read mbox */
-	if((plumbsendfd = plumbopenfid("send", OWRITE|OCEXEC)) == nil)
+	if((plumbsendfd = plumbopenfid("send", OWRITE_9P|OCEXEC_9P)) == nil)
 		fprint(2, "warning: open plumb/send: %r\n");
-	if((plumbseemailfd = plumbopenfid("seemail", OREAD|OCEXEC)) == nil)
+	if((plumbseemailfd = plumbopenfid("seemail", OREAD_9P|OCEXEC_9P)) == nil)
 		fprint(2, "warning: open plumb/seemail: %r\n");
-	if((plumbshowmailfd = plumbopenfid("showmail", OREAD|OCEXEC)) == nil)
+	if((plumbshowmailfd = plumbopenfid("showmail", OREAD_9P|OCEXEC_9P)) == nil)
 		fprint(2, "warning: open plumb/showmail: %r\n");
 
 	shortmenu = 0;
@@ -165,7 +166,7 @@ threadmain(int argc, char *argv[])
 	if(outgoing == nil)
 		outgoing = estrstrdup(mailboxdir, "/outgoing");
 
-	mbox.ctlfd = fsopen(mailfs, estrstrdup(mboxname, "/ctl"), OWRITE);
+	mbox.ctlfd = fsopen(mailfs, estrstrdup(mboxname, "/ctl"), OWRITE_9P);
 	if(mbox.ctlfd == nil)
 		error("can't open %s: %r", estrstrdup(mboxname, "/ctl"));
 
@@ -227,7 +228,7 @@ threadmain(int argc, char *argv[])
 		 * Avoid creating multiple windows to send mail by only accepting
 		 * sendmail plumb messages if we're reading the main mailbox.
 		 */
-		plumbsendmailfd = plumbopenfid("sendmail", OREAD|OCEXEC);
+		plumbsendmailfd = plumbopenfid("sendmail", OREAD_9P|OCEXEC_9P);
 		cplumbsend = chancreate(sizeof(Plumbmsg*), 0);
 		proccreate(plumbsendproc, nil, STACK);
 		threadcreate(plumbsendthread, nil, STACK);
@@ -485,7 +486,7 @@ mboxcommand(Window *w, char *s)
 		if(nargs <= 1)
 			return 1;
 		s = estrstrdup(mboxname, "/search");
-		searchfd = fsopen(mailfs, s, ORDWR);
+		searchfd = fsopen(mailfs, s, ORDWR_9P);
 		if(searchfd == nil)
 			return 1;
 		save = estrdup(args[1]);
@@ -512,7 +513,7 @@ mboxcommand(Window *w, char *s)
 		winname(sbox, s);
 		free(s);
 		threadcreate(mainctl, sbox, STACK);
-		winopenbody(sbox, OWRITE);
+		winopenbody(sbox, OWRITE_9P);
 
 		/* show results in reverse order */
 		m = mbox.tail;
