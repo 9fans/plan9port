@@ -58,7 +58,7 @@ case "$tag" in
 	esac
 	;;
 *AIX*)
-	ld="${CC9:-xlc_r} -g -O0 $CC9FLAGS"
+	ld="${CC9:-xlc_r} $CC9FLAGS"
 	nmflags="-A -B"
 	;;
 *)
