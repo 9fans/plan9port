@@ -90,7 +90,7 @@ usexlc()
 	cc=${CC9:-xlc_r}
 	cflags=" \
 		-c \
-		-O0 \
+		-O2 \
 		-qmaxmem=-1 \
 		-qsuppress=1506-236 \
 		-qsuppress=1506-358 \
@@ -99,7 +99,7 @@ usexlc()
 		-qsuppress=1506-1300 \
 		-qsuppress=1506-342 \
 	"
-	cflags="$cflags -g -qfullpath"
+	cflags="$cflags -g -qdbxextra -qfullpath"
 	cflags="$cflags $CC9FLAGS"
 }
 
