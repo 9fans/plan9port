@@ -63,8 +63,10 @@ childpty(int fd[], char *slave)
 	sfd = open(slave, ORDWR);
 	if(sfd < 0)
 		sysfatal("child open %s: %r\n", slave);
+#if !defined (__AIX__)
 	if(ioctl(sfd, TIOCSCTTY, 0) < 0)
 		fprint(2, "ioctl TIOCSCTTY: %r\n");
+#endif
 	return sfd;
 }
 
