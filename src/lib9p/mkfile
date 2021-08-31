@@ -2,7 +2,6 @@
 
 LIB=lib9p.a
 OFILES=\
-	_post.$O\
 	dirread.$O\
 	fid.$O\
 	file.$O\
