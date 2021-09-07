@@ -62,7 +62,7 @@ extern "C" {
 #define _NEEDUINT 1
 #define _NEEDULONG 1
 
-typedef long p9jmp_buf[sizeof(sigjmp_buf)/sizeof(long)];
+typedef long p9jmp_buf[sizeof(sigjmp_buf)/(sizeof(long))];
 
 #if defined(__linux__)
 #	include <sys/types.h>
