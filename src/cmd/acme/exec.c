@@ -209,14 +209,14 @@ execute(Text *t, uint aq0, uint aq1, int external, Text *argt)
 		if(n <= EVENTSIZE)
 			winevent(t->w, "%c%d %d %d %d %.*S\n", c, aq0, aq1, f, n, n, r);
 		else
-			winevent(t->w, "%c%d %d %d 0 \n", c, aq0, aq1, f, n);
+			winevent(t->w, "%c%d %d %d 0 \n", c, aq0, aq1, f);
 		if(q0!=aq0 || q1!=aq1){
 			n = q1-q0;
 			bufread(&t->file->b, q0, r, n);
 			if(n <= EVENTSIZE)
 				winevent(t->w, "%c%d %d 0 %d %.*S\n", c, q0, q1, n, n, r);
 			else
-				winevent(t->w, "%c%d %d 0 0 \n", c, q0, q1, n);
+				winevent(t->w, "%c%d %d 0 0 \n", c, q0, q1);
 		}
 		if(a){
 			winevent(t->w, "%c0 0 0 %d %s\n", c, utflen(a), a);
