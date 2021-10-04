@@ -58,6 +58,11 @@ elif [ $WSYSTYPE = mac ]; then
 	echo 'WSYSOFILES=$WSYSOFILES mac-draw.o mac-screen.o'
 	echo 'WSYSHFILES='
 	echo 'MACARGV=macargv.o'
+elif [ $WSYSTYPE = wayland ]; then
+	echo 'WSYSOFILES=$WSYSOFILES wl-screen.o xdg-shell-protocol.o wl-util.o wl-cb.o wl-draw.o'
+	echo 'WSYSHFILES=xdg-shell-protocol.h wl-inc.h'
+	echo 'LDFLAGS=-lwayland-client -lxkbcommon -lrt'
+	echo 'CFLAGS=$CFLAGS -ggdb'
 elif [ $WSYSTYPE = nowsys ]; then
 	echo 'WSYSOFILES=nowsys.o'
 fi
