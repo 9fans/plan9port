@@ -21,6 +21,7 @@
 #include <cursor.h>
 #include <thread.h>
 #include "devdraw.h"
+#include "bigarrow.h"
 #include "wl-inc.h"
 
 static QLock wllk;
@@ -58,8 +59,12 @@ newwlwin(Client *c)
 	if(wl == nil)
 		sysfatal("malloc Wlwin");
 	wl->client = c;
+	wl->client->view = wl;
+	wl->client->impl = &wlimpl;
 	wl->dx = 1024;
 	wl->dy = 1024;
+	wl->monx = 1920;
+	wl->mony = 1080;
 	return wl;
 }
 
@@ -79,11 +84,8 @@ wlattach(Client *client, char *label, char *winsize)
 	Rectangle r;
 	Wlwin *wl;
 
-	wl = newwlwin(nil);
+	wl = newwlwin(client);
 	snarfwin = wl;
-	wl->client = client;
-	wl->client->view = wl;
-	wl->client->impl = &wlimpl;
 	wl->display = wl_display_connect(NULL);
 	if(wl->display == nil)
 		sysfatal("could not connect to display");
@@ -91,6 +93,7 @@ wlattach(Client *client, char *label, char *winsize)
 	wlsetcb(wl);
 	r = Rect(0, 0, wl->dx, wl->dy);
 	wl->screen = allocmemimage(r, XRGB32);
+	wldrawcursor(wl, &bigarrow);
 	wl->runing = 1;
 	proccreate(dispatchproc, wl, 8192);
 	return wl->screen;
@@ -129,7 +132,7 @@ rpc_flush(Client *client, Rectangle r)
 	wl = (Wlwin*)client->view;
 	qlock(&wllk);
 	memcpy(wl->shm_data, wl->screen->data->bdata, wl->dx*wl->dy*4);
-	wl_surface_attach(wl->surface, wl->buffer, 0, 0);
+	wl_surface_attach(wl->surface, wl->screenbuffer, 0, 0);
 	wl_surface_damage(wl->surface, 0, 0, wl->dx, wl->dy);
 	wl_surface_commit(wl->surface);
 	qunlock(&wllk);
@@ -152,37 +155,36 @@ rpc_resizeimg(Client *client)
 void
 rpc_resizewindow(Client *client, Rectangle r)
 {
-	fprint(2, "resize window stub\n");
 }
 
 void
 rpc_setcursor(Client *client, Cursor *c, Cursor2 *c2)
 {
-	fprint(2, "Set cursor stub");
+	if(c == nil)
+		c = &bigarrow;
+	qlock(&wllk);
+	wldrawcursor(client->view, c);
+	qunlock(&wllk);
 }
 
 void
 rpc_bouncemouse(Client *c, Mouse m)
 {
-	fprint(2, "bounce mouse stub\n");
 }
 
 void
 rpc_setlabel(Client *c, char*)
 {
-	fprint(2, "set label stub\n");
 }
 
 void
 rpc_topwin(Client *c)
 {
-	fprint(2, "top win stub\n");
 }
 
 void
 rpc_setmouse(Client *c, Point p)
 {
-	fprint(2, "set mouse stub\n");
 }
 
 void

@@ -30,6 +30,10 @@ struct Clipboard {
 struct Wlwin {
 	int dx;
 	int dy;
+	int monx;
+	int mony;
+	Mouse mouse;
+	Clipboard clip;
 
 	/* p9p state */
 	Client *client;
@@ -37,28 +41,29 @@ struct Wlwin {
 
 	/* Wayland State */
 	int runing;
+	int poolsize;
+	int pointerserial;
+	void *shm_data;
 	struct wl_compositor *compositor;
 	struct wl_display *display;
 	struct wl_surface *surface;
+	struct wl_surface *cursorsurface;
 	struct xdg_wm_base *xdg_wm_base;
-	struct wl_buffer *buffer;
+	struct wl_shm_pool *pool;
+	struct wl_buffer *screenbuffer;
+	struct wl_buffer *cursorbuffer;
 	struct wl_shm *shm;
 	struct wl_seat *seat;
 	struct wl_data_device_manager *data_device_manager;
 	struct wl_data_device *data_device;
-	void *shm_data;
-
+	struct wl_pointer *pointer;
 	/* Keyboard state */
 	struct xkb_state *xkb_state;
 	struct xkb_context *xkb_context;
-
-	/* Mouse state */
-	Mouse mouse;
-
-	Clipboard clip;
 };
 
 void wlallocbuffer(Wlwin*);
 void wlsetcb(Wlwin*);
 char* wlgetsnarf(Wlwin*);
 void wlsetsnarf(Wlwin*, char*);
+void wldrawcursor(Wlwin*, Cursor*);

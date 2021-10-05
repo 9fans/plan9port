@@ -27,11 +27,6 @@
 #undef send
 
 static void
-noop()
-{
-}
-
-static void
 xdg_surface_handle_configure(void *data, struct xdg_surface *xdg_surface, uint32_t serial)
 {
 	Wlwin *wl;
@@ -60,7 +55,6 @@ xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *xdg_toplevel, int
 	Wlwin *wl;
 	Rectangle r;
 
-	fprint(2, "resizing\n");
 	wl = data;
 	if(width == 0 || height == 0 || (width == wl->dx && height == wl->dy))
 		return;
@@ -236,6 +230,11 @@ pointer_handle_motion(void *data, struct wl_pointer *wl_pointer, uint32_t time, 
 static void
 pointer_handle_enter(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x, wl_fixed_t surface_y)
 {
+	Wlwin *wl;
+
+	wl = data;
+	wl->pointerserial = serial;
+	wl_pointer_set_cursor(wl->pointer, wl->pointerserial, wl->cursorsurface, 0, 0);
 }
 
 static void
@@ -243,12 +242,33 @@ pointer_handle_leave(void *data, struct wl_pointer *wl_pointer, uint32_t serial,
 {
 }
 
+static void
+pointer_handle_axis(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value)
+{
+	Wlwin *wl;
+	int buttons;
+
+	if(axis == 1)
+		return; /* Horizontal scroll */
+	wl = data;
+	buttons = wl->mouse.buttons;
+	if(value < 0){
+		buttons |= 8;
+	} else {
+		buttons |= 16;
+	}
+	wl->mouse.msec = time;
+	/* p9p expects a scroll event to work like a button, a set and a release */
+	gfx_mousetrack(wl->client, wl->mouse.xy.x, wl->mouse.xy.y, buttons, wl->mouse.msec);
+	gfx_mousetrack(wl->client, wl->mouse.xy.x, wl->mouse.xy.y, wl->mouse.buttons, wl->mouse.msec+1);
+}
+
 static const struct wl_pointer_listener pointer_listener = {
 	.enter = pointer_handle_enter,
 	.leave = pointer_handle_leave,
 	.motion = pointer_handle_motion,
 	.button = pointer_handle_button,
-	.axis = noop,
+	.axis = pointer_handle_axis,
 };
 
 static void
@@ -258,8 +278,8 @@ seat_handle_capabilities(void *data, struct wl_seat *seat, uint32_t capabilities
 
 	wl = data;
 	if(capabilities & WL_SEAT_CAPABILITY_POINTER) {
-		struct wl_pointer *pointer = wl_seat_get_pointer(seat);
-		wl_pointer_add_listener(pointer, &pointer_listener, wl);
+		wl->pointer = wl_seat_get_pointer(seat);
+		wl_pointer_add_listener(wl->pointer, &pointer_listener, wl);
 	}
 	if(capabilities & WL_SEAT_CAPABILITY_KEYBOARD) {
 		struct wl_keyboard *keyboard = wl_seat_get_keyboard(seat);
@@ -417,7 +437,7 @@ wlsetcb(Wlwin *wl)
 	wl_surface_commit(wl->surface);
 	wl_display_roundtrip(wl->display);
 
-	wl_surface_attach(wl->surface, wl->buffer, 0, 0);
+	wl_surface_attach(wl->surface, wl->screenbuffer, 0, 0);
 	wl_surface_damage(wl->surface, 0, 0, wl->dx, wl->dy);
 	wl_surface_commit(wl->surface);
 
