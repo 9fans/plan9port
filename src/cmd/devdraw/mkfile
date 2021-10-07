@@ -40,12 +40,19 @@ $O.macargv: $MACARGV
 	$LD -o $target $prereq
 
 xdgshell=/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml
+xdgdeco=/usr/share/wayland-protocols/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml
 
 xdg-shell-protocol.c:
 	wayland-scanner private-code < $xdgshell > xdg-shell-protocol.c
 
 xdg-shell-protocol.h:
 	wayland-scanner client-header < $xdgshell > xdg-shell-protocol.h
+
+xdg-decoration-protocol.c:
+	wayland-scanner private-code < $xdgdeco > xdg-decoration-protocol.c
+
+xdg-decoration-protocol.h:
+	wayland-scanner client-header < $xdgdeco > xdg-decoration-protocol.h
 
 %.$O: %.m
 	$CC $CFLAGS $OBJCFLAGS -fobjc-arc -o $target $stem.m

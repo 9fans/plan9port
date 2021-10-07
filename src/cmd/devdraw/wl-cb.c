@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <xkbcommon/xkbcommon.h>
 #include "xdg-shell-protocol.h"
+#include "xdg-decoration-protocol.h"
 
 #include <u.h>
 #include <errno.h>
@@ -53,22 +54,11 @@ static void
 xdg_toplevel_handle_configure(void *data, struct xdg_toplevel *xdg_toplevel, int32_t width, int32_t height, struct wl_array *states)
 {
 	Wlwin *wl;
-	Rectangle r;
 
 	wl = data;
 	if(width == 0 || height == 0 || (width == wl->dx && height == wl->dy))
 		return;
-	rpc_gfxdrawlock();
-	wl->dx = width;
-	wl->dy = height;
-	r = Rect(0, 0, wl->dx, wl->dy);
-	wl->client->mouserect = r;
-	wlallocbuffer(wl);
-	wl->screen = allocmemimage(r, XRGB32);
-	rpc_gfxdrawunlock();
-	gfx_replacescreenimage(wl->client, wl->screen);
-	gfx_mouseresized(wl->client);
-	wl->client->impl->rpc_flush(wl->client, Rect(0, 0, 0, 0));
+	wlresize(wl, width, height);
 }
 
 const struct xdg_toplevel_listener xdg_toplevel_listener = {
@@ -86,8 +76,8 @@ wl_surface_frame_done(void *data, struct wl_callback *cb, uint32_t time)
 	wl = data;
 	wl_callback_destroy(cb);
 	cb = wl_surface_frame(wl->surface);
+	wlflush(wl);
 	wl_callback_add_listener(cb, &wl_surface_frame_listener, wl);
-	wl->client->impl->rpc_flush(wl->client, Rect(0, 0, 0, 0));
 }
 
 static void
@@ -379,6 +369,16 @@ static const struct wl_data_device_listener data_device_listener = {
 };
 
 static void
+xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32_t serial)
+{
+	xdg_wm_base_pong(xdg_wm_base, serial);
+}
+
+static const struct xdg_wm_base_listener xdg_wm_base_listener = {
+	.ping = xdg_wm_base_ping,
+};
+
+static void
 handle_global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
 {
 	Wlwin *wl;
@@ -393,8 +393,11 @@ handle_global(void *data, struct wl_registry *registry, uint32_t name, const cha
 		wl->compositor = wl_registry_bind(registry, name, &wl_compositor_interface, 1);
 	} else if(strcmp(interface, xdg_wm_base_interface.name) == 0) {
 		wl->xdg_wm_base = wl_registry_bind(registry, name, &xdg_wm_base_interface, 1);
+		xdg_wm_base_add_listener(wl->xdg_wm_base, &xdg_wm_base_listener, wl);
 	} else if(strcmp(interface, wl_data_device_manager_interface.name) == 0) {
 		wl->data_device_manager = wl_registry_bind(registry, name, &wl_data_device_manager_interface, 3);
+	} else if(strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0) {
+		wl->decoman = wl_registry_bind(registry, name, &zxdg_decoration_manager_v1_interface, 1);
 	}
 }
 
@@ -413,16 +416,17 @@ wlsetcb(Wlwin *wl)
 {
 	struct wl_registry *registry;
 	struct xdg_surface *xdg_surface;
-	struct xdg_toplevel *xdg_toplevel;
 	struct wl_callback *cb;
+	struct zxdg_toplevel_decoration_v1 *deco;
 
 	registry = wl_display_get_registry(wl->display);
 	wl_registry_add_listener(registry, &registry_listener, wl);
 	wl_display_roundtrip(wl->display);
 	wl->xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 	
-	if(wl->shm == nil || wl->compositor == nil || wl->xdg_wm_base == nil || wl->seat == nil)
+	if(wl->shm == nil || wl->compositor == nil || wl->xdg_wm_base == nil || wl->seat == nil || wl->decoman == nil)
 		sysfatal("Registration fell short");
+
 
 	wl->data_device = wl_data_device_manager_get_data_device(wl->data_device_manager, wl->seat);
 	wl_data_device_add_listener(wl->data_device, &data_device_listener, wl);
@@ -430,19 +434,25 @@ wlsetcb(Wlwin *wl)
 	wl->surface = wl_compositor_create_surface(wl->compositor);
 
 	xdg_surface = xdg_wm_base_get_xdg_surface(wl->xdg_wm_base, wl->surface);
-	xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
+	wl->xdg_toplevel = xdg_surface_get_toplevel(xdg_surface);
+	deco = zxdg_decoration_manager_v1_get_toplevel_decoration(wl->decoman, wl->xdg_toplevel);
+	zxdg_toplevel_decoration_v1_set_mode(deco, ZXDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE);
 	xdg_surface_add_listener(xdg_surface, &xdg_surface_listener, wl);
-	xdg_toplevel_add_listener(xdg_toplevel, &xdg_toplevel_listener, wl);
+	xdg_toplevel_add_listener(wl->xdg_toplevel, &xdg_toplevel_listener, wl);
 
 	wl_surface_commit(wl->surface);
 	wl_display_roundtrip(wl->display);
 
-	wl_surface_attach(wl->surface, wl->screenbuffer, 0, 0);
-	wl_surface_damage(wl->surface, 0, 0, wl->dx, wl->dy);
-	wl_surface_commit(wl->surface);
+	xdg_toplevel_set_app_id(wl->xdg_toplevel, "devdraw");
 
 	cb = wl_surface_frame(wl->surface);
 	wl_callback_add_listener(cb, &wl_surface_frame_listener, wl);
+}
+
+void
+wlsettitle(Wlwin *wl, char *s)
+{
+	xdg_toplevel_set_title(wl->xdg_toplevel, s);
 }
 
 void

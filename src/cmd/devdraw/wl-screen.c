@@ -28,7 +28,7 @@ static QLock wllk;
 
 static Wlwin *snarfwin;
 
-static clientruning;
+static int clientruning;
 
 static void rpc_resizeimg(Client*);
 static void rpc_resizewindow(Client*, Rectangle);
@@ -69,6 +69,38 @@ newwlwin(Client *c)
 }
 
 void
+wlflush(Wlwin *wl)
+{
+	qlock(&wllk);
+	if(wl->dirty == 1)
+		memcpy(wl->shm_data, wl->screen->data->bdata, wl->dx*wl->dy*4);
+
+	wl_surface_attach(wl->surface, wl->screenbuffer, 0, 0);
+	wl_surface_damage(wl->surface, 0, 0, wl->dx, wl->dy);
+	wl_surface_commit(wl->surface);
+	wl->dirty = 0;
+	qunlock(&wllk);
+}
+
+void
+wlresize(Wlwin *wl, int x, int y)
+{
+	Rectangle r;
+
+	qlock(&wllk);
+	wl->dx = x;
+	wl->dy = y;
+
+	wlallocbuffer(wl);
+	r = Rect(0, 0, wl->dx, wl->dy);
+	wl->client->mouserect = r;
+	wl->screen = allocmemimage(r, XRGB32);
+	wl->dirty = 1;
+	qunlock(&wllk);
+	gfx_replacescreenimage(wl->client, wl->screen);
+}
+
+void
 dispatchproc(void *a)
 {
 	Wlwin *wl;
@@ -91,9 +123,10 @@ wlattach(Client *client, char *label, char *winsize)
 		sysfatal("could not connect to display");
 
 	wlsetcb(wl);
-	r = Rect(0, 0, wl->dx, wl->dy);
-	wl->screen = allocmemimage(r, XRGB32);
+	wlsettitle(wl, label);
+	wlresize(wl, wl->dx, wl->dy);
 	wldrawcursor(wl, &bigarrow);
+	wlflush(wl);
 	wl->runing = 1;
 	proccreate(dispatchproc, wl, 8192);
 	return wl->screen;
@@ -131,10 +164,7 @@ rpc_flush(Client *client, Rectangle r)
 
 	wl = (Wlwin*)client->view;
 	qlock(&wllk);
-	memcpy(wl->shm_data, wl->screen->data->bdata, wl->dx*wl->dy*4);
-	wl_surface_attach(wl->surface, wl->screenbuffer, 0, 0);
-	wl_surface_damage(wl->surface, 0, 0, wl->dx, wl->dy);
-	wl_surface_commit(wl->surface);
+	wl->dirty = 1;
 	qunlock(&wllk);
 }
 
@@ -173,8 +203,9 @@ rpc_bouncemouse(Client *c, Mouse m)
 }
 
 void
-rpc_setlabel(Client *c, char*)
+rpc_setlabel(Client *c, char *s)
 {
+	wlsettitle(c->view, s);
 }
 
 void

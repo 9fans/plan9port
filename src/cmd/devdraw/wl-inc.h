@@ -34,6 +34,7 @@ struct Wlwin {
 	int mony;
 	Mouse mouse;
 	Clipboard clip;
+	int dirty;
 
 	/* p9p state */
 	Client *client;
@@ -49,6 +50,7 @@ struct Wlwin {
 	struct wl_surface *surface;
 	struct wl_surface *cursorsurface;
 	struct xdg_wm_base *xdg_wm_base;
+	struct xdg_toplevel *xdg_toplevel;
 	struct wl_shm_pool *pool;
 	struct wl_buffer *screenbuffer;
 	struct wl_buffer *cursorbuffer;
@@ -60,10 +62,15 @@ struct Wlwin {
 	/* Keyboard state */
 	struct xkb_state *xkb_state;
 	struct xkb_context *xkb_context;
+
+	struct zxdg_decoration_manager_v1 *decoman;
 };
 
 void wlallocbuffer(Wlwin*);
 void wlsetcb(Wlwin*);
+void wlsettitle(Wlwin*, char*);
 char* wlgetsnarf(Wlwin*);
 void wlsetsnarf(Wlwin*, char*);
 void wldrawcursor(Wlwin*, Cursor*);
+void wlresize(Wlwin*, int, int);
+void wlflush(Wlwin*);
