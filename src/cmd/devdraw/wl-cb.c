@@ -5,7 +5,7 @@
 #include <linux/input-event-codes.h>
 #include <sys/types.h>
 #include <sys/mman.h>
-#include <sys/stat.h>        /* For mode constants */
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <xkbcommon/xkbcommon.h>
 #include "xdg-shell-protocol.h"
@@ -289,13 +289,15 @@ data_source_handle_send(void *data, struct wl_data_source *source, const char *m
 	ulong len;
 	Wlwin *wl;
 
+	if(strcmp(mime_type, "text/plain;charset=utf-8") != 0)
+		return;
+
 	wl = data;
 	qlock(&wl->clip.lk);
 	len = strlen(wl->clip.content);
 	for(pos = 0; (n = write(fd, wl->clip.content+pos, len-pos)) > 0 && pos < len; pos += n)
 		;
 	wl->clip.posted = 0;
-	free(wl->clip.content);
 	qunlock(&wl->clip.lk);
 	close(fd);
 }
@@ -320,14 +322,12 @@ static const struct wl_data_source_listener data_source_listener = {
 static void
 data_device_handle_data_offer(void *data, struct wl_data_device *data_device, struct wl_data_offer *offer)
 {
-	/* TODO accept offers if this isn't working */
 }
 
 static void
 data_device_handle_selection(void *data, struct wl_data_device *data_device, struct wl_data_offer *offer)
 {
 	Wlwin *wl;
-	char *buf;
 	ulong n;
 	ulong size;
 	ulong pos;
@@ -340,26 +340,25 @@ data_device_handle_selection(void *data, struct wl_data_device *data_device, str
 
 	wl = data;
 	pipe(fds);
-	wl_data_offer_receive(offer, "text/plain", fds[1]);
+	wl_data_offer_receive(offer, "text/plain;charset=utf-8", fds[1]);
 	close(fds[1]);
 
 	wl_display_roundtrip(wl->display);
 
-	size = 8192*256;
-	buf = mallocz(size+1, 1);
-	for(pos = 0; (n = read(fds[0], buf+pos, size-pos)) > 0;){
+	qlock(&wl->clip.lk);
+	size = 8192;
+	wl->clip.content = realloc(wl->clip.content, size+1);
+	memset(wl->clip.content, 0, size+1);
+	for(pos = 0; (n = read(fds[0], wl->clip.content+pos, size-pos)) > 0;){
 		pos += n;
 		if(pos >= size){
 			size *= 2;
-			buf = realloc(buf, size+1);
-			memset(buf+pos, 0, (size-pos)+1);
+			wl->clip.content = realloc(wl->clip.content, size+1);
+			memset(wl->clip.content+pos, 0, (size-pos)+1);
 		}
 	}
 	close(fds[0]);
-	qlock(&wl->clip.lk);
-	wl->clip.content = buf;
 	qunlock(&wl->clip.lk);
-
 	wl_data_offer_destroy(offer);
 }
 
@@ -463,6 +462,7 @@ wlsetsnarf(Wlwin *wl, char *s)
 	qlock(&wl->clip.lk);
 	if(wl->clip.content != nil)
 		free(wl->clip.content);
+
 	wl->clip.content = strdup(s);
 	/* Do we still own the clipboard? */
 	if(wl->clip.posted == 1)
@@ -470,7 +470,7 @@ wlsetsnarf(Wlwin *wl, char *s)
 
 	source = wl_data_device_manager_create_data_source(wl->data_device_manager);
 	wl_data_source_add_listener(source, &data_source_listener, wl);
-	wl_data_source_offer(source, "text/plain");
+	wl_data_source_offer(source, "text/plain;charset=utf-8");
 	wl_data_device_set_selection(wl->data_device, source, wl->clip.serial);
 	wl->clip.posted = 1;
 done:

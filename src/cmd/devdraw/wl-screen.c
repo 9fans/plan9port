@@ -5,7 +5,7 @@
 #include <linux/input-event-codes.h>
 #include <sys/types.h>
 #include <sys/mman.h>
-#include <sys/stat.h>        /* For mode constants */
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <xkbcommon/xkbcommon.h>
 #include "xdg-shell-protocol.h"

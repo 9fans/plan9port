@@ -5,7 +5,7 @@
 #include <linux/input-event-codes.h>
 #include <sys/types.h>
 #include <sys/mman.h>
-#include <sys/stat.h>        /* For mode constants */
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <xkbcommon/xkbcommon.h>
 #include "xdg-shell-protocol.h"
@@ -87,6 +87,7 @@ wlallocpool(Wlwin *wl)
 
 	wl->pool = wl_shm_create_pool(wl->shm, fd, screensize+cursorsize);
 	wl->poolsize = screensize+cursorsize;
+	close(fd);
 }
 
 void
@@ -141,6 +142,8 @@ wldrawcursor(Wlwin *wl, Cursor *c)
 				buf[pos] = Black;
 		}
 	}
+	if(wl->cursorsurface != nil)
+		wl_surface_destroy(wl->cursorsurface);
 	wl->cursorsurface = wl_compositor_create_surface(wl->compositor);
 	wl_surface_attach(wl->cursorsurface, wl->cursorbuffer, 0, 0);
 	wl_surface_commit(wl->cursorsurface);
