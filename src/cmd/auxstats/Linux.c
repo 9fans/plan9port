@@ -1,6 +1,7 @@
 #include <u.h>
 #include <libc.h>
 #include <bio.h>
+#include <regexp.h>
 #include "dat.h"
 
 void xapm(int);
@@ -235,10 +236,12 @@ void
 xwireless(int first)
 {
 	static int fd = -1;
+	static Reprog *wlan = nil;
 	int i;
 
 	if(first){
 		fd = open("/proc/net/wireless", OREAD);
+		wlan = regcomp("^(wlan[0-9]+|wlp[0-9]+s[0-9]+):$");
 		return;
 	}
 
@@ -247,7 +250,7 @@ xwireless(int first)
 		tokens(i);
 		if(ntok < 3)
 			continue;
-		if(strcmp(tok[0], "wlan0:") == 0)
+		if(regexec(wlan, tok[0], nil, 0) == 1)
 			Bprint(&bout, "802.11 =%lld 100\n", atoll(tok[2]));
 	}
 }
