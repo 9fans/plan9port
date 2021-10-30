@@ -12,7 +12,6 @@ case $# in
 	exit 1
 esac
 
-[ -z "$PLAN9_TARGET" ] && PLAN9_TARGET="$PLAN9"
 new=`cleanname $PLAN9_TARGET`
 
 if [ X"$new" = X"" ]
