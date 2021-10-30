@@ -16,7 +16,7 @@ x-c)
 	;;
 x-r)
 	shift
-	PLAN9_TARGET=$1 export PLAN9_TARGET
+	PLAN9_TARGET=$1
 	;;
 *)
 	echo 'usage: INSTALL [-b | -c] [-r path]' 1>&2
@@ -32,6 +32,9 @@ rm -f config
 
 PLAN9=`pwd` export PLAN9
 PATH=/bin:/usr/bin:$PLAN9/bin:$PATH export PATH
+[ -z "$PLAN9_TARGET" ] && PLAN9_TARGET="$PLAN9"
+export PLAN9_TARGET
+
 case `uname` in
 SunOS)
 	awk=nawk
