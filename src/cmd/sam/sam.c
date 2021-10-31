@@ -152,9 +152,7 @@ rescue(void)
 			free(c);
 		}else
 			sprint(buf, "nameless.%d", nblank++);
-		root = getenv("PLAN9");
-		if(root == nil)
-			root = "/usr/local/plan9";
+		root = get9root();
 		fprint(io, "#!/bin/sh\n%s/bin/samsave '%s' $* <<'---%s'\n", root, buf, buf);
 		addr.r.p1 = 0, addr.r.p2 = f->b.nc;
 		writeio(f);
