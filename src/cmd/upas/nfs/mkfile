@@ -16,3 +16,5 @@ HFILES=a.h box.h imap.h sx.h
 
 <$PLAN9/src/mkone
 
+imap.$O: imap.c
+	$CC $CFLAGS -DPLAN9_TARGET=\"$PLAN9_TARGET\" imap.c

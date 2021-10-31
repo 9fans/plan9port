@@ -825,7 +825,8 @@ imapdial(char *server, int mode)
 		fd[0] = dup(p[0], -1);
 		fd[1] = dup(p[0], -1);
 		fd[2] = dup(2, -1);
-		if(threadspawnl(fd, "/usr/local/plan9/bin/rc", "rc", "-c", server, nil) < 0){
+		/* could do better - use get9root for rc(1) path */
+		if(threadspawnl(fd, PLAN9_TARGET "/bin/rc", "rc", "-c", server, nil) < 0){
 			close(p[0]);
 			close(p[1]);
 			close(fd[0]);
