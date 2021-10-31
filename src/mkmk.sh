@@ -36,7 +36,7 @@ echo cd `pwd`
 9c  exitcode.c
 9c  fcallfmt.c
 9c  frand.c
-9c  get9root.c
+9c  -DPLAN9_TARGET=\"$PLAN9_TARGET\" get9root.c
 9c  getcallerpc.c
 9c  getenv.c
 9c  getfields.c
