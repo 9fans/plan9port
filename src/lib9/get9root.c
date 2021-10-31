@@ -11,7 +11,6 @@ get9root(void)
 
 	if((s = getenv("PLAN9")) != 0)
 		return s;
-	/* could do better - search $PATH */
-	s = "/usr/local/plan9";
+	s = PLAN9_TARGET;
 	return s;
 }

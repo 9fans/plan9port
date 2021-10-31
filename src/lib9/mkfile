@@ -175,6 +175,9 @@ HFILES=\
 %.$O: utf/%.c
 	$CC $CFLAGS utf/$stem.c
 
+get9root.$O: get9root.c
+	$CC $CFLAGS -DPLAN9_TARGET=\"$PLAN9_TARGET\" get9root.c
+
 XLIB=$PLAN9/lib/$LIB
 
 testfmt: testfmt.$O $XLIB
