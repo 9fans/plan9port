@@ -102,12 +102,12 @@ dostat(vlong path, Qid *qid, Dir *dir)
 	case Qfontfile:
 		f = &xfont[QFONT(path)];
 		load(f);
-		length = 11+1+11+1+f->nfile*(6+1+6+1+9+1);
+		length = 11+1+11+1+f->nfile*(8+1+8+1+11+1);
 		name = "font";
 		break;
 
 	case Qsubfontfile:
-		snprint(buf, sizeof buf, "x%04x.bit", (int)QRANGE(path)*SubfontSize);
+		snprint(buf, sizeof buf, "x%06x.bit", (int)QRANGE(path)*SubfontSize);
 		name = buf;
 		break;
 	}
@@ -189,7 +189,7 @@ xwalk1(Fid *fid, char *name, Qid *qid)
 			goto NotFound;
 		p++;
 		n = strtoul(p, &p, 16);
-		if(p < name+5 || p > name+5 && name[1] == '0' || n%SubfontSize != 0 || n/SubfontSize >= MaxSubfont || strcmp(p, ".bit") != 0 || !f->range[n/SubfontSize])
+		if(p < name+7 || p > name+7 && name[1] == '0' || n%SubfontSize != 0 || n/SubfontSize >= MaxSubfont || strcmp(p, ".bit") != 0 || !f->range[n/SubfontSize])
 			goto NotFound;
 		path += Qsubfontfile - Qsizedir + qpath(0, 0, 0, 0, n/SubfontSize);
 		break;
@@ -320,7 +320,7 @@ xread(Req *r)
 				f->loadheight(f, QSIZE(path), &height, &ascent);
 			fmtprint(&fmt, "%11d %11d\n", height, ascent);
 			for(i=0; i<f->nfile; i++)
-				fmtprint(&fmt, "0x%04x 0x%04x x%04x.bit\n", f->file[i]*SubfontSize, ((f->file[i]+1)*SubfontSize) - 1, f->file[i]*SubfontSize);
+				fmtprint(&fmt, "0x%06x 0x%06x x%06x.bit\n", f->file[i]*SubfontSize, ((f->file[i]+1)*SubfontSize) - 1, f->file[i]*SubfontSize);
 			f->fonttext = fmtstrflush(&fmt);
 			f->nfonttext = strlen(f->fonttext);
 		}
