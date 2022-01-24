@@ -95,7 +95,15 @@ if [ `uname` = Darwin ]; then
 		echo "See http://swtch.com/go/xcodegcc for details." >&2
 		exit 1
 	fi
-	echo "CC9='xcrun --sdk macosx clang'" >>$PLAN9/config
+	CC9="xcrun --sdk macosx clang"
+	case "$(uname -a)" in
+	*ARM64*)
+		CC9="$CC9 -arch arm64"
+		echo '	Forcing arm64 binaries with clang.'
+		;;
+	esac
+
+	echo "CC9='$CC9'" >>$PLAN9/config
 	rm -f ./a.out
 fi
 
