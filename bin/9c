@@ -18,6 +18,8 @@ usegcc()
 		-Wno-stringop-truncation \
 		-Wno-stringop-overflow \
 		-Wno-format-truncation \
+		-Wno-sizeof-array-div \
+		-Wno-array-parameter \
 		-fno-omit-frame-pointer \
 		-fsigned-char \
 		-fcommon \
