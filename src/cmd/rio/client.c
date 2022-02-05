@@ -30,7 +30,7 @@ setactive(Client *c, int on)
 		if(c->proto & Plosefocus)
 			sendcmessage(c->window, wm_protocols, wm_lose_focus, 0, 1);
 		XGrabButton(dpy, AnyButton, AnyModifier, c->parent, False,
-			ButtonMask, GrabModeAsync, GrabModeSync, None, None);
+			ButtonMask, GrabModeSync, GrabModeSync, None, None);
 	}
 	draw_border(c, on);
 }

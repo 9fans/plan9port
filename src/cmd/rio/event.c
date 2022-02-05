@@ -42,8 +42,13 @@ mainloop(int shape_event)
 			break;
 		case ButtonPress:
 			button(&ev.xbutton);
+			if(ev.xbutton.button == Button1)
+				XAllowEvents(dpy, SyncPointer, ev.xbutton.time);
+			else
+				XAllowEvents(dpy, ReplayPointer, ev.xbutton.time);
 			break;
 		case ButtonRelease:
+			XAllowEvents(dpy, ReplayPointer, ev.xbutton.time);
 			break;
 		case MapRequest:
 			mapreq(&ev.xmaprequest);
