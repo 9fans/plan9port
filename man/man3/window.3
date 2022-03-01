@@ -121,7 +121,7 @@ to color the window initially, and a refresh method
 The refresh methods are
 .BR Refbackup ,
 which provides backing store and is the method used by
-.IR rio (1)
+.MR rio (1)
 for its clients;
 .BR Refnone ,
 which provides no refresh and is designed for temporary uses
@@ -142,7 +142,7 @@ pointer that may be treated like any other image.
 In particular, it is freed by calling
 .B freeimage
 (see
-.IR allocimage (3)).
+.MR allocimage (3) ).
 The following functions, however, apply only to windows, not regular images.
 .PP
 .B Bottomwindow
@@ -199,13 +199,13 @@ and screen position
 .RI ( scr ).
 Their usage is shown in the Examples section.
 .PP
-.IR Rio (1)
+.MR Rio (1)
 creates its client windows with backing store,
 .BR Refbackup .
 The graphics initialization routine,
 .B initdraw
 (see
-.IR graphics (3)),
+.MR graphics (3) ),
 builds a
 .B Screen
 upon this, and then allocates upon that another window indented
@@ -234,10 +234,10 @@ actual screen position of the window unless it is recorded separately.
 .SH SOURCE
 .B \*9/src/libdraw
 .SH SEE ALSO
-.IR graphics (3),
-.IR draw (3),
-.IR cachechars (3),
-.IR draw (3)
+.MR graphics (3) ,
+.MR draw (3) ,
+.MR cachechars (3) ,
+.MR draw (3)
 .SH BUGS
 The refresh method
 .B Refmesg

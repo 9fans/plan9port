@@ -15,7 +15,7 @@ In Plan 9, the kernel mount device
 \fImnt\fR(3)
 acts as a client to the 9P servers mounted in the current name space,
 translating system calls such as
-.IR open (2)
+.MR open (2)
 into 9P transactions such as
 .IR open (9p).
 The kernel also multiplexes the potentially many processes onto a single 9P conversation
@@ -30,17 +30,17 @@ On Unix, 9P clients do not access servers via the traditional
 file system call interface.  Only the Unix name space can be accessed
 that way.
 Instead, 9P clients use the
-.IR 9pclient (3)
+.MR 9pclient (3)
 library to connect and interact directly with particular 9P servers.
 The
-.IR 9p (1)
+.MR 9p (1)
 command-line client is useful for interactive use and in shell scripts.
 .PP
 To preserve the façade of a single 9P conversation with each server,
 9P servers invoke
-.IR 9pserve (4),
+.MR 9pserve (4) ,
 typically via
-.IR post9pservice (3).
+.MR post9pservice (3) .
 .I 9pserve
 announces a 9P service at a particular
 network address and multiplexes the clients that connect to
@@ -58,7 +58,7 @@ Setting the
 .B $NAMESPACE
 environment variable overrides this default.
 The
-.IR namespace (1)
+.MR namespace (1)
 command prints the current name space directory.
 .PP
 Occasionally it is useful to be able to connect the input or output
@@ -73,7 +73,7 @@ implementation of
 (see also
 .I fsopenfd
 in
-.IR 9pclient (3))
+.MR 9pclient (3) )
 returns the read or write end of a pipe;
 a helper process transfers data between the other end of the pipe
 and the 9P server.

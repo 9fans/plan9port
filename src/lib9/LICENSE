@@ -1,8 +1,7 @@
-The files listed below may be redistributed either under the
-terms of the Lucent Public License version 1.02 or under the
-terms of the simpler MIT-style license at the bottom of this file.
 The files listed below were written from scrach for plan9port
 and do not derive from the Plan 9 from Bell Labs distribution.
+They are made available under an MIT-style license, using the
+same terms as the main distribution.
 
 	../../include/u.h
 	non-Plan 9 code in ../../include/libc.h
@@ -70,11 +69,7 @@ and do not derive from the Plan 9 from Bell Labs distribution.
 	time.c
 	truerand.c
 	udp.c
-	unsharp.c	
-
-The other source files in this directory do derive from Plan 9 and
-are distributed only under the terms of the  Lucent Public License
-version 1.02, as detailed in ../../LICENSE.
+	unsharp.c
 
 Copyright 2001-2007 Russ Cox.  All Rights Reserved.
 

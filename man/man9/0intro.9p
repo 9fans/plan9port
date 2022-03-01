@@ -21,7 +21,7 @@ such a machine is called, somewhat confusingly, a
 Another possibility for a server is to synthesize
 files on demand, perhaps based on information on data structures
 maintained in memory; the
-.IR plumber (4)
+.MR plumber (4)
 server is an example of such a server.
 .PP
 A
@@ -63,7 +63,7 @@ bytes of data.
 Text strings are represented this way,
 with the text itself stored as a UTF-8
 encoded sequence of Unicode characters (see
-.IR utf (7)).
+.MR utf (7) ).
 Text strings in 9P messages are not
 .SM NUL\c
 -terminated:
@@ -114,7 +114,7 @@ Plan 9 names may contain any printable character (that is, any character
 outside hexadecimal 00-1F and 80-9F)
 except slash.)
 Messages are transported in byte form to allow for machine independence;
-.IR fcall (3)
+.MR fcall (3)
 describes routines that convert to and from this form into a machine-dependent
 C structure.
 .SH MESSAGES
@@ -348,7 +348,7 @@ a ``current file'' on the server.
 Fids are somewhat like file descriptors in a user process,
 but they are not restricted to files open for I/O:
 directories being examined, files being accessed by
-.IR stat (3)
+.MR stat (3)
 calls, and so on \(em all files being manipulated by the operating
 system \(em are identified by fids.
 Fids are chosen by the client.
@@ -461,7 +461,7 @@ to have their input or output attached to fids on 9P servers.
 See
 .IR openfd (9p)
 and
-.IR 9pclient (3)
+.MR 9pclient (3)
 for details.
 .PP
 The
@@ -475,7 +475,7 @@ access permissions (read, write and execute for owner, group and public),
 access and modification times, and
 owner and group identifications
 (see
-.IR stat (3)).
+.MR stat (3) ).
 The owner and group identifications are textual names.
 The
 .B wstat
@@ -523,12 +523,12 @@ into 9P messages.
 .SS Unix
 On Unix, 9P services are posted as Unix domain sockets in a
 well-known directory (see
-.IR getns (3)
+.MR getns (3)
 and
-.IR 9pserve (4)).
+.MR 9pserve (4) ).
 Clients connect to these servers using a 9P client library
 (see
-.IR 9pclient (3)).
+.MR 9pclient (3) ).
 .SH DIRECTORIES
 Directories are created by
 .B create

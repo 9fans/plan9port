@@ -122,7 +122,7 @@ and
 and
 .I fsauth
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 generate
 .B attach
 and
@@ -163,6 +163,6 @@ transactions.
 .\" .B mount
 .\" system call on an uninitialized connection.
 .SH SEE ALSO
-.IR 9pclient (3),
+.MR 9pclient (3) ,
 .IR version (9P),
 Plan 9's \fIauthsrv\fR(6)

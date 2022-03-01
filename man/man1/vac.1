@@ -53,7 +53,7 @@ is used on a file tree that shares data with an existing archive, the consumptio
 storage will be approximately equal to an incremental backup.
 This reduction in storage consumption occurs transparently to the user.
 .PP
-As an optimization, the 
+As an optimization, the
 .B -d
 and
 .B -q
@@ -78,7 +78,8 @@ the files under an extra two levels of directory hierarchy named
 .I yyyy/mmdd
 (year, month, day)
 in the style of the dump file system
-(see Plan 9's \fIfs\fR(4)).
+(see Plan 9's
+.IR fs (4)).
 If
 .I vacfile
 already exists, an additional backup day is added to the
@@ -89,7 +90,7 @@ Typically, this option
 is used as part of a nightly backup script.
 This option cannot be used with
 .B -d
-or 
+or
 .BR -f .
 .TP
 .BI -b " blocksize
@@ -114,13 +115,13 @@ Do not include the file or directory specified by
 This option may be repeated multiple times.
 .I Exclude
 can be a shell pattern as accepted by
-.IR rc (1),
-with one extension: 
+.MR rc (1) ,
+with one extension:
 .B \&...
 matches any sequence of characters including slashes.
 .TP
 .BI -f " vacfile
-The results of 
+The results of
 .I vac
 are placed in
 .IR vacfile ,
@@ -136,7 +137,7 @@ The network address of the Venti server.
 The default is taken from the environment variable
 .BR venti .
 .\" If this variable does not exist, then the default is the
-.\" metaname 
+.\" metaname
 .\" .BR $venti ,
 .\" which can be configured via
 .\" .IR ndb (6).
@@ -155,7 +156,7 @@ the archive to be unpacked.
 .TP
 .B -q
 Increase the performance of the
-.B -a 
+.B -a
 or
 .B -d
 options by detecting unchanged files based on a match of the files name and other meta data,
@@ -169,9 +170,9 @@ Produce more verbose output on standard error, including the name of the files a
 and the vac archives that are expanded and merged.
 .TP
 .BI -x " excfile
-Read exclude patterns from the file 
+Read exclude patterns from the file
 .IR excfile .
-Blank lines and lines beginning with 
+Blank lines and lines beginning with
 .B #
 are ignored.
 All other lines should be of the form
@@ -224,5 +225,5 @@ If listing files, print metadata in addition to the names.
 .SH SOURCE
 .B \*9/src/cmd/vac
 .SH "SEE ALSO"
-.IR vacfs (4),
-.IR venti (8)
+.MR vacfs (4) ,
+.MR venti (8)

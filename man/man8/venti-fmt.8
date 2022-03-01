@@ -99,9 +99,9 @@ syncindex \- prepare and maintain a venti server
 These commands aid in the setup, maintenance, and debugging of
 venti servers.
 See
-.IR venti (7)
+.MR venti (7)
 for an overview of the venti system and
-.IR venti (8)
+.MR venti (8)
 for an overview of the data structures used by the venti server.
 .PP
 Note that the units for the various sizes in the following
@@ -195,7 +195,7 @@ formats the given
 .I file
 as a Bloom filter
 (see
-.IR venti (7)).
+.MR venti (7) ).
 The options are:
 .TF "\fL-s\fI size"
 .PD
@@ -264,7 +264,7 @@ overflow.  The total size of the index should be about 2% to 10% of
 the total size of the arenas, but the exact percentage depends both on the
 index block size and the compressed size of blocks stored.
 See the discussion in
-.IR venti (8)
+.MR venti (8)
 for more.
 .PP
 .I Fmtindex
@@ -401,8 +401,8 @@ Increase the verbosity of output.
 .SH SOURCE
 .B \*9/src/cmd/venti/srv
 .SH SEE ALSO
-.IR venti (7),
-.IR venti (8)
+.MR venti (7) ,
+.MR venti (8)
 .SH BUGS
 .I Buildindex
 should allow an individual index section to be rebuilt.

@@ -64,7 +64,7 @@ fields) of all currently open headers
 (see
 .I symopen
 in
-.IR mach-symbol (3)).
+.MR mach-symbol (3) ).
 When dynamically linked objects have been attached,
 they are present in this linked list,
 and therefore included in searches by
@@ -73,7 +73,7 @@ and therefore included in searches by
 and
 .I findsym
 (see
-.IR mach-symbol (3)).
+.MR mach-symbol (3) ).
 .TP
 .I corhdr
 The file header for the core dump, if any.
@@ -118,9 +118,9 @@ loaded.
 uses all of these functions while
 parsing an argument vector as would be passed to
 a debugger like
-.IR db (1)
+.MR db (1)
 or
-.IR acid (1).
+.MR acid (1) .
 It expects a list of executable files, core dump files, or process ids,
 given in any order.
 If extra arguments are given (for example, more than one executable, or both
@@ -133,9 +133,9 @@ fills them in as best it can.
 .SH SOURCE
 .B \*9/src/libmach
 .SH "SEE ALSO
-.IR mach (3),
-.IR mach-file (3),
-.IR mach-map (3)
+.MR mach (3) ,
+.MR mach-file (3) ,
+.MR mach-map (3)
 .SH BUGS
 The interface needs to be changed to support
 multiple threads, each with its own register set.

@@ -149,7 +149,7 @@ connects to a service named
 .I name
 in the current name space directory
 (see
-.IR intro (4)).
+.MR intro (4) ).
 Both attach to the root of the file system
 using the attach name
 .IR aname .
@@ -228,7 +228,7 @@ the allocated structures will be freed and the
 file descriptor corresponding to the connection
 will be closed
 (see
-.IR close (2)).
+.MR close (2) ).
 Fids are not reference counted: when
 .I fsclose
 is called, the clunk transaction and freeing of storage
@@ -308,7 +308,7 @@ sets the offset; the
 and
 .I type
 arguments are used as in
-.IR seek (3).
+.MR seek (3) .
 Calling
 .I fspread
 or
@@ -340,7 +340,7 @@ for the given fid.
 .PP
 .I Fsaccess
 behaves like Unix's
-.IR access (2).
+.MR access (2) .
 .I Fsremove
 removes the named path.
 .I Fsfremove
@@ -358,7 +358,7 @@ are like
 and
 .I vfprint
 (see
-.IR print (3))
+.MR print (3) )
 but write to 
 .BR CFid* s.
 .PP
@@ -376,7 +376,7 @@ is similar but reads the entire directory.
 The returned pointer should be freed with
 .I free
 (see
-.IR malloc (3))
+.MR malloc (3) )
 when no longer needed.
 .PP
 .I Fsdirfstat
@@ -396,7 +396,7 @@ structure returned by
 should be freed with
 .I free
 (see
-.IR malloc (3))
+.MR malloc (3) )
 when no longer needed.
 .PP
 .I Fsdirstat
@@ -418,7 +418,7 @@ opens a file on the 9P server
 for reading or writing but returns a Unix file descriptor
 instead of a fid structure.
 The file descriptor is actually one end of a
-.IR pipe (2).
+.MR pipe (2) .
 A proxy process on the other end is ferrying data
 between the pipe and the 9P fid.
 Because of the implementation as a pipe,
@@ -443,18 +443,18 @@ If the
 flag is set, the library calls
 .I threadexitsall
 (see
-.IR thread (3))
+.MR thread (3) )
 when it detects EOF on a 9P connection.
 .SH SOURCE
 .B \*9/src/lib9pclient
 .SH SEE ALSO
-.IR intro (4),
+.MR intro (4) ,
 .IR intro (9p),
 .I fsaopen
 and
 .I nsaopen
 in
-.IR auth (3)
+.MR auth (3)
 .SH BUGS
 The implementation
 should use a special version string to distinguish between

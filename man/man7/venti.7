@@ -14,19 +14,19 @@ of clients.
 This manual page documents the basic concepts of
 block storage using Venti as well as the Venti network protocol.
 .PP
-.IR Venti (1)
+.MR Venti (1)
 documents some simple clients.
-.IR Vac (1),
-.IR vacfs (4),
+.MR Vac (1) ,
+.MR vacfs (4) ,
 and
-.IR vbackup (8)
+.MR vbackup (8)
 are more complex clients.
 .PP
-.IR Venti (3)
+.MR Venti (3)
 describes a C library interface for accessing
 Venti servers and manipulating Venti data structures.
 .PP
-.IR Venti (8)
+.MR Venti (8)
 describes the programs used to run a Venti server.
 .PP
 .SS "Scores
@@ -40,11 +40,11 @@ Scores may have an optional
 prefix, typically used to
 describe the format of the data.
 For example, 
-.IR vac (1)
+.MR vac (1)
 uses a
 .B vac:
 prefix, while
-.IR vbackup (8)
+.MR vbackup (8)
 uses prefixes corresponding to the file system
 types: 
 .BR ext2: ,
@@ -93,7 +93,7 @@ Keeping this parallel representation is a minor annoyance
 but makes it possible for general programs like
 .I venti/copy
 (see
-.IR venti (1))
+.MR venti (1) )
 to traverse the block tree without knowing the specific details
 of any particular program's data.
 .SS "Block Types
@@ -202,7 +202,7 @@ Text strings are represented similarly,
 using a two-byte count with
 the text itself stored as a UTF-encoded sequence
 of Unicode characters (see
-.IR utf (7)).
+.MR utf (7) ).
 Text strings are not
 .SM NUL\c
 -terminated:
@@ -395,7 +395,7 @@ Use
 and
 .I vtfromdisktype
 (see
-.IR venti (3))
+.MR venti (3) )
 to convert a block type enumeration value
 .RB ( VtDataType ,
 etc.)
@@ -457,9 +457,9 @@ in the
 packet may be either 2 or 4 bytes;
 the total packet length distinguishes the two cases.
 .SH SEE ALSO
-.IR venti (1),
-.IR venti (3),
-.IR venti (8)
+.MR venti (1) ,
+.MR venti (3) ,
+.MR venti (8)
 .br
 Sean Quinlan and Sean Dorward,
 ``Venti: a new approach to archival storage'',

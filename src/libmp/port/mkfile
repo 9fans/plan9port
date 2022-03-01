@@ -34,8 +34,9 @@ FILES=\
 	mptouv\
 
 ALLOFILES=${FILES:%=%.$O}
-# cull things in the per-machine directories from this list
-OFILES=	`{sh ./reduce $O $OBJTYPE $ALLOFILES}
+# # cull things in the per-machine directories from this list
+# OFILES=	`{sh ./reduce $O $ALLOFILES}
+OFILES=$ALLOFILES
 
 HFILES=\
 	$PLAN9/include/lib9.h\

@@ -93,12 +93,12 @@ enum{
 These routines provide an interface to multiple sources of input for unthreaded
 programs.
 Threaded programs (see
-.IR thread (3))
+.MR thread (3) )
 should instead use the threaded mouse and keyboard interface described
 in
-.IR mouse (3)
+.MR mouse (3)
 and
-.IR keyboard (3).
+.MR keyboard (3) .
 .PP
 .I Einit
 must be called first.
@@ -113,7 +113,7 @@ the mouse and keyboard events will be enabled;
 in this case,
 .IR initdraw
 (see
-.IR graphics (3))
+.MR graphics (3) )
 must have already been called.
 The user must provide a function called
 .IR eresized
@@ -123,7 +123,7 @@ is running has been resized; the argument
 is a flag specifying whether the program must call
 .I getwindow
 (see
-.IR graphics (3))
+.MR graphics (3) )
 to re-establish a connection to its window.
 After resizing (and perhaps calling
 .IR getwindow ),
@@ -266,7 +266,7 @@ The return is the same as for
 .IR eread .
 .PP
 As described in
-.IR graphics (3),
+.MR graphics (3) ,
 the graphics functions are buffered.
 .IR Event ,
 .IR eread ,
@@ -370,15 +370,15 @@ changes the cursor image to that described by the
 .B Cursor
 .I c
 (see
-.IR mouse (3)).
+.MR mouse (3) ).
 If
 .B c
 is nil, it restores the image to the default arrow.
 .SH SOURCE
 .B \*9/src/libdraw
 .SH "SEE ALSO"
-.IR rio (1),
-.IR graphics (3),
-.IR plumb (3),
+.MR rio (1) ,
+.MR graphics (3) ,
+.MR plumb (3) ,
 .\" .IR cons (3),
-.IR draw (3)
+.MR draw (3)

@@ -32,15 +32,15 @@ they expect the
 environment variable 
 to contain the name of the root of the tree.
 See
-.IR install (1)
+.MR install (1)
 for details about installation.
 .PP
 Many of the familiar Unix commands,
 for example
-.IR cat (1),
-.IR ls (1),
+.MR cat (1) ,
+.MR ls (1) ,
 and
-.IR wc (1),
+.MR wc (1) ,
 are present, but in their Plan 9 forms:
 .I cat
 takes no options,
@@ -50,12 +50,12 @@ and
 .I wc
 counts UTF characters.
 In some cases, the differences are quite noticeable:
-.IR grep (1)
+.MR grep (1)
 and
-.IR sed (1)
+.MR sed (1)
 expect Plan 9 regular expressions
 (see
-.IR regexp (7)),
+.MR regexp (7) ),
 which are closest to what Unix calls extended regular expressions.
 Because of these differences, it is not recommended to put 
 .B $PLAN9/bin
@@ -63,16 +63,16 @@ before the usual system
 .B bin
 directories in your search path.
 Instead, put it at the end of your path and use the
-.IR 9 (1)
+.MR 9 (1)
 script when you want to invoke the Plan 9 version of a
 traditional Unix command.
 .PP
 Occasionally the Plan 9 programs have been
 changed to adapt to Unix.
-.IR Mk (1)
+.MR Mk (1)
 now allows mkfiles to choose their own shell,
 and
-.IR rc (1)
+.MR rc (1)
 has a
 .I ulimit
 builtin and manages
@@ -80,14 +80,14 @@ builtin and manages
 .PP
 Many of the graphical programs from Plan 9 are present,
 including
-.IR sam (1)
+.MR sam (1)
 and
-.IR acme (1).
+.MR acme (1) .
 An X11 window manager
-.IR rio (1)
+.MR rio (1)
 mimics Plan 9's window system, with command windows
 implemented by the external program
-.IR 9term (1).
+.MR 9term (1) .
 Following the style of X Windows, these programs run in new
 windows rather than the one in which they are invoked.
 They all take a
@@ -101,10 +101,10 @@ The argument is one of
 \fIxmin\fL,\fIymin\fL,\fIxmax\fL,\fIymax\fR.
 .PP
 The
-.IR plumber (4)
+.MR plumber (4)
 helps to connect the various Plan 9 programs together,
 and fittings like
-.IR web (1)
+.MR web (1)
 connect it to external programs such as web browsers;
 one can click on a URL in
 .I acme
@@ -119,17 +119,17 @@ with file servers by reading and writing files.
 This cannot be done directly on Unix.
 Instead the servers listen for 9P connections on Unix domain sockets;
 clients connect to these sockets and speak 9P directly using the
-.IR 9pclient (3)
+.MR 9pclient (3)
 library.
-.IR Intro (4)
+.MR Intro (4)
 tells more of the story.
 The effect is not as clean as on Plan 9, but it gets the job done
 and still provides a uniform and easy-to-understand mechanism.
 The
-.IR 9p (1)
+.MR 9p (1)
 client can be used in shell scripts or by hand to carry out
 simple interactions with servers.
-.IR Netfiles (1)
+.MR Netfiles (1)
 is an experimental client for acme.
 .SS External databases
 Some programs rely on large databases that would be
@@ -146,7 +146,7 @@ The shell scripts
 and
 .I 9l
 (see
-.IR 9c (1))
+.MR 9c (1) )
 provide a simple interface to the underlying system compiler and linker,
 similar to the 
 .I 2c
@@ -165,22 +165,22 @@ so that no
 options are needed.
 .PP
 The only way to write multithreaded programs is to use the
-.IR thread (3)
+.MR thread (3)
 library.
-.IR Rfork (3)
+.MR Rfork (3)
 exists but is not as capable as on Plan 9.
 There are many unfortunate by necessary preprocessor
 diversions to make Plan 9 and Unix libraries coexist.
 See
-.IR intro (3)
+.MR intro (3)
 for details.
 .PP
 The debuggers
-.IR acid (1)
+.MR acid (1)
 and
-.IR db (1)
+.MR db (1)
 and the debugging library
-.IR mach (3)
+.MR mach (3)
 are works in progress.
 They are platform-independent, so that x86 Linux core dumps
 can be inspected on PowerPC Mac OS X machines,
@@ -203,22 +203,22 @@ but that it is the extent to which they have been developed and exercised.
 .SS Porting programs
 The vast majority of the familiar Plan 9 programs 
 have been ported, including the Unicode-aware
-.IR troff (1).
+.MR troff (1) .
 .PP
 Of the more recent additions to Plan 9,
-.IR factotum (4),
-.IR secstore (1),
+.MR factotum (4) ,
+.MR secstore (1) ,
 and
-.IR secstored (1),
-.IR vac (1),
-.IR vacfs (4),
+.MR secstored (1) ,
+.MR vac (1) ,
+.MR vacfs (4) ,
 and
-.IR venti (8)
+.MR venti (8)
 are all ported.
 .PP
 A backup system providing a dump file system built atop Venti
 is in progress; see
-.IR vbackup (8).
+.MR vbackup (8) .
 .SS Porting to new systems
 Porting the tree to new operating systems or architectures
 should be straightforward, as system-specific code has been
@@ -240,9 +240,9 @@ need to write any system specific code at all.
 .PP
 There are other smaller system dependencies,
 such as the terminal handling code in
-.IR 9term (1)
+.MR 9term (1)
 and the implementation of
-.IR getcallerpc (3),
+.MR getcallerpc (3) ,
 but these are usually simple and are not on the critical
 path for getting the system up and running.
 .SH SEE ALSO
@@ -255,7 +255,7 @@ The manual pages are in a Unix style tree, with names like
 instead of Plan 9's simpler
 .BR  $PLAN9/man/1/cat ,
 so that the Unix
-.IR man (1)
+.MR man (1)
 utility can handle it.
 Some systems, for example Debian Linux,
 deduce the man page locations from the search path, so that
@@ -300,52 +300,52 @@ describes the Plan 9 file protocol 9P.
 These pages describe parts of the system
 that are new or different from Plan 9 from Bell Labs:
 .IP
-.IR 9 (1),
-.IR 9c (1),
-.IR 9p (1),
-.IR 9term (1),
+.MR 9 (1) ,
+.MR 9c (1) ,
+.MR 9p (1) ,
+.MR 9term (1) ,
 .I acidtypes
 in
-.IR acid (1),
-.IR dial (1),
-.IR git (1),
-.IR label (1),
+.MR acid (1) ,
+.MR dial (1) ,
+.MR git (1) ,
+.MR label (1) ,
 the
 .B MKSHELL
 variable in
-.IR mk (1),
-.IR namespace (1),
-.IR netfiles (1),
-.IR page (1),
-.IR psfonts (1),
-.IR rio (1),
-.IR web (1),
-.IR wintext (1)
+.MR mk (1) ,
+.MR namespace (1) ,
+.MR netfiles (1) ,
+.MR page (1) ,
+.MR psfonts (1) ,
+.MR rio (1) ,
+.MR web (1) ,
+.MR wintext (1)
 .IP
-.IR intro (3),
-.IR 9pclient (3),
+.MR intro (3) ,
+.MR 9pclient (3) ,
 the
 .B unix
 network in
-.IR dial (3),
-.IR exits (3),
-.IR get9root (3),
-.IR getns (3),
-.IR notify (3),
-.IR post9pservice (3),
-.IR rfork (3),
-.IR searchpath (3),
-.IR sendfd (3),
-.IR udpread (3),
-.IR venti (3),
-.IR wait (3),
-.IR wctl (3)
+.MR dial (3) ,
+.MR exits (3) ,
+.MR get9root (3) ,
+.MR getns (3) ,
+.MR notify (3) ,
+.MR post9pservice (3) ,
+.MR rfork (3) ,
+.MR searchpath (3) ,
+.MR sendfd (3) ,
+.MR udpread (3) ,
+.MR venti (3) ,
+.MR wait (3) ,
+.MR wctl (3)
 .IP
-.IR intro (4),
-.IR 9pserve (4),
-.IR import (4),
+.MR intro (4) ,
+.MR 9pserve (4) ,
+.MR import (4) ,
 .IP
-.IR vbackup (8)
+.MR vbackup (8)
 .IP
 .IR openfd (9p)
 .SH DIAGNOSTICS
@@ -356,4 +356,4 @@ exit with string statuses.  In fact, exiting with an empty status
 corresponds to exiting with status 0,
 and exiting with any non-empty string corresponds to exiting with status 1.
 See
-.IR exits (3).
+.MR exits (3) .

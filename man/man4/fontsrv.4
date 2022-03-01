@@ -20,7 +20,7 @@ fontsrv \- file system access to host fonts
 presents the host window system's fonts
 in the standard Plan 9 format
 (see
-.IR font (7)).
+.MR font (7) ).
 It serves a virtual directory tree mounted at
 .I mtpt
 (if the
@@ -31,13 +31,13 @@ and posted at
 (default
 .IR font ).
 .PP
-The 
+The
 .B -p
-option changes 
+option changes
 .IR fontsrv 's
 behavior: rather than serve a file system,
 .I fontsrv
-prints to standard output the contents of the named 
+prints to standard output the contents of the named
 .IR path .
 If
 .I path
@@ -66,20 +66,20 @@ Each size directory contains a
 file and subfont files
 named
 .BR x0000.bit ,
-.BR x0100.bit ,
+.BR x0020.bit ,
 and so on
-representing 256-character Unicode ranges.
+representing 32-character Unicode ranges.
 .PP
 .I Openfont
 (see
-.IR graphics (3))
-recognizes font paths beginning with 
+.MR graphics (3) )
+recognizes font paths beginning with
 .B /mnt/font
 and implements them by invoking
 .IR fontsrv ;
 it need not be running already.
-See 
-.IR font (7)
+See
+.MR font (7)
 for a full discussion of font name syntaxes.
 .SH EXAMPLES
 List the fonts on the system:
@@ -95,8 +95,8 @@ or:
 % fontsrv -p .
 .EE
 .LP
-Run 
-.IR acme (1)
+Run
+.MR acme (1)
 using the operating system's Monaco as the fixed-width font:
 .IP
 .EX
@@ -104,7 +104,7 @@ using the operating system's Monaco as the fixed-width font:
 .EE
 .LP
 Run
-.IR sam (1)
+.MR sam (1)
 using the same font:
 .IP
 .EX
@@ -113,7 +113,7 @@ using the same font:
 .SH SOURCE
 .B \*9/src/cmd/fontsrv
 .SH SEE ALSO
-.IR font (7)
+.MR font (7)
 .SH BUGS
 .PP
 Due to OS X restrictions,

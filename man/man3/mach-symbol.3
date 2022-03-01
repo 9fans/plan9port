@@ -61,10 +61,10 @@ int	fnbound(ulong pc, ulong bounds[2])
 .SH DESCRIPTION
 These functions provide machine-independent access to the
 symbol table of an executable file or executing process.
-.IR Mach (3),
-.IR mach-file (3),
+.MR Mach (3) ,
+.MR mach-file (3) ,
 and
-.IR mach-map (3)
+.MR mach-map (3)
 describe additional library functions for
 accessing executable files and executing processes.
 .PP
@@ -74,7 +74,7 @@ uses the data in the
 structure filled by
 .I crackhdr
 (see
-.IR mach-file (3))
+.MR mach-file (3) )
 to initialize in-memory structures used to access the symbol
 tables contained in the file.
 .IR Symclose
@@ -371,6 +371,6 @@ in the system error buffer where it is available via
 .SH SOURCE
 .B \*9/src/libmach
 .SH "SEE ALSO"
-.IR mach (3),
-.IR mach-file (3),
-.IR mach-map (3)
+.MR mach (3) ,
+.MR mach-file (3) ,
+.MR mach-map (3)

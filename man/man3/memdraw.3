@@ -168,46 +168,46 @@ type defines memory-resident rectangular pictures and the methods to draw upon t
 differ from
 .BR Image s
 (see
-.IR draw (3))
+.MR draw (3) )
 in that they are manipulated directly in user memory rather than by
 RPCs to the
 .B /dev/draw
 hierarchy.
 The
 .Bmemdraw
-library is the basis for the kernel 
-.IR draw (3)
+library is the basis for the kernel
+.MR draw (3)
 driver and also used by a number of programs that must manipulate
 images without a display.
 .PP
-The 
-.BR r, 
+The
+.BR r,
 .BR clipr ,
 .BR depth ,
 .BR nchan ,
 and
-.BR chan 
+.BR chan
 structure elements are identical to
 the ones of the same name
-in the 
+in the
 .B Image
 structure.
 .PP
 The
 .B flags
-element of the 
+element of the
 .B Memimage
 structure holds a number of bits of information about the image.
 In particular, it subsumes the
 purpose of the
 .B repl
-element of 
+element of
 .B Image
 structures.
 .PP
 .I Memimageinit
 initializes various static data that the library depends on,
-as well as the replicated solid color images 
+as well as the replicated solid color images
 .BR memopaque ,
 .BR memtransparent ,
 .BR memblack ,
@@ -216,15 +216,15 @@ and
 It should be called before referring to any of these images
 and before calling any of the other library functions.
 .PP
-Each 
+Each
 .B Memimage
-points at a 
+points at a
 .B Memdata
 structure that in turn points at the actual pixel data for the image.
-This allows multiple images to be associated with the same 
+This allows multiple images to be associated with the same
 .BR Memdata .
 The first word of the data pointed at by
-the 
+the
 .B base
 element of
 .B Memdata
@@ -232,18 +232,19 @@ points back at the
 .B Memdata
 structure, so that in the Plan 9 kernel, the
 memory allocator (see
-Plan 9's \fIpool\fR(3))
+Plan 9's
+.IR pool (3))
 can compact image memory
 using
 .IR memimagemove .
 .PP
 Because images can have different coordinate systems,
-the 
+the
 .B zero
-element of the 
+element of the
 .B Memimage
 structure contains the offset that must be added
-to the 
+to the
 .B bdata
 element of the corresponding
 .B Memdata
@@ -261,18 +262,18 @@ do not include the origin, although one should only dereference
 pointers corresponding to pixels within the image rectangle.
 .I Wordaddr
 and
-.IR byteaddr 
-perform these calculations, 
+.IR byteaddr
+perform these calculations,
 returning pointers to the word and byte, respectively,
 that contain the beginning of the data for a given pixel.
 .PP
 .I Allocmemimage
-allocates 
+allocates
 images with a given rectangle and channel descriptor
-(see 
+(see
 .B strtochan
 in
-.IR graphics (3)),
+.MR graphics (3) ),
 creating a fresh
 .B Memdata
 structure and associated storage.
@@ -282,7 +283,7 @@ is similar but uses the supplied
 structure rather than a new one.
 The
 .I readmemimage
-function reads an uncompressed bitmap 
+function reads an uncompressed bitmap
 from the given file descriptor,
 while
 .I creadmemimage
@@ -293,7 +294,7 @@ writes a compressed representation of
 to file descriptor
 .IR fd .
 For more on bitmap formats, see
-.IR image (7).
+.MR image (7) .
 .I Freememimage
 frees images returned by any of these routines.
 The
@@ -315,7 +316,7 @@ data, respectively.
 When calling
 .IR cloadmemimage ,
 the buffer must contain an
-integral number of 
+integral number of
 compressed chunks of data that exactly cover the rectangle.
 .I Unloadmemimage
 retrieves the uncompressed pixel data for a given rectangle of an image.
@@ -324,8 +325,8 @@ and \-1 in case of an error.
 .PP
 .I Memfillcolor
 fills an image with the given color, a 32-bit number as
-described in 
-.IR color (3).
+described in
+.MR color (3) .
 .PP
 .IR Memarc ,
 .IR mempoly ,
@@ -334,7 +335,7 @@ described in
 .IR memimageline ,
 and
 .I memimagedraw
-are identical to the 
+are identical to the
 .IR arc ,
 .IR poly ,
 .IR ellipse ,
@@ -343,40 +344,40 @@ are identical to the
 and
 .IR gendraw ,
 routines described in
-.IR draw (3),
+.MR draw (3) ,
 except that they operate on
 .BR Memimage s
-rather than 
+rather than
 .BR Image s.
-Similarly, 
+Similarly,
 .IR allocmemsubfont ,
 .IR openmemsubfont ,
 .IR freememsubfont ,
 .IR memsubfontwidth ,
 and
 .I memimagestring
-are the 
+are the
 .B Memimage
-analogues of 
+analogues of
 .IR allocsubfont ,
 .IR openfont ,
 .IR freesubfont ,
 .IR strsubfontwidth ,
 and
 .B string
-(see 
-.IR subfont (3)
+(see
+.MR subfont (3)
 and
-.IR graphics (3)),
+.MR graphics (3) ),
 except that they operate
-only on 
+only on
 .BR Memsubfont s
 rather than
 .BR Font s.
 .PP
 .I Drawclip
 takes the images involved in a draw operation,
-together with the destination rectangle 
+together with the destination rectangle
 .B dr
 and source
 and mask alignment points
@@ -407,7 +408,7 @@ an end of a given style.
 .PP
 The
 .I hwdraw
-and 
+and
 .I iprint
 functions are no-op stubs that may be overridden by clients
 of the library.
@@ -415,7 +416,7 @@ of the library.
 is called at each call to
 .I memimagedraw
 with the current request's parameters.
-If it can satisfy the request, it should do so 
+If it can satisfy the request, it should do so
 and return 1.
 If it cannot satisfy the request, it should return 0.
 This allows (for instance) the kernel to take advantage
@@ -432,15 +433,15 @@ prints to a serial line rather than the screen, for obvious reasons.
 .SH SOURCE
 .B \*9/src/libmemdraw
 .SH SEE ALSO
-.IR addpt (3),
-.IR color (3),
-.IR draw (3),
-.IR graphics (3),
-.IR memlayer (3),
-.IR stringsize (3),
-.IR subfont (3),
-.IR color (7),
-.IR utf (7)
+.MR addpt (3) ,
+.MR color (3) ,
+.MR draw (3) ,
+.MR graphics (3) ,
+.MR memlayer (3) ,
+.MR stringsize (3) ,
+.MR subfont (3) ,
+.MR color (7) ,
+.MR utf (7)
 .SH BUGS
 .I Memimagestring
 is unusual in using a subfont rather than a font,

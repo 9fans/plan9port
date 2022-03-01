@@ -50,7 +50,6 @@ emalloc9p 9p.3
 erealloc9p 9p.3
 estrdup9p 9p.3
 postfd 9p.3
-postmountsrv 9p.3
 readbuf 9p.3
 readstr 9p.3
 respond 9p.3

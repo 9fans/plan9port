@@ -50,7 +50,7 @@ exits or is terminated, the
 variable
 .B $status
 gets the process's wait message (see
-.IR wait (3));
+.MR wait (3) );
 it will be the null string if the command was successful.
 .PP
 A long command line may be continued on subsequent lines by typing
@@ -83,7 +83,7 @@ in a directory in
 .B $path
 is the program to be executed.
 To be executable, the user must have execute permission (see
-.IR stat (3))
+.MR stat (3) )
 and the file must be either an executable binary
 for the current machine's CPU type, or a shell script.
 Shell scripts begin with a line containing the full path name of a shell
@@ -350,7 +350,7 @@ or
 is a previously opened file descriptor and
 .I fd0
 becomes a new copy (in the sense of
-.IR dup (3))
+.MR dup (3) )
 of it.
 A file descriptor may be closed by writing
 .BI >[ fd0 =]
@@ -543,7 +543,7 @@ function definition.
 A function with a special name will be called when
 .I rc
 receives a corresponding note; see
-.IR notify (3).
+.MR notify (3) .
 The valid note names (and corresponding notes) are
 .B sighup
 .RB ( hangup ),
@@ -662,7 +662,7 @@ is composed of the bitwise OR of the
 .B rfork
 flags specified by the option letters
 (see
-.IR fork (2)).
+.MR fork (2) ).
 If no
 .I flags
 are given, they default to
@@ -829,7 +829,7 @@ parsing the
 .B $PATH
 variable
 (as in
-.IR sh (1))
+.MR sh (1) )
 or by
 .BR "path=(.\ /bin)" .
 The variables

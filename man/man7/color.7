@@ -121,11 +121,11 @@ which is scaled so 0 represents fully transparent and 255 represents opaque colo
 The alpha is
 .I premultiplied
 into the other channels, as described in the paper by Porter and Duff cited in
-.IR draw (3).
+.MR draw (3) .
 The function
 .B setalpha
 (see
-.IR allocimage (3))
+.MR allocimage (3) )
 aids the initialization of color values with non-trivial alpha.
 .PP
 The packing of pixels into bytes and words is odd.
@@ -138,13 +138,13 @@ the byte ordering is blue, green, red.
 .PP
 To maintain a constant external representation,
 the
-.IR draw (3)
+.MR draw (3)
 interface
 as well as the 
 various graphics libraries represent colors 
 by 32-bit numbers, as described in 
-.IR color (3).
+.MR color (3) .
 .SH "SEE ALSO"
-.IR color (3),
-.IR graphics (3),
-.IR draw (3)
+.MR color (3) ,
+.MR graphics (3) ,
+.MR draw (3)

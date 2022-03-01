@@ -15,7 +15,7 @@ converts
 .I files
 (or standard input),
 which should be the device-independent output of
-.IR troff (1),
+.MR troff (1) ,
 into the PostScript printer language.
 .PP
 The options are:
@@ -29,7 +29,8 @@ to stretch the PostScript output (default 1.0).
 Set a comment in the PostScript output
 marking the number of copies that should be printed.
 The comment is intended for ancient versions of the Unix
-\fIlp\fR(1) and is not recognized by any current printer
+.IR lp (1)
+and is not recognized by any current printer
 or print spooler.
 .TP
 .BI -d
@@ -46,11 +47,11 @@ logical pages per physical page
 Using this option emits PostScript with invalid document structuring
 comments.
 It will print fine but will not view correctly in
-.IR gv (1)
+.MR gv (1)
 or
 .I psv
 (see
-.IR page (1)).
+.MR page (1) ).
 .TP
 .BI -o " pagelist
 Print only the pages in the
@@ -109,5 +110,5 @@ psv /tmp/a.ps
 .SH SOURCE
 .B \*9/src/cmd/postscript/tr2post
 .SH SEE ALSO
-.IR troff (1),
-.IR psfonts (1)
+.MR troff (1) ,
+.MR psfonts (1)

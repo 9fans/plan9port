@@ -5,7 +5,7 @@ font, subfont \- external format for fonts and subfonts
 .B #include <draw.h>
 .SH DESCRIPTION
 Fonts and subfonts are described in
-.IR cachechars (3).
+.MR cachechars (3) .
 .PP
 External bitmap fonts are described by a plain text file that can be read using
 .IR openfont .
@@ -21,7 +21,7 @@ with an optional starting position within the subfont,
 and the file name names an external file suitable for
 .I readsubfont
 (see
-.IR graphics (3)).
+.MR graphics (3) ).
 The minimum number of a covered range is mapped to the specified starting position
 (default zero) of the
 corresponding subfont.
@@ -36,11 +36,11 @@ that can be read and written using
 and
 .I writesubfont
 (see
-.IR subfont (3)).
+.MR subfont (3) ).
 The format for subfont files is: an image containing character glyphs,
 followed by a subfont header, followed by character information.
 The image has the format for external image files described in
-.IR image (7).
+.MR image (7) .
 The subfont header has 3
 decimal strings:
 .BR n ,
@@ -72,7 +72,7 @@ are irrelevant.
 .PP
 Note that the convention of using the character with value zero (NUL) to represent
 characters of zero width (see
-.IR draw (3))
+.MR draw (3) )
 means that fonts should have, as their zeroth character,
 one with non-zero width.
 .SS "Font Names
@@ -121,7 +121,7 @@ The command
 .B .
 lists the available fonts.
 See
-.IR fontsrv (4)
+.MR fontsrv (4)
 for more.
 .PP
 If the font name has the form
@@ -136,7 +136,7 @@ The Plan 9 bitmap fonts were designed for screens with pixel density around 100 
 When used on screens with pixel density above 200 DPI,
 the bitmap fonts are automatically pixel doubled.
 Similarly, fonts loaded from
-.IR fontsrv (4)
+.MR fontsrv (4)
 are automatically doubled in size by varying the effective
 .I size
 path element.
@@ -184,7 +184,7 @@ a system-installed vector font on high-density displays:
 .B \*9/font/*
 font directories
 .SH "SEE ALSO"
-.IR graphics (3),
-.IR draw (3),
-.IR cachechars (3),
-.IR subfont (3)
+.MR graphics (3) ,
+.MR draw (3) ,
+.MR cachechars (3) ,
+.MR subfont (3)

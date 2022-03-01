@@ -238,10 +238,13 @@ rpc_attach(Client *c, char *label, char *winsize)
 	char *s;
 	NSArray *allDevices;
 
-	const NSWindowStyleMask Winstyle = NSWindowStyleMaskTitled
+	NSWindowStyleMask Winstyle = NSWindowStyleMaskTitled
 		| NSWindowStyleMaskClosable
 		| NSWindowStyleMaskMiniaturizable
 		| NSWindowStyleMaskResizable;
+
+	if(label == nil || *label == '\0')
+		Winstyle &= ~NSWindowStyleMaskTitled;
 
 	s = winsize;
 	sr = [[NSScreen mainScreen] frame];

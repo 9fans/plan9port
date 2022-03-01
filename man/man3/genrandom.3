@@ -25,11 +25,11 @@ number generator.  The X9.17 generator is seeded by 24
 truly random bytes read via
 .I truerand
 (see
-.IR rand (3)).
+.MR rand (3) ).
 .PP
 .I Prng
 uses the native
-.IR rand (3)
+.MR rand (3)
 pseudo-random number generator to fill the buffer.  Used with
 .IR srand ,
 this function can produce a reproducible stream of pseudo random
@@ -38,8 +38,8 @@ numbers useful in testing.
 Both functions may be passed to
 .I mprand
 (see
-.IR mp (3)).
+.MR mp (3) ).
 .SH SOURCE
 .B \*9/src/libsec
 .SH SEE ALSO
-.IR mp (3)
+.MR mp (3)

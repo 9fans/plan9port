@@ -255,7 +255,7 @@ void yyerror(char *s)
 	error(0, s);	/* temporary */
 }
 
-char errbuf[200];
+char errbuf[2000];
 
 void eprint(void)	/* try to print context around error */
 {

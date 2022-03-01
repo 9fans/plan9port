@@ -47,11 +47,11 @@ main(int argc, char *argv[])
 		error("wait");
 	}
 	l = w->time[0];
-	add("%ld.%.2ldu", l/1000, (l%1000)/10);
+	add("%ld.%.3ldu", l/1000, l%1000);
 	l = w->time[1];
-	add("%ld.%.2lds", l/1000, (l%1000)/10);
+	add("%ld.%.3lds", l/1000, l%1000);
 	l = (t1-t0)/1000000;
-	add("%ld.%.2ldr", l/1000, (l%1000)/10);
+	add("%ld.%.3ldr", l/1000, l%1000);
 	add("\t");
 	for(i=1; i<argc; i++){
 		add("%s", argv[i], 0);

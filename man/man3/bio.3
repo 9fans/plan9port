@@ -93,7 +93,7 @@ for mode
 or creates for mode
 .BR OWRITE .
 It calls
-.IR malloc (3)
+.MR malloc (3)
 to allocate a buffer.
 .PP
 .I Bfdopen
@@ -104,7 +104,7 @@ for mode
 or
 .BR OWRITE .
 It calls
-.IR malloc (3)
+.MR malloc (3)
 to allocate a buffer.
 .PP
 .I Binit
@@ -173,7 +173,7 @@ of the most recent string returned by
 .PP
 .I Brdstr
 returns a
-.IR malloc (3)-allocated
+.MR malloc (3) -allocated
 buffer containing the next line of input delimited by
 .IR delim ,
 terminated by a NUL (0) byte.
@@ -225,7 +225,7 @@ may back up a maximum of five bytes.
 uses
 .I charstod
 (see
-.IR atof (3))
+.MR atof (3) )
 and
 .I Bgetc
 to read the formatted
@@ -246,7 +246,7 @@ and a negative value is returned if a read error occurred.
 .PP
 .I Bseek
 applies
-.IR seek (3)
+.MR seek (3)
 to
 .IR bp .
 It returns the new file offset.
@@ -278,7 +278,7 @@ on the output stream.
 .PP
 .I Bprint
 is a buffered interface to
-.IR print (3).
+.MR print (3) .
 If this causes a
 .IR write
 to occur and there is an error,
@@ -325,10 +325,10 @@ written.
 .SH SOURCE
 .B \*9/src/libbio
 .SH SEE ALSO
-.IR open (3),
-.IR print (3),
-.IR exits (3),
-.IR utf (7),
+.MR open (3) ,
+.MR print (3) ,
+.MR exits (3) ,
+.MR utf (7) ,
 .SH DIAGNOSTICS
 .I Bio
 routines that return integers yield

@@ -6,7 +6,7 @@
  * Formats 0 and 2 are supported, and 4-byte timestamps
  *
  * Copyright © 2008 M. Teichgräber
- * Contributed under the terms of the Lucent Public License 1.02.
+ * Contributed under the MIT license used in the rest of the distribution.
  */
 #include "zoneinfo.h"
 

@@ -13,6 +13,7 @@ fspread(CFid *fid, void *buf, long n, vlong offset)
 	Fcall tx, rx;
 	void *freep;
 	uint msize;
+	long nr;
 
 	msize = fid->fs->msize - IOHDRSZ;
 	if(n > msize)
@@ -34,17 +35,21 @@ fspread(CFid *fid, void *buf, long n, vlong offset)
 		free(freep);
 		return -1;
 	}
-	if(rx.count){
-		memmove(buf, rx.data, rx.count);
+	nr = rx.count;
+	if(nr > n)
+		nr = n;
+
+	if(nr){
+		memmove(buf, rx.data, nr);
 		if(offset == -1){
 			qlock(&fid->lk);
-			fid->offset += rx.count;
+			fid->offset += nr;
 			qunlock(&fid->lk);
 		}
 	}
 	free(freep);
 
-	return rx.count;
+	return nr;
 }
 
 long

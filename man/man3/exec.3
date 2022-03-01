@@ -25,11 +25,11 @@ points to the name of the file
 to be executed; it must not be a directory, and the permissions
 must allow the current user to execute it
 (see
-.IR stat (3)).
+.MR stat (3) ).
 It should also be a valid binary image, as defined by the local
 operating system, or a shell script
 (see
-.IR rc (1)).
+.MR rc (1) ).
 The first line of a
 shell script must begin with
 .L #!
@@ -92,24 +92,24 @@ files remain open across
 .B OCEXEC
 OR'd
 into the open mode; see
-.IR open (3));
+.MR open (3) );
 and the working directory and environment
 (see
-.IR getenv (3))
+.MR getenv (3) )
 remain the same.
 However, a newly
 .I exec'ed
 process has no notification handlers
 (see
-.IR notify (3)).
+.MR notify (3) ).
 .SH SOURCE
 .B \*9/src/lib9/exec.c
 .br
 .B \*9/src/lib9/execl.c
 .SH SEE ALSO
-.IR prof (1),
-.IR intro (3),
-.IR stat (3)
+.MR prof (1) ,
+.MR intro (3) ,
+.MR stat (3)
 .SH DIAGNOSTICS
 If these functions fail, they return and set
 .IR errstr .
@@ -138,4 +138,4 @@ are preprocessor macros defined as
 and
 .IR p9execl ;
 see
-.IR intro (3).
+.MR intro (3) .

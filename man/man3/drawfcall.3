@@ -30,15 +30,15 @@ int	readwsysmsg(int fd, uchar *buf, uint nbuf)
 uint	sizeW2M(Wsysmsg *w)
 .SH DESCRIPTION
 These routines are analogues of the routines described in 
-.IR fcall (3).
+.MR fcall (3) .
 They manipulate graphics device protocol messages
 rather than 9P protocol messages.
 The graphics device protocol is used for internal 
 communication between the
-.IR devdraw (1)
+.MR devdraw (1)
 graphics server
 and the
-.IR draw (3)
+.MR draw (3)
 library.
 A
 .B Wsysmsg
@@ -48,6 +48,6 @@ The protocol is intentionally undocumented and may change.
 .SH SOURCE
 .B \*9/src/libdraw/drawfcall.c
 .SH SEE ALSO
-.IR devdraw (1),
-.IR draw (3),
-.IR graphics (3)
+.MR devdraw (1) ,
+.MR draw (3) ,
+.MR graphics (3)

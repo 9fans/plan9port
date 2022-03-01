@@ -26,6 +26,12 @@ makeports(Ruleset *rules[])
 		addport(rules[i]->port);
 }
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 threadmain(int argc, char *argv[])
 {

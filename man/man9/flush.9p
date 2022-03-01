@@ -99,11 +99,11 @@ flushing a
 and flushing an invalid tag.
 .SH ENTRY POINTS
 The
-.IR 9pclient (3)
+.MR 9pclient (3)
 library does not generate
 .B flush
 transactions..
-.IR 9pserve (4)
+.MR 9pserve (4)
 generates
 .B flush
 transactions to cancel transactions pending when a client hangs up.

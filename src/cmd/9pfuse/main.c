@@ -98,6 +98,12 @@ usage(void)
 void fusereader(void*);
 void watchfd(void*);
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 threadmain(int argc, char **argv)
 {
