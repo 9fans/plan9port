@@ -137,6 +137,12 @@ usage(void)
 	threadexitsall("usage");
 }
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 uchar vbuf[128];
 extern int _threaddebuglevel;
 void

@@ -91,7 +91,7 @@ requests is called a
 .SH ENTRY POINTS
 .I Fsversion
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 generates
 .B version
 messages;

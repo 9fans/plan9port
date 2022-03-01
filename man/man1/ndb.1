@@ -24,9 +24,9 @@ ndbquery, ndbmkhash, ndbmkdb, ndbipquery, ndbmkhosts \- network database
 The network database holds administrative information used by
 .I authdial
 (see
-.IR authsrv (3))
+.MR authsrv (3) )
 and
-.IR secstored (1).
+.MR secstored (1) .
 .PP
 .I Ndbquery 
 searches the database for an attribute of type
@@ -46,7 +46,7 @@ of all the matched entries is returned.
 uses
 .I ndbipinfo
 (see
-.IR ndb (3))
+.MR ndb (3) )
 to search for the values of the attributes
 .I rattr
 corresponding to the system
@@ -382,7 +382,7 @@ and by the ndb library routines.
 .PP
 .I Ndbmkdb
 is used in concert with
-.IR awk (1)
+.MR awk (1)
 scripts to convert
 uucp systems files and IP host files
 into database files.
@@ -395,7 +395,7 @@ it is necessary to run
 .I ndbmkhash
 whenever the files are modified.
 It may be profitable to control this by a frequent
-.IR cron (8)
+.MR cron (8)
 job.
 .PP
 .I Ndbmkhosts
@@ -439,5 +439,5 @@ hash files for
 .SH SOURCE
 .B \*9/src/cmd/ndb
 .SH SEE ALSO
-.IR ndb (3),
-.IR ndb (7)
+.MR ndb (3) ,
+.MR ndb (7)

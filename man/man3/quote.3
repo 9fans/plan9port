@@ -58,10 +58,10 @@ The empty string is represented by two quotes,
 The first four functions act as variants of
 .B strdup
 (see
-.IR strcat (3)).
+.MR strcat (3) ).
 Each returns a
 freshly allocated copy of the string, created using
-.IR malloc (3).
+.MR malloc (3) .
 .I Quotestrdup
 returns a quoted copy of
 .IR s ,
@@ -75,7 +75,7 @@ The
 versions of these functions do the same for
 .CW Rune
 strings (see
-.IR runestrcat (3)).
+.MR runestrcat (3) ).
 .PP
 The string returned by
 .I quotestrdup
@@ -124,13 +124,13 @@ blanks, control characters, and quotes are always quoted.
 is provided as a
 .I doquote
 function that flags any character special to
-.IR rc (1).
+.MR rc (1) .
 .PP
 .I Quotestrfmt
 and
 .I quoterunestrfmt
 are
-.IR print (3)
+.MR print (3)
 formatting routines that produce quoted strings as output.
 They may be installed by hand, but
 .I quotefmtinstall
@@ -154,21 +154,21 @@ statements so the compiler can type-check uses of
 and
 .B %Q
 in
-.IR print (3)
+.MR print (3)
 format strings.
 .SH SOURCE
 .B \*9/src/lib9/quote.c
 .br
 .B \*9/src/lib9/fmt/fmtquote.c
 .SH "SEE ALSO
-.IR rc (1),
-.IR malloc (3),
-.IR print (3),
-.IR strcat (3)
+.MR rc (1) ,
+.MR malloc (3) ,
+.MR print (3) ,
+.MR strcat (3)
 .SH BUGS
 Because it is provided by the format library,
 .I doquote
 is a preprocessor macro defined as
 .IR fmtdoquote ;
 see
-.IR intro (3).
+.MR intro (3) .

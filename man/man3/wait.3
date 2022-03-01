@@ -29,9 +29,9 @@ int		awaitfor(int pid, char *s, int n)
 .SH DESCRIPTION
 .I Wait
 causes a process to wait for any child process (see
-.IR fork (2)
+.MR fork (2)
 and
-.IR rfork (3))
+.MR rfork (3) )
 to exit.
 It returns a
 .B Waitmsg
@@ -62,7 +62,7 @@ the time spent in system calls, and the child's elapsed real time,
 all in units of milliseconds.
 .B Msg
 contains the message that the child specified in
-.IR exits (3).
+.MR exits (3) .
 For a normal exit,
 .B msg[0]
 is zero,
@@ -78,7 +78,7 @@ returns immediately, with return value nil.
 The
 .B Waitmsg
 structure is allocated by
-.IR malloc (3)
+.MR malloc (3)
 and should be freed after use.
 For programs that only need the pid of the exiting program,
 .I waitpid
@@ -114,7 +114,7 @@ The filled-in buffer
 may be parsed (after appending a NUL) using
 .IR tokenize
 (see
-.IR getfields (3));
+.MR getfields (3) );
 the resulting fields are, in order, pid, the three times, and the exit string,
 which will be
 .B ''
@@ -139,8 +139,8 @@ returns
 .PP
 .B \*9/src/lib9/await.c
 .SH "SEE ALSO"
-.IR rfork (3),
-.IR exits (3),
+.MR rfork (3) ,
+.MR exits (3) ,
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .
@@ -156,4 +156,4 @@ are preprocessor macros defined as
 and
 .IR p9waitfor ;
 see 
-.IR intro (3).
+.MR intro (3) .

@@ -45,7 +45,7 @@ is a no-op.
 .I Needstack
 should be thought of as a comment checked at run time,
 like
-.IR assert (3).
+.MR assert (3) .
 .SH EXAMPLE
 The X Window library implementation of
 .I XLookupString
@@ -57,7 +57,7 @@ before making calls to
 .IR XLookupString .
 If a thread (in this case, the keyboard-reading thread used
 inside the
-.IR draw (3)
+.MR draw (3)
 library)
 does not allocate a large enough stack, the problem is diagnosed
 immediately rather than left to corrupt memory.
@@ -66,4 +66,4 @@ immediately rather than left to corrupt memory.
 .br
 .B \*9/src/libthread
 .SH SEE ALSO
-.IR thread (3)
+.MR thread (3)

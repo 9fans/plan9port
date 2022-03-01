@@ -53,9 +53,9 @@ crop, iconv \- frame, crop, and convert image
 .SH DESCRIPTION
 .I Crop
 reads an
-.IR image (7)
+.MR image (7)
 file (default standard input), crops it, and writes it as a compressed
-.IR image (7)
+.MR image (7)
 file to standard output.
 There are two ways to specify a crop, by color value or by geometry.
 They may be combined in a single run of
@@ -65,7 +65,7 @@ in which case the color value crop will be done first.
 The
 .B -c
 option takes a red-green-blue triplet as described in
-.IR color (3).
+.MR color (3) .
 (For example, white
 is
 .B 255
@@ -118,7 +118,7 @@ changes the format of pixels in the image
 Pixels in the image are converted according to the channel descriptor
 .IR chandesc ,
 (see
-.IR image (7)).
+.MR image (7) ).
 For example, to convert a 4-bit-per-pixel grey-scale image to an 8-bit-per-pixel
 color-mapped image,
 .I chandesc
@@ -139,8 +139,8 @@ crop -c 255 255 255 -i -10 -b 255 150 150 imagefile > cropped
 .SH SOURCE
 .B \*9/src/cmd/draw/crop.c
 .SH SEE ALSO
-.IR image (7),
-.IR color (3)
+.MR image (7) ,
+.MR color (3)
 .SH BUGS
 .I Iconv
 should be able to do Floyd-Steinberg error diffusion or dithering

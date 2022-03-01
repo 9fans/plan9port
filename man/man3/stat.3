@@ -105,7 +105,7 @@ struct Dir {
 .EE
 .PP
 The returned structure is allocated by
-.IR malloc (3);
+.MR malloc (3) ;
 freeing it also frees the associated strings.
 .PP
 This structure and
@@ -283,9 +283,9 @@ to retrieve the initial values first.
 .SH SOURCE
 .B \*9/src/lib9/dirstat.c
 .SH SEE ALSO
-.IR intro (3),
-.IR fcall (3),
-.IR dirread (3),
+.MR intro (3) ,
+.MR fcall (3) ,
+.MR dirread (3) ,
 .IR stat (9p)
 .SH DIAGNOSTICS
 The
@@ -305,7 +305,7 @@ or
 is too short for the returned data, the return value will be
 .B BIT16SZ
 (see
-.IR fcall (3))
+.MR fcall (3) )
 and the two bytes
 returned will contain the initial count field of the
 returned data;

@@ -41,6 +41,8 @@ setshell(Word *w)
 void
 initshell(void)
 {
+	if(getenv("FORCERCFORMK") != nil)
+		shelldefault = &rcshell;
 	shellcmd = stow(shelldefault->name);
 	shellt = shelldefault;
 	setvar("MKSHELL", shellcmd);

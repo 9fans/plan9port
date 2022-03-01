@@ -67,7 +67,7 @@ writes to the named output
 file descriptor:
 a buffered form
 is described in
-.IR bio (3).
+.MR bio (3) .
 .I Sprint
 places text
 followed by the NUL character
@@ -104,7 +104,7 @@ is like
 .IR sprint ,
 except that it prints into and returns a string of the required length, which is
 allocated by
-.IR malloc (3).
+.MR malloc (3) .
 .PP
 The routines
 .IR runesprint ,
@@ -361,7 +361,7 @@ The
 .B S
 verb is similar, but it interprets its pointer as an array
 of runes (see
-.IR utf (7));
+.MR utf (7) );
 the runes are converted to
 .SM UTF
 before output.
@@ -389,10 +389,10 @@ but that will change if pointers and integers are different sizes.
 The
 .B r
 verb takes no arguments; it copies the error string returned by a call to
-.IR errstr (3).
+.MR errstr (3) .
 .PP
 Custom verbs may be installed using
-.IR fmtinstall (3).
+.MR fmtinstall (3) .
 .SH EXAMPLE
 This function prints an error message with a variable
 number of arguments and then quits.
@@ -415,9 +415,9 @@ void fatal(char *msg, ...)
 .SH SOURCE
 .B \*9/src/lib9/fmt
 .SH SEE ALSO
-.IR fmtinstall (3),
-.IR fprintf (3),
-.IR utf (7)
+.MR fmtinstall (3) ,
+.MR fprintf (3) ,
+.MR utf (7)
 .SH DIAGNOSTICS
 Routines that write to a file descriptor or call
 .IR malloc
@@ -425,7 +425,7 @@ set
 .IR errstr .
 .SH BUGS
 The formatting is close to that specified for ANSI
-.IR fprintf (3);
+.MR fprintf (3) ;
 the main difference is that
 .B b
 and

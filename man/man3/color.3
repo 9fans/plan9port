@@ -19,7 +19,7 @@ int	cmap2rgba(int col)
 .SH DESCRIPTION
 These routines convert between `true color' red/green/blue triples and the Plan 9 color map.
 See
-.IR color (7)
+.MR color (7)
 for a description of RGBV, the standard color map.
 .PP
 .I Rgb2cmap
@@ -41,16 +41,16 @@ and the next 8 representing blue, then green, then red, as for
 .I cmap2rgba
 shifted up 8 bits.
 This 32-bit representation is the format used by 
-.IR draw (3)
+.MR draw (3)
 and
-.IR memdraw (3)
+.MR memdraw (3)
 library routines that
 take colors as arguments.
 .SH SOURCE
 .B \*9/src/libdraw
 .SH SEE ALSO
-.IR graphics (3),
-.IR allocimage (3),
-.IR draw (3),
-.IR image (7),
-.IR color (7)
+.MR graphics (3) ,
+.MR allocimage (3) ,
+.MR draw (3) ,
+.MR image (7) ,
+.MR color (7)

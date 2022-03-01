@@ -61,7 +61,7 @@ acmeevent, acme.rc \- shell script support for acme clients
 and
 .I acme.rc
 make it easy to write simple
-.IR acme (1)
+.MR acme (1)
 client programs as shell scripts.
 .PP
 .I Acme
@@ -69,14 +69,14 @@ clients read the
 .B event
 files 
 (see
-.IR acme (4))
+.MR acme (4) )
 for the windows they control, reacting to the events.
 The events are presented in a format that is easy to read with C programs
 but hard to read with shell scripts.
 .PP
 .I Acmeevent
 reads an
-.IR acme (4)
+.MR acme (4)
 event stream from standard input, printing a shell-friendly
 version of the events, one per line, on standard output.
 Each output line from
@@ -165,7 +165,7 @@ above);
 below).
 .I Flag
 remains from the
-.IR acme (4)
+.MR acme (4)
 event format.
 Because
 .IR eq0 ,
@@ -174,7 +174,7 @@ and
 .I chordarg
 are explicit in each event
 (unlike in
-.IR acme (4)
+.MR acme (4)
 events),
 .I flag
 can usually be ignored.
@@ -221,7 +221,7 @@ window.
 .PP
 .I Acme.rc
 is a library of
-.IR rc (1)
+.MR rc (1)
 shell functions useful for writing acme clients.
 .PP
 .I Newwindow
@@ -259,14 +259,14 @@ The most commonly-used command is
 .BR clean ,
 which marks the window as clean.
 See
-.IR acme (4)
+.MR acme (4)
 for a full list of commands.
 .PP
 .I Windump
 sets the window's dump directory
 and dump command
 (see
-.IR acme (4)).
+.MR acme (4) ).
 If either argument is omitted or is
 .BR - ,
 that argument is not set.
@@ -381,9 +381,9 @@ for the full implementation.
 .br
 .B \*9/lib/acme.rc
 .SH SEE ALSO
-.IR acme (1),
-.IR acme (4),
-.IR rc (1)
+.MR acme (1) ,
+.MR acme (4) ,
+.MR rc (1)
 .SH BUGS
 There is more that could be done to ease the writing
 of complicated clients.

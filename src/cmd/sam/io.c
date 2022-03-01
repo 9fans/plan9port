@@ -63,7 +63,7 @@ writef(File *f)
 		warn(Wnotnewline);
 	closeio(n);
 	if(f->name.s[0]==0 || samename){
-		if(statfile(name, &dev, &qid, &mtime, 0, 0) > 0){
+		if(statfile(genc, &dev, &qid, &mtime, 0, 0) > 0){
 			f->dev = dev;
 			f->qidpath = qid;
 			f->mtime = mtime;

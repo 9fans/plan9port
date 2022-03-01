@@ -1,13 +1,9 @@
-This copyright NOTICE applies to all files in this directory and
-subdirectories, unless another copyright notice appears in a given
-file or subdirectory.  If you take substantial code from this software to use in
-other programs, you must somehow include with it an appropriate
-copyright notice that includes the copyright notice and the other
-notices below.  It is fine (and often tidier) to do that in a separate
-file such as NOTICE, LICENCE or COPYING.
+This is a Unix port of the Plan 9 build tool mk, by Andrew Hume.
+Please send comments about the packaging to Russ Cox <rsc@swtch.com>.
 
-	Copyright © 1994-1999 Lucent Technologies Inc.  All rights reserved.
-	Revisions Copyright © 2000-2003 Vita Nuova Holdings Limited (www.vitanuova.com).  All rights reserved.
+Copyright © 2021 Plan 9 Foundation
+Portions Copyright © 1997-1999 Vita Nuova Limited
+Portions Copyright © 2000-2015 Vita Nuova Holdings Limited
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,9 +22,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
-----
-
-This software is also made available under the Lucent Public License
-version 1.02; see http://9p.io/plan9/license.html
-

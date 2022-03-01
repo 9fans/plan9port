@@ -290,7 +290,7 @@ struct Cachefont
 
 struct Cacheinfo
 {
-	ushort		x;		/* left edge of bits */
+	int		x;		/* left edge of bits */
 	uchar		width;		/* width of baseline */
 	schar		left;		/* offset of baseline */
 	Rune		value;	/* value of character at this slot in cache */

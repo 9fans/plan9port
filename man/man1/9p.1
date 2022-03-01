@@ -121,11 +121,11 @@ copy a line from standard input to the file.
 Print errors, but don't give up.
 .B Rdwr
 is useful for interacting with servers like
-.IR factotum (4).
+.MR factotum (4) .
 .TP
 .B ls
 Print a directory listing in the format of
-.IR ls (1).
+.MR ls (1) .
 The
 .B -d
 and
@@ -150,12 +150,12 @@ it connects to the Unix domain socket
 .I service
 in the name space directory
 (see
-.IR intro (4))
+.MR intro (4) )
 and then accesses
 .IR subpath .
 .SH EXAMPLE
 To update
-.IR plumber (4)'s
+.MR plumber (4) 's
 copy of your plumbing rules after editing
 .BR $HOME/lib/plumbing :
 .IP
@@ -164,7 +164,7 @@ cat $HOME/lib/plumbing | 9p write plumb/rules
 .EE
 .PP
 To display the contents of the current
-.IR acme (4)
+.MR acme (4)
 window:
 .IP
 .EX
@@ -173,6 +173,6 @@ window:
 .SH SOURCE
 .B \*9/src/cmd/9p.c
 .SH SEE ALSO
-.IR intro (4),
+.MR intro (4) ,
 .IR intro (9p),
-.IR 9pclient (3)
+.MR 9pclient (3)

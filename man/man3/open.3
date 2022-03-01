@@ -34,7 +34,7 @@ says to truncate the file
 to zero length before opening it;
 .B OCEXEC
 says to close the file when an
-.IR exec (3)
+.MR exec (3)
 or
 .I execl
 system call is made;
@@ -48,7 +48,7 @@ are always appended to the end of the file.
 fails if the file does not exist or the user does not have
 permission to open it for the requested purpose
 (see
-.IR stat (3)
+.MR stat (3)
 for a description of permissions).
 The user must have write permission on the
 .I file
@@ -61,7 +61,7 @@ system call
 (unlike the implicit
 .I open
 in
-.IR exec (3)),
+.MR exec (3) ),
 .B OEXEC
 is actually identical to
 .BR OREAD .
@@ -143,8 +143,8 @@ allows the file descriptor to be reused.
 .SH SOURCE
 .B \*9/src/lib9
 .SH SEE ALSO
-.IR intro (3),
-.IR stat (3)
+.MR intro (3) ,
+.MR stat (3)
 .SH DIAGNOSTICS
 These functions set
 .IR errstr .
@@ -169,4 +169,4 @@ are preprocessor macros defined as
 and
 .IR p9create ;
 see
-.IR intro (3).
+.MR intro (3) .

@@ -70,7 +70,7 @@ back up Unix file systems to Venti
 .SH DESCRIPTION
 These programs back up and restore standard
 Unix file system images stored in
-.IR venti (8).
+.MR venti (8) .
 Images stored in
 .I venti
 are named by
@@ -102,7 +102,7 @@ The argument
 .I disk
 should be a disk or disk partition device
 that would be appropriate to pass to
-.IR mount (8).
+.MR mount (8) .
 .PP
 The optional argument
 .I score
@@ -135,7 +135,7 @@ The default
 is the name returned by 
 .I sysname
 (see
-.IR getuser (3)).
+.MR getuser (3) ).
 The default
 .I mtpt
 is the place where
@@ -149,7 +149,7 @@ command.
 The default is the name returned by
 .I sysname
 (see
-.IR getuser (3)).
+.MR getuser (3) ).
 .TP
 .B -n
 No-op mode: do not write any blocks to the server
@@ -207,7 +207,7 @@ to zero unused blocks instead.
 .PP
 .I Vftp
 presents an
-.IR ftp (1)-like
+.MR ftp (1) -like
 interface to a physical or backed-up disk image.
 It is used mainly for debugging.
 Type
@@ -228,7 +228,7 @@ must be run by the user
 Because
 .I address
 is passed to the host OS kernel rather than interpreted by
-.IR dial (3),
+.MR dial (3) ,
 it must be only an IP address, not a full dial address.
 .PP
 .I Vnfs

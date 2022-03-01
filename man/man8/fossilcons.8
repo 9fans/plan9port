@@ -340,7 +340,7 @@ con /srv/fscons
 .SH DESCRIPTION
 These are configuration and maintenance commands
 executed at the console of a 
-.IR fossil (4)
+.MR fossil (4)
 file server.
 The commands are split into three groups above:
 file server configuration,
@@ -372,11 +372,11 @@ a file in any file system served by
 .I 9p
 executes a 9P transaction; the arguments
 are in the same format used by
-.IR 9pcon (8).
+.MR 9pcon (8) .
 .PP
 .I Bind
 behaves similarly to
-.IR bind (1).
+.MR bind (1) .
 It is useful when fossil
 is started without devices it needs configured
 into its namespace.
@@ -389,7 +389,7 @@ standard error.
 .PP
 .I Echo
 behaves identically to
-.IR echo (1),
+.MR echo (1) ,
 writing to the console.
 .PP
 .I Listen
@@ -492,7 +492,7 @@ the string used to represent this user in the 9P protocol
 .TP
 .I leader
 the group's leader (see Plan 9's
-.IR stat (5)
+.MR stat (5)
 for a description of the special privileges held by a group leader)
 .TP
 .I members
@@ -821,7 +821,7 @@ removing a non-empty directory.
 A subsequent
 .I flchk
 (see
-.IR fossil (4))
+.MR fossil (4) )
 will identify the abandoned storage so it can be reclaimed with
 .I bfree
 commands.
@@ -1013,7 +1013,7 @@ takes a temporary snapshot of the current file system,
 recording it in 
 .BI /snapshot/ yyyy / mmdd / hhmm \fR,
 as described in 
-.IR fossil (4).
+.MR fossil (4) .
 The
 .B -a
 flag causes 
@@ -1021,7 +1021,7 @@ flag causes
 to take an archival snapshot, recording it in
 .BI /archive/ yyyy / mmdd \fR,
 also described in
-.IR fossil (4).
+.MR fossil (4) .
 By default the snapshot is taken of
 .BR /active ,
 the root of the active file system.
@@ -1132,7 +1132,7 @@ writes dirty blocks in memory to the disk.
 .PP
 .I Vac
 prints the Venti score for a
-.IR vac (1)
+.MR vac (1)
 archive containing the tree rooted
 at
 .IR dir ,

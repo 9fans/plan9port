@@ -26,7 +26,7 @@ vacfs \- a Venti-based file system
 .SH DESCRIPTION
 .I Vacfs
 interprets the file system created by
-.IR vac (1)
+.MR vac (1)
 so that it can be mounted into a Plan 9 file hierarchy.
 The data for the file system is stored on a Venti server
 with a root fingerprint specified in
@@ -37,7 +37,7 @@ clients are not authenticated, and groups are assumed to
 contain a single member with the same name.
 These restrictions should eventually be removed.
 .PP
-Options to 
+Options to
 .I vacfs
 are:
 .TP
@@ -49,7 +49,7 @@ The network address of the Venti server.
 The default is taken from the environment variable
 .BR venti .
 If this variable does not exist, then the default is the
-metaname 
+metaname
 .BR $venti .
 .\" which can be configured via
 .\" .IR ndb (6).
@@ -81,5 +81,6 @@ The amount of memory, in bytes, allocated to the block cache. The default is 16M
 .SH SOURCE
 .B \*9/src/cmd/vac
 .SH "SEE ALSO"
-.IR vac (1),
-Plan 9's \fIventi\fR(8)
+.MR vac (1) ,
+Plan 9's
+.IR venti (8)

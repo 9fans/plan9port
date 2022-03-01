@@ -3,41 +3,41 @@
 
 static char	linex[]="\n";
 static char	wordx[]=" \t\n";
-struct cmdtab cmdtab[]={
+struct Cmdtab cmdtab[]={
 /*	cmdc	text	regexp	addr	defcmd	defaddr	count	token	 fn	*/
-	'\n',	0,	0,	0,	0,	aDot,	0,	0,	nl_cmd,
-	'a',	1,	0,	0,	0,	aDot,	0,	0,	a_cmd,
-	'b',	0,	0,	0,	0,	aNo,	0,	linex,	b_cmd,
-	'B',	0,	0,	0,	0,	aNo,	0,	linex,	b_cmd,
-	'c',	1,	0,	0,	0,	aDot,	0,	0,	c_cmd,
-	'd',	0,	0,	0,	0,	aDot,	0,	0,	d_cmd,
-	'D',	0,	0,	0,	0,	aNo,	0,	linex,	D_cmd,
-	'e',	0,	0,	0,	0,	aNo,	0,	wordx,	e_cmd,
-	'f',	0,	0,	0,	0,	aNo,	0,	wordx,	f_cmd,
-	'g',	0,	1,	0,	'p',	aDot,	0,	0,	g_cmd,
-	'i',	1,	0,	0,	0,	aDot,	0,	0,	i_cmd,
-	'k',	0,	0,	0,	0,	aDot,	0,	0,	k_cmd,
-	'm',	0,	0,	1,	0,	aDot,	0,	0,	m_cmd,
-	'n',	0,	0,	0,	0,	aNo,	0,	0,	n_cmd,
-	'p',	0,	0,	0,	0,	aDot,	0,	0,	p_cmd,
-	'q',	0,	0,	0,	0,	aNo,	0,	0,	q_cmd,
-	'r',	0,	0,	0,	0,	aDot,	0,	wordx,	e_cmd,
-	's',	0,	1,	0,	0,	aDot,	1,	0,	s_cmd,
-	't',	0,	0,	1,	0,	aDot,	0,	0,	m_cmd,
-	'u',	0,	0,	0,	0,	aNo,	2,	0,	u_cmd,
-	'v',	0,	1,	0,	'p',	aDot,	0,	0,	g_cmd,
-	'w',	0,	0,	0,	0,	aAll,	0,	wordx,	w_cmd,
-	'x',	0,	1,	0,	'p',	aDot,	0,	0,	x_cmd,
-	'y',	0,	1,	0,	'p',	aDot,	0,	0,	x_cmd,
-	'X',	0,	1,	0,	'f',	aNo,	0,	0,	X_cmd,
-	'Y',	0,	1,	0,	'f',	aNo,	0,	0,	X_cmd,
-	'!',	0,	0,	0,	0,	aNo,	0,	linex,	plan9_cmd,
-	'>',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd,
-	'<',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd,
-	'|',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd,
-	'=',	0,	0,	0,	0,	aDot,	0,	linex,	eq_cmd,
-	'c'|0x100,0,	0,	0,	0,	aNo,	0,	wordx,	cd_cmd,
-	0,	0,	0,	0,	0,	0,	0,	0
+	{'\n',	0,	0,	0,	0,	aDot,	0,	0,	nl_cmd},
+	{'a',	1,	0,	0,	0,	aDot,	0,	0,	a_cmd},
+	{'b',	0,	0,	0,	0,	aNo,	0,	linex,	b_cmd},
+	{'B',	0,	0,	0,	0,	aNo,	0,	linex,	b_cmd},
+	{'c',	1,	0,	0,	0,	aDot,	0,	0,	c_cmd},
+	{'d',	0,	0,	0,	0,	aDot,	0,	0,	d_cmd},
+	{'D',	0,	0,	0,	0,	aNo,	0,	linex,	D_cmd},
+	{'e',	0,	0,	0,	0,	aNo,	0,	wordx,	e_cmd},
+	{'f',	0,	0,	0,	0,	aNo,	0,	wordx,	f_cmd},
+	{'g',	0,	1,	0,	'p',	aDot,	0,	0,	g_cmd},
+	{'i',	1,	0,	0,	0,	aDot,	0,	0,	i_cmd},
+	{'k',	0,	0,	0,	0,	aDot,	0,	0,	k_cmd},
+	{'m',	0,	0,	1,	0,	aDot,	0,	0,	m_cmd},
+	{'n',	0,	0,	0,	0,	aNo,	0,	0,	n_cmd},
+	{'p',	0,	0,	0,	0,	aDot,	0,	0,	p_cmd},
+	{'q',	0,	0,	0,	0,	aNo,	0,	0,	q_cmd},
+	{'r',	0,	0,	0,	0,	aDot,	0,	wordx,	e_cmd},
+	{'s',	0,	1,	0,	0,	aDot,	1,	0,	s_cmd},
+	{'t',	0,	0,	1,	0,	aDot,	0,	0,	m_cmd},
+	{'u',	0,	0,	0,	0,	aNo,	2,	0,	u_cmd},
+	{'v',	0,	1,	0,	'p',	aDot,	0,	0,	g_cmd},
+	{'w',	0,	0,	0,	0,	aAll,	0,	wordx,	w_cmd},
+	{'x',	0,	1,	0,	'p',	aDot,	0,	0,	x_cmd},
+	{'y',	0,	1,	0,	'p',	aDot,	0,	0,	x_cmd},
+	{'X',	0,	1,	0,	'f',	aNo,	0,	0,	X_cmd},
+	{'Y',	0,	1,	0,	'f',	aNo,	0,	0,	X_cmd},
+	{'!',	0,	0,	0,	0,	aNo,	0,	linex,	plan9_cmd},
+	{'>',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd},
+	{'<',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd},
+	{'|',	0,	0,	0,	0,	aDot,	0,	linex,	plan9_cmd},
+	{'=',	0,	0,	0,	0,	aDot,	0,	linex,	eq_cmd},
+	{'c'|0x100,0,	0,	0,	0,	aNo,	0,	wordx,	cd_cmd},
+	{0,	0,	0,	0,	0,	0,	0,	0},
 };
 Cmd	*parsecmd(int);
 Addr	*compoundaddr(void);
@@ -402,7 +402,7 @@ Cmd *
 parsecmd(int nest)
 {
 	int i, c;
-	struct cmdtab *ct;
+	Cmdtab *ct;
 	Cmd *cp, *ncp;
 	Cmd cmd;
 
@@ -559,9 +559,11 @@ simpleaddr(void)
 		case '.':
 		case '$':
 		case '\'':
-			if(addr.type!='"')
+			if(addr.type=='"')
+				break;
+			/* fall through */
 		case '"':
-				error(Eaddress);
+			error(Eaddress);
 			break;
 		case 'l':
 		case '#':

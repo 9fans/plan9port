@@ -11,11 +11,11 @@ int post9pservice(int fd, char *name, char *mtpt)
 .SH DESCRIPTION
 .I Post9pservice
 invokes
-.IR 9pserve (4)
+.MR 9pserve (4)
 to post a new 9P service in the current 
 ``name space''
 (see
-.IR intro (4))
+.MR intro (4) )
 named
 .IR name .
 Clients connecting to the posted service
@@ -30,10 +30,10 @@ is non-nil,
 mounts the service on
 .IR mtpt ,
 using
-.IR 9pfuse (4).
+.MR 9pfuse (4) .
 .SH "SEE ALSO
-.IR intro (4),
-.IR 9pfuse (4),
-.IR 9pserve (4)
+.MR intro (4) ,
+.MR 9pfuse (4) ,
+.MR 9pserve (4)
 .SH SOURCE
 .B \*9/src/lib9/post9p.c

@@ -114,7 +114,7 @@ to be transferred atomically.
 and
 .I fswrite
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 generate the corresponding messages.
 Because they take an offset parameter, the
 .I fspread

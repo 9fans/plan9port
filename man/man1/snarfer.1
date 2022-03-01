@@ -13,30 +13,31 @@ Each time a program changes the snarf buffer contents,
 .I snarfer
 copies the new contents and then takes over control
 of the buffer.
-Because the snarf buffer contents are managed by 
+Because the snarf buffer contents are managed by
 .I snarfer
 instead of by individual programs, the contents remain
 available even after the program that wrote them exits.
 .PP
-The 
+The
 .B -v
 option, intended for debugging, causes
 .I snarfer
 to print the new snarf buffer contents each time it changes.
 .PP
-On Mac OS X, 
+On Mac OS X,
 running
 .I snarfer
 keeps the X11 snarf buffer in sync with the Carbon snarf buffer,
 working around a bug in the OS X X11 server.
 See
-.IR getsnarf (3)
+.MR getsnarf (3)
 for more details.
 .SH SOURCE
 .B \*9/src/cmd/snarfer
 .SH SEE ALSO
-Unix's \fIxclipboard\fR(1),
-.IR getsnarf (3)
+Unix's
+.IR xclipboard (1),
+.MR getsnarf (3)
 .SH BUGS
 Both
 .I xclipboard

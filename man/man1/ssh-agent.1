@@ -10,9 +10,9 @@ ssh-agent \- SSH authentication agent
 .SH DESCRIPTION
 .I Ssh-agent
 presents
-.IR factotum (4)
+.MR factotum (4)
 using the interface that
-.IR ssh (1)
+.MR ssh (1)
 requires.
 .PP
 Once
@@ -33,7 +33,7 @@ via a Unix socket named
 .B ssh-agent.socket
 in the name space directory
 (see
-.IR intro (4)).
+.MR intro (4) ).
 Note that although the socket is posted in the name space
 directory, it is not for 9P conversations.
 .I Ssh
@@ -81,10 +81,10 @@ Invoke this one with
 .B 9
 .BR ssh-agent ;
 see
-.IR 9 (1).
+.MR 9 (1) .
 .SH EXAMPLES
 Assume
-.IR factotum (4)
+.MR factotum (4)
 is already running and initialized with keys.
 .PP
 Start a new agent, copying the commands by hand:
@@ -103,7 +103,7 @@ $
 .EE
 .PP
 Start the agent from
-.IR sh (1):
+.MR sh (1) :
 .IP
 .EX
 $ eval `9 ssh-agent -e`
@@ -111,7 +111,7 @@ $
 .EE
 .PP
 Start the agent from
-.IR rc (1):
+.MR rc (1) :
 .IP
 .EX
 % eval `{9 ssh-agent}
@@ -128,9 +128,9 @@ tux% ^D
 .SH SOURCE
 .B \*9/src/cmd/auth/ssh-agent.c
 .SH SEE ALSO
-.IR ssh (1),
-.IR rsa (1),
-.IR factotum (4)
+.MR ssh (1) ,
+.MR rsa (1) ,
+.MR factotum (4)
 .SH BUGS
 A surprise rather than a bug:
 .I ssh-agent

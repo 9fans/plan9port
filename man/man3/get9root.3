@@ -49,7 +49,7 @@ if different from
 should be freed with
 .I free
 (see
-.IR malloc (3))
+.MR malloc (3) )
 when no longer needed.
 .PP
 As a convention, programs should never
@@ -57,7 +57,7 @@ As a convention, programs should never
 paths obtained from user input.
 .SH EXAMPLE
 The
-.IR plumber (4)
+.MR plumber (4)
 uses this code to find unrooted file names included by plumb rules.
 .IP
 .EX
@@ -69,7 +69,7 @@ fd = open(unsharp(buf), OREAD);
 .br
 .B \*9/src/lib9/unsharp.c
 .SH SEE ALSO
-.IR intro (4)
+.MR intro (4)
 .SH BUGS
 .I Get9root
 could be smarter about finding the tree when

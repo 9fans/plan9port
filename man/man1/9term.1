@@ -58,7 +58,7 @@ uses the imported value of
 .B $font
 if set; otherwise it uses the graphics system default.
 (See
-.IR font (7)
+.MR font (7)
 for a full discussion of font syntaxes.)
 .PP
 .I 9term
@@ -96,7 +96,7 @@ Characters typed on the keyboard replace the selected text;
 if this text is not empty, it is placed in a
 .I snarf buffer
 common to all windows but distinct from that of
-.IR sam (1).
+.MR sam (1) .
 .PP
 Programs access the text in the window at a single point
 maintained automatically by
@@ -163,7 +163,7 @@ and erases the character before the word.
 .PP
 An ACK character (control-F) or Insert character triggers file name completion
 for the preceding string (see
-.IR complete (3)).
+.MR complete (3) ).
 .PP
 Text may be moved vertically within the window.
 A scroll bar on the left of the window shows in its clear portion what fragment of the
@@ -201,7 +201,7 @@ EOT, so the terminal must be set up with EOT
 as the ``eof'' character.
 .I 9term
 runs
-.IR stty (1)
+.MR stty (1)
 to establish this when the terminal is created.
 .PP
 .I 9term
@@ -231,13 +231,13 @@ are a few common ones where they fall short.
 First, programs using the GNU readline library typically
 disable terminal echo and perform echoing themselves.
 The most common example is the shell
-.IR bash (1).
+.MR bash (1) .
 Disabling the use of readline with
 .RB `` "set +o emacs" ''
 .RI [ sic ]
 usually restores the desired behavior.
 Second, remote terminal programs such as
-.IR ssh (1)
+.MR ssh (1)
 typically run with echo disabled, relying on the
 remote system to echo characters as desired.
 Plan 9's
@@ -279,7 +279,7 @@ The
 menu item sends the contents of the selection (not the snarf buffer) to the
 .I plumber
 (see
-.IR plumb (1)).
+.MR plumb (1) ).
 If the selection is empty, it sends the white-space-delimited text
 containing the selection (typing cursor).
 A typical use of this feature is to tell the editor to find the source of an error
@@ -323,7 +323,7 @@ Not a
 .IR 9term 
 bug:
 when running
-.IR bash (1)
+.MR bash (1)
 in 
 .RB `` "set +o emacs" ''
 mode, its handling of interrupts is broken.
@@ -334,4 +334,4 @@ character typed.
 .PP
 Unix makes everything harder.
 .SH SEE ALSO
-.IR wintext (1)
+.MR wintext (1)

@@ -51,7 +51,7 @@ copies leading white space on the current line to the new line.
 Do not `download' the terminal part of
 .IR sam .
 Editing will be done with the command language only, as in
-.IR ed (1).
+.MR ed (1) .
 .TP
 .BI -r " machine
 Run the host part remotely
@@ -69,7 +69,7 @@ for debugging.
 .PD
 .SS Regular expressions
 Regular expressions are as in
-.IR regexp (7)
+.MR regexp (7)
 with the addition of
 .BR \en
 to represent newlines.
@@ -698,7 +698,7 @@ There is usually a `current window',
 marked with a dark border, to which typed text and editing
 commands apply.
 Text may be typed and edited as in
-.IR rio (1);
+.MR rio (1) ;
 also the escape key (ESC) selects (sets dot to) text typed
 since the last mouse button hit.
 .PP
@@ -798,7 +798,7 @@ the white-space-delimited block of text is sent as a plumb message
 with a
 .B click
 attribute defining where the selection lies (see
-.IR plumb (7)).
+.MR plumb (7) ).
 .TP
 .B look
 Search forward for the next occurrence of the literal text in dot.
@@ -909,11 +909,11 @@ source for the separate terminal part
 .TP
 .B \*9/bin/E
 .SH SEE ALSO
-.IR ed (1),
-.IR sed (1),
-.IR grep (1),
-.IR rio (1),
-.IR regexp (7).
+.MR ed (1) ,
+.MR sed (1) ,
+.MR grep (1) ,
+.MR rio (1) ,
+.MR regexp (7) .
 .PP
 Rob Pike,
 ``The text editor sam''.

@@ -16,17 +16,17 @@ void sysfatal(char *fmt, ...)
 prints to standard error the name of the running program,
 a colon and a space, 
 the message described by the
-.IR print (3)
+.MR print (3)
 format string
 .I fmt
 and subsequent arguments, and a newline.
 It then calls
-.IR exits (3)
+.MR exits (3)
 with the formatted message as argument.
 The program's name is the value of
 .BR argv0 ,
 which will be set if the program uses the
-.IR arg (3)
+.MR arg (3)
 interface to process its arguments.
 If
 .B argv0
@@ -44,7 +44,7 @@ The message is a line with several fields:
 the name of the machine writing the message;
 the date and time;
 the message specified by the 
-.IR print (3)
+.MR print (3)
 format
 .I fmt
 and any following arguments;
@@ -60,9 +60,9 @@ can be used safely in multi-threaded programs.
 .br
 .B \*9/src/lib9/syslog.c
 .SH "SEE ALSO"
-.IR intro (3),
-.IR errstr (3),
+.MR intro (3) ,
+.MR errstr (3) ,
 the
 .B %r
 format in
-.IR print (3)
+.MR print (3)

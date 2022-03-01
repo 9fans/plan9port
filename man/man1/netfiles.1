@@ -21,7 +21,7 @@ Netfiles, netfileget, netfileput, netfilestat \- network file access inside acme
 .SH DESCRIPTION
 .B Netfiles
 presents remote file systems in
-.IR acme (4)
+.MR acme (4)
 windows.
 Each window is named
 .BI /n/ system / path
@@ -35,7 +35,7 @@ reads names of windows to create from the
 plumbing channel
 .B netfileedit
 (see
-.IR plumber (4)
+.MR plumber (4)
 and the example section below).
 In a
 .IR netfiles -controlled
@@ -60,13 +60,13 @@ The three first check to see if
 .I system
 is a service in the current name space
 (see
-.IR intro (4)).
+.MR intro (4) ).
 If so, they use
-.IR 9p (1)
+.MR 9p (1)
 to access it.
 Otherwise, they assume that the system is a network name
 and use
-.IR ssh (1)'s
+.MR ssh (1) 's
 .I sftp
 to access it.
 .PP
@@ -100,7 +100,7 @@ or
 .SH EXAMPLES
 The following plumbing rule 
 (see
-.IR plumb (7))
+.MR plumb (7) )
 passes 
 .B /n/
 paths to 
@@ -118,17 +118,17 @@ plumb client Netfiles
 .SH SOURCE
 .B \*9/src/cmd/netfiles
 .SH SEE ALSO
-.IR 9p (1),
-.IR ssh (1),
-.IR ssh-agent (1),
-.IR intro (4),
-.IR acme (4),
-.IR factotum (4),
+.MR 9p (1) ,
+.MR ssh (1) ,
+.MR ssh-agent (1) ,
+.MR intro (4) ,
+.MR acme (4) ,
+.MR factotum (4) ,
 .HR http://v9fs.sf.net
 .SH BUGS
 .I Netfiles
 depends on
-.IR sftpcache (1),
+.MR sftpcache (1) ,
 which only works with OpenSSH versions 4.3 and earlier;
 later versions do not print the
 .B sftp>

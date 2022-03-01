@@ -40,7 +40,7 @@ venti \- archival storage server
 .I Venti
 is a SHA1-addressed archival storage server.
 See 
-.IR venti (7)
+.MR venti (7)
 for a full introduction to the system.
 This page documents the structure and operation of the server.
 .PP
@@ -138,7 +138,7 @@ less than 10 are not very useful;
 greater than 24 are probably a waste of memory.
 .I Fmtbloom
 (see
-.IR venti-fmt (8))
+.MR venti-fmt (8) )
 can be given either
 .I nhash
 or
@@ -220,7 +220,7 @@ The venti server announces two network services, one
 .BR venti ,
 17034) serving
 the venti protocol as described in
-.IR venti (7),
+.MR venti (7) ,
 and one serving HTTP
 (conventionally TCP port 
 .BR http ,
@@ -333,7 +333,7 @@ with
 or 
 .I fmtisect
 (see
-.IR venti-fmt (8)).
+.MR venti-fmt (8) ).
 In particular, only the configuration needs to be
 changed if a component is moved to a different file.
 .PP
@@ -506,11 +506,11 @@ Start the server and check the storage statistics:
 .SH SOURCE
 .B \*9/src/cmd/venti/srv
 .SH "SEE ALSO"
-.IR venti (1),
-.IR venti (3),
-.IR venti (7),
-.IR venti-backup (8)
-.IR venti-fmt (8)
+.MR venti (1) ,
+.MR venti (3) ,
+.MR venti (7) ,
+.MR venti-backup (8)
+.MR venti-fmt (8)
 .br
 Sean Quinlan and Sean Dorward,
 ``Venti: a new approach to archival storage'',
@@ -523,7 +523,7 @@ Venti should not require the user to decide how to
 partition its memory usage.
 .PP
 Users of shells other than 
-.IR rc (1)
+.MR rc (1)
 will not be able to use the program names shown.
 One solution is to define
 .B "V=$PLAN9/bin/venti"

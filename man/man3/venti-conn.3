@@ -90,21 +90,21 @@ for reading and writing.
 .I Vtdial
 dials the given network address
 (see
-.IR dial (3))
+.MR dial (3) )
 and returns a corresponding connection.
 It returns nil if the connection cannot be established.
 .PP
 .I Vtversion
 exchanges version information with the remote side
 as described in
-.IR venti (7).
+.MR venti (7) .
 The negotiated version is stored in
 .IB z ->version \fR.
 .PP
 .I Vtsend
 writes a packet
 (see
-.IR venti-packet (3))
+.MR venti-packet (3) )
 on the connection
 .IR z .
 The packet
@@ -115,7 +115,7 @@ be returned by
 .I vtsend
 will add the two-byte length field
 (see
-.IR venti (7))
+.MR venti (7) )
 at the begnning.
 .I Vtsend
 frees
@@ -137,7 +137,7 @@ and
 block until the packet can be written or read from the network.
 In a threaded program
 (see
-.IR thread (3)),
+.MR thread (3) ),
 this may not be desirable.
 If the caller arranges for
 .IR vtsendproc
@@ -192,12 +192,12 @@ as they are sent or received.
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
-.IR venti (1),
-.IR venti (3),
-.IR venti-client (3),
-.IR venti-packet (3),
-.IR venti-server (3),
-.IR venti (7)
+.MR venti (1) ,
+.MR venti (3) ,
+.MR venti-client (3) ,
+.MR venti-packet (3) ,
+.MR venti-server (3) ,
+.MR venti (7)
 .SH DIAGNOSTICS
 Routines that return pointers return nil on error.
 Routines returning integers return 0 on success, \-1 on error.

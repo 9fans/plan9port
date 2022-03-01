@@ -53,7 +53,7 @@ int	vtping(VtConn *z)
 extern int ventidoublechecksha1;  /* default 1 */
 .SH DESCRIPTION
 These routines execute the client side of the 
-.IR venti (7)
+.MR venti (7)
 protocol.
 .PP
 .I Vtrpc
@@ -84,7 +84,7 @@ is typically called only indirectly, via
 calls
 .I vtversion
 (see
-.IR venti-conn (3))
+.MR venti-conn (3) )
 and
 .IR vthello ,
 in that order, returning success only
@@ -171,14 +171,14 @@ in the same proc should start separate procs running
 and
 .I vtrecvproc
 as described in
-.IR venti-conn (3).
+.MR venti-conn (3) .
 .SH SOURCE
 .B \*9/src/libventi
 .SH SEE ALSO
-.IR venti (3),
-.IR venti-conn (3),
-.IR venti-packet (3),
-.IR venti (7)
+.MR venti (3) ,
+.MR venti-conn (3) ,
+.MR venti-packet (3) ,
+.MR venti (7)
 .SH DIAGNOSTICS
 .I Vtrpc
 and

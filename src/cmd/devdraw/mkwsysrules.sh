@@ -7,6 +7,8 @@ if [ "x$X11" = "x" ]; then
 		X11=/usr/X11R6
 	elif [ -d /usr/local/X11R6 ]; then
 		X11=/usr/local/X11R6
+	elif [ -d /usr/X11R7 ]; then
+		X11=/usr/X11R7
 	elif [ -d /usr/X ]; then
 		X11=/usr/X
 	elif [ -d /usr/openwin ]; then	# for Sun

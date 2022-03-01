@@ -7,7 +7,7 @@ sftpcache \- cache sftp connections
 .SH DESCRIPTION
 .I Sftpcache
 multiplexes clients onto persistent 
-.IR sftp (1)
+.MR sftp (1)
 connections.
 It runs
 .I sftp
@@ -16,7 +16,7 @@ and posts a socket named
 .IB system .sftp
 in the name space directory
 (see
-.IR intro (4)).
+.MR intro (4) ).
 Clients can connect to the socket, one at a time,
 to interact with the
 .I sftp
@@ -24,13 +24,13 @@ session.
 .PP
 .I Sftpcache
 is used by
-.IR netfiles (1).
+.MR netfiles (1) .
 .SH SOURCE
 .B \*9/src/cmd/sftpcache.c
 .SH SEE ALSO
-.IR ssh (1),
-.IR sftp (1),
-.IR netfiles (1)
+.MR ssh (1) ,
+.MR sftp (1) ,
+.MR netfiles (1)
 .SH BUGS
 .I Sftpcache
 only works with OpenSSH versions 4.3 and earlier;

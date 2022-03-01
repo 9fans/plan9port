@@ -19,14 +19,14 @@ mhtml \- macros for formatting HTML
 \&...
 .SH DESCRIPTION
 This package of
-.IR htmlroff (1)
+.MR htmlroff (1)
 macro definitions provides convenient macros for formatting HTML.
 It is usually used along with 
-.IR troff (1)
+.MR troff (1)
 macro packages such as
-.IR man (7)
+.MR man (7)
 and
-.IR ms (7).
+.MR ms (7) .
 .I Mhtml
 replaces some macros defined in the other packages,
 so it should be listed after them on the
@@ -64,7 +64,7 @@ before invoking
 Accumulate footnotes and print them at the end of the
 document under a \fBNotes\fP heading.
 These replace the macros in
-.IR ms (7).
+.MR ms (7) .
 To emit the notes accumulated so far, invoke
 .BR .NOTES .
 .TP
@@ -75,7 +75,7 @@ and
 .B .PE
 with a PNG image corresponding to the output of
 running
-.IR troff (1)
+.MR troff (1)
 on the input.
 .TP
 .B .TS\fR, \fP.TE
@@ -100,6 +100,6 @@ percent of the current output width.
 .SH FILES
 .B \*9/tmac/tmac.html
 .SH  SEE ALSO
-.IR htmlroff (1),
-.IR htmlroff (7),
-.IR ms (7)
+.MR htmlroff (1) ,
+.MR htmlroff (7) ,
+.MR ms (7)

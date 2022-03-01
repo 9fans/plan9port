@@ -95,7 +95,7 @@ CFsys*	nsamount(char *name, char *aname);
 .SH DESCRIPTION
 .PP
 This library, in concert with
-.IR factotum (4),
+.MR factotum (4) ,
 is used to authenticate users.
 It provides the primary interface to
 .IR factotum .
@@ -168,7 +168,7 @@ It provides the primary interface to
 The following routines use the
 .B AuthInfo
 structure returned after a successful authentication by
-.IR factotum (4).
+.MR factotum (4) .
 .PP
 .ne 8
 .EX
@@ -212,11 +212,11 @@ file, as opened by
 An
 .B sprint
 (see
-.IR print (3))
+.MR print (3) )
 of 
 .I fmt
 and the variable arg list yields a key template (see
-.IR factotum (4))
+.MR factotum (4) )
 specifying the key to use.
 The template must specify at least the protocol (
 .BI proto= xxx )
@@ -258,7 +258,7 @@ arranges a connection to
 either by opening
 .B /mnt/factotum/rpc
 or by using 
-.IR 9pclient (3)
+.MR 9pclient (3)
 to connect to a
 .B factotum
 service posted in the current name space.
@@ -266,7 +266,7 @@ The returned connection
 is freed using
 .IR auth_freerpc .
 Individual commands can be sent to
-.IR factotum (4)
+.MR factotum (4)
 by invoking
 .IR auth_rpc .
 .PP
@@ -418,7 +418,7 @@ and
 but execute the protocol on a
 .B CFid*
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 instead of a file descriptor.
 .PP
 .I Fsamount
@@ -429,15 +429,15 @@ are like
 and
 .I nsmount
 (see
-.IR 9pclient (3))
+.MR 9pclient (3) )
 but use
 .I factotum
 to authenticate to the file servers.
 .SH SOURCE
 .B \*9/src/libauth
 .SH SEE ALSO
-.IR factotum (4),
-.IR authsrv (3)
+.MR factotum (4) ,
+.MR authsrv (3)
 .SH DIAGNOSTICS
 These routines set
 .IR errstr .

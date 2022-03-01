@@ -14,12 +14,12 @@ label, awd \- set window label
 sets the label of the current 
 .I win
 (see
-.IR acme (1))
+.MR acme (1) )
 or X terminal window
 .RI ( e.g.,
-.IR 9term (1)
+.MR 9term (1)
 or
-.IR xterm (1))
+.MR xterm (1) )
 by echoing a special control sequence to standard output.
 .PP
 .I Acme
@@ -38,7 +38,7 @@ sets the window name to the current directory with a
 suffix, using the name of the current system by default.
 .SH EXAMPLE
 One can use the following
-.IR sh (1)
+.MR sh (1)
 function to keep the label up-to-date in response to
 .I cd
 commands:
@@ -55,7 +55,7 @@ alias cd=_cd
 cd .
 .EE
 .PP
-.IR Rc (1)
+.MR Rc (1)
 installs a similar 
 .B fn
 .B cd
@@ -77,4 +77,4 @@ fn cd {
 .SH BUGS
 .I Awd
 is also documented in
-.IR acme (1).
+.MR acme (1) .

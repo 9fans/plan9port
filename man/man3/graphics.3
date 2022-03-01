@@ -107,7 +107,7 @@ extern Font    *font
 A
 .B Display
 structure represents a connection to the graphics device,
-.IR draw (3),
+.MR draw (3) ,
 holding all graphics resources associated with the connection,
 including in particular raster image data in use by the client program.
 The structure is defined (in part) as:
@@ -135,7 +135,7 @@ A
 .B Point
 is a location in an Image
 (see below and
-.IR draw (3)),
+.MR draw (3) ),
 such as the display, and is defined as:
 .IP
 .EX
@@ -184,18 +184,18 @@ contains the coordinates of the first point beyond the rectangle.
 The
 .B Image
 data structure is defined in
-.IR draw (3).
+.MR draw (3) .
 .PP
 A
 .B Font
 is a set of character images, indexed by runes (see
-.IR utf (7)).
+.MR utf (7) ).
 The images are organized into
 .BR Subfonts ,
 each containing the images for a small, contiguous set of runes.
 The detailed format of these data structures,
 which are described in detail in
-.IR cachechars (3),
+.MR cachechars (3) ,
 is immaterial for most applications.
 .B Font
 and
@@ -210,7 +210,7 @@ and
 the distance from the top of the highest character to the bottom of
 the lowest character (and hence, the interline spacing).
 See
-.IR cachechars (3)
+.MR cachechars (3)
 for more details.
 .PP
 .I Buildfont
@@ -221,7 +221,7 @@ returning a
 pointer that can be used by
 .B string
 (see
-.IR draw (3))
+.MR draw (3) )
 to draw characters from the font.
 .I Openfont
 does the same, but reads the description
@@ -231,7 +231,7 @@ frees a font.
 In contrast to Plan 9, font names in Plan 9 from User Space are
 a small language describing the desired font.
 See
-.IR font (7)
+.MR font (7)
 for details.
 .PP
 A
@@ -274,7 +274,7 @@ structure representing the connection),
 (an
 .B Image
 representing the display memory itself or, if
-.IR rio (1)
+.MR rio (1)
 is running, the client's window),
 and
 .B font
@@ -287,7 +287,7 @@ which is written to
 .B /dev/label
 if non-nil
 so that it can be used to identify the window when hidden (see
-.IR rio (1)).
+.MR rio (1) ).
 The font is created by reading the named
 .I font
 file.  If
@@ -301,7 +301,7 @@ if
 is not set, it imports the default (usually minimal)
 font from the operating system.
 (See
-.IR font (7)
+.MR font (7)
 for a full discussion of font syntaxes.)
 The global
 .I font
@@ -322,7 +322,7 @@ is nil, the library provides a default, called
 Another effect of
 .I initdraw
 is that it installs
-.IR print (3)
+.MR print (3)
 formats
 .I Pfmt
 and
@@ -360,9 +360,9 @@ and
 files; and
 .I ref
 specifies the refresh function to be used to create the window, if running under
-.IR rio (1)
+.MR rio (1)
 (see
-.IR window (3)).
+.MR window (3) ).
 .\" .PP
 .\" The function
 .\" .I newwindow
@@ -435,11 +435,11 @@ by looking in
 to find the name of the window and opening it using
 .B namedimage
 (see
-.IR allocimage (3)).
+.MR allocimage (3) ).
 The resulting window will be created using the refresh method
 .I ref
 (see
-.IR window (3));
+.MR window (3) );
 this should almost always be
 .B Refnone
 because
@@ -456,7 +456,7 @@ defining the window (or the overall display, if no window system is running); an
 a pointer to the
 .B Screen
 representing the root of the window's hierarchy. (See
-.IR window (3).
+.MR window (3) .
 The overloading of the
 .B screen
 word is an unfortunate historical accident.)
@@ -528,15 +528,15 @@ the window boundaries; otherwise
 is a no-op.
 .PP
 The graphics functions described in
-.IR draw (3),
-.IR allocimage (3),
-.IR cachechars (3),
+.MR draw (3) ,
+.MR allocimage (3) ,
+.MR cachechars (3) ,
 and
-.IR subfont (3)
+.MR subfont (3)
 are implemented by writing commands to files under
 .B /dev/draw
 (see
-.IR draw (3));
+.MR draw (3) );
 the writes are buffered, so the functions may not take effect immediately.
 .I Flushimage
 flushes the buffer, doing all pending graphics operations.
@@ -546,7 +546,7 @@ is non-zero, any changes are also copied from the `soft screen' (if any) in the
 driver to the visible frame buffer.
 The various allocation routines in the library flush automatically, as does the event
 package (see
-.IR event (3));
+.MR event (3) );
 most programs do not need to call
 .IR flushimage .
 It returns \-1 on error.
@@ -563,13 +563,13 @@ and
 .I chantostr
 convert between the channel descriptor strings
 used by
-.IR image (7)
+.MR image (7)
 and the internal 
 .B ulong
 representation 
 used by the graphics protocol
 (see
-.IR draw (3)'s
+.MR draw (3) 's
 .B b
 message).
 .B Chantostr
@@ -599,7 +599,7 @@ if(getwindow(display, Refnone) < 0)
 .EE
 .PP
 To create and set up a new
-.IR rio (1)
+.MR rio (1)
 window,
 .IP
 .EX
@@ -630,23 +630,23 @@ if(gengetwindow(display, "/tmp/winname",
 .SH SOURCE
 .B \*9/src/libdraw
 .SH "SEE ALSO"
-.IR rio (1),
-.IR addpt (3),
-.IR allocimage (3),
-.IR cachechars (3),
-.IR subfont (3),
-.IR draw (3),
-.IR event (3),
-.IR frame (3),
-.IR print (3),
-.IR window (3),
-.IR draw (3),
+.MR rio (1) ,
+.MR addpt (3) ,
+.MR allocimage (3) ,
+.MR cachechars (3) ,
+.MR subfont (3) ,
+.MR draw (3) ,
+.MR event (3) ,
+.MR frame (3) ,
+.MR print (3) ,
+.MR window (3) ,
+.MR draw (3) ,
 .\" .IR rio (4),
-.IR image (7),
-.IR font (7)
+.MR image (7) ,
+.MR font (7)
 .SH DIAGNOSTICS
 An error function may call
-.IR errstr (3)
+.MR errstr (3)
 for further diagnostics.
 .SH BUGS
 The names
