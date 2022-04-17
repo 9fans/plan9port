@@ -9,7 +9,7 @@ invoked via
 .SH DESCRIPTION
 .I Devdraw
 serves a custom graphics protocol and is the only program
-that talks directly to X window servers.
+that talks directly to host OS window servers.
 On Macintosh, setting
 .BI devdrawretina
 to
@@ -17,6 +17,9 @@ to
 will cause
 .I devdraw
 to use all available physical pixels on a retina display.
+.PP
+On Linux with Wayland support, mouse button 1 on the frame will allow
+dragging to resize, and button 2 will allow for moving the frame.
 .SH SOURCE
 .B \*9/src/cmd/devdraw
 .SH "SEE ALSO

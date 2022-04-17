@@ -259,6 +259,11 @@ then
 		fi
 		libsl="$libsl -lX11"
 	fi
+
+	if [ "x$needwayland" = xtrue -a "x$WSYSTYPE" != xnowsys ]
+	then
+		libsl="$(echo $libsl | sed 's/wayland/wayland-client -lwayland-cursor -lrt/')"
+	fi
 fi
 if $doautoframework
 then

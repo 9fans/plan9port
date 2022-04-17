@@ -1,0 +1,19 @@
+way_proto=/usr/share/wayland-protocols
+
+xdg-shell-protocol.c: $way_proto/stable/xdg-shell/xdg-shell.xml
+	wayland-scanner private-code < $prereq > $target
+
+xdg-shell-client-protocol.h: $way_proto/stable/xdg-shell/xdg-shell.xml
+	wayland-scanner client-header < $prereq > $target
+
+xdg-decoration-protocol.c: $way_proto/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml
+	wayland-scanner private-code < $prereq > $target
+
+xdg-decoration-client-protocol.h:  $way_proto/unstable/xdg-decoration/xdg-decoration-unstable-v1.xml
+	wayland-scanner client-header < $prereq > $target
+
+pointer-constraints-client-protocol.h: $way_proto/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml
+	wayland-scanner client-header < $prereq > $target
+
+pointer-constraints-protocol.c: $way_proto/unstable/pointer-constraints/pointer-constraints-unstable-v1.xml
+	wayland-scanner private-code < $prereq > $target

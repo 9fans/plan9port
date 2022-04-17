@@ -25,6 +25,8 @@ HFILES=\
 
 <$PLAN9/src/mkone
 
+<mkwayland
+
 $O.drawclient: drawclient.$O
 	$LD -o $target $prereq
 
