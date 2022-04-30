@@ -47,7 +47,6 @@ void	indent(Text*, Text*, Text*, int, int, Rune*, int);
 void	xkill(Text*, Text*, Text*, int, int, Rune*, int);
 void	local(Text*, Text*, Text*, int, int, Rune*, int);
 void	look(Text*, Text*, Text*, int, int, Rune*, int);
-void	kool(Text*, Text*, Text*, int, int, Rune*, int);
 void	newcol(Text*, Text*, Text*, int, int, Rune*, int);
 void	paste(Text*, Text*, Text*, int, int, Rune*, int);
 void	put(Text*, Text*, Text*, int, int, Rune*, int);
@@ -115,8 +114,8 @@ Exectab exectab[] = {
 	{ LKill,		xkill,		FALSE,	XXX,		XXX		},
 	{ LLoad,		dump,	FALSE,	FALSE,	XXX		},
 	{ LLocal,		local,	FALSE,	XXX,		XXX		},
-	{ LLook,		look,		FALSE,	XXX,		XXX		},
-	{ LKool,		kool,		FALSE,	XXX,		XXX		},
+	{ LLook,		look,		FALSE,	FALSE,	XXX		},
+	{ LKool,		look,		FALSE,	TRUE,	XXX		},
 	{ LNew,		new,		FALSE,	XXX,		XXX		},
 	{ LNewcol,	newcol,	FALSE,	XXX,		XXX		},
 	{ LPaste,		paste,	TRUE,	TRUE,	XXX		},
@@ -1075,18 +1074,17 @@ paste(Text *et, Text *t, Text *_0, int selectall, int tobody, Rune *_1, int _2)
 }
 
 void
-look(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
+look(Text *et, Text *t, Text *argt, int rev, int _1, Rune *arg, int narg)
 {
 	Rune *r;
 	int n;
 
-	USED(_0);
 	USED(_1);
 
 	if(et && et->w){
 		t = &et->w->body;
 		if(narg > 0){
-			search(t, arg, narg);
+			rev ? rsearch(t, arg, narg) : search(t, arg, narg);
 			return;
 		}
 		getarg(argt, FALSE, FALSE, &r, &n);
@@ -1095,33 +1093,7 @@ look(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 			r = runemalloc(n);
 			bufread(&t->file->b, t->q0, r, n);
 		}
-		search(t, r, n);
-		free(r);
-	}
-}
-
-void
-kool(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
-{
-	Rune *r;
-	int n;
-
-	USED(_0);
-	USED(_1);
-
-	if(et && et->w){
-		t = &et->w->body;
-		if(narg > 0){
-			rsearch(t, arg, narg);
-			return;
-		}
-		getarg(argt, FALSE, FALSE, &r, &n);
-		if(r == nil){
-			n = t->q1-t->q0;
-			r = runemalloc(n);
-			bufread(&t->file->b, t->q0, r, n);
-		}
-		rsearch(t, r, n);
+		rev ? rsearch(t, r, n) : search(t, r, n);
 		free(r);
 	}
 }
