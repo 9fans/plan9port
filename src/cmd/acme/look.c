@@ -303,11 +303,11 @@ plumbshow(Plumbmsg *m)
 }
 
 int
-search(Text *ct, Rune *r, uint n)
+rsearch(Text *ct, Rune *r, uint n)
 {
-	uint q, nb, maxn;
+	int q, nb;
 	int around;
-	Rune *s, *b, *c;
+	Rune *s, *b;
 
 	if(n==0 || n>ct->file->b.nc)
 		return FALSE;
@@ -315,7 +315,63 @@ search(Text *ct, Rune *r, uint n)
 		warning(nil, "string too long\n");
 		return FALSE;
 	}
-	maxn = max(2*n, RBUFSIZE);
+	s = fbufalloc();
+	b = s;
+	nb = 0;
+	b[nb] = 0;
+	around = 0;
+	q = ct->q0;
+	for(;;){
+		if(q < 0){
+			q = ct->file->b.nc;
+			around = 1;
+			b = s;
+			nb = 0;
+			b[nb] = 0;
+		}
+		/* reload if buffer covers neither string nor rest of file */
+		if(nb<n && nb!=q){
+			nb = min(q, RBUFSIZE-1);
+			bufread(&ct->file->b, q-nb, s, nb);
+			b = s+nb;
+			*b = 0;
+		}
+		/* this runeeq is fishy but the null at b[nb] makes it safe */
+		if(runeeq(b, n, r, n)==TRUE){
+			if(ct->w){
+				textshow(ct, q, q+n, 1);
+				winsettag(ct->w);
+			}else{
+				ct->q0 = q;
+				ct->q1 = q+n;
+			}
+			seltext = ct;
+			fbuffree(s);
+			return TRUE;
+		}
+		--nb;
+		--b;
+		--q;
+		if(around && q<=ct->q0)
+			break;
+	}
+	fbuffree(s);
+	return FALSE;
+}
+
+int
+search(Text *ct, Rune *r, uint n)
+{
+	uint q, nb;
+	int around;
+	Rune *s, *b;
+
+	if(n==0 || n>ct->file->b.nc)
+		return FALSE;
+	if(2*n > RBUFSIZE){
+		warning(nil, "string too long\n");
+		return FALSE;
+	}
 	s = fbufalloc();
 	b = s;
 	nb = 0;
@@ -329,25 +385,9 @@ search(Text *ct, Rune *r, uint n)
 			nb = 0;
 			b[nb] = 0;
 		}
-		if(nb > 0){
-			c = runestrchr(b, r[0]);
-			if(c == nil){
-				q += nb;
-				nb = 0;
-				b[nb] = 0;
-				if(around && q>=ct->q1)
-					break;
-				continue;
-			}
-			q += (c-b);
-			nb -= (c-b);
-			b = c;
-		}
 		/* reload if buffer covers neither string nor rest of file */
 		if(nb<n && nb!=ct->file->b.nc-q){
-			nb = ct->file->b.nc-q;
-			if(nb >= maxn)
-				nb = maxn-1;
+			nb = min(ct->file->b.nc-q, RBUFSIZE-1);
 			bufread(&ct->file->b, q, s, nb);
 			b = s;
 			b[nb] = '\0';

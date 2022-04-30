@@ -47,6 +47,7 @@ void	indent(Text*, Text*, Text*, int, int, Rune*, int);
 void	xkill(Text*, Text*, Text*, int, int, Rune*, int);
 void	local(Text*, Text*, Text*, int, int, Rune*, int);
 void	look(Text*, Text*, Text*, int, int, Rune*, int);
+void	kool(Text*, Text*, Text*, int, int, Rune*, int);
 void	newcol(Text*, Text*, Text*, int, int, Rune*, int);
 void	paste(Text*, Text*, Text*, int, int, Rune*, int);
 void	put(Text*, Text*, Text*, int, int, Rune*, int);
@@ -83,6 +84,7 @@ static Rune LKill[] = { 'K', 'i', 'l', 'l', 0 };
 static Rune LLoad[] = { 'L', 'o', 'a', 'd', 0 };
 static Rune LLocal[] = { 'L', 'o', 'c', 'a', 'l', 0 };
 static Rune LLook[] = { 'L', 'o', 'o', 'k', 0 };
+static Rune LKool[] = { 'K', 'o', 'o', 'l', 0 };
 static Rune LNew[] = { 'N', 'e', 'w', 0 };
 static Rune LNewcol[] = { 'N', 'e', 'w', 'c', 'o', 'l', 0 };
 static Rune LPaste[] = { 'P', 'a', 's', 't', 'e', 0 };
@@ -114,6 +116,7 @@ Exectab exectab[] = {
 	{ LLoad,		dump,	FALSE,	FALSE,	XXX		},
 	{ LLocal,		local,	FALSE,	XXX,		XXX		},
 	{ LLook,		look,		FALSE,	XXX,		XXX		},
+	{ LKool,		kool,		FALSE,	XXX,		XXX		},
 	{ LNew,		new,		FALSE,	XXX,		XXX		},
 	{ LNewcol,	newcol,	FALSE,	XXX,		XXX		},
 	{ LPaste,		paste,	TRUE,	TRUE,	XXX		},
@@ -1093,6 +1096,32 @@ look(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 			bufread(&t->file->b, t->q0, r, n);
 		}
 		search(t, r, n);
+		free(r);
+	}
+}
+
+void
+kool(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
+{
+	Rune *r;
+	int n;
+
+	USED(_0);
+	USED(_1);
+
+	if(et && et->w){
+		t = &et->w->body;
+		if(narg > 0){
+			rsearch(t, arg, narg);
+			return;
+		}
+		getarg(argt, FALSE, FALSE, &r, &n);
+		if(r == nil){
+			n = t->q1-t->q0;
+			r = runemalloc(n);
+			bufread(&t->file->b, t->q0, r, n);
+		}
+		rsearch(t, r, n);
 		free(r);
 	}
 }
