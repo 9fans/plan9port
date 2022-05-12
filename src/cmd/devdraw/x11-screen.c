@@ -10,6 +10,7 @@
 #include <mouse.h>
 #include <cursor.h>
 #include <thread.h>
+#include <locale.h>
 #include "x11-memdraw.h"
 #include "devdraw.h"
 
@@ -59,6 +60,12 @@ static ClientImpl x11impl = {
 	rpc_bouncemouse,
 	rpc_flush
 };
+
+static XIC xic;
+static XIM xim;
+static XPoint spot;
+static XVaNestedList spotlist;
+
 
 static Xwin*
 newxwin(Client *c)
@@ -161,6 +168,8 @@ gfx_main(void)
 	/*
 	 * Connect to X server.
 	 */
+	setlocale(LC_CTYPE, "");
+	XSetLocaleModifiers("");
 	_x.display = XOpenDisplay(NULL);
 	if(_x.display == nil){
 		disp = getenv("DISPLAY");
@@ -307,6 +316,8 @@ xloop(void)
 		xlock();
 		while(XPending(_x.display)) {
 			XNextEvent(_x.display, &event);
+			if (XFilterEvent(&event, None))
+				continue;
 			runxevent(&event);
 		}
 	}
@@ -319,6 +330,9 @@ static void
 runxevent(XEvent *xev)
 {
 	int c;
+	char buf[64]; 
+	Rune rbuf[64];
+	Status status;
 	KeySym k;
 	static Mouse m;
 	XButtonEvent *be;
@@ -364,7 +378,14 @@ runxevent(XEvent *xev)
 	case KeyPress:
 		w = findxwin(((XKeyEvent*)xev)->window);
 		break;
+	case FocusIn:
+		if (xic)
+			XSetICFocus(xic);
+		w = findxwin(((XFocusChangeEvent*)xev)->window);
+		break;
 	case FocusOut:
+		if (xic)
+			XUnsetICFocus(xic);
 		w = findxwin(((XFocusChangeEvent*)xev)->window);
 		break;
 	}
@@ -407,8 +428,29 @@ runxevent(XEvent *xev)
 	case KeyRelease:
 	case KeyPress:
 		ke = (XKeyEvent*)xev;
-		XLookupString(ke, NULL, 0, &k, NULL);
+		if(xic && xev->type == KeyPress){
+			bzero(buf, 64);
+			int len = Xutf8LookupString(xic, ke, buf, sizeof buf, &k, &status);
+			switch(status) {
+			case XLookupChars:
+				if(len > 0)
+					runesnprint(rbuf, 64, "%s", buf);
+				int i = 0;
+				while(i < runestrlen(rbuf)) {
+					gfx_keystroke(w->client, rbuf[i++]);
+				}
+				return;
+			case XLookupKeySym:
+			case XLookupBoth:
+				break;
+			default: /* XLookupNone, XBufferOverflow */
+				return;
+			}
+		}else 
+			XLookupString(ke, NULL, 0, &k, NULL);
+
 		c = ke->state;
+
 		switch(k) {
 		case XK_Alt_L:
 		case XK_Meta_L:	/* Shift Alt on PCs */
@@ -458,6 +500,7 @@ runxevent(XEvent *xev)
 			_xmovewindow(w, w->fullscreen ? w->screenrect : w->windowrect);
 			return;
 		}
+
 		if((c = _xtoplan9kbd(xev)) < 0)
 			return;
 		gfx_keystroke(w->client, c);
@@ -480,6 +523,19 @@ runxevent(XEvent *xev)
 	}
 }
 
+static void
+ximdestroy(XIM xim, XPointer client, XPointer call)
+{
+	xim = NULL;
+	XFree(spotlist);
+}
+
+static int
+xicdestroy(XIC xim, XPointer client, XPointer call)
+{
+	xic = NULL;
+	return 1;
+}
 
 static Memimage*
 xattach(Client *client, char *label, char *winsize)
@@ -591,6 +647,22 @@ xattach(Client *client, char *label, char *winsize)
 		CWBackPixel|CWBorderPixel|CWColormap,
 		&attr		/* attributes (the above aren't?!) */
 	);
+
+        /* input methods */
+	XIMCallback imdestroy = { .client_data = NULL, .callback = ximdestroy };
+	XICCallback icdestroy = { .client_data = NULL, .callback = xicdestroy };
+
+	xim = XOpenIM(_x.display, 0, 0, 0);
+
+	if(xim){
+		XSetIMValues(xim, XNDestroyCallback, &imdestroy, NULL);
+		spotlist = XVaCreateNestedList(0, XNSpotLocation, &spot, NULL);
+		xic = XCreateIC(xim, 
+			XNInputStyle, XIMPreeditNothing|XIMStatusNothing, 
+			XNClientWindow, w->drawable,
+			XNDestroyCallback, &icdestroy,	
+			NULL);
+	}
 
 	/*
 	 * Label and other properties required by ICCCCM.
