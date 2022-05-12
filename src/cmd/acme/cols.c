@@ -149,7 +149,10 @@ coladd(Column *c, Window *w, Window *clone, int y)
 
 	savemouse(w);
 	/* near the button, but in the body */
-	moveto(mousectl, addpt(w->tag.scrollr.max, Pt(3, 3)));
+	/* don't move the mouse to the new window if a mouse button is depressed */
+	if(!mousectl->m.buttons)
+		moveto(mousectl, addpt(w->tag.scrollr.max, Pt(3, 3)));
+
 	barttext = &w->body;
 	return w;
 }
