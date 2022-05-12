@@ -128,14 +128,20 @@ button(XButtonEvent *e)
 	case Button2:
 		if(c){
 			XMapRaised(dpy, c->parent);
+			top(c);
 			active(c);
-			XAllowEvents (dpy, ReplayPointer, curtime);
 		} else if((e->state&(ShiftMask|ControlMask))==(ShiftMask|ControlMask)){
 			menuhit(e, &egg);
 		} else if(numvirtuals > 1 && (n = menuhit(e, &b2menu)) > -1)
 				button2(n);
 		return;
 	case Button3:
+		if(c){
+			XMapRaised(dpy, c->parent);
+			top(c);
+			active(c);
+			return;
+		}
 		break;
 	case Button4:
 		/* scroll up changes to previous virtual screen */

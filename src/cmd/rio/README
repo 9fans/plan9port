@@ -9,9 +9,6 @@ Current incompatibilities that would be nice to fix:
 - Should work out a protocol between 9term and rio so that:
 	* 9term can tell rio to blue its border during hold mode
 
-- Should change window focus on b2/b3 clicks and then
-  pass along the click event to the now-focused window.
-
 - Should change 9term to redirect b3 clicks to rio so that rio
   can put up the usual b3 menu.
 
