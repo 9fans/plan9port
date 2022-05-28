@@ -52,6 +52,7 @@ sizeW2M(Wsysmsg *m)
 	case Trdkbd:
 	case Trdkbd4:
 	case Rlabel:
+	case Rmode:
 	case Rctxt:
 	case Rinit:
 	case Trdsnarf:
@@ -78,6 +79,8 @@ sizeW2M(Wsysmsg *m)
 		return 4+1+1+4;
 	case Tlabel:
 		return 4+1+1+_stringsize(m->label);
+	case Tmode:
+		return 4+1+1+4;
 	case Tctxt:
 		return 4+1+1
 			+_stringsize(m->id);
@@ -122,6 +125,7 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 	case Trdkbd:
 	case Trdkbd4:
 	case Rlabel:
+	case Rmode:
 	case Rctxt:
 	case Rinit:
 	case Trdsnarf:
@@ -175,6 +179,9 @@ convW2M(Wsysmsg *m, uchar *p, uint n)
 		break;
 	case Tlabel:
 		PUTSTRING(p+6, m->label);
+		break;
+	case Tmode:
+		PUT(p+6, m->mode);
 		break;
 	case Tctxt:
 		PUTSTRING(p+6, m->id);
@@ -230,6 +237,7 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 	case Trdkbd:
 	case Trdkbd4:
 	case Rlabel:
+	case Rmode:
 	case Rctxt:
 	case Rinit:
 	case Trdsnarf:
@@ -283,6 +291,9 @@ convM2W(uchar *p, uint n, Wsysmsg *m)
 		break;
 	case Tlabel:
 		GETSTRING(p+6, &m->label);
+		break;
+	case Tmode:
+		GET(p+6, m->mode);
 		break;
 	case Tctxt:
 		GETSTRING(p+6, &m->id);
@@ -379,6 +390,10 @@ drawfcallfmt(Fmt *fmt)
 		return fmtprint(fmt, "Tlabel label='%s'", m->label);
 	case Rlabel:
 		return fmtprint(fmt, "Rlabel");
+	case Tmode:
+		return fmtprint(fmt, "Tmode mode=%d", m->mode);
+	case Rmode:
+		return fmtprint(fmt, "Rmode");
 	case Tctxt:
 		return fmtprint(fmt, "Tctxt id='%s'", m->id);
 	case Rctxt:

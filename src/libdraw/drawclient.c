@@ -397,6 +397,16 @@ _displaylabel(Display *d, char *label)
 	return displayrpc(d, &tx, &rx, nil);
 }
 
+int
+_displaymode(Display *d, int mode)
+{
+	Wsysmsg tx, rx;
+
+	tx.type = Tmode;
+	tx.mode = mode;
+	return displayrpc(d, &tx, &rx, nil);
+}
+
 char*
 _displayrdsnarf(Display *d)
 {

@@ -44,6 +44,7 @@ static void	rpc_resizeimg(Client*);
 static void	rpc_resizewindow(Client*, Rectangle);
 static void	rpc_setcursor(Client*, Cursor*, Cursor2*);
 static void	rpc_setlabel(Client*, char*);
+static void	rpc_setmode(Client*, int hold);
 static void	rpc_setmouse(Client*, Point);
 static void	rpc_topwin(Client*);
 static void	rpc_bouncemouse(Client*, Mouse);
@@ -54,6 +55,7 @@ static ClientImpl x11impl = {
 	rpc_resizewindow,
 	rpc_setcursor,
 	rpc_setlabel,
+	rpc_setmode,
 	rpc_setmouse,
 	rpc_topwin,
 	rpc_bouncemouse,
@@ -774,6 +776,18 @@ rpc_setlabel(Client *client, char *label)
 		nil,		/* XA_WM_HINTS */
 		nil	/* XA_WM_CLASSHINTS */
 	);
+	XFlush(_x.display);
+	xunlock();
+}
+
+void
+rpc_setmode(Client *client, int mode)
+{
+	Xwin *w = (Xwin*)client->view;
+	int value = mode>0 ? 1 : 0;
+	Atom property = XInternAtom(_x.display, "_9WM_HOLD_MODE", False);
+	xlock();
+	XChangeProperty(_x.display, w->drawable, property, XA_INTEGER, 32, PropModeReplace, (unsigned char*)&value, 1);
 	XFlush(_x.display);
 	xunlock();
 }

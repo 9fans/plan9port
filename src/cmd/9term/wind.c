@@ -672,10 +672,13 @@ wkeyctl(Window *w, Rune r)
 	 * luck getting out without ESC.  Let's see who complains.
 	 */
 	if(r==0x1B || (w->holding && r==0x7F)){	/* toggle hold */
-		if(w->holding)
+		if(w->holding){
+			drawsetmode(0);
 			--w->holding;
-		else
+		}else{
 			w->holding++;
+			drawsetmode(1);
+		}
 		wrepaint(w);
 		if(r == 0x1B)
 			return;

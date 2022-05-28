@@ -25,6 +25,9 @@ tag[1] Rrdkbd rune[2]
 tag[1] Trdkbd4
 tag[1] Rrdkbd4 rune[4]
 
+tag[1] Tmode hold[4]
+tag[1] Rmode
+
 tag[1] Tlabel label[s]
 tag[1] Rlabel
 
@@ -104,6 +107,8 @@ enum {
 	Rctxt,
 	Trdkbd4 = 32,
 	Rrdkbd4,
+	Tmode = 34,
+	Rmode,
 	Tmax,
 };
 
@@ -124,6 +129,7 @@ struct Wsysmsg
 	Rune rune;
 	char *winsize;
 	char *label;
+	int mode;
 	char *snarf;
 	char *error;
 	char *id;

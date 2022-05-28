@@ -282,6 +282,11 @@ runmsg(Client *c, Wsysmsg *m)
 		replymsg(c, m);
 		break;
 
+	case Tmode:
+		c->impl->rpc_setmode(c, m->mode);
+		replymsg(c, m);
+		break;
+
 	case Trdsnarf:
 		m->snarf = rpc_getsnarf();
 		replymsg(c, m);

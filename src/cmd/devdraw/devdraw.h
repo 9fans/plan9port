@@ -50,6 +50,7 @@ struct ClientImpl
 	void (*rpc_resizewindow)(Client*, Rectangle);
 	void (*rpc_setcursor)(Client*, Cursor*, Cursor2*);
 	void (*rpc_setlabel)(Client*, char*);
+	void (*rpc_setmode)(Client*, int mode);
 	void (*rpc_setmouse)(Client*, Point);
 	void (*rpc_topwin)(Client*);
 	void (*rpc_bouncemouse)(Client*, Mouse);
