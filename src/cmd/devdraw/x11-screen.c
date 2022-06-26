@@ -1170,6 +1170,9 @@ _xtoplan9kbd(XEvent *e)
 		case XK_KP_Decimal:
 			k &= 0x7F;
 			break;
+		case XK_KP_Delete:
+			k = XK_Delete & 0x7F;
+			break;
 		case XK_Linefeed:
 			k = '\r';
 			break;
