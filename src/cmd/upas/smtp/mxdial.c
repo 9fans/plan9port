@@ -28,7 +28,7 @@ static int	callmx(DS*, char*, char*);
 static void expand_meta(DS *ds);
 extern int	cistrcmp(char*, char*);
 
-/* Taken from imapdial, replaces tlsclient call with stunnel */
+/* Taken from imapdial, replaces tlsclient call with openssl */
 static int
 smtpdial(char *server)
 {
@@ -43,15 +43,15 @@ smtpdial(char *server)
 	fd[1] = dup(p[0], -1);
 	fd[2] = dup(2, -1);
 #ifdef PLAN9PORT
-	tmp = smprint("%s:587", server);
-	fpath = searchpath("stunnel3");
+	tmp = smprint("%s:465", server);
+	fpath = searchpath("openssl");
 	if (!fpath) {
-		werrstr("stunnel not found. it is required for tls support.");
+		werrstr("openssl not found. it is required for tls support.");
 		return -1;
 	}
-	if(threadspawnl(fd, fpath, "stunnel", "-n", "smtp" , "-c", "-r", tmp, nil) < 0) {
+	if(threadspawnl(fd, fpath, "openssl", "s_client",  "-quiet", "-verify_quiet", "-connect", tmp, nil) < 0) {
 #else
-	tmp = smprint("tcp!%s!587", server);
+	tmp = smprint("tcp!%s!465", server);
 	if(threadspawnl(fd, "/bin/tlsclient", "tlsclient", tmp, nil) < 0){
 #endif
 		free(tmp);

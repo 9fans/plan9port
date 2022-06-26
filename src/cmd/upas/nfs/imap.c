@@ -797,12 +797,12 @@ imapdial(char *server, int mode)
 		fd[2] = dup(2, -1);
 #ifdef PLAN9PORT
 		tmp = esmprint("%s:993", server);
-		fpath = searchpath("stunnel3");
+		fpath = searchpath("openssl");
 		if (!fpath) {
 			werrstr("stunnel not found. it is required for tls support.");
 			return -1;
 		}
-		if(threadspawnl(fd, fpath, "stunnel", "-c", "-r", tmp, nil) < 0) {
+		if(threadspawnl(fd, fpath, "openssl", "s_client", "-quiet", "-verify_quiet","-connect", tmp, nil) < 0) {
 #else
 		tmp = esmprint("tcp!%s!993", server);
 		if(threadspawnl(fd, "/bin/tlsclient", "tlsclient", tmp, nil) < 0){
