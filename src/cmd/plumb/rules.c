@@ -254,15 +254,36 @@ filename(Exec *e, char *name)
 	return cleanname(buf);
 }
 
+static char*
+subexpmatch(Exec *e, char *s, int *numlen)
+{
+	int n, d, ok;
+	char *t;
+
+	n = 0;
+	ok = 1;
+	for(t = s; '0'<=*t && *t<='9'; t++)
+		if(ok){
+			d = *t-'0';
+			if(d<NMATCHSUBEXP && n<=(NMATCHSUBEXP-1-d)/10)
+				n = 10*n+d;
+			else
+				ok = 0;
+		}
+	*numlen = t-s;
+	if(t==s || !ok)
+		return nil;
+	return e->match[n];
+}
+
 char*
 dollar(Exec *e, char *s, int *namelen)
 {
 	int n;
 	static char *abuf;
 
-	*namelen = 1;
 	if(e!=nil && '0'<=s[0] && s[0]<='9')
-		return nonnil(e->match[s[0]-'0']);
+		return nonnil(subexpmatch(e, s, namelen));
 
 	n = scanvarname(s)-s;
 	*namelen = n;
