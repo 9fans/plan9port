@@ -54,7 +54,7 @@ struct Ruleset
 
 enum
 {
-	NMATCHSUBEXP = 10
+	NMATCHSUBEXP = 32	/* bounded by ../../libregexp/regcomp.h:/NSUBEXP */
 };
 
 struct Exec
