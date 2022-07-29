@@ -216,6 +216,16 @@ setvariable(char  *s, int n, char *val, char *qval)
 }
 
 static char*
+scanvarname(char *s)
+{
+	if(isalpha((uchar)*s) || *s=='_')
+		do
+			s++;
+		while(isalnum((uchar)*s) || *s=='_');
+	return s;
+}
+
+static char*
 nonnil(char *s)
 {
 	if(s == nil)
@@ -249,16 +259,15 @@ dollar(Exec *e, char *s, int *namelen)
 {
 	int n;
 	static char *abuf;
-	char *t;
 
 	*namelen = 1;
 	if(e!=nil && '0'<=s[0] && s[0]<='9')
 		return nonnil(e->match[s[0]-'0']);
 
-	for(t=s; isalnum((uchar)*t); t++)
-		;
-	n = t-s;
+	n = scanvarname(s)-s;
 	*namelen = n;
+	if(n == 0)
+		return nil;
 
 	if(e != nil){
 		if(n == 3){
@@ -391,17 +400,17 @@ assignment(char *p)
 	char *var, *qval;
 	int n;
 
-	if(!isalpha((uchar)p[0]))
-		return 0;
-	for(var=p; isalnum((uchar)*p); p++)
-		;
+	var = p;
+	p = scanvarname(p);
 	n = p-var;
+	if(n == 0)
+		return 0;
 	while(*p==' ' || *p=='\t')
-			p++;
+		p++;
 	if(*p++ != '=')
 		return 0;
 	while(*p==' ' || *p=='\t')
-			p++;
+		p++;
 	qval = expand(nil, p, nil);
 	setvariable(var, n, p, qval);
 	return 1;
