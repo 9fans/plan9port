@@ -1,20 +1,29 @@
 #include "rc.h"
-#include "exec.h"
 #include "io.h"
 #include "fns.h"
-tree *treenodes;
+
 /*
  * create and clear a new tree node, and add it
  * to the node list.
  */
+static tree *treefree, *treenodes;
 
 tree*
 newtree(void)
 {
-	tree *t = new(tree);
+	tree *t;
+
+	t = treefree;
+	if(t==0)
+		t = new(tree);
+	else
+		treefree = t->next;
+	t->quoted = 0;
+	t->glob = 0;
 	t->iskw = 0;
 	t->str = 0;
 	t->child[0] = t->child[1] = t->child[2] = 0;
+	t->line = lex->line;
 	t->next = treenodes;
 	treenodes = t;
 	return t;
@@ -23,12 +32,21 @@ newtree(void)
 void
 freenodes(void)
 {
-	tree *t, *u;
-	for(t = treenodes;t;t = u){
-		u = t->next;
-		if(t->str)
-			efree(t->str);
-		efree((char *)t);
+	tree *t;
+
+	t = treenodes;
+	while(t){
+		if(t->str){
+			free(t->str);
+			t->str = 0;
+		}
+		t->child[0] = t->child[1] = t->child[2] = 0;
+		if(t->next==0){
+			t->next = treefree;
+			treefree = treenodes;
+			break;
+		}
+		t = t->next;
 	}
 	treenodes = 0;
 }
@@ -60,6 +78,13 @@ tree3(int type, tree *c0, tree *c1, tree *c2)
 	t->child[0] = c0;
 	t->child[1] = c1;
 	t->child[2] = c2;
+
+	if(c0)
+		t->line = c0->line;
+	else if(c1)
+		t->line = c1->line;
+	else if(c2)
+		t->line = c2->line;
 	return t;
 }
 
@@ -97,21 +122,18 @@ epimung(tree *comp, tree *epi)
 	p->child[1] = comp;
 	return epi;
 }
+
 /*
  * Add a SIMPLE node at the root of t and percolate all the redirections
  * up to the root.
  */
-
 tree*
 simplemung(tree *t)
 {
 	tree *u;
-	struct io *s;
+
 	t = tree1(SIMPLE, t);
-	s = openstr();
-	pfmt(s, "%t", t);
-	t->str = strdup(s->strp);
-	closeio(s);
+	t->str = fnstr(t);
 	for(u = t->child[0];u->type==ARGLIST;u = u->child[0]){
 		if(u->child[1]->type==DUP
 		|| u->child[1]->type==REDIR){
@@ -123,24 +145,46 @@ simplemung(tree *t)
 	return t;
 }
 
+char*
+fnstr(tree *t)
+{
+	io *f = openiostr();
+	pfmt(f, "%t", t);
+	return closeiostr(f);
+}
+
+tree*
+globprop(tree *t)
+{
+	tree *c0 = t->child[0];
+	tree *c1 = t->child[1];
+	if(c1==0){
+		while(c0 && c0->type==WORDS){
+			c1 = c0->child[1];
+			if(c1 && c1->glob){
+				c1->glob=2;
+				t->glob=1;
+			}
+			c0 = c0->child[0];
+		}
+	} else {
+		if(c0->glob){
+			c0->glob=2;
+			t->glob=1;
+		}
+		if(c1->glob){
+			c1->glob=2;
+			t->glob=1;
+		}
+	}
+	return t;
+}
+
 tree*
 token(char *str, int type)
 {
 	tree *t = newtree();
+	t->str = estrdup(str);
 	t->type = type;
-	t->str = strdup(str);
 	return t;
-}
-
-void
-freetree(tree *p)
-{
-	if(p==0)
-		return;
-	freetree(p->child[0]);
-	freetree(p->child[1]);
-	freetree(p->child[2]);
-	if(p->str)
-		efree(p->str);
-	efree((char *)p);
 }

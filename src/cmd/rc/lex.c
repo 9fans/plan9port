@@ -1,9 +1,12 @@
 #include "rc.h"
-#include "exec.h"
 #include "io.h"
 #include "getflags.h"
 #include "fns.h"
-int getnext(void);
+
+lexer *lex;
+
+int doprompt = 1;
+int nerror;
 
 int
 wordchr(int c)
@@ -21,113 +24,129 @@ idchr(int c)
 	 */
 	return c>' ' && !strchr("!\"#$%&'()+,-./:;<=>?@[\\]^`{|}~", c);
 }
-int future = EOF;
-int doprompt = 1;
-int inquote;
-int incomm;
-/*
- * Look ahead in the input stream
- */
 
-int
-nextc(void)
+lexer*
+newlexer(io *input, char *file)
 {
-	if(future==EOF)
-		future = getnext();
-	return future;
+	lexer *n = new(struct lexer);
+	n->input = input;
+	n->file = file;
+	n->line = 1;
+	n->eof = 0;
+	n->future = EOF;
+	n->peekc = '{';
+	n->epilog = "}\n";
+	n->lastc = 0;
+	n->inquote = 0;
+	n->incomm = 0;
+	n->lastword = 0;
+	n->lastdol = 0;
+	n->iflast = 0;
+	n->qflag = 0;
+	n->tok[0] = 0;
+	return n;
 }
-/*
- * Consume the lookahead character.
- */
 
-int
-advance(void)
+void
+freelexer(lexer *p)
 {
-	int c = nextc();
-	lastc = future;
-	future = EOF;
-	return c;
+	closeio(p->input);
+	free(p->file);
+	free(p);
 }
+
 /*
  * read a character from the input stream
- */
-
-int
+ */	
+static int
 getnext(void)
 {
 	int c;
-	static int peekc = EOF;
-	if(peekc!=EOF){
-		c = peekc;
-		peekc = EOF;
+
+	if(lex->peekc!=EOF){
+		c = lex->peekc;
+		lex->peekc = EOF;
 		return c;
 	}
-	if(runq->eof)
+	if(lex->eof){
+epilog:
+		if(*lex->epilog)
+			return *lex->epilog++;
+		doprompt = 1;
 		return EOF;
+	}
 	if(doprompt)
 		pprompt();
-	c = rchr(runq->cmdfd);
-	if(!inquote && c=='\\'){
-		c = rchr(runq->cmdfd);
-		if(c=='\n' && !incomm){		/* don't continue a comment */
+	c = rchr(lex->input);
+	if(c=='\\' && !lex->inquote){
+		c = rchr(lex->input);
+		if(c=='\n' && !lex->incomm){		/* don't continue a comment */
 			doprompt = 1;
 			c=' ';
 		}
 		else{
-			peekc = c;
+			lex->peekc = c;
 			c='\\';
 		}
 	}
-	doprompt = doprompt || c=='\n' || c==EOF;
-	if(c==EOF)
-		runq->eof++;
-	else if(flag['V'] || ndot>=2 && flag['v']) pchr(err, c);
+	if(c==EOF){
+		lex->eof = 1;
+		goto epilog;
+	} else {
+		if(c=='\n')
+			doprompt = 1;
+		if((!lex->qflag && flag['v']!=0) || flag['V'])
+			pchr(err, c);
+	}
 	return c;
 }
 
-void
-pprompt(void)
+/*
+ * Look ahead in the input stream
+ */
+static int
+nextc(void)
 {
-	var *prompt;
-	if(runq->iflag){
-		pstr(err, promptstr);
-		flush(err);
-		prompt = vlook("prompt");
-		if(prompt->val && prompt->val->next)
-			promptstr = prompt->val->next->word;
-		else
-			promptstr="\t";
-	}
-	runq->lineno++;
-	doprompt = 0;
+	if(lex->future==EOF)
+		lex->future = getnext();
+	return lex->future;
 }
 
-int
+/*
+ * Consume the lookahead character.
+ */
+static int
+advance(void)
+{
+	int c = nextc();
+	lex->lastc = lex->future;
+	lex->future = EOF;
+	if(c == '\n')
+		lex->line++;
+	return c;
+}
+
+static void
 skipwhite(void)
 {
-	int c, skipped;
-	skipped = 0;
+	int c;
 	for(;;){
 		c = nextc();
 		/* Why did this used to be  if(!inquote && c=='#') ?? */
 		if(c=='#'){
-			incomm = 1;
-			skipped = 1;
+			lex->incomm = 1;
 			for(;;){
 				c = nextc();
 				if(c=='\n' || c==EOF) {
-					incomm = 0;
+					lex->incomm = 0;
 					break;
 				}
 				advance();
 			}
 		}
-		if(c==' ' || c=='\t') {
-			skipped = 1;
+		if(c==' ' || c=='\t')
 			advance();
-		}
-		else
-			return skipped;
+		else return;
 	}
 }
 
@@ -144,7 +163,7 @@ skipnl(void)
 	}
 }
 
-int
+static int
 nextis(int c)
 {
 	if(nextc()==c){
@@ -154,12 +173,12 @@ nextis(int c)
 	return 0;
 }
 
-char*
+static char*
 addtok(char *p, int val)
 {
 	if(p==0)
 		return 0;
-	if(p==&tok[NTOK-1]){
+	if(p==&lex->tok[NTOK-1]){
 		*p = 0;
 		yyerror("token buffer too short");
 		return 0;
@@ -168,33 +187,39 @@ addtok(char *p, int val)
 	return p;
 }
 
-char*
+static char*
 addutf(char *p, int c)
 {
-	p = addtok(p, c);
-	if(twobyte(c))	 /* 2-byte escape */
-		return addtok(p, advance());
-	if(threebyte(c)){	/* 3-byte escape */
+	int i, n;
+
+	p = addtok(p, c);	/* 1-byte UTF runes are special */
+	if(onebyte(c))
+		return p;
+	if(twobyte(c))
+		n = 2;
+	else if(threebyte(c))
+		n = 3;
+	else
+		n = 4;
+	for(i = 1; i < n; i++) {
+		c = nextc();
+		if(c == EOF || !xbyte(c))
+			break;
 		p = addtok(p, advance());
-		return addtok(p, advance());
-	}
-	if(fourbyte(c)){	/* 4-byte escape */
-		p = addtok(p, advance());
-		p = addtok(p, advance());
-		return addtok(p, advance());
 	}
 	return p;
 }
-int lastdol;	/* was the last token read '$' or '$#' or '"'? */
-int lastword;	/* was the last token read a word or compound word terminator? */
 
 int
 yylex(void)
 {
-	int c, d = nextc();
+	int glob, c, d = nextc();
+	char *tok = lex->tok;
 	char *w = tok;
 	tree *t;
+
 	yylval.tree = 0;
+
 	/*
 	 * Embarassing sneakiness:  if the last token read was a quoted or unquoted
 	 * WORD then we alter the meaning of what follows.  If the next character
@@ -202,11 +227,11 @@ yylex(void)
 	 * if the next character is the first character of a simple or compound word,
 	 * we insert a `^' before it.
 	 */
-	if(lastword && flag['Y']){
-		lastword = 0;
+	if(lex->lastword){
+		lex->lastword = 0;
 		if(d=='('){
 			advance();
-			strcpy(tok, "(");
+			strcpy(tok, "( [SUB]");
 			return SUB;
 		}
 		if(wordchr(d) || d=='\'' || d=='`' || d=='$' || d=='"'){
@@ -214,16 +239,15 @@ yylex(void)
 			return '^';
 		}
 	}
-	inquote = 0;
-	if(skipwhite() && !flag['Y'])
-		return ' ';
+	lex->inquote = 0;
+	skipwhite();
 	switch(c = advance()){
 	case EOF:
-		lastdol = 0;
+		lex->lastdol = 0;
 		strcpy(tok, "EOF");
 		return EOF;
 	case '$':
-		lastdol = 1;
+		lex->lastdol = 1;
 		if(nextis('#')){
 			strcpy(tok, "$#");
 			return COUNT;
@@ -235,26 +259,24 @@ yylex(void)
 		strcpy(tok, "$");
 		return '$';
 	case '&':
-		lastdol = 0;
+		lex->lastdol = 0;
 		if(nextis('&')){
-			if(flag['Y'])
-				skipnl();
+			skipnl();
 			strcpy(tok, "&&");
 			return ANDAND;
 		}
 		strcpy(tok, "&");
 		return '&';
 	case '|':
-		lastdol = 0;
+		lex->lastdol = 0;
 		if(nextis(c)){
-			if(flag['Y'])
-				skipnl();
+			skipnl();
 			strcpy(tok, "||");
 			return OROR;
 		}
 	case '<':
 	case '>':
-		lastdol = 0;
+		lex->lastdol = 0;
 		/*
 		 * funny redirection tokens:
 		 *	redir:	arrow | arrow '[' fd ']'
@@ -337,18 +359,13 @@ yylex(void)
 		}
 		*w='\0';
 		yylval.tree = t;
-		if(t->type==PIPE && flag['Y'])
+		if(t->type==PIPE)
 			skipnl();
-		if(t->type==REDIR) {
-			skipwhite();
-			if(nextc() == '{')
-				t->type = REDIRW;
-		}
 		return t->type;
 	case '\'':
-		lastdol = 0;
-		lastword = 1;
-		inquote = 1;
+		lex->lastdol = 0;
+		lex->lastword = 1;
+		lex->inquote = 1;
 		for(;;){
 			c = advance();
 			if(c==EOF)
@@ -368,29 +385,51 @@ yylex(void)
 		return t->type;
 	}
 	if(!wordchr(c)){
-		lastdol = 0;
+		lex->lastdol = 0;
 		tok[0] = c;
 		tok[1]='\0';
 		return c;
 	}
+	glob = 0;
 	for(;;){
-		/* next line should have (char)c==GLOB, but ken's compiler is broken */
-		if(c=='*' || c=='[' || c=='?' || c==(unsigned char)GLOB)
+		if(c=='*' || c=='[' || c=='?' || c==GLOB){
+			glob = 1;
 			w = addtok(w, GLOB);
+		}
 		w = addutf(w, c);
 		c = nextc();
-		if(lastdol?!idchr(c):!wordchr(c)) break;
+		if(lex->lastdol?!idchr(c):!wordchr(c)) break;
 		advance();
 	}
 
-	lastword = 1;
-	lastdol = 0;
+	lex->lastword = 1;
+	lex->lastdol = 0;
 	if(w!=0)
 		*w='\0';
 	t = klook(tok);
 	if(t->type!=WORD)
-		lastword = 0;
+		lex->lastword = 0;
+	else
+		t->glob = glob;
 	t->quoted = 0;
 	yylval.tree = t;
 	return t->type;
+}
+
+void
+yyerror(char *m)
+{
+	pfln(err, lex->file, lex->line);
+	pstr(err, ": ");
+	if(lex->tok[0] && lex->tok[0]!='\n')
+		pfmt(err, "token %q: ", lex->tok);
+	pfmt(err, "%s\n", m);
+	flushio(err);
+
+	lex->lastword = 0;
+	lex->lastdol = 0;
+	while(lex->lastc!='\n' && lex->lastc!=EOF) advance();
+	nerror++;
+
+	setstatus(m);
 }

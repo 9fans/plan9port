@@ -1,7 +1,6 @@
 <$PLAN9/src/mkhdr
 
 TARG=rc
-
 OFILES=\
 	code.$O\
 	exec.$O\
@@ -17,22 +16,32 @@ OFILES=\
 	subr.$O\
 	trap.$O\
 	tree.$O\
-	unixcrap.$O\
 	var.$O\
-	y.tab.$O\
-	plan9ish.$O\
 	havefork.$O\
+	unix.$O\
+	y.tab.$O
 
-HFILES=\
-	rc.h\
-	x.tab.h\
+HFILES=rc.h\
+	y.tab.h\
 	io.h\
 	exec.h\
 	fns.h\
+	getflags.h\
 
 YFILES=syn.y
 
+BIN=$PLAN9/bin
+
+UPDATE=\
+	mkfile\
+	$HFILES\
+	${OFILES:%.$O=%.c}\
+	$YFILES\
+	${TARG:%=/386/bin/%}\
+
+CFLAGS=$CFLAGS -DPlan9
+
 <$PLAN9/src/mkone
 
-x.tab.h: y.tab.h
-	cmp -s x.tab.h y.tab.h || cp y.tab.h x.tab.h
+clean:V:
+	rm -f [$OS].out *.[$OS] y.tab.? y.debug $TARG

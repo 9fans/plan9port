@@ -1,8 +1,7 @@
-# rcmain: unix version
-if(~ $#home 0) home=$HOME
+# rcmain: Plan 9 version
+if(~ $#home 0) home=/
 if(~ $#ifs 0) ifs=' 	
 '
-profile=$home/.rcrc
 switch($#prompt){
 case 0
 	prompt=('% ' '	')
@@ -11,27 +10,31 @@ case 1
 }
 if(~ $rcname ?.out) prompt=('broken! ' '	')
 if(flag p) path=/bin
-if not {
-	finit
-	if(~ $#path 0) path=(. /bin /usr/bin /usr/local/bin)
+if not{
+	for(i in '/env/fn#'*){
+		. -bq $i
+	}
+	if(~ $#path 0) path=(/bin .)
 }
 fn sigexit
 if(! ~ $#cflag 0){
-	if(flag l) {
-		. -q $profile
+	if(flag l){
+		. -q /rc/lib/rcmain.local
+		. -q $home/lib/profile
 	}
 	status=''
 	eval $cflag
 }
 if not if(flag i){
-	if(flag l) {
-		. -q $profile
+	if(flag l){
+		. -q /rc/lib/rcmain.local
+		. -q $home/lib/profile
 	}
 	status=''
 	if(! ~ $#* 0) . $*
-	. -i /dev/fd/0
+	. -i '#d/0'
 }
-if not if(~ $#* 0) . /dev/fd/0
+if not if(~ $#* 0) . '#d/0'
 if not{
 	status=''
 	. $*

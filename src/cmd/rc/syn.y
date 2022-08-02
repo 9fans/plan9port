@@ -75,7 +75,7 @@ simple:	first
 |	simple redir		{$$=tree2(ARGLIST, $1, $2);}
 first:	comword
 |	first '^' word		{$$=tree2('^', $1, $3);}
-word:	keyword			{lastword=1; $1->type=WORD;}
+word:	keyword			{lex->lastword=1; $1->type=WORD;}
 |	comword
 |	word '^' word		{$$=tree2('^', $1, $3);}
 comword: '$' word		{$$=tree1('$', $2);}
