@@ -512,6 +512,8 @@ g0:
 	case '\n':	/* concealed newline */
 		numtabp[CD].val++;
 		goto g0;
+	case '~':	/* Heirloom/groff/neatroff: unbreakable space */
+		; /* fall through */
 	case ' ':	/* unpaddable space */
 		i = UNPAD;
 		goto gx;
