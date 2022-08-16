@@ -289,22 +289,35 @@ dollar(Exec *e, char *s, int *namelen)
 	return variable(s, n);
 }
 
+static void
+ruleerror(char *msg)
+{
+	if(parsing){
+		parsing = 0;
+		parseerror("%s", msg);
+	}
+	error("%s", msg);
+}
+
 /* expand one blank-terminated string, processing quotes and $ signs */
 char*
 expand(Exec *e, char *s, char **ends)
 {
 	char *p, *ep, *val;
-	int namelen, quoting;
+	int namelen, vallen, quoting, inputleft;
 
 	p = ebuf;
 	ep = ebuf+sizeof ebuf-1;
 	quoting = 0;
-	while(p<ep && *s!='\0' && (quoting || (*s!=' ' && *s!='\t'))){
+	for(;;){
+		inputleft = (*s!='\0' && (quoting || (*s!=' ' && *s!='\t')));
+		if(!inputleft || p==ep)
+			break;
 		if(*s == '\''){
 			s++;
 			if(!quoting)
 				quoting = 1;
-			else  if(*s == '\''){
+			else if(*s == '\''){
 				*p++ = '\'';
 				s++;
 			}else
@@ -321,12 +334,17 @@ expand(Exec *e, char *s, char **ends)
 			*p++ = '$';
 			continue;
 		}
-		if(ep-p < strlen(val))
-			return "string-too-long";
+		vallen = strlen(val);
+		if(ep-p < vallen)
+			break;
 		strcpy(p, val);
-		p += strlen(val);
+		p += vallen;
 		s += namelen;
 	}
+	if(inputleft)
+		ruleerror("expanded string too long");
+	else if(quoting)
+		ruleerror("runaway quoted string literal");
 	if(ends)
 		*ends = s;
 	*p = '\0';
@@ -336,11 +354,7 @@ expand(Exec *e, char *s, char **ends)
 void
 regerror(char *msg)
 {
-	if(parsing){
-		parsing = 0;
-		parseerror("%s", msg);
-	}
-	error("%s", msg);
+	ruleerror(msg);
 }
 
 void
