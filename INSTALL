@@ -183,6 +183,9 @@ if $doinstall; then
 		echo "* NOT renaming hard-coded /usr/local/plan9 paths."
 		echo "* NOT building web manual."
 	else
+		cd $PLAN9/man
+		mk indices
+		mk lookman.index
 		echo "* Renaming hard-coded /usr/local/plan9 paths..."
 		cd $PLAN9
 		sh lib/moveplan9.sh
