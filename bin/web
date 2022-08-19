@@ -27,7 +27,7 @@ plumbunix()
 		$BROWSER -remote 'openURL('"$@"',new-window)'
 		;;
 	*firefox*)
-		$BROWSER -remote 'openURL('"$@"',new-tab)' ||
+		$BROWSER --new-tab "$@" ||
 		$BROWSER "$@"
 		;;
 	*mozilla*)
