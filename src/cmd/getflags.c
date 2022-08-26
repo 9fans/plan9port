@@ -4,7 +4,7 @@
 void
 usage(void)
 {
-	print("status=usage\n");
+	fprint(2, "status=usage\n");
 	exits(0);
 }
 
