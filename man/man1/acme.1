@@ -38,6 +38,11 @@ acme, win, awd \- interactive text windows
 [
 .I label
 ]
+.LP
+.B A
+[
+.I file
+\&... ]
 .SH DESCRIPTION
 .I Acme
 manages windows of text that may be edited interactively or by external programs.
@@ -703,6 +708,18 @@ windows.  An example definition is
 .EX
 	fn cd { builtin cd $1 && awd $sysname }
 .EE
+.PP
+.I A
+is a shell-level command that can be used as
+.B $EDITOR
+in a Unix environment.
+It opens
+.I acme
+windows for each
+.I file
+and then does not exit until all those
+.I acme
+windows are closed.
 .SS "Applications and guide files
 In the directory
 .B /acme

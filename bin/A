@@ -1,0 +1,19 @@
+#!/usr/local/plan9/bin/rc
+if(~ $#* 0) fileids=`{9p read acme/new/ctl | awk '{ print $1 }'}
+
+for(file){
+	fileid=`{9p read acme/new/ctl | awk '{ print $1 }'}
+	fileids=($fileids $fileid)
+	echo name `{realpath $file} | 9p write acme/$fileid/ctl
+	echo get | 9p write acme/$fileid/ctl
+}
+
+while(sleep 1){
+	currentids=`{9p read acme/index | awk '{ print $1 }'}
+	fileidstmp=()
+	for(fileid in $fileids){
+		if(~ $fileid $currentids) fileidstmp=($fileidstmp $fileid)
+	}
+	fileids=$fileidstmp
+	if(~ $#fileids 0) exit
+}
