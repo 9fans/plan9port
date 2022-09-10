@@ -320,6 +320,11 @@ getcmaps(Client *c)
 	c->cmapwins = cw;
 
 	c->wmcmaps = (Colormap*)malloc(n*sizeof(Colormap));
+	if (!c->wmcmaps){
+		fprintf(stderr, "rio: Failed to allocate memory\n");
+		exit(1);
+	}
+
 	for(i = 0; i < n; i++){
 		if(cw[i] == c->window)
 			c->wmcmaps[i] = c->cmap;
