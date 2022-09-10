@@ -260,6 +260,7 @@ fskickreply(Conv *c)
 static int inuse[nelem(dirtab)];
 int *confirminuse = &inuse[0];
 int *needkeyinuse = &inuse[1];
+int *loginuse = &inuse[5];
 static void
 fsopen(Req *r)
 {

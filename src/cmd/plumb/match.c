@@ -45,12 +45,12 @@ setvar(Resub rs[10], char *match[10])
 	for(i=0; i<10; i++){
 		free(match[i]);
 		match[i] = nil;
-	}
-	for(i=0; i<10 && rs[i].s.sp!=nil; i++){
-		n = rs[i].e.ep-rs[i].s.sp;
-		match[i] = emalloc(n+1);
-		memmove(match[i], rs[i].s.sp, n);
-		match[i][n] = '\0';
+		if(rs[i].s.sp != nil){
+			n = rs[i].e.ep-rs[i].s.sp;
+			match[i] = emalloc(n+1);
+			memmove(match[i], rs[i].s.sp, n);
+			match[i][n] = '\0';
+		}
 	}
 }
 

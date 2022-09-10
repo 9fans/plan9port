@@ -107,6 +107,7 @@ void
 logflush(Req *r)
 {
 	lbflush(&logbuf, r);
+	*loginuse = 0;
 }
 
 void

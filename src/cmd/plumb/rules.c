@@ -216,6 +216,16 @@ setvariable(char  *s, int n, char *val, char *qval)
 }
 
 static char*
+scanvarname(char *s)
+{
+	if(isalpha((uchar)*s) || *s=='_')
+		do
+			s++;
+		while(isalnum((uchar)*s) || *s=='_');
+	return s;
+}
+
+static char*
 nonnil(char *s)
 {
 	if(s == nil)
@@ -249,16 +259,15 @@ dollar(Exec *e, char *s, int *namelen)
 {
 	int n;
 	static char *abuf;
-	char *t;
 
 	*namelen = 1;
 	if(e!=nil && '0'<=s[0] && s[0]<='9')
 		return nonnil(e->match[s[0]-'0']);
 
-	for(t=s; isalnum((uchar)*t); t++)
-		;
-	n = t-s;
+	n = scanvarname(s)-s;
 	*namelen = n;
+	if(n == 0)
+		return nil;
 
 	if(e != nil){
 		if(n == 3){
@@ -289,22 +298,35 @@ dollar(Exec *e, char *s, int *namelen)
 	return variable(s, n);
 }
 
+static void
+ruleerror(char *msg)
+{
+	if(parsing){
+		parsing = 0;
+		parseerror("%s", msg);
+	}
+	error("%s", msg);
+}
+
 /* expand one blank-terminated string, processing quotes and $ signs */
 char*
 expand(Exec *e, char *s, char **ends)
 {
 	char *p, *ep, *val;
-	int namelen, quoting;
+	int namelen, vallen, quoting, inputleft;
 
 	p = ebuf;
 	ep = ebuf+sizeof ebuf-1;
 	quoting = 0;
-	while(p<ep && *s!='\0' && (quoting || (*s!=' ' && *s!='\t'))){
+	for(;;){
+		inputleft = (*s!='\0' && (quoting || (*s!=' ' && *s!='\t')));
+		if(!inputleft || p==ep)
+			break;
 		if(*s == '\''){
 			s++;
 			if(!quoting)
 				quoting = 1;
-			else  if(*s == '\''){
+			else if(*s == '\''){
 				*p++ = '\'';
 				s++;
 			}else
@@ -321,12 +343,17 @@ expand(Exec *e, char *s, char **ends)
 			*p++ = '$';
 			continue;
 		}
-		if(ep-p < strlen(val))
-			return "string-too-long";
+		vallen = strlen(val);
+		if(ep-p < vallen)
+			break;
 		strcpy(p, val);
-		p += strlen(val);
+		p += vallen;
 		s += namelen;
 	}
+	if(inputleft)
+		ruleerror("expanded string too long");
+	else if(quoting)
+		ruleerror("runaway quoted string literal");
 	if(ends)
 		*ends = s;
 	*p = '\0';
@@ -336,11 +363,7 @@ expand(Exec *e, char *s, char **ends)
 void
 regerror(char *msg)
 {
-	if(parsing){
-		parsing = 0;
-		parseerror("%s", msg);
-	}
-	error("%s", msg);
+	ruleerror(msg);
 }
 
 void
@@ -377,17 +400,17 @@ assignment(char *p)
 	char *var, *qval;
 	int n;
 
-	if(!isalpha((uchar)p[0]))
-		return 0;
-	for(var=p; isalnum((uchar)*p); p++)
-		;
+	var = p;
+	p = scanvarname(p);
 	n = p-var;
+	if(n == 0)
+		return 0;
 	while(*p==' ' || *p=='\t')
-			p++;
+		p++;
 	if(*p++ != '=')
 		return 0;
 	while(*p==' ' || *p=='\t')
-			p++;
+		p++;
 	qval = expand(nil, p, nil);
 	setvariable(var, n, p, qval);
 	return 1;

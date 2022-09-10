@@ -235,6 +235,7 @@ winresize(Window *w, Rectangle r, int safe, int keepextra)
 			r1.min.y = min(y, r.max.y);
 			r1.max.y = r.max.y;
 		}else{
+			draw(screen, r1, textcols[BACK], nil, ZP);
 			r1.min.y = y;
 			r1.max.y = y;
 		}
