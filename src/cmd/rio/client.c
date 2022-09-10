@@ -151,6 +151,11 @@ getclient(Window w, int create)
 		return 0;
 
 	c = (Client *)malloc(sizeof(Client));
+	if (!c){
+		fprintf(stderr, "rio: Failed to allocate memory\n");
+		exit(1);
+	}
+
 	memset(c, 0, sizeof(Client));
 	c->window = w;
 	/* c->parent will be set by the caller */
