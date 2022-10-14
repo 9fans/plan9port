@@ -5,7 +5,7 @@
 typedef unsigned char uchar;
 #define nelem(x) (sizeof(x)/sizeof((x)[0]))
 
-#define NSUBEXP 32
+#define NSUBEXP 128
 typedef struct Resublist	Resublist;
 struct	Resublist
 {
