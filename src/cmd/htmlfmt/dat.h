@@ -27,6 +27,7 @@ struct URLwin
 
 extern	char*	url;
 extern	int		aflag;
+extern	int		Iflag;
 extern	int		width;
 extern	int		defcharset;
 
