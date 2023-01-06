@@ -96,7 +96,6 @@ threadmain(int argc, char **argv)
 {
 	Document *doc;
 	Biobuf *b;
-	char *basename = argv[0];
 	enum { Ninput = 16 };
 	uchar buf[Ninput+1];
 	int readstdin;
@@ -134,7 +133,7 @@ threadmain(int argc, char **argv)
 		truetoboundingbox = 1;
 		break;
 	case 'w':
-		fprint(2, "%s: -w has only the effect of -R X11 systems\n", basename);
+		fprint(2, "warning: page -w only supported on x11 systems\n");
 		resizing = 1;
 		break;
 	case 'i':
@@ -199,6 +198,13 @@ threadmain(int argc, char **argv)
 	}else
 		b = nil;
 
+	if(initdraw(0, 0, "page") < 0){
+		fprint(2, "page: initdraw failed: %r\n");
+		wexits("initdraw");
+	}
+	display->locking = 1;
+	ppi = scalesize(display, ppi);
+
 	buf[Ninput] = '\0';
 	if(imagemode)
 		doc = initgfx(nil, 0, nil, nil, 0);
@@ -236,12 +242,6 @@ threadmain(int argc, char **argv)
 
 	if(reverse == -1) /* neither cmdline nor ps reader set it */
 		reverse = 0;
-
-	if(initdraw(0, 0, "page") < 0){
-		fprint(2, "page: initdraw failed: %r\n");
-		wexits("initdraw");
-	}
-	display->locking = 1;
 
 	truecolor = screen->depth > 8;
 	viewer(doc);
