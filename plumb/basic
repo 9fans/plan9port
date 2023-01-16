@@ -139,7 +139,7 @@ plumb start wmail $0
 # man index entries are synthesized
 type is text
 data matches '([a-zA-Z¡-￿0-9_\-./]+)\(([1-8])\)'
-plumb start rc -c 'man '$2' '$1' >[2=1] | nobs | plumb -i -d edit -a ''action=showdata filename=/man/'$1'('$2')'''
+plumb start rc -c '9 man '$2' '$1' >[2=1] | nobs | plumb -i -d edit -a ''action=showdata filename=/man/'$1'('$2')'''
 
 # start rule for images without known suffixes
 dst is image
