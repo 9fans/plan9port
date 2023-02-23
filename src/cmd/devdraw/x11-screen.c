@@ -450,10 +450,10 @@ runxevent(XEvent *xev)
 		else {
 			if(ke->keycode == kcodecontrol){
 				c &= ~ControlMask;
-				modp = 1;
+				modp = 2;
 		        } else if(ke->keycode == kcodealt || ke->keycode == kcodeshift){
 				c &= ~Mod1Mask;
-				modp = 1;
+				modp = 4;
 			}
 		}
 		if(modp){
@@ -465,6 +465,10 @@ runxevent(XEvent *xev)
 					_x.kbuttons |= 2;
 				if(c & Mod1Mask)
 					_x.kbuttons |= 4;
+                                if (m.buttons & modp) {
+                                     m.buttons &= ~modp;
+                                     m.buttons |= 1;
+                                }
 				gfx_mousetrack(w->client, m.xy.x, m.xy.y, m.buttons|_x.kbuttons, m.msec);
 			}
 			modp = 0;
