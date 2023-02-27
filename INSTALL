@@ -3,25 +3,27 @@
 dobuild=true
 doinstall=true
 
-case "x$1" in
+while [ "$#" -gt 0 ]; do case "x$1" in
 x)
 	;;
 x-b)
 	dobuild=true
 	doinstall=false
+	shift
 	;;
 x-c)
 	dobuild=false
 	doinstall=true
+	shift
 	;;
 x-r)
-	shift
-	PLAN9_TARGET=$1
+	PLAN9_TARGET=$2
+	shift 2
 	;;
 *)
 	echo 'usage: INSTALL [-b | -c] [-r path]' 1>&2
 	exit 1
-esac
+esac; done
 
 echo "+ Mailing list: https://groups.google.com/group/plan9port-dev"
 echo "+ Issue tracker: https://github.com/9fans/plan9port/issues/"
