@@ -1,0 +1,20 @@
+name: GitHub Actions Build
+run-name: ${{ github.actor }} triggered a build
+on: [push]
+jobs:
+  Build-on-Ubuntu:
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install build deps
+        run: |
+          sudo apt update
+          sudo apt install build-essential xorg-dev
+      - name: Build p9p
+        run: ./INSTALL
+  Build-on-macOS:
+    runs-on: [macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build p9p
+        run: ./INSTALL
