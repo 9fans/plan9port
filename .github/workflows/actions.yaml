@@ -1,6 +1,10 @@
 name: GitHub Actions Build
 run-name: ${{ github.actor }} triggered a build
-on: [push]
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 jobs:
   Build-on-Ubuntu:
     runs-on: [ubuntu-latest]
