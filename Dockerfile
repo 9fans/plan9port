@@ -1,10 +1,11 @@
 FROM alpine:3.18
 
+RUN apk update --no-cache
+
 RUN apk add \
-    build-base \
-    expat \
+    gcc \
+    libc-dev \
     linux-headers \
-    make \
     perl
 
 ENV PLAN9=/usr/local/plan9
