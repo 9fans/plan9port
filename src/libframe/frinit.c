@@ -52,7 +52,7 @@ frinittick(Frame *f)
 	/* background color */
 	draw(f->tick, f->tick->r, f->cols[BACK], nil, ZP);
 	/* vertical line */
-	draw(f->tick, Rect(f->tickscale*(FRTICKW/2), 0, f->tickscale*(FRTICKW/2+1), ft->height), f->display->black, nil, ZP);
+	draw(f->tick, Rect(f->tickscale*(FRTICKW/2), 0, f->tickscale*(FRTICKW/2+1), ft->height), f->cols[TEXT], nil, ZP);
 	/* box on each end */
 	draw(f->tick, Rect(0, 0, f->tickscale*FRTICKW, f->tickscale*FRTICKW), f->cols[TEXT], nil, ZP);
 	draw(f->tick, Rect(0, ft->height-f->tickscale*FRTICKW, f->tickscale*FRTICKW, ft->height), f->cols[TEXT], nil, ZP);
