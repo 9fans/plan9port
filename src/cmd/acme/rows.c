@@ -319,7 +319,7 @@ rowdump(Row *row, char *file)
 	int i, j, fd, m, n, start, dumped;
 	uint q0, q1;
 	Biobuf *b;
-	char *buf, *a, *fontname;
+	char *buf, *a, *fontname, *fontfmt, *fontnamelo, *fontnamehi;
 	Rune *r;
 	Column *c;
 	Window *w, *w1;
@@ -394,9 +394,17 @@ rowdump(Row *row, char *file)
 					if(w1->nopen[QWevent])
 						goto Continue2;
 				}
-			fontname = "";
-			if(t->reffont->f != font)
-				fontname = t->reffont->f->name;
+			fontfmt = "%s";
+			fontnamelo = "";
+			fontnamehi = nil;
+			if(t->reffont->f != font){
+				fontnamelo = t->reffont->f->lodpi->name;
+				if(t->reffont->f->hidpi != nil){
+					fontfmt = "%s,%s";
+					fontnamehi = t->reffont->f->hidpi->name;
+				}
+			}
+			fontname = smprint(fontfmt, fontnamelo, fontnamehi);
 			if(t->file->nname)
 				a = runetobyte(t->file->name, t->file->nname);
 			else
@@ -428,6 +436,7 @@ rowdump(Row *row, char *file)
 					100.0*(w->r.min.y-c->r.min.y)/Dy(c->r),
 					w->body.file->b.nc, fontname);
 			}
+			free(fontname);
 			free(a);
 			winctlprint(w, buf, 0);
 			Bwrite(b, buf, strlen(buf));
