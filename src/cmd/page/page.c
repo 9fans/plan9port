@@ -98,8 +98,9 @@ threadmain(int argc, char **argv)
 	Biobuf *b;
 	enum { Ninput = 16 };
 	uchar buf[Ninput+1];
-	int readstdin;
+	int readstdin, haveppi;
 
+	haveppi = 0;
 	ARGBEGIN{
 	/* "temporary" debugging options */
 	case 'P':
@@ -127,6 +128,7 @@ threadmain(int argc, char **argv)
 		reverse = 1;
 		break;
 	case 'p':
+		haveppi = 1;
 		ppi = atoi(EARGF(usage()));
 		break;
 	case 'b':
@@ -223,7 +225,7 @@ threadmain(int argc, char **argv)
 	else if(strncmp((char*)buf, "x T ", 4) == 0)
 		doc = inittroff(b, argc, argv, buf, Ninput);
 	else {
-		if(ppi != 100) {
+		if(haveppi) {
 			fprint(2, "page: you can't specify -p with graphic files\n");
 			wexits("-p and graphics");
 		}
