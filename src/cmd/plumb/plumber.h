@@ -52,10 +52,15 @@ struct Ruleset
 	char	*port;
 };
 
+enum
+{
+	NMATCHSUBEXP = 100	/* bounded by ../../libregexp/regcomp.h:/NSUBEXP */
+};
+
 struct Exec
 {
 	Plumbmsg	*msg;
-	char			*match[10];
+	char			*match[NMATCHSUBEXP];
 	int			p0;		/* begin and end of match */
 	int			p1;
 	int			clearclick;	/* click was expanded; remove attribute */

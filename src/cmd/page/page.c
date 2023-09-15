@@ -96,11 +96,11 @@ threadmain(int argc, char **argv)
 {
 	Document *doc;
 	Biobuf *b;
-	char *basename = argv[0];
 	enum { Ninput = 16 };
 	uchar buf[Ninput+1];
-	int readstdin;
+	int readstdin, haveppi;
 
+	haveppi = 0;
 	ARGBEGIN{
 	/* "temporary" debugging options */
 	case 'P':
@@ -128,13 +128,14 @@ threadmain(int argc, char **argv)
 		reverse = 1;
 		break;
 	case 'p':
+		haveppi = 1;
 		ppi = atoi(EARGF(usage()));
 		break;
 	case 'b':
 		truetoboundingbox = 1;
 		break;
 	case 'w':
-		fprint(2, "%s: -w has only the effect of -R X11 systems\n", basename);
+		fprint(2, "warning: page -w only supported on x11 systems\n");
 		resizing = 1;
 		break;
 	case 'i':
@@ -199,6 +200,13 @@ threadmain(int argc, char **argv)
 	}else
 		b = nil;
 
+	if(initdraw(0, 0, "page") < 0){
+		fprint(2, "page: initdraw failed: %r\n");
+		wexits("initdraw");
+	}
+	display->locking = 1;
+	ppi = scalesize(display, ppi);
+
 	buf[Ninput] = '\0';
 	if(imagemode)
 		doc = initgfx(nil, 0, nil, nil, 0);
@@ -217,7 +225,7 @@ threadmain(int argc, char **argv)
 	else if(strncmp((char*)buf, "x T ", 4) == 0)
 		doc = inittroff(b, argc, argv, buf, Ninput);
 	else {
-		if(ppi != 100) {
+		if(haveppi) {
 			fprint(2, "page: you can't specify -p with graphic files\n");
 			wexits("-p and graphics");
 		}
@@ -236,12 +244,6 @@ threadmain(int argc, char **argv)
 
 	if(reverse == -1) /* neither cmdline nor ps reader set it */
 		reverse = 0;
-
-	if(initdraw(0, 0, "page") < 0){
-		fprint(2, "page: initdraw failed: %r\n");
-		wexits("initdraw");
-	}
-	display->locking = 1;
 
 	truecolor = screen->depth > 8;
 	viewer(doc);

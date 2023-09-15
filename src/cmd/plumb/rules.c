@@ -258,11 +258,17 @@ char*
 dollar(Exec *e, char *s, int *namelen)
 {
 	int n;
+	ulong m;
+	char *t;
 	static char *abuf;
 
-	*namelen = 1;
-	if(e!=nil && '0'<=s[0] && s[0]<='9')
-		return nonnil(e->match[s[0]-'0']);
+	if(e!=nil && '0'<=s[0] && s[0]<='9'){
+		m = strtoul(s, &t, 10);
+		*namelen = t-s;
+		if(t==s || m>=NMATCHSUBEXP)
+			return "";
+		return nonnil(e->match[m]);
+	}
 
 	n = scanvarname(s)-s;
 	*namelen = n;

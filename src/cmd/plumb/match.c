@@ -38,11 +38,11 @@ verbis(int obj, Plumbmsg *m, Rule *r)
 }
 
 static void
-setvar(Resub rs[10], char *match[10])
+setvar(Resub rs[NMATCHSUBEXP], char *match[NMATCHSUBEXP])
 {
 	int i, n;
 
-	for(i=0; i<10; i++){
+	for(i=0; i<NMATCHSUBEXP; i++){
 		free(match[i]);
 		match[i] = nil;
 		if(rs[i].s.sp != nil){
@@ -55,7 +55,7 @@ setvar(Resub rs[10], char *match[10])
 }
 
 int
-clickmatch(Reprog *re, char *text, Resub rs[10], int click)
+clickmatch(Reprog *re, char *text, Resub rs[NMATCHSUBEXP], int click)
 {
 	char *clickp;
 	int i, w;
@@ -66,8 +66,8 @@ clickmatch(Reprog *re, char *text, Resub rs[10], int click)
 		w = chartorune(&r, text+i);
 	clickp = text+i;
 	for(i=0; i<=click; i++){
-		memset(rs, 0, 10*sizeof(Resub));
-		if(regexec(re, text+i, rs, 10))
+		memset(rs, 0, NMATCHSUBEXP*sizeof(Resub));
+		if(regexec(re, text+i, rs, NMATCHSUBEXP))
 			if(rs[0].s.sp<=clickp && clickp<=rs[0].e.ep)
 				return 1;
 	}
@@ -77,7 +77,7 @@ clickmatch(Reprog *re, char *text, Resub rs[10], int click)
 int
 verbmatches(int obj, Plumbmsg *m, Rule *r, Exec *e)
 {
-	Resub rs[10];
+	Resub rs[NMATCHSUBEXP];
 	char *clickval, *alltext;
 	int p0, p1, ntext;
 
@@ -122,7 +122,8 @@ verbmatches(int obj, Plumbmsg *m, Rule *r, Exec *e)
 		/* must match full text */
 		if(ntext < 0)
 			ntext = strlen(alltext);
-		if(!regexec(r->regex, alltext, rs, 10) || rs[0].s.sp!=alltext || rs[0].e.ep!=alltext+ntext)
+		if(!regexec(r->regex, alltext, rs, NMATCHSUBEXP)
+		|| rs[0].s.sp!=alltext || rs[0].e.ep!=alltext+ntext)
 			break;
 		setvar(rs, e->match);
 		return 1;
@@ -300,7 +301,7 @@ freeexec(Exec *exec)
 		return;
 	free(exec->dir);
 	free(exec->file);
-	for(i=0; i<10; i++)
+	for(i=0; i<NMATCHSUBEXP; i++)
 		free(exec->match[i]);
 	free(exec);
 }

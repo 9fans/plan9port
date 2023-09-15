@@ -1,7 +1,7 @@
 #ifndef _REGEXP9_H_
 #define _REGEXP9_H_ 1
 #if defined(__cplusplus)
-extern "C" { 
+extern "C" {
 #endif
 
 #ifdef AUTOLIB
@@ -61,7 +61,7 @@ struct Reinst{
  */
 struct Reprog{
 	Reinst	*startinst;	/* start pc */
-	Reclass	class[16];	/* .data */
+	Reclass	class[128];	/* .data */
 	Reinst	firstinst[5];	/* .text */
 };
 

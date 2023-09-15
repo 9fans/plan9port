@@ -601,12 +601,12 @@ rpc_resizewindow(Client *c, Rectangle r)
 
 - (void)scrollWheel:(NSEvent*)e
 {
-	NSInteger s;
+	CGFloat s;
 
 	s = [e scrollingDeltaY];
-	if(s > 0)
+	if(s > 0.0f)
 		[self sendmouse:8];
-	else if (s < 0)
+	else if (s < 0.0f)
 		[self sendmouse:16];
 }
 

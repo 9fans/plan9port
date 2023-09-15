@@ -122,7 +122,7 @@ scalesubfont(Subfont *f, int scale)
 	f->height *= scale;
 	f->ascent *= scale;
 
-	for(j=0; j<f->n; j++) {
+	for(j=0; j<=f->n; j++) {
 		f->info[j].x *= scale;
 		f->info[j].top *= scale;
 		f->info[j].bottom *= scale;
