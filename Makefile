@@ -1,3 +1,3 @@
 %:
-	@echo read the README file
+	@echo read the README.md file
 
