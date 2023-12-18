@@ -2,7 +2,7 @@
 
 [ "$1" = "" ] && exit 1
 
-test -f $PLAN9/config && . $PLAN9/config
+test -f "$PLAN9/config" && . "$PLAN9/config"
 libsl=""
 frameworks=""
 doautolib=true
@@ -324,23 +324,28 @@ esac
 
 if $verbose
 then
-	echo $ld -L$PLAN9/lib "$@" $libsl $extralibs $frameworks
+	echo $ld -L"$PLAN9/lib" "$@" $libsl $extralibs $frameworks
 fi
 
-xtmp="${TMPDIR-/tmp}/9l.$$.$USER.out"
-xxout() {
-	sed 's/.*: In function `[^:]*: *//' $xtmp | egrep . |
-	egrep -v 'is (often|almost always) misused|is dangerous, better use|text-based stub'
-	rm -f $xtmp
+quiet()
+{
+	ignore='^$'
+	ignore=$ignore'|is (often|almost always) misused'
+	ignore=$ignore'|is dangerous, better use'
+	ignore=$ignore'|text-based stub'
+
+	sed 's/.*: In function `[^:]*: *//' "$1" |
+	egrep -v "$ignore"
 }
 
-if $ld -L$PLAN9/lib "$@" $libsl $extralibs $frameworks >$xtmp 2>&1
+# Must use temp file to avoid pipe; pipe loses status.
+xtmp=${TMPDIR-/tmp}/9l.$$.$USER.out
+$ld -L"$PLAN9/lib" "$@" $libsl $extralibs $frameworks >"$xtmp" 2>&1
+status=$?
+quiet "$xtmp"
+rm -f "$xtmp"
+if [ "$status" -ne 0 ]
 then
-	xxout
-	exit 0
-else
-	xxout
-	rm -f $target
-	exit 1
+	rm -f "$target"
 fi
-
+exit $status
