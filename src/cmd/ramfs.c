@@ -12,8 +12,8 @@
 enum
 {
 	OPERM	= 0x3,		/* mask of all permission types in open mode */
-	Nram	= 2048,
-	Maxsize	= 512*1024*1024,
+	Nram	= 4096,
+	Maxfilesize	= 1024*1024*1024,	/* maximum file size, 1GB */
 	Maxfdata	= 8192
 };
 
@@ -134,6 +134,8 @@ notifyf(void *a, char *s)
 	noted(NDFLT);
 }
 
+static int limitfilesize = 1;
+
 void
 main(int argc, char *argv[])
 {
@@ -158,6 +160,9 @@ main(int argc, char *argv[])
 		break;
 	case 's':
 		defmnt = nil;
+		break;
+	case 'u':
+		limitfilesize = 0;		/* file size not limited */
 		break;
 	case 'm':
 		defmnt = ARGF();
@@ -185,7 +190,7 @@ main(int argc, char *argv[])
 
 	user = getuser();
 	notify(notifyf);
-	nram = 2;
+	nram = 1;
 	r = &ram[0];
 	r->busy = 1;
 	r->data = 0;
@@ -201,22 +206,6 @@ main(int argc, char *argv[])
 	r->atime = time(0);
 	r->mtime = r->atime;
 	r->name = estrdup(".");
-
-	r = &ram[1];
-	r->busy = 1;
-	r->data = 0;
-	r->ndata = 0;
-	r->perm = 0666;
-	r->qid.type = 0;
-	r->qid.path = 1;
-	r->qid.vers = 0;
-	r->parent = 0;
-	r->user = user;
-	r->group = user;
-	r->muid = user;
-	r->atime = time(0);
-	r->mtime = r->atime;
-	r->name = estrdup("file");
 
 	if(debug)
 		fmtinstall('F', fcallfmt);
@@ -368,13 +357,11 @@ rwalk(Fid *f)
 	}
 	if(nf != nil && (err!=nil || rhdr.nwqid<thdr.nwname)){
 		/* clunk the new fid, which is the one we walked */
-fprint(2, "f %d zero busy\n", f->fid);
 		f->busy = 0;
 		f->ram = nil;
 	}
 	if(rhdr.nwqid == thdr.nwname)	/* update the fid after a successful walk */
 		f->ram = fram;
-	assert(f->busy);
 	return err;
 }
 
@@ -562,7 +549,7 @@ rwrite(Fid *f)
 	cnt = thdr.count;
 	if(r->qid.type & QTDIR)
 		return Eisdir;
-	if(off+cnt >= Maxsize)		/* sanity check */
+	if(limitfilesize && off+cnt >= Maxfilesize)
 		return "write too big";
 	if(off+cnt > r->ndata)
 		r->data = erealloc(r->data, off+cnt);
@@ -615,8 +602,6 @@ rclunk(Fid *f)
 		f->ram->open--;
 	if(f->rclose)
 		e = realremove(f->ram);
-fprint(2, "clunk fid %d busy=%d\n", f->fid, f->busy);
-fprint(2, "f %d zero busy\n", f->fid);
 	f->busy = 0;
 	f->open = 0;
 	f->ram = 0;
@@ -630,7 +615,6 @@ rremove(Fid *f)
 
 	if(f->open)
 		f->ram->open--;
-fprint(2, "f %d zero busy\n", f->fid);
 	f->busy = 0;
 	f->open = 0;
 	r = f->ram;
@@ -875,7 +859,7 @@ void *
 erealloc(void *p, ulong n)
 {
 	p = realloc(p, n);
-	if(!p)
+	if(!p && n != 0)
 		error("out of memory");
 	return p;
 }
