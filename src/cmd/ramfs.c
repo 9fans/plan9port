@@ -12,8 +12,8 @@
 enum
 {
 	OPERM	= 0x3,		/* mask of all permission types in open mode */
-	Nram	= 4096,
-	Maxfilesize	= 1024*1024*1024,	/* maximum file size, 1GB */
+	Nram	= 2048,
+	Maxsize	= 512*1024*1024,
 	Maxfdata	= 8192
 };
 
@@ -134,8 +134,6 @@ notifyf(void *a, char *s)
 	noted(NDFLT);
 }
 
-static int limitfilesize = 1;
-
 void
 main(int argc, char *argv[])
 {
@@ -160,9 +158,6 @@ main(int argc, char *argv[])
 		break;
 	case 's':
 		defmnt = nil;
-		break;
-	case 'u':
-		limitfilesize = 0;		/* file size not limited */
 		break;
 	case 'm':
 		defmnt = ARGF();
@@ -190,7 +185,7 @@ main(int argc, char *argv[])
 
 	user = getuser();
 	notify(notifyf);
-	nram = 1;
+	nram = 2;
 	r = &ram[0];
 	r->busy = 1;
 	r->data = 0;
@@ -206,6 +201,22 @@ main(int argc, char *argv[])
 	r->atime = time(0);
 	r->mtime = r->atime;
 	r->name = estrdup(".");
+
+	r = &ram[1];
+	r->busy = 1;
+	r->data = 0;
+	r->ndata = 0;
+	r->perm = 0666;
+	r->qid.type = 0;
+	r->qid.path = 1;
+	r->qid.vers = 0;
+	r->parent = 0;
+	r->user = user;
+	r->group = user;
+	r->muid = user;
+	r->atime = time(0);
+	r->mtime = r->atime;
+	r->name = estrdup("file");
 
 	if(debug)
 		fmtinstall('F', fcallfmt);
@@ -549,7 +560,7 @@ rwrite(Fid *f)
 	cnt = thdr.count;
 	if(r->qid.type & QTDIR)
 		return Eisdir;
-	if(limitfilesize && off+cnt >= Maxfilesize)
+	if(off+cnt >= Maxsize)		/* sanity check */
 		return "write too big";
 	if(off+cnt > r->ndata)
 		r->data = erealloc(r->data, off+cnt);
@@ -858,8 +869,12 @@ emalloc(ulong n)
 void *
 erealloc(void *p, ulong n)
 {
+	if(n == 0) {
+		free(p);
+		return nil;
+	}
 	p = realloc(p, n);
-	if(!p && n != 0)
+	if(!p)
 		error("out of memory");
 	return p;
 }
