@@ -368,13 +368,11 @@ rwalk(Fid *f)
 	}
 	if(nf != nil && (err!=nil || rhdr.nwqid<thdr.nwname)){
 		/* clunk the new fid, which is the one we walked */
-fprint(2, "f %d zero busy\n", f->fid);
 		f->busy = 0;
 		f->ram = nil;
 	}
 	if(rhdr.nwqid == thdr.nwname)	/* update the fid after a successful walk */
 		f->ram = fram;
-	assert(f->busy);
 	return err;
 }
 
@@ -615,8 +613,6 @@ rclunk(Fid *f)
 		f->ram->open--;
 	if(f->rclose)
 		e = realremove(f->ram);
-fprint(2, "clunk fid %d busy=%d\n", f->fid, f->busy);
-fprint(2, "f %d zero busy\n", f->fid);
 	f->busy = 0;
 	f->open = 0;
 	f->ram = 0;
@@ -630,7 +626,6 @@ rremove(Fid *f)
 
 	if(f->open)
 		f->ram->open--;
-fprint(2, "f %d zero busy\n", f->fid);
 	f->busy = 0;
 	f->open = 0;
 	r = f->ram;
@@ -874,6 +869,10 @@ emalloc(ulong n)
 void *
 erealloc(void *p, ulong n)
 {
+	if(n == 0) {
+		free(p);
+		return nil;
+	}
 	p = realloc(p, n);
 	if(!p)
 		error("out of memory");
