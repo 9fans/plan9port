@@ -271,10 +271,10 @@ in arbitrary ways and should synchronize their
 actions using
 .B qlocks
 (see
-.MR lock (3) )
+.MR lock 3 )
 or channel communication.
 System calls such as
-.MR read (3)
+.MR read 3
 block the entire proc;
 all threads in a proc block until the system call finishes.
 .PP
@@ -368,7 +368,7 @@ are threaded analogues of
 and
 .I execl
 (see
-.MR exec (3) );
+.MR exec 3 );
 on success,
 they replace the calling thread
 and invoke the external program, never returning.
@@ -404,7 +404,7 @@ and
 .I threadexec
 will duplicate
 (see
-.MR dup (3) )
+.MR dup 3 )
 the three file descriptors in
 .I fd
 onto standard input, output, and error for the external program
@@ -447,14 +447,14 @@ stop the running of the program.
 returns a channel of pointers to
 .B Waitmsg
 structures (see
-.MR wait (3) ).
+.MR wait 3 ).
 When an exec'ed process exits, a pointer to a
 .B Waitmsg
 is sent to this channel.
 These
 .B Waitmsg
 structures have been allocated with
-.MR malloc (3)
+.MR malloc 3
 and should be freed after use.
 .PP
 A
@@ -615,13 +615,13 @@ calls.
 .PP
 .I Chanprint
 formats its arguments in the manner of
-.MR print (3)
+.MR print 3
 and sends the result to the channel
 .IR c.
 The string delivered by
 .I chanprint
 is allocated with
-.MR malloc (3)
+.MR malloc 3
 and should be freed upon receipt.
 .PP
 Thread library functions do not return on failure;
@@ -632,10 +632,10 @@ Threaded programs should use
 in place of
 .I atnotify
 (see
-.MR notify (3) ).
+.MR notify 3 ).
 .PP
 It is safe to use
-.MR sysfatal (3)
+.MR sysfatal 3
 in threaded programs.
 .I Sysfatal
 will print the error string and call
@@ -677,7 +677,7 @@ To create new processes, use
 .SH FILES
 .B \*9/acid/thread
 contains useful
-.MR acid (1)
+.MR acid 1
 functions for debugging threaded programs.
 .PP
 .B \*9/src/libthread/test
@@ -685,8 +685,8 @@ contains some example programs.
 .SH SOURCE
 .B \*9/src/libthread
 .SH SEE ALSO
-.MR intro (3) ,
-.MR ioproc (3)
+.MR intro 3 ,
+.MR ioproc 3
 .SH BUGS
 To avoid name conflicts,
 .IR alt ,
@@ -711,7 +711,7 @@ and so on.
 is defined as a macro that expands to
 .IR threadyield .
 See
-.MR intro (3) .
+.MR intro 3 .
 .PP
 Threadint,
 threadintgrp,
