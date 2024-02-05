@@ -37,9 +37,11 @@ enum{
 };
 Rune	snarfrune[NSnarf+1];
 
-char		*fontnames[2] =
+char		*fontnames[4] =
 {
 	"/lib/font/bit/lucsans/euro.8.font",
+	"/lib/font/bit/lucm/unicode.9.font",
+	"/usr/local/plan9/font/lucsans/boldlatin1.8.font",
 	"/lib/font/bit/lucm/unicode.9.font"
 };
 
@@ -91,6 +93,16 @@ threadmain(int argc, char *argv[])
 		if(ncol <= 0)
 			goto Usage;
 		break;
+	case 'e':
+		fontnames[2] = ARGF();
+		if(fontnames[2] == nil)
+			goto Usage;
+		break;
+	case 'E':
+		fontnames[3] = ARGF();
+		if(fontnames[3] == nil)
+			goto Usage;
+		break;
 	case 'f':
 		fontnames[0] = ARGF();
 		if(fontnames[0] == nil)
@@ -121,12 +133,14 @@ threadmain(int argc, char *argv[])
 		break;
 	default:
 	Usage:
-		fprint(2, "usage: acme -a -c ncol -f fontname -F fixedwidthfontname -l loadfile -W winsize\n");
+		fprint(2, "usage: acme -a -c ncol -f font -F fixedwidth -e emphfont -E emphfixedwidthfont -l loadfile -W winsize\n");
 		threadexitsall("usage");
 	}ARGEND
 
 	fontnames[0] = estrdup(fontnames[0]);
 	fontnames[1] = estrdup(fontnames[1]);
+	fontnames[2] = estrdup(fontnames[2]);
+	fontnames[3] = estrdup(fontnames[3]);
 
 	quotefmtinstall();
 	fmtinstall('t', timefmt);
@@ -147,6 +161,9 @@ threadmain(int argc, char *argv[])
 	if(loadfile)
 		rowloadfonts(loadfile);
 	putenv("font", fontnames[0]);
+	putenv("varfont", fontnames[1]);
+	putenv("emphfont", fontnames[2]);
+	putenv("varemphfont", fontnames[3]);
 	snarffd = open("/dev/snarf", OREAD|OCEXEC);
 /*
 	if(cputype){

@@ -546,7 +546,7 @@ extern char			*cputype;
 extern char			*objtype;
 extern char			*home;
 extern char			*acmeshell;
-extern char			*fontnames[2];
+extern char			*fontnames[4];
 extern Image		*tagcols[NCOL];
 extern Image		*textcols[NCOL];
 extern char		wdir[]; /* must use extern because no dimension given */
