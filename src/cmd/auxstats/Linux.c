@@ -201,9 +201,9 @@ xstat(int first)
 		if(ntok < 2)
 			continue;
 		if(strcmp(tok[0], "cpu") == 0 && ntok >= 5){
-			long long user = atoll(tok[1]) / numcores;
-			long long sys = atoll(tok[3]) / numcores;
-			long long cpu = user + sys;
+			const long long user = atoll(tok[1]) / numcores;
+			const long long sys = atoll(tok[3]) / numcores;
+			const long long cpu = user + sys;
 			Bprint(&bout, "user %lld 100\n", user);
 			Bprint(&bout, "sys %lld 100\n", sys);
 			Bprint(&bout, "cpu %lld 100\n", cpu);
