@@ -143,7 +143,7 @@ xnet(int first)
 		tokens(i);
 		if(ntok < 8+8)
 			continue;
-		if(regexec(netdev, tok[0], nil, 0) != 1)
+		if(regexec(netdev, tok[0], nil, 0) != 0)
 			continue;
 		inb = atoll(tok[1]);
 		oub = atoll(tok[9]);
