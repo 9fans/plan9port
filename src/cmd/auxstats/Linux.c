@@ -182,9 +182,9 @@ xstat(int first)
 		readfile(fd);
 		for(i=0; i<nline; i++){
 			tokens(i);
-			if(ntok < 2)
+			if(ntok < 3)
 				continue;
-			if(strcmp(tok[0], "siblings") == 0 && ntok >= 2){
+			if(strcmp(tok[0], "siblings") == 0 && ntok >= 3){
 				numcores = atoll(tok[2]);
 				break;
 			}
