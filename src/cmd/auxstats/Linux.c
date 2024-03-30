@@ -174,9 +174,23 @@ void
 xstat(int first)
 {
 	static int fd = -1;
+	static long long numcores = 0;
 	int i;
 
 	if(first){
+		fd = open("/proc/cpuinfo", OREAD);
+		readfile(fd);
+		for(i=0; i<nline; i++){
+			tokens(i);
+			if(ntok < 2)
+				continue;
+			if(strcmp(tok[0], "siblings") == 0 && ntok >= 2){
+				numcores = atoll(tok[2]);
+				break;
+			}
+		}
+		close(fd);
+
 		fd = open("/proc/stat", OREAD);
 		return;
 	}
@@ -187,9 +201,12 @@ xstat(int first)
 		if(ntok < 2)
 			continue;
 		if(strcmp(tok[0], "cpu") == 0 && ntok >= 5){
-			Bprint(&bout, "user %lld 100\n", atoll(tok[1]));
-			Bprint(&bout, "sys %lld 100\n", atoll(tok[3]));
-			Bprint(&bout, "cpu %lld 100\n", atoll(tok[1])+atoll(tok[3]));
+			long long user = atoll(tok[1]) / numcores;
+			long long sys = atoll(tok[3]) / numcores;
+			long long cpu = user + sys;
+			Bprint(&bout, "user %lld 100\n", user);
+			Bprint(&bout, "sys %lld 100\n", sys);
+			Bprint(&bout, "cpu %lld 100\n", cpu);
 			Bprint(&bout, "idle %lld 100\n", atoll(tok[4]));
 		}
 	/*
