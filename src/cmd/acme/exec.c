@@ -1532,6 +1532,11 @@ runproc(void *argvp)
 	iseditcmd = (uintptr)argv[9];
 	free(argv);
 
+	unsetenv("acmeaddr");
+	unsetenv("winid");
+	unsetenv("%");
+	unsetenv("samfile");
+
 	t = s;
 	while(*t==' ' || *t=='\n' || *t=='\t')
 		t++;
@@ -1728,6 +1733,10 @@ Hard:
 	rcarg[2] = t;
 	rcarg[3] = nil;
 	ret = threadspawnd(sfd, rcarg[0], rcarg, dir);
+	unsetenv("acmeaddr");
+	unsetenv("winid");
+	unsetenv("%");
+	unsetenv("samfile");
 	free(dir);
 	if(ret >= 0){
 		if(cpid)
