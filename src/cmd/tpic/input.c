@@ -586,7 +586,7 @@ char	shellbuf[1000], *shellp;
 void
 shell_init(void)	/* set up to interpret a shell command */
 {
-	sprintf(shellbuf, "sh -c '");
+	snprintf(shellbuf, sizeof shellbuf, "sh -c '");
 	shellp = shellbuf + strlen(shellbuf);
 }
 

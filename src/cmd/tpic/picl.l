@@ -14,10 +14,8 @@
 #include "pic.h"
 #include "y.tab.h"
 
-extern	double	atof();
 extern	char	*filename;
 extern	struct	symtab	symtab[];
-extern	struct	symtab*copythru();
 
 #define	CADD	cbuf[clen++]=yytext[0]; if(clen>=CBUFLEN-1) {ERROR "string too long" WARNING; BEGIN A;}
 #define	CBUFLEN	500
