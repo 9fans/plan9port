@@ -54,7 +54,7 @@ gfx_replacescreenimage(Client *c, Memimage *m)
 	c->screenimage = m;
 	m->screenref = 1;
 	if(om && --om->screenref == 0){
-		_freememimage(om);
+		freememimage(om);
 	}
 	qunlock(&drawlk);
 	gfx_mouseresized(c);
@@ -452,7 +452,7 @@ drawfreedimage(Client *client, DImage *dimage)
 		if(l->screenref==0)
 			freememimage(l);
 		else if(--l->screenref==0)
-			_freememimage(l);
+			freememimage(l);
 	}
     Return:
 	free(dimage->fchar);

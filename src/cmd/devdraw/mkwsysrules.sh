@@ -29,6 +29,8 @@ if [ "x$WSYSTYPE" = "x" ]; then
 			exit 1
 		fi
 		WSYSTYPE=mac
+	elif command -v wayland-scanner >/dev/null 2>&1; then
+		WSYSTYPE=wayland
 	elif [ -d "$X11" ]; then
 		WSYSTYPE=x11
 	else
@@ -54,6 +56,13 @@ if [ $WSYSTYPE = x11 ]; then
 	XO=`ls x11-*.c 2>/dev/null | sed 's/\.c$/.o/'`
 	echo 'WSYSOFILES=$WSYSOFILES '$XO
 	echo 'WSYSHFILES=x11-inc.h x11-keysym2ucs.h x11-memdraw.h'
+elif [ $WSYSTYPE = wayland ]; then
+	protos='pointer-constraints xdg-decoration xdg-shell'
+	PROTOO=$(for p in $protos; do printf '%s-protocol.o ' $p; done; printf '\n'; )
+	PROTOH=$(for p in $protos; do printf '%s-client-protocol.h ' $p; done; printf '\n'; )
+	WAYO=`ls wayland-*.c 2>/dev/null | sed 's/\.c$/.o/' | paste -s -d ' '`
+	echo "WSYSOFILES=\$WSYSOFILES $WAYO $PROTOO"
+	echo "WSYSHFILES=wayland-inc.h $PROTOH"
 elif [ $WSYSTYPE = mac ]; then
 	echo 'WSYSOFILES=$WSYSOFILES mac-draw.o mac-screen.o'
 	echo 'WSYSHFILES='
