@@ -83,6 +83,7 @@ static Rune LKill[] = { 'K', 'i', 'l', 'l', 0 };
 static Rune LLoad[] = { 'L', 'o', 'a', 'd', 0 };
 static Rune LLocal[] = { 'L', 'o', 'c', 'a', 'l', 0 };
 static Rune LLook[] = { 'L', 'o', 'o', 'k', 0 };
+static Rune LKool[] = { 'K', 'o', 'o', 'l', 0 };
 static Rune LNew[] = { 'N', 'e', 'w', 0 };
 static Rune LNewcol[] = { 'N', 'e', 'w', 'c', 'o', 'l', 0 };
 static Rune LPaste[] = { 'P', 'a', 's', 't', 'e', 0 };
@@ -113,7 +114,8 @@ Exectab exectab[] = {
 	{ LKill,		xkill,		FALSE,	XXX,		XXX		},
 	{ LLoad,		dump,	FALSE,	FALSE,	XXX		},
 	{ LLocal,		local,	FALSE,	XXX,		XXX		},
-	{ LLook,		look,		FALSE,	XXX,		XXX		},
+	{ LLook,		look,		FALSE,	FALSE,	XXX		},
+	{ LKool,		look,		FALSE,	TRUE,	XXX		},
 	{ LNew,		new,		FALSE,	XXX,		XXX		},
 	{ LNewcol,	newcol,	FALSE,	XXX,		XXX		},
 	{ LPaste,		paste,	TRUE,	TRUE,	XXX		},
@@ -1072,18 +1074,17 @@ paste(Text *et, Text *t, Text *_0, int selectall, int tobody, Rune *_1, int _2)
 }
 
 void
-look(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
+look(Text *et, Text *t, Text *argt, int rev, int _1, Rune *arg, int narg)
 {
 	Rune *r;
 	int n;
 
-	USED(_0);
 	USED(_1);
 
 	if(et && et->w){
 		t = &et->w->body;
 		if(narg > 0){
-			search(t, arg, narg);
+			rev ? rsearch(t, arg, narg) : search(t, arg, narg);
 			return;
 		}
 		getarg(argt, FALSE, FALSE, &r, &n);
@@ -1092,7 +1093,7 @@ look(Text *et, Text *t, Text *argt, int _0, int _1, Rune *arg, int narg)
 			r = runemalloc(n);
 			bufread(&t->file->b, t->q0, r, n);
 		}
-		search(t, r, n);
+		rev ? rsearch(t, r, n) : search(t, r, n);
 		free(r);
 	}
 }
