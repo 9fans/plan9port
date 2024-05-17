@@ -672,7 +672,6 @@ texttype(Text *t, Rune r)
 	int nr;
 	Rune *rp;
 	Text *u;
-
 	if(t->what!=Body && t->what!=Tag && r=='\n')
 		return;
 	if(t->what == Tag)
@@ -772,7 +771,10 @@ texttype(Text *t, Rune r)
 	 	typecommit(t);
 		undo(t, nil, nil, FALSE, 0, nil, 0);
 		return;
-
+	case Kcmd+'s':
+		typecommit(t);
+		put(t, nil, nil, XXX, XXX, nil, 0);
+		return;
 	Tagdown:
 		/* expand tag to show all text */
 		if(!t->w->tagexpand){
