@@ -672,6 +672,7 @@ texttype(Text *t, Rune r)
 	int nr;
 	Rune *rp;
 	Text *u;
+
 	if(t->what!=Body && t->what!=Tag && r=='\n')
 		return;
 	if(t->what == Tag)
