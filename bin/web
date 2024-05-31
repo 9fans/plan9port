@@ -68,7 +68,6 @@ else
 		else
 			i=`echo $i | tr -d ' '`
 		fi
-		echo p "$i"
 		plumb1 $i
 	done
 fi
