@@ -108,7 +108,7 @@ void	dokey_gn(Key*, uchar*, uchar*, Field*);
 void	dokey_m(Key*, uchar*, uchar*, Field*);
 void	dokey_r(Key*, uchar*, uchar*, Field*);
 void	done(char*);
-int	kcmp(Key*, Key*);
+int	Kcmp(Key*, Key*);
 void	makemapd(Field*);
 void	makemapm(Field*);
 void	mergefiles(int, int, Biobuf*);
@@ -202,7 +202,7 @@ dofile(Biobuf *b)
 			l = newline(b);
 			if(l == 0)
 				break;
-			n = kcmp(ol->key, l->key);
+			n = Kcmp(ol->key, l->key);
 			if(n > 0 || (n == 0 && args.uflag)) {
 				fprint(2, "sort: -c file not in sort\n"); /**/
 				done("order");
@@ -448,7 +448,7 @@ mergefiles(int t, int n, Biobuf *b)
 			break;
 		for(;;) {
 			l = m->line;
-			if(args.uflag && ok && kcmp(ok, l->key) == 0) {
+			if(args.uflag && ok && Kcmp(ok, l->key) == 0) {
 				free(l->key);
 				free(l);
 			} else {
@@ -467,7 +467,7 @@ mergefiles(int t, int n, Biobuf *b)
 			}
 			m->line = l;
 			m->key = l->key;
-			if(nn > 1 && kcmp(mmp[0]->key, mmp[1]->key) > 0)
+			if(nn > 1 && Kcmp(mmp[0]->key, mmp[1]->key) > 0)
 				break;
 		}
 	}
@@ -485,7 +485,7 @@ mergefiles(int t, int n, Biobuf *b)
 }
 
 int
-kcmp(Key *ka, Key *kb)
+Kcmp(Key *ka, Key *kb)
 {
 	int n, m;
 
@@ -511,7 +511,7 @@ printout(Biobuf *b)
 	ok = 0;
 	for(n=args.nline; n>0; n--) {
 		l = *lp++;
-		if(args.uflag && ok && kcmp(ok, l->key) == 0)
+		if(args.uflag && ok && Kcmp(ok, l->key) == 0)
 			continue;
 		lineout(b, l);
 		ok = l->key;
