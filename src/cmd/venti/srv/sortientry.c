@@ -34,7 +34,7 @@ struct IEBucks
 	IEBuck	*bucks;
 };
 
-#define	U32GET(p)	(((p)[0]<<24)|((p)[1]<<16)|((p)[2]<<8)|(p)[3])
+#define	U32GET(p)	(((u32int)(p)[0]<<24)|((p)[1]<<16)|((p)[2]<<8)|(p)[3])
 #define	U32PUT(p,v)	(p)[0]=(v)>>24;(p)[1]=(v)>>16;(p)[2]=(v)>>8;(p)[3]=(v)
 
 static IEBucks	*initiebucks(Part *part, int bits, u32int size);

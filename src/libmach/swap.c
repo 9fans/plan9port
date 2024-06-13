@@ -24,7 +24,7 @@ beswap4(u32int l)
 	uchar *p;
 
 	p = (uchar*)&l;
-	return (p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
+	return ((u32int)p[0]<<24) | (p[1]<<16) | (p[2]<<8) | p[3];
 }
 
 /*
@@ -63,7 +63,7 @@ leswap4(u32int l)
 	uchar *p;
 
 	p = (uchar*)&l;
-	return (p[3]<<24) | (p[2]<<16) | (p[1]<<8) | p[0];
+	return ((u32int)p[3]<<24) | (p[2]<<16) | (p[1]<<8) | p[0];
 }
 
 /*
@@ -90,7 +90,7 @@ leload2(uchar *b)
 u32int
 leload4(uchar *b)
 {
-	return b[0] | (b[1]<<8) | (b[2]<<16) | (b[3]<<24);
+	return b[0] | (b[1]<<8) | (b[2]<<16) | ((u32int)b[3]<<24);
 }
 
 u64int
@@ -108,7 +108,7 @@ beload2(uchar *b)
 u32int
 beload4(uchar *b)
 {
-	return (b[0]<<24) | (b[1]<<16) | (b[2]<<8) | b[3];
+	return ((u32int)b[0]<<24) | (b[1]<<16) | (b[2]<<8) | b[3];
 }
 
 u64int

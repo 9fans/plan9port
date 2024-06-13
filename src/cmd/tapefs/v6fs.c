@@ -171,7 +171,7 @@ iget(int ino)
 	f.uid = dp->uid;
 	f.gid = dp->gid;
 	f.mdate = (dp->mtime[2]<<0) + (dp->mtime[3]<<8)
-	     +(dp->mtime[0]<<16) + (dp->mtime[1]<<24);
+	     +(dp->mtime[0]<<16) + ((u32int)dp->mtime[1]<<24);
 	return f;
 }
 

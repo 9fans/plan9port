@@ -331,7 +331,7 @@ p9response(char *pw, uchar *chal, uchar *resp)
 		werrstr("can't encrypt response");
 		return -1;
 	}
-	x = (buf[0]<<24)+(buf[1]<<16)+(buf[2]<<8)+buf[3];
+	x = ((ulong)buf[0]<<24)+(buf[1]<<16)+(buf[2]<<8)+buf[3];
 	return snprint((char*)resp, MAXRESP, "%.8lux", x);
 }
 
