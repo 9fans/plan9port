@@ -63,7 +63,6 @@ saverequest(want)
 }   /* End of saverequest */
 
 /*****************************************************************************/
-extern	void	dumprequest();
 
 void
 writerequest(page, fp_out)
