@@ -631,12 +631,17 @@ rpc_resizewindow(Client *c, Rectangle r)
 	b = [NSEvent pressedMouseButtons];
 	b = (b&~6) | (b&4)>>1 | (b&2)<<1;
 	if(b){
+		int x;
+		x = 0;
 		if(m & ~omod & NSEventModifierFlagControl)
-			b |= 1;
+			x = 1;
 		if(m & ~omod & NSEventModifierFlagOption)
-			b |= 2;
+			x = 2;
 		if(m & ~omod & NSEventModifierFlagCommand)
-			b |= 4;
+			x = 4;
+		if(m & NSEventModifierFlagShift)
+			x <<= 5;
+		b |= x;
 		[self sendmouse:b];
 	}else if(m & ~omod & NSEventModifierFlagOption)
 		gfx_keystroke(self.client, Kalt);
@@ -701,6 +706,8 @@ rpc_resizewindow(Client *c, Rectangle r)
 		}else
 		if(m & NSEventModifierFlagCommand)
 			b = 4;
+		if(m & NSEventModifierFlagShift)
+			b <<= 5;
 	}
 	[self sendmouse:b];
 }

@@ -29,7 +29,7 @@ conventionally
 When programs need to access files in the tree,
 they expect the
 .B $PLAN9
-environment variable 
+environment variable
 to contain the name of the root of the tree.
 See
 .MR install (1)
@@ -57,7 +57,7 @@ expect Plan 9 regular expressions
 (see
 .MR regexp (7) ),
 which are closest to what Unix calls extended regular expressions.
-Because of these differences, it is not recommended to put 
+Because of these differences, it is not recommended to put
 .B $PLAN9/bin
 before the usual system
 .B bin
@@ -99,6 +99,11 @@ The argument is one of
 \fL'\fIxmin ymin xmax ymax\fL'\fR,
 \fRor
 \fIxmin\fL,\fIymin\fL,\fIxmax\fL,\fIymax\fR.
+See
+.MR devdraw (1)
+and
+.MR keyboard (7)
+for details about typing and clicking in graphical applications.
 .PP
 The
 .MR plumber (4)
@@ -135,7 +140,7 @@ is an experimental client for acme.
 Some programs rely on large databases that would be
 cumbersome to include in every release.
 Scripts are provided that download these databases separately.
-These databases can be downloaded separately.  
+These databases can be downloaded separately.
 See
 .B $PLAN9/dict/README
 and
@@ -148,7 +153,7 @@ and
 (see
 .MR 9c (1) )
 provide a simple interface to the underlying system compiler and linker,
-similar to the 
+similar to the
 .I 2c
 and
 .I 2l
@@ -201,7 +206,7 @@ cannot)
 and dump data structures,
 but that it is the extent to which they have been developed and exercised.
 .SS Porting programs
-The vast majority of the familiar Plan 9 programs 
+The vast majority of the familiar Plan 9 programs
 have been ported, including the Unicode-aware
 .MR troff (1) .
 .PP
@@ -222,7 +227,7 @@ is in progress; see
 .SS Porting to new systems
 Porting the tree to new operating systems or architectures
 should be straightforward, as system-specific code has been
-kept to a minimum.  
+kept to a minimum.
 The largest pieces of system-specific code are
 .BR <u.h> ,
 which must include the right system files and
@@ -231,7 +236,7 @@ and
 .IR libthread ,
 which must implement spin locks, operating system thread
 creation, and context switching routines.
-Portable implementations of these using 
+Portable implementations of these using
 .B <pthread.h>
 and
 .B <ucontext.h>
@@ -259,7 +264,7 @@ so that the Unix
 utility can handle it.
 Some systems, for example Debian Linux,
 deduce the man page locations from the search path, so that
-adding 
+adding
 .B $PLAN9/bin
 to your path is sufficient to cause
 .B $PLAN9/man
