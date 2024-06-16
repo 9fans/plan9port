@@ -712,7 +712,6 @@ expandfile(Text *t, uint q0, uint q1, Expand *e, int reverse)
 	}
 
   Isfile:
-  print("isfile reverse=%d colon=%d q0=%d\n", reverse, colon, q0);
 	e->name = r;
 	e->nname = nname;
 	e->u.at = t;
