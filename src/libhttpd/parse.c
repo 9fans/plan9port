@@ -239,7 +239,7 @@ hparseheaders(HConnect *c, int timeout)
 }
 
 /*
- * mimeparams	: | mimeparams ";" mimepara
+ * mimeparams	: | mimeparams ";" mimeparam
  * mimeparam	: token "=" token | token "=" qstring
  */
 static HSPairs*
