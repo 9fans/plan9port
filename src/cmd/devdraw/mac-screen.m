@@ -639,9 +639,9 @@ rpc_resizewindow(Client *c, Rectangle r)
 			x = 2;
 		if(m & ~omod & NSEventModifierFlagCommand)
 			x = 4;
-		if(m & NSEventModifierFlagShift)
-			x <<= 5;
 		b |= x;
+		if(m & NSEventModifierFlagShift)
+			b <<= 5;
 		[self sendmouse:b];
 	}else if(m & ~omod & NSEventModifierFlagOption)
 		gfx_keystroke(self.client, Kalt);
@@ -698,17 +698,17 @@ rpc_resizewindow(Client *c, Rectangle r)
 	b = b&~6 | (b&4)>>1 | (b&2)<<1;
 	b = mouseswap(b);
 
+	m = [e modifierFlags];
 	if(b == 1){
-		m = [e modifierFlags];
 		if(m & NSEventModifierFlagOption){
 			gfx_abortcompose(self.client);
 			b = 2;
 		}else
 		if(m & NSEventModifierFlagCommand)
 			b = 4;
-		if(m & NSEventModifierFlagShift)
-			b <<= 5;
 	}
+	if(m & NSEventModifierFlagShift)
+		b <<= 5;
 	[self sendmouse:b];
 }
 
