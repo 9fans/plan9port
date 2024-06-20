@@ -1,6 +1,7 @@
 #include "common.h"
 #include <thread.h>
 #include <9pclient.h>
+#include <9pdefs.h>
 #include <ctype.h>
 
 enum
@@ -806,7 +807,7 @@ printinreplyto(Biobuf *out, char *dir)
 		return -1;
 	s = s_copy(dir+5);
 	s_append(s, "/messageid");
-	fd = fsopenfd(mailfs, s_to_c(s), OREAD);
+	fd = fsopenfd(mailfs, s_to_c(s), OREAD_9P);
 	s_free(s);
 	if(fd < 0)
 		return -1;
@@ -841,7 +842,7 @@ mkattach(char *file, char *type, int inline)
 
 	if(file == nil)
 		return nil;
-	if((fd = mopen(file, OREAD)) < 0)
+	if((fd = mopen(file, OREAD_9P)) < 0)
 		return nil;
 	a = emalloc(sizeof(*a));
 	a->fd = fd;
@@ -891,7 +892,7 @@ mkattach(char *file, char *type, int inline)
 	if(pipe(pfd) < 0)
 		return a;
 
-	xfd[0] = mopen(file, OREAD);
+	xfd[0] = mopen(file, OREAD_9P);
 	xfd[1] = pfd[0];
 	xfd[2] = dup(2, -1);
 	if((pid=threadspawnl(xfd, unsharp("#9/bin/file"), "file", "-m", nil)) < 0){

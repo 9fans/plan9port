@@ -4,6 +4,7 @@
 #include <regexp.h>
 #include <thread.h>
 #include <fcall.h>
+#include <9pdefs.h>
 #include <plumb.h>
 #include "plumber.h"
 
@@ -698,32 +699,32 @@ fsysopen(Fcall *t, uchar *buf, Fid *f)
 	int m, clearrules, mode;
 
 	clearrules = 0;
-	if(t->mode & OTRUNC){
+	if(t->mode & OTRUNC_9P){
 		if(f->qid.path != Qrules)
 			goto Deny;
 		clearrules = 1;
 	}
 	/* can't truncate anything, so just disregard */
-	mode = t->mode & ~(OTRUNC|OCEXEC);
+	mode = t->mode & ~(OTRUNC_9P|OCEXEC_9P);
 	/* can't execute or remove anything */
-	if(mode==OEXEC || (mode&ORCLOSE))
+	if(mode==OEXEC_9P || (mode&ORCLOSE_9P))
 		goto Deny;
 	switch(mode){
 	default:
 		goto Deny;
-	case OREAD:
+	case OREAD_9P:
 		m = 0400;
 		break;
-	case OWRITE:
+	case OWRITE_9P:
 		m = 0200;
 		break;
-	case ORDWR:
+	case ORDWR_9P:
 		m = 0600;
 		break;
 	}
 	if(((f->dir->perm&~(DMDIR|DMAPPEND))&m) != m)
 		goto Deny;
-	if(f->qid.path==Qrules && (mode==OWRITE || mode==ORDWR)){
+	if(f->qid.path==Qrules && (mode==OWRITE_9P || mode==ORDWR_9P)){
 		lock(&rulesref.lk);
 		if(rulesref.ref++ != 0){
 			rulesref.ref--;
@@ -937,7 +938,7 @@ fsysclunk(Fcall *t, uchar *buf, Fid *f)
 	if(f->open){
 		d = f->dir;
 		d->nopen--;
-		if(d->qid==Qrules && (f->mode==OWRITE || f->mode==ORDWR)){
+		if(d->qid==Qrules && (f->mode==OWRITE_9P || f->mode==ORDWR_9P)){
 			/*
 			 * just to be sure last rule is parsed; error messages will be lost, though,
 			 * unless last write ended with a blank line

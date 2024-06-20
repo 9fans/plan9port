@@ -1,3 +1,4 @@
+#include <9defs.h>
 #include "a.h"
 
 enum
@@ -1414,7 +1415,7 @@ xopen(Req *r)
 {
 	SmugFid *sf;
 
-	if((r->ifcall.mode&~OTRUNC) > 2){
+	if((r->ifcall.mode&~OTRUNC_9P) > 2){
 		respond(r, "permission denied");
 		return;
 	}
@@ -1432,7 +1433,7 @@ xopen(Req *r)
 		break;
 
 	case Quploadfile:
-		if(r->ifcall.mode != OREAD){
+		if(r->ifcall.mode != OREAD_9P){
 			lock(&sf->upload->lk);
 			if(sf->upload->ready){
 				unlock(&sf->upload->lk);
@@ -1446,7 +1447,7 @@ xopen(Req *r)
 		break;
 
 	default:
-		if(r->ifcall.mode != OREAD){
+		if(r->ifcall.mode != OREAD_9P){
 			respond(r, "permission denied");
 			return;
 		}
