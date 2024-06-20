@@ -670,6 +670,7 @@ texttype(Text *t, Rune r)
 	uint q0, q1;
 	int nnb, nb, n, i;
 	int nr;
+	Rune rr;
 	Rune *rp;
 	Text *u;
 
@@ -895,10 +896,10 @@ texttype(Text *t, Rune r)
 			nr = 0;
 			rp[nr++] = r;
 			for(i=0; i<nnb; i++){
-				r = textreadc(t, t->q0-nnb+i);
-				if(r != ' ' && r != '\t')
+				rr = textreadc(t, t->q0-nnb+i);
+				if(rr != ' ' && rr != '\t')
 					break;
-				rp[nr++] = r;
+				rp[nr++] = rr;
 			}
 		}
 		break; /* fall through to normal code */
