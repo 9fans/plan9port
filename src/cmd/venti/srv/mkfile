@@ -31,6 +31,7 @@ LIBOFILES=\
 	syncarena.$O\
 	syncindex0.$O\
 	trace.$O\
+	trie.$O\
 	unwhack.$O\
 	utils.$O\
 	unittoull.$O\
@@ -51,7 +52,9 @@ HFILES=	dat.h\
 
 TARG=\
 	venti\
+	mventi\
 	buildindex\
+	buildtrie\
 	checkarenas\
 	checkindex\
 	clumpstats\
@@ -88,6 +91,8 @@ $SLIB: $LIBOFILES
 
 acid:D: lumpcache.acid
 	cat $prereq >$target
+
+o.sortarena: sortarena.o trie.o
 
 $O.conf:DQ: conf.rc
 	{
