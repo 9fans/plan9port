@@ -67,6 +67,12 @@ char	*rflush(Fid*), *rversion(Fid*),
 
 char 	*(*fcalls[Tmax])(Fid*);
 
+int
+threadmaybackground(void)
+{
+	return 1;
+}
+
 void
 initfcalls(void)
 {

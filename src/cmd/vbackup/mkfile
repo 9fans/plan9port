@@ -26,3 +26,4 @@ $O.vbackup: vbackup.$O queue.$O
 $O.vmount0: vmount0.$O mount-$SYSNAME.$O
 $O.vnfs: nfs3srv.$O
 
+$O.ggatev: ggatev.$O ggate.$O

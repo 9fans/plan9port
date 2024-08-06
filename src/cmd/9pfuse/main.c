@@ -745,7 +745,7 @@ fusecreate(FuseMsg *m)
 		return;
 	}
 	name = (char*)(in+1);
-	if((fid = _fusecreate(m->hdr->nodeid, name, in->mode, 0, openmode, &out.e, &err)) == nil){
+	if((fid = _fusecreate(m->hdr->nodeid, name, /*in->mode*/0, 0, openmode, &out.e, &err)) == nil){
 		replyfuseerrno(m, err);
 		return;
 	}

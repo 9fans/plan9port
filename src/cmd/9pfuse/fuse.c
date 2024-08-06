@@ -432,8 +432,10 @@ fusefmt(Fmt *fmt)
 			case FUSE_OPEN: {
 				struct fuse_open_in *tx = a;
 				/* Should one or both of flags and mode be octal? */
-				fmtprint(fmt, "Open nodeid %#llux flags %#ux mode %#ux",
-					hdr->nodeid, tx->flags, tx->mode);
+				fmtprint(fmt, "Open nodeid %#llux flags %#ux",
+					hdr->nodeid, tx->flags);
+//				fmtprint(fmt, "Open nodeid %#llux flags %#ux mode %#ux",
+//					hdr->nodeid, tx->flags, tx->mode);
 				break;
 			}
 			case FUSE_READ: {
@@ -491,8 +493,10 @@ fusefmt(Fmt *fmt)
 			}
 			case FUSE_FLUSH: {
 				struct fuse_flush_in *tx = a;
-				fmtprint(fmt, "Flush nodeid %#llux fh %#llux flags %#ux",
-					hdr->nodeid, tx->fh, tx->flush_flags);
+				fmtprint(fmt, "Flush nodeid %#llux fh %#llux",
+					hdr->nodeid, tx->fh);
+//				fmtprint(fmt, "Flush nodeid %#llux fh %#llux flags %#ux",
+//					hdr->nodeid, tx->fh, tx->flush_flags);
 				break;
 			}
 			case FUSE_INIT: {
@@ -503,8 +507,10 @@ fusefmt(Fmt *fmt)
 			}
 			case FUSE_OPENDIR: {
 				struct fuse_open_in *tx = a;
-				fmtprint(fmt, "Opendir nodeid %#llux flags %#ux mode %#ux",
-					hdr->nodeid, tx->flags, tx->mode);
+				fmtprint(fmt, "Opendir nodeid %#llux flags %#ux",
+					hdr->nodeid, tx->flags);
+//				fmtprint(fmt, "Opendir nodeid %#llux flags %#ux mode %#ux",
+//					hdr->nodeid, tx->flags, tx->mode);
 				break;
 			}
 			case FUSE_READDIR: {
@@ -533,8 +539,10 @@ fusefmt(Fmt *fmt)
 			}
 			case FUSE_CREATE: {
 				struct fuse_open_in *tx = a;
-				fmtprint(fmt, "Create nodeid %#llx flags %#ux mode %#ux name %#q",
-					hdr->nodeid, tx->flags, tx->mode, tx+1);
+				fmtprint(fmt, "Create nodeid %#llx flags %#ux name %#q",
+					hdr->nodeid, tx->flags, tx+1);
+//				fmtprint(fmt, "Create nodeid %#llx flags %#ux mode %#ux name %#q",
+//					hdr->nodeid, tx->flags, tx->mode, tx+1);
 				break;
 			}
 		}
